@@ -1,0 +1,60 @@
+﻿  stdafx.cpp
+c:\program files (x86)\microsoft visual studio 14.0\vc\atlmfc\include\afx.h(38): warning C4996: 'MBCS_Support_Deprecated_In_MFC': MBCS support in MFC is deprecated and may be removed in a future version of MFC.
+  c:\program files (x86)\microsoft visual studio 14.0\vc\atlmfc\include\afx.h(33): note: see declaration of 'MBCS_Support_Deprecated_In_MFC'
+  winProcScripts.cpp
+c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\winprocscripts.cpp(20): fatal error C1083: Cannot open include file: 'boost/lexical_cast.hpp': No such file or directory
+  winProcMain.cpp
+c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\winprocmain.cpp(11): fatal error C1083: Cannot open include file: 'boost/lexical_cast.hpp': No such file or directory
+  systemAbortCheck.cpp
+  selectInCombo.cpp
+  ScriptWritingInstructionsDialog.cpp
+  appendText.cpp
+  saveTextFileFromEdit.cpp
+  rmWhite.cpp
+  postMyString.cpp
+  NIAWGWaitThread.cpp
+c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\niawgwaitthread.cpp(99): warning C4244: 'argument': conversion from 'float' to 'DWORD', possible loss of data
+  Cold Atoms Control Application.cpp
+c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\cold atoms control application.cpp(61): fatal error C1083: Cannot open include file: 'boost/math/common_factor.hpp': No such file or directory
+  myNIAWG.cpp
+c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\myniawg.cpp(1392): warning C4018: '<': signed/unsigned mismatch
+c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\myniawg.cpp(1525): warning C4018: '<': signed/unsigned mismatch
+c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\myniawg.cpp(1548): warning C4018: '<': signed/unsigned mismatch
+  myMath.cpp
+c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\mymath.cpp(10): fatal error C1083: Cannot open include file: 'boost/math/common_factor.hpp': No such file or directory
+  myErrorHandler.cpp
+c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\myerrorhandler.cpp(58): warning C4018: '<': signed/unsigned mismatch
+c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\myerrorhandler.cpp(65): warning C4018: '<': signed/unsigned mismatch
+  myAgilent.cpp
+c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\myagilent.cpp(10): fatal error C1083: Cannot open include file: 'boost/cast.hpp': No such file or directory
+  menuAndAcceleratorFunctions.cpp
+c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\menuandacceleratorfunctions.cpp(201): warning C4018: '<': signed/unsigned mismatch
+c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\menuandacceleratorfunctions.cpp(244): warning C4018: '<': signed/unsigned mismatch
+c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\menuandacceleratorfunctions.cpp(950): warning C4018: '<': signed/unsigned mismatch
+c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\menuandacceleratorfunctions.cpp(1434): warning C4018: '<': signed/unsigned mismatch
+  initializeScriptingWindow.cpp
+  initializeMainWindow.cpp
+c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\initializemainwindow.cpp(122): warning C4018: '<': signed/unsigned mismatch
+  getSyntaxColor.cpp
+c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\getsyntaxcolor.cpp(4): fatal error C1083: Cannot open include file: 'boost/lexical_cast.hpp': No such file or directory
+  getFileName.cpp
+  Generating Code...
+  Compiling...
+  namePromptDialogProc.cpp
+  fileManage.cpp
+c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\filemanage.cpp(132): warning C4018: '<': signed/unsigned mismatch
+c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\filemanage.cpp(439): warning C4018: '<': signed/unsigned mismatch
+c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\filemanage.cpp(818): warning C4018: '<': signed/unsigned mismatch
+c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\filemanage.cpp(850): warning C4018: '<': signed/unsigned mismatch
+c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\filemanage.cpp(869): warning C4018: '<': signed/unsigned mismatch
+c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\filemanage.cpp(897): warning C4018: '<': signed/unsigned mismatch
+  externals.cpp
+  experimentProgrammingThread.cpp
+c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\experimentprogrammingthread.cpp(14): fatal error C1083: Cannot open include file: 'boost/cast.hpp': No such file or directory
+  colorScript.cpp
+c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\colorscript.cpp(142): warning C4018: '<': signed/unsigned mismatch
+c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\colorscript.cpp(262): warning C4018: '<': signed/unsigned mismatch
+  cleanString.cpp
+  cleanSocket.cpp
+  beginningSettingsDialogProc.cpp
+  Generating Code...

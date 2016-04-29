@@ -1,0 +1,11 @@
+﻿  fileManage.cpp
+fileManage.cpp(303): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+fileManage.cpp(320): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+fileManage.cpp(338): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+fileManage.cpp(634): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+  Generating code
+  27 of 2982 functions ( 0.9%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    10 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  Cold Atoms Control Application.vcxproj -> C:\Users\Mark\OneDrive\Coding Projects\Mobile Control Application\x64\Release\Cold Atoms Control Application.exe

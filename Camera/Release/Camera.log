@@ -1,0 +1,62 @@
+﻿  cameraWndProc.cpp
+cameraWndProc.cpp(129): warning C4018: '<': signed/unsigned mismatch
+cameraWndProc.cpp(131): warning C4018: '<': signed/unsigned mismatch
+cameraWndProc.cpp(133): warning C4018: '<': signed/unsigned mismatch
+cameraWndProc.cpp(140): warning C4244: '=': conversion from 'double' to 'LONG', possible loss of data
+cameraWndProc.cpp(141): warning C4244: '=': conversion from 'double' to 'LONG', possible loss of data
+cameraWndProc.cpp(142): warning C4244: '=': conversion from 'double' to 'LONG', possible loss of data
+cameraWndProc.cpp(143): warning C4244: '=': conversion from 'double' to 'LONG', possible loss of data
+cameraWndProc.cpp(175): warning C4018: '<': signed/unsigned mismatch
+cameraWndProc.cpp(186): warning C4244: '=': conversion from 'double' to 'LONG', possible loss of data
+cameraWndProc.cpp(189): warning C4244: '+=': conversion from 'double' to 'LONG', possible loss of data
+cameraWndProc.cpp(190): warning C4244: '+=': conversion from 'double' to 'LONG', possible loss of data
+cameraWndProc.cpp(203): warning C4244: '=': conversion from 'double' to 'LONG', possible loss of data
+cameraWndProc.cpp(205): warning C4244: '+=': conversion from 'double' to 'LONG', possible loss of data
+cameraWndProc.cpp(206): warning C4244: '+=': conversion from 'double' to 'LONG', possible loss of data
+cameraWndProc.cpp(416): warning C4244: 'argument': conversion from '__int64' to 'WPARAM', possible loss of data
+cameraWndProc.cpp(592): warning C4018: '<': signed/unsigned mismatch
+cameraWndProc.cpp(611): warning C4018: '<': signed/unsigned mismatch
+cameraWndProc.cpp(627): warning C4018: '<': signed/unsigned mismatch
+cameraWndProc.cpp(935): warning C4018: '<': signed/unsigned mismatch
+cameraWndProc.cpp(947): warning C4244: '=': conversion from 'double' to 'LONG', possible loss of data
+cameraWndProc.cpp(950): warning C4244: '+=': conversion from 'double' to 'LONG', possible loss of data
+cameraWndProc.cpp(951): warning C4244: '+=': conversion from 'double' to 'LONG', possible loss of data
+cameraWndProc.cpp(964): warning C4244: '=': conversion from 'double' to 'LONG', possible loss of data
+cameraWndProc.cpp(966): warning C4244: '+=': conversion from 'double' to 'LONG', possible loss of data
+cameraWndProc.cpp(967): warning C4244: '+=': conversion from 'double' to 'LONG', possible loss of data
+cameraWndProc.cpp(971): warning C4018: '<': signed/unsigned mismatch
+cameraWndProc.cpp(1446): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+cameraWndProc.cpp(1447): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+cameraWndProc.cpp(819): warning C4101: 'exception': unreferenced local variable
+cameraWndProc.cpp(839): warning C4101: 'exception': unreferenced local variable
+cameraWndProc.cpp(859): warning C4101: 'exception': unreferenced local variable
+cameraWndProc.cpp(1044): warning C4101: 'exception': unreferenced local variable
+cameraWndProc.cpp(1149): warning C4101: 'exception': unreferenced local variable
+cameraWndProc.cpp(1308): warning C4101: 'exception': unreferenced local variable
+  myAndor.cpp
+myAndor.cpp(235): warning C4018: '<': signed/unsigned mismatch
+myAndor.cpp(251): warning C4018: '<': signed/unsigned mismatch
+myAndor.cpp(336): warning C4018: '<': signed/unsigned mismatch
+myAndor.cpp(344): warning C4018: '<': signed/unsigned mismatch
+myAndor.cpp(365): warning C4018: '<': signed/unsigned mismatch
+myAndor.cpp(664): warning C4244: '=': conversion from 'double' to 'LONG', possible loss of data
+myAndor.cpp(665): warning C4244: '=': conversion from 'double' to 'LONG', possible loss of data
+myAndor.cpp(666): warning C4244: '=': conversion from 'double' to 'LONG', possible loss of data
+myAndor.cpp(667): warning C4244: '=': conversion from 'double' to 'LONG', possible loss of data
+myAndor.cpp(510): warning C4101: 'xscale': unreferenced local variable
+myAndor.cpp(510): warning C4101: 'zscale': unreferenced local variable
+myAndor.cpp(513): warning C4101: 'imageBoxHeight': unreferenced local variable
+myAndor.cpp(513): warning C4101: 'imageBoxWidth': unreferenced local variable
+myAndor.cpp(883): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+myAndor.cpp(961): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+myAndor.cpp(962): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+myAndor.cpp(987): warning C4018: '<': signed/unsigned mismatch
+myAndor.cpp(1004): warning C4018: '<': signed/unsigned mismatch
+myAndor.cpp(1020): warning C4018: '<': signed/unsigned mismatch
+myAndor.cpp(1099): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  Generating code
+  3 of 3292 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    79 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  Camera.vcxproj -> C:\Users\Mark\OneDrive\Coding Projects\Mobile Control Application\Release\Andor Camera Control.exe

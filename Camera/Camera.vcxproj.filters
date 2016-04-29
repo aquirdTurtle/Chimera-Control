@@ -1,0 +1,199 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Constants, Externals, etc.">
+      <UniqueIdentifier>{45ebdec0-c9e8-44d5-97e0-4ac6bdbfdbfd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Code Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="appendText.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ATMCD32D.H">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cameraThread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="createIdentityPalette.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="drawDataWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fitsio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gnuplot-iostream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="initializeCameraWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="longnam.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="myPlot.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="processTimer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fonts.h">
+      <Filter>Constants, Externals, etc.</Filter>
+    </ClInclude>
+    <ClInclude Include="constants.h">
+      <Filter>Constants, Externals, etc.</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Constants, Externals, etc.</Filter>
+    </ClInclude>
+    <ClInclude Include="externals.h">
+      <Filter>Constants, Externals, etc.</Filter>
+    </ClInclude>
+    <ClInclude Include="postMyString.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="initializationUpdate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="appendColoredText.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dialogProcedures.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Constants, Externals, etc.</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Constants, Externals, etc.</Filter>
+    </ClInclude>
+    <ClInclude Include="myAndor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cameraWndProc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="reorganizeWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Control.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="reorganizeControl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="acquisitionImmutables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlottingInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DataSet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fileManage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="arbitraryPlottingThreadProcedure.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="appendText.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cameraThread.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="createIdentityPalette.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="initializeCameraWindow.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="myPlot.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="processTimer.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="externals.cpp">
+      <Filter>Constants, Externals, etc.</Filter>
+    </ClCompile>
+    <ClCompile Include="postMyString.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="initializationUpdate.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="appendColoredText.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dialogProcedures.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Constants, Externals, etc.</Filter>
+    </ClCompile>
+    <ClCompile Include="myAndor.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cameraWndProc.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="reorganizeWindow.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="reorganizeControl.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PlottingInfo.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DataSet.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fileManage.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="arbitraryPlottingThreadProcedure.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Camera.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="small.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Camera.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+</Project>

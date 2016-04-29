@@ -1,0 +1,247 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="appendText.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cleanSocket.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cleanString.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Cold Atoms Control Application.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="experimentProgrammingThread.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fileManage.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="getFileName.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="initializeMainWindow.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="initializeScriptingWindow.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="myAgilent.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="myErrorHandler.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="myMath.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="myNIAWG.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rmWhite.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="saveTextFileFromEdit.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptWritingInstructionsDialog.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="winProcMain.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="winProcScripts.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NIAWGWaitThread.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="systemAbortCheck.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="getSyntaxColor.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="colorScript.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="externals.cpp">
+      <Filter>Constants, Externals, Etc.</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Things I Don%27t Mess With %28Often%29</Filter>
+    </ClCompile>
+    <ClCompile Include="menuAndAcceleratorFunctions.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="postMyString.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="beginningSettingsDialogProc.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="namePromptDialogProc.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="selectInCombo.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="winProcMain.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="winProcScripts.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="waveformData.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Things I Don%27t Mess With %28Often%29</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Things I Don%27t Mess With %28Often%29</Filter>
+    </ClInclude>
+    <ClInclude Include="signal.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="systemAbortCheck.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptWritingInstructionsDialog.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="scriptWriteHelpProc.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="saveTextFileFromEdit.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="rmWhite.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Constants, Externals, Etc.</Filter>
+    </ClInclude>
+    <ClInclude Include="NIAWGWaitThread.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="getFileName.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="getSyntaxColor.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="initializeMainWindow.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="initializeScriptingWindow.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="myAgilent.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="myErrorHandler.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="myMath.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="myNIAWG.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="fonts.h">
+      <Filter>Constants, Externals, Etc.</Filter>
+    </ClInclude>
+    <ClInclude Include="fileManage.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="experimentThreadInputStructure.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="experimentProgrammingThread.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="colorScript.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="cleanString.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="cleanSocket.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="appendText.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="externals.h">
+      <Filter>Constants, Externals, Etc.</Filter>
+    </ClInclude>
+    <ClInclude Include="constants.h">
+      <Filter>Constants, Externals, Etc.</Filter>
+    </ClInclude>
+    <ClInclude Include="menuAndAcceleratorFunctions.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="postMyString.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="beginningSettingsDialogProc.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="namePromptDialogProc.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Control.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="selectInCombo.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Icon2.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="icon1.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="bitmap1.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="C:\Users\Regal Lab\Pictures\boseeinstein.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="Cold_Atoms_Icon.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="Atom.ico">
+      <Filter>Resources</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Code Files">
+      <UniqueIdentifier>{10c2770a-f33b-4bcd-afac-789eca0dc95d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{3bf5973f-9a02-41d7-8021-3f560be2970c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Function Headers">
+      <UniqueIdentifier>{aad9001f-cef8-4ad4-9d90-7749893370b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Constants, Externals, Etc.">
+      <UniqueIdentifier>{5e5bece6-54c9-453d-b801-9590bec99797}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Things I Don%27t Mess With %28Often%29">
+      <UniqueIdentifier>{63ce4980-10d4-45df-be5b-aa662831172a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Cold Atoms Control Application.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
