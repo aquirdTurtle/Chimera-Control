@@ -30,9 +30,8 @@ bool initializeCameraWindow(HWND cameraWindow)
 	/// CAMERA MODE
 	eCameraModeComboHandle.kineticSeriesModePos = { 0, collumnPosKin, 480, collumnPosKin + 800 };
 	eCameraModeComboHandle.continuousSingleScansModePos = eCameraModeComboHandle.accumulateModePos = eCameraModeComboHandle.kineticSeriesModePos;
-	eCameraModeComboHandle.
 	initPos = eCameraModeComboHandle.kineticSeriesModePos;
-
+	eCameraModeComboHandle.triggerModeSensitive = false;
 	eCameraModeComboHandle.hwnd = CreateWindowEx(0, "COMBOBOX", "",
 		WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,
 		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_CAMERA_MODE_COMBO, eHInst, NULL);
