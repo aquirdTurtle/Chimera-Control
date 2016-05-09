@@ -36,12 +36,13 @@ int reorganizeWindow(std::string cameraMode, HWND parentWindow)
 	reorganizeControl(eCurrentAccumulationNumDispHandle, cameraMode, parentRectangle);
 	reorganizeControl(eMinCountDispHandle, cameraMode, parentRectangle);
 	reorganizeControl(eMaxCountDispHandle, cameraMode, parentRectangle);
-	reorganizeControl(ePictureSubSeriesNumberDispHandle, cameraMode, parentRectangle);
+	reorganizeControl(eAccumulationStackNumberDispHandle, cameraMode, parentRectangle);
 	reorganizeControl(ePicturesPerExperimentDispHandle, cameraMode, parentRectangle);
 	reorganizeControl(eErrorEditHandle, cameraMode, parentRectangle);
 	reorganizeControl(eExposure1EditHandle, cameraMode, parentRectangle);
 	reorganizeControl(eExposure2EditHandle, cameraMode, parentRectangle);
 	reorganizeControl(eExposure3EditHandle, cameraMode, parentRectangle);
+	reorganizeControl(eExposure4EditHandle, cameraMode, parentRectangle);
 	reorganizeControl(eTempEditHandle, cameraMode, parentRectangle);
 	reorganizeControl(eImgLeftSideEditHandle, cameraMode, parentRectangle);
 	reorganizeControl(eImageBottomSideEditHandle, cameraMode, parentRectangle);
@@ -56,7 +57,7 @@ int reorganizeWindow(std::string cameraMode, HWND parentWindow)
 	reorganizeControl(ePixel1YEditHandle, cameraMode, parentRectangle);
 	reorganizeControl(ePixel2YEditHandle, cameraMode, parentRectangle);
 	reorganizeControl(eAtomThresholdEditHandle, cameraMode, parentRectangle);
-	reorganizeControl(ePictureSubSeriesNumberEditHandle, cameraMode, parentRectangle);
+	reorganizeControl(eAccumulationStackNumberEditHandle, cameraMode, parentRectangle);
 	reorganizeControl(ePicturesPerExperimentEditHandle, cameraMode, parentRectangle);
 	reorganizeControl(eIncDataFileOptionBoxHandle, cameraMode, parentRectangle);
 	reorganizeControl(eSetTemperatureButtonHandle, cameraMode, parentRectangle);
@@ -82,6 +83,7 @@ int reorganizeWindow(std::string cameraMode, HWND parentWindow)
 	reorganizeControl(eRunningAverageEdit, cameraMode, parentRectangle);
 	reorganizeControl(eRunningAverageDisp, cameraMode, parentRectangle);
 	reorganizeControl(eSetRunningAverageNumberToAverageButton, cameraMode, parentRectangle);
+
 	reorganizeControl(eSetPlottingFrequencyButton, cameraMode, parentRectangle);
 	reorganizeControl(ePlottingFrequencyDisp, cameraMode, parentRectangle);
 	reorganizeControl(ePlottingFrequencyEdit, cameraMode, parentRectangle);
@@ -89,8 +91,10 @@ int reorganizeWindow(std::string cameraMode, HWND parentWindow)
 	reorganizeControl(eAllPlotsText, cameraMode, parentRectangle);
 	reorganizeControl(eCurrentPlotsCombo, cameraMode, parentRectangle);
 	reorganizeControl(eCurrentPlotsText, cameraMode, parentRectangle);
+
 	reorganizeControl(eSeriesProgressBar, cameraMode, parentRectangle);
 	reorganizeControl(eSubSeriesProgressBar, cameraMode, parentRectangle);
+
 	reorganizeControl(eMaximumPictureSlider1, cameraMode, parentRectangle);
 	reorganizeControl(eMinimumPictureSlider1, cameraMode, parentRectangle);
 	reorganizeControl(eMaxSliderNumberEdit1, cameraMode, parentRectangle);
@@ -115,11 +119,12 @@ int reorganizeWindow(std::string cameraMode, HWND parentWindow)
 	reorganizeControl(eMinSliderNumberEdit4, cameraMode, parentRectangle);
 	reorganizeControl(eMinSliderText4, cameraMode, parentRectangle);
 	reorganizeControl(eMaxSliderText4, cameraMode, parentRectangle);
+	
 	reorganizeControl(eEMGainDisplay, cameraMode, parentRectangle);
 	reorganizeControl(eEMGainEdit, cameraMode, parentRectangle);
 	reorganizeControl(eEMGainText, cameraMode, parentRectangle);
 	reorganizeControl(eSetEMGain, cameraMode, parentRectangle);
-	//ePictureText ePic1Text ePic1MaxCountDisp ePic1MinCountDisp eSelectionText ePic1SelectionCountDisp
+
 	reorganizeControl(ePictureText, cameraMode, parentRectangle);
 	reorganizeControl(ePic1Text, cameraMode, parentRectangle);
 	reorganizeControl(ePic2Text, cameraMode, parentRectangle);
@@ -141,6 +146,11 @@ int reorganizeWindow(std::string cameraMode, HWND parentWindow)
 	reorganizeControl(ePic3SelectionCountDisp, cameraMode, parentRectangle);
 	reorganizeControl(ePic4SelectionCountDisp, cameraMode, parentRectangle);
 
+	reorganizeControl(eStatusText, cameraMode, parentRectangle);
+	reorganizeControl(eErrorText, cameraMode, parentRectangle);
+	reorganizeControl(eErrorClear, cameraMode, parentRectangle);
+	reorganizeControl(eEMGainEdit, cameraMode, parentRectangle);
+	
 	// resize the drawing areas
 	double widthScale = (parentRectangle.right - parentRectangle.left) / 1936.0;
 	double heightScale = (parentRectangle.bottom - parentRectangle.top) / 1056.0;

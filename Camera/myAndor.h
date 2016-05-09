@@ -18,7 +18,7 @@ namespace myAndor
 	int getStatus();
 	int startAcquisition();
 	int setAccumulationCycleTime();
-	int setNumberAccumulations();
+	int setNumberAccumulations(int kinetic);
 	
 	int setTriggerMode();
 	int setGainMode();
@@ -26,8 +26,7 @@ namespace myAndor
 	void drawDataWindow(void);
 	int writeFits(std::string fileName);
 
-	void switchCoolerOn(void);
-	void switchCoolerOff(void);
+	void changeTemperatureSetting(bool temperatureControlOff);
 
 	std::string andorErrorChecker(int errorCode);
 }

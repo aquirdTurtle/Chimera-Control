@@ -606,19 +606,6 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			variableValues[0][dummyInc] = 0;
 		}
 	}
-	/// Read Variables from files (Deprecated)
-	else if ((*inputStruct).threadVariableNames.size() != 0)
-	{
-		// ERROR
-		if (myErrorHandler(-1, "ERROR: Code entered variable file reading section. This shouldn't happen. Check for Logic Errors in the code.\r\n", ConnectSocket,
-						   verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false, true))
-		{
-			postMyString(eErrorTextMessageID, "ERROR: Code entered variable file reading section. This shouldn't happen. Check for Logic Errors in the code.\r\n");
-			PostMessage(eMainWindowHandle, eFatalErrorMessageID, 0, 0);
-			delete inputStruct;
-			return -1;
-		}
-	}
 	/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	///
 	///					Logging
@@ -833,7 +820,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	}
 	/// Variable Cleanup Before Execution
 	// check that variable files are the same length.
-	for (std::size_t varNameInc = 0; varNameInc + 1 < (*inputStruct).threadVariableNames.size(); varNameInc++)
+	for (std::size_t varNameInc = 0; varNameInc + 1 < variableValuesLengths.size(); varNameInc++)
 	{
 		if (variableValuesLengths[varNameInc] != variableValuesLengths[varNameInc + 1])
 		{

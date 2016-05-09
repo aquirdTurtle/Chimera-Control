@@ -12,7 +12,9 @@
 
 /// THINGS THAT THE USER SETS !@$#!@#$!@#$!@$!@#$!@#$!@$#!@#$!@#$@!#$!$!@#$!@#$@!$#@!#$!@#$!@$#!#$!@#$!@#$!@#$!@#$!@$#!@$#!@$#!@$#@!#$!@$#!@$#!@#$!@$#!@$#!@$#!#
 extern bool eFitsOkay;
+extern bool eRealTimePictures;
 extern fitsfile *eFitsFile;
+
 
 extern std::array<int, 4> eCurrentMaximumPictureCount;
 extern std::array<int, 4> eCurrentMinimumPictureCount;
@@ -36,7 +38,8 @@ extern int eCameraTemperatureSetting;
 extern std::vector<float> eExposureTimes;
 extern double eKineticCycleTime;
 //
-extern int ePictureSubSeriesNumber;
+extern int eCurrentAccumulationModeTotalAccumulationNumber;
+extern int eCurrentAccumulationStackNumber;
 extern int ePicturesPerStack;
 extern int eTotalNumberOfPicturesInSeries;
 extern int eNumberOfRunsToAverage;
@@ -91,7 +94,7 @@ extern int eExperimentsPerStack;
 /// !@#$!@#$@!#$!@#$!@ GLOBAL VARIABLES THAT THE CODE (ONLY THE CODE) USES !@#$!@#$!@#$!@#$!@#$!@#$!@$!@#$!@#$!@#$!@$#!@#$!@#$!@#$!@#$!@#$!@#$!@#$@!#$@!#$!@#$!@
 /// Data Analysis
 // This vector contains all of the data points for all pixels in the current picture.
-extern std::vector<long> eImageVec;
+extern std::vector<std::vector<long> > eImagesOfExperiment;
 // This vector contains all of the most recent imageVecs ^ that haven't yet been plotted.
 extern std::vector<std::vector<long> > eImageVecQueue;
 // I'm using the gnuplot program to plot, and a nice iostream header to feed commands into that program. see the iostream-gnuplot header.
@@ -108,8 +111,6 @@ extern std::array<RECT, 4> eImageDrawAreas;
 extern AndorCapabilities eCameraCapabilities;
 // Indicate if cooler is on
 extern BOOL eCooler;
-// 
-extern BOOL eData;
 //
 extern BOOL eErrorFlag;
 // Cameramodel
@@ -133,8 +134,6 @@ extern volatile int eCurrentThreadAccumulationNumber;
 // This gets set when redrawing happens to signal that I don't need to redraw my own plots.
 extern bool eRedrawFlag;
 extern bool eDataExists;
-// vector that contains truth values for checks
-extern std::vector<bool> eReadyToStart;
 
 extern int eCount1;
 extern int eCount2;
@@ -146,24 +145,31 @@ extern HINSTANCE eHInst;
 // Main Handles
 extern HWND eCameraWindowHandle;
 // Code-Edited Edit Handles (disp or text)
-extern Control eTempTextDisplayHandle, eCurrentTempDisplayHandle, eStatusEditHandle, eTriggerTextDisplayHandle, eImgLeftSideTextHandle,
+extern Control eTriggerTextDisplayHandle, eImgLeftSideTextHandle,
 			eImageBottomSideTextHandle, eImgRightSideTextHandle, eImageTopSideTextHandle, eVerticalBinningTextHandle, eHorizontalBinningTextHandle, 
-			eKineticCycleTimeTextHandle, eTotalPictureNumberTextHandle, ePixel1TextDisplay, ePixel2TextDisplay, eTempDispHandle, 
+			eKineticCycleTimeTextHandle, eTotalPictureNumberTextHandle, ePixel1TextDisplay, ePixel2TextDisplay, 
 			eImgLeftSideDispHandle, eImgRightSideDispHandle, eHorizontalBinningDispHandle, eImageBottomSideDispHandle, eImageTopSideDispHandle,
 			eVerticalBinningDispHandle,	eKineticCycleTimeDispHandle, eExperimentsPerStackDispHandle, eAtomThresholdDispHandle,
-			eCurrentAccumulationNumDispHandle, eMinCountDispHandle,	eMaxCountDispHandle, ePictureSubSeriesNumberDispHandle, 
-			ePicturesPerExperimentDispHandle, eErrorEditHandle;
+			eCurrentAccumulationNumDispHandle, eMinCountDispHandle,	eMaxCountDispHandle, eAccumulationStackNumberDispHandle, 
+			ePicturesPerExperimentDispHandle;
+// error status
+extern Control eErrorEditHandle, eErrorClear, eErrorText;
+// camera status
+extern Control eStatusEditHandle, eClearStatusButtonHandle, eStatusText;
 // User-Edited Edit Handles
-extern Control eTempEditHandle, eImgLeftSideEditHandle, eImageBottomSideEditHandle, eImgRightSideEditHandle, eImageTopSideEditHandle,
+extern Control eImgLeftSideEditHandle, eImageBottomSideEditHandle, eImgRightSideEditHandle, eImageTopSideEditHandle,
 			eVerticalBinningEditHandle, eHorizontalBinningEditHandle, eKineticCycleTimeEditHandle, eExperimentsPerStackEditHandle, ePixel1XEditHandle, 
-			ePixel2XEditHandle, ePixel1YEditHandle, ePixel2YEditHandle, eAtomThresholdEditHandle, ePictureSubSeriesNumberEditHandle, 
+			ePixel2XEditHandle, ePixel1YEditHandle, ePixel2YEditHandle, eAtomThresholdEditHandle, eAccumulationStackNumberEditHandle, 
 			ePicturesPerExperimentEditHandle;
 // Checked Box Handles
 extern Control eIncDataFileOptionBoxHandle;
 // Button Handles
-extern Control eSetTemperatureButtonHandle, eSetImageParametersButtonHandle, eSetAnalysisPixelsButtonHandle,
+extern Control eSetImageParametersButtonHandle, eSetAnalysisPixelsButtonHandle,
 			eSetKineticSeriesCycleTimeButtonHandle, eSetNumberOfExperimentsPerStackButtonHandle, eSetAtomThresholdButtonHandle, ePlotAverageCountsBoxHandle, 
-			eSetAccumulationStackNumberButtonHandle, eClearStatusButtonHandle, eSetPicturesPerExperimentButtonHandle;
+			eSetAccumulationStackNumberButtonHandle, eSetPicturesPerExperimentButtonHandle;
+// Temperature Control
+extern Control eSetTemperatureButtonHandle, eTempTextDisplayHandle, eCurrentTempDisplayHandle, eTempDispHandle, eTempEditHandle, eTempOffButton;
+
 // ComboBox Handles
 extern Control eTriggerComboHandle, eCameraModeComboHandle;
 
@@ -184,10 +190,10 @@ extern Control ePic1MaxCountDisp, ePic2MaxCountDisp, ePic3MaxCountDisp, ePic4Max
 			   ePic4MinCountDisp, ePic1SelectionCountDisp, ePic2SelectionCountDisp, ePic3SelectionCountDisp, ePic4SelectionCountDisp, ePic1Text, ePic2Text, 
 			   ePic3Text, ePic4Text, eSelectionText, ePictureText;
 // EM Gain Mode
-extern Control eSetEMGain, eEMGainText, eEMGainEdit, eEMGainDisplay;
+extern Control eSetEMGain, eEMGainText, eEMGainEdit, eEMGainDisplay, eEMGainForceChangeButton;
 
 // Ring Exposure
-extern Control eExposureTextDisplayHandle, eExposure1EditHandle, eExposure2EditHandle, eExposure3EditHandle, eSetExposureButtonHandle, eExposureDispHandle;
+extern Control eExposureTextDisplayHandle, eExposure1EditHandle, eExposure2EditHandle, eExposure3EditHandle, eExposure4EditHandle, eSetExposureButtonHandle, eExposureDispHandle;
 
 // Other win32 Objects
 extern HDC eDrawPallete;

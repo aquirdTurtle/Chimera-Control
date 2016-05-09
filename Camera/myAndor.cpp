@@ -70,7 +70,6 @@ namespace myAndor
 		}
 		if (myAndor::setImageParameters() != 0)
 		{
-			
 			return -1;
 		}
 		// Set Mode-Specific Parameters
@@ -92,6 +91,11 @@ namespace myAndor
 				eSystemIsRunning = false;
 				return -1;
 			}
+			// set this to 1.
+			if (myAndor::setNumberAccumulations(true) != 0)
+			{
+				return -1;
+			}
 		}
 		else if (eAcquisitionMode == 2)
 		{
@@ -99,7 +103,7 @@ namespace myAndor
 			{
 				return -1;
 			}
-			if (myAndor::setNumberAccumulations() != 0)
+			if (myAndor::setNumberAccumulations(false) != 0)
 			{
 				return -1;
 			}
@@ -112,9 +116,7 @@ namespace myAndor
 		{
 			return -1;
 		}
-		// Set trigger mode
-		GetWindowText(eTriggerComboHandle.hwnd, aBuffer2, 10);
-		eCurrentTriggerMode = std::string(aBuffer2);
+		// Set trigger mode.
 		if (myAndor::setTriggerMode() != 0)
 		{
 			return -1;
@@ -222,7 +224,7 @@ namespace myAndor
 		}
 
 		// set default colors and linewidths on plots
-		eCurrentAccumulationNumber = 0;
+		eCurrentAccumulationNumber = 1;
 		// Create the Mutex. This function just opens the mutex if it already exists.
 		ePlottingMutex = CreateMutexEx(0, NULL, FALSE, MUTEX_ALL_ACCESS);
 		// prepare for start of thread.
@@ -312,36 +314,46 @@ namespace myAndor
 		/// ///
 		// for only one image... (each image processed from the call from a separate windows message)
 		int size;
-		if (ANDOR_SAFEMODE)
-		{
-			eData = true;
-		}
 		// If there is no data the acquisition must have been aborted
-		if (!eData)
-		{
-			appendText("Acquisition aborted!\r\n", IDC_STATUS_EDIT);
-			return TRUE;
-		}
 		// free all allocated memory
-
+		int experimentPictureNumber;
+		if (eRealTimePictures)
+		{
+			experimentPictureNumber = 0;
+		}
+		else
+		{
+			experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerStack) % ePicturesPerExperiment);
+		}
+		if (experimentPictureNumber == 0)
+		{
+			eImagesOfExperiment.clear();
+			if (eRealTimePictures)
+			{
+				eImagesOfExperiment.resize(1);
+			}
+			else
+			{
+				eImagesOfExperiment.resize(ePicturesPerExperiment);
+			}
+		}
 		size = eImageWidth * eImageHeight;
-		eImageVec.clear();
 		std::vector<long> tempImage;
 		tempImage.resize(size);
-		eImageVec.resize(size);
+		eImagesOfExperiment[experimentPictureNumber].resize(size);
 		if (!ANDOR_SAFEMODE)
 		{
 			errMsg = myAndor::andorErrorChecker(GetOldestImage(&tempImage[0], tempImage.size()));
 			// immediately rotate
-			for (int imageVecInc = 0; imageVecInc < eImageVec.size(); imageVecInc++)
+			for (int imageVecInc = 0; imageVecInc < eImagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 			{
-				eImageVec[imageVecInc] = tempImage[((imageVecInc % eImageWidth) + 1) * eImageHeight - imageVecInc / eImageWidth - 1];
+				eImagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc % eImageWidth) + 1) * eImageHeight - imageVecInc / eImageWidth - 1];
 			}
 		}
 		else
 		{
 			errMsg = "DRV_SUCCESS";
-			for (int imageVecInc = 0; imageVecInc < eImageVec.size(); imageVecInc++)
+			for (int imageVecInc = 0; imageVecInc < eImagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 			{
 				if (imageVecInc == 5 || imageVecInc == 8)
 				{
@@ -362,9 +374,9 @@ namespace myAndor
 					// fill the image with random numbers between 0 and 500.
 					tempImage[imageVecInc] = rand() % 10 + 95;
 				}
-				for (int imageVecInc = 0; imageVecInc < eImageVec.size(); imageVecInc++)
+				for (int imageVecInc = 0; imageVecInc < eImagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 				{
-					eImageVec[imageVecInc] = tempImage[((imageVecInc % eImageWidth) + 1) * eImageHeight - imageVecInc / eImageWidth - 1];
+					eImagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc % eImageWidth) + 1) * eImageHeight - imageVecInc / eImageWidth - 1];
 				}
 			}
 		}
@@ -378,30 +390,30 @@ namespace myAndor
 		BOOL bRetValue = TRUE;
 		long maxValue = 1;
 		long minValue = 65536;
-		int selectedPixelCount;
-		if (eData != NULL && eImageVec.size() != 0)
+		if (eImagesOfExperiment[experimentPictureNumber].size() != 0)
 		{
 			//HDC hdc = GetDC(eCameraWindowHandle);
 			// Find max value and scale data to fill rect
 			for (int i = 0; i<(eImageWidth*eImageHeight); i++)
 			{
-				if (eImageVec[i] > maxValue)
+				if (eImagesOfExperiment[experimentPictureNumber][i] > maxValue)
 				{
-					maxValue = eImageVec[i];
+					maxValue = eImagesOfExperiment[experimentPictureNumber][i];
 				}
-				if (eImageVec[i] < minValue)
+				if (eImagesOfExperiment[experimentPictureNumber][i] < minValue)
 				{
-					minValue = eImageVec[i];
+					minValue = eImagesOfExperiment[experimentPictureNumber][i];
 				}
 			}
 			if (maxValue == minValue)
 			{
 				return FALSE;
 			}
-			// Rotated
-			selectedPixelCount = eImageVec[eCurrentlySelectedPixel.first + eCurrentlySelectedPixel.second * eImageWidth];
 			// update the picture
-			myAndor::drawDataWindow();
+			if (experimentPictureNumber == ePicturesPerExperiment - 1 || eRealTimePictures)
+			{
+				myAndor::drawDataWindow();
+			}
 			// Wait until eImageVecQueue is available using the mutex.
 			DWORD mutexMsg = WaitForSingleObject(ePlottingMutex, INFINITE);
 			switch (mutexMsg)
@@ -411,7 +423,7 @@ namespace myAndor
 					// Add data to the plotting queue, only if actually plotting something.
 					if (eCurrentPlotNames.size() != 0)
 					{
-						eImageVecQueue.push_back(eImageVec);
+						eImageVecQueue.push_back(eImagesOfExperiment[experimentPictureNumber]);
 					}
 					eCount1++;
 					break;
@@ -460,72 +472,80 @@ namespace myAndor
 		}
 		// % 4 at the end because there are only 4 pictures available on the screen.
 		int imageLocation = (((eCurrentAccumulationNumber - 1) % ePicturesPerStack) % ePicturesPerExperiment) % 4;
-		if (imageLocation == 0)
-		{
-			SendMessage(ePic1MaxCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(maxValue)).c_str());
-			SendMessage(ePic1MinCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(minValue)).c_str());
-			SendMessage(ePic1SelectionCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(selectedPixelCount)).c_str());
-		}
-		else if (imageLocation == 1)
-		{
-			SendMessage(ePic2MaxCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(maxValue)).c_str());
-			SendMessage(ePic2MinCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(minValue)).c_str());
-			SendMessage(ePic2SelectionCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(selectedPixelCount)).c_str());
-		}
-		else if (imageLocation == 2)
-		{
-			SendMessage(ePic3MaxCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(maxValue)).c_str());
-			SendMessage(ePic3MinCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(minValue)).c_str());
-			SendMessage(ePic3SelectionCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(selectedPixelCount)).c_str());
-		}
-		else if (imageLocation == 3)
-		{
-			SendMessage(ePic4MaxCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(maxValue)).c_str());
-			SendMessage(ePic4MinCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(minValue)).c_str());
-			SendMessage(ePic4SelectionCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(selectedPixelCount)).c_str());
-		}
 		return TRUE;
 	}
 
 	void drawDataWindow(void)
 	{
-		if (eData != NULL && eImageVec.size() != 0) 
+		if (eImagesOfExperiment.size() != 0)
 		{
-			long maxValue = 1;
-			long minValue = 65536;
-			// for all pixels...
-			for (int i = 0; i < (eImageWidth * eImageHeight); i++) 
+			for (int experimentImagesInc = 0; experimentImagesInc < eImagesOfExperiment.size(); experimentImagesInc++)
 			{
-				if (eImageVec[i] > maxValue) 
+				long maxValue = 1;
+				long minValue = 65536;
+				// for all pixels...
+				for (int i = 0; i < (eImageWidth * eImageHeight); i++)
 				{
-					maxValue = eImageVec[i];
+					if (eImagesOfExperiment[experimentImagesInc][i] > maxValue)
+					{
+						maxValue = eImagesOfExperiment[experimentImagesInc][i];
+					}
+					if (eImagesOfExperiment[experimentImagesInc][i] < minValue)
+					{
+						minValue = eImagesOfExperiment[experimentImagesInc][i];
+					}
 				}
-				if (eImageVec[i] < minValue) 
-				{
-					minValue = eImageVec[i];
-				}
-			}
 
-			HDC hDC;
-			float xscale, yscale, zscale;
-			long modrange;
-			double dTemp;
-			int imageBoxWidth, imageBoxHeight;
-			int pixelsAreaWidth;
-			int pixelsAreaHeight;
-			int dataWidth, dataHeight;
-			int i, j, iTemp;
-			HANDLE hloc;
-			PBITMAPINFO pbmi;
-			WORD argbq[NUM_PALETTE_COLORS];
-			BYTE *DataArray;
-			BOOL lvRunning = FALSE;
-
-			// if the screensaver is not running, plot data.
-			if (lvRunning == FALSE) 
-			{
+				HDC hDC;
+				float xscale, yscale, zscale;
+				long modrange;
+				double dTemp;
+				int imageBoxWidth, imageBoxHeight;
+				int pixelsAreaWidth;
+				int pixelsAreaHeight;
+				int dataWidth, dataHeight;
+				int i, j, iTemp;
+				HANDLE hloc;
+				PBITMAPINFO pbmi;
+				WORD argbq[NUM_PALETTE_COLORS];
+				BYTE *DataArray;
 				// % 4 at the end because there are only 4 pictures available on the screen.
-				int imageLocation = (((eCurrentAccumulationNumber - 1) % ePicturesPerStack) % ePicturesPerExperiment) % 4;
+				
+				int imageLocation;
+				if (eRealTimePictures)
+				{
+					imageLocation = (((eCurrentAccumulationNumber - 1) % ePicturesPerStack) % ePicturesPerExperiment) % 4;
+				}
+				else
+				{
+					imageLocation = experimentImagesInc % 4;
+				}
+				// Rotated
+				int selectedPixelCount = eImagesOfExperiment[experimentImagesInc][eCurrentlySelectedPixel.first + eCurrentlySelectedPixel.second * eImageWidth];
+				if (imageLocation == 0)
+				{
+					SendMessage(ePic1MaxCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(maxValue)).c_str());
+					SendMessage(ePic1MinCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(minValue)).c_str());
+					SendMessage(ePic1SelectionCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(selectedPixelCount)).c_str());
+				}
+				else if (imageLocation == 1)
+				{
+					SendMessage(ePic2MaxCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(maxValue)).c_str());
+					SendMessage(ePic2MinCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(minValue)).c_str());
+					SendMessage(ePic2SelectionCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(selectedPixelCount)).c_str());
+				}
+				else if (imageLocation == 2)
+				{
+					SendMessage(ePic3MaxCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(maxValue)).c_str());
+					SendMessage(ePic3MinCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(minValue)).c_str());
+					SendMessage(ePic3SelectionCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(selectedPixelCount)).c_str());
+				}
+				else if (imageLocation == 3)
+				{
+					SendMessage(ePic4MaxCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(maxValue)).c_str());
+					SendMessage(ePic4MinCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(minValue)).c_str());
+					SendMessage(ePic4SelectionCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(selectedPixelCount)).c_str());
+				}
 				hDC = GetDC(eCameraWindowHandle);
 				SelectPalette(hDC, eAppPalette[eCurrentPicturePallete[imageLocation]], TRUE);
 				RealizePalette(hDC);
@@ -553,7 +573,7 @@ namespace myAndor
 
 				yscale = (256.0f) / (float)modrange;
 
-				for (i = 0; i < NUM_PALETTE_COLORS; i++) 
+				for (i = 0; i < NUM_PALETTE_COLORS; i++)
 				{
 					argbq[i] = (WORD)i;
 				}
@@ -575,17 +595,17 @@ namespace myAndor
 				//		ms7 = std::chrono::duration_cast< std::chrono::milliseconds >(std::chrono::system_clock::now().time_since_epoch());
 				//		msdiff = ms7 - ms2;
 				//		appendText((TCHAR*)("Picture Data Setup: " + std::to_string(msdiff.count()) + "ms \n").c_str(), IDC_STATUS_EDIT);
-				for (i = 0; i < eImageHeight; i++) 
+				for (i = 0; i < eImageHeight; i++)
 				{
-					for (j = 0; j < eImageWidth; j++) 
+					for (j = 0; j < eImageWidth; j++)
 					{
 						if (eAutoscalePictures)
 						{
-							dTemp = ceil(yscale * (eImageVec[j + i * eImageWidth] - minValue));
+							dTemp = ceil(yscale * (eImagesOfExperiment[experimentImagesInc][j + i * eImageWidth] - minValue));
 						}
 						else
 						{
-							dTemp = ceil(yscale * (eImageVec[j + i * eImageWidth] - eCurrentMinimumPictureCount[imageLocation]));
+							dTemp = ceil(yscale * (eImagesOfExperiment[experimentImagesInc][j + i * eImageWidth] - eCurrentMinimumPictureCount[imageLocation]));
 						}
 						if (dTemp < 0)
 						{
@@ -611,50 +631,50 @@ namespace myAndor
 				BYTE *finalDataArray = NULL;
 				switch (eImageWidth % 4)
 				{
-					case 0: 
-					{
-						pbmi->bmiHeader.biWidth = dataWidth;
-						StretchDIBits(hDC, eImageDrawAreas[imageLocation].left, eImageDrawAreas[imageLocation].top, pixelsAreaWidth, pixelsAreaHeight, 0, 0, dataWidth,
-									  dataHeight, DataArray, (BITMAPINFO FAR*)pbmi, DIB_PAL_COLORS,
-									  SRCCOPY);
-						break;
-					}
-					case 2: 
-					{
-						// make array that is twice as long.
-						finalDataArray = (BYTE*)malloc(dataWidth * dataHeight * 2);
-						memset(finalDataArray, 255, dataWidth * dataHeight * 2);
+				case 0:
+				{
+					pbmi->bmiHeader.biWidth = dataWidth;
+					StretchDIBits(hDC, eImageDrawAreas[imageLocation].left, eImageDrawAreas[imageLocation].top, pixelsAreaWidth, pixelsAreaHeight, 0, 0, dataWidth,
+						dataHeight, DataArray, (BITMAPINFO FAR*)pbmi, DIB_PAL_COLORS,
+						SRCCOPY);
+					break;
+				}
+				case 2:
+				{
+					// make array that is twice as long.
+					finalDataArray = (BYTE*)malloc(dataWidth * dataHeight * 2);
+					memset(finalDataArray, 255, dataWidth * dataHeight * 2);
 
-						for (int dataInc = 0; dataInc < dataWidth * dataHeight; dataInc++) 
-						{
-							finalDataArray[2 * dataInc] = DataArray[dataInc];
-							finalDataArray[2 * dataInc + 1] = DataArray[dataInc];
-						}
-						pbmi->bmiHeader.biWidth = dataWidth * 2;
-						StretchDIBits(hDC, eImageDrawAreas[imageLocation].left, eImageDrawAreas[imageLocation].top, pixelsAreaWidth, pixelsAreaHeight, 0, 0, dataWidth * 2, dataHeight,
-							finalDataArray, (BITMAPINFO FAR*)pbmi, DIB_PAL_COLORS, SRCCOPY);
-						free(finalDataArray);
-						break;
-					}
-					default: 
+					for (int dataInc = 0; dataInc < dataWidth * dataHeight; dataInc++)
 					{
-						// make array that is 4X as long.
-						finalDataArray = (BYTE*)malloc(dataWidth * dataHeight * 4);
-						memset(finalDataArray, 255, dataWidth * dataHeight * 4);
-						for (int dataInc = 0; dataInc < dataWidth * dataHeight; dataInc++) 
-						{
-							int data = DataArray[dataInc];
-							finalDataArray[4 * dataInc] = data;
-							finalDataArray[4 * dataInc + 1] = data;
-							finalDataArray[4 * dataInc + 2] = data;
-							finalDataArray[4 * dataInc + 3] = data;
-						}
-						pbmi->bmiHeader.biWidth = dataWidth * 4;
-						StretchDIBits(hDC, eImageDrawAreas[imageLocation].left, eImageDrawAreas[imageLocation].top, pixelsAreaWidth, pixelsAreaHeight, 0, 0, dataWidth * 4, dataHeight,
-							finalDataArray, (BITMAPINFO FAR*)pbmi, DIB_PAL_COLORS, SRCCOPY);
-						free(finalDataArray);
-						break;
+						finalDataArray[2 * dataInc] = DataArray[dataInc];
+						finalDataArray[2 * dataInc + 1] = DataArray[dataInc];
 					}
+					pbmi->bmiHeader.biWidth = dataWidth * 2;
+					StretchDIBits(hDC, eImageDrawAreas[imageLocation].left, eImageDrawAreas[imageLocation].top, pixelsAreaWidth, pixelsAreaHeight, 0, 0, dataWidth * 2, dataHeight,
+						finalDataArray, (BITMAPINFO FAR*)pbmi, DIB_PAL_COLORS, SRCCOPY);
+					free(finalDataArray);
+					break;
+				}
+				default:
+				{
+					// make array that is 4X as long.
+					finalDataArray = (BYTE*)malloc(dataWidth * dataHeight * 4);
+					memset(finalDataArray, 255, dataWidth * dataHeight * 4);
+					for (int dataInc = 0; dataInc < dataWidth * dataHeight; dataInc++)
+					{
+						int data = DataArray[dataInc];
+						finalDataArray[4 * dataInc] = data;
+						finalDataArray[4 * dataInc + 1] = data;
+						finalDataArray[4 * dataInc + 2] = data;
+						finalDataArray[4 * dataInc + 3] = data;
+					}
+					pbmi->bmiHeader.biWidth = dataWidth * 4;
+					StretchDIBits(hDC, eImageDrawAreas[imageLocation].left, eImageDrawAreas[imageLocation].top, pixelsAreaWidth, pixelsAreaHeight, 0, 0, dataWidth * 4, dataHeight,
+						finalDataArray, (BITMAPINFO FAR*)pbmi, DIB_PAL_COLORS, SRCCOPY);
+					free(finalDataArray);
+					break;
+				}
 				}
 				free(DataArray);
 
@@ -662,9 +682,9 @@ namespace myAndor
 				RECT relevantRect = ePixelRectangles[imageLocation][eCurrentlySelectedPixel.first][eImageHeight - 1 - eCurrentlySelectedPixel.second];
 				RECT halfRect;
 				halfRect.left = relevantRect.left + 7.0 * (relevantRect.right - relevantRect.left) / 16.0;
-				halfRect.right = relevantRect.left + 9.0 * (relevantRect.right - relevantRect.left) / 8.0;
-				halfRect.top = relevantRect.top + 7.0 * (relevantRect.bottom - relevantRect.top) / 8.0;
-				halfRect.bottom = relevantRect.top + 9.0 * (relevantRect.bottom - relevantRect.top) / 8.0;
+				halfRect.right = relevantRect.left + 9.0 * (relevantRect.right - relevantRect.left) / 16.0;
+				halfRect.top = relevantRect.top + 7.0 * (relevantRect.bottom - relevantRect.top) / 16.0;
+				halfRect.bottom = relevantRect.top + 9.0 * (relevantRect.bottom - relevantRect.top) / 16.0;
 				HGDIOBJ originalBrush = SelectObject(hDC, GetStockObject(HOLLOW_BRUSH));
 				HGDIOBJ originalPen = SelectObject(hDC, GetStockObject(DC_PEN));
 				if (eCurrentPicturePallete[imageLocation] == 0 || eCurrentPicturePallete[imageLocation] == 2)
@@ -703,7 +723,7 @@ namespace myAndor
 		// check if file already exists.
 		// starting coordinates of read area of the array.
 		long fpixel[] = { 1, 1, eCurrentAccumulationNumber};
-		fits_write_pix(eFitsFile, TLONG, fpixel, eImageVec.size(), &eImageVec[0], &status);
+		fits_write_pix(eFitsFile, TLONG, fpixel, eImagesOfExperiment.size(), &eImagesOfExperiment[0], &status);
 		// print any error messages
 		if (status != 0) 
 		{
@@ -757,7 +777,6 @@ namespace myAndor
 		// Get the current temperature
 		std::string tempTemperature;
 		GetWindowText(eTempEditHandle.hwnd, (LPSTR)tempTemperature.c_str(), 4);
-		SendMessage(eTempDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)tempTemperature.c_str());
 		eCameraTemperatureSetting = std::stoi(tempTemperature);
 		if (eCameraTemperatureSetting < -60 || eCameraTemperatureSetting > 25)
 		{
@@ -768,8 +787,9 @@ namespace myAndor
 				return -1;
 			}
 		}
+		SendMessage(eTempDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)tempTemperature.c_str());
 		// Proceedure to initiate cooling
-		myAndor::switchCoolerOn();
+		myAndor::changeTemperatureSetting(false);
 		return 0;
 	}
 	int setAcquisitionMode(void)
@@ -788,10 +808,6 @@ namespace myAndor
 			appendText("ERROR: Error while setting Acquisition mode: " + errMsg + "\r\n", IDC_ERROR_EDIT);
 			return -1;
 		}
-		else
-		{
-			appendText("Set Acquisition Mode to " + std::to_string(eAcquisitionMode) + "\r\n", IDC_STATUS_EDIT);
-		}
 
 		return 0;
 	}
@@ -809,12 +825,8 @@ namespace myAndor
 		}
 		if (errMsg != "DRV_SUCCESS")
 		{
-			appendText("ERROR: Error while setting read mode: " + errMsg + "\r\n", IDC_ERROR_EDIT);
+			appendText("ERROR: Error while setting read msode: " + errMsg + "\r\n", IDC_ERROR_EDIT);
 			return -1;
-		}
-		else
-		{
-			appendText("Set Read mode to " + std::to_string(eReadMode) + "\r\n", IDC_STATUS_EDIT);
 		}
 		return 0;
 	}
@@ -823,19 +835,14 @@ namespace myAndor
 		std::string errMsg;
 		if (!ANDOR_SAFEMODE)
 		{
-			if (eExposureTimes.size() == 1)
-			{
-				errMsg = myAndor::andorErrorChecker(SetExposureTime(eExposureTimes[0]));
-			}
-			else if (eExposureTimes.size() > 0 && eExposureTimes.size() <= 16)
+			if (eExposureTimes.size() > 0 && eExposureTimes.size() <= 16)
 			{
 				errMsg = myAndor::andorErrorChecker(SetRingExposureTimes(eExposureTimes.size(), eExposureTimes.data()));
 			}
 			else
 			{
-				errMsg = "Invalid eExposureTimes.size() value.";
+				errMsg = "Invalid eExposureTimes.size() value of " + std::to_string(eExposureTimes.size()) + ".";
 			}
-			
 		}
 		else
 		{
@@ -844,7 +851,6 @@ namespace myAndor
 		if (errMsg != "DRV_SUCCESS")
 		{
 			appendText("ERROR: Exposure times error: " + errMsg + "\r\n", IDC_ERROR_EDIT);
-			eReadyToStart[0] = false;
 			return -1;
 		}
 		return 0;
@@ -870,7 +876,6 @@ namespace myAndor
 		if (errMsg != "DRV_SUCCESS")
 		{
 			appendText("Set Image Error: " + errMsg + "\r\n", IDC_ERROR_EDIT);
-			eReadyToStart[1] = false;
 			return -1;
 		}
 		return 0;
@@ -890,7 +895,6 @@ namespace myAndor
 		if (errMsg != "DRV_SUCCESS")
 		{
 			appendText("ERROR: SetKineticCycleTime Error: " + errMsg + "\r\n", IDC_ERROR_EDIT);
-			eReadyToStart[2] = false;
 			return -1;
 		}
 		return 0;
@@ -899,13 +903,11 @@ namespace myAndor
 	{
 		if (eTotalNumberOfPicturesInSeries == 0 && ePicturesPerStack != 0)
 		{
-			// all is good. The ePictureSubSeriesNumber has not been set yet.
-			eReadyToStart[3] = true;
+			// all is good. The eCurrentAccumulationStackNumber has not been set yet.
 		}
 		else if (ePicturesPerStack == 0)
 		{
 			appendText("ERROR: Scan Number Was Zero.\r\n", IDC_STATUS_EDIT);
-			eReadyToStart[3] = false;
 		}
 		else
 		{
@@ -922,11 +924,8 @@ namespace myAndor
 			if (errMsg != "DRV_SUCCESS")
 			{
 				appendText("ERROR: Set number kinetics error\r\n", IDC_STATUS_EDIT);
-				eReadyToStart[3] = false;
 				return -1;
 			}
-			appendText("Set Kinetic Series Length to " + std::to_string(eTotalNumberOfPicturesInSeries) + ".\r\n", IDC_STATUS_EDIT);
-			eReadyToStart[3] = true;
 		}
 		return 0;
 	}
@@ -954,10 +953,17 @@ namespace myAndor
 		float tempExposure, tempAccumTime, tempKineticTime;
 		float * timesArray = NULL;
 		std::string errMsg;
-
 		if (ANDOR_SAFEMODE)
 		{
-			tempExposure = eExposureTimes[0];
+			// if in safemode initialize this stuff to the values to be outputted.
+			if (eExposureTimes.size() > 0)
+			{
+				tempExposure = eExposureTimes[0];
+			}
+			else
+			{
+				tempExposure = 0;
+			}
 			tempAccumTime = eAccumulationTime;
 			tempKineticTime = eKineticCycleTime;
 		}
@@ -972,8 +978,9 @@ namespace myAndor
 		// will use the closest value (around 0.01s)
 		if (!ANDOR_SAFEMODE)
 		{
+			// get times
 			errMsg = myAndor::andorErrorChecker(GetAcquisitionTimings(&tempExposure, &tempAccumTime, &tempKineticTime));
-			if (eExposureTimes.size() > 1)
+			if (eExposureTimes.size() > 0)
 			{
 				timesArray = new float[eExposureTimes.size()];
 				errMsg = myAndor::andorErrorChecker(GetAdjustedRingExposureTimes(eExposureTimes.size(), timesArray));
@@ -981,17 +988,14 @@ namespace myAndor
 		}
 		else 
 		{
-			if (eExposureTimes.size() > 1)
+			timesArray = new float[eExposureTimes.size()];
+			for (int exposureInc = 0; exposureInc < eExposureTimes.size(); exposureInc++)
 			{
-				timesArray = new float[eExposureTimes.size()];
-				for (int exposureInc = 0; exposureInc < eExposureTimes.size(); exposureInc++)
-				{
-					timesArray[exposureInc] = eExposureTimes[exposureInc];
-				}
+				timesArray[exposureInc] = eExposureTimes[exposureInc];
 			}
 			errMsg = "DRV_SUCCESS";
 		}
-
+		// 
 		if (errMsg != "DRV_SUCCESS")
 		{
 			appendText("ERROR: GetAcquisitionTimings return error: " + errMsg + "\r\n", IDC_ERROR_EDIT);
@@ -999,7 +1003,8 @@ namespace myAndor
 		}
 		else
 		{
-			if (eExposureTimes.size() > 1)
+			// success. Set times
+			if (eExposureTimes.size() > 0)
 			{
 				for (int exposureInc = 0; exposureInc < eExposureTimes.size(); exposureInc++)
 				{
@@ -1007,24 +1012,20 @@ namespace myAndor
 				}
 				delete[] timesArray;
 			}
-			else if (eExposureTimes.size() == 1)
-			{
-				eExposureTimes[0] = tempExposure;
-			}
 			eAccumulationTime = tempAccumTime;
 			eKineticCycleTime = tempKineticTime;
-
+			/*
 			if (eExposureTimes.size() > 0)
 			{
-				appendText("Actual Times to be used by the camera:\r\nExposureTimes:" + std::to_string(eExposureTimes[0]), IDC_STATUS_EDIT);
+				//appendText("Actual Times to be used by the camera:\r\nExposureTimes:" + std::to_string(eExposureTimes[0]), IDC_STATUS_EDIT);
 				for (int exposureInc = 1; exposureInc < eExposureTimes.size(); exposureInc++)
 				{
 					appendText(" -> " + std::to_string(eExposureTimes[exposureInc]), IDC_STATUS_EDIT);
 				}
 				appendText("\r\n", IDC_STATUS_EDIT);
 			}
-			
-			appendText("; Accumulation Time: " + std::to_string(eAccumulationTime) + "; Kinetic Cycle Time:" + std::to_string(eKineticCycleTime) + "\r\n", IDC_STATUS_EDIT);
+			//appendText("; Accumulation Time: " + std::to_string(eAccumulationTime) + "; Kinetic Cycle Time:" + std::to_string(eKineticCycleTime) + "\r\n", IDC_STATUS_EDIT);
+			*/
 		}
 		return 0;
 	}
@@ -1067,10 +1068,6 @@ namespace myAndor
 			errMsg = "DRV_SUCCESS";
 		}
 
-		if (eCurrentTriggerMode == "External")
-		{
-			appendText("Waiting for External Trigger...\r\n", IDC_STATUS_EDIT);
-		}
 		if (errMsg != "DRV_SUCCESS")
 		{
 			appendText("ERROR: Start acquisition error: " + errMsg + "\r\n", IDC_ERROR_EDIT);
@@ -1087,7 +1084,6 @@ namespace myAndor
 				appendText("ERROR: Abort Acquisition Error: " + errMsg + "\r\n", IDC_ERROR_EDIT);
 				return -1;
 			}
-			eData = FALSE;
 		}
 		return 0;
 	}
@@ -1104,12 +1100,20 @@ namespace myAndor
 		}
 		return 0;
 	}
-	int setNumberAccumulations()
+	int setNumberAccumulations(int kinetic)
 	{
 		std::string errMsg;
 		if (!ANDOR_SAFEMODE)
 		{
-			errMsg = myAndor::andorErrorChecker(SetNumberAccumulations(eCurrentAccumulationNumber));
+			if (kinetic)
+			{
+				// right now, kinetic series mode always has one accumulation. could add this feature later if desired.
+				errMsg = myAndor::andorErrorChecker(SetNumberAccumulations(1));
+			}
+			else
+			{
+				errMsg = myAndor::andorErrorChecker(SetNumberAccumulations(eCurrentAccumulationModeTotalAccumulationNumber));
+			}
 		}
 		else
 		{
@@ -1140,8 +1144,6 @@ namespace myAndor
 					appendText("ERROR: GetNumberPreAmpGains() returned error: " + errorMessage + "\r\n", IDC_ERROR_EDIT);
 					return -1;
 				}
-				//
-				// TODO: Check to make sure setting this to zero is the maximum;
 				errorMessage = myAndor::andorErrorChecker(SetPreAmpGain(2));
 				if (errorMessage != "DRV_SUCCESS")
 				{
@@ -1149,16 +1151,12 @@ namespace myAndor
 					return -1;
 				}
 				float myGain;
-				
 				errorMessage = myAndor::andorErrorChecker(GetPreAmpGain(2, &myGain));
 				if (errorMessage != "DRV_SUCCESS")
 				{
 					appendText("ERROR: GetPreAmpGain() returned error: " + errorMessage + "\r\n", IDC_ERROR_EDIT);
 					return -1;
 				}
-				//MessageBox(0, ("number available = " + std::to_string(numGain) + ", gain = " + std::to_string(myGain)).c_str(), 0, 0);
-
-				//
 				errorMessage = myAndor::andorErrorChecker(SetOutputAmplifier(1));
 				if (errorMessage != "DRV_SUCCESS")
 				{
@@ -1201,7 +1199,7 @@ namespace myAndor
 	}
 	///
 
-	void switchCoolerOn()
+	void changeTemperatureSetting(bool temperatureControlOff)
 	{
 		char aBuffer[256];
 		int minimumAllowedTemp, maximumAllowedTemp;
@@ -1236,57 +1234,59 @@ namespace myAndor
 				// if it is in range, switch on cooler and set temp
 				if (!ANDOR_SAFEMODE)
 				{
-					errMsg = myAndor::andorErrorChecker(CoolerON());
+					if (temperatureControlOff == false)
+					{
+						errMsg = myAndor::andorErrorChecker(CoolerON());
+					}
+					else
+					{
+						errMsg = myAndor::andorErrorChecker(CoolerOFF());
+						if (errMsg != "DRV_SUCCESS")
+						{
+							appendText("ERROR: failed to turn temperature control off: " + errMsg + "\r\n", IDC_ERROR_EDIT);
+						}
+					}
 				}
 				else
 				{
 					errMsg = "DRV_SUCCESS";
 				}
+				// 
 				if (errMsg != "DRV_SUCCESS")
 				{
-					appendText("ERROR: Could not switch cooler on: " + errMsg + "\r\n", IDC_ERROR_EDIT);
+					appendText("ERROR: Could not switch cooler on/temperatureControlOff: " + errMsg + "\r\n", IDC_ERROR_EDIT);
 				}
 				else
 				{
 					eCooler = TRUE;
 					SetTimer(eCameraWindowHandle, ID_TEMPERATURE_TIMER, 1000, NULL);
-					if (!ANDOR_SAFEMODE)
+
+					if (temperatureControlOff == false)
 					{
-						errMsg = myAndor::andorErrorChecker(SetTemperature(eCameraTemperatureSetting));
+						if (!ANDOR_SAFEMODE)
+						{
+							errMsg = myAndor::andorErrorChecker(SetTemperature(eCameraTemperatureSetting));
+						}
+						else
+						{
+							errMsg == "DRV_SUCCESS";
+						}
+
+						if (errMsg != "DRV_SUCCESS")
+						{
+							appendText("ERROR: Could not set temperature: " + errMsg + "\r\n", IDC_ERROR_EDIT);
+						}
+						else
+						{
+							appendText("Temperature has been set to " + std::to_string(eCameraTemperatureSetting) + " (C)\r\n", IDC_STATUS_EDIT);
+						}
 					}
 					else
 					{
-						errMsg = "DRV_SUCCESS";
-					}
-					if (errMsg != "DRV_SUCCESS")
-					{
-						appendText("ERROR: Could not set temperature: " + errMsg + "\r\n", IDC_ERROR_EDIT);
-					}
-					else
-					{
-						appendText("Temperature has been set to " + std::to_string(eCameraTemperatureSetting) + " (C)\r\n", IDC_STATUS_EDIT);
+						appendText("Temperature Control has been turned off.\r\n", IDC_STATUS_EDIT);
 					}
 				}
 			}
-		}
-	}
-	///
-	void switchCoolerOff()
-	{
-
-		int errorValue;
-
-		KillTimer(eCameraWindowHandle, ID_TEMPERATURE_TIMER);
-		errorValue = CoolerOFF();
-		if (errorValue != DRV_SUCCESS)
-		{
-			appendText("ERROR: Could not switch cooler off", IDC_ERROR_EDIT);
-		}
-		else
-		{
-			eCooler = FALSE;
-			appendText("Temperature control is disabled", IDC_STATUS_EDIT);
-			SendMessage(eCurrentTempDisplayHandle.hwnd, WM_SETTEXT, 0, (LPARAM)"Temperature control is disabled");
 		}
 	}
 

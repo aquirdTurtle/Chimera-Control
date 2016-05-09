@@ -10,8 +10,8 @@ struct Control
 	RECT kineticSeriesModePos;
 	RECT continuousSingleScansModePos;
 	RECT accumulateModePos;
-	// this is an extra displacement that gets added when internal trigger mode is on.
-	bool triggerModeSensitive;
+	// 0 means no change, 1 means adjust position, -1 means don't show.
+	int triggerModeSensitive = 0;
 	// a string that indicates the general font type. Exact size determined by this and size of system window.
 	std::string fontType;
 };
