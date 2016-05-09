@@ -182,8 +182,22 @@ namespace myAndor
 			int success = DeleteFile((SAVE_BASE_ADDRESS + eFinalSaveFolder + eFinalSaveName).c_str());
 			if (success == false)
 			{
-				MessageBox(0, ("ERROR: Couldn't delete old .fits file. Error code: " + std::to_string(GetLastError())).c_str(), 0, 0);
-				return -1;
+				// try closing the file via fits first.
+				fits_close_file(eFitsFile, &fitsStatus);
+				if (fitsStatus != 0)
+				{
+					std::vector<char> errMsg;
+					errMsg.resize(80);
+					fits_get_errstatus(fitsStatus, errMsg.data());
+					appendText("CFITS ERROR: " + std::to_string(errMsg.data) + "\r\n", IDC_ERROR_EDIT);
+				}
+				// try again
+				success = DeleteFile((SAVE_BASE_ADDRESS + eFinalSaveFolder + eFinalSaveName).c_str());
+				if (success == false)
+				{
+					MessageBox(0, ("ERROR: Couldn't delte old .fits file. Error code:" + std::to_string(GetLastError())).c_str(), 0, 0);
+					return -1;
+				}
 			}
 		}
 

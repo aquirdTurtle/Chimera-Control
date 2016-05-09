@@ -135,6 +135,8 @@ extern volatile int eCurrentThreadAccumulationNumber;
 extern bool eRedrawFlag;
 extern bool eDataExists;
 
+extern int eCurrentTempColor;
+
 extern int eCount1;
 extern int eCount2;
 extern int eCount3;
@@ -201,6 +203,7 @@ extern std::array<HPALETTE, 3> eAppPalette;
 
 extern HBRUSH eGreyGreenBrush;
 extern HBRUSH eDarkGreenBrush;
+extern HBRUSH eDarkRedBrush;
 // This is the mutex used to make sure the data queue doesn't get read and wrote to at the same time. 
 extern HANDLE ePlottingMutex;
 

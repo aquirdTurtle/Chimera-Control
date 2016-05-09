@@ -26,38 +26,47 @@ void processTimer(WPARAM wparam)
 				errMsg = "SAFEMODE";
 				temperature = 25;
 			}
-
+			// if not stable this won't get changed.
+			
 			if (errMsg == "DRV_TEMPERATURE_STABILIZED")
 			{
 				SendMessage(eCurrentTempDisplayHandle.hwnd, WM_SETTEXT, 0, (LPARAM)("Temperature has stabilized at " + std::to_string(temperature) + " (C)\r\n").c_str());
+				eCurrentTempColor = ID_GREEN;
 			}
 			else if (errMsg == "DRV_TEMPERATURE_NOT_REACHED")
 			{
 				SendMessage(eCurrentTempDisplayHandle.hwnd, WM_SETTEXT, 0, (LPARAM)("Current temperature is " + std::to_string(temperature) + " (C)\r\n").c_str());
+				eCurrentTempColor = ID_RED;
 			}
 			else if (errMsg == "DRV_TEMPERATURE_NOT_STABILIZED")
 			{
 				SendMessage(eCurrentTempDisplayHandle.hwnd, WM_SETTEXT, 0, (LPARAM)("Temperature of " + std::to_string(temperature) + " (C) reached but not stable.").c_str());
+				eCurrentTempColor = ID_RED;
 			}
 			else if (errMsg == "DRV_TEMPERATURE_DRIFT")
 			{
 				SendMessage(eCurrentTempDisplayHandle.hwnd, WM_SETTEXT, 0, (LPARAM)("Temperature had stabilized but has since drifted. Temperature: " + std::to_string(temperature)).c_str());
+				eCurrentTempColor = ID_RED;
 			}
 			else if (errMsg == "DRV_TEMPERATURE_OFF")
 			{
 				SendMessage(eCurrentTempDisplayHandle.hwnd, WM_SETTEXT, 0, (LPARAM)("Temperature control is off. Temperature: " + std::to_string(temperature)).c_str());
+				eCurrentTempColor = ID_RED;
 			}
 			else if (errMsg == "DRV_ACQUIRING")
 			{
 				SendMessage(eCurrentTempDisplayHandle.hwnd, WM_SETTEXT, 0, (LPARAM)("Camera is Acquiring data. Temperature: " + std::to_string(temperature)).c_str());
+				eCurrentTempColor = ID_RED;
 			}
 			else if (errMsg == "SAFEMODE")
 			{
 				SendMessage(eCurrentTempDisplayHandle.hwnd, WM_SETTEXT, 0, (LPARAM)("Application is running in ANDOR_SAFEMODE. No Temperature Data."));
+				eCurrentTempColor = ID_RED;
 			}
 			else
 			{
 				SendMessage(eCurrentTempDisplayHandle.hwnd, WM_SETTEXT, 0, (LPARAM)("Unexpected Temperature Code: " + errMsg + ". Temperature: " + std::to_string(temperature)).c_str());
+				eCurrentTempColor = ID_RED;
 			}
 		}
 	}

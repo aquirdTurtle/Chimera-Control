@@ -5,17 +5,17 @@
 #include <string>
 #include <vector>
 
-#define ANDOR_SAFEMODE false
+#define ANDOR_SAFEMODE true
 
 // Some Default Settings
 #define DEFAULT_CAMERA_TEMPERATURE 0;
 // for andor:
-const std::string SAVE_BASE_ADDRESS("E:\\share\\Data and documents\\Data repository\\");
-const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Code\\Plotting\\";
+//const std::string SAVE_BASE_ADDRESS("E:\\share\\Data and documents\\Data repository\\");
+//const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Code\\Plotting\\";
 
 // for my laptop:
-//const std::string SAVE_BASE_ADDRESS("C:\\Users\\Mark\\Documents\\");
-//const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Program Files\\Camera Control Application 2.0\\Plotting\\";
+const std::string SAVE_BASE_ADDRESS("C:\\Users\\Mark\\Documents\\");
+const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Program Files\\Camera Control Application 2.0\\Plotting\\";
 
 const std::vector<std::string> GNUPLOT_COLORS{"lt rgb \"black\"",
 											 "lt rgb \"blue\"",
@@ -193,3 +193,5 @@ const std::vector<std::string> GNUPLOT_LINETYPES{"dt 1",
 #define IDC_SET_EM_GAIN_MODE 7148
 #define IDC_ERROR_CLEAR_BUTTON 7149
 #define IDC_TEMP_OFF_BUTTON 7150
+#define ID_GREEN 7151
+#define ID_RED 7152
