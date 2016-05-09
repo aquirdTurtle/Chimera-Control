@@ -122,6 +122,8 @@ bool eRedrawFlag;
 // gets initialized to false and then is never reset.
 bool eDataExists = false;
 
+int eCurrentTempColor = ID_RED;
+
 int eCount1 = 0;
 int eCount2 = 0;
 int eCount3 = 0;
@@ -186,6 +188,7 @@ std::array<HPALETTE, 3> eAppPalette;
 
 HBRUSH eGreyGreenBrush = CreateSolidBrush(RGB(100, 110, 100));
 HBRUSH eDarkGreenBrush = CreateSolidBrush(RGB(0, 30, 0));
+HBRUSH eDarkRedBrush = CreateSolidBrush(RGB(100, 0, 0));
 
 HANDLE ePlottingMutex;
 HWND eInitializeDialogBoxHandle;

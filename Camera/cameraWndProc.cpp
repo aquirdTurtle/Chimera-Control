@@ -25,7 +25,6 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 {
 	switch(msg) 
 	{
-
 		case WM_CREATE: 
 		{
 			initializeCameraWindow(hWnd);
@@ -33,20 +32,54 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 		}
 		case WM_CTLCOLOREDIT: 
 		{
-			DWORD CtrlID = GetDlgCtrlID((HWND)lParam);
+			DWORD ctrlID = GetDlgCtrlID((HWND)lParam); // Window Control ID
 			HDC hdcStatic = (HDC)wParam;
-			SetTextColor(hdcStatic, RGB(255, 255, 255));
-			SetBkColor(hdcStatic, RGB(100, 110, 100));
-			return (INT_PTR)eGreyGreenBrush;
+			switch (ctrlID)
+			{
+				default:
+				{
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					SetBkColor(hdcStatic, RGB(100, 110, 100));
+					return (INT_PTR)eGreyGreenBrush;
+					break;
+				}
+			}
 			break;
 		}
 		case WM_CTLCOLORSTATIC: 
 		{
-			DWORD CtrlID = GetDlgCtrlID((HWND)lParam);
+			DWORD ctrlID = GetDlgCtrlID((HWND)lParam); // Window Control ID
 			HDC hdcStatic = (HDC)wParam;
-			SetTextColor(hdcStatic, RGB(255, 255, 255));
-			SetBkColor(hdcStatic, RGB(0, 30, 0));
-			return (INT_PTR)eDarkGreenBrush;
+			switch (ctrlID)
+			{
+				case IDC_CURRENT_TEMP_DISP:
+				{
+					switch (eCurrentTempColor)
+					{
+						case ID_GREEN:
+						{
+							SetTextColor(hdcStatic, RGB(255, 255, 255));
+							SetBkColor(hdcStatic, RGB(0, 30, 0));
+							return (INT_PTR)eDarkGreenBrush;
+							break;
+						}
+						case ID_RED:
+						{
+							SetTextColor(hdcStatic, RGB(255, 255, 255));
+							SetBkColor(hdcStatic, RGB(100, 0, 0));
+							return (INT_PTR)eDarkRedBrush;
+							break;
+						}
+					}
+				}
+				default:
+				{
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					SetBkColor(hdcStatic, RGB(0, 30, 0));
+					return (INT_PTR)eDarkGreenBrush;
+					break;
+				}
+			}
 			break;
 		}
 		case WM_VSCROLL:
@@ -854,6 +887,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					if (myAndor::setSystem() != 0)
 					{
 						eSystemIsRunning = false;
+						appendText("Failed to start camera aquisition.\r\n", IDC_STATUS_EDIT);
 					}
 					break;
 				}
@@ -991,7 +1025,6 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						CloseHandle(eCameraThreadHandle);
 						PostQuitMessage(0);
 					}
-					// if here, camera is too cold.
 					break;
 				}
 				case IDC_CLEAR_STATUS_BUTTON:
