@@ -10,7 +10,7 @@
 /// \\\ THINGS THAT THE USER SETS \\\ ///
 
 bool eFitsOkay;
-
+bool eRealTimePictures = false;
 fitsfile *eFitsFile;
 std::array<int, 4> eCurrentMaximumPictureCount{325, 325, 325, 325};
 std::array<int, 4> eCurrentMinimumPictureCount{95, 95, 95, 95};
@@ -20,7 +20,7 @@ std::pair<int, int> eCurrentlySelectedPixel;
 int eSelectedPixelCount;
 
 int eMinimumSliderCount = 0;
-int eMaximumSliderCount = 1000;
+int eMaximumSliderCount = 10000;
 
 bool eAutoscalePictures = false;
 bool eEMGainMode = false;
@@ -34,32 +34,17 @@ eImageWidth = (eRightImageBorder - eLeftImageBorder + 1) / eHorizontalBinning, e
 // temperature things & default value
 int eCameraTemperatureSetting = DEFAULT_CAMERA_TEMPERATURE;
 //
+int eCurrentAccumulationModeTotalAccumulationNumber;
 std::vector<float> eExposureTimes;
-double eKineticCycleTime;
-int ePictureSubSeriesNumber;
-int ePicturesPerStack;
-int eTotalNumberOfPicturesInSeries;
+double eKineticCycleTime = 0;
+int eCurrentAccumulationStackNumber = 0;
+int ePicturesPerStack = 1;
+int eTotalNumberOfPicturesInSeries = 0;
 int eNumberOfRunsToAverage = 0;
 //
 bool eIncSaveFileNameOption;
 // number of counts that a pixel has to contain in order to count as an atom.
 int eDetectionThreshold;
-/// Plotting Options
-// Plot Average Counts (first!)
-volatile bool ePlotAverageCounts;
-// Plot Atom Presence
-volatile bool ePlotAtomLoading;
-// plot a histogram of the counts seen on the pixels.
-volatile bool ePlotCountHistogram;
-
-// 
-volatile bool ePlotAtomSurvival;
-// 
-volatile bool ePlotTunneling;
-// 
-volatile bool ePlotTwoParticleLoss;
-// 
-volatile bool ePlotRunningAverageSurvival;
 
 int ePicturesPerExperiment = 1;
 bool eSystemIsRunning = false;
@@ -69,7 +54,7 @@ double eAccumulationModeAccumulationNumber;
 
 std::string eCurrentlySelectedCameraMode = "Kinetic Series Mode";
 std::string eCurrentlyRunningCameraMode;
-std::string eCurrentTriggerMode;
+std::string eCurrentTriggerMode = "External";
 
 int ePreviousPicturesPerSubSeries;
 int ePlottingFrequency = 1;
@@ -95,15 +80,12 @@ int eExperimentsPerStack = 0;
 // for my laptop
 Gnuplot ePlotter("\"C:\\Program Files (x86)\\gnuplot\\bin\\gnuplot.exe\"");
 // main image buffer read from card
-std::vector<long> eImageVec;
+std::vector<std::vector<long> > eImagesOfExperiment;
 // 
 std::vector<std::vector<long> > eImageVecQueue;
 // points data required to draw polyline (Is this still needed???)
 POINT *ePointsArray = NULL;
 /// Other
-
-// vector that contains truth values for checks. Initialize to NOT ready. Currently there are _|v|_ checks that are checked like this.
-std::vector<bool> eReadyToStart{ false, false, false, false, false, false, false, false, false, false, false, false, true };
 
 // headmodel
 char eModel[32];
@@ -128,13 +110,12 @@ AndorCapabilities eCameraCapabilities;
 
 BOOL eCooler = FALSE;
 BOOL eErrorFlag;
-BOOL eData;
 
 std::string eFinalSaveFolder;
 std::string eFinalSaveName;
 
-int eCurrentAccumulationNumber;
-volatile int eCurrentThreadAccumulationNumber;
+int eCurrentAccumulationNumber = 1;
+volatile int eCurrentThreadAccumulationNumber = 0;
 
 // This gets set when redrawing happens to signal that I don't need to redraw my own plots.
 bool eRedrawFlag;
@@ -150,27 +131,33 @@ HINSTANCE eHInst;
 // Main Handles
 HWND eCameraWindowHandle;
 // Code-Edited Edit Handles (disp or text)
-Control eTempTextDisplayHandle, eCurrentTempDisplayHandle, eStatusEditHandle, eTriggerTextDisplayHandle, eImgLeftSideTextHandle,
+Control eTriggerTextDisplayHandle, eImgLeftSideTextHandle,
 	 eImageBottomSideTextHandle, eImgRightSideTextHandle, eImageTopSideTextHandle, eVerticalBinningTextHandle, eHorizontalBinningTextHandle,
-	 eKineticCycleTimeTextHandle, eTotalPictureNumberTextHandle, ePixel1TextDisplay, ePixel2TextDisplay, eTempDispHandle,
+	 eKineticCycleTimeTextHandle, eTotalPictureNumberTextHandle, ePixel1TextDisplay, ePixel2TextDisplay,
 	 eImgLeftSideDispHandle, eImgRightSideDispHandle, eHorizontalBinningDispHandle, eImageBottomSideDispHandle, eImageTopSideDispHandle,
 	 eVerticalBinningDispHandle, ePixelsXLocationsDispHandle, ePixelsYLocationsDispHandle, ePixelXLocationsTextHandle, ePixelYLocationsTextHandle,
 	 eKineticCycleTimeDispHandle, eExperimentsPerStackDispHandle, eAtomThresholdDispHandle, eCurrentAccumulationNumDispHandle, eMinCountDispHandle,
-	 eMaxCountDispHandle, ePictureSubSeriesNumberDispHandle, ePicturesPerExperimentDispHandle;
+	 eMaxCountDispHandle, eAccumulationStackNumberDispHandle, ePicturesPerExperimentDispHandle;
 // User-Edited Edit Handles
-Control eTempEditHandle, eImgLeftSideEditHandle, eImageBottomSideEditHandle, eImgRightSideEditHandle, eImageTopSideEditHandle,
+Control eImgLeftSideEditHandle, eImageBottomSideEditHandle, eImgRightSideEditHandle, eImageTopSideEditHandle,
 	 eVerticalBinningEditHandle, eHorizontalBinningEditHandle, eKineticCycleTimeEditHandle, eExperimentsPerStackEditHandle, ePixel1XEditHandle,
 	 ePixel2XEditHandle, ePixel1YEditHandle, ePixel2YEditHandle, ePixelsXLocationsEditHandle, ePixelsYLocationsEditHandle, eAtomThresholdEditHandle,
-	 ePictureSubSeriesNumberEditHandle, ePicturesPerExperimentEditHandle, eErrorEditHandle;
+	 eAccumulationStackNumberEditHandle, ePicturesPerExperimentEditHandle;
+// Temperature Control
+Control eTempTextDisplayHandle, eCurrentTempDisplayHandle, eTempDispHandle, eTempEditHandle, eSetTemperatureButtonHandle, eTempOffButton;
+// Error Status
+Control eErrorEditHandle, eErrorClear, eErrorText;
+// Camera Status
+Control eStatusEditHandle, eClearStatusButtonHandle, eStatusText;
 // Checked Box Handles
 Control eIncDataFileOptionBoxHandle;
 // Button Handles
-Control eSetTemperatureButtonHandle, eSetImageParametersButtonHandle, eSetAnalysisPixelsButtonHandle,
+Control eSetImageParametersButtonHandle, eSetAnalysisPixelsButtonHandle,
 	 eSetKineticSeriesCycleTimeButtonHandle, eSetNumberOfExperimentsPerStackButtonHandle, eSetAtomThresholdButtonHandle, ePlotAverageCountsBoxHandle,
-	 eSetAccumulationStackNumberButtonHandle, eClearStatusButtonHandle, eSetPicturesPerExperimentButtonHandle;
+	 eSetAccumulationStackNumberButtonHandle, eSetPicturesPerExperimentButtonHandle;
 // ComboBox Handles
 Control eTriggerComboHandle, eCameraModeComboHandle;
-// temp
+// temporary
 Control eSetAccumulationTimeButton, eAccumulationTimeEdit, eAccumulationTimeDisp, eSetAccumulationNumberButton, eSetAccumulationNumberEdit,
 		eSetAccumulationNumberDisp, eSetRunningAverageNumberToAverageButton, eRunningAverageEdit, eRunningAverageDisp, eRunningAverageBox,
 		eSetPlottingFrequencyButton, ePlottingFrequencyEdit, ePlottingFrequencyDisp, eAllPlotsCombo, eAllPlotsText, eCurrentPlotsCombo, eCurrentPlotsText,
@@ -188,10 +175,10 @@ Control ePic1MaxCountDisp, ePic2MaxCountDisp, ePic3MaxCountDisp, ePic4MaxCountDi
 		ePic4MinCountDisp, ePic1SelectionCountDisp, ePic2SelectionCountDisp, ePic3SelectionCountDisp, ePic4SelectionCountDisp, ePic1Text, ePic2Text,
 		ePic3Text, ePic4Text, eSelectionText, ePictureText;
 // EM Gain
-Control eSetEMGain, eEMGainText, eEMGainEdit, eEMGainDisplay;
+Control eSetEMGain, eEMGainText, eEMGainEdit, eEMGainDisplay, eEMGainForceChangeButton;
 
 // Ring Exposure time controls
-Control eExposureTextDisplayHandle, eExposure1EditHandle, eExposure2EditHandle, eExposure3EditHandle, eSetExposureButtonHandle, eExposureDispHandle;
+Control eExposureTextDisplayHandle, eExposure1EditHandle, eExposure2EditHandle, eExposure3EditHandle, eExposure4EditHandle, eSetExposureButtonHandle, eExposureDispHandle;
 
 //
 HDC eDrawPallete;

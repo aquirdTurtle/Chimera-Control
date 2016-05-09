@@ -178,23 +178,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	appendColoredText("Opening GNUPLOT...................... ", eRichEditMessageBoxRichEditHandle, IDC_RICH_EDIT_MESSAGE_BOX_RICH_EDIT_ID, defaultCharFormat,
 		eInitializeDialogBoxHandle);
 	initializationUpdate(errorMessage, defaultCharFormat, redCharFormat, greenCharFormat);
-	//Create the event to be used by the Andor SDK library
-	//HANDLE hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-
-	//Pass the event to the SDK
-	//unsigned int errorvalue = SetDriverEvent(hEvent);
-
-	/*
-	if (errorvalue != DRV_SUCCESS) 
-	{
-	appendText("ERROR: Set Driver Event Error: " + std::to_string(errorvalue) + "\r\n", IDC_ERROR_EDIT);
-	UpdateWindow(eStatusEditHandle);
-	ExitThread(1);
-	}
-	*/
-
-	// Wait for 2 seconds to allow MCD to calibrate fully before allowing an
-	// acquisition to begin
+	// finished with the initialization dialog box.
+	ShowWindow(eInitializeDialogBoxHandle, SW_SHOW);
+	// otherwise this window ends up being highlighted weirdly.
+	SendMessage(eRichEditMessageBoxRichEditHandle, EM_SETSEL, (WPARAM)0, (LPARAM)0);
+	// Wait for 2 seconds to allow MCD to calibrate fully before allowing an acquisition to begin
 	Sleep(2000);
 
 	eCameraWindowHandle = CreateWindowEx(0, (LPCSTR)"Camera Class", (LPCSTR)"Camera Control",
@@ -202,7 +190,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		0, 0, 1680, 1010, NULL, NULL, hInstance, NULL);
 	// Show the window
 	ShowWindow(eCameraWindowHandle, SW_MAXIMIZE);
-	ShowWindow(eInitializeDialogBoxHandle, SW_SHOW);
+
 	UpdateWindow(eCameraWindowHandle);						// Sends WM_PAINT message
 	/*	while (GetMessage(&msg, NULL, 0, 0))
 	{

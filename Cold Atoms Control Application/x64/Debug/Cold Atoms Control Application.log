@@ -1,6 +1,0 @@
-﻿  fileManage.cpp
-c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\filemanage.cpp(303): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\filemanage.cpp(320): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\filemanage.cpp(338): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-c:\users\mark\onedrive\coding projects\mobile control application 3.0\cold atoms control application\filemanage.cpp(634): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-  Cold Atoms Control Application.vcxproj -> C:\Users\Mark\OneDrive\Coding Projects\Mobile Control Application 3.0\Cold Atoms Control Application\x64\Debug\Cold Atoms Control Application.exe
