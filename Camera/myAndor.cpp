@@ -1292,414 +1292,414 @@ namespace myAndor
 
 	std::string andorErrorChecker(int errorCode)
 	{
-		std::string errorMessage;
+		std::string errorMessage = "uninitialized";
 		switch (errorCode)
 		{
-		case 20001:
-		{
-			errorMessage = "DRV_ERROR_CODES";
-			break;
-		}
-		case 20002:
-		{
-			errorMessage = "DRV_SUCCESS";
-			break;
-		}
-		case 20003:
-		{
-			errorMessage = "DRV_VXDNOTINSTALLED";
-			break;
-		}
-		case 20004:
-		{
-			errorMessage = "DRV_ERROR_SCAN";
-			break;
-		}
-		case 20005:
-		{
-			errorMessage = "DRV_ERROR_CHECK_SUM";
-			break;
-		}
-		case 20006:
-		{
-			errorMessage = "DRV_ERROR_FILELOAD";
-			break;
-		}
-		case 20007:
-		{
-			errorMessage = "DRV_UNKNOWN_FUNCTION";
-			break;
-		}
-		case 20008:
-		{
-			errorMessage = "DRV_ERROR_VXD_INIT";
-			break;
-		}
-		case 20009:
-		{
-			errorMessage = "DRV_ERROR_ADDRESS";
-			break;
-		}
-		case 20010:
-		{
-			errorMessage = "DRV_ERROR_PAGELOCK";
-			break;
-		}
-		case 20011:
-		{
-			errorMessage = "DRV_ERROR_PAGE_UNLOCK";
-			break;
-		}
-		case 20012:
-		{
-			errorMessage = "DRV_ERROR_BOARDTEST";
-			break;
-		}
-		case 20013:
-		{
-			errorMessage = "DRV_ERROR_ACK";
-			break;
-		}
-		case 20014:
-		{
-			errorMessage = "DRV_ERROR_UP_FIFO";
-			break;
-		}
-		case 20015:
-		{
-			errorMessage = "DRV_ERROR_PATTERN";
-			break;
-		}
-		case 20017:
-		{
-			errorMessage = "DRV_ACQUISITION_ERRORS";
-			break;
-		}
-		case 20018:
-		{
-			errorMessage = "DRV_ACQ_BUFFER";
-			break;
-		}
-		case 20019:
-		{
-			errorMessage = "DRV_ACQ_DOWNFIFO_FULL";
-			break;
-		}
-		case 20020:
-		{
-			errorMessage = "DRV_PROC_UNKNOWN_INSTRUCTION";
-			break;
-		}
-		case 20021:
-		{
-			errorMessage = "DRV_ILLEGAL_OP_CODE";
-			break;
-		}
-		case 20022:
-		{
-			errorMessage = "DRV_KINETIC_TIME_NOT_MET";
-			break;
-		}
-		case 20023:
-		{
-			errorMessage = "DRV_KINETIC_TIME_NOT_MET";
-			break;
-		}
-		case 20024:
-		{
-			errorMessage = "DRV_NO_NEW_DATA";
-			break;
-		}
-		case 20026:
-		{
-			errorMessage = "DRV_SPOOLERROR";
-			break;
-		}
-		case 20033:
-		{
-			errorMessage = "DRV_TEMPERATURE_CODES";
-			break;
-		}
-		case 20034:
-		{
-			errorMessage = "DRV_TEMPERATURE_OFF";
-			break;
-		}
-		case 20035:
-		{
-			errorMessage = "DRV_TEMPERATURE_NOT_STABILIZED";
-			break;
-		}
-		case 20036:
-		{
-			errorMessage = "DRV_TEMPERATURE_STABILIZED";
-			break;
-		}
-		case 20037:
-		{
-			errorMessage = "DRV_TEMPERATURE_NOT_REACHED";
-			break;
-		}
-		case 20038:
-		{
-			errorMessage = "DRV_TEMPERATURE_OUT_RANGE";
-			break;
-		}
-		case 20039:
-		{
-			errorMessage = "DRV_TEMPERATURE_NOT_SUPPORTED";
-			break;
-		}
-		case 20040:
-		{
-			errorMessage = "DRV_TEMPERATURE_DRIFT";
-			break;
-		}
-		case 20049:
-		{
-			errorMessage = "DRV_GENERAL_ERRORS";
-			break;
-		}
-		case 20050:
-		{
-			errorMessage = "DRV_INVALID_AUX";
-			break;
-		}
-		case 20051:
-		{
-			errorMessage = "DRV_COF_NOTLOADED";
-			break;
-		}
-		case 20052:
-		{
-			errorMessage = "DRV_FPGAPROG";
-			break;
-		}
-		case 20053:
-		{
-			errorMessage = "DRV_FLEXERROR";
-			break;
-		}
-		case 20054:
-		{
-			errorMessage = "DRV_GPIBERROR";
-			break;
-		}
-		case 20064:
-		{
-			errorMessage = "DRV_DATATYPE";
-			break;
-		}
-		case 20065:
-		{
-			errorMessage = "DRV_DRIVER_ERRORS";
-			break;
-		}
-		case 20066:
-		{
-			errorMessage = "DRV_P1INVALID";
-			break;
-		}
-		case 20067:
-		{
-			errorMessage = "DRV_P2INVALID";
-			break;
-		}
-		case 20068:
-		{
-			errorMessage = "DRV_P3INVALID";
-			break;
-		}
-		case 20069:
-		{
-			errorMessage = "DRV_P4INVALID";
-			break;
-		}
-		case 20070:
-		{
-			errorMessage = "DRV_INIERROR";
-			break;
-		}
-		case 20071:
-		{
-			errorMessage = "DRV_COFERROR";
-			break;
-		}
-		case 20072:
-		{
-			errorMessage = "DRV_ACQUIRING";
-			break;
-		}
-		case 20073:
-		{
-			errorMessage = "DRV_IDLE";
-			break;
-		}
-		case 20074:
-		{
-			errorMessage = "DRV_TEMPCYCLE";
-			break;
-		}
-		case 20075:
-		{
-			errorMessage = "DRV_NOT_INITIALIZED";
-			break;
-		}
-		case 20076:
-		{
-			errorMessage = "DRV_P5INVALID";
-			break;
-		}
-		case 20077:
-		{
-			errorMessage = "DRV_P6INVALID";
-			break;
-		}
-		case 20078:
-		{
-			errorMessage = "DRV_INVALID_MODE";
-			break;
-		}
-		case 20079:
-		{
-			errorMessage = "DRV_INVALID_FILTER";
-			break;
-		}
-		case 20080:
-		{
-			errorMessage = "DRV_I2CERRORS";
-			break;
-		}
-		case 20081:
-		{
-			errorMessage = "DRV_DRV_ICDEVNOTFOUND";
-			break;
-		}
-		case 20082:
-		{
-			errorMessage = "DRV_I2CTIMEOUT";
-			break;
-		}
-		case 20083:
-		{
-			errorMessage = "DRV_P7INVALID";
-			break;
-		}
-		case 20089:
-		{
-			errorMessage = "DRV_USBERROR";
-			break;
-		}
-		case 20090:
-		{
-			errorMessage = "DRV_IOCERROR";
-			break;
-		}
-		case 20091:
-		{
-			errorMessage = "DRV_NOT_SUPPORTED";
-			break;
-		}
-		case 20093:
-		{
-			errorMessage = "DRV_USB_INTERRUPT_ENDPOINT_ERROR";
-			break;
-		}
-		case 20094:
-		{
-			errorMessage = "DRV_RANDOM_TRACK_ERROR";
-			break;
-		}
-		case 20095:
-		{
-			errorMessage = "DRV_INVALID_tRIGGER_MODE";
-			break;
-		}
-		case 20096:
-		{
-			errorMessage = "DRV_LOAD_FIRMWARE_ERROR";
-			break;
-		}
-		case 20097:
-		{
-			errorMessage = "DRV_DIVIDE_BY_ZERO_ERROR";
-			break;
-		}
-		case 20098:
-		{
-			errorMessage = "DRV_INVALID_RINGEXPOSURES";
-			break;
-		}
-		case 20099:
-		{
-			errorMessage = "DRV_BINNING_ERROR";
-			break;
-		}
-		case 20100:
-		{
-			errorMessage = "DRV_INVALID_AMPLIFIER";
-			break;
-		}
-		case 20115:
-		{
-			errorMessage = "DRV_ERROR_MAP";
-			break;
-		}
-		case 20116:
-		{
-			errorMessage = "DRV_ERROR_UNMAP";
-			break;
-		}
-		case 20117:
-		{
-			errorMessage = "DRV_ERROR_MDL";
-			break;
-		}
-		case 20118:
-		{
-			errorMessage = "DRV_ERROR_UNMDL";
-			break;
-		}
-		case 20119:
-		{
-			errorMessage = "DRV_ERROR_BUFSIZE";
-			break;
-		}
-		case 20121:
-		{
-			errorMessage = "DRV_ERROR_NOHANDLE";
-			break;
-		}
-		case 20130:
-		{
-			errorMessage = "DRV_GATING_NOT_AVAILABLE";
-			break;
-		}
-		case 20131:
-		{
-			errorMessage = "DRV_FPGA_VOLTAGE_ERROR";
-			break;
-		}
-		case 20990:
-		{
-			errorMessage = "DRV_ERROR_NOCAMERA";
-			break;
-		}
-		case 20991:
-		{
-			errorMessage = "DRV_NOT_SUPPORTED";
-			break;
-		}
-		case 20992:
-		{
-			errorMessage = "DRV_NOT_AVAILABLE";
-			break;
-		}
-		default:
-		{
-			errorMessage = "UNKNONW ERROR MESSAGE!";
-			break;
-		}
+			case 20001:
+			{
+				errorMessage = "DRV_ERROR_CODES";
+				break;
+			}
+			case 20002:
+			{
+				errorMessage = "DRV_SUCCESS";
+				break;
+			}
+			case 20003:
+			{
+				errorMessage = "DRV_VXDNOTINSTALLED";
+				break;
+			}
+			case 20004:
+			{
+				errorMessage = "DRV_ERROR_SCAN";
+				break;
+			}
+			case 20005:
+			{
+				errorMessage = "DRV_ERROR_CHECK_SUM";
+				break;
+			}
+			case 20006:
+			{
+				errorMessage = "DRV_ERROR_FILELOAD";
+				break;
+			}
+			case 20007:
+			{
+				errorMessage = "DRV_UNKNOWN_FUNCTION";
+				break;
+			}
+			case 20008:
+			{
+				errorMessage = "DRV_ERROR_VXD_INIT";
+				break;
+			}
+			case 20009:
+			{
+				errorMessage = "DRV_ERROR_ADDRESS";
+				break;
+			}
+			case 20010:
+			{
+				errorMessage = "DRV_ERROR_PAGELOCK";
+				break;
+			}
+			case 20011:
+			{
+				errorMessage = "DRV_ERROR_PAGE_UNLOCK";
+				break;
+			}
+			case 20012:
+			{
+				errorMessage = "DRV_ERROR_BOARDTEST";
+				break;
+			}
+			case 20013:
+			{
+				errorMessage = "DRV_ERROR_ACK";
+				break;
+			}
+			case 20014:
+			{
+				errorMessage = "DRV_ERROR_UP_FIFO";
+				break;
+			}
+			case 20015:
+			{
+				errorMessage = "DRV_ERROR_PATTERN";
+				break;
+			}
+			case 20017:
+			{
+				errorMessage = "DRV_ACQUISITION_ERRORS";
+				break;
+			}
+			case 20018:
+			{
+				errorMessage = "DRV_ACQ_BUFFER";
+				break;
+			}
+			case 20019:
+			{
+				errorMessage = "DRV_ACQ_DOWNFIFO_FULL";
+				break;
+			}
+			case 20020:
+			{
+				errorMessage = "DRV_PROC_UNKNOWN_INSTRUCTION";
+				break;
+			}
+			case 20021:
+			{
+				errorMessage = "DRV_ILLEGAL_OP_CODE";
+				break;
+			}
+			case 20022:
+			{
+				errorMessage = "DRV_KINETIC_TIME_NOT_MET";
+				break;
+			}
+			case 20023:
+			{
+				errorMessage = "DRV_KINETIC_TIME_NOT_MET";
+				break;
+			}
+			case 20024:
+			{
+				errorMessage = "DRV_NO_NEW_DATA";
+				break;
+			}
+			case 20026:
+			{
+				errorMessage = "DRV_SPOOLERROR";
+				break;
+			}
+			case 20033:
+			{
+				errorMessage = "DRV_TEMPERATURE_CODES";
+				break;
+			}
+			case 20034:
+			{
+				errorMessage = "DRV_TEMPERATURE_OFF";
+				break;
+			}
+			case 20035:
+			{
+				errorMessage = "DRV_TEMPERATURE_NOT_STABILIZED";
+				break;
+			}
+			case 20036:
+			{
+				errorMessage = "DRV_TEMPERATURE_STABILIZED";
+				break;
+			}
+			case 20037:
+			{
+				errorMessage = "DRV_TEMPERATURE_NOT_REACHED";
+				break;
+			}
+			case 20038:
+			{
+				errorMessage = "DRV_TEMPERATURE_OUT_RANGE";
+				break;
+			}
+			case 20039:
+			{
+				errorMessage = "DRV_TEMPERATURE_NOT_SUPPORTED";
+				break;
+			}
+			case 20040:
+			{
+				errorMessage = "DRV_TEMPERATURE_DRIFT";
+				break;
+			}
+			case 20049:
+			{
+				errorMessage = "DRV_GENERAL_ERRORS";
+				break;
+			}
+			case 20050:
+			{
+				errorMessage = "DRV_INVALID_AUX";
+				break;
+			}
+			case 20051:
+			{
+				errorMessage = "DRV_COF_NOTLOADED";
+				break;
+			}
+			case 20052:
+			{
+				errorMessage = "DRV_FPGAPROG";
+				break;
+			}
+			case 20053:
+			{
+				errorMessage = "DRV_FLEXERROR";
+				break;
+			}
+			case 20054:
+			{
+				errorMessage = "DRV_GPIBERROR";
+				break;
+			}
+			case 20064:
+			{
+				errorMessage = "DRV_DATATYPE";
+				break;
+			}
+			case 20065:
+			{
+				errorMessage = "DRV_DRIVER_ERRORS";
+				break;
+			}
+			case 20066:
+			{
+				errorMessage = "DRV_P1INVALID";
+				break;
+			}
+			case 20067:
+			{
+				errorMessage = "DRV_P2INVALID";
+				break;
+			}
+			case 20068:
+			{
+				errorMessage = "DRV_P3INVALID";
+				break;
+			}
+			case 20069:
+			{
+				errorMessage = "DRV_P4INVALID";
+				break;
+			}
+			case 20070:
+			{
+				errorMessage = "DRV_INIERROR";
+				break;
+			}
+			case 20071:
+			{
+				errorMessage = "DRV_COFERROR";
+				break;
+			}
+			case 20072:
+			{
+				errorMessage = "DRV_ACQUIRING";
+				break;
+			}
+			case 20073:
+			{
+				errorMessage = "DRV_IDLE";
+				break;
+			}
+			case 20074:
+			{
+				errorMessage = "DRV_TEMPCYCLE";
+				break;
+			}
+			case 20075:
+			{
+				errorMessage = "DRV_NOT_INITIALIZED";
+				break;
+			}
+			case 20076:
+			{
+				errorMessage = "DRV_P5INVALID";
+				break;
+			}
+			case 20077:
+			{
+				errorMessage = "DRV_P6INVALID";
+				break;
+			}
+			case 20078:
+			{
+				errorMessage = "DRV_INVALID_MODE";
+				break;
+			}
+			case 20079:
+			{
+				errorMessage = "DRV_INVALID_FILTER";
+				break;
+			}
+			case 20080:
+			{
+				errorMessage = "DRV_I2CERRORS";
+				break;
+			}
+			case 20081:
+			{
+				errorMessage = "DRV_DRV_ICDEVNOTFOUND";
+				break;
+			}
+			case 20082:
+			{
+				errorMessage = "DRV_I2CTIMEOUT";
+				break;
+			}
+			case 20083:
+			{
+				errorMessage = "DRV_P7INVALID";
+				break;
+			}
+			case 20089:
+			{
+				errorMessage = "DRV_USBERROR";
+				break;
+			}
+			case 20090:
+			{
+				errorMessage = "DRV_IOCERROR";
+				break;
+			}
+			case 20091:
+			{
+				errorMessage = "DRV_NOT_SUPPORTED";
+				break;
+			}
+			case 20093:
+			{
+				errorMessage = "DRV_USB_INTERRUPT_ENDPOINT_ERROR";
+				break;
+			}
+			case 20094:
+			{
+				errorMessage = "DRV_RANDOM_TRACK_ERROR";
+				break;
+			}
+			case 20095:
+			{
+				errorMessage = "DRV_INVALID_tRIGGER_MODE";
+				break;
+			}
+			case 20096:
+			{
+				errorMessage = "DRV_LOAD_FIRMWARE_ERROR";
+				break;
+			}
+			case 20097:
+			{
+				errorMessage = "DRV_DIVIDE_BY_ZERO_ERROR";
+				break;
+			}
+			case 20098:
+			{
+				errorMessage = "DRV_INVALID_RINGEXPOSURES";
+				break;
+			}
+			case 20099:
+			{
+				errorMessage = "DRV_BINNING_ERROR";
+				break;
+			}
+			case 20100:
+			{
+				errorMessage = "DRV_INVALID_AMPLIFIER";
+				break;
+			}
+			case 20115:
+			{
+				errorMessage = "DRV_ERROR_MAP";
+				break;
+			}
+			case 20116:
+			{
+				errorMessage = "DRV_ERROR_UNMAP";
+				break;
+			}
+			case 20117:
+			{
+				errorMessage = "DRV_ERROR_MDL";
+				break;
+			}
+			case 20118:
+			{
+				errorMessage = "DRV_ERROR_UNMDL";
+				break;
+			}
+			case 20119:
+			{
+				errorMessage = "DRV_ERROR_BUFSIZE";
+				break;
+			}
+			case 20121:
+			{
+				errorMessage = "DRV_ERROR_NOHANDLE";
+				break;
+			}
+			case 20130:
+			{
+				errorMessage = "DRV_GATING_NOT_AVAILABLE";
+				break;
+			}
+			case 20131:
+			{
+				errorMessage = "DRV_FPGA_VOLTAGE_ERROR";
+				break;
+			}
+			case 20990:
+			{
+				errorMessage = "DRV_ERROR_NOCAMERA";
+				break;
+			}
+			case 20991:
+			{
+				errorMessage = "DRV_NOT_SUPPORTED";
+				break;
+			}
+			case 20992:
+			{
+				errorMessage = "DRV_NOT_AVAILABLE";
+				break;
+			}
+			default:
+			{
+				errorMessage = "UNKNONW ERROR MESSAGE!";
+				break;
+			}
 		}
 		return errorMessage;
 	}

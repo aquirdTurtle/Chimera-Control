@@ -5,16 +5,16 @@
 #include <string>
 #include <vector>
 
-#define ANDOR_SAFEMODE true
+#define ANDOR_SAFEMODE false
 
 // Some Default Settings
 #define DEFAULT_CAMERA_TEMPERATURE 0;
 // for andor:
-//const std::string SAVE_BASE_ADDRESS("E:\\share\\Data and documents\\Data repository\\");
-const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Program Files\\Camera Control Application 2.0\\Plotting\\";
+const std::string SAVE_BASE_ADDRESS("E:\\share\\Data and documents\\Data repository\\");
+const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Code\\Plotting\\";
 
 // for my laptop:
-const std::string SAVE_BASE_ADDRESS("C:\\Users\\Mark\\Documents\\");
+//const std::string SAVE_BASE_ADDRESS("C:\\Users\\Mark\\Documents\\");
 //const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Program Files\\Camera Control Application 2.0\\Plotting\\";
 
 const std::vector<std::string> GNUPLOT_COLORS{"lt rgb \"black\"",

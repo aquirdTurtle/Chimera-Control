@@ -947,13 +947,15 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					std::string errMsg;
 					if (!ANDOR_SAFEMODE)
 					{
+//						int errorCode = 
+						//MessageBox(0, std::to_string(errorCode).c_str(), 0, 0);
 						errMsg = myAndor::andorErrorChecker(GetTemperature(&temperature));
-						if (errMsg != "DRV_TEMP_OFF" && errMsg != "DRV_TEMP_STABILIZED" && errMsg != "DRV_TEMP_NOT_REACHED" && errMsg != "DRV_TEMP_DRIFT"
-							&& errMsg == "DRV_TEMP_NOT_STABILIZED")
+						if (errMsg != "DRV_TEMPERATURE_OFF" && errMsg != "DRV_TEMPERATURE_STABILIZED" && errMsg != "DRV_TEMPERATURE_NOT_REACHED" && errMsg != "DRV_TEMPERATURE_DRIFT"
+							&& errMsg == "DRV_TEMPERATURE_NOT_STABILIZED")
 						{
 							appendText("Error Getting Temperature before exiting: " + errMsg + "\r\n", IDC_STATUS_EDIT);
+							break;
 						}
-						break;
 					}
 					else
 					{
