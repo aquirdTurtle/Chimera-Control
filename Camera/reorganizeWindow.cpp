@@ -10,6 +10,7 @@ int reorganizeWindow(std::string cameraMode, HWND parentWindow)
 	reorganizeControl(eExposureTextDisplayHandle, cameraMode, parentRectangle);
 	reorganizeControl(eTempTextDisplayHandle, cameraMode, parentRectangle);
 	reorganizeControl(eCurrentTempDisplayHandle, cameraMode, parentRectangle);
+	reorganizeControl(eTempOffButton, cameraMode, parentRectangle);
 	reorganizeControl(eStatusEditHandle, cameraMode, parentRectangle);
 	reorganizeControl(eTriggerTextDisplayHandle, cameraMode, parentRectangle);
 	reorganizeControl(eImgLeftSideTextHandle, cameraMode, parentRectangle);

@@ -1151,9 +1151,7 @@ bool initializeCameraWindow(HWND cameraWindow)
 		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top,
 		cameraWindow, (HMENU)IDC_SET_TEMP_BUTTON, eHInst, NULL);
 	eSetTemperatureButtonHandle.fontType = "Normal";
-
-
-
+	
 	// Temperature Edit
 	eTempEditHandle.kineticSeriesModePos = { 270, 925, 350, 950 };
 	eTempEditHandle.continuousSingleScansModePos = eTempEditHandle.accumulateModePos = eTempEditHandle.kineticSeriesModePos;
