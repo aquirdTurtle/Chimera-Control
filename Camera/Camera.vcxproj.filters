@@ -117,6 +117,12 @@
     <ClInclude Include="arbitraryPlottingThreadProcedure.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FileSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ExperimentTimer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp">
@@ -180,6 +186,12 @@
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="arbitraryPlottingThreadProcedure.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FileSystem.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ExperimentTimer.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
   </ItemGroup>

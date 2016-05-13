@@ -1,11 +1,16 @@
 #include "stdafx.h"
 #include "reorganizeWindow.h"
 #include "reorganizeControl.h"
+#include "externals.h"
 
 int reorganizeWindow(std::string cameraMode, HWND parentWindow)
 {
 	RECT parentRectangle;
 	GetWindowRect(parentWindow, &parentRectangle);
+
+	eCameraFileSystem.reorganizeControls(parentRectangle, cameraMode);
+	eCameraWindowExperimentTimer.reorganizeControls(parentRectangle, cameraMode);
+
 	/// reorganize all controls.
 	reorganizeControl(eExposureTextDisplayHandle, cameraMode, parentRectangle);
 	reorganizeControl(eTempTextDisplayHandle, cameraMode, parentRectangle);

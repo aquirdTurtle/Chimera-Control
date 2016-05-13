@@ -421,7 +421,7 @@ int PlottingInfo::savePlotInfo()
 	std::fstream saveFile(completeAddress.c_str(), std::fstream::out);
 	if (!saveFile.is_open())
 	{
-		MessageBox(0, "Couldn't open file at filename!", 0, 0);
+		MessageBox(0, ("Couldn't open file at + " + PLOT_FILES_SAVE_LOCATION + fileName + ".plot!").c_str(), 0, 0);
 		return -1;
 	}
 	std::string message;

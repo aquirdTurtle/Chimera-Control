@@ -189,7 +189,7 @@ namespace myAndor
 					std::vector<char> errMsg;
 					errMsg.resize(80);
 					fits_get_errstatus(fitsStatus, errMsg.data());
-					appendText("CFITS ERROR: " + std::to_string(errMsg.data) + "\r\n", IDC_ERROR_EDIT);
+					appendText("CFITS ERROR: " + std::string(errMsg.data()) + "\r\n", IDC_ERROR_EDIT);
 				}
 				// try again
 				success = DeleteFile((SAVE_BASE_ADDRESS + eFinalSaveFolder + eFinalSaveName).c_str());
@@ -769,6 +769,10 @@ namespace myAndor
 		{
 			trigType = 1;
 		}
+		else if (eCurrentTriggerMode == "Start On Trigger")
+		{
+			trigType = 6;
+		}
 
 		if (!ANDOR_SAFEMODE)
 		{
@@ -1028,18 +1032,6 @@ namespace myAndor
 			}
 			eAccumulationTime = tempAccumTime;
 			eKineticCycleTime = tempKineticTime;
-			/*
-			if (eExposureTimes.size() > 0)
-			{
-				//appendText("Actual Times to be used by the camera:\r\nExposureTimes:" + std::to_string(eExposureTimes[0]), IDC_STATUS_EDIT);
-				for (int exposureInc = 1; exposureInc < eExposureTimes.size(); exposureInc++)
-				{
-					appendText(" -> " + std::to_string(eExposureTimes[exposureInc]), IDC_STATUS_EDIT);
-				}
-				appendText("\r\n", IDC_STATUS_EDIT);
-			}
-			//appendText("; Accumulation Time: " + std::to_string(eAccumulationTime) + "; Kinetic Cycle Time:" + std::to_string(eKineticCycleTime) + "\r\n", IDC_STATUS_EDIT);
-			*/
 		}
 		return 0;
 	}

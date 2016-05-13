@@ -55,8 +55,7 @@ void processTimer(WPARAM wparam)
 			}
 			else if (errMsg == "DRV_ACQUIRING")
 			{
-				SendMessage(eCurrentTempDisplayHandle.hwnd, WM_SETTEXT, 0, (LPARAM)("Camera is Acquiring data. Temperature: " + std::to_string(temperature)).c_str());
-				eCurrentTempColor = ID_RED;
+				SendMessage(eCurrentTempDisplayHandle.hwnd, WM_SETTEXT, 0, (LPARAM)("Camera is Acquiring data. No Temperature updates are available."));
 			}
 			else if (errMsg == "SAFEMODE")
 			{

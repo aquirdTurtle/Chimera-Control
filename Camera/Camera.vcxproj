@@ -181,8 +181,10 @@
     <ClInclude Include="DataSet.h" />
     <ClInclude Include="dialogProcedures.h" />
     <ClInclude Include="drawDataWindow.h" />
+    <ClInclude Include="ExperimentTimer.h" />
     <ClInclude Include="externals.h" />
     <ClInclude Include="fileManage.h" />
+    <ClInclude Include="FileSystem.h" />
     <ClInclude Include="fitsio.h" />
     <ClInclude Include="fonts.h" />
     <ClInclude Include="gnuplot-iostream.h" />
@@ -211,8 +213,10 @@
     <ClCompile Include="createIdentityPalette.cpp" />
     <ClCompile Include="DataSet.cpp" />
     <ClCompile Include="dialogProcedures.cpp" />
+    <ClCompile Include="ExperimentTimer.cpp" />
     <ClCompile Include="externals.cpp" />
     <ClCompile Include="fileManage.cpp" />
+    <ClCompile Include="FileSystem.cpp" />
     <ClCompile Include="initializationUpdate.cpp" />
     <ClCompile Include="initializeCameraWindow.cpp" />
     <ClCompile Include="myAndor.cpp" />
