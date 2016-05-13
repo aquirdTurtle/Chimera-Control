@@ -72,6 +72,32 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						}
 					}
 				}
+				case IDC_TIME_DISPLAY:
+				{
+					switch (eCameraWindowExperimentTimer.getColorID())
+					{
+						case ID_GREEN:
+						{
+							SetTextColor(hdcStatic, RGB(255, 255, 255));
+							SetBkColor(hdcStatic, RGB(0, 30, 0));
+							return (INT_PTR)eDarkGreenBrush;
+							break;
+						}
+						case ID_BLUE:
+						{
+							SetTextColor(hdcStatic, RGB(255, 255, 255));
+							SetBkColor(hdcStatic, RGB(0, 0, 100));
+							return (INT_PTR)eDarkBlueBrush;
+						}
+						case ID_RED:
+						{
+							SetTextColor(hdcStatic, RGB(255, 255, 255));
+							SetBkColor(hdcStatic, RGB(100, 0, 0));
+							return (INT_PTR)eDarkRedBrush;
+							break;
+						}
+					}
+				}
 				default:
 				{
 					SetTextColor(hdcStatic, RGB(255, 255, 255));
@@ -324,6 +350,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						{
 							myAndor::drawDataWindow();
 						}
+						eCameraFileSystem.updateSaveStatus(false);
 					}
 					break;
 				}
@@ -359,6 +386,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						{
 							myAndor::drawDataWindow();
 						}
+						eCameraFileSystem.updateSaveStatus(false);
 					}
 					break;
 				}
@@ -394,6 +422,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						{
 							myAndor::drawDataWindow();
 						}
+						eCameraFileSystem.updateSaveStatus(false);
 					}
 					break;
 				}
@@ -429,6 +458,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						{
 							myAndor::drawDataWindow();
 						}
+						eCameraFileSystem.updateSaveStatus(false);
 					}
 					break;
 				}
@@ -464,6 +494,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						{
 							myAndor::drawDataWindow();
 						}
+						eCameraFileSystem.updateSaveStatus(false);
 					}
 					break;
 				}
@@ -499,6 +530,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						{
 							myAndor::drawDataWindow();
 						}
+						eCameraFileSystem.updateSaveStatus(false);
 					}
 					break;
 				}
@@ -534,6 +566,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						{
 							myAndor::drawDataWindow();
 						}
+						eCameraFileSystem.updateSaveStatus(false);
 					}
 					break;
 				}
@@ -569,6 +602,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						{
 							myAndor::drawDataWindow();
 						}
+						eCameraFileSystem.updateSaveStatus(false);
 					}
 					break;
 				}
@@ -585,6 +619,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					SendMessage(eAllPlotsCombo.hwnd, (UINT)CB_GETLBTEXT, (WPARAM)itemIndex, (LPARAM)currentPlotChars);
 					// add to plot
 					SendMessage(eCurrentPlotsCombo.hwnd, (UINT)CB_ADDSTRING, 0, (LPARAM)currentPlotChars);
+					eCameraFileSystem.updateSaveStatus(false);
 					break;
 				}
 				case ID_PLOTTING_REMOVE_PLOT:
@@ -597,6 +632,9 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						break;
 					}
 					SendMessage(eCurrentPlotsCombo.hwnd, CB_DELETESTRING, itemIndex, 0);
+					SendMessage(eCurrentPlotsCombo.hwnd, CB_SETCURSEL, 0, 0);
+					eCameraFileSystem.updateSaveStatus(false);
+
 					break;
 				}
 				case IDC_TRIGGER_COMBO:
@@ -612,6 +650,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						SendMessage(eTriggerComboHandle.hwnd, (UINT)CB_GETLBTEXT, (WPARAM)itemIndex, (LPARAM)triggerModeChars);
 						eCurrentTriggerMode = std::string(triggerModeChars);
 						reorganizeWindow(eCurrentlySelectedCameraMode, hWnd);
+						eCameraFileSystem.updateSaveStatus(false);
 					}
 				}
 				case IDC_CAMERA_MODE_COMBO:
@@ -658,6 +697,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 							SendMessage(eExperimentsPerStackDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerStack).c_str());
 						}
 						reorganizeWindow(eCurrentlySelectedCameraMode, hWnd);
+						eCameraFileSystem.updateSaveStatus(false);
 						break;
 					}
 					break;
@@ -751,37 +791,51 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					if (eExposureTimes.size() == 0)
 					{
 						MessageBox(0, "Please Set at least one exposure time.", 0, 0);
+						eCameraWindowExperimentTimer.setColorID(ID_RED);
+						eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
 						break;
 					}
 					// Check Image parameters
 					if (eLeftImageBorder > eRightImageBorder || eTopImageBorder > eBottomImageBorder)
 					{
 						MessageBox(0, "ERROR: Image start positions must not be greater than end positions\r\n", 0, 0);
+						eCameraWindowExperimentTimer.setColorID(ID_RED);
+						eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
 						break;
 					}
 					if (eLeftImageBorder < 1 || eRightImageBorder > eXPixels)
 					{
 						MessageBox(0, "ERROR: Image horizontal borders must be greater than 0 and less than the detector width\r\n", 0, 0);
+						eCameraWindowExperimentTimer.setColorID(ID_RED);
+						eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
 						break;
 					}
 					if (eTopImageBorder < 1 || eBottomImageBorder > eYPixels)
 					{
 						MessageBox(0, "ERROR: Image verttical borders must be greater than 0 and less than the detector height\r\n", 0, 0);
+						eCameraWindowExperimentTimer.setColorID(ID_RED);
+						eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
 						break;
 					}
 					if ((eRightImageBorder - eLeftImageBorder + 1) % eHorizontalBinning != 0)
 					{
 						MessageBox(0, "ERROR: Image width must be a multiple of Horizontal Binning\r\n", 0, 0);
+						eCameraWindowExperimentTimer.setColorID(ID_RED);
+						eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
 						break;
 					}
 					if ((eBottomImageBorder - eTopImageBorder + 1) % eVerticalBinning != 0)
 					{
 						MessageBox(0, "ERROR: Image height must be a multiple of Vertical Binning\r\n", 0, 0);
+						eCameraWindowExperimentTimer.setColorID(ID_RED);
+						eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
 						break;
 					}
 					if (ePicturesPerExperiment <= 0)
 					{
 						MessageBox(0, "ERROR: Please set the number of pictures per experiment to a positive non-zero value.", 0, 0);
+						eCameraWindowExperimentTimer.setColorID(ID_RED);
+						eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
 						break;
 					}
 					if (eCurrentlySelectedCameraMode == "Kinetic Series Mode") 
@@ -789,16 +843,22 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						if (eKineticCycleTime == 0 && eCurrentTriggerMode == "Internal")
 						{
 							MessageBox(0, "ERROR: Since you are running in internal trigger mode, please Set a kinetic cycle time.", 0, 0);
+							eCameraWindowExperimentTimer.setColorID(ID_RED);
+							eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
 							break;
 						}
 						if (eExperimentsPerStack <= 0)
 						{
 							MessageBox(0, "ERROR: Please set the \"Experiments per Stack\" variable to a positive non-zero value.", 0, 0);
+							eCameraWindowExperimentTimer.setColorID(ID_RED);
+							eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
 							break;
 						}
 						if (eCurrentAccumulationStackNumber <= 0)
 						{
 							MessageBox(0, "ERROR: Please set the number of accumulation stacks to a positive non-zero value.", 0, 0);
+							eCameraWindowExperimentTimer.setColorID(ID_RED);
+							eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
 							break;
 						}
 
@@ -808,11 +868,15 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						if (eCurrentAccumulationModeTotalAccumulationNumber <= 0)
 						{
 							MessageBox(0, "ERROR: Please set the current Accumulation Number to a positive non-zero value.", 0, 0);
+							eCameraWindowExperimentTimer.setColorID(ID_RED);
+							eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
 							break;
 						}
 						if (eAccumulationTime <= 0)
 						{
 							MessageBox(0, "ERROR: Please set the current Accumulation Time to a positive non-zero value.", 0, 0);
+							eCameraWindowExperimentTimer.setColorID(ID_RED);
+							eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
 							break;
 						}
 					}
@@ -828,6 +892,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						eCurrentPlotNames.push_back(tempPlotName);
 					}
 					// check plotting Parameters.
+					bool errCheck = false;
 					for (int plotInc = 0; plotInc < eCurrentPlotNames.size(); plotInc++)
 					{
 						PlottingInfo tempInfoCheck;
@@ -836,7 +901,14 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						{
 							MessageBox(0, ("ERROR: one of the plots selected, " + eCurrentPlotNames[plotInc] + ", is not built for the currently selected number"
 								" of pictures per experiment. Please revise either the current setting or the plot file.").c_str(), 0, 0);
+							errCheck = true;
 						}
+					}
+					if (errCheck)
+					{
+						eCameraWindowExperimentTimer.setColorID(ID_RED);
+						eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
+						break;
 					}
 					std::string dialogMsg;
 					dialogMsg = "Starting Parameters:\r\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\r\n";
@@ -844,7 +916,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					dialogMsg += "Exposure Time: ";
 					for (int exposureInc = 0; exposureInc < eExposureTimes.size(); exposureInc++)
 					{
-						dialogMsg += std::to_string(eExposureTimes[exposureInc]) + ", ";
+						dialogMsg += std::to_string(eExposureTimes[exposureInc] * 1000) + ", ";
 					}
 					dialogMsg += "\b\b\r\n";
 					dialogMsg += "Image Settings: " + std::to_string(eLeftImageBorder) + " - " + std::to_string(eRightImageBorder) + ", "
@@ -871,7 +943,9 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					// tells system an acq has taken place
 					if (myAndor::getStatus() != 0)
 					{
-						return -1;
+						eCameraWindowExperimentTimer.setColorID(ID_RED);
+						eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
+						break;
 					}
 
 					eSystemIsRunning = true;
@@ -888,6 +962,8 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					{
 						eSystemIsRunning = false;
 						appendText("Failed to start camera aquisition.\r\n", IDC_STATUS_EDIT);
+						eCameraWindowExperimentTimer.setColorID(ID_RED);
+						eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
 					}
 					break;
 				}
@@ -966,6 +1042,8 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 								eSystemIsRunning = false;
 							}
 							appendText("Aborting Acquisition", IDC_STATUS_EDIT);
+							eCameraWindowExperimentTimer.setColorID(ID_BLUE);
+							eCameraWindowExperimentTimer.setTimerDisplay("Aborted");
 						}
 					}
 					// or else let user know none is in progress
@@ -1042,11 +1120,13 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 				{
 					// it's simple to turn it off.
 					myAndor::changeTemperatureSetting(true);
+					eCameraFileSystem.updateSaveStatus(false);
 					break;
 				}
 				case IDC_SET_TEMP_BUTTON: 
 				{
 					myAndor::setTemperature();
+					eCameraFileSystem.updateSaveStatus(false);
 					break;
 				}
 				case IDC_SET_EXPOSURE_BUTTON:
@@ -1144,13 +1224,14 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						appendText("ERROR: reached bad location where eExposureTimes was of zero size, but this should have been detected earlier in the code.", IDC_ERROR_EDIT);
 					}
 					SendMessage(eExposureDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)"");
-					appendText(std::to_string(eExposureTimes[0]), IDC_EXPOSURE_DISP);
+					appendText(std::to_string(eExposureTimes[0] * 1000), IDC_EXPOSURE_DISP);
 					for (int exposureInc = 1; exposureInc < eExposureTimes.size(); exposureInc++)
 					{
-						appendText(" -> " + std::to_string(eExposureTimes[exposureInc]), IDC_EXPOSURE_DISP);
+						appendText(" -> " + std::to_string(eExposureTimes[exposureInc] * 1000), IDC_EXPOSURE_DISP);
 					}
-					SendMessage(eKineticCycleTimeDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eKineticCycleTime).c_str());
-					SendMessage(eAccumulationTimeDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eAccumulationTime).c_str());
+					SendMessage(eKineticCycleTimeDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eKineticCycleTime * 1000).c_str());
+					SendMessage(eAccumulationTimeDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eAccumulationTime * 1000).c_str());
+					eCameraFileSystem.updateSaveStatus(false);
 					break;
 				}
 				case IDC_SET_IMAGE_PARAMS_BUTTON: 
@@ -1269,6 +1350,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						}
 					}
 
+					eCameraFileSystem.updateSaveStatus(false);
 
 					break;
 				}
@@ -1307,15 +1389,16 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					if (eExposureTimes.size() > 0)
 					{
 						SendMessage(eExposureDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)"");
-						appendText(std::to_string(eExposureTimes[0]), IDC_EXPOSURE_DISP);
+						appendText(std::to_string(eExposureTimes[0] * 1000), IDC_EXPOSURE_DISP);
 						for (int exposureInc = 1; exposureInc < eExposureTimes.size(); exposureInc++)
 						{
-							appendText(" -> " + std::to_string(eExposureTimes[exposureInc]), IDC_EXPOSURE_DISP);
+							appendText(" -> " + std::to_string(eExposureTimes[exposureInc] * 1000), IDC_EXPOSURE_DISP);
 						}
 					}
-					SendMessage(eKineticCycleTimeDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eKineticCycleTime).c_str());
-					SendMessage(eAccumulationTimeDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eAccumulationTime).c_str());
+					SendMessage(eKineticCycleTimeDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eKineticCycleTime * 1000).c_str());
+					SendMessage(eAccumulationTimeDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eAccumulationTime * 1000).c_str());
 					// convert to s from ms.
+					eCameraFileSystem.updateSaveStatus(false);
 					break;
 				}
 				case IDC_SET_EXPERIMENTS_PER_STACK_BUTTON: 
@@ -1340,10 +1423,11 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					catch (std::invalid_argument &exception)
 					{
 						MessageBox(0, "ERROR: number entered was not valid.", 0, 0);
-						ePicturesPerStack = 0;
+						ePicturesPerStack = 1;
 						break;
 					}
 					//
+					eCameraFileSystem.updateSaveStatus(false);
 					break;
 				}
 				case IDC_SET_DETECTION_THRESHOLD_BUTTON: 
@@ -1371,6 +1455,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						break;
 					}
 					eDetectionThreshold = tempInt;
+					eCameraFileSystem.updateSaveStatus(false);
 					break;
 				}
 				case IDC_SET_ACCUMULATION_STACK_NUMBER: 
@@ -1399,6 +1484,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					}
 					eCurrentAccumulationStackNumber = tempInt;
 					eTotalNumberOfPicturesInSeries = eCurrentAccumulationStackNumber * ePicturesPerStack;
+					eCameraFileSystem.updateSaveStatus(false);
 					break;
 				}
 				case IDC_SET_PICTURES_PER_EXPERIMENT_BUTTON:
@@ -1442,6 +1528,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						break;
 					}
 
+					eCameraFileSystem.updateSaveStatus(false);
 
 					break;
 				}
@@ -1471,6 +1558,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						break;
 					}
 					eCurrentAccumulationModeTotalAccumulationNumber = tempInt;
+					eCameraFileSystem.updateSaveStatus(false);
 					break;
 				}
 				case IDC_SET_ACCUMULATION_TIME_BUTTON:
@@ -1515,14 +1603,15 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					if (eExposureTimes.size() > 0)
 					{
 						SendMessage(eExposureDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)"");
-						appendText(std::to_string(eExposureTimes[0]), IDC_EXPOSURE_DISP);
+						appendText(std::to_string(eExposureTimes[0] * 1000), IDC_EXPOSURE_DISP);
 						for (int exposureInc = 1; exposureInc < eExposureTimes.size(); exposureInc++)
 						{
-							appendText(" -> " + std::to_string(eExposureTimes[exposureInc]), IDC_EXPOSURE_DISP);
+							appendText(" -> " + std::to_string(eExposureTimes[exposureInc] * 1000), IDC_EXPOSURE_DISP);
 						}
 					}
-					SendMessage(eKineticCycleTimeDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eKineticCycleTime).c_str());
-					SendMessage(eAccumulationTimeDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eAccumulationTime).c_str());
+					SendMessage(eKineticCycleTimeDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eKineticCycleTime * 1000).c_str());
+					SendMessage(eAccumulationTimeDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eAccumulationTime * 1000).c_str());
+					eCameraFileSystem.updateSaveStatus(false);
 					break;
 				}
 				case IDC_PLOTTING_FREQUENCY_BUTTON:
@@ -1551,6 +1640,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					}
 					SendMessage(ePlottingFrequencyDisp.hwnd, WM_SETTEXT, 0, (LPARAM)tempChars);
 					ePlottingFrequency = tempInt;
+					eCameraFileSystem.updateSaveStatus(false);
 					break;
 				}
 				case IDC_INCREMENT_FILE_OPTION_BUTTON:
@@ -1566,6 +1656,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						CheckDlgButton(hWnd, IDC_INCREMENT_FILE_OPTION_BUTTON, BST_CHECKED);
 						eIncSaveFileNameOption = true;
 					}
+					eCameraFileSystem.updateSaveStatus(false);
 					break;
 				}
 				case IDC_SET_EM_GAIN_MODE:
@@ -1601,6 +1692,45 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						return -1;
 					}
 					
+					eCameraFileSystem.updateSaveStatus(false);
+					break;
+				}
+				case ID_CONFIGURATION_SAVE_CONFIGURATIONAS:
+				{
+					eCameraFileSystem.saveConfigurationAs((const char*)DialogBoxParam(eHInst, MAKEINTRESOURCE(IDD_NAME_PROMPT_DIALOG), 0, (DLGPROC)dialogProcedures::namePromptDialogProcedure, (LPARAM)"Save As: Please enter a new configuration name."));
+					break;
+				}
+				case ID_CONFIGURATION_SAVE_CONFIGURATION:
+				{
+					eCameraFileSystem.saveConfiguration(false);
+					break;
+				}
+				case ID_CONFIGURATION_DELETE_CONFIGURAITON:
+				{
+					eCameraFileSystem.deleteConfiguration();
+					break;
+				}
+				case ID_CONFIGURATION_RENAME_CONFIGURATION:
+				{
+					eCameraFileSystem.renameConfiguration((const char*)DialogBoxParam(eHInst, MAKEINTRESOURCE(IDD_NAME_PROMPT_DIALOG), 0, (DLGPROC)dialogProcedures::namePromptDialogProcedure, (LPARAM)"Please enter a new configuration name."));
+					break;
+				}
+				case IDC_CONFIGURATION_COMBO:
+				{
+					if (HIWORD(wParam) == CBN_SELCHANGE)
+					{
+						int answer = eCameraFileSystem.checkSave();
+						if (answer == IDCANCEL)
+						{
+							break;
+						}
+						else if (answer == IDYES)
+						{
+							eCameraFileSystem.saveConfiguration(false);
+						}
+						eCameraFileSystem.openConfiguration(eCameraFileSystem.getComboText());
+						eCameraFileSystem.updateSaveStatus(true);
+					}
 					break;
 				}
 			}
@@ -1707,10 +1837,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 				UpdateWindow(eStatusEditHandle.hwnd);
 				if (eCurrentlyRunningCameraMode == "Kinetic Series Mode")
 				{
-					int posSubSeries = (eCurrentAccumulationNumber % ePicturesPerStack) * 100.0 / ePicturesPerStack;
-					int posSeries = eCurrentAccumulationNumber / (double)eTotalNumberOfPicturesInSeries * 100;
-					SendMessage(eSeriesProgressBar.hwnd, PBM_SETPOS, (WPARAM)posSeries, 0);
-					SendMessage(eSubSeriesProgressBar.hwnd, PBM_SETPOS, (WPARAM)posSubSeries, 0);
+					eCameraWindowExperimentTimer.update(eCurrentAccumulationNumber, ePicturesPerStack, eCurrentAccumulationStackNumber, hWnd);
 				}
 				if (eCurrentlyRunningCameraMode == "Kinetic Series Mode" && eCurrentAccumulationNumber == eTotalNumberOfPicturesInSeries)
 				{
@@ -1786,10 +1913,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 				}
 				if (eCurrentlyRunningCameraMode == "Kinetic Series Mode")
 				{
-					int posSubSeries = (eCurrentAccumulationNumber % ePicturesPerStack) * 100.0 / ePicturesPerStack;
-					int posSeries = eCurrentAccumulationNumber / (double)eTotalNumberOfPicturesInSeries * 100;
-					SendMessage(eSeriesProgressBar.hwnd, PBM_SETPOS, (WPARAM)posSeries, 0);
-					SendMessage(eSubSeriesProgressBar.hwnd, PBM_SETPOS, (WPARAM)posSubSeries, 0);
+					eCameraWindowExperimentTimer.update(eCurrentAccumulationNumber, ePicturesPerStack, eCurrentAccumulationStackNumber, hWnd);
 				}
 				appendText("Finished Entire Experiment Sequence.", IDC_STATUS_EDIT);
 				break;

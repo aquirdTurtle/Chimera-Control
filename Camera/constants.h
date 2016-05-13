@@ -15,7 +15,7 @@
 
 // for my laptop:
 const std::string SAVE_BASE_ADDRESS("C:\\Users\\Mark\\Documents\\");
-const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Program Files\\Camera Control Application 2.0\\Plotting\\";
+const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Plotting\\";
 
 const std::vector<std::string> GNUPLOT_COLORS{"lt rgb \"black\"",
 											 "lt rgb \"blue\"",
@@ -195,3 +195,6 @@ const std::vector<std::string> GNUPLOT_LINETYPES{"dt 1",
 #define IDC_TEMP_OFF_BUTTON 7150
 #define ID_GREEN 7151
 #define ID_RED 7152
+#define IDC_CONFIGURATION_COMBO 7153
+#define IDC_TIME_DISPLAY 7154
+#define ID_BLUE 7155

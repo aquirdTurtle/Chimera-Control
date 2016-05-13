@@ -90,15 +90,30 @@ int reorganizeControl(Control controlToReposition, std::string mode, RECT parent
 	{
 		if (widthScale * heightScale > 0.8)
 		{
-			SendMessage(controlToReposition.hwnd, WM_SETFONT, WPARAM(sCodeFontMax), TRUE);
+			SendMessage(controlToReposition.hwnd, WM_SETFONT, WPARAM(sHeadingFontMax), TRUE);
 		}
 		else if (widthScale * heightScale > 0.6)
 		{
-			SendMessage(controlToReposition.hwnd, WM_SETFONT, WPARAM(sCodeFontMed), TRUE);
+			SendMessage(controlToReposition.hwnd, WM_SETFONT, WPARAM(sHeadingFontMed), TRUE);
 		}
 		else
 		{
-			SendMessage(controlToReposition.hwnd, WM_SETFONT, WPARAM(sCodeFontSmall), TRUE);
+			SendMessage(controlToReposition.hwnd, WM_SETFONT, WPARAM(sHeadingFontSmall), TRUE);
+		}
+	}
+	else if (controlToReposition.fontType == "Large")
+	{
+		if (widthScale * heightScale > 0.8)
+		{
+			SendMessage(controlToReposition.hwnd, WM_SETFONT, WPARAM(sLargerFontMax), TRUE);
+		}
+		else if (widthScale * heightScale > 0.6)
+		{
+			SendMessage(controlToReposition.hwnd, WM_SETFONT, WPARAM(sLargerFontMed), TRUE);
+		}
+		else
+		{
+			SendMessage(controlToReposition.hwnd, WM_SETFONT, WPARAM(sLargerFontSmall), TRUE);
 		}
 	}
 	

@@ -7,7 +7,11 @@
 #include "constants.h"
 #include "gnuplot-iostream.h"
 #include "fitsio.h"
+#include "FileSystem.h"
+#include "ExperimentTimer.h"
 /// \\\ THINGS THAT THE USER SETS \\\ ///
+FileSystem eCameraFileSystem("C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Camera Configuration Files\\");
+ExperimentTimer eCameraWindowExperimentTimer;
 
 bool eFitsOkay;
 bool eRealTimePictures = false;
@@ -69,7 +73,7 @@ int eCurrentPositivePixelNumber = 0;
 int eCurrentPostSelectionPictureNumber = 0;
 int eCurrentPostSelectionPixelNumber = 0;
 int eCurrentPostSelectionConditionNumber = 0;
-int eExperimentsPerStack = 0;
+int eExperimentsPerStack = 1;
 
 /// \\\ GLOBAL VARIABLES THAT THE CODE (ONLY THE CODE) USES \\\ ///
 
@@ -189,6 +193,7 @@ std::array<HPALETTE, 3> eAppPalette;
 HBRUSH eGreyGreenBrush = CreateSolidBrush(RGB(100, 110, 100));
 HBRUSH eDarkGreenBrush = CreateSolidBrush(RGB(0, 30, 0));
 HBRUSH eDarkRedBrush = CreateSolidBrush(RGB(100, 0, 0));
+HBRUSH eDarkBlueBrush = CreateSolidBrush(RGB(0, 0, 100));
 
 HANDLE ePlottingMutex;
 HWND eInitializeDialogBoxHandle;
@@ -206,3 +211,4 @@ volatile bool ePlotThreadExitIndicator;
 unsigned int eAccMessageID = 0, eFinMessageID = 0, eErrMessageID = 0;
 HANDLE eCameraThreadHandle;
 HANDLE ePlottingThreadHandle;
+

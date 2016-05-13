@@ -2,6 +2,7 @@
 #include "namePromptDialogProc.h"
 #include "Windows.h"
 #include "resource.h"
+#include "externals.h"
 
 INT_PTR CALLBACK namePromptDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -9,6 +10,10 @@ INT_PTR CALLBACK namePromptDialogProc(HWND hDlg, UINT message, WPARAM wParam, LP
 	{
 		case WM_INITDIALOG:
 		{
+			CreateWindowEx(0, "STATIC", "EM Gain Setting:",
+				WS_CHILD | WS_VISIBLE | BS_RIGHT,
+				initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, e,
+				(HMENU)-1, eHInst, NULL);
 			return (INT_PTR)TRUE;
 		}
 		case WM_COMMAND:

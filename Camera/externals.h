@@ -9,12 +9,16 @@
 #include "Control.h"
 #include "PlottingInfo.h"
 #include "fitsio.h"
+#include "FileSystem.h"
+#include "ExperimentTimer.h"
 
 /// THINGS THAT THE USER SETS !@$#!@#$!@#$!@$!@#$!@#$!@$#!@#$!@#$@!#$!$!@#$!@#$@!$#@!#$!@#$!@$#!#$!@#$!@#$!@#$!@#$!@$#!@$#!@$#!@$#@!#$!@$#!@$#!@#$!@$#!@$#!@$#!#
 extern bool eFitsOkay;
 extern bool eRealTimePictures;
 extern fitsfile *eFitsFile;
 
+extern FileSystem eCameraFileSystem;
+extern ExperimentTimer eCameraWindowExperimentTimer;
 
 extern std::array<int, 4> eCurrentMaximumPictureCount;
 extern std::array<int, 4> eCurrentMinimumPictureCount;
@@ -49,22 +53,6 @@ extern bool eIncSaveFileNameOption;
 extern int eDetectionThreshold;
 // // // // // // // // // //
 extern std::vector<std::string> eCurrentPlotNames;
-/// Plotting Options
-extern std::vector<std::string> eCurrentPlotNames;
-// Plot Average Counts (first!)
-extern volatile bool ePlotAverageCounts;
-// Plot Atom Presence
-extern volatile bool ePlotAtomLoading;
-// plot a histogram of the counts seen on the pixels.
-extern volatile bool ePlotCountHistogram;
-// 
-extern volatile bool ePlotAtomSurvival;
-// 
-extern volatile bool ePlotTunneling;
-// 
-extern volatile bool ePlotTwoParticleLoss;
-// 
-extern volatile bool ePlotRunningAverageSurvival;
 
 extern int ePicturesPerExperiment;
 extern bool eSystemIsRunning;
@@ -204,6 +192,7 @@ extern std::array<HPALETTE, 3> eAppPalette;
 extern HBRUSH eGreyGreenBrush;
 extern HBRUSH eDarkGreenBrush;
 extern HBRUSH eDarkRedBrush;
+extern HBRUSH eDarkBlueBrush;
 // This is the mutex used to make sure the data queue doesn't get read and wrote to at the same time. 
 extern HANDLE ePlottingMutex;
 

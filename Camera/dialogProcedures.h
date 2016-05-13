@@ -8,4 +8,5 @@ namespace dialogProcedures
 	LRESULT CALLBACK richEditOkCancelMessageBoxProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	LRESULT CALLBACK plottingDialogProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
 	LRESULT CALLBACK picturePalletesDialogProcedure(HWND thisDialogHandle, UINT message, WPARAM wParam, LPARAM lParam);
+	INT_PTR CALLBACK namePromptDialogProcedure(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 }
