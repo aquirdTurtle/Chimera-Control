@@ -12,10 +12,12 @@
 // for andor:
 //const std::string SAVE_BASE_ADDRESS("E:\\share\\Data and documents\\Data repository\\");
 //const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Code\\Plotting\\";
+//const std::string KEY_FILE_LOCATION = "E:\\share\\Data and documents\\Data repository\\Key_file\\"
 
 // for my laptop:
-const std::string SAVE_BASE_ADDRESS("C:\\Users\\Mark\\Documents\\");
+const std::string SAVE_BASE_ADDRESS = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Data\\Camera Data\\";
 const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Plotting\\";
+const std::string KEY_FILE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Data\\Data Keys\\";
 
 const std::vector<std::string> GNUPLOT_COLORS{"lt rgb \"black\"",
 											 "lt rgb \"blue\"",

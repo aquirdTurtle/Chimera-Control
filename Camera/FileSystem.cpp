@@ -108,8 +108,8 @@ int FileSystem::openConfiguration(std::string configurationNameToOpen)
 		int imageBoxWidth = eImageBackgroundAreas[imageLocation].right - eImageBackgroundAreas[imageLocation].left + 1;
 		int imageBoxHeight = eImageBackgroundAreas[imageLocation].bottom - eImageBackgroundAreas[imageLocation].top + 1;
 
-		double boxWidth = imageBoxWidth / eImageWidth;
-		double boxHeight = imageBoxHeight / eImageHeight;
+		double boxWidth = imageBoxWidth / (double)eImageWidth;
+		double boxHeight = imageBoxHeight / (double)eImageHeight;
 		if (boxWidth > boxHeight)
 		{
 			// scale the box width down.

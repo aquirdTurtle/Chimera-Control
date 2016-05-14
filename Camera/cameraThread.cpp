@@ -48,12 +48,20 @@ DWORD WINAPI cameraThread(LPVOID voidPtr)
 		else
 		{
 			// prevents this from flooding the window with messages if camera is off.
-			safeModeCount++;
+			
 			Sleep(eKineticCycleTime * 1000);
 			if (eSystemIsRunning && safeModeCount < eTotalNumberOfPicturesInSeries)
 			{
 				finSentStatus = false;
-				PostMessage(eCameraWindowHandle, eAccMessageID, 0, (LPARAM)safeModeCount);
+				if (eCurrentlyRunningCameraMode == "Kinetic Series Mode" || eCurrentlyRunningCameraMode == "Accumulate Mode")
+				{
+					safeModeCount++;
+					PostMessage(eCameraWindowHandle, eAccMessageID, 0, (LPARAM)safeModeCount);
+				}
+				else
+				{
+					PostMessage(eCameraWindowHandle, eAccMessageID, 0, 1);
+				}
 			}
 			else
 			{
