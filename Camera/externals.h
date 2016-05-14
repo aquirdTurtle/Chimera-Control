@@ -211,3 +211,5 @@ extern HANDLE ePlottingThreadHandle;
 // The codes that the thread passes back to the main program. 
 extern unsigned int eAccMessageID, eFinMessageID, eErrMessageID;
 
+
+

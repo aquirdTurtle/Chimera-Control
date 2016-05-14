@@ -164,6 +164,13 @@ namespace myAndor
 			}
 			// at this point a valid filename has been found.
 			eFinalSaveName = "data_" + std::to_string(fileNum) + ".fits";
+			// make a copy of the key file giving it an assoicated name in the appropriate folder.
+			int result = CopyFile((KEY_FILE_LOCATION + "key.txt").c_str(), (SAVE_BASE_ADDRESS + eFinalSaveFolder + "key_" + std::to_string(fileNum) + ".txt").c_str(), FALSE);
+			if (result == 0)
+			{
+				// failed
+				MessageBox(0, ("Failed to create copy of key file! Error Code: " + std::to_string(GetLastError())).c_str(), 0, 0);
+			}
 		}
 		else 
 		{
@@ -369,29 +376,33 @@ namespace myAndor
 			errMsg = "DRV_SUCCESS";
 			for (int imageVecInc = 0; imageVecInc < eImagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 			{
-				if (imageVecInc == 5 || imageVecInc == 8)
-				{
-					if (rand() % 2)
-					{
-						// load atom
-						tempImage[imageVecInc] = rand() % 50 + 275;
-					}
-					else
-					{
-						// background
-						tempImage[imageVecInc] = rand() % 50 + 275;
-					}
-				}
-				else
-				{
+				//if (imageVecInc == 5 || imageVecInc == 8)
+				//{
+				//	if (rand() % 2)
+				//	{
+				//		// load atom
+				//		tempImage[imageVecInc] = rand() % 50 + 275;
+				//	}
+				//	else
+				//	{
+				//		// background
+				//		tempImage[imageVecInc] = rand() % 50 + 275;
+				//	}
+				//}
+				//else
+				//{
 					// background
 					// fill the image with random numbers between 0 and 500.
-					tempImage[imageVecInc] = rand() % 10 + 95;
-				}
-				for (int imageVecInc = 0; imageVecInc < eImagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
-				{
-					eImagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc % eImageWidth) + 1) * eImageHeight - imageVecInc / eImageWidth - 1];
-				}
+				tempImage[imageVecInc] = rand() % 50 + 95;
+				//}
+				//long long time1 = GetTickCount64();
+
+				//MessageBox(0, std::to_string((GetTickCount64() - time1) / 1000).c_str(), 0, 0);
+			}
+
+			for (int imageVecInc = 0; imageVecInc < eImagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
+			{
+				eImagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc % eImageWidth) + 1) * eImageHeight - imageVecInc / eImageWidth - 1];
 			}
 		}
 		if (errMsg != "DRV_SUCCESS")
@@ -645,50 +656,50 @@ namespace myAndor
 				BYTE *finalDataArray = NULL;
 				switch (eImageWidth % 4)
 				{
-				case 0:
-				{
-					pbmi->bmiHeader.biWidth = dataWidth;
-					StretchDIBits(hDC, eImageDrawAreas[imageLocation].left, eImageDrawAreas[imageLocation].top, pixelsAreaWidth, pixelsAreaHeight, 0, 0, dataWidth,
-						dataHeight, DataArray, (BITMAPINFO FAR*)pbmi, DIB_PAL_COLORS,
-						SRCCOPY);
-					break;
-				}
-				case 2:
-				{
-					// make array that is twice as long.
-					finalDataArray = (BYTE*)malloc(dataWidth * dataHeight * 2);
-					memset(finalDataArray, 255, dataWidth * dataHeight * 2);
+					case 0:
+					{
+						pbmi->bmiHeader.biWidth = dataWidth;
+						StretchDIBits(hDC, eImageDrawAreas[imageLocation].left, eImageDrawAreas[imageLocation].top, pixelsAreaWidth, pixelsAreaHeight, 0, 0, dataWidth,
+							dataHeight, DataArray, (BITMAPINFO FAR*)pbmi, DIB_PAL_COLORS,
+							SRCCOPY);
+						break;
+					}
+					case 2:
+					{
+						// make array that is twice as long.
+						finalDataArray = (BYTE*)malloc(dataWidth * dataHeight * 2);
+						memset(finalDataArray, 255, dataWidth * dataHeight * 2);
 
-					for (int dataInc = 0; dataInc < dataWidth * dataHeight; dataInc++)
-					{
-						finalDataArray[2 * dataInc] = DataArray[dataInc];
-						finalDataArray[2 * dataInc + 1] = DataArray[dataInc];
+						for (int dataInc = 0; dataInc < dataWidth * dataHeight; dataInc++)
+						{
+							finalDataArray[2 * dataInc] = DataArray[dataInc];
+							finalDataArray[2 * dataInc + 1] = DataArray[dataInc];
+						}
+						pbmi->bmiHeader.biWidth = dataWidth * 2;
+						StretchDIBits(hDC, eImageDrawAreas[imageLocation].left, eImageDrawAreas[imageLocation].top, pixelsAreaWidth, pixelsAreaHeight, 0, 0, dataWidth * 2, dataHeight,
+							finalDataArray, (BITMAPINFO FAR*)pbmi, DIB_PAL_COLORS, SRCCOPY);
+						free(finalDataArray);
+						break;
 					}
-					pbmi->bmiHeader.biWidth = dataWidth * 2;
-					StretchDIBits(hDC, eImageDrawAreas[imageLocation].left, eImageDrawAreas[imageLocation].top, pixelsAreaWidth, pixelsAreaHeight, 0, 0, dataWidth * 2, dataHeight,
-						finalDataArray, (BITMAPINFO FAR*)pbmi, DIB_PAL_COLORS, SRCCOPY);
-					free(finalDataArray);
-					break;
-				}
-				default:
-				{
-					// make array that is 4X as long.
-					finalDataArray = (BYTE*)malloc(dataWidth * dataHeight * 4);
-					memset(finalDataArray, 255, dataWidth * dataHeight * 4);
-					for (int dataInc = 0; dataInc < dataWidth * dataHeight; dataInc++)
+					default:
 					{
-						int data = DataArray[dataInc];
-						finalDataArray[4 * dataInc] = data;
-						finalDataArray[4 * dataInc + 1] = data;
-						finalDataArray[4 * dataInc + 2] = data;
-						finalDataArray[4 * dataInc + 3] = data;
+						// make array that is 4X as long.
+						finalDataArray = (BYTE*)malloc(dataWidth * dataHeight * 4);
+						memset(finalDataArray, 255, dataWidth * dataHeight * 4);
+						for (int dataInc = 0; dataInc < dataWidth * dataHeight; dataInc++)
+						{
+							int data = DataArray[dataInc];
+							finalDataArray[4 * dataInc] = data;
+							finalDataArray[4 * dataInc + 1] = data;
+							finalDataArray[4 * dataInc + 2] = data;
+							finalDataArray[4 * dataInc + 3] = data;
+						}
+						pbmi->bmiHeader.biWidth = dataWidth * 4;
+						StretchDIBits(hDC, eImageDrawAreas[imageLocation].left, eImageDrawAreas[imageLocation].top, pixelsAreaWidth, pixelsAreaHeight, 0, 0, dataWidth * 4, dataHeight,
+							finalDataArray, (BITMAPINFO FAR*)pbmi, DIB_PAL_COLORS, SRCCOPY);
+						free(finalDataArray);
+						break;
 					}
-					pbmi->bmiHeader.biWidth = dataWidth * 4;
-					StretchDIBits(hDC, eImageDrawAreas[imageLocation].left, eImageDrawAreas[imageLocation].top, pixelsAreaWidth, pixelsAreaHeight, 0, 0, dataWidth * 4, dataHeight,
-						finalDataArray, (BITMAPINFO FAR*)pbmi, DIB_PAL_COLORS, SRCCOPY);
-					free(finalDataArray);
-					break;
-				}
 				}
 				free(DataArray);
 
@@ -731,13 +742,22 @@ namespace myAndor
 		{
 			return 0;
 		}
+		int experimentPictureNumber;
+		if (eRealTimePictures)
+		{
+			experimentPictureNumber = 0;
+		}
+		else
+		{
+			experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerStack) % ePicturesPerExperiment);
+		}
 		// the fits file now gets opened at the beginning of the run.
 		// MUST initialize status
 		int status = 0;
 		// check if file already exists.
 		// starting coordinates of read area of the array.
 		long fpixel[] = { 1, 1, eCurrentAccumulationNumber};
-		fits_write_pix(eFitsFile, TLONG, fpixel, eImagesOfExperiment.size(), &eImagesOfExperiment[0], &status);
+		fits_write_pix(eFitsFile, TLONG, fpixel, eImagesOfExperiment[experimentPictureNumber].size(), &eImagesOfExperiment[experimentPictureNumber][0], &status);
 		// print any error messages
 		if (status != 0) 
 		{

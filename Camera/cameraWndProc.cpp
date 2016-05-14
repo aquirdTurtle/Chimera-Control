@@ -262,8 +262,8 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 			{
 				int imageBoxWidth = eImageBackgroundAreas[imageLocation].right - eImageBackgroundAreas[imageLocation].left + 1;
 				int imageBoxHeight = eImageBackgroundAreas[imageLocation].bottom - eImageBackgroundAreas[imageLocation].top + 1;
-				double boxWidth = imageBoxWidth / eImageWidth;
-				double boxHeight = imageBoxHeight / eImageHeight;
+				double boxWidth = imageBoxWidth / (double)eImageWidth;
+				double boxHeight = imageBoxHeight / (double)eImageHeight;
 				if (boxWidth > boxHeight)
 				{
 					// scale the box width down.
@@ -315,6 +315,25 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					{
 						CheckMenuItem(myMenu, ID_PICTURES_REAL_TIME_PICTURES, MF_CHECKED);
 						eRealTimePictures = true;
+					}
+					break;
+				}
+				case ID_PICTURES_AUTOSCALE_PICTURES:
+				{
+					MENUITEMINFO itemInfo;
+					itemInfo.cbSize = sizeof(MENUITEMINFO);
+					itemInfo.fMask = MIIM_STATE;
+					HMENU myMenu = GetMenu(hWnd);
+					GetMenuItemInfo(myMenu, ID_PICTURES_AUTOSCALE_PICTURES, FALSE, &itemInfo);
+					if ((itemInfo.fState & MFS_CHECKED) == MFS_CHECKED)
+					{
+						CheckMenuItem(myMenu, ID_PICTURES_AUTOSCALE_PICTURES, MF_UNCHECKED);
+						eAutoscalePictures = false;
+					}
+					else
+					{
+						CheckMenuItem(myMenu, ID_PICTURES_AUTOSCALE_PICTURES, MF_CHECKED);
+						eAutoscalePictures = true;
 					}
 					break;
 				}
@@ -649,6 +668,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						}
 						SendMessage(eTriggerComboHandle.hwnd, (UINT)CB_GETLBTEXT, (WPARAM)itemIndex, (LPARAM)triggerModeChars);
 						eCurrentTriggerMode = std::string(triggerModeChars);
+						myAndor::setTriggerMode();
 						reorganizeWindow(eCurrentlySelectedCameraMode, hWnd);
 						eCameraFileSystem.updateSaveStatus(false);
 					}
@@ -982,7 +1002,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					Sleep(500);
 					fits_close_file(eFitsFile, &fitsStatus);
 					// print any error messages
-					if (fitsStatus != 0)
+					if (fitsStatus != 0 && fitsStatus != 114)
 					{
 						std::vector<char> errMsg;
 						errMsg.resize(80);
@@ -1041,7 +1061,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 							{
 								eSystemIsRunning = false;
 							}
-							appendText("Aborting Acquisition", IDC_STATUS_EDIT);
+							appendText("Aborting Acquisition\r\n", IDC_STATUS_EDIT);
 							eCameraWindowExperimentTimer.setColorID(ID_BLUE);
 							eCameraWindowExperimentTimer.setTimerDisplay("Aborted");
 						}
@@ -1049,7 +1069,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					// or else let user know none is in progress
 					else 
 					{
-						appendText("System was not Acquiring", IDC_STATUS_EDIT);
+						appendText("System was not Acquiring\r\n", IDC_STATUS_EDIT);
 					}
 					break;
 				}
@@ -1298,8 +1318,8 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						int imageBoxWidth = eImageBackgroundAreas[imageLocation].right - eImageBackgroundAreas[imageLocation].left + 1;
 						int imageBoxHeight = eImageBackgroundAreas[imageLocation].bottom - eImageBackgroundAreas[imageLocation].top + 1;
 
-						double boxWidth = imageBoxWidth / eImageWidth;
-						double boxHeight = imageBoxHeight / eImageHeight;
+						double boxWidth = imageBoxWidth / (double)eImageWidth;
+						double boxHeight = imageBoxHeight / (double)eImageHeight;
 						if (boxWidth > boxHeight)
 						{
 							// scale the box width down.
@@ -1661,6 +1681,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 				}
 				case IDC_SET_EM_GAIN_MODE:
 				{
+					MessageBox(0, std::to_string(sizeof(long)).c_str(), 0, 0);
 					TCHAR emGainText[256];
 					SendMessage(eEMGainEdit.hwnd, WM_GETTEXT, 256, (LPARAM)emGainText);
 					int emGain;
@@ -1845,29 +1866,22 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					eSystemIsRunning = false;
 					// Wait until plotting thread is complete.
 					WaitForSingleObject(ePlottingThreadHandle, INFINITE);
-					int fitsStatus;
+					int fitsStatus = 0;
 					eFitsOkay = false;
 					// give the thread some time so that don't try to open a closed file... not very good solution.
 					// TODO: Improve this
 					Sleep(500);
 					fits_close_file(eFitsFile, &fitsStatus);
 					// print any error messages
-					if (fitsStatus != 0)
+					// 114 is the invalid pointer error which indicates it's already been closed.
+					if (fitsStatus != 0 && fitsStatus != 114)
 					{
 						std::vector<char> errMsg;
 						errMsg.resize(80);
 						//std::string errMsg;
 						fits_get_errstatus(fitsStatus, errMsg.data());
-						if (eFitsFile == NULL)
-						{
-							appendText("CFITS error: Could not create data file on andor. Is the andor connected???\r\n", IDC_STATUS_EDIT);
-						}
-						else
-						{
-							appendText("CFITS error: " + std::string(errMsg.data()) + "\r\n", IDC_STATUS_EDIT);
-						}
+						appendText("CFITS error: " + std::string(errMsg.data()) + "\r\n", IDC_STATUS_EDIT);
 					}
-
 				}
 			}
 			else if (msg == eFinMessageID) 
@@ -1896,20 +1910,13 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 				int fitsStatus = 0;
 				fits_close_file(eFitsFile, &fitsStatus);
 				// print any error messages
-				if (fitsStatus != 0)
+				if (fitsStatus != 0 && fitsStatus != 114)
 				{
 					std::vector<char> errMsg;
 					errMsg.resize(80);
 					//std::string errMsg;
 					fits_get_errstatus(fitsStatus, errMsg.data());
-					if (eFitsFile == NULL)
-					{
-						appendText("CFITS error: Could not create data file on andor. Is the andor connected???\r\n", IDC_STATUS_EDIT);
-					}
-					else
-					{
-						appendText("CFITS error: " + std::string(errMsg.data()) + "\r\n", IDC_STATUS_EDIT);
-					}
+					appendText("CFITS error: " + std::string(errMsg.data()) + "\r\n", IDC_STATUS_EDIT);
 				}
 				if (eCurrentlyRunningCameraMode == "Kinetic Series Mode")
 				{
@@ -1929,7 +1936,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 				Sleep(500);
 				fits_close_file(eFitsFile, &fitsStatus);
 				// print any error messages
-				if (fitsStatus != 0)
+				if (fitsStatus != 0 && fitsStatus != 114)
 				{
 					std::vector<char> errMsg;
 					errMsg.resize(80);
