@@ -24,7 +24,6 @@ namespace myAndor
 	int setGainMode();
 
 	void drawDataWindow(void);
-	int writeFits(std::string fileName);
 
 	void changeTemperatureSetting(bool temperatureControlOff);
 

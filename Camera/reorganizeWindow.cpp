@@ -7,11 +7,12 @@ int reorganizeWindow(std::string cameraMode, HWND parentWindow)
 {
 	RECT parentRectangle;
 	GetWindowRect(parentWindow, &parentRectangle);
-
+	/// Reorganize my class objects
 	eCameraFileSystem.reorganizeControls(parentRectangle, cameraMode);
 	eCameraWindowExperimentTimer.reorganizeControls(parentRectangle, cameraMode);
+	eTextingHandler.reorganizeControls(parentRectangle, cameraMode);
 
-	/// reorganize all controls.
+	/// Reorganize all other controls.
 	reorganizeControl(eExposureTextDisplayHandle, cameraMode, parentRectangle);
 	reorganizeControl(eTempTextDisplayHandle, cameraMode, parentRectangle);
 	reorganizeControl(eCurrentTempDisplayHandle, cameraMode, parentRectangle);

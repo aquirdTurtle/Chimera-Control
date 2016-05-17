@@ -13,11 +13,13 @@
 //const std::string SAVE_BASE_ADDRESS("E:\\share\\Data and documents\\Data repository\\");
 //const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Code\\Plotting\\";
 //const std::string KEY_FILE_LOCATION = "E:\\share\\Data and documents\\Data repository\\Key_file\\"
+//const std::string CAMERA_CONFIGURATION_FILES_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Camera Configuration Files\\";
 
 // for my laptop:
 const std::string SAVE_BASE_ADDRESS = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Data\\Camera Data\\";
 const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Plotting\\";
 const std::string KEY_FILE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Data\\Data Keys\\";
+const std::string CAMERA_CONFIGURATION_FILES_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Camera Configuration Files\\";
 
 const std::vector<std::string> GNUPLOT_COLORS{"lt rgb \"black\"",
 											 "lt rgb \"blue\"",
@@ -200,3 +202,5 @@ const std::vector<std::string> GNUPLOT_LINETYPES{"dt 1",
 #define IDC_CONFIGURATION_COMBO 7153
 #define IDC_TIME_DISPLAY 7154
 #define ID_BLUE 7155
+#define IDC_PEOPLE_LIST_VIEW 7156
+

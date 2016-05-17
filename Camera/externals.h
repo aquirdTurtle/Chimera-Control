@@ -9,15 +9,17 @@
 #include "Control.h"
 #include "PlottingInfo.h"
 #include "fitsio.h"
-#include "FileSystem.h"
+#include "ConfigurationFileSystem.h"
 #include "ExperimentTimer.h"
-
+#include "DataFileSystem.h"
+#include "SMSTextingControl.h"
 /// THINGS THAT THE USER SETS !@$#!@#$!@#$!@$!@#$!@#$!@$#!@#$!@#$@!#$!$!@#$!@#$@!$#@!#$!@#$!@$#!#$!@#$!@#$!@#$!@#$!@$#!@$#!@$#!@$#@!#$!@$#!@$#!@#$!@$#!@$#!@$#!#
-extern bool eFitsOkay;
+//extern bool eFitsOkay;
 extern bool eRealTimePictures;
-extern fitsfile *eFitsFile;
-
-extern FileSystem eCameraFileSystem;
+extern DataFileSystem eExperimentData;
+//extern fitsfile *eFitsFile;
+extern SMSTextingControl eTextingHandler;
+extern ConfigurationFileSystem eCameraFileSystem;
 extern ExperimentTimer eCameraWindowExperimentTimer;
 
 extern std::array<int, 4> eCurrentMaximumPictureCount;
@@ -193,6 +195,7 @@ extern HBRUSH eGreyGreenBrush;
 extern HBRUSH eDarkGreenBrush;
 extern HBRUSH eDarkRedBrush;
 extern HBRUSH eDarkBlueBrush;
+extern HBRUSH eGreyRedBrush;
 // This is the mutex used to make sure the data queue doesn't get read and wrote to at the same time. 
 extern HANDLE ePlottingMutex;
 

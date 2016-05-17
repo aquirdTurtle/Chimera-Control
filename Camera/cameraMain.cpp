@@ -190,19 +190,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		0, 0, 1680, 1010, NULL, NULL, hInstance, NULL);
 	// Show the window
 	ShowWindow(eCameraWindowHandle, SW_MAXIMIZE);
+	UpdateWindow(eCameraWindowHandle);			
 
-	UpdateWindow(eCameraWindowHandle);						// Sends WM_PAINT message
-	/*	while (GetMessage(&msg, NULL, 0, 0))
-	{
-		if (!TranslateAcceleratorA(eScriptingWindowHandle, hAccel, &msg) && !TranslateAccelerator(eCameraWindowHandle, hAccel, &msg))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-	}
-	*/
 	HACCEL hAccel = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDR_ACCELERATOR1));
-
+	// get the email and password for the text feature.
+	eTextingHandler.promptForEmailAddressAndPassword();
 
 	while (GetMessage(&msg, NULL, 0, 0))
 	{

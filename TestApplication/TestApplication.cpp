@@ -1,45 +1,57 @@
-// TestApplication.cpp : Defines the entry point for the console application.
-//
-
 #include "stdafx.h"
-#include <process.h>
-#include "stdlib.h"
-#include <vector>
-#include <string>
-#include "Windows.h"
-#include "stdio.h"
+
+#include "easendmailobj.tlh"
 #include <iostream>
-#define WIDTH 50
-#define HEIGHT 50
-#define MYVECSIZE WIDTH*HEIGHT
 
-int main()
+int _tmain(int argc, _TCHAR* argv[])
 {
-	std::cout << "Starting" << std::endl;
-	std::vector<int> myVec, myVec2;
-	long long realInit = GetTickCount64();
-	for (int picInc = 0; picInc < 1000; picInc++)
-	{
-		myVec.clear();
-		myVec.resize(MYVECSIZE);
-		myVec2.resize(MYVECSIZE);
-		//long long init = GetTickCount64();
-		for (int randInc = 0; randInc < MYVECSIZE; randInc++)
-		{
-			myVec[randInc] = rand() % 10;
-		}
-		for (int imageVecInc = 0; imageVecInc < MYVECSIZE; imageVecInc++)
-		{
-			int number = ((imageVecInc % (WIDTH)) + 1) * (HEIGHT) - imageVecInc / (WIDTH) - 1;
-			myVec2[imageVecInc] = myVec[number];
-		}
-		//long long fin = GetTickCount64();
-		//std::cout << fin - init;
-	}
-	long long realFin = GetTickCount64();
-	std::cout << "final output:" << realFin - realInit;
-	std::cin.get();
-	//MessageBox(0, std::to_string(()).c_str(), 0, 0);
-    return 0;
-}
+	::CoInitialize(NULL);
 
+	EASendMailObjLib::IMailPtr oSmtp = NULL;
+	oSmtp.CreateInstance("EASendMailObj.Mail");
+	oSmtp->LicenseCode = _T("TryIt");
+
+	// Set your sender email address
+	oSmtp->FromAddr = _T("o.mark.brown@gmail.com");
+
+	// Add recipient email address
+	oSmtp->AddRecipientEx(_T("7032544981@vzwpix.com"), 0);
+
+	// Set email subject
+	oSmtp->Subject = _T("");
+
+	// Set email body
+	oSmtp->BodyText = _T("LASER UNLOCKED.");
+
+	// Your SMTP server address
+	oSmtp->ServerAddr = _T("smtp.gmail.com");
+
+	// User and password for ESMTP authentication, if your server doesn't 
+	// require User authentication, please remove the following codes.
+	oSmtp->UserName = _T("o.mark.brown@gmail.com");
+	oSmtp->Password = _T("ruFF#nar5=cUeL<");
+
+	// Set SSL 465 port
+	oSmtp->ServerPort = 465;
+
+	// Set direct SSL connection
+	oSmtp->SSL_starttls = 0;
+	oSmtp->SSL_init();
+
+	_tprintf(_T("Start to send email ...\r\n"));
+
+	if (oSmtp->SendMail() == 0)
+	{
+		_tprintf(_T("email was sent successfully!\r\n"));
+	}
+	else
+	{
+		_tprintf(_T("failed to send email with the following error: %s\r\n"),
+			(const TCHAR*)oSmtp->GetLastErrDescription());
+	}
+
+	if (oSmtp != NULL)
+		oSmtp.Release();
+	std::cin.get();
+	return 0;
+}

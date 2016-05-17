@@ -2,7 +2,6 @@
 #include "myAndor.h"
 #include "appendText.h"
 #include "plotThread.h"
-#include "fitsio.h"
 #include <process.h>
 #include "arbitraryPlottingThreadProcedure.h"
 
@@ -122,114 +121,7 @@ namespace myAndor
 			return -1;
 		}
 		
-		/// Set folder and file name.
-		// Get the date and use it to set the folder where this data run will be saved.
-		// get time now
-		time_t t = time(0);   
-		struct tm now;
-		localtime_s(&now, &t);
-		std::string tempStr = std::to_string(now.tm_year + 1900);
-		// Grab the 3rd number and 4th number in the year (e.g 16 for 2016).
-		eFinalSaveFolder = tempStr[2];
-		eFinalSaveFolder += tempStr[3];
-		if (now.tm_mon + 1 < 10)
-		{
-			eFinalSaveFolder += "0";
-			eFinalSaveFolder += std::to_string(now.tm_mon + 1);
-		}
-		else
-		{
-			eFinalSaveFolder += std::to_string(now.tm_mon + 1);
-		}
-		if (now.tm_mday < 10)
-		{
-			eFinalSaveFolder += "0";
-			eFinalSaveFolder += std::to_string(now.tm_mday);
-		}
-		else
-		{
-			eFinalSaveFolder += std::to_string(now.tm_mday);
-		}
-		CreateDirectory((SAVE_BASE_ADDRESS + eFinalSaveFolder).c_str(), 0);
-		eFinalSaveFolder += "\\";
-		// object used to check if file exists.
-		struct stat buffer;
-		if (eIncSaveFileNameOption == true)
-		{
-			// find the first data file that hasn't been already written.
-			int fileNum = 1;
-			while ((stat((SAVE_BASE_ADDRESS + eFinalSaveFolder + "data_" + std::to_string(fileNum) + ".fits").c_str(), &buffer) == 0))
-			{
-				fileNum++;
-			}
-			// at this point a valid filename has been found.
-			eFinalSaveName = "data_" + std::to_string(fileNum) + ".fits";
-			// make a copy of the key file giving it an assoicated name in the appropriate folder.
-			int result = CopyFile((KEY_FILE_LOCATION + "key.txt").c_str(), (SAVE_BASE_ADDRESS + eFinalSaveFolder + "key_" + std::to_string(fileNum) + ".txt").c_str(), FALSE);
-			if (result == 0)
-			{
-				// failed
-				MessageBox(0, ("Failed to create copy of key file! Error Code: " + std::to_string(GetLastError())).c_str(), 0, 0);
-			}
-		}
-		else 
-		{
-			// check if file exists
-			if (((stat((SAVE_BASE_ADDRESS + eFinalSaveFolder + "data.fits").c_str(), &buffer) == 0)))
-			{
-				// if so, delete it. This is so that I can overwrite it later.
-				remove(((SAVE_BASE_ADDRESS)+eFinalSaveFolder + "data.fits").c_str());
-			}
-			eFinalSaveName = "data.fits";
-		}
-		int fitsStatus = 0;
-		if ((stat((SAVE_BASE_ADDRESS + eFinalSaveFolder + eFinalSaveName).c_str(), &buffer) == 0))
-		{
-			// if yes then delete it first.
-			int success = DeleteFile((SAVE_BASE_ADDRESS + eFinalSaveFolder + eFinalSaveName).c_str());
-			if (success == false)
-			{
-				// try closing the file via fits first.
-				fits_close_file(eFitsFile, &fitsStatus);
-				if (fitsStatus != 0)
-				{
-					std::vector<char> errMsg;
-					errMsg.resize(80);
-					fits_get_errstatus(fitsStatus, errMsg.data());
-					appendText("CFITS ERROR: " + std::string(errMsg.data()) + "\r\n", IDC_ERROR_EDIT);
-				}
-				// try again
-				success = DeleteFile((SAVE_BASE_ADDRESS + eFinalSaveFolder + eFinalSaveName).c_str());
-				if (success == false)
-				{
-					MessageBox(0, ("ERROR: Couldn't delte old .fits file. Error code:" + std::to_string(GetLastError())).c_str(), 0, 0);
-					return -1;
-				}
-			}
-		}
 
-		fits_create_file(&eFitsFile, (SAVE_BASE_ADDRESS + eFinalSaveFolder + eFinalSaveName).c_str(), &fitsStatus);
-
-		long axis[] = { eImageWidth, eImageHeight, eTotalNumberOfPicturesInSeries };
-		fits_create_img(eFitsFile, LONG_IMG, 3, axis, &fitsStatus);
-
-		// print any error messages
-		if (fitsStatus != 0)
-		{
-			std::vector<char> errMsg;
-			errMsg.resize(80);
-			//std::string errMsg;
-			fits_get_errstatus(fitsStatus, errMsg.data());
-			if (eFitsFile == NULL)
-			{
-				appendText("CFITS error: Could not create data file on andor. Is the andor connected???\r\n", IDC_STATUS_EDIT);
-			}
-			else
-			{
-				appendText("CFITS error: " + std::string(errMsg.data()) + "\r\n", IDC_STATUS_EDIT);
-			}
-		}
-		eFitsOkay = true;
 		// CAREFUL! I can only modify these guys here because I'm sure that I'm also not writing to them in the plotting thread since the plotting thread hasn't
 		// started yet. If moving stuff around, be careful.
 		// Initialize the thread accumulation number.
@@ -244,6 +136,15 @@ namespace myAndor
 			return -1;
 		}
 
+		/// setup fits files
+		std::string errMsg;
+		if (eExperimentData.initializeDataFiles(eIncSaveFileNameOption, errMsg))
+		{
+			appendText(errMsg, IDC_ERROR_EDIT);
+			return -1;
+		}
+
+		/// Do some plotting stuffs
 		// set default colors and linewidths on plots
 		eCurrentAccumulationNumber = 1;
 		// Create the Mutex. This function just opens the mutex if it already exists.
@@ -482,7 +383,21 @@ namespace myAndor
 			}
 			ReleaseMutex(ePlottingMutex);
 			// write the data to the file.
-			myAndor::writeFits("");
+			std::string errMsg;
+			int experimentPictureNumber;
+			if (eRealTimePictures)
+			{
+				experimentPictureNumber = 0;
+			}
+			else
+			{
+				experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerStack) % ePicturesPerExperiment);
+			}
+
+			if (eExperimentData.writeFits(errMsg, experimentPictureNumber, eCurrentAccumulationNumber, eImagesOfExperiment))
+			{
+				appendText(errMsg, IDC_ERROR_EDIT);
+			}
 		}
 		else
 		{
@@ -735,46 +650,6 @@ namespace myAndor
 			}
 		}
 		return;
-	}
-	int writeFits(std::string fileName)
-	{
-		if (!eFitsOkay)
-		{
-			return 0;
-		}
-		int experimentPictureNumber;
-		if (eRealTimePictures)
-		{
-			experimentPictureNumber = 0;
-		}
-		else
-		{
-			experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerStack) % ePicturesPerExperiment);
-		}
-		// the fits file now gets opened at the beginning of the run.
-		// MUST initialize status
-		int status = 0;
-		// check if file already exists.
-		// starting coordinates of read area of the array.
-		long fpixel[] = { 1, 1, eCurrentAccumulationNumber};
-		fits_write_pix(eFitsFile, TLONG, fpixel, eImagesOfExperiment[experimentPictureNumber].size(), &eImagesOfExperiment[experimentPictureNumber][0], &status);
-		// print any error messages
-		if (status != 0) 
-		{
-			std::vector<char> errMsg;
-			errMsg.resize(80);
-			//std::string errMsg;
-			fits_get_errstatus(status, errMsg.data());
-			if (eFitsFile == NULL)
-			{
-				appendText("CFITS error: Could not create data file on andor. Is the andor connected???\r\n", IDC_STATUS_EDIT);
-			}
-			else
-			{
-				appendText("CFITS error: " + std::string(errMsg.data()) + "\r\n", IDC_STATUS_EDIT);
-			}
-		}
-		return(status);
 	}
 	// The following are a set of simple functions that call the indicated andor SDK function if not in safe mode and check the error message.
 	int setTriggerMode(void)

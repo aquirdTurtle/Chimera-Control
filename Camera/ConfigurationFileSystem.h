@@ -1,14 +1,15 @@
 #pragma once
+
 #include <string>
 #include "Control.h"
 #include "Windows.h"
 #include <vector>
 
-class FileSystem 
+class ConfigurationFileSystem 
 {
 	public:
-		FileSystem(std::string fileSystemPath);
-		~FileSystem();
+		ConfigurationFileSystem(std::string fileSystemPath);
+		~ConfigurationFileSystem();
 		int openConfiguration(std::string configurationNameToOpen);
 		int saveConfiguration(bool isFromSaveAs);
 		int saveConfigurationAs(std::string newConfigurationName);

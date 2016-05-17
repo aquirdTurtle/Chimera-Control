@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "FileSystem.h"
+#include "ConfigurationFileSystem.h"
 #include "Windows.h"
 #include <fstream>
 #include "externals.h"
@@ -12,18 +12,18 @@
 #include "appendText.h"
 #include "Commctrl.h"
 
-FileSystem::FileSystem(std::string fileSystemPath)
+ConfigurationFileSystem::ConfigurationFileSystem(std::string fileSystemPath)
 {
 	FILE_SYSTEM_PATH = fileSystemPath;
 }
-FileSystem::~FileSystem()
+ConfigurationFileSystem::~ConfigurationFileSystem()
 {
 	// nothing for destructor right now
 }
 
-int FileSystem::openConfiguration(std::string configurationNameToOpen)
+int ConfigurationFileSystem::openConfiguration(std::string configurationNameToOpen)
 {
-	if (configurationNameToOpen == "" || !FileSystem::fileExists(FILE_SYSTEM_PATH + configurationNameToOpen + ".cConfig"))
+	if (configurationNameToOpen == "" || !ConfigurationFileSystem::fileExists(FILE_SYSTEM_PATH + configurationNameToOpen + ".cConfig"))
 	{
 		// can't open this.
 		return -1;
@@ -248,13 +248,13 @@ int FileSystem::openConfiguration(std::string configurationNameToOpen)
 	updateSaveStatus(true);
 	return 0;
 }
-int FileSystem::saveConfiguration(bool isFromSaveAs)
+int ConfigurationFileSystem::saveConfiguration(bool isFromSaveAs)
 {
 	// check if file exists
 	struct stat buffer;
-	if (configurationName == "" || (!FileSystem::fileExists(FILE_SYSTEM_PATH + configurationName + ".cConfig") && !isFromSaveAs))
+	if (configurationName == "" || (!ConfigurationFileSystem::fileExists(FILE_SYSTEM_PATH + configurationName + ".cConfig") && !isFromSaveAs))
 	{
-		configurationName = (const char*)DialogBoxParam(eHInst, MAKEINTRESOURCE(IDD_NAME_PROMPT_DIALOG), 0, (DLGPROC)dialogProcedures::namePromptDialogProcedure, (LPARAM)"This configuration "
+		configurationName = (const char*)DialogBoxParam(eHInst, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)dialogProcedures::textPromptDialogProcedure, (LPARAM)"This configuration "
 					   "has not been named. Please enter a configuration name.");
 		if (configurationName == "")
 		{
@@ -325,11 +325,11 @@ int FileSystem::saveConfiguration(bool isFromSaveAs)
 		SendMessage(eCurrentPlotsCombo.hwnd, CB_GETLBTEXT, plotInc, (LPARAM)text);
 		configurationSaveFile << std::string(text) + "\n";
 	}
-	FileSystem::reloadCombo(configurationName);
+	ConfigurationFileSystem::reloadCombo(configurationName);
 	updateSaveStatus(true);
 	return 0;
 }
-int FileSystem::saveConfigurationAs(std::string newConfigurationName)
+int ConfigurationFileSystem::saveConfigurationAs(std::string newConfigurationName)
 {
 	configurationName = newConfigurationName; 
 	if (configurationName == "")
@@ -337,13 +337,13 @@ int FileSystem::saveConfigurationAs(std::string newConfigurationName)
 		// canceled
 		return 0;
 	}
-	FileSystem::saveConfiguration(true);
-	FileSystem::reloadCombo(configurationName);
+	ConfigurationFileSystem::saveConfiguration(true);
+	ConfigurationFileSystem::reloadCombo(configurationName);
 	return 0;
 }
-int FileSystem::renameConfiguration(std::string newConfigurationName)
+int ConfigurationFileSystem::renameConfiguration(std::string newConfigurationName)
 {
-	std::string tempConfigurationName = (const char*)DialogBoxParam(eHInst, MAKEINTRESOURCE(IDD_NAME_PROMPT_DIALOG), 0, (DLGPROC)dialogProcedures::namePromptDialogProcedure, (LPARAM)"Please enter a configuration name.");
+	std::string tempConfigurationName = (const char*)DialogBoxParam(eHInst, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)dialogProcedures::textPromptDialogProcedure, (LPARAM)"Please enter a configuration name.");
 	if (tempConfigurationName == "")
 	{
 		// canceled
@@ -352,10 +352,10 @@ int FileSystem::renameConfiguration(std::string newConfigurationName)
 	// TODO: move the configuration file
 	MoveFile((FILE_SYSTEM_PATH + configurationName + ".cConfig").c_str(), (FILE_SYSTEM_PATH + tempConfigurationName + ".cConfig").c_str());
 	configurationName = tempConfigurationName;
-	FileSystem::reloadCombo(configurationName);
+	ConfigurationFileSystem::reloadCombo(configurationName);
 	return 0;
 }
-int FileSystem::deleteConfiguration()
+int ConfigurationFileSystem::deleteConfiguration()
 {
 	int answer = MessageBox(0, ("Are you sure that you want to delete the following configuraiton: " + configurationName).c_str(), 0, MB_OKCANCEL);
 	if (answer == IDOK)
@@ -368,12 +368,12 @@ int FileSystem::deleteConfiguration()
 		}
 		configurationName = "";
 	}
-	FileSystem::reloadCombo("__NONE__");
+	ConfigurationFileSystem::reloadCombo("__NONE__");
 	// no configuration loaded so don't want save prompt
 	updateSaveStatus(true);
 	return 0;
 }
-int FileSystem::checkSave()
+int ConfigurationFileSystem::checkSave()
 {
 	if (!configurationSaved)
 	{
@@ -386,7 +386,7 @@ int FileSystem::checkSave()
 	}
 }
 
-int FileSystem::initializeControls(POINT& topLeftPositionKinetic, POINT& topLeftPositionAccumulate, POINT& topLeftPositionContinuous, HWND parentWindow, bool isTriggerModeSensitive)
+int ConfigurationFileSystem::initializeControls(POINT& topLeftPositionKinetic, POINT& topLeftPositionAccumulate, POINT& topLeftPositionContinuous, HWND parentWindow, bool isTriggerModeSensitive)
 {
 	configLabel.kineticSeriesModePos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 100, topLeftPositionKinetic.y + 25 };
 	configLabel.accumulateModePos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 100, 
@@ -412,7 +412,7 @@ int FileSystem::initializeControls(POINT& topLeftPositionKinetic, POINT& topLeft
 		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, parentWindow, (HMENU)IDC_CONFIGURATION_COMBO, eHInst, NULL);
 	// add options
 	configCombo.fontType = "Normal";
-	FileSystem::reloadCombo("__NONE__");
+	ConfigurationFileSystem::reloadCombo("__NONE__");
 	topLeftPositionKinetic.y += 25;
 	topLeftPositionAccumulate.y += 25;
 	topLeftPositionContinuous.y += 25;
@@ -420,14 +420,14 @@ int FileSystem::initializeControls(POINT& topLeftPositionKinetic, POINT& topLeft
 	return 0;
 }
 
-int FileSystem::reorganizeControls(RECT parentRectangle, std::string mode)
+int ConfigurationFileSystem::reorganizeControls(RECT parentRectangle, std::string mode)
 {
 	reorganizeControl(configLabel, mode, parentRectangle);
 	reorganizeControl(configCombo, mode, parentRectangle);
 	return 0;
 }
 
-std::vector<std::string> FileSystem::searchForFiles(std::string locationToSearch, std::string extensions)
+std::vector<std::string> ConfigurationFileSystem::searchForFiles(std::string locationToSearch, std::string extensions)
 {
 	// Re-add the entries back in and figure out which one is the current one.
 	std::vector<std::string> names;
@@ -484,11 +484,11 @@ std::vector<std::string> FileSystem::searchForFiles(std::string locationToSearch
 	// Make the final vector out of the unique objects left.
 	return names;
 }
-int FileSystem::reloadCombo(std::string nameToLoad)
+int ConfigurationFileSystem::reloadCombo(std::string nameToLoad)
 {
 	std::vector<std::string> names;
 	// search for folders
-	names = FileSystem::searchForFiles(FILE_SYSTEM_PATH, "*.cConfig");
+	names = ConfigurationFileSystem::searchForFiles(FILE_SYSTEM_PATH, "*.cConfig");
 
 	/// Get current selection
 	long long itemIndex = SendMessage(configCombo.hwnd, CB_GETCURSEL, 0, 0);
@@ -517,13 +517,13 @@ int FileSystem::reloadCombo(std::string nameToLoad)
 	return 0;
 }
 
-bool FileSystem::fileExists(std::string filePathway)
+bool ConfigurationFileSystem::fileExists(std::string filePathway)
 {
 	// got this from stack exchange. dunno how it works but it should be fast.
 	struct stat buffer;
 	return (stat(filePathway.c_str(), &buffer) == 0);
 }
-std::string FileSystem::getComboText()
+std::string ConfigurationFileSystem::getComboText()
 {
 	int selectionNum = SendMessage(configCombo.hwnd, CB_GETCURSEL, 0, 0);
 	if (selectionNum == -1)
@@ -538,7 +538,7 @@ std::string FileSystem::getComboText()
 	}
 }
 
-void FileSystem::updateSaveStatus(bool saved)
+void ConfigurationFileSystem::updateSaveStatus(bool saved)
 {
 	configurationSaved = saved;
 }

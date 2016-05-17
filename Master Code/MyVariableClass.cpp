@@ -29,10 +29,8 @@ int MyVariableClass::initializeVariableControls(POINT upperLeftHandLocation, HWN
 	variableListControl.hwnd = CreateWindowEx(0, WC_LISTVIEW, "", WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS,
 											  location.left, location.top, location.right - location.left, location.bottom - location.top,
 											  parentWindow, (HMENU)ID_VAR_LIST, GetModuleHandle(NULL), NULL);
-	int a = GetLastError();
-	MessageBox(0, std::to_string(a).c_str(), 0, 0);
-
 	LVITEM listViewDefaultItem;
+	/// Make Columns
 	LV_COLUMN listViewDefaultCollumn;
 	// Zero Members
 	memset(&listViewDefaultCollumn, 0, sizeof(listViewDefaultCollumn));                  
@@ -40,7 +38,7 @@ int MyVariableClass::initializeVariableControls(POINT upperLeftHandLocation, HWN
 	listViewDefaultCollumn.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;    
 	// width between each coloum
 	listViewDefaultCollumn.cx = 0x28;                                   
-	listViewDefaultCollumn.pszText = "Variable Name";                           
+	listViewDefaultCollumn.pszText = "Variable Name";
 	listViewDefaultCollumn.cx = 0x42;   
 	// Inserting Couloms as much as we want
 	SendMessage(variableListControl.hwnd, LVM_INSERTCOLUMN, 0, (LPARAM)&listViewDefaultCollumn);
@@ -50,9 +48,9 @@ int MyVariableClass::initializeVariableControls(POINT upperLeftHandLocation, HWN
 	SendMessage(variableListControl.hwnd, LVM_INSERTCOLUMN, 2, (LPARAM)&listViewDefaultCollumn);
 	listViewDefaultCollumn.pszText = "Units (Cosmetic)";
 	SendMessage(variableListControl.hwnd, LVM_INSERTCOLUMN, 3, (LPARAM)&listViewDefaultCollumn);
-	// width of column
+	// Make Items
 	memset(&listViewDefaultItem, 0, sizeof(listViewDefaultItem));
-	memset(&listViewDefaultCollumn, 0, sizeof(listViewDefaultCollumn)); // Zero struct's Members
+	//memset(&listViewDefaultCollumn, 0, sizeof(listViewDefaultCollumn)); // Zero struct's Members
 
 	//  Setting properties Of members:
 
