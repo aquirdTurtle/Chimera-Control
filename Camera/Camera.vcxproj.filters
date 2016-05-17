@@ -117,17 +117,20 @@
     <ClInclude Include="arbitraryPlottingThreadProcedure.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FileSystem.h">
+    <ClInclude Include="ExperimentTimer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ExperimentTimer.h">
+    <ClInclude Include="ConfigurationFileSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DataFileSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SMSTextingControl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Camera.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
     <ClCompile Include="appendText.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
@@ -188,10 +191,19 @@
     <ClCompile Include="arbitraryPlottingThreadProcedure.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="FileSystem.cpp">
+    <ClCompile Include="ExperimentTimer.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="ExperimentTimer.cpp">
+    <ClCompile Include="cameraMain.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationFileSystem.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DataFileSystem.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SMSTextingControl.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -207,5 +219,10 @@
     <Image Include="Camera.ico">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="easendmailobj.tlh">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

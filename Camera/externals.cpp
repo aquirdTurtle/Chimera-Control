@@ -6,16 +6,20 @@
 #include <boost/tuple/tuple.hpp>
 #include "constants.h"
 #include "gnuplot-iostream.h"
-#include "fitsio.h"
-#include "FileSystem.h"
+//#include "fitsio.h"
+#include "ConfigurationFileSystem.h"
 #include "ExperimentTimer.h"
-/// \\\ THINGS THAT THE USER SETS \\\ ///
-FileSystem eCameraFileSystem("C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Camera Configuration Files\\");
-ExperimentTimer eCameraWindowExperimentTimer;
+#include "DataFileSystem.h"
+#include "SMSTextingControl.h"
 
-bool eFitsOkay;
+/// \\\ THINGS THAT THE USER SETS \\\ ///
+ConfigurationFileSystem eCameraFileSystem(CAMERA_CONFIGURATION_FILES_LOCATION);
+ExperimentTimer eCameraWindowExperimentTimer;
+DataFileSystem eExperimentData(SAVE_BASE_ADDRESS);
+SMSTextingControl eTextingHandler;
+//bool eFitsOkay;
 bool eRealTimePictures = false;
-fitsfile *eFitsFile;
+//fitsfile *eFitsFile;
 std::array<int, 4> eCurrentMaximumPictureCount{325, 325, 325, 325};
 std::array<int, 4> eCurrentMinimumPictureCount{95, 95, 95, 95};
 std::array<int, 4> eCurrentPicturePallete{ 0, 0, 1, 2 };
@@ -194,6 +198,7 @@ HBRUSH eGreyGreenBrush = CreateSolidBrush(RGB(100, 110, 100));
 HBRUSH eDarkGreenBrush = CreateSolidBrush(RGB(0, 30, 0));
 HBRUSH eDarkRedBrush = CreateSolidBrush(RGB(100, 0, 0));
 HBRUSH eDarkBlueBrush = CreateSolidBrush(RGB(0, 0, 100));
+HBRUSH eGreyRedBrush = CreateSolidBrush(RGB(120, 100, 100));
 
 HANDLE ePlottingMutex;
 HWND eInitializeDialogBoxHandle;
@@ -211,4 +216,3 @@ volatile bool ePlotThreadExitIndicator;
 unsigned int eAccMessageID = 0, eFinMessageID = 0, eErrMessageID = 0;
 HANDLE eCameraThreadHandle;
 HANDLE ePlottingThreadHandle;
-

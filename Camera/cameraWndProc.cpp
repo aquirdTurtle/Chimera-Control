@@ -1,5 +1,4 @@
 #include "stdafx.h"
-
 #include "cameraWndProc.h"
 #include "constants.h"
 #include "myAndor.h"
@@ -20,12 +19,13 @@
 #include "Shellapi.h"
 #include "fileManage.h"
 #include "Commctrl.h"
+#include "DataFileSystem.h"
 
 LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch(msg) 
 	{
-		case WM_CREATE: 
+		case WM_CREATE:
 		{
 			initializeCameraWindow(hWnd);
 			break;
@@ -36,6 +36,33 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 			HDC hdcStatic = (HDC)wParam;
 			switch (ctrlID)
 			{
+				case IDC_EM_GAIN_MODE_EDIT:
+				{
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					TCHAR textEdit[256];
+					SendMessage(eEMGainEdit.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
+					int emGainSetting;
+					try
+					{
+						emGainSetting = std::stoi(std::string(textEdit));
+						if ((emGainSetting < 0 && eEMGainMode == false) || (emGainSetting == eEMGainLevel))
+						{
+							// good.
+							SetTextColor(hdcStatic, RGB(255, 255, 255));
+							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							return (INT_PTR)eGreyGreenBrush;
+							break;
+						}
+					}
+					catch (std::exception&)
+					{
+						// don't do anything with it.
+					}
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					SetBkColor(hdcStatic, RGB(120, 100, 100));
+					return (INT_PTR)eGreyRedBrush;
+				}
+
 				default:
 				{
 					SetTextColor(hdcStatic, RGB(255, 255, 255));
@@ -294,11 +321,34 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 			}
 			break;
 		}
+		case WM_NOTIFY:
+		{
+			int notifyMessage = ((LPNMHDR)lParam)->code;
+			switch (notifyMessage)
+			{
+				case NM_DBLCLK:
+				{
+					eTextingHandler.updatePersonInfo(hWnd, lParam);
+					break;
+				}
+				case NM_RCLICK:
+				{
+					eTextingHandler.deletePersonInfo(hWnd, lParam);
+					break;
+				}
+			}
+			break;
+		}
 		case WM_COMMAND:
 		{
 			int controlID = LOWORD(wParam);
 			switch (controlID)
 			{
+				case ID_NOTIFICATIONS_CHANGE_EMAIL_AND_PASSWORD:
+				{
+					eTextingHandler.promptForEmailAddressAndPassword();
+					break;
+				}
 				case ID_PICTURES_REAL_TIME_PICTURES:
 				{
 					MENUITEMINFO itemInfo;
@@ -805,6 +855,9 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						break;
 					}
 
+					eCameraWindowExperimentTimer.setColorID(ID_BLUE);
+					eCameraWindowExperimentTimer.setTimerDisplay("Starting...");
+
 					// Set the running version to whatever is selected at the beginning of this function.
 					eCurrentlyRunningCameraMode = eCurrentlySelectedCameraMode;
 					// check exposure times
@@ -933,12 +986,12 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					std::string dialogMsg;
 					dialogMsg = "Starting Parameters:\r\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\r\n";
 					dialogMsg += "Current Camera Temperature Setting: " + std::to_string(eCameraTemperatureSetting) + "\r\n";
-					dialogMsg += "Exposure Time: ";
+					dialogMsg += "Exposure Times: ";
 					for (int exposureInc = 0; exposureInc < eExposureTimes.size(); exposureInc++)
 					{
 						dialogMsg += std::to_string(eExposureTimes[exposureInc] * 1000) + ", ";
 					}
-					dialogMsg += "\b\b\r\n";
+					dialogMsg += "\r\n";
 					dialogMsg += "Image Settings: " + std::to_string(eLeftImageBorder) + " - " + std::to_string(eRightImageBorder) + ", "
 						+ std::to_string(eTopImageBorder) + " - " + std::to_string(eBottomImageBorder) + "\r\n";
 					dialogMsg += "\r\n";
@@ -996,27 +1049,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						break;
 					}
 					int fitsStatus = 0;
-					eFitsOkay = false;
-					// give the thread some time so that don't try to open a closed file... not very good solution.
-					// TODO: Improve this
-					Sleep(500);
-					fits_close_file(eFitsFile, &fitsStatus);
-					// print any error messages
-					if (fitsStatus != 0 && fitsStatus != 114)
-					{
-						std::vector<char> errMsg;
-						errMsg.resize(80);
-						//std::string errMsg;
-						fits_get_errstatus(fitsStatus, errMsg.data());
-						if (eFitsFile == NULL)
-						{
-							appendText("CFITS error: Could not create data file on andor. Is the andor connected???\r\n", IDC_STATUS_EDIT);
-						}
-						else
-						{
-							appendText("CFITS error: " + std::string(errMsg.data()) + "\r\n", IDC_STATUS_EDIT);
-						}
-					}
+					std::string errorMessage;
 					// abort acquisition if in progress
 					int status;
 					std::string errMsg;
@@ -1071,6 +1104,11 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					{
 						appendText("System was not Acquiring\r\n", IDC_STATUS_EDIT);
 					}
+					if (eExperimentData.closeFits(errorMessage))
+					{
+						appendText(errorMessage, IDC_ERROR_EDIT);
+					}
+
 					break;
 				}
 				case ID_FILE_EXIT:
@@ -1718,7 +1756,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 				}
 				case ID_CONFIGURATION_SAVE_CONFIGURATIONAS:
 				{
-					eCameraFileSystem.saveConfigurationAs((const char*)DialogBoxParam(eHInst, MAKEINTRESOURCE(IDD_NAME_PROMPT_DIALOG), 0, (DLGPROC)dialogProcedures::namePromptDialogProcedure, (LPARAM)"Save As: Please enter a new configuration name."));
+					eCameraFileSystem.saveConfigurationAs((const char*)DialogBoxParam(eHInst, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)dialogProcedures::textPromptDialogProcedure, (LPARAM)"Save As: Please enter a new configuration name."));
 					break;
 				}
 				case ID_CONFIGURATION_SAVE_CONFIGURATION:
@@ -1733,7 +1771,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 				}
 				case ID_CONFIGURATION_RENAME_CONFIGURATION:
 				{
-					eCameraFileSystem.renameConfiguration((const char*)DialogBoxParam(eHInst, MAKEINTRESOURCE(IDD_NAME_PROMPT_DIALOG), 0, (DLGPROC)dialogProcedures::namePromptDialogProcedure, (LPARAM)"Please enter a new configuration name."));
+					eCameraFileSystem.renameConfiguration((const char*)DialogBoxParam(eHInst, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)dialogProcedures::textPromptDialogProcedure, (LPARAM)"Please enter a new configuration name."));
 					break;
 				}
 				case IDC_CONFIGURATION_COMBO:
@@ -1860,29 +1898,6 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 				{
 					eCameraWindowExperimentTimer.update(eCurrentAccumulationNumber, ePicturesPerStack, eCurrentAccumulationStackNumber, hWnd);
 				}
-				if (eCurrentlyRunningCameraMode == "Kinetic Series Mode" && eCurrentAccumulationNumber == eTotalNumberOfPicturesInSeries)
-				{
-					ePlotThreadExitIndicator = false;
-					eSystemIsRunning = false;
-					// Wait until plotting thread is complete.
-					WaitForSingleObject(ePlottingThreadHandle, INFINITE);
-					int fitsStatus = 0;
-					eFitsOkay = false;
-					// give the thread some time so that don't try to open a closed file... not very good solution.
-					// TODO: Improve this
-					Sleep(500);
-					fits_close_file(eFitsFile, &fitsStatus);
-					// print any error messages
-					// 114 is the invalid pointer error which indicates it's already been closed.
-					if (fitsStatus != 0 && fitsStatus != 114)
-					{
-						std::vector<char> errMsg;
-						errMsg.resize(80);
-						//std::string errMsg;
-						fits_get_errstatus(fitsStatus, errMsg.data());
-						appendText("CFITS error: " + std::string(errMsg.data()) + "\r\n", IDC_STATUS_EDIT);
-					}
-				}
 			}
 			else if (msg == eFinMessageID) 
 			{
@@ -1903,26 +1918,38 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 				WaitForSingleObject(ePlottingThreadHandle, INFINITE);
 				eSystemIsRunning = false;
 				//appendText((std::to_string(eCount1) + ", " + std::to_string(eCount2) + ", " + std::to_string(eCount3) + "\r\n"), IDC_STATUS_EDIT);
-				eFitsOkay = false;
-				// give the thread some time so that don't try to open a closed file... not very good solution.
-				// TODO: Improve this
-				Sleep(500);
-				int fitsStatus = 0;
-				fits_close_file(eFitsFile, &fitsStatus);
-				// print any error messages
-				if (fitsStatus != 0 && fitsStatus != 114)
+				std::string errorMessage;
+				if (eExperimentData.closeFits(errorMessage))
 				{
-					std::vector<char> errMsg;
-					errMsg.resize(80);
-					//std::string errMsg;
-					fits_get_errstatus(fitsStatus, errMsg.data());
-					appendText("CFITS error: " + std::string(errMsg.data()) + "\r\n", IDC_STATUS_EDIT);
+					appendText(errorMessage, IDC_ERROR_EDIT);
 				}
 				if (eCurrentlyRunningCameraMode == "Kinetic Series Mode")
 				{
 					eCameraWindowExperimentTimer.update(eCurrentAccumulationNumber, ePicturesPerStack, eCurrentAccumulationStackNumber, hWnd);
 				}
-				appendText("Finished Entire Experiment Sequence.", IDC_STATUS_EDIT);
+				appendText("Finished Entire Experiment Sequence.\r\n", IDC_STATUS_EDIT);
+				// get time to include in text message.
+				time_t t = time(0);
+				struct tm now;
+				localtime_s(&now, &t);
+				std::string message = "Experiment Completed at ";
+				if (now.tm_hour < 10)
+				{
+					message += "0";
+				}
+				message += std::to_string(now.tm_hour) + ":";
+				if (now.tm_min < 10)
+				{
+					message += "0";
+				}
+				message += std::to_string(now.tm_min) + ":"; 
+				if (now.tm_sec < 10)
+				{
+					message += "0";
+				}
+				message += std::to_string(now.tm_sec);
+
+				eTextingHandler.sendMessage(message);
 				break;
 			}
 			else if (msg == eErrMessageID) 
@@ -1930,26 +1957,10 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 				appendText("ERROR: Get Acq Progress Error\r\n", IDC_ERROR_EDIT);
 				UpdateWindow(eStatusEditHandle.hwnd);
 				int fitsStatus = 0;
-				eFitsOkay = false;
-				// give the thread some time so that don't try to open a closed file... not very good solution.
-				// TODO: Improve this
-				Sleep(500);
-				fits_close_file(eFitsFile, &fitsStatus);
-				// print any error messages
-				if (fitsStatus != 0 && fitsStatus != 114)
+				std::string errorMessage;
+				if (eExperimentData.closeFits(errorMessage))
 				{
-					std::vector<char> errMsg;
-					errMsg.resize(80);
-					//std::string errMsg;
-					fits_get_errstatus(fitsStatus, errMsg.data());
-					if (eFitsFile == NULL)
-					{
-						appendText("CFITS error: Could not create data file on andor. Is the andor connected???\r\n", IDC_STATUS_EDIT);
-					}
-					else
-					{
-						appendText("CFITS error: " + std::string(errMsg.data()) + "\r\n", IDC_STATUS_EDIT);
-					}
+					appendText(errorMessage, IDC_ERROR_EDIT);
 				}
 				break;
 			}

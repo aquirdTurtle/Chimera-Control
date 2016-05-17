@@ -179,13 +179,14 @@
     <ClInclude Include="cameraThread.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="createIdentityPalette.h" />
+    <ClInclude Include="DataFileSystem.h" />
     <ClInclude Include="DataSet.h" />
     <ClInclude Include="dialogProcedures.h" />
     <ClInclude Include="drawDataWindow.h" />
     <ClInclude Include="ExperimentTimer.h" />
     <ClInclude Include="externals.h" />
     <ClInclude Include="fileManage.h" />
-    <ClInclude Include="FileSystem.h" />
+    <ClInclude Include="ConfigurationFileSystem.h" />
     <ClInclude Include="fitsio.h" />
     <ClInclude Include="fonts.h" />
     <ClInclude Include="gnuplot-iostream.h" />
@@ -201,6 +202,7 @@
     <ClInclude Include="reorganizeWindow.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="postMyString.h" />
+    <ClInclude Include="SMSTextingControl.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="cameraWndProc.h" />
@@ -212,12 +214,13 @@
     <ClCompile Include="cameraMain.cpp" />
     <ClCompile Include="cameraThread.cpp" />
     <ClCompile Include="createIdentityPalette.cpp" />
+    <ClCompile Include="DataFileSystem.cpp" />
     <ClCompile Include="DataSet.cpp" />
     <ClCompile Include="dialogProcedures.cpp" />
     <ClCompile Include="ExperimentTimer.cpp" />
     <ClCompile Include="externals.cpp" />
     <ClCompile Include="fileManage.cpp" />
-    <ClCompile Include="FileSystem.cpp" />
+    <ClCompile Include="ConfigurationFileSystem.cpp" />
     <ClCompile Include="initializationUpdate.cpp" />
     <ClCompile Include="initializeCameraWindow.cpp" />
     <ClCompile Include="myAndor.cpp" />
@@ -227,6 +230,7 @@
     <ClCompile Include="postMyString.cpp" />
     <ClCompile Include="reorganizeControl.cpp" />
     <ClCompile Include="reorganizeWindow.cpp" />
+    <ClCompile Include="SMSTextingControl.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -241,6 +245,9 @@
   <ItemGroup>
     <Image Include="Camera.ico" />
     <Image Include="small.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="easendmailobj.tlh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

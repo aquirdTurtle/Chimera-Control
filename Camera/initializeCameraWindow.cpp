@@ -29,6 +29,8 @@ bool initializeCameraWindow(HWND cameraWindow)
 	RECT initPos;
 	/// Filesystem Controls
 	eCameraFileSystem.initializeControls(collumnPosKin, collumnPosAccum, collumnPosCont, cameraWindow, false);
+	POINT texterPosition = { 480, 150 };
+	eTextingHandler.initializeControls(texterPosition, texterPosition, texterPosition, cameraWindow, false);
 	/// CAMERA MODE
 	eCameraModeComboHandle.kineticSeriesModePos = { 0, collumnPosKin.y, 480, collumnPosKin.y + 800 };
 	eCameraModeComboHandle.continuousSingleScansModePos = eCameraModeComboHandle.accumulateModePos = eCameraModeComboHandle.kineticSeriesModePos;
