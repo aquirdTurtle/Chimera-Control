@@ -27,7 +27,6 @@ namespace myAndor
 					return -1;
 				}
 				errorMessage = myAndor::andorErrorChecker(SetHSSpeed(0, 0));
-				
 				if (errorMessage != "DRV_SUCCESS")
 				{
 					appendText("ERROR: SetHSSpeed Error: " + errorMessage + "\r\n", IDC_STATUS_EDIT);
@@ -1032,7 +1031,7 @@ namespace myAndor
 				errorMessage = myAndor::andorErrorChecker(GetPreAmpGain(2, &myGain));
 				if (errorMessage != "DRV_SUCCESS")
 				{
-					appendText("ERROR: GetPreAmpGain() returned error: " + errorMessage + "\r\n", IDC_ERROR_EDIT);
+					appendText("ERROR: GetPreAmpGain(2) returned error: " + errorMessage + "\r\n", IDC_ERROR_EDIT);
 					return -1;
 				}
 				errorMessage = myAndor::andorErrorChecker(SetOutputAmplifier(1));
@@ -1059,10 +1058,34 @@ namespace myAndor
 					appendText("ERROR: SetOutputAmplifier(0) (0 for EM gain mode) returned error: " + errorMessage + "\r\n", IDC_ERROR_EDIT);
 					return -1;
 				}
+				errorMessage = myAndor::andorErrorChecker(SetPreAmpGain(2));
+				if (errorMessage != "DRV_SUCCESS")
+				{
+					appendText("ERROR: SetPreAmpGain() returned error: " + errorMessage + "\r\n", IDC_ERROR_EDIT);
+					return -1;
+				}
+				if (eEMGainLevel > 300)
+				{
+					errorMessage = myAndor::andorErrorChecker(SetEMAdvanced(1));
+					if (errorMessage != "DRV_SUCCESS")
+					{
+						appendText("ERROR: SetEMAdvanced(1) returned error: " + errorMessage + "\r\n", IDC_ERROR_EDIT);
+						return -1;
+					}
+				}
+				else
+				{
+					errorMessage = myAndor::andorErrorChecker(SetEMAdvanced(0));
+					if (errorMessage != "DRV_SUCCESS")
+					{
+						appendText("ERROR: SetEMAdvanced(0) returned error: " + errorMessage + "\r\n", IDC_ERROR_EDIT);
+						return -1;
+					}
+				}
 				errorMessage = myAndor::andorErrorChecker(SetEMCCDGain(eEMGainLevel));
 				if (errorMessage != "DRV_SUCCESS")
 				{
-					appendText("ERROR: SetEMCCDGain(1) returned error: " + errorMessage + "\r\n", IDC_ERROR_EDIT);
+					appendText("ERROR: SetEMCCDGain(gainLevel) returned error: " + errorMessage + "\r\n", IDC_ERROR_EDIT);
 					return -1;
 				}
 			}
