@@ -676,7 +676,7 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 						ePlotter << "set xlabel \"Count #\"\n";
 						ePlotter << "set ylabel \"Occurrences\"\n";
 						double spaceFactor = 0.8;
-						double boxWidth = spaceFactor / allPlottingInfo[plotInc].getPixelGroupNumber();
+						double boxWidth = spaceFactor / (allPlottingInfo[plotInc].getPixelGroupNumber() * allPlottingInfo[plotInc].getDataSetNumber());
 						ePlotter << "set boxwidth " + std::to_string(boxWidth) + "\n";
 						ePlotter << "set style fill solid 1\n";
 						std::string binWidth;

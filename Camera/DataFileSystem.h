@@ -11,10 +11,14 @@ class DataFileSystem
 		bool closeFits(std::string& errMsg);
 		bool getKey(std::string& errMsg);
 		bool checkFitsError(int fitsStatusIndicator, std::string& errMsg);
+		bool forceFitsClosed();
+		bool copyAndMoveKeyFile();
 	private:
 		fitsfile* myFitsFile;
 		bool fitsIsOpen;
 		std::string mostRecentInitializationDate;
 		std::string dataFilesBaseLocation;
+		std::string currentSaveFolder;
+		int currentDataFileNumber;
 };
 

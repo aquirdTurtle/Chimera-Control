@@ -153,7 +153,6 @@ namespace myAndor
 		ePlotThreadExitIndicator = true;
 		// start thread.
 		unsigned int * plottingThreadID = NULL;
-		//eNIAWGWaitThreadHandle = (HANDLE)_beginthreadex(0, 0, NIAWGWaitThread, &eSessionHandle, 0, &NIAWGThreadID);
 		std::vector<std::string>* argPlotNames;
 		argPlotNames = new std::vector<std::string>;
 		for (int plotNameInc = 0; plotNameInc < eCurrentPlotNames.size(); plotNameInc++)
@@ -277,30 +276,8 @@ namespace myAndor
 			errMsg = "DRV_SUCCESS";
 			for (int imageVecInc = 0; imageVecInc < eImagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 			{
-				//if (imageVecInc == 5 || imageVecInc == 8)
-				//{
-				//	if (rand() % 2)
-				//	{
-				//		// load atom
-				//		tempImage[imageVecInc] = rand() % 50 + 275;
-				//	}
-				//	else
-				//	{
-				//		// background
-				//		tempImage[imageVecInc] = rand() % 50 + 275;
-				//	}
-				//}
-				//else
-				//{
-					// background
-					// fill the image with random numbers between 0 and 500.
 				tempImage[imageVecInc] = rand() % 50 + 95;
-				//}
-				//long long time1 = GetTickCount64();
-
-				//MessageBox(0, std::to_string((GetTickCount64() - time1) / 1000).c_str(), 0, 0);
 			}
-
 			for (int imageVecInc = 0; imageVecInc < eImagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 			{
 				eImagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc % eImageWidth) + 1) * eImageHeight - imageVecInc / eImageWidth - 1];

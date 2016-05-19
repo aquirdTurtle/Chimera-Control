@@ -1873,7 +1873,6 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 			{
 
 				appendText("Warning: Plotting is running slow. Reduce plotting frequency to see plots in real-time.\r\n", IDC_ERROR_EDIT);
-
 				break;
 			}
 			else if (msg == ePlottingCaughtUpMessage)
@@ -1948,8 +1947,13 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					message += "0";
 				}
 				message += std::to_string(now.tm_sec);
+				if (eIncSaveFileNameOption)
+				{
+					// make a copy of the key file and put it in the current experiment folder. 
+					eExperimentData.copyAndMoveKeyFile();
+				}
+				//eTextingHandler.sendMessage(message);
 
-				eTextingHandler.sendMessage(message);
 				break;
 			}
 			else if (msg == eErrMessageID) 

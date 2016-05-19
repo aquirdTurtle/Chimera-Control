@@ -13,6 +13,8 @@
 #include "ExperimentTimer.h"
 #include "DataFileSystem.h"
 #include "SMSTextingControl.h"
+#include "DataAnalysisHandler.h"
+
 /// THINGS THAT THE USER SETS !@$#!@#$!@#$!@$!@#$!@#$!@$#!@#$!@#$@!#$!$!@#$!@#$@!$#@!#$!@#$!@$#!#$!@#$!@#$!@#$!@#$!@$#!@$#!@$#!@$#@!#$!@$#!@$#!@#$!@$#!@$#!@$#!#
 //extern bool eFitsOkay;
 extern bool eRealTimePictures;
@@ -21,6 +23,7 @@ extern DataFileSystem eExperimentData;
 extern SMSTextingControl eTextingHandler;
 extern ConfigurationFileSystem eCameraFileSystem;
 extern ExperimentTimer eCameraWindowExperimentTimer;
+extern DataAnalysisHandler eAutoAnalysisHandler;
 
 extern std::array<int, 4> eCurrentMaximumPictureCount;
 extern std::array<int, 4> eCurrentMinimumPictureCount;
