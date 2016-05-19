@@ -129,6 +129,9 @@
     <ClInclude Include="SMSTextingControl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DataAnalysisHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appendText.cpp">
@@ -204,6 +207,9 @@
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="SMSTextingControl.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DataAnalysisHandler.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
   </ItemGroup>

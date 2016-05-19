@@ -38,8 +38,8 @@ bool SMSTextingControl::initializeControls(POINT& topLeftPositionKinetic, POINT&
 		parentWindow, (HMENU)-1, eHInst, NULL);
 	title.fontType = "Heading";
 
-	peopleListView.kineticSeriesModePos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y + 25, topLeftPositionKinetic.x + 272, topLeftPositionKinetic.y + 200 };
-	peopleListView.accumulateModePos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y + 25, topLeftPositionAccumulate.x + 272, topLeftPositionAccumulate.y + 200 };
+	peopleListView.kineticSeriesModePos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y + 25, topLeftPositionKinetic.x + 272, topLeftPositionKinetic.y + 120 };
+	peopleListView.accumulateModePos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y + 25, topLeftPositionAccumulate.x + 272, topLeftPositionAccumulate.y + 120 };
 	peopleListView.continuousSingleScansModePos = { -1, -1, -1, -1 };
 	initPos = peopleListView.kineticSeriesModePos;
 	peopleListView.hwnd = CreateWindowEx(0, WC_LISTVIEW, "", WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS,
@@ -81,6 +81,9 @@ bool SMSTextingControl::initializeControls(POINT& topLeftPositionKinetic, POINT&
 	listViewDefaultItem.iSubItem = 3;
 	listViewDefaultItem.pszText = "No";
 	SendMessage(peopleListView.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewDefaultItem); // Enter text to SubItems
+
+	topLeftPositionKinetic.y += 120;
+	topLeftPositionAccumulate.y += 120;
 
 	return false;
 }
@@ -248,6 +251,11 @@ bool SMSTextingControl::sendMessage(std::string message)
 	::CoInitialize(NULL);
 	mailObject = NULL;
 	mailObject.CreateInstance("EASendMailObj.Mail");
+	if (mailObject == NULL)
+	{
+		message = "Couldn't initialize SMTP messaging object. Is the EASendMailObj system installed?\r\n";
+		return true;
+	}
 	// do I need to pay for this at some point...?
 	mailObject->LicenseCode = _T("TryIt");
 	// Set your sender email address

@@ -17,6 +17,8 @@ ConfigurationFileSystem eCameraFileSystem(CAMERA_CONFIGURATION_FILES_LOCATION);
 ExperimentTimer eCameraWindowExperimentTimer;
 DataFileSystem eExperimentData(SAVE_BASE_ADDRESS);
 SMSTextingControl eTextingHandler;
+DataAnalysisHandler eAutoAnalysisHandler;
+
 //bool eFitsOkay;
 bool eRealTimePictures = false;
 //fitsfile *eFitsFile;

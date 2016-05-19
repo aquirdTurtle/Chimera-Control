@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "DataFileSystem.h"
 #include "appendText.h"
+#include "externals.h"
 
 DataFileSystem::DataFileSystem(std::string systemLocation)
 {
@@ -12,19 +13,32 @@ DataFileSystem::~DataFileSystem()
 {
 	// nothing right now.
 }
+
+bool DataFileSystem::copyAndMoveKeyFile()
+{
+	int result = CopyFile((KEY_FILE_LOCATION + "key.txt").c_str(), (SAVE_BASE_ADDRESS + currentSaveFolder + "key_" + std::to_string(currentDataFileNumber) + ".txt").c_str(), 
+						  FALSE);
+	if (result == 0)
+	{
+		// failed
+		MessageBox(0, ("Failed to create copy of key file! Error Code: " + std::to_string(GetLastError())).c_str(), 0, 0);
+		// but continue, no breaking...
+		return true;
+	}
+	return false;
+}
+
+bool DataFileSystem::forceFitsClosed()
+{
+	int fitsStatus = 0;
+	fits_close_file(myFitsFile, &fitsStatus);
+	return false;
+}
+
 bool DataFileSystem::initializeDataFiles(bool incrementFiles, std::string& errMsg)
 {
-	// check if already open.
-	if (fitsIsOpen == true)
-	{
-		// then close it.
-		if (DataFileSystem::closeFits(errMsg))
-		{
-			return true;
-		}
-		fitsIsOpen = false;
-	}
-
+	// This really needs to be closed at this point. don't try to check if open in case of bugs.
+	DataFileSystem::forceFitsClosed();
 	// if the function fails, the fits file will not be open. If it succeeds, this will get set to true.
 	fitsIsOpen = false;
 	/// First, create the folder for today's fits data.
@@ -56,6 +70,7 @@ bool DataFileSystem::initializeDataFiles(bool incrementFiles, std::string& errMs
 	{
 		finalSaveFolder += std::to_string(now.tm_mday);
 	}
+	currentSaveFolder = finalSaveFolder;
 	// create date's folder.
 	int result = CreateDirectory((SAVE_BASE_ADDRESS + finalSaveFolder).c_str(), 0);
 	finalSaveFolder += "\\";
@@ -73,15 +88,9 @@ bool DataFileSystem::initializeDataFiles(bool incrementFiles, std::string& errMs
 		}
 		// at this point a valid filename has been found.
 		finalSaveFileName = "data_" + std::to_string(fileNum) + ".fits";
-		// make a copy of the key file giving it an assoicated name in the appropriate folder.
-		int result = CopyFile((KEY_FILE_LOCATION + "key.txt").c_str(), 
-							  (SAVE_BASE_ADDRESS + finalSaveFolder + "key_" + std::to_string(fileNum) + ".txt").c_str(), FALSE);
-		if (result == 0)
-		{
-			// failed
-			MessageBox(0, ("Failed to create copy of key file! Error Code: " + std::to_string(GetLastError())).c_str(), 0, 0);
-			// but continue, no breaking...
-		}		
+		// update this, which is used later to move the key file.
+		currentDataFileNumber = fileNum;
+		eAutoAnalysisHandler.updateDataSetNumberEdit(currentDataFileNumber);
 	}
 	else
 	{
@@ -95,11 +104,11 @@ bool DataFileSystem::initializeDataFiles(bool incrementFiles, std::string& errMs
 			int success = DeleteFile((SAVE_BASE_ADDRESS + finalSaveFolder + finalSaveFileName).c_str());
 			if (success == false)
 			{
-				MessageBox(0, "WTF", 0, 0);
+				MessageBox(0, "Failed to delete fits file! T.T", 0, 0);
 			}
 		}
-		
-
+		// this sets the text to "none"
+		eAutoAnalysisHandler.updateDataSetNumberEdit(-1);
 	}
 	/// save the file
 	int fitsStatus = 0;
