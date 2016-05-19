@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#define ANDOR_SAFEMODE false
+#define ANDOR_SAFEMODE true
 
 // Some Default Settings
 #define DEFAULT_CAMERA_TEMPERATURE 0;
@@ -13,7 +13,7 @@
 const std::string SAVE_BASE_ADDRESS("E:\\share\\Data and documents\\Data repository\\");
 const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Code\\Plotting\\";
 const std::string KEY_FILE_LOCATION = "E:\\share\\Data and documents\\Data repository\\Key_file\\";
-const std::string CAMERA_CONFIGURATION_FILES_LOCATION = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Code\\Camera Configurations\\";
+const std::string CAMERA_CONFIGURATION_FILES_LOCATION = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly\\Camera Configurations\\";
 
 // for my laptop:
 /*

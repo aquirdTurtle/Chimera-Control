@@ -16,7 +16,7 @@ DataFileSystem::~DataFileSystem()
 
 bool DataFileSystem::copyAndMoveKeyFile()
 {
-	int result = CopyFile((KEY_FILE_LOCATION + "key.txt").c_str(), (SAVE_BASE_ADDRESS + currentSaveFolder + "key_" + std::to_string(currentDataFileNumber) + ".txt").c_str(), 
+	int result = CopyFile((KEY_FILE_LOCATION + "key.txt").c_str(), (SAVE_BASE_ADDRESS + currentSaveFolder + "\\key_" + std::to_string(currentDataFileNumber) + ".txt").c_str(), 
 						  FALSE);
 	if (result == 0)
 	{
