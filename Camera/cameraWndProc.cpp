@@ -1719,7 +1719,6 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 				}
 				case IDC_SET_EM_GAIN_MODE:
 				{
-					MessageBox(0, std::to_string(sizeof(long)).c_str(), 0, 0);
 					TCHAR emGainText[256];
 					SendMessage(eEMGainEdit.hwnd, WM_GETTEXT, 256, (LPARAM)emGainText);
 					int emGain;
@@ -1952,7 +1951,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					// make a copy of the key file and put it in the current experiment folder. 
 					eExperimentData.copyAndMoveKeyFile();
 				}
-				//eTextingHandler.sendMessage(message);
+				eTextingHandler.sendMessage(message);
 
 				break;
 			}
