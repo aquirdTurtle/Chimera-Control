@@ -47,16 +47,16 @@ int eCameraTemperatureSetting = DEFAULT_CAMERA_TEMPERATURE;
 int eCurrentAccumulationModeTotalAccumulationNumber;
 std::vector<float> eExposureTimes;
 double eKineticCycleTime = 0;
-int eCurrentAccumulationStackNumber = 0;
-int ePicturesPerStack = 1;
+int eCurrentTotalVariationNumber = 0;
+int ePicturesPerVariation = 1;
 int eTotalNumberOfPicturesInSeries = 0;
 int eNumberOfRunsToAverage = 0;
 //
-bool eIncSaveFileNameOption;
+bool eIncDataFileNamesOption;
 // number of counts that a pixel has to contain in order to count as an atom.
 int eDetectionThreshold;
 
-int ePicturesPerExperiment = 1;
+int ePicturesPerRepetition = 1;
 bool eSystemIsRunning = false;
 
 double eAccumulationTime;
@@ -79,7 +79,7 @@ int eCurrentPositivePixelNumber = 0;
 int eCurrentPostSelectionPictureNumber = 0;
 int eCurrentPostSelectionPixelNumber = 0;
 int eCurrentPostSelectionConditionNumber = 0;
-int eExperimentsPerStack = 1;
+int eRepetitionsPerVariation = 1;
 
 /// \\\ GLOBAL VARIABLES THAT THE CODE (ONLY THE CODE) USES \\\ ///
 
@@ -148,13 +148,13 @@ Control eTriggerTextDisplayHandle, eImgLeftSideTextHandle,
 	 eKineticCycleTimeTextHandle, eTotalPictureNumberTextHandle, ePixel1TextDisplay, ePixel2TextDisplay,
 	 eImgLeftSideDispHandle, eImgRightSideDispHandle, eHorizontalBinningDispHandle, eImageBottomSideDispHandle, eImageTopSideDispHandle,
 	 eVerticalBinningDispHandle, ePixelsXLocationsDispHandle, ePixelsYLocationsDispHandle, ePixelXLocationsTextHandle, ePixelYLocationsTextHandle,
-	 eKineticCycleTimeDispHandle, eExperimentsPerStackDispHandle, eAtomThresholdDispHandle, eCurrentAccumulationNumDispHandle, eMinCountDispHandle,
-	 eMaxCountDispHandle, eAccumulationStackNumberDispHandle, ePicturesPerExperimentDispHandle;
+	 eKineticCycleTimeDispHandle, eRepetitionsPerVariationDisp, eAtomThresholdDispHandle, eCurrentAccumulationNumDispHandle, eMinCountDispHandle,
+	 eMaxCountDispHandle, eVariationNumberDisp, ePicturesPerRepetitionDisp;
 // User-Edited Edit Handles
-Control eImgLeftSideEditHandle, eImageBottomSideEditHandle, eImgRightSideEditHandle, eImageTopSideEditHandle,
-	 eVerticalBinningEditHandle, eHorizontalBinningEditHandle, eKineticCycleTimeEditHandle, eExperimentsPerStackEditHandle, ePixel1XEditHandle,
+Control eImgLeftSideEditHandle, eImageTopEditHandle, eImgRightSideEditHandle, eImageBottomEditHandle,
+	 eVerticalBinningEditHandle, eHorizontalBinningEditHandle, eKineticCycleTimeEditHandle, eRepetitionsPerVariationEdit, ePixel1XEditHandle,
 	 ePixel2XEditHandle, ePixel1YEditHandle, ePixel2YEditHandle, ePixelsXLocationsEditHandle, ePixelsYLocationsEditHandle, eAtomThresholdEditHandle,
-	 eAccumulationStackNumberEditHandle, ePicturesPerExperimentEditHandle;
+	 eVariationNumberEdit, ePicturesPerRepetitionEdit;
 // Temperature Control
 Control eTempTextDisplayHandle, eCurrentTempDisplayHandle, eTempDispHandle, eTempEditHandle, eSetTemperatureButtonHandle, eTempOffButton;
 // Error Status
@@ -165,12 +165,12 @@ Control eStatusEditHandle, eClearStatusButtonHandle, eStatusText;
 Control eIncDataFileOptionBoxHandle;
 // Button Handles
 Control eSetImageParametersButtonHandle, eSetAnalysisPixelsButtonHandle,
-	 eSetKineticSeriesCycleTimeButtonHandle, eSetNumberOfExperimentsPerStackButtonHandle, eSetAtomThresholdButtonHandle, ePlotAverageCountsBoxHandle,
-	 eSetAccumulationStackNumberButtonHandle, eSetPicturesPerExperimentButtonHandle;
+	 eSetKineticSeriesCycleTimeButtonHandle, eSetNumberRepetitionsPerVariationButton, eSetAtomThresholdButtonHandle, ePlotAverageCountsBoxHandle,
+	 eSeVariationNumberButton, eSetPicturesPerRepetitionButtonHandle;
 // ComboBox Handles
 Control eTriggerComboHandle, eCameraModeComboHandle;
 // temporary
-Control eSetAccumulationTimeButton, eAccumulationTimeEdit, eAccumulationTimeDisp, eSetAccumulationNumberButton, eSetAccumulationNumberEdit,
+Control eSetAccumulationTimeButton, eAccumulationTimeEdit, eAccumulationTimeDisp, eSetAccumulationNumberButton, eAccumulationNumberEdit,
 		eSetAccumulationNumberDisp, eSetRunningAverageNumberToAverageButton, eRunningAverageEdit, eRunningAverageDisp, eRunningAverageBox,
 		eSetPlottingFrequencyButton, ePlottingFrequencyEdit, ePlottingFrequencyDisp, eAllPlotsCombo, eAllPlotsText, eCurrentPlotsCombo, eCurrentPlotsText,
 		eSeriesProgressBar, eMinimumPictureSlider2, eMaximumPictureSlider2, eMinSliderNumberEdit2, eMaxSliderNumberEdit2, eMinSliderText2, eMaxSliderText2,
@@ -200,7 +200,7 @@ HBRUSH eGreyGreenBrush = CreateSolidBrush(RGB(100, 110, 100));
 HBRUSH eDarkGreenBrush = CreateSolidBrush(RGB(0, 30, 0));
 HBRUSH eDarkRedBrush = CreateSolidBrush(RGB(100, 0, 0));
 HBRUSH eDarkBlueBrush = CreateSolidBrush(RGB(0, 0, 100));
-HBRUSH eGreyRedBrush = CreateSolidBrush(RGB(120, 100, 100));
+HBRUSH eGreyRedBrush = CreateSolidBrush(RGB(150, 100, 100));
 
 HANDLE ePlottingMutex;
 HWND eInitializeDialogBoxHandle;

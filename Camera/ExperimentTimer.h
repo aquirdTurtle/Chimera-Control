@@ -20,6 +20,6 @@ class ExperimentTimer
 		Control overallProgress;
 		long long lastTime;
 		int timeColorID;
-		std::vector<double> past10Times;
+		std::vector<double> recentDataPoints;
 
 };

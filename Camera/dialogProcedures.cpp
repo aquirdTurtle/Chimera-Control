@@ -113,7 +113,7 @@ namespace dialogProcedures
 				// Picture #s
 				HWND positiveResultPictureNumberHandle = GetDlgItem(thisDialogHandle, IDC_PLOT_CREATOR_POSITIVE_PICTURE_NUMBER_COMBO);
 				HWND postSelectionPictureNumberHandle = GetDlgItem(thisDialogHandle, IDC_PLOT_CREATOR_POST_PICTURE_NUMBER_COMBO);
-				for (int pictureInc = 0; pictureInc < ePicturesPerExperiment; pictureInc++)
+				for (int pictureInc = 0; pictureInc < ePicturesPerRepetition; pictureInc++)
 				{
 					std::string comboMsg = "Picture #" + std::to_string(pictureInc + 1);
 					SendMessage(positiveResultPictureNumberHandle, CB_ADDSTRING, 0, (LPARAM)comboMsg.c_str());
@@ -646,9 +646,9 @@ namespace dialogProcedures
 							{
 								eCurrentPositivePictureNumber = -1;
 								// TODO: update arrays with new size.
-								ePicturesPerExperiment++;
-								SendMessage(ePicturesPerExperimentDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerExperiment).c_str());
-								std::string picturesPerExperimentMsg = "Picture #" + std::to_string(ePicturesPerExperiment);
+								ePicturesPerRepetition++;
+								SendMessage(ePicturesPerRepetitionDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerRepetition).c_str());
+								std::string picturesPerExperimentMsg = "Picture #" + std::to_string(ePicturesPerRepetition);
 								SendMessage(positivePictureNumberCombo, CB_ADDSTRING, 0, (LPARAM)picturesPerExperimentMsg.c_str());
 								SendMessage(GetDlgItem(thisDialogHandle, IDC_PLOT_CREATOR_POST_PICTURE_NUMBER_COMBO), CB_ADDSTRING, 0,
 											(LPARAM)picturesPerExperimentMsg.c_str());
@@ -657,14 +657,14 @@ namespace dialogProcedures
 							else if (positivePictureNumberString == "Remove Picture from Experiment")
 							{
 								eCurrentPositivePictureNumber = -1;
-								if (ePicturesPerExperiment == 1)
+								if (ePicturesPerRepetition == 1)
 								{
 									MessageBox(0, "Can't delete last picture in experiment.", 0, 0);
 									break;
 								}
-								ePicturesPerExperiment--;
+								ePicturesPerRepetition--;
 								int numberOfItems = SendMessage(positivePictureNumberCombo, CB_GETCOUNT, 0, 0);
-								SendMessage(ePicturesPerExperimentDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerExperiment).c_str());
+								SendMessage(ePicturesPerRepetitionDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerRepetition).c_str());
 								SendMessage(positivePictureNumberCombo, CB_DELETESTRING, numberOfItems - 2, 0);
 								SendMessage(GetDlgItem(thisDialogHandle, IDC_PLOT_CREATOR_POST_PICTURE_NUMBER_COMBO), CB_DELETESTRING, numberOfItems - 2, 0);
 								eCurrentPlottingInfo.removePicture();
@@ -878,9 +878,9 @@ namespace dialogProcedures
 							if (postSelectionPictureNumberString == "Add Picture to Experiment")
 							{
 								eCurrentPostSelectionPictureNumber = -1;
-								ePicturesPerExperiment++;
-								SendMessage(ePicturesPerExperimentDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerExperiment).c_str());
-								std::string picturesPerExperimentMsg = "Picture #" + std::to_string(ePicturesPerExperiment);
+								ePicturesPerRepetition++;
+								SendMessage(ePicturesPerRepetitionDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerRepetition).c_str());
+								std::string picturesPerExperimentMsg = "Picture #" + std::to_string(ePicturesPerRepetition);
 								SendMessage(postSelectionPictureNumberCombo, CB_ADDSTRING, 0, (LPARAM)picturesPerExperimentMsg.c_str());
 								SendMessage(GetDlgItem(thisDialogHandle, IDC_PLOT_CREATOR_POSITIVE_PICTURE_NUMBER_COMBO), CB_ADDSTRING, 0,
 											 (LPARAM)picturesPerExperimentMsg.c_str());
@@ -889,15 +889,15 @@ namespace dialogProcedures
 							else if (postSelectionPictureNumberString == "Remove Picture from Experiment")
 							{
 								eCurrentPostSelectionPictureNumber = -1;
-								if (ePicturesPerExperiment == 1)
+								if (ePicturesPerRepetition == 1)
 								{
 									MessageBox(0, "Can't delete last Picture in Experiment.", 0, 0);
 									break;
 								}
 
-								ePicturesPerExperiment--;
+								ePicturesPerRepetition--;
 								int numberOfItems = SendMessage(postSelectionPictureNumberCombo, CB_GETCOUNT, 0, 0);
-								SendMessage(ePicturesPerExperimentDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerExperiment).c_str());
+								SendMessage(ePicturesPerRepetitionDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerRepetition).c_str());
 								SendMessage(postSelectionPictureNumberCombo, CB_DELETESTRING, numberOfItems - 2, 0);
 								SendMessage(GetDlgItem(thisDialogHandle, IDC_PLOT_CREATOR_POSITIVE_PICTURE_NUMBER_COMBO), CB_DELETESTRING, numberOfItems - 2, 0);
 								eCurrentPlottingInfo.removePicture();

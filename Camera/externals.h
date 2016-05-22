@@ -16,10 +16,9 @@
 #include "DataAnalysisHandler.h"
 
 /// THINGS THAT THE USER SETS !@$#!@#$!@#$!@$!@#$!@#$!@$#!@#$!@#$@!#$!$!@#$!@#$@!$#@!#$!@#$!@$#!#$!@#$!@#$!@#$!@#$!@$#!@$#!@$#!@$#@!#$!@$#!@$#!@#$!@$#!@$#!@$#!#
-//extern bool eFitsOkay;
+// extern bool eFitsOkay;
 extern bool eRealTimePictures;
 extern DataFileSystem eExperimentData;
-//extern fitsfile *eFitsFile;
 extern SMSTextingControl eTextingHandler;
 extern ConfigurationFileSystem eCameraFileSystem;
 extern ExperimentTimer eCameraWindowExperimentTimer;
@@ -43,23 +42,23 @@ extern unsigned int ePlottingIsSlowMessage, ePlottingCaughtUpMessage;
 extern int eVerticalBinning, eHorizontalBinning, eLeftImageBorder, eRightImageBorder, eTopImageBorder, eBottomImageBorder, eImageWidth, eImageHeight;
 // Temperature stuff
 extern int eCameraTemperatureSetting;
-// more parameters.
+// More parameters.
 extern std::vector<float> eExposureTimes;
 extern double eKineticCycleTime;
-//
+// 
 extern int eCurrentAccumulationModeTotalAccumulationNumber;
-extern int eCurrentAccumulationStackNumber;
-extern int ePicturesPerStack;
+extern int eCurrentTotalVariationNumber;
+extern int ePicturesPerVariation;
 extern int eTotalNumberOfPicturesInSeries;
 extern int eNumberOfRunsToAverage;
 // changes data.fits to data_1.fits -> data_2.fits, etc.
-extern bool eIncSaveFileNameOption;
+extern bool eIncDataFileNamesOption;
 // number of counts that a pixel has to contain in order to count as an atom.
 extern int eDetectionThreshold;
 // // // // // // // // // //
 extern std::vector<std::string> eCurrentPlotNames;
 
-extern int ePicturesPerExperiment;
+extern int ePicturesPerRepetition;
 extern bool eSystemIsRunning;
 
 extern std::string eCurrentlySelectedCameraMode;
@@ -82,7 +81,7 @@ extern int eCurrentPositivePixelNumber;
 extern int eCurrentPostSelectionPictureNumber;
 extern int eCurrentPostSelectionPixelNumber;
 extern int eCurrentPostSelectionConditionNumber;
-extern int eExperimentsPerStack;
+extern int eRepetitionsPerVariation;
 
 /// !@#$!@#$@!#$!@#$!@ GLOBAL VARIABLES THAT THE CODE (ONLY THE CODE) USES !@#$!@#$!@#$!@#$!@#$!@#$!@$!@#$!@#$!@#$!@$#!@#$!@#$!@#$!@#$!@#$!@#$!@#$@!#$@!#$!@#$!@
 /// Data Analysis
@@ -144,24 +143,24 @@ extern Control eTriggerTextDisplayHandle, eImgLeftSideTextHandle,
 			eImageBottomSideTextHandle, eImgRightSideTextHandle, eImageTopSideTextHandle, eVerticalBinningTextHandle, eHorizontalBinningTextHandle, 
 			eKineticCycleTimeTextHandle, eTotalPictureNumberTextHandle, ePixel1TextDisplay, ePixel2TextDisplay, 
 			eImgLeftSideDispHandle, eImgRightSideDispHandle, eHorizontalBinningDispHandle, eImageBottomSideDispHandle, eImageTopSideDispHandle,
-			eVerticalBinningDispHandle,	eKineticCycleTimeDispHandle, eExperimentsPerStackDispHandle, eAtomThresholdDispHandle,
-			eCurrentAccumulationNumDispHandle, eMinCountDispHandle,	eMaxCountDispHandle, eAccumulationStackNumberDispHandle, 
-			ePicturesPerExperimentDispHandle;
+			eVerticalBinningDispHandle,	eKineticCycleTimeDispHandle, eRepetitionsPerVariationDisp, eAtomThresholdDispHandle,
+			eCurrentAccumulationNumDispHandle, eMinCountDispHandle,	eMaxCountDispHandle, eVariationNumberDisp, 
+			ePicturesPerRepetitionDisp;
 // error status
 extern Control eErrorEditHandle, eErrorClear, eErrorText;
 // camera status
 extern Control eStatusEditHandle, eClearStatusButtonHandle, eStatusText;
 // User-Edited Edit Handles
-extern Control eImgLeftSideEditHandle, eImageBottomSideEditHandle, eImgRightSideEditHandle, eImageTopSideEditHandle,
-			eVerticalBinningEditHandle, eHorizontalBinningEditHandle, eKineticCycleTimeEditHandle, eExperimentsPerStackEditHandle, ePixel1XEditHandle, 
-			ePixel2XEditHandle, ePixel1YEditHandle, ePixel2YEditHandle, eAtomThresholdEditHandle, eAccumulationStackNumberEditHandle, 
-			ePicturesPerExperimentEditHandle;
+extern Control eImgLeftSideEditHandle, eImageTopEditHandle, eImgRightSideEditHandle, eImageBottomEditHandle,
+			eVerticalBinningEditHandle, eHorizontalBinningEditHandle, eKineticCycleTimeEditHandle, eRepetitionsPerVariationEdit, ePixel1XEditHandle, 
+			ePixel2XEditHandle, ePixel1YEditHandle, ePixel2YEditHandle, eAtomThresholdEditHandle, eVariationNumberEdit, 
+			ePicturesPerRepetitionEdit;
 // Checked Box Handles
 extern Control eIncDataFileOptionBoxHandle;
 // Button Handles
 extern Control eSetImageParametersButtonHandle, eSetAnalysisPixelsButtonHandle,
-			eSetKineticSeriesCycleTimeButtonHandle, eSetNumberOfExperimentsPerStackButtonHandle, eSetAtomThresholdButtonHandle, ePlotAverageCountsBoxHandle, 
-			eSetAccumulationStackNumberButtonHandle, eSetPicturesPerExperimentButtonHandle;
+			eSetKineticSeriesCycleTimeButtonHandle, eSetNumberRepetitionsPerVariationButton, eSetAtomThresholdButtonHandle, ePlotAverageCountsBoxHandle, 
+			eSeVariationNumberButton, eSetPicturesPerRepetitionButtonHandle;
 // Temperature Control
 extern Control eSetTemperatureButtonHandle, eTempTextDisplayHandle, eCurrentTempDisplayHandle, eTempDispHandle, eTempEditHandle, eTempOffButton;
 
@@ -169,7 +168,7 @@ extern Control eSetTemperatureButtonHandle, eTempTextDisplayHandle, eCurrentTemp
 extern Control eTriggerComboHandle, eCameraModeComboHandle;
 
 // temp
-extern Control eSetAccumulationTimeButton, eAccumulationTimeEdit, eAccumulationTimeDisp, eSetAccumulationNumberButton, eSetAccumulationNumberEdit, 
+extern Control eSetAccumulationTimeButton, eAccumulationTimeEdit, eAccumulationTimeDisp, eSetAccumulationNumberButton, eAccumulationNumberEdit, 
 			   eSetAccumulationNumberDisp, eSetRunningAverageNumberToAverageButton, eRunningAverageEdit, eRunningAverageDisp, eRunningAverageBox,
 			   eSetPlottingFrequencyButton, ePlottingFrequencyEdit, ePlottingFrequencyDisp, eAllPlotsCombo, eAllPlotsText, eCurrentPlotsCombo, 
 			   eCurrentPlotsText, eSeriesProgressBar, eSubSeriesProgressBar;

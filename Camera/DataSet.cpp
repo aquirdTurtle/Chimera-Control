@@ -8,7 +8,7 @@ DataSet::DataSet()
 	// Start with one picture
 	trueConditions.resize(1);
 	// start pictures loaded into experiment
-	trueConditions[0].resize(ePicturesPerExperiment);
+	trueConditions[0].resize(ePicturesPerRepetition);
 
 	postSelectionConditions.clear();
 	// start with one condition
@@ -16,7 +16,7 @@ DataSet::DataSet()
 	// start with one pixel
 	postSelectionConditions[0].resize(1);
 	// start pictures loaded into experiment
-	postSelectionConditions[0][0].resize(ePicturesPerExperiment);
+	postSelectionConditions[0][0].resize(ePicturesPerRepetition);
 	// start with one pixel
 	dataCountsLocation.resize(1);
 	// start with one picture

@@ -66,14 +66,24 @@ int ExperimentTimer::initializeControls(POINT& topLeftPositionKinetic, POINT& to
 
 int ExperimentTimer::update(int currentAccumulationNumber, int accumulationsPerVariation, int numberOfVariations, HWND parentWindow)
 {
+	int totalRepetitions = accumulationsPerVariation * numberOfVariations;
+	int averageNumber;
+	if (numberOfVariations < 3)
+	{
+		averageNumber = totalRepetitions / 20;
+	}
+	else
+	{
+		averageNumber = accumulationsPerVariation / 2;
+	}
 	int variationPosition = (currentAccumulationNumber % accumulationsPerVariation) * 100.0 / accumulationsPerVariation;
-	int overalPosition = currentAccumulationNumber / (double)(accumulationsPerVariation * numberOfVariations) * 100;
+	int overalPosition = currentAccumulationNumber / (double)totalRepetitions * 100;
 	SendMessage(variationProgress.hwnd, PBM_SETPOS, (WPARAM)variationPosition, 0);
 	SendMessage(overallProgress.hwnd, PBM_SETPOS, (WPARAM)overalPosition, 0);
 	if (currentAccumulationNumber == 1)
 	{
 		timeColorID = ID_GREEN;
-		past10Times.resize(accumulationsPerVariation);
+		recentDataPoints.resize(averageNumber);
 		lastTime = GetTickCount64();
 		RECT parentRectangle;
 		GetWindowRect(parentWindow, &parentRectangle);
@@ -81,23 +91,23 @@ int ExperimentTimer::update(int currentAccumulationNumber, int accumulationsPerV
 		reorganizeControl(timeDisplay, "Kinetic Series Mode", parentRectangle);
 		SendMessage(timeDisplay.hwnd, WM_SETTEXT, (WPARAM)0, (LPARAM)"Estimating Time...");
 	}
-	else if (currentAccumulationNumber <= accumulationsPerVariation)
+	else if (currentAccumulationNumber <= averageNumber)
 	{
 		long long thisTime = GetTickCount64();
-		past10Times[currentAccumulationNumber % accumulationsPerVariation] = thisTime - lastTime;
+		recentDataPoints[currentAccumulationNumber % averageNumber] = thisTime - lastTime;
 		lastTime = thisTime;
 	}
-	else if (currentAccumulationNumber == accumulationsPerVariation + 1)
+	else if (currentAccumulationNumber == averageNumber + 1)
 	{
 		long long thisTime = GetTickCount64();
-		past10Times[currentAccumulationNumber % accumulationsPerVariation] = thisTime - lastTime;
+		recentDataPoints[currentAccumulationNumber % averageNumber] = thisTime - lastTime;
 		lastTime = thisTime;
 		double total = 0;
-		for (int timesInc = 0; timesInc < past10Times.size(); timesInc++)
+		for (int timesInc = 0; timesInc < recentDataPoints.size(); timesInc++)
 		{
-			total += past10Times[timesInc];
+			total += recentDataPoints[timesInc];
 		}
-		double averageTime = total / past10Times.size();
+		double averageTime = total / recentDataPoints.size();
 		// in seconds...
 		int timeLeft = (accumulationsPerVariation * numberOfVariations - currentAccumulationNumber) * averageTime / 1000;
 		int hours = timeLeft / 3600;
@@ -131,19 +141,19 @@ int ExperimentTimer::update(int currentAccumulationNumber, int accumulationsPerV
 		reorganizeControl(timeDisplay, "Kinetic Series Mode", parentRectangle);
 		SendMessage(timeDisplay.hwnd, WM_SETTEXT, (WPARAM)0, (LPARAM)timeString.c_str());
 	}
-	else if (currentAccumulationNumber < accumulationsPerVariation * numberOfVariations)
+	else if (currentAccumulationNumber < totalRepetitions)
 	{
 		long long thisTime = GetTickCount64();
-		past10Times[currentAccumulationNumber % accumulationsPerVariation] = thisTime - lastTime;
+		recentDataPoints[currentAccumulationNumber % averageNumber] = thisTime - lastTime;
 		lastTime = thisTime;
 		double total = 0;
-		for (int timesInc = 0; timesInc < past10Times.size(); timesInc++)
+		for (int timesInc = 0; timesInc < recentDataPoints.size(); timesInc++)
 		{
-			total += past10Times[timesInc];
+			total += recentDataPoints[timesInc];
 		}
-		double averageTime = total / past10Times.size();
+		double averageTime = total / recentDataPoints.size();
 		// in seconds...
-		int timeLeft = (accumulationsPerVariation * numberOfVariations - currentAccumulationNumber) * averageTime / 1000;
+		int timeLeft = (totalRepetitions - currentAccumulationNumber) * averageTime / 1000;
 		int hours = timeLeft / 3600;
 		int minutes = (timeLeft % 3600) / 60;
 		int seconds = (timeLeft % 3600) % 60;

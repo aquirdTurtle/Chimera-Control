@@ -5,23 +5,26 @@
 #include <string>
 #include <vector>
 
-#define ANDOR_SAFEMODE false
+#define ANDOR_SAFEMODE true
 
 // Some Default Settings
 #define DEFAULT_CAMERA_TEMPERATURE 0;
 // for andor:
+
+/*
 const std::string SAVE_BASE_ADDRESS("E:\\share\\Data and documents\\Data repository\\");
 const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Code\\Plotting\\";
 const std::string KEY_FILE_LOCATION = "E:\\share\\Data and documents\\Data repository\\Key_file\\";
 const std::string CAMERA_CONFIGURATION_FILES_LOCATION = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Code\\Camera Configurations\\";
+*/
 
 // for my laptop:
-/*
 const std::string SAVE_BASE_ADDRESS = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Data\\Camera Data\\";
 const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Plotting\\";
 const std::string KEY_FILE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Data\\Data Keys\\";
 const std::string CAMERA_CONFIGURATION_FILES_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Camera Configuration Files\\";
-*/
+//
+
 const std::vector<std::string> GNUPLOT_COLORS{"lt rgb \"black\"",
 											 "lt rgb \"blue\"",
 											 "lt rgb \"green\"",  
@@ -75,12 +78,12 @@ const std::vector<std::string> GNUPLOT_LINETYPES{"dt 1",
 #define IDC_TRIGGER_COMBO 7013
 
 #define IDC_TEMP_EDIT 7015
-#define IDC_SCAN_NUM_EDIT 7016
+#define IDC_REPETITIONS_PER_VARIATION_EDIT 7016
 #define IDC_KINETIC_CYCLE_TIME_EDIT 7017
 #define IDC_IMG_LEFT_EDIT 7018
 #define IDC_IMG_RIGHT_EDIT 7019
-#define IDC_IMG_TOP_EDIT 7020
-#define IDC_IMG_BOTTOM_EDIT 7021
+#define IDC_IMAGE_BOTTOM_EDIT 7020
+#define IDC_IMAGE_TOP_EDIT 7021
 #define IDC_HOR_BIN_EDIT 7022
 #define IDC_VERTICAL_BIN_EDIT 7023
 #define IDC_EXPOSURE_DISP 7024
@@ -106,8 +109,8 @@ const std::vector<std::string> GNUPLOT_LINETYPES{"dt 1",
 #define IDC_VERTICAL_BIN_DISP 7044
 #define IDC_SET_KINETIC_CYCLE_TIME_BUTTON 7052
 #define IDC_KINETIC_CYCLE_TIME_DISP 7053
-#define IDC_SET_EXPERIMENTS_PER_STACK_BUTTON 7054
-#define IDC_SCAN_NUM_DISP 7055
+#define IDC_SET_REPETITONS_PER_VARIATION_BUTTON 7054
+#define IDC_REPETITIONS_PER_VARIATION_DISP 7055
 #define IDC_SET_DETECTION_THRESHOLD_BUTTON 7056
 #define IDC_DETECTION_THRESHOLD_EDIT_HANDLE 7057
 #define IDC_DETECTION_THRESHOLD_DISP_HANDLE 7058
@@ -117,13 +120,13 @@ const std::vector<std::string> GNUPLOT_LINETYPES{"dt 1",
 #define IDC_SET_TUNNELING_PAIRS_BUTTON 7067
 #define IDC_TUNNELING_PAIRS_EDIT_HANDLE 7068
 #define IDC_TUNNELING_PAIRS_DISP_HANDLE 7069
-#define IDC_SET_ACCUMULATION_STACK_NUMBER 7070
-#define IDC_ACCUMULATION_STACK_EDIT_HANDLE 7071
-#define IDC_ACCUMULATION_STACK_DISP_HANDLE 7072
+#define IDC_SET_VARIATION_NUMBER 7070
+#define IDC_VARIATION_EDIT 7071
+#define IDC_VARIATION_DISP_HANDLE 7072
 #define IDC_CLEAR_STATUS_BUTTON 7074
-#define IDC_SET_PICTURES_PER_EXPERIMENT_BUTTON 7075
-#define IDC_PICTURES_PER_EXPERIMENT_DISP 7076
-#define IDC_PICTURES_PER_EXPERIMENT_EDIT 7077
+#define IDC_SET_PICTURES_PER_REPITITION_BUTTON 7075
+#define IDC_PICTURES_PER_REPETITION_DISP 7076
+#define IDC_PICTURES_PER_REPETITION_EDIT 7077
 #define IDC_RICH_EDIT_MESSAGE_BOX_RICH_EDIT_ID 7078
 #define IDC_RICH_EDIT_OK_CANCEL_MESSAGE_BOX_RICH_EDIT_ID 7079
 #define IDC_ERROR_EDIT 7080
@@ -205,6 +208,7 @@ const std::vector<std::string> GNUPLOT_LINETYPES{"dt 1",
 #define ID_BLUE 7155
 #define IDC_PEOPLE_LIST_VIEW 7156
 #define IDC_MOST_RECENT_DATA_SET_NUMBER 7157
+#define IDC_EXPOSURE_4_EDIT 7158
 
 
 

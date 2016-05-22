@@ -73,13 +73,39 @@ int ConfigurationFileSystem::openConfiguration(std::string configurationNameToOp
 	}
 	SendMessage(eExposureDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)"");
 	appendText(std::to_string(eExposureTimes[0] * 1000), IDC_EXPOSURE_DISP);
+	SendMessage(eExposure1EditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eExposureTimes[0] * 1000).c_str());
 	for (int exposureInc = 1; exposureInc < eExposureTimes.size(); exposureInc++)
 	{
 		appendText(" -> " + std::to_string(eExposureTimes[exposureInc] * 1000), IDC_EXPOSURE_DISP);
 	}
+	if (eExposureTimes.size() > 1)
+	{
+		SendMessage(eExposure2EditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eExposureTimes[1] * 1000).c_str());
+	}
+	else
+	{
+		SendMessage(eExposure2EditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)"-1");
+	}
+	if (eExposureTimes.size() > 2)
+	{
+		SendMessage(eExposure3EditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eExposureTimes[2] * 1000).c_str());
+	}
+	else
+	{
+		SendMessage(eExposure3EditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)"-1");
+	}
+	if (eExposureTimes.size() > 3)
+	{
+		SendMessage(eExposure4EditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eExposureTimes[3] * 1000).c_str());
+	}
+	else
+	{
+		SendMessage(eExposure4EditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)"-1");
+	}
+	/// 
 	SendMessage(eKineticCycleTimeDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eKineticCycleTime * 1000).c_str());
 	SendMessage(eAccumulationTimeDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eAccumulationTime * 1000).c_str());
-	///
+	/// 
 
 	configurationOpenFile.get();
 	std::getline(configurationOpenFile, eCurrentTriggerMode);
@@ -87,16 +113,22 @@ int ConfigurationFileSystem::openConfiguration(std::string configurationNameToOp
 
 	configurationOpenFile >> eLeftImageBorder;
 	SendMessage(eImgLeftSideDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eLeftImageBorder).c_str());
+	SendMessage(eImgLeftSideEditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eLeftImageBorder).c_str());
 	configurationOpenFile >> eRightImageBorder;
 	SendMessage(eImgRightSideDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eRightImageBorder).c_str());
+	SendMessage(eImgRightSideEditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eRightImageBorder).c_str());
 	configurationOpenFile >> eHorizontalBinning;
 	SendMessage(eHorizontalBinningDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eHorizontalBinning).c_str());
+	SendMessage(eHorizontalBinningEditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eHorizontalBinning).c_str());
 	configurationOpenFile >> eTopImageBorder;
 	SendMessage(eImageBottomSideDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eTopImageBorder).c_str());
+	SendMessage(eImageTopEditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eTopImageBorder).c_str());
 	configurationOpenFile >> eBottomImageBorder;
 	SendMessage(eImageTopSideDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eBottomImageBorder).c_str());
+	SendMessage(eImageBottomEditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eBottomImageBorder).c_str());
 	configurationOpenFile >> eVerticalBinning;
 	SendMessage(eVerticalBinningDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eVerticalBinning).c_str());
+	SendMessage(eVerticalBinningEditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eVerticalBinning).c_str());
 	eCurrentlySelectedPixel.first = 0;
 	eCurrentlySelectedPixel.second = 0;
 	// Calculate the number of actual pixels in each dimension.
@@ -160,40 +192,46 @@ int ConfigurationFileSystem::openConfiguration(std::string configurationNameToOp
 		}
 	}
 
-
 	///
-
 	configurationOpenFile >> eEMGainMode;
 	configurationOpenFile >> eEMGainLevel;
 	if (eEMGainMode == false || eEMGainLevel < 0)
 	{
 		SendMessage(eEMGainDisplay.hwnd, WM_SETTEXT, 0, (LPARAM)"OFF");
+		SendMessage(eEMGainEdit.hwnd, WM_SETTEXT, 0, (LPARAM)"-1");
 	}
 	else
 	{
 		SendMessage(eEMGainDisplay.hwnd, WM_SETTEXT, 0, (LPARAM)("X" + std::to_string(eEMGainLevel)).c_str());
+		SendMessage(eEMGainEdit.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(eEMGainLevel)).c_str());
 	}	
 	myAndor::setGainMode();
-	configurationOpenFile >> ePicturesPerExperiment;
-	SendMessage(ePicturesPerExperimentDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerExperiment).c_str());
-	configurationOpenFile >> eExperimentsPerStack;
-	SendMessage(eExperimentsPerStackDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eExperimentsPerStack).c_str());
-	ePicturesPerStack = ePicturesPerExperiment * eExperimentsPerStack;
-	configurationOpenFile >> eCurrentAccumulationStackNumber;
-	SendMessage(eAccumulationStackNumberDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eCurrentAccumulationStackNumber).c_str());
-	eTotalNumberOfPicturesInSeries = eCurrentAccumulationStackNumber * ePicturesPerStack;
+	configurationOpenFile >> ePicturesPerRepetition;
+	SendMessage(ePicturesPerRepetitionDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerRepetition).c_str());
+	SendMessage(ePicturesPerRepetitionEdit.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerRepetition).c_str());
+	configurationOpenFile >> eRepetitionsPerVariation;
+	SendMessage(eRepetitionsPerVariationDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eRepetitionsPerVariation).c_str());
+	SendMessage(eRepetitionsPerVariationEdit.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eRepetitionsPerVariation).c_str());
+	ePicturesPerVariation = ePicturesPerRepetition * eRepetitionsPerVariation;
+	configurationOpenFile >> eCurrentTotalVariationNumber;
+	SendMessage(eVariationNumberDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eCurrentTotalVariationNumber).c_str());
+	SendMessage(eVariationNumberEdit.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eCurrentTotalVariationNumber).c_str());
+	eTotalNumberOfPicturesInSeries = eCurrentTotalVariationNumber * ePicturesPerVariation;
 	// get \n at end of previous line
 	configurationOpenFile.get();
 	std::getline(configurationOpenFile, eCurrentlySelectedCameraMode);
 	SendMessage(eCameraModeComboHandle.hwnd, CB_SELECTSTRING, 0, (LPARAM)eCurrentlySelectedCameraMode.c_str());
 	configurationOpenFile >> eKineticCycleTime;
 	SendMessage(eKineticCycleTimeDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eKineticCycleTime * 1000).c_str());
+	SendMessage(eKineticCycleTimeEditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eKineticCycleTime * 1000).c_str());
 	configurationOpenFile >> eAccumulationTime;
 	SendMessage(eAccumulationTimeDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eAccumulationTime * 1000).c_str());
+	SendMessage(eAccumulationTimeEdit.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eAccumulationTime * 1000).c_str());
 	configurationOpenFile >> eCurrentAccumulationModeTotalAccumulationNumber;
 	SendMessage(eSetAccumulationNumberDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eCurrentAccumulationModeTotalAccumulationNumber * 1000).c_str());
-	configurationOpenFile >> eIncSaveFileNameOption;
-	if (eIncSaveFileNameOption)
+	SendMessage(eAccumulationNumberEdit.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eCurrentAccumulationModeTotalAccumulationNumber * 1000).c_str());
+	configurationOpenFile >> eIncDataFileNamesOption;
+	if (eIncDataFileNamesOption)
 	{
 		CheckDlgButton(eCameraWindowHandle, IDC_INCREMENT_FILE_OPTION_BUTTON, MF_CHECKED);
 	}
@@ -203,8 +241,10 @@ int ConfigurationFileSystem::openConfiguration(std::string configurationNameToOp
 	}
 	configurationOpenFile >> ePlottingFrequency;
 	SendMessage(ePlottingFrequencyDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePlottingFrequency).c_str());
+	SendMessage(ePlottingFrequencyEdit.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePlottingFrequency).c_str());
 	configurationOpenFile >> eDetectionThreshold;
 	SendMessage(eAtomThresholdDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eDetectionThreshold).c_str());
+	SendMessage(eAtomThresholdEditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eDetectionThreshold).c_str());
 	int temperature;
 	configurationOpenFile >> temperature;
 	SendMessage(eTempEditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(temperature).c_str());
@@ -248,6 +288,7 @@ int ConfigurationFileSystem::openConfiguration(std::string configurationNameToOp
 	updateSaveStatus(true);
 	return 0;
 }
+
 int ConfigurationFileSystem::saveConfiguration(bool isFromSaveAs)
 {
 	// check if file exists
@@ -289,11 +330,11 @@ int ConfigurationFileSystem::saveConfiguration(bool isFromSaveAs)
 	configurationSaveFile << std::to_string(eEMGainMode) + "\n";
 	configurationSaveFile << std::to_string(eEMGainLevel) + "\n";
 	// pictures per experiment
-	configurationSaveFile << std::to_string(ePicturesPerExperiment) + "\n";
+	configurationSaveFile << std::to_string(ePicturesPerRepetition) + "\n";
 	// experiment # per stack
-	configurationSaveFile << std::to_string(eExperimentsPerStack) + "\n";
+	configurationSaveFile << std::to_string(eRepetitionsPerVariation) + "\n";
 	// stack #
-	configurationSaveFile << std::to_string(eCurrentAccumulationStackNumber) + "\n";
+	configurationSaveFile << std::to_string(eCurrentTotalVariationNumber) + "\n";
 	// camera mode
 	configurationSaveFile << eCurrentlySelectedCameraMode + "\n";
 	// Kinetic Cycle Time
@@ -303,7 +344,7 @@ int ConfigurationFileSystem::saveConfiguration(bool isFromSaveAs)
 	// accumulation #
 	configurationSaveFile << std::to_string(eCurrentAccumulationModeTotalAccumulationNumber) + "\n";
 	// data File increment option
-	configurationSaveFile << std::to_string(eIncSaveFileNameOption) + "\n";
+	configurationSaveFile << std::to_string(eIncDataFileNamesOption) + "\n";
 	// plotting frequency
 	configurationSaveFile << std::to_string(ePlottingFrequency) + "\n";
 	// atom threshold

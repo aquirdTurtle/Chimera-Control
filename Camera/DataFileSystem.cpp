@@ -14,16 +14,79 @@ DataFileSystem::~DataFileSystem()
 	// nothing right now.
 }
 
-bool DataFileSystem::copyAndMoveKeyFile()
+// this file assumes that fits is the fits_#.fits file. User should check if incDataSet is on before calling. 
+bool DataFileSystem::deleteFitsAndKey(std::string& errMsg)
 {
-	int result = CopyFile((KEY_FILE_LOCATION + "key.txt").c_str(), (SAVE_BASE_ADDRESS + currentSaveFolder + "\\key_" + std::to_string(currentDataFileNumber) + ".txt").c_str(), 
-						  FALSE);
-	if (result == 0)
+	errMsg = "";
+	if (fitsIsOpen)
 	{
-		// failed
-		MessageBox(0, ("Failed to create copy of key file! Error Code: " + std::to_string(GetLastError())).c_str(), 0, 0);
-		// but continue, no breaking...
+		errMsg = "ERROR: Can't delete current fits file, the fits file is open!";
 		return true;
+	}
+	std::string fitsAddress = SAVE_BASE_ADDRESS + currentSaveFolder + "\\data_" + std::to_string(currentDataFileNumber) + ".fits";
+	int success = DeleteFile(fitsAddress.c_str());
+	bool returnVal = false;
+	if (success == false)
+	{
+		errMsg = "Failed to delete fits file! Error code: " + std::to_string(GetLastError()) + ".\r\n";
+		returnVal = true;
+	}
+	success = DeleteFile((SAVE_BASE_ADDRESS + currentSaveFolder + "\\key_" + std::to_string(currentDataFileNumber) + ".txt").c_str());
+	if (success == false)
+	{
+		errMsg += "Failed to delete key file! Error code: " + std::to_string(GetLastError()) + ".\r\n";
+		returnVal = true;
+	}
+	return returnVal;
+}
+
+bool DataFileSystem::loadAndMoveKeyFile(std::string& errMsg, bool incOption)
+{
+	int result = 0;
+	if (incOption)
+	{
+		 result = CopyFile((KEY_FILE_LOCATION + "key.txt").c_str(), (SAVE_BASE_ADDRESS + currentSaveFolder + "\\key_" + std::to_string(currentDataFileNumber) + ".txt").c_str(),
+			FALSE);
+		 if (result == 0)
+		 {
+			 // failed
+			 errMsg = "Failed to create copy of key file! Error Code: " + std::to_string(GetLastError()) + "\r\n";
+			 // but continue, no breaking...
+			 return true;
+		 }
+	}
+
+	std::ifstream keyFile;
+	if (incOption)
+	{
+		keyFile.open(SAVE_BASE_ADDRESS + currentSaveFolder + "\\key_" + std::to_string(currentDataFileNumber) + ".txt");
+	}
+	else
+	{
+		keyFile.open(KEY_FILE_LOCATION + "\\key.txt");
+	}
+	if (!keyFile.is_open())
+	{
+		errMsg = "Couldn't open key file!? Does a key file exist???\r\n";
+		return true;
+	}
+	keyValues.clear();
+	std::string keyString;
+	std::getline(keyFile, keyString);
+	while (keyFile)
+	{
+		double keyItem;
+		try
+		{
+			keyItem = std::stod(keyString);
+			keyValues.push_back(keyItem);
+		}
+		catch (std::invalid_argument& exception)
+		{
+			errMsg = "Key File contained bad values!\r\n";
+			return true;
+		}
+		std::getline(keyFile, keyString);
 	}
 	return false;
 }
@@ -82,7 +145,7 @@ bool DataFileSystem::initializeDataFiles(bool incrementFiles, std::string& errMs
 		int fileNum = 1;
 		// The while condition here check if file exists. No idea how this actually works.
 		struct stat statBuffer;
-		while ((stat((SAVE_BASE_ADDRESS + finalSaveFolder + "data_" + std::to_string(fileNum) + ".fits").c_str(), &statBuffer) == 0))
+		while ((stat((SAVE_BASE_ADDRESS + finalSaveFolder + "\\data_" + std::to_string(fileNum) + ".fits").c_str(), &statBuffer) == 0))
 		{
 			fileNum++;
 		}
@@ -104,7 +167,7 @@ bool DataFileSystem::initializeDataFiles(bool incrementFiles, std::string& errMs
 			int success = DeleteFile((SAVE_BASE_ADDRESS + finalSaveFolder + finalSaveFileName).c_str());
 			if (success == false)
 			{
-				MessageBox(0, "Failed to delete fits file! T.T", 0, 0);
+				MessageBox(0, "Failed to delete fits file! T.T This should never happen.", 0, 0);
 			}
 		}
 		// this sets the text to "none"
@@ -168,11 +231,7 @@ bool DataFileSystem::closeFits(std::string& errMsg)
 	// no error
 	return false;
 }
-bool DataFileSystem::getKey(std::string& errMsg)
-{
-	// TODO: get key for x axis in plots.
-	return false;
-}
+
 bool DataFileSystem::checkFitsError(int fitsStatusIndicator, std::string& errMsg)
 {
 	if (fitsStatusIndicator != 0)
@@ -187,4 +246,9 @@ bool DataFileSystem::checkFitsError(int fitsStatusIndicator, std::string& errMsg
 	{
 		return false;
 	}
+}
+
+std::vector<double> DataFileSystem::getKey()
+{
+	return keyValues;
 }

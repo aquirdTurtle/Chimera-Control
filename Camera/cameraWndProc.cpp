@@ -30,12 +30,498 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 			initializeCameraWindow(hWnd);
 			break;
 		}
-		case WM_CTLCOLOREDIT: 
+		case WM_CTLCOLOREDIT:
 		{
 			DWORD ctrlID = GetDlgCtrlID((HWND)lParam); // Window Control ID
 			HDC hdcStatic = (HDC)wParam;
 			switch (ctrlID)
 			{
+			case IDC_DETECTION_THRESHOLD_EDIT_HANDLE:
+			{
+				SetTextColor(hdcStatic, RGB(255, 255, 255));
+				TCHAR textEdit[256];
+				SendMessage(eAtomThresholdEditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
+				int num;
+				try
+				{
+					num = std::stoi(std::string(textEdit));
+					if (num == eDetectionThreshold)
+					{
+						// good.
+						SetTextColor(hdcStatic, RGB(255, 255, 255));
+						SetBkColor(hdcStatic, RGB(100, 110, 100));
+						return (INT_PTR)eGreyGreenBrush;
+						break;
+					}
+				}
+				catch (std::exception&)
+				{
+					// don't do anything with it.
+				}
+				SetTextColor(hdcStatic, RGB(255, 255, 255));
+				SetBkColor(hdcStatic, RGB(150, 100, 100));
+				return (INT_PTR)eGreyRedBrush;
+			}
+				case IDC_PLOTTING_FREQUENCY_EDIT:
+				{
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					TCHAR textEdit[256];
+					SendMessage(ePlottingFrequencyEdit.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
+					int num;
+					try
+					{
+						num = std::stoi(std::string(textEdit));
+						if (num == ePlottingFrequency)
+						{
+							// good.
+							SetTextColor(hdcStatic, RGB(255, 255, 255));
+							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							return (INT_PTR)eGreyGreenBrush;
+							break;
+						}
+					}
+					catch (std::exception&)
+					{
+						// don't do anything with it.
+					}
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					return (INT_PTR)eGreyRedBrush;
+				}
+				case IDC_ACCUMULATION_NUMBER_EDIT:
+				{
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					TCHAR textEdit[256];
+					SendMessage(eAccumulationNumberEdit.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
+					int num;
+					try
+					{
+						num = std::stoi(std::string(textEdit));
+						if (num == eCurrentAccumulationModeTotalAccumulationNumber)
+						{
+							// good.
+							SetTextColor(hdcStatic, RGB(255, 255, 255));
+							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							return (INT_PTR)eGreyGreenBrush;
+							break;
+						}
+					}
+					catch (std::exception&)
+					{
+						// don't do anything with it.
+					}
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					return (INT_PTR)eGreyRedBrush;
+					break;
+				}
+				case IDC_ACCUMULATION_TIME_EDIT:
+				{
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					TCHAR textEdit[256];
+					SendMessage(eAccumulationTimeEdit.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
+					int time;
+					try
+					{
+						time = std::stoi(std::string(textEdit));
+						if (time == eAccumulationTime)
+						{
+							// good.
+							SetTextColor(hdcStatic, RGB(255, 255, 255));
+							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							return (INT_PTR)eGreyGreenBrush;
+							break;
+						}
+					}
+					catch (std::exception&)
+					{
+						// don't do anything with it.
+					}
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					return (INT_PTR)eGreyRedBrush;
+					break;
+				}
+				case IDC_KINETIC_CYCLE_TIME_EDIT:
+				{
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					TCHAR textEdit[256];
+					SendMessage(eKineticCycleTimeEditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
+					int time;
+					try
+					{
+						time = std::stoi(std::string(textEdit));
+						if (time/1000.0 - eKineticCycleTime < 0.00001 )
+						{
+							// good.
+							SetTextColor(hdcStatic, RGB(255, 255, 255));
+							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							return (INT_PTR)eGreyGreenBrush;
+							break;
+						}
+					}
+					catch (std::exception&)
+					{
+						// don't do anything with it.
+					}
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					return (INT_PTR)eGreyRedBrush;
+					break;
+				}
+				case IDC_IMAGE_BOTTOM_EDIT:
+				{
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					TCHAR textEdit[256];
+					SendMessage(eImageBottomEditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
+					int bottom;
+					try
+					{
+						bottom = std::stoi(std::string(textEdit));
+						if (bottom == eBottomImageBorder)
+						{
+							// good.
+							SetTextColor(hdcStatic, RGB(255, 255, 255));
+							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							UpdateWindow(eImageBottomEditHandle.hwnd);
+							return (INT_PTR)eGreyGreenBrush;
+							break;
+						}
+					}
+					catch (std::exception&)
+					{
+						// don't do anything with it.
+					}
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					return (INT_PTR)eGreyRedBrush;
+					break;
+				}
+				case IDC_IMAGE_TOP_EDIT:
+				{
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					TCHAR textEdit[256];
+					SendMessage(eImageTopEditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
+					int top;
+					try
+					{
+						top = std::stoi(std::string(textEdit));
+						if (top == eTopImageBorder)
+						{
+							// good.
+							SetTextColor(hdcStatic, RGB(255, 255, 255));
+							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							return (INT_PTR)eGreyGreenBrush;
+							break;
+						}
+					}
+					catch (std::exception&)
+					{
+						// don't do anything with it.
+					}
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					return (INT_PTR)eGreyRedBrush;
+					break;
+				}
+				case IDC_VERTICAL_BIN_EDIT:
+				{
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					TCHAR textEdit[256];
+					SendMessage(eVerticalBinningEditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
+					int verticalBin;
+					try
+					{
+						verticalBin = std::stoi(std::string(textEdit));
+						if (verticalBin == eVerticalBinning)
+						{
+							// good.
+							SetTextColor(hdcStatic, RGB(255, 255, 255));
+							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							return (INT_PTR)eGreyGreenBrush;
+							break;
+						}
+					}
+					catch (std::exception&)
+					{
+						// don't do anything with it.
+					}
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					return (INT_PTR)eGreyRedBrush;
+					break;
+				}
+				case IDC_IMG_LEFT_EDIT:
+				{
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					TCHAR textEdit[256];
+					SendMessage(eImgLeftSideEditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
+					int leftSide;
+					try
+					{
+						leftSide = std::stoi(std::string(textEdit));
+						if (leftSide == eLeftImageBorder)
+						{
+							// good.
+							SetTextColor(hdcStatic, RGB(255, 255, 255));
+							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							return (INT_PTR)eGreyGreenBrush;
+							break;
+						}
+					}
+					catch (std::exception&)
+					{
+						// don't do anything with it.
+					}
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					return (INT_PTR)eGreyRedBrush;
+					break;
+				}
+				case IDC_IMG_RIGHT_EDIT:
+				{
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					TCHAR textEdit[256];
+					SendMessage(eImgRightSideEditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
+					int rightSide;
+					try
+					{
+						rightSide = std::stoi(std::string(textEdit));
+						if (rightSide == eRightImageBorder)
+						{
+							// good.
+							SetTextColor(hdcStatic, RGB(255, 255, 255));
+							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							return (INT_PTR)eGreyGreenBrush;
+							break;
+						}
+					}
+					catch (std::exception&)
+					{
+						// don't do anything with it.
+					}
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					return (INT_PTR)eGreyRedBrush;
+					break;
+				}
+				case IDC_HOR_BIN_EDIT:
+				{
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					TCHAR textEdit[256];
+					SendMessage(eHorizontalBinningEditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
+					int horizontalBin;
+					try
+					{
+						horizontalBin = std::stoi(std::string(textEdit));
+						if (horizontalBin == eHorizontalBinning)
+						{
+							// good.
+							SetTextColor(hdcStatic, RGB(255, 255, 255));
+							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							return (INT_PTR)eGreyGreenBrush;
+							break;
+						}
+					}
+					catch (std::exception&)
+					{
+						// don't do anything with it.
+					}
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					return (INT_PTR)eGreyRedBrush;
+					break;
+				}
+				case IDC_EXPOSURE_3_EDIT:
+				{
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					TCHAR textEdit[256];
+					SendMessage(eExposure3EditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
+					int exposure3;
+					try
+					{
+						exposure3 = std::stoi(std::string(textEdit));
+						if (eExposureTimes.size() < 3 && exposure3 < 0 || eExposureTimes.size() >=3 && exposure3 / 1000.0 - eExposureTimes[2] <= 0.001)
+						{
+							// good.
+							SetTextColor(hdcStatic, RGB(255, 255, 255));
+							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							return (INT_PTR)eGreyGreenBrush;
+							break;
+						}
+					}
+					catch (std::exception&)
+					{
+						// don't do anything with it.
+					}
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					return (INT_PTR)eGreyRedBrush;
+					break;
+				}
+				case IDC_EXPOSURE_4_EDIT:
+				{
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					TCHAR textEdit[256];
+					SendMessage(eExposure4EditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
+					int exposure4;
+					try
+					{
+						exposure4 = std::stoi(std::string(textEdit));
+						if (eExposureTimes.size() < 4 && exposure4 < 0 || eExposureTimes.size() >= 4 && exposure4 / 1000.0 - eExposureTimes[3] <= 0.001)
+						{
+							// good.
+							SetTextColor(hdcStatic, RGB(255, 255, 255));
+							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							return (INT_PTR)eGreyGreenBrush;
+							break;
+						}
+					}
+					catch (std::exception&)
+					{
+						// don't do anything with it.
+					}
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					return (INT_PTR)eGreyRedBrush;
+					break;
+				}
+				case IDC_EXPOSURE_2_EDIT:
+				{
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					TCHAR textEdit[256];
+					SendMessage(eExposure2EditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
+					int exposure2;
+					try
+					{
+						exposure2 = std::stoi(std::string(textEdit));
+						if (eExposureTimes.size() < 2 && exposure2 < 0 || eExposureTimes.size() >= 2 && exposure2 / 1000.0 - eExposureTimes[1] <= 0.001)
+						{
+							// good.
+							SetTextColor(hdcStatic, RGB(255, 255, 255));
+							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							return (INT_PTR)eGreyGreenBrush;
+							break;
+						}
+					}
+					catch (std::exception&)
+					{
+						// don't do anything with it.
+					}
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					return (INT_PTR)eGreyRedBrush;
+					break;
+				}
+				case IDC_EXPOSURE_1_EDIT:
+				{
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					TCHAR textEdit[256];
+					SendMessage(eExposure1EditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
+					int exposure1;
+					try
+					{
+						exposure1 = std::stoi(std::string(textEdit));
+						if (eExposureTimes.size() == 0 && exposure1 < 0 || eExposureTimes.size() > 0 && exposure1/1000.0 - eExposureTimes[0] <= 0.001 )
+						{
+							// good.
+							SetTextColor(hdcStatic, RGB(255, 255, 255));
+							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							return (INT_PTR)eGreyGreenBrush;
+							break;
+						}
+					}
+					catch (std::exception&)
+					{
+						// don't do anything with it.
+					}
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					return (INT_PTR)eGreyRedBrush;
+					break;
+				}
+				case IDC_VARIATION_EDIT:
+				{
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					TCHAR textEdit[256];
+					SendMessage(eVariationNumberEdit.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
+					int variations;
+					try
+					{
+						variations = std::stoi(std::string(textEdit));
+						if (variations == eCurrentTotalVariationNumber)
+						{
+							// good.
+							SetTextColor(hdcStatic, RGB(255, 255, 255));
+							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							UpdateWindow(eVariationNumberEdit.hwnd);
+							return (INT_PTR)eGreyGreenBrush;
+							break;
+						}
+					}
+					catch (std::exception&)
+					{
+						// don't do anything with it.
+					}
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					return (INT_PTR)eGreyRedBrush;
+					break;
+				}
+				case IDC_REPETITIONS_PER_VARIATION_EDIT:
+				{
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					TCHAR textEdit[256];
+					SendMessage(eRepetitionsPerVariationEdit.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
+					int repetitions;
+					try
+					{
+						repetitions = std::stoi(std::string(textEdit));
+						if (repetitions == eRepetitionsPerVariation)
+						{
+							// good.
+							SetTextColor(hdcStatic, RGB(255, 255, 255));
+							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							return (INT_PTR)eGreyGreenBrush;
+							break;
+						}
+					}
+					catch (std::exception&)
+					{
+						// don't do anything with it.
+					}
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					return (INT_PTR)eGreyRedBrush;
+					break;
+				}
+				case IDC_PICTURES_PER_REPETITION_EDIT:
+				{
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					TCHAR textEdit[256];
+					SendMessage(ePicturesPerRepetitionEdit.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
+					int pictures;
+					try
+					{
+						pictures = std::stoi(std::string(textEdit));
+						if (pictures == ePicturesPerRepetition)
+						{
+							// good.
+							SetTextColor(hdcStatic, RGB(255, 255, 255));
+							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							return (INT_PTR)eGreyGreenBrush;
+							break;
+						}
+					}
+					catch (std::exception&)
+					{
+						// don't do anything with it.
+					}
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					return (INT_PTR)eGreyRedBrush;
+					break;
+				}
 				case IDC_EM_GAIN_MODE_EDIT:
 				{
 					SetTextColor(hdcStatic, RGB(255, 255, 255));
@@ -59,7 +545,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						// don't do anything with it.
 					}
 					SetTextColor(hdcStatic, RGB(255, 255, 255));
-					SetBkColor(hdcStatic, RGB(120, 100, 100));
+					SetBkColor(hdcStatic, RGB(150, 100, 100));
 					return (INT_PTR)eGreyRedBrush;
 				}
 
@@ -212,9 +698,9 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 			}
 			else
 			{
-				experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerStack) % ePicturesPerExperiment);
+				experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerVariation) % ePicturesPerRepetition);
 			}
-			if ((experimentPictureNumber == ePicturesPerExperiment - 1 || eRealTimePictures) && eDataExists)
+			if ((experimentPictureNumber == ePicturesPerRepetition - 1 || eRealTimePictures) && eDataExists)
 			{
 				myAndor::drawDataWindow();
 			}
@@ -274,9 +760,9 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 			}
 			else
 			{
-				experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerStack) % ePicturesPerExperiment);
+				experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerVariation) % ePicturesPerRepetition);
 			}
-			if ((experimentPictureNumber == ePicturesPerExperiment - 1 || eRealTimePictures) && eDataExists)
+			if ((experimentPictureNumber == ePicturesPerRepetition - 1 || eRealTimePictures) && eDataExists)
 			{
 				myAndor::drawDataWindow();
 			}
@@ -413,9 +899,9 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						}
 						else
 						{
-							experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerStack) % ePicturesPerExperiment);
+							experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerVariation) % ePicturesPerRepetition);
 						}
-						if ((experimentPictureNumber == ePicturesPerExperiment - 1 || eRealTimePictures) && eDataExists)
+						if ((experimentPictureNumber == ePicturesPerRepetition - 1 || eRealTimePictures) && eDataExists)
 						{
 							myAndor::drawDataWindow();
 						}
@@ -449,9 +935,9 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						}
 						else
 						{
-							experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerStack) % ePicturesPerExperiment);
+							experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerVariation) % ePicturesPerRepetition);
 						}
-						if ((experimentPictureNumber == ePicturesPerExperiment - 1 || eRealTimePictures) && eDataExists)
+						if ((experimentPictureNumber == ePicturesPerRepetition - 1 || eRealTimePictures) && eDataExists)
 						{
 							myAndor::drawDataWindow();
 						}
@@ -485,9 +971,9 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						}
 						else
 						{
-							experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerStack) % ePicturesPerExperiment);
+							experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerVariation) % ePicturesPerRepetition);
 						}
-						if ((experimentPictureNumber == ePicturesPerExperiment - 1 || eRealTimePictures) && eDataExists)
+						if ((experimentPictureNumber == ePicturesPerRepetition - 1 || eRealTimePictures) && eDataExists)
 						{
 							myAndor::drawDataWindow();
 						}
@@ -521,9 +1007,9 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						}
 						else
 						{
-							experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerStack) % ePicturesPerExperiment);
+							experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerVariation) % ePicturesPerRepetition);
 						}
-						if ((experimentPictureNumber == ePicturesPerExperiment - 1 || eRealTimePictures) && eDataExists)
+						if ((experimentPictureNumber == ePicturesPerRepetition - 1 || eRealTimePictures) && eDataExists)
 						{
 							myAndor::drawDataWindow();
 						}
@@ -557,9 +1043,9 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						}
 						else
 						{
-							experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerStack) % ePicturesPerExperiment);
+							experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerVariation) % ePicturesPerRepetition);
 						}
-						if ((experimentPictureNumber == ePicturesPerExperiment - 1 || eRealTimePictures) && eDataExists)
+						if ((experimentPictureNumber == ePicturesPerRepetition - 1 || eRealTimePictures) && eDataExists)
 						{
 							myAndor::drawDataWindow();
 						}
@@ -593,9 +1079,9 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						}
 						else
 						{
-							experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerStack) % ePicturesPerExperiment);
+							experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerVariation) % ePicturesPerRepetition);
 						}
-						if ((experimentPictureNumber == ePicturesPerExperiment - 1 || eRealTimePictures) && eDataExists)
+						if ((experimentPictureNumber == ePicturesPerRepetition - 1 || eRealTimePictures) && eDataExists)
 						{
 							myAndor::drawDataWindow();
 						}
@@ -629,9 +1115,9 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						}
 						else
 						{
-							experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerStack) % ePicturesPerExperiment);
+							experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerVariation) % ePicturesPerRepetition);
 						}
-						if ((experimentPictureNumber == ePicturesPerExperiment - 1 || eRealTimePictures) && eDataExists)
+						if ((experimentPictureNumber == ePicturesPerRepetition - 1 || eRealTimePictures) && eDataExists)
 						{
 							myAndor::drawDataWindow();
 						}
@@ -665,9 +1151,9 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						}
 						else
 						{
-							experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerStack) % ePicturesPerExperiment);
+							experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerVariation) % ePicturesPerRepetition);
 						}
-						if ((experimentPictureNumber == ePicturesPerExperiment - 1 || eRealTimePictures) && eDataExists)
+						if ((experimentPictureNumber == ePicturesPerRepetition - 1 || eRealTimePictures) && eDataExists)
 						{
 							myAndor::drawDataWindow();
 						}
@@ -743,28 +1229,28 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						if (eCurrentlySelectedCameraMode == "Continuous Single Scans Mode")
 						{
 							eAcquisitionMode = 5;
-							if (ePicturesPerStack != INT_MAX)
+							if (ePicturesPerVariation != INT_MAX)
 							{
-								ePreviousPicturesPerSubSeries = ePicturesPerStack;
+								ePreviousPicturesPerSubSeries = ePicturesPerVariation;
 							}
-							ePicturesPerStack = INT_MAX;
-							SendMessage(eExperimentsPerStackDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerStack).c_str());
+							ePicturesPerVariation = INT_MAX;
+							SendMessage(eRepetitionsPerVariationDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerVariation).c_str());
 						}
 						else if (eCurrentlySelectedCameraMode == "Kinetic Series Mode")
 						{
 							eAcquisitionMode = 3;
-							//ePicturesPerStack = ePreviousPicturesPerSubSeries;
-							SendMessage(eExperimentsPerStackDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerStack).c_str());
+							//ePicturesPerVariation = ePreviousPicturesPerSubSeries;
+							SendMessage(eRepetitionsPerVariationDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerVariation).c_str());
 						}
 						else if (eCurrentlySelectedCameraMode == "Accumulate Mode")	
 						{
 							eAcquisitionMode = 2;
-							if (ePicturesPerStack != INT_MAX)
+							if (ePicturesPerVariation != INT_MAX)
 							{
-								ePreviousPicturesPerSubSeries = ePicturesPerStack;
+								ePreviousPicturesPerSubSeries = ePicturesPerVariation;
 							}
-							ePicturesPerStack = INT_MAX;
-							SendMessage(eExperimentsPerStackDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerStack).c_str());
+							ePicturesPerVariation = INT_MAX;
+							SendMessage(eRepetitionsPerVariationDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerVariation).c_str());
 						}
 						reorganizeWindow(eCurrentlySelectedCameraMode, hWnd);
 						eCameraFileSystem.updateSaveStatus(false);
@@ -904,7 +1390,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
 						break;
 					}
-					if (ePicturesPerExperiment <= 0)
+					if (ePicturesPerRepetition <= 0)
 					{
 						MessageBox(0, "ERROR: Please set the number of pictures per experiment to a positive non-zero value.", 0, 0);
 						eCameraWindowExperimentTimer.setColorID(ID_RED);
@@ -920,14 +1406,14 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 							eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
 							break;
 						}
-						if (eExperimentsPerStack <= 0)
+						if (eRepetitionsPerVariation <= 0)
 						{
 							MessageBox(0, "ERROR: Please set the \"Experiments per Stack\" variable to a positive non-zero value.", 0, 0);
 							eCameraWindowExperimentTimer.setColorID(ID_RED);
 							eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
 							break;
 						}
-						if (eCurrentAccumulationStackNumber <= 0)
+						if (eCurrentTotalVariationNumber <= 0)
 						{
 							MessageBox(0, "ERROR: Please set the number of accumulation stacks to a positive non-zero value.", 0, 0);
 							eCameraWindowExperimentTimer.setColorID(ID_RED);
@@ -970,7 +1456,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					{
 						PlottingInfo tempInfoCheck;
 						tempInfoCheck.loadPlottingInfoFromFile(PLOT_FILES_SAVE_LOCATION + eCurrentPlotNames[plotInc] + ".plot");
-						if (tempInfoCheck.getPictureNumber() != ePicturesPerExperiment)
+						if (tempInfoCheck.getPictureNumber() != ePicturesPerRepetition)
 						{
 							MessageBox(0, ("ERROR: one of the plots selected, " + eCurrentPlotNames[plotInc] + ", is not built for the currently selected number"
 								" of pictures per experiment. Please revise either the current setting or the plot file.").c_str(), 0, 0);
@@ -996,12 +1482,12 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						+ std::to_string(eTopImageBorder) + " - " + std::to_string(eBottomImageBorder) + "\r\n";
 					dialogMsg += "\r\n";
 					dialogMsg += "Kintetic Cycle Time: " + std::to_string(eKineticCycleTime) + "\r\n";
-					dialogMsg += "Pictures per Experiment: " + std::to_string(ePicturesPerExperiment) + "\r\n";
-					dialogMsg += "Pictures per Stack: " + std::to_string(ePicturesPerStack) + "\r\n";
-					dialogMsg += "Stack Number: " + std::to_string(eCurrentAccumulationStackNumber) + "\r\n";
+					dialogMsg += "Pictures per Experiment: " + std::to_string(ePicturesPerRepetition) + "\r\n";
+					dialogMsg += "Pictures per Stack: " + std::to_string(ePicturesPerVariation) + "\r\n";
+					dialogMsg += "Stack Number: " + std::to_string(eCurrentTotalVariationNumber) + "\r\n";
 					dialogMsg += "Atom Threshold: " + std::to_string(eDetectionThreshold) + "\r\n";
 					dialogMsg += "\r\n";
-					dialogMsg += "Incrementing File Name: " + std::to_string(eIncSaveFileNameOption) + "\r\n";
+					dialogMsg += "Incrementing File Name: " + std::to_string(eIncDataFileNamesOption) + "\r\n";
 					dialogMsg += "Current Plotting Options: \r\n";
 					for (int plotInc = 0; plotInc < eCurrentPlotNames.size(); plotInc++)
 					{
@@ -1097,6 +1583,26 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 							appendText("Aborting Acquisition\r\n", IDC_STATUS_EDIT);
 							eCameraWindowExperimentTimer.setColorID(ID_BLUE);
 							eCameraWindowExperimentTimer.setTimerDisplay("Aborted");
+							std::string errorMessage;
+							if (eExperimentData.closeFits(errorMessage))
+							{
+								appendText(errorMessage, IDC_ERROR_EDIT);
+							}
+							if (eIncDataFileNamesOption)
+							{
+								int answer = MessageBox(0, "Acquisition Aborted. Delete Data (fits_#) & (key_#) files for this run?", 0, MB_YESNO);
+								if (answer == IDYES)
+								{
+									if (eExperimentData.deleteFitsAndKey(errorMessage))
+									{
+										appendText(errorMessage, IDC_ERROR_EDIT);
+									}
+									else
+									{
+										appendText("Deleted .fits and copied key file for this run.", IDC_STATUS_EDIT);
+									}
+								}
+							}
 						}
 					}
 					// or else let user know none is in progress
@@ -1305,10 +1811,10 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					GetWindowText(eImgRightSideEditHandle.hwnd, (LPSTR)tempStr.c_str(), 4);
 					SendMessage(eImgRightSideDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)tempStr.c_str());
 					eRightImageBorder = std::stoi(tempStr);
-					GetWindowText(eImageBottomSideEditHandle.hwnd, (LPSTR)tempStr.c_str(), 4);
+					GetWindowText(eImageTopEditHandle.hwnd, (LPSTR)tempStr.c_str(), 4);
 					SendMessage(eImageBottomSideDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)tempStr.c_str());
 					eTopImageBorder = std::stoi(tempStr);
-					GetWindowText(eImageTopSideEditHandle.hwnd, (LPSTR)tempStr.c_str(), 4);
+					GetWindowText(eImageBottomEditHandle.hwnd, (LPSTR)tempStr.c_str(), 4);
 					SendMessage(eImageTopSideDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)tempStr.c_str());
 					eBottomImageBorder = std::stoi(tempStr);
 					GetWindowText(eHorizontalBinningEditHandle.hwnd, (LPSTR)tempStr.c_str(), 4);
@@ -1459,18 +1965,18 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					eCameraFileSystem.updateSaveStatus(false);
 					break;
 				}
-				case IDC_SET_EXPERIMENTS_PER_STACK_BUTTON: 
+				case IDC_SET_REPETITONS_PER_VARIATION_BUTTON: 
 				{
 					std::string tempStr;
-					GetWindowText(eExperimentsPerStackEditHandle.hwnd, (LPSTR)tempStr.c_str(), 20);
-					SendMessage(eExperimentsPerStackDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)tempStr.c_str());
+					GetWindowText(eRepetitionsPerVariationEdit.hwnd, (LPSTR)tempStr.c_str(), 20);
+					SendMessage(eRepetitionsPerVariationDisp.hwnd, WM_SETTEXT, 0, (LPARAM)tempStr.c_str());
 					tempStr = std::string(tempStr.c_str());
 					bool err = false;
 					try 
 					{
-						eExperimentsPerStack = std::stoi(tempStr);
-						ePicturesPerStack = eExperimentsPerStack * ePicturesPerExperiment;
-						eTotalNumberOfPicturesInSeries = eCurrentAccumulationStackNumber * ePicturesPerStack;
+						eRepetitionsPerVariation = std::stoi(tempStr);
+						ePicturesPerVariation = eRepetitionsPerVariation * ePicturesPerRepetition;
+						eTotalNumberOfPicturesInSeries = eCurrentTotalVariationNumber * ePicturesPerVariation;
 						if (tempStr == "" || err == true)
 						{
 							appendText("ERROR: Empty Number Entered for Accumulations Per SubSeries.\r\n", IDC_ERROR_EDIT);
@@ -1481,7 +1987,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					catch (std::invalid_argument &exception)
 					{
 						MessageBox(0, "ERROR: number entered was not valid.", 0, 0);
-						ePicturesPerStack = 1;
+						ePicturesPerVariation = 1;
 						break;
 					}
 					//
@@ -1516,11 +2022,11 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					eCameraFileSystem.updateSaveStatus(false);
 					break;
 				}
-				case IDC_SET_ACCUMULATION_STACK_NUMBER: 
+				case IDC_SET_VARIATION_NUMBER: 
 				{
 					std::string tempStr;
-					GetWindowText(eAccumulationStackNumberEditHandle.hwnd, (LPSTR)tempStr.c_str(), 20);
-					SendMessage(eAccumulationStackNumberDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)tempStr.c_str());
+					GetWindowText(eVariationNumberEdit.hwnd, (LPSTR)tempStr.c_str(), 20);
+					SendMessage(eVariationNumberDisp.hwnd, WM_SETTEXT, 0, (LPARAM)tempStr.c_str());
 					tempStr = std::string(tempStr.c_str());
 					bool err = false;
 					for (unsigned int strInc = 0; strInc < tempStr.size(); strInc++) 
@@ -1540,16 +2046,16 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						appendText("ERROR: Invalid accumulation stack number: not in range (0, 1000).\r\n", IDC_ERROR_EDIT);
 						break;
 					}
-					eCurrentAccumulationStackNumber = tempInt;
-					eTotalNumberOfPicturesInSeries = eCurrentAccumulationStackNumber * ePicturesPerStack;
+					eCurrentTotalVariationNumber = tempInt;
+					eTotalNumberOfPicturesInSeries = eCurrentTotalVariationNumber * ePicturesPerVariation;
 					eCameraFileSystem.updateSaveStatus(false);
 					break;
 				}
-				case IDC_SET_PICTURES_PER_EXPERIMENT_BUTTON:
+				case IDC_SET_PICTURES_PER_REPITITION_BUTTON:
 				{
 					std::string tempStr;
-					GetWindowText(ePicturesPerExperimentEditHandle.hwnd, (LPSTR)tempStr.c_str(), 20);
-					SendMessage(ePicturesPerExperimentDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)tempStr.c_str());
+					GetWindowText(ePicturesPerRepetitionEdit.hwnd, (LPSTR)tempStr.c_str(), 20);
+					SendMessage(ePicturesPerRepetitionDisp.hwnd, WM_SETTEXT, 0, (LPARAM)tempStr.c_str());
 					tempStr = std::string(tempStr.c_str());
 					bool err = false;
 					try
@@ -1573,9 +2079,9 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 								break;
 							}
 						}
-						ePicturesPerExperiment = tempInt;
-						ePicturesPerStack = eExperimentsPerStack * ePicturesPerExperiment;
-						eTotalNumberOfPicturesInSeries = eCurrentAccumulationStackNumber * ePicturesPerStack;
+						ePicturesPerRepetition = tempInt;
+						ePicturesPerVariation = eRepetitionsPerVariation * ePicturesPerRepetition;
+						eTotalNumberOfPicturesInSeries = eCurrentTotalVariationNumber * ePicturesPerVariation;
 					}
 					catch (std::invalid_argument &exception)
 					{
@@ -1594,7 +2100,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 				{
 					char tempChars[256];
 					std::string tempStr;
-					GetWindowText(eSetAccumulationNumberEdit.hwnd, (LPSTR)tempChars, 20);
+					GetWindowText(eAccumulationNumberEdit.hwnd, (LPSTR)tempChars, 20);
 					SendMessage(eSetAccumulationNumberDisp.hwnd, WM_SETTEXT, 0, (LPARAM)tempChars);
 					tempStr = std::string(tempChars);
 					bool err = false;
@@ -1707,12 +2213,12 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					if (checked)
 					{
 						CheckDlgButton(hWnd, IDC_INCREMENT_FILE_OPTION_BUTTON, BST_UNCHECKED);
-						eIncSaveFileNameOption = false;
+						eIncDataFileNamesOption = false;
 					}
 					else
 					{
 						CheckDlgButton(hWnd, IDC_INCREMENT_FILE_OPTION_BUTTON, BST_CHECKED);
-						eIncSaveFileNameOption = true;
+						eIncDataFileNamesOption = true;
 					}
 					eCameraFileSystem.updateSaveStatus(false);
 					break;
@@ -1804,9 +2310,9 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 			}
 			else
 			{
-				experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerStack) % ePicturesPerExperiment);
+				experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerVariation) % ePicturesPerRepetition);
 			}
-			if ((experimentPictureNumber == ePicturesPerExperiment - 1 || eRealTimePictures) && eDataExists)
+			if ((experimentPictureNumber == ePicturesPerRepetition - 1 || eRealTimePictures) && eDataExists)
 			{
 				//myAndor::drawDataWindow();
 			}
@@ -1881,8 +2387,15 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 			}
 			else if (msg == eAccMessageID) 
 			{
-				eCount3++;
 				eCurrentAccumulationNumber = (int)lParam;
+				if (eCurrentAccumulationNumber == 1)
+				{
+					std::string errorMessage;
+					if (eExperimentData.loadAndMoveKeyFile(errorMessage, eIncDataFileNamesOption))
+					{
+						appendText(errorMessage, IDC_ERROR_EDIT);
+					}
+				}
 				SendMessage(eCurrentAccumulationNumDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)("Accumulation " + std::to_string((int)eCurrentAccumulationNumber) + "/"
 										  + std::to_string((int)eTotalNumberOfPicturesInSeries)).c_str());
 				int err = myAndor::acquireImageData();
@@ -1894,7 +2407,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 				UpdateWindow(eStatusEditHandle.hwnd);
 				if (eCurrentlyRunningCameraMode == "Kinetic Series Mode")
 				{
-					eCameraWindowExperimentTimer.update(eCurrentAccumulationNumber, ePicturesPerStack, eCurrentAccumulationStackNumber, hWnd);
+					eCameraWindowExperimentTimer.update(eCurrentAccumulationNumber, ePicturesPerVariation, eCurrentTotalVariationNumber, hWnd);
 				}
 			}
 			else if (msg == eFinMessageID) 
@@ -1923,7 +2436,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 				}
 				if (eCurrentlyRunningCameraMode == "Kinetic Series Mode")
 				{
-					eCameraWindowExperimentTimer.update(eCurrentAccumulationNumber, ePicturesPerStack, eCurrentAccumulationStackNumber, hWnd);
+					eCameraWindowExperimentTimer.update(eCurrentAccumulationNumber, ePicturesPerVariation, eCurrentTotalVariationNumber, hWnd);
 				}
 				appendText("Finished Entire Experiment Sequence.\r\n", IDC_STATUS_EDIT);
 				// get time to include in text message.
@@ -1946,11 +2459,6 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					message += "0";
 				}
 				message += std::to_string(now.tm_sec);
-				if (eIncSaveFileNameOption)
-				{
-					// make a copy of the key file and put it in the current experiment folder. 
-					eExperimentData.copyAndMoveKeyFile();
-				}
 				eTextingHandler.sendMessage(message);
 
 				break;
