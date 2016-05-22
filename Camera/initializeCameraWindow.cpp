@@ -95,100 +95,99 @@ bool initializeCameraWindow(HWND cameraWindow)
 	collumnPosAccum.y += 25;
 	collumnPosCont.y += 25;
 	/// PICTURES PER EXPERIMENT
-	// Set Pictures Per Experiment Button
-	eSetPicturesPerExperimentButtonHandle.kineticSeriesModePos = { 0, collumnPosKin.y, 220, collumnPosKin.y + 25 };
-	eSetPicturesPerExperimentButtonHandle.continuousSingleScansModePos = { 0, collumnPosCont.y, 220, collumnPosCont.y + 25 };
-	eSetPicturesPerExperimentButtonHandle.accumulateModePos = { -1, -1, -1, -1 };
-	initPos = eSetPicturesPerExperimentButtonHandle.kineticSeriesModePos;
-	eSetPicturesPerExperimentButtonHandle.hwnd = CreateWindowEx(0, "BUTTON", "Set Pictures / Experiment",
+	// Set Pictures Per Repetition Button
+	eSetPicturesPerRepetitionButtonHandle.kineticSeriesModePos = { 0, collumnPosKin.y, 220, collumnPosKin.y + 25 };
+	eSetPicturesPerRepetitionButtonHandle.continuousSingleScansModePos = { 0, collumnPosCont.y, 220, collumnPosCont.y + 25 };
+	eSetPicturesPerRepetitionButtonHandle.accumulateModePos = { -1, -1, -1, -1 };
+	initPos = eSetPicturesPerRepetitionButtonHandle.kineticSeriesModePos;
+	eSetPicturesPerRepetitionButtonHandle.hwnd = CreateWindowEx(0, "BUTTON", "Set Pic.s / Repetition",
 		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON,
 		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top,
-		cameraWindow, (HMENU)IDC_SET_PICTURES_PER_EXPERIMENT_BUTTON, eHInst, NULL);
-	eSetPicturesPerExperimentButtonHandle.fontType = "Normal";
-	// Pictures Per Experiment Edit
-	ePicturesPerExperimentEditHandle.kineticSeriesModePos = { 225, collumnPosKin.y, 320, collumnPosKin.y + 25 };
-	ePicturesPerExperimentEditHandle.continuousSingleScansModePos = { 225, collumnPosCont.y, 320, collumnPosCont.y + 25 };
-	ePicturesPerExperimentEditHandle.accumulateModePos = { -1, -1, -1, -1 };
-	initPos = ePicturesPerExperimentEditHandle.kineticSeriesModePos;
-	ePicturesPerExperimentEditHandle.hwnd = CreateWindowEx(0, "EDIT", "2",
+		cameraWindow, (HMENU)IDC_SET_PICTURES_PER_REPITITION_BUTTON, eHInst, NULL);
+	eSetPicturesPerRepetitionButtonHandle.fontType = "Normal";
+	// Pictures Per Repetition Edit
+	ePicturesPerRepetitionEdit.kineticSeriesModePos = { 225, collumnPosKin.y, 320, collumnPosKin.y + 25 };
+	ePicturesPerRepetitionEdit.continuousSingleScansModePos = { 225, collumnPosCont.y, 320, collumnPosCont.y + 25 };
+	ePicturesPerRepetitionEdit.accumulateModePos = { -1, -1, -1, -1 };
+	initPos = ePicturesPerRepetitionEdit.kineticSeriesModePos;
+	ePicturesPerRepetitionEdit.hwnd = CreateWindowEx(0, "EDIT", "2",
 		WS_CHILD | WS_VISIBLE | WS_BORDER,
 		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top,
-		cameraWindow, (HMENU)IDC_PICTURES_PER_EXPERIMENT_EDIT, eHInst, NULL);
-	ePicturesPerExperimentEditHandle.fontType = "Normal";
-	// Pictures Per Experiment Display
-	ePicturesPerExperimentDispHandle.kineticSeriesModePos = { 325, collumnPosKin.y, 480, collumnPosKin.y + 25 };
-	ePicturesPerExperimentDispHandle.continuousSingleScansModePos = { 325, collumnPosCont.y, 480, collumnPosCont.y + 25 };
-	ePicturesPerExperimentDispHandle.accumulateModePos = { -1, -1, -1, -1 };
-	initPos = ePicturesPerExperimentDispHandle.kineticSeriesModePos;
-	ePicturesPerExperimentDispHandle.hwnd = CreateWindowEx(0, "EDIT", "",
+		cameraWindow, (HMENU)IDC_PICTURES_PER_REPETITION_EDIT, eHInst, NULL);
+	ePicturesPerRepetitionEdit.fontType = "Normal";
+	// Pictures Per Repetition Display
+	ePicturesPerRepetitionDisp.kineticSeriesModePos = { 325, collumnPosKin.y, 480, collumnPosKin.y + 25 };
+	ePicturesPerRepetitionDisp.continuousSingleScansModePos = { 325, collumnPosCont.y, 480, collumnPosCont.y + 25 };
+	ePicturesPerRepetitionDisp.accumulateModePos = { -1, -1, -1, -1 };
+	initPos = ePicturesPerRepetitionDisp.kineticSeriesModePos;
+	ePicturesPerRepetitionDisp.hwnd = CreateWindowEx(0, "EDIT", "",
 		WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY,
 		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top,
-		cameraWindow, (HMENU)IDC_PICTURES_PER_EXPERIMENT_DISP, eHInst, NULL);
-	ePicturesPerExperimentDispHandle.fontType = "Normal";
+		cameraWindow, (HMENU)IDC_PICTURES_PER_REPETITION_DISP, eHInst, NULL);
+	ePicturesPerRepetitionDisp.fontType = "Normal";
 	collumnPosKin.y += 30;
 	collumnPosCont.y += 30;
 
-	/// EXPERIMENTS PER STACK
-	// Set Experiments Per Stack Button
-	eSetNumberOfExperimentsPerStackButtonHandle.kineticSeriesModePos = { 0, collumnPosKin.y, 220, collumnPosKin.y + 25 };
-	eSetNumberOfExperimentsPerStackButtonHandle.continuousSingleScansModePos = { -1,-1,-1,-1 };
-	eSetNumberOfExperimentsPerStackButtonHandle.accumulateModePos = { -1,-1,-1,-1 };
-	initPos = eSetNumberOfExperimentsPerStackButtonHandle.kineticSeriesModePos;
-	eSetNumberOfExperimentsPerStackButtonHandle.hwnd = CreateWindowEx(0, "BUTTON", "Set Experiments / Stack",
+	/// REPETITIONS PER VARIATION
+	// Set Repetitions Per Variation Button
+	eSetNumberRepetitionsPerVariationButton.kineticSeriesModePos = { 0, collumnPosKin.y, 220, collumnPosKin.y + 25 };
+	eSetNumberRepetitionsPerVariationButton.continuousSingleScansModePos = { -1,-1,-1,-1 };
+	eSetNumberRepetitionsPerVariationButton.accumulateModePos = { -1,-1,-1,-1 };
+	initPos = eSetNumberRepetitionsPerVariationButton.kineticSeriesModePos;
+	eSetNumberRepetitionsPerVariationButton.hwnd = CreateWindowEx(0, "BUTTON", "Set Rep. / Variation",
 		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON,
 		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top,
-		cameraWindow, (HMENU)IDC_SET_EXPERIMENTS_PER_STACK_BUTTON, eHInst, NULL);
-	eSetNumberOfExperimentsPerStackButtonHandle.fontType = "Normal";
-	// Experiments Per Stack Edit
-	eExperimentsPerStackEditHandle.kineticSeriesModePos = { 225, collumnPosKin.y, 320, collumnPosKin.y + 25 };
-	eExperimentsPerStackEditHandle.continuousSingleScansModePos = { -1,-1,-1,-1 };
-	eExperimentsPerStackEditHandle.accumulateModePos = { -1,-1,-1,-1 };
-	initPos = eExperimentsPerStackEditHandle.kineticSeriesModePos;
-	eExperimentsPerStackEditHandle.hwnd = CreateWindowEx(0, "EDIT", "10",
+		cameraWindow, (HMENU)IDC_SET_REPETITONS_PER_VARIATION_BUTTON, eHInst, NULL);
+	eSetNumberRepetitionsPerVariationButton.fontType = "Normal";
+	// Repetitions Per Variation Edit
+	eRepetitionsPerVariationEdit.kineticSeriesModePos = { 225, collumnPosKin.y, 320, collumnPosKin.y + 25 };
+	eRepetitionsPerVariationEdit.continuousSingleScansModePos = { -1,-1,-1,-1 };
+	eRepetitionsPerVariationEdit.accumulateModePos = { -1,-1,-1,-1 };
+	initPos = eRepetitionsPerVariationEdit.kineticSeriesModePos;
+	eRepetitionsPerVariationEdit.hwnd = CreateWindowEx(0, "EDIT", "10",
 		WS_CHILD | WS_VISIBLE | WS_BORDER,
-		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_SCAN_NUM_EDIT, eHInst, NULL);
-	eExperimentsPerStackEditHandle.fontType = "Normal";
-	// Pictures Per Stack Display
-	eExperimentsPerStackDispHandle.kineticSeriesModePos = { 325, collumnPosKin.y, 480, collumnPosKin.y + 25 };
-	eExperimentsPerStackDispHandle.continuousSingleScansModePos = { -1,-1,-1,-1 };
-	eExperimentsPerStackDispHandle.accumulateModePos = { -1,-1,-1,-1 };
-	initPos = eExperimentsPerStackDispHandle.kineticSeriesModePos;
-	eExperimentsPerStackDispHandle.hwnd = CreateWindowEx(0, "EDIT", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY,
-		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_SCAN_NUM_DISP, eHInst, NULL);
-	eExperimentsPerStackDispHandle.fontType = "Normal";
+		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_REPETITIONS_PER_VARIATION_EDIT, eHInst, NULL);
+	eRepetitionsPerVariationEdit.fontType = "Normal";
+	// Repetitions Per Variation Display
+	eRepetitionsPerVariationDisp.kineticSeriesModePos = { 325, collumnPosKin.y, 480, collumnPosKin.y + 25 };
+	eRepetitionsPerVariationDisp.continuousSingleScansModePos = { -1,-1,-1,-1 };
+	eRepetitionsPerVariationDisp.accumulateModePos = { -1,-1,-1,-1 };
+	initPos = eRepetitionsPerVariationDisp.kineticSeriesModePos;
+	eRepetitionsPerVariationDisp.hwnd = CreateWindowEx(0, "EDIT", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY,
+		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_REPETITIONS_PER_VARIATION_DISP, eHInst, NULL);
+	eRepetitionsPerVariationDisp.fontType = "Normal";
 
 	collumnPosKin.y += 30;
 
-	/// ACCUMULATION STACK NUMBER
-	// Set Accumulation Stack Number Button
-	eSetAccumulationStackNumberButtonHandle.kineticSeriesModePos = { 0, collumnPosKin.y, 220, collumnPosKin.y + 25 };
-	eSetAccumulationStackNumberButtonHandle.continuousSingleScansModePos = { -1,-1,-1,-1 };
-	eSetAccumulationStackNumberButtonHandle.accumulateModePos = { -1,-1,-1,-1 };
-	initPos = eSetAccumulationStackNumberButtonHandle.kineticSeriesModePos;
-	eSetAccumulationStackNumberButtonHandle.hwnd = CreateWindowEx(0, "BUTTON", "Set # Accumulation Stacks",
+	/// VARIATION NUMBER
+	// Set Variation Number Button
+	eSeVariationNumberButton.kineticSeriesModePos = { 0, collumnPosKin.y, 220, collumnPosKin.y + 25 };
+	eSeVariationNumberButton.continuousSingleScansModePos = { -1,-1,-1,-1 };
+	eSeVariationNumberButton.accumulateModePos = { -1,-1,-1,-1 };
+	initPos = eSeVariationNumberButton.kineticSeriesModePos;
+	eSeVariationNumberButton.hwnd = CreateWindowEx(0, "BUTTON", "Set # Variations",
 		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON,
 		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top,
-		cameraWindow, (HMENU)IDC_SET_ACCUMULATION_STACK_NUMBER, eHInst, NULL);
-	eSetAccumulationStackNumberButtonHandle.fontType = "Normal";
-	// Accumulation Stack # Edit
-	eAccumulationStackNumberEditHandle.kineticSeriesModePos = { 225, collumnPosKin.y, 320, collumnPosKin.y + 25 };
-	eAccumulationStackNumberEditHandle.continuousSingleScansModePos = { -1,-1,-1,-1 };
-	eAccumulationStackNumberEditHandle.accumulateModePos = { -1,-1,-1,-1 };
-	initPos = eAccumulationStackNumberEditHandle.kineticSeriesModePos;
-	eAccumulationStackNumberEditHandle.hwnd = CreateWindowEx(0, "EDIT", "1",
+		cameraWindow, (HMENU)IDC_SET_VARIATION_NUMBER, eHInst, NULL);
+	eSeVariationNumberButton.fontType = "Normal";
+	// Variation # Edit
+	eVariationNumberEdit.kineticSeriesModePos = { 225, collumnPosKin.y, 320, collumnPosKin.y + 25 };
+	eVariationNumberEdit.continuousSingleScansModePos = { -1,-1,-1,-1 };
+	eVariationNumberEdit.accumulateModePos = { -1,-1,-1,-1 };
+	initPos = eVariationNumberEdit.kineticSeriesModePos;
+	eVariationNumberEdit.hwnd = CreateWindowEx(0, "EDIT", "1",
 		WS_CHILD | WS_VISIBLE | WS_BORDER,
-		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_ACCUMULATION_STACK_EDIT_HANDLE, eHInst, NULL);
-	eAccumulationStackNumberEditHandle.fontType = "Normal";
-	// Accumulation Stack Number Display
-	eAccumulationStackNumberDispHandle.kineticSeriesModePos = { 325, collumnPosKin.y, 480, collumnPosKin.y + 25 };
-	eAccumulationStackNumberDispHandle.continuousSingleScansModePos = { -1,-1,-1,-1 };
-	eAccumulationStackNumberDispHandle.accumulateModePos = { -1,-1,-1,-1 };
-	initPos = eAccumulationStackNumberDispHandle.kineticSeriesModePos;
-	eAccumulationStackNumberDispHandle.hwnd = CreateWindowEx(0, "EDIT", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY,
-		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_ACCUMULATION_STACK_DISP_HANDLE, eHInst, NULL);
-	eAccumulationStackNumberDispHandle.fontType = "Normal";
+		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_VARIATION_EDIT, eHInst, NULL);
+	eVariationNumberEdit.fontType = "Normal";
+	// Variation Number Display
+	eVariationNumberDisp.kineticSeriesModePos = { 325, collumnPosKin.y, 480, collumnPosKin.y + 25 };
+	eVariationNumberDisp.continuousSingleScansModePos = { -1,-1,-1,-1 };
+	eVariationNumberDisp.accumulateModePos = { -1,-1,-1,-1 };
+	initPos = eVariationNumberDisp.kineticSeriesModePos;
+	eVariationNumberDisp.hwnd = CreateWindowEx(0, "EDIT", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY,
+		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_VARIATION_DISP_HANDLE, eHInst, NULL);
+	eVariationNumberDisp.fontType = "Normal";
 	collumnPosKin.y += 30;
-
 
 	/// EXPOSURE
 	// Set Exposure Button
@@ -239,7 +238,7 @@ bool initializeCameraWindow(HWND cameraWindow)
 	initPos = eExposure4EditHandle.kineticSeriesModePos;
 	eExposure4EditHandle.hwnd = CreateWindowEx(0, "EDIT", "-1",
 		WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
-		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_EXPOSURE_3_EDIT, eHInst, NULL);
+		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_EXPOSURE_4_EDIT, eHInst, NULL);
 	eExposure4EditHandle.fontType = "Normal";
 	collumnPosKin.y += 25;
 	collumnPosAccum.y += 25;
@@ -419,24 +418,25 @@ bool initializeCameraWindow(HWND cameraWindow)
 	collumnPosAccum.y += 25;
 	collumnPosCont.y += 25;
 	/// Image Vertical Edits
+	/// This is reversed top -> bottom... I don't want to think about it.
 	// Image Top Side Edit
-	eImageBottomSideEditHandle.kineticSeriesModePos = { 0, collumnPosKin.y, 140, collumnPosKin.y + 20 };
-	eImageBottomSideEditHandle.continuousSingleScansModePos = { 0, collumnPosCont.y, 140, collumnPosCont.y + 20 };
-	eImageBottomSideEditHandle.accumulateModePos = { 0, collumnPosAccum.y, 140, collumnPosAccum.y + 20 };
-	initPos = eImageBottomSideEditHandle.kineticSeriesModePos;
-	eImageBottomSideEditHandle.hwnd = CreateWindowEx(0, "EDIT", "1",
+	eImageTopEditHandle.kineticSeriesModePos = { 0, collumnPosKin.y, 140, collumnPosKin.y + 20 };
+	eImageTopEditHandle.continuousSingleScansModePos = { 0, collumnPosCont.y, 140, collumnPosCont.y + 20 };
+	eImageTopEditHandle.accumulateModePos = { 0, collumnPosAccum.y, 140, collumnPosAccum.y + 20 };
+	initPos = eImageTopEditHandle.kineticSeriesModePos;
+	eImageTopEditHandle.hwnd = CreateWindowEx(0, "EDIT", "1",
 		WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
-		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_IMG_TOP_EDIT, eHInst, NULL);
-	eImageBottomSideEditHandle.fontType = "Normal";
+		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_IMAGE_TOP_EDIT, eHInst, NULL);
+	eImageTopEditHandle.fontType = "Normal";
 	// Image Bottom Side Edit
-	eImageTopSideEditHandle.kineticSeriesModePos = { 140, collumnPosKin.y, 280, collumnPosKin.y + 20 };
-	eImageTopSideEditHandle.continuousSingleScansModePos = { 140, collumnPosCont.y, 280, collumnPosCont.y + 20 };
-	eImageTopSideEditHandle.accumulateModePos = { 140, collumnPosAccum.y, 280, collumnPosAccum.y + 20 };
-	initPos = eImageTopSideEditHandle.kineticSeriesModePos;
-	eImageTopSideEditHandle.hwnd = CreateWindowEx(0, "EDIT", "5",
+	eImageBottomEditHandle.kineticSeriesModePos = { 140, collumnPosKin.y, 280, collumnPosKin.y + 20 };
+	eImageBottomEditHandle.continuousSingleScansModePos = { 140, collumnPosCont.y, 280, collumnPosCont.y + 20 };
+	eImageBottomEditHandle.accumulateModePos = { 140, collumnPosAccum.y, 280, collumnPosAccum.y + 20 };
+	initPos = eImageBottomEditHandle.kineticSeriesModePos;
+	eImageBottomEditHandle.hwnd = CreateWindowEx(0, "EDIT", "5",
 		WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
-		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_IMG_BOTTOM_EDIT, eHInst, NULL);
-	eImageTopSideEditHandle.fontType = "Normal";
+		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_IMAGE_BOTTOM_EDIT, eHInst, NULL);
+	eImageBottomEditHandle.fontType = "Normal";
 	// Vertical Binning Edit
 	eVerticalBinningEditHandle.kineticSeriesModePos = { 280, collumnPosKin.y, 420, collumnPosKin.y + 20 };
 	eVerticalBinningEditHandle.continuousSingleScansModePos = { 280, collumnPosCont.y, 420, collumnPosCont.y + 20 };
@@ -562,18 +562,18 @@ bool initializeCameraWindow(HWND cameraWindow)
 		cameraWindow, (HMENU)IDC_SET_ACCUMULATION_NUMBER_BUTTON, eHInst, NULL);
 	ShowWindow(eSetAccumulationNumberButton.hwnd, SW_HIDE);
 	eSetAccumulationNumberButton.fontType = "Normal";
-	// Accumulation Time Edit
-	eSetAccumulationNumberEdit.kineticSeriesModePos = { -1, -1, -1, -1 };
-	eSetAccumulationNumberEdit.continuousSingleScansModePos = { -1, -1, -1, -1 };
-	eSetAccumulationNumberEdit.accumulateModePos = { 225, collumnPosAccum.y, 320, collumnPosAccum.y + 25 };
-	initPos = eSetAccumulationNumberEdit.kineticSeriesModePos;
-	eSetAccumulationNumberEdit.triggerModeSensitive = 1;
-	eSetAccumulationNumberEdit.hwnd = CreateWindowEx(0, "EDIT", "1",
+	// Accumulation Number Edit
+	eAccumulationNumberEdit.kineticSeriesModePos = { -1, -1, -1, -1 };
+	eAccumulationNumberEdit.continuousSingleScansModePos = { -1, -1, -1, -1 };
+	eAccumulationNumberEdit.accumulateModePos = { 225, collumnPosAccum.y, 320, collumnPosAccum.y + 25 };
+	initPos = eAccumulationNumberEdit.kineticSeriesModePos;
+	eAccumulationNumberEdit.triggerModeSensitive = 1;
+	eAccumulationNumberEdit.hwnd = CreateWindowEx(0, "EDIT", "1",
 		WS_CHILD | WS_VISIBLE | WS_BORDER,
 		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top,
 		cameraWindow, (HMENU)IDC_ACCUMULATION_NUMBER_EDIT, eHInst, NULL);
-	ShowWindow(eSetAccumulationNumberEdit.hwnd, SW_HIDE);
-	eSetAccumulationNumberEdit.fontType = "Normal";
+	ShowWindow(eAccumulationNumberEdit.hwnd, SW_HIDE);
+	eAccumulationNumberEdit.fontType = "Normal";
 	// Accumulation Time Display
 	eSetAccumulationNumberDisp.kineticSeriesModePos = { -1, -1, -1, -1 };
 	eSetAccumulationNumberDisp.continuousSingleScansModePos = { -1, -1, -1, -1 };
@@ -713,7 +713,7 @@ bool initializeCameraWindow(HWND cameraWindow)
 												(HMENU)IDC_INCREMENT_FILE_OPTION_BUTTON, eHInst, NULL);
 	eIncDataFileOptionBoxHandle.fontType = "Normal";
 	SendMessage(eIncDataFileOptionBoxHandle.hwnd, BM_SETCHECK, BST_UNCHECKED, NULL);
-	eIncSaveFileNameOption = false;
+	eIncDataFileNamesOption = false;
 	collumnPosKin.y += 25;
 	collumnPosAccum.y += 25;
 	collumnPosCont.y += 25;

@@ -9,10 +9,11 @@ class DataFileSystem
 		bool initializeDataFiles(bool incrementFiles, std::string& errMsg);
 		bool writeFits(std::string& errMsg, int currentExperimentPictureNumber, int currentPictureNumber, std::vector<std::vector<long> > images);
 		bool closeFits(std::string& errMsg);
-		bool getKey(std::string& errMsg);
+		std::vector<double> getKey();
 		bool checkFitsError(int fitsStatusIndicator, std::string& errMsg);
 		bool forceFitsClosed();
-		bool copyAndMoveKeyFile();
+		bool loadAndMoveKeyFile(std::string& errMsg, bool incOption);
+		bool deleteFitsAndKey(std::string& errMsg);
 	private:
 		fitsfile* myFitsFile;
 		bool fitsIsOpen;
@@ -20,5 +21,6 @@ class DataFileSystem
 		std::string dataFilesBaseLocation;
 		std::string currentSaveFolder;
 		int currentDataFileNumber;
+		std::vector<double> keyValues;
 };
 

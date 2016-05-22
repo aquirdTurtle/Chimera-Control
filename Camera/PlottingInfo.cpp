@@ -23,7 +23,7 @@ PlottingInfo::PlottingInfo()
 	currentPixelNumber = 1;
 	currentConditionNumber = 1;
 	// this should get set again after the user presses "okay"
-	numberOfPictures = ePicturesPerExperiment;
+	numberOfPictures = ePicturesPerRepetition;
 	xAxis = "";
 	generalPlotType = "";
 

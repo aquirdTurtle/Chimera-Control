@@ -137,7 +137,7 @@ namespace myAndor
 
 		/// setup fits files
 		std::string errMsg;
-		if (eExperimentData.initializeDataFiles(eIncSaveFileNameOption, errMsg))
+		if (eExperimentData.initializeDataFiles(eIncDataFileNamesOption, errMsg))
 		{
 			appendText(errMsg, IDC_ERROR_EDIT);
 			return -1;
@@ -158,9 +158,7 @@ namespace myAndor
 		{
 			argPlotNames->push_back(eCurrentPlotNames[plotNameInc]);
 		}
-		//argPlotNames = &eCurrentPlotNames;
 		ePlottingThreadHandle = (HANDLE)_beginthreadex(0, 0, arbitraryPlottingThreadProcedure, argPlotNames, 0, plottingThreadID);
-		//ePlottingThreadHandle = CreateThread(NULL, 4096, (LPTHREAD_START_ROUTINE)plotThread, NULL, 0, &plottingThreadID);
 		// color pictures, clearing last run.
 		HDC hDC = GetDC(eCameraWindowHandle);
 		SelectObject(hDC, GetStockObject(DC_BRUSH));
@@ -243,7 +241,7 @@ namespace myAndor
 		}
 		else
 		{
-			experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerStack) % ePicturesPerExperiment);
+			experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerVariation) % ePicturesPerRepetition);
 		}
 		if (experimentPictureNumber == 0)
 		{
@@ -254,7 +252,7 @@ namespace myAndor
 			}
 			else
 			{
-				eImagesOfExperiment.resize(ePicturesPerExperiment);
+				eImagesOfExperiment.resize(ePicturesPerRepetition);
 			}
 		}
 		size = eImageWidth * eImageHeight;
@@ -312,7 +310,7 @@ namespace myAndor
 				return FALSE;
 			}
 			// update the picture
-			if (experimentPictureNumber == ePicturesPerExperiment - 1 || eRealTimePictures)
+			if (experimentPictureNumber == ePicturesPerRepetition - 1 || eRealTimePictures)
 			{
 				myAndor::drawDataWindow();
 			}
@@ -367,7 +365,7 @@ namespace myAndor
 			}
 			else
 			{
-				experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerStack) % ePicturesPerExperiment);
+				experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerVariation) % ePicturesPerRepetition);
 			}
 
 			if (eExperimentData.writeFits(errMsg, experimentPictureNumber, eCurrentAccumulationNumber, eImagesOfExperiment))
@@ -387,7 +385,7 @@ namespace myAndor
 			SetTimer(eCameraWindowHandle, ID_TEMPERATURE_TIMER, 1000, NULL);
 		}
 		// % 4 at the end because there are only 4 pictures available on the screen.
-		int imageLocation = (((eCurrentAccumulationNumber - 1) % ePicturesPerStack) % ePicturesPerExperiment) % 4;
+		int imageLocation = (((eCurrentAccumulationNumber - 1) % ePicturesPerVariation) % ePicturesPerRepetition) % 4;
 		return TRUE;
 	}
 
@@ -430,7 +428,7 @@ namespace myAndor
 				int imageLocation;
 				if (eRealTimePictures)
 				{
-					imageLocation = (((eCurrentAccumulationNumber - 1) % ePicturesPerStack) % ePicturesPerExperiment) % 4;
+					imageLocation = (((eCurrentAccumulationNumber - 1) % ePicturesPerVariation) % ePicturesPerRepetition) % 4;
 				}
 				else
 				{
@@ -790,11 +788,11 @@ namespace myAndor
 	}
 	int setScanNumber(void)
 	{
-		if (eTotalNumberOfPicturesInSeries == 0 && ePicturesPerStack != 0)
+		if (eTotalNumberOfPicturesInSeries == 0 && ePicturesPerVariation != 0)
 		{
-			// all is good. The eCurrentAccumulationStackNumber has not been set yet.
+			// all is good. The eCurrentTotalVariationNumber has not been set yet.
 		}
-		else if (ePicturesPerStack == 0)
+		else if (ePicturesPerVariation == 0)
 		{
 			appendText("ERROR: Scan Number Was Zero.\r\n", IDC_STATUS_EDIT);
 		}

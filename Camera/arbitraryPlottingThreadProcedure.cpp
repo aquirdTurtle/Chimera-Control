@@ -6,6 +6,7 @@
 #include "PlottingInfo.h"
 #include <algorithm>
 #include <numeric>
+#include "externals.h"
 
 unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 {
@@ -46,6 +47,7 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 	std::vector<std::array<int, 3> > pixelDataType;
 	int totalNumberOfPixels = 0;
 	int numberOfLossDataPixels = 0;
+
 	/// figure out which pixels need any data
 	for (int plotInc = 0; plotInc < allPlottingInfo.size(); plotInc++)
 	{
@@ -285,7 +287,7 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 					/// ??? (Title?)
 					if (allPlottingInfo[plotInc].getPlotType() == "Atoms" || allPlottingInfo[plotInc].getPlotType() == "Pixel Counts")
 					{
-						if (eCurrentThreadAccumulationNumber % ePicturesPerStack == picturesPerExperiment)
+						if (eCurrentThreadAccumulationNumber % ePicturesPerVariation == picturesPerExperiment)
 						{
 							for (int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
 							{
@@ -363,9 +365,9 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 							{
 								for (int groupInc = 0; groupInc < allPlottingInfo[plotInc].getPixelGroupNumber(); groupInc++)
 								{
-									if (satisfiesPostSelectionConditions[dataSetInc][groupInc] == false)
+									//
+									if (eCurrentThreadAccumulationNumber % eRepetitionsPerVariation != 1)
 									{
-										// no data
 										continue;
 									}
 									// position for new data point.
@@ -386,7 +388,8 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 										else
 										{
 											finalErrorBars[plotInc][dataSetInc][groupInc].resize(finalErrorBars[plotInc][dataSetInc][groupInc].size() + 1);
-											position = (eCurrentThreadAccumulationNumber - 1) / ePicturesPerStack + 1;
+											position = (eCurrentThreadAccumulationNumber - 1) / ePicturesPerVariation + 1;
+											std::vector<double> keyData = eExperimentData.getKey();
 											finalXVals[plotInc][dataSetInc][groupInc].push_back(position);
 											std::string  plotString = "set xrange [" + std::to_string(finalXVals[plotInc][dataSetInc][groupInc][0] - 1) + ":" + std::to_string(finalXVals[plotInc][dataSetInc][groupInc].back() + 1) + "]\n";
 											ePlotter << plotString;
@@ -676,17 +679,20 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 						ePlotter << "set xlabel \"Count #\"\n";
 						ePlotter << "set ylabel \"Occurrences\"\n";
 						double spaceFactor = 0.8;
-						double boxWidth = spaceFactor / (allPlottingInfo[plotInc].getPixelGroupNumber() * allPlottingInfo[plotInc].getDataSetNumber());
+						double boxWidth = spaceFactor * 5 / (allPlottingInfo[plotInc].getPixelGroupNumber() * allPlottingInfo[plotInc].getDataSetNumber());
 						ePlotter << "set boxwidth " + std::to_string(boxWidth) + "\n";
 						ePlotter << "set style fill solid 1\n";
-						std::string binWidth;
 						// leave 0.2 pixels worth of space in between the bins.
 						std::string gnuCommand = "plot";
+						int totalDataSetNum = allPlottingInfo[plotInc].getDataSetNumber();
+						int totalGroupNum = allPlottingInfo[plotInc].getPixelGroupNumber();
 						for (unsigned int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
 						{
 							for (unsigned int groupInc = 0; groupInc < allPlottingInfo[plotInc].getPixelGroupNumber(); groupInc++)
 							{
-								std::string singleHist = " '-' using ($1 - " + std::to_string(boxWidth * groupInc - spaceFactor * 0.5 + spaceFactor * 0.5 / allPlottingInfo[plotInc].getPixelGroupNumber())
+								// long command that makes hist correctly.
+								std::string singleHist = " '-' using (5 * floor(($1)/5) - " + std::to_string(boxWidth * (totalGroupNum * dataSetInc + groupInc)
+									- spaceFactor * 0.5 + spaceFactor * 0.5 / (totalGroupNum * totalDataSetNum))
 									+ ") : (1.0) smooth freq with boxes title \"G " + std::to_string(groupInc + 1) + " " 
 									+ allPlottingInfo[plotInc].getLegendText(dataSetInc) + "\" " + GNUPLOT_COLORS[dataSetInc] + " " + GNUPLOT_MARKERS[groupInc] + ",";
 								gnuCommand += singleHist;

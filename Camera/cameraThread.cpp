@@ -48,7 +48,6 @@ DWORD WINAPI cameraThread(LPVOID voidPtr)
 		else
 		{
 			// prevents this from flooding the window with messages if camera is off.
-			
 			Sleep(eKineticCycleTime * 1000);
 			if (eSystemIsRunning && safeModeCount < eTotalNumberOfPicturesInSeries)
 			{
