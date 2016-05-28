@@ -35,7 +35,7 @@ int ExperimentTimer::initializeControls(POINT& topLeftPositionKinetic, POINT& to
 	variationProgress.kineticSeriesModePos = { topLeftPositionKinetic.x + 168, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 1168, topLeftPositionKinetic.y + 15 };
 	variationProgress.accumulateModePos = { topLeftPositionAccumulate.x + 168, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 1168,
 		topLeftPositionAccumulate.y + 15 };
-	variationProgress.continuousSingleScansModePos = { topLeftPositionContinuous.x, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 168,
+	variationProgress.continuousSingleScansModePos = { topLeftPositionContinuous.x + 168, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 1168,
 		topLeftPositionContinuous.y + 15 };
 	initPos = variationProgress.kineticSeriesModePos;
 

@@ -66,7 +66,8 @@ namespace myAndor
 		{
 			return -1;
 		}
-		if (myAndor::setImageParameters() != 0)
+		imageParameters currentImageParameters = eImageParameters.getImageParameters();
+		if (myAndor::setImageParametersToCamera(currentImageParameters) != 0)
 		{
 			return -1;
 		}
@@ -255,7 +256,8 @@ namespace myAndor
 				eImagesOfExperiment.resize(ePicturesPerRepetition);
 			}
 		}
-		size = eImageWidth * eImageHeight;
+		imageParameters tempParam = eImageParameters.getImageParameters();
+		size = tempParam.width * tempParam.height;
 		std::vector<long> tempImage;
 		tempImage.resize(size);
 		eImagesOfExperiment[experimentPictureNumber].resize(size);
@@ -265,7 +267,7 @@ namespace myAndor
 			// immediately rotate
 			for (int imageVecInc = 0; imageVecInc < eImagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 			{
-				eImagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc % eImageWidth) + 1) * eImageHeight - imageVecInc / eImageWidth - 1];
+				eImagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc % tempParam.width) + 1) * tempParam.height - imageVecInc / tempParam.width - 1];
 			}
 		}
 		else
@@ -277,7 +279,7 @@ namespace myAndor
 			}
 			for (int imageVecInc = 0; imageVecInc < eImagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 			{
-				eImagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc % eImageWidth) + 1) * eImageHeight - imageVecInc / eImageWidth - 1];
+				eImagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc % tempParam.width) + 1) * tempParam.height - imageVecInc / tempParam.width - 1];
 			}
 		}
 		if (errMsg != "DRV_SUCCESS")
@@ -294,7 +296,7 @@ namespace myAndor
 		{
 			//HDC hdc = GetDC(eCameraWindowHandle);
 			// Find max value and scale data to fill rect
-			for (int i = 0; i<(eImageWidth*eImageHeight); i++)
+			for (int i = 0; i<(tempParam.width*tempParam.height); i++)
 			{
 				if (eImagesOfExperiment[experimentPictureNumber][i] > maxValue)
 				{
@@ -393,20 +395,21 @@ namespace myAndor
 	{
 		if (eImagesOfExperiment.size() != 0)
 		{
+			imageParameters tempParam = eImageParameters.getImageParameters();
 			for (int experimentImagesInc = 0; experimentImagesInc < eImagesOfExperiment.size(); experimentImagesInc++)
 			{
 				long maxValue = 1;
 				long minValue = 65536;
 				// for all pixels...
-				for (int i = 0; i < (eImageWidth * eImageHeight); i++)
+				for (int pixelInc = 0; pixelInc < (tempParam.width * tempParam.height); pixelInc++)
 				{
-					if (eImagesOfExperiment[experimentImagesInc][i] > maxValue)
+					if (eImagesOfExperiment[experimentImagesInc][pixelInc] > maxValue)
 					{
-						maxValue = eImagesOfExperiment[experimentImagesInc][i];
+						maxValue = eImagesOfExperiment[experimentImagesInc][pixelInc];
 					}
-					if (eImagesOfExperiment[experimentImagesInc][i] < minValue)
+					if (eImagesOfExperiment[experimentImagesInc][pixelInc] < minValue)
 					{
-						minValue = eImagesOfExperiment[experimentImagesInc][i];
+						minValue = eImagesOfExperiment[experimentImagesInc][pixelInc];
 					}
 				}
 
@@ -435,7 +438,7 @@ namespace myAndor
 					imageLocation = experimentImagesInc % 4;
 				}
 				// Rotated
-				int selectedPixelCount = eImagesOfExperiment[experimentImagesInc][eCurrentlySelectedPixel.first + eCurrentlySelectedPixel.second * eImageWidth];
+				int selectedPixelCount = eImagesOfExperiment[experimentImagesInc][eCurrentlySelectedPixel.first + eCurrentlySelectedPixel.second * tempParam.width];
 				if (imageLocation == 0)
 				{
 					SendMessage(ePic1MaxCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(maxValue)).c_str());
@@ -463,11 +466,9 @@ namespace myAndor
 				hDC = GetDC(eCameraWindowHandle);
 				SelectPalette(hDC, eAppPalette[eCurrentPicturePallete[imageLocation]], TRUE);
 				RealizePalette(hDC);
-				// createIdentityPalette(hDC);
 				pixelsAreaWidth = eImageDrawAreas[imageLocation].right - eImageDrawAreas[imageLocation].left + 1;
 				pixelsAreaHeight = eImageDrawAreas[imageLocation].bottom - eImageDrawAreas[imageLocation].top + 1;
-				//	ms2 = std::chrono::duration_cast< std::chrono::milliseconds >(std::chrono::system_clock::now().time_since_epoch());
-				//	msdiff = ms2 - ms1;
+
 				if (eAutoscalePictures)
 				{
 					modrange = maxValue - minValue;
@@ -477,9 +478,9 @@ namespace myAndor
 					modrange = eCurrentMaximumPictureCount[imageLocation] - eCurrentMinimumPictureCount[imageLocation];
 				}
 
-				dataWidth = eImageWidth;
-				dataHeight = eImageHeight;
-				// imageBoxWidth must be a multiple of 4, otherwise StretchDIBits has problems
+				dataWidth = tempParam.width;
+				dataHeight = tempParam.height;
+				// imageBoxWidth must be a multiple of 4, otherwise StretchDIBits has problems apparently T.T
 				if (pixelsAreaWidth % 4)
 				{
 					pixelsAreaWidth += (4 - pixelsAreaWidth % 4);
@@ -506,20 +507,17 @@ namespace myAndor
 
 				DataArray = (BYTE*)malloc(dataWidth * dataHeight * sizeof(BYTE));
 				memset(DataArray, 255, dataWidth * dataHeight);
-				//		ms7 = std::chrono::duration_cast< std::chrono::milliseconds >(std::chrono::system_clock::now().time_since_epoch());
-				//		msdiff = ms7 - ms2;
-				//		appendText((TCHAR*)("Picture Data Setup: " + std::to_string(msdiff.count()) + "ms \n").c_str(), IDC_STATUS_EDIT);
-				for (i = 0; i < eImageHeight; i++)
+				for (i = 0; i < tempParam.height; i++)
 				{
-					for (j = 0; j < eImageWidth; j++)
+					for (j = 0; j < tempParam.width; j++)
 					{
 						if (eAutoscalePictures)
 						{
-							dTemp = ceil(yscale * (eImagesOfExperiment[experimentImagesInc][j + i * eImageWidth] - minValue));
+							dTemp = ceil(yscale * (eImagesOfExperiment[experimentImagesInc][j + i * tempParam.width] - minValue));
 						}
 						else
 						{
-							dTemp = ceil(yscale * (eImagesOfExperiment[experimentImagesInc][j + i * eImageWidth] - eCurrentMinimumPictureCount[imageLocation]));
+							dTemp = ceil(yscale * (eImagesOfExperiment[experimentImagesInc][j + i * tempParam.width] - eCurrentMinimumPictureCount[imageLocation]));
 						}
 						if (dTemp < 0)
 						{
@@ -543,7 +541,7 @@ namespace myAndor
 				SetStretchBltMode(hDC, COLORONCOLOR);
 				// eCurrentAccumulationNumber starts at 1.
 				BYTE *finalDataArray = NULL;
-				switch (eImageWidth % 4)
+				switch (tempParam.width % 4)
 				{
 					case 0:
 					{
@@ -591,9 +589,35 @@ namespace myAndor
 					}
 				}
 				free(DataArray);
-
+				/// other drawings
+				RECT relevantRect = ePixelRectangles[imageLocation][eCurrentlySelectedPixel.first][tempParam.height - 1 - eCurrentlySelectedPixel.second];
+				// make crosses
+				std::vector<std::pair<int, int>> atomLocations = eAutoAnalysisHandler.getAtomLocations();
+				for (int analysisPointInc = 0; analysisPointInc < atomLocations.size(); analysisPointInc++)
+				{
+					RECT crossRect = ePixelRectangles[imageLocation][atomLocations[analysisPointInc].first][tempParam.height - 1 - atomLocations[analysisPointInc].second];
+					HDC hdc;
+					HPEN crossPen;
+					hdc = GetDC(eCameraWindowHandle);
+					if (eCurrentPicturePallete[imageLocation] == 0 || eCurrentPicturePallete[imageLocation] == 2)
+					{
+						crossPen = CreatePen(0, 1, RGB(255, 0, 0));
+					}
+					else
+					{
+						crossPen = CreatePen(0, 1, RGB(0, 255, 0));
+					}
+					SelectObject(hdc, crossPen);
+					long boxWidth = crossRect.right - crossRect.left;
+					long boxHeight = crossRect.top - crossRect.bottom;
+					MoveToEx(hdc, crossRect.left + boxWidth / 4, crossRect.top - boxHeight / 4, 0);
+					LineTo(hdc, crossRect.right - boxWidth / 4, crossRect.bottom + boxHeight / 4);
+					MoveToEx(hdc, crossRect.right - boxWidth / 4, crossRect.top - boxHeight / 4, 0);
+					LineTo(hdc, crossRect.left + boxWidth / 4, crossRect.bottom + boxHeight / 4);
+					ReleaseDC(eCameraWindowHandle, hdc);
+					DeleteObject(crossPen);
+				}
 				// color circle
-				RECT relevantRect = ePixelRectangles[imageLocation][eCurrentlySelectedPixel.first][eImageHeight - 1 - eCurrentlySelectedPixel.second];
 				RECT halfRect;
 				halfRect.left = relevantRect.left + 7.0 * (relevantRect.right - relevantRect.left) / 16.0;
 				halfRect.right = relevantRect.left + 9.0 * (relevantRect.right - relevantRect.left) / 16.0;
@@ -746,13 +770,12 @@ namespace myAndor
 	/*
 	 *
 	 */
-	int setImageParameters(void)
+	int setImageParametersToCamera(imageParameters tempImageParam)
 	{
-
 		std::string errMsg;
 		if (!ANDOR_SAFEMODE)
 		{
-			errMsg = myAndor::andorErrorChecker(SetImage(eVerticalBinning, eHorizontalBinning, eTopImageBorder, eBottomImageBorder, eLeftImageBorder, eRightImageBorder));
+			errMsg = myAndor::andorErrorChecker(SetImage(tempImageParam.verticalBinning, tempImageParam.horizontalBinning, tempImageParam.topBorder, tempImageParam.bottomBorder, tempImageParam.leftBorder, tempImageParam.rightBorder));
 			//errMsg = myAndor::andorErrorChecker(SetImage(eHorizontalBinning, eVerticalBinning, eLeftImageBorder, eRightImageBorder, eTopImageBorder, eBottomImageBorder));
 		}
 		else

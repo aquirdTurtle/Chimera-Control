@@ -14,6 +14,8 @@ class DataFileSystem
 		bool forceFitsClosed();
 		bool loadAndMoveKeyFile(std::string& errMsg, bool incOption);
 		bool deleteFitsAndKey(std::string& errMsg);
+		std::string getDate();
+		int getDataFileNumber();
 	private:
 		fitsfile* myFitsFile;
 		bool fitsIsOpen;
@@ -21,6 +23,7 @@ class DataFileSystem
 		std::string dataFilesBaseLocation;
 		std::string currentSaveFolder;
 		int currentDataFileNumber;
+		std::string currentDate;
 		std::vector<double> keyValues;
 };
 

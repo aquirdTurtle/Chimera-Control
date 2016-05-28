@@ -12,6 +12,8 @@
 // for andor:
 
 /*
+// extra slashes here because python needs to process the string as well, so extra escape characters...
+const std::string ANALYSIS_CODE_LOCATION = "...somewhere...";
 const std::string SAVE_BASE_ADDRESS("E:\\share\\Data and documents\\Data repository\\");
 const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Code\\Plotting\\";
 const std::string KEY_FILE_LOCATION = "E:\\share\\Data and documents\\Data repository\\Key_file\\";
@@ -19,6 +21,8 @@ const std::string CAMERA_CONFIGURATION_FILES_LOCATION = "C:\\Users\\Regal Lab\\D
 */
 
 // for my laptop:
+// extra slashes here because python needs to process the string as well, so extra escape characters...
+const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\My Data Analysis";
 const std::string SAVE_BASE_ADDRESS = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Data\\Camera Data\\";
 const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Plotting\\";
 const std::string KEY_FILE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Data\\Data Keys\\";
@@ -90,12 +94,7 @@ const std::vector<std::string> GNUPLOT_LINETYPES{"dt 1",
 #define IDC_TRIGGER_DISP 7025
 #define IDC_STATUS_DISP 7026
 #define IDC_CURRENT_TEMP_DISP 7027
-#define IDC_IMG_LEFT_TEXT 7028
-#define IDC_IMG_RIGHT_TEXT 7029
-#define IDC_IMG_TOP_TEXT 7030
-#define IDC_IMG_BOTTOM_TEXT 7031
-#define IDC_HOR_BIN_TEXT 7032
-#define IDC_VERTICAL_BIN_TEXT 7033
+// missing #s
 #define IDC_KINETIC_CYLCE_TIME_TEXT 7034
 #define IDC_SCAN_NUMBER_TEXT 7035
 #define IDC_TEMP_DISP_EDIT 7036
@@ -209,6 +208,9 @@ const std::vector<std::string> GNUPLOT_LINETYPES{"dt 1",
 #define IDC_PEOPLE_LIST_VIEW 7156
 #define IDC_MOST_RECENT_DATA_SET_NUMBER 7157
 #define IDC_EXPOSURE_4_EDIT 7158
-
-
+#define IDC_AUTOANALYZE_CHECKBOX 7159
+#define IDC_DATA_OUTPUT_NAME_COMBO 7160
+#define IDC_DATA_AUTOANALYSIS_COMBO 7161
+#define IDC_SET_ANALYSIS_LOCATION 7162
+#define IDC_ANALYZE_MOST_RECENT 7163
 

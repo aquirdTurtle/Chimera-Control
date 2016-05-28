@@ -23,17 +23,19 @@ bool initializeCameraWindow(HWND cameraWindow)
 	// These indicators make it easy to add or re-arrange controls that are all in a collumn. After a row of controls these are incremented by the size of that
 	// row for the given mode.
 	POINT collumnPosKin = { 0,0 }, collumnPosAccum = { 0,0 }, collumnPosCont = { 0, 0};
+	POINT secondColumnPointKinetic = { 480, 150 }, secondColumnPointAccumulate = { 480, 150 }, secondColumnPointContinuous = { 480, 150 };
 
 	///  /// Initialize all controls and HWNDs for this window. ///  ///
 	InitCommonControlsEx(0);
 	RECT initPos;
+	eTextingHandler.initializeControls(secondColumnPointKinetic, secondColumnPointAccumulate, secondColumnPointContinuous, cameraWindow, false);
+	/// Image stuffs
+	eImageParameters.initiateControls(secondColumnPointKinetic, secondColumnPointAccumulate, secondColumnPointContinuous, cameraWindow, false);
+
 	/// Filesystem Controls
 	eCameraFileSystem.initializeControls(collumnPosKin, collumnPosAccum, collumnPosCont, cameraWindow, false);
 	
 
-	POINT secondColumnPointKinetic = { 480, 150 }, secondColumnPointAccumulate = { 480, 150 }, secondColumnPointContinuous = { 480, 150 };
-	eTextingHandler.initializeControls(secondColumnPointKinetic, secondColumnPointAccumulate, secondColumnPointContinuous, cameraWindow, false);
-	eAutoAnalysisHandler.initializeControls(secondColumnPointKinetic, secondColumnPointAccumulate, secondColumnPointContinuous, cameraWindow, false);
 
 	/// CAMERA MODE
 	eCameraModeComboHandle.kineticSeriesModePos = { 0, collumnPosKin.y, 480, collumnPosKin.y + 800 };
@@ -300,183 +302,9 @@ bool initializeCameraWindow(HWND cameraWindow)
 	collumnPosKin.y += 30;
 	collumnPosAccum.y += 30;
 	collumnPosCont.y += 30;
-
-	/// Image Horizontal Texts
-	// Image Left Side Text
-	eImgLeftSideTextHandle.kineticSeriesModePos = { 0, collumnPosKin.y, 140, collumnPosKin.y + 20 };
-	eImgLeftSideTextHandle.continuousSingleScansModePos = { 0, collumnPosCont.y, 140, collumnPosCont.y + 20 };
-	eImgLeftSideTextHandle.accumulateModePos = { 0, collumnPosAccum.y, 140, collumnPosAccum.y + 20 };
-	initPos = eImgLeftSideTextHandle.kineticSeriesModePos;
-	eImgLeftSideTextHandle.hwnd = CreateWindowEx(0, "STATIC", "Leftmost", WS_CHILD | WS_VISIBLE | SS_LEFT,
-		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_IMG_LEFT_TEXT, eHInst, NULL);
-	eImgLeftSideTextHandle.fontType = "Normal";
-	// Image Right Side Text
-	eImgRightSideTextHandle.kineticSeriesModePos = { 140, collumnPosKin.y, 280, collumnPosKin.y + 20 };
-	eImgRightSideTextHandle.continuousSingleScansModePos = { 140, collumnPosCont.y, 280, collumnPosCont.y + 20 };
-	eImgRightSideTextHandle.accumulateModePos = { 140, collumnPosAccum.y, 280, collumnPosAccum.y + 20 };
-	initPos = eImgRightSideTextHandle.kineticSeriesModePos;
-	eImgRightSideTextHandle.hwnd = CreateWindowEx(0, "STATIC", "Rightmost", WS_CHILD | WS_VISIBLE | SS_LEFT,
-		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_IMG_RIGHT_TEXT, eHInst, NULL);
-	eImgRightSideTextHandle.fontType = "Normal";
-	// Horizontal Binning Text
-	eHorizontalBinningTextHandle.kineticSeriesModePos = { 280, collumnPosKin.y, 420, collumnPosKin.y + 20 };
-	eHorizontalBinningTextHandle.continuousSingleScansModePos = { 280, collumnPosCont.y, 420, collumnPosCont.y + 20 };
-	eHorizontalBinningTextHandle.accumulateModePos = { 280, collumnPosAccum.y, 420, collumnPosAccum.y + 20 };
-	initPos = eHorizontalBinningTextHandle.kineticSeriesModePos;
-	eHorizontalBinningTextHandle.hwnd = CreateWindowEx(0, "STATIC", "Horizontal Bin Size", WS_CHILD | WS_VISIBLE | SS_LEFT,
-		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_HOR_BIN_TEXT, eHInst, NULL);
-	eHorizontalBinningTextHandle.fontType = "Normal";
-	collumnPosKin.y += 25;
-	collumnPosAccum.y += 25;
-	collumnPosCont.y += 25;
-
-	/// Image Horizontal Edits
-	// Image Left Side Edit
-	eImgLeftSideEditHandle.kineticSeriesModePos = { 0, collumnPosKin.y, 140, collumnPosKin.y + 20 };
-	eImgLeftSideEditHandle.continuousSingleScansModePos = { 0, collumnPosCont.y, 140, collumnPosCont.y + 20 };
-	eImgLeftSideEditHandle.accumulateModePos = { 0, collumnPosAccum.y, 140, collumnPosAccum.y + 20 };
-	initPos = eImgLeftSideEditHandle.kineticSeriesModePos;
-	eImgLeftSideEditHandle.hwnd = CreateWindowEx(0, "EDIT", "1",
-		WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
-		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_IMG_LEFT_EDIT, eHInst, NULL);
-	eImgLeftSideEditHandle.fontType = "Normal";
-	// Image Right Side Edit
-	eImgRightSideEditHandle.kineticSeriesModePos = { 140, collumnPosKin.y, 280, collumnPosKin.y + 20 };
-	eImgRightSideEditHandle.continuousSingleScansModePos = { 140, collumnPosCont.y, 280, collumnPosCont.y + 20 };
-	eImgRightSideEditHandle.accumulateModePos = { 140, collumnPosAccum.y, 280, collumnPosAccum.y + 20 };
-	initPos = eImgRightSideEditHandle.kineticSeriesModePos;
-	eImgRightSideEditHandle.hwnd = CreateWindowEx(0, "EDIT", "5",
-		WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
-		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_IMG_RIGHT_EDIT, eHInst, NULL);
-	eImgRightSideEditHandle.fontType = "Normal";
-	// Horizontal Binning Edit
-	eHorizontalBinningEditHandle.kineticSeriesModePos = { 280, collumnPosKin.y, 420, collumnPosKin.y + 20 };
-	eHorizontalBinningEditHandle.continuousSingleScansModePos = { 280, collumnPosCont.y, 420, collumnPosCont.y + 20 };
-	eHorizontalBinningEditHandle.accumulateModePos = { 280, collumnPosAccum.y, 420, collumnPosAccum.y + 20 };
-	initPos = eHorizontalBinningEditHandle.kineticSeriesModePos;
-	eHorizontalBinningEditHandle.hwnd = CreateWindowEx(0, "EDIT", "1",
-		WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
-		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_HOR_BIN_EDIT, eHInst, NULL);
-	eHorizontalBinningEditHandle.fontType = "Normal";
-	collumnPosKin.y += 25;
-	collumnPosAccum.y += 25;
-	collumnPosCont.y += 25;
-	/// Image Horizontal Displays
-	// Image Left Side Display
-	eImgLeftSideDispHandle.kineticSeriesModePos = { 0, collumnPosKin.y, 140, collumnPosKin.y + 20 };
-	eImgLeftSideDispHandle.continuousSingleScansModePos = { 0, collumnPosCont.y, 140, collumnPosCont.y + 20 };
-	eImgLeftSideDispHandle.accumulateModePos = { 0, collumnPosAccum.y, 140, collumnPosAccum.y + 20 };
-	initPos = eImgLeftSideDispHandle.kineticSeriesModePos;
-	eImgLeftSideDispHandle.hwnd = CreateWindowEx(0, "EDIT", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT | ES_READONLY,
-		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_IMG_LEFT_DISP, eHInst, NULL);
-	eImgLeftSideDispHandle.fontType = "Normal";
-	// Image Right Side Display
-	eImgRightSideDispHandle.kineticSeriesModePos = { 140, collumnPosKin.y, 280, collumnPosKin.y + 20 };
-	eImgRightSideDispHandle.continuousSingleScansModePos = { 140, collumnPosCont.y, 280, collumnPosCont.y + 20 };
-	eImgRightSideDispHandle.accumulateModePos = { 140, collumnPosAccum.y, 280, collumnPosAccum.y + 20 };
-	initPos = eImgRightSideDispHandle.kineticSeriesModePos;
-	eImgRightSideDispHandle.hwnd = CreateWindowEx(0, "EDIT", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT | ES_READONLY,
-		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_IMG_RIGHT_DISP, eHInst, NULL);
-	eImgRightSideDispHandle.fontType = "Normal";
-	// Horizontal Binning Display
-	eHorizontalBinningDispHandle.kineticSeriesModePos = { 280, collumnPosKin.y, 420, collumnPosKin.y + 20 };
-	eHorizontalBinningDispHandle.continuousSingleScansModePos = { 280, collumnPosCont.y, 420, collumnPosCont.y + 20 };
-	eHorizontalBinningDispHandle.accumulateModePos = { 280, collumnPosAccum.y, 420, collumnPosAccum.y + 20 };
-	initPos = eHorizontalBinningDispHandle.kineticSeriesModePos;
-	eHorizontalBinningDispHandle.hwnd = CreateWindowEx(0, "EDIT", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT | ES_READONLY,
-		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_HOR_BIN_DISP, eHInst, NULL);
-	eHorizontalBinningDispHandle.fontType = "Normal";
-	collumnPosKin.y += 25;
-	collumnPosAccum.y += 25;
-	collumnPosCont.y += 25;
-	/// Image Veritcal Texts
-	// Image Top Side Text
-	eImageBottomSideTextHandle.kineticSeriesModePos = { 0, collumnPosKin.y, 140, collumnPosKin.y + 20 };
-	eImageBottomSideTextHandle.continuousSingleScansModePos = { 0, collumnPosCont.y, 140, collumnPosCont.y + 20 };
-	eImageBottomSideTextHandle.accumulateModePos = { 0, collumnPosAccum.y, 140, collumnPosAccum.y + 20 };
-	initPos = eImageBottomSideTextHandle.kineticSeriesModePos;
-	eImageBottomSideTextHandle.hwnd = CreateWindowEx(0, "STATIC", "Bottommost", WS_CHILD | WS_VISIBLE | SS_LEFT,
-		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_IMG_TOP_TEXT, eHInst, NULL);
-	 eImageBottomSideTextHandle.fontType = "Normal";
-	// Image Bottom Side Text
-	eImageTopSideTextHandle.kineticSeriesModePos = { 140, collumnPosKin.y, 280, collumnPosKin.y + 20 };
-	eImageTopSideTextHandle.continuousSingleScansModePos = { 140, collumnPosCont.y, 280, collumnPosCont.y + 20 };
-	eImageTopSideTextHandle.accumulateModePos = { 140, collumnPosAccum.y, 280, collumnPosAccum.y + 20 };
-	initPos = eImageTopSideTextHandle.kineticSeriesModePos;
-	eImageTopSideTextHandle.hwnd = CreateWindowEx(0, "STATIC", "Topmost", WS_CHILD | WS_VISIBLE | SS_LEFT,
-		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_IMG_BOTTOM_TEXT, eHInst, NULL);
-	eImageTopSideTextHandle.fontType = "Normal";
-	// Vertical Binning Text
-	eVerticalBinningTextHandle.kineticSeriesModePos = { 280, collumnPosKin.y, 420, collumnPosKin.y + 20 };
-	eVerticalBinningTextHandle.continuousSingleScansModePos = { 280, collumnPosCont.y, 420, collumnPosCont.y + 20 };
-	eVerticalBinningTextHandle.accumulateModePos = { 280, collumnPosAccum.y, 420, collumnPosAccum.y + 20 };
-	initPos = eVerticalBinningTextHandle.kineticSeriesModePos;
-	eVerticalBinningTextHandle.hwnd = CreateWindowEx(0, "STATIC", "Vertical Bin Size", WS_CHILD | WS_VISIBLE | SS_LEFT,
-		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_VERTICAL_BIN_TEXT, eHInst, NULL);
-	eVerticalBinningTextHandle.fontType = "Normal";
-	collumnPosKin.y += 25;
-	collumnPosAccum.y += 25;
-	collumnPosCont.y += 25;
-	/// Image Vertical Edits
-	/// This is reversed top -> bottom... I don't want to think about it.
-	// Image Top Side Edit
-	eImageTopEditHandle.kineticSeriesModePos = { 0, collumnPosKin.y, 140, collumnPosKin.y + 20 };
-	eImageTopEditHandle.continuousSingleScansModePos = { 0, collumnPosCont.y, 140, collumnPosCont.y + 20 };
-	eImageTopEditHandle.accumulateModePos = { 0, collumnPosAccum.y, 140, collumnPosAccum.y + 20 };
-	initPos = eImageTopEditHandle.kineticSeriesModePos;
-	eImageTopEditHandle.hwnd = CreateWindowEx(0, "EDIT", "1",
-		WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
-		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_IMAGE_TOP_EDIT, eHInst, NULL);
-	eImageTopEditHandle.fontType = "Normal";
-	// Image Bottom Side Edit
-	eImageBottomEditHandle.kineticSeriesModePos = { 140, collumnPosKin.y, 280, collumnPosKin.y + 20 };
-	eImageBottomEditHandle.continuousSingleScansModePos = { 140, collumnPosCont.y, 280, collumnPosCont.y + 20 };
-	eImageBottomEditHandle.accumulateModePos = { 140, collumnPosAccum.y, 280, collumnPosAccum.y + 20 };
-	initPos = eImageBottomEditHandle.kineticSeriesModePos;
-	eImageBottomEditHandle.hwnd = CreateWindowEx(0, "EDIT", "5",
-		WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
-		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_IMAGE_BOTTOM_EDIT, eHInst, NULL);
-	eImageBottomEditHandle.fontType = "Normal";
-	// Vertical Binning Edit
-	eVerticalBinningEditHandle.kineticSeriesModePos = { 280, collumnPosKin.y, 420, collumnPosKin.y + 20 };
-	eVerticalBinningEditHandle.continuousSingleScansModePos = { 280, collumnPosCont.y, 420, collumnPosCont.y + 20 };
-	eVerticalBinningEditHandle.accumulateModePos = { 280, collumnPosAccum.y, 420, collumnPosAccum.y + 20 };
-	initPos = eVerticalBinningEditHandle.kineticSeriesModePos;
-	eVerticalBinningEditHandle.hwnd = CreateWindowEx(0, "EDIT", "1",
-		WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT,
-		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_VERTICAL_BIN_EDIT, eHInst, NULL);
-	eVerticalBinningEditHandle.fontType = "Normal";
-	collumnPosKin.y += 25;
-	collumnPosAccum.y += 25;
-	collumnPosCont.y += 25;
-	/// Image Veritcal Displays
-	// Image Top Side Display
-	eImageBottomSideDispHandle.kineticSeriesModePos = { 0, collumnPosKin.y, 140, collumnPosKin.y + 20 };
-	eImageBottomSideDispHandle.continuousSingleScansModePos = { 0, collumnPosCont.y, 140, collumnPosCont.y + 20 };
-	eImageBottomSideDispHandle.accumulateModePos = { 0, collumnPosAccum.y, 140, collumnPosAccum.y + 20 };
-	initPos = eImageBottomSideDispHandle.kineticSeriesModePos;
-	eImageBottomSideDispHandle.hwnd = CreateWindowEx(0, "EDIT", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT | ES_READONLY,
-		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_IMG_TOP_DISP, eHInst, NULL);
-	eImageBottomSideDispHandle.fontType = "Normal";
-	// Image Bottom Side Display
-	eImageTopSideDispHandle.kineticSeriesModePos = { 140, collumnPosKin.y, 280, collumnPosKin.y + 20 };
-	eImageTopSideDispHandle.continuousSingleScansModePos = { 140, collumnPosCont.y, 280, collumnPosCont.y + 20 };
-	eImageTopSideDispHandle.accumulateModePos = { 140, collumnPosAccum.y, 280, collumnPosAccum.y + 20 };
-	initPos = eImageTopSideDispHandle.kineticSeriesModePos;
-	eImageTopSideDispHandle.hwnd = CreateWindowEx(0, "EDIT", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT | ES_READONLY,
-		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_IMG_BOTTOM_DISP, eHInst, NULL);
-	eImageTopSideDispHandle.fontType = "Normal";
-	// Vertical Binning Display
-	eVerticalBinningDispHandle.kineticSeriesModePos = { 280, collumnPosKin.y, 420, collumnPosKin.y + 20 };
-	eVerticalBinningDispHandle.continuousSingleScansModePos = { 280, collumnPosCont.y, 420, collumnPosCont.y + 20 };
-	eVerticalBinningDispHandle.accumulateModePos = { 280, collumnPosAccum.y, 420, collumnPosAccum.y + 20 };
-	initPos = eVerticalBinningDispHandle.kineticSeriesModePos;
-	eVerticalBinningDispHandle.hwnd = CreateWindowEx(0, "EDIT", "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT | ES_READONLY,
-		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, cameraWindow, (HMENU)IDC_VERTICAL_BIN_DISP, eHInst, NULL);
-	eVerticalBinningDispHandle.fontType = "Normal";
-	collumnPosKin.y += 25;
-	collumnPosAccum.y += 25;
-	collumnPosCont.y += 25;
+	
+	/// autoanalysis
+	eAutoAnalysisHandler.initializeControls(collumnPosKin, collumnPosAccum, collumnPosCont, cameraWindow, true);
 
 	/// KINETIC CYCLE TIME
 	// Set Kinetic Series Cycle Time Buttonexperment

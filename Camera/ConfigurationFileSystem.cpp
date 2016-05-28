@@ -110,87 +110,14 @@ int ConfigurationFileSystem::openConfiguration(std::string configurationNameToOp
 	configurationOpenFile.get();
 	std::getline(configurationOpenFile, eCurrentTriggerMode);
 	SendMessage(eTriggerComboHandle.hwnd, CB_SELECTSTRING, 0, (LPARAM)eCurrentTriggerMode.c_str());
-
-	configurationOpenFile >> eLeftImageBorder;
-	SendMessage(eImgLeftSideDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eLeftImageBorder).c_str());
-	SendMessage(eImgLeftSideEditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eLeftImageBorder).c_str());
-	configurationOpenFile >> eRightImageBorder;
-	SendMessage(eImgRightSideDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eRightImageBorder).c_str());
-	SendMessage(eImgRightSideEditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eRightImageBorder).c_str());
-	configurationOpenFile >> eHorizontalBinning;
-	SendMessage(eHorizontalBinningDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eHorizontalBinning).c_str());
-	SendMessage(eHorizontalBinningEditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eHorizontalBinning).c_str());
-	configurationOpenFile >> eTopImageBorder;
-	SendMessage(eImageBottomSideDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eTopImageBorder).c_str());
-	SendMessage(eImageTopEditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eTopImageBorder).c_str());
-	configurationOpenFile >> eBottomImageBorder;
-	SendMessage(eImageTopSideDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eBottomImageBorder).c_str());
-	SendMessage(eImageBottomEditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eBottomImageBorder).c_str());
-	configurationOpenFile >> eVerticalBinning;
-	SendMessage(eVerticalBinningDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eVerticalBinning).c_str());
-	SendMessage(eVerticalBinningEditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eVerticalBinning).c_str());
-	eCurrentlySelectedPixel.first = 0;
-	eCurrentlySelectedPixel.second = 0;
-	// Calculate the number of actual pixels in each dimension.
-	eImageWidth = (eRightImageBorder - eLeftImageBorder + 1) / eHorizontalBinning;
-	eImageHeight = (eBottomImageBorder - eTopImageBorder + 1) / eVerticalBinning;
-
-	for (int imageLocation = 0; imageLocation < eImageBackgroundAreas.size(); imageLocation++)
-	{
-		int imageBoxWidth = eImageBackgroundAreas[imageLocation].right - eImageBackgroundAreas[imageLocation].left + 1;
-		int imageBoxHeight = eImageBackgroundAreas[imageLocation].bottom - eImageBackgroundAreas[imageLocation].top + 1;
-
-		double boxWidth = imageBoxWidth / (double)eImageWidth;
-		double boxHeight = imageBoxHeight / (double)eImageHeight;
-		if (boxWidth > boxHeight)
-		{
-			// scale the box width down.
-			eImageDrawAreas[imageLocation].left = eImageBackgroundAreas[imageLocation].left;
-			eImageDrawAreas[imageLocation].right = (int)eImageBackgroundAreas[imageLocation].left
-				+ (eImageBackgroundAreas[imageLocation].right - eImageBackgroundAreas[imageLocation].left) * boxHeight / boxWidth;
-			double pixelsAreaWidth = eImageDrawAreas[imageLocation].right - eImageDrawAreas[imageLocation].left + 1;
-			// move to center
-			eImageDrawAreas[imageLocation].left += (imageBoxWidth - pixelsAreaWidth) / 2;
-			eImageDrawAreas[imageLocation].right += (imageBoxWidth - pixelsAreaWidth) / 2;
-			eImageDrawAreas[imageLocation].top = eImageBackgroundAreas[imageLocation].top;
-			eImageDrawAreas[imageLocation].bottom = eImageBackgroundAreas[imageLocation].bottom;
-			double pixelsAreaHeight = imageBoxHeight;
-		}
-		else
-		{
-			// cale the box height down.
-			eImageDrawAreas[imageLocation].left = eImageBackgroundAreas[imageLocation].left;
-			eImageDrawAreas[imageLocation].right = eImageBackgroundAreas[imageLocation].right;
-			double pixelsAreaWidth = imageBoxWidth;
-			// move to center
-			eImageDrawAreas[imageLocation].top = eImageBackgroundAreas[imageLocation].top;
-			eImageDrawAreas[imageLocation].bottom = (int)eImageBackgroundAreas[imageLocation].top + (eImageBackgroundAreas[imageLocation].bottom - eImageBackgroundAreas[imageLocation].top) * boxWidth / boxHeight;
-			double pixelsAreaHeight = eImageDrawAreas[imageLocation].bottom - eImageDrawAreas[imageLocation].top + 1;
-			eImageDrawAreas[imageLocation].top += (imageBoxWidth - pixelsAreaHeight) / 2;
-			eImageDrawAreas[imageLocation].bottom += (imageBoxWidth - pixelsAreaHeight) / 2;
-		}
-	}
-	// create rectangles for selection circle
-	for (int pictureInc = 0; pictureInc < eImageDrawAreas.size(); pictureInc++)
-	{
-		ePixelRectangles[pictureInc].resize(eImageWidth);
-		for (int widthInc = 0; widthInc < eImageWidth; widthInc++)
-		{
-			ePixelRectangles[pictureInc][widthInc].resize(eImageHeight);
-			for (int heightInc = 0; heightInc < eImageHeight; heightInc++)
-			{
-				// for all 4 pictures...
-				ePixelRectangles[pictureInc][widthInc][heightInc].left = (int)(eImageDrawAreas[pictureInc].left
-					+ (double)widthInc * (eImageDrawAreas[pictureInc].right - eImageDrawAreas[pictureInc].left) / (double)eImageWidth + 2);
-				ePixelRectangles[pictureInc][widthInc][heightInc].right = (int)(eImageDrawAreas[pictureInc].left
-					+ (double)(widthInc + 1) * (eImageDrawAreas[pictureInc].right - eImageDrawAreas[pictureInc].left) / (double)eImageWidth + 2);
-				ePixelRectangles[pictureInc][widthInc][heightInc].top = (int)(eImageDrawAreas[pictureInc].top
-					+ (double)(heightInc)* (eImageDrawAreas[pictureInc].bottom - eImageDrawAreas[pictureInc].top) / (double)eImageHeight);
-				ePixelRectangles[pictureInc][widthInc][heightInc].bottom = (int)(eImageDrawAreas[pictureInc].top
-					+ (double)(heightInc + 1)* (eImageDrawAreas[pictureInc].bottom - eImageDrawAreas[pictureInc].top) / (double)eImageHeight);
-			}
-		}
-	}
+	imageParameters tempParam;
+	configurationOpenFile >> tempParam.leftBorder;
+	configurationOpenFile >> tempParam.rightBorder;
+	configurationOpenFile >> tempParam.horizontalBinning;
+	configurationOpenFile >> tempParam.topBorder;
+	configurationOpenFile >> tempParam.bottomBorder;
+	configurationOpenFile >> tempParam.verticalBinning;
+	eImageParameters.setImageParametersFromInput(tempParam);
 
 	///
 	configurationOpenFile >> eEMGainMode;
@@ -319,13 +246,14 @@ int ConfigurationFileSystem::saveConfiguration(bool isFromSaveAs)
 		configurationSaveFile << std::to_string(eExposureTimes[exposureTimesInc]) + "\n";
 	}
 	configurationSaveFile << eCurrentTriggerMode + "\n";
+	imageParameters tempParam = eImageParameters.getImageParameters();
 	// Image Parameters
-	configurationSaveFile << std::to_string(eLeftImageBorder) + "\n";
-	configurationSaveFile << std::to_string(eRightImageBorder) + "\n";
-	configurationSaveFile << std::to_string(eHorizontalBinning) + "\n";
-	configurationSaveFile << std::to_string(eTopImageBorder) + "\n";
-	configurationSaveFile << std::to_string(eBottomImageBorder) + "\n";
-	configurationSaveFile << std::to_string(eVerticalBinning) + "\n";
+	configurationSaveFile << std::to_string(tempParam.leftBorder) + "\n";
+	configurationSaveFile << std::to_string(tempParam.rightBorder) + "\n";
+	configurationSaveFile << std::to_string(tempParam.horizontalBinning) + "\n";
+	configurationSaveFile << std::to_string(tempParam.topBorder) + "\n";
+	configurationSaveFile << std::to_string(tempParam.bottomBorder) + "\n";
+	configurationSaveFile << std::to_string(tempParam.verticalBinning) + "\n";
 	// gain settings
 	configurationSaveFile << std::to_string(eEMGainMode) + "\n";
 	configurationSaveFile << std::to_string(eEMGainLevel) + "\n";

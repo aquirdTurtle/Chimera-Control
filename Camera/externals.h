@@ -14,15 +14,21 @@
 #include "DataFileSystem.h"
 #include "SMSTextingControl.h"
 #include "DataAnalysisHandler.h"
+#include "CameraImageParameters.h"
 
 /// THINGS THAT THE USER SETS !@$#!@#$!@#$!@$!@#$!@#$!@$#!@#$!@#$@!#$!$!@#$!@#$@!$#@!#$!@#$!@$#!#$!@#$!@#$!@#$!@#$!@$#!@$#!@$#!@$#@!#$!@$#!@$#!@#$!@$#!@$#!@$#!#
 // extern bool eFitsOkay;
+extern bool eSettingAnalysisLocations;
 extern bool eRealTimePictures;
+extern bool eAutoanalyzeData;
 extern DataFileSystem eExperimentData;
 extern SMSTextingControl eTextingHandler;
 extern ConfigurationFileSystem eCameraFileSystem;
 extern ExperimentTimer eCameraWindowExperimentTimer;
 extern DataAnalysisHandler eAutoAnalysisHandler;
+extern CameraImageParameters eImageParameters;
+
+extern std::vector<std::pair<int, int>> eAnalysisPoints;
 
 extern std::array<int, 4> eCurrentMaximumPictureCount;
 extern std::array<int, 4> eCurrentMinimumPictureCount;
@@ -38,8 +44,6 @@ extern bool eEMGainMode;
 extern int eEMGainLevel;
 
 extern unsigned int ePlottingIsSlowMessage, ePlottingCaughtUpMessage;
-// Binning Parameters
-extern int eVerticalBinning, eHorizontalBinning, eLeftImageBorder, eRightImageBorder, eTopImageBorder, eBottomImageBorder, eImageWidth, eImageHeight;
 // Temperature stuff
 extern int eCameraTemperatureSetting;
 // More parameters.
