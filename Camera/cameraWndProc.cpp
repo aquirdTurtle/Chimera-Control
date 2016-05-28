@@ -7,7 +7,7 @@
 #include "appendText.h"
 #include "externals.h"
 #include "cameraThread.h"
-#include "resource.h"
+#include "Resource.h"
 #include "fonts.h"
 #include "createIdentityPalette.h"
 #include "initializeCameraWindow.h"
@@ -21,7 +21,7 @@
 #include "Commctrl.h"
 #include "DataFileSystem.h"
 
-LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch(msg) 
 	{
@@ -36,32 +36,32 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 			HDC hdcStatic = (HDC)wParam;
 			switch (ctrlID)
 			{
-			case IDC_DETECTION_THRESHOLD_EDIT_HANDLE:
-			{
-				SetTextColor(hdcStatic, RGB(255, 255, 255));
-				TCHAR textEdit[256];
-				SendMessage(eAtomThresholdEditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
-				int num;
-				try
+				case IDC_DETECTION_THRESHOLD_EDIT_HANDLE:
 				{
-					num = std::stoi(std::string(textEdit));
-					if (num == eDetectionThreshold)
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					TCHAR textEdit[256];
+					SendMessage(eAtomThresholdEditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
+					int num;
+					try
 					{
-						// good.
-						SetTextColor(hdcStatic, RGB(255, 255, 255));
-						SetBkColor(hdcStatic, RGB(100, 110, 100));
-						return (INT_PTR)eGreyGreenBrush;
-						break;
+						num = std::stoi(std::string(textEdit));
+						if (num == eDetectionThreshold)
+						{
+							// good.
+							SetTextColor(hdcStatic, RGB(255, 255, 255));
+							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							return (INT_PTR)eGreyGreenBrush;
+							break;
+						}
 					}
+					catch (std::exception&)
+					{
+						// don't do anything with it.
+					}
+					SetTextColor(hdcStatic, RGB(255, 255, 255));
+					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					return (INT_PTR)eGreyRedBrush;
 				}
-				catch (std::exception&)
-				{
-					// don't do anything with it.
-				}
-				SetTextColor(hdcStatic, RGB(255, 255, 255));
-				SetBkColor(hdcStatic, RGB(150, 100, 100));
-				return (INT_PTR)eGreyRedBrush;
-			}
 				case IDC_PLOTTING_FREQUENCY_EDIT:
 				{
 					SetTextColor(hdcStatic, RGB(255, 255, 255));
@@ -170,166 +170,13 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					break;
 				}
 				case IDC_IMAGE_BOTTOM_EDIT:
-				{
-					SetTextColor(hdcStatic, RGB(255, 255, 255));
-					TCHAR textEdit[256];
-					SendMessage(eImageBottomEditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
-					int bottom;
-					try
-					{
-						bottom = std::stoi(std::string(textEdit));
-						if (bottom == eBottomImageBorder)
-						{
-							// good.
-							SetTextColor(hdcStatic, RGB(255, 255, 255));
-							SetBkColor(hdcStatic, RGB(100, 110, 100));
-							UpdateWindow(eImageBottomEditHandle.hwnd);
-							return (INT_PTR)eGreyGreenBrush;
-							break;
-						}
-					}
-					catch (std::exception&)
-					{
-						// don't do anything with it.
-					}
-					SetTextColor(hdcStatic, RGB(255, 255, 255));
-					SetBkColor(hdcStatic, RGB(150, 100, 100));
-					return (INT_PTR)eGreyRedBrush;
-					break;
-				}
 				case IDC_IMAGE_TOP_EDIT:
-				{
-					SetTextColor(hdcStatic, RGB(255, 255, 255));
-					TCHAR textEdit[256];
-					SendMessage(eImageTopEditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
-					int top;
-					try
-					{
-						top = std::stoi(std::string(textEdit));
-						if (top == eTopImageBorder)
-						{
-							// good.
-							SetTextColor(hdcStatic, RGB(255, 255, 255));
-							SetBkColor(hdcStatic, RGB(100, 110, 100));
-							return (INT_PTR)eGreyGreenBrush;
-							break;
-						}
-					}
-					catch (std::exception&)
-					{
-						// don't do anything with it.
-					}
-					SetTextColor(hdcStatic, RGB(255, 255, 255));
-					SetBkColor(hdcStatic, RGB(150, 100, 100));
-					return (INT_PTR)eGreyRedBrush;
-					break;
-				}
 				case IDC_VERTICAL_BIN_EDIT:
-				{
-					SetTextColor(hdcStatic, RGB(255, 255, 255));
-					TCHAR textEdit[256];
-					SendMessage(eVerticalBinningEditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
-					int verticalBin;
-					try
-					{
-						verticalBin = std::stoi(std::string(textEdit));
-						if (verticalBin == eVerticalBinning)
-						{
-							// good.
-							SetTextColor(hdcStatic, RGB(255, 255, 255));
-							SetBkColor(hdcStatic, RGB(100, 110, 100));
-							return (INT_PTR)eGreyGreenBrush;
-							break;
-						}
-					}
-					catch (std::exception&)
-					{
-						// don't do anything with it.
-					}
-					SetTextColor(hdcStatic, RGB(255, 255, 255));
-					SetBkColor(hdcStatic, RGB(150, 100, 100));
-					return (INT_PTR)eGreyRedBrush;
-					break;
-				}
 				case IDC_IMG_LEFT_EDIT:
-				{
-					SetTextColor(hdcStatic, RGB(255, 255, 255));
-					TCHAR textEdit[256];
-					SendMessage(eImgLeftSideEditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
-					int leftSide;
-					try
-					{
-						leftSide = std::stoi(std::string(textEdit));
-						if (leftSide == eLeftImageBorder)
-						{
-							// good.
-							SetTextColor(hdcStatic, RGB(255, 255, 255));
-							SetBkColor(hdcStatic, RGB(100, 110, 100));
-							return (INT_PTR)eGreyGreenBrush;
-							break;
-						}
-					}
-					catch (std::exception&)
-					{
-						// don't do anything with it.
-					}
-					SetTextColor(hdcStatic, RGB(255, 255, 255));
-					SetBkColor(hdcStatic, RGB(150, 100, 100));
-					return (INT_PTR)eGreyRedBrush;
-					break;
-				}
 				case IDC_IMG_RIGHT_EDIT:
-				{
-					SetTextColor(hdcStatic, RGB(255, 255, 255));
-					TCHAR textEdit[256];
-					SendMessage(eImgRightSideEditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
-					int rightSide;
-					try
-					{
-						rightSide = std::stoi(std::string(textEdit));
-						if (rightSide == eRightImageBorder)
-						{
-							// good.
-							SetTextColor(hdcStatic, RGB(255, 255, 255));
-							SetBkColor(hdcStatic, RGB(100, 110, 100));
-							return (INT_PTR)eGreyGreenBrush;
-							break;
-						}
-					}
-					catch (std::exception&)
-					{
-						// don't do anything with it.
-					}
-					SetTextColor(hdcStatic, RGB(255, 255, 255));
-					SetBkColor(hdcStatic, RGB(150, 100, 100));
-					return (INT_PTR)eGreyRedBrush;
-					break;
-				}
 				case IDC_HOR_BIN_EDIT:
 				{
-					SetTextColor(hdcStatic, RGB(255, 255, 255));
-					TCHAR textEdit[256];
-					SendMessage(eHorizontalBinningEditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
-					int horizontalBin;
-					try
-					{
-						horizontalBin = std::stoi(std::string(textEdit));
-						if (horizontalBin == eHorizontalBinning)
-						{
-							// good.
-							SetTextColor(hdcStatic, RGB(255, 255, 255));
-							SetBkColor(hdcStatic, RGB(100, 110, 100));
-							return (INT_PTR)eGreyGreenBrush;
-							break;
-						}
-					}
-					catch (std::exception&)
-					{
-						// don't do anything with it.
-					}
-					SetTextColor(hdcStatic, RGB(255, 255, 255));
-					SetBkColor(hdcStatic, RGB(150, 100, 100));
-					return (INT_PTR)eGreyRedBrush;
+					return eImageParameters.colorEdits(hWnd, msg, wParam, lParam);
 					break;
 				}
 				case IDC_EXPOSURE_3_EDIT:
@@ -722,33 +569,80 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						// check if inside box
 						if (xPos < relevantRect.right && xPos > relevantRect.left && yPos < relevantRect.bottom && yPos > relevantRect.top)
 						{
-							RECT smallRect;
-							smallRect.left = relevantRect.left + 7.0 * (relevantRect.right - relevantRect.left) / 16.0;
-							smallRect.right = relevantRect.left + 9.0 * (relevantRect.right - relevantRect.left) / 16.0;
-							smallRect.top = relevantRect.top + 7.0 * (relevantRect.bottom - relevantRect.top) / 16.0;
-							smallRect.bottom = relevantRect.top + 9.0 * (relevantRect.bottom - relevantRect.top) / 16.0;
-							// get appropriate brush and pen
-							HDC hDC = GetDC(eCameraWindowHandle);
-							SelectObject(hDC, GetStockObject(HOLLOW_BRUSH));
-							SelectObject(hDC, GetStockObject(DC_PEN));
-							if (eCurrentPicturePallete[pictureInc] == 0 || eCurrentPicturePallete[pictureInc] == 2)
+							if (eSettingAnalysisLocations)
 							{
-								SetDCPenColor(hDC, RGB(255, 0, 0));
-								Ellipse(hDC, relevantRect.left, relevantRect.top, relevantRect.right, relevantRect.bottom);
-								SelectObject(hDC, GetStockObject(DC_BRUSH));
-								SetDCBrushColor(hDC, RGB(255, 0, 0));
+								// check if already set.
+								bool alreadyExists = false;
+								for (int analysisLocationsInc = 0; analysisLocationsInc < eAnalysisPoints.size(); analysisLocationsInc++)
+								{
+									if (horizontalInc == eAnalysisPoints[analysisLocationsInc].first
+										&& ePixelRectangles[pictureInc][horizontalInc].size() - 1 - verticalInc == eAnalysisPoints[analysisLocationsInc].second)
+									{
+										alreadyExists = true;
+										break;
+									}
+								}
+								if (alreadyExists)
+								{
+									break;
+								}
+								eAutoAnalysisHandler.setAtomLocation(std::pair<int, int>({ horizontalInc, ePixelRectangles[pictureInc][horizontalInc].size() - 1 - verticalInc }));
+								// draw and set.
+								HDC hdc;
+								HPEN crossPen;
+								hdc = GetDC(eCameraWindowHandle);
+								for (int imageInc = 0; imageInc < ePicturesPerRepetition; imageInc++)
+								{
+									// pic the color depending on the picture's pallete (e.g. blue to yellow)
+									if (eCurrentPicturePallete[imageInc] == 0 || eCurrentPicturePallete[imageInc] == 2)
+									{
+										crossPen = CreatePen(0, 1, RGB(255, 0, 0));
+									}
+									else
+									{
+										crossPen = CreatePen(0, 1, RGB(0, 255, 0));
+									}
+									SelectObject(hdc, crossPen);
+									long boxWidth = relevantRect.right - relevantRect.left;
+									long boxHeight = relevantRect.top - relevantRect.bottom;
+									MoveToEx(hdc, relevantRect.left + boxWidth / 4, relevantRect.top - boxHeight / 4, 0);
+									LineTo(hdc, relevantRect.right - boxWidth / 4, relevantRect.bottom + boxHeight / 4);
+									MoveToEx(hdc, relevantRect.right - boxWidth / 4, relevantRect.top - boxHeight / 4, 0);
+									LineTo(hdc, relevantRect.left + boxWidth / 4, relevantRect.bottom + boxHeight / 4);
+									ReleaseDC(eCameraWindowHandle, hdc);
+									DeleteObject(crossPen);
+								}
 							}
 							else
 							{
-								SetDCPenColor(hDC, RGB(0, 255, 0));
-								Ellipse(hDC, relevantRect.left, relevantRect.top, relevantRect.right, relevantRect.bottom);
-								SelectObject(hDC, GetStockObject(DC_BRUSH));
-								SetDCBrushColor(hDC, RGB(0, 255, 0));
+								RECT smallRect;
+								smallRect.left = relevantRect.left + 7.0 * (relevantRect.right - relevantRect.left) / 16.0;
+								smallRect.right = relevantRect.left + 9.0 * (relevantRect.right - relevantRect.left) / 16.0;
+								smallRect.top = relevantRect.top + 7.0 * (relevantRect.bottom - relevantRect.top) / 16.0;
+								smallRect.bottom = relevantRect.top + 9.0 * (relevantRect.bottom - relevantRect.top) / 16.0;
+								// get appropriate brush and pen
+								HDC hDC = GetDC(eCameraWindowHandle);
+								SelectObject(hDC, GetStockObject(HOLLOW_BRUSH));
+								SelectObject(hDC, GetStockObject(DC_PEN));
+								if (eCurrentPicturePallete[pictureInc] == 0 || eCurrentPicturePallete[pictureInc] == 2)
+								{
+									SetDCPenColor(hDC, RGB(255, 0, 0));
+									Ellipse(hDC, relevantRect.left, relevantRect.top, relevantRect.right, relevantRect.bottom);
+									SelectObject(hDC, GetStockObject(DC_BRUSH));
+									SetDCBrushColor(hDC, RGB(255, 0, 0));
+								}
+								else
+								{
+									SetDCPenColor(hDC, RGB(0, 255, 0));
+									Ellipse(hDC, relevantRect.left, relevantRect.top, relevantRect.right, relevantRect.bottom);
+									SelectObject(hDC, GetStockObject(DC_BRUSH));
+									SetDCBrushColor(hDC, RGB(0, 255, 0));
+								}
+								Ellipse(hDC, smallRect.left, smallRect.top, smallRect.right, smallRect.bottom);
+								ReleaseDC(eCameraWindowHandle, hDC);
+								eCurrentlySelectedPixel.first = horizontalInc;
+								eCurrentlySelectedPixel.second = ePixelRectangles[pictureInc][horizontalInc].size() - 1 - verticalInc;
 							}
-							Ellipse(hDC, smallRect.left, smallRect.top, smallRect.right, smallRect.bottom);
-							ReleaseDC(eCameraWindowHandle, hDC);
-							eCurrentlySelectedPixel.first = horizontalInc;
-							eCurrentlySelectedPixel.second = ePixelRectangles[pictureInc][horizontalInc].size() - 1 - verticalInc;
 						}
 					}
 				}
@@ -771,12 +665,13 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 		case WM_SIZE:
 		{
 			reorganizeWindow(eCurrentlySelectedCameraMode, hWnd);
+			imageParameters tempImageParam = eImageParameters.getImageParameters();
 			for (int imageLocation = 0; imageLocation < eImageBackgroundAreas.size(); imageLocation++)
 			{
 				int imageBoxWidth = eImageBackgroundAreas[imageLocation].right - eImageBackgroundAreas[imageLocation].left + 1;
 				int imageBoxHeight = eImageBackgroundAreas[imageLocation].bottom - eImageBackgroundAreas[imageLocation].top + 1;
-				double boxWidth = imageBoxWidth / (double)eImageWidth;
-				double boxHeight = imageBoxHeight / (double)eImageHeight;
+				double boxWidth = imageBoxWidth / (double)tempImageParam.width;
+				double boxHeight = imageBoxHeight / (double)tempImageParam.height;
 				if (boxWidth > boxHeight)
 				{
 					// scale the box width down.
@@ -830,6 +725,26 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 			int controlID = LOWORD(wParam);
 			switch (controlID)
 			{
+				case IDC_AUTOANALYZE_CHECKBOX:
+				{
+					BOOL checked = IsDlgButtonChecked(hWnd, IDC_AUTOANALYZE_CHECKBOX);
+					if (checked)
+					{
+						CheckDlgButton(hWnd, IDC_AUTOANALYZE_CHECKBOX, BST_UNCHECKED);
+						eAutoanalyzeData = false;
+					}
+					else
+					{
+						CheckDlgButton(hWnd, IDC_AUTOANALYZE_CHECKBOX, BST_CHECKED);
+						eAutoanalyzeData = true;
+					}
+					break;
+				}
+				case ID_ADD_ANALYSIS_NAME:
+				{
+					eAutoAnalysisHandler.addNameToCombo();
+					break;
+				}
 				case ID_NOTIFICATIONS_CHANGE_EMAIL_AND_PASSWORD:
 				{
 					eTextingHandler.promptForEmailAddressAndPassword();
@@ -1161,6 +1076,16 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					}
 					break;
 				}
+				case IDC_ANALYZE_MOST_RECENT:
+				{
+					eAutoAnalysisHandler.analyze(eExperimentData.getDate(), eExperimentData.getDataFileNumber(), eRepetitionsPerVariation);
+					break;
+				}
+				case IDC_SET_ANALYSIS_LOCATION:
+				{
+					eAutoAnalysisHandler.onButtonPushed();
+					break;
+				}
 				case ID_PLOTTING_ADD_PLOT:
 				{
 					// get text from all plots combo
@@ -1344,80 +1269,71 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					eCameraWindowExperimentTimer.setColorID(ID_BLUE);
 					eCameraWindowExperimentTimer.setTimerDisplay("Starting...");
 
-					// Set the running version to whatever is selected at the beginning of this function.
-					eCurrentlyRunningCameraMode = eCurrentlySelectedCameraMode;
+					if (eSettingAnalysisLocations)
+					{
+						eCameraWindowExperimentTimer.setColorID(ID_RED);
+						eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
+						MessageBox(0, "Please finish selecting analysis points!", 0, 0);
+						break;
+					}
+					if (eAutoanalyzeData)
+					{
+						// check that the combo's aren't empty
+						if (eAutoAnalysisHandler.combosAreEmpty())
+						{
+							MessageBox(0, "Please Select a Data Analysis Output Name and/or Analysis Type.", 0, 0);
+							break;
+						}
+						// check that data is being incremented.
+						if (!eIncDataFileNamesOption)
+						{
+							MessageBox(0, "Data Analysis is currently only set up to work with incrementing data file numbers. Sorry.", 0, 0);
+							break;
+						}
+					}
 					// check exposure times
 					if (eExposureTimes.size() == 0)
 					{
+						eCameraWindowExperimentTimer.setColorID(ID_RED);
+						eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
 						MessageBox(0, "Please Set at least one exposure time.", 0, 0);
-						eCameraWindowExperimentTimer.setColorID(ID_RED);
-						eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
 						break;
 					}
-					// Check Image parameters
-					if (eLeftImageBorder > eRightImageBorder || eTopImageBorder > eBottomImageBorder)
+					if (!eImageParameters.checkReady())
 					{
-						MessageBox(0, "ERROR: Image start positions must not be greater than end positions\r\n", 0, 0);
 						eCameraWindowExperimentTimer.setColorID(ID_RED);
 						eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
-						break;
-					}
-					if (eLeftImageBorder < 1 || eRightImageBorder > eXPixels)
-					{
-						MessageBox(0, "ERROR: Image horizontal borders must be greater than 0 and less than the detector width\r\n", 0, 0);
-						eCameraWindowExperimentTimer.setColorID(ID_RED);
-						eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
-						break;
-					}
-					if (eTopImageBorder < 1 || eBottomImageBorder > eYPixels)
-					{
-						MessageBox(0, "ERROR: Image verttical borders must be greater than 0 and less than the detector height\r\n", 0, 0);
-						eCameraWindowExperimentTimer.setColorID(ID_RED);
-						eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
-						break;
-					}
-					if ((eRightImageBorder - eLeftImageBorder + 1) % eHorizontalBinning != 0)
-					{
-						MessageBox(0, "ERROR: Image width must be a multiple of Horizontal Binning\r\n", 0, 0);
-						eCameraWindowExperimentTimer.setColorID(ID_RED);
-						eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
-						break;
-					}
-					if ((eBottomImageBorder - eTopImageBorder + 1) % eVerticalBinning != 0)
-					{
-						MessageBox(0, "ERROR: Image height must be a multiple of Vertical Binning\r\n", 0, 0);
-						eCameraWindowExperimentTimer.setColorID(ID_RED);
-						eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
+						MessageBox(0, "Please set the image parameters.", 0, 0);
 						break;
 					}
 					if (ePicturesPerRepetition <= 0)
 					{
-						MessageBox(0, "ERROR: Please set the number of pictures per experiment to a positive non-zero value.", 0, 0);
 						eCameraWindowExperimentTimer.setColorID(ID_RED);
 						eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
+						MessageBox(0, "ERROR: Please set the number of pictures per experiment to a positive non-zero value.", 0, 0);
 						break;
 					}
 					if (eCurrentlySelectedCameraMode == "Kinetic Series Mode") 
 					{
 						if (eKineticCycleTime == 0 && eCurrentTriggerMode == "Internal")
 						{
-							MessageBox(0, "ERROR: Since you are running in internal trigger mode, please Set a kinetic cycle time.", 0, 0);
 							eCameraWindowExperimentTimer.setColorID(ID_RED);
 							eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
+							MessageBox(0, "ERROR: Since you are running in internal trigger mode, please Set a kinetic cycle time.", 0, 0);
 							break;
 						}
 						if (eRepetitionsPerVariation <= 0)
 						{
-							MessageBox(0, "ERROR: Please set the \"Experiments per Stack\" variable to a positive non-zero value.", 0, 0);
 							eCameraWindowExperimentTimer.setColorID(ID_RED);
 							eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
+							MessageBox(0, "ERROR: Please set the \"Experiments per Stack\" variable to a positive non-zero value.", 0, 0);
 							break;
 						}
 						if (eCurrentTotalVariationNumber <= 0)
 						{
-							MessageBox(0, "ERROR: Please set the number of accumulation stacks to a positive non-zero value.", 0, 0);
 							eCameraWindowExperimentTimer.setColorID(ID_RED);
 							eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
+							MessageBox(0, "ERROR: Please set the number of accumulation stacks to a positive non-zero value.", 0, 0);
 							break;
 						}
 
@@ -1426,16 +1342,16 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					{
 						if (eCurrentAccumulationModeTotalAccumulationNumber <= 0)
 						{
-							MessageBox(0, "ERROR: Please set the current Accumulation Number to a positive non-zero value.", 0, 0);
 							eCameraWindowExperimentTimer.setColorID(ID_RED);
 							eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
+							MessageBox(0, "ERROR: Please set the current Accumulation Number to a positive non-zero value.", 0, 0);
 							break;
 						}
 						if (eAccumulationTime <= 0)
 						{
-							MessageBox(0, "ERROR: Please set the current Accumulation Time to a positive non-zero value.", 0, 0);
 							eCameraWindowExperimentTimer.setColorID(ID_RED);
 							eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
+							MessageBox(0, "ERROR: Please set the current Accumulation Time to a positive non-zero value.", 0, 0);
 							break;
 						}
 					}
@@ -1469,6 +1385,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
 						break;
 					}
+					imageParameters currentImageParameters = eImageParameters.getImageParameters();
 					std::string dialogMsg;
 					dialogMsg = "Starting Parameters:\r\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\r\n";
 					dialogMsg += "Current Camera Temperature Setting: " + std::to_string(eCameraTemperatureSetting) + "\r\n";
@@ -1478,8 +1395,9 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						dialogMsg += std::to_string(eExposureTimes[exposureInc] * 1000) + ", ";
 					}
 					dialogMsg += "\r\n";
-					dialogMsg += "Image Settings: " + std::to_string(eLeftImageBorder) + " - " + std::to_string(eRightImageBorder) + ", "
-						+ std::to_string(eTopImageBorder) + " - " + std::to_string(eBottomImageBorder) + "\r\n";
+
+					dialogMsg += "Image Settings: " + std::to_string(currentImageParameters.leftBorder) + " - " + std::to_string(currentImageParameters.rightBorder) + ", "
+						+ std::to_string(currentImageParameters.topBorder) + " - " + std::to_string(currentImageParameters.bottomBorder) + "\r\n";
 					dialogMsg += "\r\n";
 					dialogMsg += "Kintetic Cycle Time: " + std::to_string(eKineticCycleTime) + "\r\n";
 					dialogMsg += "Pictures per Experiment: " + std::to_string(ePicturesPerRepetition) + "\r\n";
@@ -1506,7 +1424,8 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 						eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
 						break;
 					}
-
+					// Set the running version to whatever is selected at the beginning of this function.
+					eCurrentlyRunningCameraMode = eCurrentlySelectedCameraMode;
 					eSystemIsRunning = true;
 					time_t time_obj = time(0);   // get time now
 					struct tm currentTime;
@@ -1520,9 +1439,9 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 					if (myAndor::setSystem() != 0)
 					{
 						eSystemIsRunning = false;
-						appendText("Failed to start camera aquisition.\r\n", IDC_STATUS_EDIT);
 						eCameraWindowExperimentTimer.setColorID(ID_RED);
 						eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
+						appendText("Failed to start camera aquisition.\r\n", IDC_STATUS_EDIT);
 					}
 					break;
 				}
@@ -1590,7 +1509,7 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 							}
 							if (eIncDataFileNamesOption)
 							{
-								int answer = MessageBox(0, "Acquisition Aborted. Delete Data (fits_#) & (key_#) files for this run?", 0, MB_YESNO);
+								int answer = MessageBox(0, "Acquisition Aborted. Delete Data (fits_#) and (key_#) files for this run?", 0, MB_YESNO);
 								if (answer == IDYES)
 								{
 									if (eExperimentData.deleteFitsAndKey(errorMessage))
@@ -1800,122 +1719,10 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 				}
 				case IDC_SET_IMAGE_PARAMS_BUTTON: 
 				{
-					// If new dimensions are set, we don't have data for those.
-					
-					eDataExists = false;
-					// set all of the image parameters
-					std::string tempStr;
-					GetWindowText(eImgLeftSideEditHandle.hwnd, (LPSTR)tempStr.c_str(), 4);
-					SendMessage(eImgLeftSideDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)tempStr.c_str());
-					eLeftImageBorder = std::stoi(tempStr);
-					GetWindowText(eImgRightSideEditHandle.hwnd, (LPSTR)tempStr.c_str(), 4);
-					SendMessage(eImgRightSideDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)tempStr.c_str());
-					eRightImageBorder = std::stoi(tempStr);
-					GetWindowText(eImageTopEditHandle.hwnd, (LPSTR)tempStr.c_str(), 4);
-					SendMessage(eImageBottomSideDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)tempStr.c_str());
-					eTopImageBorder = std::stoi(tempStr);
-					GetWindowText(eImageBottomEditHandle.hwnd, (LPSTR)tempStr.c_str(), 4);
-					SendMessage(eImageTopSideDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)tempStr.c_str());
-					eBottomImageBorder = std::stoi(tempStr);
-					GetWindowText(eHorizontalBinningEditHandle.hwnd, (LPSTR)tempStr.c_str(), 4);
-					SendMessage(eHorizontalBinningDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)tempStr.c_str());
-					eHorizontalBinning = std::stoi(tempStr);
-					GetWindowText(eVerticalBinningEditHandle.hwnd, (LPSTR)tempStr.c_str(), 4);
-					SendMessage(eVerticalBinningDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)tempStr.c_str());
-					eVerticalBinning = std::stoi(tempStr);
-					eCurrentlySelectedPixel.first = 0;
-					eCurrentlySelectedPixel.second = 0;
-					// Calculate the number of actual pixels in each dimension.
-					eImageWidth = (eRightImageBorder - eLeftImageBorder + 1) / eHorizontalBinning;
-					eImageHeight = (eBottomImageBorder - eTopImageBorder + 1) / eVerticalBinning;
-
-					// Check Image parameters
-					if (eLeftImageBorder > eRightImageBorder || eTopImageBorder > eBottomImageBorder) 
+					if (eImageParameters.setImageParameters())
 					{
-						appendText("ERROR: Image start positions must not be greater than end positions\r\n", IDC_ERROR_EDIT);
-						break;
+						appendText("Failed To Set Image Parameters!\r\n", IDC_STATUS_EDIT);
 					}
-					if (eLeftImageBorder < 1 || eRightImageBorder > eXPixels) 
-					{
-						appendText("ERROR: Image horizontal borders must be greater than 0 and less than the detector width\r\n", IDC_ERROR_EDIT);
-						break;
-					}
-					if (eTopImageBorder < 1 || eBottomImageBorder > eYPixels) 
-					{
-						appendText("ERROR: Image verttical borders must be greater than 0 and less than the detector height\r\n", IDC_ERROR_EDIT);
-						break;
-					}
-					if ((eRightImageBorder - eLeftImageBorder + 1) % eHorizontalBinning != 0) 
-					{
-						appendText("ERROR: Image width must be a multiple of Horizontal Binning\r\n", IDC_ERROR_EDIT);
-						break;
-					}
-					if ((eBottomImageBorder - eTopImageBorder + 1) % eVerticalBinning != 0) 
-					{
-						appendText("ERROR: Image height must be a multiple of Vertical Binning\r\n", IDC_ERROR_EDIT);
-						break;
-					}
-					// made it through successfully.
-					
-					for (int imageLocation = 0; imageLocation < eImageBackgroundAreas.size(); imageLocation++)
-					{
-						int imageBoxWidth = eImageBackgroundAreas[imageLocation].right - eImageBackgroundAreas[imageLocation].left + 1;
-						int imageBoxHeight = eImageBackgroundAreas[imageLocation].bottom - eImageBackgroundAreas[imageLocation].top + 1;
-
-						double boxWidth = imageBoxWidth / (double)eImageWidth;
-						double boxHeight = imageBoxHeight / (double)eImageHeight;
-						if (boxWidth > boxHeight)
-						{
-							// scale the box width down.
-							eImageDrawAreas[imageLocation].left = eImageBackgroundAreas[imageLocation].left;
-							eImageDrawAreas[imageLocation].right = (int)eImageBackgroundAreas[imageLocation].left
-								+ (eImageBackgroundAreas[imageLocation].right - eImageBackgroundAreas[imageLocation].left) * boxHeight / boxWidth;
-							double pixelsAreaWidth = eImageDrawAreas[imageLocation].right - eImageDrawAreas[imageLocation].left + 1;
-							// move to center
-							eImageDrawAreas[imageLocation].left += (imageBoxWidth - pixelsAreaWidth) / 2;
-							eImageDrawAreas[imageLocation].right += (imageBoxWidth - pixelsAreaWidth) / 2;
-							eImageDrawAreas[imageLocation].top = eImageBackgroundAreas[imageLocation].top;
-							eImageDrawAreas[imageLocation].bottom = eImageBackgroundAreas[imageLocation].bottom;
-							double pixelsAreaHeight = imageBoxHeight;
-						}
-						else
-						{
-							// cale the box height down.
-							eImageDrawAreas[imageLocation].left = eImageBackgroundAreas[imageLocation].left;
-							eImageDrawAreas[imageLocation].right = eImageBackgroundAreas[imageLocation].right;
-							double pixelsAreaWidth = imageBoxWidth;
-							// move to center
-							eImageDrawAreas[imageLocation].top = eImageBackgroundAreas[imageLocation].top;
-							eImageDrawAreas[imageLocation].bottom = (int)eImageBackgroundAreas[imageLocation].top + (eImageBackgroundAreas[imageLocation].bottom - eImageBackgroundAreas[imageLocation].top) * boxWidth / boxHeight;
-							double pixelsAreaHeight = eImageDrawAreas[imageLocation].bottom - eImageDrawAreas[imageLocation].top + 1;
-							eImageDrawAreas[imageLocation].top += (imageBoxWidth - pixelsAreaHeight) / 2;
-							eImageDrawAreas[imageLocation].bottom += (imageBoxWidth - pixelsAreaHeight) / 2;
-						}
-					}
-					// create rectangles for selection circle
-					for (int pictureInc = 0; pictureInc < eImageDrawAreas.size(); pictureInc++)
-					{
-						ePixelRectangles[pictureInc].resize(eImageWidth);
-						for (int widthInc = 0; widthInc < eImageWidth; widthInc++)
-						{
-							ePixelRectangles[pictureInc][widthInc].resize(eImageHeight);
-							for (int heightInc = 0; heightInc < eImageHeight; heightInc++)
-							{
-								// for all 4 pictures...
-								ePixelRectangles[pictureInc][widthInc][heightInc].left = (int)(eImageDrawAreas[pictureInc].left
-												+ (double)widthInc * (eImageDrawAreas[pictureInc].right - eImageDrawAreas[pictureInc].left) / (double)eImageWidth + 2);
-								ePixelRectangles[pictureInc][widthInc][heightInc].right = (int)(eImageDrawAreas[pictureInc].left
-												+ (double)(widthInc + 1) * (eImageDrawAreas[pictureInc].right - eImageDrawAreas[pictureInc].left) / (double)eImageWidth + 2);
-								ePixelRectangles[pictureInc][widthInc][heightInc].top = (int)(eImageDrawAreas[pictureInc].top
-												+ (double)(heightInc) * (eImageDrawAreas[pictureInc].bottom - eImageDrawAreas[pictureInc].top) / (double)eImageHeight);
-								ePixelRectangles[pictureInc][widthInc][heightInc].bottom = (int)(eImageDrawAreas[pictureInc].top
-									+ (double)(heightInc + 1)* (eImageDrawAreas[pictureInc].bottom - eImageDrawAreas[pictureInc].top) / (double)eImageHeight);
-							}
-						}
-					}
-
-					eCameraFileSystem.updateSaveStatus(false);
-
 					break;
 				}
 				case IDC_SET_KINETIC_CYCLE_TIME_BUTTON: 
@@ -2460,7 +2267,10 @@ LRESULT CALLBACK cameraWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam
 				}
 				message += std::to_string(now.tm_sec);
 				eTextingHandler.sendMessage(message);
-
+				if (eAutoanalyzeData)
+				{
+					eAutoAnalysisHandler.analyze(eExperimentData.getDate(), eExperimentData.getDataFileNumber(), eRepetitionsPerVariation);
+				}
 				break;
 			}
 			else if (msg == eErrMessageID) 

@@ -133,6 +133,8 @@ bool DataFileSystem::initializeDataFiles(bool incrementFiles, std::string& errMs
 	{
 		finalSaveFolder += std::to_string(now.tm_mday);
 	}
+	currentDate = finalSaveFolder;
+	// right now the save folder IS the date...
 	currentSaveFolder = finalSaveFolder;
 	// create date's folder.
 	int result = CreateDirectory((SAVE_BASE_ADDRESS + finalSaveFolder).c_str(), 0);
@@ -182,8 +184,8 @@ bool DataFileSystem::initializeDataFiles(bool incrementFiles, std::string& errMs
 	}
 	//immediately change this.
 	fitsIsOpen = true;
-
-	long axis[] = { eImageWidth, eImageHeight, eTotalNumberOfPicturesInSeries };
+	imageParameters currentImageParameters = eImageParameters.getImageParameters();
+	long axis[] = { currentImageParameters.width, currentImageParameters.height, eTotalNumberOfPicturesInSeries };
 	fits_create_img(myFitsFile, LONG_IMG, 3, axis, &fitsStatus);
 	if (DataFileSystem::checkFitsError(fitsStatus, errMsg))
 	{
@@ -251,4 +253,12 @@ bool DataFileSystem::checkFitsError(int fitsStatusIndicator, std::string& errMsg
 std::vector<double> DataFileSystem::getKey()
 {
 	return keyValues;
+}
+std::string DataFileSystem::getDate()
+{
+	return currentDate;
+}
+int DataFileSystem::getDataFileNumber()
+{
+	return currentDataFileNumber;
 }

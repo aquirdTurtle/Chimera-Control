@@ -162,9 +162,6 @@
     </ClCompile>
     <ClCompile Include="TestApplication.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="easendmailobj.tlh" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

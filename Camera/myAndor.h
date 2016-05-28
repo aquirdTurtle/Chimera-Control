@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "CameraImageParameters.h"
 
 namespace myAndor
 {
@@ -10,7 +11,7 @@ namespace myAndor
 	int setReadMode(void);
 	int setTemperature(void);
 	int setExposures(void);
-	int setImageParameters(void);
+	int setImageParametersToCamera(imageParameters tempImageParam);
 	int setKineticCycleTime(void);
 	int setScanNumber(void);
 	int setFrameTransferMode(int mode);

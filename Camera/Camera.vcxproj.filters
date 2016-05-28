@@ -132,6 +132,12 @@
     <ClInclude Include="DataAnalysisHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="autoAnalysisThreadProcedure.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraImageParameters.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appendText.cpp">
@@ -210,6 +216,12 @@
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="DataAnalysisHandler.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="autoAnalysisThreadProcedure.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraImageParameters.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
   </ItemGroup>

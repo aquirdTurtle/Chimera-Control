@@ -10,6 +10,7 @@
 
 unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 {
+	imageParameters currentParameters = eImageParameters.getImageParameters();
 	// Register any windows messages for the main window
 	ePlottingIsSlowMessage = RegisterWindowMessage("ID_PLOTTING_IS_SLOW");
 	ePlottingCaughtUpMessage = RegisterWindowMessage("ID_PLOTTING_CAUGHT_UP");
@@ -172,7 +173,7 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 			/// for all pixels... gather count information
 			for (unsigned int pixelInc = 0; pixelInc < pixelDataType.size(); pixelInc++)
 			{
-				int secondIndex = pixelDataType[pixelInc][0] - 1 + eImageWidth * (pixelDataType[pixelInc][1] - 1);
+				int secondIndex = pixelDataType[pixelInc][0] - 1 + currentParameters.width * (pixelDataType[pixelInc][1] - 1);
 				// first image, second index identifies the location.
 				try
 				{
