@@ -70,11 +70,11 @@ int ExperimentTimer::update(int currentAccumulationNumber, int accumulationsPerV
 	int averageNumber;
 	if (numberOfVariations < 3)
 	{
-		averageNumber = totalRepetitions / 20;
+		averageNumber = totalRepetitions / 20 + 1;
 	}
 	else
 	{
-		averageNumber = accumulationsPerVariation / 2;
+		averageNumber = accumulationsPerVariation / 2 + 1;
 	}
 	int variationPosition = (currentAccumulationNumber % accumulationsPerVariation) * 100.0 / accumulationsPerVariation;
 	int overalPosition = currentAccumulationNumber / (double)totalRepetitions * 100;
