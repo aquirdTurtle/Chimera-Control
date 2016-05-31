@@ -3,6 +3,7 @@
 #include "Windows.h"
 #include <string>
 #include <vector>
+#include "Python.h"
 // This class will eventually handle all of the automatic data analysis. Right now, pretty empty.
 class DataAnalysisHandler
 {
@@ -32,4 +33,5 @@ class DataAnalysisHandler
 		Control setAnalysisLocationsButton;
 		Control analyzeMostRecentButton;
 		std::vector<std::pair<int, int>> atomLocations;
+		PyObject* pythonModule;
 };

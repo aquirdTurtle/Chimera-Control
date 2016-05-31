@@ -79,7 +79,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\Mark\Anaconda3\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Regal Lab\Anaconda3\include;C:\Users\Mark\Anaconda3\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Regal Lab\Anaconda3\libs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>

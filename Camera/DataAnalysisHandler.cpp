@@ -7,9 +7,11 @@
 #include <process.h>
 #include "appendText.h"
 #include "myAndor.h"
+#include "frameobject.h"
 
 DataAnalysisHandler::DataAnalysisHandler()
 {
+	Py_SetPythonHome(L"C:\\Users\\Regal Lab\\Anaconda3");
 	Py_Initialize();
 	PyRun_SimpleString("from astropy.io import fits");
 	PyRun_SimpleString("import numpy");
@@ -18,6 +20,11 @@ DataAnalysisHandler::DataAnalysisHandler()
 	PyRun_SimpleString("from matplotlib.cm import get_cmap");
 	PyRun_SimpleString("from dataAnalysisFunctions import normalizeData, binData, guessGaussianPeaks, doubleGaussian, fitDoubleGaussian,"
 					   "calculateAtomThreshold, getAnalyzedSurvivalData");
+	// Make sure that python can find my module.
+	PyRun_SimpleString("import sys");
+	PyRun_SimpleString(("sys.path.append(\"" + ANALYSIS_CODE_LOCATION + "\")").c_str());
+	PyObject* pythonModuleName = PyUnicode_DecodeFSDefault("SingleAtomAnalysisFunction");
+	pythonModule = PyImport_Import(pythonModuleName);
 }
 
 DataAnalysisHandler::~DataAnalysisHandler()
@@ -192,12 +199,6 @@ bool DataAnalysisHandler::analyze(std::string date, long runNumber, long accumul
 	// Get information to send to the python script from inputParam
 	std::string moduleName = "SingleAtomAnalysisFunction";
 
-	// Make sure that python can find my module.
-	PyRun_SimpleString("import sys");
-	PyRun_SimpleString(("sys.path.append(\"" + ANALYSIS_CODE_LOCATION + "\")").c_str());
-	PyObject* pythonModuleName = PyUnicode_DecodeFSDefault(moduleName.c_str());
-	PyObject* pythonModule = PyImport_Import(pythonModuleName);
-	Py_DECREF(pythonModuleName);
 	if (pythonModule != NULL)
 	{
 		PyObject* pythonFunction = PyObject_GetAttrString(pythonModule, analysisFunctionName.c_str());
@@ -208,7 +209,7 @@ bool DataAnalysisHandler::analyze(std::string date, long runNumber, long accumul
 			{
 				PyObject* pythonFunctionArguments = PyTuple_New(6);
 
-				PyObject* pythonDate = PyUnicode_DecodeFSDefault(date.c_str());
+				PyObject* pythonDate = Py_BuildValue("s", date.c_str());
 				// check success
 				if (!pythonDate)
 				{
@@ -236,8 +237,9 @@ bool DataAnalysisHandler::analyze(std::string date, long runNumber, long accumul
 				PyObject* pythonAtomLocationsArray = PyTuple_New(atomLocations.size() * 2);
 				for (int atomInc = 0; atomInc < atomLocations.size(); atomInc++)
 				{
-					PyTuple_SetItem(pythonAtomLocationsArray, 2*atomInc, PyLong_FromLong(atomLocations[atomInc].first));
-					PyTuple_SetItem(pythonAtomLocationsArray, 2*atomInc + 1, PyLong_FromLong(atomLocations[atomInc].second));
+					// order is flipped.
+					PyTuple_SetItem(pythonAtomLocationsArray, 2*atomInc, PyLong_FromLong(atomLocations[atomInc].second));
+					PyTuple_SetItem(pythonAtomLocationsArray, 2*atomInc + 1, PyLong_FromLong(atomLocations[atomInc].first));
 				}
 				PyTuple_SetItem(pythonFunctionArguments, 2, pythonAtomLocationsArray);
 				// format of function arguments:
@@ -248,7 +250,6 @@ bool DataAnalysisHandler::analyze(std::string date, long runNumber, long accumul
 				if (!pythonPicturesPerExperiment)
 				{
 					Py_DECREF(pythonFunctionArguments);
-					Py_DECREF(pythonModule);
 					appendText("Cannot Convert Pictures per experiment\r\n", IDC_ERROR_EDIT);
 					return 1;
 				}
@@ -258,30 +259,29 @@ bool DataAnalysisHandler::analyze(std::string date, long runNumber, long accumul
 				if (!pythonAccumulations)
 				{
 					Py_DECREF(pythonFunctionArguments);
-					Py_DECREF(pythonModule);
 					appendText("Cannot Convert Accumulations\r\n", IDC_ERROR_EDIT);
 					return 1;
 				}
 				PyTuple_SetItem(pythonFunctionArguments, 4, pythonAccumulations);
-
-				PyObject* pythonOutputName = PyUnicode_DecodeFSDefault(outputName.c_str());
+				// new:
+				PyObject* pythonOutputName = Py_BuildValue("s", outputName.c_str());
 				if (!pythonOutputName)
 				{
 					Py_DECREF(pythonFunctionArguments);
-					Py_DECREF(pythonModule);
 					appendText("Cannot Convert Run Number!\r\n", IDC_ERROR_EDIT);
 					return 1;
 				}
 				PyTuple_SetItem(pythonFunctionArguments, 5, pythonOutputName);
 
 				PyObject* pythonReturnValue = PyObject_CallObject(pythonFunction, pythonFunctionArguments);
-				Py_DECREF(pythonFunctionArguments);
-				Py_DECREF(pythonOutputName);
+				// apparently I can only DECREF ints?????
+				//Py_DECREF(pythonFunctionArguments);
+				//Py_DECREF(pythonOutputName);
 				Py_DECREF(pythonAccumulations);
 				Py_DECREF(pythonPicturesPerExperiment);
-				Py_DECREF(pythonAtomLocationsArray);
+				//Py_DECREF(pythonAtomLocationsArray);
 				Py_DECREF(pythonRunNumber);
-				Py_DECREF(pythonDate);
+				//Py_DECREF(pythonDate);
 				if (pythonReturnValue != NULL)
 				{
 					appendText("Result of call: " + std::string(PyBytes_AS_STRING(PyUnicode_AsEncodedString(pythonReturnValue, "ASCII", "strict")))
@@ -292,33 +292,35 @@ bool DataAnalysisHandler::analyze(std::string date, long runNumber, long accumul
 				{
 					// get the error details
 					PyObject *pExcType, *pExcValue, *pExcTraceback;
-					std::string execType, execValue, execTraceback;
+					std::string execType, execValue, execTraceback = "";
 					PyErr_Fetch(&pExcType, &pExcValue, &pExcTraceback);
+					PyErr_NormalizeException(&pExcType, &pExcValue, &pExcTraceback);
 					if (pExcType != NULL)
 					{
 						PyObject* pRepr = PyObject_Repr(pExcType);
 						execType = std::string(PyBytes_AS_STRING(PyUnicode_AsEncodedString(pRepr, "ASCII", "strict")));
-						Py_DecRef(pRepr);
-						Py_DecRef(pExcType);
+						Py_XDECREF(pRepr);
+						Py_XDECREF(pExcType);
 					}
 					if (pExcValue != NULL)
 					{
 						PyObject* pRepr = PyObject_Repr(pExcValue);
 						execValue = std::string(PyBytes_AS_STRING(PyUnicode_AsEncodedString(pRepr, "ASCII", "strict")));
-						Py_DecRef(pRepr);
-						Py_DecRef(pExcValue);
+						Py_XDECREF(pRepr);
+						Py_XDECREF(pExcValue);
 					}
 					if (pExcTraceback != NULL)
 					{
+						/*
 						PyObject* pRepr = PyObject_Repr(pExcTraceback);
 						execTraceback = std::string(PyBytes_AS_STRING(PyUnicode_AsEncodedString(pRepr, "ASCII", "strict")));
-						Py_DecRef(pRepr);
-						Py_DecRef(pExcTraceback);
+						Py_XDECREF(pRepr);
+						Py_XDECREF(pExcTraceback);
+						*/
 					}
+					//std::string fileName = std::string(PyBytes_AS_STRING((traceback->tb_frame->f_code->co_filename), "ASCII", "string"));
 					appendText("Python Call Failed: " + execType + "; " + execValue + "; " + execTraceback + "\r\n", IDC_ERROR_EDIT);
-					appendText("Failed.\r\n", IDC_ERROR_EDIT);
-					Py_DECREF(pythonFunction);
-					Py_DECREF(pythonModule);
+					appendText("Failed.\r\n", IDC_STATUS_EDIT);
 					return 1;
 				}
 			}
@@ -331,14 +333,11 @@ bool DataAnalysisHandler::analyze(std::string date, long runNumber, long accumul
 				appendText("Failed to load function\r\n", IDC_ERROR_EDIT);
 			}
 			Py_XDECREF(pythonFunction);
-			Py_DECREF(pythonModule);
 		}
 	}
 	else
 	{
-		PyErr_Print();
 		appendText("Failed to load module\r\n", IDC_ERROR_EDIT);
-		std::cin.get();
 		return 1;
 	}
 	appendText("Finished!\r\n", IDC_STATUS_EDIT);
