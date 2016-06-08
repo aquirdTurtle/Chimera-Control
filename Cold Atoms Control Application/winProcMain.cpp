@@ -1,12 +1,12 @@
 #include "stdafx.h"
 #include "winProcMain.h"
 
-#include "namePromptDialogProc.h"
+#include "textPromptDialogProcedure.h"
 
 #include "scriptWriteHelpProc.h"
 #include "fonts.h"
 #include "fileManage.h"
-#include "menuAndAcceleratorFunctions.h"
+#include "commonMessages.h"
 
 #include "boost/lexical_cast.hpp"
 #include <boost/algorithm/string.hpp>
@@ -43,7 +43,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 			{
 				// check if the user wants to save
 				int cont = fileManage::checkSaveScript("horizontal", eHorizontalScriptEditHandle, thisWindow, eHorizontalCurrentParentScriptName, eHorizontalScriptSavedIndicatorHandle, eHorizontalScriptSaved, eHorizontalParentScriptPathString,
-					eHorizontalScriptNameTextHandle);
+					eHorizontalScriptNameTextHandle, "NIAWG");
 				// this occurs if the user presses cancel. Just break, don't open.
 				if (cont == 0)
 				{
@@ -54,13 +54,14 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 			{
 				// check if the user wants to save
 				int cont = fileManage::checkSaveScript("vertical", eVerticalScriptEditHandle, thisWindow, eVerticalCurrentParentScriptName, eVerticalScriptSavedIndicatorHandle, eVerticalScriptSaved, eVerticalParentScriptPathString,
-					eVerticalScriptNameTextHandle);
+					eVerticalScriptNameTextHandle, "NIAWG");
 				// this occurs if the user presses cancel. Just break, don't open.
 				if (cont == 0)
 				{
 					break;
 				}
 			}
+			/*
 			if (eExperimentSaved == false)
 			{
 				// check if the user wants to save
@@ -71,6 +72,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 					break;
 				}
 			}
+			*/
 			std::string exitQuestion = "Are you sure you want to exit?\n\nThis will stop all output of the arbitrary waveform generator.";
 			int areYouSure = MessageBox(NULL, exitQuestion.c_str(), "Exit", MB_OKCANCEL | MB_ICONWARNING);
 			switch (areYouSure)
@@ -200,56 +202,60 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 				return (INT_PTR)eTealBrush;
 			}
 		}
+		case WM_NOTIFY:
+		{
+			int notifyMessage = ((LPNMHDR)lParam)->code;
+			switch (notifyMessage)
+			{
+				case NM_DBLCLK:
+				{
+					eVariables.updateVariableInfo(lParam);
+					//eTextingHandler.updatePersonInfo(hWnd, lParam);
+					break;
+				}
+				case NM_RCLICK:
+				{
+					eVariables.deleteVariable(lParam);
+					//eTextingHandler.deletePersonInfo(hWnd, lParam);
+					break;
+				}
+			}
+			break;
+		}
 		/// Everything Else
 		case WM_COMMAND:
 		{
-			case IDC_CONFIG_NOTES:
-			{
-				if (HIWORD(wParam) == EN_CHANGE)
-				{
-					eExperimentSaved = false;
-					SendMessage(eExperimentSavedIndicatorHandle, BM_SETCHECK, BST_UNCHECKED, NULL);
-				}
-			}
 			switch (LOWORD(wParam))
 			{
+				case IDC_EXPERIMENT_NOTES:
+				{
+					if (HIWORD(wParam) == EN_CHANGE)
+					{
+						eProfile.updateExperimentSavedStatus(false);
+						break;
+					}
+				}
+				case IDC_CATEGORY_NOTES:
+				{
+					if (HIWORD(wParam) == EN_CHANGE)
+					{
+						eProfile.updateCategorySavedStatus(false);
+						break;
+					}
+				}
+				case IDC_CONFIGURATION_NOTES:
+				{
+					if (HIWORD(wParam) == EN_CHANGE)
+					{
+						eProfile.updateConfigurationSavedStatus(false);
+					}
+					break;
+				}
 				case IDC_EXPERIMENT_COMBO:
 				{
 					if (HIWORD(wParam) == CBN_SELCHANGE)
 					{
-						if (eExperimentSaved == false)
-						{
-							// check if the user wants to save
-							int cont = fileManage::checkExperimentSave(thisWindow);
-							// this occurs if the user presses cancel. Just break, don't open.
-							if (cont == 0)
-							{
-								break;
-							}
-						}
-						// If the user makes a selection from the list:
-						// Send CB_GETCURSEL message to get the index of the selected list item.
-						long long itemIndex = SendMessage(eExperimentTypeCombo, CB_GETCURSEL, 0, 0);
-						if (itemIndex == -1)
-						{
-							// This means that the oreintation combo was set before the Configuration list combo was set so that the configuration list combo
-							// is blank. just break out, this is fine.
-							break;
-						}
-						TCHAR experimentConfigToOpen[256];
-						// Send CB_GETLBTEXT message to get the item.
-						SendMessage(eExperimentTypeCombo, (UINT)CB_GETLBTEXT, (WPARAM)itemIndex, (LPARAM)experimentConfigToOpen);
-						eCurrentExperimentName = std::string(experimentConfigToOpen);
-						eCurrentExperimentFolder = EXPERIMENT_CONFIGURATION_FILES_FOLDER_PATH + "\\" + std::string(experimentConfigToOpen);
-						eExperimentConfigPathString = eCurrentExperimentFolder + ".experimentConfig";
-						// Attempt to load experiment configuration.
-						fileManage::openExperimentConfig(thisWindow, std::string(experimentConfigToOpen));
-
-						/// Load configurations into configuration combobox.
-						fileManage::reloadCombo(eCategoryCombo, eCurrentExperimentFolder, "*", "__NONE__");
-						SendMessage(eConfigurationCombo, CB_RESETCONTENT, 0, 0);
-						eExperimentSaved = true;
-						SendMessage(eExperimentSavedIndicatorHandle, BM_SETCHECK, BST_CHECKED, NULL);
+						eProfile.experimentChangeHandler(thisWindow);
 					}
 					break;
 				}
@@ -257,111 +263,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 				{
 					if (HIWORD(wParam) == CBN_SELCHANGE)
 					{
-						long long ItemIndex = SendMessage(eOrientationCombo, CB_GETCURSEL, 0, 0);
-						TCHAR orientation[256];
-						SendMessage(eOrientationCombo, (UINT)CB_GETLBTEXT, (WPARAM)ItemIndex, (LPARAM)orientation);
-						eCurrentOrientation = std::string(orientation);
-
-						/// continue...
-						if (!SAFEMODE)
-						{
-							/// Set the default accordingly
-							if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE)))
-							{
-								return DefWindowProc(thisWindow, msg, wParam, lParam);
-							}
-							// Officially stop trying to generate anything.
-							if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AbortGeneration(eSessionHandle)))
-							{
-								return DefWindowProc(thisWindow, msg, wParam, lParam);
-							}
-							// clear the memory
-							if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ClearArbMemory(eSessionHandle)))
-							{
-								return DefWindowProc(thisWindow, msg, wParam, lParam);
-							}
-						}
-						ViInt32 waveID;
-						if (eCurrentOrientation == "Horizontal")
-						{
-							if (!SAFEMODE)
-							{
-								// create waveform (necessary?)
-								if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform, &waveID)))
-								{
-									return DefWindowProc(thisWindow, msg, wParam, lParam);
-								}
-								// allocate waveform into the device memory
-								if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize / 2)))
-								{
-									return DefWindowProc(thisWindow, msg, wParam, lParam);
-								}
-								// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script.
-								if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform)))
-								{
-									return DefWindowProc(thisWindow, msg, wParam, lParam);
-								}
-								// rewrite the script. default_hConfigScript should still be valid.
-								if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigScript)))
-								{
-									return DefWindowProc(thisWindow, msg, wParam, lParam);
-								}
-								// start generic waveform to maintain power output to AOM.
-								if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE)))
-								{
-									return DefWindowProc(thisWindow, msg, wParam, lParam);
-								}
-								if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript")))
-								{
-									return DefWindowProc(thisWindow, msg, wParam, lParam);
-								}
-							}
-							eCurrentScript = "DefaultHConfigScript";
-						}
-						else if (eCurrentOrientation == "Vertical")
-						{
-							if (!SAFEMODE)
-							{
-								// create waveform (necessary?)
-								if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform, &waveID)))
-								{
-									return DefWindowProc(thisWindow, msg, wParam, lParam);
-								}
-								// allocate waveform into the device memory
-								if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize / 2)))
-								{
-									return DefWindowProc(thisWindow, msg, wParam, lParam);
-								}
-								// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script.
-								if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform)))
-								{
-									return DefWindowProc(thisWindow, msg, wParam, lParam);
-								}
-								// rewrite the script. default_hConfigScript should still be valid.
-								if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigScript)))
-								{
-									return DefWindowProc(thisWindow, msg, wParam, lParam);
-								}
-								// start generic waveform to maintain power output to AOM.
-								if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE)))
-								{
-									return DefWindowProc(thisWindow, msg, wParam, lParam);
-								}
-								if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultVConfigScript")))
-								{
-									return DefWindowProc(thisWindow, msg, wParam, lParam);
-								}
-							}
-							eCurrentScript = "DefaultVConfigScript";
-						}
-						if (!SAFEMODE)
-						{
-							// Initiate Generation.
-							if (myNIAWG::NIAWG_CheckWindowsError(niFgen_InitiateGeneration(eSessionHandle)))
-							{
-								return DefWindowProc(thisWindow, msg, wParam, lParam);
-							}
-						}
+						eProfile.orientationChangeHandler(thisWindow);
 					}
 					break;
 				}
@@ -369,51 +271,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 				{
 					if (HIWORD(wParam) == CBN_SELCHANGE)
 					{
-						// If the user makes a selection from the list:
-						// Send CB_GETCURSEL message to get the index of the selected list item.
-						// Send CB_GETLBTEXT message to get the item.
-						long long itemIndex = SendMessage(eCategoryCombo, CB_GETCURSEL, 0, 0);
-						if (itemIndex == -1)
-						{
-							// This means that the oreintation combo was set before the Configuration list combo was set so that the configuration list combo
-							// is blank. just break out, this is fine.
-							break;
-						}
-						TCHAR  configurationToOpen[256];
-						SendMessage(eCategoryCombo, (UINT)CB_GETLBTEXT, (WPARAM)itemIndex, (LPARAM)configurationToOpen);
-						eCurrentCategoryName = configurationToOpen;
-						eCurrentCategoryFolder = eCurrentExperimentFolder + "\\" + std::string(configurationToOpen);
-
-						/// Load configurations into configuration combobox.
-						// not used
-						std::vector<std::string> noVec;
-						std::vector<std::string> subConfigurationStrings;
-						if (eCurrentOrientation == "Horizontal")
-						{
-							subConfigurationStrings = fileManage::searchForFiles(eCurrentCategoryFolder, "*.hSubConfig");
-						}
-						else if (eCurrentOrientation == "Vertical")
-						{
-							subConfigurationStrings = fileManage::searchForFiles(eCurrentCategoryFolder, "*.vSubConfig");
-						}
-						SendMessage(eConfigurationCombo, CB_RESETCONTENT, 0, 0);
-						for (int configurationsInc = 0; configurationsInc < subConfigurationStrings.size(); configurationsInc++)
-						{
-							SendMessage(eConfigurationCombo, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(subConfigurationStrings[configurationsInc].c_str()));
-						}
-						fileManage::reloadCombo(eSequenceCombo.hwnd, eCurrentCategoryFolder, "*.seq", "__NONE__");
-						SendMessage(eSequenceCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"NO SEQUENCE");
-						int count = SendMessage(eSequenceCombo.hwnd, CB_GETCOUNT, 0, 0);
-						TCHAR sequenceText[256];
-						for (int comboInc = 0; comboInc < count; comboInc++)
-						{
-							SendMessage(eSequenceCombo.hwnd, CB_GETLBTEXT, comboInc, (LPARAM)sequenceText);
-							if (std::string(sequenceText) == "NO SEQUENCE")
-							{
-								SendMessage(eSequenceCombo.hwnd, CB_SETCURSEL, comboInc, 0);
-								break;
-							}
-						}
+						eProfile.categoryChangeHandler(thisWindow);
 					}
 					break;
 				}
@@ -421,6 +279,9 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 				{
 					if (HIWORD(wParam) == CBN_SELCHANGE)
 					{
+						eProfile.configurationChangeHandler(thisWindow);
+						break;
+						/*
 						if (eConfigurationSaved == false)
 						{
 							// check if the user wants to save
@@ -453,7 +314,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 							eCurrentConfigurationLocation = eCurrentCategoryFolder + "\\" + std::string(subConfiguration) + ".vSubConfig";
 						}
 						// Load configuration
-						fileManage::openSubConfig(thisWindow, eCurrentConfigurationLocation);
+						fileManage::openConfiguration(thisWindow, eCurrentConfigurationLocation);
 						eConfigurationSaved = true;
 						SendMessage(eConfigurationSavedIndicatorHandle, BM_SETCHECK, BST_CHECKED, NULL);
 						// check if no sequence selected.
@@ -479,89 +340,64 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 							appendText("1. " + eSequenceFileNames[0] + "\r\n", IDC_SEQUENCE_DISPLAY, eMainWindowHandle);
 						}
 						SendMessage(eConfigurationDisplayInScripting, WM_SETTEXT, 0, (LPARAM)eCurrentConfigurationName.c_str());
+						*/
 					}
-					// Continue to sequence combo. This makes sure that he configuration combobox gets reset.
+					// Continue to sequence combo handling. This makes sure that he configuration combobox gets reset.
 				}
 				case IDC_SEQUENCE_COMBO:
 				{
 					if (HIWORD(wParam) == CBN_SELCHANGE)
 					{
-						// get the name
-						long long itemIndex = SendMessage(eSequenceCombo.hwnd, CB_GETCURSEL, 0, 0);
-						TCHAR sequenceName[256];
-						SendMessage(eSequenceCombo.hwnd, (UINT)CB_GETLBTEXT, (WPARAM)itemIndex, (LPARAM)sequenceName);
-						if (itemIndex == -1)
-						{
-							// This means that the oreintation combo was set before the Configuration list combo was set so that the configuration list combo
-							// is blank. just break out, this is fine.
-							break;
-						}
-						if (std::string(sequenceName) == "NO SEQUENCE")
-						{
-							eCurrentSequenceName = "NO SEQUENCE";
-							// only current configuration loaded
-							eSequenceFileNames.clear();
-							if (eCurrentConfigurationName != "")
-							{
-								if (eCurrentOrientation == "Horizontal")
-								{
-									eSequenceFileNames.push_back(eCurrentConfigurationName + ".hSubConfig");
-								}
-								else if (eCurrentOrientation == "Vertical")
-								{
-									eSequenceFileNames.push_back(eCurrentConfigurationName + ".vSubConfig");
-								}
-								// change edit
-								SendMessage(eSequenceDisplay.hwnd, WM_SETTEXT, 256, (LPARAM)"Sequence of Configurations to Run:\r\n");
-								appendText("1. " + eSequenceFileNames[0] + "\r\n", IDC_SEQUENCE_DISPLAY, eMainWindowHandle);
-							}
-							else
-							{
-								SendMessage(eSequenceDisplay.hwnd, WM_SETTEXT, 256, (LPARAM)"Sequence of Configurations to Run:\r\n");
-								appendText("No Configuration Loaded\r\n", IDC_SEQUENCE_DISPLAY, eMainWindowHandle);
-							}
-
-							break;
-						}
-						// try to open the file
-						std::fstream sequenceFile(eCurrentCategoryFolder + "\\" + sequenceName + ".seq");
-						if (!sequenceFile.is_open())
-						{
-							MessageBox(0, ("ERROR: sequence file failed to open! Make sure the sequence with address" + eCurrentCategoryFolder + "\\" + sequenceName + ".seq exists.").c_str(), 0, 0);
-							return -1;
-						}
-						eCurrentSequenceName = std::string(sequenceName);
-						// read the file
-						eSequenceFileNames.clear();
-						std::string tempName;
-						getline(sequenceFile, tempName);
-						while (sequenceFile)
-						{
-							eSequenceFileNames.push_back(tempName);
-							getline(sequenceFile, tempName);
-						}
-						// update the edit
-						SendMessage(eSequenceDisplay.hwnd, WM_SETTEXT, 256, (LPARAM)"Configuration Sequence:\r\n");
-						for (int sequenceInc = 0; sequenceInc < eSequenceFileNames.size(); sequenceInc++)
-						{
-							appendText(std::to_string(sequenceInc + 1) + ". " + eSequenceFileNames[sequenceInc] + "\r\n", IDC_SEQUENCE_DISPLAY, eMainWindowHandle);
-						}
+						eProfile.sequenceChangeHandler();
 					}
 					break;
 				}
-				/// Begin System
+				/// All of the following messages are common to all windows in this program.
 				case ID_FILE_MY_RUN:
 				case ID_ACCELERATOR_F5:
 				case ID_FILE_MY_WRITE_WAVEFORMS:
-				{
-					menuAndAcceleratorFunctions::startSystem(thisWindow, wParam);
-					break;
-				}
 				case ID_ACCELERATOR_ESC:
 				case ID_FILE_ABORT_GENERATION:
+				case ID_FILE_SAVEALL:
+				case ID_FILE_MY_EXIT:
+				case ID_FILE_MY_INTENSITY_NEW:
+				case ID_FILE_MY_INTENSITY_OPEN:
+				case ID_FILE_MY_INTENSITY_SAVE:
+				case ID_FILE_MY_INTENSITY_SAVEAS:
+				case ID_FILE_MY_VERTICAL_NEW:
+				case ID_FILE_MY_VERTICAL_OPEN:
+				case ID_FILE_MY_VERTICAL_SAVE:
+				case ID_FILE_MY_VERTICAL_SAVEAS:
+				case ID_FILE_MY_HORIZONTAL_NEW:
+				case ID_FILE_MY_HORIZONTAL_OPEN:
+				case ID_FILE_MY_HORIZONTAL_SAVE:
+				case ID_FILE_MY_HORIZONTAL_SAVEAS:
+				case ID_SEQUENCE_ADD_TO_SEQUENCE:
+				case ID_SEQUENCE_SAVE_SEQUENCE:
+				case ID_SEQUENCE_NEW_SEQUENCE:
+				case ID_SEQUENCE_RESET_SEQUENCE:
+				case ID_SEQUENCE_DELETE_SEQUENCE:
+				case ID_PROFILE_SAVE_PROFILE:
+				case ID_HELP_SCRIPT:
+				case ID_HELP_GENERALINFORMATION:
+				case ID_NIAWG_RELOADDEFAULTWAVEFORMS:
+				case ID_EXPERIMENT_NEW_EXPERIMENT_TYPE:
+				case ID_CATEGORY_NEW_CATEGORY:
+				case ID_CONFIGURATION_SAVE_CONFIGURATION_AS:
+				case ID_EXPERIMENT_RENAME_CURRENT_EXPERIMENT:
+				case ID_EXPERIMENT_DELETE_CURRENT_EXPERIMENT:
+				case ID_CATEGORY_RENAME_CURRENT_CATEGORY:
+				case ID_CATEGORY_DELETE_CURRENT_CATEGORY:
+				case ID_CONFIGURATION_NEW_CONFIGURATION:
+				case ID_CONFIGURATION_RENAME_CURRENT_CONFIGURATION:
+				case ID_CONFIGURATION_DELETE_CURRENT_CONFIGURATION:
+				case ID_EXPERIMENT_SAVEEXPERIMENTSETTINGS:
+				case ID_EXPERIMENT_SAVEEXPERIMENTSETTINGSAS:
+				case ID_CATEGORY_SAVECATEGORYSETTINGS:
+				case ID_CONFIGURATION_SAVECONFIGURATIONSETTINGS:
+				case ID_SEQUENCE_RENAMESEQUENCE:
 				{
-					// finish the abort.
-					menuAndAcceleratorFunctions::abortSystem(thisWindow);
+					commonMessages::handleCommonMessage(thisWindow, msg, wParam, lParam);
 					break;
 				}
 				/// Status Controls
@@ -583,39 +419,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 					SendMessage(eSystemErrorTextHandle, WM_SETTEXT, NULL, (LPARAM)"**********************\r\n");
 					break;
 				}
-				/// Buttons
-				case IDC_DUMMY_NUM_BUTTON:
-				{
-					char tempChar[5];
-					int charNum = GetWindowText(eDummyNumEditHandle, &tempChar[0], 5);
-					if (charNum == 0)
-					{
-						char errMsg[100];
-						sprintf_s(errMsg, "ERROR: couldn't read dummy variable number. value in edit control is %s", &tempChar[0]);
-						MessageBox(NULL, errMsg, "ERROR", MB_OK);
-						break;
-					}
-					bool digitCheck = true;
-					for (int dumNumInc = 0; dumNumInc < charNum; dumNumInc++)
-					{
-						if (!isdigit(tempChar[dumNumInc]))
-						{
-							MessageBox(NULL, "Please enter a number.", "NULL", MB_OK);
-							digitCheck = false;
-							break;
-						}
-					}
-					if (digitCheck == false)
-					{
-						break;
-					}
-					eDummyNum = boost::lexical_cast<int>(tempChar);
-
-					SetWindowText(eDummyNumTextHandle, &tempChar[0]);
-					eExperimentSaved = false;
-					SendMessage(eExperimentSavedIndicatorHandle, BM_SETCHECK, BST_UNCHECKED, NULL);
-					break;
-				}
+				/*
 				case IDC_VAR_SET_BUTTON:
 				{
 					std::string varList;
@@ -770,10 +574,10 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 						CheckDlgButton(thisWindow, IDC_DUMMY_BUTTON, BST_UNCHECKED);
 						eUseDummyVariables = false;
 					}
-					eExperimentSaved = false;
-					SendMessage(eExperimentSavedIndicatorHandle, BM_SETCHECK, BST_UNCHECKED, NULL);
+					eProfile.updateExperimentSavedStatus(false);
 					break;
 				}
+				*/
 				// Debugging and window output options
 				case IDC_RECEIVE_VAR_FILES_BUTTON:
 				{
@@ -786,8 +590,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 						CheckDlgButton(thisWindow, IDC_RECEIVE_VAR_FILES_BUTTON, BST_CHECKED);
 						eGetVarFilesFromMaster = true;
 					}
-					eExperimentSaved = false;
-					SendMessage(eExperimentSavedIndicatorHandle, BM_SETCHECK, BST_UNCHECKED, NULL);
+					eProfile.updateExperimentSavedStatus(false);
 					break;
 				}
 				case IDC_OUTPUT_READ_STATUS:
@@ -803,8 +606,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 						CheckDlgButton(thisWindow, IDC_OUTPUT_READ_STATUS, BST_CHECKED);
 						eOutputReadStatus = true;
 					}
-					eExperimentSaved = false;
-					SendMessage(eExperimentSavedIndicatorHandle, BM_SETCHECK, BST_UNCHECKED, NULL);
+					eProfile.updateExperimentSavedStatus(false);
 					break;
 				}
 				case IDC_OUTPUT_WRITE_STATUS:
@@ -820,8 +622,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 						CheckDlgButton(thisWindow, IDC_OUTPUT_WRITE_STATUS, BST_CHECKED);
 						eOutputWriteStatus = true;
 					}
-					eExperimentSaved = false;
-					SendMessage(eExperimentSavedIndicatorHandle, BM_SETCHECK, BST_UNCHECKED, NULL);
+					eProfile.updateExperimentSavedStatus(false);
 					break;
 				}
 				case IDC_OUTPUT_MORE_RUN_INFO:
@@ -837,8 +638,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 						CheckDlgButton(thisWindow, IDC_OUTPUT_MORE_RUN_INFO, BST_CHECKED);
 						eOutputRunInfo = true;
 					}
-					eExperimentSaved = false;
-					SendMessage(eExperimentSavedIndicatorHandle, BM_SETCHECK, BST_UNCHECKED, NULL);
+					eProfile.updateExperimentSavedStatus(false);
 					break;
 				}
 				case IDC_CONNECT_TO_MASTER_BUTTON:
@@ -854,8 +654,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 						CheckDlgButton(thisWindow, IDC_CONNECT_TO_MASTER_BUTTON, BST_CHECKED);
 						eConnectToMaster = true;
 					}
-					eExperimentSaved = false;
-					SendMessage(eExperimentSavedIndicatorHandle, BM_SETCHECK, BST_UNCHECKED, NULL);
+					eProfile.updateExperimentSavedStatus(false);
 					break;
 				}
 				case IDC_LOG_SCRIPT_PARAMS:
@@ -871,8 +670,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 						CheckDlgButton(thisWindow, IDC_LOG_SCRIPT_PARAMS, BST_CHECKED);
 						eLogScriptAndParams = true;
 					}
-					eExperimentSaved = false;
-					SendMessage(eExperimentSavedIndicatorHandle, BM_SETCHECK, BST_UNCHECKED, NULL);
+					eProfile.updateExperimentSavedStatus(false);
 					break;
 				}
 				case IDC_PROGRAM_INTENSITY_BOX:
@@ -888,8 +686,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 						CheckDlgButton(thisWindow, IDC_PROGRAM_INTENSITY_BOX, BST_CHECKED);
 						eProgramIntensityOption = true;
 					}
-					eExperimentSaved = false;
-					SendMessage(eExperimentSavedIndicatorHandle, BM_SETCHECK, BST_UNCHECKED, NULL);
+					eProfile.updateExperimentSavedStatus(false);
 					break;
 				}
 				case IDC_OUTPUT_CORR_TIME_BUTTON:
@@ -905,10 +702,10 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 						CheckDlgButton(thisWindow, IDC_OUTPUT_CORR_TIME_BUTTON, BST_CHECKED);
 						eOutputCorrTime = true;
 					}
-					eExperimentSaved = false;
-					SendMessage(eExperimentSavedIndicatorHandle, BM_SETCHECK, BST_UNCHECKED, NULL);
+					eProfile.updateExperimentSavedStatus(false);
 					break;
 				}
+				/*
 				case IDC_DUMMY_BUTTON:
 				{
 					BOOL checked = IsDlgButtonChecked(thisWindow, IDC_DUMMY_BUTTON);
@@ -933,178 +730,12 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 						SetWindowText(eVar5NameTextHandle, &tempChar2);
 						SetWindowText(eVar6NameTextHandle, &tempChar2);
 					}
-					eExperimentSaved = false;
-					SendMessage(eExperimentSavedIndicatorHandle, BM_SETCHECK, BST_UNCHECKED, NULL);
+					eProfile.updateExperimentSavedStatus(false);
 					break;
 				}
+				*/
 				/// File Management 
-				case ID_FILE_SAVEALL:
-				{
-					menuAndAcceleratorFunctions::saveAll(thisWindow);
-					break;
-				}
-				case ID_FILE_MY_EXIT: 
-				{
-					menuAndAcceleratorFunctions::exitProgram(thisWindow);
-					break;
-				}
-				case ID_FILE_MY_INTENSITY_NEW:
-				{
-					menuAndAcceleratorFunctions::newIntensityScript(thisWindow);
-					break;
-				}
-				case ID_FILE_MY_INTENSITY_OPEN:
-				{
-					menuAndAcceleratorFunctions::openIntensityScript(thisWindow);
-					break;
-				}
-				case ID_FILE_MY_INTENSITY_SAVE:
-				{
-					menuAndAcceleratorFunctions::saveIntensityScript(thisWindow);
-					break;
-				}
-				case ID_FILE_MY_INTENSITY_SAVEAS:
-				{
-					menuAndAcceleratorFunctions::saveIntensityScriptAs(thisWindow);
-					break;
-				}
-				case ID_FILE_MY_VERTICAL_NEW:
-				{
-					menuAndAcceleratorFunctions::newVerticalScript(thisWindow);
-					break;
-				}
-				case ID_FILE_MY_VERTICAL_OPEN:
-				{
-					menuAndAcceleratorFunctions::openVerticalScript(thisWindow);
-					break;
-				}
-				case ID_FILE_MY_VERTICAL_SAVE:
-				{
-					menuAndAcceleratorFunctions::saveVerticalScript(thisWindow);
-					break;
-				}
-				case ID_FILE_MY_VERTICAL_SAVEAS:
-				{
-					menuAndAcceleratorFunctions::saveVerticalScriptAs(thisWindow);
-					break;
-				}
 
-				case ID_FILE_MY_HORIZONTAL_NEW:
-				{
-					menuAndAcceleratorFunctions::newHorizontalScript(thisWindow);
-					break;
-				}
-				case ID_FILE_MY_HORIZONTAL_OPEN:
-				{
-					menuAndAcceleratorFunctions::openHorizontalScript(thisWindow);
-					break;
-				}
-				case ID_FILE_MY_HORIZONTAL_SAVE:
-				{
-					menuAndAcceleratorFunctions::saveHorizontalScript(thisWindow);
-					break;
-				}
-				case ID_FILE_MY_HORIZONTAL_SAVEAS:
-				{
-					menuAndAcceleratorFunctions::saveHorizontalScriptAs(thisWindow);
-					break;
-				}
-
-				case ID_SEQUENCE_ADD_TO_SEQUENCE:
-				{
-					menuAndAcceleratorFunctions::addToSequence(thisWindow);
-					break;
-				}
-				case ID_SEQUENCE_SAVE_SEQUENCE:
-				{
-					menuAndAcceleratorFunctions::saveSequence(thisWindow);
-					break;
-				}
-				case ID_SEQUENCE_NEW_SEQUENCE:
-				{
-					menuAndAcceleratorFunctions::newSequence(thisWindow);
-					break;
-				}
-				case ID_SEQUENCE_RESET_SEQUENCE:
-				{
-					menuAndAcceleratorFunctions::resetSequence(thisWindow);
-					break;
-				}
-				case ID_SEQUENCE_DELETE_SEQUENCE:
-				{
-					menuAndAcceleratorFunctions::deleteSequence(thisWindow);
-					break;
-				}
-
-				case ID_PROFILE_SAVE_PROFILE:
-				{
-					menuAndAcceleratorFunctions::saveProfile(thisWindow);
-					break;
-				}
-				case ID_HELP_SCRIPT:
-				{
-					menuAndAcceleratorFunctions::helpWindow(thisWindow);
-					break;
-				}
-				case ID_HELP_GENERALINFORMATION:
-				{
-					break;
-				}
-				case ID_NIAWG_RELOADDEFAULTWAVEFORMS:
-				{
-					menuAndAcceleratorFunctions::reloadNIAWGDefaults(thisWindow);
-					break;
-				}
-				case ID_EXPERIMENT_NEW_EXPERIMENT_TYPE:
-				{
-					menuAndAcceleratorFunctions::newExperimentType(thisWindow);
-					break;
-				}
-				case ID_CATEGORY_NEW_CATEGORY:
-				{
-					menuAndAcceleratorFunctions::newCategory(thisWindow);
-					break;
-				}
-				case ID_CONFIGURATION_SAVE_CONFIGURATION_AS:
-				{
-					menuAndAcceleratorFunctions::saveConfigurationAs(thisWindow);
-					break;
-				}
-				case ID_EXPERIMENT_RENAME_CURRENT_EXPERIMENT:
-				{
-					menuAndAcceleratorFunctions::renameCurrentExperimentType(thisWindow);
-					break;
-				}
-				case ID_EXPERIMENT_DELETE_CURRENT_EXPERIMENT:
-				{
-					menuAndAcceleratorFunctions::deleteCurrentExperimentType(thisWindow);
-					break;
-				}
-				case ID_CATEGORY_RENAME_CURRENT_CATEGORY:
-				{
-					menuAndAcceleratorFunctions::renameCurrentCategory(thisWindow);
-					break;
-				}
-				case ID_CATEGORY_DELETE_CURRENT_CATEGORY:
-				{
-					menuAndAcceleratorFunctions::deleteCurrentCategory(thisWindow);
-					break;
-				}
-				case ID_CONFIGURATION_NEW_CONFIGURATION:
-				{
-					menuAndAcceleratorFunctions::newConfiguration(thisWindow);
-					break;
-				}
-				case ID_CONFIGURATION_RENAME_CURRENT_CONFIGURATION:
-				{
-					menuAndAcceleratorFunctions::renameCurrentConfiguration(thisWindow);
-					break;
-				}
-				case ID_CONFIGURATION_DELETE_CURRENT_CONFIGURATION:
-				{
-					menuAndAcceleratorFunctions::deleteCurrentConfiguration(thisWindow);
-					break;
-				}
 
 			}
 		}
@@ -1154,7 +785,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 				eGenStatusColor = "R";
 				RedrawWindow(eColoredStatusEdit, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 				RedrawWindow(eColorBox, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
-				if (!SAFEMODE)
+				if (!TWEEZER_COMPUTER_SAFEMODE)
 				{
 					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE)))
 					{
@@ -1172,11 +803,10 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 					}
 				}
 				ViInt32 waveID;
-				if (eCurrentOrientation == "Horizontal")
+				if (eProfile.getOrientation() == HORIZONTAL_ORIENTATION)
 				{
-					if (!SAFEMODE)
+					if (!TWEEZER_COMPUTER_SAFEMODE)
 					{
-
 						// create waveform (necessary?)
 						if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform, &waveID)))
 						{
@@ -1210,9 +840,9 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 					eCurrentScript = "DefaultHConfigScript";
 
 				}
-				else if (eCurrentOrientation == "Vertical")
+				else if (eProfile.getOrientation() == VERTICAL_ORIENTATION)
 				{
-					if (!SAFEMODE)
+					if (!TWEEZER_COMPUTER_SAFEMODE)
 					{
 
 						// create waveform (necessary?)
@@ -1247,7 +877,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 					}
 					eCurrentScript = "DefaultVConfigScript";
 				}
-				if (!SAFEMODE)
+				if (!TWEEZER_COMPUTER_SAFEMODE)
 				{
 
 					// Initiate Generation.
@@ -1267,7 +897,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 				eGenStatusColor = "B";
 				RedrawWindow(eColorBox, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 				RedrawWindow(eColoredStatusEdit, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
-				if (!SAFEMODE)
+				if (!TWEEZER_COMPUTER_SAFEMODE)
 				{
 
 					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE)))
@@ -1286,9 +916,9 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 					}
 				}
 				ViInt32 waveID;
-				if (eCurrentOrientation == "Horizontal")
+				if (eProfile.getOrientation() == HORIZONTAL_ORIENTATION)
 				{
-					if (!SAFEMODE)
+					if (!TWEEZER_COMPUTER_SAFEMODE)
 					{
 
 						// create waveform (necessary?)
@@ -1324,9 +954,9 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 					eCurrentScript = "DefaultHConfigScript";
 
 				}
-				else if (eCurrentOrientation == "Vertical")
+				else if (eProfile.getOrientation() == VERTICAL_ORIENTATION)
 				{
-					if (!SAFEMODE)
+					if (!TWEEZER_COMPUTER_SAFEMODE)
 					{
 
 						// create waveform (necessary?)
@@ -1361,7 +991,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 					}
 					eCurrentScript = "DefaultVConfigScript";
 				}
-				if (!SAFEMODE)
+				if (!TWEEZER_COMPUTER_SAFEMODE)
 				{
 
 					// Initiate Generation.

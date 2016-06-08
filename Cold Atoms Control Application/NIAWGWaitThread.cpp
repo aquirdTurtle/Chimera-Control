@@ -19,18 +19,18 @@ unsigned __stdcall NIAWGWaitThread(void* inputParam)
 {
 	ViSession currentSession = *(ViSession*)inputParam;
 	ViBoolean isDone;
-	if (!SAFEMODE)
+	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
 		 isDone = FALSE;
 	}
-	else if (SAFEMODE)
+	else if (TWEEZER_COMPUTER_SAFEMODE)
 	{
 		isDone = TRUE;
 		Sleep(2000);
 	}
 	while (!isDone)
 	{
-		if (!SAFEMODE)
+		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
 			if ((niFgen_IsDone(currentSession, &isDone)) < 0)
 			{
@@ -50,9 +50,9 @@ unsigned __stdcall NIAWGWaitThread(void* inputParam)
 	if (WaitForSingleObjectEx(eWaitingForNIAWGEvent, 0, true) == WAIT_TIMEOUT)
 	{
 		/// then it's not ready. start the default
-		if (eCurrentOrientation == "Horizontal")
+		if (eProfile.getOrientation() == HORIZONTAL_ORIENTATION)
 		{
-			if (!SAFEMODE)
+			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
 				// start generic waveform to maintain power output to AOM.
 				if ((niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE)) < 0)
@@ -69,9 +69,9 @@ unsigned __stdcall NIAWGWaitThread(void* inputParam)
 			eCurrentScript = "DefaultHConfigScript";
 
 		}
-		else if (eCurrentOrientation == "Vertical")
+		else if (eProfile.getOrientation() == VERTICAL_ORIENTATION)
 		{
-			if (!SAFEMODE)
+			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
 				if ((niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE)) < 0)
 				{
@@ -86,7 +86,7 @@ unsigned __stdcall NIAWGWaitThread(void* inputParam)
 			}
 			eCurrentScript = "DefaultVConfigScript";
 		}
-		if (!SAFEMODE)
+		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
 			// Initiate Generation.
 			if ((niFgen_InitiateGeneration(eSessionHandle)) < 0)
@@ -98,7 +98,7 @@ unsigned __stdcall NIAWGWaitThread(void* inputParam)
 		/// now wait until ready.
 		WaitForSingleObject(eWaitingForNIAWGEvent, INFINITY);
 		/// stop the default.
-		if (!SAFEMODE)
+		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
 			// then it's not ready. start the default
 			if ((niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE)) < 0)

@@ -225,6 +225,7 @@ bool CameraImageParameters::setImageParameters()
 		isReady = false;
 		return true;
 	}
+	RedrawWindow(leftEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 	SendMessage(leftDisp.hwnd, WM_SETTEXT, 0, (LPARAM)tempStr.c_str());
 
 	GetWindowText(rightEdit.hwnd, (LPSTR)tempStr.c_str(), 4);
@@ -238,6 +239,7 @@ bool CameraImageParameters::setImageParameters()
 		isReady = false;
 		return true;
 	}
+	RedrawWindow(rightEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 	SendMessage(rightDisp.hwnd, WM_SETTEXT, 0, (LPARAM)tempStr.c_str());
 
 	GetWindowText(topEdit.hwnd, (LPSTR)tempStr.c_str(), 4);
@@ -251,6 +253,7 @@ bool CameraImageParameters::setImageParameters()
 		isReady = false;
 		return true;
 	}
+	RedrawWindow(topEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 	SendMessage(topDisp.hwnd, WM_SETTEXT, 0, (LPARAM)tempStr.c_str());
 	//
 	GetWindowText(bottomEdit.hwnd, (LPSTR)tempStr.c_str(), 4);
@@ -264,6 +267,7 @@ bool CameraImageParameters::setImageParameters()
 		isReady = false;
 		return true;
 	}
+	RedrawWindow(bottomEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 	SendMessage(bottomDisp.hwnd, WM_SETTEXT, 0, (LPARAM)tempStr.c_str());
 
 	GetWindowText(horizontalBinningEdit.hwnd, (LPSTR)tempStr.c_str(), 4);
@@ -277,6 +281,7 @@ bool CameraImageParameters::setImageParameters()
 		isReady = false;
 		return true;
 	}
+	RedrawWindow(horizontalBinningEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 	SendMessage(horizontalBinningDisp.hwnd, WM_SETTEXT, 0, (LPARAM)tempStr.c_str());
 
 	GetWindowText(verticalBinningEdit.hwnd, (LPSTR)tempStr.c_str(), 4);
@@ -290,6 +295,7 @@ bool CameraImageParameters::setImageParameters()
 		isReady = false;
 		return true;
 	}
+	RedrawWindow(verticalBinningEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 	SendMessage(verticalBinningDisp.hwnd, WM_SETTEXT, 0, (LPARAM)tempStr.c_str());
 
 	// reset this. There must be at least one pixel...
@@ -562,7 +568,12 @@ INT_PTR CameraImageParameters::colorEdits(HWND window, UINT message, WPARAM wPar
 					// good.
 					SetTextColor(hdcStatic, RGB(255, 255, 255));
 					SetBkColor(hdcStatic, RGB(100, 110, 100));
-					UpdateWindow(eImageBottomEditHandle.hwnd);
+					// catch change of color and redraw window.
+					if (bottomEdit.colorState != 0)
+					{
+						bottomEdit.colorState = 0;
+						RedrawWindow(bottomEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+					}
 					return (INT_PTR)eGreyGreenBrush;
 					break;
 				}
@@ -573,6 +584,12 @@ INT_PTR CameraImageParameters::colorEdits(HWND window, UINT message, WPARAM wPar
 			}
 			SetTextColor(hdcStatic, RGB(255, 255, 255));
 			SetBkColor(hdcStatic, RGB(150, 100, 100));
+			// catch change of color and redraw window.
+			if (bottomEdit.colorState != 1)
+			{
+				bottomEdit.colorState = 1;
+				RedrawWindow(bottomEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+			}
 			return (INT_PTR)eGreyRedBrush;
 			break;
 		}
@@ -591,6 +608,12 @@ INT_PTR CameraImageParameters::colorEdits(HWND window, UINT message, WPARAM wPar
 					// good.
 					SetTextColor(hdcStatic, RGB(255, 255, 255));
 					SetBkColor(hdcStatic, RGB(100, 110, 100));
+					// catch change of color and redraw window.
+					if (topEdit.colorState != 0)
+					{
+						topEdit.colorState = 0;
+						RedrawWindow(topEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+					}
 					return (INT_PTR)eGreyGreenBrush;
 					break;
 				}
@@ -601,6 +624,12 @@ INT_PTR CameraImageParameters::colorEdits(HWND window, UINT message, WPARAM wPar
 			}
 			SetTextColor(hdcStatic, RGB(255, 255, 255));
 			SetBkColor(hdcStatic, RGB(150, 100, 100));
+			// catch change of color and redraw window.
+			if (topEdit.colorState != 1)
+			{
+				topEdit.colorState = 1;
+				RedrawWindow(topEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+			}
 			return (INT_PTR)eGreyRedBrush;
 			break;
 		}
@@ -619,6 +648,12 @@ INT_PTR CameraImageParameters::colorEdits(HWND window, UINT message, WPARAM wPar
 					// good.
 					SetTextColor(hdcStatic, RGB(255, 255, 255));
 					SetBkColor(hdcStatic, RGB(100, 110, 100));
+					// catch change of color and redraw window.
+					if (verticalBinningEdit.colorState != 0)
+					{
+						verticalBinningEdit.colorState = 0;
+						RedrawWindow(verticalBinningEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+					}
 					return (INT_PTR)eGreyGreenBrush;
 					break;
 				}
@@ -629,6 +664,12 @@ INT_PTR CameraImageParameters::colorEdits(HWND window, UINT message, WPARAM wPar
 			}
 			SetTextColor(hdcStatic, RGB(255, 255, 255));
 			SetBkColor(hdcStatic, RGB(150, 100, 100));
+			// catch change of color and redraw window.
+			if (verticalBinningEdit.colorState != 1)
+			{
+				verticalBinningEdit.colorState = 1;
+				RedrawWindow(verticalBinningEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+			}
 			return (INT_PTR)eGreyRedBrush;
 			break;
 		}
@@ -648,6 +689,12 @@ INT_PTR CameraImageParameters::colorEdits(HWND window, UINT message, WPARAM wPar
 					// good.
 					SetTextColor(hdcStatic, RGB(255, 255, 255));
 					SetBkColor(hdcStatic, RGB(100, 110, 100));
+					// catch change of color and redraw window.
+					if (leftEdit.colorState != 0)
+					{
+						leftEdit.colorState = 0;
+						RedrawWindow(leftEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+					}
 					return (INT_PTR)eGreyGreenBrush;
 					break;
 				}
@@ -662,6 +709,12 @@ INT_PTR CameraImageParameters::colorEdits(HWND window, UINT message, WPARAM wPar
 			}
 			SetTextColor(hdcStatic, RGB(255, 255, 255));
 			SetBkColor(hdcStatic, RGB(150, 100, 100));
+			// catch change of color and redraw window.
+			if (leftEdit.colorState != 1)
+			{
+				leftEdit.colorState = 1;
+				RedrawWindow(leftEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+			}
 			return (INT_PTR)eGreyRedBrush;
 			break;
 		}
@@ -680,6 +733,12 @@ INT_PTR CameraImageParameters::colorEdits(HWND window, UINT message, WPARAM wPar
 					// good.
 					SetTextColor(hdcStatic, RGB(255, 255, 255));
 					SetBkColor(hdcStatic, RGB(100, 110, 100));
+					// catch change of color and redraw window.
+					if (rightEdit.colorState != 0)
+					{
+						rightEdit.colorState = 0;
+						RedrawWindow(rightEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+					}
 					return (INT_PTR)eGreyGreenBrush;
 					break;
 				}
@@ -690,6 +749,12 @@ INT_PTR CameraImageParameters::colorEdits(HWND window, UINT message, WPARAM wPar
 			}
 			SetTextColor(hdcStatic, RGB(255, 255, 255));
 			SetBkColor(hdcStatic, RGB(150, 100, 100));
+			// catch change of color and redraw window.
+			if (rightEdit.colorState != 1)
+			{
+				rightEdit.colorState = 1;
+				RedrawWindow(rightEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+			}
 			return (INT_PTR)eGreyRedBrush;
 			break;
 		}
@@ -708,6 +773,12 @@ INT_PTR CameraImageParameters::colorEdits(HWND window, UINT message, WPARAM wPar
 					// good.
 					SetTextColor(hdcStatic, RGB(255, 255, 255));
 					SetBkColor(hdcStatic, RGB(100, 110, 100));
+					// catch change of color and redraw window.
+					if (horizontalBinningEdit.colorState != 0)
+					{
+						horizontalBinningEdit.colorState = 0;
+						RedrawWindow(horizontalBinningEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+					}
 					return (INT_PTR)eGreyGreenBrush;
 					break;
 				}
@@ -718,6 +789,12 @@ INT_PTR CameraImageParameters::colorEdits(HWND window, UINT message, WPARAM wPar
 			}
 			SetTextColor(hdcStatic, RGB(255, 255, 255));
 			SetBkColor(hdcStatic, RGB(150, 100, 100));
+			// catch change of color and redraw window.
+			if (horizontalBinningEdit.colorState != 1)
+			{
+				horizontalBinningEdit.colorState = 1;
+				RedrawWindow(horizontalBinningEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+			}
 			return (INT_PTR)eGreyRedBrush;
 			break;
 		}

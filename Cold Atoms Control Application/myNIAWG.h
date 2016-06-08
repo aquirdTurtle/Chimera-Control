@@ -9,7 +9,7 @@
 #include <fstream>
 /****
  * Contains all major functions for interacting with the NIAWG. Specifically:
- * 	int createXYScript(std::fstream& xFileName, std::fstream& yFileName, std::string &scriptHolder, std::string triggerName, int &waveCount, ViSession &vi,
+ * 	int analyzeNIAWGScripts(std::fstream& xFileName, std::fstream& yFileName, std::string &scriptHolder, std::string triggerName, int &waveCount, ViSession &vi,
 					   ViConstString channelName, ViStatus error, std::vector<std::string> xPredWaveNames, std::vector<std::string> yPredWaveNames, 
 					   int &predWaveCount, std::vector<int> predLocs, std::vector<std::string>(&libWaveformArray)[20], bool(&fileStatus)[20], 
 					   std::vector<waveData> &allXWaveParameters, std::vector<bool> &xWaveformVaried, std::vector<waveData> &allYWaveParameters, 
@@ -66,11 +66,11 @@ namespace myNIAWG
 	/*
 	* @param xFileName:  the fstream object that holds the vertical script file.
 	*/
-	int createXYScript(std::fstream& verticalFileName, std::fstream& horizontalFileName, std::string &scriptHolder, std::string triggerName, int &waveCount, ViSession &vi,
+	int analyzeNIAWGScripts(std::fstream& verticalFileName, std::fstream& horizontalFileName, std::string &scriptHolder, std::string triggerName, int &waveCount, ViSession &vi,
 					   ViConstString channelName, ViStatus error, std::vector<std::string> verticalPredWaveNames, std::vector<std::string> horizontalPredWaveNames, 
 					   int &predWaveCount, std::vector<int> predLocs, std::vector<std::string>(&libWaveformArray)[20], bool(&fileStatus)[20], 
 					   std::vector<waveData> &allVerticalWaveParameters, std::vector<bool> &verticalWaveformVaried, std::vector<waveData> &allHorizontalWaveParameters, 
-					   std::vector<bool> &horizontalWaveformVaried, bool isDefault, bool isThreaded, std::string currentCategoryFolder);
+					   std::vector<bool> &horizontalWaveformVaried, bool isDefault, bool isThreaded, std::string currentCategoryFolder, std::vector<variable> singletons);
 
 	int getVariedWaveform(waveData &varWvFmInfo, std::vector<waveData> all_X_Or_Y_WvFmParam, int waveOrderNum, std::vector<std::string>(&libWvFmArray)[20],
 						  bool(&fileStat)[20], ViReal64 *waveformRawData);
@@ -88,7 +88,7 @@ namespace myNIAWG
 	{
 		void getInputType(std::string inputType, waveData &wvInfo);
 
-		int getWvFmData(std::fstream &fileName, waveData &waveInfo);
+		int getWvFmData(std::fstream &fileName, waveData &waveInfo, std::vector<variable> singletons);
 
 		int waveformGen(ViReal64 * & tempWaveform, ViReal64 * & readData, waveData & waveInfo, long int size,
 			std::vector<std::string>(&libWaveformArray)[20], bool &fileOpened);
@@ -98,7 +98,7 @@ namespace myNIAWG
 		int special(std::fstream &xFile, std::fstream &yFile, std::string xInputType, std::string yInputType, std::string &scriptString, std::string triggerName,
 			int &waveCount, ViSession vi, ViConstString channelName, ViStatus error, std::vector<std::string> xWaveformList, std::vector<std::string> yWaveformList,
 			int &predWaveCount, std::vector<int> waveListWaveCounts, std::vector<std::string>(&libWaveformArray)[20], bool(&fileStatus)[20], std::vector<waveData> &allXWaveParam,
-			std::vector<bool> &xWaveVaried, std::vector<waveData> &allYWaveParam, std::vector<bool> &yWaveVaried, bool isDefault, bool isThreaded, std::string currentCategoryFolder);
+			std::vector<bool> &xWaveVaried, std::vector<waveData> &allYWaveParam, std::vector<bool> &yWaveVaried, bool isDefault, bool isThreaded, std::string currentCategoryFolder, std::vector<variable> singletons);
 	}
 
 	/**
@@ -133,15 +133,16 @@ namespace myNIAWG
 			double waveSize = inputData.time * SAMPLE_RATE;
 			return (long int)(waveSize + 0.5);
 		}
+		// overload for just the time input which is used to check the sample number of times that the master computer sends.
+		long int waveformSizeCalc(double time);
 
 		int getParamCheckVar(double &dataToAssign, std::fstream &fileName, int &vCount, std::vector<std::string> & vNames, std::vector<int> &vParamTypes, 
-							 int dataType);
+							 int dataType, std::vector<variable> singletons);
 		int getParamCheckVar(int &dataToAssign, std::fstream &fileName, int &vCount, std::vector<std::string> & vNames, std::vector<int> &vParamTypes,
-			int dataType);
+							 int dataType, std::vector<variable> singletons);
 		int getParamCheckVarConst(double &data1ToAssign, double &data2ToAssign, std::fstream &fileName, int &vCount, std::vector<std::string> &vNames,
-								  std::vector<int> &vParamTypes, int dataType1, int dataType2);
+								  std::vector<int> &vParamTypes, int dataType1, int dataType2, std::vector<variable> singletons);
 		int getParamCheckVarConst(int &data1ToAssign, double &data2ToAssign, std::fstream &fileName, int &vCount, std::vector<std::string> &vNames,
-			std::vector<int> &vParamTypes, int dataType1, int dataType2);
+								  std::vector<int> &vParamTypes, int dataType1, int dataType2, std::vector<variable> singletons);
 	}
-
 }

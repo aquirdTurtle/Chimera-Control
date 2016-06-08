@@ -5,7 +5,7 @@
 
 #include <string>
 // running in safemode means that the program doesn't actually try to connect to any devices. It can be used to debug other aspects of the program.
-#define SAFEMODE true
+#define TWEEZER_COMPUTER_SAFEMODE true
 
 // We calibrated this. // GAIN = 1.34.
 #define GAIN 1.34
@@ -25,6 +25,19 @@
 #define DC_OFFSET 0
 // in hertz
 #define NIAWG_FILTER_FREQENCY 80000000
+
+#define HORIZONTAL_ORIENTATION "Horizontal"
+#define VERTICAL_ORIENTATION "Vertical"
+#define NULL_SEQUENCE "NULL SEQUENCE"
+
+#define HORIZONTAL_EXTENSION ".hConfig"
+#define VERTICAL_EXTENSION ".vConfig"
+#define EXPERIMENT_EXTENSION ".eConfig"
+#define CATEGORY_EXTENSION ".catConfig"
+#define SEQUENCE_EXTENSION ".sConfig"
+
+#define AGILENT_SCRIPT_EXTENSION ".aScript"
+#define NIAWG_SCRIPT_EXTENSION ".nScript"
 
 /// Agilent Parameters
 // sample rate is typically 1 MS/s.
@@ -92,7 +105,7 @@ const std::string DEFAULT_SCRIPT_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Cold
 const std::string EXPERIMENT_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Individual Experiments\\";
 const std::string CODE_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Code Versions\\";
 const std::string ACTUAL_CODE_FOLDER_PATH = "C:\\Users\\Regal Lab\\Documents\\Visual Studio 2013\\Projects\\NI-PXIe-5451 AWG Control\\NI-PXIe-5451 Arb WvFm Gen 3.0\\NI-PXIe-5451 Arb WvFm Gen 3.0\\";
-const std::string EXPERIMENT_CONFIGURATION_FILES_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Cold Atoms Control Application\\Configurations";
+const std::string EXPERIMENT_CONFIGURATION_FILES_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Profiles\\";
 
 // Contains all of of the names of the files that hold actual data file names.
 const std::string WAVEFORM_NAME_FILES[20] = { "gen 1, const waveform file names.txt", "gen 2, const waveform file names.txt",
@@ -101,7 +114,7 @@ const std::string WAVEFORM_NAME_FILES[20] = { "gen 1, const waveform file names.
 "gen 4, amp ramp waveform file names.txt", "gen 5, amp ramp waveform file names.txt", "gen 1, freq ramp waveform file names.txt",
 "gen 2, freq ramp waveform file names.txt", "gen 3, freq ramp waveform file names.txt", "gen 4, freq ramp waveform file names.txt",
 "gen 5, freq ramp waveform file names.txt", "gen 1, freq & amp ramp waveform file names.txt", "gen 2, freq & amp ramp waveform file names.txt",
-"gen 3, freq & amp ramp waveform file names.txt", "gen 4, freq & amp ramp waveform file names.txt", "gen 5, freq & amp ramp waveform file names.txt" };
+"gen 3, freq & amp ramp waveform file names.txt", "gen 4, freq & amp ramp waveform file names.txt", "gen 5, freq & ""amp ramp waveform file names.txt" };
 
 const std::string WAVEFORM_TYPE_FOLDERS[20] = { "gen1const\\", "gen2const\\", "gen3const\\", "gen4const\\", "gen5const\\",
 "gen1ampramp\\", "gen2ampramp\\", "gen3ampramp\\", "gen4ampramp\\", "gen5ampramp\\",
@@ -317,4 +330,10 @@ const char SCRIPT_INFO_TEXT[] =
 #define IDC_SEQUENCE_TEXT 198
 #define IDC_SEQUENCE_COMBO 199
 #define IDC_SEQUENCE_DISPLAY 200
-
+#define IDC_EXPERIMENT_NOTES_HEADER 201
+#define IDC_EXPERIMENT_NOTES 202
+#define IDC_CATEGORY_NOTES_HEADER 203
+#define IDC_CATEGORY_NOTES 204
+#define IDC_CONFIGURATION_NOTES_HEADER 205
+#define IDC_CONFIGURATION_NOTES 206
+#define IDC_VARIABLES_LISTVIEW 207

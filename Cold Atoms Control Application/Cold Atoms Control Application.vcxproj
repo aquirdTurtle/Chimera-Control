@@ -178,17 +178,19 @@
     <ClInclude Include="cleanSocket.h" />
     <ClInclude Include="cleanString.h" />
     <ClInclude Include="colorScript.h" />
+    <ClInclude Include="ConfigurationFileSystem.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="Control.h" />
     <ClInclude Include="experimentProgrammingThread.h" />
     <ClInclude Include="experimentThreadInputStructure.h" />
     <ClInclude Include="externals.h" />
     <ClInclude Include="fileManage.h" />
-    <ClInclude Include="namePromptDialogProc.h" />
+    <ClInclude Include="NoteSystem.h" />
+    <ClInclude Include="textPromptDialogProcedure.h" />
     <ClInclude Include="getFileName.h" />
     <ClInclude Include="fonts.h" />
     <ClInclude Include="getSyntaxColor.h" />
-    <ClInclude Include="menuAndAcceleratorFunctions.h" />
+    <ClInclude Include="commonMessages.h" />
     <ClInclude Include="myMath.h" />
     <ClInclude Include="initializeMainWindow.h" />
     <ClInclude Include="initializeScriptingWindow.h" />
@@ -207,6 +209,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="systemAbortCheck.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="VariableSystem.h" />
     <ClInclude Include="waveformData.h" />
     <ClInclude Include="winProcScripts.h" />
     <ClInclude Include="winProcMain.h" />
@@ -216,15 +219,17 @@
     <ClCompile Include="cleanSocket.cpp" />
     <ClCompile Include="cleanString.cpp" />
     <ClCompile Include="colorScript.cpp" />
+    <ClCompile Include="ConfigurationFileSystem.cpp" />
     <ClCompile Include="experimentProgrammingThread.cpp" />
     <ClCompile Include="externals.cpp" />
     <ClCompile Include="fileManage.cpp" />
-    <ClCompile Include="namePromptDialogProc.cpp" />
+    <ClCompile Include="NoteSystem.cpp" />
+    <ClCompile Include="textPromptDialogProcedure.cpp" />
     <ClCompile Include="getFileName.cpp" />
     <ClCompile Include="getSyntaxColor.cpp" />
     <ClCompile Include="initializeMainWindow.cpp" />
     <ClCompile Include="initializeScriptingWindow.cpp" />
-    <ClCompile Include="menuAndAcceleratorFunctions.cpp" />
+    <ClCompile Include="commonMessages.cpp" />
     <ClCompile Include="myAgilent.cpp" />
     <ClCompile Include="myErrorHandler.cpp" />
     <ClCompile Include="myMath.cpp" />
@@ -238,6 +243,7 @@
     <ClCompile Include="ScriptWritingInstructionsDialog.cpp" />
     <ClCompile Include="selectInCombo.cpp" />
     <ClCompile Include="systemAbortCheck.cpp" />
+    <ClCompile Include="VariableSystem.cpp" />
     <ClCompile Include="winProcMain.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

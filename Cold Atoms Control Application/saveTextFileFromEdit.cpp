@@ -15,7 +15,8 @@ std::string saveTextFileFromEdit(HWND hwndOwner, std::string extension)
 	char szSaveFileName[MAX_PATH];
 	szSaveFileName[0] = '\0';
 	ZeroMemory(&saveFileDialogInfoObj, sizeof(saveFileDialogInfoObj));
-	saveFileDialogInfoObj.lpstrInitialDir = eCurrentCategoryFolder.c_str();
+	
+	saveFileDialogInfoObj.lpstrInitialDir = (LPTSTR)(eProfile.getCurrentPathIncludingCategory()).c_str();
 	saveFileDialogInfoObj.lStructSize = sizeof(saveFileDialogInfoObj);
 	saveFileDialogInfoObj.hwndOwner = hwndOwner;
 	saveFileDialogInfoObj.lpstrFilter = NULL;

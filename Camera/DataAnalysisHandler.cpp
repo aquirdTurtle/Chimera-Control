@@ -11,7 +11,7 @@
 
 DataAnalysisHandler::DataAnalysisHandler()
 {
-	Py_SetPythonHome(L"C:\\Users\\Regal Lab\\Anaconda3");
+	Py_SetPythonHome(L"C:\\Users\\Mark\\Anaconda3");
 	Py_Initialize();
 	PyRun_SimpleString("from astropy.io import fits");
 	PyRun_SimpleString("import numpy");
@@ -23,13 +23,13 @@ DataAnalysisHandler::DataAnalysisHandler()
 	// Make sure that python can find my module.
 	PyRun_SimpleString("import sys");
 	PyRun_SimpleString(("sys.path.append(\"" + ANALYSIS_CODE_LOCATION + "\")").c_str());
-	PyObject* pythonModuleName = PyUnicode_DecodeFSDefault("SingleAtomAnalysisFunction");
+	PyObject* pythonModuleName = PyUnicode_DecodeFSDefault("AutoanalysisFunctions");
 	pythonModule = PyImport_Import(pythonModuleName);
 }
 
 DataAnalysisHandler::~DataAnalysisHandler()
 {
-	// this seems unncecessary since this class is a global singleton.
+	// this seems unncecessary since this class is a global singleton, and it tends to cause the code to crash upon exit for some reason. This might be fixed now.
 	//Py_Finalize();
 }
 
@@ -94,25 +94,47 @@ bool DataAnalysisHandler::initializeControls(POINT& topLeftPositionKinetic, POIN
 	topLeftPositionKinetic.y += 20;
 	topLeftPositionAccumulate.y += 20;
 
-	dataOutputNameText.kineticSeriesModePos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 150, topLeftPositionKinetic.y + 25 };
-	dataOutputNameText.accumulateModePos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 150, topLeftPositionAccumulate.y + 25 };
+	dataOutputNameText.kineticSeriesModePos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 100, topLeftPositionKinetic.y + 25 };
+	dataOutputNameText.accumulateModePos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 100, topLeftPositionAccumulate.y + 25 };
 	dataOutputNameText.continuousSingleScansModePos = { -1,-1,-1,-1 };
 	initPos = dataOutputNameText.kineticSeriesModePos;
-	dataOutputNameText.hwnd = CreateWindowEx(0, "EDIT", "Output Filename:", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY,
+	dataOutputNameText.hwnd = CreateWindowEx(0, "EDIT", "Filename:", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY,
 		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top,
 		parentWindow, (HMENU)-1, eHInst, NULL);
 	dataOutputNameText.fontType = "Normal";
 
-	dataOutputNameCombo.kineticSeriesModePos = { topLeftPositionKinetic.x + 150, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 800 };
-	dataOutputNameCombo.accumulateModePos = { topLeftPositionAccumulate.x + 150, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480, topLeftPositionAccumulate.y + 800 };
+	dataOutputNameCombo.kineticSeriesModePos = { topLeftPositionKinetic.x + 100, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 380, topLeftPositionKinetic.y + 800 };
+	dataOutputNameCombo.accumulateModePos = { topLeftPositionAccumulate.x + 100, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 380, topLeftPositionAccumulate.y + 800 };
 	dataOutputNameCombo.continuousSingleScansModePos = { -1,-1,-1,-1 };
 	initPos = dataOutputNameCombo.kineticSeriesModePos;
 	dataOutputNameCombo.hwnd = CreateWindowEx(0, "COMBOBOX", "", WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,
 		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top,
 		parentWindow, (HMENU)IDC_DATA_OUTPUT_NAME_COMBO, eHInst, NULL);
 	dataOutputNameCombo.fontType = "Normal";
-	SendMessage(dataOutputNameCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Carrier Calibration");
-	SendMessage(dataOutputNameCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Sideband Spectroscopy");
+	SendMessage(dataOutputNameCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Carrier_Calibration");
+	SendMessage(dataOutputNameCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Sideband_Spectrum");
+	SendMessage(dataOutputNameCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Microwave_Frequency_Spectrum");
+	SendMessage(dataOutputNameCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Microwave_Rabi");
+	SendMessage(dataOutputNameCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Microwave_Ramsey");
+	SendMessage(dataOutputNameCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Microwave_Ramsey_Echo");
+	SendMessage(dataOutputNameCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Piezo_Scan");
+	// TODO: add more.
+	dataOutputNameDetailCombo.kineticSeriesModePos = { topLeftPositionKinetic.x + 380, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 800 };
+	dataOutputNameDetailCombo.accumulateModePos = { topLeftPositionAccumulate.x + 380, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480, topLeftPositionAccumulate.y + 800 };
+	dataOutputNameDetailCombo.continuousSingleScansModePos = { -1,-1,-1,-1 };
+	initPos = dataOutputNameDetailCombo.kineticSeriesModePos;
+	dataOutputNameDetailCombo.hwnd = CreateWindowEx(0, "COMBOBOX", "", WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,
+		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top,
+		parentWindow, (HMENU)IDC_DATA_OUTPUT_NAME_DETAILS_COMBO, eHInst, NULL);
+	dataOutputNameDetailCombo.fontType = "Normal";
+	SendMessage(dataOutputNameDetailCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"");
+	SendMessage(dataOutputNameDetailCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Top");
+	SendMessage(dataOutputNameDetailCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Bottom");
+	SendMessage(dataOutputNameDetailCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Axial");
+	SendMessage(dataOutputNameDetailCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Radial");
+	SendMessage(dataOutputNameDetailCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Vertical");
+	SendMessage(dataOutputNameDetailCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Horizontal");
+
 	topLeftPositionKinetic.y += 25;
 	topLeftPositionAccumulate.y += 25;
 
@@ -133,8 +155,8 @@ bool DataAnalysisHandler::initializeControls(POINT& topLeftPositionKinetic, POIN
 		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top,
 		parentWindow, (HMENU)IDC_DATA_AUTOANALYSIS_COMBO, eHInst, NULL);
 	autoAnalysisTypeCombo.fontType = "Normal";
-	SendMessage(autoAnalysisTypeCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"singlePointAnalysis");
-	SendMessage(autoAnalysisTypeCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Standard Pair Analysis");
+	SendMessage(autoAnalysisTypeCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Single Point Analysis");
+	SendMessage(autoAnalysisTypeCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Pair Analysis");
 	topLeftPositionKinetic.y += 25;
 	topLeftPositionAccumulate.y += 25;
 	// 
@@ -175,25 +197,45 @@ bool DataAnalysisHandler::updateDataSetNumberEdit(int number)
 	}
 	return false;
 }
+
+// adds an output name to the output filename combo.
 bool DataAnalysisHandler::addNameToCombo()
 {
 	std::string newOutputName = (const char*)DialogBoxParam(eHInst, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)dialogProcedures::textPromptDialogProcedure, (LPARAM)"Please enter a new name to call the auto-analyzed data files.\r\nThis name will be temporary (removed upon program restart), please ask Mark to make any permantent changes.");
 	SendMessage(dataOutputNameCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)newOutputName.c_str());
 	return false;
 }
+
 bool DataAnalysisHandler::analyze(std::string date, long runNumber, long accumulations)
 {
-	std::string analysisFunctionName;
-	std::string outputName;
+	std::string analysisFunctionName, analysisType;
+	std::string outputName, details;
 	// get analysis type
 	int selectedNumber = SendMessage(autoAnalysisTypeCombo.hwnd, CB_GETCURSEL, 0, 0);
 	TCHAR text[256];
 	SendMessage(autoAnalysisTypeCombo.hwnd, CB_GETLBTEXT, selectedNumber, (LPARAM)text);
-	analysisFunctionName = std::string(text);
+	analysisType = std::string(text);
+	// interpret the text here to get the actual function name.
+	if (analysisType == "Single Point Analysis")
+	{
+		analysisFunctionName = "singlePointAnalysis";
+	}
+	else if (analysisType == "Pair Analysis")
+	{
+		analysisFunctionName = "pairAnalysis";
+	}
+	else
+	{
+		MessageBox(0, "ERROR: unrecognized analysis type while trying to figure out the analysis function name! Ask Mark about bugs.", 0, 0);
+		return true;
+	}
 	// get output name
 	selectedNumber = SendMessage(dataOutputNameCombo.hwnd, CB_GETCURSEL, 0, 0);
 	SendMessage(dataOutputNameCombo.hwnd, CB_GETLBTEXT, selectedNumber, (LPARAM)text);
 	outputName = std::string(text);
+	selectedNumber = SendMessage(dataOutputNameDetailCombo.hwnd, CB_GETCURSEL, 0, 0);
+	SendMessage(dataOutputNameDetailCombo.hwnd, CB_GETLBTEXT, selectedNumber, (LPARAM)text);
+	details = std::string(text);
 	// python is initialized in the constructor for the data handler object. 
 	appendText("Beginning Data Analysis... ", IDC_STATUS_EDIT);
 	// Get information to send to the python script from inputParam
@@ -202,7 +244,8 @@ bool DataAnalysisHandler::analyze(std::string date, long runNumber, long accumul
 	if (pythonModule != NULL)
 	{
 		PyObject* pythonFunction = PyObject_GetAttrString(pythonModule, analysisFunctionName.c_str());
-		if (analysisFunctionName == "singlePointAnalysis")
+		// function calls for these functions are the same because they are so simple.
+		if (analysisFunctionName == "singlePointAnalysis" || analysisFunctionName == "pairAnalysis")
 		{
 			// make sure this function is okay.
 			if (pythonFunction && PyCallable_Check(pythonFunction))
@@ -216,8 +259,7 @@ bool DataAnalysisHandler::analyze(std::string date, long runNumber, long accumul
 					Py_DECREF(pythonFunctionArguments);
 					Py_DECREF(pythonModule);
 					appendText("Cannot Convert date\r\n", IDC_ERROR_EDIT);
-					std::cin.get();
-					return 1;
+					return true;
 				}
 				PyTuple_SetItem(pythonFunctionArguments, 0, pythonDate);
 
@@ -244,14 +286,13 @@ bool DataAnalysisHandler::analyze(std::string date, long runNumber, long accumul
 				PyTuple_SetItem(pythonFunctionArguments, 2, pythonAtomLocationsArray);
 				// format of function arguments:
 				// def analyzeSingleLocation(date, runNumber, atomLocationRow, atomLocationColumn, picturesPerExperiment, accumulations, fileName) :
-
 				// hard-coded for now (might change or remove later...)
 				PyObject* pythonPicturesPerExperiment = PyLong_FromLong(2);
 				if (!pythonPicturesPerExperiment)
 				{
 					Py_DECREF(pythonFunctionArguments);
 					appendText("Cannot Convert Pictures per experiment\r\n", IDC_ERROR_EDIT);
-					return 1;
+					return true;
 				}
 				PyTuple_SetItem(pythonFunctionArguments, 3, pythonPicturesPerExperiment);
 
@@ -264,7 +305,7 @@ bool DataAnalysisHandler::analyze(std::string date, long runNumber, long accumul
 				}
 				PyTuple_SetItem(pythonFunctionArguments, 4, pythonAccumulations);
 				// new:
-				PyObject* pythonOutputName = Py_BuildValue("s", outputName.c_str());
+				PyObject* pythonOutputName = Py_BuildValue("s", (outputName + "_" + details).c_str());
 				if (!pythonOutputName)
 				{
 					Py_DECREF(pythonFunctionArguments);
@@ -274,14 +315,8 @@ bool DataAnalysisHandler::analyze(std::string date, long runNumber, long accumul
 				PyTuple_SetItem(pythonFunctionArguments, 5, pythonOutputName);
 
 				PyObject* pythonReturnValue = PyObject_CallObject(pythonFunction, pythonFunctionArguments);
-				// apparently I can only DECREF ints?????
-				//Py_DECREF(pythonFunctionArguments);
-				//Py_DECREF(pythonOutputName);
-				Py_DECREF(pythonAccumulations);
-				Py_DECREF(pythonPicturesPerExperiment);
-				//Py_DECREF(pythonAtomLocationsArray);
-				Py_DECREF(pythonRunNumber);
-				//Py_DECREF(pythonDate);
+				// only need to decref this object; setItem steals references to all of the other items so I don't worry about them.
+				Py_DECREF(pythonFunctionArguments);
 				if (pythonReturnValue != NULL)
 				{
 					appendText("Result of call: " + std::string(PyBytes_AS_STRING(PyUnicode_AsEncodedString(pythonReturnValue, "ASCII", "strict")))
@@ -343,6 +378,9 @@ bool DataAnalysisHandler::analyze(std::string date, long runNumber, long accumul
 	appendText("Finished!\r\n", IDC_STATUS_EDIT);
 	return false;
 }
+
+// handles the pressing of the analysis points button.
+// TODO: handle different cases where single locations or pairs of locations are being analyzed. 
 bool DataAnalysisHandler::onButtonPushed()
 {
 	BOOL checked = SendMessage(setAnalysisLocationsButton.hwnd, BM_GETCHECK, 0, 0);
@@ -372,7 +410,6 @@ bool DataAnalysisHandler::onButtonPushed()
 	{
 		myAndor::drawDataWindow();
 	}
-
 	return false;
 }
 

@@ -14,9 +14,9 @@
 #include "boost/cast.hpp"
 #include "systemAbortCheck.h"
 #include "postMyString.h"
-
+#include "VariableSystem.h";
 /*
- * This runs the experiment. It calls createXYScript and then procedurally goes through all variable values. It also communicates with the other computer
+ * This runs the experiment. It calls analyzeNIAWGScripts and then procedurally goes through all variable values. It also communicates with the other computer
  * throughout the process.
  * inputParam is the list of all of the relevant parameters to be used during this run of the experiment.
  */
@@ -104,24 +104,27 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	
 	// initialize the script string. The script needs a script name at the top.
 	userScriptNameString = "experimentScript";
-	workingUserScriptString.resize(eSequenceFileNames.size());
+	workingUserScriptString.resize((eProfile.getSequenceNames()).size());
 	for (int sequenceInc = 0; sequenceInc < workingUserScriptString.size(); sequenceInc++)
 	{
 		workingUserScriptString[sequenceInc] = "";
 	}
 
-	// Open files
+	
 	verticalScriptFiles.resize(inputStruct->threadSequenceFileNames.size());
 	horizontalScriptFiles.resize(inputStruct->threadSequenceFileNames.size());
 	intensityScriptFiles.resize(inputStruct->threadSequenceFileNames.size());
-	(*inputStruct).threadVariableNames.resize(0);
+	std::vector<variable> singletons;
+	std::vector<variable> varyingParameters;
+	/// gather information from every configuration in the sequence. //////////////////////////////////////////////////////////////////////////////////////////
 	for (int sequenceInc = 0; sequenceInc < inputStruct->threadSequenceFileNames.size(); sequenceInc++)
 	{
 		// open configuration file
 		std::fstream configFile(inputStruct->currentFolderLocation + "\\" + inputStruct->threadSequenceFileNames[sequenceInc]);
-		std::string verticalScriptAddress, horizontalScriptAddress, intensityScriptAddress;
+		std::string verticalScriptAddress, horizontalScriptAddress, intensityScriptAddress, version;
+		// first get version info:
+		std::getline(configFile, version);
 		// in order...
-		
 		/// load vertical file
 		getline(configFile, verticalScriptAddress); 
 		verticalScriptFiles[sequenceInc].open(verticalScriptAddress);
@@ -173,35 +176,129 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				return -1;
 			}
 		}
-		// load variables
+		/// load variables
 		int varNum;
 		configFile >> varNum;
-		for (int varInc = 0; varInc < varNum; varInc++)
+		// early version didn't have variable type indicators.
+		if (version == "Version: 1.0")
 		{
-			// get next variable
-			std::string tempVar;
-			configFile >> tempVar;
-			bool alreadyExists = false;
-			for (int varInc2 = 0; varInc2 < (*inputStruct).threadVariableNames.size(); varInc2++)
+			for (int varInc = 0; varInc < varNum; varInc++)
 			{
-				if (tempVar == (*inputStruct).threadVariableNames[varInc2])
-				{
-					alreadyExists = true;
-				}
-			}
-			if (!alreadyExists)
-			{
-				(*inputStruct).threadVariableNames.push_back(tempVar);
+				std::string varName;
+				configFile >> varName;
+				variable tempVariable;
+				tempVariable.name = varName;
+				// assume certain things for old files. E.g. singletons didn't exist. 
+				tempVariable.singleton = false;
+				tempVariable.timelike = false;
+				tempVariable.value = 0;
+				varyingParameters.push_back(tempVariable);
 			}
 		}
+		else if (version == "Version: 1.1")
+		{
+			for (int varInc = 0; varInc < varNum; varInc++)
+			{
+				variable tempVar;
+				std::string varName, timelikeText, typeText, valueString;
+				bool timelike;
+				bool singleton;
+				double value;
+				configFile >> varName;
+				configFile >> timelikeText;
+				configFile >> typeText;
+				configFile >> valueString;
+				if (timelikeText == "Timelike")
+				{
+					timelike = true;
+				}
+				else if (timelikeText == "Not_Timelike")
+				{
+					timelike = false;
+				}
+				else
+				{
+					MessageBox(0, "ERROR: unknown timelike option. Check the formatting of the configuration file.", 0, 0);
+					return true;
+				}
+				if (typeText == "Singleton")
+				{
+					singleton = true;
+				}
+				else if (typeText == "From_Master")
+				{
+					singleton = false;
+				}
+				else
+				{
+					MessageBox(0, "ERROR: unknown variable type option. Check the formatting of the configuration file.", 0, 0);
+					return true;
+				}
+				try
+				{
+					value = std::stod(valueString);
+				}
+				catch (std::invalid_argument& exception)
+				{
+					MessageBox(0, ("ERROR: Failed to convert value in configuration file for variable's double value. Value was: " + valueString).c_str(), 0, 0);
+					break;
+				}
+				tempVar.name = varName;
+				tempVar.timelike = timelike;
+				tempVar.singleton = singleton;
+				tempVar.value = value;
+				
+				if (tempVar.singleton)
+				{
+					// handle singletons
+					// check if it already has been loaded
+					bool alreadyExists = false;
+					for (int varInc = 0; varInc < singletons.size(); varInc++)
+					{
+						if (tempVar.name == singletons[varInc].name)
+						{
+							alreadyExists = true;
+							break;
+						}
+					}
+					if (!alreadyExists)
+					{
+						// load new singleton
+						singletons.push_back(tempVar);
+					}
+				}
+				else
+				{
+					// handle varying parameters
+					bool alreadyExists = false;
+					for (int varInc = 0; varInc < varyingParameters.size(); varInc++)
+					{
+						if (tempVar.name == varyingParameters[varInc].name)
+						{
+							alreadyExists = true;
+							break;
+						}
+					}
+					if (!alreadyExists)
+					{
+						// add new varying parameters.
+						varyingParameters.push_back(tempVar);
+					}
+				}
+			}
+		}
+		else
+		{
+			MessageBox(0, "ERROR: Unrecognized configuration version! Ask Mark about bugs.", 0, 0);
+			return true;
+		}
 	}
-	
 	// initialize some socket stuffs
 	ZeroMemory(&hints, sizeof(hints));
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
-	if (!SAFEMODE)
+	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
 		// Resolve the server address and port
 		iResult = getaddrinfo(SERVER_ADDRESS, DEFAULT_PORT, &hints, &result);
@@ -222,10 +319,9 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	{
 		(*inputStruct).threadAccumulations = 0;
 	}
-
-	if ((*inputStruct).threadConnectToMaster == true)
+	else
 	{
-		if (!SAFEMODE)
+		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
 			// make socket object
 			ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
@@ -236,12 +332,11 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				postMyString(eErrorTextMessageID, "ERROR: at socket() function: " + std::to_string(WSAGetLastError()) + "\r\n");
 				PostMessage(eMainWindowHandle, eFatalErrorMessageID, 0, 0);
 				delete inputStruct;
-
 				return -1;
 			}
 		}
 		postMyString(eStatusTextMessageID, "Attempting to connect......");
-		if (!SAFEMODE)
+		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
 			// Handle Errors
 			iResult = connect(ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
@@ -267,7 +362,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 		char recvbuf[256];
 		int recvbufn = 256;
 		postMyString(eStatusTextMessageID, "Waiting for Accumulations # from master...");
-		if (!SAFEMODE)
+		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
 
 			iResult = send(ConnectSocket, "Accumulations?", 14, 0);
@@ -286,7 +381,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			iResult = 1;
 		}
 		postMyString(eStatusTextMessageID, "Received!\r\n");
-		if (!SAFEMODE)
+		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
 			std::string tempAccumulations;
 			std::stringstream accumulationsStream;
@@ -387,18 +482,21 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	}
 	for (int sequenceInc = 0; sequenceInc < workingUserScriptString.size(); sequenceInc++)
 	{
-		postMyString(eStatusTextMessageID, "Working with configuraiton # " + std::to_string(sequenceInc) + " in Sequence...\r\n");
+		postMyString(eStatusTextMessageID, "Working with configuraiton # " + std::to_string(sequenceInc + 1) + " in Sequence...\r\n");
 		/// Create Script and Write Waveforms //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		if (myErrorHandler(myNIAWG::createXYScript(verticalScriptFiles[sequenceInc], horizontalScriptFiles[sequenceInc], workingUserScriptString[sequenceInc], TRIGGER_NAME, waveformCount, eSessionHandle,
-			SESSION_CHANNELS, eError, xPredWaveformNames, yPredWaveformNames, predWaveformCount, predWaveLocs, libWaveformArray, fileOpenedStatus,
-			allXWaveformParameters, xWaveformIsVaried, allYWaveformParameters, yWaveformIsVaried, false, true, (*inputStruct).currentFolderLocation), "createXYScript() threw an error!\r\n",
+		// A reaaaaaly long function call. Not ideal.
+		if (myErrorHandler(myNIAWG::analyzeNIAWGScripts(verticalScriptFiles[sequenceInc], horizontalScriptFiles[sequenceInc], 
+			workingUserScriptString[sequenceInc], TRIGGER_NAME, waveformCount, eSessionHandle, SESSION_CHANNELS, eError, xPredWaveformNames, 
+			yPredWaveformNames, predWaveformCount, predWaveLocs, libWaveformArray, fileOpenedStatus, allXWaveformParameters, xWaveformIsVaried, 
+			allYWaveformParameters, yWaveformIsVaried, false, true, (*inputStruct).currentFolderLocation, singletons), "analyzeNIAWGScripts() threw an error!\r\n",
 			ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false, true))
 		{
-			postMyString(eErrorTextMessageID, "createXYScript() threw an error!\r\n");
+			postMyString(eErrorTextMessageID, "analyzeNIAWGScripts() threw an error!\r\n");
 			PostMessage(eMainWindowHandle, eFatalErrorMessageID, 0, 0);
 			delete inputStruct;
 			return -1;
 		}
+		// 
 		if (systemAbortCheck())
 		{
 			for (int deleteInc = 0; deleteInc < yVariedWaveforms.size(); deleteInc++)
@@ -466,15 +564,15 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	/// get var files from master if necessary
 	if ((*inputStruct).threadGetVarFilesFromMaster == true)
 	{
-		variableValues.resize((*inputStruct).threadVariableNames.size(), std::vector<double>(0));
-		variableValuesLengths.resize((*inputStruct).threadVariableNames.size());
+		variableValues.resize(varyingParameters.size(), std::vector<double>(0));
+		variableValuesLengths.resize(varyingParameters.size());
 		char recvbuf[1000];
 		int recvbufn = 1000;
-		for (int variableNameInc = 0; variableNameInc < (*inputStruct).threadVariableNames.size(); variableNameInc++)
+		for (int variableNameInc = 0; variableNameInc < varyingParameters.size(); variableNameInc++)
 		{
-			std::string message = "Waiting for Variable Set #" + std::to_string(variableNameInc) + "... ";
+			std::string message = "Waiting for Variable Set #" + std::to_string(variableNameInc + 1) + "... ";
 			postMyString(eStatusTextMessageID, message);
-			if (!SAFEMODE)
+			if (!TWEEZER_COMPUTER_SAFEMODE)    
 			{
 				iResult = send(ConnectSocket, "next variable", 13, 0);
 				if (myErrorHandler(iResult == -1, "ERROR: Socket send failed with error code: " + std::to_string(WSAGetLastError()) + "\r\n", ConnectSocket,
@@ -486,7 +584,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 					return -1;
 				}
 			}
-			if (!SAFEMODE)
+			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
 				iResult = recv(ConnectSocket, recvbuf, recvbufn, 0);
 			}
@@ -503,15 +601,15 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				std::stringstream variableStream;
 				variableStream << recvbuf;
 				variableStream >> tempVarName;
-				for (int q1 = 0; q1 < (*inputStruct).threadVariableNames.size(); q1++)
+				for (int q1 = 0; q1 < varyingParameters.size(); q1++)
 				{
-					if (tempVarName == (*inputStruct).threadVariableNames[q1])
+					if (tempVarName == (varyingParameters[q1]).name)
 					{
 						varNameCursor = q1;
 						break;
 					}
 				}
-				if (!SAFEMODE)
+				if (!TWEEZER_COMPUTER_SAFEMODE)
 				{
 					if (myErrorHandler(varNameCursor == -1, "ERROR: The variable name sent by the master computer doesn't match any current variables!\r\n",
 						ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false,
@@ -527,8 +625,9 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				int j = 0;
 				std::string tempString;
 				double tempDouble;
-				if (!SAFEMODE)
+				if (!TWEEZER_COMPUTER_SAFEMODE)
 				{
+					// only exit while loop after recieving "done!" message.
 					while (true)
 					{
 						variableStream >> tempString;
@@ -537,13 +636,25 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 							break;
 						}
 						tempDouble = stod(tempString);
+						// if it's a time value, check to make sure it's valid.
+						if (varyingParameters[varNameCursor].timelike)
+						{
+							if (myNIAWG::script::waveformSizeCalc(tempDouble) % 4 != 0)
+							{
+								postMyString(eErrorTextMessageID, "ERROR: a timelike value sent by the master computer did not correspond to an integer number of 4 samples. The "
+									"value was " + std::to_string(tempDouble) + "\r\n");
+								PostMessage(eMainWindowHandle, eFatalErrorMessageID, 0, 0);
+								delete inputStruct;
+								return -1;
+							}
+						}
 						variableValues[varNameCursor].resize(j + 1);
 						variableValues[varNameCursor][j] = tempDouble;
 						j++;
 					}
 					variableValuesLengths[varNameCursor] = j;
 				}
-				else if (SAFEMODE)
+				else if (TWEEZER_COMPUTER_SAFEMODE)
 				{
 					// set all values to zero. This should work for the majority of variables possible.
 					variableValues[variableNameInc].resize(3);
@@ -582,35 +693,11 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			}
 		}
 	}
-	/// Create Dummy Variable List if Necessary
-	else if ((*inputStruct).threadUseDummyVariables == true)
-	{
-		// There shouldn't be any variables loaded. Check this.
-		if (myErrorHandler(boost::numeric_cast<int>((*inputStruct).threadVariableNames.size()), "ERROR: There are variables loaded when a dummy variable is being used.\r\n", ConnectSocket,
-			verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false, true))
-		{
-			postMyString(eErrorTextMessageID, "ERROR: There are variables loaded when a dummy variable is being used.\r\n");
-			PostMessage(eMainWindowHandle, eFatalErrorMessageID, 0, 0);
-			delete inputStruct;
-			return -1;
-		}
-		variableValues.resize(1);
-		variableValues[0].resize((*inputStruct).threadDummyNum);
-		variableValuesLengths.resize(1);
-		variableValuesLengths[0] = (*inputStruct).threadDummyNum;
-		// Reserved Character!
-		(*inputStruct).threadVariableNames.push_back("%");
-		// Load 0s in. Could load anything in, these values don't get used because the user can't enter a % as a variable.
-		for (int dummyInc = 0; dummyInc < (*inputStruct).threadDummyNum; dummyInc++)
-		{
-			variableValues[0][dummyInc] = 0;
-		}
-	}
 	/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	///
 	///					Logging
 	///
-	if (!SAFEMODE)
+	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
 		// This report goes to a folder I create on the Andor.
 		if ((*inputStruct).threadLogScriptAndParams == true)
@@ -840,8 +927,8 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	{
 		postMyString(eStatusTextMessageID, "Programing Intensity Profile(s)...");
 
-		if (myErrorHandler(myAgilent::programIntensity(boost::numeric_cast<int>((*inputStruct).threadVariableNames.size()), (*inputStruct).threadVariableNames, variableValues, intIsVaried,
-			intensitySequenceMinAndMaxVector, intensityPoints, intensityScriptFiles),
+		if (myErrorHandler(myAgilent::programIntensity(boost::numeric_cast<int>(varyingParameters.size()), varyingParameters, variableValues, intIsVaried,
+			intensitySequenceMinAndMaxVector, intensityPoints, intensityScriptFiles, singletons),
 			"ERROR: Intensity Programming Failed!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle,
 			userScriptIsWritten, userScriptName, /*Socket Active = */true, false, true))
 		{
@@ -874,7 +961,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	///					Big Variable Handling Loop
 	///
 	// If there are any varible files, enter big variable loop.
-	if ((*inputStruct).threadVariableNames.size() > 0)
+	if (varyingParameters.size() > 0)
 	{
 		postMyString(eStatusTextMessageID, "Begin Variable & Execution Loop.\r\n");
 		// create event thread
@@ -915,13 +1002,13 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				if (xWaveformIsVaried[j] == true && yWaveformIsVaried[j] == true)
 				{
 					// For all Variables...
-					for (std::size_t k = 0; k < (*inputStruct).threadVariableNames.size() + 1; k++)
+					for (std::size_t k = 0; k < varyingParameters.size() + 1; k++)
 					{
 						std::string currentVar;
 						// Set variable name. Should be the same between variableNames and yVarNames.
-						if (k < (*inputStruct).threadVariableNames.size())
+						if (k < varyingParameters.size())
 						{
-							currentVar = (*inputStruct).threadVariableNames[k];
+							currentVar = varyingParameters[k].name;
 						}
 						else
 						{
@@ -936,7 +1023,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 							if (allYWaveformParameters[j].varNames[m] == currentVar)
 							{
 								double variableValue;
-								if (k < (*inputStruct).threadVariableNames.size())
+								if (k < varyingParameters.size())
 								{
 									variableValue = variableValues[k][varValueLengthInc];
 								}
@@ -1003,7 +1090,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 							{
 								double variableValue;
 								// change parameters, depending on the case. This was set during input reading.
-								if (k < (*inputStruct).threadVariableNames.size())
+								if (k < varyingParameters.size())
 								{
 									variableValue = variableValues[k][varValueLengthInc];
 								}
@@ -1381,12 +1468,12 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			PostMessage(eMainWindowHandle, eGreenMessageID, 0, 0);
 			std::string message = "Outputting Series #" + std::to_string(varValueLengthInc) + ". Ready and Waiting to Initialize Script from series #"
 				+ std::to_string(varValueLengthInc + 1) + ".\r\n";
-			for (int varInc = 0; varInc < (*inputStruct).threadVariableNames.size(); varInc++)
+			for (int varInc = 0; varInc < varyingParameters.size(); varInc++)
 			{
 				// skip the first time.
 				if (varValueLengthInc != 0)
 				{
-					message += (*inputStruct).threadVariableNames[varInc] + " = " + std::to_string(variableValues[varInc][varValueLengthInc - 1]) + "; ";
+					message += varyingParameters[varInc].name + " = " + std::to_string(variableValues[varInc][varValueLengthInc - 1]) + "; ";
 				}
 			}
 			postMyString(eColoredEditMessageID, message);
@@ -1399,7 +1486,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			// will be done.
 			if ((*inputStruct).threadCurrentScript == "DefaultScript" && (*inputStruct).threadDontActuallyGenerate == false)
 			{
-				if (!SAFEMODE)
+				if (!TWEEZER_COMPUTER_SAFEMODE)
 				{
 					if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE)))
 					{
@@ -1498,15 +1585,15 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			isDoneTest = VI_FALSE;
 
 			std::string varBaseString = "Variable loop #" + std::to_string(varValueLengthInc + 1) + "/" + std::to_string(variableValuesLengths[0]) + ". Variable values are:\r\n";
-			for (int varNumInc = 0; varNumInc < (*inputStruct).threadVariableNames.size(); varNumInc++)
+			for (int varNumInc = 0; varNumInc < varyingParameters.size(); varNumInc++)
 			{
-				varBaseString += "\t" + (*inputStruct).threadVariableNames[varNumInc] + " = " + std::to_string(variableValues[varNumInc][varValueLengthInc]) + "\r\n";
+				varBaseString += "\t" + varyingParameters[varNumInc].name + " = " + std::to_string(variableValues[varNumInc][varValueLengthInc]) + "\r\n";
 			}
 			postMyString(eStatusTextMessageID, varBaseString);
 			// Restart Waveform
 			if ((*inputStruct).threadDontActuallyGenerate == false)
 			{
-				if (!SAFEMODE)
+				if (!TWEEZER_COMPUTER_SAFEMODE)
 				{
 					if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE)))
 					{
@@ -1529,7 +1616,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 					{
 						if (varValueLengthInc != 0)
 						{
-							if (!SAFEMODE)
+							if (!TWEEZER_COMPUTER_SAFEMODE)
 							{
 								if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_DeleteNamedWaveform(eSessionHandle, SESSION_CHANNELS, variedWaveformName)))
 								{
@@ -1538,7 +1625,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 								}
 							}
 						}
-						if (!SAFEMODE)
+						if (!TWEEZER_COMPUTER_SAFEMODE)
 						{
 							// And write the new one.
 							if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, variedWaveformName,
@@ -1559,7 +1646,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				}
 
 				ViBoolean individualAccumulationIsDone = false;
-				if (!SAFEMODE)
+				if (!TWEEZER_COMPUTER_SAFEMODE)
 				{
 					if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, userScriptSubmit)))
 					{
@@ -1568,7 +1655,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 					}
 				}
 				userScriptIsWritten = true;
-				if (!SAFEMODE)
+				if (!TWEEZER_COMPUTER_SAFEMODE)
 				{
 					if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "experimentScript")))
 					{
@@ -1578,7 +1665,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				}
 
 				(*inputStruct).threadCurrentScript = "UserScript";
-				if (!SAFEMODE)
+				if (!TWEEZER_COMPUTER_SAFEMODE)
 				{
 					if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE)))
 					{
@@ -1594,7 +1681,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				}
 				if ((*inputStruct).threadConnectToMaster == true)
 				{
-					if (!SAFEMODE)
+					if (!TWEEZER_COMPUTER_SAFEMODE)
 					{
 						// Send returns -1 if failed, 0 otherwise.
 						iResult = send(ConnectSocket, "go", 2, 0);
@@ -1671,7 +1758,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 		if ((*inputStruct).threadDontActuallyGenerate == false)
 		{
 			ViBoolean individualAccumulationIsDone = false;
-			if (!SAFEMODE)
+			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
 				if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE)))
 				{
@@ -1685,7 +1772,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				}
 			}
 			// Should be just ready to go
-			if (!SAFEMODE)
+			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
 				if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, userScriptSubmit)))
 				{
@@ -1694,7 +1781,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				}
 			}
 			userScriptIsWritten = true;
-			if (!SAFEMODE)
+			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
 				if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "experimentScript")))
 				{
@@ -1703,7 +1790,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				}
 			}
 			(*inputStruct).threadCurrentScript = "UserScript";
-			if (!SAFEMODE)
+			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
 				if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE)))
 				{
@@ -1754,7 +1841,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	///
 	///					Cleanup
 	///
-	if ((*inputStruct).threadAccumulations == 0 || (eVariableNames.size() == 0 && SAFEMODE))
+	if ((*inputStruct).threadAccumulations == 0 || (eVariables.getCurrentNumberOfVariables() == 0 && TWEEZER_COMPUTER_SAFEMODE))
 	{
 		postMyString(eStatusTextMessageID, "Scripts Loaded into NIAWG. This waveform sequence will run until aborted by the user.\r\n\r\n");
 		postMyString(eColoredEditMessageID, "Scripts Loaded into NIAWG. This waveform sequence will run until aborted by the user.");
@@ -1762,10 +1849,18 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	}
 	else 
 	{
-		std::string message = "Outputting LAST Series #" + std::to_string((*inputStruct).threadVariableNames.size()) + ".\r\n";
-		for (int varInc = 0; varInc < (*inputStruct).threadVariableNames.size(); varInc++)
+		std::string message;
+		if (variableValues.size() > 0)
 		{
-			message += (*inputStruct).threadVariableNames[varInc] + " = " + std::to_string(variableValues[varInc].back()) + "; ";
+			message = "Outputting LAST Series #" + std::to_string(variableValues[0].size()) + ".\r\n";
+		}
+		else
+		{
+			message = "Outputting ONLY Series.\r\n";
+		}
+		for (int varInc = 0; varInc < varyingParameters.size(); varInc++)
+		{
+			message += varyingParameters[varInc].name + " = " + std::to_string(variableValues[varInc].back()) + "; ";
 		}
 		PostMessage(eMainWindowHandle, eGreenMessageID, 0, 0);
 		postMyString(eColoredEditMessageID, message);
@@ -1837,7 +1932,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	for (int v = 2; v < waveformCount; v++)
 	{
 		sprintf_s(waveformDeleteName, 11, "Waveform%i", v);
-		if (!SAFEMODE)
+		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
 			if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_DeleteNamedWaveform(eSessionHandle, SESSION_CHANNELS, waveformDeleteName)))
 			{
@@ -1848,7 +1943,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	}
 	if ((*inputStruct).threadDontActuallyGenerate == false)
 	{
-		if (!SAFEMODE)
+		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
 			// Delete relevant onboard memory.
 			if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_DeleteScript(eSessionHandle, SESSION_CHANNELS, userScriptName)))
@@ -1894,3 +1989,12 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	delete inputStruct;
 	return 0;
 }
+
+
+
+
+
+
+
+
+

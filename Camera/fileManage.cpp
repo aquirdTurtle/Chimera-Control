@@ -64,7 +64,6 @@ namespace fileManage
 
 	int reloadCombo(HWND comboToReload, std::string serachLocation, std::string extension, std::string nameToLoad)
 	{
-
 		std::vector<std::string> names;
 		// search for folders
 		names = fileManage::searchForFiles(serachLocation, extension);

@@ -1,7 +1,7 @@
 #pragma once
 #include "Windows.h"
 /*
-* This runs the experiment. It calls createXYScript and then procedurally goes through all variable values. It also communicates with the other computer
+* This runs the experiment. It calls analyzeNIAWGScripts and then procedurally goes through all variable values. It also communicates with the other computer
 * throughout the process.
 * inputParam is the list of all of the relevant parameters to be used during this run of the experiment.
 */

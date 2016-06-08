@@ -5,6 +5,7 @@
 #include "constants.h"
 #include "fonts.h"
 #include "fileManage.h"
+
 /*
  * This function is called on WM_CREATE in order to initialize the handles to all of the objects on the main window.
  */
@@ -74,85 +75,12 @@ int initializeMainWindow(HWND eMainWindowHandle)
 	myCharFormat.crTextColor = RGB(13, 152, 186);
 	SendMessage(eSystemDebugTextHandle, EM_SETCHARFORMAT, SCF_ALL, (LPARAM)&myCharFormat);
 
-	/// PROFILE DATA
-	// Experiment Type
-	eExperimentTypeLabelHandle2 = CreateWindowEx(NULL, "STATIC", "EXPERIMENT", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
-		960, 0, 480, 20, eMainWindowHandle, (HMENU)IDC_EXPERIMENT_TYPE_LABEL, GetModuleHandle(NULL), NULL);
-	SendMessage(eExperimentTypeLabelHandle2, WM_SETFONT, WPARAM(sHeadingFont), TRUE);
-	// Experiment Saved Indicator
-	eExperimentSavedIndicatorHandle = CreateWindowEx(NULL, "BUTTON", "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT,
-		1340, 1, 100, 18, eMainWindowHandle, (HMENU)IDC_SAVE_EXPERIMENT_INDICATOR_BUTTON, GetModuleHandle(NULL), NULL);
-	SendMessage(eExperimentSavedIndicatorHandle, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	SendMessage(eExperimentSavedIndicatorHandle, BM_SETCHECK, BST_CHECKED, NULL);
-	eExperimentSaved = true;
-	// Configuration Title
-	eConfigurationComboLabelHandle = CreateWindowEx(NULL, "STATIC", "CATEGORY", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
-		1440, 0, 480, 20, eMainWindowHandle, (HMENU)IDC_CONFIGURATION_COMBO_LABEL, GetModuleHandle(NULL), NULL);
-	SendMessage(eConfigurationComboLabelHandle, WM_SETFONT, WPARAM(sHeadingFont), TRUE);
-	// Experiment Combo
-	eExperimentTypeCombo = CreateWindowEx(NULL, TEXT("ComboBox"), "", CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
-		960, 20, 480, 900, eMainWindowHandle, (HMENU)IDC_EXPERIMENT_COMBO, GetModuleHandle(NULL), NULL);
-	SendMessage(eExperimentTypeCombo, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	fileManage::reloadCombo(eExperimentTypeCombo, EXPERIMENT_CONFIGURATION_FILES_FOLDER_PATH, "*", "__NONE__");
-	// Category Combo
-	eCategoryCombo = CreateWindowEx(NULL, TEXT("ComboBox"), "", CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
-		1440, 20, 480, 900, eMainWindowHandle, (HMENU)IDC_CATEGORY_COMBO, GetModuleHandle(NULL), NULL);
-	SendMessage(eCategoryCombo, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	// Orientation Title
-	eOrientationLabelHandle = CreateWindowEx(NULL, "STATIC", "ORIENTATION", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
-		960, 50, 120, 20, eMainWindowHandle, (HMENU)IDC_ORIENTATION_COMBO_LABEL, GetModuleHandle(NULL), NULL);
-	SendMessage(eOrientationLabelHandle, WM_SETFONT, WPARAM(sHeadingFont), TRUE);
-	// Configuration Title
-	eSubConfigComboLabelHandle = CreateWindowEx(NULL, "STATIC", "CONFIGURATION", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
-		1080, 50, 840, 20, eMainWindowHandle, (HMENU)IDC_SUB_CONFIG_COMBO_LABEL, GetModuleHandle(NULL), NULL);
-	SendMessage(eSubConfigComboLabelHandle, WM_SETFONT, WPARAM(sHeadingFont), TRUE);
-	// Configuration Saved Indicator
-	eConfigurationSavedIndicatorHandle = CreateWindowEx(NULL, "BUTTON", "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT,
-		1820, 51, 100, 18, eMainWindowHandle, (HMENU)IDC_SAVE_CONFIGURATION_INDICATOR_BUTTON, GetModuleHandle(NULL), NULL);
-	SendMessage(eConfigurationSavedIndicatorHandle, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	SendMessage(eConfigurationSavedIndicatorHandle, BM_SETCHECK, BST_CHECKED, NULL);
-	eConfigurationSaved = true;
-	// orientation combo
-	std::vector<std::string> orientationNames;
-	orientationNames.push_back("Horizontal");
-	orientationNames.push_back("Vertical");
-	eOrientationCombo = CreateWindowEx(NULL, TEXT("ComboBox"), "", CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
-		960, 70, 120, 900, eMainWindowHandle, (HMENU)IDC_ORIENTATION_COMBO, GetModuleHandle(NULL), NULL);
-	SendMessage(eOrientationCombo, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	for (int comboInc = 0; comboInc < orientationNames.size(); comboInc++)
-	{
-		SendMessage(eOrientationCombo, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(_T(orientationNames[comboInc].c_str())));
-	}
-	SendMessage(eOrientationCombo, CB_SETCURSEL, 0, 0);
-	// configuration combo
-	eConfigurationCombo = CreateWindowEx(NULL, TEXT("ComboBox"), "", CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
-		1080, 70, 840, 900, eMainWindowHandle, (HMENU)IDC_CONFIGURATION_COMBO, GetModuleHandle(NULL), NULL);
-	SendMessage(eConfigurationCombo, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	/// SEQUENCE
-	// Control eSequenceText, eSequenceCombo, eSequenceDisplay;
-	eSequenceText.normalPos = { 960, 100, 1440, 120 };
-	currentRect = eSequenceText.normalPos;
-	eSequenceText.hwnd = CreateWindowEx(NULL, "STATIC", "SEQUENCE", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
-		currentRect.left, currentRect.top, currentRect.right - currentRect.left, currentRect.bottom - currentRect.top,
-		eMainWindowHandle, (HMENU)IDC_SEQUENCE_TEXT, GetModuleHandle(NULL), NULL);
-	SendMessage(eSequenceText.hwnd, WM_SETFONT, WPARAM(sHeadingFont), TRUE);
-	// combo
-	eSequenceCombo.normalPos = { 960, 120, 1440, 1000 };
-	currentRect = eSequenceCombo.normalPos;
-	eSequenceCombo.hwnd = CreateWindowEx(NULL, TEXT("ComboBox"), "", CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
-		currentRect.left, currentRect.top, currentRect.right - currentRect.left, currentRect.bottom - currentRect.top,
-		eMainWindowHandle, (HMENU)IDC_SEQUENCE_COMBO, GetModuleHandle(NULL), NULL);
-	SendMessage(eSequenceCombo.hwnd, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	SendMessage(eSequenceCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"NO SEQUENCE");
-	SendMessage(eSequenceCombo.hwnd, CB_SETCURSEL, 0, 0);
-	// display
-	eSequenceDisplay.normalPos = { 960, 150, 1440, 250 };
-	currentRect = eSequenceDisplay.normalPos;
-	eSequenceDisplay.hwnd = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "Sequence of Configurations to Run:\r\n", ES_READONLY | WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL,
-		currentRect.left, currentRect.top, currentRect.right - currentRect.left, currentRect.bottom - currentRect.top,
-		eMainWindowHandle, (HMENU)IDC_SEQUENCE_DISPLAY, GetModuleHandle(NULL), NULL);
 
 	/// NOTES
+	// TODO
+	POINT notesStart = { 960, 250 };
+	eNotes.initializeControls(notesStart, eMainWindowHandle);
+	/*
 	// Configuration Notes Title
 	eNotesLabelTextHandle = CreateWindowEx(NULL, "STATIC", "NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
 		960, 250, 480, 20, eMainWindowHandle, (HMENU)IDC_NOTES_TEXT, GetModuleHandle(NULL), NULL);
@@ -161,7 +89,11 @@ int initializeMainWindow(HWND eMainWindowHandle)
 	eExperimentConfigurationNotesEditHandle = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL,
 		960, 270, 480, 480, eMainWindowHandle, (HMENU)IDC_CONFIG_NOTES, GetModuleHandle(NULL), NULL);
 	SendMessage(eExperimentConfigurationNotesEditHandle, WM_SETFONT, WPARAM(sNormalFont), TRUE);
+	*/
 	/// VARIABLES
+	POINT controlLocation = { 1440, 100 };
+	eVariables.initializeControls(controlLocation, eMainWindowHandle);
+	/*
 	// Variables Title
 	eVariablesLabelTextHandle = CreateWindowEx(NULL, "STATIC", "VARIABLES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
 		1440, 100, 480, 20, eMainWindowHandle, (HMENU)IDC_STATIC_2_TEXT, GetModuleHandle(NULL), NULL);
@@ -193,26 +125,7 @@ int initializeMainWindow(HWND eMainWindowHandle)
 	eVar6NameTextHandle = CreateWindowEx(NULL, "STATIC", "", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | WS_BORDER,
 		1760, 235, 160, 25, eMainWindowHandle, (HMENU)IDC_VAR_NAME_6_TEXT, GetModuleHandle(NULL), NULL);
 	SendMessage(eVar6NameTextHandle, WM_SETFONT, WPARAM(sCodeFont), TRUE);
-	// Dummy Variable Usage Box
-	eDummyVariableSelectHandle = CreateWindowEx(NULL, "BUTTON", "Use Dummy Variables?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT,
-		1440, 265, 480, 20, eMainWindowHandle, (HMENU)IDC_DUMMY_BUTTON, GetModuleHandle(NULL), NULL);
-	SendMessage(eDummyVariableSelectHandle, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	SendMessage(eDummyVariableSelectHandle, BM_SETCHECK, BST_UNCHECKED, NULL);
-	eUseDummyVariables = false;
-	eDummyNum = 0;
-	// Dummy Num Display
-	eDummyNumTextHandle = CreateWindowEx(NULL, "STATIC", "0", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS,
-		1440, 290, 85, 25, eMainWindowHandle, (HMENU)IDC_DUMMY_NUM_TEXT, GetModuleHandle(NULL), NULL);
-	SendMessage(eDummyNumTextHandle, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	// Dummy Variable Number Edit
-	eDummyNumEditHandle = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "0", WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL,
-		1525, 290, 85, 25, eMainWindowHandle, (HMENU)IDC_DUMMY_NUM_EDIT, GetModuleHandle(NULL), NULL);
-	SendMessage(eDummyNumEditHandle, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	// Set Dummy Variable Numbers
-	eDummyVariableButtonHandle = CreateWindowEx(NULL, "BUTTON", "Set Dummy Variable Number", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-		1615, 290, 305, 25, eMainWindowHandle, (HMENU)IDC_DUMMY_NUM_BUTTON, GetModuleHandle(NULL), NULL);
-	SendMessage(eDummyVariableButtonHandle, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-
+	*/
 	/// SETUP / EXPERIMENTAL PARAMETERS
 	// Setup / Experimental Parameters Title
 	eSetupParametersTextHandle = CreateWindowEx(NULL, "STATIC", "SETUP / EXPERIMENTAL PARAMETERS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
@@ -276,5 +189,11 @@ int initializeMainWindow(HWND eMainWindowHandle)
 	eColoredStatusEdit = CreateWindowEx(NULL, "STATIC", "Passively Outuputing Default Waveform", WS_CHILD | WS_VISIBLE | SS_CENTER,
 		960, 910, 960, 100, eMainWindowHandle, (HMENU)IDC_GUI_STAT_TEXT, GetModuleHandle(NULL), NULL);
 	SendMessage(eColoredStatusEdit, WM_SETFONT, WPARAM(sLargeHeadingFont), TRUE);
+
+
+	/// PROFILE DATA
+	POINT configStart = { 960, 0 };
+	eProfile.initializeControls(configStart, eMainWindowHandle);
+
 	return 0;
 }

@@ -5,9 +5,16 @@
 #include <vector>
 #include "niFgen.h"
 #include "Control.h"
+#include "ConfigurationFileSystem.h"
+#include "NoteSystem.h"
+#include "VariableSystem.h"
+
 extern ViStatus eError;
 extern bool eWaitError;
 
+extern ConfigurationFileSystem eProfile;
+extern NoteSystem eNotes;
+extern VariableSystem eVariables;
 
 // Default NIAWG Wavefunction Info.
 extern ViReal64* eDefault_hConfigMixedWaveform;
@@ -32,15 +39,6 @@ extern double eCurrentAgilentHigh;
 
 extern std::string eCurrentFolderDialogType;
 
-extern std::string eCurrentConfigurationLocation;
-extern std::string eCurrentCategoryFolder;
-extern std::string eCurrentExperimentFolder;
-extern std::string eExperimentConfigPathString;
-extern std::string eCurrentConfigurationName;
-extern std::string eCurrentSequenceName;
-extern std::string eCurrentExperimentName;
-extern std::string eCurrentCategoryName;
-extern std::string eCurrentOrientation;
 // These Describe the scripts
 extern std::string eVerticalParentScriptPathString;
 extern std::string eVerticalViewScriptPathString;
@@ -52,9 +50,8 @@ extern std::string eMostRecentVerticalScriptNames;
 extern std::string eMostRecentHorizontalScriptNames;
 extern std::string eMostRecentIntensityScriptNames;
 //
-extern std::vector<std::string> eVariableNames;
-extern std::vector<std::string> eVerticalVarFileNames;
-extern std::vector<std::string> eSequenceFileNames;
+//extern std::vector<std::string> eVariableNames;
+//extern std::vector<std::string> eVerticalVarFileNames;
 extern std::string eGenStatusColor;
 
 
@@ -70,8 +67,6 @@ extern char eIntensityCurrentViewScriptName[_MAX_FNAME];
 // A variable which records what script is currently being executed by the NIAWG.
 extern std::string eCurrentScript;
 
-extern int eDummyNum;
-
 extern unsigned int eAccumulations;
 
 extern unsigned int eGreenMessageID, eStatusTextMessageID, eErrorTextMessageID, 
@@ -83,8 +78,6 @@ extern bool eCurrentIntensityViewIsParent;
 
 
 extern bool eSystemIsRunning;
-extern bool eExperimentSaved;
-extern bool eConfigurationSaved;
 extern bool eVerticalScriptSaved;
 extern bool eHorizontalScriptSaved;
 extern bool eIntensityScriptSaved;
@@ -120,10 +113,6 @@ extern HBRUSH eDarkRedBrush;
 extern HBRUSH eNearBlackRedBrush;
 extern HBRUSH eGreyRedBrush;
 
-/// Objects for drawings
-extern RECT eRampCanvasRECT;
-extern HDC eRampsRectangleHDC;
-
 /// Other Global Handles
 extern HANDLE eWaitingForNIAWGEvent;
 extern HANDLE eExperimentThreadHandle;
@@ -144,15 +133,11 @@ extern HWND eSystemErrorTextHandle;
 extern HWND eVariablesLabelTextHandle;
 extern HWND eSetupParametersTextHandle;
 extern HWND eNotesLabelTextHandle;
-extern HWND eConfigurationComboLabelHandle;
-extern HWND eOrientationLabelHandle;
-extern HWND eSubConfigComboLabelHandle;
 
 // User-edited edit handles
 extern HWND eAccumulationsEditHandle;
 extern HWND eVariableNamesEditHandle;
 extern HWND eSystemDebugTextHandle;
-extern HWND eExperimentConfigurationNotesEditHandle;
 // Code-Dedited Edit Handles
 extern HWND eVar1NameTextHandle;
 extern HWND eVar2NameTextHandle;
@@ -185,11 +170,6 @@ extern HWND eVariableSetButtonHandle;
 extern HWND eOutputCorrTimeButton;
 extern HWND eOutputMoreInfoCheckButton;
 
-// ComboBox Handles
-extern HWND eExperimentTypeCombo;
-extern HWND eOrientationCombo;
-extern HWND eCategoryCombo;
-extern HWND eConfigurationCombo;
 /// Global API Handles (Scripting Window)
 // main
 extern HWND eScriptingWindowHandle;
@@ -211,8 +191,6 @@ extern HWND eHorizontalScriptNameTextHandle;
 extern HWND eConfigurationTextInScripting;
 
 // Code-Edited Checked Boxes
-extern HWND eExperimentSavedIndicatorHandle;
-extern HWND eConfigurationSavedIndicatorHandle;
 extern HWND eVerticalScriptSavedIndicatorHandle;
 extern HWND eHorizontalScriptSavedIndicatorHandle;
 extern HWND eIntensityScriptSavedIndicatorHandle;

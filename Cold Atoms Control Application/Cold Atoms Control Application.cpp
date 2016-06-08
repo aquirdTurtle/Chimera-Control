@@ -71,7 +71,8 @@
 /// /////////////////////////////////////////////////////////////////////////////////////////
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-	if (SAFEMODE)
+
+	if (TWEEZER_COMPUTER_SAFEMODE)
 	{
 		MessageBox(0, "Starting in Safe Mode. The program will not actually communicate with any of the devices", 0, MB_OK);
 	}
@@ -271,7 +272,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		+ std::to_string(datePointerStart.tm_mday) + " Time " + std::to_string(datePointerStart.tm_hour) + "-" + std::to_string(datePointerStart.tm_min) + "-"
 		+ std::to_string(datePointerStart.tm_sec);
 	bool andorConnectedForFolder = false;
-	if (!SAFEMODE)
+	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
 		boost::filesystem::path dir(CODE_LOGGING_FILES_PATH + logFolderNameStart);
 
@@ -317,7 +318,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	HANDLE h_Find_Handle;
 	std::string cppFindString = ACTUAL_CODE_FOLDER_PATH + "*.cpp";
 	std::string hFindString = ACTUAL_CODE_FOLDER_PATH + "*.h";
-	if (!SAFEMODE)
+	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
 		cpp_Find_Handle = FindFirstFile((LPSTR)cppFindString.c_str(), &find_cpp_Data);
 		if (cpp_Find_Handle != INVALID_HANDLE_VALUE)
@@ -371,7 +372,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			MessageBox(NULL, "Failed to find any .cpp files in folder!", NULL, NULL);
 		}
 	}
-	if (!SAFEMODE)
+	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
 		h_Find_Handle = FindFirstFile((LPSTR)hFindString.c_str(), &find_cpp_Data);
 		if (h_Find_Handle != INVALID_HANDLE_VALUE)
@@ -400,7 +401,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	std::vector<std::string> defXVarFileNames, defYVarFileNames;
 	// parameters for variables used by the default file. (there shouldn't be any, these are essentially just placeholders so that I can use the same functions.
 	std::vector<std::fstream> defXVarFiles;
-	if (!SAFEMODE)
+	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
 		std::ofstream hConfigVerticalDefaultScriptLog(EXPERIMENT_LOGGING_FILES_PATH + logFolderNameStart + "\\Default hConfig Vertical Script.script");
 		std::ofstream hConfigHorizontalDefaultScriptLog(EXPERIMENT_LOGGING_FILES_PATH + logFolderNameStart + "\\Default hConfig Horizontal Script.script");
@@ -411,7 +412,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		vConfigVerticalDefaultScriptLog << default_vConfigVerticalScriptFile[0].rdbuf();
 		vConfigHorizontalDefaultScriptLog << default_vConfigHorizontalScriptFile[0].rdbuf();
 	}
-	if (!SAFEMODE)
+	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
 		/// Initialize the waveform generator. Currently this is set to reset the initialization parameters from the last run.
 		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_init(NI_5451_LOCATION, VI_TRUE, VI_TRUE, &eSessionHandle)))
@@ -505,11 +506,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// work like I thought it did. If  I'd known this from the start, I probably wouldn't have created this subroutine, except perhaps for the fact that it get 
 	// called recursively by predefined scripts in the instructions file.
 	/// Create Horizontal Configuration
-	eCurrentOrientation = "Horizontal";
-
-	if (myErrorHandler(myNIAWG::createXYScript(default_hConfigVerticalScriptFile[0], default_hConfigHorizontalScriptFile[0], default_hConfigScriptString, TRIGGER_NAME, waveformCount, eSessionHandle, SESSION_CHANNELS,
+	eProfile.setOrientation(HORIZONTAL_ORIENTATION);
+	std::vector<variable> noSingletons;
+	if (myErrorHandler(myNIAWG::analyzeNIAWGScripts(default_hConfigVerticalScriptFile[0], default_hConfigHorizontalScriptFile[0], default_hConfigScriptString, TRIGGER_NAME, waveformCount, eSessionHandle, SESSION_CHANNELS,
 											   eError, defXPredWaveformNames, defYPredWaveformNames, defPredWaveformCount, defPredWaveLocs, libWaveformArray,
-											   fileOpenedStatus, allXWaveformParameters, xWaveformIsVaried, allYWaveformParameters, yWaveformIsVaried, true, false, ""),
+											   fileOpenedStatus, allXWaveformParameters, xWaveformIsVaried, allYWaveformParameters, yWaveformIsVaried, true, false, "", noSingletons),
 		"", ConnectSocket, default_hConfigVerticalScriptFile, default_hConfigHorizontalScriptFile, false, eError, eSessionHandle, userScriptIsWritten, "", false, false)
 		== true)
 	{
@@ -523,10 +524,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	sprintf_s(eDefault_hConfigScript, default_hConfigScriptString.length() + 1, "%s", default_hConfigScriptString.c_str());
 	strcpy_s(eDefault_hConfigScript, default_hConfigScriptString.length() + 1, default_hConfigScriptString.c_str());
 	
-	eCurrentOrientation = "Vertical";
-	if (myErrorHandler(myNIAWG::createXYScript(default_vConfigVerticalScriptFile[0], default_vConfigHorizontalScriptFile[0], default_vConfigScriptString, TRIGGER_NAME, waveformCount, eSessionHandle, SESSION_CHANNELS,
+	eProfile.setOrientation(VERTICAL_ORIENTATION);
+
+	if (myErrorHandler(myNIAWG::analyzeNIAWGScripts(default_vConfigVerticalScriptFile[0], default_vConfigHorizontalScriptFile[0], default_vConfigScriptString, TRIGGER_NAME, waveformCount, eSessionHandle, SESSION_CHANNELS,
 		eError, defXPredWaveformNames, defYPredWaveformNames, defPredWaveformCount, defPredWaveLocs, libWaveformArray,
-		fileOpenedStatus, allXWaveformParameters, xWaveformIsVaried, allYWaveformParameters, yWaveformIsVaried, true, false, ""),
+		fileOpenedStatus, allXWaveformParameters, xWaveformIsVaried, allYWaveformParameters, yWaveformIsVaried, true, false, "", noSingletons),
 		"", ConnectSocket, default_vConfigVerticalScriptFile, default_vConfigHorizontalScriptFile, false, eError, eSessionHandle, userScriptIsWritten, "", false, false)
 		== true)
 	{
@@ -541,10 +543,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	strcpy_s(eDefault_vConfigScript, default_vConfigScriptString.length() + 1, default_vConfigScriptString.c_str());
 
 	// but the default starts in the horizontal configuration, so switch back and start in this config.
-	eCurrentOrientation = "Horizontal";
+	eProfile.setOrientation(HORIZONTAL_ORIENTATION);
 	// default value of this variable.
 	eDontActuallyGenerate = false;
-	if (!SAFEMODE)
+	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
 		// write script to NIAWG
 		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigScript)))
@@ -562,7 +564,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 	eCurrentScript = "DefaultScript";
 	// Initiate Generation.
-	if (!SAFEMODE)
+	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
 		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_InitiateGeneration(eSessionHandle)))
 		{
@@ -626,7 +628,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	{
 		delete[] eDefault_hConfigScript;
 		delete[] eDefault_vConfigScript;
-		if (!SAFEMODE)
+		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
 			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE)))
 			{
