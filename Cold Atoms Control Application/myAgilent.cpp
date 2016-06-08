@@ -51,12 +51,12 @@ namespace myAgilent
 		getline(fileName, intensityCommand, '\r');
 		// get rid of case sensitivity.
 		std::transform(intensityCommand.begin(), intensityCommand.end(), intensityCommand.begin(), ::tolower);
-		if (intensityCommand == "agilent hold")
+		if (intensityCommand == "agilent hold" || intensityCommand == "intensity hold")
 		{
 			waveformSegments.resize(segNum + 1);
 			waveformSegments[segNum].assignSegType(0);
 		}
-		else if (intensityCommand == "agiletn ramp")
+		else if (intensityCommand == "agilent ramp" || intensityCommand == "intensity ramp")
 		{
 			waveformSegments.resize(segNum + 1);
 			waveformSegments[segNum].assignSegType(1);

@@ -180,7 +180,7 @@ namespace fileManage
 		char extChars[_MAX_EXT];
 		int myError = _splitpath_s(filePathway.c_str(), NULL, 0, NULL, 0, name, _MAX_FNAME, extChars, _MAX_EXT);
 		std::string extStr(extChars);
-		if (extStr != NIAWG_SCRIPT_EXTENSION&& extStr != AGILENT_SCRIPT_EXTENSION)
+		if (extStr != NIAWG_SCRIPT_EXTENSION && extStr != AGILENT_SCRIPT_EXTENSION)
 		{
 			MessageBox(0, "The file that the code attempted to open was not a .nScript or a .aScript file.", 0, 0);
 			return 0;

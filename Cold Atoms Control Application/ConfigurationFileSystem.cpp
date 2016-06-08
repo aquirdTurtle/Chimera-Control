@@ -1060,6 +1060,7 @@ bool ConfigurationFileSystem::saveCategoryOnly()
 		MessageBox(0, "ERROR: failed to save category file! Ask mark about bugs.", 0, 0);
 		return true;
 	}
+	categoryFileToSave << "Version: 1.0\n";
 	std::string categoryNotes = eNotes.getCategoryNotes();
 	categoryFileToSave << categoryNotes + "\n";
 	categoryFileToSave << "END CATEGORY NOTES\n";
@@ -1133,6 +1134,7 @@ bool ConfigurationFileSystem::saveCategoryAs()
 		MessageBox(0, "ERROR: failed to save category file! Ask mark about bugs.", 0, 0);
 		return true;
 	}
+	categoryFileToSave << "Version: 1.0\n";
 	std::string categoryNotes = eNotes.getCategoryNotes();
 	categoryFileToSave << categoryNotes + "\n";
 	categoryFileToSave << "END CATEGORY NOTES\n";
@@ -1251,8 +1253,10 @@ bool ConfigurationFileSystem::openCategory(std::string categoryToOpen, HWND pare
 
 	std::string notes;
 	std::string tempNote;
-	// no need to get a newline since this should be he first thing in the file.
-	//categoryConfigOpenFile.get();
+	std::string version;
+	std::getline(categoryConfigOpenFile, version);
+	categoryConfigOpenFile.get();
+	
 	std::getline(categoryConfigOpenFile, tempNote);
 	if (tempNote != "END CATEGORY NOTES")
 	{
@@ -1597,12 +1601,13 @@ bool ConfigurationFileSystem::openExperiment(std::string experimentToOpen, HWND 
 	// Assign based on the comboBox Item entry.
 	std::string path = FILE_SYSTEM_PATH + experimentToOpen + "\\" + experimentToOpen + EXPERIMENT_EXTENSION;
 	std::ifstream experimentConfigOpenFile(path.c_str());
-	
+//C:\Users\Regal Lab\Documents\Quantum Gas Assembly Control\Profiles\Spectroscopy\Spectroscopy.eConfig
+//C:\Users\Regal Lab\Documents\NIAWG Control Application\Profiles\Spectroscopy
 	// check if opened correctly.
 	if (!experimentConfigOpenFile.is_open())
 	{
 		MessageBox(0, "Opening of Experiment Configuration File Failed!", 0, 0);
-		return false;
+		return true;
 	}
 	currentProfileSettings.experiment = experimentToOpen;
 	pathIncludingExperiment = FILE_SYSTEM_PATH + experimentToOpen + "\\";
@@ -1830,6 +1835,7 @@ bool ConfigurationFileSystem::loadNullSequence()
 		appendText("No Configuration Loaded\r\n", IDC_SEQUENCE_DISPLAY, eMainWindowHandle);
 	}
 	SendMessage(sequenceCombo.hwnd, CB_SELECTSTRING, 0, (LPARAM)NULL_SEQUENCE);
+	this->updateSequenceSavedStatus(true);
 	return false;
 }
 
@@ -1850,6 +1856,7 @@ bool ConfigurationFileSystem::addToSequence(HWND parentWindow)
 	}
 	// add text to display.
 	appendText(std::to_string(sequenceConfigurationNames.size()) + ". " + sequenceConfigurationNames.back() + "\r\n", IDC_SEQUENCE_DISPLAY, parentWindow);
+	this->updateSequenceSavedStatus(false);
 	return false;
 }
 
@@ -1877,6 +1884,7 @@ bool ConfigurationFileSystem::sequenceChangeHandler()
 	}
 	// else not null_sequence.
 	this->reloadSequence(currentProfileSettings.sequence);
+	this->updateSequenceSavedStatus(true);
 	return false;
 }
 bool ConfigurationFileSystem::reloadSequence(std::string sequenceToReload)
@@ -1920,6 +1928,7 @@ bool ConfigurationFileSystem::saveSequence()
 	}
 	sequenceSaveFile.close();
 	this->reloadSequence(currentProfileSettings.sequence);
+	this->updateSequenceSavedStatus(true);
 	return false;
 }
 
@@ -1953,6 +1962,7 @@ bool ConfigurationFileSystem::saveSequenceAs()
 		sequenceSaveFile << sequenceConfigurationNames[sequenceInc] + "\n";
 	}
 	sequenceSaveFile.close();
+	this->updateSequenceSavedStatus(true);
 	return false;
 }
 
@@ -1979,6 +1989,7 @@ bool ConfigurationFileSystem::renameSequence()
 	}
 	currentProfileSettings.sequence = newSequenceName;
 	this->reloadSequence(currentProfileSettings.sequence);
+	this->updateSequenceSavedStatus(true);
 	return false;
 }
 
