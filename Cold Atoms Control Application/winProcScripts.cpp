@@ -19,7 +19,7 @@
 
 #include "boost/lexical_cast.hpp"
 #include <boost/algorithm/string.hpp>
-#include "menuAndAcceleratorFunctions.h"
+#include "commonMessages.h"
 #include "resource.h"
 
 #include "Windows.h"
@@ -141,7 +141,7 @@ LRESULT CALLBACK winProcScripts(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM
 			{
 				// check if the user wants to save
 				int cont = fileManage::checkSaveScript("horizontal", eHorizontalScriptEditHandle, thisWindow, eHorizontalCurrentParentScriptName, eHorizontalScriptSavedIndicatorHandle, eHorizontalScriptSaved,
-													   eHorizontalParentScriptPathString, eHorizontalScriptNameTextHandle);
+													   eHorizontalParentScriptPathString, eHorizontalScriptNameTextHandle, "NIAWG");
 				// this occurs if the user presses cancel. Just break, don't open.
 				if (cont == 0)
 				{
@@ -152,13 +152,14 @@ LRESULT CALLBACK winProcScripts(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM
 			{
 				// check if the user wants to save
 				int cont = fileManage::checkSaveScript("vertical", eVerticalScriptEditHandle, thisWindow, eVerticalCurrentParentScriptName, eVerticalScriptSavedIndicatorHandle, eVerticalScriptSaved,
-													   eHorizontalParentScriptPathString, eVerticalScriptNameTextHandle);
+													   eHorizontalParentScriptPathString, eVerticalScriptNameTextHandle, "NIAWG");
 				// this occurs if the user presses cancel. Just break, don't open.
 				if (cont == 0)
 				{
 					break;
 				}
 			}
+			/*
 			if (eExperimentSaved == false)
 			{
 				// check if the user wants to save
@@ -169,6 +170,7 @@ LRESULT CALLBACK winProcScripts(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM
 					break;
 				}
 			}
+			*/
 			std::string exitQuestion = "Are you sure you want to exit?\n\nThis will stop all output of the arbitrary waveform generator.";
 			int areYouSure = MessageBox(NULL, exitQuestion.c_str(), "Exit", MB_OKCANCEL | MB_ICONWARNING);
 			switch (areYouSure)
@@ -274,6 +276,54 @@ LRESULT CALLBACK winProcScripts(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM
 		{
 			switch (LOWORD(wParam))
 			{
+				/// All of the following messages are common to all windows in this program.
+				case ID_FILE_MY_RUN:
+				case ID_ACCELERATOR_F5:
+				case ID_FILE_MY_WRITE_WAVEFORMS:
+				case ID_ACCELERATOR_ESC:
+				case ID_FILE_ABORT_GENERATION:
+				case ID_FILE_SAVEALL:
+				case ID_FILE_MY_EXIT:
+				case ID_FILE_MY_INTENSITY_NEW:
+				case ID_FILE_MY_INTENSITY_OPEN:
+				case ID_FILE_MY_INTENSITY_SAVE:
+				case ID_FILE_MY_INTENSITY_SAVEAS:
+				case ID_FILE_MY_VERTICAL_NEW:
+				case ID_FILE_MY_VERTICAL_OPEN:
+				case ID_FILE_MY_VERTICAL_SAVE:
+				case ID_FILE_MY_VERTICAL_SAVEAS:
+				case ID_FILE_MY_HORIZONTAL_NEW:
+				case ID_FILE_MY_HORIZONTAL_OPEN:
+				case ID_FILE_MY_HORIZONTAL_SAVE:
+				case ID_FILE_MY_HORIZONTAL_SAVEAS:
+				case ID_SEQUENCE_ADD_TO_SEQUENCE:
+				case ID_SEQUENCE_SAVE_SEQUENCE:
+				case ID_SEQUENCE_NEW_SEQUENCE:
+				case ID_SEQUENCE_RESET_SEQUENCE:
+				case ID_SEQUENCE_DELETE_SEQUENCE:
+				case ID_PROFILE_SAVE_PROFILE:
+				case ID_HELP_SCRIPT:
+				case ID_HELP_GENERALINFORMATION:
+				case ID_NIAWG_RELOADDEFAULTWAVEFORMS:
+				case ID_EXPERIMENT_NEW_EXPERIMENT_TYPE:
+				case ID_CATEGORY_NEW_CATEGORY:
+				case ID_CONFIGURATION_SAVE_CONFIGURATION_AS:
+				case ID_EXPERIMENT_RENAME_CURRENT_EXPERIMENT:
+				case ID_EXPERIMENT_DELETE_CURRENT_EXPERIMENT:
+				case ID_CATEGORY_RENAME_CURRENT_CATEGORY:
+				case ID_CATEGORY_DELETE_CURRENT_CATEGORY:
+				case ID_CONFIGURATION_NEW_CONFIGURATION:
+				case ID_CONFIGURATION_RENAME_CURRENT_CONFIGURATION:
+				case ID_CONFIGURATION_DELETE_CURRENT_CONFIGURATION:
+				case ID_EXPERIMENT_SAVEEXPERIMENTSETTINGS:
+				case ID_EXPERIMENT_SAVEEXPERIMENTSETTINGSAS:
+				case ID_CATEGORY_SAVECATEGORYSETTINGS:
+				case ID_CONFIGURATION_SAVECONFIGURATIONSETTINGS:
+				case ID_SEQUENCE_RENAMESEQUENCE:
+				{
+					commonMessages::handleCommonMessage(thisWindow, msg, wParam, lParam);
+					break;
+				}
 				case IDC_INTENSITY_SCRIPT_VIEW_COMBO:
 				{
 					if (HIWORD(wParam) == CBN_SELCHANGE)
@@ -293,7 +343,7 @@ LRESULT CALLBACK winProcScripts(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM
 						{
 							// ask to save current script
 							if (fileManage::checkSaveScript("Vertical", eVerticalScriptEditHandle, thisWindow, eVerticalCurrentViewScriptName,
-								eVerticalScriptSavedIndicatorHandle, eVerticalScriptSaved, eVerticalViewScriptPathString, eVerticalScriptNameTextHandle) == 0)
+								eVerticalScriptSavedIndicatorHandle, eVerticalScriptSaved, eVerticalViewScriptPathString, eVerticalScriptNameTextHandle, "NIAWG") == 0)
 							{
 								break;
 							}
@@ -314,7 +364,7 @@ LRESULT CALLBACK winProcScripts(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM
 						{
 							eCurrentVerticalViewIsParent = false;
 							// construct the view names
-							eVerticalViewScriptPathString = eCurrentCategoryFolder + "\\" + std::string(selectedText) + ".script";
+							eVerticalViewScriptPathString = (eProfile.getCurrentPathIncludingCategory()) + "\\" + std::string(selectedText) + ".script";
 							strcpy_s(eVerticalCurrentViewScriptName, selectedText);
 							fileManage::openScript(thisWindow, eVerticalViewScriptPathString, eVerticalCurrentViewScriptName, eVerticalScriptEditHandle,
 												   eVerticalScriptSavedIndicatorHandle, eVerticalScriptNameTextHandle, eVerticalScriptSaved, false, false, 
@@ -332,7 +382,7 @@ LRESULT CALLBACK winProcScripts(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM
 						{
 							// ask to save current script
 							if (fileManage::checkSaveScript("Horizontal", eHorizontalScriptEditHandle, thisWindow, eHorizontalCurrentViewScriptName,
-								eHorizontalScriptSavedIndicatorHandle, eHorizontalScriptSaved, eHorizontalViewScriptPathString, eHorizontalScriptNameTextHandle) == 0)
+								eHorizontalScriptSavedIndicatorHandle, eHorizontalScriptSaved, eHorizontalViewScriptPathString, eHorizontalScriptNameTextHandle, "NIAWG") == 0)
 							{
 								break;
 							}
@@ -352,7 +402,7 @@ LRESULT CALLBACK winProcScripts(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM
 						{
 							eCurrentHorizontalViewIsParent = false;
 							// construct the view names
-							eHorizontalViewScriptPathString = eCurrentCategoryFolder + "\\" + std::string(selectedText) + ".script";
+							eHorizontalViewScriptPathString = (eProfile.getCurrentPathIncludingCategory()) + "\\" + std::string(selectedText) + ".script";
 							strcpy_s(eHorizontalCurrentViewScriptName, selectedText);
 							fileManage::openScript(thisWindow, eHorizontalViewScriptPathString, eHorizontalCurrentViewScriptName, eHorizontalScriptEditHandle,
 								eHorizontalScriptSavedIndicatorHandle, eHorizontalScriptNameTextHandle, eHorizontalScriptSaved, false, false, eCurrentHorizontalViewIsParent);
@@ -433,163 +483,6 @@ LRESULT CALLBACK winProcScripts(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM
 					}
 					break;
 				}
-				/// Begin System
-				case ID_FILE_MY_RUN:
-				case ID_ACCELERATOR_F5:
-				case ID_FILE_MY_WRITE_WAVEFORMS:
-				{
-					menuAndAcceleratorFunctions::startSystem(thisWindow, wParam);
-					break;
-				}
-				case ID_ACCELERATOR_ESC:
-				case ID_FILE_ABORT_GENERATION:
-				{				
-					menuAndAcceleratorFunctions::abortSystem(thisWindow);
-					break;
-				}
-				/// Menu Items
-				case ID_FILE_SAVEALL:
-				{
-					menuAndAcceleratorFunctions::saveAll(thisWindow);
-					break;
-				}
-				case ID_FILE_MY_EXIT: 
-				{	
-					menuAndAcceleratorFunctions::exitProgram(thisWindow);
-					break;
-				}
-				case ID_FILE_MY_INTENSITY_NEW:
-				{
-					menuAndAcceleratorFunctions::newIntensityScript(thisWindow);
-					break;
-				}
-				case ID_FILE_MY_INTENSITY_OPEN:
-				{
-					menuAndAcceleratorFunctions::openIntensityScript(thisWindow);
-					break;
-				}
-				case ID_FILE_MY_INTENSITY_SAVE:
-				{
-					menuAndAcceleratorFunctions::saveIntensityScript(thisWindow);
-					break;
-				}
-				case ID_FILE_MY_INTENSITY_SAVEAS:
-				{
-					menuAndAcceleratorFunctions::saveIntensityScriptAs(thisWindow);
-					break;
-				}				
-				case ID_FILE_MY_VERTICAL_NEW:
-				{
-					menuAndAcceleratorFunctions::newVerticalScript(thisWindow);
-					break;
-				}
-				case ID_FILE_MY_VERTICAL_OPEN:
-				{
-					menuAndAcceleratorFunctions::openVerticalScript(thisWindow);
-					break;
-				}
-				case ID_FILE_MY_VERTICAL_SAVE:
-				{
-					menuAndAcceleratorFunctions::saveVerticalScript(thisWindow);
-					break;
-				}
-				case ID_FILE_MY_VERTICAL_SAVEAS:
-				{
-					menuAndAcceleratorFunctions::saveVerticalScriptAs(thisWindow);
-					break;
-				}
-
-				case ID_FILE_MY_HORIZONTAL_NEW:
-				{
-					menuAndAcceleratorFunctions::newHorizontalScript(thisWindow);
-					break;
-				}
-				case ID_FILE_MY_HORIZONTAL_OPEN:
-				{
-					menuAndAcceleratorFunctions::openHorizontalScript(thisWindow);
-					break;
-				}
-				case ID_FILE_MY_HORIZONTAL_SAVE:
-				{
-					menuAndAcceleratorFunctions::saveHorizontalScript(thisWindow);
-					break;
-				}
-				case ID_FILE_MY_HORIZONTAL_SAVEAS:
-				{
-					menuAndAcceleratorFunctions::saveHorizontalScriptAs(thisWindow);
-					break;
-				}
-				case ID_PROFILE_SAVE_PROFILE:
-				{
-					menuAndAcceleratorFunctions::saveProfile(thisWindow);
-					break;
-				}
-				case ID_HELP_SCRIPT:
-				{
-					menuAndAcceleratorFunctions::helpWindow(thisWindow);
-					break;
-				}
-				case ID_HELP_GENERALINFORMATION:
-				{
-					break;
-				}
-				case ID_NIAWG_RELOADDEFAULTWAVEFORMS:
-				{
-					menuAndAcceleratorFunctions::reloadNIAWGDefaults(thisWindow);
-					break;
-				}
-
-				case ID_EXPERIMENT_NEW_EXPERIMENT_TYPE:
-				{
-					menuAndAcceleratorFunctions::newExperimentType(thisWindow);
-					break;
-				}
-				case ID_CATEGORY_NEW_CATEGORY:
-				{
-					menuAndAcceleratorFunctions::newCategory(thisWindow);
-					break;
-				}
-				case ID_CONFIGURATION_SAVE_CONFIGURATION_AS:
-				{
-					menuAndAcceleratorFunctions::saveConfigurationAs(thisWindow);
-					break;
-				}
-				case ID_EXPERIMENT_RENAME_CURRENT_EXPERIMENT:
-				{
-					menuAndAcceleratorFunctions::renameCurrentExperimentType(thisWindow);
-					break;
-				}
-				case ID_EXPERIMENT_DELETE_CURRENT_EXPERIMENT:
-				{
-					menuAndAcceleratorFunctions::deleteCurrentExperimentType(thisWindow);
-					break;
-				}
-				case ID_CATEGORY_RENAME_CURRENT_CATEGORY:
-				{
-					menuAndAcceleratorFunctions::renameCurrentCategory(thisWindow);
-					break;
-				}
-				case ID_CATEGORY_DELETE_CURRENT_CATEGORY:
-				{
-					menuAndAcceleratorFunctions::deleteCurrentCategory(thisWindow);
-					break;
-				}
-				case ID_CONFIGURATION_NEW_CONFIGURATION:
-				{
-					menuAndAcceleratorFunctions::newConfiguration(thisWindow);
-					break;
-				}
-				case ID_CONFIGURATION_RENAME_CURRENT_CONFIGURATION:
-				{
-					menuAndAcceleratorFunctions::renameCurrentConfiguration(thisWindow);
-					break;
-				}
-				case ID_CONFIGURATION_DELETE_CURRENT_CONFIGURATION:
-				{
-					menuAndAcceleratorFunctions::deleteCurrentConfiguration(thisWindow);
-					break;
-				}
-
 			}
 			break;
 		}

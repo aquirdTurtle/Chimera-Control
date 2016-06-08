@@ -14,4 +14,6 @@ struct Control
 	int triggerModeSensitive = 0;
 	// a string that indicates the general font type. Exact size determined by this and size of system window.
 	std::string fontType;
+	// TODO: add colors themselves as a control.
+	int colorState = 0;
 };

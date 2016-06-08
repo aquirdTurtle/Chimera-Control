@@ -6,6 +6,12 @@
 #include <vector>
 #include "Windows.h"
 #include "constants.h"
+#include "ConfigurationFileSystem.h"
+#include "VariableSystem.h"
+
+ConfigurationFileSystem eProfile(EXPERIMENT_CONFIGURATION_FILES_FOLDER_PATH);
+NoteSystem eNotes;
+VariableSystem eVariables;
 
 // Agilent Stuff
 double eCurrentAgilentLow = std::stod(AGILENT_DEFAULT_DC);
@@ -30,8 +36,6 @@ ViChar* eDefault_vConfigScript;
 HINSTANCE eGlobalInstance;
 ViStatus eError = VI_SUCCESS;
 
-std::string eCurrentExperimentFolder;
-
 std::string eExperimentConfigPathString;
 std::string eVerticalParentScriptPathString;
 std::string eVerticalViewScriptPathString;
@@ -42,24 +46,15 @@ std::string eIntensityViewScriptPathString;
 std::string eMostRecentVerticalScriptNames;
 std::string eMostRecentHorizontalScriptNames;
 std::string eMostRecentIntensityScriptNames;
-std::string eCurrentConfigurationName;
-std::string eCurrentExperimentName;
-std::string eCurrentConfigurationLocation;
-std::string eCurrentCategoryFolder;
-std::string eCurrentCategoryName;
-std::string eCurrentOrientation = "Horizontal";
-std::string eCurrentSequenceName = "NO SEQUENCE";
 std::vector<std::string> eSequenceFileNames;
-std::vector<std::string> eVariableNames;
-std::vector<std::string> eVerticalVarFileNames;
+//std::vector<std::string> eVariableNames;
+//std::vector<std::string> eVerticalVarFileNames;
 
 bool eCurrentVerticalViewIsParent = true;
 bool eCurrentHorizontalViewIsParent = true;
 bool eCurrentIntensityViewIsParent = true;
 
 bool eSystemIsRunning;
-bool eExperimentSaved;
-bool eConfigurationSaved;
 bool eVerticalScriptSaved;
 bool eHorizontalScriptSaved;
 bool eIntensityScriptSaved;
@@ -137,9 +132,6 @@ HWND eDebuggingOptionsDisplayHandle;
 HWND eVariablesLabelTextHandle;
 HWND eSetupParametersTextHandle;
 HWND eNotesLabelTextHandle;
-HWND eConfigurationComboLabelHandle;
-HWND eOrientationLabelHandle;
-HWND eSubConfigComboLabelHandle;
 
 // Code-Edited Edit Handles
 HWND eExperimentTypeTextHandle2;
@@ -156,12 +148,7 @@ HWND eOutputMoreInfoCheckButton;
 HWND eIntensityScriptEditHandle;
 // Button Handles
 HWND eScriptErrorClearButtonHandle;
-// ComboBox
-HWND eExperimentTypeCombo;
-HWND eOrientationCombo;
-HWND eCategoryCombo;
-HWND eConfigurationCombo;
-
+// edit handles
 HWND eVariableNamesEditHandle;
 
 HWND eLoadConfigButtonHandle;
@@ -193,9 +180,6 @@ HWND eDebugStatusTextHandle;
 HWND eSystemStatusTextHandle;
 HWND eSystemDebugTextHandle;
 
-HWND eExperimentConfigurationNotesEditHandle;
-
-
 /// //////////////////////////////////////////////////////////////////////////////////////////
 ///
 /// Global API Handle Declarations (Scripting Window)
@@ -208,7 +192,6 @@ HWND eStaticHorizontalEditHandle;
 HWND eVerticalScriptEditHandle;
 HWND eHorizontalScriptEditHandle;
 
-HWND eExperimentSavedIndicatorHandle;
 HWND eVerticalScriptSavedIndicatorHandle;
 HWND eHorizontalScriptSavedIndicatorHandle;
 HWND eConfigurationSavedIndicatorHandle;

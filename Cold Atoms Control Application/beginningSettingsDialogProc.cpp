@@ -3,7 +3,7 @@
 #include "fonts.h"
 #include <sstream>
 
-INT_PTR  CALLBACK beginningSettingsDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK beginningSettingsDialogProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{

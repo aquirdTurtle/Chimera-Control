@@ -73,19 +73,28 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Things I Don%27t Mess With %28Often%29</Filter>
     </ClCompile>
-    <ClCompile Include="menuAndAcceleratorFunctions.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
     <ClCompile Include="postMyString.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="beginningSettingsDialogProc.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="namePromptDialogProc.cpp">
+    <ClCompile Include="selectInCombo.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="selectInCombo.cpp">
+    <ClCompile Include="ConfigurationFileSystem.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="textPromptDialogProcedure.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="commonMessages.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NoteSystem.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VariableSystem.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -183,22 +192,31 @@
     <ClInclude Include="constants.h">
       <Filter>Constants, Externals, Etc.</Filter>
     </ClInclude>
-    <ClInclude Include="menuAndAcceleratorFunctions.h">
-      <Filter>Function Headers</Filter>
-    </ClInclude>
     <ClInclude Include="postMyString.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="beginningSettingsDialogProc.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
-    <ClInclude Include="namePromptDialogProc.h">
-      <Filter>Function Headers</Filter>
-    </ClInclude>
     <ClInclude Include="Control.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="selectInCombo.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationFileSystem.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="textPromptDialogProcedure.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="commonMessages.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="NoteSystem.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="VariableSystem.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
   </ItemGroup>

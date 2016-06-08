@@ -28,7 +28,7 @@ namespace myAgilent
 	 *		int assignContinuationType(int contTypeIn);
 	 *		int assignTime(double timeIn);
 	 *		int	assignRepeatNum(int repeatNumIn);
-	 *		int returnSegType();
+	 *		int returnSegmentType();
 	 *		long returnDataSize();
 	 *		int returnRepeatNum();
 	 *		int returnContinuationType();
@@ -56,7 +56,8 @@ namespace myAgilent
 	 *		std::vector<std::string> segVarNames;
 	 *		std::vector<int> varLocations;
 	 */
-	class Segment{
+	class Segment
+	{
 		public:
 			Segment();
 			~Segment();
@@ -67,7 +68,7 @@ namespace myAgilent
 			int assignContinuationType(int contTypeIn);
 			int assignTime(double timeIn);
 			int	assignRepeatNum(int repeatNumIn);
-			int returnSegType();
+			int returnSegmentType();
 			long returnDataSize();
 			int returnRepeatNum();
 			int returnContinuationType();
@@ -129,7 +130,7 @@ namespace myAgilent
 		public:
 			IntensityWaveform();
 			~IntensityWaveform();
-			int readIntoSegment(int segNum, std::fstream& fileName);
+			int readIntoSegment(int segNum, std::fstream& fileName, std::vector<variable> singletons);
 			int writeData(int SegNum);
 			std::string compileAndReturnDataSendString(int segNum, int varNum, int totalSegNum);
 			int compileSequenceString(int totalSegNum, int sequenceNum);
@@ -156,16 +157,22 @@ namespace myAgilent
 	int agilentDefault();
 	
 	/*
+	]---- This function is used to analyze a given intensity file. It's used to analyze all of the basic intensity files listed in the sequence of 
+	]- configurations, but also recursively to analyze nested intensity scripts.
+	*/
+	bool analyzeIntensityScript(std::fstream& intensityFile, myAgilent::IntensityWaveform* intensityWaveformData, int& currentSegmentNumber, 
+								std::vector<variable> singletons);
+	/*
 	 * The programIntensity function reads in the intensity script file, interprets it, creates the segments and sequences, and outputs them to the andor to be
 	 * ready for usage. 
 	 * 
 	 */
-	int programIntensity(int varNum, std::vector<std::string> varNames, std::vector<std::vector<double> > varValues, bool& intensityVaried,
+	int programIntensity(int varNum, std::vector<variable> varNames, std::vector<std::vector<double> > varValues, bool& intensityVaried,
 						 std::vector<myMath::minMaxDoublet>& minsAndMaxes, std::vector<std::vector<POINT>>& pointsToDraw, 
-						 std::vector<std::fstream>& intensityFiles);
+						 std::vector<std::fstream>& intensityFiles, std::vector<variable> singletons);
 
 	int agilentErrorCheck(long status, unsigned long vi);
-
+	
 	int selectIntensityProfile(int varNum, bool intensityIsVaried, std::vector<myMath::minMaxDoublet> intensityMinMax);
 
 }

@@ -288,21 +288,6 @@ bool initializeCameraWindow(HWND cameraWindow)
 	collumnPosCont.y += 30;
 	eCurrentTriggerMode = "External";
 
-	/// IMAGE PARAMETERS
-	// Set Image Parameters Button
-	eSetImageParametersButtonHandle.kineticSeriesModePos = { 0, collumnPosKin.y, 420, collumnPosKin.y + 25 };
-	eSetImageParametersButtonHandle.continuousSingleScansModePos = { 0, collumnPosCont.y, 420, collumnPosCont.y + 25 };
-	eSetImageParametersButtonHandle.accumulateModePos = { 0, collumnPosAccum.y, 420, collumnPosAccum.y + 25 };
-	initPos = eSetImageParametersButtonHandle.kineticSeriesModePos;
-	eSetImageParametersButtonHandle.hwnd = CreateWindowEx(0, "BUTTON", "Set Camera Image Dimensions and Binning",
-													WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON,
-		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top,
-		cameraWindow, (HMENU)IDC_SET_IMAGE_PARAMS_BUTTON, eHInst, NULL);
-	eSetImageParametersButtonHandle.fontType = "Normal";
-	collumnPosKin.y += 30;
-	collumnPosAccum.y += 30;
-	collumnPosCont.y += 30;
-	
 	/// autoanalysis
 	eAutoAnalysisHandler.initializeControls(collumnPosKin, collumnPosAccum, collumnPosCont, cameraWindow, true);
 

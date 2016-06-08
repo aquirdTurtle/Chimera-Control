@@ -11,7 +11,7 @@
 #include <sstream>
 
 #include "colorScript.h"
-
+#include "textPromptDialogProcedure.h"
 /**
  * This namespace contains all major functions for handling script and configuration save files. It includes:
  * 
@@ -34,6 +34,7 @@ namespace fileManage
 	/*
 	 * This function checks whether the user wants to save an experiment configuration or not. It returns 1 if successful, it returns 0 if the user canceled.
 	 */
+
 	int checkExperimentSave(HWND parWin)
 	{
 		int msgboxID = MessageBox(NULL, "Save Current Profile?", "Save Prompt", MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON3);
@@ -95,422 +96,22 @@ namespace fileManage
 	 */
 	int openExperimentConfig(HWND parWin, std::string comboBoxItem)
 	{
-		bool reverseOrder = false;
-		// this gets called from the file menu.
-		// Assign based on the comboBox Item entry.
-		eExperimentConfigPathString = EXPERIMENT_CONFIGURATION_FILES_FOLDER_PATH + "\\" + comboBoxItem + "\\" + comboBoxItem + ".experimentConfig";
-		std::vector<char> vecChar_CurrentConfigurationName(eCurrentCategoryName.c_str(), eCurrentCategoryName.c_str() + eCurrentCategoryName.size() + 1u);
-		char nameStr[_MAX_FNAME];
-		char extChars[_MAX_EXT];
-		// do stuff
-		int myError = _splitpath_s(eExperimentConfigPathString.c_str(), NULL, 0, NULL, 0, nameStr, _MAX_FNAME, extChars, _MAX_EXT);
-		std::string extStr(extChars);
-		if (extStr != ".experimentConfig")
-		{
-			MessageBox(0, "Please open a .experimentConfig file.", 0, 0);
-			return 0;
-			// user tried to open a not-conifg file.
-		}
-		eCurrentExperimentName = std::string(nameStr);
-
-		std::ifstream experimentConfigOpenFile(eExperimentConfigPathString.c_str());
-
-		// check if opened correctly.
-		if (!experimentConfigOpenFile)
-		{
-			MessageBox(0, "Opening of Experiment Configuration File Failed!", 0, 0);
-			return -1;
-		}
-
-		/// Set the Configuration combobox.
-		// Get all files in the relevant directory.
-		std::vector<std::string> configurationNames;
-		configurationNames = fileManage::searchForFiles(eCurrentExperimentFolder, "*");
-
-		// Make the final vector out of the unique objects left.
-		// Send list to object
-		for (int comboInc = 0; comboInc < configurationNames.size(); comboInc++)
-		{
-			SendMessage(eCategoryCombo, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(_T(configurationNames[comboInc].c_str())));
-		}
-		
-		/// Load Values from the experiment config file.
-		// Dummy Variable Option
-		experimentConfigOpenFile >> eUseDummyVariables;
-		if (eUseDummyVariables) 
-		{
-			CheckDlgButton(parWin, IDC_DUMMY_BUTTON, BST_CHECKED);
-			// You can't use normal variables if you use a dummy variable.
-			eVariableNames.resize(0);
-			eVerticalVarFileNames.resize(0);
-			char tempChar2 = '\0';
-			SetWindowText(eVar1NameTextHandle, &tempChar2);
-			// If these weren't already empty, they are now, so...
-			SetWindowText(eVar2NameTextHandle, &tempChar2);
-			SetWindowText(eVar3NameTextHandle, &tempChar2);
-			SetWindowText(eVar4NameTextHandle, &tempChar2);
-			SetWindowText(eVar5NameTextHandle, &tempChar2);
-			SetWindowText(eVar6NameTextHandle, &tempChar2);
-		}
-		else 
-		{
-			CheckDlgButton(parWin, IDC_DUMMY_BUTTON, BST_UNCHECKED);
-		}
-		// Dummy Variable Number
-		experimentConfigOpenFile >> eDummyNum;
-		std::string dummyNumString = std::to_string(eDummyNum);
-		SetWindowText(eDummyNumTextHandle, (LPCSTR)dummyNumString.c_str());
-
-		// Accumulations Number
-		experimentConfigOpenFile >> eAccumulations;
-		std::string accumString = std::to_string(eAccumulations);
-		SetWindowText(eAccumulationsTextHandle, (LPCSTR)accumString.c_str());
-
-		// get var files from master option
-		experimentConfigOpenFile >> eGetVarFilesFromMaster;
-		if (eGetVarFilesFromMaster)
-		{
-			CheckDlgButton(parWin, IDC_RECEIVE_VAR_FILES_BUTTON, BST_CHECKED);
-		}
-		else
-		{
-			CheckDlgButton(parWin, IDC_RECEIVE_VAR_FILES_BUTTON, BST_UNCHECKED);
-		}
-
-		// output waveform read progress option
-		experimentConfigOpenFile >> eOutputReadStatus;
-		if (eOutputReadStatus)
-		{
-			CheckDlgButton(parWin, IDC_OUTPUT_READ_STATUS, BST_CHECKED);
-		}
-		else
-		{
-			CheckDlgButton(parWin, IDC_OUTPUT_READ_STATUS, BST_UNCHECKED);
-		}
-		// output waveform write progress option
-		experimentConfigOpenFile >> eOutputWriteStatus;
-		if (eOutputWriteStatus)
-		{
-			CheckDlgButton(parWin, IDC_OUTPUT_WRITE_STATUS, BST_CHECKED);
-		}
-		else
-		{
-			CheckDlgButton(parWin, IDC_OUTPUT_WRITE_STATUS, BST_UNCHECKED);
-		}
-		// log current script option
-		experimentConfigOpenFile >> eLogScriptAndParams;
-		if (eLogScriptAndParams)
-		{
-			CheckDlgButton(parWin, IDC_LOG_SCRIPT_PARAMS, BST_CHECKED);
-		}
-		else
-		{
-			CheckDlgButton(parWin, IDC_LOG_SCRIPT_PARAMS, BST_UNCHECKED);
-		}
-
-		// connect to master option
-		experimentConfigOpenFile >> eConnectToMaster;
-		if (eConnectToMaster)
-		{
-			CheckDlgButton(parWin, IDC_CONNECT_TO_MASTER_BUTTON, BST_CHECKED);
-		}
-		else
-		{
-			CheckDlgButton(parWin, IDC_CONNECT_TO_MASTER_BUTTON, BST_UNCHECKED);
-		}
-
-		// output correction waveform time option
-		experimentConfigOpenFile >> eOutputCorrTime;
-		if (eOutputCorrTime)
-		{
-			CheckDlgButton(parWin, IDC_OUTPUT_CORR_TIME_BUTTON, BST_CHECKED);
-		}
-		else
-		{
-			CheckDlgButton(parWin, IDC_OUTPUT_CORR_TIME_BUTTON, BST_UNCHECKED);
-		}
-		// program the agilent intensity functino generator option
-		experimentConfigOpenFile >> eProgramIntensityOption;
-		if (eProgramIntensityOption)
-		{
-			CheckDlgButton(parWin, IDC_PROGRAM_INTENSITY_BOX, BST_CHECKED);
-		}
-		else
-		{
-			CheckDlgButton(parWin, IDC_PROGRAM_INTENSITY_BOX, BST_UNCHECKED);
-		}
-
-		experimentConfigOpenFile >> eOutputRunInfo;
-		if (eOutputRunInfo)
-		{
-			CheckDlgButton(parWin, IDC_OUTPUT_MORE_RUN_INFO, BST_CHECKED);
-		}
-		else
-		{
-			CheckDlgButton(parWin, IDC_OUTPUT_MORE_RUN_INFO, BST_UNCHECKED);
-		}
-
-		std::string notes;
-		std::string tempNote;
-		std::getline(experimentConfigOpenFile, tempNote);
-		while (experimentConfigOpenFile)
-		{
-			notes += tempNote + "\r\n";
-			std::getline(experimentConfigOpenFile, tempNote);
-		} 
-		SendMessage(eExperimentConfigurationNotesEditHandle, WM_SETTEXT, 0, (LPARAM)notes.c_str());
-
-		// And done. update the indicators:
-		SendMessage(eExperimentSavedIndicatorHandle, BM_SETCHECK, BST_CHECKED, NULL);
-		eExperimentSaved = true;
-
-		SetWindowText(eConfigurationDisplayInScripting, "");
-		// close.
-		experimentConfigOpenFile.close();
-		return 1;
-	}
-
-	/*
-	 * This function opens the scripts from the subconfig file
-	 */
-	int openSubConfig(HWND parWin, std::string subConfigFileName)
-	{
-		/// Open file
-		std::ifstream subConfigFile(subConfigFileName.c_str());
-		if (!subConfigFile.is_open())
-		{
-			MessageBox(0, "Couldn't open Subconfig File!", 0, 0);
-			return 0;
-		}
-		///
-		// Open Vertical Script
-		getline(subConfigFile, eVerticalParentScriptPathString);
-		fileManage::openScript(parWin, eVerticalParentScriptPathString, eVerticalCurrentParentScriptName, eVerticalScriptEditHandle, eVerticalScriptSavedIndicatorHandle, eVerticalScriptNameTextHandle,
-							   eVerticalScriptSaved, false, true, true);
-		// Open Horizontal Script
-		getline(subConfigFile, eHorizontalParentScriptPathString);
-		fileManage::openScript(parWin, eHorizontalParentScriptPathString, eHorizontalCurrentParentScriptName, eHorizontalScriptEditHandle, eHorizontalScriptSavedIndicatorHandle, eHorizontalScriptNameTextHandle,
-							   eHorizontalScriptSaved, false, true, true);
-		// Open Intensity Script
-		getline(subConfigFile, eIntensityParentScriptPathString);
-		fileManage::openScript(parWin, eIntensityParentScriptPathString, eIntensityCurrentParentScriptName, eIntensityScriptEditHandle, eIntensityScriptSavedIndicatorHandle,
-							   eIntensityNameHandle, eIntensityScriptSaved, false, false, true);
-		int position;
-		std::string scriptLocation;
-		if (eVerticalParentScriptPathString.size() > 0)
-		{
-			// Check location of vertical script.
-			position = eVerticalParentScriptPathString.find_last_of('\\');
-			scriptLocation = eVerticalParentScriptPathString.substr(0, position);
-			if (scriptLocation != eCurrentCategoryFolder)
-			{
-				int answer = MessageBox(0, "The requested vertical script is not currently located in the current configuration folder. This is recommended so that scripts related to a"
-					" particular configuration are reserved to that configuration folder. Copy script to current configuration folder?", 0, MB_YESNO);
-				if (answer == IDYES)
-				{
-					std::string scriptName = eVerticalParentScriptPathString.substr(position, eVerticalParentScriptPathString.size());
-					eVerticalParentScriptPathString = eCurrentCategoryFolder + scriptName;
-					fileManage::saveScript(eVerticalScriptEditHandle, eVerticalParentScriptPathString, eVerticalScriptSavedIndicatorHandle, eVerticalScriptSaved);
-				}
-			}
-		}
-		if (eHorizontalParentScriptPathString.size() > 0)
-		{
-			// Check location of horizontal script.
-			position = eHorizontalParentScriptPathString.find_last_of('\\');
-			scriptLocation = eHorizontalParentScriptPathString.substr(0, position);
-			if (scriptLocation != eCurrentCategoryFolder)
-			{
-				int answer = MessageBox(0, "The requested horizontal script is not currently located in the current configuration folder. This is recommended so that scripts related to a"
-					" particular configuration are reserved to that configuration folder. Copy script to current configuration folder?", 0, MB_YESNO);
-				if (answer == IDYES)
-				{
-					std::string scriptName = eHorizontalParentScriptPathString.substr(position, eHorizontalParentScriptPathString.size());
-					eHorizontalParentScriptPathString = eCurrentCategoryFolder + scriptName;
-					fileManage::saveScript(eHorizontalScriptEditHandle, eHorizontalParentScriptPathString, eHorizontalScriptSavedIndicatorHandle, eHorizontalScriptSaved);
-				}
-			}
-		}
-
-		if (eIntensityParentScriptPathString.size() > 0)
-		{
-			// Check location of Intensity script.
-			position = eIntensityParentScriptPathString.find_last_of('\\');
-			scriptLocation = eIntensityParentScriptPathString.substr(0, position);
-			if (scriptLocation != eCurrentCategoryFolder)
-			{
-				int answer = MessageBox(0, "The requested intensity script is not currently located in the current configuration folder. This is recommended so that scripts related to a"
-					" particular configuration are reserved to that configuration folder. Copy script to current configuration folder?", 0, MB_YESNO);
-				if (answer == IDYES)
-				{
-					std::string scriptName = eIntensityParentScriptPathString.substr(position, eIntensityParentScriptPathString.size());
-					eIntensityParentScriptPathString = eCurrentCategoryFolder + scriptName;
-					fileManage::saveScript(eIntensityScriptEditHandle, eIntensityParentScriptPathString, eIntensityScriptSavedIndicatorHandle, eIntensityScriptSaved);
-				}
-			}
-		}
-		/// Get Variables
-		// Number of Variables
-		int varNum;
-		subConfigFile >> varNum;
-		if (varNum < 0 || varNum > 6)
-		{
-			// nothing in the file...?
-			eVariableNames.resize(0);
-		}
-		else
-		{
-			eVariableNames.resize(varNum);
-		}
-		// Handle Variable Characters
-		if (eVariableNames.size() < 6)
-		{
-			SetWindowText(eVar6NameTextHandle, '\0');
-		}
-		else
-		{
-			subConfigFile >> eVariableNames[5];
-			SetWindowText(eVar6NameTextHandle, eVariableNames[5].c_str());
-		}
-		if (eVariableNames.size() < 5)
-		{
-			SetWindowText(eVar5NameTextHandle, '\0');
-		}
-		else
-		{
-			subConfigFile >> eVariableNames[4];
-			SetWindowText(eVar5NameTextHandle, eVariableNames[4].c_str());
-		}
-		if (eVariableNames.size() < 4)
-		{
-			SetWindowText(eVar4NameTextHandle, '\0');
-		}
-		else
-		{
-			subConfigFile >> eVariableNames[3];
-			SetWindowText(eVar4NameTextHandle, eVariableNames[3].c_str());
-		}
-		if (eVariableNames.size() < 3)
-		{
-			SetWindowText(eVar3NameTextHandle, '\0');
-		}
-		else
-		{
-			subConfigFile >> eVariableNames[2];
-			SetWindowText(eVar3NameTextHandle, eVariableNames[2].c_str());
-		}
-		if (eVariableNames.size() < 2)
-		{
-			SetWindowText(eVar2NameTextHandle, '\0');
-		}
-		else
-		{
-			subConfigFile >> eVariableNames[1];
-			SetWindowText(eVar2NameTextHandle, eVariableNames[1].c_str());
-		}
-		if (eVariableNames.size() < 1)
-		{
-			SetWindowText(eVar1NameTextHandle, '\0');
-		}
-		else
-		{
-			subConfigFile >> eVariableNames[0];
-			SetWindowText(eVar1NameTextHandle, eVariableNames[0].c_str());
-			// Can't use adummy variable if you use real variables.
-			CheckDlgButton(parWin, IDC_DUMMY_BUTTON, BST_UNCHECKED);
-			eUseDummyVariables = false;
-		}
-
-		fileManage::saveConfig();
 
 		return 0;
 	}
 	
+
+	int openConfiguration(HWND parWin, std::string subConfigFile)
+	{
+		return 0;
+	}
 	/*
 	 * Saves the configuration based on the current configuration name. Retruns 0 if no current name, 1 if successful.
 	 */
 	int saveConfig()
 	{
-		// check if name exists.
-		if (eExperimentConfigPathString == "")
-		{
-			MessageBox(0, "No experiment configuration has been set yet.", 0, 0);
-			// name doesn't exist
-			return 0;
-		}
-
-		// If it does, open it.
-		std::fstream experimentConfigSaveFile(eExperimentConfigPathString, std::fstream::out);
-		if (!experimentConfigSaveFile.is_open())
-		{
-			MessageBox(0, "Couldn't open the experiment configuration file!", 0, 0);
-			return -1;
-		}
-		// Dummy Variable Option
-		experimentConfigSaveFile << eUseDummyVariables << "\n";
-		// Dummy Variable Number
-		experimentConfigSaveFile << eDummyNum << "\n";
-		// Accumulations Number
-		experimentConfigSaveFile << eAccumulations << "\n";
-		// get var files from master option
-		experimentConfigSaveFile << eGetVarFilesFromMaster << "\n";
-		// output waveform read progress option
-		experimentConfigSaveFile << eOutputReadStatus << "\n";
-		// output waveform write progress option
-		experimentConfigSaveFile << eOutputWriteStatus << "\n";
-		// log current script option
-		experimentConfigSaveFile << eLogScriptAndParams << "\n";
-		// connect to master option
-		experimentConfigSaveFile << eConnectToMaster << "\n";
-		// output correction waveform time option
-		experimentConfigSaveFile << eOutputCorrTime << "\n";		
-		// Output intensity programming option.
-		experimentConfigSaveFile << eProgramIntensityOption << "\n";
-		// Output more run info option.
-		experimentConfigSaveFile << eOutputRunInfo << "\n";
-		// notes.
-		LRESULT notesLength = SendMessage(eExperimentConfigurationNotesEditHandle, WM_GETTEXTLENGTH, 0, 0);
-		char* buffer = new char[notesLength + 1];
-		SendMessage(eExperimentConfigurationNotesEditHandle, WM_GETTEXT, notesLength + 1, (LPARAM)buffer);
-		std::string notes(buffer);
-		delete buffer;
-		experimentConfigSaveFile << notes << "\n";
-		// And done.
-		experimentConfigSaveFile.close();
-		
-		SendMessage(eExperimentSavedIndicatorHandle, BM_SETCHECK, BST_CHECKED, NULL);
-		eExperimentSaved = true;
-
-		if (eCurrentConfigurationLocation == "")
-		{
-			MessageBox(0, "No subconfiguration has been set yet.", 0, 0);
-			// name doesn't exist
-			return 0;
-		}
-		
-		std::fstream subConfigSaveFile(eCurrentConfigurationLocation.c_str(), std::fstream::out);
-		//
-		if (!subConfigSaveFile.is_open())
-		{
-			MessageBox(0, "Subconfiguration failed to open!", 0, 0);
-		}
-		// order matters!
-		// vertical Script File Address
-		subConfigSaveFile << eVerticalParentScriptPathString << "\n";
-		// horizontal Script File Address
-		subConfigSaveFile << eHorizontalParentScriptPathString << "\n";
-		// Intensity Script File Address
-		subConfigSaveFile << eIntensityParentScriptPathString << "\n";
-		// Number of Variables
-		subConfigSaveFile << eVariableNames.size() << "\n";
-		// Variable Characters
-		for (int i = 0; i < eVariableNames.size(); i++)
-		{
-			subConfigSaveFile << eVariableNames[i] << "\n";
-		}
-		return 1;
+		return 0;
 	}
-
 	/*
 	 * This file clears a script window, clears the script name, and opens the default script as a template. It always returns 1.
 	 */
@@ -562,9 +163,9 @@ namespace fileManage
 			char extChars[_MAX_EXT];
 			int myError = _splitpath_s(tempName.c_str(), NULL, 0, NULL, 0, name, _MAX_FNAME, extChars, _MAX_EXT);
 			std::string extStr(extChars);
-			if (extStr != ".script")
+			if (extStr != NIAWG_SCRIPT_EXTENSION && extStr != AGILENT_SCRIPT_EXTENSION)
 			{
-				MessageBox(0, "Please open a .script file.", 0, 0);
+				MessageBox(0, "Attempted to open a file that was not a .nScript or a .aScript file.", 0, 0);
 				return 0;
 			}
 			filePathway = tempName;
@@ -579,14 +180,14 @@ namespace fileManage
 		char extChars[_MAX_EXT];
 		int myError = _splitpath_s(filePathway.c_str(), NULL, 0, NULL, 0, name, _MAX_FNAME, extChars, _MAX_EXT);
 		std::string extStr(extChars);
-		if (extStr != ".script")
+		if (extStr != NIAWG_SCRIPT_EXTENSION&& extStr != AGILENT_SCRIPT_EXTENSION)
 		{
-			MessageBox(0, "Please open a .script file.", 0, 0);
+			MessageBox(0, "The file that the code attempted to open was not a .nScript or a .aScript file.", 0, 0);
 			return 0;
 		}
 		std::string nameString(name);
 		// the file should already exist if called via the open function.
-		if (!fileExists(filePathway))
+		if (!fileOrFolderExists(filePathway))
 		{
 			MessageBox(0, ("ERROR: The file located at: " + filePathway 
 						   + " could not be opened. Check to make sure this file exists in this location.").c_str(), 0, 0);
@@ -633,14 +234,14 @@ namespace fileManage
 			// Check location of vertical script.
 			position = filePathway.find_last_of('\\');
 			scriptLocation = filePathway.substr(0, position);
-			if (scriptLocation != eCurrentCategoryFolder)
+			if (scriptLocation + "\\" != (eProfile.getCurrentPathIncludingCategory()))
 			{
 				int answer = MessageBox(0, "The requested script is not currently located in the current configuration folder. This is recommended so that scripts related to a"
 					" particular configuration are reserved to that configuration folder. Copy script to current configuration folder?", 0, MB_YESNO);
 				if (answer == IDYES)
 				{
 					std::string scriptName = filePathway.substr(position, filePathway.size());
-					filePathway = eCurrentCategoryFolder + scriptName;
+					filePathway = (eProfile.getCurrentPathIncludingCategory()) + scriptName;
 					fileManage::saveScript(relevantEdit, filePathway, savedInd, savedVar);
 				}
 			}
@@ -695,7 +296,7 @@ namespace fileManage
 	 * tries to save over a file currently being used. It returns 1 if successful.
 	 */
 	int saveScriptAs(HWND editToSave, HWND hostWindow, std::string &filePath, char(&currentName)[_MAX_FNAME], HWND &nameDisplay, HWND &savedIndicator,
-					 bool& savedVariable)
+					 bool& savedVariable, std::string scriptType)
 	{
 		char tempChar[10000];
 		// get the text of the script
@@ -708,7 +309,16 @@ namespace fileManage
 				return 0;
 			}
 		}
-		filePath = saveTextFileFromEdit(hostWindow, "script");
+		std::string name = (const char*)DialogBoxParam(eGlobalInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure, (LPARAM)"Please enter new script name.");
+		if (scriptType == "NIAWG")
+		{
+			filePath = eProfile.getCurrentPathIncludingCategory() + name + NIAWG_SCRIPT_EXTENSION;
+		}
+		else
+		{
+			filePath = eProfile.getCurrentPathIncludingCategory() + name + AGILENT_SCRIPT_EXTENSION;
+		}
+		//filePath = saveTextFileFromEdit(hostWindow, "script");
 		if (filePath == "")
 		{
 			// user canceled.
@@ -743,7 +353,7 @@ namespace fileManage
 	 * This checks if the user wants to save a script. it returns 1 unless the user cancels, in which case it returns 0.
 	 */
 	int checkSaveScript(std::string scriptType, HWND editOfInterest, HWND parent, char(&name)[_MAX_FNAME], HWND &savedIndicator, bool &savedVariable, 
-						std::string &filePathway, HWND &nameDisplayHandle)
+						std::string &filePathway, HWND &nameDisplayHandle, std::string scriptDeviceType)
 	{
 
 		char prompt[100];
@@ -761,7 +371,7 @@ namespace fileManage
 				// else no name -> save as
 				else
 				{
-					fileManage::saveScriptAs(editOfInterest, parent, filePathway, name, nameDisplayHandle, savedIndicator, savedVariable);
+					fileManage::saveScriptAs(editOfInterest, parent, filePathway, name, nameDisplayHandle, savedIndicator, savedVariable, scriptDeviceType);
 				}
 				return 1;
 				break;
@@ -919,7 +529,7 @@ namespace fileManage
 		return 0;
 	}
 
-	bool fileExists(std::string filePathway)
+	bool fileOrFolderExists(std::string filePathway)
 	{
 		// got this from stack exchange. dunno how it works but it should be fast.
 		struct stat buffer;

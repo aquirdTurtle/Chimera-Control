@@ -18,7 +18,7 @@ bool cleanSocket(SOCKET mySocket, bool socketActive)
 		{
 			int iResult = 0;
 			// shut it down
-			if (!SAFEMODE)
+			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
 				iResult = shutdown(mySocket, SD_SEND);
 			}

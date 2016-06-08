@@ -50,6 +50,12 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 							// good.
 							SetTextColor(hdcStatic, RGB(255, 255, 255));
 							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							// catch change of color and redraw window.
+							if (eAtomThresholdEditHandle.colorState != 0)
+							{
+								eAtomThresholdEditHandle.colorState = 0;
+								RedrawWindow(eAtomThresholdEditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+							}
 							return (INT_PTR)eGreyGreenBrush;
 							break;
 						}
@@ -60,6 +66,11 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					}
 					SetTextColor(hdcStatic, RGB(255, 255, 255));
 					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					if (eAtomThresholdEditHandle.colorState != 1)
+					{
+						eAtomThresholdEditHandle.colorState = 1;
+						RedrawWindow(eAtomThresholdEditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+					}
 					return (INT_PTR)eGreyRedBrush;
 				}
 				case IDC_PLOTTING_FREQUENCY_EDIT:
@@ -76,6 +87,12 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 							// good.
 							SetTextColor(hdcStatic, RGB(255, 255, 255));
 							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							// catch change of color and redraw window.
+							if (ePlottingFrequencyEdit.colorState != 0)
+							{
+								ePlottingFrequencyEdit.colorState = 0;
+								RedrawWindow(ePlottingFrequencyEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+							}
 							return (INT_PTR)eGreyGreenBrush;
 							break;
 						}
@@ -86,6 +103,12 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					}
 					SetTextColor(hdcStatic, RGB(255, 255, 255));
 					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					// catch change of color and redraw window.
+					if (ePlottingFrequencyEdit.colorState != 1)
+					{
+						ePlottingFrequencyEdit.colorState = 1;
+						RedrawWindow(ePlottingFrequencyEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+					}
 					return (INT_PTR)eGreyRedBrush;
 				}
 				case IDC_ACCUMULATION_NUMBER_EDIT:
@@ -102,6 +125,12 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 							// good.
 							SetTextColor(hdcStatic, RGB(255, 255, 255));
 							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							// catch change of color and redraw window.
+							if (eAccumulationNumberEdit.colorState != 0)
+							{
+								eAccumulationNumberEdit.colorState = 0;
+								RedrawWindow(eAccumulationNumberEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+							}
 							return (INT_PTR)eGreyGreenBrush;
 							break;
 						}
@@ -112,6 +141,12 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					}
 					SetTextColor(hdcStatic, RGB(255, 255, 255));
 					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					// catch change of color and redraw window.
+					if (eAccumulationNumberEdit.colorState != 1)
+					{
+						eAccumulationNumberEdit.colorState = 1;
+						RedrawWindow(eAccumulationNumberEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+					}
 					return (INT_PTR)eGreyRedBrush;
 					break;
 				}
@@ -129,6 +164,12 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 							// good.
 							SetTextColor(hdcStatic, RGB(255, 255, 255));
 							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							// catch change of color and redraw window.
+							if (eAccumulationTimeEdit.colorState != 0)
+							{
+								eAccumulationTimeEdit.colorState = 0;
+								RedrawWindow(eAccumulationTimeEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+							}
 							return (INT_PTR)eGreyGreenBrush;
 							break;
 						}
@@ -139,6 +180,13 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					}
 					SetTextColor(hdcStatic, RGB(255, 255, 255));
 					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					// catch change of color and redraw window.
+					if (eAccumulationTimeEdit.colorState != 1)
+					{
+						eAccumulationTimeEdit.colorState = 1;
+						RedrawWindow(eAccumulationTimeEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+					}
+
 					return (INT_PTR)eGreyRedBrush;
 					break;
 				}
@@ -156,6 +204,13 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 							// good.
 							SetTextColor(hdcStatic, RGB(255, 255, 255));
 							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							// catch change of color and redraw window.
+							if (eKineticCycleTimeEditHandle.colorState != 0)
+							{
+								eKineticCycleTimeEditHandle.colorState = 0;
+								RedrawWindow(eKineticCycleTimeEditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+							}
+
 							return (INT_PTR)eGreyGreenBrush;
 							break;
 						}
@@ -166,6 +221,12 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					}
 					SetTextColor(hdcStatic, RGB(255, 255, 255));
 					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					// catch change of color and redraw window.
+					if (eKineticCycleTimeEditHandle.colorState != 1)
+					{
+						eKineticCycleTimeEditHandle.colorState = 1;
+						RedrawWindow(eKineticCycleTimeEditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+					}
 					return (INT_PTR)eGreyRedBrush;
 					break;
 				}
@@ -193,6 +254,12 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 							// good.
 							SetTextColor(hdcStatic, RGB(255, 255, 255));
 							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							// catch change of color and redraw window.
+							if (eExposure3EditHandle.colorState != 0)
+							{
+								eExposure3EditHandle.colorState = 0;
+								RedrawWindow(eExposure3EditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+							}
 							return (INT_PTR)eGreyGreenBrush;
 							break;
 						}
@@ -203,6 +270,12 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					}
 					SetTextColor(hdcStatic, RGB(255, 255, 255));
 					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					// catch change of color and redraw window.
+					if (eExposure3EditHandle.colorState != 1)
+					{
+						eExposure3EditHandle.colorState = 1;
+						RedrawWindow(eExposure3EditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+					}
 					return (INT_PTR)eGreyRedBrush;
 					break;
 				}
@@ -220,6 +293,12 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 							// good.
 							SetTextColor(hdcStatic, RGB(255, 255, 255));
 							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							// catch change of color and redraw window.
+							if (eExposure4EditHandle.colorState != 0)
+							{
+								eExposure4EditHandle.colorState = 0;
+								RedrawWindow(eExposure4EditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+							}
 							return (INT_PTR)eGreyGreenBrush;
 							break;
 						}
@@ -230,6 +309,12 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					}
 					SetTextColor(hdcStatic, RGB(255, 255, 255));
 					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					// catch change of color and redraw window.
+					if (eExposure4EditHandle.colorState != 1)
+					{
+						eExposure4EditHandle.colorState = 1;
+						RedrawWindow(eExposure4EditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+					}
 					return (INT_PTR)eGreyRedBrush;
 					break;
 				}
@@ -247,6 +332,12 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 							// good.
 							SetTextColor(hdcStatic, RGB(255, 255, 255));
 							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							// catch change of color and redraw window.
+							if (eExposure2EditHandle.colorState != 0)
+							{
+								eExposure2EditHandle.colorState = 0;
+								RedrawWindow(eExposure2EditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+							}
 							return (INT_PTR)eGreyGreenBrush;
 							break;
 						}
@@ -257,6 +348,12 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					}
 					SetTextColor(hdcStatic, RGB(255, 255, 255));
 					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					// catch change of color and redraw window.
+					if (eExposure2EditHandle.colorState != 1)
+					{
+						eExposure2EditHandle.colorState = 1;
+						RedrawWindow(eExposure2EditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+					}
 					return (INT_PTR)eGreyRedBrush;
 					break;
 				}
@@ -274,6 +371,12 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 							// good.
 							SetTextColor(hdcStatic, RGB(255, 255, 255));
 							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							// catch change of color and redraw window.
+							if (eExposure1EditHandle.colorState != 0)
+							{
+								eExposure1EditHandle.colorState = 0;
+								RedrawWindow(eExposure1EditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+							}
 							return (INT_PTR)eGreyGreenBrush;
 							break;
 						}
@@ -284,6 +387,12 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					}
 					SetTextColor(hdcStatic, RGB(255, 255, 255));
 					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					// catch change of color and redraw window.
+					if (eExposure1EditHandle.colorState != 1)
+					{
+						eExposure1EditHandle.colorState = 1;
+						RedrawWindow(eExposure1EditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+					}
 					return (INT_PTR)eGreyRedBrush;
 					break;
 				}
@@ -302,6 +411,12 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 							SetTextColor(hdcStatic, RGB(255, 255, 255));
 							SetBkColor(hdcStatic, RGB(100, 110, 100));
 							UpdateWindow(eVariationNumberEdit.hwnd);
+							// catch change of color and redraw window.
+							if (eVariationNumberEdit.colorState != 0)
+							{
+								eVariationNumberEdit.colorState = 0;
+								RedrawWindow(eVariationNumberEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+							}
 							return (INT_PTR)eGreyGreenBrush;
 							break;
 						}
@@ -312,6 +427,12 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					}
 					SetTextColor(hdcStatic, RGB(255, 255, 255));
 					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					// catch change of color and redraw window.
+					if (eVariationNumberEdit.colorState != 1)
+					{
+						eVariationNumberEdit.colorState = 1;
+						RedrawWindow(eVariationNumberEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+					}
 					return (INT_PTR)eGreyRedBrush;
 					break;
 				}
@@ -329,6 +450,12 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 							// good.
 							SetTextColor(hdcStatic, RGB(255, 255, 255));
 							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							// catch change of color and redraw window.
+							if (eRepetitionsPerVariationEdit.colorState != 0)
+							{
+								eRepetitionsPerVariationEdit.colorState = 0;
+								RedrawWindow(eRepetitionsPerVariationEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+							}
 							return (INT_PTR)eGreyGreenBrush;
 							break;
 						}
@@ -339,6 +466,12 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					}
 					SetTextColor(hdcStatic, RGB(255, 255, 255));
 					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					// catch change of color and redraw window.
+					if (eRepetitionsPerVariationEdit.colorState != 1)
+					{
+						eRepetitionsPerVariationEdit.colorState = 1;
+						RedrawWindow(eRepetitionsPerVariationEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+					}
 					return (INT_PTR)eGreyRedBrush;
 					break;
 				}
@@ -356,19 +489,31 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 							// good.
 							SetTextColor(hdcStatic, RGB(255, 255, 255));
 							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							// catch the change and redraw the window.
+							if (ePicturesPerRepetitionEdit.colorState != 0)
+							{
+								ePicturesPerRepetitionEdit.colorState = 0;
+								RedrawWindow(ePicturesPerRepetitionEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+							}
 							return (INT_PTR)eGreyGreenBrush;
 							break;
 						}
-					}
+					}					
 					catch (std::exception&)
 					{
 						// don't do anything with it.
 					}
 					SetTextColor(hdcStatic, RGB(255, 255, 255));
 					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					// catch the change and redraw the window.
+					if (ePicturesPerRepetitionEdit.colorState != 1)
+					{
+						ePicturesPerRepetitionEdit.colorState = 1;
+						RedrawWindow(ePicturesPerRepetitionEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+					}
 					return (INT_PTR)eGreyRedBrush;
 					break;
-				}
+				}				
 				case IDC_EM_GAIN_MODE_EDIT:
 				{
 					SetTextColor(hdcStatic, RGB(255, 255, 255));
@@ -383,6 +528,12 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 							// good.
 							SetTextColor(hdcStatic, RGB(255, 255, 255));
 							SetBkColor(hdcStatic, RGB(100, 110, 100));
+							// catch the change and redraw the window.
+							if (eEMGainEdit.colorState != 0)
+							{
+								eEMGainEdit.colorState = 0;
+								RedrawWindow(eEMGainEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+							}
 							return (INT_PTR)eGreyGreenBrush;
 							break;
 						}
@@ -393,6 +544,12 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					}
 					SetTextColor(hdcStatic, RGB(255, 255, 255));
 					SetBkColor(hdcStatic, RGB(150, 100, 100));
+					// catch the change and redraw the window.
+					if (eEMGainEdit.colorState != 1)
+					{
+						eEMGainEdit.colorState = 1;
+						RedrawWindow(eEMGainEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+					}
 					return (INT_PTR)eGreyRedBrush;
 				}
 
@@ -1610,6 +1767,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 				{
 					myAndor::setTemperature();
 					eCameraFileSystem.updateSaveStatus(false);
+					
 					break;
 				}
 				case IDC_SET_EXPOSURE_BUTTON:
@@ -1715,6 +1873,10 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					SendMessage(eKineticCycleTimeDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eKineticCycleTime * 1000).c_str());
 					SendMessage(eAccumulationTimeDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eAccumulationTime * 1000).c_str());
 					eCameraFileSystem.updateSaveStatus(false);
+					RedrawWindow(eExposure1EditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+					RedrawWindow(eExposure2EditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+					RedrawWindow(eExposure3EditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+					RedrawWindow(eExposure4EditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 					break;
 				}
 				case IDC_SET_IMAGE_PARAMS_BUTTON: 
@@ -1770,6 +1932,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					SendMessage(eAccumulationTimeDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eAccumulationTime * 1000).c_str());
 					// convert to s from ms.
 					eCameraFileSystem.updateSaveStatus(false);
+					RedrawWindow(eKineticCycleTimeEditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 					break;
 				}
 				case IDC_SET_REPETITONS_PER_VARIATION_BUTTON: 
@@ -1799,6 +1962,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					}
 					//
 					eCameraFileSystem.updateSaveStatus(false);
+					RedrawWindow(eRepetitionsPerVariationEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 					break;
 				}
 				case IDC_SET_DETECTION_THRESHOLD_BUTTON: 
@@ -1827,6 +1991,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					}
 					eDetectionThreshold = tempInt;
 					eCameraFileSystem.updateSaveStatus(false);
+					RedrawWindow(eAtomThresholdEditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 					break;
 				}
 				case IDC_SET_VARIATION_NUMBER: 
@@ -1856,6 +2021,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					eCurrentTotalVariationNumber = tempInt;
 					eTotalNumberOfPicturesInSeries = eCurrentTotalVariationNumber * ePicturesPerVariation;
 					eCameraFileSystem.updateSaveStatus(false);
+					RedrawWindow(eVariationNumberEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 					break;
 				}
 				case IDC_SET_PICTURES_PER_REPITITION_BUTTON:
@@ -1900,7 +2066,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					}
 
 					eCameraFileSystem.updateSaveStatus(false);
-
+					RedrawWindow(ePicturesPerRepetitionEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 					break;
 				}
 				case IDC_SET_ACCUMULATION_NUMBER_BUTTON:
@@ -1930,6 +2096,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					}
 					eCurrentAccumulationModeTotalAccumulationNumber = tempInt;
 					eCameraFileSystem.updateSaveStatus(false);
+					RedrawWindow(eAccumulationNumberEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 					break;
 				}
 				case IDC_SET_ACCUMULATION_TIME_BUTTON:
@@ -1983,6 +2150,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					SendMessage(eKineticCycleTimeDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eKineticCycleTime * 1000).c_str());
 					SendMessage(eAccumulationTimeDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eAccumulationTime * 1000).c_str());
 					eCameraFileSystem.updateSaveStatus(false);
+					RedrawWindow(eAccumulationTimeEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 					break;
 				}
 				case IDC_PLOTTING_FREQUENCY_BUTTON:
@@ -2012,6 +2180,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					SendMessage(ePlottingFrequencyDisp.hwnd, WM_SETTEXT, 0, (LPARAM)tempChars);
 					ePlottingFrequency = tempInt;
 					eCameraFileSystem.updateSaveStatus(false);
+					RedrawWindow(ePlottingFrequencyEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 					break;
 				}
 				case IDC_INCREMENT_FILE_OPTION_BUTTON:
@@ -2062,8 +2231,8 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					{
 						return -1;
 					}
-					
 					eCameraFileSystem.updateSaveStatus(false);
+					RedrawWindow(eEMGainEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 					break;
 				}
 				case ID_CONFIGURATION_SAVE_CONFIGURATIONAS:

@@ -8,9 +8,9 @@
 #include "myMath.h"
 #include "myAgilent.h"
 #include "postMyString.h"
-/****
+/**
 * Contains all major functions for interacting with the NIAWG. Specifically:
-* 	int createXYScript(std::fstream& verticalFileName, std::fstream& horizontalFileName, std::string &scriptHolder, std::string triggerName, int &waveCount, ViSession &vi,
+* 	int analyzeNIAWGScripts(std::fstream& verticalFile, std::fstream& horizontalFile, std::string &scriptHolder, std::string triggerName, int &waveCount, ViSession &vi,
 ViConstString channelName, ViStatus error, std::vector<std::string> verticalPredWaveNames, std::vector<std::string> horizontalPredWaveNames,
 int &predWaveCount, std::vector<int> predLocs, std::vector<std::string>(&libWaveformArray)[20], bool(&fileStatus)[20],
 std::vector<waveData> &allVerticalWaveParameters, std::vector<bool> &verticalWaveformVaried, std::vector<waveData> &allHorizontalWaveParameters,
@@ -65,15 +65,15 @@ std::vector<int> &vParamTypes, int dataType1, int dataType2);
 namespace myNIAWG
 {
 	/**
-	 * createXYScript() is essentially a massive subroutine. In retrospect, making this a subroutine was probably mostly unnecessary, and makes the code heierarchy
+	 * analyzeNIAWGScripts() is essentially a massive subroutine. In retrospect, making this a subroutine was probably mostly unnecessary, and makes the code heierarchy
 	 * needlessly more complicated. The purpose of this function is to systematically read the input instructions files, create and read waveforms associated with
 	 * them, write the script as it goes, and eventually combine the x and y-waveforms into their final form for being sent to the waveform generator.
 	 */
-	int createXYScript(std::fstream& verticalFileName, std::fstream& horizontalFileName, std::string& scriptHolder, std::string triggerName, int& waveCount, ViSession& vi,
+	int analyzeNIAWGScripts(std::fstream& verticalFile, std::fstream& horizontalFile, std::string& scriptHolder, std::string triggerName, int& waveCount, ViSession& vi,
 					   ViConstString channelName, ViStatus error, std::vector<std::string> verticalPredWaveNames, std::vector<std::string> horizontalPredWaveNames,
 					   int& predWaveCount, std::vector<int> predLocs, std::vector<std::string>(&libWaveformArray)[20], bool(&fileStatus)[20],
 					   std::vector<waveData>& allVerticalWaveParameters, std::vector<bool>& verticalWaveformVaried, std::vector<waveData>& allHorizontalWaveParameters,
-					   std::vector<bool>& horizontalWaveformVaried, bool isDefault, bool isThreaded, std::string currentCategoryFolder)
+					   std::vector<bool>& horizontalWaveformVaried, bool isDefault, bool isThreaded, std::string currentCategoryFolder, std::vector<variable> singletons)
 	{
 		// Some declarations.
 		std::string verticalInputTypeString, horizontalInputTypeString;
@@ -90,12 +90,12 @@ namespace myNIAWG
 
 		// these are the variables that hold current basic information about the waveform being generated. They are used to create the raw data points. They are 
 		// temporary, and pass their information into the larger array of waveData structures.
-		waveData xWaveformParameters, yWaveformParameters;
-
-		while (!verticalFileName.eof())
+		waveData verticalWaveformParameters, horizontalWaveformParameters;
+		/// analyze complete vertical file.
+		while (!verticalFile.eof())
 		{
 			// Check to see if y-file is at end of file
-			if (horizontalFileName.eof())
+			if (horizontalFile.eof())
 			{
 				std::string errMsg = "User's horizontal script file has ended before the vertical script file. Please make sure that the number of commands in each file matches.\r\n";
 				if (isThreaded)
@@ -118,15 +118,16 @@ namespace myNIAWG
 				return -3;
 			}
 
-			xWaveformParameters = {};
-			yWaveformParameters = {};
+			verticalWaveformParameters = {};
+			horizontalWaveformParameters = {};
 			sprintf_s(tempWaveformName, 11, "Waveform%i", waveCount);
 			sprintf_s(prevTempWaveName, 11, "Waveform%i", waveCount - 1);
 
 			// get rid of white space before instructions line,
-			rmWhite(verticalFileName);
-			// get instructions line,
-			std::getline(verticalFileName, verticalInputTypeString);
+			rmWhite(verticalFile);
+			// get vertical instructions line,
+			std::getline(verticalFile, verticalInputTypeString);
+			// handle trailing newline characters
 			if (verticalInputTypeString.length() != 0)
 			{
 				if (verticalInputTypeString[verticalInputTypeString.length() - 1] == '\r')
@@ -134,8 +135,9 @@ namespace myNIAWG
 					verticalInputTypeString.erase(verticalInputTypeString.length() - 1);
 				}
 			}
-			rmWhite(horizontalFileName);
-			std::getline(horizontalFileName, horizontalInputTypeString);
+			// same for horizontal
+			rmWhite(horizontalFile);
+			std::getline(horizontalFile, horizontalInputTypeString);
 			if (horizontalInputTypeString.length() != 0)
 			{
 				if (horizontalInputTypeString[horizontalInputTypeString.length() - 1] == '\r')
@@ -143,14 +145,13 @@ namespace myNIAWG
 					horizontalInputTypeString.erase(horizontalInputTypeString.length() - 1);
 				}
 			}
-
 			// make the input all lower case to prevent trivial user errors in CaPiTaLiZaTiOn.
 			std::transform(verticalInputTypeString.begin(), verticalInputTypeString.end(), verticalInputTypeString.begin(), ::tolower);
 			std::transform(horizontalInputTypeString.begin(), horizontalInputTypeString.end(), horizontalInputTypeString.begin(), ::tolower);
 			// Send the command to different places depending on what type of command it is.
 			if (myNIAWG::script::isLogicCommand(verticalInputTypeString) && myNIAWG::script::isLogicCommand(horizontalInputTypeString))
 			{
-				if (myNIAWG::handleInput::logic(verticalFileName, horizontalFileName, verticalInputTypeString, horizontalInputTypeString, scriptHolder, triggerName) != 0)
+				if (myNIAWG::handleInput::logic(verticalFile, horizontalFile, verticalInputTypeString, horizontalInputTypeString, scriptHolder, triggerName) != 0)
 				{
 					std::string errMsg = "handleInput::logic() threw an error when handling waveform #" + std::to_string(waveCount - 1) + "!\r\n";
 					if (isThreaded)
@@ -173,11 +174,10 @@ namespace myNIAWG
 					return -13954;
 				}
 			}
-
 			else if (myNIAWG::script::isGenCommand(verticalInputTypeString) && myNIAWG::script::isGenCommand(horizontalInputTypeString))
 			{
 				//
-				if ((waveCount == 1 && isDefault && eCurrentOrientation == "Horizontal") || (waveCount == 2 && isDefault && eCurrentOrientation == "Vertical"))
+				if ((waveCount == 1 && isDefault && eProfile.getOrientation() == HORIZONTAL_ORIENTATION) || (waveCount == 2 && isDefault && eProfile.getOrientation() == VERTICAL_ORIENTATION))
 				{
 					// error:
 					std::string errMsg = "ERROR: The default waveform files contain sequences of waveforms. Right now, the default waveforms must be a single waveform, "
@@ -200,16 +200,16 @@ namespace myNIAWG
 					}
 					return -8293;
 				}
-				
+				    
 				// Create a spot in the verticalWaveformVaried vector for this waveform. The default value is false. If the waveform isn't varied, it gets changed to true.
 				verticalWaveformVaried.push_back(false);
 				horizontalWaveformVaried.push_back(false);
 
 				// Get a number corresponding directly to the given input type.
-				myNIAWG::handleInput::getInputType(verticalInputTypeString, xWaveformParameters);
-				myNIAWG::handleInput::getInputType(horizontalInputTypeString, yWaveformParameters);
+				myNIAWG::handleInput::getInputType(verticalInputTypeString, verticalWaveformParameters);
+				myNIAWG::handleInput::getInputType(horizontalInputTypeString, horizontalWaveformParameters);
 
-				if (xWaveformParameters.initType == -1 || yWaveformParameters.initType == -1)
+				if (verticalWaveformParameters.initType == -1 || horizontalWaveformParameters.initType == -1)
 				{
 					std::string errMsg = "ERROR: getInputType threw an error!\r\n";
 					if (isThreaded)
@@ -230,79 +230,79 @@ namespace myNIAWG
 					return -1923;
 				}
 				// this switch statement subdivides the inputs based off of the number of signals the given command was.
-				switch (xWaveformParameters.initType)
+				switch (verticalWaveformParameters.initType)
 				{
 					case 0:
 					case 5:
 					case 10:
 					case 15:
-						xWaveformParameters.signalNum = 1;
+						verticalWaveformParameters.signalNum = 1;
 						break;
 					case 1:
 					case 6:
 					case 11:
 					case 16:
-						xWaveformParameters.signalNum = 2;
+						verticalWaveformParameters.signalNum = 2;
 						break;
 					case 2:
 					case 7:
 					case 12:
 					case 17:
-						xWaveformParameters.signalNum = 3;
+						verticalWaveformParameters.signalNum = 3;
 						break;
 					case 3:
 					case 8:
 					case 13:
 					case 18:
-						xWaveformParameters.signalNum = 4;
+						verticalWaveformParameters.signalNum = 4;
 						break;
 					case 4:
 					case 9:
 					case 14:
 					case 19:
-						xWaveformParameters.signalNum = 5;
+						verticalWaveformParameters.signalNum = 5;
 						break;
 				}
 
-				switch (yWaveformParameters.initType)
+				switch (horizontalWaveformParameters.initType)
 				{
 					case 0:
 					case 5:
 					case 10:
 					case 15:
-						yWaveformParameters.signalNum = 1;
+						horizontalWaveformParameters.signalNum = 1;
 						break;
 					case 1:
 					case 6:
 					case 11:
 					case 16:
-						yWaveformParameters.signalNum = 2;
+						horizontalWaveformParameters.signalNum = 2;
 						break;
 					case 2:
 					case 7:
 					case 12:
 					case 17:
-						yWaveformParameters.signalNum = 3;
+						horizontalWaveformParameters.signalNum = 3;
 						break;
 					case 3:
 					case 8:
 					case 13:
 					case 18:
-						yWaveformParameters.signalNum = 4;
+						horizontalWaveformParameters.signalNum = 4;
 						break;
 					case 4:
 					case 9:
 					case 14:
 					case 19:
-						yWaveformParameters.signalNum = 5;
+						horizontalWaveformParameters.signalNum = 5;
 						break;
 				}
 
 				// Gather the parameters the user inputted for the X waveform and sort them into the appropriate data structure.
-				if (myNIAWG::handleInput::getWvFmData(verticalFileName, xWaveformParameters) != 0)
+				if (myNIAWG::handleInput::getWvFmData(verticalFile, verticalWaveformParameters, singletons) != 0)
 				{
 					std::string errorMsg;
-					errorMsg = "getWvFmData() threw an error when handling x waveform #" + std::to_string(waveCount - 1) + "!";
+					errorMsg = "getWvFmData() threw an error when handling vertical waveform #" + std::to_string(waveCount - 1) + "!";
 					if (isThreaded)
 					{
 						postMyString(eErrorTextMessageID, errorMsg);
@@ -323,9 +323,9 @@ namespace myNIAWG
 				}
 
 				// Gather the parameters the user inputted for the Y waveform and sort them into the appropriate data structure.
-				if (myNIAWG::handleInput::getWvFmData(horizontalFileName, yWaveformParameters) != 0)
+				if (myNIAWG::handleInput::getWvFmData(horizontalFile, horizontalWaveformParameters, singletons) != 0)
 				{
-					std::string errMsg = "getWvFmData() threw an error when handling y waveform #" + std::to_string(waveCount - 1) + "!";
+					std::string errMsg = "getWvFmData() threw an error when handling horizontal waveform #" + std::to_string(waveCount - 1) + "!";
 					if (isThreaded)
 					{
 						postMyString(eErrorTextMessageID, errMsg);
@@ -345,10 +345,10 @@ namespace myNIAWG
 					return -1634;
 				}
 				// check the delimeters
-				if (xWaveformParameters.delim != "#")
+				if (verticalWaveformParameters.delim != "#")
 				{
 					std::string errMsg = std::string("ERROR: The delimeter is missing in the vertical script file for waveform #") + std::to_string(waveCount - 1) +
-						"The value placed in the delimeter location was " + xWaveformParameters.delim + " while it should have been '#'.This";
+						"The value placed in the delimeter location was " + verticalWaveformParameters.delim + " while it should have been '#'.This";
 					" indicates that either the code is not interpreting the user input correctly or that the user has inputted too many parameters for this type"
 						" of waveform.";
 					if (isThreaded)
@@ -369,10 +369,10 @@ namespace myNIAWG
 					}
 					return -1635;
 				}
-				if (yWaveformParameters.delim != "#")
+				if (horizontalWaveformParameters.delim != "#")
 				{
 					std::string errMsg = std::string("ERROR: The delimeter is missing in the Y script file for waveform #") + std::to_string(waveCount - 1) +
-						"The value placed in the delimeter location was " + yWaveformParameters.delim + " while it should have been '#'.This";
+						"The value placed in the delimeter location was " + horizontalWaveformParameters.delim + " while it should have been '#'.This";
 					" indicates that either the code is not interpreting the user input correctly or that the user has inputted too many parameters for this type"
 						" of waveform.";
 					if (isThreaded)
@@ -393,9 +393,59 @@ namespace myNIAWG
 					}
 					return -1635;
 				}
+				// check that each waveform has an integer number of 4 samples
+				// waveformSizeCalc
+				if (verticalWaveformParameters.sampleNum % 4 != 0)
+				{
+					std::string errMsg = "ERROR: Invalid sample number in vertical waveform #" + std::to_string(waveCount - 1)
+								+ ". The time that resulted in this was " + std::to_string(verticalWaveformParameters.time) + " which gave a sample number of "
+								+ std::to_string(verticalWaveformParameters.sampleNum) + "\r\n";
+					if (isThreaded)
+					{
+						postMyString(eErrorTextMessageID, errMsg);
+						PostMessage(eMainWindowHandle, eFatalErrorMessageID, 0, 0);
+					}
+					else
+					{
+						if (isDefault)
+						{
+							MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
+						}
+						else
+						{
+							appendText(errMsg, IDC_SYSTEM_ERROR_TEXT, eMainWindowHandle);
+						}
+					}
+					return -1699;
+				}
+
+				if (horizontalWaveformParameters.sampleNum % 4 != 0)
+				{
+					std::string errMsg = "ERROR: Invalid sample number in vertical waveform #" + std::to_string(waveCount - 1)
+						+ ". The time that resulted in this was " + std::to_string(horizontalWaveformParameters.time) + " which gave a sample number of "
+						+ std::to_string(horizontalWaveformParameters.sampleNum) + "\r\n";
+					if (isThreaded)
+					{
+						postMyString(eErrorTextMessageID, errMsg);
+						PostMessage(eMainWindowHandle, eFatalErrorMessageID, 0, 0);
+					}
+					else
+					{
+						if (isDefault)
+						{
+							MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
+						}
+						else
+						{
+							appendText(errMsg, IDC_SYSTEM_ERROR_TEXT, eMainWindowHandle);
+						}
+					}
+					return -1699;
+				}
+
 				int currentTimeManageOption;
 				// make sure that the waveform management options match (they must, or else the times might not match.
-				if (xWaveformParameters.phaseManagementOption != yWaveformParameters.phaseManagementOption)
+				if (verticalWaveformParameters.phaseManagementOption != horizontalWaveformParameters.phaseManagementOption)
 				{
 					std::string errMsg = "ERROR: the x and y waveforms must have the same time management option. They appear to be mismatched for waveform #" + std::to_string(waveCount - 1) + "!";
 					if (isThreaded)
@@ -419,13 +469,13 @@ namespace myNIAWG
 				else
 				{
 					// set this as a more transparent way of checking the current time management option. X or y should be the same.
-					currentTimeManageOption = xWaveformParameters.phaseManagementOption;
+					currentTimeManageOption = verticalWaveformParameters.phaseManagementOption;
 				}
 
 				// make sure the times match.
-				if (!(fabs(xWaveformParameters.time - yWaveformParameters.time) < 1e-6))
+				if (!(fabs(verticalWaveformParameters.time - horizontalWaveformParameters.time) < 1e-6))
 				{
-					std::string errMsg = "ERROR: the x and y waveforms must have the same time value. They appear to be mismatched for waveform #" + std::to_string(waveCount - 1) + "!";
+					std::string errMsg = "ERROR: the horizontal and vertical waveforms must have the same time value. They appear to be mismatched for waveform #" + std::to_string(waveCount - 1) + "!";
 					if (isThreaded)
 					{
 						postMyString(eErrorTextMessageID, errMsg);
@@ -445,7 +495,7 @@ namespace myNIAWG
 					return -96338;
 				}
 
-				if (xWaveformParameters.varNum < 0)
+				if (verticalWaveformParameters.varNum < 0)
 				{
 					std::string errMsg = "ERROR: handleInput::waveformData() threw an error while handling X waveform #" + std::to_string(waveCount - 1) + "!";
 					if (isThreaded)
@@ -466,7 +516,7 @@ namespace myNIAWG
 					return -101;
 				}
 
-				if (yWaveformParameters.varNum  < 0)
+				if (horizontalWaveformParameters.varNum  < 0)
 				{
 					std::string errMsg = "ERROR: handleInput::waveformData() threw an error while handling horizontal waveform #" + std::to_string(waveCount - 1) + "!";
 					if (isThreaded)
@@ -492,13 +542,13 @@ namespace myNIAWG
 				///					Handle -1 Phase (Use the phase that the previous waveform ended with)
 				///
 
-				/// Handle phase = -1 for X
+				/// Handle phase = -1 for Vertical
 				// If the user used a '-1' for the initial phase, this means the user wants to copy the ending phase of the previous waveform.
-				for (int i = 0; i < xWaveformParameters.signalNum; i++)
+				for (int i = 0; i < verticalWaveformParameters.signalNum; i++)
 				{
-					if (xWaveformParameters.signals[i].initPhase == -1)
+					if (verticalWaveformParameters.signals[i].initPhase == -1)
 					{
-						xWaveformParameters.signals[i].phaseOption = -1;
+						verticalWaveformParameters.signals[i].phaseOption = -1;
 						// if you are trying to copy the phase from a waveform that is being varied, this can only be accomplished if this waveform is also varied.
 						// mark this waveform for varying and break.
 						if (verticalWaveformVaried[waveCount - 1] == true)
@@ -506,11 +556,11 @@ namespace myNIAWG
 							verticalWaveformVaried[waveCount] = true;
 							// Currently, it isn't handled specially when only one of the waves in a waveform is varied.
 							horizontalWaveformVaried[waveCount] = true;
-							xWaveformParameters.varNum++;
+							verticalWaveformParameters.varNum++;
 							// the % sign is reserved. Don't use it in a script file. It's just a place-holder here to make sure the number of varied waveforms gets
 							// understood properly.
-							xWaveformParameters.varNames.push_back("\'");
-							xWaveformParameters.varTypes.push_back(-1);
+							verticalWaveformParameters.varNames.push_back("\'");
+							verticalWaveformParameters.varTypes.push_back(-1);
 							break;
 						}
 						if (i + 1 > allVerticalWaveParameters[waveCount - 1].signalNum)
@@ -535,27 +585,27 @@ namespace myNIAWG
 							}
 							return -1304;
 						}
-						xWaveformParameters.signals[i].initPhase = allVerticalWaveParameters[waveCount - 1].signals[i].finPhase;
+						verticalWaveformParameters.signals[i].initPhase = allVerticalWaveParameters[waveCount - 1].signals[i].finPhase;
 					}
 				}
-				/// Handle phase = -1 for Y
+				/// Handle phase = -1 for Horizontal
 				// If the user used a '-1' for the initial phase, this is code for "copy the ending phase of the previous waveform".
-				for (int i = 0; i < yWaveformParameters.signalNum; i++)
+				for (int i = 0; i < horizontalWaveformParameters.signalNum; i++)
 				{
-					if (yWaveformParameters.signals[i].initPhase == -1)
+					if (horizontalWaveformParameters.signals[i].initPhase == -1)
 					{
-						yWaveformParameters.signals[i].phaseOption = -1;
+						horizontalWaveformParameters.signals[i].phaseOption = -1;
 						// if you are trying to copy the phase from a waveform that is being varied, this can only be accomplished if this waveform is also varied.
 						// mark this waveform for varying and break.
 						if (horizontalWaveformVaried[waveCount - 1] == true)
 						{
 							horizontalWaveformVaried[waveCount] = true;
 							verticalWaveformVaried[waveCount] = true;
-							yWaveformParameters.varNum++;
+							horizontalWaveformParameters.varNum++;
 							// the ' (single quote) sign is reserved. Don't use it in a script file. It's just a place-holder here to make sure the number of varied waveforms gets
 							// understood properly.
-							yWaveformParameters.varNames.push_back("\'");
-							yWaveformParameters.varTypes.push_back(-1);
+							horizontalWaveformParameters.varNames.push_back("\'");
+							horizontalWaveformParameters.varTypes.push_back(-1);
 							break;
 						}
 						if (i + 1 > allHorizontalWaveParameters[waveCount - 1].signalNum)
@@ -579,7 +629,7 @@ namespace myNIAWG
 							}
 							return -1304;
 						}
-						yWaveformParameters.signals[i].initPhase = allHorizontalWaveParameters[waveCount - 1].signals[i].finPhase;
+						horizontalWaveformParameters.signals[i].initPhase = allHorizontalWaveParameters[waveCount - 1].signals[i].finPhase;
 					}
 				}
 
@@ -589,17 +639,17 @@ namespace myNIAWG
 				///
 				///
 
-				/// Handle -1 Time Management for X & Y
+				/// Handle -1 Time Management for Both
 				// Check if user used -1 for the time management of this waveform.
 				if (currentTimeManageOption == -1)
 				{
 					std::vector<double> initPhasesForTimeManage;
 					// Make sure that both waveforms have the right number of signals.
-					if (xWaveformParameters.signalNum != allVerticalWaveParameters[waveCount - 1].signalNum){
+					if (verticalWaveformParameters.signalNum != allVerticalWaveParameters[waveCount - 1].signalNum){
 						std::string errMsg = "ERROR: Signal Number Mismatch! You appear to be attempting to correcting the phase of waveform number " +
 							std::to_string(waveCount - 2) + " with waveform number" + std::to_string(waveCount - 1) + ", but the vertical component of the former has " +
 							std::to_string(allVerticalWaveParameters[waveCount - 1].signalNum) + " signals and the latter has " +
-							std::to_string(xWaveformParameters.signalNum) +
+							std::to_string(verticalWaveformParameters.signalNum) +
 							" signals. In order for a waveform to correct the time of another waveform, the two must have the same number of signals.";
 						if (isThreaded)
 						{
@@ -624,7 +674,7 @@ namespace myNIAWG
 					for (int o = 0; o < allVerticalWaveParameters[waveCount - 1].signalNum; o++)
 					{
 						// Check...
-						if (allVerticalWaveParameters[waveCount - 1].signals[o].freqFin != xWaveformParameters.signals[o].freqInit)
+						if (allVerticalWaveParameters[waveCount - 1].signals[o].freqFin != verticalWaveformParameters.signals[o].freqInit)
 						{
 							// report error
 							std::string errMsg = "ERROR: Frequency Mismatch! You appear to be attempting to correcting the phase of waveform number "
@@ -632,7 +682,7 @@ namespace myNIAWG
 												 + std::to_string(o) + " in the vertical component of the former has final frequency "
 												 + std::to_string(allVerticalWaveParameters[waveCount - 1].signals[o].freqFin) + " and signal " + std::to_string(o)
 												 + " in the vertical component of the latter has initial frequency of"
-												 + std::to_string(xWaveformParameters.signals[o].freqInit)
+												 + std::to_string(verticalWaveformParameters.signals[o].freqInit)
 												 + " signals. In order for a waveform to correct the time of another waveform, these frequencies should match.";
 							if (isThreaded)
 							{
@@ -652,18 +702,18 @@ namespace myNIAWG
 							}
 							return -234923;
 						}
-						initPhasesForTimeManage.push_back(xWaveformParameters.signals[o].initPhase);
+						initPhasesForTimeManage.push_back(verticalWaveformParameters.signals[o].initPhase);
 					}
 					// for all Y signals in a waveform...
 					for (int o = 0; o < allHorizontalWaveParameters[waveCount - 1].signalNum; o++)
 					{
 						// check to make sure that the frequencies match
-						if (allHorizontalWaveParameters[waveCount - 1].signals[o].freqFin != yWaveformParameters.signals[o].freqInit)
+						if (allHorizontalWaveParameters[waveCount - 1].signals[o].freqFin != horizontalWaveformParameters.signals[o].freqInit)
 						{
 							std::string errMsg = "ERROR: Frequency Mismatch! You appear to be attempting to correcting the phase of waveform number " + std::to_string(waveCount - 2) +
 								" with waveform number" + std::to_string(waveCount - 1) +
 								", but signal " + std::to_string(o) + " in the horizontal component of the former has final frequency " + std::to_string(allHorizontalWaveParameters[waveCount - 1].signals[o].freqFin) +
-								" and signal " + std::to_string(o) + " in the horizontal component of the latter has initial frequency of" + std::to_string(yWaveformParameters.signals[o].freqInit) +
+								" and signal " + std::to_string(o) + " in the horizontal component of the latter has initial frequency of" + std::to_string(horizontalWaveformParameters.signals[o].freqInit) +
 								" signals. In order for a waveform to correct the time of another waveform, these frequencies should match.";
 							if (isThreaded)
 							{
@@ -683,7 +733,7 @@ namespace myNIAWG
 							}
 							return -234923;
 						}
-						initPhasesForTimeManage.push_back(yWaveformParameters.signals[o].initPhase);
+						initPhasesForTimeManage.push_back(horizontalWaveformParameters.signals[o].initPhase);
 					}
 
 					if (verticalWaveformVaried[waveCount - 1] == true)
@@ -692,20 +742,20 @@ namespace myNIAWG
 						verticalWaveformVaried[waveCount] = true;
 						horizontalWaveformVaried[waveCount] = true;
 						// increase the variable number in x.
-						xWaveformParameters.varNum++;
+						verticalWaveformParameters.varNum++;
 						// the ' single quotation mark is reserved. Don't use it in a script file. It's just a place-holder here to make sure the number of 
 						// varied waveforms gets understood properly.
-						xWaveformParameters.varNames.push_back("\'");
-						xWaveformParameters.varTypes.push_back(-2);
-						yWaveformParameters.varNum++;
+						verticalWaveformParameters.varNames.push_back("\'");
+						verticalWaveformParameters.varTypes.push_back(-2);
+						horizontalWaveformParameters.varNum++;
 						// the ' sign is reserved. Don't use it in a script file. It's just a place-holder here to make sure the number of varied waveforms 
 						// gets understood properly.
-						yWaveformParameters.varNames.push_back("\'");
-						yWaveformParameters.varTypes.push_back(-2);
+						horizontalWaveformParameters.varNames.push_back("\'");
+						horizontalWaveformParameters.varTypes.push_back(-2);
 					}
 					else if (verticalWaveformVaried[waveCount - 1] == false)
 					{
-						double errVal = myMath::calculateCorrectionTime(xWaveformParameters, yWaveformParameters, initPhasesForTimeManage, "after");
+						double errVal = myMath::calculateCorrectionTime(verticalWaveformParameters, horizontalWaveformParameters, initPhasesForTimeManage, "after");
 						if (errVal == -1)
 						{
 							MessageBox(0, "ERROR: Correction waveform was not able to match phases.", 0, 0);
@@ -725,14 +775,14 @@ namespace myNIAWG
 				/// Waveform Creation
 				// only create waveform data if neither waveform is being varried and if the time management option is either 0 or -1. The time management  
 				// option has already been checked to be the same for x and Y waveforms.
-				if (xWaveformParameters.varNum == 0 && yWaveformParameters.varNum == 0 && xWaveformParameters.phaseManagementOption < 1)
+				if (verticalWaveformParameters.varNum == 0 && horizontalWaveformParameters.varNum == 0 && verticalWaveformParameters.phaseManagementOption < 1)
 				{
 					// Initialize the giant waveform arrays.
-					xWaveform = new ViReal64[xWaveformParameters.sampleNum];
-					xWaveReadData = new ViReal64[xWaveformParameters.sampleNum + xWaveformParameters.signalNum];
+					xWaveform = new ViReal64[verticalWaveformParameters.sampleNum];
+					xWaveReadData = new ViReal64[verticalWaveformParameters.sampleNum + verticalWaveformParameters.signalNum];
 					// either calculate or read waveform data into the above arrays. 
-					if (myNIAWG::handleInput::waveformGen(xWaveform, xWaveReadData, xWaveformParameters, xWaveformParameters.sampleNum, libWaveformArray,
-						fileStatus[xWaveformParameters.initType]) != 0)
+					if (myNIAWG::handleInput::waveformGen(xWaveform, xWaveReadData, verticalWaveformParameters, verticalWaveformParameters.sampleNum, libWaveformArray,
+						fileStatus[verticalWaveformParameters.initType]) != 0)
 					{
 						std::string errorMsg;
 						errorMsg = "ERROR: handleInput::waveformGen threw an error while handling vertical waveform #" + std::to_string(waveCount - 1) + "!";
@@ -756,7 +806,7 @@ namespace myNIAWG
 					}
 					delete[] xWaveReadData;
 				}
-				else if (xWaveformParameters.varNum > 0)
+				else if (verticalWaveformParameters.varNum > 0)
 				{
 					// Mark this waveform as being varied.
 					verticalWaveformVaried[waveCount] = true;
@@ -764,14 +814,14 @@ namespace myNIAWG
 				}
 
 				// only create waveform data if neither waveform is being varried.
-				if (xWaveformParameters.varNum == 0 && yWaveformParameters.varNum == 0 && xWaveformParameters.phaseManagementOption < 1)
+				if (verticalWaveformParameters.varNum == 0 && horizontalWaveformParameters.varNum == 0 && verticalWaveformParameters.phaseManagementOption < 1)
 				{
 					// Initialize the giant waveform arrays.
-					yWaveform = new ViReal64[yWaveformParameters.sampleNum];
-					yWaveReadData = new ViReal64[yWaveformParameters.sampleNum + yWaveformParameters.signalNum];
+					yWaveform = new ViReal64[horizontalWaveformParameters.sampleNum];
+					yWaveReadData = new ViReal64[horizontalWaveformParameters.sampleNum + horizontalWaveformParameters.signalNum];
 					// either calculate or read waveform data into the above arrays. 
-					if (myNIAWG::handleInput::waveformGen(yWaveform, yWaveReadData, yWaveformParameters, yWaveformParameters.sampleNum, libWaveformArray,
-						fileStatus[yWaveformParameters.initType]) != 0)
+					if (myNIAWG::handleInput::waveformGen(yWaveform, yWaveReadData, horizontalWaveformParameters, horizontalWaveformParameters.sampleNum, libWaveformArray,
+						fileStatus[horizontalWaveformParameters.initType]) != 0)
 					{
 						std::string errorMsg;
 						errorMsg = "ERROR: handleInput::waveformGen threw an error while handling horizontal waveform #" + std::to_string(waveCount - 1) + "!";
@@ -781,7 +831,7 @@ namespace myNIAWG
 					}
 					delete[] yWaveReadData;
 				}
-				else if (yWaveformParameters.varNum  > 0)
+				else if (horizontalWaveformParameters.varNum  > 0)
 				{
 					// Mark this waveform as being varied.
 					horizontalWaveformVaried[waveCount] = true;
@@ -798,11 +848,11 @@ namespace myNIAWG
 					{
 						// Make sure the waveforms are compatible.
 						std::vector<double> initPhasesForTimeManage;
-						if (xWaveformParameters.signalNum != allVerticalWaveParameters[waveCount - 1].signalNum){
+						if (verticalWaveformParameters.signalNum != allVerticalWaveParameters[waveCount - 1].signalNum){
 							std::string errorMsg;
 							errorMsg = "ERROR: Signal Number Mismatch! You appear to be attempting to correcting the phase of waveform number " +
 								std::to_string(waveCount - 1) + " with waveform number" + std::to_string(waveCount - 2) + ", but the vertical component of the former has " +
-								std::to_string(xWaveformParameters.signalNum) + " signals and the latter has " +
+								std::to_string(verticalWaveformParameters.signalNum) + " signals and the latter has " +
 								std::to_string(allVerticalWaveParameters[waveCount - 1].signalNum) +
 								" signals. In order for a waveform to correct the time of another waveform, the two must have the same number of signals.";
 							if (isThreaded)
@@ -826,13 +876,13 @@ namespace myNIAWG
 						// check to make sure that the X frequencies match
 						for (int o = 0; o < allVerticalWaveParameters[waveCount - 1].signalNum; o++)
 						{
-							if (allVerticalWaveParameters[waveCount - 1].signals[o].freqInit != xWaveformParameters.signals[o].freqInit)
+							if (allVerticalWaveParameters[waveCount - 1].signals[o].freqInit != verticalWaveformParameters.signals[o].freqInit)
 							{
 								std::string errorMsg;
 
 								errorMsg = "ERROR: Frequency Mismatch! You appear to be attempting to correcting the phase of waveform number " + std::to_string(waveCount - 1) +
 									" with waveform number" + std::to_string(waveCount - 2) +
-									", but signal " + std::to_string(o) + " in the vertical component of the former has final frequency " + std::to_string(xWaveformParameters.signals[o].freqInit) +
+									", but signal " + std::to_string(o) + " in the vertical component of the former has final frequency " + std::to_string(verticalWaveformParameters.signals[o].freqInit) +
 									" and signal " + std::to_string(o) + " in the vertical component of the latter has initial frequency of" + std::to_string(allVerticalWaveParameters[waveCount - 1].signals[o].freqFin) +
 									" signals. In order for a waveform to correct the time of another waveform, these frequencies should match.";
 								if (isThreaded)
@@ -853,17 +903,17 @@ namespace myNIAWG
 								}
 								return -234923;
 							}
-							initPhasesForTimeManage.push_back(xWaveformParameters.signals[o].finPhase + allVerticalWaveParameters[waveCount - 1].signals[o].initPhase);
+							initPhasesForTimeManage.push_back(verticalWaveformParameters.signals[o].finPhase + allVerticalWaveParameters[waveCount - 1].signals[o].initPhase);
 						}
 						// check to make sure that the X frequencies match
 						for (int o = 0; o < allHorizontalWaveParameters[waveCount - 1].signalNum; o++)
 						{
 							// check to make sure that the frequencies match
-							if (allHorizontalWaveParameters[waveCount - 1].signals[o].freqInit != yWaveformParameters.signals[o].freqInit){
+							if (allHorizontalWaveParameters[waveCount - 1].signals[o].freqInit != horizontalWaveformParameters.signals[o].freqInit){
 								std::string errorMsg;
 								errorMsg = "ERROR: Frequency Mismatch! You appear to be attempting to correcting the phase of waveform number " + std::to_string(waveCount - 1) +
 									" with waveform number" + std::to_string(waveCount - 2) +
-									", but signal " + std::to_string(o) + " in the horizontal component of the former has final frequency " + std::to_string(yWaveformParameters.signals[o].freqInit) +
+									", but signal " + std::to_string(o) + " in the horizontal component of the former has final frequency " + std::to_string(horizontalWaveformParameters.signals[o].freqInit) +
 									" and signal " + std::to_string(o) + " in the horizontal component of the latter has initial frequency of" + std::to_string(allHorizontalWaveParameters[waveCount - 1].signals[o].freqFin) +
 									" signals. In order for a waveform to correct the time of another waveform, these frequencies should match.";
 								if (isThreaded)
@@ -884,7 +934,7 @@ namespace myNIAWG
 								}
 								return -234923;
 							}
-							initPhasesForTimeManage.push_back(yWaveformParameters.signals[o].finPhase + allHorizontalWaveParameters[waveCount - 1].signals[o].initPhase);
+							initPhasesForTimeManage.push_back(horizontalWaveformParameters.signals[o].finPhase + allHorizontalWaveParameters[waveCount - 1].signals[o].initPhase);
 						}
 
 						if (verticalWaveformVaried[waveCount] == true)
@@ -943,8 +993,8 @@ namespace myNIAWG
 								return -1010;
 							}
 							// modify the phases of the current waveform such that they reach the 0 phase after the waveform.
-							for (int v = 0; v < xWaveformParameters.signalNum; v++){
-								xWaveformParameters.signals[v].initPhase = 2 * PI - xWaveformParameters.signals[v].finPhase;
+							for (int v = 0; v < verticalWaveformParameters.signalNum; v++){
+								verticalWaveformParameters.signals[v].initPhase = 2 * PI - verticalWaveformParameters.signals[v].finPhase;
 							}
 						}
 					}
@@ -953,12 +1003,12 @@ namespace myNIAWG
 					if (allHorizontalWaveParameters[waveCount - 1].phaseManagementOption == 1)
 					{
 						std::vector<double> initPhasesForTimeManage;
-						if (yWaveformParameters.signalNum != allHorizontalWaveParameters[waveCount - 1].signalNum)
+						if (horizontalWaveformParameters.signalNum != allHorizontalWaveParameters[waveCount - 1].signalNum)
 						{
 							std::string errorMsg;
 							errorMsg = "ERROR: Signal Number Mismatch! You appear to be attempting to correcting the phase of waveform number " +
 								std::to_string(waveCount - 1) + " with waveform number" + std::to_string(waveCount - 2) + ", but the horizontal component of the former has " +
-								std::to_string(yWaveformParameters.signalNum) + " signals and the horizontal component of the latter has " +
+								std::to_string(horizontalWaveformParameters.signalNum) + " signals and the horizontal component of the latter has " +
 								std::to_string(allHorizontalWaveParameters[waveCount - 1].signalNum) +
 								" signals. In order for a waveform to correct the time of another waveform, the two must have the same number of signals.";
 							if (isThreaded)
@@ -982,13 +1032,13 @@ namespace myNIAWG
 						for (int o = 0; o < allHorizontalWaveParameters[waveCount - 1].signalNum; o++)
 						{
 							// check to make sure that the frequencies match
-							if (allHorizontalWaveParameters[waveCount - 1].signals[o].freqInit != yWaveformParameters.signals[o].freqInit)
+							if (allHorizontalWaveParameters[waveCount - 1].signals[o].freqInit != horizontalWaveformParameters.signals[o].freqInit)
 							{
 								std::string errorMsg;
 
 								errorMsg = "ERROR: Frequency Mismatch! You appear to be attempting to correcting the phase of waveform number " + std::to_string(waveCount - 1) +
 									" with waveform number" + std::to_string(waveCount - 2) +
-									", but signal " + std::to_string(o) + " in the horizontal component of the former has final frequency " + std::to_string(yWaveformParameters.signals[o].freqInit) +
+									", but signal " + std::to_string(o) + " in the horizontal component of the former has final frequency " + std::to_string(horizontalWaveformParameters.signals[o].freqInit) +
 									" and signal " + std::to_string(o) + " in the horizontal component of the latter has initial frequency of" + std::to_string(allHorizontalWaveParameters[waveCount - 1].signals[o].freqFin) +
 									" signals. In order for a waveform to correct the time of another waveform, these frequencies should match.";
 								if (isThreaded)
@@ -1009,17 +1059,17 @@ namespace myNIAWG
 								}
 								return -234923;
 							}
-							initPhasesForTimeManage.push_back(yWaveformParameters.signals[o].finPhase + allHorizontalWaveParameters[waveCount - 1].signals[o].initPhase);
+							initPhasesForTimeManage.push_back(horizontalWaveformParameters.signals[o].finPhase + allHorizontalWaveParameters[waveCount - 1].signals[o].initPhase);
 						}
 						for (int o = 0; o < allVerticalWaveParameters[waveCount - 1].signalNum; o++)
 						{
 							// check to make sure that the frequencies match
-							if (allVerticalWaveParameters[waveCount - 1].signals[o].freqInit != xWaveformParameters.signals[o].freqInit){
+							if (allVerticalWaveParameters[waveCount - 1].signals[o].freqInit != verticalWaveformParameters.signals[o].freqInit){
 								std::string errorMsg;
 
 								errorMsg = "ERROR: Frequency Mismatch! You appear to be attempting to correcting the phase of waveform number " + std::to_string(waveCount - 1) +
 									" with waveform number" + std::to_string(waveCount - 2) +
-									", but signal " + std::to_string(o) + " in the vertical component of the former has final frequency " + std::to_string(xWaveformParameters.signals[o].freqInit) +
+									", but signal " + std::to_string(o) + " in the vertical component of the former has final frequency " + std::to_string(verticalWaveformParameters.signals[o].freqInit) +
 									" and signal " + std::to_string(o) + " in the vertical component of the latter has initial frequency of" + std::to_string(allVerticalWaveParameters[waveCount - 1].signals[o].freqFin) +
 									" signals. In order for a waveform to correct the time of another waveform, these frequencies should match.";
 								if (isThreaded)
@@ -1040,7 +1090,7 @@ namespace myNIAWG
 								}
 								return -234923;
 							}
-							initPhasesForTimeManage.push_back(xWaveformParameters.signals[o].finPhase + allVerticalWaveParameters[waveCount - 1].signals[o].initPhase);
+							initPhasesForTimeManage.push_back(verticalWaveformParameters.signals[o].finPhase + allVerticalWaveParameters[waveCount - 1].signals[o].initPhase);
 						}
 						if (horizontalWaveformVaried[waveCount] == true)
 						{
@@ -1101,9 +1151,9 @@ namespace myNIAWG
 								return -1010;
 							}
 							// modify the phases of the current waveform such that they reach the 0 phase after the waveform.
-							for (int v = 0; v < yWaveformParameters.signalNum; v++){
+							for (int v = 0; v < horizontalWaveformParameters.signalNum; v++){
 
-								yWaveformParameters.signals[v].initPhase = 2 * PI - yWaveformParameters.signals[v].finPhase;
+								horizontalWaveformParameters.signals[v].initPhase = 2 * PI - horizontalWaveformParameters.signals[v].finPhase;
 							}
 						}
 					}
@@ -1139,9 +1189,9 @@ namespace myNIAWG
 						prevMixedWaveform = new ViReal64[mixedSize];
 						// Mix the waveforms
 						myNIAWG::script::mixWaveforms(prevXWaveform, prevYWaveform, prevMixedWaveform, allVerticalWaveParameters[waveCount - 1].sampleNum);
-						// wvfmToConsole(mixedWaveform, xWaveformParameters.sampleNum * 2);
+						// wvfmToConsole(mixedWaveform, verticalWaveformParameters.sampleNum * 2);
 						// create waveform (necessary?)
-						if (!SAFEMODE)
+						if (!TWEEZER_COMPUTER_SAFEMODE)
 						{
 							if (NIAWG_CheckScriptError(niFgen_CreateWaveformF64(vi, SESSION_CHANNELS, mixedSize, prevMixedWaveform, &waveID), isDefault, isThreaded))
 							{
@@ -1165,20 +1215,20 @@ namespace myNIAWG
 						delete[] prevXWaveformRead;
 						delete[] prevYWaveformRead;
 						delete[] prevMixedWaveform;
-						rmWhite(verticalFileName);
+						rmWhite(verticalFile);
 					}
 
 					// only create waveform data if neither waveform is being varried, and for this second time, if the previous wave was correcting this waveform such
 					// that the waveform needs to be recalculated.
-					if (xWaveformParameters.varNum == 0 && yWaveformParameters.varNum == 0 && xWaveformParameters.phaseManagementOption < 1 
+					if (verticalWaveformParameters.varNum == 0 && horizontalWaveformParameters.varNum == 0 && verticalWaveformParameters.phaseManagementOption < 1 
 						&& allVerticalWaveParameters[waveCount - 1].phaseManagementOption == 1)
 					{
 						// Initialize the giant waveform arrays.
-						xWaveform = new ViReal64[xWaveformParameters.sampleNum];
-						xWaveReadData = new ViReal64[xWaveformParameters.sampleNum + xWaveformParameters.signalNum];
+						xWaveform = new ViReal64[verticalWaveformParameters.sampleNum];
+						xWaveReadData = new ViReal64[verticalWaveformParameters.sampleNum + verticalWaveformParameters.signalNum];
 						// either calculate or read waveform data into the above arrays. 
-						if (myNIAWG::handleInput::waveformGen(xWaveform, xWaveReadData, xWaveformParameters, xWaveformParameters.sampleNum, libWaveformArray,
-							fileStatus[xWaveformParameters.initType]) != 0)
+						if (myNIAWG::handleInput::waveformGen(xWaveform, xWaveReadData, verticalWaveformParameters, verticalWaveformParameters.sampleNum, libWaveformArray,
+							fileStatus[verticalWaveformParameters.initType]) != 0)
 						{
 							std::string errorMsg;
 							errorMsg = "ERROR: handleInput::waveformGen threw an error while handling X waveform #" + std::to_string(waveCount - 1) + "!";
@@ -1201,7 +1251,7 @@ namespace myNIAWG
 						}
 						delete[] xWaveReadData;
 					}
-					else if (xWaveformParameters.varNum > 0)
+					else if (verticalWaveformParameters.varNum > 0)
 					{
 						// Mark this waveform as being varied.
 						verticalWaveformVaried[waveCount] = true;
@@ -1210,15 +1260,15 @@ namespace myNIAWG
 
 					// only create waveform data if neither waveform is being varried, and for this second time, if the previous wave was correcting this waveform such
 					// that the waveform needs to be recalculated.
-					if (xWaveformParameters.varNum == 0 && yWaveformParameters.varNum == 0 && xWaveformParameters.phaseManagementOption < 1 
+					if (verticalWaveformParameters.varNum == 0 && horizontalWaveformParameters.varNum == 0 && verticalWaveformParameters.phaseManagementOption < 1 
 						&& allHorizontalWaveParameters[waveCount - 1].phaseManagementOption == 1)
 					{
 						// Initialize the giant waveform arrays.
-						yWaveform = new ViReal64[yWaveformParameters.sampleNum];
-						yWaveReadData = new ViReal64[yWaveformParameters.sampleNum + yWaveformParameters.signalNum];
+						yWaveform = new ViReal64[horizontalWaveformParameters.sampleNum];
+						yWaveReadData = new ViReal64[horizontalWaveformParameters.sampleNum + horizontalWaveformParameters.signalNum];
 						// either calculate or read waveform data into the above arrays. 
-						if (myNIAWG::handleInput::waveformGen(yWaveform, yWaveReadData, yWaveformParameters, yWaveformParameters.sampleNum, libWaveformArray,
-							fileStatus[yWaveformParameters.initType]) != 0)
+						if (myNIAWG::handleInput::waveformGen(yWaveform, yWaveReadData, horizontalWaveformParameters, horizontalWaveformParameters.sampleNum, libWaveformArray,
+							fileStatus[horizontalWaveformParameters.initType]) != 0)
 						{
 							std::string errorMsg;
 							errorMsg = "ERROR: handleInput::waveformGen threw an error while handling Y waveform #" + std::to_string(waveCount - 1) + "!";
@@ -1242,26 +1292,26 @@ namespace myNIAWG
 						}
 						delete[] yWaveReadData;
 					}
-					else if (yWaveformParameters.varNum  > 0)
+					else if (horizontalWaveformParameters.varNum  > 0)
 					{
 						// Mark this waveform as being varied.
 						horizontalWaveformVaried[waveCount] = true;
 						verticalWaveformVaried[waveCount] = true;
 					}
 				}
-				if (xWaveformParameters.varNum >= 0)
+				if (verticalWaveformParameters.varNum >= 0)
 				{
-					allVerticalWaveParameters.push_back(xWaveformParameters);
+					allVerticalWaveParameters.push_back(verticalWaveformParameters);
 				}
 
-				if (yWaveformParameters.varNum >= 0)
+				if (horizontalWaveformParameters.varNum >= 0)
 				{
-					allHorizontalWaveParameters.push_back(yWaveformParameters);
+					allHorizontalWaveParameters.push_back(horizontalWaveformParameters);
 				}
 
-				if (yWaveformParameters.varNum == 0 && xWaveformParameters.varNum == 0 && xWaveformParameters.phaseManagementOption < 1) {
+				if (horizontalWaveformParameters.varNum == 0 && verticalWaveformParameters.varNum == 0 && verticalWaveformParameters.phaseManagementOption < 1) {
 					// Check for bad input
-					if (xWaveformParameters.sampleNum != yWaveformParameters.sampleNum) {
+					if (verticalWaveformParameters.sampleNum != horizontalWaveformParameters.sampleNum) {
 						std::string errorMsg;
 						errorMsg = "ERROR: the x and y waveforms must have the same time values option. They appear to be mismatched for waveform #"
 							+ std::to_string(waveCount - 1) + "!";
@@ -1284,11 +1334,11 @@ namespace myNIAWG
 						return -15;
 					}
 					// Create the mixed waveform holder
-					long int mixedSize = 2 * xWaveformParameters.sampleNum;
+					long int mixedSize = 2 * verticalWaveformParameters.sampleNum;
 					mixedWaveform = new ViReal64[mixedSize];
 					// Mix the waveforms
-					myNIAWG::script::mixWaveforms(xWaveform, yWaveform, mixedWaveform, xWaveformParameters.sampleNum);
-					if (!SAFEMODE)
+					myNIAWG::script::mixWaveforms(xWaveform, yWaveform, mixedWaveform, verticalWaveformParameters.sampleNum);
+					if (!TWEEZER_COMPUTER_SAFEMODE)
 					{
 						// create waveform (necessary?)
 						if (NIAWG_CheckScriptError(niFgen_CreateWaveformF64(vi, SESSION_CHANNELS, mixedSize, mixedWaveform, &waveID), isDefault, isThreaded))
@@ -1309,13 +1359,13 @@ namespace myNIAWG
 					// avoid memory leaks, but only if not default...
 					if (isDefault)
 					{
-						if (eCurrentOrientation == "Horizontal") 
+						if (eProfile.getOrientation() == HORIZONTAL_ORIENTATION)
 						{
 							eDefault_hConfigMixedWaveform = mixedWaveform;
 							eDefault_hConfigMixedSize = mixedSize;
 							eDefault_hConfigWaveformName = tempWaveformName;
 						}
-						if (eCurrentOrientation == "Vertical")
+						if (eProfile.getOrientation() == VERTICAL_ORIENTATION)
 						{
 							eDefault_vConfigMixedWaveform = mixedWaveform;
 							eDefault_vConfigMixedSize = mixedSize;
@@ -1328,7 +1378,7 @@ namespace myNIAWG
 					}
 					delete[] xWaveform;
 					delete[] yWaveform;
-					rmWhite(verticalFileName);
+					rmWhite(verticalFile);
 				}
 				// append script with the relevant command. This needs to be done even if variable waveforms are used, because I don't want to have to rewrite the
 				// script to insert the new waveform name into it.
@@ -1340,13 +1390,13 @@ namespace myNIAWG
 			}
 			else if (myNIAWG::script::isSpecialCommand(verticalInputTypeString) && myNIAWG::script::isSpecialCommand(horizontalInputTypeString))
 			{
-				myError = myNIAWG::handleInput::special(verticalFileName, horizontalFileName, verticalInputTypeString, horizontalInputTypeString, scriptHolder, triggerName, waveCount, vi, SESSION_CHANNELS,
+				myError = myNIAWG::handleInput::special(verticalFile, horizontalFile, verticalInputTypeString, horizontalInputTypeString, scriptHolder, triggerName, waveCount, vi, SESSION_CHANNELS,
 					error, verticalPredWaveNames, horizontalPredWaveNames, predWaveCount, predLocs, libWaveformArray, fileStatus, allVerticalWaveParameters,
-					verticalWaveformVaried, allHorizontalWaveParameters, horizontalWaveformVaried, isDefault, isThreaded, currentCategoryFolder);
+					verticalWaveformVaried, allHorizontalWaveParameters, horizontalWaveformVaried, isDefault, isThreaded, currentCategoryFolder, singletons);
 			}
-			// Catch bad input.
 			else 
-			{
+			{			
+				// Catch bad input.
 				std::string errorMsg;
 				errorMsg = "ERROR: Input types from the two files do not match or are unrecognized!\n Both must be logic commands, both must be generate "
 					"commands, or both must be special commands. See documentation on the correct format for these commands.\n\nThe two inputed types are: " + verticalInputTypeString +
@@ -1369,8 +1419,8 @@ namespace myNIAWG
 				}
 				return -3;
 			}
-			rmWhite(verticalFileName);
-			rmWhite(horizontalFileName);
+			rmWhite(verticalFile);
+			rmWhite(horizontalFile);
 		}
 		return 0;
 	}
@@ -1568,7 +1618,7 @@ namespace myNIAWG
 			{
 				if (paramVal < 0)
 				{
-					MessageBox(NULL, "ERROR: Attempted to set negative waveform parameter. Don't do that.", NULL, MB_OK);
+					MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
 					return -1;
 				}
 				allWvInfo1[wfCount].signals[0].freqInit = paramVal;
@@ -1578,7 +1628,7 @@ namespace myNIAWG
 			{
 				if (paramVal < 0)
 				{
-					MessageBox(NULL, "ERROR: Attempted to set negative waveform parameter. Don't do that.", NULL, MB_OK);
+					MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
 					return -1;
 				}
 				allWvInfo1[wfCount].signals[0].freqFin = paramVal;
@@ -1588,7 +1638,7 @@ namespace myNIAWG
 			{
 				if (paramVal < 0)
 				{
-					MessageBox(NULL, "ERROR: Attempted to set negative waveform parameter. Don't do that.", NULL, MB_OK);
+					MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
 					return -1;
 				}
 				allWvInfo1[wfCount].signals[0].initPower = paramVal;
@@ -1598,7 +1648,7 @@ namespace myNIAWG
 			{
 				if (paramVal < 0) 
 				{
-					MessageBox(NULL, "ERROR: Attempted to set negative waveform parameter. Don't do that.", NULL, MB_OK);
+					MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
 					return -1;
 				}
 				allWvInfo1[wfCount].signals[0].finPower = paramVal;
@@ -1613,7 +1663,7 @@ namespace myNIAWG
 			{
 				if (paramVal < 0) 
 				{
-					MessageBox(NULL, "ERROR: Attempted to set negative waveform parameter. Don't do that.", NULL, MB_OK);
+					MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
 					return -1;
 				}
 				allWvInfo1[wfCount].signals[1].freqInit = paramVal;
@@ -1623,7 +1673,7 @@ namespace myNIAWG
 			{
 				if (paramVal < 0) 
 				{
-					MessageBox(NULL, "ERROR: Attempted to set negative waveform parameter. Don't do that.", NULL, MB_OK);
+					MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
 					return -1;
 				}
 				allWvInfo1[wfCount].signals[1].freqFin = paramVal;
@@ -1633,7 +1683,7 @@ namespace myNIAWG
 			{
 				if (paramVal < 0) 
 				{
-					MessageBox(NULL, "ERROR: Attempted to set negative waveform parameter. Don't do that.", NULL, MB_OK);
+					MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
 					return -1;
 				}
 				allWvInfo1[wfCount].signals[1].initPower = paramVal;
@@ -1643,7 +1693,7 @@ namespace myNIAWG
 			{
 				if (paramVal < 0) 
 				{
-					MessageBox(NULL, "ERROR: Attempted to set negative waveform parameter. Don't do that.", NULL, MB_OK);
+					MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
 					return -1;
 				}
 				allWvInfo1[wfCount].signals[1].finPower = paramVal;
@@ -1658,7 +1708,7 @@ namespace myNIAWG
 			{
 				if (paramVal < 0) 
 				{
-					MessageBox(NULL, "ERROR: Attempted to set negative waveform parameter. Don't do that.", NULL, MB_OK);
+					MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
 					return -1;
 				}
 				allWvInfo1[wfCount].signals[2].freqInit = paramVal;
@@ -1668,7 +1718,7 @@ namespace myNIAWG
 			{
 				if (paramVal < 0) 
 				{
-					MessageBox(NULL, "ERROR: Attempted to set negative waveform parameter. Don't do that.", NULL, MB_OK);
+					MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
 					return -1;
 				}
 				allWvInfo1[wfCount].signals[2].freqFin = paramVal;
@@ -1678,7 +1728,7 @@ namespace myNIAWG
 			{
 				if (paramVal < 0) 
 				{
-					MessageBox(NULL, "ERROR: Attempted to set negative waveform parameter. Don't do that.", NULL, MB_OK);
+					MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
 					return -1;
 				}
 				allWvInfo1[wfCount].signals[2].initPower = paramVal;
@@ -1688,7 +1738,7 @@ namespace myNIAWG
 			{
 				if (paramVal < 0) 
 				{
-					MessageBox(NULL, "ERROR: Attempted to set negative waveform parameter. Don't do that.", NULL, MB_OK);
+					MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
 					return -1;
 				}
 				allWvInfo1[wfCount].signals[2].finPower = paramVal;
@@ -1703,7 +1753,7 @@ namespace myNIAWG
 			{
 				if (paramVal < 0) 
 				{
-					MessageBox(NULL, "ERROR: Attempted to set negative waveform parameter. Don't do that.", NULL, MB_OK);
+					MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
 					return -1;
 				}
 				allWvInfo1[wfCount].signals[3].freqInit = paramVal;
@@ -1713,7 +1763,7 @@ namespace myNIAWG
 			{
 				if (paramVal < 0) 
 				{
-					MessageBox(NULL, "ERROR: Attempted to set negative waveform parameter. Don't do that.", NULL, MB_OK);
+					MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
 					return -1;
 				}
 				allWvInfo1[wfCount].signals[3].freqFin = paramVal;
@@ -1723,7 +1773,7 @@ namespace myNIAWG
 			{
 				if (paramVal < 0) 
 				{
-					MessageBox(NULL, "ERROR: Attempted to set negative waveform parameter. Don't do that.", NULL, MB_OK);
+					MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
 					return -1;
 				}
 				allWvInfo1[wfCount].signals[3].initPower = paramVal;
@@ -1733,7 +1783,7 @@ namespace myNIAWG
 			{
 				if (paramVal < 0) 
 				{
-					MessageBox(NULL, "ERROR: Attempted to set negative waveform parameter. Don't do that.", NULL, MB_OK);
+					MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
 					return -1;
 				}
 				allWvInfo1[wfCount].signals[3].finPower = paramVal;
@@ -1748,7 +1798,7 @@ namespace myNIAWG
 			{
 				if (paramVal < 0) 
 				{
-					MessageBox(NULL, "ERROR: Attempted to set negative waveform parameter. Don't do that.", NULL, MB_OK);
+					MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
 					return -1;
 				}
 				allWvInfo1[wfCount].signals[4].freqInit = paramVal;
@@ -1758,7 +1808,7 @@ namespace myNIAWG
 			{
 				if (paramVal < 0) 
 				{
-					MessageBox(NULL, "ERROR: Attempted to set negative waveform parameter. Don't do that.", NULL, MB_OK);
+					MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
 					return -1;
 				}
 				allWvInfo1[wfCount].signals[4].freqFin = paramVal;
@@ -1768,7 +1818,7 @@ namespace myNIAWG
 			{
 				if (paramVal < 0) 
 				{
-					MessageBox(NULL, "ERROR: Attempted to set negative waveform parameter. Don't do that.", NULL, MB_OK);
+					MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
 					return -1;
 				}
 				allWvInfo1[wfCount].signals[4].initPower = paramVal;
@@ -1778,7 +1828,7 @@ namespace myNIAWG
 			{
 				if (paramVal < 0) 
 				{
-					MessageBox(NULL, "ERROR: Attempted to set negative waveform parameter. Don't do that.", NULL, MB_OK);
+					MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
 					return -1;
 				}
 				allWvInfo1[wfCount].signals[4].finPower = paramVal;
@@ -1793,7 +1843,7 @@ namespace myNIAWG
 			{
 				if (paramVal < 0) 
 				{
-					MessageBox(NULL, "ERROR: Attempted to set negative waveform parameter. Don't do that.", NULL, MB_OK);
+					MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
 					return -1;
 				}
 				// CONVERT from milliseconds...
@@ -1807,7 +1857,7 @@ namespace myNIAWG
 	}
 
 	/*
-	 * This function is the procedure for checking NIAWG errors while in the createXYScript function. It returns true if an error is found, false otherwise. It just
+	 * This function is the procedure for checking NIAWG errors while in the analyzeNIAWGScripts function. It returns true if an error is found, false otherwise. It just
 	 * posts a message to the main window if an error is found.
 	 */
 	bool NIAWG_CheckScriptError(int err, bool isDefaultError, bool isThreaded)
@@ -1816,7 +1866,7 @@ namespace myNIAWG
 		{
 			ViChar errorMsg[256];
 
-			if (!SAFEMODE)
+			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
 				niFgen_ErrorHandler(eSessionHandle, eError, errorMsg);
 			}
@@ -1857,12 +1907,12 @@ namespace myNIAWG
 			ViChar* errMsg;
 			//niFgen_ErrorHandler(eSessionHandle, error, errMsg);
 			int errMsgSize = 0;
-			if (!SAFEMODE)
+			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
 				errMsgSize = niFgen_GetError(eSessionHandle, VI_NULL, 0, VI_NULL);
 			}
 			errMsg = (ViChar *)malloc(sizeof(ViChar) * errMsgSize);
-			if (!SAFEMODE)
+			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
 				niFgen_GetError(eSessionHandle, &eError, errMsgSize, errMsg);
 			}
@@ -1881,15 +1931,15 @@ namespace myNIAWG
 			RedrawWindow(eColorBox, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 			RedrawWindow(eColoredStatusEdit, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 			myAgilent::agilentDefault();
-			if (!SAFEMODE)
+			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
 				// clear the memory
 				myNIAWG::myNIAWG_DoubleErrorChecker(niFgen_ClearArbMemory(eSessionHandle));
 			}
 			ViInt32 waveID;
-			if (eCurrentOrientation == "Horizontal")
+			if (eProfile.getOrientation() == HORIZONTAL_ORIENTATION)
 			{
-				if (!SAFEMODE)
+				if (!TWEEZER_COMPUTER_SAFEMODE)
 				{
 					// create waveform (necessary?)
 					myNIAWG::myNIAWG_DoubleErrorChecker(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform, &waveID));
@@ -1906,9 +1956,9 @@ namespace myNIAWG
 				eCurrentScript = "DefaultHConfigScript";
 
 			}
-			else if (eCurrentOrientation == "Vertical")
+			else if (eProfile.getOrientation() == VERTICAL_ORIENTATION)
 			{
-				if (!SAFEMODE)
+				if (!TWEEZER_COMPUTER_SAFEMODE)
 				{
 					// create waveform (necessary?)
 					myNIAWG::myNIAWG_DoubleErrorChecker(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform, &waveID));
@@ -1924,7 +1974,7 @@ namespace myNIAWG
 				}
 				eCurrentScript = "DefaultVConfigScript";
 			}
-			if (!SAFEMODE)
+			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
 				// Initiate Generation.
 				myNIAWG::myNIAWG_DoubleErrorChecker(niFgen_InitiateGeneration(eSessionHandle));
@@ -1947,12 +1997,12 @@ namespace myNIAWG
 			ViChar* errMsg;
 			//niFgen_ErrorHandler(eSessionHandle, error, errMsg);
 			int errMsgSize = 0;
-			if (!SAFEMODE)
+			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
 				errMsgSize = niFgen_GetError(eSessionHandle, VI_NULL, 0, VI_NULL);
 			}
 			errMsg = (ViChar *)malloc(sizeof(ViChar) * errMsgSize);
-			if (!SAFEMODE)
+			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
 				niFgen_GetError(eSessionHandle, &eError, errMsgSize, errMsg);
 			}
@@ -2162,7 +2212,7 @@ namespace myNIAWG
 		* @param size is the size of the waveform in question, to be determined by this function.
 		* @param waveInfo is the structure which stores the info being read in this function.
 		*/
-		int getWvFmData(std::fstream &fileName, waveData &waveInfo) 
+		int getWvFmData(std::fstream &fileName, waveData &waveInfo, std::vector<variable> singletons)
 		{
 			rmWhite(fileName);
 			// Initialize the variable counter inside the waveData struct to zero:
@@ -2182,7 +2232,7 @@ namespace myNIAWG
 					{
 						// set the initial and final values to be equal, and to not use a ramp, unless variable present.
 						if (myNIAWG::script::getParamCheckVarConst(waveInfo.signals[i].freqInit, waveInfo.signals[i].freqFin, fileName, waveInfo.varNum,
-																   waveInfo.varNames, waveInfo.varTypes, (5 * i) + 1, (5 * i) + 2) 
+																   waveInfo.varNames, waveInfo.varTypes, (5 * i) + 1, (5 * i) + 2, singletons)
 							!= 0)
 						{
 							MessageBox(NULL, "getParamCheckVarConst() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
@@ -2195,7 +2245,7 @@ namespace myNIAWG
 						waveInfo.signals[i].freqRampType = "nr";
 						// set the initial and final values to be equal, and to not use a ramp, unless variable present.
 						if (myNIAWG::script::getParamCheckVarConst(waveInfo.signals[i].initPower, waveInfo.signals[i].finPower, fileName, waveInfo.varNum,
-																   waveInfo.varNames, waveInfo.varTypes, (5 * i) + 3, (5 * i) + 4)
+																   waveInfo.varNames, waveInfo.varTypes, (5 * i) + 3, (5 * i) + 4, singletons)
 							!= 0)
 						{
 							MessageBox(NULL, "getParamCheckVarConst() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
@@ -2205,7 +2255,7 @@ namespace myNIAWG
 						waveInfo.signals[i].powerRampType = "nr";
 						// Get phase, unless varied.
 						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].initPhase, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes,
-															  (5 * i) + 5) 
+															  (5 * i) + 5, singletons)
 							!= 0)
 						{
 							MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
@@ -2213,24 +2263,16 @@ namespace myNIAWG
 						}
 					}
 					// Get time, unless varied.
-					if (myNIAWG::script::getParamCheckVar(waveInfo.time, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 26) != 0)
+					if (myNIAWG::script::getParamCheckVar(waveInfo.time, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 26, singletons) != 0)
 					{
 						MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
 						return -1;
 					}
 					// Scale the time to be in seconds. (input is ms)
 					waveInfo.time *= 0.001;
-					// test if waveInfo.time is an integer multiple of 4 samples
-					// convert to picoseconds then test the modulo with 10 ns.
-					if ((((long long)round(waveInfo.time * 1e12)) % 10000) != 0)
-					{
-						MessageBox(NULL, "ERROR: time value entered does not correspond to a multiple of 4 samples on the generater, or a multiple of 10 ns.\n",
-								   "ERROR", MB_OK | MB_ICONERROR);
-						return -2;
-					}
-
 					// get the time management option.
-					if (myNIAWG::script::getParamCheckVar(waveInfo.phaseManagementOption, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 27) 
+					if (myNIAWG::script::getParamCheckVar(waveInfo.phaseManagementOption, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 27, 
+														  singletons)
 						!= 0)
 					{
 						MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
@@ -2252,7 +2294,7 @@ namespace myNIAWG
 					{
 						// set the initial and final values to be equal, and to not use a ramp.
 						if (myNIAWG::script::getParamCheckVarConst(waveInfo.signals[i].freqInit, waveInfo.signals[i].freqFin, fileName, waveInfo.varNum, 
-																   waveInfo.varNames, waveInfo.varTypes, (5 * i) + 1, (5 * i) + 2)
+																   waveInfo.varNames, waveInfo.varTypes, (5 * i) + 1, (5 * i) + 2, singletons)
 							!= 0)
 						{
 							MessageBox(NULL, "getParamCheckVarConst() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
@@ -2268,42 +2310,39 @@ namespace myNIAWG
 						std::transform(tempStr.begin(), tempStr.end(), tempStr.begin(), ::tolower);
 						waveInfo.signals[i].powerRampType = tempStr;
 						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].initPower, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes,
-															  (5 * i) + 3) != 0) 
+															  (5 * i) + 3, singletons)
+							!= 0)
 						{
 							MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
 							return -1;
 						}
 						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].finPower, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
-															  (5 * i) + 4) 
+															  (5 * i) + 4, singletons)
 							!= 0)
 						{
 							MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
 							return -1;
 						}
 						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].initPhase, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
-															  (5 * i) + 5) != 0) 
+															  (5 * i) + 5, singletons)
+							!= 0) 
 						{
 							MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
 							return -1;
 						}
 					}
-					if (myNIAWG::script::getParamCheckVar(waveInfo.time, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 26) != 0) 
+					if (myNIAWG::script::getParamCheckVar(waveInfo.time, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 26, singletons) 
+						!= 0)
 					{
 						MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
 						return -1;
 					}
 					// Scale the time to be in seconds. (input is ms)
 					waveInfo.time *= 0.001;
-					// test if waveInfo.time is an integer multiple of 4 samples
-					// convert to picoseconds then test the modulo with 10 ns.
-					if ((((long long)round(waveInfo.time * 1e12)) % 10000) != 0) 
-					{
-						MessageBox(NULL, "ERROR: time value entered does not correspond to a multiple of 4 samples on the generater, or a multiple of 10 ns."
-										 "\n", "ERROR", MB_OK | MB_ICONERROR);
-						return -2;
-					}
 					// get the time management option.
-					if (myNIAWG::script::getParamCheckVar(waveInfo.phaseManagementOption, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 27) != 0) 
+					if (myNIAWG::script::getParamCheckVar(waveInfo.phaseManagementOption, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 27, 
+														  singletons)
+						!= 0)
 					{
 						MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
 						return -1;
@@ -2328,14 +2367,14 @@ namespace myNIAWG
 						std::transform(tempStr.begin(), tempStr.end(), tempStr.begin(), tolower);
 						waveInfo.signals[i].freqRampType = tempStr;
 						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].freqInit, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
-															  (5 * i) + 1) 
+															  (5 * i) + 1, singletons)
 							!= 0) 
 						{
 							MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
 							return -1;
 						}
 						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].freqFin, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
-															  (5 * i) + 2)
+															  (5 * i) + 2, singletons)
 							!= 0) 
 						{
 							MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
@@ -2346,7 +2385,7 @@ namespace myNIAWG
 						waveInfo.signals[i].freqFin *= 1000000.;
 						// set the initial and final values to be equal, and to not use a ramp.
 						if (myNIAWG::script::getParamCheckVarConst(waveInfo.signals[i].initPower, waveInfo.signals[i].finPower, fileName, waveInfo.varNum,
-																   waveInfo.varNames, waveInfo.varTypes, (5 * i) + 3, (5 * i) + 4) 
+																   waveInfo.varNames, waveInfo.varTypes, (5 * i) + 3, (5 * i) + 4, singletons)
 							!= 0) 
 						{
 							MessageBox(NULL, "getParamCheckVarConst() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
@@ -2354,13 +2393,13 @@ namespace myNIAWG
 						}
 						waveInfo.signals[i].powerRampType = "nr";
 						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].initPhase, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
-															  (5 * i) + 5) != 0) 
+															  (5 * i) + 5, singletons) != 0)
 						{
 							MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
 							return -1;
 						}
 					}
-					if (myNIAWG::script::getParamCheckVar(waveInfo.time, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 26) != 0) 
+					if (myNIAWG::script::getParamCheckVar(waveInfo.time, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 26, singletons) != 0)
 					{
 						MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
 						getchar();
@@ -2368,18 +2407,12 @@ namespace myNIAWG
 					}
 					// Scale the time to be in seconds. (input is ms)
 					waveInfo.time *= 0.001;
-					// test if waveInfo.time is an integer multiple of 4 samples
-					// convert to picoseconds then test the modulo.
-					if ((((long long)round(waveInfo.time * 1e12)) % 10000) != 0) 
-					{
-						MessageBox(NULL, "ERROR: time value entered does not correspond to a multiple of 4 samples on the generater, or a multiple of 10 ns.\n", "ERROR", MB_OK | MB_ICONERROR);
-						return -2;
-					}
 					// get the time management option.
-					if (myNIAWG::script::getParamCheckVar(waveInfo.phaseManagementOption, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 27) 
+					if (myNIAWG::script::getParamCheckVar(waveInfo.phaseManagementOption, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 27,
+														  singletons)
 						!= 0) 
 					{
-						MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);					getchar();
+						MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
 						return -1;
 					}
 					// pick up the delimeter.
@@ -2402,14 +2435,14 @@ namespace myNIAWG
 						std::transform(tempStr.begin(), tempStr.end(), tempStr.begin(), ::tolower);
 						waveInfo.signals[i].freqRampType = tempStr;
 						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].freqInit, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
-															  (5 * i) + 1) 
+															  (5 * i) + 1, singletons)
 							!= 0) 
 						{
 							MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
 							return -1;
 						}
 						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].freqFin, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
-															  (5 * i) + 2) 
+															  (5 * i) + 2, singletons)
 							!= 0) 
 						{
 							MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
@@ -2424,21 +2457,21 @@ namespace myNIAWG
 						std::transform(tempStr.begin(), tempStr.end(), tempStr.begin(), ::tolower);
 						waveInfo.signals[i].powerRampType = tempStr;
 						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].initPower, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
-															  (5 * i) + 3) 
+															  (5 * i) + 3, singletons)
 							!= 0) 
 						{
 							MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
 							return -1;
 						}
 						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].finPower, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
-															  (5 * i) + 4) 
+															  (5 * i) + 4, singletons)
 							!= 0) 
 						{
 							MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
 							return -1;
 						}
 						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].initPhase, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
-															  (5 * i) + 5) 
+															  (5 * i) + 5, singletons)
 							!= 0) 
 						{
 							MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
@@ -2448,23 +2481,16 @@ namespace myNIAWG
 						//waveInfo.signals.push_back(waveInfo.signals[i]); // Why is this here???????????
 						//?????????????????????????????????????????????????????????????????????????????
 					}
-					if (myNIAWG::script::getParamCheckVar(waveInfo.time, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 26) != 0) 
+					if (myNIAWG::script::getParamCheckVar(waveInfo.time, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 26, singletons) != 0)
 					{
 						MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
 						return -1;
 					}
 					// Scale the time to be in seconds. (input is ms)
 					waveInfo.time *= 0.001;
-					// test if waveInfo.time is an integer multiple of 4 samples
-					// convert to picoseconds then test the modulo.
-					if ((((long long)round(waveInfo.time * 1e12)) % 10000) != 0) 
-					{
-						MessageBox(NULL, "ERROR: time value entered does not correspond to a multiple of 4 samples on the generater, or a multiple of 10 ns."
-										 "\n", "ERROR", MB_OK | MB_ICONERROR);
-						return -2;
-					}
 					// get the time management option.
-					if (myNIAWG::script::getParamCheckVar(waveInfo.phaseManagementOption, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 27) 
+					if (myNIAWG::script::getParamCheckVar(waveInfo.phaseManagementOption, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 27, 
+														  singletons)
 						!= 0) 
 					{
 						MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
@@ -2827,7 +2853,7 @@ namespace myNIAWG
 					std::string& scriptString, std::string triggerName,	int &waveCount, ViSession vi, ViConstString channelName, ViStatus error, 
 					std::vector<std::string> xWaveformList,	std::vector<std::string> yWaveformList, int &predWaveCount, std::vector<int> waveListWaveCounts,
 					std::vector<std::string>(&libWaveformArray)[20], bool(&fileStatus)[20], std::vector<waveData> &allXWaveParam, 
-					std::vector<bool> &xWaveVaried,	std::vector<waveData> &allYWaveParam, std::vector<bool> &yWaveVaried, bool isDefault, bool isThreaded, std::string currentCategoryFolder)
+					std::vector<bool> &xWaveVaried,	std::vector<waveData> &allYWaveParam, std::vector<bool> &yWaveVaried, bool isDefault, bool isThreaded, std::string currentCategoryFolder, std::vector<variable> singletons)
 		{
 			// declare some variables
 			std::string verticalExternalVerticalScriptName, verticalExternalHorizontalScriptName, horizontalExternalVerticalScriptName, 
@@ -2876,11 +2902,11 @@ namespace myNIAWG
 					MessageBox(0, ("ERROR: external horizontal script file: " + verticalExternalHorizontalScriptName + " could not be opened! make sure it exists in the current category folder: " + currentCategoryFolder).c_str(), 0, 0);
 					return -1;
 				}
-				// recursively call the createXYScript function. This will go through the new script files, write all of their commands to the same script, write
+				// recursively call the analyzeNIAWGScripts function. This will go through the new script files, write all of their commands to the same script, write
 				// waveforms to the AWG, and eventually make it's way back here.
-				myNIAWG::createXYScript(externalVerticalScriptFile, externalHorizontalScriptFile, scriptString, triggerName, waveCount, vi, channelName, error, xWaveformList, 
+				myNIAWG::analyzeNIAWGScripts(externalVerticalScriptFile, externalHorizontalScriptFile, scriptString, triggerName, waveCount, vi, channelName, error, xWaveformList, 
 										yWaveformList, predWaveCount, waveListWaveCounts, libWaveformArray, fileStatus, allXWaveParam, xWaveVaried, 
-										allYWaveParam, yWaveVaried, isDefault, isThreaded, currentCategoryFolder);
+										allYWaveParam, yWaveVaried, isDefault, isThreaded, currentCategoryFolder, singletons);
 
 				return 0;
 			}
@@ -2960,11 +2986,11 @@ namespace myNIAWG
 				externalVerticalWaveformFile.open(verticalExternalVerticalWaveformName);
 				externalHorizontalWaveformFile.open(verticalExternalHorizontalWaveformName);
 
-				// createXYScript here works in the same way as it does for longer scripts. The effect here is simply to read the one waveform into the same script 
+				// analyzeNIAWGScripts here works in the same way as it does for longer scripts. The effect here is simply to read the one waveform into the same script 
 				// file.
-				myNIAWG::createXYScript(externalVerticalWaveformFile, externalHorizontalWaveformFile, scriptString, triggerName, waveCount, vi, channelName, error, xWaveformList, 
+				myNIAWG::analyzeNIAWGScripts(externalVerticalWaveformFile, externalHorizontalWaveformFile, scriptString, triggerName, waveCount, vi, channelName, error, xWaveformList, 
 										yWaveformList, predWaveCount, waveListWaveCounts, libWaveformArray, fileStatus, allXWaveParam, xWaveVaried, 
-										allYWaveParam, yWaveVaried, isDefault, isThreaded, currentCategoryFolder);
+										allYWaveParam, yWaveVaried, isDefault, isThreaded, currentCategoryFolder, singletons);
 				return 0;
 			}
 			else
@@ -2980,6 +3006,12 @@ namespace myNIAWG
 	*/
 	namespace script
 	{
+		long waveformSizeCalc(double time)
+		{
+			double waveSize = time * SAMPLE_RATE;
+			return (long int)(waveSize + 0.5);
+		}
+
 		/**
 		* This function takes in the data for a single waveform and calculates all if the waveform's data points, and returns a pointer to an array containing
 		* these data points.
@@ -3370,7 +3402,7 @@ namespace myNIAWG
 		 */
 		bool isSpecialCommand(std::string c)
 		{
-			if (c == "predefined script" || c == "predefined script <verticalFileName.txt> <horizontalFileName.txt>" || c == "create marker event"
+			if (c == "predefined script" || c == "predefined script <verticalFile.txt> <horizontalFile.txt>" || c == "create marker event"
 				|| c == "create marker event <samples after previous waveform to wait>" || c == "predefined waveform")
 			{
 				return true;
@@ -3580,14 +3612,14 @@ namespace myNIAWG
 		 * function using this function to check the arrays that get returned for the specified number of variables.
 		 *
 		 * @param dataToAssign is the value of a waveData variable that is being read in. If a variable is found it isn't actually assigned.
-		 * @param fName is the instructions file being read for this input.
+		 * @param file is the instructions file being read for this input.
 		 * @param vCount is the number of variables that have been assigned so far.
 		 * @param vNames is a vector that holds the names of the variables that are found in the script.
 		 * @param vParamTypes is a vector that holds the information as to what type of parameter is being varried for a given variable name.
 		 * @param dataType is the number to assign to vParamTypes if a variable is being used.
 		 */
 		int getParamCheckVar(double& dataToAssign, std::fstream& fName, int& vCount, std::vector<std::string>& vNames, std::vector<int>& vParamTypes, 
-							 int dataType)
+							 int dataType, std::vector<variable> singletons)
 		{
 			std::string tempInput;
 			int stringPos;
@@ -3627,6 +3659,15 @@ namespace myNIAWG
 			{
 				stringPos = 0;
 			}
+			// check if this is a singleton variable. If so, immediately assign relevant data point to singleton value.
+			for (int singletonInc = 0; singletonInc < singletons.size(); singletonInc++)
+			{
+				if (tempInput == singletons[singletonInc].name)
+				{
+					dataToAssign = singletons[singletonInc].value;
+					return 0;
+				}
+			}
 			if (!isdigit(tempInput[stringPos]))
 			{
 				// load variable name into structure.
@@ -3649,13 +3690,14 @@ namespace myNIAWG
 		 * function using this function to check the arrays that get returned for the specified number of variables.
 		 *
 		 * @param dataToAssign is the value of a waveData variable that is being read in. If a variable is found it isn't actually assigned.
-		 * @param fName is the instructions file being read for this input.
+		 * @param file is the instructions file being read for this input.
 		 * @param vCount is the number of variables that have been assigned so far.
 		 * @param vNames is a vector that holds the names of the variables that are found in the script.
 		 * @param vParamTypes is a vector that holds the information as to what type of parameter is being varried for a given variable name.
 		 * @param dataType is the number to assign to vParamTypes if a variable is being used.
 		 */
-		int getParamCheckVar(int& dataToAssign, std::fstream& fileName, int& vCount, std::vector<std::string>& vNames, std::vector<int>& vParamTypes, int dataType)
+		int getParamCheckVar(int& dataToAssign, std::fstream& fileName, int& vCount, std::vector<std::string>& vNames, std::vector<int>& vParamTypes, 
+			int dataType, std::vector<variable> singletons)
 		{
 			std::string tempInput;
 			int stringPos;
@@ -3696,6 +3738,15 @@ namespace myNIAWG
 			{
 				stringPos = 0;
 			}
+			// check if this is a singleton variable. If so, immediately assign relevant data point to singleton value.
+			for (int singletonInc = 0; singletonInc < singletons.size(); singletonInc++)
+			{
+				if (tempInput == singletons[singletonInc].name)
+				{
+					dataToAssign = singletons[singletonInc].value;
+					return 0;
+				}
+			}
 			if (!isdigit(tempInput[stringPos])) 
 			{
 				// load variable name into structure.
@@ -3720,21 +3771,23 @@ namespace myNIAWG
 		 * where either the frequency or the ramp is not being ramped, and so the inputted data needs to be assigned to both the initial and final values of the
 		 * parameter type.
 		 *
-		 * @param data1ToAssign is the value of the first waveData variable that is being read in. If a variable is found it isn't actually assigned.
-		 * @param data2ToAssign is the value of the second waveData variable that is being read in. If a variable is found it isn't actually assigned.
-		 * @param fName is the instructions file being read for this input.
-		 * @param vCount is the number of variables that have been assigned so far.
-		 * @param vNames is a vector that holds the names of the variables that are found in the script.
-		 * @param vParamTypes is a vector that holds the information as to what type of parameter is being varried for a given variable name.
-		 * @param dataType1 is the number to assign to vParamTypes for the first parameter if a variable is being used.
-		 * @param dataType2 is the number to assign to vParamTypes for the second parameter if a variable is being used.
+		 * data1ToAssign is the value of the first waveData variable that is being read in. If a variable is found it isn't actually assigned.
+		 * data2ToAssign is the value of the second waveData variable that is being read in. If a variable is found it isn't actually assigned.
+		 * file is the instructions file being read for this input.
+		 * vCount is the number of variables that have been assigned so far.
+		 * vNames is a vector that holds the names of the variables that are found in the script.
+		 * vParamTypes is a vector that holds the information as to what type of parameter is being varried for a given variable name.
+		 * dataType1 is the number to assign to vParamTypes for the first parameter if a variable is being used.
+		 * dataType2 is the number to assign to vParamTypes for the second parameter if a variable is being used.
+		 * singletons is the list of singletons that the user set for this configuration. If a variable name is found to match a singleton name, the value is 
+		 *		immediately set to the singleton's value.
 		 */
-		int getParamCheckVarConst(double& data1ToAssign, double& data2ToAssign, std::fstream& fName, int& vCount, std::vector<std::string>& vNames,
-			std::vector<int>& vParamTypes, int dataType1, int dataType2) 
+		int getParamCheckVarConst(double& data1ToAssign, double& data2ToAssign, std::fstream& file, int& vCount, std::vector<std::string>& vNames,
+			std::vector<int>& vParamTypes, int dataType1, int dataType2, std::vector<variable> singletons)
 		{
 			std::string tempInput;
-			rmWhite(fName);
-			fName >> tempInput;
+			rmWhite(file);
+			file >> tempInput;
 			// pull input to lower case to prevent stupid user input errors.
 			std::transform(tempInput.begin(), tempInput.end(), tempInput.begin(), ::tolower);
 
@@ -3761,7 +3814,16 @@ namespace myNIAWG
 				MessageBox(NULL, "ERROR: it appears that you entered a negative frequency or amplitude. You can't do that.", NULL, MB_OK);
 				return -4;
 			}
-
+			// check if this is a singleton variable. If so, immediately assign relevant data point to singleton value.
+			for (int singletonInc = 0; singletonInc < singletons.size(); singletonInc++)
+			{
+				if (tempInput == singletons[singletonInc].name)
+				{
+					data1ToAssign = singletons[singletonInc].value;
+					data2ToAssign = data1ToAssign;
+					return 0;
+				}
+			}
 			// I don't need to check for -1 input because this function should never be used on the phase or the time, only frequency or amplitude for non-ramping waveforms. 
 			if (!isdigit(tempInput[0]))
 			{
@@ -3794,7 +3856,7 @@ namespace myNIAWG
 		 *
 		 * @param data1ToAssign is the value of the first waveData variable that is being read in. If a variable is found it isn't actually assigned.
 		 * @param data2ToAssign is the value of the second waveData variable that is being read in. If a variable is found it isn't actually assigned.
-		 * @param fName is the instructions file being read for this input.
+		 * @param file is the instructions file being read for this input.
 		 * @param vCount is the number of variables that have been assigned so far.
 		 * @param vNames is a vector that holds the names of the variables that are found in the script.
 		 * @param vParamTypes is a vector that holds the information as to what type of parameter is being varried for a given variable name.
@@ -3802,7 +3864,7 @@ namespace myNIAWG
 		 * @param dataType2 is the number to assign to vParamTypes for the second parameter if a variable is being used.
 		 */
 		int getParamCheckVarConst(int& data1ToAssign, double& data2ToAssign, std::fstream& fileName, int& vCount, std::vector<std::string>& vNames, 
-								  std::vector<int>& vParamTypes, int dataType1, int dataType2)
+								  std::vector<int>& vParamTypes, int dataType1, int dataType2, std::vector<variable> singletons)
 		{
 			std::string tempInput;
 			rmWhite(fileName);
@@ -3833,7 +3895,16 @@ namespace myNIAWG
 				MessageBox(NULL, "ERROR: it appears that you entered a negative frequency or amplitude. You can't do that.", NULL, MB_OK);
 				return -4;
 			}
-
+			// check if this is a singleton variable. If so, immediately assign relevant data point to singleton value.
+			for (int singletonInc = 0; singletonInc < singletons.size(); singletonInc++)
+			{
+				if (tempInput == singletons[singletonInc].name)
+				{
+					data1ToAssign = singletons[singletonInc].value;
+					data2ToAssign = data1ToAssign;
+					return 0;
+				}
+			}
 			// I don't need to check for -1 input because this function should never be used on the phase or the time, only frequency or amplitude for non-ramping waveforms. 
 			if (!isdigit(tempInput[0]))
 			{

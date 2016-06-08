@@ -2,8 +2,10 @@
 
 #include "Windows.h"
 
-namespace menuAndAcceleratorFunctions 
+namespace commonMessages 
 {
+	/// Call to direct message to appropriate function in this namespace
+	bool handleCommonMessage(HWND window, UINT msg, WPARAM wParam, LPARAM lParam);
 	/// Run Menu
 	int startSystem(HWND parentWindow, WPARAM wParam);
 	int abortSystem(HWND parentWindow);
@@ -28,6 +30,7 @@ namespace menuAndAcceleratorFunctions
 	int saveHorizontalScriptAs(HWND parentWindow);
 
 	/// Profile Menu
+	/*
 	int newExperimentType(HWND parentWindow);
 	int newCategory(HWND parentWindow);
 	int saveConfigurationAs(HWND parentWindow);
@@ -44,7 +47,7 @@ namespace menuAndAcceleratorFunctions
 	int addToSequence(HWND parentWindow);
 	int resetSequence(HWND parentWindow);
 	int saveSequence(HWND parentWindow);
-
+	*/
 	int saveProfile(HWND parentWindow);
 	
 	int helpWindow(HWND parentWindow);

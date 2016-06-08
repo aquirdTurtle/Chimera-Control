@@ -8,6 +8,7 @@
 #include "myMath.h"
 #include "myNIAWG.h"
 #include "boost/cast.hpp"
+#include <algorithm>
 
 /*
 * This Namespace includes all of my function handling for interacting withe agilent waveform generator. It includes:
@@ -34,7 +35,7 @@ namespace myAgilent
 	 * segNum: This tells the function what the next segment # is.
 	 * fileName: this is the file object to be read from.
 	 */
-	int IntensityWaveform::readIntoSegment(int segNum, std::fstream& fileName)
+	int IntensityWaveform::readIntoSegment(int segNum, std::fstream& fileName, std::vector<variable> singletons)
 	{
 		rmWhite(fileName);
 		std::string intensityCommand;
@@ -46,49 +47,73 @@ namespace myAgilent
 			// reached end of file, return with message.
 			return 1;
 		}
-		// Grab the command type (e.g. ramp, const)
+		// Grab the command type (e.g. ramp, const). Looks for newline by default.
 		getline(fileName, intensityCommand, '\r');
-		if (intensityCommand == "Intensity Hold")
+		// get rid of case sensitivity.
+		std::transform(intensityCommand.begin(), intensityCommand.end(), intensityCommand.begin(), ::tolower);
+		if (intensityCommand == "agilent hold")
 		{
 			waveformSegments.resize(segNum + 1);
 			waveformSegments[segNum].assignSegType(0);
 		}
-		else if (intensityCommand == "Intensity Ramp")
+		else if (intensityCommand == "agiletn ramp")
 		{
 			waveformSegments.resize(segNum + 1);
 			waveformSegments[segNum].assignSegType(1);
 		}
-		else
+		else if (intensityCommand == "predefined script")
+		{
+			std::string nestedFileName;
+			// remove \n at the end of last line.
+			fileName.get();
+			getline(fileName, nestedFileName, '\r');
+			std::string path = eProfile.getCurrentPathIncludingCategory() + nestedFileName + AGILENT_SCRIPT_EXTENSION;
+			std::fstream nestedFile(path.c_str(), std::ios::in);
+			if (!nestedFile.is_open())
+			{
+				MessageBox(0, ("ERROR: tried to open a nested intensity file, but failed! The file was " + eProfile.getCurrentPathIncludingCategory()
+					+ nestedFileName + AGILENT_SCRIPT_EXTENSION).c_str(), 0, 0);
+				return -1;
+			}
+			if (myAgilent::analyzeIntensityScript(nestedFile, this, segNum, singletons))
+			{
+				return -1;
+			}
+			return 0;
+		}
+		else 
 		{
 			std::string errMsg = "ERROR: Intensity command not recognized. The command was \"" + intensityCommand + "\"";
 			MessageBox(NULL, errMsg.c_str(), NULL, MB_OK);
 			return -1;
 		}
 
-		double tempTime, tempIntensityInit, tempIntensityFin;
+		double tempTimeInMilliSeconds, tempIntensityInit, tempIntensityFin;
 		unsigned int tempRepeatNum = 0;
-		std::string delimiter, tempContinuationType, tempRampType;
+		std::string delimiter, tempContinuationType, tempRampType;	 
 		// List of data types for variables for the different arguments:
 		// initial intensity = 1
 		// final intensity = 2
 		// time = 3
-		if (waveformSegments[segNum].returnSegType() == 1)
+		if (waveformSegments[segNum].returnSegmentType() == 1)
 		{
+			// this segment type means ramping.
 			rmWhite(fileName);
 			fileName >> tempRampType;
-			myNIAWG::script::getParamCheckVar(tempIntensityInit, fileName, tempVarNum, tempVarNames, tempVarLocations, 1);
-			myNIAWG::script::getParamCheckVar(tempIntensityFin, fileName, tempVarNum, tempVarNames, tempVarLocations, 2);
+			myNIAWG::script::getParamCheckVar(tempIntensityInit, fileName, tempVarNum, tempVarNames, tempVarLocations, 1, singletons);
+			myNIAWG::script::getParamCheckVar(tempIntensityFin, fileName, tempVarNum, tempVarNames, tempVarLocations, 2, singletons);
 		}
 		else
 		{
 			tempRampType = "nr";
-			myNIAWG::script::getParamCheckVarConst(tempIntensityInit, tempIntensityFin, fileName, tempVarNum, tempVarNames, tempVarLocations, 1, 2);
+			myNIAWG::script::getParamCheckVarConst(tempIntensityInit, tempIntensityFin, fileName, tempVarNum, tempVarNames, tempVarLocations, 1, 2, singletons);
 		}
-		myNIAWG::script::getParamCheckVar(tempTime, fileName, tempVarNum, tempVarNames, tempVarLocations, 3);
+		myNIAWG::script::getParamCheckVar(tempTimeInMilliSeconds, fileName, tempVarNum, tempVarNames, tempVarLocations, 3, singletons);
 
 		rmWhite(fileName);
 		fileName >> tempContinuationType;
-		if (tempContinuationType == "Repeat")
+		std::transform(tempContinuationType.begin(), tempContinuationType.end(), tempContinuationType.begin(), ::tolower);
+		if (tempContinuationType == "repeat")
 		{
 			// There is an extra input in this case.
 			rmWhite(fileName);
@@ -112,7 +137,7 @@ namespace myAgilent
 			return -1;
 		}
 
-		if (tempTime <= 0)
+		if (tempTimeInMilliSeconds <= 0)
 		{
 			// check if being varied.
 			bool varCheck = false;
@@ -129,7 +154,7 @@ namespace myAgilent
 				// Invalid time
 				std::string errMsg;
 				errMsg = "ERROR: Invalid time entered in the intensity script file for Segment #" + std::to_string(segNum) + ". the value entered was " 
-						 + std::to_string(tempTime) + ".";
+						 + std::to_string(tempTimeInMilliSeconds) + ".";
 				MessageBox(NULL, errMsg.c_str(), "ERROR", MB_OK | MB_ICONERROR);
 				return -1;
 			}
@@ -175,7 +200,7 @@ namespace myAgilent
 				return -1;
 			}
 		}
-		if (tempContinuationType == "Repeat")
+		if (tempContinuationType == "repeat")
 		{
 			waveformSegments[segNum].assignContinuationType(0);
 			if (tempRepeatNum < 0)
@@ -187,19 +212,19 @@ namespace myAgilent
 				return -1;
 			}
 		}
-		else if (tempContinuationType == "RepeatUntilTrigger")
+		else if (tempContinuationType == "repeatuntiltrig")
 		{
 			waveformSegments[segNum].assignContinuationType(1);
 		}
-		else if (tempContinuationType == "Once")
+		else if (tempContinuationType == "once")
 		{
 			waveformSegments[segNum].assignContinuationType(2);
 		}
-		else if (tempContinuationType == "RepeatForever")
+		else if (tempContinuationType == "repeatforever")
 		{
 			waveformSegments[segNum].assignContinuationType(3);
 		}
-		else if (tempContinuationType == "OnceWaitTrig")
+		else if (tempContinuationType == "oncewaittrig")
 		{
 			waveformSegments[segNum].assignContinuationType(4);
 		}
@@ -207,15 +232,16 @@ namespace myAgilent
 		{
 			// string not recognized
 			std::string errMsg;
-			errMsg = "ERROR: Invalid Continuation Option on intensity segment #" + std::to_string(segNum) + ". The string entered was " + tempContinuationType
-					 + ". Please enter \"Repeat #\", \"RepeatUntilTrigger\", \"OnceWaitTrig\", or \"Once\".";
+			errMsg = "ERROR: Invalid Continuation Option on intensity segment #" + std::to_string(segNum + 1) + ". The string entered was " + tempContinuationType
+					 + ". Please enter \"Repeat #\", \"RepeatUntilTrigger\", \"OnceWaitTrig\", or \"Once\". Code should not be case-sensititve.";
 			MessageBox(NULL, errMsg.c_str(), NULL, MB_OK);
 		}
 		// Make Everything Permanent
 		waveformSegments[segNum].assignRepeatNum(tempRepeatNum);
 		waveformSegments[segNum].assignInitValue(tempIntensityInit);
 		waveformSegments[segNum].assignFinValue(tempIntensityFin);
-		waveformSegments[segNum].assignTime(tempTime);
+		// the actual time that gets assigned is in seconds
+		waveformSegments[segNum].assignTime(tempTimeInMilliSeconds / 1000.0);
 		waveformSegments[segNum].assignRampType(tempRampType);
 
 		waveformSegments[segNum].assignVarNum(tempVarNum);
@@ -574,7 +600,7 @@ namespace myAgilent
 	/*
 	 * return segmentType;
 	 */
-	int Segment::returnSegType()
+	int Segment::returnSegmentType()
 	{
 		return segmentType;
 	}
@@ -721,7 +747,7 @@ namespace myAgilent
 		unsigned long viDefaultRM, Instrument;
 		unsigned long actual;
 		std::string SCPIcmd;
-		if (!SAFEMODE)
+		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
 			viOpenDefaultRM(&viDefaultRM);
 			viOpen(viDefaultRM, (char *)AGILENT_ADDRESS, VI_NULL, VI_NULL, &Instrument);
@@ -740,12 +766,37 @@ namespace myAgilent
 		return 0;
 	}
 
+	bool analyzeIntensityScript(std::fstream& intensityFile, myAgilent::IntensityWaveform* intensityWaveformData, int& currentSegmentNumber, std::vector<variable> singletons)
+	{
+		while (!intensityFile.eof())
+		{
+			// Procedurally read lines into segment informations.
+			int leaveTest = intensityWaveformData->readIntoSegment(currentSegmentNumber, intensityFile, singletons);
+			if (leaveTest < 0)
+			{
+				// Error
+				std::string errMsg;
+				errMsg = "ERROR: IntensityWaveform.readIntoSegment threw an error! Error occurred in segment #" + std::to_string(currentSegmentNumber) + ".";
+				MessageBox(NULL, errMsg.c_str(), NULL, MB_OK);
+				return true;
+			}
+			if (leaveTest == 1)
+			{
+				// read function is telling this function to stop reading the file because it's at its end.
+				break;
+			}
+			currentSegmentNumber++;
+		}
+		return false;
+	}
+
 	/*
 	 * programIntensity opens the intensity file, reads the contents, loads them into an appropriate data structure, then from this data structure writes
 	 * segment and sequence information to the function generator.
 	 */
-	int programIntensity(int varNum, std::vector<std::string> varNames, std::vector<std::vector<double> > varValues, bool& intensityVaried, 
-						 std::vector<myMath::minMaxDoublet>& minsAndMaxes, std::vector<std::vector<POINT>>& pointsToDraw, std::vector<std::fstream>& intensityFiles)
+	int programIntensity(int varNum, std::vector<variable> variables, std::vector<std::vector<double> > varValues, bool& intensityVaried, 
+						 std::vector<myMath::minMaxDoublet>& minsAndMaxes, std::vector<std::vector<POINT>>& pointsToDraw, 
+						 std::vector<std::fstream>& intensityFiles, std::vector<variable> singletons)
 	{
 		// Initialize stuff
 		myAgilent::IntensityWaveform intensityWaveformSequence;
@@ -756,7 +807,7 @@ namespace myAgilent
 		unsigned long viDefaultRM = 0, Instrument = 0;
 		unsigned long actual;
 		std::string SCPIcmd;
-		if (!SAFEMODE)
+		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
 			viOpenDefaultRM(&viDefaultRM);
 			viOpen(viDefaultRM, (char *)AGILENT_ADDRESS, VI_NULL, VI_NULL, &Instrument);
@@ -777,24 +828,9 @@ namespace myAgilent
 		}
 		for (int sequenceInc = 0; sequenceInc < intensityFiles.size(); sequenceInc++)
 		{
-
-			while (!intensityFiles[sequenceInc].eof())
+			if (analyzeIntensityScript(intensityFiles[sequenceInc], &intensityWaveformSequence, currentSegmentNumber, singletons))
 			{
-				// Procedurally read lines into segment informations.
-				int leaveTest = intensityWaveformSequence.readIntoSegment(currentSegmentNumber, intensityFiles[sequenceInc]);
-				if (leaveTest < 0)
-				{
-					// Error
-					std::string errMsg;
-					errMsg = "ERROR: IntensityWaveform.readIntoSegment threw an error! Error occurred in segment #" + std::to_string(currentSegmentNumber) + ".";
-					MessageBox(NULL, errMsg.c_str(), NULL, MB_OK);
-					return -1;
-				}
-				if (leaveTest == 1)
-				{
-					break;
-				}
-				currentSegmentNumber++;
+				return -1;
 			}
 		}
 		int totalSegmentNumber = currentSegmentNumber;
@@ -806,10 +842,10 @@ namespace myAgilent
 			for (int varValueCount = 0; varValueCount < varValues[0].size(); varValueCount++)
 			{
 				// Loop through variable names
-				for (int varNameCount = 0; varNameCount < varNames.size(); varNameCount++)
+				for (int varNameCount = 0; varNameCount < variables.size(); varNameCount++)
 				{
 					// replace variable values where found
-					intensityWaveformSequence.replaceVarValues(varNames[varNameCount], varValues[varNameCount][varValueCount]);
+					intensityWaveformSequence.replaceVarValues(variables[varNameCount].name, varValues[varNameCount][varValueCount]);
 				}
 				// Loop through all segments
 				for (int segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
@@ -834,7 +870,7 @@ namespace myAgilent
 
 				for (int segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
 				{
-					if (!SAFEMODE)
+					if (!TWEEZER_COMPUTER_SAFEMODE)
 					{
 						SCPIcmd = intensityWaveformSequence.compileAndReturnDataSendString(segNumInc, varValueCount, totalSegmentNumber);
 						// send to the agilent.
@@ -853,7 +889,7 @@ namespace myAgilent
 
 				// Now handle seqeunce creation / writing.
 				intensityWaveformSequence.compileSequenceString(totalSegmentNumber, varValueCount);
-				if (!SAFEMODE)
+				if (!TWEEZER_COMPUTER_SAFEMODE)
 				{
 					// submit the sequence
 					SCPIcmd = intensityWaveformSequence.returnSequenceString();
@@ -896,7 +932,7 @@ namespace myAgilent
 
 			for (int segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
 			{
-				if (!SAFEMODE)
+				if (!TWEEZER_COMPUTER_SAFEMODE)
 				{
 					// Set output impedance...
 					SCPIcmd = std::string("OUTPUT1:LOAD ") + AGILENT_LOAD;
@@ -924,7 +960,7 @@ namespace myAgilent
 
 			// Now handle seqeunce creation / writing.
 			intensityWaveformSequence.compileSequenceString(totalSegmentNumber, 0);
-			if (!SAFEMODE)
+			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
 				// submit the sequence
 				SCPIcmd = intensityWaveformSequence.returnSequenceString();
@@ -962,7 +998,7 @@ namespace myAgilent
 			MessageBox(0, commErrMsg.c_str(), 0, MB_OK);
 			return -1;
 		}
-		if (!SAFEMODE)
+		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
 			// Query the agilent for errors.
 			viQueryf(vi, "SYST:ERR?\n", "%ld,%t", &errorCode, buf);
@@ -987,13 +1023,13 @@ namespace myAgilent
 		{
 			unsigned long viDefaultRM, Instrument;
 			unsigned long actual;
-			if (!SAFEMODE)
+			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
 				viOpenDefaultRM(&viDefaultRM);
 				viOpen(viDefaultRM, (char *)AGILENT_ADDRESS, VI_NULL, VI_NULL, &Instrument);
 			}
 			std::string SCPIcmd;
-			if (!SAFEMODE)
+			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
 				// Load sequence that was previously loaded.
 				SCPIcmd = "MMEM:LOAD:DATA \"INT:\\seq" + std::to_string(varNum) + ".seq\"";

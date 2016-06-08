@@ -27,6 +27,7 @@ class DataAnalysisHandler
 		Control currentDataSetNumberEdit;
 		Control dataOutputNameText;
 		Control dataOutputNameCombo;
+		Control dataOutputNameDetailCombo;
 		Control autoAnalyzeCheckBox;
 		Control autoAnalysisText;
 		Control autoAnalysisTypeCombo;
