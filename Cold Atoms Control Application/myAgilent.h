@@ -103,7 +103,7 @@ namespace myAgilent
 	 *	 public:
 	 *		 IntensityWaveform();
 	 *		 ~IntensityWaveform();
-	 *		 int readIntoSegment(int segNum, std::fstream& fileName);
+	 *		 int readIntoSegment(int segNum, std::fstream& scriptName);
 	 *		 int writeData(int SegNum);
 	 *		 std::string compileAndReturnDataSendString(int segNum, int varNum, int totalSegNum);
 	 *		 int compileSequenceString(int totalSegNum, int sequenceNum);
@@ -130,7 +130,7 @@ namespace myAgilent
 		public:
 			IntensityWaveform();
 			~IntensityWaveform();
-			int readIntoSegment(int segNum, std::fstream& fileName, std::vector<variable> singletons);
+			int readIntoSegment(int segNum, std::fstream& scriptName, std::vector<variable> singletons);
 			int writeData(int SegNum);
 			std::string compileAndReturnDataSendString(int segNum, int varNum, int totalSegNum);
 			int compileSequenceString(int totalSegNum, int sequenceNum);

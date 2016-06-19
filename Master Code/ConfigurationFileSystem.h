@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include "Control.h"
+
 /*
 ]- This is a structure used for containing a set of parameters that define a profile.
 ]- It's used heavily by the configuration file system, but not exclusively by it.
@@ -20,69 +21,70 @@ struct profileSettings
 ]- know). It consists of the relevant controls, some saved indicators that can be checked to determine if the user should be prompted to save at a given point,
 ]- and all of the functions for saving, renaming, deleting, and creating new levels within the code. 
 */
+class MasterWindow;
 class ConfigurationFileSystem
 {
 	public:
 		ConfigurationFileSystem(std::string fileSystemPath);
 		~ConfigurationFileSystem();
 
-		bool saveEntireProfile();
-		bool checkSaveEntireProfile();
-		bool allSettingsReadyCheck();
+		bool saveEntireProfile(MasterWindow& Master);
+		bool checkSaveEntireProfile(MasterWindow& Master);
+		bool allSettingsReadyCheck(MasterWindow& Master);
 		bool reloadAllCombos();
 
-		bool orientationChangeHandler(HWND parentWindow);
+		bool orientationChangeHandler(MasterWindow& Master);
 		std::string getOrientation();
 		bool setOrientation(std::string);
 
-		bool saveSequence();
-		bool saveSequenceAs();
-		bool renameSequence();
-		bool deleteSequence();
-		bool newSequence(HWND parentWindow);
-		bool openSequence(std::string sequenceName);
+		bool saveSequence(MasterWindow& Master);
+		bool saveSequenceAs(MasterWindow& Master);
+		bool renameSequence(MasterWindow& Master);
+		bool deleteSequence(MasterWindow& Master);
+		bool newSequence(MasterWindow& Master);
+		bool openSequence(std::string sequenceName, MasterWindow& Master);
 		bool updateSequenceSavedStatus(bool isSaved);
-		bool sequenceSettingsReadyCheck();
-		bool checkSequenceSave(std::string prompt);
-		bool sequenceChangeHandler();
+		bool sequenceSettingsReadyCheck(MasterWindow& Master);
+		bool checkSequenceSave(std::string prompt, MasterWindow& Master);
+		bool sequenceChangeHandler(MasterWindow& Master);
 		std::string getSequenceNamesString();
-		bool loadNullSequence();
-		bool addToSequence(HWND parentWindow);
+		bool loadNullSequence(MasterWindow& Master);
+		bool addToSequence(MasterWindow& Master);
 		std::vector<std::string> getSequenceNames();
-		bool reloadSequence(std::string sequenceToReload);
+		bool reloadSequence(std::string sequenceToReload, MasterWindow& Master);
 
-		bool saveExperimentOnly();
-		bool newExperiment();
-		bool saveExperimentAs();
+		bool saveExperimentOnly(MasterWindow& Master);
+		bool newExperiment(MasterWindow& Master);
+		bool saveExperimentAs(MasterWindow& Master);
 		bool renameExperiment();
 		bool deleteExperiment();
-		bool openExperiment(std::string experimentToOpen, HWND parentWindow);
+		bool openExperiment(std::string experimentToOpen, MasterWindow& Master);
 		bool updateExperimentSavedStatus(bool isSaved);
-		bool experimentSettingsReadyCheck();
-		bool checkExperimentSave(std::string prompt);
-		bool experimentChangeHandler(HWND parentWindow);
+		bool experimentSettingsReadyCheck(MasterWindow& Master);
+		bool checkExperimentSave(std::string prompt, MasterWindow& Master);
+		bool experimentChangeHandler(MasterWindow& Master);
 
-		bool saveConfigurationOnly();
-		bool newConfiguration();
-		bool saveConfigurationAs();
-		bool renameConfiguration();
+		bool saveConfigurationOnly(MasterWindow& Master);
+		bool newConfiguration(MasterWindow& Master);
+		bool saveConfigurationAs(MasterWindow& Master);
+		bool renameConfiguration(MasterWindow& Master);
 		bool deleteConfiguration();
-		bool openConfiguration(std::string configurationNameToOpen, HWND parentWindow);
+		bool openConfiguration(std::string configurationNameToOpen, MasterWindow& Master);
 		bool updateConfigurationSavedStatus(bool isSaved);
-		bool configurationSettingsReadyCheck();
-		bool checkConfigurationSave(std::string prompt);
-		bool configurationChangeHandler(HWND parentWindow);
+		bool configurationSettingsReadyCheck(MasterWindow& Master);
+		bool checkConfigurationSave(std::string prompt, MasterWindow& Master);
+		bool configurationChangeHandler(MasterWindow& Master);
 
-		bool saveCategoryOnly();
+		bool saveCategoryOnly(MasterWindow& Master);
 		bool renameCategory();
-		bool newCategory();
+		bool newCategory(MasterWindow& Master);
+		bool saveCategoryAs(MasterWindow& Master);
 		bool deleteCategory();
-		bool saveCategoryAs();
-		bool openCategory(std::string categoryToOpen, HWND parentWindow);
+		bool openCategory(std::string categoryToOpen, MasterWindow& Master);
 		bool updateCategorySavedStatus(bool isSaved);
-		bool categorySettinsReadyCheck();
-		bool checkCategorySave(std::string prompt);
-		bool categoryChangeHandler(HWND parentWindow);
+		bool categorySettingsReadyCheck(MasterWindow& Master);
+		bool checkCategorySave(std::string prompt, MasterWindow& Master);
+		bool categoryChangeHandler(MasterWindow& Master);
 		std::string getCurrentPathIncludingCategory();
 
 		std::vector<std::string> searchForFiles(std::string locationToSearch, std::string extensions);
@@ -92,7 +94,7 @@ class ConfigurationFileSystem
 		void updateSaveStatus(bool savedStatus);
 		bool fullyDeleteFolder(std::string folderToDelete);
 
-		bool initializeControls(POINT& topLeftPosition, HWND parentWindow);
+		bool initialize(POINT& topLeftPosition, MasterWindow& Master);
 		bool reorganizeControls(RECT parentRectangle, std::string mode);
 		
 	private:

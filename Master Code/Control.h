@@ -4,5 +4,7 @@
 struct Control
 {
 	HWND hwnd;
-	RECT normalPosition;
+	RECT normalPos;
+	int ID;
+	int colorState = 0;
 };

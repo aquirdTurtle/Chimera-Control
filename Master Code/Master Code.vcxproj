@@ -29,20 +29,23 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -50,6 +53,7 @@
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -71,15 +75,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <LibraryPath>C:\Program Files\boost_1_60_0\lib32-msvc-14.0;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <IncludePath>C:\Program Files\boost_1_60_0;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\Program Files\boost_1_60_0;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files\boost_1_60_0\lib64-msvc-14.0;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <LibraryPath>C:\Program Files\boost_1_60_0\lib32-msvc-14.0;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <IncludePath>C:\Program Files\boost_1_60_0;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\Program Files\boost_1_60_0;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files\boost_1_60_0\lib64-msvc-14.0;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -101,6 +113,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <ShowIncludes>true</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -133,6 +146,8 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <ShowIncludes>true</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -145,37 +160,51 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="appendText.h" />
+    <ClInclude Include="cleanString.h" />
+    <ClInclude Include="ConfigurationFileSystem.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="Control.h" />
     <ClInclude Include="fonts.h" />
+    <ClInclude Include="myNIAWG.h" />
+    <ClInclude Include="NoteSystem.h" />
+    <ClInclude Include="RunInfo.h" />
     <ClInclude Include="Master Code.h" />
     <ClInclude Include="MasterWindow.h" />
-    <ClInclude Include="MyDACClass.h" />
-    <ClInclude Include="MyVariableClass.h" />
-    <ClInclude Include="newVariableDialogProcedure.h" />
+    <ClInclude Include="DACSystem.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="Script.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="MyTTLClass.h" />
+    <ClInclude Include="textPromptDialogProcedure.h" />
+    <ClInclude Include="TTLSystem.h" />
+    <ClInclude Include="VariableSystem.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="appendText.cpp" />
+    <ClCompile Include="cleanString.cpp" />
+    <ClCompile Include="ConfigurationFileSystem.cpp" />
     <ClCompile Include="Master Code.cpp" />
     <ClCompile Include="MasterWindow.cpp" />
-    <ClCompile Include="MyDACClass.cpp" />
-    <ClCompile Include="MyTTLClass.cpp" />
-    <ClCompile Include="MyVariableClass.cpp" />
-    <ClCompile Include="newVariableDialogProcedure.cpp" />
+    <ClCompile Include="DACSystem.cpp" />
+    <ClCompile Include="myNIAWG.cpp" />
+    <ClCompile Include="NoteSystem.cpp" />
+    <ClCompile Include="Script.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="textPromptDialogProcedure.cpp" />
+    <ClCompile Include="TTLSystem.cpp" />
+    <ClCompile Include="VariableSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Master Code.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\Atom.ico" />
     <Image Include="..\Cold Atoms Control Application\Atom.ico" />
     <Image Include="Master Code.ico" />
     <Image Include="small.ico" />

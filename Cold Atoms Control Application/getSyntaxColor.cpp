@@ -9,7 +9,7 @@
  * Simple function that checks word for different types of syntax and returns words corresponding to what type of syntax this corresponds to.
  * Return: the function returns one of 
  * "-1" (word size was zero)
- * "com
+ * ...
  */
 std::string getSyntaxColor(std::string word, std::string editType)
 {

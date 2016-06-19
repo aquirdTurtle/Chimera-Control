@@ -9,7 +9,7 @@
  */
 int initializeScriptingWindow(HWND eScriptingWindowHandle)
 {
-	LoadLibrary(TEXT("Msftedit.dll"));
+	//LoadLibrary(TEXT("Msftedit.dll"));
 
 	CHARFORMAT myCharFormat;
 	memset(&myCharFormat, 0, sizeof(CHARFORMAT));
@@ -32,6 +32,14 @@ int initializeScriptingWindow(HWND eScriptingWindowHandle)
 	eColorBox = CreateWindowEx(NULL, "STATIC", "", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | SS_CENTER,
 							   1880, 3, 40, 20, eScriptingWindowHandle, (HMENU)IDC_COLOR_BOX, GetModuleHandle(NULL), NULL);
 
+	POINT startLocaiton = { 0, 28 };
+	eVerticalNIAWGScript.initializeControls(640, 1000, startLocaiton, eScriptingWindowHandle);
+	startLocaiton = { 640, 28 };
+	eHorizontalNIAWGScript.initializeControls(640, 1000, startLocaiton, eScriptingWindowHandle);
+	startLocaiton = { 1280, 28 };
+	eIntensityAgilentScript.initializeControls(640, 1000, startLocaiton, eScriptingWindowHandle);
+
+	/*
 	/// VERTICAL SCRIPT
 	// title
 	eStaticVerticalEditHandle = CreateWindowEx(NULL, "STATIC", "VERTICAL AOM SCRIPT", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
@@ -157,6 +165,6 @@ int initializeScriptingWindow(HWND eScriptingWindowHandle)
 	SendMessage(eIntensityScriptEditHandle, EM_SETBKGNDCOLOR, 0, RGB(40, 35, 35));
 	SendMessage(eIntensityScriptEditHandle, EM_SETEVENTMASK, 0, ENM_CHANGE);
 	SendMessage(eIntensityScriptEditHandle, EM_SETCHARFORMAT, SCF_ALL, (LPARAM)&myCharFormat);
-
+	*/
 	return 0;
 }

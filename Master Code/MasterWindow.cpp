@@ -1,8 +1,9 @@
 #include "stdafx.h"
 #include "MasterWindow.h"
 #include "Control.h"
-#include "newVariableDialogProcedure.h"
+//#include "newVariableDialogProcedure.h"
 #include "constants.h"
+
 MasterWindow* MasterWindow::InitializeWindowInfo(HINSTANCE hInstance)
 {
 	//cHInstance = hInstance;
@@ -31,7 +32,7 @@ MasterWindow* MasterWindow::InitializeWindowInfo(HINSTANCE hInstance)
 		}
 	}
 	// create a pointer to a new object
-	MasterWindow * NewMasterWindow = new MasterWindow;
+	MasterWindow * NewMasterWindow = new MasterWindow(9000);
 
 	HWND newMasterWindowHandle = CreateWindowEx(0, "Master Window Class", "Cold Atoms Control: Master Window",
 												WS_MAXIMIZE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,
@@ -92,9 +93,40 @@ LRESULT MasterWindow::MasterWindowMessageHandler(HWND hwnd, UINT message, WPARAM
 			InitializeWindowControls();
 			break;
 		}
+		case WM_CTLCOLOREDIT:
+		case WM_CTLCOLORSTATIC:
+		case WM_CTLCOLORBTN:
+		{
+			INT_PTR result = this->ttlBoard.colorTTLs(hwnd, message, wParam, lParam, this);
+			if (result != NULL)
+			{
+				return result;
+			}
+			break;
+		}
+		case WM_NOTIFY:
+		{
+			int notifyMessage = ((LPNMHDR)lParam)->code;
+			switch (notifyMessage)
+			{
+				case NM_DBLCLK:
+				{
+					std::vector<Script*> scriptList;
+					scriptList.push_back(&masterScript);
+					this->variables.updateVariableInfo(lParam, scriptList, this);
+					break;
+				}
+				case NM_RCLICK:
+				{
+					this->variables.deleteVariable(lParam);
+					break;
+				}
+			}
+			break;
+		}
 		case WM_DESTROY:
 		{
-			MasterWindow * pMasterWindow = new MasterWindow;
+			MasterWindow * pMasterWindow = new MasterWindow(9000);
 			pMasterWindow = (MasterWindow *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 			if (pMasterWindow)
 			{
@@ -102,25 +134,56 @@ LRESULT MasterWindow::MasterWindowMessageHandler(HWND hwnd, UINT message, WPARAM
 			}
 			break;
 		}
-		case ID_VARIABLE_ADD:
+		case WM_TIMER:
 		{
-			DialogBox(0, MAKEINTRESOURCE(IDD_NEW_VARIABLE), hwnd, newVariableDialogProcedure);
-			//result = (TCHAR*)DialogBox(eGlobalInstance, MAKEINTRESOURCE(IDD_FOLDER_NAME_PROMPT), parentWindow, namePromptDialogProc);
+			if (this->masterScript.coloringIsNeeded())
+			{
+				this->masterScript.handleTimerCall(*this);
+			}
 			break;
+		}
+		/// Handle Everything Else...///////////////////////
+		case WM_COMMAND:
+		{
+			if (!this->masterScript.handleEditChange(wParam, lParam, hwnd))
+			{
+				break;
+			}
+			else if (!this->masterScript.childComboChangeHandler(wParam, lParam, *this))
+			{
+				break;
+			}
+			if (!ttlBoard.handleTTLPress(wParam, lParam))
+			{
+				break;
+			}
+			if (!ttlBoard.handleHoldPress(wParam, lParam))
+			{
+				break;
+			}
+			switch (LOWORD(wParam))
+			{
+				
+			}
 		}
 		default:
 		{
 			return DefWindowProc(hwnd, message, wParam, lParam);
 		}
 	}
+	return DefWindowProc(hwnd, message, wParam, lParam);
 }
-
 
 int MasterWindow::InitializeWindowControls()
 {
-	POINT currentLocation{ 0, 0 };
-	currentLocation.y = ttlBoard.CreateTTLControls(currentLocation, masterWindowHandle);
-	currentLocation.y = dacBoards.InitializeDACControls(currentLocation, masterWindowHandle);
-	currentLocation.y = variables.initializeVariableControls(currentLocation, masterWindowHandle);
+	POINT controlLocation{ 0, 0 };
+	profile.initialize(controlLocation, *this);
+	ttlBoard.initialize(controlLocation, masterWindowHandle);
+	dacBoards.initialize(controlLocation, masterWindowHandle);
+	variables.initialize(controlLocation, masterWindowHandle);
+	controlLocation = POINT{ 480, 90 };
+	notes.initializeControls(controlLocation, masterWindowHandle);
+	controlLocation = POINT{ 1320, 0 };
+	masterScript.initialize(600, 1080, controlLocation, *this);
 	return 0;
 }

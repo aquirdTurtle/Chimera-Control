@@ -12,6 +12,8 @@
 #include "myErrorHandler.h"
 #include "beginningSettingsDialogProc.h"
 #include "selectInCombo.h"
+#include "getFileName.h"
+#include "saveTextFileFromEdit.h"
 
 namespace commonMessages
 {
@@ -379,41 +381,22 @@ namespace commonMessages
 		{
 			return -1;
 		}
-		if (eHorizontalScriptSaved == false)
+		if (eHorizontalNIAWGScript.checkSave())
 		{
-			// check if the user wants to save
-			int cont = fileManage::checkSaveScript("horizontal", eHorizontalScriptEditHandle, parentWindow, eHorizontalCurrentParentScriptName, eHorizontalScriptSavedIndicatorHandle, eHorizontalScriptSaved,
-				eHorizontalParentScriptPathString, eHorizontalScriptNameTextHandle, "NIAWG");
-			// this occurs if the user presses cancel. Just break, don't open.
-			if (cont == 0)
-			{
-				return -4;
-			}
+			return -1;
 		}
-		if (eVerticalScriptSaved == false)
+		if (eVerticalNIAWGScript.checkSave())
 		{
-			// check if the user wants to save
-			int cont = fileManage::checkSaveScript("vertical", eVerticalScriptEditHandle, parentWindow, eVerticalCurrentParentScriptName, eVerticalScriptSavedIndicatorHandle, eVerticalScriptSaved,
-				eVerticalParentScriptPathString, eVerticalScriptNameTextHandle, "NIAWG");
-			// this occurs if the user presses cancel. Just break, don't open.
-			if (cont == 0)
-			{
-				return -4;
-			}
+			return -1;
 		}
-		if (eIntensityScriptSaved == false)
+		if (eIntensityAgilentScript.checkSave())
 		{
-			// check if the user wants to save
-			int cont = fileManage::checkSaveScript("intensity", eIntensityScriptEditHandle, parentWindow, eIntensityCurrentParentScriptName, eIntensityScriptSavedIndicatorHandle, eIntensityScriptSaved,
-				eIntensityParentScriptPathString, eIntensityNameHandle, "AGILENT");
-			// this occurs if the user presses cancel. Just break, don't open.
-			if (cont == 0)
-			{
-				return -4;
-			}
+			return -1;
 		}
-		std::string verticalNameString(eVerticalCurrentParentScriptName);
-		std::string horizontalNameString(eHorizontalCurrentParentScriptName);		
+
+		std::string verticalNameString(eVerticalNIAWGScript.getScriptName());
+		std::string horizontalNameString(eHorizontalNIAWGScript.getScriptName());
+		std::string intensityNameString(eIntensityAgilentScript.getScriptName());
 		std::string beginInfo = "Current Settings:\r\n=============================\r\n\r\n";
 		std::string sequenceInfo = eProfile.getSequenceNamesString();
 		if (sequenceInfo != "")
@@ -422,8 +405,8 @@ namespace commonMessages
 		}
 		else
 		{
-			beginInfo += "Vertical Script Name:............. " + std::string(eVerticalCurrentParentScriptName);
-			if (eVerticalScriptSaved)
+			beginInfo += "Vertical Script Name:............. " + std::string(verticalNameString);
+			if (eVerticalNIAWGScript.savedStatus())
 			{
 				beginInfo += " SAVED\r\n";
 			}
@@ -431,8 +414,8 @@ namespace commonMessages
 			{
 				beginInfo += " NOT SAVED\r\n";
 			}
-			beginInfo += "Horizontal Script Name:........... " + std::string(eHorizontalCurrentParentScriptName);
-			if (eHorizontalScriptSaved)
+			beginInfo += "Horizontal Script Name:........... " + std::string(horizontalNameString);
+			if (eHorizontalNIAWGScript.savedStatus())
 			{
 				beginInfo += " SAVED\r\n";
 			}
@@ -440,8 +423,8 @@ namespace commonMessages
 			{
 				beginInfo += " NOT SAVED\r\n";
 			}
-			beginInfo += "Intensity Script Name:............ " + std::string(eIntensityCurrentParentScriptName);
-			if (eIntensityScriptSaved)
+			beginInfo += "Intensity Script Name:............ " + std::string(intensityNameString);
+			if (eIntensityAgilentScript.savedStatus())
 			{
 				beginInfo += " SAVED\r\n";
 			}
@@ -531,11 +514,10 @@ namespace commonMessages
 			(*inputParams).threadSequenceFileNames = eProfile.getSequenceNames();
 			(*inputParams).threadLogScriptAndParams = eLogScriptAndParams;
 			(*inputParams).threadProgramIntensityOption = eProgramIntensityOption;
-			(*inputParams).threadXScriptSaved = eVerticalScriptSaved;
 			(*inputParams).currentFolderLocation = (eProfile.getCurrentPathIncludingCategory());
-			eMostRecentVerticalScriptNames = eVerticalParentScriptPathString;
-			eMostRecentHorizontalScriptNames = eHorizontalParentScriptPathString;
-			eMostRecentIntensityScriptNames = eIntensityParentScriptPathString;
+			eMostRecentVerticalScriptNames = eVerticalNIAWGScript.getScriptPathAndName();
+			eMostRecentHorizontalScriptNames = eHorizontalNIAWGScript.getScriptPathAndName();
+			eMostRecentIntensityScriptNames = eIntensityAgilentScript.getScriptPathAndName();
 			// Start the programming thread.
 			unsigned int experimentThreadID;
 			eExperimentThreadHandle = (HANDLE)_beginthreadex(0, 0, experimentProgrammingThread, (LPVOID *)inputParams, 0, &experimentThreadID);
@@ -767,53 +749,22 @@ namespace commonMessages
 			MessageBox(0, "System is Currently Running. Please stop the system before exiting so that devices devices can stop normally.", 0, 0);
 			return -1;
 		}
-
-		if (eHorizontalScriptSaved == false)
+		if (eHorizontalNIAWGScript.checkSave())
 		{
-			// check if the user wants to save
-			int cont = fileManage::checkSaveScript("horizontal", eHorizontalScriptEditHandle, parentWindow, eHorizontalCurrentParentScriptName,
-				eHorizontalScriptSavedIndicatorHandle, eHorizontalScriptSaved, eHorizontalParentScriptPathString,
-				eHorizontalScriptNameTextHandle, "NIAWG");
-			// this occurs if the user presses cancel. Just break, don't open.
-			if (cont == 0)
-			{
-				return -2;
-			}
+			return true;
 		}
-		if (eVerticalScriptSaved == false)
+		if (eVerticalNIAWGScript.checkSave())
 		{
-			// check if the user wants to save
-			int cont = fileManage::checkSaveScript("vertical", eVerticalScriptEditHandle, parentWindow, eVerticalCurrentParentScriptName, eVerticalScriptSavedIndicatorHandle, eVerticalScriptSaved,
-				eVerticalParentScriptPathString, eVerticalScriptNameTextHandle, "NIAWG");
-			// this occurs if the user presses cancel. Just break, don't open.
-			if (cont == 0)
-			{
-				return -2;
-			}
+			return true;
 		}
-		if (eIntensityScriptSaved == false)
+		if (eIntensityAgilentScript.checkSave())
 		{
-			// check if the user wants to save
-			int cont = fileManage::checkSaveScript("intensity", eIntensityScriptEditHandle, parentWindow, eIntensityCurrentParentScriptName, eIntensityScriptSavedIndicatorHandle, eIntensityScriptSaved,
-				eIntensityParentScriptPathString, eIntensityNameHandle, "AGILENT");
-			// this occurs if the user presses cancel. Just break, don't open.
-			if (cont == 0)
-			{
-				return -2;
-			}
+			return true;
 		}
-		/*
-		if (eExperimentSaved == false)
+		if (eProfile.checkSaveEntireProfile())
 		{
-			// check if the user wants to save
-			int cont = fileManage::checkExperimentSave(parentWindow);
-			// this occurs if the user presses cancel. Just break, don't open.
-			if (cont == 0)
-			{
-				return -2;
-			}
+			return true;
 		}
-		*/
 		std::string exitQuestion = "Are you sure you want to exit?\n\nThis will stop all output of the arbitrary waveform generator.";
 		int areYouSure = MessageBox(NULL, exitQuestion.c_str(), "Exit", MB_OKCANCEL | MB_ICONWARNING);
 		switch (areYouSure)
@@ -831,218 +782,143 @@ namespace commonMessages
 
 	int newIntensityScript(HWND parentWindow)
 	{
-		if (eIntensityScriptSaved == false)
+		if (eIntensityAgilentScript.checkSave())
 		{
-			// check if the user wants to save
-			int cont = fileManage::checkSaveScript("intensity", eIntensityScriptEditHandle, parentWindow, eIntensityCurrentParentScriptName,
-				eIntensityScriptSavedIndicatorHandle, eIntensityScriptSaved, eIntensityParentScriptPathString,
-				eIntensityNameHandle, "NIAWG");
-			// this occurs if the user presses cancel. Just break, don't open.
-			if (cont = 0) 
-			{
-				return -1;
-			}
+			return true;
 		}
-		fileManage::newScript("DEFAULT_INTENSITY_SCRIPT.script", eIntensityScriptEditHandle, eIntensityParentScriptPathString, eIntensityCurrentParentScriptName,
-			eIntensityNameHandle, eIntensityScriptSaved, eIntensityScriptSavedIndicatorHandle);
-		eIntensityViewScriptPathString = eIntensityParentScriptPathString;
-		strcpy_s(eIntensityCurrentViewScriptName, eIntensityCurrentParentScriptName);
-		selectInCombo(eIntensityViewCombo.hwnd, "Parent Script");
+		eIntensityAgilentScript.newScript();
 		eProfile.updateConfigurationSavedStatus(false);
+		eIntensityAgilentScript.updateScriptNameText(eIntensityAgilentScript.getScriptPathAndName());
 		return 0;
 	}
 	int openIntensityScript(HWND parentWindow)
 	{
-		if (eIntensityScriptSaved == false)
+		if (eIntensityAgilentScript.checkSave())
 		{
-			// check if the user wants to save
-			int cont = fileManage::checkSaveScript("intensity", eIntensityScriptEditHandle, parentWindow, eIntensityCurrentParentScriptName,
-				eIntensityScriptSavedIndicatorHandle, eIntensityScriptSaved, eIntensityParentScriptPathString,
-				eIntensityNameHandle, "NIAWG");
-			// this occurs if the user presses cancel. Just break, don't open.
-			if (cont == 0)
-			{
-				return -1;
-			}
+			return true;
 		}
-		fileManage::openScript(parentWindow, eIntensityParentScriptPathString, eIntensityCurrentParentScriptName, eIntensityScriptEditHandle,
-							   eIntensityScriptSavedIndicatorHandle, eIntensityNameHandle, eIntensityScriptSaved, true, false, eCurrentIntensityViewIsParent);
-		//fileManage::lookForPredefinedScripts(eIntensityScriptEditHandle, eIntensityViewCombo.hwnd);
-		eIntensityViewScriptPathString = eIntensityParentScriptPathString;
-		strcpy_s(eIntensityCurrentViewScriptName, eIntensityCurrentParentScriptName);
-		selectInCombo(eIntensityViewCombo.hwnd, "Parent Script");
+
+		std::string intensityOpenName = getFileNameDialog(parentWindow);
+		eIntensityAgilentScript.openParentScript(intensityOpenName);
 		eProfile.updateConfigurationSavedStatus(false);
+		eIntensityAgilentScript.updateScriptNameText(eIntensityAgilentScript.getScriptPathAndName());
 		return 0;
 	}
 	int saveIntensityScript(HWND parentWindow)
 	{
-		// try to save
-		int success = fileManage::saveScript(eIntensityScriptEditHandle, eIntensityParentScriptPathString, eIntensityScriptSavedIndicatorHandle,
-			eIntensityScriptSaved);
-		// this occurs if save failed because there was no previous name to save to.
-		if (success == 0)
-		{
-			fileManage::saveScriptAs(eIntensityScriptEditHandle, parentWindow, eIntensityParentScriptPathString, eIntensityCurrentParentScriptName, eIntensityNameHandle,
-				eIntensityScriptSavedIndicatorHandle, eIntensityScriptSaved, "AGILENT");
-		}
-
+		eIntensityAgilentScript.saveScript();
+		eIntensityAgilentScript.updateScriptNameText(eIntensityAgilentScript.getScriptPathAndName());
 		return 0;
 	}
 	int saveIntensityScriptAs(HWND parentWindow)
 	{
-		fileManage::saveScriptAs(eIntensityScriptEditHandle, parentWindow, eIntensityParentScriptPathString, eIntensityCurrentParentScriptName, eIntensityNameHandle,
-			eIntensityScriptSavedIndicatorHandle, eIntensityScriptSaved, "AGILENT");
+		std::string extensionNoPeriod = eVerticalNIAWGScript.getExtension();
+		if (extensionNoPeriod.size() == 0)
+		{
+			return -1;
+		}
+		extensionNoPeriod = extensionNoPeriod.substr(1, extensionNoPeriod.size());
+		std::string newScriptAddress = saveTextFileFromEdit(parentWindow, extensionNoPeriod);
+		eIntensityAgilentScript.saveScriptAs(newScriptAddress);
 		eProfile.updateConfigurationSavedStatus(false);
+		eIntensityAgilentScript.updateScriptNameText(eIntensityAgilentScript.getScriptPathAndName());
 		return 0;
 	}
-
 	int newVerticalScript(HWND parentWindow)
 	{
-		if (eVerticalScriptSaved == false)
+		if (eVerticalNIAWGScript.checkSave())
 		{
-			// check if the user wants to save
-			int cont = fileManage::checkSaveScript("vertical", eVerticalScriptEditHandle, parentWindow, eVerticalCurrentParentScriptName, eVerticalScriptSavedIndicatorHandle, eVerticalScriptSaved,
-				eVerticalParentScriptPathString, eVerticalScriptNameTextHandle, "NIAWG");
-			// this occurs if the user presses cancel. Just break, don't open.
-			if (cont = 0)
-			{
-				return -1;
-			}
+			return true;
 		}
-		fileManage::newScript("DEFAULT_VERTICAL_SCRIPT.script", eVerticalScriptEditHandle, eVerticalParentScriptPathString, eVerticalCurrentParentScriptName, eVerticalScriptNameTextHandle,
-			eVerticalScriptSaved, eVerticalScriptSavedIndicatorHandle);
-		fileManage::lookForPredefinedScripts(eVerticalScriptEditHandle, eVerticalViewCombo.hwnd);
-		eVerticalViewScriptPathString = eVerticalParentScriptPathString;
-		strcpy_s(eVerticalCurrentViewScriptName, eVerticalCurrentParentScriptName);
-		selectInCombo(eVerticalViewCombo.hwnd, "Parent Script");
+		eVerticalNIAWGScript.newScript();
 		eProfile.updateConfigurationSavedStatus(false);
-
+		eVerticalNIAWGScript.updateScriptNameText(eVerticalNIAWGScript.getScriptPathAndName());
 		return 0;
 	}
 	int openVerticalScript(HWND parentWindow)
 	{
-		if (eVerticalScriptSaved == false)
+		if (eVerticalNIAWGScript.checkSave())
 		{
-			// check if the user wants to save
-			int cont = fileManage::checkSaveScript("vertical", eVerticalScriptEditHandle, parentWindow, eVerticalCurrentParentScriptName, eVerticalScriptSavedIndicatorHandle, eVerticalScriptSaved,
-				eVerticalParentScriptPathString, eVerticalScriptNameTextHandle, "NIAWG");
-			// this occurs if the user presses cancel. Just break, don't open.
-			if (cont == 0)
-			{
-				return -1;
-			}
+			return true;
 		}
-		fileManage::openScript(parentWindow, eVerticalParentScriptPathString, eVerticalCurrentParentScriptName, eVerticalScriptEditHandle, eVerticalScriptSavedIndicatorHandle,
-			eVerticalScriptNameTextHandle, eVerticalScriptSaved, true, true, eCurrentVerticalViewIsParent);
-		fileManage::lookForPredefinedScripts(eVerticalScriptEditHandle, eVerticalViewCombo.hwnd);
-		eVerticalViewScriptPathString = eVerticalParentScriptPathString;
-		strcpy_s(eVerticalCurrentViewScriptName, eVerticalCurrentParentScriptName);
-		selectInCombo(eVerticalViewCombo.hwnd, "Parent Script");
+		std::string intensityOpenName = getFileNameDialog(parentWindow);
+		eVerticalNIAWGScript.openParentScript(intensityOpenName);
 		eProfile.updateConfigurationSavedStatus(false);
+		eVerticalNIAWGScript.updateScriptNameText(eVerticalNIAWGScript.getScriptPathAndName());
 		return 0;
 	}
 	int saveVerticalScript(HWND parentWindow)
 	{
-		// try to save
-		int success = fileManage::saveScript(eVerticalScriptEditHandle, eVerticalParentScriptPathString, eVerticalScriptSavedIndicatorHandle, eVerticalScriptSaved);
-		// this occurs if save failed because there was no previous name to save to.
-		if (success == 0)
-		{
-			fileManage::saveScriptAs(eVerticalScriptEditHandle, parentWindow, eVerticalParentScriptPathString, eVerticalCurrentParentScriptName, eVerticalScriptNameTextHandle,
-				eVerticalScriptSavedIndicatorHandle, eVerticalScriptSaved, "NIAWG");
-		}
-		fileManage::lookForPredefinedScripts(eVerticalScriptEditHandle, eVerticalViewCombo.hwnd);
+		eVerticalNIAWGScript.saveScript();
+		eVerticalNIAWGScript.updateScriptNameText(eVerticalNIAWGScript.getScriptPathAndName());
 		return 0;
 	}
 	int saveVerticalScriptAs(HWND parentWindow)
 	{
-		fileManage::saveScriptAs(eVerticalScriptEditHandle, parentWindow, eVerticalParentScriptPathString, eVerticalCurrentParentScriptName, eVerticalScriptNameTextHandle,
-			eVerticalScriptSavedIndicatorHandle, eVerticalScriptSaved, "NIAWG");
+		std::string extensionNoPeriod = eVerticalNIAWGScript.getExtension();
+		if (extensionNoPeriod.size() == 0)
+		{
+			return -1;
+		}
+		extensionNoPeriod = extensionNoPeriod.substr(1, extensionNoPeriod.size());
+		std::string newScriptAddress = saveTextFileFromEdit(parentWindow, extensionNoPeriod);
+		eVerticalNIAWGScript.saveScriptAs(newScriptAddress);
 		eProfile.updateConfigurationSavedStatus(false);
-		fileManage::lookForPredefinedScripts(eVerticalScriptEditHandle, eVerticalViewCombo.hwnd);
+		eVerticalNIAWGScript.updateScriptNameText(eVerticalNIAWGScript.getScriptPathAndName());
 		return 0;
-	}
-
+	}	
 	int newHorizontalScript(HWND parentWindow)
 	{
-		if (eHorizontalScriptSaved == false)
+		if (eHorizontalNIAWGScript.checkSave())
 		{
-			// check if the user wants to save
-			int cont = fileManage::checkSaveScript("horizontal", eHorizontalScriptEditHandle, parentWindow, eHorizontalCurrentParentScriptName, eHorizontalScriptSavedIndicatorHandle, eHorizontalScriptSaved,
-				eHorizontalParentScriptPathString, eHorizontalScriptNameTextHandle, "NIAWG");
-			// this occurs if the user presses cancel. Just break, don't open.
-			if (cont = 0)
-			{
-				return -1;
-			}
+			return true;
 		}
-		fileManage::newScript("DEFAULT_HORIZONTAL_SCRIPT.script", eHorizontalScriptEditHandle, eHorizontalParentScriptPathString, eHorizontalCurrentParentScriptName, eHorizontalScriptNameTextHandle,
-							  eHorizontalScriptSaved, eHorizontalScriptSavedIndicatorHandle);
-		fileManage::lookForPredefinedScripts(eHorizontalScriptEditHandle, eHorizontalViewCombo.hwnd);
-		eHorizontalViewScriptPathString = eHorizontalParentScriptPathString;
-		strcpy_s(eHorizontalCurrentViewScriptName, eHorizontalCurrentParentScriptName);
-		selectInCombo(eHorizontalViewCombo.hwnd, "Parent Script");
+		eHorizontalNIAWGScript.newScript();
 		eProfile.updateConfigurationSavedStatus(false);
+		eHorizontalNIAWGScript.updateScriptNameText(eHorizontalNIAWGScript.getScriptPathAndName());
 		return 0;
 	}
 	int openHorizontalScript(HWND parentWindow)
 	{
-		if (eVerticalScriptSaved == false)
+		if (eHorizontalNIAWGScript.checkSave())
 		{
-			// check if the user wants to save
-			int cont = fileManage::checkSaveScript("horizontal", eHorizontalScriptEditHandle, parentWindow, eHorizontalCurrentParentScriptName, eHorizontalScriptSavedIndicatorHandle, eHorizontalScriptSaved,
-				eHorizontalParentScriptPathString, eHorizontalScriptNameTextHandle, "NIAWG");
-			// this occurs if the user presses cancel. Just break, don't open.
-			if (cont == 0)
-			{
-				return -1;
-			}
+			return true;
 		}
-		fileManage::openScript(parentWindow, eHorizontalParentScriptPathString, eHorizontalCurrentParentScriptName, eHorizontalScriptEditHandle, eHorizontalScriptSavedIndicatorHandle,
-			eHorizontalScriptNameTextHandle, eHorizontalScriptSaved, true, true, eCurrentHorizontalViewIsParent);
-		fileManage::lookForPredefinedScripts(eHorizontalScriptEditHandle, eHorizontalViewCombo.hwnd);
-		eHorizontalViewScriptPathString = eHorizontalParentScriptPathString;
-		strcpy_s(eHorizontalCurrentViewScriptName, eHorizontalCurrentParentScriptName);
-
-		selectInCombo(eHorizontalViewCombo.hwnd, "Parent Script");
-
+		std::string intensityOpenName = getFileNameDialog(parentWindow);
+		eHorizontalNIAWGScript.openParentScript(intensityOpenName);
 		eProfile.updateConfigurationSavedStatus(false);
+		eHorizontalNIAWGScript.updateScriptNameText(eHorizontalNIAWGScript.getScriptPathAndName());
 		return 0;
 	}
-
 	int saveHorizontalScript(HWND parentWindow)
 	{
-		// try to save
-		int success = fileManage::saveScript(eHorizontalScriptEditHandle, eHorizontalParentScriptPathString, eHorizontalScriptSavedIndicatorHandle, eHorizontalScriptSaved);
-		// this occurs if save failed because there was no previous name to save to.
-		if (success == 0)
-		{
-			fileManage::saveScriptAs(eHorizontalScriptEditHandle, parentWindow, eHorizontalParentScriptPathString, eHorizontalCurrentParentScriptName, eHorizontalScriptNameTextHandle,
-				eHorizontalScriptSavedIndicatorHandle, eHorizontalScriptSaved, "NIAWG");
-		}
-		// refresh this
-		fileManage::lookForPredefinedScripts(eHorizontalScriptEditHandle, eHorizontalViewCombo.hwnd);
+		eHorizontalNIAWGScript.saveScript();
+		eHorizontalNIAWGScript.updateScriptNameText(eHorizontalNIAWGScript.getScriptPathAndName());
 		return 0;
 	}
 	int saveHorizontalScriptAs(HWND parentWindow)
 	{
-		fileManage::saveScriptAs(eHorizontalScriptEditHandle, parentWindow, eHorizontalParentScriptPathString, eHorizontalCurrentParentScriptName, eHorizontalScriptNameTextHandle,
-			eHorizontalScriptSavedIndicatorHandle, eHorizontalScriptSaved, "NIAWG");
+		std::string extensionNoPeriod = eVerticalNIAWGScript.getExtension();
+		if (extensionNoPeriod.size() == 0)
+		{
+			return -1;
+		}
+		extensionNoPeriod = extensionNoPeriod.substr(1, extensionNoPeriod.size());
+		std::string newScriptAddress = saveTextFileFromEdit(parentWindow, extensionNoPeriod);
+		eHorizontalNIAWGScript.saveScriptAs(newScriptAddress);
 		eProfile.updateConfigurationSavedStatus(false);
-		fileManage::lookForPredefinedScripts(eHorizontalScriptEditHandle, eHorizontalViewCombo.hwnd);
+		eHorizontalNIAWGScript.updateScriptNameText(eHorizontalNIAWGScript.getScriptPathAndName());
 		return 0;
 	}
-	//
-
-	
+		
 	int saveProfile(HWND parentWindow)
 	{
-		// try to save
-		fileManage::saveConfig();
 		//... If failed message pops up.
-		eProfile.saveSequence();
+		eProfile.saveEntireProfile();
 		eProfile.updateConfigurationSavedStatus(true);
-		eProfile.updateConfigurationSavedStatus(true);
+		eHorizontalNIAWGScript.updateScriptNameText(eHorizontalNIAWGScript.getScriptPathAndName());
+		eVerticalNIAWGScript.updateScriptNameText(eVerticalNIAWGScript.getScriptPathAndName());
+		eIntensityAgilentScript.updateScriptNameText(eIntensityAgilentScript.getScriptPathAndName());
 		return 0;
 	}
 

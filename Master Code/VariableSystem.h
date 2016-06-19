@@ -14,12 +14,14 @@ struct variable
 	int variations;
 };
 
+class Script;
+class MasterWindow;
 class VariableSystem
 {
 	public:
-		bool updateVariableInfo(LPARAM lParamOfMessage);
+		bool updateVariableInfo(LPARAM lParamOfMessage, std::vector<Script*> scripts, MasterWindow* Master);
 		bool deleteVariable(LPARAM lParamOfMessage);
-		bool initializeControls(POINT topLeftCorner, HWND parentWindow);
+		bool initialize(POINT topLeftCorner, HWND parentWindow);
 		bool addVariable(std::string name, bool timelike, bool singleton, double value, int item);
 		variable getVariableInfo(int varNumber);
 		//std::vector<variable> getAllVariables();
@@ -33,5 +35,6 @@ class VariableSystem
 		Control variablesHeader;
 		Control variablesListview;
 		std::vector<variable> currentVariables;
+		HINSTANCE programInstance;
 };
 

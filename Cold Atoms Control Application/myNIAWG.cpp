@@ -27,7 +27,7 @@ int NIAWG_CheckDefaultError(int err);
 namespace handleInput
 {
 void getInputType(std::string inputType, waveData &wvInfo);
-int getWvFmData(std::fstream &fileName, waveData &waveInfo);
+int getWvFmData(std::fstream &scriptName, waveData &waveInfo);
 int waveformGen(ViReal64 * & tempWaveform, ViReal64 * & readData, waveData & waveInfo, long int size,
 std::vector<std::string>(&libWaveformArray)[20], bool &fileOpened);
 int logic(std::fstream &verticalFile, std::fstream &horizontalFile, std::string verticalInput, std::string horizontalInput, std::string &scriptString, std::string triggerName);
@@ -52,13 +52,13 @@ double waveSize = inputData.time * SAMPLE_RATE;
 return (long int)(waveSize + 0.5);
 }
 
-int getParamCheckVar(double &dataToAssign, std::fstream &fileName, int &vCount, std::vector<std::string> & vNames, std::vector<int> &vParamTypes,
+int getParamCheckVar(double &dataToAssign, std::fstream &scriptName, int &vCount, std::vector<std::string> & vNames, std::vector<int> &vParamTypes,
 int dataType);
-int getParamCheckVar(int &dataToAssign, std::fstream &fileName, int &vCount, std::vector<std::string> & vNames, std::vector<int> &vParamTypes,
+int getParamCheckVar(int &dataToAssign, std::fstream &scriptName, int &vCount, std::vector<std::string> & vNames, std::vector<int> &vParamTypes,
 int dataType);
-int getParamCheckVarConst(double &data1ToAssign, double &data2ToAssign, std::fstream &fileName, int &vCount, std::vector<std::string> &vNames,
+int getParamCheckVarConst(double &data1ToAssign, double &data2ToAssign, std::fstream &scriptName, int &vCount, std::vector<std::string> &vNames,
 std::vector<int> &vParamTypes, int dataType1, int dataType2);
-int getParamCheckVarConst(int &data1ToAssign, double &data2ToAssign, std::fstream &fileName, int &vCount, std::vector<std::string> &vNames,
+int getParamCheckVarConst(int &data1ToAssign, double &data2ToAssign, std::fstream &scriptName, int &vCount, std::vector<std::string> &vNames,
 std::vector<int> &vParamTypes, int dataType1, int dataType2);
 }
 */
@@ -2208,13 +2208,13 @@ namespace myNIAWG
 		* WaveformData1 gathers input from the file, and based on the input type, sorts that input into the appropriate structure. It also calculates the number of
 		* samples that the waveform will have to contain. This function deals with single waveforms.
 		* @param inputCase is the number associated with the input type, obtained from getInputType() above.
-		* @param fileName is the name of the file being read, which contains all of the waveform data on the next line.
+		* @param scriptName is the name of the file being read, which contains all of the waveform data on the next line.
 		* @param size is the size of the waveform in question, to be determined by this function.
 		* @param waveInfo is the structure which stores the info being read in this function.
 		*/
-		int getWvFmData(std::fstream &fileName, waveData &waveInfo, std::vector<variable> singletons)
+		int getWvFmData(std::fstream &scriptName, waveData &waveInfo, std::vector<variable> singletons)
 		{
-			rmWhite(fileName);
+			rmWhite(scriptName);
 			// Initialize the variable counter inside the waveData struct to zero:
 			waveInfo.varNum = 0;
 			waveInfo.signals.resize(waveInfo.signalNum);
@@ -2231,7 +2231,7 @@ namespace myNIAWG
 					for (int i = 0; i < waveInfo.signalNum; i++)
 					{
 						// set the initial and final values to be equal, and to not use a ramp, unless variable present.
-						if (myNIAWG::script::getParamCheckVarConst(waveInfo.signals[i].freqInit, waveInfo.signals[i].freqFin, fileName, waveInfo.varNum,
+						if (myNIAWG::script::getParamCheckVarConst(waveInfo.signals[i].freqInit, waveInfo.signals[i].freqFin, scriptName, waveInfo.varNum,
 																   waveInfo.varNames, waveInfo.varTypes, (5 * i) + 1, (5 * i) + 2, singletons)
 							!= 0)
 						{
@@ -2244,7 +2244,7 @@ namespace myNIAWG
 						// Can't be varied for this case type
 						waveInfo.signals[i].freqRampType = "nr";
 						// set the initial and final values to be equal, and to not use a ramp, unless variable present.
-						if (myNIAWG::script::getParamCheckVarConst(waveInfo.signals[i].initPower, waveInfo.signals[i].finPower, fileName, waveInfo.varNum,
+						if (myNIAWG::script::getParamCheckVarConst(waveInfo.signals[i].initPower, waveInfo.signals[i].finPower, scriptName, waveInfo.varNum,
 																   waveInfo.varNames, waveInfo.varTypes, (5 * i) + 3, (5 * i) + 4, singletons)
 							!= 0)
 						{
@@ -2254,7 +2254,7 @@ namespace myNIAWG
 						// Can't be varied
 						waveInfo.signals[i].powerRampType = "nr";
 						// Get phase, unless varied.
-						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].initPhase, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes,
+						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].initPhase, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes,
 															  (5 * i) + 5, singletons)
 							!= 0)
 						{
@@ -2263,7 +2263,7 @@ namespace myNIAWG
 						}
 					}
 					// Get time, unless varied.
-					if (myNIAWG::script::getParamCheckVar(waveInfo.time, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 26, singletons) != 0)
+					if (myNIAWG::script::getParamCheckVar(waveInfo.time, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 26, singletons) != 0)
 					{
 						MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
 						return -1;
@@ -2271,7 +2271,7 @@ namespace myNIAWG
 					// Scale the time to be in seconds. (input is ms)
 					waveInfo.time *= 0.001;
 					// get the time management option.
-					if (myNIAWG::script::getParamCheckVar(waveInfo.phaseManagementOption, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 27, 
+					if (myNIAWG::script::getParamCheckVar(waveInfo.phaseManagementOption, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 27, 
 														  singletons)
 						!= 0)
 					{
@@ -2279,8 +2279,8 @@ namespace myNIAWG
 						return -1;
 					}
 					// pick up the delimeter.
-					rmWhite(fileName);
-					fileName >> waveInfo.delim;
+					rmWhite(scriptName);
+					scriptName >> waveInfo.delim;
 					break;
 				}
 				/// The case for "gen ?, amp ramp"
@@ -2293,7 +2293,7 @@ namespace myNIAWG
 					for (int i = 0; i < waveInfo.signalNum; i++)
 					{
 						// set the initial and final values to be equal, and to not use a ramp.
-						if (myNIAWG::script::getParamCheckVarConst(waveInfo.signals[i].freqInit, waveInfo.signals[i].freqFin, fileName, waveInfo.varNum, 
+						if (myNIAWG::script::getParamCheckVarConst(waveInfo.signals[i].freqInit, waveInfo.signals[i].freqFin, scriptName, waveInfo.varNum, 
 																   waveInfo.varNames, waveInfo.varTypes, (5 * i) + 1, (5 * i) + 2, singletons)
 							!= 0)
 						{
@@ -2306,24 +2306,24 @@ namespace myNIAWG
 						// can't be varried.
 						waveInfo.signals[i].freqRampType = "nr";
 						std::string tempStr;
-						fileName >> tempStr;
+						scriptName >> tempStr;
 						std::transform(tempStr.begin(), tempStr.end(), tempStr.begin(), ::tolower);
 						waveInfo.signals[i].powerRampType = tempStr;
-						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].initPower, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes,
+						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].initPower, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes,
 															  (5 * i) + 3, singletons)
 							!= 0)
 						{
 							MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
 							return -1;
 						}
-						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].finPower, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
+						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].finPower, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
 															  (5 * i) + 4, singletons)
 							!= 0)
 						{
 							MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
 							return -1;
 						}
-						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].initPhase, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
+						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].initPhase, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
 															  (5 * i) + 5, singletons)
 							!= 0) 
 						{
@@ -2331,7 +2331,7 @@ namespace myNIAWG
 							return -1;
 						}
 					}
-					if (myNIAWG::script::getParamCheckVar(waveInfo.time, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 26, singletons) 
+					if (myNIAWG::script::getParamCheckVar(waveInfo.time, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 26, singletons) 
 						!= 0)
 					{
 						MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
@@ -2340,7 +2340,7 @@ namespace myNIAWG
 					// Scale the time to be in seconds. (input is ms)
 					waveInfo.time *= 0.001;
 					// get the time management option.
-					if (myNIAWG::script::getParamCheckVar(waveInfo.phaseManagementOption, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 27, 
+					if (myNIAWG::script::getParamCheckVar(waveInfo.phaseManagementOption, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 27, 
 														  singletons)
 						!= 0)
 					{
@@ -2348,8 +2348,8 @@ namespace myNIAWG
 						return -1;
 					}
 					// pick up the delimeter.
-					rmWhite(fileName);
-					fileName >> waveInfo.delim;
+					rmWhite(scriptName);
+					scriptName >> waveInfo.delim;
 					break;
 				}
 				/// The case for "gen ?, freq ramp"
@@ -2363,17 +2363,17 @@ namespace myNIAWG
 					{
 						// get all parameters from the file
 						std::string tempStr;
-						fileName >> tempStr;
+						scriptName >> tempStr;
 						std::transform(tempStr.begin(), tempStr.end(), tempStr.begin(), tolower);
 						waveInfo.signals[i].freqRampType = tempStr;
-						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].freqInit, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
+						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].freqInit, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
 															  (5 * i) + 1, singletons)
 							!= 0) 
 						{
 							MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
 							return -1;
 						}
-						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].freqFin, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
+						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].freqFin, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
 															  (5 * i) + 2, singletons)
 							!= 0) 
 						{
@@ -2384,7 +2384,7 @@ namespace myNIAWG
 						waveInfo.signals[i].freqInit *= 1000000.;
 						waveInfo.signals[i].freqFin *= 1000000.;
 						// set the initial and final values to be equal, and to not use a ramp.
-						if (myNIAWG::script::getParamCheckVarConst(waveInfo.signals[i].initPower, waveInfo.signals[i].finPower, fileName, waveInfo.varNum,
+						if (myNIAWG::script::getParamCheckVarConst(waveInfo.signals[i].initPower, waveInfo.signals[i].finPower, scriptName, waveInfo.varNum,
 																   waveInfo.varNames, waveInfo.varTypes, (5 * i) + 3, (5 * i) + 4, singletons)
 							!= 0) 
 						{
@@ -2392,14 +2392,14 @@ namespace myNIAWG
 							return -1;
 						}
 						waveInfo.signals[i].powerRampType = "nr";
-						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].initPhase, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
+						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].initPhase, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
 															  (5 * i) + 5, singletons) != 0)
 						{
 							MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
 							return -1;
 						}
 					}
-					if (myNIAWG::script::getParamCheckVar(waveInfo.time, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 26, singletons) != 0)
+					if (myNIAWG::script::getParamCheckVar(waveInfo.time, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 26, singletons) != 0)
 					{
 						MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
 						getchar();
@@ -2408,7 +2408,7 @@ namespace myNIAWG
 					// Scale the time to be in seconds. (input is ms)
 					waveInfo.time *= 0.001;
 					// get the time management option.
-					if (myNIAWG::script::getParamCheckVar(waveInfo.phaseManagementOption, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 27,
+					if (myNIAWG::script::getParamCheckVar(waveInfo.phaseManagementOption, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 27,
 														  singletons)
 						!= 0) 
 					{
@@ -2416,8 +2416,8 @@ namespace myNIAWG
 						return -1;
 					}
 					// pick up the delimeter.
-					rmWhite(fileName);
-					fileName >> waveInfo.delim;
+					rmWhite(scriptName);
+					scriptName >> waveInfo.delim;
 					break;
 				}
 					/// The case for "gen ?, freq & amp ramp"
@@ -2431,17 +2431,17 @@ namespace myNIAWG
 					{
 						// get all parameters from the file
 						std::string tempStr;
-						fileName >> tempStr;
+						scriptName >> tempStr;
 						std::transform(tempStr.begin(), tempStr.end(), tempStr.begin(), ::tolower);
 						waveInfo.signals[i].freqRampType = tempStr;
-						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].freqInit, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
+						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].freqInit, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
 															  (5 * i) + 1, singletons)
 							!= 0) 
 						{
 							MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
 							return -1;
 						}
-						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].freqFin, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
+						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].freqFin, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
 															  (5 * i) + 2, singletons)
 							!= 0) 
 						{
@@ -2453,24 +2453,24 @@ namespace myNIAWG
 						waveInfo.signals[i].freqFin *= 1000000.;
 
 						// get all parameters from the file
-						fileName >> tempStr;
+						scriptName >> tempStr;
 						std::transform(tempStr.begin(), tempStr.end(), tempStr.begin(), ::tolower);
 						waveInfo.signals[i].powerRampType = tempStr;
-						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].initPower, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
+						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].initPower, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
 															  (5 * i) + 3, singletons)
 							!= 0) 
 						{
 							MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
 							return -1;
 						}
-						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].finPower, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
+						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].finPower, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
 															  (5 * i) + 4, singletons)
 							!= 0) 
 						{
 							MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
 							return -1;
 						}
-						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].initPhase, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
+						if (myNIAWG::script::getParamCheckVar(waveInfo.signals[i].initPhase, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
 															  (5 * i) + 5, singletons)
 							!= 0) 
 						{
@@ -2481,7 +2481,7 @@ namespace myNIAWG
 						//waveInfo.signals.push_back(waveInfo.signals[i]); // Why is this here???????????
 						//?????????????????????????????????????????????????????????????????????????????
 					}
-					if (myNIAWG::script::getParamCheckVar(waveInfo.time, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 26, singletons) != 0)
+					if (myNIAWG::script::getParamCheckVar(waveInfo.time, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 26, singletons) != 0)
 					{
 						MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
 						return -1;
@@ -2489,7 +2489,7 @@ namespace myNIAWG
 					// Scale the time to be in seconds. (input is ms)
 					waveInfo.time *= 0.001;
 					// get the time management option.
-					if (myNIAWG::script::getParamCheckVar(waveInfo.phaseManagementOption, fileName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 27, 
+					if (myNIAWG::script::getParamCheckVar(waveInfo.phaseManagementOption, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 27, 
 														  singletons)
 						!= 0) 
 					{
@@ -2497,8 +2497,8 @@ namespace myNIAWG
 						return -1;
 					}
 					// pick up the delimeter.
-					rmWhite(fileName);
-					fileName >> waveInfo.delim;
+					rmWhite(scriptName);
+					scriptName >> waveInfo.delim;
 					break;
 				}
 			}
@@ -3696,13 +3696,13 @@ namespace myNIAWG
 		 * @param vParamTypes is a vector that holds the information as to what type of parameter is being varried for a given variable name.
 		 * @param dataType is the number to assign to vParamTypes if a variable is being used.
 		 */
-		int getParamCheckVar(int& dataToAssign, std::fstream& fileName, int& vCount, std::vector<std::string>& vNames, std::vector<int>& vParamTypes, 
+		int getParamCheckVar(int& dataToAssign, std::fstream& scriptName, int& vCount, std::vector<std::string>& vNames, std::vector<int>& vParamTypes, 
 			int dataType, std::vector<variable> singletons)
 		{
 			std::string tempInput;
 			int stringPos;
-			rmWhite(fileName);
-			fileName >> tempInput;
+			rmWhite(scriptName);
+			scriptName >> tempInput;
 			// pull input to lower case to prevent stupid user input errors.
 			std::transform(tempInput.begin(), tempInput.end(), tempInput.begin(), ::tolower);
 
@@ -3863,12 +3863,12 @@ namespace myNIAWG
 		 * @param dataType1 is the number to assign to vParamTypes for the first parameter if a variable is being used.
 		 * @param dataType2 is the number to assign to vParamTypes for the second parameter if a variable is being used.
 		 */
-		int getParamCheckVarConst(int& data1ToAssign, double& data2ToAssign, std::fstream& fileName, int& vCount, std::vector<std::string>& vNames, 
+		int getParamCheckVarConst(int& data1ToAssign, double& data2ToAssign, std::fstream& scriptName, int& vCount, std::vector<std::string>& vNames, 
 								  std::vector<int>& vParamTypes, int dataType1, int dataType2, std::vector<variable> singletons)
 		{
 			std::string tempInput;
-			rmWhite(fileName);
-			fileName >> tempInput;
+			rmWhite(scriptName);
+			scriptName >> tempInput;
 			// pull input to lower case to prevent stupid user input errors.
 			std::transform(tempInput.begin(), tempInput.end(), tempInput.begin(), ::tolower);
 

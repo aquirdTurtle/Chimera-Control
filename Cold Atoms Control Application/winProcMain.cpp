@@ -39,28 +39,19 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 		case WM_CLOSE:
 		case WM_DESTROY:
 		{
-			if (eHorizontalScriptSaved == false)
+			if (eHorizontalNIAWGScript.checkSave())
 			{
-				// check if the user wants to save
-				int cont = fileManage::checkSaveScript("horizontal", eHorizontalScriptEditHandle, thisWindow, eHorizontalCurrentParentScriptName, eHorizontalScriptSavedIndicatorHandle, eHorizontalScriptSaved, eHorizontalParentScriptPathString,
-					eHorizontalScriptNameTextHandle, "NIAWG");
-				// this occurs if the user presses cancel. Just break, don't open.
-				if (cont == 0)
-				{
-					break;
-				}
+				break;
 			}
-			if (eVerticalScriptSaved == false)
+			if (eVerticalNIAWGScript.checkSave())
 			{
-				// check if the user wants to save
-				int cont = fileManage::checkSaveScript("vertical", eVerticalScriptEditHandle, thisWindow, eVerticalCurrentParentScriptName, eVerticalScriptSavedIndicatorHandle, eVerticalScriptSaved, eVerticalParentScriptPathString,
-					eVerticalScriptNameTextHandle, "NIAWG");
-				// this occurs if the user presses cancel. Just break, don't open.
-				if (cont == 0)
-				{
-					break;
-				}
+				break;
 			}
+			if (eIntensityAgilentScript.checkSave())
+			{
+				break;
+			}
+
 			/*
 			if (eExperimentSaved == false)
 			{
