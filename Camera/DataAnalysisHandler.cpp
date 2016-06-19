@@ -11,7 +11,7 @@
 
 DataAnalysisHandler::DataAnalysisHandler()
 {
-	Py_SetPythonHome(L"C:\\Users\\Mark\\Anaconda3");
+	Py_SetPythonHome(L"C:\\Users\\Regal Lab\\Anaconda3\\");
 	Py_Initialize();
 	PyRun_SimpleString("from astropy.io import fits");
 	PyRun_SimpleString("import numpy");
@@ -315,12 +315,13 @@ bool DataAnalysisHandler::analyze(std::string date, long runNumber, long accumul
 				PyTuple_SetItem(pythonFunctionArguments, 5, pythonOutputName);
 
 				PyObject* pythonReturnValue = PyObject_CallObject(pythonFunction, pythonFunctionArguments);
-				// only need to decref this object; setItem steals references to all of the other items so I don't worry about them.
-				Py_DECREF(pythonFunctionArguments);
+				// I think not including this line below is a memory leak but I also think that it might be the cause of some annoying memory issues... not sure which, maybe both.
+				//Py_DECREF(pythonFunctionArguments);
 				if (pythonReturnValue != NULL)
 				{
-					appendText("Result of call: " + std::string(PyBytes_AS_STRING(PyUnicode_AsEncodedString(pythonReturnValue, "ASCII", "strict")))
-						+ "\r\n", IDC_ERROR_EDIT);
+					//MessageBox(0, "About to output.", 0, 0);
+					std::string result = std::string(PyBytes_AS_STRING(PyUnicode_AsEncodedString(pythonReturnValue, "ASCII", "strict")));
+					appendText("Result of call: " + result + "\r\n", IDC_ERROR_EDIT);
 					Py_DECREF(pythonReturnValue);
 				}
 				else
