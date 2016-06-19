@@ -2435,7 +2435,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					message += "0";
 				}
 				message += std::to_string(now.tm_sec);
-				eTextingHandler.sendMessage(message);
+				//eTextingHandler.sendMessage(message);
 				if (eAutoanalyzeData)
 				{
 					eAutoAnalysisHandler.analyze(eExperimentData.getDate(), eExperimentData.getDataFileNumber(), eRepetitionsPerVariation);
