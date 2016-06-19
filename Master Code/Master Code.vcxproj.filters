@@ -21,9 +21,6 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -36,9 +33,6 @@
     <ClInclude Include="Control.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MyTTLClass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Resource.h">
       <Filter>Constants, Externals, etc.</Filter>
     </ClInclude>
@@ -48,36 +42,81 @@
     <ClInclude Include="fonts.h">
       <Filter>Constants, Externals, etc.</Filter>
     </ClInclude>
-    <ClInclude Include="MyDACClass.h">
+    <ClInclude Include="DACSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MyVariableClass.h">
+    <ClInclude Include="TTLSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="newVariableDialogProcedure.h">
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Script.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cleanString.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="textPromptDialogProcedure.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationFileSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RunInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VariableSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="myNIAWG.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="appendText.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NoteSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Master Code.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MasterWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MyTTLClass.cpp">
+    <ClCompile Include="DACSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MyDACClass.cpp">
+    <ClCompile Include="TTLSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MyVariableClass.cpp">
+    <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="newVariableDialogProcedure.cpp">
+    <ClCompile Include="Script.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cleanString.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="textPromptDialogProcedure.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VariableSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationFileSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="myNIAWG.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="appendText.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NoteSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -94,6 +133,9 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="..\Cold Atoms Control Application\Atom.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\Atom.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

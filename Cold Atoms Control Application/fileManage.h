@@ -10,7 +10,7 @@
  * int saveConfigAs(HWND hostWin);
  * int newScript(std::string defaultFileName, HWND &scriptEdit, std::string &fileAddr, char(&name)[_MAX_FNAME], HWND &nameHandle, bool &saveVar,
  * 				 HWND &saveInd);
- * int openScript(HWND parent, std::string &filePathway, char(&name)[_MAX_FNAME], HWND &relevantEdit, HWND &savedInd, HWND &nameHandle, bool &savedVar,
+ * int openParentScript(HWND parent, std::string &filePathway, char(&name)[_MAX_FNAME], HWND &relevantEdit, HWND &savedInd, HWND &nameHandle, bool &savedVar,
  *				  bool promptForFile, bool is_NIAWG_Script = true);
  * int checkSaveScript(std::string x_or_y_or_I, HWND editOfInterest, HWND parent, char(&name)[_MAX_FNAME], HWND &savedIndicator, bool &savedVariable,
  *					   std::string &filePathway, HWND &nameDisplayHandle);
@@ -20,6 +20,7 @@
  */
 namespace fileManage
 {
+	/*
 	int checkExperimentSave(HWND parWin);
 	int openExperimentConfig(HWND parWin, std::string comboBoxItem);
 	int openConfiguration(HWND parWin, std::string subConfigFile);
@@ -27,7 +28,7 @@ namespace fileManage
 	//int saveConfigAs(HWND hostWin);
 	int newScript(std::string defaultFileName, HWND &scriptEdit, std::string &fileAddr, char(&name)[_MAX_FNAME], HWND &nameHandle, bool &saveVar, 
 				  HWND &saveInd);
-	int openScript(HWND parent, std::string &filePathway, char(&name)[_MAX_FNAME], HWND &relevantEdit, HWND &savedInd, HWND &nameHandle, bool &savedVar, 
+	int openParentScript(HWND parent, std::string &filePathway, char(&name)[_MAX_FNAME], HWND &relevantEdit, HWND &savedInd, HWND &nameHandle, bool &savedVar, 
 				   bool promptForFile, bool is_NIAWG_Script, bool isParentScript);
 	int checkSaveScript(std::string x_or_y_or_I, HWND editOfInterest, HWND parent, char(&name)[_MAX_FNAME], HWND &savedIndicator, bool &savedVariable, 
 						std::string &filePathway, HWND &nameDisplayHandle, std::string scriptType);
@@ -38,4 +39,5 @@ namespace fileManage
 	int reloadCombo(HWND comboToReload, std::string serachLocation, std::string extension, std::string nameToLoad);
 	int lookForPredefinedScripts(HWND editToSearch, HWND comboToUpdate);
 	bool fileOrFolderExists(std::string filePathway);
+	*/
 }

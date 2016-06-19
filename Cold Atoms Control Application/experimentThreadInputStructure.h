@@ -10,7 +10,6 @@ struct experimentThreadInputStructure
 	bool threadConnectToMaster;
 	bool threadGetVarFilesFromMaster;
 	bool threadLogScriptAndParams;
-	bool threadXScriptSaved;
 	bool threadDontActuallyGenerate;
 	bool threadProgramIntensityOption;
 	std::string currentFolderLocation;

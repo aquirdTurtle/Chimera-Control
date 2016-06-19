@@ -33,22 +33,22 @@ namespace myAgilent
 	/*
 	 * This function reads out a segment of script file and loads it into a segment to be calculated and manipulated.
 	 * segNum: This tells the function what the next segment # is.
-	 * fileName: this is the file object to be read from.
+	 * scriptName: this is the file object to be read from.
 	 */
-	int IntensityWaveform::readIntoSegment(int segNum, std::fstream& fileName, std::vector<variable> singletons)
+	int IntensityWaveform::readIntoSegment(int segNum, std::fstream& scriptName, std::vector<variable> singletons)
 	{
-		rmWhite(fileName);
+		rmWhite(scriptName);
 		std::string intensityCommand;
 		std::vector<std::string> tempVarNames;
 		std::vector<int> tempVarLocations;
 		int tempVarNum = 0;
-		if (fileName.eof() == true)
+		if (scriptName.eof() == true)
 		{
 			// reached end of file, return with message.
 			return 1;
 		}
 		// Grab the command type (e.g. ramp, const). Looks for newline by default.
-		getline(fileName, intensityCommand, '\r');
+		getline(scriptName, intensityCommand, '\r');
 		// get rid of case sensitivity.
 		std::transform(intensityCommand.begin(), intensityCommand.end(), intensityCommand.begin(), ::tolower);
 		if (intensityCommand == "agilent hold" || intensityCommand == "intensity hold")
@@ -65,8 +65,8 @@ namespace myAgilent
 		{
 			std::string nestedFileName;
 			// remove \n at the end of last line.
-			fileName.get();
-			getline(fileName, nestedFileName, '\r');
+			scriptName.get();
+			getline(scriptName, nestedFileName, '\r');
 			std::string path = eProfile.getCurrentPathIncludingCategory() + nestedFileName + AGILENT_SCRIPT_EXTENSION;
 			std::fstream nestedFile(path.c_str(), std::ios::in);
 			if (!nestedFile.is_open())
@@ -98,33 +98,33 @@ namespace myAgilent
 		if (waveformSegments[segNum].returnSegmentType() == 1)
 		{
 			// this segment type means ramping.
-			rmWhite(fileName);
-			fileName >> tempRampType;
-			myNIAWG::script::getParamCheckVar(tempIntensityInit, fileName, tempVarNum, tempVarNames, tempVarLocations, 1, singletons);
-			myNIAWG::script::getParamCheckVar(tempIntensityFin, fileName, tempVarNum, tempVarNames, tempVarLocations, 2, singletons);
+			rmWhite(scriptName);
+			scriptName >> tempRampType;
+			myNIAWG::script::getParamCheckVar(tempIntensityInit, scriptName, tempVarNum, tempVarNames, tempVarLocations, 1, singletons);
+			myNIAWG::script::getParamCheckVar(tempIntensityFin, scriptName, tempVarNum, tempVarNames, tempVarLocations, 2, singletons);
 		}
 		else
 		{
 			tempRampType = "nr";
-			myNIAWG::script::getParamCheckVarConst(tempIntensityInit, tempIntensityFin, fileName, tempVarNum, tempVarNames, tempVarLocations, 1, 2, singletons);
+			myNIAWG::script::getParamCheckVarConst(tempIntensityInit, tempIntensityFin, scriptName, tempVarNum, tempVarNames, tempVarLocations, 1, 2, singletons);
 		}
-		myNIAWG::script::getParamCheckVar(tempTimeInMilliSeconds, fileName, tempVarNum, tempVarNames, tempVarLocations, 3, singletons);
+		myNIAWG::script::getParamCheckVar(tempTimeInMilliSeconds, scriptName, tempVarNum, tempVarNames, tempVarLocations, 3, singletons);
 
-		rmWhite(fileName);
-		fileName >> tempContinuationType;
+		rmWhite(scriptName);
+		scriptName >> tempContinuationType;
 		std::transform(tempContinuationType.begin(), tempContinuationType.end(), tempContinuationType.begin(), ::tolower);
 		if (tempContinuationType == "repeat")
 		{
 			// There is an extra input in this case.
-			rmWhite(fileName);
-			fileName >> tempRepeatNum;
+			rmWhite(scriptName);
+			scriptName >> tempRepeatNum;
 		}
 		else
 		{
 			tempRepeatNum = 0;
 		}
-		rmWhite(fileName);
-		fileName >> delimiter;
+		rmWhite(scriptName);
+		scriptName >> delimiter;
 		if (delimiter != "#")
 		{
 			// input number mismatch.

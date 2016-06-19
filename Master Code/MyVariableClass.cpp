@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "MyVariableClass.h"	
-#include "Windows.h"
 #include "commctrl.h"
+//#include "Windows.h"
 #include "constants.h"
 
 MyVariableClass::MyVariableClass()
@@ -12,7 +12,7 @@ MyVariableClass::~MyVariableClass()
 {
 
 }
-int MyVariableClass::initializeVariableControls(POINT upperLeftHandLocation, HWND parentWindow)
+bool MyVariableClass::initializeVariableControls(POINT& upperLeftHandLocation, HWND parentWindow)
 {
 	RECT location;
 	location.left = upperLeftHandLocation.x;
@@ -83,7 +83,8 @@ int MyVariableClass::initializeVariableControls(POINT upperLeftHandLocation, HWN
 	cDeleteButton.hwnd = CreateWindowEx(NULL, "BUTTON", "-DELETE", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 										location.left, location.top, location.right - location.left, location.bottom - location.top,
 										parentWindow, (HMENU)ID_VARIABLE_DELETE, GetModuleHandle(NULL), NULL);
-	return location.bottom;
+	upperLeftHandLocation.y = location.bottom;
+	return true;
 }
 
 int MyVariableClass::addVariable(std::string variableName, double initialVal, double finalVal, std::string units)

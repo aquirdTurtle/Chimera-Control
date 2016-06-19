@@ -26,7 +26,7 @@
 	namespace handleInput
 	{
 		void getInputType(std::string inputType, waveData &wvInfo);
-		int getWvFmData(std::fstream &fileName, waveData &waveInfo);
+		int getWvFmData(std::fstream &scriptName, waveData &waveInfo);
 		int waveformGen(ViReal64 * & tempWaveform, ViReal64 * & readData, waveData & waveInfo, long int size,
 						std::vector<std::string>(&libWaveformArray)[20], bool &fileOpened);
 		int logic(std::fstream &xFile, std::fstream &yFile, std::string xInput, std::string yInput, std::string &scriptString, std::string triggerName);
@@ -51,13 +51,13 @@
 			return (long int)(waveSize + 0.5);
 		}
 
-		int getParamCheckVar(double &dataToAssign, std::fstream &fileName, int &vCount, std::vector<std::string> & vNames, std::vector<int> &vParamTypes,
+		int getParamCheckVar(double &dataToAssign, std::fstream &scriptName, int &vCount, std::vector<std::string> & vNames, std::vector<int> &vParamTypes,
 			int dataType);
-		int getParamCheckVar(int &dataToAssign, std::fstream &fileName, int &vCount, std::vector<std::string> & vNames, std::vector<int> &vParamTypes,
+		int getParamCheckVar(int &dataToAssign, std::fstream &scriptName, int &vCount, std::vector<std::string> & vNames, std::vector<int> &vParamTypes,
 			int dataType);
-		int getParamCheckVarConst(double &data1ToAssign, double &data2ToAssign, std::fstream &fileName, int &vCount, std::vector<std::string> &vNames,
+		int getParamCheckVarConst(double &data1ToAssign, double &data2ToAssign, std::fstream &scriptName, int &vCount, std::vector<std::string> &vNames,
 			std::vector<int> &vParamTypes, int dataType1, int dataType2);
-		int getParamCheckVarConst(int &data1ToAssign, double &data2ToAssign, std::fstream &fileName, int &vCount, std::vector<std::string> &vNames,
+		int getParamCheckVarConst(int &data1ToAssign, double &data2ToAssign, std::fstream &scriptName, int &vCount, std::vector<std::string> &vNames,
 			std::vector<int> &vParamTypes, int dataType1, int dataType2);
 	}
  */
@@ -88,7 +88,7 @@ namespace myNIAWG
 	{
 		void getInputType(std::string inputType, waveData &wvInfo);
 
-		int getWvFmData(std::fstream &fileName, waveData &waveInfo, std::vector<variable> singletons);
+		int getWvFmData(std::fstream &scriptName, waveData &waveInfo, std::vector<variable> singletons);
 
 		int waveformGen(ViReal64 * & tempWaveform, ViReal64 * & readData, waveData & waveInfo, long int size,
 			std::vector<std::string>(&libWaveformArray)[20], bool &fileOpened);
@@ -136,13 +136,13 @@ namespace myNIAWG
 		// overload for just the time input which is used to check the sample number of times that the master computer sends.
 		long int waveformSizeCalc(double time);
 
-		int getParamCheckVar(double &dataToAssign, std::fstream &fileName, int &vCount, std::vector<std::string> & vNames, std::vector<int> &vParamTypes, 
+		int getParamCheckVar(double &dataToAssign, std::fstream &scriptName, int &vCount, std::vector<std::string> & vNames, std::vector<int> &vParamTypes, 
 							 int dataType, std::vector<variable> singletons);
-		int getParamCheckVar(int &dataToAssign, std::fstream &fileName, int &vCount, std::vector<std::string> & vNames, std::vector<int> &vParamTypes,
+		int getParamCheckVar(int &dataToAssign, std::fstream &scriptName, int &vCount, std::vector<std::string> & vNames, std::vector<int> &vParamTypes,
 							 int dataType, std::vector<variable> singletons);
-		int getParamCheckVarConst(double &data1ToAssign, double &data2ToAssign, std::fstream &fileName, int &vCount, std::vector<std::string> &vNames,
+		int getParamCheckVarConst(double &data1ToAssign, double &data2ToAssign, std::fstream &scriptName, int &vCount, std::vector<std::string> &vNames,
 								  std::vector<int> &vParamTypes, int dataType1, int dataType2, std::vector<variable> singletons);
-		int getParamCheckVarConst(int &data1ToAssign, double &data2ToAssign, std::fstream &fileName, int &vCount, std::vector<std::string> &vNames,
+		int getParamCheckVarConst(int &data1ToAssign, double &data2ToAssign, std::fstream &scriptName, int &vCount, std::vector<std::string> &vNames,
 								  std::vector<int> &vParamTypes, int dataType1, int dataType2, std::vector<variable> singletons);
 	}
 }

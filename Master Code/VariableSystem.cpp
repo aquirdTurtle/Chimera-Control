@@ -1,12 +1,13 @@
 #include "stdafx.h"
 #include "VariableSystem.h"
-#include "externals.h"
 #include "fonts.h"
 #include "textPromptDialogProcedure.h"
 #include <iomanip>
 #include <sstream>
+#include "Script.h"
+#include "constants.h"
 
-bool VariableSystem::updateVariableInfo(LPARAM lParamOfMessage)
+bool VariableSystem::updateVariableInfo(LPARAM lParamOfMessage, std::vector<Script*> scripts, MasterWindow* Master)
 {
 	/// get the item and subitem
 	POINT cursorPos;
@@ -37,7 +38,9 @@ bool VariableSystem::updateVariableInfo(LPARAM lParamOfMessage)
 		currentVariables.back().name = "";
 		currentVariables.back().timelike = false;
 		currentVariables.back().singleton = true;
-		currentVariables.back().value = 0;
+		currentVariables.back().initialValue = 0;
+		currentVariables.back().finalValue = 0;
+		currentVariables.back().variations = 1;
 		// add an item to the control
 		// choose ite m
 		listViewItem.iItem = itemIndicator;
@@ -49,11 +52,18 @@ bool VariableSystem::updateVariableInfo(LPARAM lParamOfMessage)
 		listViewItem.pszText = "Singleton";
 		SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem); 
 		listViewItem.iSubItem = 2;
-		listViewItem.pszText = "0";
+		listViewItem.pszText = "No";
 		SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem);
 		listViewItem.iSubItem = 3;
-		listViewItem.pszText = "No";
-		SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem); 
+		listViewItem.pszText = "0";
+		SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem);
+		listViewItem.iSubItem = 4;
+		listViewItem.pszText = "---";
+		SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem);
+		listViewItem.iSubItem = 4;
+		listViewItem.pszText = "1";
+		SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem);
+
 	}
 	/// Handle different subitem clicks
 	switch (subitemIndicator)
@@ -62,7 +72,7 @@ bool VariableSystem::updateVariableInfo(LPARAM lParamOfMessage)
 		{
 			/// person name
 			// prompt for a name
-			std::string newName = (const char*)DialogBoxParam(eGlobalInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure, (LPARAM)"Please enter a name for the variable:");
+			std::string newName = (const char*)DialogBoxParam(this->programInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure, (LPARAM)"Please enter a name for the variable:");
 			if (newName == "")
 			{
 				// probably canceled.
@@ -76,9 +86,10 @@ bool VariableSystem::updateVariableInfo(LPARAM lParamOfMessage)
 			listViewItem.pszText = (LPSTR)newName.c_str();
 			SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem);
 			// recolor to catch any new variable names needing to change color.
-			eVerticalNIAWGScript.colorEntireScript();
-			eHorizontalNIAWGScript.colorEntireScript();
-			eIntensityAgilentScript.colorEntireScript();
+			for (int scriptInc = 0; scriptInc < scripts.size(); scriptInc++)
+			{
+				scripts[scriptInc]->colorEntireScript(*Master);
+			}
 			break;
 		}
 		case 1:
@@ -90,16 +101,20 @@ bool VariableSystem::updateVariableInfo(LPARAM lParamOfMessage)
 			if (currentVariables[itemIndicator].singleton)
 			{
 				currentVariables[itemIndicator].singleton = false;
-				// set the value to be dashes on the screen. no value for "from master".
-				listViewItem.pszText = "---";
-				listViewItem.iSubItem = 2;
-				SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem);
 				listViewItem.iSubItem = subitemIndicator;
-				listViewItem.pszText = "From Master";				
+				listViewItem.pszText = "Variable";				
 			}
 			else
 			{
 				currentVariables[itemIndicator].singleton = true;
+				// set the value to be dashes on the screen. no value for "from master".
+				listViewItem.pszText = "---";
+				listViewItem.iSubItem = 4;
+				SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem);
+				listViewItem.pszText = "---";
+				listViewItem.iSubItem = 5;
+				SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem);
+				listViewItem.iSubItem = subitemIndicator;
 				listViewItem.pszText = "Singleton";
 			}
 			
@@ -108,41 +123,6 @@ bool VariableSystem::updateVariableInfo(LPARAM lParamOfMessage)
 			break;
 		}
 		case 2:
-		{
-			if (!currentVariables[itemIndicator].singleton)
-			{
-				// then the value is gotten from the master computer. No value to set here.
-				break;
-			}
-			// else singleton.
-			std::string newValue = (const char*)DialogBoxParam(eGlobalInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure,
-				(LPARAM)"Please enter a value for this variable. Value will be formatted as a double.");
-			if (newValue == "")
-			{
-				// probably canceled.
-				break;
-			}
-			// else there's something there.
-			try 
-			{
-				currentVariables[itemIndicator].value = std::stod(newValue);
-			}
-			catch (std::invalid_argument &exception)
-			{
-				MessageBox(0, ("ERROR: the value entered, " + newValue + ", failed to convert to a double! Check for invalid characters.").c_str(), 0, 0);
-				break;
-			}
-			// update the listview
-			listViewItem.iItem = itemIndicator;
-			listViewItem.iSubItem = subitemIndicator;
-			std::ostringstream out;
-			out << std::setprecision(12) << currentVariables[itemIndicator].value;
-			std::string tempstr = out.str();
-			listViewItem.pszText = (LPSTR)tempstr.c_str();
-			SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem);
-			break;
-		}
-		case 3:
 		{
 			/// timelike?
 			listViewItem.iItem = itemIndicator;
@@ -158,6 +138,105 @@ bool VariableSystem::updateVariableInfo(LPARAM lParamOfMessage)
 				currentVariables[itemIndicator].timelike = true;
 				listViewItem.pszText = "Yes";
 			}
+			SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem);
+			break;
+		}
+		case 3:
+		{
+			std::string newValue = (const char*)DialogBoxParam(this->programInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure,
+				(LPARAM)"Please enter an initial value for this variable. Value will be formatted as a double.");
+			if (newValue == "")
+			{
+				// probably canceled.
+				break;
+			}
+			// else there's something there.
+			try 
+			{
+				currentVariables[itemIndicator].initialValue = std::stod(newValue);
+			}
+			catch (std::invalid_argument &exception)
+			{
+				MessageBox(0, ("ERROR: the value entered, " + newValue + ", failed to convert to a double! Check for invalid characters.").c_str(), 0, 0);
+				break;
+			}
+			// update the listview
+			listViewItem.iItem = itemIndicator;
+			listViewItem.iSubItem = subitemIndicator;
+			std::ostringstream out;
+			out << std::setprecision(12) << currentVariables[itemIndicator].initialValue;
+			std::string tempstr = out.str();
+			listViewItem.pszText = (LPSTR)tempstr.c_str();
+			SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem);
+			break;
+		}
+		case 4:
+		{
+			if (currentVariables[itemIndicator].singleton)
+			{
+				// then no final value to be set.
+				break;
+			}
+			// else singleton.
+			std::string newValue = (const char*)DialogBoxParam(this->programInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure,
+				(LPARAM)"Please enter a final value for this variable. Value will be formatted as a double.");
+			if (newValue == "")
+			{
+				// probably canceled.
+				break;
+			}
+			// else there's something there.
+			try
+			{
+				currentVariables[itemIndicator].finalValue = std::stod(newValue);
+			}
+			catch (std::invalid_argument &exception)
+			{
+				MessageBox(0, ("ERROR: the value entered, " + newValue + ", failed to convert to a double! Check for invalid characters.").c_str(), 0, 0);
+				break;
+			}
+			// update the listview
+			listViewItem.iItem = itemIndicator;
+			listViewItem.iSubItem = subitemIndicator;
+			std::ostringstream out;
+			out << std::setprecision(12) << currentVariables[itemIndicator].finalValue;
+			std::string tempstr = out.str();
+			listViewItem.pszText = (LPSTR)tempstr.c_str();
+			SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem);
+			break;
+		}
+		case 5:
+		{
+			if (currentVariables[itemIndicator].singleton)
+			{
+				// then must be 1.
+				break;
+			}
+			// else singleton.
+			std::string newValue = (const char*)DialogBoxParam(this->programInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure,
+				(LPARAM)"Please enter the number of variations of this variable. Value will be formatted as an integer.");
+			if (newValue == "")
+			{
+				// probably canceled.
+				break;
+			}
+			// else there's something there.
+			try
+			{
+				currentVariables[itemIndicator].variations = std::stoi(newValue);
+			}
+			catch (std::invalid_argument &exception)
+			{
+				MessageBox(0, ("ERROR: the value entered, " + newValue + ", failed to convert to a double! Check for invalid characters.").c_str(), 0, 0);
+				break;
+			}
+			// update the listview
+			listViewItem.iItem = itemIndicator;
+			listViewItem.iSubItem = subitemIndicator;
+			std::ostringstream out;
+			out << std::setprecision(12) << currentVariables[itemIndicator].variations;
+			std::string tempstr = out.str();
+			listViewItem.pszText = (LPSTR)tempstr.c_str();
 			SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem);
 			break;
 		}
@@ -262,7 +341,7 @@ bool VariableSystem::addVariable(std::string name, bool timelike, bool singleton
 		listViewDefaultItem.iItem = item;          // choose item  
 		listViewDefaultItem.iSubItem = 0;       // Put in first coluom
 		SendMessage(variablesListview.hwnd, LVM_INSERTITEM, 0, (LPARAM)&listViewDefaultItem);
-		for (int itemInc = 1; itemInc < 3; itemInc++) // Add SubItems in a loop
+		for (int itemInc = 1; itemInc < 6; itemInc++) // Add SubItems in a loop
 		{
 			listViewDefaultItem.iSubItem = itemInc;
 			SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewDefaultItem); // Enter text to SubItems
@@ -274,7 +353,7 @@ bool VariableSystem::addVariable(std::string name, bool timelike, bool singleton
 	tempVar.name = name;
 	tempVar.singleton = singleton;
 	tempVar.timelike = timelike;
-	tempVar.value = value;
+	tempVar.initialValue = value;
 	currentVariables.push_back(tempVar);
 	/// add the entry to the listview.
 	LVITEM listViewItem;
@@ -327,19 +406,19 @@ bool VariableSystem::addVariable(std::string name, bool timelike, bool singleton
 	return false;
 }
 
-bool VariableSystem::initializeControls(POINT topLeftCorner, HWND parentWindow)
+bool VariableSystem::initialize(POINT topLeftCorner, HWND parentWindow)
 {
 	RECT initPos = variablesHeader.normalPos = { topLeftCorner.x, topLeftCorner.y, topLeftCorner.x + 480, topLeftCorner.y + 25 };
 	variablesHeader.hwnd = CreateWindowEx(0, "STATIC", "Variables", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY,
 		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top,
-		parentWindow, (HMENU)-1, eGlobalInstance, NULL);
+		parentWindow, (HMENU)-1, this->programInstance, NULL);
 	SendMessage(variablesHeader.hwnd, WM_SETFONT, WPARAM(sHeadingFont), TRUE);
 	topLeftCorner.y += 25;
 	initPos = variablesListview.normalPos = { topLeftCorner.x, topLeftCorner.y, topLeftCorner.x + 480, topLeftCorner.y + 195 };
 	variablesListview.hwnd = CreateWindowEx(0, WC_LISTVIEW, "", WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS,
 		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top,
 		parentWindow, (HMENU)IDC_VARIABLES_LISTVIEW, GetModuleHandle(NULL), NULL);
-	SendMessage(variablesListview.hwnd, WM_SETFONT, WPARAM(sNormalFont), TRUE);
+	SendMessage(variablesListview.hwnd, WM_SETFONT, WPARAM(sSmallFont), TRUE);
 
 	LV_COLUMN listViewDefaultCollumn;
 	// Zero Members
@@ -348,15 +427,20 @@ bool VariableSystem::initializeControls(POINT topLeftCorner, HWND parentWindow)
 	listViewDefaultCollumn.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
 	// width between each coloum
 	listViewDefaultCollumn.pszText = "Symbol";
-	listViewDefaultCollumn.cx = 0x62;
+	listViewDefaultCollumn.cx = 0x42;
 	// Inserting Couloms as much as we want
 	SendMessage(variablesListview.hwnd, LVM_INSERTCOLUMN, 0, (LPARAM)&listViewDefaultCollumn);
 	listViewDefaultCollumn.pszText = "Type";
 	SendMessage(variablesListview.hwnd, LVM_INSERTCOLUMN, 1, (LPARAM)&listViewDefaultCollumn);
-	listViewDefaultCollumn.pszText = "Value";
-	SendMessage(variablesListview.hwnd, LVM_INSERTCOLUMN, 2, (LPARAM)&listViewDefaultCollumn);
 	listViewDefaultCollumn.pszText = "Timelike?";
+	SendMessage(variablesListview.hwnd, LVM_INSERTCOLUMN, 2, (LPARAM)&listViewDefaultCollumn);
+	listViewDefaultCollumn.pszText = "Initial Value";
 	SendMessage(variablesListview.hwnd, LVM_INSERTCOLUMN, 3, (LPARAM)&listViewDefaultCollumn);
+	listViewDefaultCollumn.pszText = "Final Value";
+	SendMessage(variablesListview.hwnd, LVM_INSERTCOLUMN, 4, (LPARAM)&listViewDefaultCollumn);
+	listViewDefaultCollumn.pszText = "Variations";
+	SendMessage(variablesListview.hwnd, LVM_INSERTCOLUMN, 5, (LPARAM)&listViewDefaultCollumn);
+
 	// Make First Blank row.
 	LVITEM listViewDefaultItem;
 	memset(&listViewDefaultItem, 0, sizeof(listViewDefaultItem));
@@ -366,7 +450,7 @@ bool VariableSystem::initializeControls(POINT topLeftCorner, HWND parentWindow)
 	listViewDefaultItem.iItem = 0;          // choose item  
 	listViewDefaultItem.iSubItem = 0;       // Put in first coluom
 	SendMessage(variablesListview.hwnd, LVM_INSERTITEM, 0, (LPARAM)&listViewDefaultItem);
-	for (int itemInc = 1; itemInc < 3; itemInc++) // Add SubItems in a loop
+	for (int itemInc = 1; itemInc < 6; itemInc++) // Add SubItems in a loop
 	{
 		listViewDefaultItem.iSubItem = itemInc;
 		SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewDefaultItem); // Enter text to SubItems

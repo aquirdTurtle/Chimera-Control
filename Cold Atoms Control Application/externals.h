@@ -8,6 +8,7 @@
 #include "ConfigurationFileSystem.h"
 #include "NoteSystem.h"
 #include "VariableSystem.h"
+#include "Script.h"
 
 extern ViStatus eError;
 extern bool eWaitError;
@@ -15,6 +16,7 @@ extern bool eWaitError;
 extern ConfigurationFileSystem eProfile;
 extern NoteSystem eNotes;
 extern VariableSystem eVariables;
+extern Script eVerticalNIAWGScript, eHorizontalNIAWGScript, eIntensityAgilentScript;
 
 // Default NIAWG Wavefunction Info.
 extern ViReal64* eDefault_hConfigMixedWaveform;
@@ -25,7 +27,7 @@ extern ViReal64* eDefault_vConfigMixedWaveform;
 extern std::string eDefault_vConfigWaveformName;
 extern long eDefault_vConfigMixedSize;
 extern ViChar* eDefault_vConfigScript;
-// asdfasdfasdfasdf
+
 extern HINSTANCE eGlobalInstance;
 // stuff for syntax coloring
 extern DWORD eIntensityMinChange, eIntensityMaxChange;
@@ -40,29 +42,15 @@ extern double eCurrentAgilentHigh;
 extern std::string eCurrentFolderDialogType;
 
 // These Describe the scripts
-extern std::string eVerticalParentScriptPathString;
-extern std::string eVerticalViewScriptPathString;
-extern std::string eHorizontalParentScriptPathString;
-extern std::string eHorizontalViewScriptPathString;
-extern std::string eIntensityParentScriptPathString;
-extern std::string eIntensityViewScriptPathString;
+
 extern std::string eMostRecentVerticalScriptNames;
 extern std::string eMostRecentHorizontalScriptNames;
 extern std::string eMostRecentIntensityScriptNames;
-//
-//extern std::vector<std::string> eVariableNames;
-//extern std::vector<std::string> eVerticalVarFileNames;
+
 extern std::string eGenStatusColor;
 
 
 /// Global Options Variables
-extern char eVerticalCurrentParentScriptName[_MAX_FNAME];
-extern char eVerticalCurrentViewScriptName[_MAX_FNAME];
-extern char eHorizontalCurrentParentScriptName[_MAX_FNAME];
-extern char eHorizontalCurrentViewScriptName[_MAX_FNAME];
-extern char eIntensityCurrentParentScriptName[_MAX_FNAME];
-extern char eIntensityCurrentViewScriptName[_MAX_FNAME];
-
 
 // A variable which records what script is currently being executed by the NIAWG.
 extern std::string eCurrentScript;
@@ -78,9 +66,7 @@ extern bool eCurrentIntensityViewIsParent;
 
 
 extern bool eSystemIsRunning;
-extern bool eVerticalScriptSaved;
-extern bool eHorizontalScriptSaved;
-extern bool eIntensityScriptSaved;
+
 extern bool eDontActuallyGenerate;
 extern bool eConnectToMaster;
 extern bool eGetVarFilesFromMaster;
@@ -180,20 +166,6 @@ extern HWND eIntensityNameHandle;
 extern HWND eStaticVerticalEditHandle;
 extern HWND eStaticHorizontalEditHandle;
 extern HWND eConfigurationDisplayInScripting;
-
-// User-Edited Edit Handles
-extern HWND eIntensityScriptEditHandle;
-extern HWND eVerticalScriptEditHandle;
-extern HWND eHorizontalScriptEditHandle;
-// Code-Edited Edit Handles
-extern HWND eVerticalScriptNameTextHandle;
-extern HWND eHorizontalScriptNameTextHandle;
-extern HWND eConfigurationTextInScripting;
-
-// Code-Edited Checked Boxes
-extern HWND eVerticalScriptSavedIndicatorHandle;
-extern HWND eHorizontalScriptSavedIndicatorHandle;
-extern HWND eIntensityScriptSavedIndicatorHandle;
 // Other
 extern HWND eColorBox;
 
@@ -205,3 +177,6 @@ extern HWND eBeginDialogRichEdit;
 extern Control eHorizontalViewCombo, eVerticalViewCombo, eIntensityViewCombo, eHorizontalViewText, eVerticalViewText,
 			   eIntensityViewText;
 extern Control eSequenceText, eSequenceCombo, eSequenceDisplay;
+
+extern HWND eConfigurationTextInScripting;
+
