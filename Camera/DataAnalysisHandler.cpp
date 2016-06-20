@@ -11,7 +11,7 @@
 
 DataAnalysisHandler::DataAnalysisHandler()
 {
-	Py_SetPythonHome(L"C:\\Users\\Regal Lab\\Anaconda3\\");
+	Py_SetPythonHome(PYTHON_HOME);
 	Py_Initialize();
 	PyRun_SimpleString("from astropy.io import fits");
 	PyRun_SimpleString("import numpy");
@@ -45,6 +45,8 @@ bool DataAnalysisHandler::reorganizeControls(RECT parentRectangle, std::string c
 	reorganizeControl(autoAnalysisTypeCombo, cameraMode, parentRectangle);
 	reorganizeControl(setAnalysisLocationsButton, cameraMode, parentRectangle);
 	reorganizeControl(analyzeMostRecentButton, cameraMode, parentRectangle);
+	reorganizeControl(dataOutputNameDetailCombo1, cameraMode, parentRectangle);
+	reorganizeControl(dataOutputNameDetailCombo2, cameraMode, parentRectangle);
 	return false;
 }
 
@@ -103,43 +105,57 @@ bool DataAnalysisHandler::initializeControls(POINT& topLeftPositionKinetic, POIN
 		parentWindow, (HMENU)-1, eHInst, NULL);
 	dataOutputNameText.fontType = "Normal";
 
-	dataOutputNameCombo.kineticSeriesModePos = { topLeftPositionKinetic.x + 100, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 380, topLeftPositionKinetic.y + 800 };
-	dataOutputNameCombo.accumulateModePos = { topLeftPositionAccumulate.x + 100, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 380, topLeftPositionAccumulate.y + 800 };
+	dataOutputNameCombo.kineticSeriesModePos = { topLeftPositionKinetic.x + 100, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 300, topLeftPositionKinetic.y + 800 };
+	dataOutputNameCombo.accumulateModePos = { topLeftPositionAccumulate.x + 100, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 300, topLeftPositionAccumulate.y + 800 };
 	dataOutputNameCombo.continuousSingleScansModePos = { -1,-1,-1,-1 };
 	initPos = dataOutputNameCombo.kineticSeriesModePos;
 	dataOutputNameCombo.hwnd = CreateWindowEx(0, "COMBOBOX", "", WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,
 		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top,
 		parentWindow, (HMENU)IDC_DATA_OUTPUT_NAME_COMBO, eHInst, NULL);
-	dataOutputNameCombo.fontType = "Normal";
+	dataOutputNameCombo.fontType = "Small";
 	SendMessage(dataOutputNameCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Carrier_Calibration");
 	SendMessage(dataOutputNameCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Sideband_Spectrum");
-	SendMessage(dataOutputNameCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Microwave_Frequency_Spectrum");
+	SendMessage(dataOutputNameCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Global_Microwave");
 	SendMessage(dataOutputNameCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Microwave_Rabi");
-	SendMessage(dataOutputNameCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Microwave_Ramsey");
-	SendMessage(dataOutputNameCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Microwave_Ramsey_Echo");
+	SendMessage(dataOutputNameCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Ramsey_Time_Scan");
+	SendMessage(dataOutputNameCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Tunneling_Bias_Scan");
+	SendMessage(dataOutputNameCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Tunneling_Time_Scan");
 	SendMessage(dataOutputNameCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Piezo_Scan");
 	// TODO: add more.
-	dataOutputNameDetailCombo.kineticSeriesModePos = { topLeftPositionKinetic.x + 380, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 800 };
-	dataOutputNameDetailCombo.accumulateModePos = { topLeftPositionAccumulate.x + 380, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480, topLeftPositionAccumulate.y + 800 };
-	dataOutputNameDetailCombo.continuousSingleScansModePos = { -1,-1,-1,-1 };
-	initPos = dataOutputNameDetailCombo.kineticSeriesModePos;
-	dataOutputNameDetailCombo.hwnd = CreateWindowEx(0, "COMBOBOX", "", WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,
+	dataOutputNameDetailCombo1.kineticSeriesModePos = { topLeftPositionKinetic.x + 300, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 400, topLeftPositionKinetic.y + 800 };
+	dataOutputNameDetailCombo1.accumulateModePos = { topLeftPositionAccumulate.x + 300, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 400, topLeftPositionAccumulate.y + 800 };
+	dataOutputNameDetailCombo1.continuousSingleScansModePos = { -1,-1,-1,-1 };
+	initPos = dataOutputNameDetailCombo1.kineticSeriesModePos;
+	dataOutputNameDetailCombo1.hwnd = CreateWindowEx(0, "COMBOBOX", "", WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,
 		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top,
 		parentWindow, (HMENU)IDC_DATA_OUTPUT_NAME_DETAILS_COMBO, eHInst, NULL);
-	dataOutputNameDetailCombo.fontType = "Normal";
-	SendMessage(dataOutputNameDetailCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"");
-	SendMessage(dataOutputNameDetailCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Top");
-	SendMessage(dataOutputNameDetailCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Bottom");
-	SendMessage(dataOutputNameDetailCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Axial");
-	SendMessage(dataOutputNameDetailCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Radial");
-	SendMessage(dataOutputNameDetailCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Vertical");
-	SendMessage(dataOutputNameDetailCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Horizontal");
+	dataOutputNameDetailCombo1.fontType = "Normal";
+	SendMessage(dataOutputNameDetailCombo1.hwnd, CB_ADDSTRING, 0, (LPARAM)"");
+	SendMessage(dataOutputNameDetailCombo1.hwnd, CB_ADDSTRING, 0, (LPARAM)"Top");
+	SendMessage(dataOutputNameDetailCombo1.hwnd, CB_ADDSTRING, 0, (LPARAM)"Bottom");
+	SendMessage(dataOutputNameDetailCombo1.hwnd, CB_ADDSTRING, 0, (LPARAM)"Axial");
+	SendMessage(dataOutputNameDetailCombo1.hwnd, CB_ADDSTRING, 0, (LPARAM)"Radial");
+	SendMessage(dataOutputNameDetailCombo1.hwnd, CB_ADDSTRING, 0, (LPARAM)"LS");
+	SendMessage(dataOutputNameDetailCombo1.hwnd, CB_ADDSTRING, 0, (LPARAM)"EO");
+	dataOutputNameDetailCombo2.kineticSeriesModePos = { topLeftPositionKinetic.x + 400, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 800 };
+	dataOutputNameDetailCombo2.accumulateModePos = { topLeftPositionAccumulate.x + 400, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480, topLeftPositionAccumulate.y + 800 };
+	dataOutputNameDetailCombo2.continuousSingleScansModePos = { -1,-1,-1,-1 };
+	initPos = dataOutputNameDetailCombo2.kineticSeriesModePos;
+	dataOutputNameDetailCombo2.hwnd = CreateWindowEx(0, "COMBOBOX", "", WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,
+		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top,
+		parentWindow, (HMENU)IDC_DATA_OUTPUT_NAME_DETAILS_COMBO, eHInst, NULL);
+	dataOutputNameDetailCombo2.fontType = "Normal";
+	SendMessage(dataOutputNameDetailCombo2.hwnd, CB_ADDSTRING, 0, (LPARAM)"");
+	SendMessage(dataOutputNameDetailCombo2.hwnd, CB_ADDSTRING, 0, (LPARAM)"Vert");
+	SendMessage(dataOutputNameDetailCombo2.hwnd, CB_ADDSTRING, 0, (LPARAM)"Hor");
+	SendMessage(dataOutputNameDetailCombo2.hwnd, CB_ADDSTRING, 0, (LPARAM)"X");
+	SendMessage(dataOutputNameDetailCombo2.hwnd, CB_ADDSTRING, 0, (LPARAM)"Y");
 
 	topLeftPositionKinetic.y += 25;
 	topLeftPositionAccumulate.y += 25;
 
-	autoAnalysisText.kineticSeriesModePos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 150, topLeftPositionKinetic.y + 25 };
-	autoAnalysisText.accumulateModePos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 150, topLeftPositionAccumulate.y + 25 };
+	autoAnalysisText.kineticSeriesModePos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 200, topLeftPositionKinetic.y + 25 };
+	autoAnalysisText.accumulateModePos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 200, topLeftPositionAccumulate.y + 25 };
 	autoAnalysisText.continuousSingleScansModePos = { -1,-1,-1,-1 };
 	initPos = autoAnalysisText.kineticSeriesModePos;
 	autoAnalysisText.hwnd = CreateWindowEx(0, "EDIT", "Autoanalysis Type:", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY,
@@ -147,8 +163,8 @@ bool DataAnalysisHandler::initializeControls(POINT& topLeftPositionKinetic, POIN
 		parentWindow, (HMENU)-1, eHInst, NULL);
 	autoAnalysisText.fontType = "Normal";
 
-	autoAnalysisTypeCombo.kineticSeriesModePos = { topLeftPositionKinetic.x + 150, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 800 };
-	autoAnalysisTypeCombo.accumulateModePos = { topLeftPositionAccumulate.x + 150, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480, topLeftPositionAccumulate.y + 800};
+	autoAnalysisTypeCombo.kineticSeriesModePos = { topLeftPositionKinetic.x + 200, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 800 };
+	autoAnalysisTypeCombo.accumulateModePos = { topLeftPositionAccumulate.x + 200, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480, topLeftPositionAccumulate.y + 800};
 	autoAnalysisTypeCombo.continuousSingleScansModePos = { -1,-1,-1,-1 };
 	initPos = autoAnalysisTypeCombo.kineticSeriesModePos;
 	autoAnalysisTypeCombo.hwnd = CreateWindowEx(0, "COMBOBOX", "", WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,
@@ -209,7 +225,7 @@ bool DataAnalysisHandler::addNameToCombo()
 bool DataAnalysisHandler::analyze(std::string date, long runNumber, long accumulations)
 {
 	std::string analysisFunctionName, analysisType;
-	std::string outputName, details;
+	std::string outputName, details1, details2;
 	// get analysis type
 	int selectedNumber = SendMessage(autoAnalysisTypeCombo.hwnd, CB_GETCURSEL, 0, 0);
 	TCHAR text[256];
@@ -233,9 +249,18 @@ bool DataAnalysisHandler::analyze(std::string date, long runNumber, long accumul
 	selectedNumber = SendMessage(dataOutputNameCombo.hwnd, CB_GETCURSEL, 0, 0);
 	SendMessage(dataOutputNameCombo.hwnd, CB_GETLBTEXT, selectedNumber, (LPARAM)text);
 	outputName = std::string(text);
-	selectedNumber = SendMessage(dataOutputNameDetailCombo.hwnd, CB_GETCURSEL, 0, 0);
-	SendMessage(dataOutputNameDetailCombo.hwnd, CB_GETLBTEXT, selectedNumber, (LPARAM)text);
-	details = std::string(text);
+	if (outputName == "")
+	{
+		MessageBox(0, "ERROR: Please select an output name if you are doing autoanalysis!", 0, 0);
+		return true;
+	}
+	selectedNumber = SendMessage(dataOutputNameDetailCombo1.hwnd, CB_GETCURSEL, 0, 0);
+	SendMessage(dataOutputNameDetailCombo1.hwnd, CB_GETLBTEXT, selectedNumber, (LPARAM)text);
+	details1 = std::string(text);
+	selectedNumber = SendMessage(dataOutputNameDetailCombo2.hwnd, CB_GETCURSEL, 0, 0);
+	SendMessage(dataOutputNameDetailCombo2.hwnd, CB_GETLBTEXT, selectedNumber, (LPARAM)text);
+	details2 = std::string(text);
+
 	// python is initialized in the constructor for the data handler object. 
 	appendText("Beginning Data Analysis... ", IDC_STATUS_EDIT);
 	// Get information to send to the python script from inputParam
@@ -305,7 +330,16 @@ bool DataAnalysisHandler::analyze(std::string date, long runNumber, long accumul
 				}
 				PyTuple_SetItem(pythonFunctionArguments, 4, pythonAccumulations);
 				// new:
-				PyObject* pythonOutputName = Py_BuildValue("s", (outputName + "_" + details).c_str());
+				std::string completeName = outputName;
+				if (details1 != "")
+				{
+					completeName += "_" + details1;
+				}
+				if (details2 != "")
+				{
+					completeName += "_" + details2;
+				}
+				PyObject* pythonOutputName = Py_BuildValue("s", completeName.c_str());
 				if (!pythonOutputName)
 				{
 					Py_DECREF(pythonFunctionArguments);
@@ -326,7 +360,7 @@ bool DataAnalysisHandler::analyze(std::string date, long runNumber, long accumul
 				}
 				else
 				{
-					// get the error details
+					// get the error details1
 					PyObject *pExcType, *pExcValue, *pExcTraceback;
 					std::string execType, execValue, execTraceback = "";
 					PyErr_Fetch(&pExcType, &pExcValue, &pExcTraceback);

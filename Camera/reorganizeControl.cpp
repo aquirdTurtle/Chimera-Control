@@ -116,7 +116,21 @@ int reorganizeControl(Control controlToReposition, std::string mode, RECT parent
 			SendMessage(controlToReposition.hwnd, WM_SETFONT, WPARAM(sLargerFontSmall), TRUE);
 		}
 	}
-	
+	else if (controlToReposition.fontType == "Small")
+	{
+		if (widthScale * heightScale > 0.8)
+		{
+			SendMessage(controlToReposition.hwnd, WM_SETFONT, WPARAM(sSmallerFontMax), TRUE);
+		}
+		else if (widthScale * heightScale > 0.6)
+		{
+			SendMessage(controlToReposition.hwnd, WM_SETFONT, WPARAM(sSmallerFontMed), TRUE);
+		}
+		else
+		{
+			SendMessage(controlToReposition.hwnd, WM_SETFONT, WPARAM(sSmallerFontSmall), TRUE);
+		}
+	}
 
 	return 0;
 }

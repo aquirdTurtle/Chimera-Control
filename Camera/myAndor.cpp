@@ -138,12 +138,14 @@ namespace myAndor
 
 		/// setup fits files
 		std::string errMsg;
-		if (eExperimentData.initializeDataFiles(eIncDataFileNamesOption, errMsg))
+		if (eCurrentlyRunningCameraMode != "Continuous Single Scans Mode")
 		{
-			appendText(errMsg, IDC_ERROR_EDIT);
-			return -1;
+			if (eExperimentData.initializeDataFiles(eIncDataFileNamesOption, errMsg))
+			{
+				appendText(errMsg, IDC_ERROR_EDIT);
+				return -1;
+			}
 		}
-
 		/// Do some plotting stuffs
 		// set default colors and linewidths on plots
 		eCurrentAccumulationNumber = 1;
@@ -369,10 +371,12 @@ namespace myAndor
 			{
 				experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerVariation) % ePicturesPerRepetition);
 			}
-
-			if (eExperimentData.writeFits(errMsg, experimentPictureNumber, eCurrentAccumulationNumber, eImagesOfExperiment))
+			if (eCurrentlyRunningCameraMode != "Continuous Single Scans Mode")
 			{
-				appendText(errMsg, IDC_ERROR_EDIT);
+				if (eExperimentData.writeFits(errMsg, experimentPictureNumber, eCurrentAccumulationNumber, eImagesOfExperiment))
+				{
+					appendText(errMsg, IDC_ERROR_EDIT);
+				}
 			}
 		}
 		else

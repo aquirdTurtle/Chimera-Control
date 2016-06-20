@@ -147,7 +147,33 @@ int ConfigurationFileSystem::openConfiguration(std::string configurationNameToOp
 	// get \n at end of previous line
 	configurationOpenFile.get();
 	std::getline(configurationOpenFile, eCurrentlySelectedCameraMode);
-	SendMessage(eCameraModeComboHandle.hwnd, CB_SELECTSTRING, 0, (LPARAM)eCurrentlySelectedCameraMode.c_str());
+	//SendMessage(eCameraModeComboHandle.hwnd, CB_SELECTSTRING, 0, (LPARAM)eCurrentlySelectedCameraMode.c_str());
+	if (eCurrentlySelectedCameraMode == "Continuous Single Scans Mode")
+	{
+		eAcquisitionMode = 5;
+		if (ePicturesPerVariation != INT_MAX)
+		{
+			ePreviousPicturesPerSubSeries = ePicturesPerVariation;
+		}
+		ePicturesPerVariation = INT_MAX;
+		SendMessage(eRepetitionsPerVariationDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerVariation).c_str());
+	}
+	else if (eCurrentlySelectedCameraMode == "Kinetic Series Mode")
+	{
+		eAcquisitionMode = 3;
+		//ePicturesPerVariation = ePreviousPicturesPerSubSeries;
+		SendMessage(eRepetitionsPerVariationDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerVariation).c_str());
+	}
+	else if (eCurrentlySelectedCameraMode == "Accumulate Mode")
+	{
+		eAcquisitionMode = 2;
+		if (ePicturesPerVariation != INT_MAX)
+		{
+			ePreviousPicturesPerSubSeries = ePicturesPerVariation;
+		}
+		ePicturesPerVariation = INT_MAX;
+		SendMessage(eRepetitionsPerVariationDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerVariation).c_str());
+	}
 	configurationOpenFile >> eKineticCycleTime;
 	SendMessage(eKineticCycleTimeDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eKineticCycleTime * 1000).c_str());
 	SendMessage(eKineticCycleTimeEditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eKineticCycleTime * 1000).c_str());
