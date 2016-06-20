@@ -23,7 +23,7 @@ bool DataFileSystem::deleteFitsAndKey(std::string& errMsg)
 		errMsg = "ERROR: Can't delete current fits file, the fits file is open!";
 		return true;
 	}
-	std::string fitsAddress = SAVE_BASE_ADDRESS + currentSaveFolder + "\\data_" + std::to_string(currentDataFileNumber) + ".fits";
+	std::string fitsAddress = SAVE_BASE_ADDRESS + currentSaveFolder + "\\Raw Data\\data_" + std::to_string(currentDataFileNumber) + ".fits";
 	int success = DeleteFile(fitsAddress.c_str());
 	bool returnVal = false;
 	if (success == false)
@@ -31,7 +31,7 @@ bool DataFileSystem::deleteFitsAndKey(std::string& errMsg)
 		errMsg = "Failed to delete fits file! Error code: " + std::to_string(GetLastError()) + ".\r\n";
 		returnVal = true;
 	}
-	success = DeleteFile((SAVE_BASE_ADDRESS + currentSaveFolder + "\\key_" + std::to_string(currentDataFileNumber) + ".txt").c_str());
+	success = DeleteFile((SAVE_BASE_ADDRESS + currentSaveFolder + "\\Raw Data\\key_" + std::to_string(currentDataFileNumber) + ".txt").c_str());
 	if (success == false)
 	{
 		errMsg += "Failed to delete key file! Error code: " + std::to_string(GetLastError()) + ".\r\n";
@@ -45,8 +45,8 @@ bool DataFileSystem::loadAndMoveKeyFile(std::string& errMsg, bool incOption)
 	int result = 0;
 	if (incOption)
 	{
-		 result = CopyFile((KEY_FILE_LOCATION + "key.txt").c_str(), (SAVE_BASE_ADDRESS + currentSaveFolder + "\\key_" + std::to_string(currentDataFileNumber) + ".txt").c_str(),
-			FALSE);
+		 result = CopyFile((KEY_FILE_LOCATION + "key.txt").c_str(), (SAVE_BASE_ADDRESS + currentSaveFolder 
+			 + "\\Raw Data\\key_" + std::to_string(currentDataFileNumber) + ".txt").c_str(), FALSE);
 		 if (result == 0)
 		 {
 			 // failed
@@ -59,7 +59,7 @@ bool DataFileSystem::loadAndMoveKeyFile(std::string& errMsg, bool incOption)
 	std::ifstream keyFile;
 	if (incOption)
 	{
-		keyFile.open(SAVE_BASE_ADDRESS + currentSaveFolder + "\\key_" + std::to_string(currentDataFileNumber) + ".txt");
+		keyFile.open(SAVE_BASE_ADDRESS + currentSaveFolder + "\\Raw Data\\key_" + std::to_string(currentDataFileNumber) + ".txt");
 	}
 	else
 	{
@@ -138,6 +138,8 @@ bool DataFileSystem::initializeDataFiles(bool incrementFiles, std::string& errMs
 	currentSaveFolder = finalSaveFolder;
 	// create date's folder.
 	int result = CreateDirectory((SAVE_BASE_ADDRESS + finalSaveFolder).c_str(), 0);
+	finalSaveFolder += "\\Raw Data";
+	int result2 = CreateDirectory((SAVE_BASE_ADDRESS + finalSaveFolder).c_str(), 0);
 	finalSaveFolder += "\\";
 	/// Get a filename appropriate for the data
 	std::string finalSaveFileName;

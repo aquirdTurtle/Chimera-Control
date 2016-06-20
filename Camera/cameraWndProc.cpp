@@ -1664,18 +1664,21 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 							{
 								appendText(errorMessage, IDC_ERROR_EDIT);
 							}
-							if (eIncDataFileNamesOption)
+							if (eCurrentlyRunningCameraMode != "Continuous Single Scans Mode")
 							{
-								int answer = MessageBox(0, "Acquisition Aborted. Delete Data (fits_#) and (key_#) files for this run?", 0, MB_YESNO);
-								if (answer == IDYES)
+								if (eIncDataFileNamesOption)
 								{
-									if (eExperimentData.deleteFitsAndKey(errorMessage))
+									int answer = MessageBox(0, "Acquisition Aborted. Delete Data (fits_#) and (key_#) files for this run?", 0, MB_YESNO);
+									if (answer == IDYES)
 									{
-										appendText(errorMessage, IDC_ERROR_EDIT);
-									}
-									else
-									{
-										appendText("Deleted .fits and copied key file for this run.", IDC_STATUS_EDIT);
+										if (eExperimentData.deleteFitsAndKey(errorMessage))
+										{
+											appendText(errorMessage, IDC_ERROR_EDIT);
+										}
+										else
+										{
+											appendText("Deleted .fits and copied key file for this run.", IDC_STATUS_EDIT);
+										}
 									}
 								}
 							}
@@ -2367,9 +2370,12 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 				if (eCurrentAccumulationNumber == 1)
 				{
 					std::string errorMessage;
-					if (eExperimentData.loadAndMoveKeyFile(errorMessage, eIncDataFileNamesOption))
+					if (eCurrentlyRunningCameraMode != "Continuous Single Scans Mode")
 					{
-						appendText(errorMessage, IDC_ERROR_EDIT);
+						if (eExperimentData.loadAndMoveKeyFile(errorMessage, eIncDataFileNamesOption))
+						{
+							appendText(errorMessage, IDC_ERROR_EDIT);
+						}
 					}
 				}
 				SendMessage(eCurrentAccumulationNumDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)("Accumulation " + std::to_string((int)eCurrentAccumulationNumber) + "/"
