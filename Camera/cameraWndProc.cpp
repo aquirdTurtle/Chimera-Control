@@ -21,6 +21,7 @@
 #include "Commctrl.h"
 #include "DataFileSystem.h"
 
+
 LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch(msg) 
@@ -879,6 +880,11 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 		}
 		case WM_COMMAND:
 		{
+			if (!eAlerts.handleCheckBoxPress(wParam, lParam))
+			{
+				break;
+			}
+			eAlerts.stopSound();
 			int controlID = LOWORD(wParam);
 			switch (controlID)
 			{
@@ -2353,6 +2359,12 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 		}
 		default:
 		{
+			if (msg == eAlerts.getAlertMessageID())
+			{
+				appendText("WARNING: You're not loading atoms!\r\n", IDC_ERROR_EDIT);
+				eAlerts.soundAlert();
+				break;
+			}
 			if (msg == ePlottingIsSlowMessage)
 			{
 
@@ -2421,6 +2433,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					eCameraWindowExperimentTimer.update(eCurrentAccumulationNumber, ePicturesPerVariation, eCurrentTotalVariationNumber, hWnd);
 				}
 				appendText("Finished Entire Experiment Sequence.\r\n", IDC_STATUS_EDIT);
+
 				// get time to include in text message.
 				time_t t = time(0);
 				struct tm now;
@@ -2441,10 +2454,18 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					message += "0";
 				}
 				message += std::to_string(now.tm_sec);
+				appendText(message, IDC_STATUS_EDIT);
+
+				// :(
 				//eTextingHandler.sendMessage(message);
 				if (eAutoanalyzeData)
 				{
 					eAutoAnalysisHandler.analyze(eExperimentData.getDate(), eExperimentData.getDataFileNumber(), eRepetitionsPerVariation);
+				}
+				if (eAlerts.soundIsToBePlayed())
+				{
+					// YEESSSSSSSSSSSSSSSSSSSSSSSSSS
+					eAlerts.playSound();
 				}
 				break;
 			}

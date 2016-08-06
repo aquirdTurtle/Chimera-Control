@@ -11,6 +11,7 @@
 #include "ExperimentTimer.h"
 #include "DataFileSystem.h"
 #include "SMSTextingControl.h"
+#include "AlertSystem.h"
 
 /// \\\ THINGS THAT THE USER SETS \\\ ///
 ConfigurationFileSystem eCameraFileSystem(CAMERA_CONFIGURATION_FILES_LOCATION);
@@ -19,6 +20,8 @@ DataFileSystem eExperimentData(SAVE_BASE_ADDRESS);
 SMSTextingControl eTextingHandler;
 DataAnalysisHandler eAutoAnalysisHandler;
 CameraImageParameters eImageParameters;
+AlertSystem eAlerts(8000);
+
 bool eSettingAnalysisLocations = false;
 bool eRealTimePictures = false;
 bool eAutoanalyzeData = false;

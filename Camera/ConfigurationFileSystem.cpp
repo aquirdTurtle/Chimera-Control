@@ -383,10 +383,10 @@ int ConfigurationFileSystem::checkSave()
 
 int ConfigurationFileSystem::initializeControls(POINT& topLeftPositionKinetic, POINT& topLeftPositionAccumulate, POINT& topLeftPositionContinuous, HWND parentWindow, bool isTriggerModeSensitive)
 {
-	configLabel.kineticSeriesModePos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 100, topLeftPositionKinetic.y + 25 };
-	configLabel.accumulateModePos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 100, 
+	configLabel.kineticSeriesModePos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 150, topLeftPositionKinetic.y + 25 };
+	configLabel.accumulateModePos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 150, 
 									  topLeftPositionAccumulate.y + 25 };
-	configLabel.continuousSingleScansModePos = { topLeftPositionContinuous.x, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 100, 
+	configLabel.continuousSingleScansModePos = { topLeftPositionContinuous.x, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 150, 
 												 topLeftPositionContinuous.y + 25 };
 	RECT initPos = configLabel.kineticSeriesModePos;
 	configLabel.hwnd = CreateWindowEx(0, "STATIC", "Configuration: ", WS_CHILD | WS_VISIBLE | ES_CENTER,
@@ -395,11 +395,11 @@ int ConfigurationFileSystem::initializeControls(POINT& topLeftPositionKinetic, P
 	configLabel.fontType = "Normal";
 
 	/// CAMERA MODE
-	configCombo.kineticSeriesModePos = { topLeftPositionKinetic.x + 100, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, 
+	configCombo.kineticSeriesModePos = { topLeftPositionKinetic.x + 150, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, 
 		topLeftPositionKinetic.y + 800 };
-	configCombo.accumulateModePos = { topLeftPositionAccumulate.x + 100, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480,
+	configCombo.accumulateModePos = { topLeftPositionAccumulate.x + 150, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480,
 		topLeftPositionAccumulate.y + 800 };
-	configCombo.continuousSingleScansModePos = { topLeftPositionContinuous.x + 100, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 480,
+	configCombo.continuousSingleScansModePos = { topLeftPositionContinuous.x + 150, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 480,
 		topLeftPositionContinuous.y + 800 };
 	initPos = configCombo.kineticSeriesModePos;
 	configCombo.hwnd = CreateWindowEx(0, "COMBOBOX", "",
