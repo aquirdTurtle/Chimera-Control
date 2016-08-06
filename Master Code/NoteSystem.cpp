@@ -1,99 +1,158 @@
-#include "stdafx.h";
+#include "stdafx.h"
 #include "Windows.h"
 #include <string>
-#include "NoteSystem.h";
-#include "fonts.h";
-#include "constants.h";
+#include "NoteSystem.h"
+#include "fonts.h"
+#include "constants.h"
+#include <unordered_map>
+
+NoteSystem::NoteSystem(int& startID)
+{
+	experimentNotesHeader.ID = startID;
+	experimentNotes.ID = startID + 1;
+	if (experimentNotes.ID != EXPERIMENT_NOTES_ID)
+	{
+		errBox("ERROR: experimentNotes.ID doesn't match EXPERIMENT_NOTES_ID!: " + std::to_string(experimentNotes.ID) + " and " + std::to_string(EXPERIMENT_NOTES_ID));
+	}
+	categoryNotesHeader.ID = startID + 2;
+	categoryNotes.ID = startID + 3;
+	if (categoryNotes.ID != CATEGORY_NOTES_ID)
+	{
+		errBox("ERROR: categoryNotes.ID doesn't match CATEGORY_NOTES_ID!: " + std::to_string(categoryNotes.ID) + " and " + std::to_string(CATEGORY_NOTES_ID));
+	}
+	configurationNotesHeader.ID = startID + 4;
+	configurationNotes.ID = startID + 5;
+	if (configurationNotes.ID != CONFIGURATION_NOTES_ID)
+	{
+		errBox("ERROR: configurationNotes.ID doesn't match CONFIGURATION_NOTES_ID!: " + std::to_string(configurationNotes.ID) + " and " + std::to_string(CONFIGURATION_NOTES_ID));
+	}
+
+	startID += 6;
+}
 
 bool NoteSystem::initializeControls(POINT& topLeftPosition, HWND parentWindow)
 {
 	RECT currentRect;
 	/// EXPERIMENT LEVEL
 	// Configuration Notes Title
-	currentRect = experimentNotesHeader.normalPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 20};
-	experimentNotesHeader.hwnd = CreateWindowEx(NULL, "STATIC", "EXPERIMENT NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
-		currentRect.left, currentRect.top, currentRect.right - currentRect.left, currentRect.bottom - currentRect.top,
-		parentWindow, (HMENU)IDC_EXPERIMENT_NOTES_HEADER, GetModuleHandle(NULL), NULL);
-	SendMessage(experimentNotesHeader.hwnd, WM_SETFONT, WPARAM(sHeadingFont), TRUE);
+	currentRect = experimentNotesHeader.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 20};
+	experimentNotesHeader.parent.Create("EXPERIMENT NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, currentRect, CWnd::FromHandle(parentWindow),
+		experimentNotesHeader.ID);
+	experimentNotesHeader.parent.SetFont(CFont::FromHandle(sNormalFont));
 	topLeftPosition.y += 20;
 	// Configuration Notes edit
-	currentRect = experimentNotes.normalPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 200 };
-	experimentNotes.hwnd = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL,
-		currentRect.left, currentRect.top, currentRect.right - currentRect.left, currentRect.bottom - currentRect.top,
-		parentWindow, (HMENU)IDC_EXPERIMENT_NOTES, GetModuleHandle(NULL), NULL);
-	SendMessage(experimentNotes.hwnd, WM_SETFONT, WPARAM(sNormalFont), TRUE);
+	currentRect = experimentNotes.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 200 };
+	experimentNotes.parent.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | WS_BORDER, currentRect, CWnd::FromHandle(parentWindow), experimentNotes.ID);
+	experimentNotes.parent.SetFont(CFont::FromHandle(sNormalFont));
 	topLeftPosition.y += 200;
 	/// CATEGORY LEVEL
 	// Category Notes Title
-	currentRect = categoryNotesHeader.normalPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 20 };
-	categoryNotesHeader.hwnd = CreateWindowEx(NULL, "STATIC", "CATEGORY NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
-		currentRect.left, currentRect.top, currentRect.right - currentRect.left, currentRect.bottom - currentRect.top,
-		parentWindow, (HMENU)IDC_CATEGORY_NOTES_HEADER, GetModuleHandle(NULL), NULL);
-	SendMessage(categoryNotesHeader.hwnd, WM_SETFONT, WPARAM(sHeadingFont), TRUE);
+	currentRect = categoryNotesHeader.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 20 };
+	categoryNotesHeader.parent.Create("CATEGORY NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, currentRect, CWnd::FromHandle(parentWindow),
+		categoryNotesHeader.ID);
+	categoryNotesHeader.parent.SetFont(CFont::FromHandle(sNormalFont));
 	topLeftPosition.y += 20;
-	//  Category Notes edit
-	currentRect = categoryNotes.normalPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 200 };
-	categoryNotes.hwnd = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL,
-		currentRect.left, currentRect.top, currentRect.right - currentRect.left, currentRect.bottom - currentRect.top,
-		parentWindow, (HMENU)IDC_CATEGORY_NOTES, GetModuleHandle(NULL), NULL);
-	SendMessage(categoryNotes.hwnd, WM_SETFONT, WPARAM(sNormalFont), TRUE);
+	// Category Notes edit
+	currentRect = categoryNotes.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 200 };
+	categoryNotes.parent.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | WS_BORDER, currentRect, CWnd::FromHandle(parentWindow), categoryNotes.ID);
+	categoryNotes.parent.SetFont(CFont::FromHandle(sNormalFont));
 	topLeftPosition.y += 200;
 	/// CONFIGURAITON LEVEL
 	// Configuration Notes Title
-	currentRect = configurationNotesHeader.normalPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 20 };
-	configurationNotesHeader.hwnd = CreateWindowEx(NULL, "STATIC", "CONFIGURAITON NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
-		currentRect.left, currentRect.top, currentRect.right - currentRect.left, currentRect.bottom - currentRect.top,
-		parentWindow, (HMENU)IDC_CONFIGURATION_NOTES_HEADER, GetModuleHandle(NULL), NULL);
-	SendMessage(configurationNotesHeader.hwnd, WM_SETFONT, WPARAM(sHeadingFont), TRUE);
+	currentRect = configurationNotesHeader.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 20 };
+	configurationNotesHeader.parent.Create("CONFIGURATION NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, currentRect, CWnd::FromHandle(parentWindow),
+		configurationNotesHeader.ID);
+	configurationNotesHeader.parent.SetFont(CFont::FromHandle(sNormalFont));
 	topLeftPosition.y += 20;
 	//  Configuration Notes edit
-	currentRect = configurationNotes.normalPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 200 };
-	configurationNotes.hwnd = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL,
-		currentRect.left, currentRect.top, currentRect.right - currentRect.left, currentRect.bottom - currentRect.top,
-		parentWindow, (HMENU)IDC_CONFIGURATION_NOTES, GetModuleHandle(NULL), NULL);
-	SendMessage(configurationNotes.hwnd, WM_SETFONT, WPARAM(sNormalFont), TRUE);
+	currentRect = configurationNotes.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 200 };
+	configurationNotes.parent.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | WS_BORDER, currentRect, CWnd::FromHandle(parentWindow), configurationNotes.ID);
+	
+	configurationNotes.parent.SetFont(CFont::FromHandle(sNormalFont));
 	topLeftPosition.y += 200;
 	return false;
 }
 bool NoteSystem::setExperimentNotes(std::string notes)
 {
-	SendMessage(experimentNotes.hwnd, WM_SETTEXT, 0, (LPARAM)notes.c_str());
+	experimentNotes.parent.SetWindowText(notes.c_str());
+	//SendMessage(experimentNotes.hwnd, WM_SETTEXT, 0, (LPARAM)notes.c_str());
 	return false;
 }
 bool NoteSystem::setCategoryNotes(std::string notes)
 {
-	SendMessage(categoryNotes.hwnd, WM_SETTEXT, 0, (LPARAM)notes.c_str());
+	categoryNotes.parent.SetWindowText(notes.c_str());
+	//SendMessage(categoryNotes.hwnd, WM_SETTEXT, 0, (LPARAM)notes.c_str());
 	return false;
 }
 bool NoteSystem::setConfigurationNotes(std::string notes)
 {
-	SendMessage(configurationNotes.hwnd, WM_SETTEXT, 0, (LPARAM)notes.c_str());
+	configurationNotes.parent.SetWindowText(notes.c_str());
+	//SendMessage(configurationNotes.hwnd, WM_SETTEXT, 0, (LPARAM)notes.c_str());
 	return false;
 }
 std::string NoteSystem::getExperimentNotes()
 {
+	CString text;
+	experimentNotes.parent.GetWindowText(text);
+	return text;
+	/*
 	int length = SendMessage(experimentNotes.hwnd, WM_GETTEXTLENGTH, 0, 0);
 	TCHAR* rawText = new TCHAR[length + 1];
 	SendMessage(experimentNotes.hwnd, WM_GETTEXT, length + 1, (LPARAM)rawText);
 	std::string text(rawText);
 	delete rawText;
 	return text;
+	*/
 }
 std::string NoteSystem::getCategoryNotes()
 {
+	CString text;
+	categoryNotes.parent.GetWindowText(text);
+	return text;
+	/*
 	int length = SendMessage(categoryNotes.hwnd, WM_GETTEXTLENGTH, 0, 0);
 	TCHAR* rawText = new TCHAR[length + 1];
 	SendMessage(categoryNotes.hwnd, WM_GETTEXT, length + 1, (LPARAM)rawText);
 	std::string text(rawText);
 	delete rawText;
 	return text;
+	*/
 }
 std::string NoteSystem::getConfigurationNotes()
 {
+	CString text;
+	configurationNotes.parent.GetWindowText(text);
+	return text;
+	/*
 	int length = SendMessage(configurationNotes.hwnd, WM_GETTEXTLENGTH, 0, 0);
 	TCHAR* rawText = new TCHAR[length + 1];
 	SendMessage(configurationNotes.hwnd, WM_GETTEXT, length + 1, (LPARAM)rawText);
 	std::string text(rawText);
 	delete rawText;
 	return text;
+	*/
 }
+
+INT_PTR NoteSystem::handleColorMessage(HWND parent, UINT msg, WPARAM wParam, LPARAM lParam, std::unordered_map<std::string, HBRUSH> brushes)
+{
+	DWORD ctrlID = GetDlgCtrlID((HWND)lParam); // Window Control ID
+	HDC hdcStatic = (HDC)wParam;
+	if (ctrlID == this->categoryNotes.ID || ctrlID == this->experimentNotes.ID || ctrlID == this->configurationNotes.ID)
+	{
+		SetTextColor(hdcStatic, RGB(255, 255, 255));
+		SetBkColor(hdcStatic, RGB(15, 15, 15));
+		return (INT_PTR)brushes["Dark Grey"];
+	}
+	else if (ctrlID == this->categoryNotesHeader.ID || ctrlID == this->experimentNotesHeader.ID || ctrlID == this->configurationNotesHeader.ID)
+	{
+		SetTextColor(hdcStatic, RGB(218, 165, 32));
+		SetBkColor(hdcStatic, RGB(30, 30, 30));
+		return (INT_PTR)brushes["Medium Grey"];
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+

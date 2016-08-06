@@ -15,6 +15,7 @@
 #include "SMSTextingControl.h"
 #include "DataAnalysisHandler.h"
 #include "CameraImageParameters.h"
+#include "AlertSystem.h"
 
 /// THINGS THAT THE USER SETS !@$#!@#$!@#$!@$!@#$!@#$!@$#!@#$!@#$@!#$!$!@#$!@#$@!$#@!#$!@#$!@$#!#$!@#$!@#$!@#$!@#$!@$#!@$#!@$#!@$#@!#$!@$#!@$#!@#$!@$#!@$#!@$#!#
 // extern bool eFitsOkay;
@@ -27,6 +28,7 @@ extern ConfigurationFileSystem eCameraFileSystem;
 extern ExperimentTimer eCameraWindowExperimentTimer;
 extern DataAnalysisHandler eAutoAnalysisHandler;
 extern CameraImageParameters eImageParameters;
+extern AlertSystem eAlerts;
 
 extern std::vector<std::pair<int, int>> eAnalysisPoints;
 

@@ -147,6 +147,8 @@ namespace myAndor
 			}
 		}
 		/// Do some plotting stuffs
+		eAlerts.setAlertThreshold();
+
 		// set default colors and linewidths on plots
 		eCurrentAccumulationNumber = 1;
 		// Create the Mutex. This function just opens the mutex if it already exists.

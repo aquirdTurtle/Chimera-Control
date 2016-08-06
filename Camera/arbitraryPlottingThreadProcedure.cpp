@@ -14,6 +14,7 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 	// Register any windows messages for the main window
 	ePlottingIsSlowMessage = RegisterWindowMessage("ID_PLOTTING_IS_SLOW");
 	ePlottingCaughtUpMessage = RegisterWindowMessage("ID_PLOTTING_CAUGHT_UP");
+	
 	// vector of filenames for the plotting info.
 	std::vector<std::string>* inputPointer = (std::vector<std::string>*)inputParam;
 	// make vector of plot information classes. 
@@ -110,9 +111,9 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 	// pixelData[pixel Indicator][picture number indicator] = pixelCount;
 	std::vector<std::vector<int >> pixelData;
 	pixelData.resize(totalNumberOfPixels);
-	// atomLossData[pixelIndicator][picture number] = true if atom present, false if atom not present;
-	std::vector<std::vector<int> > atomLossData;
-	atomLossData.resize(totalNumberOfPixels);
+	// atomPresentData[pixelIndicator][picture number] = true if atom present, false if atom not present;
+	std::vector<std::vector<int> > atomPresentData;
+	atomPresentData.resize(totalNumberOfPixels);
 	// finalData[plot][dataset][group][accumulationNumber];
 	std::vector<std::vector<std::vector<std::vector<int> > > > finalData;
 	// finalAverages[plot][dataset][group][ExperimentNumber];
@@ -129,6 +130,7 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 	finalErrorBars.resize(allPlottingInfo.size());
 	finalXVals.resize(allPlottingInfo.size());
 	newData.resize(allPlottingInfo.size());
+	// much sizing...
 	for (int plotInc = 0; plotInc < allPlottingInfo.size(); plotInc++)
 	{
 		finalData[plotInc].resize(allPlottingInfo[plotInc].getDataSetNumber());
@@ -150,6 +152,8 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 		}
 	}
 	
+	int noAtomsCounter = 0;
+
 	int plotNumberCount = 0;
 	// this effectively just keeps track of whether a "slow" message has been sent to the main window yet or not. Only want to send once.
 	bool plotIsSlowStatus = false;
@@ -191,17 +195,39 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 			}
 		
 			/// get all the atom data
+			bool isAtLeastOneAtom = false;
 			for (unsigned int pixelInc = 0; pixelInc < pixelDataType.size(); pixelInc++)
 			{
 				if (pixelData[pixelInc].back() > eDetectionThreshold)
 				{
-					atomLossData[pixelInc].push_back(1);
+					// atom detected
+					isAtLeastOneAtom = true;
+					atomPresentData[pixelInc].push_back(1);
 				}
 				else
 				{
-					atomLossData[pixelInc].push_back(0);
+					// no atom
+					atomPresentData[pixelInc].push_back(0);
 				}
 			}
+			if (!isAtLeastOneAtom)
+			{
+				noAtomsCounter++;
+			}
+			else
+			{
+				noAtomsCounter = 0;
+			}
+			// check if need to send an alert
+			if (noAtomsCounter >= eAlerts.getAlertThreshold())
+			{
+				if (eAlerts.alertsAreToBeUsed())
+				{
+					eAlerts.alertMainThread();
+				}
+				noAtomsCounter = 0;
+			}
+
 			// check if have enough data to plot
 			if (eCurrentThreadAccumulationNumber % picturesPerExperiment != 0)
 			{
@@ -271,11 +297,11 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 										int condition = allPlottingInfo[plotInc].getPostSelectionCondition(dataSetInc, conditionInc, pixelInc, pictureInc);
 										if (condition != 0)
 										{
-											if (condition == 1 && atomLossData[allPlottingInfo[plotInc].getPixelIndex(pixelInc, groupInc)][pictureInc] != 1)
+											if (condition == 1 && atomPresentData[allPlottingInfo[plotInc].getPixelIndex(pixelInc, groupInc)][pictureInc] != 1)
 											{
 												satisfiesPostSelectionConditions[dataSetInc][groupInc] = false;
 											}
-											else if (condition == -1 && atomLossData[allPlottingInfo[plotInc].getPixelIndex(pixelInc, groupInc)][pictureInc] != 0)
+											else if (condition == -1 && atomPresentData[allPlottingInfo[plotInc].getPixelIndex(pixelInc, groupInc)][pictureInc] != 0)
 											{
 												satisfiesPostSelectionConditions[dataSetInc][groupInc] = false;
 											}
@@ -320,11 +346,11 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 											if (truthCondition != 0)
 											{
 												int pixel = allPlottingInfo[plotInc].getPixelIndex(pixelInc, groupInc);
-												if (truthCondition == 1 && atomLossData[pixel][pictureInc] != 1)
+												if (truthCondition == 1 && atomPresentData[pixel][pictureInc] != 1)
 												{
 													dataVal = false;
 												}
-												else if (truthCondition == 0 && atomLossData[allPlottingInfo[plotInc].getPixelIndex(pixelInc, groupInc)][pictureInc] != 0)
+												else if (truthCondition == 0 && atomPresentData[allPlottingInfo[plotInc].getPixelIndex(pixelInc, groupInc)][pictureInc] != 0)
 												{
 													dataVal = false;
 												}
@@ -716,7 +742,7 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 			for (int pixelInc = 0; pixelInc < totalNumberOfPixels; pixelInc++)
 			{
 				pixelData[pixelInc].clear();
-				atomLossData[pixelInc].clear();
+				atomPresentData[pixelInc].clear();
 			}
 			// finally, remove the data from the queue.
 			DWORD mutexMsg = WaitForSingleObject(ePlottingMutex, INFINITE);

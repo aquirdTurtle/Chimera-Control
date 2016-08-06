@@ -13,6 +13,7 @@ int reorganizeWindow(std::string cameraMode, HWND parentWindow)
 	eTextingHandler.reorganizeControls(parentRectangle, cameraMode);
 	eAutoAnalysisHandler.reorganizeControls(parentRectangle, cameraMode);
 	eImageParameters.reorganizeControls(parentRectangle, cameraMode);
+	eAlerts.reorganizeControls(parentRectangle, cameraMode);
 	/// Reorganize all other controls. #
 	reorganizeControl(eExposureTextDisplayHandle, cameraMode, parentRectangle);
 	reorganizeControl(eTempTextDisplayHandle, cameraMode, parentRectangle);
