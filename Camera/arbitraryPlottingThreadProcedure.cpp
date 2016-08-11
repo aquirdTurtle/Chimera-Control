@@ -157,7 +157,10 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 	int plotNumberCount = 0;
 	// this effectively just keeps track of whether a "slow" message has been sent to the main window yet or not. Only want to send once.
 	bool plotIsSlowStatus = false;
-	// Start loop waiting for plots
+	/// /////////////////////////////////////////////
+	/// /////////////////////////////////////////////
+	/// Start loop waiting for plots
+	/// /////////////////////////////////////////////
 	while (ePlotThreadExitIndicator || (eImageVecQueue.size() > 0))
 	{
 		// if no image, continue.
@@ -228,10 +231,10 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 				noAtomsCounter = 0;
 			}
 
-			// check if have enough data to plot
+			/// check if have enough data to plot
 			if (eCurrentThreadAccumulationNumber % picturesPerExperiment != 0)
 			{
-				// finally, remove the data from the queue.
+				// finally, if so, remove the data from the queue.
 				DWORD mutexMsg = WaitForSingleObject(ePlottingMutex, INFINITE);
 				switch (mutexMsg)
 				{
@@ -249,6 +252,7 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 					}
 					case WAIT_ABANDONED:
 					{
+						// TODO:
 						// handle error...
 						break;
 					}
@@ -318,7 +322,7 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 						{
 							for (int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
 							{
-								// TODO: if x axis = average over experiments...
+								// TODO: if x axis = average over experiments... else...
 								finalData[plotInc][dataSetInc].clear();
 								finalData[plotInc][dataSetInc].resize(allPlottingInfo[plotInc].getPixelGroupNumber());
 								newData[plotInc][dataSetInc].resize(allPlottingInfo[plotInc].getPixelGroupNumber());
@@ -392,8 +396,8 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 							{
 								for (int groupInc = 0; groupInc < allPlottingInfo[plotInc].getPixelGroupNumber(); groupInc++)
 								{
-									//
-									if (eCurrentThreadAccumulationNumber % eRepetitionsPerVariation != 1)
+									// check if the first time after
+									if (eCurrentThreadAccumulationNumber % eRepetitionsPerVariation != ePicturesPerRepetition)
 									{
 										continue;
 									}
@@ -417,7 +421,7 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 											finalErrorBars[plotInc][dataSetInc][groupInc].resize(finalErrorBars[plotInc][dataSetInc][groupInc].size() + 1);
 											position = (eCurrentThreadAccumulationNumber - 1) / ePicturesPerVariation + 1;
 											std::vector<double> keyData = eExperimentData.getKey();
-											finalXVals[plotInc][dataSetInc][groupInc].push_back(position);
+											finalXVals[plotInc][dataSetInc][groupInc].push_back(keyData[position - 1]);
 											std::string  plotString = "set xrange [" + std::to_string(finalXVals[plotInc][dataSetInc][groupInc][0] - 1) + ":" + std::to_string(finalXVals[plotInc][dataSetInc][groupInc].back() + 1) + "]\n";
 											ePlotter << plotString;
 										}
