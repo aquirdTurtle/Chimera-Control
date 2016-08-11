@@ -264,7 +264,7 @@ bool DataAnalysisHandler::analyze(std::string date, long runNumber, long accumul
 	// python is initialized in the constructor for the data handler object. 
 	appendText("Beginning Data Analysis... ", IDC_STATUS_EDIT);
 	// Get information to send to the python script from inputParam
-	std::string moduleName = "SingleAtomAnalysisFunction";
+	//std::string moduleName = "SingleAtomAnalysisFunction";
 
 	if (pythonModule != NULL)
 	{
