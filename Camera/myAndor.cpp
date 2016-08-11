@@ -280,7 +280,21 @@ namespace myAndor
 			for (int imageVecInc = 0; imageVecInc < eImagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 			{
 				tempImage[imageVecInc] = rand() % 50 + 95;
-				tempImage[0] = 1000;
+				if (experimentPictureNumber == 0)
+				{
+					tempImage[0] = 1000;
+				}
+				else
+				{
+					if (rand() % 2 == 0)
+					{
+						tempImage[0] = 0;
+					}
+					else
+					{
+						tempImage[0] = 1000;
+					}
+				}
 			}
 			for (int imageVecInc = 0; imageVecInc < eImagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 			{

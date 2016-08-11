@@ -274,8 +274,10 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 				/// Data Set Loop - need to kill.
 				//for (int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
 				//{
+					/// ///////////////////////////////
 					/// Check Post-Selection Conditions
-					// initialize this vector to all true. satisfiesPostSelectionConditions[dataSetInc][groupInc] = true or false
+					// initialize this vector to all true. 
+					// satisfiesPostSelectionConditions[dataSetInc][groupInc] = true or false
 					std::vector<std::vector<bool> > satisfiesPostSelectionConditions;
 					satisfiesPostSelectionConditions.resize(allPlottingInfo[plotInc].getDataSetNumber());
 					for (int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
@@ -338,6 +340,7 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 								{
 									if (satisfiesPostSelectionConditions[dataSetInc][groupInc] == false)
 									{
+										// no new data.
 										continue;
 									}
 									bool dataVal = true;
@@ -396,8 +399,8 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 							{
 								for (int groupInc = 0; groupInc < allPlottingInfo[plotInc].getPixelGroupNumber(); groupInc++)
 								{
-									// check if the first time after
-									if (eCurrentThreadAccumulationNumber % eRepetitionsPerVariation != ePicturesPerRepetition)
+									// check if first picture of set
+									if (eCurrentThreadAccumulationNumber % ePicturesPerRepetition != 0)
 									{
 										continue;
 									}
@@ -428,6 +431,7 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 										// set the flag to not do this again before this array gets reset at beginning of the next accumulation stack.
 										newData[plotInc][dataSetInc][groupInc] = false;
 									}
+									// calculate new data points
 									if (allPlottingInfo[plotInc].getXAxis() == "Running Average")
 									{
 										if (finalData[plotInc][dataSetInc][groupInc].size() >= eNumberOfRunsToAverage)
