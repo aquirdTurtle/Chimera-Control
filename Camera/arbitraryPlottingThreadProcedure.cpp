@@ -467,23 +467,27 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 							ePlotter << plotString.c_str();
 							if (allPlottingInfo[plotInc].getPlotType() == "Atoms")
 							{
+								// set x range.
 								double xRangeMin = *std::min_element(keyData.begin(), keyData.end());
 								double xRangeMax = *std::max_element(keyData.begin(), keyData.end());
 								double range = xRangeMax - xRangeMin;
 								xRangeMin -= range / keyData.size();
 								xRangeMax += range / keyData.size();
 								std::string  plotString = "set xrange [" + std::to_string(xRangeMin) + ":" + std::to_string(xRangeMax) + "]\n";
-								ePlotter << plotString;
+								ePlotter << plotString.c_str();
+								ePlotter << "set grid ytics lc rgb \"#bbbbbb\" lw 1 lt 0\n";
+								ePlotter << "set grid xtics lc rgb \"#bbbbbb\" lw 1 lt 0\n";
 								plotString = "set yrange [-0.1:1.1]\n";																
+								ePlotter << plotString.c_str();
 							}
 							else
 							{
 								plotString = "set autoscale y\n";
+								ePlotter << plotString.c_str();
 							}
-							ePlotter << plotString.c_str();
 							plotString = "set title \"" + allPlottingInfo[plotInc].getTitle() + "\"\n";
 							ePlotter << plotString.c_str();
-							plotString = "set xlabel \"Experiment #\"\n";
+							plotString = "set xlabel \"Key Value\"\n";
 							ePlotter << plotString.c_str();
 							plotString = "set ylabel \"" + allPlottingInfo[plotInc].getYLabel() + "\"\n";
 							ePlotter << plotString.c_str();
