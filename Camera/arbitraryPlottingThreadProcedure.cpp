@@ -18,7 +18,7 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 	// vector of filenames for the plotting info.
 	std::vector<std::string>* inputPointer = (std::vector<std::string>*)inputParam;
 	// make vector of plot information classes. 
-	std::vector<PlottingInfo> allPlottingInfo;
+	std::vector<PlottingInfo> allPlottingInfo;		
 	allPlottingInfo.resize(inputPointer->size());
 	/// open files
 	for (int plotInc = 0; plotInc < allPlottingInfo.size(); plotInc++)
