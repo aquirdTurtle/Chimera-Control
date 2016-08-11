@@ -963,7 +963,7 @@ int PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 			MessageBox(0, ("ERROR: picture listed in file did not convert to integer correctly. picture string was" + pictureStr).c_str(), 0, 0);
 			return -1;
 		}
-		setDataCountsLocation(dataSetCount, pixel, picture);
+		this->setDataCountsLocation(dataSetCount, pixel, picture);
 		dataSetCount++;
 	}
 
