@@ -8,6 +8,7 @@
 #include <numeric>
 #include "externals.h"
 
+
 unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 {
 	imageParameters currentParameters = eImageParameters.getImageParameters();
@@ -391,7 +392,7 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 								}
 							}
 						}
-
+						std::vector<double> keyData = eExperimentData.getKey();
 						/// Calculate averages and standard devations for Data sets AND groups...
 						if (plotNumberCount % ePlottingFrequency == 0)
 						{
@@ -423,10 +424,8 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 										{
 											finalErrorBars[plotInc][dataSetInc][groupInc].resize(finalErrorBars[plotInc][dataSetInc][groupInc].size() + 1);
 											position = (eCurrentThreadAccumulationNumber - 1) / ePicturesPerVariation + 1;
-											std::vector<double> keyData = eExperimentData.getKey();
+											
 											finalXVals[plotInc][dataSetInc][groupInc].push_back(keyData[position - 1]);
-											std::string  plotString = "set xrange [" + std::to_string(finalXVals[plotInc][dataSetInc][groupInc][0] - 1) + ":" + std::to_string(finalXVals[plotInc][dataSetInc][groupInc].back() + 1) + "]\n";
-											ePlotter << plotString;
 										}
 										// set the flag to not do this again before this array gets reset at beginning of the next accumulation stack.
 										newData[plotInc][dataSetInc][groupInc] = false;
@@ -468,8 +467,14 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 							ePlotter << plotString.c_str();
 							if (allPlottingInfo[plotInc].getPlotType() == "Atoms")
 							{
-								plotString = "set yrange [-0.1:1.1]\n";
-									
+								double xRangeMin = *std::min_element(keyData.begin(), keyData.end());
+								double xRangeMax = *std::max_element(keyData.begin(), keyData.end());
+								double range = xRangeMax - xRangeMin;
+								xRangeMin -= range / keyData.size();
+								xRangeMax += range / keyData.size();
+								std::string  plotString = "set xrange [" + std::to_string(xRangeMin) + ":" + std::to_string(xRangeMax) + "]\n";
+								ePlotter << plotString;
+								plotString = "set yrange [-0.1:1.1]\n";																
 							}
 							else
 							{
