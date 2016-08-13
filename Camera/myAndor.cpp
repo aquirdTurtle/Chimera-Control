@@ -138,13 +138,17 @@ namespace myAndor
 
 		/// setup fits files
 		std::string errMsg;
-		if (eExperimentData.initializeDataFiles(eIncDataFileNamesOption, errMsg))
+		if (eCurrentlyRunningCameraMode != "Continuous Single Scans Mode")
 		{
-			appendText(errMsg, IDC_ERROR_EDIT);
-			return -1;
+			if (eExperimentData.initializeDataFiles(eIncDataFileNamesOption, errMsg))
+			{
+				appendText(errMsg, IDC_ERROR_EDIT);
+				return -1;
+			}
 		}
-
 		/// Do some plotting stuffs
+		eAlerts.setAlertThreshold();
+
 		// set default colors and linewidths on plots
 		eCurrentAccumulationNumber = 1;
 		// Create the Mutex. This function just opens the mutex if it already exists.
@@ -276,6 +280,21 @@ namespace myAndor
 			for (int imageVecInc = 0; imageVecInc < eImagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 			{
 				tempImage[imageVecInc] = rand() % 50 + 95;
+				if (experimentPictureNumber == 0)
+				{
+					tempImage[0] = 1000;
+				}
+				else
+				{
+					if (rand() % 2 == 0)
+					{
+						tempImage[0] = 0;
+					}
+					else
+					{
+						tempImage[0] = 1000;
+					}
+				}
 			}
 			for (int imageVecInc = 0; imageVecInc < eImagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 			{
@@ -369,10 +388,12 @@ namespace myAndor
 			{
 				experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerVariation) % ePicturesPerRepetition);
 			}
-
-			if (eExperimentData.writeFits(errMsg, experimentPictureNumber, eCurrentAccumulationNumber, eImagesOfExperiment))
+			if (eCurrentlyRunningCameraMode != "Continuous Single Scans Mode")
 			{
-				appendText(errMsg, IDC_ERROR_EDIT);
+				if (eExperimentData.writeFits(errMsg, experimentPictureNumber, eCurrentAccumulationNumber, eImagesOfExperiment))
+				{
+					appendText(errMsg, IDC_ERROR_EDIT);
+				}
 			}
 		}
 		else

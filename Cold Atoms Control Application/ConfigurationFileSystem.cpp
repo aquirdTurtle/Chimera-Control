@@ -27,32 +27,64 @@ ConfigurationFileSystem::~ConfigurationFileSystem()
 bool ConfigurationFileSystem::saveEntireProfile()
 {
 	// save experiment
-	this->saveExperimentOnly();
+	if (this->saveExperimentOnly())
+	{
+		return true;
+	}
 	// save category
-	this->saveCategoryOnly();
+	if (this->saveCategoryOnly())
+	{
+		return true;
+	}
 	// save configuration
-	this->saveConfigurationOnly();
+	if (this->saveConfigurationOnly())
+	{
+		return true;
+	}
 	// save sequence
-	this->saveSequence();
+	if (this->saveSequence())
+	{
+		return true;
+	}
+	return false;
+}
+bool ConfigurationFileSystem::checkSaveEntireProfile()
+{
+	if (this->checkExperimentSave("Save Experiment Settings?"))
+	{
+		return true;
+	}
+	if (this->checkCategorySave("Save Category Settings?"))
+	{
+		return true;
+	}
+	if (this->checkConfigurationSave("Save Configuration Settings?"))
+	{
+		return true;
+	}
+	if (this->checkSequenceSave("Save Sequence Settings?"))
+	{
+		return true;
+	}
 	return false;
 }
 
 bool ConfigurationFileSystem::allSettingsReadyCheck()
 {
 	// check all components of this class.
-	if (experimentSettingsReadyCheck())
+	if (this->experimentSettingsReadyCheck())
 	{
 		return true;
 	}
-	else if (categorySettinsReadyCheck())
+	else if (this->categorySettinsReadyCheck())
 	{
 		return true;
 	}
-	else if (configurationSettingsReadyCheck())
+	else if (this->configurationSettingsReadyCheck())
 	{
 		return true;
 	}
-	else if (sequenceSettingsReadyCheck())
+	else if (this->sequenceSettingsReadyCheck())
 	{
 		return true;
 	}
@@ -296,71 +328,18 @@ bool ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 	std::string version;
 	std::getline(configurationFile, version);
 	// Open Vertical Script
-	getline(configurationFile, eVerticalParentScriptPathString);
-	fileManage::openScript(parentWindow, eVerticalParentScriptPathString, eVerticalCurrentParentScriptName, eVerticalScriptEditHandle, eVerticalScriptSavedIndicatorHandle, eVerticalScriptNameTextHandle,
-		eVerticalScriptSaved, false, true, true);
-	// Open Horizontal Script
-	getline(configurationFile, eHorizontalParentScriptPathString);
-	fileManage::openScript(parentWindow, eHorizontalParentScriptPathString, eHorizontalCurrentParentScriptName, eHorizontalScriptEditHandle, eHorizontalScriptSavedIndicatorHandle, eHorizontalScriptNameTextHandle,
-		eHorizontalScriptSaved, false, true, true);
-	// Open Intensity Script
-	getline(configurationFile, eIntensityParentScriptPathString);
-	fileManage::openScript(parentWindow, eIntensityParentScriptPathString, eIntensityCurrentParentScriptName, eIntensityScriptEditHandle, eIntensityScriptSavedIndicatorHandle,
-		eIntensityNameHandle, eIntensityScriptSaved, false, false, true);
-	int position;
-	std::string scriptLocation;
-	if (eVerticalParentScriptPathString.size() > 0)
-	{
-		// Check location of vertical script.
-		position = eVerticalParentScriptPathString.find_last_of('\\');
-		scriptLocation = eVerticalParentScriptPathString.substr(0, position);
-		if (scriptLocation + "\\" != pathIncludingCategory)
-		{
-			int answer = MessageBox(0, "The requested vertical script is not currently located in the current configuration folder. This is recommended so that scripts related to a"
-				" particular configuration are reserved to that configuration folder. Copy script to current configuration folder?", 0, MB_YESNO);
-			if (answer == IDYES)
-			{
-				std::string scriptName = eVerticalParentScriptPathString.substr(position, eVerticalParentScriptPathString.size());
-				eVerticalParentScriptPathString = pathIncludingCategory + scriptName;
-				fileManage::saveScript(eVerticalScriptEditHandle, eVerticalParentScriptPathString, eVerticalScriptSavedIndicatorHandle, eVerticalScriptSaved);
-			}
-		}
-		// else nothing
-	}
-	if (eHorizontalParentScriptPathString.size() > 0)
-	{
-		// Check location of horizontal script.
-		position = eHorizontalParentScriptPathString.find_last_of('\\');
-		scriptLocation = eHorizontalParentScriptPathString.substr(0, position);
-		if (scriptLocation + "\\" != pathIncludingCategory)
-		{
-			int answer = MessageBox(0, "The requested horizontal script is not currently located in the current configuration folder. This is recommended so that scripts related to a"
-				" particular configuration are reserved to that configuration folder. Copy script to current configuration folder?", 0, MB_YESNO);
-			if (answer == IDYES)
-			{
-				std::string scriptName = eHorizontalParentScriptPathString.substr(position, eHorizontalParentScriptPathString.size());
-				eHorizontalParentScriptPathString = pathIncludingCategory + scriptName;
-				fileManage::saveScript(eHorizontalScriptEditHandle, eHorizontalParentScriptPathString, eHorizontalScriptSavedIndicatorHandle, eHorizontalScriptSaved);
-			}			
-		}
-	}
-	if (eIntensityParentScriptPathString.size() > 0)
-	{
-		// Check location of Intensity script.
-		position = eIntensityParentScriptPathString.find_last_of('\\');
-		scriptLocation = eIntensityParentScriptPathString.substr(0, position);
-		if (scriptLocation + "\\" != pathIncludingCategory)
-		{
-			int answer = MessageBox(0, "The requested intensity script is not currently located in the current configuration folder. This is recommended so that scripts related to a"
-				" particular configuration are reserved to that configuration folder. Copy script to current configuration folder?", 0, MB_YESNO);
-			if (answer == IDYES)
-			{
-				std::string scriptName = eIntensityParentScriptPathString.substr(position, eIntensityParentScriptPathString.size());
-				eIntensityParentScriptPathString = pathIncludingCategory + scriptName;
-				fileManage::saveScript(eIntensityScriptEditHandle, eIntensityParentScriptPathString, eIntensityScriptSavedIndicatorHandle, eIntensityScriptSaved);
-			}
-		}
-	}
+	std::string tempVerticalName, tempHorizontalName, tempIntensityName;
+	getline(configurationFile, tempVerticalName);
+	getline(configurationFile, tempHorizontalName);
+	getline(configurationFile, tempIntensityName);
+	eVerticalNIAWGScript.openParentScript(tempVerticalName);
+	eHorizontalNIAWGScript.openParentScript(tempHorizontalName);
+	eIntensityAgilentScript.openParentScript(tempIntensityName);
+
+	eVerticalNIAWGScript.considerCurrentLocation();
+	eHorizontalNIAWGScript.considerCurrentLocation();
+	eIntensityAgilentScript.considerCurrentLocation();
+
 	/// Get Variables
 	// Number of Variables
 	eVariables.clearVariables();
@@ -371,8 +350,8 @@ bool ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 		int answer = MessageBox(0, ("ERROR: variable number retrieved from file appears suspicious. The number is " + std::to_string(varNum) + ". Is this accurate?").c_str(), 0, MB_YESNO);
 		if (answer == IDNO)
 		{
-			eVariables.addVariable("", false, false, 0, 0);
-			return true;
+			// don't try to load anything.
+			varNum = 0;
 		}
 	}
 	// early version didn't have variable type indicators.
@@ -435,6 +414,10 @@ bool ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 			}
 			eVariables.addVariable(varName, timelike, singleton, value, varInc);
 		}
+	}
+	else if (version == "")
+	{
+		// nothing
 	}
 	else
 	{
@@ -589,11 +572,11 @@ bool ConfigurationFileSystem::saveConfigurationOnly()
 	configurationSaveFile << "Version: 1.1\n";
 	// order matters!
 	// vertical Script File Address
-	configurationSaveFile << eVerticalParentScriptPathString << "\n";
+	configurationSaveFile << eVerticalNIAWGScript.getScriptPathAndName() << "\n";
 	// horizontal Script File Address
-	configurationSaveFile << eHorizontalParentScriptPathString << "\n";
+	configurationSaveFile << eHorizontalNIAWGScript.getScriptPathAndName() << "\n";
 	// Intensity Script File Address
-	configurationSaveFile << eIntensityParentScriptPathString << "\n";
+	configurationSaveFile << eIntensityAgilentScript.getScriptPathAndName() << "\n";
 	// Number of Variables
 	configurationSaveFile << eVariables.getCurrentNumberOfVariables() << "\n";
 	// Variable Names
@@ -742,11 +725,11 @@ bool ConfigurationFileSystem::saveConfigurationAs()
 	configurationSaveFile << "Version: 1.1\n";
 	// order matters!
 	// vertical Script File Address
-	configurationSaveFile << eVerticalParentScriptPathString << "\n";
+	configurationSaveFile << eVerticalNIAWGScript.getScriptPathAndName() << "\n";
 	// horizontal Script File Address
-	configurationSaveFile << eHorizontalParentScriptPathString << "\n";
+	configurationSaveFile << eHorizontalNIAWGScript.getScriptPathAndName() << "\n";
 	// Intensity Script File Address
-	configurationSaveFile << eIntensityParentScriptPathString << "\n";
+	configurationSaveFile << eIntensityAgilentScript.getScriptPathAndName() << "\n";
 	// Number of Variables
 	configurationSaveFile << eVariables.getCurrentNumberOfVariables() << "\n";
 	// Variable Names
@@ -1366,7 +1349,7 @@ bool ConfigurationFileSystem::saveExperimentOnly()
 	// check that the experiment name is not empty.
 	if (experimentNameToSave == "")
 	{
-		MessageBox(0, "ERROR: The program requested the saving of the category file to an empty name! This shouldn't happen, ask Mark about bugs.", 0, 0);
+		MessageBox(0, "ERROR: Please properly select the experiment or create a new one (\'new experiment\') before trying to save it!", 0, 0);
 		return true;
 	}
 	// check if file already exists
@@ -1899,6 +1882,19 @@ bool ConfigurationFileSystem::reloadSequence(std::string sequenceToReload)
 }
 bool ConfigurationFileSystem::saveSequence()
 {
+	if (this->currentProfileSettings.category == "")
+	{
+		if (this->currentProfileSettings.experiment == "")
+		{
+			MessageBox(0, "Please set category and experiment before saving sequence.", 0, 0);
+			return true;
+		}
+		else
+		{
+			MessageBox(0, "Please set category before saving sequence.", 0, 0);
+			return true;
+		}
+	}
 	if (currentProfileSettings.sequence == NULL_SEQUENCE)
 	{
 		// nothing to save;
@@ -2182,7 +2178,7 @@ bool ConfigurationFileSystem::initializeControls(POINT& topLeftPosition, HWND pa
 		currentRect.left, currentRect.top, currentRect.right - currentRect.left, currentRect.bottom - currentRect.top,
 		parentWindow, (HMENU)IDC_EXPERIMENT_COMBO, eGlobalInstance, NULL);
 	SendMessage(experimentCombo.hwnd, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	this->reloadCombo(experimentCombo.hwnd, EXPERIMENT_CONFIGURATION_FILES_FOLDER_PATH, std::string("*"), "__NONE__");
+	this->reloadCombo(experimentCombo.hwnd, PROFILES_PATH, std::string("*"), "__NONE__");
 	// Category Combo
 	currentRect = categoryCombo.normalPos = { topLeftPosition.x + 480, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 800 };
 	categoryCombo.hwnd = CreateWindowEx(NULL, TEXT("ComboBox"), "", CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,

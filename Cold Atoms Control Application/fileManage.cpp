@@ -20,7 +20,7 @@
  * int saveConfig()
  * int saveConfigAs(HWND hostWin)
  * int newScript(std::string defaultFileName, HWND& scriptEdit, std::string &fileAddr, char(&name)[_MAX_FNAME], HWND &nameHandle, bool &saveVar, HWND &saveInd)
- * int openScript(HWND parent, std::string &filePathway, char(&name)[_MAX_FNAME], HWND &relevantEdit, HWND &savedInd, HWND &nameHandle, bool &savedVar,
+ * int openParentScript(HWND parent, std::string &filePathway, char(&name)[_MAX_FNAME], HWND &relevantEdit, HWND &savedInd, HWND &nameHandle, bool &savedVar,
 				bool promptForFile, bool is_NIAWG_Script)
  * int saveScript(HWND editToSave, std::string& filePath, HWND& savedIndicator, bool& savedVariable)
  * int saveScriptAs(HWND editToSave, HWND hostWindow, std::string &filePath, char(&currentName)[_MAX_FNAME], HWND &nameDisplay, HWND &savedIndicator,
@@ -30,91 +30,7 @@
  */
 namespace fileManage
 {
-
 	/*
-	 * This function checks whether the user wants to save an experiment configuration or not. It returns 1 if successful, it returns 0 if the user canceled.
-	 */
-
-	int checkExperimentSave(HWND parWin)
-	{
-		int msgboxID = MessageBox(NULL, "Save Current Profile?", "Save Prompt", MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON3);
-		switch (msgboxID)
-		{
-			case IDYES:
-			{
-				fileManage::saveConfig();
-				return 1;
-				break;
-			}
-			case IDNO:
-			{
-				return 1;
-				// just leave
-				break;
-			}
-			case IDCANCEL:
-			{
-				// Leave returning signal for winproc to quit
-				return 0;
-				break;
-			}
-		}
-		return -1;
-	}
-
-	int checkConfigurationSave(HWND parentWindow)
-	{
-		int msgboxID = MessageBox(NULL, "Save Current Profile?", "Save Prompt", MB_ICONWARNING | MB_YESNOCANCEL | MB_DEFBUTTON3);
-		switch (msgboxID)
-		{
-			case IDYES:
-			{
-				fileManage::saveConfig();
-				return 1;
-				break;
-			}
-			case IDNO:
-			{
-				return 1;
-				// just leave
-				break;
-			}
-			case IDCANCEL:
-			{
-				// Leave returning signal for winproc to quit
-				return 0;
-				break;
-			}
-		}
-		return 0;
-	}
-
-	/*
-	 * This function opens an experiment configuration file and loads all of it's recorded settings into the current settings. comboBoxItem is the experiment configuration name if 
-	 * the user selected an experiment configuration from the combobox, else it's "".
-	 * The function returns 0 if canceled for some reason, -1 if error, 1 if successful load.
-	 */
-	int openExperimentConfig(HWND parWin, std::string comboBoxItem)
-	{
-
-		return 0;
-	}
-	
-
-	int openConfiguration(HWND parWin, std::string subConfigFile)
-	{
-		return 0;
-	}
-	/*
-	 * Saves the configuration based on the current configuration name. Retruns 0 if no current name, 1 if successful.
-	 */
-	int saveConfig()
-	{
-		return 0;
-	}
-	/*
-	 * This file clears a script window, clears the script name, and opens the default script as a template. It always returns 1.
-	 */
 	int newScript(std::string defaultFileName, HWND& scriptEdit, std::string& fileAddr, char(&name)[_MAX_FNAME], HWND& nameHandle, bool& saveVar, 
 				  HWND& saveInd)
 	{
@@ -148,7 +64,8 @@ namespace fileManage
 	 * This prompts the user for a script to open and then opens it. It returns 0 if the user cancels or if the user doesn't select a script file. It returns
 	 * 1 if successful.
 	 */
-	int openScript(HWND parent, std::string& filePathway, char(&name)[_MAX_FNAME], HWND& relevantEdit, HWND& savedInd, HWND& nameHandle, bool& savedVar,
+	/*
+	int openParentScript(HWND parent, std::string& filePathway, char(&name)[_MAX_FNAME], HWND& relevantEdit, HWND& savedInd, HWND& nameHandle, bool& savedVar,
 				   bool promptForFile, bool is_NIAWG_Script, bool isParentScript)
 	{
 		std::string tempName;
@@ -261,6 +178,7 @@ namespace fileManage
 	 * This saves a script based on the script's current name. If no current name, it returns zero. If the user tries to save a file currently being used, it
 	 * returns -1. If successful, it returns 1.
 	 */
+/*
 	int saveScript(HWND editToSave, std::string& filePath, HWND& savedIndicator, bool& savedVariable)
 	{
 		// check if name exists.
@@ -283,9 +201,7 @@ namespace fileManage
 		std::fstream saveFile(filePath, std::fstream::out);
 		int test = saveFile.is_open();
 		saveFile << tempChar;
-
 		saveFile.close();
-
 		SendMessage(savedIndicator, BM_SETCHECK, BST_CHECKED, NULL);
 		savedVariable = true;
 		return 1;
@@ -295,6 +211,7 @@ namespace fileManage
 	 * This prompts the user for a file name, and then saves a script to that name. It returns 0 if user canceled or if the script is empty or if the user 
 	 * tries to save over a file currently being used. It returns 1 if successful.
 	 */
+/*
 	int saveScriptAs(HWND editToSave, HWND hostWindow, std::string &filePath, char(&currentName)[_MAX_FNAME], HWND &nameDisplay, HWND &savedIndicator,
 					 bool& savedVariable, std::string scriptType)
 	{
@@ -352,6 +269,7 @@ namespace fileManage
 	/*
 	 * This checks if the user wants to save a script. it returns 1 unless the user cancels, in which case it returns 0.
 	 */
+/*
 	int checkSaveScript(std::string scriptType, HWND editOfInterest, HWND parent, char(&name)[_MAX_FNAME], HWND &savedIndicator, bool &savedVariable, 
 						std::string &filePathway, HWND &nameDisplayHandle, std::string scriptDeviceType)
 	{
@@ -395,6 +313,7 @@ namespace fileManage
 	 * This function searches a specific location for a certain type of file and removes redundancy if necessary. It returns a vector of the names of the files
 	 * found that meet the given criteria.
 	 */
+/*
 	std::vector<std::string> searchForFiles(std::string locationToSearch, std::string extensions)
 	{
 		// Re-add the entries back in and figure out which one is the current one.
@@ -451,7 +370,8 @@ namespace fileManage
 		// Make the final vector out of the unique objects left.
 		return names;
 	}
-
+	
+	//
 	int lookForPredefinedScripts(HWND editToSearch, HWND comboToUpdate)
 	{
 		std::vector<std::string> predefinedScripts;
@@ -535,4 +455,5 @@ namespace fileManage
 		struct stat buffer;
 		return (stat(filePathway.c_str(), &buffer) == 0);
 	}
+	*/
 }

@@ -23,6 +23,7 @@ std::string saveTextFileFromEdit(HWND hwndOwner, std::string extension)
 	saveFileDialogInfoObj.lpstrFile = szSaveFileName;
 	saveFileDialogInfoObj.nMaxFile = MAX_PATH;
 	saveFileDialogInfoObj.Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
+
 	saveFileDialogInfoObj.lpstrDefExt = extension.c_str();
 	if (GetSaveFileName(&saveFileDialogInfoObj) == 0)
 	{

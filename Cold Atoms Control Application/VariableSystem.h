@@ -9,7 +9,9 @@ struct variable
 	std::string name;
 	bool timelike;
 	bool singleton;
-	double value;
+	double initialValue;
+	double finalValue;
+	int variations;
 };
 
 class VariableSystem

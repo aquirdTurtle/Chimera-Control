@@ -31,12 +31,11 @@ bool initializeCameraWindow(HWND cameraWindow)
 	eTextingHandler.initializeControls(secondColumnPointKinetic, secondColumnPointAccumulate, secondColumnPointContinuous, cameraWindow, false);
 	/// Image stuffs
 	eImageParameters.initiateControls(secondColumnPointKinetic, secondColumnPointAccumulate, secondColumnPointContinuous, cameraWindow, false);
+	eAlerts.initialize(secondColumnPointKinetic, secondColumnPointAccumulate, secondColumnPointContinuous, cameraWindow, false);
 
 	/// Filesystem Controls
 	eCameraFileSystem.initializeControls(collumnPosKin, collumnPosAccum, collumnPosCont, cameraWindow, false);
 	
-
-
 	/// CAMERA MODE
 	eCameraModeComboHandle.kineticSeriesModePos = { 0, collumnPosKin.y, 480, collumnPosKin.y + 800 };
 	eCameraModeComboHandle.continuousSingleScansModePos = eCameraModeComboHandle.accumulateModePos = eCameraModeComboHandle.kineticSeriesModePos;

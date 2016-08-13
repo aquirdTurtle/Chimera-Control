@@ -6,7 +6,6 @@
 #include <iomanip>
 #include <sstream>
 
-
 bool VariableSystem::updateVariableInfo(LPARAM lParamOfMessage)
 {
 	/// get the item and subitem
@@ -76,6 +75,10 @@ bool VariableSystem::updateVariableInfo(LPARAM lParamOfMessage)
 			listViewItem.iSubItem = subitemIndicator;
 			listViewItem.pszText = (LPSTR)newName.c_str();
 			SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem);
+			// recolor to catch any new variable names needing to change color.
+			eVerticalNIAWGScript.colorEntireScript();
+			eHorizontalNIAWGScript.colorEntireScript();
+			eIntensityAgilentScript.colorEntireScript();
 			break;
 		}
 		case 1:
@@ -244,7 +247,6 @@ std::vector<variable> VariableSystem::getAllVaryingParameters()
 	}
 	return varyingParameters;
 }
-
 
 bool VariableSystem::addVariable(std::string name, bool timelike, bool singleton, double value, int item)
 {

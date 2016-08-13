@@ -44,14 +44,35 @@ LRESULT CALLBACK winProcScripts(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM
 		case WM_CREATE: 
 		{
 			initializeScriptingWindow(thisWindow);
+			eHorizontalNIAWGScript.updateSavedStatus(true);
+			eVerticalNIAWGScript.updateSavedStatus(true);
+			eIntensityAgilentScript.updateSavedStatus(true);
 			break;
 		}
 		/// Hanlde Colors
 		case WM_CTLCOLOREDIT:
 		{
-			DWORD CtrlID = GetDlgCtrlID((HWND)lParam); // Window Control ID
+			// not sure if this edit-coloring section is necessary. Pretty sure rich edits are entirely uneffected by this stuff.
+			int initialID, finalID;
+			DWORD CtrlID = GetDlgCtrlID((HWND)lParam);
+			// first check all of the script controls
+			eVerticalNIAWGScript.getControlIDRange(initialID, finalID);
+			if (initialID <= CtrlID && CtrlID <= finalID)
+			{
+				return eVerticalNIAWGScript.colorControl(lParam, wParam);
+			}
+			eHorizontalNIAWGScript.getControlIDRange(initialID, finalID);
+			if (initialID <= CtrlID && CtrlID <= finalID)
+			{
+				return eHorizontalNIAWGScript.colorControl(lParam, wParam);
+			}
+			eIntensityAgilentScript.getControlIDRange(initialID, finalID);
+			if (initialID <= CtrlID && CtrlID <= finalID)
+			{
+				return eIntensityAgilentScript.colorControl(lParam, wParam);
+			}
 			HDC hdcStatic = (HDC)wParam;
-			if (CtrlID == IDC_HORIZONTAL_SCRIPT_EDIT || CtrlID == IDC_VERTICAL_SCRIPT_EDIT || CtrlID == IDC_VAR_NAMES_EDIT)
+			if (CtrlID == IDC_HORIZONTAL_SCRIPT_EDIT || CtrlID == IDC_VERTICAL_SCRIPT_EDIT)
 			{
 				SetTextColor(hdcStatic, RGB(255, 255, 255));
 				SetBkColor(hdcStatic, RGB(50, 45, 45));
@@ -67,7 +88,27 @@ LRESULT CALLBACK winProcScripts(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM
 
 		case WM_CTLCOLORSTATIC:
 		{
-			DWORD CtrlID = GetDlgCtrlID((HWND)lParam); // Window Control ID
+			int initialID, finalID;
+			DWORD CtrlID = GetDlgCtrlID((HWND)lParam); 
+			// first check all of the script controls
+			eVerticalNIAWGScript.getControlIDRange(initialID, finalID);
+			if (initialID <= CtrlID && CtrlID <= finalID)
+			{
+				return eVerticalNIAWGScript.colorControl(lParam, wParam);
+				
+			}
+			eHorizontalNIAWGScript.getControlIDRange(initialID, finalID);
+			if (initialID <= CtrlID && CtrlID <= finalID)
+			{
+				return eHorizontalNIAWGScript.colorControl(lParam, wParam);
+				
+			}
+			eIntensityAgilentScript.getControlIDRange(initialID, finalID);
+			if (initialID <= CtrlID && CtrlID <= finalID)
+			{
+				return eIntensityAgilentScript.colorControl(lParam, wParam);
+				
+			}
 			HDC hdcStatic = (HDC)wParam;
 
 			if (CtrlID == IDC_SAVE_X_INDICATOR_BUTTON || CtrlID == IDC_SAVE_Y_INDICATOR_BUTTON || CtrlID == IDC_SAVE_EXPERIMENT_INDICATOR_BUTTON 
@@ -137,40 +178,22 @@ LRESULT CALLBACK winProcScripts(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM
 		case WM_CLOSE:
 		case WM_DESTROY:
 		{
-			if (eHorizontalScriptSaved == false)
+			if (eHorizontalNIAWGScript.checkSave())
 			{
-				// check if the user wants to save
-				int cont = fileManage::checkSaveScript("horizontal", eHorizontalScriptEditHandle, thisWindow, eHorizontalCurrentParentScriptName, eHorizontalScriptSavedIndicatorHandle, eHorizontalScriptSaved,
-													   eHorizontalParentScriptPathString, eHorizontalScriptNameTextHandle, "NIAWG");
-				// this occurs if the user presses cancel. Just break, don't open.
-				if (cont == 0)
-				{
-					break;
-				}
+				break;
 			}
-			if (eVerticalScriptSaved == false)
+			if (eVerticalNIAWGScript.checkSave())
 			{
-				// check if the user wants to save
-				int cont = fileManage::checkSaveScript("vertical", eVerticalScriptEditHandle, thisWindow, eVerticalCurrentParentScriptName, eVerticalScriptSavedIndicatorHandle, eVerticalScriptSaved,
-													   eHorizontalParentScriptPathString, eVerticalScriptNameTextHandle, "NIAWG");
-				// this occurs if the user presses cancel. Just break, don't open.
-				if (cont == 0)
-				{
-					break;
-				}
+				break;
 			}
-			/*
-			if (eExperimentSaved == false)
+			if (eIntensityAgilentScript.checkSave())
 			{
-				// check if the user wants to save
-				int cont = fileManage::checkExperimentSave(thisWindow);
-				// this occurs if the user presses cancel. Just break, don't open.
-				if (cont == 0)
-				{
-					break;
-				}
+				break;
 			}
-			*/
+			if (eProfile.checkSaveEntireProfile())
+			{
+				break;
+			}
 			std::string exitQuestion = "Are you sure you want to exit?\n\nThis will stop all output of the arbitrary waveform generator.";
 			int areYouSure = MessageBox(NULL, exitQuestion.c_str(), "Exit", MB_OKCANCEL | MB_ICONWARNING);
 			switch (areYouSure)
@@ -187,93 +210,47 @@ LRESULT CALLBACK winProcScripts(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM
 		}
 		case WM_TIMER:
 		{
-			if (!eVerticalSyntaxColorIsCurrent)
+			if (eVerticalNIAWGScript.coloringIsNeeded())
 			{
-				// preserve saved state
-				bool tempSaved = false;
-				if (eVerticalScriptSaved == true)
-				{
-					tempSaved = true;
-				}
-				DWORD x1 = 1, x2 = 1;
-				int initScrollPos, finScrollPos;
-				SendMessage(eVerticalScriptEditHandle, EM_GETSEL, (WPARAM)&x1, (LPARAM)&x2);
-				initScrollPos = GetScrollPos(eVerticalScriptEditHandle, SB_VERT);
-				// color syntax
-				colorScript(eVerticalScriptEditHandle, "NIAWG", eVerticalMinChange, eVerticalMaxChange, eVerticalViewCombo.hwnd, eCurrentVerticalViewIsParent);
-				eVerticalMaxChange = 0;
-				eVerticalMinChange = ULONG_MAX;
-				eVerticalSyntaxColorIsCurrent = true;
-				SendMessage(eVerticalScriptEditHandle, EM_SETSEL, (WPARAM)x1, (LPARAM)x2);
-				finScrollPos = GetScrollPos(eVerticalScriptEditHandle, SB_VERT);
-				SendMessage(eVerticalScriptEditHandle, EM_LINESCROLL, 0, -(finScrollPos - initScrollPos));
-				if (tempSaved == true)
-				{
-					eVerticalScriptSaved = true;
-					SendMessage(eVerticalScriptSavedIndicatorHandle, BM_SETCHECK, BST_CHECKED, NULL);
-				}
+				eVerticalNIAWGScript.handleTimerCall();
 			}
-			if (!eHorizontalSyntaxColorIsCurrent)
+			if (eHorizontalNIAWGScript.coloringIsNeeded())
 			{
-				// preserve saved state
-				bool tempSaved = false;
-				if (eHorizontalScriptSaved == true)
-				{
-					tempSaved = true;
-				}
-				DWORD x1 = 1, x2 = 1;
-				int initScrollPos, finScrollPos;
-
-				SendMessage(eHorizontalScriptEditHandle, EM_GETSEL, (WPARAM)&x1, (LPARAM)&x2);
-				initScrollPos = GetScrollPos(eHorizontalScriptEditHandle, SB_VERT);
-
-				// color syntax
- 				colorScript(eHorizontalScriptEditHandle, "NIAWG", eHorizontalMinChange, eHorizontalMaxChange, eHorizontalViewCombo.hwnd, eCurrentHorizontalViewIsParent);
-
-				eHorizontalSyntaxColorIsCurrent = true;
-				eHorizontalMaxChange = 0;
-				eHorizontalMinChange = ULONG_MAX;
-				SendMessage(eHorizontalScriptEditHandle, EM_SETSEL, (WPARAM)x1, (LPARAM)x2);
-				finScrollPos = GetScrollPos(eHorizontalScriptEditHandle, SB_VERT);
-				SendMessage(eHorizontalScriptEditHandle, EM_LINESCROLL, 0, -(finScrollPos - initScrollPos));
-				if (tempSaved == true)
-				{
-					eHorizontalScriptSaved = true;
-					SendMessage(eHorizontalScriptSavedIndicatorHandle, BM_SETCHECK, BST_CHECKED, NULL);
-				}
+				eHorizontalNIAWGScript.handleTimerCall();
 			}
-			if (!eIntensitySyntaxColorIsCurrent)
+			if (eIntensityAgilentScript.coloringIsNeeded())
 			{
-				// preserve saved state
-				bool tempSaved = false;
-				if (eIntensityScriptSaved == true)
-				{
-					tempSaved = true;
-				}
-				DWORD x1 = 1, x2 = 1;
-				int initScrollPos, finScrollPos;
-				SendMessage(eIntensityScriptEditHandle, EM_GETSEL, (WPARAM)&x1, (LPARAM)&x2);
-				initScrollPos = GetScrollPos(eIntensityScriptEditHandle, SB_VERT);
-
-				// color syntax
-				colorScript(eIntensityScriptEditHandle, "AGILENT", eIntensityMinChange, eIntensityMaxChange, eIntensityViewCombo.hwnd, eCurrentIntensityViewIsParent);
-				eIntensitySyntaxColorIsCurrent = true;
-				eIntensityMaxChange = 0;
-				eIntensityMinChange = ULONG_MAX;
-				SendMessage(eIntensityScriptEditHandle, EM_SETSEL, (WPARAM)x1, (LPARAM)x2);
-				finScrollPos = GetScrollPos(eIntensityScriptEditHandle, SB_VERT);
-				SendMessage(eIntensityScriptEditHandle, EM_LINESCROLL, 0, -(finScrollPos - initScrollPos));
-				if (tempSaved == true)
-				{
-					eIntensityScriptSaved = true;
-					SendMessage(eIntensityScriptSavedIndicatorHandle, BM_SETCHECK, BST_CHECKED, NULL);
-				}
+				eIntensityAgilentScript.handleTimerCall();
 			}
 			break;
 		}
 		/// Handle Everything Else...///////////////////////
 		case WM_COMMAND:
 		{
+			if (!eVerticalNIAWGScript.handleEditChange(wParam, lParam))
+			{
+				break;
+			}
+			else if (!eVerticalNIAWGScript.childComboChangeHandler(wParam, lParam))
+			{
+				break;
+			}
+			else if (!eHorizontalNIAWGScript.handleEditChange(wParam, lParam))
+			{
+				break;
+			}
+			else if (!eHorizontalNIAWGScript.childComboChangeHandler(wParam, lParam))
+			{
+				break;
+			}
+			else if (!eIntensityAgilentScript.handleEditChange(wParam, lParam))
+			{
+				break;
+			}
+			else if (!eIntensityAgilentScript.childComboChangeHandler(wParam, lParam))
+			{
+				break;
+			}
 			switch (LOWORD(wParam))
 			{
 				/// All of the following messages are common to all windows in this program.
@@ -322,165 +299,6 @@ LRESULT CALLBACK winProcScripts(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM
 				case ID_SEQUENCE_RENAMESEQUENCE:
 				{
 					commonMessages::handleCommonMessage(thisWindow, msg, wParam, lParam);
-					break;
-				}
-				case IDC_INTENSITY_SCRIPT_VIEW_COMBO:
-				{
-					if (HIWORD(wParam) == CBN_SELCHANGE)
-					{
-						// ask to save current script
-						// load the new intensity script
-						// intensity script predefined scripts are not currently incorporated.
-						MessageBox(0, "Intensity (only intensity) predefined scripts are not currently incorporated into the program.", 0, 0);
-					}
-					break;
-				}
-				case IDC_VERTICAL_SCRIPT_VIEW_COMBO:
-				{
-					if (HIWORD(wParam) == CBN_SELCHANGE)
-					{
-						if (eVerticalScriptSaved == false)
-						{
-							// ask to save current script
-							if (fileManage::checkSaveScript("Vertical", eVerticalScriptEditHandle, thisWindow, eVerticalCurrentViewScriptName,
-								eVerticalScriptSavedIndicatorHandle, eVerticalScriptSaved, eVerticalViewScriptPathString, eVerticalScriptNameTextHandle, "NIAWG") == 0)
-							{
-								break;
-							}
-						}
-						// check what was selected.
-						int selection = SendMessage(eVerticalViewCombo.hwnd, CB_GETCURSEL, 0, 0);
-						TCHAR selectedText[256];
-						SendMessage(eVerticalViewCombo.hwnd, CB_GETLBTEXT, selection, (LPARAM)selectedText);
-						if (std::string(selectedText) == "Parent Script")
-						{
-							eCurrentVerticalViewIsParent = true;
-							// load the parent script
-							fileManage::openScript(thisWindow, eVerticalParentScriptPathString, eVerticalCurrentParentScriptName, eVerticalScriptEditHandle,
-												   eVerticalScriptSavedIndicatorHandle, eVerticalScriptNameTextHandle, eVerticalScriptSaved, false, false, 
-												   eCurrentVerticalViewIsParent);
-						}
-						else
-						{
-							eCurrentVerticalViewIsParent = false;
-							// construct the view names
-							eVerticalViewScriptPathString = (eProfile.getCurrentPathIncludingCategory()) + "\\" + std::string(selectedText) + ".script";
-							strcpy_s(eVerticalCurrentViewScriptName, selectedText);
-							fileManage::openScript(thisWindow, eVerticalViewScriptPathString, eVerticalCurrentViewScriptName, eVerticalScriptEditHandle,
-												   eVerticalScriptSavedIndicatorHandle, eVerticalScriptNameTextHandle, eVerticalScriptSaved, false, false, 
-												   eCurrentVerticalViewIsParent);
-							// load the selected script.
-						}
-					}
-					break;
-				}
-				case IDC_HORIZONTAL_SCRIPT_VIEW_COMBO:
-				{
-					if (HIWORD(wParam) == CBN_SELCHANGE)
-					{
-						if (eHorizontalScriptSaved == false)
-						{
-							// ask to save current script
-							if (fileManage::checkSaveScript("Horizontal", eHorizontalScriptEditHandle, thisWindow, eHorizontalCurrentViewScriptName,
-								eHorizontalScriptSavedIndicatorHandle, eHorizontalScriptSaved, eHorizontalViewScriptPathString, eHorizontalScriptNameTextHandle, "NIAWG") == 0)
-							{
-								break;
-							}
-						}
-						// check what was selected.
-						int selection = SendMessage(eHorizontalViewCombo.hwnd, CB_GETCURSEL, 0, 0);
-						TCHAR selectedText[256];
-						SendMessage(eHorizontalViewCombo.hwnd, CB_GETLBTEXT, selection, (LPARAM)selectedText);
-						if (std::string(selectedText) == "Parent Script")
-						{
-							eCurrentHorizontalViewIsParent = true;
-							// load the parent script
-							fileManage::openScript(thisWindow, eHorizontalParentScriptPathString, eHorizontalCurrentParentScriptName, eHorizontalScriptEditHandle,
-								eHorizontalScriptSavedIndicatorHandle, eHorizontalScriptNameTextHandle, eHorizontalScriptSaved, false, false, eCurrentHorizontalViewIsParent);
-						}
-						else
-						{
-							eCurrentHorizontalViewIsParent = false;
-							// construct the view names
-							eHorizontalViewScriptPathString = (eProfile.getCurrentPathIncludingCategory()) + "\\" + std::string(selectedText) + ".script";
-							strcpy_s(eHorizontalCurrentViewScriptName, selectedText);
-							fileManage::openScript(thisWindow, eHorizontalViewScriptPathString, eHorizontalCurrentViewScriptName, eHorizontalScriptEditHandle,
-								eHorizontalScriptSavedIndicatorHandle, eHorizontalScriptNameTextHandle, eHorizontalScriptSaved, false, false, eCurrentHorizontalViewIsParent);
-							// load the selected script.
-						}
-					}
-					break;
-				}
-				/// vertical Script File
-				case IDC_VERTICAL_SCRIPT_EDIT:
-				{
-					// Gets called whenever the user makes changes to this edit control.
-					if (HIWORD(wParam) == EN_CHANGE)
-					{
-						DWORD begin, end;
-						SendMessage(eVerticalScriptEditHandle, EM_GETSEL, (WPARAM)&begin, (LPARAM)&end);
-						if (begin < eVerticalMinChange)
-						{
-							eVerticalMinChange = begin;
-						}
-						if (end > eVerticalMaxChange)
-						{
-							eVerticalMaxChange = end;
-						}
-						eVerticalSyntaxColorIsCurrent = false;
-						eVerticalScriptSaved = false;
-						SendMessage(eVerticalScriptSavedIndicatorHandle, BM_SETCHECK, BST_UNCHECKED, NULL);
-						// initialize syntax timer
-						SetTimer(eScriptingWindowHandle, SYNTAX_TIMER_ID, SYNTAX_TIMER_LENGTH, (TIMERPROC)NULL);
-					}
-					break;
-				}
-				/// horizontal Script File
-				case IDC_HORIZONTAL_SCRIPT_EDIT:
-				{
-					// Gets called whenever the user makes changes to this edit control.
-					if (HIWORD(wParam) == EN_CHANGE)
-					{
-						DWORD begin, end;
-						SendMessage(eHorizontalScriptEditHandle, EM_GETSEL, (WPARAM)&begin, (LPARAM)&end);
-						if (begin < eHorizontalMinChange)
-						{
-							eHorizontalMinChange = begin;
-						}
-						if (end > eHorizontalMinChange)
-						{
-							eHorizontalMaxChange = end;
-						}
-						eHorizontalSyntaxColorIsCurrent = false;
-						eHorizontalScriptSaved = false;
-						SendMessage(eHorizontalScriptSavedIndicatorHandle, BM_SETCHECK, BST_UNCHECKED, NULL);
-						// initialize syntax timer
-						SetTimer(eScriptingWindowHandle, SYNTAX_TIMER_ID, SYNTAX_TIMER_LENGTH, (TIMERPROC)NULL);
-					}
-					break;
-				}
-				/// Intensity Script File
-				case IDC_INTENSITY_SCRIPT_EDIT:
-				{
-					// Gets called whenever the user makes changes to this edit control.
-					if (HIWORD(wParam) == EN_CHANGE)
-					{
-						DWORD begin, end;
-						SendMessage(eIntensityScriptEditHandle, EM_GETSEL, (WPARAM)&begin, (LPARAM)&end);
-						if (begin < eIntensityMinChange)
-						{
-							eIntensityMinChange = begin;
-						}
-						if (end > eIntensityMaxChange)
-						{
-							eIntensityMaxChange = end;
-						}
-						eIntensitySyntaxColorIsCurrent = false;
-						eIntensityScriptSaved = false;
-						SendMessage(eIntensityScriptSavedIndicatorHandle, BM_SETCHECK, BST_UNCHECKED, NULL);
-						// initialize syntax timer
-						SetTimer(eScriptingWindowHandle, SYNTAX_TIMER_ID, SYNTAX_TIMER_LENGTH, (TIMERPROC)NULL);
-					}
 					break;
 				}
 			}

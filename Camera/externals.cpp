@@ -11,6 +11,7 @@
 #include "ExperimentTimer.h"
 #include "DataFileSystem.h"
 #include "SMSTextingControl.h"
+#include "AlertSystem.h"
 
 /// \\\ THINGS THAT THE USER SETS \\\ ///
 ConfigurationFileSystem eCameraFileSystem(CAMERA_CONFIGURATION_FILES_LOCATION);
@@ -19,6 +20,8 @@ DataFileSystem eExperimentData(SAVE_BASE_ADDRESS);
 SMSTextingControl eTextingHandler;
 DataAnalysisHandler eAutoAnalysisHandler;
 CameraImageParameters eImageParameters;
+AlertSystem eAlerts(8000);
+
 bool eSettingAnalysisLocations = false;
 bool eRealTimePictures = false;
 bool eAutoanalyzeData = false;
@@ -87,10 +90,8 @@ int eRepetitionsPerVariation = 1;
 
 /// Data Analysis
 // Initialize this object with the location of the gnuplot executable.
-// for andor
-//Gnuplot ePlotter("\"C:\\Program Files\\gnuplot\\bin\\gnuplot.exe\"");
 // for my laptop
-Gnuplot ePlotter("\"C:\\Program Files (x86)\\gnuplot\\bin\\gnuplot.exe\"");
+Gnuplot ePlotter(GNUPLOT_LOCATION);
 // main image buffer read from card
 std::vector<std::vector<long> > eImagesOfExperiment;
 // 
