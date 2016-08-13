@@ -14,7 +14,7 @@
 #include "boost/cast.hpp"
 #include "systemAbortCheck.h"
 #include "postMyString.h"
-#include "VariableSystem.h";
+#include "VariableSystem.h"
 /*
  * This runs the experiment. It calls analyzeNIAWGScripts and then procedurally goes through all variable values. It also communicates with the other computer
  * throughout the process.

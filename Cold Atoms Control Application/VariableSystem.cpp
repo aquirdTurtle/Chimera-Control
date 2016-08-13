@@ -303,7 +303,7 @@ bool VariableSystem::addVariable(std::string name, bool timelike, bool singleton
 	if (singleton)
 	{
 		TCHAR buf[32];
-		_itot(value, buf, 10);
+		_itot_s(value, buf, 10);
 		listViewItem.pszText = buf;
 	}
 	else

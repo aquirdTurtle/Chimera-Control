@@ -1033,11 +1033,11 @@ bool Script::openParentScript(std::string parentScriptFileAndPath)
 	std::string scriptLocation = parentScriptFileAndPath.substr(0, position);
 	if (scriptLocation + "\\" != (eProfile.getCurrentPathIncludingCategory()) && eProfile.getCurrentPathIncludingCategory() != "")
 	{
-		int answer = MessageBox(0, "The requested script is not currently located in the current configuration folder. This is recommended so that scripts "
-			"related to a particular configuration are reserved to that configuration folder. Copy script to current configuration folder?", 0, MB_YESNO);
+		int answer = MessageBox(0, ("The requested script " + scriptLocation + " is not currently located in the current configuration folder. This is recommended so that scripts "
+			"related to a particular configuration are reserved to that configuration folder. Copy script to current configuration folder?").c_str(), 0, MB_YESNO);
 		if (answer == IDYES)
 		{
-			std::string scriptName = parentScriptFileAndPath.substr(position, parentScriptFileAndPath.size());
+			std::string scriptName = parentScriptFileAndPath.substr(position + 1, parentScriptFileAndPath.size());
 			std::string path = (eProfile.getCurrentPathIncludingCategory()) + scriptName;
 			this->saveScriptAs(path);
 			//fileManage::saveScript(relevantEdit, filePathway, savedInd, savedVar);
