@@ -16,4 +16,5 @@ struct Control
 	std::string fontType;
 	// TODO: add colors themselves as a control.
 	int colorState = 0;
+	int ID;
 };

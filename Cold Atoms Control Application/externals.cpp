@@ -9,9 +9,11 @@
 #include "ConfigurationFileSystem.h"
 #include "VariableSystem.h"
 
-ConfigurationFileSystem eProfile(EXPERIMENT_CONFIGURATION_FILES_FOLDER_PATH);
+ConfigurationFileSystem eProfile(PROFILES_PATH);
 NoteSystem eNotes;
 VariableSystem eVariables;
+int scriptIDs = 110000;
+Script eVerticalNIAWGScript("Vertical NIAWG", scriptIDs), eHorizontalNIAWGScript("Horizontal NIAWG", scriptIDs), eIntensityAgilentScript("Agilent", scriptIDs);
 
 // Agilent Stuff
 double eCurrentAgilentLow = std::stod(AGILENT_DEFAULT_DC);

@@ -171,6 +171,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="acquisitionImmutables.h" />
+    <ClInclude Include="AlertSystem.h" />
     <ClInclude Include="appendColoredText.h" />
     <ClInclude Include="appendText.h" />
     <ClInclude Include="arbitraryPlottingThreadProcedure.h" />
@@ -211,6 +212,7 @@
     <ClInclude Include="cameraWndProc.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AlertSystem.cpp" />
     <ClCompile Include="appendColoredText.cpp" />
     <ClCompile Include="appendText.cpp" />
     <ClCompile Include="arbitraryPlottingThreadProcedure.cpp" />

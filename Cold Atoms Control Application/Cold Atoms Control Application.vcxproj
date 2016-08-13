@@ -185,6 +185,7 @@
     <ClInclude Include="experimentThreadInputStructure.h" />
     <ClInclude Include="externals.h" />
     <ClInclude Include="fileManage.h" />
+    <ClInclude Include="Script.h" />
     <ClInclude Include="NoteSystem.h" />
     <ClInclude Include="textPromptDialogProcedure.h" />
     <ClInclude Include="getFileName.h" />
@@ -218,15 +219,14 @@
     <ClCompile Include="beginningSettingsDialogProc.cpp" />
     <ClCompile Include="cleanSocket.cpp" />
     <ClCompile Include="cleanString.cpp" />
-    <ClCompile Include="colorScript.cpp" />
     <ClCompile Include="ConfigurationFileSystem.cpp" />
     <ClCompile Include="experimentProgrammingThread.cpp" />
     <ClCompile Include="externals.cpp" />
     <ClCompile Include="fileManage.cpp" />
     <ClCompile Include="NoteSystem.cpp" />
+    <ClCompile Include="Script.cpp" />
     <ClCompile Include="textPromptDialogProcedure.cpp" />
     <ClCompile Include="getFileName.cpp" />
-    <ClCompile Include="getSyntaxColor.cpp" />
     <ClCompile Include="initializeMainWindow.cpp" />
     <ClCompile Include="initializeScriptingWindow.cpp" />
     <ClCompile Include="commonMessages.cpp" />

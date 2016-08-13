@@ -138,6 +138,9 @@
     <ClInclude Include="CameraImageParameters.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="AlertSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appendText.cpp">
@@ -222,6 +225,9 @@
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="CameraImageParameters.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AlertSystem.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -27,6 +27,7 @@ class ConfigurationFileSystem
 		~ConfigurationFileSystem();
 
 		bool saveEntireProfile();
+		bool checkSaveEntireProfile();
 		bool allSettingsReadyCheck();
 		bool reloadAllCombos();
 

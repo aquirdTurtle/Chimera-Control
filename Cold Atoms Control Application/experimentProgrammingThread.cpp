@@ -897,7 +897,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				else
 				{
 					andorConnected = true;
-					std::string message = "Script Saved: " + std::to_string((*inputStruct).threadXScriptSaved) + "\nDont Actually Generate: " + std::to_string((*inputStruct).threadDontActuallyGenerate)
+					std::string message = "\nDont Actually Generate: " + std::to_string((*inputStruct).threadDontActuallyGenerate)
 						+ "\nConnect To Master: " + std::to_string((*inputStruct).threadConnectToMaster) + "\nGet Variable Files From Master: "
 						+ std::to_string((*inputStruct).threadGetVarFilesFromMaster) + "\nAccumulations: " + std::to_string((*inputStruct).threadAccumulations);
 					parametersFileLog << message;

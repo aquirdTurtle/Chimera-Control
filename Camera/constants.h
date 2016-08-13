@@ -5,27 +5,32 @@
 #include <string>
 #include <vector>
 
-#define ANDOR_SAFEMODE true
+#define ANDOR_SAFEMODE false
 
 // Some Default Settings
 #define DEFAULT_CAMERA_TEMPERATURE 0;
 // for andor:
-
-/*
 // extra slashes here because python needs to process the string as well, so extra escape characters...
+
+#define PYTHON_HOME L"C:\\Users\\Regal Lab\\Anaconda3\\"
 const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Regal Lab\\\\Documents\\\\My Data Analysis";
 const std::string SAVE_BASE_ADDRESS("E:\\share\\Data and documents\\Data repository\\");
 const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Code\\Plotting\\";
 const std::string KEY_FILE_LOCATION = "E:\\share\\Data and documents\\Data repository\\Key_file\\";
 const std::string CAMERA_CONFIGURATION_FILES_LOCATION = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Code\\Camera Configurations\\";
-*/
+const std::string GNUPLOT_LOCATION = "\"C:\\Program Files\\gnuplot\\bin\\gnuplot.exe\"";
+
 // for my laptop:
 // extra slashes here because python needs to process the string as well, so extra escape characters...
+/*
+#define PYTHON_HOME L"C:\\Users\\Mark\\Anaconda3\\"
 const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\My Data Analysis";
 const std::string SAVE_BASE_ADDRESS = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Data\\Camera Data\\";
 const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Plotting\\";
 const std::string KEY_FILE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Data\\Data Keys\\";
 const std::string CAMERA_CONFIGURATION_FILES_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Camera Configuration Files\\";
+const std::string GNUPLOT_LOCATION = "\"C:\\Program Files (x86)\\gnuplot\\bin\\gnuplot.exe\"";
+*/
 //
 const std::vector<std::string> GNUPLOT_COLORS{"lt rgb \"black\"",
 											 "lt rgb \"blue\"",
