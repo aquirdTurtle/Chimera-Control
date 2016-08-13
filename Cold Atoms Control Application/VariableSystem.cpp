@@ -302,8 +302,9 @@ bool VariableSystem::addVariable(std::string name, bool timelike, bool singleton
 	listViewItem.iSubItem = 2;
 	if (singleton)
 	{
-		std::string tempValue = std::to_string(value).c_str();
-		listViewItem.pszText = (LPSTR)tempValue.c_str();
+		TCHAR buf[32];
+		_itot(value, buf, 10);
+		listViewItem.pszText = buf;
 	}
 	else
 	{

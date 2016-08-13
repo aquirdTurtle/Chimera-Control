@@ -600,7 +600,8 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 												}
 											}
 											ePlotter << plotString;
-											gnuplotPlotCommand += " f" + fitNum + "(x) title fit" + std::to_string(groupInc) + " " + GNUPLOT_COLORS[dataSetInc] + " " + GNUPLOT_LINETYPES[groupInc] + ",";
+											gnuplotPlotCommand += " f" + fitNum + "(x) title fit" + std::to_string(groupInc) + " " + GNUPLOT_COLORS[dataSetInc] 
+												+ " " + GNUPLOT_LINETYPES[groupInc] + ",";
 										}
 									}
 								}
@@ -623,7 +624,8 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 									for (unsigned int groupInc = 0; groupInc < finalAverages[plotInc][dataSetInc].size(); groupInc++)
 									{
 										gnuplotPlotCommand += " '-' using 1:2:3 with yerrorbars title \"G" + std::to_string(groupInc + 1) + " " 
-											+ allPlottingInfo[plotInc].getLegendText(dataSetInc) + "\" " + GNUPLOT_COLORS[dataSetInc] + " " + GNUPLOT_MARKERS[groupInc] + " pointsize 0.5,";
+											+ allPlottingInfo[plotInc].getLegendText(dataSetInc) + "\" " + GNUPLOT_COLORS[dataSetInc] + " " 
+											+ GNUPLOT_MARKERS[groupInc] + " pointsize 0.5,";
 										if (allPlottingInfo[plotInc].getWhenToFit(dataSetInc) == REAL_TIME_FIT
 											|| (allPlottingInfo[plotInc].getWhenToFit(dataSetInc) == FIT_AT_END
 												&& eCurrentThreadAccumulationNumber == eTotalNumberOfPicturesInSeries))
