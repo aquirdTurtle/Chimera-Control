@@ -611,11 +611,11 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				}
 				if (!TWEEZER_COMPUTER_SAFEMODE)
 				{
-					if (myErrorHandler(varNameCursor == -1, "ERROR: The variable name sent by the master computer doesn't match any current variables!\r\n",
+					if (myErrorHandler(varNameCursor == -1, "ERROR: The variable name sent by the master computer (" + tempVarName + ") doesn't match any current variables!\r\n",
 						ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false,
 						true))
 					{
-						postMyString(eErrorTextMessageID, "ERROR: The variable name sent by the master computer doesn't match any current variables!\r\n");
+						postMyString(eErrorTextMessageID, "ERROR: The variable name sent by the master computer (" + tempVarName + ") doesn't match any current variables!\r\n");
 						PostMessage(eMainWindowHandle, eFatalErrorMessageID, 0, 0);
 						delete inputStruct;
 						return -1;
@@ -1946,7 +1946,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
 			// Delete relevant onboard memory.
-			if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_DeleteScript(eSessionHandle, SESSION_CHANNELS, userScriptName)))
+			if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_DeleteScript(eSessionHandle, SESSION_CHANNELS, "experimentScript")))
 			{
 				delete inputStruct;
 				return -1;
