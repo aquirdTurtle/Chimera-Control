@@ -2,20 +2,13 @@
 //
 
 #include "stdafx.h"
-#include <bitset>
-#include <iostream>
-#include "Windows.h"
+#include "mgl2/mgl.h"
 
 int main()
 {
-	WORD stuff;
-	std::bitset<16> bits("1111111111111111");
-	unsigned short tst = static_cast<unsigned short>(bits.to_ulong());
-	std::cout << tst;
-	tst += 1;
-	std::cout << "\n" << tst;
-	std::cout << "\n" << sizeof(tst);
-	std::cin.get();
+//	HMGL gr;
+	HMGL gr = mgl_create_graph(600, 400);
+//	gr.FPlot("sin(pi*x)");
+//	gr.WriteFrame("test.png");
     return 0;
 }
-

@@ -240,23 +240,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// check errors
 	if (!default_hConfigVerticalScriptFile[0].is_open())
 	{
-		MessageBox(NULL, "FATAL ERROR: Couldn't open default file.", "ERROR", MB_OK);
+		errBox("FATAL ERROR: Couldn't open default file. Was looking for file " + DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_HCONFIG_VERTICAL_SCRIPT.nScript");
 		return -1;
 	}
 	if (!default_hConfigHorizontalScriptFile[0].is_open())
 	{
-		MessageBox(NULL, "FATAL ERROR: Couldn't open default file.", "ERROR", MB_OK);
+		errBox("FATAL ERROR: Couldn't open default file. Was looking for file " + DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_HCONFIG_HORIZONTAL_SCRIPT.nScript");
 		return -1;
 	}
-	// check errors
 	if (!default_vConfigVerticalScriptFile[0].is_open())
 	{
-		MessageBox(NULL, "FATAL ERROR: Couldn't open default file.", "ERROR", MB_OK);
+		errBox("FATAL ERROR: Couldn't open default file. Was looking for file " + DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_VCONFIG_VERTICAL_SCRIPT.nScript");
 		return -1;
 	}
 	if (!default_vConfigHorizontalScriptFile[0].is_open())
 	{
-		MessageBox(NULL, "FATAL ERROR: Couldn't open default file.", "ERROR", MB_OK);
+		errBox("FATAL ERROR: Couldn't open default file. Was looking for file " + DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_VCONFIG_HORIZONTAL_SCRIPT.nScript");
 		return -1;
 	}
 

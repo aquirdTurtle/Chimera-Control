@@ -1584,8 +1584,6 @@ bool ConfigurationFileSystem::openExperiment(std::string experimentToOpen, HWND 
 	// Assign based on the comboBox Item entry.
 	std::string path = FILE_SYSTEM_PATH + experimentToOpen + "\\" + experimentToOpen + EXPERIMENT_EXTENSION;
 	std::ifstream experimentConfigOpenFile(path.c_str());
-//C:\Users\Regal Lab\Documents\Quantum Gas Assembly Control\Profiles\Spectroscopy\Spectroscopy.eConfig
-//C:\Users\Regal Lab\Documents\NIAWG Control Application\Profiles\Spectroscopy
 	// check if opened correctly.
 	if (!experimentConfigOpenFile.is_open())
 	{
@@ -1594,6 +1592,17 @@ bool ConfigurationFileSystem::openExperiment(std::string experimentToOpen, HWND 
 	}
 	currentProfileSettings.experiment = experimentToOpen;
 	pathIncludingExperiment = FILE_SYSTEM_PATH + experimentToOpen + "\\";
+	this->reloadCombo(categoryCombo.hwnd, pathIncludingExperiment, "*", "__NONE__");
+	// since no category is currently loaded...
+	SendMessage(configCombo.hwnd, CB_RESETCONTENT, 0, 0);
+	this->currentProfileSettings.category = "";
+	this->currentProfileSettings.configuration = "";
+	// it'd be confusing if this category-specific text remained after the category get set to blank.
+	eNotes.setCategoryNotes("");
+	eNotes.setConfigurationNotes("");
+
+	// no category saved currently.
+	pathIncludingCategory = pathIncludingExperiment;
 	this->updateExperimentSavedStatus(true);
 	/// Set the Configuration combobox.
 	// Get all files in the relevant directory.
@@ -1781,10 +1790,7 @@ bool ConfigurationFileSystem::experimentChangeHandler(HWND parentWindow)
 	{
 		return true;
 	}
-	this->reloadCombo(categoryCombo.hwnd, pathIncludingExperiment, "*", "__NONE__");
-	// it'd be confusing if this category-specific text remained after the category get set to blank.
-	eNotes.setCategoryNotes("");
-	eNotes.setConfigurationNotes("");
+	this->reloadSequence(NULL_SEQUENCE);
 	return false;
 }
 
@@ -2391,3 +2397,12 @@ bool ConfigurationFileSystem::fullyDeleteFolder(std::string folderToDelete)
 	return false;
 }
 
+std::string ConfigurationFileSystem::getCurrentCategory()
+{
+	return this->currentProfileSettings.category;
+}
+
+std::string ConfigurationFileSystem::getCurrentExperiment()
+{
+	return this->currentProfileSettings.experiment;
+}

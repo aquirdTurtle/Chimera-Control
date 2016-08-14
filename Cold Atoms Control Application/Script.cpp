@@ -694,15 +694,21 @@ bool Script::changeView(std::string viewName)
 //
 bool Script::saveScript()
 {
-	if (isSaved && scriptName != "")
-	{
-		// shoudln't need to do anything
-		return false;
-	}
 	if (scriptName == "")
 	{
+		// must give new name. This should only work if the experiment and category have been set. 
+		if (eProfile.getCurrentExperiment() == "")
+		{
+			errBox("The script is unnamed, and no experiment has been set. Please select an experiment and category or select \"Save As\" to save in an arbitrary location.");
+			return true;
+		}
+		if (eProfile.getCurrentCategory() == "")
+		{
+			errBox("The script is unnamed, and no Category has been set. Please select a category or select \"Save As\" to save in an arbitrary location.");
+			return true;
+		}
 		std::string newName = (const char*)DialogBoxParam(eGlobalInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure,
-			(LPARAM)("The " + deviceType + " script is unnamed Please enter new name for the script:").c_str());
+			(LPARAM)("The " + deviceType + " script is unnamed! Please enter new name for the script, and the script will be saved in the current location: " + eProfile.getCurrentExperiment() + " -> " + eProfile.getCurrentCategory()).c_str());
 		if (newName == "")
 		{
 			// canceled
@@ -734,6 +740,8 @@ bool Script::saveScript()
 	delete editText;
 	saveFile.close();
 	this->scriptAddress = eProfile.getCurrentPathIncludingCategory() + scriptName + extension;
+	this->scriptCategory = eProfile.getCurrentCategory();
+	this->scriptExperiment = eProfile.getCurrentExperiment();
 	this->updateSavedStatus(true);
 	return false;
 }
@@ -765,11 +773,18 @@ bool Script::saveScriptAs(std::string location)
 	}
 	saveFile << editText;
 	char fileChars[_MAX_FNAME];
-	myError = _splitpath_s(location.c_str(), NULL, 0, NULL, 0, fileChars, _MAX_FNAME, NULL, 0);
-	scriptName = std::string(fileChars);
+	// this location should have the script name, the script category, and the script experiment location in it.
+	this->scriptAddress = location;
+	int position = location.find_last_of("\\");
+	scriptName = location.substr(position + 1, location.size());
+	location = location.substr(0, position);
+	position = location.find_last_of("\\");
+	scriptCategory = location.substr(position + 1, location.size());
+	location = location.substr(0, position);
+	position = location.find_last_of("\\");
+	scriptExperiment = location.substr(position + 1, location.size());
 	delete editText;
 	saveFile.close();
-	this->scriptAddress = location;
 	this->updateSavedStatus(true);
 	return false;
 }
@@ -913,6 +928,8 @@ bool Script::renameScript()
 		return true;
 	}
 	this->scriptAddress = eProfile.getCurrentPathIncludingCategory() + scriptName + extension;
+	this->scriptCategory = eProfile.getCurrentCategory();
+	this->scriptExperiment = eProfile.getCurrentExperiment();
 	return false;
 }
 //
@@ -939,6 +956,8 @@ bool Script::deleteScript()
 	{
 		this->scriptName = "";
 		this->scriptAddress = "";
+		this->scriptCategory = "";
+		this->scriptExperiment = "";
 	}
 	return false;
 }
@@ -987,6 +1006,10 @@ bool Script::newScript()
 	}
 	this->reset();
 	this->loadFile(tempName);
+	// add the current category to the address. 
+	this->scriptAddress = eProfile.getCurrentPathIncludingCategory();
+	this->scriptCategory = eProfile.getCurrentCategory();
+	this->scriptExperiment = eProfile.getCurrentExperiment();
 	this->colorEntireScript();
 	return false;
 }
@@ -1078,6 +1101,8 @@ bool Script::reset()
 {
 	this->scriptName = "";
 	this->scriptAddress = "";
+	this->scriptCategory = "";
+	this->scriptExperiment = "";
 	this->updateSavedStatus(false);
 	SetWindowText(this->fileNameText.hwnd, "");
 	SendMessage(this->edit.hwnd, WM_SETTEXT, NULL, (LPARAM)"");
@@ -1113,7 +1138,10 @@ bool Script::considerCurrentLocation()
 			if (answer == IDYES)
 			{
 				std::string scriptName = this->scriptAddress.substr(position, this->scriptAddress.size());
+				// this name includes the extension already.
 				this->scriptAddress = eProfile.getCurrentPathIncludingCategory() + scriptName;
+				this->scriptCategory = eProfile.getCurrentCategory();
+				this->scriptExperiment = eProfile.getCurrentExperiment();
 				this->saveScriptAs(this->scriptAddress);
 			}
 		}
@@ -1127,31 +1155,40 @@ std::string Script::getExtension()
 	return extension;
 }
 
-bool Script::updateScriptNameText(std::string path)
+// updates based on the address in the script object. Relies on the script object correctly knowing it's own address and info.
+bool Script::updateScriptNameText()
 {
-	//std::string categoryPath = eProfile.getCurrentPathIncludingCategory();
-	int position = path.find_last_of('\\');
-	if (position != -1)
+	std::string text;
+	// add experiment to text.
+	if (this->scriptExperiment == "")
 	{
-		std::string categoryPath = path.substr(0, position);
-		std::string name = path.substr(position + 1, path.size());
-		position = categoryPath.find_last_of('\\');
-		std::string category = categoryPath.substr(position + 1, categoryPath.size());
-		std::string text = category + "->" + name;
-		SendMessage(this->fileNameText.hwnd, WM_SETTEXT, 0, (LPARAM)text.c_str());
+		text = "???";
 	}
 	else
 	{
-		std::string text = "??? -> ";
-		if (scriptName == "")
-		{
-			text += "???";
-		}
-		else
-		{
-			text += scriptName;
-		}
-		SendMessage(this->fileNameText.hwnd, WM_SETTEXT, 0, (LPARAM)text.c_str());
+		text = this->scriptExperiment;
 	}
+	text += " -> ";
+	// add category to text.
+	if (this->scriptCategory == "")
+	{
+		text += "???";
+	}
+	else
+	{
+		text += this->scriptCategory;
+	}
+	text += " -> ";
+	// add name to text.
+	if (this->scriptName == "")
+	{
+		text += "???";
+	}
+	else
+	{
+		text += this->scriptName;
+	}
+	// set text.
+	SendMessage(this->fileNameText.hwnd, WM_SETTEXT, 0, (LPARAM)text.c_str());
 	return false;
 }

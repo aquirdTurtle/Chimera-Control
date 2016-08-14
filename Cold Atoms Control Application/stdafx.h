@@ -25,4 +25,5 @@
 #include "externals.h"
 #include "constants.h"
 #include "resource.h"
-
+#include "errBox.h"
+ 

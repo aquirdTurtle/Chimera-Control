@@ -5,7 +5,41 @@
 
 #include <string>
 // running in safemode means that the program doesn't actually try to connect to any devices. It can be used to debug other aspects of the program.
-#define TWEEZER_COMPUTER_SAFEMODE false
+#define TWEEZER_COMPUTER_SAFEMODE true
+#define DESKTOP_COMPUTER
+// #define LAB_COMPUTER
+// #define LAPTOP_COMPUTER
+
+/// File Locations
+// Files for Lab Computer
+#ifdef LAB_COMPUTER
+	const std::string LIB_PATH = "D:\\Waveforms Library\\Wavefunction Library 350 MS per second V6\\";
+	const std::string DEFAULT_SCRIPT_FOLDER_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Control\\Default Scripts\\";
+	const std::string EXPERIMENT_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Individual Experiments\\";
+	const std::string CODE_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Code Versions\\";
+	const std::string ACTUAL_CODE_FOLDER_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Control\\Cold Atoms Control Application\\";
+	const std::string PROFILES_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Control\\Profiles\\";
+#endif
+
+// Files for Desktop
+#ifdef DESKTOP_COMPUTER
+	const std::string LIB_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\NIAWG Wavefunction Library\\";
+	const std::string DEFAULT_SCRIPT_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Default NIAWG Scripts\\";
+	const std::string EXPERIMENT_LOGGING_FILES_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\";
+	const std::string CODE_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Code Versions\\";
+	const std::string ACTUAL_CODE_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Cold Atoms Control Application\\";
+	const std::string PROFILES_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Profiles\\";
+#endif
+
+// Files for my Laptop
+#ifdef LAPTOP_COMPUTER
+	const std::string LIB_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Waveforms Library\\";
+	const std::string DEFAULT_SCRIPT_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Default Scripts\\";
+	const std::string EXPERIMENT_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Individual Experiments\\";
+	const std::string CODE_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Code Versions\\";
+	const std::string ACTUAL_CODE_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Cold Atoms Control Application\\";
+	const std::string PROFILES_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Profiles\\";
+#endif
 
 // We calibrated this. // GAIN = 1.34.
 #define GAIN 1.34
@@ -89,25 +123,7 @@ const ViConstString TRIGGER_NAME = "ScriptTrigger0";
 const ViConstString TRIGGER_SOURCE = "PFI0";
 const ViInt32 TRIGGER_EDGE_TYPE = NIFGEN_VAL_RISING_EDGE;
 
-/// File Locations
-// Files for actual computer
 
-const std::string LIB_PATH = "D:\\Waveforms Library\\Wavefunction Library 350 MS per second V6\\";
-const std::string DEFAULT_SCRIPT_FOLDER_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Control\\Default Scripts\\";
-const std::string EXPERIMENT_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Individual Experiments\\";
-const std::string CODE_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Code Versions\\";
-const std::string ACTUAL_CODE_FOLDER_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Control\\Cold Atoms Control Application\\";
-const std::string PROFILES_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Control\\Profiles\\";
-
-// Files for my Laptop
-/*
-const std::string LIB_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Waveforms Library\\";
-const std::string DEFAULT_SCRIPT_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Default Scripts\\";
-const std::string EXPERIMENT_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Individual Experiments\\";
-const std::string CODE_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Code Versions\\";
-const std::string ACTUAL_CODE_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Cold Atoms Control Application\\";
-const std::string PROFILES_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Profiles\\";
-*/
 // Contains all of of the names of the files that hold actual data file names.
 const std::string WAVEFORM_NAME_FILES[20] = { "gen 1, const waveform file names.txt", "gen 2, const waveform file names.txt",
 "gen 3, const waveform file names.txt", "gen 4, const waveform file names.txt", "gen 5, const waveform file names.txt",
