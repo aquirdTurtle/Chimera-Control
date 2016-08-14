@@ -61,6 +61,7 @@ class ConfigurationFileSystem
 		bool experimentSettingsReadyCheck();
 		bool checkExperimentSave(std::string prompt);
 		bool experimentChangeHandler(HWND parentWindow);
+		std::string getCurrentExperiment();
 
 		bool saveConfigurationOnly();
 		bool newConfiguration();
@@ -83,6 +84,7 @@ class ConfigurationFileSystem
 		bool categorySettinsReadyCheck();
 		bool checkCategorySave(std::string prompt);
 		bool categoryChangeHandler(HWND parentWindow);
+		std::string getCurrentCategory();
 		std::string getCurrentPathIncludingCategory();
 
 		std::vector<std::string> searchForFiles(std::string locationToSearch, std::string extensions);

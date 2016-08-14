@@ -41,7 +41,8 @@ class Script
 		bool checkSave();
 		bool updateSavedStatus(bool isSaved);
 		bool coloringIsNeeded();
-		bool updateScriptNameText(std::string path);
+		
+		bool updateScriptNameText();
 
 		bool reset();
 		bool savedStatus();
@@ -60,8 +61,11 @@ class Script
 		Control fileNameText;
 		const int fileNameTextID;
 
+		std::string scriptExperiment;
+		std::string scriptCategory;
 		std::string scriptName;
 		std::string scriptAddress;
+
 		const std::string deviceType;
 		std::string extension;
 		bool isLocalReference;

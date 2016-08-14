@@ -10,7 +10,7 @@ INT_PTR CALLBACK textPromptDialogProcedure(HWND hDlg, UINT message, WPARAM wPara
 		case WM_INITDIALOG:
 		{
 			// lParam contains the text to be displayed on this guy. 
-			CreateWindowEx(0, "STATIC", (const char*)lParam, WS_CHILD | WS_VISIBLE | BS_RIGHT, 0, 0, 500, 20, hDlg, (HMENU)-1, eGlobalInstance, NULL);
+			CreateWindowEx(0, "STATIC", (const char*)lParam, WS_CHILD | WS_VISIBLE | SS_LEFT, 5, 5, 400, 60, hDlg, (HMENU)-1, eGlobalInstance, NULL);
 			return (INT_PTR)TRUE;
 		}
 		case WM_COMMAND:

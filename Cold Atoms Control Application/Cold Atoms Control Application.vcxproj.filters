@@ -94,6 +94,9 @@
     <ClCompile Include="Script.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
+    <ClCompile Include="errBox.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="winProcMain.h">
@@ -217,6 +220,9 @@
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="Script.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="errBox.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
   </ItemGroup>

@@ -788,7 +788,7 @@ namespace commonMessages
 		}
 		eIntensityAgilentScript.newScript();
 		eProfile.updateConfigurationSavedStatus(false);
-		eIntensityAgilentScript.updateScriptNameText(eIntensityAgilentScript.getScriptPathAndName());
+		eIntensityAgilentScript.updateScriptNameText();
 		return 0;
 	}
 	int openIntensityScript(HWND parentWindow)
@@ -801,13 +801,13 @@ namespace commonMessages
 		std::string intensityOpenName = getFileNameDialog(parentWindow);
 		eIntensityAgilentScript.openParentScript(intensityOpenName);
 		eProfile.updateConfigurationSavedStatus(false);
-		eIntensityAgilentScript.updateScriptNameText(eIntensityAgilentScript.getScriptPathAndName());
+		eIntensityAgilentScript.updateScriptNameText();
 		return 0;
 	}
 	int saveIntensityScript(HWND parentWindow)
 	{
 		eIntensityAgilentScript.saveScript();
-		eIntensityAgilentScript.updateScriptNameText(eIntensityAgilentScript.getScriptPathAndName());
+		eIntensityAgilentScript.updateScriptNameText();
 		return 0;
 	}
 	int saveIntensityScriptAs(HWND parentWindow)
@@ -821,7 +821,7 @@ namespace commonMessages
 		std::string newScriptAddress = saveTextFileFromEdit(parentWindow, extensionNoPeriod);
 		eIntensityAgilentScript.saveScriptAs(newScriptAddress);
 		eProfile.updateConfigurationSavedStatus(false);
-		eIntensityAgilentScript.updateScriptNameText(eIntensityAgilentScript.getScriptPathAndName());
+		eIntensityAgilentScript.updateScriptNameText();
 		return 0;
 	}
 	int newVerticalScript(HWND parentWindow)
@@ -832,7 +832,7 @@ namespace commonMessages
 		}
 		eVerticalNIAWGScript.newScript();
 		eProfile.updateConfigurationSavedStatus(false);
-		eVerticalNIAWGScript.updateScriptNameText(eVerticalNIAWGScript.getScriptPathAndName());
+		eVerticalNIAWGScript.updateScriptNameText();
 		return 0;
 	}
 	int openVerticalScript(HWND parentWindow)
@@ -844,13 +844,13 @@ namespace commonMessages
 		std::string intensityOpenName = getFileNameDialog(parentWindow);
 		eVerticalNIAWGScript.openParentScript(intensityOpenName);
 		eProfile.updateConfigurationSavedStatus(false);
-		eVerticalNIAWGScript.updateScriptNameText(eVerticalNIAWGScript.getScriptPathAndName());
+		eVerticalNIAWGScript.updateScriptNameText();
 		return 0;
 	}
 	int saveVerticalScript(HWND parentWindow)
 	{
 		eVerticalNIAWGScript.saveScript();
-		eVerticalNIAWGScript.updateScriptNameText(eVerticalNIAWGScript.getScriptPathAndName());
+		eVerticalNIAWGScript.updateScriptNameText();
 		return 0;
 	}
 	int saveVerticalScriptAs(HWND parentWindow)
@@ -864,7 +864,7 @@ namespace commonMessages
 		std::string newScriptAddress = saveTextFileFromEdit(parentWindow, extensionNoPeriod);
 		eVerticalNIAWGScript.saveScriptAs(newScriptAddress);
 		eProfile.updateConfigurationSavedStatus(false);
-		eVerticalNIAWGScript.updateScriptNameText(eVerticalNIAWGScript.getScriptPathAndName());
+		eVerticalNIAWGScript.updateScriptNameText();
 		return 0;
 	}	
 	int newHorizontalScript(HWND parentWindow)
@@ -875,7 +875,7 @@ namespace commonMessages
 		}
 		eHorizontalNIAWGScript.newScript();
 		eProfile.updateConfigurationSavedStatus(false);
-		eHorizontalNIAWGScript.updateScriptNameText(eHorizontalNIAWGScript.getScriptPathAndName());
+		eHorizontalNIAWGScript.updateScriptNameText();
 		return 0;
 	}
 	int openHorizontalScript(HWND parentWindow)
@@ -887,13 +887,13 @@ namespace commonMessages
 		std::string intensityOpenName = getFileNameDialog(parentWindow);
 		eHorizontalNIAWGScript.openParentScript(intensityOpenName);
 		eProfile.updateConfigurationSavedStatus(false);
-		eHorizontalNIAWGScript.updateScriptNameText(eHorizontalNIAWGScript.getScriptPathAndName());
+		eHorizontalNIAWGScript.updateScriptNameText();
 		return 0;
 	}
 	int saveHorizontalScript(HWND parentWindow)
 	{
 		eHorizontalNIAWGScript.saveScript();
-		eHorizontalNIAWGScript.updateScriptNameText(eHorizontalNIAWGScript.getScriptPathAndName());
+		eHorizontalNIAWGScript.updateScriptNameText();
 		return 0;
 	}
 	int saveHorizontalScriptAs(HWND parentWindow)
@@ -907,7 +907,7 @@ namespace commonMessages
 		std::string newScriptAddress = saveTextFileFromEdit(parentWindow, extensionNoPeriod);
 		eHorizontalNIAWGScript.saveScriptAs(newScriptAddress);
 		eProfile.updateConfigurationSavedStatus(false);
-		eHorizontalNIAWGScript.updateScriptNameText(eHorizontalNIAWGScript.getScriptPathAndName());
+		eHorizontalNIAWGScript.updateScriptNameText();
 		return 0;
 	}
 		
@@ -916,9 +916,9 @@ namespace commonMessages
 		//... If failed message pops up.
 		eProfile.saveEntireProfile();
 		eProfile.updateConfigurationSavedStatus(true);
-		eHorizontalNIAWGScript.updateScriptNameText(eHorizontalNIAWGScript.getScriptPathAndName());
-		eVerticalNIAWGScript.updateScriptNameText(eVerticalNIAWGScript.getScriptPathAndName());
-		eIntensityAgilentScript.updateScriptNameText(eIntensityAgilentScript.getScriptPathAndName());
+		eHorizontalNIAWGScript.updateScriptNameText();
+		eVerticalNIAWGScript.updateScriptNameText();
+		eIntensityAgilentScript.updateScriptNameText();
 		return 0;
 	}
 
