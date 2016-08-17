@@ -672,7 +672,6 @@ bool Script::childComboChangeHandler(WPARAM messageWParam, LPARAM messageLParam)
 	SendMessage(this->childCombo.hwnd, CB_GETLBTEXT, selection, (LPARAM)selectedText);
 	std::string viewName(selectedText);
 	this->changeView(viewName);
-	this->colorEntireScript();
 	this->updateSavedStatus(true);
 	return false;
 }
@@ -1010,7 +1009,6 @@ bool Script::newScript()
 	this->scriptAddress = eProfile.getCurrentPathIncludingCategory();
 	this->scriptCategory = eProfile.getCurrentCategory();
 	this->scriptExperiment = eProfile.getCurrentExperiment();
-	this->colorEntireScript();
 	return false;
 }
 //
@@ -1045,11 +1043,14 @@ bool Script::openParentScript(std::string parentScriptFileAndPath)
 		MessageBox(0, "ERROR: Unrecognized device type inside script control! Ask Mark about Bugs.", 0, 0);
 		return true;
 	}
+	this->scriptName = std::string(fileChars);
+	this->scriptAddress = eProfile.getCurrentPathIncludingCategory() + scriptName + extension;
+	this->scriptCategory = eProfile.getCurrentCategory();
+	this->scriptExperiment = eProfile.getCurrentExperiment();
 	if (!this->loadFile(parentScriptFileAndPath))
 	{
 		return true;
 	}
-	scriptName = std::string(fileChars);
 	this->updateSavedStatus(true);
 	// Check location of vertical script.
 	int position = parentScriptFileAndPath.find_last_of('\\');
@@ -1060,10 +1061,18 @@ bool Script::openParentScript(std::string parentScriptFileAndPath)
 			"related to a particular configuration are reserved to that configuration folder. Copy script to current configuration folder?").c_str(), 0, MB_YESNO);
 		if (answer == IDYES)
 		{
-			std::string scriptName = parentScriptFileAndPath.substr(position + 1, parentScriptFileAndPath.size());
-			std::string path = (eProfile.getCurrentPathIncludingCategory()) + scriptName;
+			std::string location = (eProfile.getCurrentPathIncludingCategory()) + scriptName;
+			std::string path = location;
+			this->scriptAddress = location;
+			int position = location.find_last_of("\\");
+			this->scriptName = location.substr(position + 1, location.size());
+			location = location.substr(0, position);
+			position = location.find_last_of("\\");
+			this->scriptCategory = location.substr(position + 1, location.size());
+			location = location.substr(0, position);
+			position = location.find_last_of("\\");
+			this->scriptExperiment = location.substr(position + 1, location.size());
 			this->saveScriptAs(path);
-			//fileManage::saveScript(relevantEdit, filePathway, savedInd, savedVar);
 		}
 	}
 	return false;
@@ -1093,6 +1102,8 @@ bool Script::loadFile(std::string pathToFile)
 	}
 	// put the default into the new control.
 	SendMessage(this->edit.hwnd, WM_SETTEXT, NULL, (LPARAM)fileText.c_str());
+	this->colorEntireScript();
+	this->updateScriptNameText();
 	openFile.close();
 	return true;
 }
@@ -1137,7 +1148,8 @@ bool Script::considerCurrentLocation()
 				" particular configuration are reserved to that configuration folder. Copy script to current configuration folder?", 0, MB_YESNO);
 			if (answer == IDYES)
 			{
-				std::string scriptName = this->scriptAddress.substr(position, this->scriptAddress.size());
+				// grab the correct file name at the end.
+				this->scriptName = this->scriptAddress.substr(position, this->scriptAddress.size());
 				// this name includes the extension already.
 				this->scriptAddress = eProfile.getCurrentPathIncludingCategory() + scriptName;
 				this->scriptCategory = eProfile.getCurrentCategory();
