@@ -120,7 +120,7 @@ namespace myAndor
 		{
 			return -1;
 		}
-		
+		// check plotting parameters
 
 		// CAREFUL! I can only modify these guys here because I'm sure that I'm also not writing to them in the plotting thread since the plotting thread hasn't
 		// started yet. If moving stuff around, be careful.

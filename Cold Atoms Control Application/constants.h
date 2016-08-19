@@ -6,9 +6,9 @@
 #include <string>
 // running in safemode means that the program doesn't actually try to connect to any devices. It can be used to debug other aspects of the program.
 #define TWEEZER_COMPUTER_SAFEMODE true
-#define DESKTOP_COMPUTER
-// #define LAB_COMPUTER
-// #define LAPTOP_COMPUTER
+//#define DESKTOP_COMPUTER
+//#define LAB_COMPUTER
+#define LAPTOP_COMPUTER
 
 /// File Locations
 // Files for Lab Computer
@@ -46,7 +46,7 @@
 // GAIN = 1.34.
 // This is the minimum time (in seconds) that a correction waveform will be allowed to have. Without this, the algorithm might decide that the 1/2 of a period 
 // of a waveform might be enough, even though this would probably be far below the amount of time an individual waveform is allowed to have according to the 
-// NIAWG.
+// NIAWG (the NIAWG has a minimum waveform size).
 // Initial Value: 0.00000025 (250 ns)
 #define MIN_CORRECTION_WAVEFORM_TIME 0.00000025
 // this is a time in seconds.

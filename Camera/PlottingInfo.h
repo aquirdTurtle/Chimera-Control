@@ -40,6 +40,7 @@ class PlottingInfo
 
 		int setGroupLocation(int pixel, int analysisSet, int row, int collumn);
 		int getPixelLocation(int pixel, int analysisSet, int& row, int& collumn);
+		std::vector<std::pair<int, int>> getAllPixelLocations();
 
 		int addPicture();
 		int removePicture();

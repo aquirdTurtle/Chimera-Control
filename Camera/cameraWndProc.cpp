@@ -1529,6 +1529,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 						SendMessage(eCurrentPlotsCombo.hwnd, CB_GETLBTEXT, (WPARAM)plotInc, (LPARAM)tempPlotName);
 						eCurrentPlotNames.push_back(tempPlotName);
 					}
+					imageParameters currentImageParameters = eImageParameters.getImageParameters();
 					// check plotting Parameters.
 					bool errCheck = false;
 					for (int plotInc = 0; plotInc < eCurrentPlotNames.size(); plotInc++)
@@ -1541,6 +1542,23 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 								" of pictures per experiment. Please revise either the current setting or the plot file.").c_str(), 0, 0);
 							errCheck = true;
 						}
+						std::vector<std::pair<int, int>> plotLocations = tempInfoCheck.getAllPixelLocations();
+						for (int locationInc = 0; locationInc < plotLocations.size(); locationInc++)
+						{
+							// check to make sure pixels are in bounds. 
+							if (plotLocations[locationInc].first < 1 || plotLocations[locationInc].first > currentImageParameters.height)
+							{
+								errBox("ERROR: one of your real-time plots, plot # " + std::to_string(plotInc + 1) + ", wants to plot outside the height of the "
+									"andor camera window. The requested row was " + std::to_string(plotLocations[locationInc].first) + ", but the height "
+									"(starting at 1) of the image is" + std::to_string(currentImageParameters.height) + ".");
+							}
+							if (plotLocations[locationInc].second < 1 || plotLocations[locationInc].second > currentImageParameters.width)
+							{
+								errBox("ERROR: one of your real-time plots, plot # " + std::to_string(plotInc + 1) + ", wants to plot outside the width of the "
+									"andor camera window. The requested row was " + std::to_string(plotLocations[locationInc].second) + ", but the width "
+									"(starting at 1) of the image is" + std::to_string(currentImageParameters.width) + ".");
+							}
+						}
 					}
 					if (errCheck)
 					{
@@ -1548,7 +1566,6 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 						eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
 						break;
 					}
-					imageParameters currentImageParameters = eImageParameters.getImageParameters();
 					std::string dialogMsg;
 					dialogMsg = "Starting Parameters:\r\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\r\n";
 					dialogMsg += "Current Camera Temperature Setting: " + std::to_string(eCameraTemperatureSetting) + "\r\n";
