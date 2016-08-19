@@ -19,3 +19,4 @@
 #include "Resource.h"
 #include "externals.h"
 #include "constants.h"
+#include "errBox.h"

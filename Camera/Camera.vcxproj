@@ -188,6 +188,7 @@
     <ClInclude Include="DataSet.h" />
     <ClInclude Include="dialogProcedures.h" />
     <ClInclude Include="drawDataWindow.h" />
+    <ClInclude Include="errBox.h" />
     <ClInclude Include="ExperimentTimer.h" />
     <ClInclude Include="externals.h" />
     <ClInclude Include="fileManage.h" />
@@ -226,6 +227,7 @@
     <ClCompile Include="DataFileSystem.cpp" />
     <ClCompile Include="DataSet.cpp" />
     <ClCompile Include="dialogProcedures.cpp" />
+    <ClCompile Include="errBox.cpp" />
     <ClCompile Include="ExperimentTimer.cpp" />
     <ClCompile Include="externals.cpp" />
     <ClCompile Include="fileManage.cpp" />

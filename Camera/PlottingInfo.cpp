@@ -26,9 +26,6 @@ PlottingInfo::PlottingInfo()
 	numberOfPictures = ePicturesPerRepetition;
 	xAxis = "";
 	generalPlotType = "";
-
-
-
 }
 
 PlottingInfo::~PlottingInfo()
@@ -196,15 +193,16 @@ int PlottingInfo::getPixelLocation(int pixel, int analysisSet, int& row, int& co
 int PlottingInfo::removeAnalysisSet()
 {
 	// always at least one pixel...
-	if (analysisGroups[0].size() < 2)
-	{
-		MessageBox(0, "ERROR: Something tried to remove the last analysis set!", 0, 0);
-		return -1;			
-	}
+
 	// make sure tat there is an analysis set to remove.
 	for (int pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
 	{
-		analysisGroups[pixelInc].resize(analysisGroups[pixelInc].size() + 1);
+		if (this->analysisGroups[pixelInc].size() < 2)
+		{
+			MessageBox(0, "ERROR: Something tried to remove the last analysis group!", 0, 0);
+			return -1;
+		}
+		analysisGroups[pixelInc].resize(analysisGroups[pixelInc].size() - 1);
 	}
 	return 0;
 }
@@ -332,14 +330,14 @@ std::string PlottingInfo::returnAllInfo()
 	message += "\r\nAll Currently Set Analysis Pixels (rowXcollumn):\r\n=========================\r\n\r\n";
 	if (analysisGroups.size() != 0)
 	{
-		for (int pixelSetInc = 0; pixelSetInc < analysisGroups[0].size(); pixelSetInc++)
+		for (int pixelGroupInc = 0; pixelGroupInc < analysisGroups[0].size(); pixelGroupInc++)
 		{
-			message += "Set #" + std::to_string(pixelSetInc + 1) + ":\r\n";
+			message += "Group #" + std::to_string(pixelGroupInc + 1) + ":\r\n";
 			for (int pixelInc = 0; pixelInc < analysisGroups.size(); pixelInc++)
 			{
 				int row, collumn;
-				row = analysisGroups[pixelInc][pixelSetInc][0];
-				collumn = analysisGroups[pixelInc][pixelSetInc][1];
+				row = analysisGroups[pixelInc][pixelGroupInc][0];
+				collumn = analysisGroups[pixelInc][pixelGroupInc][1];
 				message += "\tPixel #" + std::to_string(pixelInc + 1) + ": ("
 					+ std::to_string(row) + "X"
 					+ std::to_string(collumn) + ")\r\n";
@@ -1185,3 +1183,29 @@ int PlottingInfo::getWhenToFit(int dataSet)
 	return dataSets[dataSet].getWhenToFit();
 }
 
+std::vector<std::pair<int, int>> PlottingInfo::getAllPixelLocations()
+{
+	std::vector<std::pair<int, int>> allUniqueLocations;
+	for (int pixelInc = 0; pixelInc < this->analysisGroups.size(); pixelInc++)
+	{
+		for (int groupInc = 0; groupInc < this->analysisGroups[pixelInc].size(); groupInc++)
+		{
+			std::pair<int, int> tempLocation;
+			tempLocation.first = this->analysisGroups[pixelInc][groupInc][0];
+			tempLocation.second = this->analysisGroups[pixelInc][groupInc][1];
+			bool alreadyExists = false;
+			for (int uniqueLocationInc = 0; uniqueLocationInc < allUniqueLocations.size(); uniqueLocationInc++)
+			{
+				if (allUniqueLocations[uniqueLocationInc].first == tempLocation.first && allUniqueLocations[uniqueLocationInc].second == tempLocation.second)
+				{
+					alreadyExists = true;
+				}
+			}
+			if (!alreadyExists)
+			{
+				allUniqueLocations.push_back(tempLocation);
+			}
+		}
+	}
+	return allUniqueLocations;
+}
