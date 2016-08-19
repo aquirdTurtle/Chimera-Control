@@ -21,17 +21,15 @@ SMSTextingControl eTextingHandler;
 DataAnalysisHandler eAutoAnalysisHandler;
 CameraImageParameters eImageParameters;
 AlertSystem eAlerts(8000);
-
 bool eSettingAnalysisLocations = false;
 bool eRealTimePictures = false;
 bool eAutoanalyzeData = false;
-//fitsfile *eFitsFile;
 std::array<int, 4> eCurrentMaximumPictureCount{325, 325, 325, 325};
 std::array<int, 4> eCurrentMinimumPictureCount{95, 95, 95, 95};
 std::array<int, 4> eCurrentPicturePallete{ 0, 0, 1, 2 };
 std::array<std::vector<std::vector<RECT> >, 4> ePixelRectangles;
 std::pair<int, int> eCurrentlySelectedPixel;
-std::vector<std::pair<int, int>> eAnalysisPoints;
+
 int eSelectedPixelCount;
 
 int eMinimumSliderCount = 0;

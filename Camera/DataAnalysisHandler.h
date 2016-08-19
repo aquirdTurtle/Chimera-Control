@@ -21,6 +21,7 @@ class DataAnalysisHandler
 		std::vector<std::pair<int, int>> getAtomLocations();
 		bool clearAtomLocations();
 		bool combosAreEmpty();
+		std::string getSelectedAnalysisType();
 	private:
 		Control titleBox;
 		Control currentDataSetNumberText;

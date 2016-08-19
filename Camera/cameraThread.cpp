@@ -40,7 +40,6 @@ DWORD WINAPI cameraThread(LPVOID voidPtr)
 					// Signal main application
 					PostMessage(eCameraWindowHandle, eErrMessageID, 0, 0);
 				}
-
 				// Signal main application
 				PostMessage(eCameraWindowHandle, eAccMessageID, 0, seriesNumber);
 			}

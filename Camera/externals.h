@@ -30,8 +30,6 @@ extern DataAnalysisHandler eAutoAnalysisHandler;
 extern CameraImageParameters eImageParameters;
 extern AlertSystem eAlerts;
 
-extern std::vector<std::pair<int, int>> eAnalysisPoints;
-
 extern std::array<int, 4> eCurrentMaximumPictureCount;
 extern std::array<int, 4> eCurrentMinimumPictureCount;
 extern std::array<int, 4> eCurrentPicturePallete;

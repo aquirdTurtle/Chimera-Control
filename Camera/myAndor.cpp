@@ -629,12 +629,35 @@ namespace myAndor
 						crossPen = CreatePen(0, 1, RGB(0, 255, 0));
 					}
 					SelectObject(hdc, crossPen);
-					long boxWidth = crossRect.right - crossRect.left;
-					long boxHeight = crossRect.top - crossRect.bottom;
-					MoveToEx(hdc, crossRect.left + boxWidth / 4, crossRect.top - boxHeight / 4, 0);
-					LineTo(hdc, crossRect.right - boxWidth / 4, crossRect.bottom + boxHeight / 4);
-					MoveToEx(hdc, crossRect.right - boxWidth / 4, crossRect.top - boxHeight / 4, 0);
-					LineTo(hdc, crossRect.left + boxWidth / 4, crossRect.bottom + boxHeight / 4);
+					MoveToEx(hdc, crossRect.left, crossRect.top, 0);
+					LineTo(hdc, crossRect.right, crossRect.top);
+					LineTo(hdc, crossRect.right, crossRect.bottom);
+					LineTo(hdc, crossRect.left, crossRect.bottom);
+					LineTo(hdc, crossRect.left, crossRect.top);
+					SetBkMode(hdc, TRANSPARENT);
+					SetTextColor(hdc, RGB(200, 200, 200));
+					int atomNumber = analysisPointInc + 1;
+					if (eAutoAnalysisHandler.getSelectedAnalysisType() == "" || eAutoAnalysisHandler.getSelectedAnalysisType() == "Single Point Analysis")
+					{
+						DrawTextEx(hdc, const_cast<char *>(std::to_string(atomNumber).c_str()), std::to_string(atomNumber).size(),
+							&crossRect, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL);
+					}
+					else
+					{
+						std::string text = std::to_string((atomNumber - 1) / 2 + 1).c_str();
+						// assume pair analysis.
+						if ((atomNumber - 1) % 2 == 0)
+						{
+							text += "a";
+						}
+						else
+						{
+							text += "b";
+						}
+						DrawTextEx(hdc, const_cast<char *>(text.c_str()), text.size(), &crossRect, DT_CENTER | DT_SINGLELINE | DT_VCENTER,
+							NULL);
+					}
+
 					ReleaseDC(eCameraWindowHandle, hdc);
 					DeleteObject(crossPen);
 				}

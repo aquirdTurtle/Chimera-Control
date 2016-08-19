@@ -729,21 +729,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 						{
 							if (eSettingAnalysisLocations)
 							{
-								// check if already set.
-								bool alreadyExists = false;
-								for (int analysisLocationsInc = 0; analysisLocationsInc < eAnalysisPoints.size(); analysisLocationsInc++)
-								{
-									if (horizontalInc == eAnalysisPoints[analysisLocationsInc].first
-										&& ePixelRectangles[pictureInc][horizontalInc].size() - 1 - verticalInc == eAnalysisPoints[analysisLocationsInc].second)
-									{
-										alreadyExists = true;
-										break;
-									}
-								}
-								if (alreadyExists)
-								{
-									break;
-								}
+
 								eAutoAnalysisHandler.setAtomLocation(std::pair<int, int>({ horizontalInc, ePixelRectangles[pictureInc][horizontalInc].size() - 1 - verticalInc }));
 								// draw and set.
 								HDC hdc;
@@ -761,12 +747,34 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 										crossPen = CreatePen(0, 1, RGB(0, 255, 0));
 									}
 									SelectObject(hdc, crossPen);
-									long boxWidth = relevantRect.right - relevantRect.left;
-									long boxHeight = relevantRect.top - relevantRect.bottom;
-									MoveToEx(hdc, relevantRect.left + boxWidth / 4, relevantRect.top - boxHeight / 4, 0);
-									LineTo(hdc, relevantRect.right - boxWidth / 4, relevantRect.bottom + boxHeight / 4);
-									MoveToEx(hdc, relevantRect.right - boxWidth / 4, relevantRect.top - boxHeight / 4, 0);
-									LineTo(hdc, relevantRect.left + boxWidth / 4, relevantRect.bottom + boxHeight / 4);
+									MoveToEx(hdc, relevantRect.left, relevantRect.top, 0);
+									SetBkMode(hdc, TRANSPARENT);
+									SetTextColor(hdc, RGB(200, 200, 200));
+									LineTo(hdc, relevantRect.right, relevantRect.top);
+									LineTo(hdc, relevantRect.right, relevantRect.bottom);
+									LineTo(hdc, relevantRect.left, relevantRect.bottom);
+									LineTo(hdc, relevantRect.left, relevantRect.top);
+									int atomNumber = eAutoAnalysisHandler.getAtomLocations().size();
+									if (eAutoAnalysisHandler.getSelectedAnalysisType() == "" || eAutoAnalysisHandler.getSelectedAnalysisType() == "Single Point Analysis")
+									{
+										DrawTextEx(hdc, const_cast<char *>(std::to_string(atomNumber).c_str()), std::to_string(atomNumber).size(), 
+											&relevantRect, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL);
+									}
+									else
+									{
+										std::string text = std::to_string((atomNumber - 1) / 2 + 1).c_str();
+										// assume pair analysis.
+										if ((atomNumber - 1) % 2 == 0)
+										{
+											text += "a";
+										}
+										else
+										{
+											text += "b";
+										}
+										DrawTextEx(hdc, const_cast<char *>(text.c_str()), text.size(), &relevantRect, DT_CENTER | DT_SINGLELINE | DT_VCENTER, 
+											NULL);
+									}
 									ReleaseDC(eCameraWindowHandle, hdc);
 									DeleteObject(crossPen);
 								}
@@ -1542,6 +1550,9 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 								" of pictures per experiment. Please revise either the current setting or the plot file.").c_str(), 0, 0);
 							errCheck = true;
 						}
+
+						tempInfoCheck.setGroups(eAutoAnalysisHandler.getAtomLocations());
+
 						std::vector<std::pair<int, int>> plotLocations = tempInfoCheck.getAllPixelLocations();
 						for (int locationInc = 0; locationInc < plotLocations.size(); locationInc++)
 						{
@@ -1549,13 +1560,13 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 							if (plotLocations[locationInc].first < 1 || plotLocations[locationInc].first > currentImageParameters.height)
 							{
 								errBox("ERROR: one of your real-time plots, plot # " + std::to_string(plotInc + 1) + ", wants to plot outside the height of the "
-									"andor camera window. The requested row was " + std::to_string(plotLocations[locationInc].first) + ", but the height "
+									"andor camera window. The requested row was " + std::to_string(plotLocations[locationInc].first + 1) + ", but the height "
 									"(starting at 1) of the image is" + std::to_string(currentImageParameters.height) + ".");
 							}
 							if (plotLocations[locationInc].second < 1 || plotLocations[locationInc].second > currentImageParameters.width)
 							{
 								errBox("ERROR: one of your real-time plots, plot # " + std::to_string(plotInc + 1) + ", wants to plot outside the width of the "
-									"andor camera window. The requested row was " + std::to_string(plotLocations[locationInc].second) + ", but the width "
+									"andor camera window. The requested row was " + std::to_string(plotLocations[locationInc].second + 1) + ", but the width "
 									"(starting at 1) of the image is" + std::to_string(currentImageParameters.width) + ".");
 							}
 						}

@@ -29,8 +29,8 @@ class PlottingInfo
 		int addGroup();
 		int removeAnalysisSet();
 		int resetNumberOfAnalysisGroups(int groupNumber);
+		bool setGroups(std::vector<std::pair<int, int>> locations);
 		
-
 		int addPixel();
 		int removePixel();
 		int resetPixelNumber(int pixelNumber);
@@ -101,6 +101,7 @@ class PlottingInfo
 		int numberOfPictures;
 		int currentPixelNumber;
 		int currentConditionNumber;
+		//int pixelNumber;
 		// two options here.
 		std::string xAxis;
 		// three options here.

@@ -76,14 +76,6 @@ namespace dialogProcedures
 			case WM_INITDIALOG:
 			{
 				/// Load predetermined Combos.
-				// Atom Locations
-				HWND atomLocationsHandle = GetDlgItem(thisDialogHandle, IDC_PLOT_CREATOR_GROUP_LOCATIONS_COMBO);
-				for (int groupInc = 0; groupInc < eCurrentPlottingInfo.getPixelGroupNumber(); groupInc++)
-				{
-					SendMessage(atomLocationsHandle, CB_ADDSTRING, 0, (LPARAM)("Group #" + std::to_string(groupInc + 1)).c_str());
-				}
-				SendMessage(atomLocationsHandle, CB_ADDSTRING, 0, (LPARAM)"Add New Group");
-				SendMessage(atomLocationsHandle, CB_ADDSTRING, 0, (LPARAM)"Remove Group");
 				// Pixel #
 				HWND pixelNumHandle = GetDlgItem(thisDialogHandle, IDC_PLOT_CREATOR_PIXEL_NUMBER_COMBO);
 				for (int pixelInc = 0; pixelInc < eCurrentPlottingInfo.getPixelNumber(); pixelInc++)
@@ -285,58 +277,40 @@ namespace dialogProcedures
 						EndDialog(thisDialogHandle, 1);
 						break;
 					}
-					case IDC_PLOT_CREATOR_GROUP_LOCATIONS_COMBO:
+					case IDC_PLOT_CREATOR_PIXELS_PER_GROUP:
 					{
-						if (HIWORD(wParam) == CBN_SELCHANGE)
+						if (HIWORD(wParam) == EN_KILLFOCUS)
 						{
-							/// Save the old stuff.
-							HWND atomLocationsComboHandle = GetDlgItem(thisDialogHandle, IDC_PLOT_CREATOR_GROUP_LOCATIONS_COMBO);
-							TCHAR locationComboText[256];
-							long long itemIndex = SendMessage(atomLocationsComboHandle, CB_GETCURSEL, 0, 0);
-							if (itemIndex == -1)
+							TCHAR text[256];
+							GetWindowText(GetDlgItem(thisDialogHandle, IDC_PLOT_CREATOR_PIXELS_PER_GROUP), text, 256);
+							std::string textStr(text);
+							int pixelNum;
+							try
 							{
-								// user didn't select anything.
+								pixelNum = std::stoi(textStr);
+							}
+							catch (std::invalid_argument&)
+							{
+								errBox("ERROR: Pixels per Group did not convert to an integer!");
+								SendMessage(GetDlgItem(thisDialogHandle, IDC_PLOT_CREATOR_PIXELS_PER_GROUP), WM_SETTEXT, 0, (LPARAM)"");
+								pixelNum = -1;
+							}
+							if (pixelNum == -1)
+							{
 								break;
 							}
+							eCurrentPlottingInfo.resetPixelNumber(pixelNum);
+							HWND pixelTrueHandle = GetDlgItem(thisDialogHandle, IDC_PLOT_CREATOR_POSITIVE_PIXEL_NUMBER_COMBO);
+							HWND pixelPostHandle = GetDlgItem(thisDialogHandle, IDC_PLOT_CREATOR_POST_PIXEL_NUMBER_COMBO);
+							SendMessage(pixelTrueHandle, CB_RESETCONTENT, 0, 0);
+							SendMessage(pixelPostHandle, CB_RESETCONTENT, 0, 0);
 
-							myPlot::saveAnalysisPixelLocations(thisDialogHandle, true);
-							SendMessage(atomLocationsComboHandle, (UINT)CB_GETLBTEXT, (WPARAM)itemIndex, (LPARAM)locationComboText);
-							std::string locationComboString(locationComboText);
-							if (locationComboString == "Add New Group")
+							for (int pixelInc = 0; pixelInc < pixelNum; pixelInc++)
 							{
-								eCurrentAnalysisSetSelectionNumber = -1;
-								int numberOfItems = SendMessage(atomLocationsComboHandle, CB_GETCOUNT, 0, 0);
-								std::string atomLocationNewItem = "Group #" + std::to_string(numberOfItems - 1);
-								SendMessage(atomLocationsComboHandle, CB_ADDSTRING, 0, (LPARAM)atomLocationNewItem.c_str());
-								eCurrentPlottingInfo.addGroup();
-							}
-							else if (locationComboString == "Remove Group")
-							{
-								eCurrentAnalysisSetSelectionNumber = -1;
-								int numberOfItems = SendMessage(atomLocationsComboHandle, CB_GETCOUNT, 0, 0);
-								if (numberOfItems < 4)
-								{
-									MessageBox(0, "Can't delete last Group.", 0, 0);
-									break;
-								}
-								SendMessage(atomLocationsComboHandle, CB_DELETESTRING, numberOfItems - 2, 0);
-								// remove one pixel set from each pixel 
-								eCurrentPlottingInfo.removeAnalysisSet();
-							}
-							else
-							{
-								// should be exact here because of natural ordering.
-								eCurrentAnalysisSetSelectionNumber = itemIndex - 1;
-								// load current numbers into the edits.
-								if (eCurrentAnalysisSetSelectionNumber >= 0 && eCurrentPixelSelectionNumber >= 0)
-								{
-									int row, collumn;
-									eCurrentPlottingInfo.getPixelLocation(eCurrentPixelSelectionNumber, eCurrentAnalysisSetSelectionNumber, row, collumn);
-									SendMessage(GetDlgItem(thisDialogHandle, IDC_PLOT_CREATOR_PIXEL_RO_EDIT), WM_SETTEXT, 0,
-												(LPARAM)std::to_string(row).c_str());
-									SendMessage(GetDlgItem(thisDialogHandle, IDC_PLOT_CREATOR_PIXEL_COLLUMN_EDIT), WM_SETTEXT, 0,
-												(LPARAM)std::to_string(collumn).c_str());
-								}
+								std::string pixelNumberNewItem = "Pixel #" + std::to_string(pixelInc + 1) + " Location:";
+								std::string pixelTrueConditionStr = "Pixel #" + std::to_string(pixelInc + 1);
+								SendMessage(pixelTrueHandle, CB_ADDSTRING, 0, (LPARAM)pixelTrueConditionStr.c_str());
+								SendMessage(pixelPostHandle, CB_ADDSTRING, 0, (LPARAM)pixelTrueConditionStr.c_str());
 							}
 						}
 						myPlot::enableAndDisable(thisDialogHandle);
@@ -365,6 +339,7 @@ namespace dialogProcedures
 							{
 								eCurrentPixelSelectionNumber = -1;
 								int numberOfItems = SendMessage(pixelNumberHandle, CB_GETCOUNT, 0, 0);
+
 								std::string pixelNumberNewItem = "Pixel #" + std::to_string(numberOfItems - 1) + " Location:";
 								SendMessage(pixelNumberHandle, CB_ADDSTRING, 0, (LPARAM)pixelNumberNewItem.c_str());
 								std::string pixelTrueConditionStr = "Pixel #" + std::to_string(numberOfItems - 1);
@@ -403,27 +378,6 @@ namespace dialogProcedures
 							}
 							myPlot::enableAndDisable(thisDialogHandle);
 						}
-						break;
-					}
-					case IDC_PLOT_CREATOR_LOCATIONS_SHOW_ALL:
-					{
-						myPlot::saveAnalysisPixelLocations(thisDialogHandle, false);
-						HWND setHandle = GetDlgItem(thisDialogHandle, IDC_PLOT_CREATOR_GROUP_LOCATIONS_COMBO);
-						HWND pixelHandle = GetDlgItem(thisDialogHandle, IDC_PLOT_CREATOR_PIXEL_NUMBER_COMBO);
-						std::string allPixelsString = "All Currently Set Analysis Pixels (rowXcollumn):\r\n=========================\r\n\r\n";
-						for (int pixelSetInc = 0; pixelSetInc < SendMessage(setHandle, CB_GETCOUNT, 0, 0) - 2; pixelSetInc++)
-						{
-							allPixelsString += "Set #" + std::to_string(pixelSetInc + 1) + ":\r\n";
-							for (int pixelInc = 0; pixelInc < SendMessage(pixelHandle, CB_GETCOUNT, 0, 0) - 2; pixelInc++)
-							{
-								int row, collumn;
-								eCurrentPlottingInfo.getPixelLocation(pixelInc, pixelSetInc, row, collumn);
-								allPixelsString += "\tPixel #" + std::to_string(pixelInc + 1) + ": ("
-									+ std::to_string(row) + "X"
-									+ std::to_string(collumn) + ")\r\n";
-							}
-						}
-						MessageBox(0, allPixelsString.c_str(), 0, 0);
 						break;
 					}
 					case IDC_PLOT_CREATOR_DATA_SET_COMBO:
