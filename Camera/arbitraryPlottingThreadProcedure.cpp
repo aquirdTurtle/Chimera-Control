@@ -26,9 +26,11 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 	{
 		std::string tempFileName = PLOT_FILES_SAVE_LOCATION + (*inputPointer)[plotInc] + ".plot";
 		allPlottingInfo[plotInc].loadPlottingInfoFromFile(tempFileName);
+		allPlottingInfo[plotInc].setGroups(eAutoAnalysisHandler.getAtomLocations());
 	}
 	// now kill the input.
 	delete inputPointer;
+
 	// run some checks...
 	if (allPlottingInfo.size() == 0)
 	{
@@ -566,7 +568,7 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 								{
 									for (unsigned int groupInc = 0; groupInc < allPlottingInfo[plotInc].getPixelGroupNumber(); groupInc++)
 									{
-										gnuplotPlotCommand += " '-' using 1:2 " + GNUPLOT_COLORS[dataSetInc] + " " + GNUPLOT_MARKERS[groupInc] + " title \"G" + std::to_string(groupInc + 1) + " " + allPlottingInfo[plotInc].getLegendText(dataSetInc) + "\",";
+										gnuplotPlotCommand += " '-' using 1:2 " + GNUPLOT_COLORS[groupInc] + " " + GNUPLOT_MARKERS[dataSetInc] + " title \"G" + std::to_string(groupInc + 1) + " " + allPlottingInfo[plotInc].getLegendText(dataSetInc) + "\",";
 										if (allPlottingInfo[plotInc].getWhenToFit(dataSetInc) == REAL_TIME_FIT 
 											|| (allPlottingInfo[plotInc].getWhenToFit(dataSetInc) == FIT_AT_END 
 												&& eCurrentThreadAccumulationNumber == eTotalNumberOfPicturesInSeries))
@@ -600,8 +602,8 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 												}
 											}
 											ePlotter << plotString;
-											gnuplotPlotCommand += " f" + fitNum + "(x) title fit" + std::to_string(groupInc) + " " + GNUPLOT_COLORS[dataSetInc] 
-												+ " " + GNUPLOT_LINETYPES[groupInc] + ",";
+											gnuplotPlotCommand += " f" + fitNum + "(x) title fit" + std::to_string(groupInc) + " " + GNUPLOT_COLORS[groupInc] 
+												+ " " + GNUPLOT_LINETYPES[dataSetInc] + ",";
 										}
 									}
 								}
@@ -611,7 +613,7 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 									{
 										if (finalData[plotInc][dataSetInc][groupInc].size() >= eNumberOfRunsToAverage)
 										{
-											gnuplotPlotCommand += " '-' using 1:2 " + GNUPLOT_COLORS[dataSetInc] + " with lines title \"G" 
+											gnuplotPlotCommand += " '-' using 1:2 " + GNUPLOT_COLORS[groupInc] + " with lines title \"G" 
 												+ std::to_string(groupInc + 1) + " " + allPlottingInfo[plotInc].getLegendText(dataSetInc) + "\",";
 										}
 									}
@@ -624,8 +626,8 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 									for (unsigned int groupInc = 0; groupInc < finalAverages[plotInc][dataSetInc].size(); groupInc++)
 									{
 										gnuplotPlotCommand += " '-' using 1:2:3 with yerrorbars title \"G" + std::to_string(groupInc + 1) + " " 
-											+ allPlottingInfo[plotInc].getLegendText(dataSetInc) + "\" " + GNUPLOT_COLORS[dataSetInc] + " " 
-											+ GNUPLOT_MARKERS[groupInc] + " pointsize 0.5,";
+											+ allPlottingInfo[plotInc].getLegendText(dataSetInc) + "\" " + GNUPLOT_COLORS[groupInc] + " " 
+											+ GNUPLOT_MARKERS[dataSetInc] + " pointsize 0.5,";
 										if (allPlottingInfo[plotInc].getWhenToFit(dataSetInc) == REAL_TIME_FIT
 											|| (allPlottingInfo[plotInc].getWhenToFit(dataSetInc) == FIT_AT_END
 												&& eCurrentThreadAccumulationNumber == eTotalNumberOfPicturesInSeries))
@@ -655,7 +657,7 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 												}
 											}
 											ePlotter << plotString;
-											gnuplotPlotCommand += " f" + fitNum + "(x) title fit" + fitNum + " " + GNUPLOT_COLORS[dataSetInc] + " " + GNUPLOT_LINETYPES[groupInc] + ",";
+											gnuplotPlotCommand += " f" + fitNum + "(x) title fit" + fitNum + " " + GNUPLOT_COLORS[groupInc] + " " + GNUPLOT_LINETYPES[dataSetInc] + ",";
 										}
 									}
 								}
@@ -740,7 +742,7 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 								std::string singleHist = " '-' using (5 * floor(($1)/5) - " + std::to_string(boxWidth * (totalGroupNum * dataSetInc + groupInc)
 									- spaceFactor * 0.5 + spaceFactor * 0.5 / (totalGroupNum * totalDataSetNum))
 									+ ") : (1.0) smooth freq with boxes title \"G " + std::to_string(groupInc + 1) + " " 
-									+ allPlottingInfo[plotInc].getLegendText(dataSetInc) + "\" " + GNUPLOT_COLORS[dataSetInc] + " " + GNUPLOT_MARKERS[groupInc] + ",";
+									+ allPlottingInfo[plotInc].getLegendText(dataSetInc) + "\" " + GNUPLOT_COLORS[groupInc] + " " + GNUPLOT_MARKERS[dataSetInc] + ",";
 								gnuCommand += singleHist;
 							}
 						}

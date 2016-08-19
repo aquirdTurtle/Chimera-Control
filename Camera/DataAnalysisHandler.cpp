@@ -450,7 +450,18 @@ bool DataAnalysisHandler::onButtonPushed()
 
 bool DataAnalysisHandler::setAtomLocation(std::pair<int, int> location)
 {
-	atomLocations.push_back(location);
+	bool exists = false;
+	for (int locInc = 0; locInc < this->atomLocations.size(); locInc++)
+	{
+		if (location == atomLocations[locInc])
+		{
+			exists = true;
+		}
+	}
+	if (!exists)
+	{
+		atomLocations.push_back(location);
+	}
 	return false;
 }
 std::vector<std::pair<int, int>> DataAnalysisHandler::getAtomLocations()
@@ -473,4 +484,16 @@ bool DataAnalysisHandler::combosAreEmpty()
 	{
 		return false;
 	}
+}
+
+std::string DataAnalysisHandler::getSelectedAnalysisType()
+{
+	int selection = SendMessage(this->autoAnalysisTypeCombo.hwnd, CB_GETCURSEL, 0, 0);
+	if (selection == -1)
+	{
+		return "";
+	}
+	TCHAR text[256];
+	SendMessage(this->autoAnalysisTypeCombo.hwnd, CB_GETLBTEXT, selection, (LPARAM)text);
+	return text;
 }

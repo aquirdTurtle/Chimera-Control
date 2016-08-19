@@ -93,7 +93,7 @@ int DataSet::addPixel(int pictureNumber)
 	for (int postSelectionConditionInc = 0; postSelectionConditionInc < postSelectionConditions.size(); postSelectionConditionInc++)
 	{
 		postSelectionConditions[postSelectionConditionInc].resize(currentPixelNum + 1);
-		postSelectionConditions[postSelectionConditionInc][currentPixelNum].resize(pictureNumber);
+		postSelectionConditions[postSelectionConditionInc][currentPixelNum].resize(pictureNumber); ///
 	}
 
 	return 0;
@@ -336,10 +336,15 @@ int DataSet::resetPixelNumber(int pixelNumber)
 	// trueConditions[Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)
 	trueConditions.clear();
 	trueConditions.resize(pixelNumber);
-
+	// resize the true conditions.
+	for (int pixelInc = 0; pixelInc < pixelNumber; pixelInc++)
+	{
+		trueConditions[pixelInc].resize(pixelNumber);
+	}
 	// postSelectionConditions[Condition#][Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)
 	for (int conditionInc = 0; conditionInc < postSelectionConditions.size(); conditionInc++)
 	{
+		
 		postSelectionConditions[conditionInc].clear();
 		postSelectionConditions[conditionInc].resize(pixelNumber);
 	}

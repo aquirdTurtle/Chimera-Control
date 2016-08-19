@@ -177,7 +177,6 @@
     <ClInclude Include="appendText.h" />
     <ClInclude Include="arbitraryPlottingThreadProcedure.h" />
     <ClInclude Include="ATMCD32D.H" />
-    <ClInclude Include="autoAnalysisThreadProcedure.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CameraImageParameters.h" />
     <ClInclude Include="cameraThread.h" />
@@ -218,7 +217,6 @@
     <ClCompile Include="appendColoredText.cpp" />
     <ClCompile Include="appendText.cpp" />
     <ClCompile Include="arbitraryPlottingThreadProcedure.cpp" />
-    <ClCompile Include="autoAnalysisThreadProcedure.cpp" />
     <ClCompile Include="CameraImageParameters.cpp" />
     <ClCompile Include="cameraMain.cpp" />
     <ClCompile Include="cameraThread.cpp" />

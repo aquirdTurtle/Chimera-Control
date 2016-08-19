@@ -14,11 +14,11 @@ PlottingInfo::PlottingInfo()
 	// one line to plot.
 	dataSets.resize(1);
 	//
-	analysisGroups.clear();
+	//analysisGroups.clear();
 	// one pixel
-	analysisGroups.resize(1);
+	//analysisGroups.resize(1);
 	// one analysis set.
-	analysisGroups[0].resize(1);
+	//analysisGroups[0].resize(1);
 	//
 	currentPixelNumber = 1;
 	currentConditionNumber = 1;
@@ -326,28 +326,6 @@ std::string PlottingInfo::returnAllInfo()
 	message += "y Label: " + yLabel + "\r\n";
 	message += "x axis: " + xAxis + "\r\n";
 	message += "file name: " + fileName + "\r\n";
-	
-	message += "\r\nAll Currently Set Analysis Pixels (rowXcollumn):\r\n=========================\r\n\r\n";
-	if (analysisGroups.size() != 0)
-	{
-		for (int pixelGroupInc = 0; pixelGroupInc < analysisGroups[0].size(); pixelGroupInc++)
-		{
-			message += "Group #" + std::to_string(pixelGroupInc + 1) + ":\r\n";
-			for (int pixelInc = 0; pixelInc < analysisGroups.size(); pixelInc++)
-			{
-				int row, collumn;
-				row = analysisGroups[pixelInc][pixelGroupInc][0];
-				collumn = analysisGroups[pixelInc][pixelGroupInc][1];
-				message += "\tPixel #" + std::to_string(pixelInc + 1) + ": ("
-					+ std::to_string(row) + "X"
-					+ std::to_string(collumn) + ")\r\n";
-			}
-		}
-	}
-	else
-	{
-		message += "No analysis pixels???\r\n";
-	}
 
 	message += "\r\nAll Current Truth Conditions:\r\n=========================\r\n\r\n";
 	for (int dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
@@ -432,32 +410,8 @@ int PlottingInfo::savePlotInfo()
 	message += std::to_string(dataSets.size()) + "\n";
 	message += std::to_string(currentConditionNumber) + "\n";
 	message += std::to_string(currentPixelNumber) + "\n";
-
-	if (currentPixelNumber > 0)
-	{
-		message += std::to_string(analysisGroups[0].size()) + "\n";
-	}
-	else
-	{
-		message += "0\n";
-	}
 	message += std::to_string(numberOfPictures) + "\n";
 
-	message += "ANALYSIS PIXELS START\n";
-	
-	for (int pixelSetInc = 0; pixelSetInc < analysisGroups[0].size(); pixelSetInc++)
-	{
-		message += "GROUP BEGIN\n";
-		for (int pixelInc = 0; pixelInc < analysisGroups.size(); pixelInc++)
-		{
-			int row, collumn;
-			row = analysisGroups[pixelInc][pixelSetInc][0];
-			collumn = analysisGroups[pixelInc][pixelSetInc][1];
-			message += std::to_string(row) + " " + std::to_string(collumn) + "\n";
-		}
-		message += "GROUP END\n";
-	}
-	message += "ANALYSIS PIXELS END\n";
 	message += "TRUTH BEGIN\n";
 	for (int dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
 	{
@@ -595,19 +549,6 @@ int PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 		MessageBox(0, ("ERROR: Couldn't read pixel number from file. The pixel string was " + testString).c_str(), 0, 0);
 		return -1;
 	}
-	/// Analysis Group Number
-	getline(loadingFile, testString);
-	int tempAnalysisGroupNumber;
-	try
-	{
-		tempAnalysisGroupNumber = std::stoi(testString);
-		resetNumberOfAnalysisGroups(tempAnalysisGroupNumber);
-	}
-	catch (std::invalid_argument&)
-	{
-		MessageBox(0, ("ERROR: Couldn't read analysis group number from file. The analysis group string was " + testString).c_str(), 0, 0);
-		return -1;
-	}
 	/// Picture Number
 	getline(loadingFile, testString);
 	try
@@ -622,89 +563,6 @@ int PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	}
 
 	/// Analys pixels
-	getline(loadingFile, testString);
-	if (testString != "ANALYSIS PIXELS START")
-	{
-		MessageBox(0, ("File Corrupted or malformatted! Expected \"ANALYSIS PIXELS START\", but saw instead" + testString).c_str(), 0, 0);
-		return -1;
-	}
-
-	// all loops in this function are broken out with break;
-	// loop for pixel locations
-	int analysisGroupCount = 0;
-	while (true)
-	{
-		// loop for an individual set
-		getline(loadingFile, testString);
-
-		if (testString != "GROUP BEGIN")
-		{
-			if (testString == "ANALYSIS PIXELS END")
-			{
-				break;
-			}
-			else
-			{
-				MessageBox(0, ("File Corrupted or malformatted! Expected \"GROUP BEGIN\", but saw instead" + testString).c_str(), 0, 0);
-				return -1;
-			}
-		}
-		if (analysisGroupCount >= tempAnalysisGroupNumber)
-		{
-			MessageBox(0, "File Corrupted or malformatted! There are more analysis groups recorded than the number listed at the beginning of the file.", 0, 0);
-			return -1;
-		}
-		int pixelCount = 0;
-		while (true)
-		{
-			std::stringstream tempStream;
-			std::string rowStr, collumnStr;
-			int row, collumn;
-
-			getline(loadingFile, testString);
-			if (testString == "GROUP END")
-			{
-				break;
-			}
-			tempStream << testString;
-			tempStream >> rowStr;
-			try
-			{
-				row = std::stoi(rowStr);
-			}
-			catch (std::invalid_argument&)
-			{
-				MessageBox(0, ("ERROR: Row listed in file did not convert to integer correctly. Row string was" + rowStr).c_str(), 0, 0);
-				return -1;
-			}
-
-			tempStream >> collumnStr;
-			try
-			{
-				collumn = std::stoi(collumnStr);
-			}
-			catch (std::invalid_argument&)
-			{
-				MessageBox(0, ("ERROR: collumn listed in file did not convert to integer correctly. collumn string was" + collumnStr).c_str(), 0, 0);
-				return -1;
-			}
-			setGroupLocation(pixelCount, analysisGroupCount, row, collumn);
-			pixelCount++;
-		}
-		if (pixelCount != currentPixelNumber)
-		{
-			MessageBox(0, ("ERROR: pixel number recorded in file doesn't match actual number of pixels for analysis group #" 
-							+ std::to_string(analysisGroupCount)).c_str(), 0, 0);
-			return -1;
-		}
-		analysisGroupCount++;
-	}
-	if (analysisGroupCount != analysisGroups[0].size())
-	{
-		MessageBox(0, "ERROR: analysis groups number recorded in the file doesn't match information recorded.", 0, 0);
-		return -1;
-	}
-
 	getline(loadingFile, testString);
 	if (testString != "TRUTH BEGIN")
 	{
@@ -1051,6 +909,7 @@ int PlottingInfo::resetPixelNumber(int pixelNumber)
 	for (int dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
 	{
 		dataSets[dataSetInc].resetPixelNumber(pixelNumber);
+		dataSets[dataSetInc].resetPictureNumber(this->numberOfPictures);
 	}
 	return 0;
 }
@@ -1208,4 +1067,25 @@ std::vector<std::pair<int, int>> PlottingInfo::getAllPixelLocations()
 		}
 	}
 	return allUniqueLocations;
+}
+
+bool PlottingInfo::setGroups(std::vector<std::pair<int, int>> locations)
+{
+	if (locations.size() % this->currentPixelNumber != 0)
+	{
+		errBox("ERROR: One of your real-time plots was expecting a multiple of " + std::to_string(this->currentPixelNumber) + " pixels to analyze, but you "
+			"selected " + std::to_string(locations.size()) + " pixels.");
+		return false;
+	}
+	int locationInc = 0;
+	for (int groupInc = 0; groupInc < locations.size() / this->currentPixelNumber; groupInc++)
+	{
+		this->addGroup();
+		for (int pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
+		{
+			this->setGroupLocation(pixelInc, groupInc, locations[locationInc].first+1, locations[locationInc].second+1);
+			locationInc++;
+		}
+	}
+	return true;
 }
