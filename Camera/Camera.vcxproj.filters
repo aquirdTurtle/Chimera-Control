@@ -141,6 +141,9 @@
     <ClInclude Include="errBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="EmbeddedPythonHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appendText.cpp">
@@ -228,6 +231,9 @@
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="errBox.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EmbeddedPythonHandler.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
   </ItemGroup>

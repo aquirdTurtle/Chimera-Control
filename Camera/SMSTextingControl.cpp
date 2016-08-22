@@ -7,6 +7,7 @@
 #include <algorithm>
 #include "appendText.h"
 #include "reorganizeControl.h"
+#include <Algorithm>
 
 SMSTextingControl::SMSTextingControl()
 {
@@ -246,78 +247,40 @@ bool SMSTextingControl::deletePersonInfo(HWND parentHandle, LPARAM lparamOfMessa
 	return false;
 }
 
-bool SMSTextingControl::sendMessage(std::string message)
+bool SMSTextingControl::sendMessage(std::string message, EmbeddedPythonHandler* pyHandler, std::string msgType)
 {
-	::CoInitialize(NULL);
-	mailObject = NULL;
-	mailObject.CreateInstance("EASendMailObj.Mail");
-	if (mailObject == NULL)
+	if (msgType == "Loading")
 	{
-		message = "Couldn't initialize SMTP messaging object. Is the EASendMailObj system installed?\r\n";
-		return true;
-	}
-	// do I need to pay for this at some point...?
-	mailObject->LicenseCode = _T("TryIt");
-	// Set your sender email address
-	mailObject->FromAddr = emailAddress.c_str();
-	// Add recipients email address
-	std::string recipientString;
-	bool moreThanOne = false;
-	recipientString = "";
-	for (int peopleInc = 0; peopleInc < peopleToText.size(); peopleInc++)
-	{
-		if (peopleToText[peopleInc].textWhenComplete)
+		for (personInfo& person : this->peopleToText)
 		{
-			if (moreThanOne)
+			if (person.textIfLoadingStops)
 			{
-				recipientString += ", ";
+				// send text gives an appropriate error message.
+				if (pyHandler->sendText(person, message, "Not Loading Atoms", this->emailAddress, this->password))
+				{
+					return true;
+				}
 			}
-			moreThanOne = true;
-			recipientString += peopleToText[peopleInc].number;
-			if (peopleToText[peopleInc].provider == "verizon")
-			{
-				// for verizon: [number]@vzwpix.com
-				recipientString += "@vzwpix.com";
-			}
-			else if (peopleToText[peopleInc].provider == "tmobile")
-			{
-				// for tmobile: [number]@tmomail.net
-				recipientString += "@tmomail.net";
-			}
-		}		
+		}
 	}
-	if (recipientString == "")
+	else if (msgType == "Finished")
 	{
-		// no people to send messages to.
-		return false;
-	}
-	mailObject->AddRecipientEx(recipientString.c_str(), 0);
-	// Set email subject
-	mailObject->Subject = "";
-
-	// Set email body
-	mailObject->BodyText = message.c_str();
-
-	// Your SMTP server address
-	mailObject->ServerAddr = "smtp.gmail.com";
-
-	mailObject->UserName = emailAddress.c_str();
-	mailObject->Password = password.c_str();
-
-	// Set SSL 465 port
-	mailObject->ServerPort = 465;
-
-	// Set direct SSL connection
-	mailObject->SSL_starttls = 0;
-	mailObject->SSL_init();
-
-	if (mailObject->SendMail() == 0)
-	{
-		appendText("Users have been notified via text of status update.", IDC_STATUS_EDIT);
+		for (personInfo& person : this->peopleToText)
+		{
+			if (person.textWhenComplete)
+			{
+				// send text gives an appropriate error message.
+				if (pyHandler->sendText(person, message, "Experiment Finished", this->emailAddress, this->password))
+				{
+					return true;
+				}
+			}
+		}
 	}
 	else
 	{
-		appendText("Failed to notify users via text with error:" + std::string((const TCHAR*)mailObject->GetLastErrDescription()), IDC_ERROR_EDIT);
+		errBox("ERROR: unrecognized text message type: " + msgType);
+		return true;
 	}
 	return false;
 }
