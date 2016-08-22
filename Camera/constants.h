@@ -59,6 +59,10 @@ const std::vector<std::string> GNUPLOT_LINETYPES{"dt 1",
 												 "dt 3",
 												 "dt 4"};
 
+#define RAW_COUNTS "Raw Counts"
+#define CAMERA_PHOTONS "Camera Photons"
+#define ATOM_PHOTONS "Atom Photons"
+
 #define UPDATE_TEXT 12000
 #define CHANGE_FORMAT 12001
 #define NO_FIT 12002

@@ -8,30 +8,7 @@
 #include "appendText.h"
 #include "myAndor.h"
 #include "frameobject.h"
-
-DataAnalysisHandler::DataAnalysisHandler()
-{
-	Py_SetPythonHome(PYTHON_HOME);
-	Py_Initialize();
-	PyRun_SimpleString("from astropy.io import fits");
-	PyRun_SimpleString("import numpy");
-	PyRun_SimpleString("numpy.set_printoptions(threshold = numpy.nan)");
-	PyRun_SimpleString("from matplotlib.pyplot import figure, hist, plot, title, xlabel, ylabel, subplots, errorbar, show, draw");
-	PyRun_SimpleString("from matplotlib.cm import get_cmap");
-	PyRun_SimpleString("from dataAnalysisFunctions import normalizeData, binData, guessGaussianPeaks, doubleGaussian, fitDoubleGaussian,"
-					   "calculateAtomThreshold, getAnalyzedSurvivalData");
-	// Make sure that python can find my module.
-	PyRun_SimpleString("import sys");
-	PyRun_SimpleString(("sys.path.append(\"" + ANALYSIS_CODE_LOCATION + "\")").c_str());
-	PyObject* pythonModuleName = PyUnicode_DecodeFSDefault("AutoanalysisFunctions");
-	pythonModule = PyImport_Import(pythonModuleName);
-}
-
-DataAnalysisHandler::~DataAnalysisHandler()
-{
-	// this seems unncecessary since this class is a global singleton, and it tends to cause the code to crash upon exit for some reason. This might be fixed now.
-	//Py_Finalize();
-}
+#include "EmbeddedPythonHandler.h"
 
 bool DataAnalysisHandler::reorganizeControls(RECT parentRectangle, std::string cameraMode)
 {
@@ -222,7 +199,7 @@ bool DataAnalysisHandler::addNameToCombo()
 	return false;
 }
 
-bool DataAnalysisHandler::analyze(std::string date, long runNumber, long accumulations)
+bool DataAnalysisHandler::analyze(std::string date, long runNumber, long accumulations, EmbeddedPythonHandler* pyHandler)
 {
 	std::string analysisFunctionName, analysisType;
 	std::string outputName, details1, details2;
@@ -262,155 +239,28 @@ bool DataAnalysisHandler::analyze(std::string date, long runNumber, long accumul
 	details2 = std::string(text);
 
 	// python is initialized in the constructor for the data handler object. 
-	appendText("Beginning Data Analysis... ", IDC_STATUS_EDIT);
+	appendText("Beginning Data Analysis...\r\n", IDC_STATUS_EDIT);
 	// Get information to send to the python script from inputParam
 	//std::string moduleName = "SingleAtomAnalysisFunction";
-
-	if (pythonModule != NULL)
+	std::string completeName = outputName;
+	if (details1 != "")
 	{
-		PyObject* pythonFunction = PyObject_GetAttrString(pythonModule, analysisFunctionName.c_str());
-		// function calls for these functions are the same because they are so simple.
-		if (analysisFunctionName == "singlePointAnalysis" || analysisFunctionName == "pairAnalysis")
-		{
-			// make sure this function is okay.
-			if (pythonFunction && PyCallable_Check(pythonFunction))
-			{
-				PyObject* pythonFunctionArguments = PyTuple_New(6);
+		completeName += "_" + details1;
+	}
+	if (details2 != "")
+	{
+		completeName += "_" + details2;
+	}
 
-				PyObject* pythonDate = Py_BuildValue("s", date.c_str());
-				// check success
-				if (!pythonDate)
-				{
-					Py_DECREF(pythonFunctionArguments);
-					Py_DECREF(pythonModule);
-					appendText("Cannot Convert date\r\n", IDC_ERROR_EDIT);
-					return true;
-				}
-				PyTuple_SetItem(pythonFunctionArguments, 0, pythonDate);
-
-				PyObject* pythonRunNumber = PyLong_FromLong(runNumber);
-				if (!pythonRunNumber)
-				{
-					Py_DECREF(pythonFunctionArguments);
-					Py_DECREF(pythonModule);
-					appendText("Cannot Convert run number\r\n", IDC_ERROR_EDIT);
-					std::cin.get();
-					return 1;
-				}
-				PyTuple_SetItem(pythonFunctionArguments, 1, pythonRunNumber);
-
-
-				// create the numpy array of atom locations. this is a 1D array, the other code assumes two numbers per picture.
-				PyObject* pythonAtomLocationsArray = PyTuple_New(atomLocations.size() * 2);
-				for (int atomInc = 0; atomInc < atomLocations.size(); atomInc++)
-				{
-					// order is flipped.
-					PyTuple_SetItem(pythonAtomLocationsArray, 2*atomInc, PyLong_FromLong(atomLocations[atomInc].second));
-					PyTuple_SetItem(pythonAtomLocationsArray, 2*atomInc + 1, PyLong_FromLong(atomLocations[atomInc].first));
-				}
-				PyTuple_SetItem(pythonFunctionArguments, 2, pythonAtomLocationsArray);
-				// format of function arguments:
-				// def analyzeSingleLocation(date, runNumber, atomLocationRow, atomLocationColumn, picturesPerExperiment, accumulations, fileName) :
-				// hard-coded for now (might change or remove later...)
-				PyObject* pythonPicturesPerExperiment = PyLong_FromLong(2);
-				if (!pythonPicturesPerExperiment)
-				{
-					Py_DECREF(pythonFunctionArguments);
-					appendText("Cannot Convert Pictures per experiment\r\n", IDC_ERROR_EDIT);
-					return true;
-				}
-				PyTuple_SetItem(pythonFunctionArguments, 3, pythonPicturesPerExperiment);
-
-				PyObject* pythonAccumulations = PyLong_FromLong(accumulations);
-				if (!pythonAccumulations)
-				{
-					Py_DECREF(pythonFunctionArguments);
-					appendText("Cannot Convert Accumulations\r\n", IDC_ERROR_EDIT);
-					return 1;
-				}
-				PyTuple_SetItem(pythonFunctionArguments, 4, pythonAccumulations);
-				// new:
-				std::string completeName = outputName;
-				if (details1 != "")
-				{
-					completeName += "_" + details1;
-				}
-				if (details2 != "")
-				{
-					completeName += "_" + details2;
-				}
-				PyObject* pythonOutputName = Py_BuildValue("s", completeName.c_str());
-				if (!pythonOutputName)
-				{
-					Py_DECREF(pythonFunctionArguments);
-					appendText("Cannot Convert Run Number!\r\n", IDC_ERROR_EDIT);
-					return 1;
-				}
-				PyTuple_SetItem(pythonFunctionArguments, 5, pythonOutputName);
-
-				PyObject* pythonReturnValue = PyObject_CallObject(pythonFunction, pythonFunctionArguments);
-				// I think not including this line below is a memory leak but I also think that it might be the cause of some annoying memory issues... not sure which, maybe both.
-				//Py_DECREF(pythonFunctionArguments);
-				if (pythonReturnValue != NULL)
-				{
-					//MessageBox(0, "About to output.", 0, 0);
-					std::string result = std::string(PyBytes_AS_STRING(PyUnicode_AsEncodedString(pythonReturnValue, "ASCII", "strict")));
-					appendText("Result of call: " + result + "\r\n", IDC_ERROR_EDIT);
-					Py_DECREF(pythonReturnValue);
-				}
-				else
-				{
-					// get the error details1
-					PyObject *pExcType, *pExcValue, *pExcTraceback;
-					std::string execType, execValue, execTraceback = "";
-					PyErr_Fetch(&pExcType, &pExcValue, &pExcTraceback);
-					PyErr_NormalizeException(&pExcType, &pExcValue, &pExcTraceback);
-					if (pExcType != NULL)
-					{
-						PyObject* pRepr = PyObject_Repr(pExcType);
-						execType = std::string(PyBytes_AS_STRING(PyUnicode_AsEncodedString(pRepr, "ASCII", "strict")));
-						Py_XDECREF(pRepr);
-						Py_XDECREF(pExcType);
-					}
-					if (pExcValue != NULL)
-					{
-						PyObject* pRepr = PyObject_Repr(pExcValue);
-						execValue = std::string(PyBytes_AS_STRING(PyUnicode_AsEncodedString(pRepr, "ASCII", "strict")));
-						Py_XDECREF(pRepr);
-						Py_XDECREF(pExcValue);
-					}
-					if (pExcTraceback != NULL)
-					{
-						/*
-						PyObject* pRepr = PyObject_Repr(pExcTraceback);
-						execTraceback = std::string(PyBytes_AS_STRING(PyUnicode_AsEncodedString(pRepr, "ASCII", "strict")));
-						Py_XDECREF(pRepr);
-						Py_XDECREF(pExcTraceback);
-						*/
-					}
-					//std::string fileName = std::string(PyBytes_AS_STRING((traceback->tb_frame->f_code->co_filename), "ASCII", "string"));
-					appendText("Python Call Failed: " + execType + "; " + execValue + "; " + execTraceback + "\r\n", IDC_ERROR_EDIT);
-					appendText("Failed.\r\n", IDC_STATUS_EDIT);
-					return 1;
-				}
-			}
-			else
-			{
-				if (PyErr_Occurred())
-				{
-					PyErr_Print();
-				}
-				appendText("Failed to load function\r\n", IDC_ERROR_EDIT);
-			}
-			Py_XDECREF(pythonFunction);
-		}
+	if (pyHandler->runDataAnalysis(analysisType, date, runNumber, accumulations, completeName, this->atomLocations))
+	{
+		appendText("Data Analysis Failed!\r\n", IDC_STATUS_EDIT);
+		appendText("Data Analysis Failed!\r\n", IDC_ERROR_EDIT);
 	}
 	else
 	{
-		appendText("Failed to load module\r\n", IDC_ERROR_EDIT);
-		return 1;
+		appendText("Finished Data Analysis!\r\n", IDC_STATUS_EDIT);
 	}
-	appendText("Finished!\r\n", IDC_STATUS_EDIT);
 	return false;
 }
 

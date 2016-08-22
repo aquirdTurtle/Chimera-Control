@@ -16,6 +16,7 @@
 #include "DataAnalysisHandler.h"
 #include "CameraImageParameters.h"
 #include "AlertSystem.h"
+#include "EmbeddedPythonHandler.h"
 
 /// THINGS THAT THE USER SETS !@$#!@#$!@#$!@$!@#$!@#$!@$#!@#$!@#$@!#$!$!@#$!@#$@!$#@!#$!@#$!@$#!#$!@#$!@#$!@#$!@#$!@$#!@$#!@$#!@$#@!#$!@$#!@$#!@#$!@$#!@$#!@$#!#
 // extern bool eFitsOkay;
@@ -29,6 +30,7 @@ extern ExperimentTimer eCameraWindowExperimentTimer;
 extern DataAnalysisHandler eAutoAnalysisHandler;
 extern CameraImageParameters eImageParameters;
 extern AlertSystem eAlerts;
+extern EmbeddedPythonHandler Python;
 
 extern std::array<int, 4> eCurrentMaximumPictureCount;
 extern std::array<int, 4> eCurrentMinimumPictureCount;
@@ -220,5 +222,5 @@ extern HANDLE ePlottingThreadHandle;
 // The codes that the thread passes back to the main program. 
 extern unsigned int eAccMessageID, eFinMessageID, eErrMessageID;
 
-
+extern std::string eDataType;
 

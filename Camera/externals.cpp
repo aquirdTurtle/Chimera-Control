@@ -12,6 +12,7 @@
 #include "DataFileSystem.h"
 #include "SMSTextingControl.h"
 #include "AlertSystem.h"
+#include "EmbeddedPythonHandler.h"
 
 /// \\\ THINGS THAT THE USER SETS \\\ ///
 ConfigurationFileSystem eCameraFileSystem(CAMERA_CONFIGURATION_FILES_LOCATION);
@@ -21,6 +22,8 @@ SMSTextingControl eTextingHandler;
 DataAnalysisHandler eAutoAnalysisHandler;
 CameraImageParameters eImageParameters;
 AlertSystem eAlerts(8000);
+EmbeddedPythonHandler Python;
+
 bool eSettingAnalysisLocations = false;
 bool eRealTimePictures = false;
 bool eAutoanalyzeData = false;
@@ -219,3 +222,5 @@ volatile bool ePlotThreadExitIndicator;
 unsigned int eAccMessageID = 0, eFinMessageID = 0, eErrMessageID = 0;
 HANDLE eCameraThreadHandle;
 HANDLE ePlottingThreadHandle;
+
+std::string eDataType;

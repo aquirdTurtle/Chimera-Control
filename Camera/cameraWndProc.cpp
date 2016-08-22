@@ -896,6 +896,45 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 			int controlID = LOWORD(wParam);
 			switch (controlID)
 			{
+				case ID_DATATYPE_RAWCOUNTS:
+				{
+					MENUITEMINFO itemInfo;
+					itemInfo.cbSize = sizeof(MENUITEMINFO);
+					itemInfo.fMask = MIIM_STATE;
+					HMENU myMenu = GetMenu(hWnd);
+					// don't check if it's pressed. You can't unselect all options here, it must be one of them.
+					CheckMenuItem(myMenu, ID_DATATYPE_RAWCOUNTS, MF_CHECKED);
+					eDataType = RAW_COUNTS;
+					CheckMenuItem(myMenu, ID_DATATYPE_PHOTONSONCAMERA, MF_UNCHECKED);
+					CheckMenuItem(myMenu, ID_DATATYPE_EST, MF_UNCHECKED);
+					break;
+				}
+				case ID_DATATYPE_PHOTONSONCAMERA:
+				{
+					MENUITEMINFO itemInfo;
+					itemInfo.cbSize = sizeof(MENUITEMINFO);
+					itemInfo.fMask = MIIM_STATE;
+					HMENU myMenu = GetMenu(hWnd);
+					// don't check if it's pressed. You can't unselect all options here, it must be one of them.
+					CheckMenuItem(myMenu, ID_DATATYPE_RAWCOUNTS, MF_UNCHECKED);
+					CheckMenuItem(myMenu, ID_DATATYPE_PHOTONSONCAMERA, MF_CHECKED);
+					eDataType = CAMERA_PHOTONS;
+					CheckMenuItem(myMenu, ID_DATATYPE_EST, MF_UNCHECKED);
+					break;
+				}
+				case ID_DATATYPE_EST:
+				{
+					MENUITEMINFO itemInfo;
+					itemInfo.cbSize = sizeof(MENUITEMINFO);
+					itemInfo.fMask = MIIM_STATE;
+					HMENU myMenu = GetMenu(hWnd);
+					// don't check if it's pressed. You can't unselect all options here, it must be one of them.
+					CheckMenuItem(myMenu, ID_DATATYPE_RAWCOUNTS, MF_UNCHECKED);
+					CheckMenuItem(myMenu, ID_DATATYPE_PHOTONSONCAMERA, MF_UNCHECKED);
+					CheckMenuItem(myMenu, ID_DATATYPE_EST, MF_CHECKED);
+					eDataType = ATOM_PHOTONS;
+					break;
+				}
 				case IDC_AUTOANALYZE_CHECKBOX:
 				{
 					BOOL checked = IsDlgButtonChecked(hWnd, IDC_AUTOANALYZE_CHECKBOX);
@@ -1249,7 +1288,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 				}
 				case IDC_ANALYZE_MOST_RECENT:
 				{
-					eAutoAnalysisHandler.analyze(eExperimentData.getDate(), eExperimentData.getDataFileNumber(), eRepetitionsPerVariation);
+					eAutoAnalysisHandler.analyze(eExperimentData.getDate(), eExperimentData.getDataFileNumber(), eRepetitionsPerVariation, &Python);
 					break;
 				}
 				case IDC_SET_ANALYSIS_LOCATION:
@@ -2484,11 +2523,10 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 				message += std::to_string(now.tm_sec);
 				appendText(message, IDC_STATUS_EDIT);
 
-				// :(
-				//eTextingHandler.sendMessage(message);
+				eTextingHandler.sendMessage(message, &Python, "Finished");
 				if (eAutoanalyzeData)
 				{
-					eAutoAnalysisHandler.analyze(eExperimentData.getDate(), eExperimentData.getDataFileNumber(), eRepetitionsPerVariation);
+					eAutoAnalysisHandler.analyze(eExperimentData.getDate(), eExperimentData.getDataFileNumber(), eRepetitionsPerVariation, &Python);
 				}
 				if (eAlerts.soundIsToBePlayed())
 				{

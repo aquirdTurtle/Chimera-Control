@@ -4,18 +4,17 @@
 #include <string>
 #include <vector>
 #include "Python.h"
+#include "EmbeddedPythonHandler.h"
 // This class will eventually handle all of the automatic data analysis. Right now, pretty empty.
 class DataAnalysisHandler
 {
 	public:
-		DataAnalysisHandler::DataAnalysisHandler();
-		DataAnalysisHandler::~DataAnalysisHandler();
 		bool reorganizeControls(RECT parentRectangle, std::string cameraMode);
 		bool initializeControls(POINT& topLeftPositionKinetic, POINT& topLeftPositionAccumulate, POINT& topLeftPositionContinuous,
 								HWND parentWindow, bool isTriggerModeSensitive);
 		bool updateDataSetNumberEdit(int number);
 		bool addNameToCombo();
-		bool analyze(std::string date, long runNumber, long accumulations);
+		bool analyze(std::string date, long runNumber, long accumulations, EmbeddedPythonHandler* pyHandler);
 		bool onButtonPushed();
 		bool setAtomLocation(std::pair<int, int> location);
 		std::vector<std::pair<int, int>> getAtomLocations();
@@ -36,5 +35,4 @@ class DataAnalysisHandler
 		Control setAnalysisLocationsButton;
 		Control analyzeMostRecentButton;
 		std::vector<std::pair<int, int>> atomLocations;
-		PyObject* pythonModule;
 };

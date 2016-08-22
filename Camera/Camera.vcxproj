@@ -187,6 +187,7 @@
     <ClInclude Include="DataSet.h" />
     <ClInclude Include="dialogProcedures.h" />
     <ClInclude Include="drawDataWindow.h" />
+    <ClInclude Include="EmbeddedPythonHandler.h" />
     <ClInclude Include="errBox.h" />
     <ClInclude Include="ExperimentTimer.h" />
     <ClInclude Include="externals.h" />
@@ -225,6 +226,7 @@
     <ClCompile Include="DataFileSystem.cpp" />
     <ClCompile Include="DataSet.cpp" />
     <ClCompile Include="dialogProcedures.cpp" />
+    <ClCompile Include="EmbeddedPythonHandler.cpp" />
     <ClCompile Include="errBox.cpp" />
     <ClCompile Include="ExperimentTimer.cpp" />
     <ClCompile Include="externals.cpp" />
