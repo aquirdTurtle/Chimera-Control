@@ -71,36 +71,40 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <ExecutablePath>C:\Users\Mark\Downloads\mathgl-2.3.5.1.Win10-mingw.i386\bin;C:\Program Files (x86)\GnuWin32\include;$(ExecutablePath)</ExecutablePath>
-    <IncludePath>C:\Users\Mark\Downloads\mathgl-2.3.5.1.Win10-mingw.i386\include;C:\Program Files %28x86%29\GnuWin32\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Mark\Downloads\mathgl-2.3.5.1.Win10-mingw.i386\lib;$(LibraryPath)</LibraryPath>
+    <ExecutablePath>C:\Users\Mark\Downloads\mathgl-2.3.5.1.Win10-mingw.i386\bin;C:\Program Files (x86)\GnuWin32\include;$(ExecutablePath); C:\root_v5.34.36\bin; </ExecutablePath>
+    <IncludePath>C:\Users\Mark\Downloads\mathgl-2.3.5.1.Win10-mingw.i386\include;C:\Program Files %28x86%29\GnuWin32\include;$(IncludePath);C:\root_v5.34.36\include</IncludePath>
+    <LibraryPath>C:\root_v5.34.36\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);;C:\root_v5.34.36\include</IncludePath>
+    <LibraryPath>C:\root_v5.34.36\lib;$(LibraryPath)</LibraryPath>
+    <ExecutablePath>C:\root_v5.34.36\bin; $(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(PATH);</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <ExecutablePath>C:\Users\Mark\Downloads\mathgl-2.3.5.1.Win10-mingw.i386\bin;C:\Program Files (x86)\GnuWin32\include;$(ExecutablePath)</ExecutablePath>
-    <IncludePath>C:\Users\Mark\Downloads\mathgl-2.3.5.1.Win10-mingw.i386\include;C:\Program Files %28x86%29\GnuWin32\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Mark\Downloads\mathgl-2.3.5.1.Win10-mingw.i386\lib;$(LibraryPath)</LibraryPath>
+    <ExecutablePath>C:\Users\Mark\Downloads\mathgl-2.3.5.1.Win10-mingw.i386\bin;C:\Program Files (x86)\GnuWin32\include;$(ExecutablePath); C:\root_v5.34.36\bin; </ExecutablePath>
+    <IncludePath>C:\Users\Mark\Downloads\mathgl-2.3.5.1.Win10-mingw.i386\include;C:\Program Files %28x86%29\GnuWin32\include;$(IncludePath);C:\root_v5.34.36\include</IncludePath>
+    <LibraryPath>C:\root_v5.34.36\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Users\Mark\Downloads\mathgl-2.3.5.1.Win10-mingw.i386\include;C:\Program Files (x86)\GnuWin32\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Mark\Downloads\mathgl-2.3.5.1.Win10-mingw.i386\lib;$(LibraryPath)</LibraryPath>
-    <ExecutablePath>C:\Users\Mark\Downloads\mathgl-2.3.5.1.Win10-mingw.i386\bin;$(ExecutablePath)</ExecutablePath>
+    <IncludePath>C:\Users\Mark\Downloads\mathgl-2.3.5.1.Win10-mingw.i386\include;C:\Program Files (x86)\GnuWin32\include;$(IncludePath);C:\root_v5.34.36\include</IncludePath>
+    <LibraryPath>C:\root_v5.34.36\lib;$(LibraryPath)</LibraryPath>
+    <ExecutablePath>C:\root_v5.34.36\bin; C:\Users\Mark\Downloads\mathgl-2.3.5.1.Win10-mingw.i386\bin;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS; WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\root_v5.34.36\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -108,12 +112,13 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS; _DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\root_v5.34.36\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -123,7 +128,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS; WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -131,6 +136,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\root_v5.34.36\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -140,7 +146,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS; NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -149,6 +155,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>libmgl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\root_v5.34.36\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

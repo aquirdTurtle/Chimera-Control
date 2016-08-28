@@ -156,6 +156,8 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 	}
 	
 	int noAtomsCounter = 0;
+	// this is used to keep track of the first time you start loosing atoms
+	int atomCounterTotal = 0;
 
 	int plotNumberCount = 0;
 	// this effectively just keeps track of whether a "slow" message has been sent to the main window yet or not. Only want to send once.
@@ -173,7 +175,6 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 			{
 				PostMessage(eCameraWindowHandle, ePlottingIsSlowMessage, 0, 0);
 				plotIsSlowStatus = true;
-				// TODO: post warning to the main thread that the plotting thread is running behind.
 			}
 			else if (eImageVecQueue.size() == 1 && plotIsSlowStatus == true)
 			{
@@ -229,9 +230,8 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 			{
 				if (eAlerts.alertsAreToBeUsed())
 				{
-					eAlerts.alertMainThread();
+					eAlerts.alertMainThread(noAtomsCounter);
 				}
-				noAtomsCounter = 0;
 			}
 
 			/// check if have enough data to plot
@@ -275,435 +275,108 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 			{
 				/// DATA ANALYSIS
 				/// Data Set Loop - need to kill.
-				//for (int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
-				//{
-					/// ///////////////////////////////
-					/// Check Post-Selection Conditions
-					// initialize this vector to all true. 
-					// satisfiesPostSelectionConditions[dataSetInc][groupInc] = true or false
-					std::vector<std::vector<bool> > satisfiesPostSelectionConditions;
-					satisfiesPostSelectionConditions.resize(allPlottingInfo[plotInc].getDataSetNumber());
-					for (int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
+				/// ///////////////////////////////
+				/// Check Post-Selection Conditions
+				// initialize this vector to all true. 
+				// satisfiesPostSelectionConditions[dataSetInc][groupInc] = true or false
+				std::vector<std::vector<bool> > satisfiesPostSelectionConditions;
+				satisfiesPostSelectionConditions.resize(allPlottingInfo[plotInc].getDataSetNumber());
+				for (int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
+				{
+					satisfiesPostSelectionConditions[dataSetInc].resize(allPlottingInfo[plotInc].getPixelGroupNumber());
+					for (int groupInc = 0; groupInc < satisfiesPostSelectionConditions[dataSetInc].size(); groupInc++)
 					{
-						satisfiesPostSelectionConditions[dataSetInc].resize(allPlottingInfo[plotInc].getPixelGroupNumber());
-						for (int groupInc = 0; groupInc < satisfiesPostSelectionConditions[dataSetInc].size(); groupInc++)
+						satisfiesPostSelectionConditions[dataSetInc][groupInc] = true;
+					}
+				}
+				// check if actually true.
+				for (int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
+				{
+					for (int groupInc = 0; groupInc < allPlottingInfo[plotInc].getPixelGroupNumber(); groupInc++)
+					{
+						for (int conditionInc = 0; conditionInc < allPlottingInfo[plotInc].getConditionNumber(); conditionInc++)
 						{
-							satisfiesPostSelectionConditions[dataSetInc][groupInc] = true;
+							for (int pixelInc = 0; pixelInc < allPlottingInfo[plotInc].getPixelNumber(); pixelInc++)
+							{
+								for (int pictureInc = 0; pictureInc < allPlottingInfo[plotInc].getPictureNumber(); pictureInc++)
+								{
+									// test if condition exists
+									int condition = allPlottingInfo[plotInc].getPostSelectionCondition(dataSetInc, conditionInc, pixelInc, pictureInc);
+									if (condition != 0)
+									{
+										if (condition == 1 && atomPresentData[allPlottingInfo[plotInc].getPixelIndex(pixelInc, groupInc)][pictureInc] != 1)
+										{
+											satisfiesPostSelectionConditions[dataSetInc][groupInc] = false;
+										}
+										else if (condition == -1 && atomPresentData[allPlottingInfo[plotInc].getPixelIndex(pixelInc, groupInc)][pictureInc] != 0)
+										{
+											satisfiesPostSelectionConditions[dataSetInc][groupInc] = false;
+										}
+									}
+								}
+							}
 						}
 					}
-					// check if actually true.
-					for (int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
+				}
+				/// ??? (Title?)
+				if (allPlottingInfo[plotInc].getPlotType() == "Atoms" || allPlottingInfo[plotInc].getPlotType() == "Pixel Counts")
+				{
+					if (eCurrentThreadAccumulationNumber % ePicturesPerVariation == picturesPerExperiment)
 					{
-						for (int groupInc = 0; groupInc < allPlottingInfo[plotInc].getPixelGroupNumber(); groupInc++)
+						for (int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
 						{
-							for (int conditionInc = 0; conditionInc < allPlottingInfo[plotInc].getConditionNumber(); conditionInc++)
+							// TODO: if x axis = average over experiments... else...
+							finalData[plotInc][dataSetInc].clear();
+							finalData[plotInc][dataSetInc].resize(allPlottingInfo[plotInc].getPixelGroupNumber());
+							newData[plotInc][dataSetInc].resize(allPlottingInfo[plotInc].getPixelGroupNumber());
+							std::fill(newData[plotInc][dataSetInc].begin(), newData[plotInc][dataSetInc].end(), true);
+						}
+					}
+					/// Check Data Conditions
+					if (allPlottingInfo[plotInc].getPlotType() == "Atoms")
+					{
+						for (int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
+						{
+							for (int groupInc = 0; groupInc < allPlottingInfo[plotInc].getPixelGroupNumber(); groupInc++)
 							{
+								if (satisfiesPostSelectionConditions[dataSetInc][groupInc] == false)
+								{
+									// no new data.
+									continue;
+								}
+								bool dataVal = true;
 								for (int pixelInc = 0; pixelInc < allPlottingInfo[plotInc].getPixelNumber(); pixelInc++)
 								{
 									for (int pictureInc = 0; pictureInc < allPlottingInfo[plotInc].getPictureNumber(); pictureInc++)
 									{
-										// test if condition exists
-										int condition = allPlottingInfo[plotInc].getPostSelectionCondition(dataSetInc, conditionInc, pixelInc, pictureInc);
-										if (condition != 0)
+										// check if there is a condition at all
+										int truthCondition = allPlottingInfo[plotInc].getTruthCondition(dataSetInc, pixelInc, pictureInc);
+										if (truthCondition != 0)
 										{
-											if (condition == 1 && atomPresentData[allPlottingInfo[plotInc].getPixelIndex(pixelInc, groupInc)][pictureInc] != 1)
+											int pixel = allPlottingInfo[plotInc].getPixelIndex(pixelInc, groupInc);
+											if (truthCondition == 1 && atomPresentData[pixel][pictureInc] != 1)
 											{
-												satisfiesPostSelectionConditions[dataSetInc][groupInc] = false;
+												dataVal = false;
 											}
-											else if (condition == -1 && atomPresentData[allPlottingInfo[plotInc].getPixelIndex(pixelInc, groupInc)][pictureInc] != 0)
+											else if (truthCondition == 0 && atomPresentData[allPlottingInfo[plotInc].getPixelIndex(pixelInc, groupInc)][pictureInc] != 0)
 											{
-												satisfiesPostSelectionConditions[dataSetInc][groupInc] = false;
+												dataVal = false;
 											}
 										}
 									}
+								}
+								finalData[plotInc][dataSetInc][groupInc].push_back(dataVal);
+								// then the size of the containers gets updated every time.
+								if (allPlottingInfo[plotInc].getXAxis() == "Running Average")
+								{
+									newData[plotInc][dataSetInc][groupInc] = true;
 								}
 							}
 						}
 					}
-					/// ??? (Title?)
-					if (allPlottingInfo[plotInc].getPlotType() == "Atoms" || allPlottingInfo[plotInc].getPlotType() == "Pixel Counts")
+					else if (allPlottingInfo[plotInc].getPlotType() == "Pixel Counts")
 					{
-						if (eCurrentThreadAccumulationNumber % ePicturesPerVariation == picturesPerExperiment)
-						{
-							for (int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
-							{
-								// TODO: if x axis = average over experiments... else...
-								finalData[plotInc][dataSetInc].clear();
-								finalData[plotInc][dataSetInc].resize(allPlottingInfo[plotInc].getPixelGroupNumber());
-								newData[plotInc][dataSetInc].resize(allPlottingInfo[plotInc].getPixelGroupNumber());
-								std::fill(newData[plotInc][dataSetInc].begin(), newData[plotInc][dataSetInc].end(), true);
-							}
-						}
-						/// Check Data Conditions
-						if (allPlottingInfo[plotInc].getPlotType() == "Atoms")
-						{
-							for (int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
-							{
-								for (int groupInc = 0; groupInc < allPlottingInfo[plotInc].getPixelGroupNumber(); groupInc++)
-								{
-									if (satisfiesPostSelectionConditions[dataSetInc][groupInc] == false)
-									{
-										// no new data.
-										continue;
-									}
-									bool dataVal = true;
-									for (int pixelInc = 0; pixelInc < allPlottingInfo[plotInc].getPixelNumber(); pixelInc++)
-									{
-										for (int pictureInc = 0; pictureInc < allPlottingInfo[plotInc].getPictureNumber(); pictureInc++)
-										{
-											// check if there is a condition at all
-											int truthCondition = allPlottingInfo[plotInc].getTruthCondition(dataSetInc, pixelInc, pictureInc);
-											if (truthCondition != 0)
-											{
-												int pixel = allPlottingInfo[plotInc].getPixelIndex(pixelInc, groupInc);
-												if (truthCondition == 1 && atomPresentData[pixel][pictureInc] != 1)
-												{
-													dataVal = false;
-												}
-												else if (truthCondition == 0 && atomPresentData[allPlottingInfo[plotInc].getPixelIndex(pixelInc, groupInc)][pictureInc] != 0)
-												{
-													dataVal = false;
-												}
-											}
-										}
-									}
-									finalData[plotInc][dataSetInc][groupInc].push_back(dataVal);
-									// then the size of the containers gets updated every time.
-									if (allPlottingInfo[plotInc].getXAxis() == "Running Average")
-									{
-										newData[plotInc][dataSetInc][groupInc] = true;
-									}
-								}
-							}
-						}
-						else if (allPlottingInfo[plotInc].getPlotType() == "Pixel Counts")
-						{
-							for (int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
-							{
-								for (int groupInc = 0; groupInc < allPlottingInfo[plotInc].getPixelGroupNumber(); groupInc++)
-								{
-									if (satisfiesPostSelectionConditions[dataSetInc][groupInc] == false)
-									{
-										continue;
-									}
-									int pixel, picture;
-									// passing pixel and picture by reference.
-									allPlottingInfo[plotInc].getDataCountsLocation(dataSetInc, pixel, picture);
-									// for a given group, figure out which picture
-									finalData[plotInc][dataSetInc][groupInc].push_back(pixelData[allPlottingInfo[plotInc].getPixelIndex(pixel, groupInc)][picture]);
-								}
-							}
-						}
-						std::vector<double> keyData = eExperimentData.getKey();
-						/// Calculate averages and standard devations for Data sets AND groups...
-						if (plotNumberCount % ePlottingFrequency == 0)
-						{
-							for (int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
-							{
-								for (int groupInc = 0; groupInc < allPlottingInfo[plotInc].getPixelGroupNumber(); groupInc++)
-								{
-									// check if first picture of set
-									if (eCurrentThreadAccumulationNumber % ePicturesPerRepetition != 0)
-									{
-										continue;
-									}
-									// position for new data point.
-									double position;
-									if (newData[plotInc][dataSetInc][groupInc] == true)
-									{
-										finalAverages[plotInc][dataSetInc][groupInc].resize(finalAverages[plotInc][dataSetInc][groupInc].size() + 1);
-										// integer division here.
-										if (allPlottingInfo[plotInc].getXAxis() == "Running Average")
-										{
-											finalXVals[plotInc][dataSetInc][groupInc].resize(finalXVals[plotInc][dataSetInc][groupInc].size() + 1);
-											if (!(finalData[plotInc][dataSetInc][groupInc].size() >= eNumberOfRunsToAverage))
-											{
-												position = (std::accumulate(finalXVals[plotInc][dataSetInc][groupInc].begin(), finalXVals[plotInc][dataSetInc][groupInc].end(), 0.0) + finalData[plotInc][dataSetInc][groupInc].size()) / finalData[plotInc][dataSetInc][groupInc].size();
-												finalXVals[plotInc][dataSetInc][groupInc].back() = position;
-											}
-										}
-										else
-										{
-											finalErrorBars[plotInc][dataSetInc][groupInc].resize(finalErrorBars[plotInc][dataSetInc][groupInc].size() + 1);
-											position = (eCurrentThreadAccumulationNumber - 1) / ePicturesPerVariation + 1;
-											
-											finalXVals[plotInc][dataSetInc][groupInc].push_back(keyData[position - 1]);
-										}
-										// set the flag to not do this again before this array gets reset at beginning of the next accumulation stack.
-										newData[plotInc][dataSetInc][groupInc] = false;
-									}
-									// calculate new data points
-									if (allPlottingInfo[plotInc].getXAxis() == "Running Average")
-									{
-										if (finalData[plotInc][dataSetInc][groupInc].size() >= eNumberOfRunsToAverage)
-										{
-											double sum = std::accumulate(finalData[plotInc][dataSetInc][groupInc].end() - eNumberOfRunsToAverage, finalData[plotInc][dataSetInc][groupInc].end(), 0.0);
-											double mean = sum / eNumberOfRunsToAverage;
-											finalAverages[plotInc][dataSetInc][groupInc].back() = mean;
-											position = (std::accumulate(finalXVals[plotInc][dataSetInc][groupInc].end() - eNumberOfRunsToAverage + 1, finalXVals[plotInc][dataSetInc][groupInc].end(), 0.0) + finalData[plotInc][dataSetInc][groupInc].size()) / eNumberOfRunsToAverage;
-											finalXVals[plotInc][dataSetInc][groupInc].back() = position;
-											std::string  plotString = "set xrange [" + std::to_string(finalXVals[plotInc][dataSetInc][groupInc][0] - 1) + ":" + std::to_string(finalXVals[plotInc][dataSetInc][groupInc].back() + 1) + "]\n";
-											ePlotter << plotString;
-										}
-									}
-									else
-									{
-										double sum = std::accumulate(finalData[plotInc][dataSetInc][groupInc].begin(), finalData[plotInc][dataSetInc][groupInc].end(), 0.0);
-										double mean = sum / finalData[plotInc][dataSetInc][groupInc].size();
-										double squaredSum = std::inner_product(finalData[plotInc][dataSetInc][groupInc].begin(), finalData[plotInc][dataSetInc][groupInc].end(),
-											finalData[plotInc][dataSetInc][groupInc].begin(), 0.0);
-										double error = ((double)std::sqrt(squaredSum / finalData[plotInc][dataSetInc][groupInc].size() - mean * mean))
-											/ std::sqrt(finalData[plotInc][dataSetInc][groupInc].size());
-										finalAverages[plotInc][dataSetInc][groupInc].back() = mean;
-										
-										finalErrorBars[plotInc][dataSetInc][groupInc].back() = error;
-									}
-									// 
-								}
-							}
-							/// General Plotting Options
-							std::string plotString;
-							plotString = "set terminal wxt " + std::to_string(plotInc) + " title \"" + allPlottingInfo[plotInc].getTitle() + "\" noraise\n";
-							ePlotter << plotString.c_str();
-							plotString = "set format y \"%.1f\"\n";
-							ePlotter << plotString.c_str();
-							if (allPlottingInfo[plotInc].getPlotType() == "Atoms")
-							{
-								// set x range.
-								double xRangeMin = *std::min_element(keyData.begin(), keyData.end());
-								double xRangeMax = *std::max_element(keyData.begin(), keyData.end());
-								double range = xRangeMax - xRangeMin;
-								xRangeMin -= range / keyData.size();
-								xRangeMax += range / keyData.size();
-								std::string  plotString = "set xrange [" + std::to_string(xRangeMin) + ":" + std::to_string(xRangeMax) + "]\n";
-								ePlotter << plotString.c_str();
-								ePlotter << "set grid ytics lc rgb \"#bbbbbb\" lw 1 lt 0\n";
-								ePlotter << "set grid xtics lc rgb \"#bbbbbb\" lw 1 lt 0\n";
-								plotString = "set yrange [-0.1:1.1]\n";																
-								ePlotter << plotString.c_str();
-							}
-							else
-							{
-								plotString = "set autoscale y\n";
-								ePlotter << plotString.c_str();
-							}
-							plotString = "set title \"" + allPlottingInfo[plotInc].getTitle() + "\"\n";
-							ePlotter << plotString.c_str();
-							plotString = "set xlabel \"Key Value\"\n";
-							ePlotter << plotString.c_str();
-							plotString = "set ylabel \"" + allPlottingInfo[plotInc].getYLabel() + "\"\n";
-							ePlotter << plotString.c_str();
-							/// FITTING
-							for (int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
-							{
-								if (allPlottingInfo[plotInc].getWhenToFit(dataSetInc) == REAL_TIME_FIT
-									|| (allPlottingInfo[plotInc].getWhenToFit(dataSetInc) == FIT_AT_END
-										&& eCurrentThreadAccumulationNumber == eTotalNumberOfPicturesInSeries))
-								{
-									for (int groupInc = 0; groupInc < allPlottingInfo[plotInc].getPixelGroupNumber(); groupInc++)
-									{
-										std::string fitNum = std::to_string(allPlottingInfo[plotInc].getPixelGroupNumber() * dataSetInc + groupInc);
-										// in this case, fitting.
-										switch (allPlottingInfo[plotInc].getFitOption(dataSetInc))
-										{
-											// the to_string argument in each case is a unique number indicating the fit given the data set and group. I need
-											// to keep track of each fit separately so that I can plot them all later. 
-											case GAUSSIAN_FIT:
-											{
-												plotString = "f" + fitNum + "(x) = A" + fitNum + " * exp(-(x - B" + fitNum + ")**2 / (2 * C" + fitNum + "))\n";
-												ePlotter << plotString.c_str();
-												plotString = "A" + fitNum + " = 1\n";
-												ePlotter << plotString.c_str();
-												plotString = "B" + fitNum + " = " + std::to_string(finalXVals[plotInc][dataSetInc][groupInc].size() / 2.0) + "\n";
-												ePlotter << plotString.c_str();
-												plotString = "C" + fitNum + " = 1\n";
-												ePlotter << plotString.c_str();
-												plotString = "fit f" + fitNum + "(x) '-' using 1:2 via A" + fitNum + ", B" + fitNum + ", C" + fitNum + "\n";
-												ePlotter << plotString.c_str();
-												break;
-											}
-											case LORENTZIAN_FIT:
-											{
-												plotString = "f" + fitNum + "(x) = (A" + fitNum + " / (2 * 3.14159265359)) / ((x - B" + fitNum + ")**2 + (A" + fitNum + " / 2)**2)\n";
-												ePlotter << plotString.c_str();
-												plotString = "A" + fitNum + " = 1\n";
-												ePlotter << plotString.c_str();
-												plotString = "B" + fitNum + " = " + std::to_string(finalXVals[plotInc][dataSetInc][groupInc].size() / 2.0) + "\n";
-												ePlotter << plotString.c_str();
-												plotString = "fit f" + fitNum + "(x) '-' using 1:2 via A" + fitNum + ", B" + fitNum + "\n";
-												ePlotter << plotString.c_str();
-												break;
-											}
-											case SINE_FIT:
-											{
-												plotString = "f" + fitNum + "(x) = A" + fitNum + " * sin(B" + fitNum + " * x + C" + fitNum + ") * exp( - D" + fitNum + " * x)\n";
-												ePlotter << plotString.c_str();
-												plotString = "A" + fitNum + " = 1\n";
-												ePlotter << plotString.c_str();
-												plotString = "B" + fitNum + " = 1\n";
-												ePlotter << plotString.c_str();
-												plotString = "C" + fitNum + " = 1\n";
-												ePlotter << plotString.c_str();
-												plotString = "D" + fitNum + " = 1\n";
-												ePlotter << plotString.c_str();
-												plotString = "fit f" + fitNum + "(x) '-' using 1:2 via A" + fitNum + ", B" + fitNum + ", C" + fitNum + ", D" + fitNum + "\n";
-												ePlotter << plotString.c_str();
-												break;
-											}
-											default:
-											{
-												MessageBox(0, "Coding Error: Bad Fit option!", 0, 0);
-											}
-										}
-										ePlotter.send1d(boost::make_tuple(finalXVals[plotInc][dataSetInc][groupInc], finalAverages[plotInc][dataSetInc][groupInc]));
-									}
-								}
-							}
-							/// SEND PLOT COMMANDS AND DATA
-							/// send plot commands
-							std::string gnuplotPlotCommand = "plot";
-							if (allPlottingInfo[plotInc].getXAxis() == "Running Average")
-							{
-								for (unsigned int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
-								{
-									for (unsigned int groupInc = 0; groupInc < allPlottingInfo[plotInc].getPixelGroupNumber(); groupInc++)
-									{
-										gnuplotPlotCommand += " '-' using 1:2 " + GNUPLOT_COLORS[groupInc] + " " + GNUPLOT_MARKERS[dataSetInc] + " title \"G" + std::to_string(groupInc + 1) + " " + allPlottingInfo[plotInc].getLegendText(dataSetInc) + "\",";
-										if (allPlottingInfo[plotInc].getWhenToFit(dataSetInc) == REAL_TIME_FIT 
-											|| (allPlottingInfo[plotInc].getWhenToFit(dataSetInc) == FIT_AT_END 
-												&& eCurrentThreadAccumulationNumber == eTotalNumberOfPicturesInSeries))
-										{
-											std::string fitNum = std::to_string(allPlottingInfo[plotInc].getPixelGroupNumber() * dataSetInc + groupInc);
-											plotString = "fit" + std::to_string(allPlottingInfo[plotInc].getPixelGroupNumber() * dataSetInc + groupInc) + "= ";
-											switch (allPlottingInfo[plotInc].getFitOption(dataSetInc))
-											{
-												case GAUSSIAN_FIT:
-												{
-													plotString += "sprintf(\"%.3f * exp{/Symbol \\\\173}-(x - %.3f)^2 / (2 * %.3f){/Symbol \\\\175}\", A" + fitNum + ", B" + fitNum + ", C" 
-																  + fitNum + ")\n";
-													break;
-												}
-												case LORENTZIAN_FIT:
-												{
-
-													plotString += "sprintf(\"(%.3f / (2 * Pi)) / ((x - %.3f)^2 + ( %.3f / 2)^2)\", A" + fitNum + ", B" + fitNum 
-																  + ", A" + fitNum + ")\n";
-													break;
-												}
-												case SINE_FIT:
-												{
-													plotString += "sprintf(\"%.3f * sin{/Symbol \\\\173}%.3f * x + %.3f{/Symbol \\\\175} * exp{/Symbol \\\\173} - %.3f * x {/Symbol \\\\175}\", A" + fitNum + ", B" + fitNum 
-																  + ", C" + fitNum + ", D" + fitNum + ")\n";
-													break;
-												}
-												default:
-												{
-													MessageBox(0, "Coding Error: Bad Fit option!", 0, 0);
-												}
-											}
-											ePlotter << plotString;
-											gnuplotPlotCommand += " f" + fitNum + "(x) title fit" + std::to_string(groupInc) + " " + GNUPLOT_COLORS[groupInc] 
-												+ " " + GNUPLOT_LINETYPES[dataSetInc] + ",";
-										}
-									}
-								}
-								for (unsigned int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
-								{
-									for (unsigned int groupInc = 0; groupInc < allPlottingInfo[plotInc].getPixelGroupNumber(); groupInc++)
-									{
-										if (finalData[plotInc][dataSetInc][groupInc].size() >= eNumberOfRunsToAverage)
-										{
-											gnuplotPlotCommand += " '-' using 1:2 " + GNUPLOT_COLORS[groupInc] + " with lines title \"G" 
-												+ std::to_string(groupInc + 1) + " " + allPlottingInfo[plotInc].getLegendText(dataSetInc) + "\",";
-										}
-									}
-								}
-							}
-							else
-							{
-								for (unsigned int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
-								{
-									for (unsigned int groupInc = 0; groupInc < finalAverages[plotInc][dataSetInc].size(); groupInc++)
-									{
-										gnuplotPlotCommand += " '-' using 1:2:3 with yerrorbars title \"G" + std::to_string(groupInc + 1) + " " 
-											+ allPlottingInfo[plotInc].getLegendText(dataSetInc) + "\" " + GNUPLOT_COLORS[groupInc] + " " 
-											+ GNUPLOT_MARKERS[dataSetInc] + " pointsize 0.5,";
-										if (allPlottingInfo[plotInc].getWhenToFit(dataSetInc) == REAL_TIME_FIT
-											|| (allPlottingInfo[plotInc].getWhenToFit(dataSetInc) == FIT_AT_END
-												&& eCurrentThreadAccumulationNumber == eTotalNumberOfPicturesInSeries))
-										{
-											std::string fitNum = std::to_string(allPlottingInfo[plotInc].getPixelGroupNumber() * dataSetInc + groupInc);
-											plotString = "fit" + fitNum + "= ";
-											switch (allPlottingInfo[plotInc].getFitOption(dataSetInc))
-											{
-												case GAUSSIAN_FIT:
-												{
-													plotString += "sprintf(\"%.3f * exp{/Symbol \\\\173}-(x - %.3f)^2 / (2 * %.3f){/Symbol \\\\175}\", A" + fitNum + ", B" + fitNum + ", C" + fitNum + ")\n";
-													break;
-												}
-												case LORENTZIAN_FIT:
-												{
-													plotString += "sprintf(\"(%.3f / (2 * Pi)) / ((x - %.3f)^2 + (%.3f / 2)^2)\", A" + fitNum + ", B" + fitNum + ", A" + fitNum + ")\n";
-													break;
-												}
-												case SINE_FIT:
-												{
-													plotString += "sprintf(\"%.3f * sin{/Symbol \\\\173}%.3f * x + %.3f{/Symbol \\\\175} * exp{/Symbol \\\\173} - %.3f * x {/Symbol \\\\175}\", A" + fitNum + ", B" + fitNum + ", C" + fitNum + ", D" + fitNum + ")\n";
-													break;
-												}
-												default:
-												{
-													MessageBox(0, "Coding Error: Bad Fit option!", 0, 0);
-												}
-											}
-											ePlotter << plotString;
-											gnuplotPlotCommand += " f" + fitNum + "(x) title fit" + fitNum + " " + GNUPLOT_COLORS[groupInc] + " " + GNUPLOT_LINETYPES[dataSetInc] + ",";
-										}
-									}
-								}
-							}
-							std::string error;
-							gnuplotPlotCommand += "\n";
-							ePlotter << gnuplotPlotCommand;
-							/// SEND DATA
-							if (allPlottingInfo[plotInc].getXAxis() == "Running Average")
-							{
-								for (unsigned int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
-								{
-									for (unsigned int groupInc = 0; groupInc < allPlottingInfo[plotInc].getPixelGroupNumber(); groupInc++)
-									{
-										ePlotter.send1d(boost::make_tuple(finalXVals[plotInc][dataSetInc][groupInc], finalData[plotInc][dataSetInc][groupInc]));
-									}
-									for (unsigned int groupInc = 0; groupInc < allPlottingInfo[plotInc].getPixelGroupNumber(); groupInc++)
-									{
-										if (finalData[plotInc][dataSetInc][groupInc].size() >= eNumberOfRunsToAverage)
-										{
-											ePlotter.send1d(boost::make_tuple(finalXVals[plotInc][dataSetInc][groupInc],
-																			  finalAverages[plotInc][dataSetInc][groupInc]));
-										}
-									}
-								}
-							}
-							else
-							{
-								for (unsigned int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
-								{
-									for (unsigned int groupInc = 0; groupInc < finalAverages[plotInc][dataSetInc].size(); groupInc++)
-									{
-										ePlotter.send1d(boost::make_tuple(finalXVals[plotInc][dataSetInc][groupInc],
-																		  finalAverages[plotInc][dataSetInc][groupInc],
-																		  finalErrorBars[plotInc][dataSetInc][groupInc]));
-									}
-								}
-							}
-						}
-					}
-					else if (allPlottingInfo[plotInc].getPlotType() == "Pixel Count Histograms")
-					{
-						/// options are fundamentally different for histograms.
-
-						// load pixel counts into data array pixelData
-						for (unsigned int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
+						for (int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
 						{
 							for (int groupInc = 0; groupInc < allPlottingInfo[plotInc].getPixelGroupNumber(); groupInc++)
 							{
@@ -712,51 +385,375 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 									continue;
 								}
 								int pixel, picture;
-								// passing by reference.
+								// passing pixel and picture by reference.
 								allPlottingInfo[plotInc].getDataCountsLocation(dataSetInc, pixel, picture);
 								// for a given group, figure out which picture
 								finalData[plotInc][dataSetInc][groupInc].push_back(pixelData[allPlottingInfo[plotInc].getPixelIndex(pixel, groupInc)][picture]);
 							}
 						}
-						//
-						ePlotter << ("set terminal wxt " + std::to_string(plotInc) + " title \"" + allPlottingInfo[plotInc].getTitle() + "\" noraise\n").c_str();
-						ePlotter << ("set title \"" + allPlottingInfo[plotInc].getTitle() + "\"\n").c_str();
-						ePlotter << "set format y \"%.1f\"\n";
-						ePlotter << "set autoscale x\n";
-						ePlotter << "set yrange [0:*]\n";
-						ePlotter << "set xlabel \"Count #\"\n";
-						ePlotter << "set ylabel \"Occurrences\"\n";
-						double spaceFactor = 0.8;
-						double boxWidth = spaceFactor * 5 / (allPlottingInfo[plotInc].getPixelGroupNumber() * allPlottingInfo[plotInc].getDataSetNumber());
-						ePlotter << "set boxwidth " + std::to_string(boxWidth) + "\n";
-						ePlotter << "set style fill solid 1\n";
-						// leave 0.2 pixels worth of space in between the bins.
-						std::string gnuCommand = "plot";
-						int totalDataSetNum = allPlottingInfo[plotInc].getDataSetNumber();
-						int totalGroupNum = allPlottingInfo[plotInc].getPixelGroupNumber();
-						for (unsigned int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
+					}
+					std::vector<double> keyData = eExperimentData.getKey();
+					/// Calculate averages and standard devations for Data sets AND groups...
+					if (plotNumberCount % ePlottingFrequency == 0)
+					{
+						for (int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
 						{
-							for (unsigned int groupInc = 0; groupInc < allPlottingInfo[plotInc].getPixelGroupNumber(); groupInc++)
+							for (int groupInc = 0; groupInc < allPlottingInfo[plotInc].getPixelGroupNumber(); groupInc++)
 							{
-								// long command that makes hist correctly.
-								std::string singleHist = " '-' using (5 * floor(($1)/5) - " + std::to_string(boxWidth * (totalGroupNum * dataSetInc + groupInc)
-									- spaceFactor * 0.5 + spaceFactor * 0.5 / (totalGroupNum * totalDataSetNum))
-									+ ") : (1.0) smooth freq with boxes title \"G " + std::to_string(groupInc + 1) + " " 
-									+ allPlottingInfo[plotInc].getLegendText(dataSetInc) + "\" " + GNUPLOT_COLORS[groupInc] + " " + GNUPLOT_MARKERS[dataSetInc] + ",";
-								gnuCommand += singleHist;
+								// check if first picture of set
+								if (eCurrentThreadAccumulationNumber % ePicturesPerRepetition != 0)
+								{
+									continue;
+								}
+								// position for new data point.
+								double position;
+								if (newData[plotInc][dataSetInc][groupInc] == true)
+								{
+									finalAverages[plotInc][dataSetInc][groupInc].resize(finalAverages[plotInc][dataSetInc][groupInc].size() + 1);
+									// integer division here.
+									if (allPlottingInfo[plotInc].getXAxis() == "Running Average")
+									{
+										finalXVals[plotInc][dataSetInc][groupInc].resize(finalXVals[plotInc][dataSetInc][groupInc].size() + 1);
+										if (!(finalData[plotInc][dataSetInc][groupInc].size() >= eNumberOfRunsToAverage))
+										{
+											position = (std::accumulate(finalXVals[plotInc][dataSetInc][groupInc].begin(), finalXVals[plotInc][dataSetInc][groupInc].end(), 0.0) + finalData[plotInc][dataSetInc][groupInc].size()) / finalData[plotInc][dataSetInc][groupInc].size();
+											finalXVals[plotInc][dataSetInc][groupInc].back() = position;
+										}
+									}
+									else
+									{
+										finalErrorBars[plotInc][dataSetInc][groupInc].resize(finalErrorBars[plotInc][dataSetInc][groupInc].size() + 1);
+										position = (eCurrentThreadAccumulationNumber - 1) / ePicturesPerVariation + 1;
+											
+										finalXVals[plotInc][dataSetInc][groupInc].push_back(keyData[position - 1]);
+									}
+									// set the flag to not do this again before this array gets reset at beginning of the next accumulation stack.
+									newData[plotInc][dataSetInc][groupInc] = false;
+								}
+								// calculate new data points
+								if (allPlottingInfo[plotInc].getXAxis() == "Running Average")
+								{
+									if (finalData[plotInc][dataSetInc][groupInc].size() >= eNumberOfRunsToAverage)
+									{
+										double sum = std::accumulate(finalData[plotInc][dataSetInc][groupInc].end() - eNumberOfRunsToAverage, finalData[plotInc][dataSetInc][groupInc].end(), 0.0);
+										double mean = sum / eNumberOfRunsToAverage;
+										finalAverages[plotInc][dataSetInc][groupInc].back() = mean;
+										position = (std::accumulate(finalXVals[plotInc][dataSetInc][groupInc].end() - eNumberOfRunsToAverage + 1, finalXVals[plotInc][dataSetInc][groupInc].end(), 0.0) + finalData[plotInc][dataSetInc][groupInc].size()) / eNumberOfRunsToAverage;
+										finalXVals[plotInc][dataSetInc][groupInc].back() = position;
+										std::string  plotString = "set xrange [" + std::to_string(finalXVals[plotInc][dataSetInc][groupInc][0] - 1) + ":" + std::to_string(finalXVals[plotInc][dataSetInc][groupInc].back() + 1) + "]\n";
+										ePlotter << plotString;
+									}
+								}
+								else
+								{
+									double sum = std::accumulate(finalData[plotInc][dataSetInc][groupInc].begin(), finalData[plotInc][dataSetInc][groupInc].end(), 0.0);
+									double mean = sum / finalData[plotInc][dataSetInc][groupInc].size();
+									double squaredSum = std::inner_product(finalData[plotInc][dataSetInc][groupInc].begin(), finalData[plotInc][dataSetInc][groupInc].end(),
+										finalData[plotInc][dataSetInc][groupInc].begin(), 0.0);
+									double error = ((double)std::sqrt(squaredSum / finalData[plotInc][dataSetInc][groupInc].size() - mean * mean))
+										/ std::sqrt(finalData[plotInc][dataSetInc][groupInc].size());
+									finalAverages[plotInc][dataSetInc][groupInc].back() = mean;
+										
+									finalErrorBars[plotInc][dataSetInc][groupInc].back() = error;
+								}
+								// 
 							}
 						}
-						gnuCommand += "\n";
-						ePlotter << gnuCommand;
-						for (unsigned int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
+						/// General Plotting Options
+						std::string plotString;
+						plotString = "set terminal wxt " + std::to_string(plotInc) + " title \"" + allPlottingInfo[plotInc].getTitle() + "\" noraise\n";
+						ePlotter << plotString.c_str();
+						plotString = "set format y \"%.1f\"\n";
+						ePlotter << plotString.c_str();
+						if (allPlottingInfo[plotInc].getPlotType() == "Atoms")
 						{
-							for (unsigned int groupInc = 0; groupInc < allPlottingInfo[plotInc].getPixelGroupNumber(); groupInc++)
+							// set x range.
+							double xRangeMin = *std::min_element(keyData.begin(), keyData.end());
+							double xRangeMax = *std::max_element(keyData.begin(), keyData.end());
+							double range = xRangeMax - xRangeMin;
+							xRangeMin -= range / keyData.size();
+							xRangeMax += range / keyData.size();
+							std::string  plotString = "set xrange [" + std::to_string(xRangeMin) + ":" + std::to_string(xRangeMax) + "]\n";
+							ePlotter << plotString.c_str();
+							ePlotter << "set grid ytics lc rgb \"#bbbbbb\" lw 1 lt 0\n";
+							ePlotter << "set grid xtics lc rgb \"#bbbbbb\" lw 1 lt 0\n";
+							plotString = "set yrange [-0.1:1.1]\n";																
+							ePlotter << plotString.c_str();
+						}
+						else
+						{
+							plotString = "set autoscale y\n";
+							ePlotter << plotString.c_str();
+						}
+						plotString = "set title \"" + allPlottingInfo[plotInc].getTitle() + "\"\n";
+						ePlotter << plotString.c_str();
+						plotString = "set xlabel \"Key Value\"\n";
+						ePlotter << plotString.c_str();
+						plotString = "set ylabel \"" + allPlottingInfo[plotInc].getYLabel() + "\"\n";
+						ePlotter << plotString.c_str();
+						/// FITTING
+						for (int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
+						{
+							if (allPlottingInfo[plotInc].getWhenToFit(dataSetInc) == REAL_TIME_FIT
+								|| (allPlottingInfo[plotInc].getWhenToFit(dataSetInc) == FIT_AT_END
+									&& eCurrentThreadAccumulationNumber == eTotalNumberOfPicturesInSeries))
 							{
-								ePlotter.send1d(finalData[plotInc][dataSetInc][groupInc]);
+								for (int groupInc = 0; groupInc < allPlottingInfo[plotInc].getPixelGroupNumber(); groupInc++)
+								{
+									std::string fitNum = std::to_string(allPlottingInfo[plotInc].getPixelGroupNumber() * dataSetInc + groupInc);
+									// in this case, fitting.
+									switch (allPlottingInfo[plotInc].getFitOption(dataSetInc))
+									{
+										// the to_string argument in each case is a unique number indicating the fit given the data set and group. I need
+										// to keep track of each fit separately so that I can plot them all later. 
+										case GAUSSIAN_FIT:
+										{
+											plotString = "f" + fitNum + "(x) = A" + fitNum + " * exp(-(x - B" + fitNum + ")**2 / (2 * C" + fitNum + "))\n";
+											ePlotter << plotString.c_str();
+											plotString = "A" + fitNum + " = 1\n";
+											ePlotter << plotString.c_str();
+											plotString = "B" + fitNum + " = " + std::to_string(finalXVals[plotInc][dataSetInc][groupInc].size() / 2.0) + "\n";
+											ePlotter << plotString.c_str();
+											plotString = "C" + fitNum + " = 1\n";
+											ePlotter << plotString.c_str();
+											plotString = "fit f" + fitNum + "(x) '-' using 1:2 via A" + fitNum + ", B" + fitNum + ", C" + fitNum + "\n";
+											ePlotter << plotString.c_str();
+											break;
+										}
+										case LORENTZIAN_FIT:
+										{
+											plotString = "f" + fitNum + "(x) = (A" + fitNum + " / (2 * 3.14159265359)) / ((x - B" + fitNum + ")**2 + (A" + fitNum + " / 2)**2)\n";
+											ePlotter << plotString.c_str();
+											plotString = "A" + fitNum + " = 1\n";
+											ePlotter << plotString.c_str();
+											plotString = "B" + fitNum + " = " + std::to_string(finalXVals[plotInc][dataSetInc][groupInc].size() / 2.0) + "\n";
+											ePlotter << plotString.c_str();
+											plotString = "fit f" + fitNum + "(x) '-' using 1:2 via A" + fitNum + ", B" + fitNum + "\n";
+											ePlotter << plotString.c_str();
+											break;
+										}
+										case SINE_FIT:
+										{
+											plotString = "f" + fitNum + "(x) = A" + fitNum + " * sin(B" + fitNum + " * x + C" + fitNum + ") * exp( - D" + fitNum + " * x)\n";
+											ePlotter << plotString.c_str();
+											plotString = "A" + fitNum + " = 1\n";
+											ePlotter << plotString.c_str();
+											plotString = "B" + fitNum + " = 1\n";
+											ePlotter << plotString.c_str();
+											plotString = "C" + fitNum + " = 1\n";
+											ePlotter << plotString.c_str();
+											plotString = "D" + fitNum + " = 1\n";
+											ePlotter << plotString.c_str();
+											plotString = "fit f" + fitNum + "(x) '-' using 1:2 via A" + fitNum + ", B" + fitNum + ", C" + fitNum + ", D" + fitNum + "\n";
+											ePlotter << plotString.c_str();
+											break;
+										}
+										default:
+										{
+											MessageBox(0, "Coding Error: Bad Fit option!", 0, 0);
+										}
+									}
+									ePlotter.send1d(boost::make_tuple(finalXVals[plotInc][dataSetInc][groupInc], finalAverages[plotInc][dataSetInc][groupInc]));
+								}
+							}
+						}
+						/// SEND PLOT COMMANDS AND DATA
+						/// send plot commands
+						std::string gnuplotPlotCommand = "plot";
+						if (allPlottingInfo[plotInc].getXAxis() == "Running Average")
+						{
+							for (unsigned int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
+							{
+								for (unsigned int groupInc = 0; groupInc < allPlottingInfo[plotInc].getPixelGroupNumber(); groupInc++)
+								{
+									gnuplotPlotCommand += " '-' using 1:2 " + GNUPLOT_COLORS[groupInc] + " " + GNUPLOT_MARKERS[dataSetInc] + " title \"G" + std::to_string(groupInc + 1) + " " + allPlottingInfo[plotInc].getLegendText(dataSetInc) + "\",";
+									if (allPlottingInfo[plotInc].getWhenToFit(dataSetInc) == REAL_TIME_FIT 
+										|| (allPlottingInfo[plotInc].getWhenToFit(dataSetInc) == FIT_AT_END 
+											&& eCurrentThreadAccumulationNumber == eTotalNumberOfPicturesInSeries))
+									{
+										std::string fitNum = std::to_string(allPlottingInfo[plotInc].getPixelGroupNumber() * dataSetInc + groupInc);
+										plotString = "fit" + std::to_string(allPlottingInfo[plotInc].getPixelGroupNumber() * dataSetInc + groupInc) + "= ";
+										switch (allPlottingInfo[plotInc].getFitOption(dataSetInc))
+										{
+											case GAUSSIAN_FIT:
+											{
+												plotString += "sprintf(\"%.3f * exp{/Symbol \\\\173}-(x - %.3f)^2 / (2 * %.3f){/Symbol \\\\175}\", A" + fitNum + ", B" + fitNum + ", C" 
+																+ fitNum + ")\n";
+												break;
+											}
+											case LORENTZIAN_FIT:
+											{
+
+												plotString += "sprintf(\"(%.3f / (2 * Pi)) / ((x - %.3f)^2 + ( %.3f / 2)^2)\", A" + fitNum + ", B" + fitNum 
+																+ ", A" + fitNum + ")\n";
+												break;
+											}
+											case SINE_FIT:
+											{
+												plotString += "sprintf(\"%.3f * sin{/Symbol \\\\173}%.3f * x + %.3f{/Symbol \\\\175} * exp{/Symbol \\\\173} - %.3f * x {/Symbol \\\\175}\", A" + fitNum + ", B" + fitNum 
+																+ ", C" + fitNum + ", D" + fitNum + ")\n";
+												break;
+											}
+											default:
+											{
+												MessageBox(0, "Coding Error: Bad Fit option!", 0, 0);
+											}
+										}
+										ePlotter << plotString;
+										gnuplotPlotCommand += " f" + fitNum + "(x) title fit" + std::to_string(groupInc) + " " + GNUPLOT_COLORS[groupInc] 
+											+ " " + GNUPLOT_LINETYPES[dataSetInc] + ",";
+									}
+								}
+							}
+							for (unsigned int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
+							{
+								for (unsigned int groupInc = 0; groupInc < allPlottingInfo[plotInc].getPixelGroupNumber(); groupInc++)
+								{
+									if (finalData[plotInc][dataSetInc][groupInc].size() >= eNumberOfRunsToAverage)
+									{
+										gnuplotPlotCommand += " '-' using 1:2 " + GNUPLOT_COLORS[groupInc] + " with lines title \"G" 
+											+ std::to_string(groupInc + 1) + " " + allPlottingInfo[plotInc].getLegendText(dataSetInc) + "\",";
+									}
+								}
+							}
+						}
+						else
+						{
+							for (unsigned int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
+							{
+								for (unsigned int groupInc = 0; groupInc < finalAverages[plotInc][dataSetInc].size(); groupInc++)
+								{
+									gnuplotPlotCommand += " '-' using 1:2:3 with yerrorbars title \"G" + std::to_string(groupInc + 1) + " " 
+										+ allPlottingInfo[plotInc].getLegendText(dataSetInc) + "\" " + GNUPLOT_COLORS[groupInc] + " " 
+										+ GNUPLOT_MARKERS[dataSetInc] + " pointsize 0.5,";
+									if (allPlottingInfo[plotInc].getWhenToFit(dataSetInc) == REAL_TIME_FIT
+										|| (allPlottingInfo[plotInc].getWhenToFit(dataSetInc) == FIT_AT_END
+											&& eCurrentThreadAccumulationNumber == eTotalNumberOfPicturesInSeries))
+									{
+										std::string fitNum = std::to_string(allPlottingInfo[plotInc].getPixelGroupNumber() * dataSetInc + groupInc);
+										plotString = "fit" + fitNum + "= ";
+										switch (allPlottingInfo[plotInc].getFitOption(dataSetInc))
+										{
+											case GAUSSIAN_FIT:
+											{
+												plotString += "sprintf(\"%.3f * exp{/Symbol \\\\173}-(x - %.3f)^2 / (2 * %.3f){/Symbol \\\\175}\", A" + fitNum + ", B" + fitNum + ", C" + fitNum + ")\n";
+												break;
+											}
+											case LORENTZIAN_FIT:
+											{
+												plotString += "sprintf(\"(%.3f / (2 * Pi)) / ((x - %.3f)^2 + (%.3f / 2)^2)\", A" + fitNum + ", B" + fitNum + ", A" + fitNum + ")\n";
+												break;
+											}
+											case SINE_FIT:
+											{
+												plotString += "sprintf(\"%.3f * sin{/Symbol \\\\173}%.3f * x + %.3f{/Symbol \\\\175} * exp{/Symbol \\\\173} - %.3f * x {/Symbol \\\\175}\", A" + fitNum + ", B" + fitNum + ", C" + fitNum + ", D" + fitNum + ")\n";
+												break;
+											}
+											default:
+											{
+												MessageBox(0, "Coding Error: Bad Fit option!", 0, 0);
+											}
+										}
+										ePlotter << plotString;
+										gnuplotPlotCommand += " f" + fitNum + "(x) title fit" + fitNum + " " + GNUPLOT_COLORS[groupInc] + " " + GNUPLOT_LINETYPES[dataSetInc] + ",";
+									}
+								}
+							}
+						}
+						std::string error;
+						gnuplotPlotCommand += "\n";
+						ePlotter << gnuplotPlotCommand;
+						/// SEND DATA
+						if (allPlottingInfo[plotInc].getXAxis() == "Running Average")
+						{
+							for (unsigned int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
+							{
+								for (unsigned int groupInc = 0; groupInc < allPlottingInfo[plotInc].getPixelGroupNumber(); groupInc++)
+								{
+									ePlotter.send1d(boost::make_tuple(finalXVals[plotInc][dataSetInc][groupInc], finalData[plotInc][dataSetInc][groupInc]));
+								}
+								for (unsigned int groupInc = 0; groupInc < allPlottingInfo[plotInc].getPixelGroupNumber(); groupInc++)
+								{
+									if (finalData[plotInc][dataSetInc][groupInc].size() >= eNumberOfRunsToAverage)
+									{
+										ePlotter.send1d(boost::make_tuple(finalXVals[plotInc][dataSetInc][groupInc],
+																			finalAverages[plotInc][dataSetInc][groupInc]));
+									}
+								}
+							}
+						}
+						else
+						{
+							for (unsigned int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
+							{
+								for (unsigned int groupInc = 0; groupInc < finalAverages[plotInc][dataSetInc].size(); groupInc++)
+								{
+									ePlotter.send1d(boost::make_tuple(finalXVals[plotInc][dataSetInc][groupInc],
+																		finalAverages[plotInc][dataSetInc][groupInc],
+																		finalErrorBars[plotInc][dataSetInc][groupInc]));
+								}
 							}
 						}
 					}
-				//} end remove
+				}
+				else if (allPlottingInfo[plotInc].getPlotType() == "Pixel Count Histograms")
+				{
+					/// options are fundamentally different for histograms.
+
+					// load pixel counts into data array pixelData
+					for (unsigned int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
+					{
+						for (int groupInc = 0; groupInc < allPlottingInfo[plotInc].getPixelGroupNumber(); groupInc++)
+						{
+							if (satisfiesPostSelectionConditions[dataSetInc][groupInc] == false)
+							{
+								continue;
+							}
+							int pixel, picture;
+							// passing by reference.
+							allPlottingInfo[plotInc].getDataCountsLocation(dataSetInc, pixel, picture);
+							// for a given group, figure out which picture
+							finalData[plotInc][dataSetInc][groupInc].push_back(pixelData[allPlottingInfo[plotInc].getPixelIndex(pixel, groupInc)][picture]);
+						}
+					}
+					//
+					ePlotter << ("set terminal wxt " + std::to_string(plotInc) + " title \"" + allPlottingInfo[plotInc].getTitle() + "\" noraise\n").c_str();
+					ePlotter << ("set title \"" + allPlottingInfo[plotInc].getTitle() + "\"\n").c_str();
+					ePlotter << "set format y \"%.1f\"\n";
+					ePlotter << "set autoscale x\n";
+					ePlotter << "set yrange [0:*]\n";
+					ePlotter << "set xlabel \"Count #\"\n";
+					ePlotter << "set ylabel \"Occurrences\"\n";
+					double spaceFactor = 0.8;
+					double boxWidth = spaceFactor * 5 / (allPlottingInfo[plotInc].getPixelGroupNumber() * allPlottingInfo[plotInc].getDataSetNumber());
+					ePlotter << "set boxwidth " + std::to_string(boxWidth) + "\n";
+					ePlotter << "set style fill solid 1\n";
+					// leave 0.2 pixels worth of space in between the bins.
+					std::string gnuCommand = "plot";
+					int totalDataSetNum = allPlottingInfo[plotInc].getDataSetNumber();
+					int totalGroupNum = allPlottingInfo[plotInc].getPixelGroupNumber();
+					for (unsigned int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
+					{
+						for (unsigned int groupInc = 0; groupInc < allPlottingInfo[plotInc].getPixelGroupNumber(); groupInc++)
+						{
+							// long command that makes hist correctly.
+							std::string singleHist = " '-' using (5 * floor(($1)/5) - " + std::to_string(boxWidth * (totalGroupNum * dataSetInc + groupInc)
+								- spaceFactor * 0.5 + spaceFactor * 0.5 / (totalGroupNum * totalDataSetNum))
+								+ ") : (1.0) smooth freq with boxes title \"G " + std::to_string(groupInc + 1) + " " 
+								+ allPlottingInfo[plotInc].getLegendText(dataSetInc) + "\" " + GNUPLOT_COLORS[groupInc] + " " + GNUPLOT_MARKERS[dataSetInc] + ",";
+							gnuCommand += singleHist;
+						}
+					}
+					gnuCommand += "\n";
+					ePlotter << gnuCommand;
+					for (unsigned int dataSetInc = 0; dataSetInc < allPlottingInfo[plotInc].getDataSetNumber(); dataSetInc++)
+					{
+						for (unsigned int groupInc = 0; groupInc < allPlottingInfo[plotInc].getPixelGroupNumber(); groupInc++)
+						{
+							ePlotter.send1d(finalData[plotInc][dataSetInc][groupInc]);
+						}
+					}
+				}
 			}
 			// clear exp data
 			// all pixels being recorded, not pixels in a data set.

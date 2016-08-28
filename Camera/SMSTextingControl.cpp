@@ -34,7 +34,7 @@ bool SMSTextingControl::initializeControls(POINT& topLeftPositionKinetic, POINT&
 	title.accumulateModePos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 272, topLeftPositionAccumulate.y + 25 };
 	title.continuousSingleScansModePos = { -1,-1,-1,-1 };
 	RECT initPos = title.kineticSeriesModePos;
-	title.hwnd = CreateWindowEx(0, "STATIC", "Text Me When Finished", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY,
+	title.hwnd = CreateWindowEx(0, "STATIC", "Text Me", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY,
 		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top,
 		parentWindow, (HMENU)-1, eHInst, NULL);
 	title.fontType = "Heading";
@@ -56,15 +56,18 @@ bool SMSTextingControl::initializeControls(POINT& topLeftPositionKinetic, POINT&
 	// width between each coloum
 	listViewDefaultCollumn.cx = 0x28;
 	listViewDefaultCollumn.pszText = "Person";
-	listViewDefaultCollumn.cx = 0x42;
 	// Inserting Couloms as much as we want
 	SendMessage(peopleListView.hwnd, LVM_INSERTCOLUMN, 0, (LPARAM)&listViewDefaultCollumn);
-	listViewDefaultCollumn.pszText = "Phone Number";
+	listViewDefaultCollumn.pszText = "Phone #";
 	SendMessage(peopleListView.hwnd, LVM_INSERTCOLUMN, 1, (LPARAM)&listViewDefaultCollumn);
 	listViewDefaultCollumn.pszText = "Carrier";
 	SendMessage(peopleListView.hwnd, LVM_INSERTCOLUMN, 2, (LPARAM)&listViewDefaultCollumn);
-	listViewDefaultCollumn.pszText = "Text?";
+	listViewDefaultCollumn.cx = 0x42;
+	listViewDefaultCollumn.pszText = "At Finish?";
 	SendMessage(peopleListView.hwnd, LVM_INSERTCOLUMN, 3, (LPARAM)&listViewDefaultCollumn);
+	listViewDefaultCollumn.pszText = "If No Loading?";
+	SendMessage(peopleListView.hwnd, LVM_INSERTCOLUMN, 4, (LPARAM)&listViewDefaultCollumn);
+
 	// Make First Blank row.
 	LVITEM listViewDefaultItem;
 	memset(&listViewDefaultItem, 0, sizeof(listViewDefaultItem));
@@ -82,6 +85,8 @@ bool SMSTextingControl::initializeControls(POINT& topLeftPositionKinetic, POINT&
 	listViewDefaultItem.iSubItem = 3;
 	listViewDefaultItem.pszText = "No";
 	SendMessage(peopleListView.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewDefaultItem); // Enter text to SubItems
+	listViewDefaultItem.iSubItem = 4;
+	SendMessage(peopleListView.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewDefaultItem);
 
 	topLeftPositionKinetic.y += 120;
 	topLeftPositionAccumulate.y += 120;
@@ -126,11 +131,16 @@ bool SMSTextingControl::updatePersonInfo(HWND parentHandle, LPARAM lparamOfMessa
 		for (int itemInc = 1; itemInc < 3; itemInc++) // Add SubItems in a loop
 		{
 			listViewItem.iSubItem = itemInc;
-			SendMessage(peopleListView.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem); // Enter text to SubItems
+			// Enter text to SubItems
+			SendMessage(peopleListView.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem); 
 		}
+		// default texting options is no!
 		listViewItem.iSubItem = 3;
 		listViewItem.pszText = "No";
-		SendMessage(peopleListView.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem); // Enter text to SubItems
+		SendMessage(peopleListView.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem); 
+		listViewItem.iSubItem = 4;
+		SendMessage(peopleListView.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem);
+
 	}
 	/// Handle different subitem clicks
 	switch (subitemIndicator)
@@ -198,7 +208,7 @@ bool SMSTextingControl::updatePersonInfo(HWND parentHandle, LPARAM lparamOfMessa
 		}
 		case 3:
 		{
-			/// send text?
+			/// at finish?
 			listViewItem.iItem = itemIndicator;
 			listViewItem.iSubItem = subitemIndicator;
 			// this is just a binary switch.
@@ -216,6 +226,26 @@ bool SMSTextingControl::updatePersonInfo(HWND parentHandle, LPARAM lparamOfMessa
 
 			break;
 		}	
+		case 4:
+		{
+			/// at finish?
+			listViewItem.iItem = itemIndicator;
+			listViewItem.iSubItem = subitemIndicator;
+			// this is just a binary switch.
+			if (peopleToText[itemIndicator].textIfLoadingStops)
+			{
+				peopleToText[itemIndicator].textIfLoadingStops = false;
+				listViewItem.pszText = "No";
+			}
+			else
+			{
+				peopleToText[itemIndicator].textIfLoadingStops = true;
+				listViewItem.pszText = "Yes";
+			}
+			SendMessage(peopleListView.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem);
+
+			break;
+		}
 	}
 
 	return false;

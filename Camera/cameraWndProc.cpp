@@ -2428,8 +2428,35 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 		{
 			if (msg == eAlerts.getAlertMessageID())
 			{
-				appendText("WARNING: You're not loading atoms!\r\n", IDC_ERROR_EDIT);
+				int* level = (int*)lParam;
 				eAlerts.soundAlert();
+				if (*level == 2)
+				{
+					// get time to include in text message.
+					time_t t = time(0);
+					struct tm now;
+					localtime_s(&now, &t);
+					std::string message = "Your not loading atoms! Message sent at ";
+					if (now.tm_hour < 10)
+					{
+						message += "0";
+					}
+					message += std::to_string(now.tm_hour) + ":";
+					if (now.tm_min < 10)
+					{
+						message += "0";
+					}
+					message += std::to_string(now.tm_min) + ":";
+					if (now.tm_sec < 10)
+					{
+						message += "0";
+					}
+					message += std::to_string(now.tm_sec);
+					appendText(message + "\r\n", IDC_ERROR_EDIT);
+
+					eTextingHandler.sendMessage(message, &Python, "Loading");
+				}
+
 				break;
 			}
 			if (msg == ePlottingIsSlowMessage)
@@ -2489,7 +2516,6 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 				// Wait until plotting thread is complete.
 				WaitForSingleObject(ePlottingThreadHandle, INFINITE);
 				eSystemIsRunning = false;
-				//appendText((std::to_string(eCount1) + ", " + std::to_string(eCount2) + ", " + std::to_string(eCount3) + "\r\n"), IDC_STATUS_EDIT);
 				std::string errorMessage;
 				if (eExperimentData.closeFits(errorMessage))
 				{
