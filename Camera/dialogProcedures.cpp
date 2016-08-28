@@ -4,6 +4,7 @@
 #include "resource.h"
 #include "myPlot.h"
 #include "fileManage.h"
+// Includes all procedures for dialog boxes that I use in this program.
 namespace dialogProcedures
 {
 	LRESULT CALLBACK richEditMessageBoxProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -1340,34 +1341,34 @@ namespace dialogProcedures
 	{
 		switch (message)
 		{
-		case WM_INITDIALOG:
-		{
-			// lParam contains the text to be displayed on this guy. 
-			CreateWindowEx(0, "STATIC", (const char*)lParam, WS_CHILD | WS_VISIBLE | BS_RIGHT, 0, 0, 500, 20, hDlg, (HMENU)-1, eHInst, NULL);
-			return (INT_PTR)TRUE;
-		}
-		case WM_COMMAND:
-		{
-			switch (LOWORD(wParam))
+			case WM_INITDIALOG:
 			{
-			case IDCANCEL:
-			{
-				EndDialog(hDlg, WPARAM(""));
+				// lParam contains the text to be displayed on this guy. 
+				CreateWindowEx(0, "EDIT", (const char*)lParam, WS_CHILD | WS_VISIBLE | ES_READONLY | ES_MULTILINE | ES_LEFT, 0, 0, 400, 60, hDlg, (HMENU)-1, eHInst, NULL);
 				return (INT_PTR)TRUE;
 			}
-			case IDOK:
+			case WM_COMMAND:
 			{
-				HWND inputEdit = GetDlgItem(hDlg, IDC_INPUT_NAME_EDIT);
-				int editLength = GetWindowTextLength(inputEdit);
-				TCHAR* buffer;
-				buffer = new TCHAR[1024];
-				GetWindowText(inputEdit, buffer, 1024);
-				EndDialog(hDlg, WPARAM(buffer));
-				return (INT_PTR)TRUE;
+				switch (LOWORD(wParam))
+				{
+				case IDCANCEL:
+				{
+					EndDialog(hDlg, WPARAM(""));
+					return (INT_PTR)TRUE;
+				}
+				case IDOK:
+				{
+					HWND inputEdit = GetDlgItem(hDlg, IDC_INPUT_NAME_EDIT);
+					int editLength = GetWindowTextLength(inputEdit);
+					TCHAR* buffer;
+					buffer = new TCHAR[1024];
+					GetWindowText(inputEdit, buffer, 1024);
+					EndDialog(hDlg, WPARAM(buffer));
+					return (INT_PTR)TRUE;
+				}
+				}
+				break;
 			}
-			}
-			break;
-		}
 		}
 		return (INT_PTR)FALSE;
 	}

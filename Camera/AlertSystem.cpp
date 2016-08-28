@@ -89,16 +89,28 @@ bool AlertSystem::initialize(POINT& topLeftPositionKinetic, POINT& topLeftPositi
 	topLeftPositionAccumulate.y += 20;
 	return false;
 }
-bool AlertSystem::alertMainThread()
+
+bool AlertSystem::alertMainThread(int runsWithoutAtoms)
 {
-	PostMessage(eCameraWindowHandle, alertMessageID, 0, 0);
+	int* alertLevel = new int;
+	if (runsWithoutAtoms == this->alertThreshold)
+	{
+		*alertLevel = 2;
+		PostMessage(eCameraWindowHandle, alertMessageID, 0, (LPARAM)alertLevel);
+	}
+	else if (runsWithoutAtoms % this->alertThreshold == 0)
+	{
+		*alertLevel = 1;
+		PostMessage(eCameraWindowHandle, alertMessageID, 0, (LPARAM)alertLevel);
+	}
+	// don't sound the alert EVERY time... hence the % above.
 	return false;
 }
 bool AlertSystem::soundAlert()
 {
 	Beep(523, 100);
 	Beep(523, 100);
-	Beep(523, 500);
+	Beep(523, 100);
 	return false;
 }
 

@@ -17,7 +17,7 @@ class AlertSystem
 		~AlertSystem();
 		bool initialize(POINT& topLeftPositionKinetic, POINT& topLeftPositionAccumulate, POINT& topLeftPositionContinuous,
 			HWND parentWindow, bool isTriggerModeSensitive);
-		bool alertMainThread();
+		bool alertMainThread(int level);
 		bool soundAlert();
 		bool reorganizeControls(RECT parentRectangle, std::string cameraMode);
 		bool handleCheckBoxPress(WPARAM messageWParam, LPARAM messageLParam);
