@@ -80,52 +80,9 @@ int initializeMainWindow(HWND eMainWindowHandle)
 	// TODO
 	POINT notesStart = { 960, 250 };
 	eNotes.initializeControls(notesStart, eMainWindowHandle);
-	/*
-	// Configuration Notes Title
-	eNotesLabelTextHandle = CreateWindowEx(NULL, "STATIC", "NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
-		960, 250, 480, 20, eMainWindowHandle, (HMENU)IDC_NOTES_TEXT, GetModuleHandle(NULL), NULL);
-	SendMessage(eNotesLabelTextHandle, WM_SETFONT, WPARAM(sHeadingFont), TRUE);
-	//  Configuration Notes edit
-	eExperimentConfigurationNotesEditHandle = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL,
-		960, 270, 480, 480, eMainWindowHandle, (HMENU)IDC_CONFIG_NOTES, GetModuleHandle(NULL), NULL);
-	SendMessage(eExperimentConfigurationNotesEditHandle, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	*/
 	/// VARIABLES
-	POINT controlLocation = { 1440, 100 };
+	POINT controlLocation = { 1440, 95 };
 	eVariables.initializeControls(controlLocation, eMainWindowHandle);
-	/*
-	// Variables Title
-	eVariablesLabelTextHandle = CreateWindowEx(NULL, "STATIC", "VARIABLES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
-		1440, 100, 480, 20, eMainWindowHandle, (HMENU)IDC_STATIC_2_TEXT, GetModuleHandle(NULL), NULL);
-	SendMessage(eVariablesLabelTextHandle, WM_SETFONT, WPARAM(sHeadingFont), TRUE);
-	// Set Variable Names Button
-	eVariableSetButtonHandle = CreateWindowEx(NULL, "BUTTON", "Set Variable Names", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-		1440, 125, 480, 24, eMainWindowHandle, (HMENU)IDC_VAR_SET_BUTTON, GetModuleHandle(NULL), NULL);
-	SendMessage(eVariableSetButtonHandle, WM_SETFONT, WPARAM(sHeadingFont), TRUE);
-	//  Variable Names edit Handle
-	eVariableNamesEditHandle = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL,
-		1440, 150, 480, 50, eMainWindowHandle, (HMENU)IDC_VAR_NAMES_EDIT, GetModuleHandle(NULL), NULL);
-	SendMessage(eVariableNamesEditHandle, WM_SETFONT, WPARAM(sCodeFont), TRUE);
-	// Current Variable Name Display
-	eVar1NameTextHandle = CreateWindowEx(NULL, "STATIC", "", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | WS_BORDER,
-		1440, 205, 160, 25, eMainWindowHandle, (HMENU)IDC_VAR_NAME_1_TEXT, GetModuleHandle(NULL), NULL);
-	SendMessage(eVar1NameTextHandle, WM_SETFONT, WPARAM(sCodeFont), TRUE);
-	eVar2NameTextHandle = CreateWindowEx(NULL, "STATIC", "", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | WS_BORDER,
-		1600, 205, 160, 25, eMainWindowHandle, (HMENU)IDC_VAR_NAME_2_TEXT, GetModuleHandle(NULL), NULL);
-	SendMessage(eVar2NameTextHandle, WM_SETFONT, WPARAM(sCodeFont), TRUE);
-	eVar3NameTextHandle = CreateWindowEx(NULL, "STATIC", "", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | WS_BORDER,
-		1760, 205, 160, 25, eMainWindowHandle, (HMENU)IDC_VAR_NAME_3_TEXT, GetModuleHandle(NULL), NULL);
-	SendMessage(eVar3NameTextHandle, WM_SETFONT, WPARAM(sCodeFont), TRUE);
-	eVar4NameTextHandle = CreateWindowEx(NULL, "STATIC", "", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | WS_BORDER,
-		1440, 235, 160, 25, eMainWindowHandle, (HMENU)IDC_VAR_NAME_4_TEXT, GetModuleHandle(NULL), NULL);
-	SendMessage(eVar4NameTextHandle, WM_SETFONT, WPARAM(sCodeFont), TRUE);
-	eVar5NameTextHandle = CreateWindowEx(NULL, "STATIC", "", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | WS_BORDER,
-		1600, 235, 160, 25, eMainWindowHandle, (HMENU)IDC_VAR_NAME_5_TEXT, GetModuleHandle(NULL), NULL);
-	SendMessage(eVar5NameTextHandle, WM_SETFONT, WPARAM(sCodeFont), TRUE);
-	eVar6NameTextHandle = CreateWindowEx(NULL, "STATIC", "", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | WS_BORDER,
-		1760, 235, 160, 25, eMainWindowHandle, (HMENU)IDC_VAR_NAME_6_TEXT, GetModuleHandle(NULL), NULL);
-	SendMessage(eVar6NameTextHandle, WM_SETFONT, WPARAM(sCodeFont), TRUE);
-	*/
 	/// SETUP / EXPERIMENTAL PARAMETERS
 	// Setup / Experimental Parameters Title
 	eSetupParametersTextHandle = CreateWindowEx(NULL, "STATIC", "SETUP / EXPERIMENTAL PARAMETERS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
@@ -184,6 +141,8 @@ int initializeMainWindow(HWND eMainWindowHandle)
 	SendMessage(eOutputMoreInfoCheckButton, WM_SETFONT, WPARAM(sNormalFont), TRUE);
 	CheckDlgButton(eMainWindowHandle, IDC_OUTPUT_MORE_RUN_INFO, BST_UNCHECKED);
 	eOutputRunInfo = false;
+
+	eDebugger.initialize({ 1440, 565 }, eMainWindowHandle);
 
 	/// colored status display
 	eColoredStatusEdit = CreateWindowEx(NULL, "STATIC", "Passively Outuputing Default Waveform", WS_CHILD | WS_VISIBLE | SS_CENTER,

@@ -10,7 +10,6 @@ class EmbeddedPythonHandler
 	public:
 		// constructor is important.
 		EmbeddedPythonHandler();
-		~EmbeddedPythonHandler();
 		// for full data analysis set.
 		bool runDataAnalysis(std::string analysisType, std::string date, long runNumber,
 			long accumulations, std::string completeName, std::vector<std::pair<int, int>> atomLocations);
@@ -21,6 +20,8 @@ class EmbeddedPythonHandler
 		std::string run(std::string cmd);
 	private:
 		PyObject* autoAnalysisModule;
+		PyObject* singleAtomAnalysisFunction;
+		PyObject* atomPairAnalysisFunction;
 		PyObject* mainModule;
 		PyObject* errorCatcher;
 };

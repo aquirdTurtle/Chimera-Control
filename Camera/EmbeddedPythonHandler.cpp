@@ -39,164 +39,194 @@ EmbeddedPythonHandler::EmbeddedPythonHandler()
 	//	"calculateAtomThreshold, getAnalyzedSurvivalData"));
 	// Make sure that python can find my module.
 	ERR_POP(run("import sys"));
-	ERR_POP(run(("sys.path.append(\"" + ANALYSIS_CODE_LOCATION + "\")").c_str()));
+	ERR_POP(run("sys.path.append(\"" + ANALYSIS_CODE_LOCATION + "\")"));
+	//ERR_POP(run("import AutoanalysisFunctions"))
 	PyObject* pythonModuleName = PyUnicode_DecodeFSDefault("AutoanalysisFunctions");
+	if (pythonModuleName == NULL)
+	{
+		errBox("ERROR: failed to interpret \"AutoanalysisFunctions\" as python string?!?!?!?!?");
+		return;
+	}
 	this->autoAnalysisModule = PyImport_Import(pythonModuleName);
-
+	Py_XDECREF(pythonModuleName);
+	if (autoAnalysisModule == NULL)
+	{
+		errBox("ERROR: Failed to load python module for automatic data analysis!");
+		return;
+	}
+	this->singleAtomAnalysisFunction = PyObject_GetAttrString(autoAnalysisModule, "singlePointAnalysis");
+	if (this->singleAtomAnalysisFunction == NULL)
+	{
+		errBox("Failed to load python function \"singlePointAnalysis\"");
+	}
+	this->atomPairAnalysisFunction = PyObject_GetAttrString(autoAnalysisModule, "pairAnalysis");
+	if (this->atomPairAnalysisFunction == NULL)
+	{
+		errBox("Failed to load python function \"pairAnalysis\"");
+	}
 }
 
-EmbeddedPythonHandler::~EmbeddedPythonHandler()
-{
-
-}
 // for full data analysis set.
 bool EmbeddedPythonHandler::runDataAnalysis(std::string analysisType, std::string date, long runNumber,
 											long accumulations, std::string completeName, std::vector<std::pair<int, int>> atomLocations)
 {
-	std::string analysisFunctionName;
+	if (this->autoAnalysisModule == NULL)
+	{
+		errBox("autoAnalysisModule is no longer available! This shouldn't happen... Continuing...");
+	}
 	// interpret the text here to get the actual function name.
+																													   
 	if (analysisType == "Single Point Analysis")
 	{
-		analysisFunctionName = "singlePointAnalysis";
+		if (this->singleAtomAnalysisFunction == NULL)
+		{
+			errBox("ERROR: single atom analysis function is null! The program can no longer call this function for some"
+				"reason. Auto-Analysis will not occur.");
+			return true;
+		}
+		if (!PyCallable_Check(this->singleAtomAnalysisFunction))
+		{
+			errBox("ERROR: Python is telling me that it cannot call the single atom analysis function. I don't know why"
+				", since the function pointer is not null. Auto-Analysis will not occur.");
+			return true;
+		}
 	}
 	else if (analysisType == "Pair Analysis")
 	{
-		analysisFunctionName = "pairAnalysis";
+		if (this->atomPairAnalysisFunction == NULL)
+		{
+			errBox("ERROR: atom pair analysis function is null! The program can no longer call this function for some"
+				"reason. Auto-Analysis will not occur.");
+			return true;
+		}
+		if (!PyCallable_Check(this->atomPairAnalysisFunction))
+		{
+			errBox("ERROR: Python is telling me that it cannot call the atom pair analysis function. I don't know why,"
+				" since the function pointer is not null. Auto-Analysis will not occur.");
+			return true;
+		}
 	}
 	else
 	{
 		errBox("ERROR: unrecognized analysis type while trying to figure out the analysis function name! Ask Mark about bugs.");
 		return true;
 	}
-	if (this->autoAnalysisModule != NULL)
+	
+	// I'm going to use comments before relevant commands to keep track of which python objects have references that I 
+	// own, starting below (not counting the module and function references)
+
+	// pythonFunctionArguments
+	PyObject* pythonFunctionArguments = PyTuple_New(6);
+	if (pythonFunctionArguments == NULL)
 	{
-		PyObject* pythonFunction = PyObject_GetAttrString(autoAnalysisModule, analysisFunctionName.c_str());
-		// function calls for these functions are the same because they are so simple.
-		if (analysisFunctionName == "singlePointAnalysis" || analysisFunctionName == "pairAnalysis")
+		errBox("ERROR: creating tuple for python function arguments failed!?!?!?!? Auto-Analysis will terminate.");
+		return true;
+	}
+	// pythonFunctionArguments, pythonDate
+	PyObject* pythonDate = Py_BuildValue("s", date.c_str());
+	// check success
+	if (pythonDate == NULL)
+	{
+		Py_DECREF(pythonFunctionArguments);
+		errBox("ERROR: Cannot Convert date! Auto-Analysis will terminate.");
+		return true;
+	}
+	// pythonFunctionArguments
+	PyTuple_SetItem(pythonFunctionArguments, 0, pythonDate);
+	// pythonFunctionArguments, pythonRunNumber
+	PyObject* pythonRunNumber = PyLong_FromLong(runNumber);
+	if (pythonRunNumber == NULL)
+	{
+		Py_DECREF(pythonFunctionArguments);
+		errBox("Cannot Convert run number?!?!?!?!?! Auto-Analysis terminating...\r\n");
+		return true;
+	}
+	// pythonFunctionArguments
+	PyTuple_SetItem(pythonFunctionArguments, 1, pythonRunNumber);
+
+	// create the numpy array of atom locations. this is a 1D array, the other code assumes two numbers per atom, and 
+	// figures out based on the function call whether it should look at pairs of atoms or not. If pairs, it assumes 
+	// 1a, 1b, 2a, 2b, etc. formatting.
+	// pythonFunctionArguments, pythonAtomLocationsArray
+	PyObject* pythonAtomLocationsArray = PyTuple_New(atomLocations.size() * 2);
+	for (int atomInc = 0; atomInc < atomLocations.size(); atomInc++)
+	{
+		// order is flipped. Dunno why...
+		// PyTuple immediately steals the reference from PyLong_FromLong, so I don't need to handle any of these. 
+		PyTuple_SetItem(pythonAtomLocationsArray, 2 * atomInc, PyLong_FromLong(atomLocations[atomInc].second));
+		PyTuple_SetItem(pythonAtomLocationsArray, 2 * atomInc + 1, PyLong_FromLong(atomLocations[atomInc].first));
+	}
+	// pythonFunctionArguments
+	PyTuple_SetItem(pythonFunctionArguments, 2, pythonAtomLocationsArray);
+
+	// format of function arguments:
+	// def analyzeSingleLocation(date, runNumber, atomLocationRow, atomLocationColumn, picturesPerExperiment, accumulations, fileName) :
+	// hard-coded for now to 2. (might change or remove later...)
+	// pythonFunctionArguments, pythonPicturesPerExperiment
+	PyObject* pythonPicturesPerExperiment = PyLong_FromLong(2);
+	if (pythonPicturesPerExperiment == NULL)
+	{
+		Py_DECREF(pythonFunctionArguments);
+		errBox("Cannot Convert Pictures per experiment?!?!?!?!? Auto-Analysis terminating...");
+		return true;
+	}
+	// pythonFunctionArguments
+	PyTuple_SetItem(pythonFunctionArguments, 3, pythonPicturesPerExperiment);
+	// pythonFunctionArguments, pythonAccumulations
+	PyObject* pythonAccumulations = PyLong_FromLong(accumulations);
+	if (pythonAccumulations == NULL)
+	{
+		Py_DECREF(pythonFunctionArguments);
+		errBox("Cannot Convert Accumulations?!?!?!?!?!?!?!?!?!? Auto-Analysis terminating...");
+		return true;
+	}
+	// pythonFunctionArguments
+	PyTuple_SetItem(pythonFunctionArguments, 4, pythonAccumulations);
+	// pythonFunctionArguments, pythonOutputName
+	PyObject* pythonOutputName = Py_BuildValue("s", completeName.c_str());
+	if (pythonOutputName == NULL)
+	{
+		Py_DECREF(pythonFunctionArguments);
+		errBox("Cannot Convert Output name?!?!?!?!?!?! Auto-Analysis terminating...");
+		return true;
+	}
+	// pythonFunctionArguments
+	PyTuple_SetItem(pythonFunctionArguments, 5, pythonOutputName);
+	if (analysisType == "Single Point Analysis")
+	{
+		PyObject* pythonReturnValue = PyObject_CallObject(this->singleAtomAnalysisFunction, pythonFunctionArguments);
+		if (pythonReturnValue == NULL)
 		{
-			// make sure this function is okay.
-			if (pythonFunction && PyCallable_Check(pythonFunction))
-			{
-				PyObject* pythonFunctionArguments = PyTuple_New(6);
-
-				PyObject* pythonDate = Py_BuildValue("s", date.c_str());
-				// check success
-				if (!pythonDate)
-				{
-					Py_DECREF(pythonFunctionArguments);
-					Py_DECREF(autoAnalysisModule);
-					errBox("ERROR: Cannot Convert date!");
-					return true;
-				}
-				PyTuple_SetItem(pythonFunctionArguments, 0, pythonDate);
-
-				PyObject* pythonRunNumber = PyLong_FromLong(runNumber);
-				if (!pythonRunNumber)
-				{
-					Py_DECREF(pythonFunctionArguments);
-					Py_DECREF(autoAnalysisModule);
-					errBox("Cannot Convert run number\r\n");
-					return true;
-				}
-				PyTuple_SetItem(pythonFunctionArguments, 1, pythonRunNumber);
-
-
-				// create the numpy array of atom locations. this is a 1D array, the other code assumes two numbers per picture.
-				PyObject* pythonAtomLocationsArray = PyTuple_New(atomLocations.size() * 2);
-				for (int atomInc = 0; atomInc < atomLocations.size(); atomInc++)
-				{
-					// order is flipped.
-					PyTuple_SetItem(pythonAtomLocationsArray, 2 * atomInc, PyLong_FromLong(atomLocations[atomInc].second));
-					PyTuple_SetItem(pythonAtomLocationsArray, 2 * atomInc + 1, PyLong_FromLong(atomLocations[atomInc].first));
-				}
-				PyTuple_SetItem(pythonFunctionArguments, 2, pythonAtomLocationsArray);
-				// format of function arguments:
-				// def analyzeSingleLocation(date, runNumber, atomLocationRow, atomLocationColumn, picturesPerExperiment, accumulations, fileName) :
-				// hard-coded for now (might change or remove later...)
-				PyObject* pythonPicturesPerExperiment = PyLong_FromLong(2);
-				if (!pythonPicturesPerExperiment)
-				{
-					Py_DECREF(pythonFunctionArguments);
-					errBox("Cannot Convert Pictures per experiment\r\n");
-					return true;
-				}
-				PyTuple_SetItem(pythonFunctionArguments, 3, pythonPicturesPerExperiment);
-
-				PyObject* pythonAccumulations = PyLong_FromLong(accumulations);
-				if (!pythonAccumulations)
-				{
-					Py_DECREF(pythonFunctionArguments);
-					errBox("Cannot Convert Accumulations\r\n");
-					return true;
-				}
-				PyTuple_SetItem(pythonFunctionArguments, 4, pythonAccumulations);
-
-				PyObject* pythonOutputName = Py_BuildValue("s", completeName.c_str());
-				if (!pythonOutputName)
-				{
-					Py_DECREF(pythonFunctionArguments);
-					errBox("Cannot Convert Run Number!\r\n");
-					return true;
-				}
-				PyTuple_SetItem(pythonFunctionArguments, 5, pythonOutputName);
-
-				PyObject* pythonReturnValue = PyObject_CallObject(pythonFunction, pythonFunctionArguments);
-				// I think not including this line below is a memory leak but I also think that it might be the cause of some annoying memory issues... not sure which, maybe both.
-				//Py_DECREF(pythonFunctionArguments);
-				if (pythonReturnValue != NULL)
-				{
-					//MessageBox(0, "About to output.", 0, 0);
-					std::string result = std::string(PyBytes_AS_STRING(PyUnicode_AsEncodedString(pythonReturnValue, "ASCII", "strict")));
-					Py_DECREF(pythonReturnValue);
-				}
-				else
-				{
-					// get the error details1
-					PyObject *pExcType, *pExcValue, *pExcTraceback;
-					std::string execType, execValue, execTraceback = "";
-					PyErr_Fetch(&pExcType, &pExcValue, &pExcTraceback);
-					PyErr_NormalizeException(&pExcType, &pExcValue, &pExcTraceback);
-					if (pExcType != NULL)
-					{
-						PyObject* pRepr = PyObject_Repr(pExcType);
-						execType = std::string(PyBytes_AS_STRING(PyUnicode_AsEncodedString(pRepr, "ASCII", "strict")));
-						Py_XDECREF(pRepr);
-						Py_XDECREF(pExcType);
-					}
-					if (pExcValue != NULL)
-					{
-						PyObject* pRepr = PyObject_Repr(pExcValue);
-						execValue = std::string(PyBytes_AS_STRING(PyUnicode_AsEncodedString(pRepr, "ASCII", "strict")));
-						Py_XDECREF(pRepr);
-						Py_XDECREF(pExcValue);
-					}
-					if (pExcTraceback != NULL)
-					{
-						/*
-						PyObject* pRepr = PyObject_Repr(pExcTraceback);
-						execTraceback = std::string(PyBytes_AS_STRING(PyUnicode_AsEncodedString(pRepr, "ASCII", "strict")));
-						Py_XDECREF(pRepr);
-						Py_XDECREF(pExcTraceback);
-						*/
-					}
-					//std::string fileName = std::string(PyBytes_AS_STRING((traceback->tb_frame->f_code->co_filename), "ASCII", "string"));
-					errBox("Python Call Failed: " + execType + "; " + execValue + "; " + execTraceback + "\r\n");
-					return true;
-				}
-			}
-			else
-			{
-				errBox("Failed to load function\r\n");
-				return true;
-			}
-			Py_XDECREF(pythonFunction);
+			errBox("Python function call returned NULL!");
+			PyErr_Print();
+			PyObject *output = PyObject_GetAttrString(errorCatcher, "value");
+			errBox(PyBytes_AS_STRING(PyUnicode_AsEncodedString(output, "ASCII", "strict")));
+			return true;
 		}
+		Py_DECREF(pythonReturnValue);
+	}
+	else if (analysisType == "Pair Analysis")
+	{
+		PyObject* pythonReturnValue = PyObject_CallObject(this->atomPairAnalysisFunction, pythonFunctionArguments);
+		if (pythonReturnValue == NULL)
+		{
+			errBox("Python function call returned NULL!");
+			PyErr_Print();
+			PyObject *output = PyObject_GetAttrString(errorCatcher, "value");
+			errBox(PyBytes_AS_STRING(PyUnicode_AsEncodedString(output, "ASCII", "strict")));
+			return true;
+		}
+		Py_XDECREF(pythonFunctionArguments);
+		Py_XDECREF(pythonReturnValue);
 	}
 	else
 	{
-		errBox("Failed to load module\r\n");
+		errBox("ERROR: unrecognized analysis type while trying to figure out the analysis function name... at the "
+			"second location?!?!?!?! Ask Mark about bugs.");
 		return true;
 	}
+	// finished successfully.
+
 	return false;
 }
 
@@ -238,9 +268,7 @@ bool EmbeddedPythonHandler::sendText(personInfo person, std::string msg, std::st
 std::string EmbeddedPythonHandler::run(std::string cmd)
 {
 	PyRun_SimpleString(cmd.c_str());
-	//make python print any errors
-	PyErr_Print();
-	//get the stdout and stderr from our catchOutErr object
+	// get the stdout and stderr from our catchOutErr object
 	PyObject *output = PyObject_GetAttrString(errorCatcher, "value");
 	return PyBytes_AS_STRING(PyUnicode_AsEncodedString(output, "ASCII", "strict"));
 }

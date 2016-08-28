@@ -188,8 +188,11 @@
     <ClInclude Include="externals.h" />
     <ClInclude Include="fileManage.h" />
     <ClInclude Include="errBox.h" />
+    <ClInclude Include="GUI_Debugger.h" />
+    <ClInclude Include="MainWindow.h" />
     <ClInclude Include="Script.h" />
     <ClInclude Include="NoteSystem.h" />
+    <ClInclude Include="ScriptingWindow.h" />
     <ClInclude Include="textPromptDialogProcedure.h" />
     <ClInclude Include="getFileName.h" />
     <ClInclude Include="fonts.h" />
@@ -226,9 +229,12 @@
     <ClCompile Include="experimentProgrammingThread.cpp" />
     <ClCompile Include="externals.cpp" />
     <ClCompile Include="fileManage.cpp" />
+    <ClCompile Include="GUI_Debugger.cpp" />
+    <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="NoteSystem.cpp" />
     <ClCompile Include="Script.cpp" />
     <ClCompile Include="errBox.cpp" />
+    <ClCompile Include="ScriptingWindow.cpp" />
     <ClCompile Include="textPromptDialogProcedure.cpp" />
     <ClCompile Include="getFileName.cpp" />
     <ClCompile Include="initializeMainWindow.cpp" />

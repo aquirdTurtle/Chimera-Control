@@ -76,6 +76,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	{
 		MessageBox(0, "Starting in Safe Mode. The program will not actually communicate with any of the devices", 0, MB_OK);
 	}
+	// initialize MFC and print and error on failure
+	if (!AfxWinInit(::GetModuleHandle(NULL), NULL, ::GetCommandLine(), 0))
+	{
+		// TODO: change error code to suit your needs
+		errBox("Fatal Error: MFC initialization failed");
+		return false;
+	}
 	eGlobalInstance = hInstance;
 	/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	///
@@ -608,6 +615,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	RedrawWindow(eColorBox, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 
 	HACCEL hAccel = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDR_ACCELERATOR1));
+
+	MainWindow MainWin;
+	ScriptingWindow ScriptWin;
+	BOOL ret = MainWin.Create(IDD_LARGE_TEMPLATE, 0);
+	if (!ret)   //Create failed.
+	{
+		errBox("Error creating Dialog");
+	}
+	MainWin.ShowWindow(SW_SHOW);
+	ScriptWin.Create(IDD_LARGE_TEMPLATE, 0);
 
 	/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	///

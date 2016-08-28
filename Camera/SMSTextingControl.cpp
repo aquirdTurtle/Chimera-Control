@@ -13,7 +13,6 @@ SMSTextingControl::SMSTextingControl()
 {
 
 }
-
 SMSTextingControl::~SMSTextingControl()
 {
 

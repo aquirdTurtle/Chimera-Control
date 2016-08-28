@@ -15,9 +15,9 @@ class ExperimentTimer
 		void setColorID(int newColorID);
 		int setTimerDisplay(std::string newText);
 	private:
-		Control timeDisplay;
-		Control variationProgress;
-		Control overallProgress;
+		HwndControl timeDisplay;
+		HwndControl variationProgress;
+		HwndControl overallProgress;
 		long long lastTime;
 		int timeColorID;
 		std::vector<double> recentDataPoints;

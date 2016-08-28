@@ -2,7 +2,7 @@
 #include "reorganizeControl.h"
 #include "fonts.h"
 
-int reorganizeControl(Control controlToReposition, std::string mode, RECT parentRectangle)
+int reorganizeControl(HwndControl controlToReposition, std::string mode, RECT parentRectangle)
 {
 	/// Set Positions
 	double widthScale = (parentRectangle.right - parentRectangle.left) / 1936.0;

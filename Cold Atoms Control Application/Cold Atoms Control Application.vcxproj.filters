@@ -97,6 +97,15 @@
     <ClCompile Include="errBox.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
+    <ClCompile Include="GUI_Debugger.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MainWindow.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptingWindow.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="winProcMain.h">
@@ -223,6 +232,15 @@
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="errBox.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI_Debugger.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="MainWindow.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptingWindow.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
   </ItemGroup>

@@ -50,15 +50,15 @@ class Script
 	private:
 		const int idStart;
 		const int idEnd;
-		Control edit;
+		HwndControl edit;
 		const int editID;
-		Control title;
+		HwndControl title;
 		const int titleID;
-		Control savedIndicator;
+		HwndControl savedIndicator;
 		const int savedIndicatorID;
-		Control childCombo;
+		HwndControl childCombo;
 		const int childComboID;
-		Control fileNameText;
+		HwndControl fileNameText;
 		const int fileNameTextID;
 
 		std::string scriptExperiment;

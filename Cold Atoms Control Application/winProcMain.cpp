@@ -216,6 +216,10 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 		/// Everything Else
 		case WM_COMMAND:
 		{
+			if (eDebugger.handleClick(thisWindow, msg, wParam, lParam))
+			{
+				break;
+			}
 			switch (LOWORD(wParam))
 			{
 				case IDC_EXPERIMENT_NOTES:

@@ -9,9 +9,9 @@
 
 // Some Default Settings
 #define DEFAULT_CAMERA_TEMPERATURE 0;
-#define LAPTOP_COMPUTER
+//#define LAPTOP_COMPUTER
 //#define ANDOR_COMPUTER
-//#define DESKTOP_COMPUTER
+#define DESKTOP_COMPUTER
 // for andor:
 // extra slashes here because python needs to process the string as well, so extra escape characters...
 #ifdef ANDOR_COMPUTER
@@ -28,7 +28,16 @@
 // extra slashes here because python needs to process the string as well, so extra escape characters...
 #ifdef LAPTOP_COMPUTER
 	#define PYTHON_HOME L"C:\\Users\\Mark\\Anaconda3\\"
-	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\My Data Analysis";
+	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
+	const std::string SAVE_BASE_ADDRESS = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Data\\Camera Data\\";
+	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Plotting\\";
+	const std::string KEY_FILE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Data\\Data Keys\\";
+	const std::string CAMERA_CONFIGURATION_FILES_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Camera Configuration Files\\";
+	const std::string GNUPLOT_LOCATION = "\"C:\\Program Files (x86)\\gnuplot\\bin\\gnuplot.exe\"";
+#endif
+#ifdef DESKTOP_COMPUTER
+	#define PYTHON_HOME L"C:\\Users\\Mark\\Anaconda3\\"
+	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
 	const std::string SAVE_BASE_ADDRESS = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Data\\Camera Data\\";
 	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Plotting\\";
 	const std::string KEY_FILE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Data\\Data Keys\\";

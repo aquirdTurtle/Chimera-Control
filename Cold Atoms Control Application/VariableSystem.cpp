@@ -330,13 +330,13 @@ bool VariableSystem::addVariable(std::string name, bool timelike, bool singleton
 
 bool VariableSystem::initializeControls(POINT topLeftCorner, HWND parentWindow)
 {
-	RECT initPos = variablesHeader.normalPos = { topLeftCorner.x, topLeftCorner.y, topLeftCorner.x + 480, topLeftCorner.y + 25 };
+	RECT initPos = variablesHeader.position = { topLeftCorner.x, topLeftCorner.y, topLeftCorner.x + 480, topLeftCorner.y + 25 };
 	variablesHeader.hwnd = CreateWindowEx(0, "STATIC", "Variables", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY,
 		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top,
 		parentWindow, (HMENU)-1, eGlobalInstance, NULL);
 	SendMessage(variablesHeader.hwnd, WM_SETFONT, WPARAM(sHeadingFont), TRUE);
 	topLeftCorner.y += 25;
-	initPos = variablesListview.normalPos = { topLeftCorner.x, topLeftCorner.y, topLeftCorner.x + 480, topLeftCorner.y + 195 };
+	initPos = variablesListview.position = { topLeftCorner.x, topLeftCorner.y, topLeftCorner.x + 480, topLeftCorner.y + 195 };
 	variablesListview.hwnd = CreateWindowEx(0, WC_LISTVIEW, "", WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS,
 		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top,
 		parentWindow, (HMENU)IDC_VARIABLES_LISTVIEW, GetModuleHandle(NULL), NULL);
