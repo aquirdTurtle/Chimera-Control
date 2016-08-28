@@ -29,6 +29,6 @@ class ConfigurationFileSystem
 		std::string configurationName;
 		std::string FILE_SYSTEM_PATH;
 		bool configurationSaved;
-		Control configLabel;
-		Control configCombo;
+		HwndControl configLabel;
+		HwndControl configCombo;
 };

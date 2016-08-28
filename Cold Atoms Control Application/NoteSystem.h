@@ -14,10 +14,10 @@ class NoteSystem
 		std::string getCategoryNotes();
 		std::string getConfigurationNotes();
 	private:
-		Control experimentNotes;
-		Control experimentNotesHeader;
-		Control categoryNotes;
-		Control categoryNotesHeader;
-		Control configurationNotes;
-		Control configurationNotesHeader;
+		HwndControl experimentNotes;
+		HwndControl experimentNotesHeader;
+		HwndControl categoryNotes;
+		HwndControl categoryNotesHeader;
+		HwndControl configurationNotes;
+		HwndControl configurationNotesHeader;
 };

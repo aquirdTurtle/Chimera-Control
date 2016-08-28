@@ -31,8 +31,8 @@ class VariableSystem
 
 	private:
 		int totalVariableNumber;
-		Control variablesHeader;
-		Control variablesListview;
+		HwndControl variablesHeader;
+		HwndControl variablesListview;
 		std::vector<variable> currentVariables;
 };
 

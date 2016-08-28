@@ -147,7 +147,7 @@ HINSTANCE eHInst;
 // Main Handles
 HWND eCameraWindowHandle;
 // Code-Edited Edit Handles (disp or text)
-Control eTriggerTextDisplayHandle, eImgLeftSideTextHandle,
+HwndControl eTriggerTextDisplayHandle, eImgLeftSideTextHandle,
 	 eImageBottomSideTextHandle, eImgRightSideTextHandle, eImageTopSideTextHandle, eVerticalBinningTextHandle, eHorizontalBinningTextHandle,
 	 eKineticCycleTimeTextHandle, eTotalPictureNumberTextHandle, ePixel1TextDisplay, ePixel2TextDisplay,
 	 eImgLeftSideDispHandle, eImgRightSideDispHandle, eHorizontalBinningDispHandle, eImageBottomSideDispHandle, eImageTopSideDispHandle,
@@ -155,46 +155,46 @@ Control eTriggerTextDisplayHandle, eImgLeftSideTextHandle,
 	 eKineticCycleTimeDispHandle, eRepetitionsPerVariationDisp, eAtomThresholdDispHandle, eCurrentAccumulationNumDispHandle, eMinCountDispHandle,
 	 eMaxCountDispHandle, eVariationNumberDisp, ePicturesPerRepetitionDisp;
 // User-Edited Edit Handles
-Control eImgLeftSideEditHandle, eImageTopEditHandle, eImgRightSideEditHandle, eImageBottomEditHandle,
+HwndControl eImgLeftSideEditHandle, eImageTopEditHandle, eImgRightSideEditHandle, eImageBottomEditHandle,
 	 eVerticalBinningEditHandle, eHorizontalBinningEditHandle, eKineticCycleTimeEditHandle, eRepetitionsPerVariationEdit, ePixel1XEditHandle,
 	 ePixel2XEditHandle, ePixel1YEditHandle, ePixel2YEditHandle, ePixelsXLocationsEditHandle, ePixelsYLocationsEditHandle, eAtomThresholdEditHandle,
 	 eVariationNumberEdit, ePicturesPerRepetitionEdit;
 // Temperature Control
-Control eTempTextDisplayHandle, eCurrentTempDisplayHandle, eTempDispHandle, eTempEditHandle, eSetTemperatureButtonHandle, eTempOffButton;
+HwndControl eTempTextDisplayHandle, eCurrentTempDisplayHandle, eTempDispHandle, eTempEditHandle, eSetTemperatureButtonHandle, eTempOffButton;
 // Error Status
-Control eErrorEditHandle, eErrorClear, eErrorText;
+HwndControl eErrorEditHandle, eErrorClear, eErrorText;
 // Camera Status
-Control eStatusEditHandle, eClearStatusButtonHandle, eStatusText;
+HwndControl eStatusEditHandle, eClearStatusButtonHandle, eStatusText;
 // Checked Box Handles
-Control eIncDataFileOptionBoxHandle;
+HwndControl eIncDataFileOptionBoxHandle;
 // Button Handles
-Control eSetImageParametersButtonHandle, eSetAnalysisPixelsButtonHandle,
+HwndControl eSetImageParametersButtonHandle, eSetAnalysisPixelsButtonHandle,
 	 eSetKineticSeriesCycleTimeButtonHandle, eSetNumberRepetitionsPerVariationButton, eSetAtomThresholdButtonHandle, ePlotAverageCountsBoxHandle,
 	 eSeVariationNumberButton, eSetPicturesPerRepetitionButtonHandle;
 // ComboBox Handles
-Control eTriggerComboHandle, eCameraModeComboHandle;
+HwndControl eTriggerComboHandle, eCameraModeComboHandle;
 // temporary
-Control eSetAccumulationTimeButton, eAccumulationTimeEdit, eAccumulationTimeDisp, eSetAccumulationNumberButton, eAccumulationNumberEdit,
+HwndControl eSetAccumulationTimeButton, eAccumulationTimeEdit, eAccumulationTimeDisp, eSetAccumulationNumberButton, eAccumulationNumberEdit,
 		eSetAccumulationNumberDisp, eSetRunningAverageNumberToAverageButton, eRunningAverageEdit, eRunningAverageDisp, eRunningAverageBox,
 		eSetPlottingFrequencyButton, ePlottingFrequencyEdit, ePlottingFrequencyDisp, eAllPlotsCombo, eAllPlotsText, eCurrentPlotsCombo, eCurrentPlotsText,
 		eSeriesProgressBar, eMinimumPictureSlider2, eMaximumPictureSlider2, eMinSliderNumberEdit2, eMaxSliderNumberEdit2, eMinSliderText2, eMaxSliderText2,
 		eSubSeriesProgressBar;
 
 // contrast controls
-Control eMinimumPictureSlider1, eMaximumPictureSlider1, eMinSliderNumberEdit1, eMaxSliderNumberEdit1,
+HwndControl eMinimumPictureSlider1, eMaximumPictureSlider1, eMinSliderNumberEdit1, eMaxSliderNumberEdit1,
 		eMinSliderText1, eMaxSliderText1, eMinimumPictureSlider3, eMaximumPictureSlider3, eMinSliderNumberEdit3,
 		eMaxSliderNumberEdit3, eMinSliderText3, eMaxSliderText3, eMinimumPictureSlider4, eMaximumPictureSlider4, eMinSliderNumberEdit4,
 		eMaxSliderNumberEdit4, eMinSliderText4, eMaxSliderText4;
 
 // pixel counts displays
-Control ePic1MaxCountDisp, ePic2MaxCountDisp, ePic3MaxCountDisp, ePic4MaxCountDisp, ePic1MinCountDisp, ePic2MinCountDisp, ePic3MinCountDisp,
+HwndControl ePic1MaxCountDisp, ePic2MaxCountDisp, ePic3MaxCountDisp, ePic4MaxCountDisp, ePic1MinCountDisp, ePic2MinCountDisp, ePic3MinCountDisp,
 		ePic4MinCountDisp, ePic1SelectionCountDisp, ePic2SelectionCountDisp, ePic3SelectionCountDisp, ePic4SelectionCountDisp, ePic1Text, ePic2Text,
 		ePic3Text, ePic4Text, eSelectionText, ePictureText;
 // EM Gain
-Control eSetEMGain, eEMGainText, eEMGainEdit, eEMGainDisplay, eEMGainForceChangeButton;
+HwndControl eSetEMGain, eEMGainText, eEMGainEdit, eEMGainDisplay, eEMGainForceChangeButton;
 
 // Ring Exposure time controls
-Control eExposureTextDisplayHandle, eExposure1EditHandle, eExposure2EditHandle, eExposure3EditHandle, eExposure4EditHandle, eSetExposureButtonHandle, eExposureDispHandle;
+HwndControl eExposureTextDisplayHandle, eExposure1EditHandle, eExposure2EditHandle, eExposure3EditHandle, eExposure4EditHandle, eSetExposureButtonHandle, eExposureDispHandle;
 
 //
 HDC eDrawPallete;

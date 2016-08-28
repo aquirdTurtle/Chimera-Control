@@ -29,11 +29,11 @@ class AlertSystem
 		bool playSound();
 		bool stopSound();
 	private:
-		Control title;
-		Control alertsActiveCheckBox;
-		Control alertThresholdText;
-		Control alertThresholdEdit;
-		Control soundAtFinshCheckBox;
+		HwndControl title;
+		HwndControl alertsActiveCheckBox;
+		HwndControl alertThresholdText;
+		HwndControl alertThresholdEdit;
+		HwndControl soundAtFinshCheckBox;
 		int alertThreshold;
 		bool useAlerts;
 		unsigned int alertMessageID = 0;

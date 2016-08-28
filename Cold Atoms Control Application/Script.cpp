@@ -604,20 +604,20 @@ bool Script::initializeControls(int width, int height, POINT& startingLocation, 
 	}
 	RECT itemBox;
 	//
-	itemBox = title.normalPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
+	itemBox = title.position = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
 	title.hwnd = CreateWindowEx(NULL, "STATIC", titleText.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
 		itemBox.left, itemBox.top, itemBox.right - itemBox.left, itemBox.bottom - itemBox.top,
 		parent, (HMENU)titleID, GetModuleHandle(NULL), NULL);
 	SendMessage(eStaticVerticalEditHandle, WM_SETFONT, WPARAM(sHeadingFont), TRUE);
 	startingLocation.y += 20;
 	//
-	itemBox = fileNameText.normalPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
+	itemBox = fileNameText.position = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
 	fileNameText.hwnd = CreateWindowEx(NULL, "STATIC", "", WS_CHILD | WS_VISIBLE | SS_ENDELLIPSIS,
 		itemBox.left, itemBox.top, itemBox.right - itemBox.left, itemBox.bottom - itemBox.top, 
 		parent, (HMENU)fileNameTextID, GetModuleHandle(NULL), NULL);
 	SendMessage(eStaticVerticalEditHandle, WM_SETFONT, WPARAM(sHeadingFont), TRUE);
 	startingLocation.y += 20;
-	itemBox = savedIndicator.normalPos = { startingLocation.x, startingLocation.y, startingLocation.x + 80, startingLocation.y + 20 };
+	itemBox = savedIndicator.position = { startingLocation.x, startingLocation.y, startingLocation.x + 80, startingLocation.y + 20 };
 	savedIndicator.hwnd = CreateWindowEx(NULL, "BUTTON", "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT,
 		itemBox.left, itemBox.top, itemBox.right - itemBox.left, itemBox.bottom - itemBox.top,
 		parent, (HMENU)savedIndicatorID, GetModuleHandle(NULL), NULL);
@@ -625,7 +625,7 @@ bool Script::initializeControls(int width, int height, POINT& startingLocation, 
 	SendMessage(savedIndicator.hwnd, BM_SETCHECK, BST_CHECKED, NULL);
 	isSaved = true;
 	startingLocation.y += 20;
-	itemBox = childCombo.normalPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 800 };
+	itemBox = childCombo.position = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 800 };
 	childCombo.hwnd = CreateWindowEx(NULL, TEXT("ComboBox"), "", CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
 		itemBox.left, itemBox.top, itemBox.right - itemBox.left, itemBox.bottom - itemBox.top, 
 		parent,	(HMENU)childComboID, GetModuleHandle(NULL), NULL);
@@ -634,7 +634,7 @@ bool Script::initializeControls(int width, int height, POINT& startingLocation, 
 	SendMessage(childCombo.hwnd, CB_SETCURSEL, 0, 0);
 	startingLocation.y += 25;
 	// Edit
-	itemBox = edit.normalPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, height};
+	itemBox = edit.position = { startingLocation.x, startingLocation.y, startingLocation.x + width, height};
 	edit.hwnd = CreateWindowEx(WS_EX_CLIENTEDGE, _T("RICHEDIT50W"), "",
 		WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | WS_HSCROLL,
 		itemBox.left, itemBox.top, itemBox.right - itemBox.left, itemBox.bottom - itemBox.top,

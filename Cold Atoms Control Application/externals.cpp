@@ -9,11 +9,16 @@
 #include "ConfigurationFileSystem.h"
 #include "VariableSystem.h"
 
+//MainWindow MainWin;
+//ScriptingWindow ScriptWin;
+
 ConfigurationFileSystem eProfile(PROFILES_PATH);
 NoteSystem eNotes;
 VariableSystem eVariables;
 int scriptIDs = 110000;
 Script eVerticalNIAWGScript("Vertical NIAWG", scriptIDs), eHorizontalNIAWGScript("Horizontal NIAWG", scriptIDs), eIntensityAgilentScript("Agilent", scriptIDs);
+int debugID = 111000;
+GUI_Debugger eDebugger(debugID);
 
 // Agilent Stuff
 double eCurrentAgilentLow = std::stod(AGILENT_DEFAULT_DC);
@@ -212,7 +217,7 @@ HWND eColorBox;
 HWND eBeginDialogRichEdit;
 /// Temp!
 /// View Combos and texts
-Control eHorizontalViewCombo, eVerticalViewCombo, eIntensityViewCombo, eHorizontalViewText, eVerticalViewText,
+HwndControl eHorizontalViewCombo, eVerticalViewCombo, eIntensityViewCombo, eHorizontalViewText, eVerticalViewText,
 		eIntensityViewText;
 /// Sequence Combo and Display
-Control eSequenceText, eSequenceCombo, eSequenceDisplay;
+HwndControl eSequenceText, eSequenceCombo, eSequenceDisplay;

@@ -29,7 +29,7 @@ class SMSTextingControl
 	private:
 		std::string emailAddress;
 		std::string password;
-		Control peopleListView;
-		Control title;
+		HwndControl peopleListView;
+		HwndControl title;
 		std::vector<personInfo> peopleToText;
 };

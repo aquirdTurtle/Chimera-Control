@@ -2149,13 +2149,13 @@ bool ConfigurationFileSystem::initializeControls(POINT& topLeftPosition, HWND pa
 {
 	RECT currentRect;
 	// Experiment Type
-	currentRect = experimentLabel.normalPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 20 };
+	currentRect = experimentLabel.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 20 };
 	experimentLabel.hwnd = CreateWindowEx(NULL, "STATIC", "EXPERIMENT", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
 		currentRect.left, currentRect.top, currentRect.right - currentRect.left, currentRect.bottom - currentRect.top, 
 		parentWindow, (HMENU)-1, eGlobalInstance, NULL);
 	SendMessage(experimentLabel.hwnd, WM_SETFONT, WPARAM(sHeadingFont), TRUE);
 	// Experiment Saved Indicator
-	currentRect = experimentSavedIndicator.normalPos = { topLeftPosition.x + 360, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 20 };
+	currentRect = experimentSavedIndicator.position = { topLeftPosition.x + 360, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 20 };
 	experimentSavedIndicator.hwnd = CreateWindowEx(NULL, "BUTTON", "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT,
 		currentRect.left, currentRect.top, currentRect.right - currentRect.left, currentRect.bottom - currentRect.top, 
 		parentWindow, (HMENU)IDC_SAVE_EXPERIMENT_INDICATOR_BUTTON, eGlobalInstance, NULL);
@@ -2164,13 +2164,13 @@ bool ConfigurationFileSystem::initializeControls(POINT& topLeftPosition, HWND pa
 	updateExperimentSavedStatus(true);
 	//eExperimentSaved = true;
 	// Category Title
-	currentRect = categoryLabel.normalPos = { topLeftPosition.x + 480, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20 };
+	currentRect = categoryLabel.position = { topLeftPosition.x + 480, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20 };
 	categoryLabel.hwnd = CreateWindowEx(NULL, "STATIC", "CATEGORY", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
 		currentRect.left, currentRect.top, currentRect.right - currentRect.left, currentRect.bottom - currentRect.top, 
 		parentWindow, (HMENU)-1, eGlobalInstance, NULL);
 	SendMessage(categoryLabel.hwnd, WM_SETFONT, WPARAM(sHeadingFont), TRUE);
 
-	currentRect = categorySavedIndicator.normalPos = { topLeftPosition.x + 480 + 380, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20};
+	currentRect = categorySavedIndicator.position = { topLeftPosition.x + 480 + 380, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20};
 	categorySavedIndicator.hwnd = CreateWindowEx(NULL, "BUTTON", "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT,
 		currentRect.left, currentRect.top, currentRect.right - currentRect.left, currentRect.bottom - currentRect.top, 
 		parentWindow, (HMENU)IDC_SAVE_EXPERIMENT_INDICATOR_BUTTON, eGlobalInstance, NULL);
@@ -2179,33 +2179,33 @@ bool ConfigurationFileSystem::initializeControls(POINT& topLeftPosition, HWND pa
 	updateCategorySavedStatus(true);
 	topLeftPosition.y += 20;
 	// Experiment Combo
-	currentRect = experimentCombo.normalPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 800 };
+	currentRect = experimentCombo.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 800 };
 	experimentCombo.hwnd = CreateWindowEx(NULL, TEXT("ComboBox"), "", CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
 		currentRect.left, currentRect.top, currentRect.right - currentRect.left, currentRect.bottom - currentRect.top,
 		parentWindow, (HMENU)IDC_EXPERIMENT_COMBO, eGlobalInstance, NULL);
 	SendMessage(experimentCombo.hwnd, WM_SETFONT, WPARAM(sNormalFont), TRUE);
 	this->reloadCombo(experimentCombo.hwnd, PROFILES_PATH, std::string("*"), "__NONE__");
 	// Category Combo
-	currentRect = categoryCombo.normalPos = { topLeftPosition.x + 480, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 800 };
+	currentRect = categoryCombo.position = { topLeftPosition.x + 480, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 800 };
 	categoryCombo.hwnd = CreateWindowEx(NULL, TEXT("ComboBox"), "", CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
 		currentRect.left, currentRect.top, currentRect.right - currentRect.left, currentRect.bottom - currentRect.top, 
 		parentWindow, (HMENU)IDC_CATEGORY_COMBO, eGlobalInstance, NULL);
 	SendMessage(categoryCombo.hwnd, WM_SETFONT, WPARAM(sNormalFont), TRUE);
 	topLeftPosition.y += 25;
 	// Orientation Title
-	currentRect = orientationLabel.normalPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 120, topLeftPosition.y + 20 };
+	currentRect = orientationLabel.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 120, topLeftPosition.y + 20 };
 	orientationLabel.hwnd = CreateWindowEx(NULL, "STATIC", "ORIENTATION", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
 		currentRect.left, currentRect.top, currentRect.right - currentRect.left, currentRect.bottom - currentRect.top, 
 		parentWindow, (HMENU)-1, eGlobalInstance, NULL);
 	SendMessage(orientationLabel.hwnd, WM_SETFONT, WPARAM(sHeadingFont), TRUE);
 	// Configuration Title
-	currentRect = configLabel.normalPos = { topLeftPosition.x + 120, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20 };
+	currentRect = configLabel.position = { topLeftPosition.x + 120, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20 };
 	configLabel.hwnd = CreateWindowEx(NULL, "STATIC", "CONFIGURATION", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
 		currentRect.left, currentRect.top, currentRect.right - currentRect.left, currentRect.bottom - currentRect.top, 
 		parentWindow, (HMENU)-1, eGlobalInstance, NULL);
 	SendMessage(configLabel.hwnd, WM_SETFONT, WPARAM(sHeadingFont), TRUE);
 	// Configuration Saved Indicator
-	currentRect = configurationSavedIndicator.normalPos = { topLeftPosition.x + 860, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20 };
+	currentRect = configurationSavedIndicator.position = { topLeftPosition.x + 860, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20 };
 	configurationSavedIndicator.hwnd = CreateWindowEx(NULL, "BUTTON", "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT,
 		currentRect.left, currentRect.top, currentRect.right - currentRect.left, currentRect.bottom - currentRect.top,
 		parentWindow, (HMENU)IDC_SAVE_CONFIGURATION_INDICATOR_BUTTON, eGlobalInstance, NULL);
@@ -2218,7 +2218,7 @@ bool ConfigurationFileSystem::initializeControls(POINT& topLeftPosition, HWND pa
 	std::vector<std::string> orientationNames;
 	orientationNames.push_back("Horizontal");
 	orientationNames.push_back("Vertical");
-	currentRect = orientationCombo.normalPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 120, topLeftPosition.y + 800 };
+	currentRect = orientationCombo.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 120, topLeftPosition.y + 800 };
 	orientationCombo.hwnd = CreateWindowEx(NULL, TEXT("ComboBox"), "", CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
 		currentRect.left, currentRect.top, currentRect.right - currentRect.left, currentRect.bottom - currentRect.top, 
 		parentWindow, (HMENU)IDC_ORIENTATION_COMBO, eGlobalInstance, NULL);
@@ -2229,23 +2229,23 @@ bool ConfigurationFileSystem::initializeControls(POINT& topLeftPosition, HWND pa
 	}
 	SendMessage(orientationCombo.hwnd, CB_SETCURSEL, 0, 0);
 	// configuration combo
-	currentRect = configCombo.normalPos = { topLeftPosition.x + 120, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 800 };
+	currentRect = configCombo.position = { topLeftPosition.x + 120, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 800 };
 	configCombo.hwnd = CreateWindowEx(NULL, TEXT("ComboBox"), "", CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
 		currentRect.left, currentRect.top, currentRect.right - currentRect.left, currentRect.bottom - currentRect.top, parentWindow, 
 		(HMENU)IDC_CONFIGURATION_COMBO, eGlobalInstance, NULL);
 	SendMessage(configCombo.hwnd, WM_SETFONT, WPARAM(sNormalFont), TRUE);
 	topLeftPosition.y += 25;
 	/// SEQUENCE
-	sequenceLabel.normalPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 20 };
-	currentRect = sequenceLabel.normalPos;
+	sequenceLabel.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 20 };
+	currentRect = sequenceLabel.position;
 	sequenceLabel.hwnd = CreateWindowEx(NULL, "STATIC", "SEQUENCE", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
 		currentRect.left, currentRect.top, currentRect.right - currentRect.left, currentRect.bottom - currentRect.top,
 		parentWindow, (HMENU)IDC_SEQUENCE_TEXT, eGlobalInstance, NULL);
 	SendMessage(sequenceLabel.hwnd, WM_SETFONT, WPARAM(sHeadingFont), TRUE);
 	topLeftPosition.y += 20;
 	// combo
-	sequenceCombo.normalPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 800 };
-	currentRect = sequenceCombo.normalPos;
+	sequenceCombo.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 800 };
+	currentRect = sequenceCombo.position;
 	sequenceCombo.hwnd = CreateWindowEx(NULL, TEXT("ComboBox"), "", CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
 		currentRect.left, currentRect.top, currentRect.right - currentRect.left, currentRect.bottom - currentRect.top,
 		parentWindow, (HMENU)IDC_SEQUENCE_COMBO, eGlobalInstance, NULL);
@@ -2254,9 +2254,9 @@ bool ConfigurationFileSystem::initializeControls(POINT& topLeftPosition, HWND pa
 	SendMessage(sequenceCombo.hwnd, CB_SETCURSEL, 0, 0);
 	topLeftPosition.y += 25;
 	// display
-	sequenceInfoDisplay.normalPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 100 };
-	sequenceInfoDisplay.normalPos = { 960, 150, 1440, 250 };
-	currentRect = sequenceInfoDisplay.normalPos;
+	sequenceInfoDisplay.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 100 };
+	sequenceInfoDisplay.position = { 960, 150, 1440, 250 };
+	currentRect = sequenceInfoDisplay.position;
 	sequenceInfoDisplay.hwnd = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "Sequence of Configurations to Run:\r\n", ES_READONLY | WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL,
 		currentRect.left, currentRect.top, currentRect.right - currentRect.left, currentRect.bottom - currentRect.top,
 		parentWindow, (HMENU)IDC_SEQUENCE_DISPLAY, eGlobalInstance, NULL);

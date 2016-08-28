@@ -2,7 +2,7 @@
 
 #include "Windows.h"
 
-struct Control
+struct HwndControl
 {
 	// main window handle used by win32
 	HWND hwnd;

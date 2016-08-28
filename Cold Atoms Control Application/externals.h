@@ -9,10 +9,16 @@
 #include "NoteSystem.h"
 #include "VariableSystem.h"
 #include "Script.h"
+#include "GUI_Debugger.h"
+#include "MainWindow.h"
+#include "ScriptingWindow.h"
+
+//extern MainWindow MainWin;
+//extern ScriptingWindow ScriptWin;
 
 extern ViStatus eError;
 extern bool eWaitError;
-
+extern GUI_Debugger eDebugger;
 extern ConfigurationFileSystem eProfile;
 extern NoteSystem eNotes;
 extern VariableSystem eVariables;
@@ -174,9 +180,9 @@ extern HWND eBeginDialogRichEdit;
 
 /// Temp!
 /// view Combos & texts
-extern Control eHorizontalViewCombo, eVerticalViewCombo, eIntensityViewCombo, eHorizontalViewText, eVerticalViewText,
+extern HwndControl eHorizontalViewCombo, eVerticalViewCombo, eIntensityViewCombo, eHorizontalViewText, eVerticalViewText,
 			   eIntensityViewText;
-extern Control eSequenceText, eSequenceCombo, eSequenceDisplay;
+extern HwndControl eSequenceText, eSequenceCombo, eSequenceDisplay;
 
 extern HWND eConfigurationTextInScripting;
 
