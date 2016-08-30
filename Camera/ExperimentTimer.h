@@ -18,7 +18,7 @@ class ExperimentTimer
 		HwndControl timeDisplay;
 		HwndControl variationProgress;
 		HwndControl overallProgress;
-		long long lastTime;
+		long long firstTime;
 		int timeColorID;
 		std::vector<double> recentDataPoints;
 

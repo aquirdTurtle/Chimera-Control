@@ -67,19 +67,7 @@ int ExperimentTimer::initializeControls(POINT& topLeftPositionKinetic, POINT& to
 int ExperimentTimer::update(int currentAccumulationNumber, int accumulationsPerVariation, int numberOfVariations, HWND parentWindow)
 {
 	int totalRepetitions = accumulationsPerVariation * numberOfVariations;
-	int minAverageNumber, maxAverageNumber = 1000;
-	if (numberOfVariations < 3)
-	{
-		minAverageNumber = totalRepetitions / 20 + 1;
-	}
-	else
-	{
-		minAverageNumber = accumulationsPerVariation / 2 + 1;
-	}
-	if (minAverageNumber > maxAverageNumber)
-	{
-		minAverageNumber = maxAverageNumber;
-	}
+	int minAverageNumber = 10;
 	int variationPosition = (currentAccumulationNumber % accumulationsPerVariation) * 100.0 / accumulationsPerVariation;
 	int overalPosition = currentAccumulationNumber / (double)totalRepetitions * 100;
 	SendMessage(variationProgress.hwnd, PBM_SETPOS, (WPARAM)variationPosition, 0);
@@ -87,192 +75,54 @@ int ExperimentTimer::update(int currentAccumulationNumber, int accumulationsPerV
 	if (currentAccumulationNumber == 1)
 	{
 		timeColorID = ID_GREEN;
-		recentDataPoints.resize(maxAverageNumber);
-		lastTime = GetTickCount64();
+		this->firstTime = GetTickCount64();
 		RECT parentRectangle;
 		GetWindowRect(parentWindow, &parentRectangle);
 		timeDisplay.fontType = "Normal";
 		reorganizeControl(timeDisplay, "Kinetic Series Mode", parentRectangle);
 		SendMessage(timeDisplay.hwnd, WM_SETTEXT, (WPARAM)0, (LPARAM)"Estimating Time...");
 	}
-	else if (currentAccumulationNumber <= minAverageNumber)
-	{
-		long long thisTime = GetTickCount64();
-		recentDataPoints[currentAccumulationNumber % minAverageNumber] = thisTime - lastTime;
-		lastTime = thisTime;
-	}
-	else if (currentAccumulationNumber == minAverageNumber + 1)
-	{
-
-		RECT parentRectangle;
-		GetWindowRect(parentWindow, &parentRectangle);
-		timeDisplay.fontType = "Large";
-		reorganizeControl(timeDisplay, "Kinetic Series Mode", parentRectangle);
-
-		long long thisTime = GetTickCount64();
-		recentDataPoints[currentAccumulationNumber % minAverageNumber] = thisTime - lastTime;
-		lastTime = thisTime;
-		// only update at the beginning of experiments
-		if (currentAccumulationNumber % ePicturesPerRepetition == 0)
-		{
-			double total = 0;
-			for (int timesInc = 0; timesInc < currentAccumulationNumber; timesInc++)
-			{
-				total += recentDataPoints[timesInc % minAverageNumber];
-			}
-			double averageTime = total / currentAccumulationNumber;
-			// in seconds...
-			int timeLeft = (accumulationsPerVariation * numberOfVariations - currentAccumulationNumber) * averageTime / 1000;
-			int hours = timeLeft / 3600;
-			int minutes = (timeLeft % 3600) / 60;
-			int seconds = (timeLeft % 3600) % 60;
-			std::string timeString;
-			timeString += std::to_string(hours) + ":";
-			if (minutes < 10)
-			{
-				timeString += "0" + std::to_string(minutes);
-			}
-			else
-			{
-				timeString += std::to_string(minutes);
-			}
-			if (hours == 0 && minutes < 5)
-			{
-				if (seconds < 10)
-				{
-					timeString += ":0" + std::to_string(seconds);
-				}
-				else
-				{
-					timeString += ":" + std::to_string(seconds);
-				}
-			}
-			SendMessage(timeDisplay.hwnd, WM_SETTEXT, (WPARAM)0, (LPARAM)timeString.c_str());
-		}
-	}
-	else if (currentAccumulationNumber < maxAverageNumber)
-	{
-		long long thisTime = GetTickCount64();
-		recentDataPoints[currentAccumulationNumber] = thisTime - lastTime;
-		lastTime = thisTime;
-		if (currentAccumulationNumber % ePicturesPerRepetition == 0)
-		{
-			double total = 0;
-			for (int timesInc = 0; timesInc < currentAccumulationNumber; timesInc++)
-			{
-				total += recentDataPoints[timesInc];
-			}
-			double averageTime = total / currentAccumulationNumber;
-			// in seconds...
-			int timeLeft = (accumulationsPerVariation * numberOfVariations - currentAccumulationNumber) * averageTime / 1000;
-			int hours = timeLeft / 3600;
-			int minutes = (timeLeft % 3600) / 60;
-			int seconds = (timeLeft % 3600) % 60;
-			std::string timeString;
-			timeString += std::to_string(hours) + ":";
-			if (minutes < 10)
-			{
-				timeString += "0" + std::to_string(minutes);
-			}
-			else
-			{
-				timeString += std::to_string(minutes);
-			}
-			if (hours == 0 && minutes < 5)
-			{
-				if (seconds < 10)
-				{
-					timeString += ":0" + std::to_string(seconds);
-				}
-				else
-				{
-					timeString += ":" + std::to_string(seconds);
-				}
-			}
-			SendMessage(timeDisplay.hwnd, WM_SETTEXT, (WPARAM)0, (LPARAM)timeString.c_str());
-		}
-	}
-	else if (currentAccumulationNumber < totalRepetitions - 1)
-	{
-		long long thisTime = GetTickCount64();
-		recentDataPoints[currentAccumulationNumber % maxAverageNumber] = thisTime - lastTime;
-		lastTime = thisTime;
-		if (currentAccumulationNumber % ePicturesPerRepetition == 0)
-		{
-			double total = 0;
-			for (int timesInc = 0; timesInc < recentDataPoints.size(); timesInc++)
-			{
-				total += recentDataPoints[timesInc % maxAverageNumber];
-			}
-			double averageTime = total / recentDataPoints.size();
-			// in seconds...
-			int timeLeft = (accumulationsPerVariation * numberOfVariations - currentAccumulationNumber) * averageTime / 1000;
-			int hours = timeLeft / 3600;
-			int minutes = (timeLeft % 3600) / 60;
-			int seconds = (timeLeft % 3600) % 60;
-			std::string timeString;
-			timeString += std::to_string(hours) + ":";
-			if (minutes < 10)
-			{
-				timeString += "0" + std::to_string(minutes);
-			}
-			else
-			{
-				timeString += std::to_string(minutes);
-			}
-			if (hours == 0 && minutes < 5)
-			{
-				if (seconds < 10)
-				{
-					timeString += ":0" + std::to_string(seconds);
-				}
-				else
-				{
-					timeString += ":" + std::to_string(seconds);
-				}
-			}
-			SendMessage(timeDisplay.hwnd, WM_SETTEXT, (WPARAM)0, (LPARAM)timeString.c_str());
-		}
-
-	}
 	else if (currentAccumulationNumber < totalRepetitions)
 	{
+		if (currentAccumulationNumber == minAverageNumber)
+		{
+			RECT parentRectangle;
+			GetWindowRect(parentWindow, &parentRectangle);
+			timeDisplay.fontType = "Large";
+			reorganizeControl(timeDisplay, "Kinetic Series Mode", parentRectangle);
+		}
 		long long thisTime = GetTickCount64();
-		recentDataPoints[currentAccumulationNumber % minAverageNumber] = thisTime - lastTime;
-		lastTime = thisTime;
-		double total = 0;
-		for (int timesInc = 0; timesInc < recentDataPoints.size(); timesInc++)
+		if (currentAccumulationNumber % ePicturesPerRepetition == 0)
 		{
-			total += recentDataPoints[timesInc];
-		}
-		double averageTime = total / recentDataPoints.size();
-		// in seconds...
-		int timeLeft = (totalRepetitions - currentAccumulationNumber) * averageTime / 1000;
-		int hours = timeLeft / 3600;
-		int minutes = (timeLeft % 3600) / 60;
-		int seconds = (timeLeft % 3600) % 60;
-		std::string timeString;
-		timeString += std::to_string(hours) + ":";
-		if (minutes < 10)
-		{
-			timeString += "0" + std::to_string(minutes);
-		}
-		else
-		{
-			timeString += std::to_string(minutes);
-		}
-		if (hours == 0 && minutes < 5)
-		{
-			if (seconds < 10)
+			double averageTime = (thisTime - firstTime) / currentAccumulationNumber;
+			// in seconds...
+			int timeLeft = (accumulationsPerVariation * numberOfVariations - currentAccumulationNumber) * averageTime / 1000;
+			int hours = timeLeft / 3600;
+			int minutes = (timeLeft % 3600) / 60;
+			int seconds = (timeLeft % 3600) % 60;
+			std::string timeString;
+			timeString += std::to_string(hours) + ":";
+			if (minutes < 10)
 			{
-				timeString += ":0" + std::to_string(seconds);
+				timeString += "0" + std::to_string(minutes);
 			}
 			else
 			{
-				timeString += ":" + std::to_string(seconds);
+				timeString += std::to_string(minutes);
 			}
+			if (hours == 0 && minutes < 5)
+			{
+				if (seconds < 10)
+				{
+					timeString += ":0" + std::to_string(seconds);
+				}
+				else
+				{
+					timeString += ":" + std::to_string(seconds);
+				}
+			}
+			SendMessage(timeDisplay.hwnd, WM_SETTEXT, (WPARAM)0, (LPARAM)timeString.c_str());
 		}
-		SendMessage(timeDisplay.hwnd, WM_SETTEXT, (WPARAM)0, (LPARAM)timeString.c_str());
 	}
 	else
 	{

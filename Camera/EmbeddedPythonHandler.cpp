@@ -40,7 +40,7 @@ EmbeddedPythonHandler::EmbeddedPythonHandler()
 	// Make sure that python can find my module.
 	ERR_POP(run("import sys"));
 	ERR_POP(run("sys.path.append(\"" + ANALYSIS_CODE_LOCATION + "\")"));
-	//ERR_POP(run("import AutoanalysisFunctions"))
+	//ERR_POP(run("import AutoanalysisFunctions"));
 	PyObject* pythonModuleName = PyUnicode_DecodeFSDefault("AutoanalysisFunctions");
 	if (pythonModuleName == NULL)
 	{
@@ -48,7 +48,7 @@ EmbeddedPythonHandler::EmbeddedPythonHandler()
 		return;
 	}
 	this->autoAnalysisModule = PyImport_Import(pythonModuleName);
-	Py_XDECREF(pythonModuleName);
+	//Py_XDECREF(pythonModuleName);
 	if (autoAnalysisModule == NULL)
 	{
 		errBox("ERROR: Failed to load python module for automatic data analysis!");

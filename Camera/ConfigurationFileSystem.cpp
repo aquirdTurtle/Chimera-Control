@@ -70,6 +70,7 @@ int ConfigurationFileSystem::openConfiguration(std::string configurationNameToOp
 	{
 		// this shouldn't happend
 		appendText("ERROR: reached bad location where eExposureTimes was of zero size, but this should have been detected earlier in the code.", IDC_ERROR_EDIT);
+		return -1;
 	}
 	SendMessage(eExposureDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)"");
 	appendText(std::to_string(eExposureTimes[0] * 1000), IDC_EXPOSURE_DISP);
