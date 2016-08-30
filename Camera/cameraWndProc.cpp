@@ -2390,27 +2390,10 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 		case WM_CLOSE:
 		case WM_DESTROY: 
 		{
-			int temperature;
-			std::string errMsg;
-			if (!ANDOR_SAFEMODE)
+			if (MessageBox(0, "Do you really want to exit? Remember that if this is a real shutdown, you need to warm the camera up. Closing this program does not "
+				" warm up the camera.", "Exit?", MB_OKCANCEL) == IDCANCEL)
 			{
-				errMsg = myAndor::andorErrorChecker(GetTemperature(&temperature));
-				if (errMsg != "DRV_TEMP_OFF" && errMsg != "DRV_TEMP_STABILIZED" && errMsg != "DRV_TEMP_NOT_REACHED" && errMsg != "DRV_TEMP_DRIFT"
-					&& errMsg == "DRV_TEMP_NOT_STABILIZED")
-				{
-					appendText("Error Getting Temperature before exiting: " + errMsg + "\r\n", IDC_STATUS_EDIT);
-				}
-			}
-			else 
-			{
-				temperature = 25;
-			}
-			//
-			if (temperature < 0) 
-			{
-				SendMessage(eStatusEditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)("Please only quit when the temperature of the camera is "
-							"above 0 C, or else rapid heating that occurs when the cooler is turned off at low "
-							"temperatures might cause rapid mechanical expansions that could damage the camera!\r\n"));
+				return 0;
 			}
 			else 
 			{

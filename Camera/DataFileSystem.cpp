@@ -93,14 +93,17 @@ bool DataFileSystem::loadAndMoveKeyFile(std::string& errMsg, bool incOption)
 
 bool DataFileSystem::forceFitsClosed()
 {
+
 	int fitsStatus = 0;
-	fits_close_file(myFitsFile, &fitsStatus);
+	if (myFitsFile != NULL)
+	{
+		fits_close_file(myFitsFile, &fitsStatus);
+	}
 	return false;
 }
 
 bool DataFileSystem::initializeDataFiles(bool incrementFiles, std::string& errMsg)
 {
-	// This really needs to be closed at this point. don't try to check if open in case of bugs.
 	DataFileSystem::forceFitsClosed();
 	// if the function fails, the fits file will not be open. If it succeeds, this will get set to true.
 	fitsIsOpen = false;
@@ -179,10 +182,18 @@ bool DataFileSystem::initializeDataFiles(bool incrementFiles, std::string& errMs
 	}
 	/// save the file
 	int fitsStatus = 0;
+	
 	fits_create_file(&myFitsFile, (SAVE_BASE_ADDRESS + finalSaveFolder + finalSaveFileName).c_str(), &fitsStatus);
 	if (DataFileSystem::checkFitsError(fitsStatus, errMsg))
 	{
+		errBox(errMsg);
 		return true;
+	}
+
+	if (DataFileSystem::checkFitsError(fitsStatus, errMsg))
+	{
+		errBox(errMsg);
+		//return true;
 	}
 	//immediately change this.
 	fitsIsOpen = true;
@@ -211,6 +222,7 @@ bool DataFileSystem::writeFits(std::string& errMsg, int currentExperimentPicture
 	fits_write_pix(myFitsFile, TLONG, fpixel, images[currentExperimentPictureNumber].size(), &images[currentExperimentPictureNumber][0], &status);
 	if (DataFileSystem::checkFitsError(status, errMsg))
 	{
+		errBox("FITS ERROR: " + errMsg);
 		return true;
 	}
 	// no errors
@@ -228,10 +240,13 @@ bool DataFileSystem::closeFits(std::string& errMsg)
 	if (DataFileSystem::checkFitsError(fitsStatus, errMsg))
 	{
 		// not necessarily game-ending.
+		errBox("FITS ERROR: " + errMsg);
 		return true;
 	}
 	// it's now closed
 	fitsIsOpen = false;
+	// don't think this should really accomplish anything. just gives two signals that it's closed. 
+	myFitsFile = NULL;
 	// no error
 	return false;
 }
