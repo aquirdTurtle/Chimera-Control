@@ -76,6 +76,10 @@ int ExperimentTimer::update(int currentAccumulationNumber, int accumulationsPerV
 	{
 		minAverageNumber = accumulationsPerVariation / 2 + 1;
 	}
+	if (minAverageNumber > maxAverageNumber)
+	{
+		minAverageNumber = maxAverageNumber;
+	}
 	int variationPosition = (currentAccumulationNumber % accumulationsPerVariation) * 100.0 / accumulationsPerVariation;
 	int overalPosition = currentAccumulationNumber / (double)totalRepetitions * 100;
 	SendMessage(variationProgress.hwnd, PBM_SETPOS, (WPARAM)variationPosition, 0);
@@ -106,7 +110,7 @@ int ExperimentTimer::update(int currentAccumulationNumber, int accumulationsPerV
 		reorganizeControl(timeDisplay, "Kinetic Series Mode", parentRectangle);
 
 		long long thisTime = GetTickCount64();
-		recentDataPoints[currentAccumulationNumber] = thisTime - lastTime;
+		recentDataPoints[currentAccumulationNumber % minAverageNumber] = thisTime - lastTime;
 		lastTime = thisTime;
 		// only update at the beginning of experiments
 		if (currentAccumulationNumber % ePicturesPerRepetition == 0)
@@ -114,7 +118,7 @@ int ExperimentTimer::update(int currentAccumulationNumber, int accumulationsPerV
 			double total = 0;
 			for (int timesInc = 0; timesInc < currentAccumulationNumber; timesInc++)
 			{
-				total += recentDataPoints[timesInc];
+				total += recentDataPoints[timesInc % minAverageNumber];
 			}
 			double averageTime = total / currentAccumulationNumber;
 			// in seconds...
@@ -198,7 +202,7 @@ int ExperimentTimer::update(int currentAccumulationNumber, int accumulationsPerV
 			double total = 0;
 			for (int timesInc = 0; timesInc < recentDataPoints.size(); timesInc++)
 			{
-				total += recentDataPoints[timesInc];
+				total += recentDataPoints[timesInc % maxAverageNumber];
 			}
 			double averageTime = total / recentDataPoints.size();
 			// in seconds...
