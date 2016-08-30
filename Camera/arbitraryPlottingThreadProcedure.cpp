@@ -25,7 +25,11 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 	for (int plotInc = 0; plotInc < allPlottingInfo.size(); plotInc++)
 	{
 		std::string tempFileName = PLOT_FILES_SAVE_LOCATION + (*inputPointer)[plotInc] + ".plot";
-		allPlottingInfo[plotInc].loadPlottingInfoFromFile(tempFileName);
+		if (allPlottingInfo[plotInc].loadPlottingInfoFromFile(tempFileName) == -1)
+		{
+			// load failed. 
+			return 0;
+		}
 		allPlottingInfo[plotInc].setGroups(eAutoAnalysisHandler.getAtomLocations());
 	}
 	// now kill the input.

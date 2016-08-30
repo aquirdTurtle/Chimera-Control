@@ -1413,7 +1413,11 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					SendMessage(eAllPlotsCombo.hwnd, (UINT)CB_GETLBTEXT, (WPARAM)itemIndex, (LPARAM)selectedPlotText);
 					std::string fileToView = PLOT_FILES_SAVE_LOCATION + std::string(selectedPlotText) + ".plot";
 					eCurrentPlottingInfo.clear();
-					eCurrentPlottingInfo.loadPlottingInfoFromFile(fileToView);
+					if (eCurrentPlottingInfo.loadPlottingInfoFromFile(fileToView) == -1)
+					{
+						// load failed. 
+						break;
+					}
 					std::string message = eCurrentPlottingInfo.returnAllInfo();
 					int answer = DialogBoxParam(eHInst, MAKEINTRESOURCE(IDD_RICH_EDIT_OK_CANCEL_MESSAGE_BOX), 0, (DLGPROC)dialogProcedures::richEditOkCancelMessageBoxProc, (LPARAM)message.c_str());
 					break;
@@ -1431,7 +1435,11 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					SendMessage(eAllPlotsCombo.hwnd, (UINT)CB_GETLBTEXT, (WPARAM)itemIndex, (LPARAM)selectedPlotText);
 					std::string fileToEdit = PLOT_FILES_SAVE_LOCATION + std::string(selectedPlotText) + ".plot";
 					eCurrentPlottingInfo.clear();
-					eCurrentPlottingInfo.loadPlottingInfoFromFile(fileToEdit);
+					if (eCurrentPlottingInfo.loadPlottingInfoFromFile(fileToEdit))
+					{
+						// load failed.
+						break;
+					}
 					DialogBox(eHInst, MAKEINTRESOURCE(IDD_PLOT_CREATOR), 0, (DLGPROC)dialogProcedures::plottingDialogProc);
 					break;
 				}
@@ -1582,7 +1590,11 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					for (int plotInc = 0; plotInc < eCurrentPlotNames.size(); plotInc++)
 					{
 						PlottingInfo tempInfoCheck;
-						tempInfoCheck.loadPlottingInfoFromFile(PLOT_FILES_SAVE_LOCATION + eCurrentPlotNames[plotInc] + ".plot");
+						if (tempInfoCheck.loadPlottingInfoFromFile(PLOT_FILES_SAVE_LOCATION + eCurrentPlotNames[plotInc] + ".plot") == -1)
+						{
+							// load failed. 
+							errCheck = true;
+						}
 						if (tempInfoCheck.getPictureNumber() != ePicturesPerRepetition)
 						{
 							MessageBox(0, ("ERROR: one of the plots selected, " + eCurrentPlotNames[plotInc] + ", is not built for the currently selected number"

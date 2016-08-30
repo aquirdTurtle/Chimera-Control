@@ -287,6 +287,8 @@ int DataSet::getDataCountsLocation(int& pixel, int& picture)
 			}
 		}
 	}
+	// avoid memory issues
+	pixel = picture = 0;
 	return -1;
 }
 
