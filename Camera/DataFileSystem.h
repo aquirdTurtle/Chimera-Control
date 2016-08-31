@@ -5,7 +5,6 @@ class DataFileSystem
 {
 	public:
 		DataFileSystem(std::string systemLocation);
-		~DataFileSystem();
 		bool initializeDataFiles(bool incrementFiles, std::string& errMsg);
 		bool writeFits(std::string& errMsg, int currentExperimentPictureNumber, int currentPictureNumber, std::vector<std::vector<long> > images);
 		bool closeFits(std::string& errMsg);
