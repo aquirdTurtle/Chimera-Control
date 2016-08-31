@@ -9,10 +9,6 @@ DataFileSystem::DataFileSystem(std::string systemLocation)
 	fitsIsOpen = false;
 	dataFilesBaseLocation = systemLocation;
 }
-DataFileSystem::~DataFileSystem()
-{
-	// nothing right now.
-}
 
 // this file assumes that fits is the fits_#.fits file. User should check if incDataSet is on before calling. 
 bool DataFileSystem::deleteFitsAndKey(std::string& errMsg)
@@ -31,11 +27,20 @@ bool DataFileSystem::deleteFitsAndKey(std::string& errMsg)
 		errMsg = "Failed to delete fits file! Error code: " + std::to_string(GetLastError()) + ".\r\n";
 		returnVal = true;
 	}
+	else
+	{
+		appendText("Deleted Fits file located at \"" + fitsAddress + "\"\r\n", IDC_STATUS_EDIT);
+	}
 	success = DeleteFile((SAVE_BASE_ADDRESS + currentSaveFolder + "\\Raw Data\\key_" + std::to_string(currentDataFileNumber) + ".txt").c_str());
 	if (success == false)
 	{
 		errMsg += "Failed to delete key file! Error code: " + std::to_string(GetLastError()) + ".\r\n";
 		returnVal = true;
+	}
+	else
+	{
+		appendText("Deleted Key file located at \"" + SAVE_BASE_ADDRESS + currentSaveFolder + "\\Raw Data\\key_" + std::to_string(currentDataFileNumber) 
+				   + ".txt\"\r\n", IDC_STATUS_EDIT);
 	}
 	return returnVal;
 }
