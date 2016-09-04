@@ -16,7 +16,6 @@ EmbeddedPythonHandler::EmbeddedPythonHandler()
 							"\tdef write(self, txt):\n"
 							"\t\tself.value += txt\n"
 							"catchOutErr = CatchOutErr()\n"
-							"sys.stdout = catchOutErr\n"
 							"sys.stderr = catchOutErr\n";
 	//create main module
 	this->mainModule = PyImport_AddModule("__main__"); 
@@ -40,7 +39,7 @@ EmbeddedPythonHandler::EmbeddedPythonHandler()
 	// Make sure that python can find my module.
 	ERR_POP(run("import sys"));
 	ERR_POP(run("sys.path.append(\"" + ANALYSIS_CODE_LOCATION + "\")"));
-	//ERR_POP(run("import AutoanalysisFunctions"));
+	ERR_POP(run("import AutoanalysisFunctions"));
 	PyObject* pythonModuleName = PyUnicode_DecodeFSDefault("AutoanalysisFunctions");
 	if (pythonModuleName == NULL)
 	{
@@ -66,10 +65,16 @@ EmbeddedPythonHandler::EmbeddedPythonHandler()
 	}
 }
 
+bool EmbeddedPythonHandler::flush()
+{
+	//this->run("sys.stderr.flush()");
+	return true;
+}
 // for full data analysis set.
 bool EmbeddedPythonHandler::runDataAnalysis(std::string analysisType, std::string date, long runNumber,
 											long accumulations, std::string completeName, std::vector<std::pair<int, int>> atomLocations)
 {
+	this->flush();
 	if (this->autoAnalysisModule == NULL)
 	{
 		errBox("autoAnalysisModule is no longer available! This shouldn't happen... Continuing...");
@@ -234,6 +239,7 @@ bool EmbeddedPythonHandler::runDataAnalysis(std::string analysisType, std::strin
 bool EmbeddedPythonHandler::sendText(personInfo person, std::string msg, std::string subject, std::string baseEmail, 
 									 std::string password)
 {
+	this->flush();
 	if (baseEmail == "" || password == "")
 	{
 		errBox("ERROR: Please set an email and password for sending texts with!");
@@ -267,6 +273,7 @@ bool EmbeddedPythonHandler::sendText(personInfo person, std::string msg, std::st
 // for a single python command. Returns python's output of said command.
 std::string EmbeddedPythonHandler::run(std::string cmd)
 {
+	this->flush();
 	PyRun_SimpleString(cmd.c_str());
 	// get the stdout and stderr from our catchOutErr object
 	PyObject *output = PyObject_GetAttrString(errorCatcher, "value");

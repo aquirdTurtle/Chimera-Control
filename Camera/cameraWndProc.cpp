@@ -1608,6 +1608,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 						for (int locationInc = 0; locationInc < plotLocations.size(); locationInc++)
 						{
 							// check to make sure pixels are in bounds. 
+							/*
 							if (plotLocations[locationInc].first < 1 || plotLocations[locationInc].first > currentImageParameters.height)
 							{
 								errBox("ERROR: one of your real-time plots, plot # " + std::to_string(plotInc + 1) + ", wants to plot outside the height of the "
@@ -1620,6 +1621,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 									"andor camera window. The requested row was " + std::to_string(plotLocations[locationInc].second + 1) + ", but the width "
 									"(starting at 1) of the image is" + std::to_string(currentImageParameters.width) + ".");
 							}
+							*/
 						}
 					}
 					if (errCheck)
@@ -2542,7 +2544,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					message += "0";
 				}
 				message += std::to_string(now.tm_sec);
-				appendText(message, IDC_STATUS_EDIT);
+				appendText(message + "\n", IDC_STATUS_EDIT);
 
 				eTextingHandler.sendMessage(message, &Python, "Finished");
 				if (eAutoanalyzeData)
