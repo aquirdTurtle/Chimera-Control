@@ -18,6 +18,7 @@ class EmbeddedPythonHandler
 			std::string password);
 		// for a single python command.
 		std::string run(std::string cmd);
+		bool flush();
 	private:
 		PyObject* autoAnalysisModule;
 		PyObject* singleAtomAnalysisFunction;
