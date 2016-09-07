@@ -481,7 +481,7 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 							ePlotter << plotString.c_str();
 							ePlotter << "set grid ytics lc rgb \"#bbbbbb\" lw 1 lt 0\n";
 							ePlotter << "set grid xtics lc rgb \"#bbbbbb\" lw 1 lt 0\n";
-							plotString = "set yrange [0:1]\n";																
+							plotString = "set yrange [-0.1:1.1]\n";																
 							ePlotter << plotString.c_str();
 						}
 						else

@@ -2522,8 +2522,6 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 				{
 					eCameraWindowExperimentTimer.update(eCurrentAccumulationNumber, ePicturesPerVariation, eCurrentTotalVariationNumber, hWnd);
 				}
-				appendText("Finished Entire Experiment Sequence.\r\n", IDC_STATUS_EDIT);
-
 				// get time to include in text message.
 				time_t t = time(0);
 				struct tm now;
