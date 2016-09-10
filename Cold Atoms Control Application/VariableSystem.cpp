@@ -5,6 +5,7 @@
 #include "textPromptDialogProcedure.h"
 #include <iomanip>
 #include <sstream>
+#include <algorithm>
 
 bool VariableSystem::updateVariableInfo(LPARAM lParamOfMessage)
 {
@@ -23,6 +24,8 @@ bool VariableSystem::updateVariableInfo(LPARAM lParamOfMessage)
 		// user didn't click in an item.
 		return false;
 	}
+	// update the configuration saved status. variables are stored in the configuration-level file.
+	eProfile.updateConfigurationSavedStatus(false);
 	LVITEM listViewItem;
 	memset(&listViewItem, 0, sizeof(listViewItem));
 	listViewItem.mask = LVIF_TEXT;   // Text Style
@@ -68,6 +71,8 @@ bool VariableSystem::updateVariableInfo(LPARAM lParamOfMessage)
 				// probably canceled.
 				break;
 			}
+			// make it lowercase.
+			std::transform(newName.begin(), newName.end(), newName.begin(), ::tolower);
 			// update the info inside
 			currentVariables[itemIndicator].name = newName;
 			// update the screen
@@ -302,9 +307,10 @@ bool VariableSystem::addVariable(std::string name, bool timelike, bool singleton
 	listViewItem.iSubItem = 2;
 	if (singleton)
 	{
-		TCHAR buf[32];
-		_itot_s(value, buf, 10);
-		listViewItem.pszText = buf;
+		std::ostringstream out;
+		out << std::setprecision(12) << value;
+		std::string tempstr = out.str();
+		listViewItem.pszText = (LPSTR)tempstr.c_str();
 	}
 	else
 	{

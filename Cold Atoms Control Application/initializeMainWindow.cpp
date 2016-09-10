@@ -4,7 +4,6 @@
 #include "externals.h"
 #include "constants.h"
 #include "fonts.h"
-#include "fileManage.h"
 
 /*
  * This function is called on WM_CREATE in order to initialize the handles to all of the objects on the main window.

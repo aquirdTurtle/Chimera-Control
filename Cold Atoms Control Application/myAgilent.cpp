@@ -468,7 +468,9 @@ namespace myAgilent
 			for (int dataConvertInc = 0; dataConvertInc < waveformSegments[segmentInc].returnDataSize(); dataConvertInc++)
 			{
 				// convert the user power, which is entered in mW, to uW. That's the units this calibration was done in.
+				// y is the desired power in microwatts.
 				double y = waveformSegments[segmentInc].returnDataVal(dataConvertInc) * 1000.0;
+				
 				//double newValue = -a * log(y * b);
 				double newValue = a + b * log(y - c);
 				waveformSegments[segmentInc].assignDataVal(dataConvertInc, newValue);
