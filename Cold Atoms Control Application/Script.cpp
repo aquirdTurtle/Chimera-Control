@@ -730,7 +730,36 @@ bool Script::saveScript()
 	// + 1 for null at end
 	char* editText = new char[textLength + 1];
 	int myError = GetWindowText(this->edit.hwnd, editText, textLength + 1);
-	std::fstream saveFile(eProfile.getCurrentPathIncludingCategory() + scriptName + extension, std::fstream::out);
+	//std::fstream saveFile(eProfile.getCurrentPathIncludingCategory() + scriptName + extension, std::fstream::out);
+	std::fstream saveFile;
+	int extPos = this->scriptName.find_last_of(".");
+	if (extPos != -1)
+	{
+		// the scriptname already has an extension...
+		std::string existingExtension = this->scriptName.substr(extPos);
+		std::string nameNoExtension = this->scriptName.substr(0, extPos);
+		if (existingExtension != this->extension)
+		{
+			errBox("ERROR: The " + this->deviceType + " scriptName (as understood by the code) already has an "
+				"extension, read by the code as " + existingExtension + ", and that extension doesn't match the extension for this device! Script name is: " +
+				scriptName + " While the proper extension is " + this->extension + ". The file will be saved as " +
+				nameNoExtension + extension);
+			std::string path = eProfile.getCurrentPathIncludingCategory() + nameNoExtension + extension;
+			this->saveScriptAs(path);
+			return false;
+		}
+		else
+		{
+			// take the extension off of the script name. That's no good. 
+			this->scriptName = nameNoExtension;
+			saveFile.open(eProfile.getCurrentPathIncludingCategory() + scriptName + extension, std::fstream::out);
+		}
+	}
+	else
+	{
+		// In theory the code should always do this line, not the above check.
+		saveFile.open(eProfile.getCurrentPathIncludingCategory() + scriptName + extension, std::fstream::out);
+	}
 	if (!saveFile.is_open())
 	{
 		MessageBox(0, ("ERROR: Failed to open script file: " + eProfile.getCurrentPathIncludingCategory() + scriptName + extension).c_str(), 0, 0);
@@ -1049,23 +1078,38 @@ bool Script::openParentScript(std::string parentScriptFileAndPath)
 	{
 		return true;
 	}
-	scriptName = std::string(fileChars);
+	std::string location = parentScriptFileAndPath;
+	this->scriptAddress = location;
+	int position = location.find_last_of("\\");
+	scriptName = location.substr(position + 1, location.size());
+	location = location.substr(0, position);
+	position = location.find_last_of("\\");
+	scriptCategory = location.substr(position + 1, location.size());
+	location = location.substr(0, position);
+	position = location.find_last_of("\\");
+	scriptExperiment = location.substr(position + 1, location.size());
+
 	this->updateSavedStatus(true);
-	// Check location of vertical script.
-	int position = parentScriptFileAndPath.find_last_of('\\');
+	// Check location of the script.
+	position = parentScriptFileAndPath.find_last_of('\\');
 	std::string scriptLocation = parentScriptFileAndPath.substr(0, position);
 	if (scriptLocation + "\\" != (eProfile.getCurrentPathIncludingCategory()) && eProfile.getCurrentPathIncludingCategory() != "")
 	{
-		int answer = MessageBox(0, ("The requested script " + scriptLocation + " is not currently located in the current configuration folder. This is recommended so that scripts "
-			"related to a particular configuration are reserved to that configuration folder. Copy script to current configuration folder?").c_str(), 0, MB_YESNO);
+		int answer = MessageBox(0, ("The requested script " + scriptName + " at " + scriptLocation + " is not currently located in the current configuration "
+			"folder (" + eProfile.getCurrentPathIncludingCategory() + ". This is recommended so that scripts related to a particular configuration are "
+			"reserved to that category folder. Copy script to current category folder?").c_str(), 0, MB_YESNO);
 		if (answer == IDYES)
 		{
 			std::string scriptName = parentScriptFileAndPath.substr(position + 1, parentScriptFileAndPath.size());
+			this->scriptAddress = eProfile.getCurrentPathIncludingCategory() + scriptName;
+			this->scriptCategory = eProfile.getCurrentCategory();
+			this->scriptExperiment = eProfile.getCurrentExperiment();
 			std::string path = (eProfile.getCurrentPathIncludingCategory()) + scriptName;
 			this->saveScriptAs(path);
-			//fileManage::saveScript(relevantEdit, filePathway, savedInd, savedVar);
 		}
 	}
+	this->updateScriptNameText();
+	this->colorEntireScript();
 	return false;
 }
 
@@ -1133,8 +1177,9 @@ bool Script::considerCurrentLocation()
 		std::string scriptLocation = this->scriptAddress.substr(0, position);
 		if (scriptLocation + "\\" != eProfile.getCurrentPathIncludingCategory())
 		{
-			int answer = MessageBox(0, "The requested vertical script is not currently located in the current configuration folder. This is recommended so that scripts related to a"
-				" particular configuration are reserved to that configuration folder. Copy script to current configuration folder?", 0, MB_YESNO);
+			int answer = MessageBox(0, ("The requested script " + scriptName + " at " + scriptLocation + " is not currently located in the current configuration "
+				"folder (" + eProfile.getCurrentPathIncludingCategory() + ". This is recommended so that scripts related to a particular configuration are "
+				"reserved to that category folder. Copy script to current category folder?").c_str(), 0, MB_YESNO);
 			if (answer == IDYES)
 			{
 				std::string scriptName = this->scriptAddress.substr(position, this->scriptAddress.size());

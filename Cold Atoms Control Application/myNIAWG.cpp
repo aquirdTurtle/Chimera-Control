@@ -3626,7 +3626,7 @@ namespace myNIAWG
 			rmWhite(fName);
 			fName >> tempInput;
 			// pull input to lower case to prevent stupid user input errors.
-			std::transform(tempInput.begin(), tempInput.end(), tempInput.begin(), tolower);
+			 std::transform(tempInput.begin(), tempInput.end(), tempInput.begin(), tolower);
 			if (tempInput[0] == '\'')
 			{
 				MessageBox(NULL, "ERROR: Don't use \' as a variable in your instructions file, this character is reserved by the program.\n", NULL, MB_OK);
