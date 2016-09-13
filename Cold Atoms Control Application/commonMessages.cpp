@@ -2,7 +2,6 @@
 #include "commonMessages.h"
 #include "Windows.h"
 #include "textPromptDialogProcedure.h"
-#include "fileManage.h"
 #include "appendText.h"
 #include "myAgilent.h"
 #include "myNIAWG.h"

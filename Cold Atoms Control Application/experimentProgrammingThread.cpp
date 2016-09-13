@@ -192,7 +192,20 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				tempVariable.singleton = false;
 				tempVariable.timelike = false;
 				tempVariable.value = 0;
-				varyingParameters.push_back(tempVariable);
+				bool alreadyExists = false;
+				for (int varInc = 0; varInc < varyingParameters.size(); varInc++)
+				{
+					if (tempVariable.name == varyingParameters[varInc].name)
+					{
+						alreadyExists = true;
+						break;
+					}
+				}
+				if (!alreadyExists)
+				{
+					// add new varying parameters.
+					varyingParameters.push_back(tempVariable);
+				}
 			}
 		}
 		else if (version == "Version: 1.1")
@@ -427,7 +440,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				delete inputStruct;
 				return -1;
 			}
-			if (myErrorHandler((*inputStruct).threadAccumulations % ((*inputStruct).threadSequenceFileNames.size() + 1) != 0, 
+			if (myErrorHandler((*inputStruct).threadAccumulations % ((*inputStruct).threadSequenceFileNames.size()) != 0, 
 							   "ERROR: Number of accumulations received from master: " + std::to_string((*inputStruct).threadAccumulations) 
 							   + ", is not an integer multiple of the number of configurations in the sequence: " 
 							   + std::to_string((*inputStruct).threadSequenceFileNames.size()) + ". It must be.\r\n", ConnectSocket, verticalScriptFiles, 

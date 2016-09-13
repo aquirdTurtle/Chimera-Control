@@ -73,25 +73,23 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;C:\Program Files\boost_1_60_0;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
-    <LibraryPath>C:\Program Files\boost_1_60_0\lib64-msvc-14.0;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;C:\Program Files\Agilent\IO Libraries Suite\lib_x64;C:\Program Files\Agilent\IO Libraries Suite\include;$(VXIPNPPATH)WinNT\include;D:\Program Files\boost_1_60_0;C:\Program Files\boost_1_60_0;$(IncludePath);C:\Program Files\boost_1_60_0</IncludePath>
-    <LibraryPath>C:\Program Files\Agilent\IO Libraries Suite\lib_x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;C:\Program Files\Agilent\IO Libraries Suite\lib_x64;C:\Program Files\Agilent\IO Libraries Suite\include;$(VXIPNPPATH)WinNT\include;D:\Program Files\boost_1_60_0;C:\Program Files\boost_1_60_0;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files (x86)\Visual Leak Detector\lib\Win64;C:\Program Files (x86)\Visual Leak Detector\src;C:\Program Files\Agilent\IO Libraries Suite\lib_x64;D:\Program Files\boost_1_60_0\lib64-msvc-14.0;C:\Program Files\boost_1_60_0\lib64-msvc-14.0;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
-    <IncludePath>C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;C:\Program Files\boost_1_60_0;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files\boost_1_60_0\lib64-msvc-14.0;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;C:\Program Files\boost_1_60_0;$(IncludePath);C:\Program Files\boost_1_60_0</IncludePath>
+    <IncludePath>C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;C:\Program Files\boost_1_60_0;$(IncludePath)</IncludePath>
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>C:\Program Files\boost_1_60_0\lib64-msvc-14.0;$(LibraryPath)</LibraryPath>
+    <LibraryPath>D:\Program Files\boost_1_60_0\lib64-msvc-14.0;C:\Program Files\boost_1_60_0\lib64-msvc-14.0;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -183,13 +181,17 @@
     <ClInclude Include="ConfigurationFileSystem.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="Control.h" />
+    <ClInclude Include="errBox.h" />
     <ClInclude Include="experimentProgrammingThread.h" />
     <ClInclude Include="experimentThreadInputStructure.h" />
     <ClInclude Include="externals.h" />
+<<<<<<< HEAD
     <ClInclude Include="fileManage.h" />
     <ClInclude Include="errBox.h" />
     <ClInclude Include="GUI_Debugger.h" />
     <ClInclude Include="MainWindow.h" />
+=======
+>>>>>>> aa1508cc322859dd996de8ea3251432cbf6201b3
     <ClInclude Include="Script.h" />
     <ClInclude Include="NoteSystem.h" />
     <ClInclude Include="ScriptingWindow.h" />
@@ -226,8 +228,10 @@
     <ClCompile Include="cleanSocket.cpp" />
     <ClCompile Include="cleanString.cpp" />
     <ClCompile Include="ConfigurationFileSystem.cpp" />
+    <ClCompile Include="errBox.cpp" />
     <ClCompile Include="experimentProgrammingThread.cpp" />
     <ClCompile Include="externals.cpp" />
+<<<<<<< HEAD
     <ClCompile Include="fileManage.cpp" />
     <ClCompile Include="GUI_Debugger.cpp" />
     <ClCompile Include="MainWindow.cpp" />
@@ -235,6 +239,10 @@
     <ClCompile Include="Script.cpp" />
     <ClCompile Include="errBox.cpp" />
     <ClCompile Include="ScriptingWindow.cpp" />
+=======
+    <ClCompile Include="NoteSystem.cpp" />
+    <ClCompile Include="Script.cpp" />
+>>>>>>> aa1508cc322859dd996de8ea3251432cbf6201b3
     <ClCompile Include="textPromptDialogProcedure.cpp" />
     <ClCompile Include="getFileName.cpp" />
     <ClCompile Include="initializeMainWindow.cpp" />
