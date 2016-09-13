@@ -5,7 +5,6 @@
 
 #include "scriptWriteHelpProc.h"
 #include "fonts.h"
-#include "fileManage.h"
 #include "commonMessages.h"
 
 #include "boost/lexical_cast.hpp"

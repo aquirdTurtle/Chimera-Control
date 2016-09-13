@@ -11,7 +11,6 @@
 #include "scriptWriteHelpProc.h"
 #include "appendText.h"
 #include "cleanString.h"
-#include "fileManage.h"
 #include "initializeScriptingWindow.h"
 
 #include <sstream>

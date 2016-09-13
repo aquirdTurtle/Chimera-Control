@@ -7,7 +7,6 @@
 #include "Resource.h"
 #include "appendText.h"
 #include "Commctrl.h"
-#include "fileManage.h"
 #include "externals.h"
 #include "textPromptDialogProcedure.h"
 #include "fonts.h"
@@ -361,6 +360,7 @@ bool ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 		{
 			std::string varName;
 			configurationFile >> varName;
+			std::transform(varName.begin(), varName.end(), varName.begin(), ::tolower);
 			eVariables.addVariable(varName, false, false, 0, varInc);
 		}
 	}
@@ -374,6 +374,7 @@ bool ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 			bool singleton;
 			double value;
 			configurationFile >> varName;
+			std::transform(varName.begin(), varName.end(), varName.begin(), ::tolower);
 			configurationFile >> timelikeText;
 			configurationFile >> typeText;
 			configurationFile >> valueString;

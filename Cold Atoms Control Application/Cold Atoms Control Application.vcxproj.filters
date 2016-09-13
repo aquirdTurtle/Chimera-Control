@@ -16,9 +16,6 @@
     <ClCompile Include="experimentProgrammingThread.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="fileManage.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
     <ClCompile Include="getFileName.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
@@ -173,9 +170,6 @@
     </ClInclude>
     <ClInclude Include="fonts.h">
       <Filter>Constants, Externals, Etc.</Filter>
-    </ClInclude>
-    <ClInclude Include="fileManage.h">
-      <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="experimentThreadInputStructure.h">
       <Filter>Function Headers</Filter>
