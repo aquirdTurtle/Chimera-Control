@@ -13,6 +13,7 @@
 #include "SMSTextingControl.h"
 #include "AlertSystem.h"
 #include "EmbeddedPythonHandler.h"
+#include "PictureStats.h"
 
 /// \\\ THINGS THAT THE USER SETS \\\ ///
 ConfigurationFileSystem eCameraFileSystem(CAMERA_CONFIGURATION_FILES_LOCATION);
@@ -20,9 +21,10 @@ ExperimentTimer eCameraWindowExperimentTimer;
 DataFileSystem eExperimentData(SAVE_BASE_ADDRESS);
 SMSTextingControl eTextingHandler;
 DataAnalysisHandler eAutoAnalysisHandler;
-CameraImageParameters eImageParameters;
+CameraImage eImageControl;
 AlertSystem eAlerts(8000);
 EmbeddedPythonHandler Python;
+PictureStats ePicStats;
 
 bool eSettingAnalysisLocations = false;
 bool eRealTimePictures = false;
@@ -187,9 +189,11 @@ HwndControl eMinimumPictureSlider1, eMaximumPictureSlider1, eMinSliderNumberEdit
 		eMaxSliderNumberEdit4, eMinSliderText4, eMaxSliderText4;
 
 // pixel counts displays
+/*
 HwndControl ePic1MaxCountDisp, ePic2MaxCountDisp, ePic3MaxCountDisp, ePic4MaxCountDisp, ePic1MinCountDisp, ePic2MinCountDisp, ePic3MinCountDisp,
 		ePic4MinCountDisp, ePic1SelectionCountDisp, ePic2SelectionCountDisp, ePic3SelectionCountDisp, ePic4SelectionCountDisp, ePic1Text, ePic2Text,
 		ePic3Text, ePic4Text, eSelectionText, ePictureText;
+*/
 // EM Gain
 HwndControl eSetEMGain, eEMGainText, eEMGainEdit, eEMGainDisplay, eEMGainForceChangeButton;
 
@@ -205,7 +209,7 @@ HBRUSH eDarkGreenBrush = CreateSolidBrush(RGB(0, 30, 0));
 HBRUSH eDarkRedBrush = CreateSolidBrush(RGB(100, 0, 0));
 HBRUSH eDarkBlueBrush = CreateSolidBrush(RGB(0, 0, 100));
 HBRUSH eGreyRedBrush = CreateSolidBrush(RGB(150, 100, 100));
-
+HBRUSH eWhiteBrush = CreateSolidBrush(RGB(255, 255, 255));
 HANDLE ePlottingMutex;
 HWND eInitializeDialogBoxHandle;
 
@@ -223,4 +227,4 @@ unsigned int eAccMessageID = 0, eFinMessageID = 0, eErrMessageID = 0;
 HANDLE eCameraThreadHandle;
 HANDLE ePlottingThreadHandle;
 
-std::string eDataType;
+std::string eDataType = RAW_COUNTS;

@@ -17,6 +17,7 @@
 #include "CameraImageParameters.h"
 #include "AlertSystem.h"
 #include "EmbeddedPythonHandler.h"
+#include "PictureStats.h"
 
 /// THINGS THAT THE USER SETS !@$#!@#$!@#$!@$!@#$!@#$!@$#!@#$!@#$@!#$!$!@#$!@#$@!$#@!#$!@#$!@$#!#$!@#$!@#$!@#$!@#$!@$#!@$#!@$#!@$#@!#$!@$#!@$#!@#$!@$#!@$#!@$#!#
 // extern bool eFitsOkay;
@@ -28,9 +29,10 @@ extern SMSTextingControl eTextingHandler;
 extern ConfigurationFileSystem eCameraFileSystem;
 extern ExperimentTimer eCameraWindowExperimentTimer;
 extern DataAnalysisHandler eAutoAnalysisHandler;
-extern CameraImageParameters eImageParameters;
+extern CameraImage eImageControl;
 extern AlertSystem eAlerts;
 extern EmbeddedPythonHandler Python;
+extern PictureStats ePicStats;
 
 extern std::array<int, 4> eCurrentMaximumPictureCount;
 extern std::array<int, 4> eCurrentMinimumPictureCount;
@@ -186,9 +188,11 @@ extern HwndControl eMinimumPictureSlider1, eMaximumPictureSlider1, eMinSliderNum
 			   eMaxSliderNumberEdit3, eMinSliderText3, eMaxSliderText3, eMinimumPictureSlider4, eMaximumPictureSlider4, eMinSliderNumberEdit4, 
 			   eMaxSliderNumberEdit4, eMinSliderText4, eMaxSliderText4;
 // Displays
+/*
 extern HwndControl ePic1MaxCountDisp, ePic2MaxCountDisp, ePic3MaxCountDisp, ePic4MaxCountDisp, ePic1MinCountDisp, ePic2MinCountDisp, ePic3MinCountDisp, 
 			   ePic4MinCountDisp, ePic1SelectionCountDisp, ePic2SelectionCountDisp, ePic3SelectionCountDisp, ePic4SelectionCountDisp, ePic1Text, ePic2Text, 
 			   ePic3Text, ePic4Text, eSelectionText, ePictureText;
+*/
 // EM Gain Mode
 extern HwndControl eSetEMGain, eEMGainText, eEMGainEdit, eEMGainDisplay, eEMGainForceChangeButton;
 
@@ -204,6 +208,7 @@ extern HBRUSH eDarkGreenBrush;
 extern HBRUSH eDarkRedBrush;
 extern HBRUSH eDarkBlueBrush;
 extern HBRUSH eGreyRedBrush;
+extern HBRUSH eWhiteBrush;
 // This is the mutex used to make sure the data queue doesn't get read and wrote to at the same time. 
 extern HANDLE ePlottingMutex;
 

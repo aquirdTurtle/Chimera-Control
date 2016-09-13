@@ -729,7 +729,35 @@ bool Script::saveScript()
 	// + 1 for null at end
 	char* editText = new char[textLength + 1];
 	int myError = GetWindowText(this->edit.hwnd, editText, textLength + 1);
-	std::fstream saveFile(eProfile.getCurrentPathIncludingCategory() + scriptName + extension, std::fstream::out);
+	std::fstream saveFile;
+	int extPos = this->scriptName.find_last_of(".");
+	if (extPos != -1)
+	{
+		// the scriptname already has an extension...
+		std::string existingExtension = this->scriptName.substr(extPos + 1);
+		std::string nameNoExtension = this->scriptName.substr(0, extPos);
+		if (existingExtension != this->extension)
+		{
+			errBox("ERROR: The " + this->deviceType + " scriptName (as understood by the code) already has an "
+				"extension, and that extension doesn't match the extension for this device! Script name is: " +
+				scriptName + " While the proper extension is " + extension + ". The file will be saved as " +
+				nameNoExtension + extension);
+			std::string path = eProfile.getCurrentPathIncludingCategory() + nameNoExtension + extension;
+			this->saveScriptAs(path);
+			return false;
+		}
+		else
+		{
+			// take the extension off of the script name. That's no good. 
+			this->scriptName = nameNoExtension;
+			saveFile.open(eProfile.getCurrentPathIncludingCategory() + scriptName + extension , std::fstream::out);
+		}
+	}
+	else
+	{
+		// In theory the code should always do this line, not the above check.
+		saveFile.open(eProfile.getCurrentPathIncludingCategory() + scriptName + extension, std::fstream::out);
+	}
 	if (!saveFile.is_open())
 	{
 		MessageBox(0, ("ERROR: Failed to open script file: " + eProfile.getCurrentPathIncludingCategory() + scriptName + extension).c_str(), 0, 0);

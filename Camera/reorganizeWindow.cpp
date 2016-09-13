@@ -12,8 +12,9 @@ int reorganizeWindow(std::string cameraMode, HWND parentWindow)
 	eCameraWindowExperimentTimer.reorganizeControls(parentRectangle, cameraMode);
 	eTextingHandler.reorganizeControls(parentRectangle, cameraMode);
 	eAutoAnalysisHandler.reorganizeControls(parentRectangle, cameraMode);
-	eImageParameters.reorganizeControls(parentRectangle, cameraMode);
+	eImageControl.reorganizeControls(parentRectangle, cameraMode);
 	eAlerts.reorganizeControls(parentRectangle, cameraMode);
+	ePicStats.reorganizeControls(parentRectangle, cameraMode);
 	/// Reorganize all other controls. #
 	reorganizeControl(eExposureTextDisplayHandle, cameraMode, parentRectangle);
 	reorganizeControl(eTempTextDisplayHandle, cameraMode, parentRectangle);
@@ -133,27 +134,6 @@ int reorganizeWindow(std::string cameraMode, HWND parentWindow)
 	reorganizeControl(eEMGainEdit, cameraMode, parentRectangle);
 	reorganizeControl(eEMGainText, cameraMode, parentRectangle);
 	reorganizeControl(eSetEMGain, cameraMode, parentRectangle);
-
-	reorganizeControl(ePictureText, cameraMode, parentRectangle);
-	reorganizeControl(ePic1Text, cameraMode, parentRectangle);
-	reorganizeControl(ePic2Text, cameraMode, parentRectangle);
-	reorganizeControl(ePic3Text, cameraMode, parentRectangle);
-	reorganizeControl(ePic4Text, cameraMode, parentRectangle);
-	reorganizeControl(ePic1MaxCountDisp, cameraMode, parentRectangle);
-	reorganizeControl(ePic2MaxCountDisp, cameraMode, parentRectangle);
-	reorganizeControl(ePic3MaxCountDisp, cameraMode, parentRectangle);
-	reorganizeControl(ePic4MaxCountDisp, cameraMode, parentRectangle);
-
-	reorganizeControl(ePic1MinCountDisp, cameraMode, parentRectangle);
-	reorganizeControl(ePic2MinCountDisp, cameraMode, parentRectangle);
-	reorganizeControl(ePic3MinCountDisp, cameraMode, parentRectangle);
-	reorganizeControl(ePic4MinCountDisp, cameraMode, parentRectangle);
-
-	reorganizeControl(eSelectionText, cameraMode, parentRectangle);
-	reorganizeControl(ePic1SelectionCountDisp, cameraMode, parentRectangle);
-	reorganizeControl(ePic2SelectionCountDisp, cameraMode, parentRectangle);
-	reorganizeControl(ePic3SelectionCountDisp, cameraMode, parentRectangle);
-	reorganizeControl(ePic4SelectionCountDisp, cameraMode, parentRectangle);
 
 	reorganizeControl(eStatusText, cameraMode, parentRectangle);
 	reorganizeControl(eErrorText, cameraMode, parentRectangle);

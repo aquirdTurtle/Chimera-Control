@@ -7,12 +7,12 @@
 #include "appendText.h"
 #include "reorganizeControl.h"
 
-CameraImageParameters::CameraImageParameters()
+CameraImage::CameraImage()
 {
 	isReady = false;
 }
 
-bool CameraImageParameters::initiateControls(POINT& topLeftPositionKinetic, POINT& topLeftPositionAccumulate, POINT& topLeftPositionContinuous,
+bool CameraImage::initiateControls(POINT& topLeftPositionKinetic, POINT& topLeftPositionAccumulate, POINT& topLeftPositionContinuous,
 	HWND parentWindow, bool isTriggerModeSensitive)
 {
 	setImageParametersButton.kineticSeriesModePos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 272, topLeftPositionKinetic.y + 25 };
@@ -208,8 +208,45 @@ bool CameraImageParameters::initiateControls(POINT& topLeftPositionKinetic, POIN
 	return false;
 }
 
-bool CameraImageParameters::setImageParameters()
+bool CameraImage::drawBackgrounds()
 {
+	// recolor the box, clearing last run
+	HDC hDC = GetDC(eCameraWindowHandle);
+	SelectObject(hDC, GetStockObject(DC_BRUSH));
+	SelectObject(hDC, GetStockObject(DC_PEN));
+	// dark green brush
+	SetDCBrushColor(hDC, RGB(0, 10, 0));
+	// Set the Pen to White
+	SetDCPenColor(hDC, RGB(255, 255, 255));
+	// Drawing a rectangle with the current Device Context
+	for (int imageInc = 0; imageInc < eImageBackgroundAreas.size(); imageInc++)
+	{
+		// slightly larger than the image zone.
+		Rectangle(hDC, eImageBackgroundAreas[imageInc].left - 5, eImageBackgroundAreas[imageInc].top - 5, eImageBackgroundAreas[imageInc].right + 5, eImageBackgroundAreas[imageInc].bottom + 5);
+	}
+	ReleaseDC(eCameraWindowHandle, hDC);
+	return true;
+}
+bool CameraImage::drawRectangleFrame()
+{
+	// draw rectangles indicating where the pixels are.
+	HDC hDC2 = GetDC(eCameraWindowHandle);
+	for (int pictureInc = 0; pictureInc < ePixelRectangles.size(); pictureInc++)
+	{
+		for (int widthInc = 0; widthInc < ePixelRectangles[pictureInc].size(); widthInc++)
+		{
+			for (int heightInc = 0; heightInc < ePixelRectangles[pictureInc][widthInc].size(); heightInc++)
+			{
+				FrameRect(hDC2, &ePixelRectangles[pictureInc][widthInc][heightInc], eWhiteBrush);
+			}
+		}
+	}
+	return true;
+}
+
+bool CameraImage::setImageParameters()
+{
+	this->drawBackgrounds();
 	// If new dimensions are set, we don't have data for those.
 	eDataExists = false;
 	// set all of the image parameters
@@ -394,14 +431,19 @@ bool CameraImageParameters::setImageParameters()
 			}
 		}
 	}
-
+	this->drawRectangleFrame();
 	eCameraFileSystem.updateSaveStatus(false);
 	isReady = true;
 	return false;
 }
 
-bool CameraImageParameters::setImageParametersFromInput(imageParameters param)
+
+/*
+ * I forget why I needed a second function for this.
+ */
+bool CameraImage::setImageParametersFromInput(imageParameters param)
 {
+	this->drawBackgrounds();
 	eDataExists = false;
 	// set all of the image parameters
 	currentImageParameters.leftBorder = param.leftBorder;
@@ -514,23 +556,28 @@ bool CameraImageParameters::setImageParametersFromInput(imageParameters param)
 			{
 				// for all 4 pictures...
 				ePixelRectangles[pictureInc][widthInc][heightInc].left = (int)(eImageDrawAreas[pictureInc].left
-					+ (double)widthInc * (eImageDrawAreas[pictureInc].right - eImageDrawAreas[pictureInc].left) / (double)currentImageParameters.width + 2);
+					+ (double)widthInc * (eImageDrawAreas[pictureInc].right - eImageDrawAreas[pictureInc].left) 
+					/ (double)currentImageParameters.width + 2);
 				ePixelRectangles[pictureInc][widthInc][heightInc].right = (int)(eImageDrawAreas[pictureInc].left
-					+ (double)(widthInc + 1) * (eImageDrawAreas[pictureInc].right - eImageDrawAreas[pictureInc].left) / (double)currentImageParameters.width + 2);
+					+ (double)(widthInc + 1) * (eImageDrawAreas[pictureInc].right - eImageDrawAreas[pictureInc].left) 
+					/ (double)currentImageParameters.width + 2);
 				ePixelRectangles[pictureInc][widthInc][heightInc].top = (int)(eImageDrawAreas[pictureInc].top
-					+ (double)(heightInc)* (eImageDrawAreas[pictureInc].bottom - eImageDrawAreas[pictureInc].top) / (double)currentImageParameters.height);
+					+ (double)(heightInc)* (eImageDrawAreas[pictureInc].bottom - eImageDrawAreas[pictureInc].top) 
+					/ (double)currentImageParameters.height);
 				ePixelRectangles[pictureInc][widthInc][heightInc].bottom = (int)(eImageDrawAreas[pictureInc].top
-					+ (double)(heightInc + 1)* (eImageDrawAreas[pictureInc].bottom - eImageDrawAreas[pictureInc].top) / (double)currentImageParameters.height);
+					+ (double)(heightInc + 1)* (eImageDrawAreas[pictureInc].bottom - eImageDrawAreas[pictureInc].top) 
+					/ (double)currentImageParameters.height);
 			}
 		}
 	}
+	this->drawRectangleFrame();
 
 	eCameraFileSystem.updateSaveStatus(false);
 	isReady = true;
 	return false;
 }
 
-bool CameraImageParameters::checkReady()
+bool CameraImage::checkReady()
 {
 	if (isReady)
 	{
@@ -542,12 +589,12 @@ bool CameraImageParameters::checkReady()
 	}
 }
 
-imageParameters CameraImageParameters::getImageParameters()
+imageParameters CameraImage::getImageParameters()
 {
 	return currentImageParameters;
 }
 
-INT_PTR CameraImageParameters::colorEdits(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CameraImage::colorEdits(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	DWORD controlID = GetDlgCtrlID((HWND)lParam);
 	HDC hdcStatic = (HDC)wParam;
@@ -555,7 +602,7 @@ INT_PTR CameraImageParameters::colorEdits(HWND window, UINT message, WPARAM wPar
 	{
 		case IDC_IMAGE_BOTTOM_EDIT:
 		{
-			imageParameters currentImageParameters = eImageParameters.getImageParameters();
+			imageParameters currentImageParameters = eImageControl.getImageParameters();
 			SetTextColor(hdcStatic, RGB(255, 255, 255));
 			TCHAR textEdit[256];
 			SendMessage(bottomEdit.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
@@ -595,7 +642,7 @@ INT_PTR CameraImageParameters::colorEdits(HWND window, UINT message, WPARAM wPar
 		}
 		case IDC_IMAGE_TOP_EDIT:
 		{
-			imageParameters currentImageParameters = eImageParameters.getImageParameters();
+			imageParameters currentImageParameters = eImageControl.getImageParameters();
 			SetTextColor(hdcStatic, RGB(255, 255, 255));
 			TCHAR textEdit[256];
 			SendMessage(topEdit.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
@@ -635,7 +682,7 @@ INT_PTR CameraImageParameters::colorEdits(HWND window, UINT message, WPARAM wPar
 		}
 		case IDC_VERTICAL_BIN_EDIT:
 		{
-			imageParameters currentImageParameters = eImageParameters.getImageParameters();
+			imageParameters currentImageParameters = eImageControl.getImageParameters();
 			SetTextColor(hdcStatic, RGB(255, 255, 255));
 			TCHAR textEdit[256];
 			SendMessage(verticalBinningEdit.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
@@ -676,7 +723,7 @@ INT_PTR CameraImageParameters::colorEdits(HWND window, UINT message, WPARAM wPar
 
 		case IDC_IMG_LEFT_EDIT:
 		{
-			imageParameters currentImageParameters = eImageParameters.getImageParameters();
+			imageParameters currentImageParameters = eImageControl.getImageParameters();
 			SetTextColor(hdcStatic, RGB(255, 255, 255));
 			TCHAR textEdit[256];
 			SendMessage(leftEdit.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
@@ -720,7 +767,7 @@ INT_PTR CameraImageParameters::colorEdits(HWND window, UINT message, WPARAM wPar
 		}
 		case IDC_IMG_RIGHT_EDIT:
 		{
-			imageParameters currentImageParameters = eImageParameters.getImageParameters();
+			imageParameters currentImageParameters = eImageControl.getImageParameters();
 			SetTextColor(hdcStatic, RGB(255, 255, 255));
 			TCHAR textEdit[256];
 			SendMessage(rightEdit.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
@@ -760,7 +807,7 @@ INT_PTR CameraImageParameters::colorEdits(HWND window, UINT message, WPARAM wPar
 		}
 		case IDC_HOR_BIN_EDIT:
 		{
-			imageParameters currentImageParameters = eImageParameters.getImageParameters();
+			imageParameters currentImageParameters = eImageControl.getImageParameters();
 			SetTextColor(hdcStatic, RGB(255, 255, 255));
 			TCHAR textEdit[256];
 			SendMessage(horizontalBinningEdit.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
@@ -800,10 +847,11 @@ INT_PTR CameraImageParameters::colorEdits(HWND window, UINT message, WPARAM wPar
 		}
 		return DefWindowProc(window, message, wParam, lParam);
 	}
+	return DefWindowProc(window, message, wParam, lParam);
 }
 
 
-bool CameraImageParameters::reorganizeControls(RECT parentRectangle, std::string cameraMode)
+bool CameraImage::reorganizeControls(RECT parentRectangle, std::string cameraMode)
 {
 	reorganizeControl(leftText, cameraMode, parentRectangle);
 	reorganizeControl(rightText, cameraMode, parentRectangle);

@@ -144,6 +144,12 @@
     <ClInclude Include="EmbeddedPythonHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PictureStats.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="doubleToString.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appendText.cpp">
@@ -234,6 +240,12 @@
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="EmbeddedPythonHandler.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PictureStats.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="doubleToString.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
   </ItemGroup>

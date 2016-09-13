@@ -5,13 +5,13 @@
 #include <string>
 #include <vector>
 
-#define ANDOR_SAFEMODE false
+#define ANDOR_SAFEMODE true
 
 // Some Default Settings
 #define DEFAULT_CAMERA_TEMPERATURE 0;
 //#define LAPTOP_COMPUTER
-#define ANDOR_COMPUTER
-//#define DESKTOP_COMPUTER
+//#define ANDOR_COMPUTER
+#define DESKTOP_COMPUTER
 // for andor:
 // extra slashes here because python needs to process the string as well, so extra escape characters...
 #ifdef ANDOR_COMPUTER

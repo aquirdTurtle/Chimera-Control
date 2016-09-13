@@ -181,6 +181,8 @@
     <ClInclude Include="CameraImageParameters.h" />
     <ClInclude Include="cameraThread.h" />
     <ClInclude Include="constants.h" />
+    <ClInclude Include="doubleToString.h" />
+    <ClInclude Include="PictureStats.h" />
     <ClInclude Include="createIdentityPalette.h" />
     <ClInclude Include="DataAnalysisHandler.h" />
     <ClInclude Include="DataFileSystem.h" />
@@ -226,6 +228,7 @@
     <ClCompile Include="DataFileSystem.cpp" />
     <ClCompile Include="DataSet.cpp" />
     <ClCompile Include="dialogProcedures.cpp" />
+    <ClCompile Include="doubleToString.cpp" />
     <ClCompile Include="EmbeddedPythonHandler.cpp" />
     <ClCompile Include="errBox.cpp" />
     <ClCompile Include="ExperimentTimer.cpp" />
@@ -236,6 +239,7 @@
     <ClCompile Include="initializeCameraWindow.cpp" />
     <ClCompile Include="myAndor.cpp" />
     <ClCompile Include="myPlot.cpp" />
+    <ClCompile Include="PictureStats.cpp" />
     <ClCompile Include="PlottingInfo.cpp" />
     <ClCompile Include="processTimer.cpp" />
     <ClCompile Include="postMyString.cpp" />

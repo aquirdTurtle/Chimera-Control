@@ -45,7 +45,7 @@ bool SMSTextingControl::initializeControls(POINT& topLeftPositionKinetic, POINT&
 	peopleListView.hwnd = CreateWindowEx(0, WC_LISTVIEW, "", WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS,
 		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top,
 		parentWindow, (HMENU)IDC_PEOPLE_LIST_VIEW, GetModuleHandle(NULL), NULL);
-	title.fontType = "Normal";
+	peopleListView.fontType = "Small";
 
 	LV_COLUMN listViewDefaultCollumn;
 	// Zero Members

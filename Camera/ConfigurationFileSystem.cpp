@@ -118,7 +118,7 @@ int ConfigurationFileSystem::openConfiguration(std::string configurationNameToOp
 	configurationOpenFile >> tempParam.topBorder;
 	configurationOpenFile >> tempParam.bottomBorder;
 	configurationOpenFile >> tempParam.verticalBinning;
-	eImageParameters.setImageParametersFromInput(tempParam);
+	eImageControl.setImageParametersFromInput(tempParam);
 
 	///
 	configurationOpenFile >> eEMGainMode;
@@ -132,16 +132,17 @@ int ConfigurationFileSystem::openConfiguration(std::string configurationNameToOp
 	{
 		SendMessage(eEMGainDisplay.hwnd, WM_SETTEXT, 0, (LPARAM)("X" + std::to_string(eEMGainLevel)).c_str());
 		SendMessage(eEMGainEdit.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(eEMGainLevel)).c_str());
-	}	
+	}
 	myAndor::setGainMode();
 	configurationOpenFile >> ePicturesPerRepetition;
 	SendMessage(ePicturesPerRepetitionDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerRepetition).c_str());
 	SendMessage(ePicturesPerRepetitionEdit.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerRepetition).c_str());
 	configurationOpenFile >> eRepetitionsPerVariation;
+	ePicturesPerVariation = ePicturesPerRepetition * eRepetitionsPerVariation;
 	SendMessage(eRepetitionsPerVariationDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eRepetitionsPerVariation).c_str());
 	SendMessage(eRepetitionsPerVariationEdit.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eRepetitionsPerVariation).c_str());
-	ePicturesPerVariation = ePicturesPerRepetition * eRepetitionsPerVariation;
 	configurationOpenFile >> eCurrentTotalVariationNumber;
+	
 	SendMessage(eVariationNumberDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eCurrentTotalVariationNumber).c_str());
 	SendMessage(eVariationNumberEdit.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eCurrentTotalVariationNumber).c_str());
 	eTotalNumberOfPicturesInSeries = eCurrentTotalVariationNumber * ePicturesPerVariation;
@@ -157,13 +158,11 @@ int ConfigurationFileSystem::openConfiguration(std::string configurationNameToOp
 			ePreviousPicturesPerSubSeries = ePicturesPerVariation;
 		}
 		ePicturesPerVariation = INT_MAX;
-		SendMessage(eRepetitionsPerVariationDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerVariation).c_str());
+		SendMessage(ePicturesPerRepetitionDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerVariation).c_str());
 	}
 	else if (eCurrentlySelectedCameraMode == "Kinetic Series Mode")
 	{
 		eAcquisitionMode = 3;
-		//ePicturesPerVariation = ePreviousPicturesPerSubSeries;
-		SendMessage(eRepetitionsPerVariationDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerVariation).c_str());
 	}
 	else if (eCurrentlySelectedCameraMode == "Accumulate Mode")
 	{
@@ -173,7 +172,7 @@ int ConfigurationFileSystem::openConfiguration(std::string configurationNameToOp
 			ePreviousPicturesPerSubSeries = ePicturesPerVariation;
 		}
 		ePicturesPerVariation = INT_MAX;
-		SendMessage(eRepetitionsPerVariationDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerVariation).c_str());
+		SendMessage(ePicturesPerRepetitionDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerVariation).c_str());
 	}
 	configurationOpenFile >> eKineticCycleTime;
 	SendMessage(eKineticCycleTimeDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eKineticCycleTime * 1000).c_str());
@@ -273,7 +272,7 @@ int ConfigurationFileSystem::saveConfiguration(bool isFromSaveAs)
 		configurationSaveFile << std::to_string(eExposureTimes[exposureTimesInc]) + "\n";
 	}
 	configurationSaveFile << eCurrentTriggerMode + "\n";
-	imageParameters tempParam = eImageParameters.getImageParameters();
+	imageParameters tempParam = eImageControl.getImageParameters();
 	// Image Parameters
 	configurationSaveFile << std::to_string(tempParam.leftBorder) + "\n";
 	configurationSaveFile << std::to_string(tempParam.rightBorder) + "\n";
