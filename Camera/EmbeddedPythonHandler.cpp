@@ -53,16 +53,12 @@ EmbeddedPythonHandler::EmbeddedPythonHandler()
 		errBox("ERROR: Failed to load python module for automatic data analysis!");
 		return;
 	}
-	this->singleAtomAnalysisFunction = PyObject_GetAttrString(autoAnalysisModule, "singlePointAnalysis");
-	if (this->singleAtomAnalysisFunction == NULL)
+	this->atomAnalysisFunction = PyObject_GetAttrString(autoAnalysisModule, "atomAnalysis");
+	if (this->atomAnalysisFunction == NULL)
 	{
 		errBox("Failed to load python function \"singlePointAnalysis\"");
 	}
-	this->atomPairAnalysisFunction = PyObject_GetAttrString(autoAnalysisModule, "pairAnalysis");
-	if (this->atomPairAnalysisFunction == NULL)
-	{
-		errBox("Failed to load python function \"pairAnalysis\"");
-	}
+	return;
 }
 
 bool EmbeddedPythonHandler::flush()
@@ -71,8 +67,8 @@ bool EmbeddedPythonHandler::flush()
 	return true;
 }
 // for full data analysis set.
-bool EmbeddedPythonHandler::runDataAnalysis(std::string analysisType, std::string date, long runNumber,
-											long accumulations, std::string completeName, std::vector<std::pair<int, int>> atomLocations)
+bool EmbeddedPythonHandler::runDataAnalysis(std::string date, long runNumber, long accumulations, 
+											std::vector<std::pair<int, int>> atomLocations)
 {
 	this->flush();
 	if (this->autoAnalysisModule == NULL)
@@ -80,48 +76,24 @@ bool EmbeddedPythonHandler::runDataAnalysis(std::string analysisType, std::strin
 		errBox("autoAnalysisModule is no longer available! This shouldn't happen... Continuing...");
 	}
 	// interpret the text here to get the actual function name.
-																													   
-	if (analysisType == "Single Point Analysis")
+	if (this->atomAnalysisFunction == NULL)
 	{
-		if (this->singleAtomAnalysisFunction == NULL)
-		{
-			errBox("ERROR: single atom analysis function is null! The program can no longer call this function for some"
-				"reason. Auto-Analysis will not occur.");
-			return true;
-		}
-		if (!PyCallable_Check(this->singleAtomAnalysisFunction))
-		{
-			errBox("ERROR: Python is telling me that it cannot call the single atom analysis function. I don't know why"
-				", since the function pointer is not null. Auto-Analysis will not occur.");
-			return true;
-		}
-	}
-	else if (analysisType == "Pair Analysis")
-	{
-		if (this->atomPairAnalysisFunction == NULL)
-		{
-			errBox("ERROR: atom pair analysis function is null! The program can no longer call this function for some"
-				"reason. Auto-Analysis will not occur.");
-			return true;
-		}
-		if (!PyCallable_Check(this->atomPairAnalysisFunction))
-		{
-			errBox("ERROR: Python is telling me that it cannot call the atom pair analysis function. I don't know why,"
-				" since the function pointer is not null. Auto-Analysis will not occur.");
-			return true;
-		}
-	}
-	else
-	{
-		errBox("ERROR: unrecognized analysis type while trying to figure out the analysis function name! Ask Mark about bugs.");
+		errBox("ERROR: Atom analysis function is null! The program can no longer call this function for some"
+			"reason. Auto-Analysis will not occur.");
 		return true;
 	}
-	
+	if (!PyCallable_Check(this->atomAnalysisFunction))
+	{
+		errBox("ERROR: Python is telling me that it cannot call the Atom analysis function. I don't know why"
+			", since the function pointer is not null. Auto-Analysis will not occur.");
+		return true;
+	}
+		
 	// I'm going to use comments before relevant commands to keep track of which python objects have references that I 
 	// own, starting below (not counting the module and function references)
 
 	// pythonFunctionArguments
-	PyObject* pythonFunctionArguments = PyTuple_New(6);
+	PyObject* pythonFunctionArguments = PyTuple_New(5);
 	if (pythonFunctionArguments == NULL)
 	{
 		errBox("ERROR: creating tuple for python function arguments failed!?!?!?!? Auto-Analysis will terminate.");
@@ -187,51 +159,17 @@ bool EmbeddedPythonHandler::runDataAnalysis(std::string analysisType, std::strin
 	}
 	// pythonFunctionArguments
 	PyTuple_SetItem(pythonFunctionArguments, 4, pythonAccumulations);
-	// pythonFunctionArguments, pythonOutputName
-	PyObject* pythonOutputName = Py_BuildValue("s", completeName.c_str());
-	if (pythonOutputName == NULL)
+	PyObject* pythonReturnValue = PyObject_CallObject(this->atomAnalysisFunction, pythonFunctionArguments);
+	if (pythonReturnValue == NULL)
 	{
-		Py_DECREF(pythonFunctionArguments);
-		errBox("Cannot Convert Output name?!?!?!?!?!?! Auto-Analysis terminating...");
+		errBox("Python function call returned NULL!");
+		PyErr_Print();
+		PyObject *output = PyObject_GetAttrString(errorCatcher, "value");
+		errBox(PyBytes_AS_STRING(PyUnicode_AsEncodedString(output, "ASCII", "strict")));
 		return true;
 	}
-	// pythonFunctionArguments
-	PyTuple_SetItem(pythonFunctionArguments, 5, pythonOutputName);
-	if (analysisType == "Single Point Analysis")
-	{
-		PyObject* pythonReturnValue = PyObject_CallObject(this->singleAtomAnalysisFunction, pythonFunctionArguments);
-		if (pythonReturnValue == NULL)
-		{
-			errBox("Python function call returned NULL!");
-			PyErr_Print();
-			PyObject *output = PyObject_GetAttrString(errorCatcher, "value");
-			errBox(PyBytes_AS_STRING(PyUnicode_AsEncodedString(output, "ASCII", "strict")));
-			return true;
-		}
-		Py_DECREF(pythonReturnValue);
-	}
-	else if (analysisType == "Pair Analysis")
-	{
-		PyObject* pythonReturnValue = PyObject_CallObject(this->atomPairAnalysisFunction, pythonFunctionArguments);
-		if (pythonReturnValue == NULL)
-		{
-			errBox("Python function call returned NULL!");
-			PyErr_Print();
-			PyObject *output = PyObject_GetAttrString(errorCatcher, "value");
-			errBox(PyBytes_AS_STRING(PyUnicode_AsEncodedString(output, "ASCII", "strict")));
-			return true;
-		}
-		Py_XDECREF(pythonFunctionArguments);
-		Py_XDECREF(pythonReturnValue);
-	}
-	else
-	{
-		errBox("ERROR: unrecognized analysis type while trying to figure out the analysis function name... at the "
-			"second location?!?!?!?! Ask Mark about bugs.");
-		return true;
-	}
+	Py_DECREF(pythonReturnValue);
 	// finished successfully.
-
 	return false;
 }
 

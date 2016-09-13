@@ -20,6 +20,7 @@
 #include "externals.h"
 #include "constants.h"
 #include "errBox.h"
+#include "doubleToString.h"
 
 // shows error message if it exists. Could be function but for consistency with other ERR_X Macros...
 #define ERR_POP(string) {if (string != ""){errBox(string);}}

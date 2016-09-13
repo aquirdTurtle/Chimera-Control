@@ -202,7 +202,7 @@ bool DataFileSystem::initializeDataFiles(bool incrementFiles, std::string& errMs
 	}
 	//immediately change this.
 	fitsIsOpen = true;
-	imageParameters currentImageParameters = eImageParameters.getImageParameters();
+	imageParameters currentImageParameters = eImageControl.getImageParameters();
 	long axis[] = { currentImageParameters.width, currentImageParameters.height, eTotalNumberOfPicturesInSeries };
 	fits_create_img(myFitsFile, LONG_IMG, 3, axis, &fitsStatus);
 	if (DataFileSystem::checkFitsError(fitsStatus, errMsg))

@@ -4,6 +4,8 @@
 #include "plotThread.h"
 #include <process.h>
 #include "arbitraryPlottingThreadProcedure.h"
+#include <algorithm>
+#include <numeric>
 
 namespace myAndor
 {
@@ -66,7 +68,7 @@ namespace myAndor
 		{
 			return -1;
 		}
-		imageParameters currentImageParameters = eImageParameters.getImageParameters();
+		imageParameters currentImageParameters = eImageControl.getImageParameters();
 		if (myAndor::setImageParametersToCamera(currentImageParameters) != 0)
 		{
 			return -1;
@@ -127,9 +129,6 @@ namespace myAndor
 		// Initialize the thread accumulation number.
 		eCurrentThreadAccumulationNumber = 1;
 		// //////////////////////////////
-		eCount1 = 0;
-		eCount2 = 0;
-		eCount3 = 0;
 
 		if (myAndor::getStatus() != 0)
 		{
@@ -163,7 +162,11 @@ namespace myAndor
 		{
 			argPlotNames->push_back(eCurrentPlotNames[plotNameInc]);
 		}
-		ePlottingThreadHandle = (HANDLE)_beginthreadex(0, 0, arbitraryPlottingThreadProcedure, argPlotNames, 0, plottingThreadID);
+		// clear this before starting the thread.
+		eImageVecQueue.clear();
+		// start the plotting thread.
+		ePlottingThreadHandle = (HANDLE)_beginthreadex(0, 0, arbitraryPlottingThreadProcedure, argPlotNames, 0,
+													   plottingThreadID);
 		// color pictures, clearing last run.
 		HDC hDC = GetDC(eCameraWindowHandle);
 		SelectObject(hDC, GetStockObject(DC_BRUSH));
@@ -180,20 +183,7 @@ namespace myAndor
 		}
 		ReleaseDC(eCameraWindowHandle, hDC);
 		// clear the plot grid
-		SendMessage(ePic1MaxCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)("-"));
-		SendMessage(ePic1MinCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)("-"));
-		SendMessage(ePic1SelectionCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)("-"));
-		SendMessage(ePic2MaxCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)("-"));
-		SendMessage(ePic2MinCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)("-"));
-		SendMessage(ePic2SelectionCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)("-"));
-		SendMessage(ePic3MaxCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)("-"));
-		SendMessage(ePic3MinCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)("-"));
-		SendMessage(ePic3SelectionCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)("-"));
-		SendMessage(ePic4MaxCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)("-"));
-		SendMessage(ePic4MinCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)("-"));
-		SendMessage(ePic4SelectionCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)("-"));
-		
-
+		ePicStats.reset();
 		if (myAndor::startAcquisition() != 0)
 		{
 			return -1;
@@ -260,7 +250,7 @@ namespace myAndor
 				eImagesOfExperiment.resize(ePicturesPerRepetition);
 			}
 		}
-		imageParameters tempParam = eImageParameters.getImageParameters();
+		imageParameters tempParam = eImageControl.getImageParameters();
 		size = tempParam.width * tempParam.height;
 		std::vector<long> tempImage;
 		tempImage.resize(size);
@@ -416,12 +406,13 @@ namespace myAndor
 	{
 		if (eImagesOfExperiment.size() != 0)
 		{
-			imageParameters tempParam = eImageParameters.getImageParameters();
+			imageParameters tempParam = eImageControl.getImageParameters();
 			for (int experimentImagesInc = 0; experimentImagesInc < eImagesOfExperiment.size(); experimentImagesInc++)
 			{
 				long maxValue = 1;
 				long minValue = 65536;
-				// for all pixels...
+				double avgValue;
+				// for all pixels... find the max and min of the picture.
 				for (int pixelInc = 0; pixelInc < (tempParam.width * tempParam.height); pixelInc++)
 				{
 					if (eImagesOfExperiment[experimentImagesInc][pixelInc] > maxValue)
@@ -433,7 +424,9 @@ namespace myAndor
 						minValue = eImagesOfExperiment[experimentImagesInc][pixelInc];
 					}
 				}
-
+				avgValue = std::accumulate(eImagesOfExperiment[experimentImagesInc].begin(), 
+										   eImagesOfExperiment[experimentImagesInc].end(), 0.0) 
+										   / eImagesOfExperiment[experimentImagesInc].size();
 				HDC hDC;
 				float xscale, yscale, zscale;
 				long modrange;
@@ -460,30 +453,9 @@ namespace myAndor
 				}
 				// Rotated
 				int selectedPixelCount = eImagesOfExperiment[experimentImagesInc][eCurrentlySelectedPixel.first + eCurrentlySelectedPixel.second * tempParam.width];
-				if (imageLocation == 0)
-				{
-					SendMessage(ePic1MaxCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(maxValue)).c_str());
-					SendMessage(ePic1MinCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(minValue)).c_str());
-					SendMessage(ePic1SelectionCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(selectedPixelCount)).c_str());
-				}
-				else if (imageLocation == 1)
-				{
-					SendMessage(ePic2MaxCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(maxValue)).c_str());
-					SendMessage(ePic2MinCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(minValue)).c_str());
-					SendMessage(ePic2SelectionCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(selectedPixelCount)).c_str());
-				}
-				else if (imageLocation == 2)
-				{
-					SendMessage(ePic3MaxCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(maxValue)).c_str());
-					SendMessage(ePic3MinCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(minValue)).c_str());
-					SendMessage(ePic3SelectionCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(selectedPixelCount)).c_str());
-				}
-				else if (imageLocation == 3)
-				{
-					SendMessage(ePic4MaxCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(maxValue)).c_str());
-					SendMessage(ePic4MinCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(minValue)).c_str());
-					SendMessage(ePic4SelectionCountDisp.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(selectedPixelCount)).c_str());
-				}
+
+				ePicStats.update(selectedPixelCount, maxValue, minValue, avgValue, imageLocation);
+
 				hDC = GetDC(eCameraWindowHandle);
 				SelectPalette(hDC, eAppPalette[eCurrentPicturePallete[imageLocation]], TRUE);
 				RealizePalette(hDC);
@@ -637,27 +609,8 @@ namespace myAndor
 					SetBkMode(hdc, TRANSPARENT);
 					SetTextColor(hdc, RGB(200, 200, 200));
 					int atomNumber = analysisPointInc + 1;
-					if (eAutoAnalysisHandler.getSelectedAnalysisType() == "" || eAutoAnalysisHandler.getSelectedAnalysisType() == "Single Point Analysis")
-					{
-						DrawTextEx(hdc, const_cast<char *>(std::to_string(atomNumber).c_str()), std::to_string(atomNumber).size(),
-							&crossRect, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL);
-					}
-					else
-					{
-						std::string text = std::to_string((atomNumber - 1) / 2 + 1).c_str();
-						// assume pair analysis.
-						if ((atomNumber - 1) % 2 == 0)
-						{
-							text += "a";
-						}
-						else
-						{
-							text += "b";
-						}
-						DrawTextEx(hdc, const_cast<char *>(text.c_str()), text.size(), &crossRect, DT_CENTER | DT_SINGLELINE | DT_VCENTER,
-							NULL);
-					}
-
+					DrawTextEx(hdc, const_cast<char *>(std::to_string(atomNumber).c_str()), std::to_string(atomNumber).size(),
+						&crossRect, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL);
 					ReleaseDC(eCameraWindowHandle, hdc);
 					DeleteObject(crossPen);
 				}

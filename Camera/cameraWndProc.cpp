@@ -238,7 +238,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 				case IDC_IMG_RIGHT_EDIT:
 				case IDC_HOR_BIN_EDIT:
 				{
-					return eImageParameters.colorEdits(hWnd, msg, wParam, lParam);
+					return eImageControl.colorEdits(hWnd, msg, wParam, lParam);
 					break;
 				}
 				case IDC_EXPOSURE_3_EDIT:
@@ -727,10 +727,17 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 						// check if inside box
 						if (xPos < relevantRect.right && xPos > relevantRect.left && yPos < relevantRect.bottom && yPos > relevantRect.top)
 						{
+							// then click was inside a box so this should do something.
 							if (eSettingAnalysisLocations)
 							{
-
-								eAutoAnalysisHandler.setAtomLocation(std::pair<int, int>({ horizontalInc, ePixelRectangles[pictureInc][horizontalInc].size() - 1 - verticalInc }));
+								int atomNumber = eAutoAnalysisHandler.getAtomLocations().size();
+								if (!eDataExists && atomNumber == 0)
+								{
+									eImageControl.drawBackgrounds();
+									eImageControl.drawRectangleFrame();
+								}
+								eAutoAnalysisHandler.setAtomLocation(std::pair<int, int>({ horizontalInc, 
+											ePixelRectangles[pictureInc][horizontalInc].size() - 1 - verticalInc }));
 								// draw and set.
 								HDC hdc;
 								HPEN crossPen;
@@ -754,33 +761,20 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 									LineTo(hdc, relevantRect.right, relevantRect.bottom);
 									LineTo(hdc, relevantRect.left, relevantRect.bottom);
 									LineTo(hdc, relevantRect.left, relevantRect.top);
-									int atomNumber = eAutoAnalysisHandler.getAtomLocations().size();
-									if (eAutoAnalysisHandler.getSelectedAnalysisType() == "" || eAutoAnalysisHandler.getSelectedAnalysisType() == "Single Point Analysis")
-									{
-										DrawTextEx(hdc, const_cast<char *>(std::to_string(atomNumber).c_str()), std::to_string(atomNumber).size(), 
-											&relevantRect, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL);
-									}
-									else
-									{
-										std::string text = std::to_string((atomNumber - 1) / 2 + 1).c_str();
-										// assume pair analysis.
-										if ((atomNumber - 1) % 2 == 0)
-										{
-											text += "a";
-										}
-										else
-										{
-											text += "b";
-										}
-										DrawTextEx(hdc, const_cast<char *>(text.c_str()), text.size(), &relevantRect, DT_CENTER | DT_SINGLELINE | DT_VCENTER, 
-											NULL);
-									}
+
+									DrawTextEx(hdc, const_cast<char *>(std::to_string(atomNumber).c_str()), std::to_string(atomNumber).size(), 
+										&relevantRect, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL);
 									ReleaseDC(eCameraWindowHandle, hdc);
 									DeleteObject(crossPen);
 								}
 							}
 							else
 							{
+								if (!eDataExists)
+								{
+									eImageControl.drawBackgrounds();
+									eImageControl.drawRectangleFrame();
+								}
 								RECT smallRect;
 								smallRect.left = relevantRect.left + 7.0 * (relevantRect.right - relevantRect.left) / 16.0;
 								smallRect.right = relevantRect.left + 9.0 * (relevantRect.right - relevantRect.left) / 16.0;
@@ -831,7 +825,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 		case WM_SIZE:
 		{
 			reorganizeWindow(eCurrentlySelectedCameraMode, hWnd);
-			imageParameters tempImageParam = eImageParameters.getImageParameters();
+			imageParameters tempImageParam = eImageControl.getImageParameters();
 			for (int imageLocation = 0; imageLocation < eImageBackgroundAreas.size(); imageLocation++)
 			{
 				int imageBoxWidth = eImageBackgroundAreas[imageLocation].right - eImageBackgroundAreas[imageLocation].left + 1;
@@ -907,10 +901,13 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					eDataType = RAW_COUNTS;
 					CheckMenuItem(myMenu, ID_DATATYPE_PHOTONSONCAMERA, MF_UNCHECKED);
 					CheckMenuItem(myMenu, ID_DATATYPE_EST, MF_UNCHECKED);
+					ePicStats.updateType("Raw Counts");
 					break;
 				}
 				case ID_DATATYPE_PHOTONSONCAMERA:
 				{
+					MessageBox(0, "Note that if you are using EM Gain mode, this setting assumes an EM Gain setting of" 
+							   " X200", "Notice", 0);
 					MENUITEMINFO itemInfo;
 					itemInfo.cbSize = sizeof(MENUITEMINFO);
 					itemInfo.fMask = MIIM_STATE;
@@ -920,10 +917,14 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					CheckMenuItem(myMenu, ID_DATATYPE_PHOTONSONCAMERA, MF_CHECKED);
 					eDataType = CAMERA_PHOTONS;
 					CheckMenuItem(myMenu, ID_DATATYPE_EST, MF_UNCHECKED);
+					ePicStats.updateType("Photons at Camera");
 					break;
 				}
 				case ID_DATATYPE_EST:
 				{
+					MessageBox(0, "Note that if you are using EM Gain mode, this setting assumes an EM Gain setting of" 
+							   " X200. \n\nAlso note that this simply assumes 7% of the photons scattered reach the "
+							   "camera.", "Notice", 0);
 					MENUITEMINFO itemInfo;
 					itemInfo.cbSize = sizeof(MENUITEMINFO);
 					itemInfo.fMask = MIIM_STATE;
@@ -933,6 +934,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					CheckMenuItem(myMenu, ID_DATATYPE_PHOTONSONCAMERA, MF_UNCHECKED);
 					CheckMenuItem(myMenu, ID_DATATYPE_EST, MF_CHECKED);
 					eDataType = ATOM_PHOTONS;
+					ePicStats.updateType("Photons Scattered");
 					break;
 				}
 				case IDC_AUTOANALYZE_CHECKBOX:
@@ -948,11 +950,6 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 						CheckDlgButton(hWnd, IDC_AUTOANALYZE_CHECKBOX, BST_CHECKED);
 						eAutoanalyzeData = true;
 					}
-					break;
-				}
-				case ID_ADD_ANALYSIS_NAME:
-				{
-					eAutoAnalysisHandler.addNameToCombo();
 					break;
 				}
 				case ID_NOTIFICATIONS_CHANGE_EMAIL_AND_PASSWORD:
@@ -1475,6 +1472,13 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					int b = GetLastError();
 					break;
 				}
+				case ID_FILE_ABORTREAL:
+				{
+					ePlotThreadExitIndicator = false;
+					// Wait until plotting thread is complete.
+					WaitForSingleObject(ePlottingThreadHandle, INFINITE);
+					break;
+				}
 				case IDA_F5:
 				case ID_FILE_START:
 				{
@@ -1496,12 +1500,6 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					}
 					if (eAutoanalyzeData)
 					{
-						// check that the combo's aren't empty
-						if (eAutoAnalysisHandler.combosAreEmpty())
-						{
-							MessageBox(0, "Please Select a Data Analysis Output Name and/or Analysis Type.", 0, 0);
-							break;
-						}
 						// check that data is being incremented.
 						if (!eIncDataFileNamesOption)
 						{
@@ -1517,7 +1515,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 						MessageBox(0, "Please Set at least one exposure time.", 0, 0);
 						break;
 					}
-					if (!eImageParameters.checkReady())
+					if (!eImageControl.checkReady())
 					{
 						eCameraWindowExperimentTimer.setColorID(ID_RED);
 						eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
@@ -1584,7 +1582,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 						SendMessage(eCurrentPlotsCombo.hwnd, CB_GETLBTEXT, (WPARAM)plotInc, (LPARAM)tempPlotName);
 						eCurrentPlotNames.push_back(tempPlotName);
 					}
-					imageParameters currentImageParameters = eImageParameters.getImageParameters();
+					imageParameters currentImageParameters = eImageControl.getImageParameters();
 					// check plotting Parameters.
 					bool errCheck = false;
 					for (int plotInc = 0; plotInc < eCurrentPlotNames.size(); plotInc++)
@@ -1605,24 +1603,6 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 						tempInfoCheck.setGroups(eAutoAnalysisHandler.getAtomLocations());
 
 						std::vector<std::pair<int, int>> plotLocations = tempInfoCheck.getAllPixelLocations();
-						for (int locationInc = 0; locationInc < plotLocations.size(); locationInc++)
-						{
-							// check to make sure pixels are in bounds. 
-							/*
-							if (plotLocations[locationInc].first < 1 || plotLocations[locationInc].first > currentImageParameters.height)
-							{
-								errBox("ERROR: one of your real-time plots, plot # " + std::to_string(plotInc + 1) + ", wants to plot outside the height of the "
-									"andor camera window. The requested row was " + std::to_string(plotLocations[locationInc].first + 1) + ", but the height "
-									"(starting at 1) of the image is" + std::to_string(currentImageParameters.height) + ".");
-							}
-							if (plotLocations[locationInc].second < 1 || plotLocations[locationInc].second > currentImageParameters.width)
-							{
-								errBox("ERROR: one of your real-time plots, plot # " + std::to_string(plotInc + 1) + ", wants to plot outside the width of the "
-									"andor camera window. The requested row was " + std::to_string(plotLocations[locationInc].second + 1) + ", but the width "
-									"(starting at 1) of the image is" + std::to_string(currentImageParameters.width) + ".");
-							}
-							*/
-						}
 					}
 					if (errCheck)
 					{
@@ -1685,6 +1665,15 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 						eSystemIsRunning = false;
 						eCameraWindowExperimentTimer.setColorID(ID_RED);
 						eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
+						// stop the plotting thread if it started.
+						ePlotThreadExitIndicator = false;
+						//eThreadExitIndicator = false;
+						// Wait until plotting thread is complete.
+						WaitForSingleObject(ePlottingThreadHandle, INFINITE);
+						if (ANDOR_SAFEMODE)
+						{
+							eSystemIsRunning = false;
+						}
 						appendText("Failed to start camera aquisition.\r\n", IDC_STATUS_EDIT);
 					}
 					break;
@@ -1735,6 +1724,9 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 						}
 						else 
 						{
+							appendText("Aborting Acquisition\r\n", IDC_STATUS_EDIT);
+							eCameraWindowExperimentTimer.setColorID(ID_BLUE);
+							eCameraWindowExperimentTimer.setTimerDisplay("Aborted");
 							ePlotThreadExitIndicator = false;
 							//eThreadExitIndicator = false;
 							// Wait until plotting thread is complete.
@@ -1743,9 +1735,6 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 							{
 								eSystemIsRunning = false;
 							}
-							appendText("Aborting Acquisition\r\n", IDC_STATUS_EDIT);
-							eCameraWindowExperimentTimer.setColorID(ID_BLUE);
-							eCameraWindowExperimentTimer.setTimerDisplay("Aborted");
 							std::string errorMessage;
 							if (eExperimentData.closeFits(errorMessage))
 							{
@@ -1971,7 +1960,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 				}
 				case IDC_SET_IMAGE_PARAMS_BUTTON: 
 				{
-					if (eImageParameters.setImageParameters())
+					if (eImageControl.setImageParameters())
 					{
 						appendText("Failed To Set Image Parameters!\r\n", IDC_STATUS_EDIT);
 					}

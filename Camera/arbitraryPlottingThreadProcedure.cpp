@@ -11,7 +11,7 @@
 
 unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 {
-	imageParameters currentParameters = eImageParameters.getImageParameters();
+	imageParameters currentParameters = eImageControl.getImageParameters();
 	// Register any windows messages for the main window
 	ePlottingIsSlowMessage = RegisterWindowMessage("ID_PLOTTING_IS_SLOW");
 	ePlottingCaughtUpMessage = RegisterWindowMessage("ID_PLOTTING_CAUGHT_UP");

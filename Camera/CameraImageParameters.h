@@ -14,10 +14,10 @@ struct imageParameters
 	int height;
 };
 
-class CameraImageParameters
+class CameraImage
 {
 	public:
-		CameraImageParameters();
+		CameraImage();
 		bool initiateControls(POINT& topLeftPositionKinetic, POINT& topLeftPositionAccumulate, POINT& topLeftPositionContinuous,
 							  HWND parentWindow, bool isTriggerModeSensitive);
 		bool setImageParameters();
@@ -26,6 +26,12 @@ class CameraImageParameters
 		imageParameters getImageParameters();
 		bool reorganizeControls(RECT parentRectangle, std::string cameraMode);
 		INT_PTR colorEdits(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
+		bool drawBackgrounds();
+		bool drawRectangleFrame();
+		// TODO:
+		// bool drawPicture();
+		// bool drawSelectionCircle();
+		// bool drawAnalysisSquares();
 	private:
 		HwndControl leftText;
 		HwndControl rightText;
