@@ -6,7 +6,7 @@
 struct experimentThreadInputStructure
 {
 	std::string threadCurrentScript;
-	unsigned int threadAccumulations;
+	unsigned int threadRepetitions;
 	bool threadConnectToMaster;
 	bool threadGetVarFilesFromMaster;
 	bool threadLogScriptAndParams;
