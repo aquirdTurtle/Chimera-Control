@@ -498,7 +498,7 @@ namespace commonMessages
 			// Set the thread structure.
 			experimentThreadInputStructure* inputParams = new experimentThreadInputStructure();
 			// force accumulations to zero. This shouldn't affect anything, this should always get set by the master or be infinite.
-			(*inputParams).threadAccumulations = 0;
+			(*inputParams).threadRepetitions = 0;
 			(*inputParams).threadConnectToMaster = eConnectToMaster;
 			(*inputParams).threadCurrentScript = eCurrentScript;
 			if (LOWORD(wParam) == ID_FILE_MY_WRITE_WAVEFORMS)

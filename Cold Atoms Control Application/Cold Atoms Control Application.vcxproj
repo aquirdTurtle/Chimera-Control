@@ -185,13 +185,10 @@
     <ClInclude Include="experimentProgrammingThread.h" />
     <ClInclude Include="experimentThreadInputStructure.h" />
     <ClInclude Include="externals.h" />
-<<<<<<< HEAD
     <ClInclude Include="fileManage.h" />
     <ClInclude Include="errBox.h" />
     <ClInclude Include="GUI_Debugger.h" />
     <ClInclude Include="MainWindow.h" />
-=======
->>>>>>> aa1508cc322859dd996de8ea3251432cbf6201b3
     <ClInclude Include="Script.h" />
     <ClInclude Include="NoteSystem.h" />
     <ClInclude Include="ScriptingWindow.h" />
@@ -231,7 +228,6 @@
     <ClCompile Include="errBox.cpp" />
     <ClCompile Include="experimentProgrammingThread.cpp" />
     <ClCompile Include="externals.cpp" />
-<<<<<<< HEAD
     <ClCompile Include="fileManage.cpp" />
     <ClCompile Include="GUI_Debugger.cpp" />
     <ClCompile Include="MainWindow.cpp" />
@@ -239,10 +235,8 @@
     <ClCompile Include="Script.cpp" />
     <ClCompile Include="errBox.cpp" />
     <ClCompile Include="ScriptingWindow.cpp" />
-=======
     <ClCompile Include="NoteSystem.cpp" />
     <ClCompile Include="Script.cpp" />
->>>>>>> aa1508cc322859dd996de8ea3251432cbf6201b3
     <ClCompile Include="textPromptDialogProcedure.cpp" />
     <ClCompile Include="getFileName.cpp" />
     <ClCompile Include="initializeMainWindow.cpp" />

@@ -330,7 +330,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	// check acuumulations. if 0, this is code for setting the code to just repeat forever, 
 	if ((*inputStruct).threadConnectToMaster == false)
 	{
-		(*inputStruct).threadAccumulations = 0;
+		(*inputStruct).threadRepetitions = 0;
 	}
 	else
 	{
@@ -410,7 +410,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			accumulationsStream >> tempAccumulations;
 			try
 			{
-				(*inputStruct).threadAccumulations = std::stoi(tempAccumulations);
+				(*inputStruct).threadRepetitions = std::stoi(tempAccumulations);
 			}
 			catch (std::invalid_argument&)
 			{
@@ -423,7 +423,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 					return -1;
 				}
 			}
-			if (myErrorHandler((*inputStruct).threadAccumulations < 0, "ERROR: master's message's number was negative! String trying to convert is " + tempAccumulations
+			if (myErrorHandler((*inputStruct).threadRepetitions < 0, "ERROR: master's message's number was negative! String trying to convert is " + tempAccumulations
 				+ ". Assuming fatal error.", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName,
 				true, false, true))
 			{
@@ -440,13 +440,13 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				delete inputStruct;
 				return -1;
 			}
-			if (myErrorHandler((*inputStruct).threadAccumulations % ((*inputStruct).threadSequenceFileNames.size()) != 0, 
-							   "ERROR: Number of accumulations received from master: " + std::to_string((*inputStruct).threadAccumulations) 
+			if (myErrorHandler((*inputStruct).threadRepetitions % ((*inputStruct).threadSequenceFileNames.size()) != 0, 
+							   "ERROR: Number of accumulations received from master: " + std::to_string((*inputStruct).threadRepetitions) 
 							   + ", is not an integer multiple of the number of configurations in the sequence: " 
 							   + std::to_string((*inputStruct).threadSequenceFileNames.size()) + ". It must be.\r\n", ConnectSocket, verticalScriptFiles, 
 							   horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false, true))
 			{
-				postMyString(eErrorTextMessageID, "ERROR: Number of accumulations received from master: " + std::to_string((*inputStruct).threadAccumulations)
+				postMyString(eErrorTextMessageID, "ERROR: Number of accumulations received from master: " + std::to_string((*inputStruct).threadRepetitions)
 													+ ", is not an integer multiple of the number of configurations in the sequence: "
 													+ std::to_string((*inputStruct).threadSequenceFileNames.size()) + ". It must be.\r\n");
 				PostMessage(eMainWindowHandle, eFatalErrorMessageID, 0, 0);
@@ -456,12 +456,12 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 		}
 		else
 		{
-			(*inputStruct).threadAccumulations = 100;
+			(*inputStruct).threadRepetitions = 100;
 		}
 	}
-	(*inputStruct).threadAccumulations /= (*inputStruct).threadSequenceFileNames.size();
+	(*inputStruct).threadRepetitions /= (*inputStruct).threadSequenceFileNames.size();
 
-	std::string message = "Accumulations # after sequence normalization: " + std::to_string((*inputStruct).threadAccumulations) + "\r\n";
+	std::string message = "Accumulations # after sequence normalization: " + std::to_string((*inputStruct).threadRepetitions) + "\r\n";
 	postMyString(eStatusTextMessageID, message);
 
 	// analyze the input files and create the xy-script. Originally, I thought I'd write the script in two parts, the x and y parts, but it turns out 
@@ -541,7 +541,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 
 	// format the script to send to the 5451 according to the accumulation number and based on the number of sequences.
 	finalUserScriptString = "script " + userScriptNameString + "\n";
-	if ((*inputStruct).threadAccumulations == 0)
+	if ((*inputStruct).threadRepetitions == 0)
 	{
 		finalUserScriptString += "repeat forever\n";
 		for (int sequenceInc = 0; sequenceInc < workingUserScriptString.size(); sequenceInc++)
@@ -553,7 +553,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	else
 	{
 		// repeat the script once for every accumulation.
-		for (unsigned int accumCount = 0; accumCount < (*inputStruct).threadAccumulations; accumCount++)
+		for (unsigned int accumCount = 0; accumCount < (*inputStruct).threadRepetitions; accumCount++)
 		{
 			for (int sequenceInc = 0; sequenceInc < workingUserScriptString.size(); sequenceInc++)
 			{
@@ -712,175 +712,178 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	///
 	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
-		// This report goes to a folder I create on the Andor.
-		if ((*inputStruct).threadLogScriptAndParams == true)
-		{
-			postMyString(eStatusTextMessageID, "Logging Script and Experiment Parameters...\r\n");
+		// This report goes to a folder I create on the Andor. NEW: Always log.
+		postMyString(eStatusTextMessageID, "Logging Script and Experiment Parameters...\r\n");
+		std::string xScriptLogPath = EXPERIMENT_LOGGING_FILES_PATH + "\\Vertical Script.txt";
+		std::string yScriptLogPath = EXPERIMENT_LOGGING_FILES_PATH + "\\Horizontal Script.txt";
+		std::string intensityLogPath = EXPERIMENT_LOGGING_FILES_PATH + "\\Intensity Script.txt";
+		std::string parametersFileLogPath = EXPERIMENT_LOGGING_FILES_PATH + "\\Parameters.txt";
 
-			std::string xScriptLogPath = EXPERIMENT_LOGGING_FILES_PATH + "\\Vertical Script.txt";
-			std::string yScriptLogPath = EXPERIMENT_LOGGING_FILES_PATH + "\\Horizontal Script.txt";
-			std::string intensityLogPath = EXPERIMENT_LOGGING_FILES_PATH + "\\Intensity Script.txt";
-			std::string parametersFileLogPath = EXPERIMENT_LOGGING_FILES_PATH + "\\Parameters.txt";
-
-			bool andorConnected = false;
-			do {
-				std::ofstream verticalScriptLog(xScriptLogPath);
-				if (verticalScriptLog.is_open() == false)
+		bool andorConnected = false;
+		/// Log the vertical script
+		do {
+			std::ofstream verticalScriptLog(xScriptLogPath);
+			if (verticalScriptLog.is_open() == false)
+			{
+				int andorDisconnectedOption = MessageBox(NULL, "This computer can't currently open logging files on the andor.\nAbort will quit the "
+					"current script output sequence and will keep the default waveform running."
+					" (no output has started).\nRetry will re-attempt to connect to the Andor.\nIgnore will continue "
+					"without saving the current file.", "Andor Disconnected", MB_ABORTRETRYIGNORE);
+				switch (andorDisconnectedOption)
 				{
-					int andorDisconnectedOption = MessageBox(NULL, "This computer can't currently open logging files on the andor.\nAbort will quit the "
-						"current script output sequence and will keep the default waveform running."
-						" (no output has started).\nRetry will re-attempt to connect to the Andor.\nIgnore will continue "
-						"without saving the current file.", "Andor Disconnected", MB_ABORTRETRYIGNORE);
-					switch (andorDisconnectedOption)
+				case IDABORT:
+				{
+					if (myErrorHandler(-1, "ERROR: Andor Disconected. User Aborted.\r\n", ConnectSocket,
+						verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false, true))
 					{
-					case IDABORT:
-					{
-						if (myErrorHandler(-1, "ERROR: Andor Disconected. User Aborted.\r\n", ConnectSocket,
-							verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false, true))
-						{
-							postMyString(eErrorTextMessageID, "ERROR: Andor Disconected. User Aborted.\r\n");
-							PostMessage(eMainWindowHandle, eFatalErrorMessageID, 0, 0);
-							delete inputStruct;
-							return -1;
-						}
-						// doesn't get reached.
-						break;
+						postMyString(eErrorTextMessageID, "ERROR: Andor Disconected. User Aborted.\r\n");
+						PostMessage(eMainWindowHandle, eFatalErrorMessageID, 0, 0);
+						delete inputStruct;
+						return -1;
+					}
+					// doesn't get reached.
+					break;
 
-					}
-					case IDRETRY:
-					{
-						break;
-					}
-					case IDIGNORE:
-					{
-						// break out without writing file.
-						andorConnected = true;
-						break;
-					}
-					}
 				}
-				else
+				case IDRETRY:
 				{
+					break;
+				}
+				case IDIGNORE:
+				{
+					// break out without writing file.
 					andorConnected = true;
-					for (int sequenceInc = 0; sequenceInc < (*inputStruct).threadSequenceFileNames.size(); sequenceInc++)
-					{
-						verticalScriptLog << verticalScriptFiles[sequenceInc].rdbuf();
-						verticalScriptFiles[sequenceInc].clear();
-						verticalScriptFiles[sequenceInc].seekg(0, std::ios::beg);
-					}
+					break;
 				}
-			} while (andorConnected == false);
+				}
+			}
+			else
+			{
+				andorConnected = true;
+				for (int sequenceInc = 0; sequenceInc < (*inputStruct).threadSequenceFileNames.size(); sequenceInc++)
+				{
+					verticalScriptLog << "***Configuration [" + (*inputStruct).threadSequenceFileNames[sequenceInc] + "] Vertical NIAWG Script***\n";
+					verticalScriptLog << verticalScriptFiles[sequenceInc].rdbuf();
+					verticalScriptFiles[sequenceInc].clear();
+					verticalScriptFiles[sequenceInc].seekg(0, std::ios::beg);
+				}
+			}
+		} while (andorConnected == false);
 
-			andorConnected = false;
-			do {
-				std::ofstream horizontalScriptLog(yScriptLogPath);
-				if (horizontalScriptLog.is_open() == false)
+		andorConnected = false;
+		/// Log the horizontal script
+		do {
+			std::ofstream horizontalScriptLog(yScriptLogPath);
+			if (horizontalScriptLog.is_open() == false)
+			{
+				int andorDisconnectedOption = MessageBox(NULL, "This computer can't currently open logging files on the andor.\nAbort will quit the "
+					"current script output sequence and will keep the default waveform running."
+					" (no output has started).\nRetry will re-attempt to connect to the Andor.\nIgnore will continue "
+					"without saving the current file.", "Andor Disconnected", MB_ABORTRETRYIGNORE);
+				switch (andorDisconnectedOption)
 				{
-					int andorDisconnectedOption = MessageBox(NULL, "This computer can't currently open logging files on the andor.\nAbort will quit the "
-						"current script output sequence and will keep the default waveform running."
-						" (no output has started).\nRetry will re-attempt to connect to the Andor.\nIgnore will continue "
-						"without saving the current file.", "Andor Disconnected", MB_ABORTRETRYIGNORE);
-					switch (andorDisconnectedOption)
+				case IDABORT:
+				{
+					if (myErrorHandler(-1, "ERROR: Andor Disconected. User Aborted.\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, eError,
+						eSessionHandle, userScriptIsWritten, userScriptName, true, false, true))
 					{
-					case IDABORT:
-					{
-						if (myErrorHandler(-1, "ERROR: Andor Disconected. User Aborted.\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, eError,
-							eSessionHandle, userScriptIsWritten, userScriptName, true, false, true))
-						{
-							postMyString(eErrorTextMessageID, "ERROR: Andor Disconected. User Aborted.\r\n");
-							PostMessage(eMainWindowHandle, eFatalErrorMessageID, 0, 0);
-							delete inputStruct;
-							return -1;
-						}
-						// doesn't get reached.
-						break;
+						postMyString(eErrorTextMessageID, "ERROR: Andor Disconected. User Aborted.\r\n");
+						PostMessage(eMainWindowHandle, eFatalErrorMessageID, 0, 0);
+						delete inputStruct;
+						return -1;
 					}
-					case IDRETRY:
-					{
-						break;
-					}
-					case IDIGNORE:
-					{
-						// break out without writing file.
-						andorConnected = true;
-						break;
-					}
-					}
+					// doesn't get reached.
+					break;
 				}
-				else 
+				case IDRETRY:
 				{
+					break;
+				}
+				case IDIGNORE:
+				{
+					// break out without writing file.
 					andorConnected = true;
+					break;
+				}
+				}
+			}
+			else 
+			{
+				andorConnected = true;
 					
-					for (int sequenceInc = 0; sequenceInc < (*inputStruct).threadSequenceFileNames.size(); sequenceInc++)
-					{
-						horizontalScriptLog << horizontalScriptFiles[sequenceInc].rdbuf();
-						horizontalScriptFiles[sequenceInc].clear();
-						horizontalScriptFiles[sequenceInc].seekg(0, std::ios::beg);
-					}
+				for (int sequenceInc = 0; sequenceInc < (*inputStruct).threadSequenceFileNames.size(); sequenceInc++)
+				{
+					horizontalScriptLog << "***Configuration [" + (*inputStruct).threadSequenceFileNames[sequenceInc] + "] Horizontal NIAWG Script***\n";
+					horizontalScriptLog << horizontalScriptFiles[sequenceInc].rdbuf();
+					horizontalScriptFiles[sequenceInc].clear();
+					horizontalScriptFiles[sequenceInc].seekg(0, std::ios::beg);
 				}
-			} while (andorConnected == false);
+			}
+		} while (andorConnected == false);
 
-			andorConnected = false;
-
-			do
+		andorConnected = false;
+		/// Log the intensity script
+		do
+		{
+			std::ofstream intensityScriptLog(intensityLogPath);
+			if (intensityScriptLog.is_open() == false)
 			{
-				std::ofstream intensityScriptLog(intensityLogPath);
-				if (intensityScriptLog.is_open() == false)
+				int andorDisconnectedOption = MessageBox(NULL, "This computer can't currently open logging files on the andor.\nAbort will quit the "
+					"current script output sequence and will keep the default waveform running."
+					" (no output has started).\nRetry will re-attempt to connect to the Andor.\nIgnore will continue "
+					"without saving the current file.", "Andor Disconnected", MB_ABORTRETRYIGNORE);
+				switch (andorDisconnectedOption)
 				{
-					int andorDisconnectedOption = MessageBox(NULL, "This computer can't currently open logging files on the andor.\nAbort will quit the "
-						"current script output sequence and will keep the default waveform running."
-						" (no output has started).\nRetry will re-attempt to connect to the Andor.\nIgnore will continue "
-						"without saving the current file.", "Andor Disconnected", MB_ABORTRETRYIGNORE);
-					switch (andorDisconnectedOption)
+					case IDABORT:
 					{
-						case IDABORT:
+						if (myErrorHandler(-1, "ERROR: Andor Disconected. User Aborted.\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, eError,
+							eSessionHandle, userScriptIsWritten, userScriptName, true, false, true))
 						{
-							if (myErrorHandler(-1, "ERROR: Andor Disconected. User Aborted.\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, eError,
-								eSessionHandle, userScriptIsWritten, userScriptName, true, false, true))
-							{
-								postMyString(eErrorTextMessageID, "ERROR: Andor Disconected. User Aborted.\r\n");
-								PostMessage(eMainWindowHandle, eFatalErrorMessageID, 0, 0);
-								delete inputStruct;
-								return -1;
-							}
-							// doesn't get reached.
-							break;
+							postMyString(eErrorTextMessageID, "ERROR: Andor Disconected. User Aborted.\r\n");
+							PostMessage(eMainWindowHandle, eFatalErrorMessageID, 0, 0);
+							delete inputStruct;
+							return -1;
 						}
-						case IDRETRY:
-						{
-							break;
-						}
-						case IDIGNORE:
-						{
-							// break out without writing file.
-							andorConnected = true;
-							break;
-						}
+						// doesn't get reached.
+						break;
+					}
+					case IDRETRY:
+					{
+						break;
+					}
+					case IDIGNORE:
+					{
+						// break out without writing file.
+						andorConnected = true;
+						break;
 					}
 				}
-				else 
-				{
-					andorConnected = true;
-					for (int sequenceInc = 0; sequenceInc < (*inputStruct).threadSequenceFileNames.size(); sequenceInc++)
-					{
-						intensityScriptLog << intensityScriptFiles[sequenceInc].rdbuf();
-						intensityScriptFiles[sequenceInc].clear();
-						intensityScriptFiles[sequenceInc].seekg(0, std::ios::beg);
-					}
-				}
-			} while (andorConnected == false);
-
-			andorConnected = false;
-			do
+			}
+			else 
 			{
-				std::ofstream parametersFileLog(parametersFileLogPath);
-				if (parametersFileLog.is_open() == false)
+				andorConnected = true;
+				for (int sequenceInc = 0; sequenceInc < (*inputStruct).threadSequenceFileNames.size(); sequenceInc++)
 				{
-					int andorDisconnectedOption = MessageBox(NULL, "This computer can't currently open logging files on the andor.\nAbort will quit the "
-						"current script output sequence and will keep the default waveform running."
-						" (no output has started).\nRetry will re-attempt to connect to the Andor.\nIgnore will continue "
-						"without saving the current file.", "Andor Disconnected", MB_ABORTRETRYIGNORE);
-					switch (andorDisconnectedOption)
+					intensityScriptLog << "***Configuration [" + (*inputStruct).threadSequenceFileNames[sequenceInc] + "] intensity Script***\n";
+					intensityScriptLog << intensityScriptFiles[sequenceInc].rdbuf();
+					intensityScriptFiles[sequenceInc].clear();
+					intensityScriptFiles[sequenceInc].seekg(0, std::ios::beg);
+				}
+			}
+		} while (andorConnected == false);
+
+		andorConnected = false;
+		/// Log other parameters
+		do
+		{
+			std::ofstream parametersFileLog(parametersFileLogPath);
+			if (parametersFileLog.is_open() == false)
+			{
+				int andorDisconnectedOption = MessageBox(NULL, "This computer can't currently open logging files on the andor.\nAbort will quit the "
+					"current script output sequence and will keep the default waveform running."
+					" (no output has started).\nRetry will re-attempt to connect to the Andor.\nIgnore will continue "
+					"without saving the current file.", "Andor Disconnected", MB_ABORTRETRYIGNORE);
+				switch (andorDisconnectedOption)
 					{
 					case IDABORT:
 					{
@@ -905,18 +908,27 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 						andorConnected = true;
 						break;
 					}
-					}
 				}
-				else
+			}
+			else
+			{
+				andorConnected = true;
+				// prepare the parameters list for the log
+				std::string paramtersString = "\nDont Actually Generate = " + std::to_string((*inputStruct).threadDontActuallyGenerate)
+					+ "\nConnect To Master = " + std::to_string((*inputStruct).threadConnectToMaster) 
+					+ "\nGet Variable Files From Master = " + std::to_string((*inputStruct).threadGetVarFilesFromMaster) 
+					+ "\nRepetitions = " + std::to_string((*inputStruct).threadRepetitions)
+					+ "\nDon't Actually Generate = " + std::to_string((*inputStruct).threadDontActuallyGenerate)
+					+ "\nProgramming Intensity = " + std::to_string((*inputStruct).threadProgramIntensityOption)
+					+ "\nSequence File Names = \n";
+
+				for (unsigned int seqInc = 0; seqInc < (*inputStruct).threadSequenceFileNames.size(); seqInc++)
 				{
-					andorConnected = true;
-					std::string message = "\nDont Actually Generate: " + std::to_string((*inputStruct).threadDontActuallyGenerate)
-						+ "\nConnect To Master: " + std::to_string((*inputStruct).threadConnectToMaster) + "\nGet Variable Files From Master: "
-						+ std::to_string((*inputStruct).threadGetVarFilesFromMaster) + "\nAccumulations: " + std::to_string((*inputStruct).threadAccumulations);
-					parametersFileLog << message;
+					paramtersString += "\t" + (*inputStruct).threadSequenceFileNames[seqInc] + "\n";
 				}
-			} while (andorConnected == false);
-		}
+				parametersFileLog << paramtersString;
+			}
+		} while (andorConnected == false);
 	}
 	/// Variable Cleanup Before Execution
 	// check that variable files are the same length.
@@ -1854,7 +1866,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	///
 	///					Cleanup
 	///
-	if ((*inputStruct).threadAccumulations == 0 || (eVariables.getCurrentNumberOfVariables() == 0 && TWEEZER_COMPUTER_SAFEMODE))
+	if ((*inputStruct).threadRepetitions == 0 || (eVariables.getCurrentNumberOfVariables() == 0 && TWEEZER_COMPUTER_SAFEMODE))
 	{
 		postMyString(eStatusTextMessageID, "Scripts Loaded into NIAWG. This waveform sequence will run until aborted by the user.\r\n\r\n");
 		postMyString(eColoredEditMessageID, "Scripts Loaded into NIAWG. This waveform sequence will run until aborted by the user.");
