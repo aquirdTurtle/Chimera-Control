@@ -15,8 +15,8 @@ int reorganizeWindow(std::string cameraMode, HWND parentWindow)
 	eImageControl.reorganizeControls(parentRectangle, cameraMode);
 	eAlerts.reorganizeControls(parentRectangle, cameraMode);
 	ePicStats.reorganizeControls(parentRectangle, cameraMode);
+	ePictureOptionsControl.reorganizeControls(parentRectangle, cameraMode);
 	/// Reorganize all other controls. #
-	reorganizeControl(eExposureTextDisplayHandle, cameraMode, parentRectangle);
 	reorganizeControl(eTempTextDisplayHandle, cameraMode, parentRectangle);
 	reorganizeControl(eCurrentTempDisplayHandle, cameraMode, parentRectangle);
 	reorganizeControl(eTempOffButton, cameraMode, parentRectangle);
@@ -33,7 +33,6 @@ int reorganizeWindow(std::string cameraMode, HWND parentWindow)
 	reorganizeControl(ePixel1TextDisplay, cameraMode, parentRectangle);
 	reorganizeControl(ePixel2TextDisplay, cameraMode, parentRectangle);
 	reorganizeControl(eTempDispHandle, cameraMode, parentRectangle);
-	reorganizeControl(eExposureDispHandle, cameraMode, parentRectangle);
 	reorganizeControl(eImgLeftSideDispHandle, cameraMode, parentRectangle);
 	reorganizeControl(eImgRightSideDispHandle, cameraMode, parentRectangle);
 	reorganizeControl(eHorizontalBinningDispHandle, cameraMode, parentRectangle);
@@ -42,17 +41,11 @@ int reorganizeWindow(std::string cameraMode, HWND parentWindow)
 	reorganizeControl(eVerticalBinningDispHandle, cameraMode, parentRectangle);
 	reorganizeControl(eKineticCycleTimeDispHandle, cameraMode, parentRectangle);
 	reorganizeControl(eRepetitionsPerVariationDisp, cameraMode, parentRectangle);
-	reorganizeControl(eAtomThresholdDispHandle, cameraMode, parentRectangle);
 	reorganizeControl(eCurrentAccumulationNumDispHandle, cameraMode, parentRectangle);
 	reorganizeControl(eMinCountDispHandle, cameraMode, parentRectangle);
 	reorganizeControl(eMaxCountDispHandle, cameraMode, parentRectangle);
 	reorganizeControl(eVariationNumberDisp, cameraMode, parentRectangle);
-	reorganizeControl(ePicturesPerRepetitionDisp, cameraMode, parentRectangle);
 	reorganizeControl(eErrorEditHandle, cameraMode, parentRectangle);
-	reorganizeControl(eExposure1EditHandle, cameraMode, parentRectangle);
-	reorganizeControl(eExposure2EditHandle, cameraMode, parentRectangle);
-	reorganizeControl(eExposure3EditHandle, cameraMode, parentRectangle);
-	reorganizeControl(eExposure4EditHandle, cameraMode, parentRectangle);
 	reorganizeControl(eTempEditHandle, cameraMode, parentRectangle);
 	reorganizeControl(eImgLeftSideEditHandle, cameraMode, parentRectangle);
 	reorganizeControl(eImageTopEditHandle, cameraMode, parentRectangle);
@@ -66,21 +59,16 @@ int reorganizeWindow(std::string cameraMode, HWND parentWindow)
 	reorganizeControl(ePixel2XEditHandle, cameraMode, parentRectangle);
 	reorganizeControl(ePixel1YEditHandle, cameraMode, parentRectangle);
 	reorganizeControl(ePixel2YEditHandle, cameraMode, parentRectangle);
-	reorganizeControl(eAtomThresholdEditHandle, cameraMode, parentRectangle);
 	reorganizeControl(eVariationNumberEdit, cameraMode, parentRectangle);
-	reorganizeControl(ePicturesPerRepetitionEdit, cameraMode, parentRectangle);
 	reorganizeControl(eIncDataFileOptionBoxHandle, cameraMode, parentRectangle);
 	reorganizeControl(eSetTemperatureButtonHandle, cameraMode, parentRectangle);
-	reorganizeControl(eSetExposureButtonHandle, cameraMode, parentRectangle);
 	reorganizeControl(eSetImageParametersButtonHandle, cameraMode, parentRectangle);
 	reorganizeControl(eSetAnalysisPixelsButtonHandle, cameraMode, parentRectangle);
 	reorganizeControl(eSetKineticSeriesCycleTimeButtonHandle, cameraMode, parentRectangle);
 	reorganizeControl(eSetNumberRepetitionsPerVariationButton, cameraMode, parentRectangle);
-	reorganizeControl(eSetAtomThresholdButtonHandle, cameraMode, parentRectangle);
 	reorganizeControl(ePlotAverageCountsBoxHandle, cameraMode, parentRectangle);
 	reorganizeControl(eSeVariationNumberButton, cameraMode, parentRectangle);
 	reorganizeControl(eClearStatusButtonHandle, cameraMode, parentRectangle);
-	reorganizeControl(eSetPicturesPerRepetitionButtonHandle, cameraMode, parentRectangle);
 	reorganizeControl(eTriggerComboHandle, cameraMode, parentRectangle);
 	reorganizeControl(eCameraModeComboHandle, cameraMode, parentRectangle);
 	reorganizeControl(eAccumulationTimeDisp, cameraMode, parentRectangle);

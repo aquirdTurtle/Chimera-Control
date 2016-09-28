@@ -173,9 +173,10 @@
   <ItemGroup>
     <ClInclude Include="acquisitionImmutables.h" />
     <ClInclude Include="AlertSystem.h" />
+    <ClInclude Include="PictureOptions.h" />
     <ClInclude Include="appendColoredText.h" />
     <ClInclude Include="appendText.h" />
-    <ClInclude Include="arbitraryPlottingThreadProcedure.h" />
+    <ClInclude Include="plotterProcedure.h" />
     <ClInclude Include="ATMCD32D.H" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CameraImageParameters.h" />
@@ -217,9 +218,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AlertSystem.cpp" />
+    <ClCompile Include="PictureOptions.cpp" />
     <ClCompile Include="appendColoredText.cpp" />
     <ClCompile Include="appendText.cpp" />
-    <ClCompile Include="arbitraryPlottingThreadProcedure.cpp" />
+    <ClCompile Include="plotterProcedure.cpp" />
     <ClCompile Include="CameraImageParameters.cpp" />
     <ClCompile Include="cameraMain.cpp" />
     <ClCompile Include="cameraThread.cpp" />

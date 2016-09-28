@@ -26,6 +26,7 @@
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
+	eImagesMutex = CreateMutexEx(0, NULL, FALSE, MUTEX_ALL_ACCESS);
 	char aBuffer[256];
 	// Look in current working directory for driver files
 	GetCurrentDirectory(256, aBuffer);

@@ -18,6 +18,7 @@
 #include "AlertSystem.h"
 #include "EmbeddedPythonHandler.h"
 #include "PictureStats.h"
+#include "PictureOptions.h"
 
 /// THINGS THAT THE USER SETS !@$#!@#$!@#$!@$!@#$!@#$!@$#!@#$!@#$@!#$!$!@#$!@#$@!$#@!#$!@#$!@$#!#$!@#$!@#$!@#$!@#$!@$#!@$#!@$#!@$#@!#$!@$#!@$#!@#$!@$#!@$#!@$#!#
 // extern bool eFitsOkay;
@@ -33,10 +34,11 @@ extern CameraImage eImageControl;
 extern AlertSystem eAlerts;
 extern EmbeddedPythonHandler Python;
 extern PictureStats ePicStats;
+extern PictureOptions ePictureOptionsControl;
 
 extern std::array<int, 4> eCurrentMaximumPictureCount;
 extern std::array<int, 4> eCurrentMinimumPictureCount;
-extern std::array<int, 4> eCurrentPicturePallete;
+//extern std::array<int, 4> eCurrentPicturePallete;
 extern int eMinimumSliderCount;
 extern int eMaximumSliderCount;
 extern std::array<std::vector<std::vector<RECT> >, 4> ePixelRectangles;
@@ -51,7 +53,6 @@ extern unsigned int ePlottingIsSlowMessage, ePlottingCaughtUpMessage;
 // Temperature stuff
 extern int eCameraTemperatureSetting;
 // More parameters.
-extern std::vector<float> eExposureTimes;
 extern double eKineticCycleTime;
 // 
 extern int eCurrentAccumulationModeTotalAccumulationNumber;
@@ -59,10 +60,6 @@ extern int eCurrentTotalVariationNumber;
 extern int ePicturesPerVariation;
 extern int eTotalNumberOfPicturesInSeries;
 extern int eNumberOfRunsToAverage;
-// changes data.fits to data_1.fits -> data_2.fits, etc.
-extern bool eIncDataFileNamesOption;
-// number of counts that a pixel has to contain in order to count as an atom.
-extern int eDetectionThreshold;
 // // // // // // // // // //
 extern std::vector<std::string> eCurrentPlotNames;
 
@@ -151,24 +148,22 @@ extern HwndControl eTriggerTextDisplayHandle, eImgLeftSideTextHandle,
 			eImageBottomSideTextHandle, eImgRightSideTextHandle, eImageTopSideTextHandle, eVerticalBinningTextHandle, eHorizontalBinningTextHandle, 
 			eKineticCycleTimeTextHandle, eTotalPictureNumberTextHandle, ePixel1TextDisplay, ePixel2TextDisplay, 
 			eImgLeftSideDispHandle, eImgRightSideDispHandle, eHorizontalBinningDispHandle, eImageBottomSideDispHandle, eImageTopSideDispHandle,
-			eVerticalBinningDispHandle,	eKineticCycleTimeDispHandle, eRepetitionsPerVariationDisp, eAtomThresholdDispHandle,
-			eCurrentAccumulationNumDispHandle, eMinCountDispHandle,	eMaxCountDispHandle, eVariationNumberDisp, 
-			ePicturesPerRepetitionDisp;
+			eVerticalBinningDispHandle,	eKineticCycleTimeDispHandle, eRepetitionsPerVariationDisp, 
+			eCurrentAccumulationNumDispHandle, eMinCountDispHandle,	eMaxCountDispHandle, eVariationNumberDisp;
 // error status
 extern HwndControl eErrorEditHandle, eErrorClear, eErrorText;
 // camera status
 extern HwndControl eStatusEditHandle, eClearStatusButtonHandle, eStatusText;
 // User-Edited Edit Handles
 extern HwndControl eImgLeftSideEditHandle, eImageTopEditHandle, eImgRightSideEditHandle, eImageBottomEditHandle,
-			eVerticalBinningEditHandle, eHorizontalBinningEditHandle, eKineticCycleTimeEditHandle, eRepetitionsPerVariationEdit, ePixel1XEditHandle, 
-			ePixel2XEditHandle, ePixel1YEditHandle, ePixel2YEditHandle, eAtomThresholdEditHandle, eVariationNumberEdit, 
-			ePicturesPerRepetitionEdit;
+	eVerticalBinningEditHandle, eHorizontalBinningEditHandle, eKineticCycleTimeEditHandle, eRepetitionsPerVariationEdit, ePixel1XEditHandle,
+	ePixel2XEditHandle, ePixel1YEditHandle, ePixel2YEditHandle, eVariationNumberEdit;
 // Checked Box Handles
 extern HwndControl eIncDataFileOptionBoxHandle;
 // Button Handles
 extern HwndControl eSetImageParametersButtonHandle, eSetAnalysisPixelsButtonHandle,
-			eSetKineticSeriesCycleTimeButtonHandle, eSetNumberRepetitionsPerVariationButton, eSetAtomThresholdButtonHandle, ePlotAverageCountsBoxHandle, 
-			eSeVariationNumberButton, eSetPicturesPerRepetitionButtonHandle;
+			eSetKineticSeriesCycleTimeButtonHandle, eSetNumberRepetitionsPerVariationButton, ePlotAverageCountsBoxHandle, 
+			eSeVariationNumberButton;
 // Temperature Control
 extern HwndControl eSetTemperatureButtonHandle, eTempTextDisplayHandle, eCurrentTempDisplayHandle, eTempDispHandle, eTempEditHandle, eTempOffButton;
 
@@ -187,17 +182,8 @@ extern HwndControl eMinimumPictureSlider1, eMaximumPictureSlider1, eMinSliderNum
 			   eMaxSliderNumberEdit2, eMinSliderText2, eMaxSliderText2, eMinimumPictureSlider3, eMaximumPictureSlider3, eMinSliderNumberEdit3, 
 			   eMaxSliderNumberEdit3, eMinSliderText3, eMaxSliderText3, eMinimumPictureSlider4, eMaximumPictureSlider4, eMinSliderNumberEdit4, 
 			   eMaxSliderNumberEdit4, eMinSliderText4, eMaxSliderText4;
-// Displays
-/*
-extern HwndControl ePic1MaxCountDisp, ePic2MaxCountDisp, ePic3MaxCountDisp, ePic4MaxCountDisp, ePic1MinCountDisp, ePic2MinCountDisp, ePic3MinCountDisp, 
-			   ePic4MinCountDisp, ePic1SelectionCountDisp, ePic2SelectionCountDisp, ePic3SelectionCountDisp, ePic4SelectionCountDisp, ePic1Text, ePic2Text, 
-			   ePic3Text, ePic4Text, eSelectionText, ePictureText;
-*/
 // EM Gain Mode
 extern HwndControl eSetEMGain, eEMGainText, eEMGainEdit, eEMGainDisplay, eEMGainForceChangeButton;
-
-// Ring Exposure
-extern HwndControl eExposureTextDisplayHandle, eExposure1EditHandle, eExposure2EditHandle, eExposure3EditHandle, eExposure4EditHandle, eSetExposureButtonHandle, eExposureDispHandle;
 
 // Other win32 Objects
 extern HDC eDrawPallete;
@@ -209,8 +195,10 @@ extern HBRUSH eDarkRedBrush;
 extern HBRUSH eDarkBlueBrush;
 extern HBRUSH eGreyRedBrush;
 extern HBRUSH eWhiteBrush;
+extern HBRUSH eVeryGreyGreenBrush;
 // This is the mutex used to make sure the data queue doesn't get read and wrote to at the same time. 
 extern HANDLE ePlottingMutex;
+extern HANDLE eImagesMutex;
 
 /// Dialog controls
 extern HWND eInitializeDialogBoxHandle;

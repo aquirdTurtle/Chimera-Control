@@ -35,45 +35,13 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 		{
 			DWORD ctrlID = GetDlgCtrlID((HWND)lParam); // Window Control ID
 			HDC hdcStatic = (HDC)wParam;
+			INT_PTR test = ePictureOptionsControl.colorControls(hWnd, msg, wParam, lParam);
+			if (test != 0)
+			{
+				return test;
+			}
 			switch (ctrlID)
 			{
-				case IDC_DETECTION_THRESHOLD_EDIT_HANDLE:
-				{
-					SetTextColor(hdcStatic, RGB(255, 255, 255));
-					TCHAR textEdit[256];
-					SendMessage(eAtomThresholdEditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
-					int num;
-					try
-					{
-						num = std::stoi(std::string(textEdit));
-						if (num == eDetectionThreshold)
-						{
-							// good.
-							SetTextColor(hdcStatic, RGB(255, 255, 255));
-							SetBkColor(hdcStatic, RGB(100, 110, 100));
-							// catch change of color and redraw window.
-							if (eAtomThresholdEditHandle.colorState != 0)
-							{
-								eAtomThresholdEditHandle.colorState = 0;
-								RedrawWindow(eAtomThresholdEditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
-							}
-							return (INT_PTR)eGreyGreenBrush;
-							break;
-						}
-					}
-					catch (std::exception&)
-					{
-						// don't do anything with it.
-					}
-					SetTextColor(hdcStatic, RGB(255, 255, 255));
-					SetBkColor(hdcStatic, RGB(150, 100, 100));
-					if (eAtomThresholdEditHandle.colorState != 1)
-					{
-						eAtomThresholdEditHandle.colorState = 1;
-						RedrawWindow(eAtomThresholdEditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
-					}
-					return (INT_PTR)eGreyRedBrush;
-				}
 				case IDC_PLOTTING_FREQUENCY_EDIT:
 				{
 					SetTextColor(hdcStatic, RGB(255, 255, 255));
@@ -241,162 +209,6 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					return eImageControl.colorEdits(hWnd, msg, wParam, lParam);
 					break;
 				}
-				case IDC_EXPOSURE_3_EDIT:
-				{
-					SetTextColor(hdcStatic, RGB(255, 255, 255));
-					TCHAR textEdit[256];
-					SendMessage(eExposure3EditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
-					int exposure3;
-					try
-					{
-						exposure3 = std::stoi(std::string(textEdit));
-						if (eExposureTimes.size() < 3 && exposure3 < 0 || eExposureTimes.size() >=3 && exposure3 / 1000.0 - eExposureTimes[2] <= 0.001)
-						{
-							// good.
-							SetTextColor(hdcStatic, RGB(255, 255, 255));
-							SetBkColor(hdcStatic, RGB(100, 110, 100));
-							// catch change of color and redraw window.
-							if (eExposure3EditHandle.colorState != 0)
-							{
-								eExposure3EditHandle.colorState = 0;
-								RedrawWindow(eExposure3EditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
-							}
-							return (INT_PTR)eGreyGreenBrush;
-							break;
-						}
-					}
-					catch (std::exception&)
-					{
-						// don't do anything with it.
-					}
-					SetTextColor(hdcStatic, RGB(255, 255, 255));
-					SetBkColor(hdcStatic, RGB(150, 100, 100));
-					// catch change of color and redraw window.
-					if (eExposure3EditHandle.colorState != 1)
-					{
-						eExposure3EditHandle.colorState = 1;
-						RedrawWindow(eExposure3EditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
-					}
-					return (INT_PTR)eGreyRedBrush;
-					break;
-				}
-				case IDC_EXPOSURE_4_EDIT:
-				{
-					SetTextColor(hdcStatic, RGB(255, 255, 255));
-					TCHAR textEdit[256];
-					SendMessage(eExposure4EditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
-					int exposure4;
-					try
-					{
-						exposure4 = std::stoi(std::string(textEdit));
-						if (eExposureTimes.size() < 4 && exposure4 < 0 || eExposureTimes.size() >= 4 && exposure4 / 1000.0 - eExposureTimes[3] <= 0.001)
-						{
-							// good.
-							SetTextColor(hdcStatic, RGB(255, 255, 255));
-							SetBkColor(hdcStatic, RGB(100, 110, 100));
-							// catch change of color and redraw window.
-							if (eExposure4EditHandle.colorState != 0)
-							{
-								eExposure4EditHandle.colorState = 0;
-								RedrawWindow(eExposure4EditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
-							}
-							return (INT_PTR)eGreyGreenBrush;
-							break;
-						}
-					}
-					catch (std::exception&)
-					{
-						// don't do anything with it.
-					}
-					SetTextColor(hdcStatic, RGB(255, 255, 255));
-					SetBkColor(hdcStatic, RGB(150, 100, 100));
-					// catch change of color and redraw window.
-					if (eExposure4EditHandle.colorState != 1)
-					{
-						eExposure4EditHandle.colorState = 1;
-						RedrawWindow(eExposure4EditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
-					}
-					return (INT_PTR)eGreyRedBrush;
-					break;
-				}
-				case IDC_EXPOSURE_2_EDIT:
-				{
-					SetTextColor(hdcStatic, RGB(255, 255, 255));
-					TCHAR textEdit[256];
-					SendMessage(eExposure2EditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
-					int exposure2;
-					try
-					{
-						exposure2 = std::stoi(std::string(textEdit));
-						if (eExposureTimes.size() < 2 && exposure2 < 0 || eExposureTimes.size() >= 2 && exposure2 / 1000.0 - eExposureTimes[1] <= 0.001)
-						{
-							// good.
-							SetTextColor(hdcStatic, RGB(255, 255, 255));
-							SetBkColor(hdcStatic, RGB(100, 110, 100));
-							// catch change of color and redraw window.
-							if (eExposure2EditHandle.colorState != 0)
-							{
-								eExposure2EditHandle.colorState = 0;
-								RedrawWindow(eExposure2EditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
-							}
-							return (INT_PTR)eGreyGreenBrush;
-							break;
-						}
-					}
-					catch (std::exception&)
-					{
-						// don't do anything with it.
-					}
-					SetTextColor(hdcStatic, RGB(255, 255, 255));
-					SetBkColor(hdcStatic, RGB(150, 100, 100));
-					// catch change of color and redraw window.
-					if (eExposure2EditHandle.colorState != 1)
-					{
-						eExposure2EditHandle.colorState = 1;
-						RedrawWindow(eExposure2EditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
-					}
-					return (INT_PTR)eGreyRedBrush;
-					break;
-				}
-				case IDC_EXPOSURE_1_EDIT:
-				{
-					SetTextColor(hdcStatic, RGB(255, 255, 255));
-					TCHAR textEdit[256];
-					SendMessage(eExposure1EditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
-					int exposure1;
-					try
-					{
-						exposure1 = std::stoi(std::string(textEdit));
-						if (eExposureTimes.size() == 0 && exposure1 < 0 || eExposureTimes.size() > 0 && exposure1/1000.0 - eExposureTimes[0] <= 0.001 )
-						{
-							// good.
-							SetTextColor(hdcStatic, RGB(255, 255, 255));
-							SetBkColor(hdcStatic, RGB(100, 110, 100));
-							// catch change of color and redraw window.
-							if (eExposure1EditHandle.colorState != 0)
-							{
-								eExposure1EditHandle.colorState = 0;
-								RedrawWindow(eExposure1EditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
-							}
-							return (INT_PTR)eGreyGreenBrush;
-							break;
-						}
-					}
-					catch (std::exception&)
-					{
-						// don't do anything with it.
-					}
-					SetTextColor(hdcStatic, RGB(255, 255, 255));
-					SetBkColor(hdcStatic, RGB(150, 100, 100));
-					// catch change of color and redraw window.
-					if (eExposure1EditHandle.colorState != 1)
-					{
-						eExposure1EditHandle.colorState = 1;
-						RedrawWindow(eExposure1EditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
-					}
-					return (INT_PTR)eGreyRedBrush;
-					break;
-				}
 				case IDC_VARIATION_EDIT:
 				{
 					SetTextColor(hdcStatic, RGB(255, 255, 255));
@@ -476,45 +288,6 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					return (INT_PTR)eGreyRedBrush;
 					break;
 				}
-				case IDC_PICTURES_PER_REPETITION_EDIT:
-				{
-					SetTextColor(hdcStatic, RGB(255, 255, 255));
-					TCHAR textEdit[256];
-					SendMessage(ePicturesPerRepetitionEdit.hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
-					int pictures;
-					try
-					{
-						pictures = std::stoi(std::string(textEdit));
-						if (pictures == ePicturesPerRepetition)
-						{
-							// good.
-							SetTextColor(hdcStatic, RGB(255, 255, 255));
-							SetBkColor(hdcStatic, RGB(100, 110, 100));
-							// catch the change and redraw the window.
-							if (ePicturesPerRepetitionEdit.colorState != 0)
-							{
-								ePicturesPerRepetitionEdit.colorState = 0;
-								RedrawWindow(ePicturesPerRepetitionEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
-							}
-							return (INT_PTR)eGreyGreenBrush;
-							break;
-						}
-					}					
-					catch (std::exception&)
-					{
-						// don't do anything with it.
-					}
-					SetTextColor(hdcStatic, RGB(255, 255, 255));
-					SetBkColor(hdcStatic, RGB(150, 100, 100));
-					// catch the change and redraw the window.
-					if (ePicturesPerRepetitionEdit.colorState != 1)
-					{
-						ePicturesPerRepetitionEdit.colorState = 1;
-						RedrawWindow(ePicturesPerRepetitionEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
-					}
-					return (INT_PTR)eGreyRedBrush;
-					break;
-				}				
 				case IDC_EM_GAIN_MODE_EDIT:
 				{
 					SetTextColor(hdcStatic, RGB(255, 255, 255));
@@ -742,10 +515,11 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 								HDC hdc;
 								HPEN crossPen;
 								hdc = GetDC(eCameraWindowHandle);
+								std::array<int, 4> colors = ePictureOptionsControl.getPictureColors();
 								for (int imageInc = 0; imageInc < ePicturesPerRepetition; imageInc++)
 								{
 									// pic the color depending on the picture's pallete (e.g. blue to yellow)
-									if (eCurrentPicturePallete[imageInc] == 0 || eCurrentPicturePallete[imageInc] == 2)
+									if (colors[imageInc] == 0 || colors[imageInc] == 2)
 									{
 										crossPen = CreatePen(0, 1, RGB(255, 0, 0));
 									}
@@ -784,7 +558,8 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 								HDC hDC = GetDC(eCameraWindowHandle);
 								SelectObject(hDC, GetStockObject(HOLLOW_BRUSH));
 								SelectObject(hDC, GetStockObject(DC_PEN));
-								if (eCurrentPicturePallete[pictureInc] == 0 || eCurrentPicturePallete[pictureInc] == 2)
+								std::array<int, 4> colors = ePictureOptionsControl.getPictureColors();
+								if (colors[pictureInc] == 0 || colors[pictureInc] == 2)
 								{
 									SetDCPenColor(hDC, RGB(255, 0, 0));
 									Ellipse(hDC, relevantRect.left, relevantRect.top, relevantRect.right, relevantRect.bottom);
@@ -883,6 +658,10 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 		case WM_COMMAND:
 		{
 			if (!eAlerts.handleCheckBoxPress(wParam, lParam))
+			{
+				break;
+			}
+			if (ePictureOptionsControl.handleOptionChange(hWnd, msg, wParam, lParam))
 			{
 				break;
 			}
@@ -1466,12 +1245,6 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					fileManage::reloadCombo(eAllPlotsCombo.hwnd, PLOT_FILES_SAVE_LOCATION, "*.plot", "__NONE__");
 					break;
 				}
-				case ID_PICTURES_CHANGE_PICTURE_COLORS:
-				{
-					int a = DialogBox(eHInst, MAKEINTRESOURCE(IDD_PICTURE_COLOR), 0, (DLGPROC)dialogProcedures::picturePalletesDialogProcedure);
-					int b = GetLastError();
-					break;
-				}
 				case ID_FILE_ABORTREAL:
 				{
 					ePlotThreadExitIndicator = false;
@@ -1498,17 +1271,8 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 						MessageBox(0, "Please finish selecting analysis points!", 0, 0);
 						break;
 					}
-					if (eAutoanalyzeData)
-					{
-						// check that data is being incremented.
-						if (!eIncDataFileNamesOption)
-						{
-							MessageBox(0, "Data Analysis is currently only set up to work with incrementing data file numbers. Sorry.", 0, 0);
-							break;
-						}
-					}
 					// check exposure times
-					if (eExposureTimes.size() == 0)
+					if (ePictureOptionsControl.getUsedExposureTimes().size() == 0)
 					{
 						eCameraWindowExperimentTimer.setColorID(ID_RED);
 						eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
@@ -1614,9 +1378,9 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					dialogMsg = "Starting Parameters:\r\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\r\n";
 					dialogMsg += "Current Camera Temperature Setting: " + std::to_string(eCameraTemperatureSetting) + "\r\n";
 					dialogMsg += "Exposure Times: ";
-					for (int exposureInc = 0; exposureInc < eExposureTimes.size(); exposureInc++)
+					for (int exposureInc = 0; exposureInc < ePictureOptionsControl.getUsedExposureTimes().size(); exposureInc++)
 					{
-						dialogMsg += std::to_string(eExposureTimes[exposureInc] * 1000) + ", ";
+						dialogMsg += std::to_string(ePictureOptionsControl.getUsedExposureTimes()[exposureInc] * 1000) + ", ";
 					}
 					dialogMsg += "\r\n";
 
@@ -1627,9 +1391,12 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					dialogMsg += "Pictures per Experiment: " + std::to_string(ePicturesPerRepetition) + "\r\n";
 					dialogMsg += "Pictures per Stack: " + std::to_string(ePicturesPerVariation) + "\r\n";
 					dialogMsg += "Stack Number: " + std::to_string(eCurrentTotalVariationNumber) + "\r\n";
-					dialogMsg += "Atom Threshold: " + std::to_string(eDetectionThreshold) + "\r\n";
+					dialogMsg += "Real-Time Atom Detection Thresholds: ";
+					for (int exposureInc = 0; exposureInc < ePictureOptionsControl.getThresholds().size(); exposureInc++)
+					{
+						dialogMsg += std::to_string(ePictureOptionsControl.getThresholds()[exposureInc]) + ", ";
+					}
 					dialogMsg += "\r\n";
-					dialogMsg += "Incrementing File Name: " + std::to_string(eIncDataFileNamesOption) + "\r\n";
 					dialogMsg += "Current Plotting Options: \r\n";
 					for (int plotInc = 0; plotInc < eCurrentPlotNames.size(); plotInc++)
 					{
@@ -1742,19 +1509,16 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 							}
 							if (eCurrentlyRunningCameraMode != "Continuous Single Scans Mode")
 							{
-								if (eIncDataFileNamesOption)
+								int answer = MessageBox(0, "Acquisition Aborted. Delete Data (fits_#) and (key_#) files for this run?", 0, MB_YESNO);
+								if (answer == IDYES)
 								{
-									int answer = MessageBox(0, "Acquisition Aborted. Delete Data (fits_#) and (key_#) files for this run?", 0, MB_YESNO);
-									if (answer == IDYES)
+									if (eExperimentData.deleteFitsAndKey(errorMessage))
 									{
-										if (eExperimentData.deleteFitsAndKey(errorMessage))
-										{
-											appendText(errorMessage, IDC_ERROR_EDIT);
-										}
-										else
-										{
-											appendText("Deleted .fits and copied key file for this run.", IDC_STATUS_EDIT);
-										}
+										appendText(errorMessage, IDC_ERROR_EDIT);
+									}
+									else
+									{
+										appendText("Deleted .fits and copied key file for this run.", IDC_STATUS_EDIT);
 									}
 								}
 							}
@@ -1849,115 +1613,6 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					
 					break;
 				}
-				case IDC_SET_EXPOSURE_BUTTON:
-				{
-					// Get the exposure time from the edit.
-					SendMessage(eExposureDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)"");
-					eExposureTimes.resize(4);
-					TCHAR tempExposure[256];
-					std::string tempExposureStr;
-					int exposureCount = 0;
-					bool breakBad = false;
-					while (true)
-					{
-						if (exposureCount >= 4)
-						{
-							// recieved all four exposures.
-							break;
-						}
-						if (exposureCount == 0)
-						{
-							SendMessage(eExposure1EditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)tempExposure);
-						}
-						else if (exposureCount == 1)
-						{
-							SendMessage(eExposure2EditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)tempExposure);
-						}
-						else if (exposureCount == 2)
-						{
-							SendMessage(eExposure3EditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)tempExposure);
-						}
-						else if (exposureCount == 3)
-						{
-							SendMessage(eExposure4EditHandle.hwnd, WM_GETTEXT, 256, (LPARAM)tempExposure);
-						}
-						tempExposureStr = std::string(tempExposure);
-						
-						try
-						{
-							// try to make the text a float (usually works for most input)
-							eExposureTimes[exposureCount] = std::stof(tempExposureStr) / 1000.0f;
-							// check for negative value. Doesn't work first time.
-							if (eExposureTimes[exposureCount] < 0)
-							{
-								if (exposureCount == 0)
-								{
-									MessageBox(0, ("ERROR: Invalid exposure time set for first time: " + std::to_string(eExposureTimes[0])
-										+ ". You must set at least one positive exposure time.").c_str(), 0, 0);
-									eExposureTimes.clear();
-									break;
-								}
-								else
-								{
-									if (eExposureTimes[exposureCount] < 0)
-									{
-										eExposureTimes.resize(exposureCount);
-										break;
-									}
-								}
-							}
-							else
-							{
-								// increment this for the next exposure.
-								exposureCount++;
-							}
-						}
-						catch (std::invalid_argument &exception)
-						{
-							// catch bad input
-							MessageBox(0, "ERROR: Unable to convert exposure text to floating point number.", 0, 0);
-							eExposureTimes.clear();
-							SendMessage(eExposureDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)"");
-							// because I'm in a while loop break doesn't work nicely...
-							return DefWindowProc(hWnd, msg, wParam, lParam);
-						}
-					}
-					// try to set this time.
-					if (myAndor::setExposures() < 0)
-					{
-						appendText("ERROR: failed to set exposure times.", IDC_ERROR_EDIT);
-						SendMessage(eExposureDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)"");
-						break;
-					}
-					// now check actual times.
-					if (myAndor::checkAcquisitionTimings() < 0)
-					{
-						// bad
-						appendText("ERROR: Unable to check acquisition timings.\r\n", IDC_ERROR_EDIT);
-						SendMessage(eExposureDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)"");
-						break;
-					}
-					// now output things.
-					if (eExposureTimes.size() <= 0)
-					{
-						// this shouldn't happend
-						appendText("ERROR: reached bad location where eExposureTimes was of zero size, but this should have been detected earlier in the code.", IDC_ERROR_EDIT);
-					}
-					SendMessage(eExposureDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)"");
-					appendText(std::to_string(eExposureTimes[0] * 1000), IDC_EXPOSURE_DISP);
-					for (int exposureInc = 1; exposureInc < eExposureTimes.size(); exposureInc++)
-					{
-						appendText(" -> " + std::to_string(eExposureTimes[exposureInc] * 1000), IDC_EXPOSURE_DISP);
-					}
-					SendMessage(eKineticCycleTimeDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eKineticCycleTime * 1000).c_str());
-					SendMessage(eAccumulationTimeDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eAccumulationTime * 1000).c_str());
-					eCameraFileSystem.updateSaveStatus(false);
-					RedrawWindow(eExposure1EditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
-					RedrawWindow(eExposure2EditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
-					RedrawWindow(eExposure3EditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
-					RedrawWindow(eExposure4EditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
-					break;
-				}
 				case IDC_SET_IMAGE_PARAMS_BUTTON: 
 				{
 					if (eImageControl.setImageParameters())
@@ -1992,21 +1647,16 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 						appendText("ERROR: Failed to set kinetic cycle time.", IDC_ERROR_EDIT);
 						break;
 					}
-					if (myAndor::checkAcquisitionTimings() < 0)
+					try
 					{
-						appendText("ERROR: Failed to check acquisiton timings.", IDC_ERROR_EDIT);
-						break;
+						ePictureOptionsControl.confirmAcquisitionTimings();
+					}
+					catch (std::runtime_error)
+					{
+						appendText("ERROR: Unable to check acquisition timings.\r\n", IDC_ERROR_EDIT);
+						throw;
 					}
 					// now output things.
-					if (eExposureTimes.size() > 0)
-					{
-						SendMessage(eExposureDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)"");
-						appendText(std::to_string(eExposureTimes[0] * 1000), IDC_EXPOSURE_DISP);
-						for (int exposureInc = 1; exposureInc < eExposureTimes.size(); exposureInc++)
-						{
-							appendText(" -> " + std::to_string(eExposureTimes[exposureInc] * 1000), IDC_EXPOSURE_DISP);
-						}
-					}
 					SendMessage(eKineticCycleTimeDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eKineticCycleTime * 1000).c_str());
 					SendMessage(eAccumulationTimeDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eAccumulationTime * 1000).c_str());
 					// convert to s from ms.
@@ -2044,35 +1694,6 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					RedrawWindow(eRepetitionsPerVariationEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 					break;
 				}
-				case IDC_SET_DETECTION_THRESHOLD_BUTTON: 
-				{	
-					std::string tempStr;
-					GetWindowText(eAtomThresholdEditHandle.hwnd, (LPSTR)tempStr.c_str(), 20);
-					SendMessage(eAtomThresholdDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)tempStr.c_str());
-					tempStr = std::string(tempStr.c_str());
-					bool err = false;
-					for (unsigned int strInc = 0; strInc < tempStr.size(); strInc++) 
-					{
-						if (!isdigit(tempStr[strInc])) 
-						{
-							err = true;
-						}
-					}
-					if (tempStr == "" || err == true) 
-					{
-						break;
-					}
-					int tempInt = std::stoi(tempStr);
-					if (tempInt < 0 || tempInt > 10000) 
-					{
-						appendText("ERROR: attempted to set the detection threshold out of range (0,10000)\r\n", IDC_ERROR_EDIT);
-						break;
-					}
-					eDetectionThreshold = tempInt;
-					eCameraFileSystem.updateSaveStatus(false);
-					RedrawWindow(eAtomThresholdEditHandle.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
-					break;
-				}
 				case IDC_SET_VARIATION_NUMBER: 
 				{
 					std::string tempStr;
@@ -2101,51 +1722,6 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					eTotalNumberOfPicturesInSeries = eCurrentTotalVariationNumber * ePicturesPerVariation;
 					eCameraFileSystem.updateSaveStatus(false);
 					RedrawWindow(eVariationNumberEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
-					break;
-				}
-				case IDC_SET_PICTURES_PER_REPITITION_BUTTON:
-				{
-					std::string tempStr;
-					GetWindowText(ePicturesPerRepetitionEdit.hwnd, (LPSTR)tempStr.c_str(), 20);
-					SendMessage(ePicturesPerRepetitionDisp.hwnd, WM_SETTEXT, 0, (LPARAM)tempStr.c_str());
-					tempStr = std::string(tempStr.c_str());
-					bool err = false;
-					try
-					{
-						int tempInt = std::stoi(tempStr);
-						if (tempInt < 1 || tempInt > 4)
-						{
-							if (tempInt > 4)
-							{
-								int answer = MessageBox(0, "The program can only support imaging 4 images per experiment on the screen at one time. The grouping"
-									" will work in terms of plotting and data analysis, but the images displayed on the screen will just \"wrap\". (e.g. if 5"
-									" pictures per experiment, they will be displayed picture locations {1,2,3,4,1}, {1,2,3,4,1}, etc, where {} denotes 1 experiment).", 0, MB_OKCANCEL);
-								if (answer == IDCANCEL)
-								{
-									break;
-								}
-							}
-							else
-							{
-								appendText("ERROR: Invalid pictures per experiment number.\r\n", IDC_ERROR_EDIT);
-								break;
-							}
-						}
-						ePicturesPerRepetition = tempInt;
-						ePicturesPerVariation = eRepetitionsPerVariation * ePicturesPerRepetition;
-						eTotalNumberOfPicturesInSeries = eCurrentTotalVariationNumber * ePicturesPerVariation;
-					}
-					catch (std::invalid_argument &exception)
-					{
-						MessageBox(0, "ERROR: Number entered could not be converted to integer.", 0, 0);
-					}
-					if (tempStr == "" || err == true) 
-					{
-						break;
-					}
-
-					eCameraFileSystem.updateSaveStatus(false);
-					RedrawWindow(ePicturesPerRepetitionEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 					break;
 				}
 				case IDC_SET_ACCUMULATION_NUMBER_BUTTON:
@@ -2211,20 +1787,14 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 						SendMessage(eAccumulationTimeDisp.hwnd, WM_SETTEXT, 0, (LPARAM)"");
 						break;
 					}
-					if (myAndor::checkAcquisitionTimings() < 0)
+					try
 					{
-						appendText("ERROR: Failed to check acquisiton timings.", IDC_ERROR_EDIT);
-						break;
+						ePictureOptionsControl.confirmAcquisitionTimings();
 					}
-					// now output things.
-					if (eExposureTimes.size() > 0)
+					catch (std::runtime_error)
 					{
-						SendMessage(eExposureDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)"");
-						appendText(std::to_string(eExposureTimes[0] * 1000), IDC_EXPOSURE_DISP);
-						for (int exposureInc = 1; exposureInc < eExposureTimes.size(); exposureInc++)
-						{
-							appendText(" -> " + std::to_string(eExposureTimes[exposureInc] * 1000), IDC_EXPOSURE_DISP);
-						}
+						appendText("ERROR: Unable to check acquisition timings.\r\n", IDC_ERROR_EDIT);
+						throw;
 					}
 					SendMessage(eKineticCycleTimeDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eKineticCycleTime * 1000).c_str());
 					SendMessage(eAccumulationTimeDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eAccumulationTime * 1000).c_str());
@@ -2260,22 +1830,6 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					ePlottingFrequency = tempInt;
 					eCameraFileSystem.updateSaveStatus(false);
 					RedrawWindow(ePlottingFrequencyEdit.hwnd, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
-					break;
-				}
-				case IDC_INCREMENT_FILE_OPTION_BUTTON:
-				{
-					BOOL checked = IsDlgButtonChecked(hWnd, IDC_INCREMENT_FILE_OPTION_BUTTON);
-					if (checked)
-					{
-						CheckDlgButton(hWnd, IDC_INCREMENT_FILE_OPTION_BUTTON, BST_UNCHECKED);
-						eIncDataFileNamesOption = false;
-					}
-					else
-					{
-						CheckDlgButton(hWnd, IDC_INCREMENT_FILE_OPTION_BUTTON, BST_CHECKED);
-						eIncDataFileNamesOption = true;
-					}
-					eCameraFileSystem.updateSaveStatus(false);
 					break;
 				}
 				case IDC_SET_EM_GAIN_MODE:
@@ -2464,7 +2018,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					std::string errorMessage;
 					if (eCurrentlyRunningCameraMode != "Continuous Single Scans Mode")
 					{
-						if (eExperimentData.loadAndMoveKeyFile(errorMessage, eIncDataFileNamesOption))
+						if (eExperimentData.loadAndMoveKeyFile(errorMessage))
 						{
 							appendText(errorMessage, IDC_ERROR_EDIT);
 						}

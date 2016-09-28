@@ -14,6 +14,7 @@
 #include "AlertSystem.h"
 #include "EmbeddedPythonHandler.h"
 #include "PictureStats.h"
+#include "PictureOptions.h"
 
 /// \\\ THINGS THAT THE USER SETS \\\ ///
 ConfigurationFileSystem eCameraFileSystem(CAMERA_CONFIGURATION_FILES_LOCATION);
@@ -25,6 +26,7 @@ CameraImage eImageControl;
 AlertSystem eAlerts(8000);
 EmbeddedPythonHandler Python;
 PictureStats ePicStats;
+PictureOptions ePictureOptionsControl;
 
 bool eSettingAnalysisLocations = false;
 bool eRealTimePictures = false;
@@ -53,7 +55,6 @@ eImageWidth = (eRightImageBorder - eLeftImageBorder + 1) / eHorizontalBinning, e
 int eCameraTemperatureSetting = DEFAULT_CAMERA_TEMPERATURE;
 //
 int eCurrentAccumulationModeTotalAccumulationNumber;
-std::vector<float> eExposureTimes;
 double eKineticCycleTime = 0;
 int eCurrentTotalVariationNumber = 0;
 int ePicturesPerVariation = 1;
@@ -61,8 +62,6 @@ int eTotalNumberOfPicturesInSeries = 0;
 int eNumberOfRunsToAverage = 0;
 //
 bool eIncDataFileNamesOption;
-// number of counts that a pixel has to contain in order to count as an atom.
-int eDetectionThreshold;
 
 int ePicturesPerRepetition = 1;
 bool eSystemIsRunning = false;
@@ -154,13 +153,13 @@ HwndControl eTriggerTextDisplayHandle, eImgLeftSideTextHandle,
 	 eKineticCycleTimeTextHandle, eTotalPictureNumberTextHandle, ePixel1TextDisplay, ePixel2TextDisplay,
 	 eImgLeftSideDispHandle, eImgRightSideDispHandle, eHorizontalBinningDispHandle, eImageBottomSideDispHandle, eImageTopSideDispHandle,
 	 eVerticalBinningDispHandle, ePixelsXLocationsDispHandle, ePixelsYLocationsDispHandle, ePixelXLocationsTextHandle, ePixelYLocationsTextHandle,
-	 eKineticCycleTimeDispHandle, eRepetitionsPerVariationDisp, eAtomThresholdDispHandle, eCurrentAccumulationNumDispHandle, eMinCountDispHandle,
-	 eMaxCountDispHandle, eVariationNumberDisp, ePicturesPerRepetitionDisp;
+	 eKineticCycleTimeDispHandle, eRepetitionsPerVariationDisp, eCurrentAccumulationNumDispHandle, eMinCountDispHandle,
+	 eMaxCountDispHandle, eVariationNumberDisp;
 // User-Edited Edit Handles
 HwndControl eImgLeftSideEditHandle, eImageTopEditHandle, eImgRightSideEditHandle, eImageBottomEditHandle,
 	 eVerticalBinningEditHandle, eHorizontalBinningEditHandle, eKineticCycleTimeEditHandle, eRepetitionsPerVariationEdit, ePixel1XEditHandle,
-	 ePixel2XEditHandle, ePixel1YEditHandle, ePixel2YEditHandle, ePixelsXLocationsEditHandle, ePixelsYLocationsEditHandle, eAtomThresholdEditHandle,
-	 eVariationNumberEdit, ePicturesPerRepetitionEdit;
+	 ePixel2XEditHandle, ePixel1YEditHandle, ePixel2YEditHandle, ePixelsXLocationsEditHandle, ePixelsYLocationsEditHandle, 
+	 eVariationNumberEdit;
 // Temperature Control
 HwndControl eTempTextDisplayHandle, eCurrentTempDisplayHandle, eTempDispHandle, eTempEditHandle, eSetTemperatureButtonHandle, eTempOffButton;
 // Error Status
@@ -171,8 +170,8 @@ HwndControl eStatusEditHandle, eClearStatusButtonHandle, eStatusText;
 HwndControl eIncDataFileOptionBoxHandle;
 // Button Handles
 HwndControl eSetImageParametersButtonHandle, eSetAnalysisPixelsButtonHandle,
-	 eSetKineticSeriesCycleTimeButtonHandle, eSetNumberRepetitionsPerVariationButton, eSetAtomThresholdButtonHandle, ePlotAverageCountsBoxHandle,
-	 eSeVariationNumberButton, eSetPicturesPerRepetitionButtonHandle;
+	 eSetKineticSeriesCycleTimeButtonHandle, eSetNumberRepetitionsPerVariationButton, ePlotAverageCountsBoxHandle,
+	 eSeVariationNumberButton;
 // ComboBox Handles
 HwndControl eTriggerComboHandle, eCameraModeComboHandle;
 // temporary
@@ -188,29 +187,25 @@ HwndControl eMinimumPictureSlider1, eMaximumPictureSlider1, eMinSliderNumberEdit
 		eMaxSliderNumberEdit3, eMinSliderText3, eMaxSliderText3, eMinimumPictureSlider4, eMaximumPictureSlider4, eMinSliderNumberEdit4,
 		eMaxSliderNumberEdit4, eMinSliderText4, eMaxSliderText4;
 
-// pixel counts displays
-/*
-HwndControl ePic1MaxCountDisp, ePic2MaxCountDisp, ePic3MaxCountDisp, ePic4MaxCountDisp, ePic1MinCountDisp, ePic2MinCountDisp, ePic3MinCountDisp,
-		ePic4MinCountDisp, ePic1SelectionCountDisp, ePic2SelectionCountDisp, ePic3SelectionCountDisp, ePic4SelectionCountDisp, ePic1Text, ePic2Text,
-		ePic3Text, ePic4Text, eSelectionText, ePictureText;
-*/
 // EM Gain
 HwndControl eSetEMGain, eEMGainText, eEMGainEdit, eEMGainDisplay, eEMGainForceChangeButton;
 
-// Ring Exposure time controls
-HwndControl eExposureTextDisplayHandle, eExposure1EditHandle, eExposure2EditHandle, eExposure3EditHandle, eExposure4EditHandle, eSetExposureButtonHandle, eExposureDispHandle;
 
 //
 HDC eDrawPallete;
 std::array<HPALETTE, 3> eAppPalette;
 
 HBRUSH eGreyGreenBrush = CreateSolidBrush(RGB(100, 110, 100));
+HBRUSH eVeryGreyGreenBrush = CreateSolidBrush(RGB(180, 220, 180));
 HBRUSH eDarkGreenBrush = CreateSolidBrush(RGB(0, 30, 0));
 HBRUSH eDarkRedBrush = CreateSolidBrush(RGB(100, 0, 0));
 HBRUSH eDarkBlueBrush = CreateSolidBrush(RGB(0, 0, 100));
 HBRUSH eGreyRedBrush = CreateSolidBrush(RGB(150, 100, 100));
 HBRUSH eWhiteBrush = CreateSolidBrush(RGB(255, 255, 255));
+
 HANDLE ePlottingMutex;
+HANDLE eImagesMutex;
+
 HWND eInitializeDialogBoxHandle;
 
 /// Dialog controls

@@ -45,31 +45,21 @@ bool DataFileSystem::deleteFitsAndKey(std::string& errMsg)
 	return returnVal;
 }
 
-bool DataFileSystem::loadAndMoveKeyFile(std::string& errMsg, bool incOption)
+bool DataFileSystem::loadAndMoveKeyFile(std::string& errMsg)
 {
 	int result = 0;
-	if (incOption)
+	result = CopyFile((KEY_FILE_LOCATION + "key.txt").c_str(), (SAVE_BASE_ADDRESS + currentSaveFolder 
+		+ "\\Raw Data\\key_" + std::to_string(currentDataFileNumber) + ".txt").c_str(), FALSE);
+	if (result == 0)
 	{
-		 result = CopyFile((KEY_FILE_LOCATION + "key.txt").c_str(), (SAVE_BASE_ADDRESS + currentSaveFolder 
-			 + "\\Raw Data\\key_" + std::to_string(currentDataFileNumber) + ".txt").c_str(), FALSE);
-		 if (result == 0)
-		 {
-			 // failed
-			 errMsg = "Failed to create copy of key file! Error Code: " + std::to_string(GetLastError()) + "\r\n";
-			 // but continue, no breaking...
-			 return true;
-		 }
+		// failed
+		errMsg = "Failed to create copy of key file! Error Code: " + std::to_string(GetLastError()) + "\r\n";
+		// but continue, no breaking...
+		return true;
 	}
 
 	std::ifstream keyFile;
-	if (incOption)
-	{
-		keyFile.open(SAVE_BASE_ADDRESS + currentSaveFolder + "\\Raw Data\\key_" + std::to_string(currentDataFileNumber) + ".txt");
-	}
-	else
-	{
-		keyFile.open(KEY_FILE_LOCATION + "\\key.txt");
-	}
+	keyFile.open(SAVE_BASE_ADDRESS + currentSaveFolder + "\\Raw Data\\key_" + std::to_string(currentDataFileNumber) + ".txt");
 	if (!keyFile.is_open())
 	{
 		errMsg = "Couldn't open key file!? Does a key file exist???\r\n";
@@ -107,7 +97,7 @@ bool DataFileSystem::forceFitsClosed()
 	return false;
 }
 
-bool DataFileSystem::initializeDataFiles(bool incrementFiles, std::string& errMsg)
+bool DataFileSystem::initializeDataFiles(std::string& errMsg)
 {
 	DataFileSystem::forceFitsClosed();
 	// if the function fails, the fits file will not be open. If it succeeds, this will get set to true.
@@ -151,40 +141,20 @@ bool DataFileSystem::initializeDataFiles(bool incrementFiles, std::string& errMs
 	finalSaveFolder += "\\";
 	/// Get a filename appropriate for the data
 	std::string finalSaveFileName;
-	if (incrementFiles)
+
+	// find the first data file that hasn't been already written, starting with data_1.fits
+	int fileNum = 1;
+	// The while condition here check if file exists. No idea how this actually works.
+	struct stat statBuffer;
+	while ((stat((SAVE_BASE_ADDRESS + finalSaveFolder + "\\data_" + std::to_string(fileNum) + ".fits").c_str(), &statBuffer) == 0))
 	{
-		// find the first data file that hasn't been already written, starting with data_1.fits
-		int fileNum = 1;
-		// The while condition here check if file exists. No idea how this actually works.
-		struct stat statBuffer;
-		while ((stat((SAVE_BASE_ADDRESS + finalSaveFolder + "\\data_" + std::to_string(fileNum) + ".fits").c_str(), &statBuffer) == 0))
-		{
-			fileNum++;
-		}
-		// at this point a valid filename has been found.
-		finalSaveFileName = "data_" + std::to_string(fileNum) + ".fits";
-		// update this, which is used later to move the key file.
-		currentDataFileNumber = fileNum;
-		eAutoAnalysisHandler.updateDataSetNumberEdit(currentDataFileNumber);
+		fileNum++;
 	}
-	else
-	{
-		struct stat statBuffer;
-		finalSaveFileName = "data.fits";
-		// The if statement here check if file exists. No idea how this actually works.
-		if (((stat((SAVE_BASE_ADDRESS + finalSaveFolder + "data.fits").c_str(), &statBuffer) == 0)))
-		{
-			// if it does exist, delete it. The plain "data.fits" file gets overwritten every time. Because of the check at the 
-			// beginning of the function, the fits filesystem should never have control of this file at this point.
-			int success = DeleteFile((SAVE_BASE_ADDRESS + finalSaveFolder + finalSaveFileName).c_str());
-			if (success == false)
-			{
-				MessageBox(0, "Failed to delete fits file! T.T This should never happen.", 0, 0);
-			}
-		}
-		// this sets the text to "none"
-		eAutoAnalysisHandler.updateDataSetNumberEdit(-1);
-	}
+	// at this point a valid filename has been found.
+	finalSaveFileName = "data_" + std::to_string(fileNum) + ".fits";
+	// update this, which is used later to move the key file.
+	currentDataFileNumber = fileNum;
+	eAutoAnalysisHandler.updateDataSetNumberEdit(currentDataFileNumber);
 	/// save the file
 	int fitsStatus = 0;
 	
