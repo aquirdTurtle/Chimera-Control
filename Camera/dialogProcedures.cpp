@@ -602,7 +602,7 @@ namespace dialogProcedures
 								eCurrentPositivePictureNumber = -1;
 								// TODO: update arrays with new size.
 								ePicturesPerRepetition++;
-								SendMessage(ePicturesPerRepetitionDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerRepetition).c_str());
+								ePictureOptionsControl.setPicturesPerExperiment(ePicturesPerRepetition);
 								std::string picturesPerExperimentMsg = "Picture #" + std::to_string(ePicturesPerRepetition);
 								SendMessage(positivePictureNumberCombo, CB_ADDSTRING, 0, (LPARAM)picturesPerExperimentMsg.c_str());
 								SendMessage(GetDlgItem(thisDialogHandle, IDC_PLOT_CREATOR_POST_PICTURE_NUMBER_COMBO), CB_ADDSTRING, 0,
@@ -618,8 +618,8 @@ namespace dialogProcedures
 									break;
 								}
 								ePicturesPerRepetition--;
+								ePictureOptionsControl.setPicturesPerExperiment(ePicturesPerRepetition);
 								int numberOfItems = SendMessage(positivePictureNumberCombo, CB_GETCOUNT, 0, 0);
-								SendMessage(ePicturesPerRepetitionDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerRepetition).c_str());
 								SendMessage(positivePictureNumberCombo, CB_DELETESTRING, numberOfItems - 2, 0);
 								SendMessage(GetDlgItem(thisDialogHandle, IDC_PLOT_CREATOR_POST_PICTURE_NUMBER_COMBO), CB_DELETESTRING, numberOfItems - 2, 0);
 								eCurrentPlottingInfo.removePicture();
@@ -834,7 +834,7 @@ namespace dialogProcedures
 							{
 								eCurrentPostSelectionPictureNumber = -1;
 								ePicturesPerRepetition++;
-								SendMessage(ePicturesPerRepetitionDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerRepetition).c_str());
+								ePictureOptionsControl.setPicturesPerExperiment(ePicturesPerRepetition);
 								std::string picturesPerExperimentMsg = "Picture #" + std::to_string(ePicturesPerRepetition);
 								SendMessage(postSelectionPictureNumberCombo, CB_ADDSTRING, 0, (LPARAM)picturesPerExperimentMsg.c_str());
 								SendMessage(GetDlgItem(thisDialogHandle, IDC_PLOT_CREATOR_POSITIVE_PICTURE_NUMBER_COMBO), CB_ADDSTRING, 0,
@@ -852,7 +852,7 @@ namespace dialogProcedures
 
 								ePicturesPerRepetition--;
 								int numberOfItems = SendMessage(postSelectionPictureNumberCombo, CB_GETCOUNT, 0, 0);
-								SendMessage(ePicturesPerRepetitionDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerRepetition).c_str());
+								ePictureOptionsControl.setPicturesPerExperiment(ePicturesPerRepetition);
 								SendMessage(postSelectionPictureNumberCombo, CB_DELETESTRING, numberOfItems - 2, 0);
 								SendMessage(GetDlgItem(thisDialogHandle, IDC_PLOT_CREATOR_POSITIVE_PICTURE_NUMBER_COMBO), CB_DELETESTRING, numberOfItems - 2, 0);
 								eCurrentPlottingInfo.removePicture();
@@ -1189,147 +1189,6 @@ namespace dialogProcedures
 							eCurrentPlottingInfo.setPlotData(eCurrentDataSetSelectionNumber, true);
 						}
 						break;
-					}
-				}
-			}
-		}
-		return FALSE;
-	}
-
-	LRESULT CALLBACK picturePalletesDialogProcedure(HWND thisDialogHandle, UINT message, WPARAM wParam, LPARAM lParam)
-	{
-		switch (message)
-		{
-			case WM_INITDIALOG:
-			{
-
-				if (eCurrentPicturePallete[0] == 0)
-				{
-					CheckDlgButton(thisDialogHandle, IDC_BLUE_YELLOW_RADIO_1, BST_CHECKED);
-				}
-				else if (eCurrentPicturePallete[0] == 1)
-				{
-					CheckDlgButton(thisDialogHandle, IDC_BLUE_RED_RADIO_PICTURE_1, BST_CHECKED);
-				}
-				else if (eCurrentPicturePallete[0] == 2)
-				{
-					CheckDlgButton(thisDialogHandle, IDC_BLACK_TO_WHITE_RADIO_1, BST_CHECKED);
-				}
-
-				if (eCurrentPicturePallete[1] == 0)
-				{
-					CheckDlgButton(thisDialogHandle, IDC_BLUE_YELLOW_RADIO_2, BST_CHECKED);
-				}
-				else if (eCurrentPicturePallete[1] == 1)
-				{
-					CheckDlgButton(thisDialogHandle, IDC_BLUE_RED_RADIO_PICTURE_2, BST_CHECKED);
-				}
-				else if (eCurrentPicturePallete[1] == 2)
-				{
-					CheckDlgButton(thisDialogHandle, IDC_BLACK_TO_WHITE_RADIO_2, BST_CHECKED);
-				}
-
-
-				if (eCurrentPicturePallete[2] == 0)
-				{
-					CheckDlgButton(thisDialogHandle, IDC_BLUE_YELLOW_RADIO_3, BST_CHECKED);
-				}
-				else if (eCurrentPicturePallete[2] == 1)
-				{
-					CheckDlgButton(thisDialogHandle, IDC_BLUE_RED_RADIO_PICTURE_3, BST_CHECKED);
-				}
-				else if (eCurrentPicturePallete[2] == 2)
-				{
-					CheckDlgButton(thisDialogHandle, IDC_BLACK_TO_WHITE_RADIO_3, BST_CHECKED);
-				}
-
-				if (eCurrentPicturePallete[3] == 0)
-				{
-					CheckDlgButton(thisDialogHandle, IDC_BLUE_YELLOW_RADIO_4, BST_CHECKED);
-				}
-				else if (eCurrentPicturePallete[3] == 1)
-				{
-					CheckDlgButton(thisDialogHandle, IDC_BLUE_RED_RADIO_PICTURE_4, BST_CHECKED);
-				}
-				else if (eCurrentPicturePallete[3] == 2)
-				{
-					CheckDlgButton(thisDialogHandle, IDC_BLACK_TO_WHITE_RADIO_4, BST_CHECKED);
-				}
-
-				break;
-			}
-			case WM_CLOSE:
-			case WM_DESTROY:
-			{
-				DestroyWindow(thisDialogHandle);
-				break;
-			}
-			case WM_COMMAND:
-			{
-				switch (LOWORD(wParam))
-				{
-					case IDC_OK:
-					{
-						// load options
-						if (IsDlgButtonChecked(thisDialogHandle, IDC_BLUE_YELLOW_RADIO_1))
-						{
-							eCurrentPicturePallete[0] = 0;
-						}
-						else if (IsDlgButtonChecked(thisDialogHandle, IDC_BLUE_RED_RADIO_PICTURE_1))
-						{
-							eCurrentPicturePallete[0] = 1;
-						}
-						else if (IsDlgButtonChecked(thisDialogHandle, IDC_BLACK_TO_WHITE_RADIO_1))
-						{
-							eCurrentPicturePallete[0] = 2;
-						}
-						// 
-						if (IsDlgButtonChecked(thisDialogHandle, IDC_BLUE_YELLOW_RADIO_2))
-						{
-							eCurrentPicturePallete[1] = 0;
-						}
-						else if (IsDlgButtonChecked(thisDialogHandle, IDC_BLUE_RED_RADIO_PICTURE_2))
-						{
-							eCurrentPicturePallete[1] = 1;
-						}
-						else if (IsDlgButtonChecked(thisDialogHandle, IDC_BLACK_TO_WHITE_RADIO_2))
-						{
-							eCurrentPicturePallete[1] = 2;
-						}
-						// 
-						if (IsDlgButtonChecked(thisDialogHandle, IDC_BLUE_YELLOW_RADIO_3))
-						{
-							eCurrentPicturePallete[2] = 0;
-						}
-						else if (IsDlgButtonChecked(thisDialogHandle, IDC_BLUE_RED_RADIO_PICTURE_3))
-						{
-							eCurrentPicturePallete[2] = 1;
-						}
-						else if (IsDlgButtonChecked(thisDialogHandle, IDC_BLACK_TO_WHITE_RADIO_3))
-						{
-							eCurrentPicturePallete[2] = 2;
-						}
-						// 
-						if (IsDlgButtonChecked(thisDialogHandle, IDC_BLUE_YELLOW_RADIO_4))
-						{
-							eCurrentPicturePallete[3] = 0;
-						}
-						else if (IsDlgButtonChecked(thisDialogHandle, IDC_BLUE_RED_RADIO_PICTURE_4))
-						{
-							eCurrentPicturePallete[3] = 1;
-						}
-						else if (IsDlgButtonChecked(thisDialogHandle, IDC_BLACK_TO_WHITE_RADIO_4))
-						{
-							eCurrentPicturePallete[3] = 2;
-						}
-						// 
-						EndDialog(thisDialogHandle, 0);
-						return TRUE;
-					}
-					case IDC_CANCEL:
-					{
-						EndDialog(thisDialogHandle, 0);
-						return TRUE;
 					}
 				}
 			}

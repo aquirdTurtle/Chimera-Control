@@ -34,74 +34,62 @@ int ConfigurationFileSystem::openConfiguration(std::string configurationNameToOp
 	/// ...................................................
 	/// load all the things.
 	/// '''''''''''''''''''''''''''''''''''''''''''''''''''
-
-	/// Exposure Times
+	// first thing may or may not be a version number.
+	std::string test;
+	configurationOpenFile >> test;
+	std::string version;
 	int numberOfExposureTimes;
-	configurationOpenFile >> numberOfExposureTimes;
-	if (numberOfExposureTimes < 1)
+	if (test == "v1.1")
 	{
-		eExposureTimes.resize(0);
+		version = test;
+		configurationOpenFile >> numberOfExposureTimes;
 	}
 	else
 	{
-		eExposureTimes.resize(numberOfExposureTimes);
+		numberOfExposureTimes = std::stoi(test);
 	}
-	for (int exposureInc = 0; exposureInc < eExposureTimes.size(); exposureInc++)
+
+	/// Exposure Times
+	std::vector<float> times;
+	if (numberOfExposureTimes < 1)
 	{
-		configurationOpenFile >> eExposureTimes[exposureInc];
+		times.resize(0);
 	}
+	else
+	{
+		times.resize(numberOfExposureTimes);
+	}
+	for (int exposureInc = 0; exposureInc < times.size(); exposureInc++)
+	{
+		configurationOpenFile >> times[exposureInc];
+	}
+
 	// try to set this time.
-	if (myAndor::setExposures() < 0)
+	try
+	{
+		ePictureOptionsControl.setExposureTimes(times);
+	}
+	catch (std::runtime_error)
 	{
 		appendText("ERROR: failed to set exposure times.", IDC_ERROR_EDIT);
-		SendMessage(eExposureDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)"");
 		return -1;
 	}
 	// now check actual times.
-	if (myAndor::checkAcquisitionTimings() < 0)
+	try
 	{
-		// bad
+		ePictureOptionsControl.confirmAcquisitionTimings();
+	}
+	catch (std::runtime_error)
+	{
 		appendText("ERROR: Unable to check acquisition timings.\r\n", IDC_ERROR_EDIT);
-		SendMessage(eExposureDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)"");
-		return -1;
+		throw;
 	}
 	// now output things.
-	if (eExposureTimes.size() <= 0)
+	if (ePictureOptionsControl.getUsedExposureTimes().size() <= 0)
 	{
 		// this shouldn't happend
 		appendText("ERROR: reached bad location where eExposureTimes was of zero size, but this should have been detected earlier in the code.", IDC_ERROR_EDIT);
 		return -1;
-	}
-	SendMessage(eExposureDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)"");
-	appendText(std::to_string(eExposureTimes[0] * 1000), IDC_EXPOSURE_DISP);
-	SendMessage(eExposure1EditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eExposureTimes[0] * 1000).c_str());
-	for (int exposureInc = 1; exposureInc < eExposureTimes.size(); exposureInc++)
-	{
-		appendText(" -> " + std::to_string(eExposureTimes[exposureInc] * 1000), IDC_EXPOSURE_DISP);
-	}
-	if (eExposureTimes.size() > 1)
-	{
-		SendMessage(eExposure2EditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eExposureTimes[1] * 1000).c_str());
-	}
-	else
-	{
-		SendMessage(eExposure2EditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)"-1");
-	}
-	if (eExposureTimes.size() > 2)
-	{
-		SendMessage(eExposure3EditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eExposureTimes[2] * 1000).c_str());
-	}
-	else
-	{
-		SendMessage(eExposure3EditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)"-1");
-	}
-	if (eExposureTimes.size() > 3)
-	{
-		SendMessage(eExposure4EditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eExposureTimes[3] * 1000).c_str());
-	}
-	else
-	{
-		SendMessage(eExposure4EditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)"-1");
 	}
 	/// 
 	SendMessage(eKineticCycleTimeDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eKineticCycleTime * 1000).c_str());
@@ -134,9 +122,9 @@ int ConfigurationFileSystem::openConfiguration(std::string configurationNameToOp
 		SendMessage(eEMGainEdit.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(eEMGainLevel)).c_str());
 	}
 	myAndor::setGainMode();
+
 	configurationOpenFile >> ePicturesPerRepetition;
-	SendMessage(ePicturesPerRepetitionDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerRepetition).c_str());
-	SendMessage(ePicturesPerRepetitionEdit.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerRepetition).c_str());
+	ePictureOptionsControl.setPicturesPerExperiment(ePicturesPerRepetition);
 	configurationOpenFile >> eRepetitionsPerVariation;
 	ePicturesPerVariation = ePicturesPerRepetition * eRepetitionsPerVariation;
 	SendMessage(eRepetitionsPerVariationDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eRepetitionsPerVariation).c_str());
@@ -158,7 +146,7 @@ int ConfigurationFileSystem::openConfiguration(std::string configurationNameToOp
 			ePreviousPicturesPerSubSeries = ePicturesPerVariation;
 		}
 		ePicturesPerVariation = INT_MAX;
-		SendMessage(ePicturesPerRepetitionDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerVariation).c_str());
+		//SendMessage(.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerVariation).c_str());
 	}
 	else if (eCurrentlySelectedCameraMode == "Kinetic Series Mode")
 	{
@@ -172,7 +160,7 @@ int ConfigurationFileSystem::openConfiguration(std::string configurationNameToOp
 			ePreviousPicturesPerSubSeries = ePicturesPerVariation;
 		}
 		ePicturesPerVariation = INT_MAX;
-		SendMessage(ePicturesPerRepetitionDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerVariation).c_str());
+		//SendMessage(ePicturesPerRepetitionDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerVariation).c_str());
 	}
 	configurationOpenFile >> eKineticCycleTime;
 	SendMessage(eKineticCycleTimeDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eKineticCycleTime * 1000).c_str());
@@ -183,21 +171,32 @@ int ConfigurationFileSystem::openConfiguration(std::string configurationNameToOp
 	configurationOpenFile >> eCurrentAccumulationModeTotalAccumulationNumber;
 	SendMessage(eSetAccumulationNumberDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eCurrentAccumulationModeTotalAccumulationNumber * 1000).c_str());
 	SendMessage(eAccumulationNumberEdit.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eCurrentAccumulationModeTotalAccumulationNumber * 1000).c_str());
-	configurationOpenFile >> eIncDataFileNamesOption;
-	if (eIncDataFileNamesOption)
+	if (version == "")
 	{
-		CheckDlgButton(eCameraWindowHandle, IDC_INCREMENT_FILE_OPTION_BUTTON, MF_CHECKED);
-	}
-	else
-	{
-		CheckDlgButton(eCameraWindowHandle, IDC_INCREMENT_FILE_OPTION_BUTTON, MF_UNCHECKED);
+		std::string trash;
+		configurationOpenFile >> trash;
 	}
 	configurationOpenFile >> ePlottingFrequency;
 	SendMessage(ePlottingFrequencyDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePlottingFrequency).c_str());
 	SendMessage(ePlottingFrequencyEdit.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePlottingFrequency).c_str());
-	configurationOpenFile >> eDetectionThreshold;
-	SendMessage(eAtomThresholdDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eDetectionThreshold).c_str());
-	SendMessage(eAtomThresholdEditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eDetectionThreshold).c_str());
+	std::array<int, 4> thresholds;
+	if (version == "v1.1")
+	{
+		configurationOpenFile >> thresholds[0];
+		configurationOpenFile >> thresholds[1];
+		configurationOpenFile >> thresholds[2];
+		configurationOpenFile >> thresholds[3];
+
+	}
+	else
+	{
+		// there was only one threshold in the original version.
+		int threshold;
+		configurationOpenFile >> threshold;
+		thresholds[3] = thresholds[2] = thresholds[1] = thresholds[0] = threshold;
+	}
+	ePictureOptionsControl.setThresholds(thresholds);
+
 	int temperature;
 	configurationOpenFile >> temperature;
 	SendMessage(eTempEditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(temperature).c_str());
@@ -264,12 +263,14 @@ int ConfigurationFileSystem::saveConfiguration(bool isFromSaveAs)
 		return 0;
 	}
 	/// Start Outputting information
+	// version
+	configurationSaveFile << "v1.1\n";
 	// # of exposure times
-	configurationSaveFile << std::to_string(eExposureTimes.size()) + "\n";
+	configurationSaveFile << std::to_string(ePictureOptionsControl.getUsedExposureTimes().size()) + "\n";
 	// each expousure time
-	for (int exposureTimesInc = 0; exposureTimesInc < eExposureTimes.size(); exposureTimesInc++)
+	for (int exposureTimesInc = 0; exposureTimesInc < ePictureOptionsControl.getUsedExposureTimes().size(); exposureTimesInc++)
 	{
-		configurationSaveFile << std::to_string(eExposureTimes[exposureTimesInc]) + "\n";
+		configurationSaveFile << std::to_string(ePictureOptionsControl.getUsedExposureTimes()[exposureTimesInc]) + "\n";
 	}
 	configurationSaveFile << eCurrentTriggerMode + "\n";
 	imageParameters tempParam = eImageControl.getImageParameters();
@@ -297,12 +298,13 @@ int ConfigurationFileSystem::saveConfiguration(bool isFromSaveAs)
 	configurationSaveFile << std::to_string(eAccumulationTime) + "\n";
 	// accumulation #
 	configurationSaveFile << std::to_string(eCurrentAccumulationModeTotalAccumulationNumber) + "\n";
-	// data File increment option
-	configurationSaveFile << std::to_string(eIncDataFileNamesOption) + "\n";
 	// plotting frequency
 	configurationSaveFile << std::to_string(ePlottingFrequency) + "\n";
 	// atom threshold
-	configurationSaveFile << std::to_string(eDetectionThreshold) + "\n";
+	for (int thresholdInc = 0; thresholdInc < ePictureOptionsControl.getThresholds().size(); thresholdInc++)
+	{
+		configurationSaveFile << std::to_string(ePictureOptionsControl.getThresholds()[thresholdInc]) + "\n";
+	}
 	// temperature
 	configurationSaveFile << std::to_string(eCameraTemperatureSetting) + "\n";
 	// slider positions

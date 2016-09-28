@@ -114,9 +114,6 @@
     <ClInclude Include="fileManage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="arbitraryPlottingThreadProcedure.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ExperimentTimer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -148,6 +145,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="doubleToString.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PictureOptions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="plotterProcedure.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -209,9 +212,6 @@
     <ClCompile Include="fileManage.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="arbitraryPlottingThreadProcedure.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
     <ClCompile Include="ExperimentTimer.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
@@ -246,6 +246,12 @@
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="doubleToString.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PictureOptions.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="plotterProcedure.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
   </ItemGroup>

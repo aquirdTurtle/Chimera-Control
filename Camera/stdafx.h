@@ -15,12 +15,13 @@
 #include <tchar.h>
 #include <string>
 #include <vector>
-// my headers
+// my headers that I want everywhere.
 #include "Resource.h"
 #include "externals.h"
 #include "constants.h"
 #include "errBox.h"
 #include "doubleToString.h"
+#include "appendText.h"
 
 // shows error message if it exists. Could be function but for consistency with other ERR_X Macros...
 #define ERR_POP(string) {if (string != ""){errBox(string);}}

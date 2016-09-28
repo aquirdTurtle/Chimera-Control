@@ -140,7 +140,7 @@ bool EmbeddedPythonHandler::runDataAnalysis(std::string date, long runNumber, lo
 	// def analyzeSingleLocation(date, runNumber, atomLocationRow, atomLocationColumn, picturesPerExperiment, accumulations, fileName) :
 	// hard-coded for now to 2. (might change or remove later...)
 	// pythonFunctionArguments, pythonPicturesPerExperiment
-	PyObject* pythonPicturesPerExperiment = PyLong_FromLong(2);
+	PyObject* pythonPicturesPerExperiment = PyLong_FromLong(ePicturesPerRepetition);
 	if (pythonPicturesPerExperiment == NULL)
 	{
 		Py_DECREF(pythonFunctionArguments);

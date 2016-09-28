@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "arbitraryPlottingThreadProcedure.h"
+#include "plotterProcedure.h"
 #include "Windows.h"
 #include <string>
 #include <vector>
@@ -9,7 +9,7 @@
 #include "externals.h"
 
 
-unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
+unsigned __stdcall plotterProcedure(LPVOID inputParam)
 {
 	imageParameters currentParameters = eImageControl.getImageParameters();
 	// Register any windows messages for the main window
@@ -197,7 +197,7 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 					eImageVecQueue[0].at(secondIndex);
 					pixelData[pixelInc].push_back(eImageVecQueue[0][secondIndex]);
 				}
-				catch (std::out_of_range outOfRange)
+				catch (std::out_of_range& outOfRange)
 				{
 					// try again. 
 					pixelInc--;
@@ -207,9 +207,13 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 		
 			/// get all the atom data
 			bool isAtLeastOneAtom = false;
+			// figure out what the threshold for current picture is.
+			int experimentNumber = ((eCurrentThreadAccumulationNumber - 1) % ePicturesPerVariation)
+									% ePicturesPerRepetition;
+			int threshold = ePictureOptionsControl.getThresholds()[experimentNumber];
 			for (unsigned int pixelInc = 0; pixelInc < pixelDataType.size(); pixelInc++)
 			{
-				if (pixelData[pixelInc].back() > eDetectionThreshold)
+				if (pixelData[pixelInc].back() > threshold)
 				{
 					// atom detected
 					isAtLeastOneAtom = true;
@@ -254,7 +258,7 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 						}
 						// increment the thread's accumulation Number.
 						eCurrentThreadAccumulationNumber++;
-						eCount2++;
+						//eCount2++;
 						break;
 					}
 					case WAIT_ABANDONED:
@@ -488,7 +492,7 @@ unsigned __stdcall arbitraryPlottingThreadProcedure(LPVOID inputParam)
 						{
 							plotString = "set autoscale y\n";
 							ePlotter << plotString.c_str();
-						}
+						} 
 						plotString = "set title \"" + allPlottingInfo[plotInc].getTitle() + "\"\n";
 						ePlotter << plotString.c_str();
 						plotString = "set xlabel \"Key Value\"\n";

@@ -3,7 +3,7 @@
 #include "appendText.h"
 #include "plotThread.h"
 #include <process.h>
-#include "arbitraryPlottingThreadProcedure.h"
+#include "plotterProcedure.h"
 #include <algorithm>
 #include <numeric>
 
@@ -64,7 +64,7 @@ namespace myAndor
 		{
 			return -1;
 		}
-		if (myAndor::setExposures() != 0)
+		if (myAndor::setExposures(ePictureOptionsControl.getUsedExposureTimes()) != 0)
 		{
 			return -1;
 		}
@@ -109,10 +109,17 @@ namespace myAndor
 				return -1;
 			}
 		}
-		if (myAndor::checkAcquisitionTimings() != 0)
+
+		try
 		{
-			return -1;
+			ePictureOptionsControl.confirmAcquisitionTimings();
 		}
+		catch (std::runtime_error)
+		{
+			appendText("ERROR: Unable to check acquisition timings.\r\n", IDC_ERROR_EDIT);
+			throw;
+		}
+
 		if (myAndor::setGainMode() != 0)
 		{
 			return -1;
@@ -139,7 +146,7 @@ namespace myAndor
 		std::string errMsg;
 		if (eCurrentlyRunningCameraMode != "Continuous Single Scans Mode")
 		{
-			if (eExperimentData.initializeDataFiles(eIncDataFileNamesOption, errMsg))
+			if (eExperimentData.initializeDataFiles(errMsg))
 			{
 				appendText(errMsg, IDC_ERROR_EDIT);
 				return -1;
@@ -165,7 +172,7 @@ namespace myAndor
 		// clear this before starting the thread.
 		eImageVecQueue.clear();
 		// start the plotting thread.
-		ePlottingThreadHandle = (HANDLE)_beginthreadex(0, 0, arbitraryPlottingThreadProcedure, argPlotNames, 0,
+		ePlottingThreadHandle = (HANDLE)_beginthreadex(0, 0, plotterProcedure, argPlotNames, 0,
 													   plottingThreadID);
 		// color pictures, clearing last run.
 		HDC hDC = GetDC(eCameraWindowHandle);
@@ -240,6 +247,7 @@ namespace myAndor
 		}
 		if (experimentPictureNumber == 0)
 		{
+			WaitForSingleObject(eImagesMutex, INFINITE);
 			eImagesOfExperiment.clear();
 			if (eRealTimePictures)
 			{
@@ -249,20 +257,25 @@ namespace myAndor
 			{
 				eImagesOfExperiment.resize(ePicturesPerRepetition);
 			}
+			ReleaseMutex(eImagesMutex);
 		}
 		imageParameters tempParam = eImageControl.getImageParameters();
 		size = tempParam.width * tempParam.height;
 		std::vector<long> tempImage;
 		tempImage.resize(size);
+		WaitForSingleObject(eImagesMutex, INFINITE);
 		eImagesOfExperiment[experimentPictureNumber].resize(size);
+		ReleaseMutex(eImagesMutex);
 		if (!ANDOR_SAFEMODE)
 		{
 			errMsg = myAndor::andorErrorChecker(GetOldestImage(&tempImage[0], tempImage.size()));
 			// immediately rotate
+			WaitForSingleObject(eImagesMutex, INFINITE);
 			for (int imageVecInc = 0; imageVecInc < eImagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 			{
 				eImagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc % tempParam.width) + 1) * tempParam.height - imageVecInc / tempParam.width - 1];
 			}
+			ReleaseMutex(eImagesMutex);
 		}
 		else
 		{
@@ -286,10 +299,14 @@ namespace myAndor
 					}
 				}
 			}
+			WaitForSingleObject(eImagesMutex, INFINITE);
 			for (int imageVecInc = 0; imageVecInc < eImagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 			{
-				eImagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc % tempParam.width) + 1) * tempParam.height - imageVecInc / tempParam.width - 1];
+				eImagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc % tempParam.width) 
+					+ 1) * tempParam.height - imageVecInc / tempParam.width - 1];
 			}
+			ReleaseMutex(eImagesMutex);
+
 		}
 		if (errMsg != "DRV_SUCCESS")
 		{
@@ -303,17 +320,16 @@ namespace myAndor
 		long minValue = 65536;
 		if (eImagesOfExperiment[experimentPictureNumber].size() != 0)
 		{
-			//HDC hdc = GetDC(eCameraWindowHandle);
 			// Find max value and scale data to fill rect
-			for (int i = 0; i<(tempParam.width*tempParam.height); i++)
+			for (int pixelInc = 0; pixelInc < tempParam.width * tempParam.height; pixelInc++)
 			{
-				if (eImagesOfExperiment[experimentPictureNumber][i] > maxValue)
+				if (eImagesOfExperiment[experimentPictureNumber][pixelInc] > maxValue)
 				{
-					maxValue = eImagesOfExperiment[experimentPictureNumber][i];
+					maxValue = eImagesOfExperiment[experimentPictureNumber][pixelInc];
 				}
-				if (eImagesOfExperiment[experimentPictureNumber][i] < minValue)
+				if (eImagesOfExperiment[experimentPictureNumber][pixelInc] < minValue)
 				{
-					minValue = eImagesOfExperiment[experimentPictureNumber][i];
+					minValue = eImagesOfExperiment[experimentPictureNumber][pixelInc];
 				}
 			}
 			if (maxValue == minValue)
@@ -406,6 +422,7 @@ namespace myAndor
 	{
 		if (eImagesOfExperiment.size() != 0)
 		{
+
 			imageParameters tempParam = eImageControl.getImageParameters();
 			for (int experimentImagesInc = 0; experimentImagesInc < eImagesOfExperiment.size(); experimentImagesInc++)
 			{
@@ -415,13 +432,24 @@ namespace myAndor
 				// for all pixels... find the max and min of the picture.
 				for (int pixelInc = 0; pixelInc < (tempParam.width * tempParam.height); pixelInc++)
 				{
-					if (eImagesOfExperiment[experimentImagesInc][pixelInc] > maxValue)
+					try
 					{
-						maxValue = eImagesOfExperiment[experimentImagesInc][pixelInc];
+						if (eImagesOfExperiment[experimentImagesInc][pixelInc] > maxValue)
+						{
+							maxValue = eImagesOfExperiment[experimentImagesInc][pixelInc];
+						}
+						if (eImagesOfExperiment[experimentImagesInc][pixelInc] < minValue)
+						{
+							minValue = eImagesOfExperiment[experimentImagesInc][pixelInc];
+						}
 					}
-					if (eImagesOfExperiment[experimentImagesInc][pixelInc] < minValue)
+					catch (std::out_of_range)
 					{
-						minValue = eImagesOfExperiment[experimentImagesInc][pixelInc];
+						errBox("ERROR: caught std::out_of_range in myAndor::drawDataWindow! experimentImagesInc = " + std::to_string(experimentImagesInc)
+							+ ", pixelInc = " + std::to_string(pixelInc) + ", eImagesOfExperiment.size() = " + std::to_string(eImagesOfExperiment.size())
+							+ ", eImagesOfExperiment[experimentImagesInc].size() = " + std::to_string(eImagesOfExperiment[experimentImagesInc].size())
+							+ ". Attempting to continue...");
+						return;
 					}
 				}
 				avgValue = std::accumulate(eImagesOfExperiment[experimentImagesInc].begin(), 
@@ -452,12 +480,14 @@ namespace myAndor
 					imageLocation = experimentImagesInc % 4;
 				}
 				// Rotated
-				int selectedPixelCount = eImagesOfExperiment[experimentImagesInc][eCurrentlySelectedPixel.first + eCurrentlySelectedPixel.second * tempParam.width];
+				int selectedPixelCount = eImagesOfExperiment[experimentImagesInc][eCurrentlySelectedPixel.first 
+																				  + eCurrentlySelectedPixel.second * tempParam.width];
 
 				ePicStats.update(selectedPixelCount, maxValue, minValue, avgValue, imageLocation);
 
 				hDC = GetDC(eCameraWindowHandle);
-				SelectPalette(hDC, eAppPalette[eCurrentPicturePallete[imageLocation]], TRUE);
+				std::array<int, 4> colors = ePictureOptionsControl.getPictureColors();
+				SelectPalette(hDC, eAppPalette[colors[imageLocation]], TRUE);
 				RealizePalette(hDC);
 				pixelsAreaWidth = eImageDrawAreas[imageLocation].right - eImageDrawAreas[imageLocation].left + 1;
 				pixelsAreaHeight = eImageDrawAreas[imageLocation].bottom - eImageDrawAreas[imageLocation].top + 1;
@@ -592,7 +622,7 @@ namespace myAndor
 					HDC hdc;
 					HPEN crossPen;
 					hdc = GetDC(eCameraWindowHandle);
-					if (eCurrentPicturePallete[imageLocation] == 0 || eCurrentPicturePallete[imageLocation] == 2)
+					if (colors[imageLocation] == 0 || colors[imageLocation] == 2)
 					{
 						crossPen = CreatePen(0, 1, RGB(255, 0, 0));
 					}
@@ -622,7 +652,7 @@ namespace myAndor
 				halfRect.bottom = relevantRect.top + 9.0 * (relevantRect.bottom - relevantRect.top) / 16.0;
 				HGDIOBJ originalBrush = SelectObject(hDC, GetStockObject(HOLLOW_BRUSH));
 				HGDIOBJ originalPen = SelectObject(hDC, GetStockObject(DC_PEN));
-				if (eCurrentPicturePallete[imageLocation] == 0 || eCurrentPicturePallete[imageLocation] == 2)
+				if (colors[imageLocation] == 0 || colors[imageLocation] == 2)
 				{
 					SetDCPenColor(hDC, RGB(255, 0, 0));
 					Ellipse(hDC, relevantRect.left, relevantRect.top, relevantRect.right, relevantRect.bottom);
@@ -738,18 +768,20 @@ namespace myAndor
 		}
 		return 0;
 	}
-	int setExposures(void)
+	
+	
+	int setExposures(std::vector<float> exposuresToSet)
 	{
 		std::string errMsg;
 		if (!ANDOR_SAFEMODE)
 		{
-			if (eExposureTimes.size() > 0 && eExposureTimes.size() <= 16)
+			if (exposuresToSet.size() > 0 && exposuresToSet.size() <= 16)
 			{
-				errMsg = myAndor::andorErrorChecker(SetRingExposureTimes(eExposureTimes.size(), eExposureTimes.data()));
+				errMsg = myAndor::andorErrorChecker(SetRingExposureTimes(exposuresToSet.size(), exposuresToSet.data()));
 			}
 			else
 			{
-				errMsg = "Invalid eExposureTimes.size() value of " + std::to_string(eExposureTimes.size()) + ".";
+				errMsg = "Invalid size for vector of exposure times, value of " + std::to_string(exposuresToSet.size()) + ".";
 			}
 		}
 		else
@@ -855,7 +887,14 @@ namespace myAndor
 		}
 		return 0;
 	}
-	int checkAcquisitionTimings()
+
+
+	/*
+	 * exposures should be initialized to be the correct size. Nothing else matters for the inputs, they get 
+	 * over-written.
+	 * throws exception if fails
+	 */
+	int checkAcquisitionTimings(double& kinetic, double& accumulation, std::vector<float>& exposures)
 	{
 		float tempExposure, tempAccumTime, tempKineticTime;
 		float * timesArray = NULL;
@@ -863,16 +902,16 @@ namespace myAndor
 		if (ANDOR_SAFEMODE)
 		{
 			// if in safemode initialize this stuff to the values to be outputted.
-			if (eExposureTimes.size() > 0)
+			if (exposures.size() > 0)
 			{
-				tempExposure = eExposureTimes[0];
+				tempExposure = exposures[0];
 			}
 			else
 			{
 				tempExposure = 0;
 			}
-			tempAccumTime = eAccumulationTime;
-			tempKineticTime = eKineticCycleTime;
+			tempAccumTime = accumulation;
+			tempKineticTime = kinetic;
 		}
 		else
 		{
@@ -887,43 +926,45 @@ namespace myAndor
 		{
 			// get times
 			errMsg = myAndor::andorErrorChecker(GetAcquisitionTimings(&tempExposure, &tempAccumTime, &tempKineticTime));
-			if (eExposureTimes.size() > 0)
-			{
-				timesArray = new float[eExposureTimes.size()];
-				errMsg = myAndor::andorErrorChecker(GetAdjustedRingExposureTimes(eExposureTimes.size(), timesArray));
-			}
+			timesArray = new float[exposures.size()];
+			errMsg = myAndor::andorErrorChecker(GetAdjustedRingExposureTimes(exposures.size(), timesArray));
 		}
 		else 
 		{
-			timesArray = new float[eExposureTimes.size()];
-			for (int exposureInc = 0; exposureInc < eExposureTimes.size(); exposureInc++)
+			timesArray = new float[exposures.size()];
+			for (int exposureInc = 0; exposureInc < exposures.size(); exposureInc++)
 			{
-				timesArray[exposureInc] = eExposureTimes[exposureInc];
+				timesArray[exposureInc] = exposures[exposureInc];
 			}
 			errMsg = "DRV_SUCCESS";
 		}
 		// 
 		if (errMsg != "DRV_SUCCESS")
 		{
-			appendText("ERROR: GetAcquisitionTimings return error: " + errMsg + "\r\n", IDC_ERROR_EDIT);
+			appendText("ERROR: GetAcquisitionTimings returned error: " + errMsg + "\r\n", IDC_ERROR_EDIT);
+			throw std::runtime_error("GetAcquisitionTimings returned error: " + errMsg);
 			return -1;
 		}
 		else
 		{
 			// success. Set times
-			if (eExposureTimes.size() > 0)
+			if (exposures.size() > 0)
 			{
-				for (int exposureInc = 0; exposureInc < eExposureTimes.size(); exposureInc++)
+				for (int exposureInc = 0; exposureInc < exposures.size(); exposureInc++)
 				{
-					eExposureTimes[exposureInc] = timesArray[exposureInc];
+					exposures[exposureInc] = timesArray[exposureInc];
 				}
 				delete[] timesArray;
 			}
-			eAccumulationTime = tempAccumTime;
-			eKineticCycleTime = tempKineticTime;
+			accumulation = tempAccumTime;
+			kinetic = tempKineticTime;
 		}
 		return 0;
 	}
+	
+	
+	/*
+	*/
 	int getStatus()
 	{
 		int status;
@@ -1209,6 +1250,9 @@ namespace myAndor
 		}
 	}
 
+	/*
+	 *
+	 */
 	std::string andorErrorChecker(int errorCode)
 	{
 		std::string errorMessage = "uninitialized";
