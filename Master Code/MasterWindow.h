@@ -54,6 +54,7 @@ class MasterWindow : public CDialog
 			masterBrushes["Green"] = CreateSolidBrush(masterRGBs["Green"]);
 			masterBrushes["Red"] = CreateSolidBrush(masterRGBs["Red"]);
 			masterBrushes["White"] = CreateSolidBrush(masterRGBs["White"]);
+			
 		}
 		~MasterWindow();
 		virtual BOOL MasterWindow::OnInitDialog();

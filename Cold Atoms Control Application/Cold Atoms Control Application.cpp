@@ -616,16 +616,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	HACCEL hAccel = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDR_ACCELERATOR1));
 
-	MainWindow MainWin;
-	ScriptingWindow ScriptWin;
-	BOOL ret = MainWin.Create(IDD_LARGE_TEMPLATE, 0);
-	if (!ret)   //Create failed.
-	{
-		errBox("Error creating Dialog");
-	}
-	MainWin.ShowWindow(SW_SHOW);
-	ScriptWin.Create(IDD_LARGE_TEMPLATE, 0);
-
+	#ifdef USE_MFC
+		MainWindow MainWin;
+		ScriptingWindow ScriptWin;
+		BOOL ret = MainWin.Create(IDD_LARGE_TEMPLATE, 0);
+		if (!ret)   //Create failed.
+		{
+			errBox("Error creating Dialog");
+		}
+		MainWin.ShowWindow(SW_SHOW);
+		ScriptWin.Create(IDD_LARGE_TEMPLATE, 0);
+	#endif
+	
 	/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	///
 	///				User Interaction Loop

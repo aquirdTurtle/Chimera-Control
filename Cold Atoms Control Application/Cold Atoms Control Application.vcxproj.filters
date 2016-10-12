@@ -64,9 +64,6 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Things I Don%27t Mess With %28Often%29</Filter>
     </ClCompile>
-    <ClCompile Include="postMyString.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
     <ClCompile Include="beginningSettingsDialogProc.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
@@ -82,25 +79,31 @@
     <ClCompile Include="commonMessages.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="NoteSystem.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
     <ClCompile Include="VariableSystem.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="Script.cpp">
+    <ClCompile Include="GUI_Debugger.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="errBox.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="GUI_Debugger.cpp">
+    <ClCompile Include="Script.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NoteSystem.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="postMyString.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="MainWindow.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="ScriptingWindow.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DebuggingOptionsControl.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -225,16 +228,20 @@
     <ClInclude Include="Script.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
-    <ClInclude Include="errBox.h">
+    <ClInclude Include="GUI_Debugger.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
-    <ClInclude Include="GUI_Debugger.h">
+    <ClInclude Include="errBox.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="MainWindow.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="ScriptingWindow.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="errBox.h" />
+    <ClInclude Include="DebuggingOptionsControl.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
   </ItemGroup>

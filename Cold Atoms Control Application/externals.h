@@ -12,9 +12,7 @@
 #include "GUI_Debugger.h"
 #include "MainWindow.h"
 #include "ScriptingWindow.h"
-
-//extern MainWindow MainWin;
-//extern ScriptingWindow ScriptWin;
+#include "DebuggingOptionsControl.h"
 
 extern ViStatus eError;
 extern bool eWaitError;
@@ -23,6 +21,7 @@ extern ConfigurationFileSystem eProfile;
 extern NoteSystem eNotes;
 extern VariableSystem eVariables;
 extern Script eVerticalNIAWGScript, eHorizontalNIAWGScript, eIntensityAgilentScript;
+extern DebuggingOptionsControl eDebuggingOptions;
 
 // Default NIAWG Wavefunction Info.
 extern ViReal64* eDefault_hConfigMixedWaveform;
@@ -64,7 +63,8 @@ extern std::string eCurrentScript;
 extern unsigned int eAccumulations;
 
 extern unsigned int eGreenMessageID, eStatusTextMessageID, eErrorTextMessageID, 
-					eFatalErrorMessageID, eVariableStatusMessageID, eNormalFinishMessageID, eColoredEditMessageID;
+					eFatalErrorMessageID, eVariableStatusMessageID, eNormalFinishMessageID, eColoredEditMessageID, 
+					eDebugMessageID;
 
 extern bool eCurrentVerticalViewIsParent;
 extern bool eCurrentHorizontalViewIsParent;

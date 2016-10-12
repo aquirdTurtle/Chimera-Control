@@ -215,7 +215,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 		/// Everything Else
 		case WM_COMMAND:
 		{
-			if (eDebugger.handleClick(thisWindow, msg, wParam, lParam))
+			if (eDebuggingOptions.handleEvent(thisWindow, msg, wParam, lParam))
 			{
 				break;
 			}
@@ -761,6 +761,14 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 				std::string statusMessage(pointerToMessage);
 				delete[] pointerToMessage;
 				appendText(statusMessage, IDC_SYSTEM_STATUS_TEXT, eMainWindowHandle);
+				break;
+			}
+			if (msg == eDebugMessageID)
+			{
+				char* pointerToMessage = (char*)lParam;
+				std::string statusMessage(pointerToMessage);
+				delete[] pointerToMessage;
+				appendText(statusMessage, IDC_SYSTEM_DEBUG_TEXT, eMainWindowHandle);
 				break;
 			}
 			if (msg == eErrorTextMessageID)

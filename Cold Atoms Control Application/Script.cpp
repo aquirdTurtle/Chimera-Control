@@ -912,7 +912,7 @@ bool Script::checkSave()
 	}
 	else
 	{
-		int answer = MessageBox(0, ("Save " + deviceType + " script file as " + scriptName + extension + "?").c_str(), 0, MB_YESNOCANCEL);
+		int answer = MessageBox(0, ("Save " + deviceType + " script file as " + scriptName + "?").c_str(), 0, MB_YESNOCANCEL);
 		if (answer == IDCANCEL)
 		{
 			return true;
@@ -1116,7 +1116,7 @@ bool Script::openParentScript(std::string parentScriptFileAndPath)
 			this->scriptAddress = eProfile.getCurrentPathIncludingCategory() + scriptName;
 			this->scriptCategory = eProfile.getCurrentCategory();
 			this->scriptExperiment = eProfile.getCurrentExperiment();
-			std::string path = (eProfile.getCurrentPathIncludingCategory()) + scriptName;
+			path = (eProfile.getCurrentPathIncludingCategory()) + scriptName;
 			this->saveScriptAs(path);
 		}
 	}

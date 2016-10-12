@@ -5,6 +5,7 @@
 // Some headers used for communication protocols.
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <algorithm>
 #include "myErrorHandler.h"
 #include "myAgilent.h"
 #include "myNIAWG.h"
@@ -15,6 +16,7 @@
 #include "systemAbortCheck.h"
 #include "postMyString.h"
 #include "VariableSystem.h"
+#include <boost/algorithm/string/replace.hpp>
 /*
  * This runs the experiment. It calls analyzeNIAWGScripts and then procedurally goes through all variable values. It also communicates with the other computer
  * throughout the process.
@@ -97,10 +99,12 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	eVariableStatusMessageID = RegisterWindowMessage("ID_THREAD_VARIABLE_STATUS");
 	eGreenMessageID = RegisterWindowMessage("ID_THREAD_GUI_GREEN");
 	eStatusTextMessageID = RegisterWindowMessage("ID_THREAD_STATUS_MESSAGE");
+	eDebugMessageID = RegisterWindowMessage("ID_THREAD_DEBUG_MESSAGE");
 	eErrorTextMessageID = RegisterWindowMessage("ID_THREAD_ERROR_MESSAGE");
 	eFatalErrorMessageID = RegisterWindowMessage("ID_THREAD_FATAL_ERROR_MESSAGE");
 	eNormalFinishMessageID = RegisterWindowMessage("ID_THREAD_NORMAL_FINISH_MESSAGE");
 	eColoredEditMessageID = RegisterWindowMessage("ID_VARIABLE_VALES_MESSAGE");
+
 	
 	// initialize the script string. The script needs a script name at the top.
 	userScriptNameString = "experimentScript";
@@ -549,6 +553,11 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			finalUserScriptString += workingUserScriptString[sequenceInc];
 		}
 		finalUserScriptString += "end repeat\n";
+		if ((*inputStruct).debugOptions.outputNiawgMachineScriptSetting)
+		{
+			postMyString(eDebugMessageID, boost::replace_all_copy("Entire NIAWG Machine Script:\n" + finalUserScriptString + "end Script\n\n",
+				"\n", "\r\n"));
+		}
 	}
 	else
 	{
@@ -558,6 +567,14 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			for (int sequenceInc = 0; sequenceInc < workingUserScriptString.size(); sequenceInc++)
 			{
 				finalUserScriptString += workingUserScriptString[sequenceInc];
+			}
+			if (accumCount == 0)
+			{
+				if ((*inputStruct).debugOptions.outputNiawgMachineScriptSetting)
+				{
+					postMyString(eDebugMessageID, boost::replace_all_copy("Single Repetition NIAWG Machine Script:\n"
+								 + finalUserScriptString + "end Script\n\n", "\n", "\r\n"));
+				}
 			}
 		}
 	}
@@ -706,23 +723,27 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			}
 		}
 	}
+
 	/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	///
 	///					Logging
 	///
-	if (!TWEEZER_COMPUTER_SAFEMODE)
+	if (true)
+	//if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
 		// This report goes to a folder I create on the Andor. NEW: Always log.
 		postMyString(eStatusTextMessageID, "Logging Script and Experiment Parameters...\r\n");
-		std::string xScriptLogPath = EXPERIMENT_LOGGING_FILES_PATH + "\\Vertical Script.txt";
-		std::string yScriptLogPath = EXPERIMENT_LOGGING_FILES_PATH + "\\Horizontal Script.txt";
+		std::string verticalScriptLogPath = EXPERIMENT_LOGGING_FILES_PATH + "\\Vertical Script.txt";
+		std::string horizontalScriptLogPath = EXPERIMENT_LOGGING_FILES_PATH + "\\Horizontal Script.txt";
 		std::string intensityLogPath = EXPERIMENT_LOGGING_FILES_PATH + "\\Intensity Script.txt";
 		std::string parametersFileLogPath = EXPERIMENT_LOGGING_FILES_PATH + "\\Parameters.txt";
 
 		bool andorConnected = false;
 		/// Log the vertical script
-		do {
-			std::ofstream verticalScriptLog(xScriptLogPath);
+		do 
+		{
+			std::ofstream verticalScriptLog(verticalScriptLogPath);
+			std::string verticalScriptText = "\n\n====================\nVertical Script Being Used:\n====================\n";
 			if (verticalScriptLog.is_open() == false)
 			{
 				int andorDisconnectedOption = MessageBox(NULL, "This computer can't currently open logging files on the andor.\nAbort will quit the "
@@ -731,49 +752,67 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 					"without saving the current file.", "Andor Disconnected", MB_ABORTRETRYIGNORE);
 				switch (andorDisconnectedOption)
 				{
-				case IDABORT:
-				{
-					if (myErrorHandler(-1, "ERROR: Andor Disconected. User Aborted.\r\n", ConnectSocket,
-						verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false, true))
+					case IDABORT:
 					{
-						postMyString(eErrorTextMessageID, "ERROR: Andor Disconected. User Aborted.\r\n");
-						PostMessage(eMainWindowHandle, eFatalErrorMessageID, 0, 0);
-						delete inputStruct;
-						return -1;
-					}
-					// doesn't get reached.
-					break;
+						if (myErrorHandler(-1, "ERROR: Andor Disconected. User Aborted.\r\n", ConnectSocket,
+							verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false, true))
+						{
+							postMyString(eErrorTextMessageID, "ERROR: Andor Disconected. User Aborted.\r\n");
+							PostMessage(eMainWindowHandle, eFatalErrorMessageID, 0, 0);
+							delete inputStruct;
+							return -1;
+						}
+						// doesn't get reached.
+						break;
 
-				}
-				case IDRETRY:
-				{
-					break;
-				}
-				case IDIGNORE:
-				{
-					// break out without writing file.
-					andorConnected = true;
-					break;
-				}
+					}
+					case IDRETRY:
+					{
+						break;
+					}
+					case IDIGNORE:
+					{
+						// break out without writing file.
+						andorConnected = true;
+						break;
+					}
 				}
 			}
-			else
+			for (int sequenceInc = 0; sequenceInc < (*inputStruct).threadSequenceFileNames.size(); sequenceInc++)
 			{
-				andorConnected = true;
-				for (int sequenceInc = 0; sequenceInc < (*inputStruct).threadSequenceFileNames.size(); sequenceInc++)
-				{
-					verticalScriptLog << "***Configuration [" + (*inputStruct).threadSequenceFileNames[sequenceInc] + "] Vertical NIAWG Script***\n";
-					verticalScriptLog << verticalScriptFiles[sequenceInc].rdbuf();
-					verticalScriptFiles[sequenceInc].clear();
-					verticalScriptFiles[sequenceInc].seekg(0, std::ios::beg);
-				}
+				verticalScriptFiles[sequenceInc].clear();
+				verticalScriptFiles[sequenceInc].seekg(0, std::ios::beg);
+				verticalScriptText += "***Configuration [" + (*inputStruct).threadSequenceFileNames[sequenceInc] 
+										+ "] Vertical NIAWG Script***\n";
+				std::stringstream tempStream;
+				tempStream << verticalScriptFiles[sequenceInc].rdbuf();
+				verticalScriptText += tempStream.str();
+				verticalScriptFiles[sequenceInc].clear();
+				verticalScriptFiles[sequenceInc].seekg(0, std::ios::beg);
 			}
+			verticalScriptText += "\n";
+			// make sure all line endings are \r\n.
+			boost::replace_all(verticalScriptText, "\r", "");
+			boost::replace_all(verticalScriptText, "\n", "\r\n");
+			if (andorConnected && !TWEEZER_COMPUTER_SAFEMODE)
+			{
+				verticalScriptLog << verticalScriptText;
+			}
+			if ((*inputStruct).debugOptions.outputNiawgHumanScript)
+			{
+				postMyString(eDebugMessageID, verticalScriptText);
+			}
+
+			andorConnected = true;
+
 		} while (andorConnected == false);
 
 		andorConnected = false;
 		/// Log the horizontal script
 		do {
-			std::ofstream horizontalScriptLog(yScriptLogPath);
+			std::ofstream horizontalScriptLog(horizontalScriptLogPath);
+			std::string horizontalScriptText = "\n\n====================\nHorizontal Script Being Used:\n====================\n";
+
 			if (horizontalScriptLog.is_open() == false)
 			{
 				int andorDisconnectedOption = MessageBox(NULL, "This computer can't currently open logging files on the andor.\nAbort will quit the "
@@ -807,18 +846,36 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				}
 				}
 			}
-			else 
+			
+				
+			for (int sequenceInc = 0; sequenceInc < (*inputStruct).threadSequenceFileNames.size(); sequenceInc++)
 			{
-				andorConnected = true;
-					
-				for (int sequenceInc = 0; sequenceInc < (*inputStruct).threadSequenceFileNames.size(); sequenceInc++)
-				{
-					horizontalScriptLog << "***Configuration [" + (*inputStruct).threadSequenceFileNames[sequenceInc] + "] Horizontal NIAWG Script***\n";
-					horizontalScriptLog << horizontalScriptFiles[sequenceInc].rdbuf();
-					horizontalScriptFiles[sequenceInc].clear();
-					horizontalScriptFiles[sequenceInc].seekg(0, std::ios::beg);
-				}
+				horizontalScriptFiles[sequenceInc].clear();
+				horizontalScriptFiles[sequenceInc].seekg(0, std::ios::beg);
+				horizontalScriptText += "***Configuration [" + (*inputStruct).threadSequenceFileNames[sequenceInc]
+					+ "] Horizontal NIAWG Script***\n";
+				std::stringstream tempStream;
+				tempStream << horizontalScriptFiles[sequenceInc].rdbuf();
+				horizontalScriptText += tempStream.str();
+
+				//horizontalScriptLog << "***Configuration [" + (*inputStruct).threadSequenceFileNames[sequenceInc] + "] Horizontal NIAWG Script***\n";
+				//horizontalScriptLog << horizontalScriptFiles[sequenceInc].rdbuf();
+				horizontalScriptFiles[sequenceInc].clear();
+				horizontalScriptFiles[sequenceInc].seekg(0, std::ios::beg);
 			}
+			horizontalScriptText += "\n";
+			// make sure all line endings are \r\n.
+			boost::replace_all(horizontalScriptText, "\r", "");
+			boost::replace_all(horizontalScriptText, "\n", "\r\n");
+			if (andorConnected && !TWEEZER_COMPUTER_SAFEMODE)
+			{
+				horizontalScriptLog << horizontalScriptText;
+			}
+			if ((*inputStruct).debugOptions.outputNiawgHumanScript)
+			{
+				postMyString(eDebugMessageID, horizontalScriptText);
+			}
+			andorConnected = true;
 		} while (andorConnected == false);
 
 		andorConnected = false;
@@ -826,6 +883,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 		do
 		{
 			std::ofstream intensityScriptLog(intensityLogPath);
+			std::string intensityScriptText = "\n\n====================\nIntensity Script Being Used:\n====================\n";
 			if (intensityScriptLog.is_open() == false)
 			{
 				int andorDisconnectedOption = MessageBox(NULL, "This computer can't currently open logging files on the andor.\nAbort will quit the "
@@ -849,7 +907,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 					}
 					case IDRETRY:
 					{
-						break;
+						continue;
 					}
 					case IDIGNORE:
 					{
@@ -859,17 +917,36 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 					}
 				}
 			}
-			else 
+
+				
+			for (int sequenceInc = 0; sequenceInc < (*inputStruct).threadSequenceFileNames.size(); sequenceInc++)
 			{
-				andorConnected = true;
-				for (int sequenceInc = 0; sequenceInc < (*inputStruct).threadSequenceFileNames.size(); sequenceInc++)
-				{
-					intensityScriptLog << "***Configuration [" + (*inputStruct).threadSequenceFileNames[sequenceInc] + "] intensity Script***\n";
-					intensityScriptLog << intensityScriptFiles[sequenceInc].rdbuf();
-					intensityScriptFiles[sequenceInc].clear();
-					intensityScriptFiles[sequenceInc].seekg(0, std::ios::beg);
-				}
+				intensityScriptFiles[sequenceInc].clear();
+				intensityScriptFiles[sequenceInc].seekg(0, std::ios::beg);
+
+				intensityScriptText += "***Configuration [" + (*inputStruct).threadSequenceFileNames[sequenceInc]
+					+ "] Intensity NIAWG Script***\n";
+				std::stringstream tempStream;
+				tempStream << intensityScriptFiles[sequenceInc].rdbuf();
+				intensityScriptText += tempStream.str();
+				//intensityScriptLog << "***Configuration [" + (*inputStruct).threadSequenceFileNames[sequenceInc] + "] intensity Script***\n";
+				//intensityScriptLog << intensityScriptFiles[sequenceInc].rdbuf();
+				intensityScriptFiles[sequenceInc].clear();
+				intensityScriptFiles[sequenceInc].seekg(0, std::ios::beg);
 			}
+			intensityScriptText += "\n";
+			// make sure all line endings are \r\n.
+			boost::replace_all(intensityScriptText, "\r", "");
+			boost::replace_all(intensityScriptText, "\n", "\r\n");
+			if (andorConnected && !TWEEZER_COMPUTER_SAFEMODE)
+			{
+				intensityScriptLog << intensityScriptText;
+			}
+			if ((*inputStruct).debugOptions.outputAgilentScript)
+			{
+				postMyString(eDebugMessageID, intensityScriptText);
+			}
+			andorConnected = true;
 		} while (andorConnected == false);
 
 		andorConnected = false;
@@ -884,7 +961,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 					" (no output has started).\nRetry will re-attempt to connect to the Andor.\nIgnore will continue "
 					"without saving the current file.", "Andor Disconnected", MB_ABORTRETRYIGNORE);
 				switch (andorDisconnectedOption)
-					{
+				{
 					case IDABORT:
 					{
 						if (myErrorHandler(-1, "ERROR: Andor Disconected. User Aborted.\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, eError,
