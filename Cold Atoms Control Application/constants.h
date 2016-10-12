@@ -5,10 +5,10 @@
 
 #include <string>
 // running in safemode means that the program doesn't actually try to connect to any devices. It can be used to debug other aspects of the program.
-#define TWEEZER_COMPUTER_SAFEMODE false
-#define LAB_COMPUTER
-// #define LAB_COMPUTER
-// #define LAPTOP_COMPUTER
+#define TWEEZER_COMPUTER_SAFEMODE true
+//#define LAB_COMPUTER
+//#define LAB_COMPUTER
+#define LAPTOP_COMPUTER
 
 /// File Locations
 // Files for Lab Computer
@@ -33,6 +33,7 @@
 
 // Files for my Laptop
 #ifdef LAPTOP_COMPUTER
+	//#define USE_MFC
 	const std::string LIB_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Waveforms Library\\";
 	const std::string DEFAULT_SCRIPT_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Default Scripts\\";
 	const std::string EXPERIMENT_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Individual Experiments\\";

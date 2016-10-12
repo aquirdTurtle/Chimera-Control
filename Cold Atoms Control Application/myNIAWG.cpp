@@ -2622,7 +2622,8 @@ namespace myNIAWG
 						time2 = GetTickCount64();
 						double ellapsedTime = (time2 - time1) / 1000.0;
 						sprintf_s(processTimeMsg, "Finished Reading Waveform. Ellapsed Time: %.3f seconds.\r\n", ellapsedTime);
-						appendText(processTimeMsg, IDC_SYSTEM_DEBUG_TEXT, eMainWindowHandle);
+						postMyString(eDebugMessageID, processTimeMsg);
+						//appendText(processTimeMsg, IDC_SYSTEM_DEBUG_TEXT, eMainWindowHandle);
 					}
 					// if the file got read, I don't need to do any writing, so go ahead and return.
 					return 0;
@@ -2676,7 +2677,8 @@ namespace myNIAWG
 					time2 = GetTickCount64();
 					double ellapsedTime = (time2 - time1) / 1000.0;
 					sprintf_s(processTimeMsg, "Finished Writing Waveform. Ellapsed Time: %.3f seconds.\r\n", ellapsedTime);
-					appendText(processTimeMsg, IDC_SYSTEM_DEBUG_TEXT, eMainWindowHandle);
+					postMyString(eDebugMessageID, processTimeMsg);
+					//appendText(processTimeMsg, IDC_SYSTEM_DEBUG_TEXT, eMainWindowHandle);
 				}
 			}
 			return 0;

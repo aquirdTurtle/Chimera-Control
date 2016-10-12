@@ -8,6 +8,7 @@
 #include "constants.h"
 #include "ConfigurationFileSystem.h"
 #include "VariableSystem.h"
+#include "DebuggingOptionsControl.h"
 
 //MainWindow MainWin;
 //ScriptingWindow ScriptWin;
@@ -19,6 +20,7 @@ int scriptIDs = 110000;
 Script eVerticalNIAWGScript("Vertical NIAWG", scriptIDs), eHorizontalNIAWGScript("Horizontal NIAWG", scriptIDs), eIntensityAgilentScript("Agilent", scriptIDs);
 int debugID = 111000;
 GUI_Debugger eDebugger(debugID);
+DebuggingOptionsControl eDebuggingOptions;
 
 // Agilent Stuff
 double eCurrentAgilentLow = std::stod(AGILENT_DEFAULT_DC);
@@ -82,8 +84,8 @@ int eDummyNum;
 
 unsigned int eAccumulations = 0;
 // thread messages
-unsigned int eGreenMessageID, eStatusTextMessageID, eErrorTextMessageID, eFatalErrorMessageID, eVariableStatusMessageID, eNormalFinishMessageID,
-			 eColoredEditMessageID;
+unsigned int eGreenMessageID, eStatusTextMessageID, eErrorTextMessageID, eFatalErrorMessageID, 
+			 eVariableStatusMessageID, eNormalFinishMessageID, eColoredEditMessageID, eDebugMessageID;
 
 char eVerticalCurrentParentScriptName[_MAX_FNAME];
 char eHorizontalCurrentParentScriptName[_MAX_FNAME];

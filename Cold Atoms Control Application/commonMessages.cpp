@@ -514,6 +514,7 @@ namespace commonMessages
 			(*inputParams).threadLogScriptAndParams = eLogScriptAndParams;
 			(*inputParams).threadProgramIntensityOption = eProgramIntensityOption;
 			(*inputParams).currentFolderLocation = (eProfile.getCurrentPathIncludingCategory());
+			(*inputParams).debugOptions = eDebuggingOptions.getOptions();
 			eMostRecentVerticalScriptNames = eVerticalNIAWGScript.getScriptPathAndName();
 			eMostRecentHorizontalScriptNames = eHorizontalNIAWGScript.getScriptPathAndName();
 			eMostRecentIntensityScriptNames = eIntensityAgilentScript.getScriptPathAndName();

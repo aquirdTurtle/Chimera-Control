@@ -2,6 +2,7 @@
 
 #include <string>
 #include "VariableSystem.h"
+#include "DebuggingOptionsControl.h"
 
 struct experimentThreadInputStructure
 {
@@ -14,4 +15,5 @@ struct experimentThreadInputStructure
 	bool threadProgramIntensityOption;
 	std::string currentFolderLocation;
 	std::vector<std::string> threadSequenceFileNames;
+	debuggingOptionsList debugOptions;
 };
