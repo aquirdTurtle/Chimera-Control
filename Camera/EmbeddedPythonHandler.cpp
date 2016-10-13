@@ -24,16 +24,14 @@ EmbeddedPythonHandler::EmbeddedPythonHandler()
 	//get our catchOutErr object (of type CatchOutErr) created above
 	this->errorCatcher = PyObject_GetAttrString(mainModule, "catchOutErr"); 
 	// start using the run function.
-	this->run("from astropy.io import fits");
-	this->run("import numpy");
-	ERR_POP(run("import numpy as np"));
-	ERR_POP(run("import matplotlib.pyplot as plt"));
+	ERR_POP(run("import stuffs"));
+	ERR_POP(run("from astropy.io import fits"));
 	ERR_POP(run("import smtplib"));
 	ERR_POP(run("from email.mime.text import MIMEText"));
 	// not sure if these things are needed...
-	ERR_POP(run("numpy.set_printoptions(threshold = numpy.nan)"));
-	ERR_POP(run("from matplotlib.pyplot import figure, hist, plot, title, xlabel, ylabel, subplots, errorbar, show, draw"));
-	ERR_POP(run("from matplotlib.cm import get_cmap"));
+	//ERR_POP(run("numpy.set_printoptions(threshold = numpy.nan)"));
+	//ERR_POP(run("from matplotlib.pyplot import figure, hist, plot, title, xlabel, ylabel, subplots, errorbar, show, draw"));
+	//ERR_POP(run("from matplotlib.cm import get_cmap"));
 	//ERR_POP(run("from dataAnalysisFunctions import normalizeData, binData, guessGaussianPeaks, doubleGaussian, fitDoubleGaussian,"
 	//	"calculateAtomThreshold, getAnalyzedSurvivalData"));
 	// Make sure that python can find my module.
@@ -63,7 +61,9 @@ EmbeddedPythonHandler::EmbeddedPythonHandler()
 
 bool EmbeddedPythonHandler::flush()
 {
-	//this->run("sys.stderr.flush()");
+	// this resets the value of the class object, meaning that it resets the error text inside it.
+	std::string flushMsg = "catchOutErr.__init__()";
+	this->run(flushMsg, false);
 	return true;
 }
 // for full data analysis set.
@@ -198,20 +198,30 @@ bool EmbeddedPythonHandler::sendText(personInfo person, std::string msg, std::st
 		// for tmobile: [number]@tmomail.net
 		recipient += "@tmomail.net";
 	}
+	else if (person.provider == "at&t")
+	{
+		recipient += "@txt.att.net";
+	}
+	else if (person.provider == "googlefi")
+	{
+		recipient += "@msg.fi.google.com";
+	}
 	ERR_POP_RETURN(run("email['To'] = '" + recipient + "'"));
 	ERR_POP_RETURN(run("mail = smtplib.SMTP('smtp.gmail.com', 587)"));
 	ERR_POP_RETURN(run("mail.ehlo()"));
 	ERR_POP_RETURN(run("mail.starttls()"));
 	ERR_POP_RETURN(run("mail.login('" + baseEmail + "', '" + password + "')"));
 	ERR_POP_RETURN(run("mail.sendmail(email['From'], email['To'], email.as_string())"));
-
 	return false;
 }
 
 // for a single python command. Returns python's output of said command.
-std::string EmbeddedPythonHandler::run(std::string cmd)
+std::string EmbeddedPythonHandler::run(std::string cmd, bool flush /*=true*/)
 {
-	this->flush();
+	if (flush)
+	{
+		this->flush();
+	}
 	PyRun_SimpleString(cmd.c_str());
 	// get the stdout and stderr from our catchOutErr object
 	PyObject *output = PyObject_GetAttrString(errorCatcher, "value");

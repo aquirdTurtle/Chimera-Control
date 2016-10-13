@@ -50,7 +50,6 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 			{
 				break;
 			}
-
 			/*
 			if (eExperimentSaved == false)
 			{

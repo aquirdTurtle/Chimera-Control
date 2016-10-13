@@ -191,11 +191,11 @@ bool SMSTextingControl::updatePersonInfo(HWND parentHandle, LPARAM lparamOfMessa
 			// Prompt for provider
 			std::string newProvider = (const char*)DialogBoxParam(eHInst, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, 
 																  (DLGPROC)dialogProcedures::textPromptDialogProcedure, 
-																  (LPARAM)std::string("Please enter provider (either \"Verizon\" or \"TMobile\"):").c_str());
+																  (LPARAM)std::string("Please enter provider (either \"verizon\", \"tmobile\", \"at&t\", or \"googlefi\"):").c_str());
 			std::transform(newProvider.begin(), newProvider.end(), newProvider.begin(), ::tolower);
-			if (newProvider != "verizon" && newProvider != "tmobile")
+			if (newProvider != "verizon" && newProvider != "tmobile" && newProvider != "at&t" && newProvider != "googlefi")
 			{
-				MessageBox(0, "Please enter either \"Verizon\" or \"TMobile\" (not case sensitive)", 0, 0);
+				MessageBox(0, "Please enter either \"verizon\", \"tmobile\", \"at&t\", or \"googlefi\" (not case sensitive)", 0, 0);
 				break;
 			}
 			peopleToText[itemIndicator].provider = newProvider;

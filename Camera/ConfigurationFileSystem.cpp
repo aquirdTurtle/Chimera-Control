@@ -63,37 +63,6 @@ int ConfigurationFileSystem::openConfiguration(std::string configurationNameToOp
 	{
 		configurationOpenFile >> times[exposureInc];
 	}
-
-	// try to set this time.
-	try
-	{
-		ePictureOptionsControl.setExposureTimes(times);
-	}
-	catch (std::runtime_error)
-	{
-		appendText("ERROR: failed to set exposure times.", IDC_ERROR_EDIT);
-		return -1;
-	}
-	// now check actual times.
-	try
-	{
-		ePictureOptionsControl.confirmAcquisitionTimings();
-	}
-	catch (std::runtime_error)
-	{
-		appendText("ERROR: Unable to check acquisition timings.\r\n", IDC_ERROR_EDIT);
-		throw;
-	}
-	// now output things.
-	if (ePictureOptionsControl.getUsedExposureTimes().size() <= 0)
-	{
-		// this shouldn't happend
-		appendText("ERROR: reached bad location where eExposureTimes was of zero size, but this should have been detected earlier in the code.", IDC_ERROR_EDIT);
-		return -1;
-	}
-	/// 
-	SendMessage(eKineticCycleTimeDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eKineticCycleTime * 1000).c_str());
-	SendMessage(eAccumulationTimeDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eAccumulationTime * 1000).c_str());
 	/// 
 
 	configurationOpenFile.get();
@@ -125,6 +94,36 @@ int ConfigurationFileSystem::openConfiguration(std::string configurationNameToOp
 
 	configurationOpenFile >> ePicturesPerRepetition;
 	ePictureOptionsControl.setPicturesPerExperiment(ePicturesPerRepetition);
+	// try to set this time.
+	try
+	{
+		ePictureOptionsControl.setExposureTimes(times);
+	}
+	catch (std::runtime_error)
+	{
+		appendText("ERROR: failed to set exposure times.", IDC_ERROR_EDIT);
+		return -1;
+	}
+	// now check actual times.
+	try
+	{
+		ePictureOptionsControl.confirmAcquisitionTimings();
+	}
+	catch (std::runtime_error)
+	{
+		appendText("ERROR: Unable to check acquisition timings.\r\n", IDC_ERROR_EDIT);
+		throw;
+	}
+	// now output things.
+	if (ePictureOptionsControl.getUsedExposureTimes().size() <= 0)
+	{
+		// this shouldn't happend
+		appendText("ERROR: reached bad location where eExposureTimes was of zero size, but this should have been detected earlier in the code.", IDC_ERROR_EDIT);
+		return -1;
+	}
+	/// 
+	SendMessage(eKineticCycleTimeDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eKineticCycleTime * 1000).c_str());
+	SendMessage(eAccumulationTimeDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eAccumulationTime * 1000).c_str());
 	configurationOpenFile >> eRepetitionsPerVariation;
 	ePicturesPerVariation = ePicturesPerRepetition * eRepetitionsPerVariation;
 	SendMessage(eRepetitionsPerVariationDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eRepetitionsPerVariation).c_str());
@@ -146,11 +145,13 @@ int ConfigurationFileSystem::openConfiguration(std::string configurationNameToOp
 			ePreviousPicturesPerSubSeries = ePicturesPerVariation;
 		}
 		ePicturesPerVariation = INT_MAX;
+		SendMessage(eCameraModeComboHandle.hwnd, CB_SETCURSEL, 2, 0);
 		//SendMessage(.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerVariation).c_str());
 	}
 	else if (eCurrentlySelectedCameraMode == "Kinetic Series Mode")
 	{
 		eAcquisitionMode = 3;
+		SendMessage(eCameraModeComboHandle.hwnd, CB_SETCURSEL, 0, 0);
 	}
 	else if (eCurrentlySelectedCameraMode == "Accumulate Mode")
 	{
@@ -160,6 +161,7 @@ int ConfigurationFileSystem::openConfiguration(std::string configurationNameToOp
 			ePreviousPicturesPerSubSeries = ePicturesPerVariation;
 		}
 		ePicturesPerVariation = INT_MAX;
+		SendMessage(eCameraModeComboHandle.hwnd, CB_SETCURSEL, 1, 0);
 		//SendMessage(ePicturesPerRepetitionDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerVariation).c_str());
 	}
 	configurationOpenFile >> eKineticCycleTime;
