@@ -145,11 +145,13 @@ int ConfigurationFileSystem::openConfiguration(std::string configurationNameToOp
 			ePreviousPicturesPerSubSeries = ePicturesPerVariation;
 		}
 		ePicturesPerVariation = INT_MAX;
+		SendMessage(eCameraModeComboHandle.hwnd, CB_SETCURSEL, 2, 0);
 		//SendMessage(.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerVariation).c_str());
 	}
 	else if (eCurrentlySelectedCameraMode == "Kinetic Series Mode")
 	{
 		eAcquisitionMode = 3;
+		SendMessage(eCameraModeComboHandle.hwnd, CB_SETCURSEL, 0, 0);
 	}
 	else if (eCurrentlySelectedCameraMode == "Accumulate Mode")
 	{
@@ -159,6 +161,7 @@ int ConfigurationFileSystem::openConfiguration(std::string configurationNameToOp
 			ePreviousPicturesPerSubSeries = ePicturesPerVariation;
 		}
 		ePicturesPerVariation = INT_MAX;
+		SendMessage(eCameraModeComboHandle.hwnd, CB_SETCURSEL, 1, 0);
 		//SendMessage(ePicturesPerRepetitionDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerVariation).c_str());
 	}
 	configurationOpenFile >> eKineticCycleTime;

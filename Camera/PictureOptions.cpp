@@ -315,7 +315,7 @@ INT_PTR PictureOptions::colorControls(HWND window, UINT message, WPARAM wParam, 
 		{
 			exposure = std::stof(std::string(textEdit));// / 1000.0f;
 			double dif = std::fabs(exposure/1000.0 - exposureTimes[picNum]);
-			if (dif < 0.000000001)
+			if (dif < 10^-6)
 			{
 				// good.
 				SetTextColor(hdcStatic, RGB(255, 255, 255));
