@@ -1,6 +1,7 @@
 #pragma once
 
 #include "stdafx.h"
+#include "Script.h"
 
 class ScriptingWindow : public CDialog
 {
@@ -45,9 +46,18 @@ class ScriptingWindow : public CDialog
 		}
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 		BOOL OnInitDialog() override;
+
+		void horizontalEditChange();
+		void agilentEditChange();
+		void verticalEditChange();
+
 	private:
 		DECLARE_MESSAGE_MAP();
 		
 		std::unordered_map<std::string, HBRUSH> scriptBrushes;
 		std::unordered_map<std::string, COLORREF> scriptRGBs;
+
+		// 
+		Script verticalNIAWGScript, horizontalNIAWGScript, intensityAgilentScript;
+
 };

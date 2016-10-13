@@ -20,7 +20,7 @@ extern GUI_Debugger eDebugger;
 extern ConfigurationFileSystem eProfile;
 extern NoteSystem eNotes;
 extern VariableSystem eVariables;
-extern Script eVerticalNIAWGScript, eHorizontalNIAWGScript, eIntensityAgilentScript;
+//extern Script eVerticalNIAWGScript, eHorizontalNIAWGScript, eIntensityAgilentScript;
 extern DebuggingOptionsControl eDebuggingOptions;
 
 // Default NIAWG Wavefunction Info.

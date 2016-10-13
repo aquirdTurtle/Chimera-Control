@@ -17,7 +17,7 @@ ConfigurationFileSystem eProfile(PROFILES_PATH);
 NoteSystem eNotes;
 VariableSystem eVariables;
 int scriptIDs = 110000;
-Script eVerticalNIAWGScript("Vertical NIAWG", scriptIDs), eHorizontalNIAWGScript("Horizontal NIAWG", scriptIDs), eIntensityAgilentScript("Agilent", scriptIDs);
+//Script eVerticalNIAWGScript("Vertical NIAWG", scriptIDs), eHorizontalNIAWGScript("Horizontal NIAWG", scriptIDs), eIntensityAgilentScript("Agilent", scriptIDs);
 int debugID = 111000;
 GUI_Debugger eDebugger(debugID);
 DebuggingOptionsControl eDebuggingOptions;
