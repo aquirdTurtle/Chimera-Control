@@ -8,28 +8,6 @@
 #include "cleanString.h"
 #include "textPromptDialogProcedure.h"
 
-Script::Script(std::string deviceTypeInput, int& idStart) : deviceType{ deviceTypeInput }, editID{ idStart }, savedIndicatorID{ idStart + 1 },
-															childComboID{ idStart + 2 }, fileNameTextID{ idStart + 3 }, titleID{ idStart + 4 }, 
-															idStart{ idStart }, idEnd{ idStart + 4 }
-{
-	if (deviceTypeInput == "Horizontal NIAWG" || deviceTypeInput == "Vertical NIAWG")
-	{
-		extension = NIAWG_SCRIPT_EXTENSION;
-	}
-	else if (deviceTypeInput == "Agilent")
-	{
-		extension = AGILENT_SCRIPT_EXTENSION;
-	}
-	else
-	{
-		extension = "Sadness";
-	}
-	isSaved = true;
-	editChangeEnd = 0;
-	editChangeBegin = ULONG_MAX;
-	idStart += 5;
-}
-
 Script::~Script(){}
 
 std::string Script::getScriptText()
@@ -181,7 +159,7 @@ bool Script::handleTimerCall()
 bool Script::handleEditChange(WPARAM wParam, LPARAM lParam)
 {
 	int controlID = GetDlgCtrlID((HWND)lParam);
-	if (controlID == editID)
+	if (controlID == edit.ID)
 	{
 		if (HIWORD(wParam) == EN_CHANGE)
 		{
@@ -543,31 +521,31 @@ INT_PTR Script::colorControl(LPARAM lParam, WPARAM wParam)
 {
 	int controlID = GetDlgCtrlID((HWND)lParam);
 	HDC hdcStatic = (HDC)wParam;
-	if (controlID == editID)
+	if (controlID == edit.ID)
 	{
 		SetTextColor(hdcStatic, RGB(255, 255, 255));
 		SetBkColor(hdcStatic, RGB(50, 45, 45));
 		return (INT_PTR)eGreyRedBrush;
 	}
-	else if (controlID == titleID)
+	else if (controlID == title.ID)
 	{
 		SetTextColor(hdcStatic, RGB(255, 255, 255));
 		SetBkMode(hdcStatic, TRANSPARENT);
 		SetBkColor(hdcStatic, RGB(75, 0, 0));
 		return (INT_PTR)eDarkRedBrush;
 	}
-	else if (controlID == savedIndicatorID)
+	else if (controlID == savedIndicator.ID)
 	{
 		SetTextColor(hdcStatic, RGB(255, 255, 255));
 		SetBkMode(hdcStatic, TRANSPARENT);
 		SetBkColor(hdcStatic, RGB(50, 45, 45));
 		return (INT_PTR)eGreyRedBrush;
 	}
-	else if (controlID == childComboID)
+	else if (controlID == childCombo.ID)
 	{
 		return false;
 	}
-	else if (controlID == fileNameTextID)
+	else if (controlID == fileNameText.ID)
 	{
 		SetTextColor(hdcStatic, RGB(255, 255, 255));
 		SetBkMode(hdcStatic, TRANSPARENT);
@@ -580,9 +558,28 @@ INT_PTR Script::colorControl(LPARAM lParam, WPARAM wParam)
 	}
 }
 
-bool Script::initializeControls(int width, int height, POINT& startingLocation, HWND parent)
+bool Script::initializeControls(int width, int height, POINT& startingLocation, HWND parent, std::string deviceTypeInput, int& idStart)
 {
+
 	LoadLibrary(TEXT("Msftedit.dll"));
+	deviceType = deviceTypeInput;
+	if (deviceTypeInput == "Horizontal NIAWG" || deviceTypeInput == "Vertical NIAWG")
+	{
+		extension = NIAWG_SCRIPT_EXTENSION;
+	}
+	else if (deviceTypeInput == "Agilent")
+	{
+		extension = AGILENT_SCRIPT_EXTENSION;
+	}
+	else
+	{
+		extension = "Sadness";
+		errBox("sadness");
+	}
+	isSaved = true;
+	editChangeEnd = 0;
+	editChangeBegin = ULONG_MAX;
+
 	CHARFORMAT myCharFormat;
 	memset(&myCharFormat, 0, sizeof(CHARFORMAT));
 	myCharFormat.cbSize = sizeof(CHARFORMAT);
@@ -605,40 +602,45 @@ bool Script::initializeControls(int width, int height, POINT& startingLocation, 
 	RECT itemBox;
 	//
 	itemBox = title.position = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
+	title.ID = idStart++;
 	title.hwnd = CreateWindowEx(NULL, "STATIC", titleText.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
 		itemBox.left, itemBox.top, itemBox.right - itemBox.left, itemBox.bottom - itemBox.top,
-		parent, (HMENU)titleID, GetModuleHandle(NULL), NULL);
+		parent, (HMENU)title.ID, GetModuleHandle(NULL), NULL);
 	SendMessage(eStaticVerticalEditHandle, WM_SETFONT, WPARAM(sHeadingFont), TRUE);
 	startingLocation.y += 20;
 	//
 	itemBox = fileNameText.position = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
+	fileNameText.ID = idStart++;
 	fileNameText.hwnd = CreateWindowEx(NULL, "STATIC", "", WS_CHILD | WS_VISIBLE | SS_ENDELLIPSIS,
 		itemBox.left, itemBox.top, itemBox.right - itemBox.left, itemBox.bottom - itemBox.top, 
-		parent, (HMENU)fileNameTextID, GetModuleHandle(NULL), NULL);
+		parent, (HMENU)fileNameText.ID, GetModuleHandle(NULL), NULL);
 	SendMessage(eStaticVerticalEditHandle, WM_SETFONT, WPARAM(sHeadingFont), TRUE);
 	startingLocation.y += 20;
 	itemBox = savedIndicator.position = { startingLocation.x, startingLocation.y, startingLocation.x + 80, startingLocation.y + 20 };
+	savedIndicator.ID = idStart++;
 	savedIndicator.hwnd = CreateWindowEx(NULL, "BUTTON", "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT,
 		itemBox.left, itemBox.top, itemBox.right - itemBox.left, itemBox.bottom - itemBox.top,
-		parent, (HMENU)savedIndicatorID, GetModuleHandle(NULL), NULL);
+		parent, (HMENU)savedIndicator.ID, GetModuleHandle(NULL), NULL);
 	SendMessage(savedIndicator.hwnd, WM_SETFONT, WPARAM(sNormalFont), TRUE);
 	SendMessage(savedIndicator.hwnd, BM_SETCHECK, BST_CHECKED, NULL);
 	isSaved = true;
 	startingLocation.y += 20;
 	itemBox = childCombo.position = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 800 };
+	childCombo.ID = idStart++;
 	childCombo.hwnd = CreateWindowEx(NULL, TEXT("ComboBox"), "", CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
 		itemBox.left, itemBox.top, itemBox.right - itemBox.left, itemBox.bottom - itemBox.top, 
-		parent,	(HMENU)childComboID, GetModuleHandle(NULL), NULL);
+		parent,	(HMENU)childCombo.ID, GetModuleHandle(NULL), NULL);
 	SendMessage(childCombo.hwnd, WM_SETFONT, WPARAM(sNormalFont), TRUE);
 	SendMessage(childCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)("Parent Script"));
 	SendMessage(childCombo.hwnd, CB_SETCURSEL, 0, 0);
 	startingLocation.y += 25;
 	// Edit
 	itemBox = edit.position = { startingLocation.x, startingLocation.y, startingLocation.x + width, height};
+	edit.ID = idStart++;
 	edit.hwnd = CreateWindowEx(WS_EX_CLIENTEDGE, _T("RICHEDIT50W"), "",
 		WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | WS_HSCROLL,
 		itemBox.left, itemBox.top, itemBox.right - itemBox.left, itemBox.bottom - itemBox.top,
-		parent, (HMENU)editID, GetModuleHandle(NULL), NULL);
+		parent, (HMENU)edit.ID, GetModuleHandle(NULL), NULL);
 	SendMessage(edit.hwnd, WM_SETFONT, WPARAM(sCodeFont), TRUE);
 	SendMessage(edit.hwnd, EM_SETBKGNDCOLOR, 0, RGB(30, 25, 25));
 	SendMessage(edit.hwnd, EM_SETEVENTMASK, 0, ENM_CHANGE);
@@ -654,7 +656,7 @@ bool Script::reorganizeControls()
 bool Script::childComboChangeHandler(WPARAM messageWParam, LPARAM messageLParam)
 {
 	int controlID = GetDlgCtrlID((HWND)messageLParam);
-	if (controlID != this->childComboID)
+	if (controlID != this->childCombo.ID)
 	{
 		return true;
 	}

@@ -35,6 +35,7 @@
 /**
  * This functin handles the creation and messages for the scripting window. Inputs are message information.
  */
+/*
 LRESULT CALLBACK winProcScripts(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	/// Handle incoming messages.
@@ -43,9 +44,9 @@ LRESULT CALLBACK winProcScripts(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM
 		case WM_CREATE: 
 		{
 			initializeScriptingWindow(thisWindow);
-			eHorizontalNIAWGScript.updateSavedStatus(true);
-			eVerticalNIAWGScript.updateSavedStatus(true);
-			eIntensityAgilentScript.updateSavedStatus(true);
+			horizontalNIAWGScript.updateSavedStatus(true);
+			verticalNIAWGScript.updateSavedStatus(true);
+			intensityAgilentScript.updateSavedStatus(true);
 			break;
 		}
 		/// Hanlde Colors
@@ -307,3 +308,4 @@ LRESULT CALLBACK winProcScripts(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM
 
 	return DefWindowProc(thisWindow, msg, wParam, lParam);
 }
+*/

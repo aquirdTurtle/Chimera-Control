@@ -7,14 +7,14 @@
 class Script
 {
 	public:
-		Script(std::string deviceTypeInput, int& idStart);
+		Script();
 		~Script();
 		std::string getScriptText();
 
 		bool colorEntireScript();
 		bool colorScriptSection(DWORD beginingOfChange, DWORD endOfChange);
 
-		bool initializeControls(int width, int height, POINT& startingLocation, HWND parent);
+		bool initializeControls(int width, int height, POINT& startingLocation, HWND parent, std::string deviceTypeInput, int& idStart);
 		bool reorganizeControls();
 		bool getControlIDRange(int& start, int& fin);
 		INT_PTR colorControl(LPARAM lParam, WPARAM wParam);
@@ -51,22 +51,17 @@ class Script
 		const int idStart;
 		const int idEnd;
 		HwndControl edit;
-		const int editID;
 		HwndControl title;
-		const int titleID;
 		HwndControl savedIndicator;
-		const int savedIndicatorID;
 		HwndControl childCombo;
-		const int childComboID;
 		HwndControl fileNameText;
-		const int fileNameTextID;
 
 		std::string scriptExperiment;
 		std::string scriptCategory;
 		std::string scriptName;
 		std::string scriptAddress;
 
-		const std::string deviceType;
+		std::string deviceType;
 		std::string extension;
 		bool isLocalReference;
 		bool isSaved;
