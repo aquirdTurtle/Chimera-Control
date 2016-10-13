@@ -430,7 +430,7 @@ namespace myAndor
 				long minValue = 65536;
 				double avgValue;
 				// for all pixels... find the max and min of the picture.
-				for (int pixelInc = 0; pixelInc < (tempParam.width * tempParam.height); pixelInc++)
+				for (int pixelInc = 0; pixelInc < eImagesOfExperiment[experimentImagesInc].size(); pixelInc++)
 				{
 					try
 					{
@@ -443,7 +443,7 @@ namespace myAndor
 							minValue = eImagesOfExperiment[experimentImagesInc][pixelInc];
 						}
 					}
-					catch (std::out_of_range)
+					catch (std::out_of_range&)
 					{
 						errBox("ERROR: caught std::out_of_range in myAndor::drawDataWindow! experimentImagesInc = " + std::to_string(experimentImagesInc)
 							+ ", pixelInc = " + std::to_string(pixelInc) + ", eImagesOfExperiment.size() = " + std::to_string(eImagesOfExperiment.size())

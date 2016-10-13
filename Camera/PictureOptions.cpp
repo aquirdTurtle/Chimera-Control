@@ -462,12 +462,14 @@ bool PictureOptions::handleOptionChange(HWND window, UINT msg, WPARAM wParam, LP
 		int pic = controlID / 3;
 		int color = controlID % 3;
 		this->colors[pic] = color;
+
 	}
 	else
 	{
 		return false;
 	}
 }
+
 bool PictureOptions::setExposureTimes()
 {
 	return this->setExposureTimes(this->exposureTimes);
