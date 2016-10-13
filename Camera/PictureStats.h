@@ -19,7 +19,7 @@ struct conversions
 class PictureStats
 {
 	public:
-		bool initialize(POINT& pos, HWND parentWindow);
+		bool initialize(POINT& kineticPos, POINT& accumulatePos, POINT& continuousPos, HWND parentWindow);
 		bool reorganizeControls(RECT parentRectangle, std::string mode);
 		bool update(unsigned long selCounts, unsigned long maxCounts, unsigned long minCounts, double avgCounts, unsigned int image);
 		bool reset();

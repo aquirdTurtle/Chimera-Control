@@ -17,7 +17,7 @@ class EmbeddedPythonHandler
 		bool sendText(personInfo person, std::string msg, std::string subject, std::string baseEmail,
 			std::string password);
 		// for a single python command.
-		std::string run(std::string cmd);
+		std::string run(std::string cmd, bool flush = true);
 		bool flush();
 	private:
 		PyObject* autoAnalysisModule;
