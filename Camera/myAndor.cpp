@@ -775,15 +775,7 @@ namespace myAndor
 		std::string errMsg;
 		if (!ANDOR_SAFEMODE)
 		{
-			if (eAcquisitionMode == 5 && exposuresToSet.size() == 1)
-			{
-				errMsg = myAndor::andorErrorChecker(SetExposureTime(exposuresToSet[0]));
-			}
-			else if (eAcquisitionMode == 5 && exposuresToSet.size() != 1)
-			{
-				errMsg = "Continuous Mode Does not support ring exposure times. Please select only one exposure time.";
-			}
-			else if (exposuresToSet.size() > 0 && exposuresToSet.size() <= 16)
+			if (exposuresToSet.size() > 0 && exposuresToSet.size() <= 16)
 			{
 				errMsg = myAndor::andorErrorChecker(SetRingExposureTimes(exposuresToSet.size(), exposuresToSet.data()));
 			}

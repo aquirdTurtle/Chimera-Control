@@ -5,11 +5,11 @@
 #include "Windows.h"
 #include <vector>
 
-class ConfigurationFileSystem 
+class ConfigurationSystem 
 {
 	public:
-		ConfigurationFileSystem(std::string fileSystemPath);
-		~ConfigurationFileSystem();
+		ConfigurationSystem(std::string fileSystemPath);
+		~ConfigurationSystem();
 		int openConfiguration(std::string configurationNameToOpen);
 		int saveConfiguration(bool isFromSaveAs);
 		int saveConfigurationAs(std::string newConfigurationName);

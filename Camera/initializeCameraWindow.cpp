@@ -28,8 +28,7 @@ bool initializeCameraWindow(HWND cameraWindow)
 
 	///  /// Initialize all controls and HWNDs for this window. ///  ///
 	InitCommonControlsEx(0);
-	ePicStats.initialize(secondColumnPointKinetic, secondColumnPointAccumulate,
-		secondColumnPointContinuous, cameraWindow);
+	ePicStats.initialize(secondColumnPointKinetic, cameraWindow);
 	eTextingHandler.initializeControls(secondColumnPointKinetic, secondColumnPointAccumulate, 
 		secondColumnPointContinuous, cameraWindow, false);
 	/// Image stuffs

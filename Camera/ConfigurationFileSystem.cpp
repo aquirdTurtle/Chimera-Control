@@ -12,18 +12,18 @@
 #include "appendText.h"
 #include "Commctrl.h"
 
-ConfigurationFileSystem::ConfigurationFileSystem(std::string fileSystemPath)
+ConfigurationSystem::ConfigurationSystem(std::string fileSystemPath)
 {
 	FILE_SYSTEM_PATH = fileSystemPath;
 }
-ConfigurationFileSystem::~ConfigurationFileSystem()
+ConfigurationSystem::~ConfigurationSystem()
 {
 	// nothing for destructor right now
 }
 
-int ConfigurationFileSystem::openConfiguration(std::string configurationNameToOpen)
+int ConfigurationSystem::openConfiguration(std::string configurationNameToOpen)
 {
-	if (configurationNameToOpen == "" || !ConfigurationFileSystem::fileExists(FILE_SYSTEM_PATH + configurationNameToOpen + ".cConfig"))
+	if (configurationNameToOpen == "" || !ConfigurationSystem::fileExists(FILE_SYSTEM_PATH + configurationNameToOpen + ".cConfig"))
 	{
 		// can't open this.
 		return -1;
@@ -145,13 +145,11 @@ int ConfigurationFileSystem::openConfiguration(std::string configurationNameToOp
 			ePreviousPicturesPerSubSeries = ePicturesPerVariation;
 		}
 		ePicturesPerVariation = INT_MAX;
-		SendMessage(eCameraModeComboHandle.hwnd, CB_SETCURSEL, 2, 0);
 		//SendMessage(.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerVariation).c_str());
 	}
 	else if (eCurrentlySelectedCameraMode == "Kinetic Series Mode")
 	{
 		eAcquisitionMode = 3;
-		SendMessage(eCameraModeComboHandle.hwnd, CB_SETCURSEL, 0, 0);
 	}
 	else if (eCurrentlySelectedCameraMode == "Accumulate Mode")
 	{
@@ -161,7 +159,6 @@ int ConfigurationFileSystem::openConfiguration(std::string configurationNameToOp
 			ePreviousPicturesPerSubSeries = ePicturesPerVariation;
 		}
 		ePicturesPerVariation = INT_MAX;
-		SendMessage(eCameraModeComboHandle.hwnd, CB_SETCURSEL, 1, 0);
 		//SendMessage(ePicturesPerRepetitionDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerVariation).c_str());
 	}
 	configurationOpenFile >> eKineticCycleTime;
@@ -243,11 +240,11 @@ int ConfigurationFileSystem::openConfiguration(std::string configurationNameToOp
 	return 0;
 }
 
-int ConfigurationFileSystem::saveConfiguration(bool isFromSaveAs)
+int ConfigurationSystem::saveConfiguration(bool isFromSaveAs)
 {
 	// check if file exists
 	struct stat buffer;
-	if (configurationName == "" || (!ConfigurationFileSystem::fileExists(FILE_SYSTEM_PATH + configurationName + ".cConfig") && !isFromSaveAs))
+	if (configurationName == "" || (!ConfigurationSystem::fileExists(FILE_SYSTEM_PATH + configurationName + ".cConfig") && !isFromSaveAs))
 	{
 		configurationName = (const char*)DialogBoxParam(eHInst, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)dialogProcedures::textPromptDialogProcedure, (LPARAM)"This configuration "
 					   "has not been named. Please enter a configuration name.");
@@ -324,11 +321,11 @@ int ConfigurationFileSystem::saveConfiguration(bool isFromSaveAs)
 		SendMessage(eCurrentPlotsCombo.hwnd, CB_GETLBTEXT, plotInc, (LPARAM)text);
 		configurationSaveFile << std::string(text) + "\n";
 	}
-	ConfigurationFileSystem::reloadCombo(configurationName);
+	ConfigurationSystem::reloadCombo(configurationName);
 	updateSaveStatus(true);
 	return 0;
 }
-int ConfigurationFileSystem::saveConfigurationAs(std::string newConfigurationName)
+int ConfigurationSystem::saveConfigurationAs(std::string newConfigurationName)
 {
 	configurationName = newConfigurationName; 
 	if (configurationName == "")
@@ -336,11 +333,11 @@ int ConfigurationFileSystem::saveConfigurationAs(std::string newConfigurationNam
 		// canceled
 		return 0;
 	}
-	ConfigurationFileSystem::saveConfiguration(true);
-	ConfigurationFileSystem::reloadCombo(configurationName);
+	ConfigurationSystem::saveConfiguration(true);
+	ConfigurationSystem::reloadCombo(configurationName);
 	return 0;
 }
-int ConfigurationFileSystem::renameConfiguration(std::string newConfigurationName)
+int ConfigurationSystem::renameConfiguration(std::string newConfigurationName)
 {
 	std::string tempConfigurationName = (const char*)DialogBoxParam(eHInst, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)dialogProcedures::textPromptDialogProcedure, (LPARAM)"Please enter a configuration name.");
 	if (tempConfigurationName == "")
@@ -351,10 +348,10 @@ int ConfigurationFileSystem::renameConfiguration(std::string newConfigurationNam
 	// TODO: move the configuration file
 	MoveFile((FILE_SYSTEM_PATH + configurationName + ".cConfig").c_str(), (FILE_SYSTEM_PATH + tempConfigurationName + ".cConfig").c_str());
 	configurationName = tempConfigurationName;
-	ConfigurationFileSystem::reloadCombo(configurationName);
+	ConfigurationSystem::reloadCombo(configurationName);
 	return 0;
 }
-int ConfigurationFileSystem::deleteConfiguration()
+int ConfigurationSystem::deleteConfiguration()
 {
 	int answer = MessageBox(0, ("Are you sure that you want to delete the following configuraiton: " + configurationName).c_str(), 0, MB_OKCANCEL);
 	if (answer == IDOK)
@@ -367,12 +364,12 @@ int ConfigurationFileSystem::deleteConfiguration()
 		}
 		configurationName = "";
 	}
-	ConfigurationFileSystem::reloadCombo("__NONE__");
+	ConfigurationSystem::reloadCombo("__NONE__");
 	// no configuration loaded so don't want save prompt
 	updateSaveStatus(true);
 	return 0;
 }
-int ConfigurationFileSystem::checkSave()
+int ConfigurationSystem::checkSave()
 {
 	if (!configurationSaved)
 	{
@@ -385,7 +382,7 @@ int ConfigurationFileSystem::checkSave()
 	}
 }
 
-int ConfigurationFileSystem::initializeControls(POINT& topLeftPositionKinetic, POINT& topLeftPositionAccumulate, POINT& topLeftPositionContinuous, HWND parentWindow, bool isTriggerModeSensitive)
+int ConfigurationSystem::initializeControls(POINT& topLeftPositionKinetic, POINT& topLeftPositionAccumulate, POINT& topLeftPositionContinuous, HWND parentWindow, bool isTriggerModeSensitive)
 {
 	configLabel.kineticSeriesModePos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 150, topLeftPositionKinetic.y + 25 };
 	configLabel.accumulateModePos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 150, 
@@ -411,7 +408,7 @@ int ConfigurationFileSystem::initializeControls(POINT& topLeftPositionKinetic, P
 		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top, parentWindow, (HMENU)IDC_CONFIGURATION_COMBO, eHInst, NULL);
 	// add options
 	configCombo.fontType = "Normal";
-	ConfigurationFileSystem::reloadCombo("__NONE__");
+	ConfigurationSystem::reloadCombo("__NONE__");
 	topLeftPositionKinetic.y += 25;
 	topLeftPositionAccumulate.y += 25;
 	topLeftPositionContinuous.y += 25;
@@ -419,14 +416,14 @@ int ConfigurationFileSystem::initializeControls(POINT& topLeftPositionKinetic, P
 	return 0;
 }
 
-int ConfigurationFileSystem::reorganizeControls(RECT parentRectangle, std::string mode)
+int ConfigurationSystem::reorganizeControls(RECT parentRectangle, std::string mode)
 {
 	reorganizeControl(configLabel, mode, parentRectangle);
 	reorganizeControl(configCombo, mode, parentRectangle);
 	return 0;
 }
 
-std::vector<std::string> ConfigurationFileSystem::searchForFiles(std::string locationToSearch, std::string extensions)
+std::vector<std::string> ConfigurationSystem::searchForFiles(std::string locationToSearch, std::string extensions)
 {
 	// Re-add the entries back in and figure out which one is the current one.
 	std::vector<std::string> names;
@@ -483,11 +480,11 @@ std::vector<std::string> ConfigurationFileSystem::searchForFiles(std::string loc
 	// Make the final vector out of the unique objects left.
 	return names;
 }
-int ConfigurationFileSystem::reloadCombo(std::string nameToLoad)
+int ConfigurationSystem::reloadCombo(std::string nameToLoad)
 {
 	std::vector<std::string> names;
 	// search for folders
-	names = ConfigurationFileSystem::searchForFiles(FILE_SYSTEM_PATH, "*.cConfig");
+	names = ConfigurationSystem::searchForFiles(FILE_SYSTEM_PATH, "*.cConfig");
 
 	/// Get current selection
 	long long itemIndex = SendMessage(configCombo.hwnd, CB_GETCURSEL, 0, 0);
@@ -516,13 +513,13 @@ int ConfigurationFileSystem::reloadCombo(std::string nameToLoad)
 	return 0;
 }
 
-bool ConfigurationFileSystem::fileExists(std::string filePathway)
+bool ConfigurationSystem::fileExists(std::string filePathway)
 {
 	// got this from stack exchange. dunno how it works but it should be fast.
 	struct stat buffer;
 	return (stat(filePathway.c_str(), &buffer) == 0);
 }
-std::string ConfigurationFileSystem::getComboText()
+std::string ConfigurationSystem::getComboText()
 {
 	int selectionNum = SendMessage(configCombo.hwnd, CB_GETCURSEL, 0, 0);
 	if (selectionNum == -1)
@@ -537,7 +534,7 @@ std::string ConfigurationFileSystem::getComboText()
 	}
 }
 
-void ConfigurationFileSystem::updateSaveStatus(bool saved)
+void ConfigurationSystem::updateSaveStatus(bool saved)
 {
 	configurationSaved = saved;
 }

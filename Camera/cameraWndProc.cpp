@@ -1935,7 +1935,8 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 		case WM_CLOSE:
 		case WM_DESTROY: 
 		{
-			if (MessageBox(0, "Do you really want to exit? Closing this program smoothly will warm up the camera.", "Exit?", MB_OKCANCEL) == IDCANCEL)
+			if (MessageBox(0, "Do you really want to exit? Remember that if this is a real shutdown, you need to warm the camera up. Closing this program does not "
+				" warm up the camera.", "Exit?", MB_OKCANCEL) == IDCANCEL)
 			{
 				return 0;
 			}
