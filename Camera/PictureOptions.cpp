@@ -310,12 +310,12 @@ INT_PTR PictureOptions::colorControls(HWND window, UINT message, WPARAM wParam, 
 		SetTextColor(hdcStatic, RGB(255, 255, 255));
 		TCHAR textEdit[256];
 		SendMessage(exposureEdits[picNum].hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
-		float exposure;
+		int exposure;
 		try
 		{
 			exposure = std::stof(std::string(textEdit));// / 1000.0f;
 			double dif = std::fabs(exposure/1000.0 - exposureTimes[picNum]);
-			if (dif < 10^-6)
+			if (dif < 0.000000001)
 			{
 				// good.
 				SetTextColor(hdcStatic, RGB(255, 255, 255));
@@ -437,11 +437,11 @@ bool PictureOptions::handleOptionChange(HWND window, UINT msg, WPARAM wParam, LP
 		{
 			TCHAR textEdit[256];
 			SendMessage(exposureEdits[exposureInc].hwnd, WM_GETTEXT, 256, (LPARAM)textEdit);
-			float exposure;
+			int exposure;
 			try
 			{
-				std::string tempstr = std::string(textEdit);
-				exposure = std::stof(tempstr);
+
+				exposure = std::stof(std::string(textEdit));
 
 				exposureTimes[exposureInc] = exposure / 1000.0f;
 			}

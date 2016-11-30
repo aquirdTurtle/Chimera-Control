@@ -17,7 +17,7 @@
 #include "PictureOptions.h"
 
 /// \\\ THINGS THAT THE USER SETS \\\ ///
-ConfigurationFileSystem eCameraFileSystem(CAMERA_CONFIGURATION_FILES_LOCATION);
+ConfigurationSystem eCameraFileSystem(CAMERA_CONFIGURATION_FILES_LOCATION);
 ExperimentTimer eCameraWindowExperimentTimer;
 DataFileSystem eExperimentData(SAVE_BASE_ADDRESS);
 SMSTextingControl eTextingHandler;

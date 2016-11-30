@@ -27,7 +27,7 @@ extern bool eRealTimePictures;
 extern bool eAutoanalyzeData;
 extern DataFileSystem eExperimentData;
 extern SMSTextingControl eTextingHandler;
-extern ConfigurationFileSystem eCameraFileSystem;
+extern ConfigurationSystem eCameraFileSystem;
 extern ExperimentTimer eCameraWindowExperimentTimer;
 extern DataAnalysisHandler eAutoAnalysisHandler;
 extern CameraImage eImageControl;
