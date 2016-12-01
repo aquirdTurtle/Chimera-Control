@@ -111,6 +111,12 @@ unsigned __stdcall plotterProcedure(LPVOID inputParam)
 			}
 		}
 	}
+	// 
+	if (totalNumberOfPixels == 0)
+	{
+		// no locations selected for analysis; quit.
+		return 0;
+	}
 	// set flag?
 
 	/// Initialize Arrays for data.
