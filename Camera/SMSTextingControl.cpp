@@ -13,6 +13,7 @@ SMSTextingControl::SMSTextingControl()
 {
 
 }
+
 SMSTextingControl::~SMSTextingControl()
 {
 
@@ -24,7 +25,6 @@ bool SMSTextingControl::promptForEmailAddressAndPassword()
 	password = (const char*)DialogBoxParam(eHInst, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)dialogProcedures::textPromptDialogProcedure, (LPARAM)std::string("Please enter a password:").c_str());
 	return false;
 }
-
 
 bool SMSTextingControl::initializeControls(POINT& topLeftPositionKinetic, POINT& topLeftPositionAccumulate, POINT& topLeftPositionContinuous, 
 										   HWND parentWindow, bool isTriggerModeSensitive)

@@ -7,11 +7,13 @@
 
 AlertSystem::~AlertSystem()
 {
+	// stop music
 	mciSendString("close mp3", NULL, 0, NULL);
 }
 
 unsigned int AlertSystem::getAlertThreshold()
 {
+//	this->setAlertThreshold();
 	return alertThreshold;
 }
 
@@ -55,6 +57,8 @@ bool AlertSystem::initialize(POINT& topLeftPositionKinetic, POINT& topLeftPositi
 		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top,
 		parentWindow, (HMENU)alertsActiveCheckBox.ID, eHInst, NULL);
 	alertsActiveCheckBox.fontType = "Normal";
+	SendMessage(alertsActiveCheckBox.hwnd, BM_SETCHECK, BST_CHECKED, 0);
+	useAlerts = true;
 	/// Alert threshold text
 	this->alertThresholdText.kineticSeriesModePos = { topLeftPositionKinetic.x + 60, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 220, topLeftPositionKinetic.y + 20 };
 	alertThresholdText.accumulateModePos = { topLeftPositionAccumulate.x + 60, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 220, topLeftPositionAccumulate.y + 20 };
@@ -126,6 +130,9 @@ bool AlertSystem::reorganizeControls(RECT parentRectangle, std::string cameraMod
 
 bool AlertSystem::handleCheckBoxPress(WPARAM messageWParam, LPARAM messageLParam)
 {
+	// just helps keep this # up to date.
+	
+	// now handle.
 	if (LOWORD(messageWParam) == alertsActiveCheckBox.ID)
 	{
 		BOOL checked = SendMessage(alertsActiveCheckBox.hwnd, BM_GETCHECK, 0, 0);
@@ -136,11 +143,11 @@ bool AlertSystem::handleCheckBoxPress(WPARAM messageWParam, LPARAM messageLParam
 		}
 		else
 		{
-
 			SendMessage(alertsActiveCheckBox.hwnd, BM_SETCHECK, BST_CHECKED, 0);
 			useAlerts = true;
 		}
-		return false;
+		this->setAlertThreshold();
+		return false;		
 	}
 	else
 	{

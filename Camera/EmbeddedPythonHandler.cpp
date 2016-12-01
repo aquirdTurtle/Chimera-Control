@@ -4,11 +4,13 @@
 // for personInfo structure.
 #include "SMSTextingControl.h"
 
-// constructor is important.
+// this constructor is important.
 EmbeddedPythonHandler::EmbeddedPythonHandler()
 {
+	// tell python where my python files are.
 	Py_SetPythonHome(PYTHON_HOME);
 	Py_Initialize();
+	// set up this command
 	std::string stdOutErr = "import sys\n"
 							"class CatchOutErr:\n"
 							"\tdef __init__(self):\n"
