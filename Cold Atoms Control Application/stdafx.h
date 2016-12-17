@@ -35,6 +35,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <array>
 
 #include <stdio.h>
 #include <tchar.h>
@@ -43,4 +44,5 @@
 #include "constants.h"
 #include "resource.h"
 #include "errBox.h"
+
  

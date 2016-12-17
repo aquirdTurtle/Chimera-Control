@@ -35,7 +35,7 @@ namespace myAgilent
 	 * segNum: This tells the function what the next segment # is.
 	 * scriptName: this is the file object to be read from.
 	 */
-	int IntensityWaveform::readIntoSegment(int segNum, std::fstream& scriptName, std::vector<variable> singletons)
+	int IntensityWaveform::readIntoSegment(int segNum, std::fstream& scriptName, std::vector<variable> singletons, profileSettings profileInfo)
 	{
 		rmWhite(scriptName);
 		std::string intensityCommand;
@@ -67,15 +67,15 @@ namespace myAgilent
 			// remove \n at the end of last line.
 			scriptName.get();
 			getline(scriptName, nestedFileName, '\r');
-			std::string path = eProfile.getCurrentPathIncludingCategory() + nestedFileName + AGILENT_SCRIPT_EXTENSION;
+			std::string path = profileInfo.pathIncludingCategory + nestedFileName + AGILENT_SCRIPT_EXTENSION;
 			std::fstream nestedFile(path.c_str(), std::ios::in);
 			if (!nestedFile.is_open())
 			{
-				MessageBox(0, ("ERROR: tried to open a nested intensity file, but failed! The file was " + eProfile.getCurrentPathIncludingCategory()
+				MessageBox(0, ("ERROR: tried to open a nested intensity file, but failed! The file was " + profileInfo.pathIncludingCategory
 					+ nestedFileName + AGILENT_SCRIPT_EXTENSION).c_str(), 0, 0);
 				return -1;
 			}
-			if (myAgilent::analyzeIntensityScript(nestedFile, this, segNum, singletons))
+			if (myAgilent::analyzeIntensityScript(nestedFile, this, segNum, singletons, profileInfo))
 			{
 				return -1;
 			}
@@ -785,12 +785,12 @@ namespace myAgilent
 		return 0;
 	}
 
-	bool analyzeIntensityScript(std::fstream& intensityFile, myAgilent::IntensityWaveform* intensityWaveformData, int& currentSegmentNumber, std::vector<variable> singletons)
+	bool analyzeIntensityScript(std::fstream& intensityFile, myAgilent::IntensityWaveform* intensityWaveformData, int& currentSegmentNumber, std::vector<variable> singletons, profileSettings profileInfo)
 	{
 		while (!intensityFile.eof())
 		{
 			// Procedurally read lines into segment informations.
-			int leaveTest = intensityWaveformData->readIntoSegment(currentSegmentNumber, intensityFile, singletons);
+			int leaveTest = intensityWaveformData->readIntoSegment(currentSegmentNumber, intensityFile, singletons, profileInfo);
 			if (leaveTest < 0)
 			{
 				// Error
@@ -815,7 +815,7 @@ namespace myAgilent
 	 */
 	int programIntensity(int varNum, std::vector<variable> variables, std::vector<std::vector<double> > varValues, bool& intensityVaried, 
 						 std::vector<myMath::minMaxDoublet>& minsAndMaxes, std::vector<std::vector<POINT>>& pointsToDraw, 
-						 std::vector<std::fstream>& intensityFiles, std::vector<variable> singletons)
+						 std::vector<std::fstream>& intensityFiles, std::vector<variable> singletons, profileSettings profileInfo)
 	{
 		// Initialize stuff
 		myAgilent::IntensityWaveform intensityWaveformSequence;
@@ -847,7 +847,7 @@ namespace myAgilent
 		}
 		for (int sequenceInc = 0; sequenceInc < intensityFiles.size(); sequenceInc++)
 		{
-			if (analyzeIntensityScript(intensityFiles[sequenceInc], &intensityWaveformSequence, currentSegmentNumber, singletons))
+			if (analyzeIntensityScript(intensityFiles[sequenceInc], &intensityWaveformSequence, currentSegmentNumber, singletons, profileInfo))
 			{
 				return -1;
 			}

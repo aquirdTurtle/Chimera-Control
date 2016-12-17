@@ -70,15 +70,16 @@ namespace myNIAWG
 					   ViConstString channelName, ViStatus error, std::vector<std::string> verticalPredWaveNames, std::vector<std::string> horizontalPredWaveNames, 
 					   int &predWaveCount, std::vector<int> predLocs, std::vector<std::string>(&libWaveformArray)[20], bool(&fileStatus)[20], 
 					   std::vector<waveData> &allVerticalWaveParameters, std::vector<bool> &verticalWaveformVaried, std::vector<waveData> &allHorizontalWaveParameters, 
-					   std::vector<bool> &horizontalWaveformVaried, bool isDefault, bool isThreaded, std::string currentCategoryFolder, std::vector<variable> singletons);
+					   std::vector<bool> &horizontalWaveformVaried, bool isDefault, bool isThreaded, std::string currentCategoryFolder, std::vector<variable> singletons, 
+					   std::string orientation, debugOptions options);
 
 	int getVariedWaveform(waveData &varWvFmInfo, std::vector<waveData> all_X_Or_Y_WvFmParam, int waveOrderNum, std::vector<std::string>(&libWvFmArray)[20],
-						  bool(&fileStat)[20], ViReal64 *waveformRawData);
+						  bool(&fileStat)[20], ViReal64 *waveformRawData, debugOptions options);
 
 	int varyParam(std::vector<waveData> &allWvInfo1, std::vector<waveData> &allWvInfo2, int wfCount, int &paramNum, double paramVal);
 	
 	// NIAWG error checkers...
-	bool NIAWG_CheckWindowsError(int err);
+	bool NIAWG_CheckWindowsError(int err, std::string orientation);
 	bool NIAWG_CheckProgrammingError(int err);
 	bool NIAWG_CheckScriptError(int err, bool isDefaultError, bool isThreaded);
 	int myNIAWG_DoubleErrorChecker(int err);
@@ -91,14 +92,15 @@ namespace myNIAWG
 		int getWvFmData(std::fstream &scriptName, waveData &waveInfo, std::vector<variable> singletons);
 
 		int waveformGen(ViReal64 * & tempWaveform, ViReal64 * & readData, waveData & waveInfo, long int size,
-			std::vector<std::string>(&libWaveformArray)[20], bool &fileOpened);
+			std::vector<std::string>(&libWaveformArray)[20], bool &fileOpened, debugOptions options);
 
 		int logic(std::fstream &xFile, std::fstream &yFile, std::string xInput, std::string yInput, std::string &scriptString, std::string triggerName);
 
 		int special(std::fstream &xFile, std::fstream &yFile, std::string xInputType, std::string yInputType, std::string &scriptString, std::string triggerName,
 			int &waveCount, ViSession vi, ViConstString channelName, ViStatus error, std::vector<std::string> xWaveformList, std::vector<std::string> yWaveformList,
 			int &predWaveCount, std::vector<int> waveListWaveCounts, std::vector<std::string>(&libWaveformArray)[20], bool(&fileStatus)[20], std::vector<waveData> &allXWaveParam,
-			std::vector<bool> &xWaveVaried, std::vector<waveData> &allYWaveParam, std::vector<bool> &yWaveVaried, bool isDefault, bool isThreaded, std::string currentCategoryFolder, std::vector<variable> singletons);
+			std::vector<bool> &xWaveVaried, std::vector<waveData> &allYWaveParam, std::vector<bool> &yWaveVaried, bool isDefault, bool isThreaded, std::string currentCategoryFolder, 
+				std::vector<variable> singletons, std::string orientation, debugOptions options);
 	}
 
 	/**

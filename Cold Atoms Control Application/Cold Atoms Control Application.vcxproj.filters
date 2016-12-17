@@ -22,9 +22,6 @@
     <ClCompile Include="initializeMainWindow.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="initializeScriptingWindow.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
     <ClCompile Include="myAgilent.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
@@ -82,9 +79,6 @@
     <ClCompile Include="VariableSystem.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="GUI_Debugger.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
     <ClCompile Include="errBox.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
@@ -104,6 +98,15 @@
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="DebuggingOptionsControl.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ColorBox.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProfileIndicator.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MainOptionsControl.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -154,9 +157,6 @@
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="initializeMainWindow.h">
-      <Filter>Function Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="initializeScriptingWindow.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="myAgilent.h">
@@ -228,9 +228,6 @@
     <ClInclude Include="Script.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
-    <ClInclude Include="GUI_Debugger.h">
-      <Filter>Function Headers</Filter>
-    </ClInclude>
     <ClInclude Include="errBox.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
@@ -242,6 +239,18 @@
     </ClInclude>
     <ClInclude Include="errBox.h" />
     <ClInclude Include="DebuggingOptionsControl.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="errBox.h" />
+    <ClInclude Include="ColorBox.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="errBox.h" />
+    <ClInclude Include="ProfileIndicator.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="errBox.h" />
+    <ClInclude Include="MainOptionsControl.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
   </ItemGroup>

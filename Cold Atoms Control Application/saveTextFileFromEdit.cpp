@@ -8,7 +8,7 @@
  * extension is the text of the default extension for saving this time.
  * returns the name that was selected. If no name is selected, this returns "".
  */
-std::string saveTextFileFromEdit(HWND hwndOwner, std::string extension)
+std::string saveTextFileFromEdit(HWND hwndOwner, std::string extension, profileSettings location)
 {
 	//Save Dialog
 	OPENFILENAME saveFileDialogInfoObj;
@@ -16,7 +16,7 @@ std::string saveTextFileFromEdit(HWND hwndOwner, std::string extension)
 	szSaveFileName[0] = '\0';
 	ZeroMemory(&saveFileDialogInfoObj, sizeof(saveFileDialogInfoObj));
 	
-	saveFileDialogInfoObj.lpstrInitialDir = (LPTSTR)(eProfile.getCurrentPathIncludingCategory()).c_str();
+	saveFileDialogInfoObj.lpstrInitialDir = (LPTSTR)(location.pathIncludingCategory).c_str();
 	saveFileDialogInfoObj.lStructSize = sizeof(saveFileDialogInfoObj);
 	saveFileDialogInfoObj.hwndOwner = hwndOwner;
 	saveFileDialogInfoObj.lpstrFilter = NULL;

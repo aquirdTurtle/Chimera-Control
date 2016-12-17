@@ -130,7 +130,7 @@ namespace myAgilent
 		public:
 			IntensityWaveform();
 			~IntensityWaveform();
-			int readIntoSegment(int segNum, std::fstream& scriptName, std::vector<variable> singletons);
+			int readIntoSegment(int segNum, std::fstream& scriptName, std::vector<variable> singletons, profileSettings profileInfo);
 			int writeData(int SegNum);
 			std::string compileAndReturnDataSendString(int segNum, int varNum, int totalSegNum);
 			int compileSequenceString(int totalSegNum, int sequenceNum);
@@ -161,7 +161,7 @@ namespace myAgilent
 	]- configurations, but also recursively to analyze nested intensity scripts.
 	*/
 	bool analyzeIntensityScript(std::fstream& intensityFile, myAgilent::IntensityWaveform* intensityWaveformData, int& currentSegmentNumber, 
-								std::vector<variable> singletons);
+								std::vector<variable> singletons, profileSettings profileInfo);
 	/*
 	 * The programIntensity function reads in the intensity script file, interprets it, creates the segments and sequences, and outputs them to the andor to be
 	 * ready for usage. 
@@ -169,7 +169,7 @@ namespace myAgilent
 	 */
 	int programIntensity(int varNum, std::vector<variable> varNames, std::vector<std::vector<double> > varValues, bool& intensityVaried,
 						 std::vector<myMath::minMaxDoublet>& minsAndMaxes, std::vector<std::vector<POINT>>& pointsToDraw, 
-						 std::vector<std::fstream>& intensityFiles, std::vector<variable> singletons);
+						 std::vector<std::fstream>& intensityFiles, std::vector<variable> singletons, profileSettings profileInfo);
 
 	int agilentErrorCheck(long status, unsigned long vi);
 	

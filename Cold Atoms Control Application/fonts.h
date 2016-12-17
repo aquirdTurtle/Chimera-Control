@@ -17,4 +17,6 @@ static HFONT sHeadingFont = CreateFont(18, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, F
 static HFONT sLargeHeadingFont = CreateFont(28, 0, 0, 0, FW_DONTCARE, TRUE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
 										    DEFAULT_PITCH | FF_SWISS, TEXT("Old Sans Black"));
 
+
+
 #endif

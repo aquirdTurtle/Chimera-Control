@@ -1,6 +1,12 @@
 #pragma once
 #include "windows.h"
 
+struct waitThreadInput
+{
+	ViSession currentSession;
+	profileSettings profileInfo;
+};
+
 /*
 * This function is called to wait on the NIAWG until it finishes. It will eventually send messages to other threads to indicate when it finishes.
 * ViSession inputParam: this is the session handle for the session with the NIAWG.

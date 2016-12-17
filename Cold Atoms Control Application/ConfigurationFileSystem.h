@@ -2,6 +2,10 @@
 #include <vector>
 #include <string>
 #include "Control.h"
+
+class MainWindow;
+class ScriptingWindow;
+
 /*
 ]- This is a structure used for containing a set of parameters that define a profile.
 ]- It's used heavily by the configuration file system, but not exclusively by it.
@@ -13,6 +17,10 @@ struct profileSettings
 	std::string category;
 	std::string sequence;
 	std::string orientation;
+	std::string pathIncludingExperiment;
+	std::string pathIncludingCategory;
+
+	std::vector<std::string> sequenceConfigurationNames;
 };
 
 /*
@@ -26,12 +34,12 @@ class ConfigurationFileSystem
 		ConfigurationFileSystem(std::string fileSystemPath);
 		~ConfigurationFileSystem();
 
-		bool saveEntireProfile();
-		bool checkSaveEntireProfile();
-		bool allSettingsReadyCheck();
+		bool saveEntireProfile(ScriptingWindow* scriptWindow, MainWindow* mainWin);
+		bool checkSaveEntireProfile(ScriptingWindow* scriptWindow, MainWindow* mainWin);
+		bool allSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* mainWin);
 		bool reloadAllCombos();
 
-		bool orientationChangeHandler(HWND parentWindow);
+		bool orientationChangeHandler(HWND parentWindow, profileSettings profileInfo, MainWindow* mainWin);
 		std::string getOrientation();
 		bool setOrientation(std::string);
 
@@ -51,41 +59,42 @@ class ConfigurationFileSystem
 		std::vector<std::string> getSequenceNames();
 		bool reloadSequence(std::string sequenceToReload);
 
-		bool saveExperimentOnly();
+		bool saveExperimentOnly(MainWindow* mainWin);
 		bool newExperiment();
-		bool saveExperimentAs();
-		bool renameExperiment();
+		bool saveExperimentAs(MainWindow* mainWin);
+		bool renameExperiment(MainWindow* mainWin);
 		bool deleteExperiment();
-		bool openExperiment(std::string experimentToOpen, HWND parentWindow);
+		bool openExperiment(std::string experimentToOpen, HWND parentWindow, ScriptingWindow* scriptWindow, MainWindow* mainWin);
 		bool updateExperimentSavedStatus(bool isSaved);
-		bool experimentSettingsReadyCheck();
-		bool checkExperimentSave(std::string prompt);
-		bool experimentChangeHandler(HWND parentWindow);
+		bool experimentSettingsReadyCheck(MainWindow* mainWin);
+		bool checkExperimentSave(std::string prompt, MainWindow* mainWin);
+		bool experimentChangeHandler(HWND parentWindow, ScriptingWindow* scriptWindow, MainWindow* mainWin);
 		std::string getCurrentExperiment();
 
-		bool saveConfigurationOnly();
-		bool newConfiguration();
-		bool saveConfigurationAs();
+		bool saveConfigurationOnly(ScriptingWindow* scriptWindow, MainWindow* mainWin);
+		bool newConfiguration(MainWindow* mainWin);
+		bool saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindow* mainWin);
 		bool renameConfiguration();
 		bool deleteConfiguration();
-		bool openConfiguration(std::string configurationNameToOpen, HWND parentWindow);
+		bool openConfiguration(std::string configurationNameToOpen, HWND parentWindow, ScriptingWindow* scriptWindow, MainWindow* mainWin);
 		bool updateConfigurationSavedStatus(bool isSaved);
-		bool configurationSettingsReadyCheck();
-		bool checkConfigurationSave(std::string prompt);
-		bool configurationChangeHandler(HWND parentWindow);
+		bool configurationSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* mainWin);
+		bool checkConfigurationSave(std::string prompt, ScriptingWindow* scriptWindow, MainWindow* mainWin);
+		bool configurationChangeHandler(HWND parentWindow, ScriptingWindow* scriptWindow, MainWindow* mainWin);
 
-		bool saveCategoryOnly();
+		bool saveCategoryOnly(MainWindow* mainWin);
 		bool renameCategory();
 		bool newCategory();
 		bool deleteCategory();
-		bool saveCategoryAs();
-		bool openCategory(std::string categoryToOpen, HWND parentWindow);
+		bool saveCategoryAs(MainWindow* mainWin);
+		bool openCategory(std::string categoryToOpen, HWND parentWindow, ScriptingWindow* scriptWindow, MainWindow* mainWin);
 		bool updateCategorySavedStatus(bool isSaved);
 		bool categorySettinsReadyCheck();
-		bool checkCategorySave(std::string prompt);
-		bool categoryChangeHandler(HWND parentWindow);
+		bool checkCategorySave(std::string prompt, MainWindow* mainWin);
+		bool categoryChangeHandler(HWND parentWindow, ScriptingWindow* scriptWindow, MainWindow* mainWin);
 		std::string getCurrentCategory();
 		std::string getCurrentPathIncludingCategory();
+		profileSettings getCurrentProfileSettings();
 
 		std::vector<std::string> searchForFiles(std::string locationToSearch, std::string extensions);
 		bool reloadCombo(HWND comboToReload, std::string locationToLook, std::string extension, std::string nameToLoad);
@@ -94,32 +103,30 @@ class ConfigurationFileSystem
 		void updateSaveStatus(bool savedStatus);
 		bool fullyDeleteFolder(std::string folderToDelete);
 
-		bool initializeControls(POINT& topLeftPosition, HWND parentWindow);
+		bool initializeControls(POINT& topLeftPosition, CWnd* parent, int& id);
 		bool reorganizeControls(RECT parentRectangle, std::string mode);
 		
 	private:
 		profileSettings currentProfileSettings;
 		std::string FILE_SYSTEM_PATH;
-		std::string pathIncludingExperiment;
-		std::string pathIncludingCategory;
 		bool configurationIsSaved;
 		bool categoryIsSaved;
 		bool experimentIsSaved;
 		bool sequenceIsSaved;
-		HwndControl configLabel;
-		HwndControl configCombo;
-		HwndControl experimentLabel;
-		HwndControl experimentCombo;
-		HwndControl categoryLabel;
-		HwndControl categoryCombo;
-		HwndControl sequenceLabel;
-		HwndControl sequenceCombo;
-		HwndControl sequenceInfoDisplay;
-		HwndControl sequenceSavedIndicator;
-		HwndControl orientationLabel;
-		HwndControl orientationCombo;
-		HwndControl categorySavedIndicator;
-		HwndControl configurationSavedIndicator;
-		HwndControl experimentSavedIndicator;
-		std::vector<std::string> sequenceConfigurationNames;
+		
+		Control<CStatic> configLabel;
+		Control<CComboBox> configCombo;
+		Control<CStatic> experimentLabel;
+		Control<CComboBox> experimentCombo;
+		Control<CStatic> categoryLabel;
+		Control<CComboBox> categoryCombo;
+		Control<CStatic> sequenceLabel;
+		Control<CComboBox> sequenceCombo;
+		Control<CEdit> sequenceInfoDisplay;
+		Control<CButton> sequenceSavedIndicator;
+		Control<CStatic> orientationLabel;
+		Control<CComboBox> orientationCombo;
+		Control<CButton> categorySavedIndicator;
+		Control<CButton> configurationSavedIndicator;
+		Control<CButton> experimentSavedIndicator;
 };

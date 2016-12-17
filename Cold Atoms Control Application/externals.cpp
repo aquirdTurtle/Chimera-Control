@@ -10,17 +10,20 @@
 #include "VariableSystem.h"
 #include "DebuggingOptionsControl.h"
 
-//MainWindow MainWin;
-//ScriptingWindow ScriptWin;
+//UINT REDRAW_INDICATOR = RegisterWindowMessage("REDRAW_INDICATOR");
 
-ConfigurationFileSystem eProfile(PROFILES_PATH);
-NoteSystem eNotes;
-VariableSystem eVariables;
+CFont eNormalFont;
+CFont eSmallFont;
+CFont eCodeFont;
+CFont eSmallCodeFont;
+CFont eHeadingFont;
+CFont eLargeHeadingFont;
+
+//NoteSystem eNotes;
+//VariableSystem eVariables;
 int scriptIDs = 110000;
-//Script eVerticalNIAWGScript("Vertical NIAWG", scriptIDs), eHorizontalNIAWGScript("Horizontal NIAWG", scriptIDs), eIntensityAgilentScript("Agilent", scriptIDs);
 int debugID = 111000;
-GUI_Debugger eDebugger(debugID);
-DebuggingOptionsControl eDebuggingOptions;
+DebuggingOptionsControl eDebugger;
 
 // Agilent Stuff
 double eCurrentAgilentLow = std::stod(AGILENT_DEFAULT_DC);
@@ -68,18 +71,11 @@ bool eVerticalScriptSaved;
 bool eHorizontalScriptSaved;
 bool eIntensityScriptSaved;
 bool eDontActuallyGenerate;
-bool eConnectToMaster;
-bool eGetVarFilesFromMaster;
-bool eLogScriptAndParams;
 bool eUseDummyVariables;
-bool eOutputCorrTime;
 bool eProgramIntensityOption;
-bool eOutputReadStatus;
-bool eOutputWriteStatus;
 bool eSyntaxTimerIsActive;
 bool eAbortSystemFlag = false;
 bool eHorizontalSyntaxColorIsCurrent = true, eVerticalSyntaxColorIsCurrent = true, eIntensitySyntaxColorIsCurrent = true;
-bool eOutputRunInfo = false;
 int eDummyNum;
 
 unsigned int eAccumulations = 0;
@@ -137,7 +133,6 @@ HWND eStaticIntensityTitleHandle;
 HWND eIntensityNameHandle;
 HWND eExperimentTypeLabelHandle2;
 HWND eErrorStatusTextDisplay;
-HWND eDebuggingOptionsDisplayHandle;
 HWND eVariablesLabelTextHandle;
 HWND eSetupParametersTextHandle;
 HWND eNotesLabelTextHandle;
@@ -148,9 +143,6 @@ HWND eSystemErrorTextHandle;
 HWND eColoredStatusEdit;
 // Check Box Handles
 HWND eIntensityScriptSavedIndicatorHandle;
-HWND eOutputReadStatusButton;
-HWND eOutputWriteStatusButton;
-HWND eProgramIntensityOptionButton;
 HWND eOutputMoreInfoCheckButton;
 
 // User-Edited Edit Handles
@@ -164,7 +156,6 @@ HWND eLoadConfigButtonHandle;
 HWND eAccumulationsButtonHandle;
 HWND eScriptStatusClearButtonHandle;
 HWND eScriptDebugClearButtonHandle;
-HWND eConnectToMasterHandle;
 HWND eReceiveVariableFiles;
 HWND eLogScriptAndParamsButton;
 HWND eDummyVariableSelectHandle;
@@ -172,7 +163,6 @@ HWND eDummyNumEditHandle;
 HWND eDummyNumTextHandle;
 HWND eDummyVariableButtonHandle;
 HWND eVariableSetButtonHandle;
-HWND eOutputCorrTimeButton;
 
 HWND eVar1NameTextHandle;
 HWND eVar2NameTextHandle;
@@ -205,16 +195,12 @@ HWND eVerticalScriptSavedIndicatorHandle;
 HWND eHorizontalScriptSavedIndicatorHandle;
 HWND eConfigurationSavedIndicatorHandle;
 
-HWND eConfigurationDisplayInScripting;
-
 HWND eVerticalScriptNameTextHandle;
 HWND eHorizontalScriptNameTextHandle;
 HWND scriptSaveButtonHandle;
-HWND eConfigurationTextInScripting;
 
 HWND onlyWriteWaveformsButtonHandle;
 
-HWND eColorBox;
 /// Beginning Settings Dialog
 HWND eBeginDialogRichEdit;
 /// Temp!

@@ -1,22 +1,32 @@
 #pragma once
 #include "Control.h"
 
-struct debuggingOptionsList
+struct debugOptions
 {
-	bool outputNiawgMachineScriptSetting;
+	bool showReadProgress;
+	bool showWriteProgress;
+	bool showCorrectionTimes;
+	bool outputNiawgMachineScript;
 	bool outputNiawgHumanScript;
 	bool outputAgilentScript;
+	bool outputExcessInfo;
 };
 
 class DebuggingOptionsControl
 {
 	public:
-		void initialize(int& idStart, POINT& loc);
-		bool handleEvent(HWND parent, UINT msg, WPARAM wParam, LPARAM lParam);
-		debuggingOptionsList getOptions();
+		void initialize(int& idStart, POINT& loc, CWnd* parent);
+		bool handleEvent(HWND parent, UINT msg, WPARAM wParam, LPARAM lParam, MainWindow* mainWin);
+		debugOptions getOptions();
+		void setOptions(debugOptions options);
 	private:
-		HwndControl outputNiawgScript;
-		HwndControl outputAgilentScript;
-		HwndControl outputNiawgMachineScript;
-		debuggingOptionsList currentOptions;
+		Control<CStatic> header;
+		Control<CButton> readProgress;
+		Control<CButton> writeProgress;
+		Control<CButton> correctionTimes;
+		Control<CButton> niawgScript;
+		Control<CButton> outputAgilentScript;
+		Control<CButton> niawgMachineScript;
+		Control<CButton> excessInfo;
+		debugOptions currentOptions;
 };

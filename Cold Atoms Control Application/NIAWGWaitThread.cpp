@@ -17,7 +17,7 @@
  */
 unsigned __stdcall NIAWGWaitThread(void* inputParam)
 {
-	ViSession currentSession = *(ViSession*)inputParam;
+	waitThreadInput input = *(waitThreadInput*)inputParam;
 	ViBoolean isDone;
 	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
@@ -32,7 +32,7 @@ unsigned __stdcall NIAWGWaitThread(void* inputParam)
 	{
 		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
-			if ((niFgen_IsDone(currentSession, &isDone)) < 0)
+			if ((niFgen_IsDone(input.currentSession, &isDone)) < 0)
 			{
 				eWaitError = true;
 				return -1;
@@ -50,7 +50,7 @@ unsigned __stdcall NIAWGWaitThread(void* inputParam)
 	if (WaitForSingleObjectEx(eWaitingForNIAWGEvent, 0, true) == WAIT_TIMEOUT)
 	{
 		/// then it's not ready. start the default
-		if (eProfile.getOrientation() == HORIZONTAL_ORIENTATION)
+		if (input.profileInfo.orientation == HORIZONTAL_ORIENTATION)
 		{
 			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
@@ -69,7 +69,7 @@ unsigned __stdcall NIAWGWaitThread(void* inputParam)
 			eCurrentScript = "DefaultHConfigScript";
 
 		}
-		else if (eProfile.getOrientation() == VERTICAL_ORIENTATION)
+		else if (input.profileInfo.orientation == VERTICAL_ORIENTATION)
 		{
 			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{

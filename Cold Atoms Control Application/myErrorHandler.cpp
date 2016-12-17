@@ -19,7 +19,7 @@
  * This is a function for handling errors that MY functions return. Returns true if error is detected, false otherwise.
  */
 bool myErrorHandler(int errorCode, std::string errMsg, SOCKET& socketToClose, std::vector<std::fstream>& verticalFiles, std::vector<std::fstream>& horizontalFiles, bool aborting, ViStatus error, 
-					ViSession& mySession, bool scriptIsWritten, char scriptNameToDelete[260], bool sockActive, bool deleteScriptOpt, bool isThreaded)
+					ViSession& mySession, bool scriptIsWritten, char scriptNameToDelete[260], bool sockActive, bool deleteScriptOpt, bool connected, bool isThreaded)
 {
 	if (errorCode != 0)
 	{
@@ -39,7 +39,8 @@ bool myErrorHandler(int errorCode, std::string errMsg, SOCKET& socketToClose, st
 				// Set the status color.
 				eGenStatusColor = "R";
 				// Redraw the windows.
-				RedrawWindow(eColorBox, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+				// T.T
+				//RedrawWindow(eColorBox, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 				RedrawWindow(eColoredStatusEdit, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 			}
 		}
@@ -51,7 +52,7 @@ bool myErrorHandler(int errorCode, std::string errMsg, SOCKET& socketToClose, st
 			}
 		}
 		// Call Clean Socket.
-		cleanSocket(socketToClose, sockActive);
+		cleanSocket(socketToClose, sockActive, connected);
 		// turn the agilent to the default setting.
 		myAgilent::agilentDefault();
 		// close files.

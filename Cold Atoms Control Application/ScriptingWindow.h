@@ -2,6 +2,17 @@
 
 #include "stdafx.h"
 #include "Script.h"
+#include "ColorBox.h"
+#include "ProfileIndicator.h"
+
+class MainWindow;
+
+template <typename type> struct scriptInfo
+{
+	type horizontalNIAWG;
+	type verticalNIAWG;
+	type intensityAgilent;
+};
 
 class ScriptingWindow : public CDialog
 {
@@ -44,20 +55,57 @@ class ScriptingWindow : public CDialog
 			scriptBrushes["Dull Red"] = CreateSolidBrush(scriptRGBs["Dull Red"]);
 			scriptBrushes["Dark Red"] = CreateSolidBrush(scriptRGBs["Dark Red"]);
 		}
+
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+		
 		BOOL OnInitDialog() override;
 
+		void OnClose();
+		void passCommonCommand(UINT id);
 		void horizontalEditChange();
 		void agilentEditChange();
 		void verticalEditChange();
+		bool checkScriptSaves();
+		void getFriends(MainWindow* mainWindowPointer);
+		
+		scriptInfo<std::string> getScriptNames();
+		scriptInfo<bool> getScriptSavedStatuses();
+		scriptInfo<std::string> getScriptAddresses();
+		profileSettings getCurrentProfileSettings();
 
+		void updateScriptNamesOnScreen();
+		void updateProfile(std::string text);
+		void considerScriptLocations();
+		void recolorScripts();
+
+		int newIntensityScript();
+		int openIntensityScript(HWND parentWindow);
+		int openIntensityScript(std::string name);
+		int saveIntensityScript();
+		int saveIntensityScriptAs(HWND parentWindow);
+
+		int newVerticalScript();
+		int openVerticalScript(HWND parentWindow);
+		int openVerticalScript(std::string name);
+		int saveVerticalScript();
+		int saveVerticalScriptAs(HWND parentWindow);
+
+		int newHorizontalScript();
+		int openHorizontalScript(HWND parentWindow);
+		int openHorizontalScript(std::string name);
+		int saveHorizontalScript();
+		int saveHorizontalScriptAs(HWND parentWindow);
+
+		void redrawBox();
+		void updateConfigurationSavedStatus(bool status);
 	private:
 		DECLARE_MESSAGE_MAP();
 		
 		std::unordered_map<std::string, HBRUSH> scriptBrushes;
 		std::unordered_map<std::string, COLORREF> scriptRGBs;
-
+		MainWindow* mainWindowFriend;
 		// 
 		Script verticalNIAWGScript, horizontalNIAWGScript, intensityAgilentScript;
-
+		ColorBox statusBox;
+		ProfileIndicator profileDisplay;
 };

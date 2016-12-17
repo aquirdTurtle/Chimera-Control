@@ -9,15 +9,15 @@ class NoteSystem
 		bool setExperimentNotes(std::string notes);
 		bool setCategoryNotes(std::string notes);
 		bool setConfigurationNotes(std::string notes);
-		bool initializeControls(POINT& topLeftPosition, HWND parentWindow);
+		bool initializeControls(POINT& topLeftPosition, CWnd* parentWindow, int& id);
 		std::string getExperimentNotes();
 		std::string getCategoryNotes();
 		std::string getConfigurationNotes();
 	private:
-		HwndControl experimentNotes;
-		HwndControl experimentNotesHeader;
-		HwndControl categoryNotes;
-		HwndControl categoryNotesHeader;
-		HwndControl configurationNotes;
-		HwndControl configurationNotesHeader;
+		Control<CEdit> experimentNotes;
+		Control<CEdit> categoryNotes;
+		Control<CEdit> configurationNotes;
+		Control<CStatic> experimentNotesHeader;
+		Control<CStatic> categoryNotesHeader;
+		Control<CStatic> configurationNotesHeader;
 };

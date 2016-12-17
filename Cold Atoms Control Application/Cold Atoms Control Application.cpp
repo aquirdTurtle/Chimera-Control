@@ -88,6 +88,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	///
 	///					Initializations
 	///
+	eNormalFont.CreateFont(20, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+		DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+	eSmallFont.CreateFont(14, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+		DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+	eCodeFont.CreateFont(16, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+		DEFAULT_PITCH | FF_SWISS, TEXT("Consolas"));
+	eSmallCodeFont.CreateFont(12, 0, 0, 0, 400, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+		DEFAULT_PITCH | FF_SWISS, TEXT("Consolas"));
+	eHeadingFont.CreateFont(18, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+		DEFAULT_PITCH | FF_SWISS, TEXT("Old Sans Black"));
+	eLargeHeadingFont.CreateFont(28, 0, 0, 0, FW_DONTCARE, TRUE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+		DEFAULT_PITCH | FF_SWISS, TEXT("Old Sans Black"));
+
 	// create the MSG variable which contains messages sent by the OS to the function based on user input
 	MSG msg;
 	ZeroMemory(&msg, sizeof(MSG));
@@ -138,95 +151,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// This array stores the waveform #s of the predefined waveforms.
 	std::vector<int> defPredWaveLocs;
-
-	/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///
-	///				Initializing the main application window
-	///
-	// structure that contains all the fundamental information for the main window.	
-	WNDCLASSEX wClassNIAWG, wClassOther;
-	ZeroMemory(&wClassNIAWG, sizeof(WNDCLASSEX));
-	// some strange parameters I don't understand.
-	wClassNIAWG.cbClsExtra = NULL;
-	wClassNIAWG.cbSize = sizeof(WNDCLASSEX);
-	wClassNIAWG.cbWndExtra = NULL;
-	wClassNIAWG.lpszClassName = "Scripting Control Window";
-	// change the background color ot the window to be a dark grey.0
-	wClassNIAWG.hbrBackground = CreateSolidBrush(RGB(20, 0, 0));
-	// cursor type.
-	wClassNIAWG.hCursor = LoadCursor(NULL, IDC_ARROW);
-	// load the NIAWG icon used for the application
-	wClassNIAWG.hIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_APPLICATION_ICON));
-	wClassNIAWG.hIconSm = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_APPLICATION_ICON), IMAGE_ICON, 32, 32, 0);
-	// handle for addressing this object
-	wClassNIAWG.hInstance = hInstance;
-	// The procedure function this window follows
-	wClassNIAWG.lpfnWndProc = (WNDPROC)winProcScripts;
-	// parameters about how the window looks
-	wClassNIAWG.style = CS_HREDRAW | CS_VREDRAW;
-	// the identifier for the menu I created.
-	wClassNIAWG.lpszMenuName = MAKEINTRESOURCE(IDR_MAIN_MENU);
-	// register the window and check for errors
-	if (!RegisterClassEx(&wClassNIAWG))
-	{
-		int errVal = GetLastError();
-		MessageBox(0, ("Window class creation failed: " + std::to_string(errVal) + "\r\n").c_str(), 0, 0);
-		return -1;
-	}
-
-	ZeroMemory(&wClassOther, sizeof(WNDCLASSEX));
-	// some strange parameters I don't understand.
-	wClassOther.cbClsExtra = NULL;
-	wClassOther.cbSize = sizeof(WNDCLASSEX);
-	wClassOther.cbWndExtra = NULL;
-	wClassOther.lpszClassName = "Main Control Window";
-	// change the background color ot the window to be a dark grey.
-	wClassOther.hbrBackground = CreateSolidBrush(RGB(54, 62, 70));
-	// cursor type.
-	wClassOther.hCursor = LoadCursor(NULL, IDC_ARROW);
-	// load the NIAWG icon used for the application
-	wClassOther.hIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_APPLICATION_ICON));
-	wClassOther.hIconSm = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_APPLICATION_ICON), IMAGE_ICON, 32, 32, 0);
-	// handle for addressing this object
-	wClassOther.hInstance = hInstance;
-	// The procedure function this window follows
-	wClassOther.lpfnWndProc = (WNDPROC)winProcMain;
-	// parameters about how the window looks
-	wClassOther.style = CS_HREDRAW | CS_VREDRAW;
-	// the identifier for the menu I created.
-	wClassOther.lpszMenuName = MAKEINTRESOURCE(IDR_MAIN_MENU);
-	// register the window and check for errors
-	if (!RegisterClassEx(&wClassOther))
-	{
-		int errVal = GetLastError();
-		MessageBox(0, ("Window class creation failed: " + std::to_string(errVal) + "\r\n").c_str(), 0, 0);
-		return -1;
-	}
-
-	// create handle for window.
-	eScriptingWindowHandle = CreateWindowEx(NULL, "Scripting Control Window", "Cold Atoms Control: Scripting Window",
-										   WS_MAXIMIZE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,
-										   0, 0, 1920, 1000, NULL, NULL, hInstance, NULL);
-	eMainWindowHandle = CreateWindowEx(NULL, "Main Control Window", "Cold Atoms Control: Main Control Window",
-									  WS_MAXIMIZE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,
-									  0, 0, 1920, 1000, NULL, NULL, hInstance, NULL);
-
-	// check for errors.
-	if (!eScriptingWindowHandle)
-	{
-		int errVal = GetLastError();
-		MessageBox(0, ("FATAL ERROR: Create Window (CreateWindowEx) Failed: " + std::to_string(errVal) +"\r\n").c_str(), 0, MB_OK);
-		return -1;
-	}
-	if (!eMainWindowHandle)
-	{
-		int errVal = GetLastError();
-		MessageBox(0, ("FATAL ERROR: Create Window (CreateWindowEx) Failed: " + std::to_string(errVal) + "\r\n").c_str(), 0, MB_OK);
-		return -1;
-	}
-	// make the windows appear.
-	ShowWindow(eScriptingWindowHandle, SW_MAXIMIZE);
-	ShowWindow(eMainWindowHandle, SW_MAXIMIZE);
 
 	/// Other General Initializations
 	// Check to make sure that the gain hasn't been defined to be too high.
@@ -408,6 +332,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	std::vector<std::string> defXVarFileNames, defYVarFileNames;
 	// parameters for variables used by the default file. (there shouldn't be any, these are essentially just placeholders so that I can use the same functions.
 	std::vector<std::fstream> defXVarFiles;
+	
+	// having the objects is necessary for loading default waveforms because loading the default waveforms manipulaes orientation information, which is a part of these objects.
+	MainWindow MainWin(IDD_LARGE_TEMPLATE);
+	ScriptingWindow ScriptWin;
+
 	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
 		std::ofstream hConfigVerticalDefaultScriptLog(EXPERIMENT_LOGGING_FILES_PATH + logFolderNameStart + "\\Default hConfig Vertical Script.script");
@@ -422,55 +351,55 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
 		/// Initialize the waveform generator. Currently this is set to reset the initialization parameters from the last run.
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_init(NI_5451_LOCATION, VI_TRUE, VI_TRUE, &eSessionHandle)))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_init(NI_5451_LOCATION, VI_TRUE, VI_TRUE, &eSessionHandle), HORIZONTAL_ORIENTATION))
 		{
 			return -1;
 		}
 		// Configure channels
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureChannels(eSessionHandle, SESSION_CHANNELS)))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureChannels(eSessionHandle, SESSION_CHANNELS), HORIZONTAL_ORIENTATION))
 		{
 			return -1;
 		}
 		// Set output mode of the device to scripting mode (defined in constants.h)
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputMode(eSessionHandle, OUTPUT_MODE)))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputMode(eSessionHandle, OUTPUT_MODE), HORIZONTAL_ORIENTATION))
 		{
 			return -1;
 		}
 		// configure marker event. This is set to output on PFI1, a port on the front of the card.
-		// if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ExportSignal(eSessionHandle, NIFGEN_VAL_MARKER_EVENT, "Marker0", "PFI1")))
-		//{
-		//	return -1;
-		//}
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ExportSignal(eSessionHandle, NIFGEN_VAL_MARKER_EVENT, "Marker0", "PFI1"), HORIZONTAL_ORIENTATION))
+		{
+			return -1;
+		}
 		// enable flatness correction. This allows there to be a bit less frequency dependence on the power outputted by the waveform generator.
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViBoolean(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_FLATNESS_CORRECTION_ENABLED, VI_TRUE)))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViBoolean(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_FLATNESS_CORRECTION_ENABLED, VI_TRUE), HORIZONTAL_ORIENTATION))
 		{
 			return -1;
 		}
 		// configure the trigger. Trigger mode doesn't need to be set because I'm using scripting mode.
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureDigitalEdgeScriptTrigger(eSessionHandle, TRIGGER_NAME, TRIGGER_SOURCE, TRIGGER_EDGE_TYPE)))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureDigitalEdgeScriptTrigger(eSessionHandle, TRIGGER_NAME, TRIGGER_SOURCE, TRIGGER_EDGE_TYPE), HORIZONTAL_ORIENTATION))
 		{
 			return -1;
 		}
 		// Configure the gain of the signal amplification.
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureGain(eSessionHandle, SESSION_CHANNELS, GAIN)))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureGain(eSessionHandle, SESSION_CHANNELS, GAIN), HORIZONTAL_ORIENTATION))
 		{
 			return -1;
 		}
 		// Configure Sample Rate. The maximum value of this is 400 mega-samples per second, but it is quite buggy, so we've been using 350 MS/s
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureSampleRate(eSessionHandle, SAMPLE_RATE)))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureSampleRate(eSessionHandle, SAMPLE_RATE), HORIZONTAL_ORIENTATION))
 		{
 			return -1;
 		}
 		// Configure the analogue filter. This is important for high frequency signals, as it smooths out the discrete steps that the waveform generator outputs.
 		// This is a low-pass filter.
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_EnableAnalogFilter(eSessionHandle, SESSION_CHANNELS, NIAWG_FILTER_FREQENCY)))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_EnableAnalogFilter(eSessionHandle, SESSION_CHANNELS, NIAWG_FILTER_FREQENCY), HORIZONTAL_ORIENTATION))
 		{
 			return -1;
 		}
 
 		/// Configure Clock input
 		// uncomment for high resolution mode
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureClockMode(eSessionHandle, NIFGEN_VAL_HIGH_RESOLUTION)))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureClockMode(eSessionHandle, NIFGEN_VAL_HIGH_RESOLUTION), HORIZONTAL_ORIENTATION))
 		{
 			return -1;
 		}
@@ -480,7 +409,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		// if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureSampleClockSource(eSessionHandle, "ClkIn"));
 
 		// Uncomment for using an external clock as a reference clock
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureReferenceClock(eSessionHandle, "ClkIn", 10000000)))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureReferenceClock(eSessionHandle, "ClkIn", 10000000), HORIZONTAL_ORIENTATION))
 		{
 			return -1;
 		}
@@ -500,6 +429,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	MessageBox(NULL, (LPCSTR)std::to_string(maximumWaveformSize).c_str(), NULL, MB_OK);
 	*/
 
+
+
 	// first line of every script is script "name".
 	default_hConfigScriptString = "script DefaultHConfigScript\n";
 	default_vConfigScriptString = "script DefaultVConfigScript\n";
@@ -513,12 +444,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// work like I thought it did. If  I'd known this from the start, I probably wouldn't have created this subroutine, except perhaps for the fact that it get 
 	// called recursively by predefined scripts in the instructions file.
 	/// Create Horizontal Configuration
-	eProfile.setOrientation(HORIZONTAL_ORIENTATION);
+	MainWin.setOrientation(HORIZONTAL_ORIENTATION);
+	debugOptions dummyOptions;
+	dummyOptions.outputAgilentScript = false;
 	std::vector<variable> noSingletons;
 	if (myErrorHandler(myNIAWG::analyzeNIAWGScripts(default_hConfigVerticalScriptFile[0], default_hConfigHorizontalScriptFile[0], default_hConfigScriptString, TRIGGER_NAME, waveformCount, eSessionHandle, SESSION_CHANNELS,
 											   eError, defXPredWaveformNames, defYPredWaveformNames, defPredWaveformCount, defPredWaveLocs, libWaveformArray,
-											   fileOpenedStatus, allXWaveformParameters, xWaveformIsVaried, allYWaveformParameters, yWaveformIsVaried, true, false, "", noSingletons),
-		"", ConnectSocket, default_hConfigVerticalScriptFile, default_hConfigHorizontalScriptFile, false, eError, eSessionHandle, userScriptIsWritten, "", false, false)
+											   fileOpenedStatus, allXWaveformParameters, xWaveformIsVaried, allYWaveformParameters, yWaveformIsVaried, true, false, "", noSingletons, HORIZONTAL_ORIENTATION, dummyOptions),
+		"", ConnectSocket, default_hConfigVerticalScriptFile, default_hConfigHorizontalScriptFile, false, eError, eSessionHandle, userScriptIsWritten, "", false, false, false)
 		== true)
 	{
 		MessageBox(0, "FATAL ERROR: Creation of Default Waveforms and Default Script Has Failed!", 0, MB_OK);
@@ -531,12 +464,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	sprintf_s(eDefault_hConfigScript, default_hConfigScriptString.length() + 1, "%s", default_hConfigScriptString.c_str());
 	strcpy_s(eDefault_hConfigScript, default_hConfigScriptString.length() + 1, default_hConfigScriptString.c_str());
 	
-	eProfile.setOrientation(VERTICAL_ORIENTATION);
+	MainWin.setOrientation(VERTICAL_ORIENTATION);
 
 	if (myErrorHandler(myNIAWG::analyzeNIAWGScripts(default_vConfigVerticalScriptFile[0], default_vConfigHorizontalScriptFile[0], default_vConfigScriptString, TRIGGER_NAME, waveformCount, eSessionHandle, SESSION_CHANNELS,
 		eError, defXPredWaveformNames, defYPredWaveformNames, defPredWaveformCount, defPredWaveLocs, libWaveformArray,
-		fileOpenedStatus, allXWaveformParameters, xWaveformIsVaried, allYWaveformParameters, yWaveformIsVaried, true, false, "", noSingletons),
-		"", ConnectSocket, default_vConfigVerticalScriptFile, default_vConfigHorizontalScriptFile, false, eError, eSessionHandle, userScriptIsWritten, "", false, false)
+		fileOpenedStatus, allXWaveformParameters, xWaveformIsVaried, allYWaveformParameters, yWaveformIsVaried, true, false, "", noSingletons, VERTICAL_ORIENTATION, dummyOptions),
+		"", ConnectSocket, default_vConfigVerticalScriptFile, default_vConfigHorizontalScriptFile, false, eError, eSessionHandle, userScriptIsWritten, "", false, false, false)
 		== true)
 	{
 		MessageBox(0, "FATAL ERROR: Creation of Default Waveforms and Default Script Has Failed!", 0, MB_OK);
@@ -550,21 +483,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	strcpy_s(eDefault_vConfigScript, default_vConfigScriptString.length() + 1, default_vConfigScriptString.c_str());
 
 	// but the default starts in the horizontal configuration, so switch back and start in this config.
-	eProfile.setOrientation(HORIZONTAL_ORIENTATION);
+	MainWin.setOrientation(HORIZONTAL_ORIENTATION);
+
 	// default value of this variable.
 	eDontActuallyGenerate = false;
 	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
 		// write script to NIAWG
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigScript)))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigScript), HORIZONTAL_ORIENTATION))
 		{
 			return -1;
 		}
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE)))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), HORIZONTAL_ORIENTATION))
 		{
 			return -1;
 		}
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript")))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript"), HORIZONTAL_ORIENTATION))
 		{
 			return -1;
 		}
@@ -573,7 +507,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// Initiate Generation.
 	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_InitiateGeneration(eSessionHandle)))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_InitiateGeneration(eSessionHandle), HORIZONTAL_ORIENTATION))
 		{
 			return -1;
 		}
@@ -605,41 +539,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 
 	// catch for the first time you run through this when you will be running the default script going through here. 
-	cleanSocket(ConnectSocket, false);
+	cleanSocket(ConnectSocket, false, false);
 	myAgilent::agilentDefault();
 	std::string msgString = "Passively Outputting Default Waveform";
 	SetWindowText(eColoredStatusEdit, msgString.c_str());
 	eDontActuallyGenerate = false;
 	eGenStatusColor = "B";
 	RedrawWindow(eColoredStatusEdit, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
-	RedrawWindow(eColorBox, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+	//RedrawWindow(eColorBox, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 
 	HACCEL hAccel = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDR_ACCELERATOR1));
 
-	#ifdef USE_MFC
-		MainWindow MainWin;
-		ScriptingWindow ScriptWin;
-		BOOL ret = MainWin.Create(IDD_LARGE_TEMPLATE, 0);
-		if (!ret)   //Create failed.
-		{
-			errBox("Error creating Dialog");
-		}
-		MainWin.ShowWindow(SW_SHOW);
-		ScriptWin.Create(IDD_LARGE_TEMPLATE, 0);
-	#endif
-	
-	/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///
-	///				User Interaction Loop
-	///
-	while (GetMessage(&msg, NULL, 0, 0))
-	{
-		if (!TranslateAcceleratorA(eScriptingWindowHandle, hAccel, &msg) && !TranslateAccelerator(eMainWindowHandle, hAccel, &msg))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-	}
+	ScriptWin.Create(IDD_LARGE_TEMPLATE, 0);
+	ScriptWin.ShowWindow(SW_SHOW);
+	INT_PTR returnVal = MainWin.DoModal();
 
 	/// /////////////////////////////////!@#$!@#$@!#$!@#$!@#$@!#$@!#$@!#$@!#$!@#$!@#$@#!$@!#$!@#$@!#$@!#$@!#$!@#$@!#$
 	// Check if the user wants to exit
@@ -649,12 +562,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		delete[] eDefault_vConfigScript;
 		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE)))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE), HORIZONTAL_ORIENTATION))
 			{
 				return -1;
 			}
 			// Officially stop trying to generate anything.
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AbortGeneration(eSessionHandle)))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AbortGeneration(eSessionHandle), HORIZONTAL_ORIENTATION))
 			{
 				return -1;
 			}

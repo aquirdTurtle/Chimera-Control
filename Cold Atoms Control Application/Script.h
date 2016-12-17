@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+struct profileSettings;
+
 class Script
 {
 	public:
@@ -11,34 +13,35 @@ class Script
 		~Script();
 		std::string getScriptText();
 
-		bool colorEntireScript();
-		bool colorScriptSection(DWORD beginingOfChange, DWORD endOfChange);
+		bool colorEntireScript(profileSettings profileInfo, std::vector<variable> vars);
+		bool colorScriptSection(DWORD beginingOfChange, DWORD endOfChange, profileSettings profileInfo, std::vector<variable> vars);
 
-		bool initializeControls(int width, int height, POINT& startingLocation, HWND parent, std::string deviceTypeInput, int& idStart);
+		bool initializeControls(int width, int height, POINT& startingLocation, CWnd* parent, std::string deviceTypeInput, int& idStart);
+
 		bool reorganizeControls();
-		bool getControlIDRange(int& start, int& fin);
+
 		INT_PTR colorControl(LPARAM lParam, WPARAM wParam);
 		bool handleEditChange(WPARAM wParam, LPARAM lParam);
-		bool handleTimerCall();
+		bool handleTimerCall(profileSettings profileInfo, std::vector<variable> vars);
 
-		bool updateChildCombo();
-		bool changeView(std::string viewName);
-		bool childComboChangeHandler(WPARAM messageWParam, LPARAM messageLParam);
-		bool checkChildSave();
+		bool updateChildCombo(profileSettings profileInfo);
+		bool changeView(std::string viewName, profileSettings profileInfo, std::vector<variable> vars);
+		bool childComboChangeHandler(WPARAM messageWParam, LPARAM messageLParam, profileSettings profileInfo, std::vector<variable> vars);
+		bool checkChildSave(profileSettings profileInfo);
 
-		std::string getSyntaxColor(std::string word, std::string editType);
-		bool saveScript();
+		std::string getSyntaxColor(std::string word, std::string editType, std::vector<variable> vars);
+		bool saveScript(profileSettings profileInfo);
 		bool saveScriptAs(std::string scriptAddress);
-		bool renameScript();
-		bool deleteScript();
-		bool newScript();
-		std::string getScriptPathAndName();
+		bool renameScript(profileSettings profileInfo);
+		bool deleteScript(profileSettings profileInfo);
+		bool newScript(profileSettings profileInfo, std::vector<variable> vars);
+		std::string getScriptAddress();
 		std::string getScriptName();
 		std::string getExtension();
-		bool loadFile(std::string pathToFile);
-		bool openParentScript(std::string parentScriptName);
-		bool considerCurrentLocation();
-		bool checkSave();
+		bool loadFile(std::string pathToFile, profileSettings profileInfo, std::vector<variable> vars);
+		bool openParentScript(std::string parentScriptName, profileSettings profileInfo, std::vector<variable> vars);
+		bool considerCurrentLocation(profileSettings profileInfo);
+		bool checkSave(profileSettings profileInfo);
 		bool updateSavedStatus(bool isSaved);
 		bool coloringIsNeeded();
 		
@@ -48,13 +51,11 @@ class Script
 		bool savedStatus();
 
 	private:
-		const int idStart;
-		const int idEnd;
-		HwndControl edit;
-		HwndControl title;
-		HwndControl savedIndicator;
-		HwndControl childCombo;
-		HwndControl fileNameText;
+		Control<CRichEditCtrl> edit;
+		Control<CStatic> title;
+		Control<CButton> savedIndicator;
+		Control<CComboBox> childCombo;
+		Control<CEdit> fileNameText;
 
 		std::string scriptExperiment;
 		std::string scriptCategory;

@@ -18,10 +18,9 @@ class HwndControl
 		bool toolTipIsSet;
 };
 
-template <class ControlType> class ClassControl
+template <class ControlType> class Control : public ControlType
 {
 	public:
-		ControlType parent;
 		RECT position;
 		int ID;
 		int colorState = 0;
