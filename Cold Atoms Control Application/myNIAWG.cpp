@@ -73,7 +73,8 @@ namespace myNIAWG
 					   ViConstString channelName, ViStatus error, std::vector<std::string> verticalPredWaveNames, std::vector<std::string> horizontalPredWaveNames,
 					   int& predWaveCount, std::vector<int> predLocs, std::vector<std::string>(&libWaveformArray)[20], bool(&fileStatus)[20],
 					   std::vector<waveData>& allVerticalWaveParameters, std::vector<bool>& verticalWaveformVaried, std::vector<waveData>& allHorizontalWaveParameters,
-					   std::vector<bool>& horizontalWaveformVaried, bool isDefault, bool isThreaded, std::string currentCategoryFolder, std::vector<variable> singletons)
+					   std::vector<bool>& horizontalWaveformVaried, bool isDefault, bool isThreaded, std::string currentCategoryFolder, std::vector<variable> singletons, 
+					   std::string orientation, debugOptions options)
 	{
 		// Some declarations.
 		std::string verticalInputTypeString, horizontalInputTypeString;
@@ -177,7 +178,7 @@ namespace myNIAWG
 			else if (myNIAWG::script::isGenCommand(verticalInputTypeString) && myNIAWG::script::isGenCommand(horizontalInputTypeString))
 			{
 				//
-				if ((waveCount == 1 && isDefault && eProfile.getOrientation() == HORIZONTAL_ORIENTATION) || (waveCount == 2 && isDefault && eProfile.getOrientation() == VERTICAL_ORIENTATION))
+				if ((waveCount == 1 && isDefault && orientation == HORIZONTAL_ORIENTATION) || (waveCount == 2 && isDefault && orientation == VERTICAL_ORIENTATION))
 				{
 					// error:
 					std::string errMsg = "ERROR: The default waveform files contain sequences of waveforms. Right now, the default waveforms must be a single waveform, "
@@ -782,7 +783,7 @@ namespace myNIAWG
 					xWaveReadData = new ViReal64[verticalWaveformParameters.sampleNum + verticalWaveformParameters.signalNum];
 					// either calculate or read waveform data into the above arrays. 
 					if (myNIAWG::handleInput::waveformGen(xWaveform, xWaveReadData, verticalWaveformParameters, verticalWaveformParameters.sampleNum, libWaveformArray,
-						fileStatus[verticalWaveformParameters.initType]) != 0)
+						fileStatus[verticalWaveformParameters.initType], options) != 0)
 					{
 						std::string errorMsg;
 						errorMsg = "ERROR: handleInput::waveformGen threw an error while handling vertical waveform #" + std::to_string(waveCount - 1) + "!";
@@ -821,7 +822,7 @@ namespace myNIAWG
 					yWaveReadData = new ViReal64[horizontalWaveformParameters.sampleNum + horizontalWaveformParameters.signalNum];
 					// either calculate or read waveform data into the above arrays. 
 					if (myNIAWG::handleInput::waveformGen(yWaveform, yWaveReadData, horizontalWaveformParameters, horizontalWaveformParameters.sampleNum, libWaveformArray,
-						fileStatus[horizontalWaveformParameters.initType]) != 0)
+						fileStatus[horizontalWaveformParameters.initType], options) != 0)
 					{
 						std::string errorMsg;
 						errorMsg = "ERROR: handleInput::waveformGen threw an error while handling horizontal waveform #" + std::to_string(waveCount - 1) + "!";
@@ -971,7 +972,8 @@ namespace myNIAWG
 							prevXWaveformRead = new ViReal64[allVerticalWaveParameters[waveCount - 1].sampleNum + allVerticalWaveParameters[waveCount - 1].signalNum];
 							// either calculate or read waveform data into the above arrays. 
 							if (myNIAWG::handleInput::waveformGen(prevXWaveform, prevXWaveformRead, allVerticalWaveParameters[waveCount - 1], allVerticalWaveParameters[waveCount - 1].sampleNum,
-								libWaveformArray, fileStatus[allVerticalWaveParameters[waveCount - 1].initType]) != 0){
+								libWaveformArray, fileStatus[allVerticalWaveParameters[waveCount - 1].initType], options) != 0)
+							{
 								std::string errorMsg;
 								errorMsg = "ERROR: handleInput::waveformGen threw an error while handling X waveform #" + std::to_string(waveCount - 1) + "!";
 								if (isThreaded)
@@ -1129,7 +1131,7 @@ namespace myNIAWG
 							// either calculate or read waveform data into the above arrays. 
 							if (myNIAWG::handleInput::waveformGen(prevYWaveform, prevYWaveformRead, allHorizontalWaveParameters[waveCount - 1], 
 																  allHorizontalWaveParameters[waveCount - 1].sampleNum,
-								libWaveformArray, fileStatus[allHorizontalWaveParameters[waveCount - 1].initType]) != 0){
+								libWaveformArray, fileStatus[allHorizontalWaveParameters[waveCount - 1].initType], options) != 0){
 								std::string errorMsg;
 								errorMsg = "ERROR: handleInput::waveformGen threw an error while handling Y waveform #" + std::to_string(waveCount - 1) + "!";
 								if (isThreaded)
@@ -1228,7 +1230,7 @@ namespace myNIAWG
 						xWaveReadData = new ViReal64[verticalWaveformParameters.sampleNum + verticalWaveformParameters.signalNum];
 						// either calculate or read waveform data into the above arrays. 
 						if (myNIAWG::handleInput::waveformGen(xWaveform, xWaveReadData, verticalWaveformParameters, verticalWaveformParameters.sampleNum, libWaveformArray,
-							fileStatus[verticalWaveformParameters.initType]) != 0)
+							fileStatus[verticalWaveformParameters.initType], options) != 0)
 						{
 							std::string errorMsg;
 							errorMsg = "ERROR: handleInput::waveformGen threw an error while handling X waveform #" + std::to_string(waveCount - 1) + "!";
@@ -1268,7 +1270,7 @@ namespace myNIAWG
 						yWaveReadData = new ViReal64[horizontalWaveformParameters.sampleNum + horizontalWaveformParameters.signalNum];
 						// either calculate or read waveform data into the above arrays. 
 						if (myNIAWG::handleInput::waveformGen(yWaveform, yWaveReadData, horizontalWaveformParameters, horizontalWaveformParameters.sampleNum, libWaveformArray,
-							fileStatus[horizontalWaveformParameters.initType]) != 0)
+							fileStatus[horizontalWaveformParameters.initType], options) != 0)
 						{
 							std::string errorMsg;
 							errorMsg = "ERROR: handleInput::waveformGen threw an error while handling Y waveform #" + std::to_string(waveCount - 1) + "!";
@@ -1359,13 +1361,13 @@ namespace myNIAWG
 					// avoid memory leaks, but only if not default...
 					if (isDefault)
 					{
-						if (eProfile.getOrientation() == HORIZONTAL_ORIENTATION)
+						if (orientation == HORIZONTAL_ORIENTATION)
 						{
 							eDefault_hConfigMixedWaveform = mixedWaveform;
 							eDefault_hConfigMixedSize = mixedSize;
 							eDefault_hConfigWaveformName = tempWaveformName;
 						}
-						if (eProfile.getOrientation() == VERTICAL_ORIENTATION)
+						if (orientation == VERTICAL_ORIENTATION)
 						{
 							eDefault_vConfigMixedWaveform = mixedWaveform;
 							eDefault_vConfigMixedSize = mixedSize;
@@ -1392,7 +1394,7 @@ namespace myNIAWG
 			{
 				myError = myNIAWG::handleInput::special(verticalFile, horizontalFile, verticalInputTypeString, horizontalInputTypeString, scriptHolder, triggerName, waveCount, vi, SESSION_CHANNELS,
 					error, verticalPredWaveNames, horizontalPredWaveNames, predWaveCount, predLocs, libWaveformArray, fileStatus, allVerticalWaveParameters,
-					verticalWaveformVaried, allHorizontalWaveParameters, horizontalWaveformVaried, isDefault, isThreaded, currentCategoryFolder, singletons);
+					verticalWaveformVaried, allHorizontalWaveParameters, horizontalWaveformVaried, isDefault, isThreaded, currentCategoryFolder, singletons, orientation, options);
 			}
 			else 
 			{			
@@ -1434,7 +1436,7 @@ namespace myNIAWG
 	 * fileStat: the array that contains information on whether a waveform has been written before.
 	 */
 	int getVariedWaveform(waveData &varWvFmInfo, std::vector<waveData> all_X_Or_Y_WvFmParam, int waveOrderNum, std::vector<std::string>(&libWvFmArray)[20],
-		bool(&fileStat)[20], ViReal64 * waveformRawData)
+		bool(&fileStat)[20], ViReal64 * waveformRawData, debugOptions options)
 	{
 		for (int i = 0; i < varWvFmInfo.signalNum; i++)
 		{
@@ -1459,7 +1461,7 @@ namespace myNIAWG
 		ViReal64* waveReadData;
 		waveReadData = new ViReal64[varWvFmInfo.sampleNum + varWvFmInfo.signalNum];
 		// either calculate or read waveform data into the above arrays.
-		if (myNIAWG::handleInput::waveformGen(waveformRawData, waveReadData, varWvFmInfo, varWvFmInfo.sampleNum, libWvFmArray, fileStat[varWvFmInfo.initType]) != 0)
+		if (myNIAWG::handleInput::waveformGen(waveformRawData, waveReadData, varWvFmInfo, varWvFmInfo.sampleNum, libWvFmArray, fileStat[varWvFmInfo.initType], options) != 0)
 		{
 			MessageBox(NULL, "handleInput::waveformGen threw an error while getting a varied waveform!\n", NULL, MB_OK);
 			return -11434;
@@ -1899,7 +1901,7 @@ namespace myNIAWG
 	 * This function looks for NIAWG errors while in either of the windows procedures or in the main function. It returns true if an error is found, false
 	 * otherwise. It attempts to get the NIWAG just outputting default waveforms again.
 	 */
-	bool NIAWG_CheckWindowsError(int err)
+	bool NIAWG_CheckWindowsError(int err, std::string orientaiton)
 	{
 		if (err < 0)
 		{
@@ -1928,7 +1930,7 @@ namespace myNIAWG
 			std::string msgStr = "EXITED WITH ERROR! Passively Outputting Default Waveform.";
 			SetWindowText(eColoredStatusEdit, msgStr.c_str());
 			eGenStatusColor = "R";
-			RedrawWindow(eColorBox, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+			//RedrawWindow(eColorBox, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 			RedrawWindow(eColoredStatusEdit, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 			myAgilent::agilentDefault();
 			if (!TWEEZER_COMPUTER_SAFEMODE)
@@ -1937,7 +1939,7 @@ namespace myNIAWG
 				myNIAWG::myNIAWG_DoubleErrorChecker(niFgen_ClearArbMemory(eSessionHandle));
 			}
 			ViInt32 waveID;
-			if (eProfile.getOrientation() == HORIZONTAL_ORIENTATION)
+			if (orientaiton == HORIZONTAL_ORIENTATION)
 			{
 				if (!TWEEZER_COMPUTER_SAFEMODE)
 				{
@@ -1956,7 +1958,7 @@ namespace myNIAWG
 				eCurrentScript = "DefaultHConfigScript";
 
 			}
-			else if (eProfile.getOrientation() == VERTICAL_ORIENTATION)
+			else if (orientaiton == VERTICAL_ORIENTATION)
 			{
 				if (!TWEEZER_COMPUTER_SAFEMODE)
 				{
@@ -2536,7 +2538,7 @@ namespace myNIAWG
 		* strings read, before. If it hasn't the code knows to open the file and read in the strings for the first time.
 		*/
 		int waveformGen(ViReal64 * & tempWaveform, ViReal64 * & readData, waveData & waveInfo, long int size, std::vector<std::string>(&libWaveformArray)[20], 
-						bool& fileOpened) 
+						bool& fileOpened, debugOptions options)
 		{
 			// structures that hold a time stamp
 			unsigned long long time1, time2;
@@ -2573,7 +2575,7 @@ namespace myNIAWG
 				}
 
 				// read all of the waveforms into libWaveformArray
-				int j = 0;
+				int waveInfoInc = 0;
 				// if not empty, the first line will just have a newline on it, so there is no harm in getting rid of it.
 				std::getline(libNameFile, tempStr, '\n');
 
@@ -2584,7 +2586,7 @@ namespace myNIAWG
 					// put them into the array...
 					libWaveformArray[waveInfo.initType].push_back(tempStr);
 					// next.
-					j++;
+					waveInfoInc++;
 				}
 				// save the fileOpened value reflecting it's new status.
 				fileOpened = true;
@@ -2616,7 +2618,7 @@ namespace myNIAWG
 					std::copy_n(readData, size, tempWaveform);
 					// close file.
 					waveformFileRead.close();
-					if (eOutputReadStatus == true) 
+					if (options.showReadProgress == true)
 					{
 						char processTimeMsg[200];
 						time2 = GetTickCount64();
@@ -2671,7 +2673,7 @@ namespace myNIAWG
 				libNameFile.write((waveformFileSpecs).c_str(), waveformFileSpecs.size());
 				// aaaand close.
 				libNameFile.close();
-				if (eOutputWriteStatus == true) 
+				if (options.showWriteProgress == true)
 				{
 					char processTimeMsg[200];
 					time2 = GetTickCount64();
@@ -2855,7 +2857,8 @@ namespace myNIAWG
 					std::string& scriptString, std::string triggerName,	int &waveCount, ViSession vi, ViConstString channelName, ViStatus error, 
 					std::vector<std::string> xWaveformList,	std::vector<std::string> yWaveformList, int &predWaveCount, std::vector<int> waveListWaveCounts,
 					std::vector<std::string>(&libWaveformArray)[20], bool(&fileStatus)[20], std::vector<waveData> &allXWaveParam, 
-					std::vector<bool> &xWaveVaried,	std::vector<waveData> &allYWaveParam, std::vector<bool> &yWaveVaried, bool isDefault, bool isThreaded, std::string currentCategoryFolder, std::vector<variable> singletons)
+					std::vector<bool> &xWaveVaried,	std::vector<waveData> &allYWaveParam, std::vector<bool> &yWaveVaried, bool isDefault, bool isThreaded, 
+					std::string currentCategoryFolder, std::vector<variable> singletons, std::string orientation, debugOptions options)
 		{
 			// declare some variables
 			std::string verticalExternalVerticalScriptName, verticalExternalHorizontalScriptName, horizontalExternalVerticalScriptName, 
@@ -2908,7 +2911,7 @@ namespace myNIAWG
 				// waveforms to the AWG, and eventually make it's way back here.
 				myNIAWG::analyzeNIAWGScripts(externalVerticalScriptFile, externalHorizontalScriptFile, scriptString, triggerName, waveCount, vi, channelName, error, xWaveformList, 
 										yWaveformList, predWaveCount, waveListWaveCounts, libWaveformArray, fileStatus, allXWaveParam, xWaveVaried, 
-										allYWaveParam, yWaveVaried, isDefault, isThreaded, currentCategoryFolder, singletons);
+										allYWaveParam, yWaveVaried, isDefault, isThreaded, currentCategoryFolder, singletons, orientation, options);
 
 				return 0;
 			}
@@ -2992,7 +2995,7 @@ namespace myNIAWG
 				// file.
 				myNIAWG::analyzeNIAWGScripts(externalVerticalWaveformFile, externalHorizontalWaveformFile, scriptString, triggerName, waveCount, vi, channelName, error, xWaveformList, 
 										yWaveformList, predWaveCount, waveListWaveCounts, libWaveformArray, fileStatus, allXWaveParam, xWaveVaried, 
-										allYWaveParam, yWaveVaried, isDefault, isThreaded, currentCategoryFolder, singletons);
+										allYWaveParam, yWaveVaried, isDefault, isThreaded, currentCategoryFolder, singletons, orientation, options);
 				return 0;
 			}
 			else

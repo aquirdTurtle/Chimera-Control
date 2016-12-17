@@ -17,6 +17,9 @@
 #include "postMyString.h"
 #include "VariableSystem.h"
 #include <boost/algorithm/string/replace.hpp>
+
+
+
 /*
  * This runs the experiment. It calls analyzeNIAWGScripts and then procedurally goes through all variable values. It also communicates with the other computer
  * throughout the process.
@@ -30,6 +33,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	///
 
 	experimentThreadInputStructure* inputStruct = (experimentThreadInputStructure*)inputParam;
+	
 	ViBoolean isDoneTest = VI_FALSE;
 	char userScriptName[FILENAME_MAX];
 	SOCKET ConnectSocket = INVALID_SOCKET;
@@ -108,7 +112,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	
 	// initialize the script string. The script needs a script name at the top.
 	userScriptNameString = "experimentScript";
-	workingUserScriptString.resize((eProfile.getSequenceNames()).size());
+	workingUserScriptString.resize((inputStruct->profileInfo.sequenceConfigurationNames.size()));
 	for (int sequenceInc = 0; sequenceInc < workingUserScriptString.size(); sequenceInc++)
 	{
 		workingUserScriptString[sequenceInc] = "";
@@ -332,9 +336,9 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	ptr = result;
 
 	// check acuumulations. if 0, this is code for setting the code to just repeat forever, 
-	if ((*inputStruct).threadConnectToMaster == false)
+	if (inputStruct->settings.connectToMaster == false)
 	{
-		(*inputStruct).threadRepetitions = 0;
+		inputStruct->threadRepetitions = 0;
 	}
 	else
 	{
@@ -374,7 +378,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	// this computer >> Other Computer ("Acumulations?")
 	// Other Computer >> this computer ("Accumulations: (#)")
 	// this computer >> other computer ("Received Accumulations.")
-	if ((*inputStruct).threadConnectToMaster == true)
+	if (inputStruct->settings.connectToMaster == true)
 	{
 		char recvbuf[256];
 		int recvbufn = 256;
@@ -502,10 +506,12 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 		postMyString(eStatusTextMessageID, "Working with configuraiton # " + std::to_string(sequenceInc + 1) + " in Sequence...\r\n");
 		/// Create Script and Write Waveforms //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// A reaaaaaly long function call. Not ideal.
-		if (myErrorHandler(myNIAWG::analyzeNIAWGScripts(verticalScriptFiles[sequenceInc], horizontalScriptFiles[sequenceInc], 
+		if (myErrorHandler(
+			myNIAWG::analyzeNIAWGScripts(verticalScriptFiles[sequenceInc], horizontalScriptFiles[sequenceInc], 
 			workingUserScriptString[sequenceInc], TRIGGER_NAME, waveformCount, eSessionHandle, SESSION_CHANNELS, eError, xPredWaveformNames, 
 			yPredWaveformNames, predWaveformCount, predWaveLocs, libWaveformArray, fileOpenedStatus, allXWaveformParameters, xWaveformIsVaried, 
-			allYWaveformParameters, yWaveformIsVaried, false, true, (*inputStruct).currentFolderLocation, singletons), "analyzeNIAWGScripts() threw an error!\r\n",
+			allYWaveformParameters, yWaveformIsVaried, false, true, (*inputStruct).currentFolderLocation, singletons, inputStruct->profileInfo.orientation, inputStruct->debugOptions),
+			"analyzeNIAWGScripts() threw an error!\r\n",
 			ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false, true))
 		{
 			postMyString(eErrorTextMessageID, "analyzeNIAWGScripts() threw an error!\r\n");
@@ -553,7 +559,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			finalUserScriptString += workingUserScriptString[sequenceInc];
 		}
 		finalUserScriptString += "end repeat\n";
-		if ((*inputStruct).debugOptions.outputNiawgMachineScriptSetting)
+		if ((*inputStruct).debugOptions.outputNiawgMachineScript)
 		{
 			postMyString(eDebugMessageID, boost::replace_all_copy("Entire NIAWG Machine Script:\n" + finalUserScriptString + "end Script\n\n",
 				"\n", "\r\n"));
@@ -570,7 +576,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			}
 			if (accumCount == 0)
 			{
-				if ((*inputStruct).debugOptions.outputNiawgMachineScriptSetting)
+				if ((*inputStruct).debugOptions.outputNiawgMachineScript)
 				{
 					postMyString(eDebugMessageID, boost::replace_all_copy("Single Repetition NIAWG Machine Script:\n"
 								 + finalUserScriptString + "end Script\n\n", "\n", "\r\n"));
@@ -592,7 +598,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	///
 
 	/// get var files from master if necessary
-	if ((*inputStruct).threadGetVarFilesFromMaster == true)
+	if (inputStruct->settings.getVariables == true)
 	{
 		variableValues.resize(varyingParameters.size(), std::vector<double>(0));
 		variableValuesLengths.resize(varyingParameters.size());
@@ -992,11 +998,11 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				andorConnected = true;
 				// prepare the parameters list for the log
 				std::string paramtersString = "\nDont Actually Generate = " + std::to_string((*inputStruct).threadDontActuallyGenerate)
-					+ "\nConnect To Master = " + std::to_string((*inputStruct).threadConnectToMaster) 
-					+ "\nGet Variable Files From Master = " + std::to_string((*inputStruct).threadGetVarFilesFromMaster) 
+					+ "\nConnect To Master = " + std::to_string(inputStruct->settings.connectToMaster)
+					+ "\nGet Variable Files From Master = " + std::to_string(inputStruct->settings.getVariables)
 					+ "\nRepetitions = " + std::to_string((*inputStruct).threadRepetitions)
 					+ "\nDon't Actually Generate = " + std::to_string((*inputStruct).threadDontActuallyGenerate)
-					+ "\nProgramming Intensity = " + std::to_string((*inputStruct).threadProgramIntensityOption)
+					+ "\nProgramming Intensity = " + std::to_string(inputStruct->settings.programIntensity)
 					+ "\nSequence File Names = \n";
 
 				for (unsigned int seqInc = 0; seqInc < (*inputStruct).threadSequenceFileNames.size(); seqInc++)
@@ -1025,12 +1031,12 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	}
 
 	std::vector<std::vector<POINT>> intensityPoints;
-	if ((*inputStruct).threadProgramIntensityOption == true)
+	if (inputStruct->settings.programIntensity == true)
 	{
 		postMyString(eStatusTextMessageID, "Programing Intensity Profile(s)...");
 
 		if (myErrorHandler(myAgilent::programIntensity(boost::numeric_cast<int>(varyingParameters.size()), varyingParameters, variableValues, intIsVaried,
-			intensitySequenceMinAndMaxVector, intensityPoints, intensityScriptFiles, singletons),
+			intensitySequenceMinAndMaxVector, intensityPoints, intensityScriptFiles, singletons, inputStruct->profileInfo),
 			"ERROR: Intensity Programming Failed!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle,
 			userScriptIsWritten, userScriptName, /*Socket Active = */true, false, true))
 		{
@@ -1266,7 +1272,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 									"previous waveform, but the previous waveform only had "
 									+ std::to_string(allXWaveformParameters[j - 1].signalNum) + " signals!\r\n", ConnectSocket,
 									verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName,
-									true, false))
+									true, false, inputStruct->settings.connectToMaster))
 								{
 									postMyString(eErrorTextMessageID, "ERROR: You are trying to copy the phase of "
 										"the " + std::to_string(n + 1) + " signal of the previous waveform, but the previous waveform only had "
@@ -1337,9 +1343,9 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 					}
 
 					myNIAWG::getVariedWaveform(allXWaveformParameters[j], allXWaveformParameters, j, libWaveformArray, fileOpenedStatus,
-						xVariedWaveforms[xVarWriteCount]);
+						xVariedWaveforms[xVarWriteCount], inputStruct->debugOptions);
 					myNIAWG::getVariedWaveform(allYWaveformParameters[j], allYWaveformParameters, j, libWaveformArray, fileOpenedStatus,
-						yVariedWaveforms[yVarWriteCount]);
+						yVariedWaveforms[yVarWriteCount], inputStruct->debugOptions);
 					if (repeatFlag == true || rewriteFlag == true)
 					{
 						if (rewriteFlag == true)
@@ -1666,7 +1672,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				return -1;
 			}
 
-			if ((*inputStruct).threadProgramIntensityOption == true && varValueLengthInc != 0)
+			if (inputStruct->settings.programIntensity == true && varValueLengthInc != 0)
 			{
 				if (myErrorHandler(myAgilent::selectIntensityProfile(boost::numeric_cast<int>(varValueLengthInc), intIsVaried, intensitySequenceMinAndMaxVector),
 					"ERROR: intensity profile selection failed!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, eError,
@@ -1677,7 +1683,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 					delete inputStruct;
 					return -1;
 				}
-				if ((*inputStruct).threadProgramIntensityOption == true && intIsVaried == true)
+				if (inputStruct->settings.programIntensity == true && intIsVaried == true)
 				{
 					postMyString(eStatusTextMessageID, "Intensity Profile Selected.\r\n");
 				}
@@ -1781,7 +1787,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 						return -1;
 					}
 				}
-				if ((*inputStruct).threadConnectToMaster == true)
+				if (inputStruct->settings.connectToMaster == true)
 				{
 					if (!TWEEZER_COMPUTER_SAFEMODE)
 					{
@@ -1799,9 +1805,12 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 					iResult = 0;
 				}
 				eWaitError = false;
+				waitThreadInput input;
+				input.currentSession = eSessionHandle;
+				input.profileInfo = inputStruct->profileInfo;
 				// create the waiting thread.
 				unsigned int NIAWGThreadID;
-				eNIAWGWaitThreadHandle = (HANDLE)_beginthreadex(0, 0, NIAWGWaitThread, &eSessionHandle, 0, &NIAWGThreadID);
+				eNIAWGWaitThreadHandle = (HANDLE)_beginthreadex(0, 0, NIAWGWaitThread, &input, 0, &NIAWGThreadID);
 				// clear some memory.
 				for (int cl = 0; cl < xVariedWaveforms.size(); cl++)
 				{
@@ -1904,7 +1913,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 					delete inputStruct;
 					return -1;
 				}
-				if ((*inputStruct).threadConnectToMaster == true)
+				if (inputStruct->settings.connectToMaster == true)
 				{
 					iResult = send(ConnectSocket, "go", 2, 0);
 					if (myErrorHandler(iResult == -1, "ERROR: intensity profile selection failed!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles,
@@ -1943,7 +1952,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	///
 	///					Cleanup
 	///
-	if ((*inputStruct).threadRepetitions == 0 || (eVariables.getCurrentNumberOfVariables() == 0 && TWEEZER_COMPUTER_SAFEMODE))
+	if ((*inputStruct).threadRepetitions == 0 || (inputStruct->numberOfVariables == 0 && TWEEZER_COMPUTER_SAFEMODE))
 	{
 		postMyString(eStatusTextMessageID, "Scripts Loaded into NIAWG. This waveform sequence will run until aborted by the user.\r\n\r\n");
 		postMyString(eColoredEditMessageID, "Scripts Loaded into NIAWG. This waveform sequence will run until aborted by the user.");

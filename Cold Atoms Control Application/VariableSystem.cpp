@@ -6,26 +6,27 @@
 #include <iomanip>
 #include <sstream>
 #include <algorithm>
+#include "ScriptingWindow.h"
 
-bool VariableSystem::updateVariableInfo(LPARAM lParamOfMessage)
+bool VariableSystem::updateVariableInfo(LPARAM lParamOfMessage, ScriptingWindow* scriptWin)
 {
 	/// get the item and subitem
 	POINT cursorPos;
 	GetCursorPos(&cursorPos);
-	ScreenToClient(variablesListview.hwnd, &cursorPos);
+	listview.ScreenToClient(&cursorPos);
 	NMITEMACTIVATE itemClicked = *(NMITEMACTIVATE*)lParamOfMessage;
 	int subitemIndicator = itemClicked.iSubItem;
 	LVHITTESTINFO myItemInfo;
 	memset(&myItemInfo, 0, sizeof(LVHITTESTINFO));
 	myItemInfo.pt = cursorPos;
-	int itemIndicator = SendMessage(variablesListview.hwnd, LVM_SUBITEMHITTEST, 0, (LPARAM)&myItemInfo);
+	int itemIndicator =	listview.SubItemHitTest(&myItemInfo);
 	if (itemIndicator == -1)
 	{
 		// user didn't click in an item.
 		return false;
 	}
 	// update the configuration saved status. variables are stored in the configuration-level file.
-	eProfile.updateConfigurationSavedStatus(false);
+	scriptWin->updateConfigurationSavedStatus(false);
 	LVITEM listViewItem;
 	memset(&listViewItem, 0, sizeof(listViewItem));
 	listViewItem.mask = LVIF_TEXT;   // Text Style
@@ -47,16 +48,16 @@ bool VariableSystem::updateVariableInfo(LPARAM lParamOfMessage)
 		// initialize this row.
 		listViewItem.pszText = "___";
 		listViewItem.iSubItem = 0;       // Put in first coluom
-		SendMessage(variablesListview.hwnd, LVM_INSERTITEM, 0, (LPARAM)&listViewItem);
+		listview.InsertItem(&listViewItem);
 		listViewItem.iSubItem = 1;
 		listViewItem.pszText = "Singleton";
-		SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem); 
+		listview.SetItem(&listViewItem);
 		listViewItem.iSubItem = 2;
 		listViewItem.pszText = "0";
-		SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem);
+		listview.SetItem(&listViewItem);
 		listViewItem.iSubItem = 3;
 		listViewItem.pszText = "No";
-		SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem); 
+		listview.SetItem(&listViewItem);
 	}
 	/// Handle different subitem clicks
 	switch (subitemIndicator)
@@ -79,11 +80,9 @@ bool VariableSystem::updateVariableInfo(LPARAM lParamOfMessage)
 			listViewItem.iItem = itemIndicator;
 			listViewItem.iSubItem = subitemIndicator;
 			listViewItem.pszText = (LPSTR)newName.c_str();
-			SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem);
+			listview.SetItem(&listViewItem);
 			// recolor to catch any new variable names needing to change color.
-			eVerticalNIAWGScript.colorEntireScript();
-			eHorizontalNIAWGScript.colorEntireScript();
-			eIntensityAgilentScript.colorEntireScript();
+			scriptWin->recolorScripts();
 			break;
 		}
 		case 1:
@@ -98,7 +97,7 @@ bool VariableSystem::updateVariableInfo(LPARAM lParamOfMessage)
 				// set the value to be dashes on the screen. no value for "from master".
 				listViewItem.pszText = "---";
 				listViewItem.iSubItem = 2;
-				SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem);
+				listview.SetItem(&listViewItem);
 				listViewItem.iSubItem = subitemIndicator;
 				listViewItem.pszText = "From Master";				
 			}
@@ -107,8 +106,7 @@ bool VariableSystem::updateVariableInfo(LPARAM lParamOfMessage)
 				currentVariables[itemIndicator].singleton = true;
 				listViewItem.pszText = "Singleton";
 			}
-			
-			SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem);
+			listview.SetItem(&listViewItem);
 
 			break;
 		}
@@ -144,7 +142,7 @@ bool VariableSystem::updateVariableInfo(LPARAM lParamOfMessage)
 			out << std::setprecision(12) << currentVariables[itemIndicator].value;
 			std::string tempstr = out.str();
 			listViewItem.pszText = (LPSTR)tempstr.c_str();
-			SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem);
+			listview.SetItem(&listViewItem);
 			break;
 		}
 		case 3:
@@ -163,7 +161,7 @@ bool VariableSystem::updateVariableInfo(LPARAM lParamOfMessage)
 				currentVariables[itemIndicator].timelike = true;
 				listViewItem.pszText = "Yes";
 			}
-			SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem);
+			listview.SetItem(&listViewItem);
 			break;
 		}
 	}
@@ -176,13 +174,13 @@ bool VariableSystem::deleteVariable(LPARAM lParamOfMessage)
 	/// get the item and subitem
 	POINT cursorPos;
 	GetCursorPos(&cursorPos);
-	ScreenToClient(variablesListview.hwnd, &cursorPos);
+	listview.ScreenToClient(&cursorPos);
 	NMITEMACTIVATE itemClicked = *(NMITEMACTIVATE*)lParamOfMessage;
 	int subitemIndicator = itemClicked.iSubItem;
 	LVHITTESTINFO myItemInfo;
 	memset(&myItemInfo, 0, sizeof(LVHITTESTINFO));
 	myItemInfo.pt = cursorPos;
-	int itemIndicator = SendMessage(variablesListview.hwnd, LVM_SUBITEMHITTEST, 0, (LPARAM)&myItemInfo);
+	int itemIndicator = listview.SubItemHitTest(&myItemInfo);
 	if (itemIndicator == -1 || itemIndicator == currentVariables.size())
 	{
 		// user didn't click in a deletable item.
@@ -191,7 +189,7 @@ bool VariableSystem::deleteVariable(LPARAM lParamOfMessage)
 	int answer = MessageBox(0, ("Delete variable " + currentVariables[itemIndicator].name + "?").c_str(), 0, MB_YESNO);
 	if (answer == IDYES)
 	{
-		SendMessage(variablesListview.hwnd, LVM_DELETEITEM, itemIndicator, 0);
+		listview.DeleteItem(itemIndicator);
 		currentVariables.erase(currentVariables.begin() + itemIndicator);
 	}
 	return false;
@@ -214,14 +212,7 @@ bool VariableSystem::clearVariables()
 	// clear the internal info holder;
 	currentVariables.clear();
 	// clear the listview
-	int itemCount = SendMessage(variablesListview.hwnd, LVM_GETITEMCOUNT, 0, 0);
-	// take the bottoms out of the variable listview
-	for (int itemInc = 0; itemInc < itemCount; itemInc++)
-	{
-		SendMessage(variablesListview.hwnd, LVM_DELETEITEM, 0, 0);
-	}
-	// get the extra item too.
-	//SendMessage(variablesListview.hwnd, LVM_DELETEITEM, itemCount, 0);
+	listview.DeleteAllItems();
 	return false;
 }
 
@@ -266,11 +257,11 @@ bool VariableSystem::addVariable(std::string name, bool timelike, bool singleton
 		listViewDefaultItem.pszText = "___";
 		listViewDefaultItem.iItem = item;          // choose item  
 		listViewDefaultItem.iSubItem = 0;       // Put in first coluom
-		SendMessage(variablesListview.hwnd, LVM_INSERTITEM, 0, (LPARAM)&listViewDefaultItem);
+		listview.InsertItem(&listViewDefaultItem);
 		for (int itemInc = 1; itemInc < 3; itemInc++) // Add SubItems in a loop
 		{
 			listViewDefaultItem.iSubItem = itemInc;
-			SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewDefaultItem); // Enter text to SubItems
+			listview.SetItem(&listViewDefaultItem);
 		}
 		return false;
 	}
@@ -292,7 +283,7 @@ bool VariableSystem::addVariable(std::string name, bool timelike, bool singleton
 	listViewItem.pszText = (LPSTR)name.c_str();
 	// Put in first column
 	listViewItem.iSubItem = 0;       
-	SendMessage(variablesListview.hwnd, LVM_INSERTITEM, 0, (LPARAM)&listViewItem);
+	listview.InsertItem(&listViewItem);
 	listViewItem.iSubItem = 1;
 	if (singleton)
 	{
@@ -303,7 +294,7 @@ bool VariableSystem::addVariable(std::string name, bool timelike, bool singleton
 		listViewItem.pszText = "From Master";
 	}
 	// Enter text to SubItes
-	SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem); 
+	listview.SetItem(&listViewItem);
 	listViewItem.iSubItem = 2;
 	if (singleton)
 	{
@@ -317,7 +308,7 @@ bool VariableSystem::addVariable(std::string name, bool timelike, bool singleton
 		listViewItem.pszText = "---";
 	}
 	// Enter text to SubItems
-	SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem);
+	listview.SetItem(&listViewItem);
 
 	if (timelike)
 	{
@@ -330,24 +321,21 @@ bool VariableSystem::addVariable(std::string name, bool timelike, bool singleton
 
 	// Enter text to SubItems
 	listViewItem.iSubItem = 3;
-	SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewItem); 
+	listview.SetItem(&listViewItem);
 	return false;
 }
 
-bool VariableSystem::initializeControls(POINT topLeftCorner, HWND parentWindow)
+bool VariableSystem::initializeControls(POINT topLeftCorner, CWnd* parent, int& id)
 {
-	RECT initPos = variablesHeader.position = { topLeftCorner.x, topLeftCorner.y, topLeftCorner.x + 480, topLeftCorner.y + 25 };
-	variablesHeader.hwnd = CreateWindowEx(0, "STATIC", "Variables", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY,
-		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top,
-		parentWindow, (HMENU)-1, eGlobalInstance, NULL);
-	SendMessage(variablesHeader.hwnd, WM_SETFONT, WPARAM(sHeadingFont), TRUE);
+	header.ID = id++;
+	header.position = { topLeftCorner.x, topLeftCorner.y, topLeftCorner.x + 480, topLeftCorner.y + 25 };
+	header.Create("VARIABLES", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, header.position, parent, header.ID);
+	header.SetFont(&eHeadingFont);
 	topLeftCorner.y += 25;
-	initPos = variablesListview.position = { topLeftCorner.x, topLeftCorner.y, topLeftCorner.x + 480, topLeftCorner.y + 195 };
-	variablesListview.hwnd = CreateWindowEx(0, WC_LISTVIEW, "", WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS,
-		initPos.left, initPos.top, initPos.right - initPos.left, initPos.bottom - initPos.top,
-		parentWindow, (HMENU)IDC_VARIABLES_LISTVIEW, GetModuleHandle(NULL), NULL);
-	SendMessage(variablesListview.hwnd, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-
+	listview.ID = id++;
+	listview.position = { topLeftCorner.x, topLeftCorner.y, topLeftCorner.x + 480, topLeftCorner.y + 195 };
+	listview.Create(WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS, listview.position, parent, listview.ID);
+	listview.SetFont(&eNormalFont);
 	LV_COLUMN listViewDefaultCollumn;
 	// Zero Members
 	memset(&listViewDefaultCollumn, 0, sizeof(listViewDefaultCollumn));
@@ -357,13 +345,13 @@ bool VariableSystem::initializeControls(POINT topLeftCorner, HWND parentWindow)
 	listViewDefaultCollumn.pszText = "Symbol";
 	listViewDefaultCollumn.cx = 0x62;
 	// Inserting Couloms as much as we want
-	SendMessage(variablesListview.hwnd, LVM_INSERTCOLUMN, 0, (LPARAM)&listViewDefaultCollumn);
+	listview.InsertColumn(0, &listViewDefaultCollumn);
 	listViewDefaultCollumn.pszText = "Type";
-	SendMessage(variablesListview.hwnd, LVM_INSERTCOLUMN, 1, (LPARAM)&listViewDefaultCollumn);
+	listview.InsertColumn(1, &listViewDefaultCollumn);
 	listViewDefaultCollumn.pszText = "Value";
-	SendMessage(variablesListview.hwnd, LVM_INSERTCOLUMN, 2, (LPARAM)&listViewDefaultCollumn);
+	listview.InsertColumn(2, &listViewDefaultCollumn);
 	listViewDefaultCollumn.pszText = "Timelike?";
-	SendMessage(variablesListview.hwnd, LVM_INSERTCOLUMN, 3, (LPARAM)&listViewDefaultCollumn);
+	listview.InsertColumn(3, &listViewDefaultCollumn);
 	// Make First Blank row.
 	LVITEM listViewDefaultItem;
 	memset(&listViewDefaultItem, 0, sizeof(listViewDefaultItem));
@@ -372,12 +360,18 @@ bool VariableSystem::initializeControls(POINT topLeftCorner, HWND parentWindow)
 	listViewDefaultItem.pszText = "___";
 	listViewDefaultItem.iItem = 0;          // choose item  
 	listViewDefaultItem.iSubItem = 0;       // Put in first coluom
-	SendMessage(variablesListview.hwnd, LVM_INSERTITEM, 0, (LPARAM)&listViewDefaultItem);
+	listview.InsertItem(&listViewDefaultItem);
 	for (int itemInc = 1; itemInc < 3; itemInc++) // Add SubItems in a loop
 	{
 		listViewDefaultItem.iSubItem = itemInc;
-		SendMessage(variablesListview.hwnd, LVM_SETITEM, 0, (LPARAM)&listViewDefaultItem); // Enter text to SubItems
+		// Enter text to SubItems
+		listview.SetItem(&listViewDefaultItem);
 	}
 	topLeftCorner.y += 400;
 	return false;
+}
+
+std::vector<variable> VariableSystem::getAllVariables()
+{
+	return this->currentVariables;
 }

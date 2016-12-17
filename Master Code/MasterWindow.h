@@ -116,6 +116,7 @@ class MasterWindow : public CDialog
 		afx_msg void StartExperiment();
 		afx_msg void HandleFunctionChange();
 		std::unordered_map<std::string, COLORREF> getRGBs();
+		
 	private:
 		DECLARE_MESSAGE_MAP();
 		CMenu menu;

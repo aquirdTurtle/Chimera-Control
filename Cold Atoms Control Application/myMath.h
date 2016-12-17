@@ -43,7 +43,5 @@ namespace myMath
 	* Return time.
 	*/
 	double calculateCorrectionTime(waveData& wvData1, waveData& wvData2, std::vector<double> startPhases, std::string order);
-
 	double rampCalc(int size, int iteration, double initPos, double finPos, std::string rampType);
-
 };

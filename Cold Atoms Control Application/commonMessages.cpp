@@ -13,241 +13,241 @@
 #include "selectInCombo.h"
 #include "getFileName.h"
 #include "saveTextFileFromEdit.h"
+#include <array>
+#include "MainWindow.h"
 
+// Functions called by all windows to do the same thing, mostly things that happen on menu presses.
 namespace commonMessages
 {
-	// this functino handles messages that all windows can recieve, e.g. accelerator keys and menu messages.
-	bool handleCommonMessage(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
+	// this function handles messages that all windows can recieve, e.g. accelerator keys and menu messages.
+	bool handleCommonMessage(int msgID, CWnd* parent, MainWindow* mainWin, ScriptingWindow* scriptWin)
 	{
-		switch (message)
+		switch (msgID)
 		{
-			case WM_COMMAND:
+			case ID_FILE_MY_RUN:
+			case ID_ACCELERATOR_F5:
+			case ID_FILE_MY_WRITE_WAVEFORMS:
 			{
-				switch (LOWORD(wParam))
-				{
-					case ID_FILE_MY_RUN:
-					case ID_ACCELERATOR_F5:
-					case ID_FILE_MY_WRITE_WAVEFORMS:
-					{
-						commonMessages::startSystem(window, wParam);
-						break;
-					}
-					case ID_ACCELERATOR_ESC:
-					case ID_FILE_ABORT_GENERATION:
-					{
-						// finish the abort.
-						commonMessages::abortSystem(window);
-						break;
-					}
-					/// File Management 
-					case ID_FILE_SAVEALL:
-					{
-						// save the scripts
-						commonMessages::saveHorizontalScript(window);
-						commonMessages::saveVerticalScript(window);
-						commonMessages::saveIntensityScript(window);
-						// save the profile
-						eProfile.saveEntireProfile();
-						break;
-					}
-					case ID_PROFILE_SAVE_PROFILE:
-					{
-						eProfile.saveEntireProfile();
-						break;
-					}
-					case ID_FILE_MY_EXIT:
-					{
-						commonMessages::exitProgram(window);
-						break;
-					}
-					case ID_FILE_MY_INTENSITY_NEW:
-					{
-						commonMessages::newIntensityScript(window);
-						break;
-					}
-					case ID_FILE_MY_INTENSITY_OPEN:
-					{
-						commonMessages::openIntensityScript(window);
-						break;
-					}
-					case ID_FILE_MY_INTENSITY_SAVE:
-					{
-						commonMessages::saveIntensityScript(window);
-						break;
-					}
-					case ID_FILE_MY_INTENSITY_SAVEAS:
-					{
-						commonMessages::saveIntensityScriptAs(window);
-						break;
-					}
-					case ID_FILE_MY_VERTICAL_NEW:
-					{
-						commonMessages::newVerticalScript(window);
-						break;
-					}
-					case ID_FILE_MY_VERTICAL_OPEN:
-					{
-						commonMessages::openVerticalScript(window);
-						break;
-					}
-					case ID_FILE_MY_VERTICAL_SAVE:
-					{
-						commonMessages::saveVerticalScript(window);
-						break;
-					}
-					case ID_FILE_MY_VERTICAL_SAVEAS:
-					{
-						commonMessages::saveVerticalScriptAs(window);
-						break;
-					}
-					case ID_FILE_MY_HORIZONTAL_NEW:
-					{
-						commonMessages::newHorizontalScript(window);
-						break;
-					}
-					case ID_FILE_MY_HORIZONTAL_OPEN:
-					{
-						commonMessages::openHorizontalScript(window);
-						break;
-					}
-					case ID_FILE_MY_HORIZONTAL_SAVE:
-					{
-						commonMessages::saveHorizontalScript(window);
-						break;
-					}
-					case ID_FILE_MY_HORIZONTAL_SAVEAS:
-					{
-						commonMessages::saveHorizontalScriptAs(window);
-						break;
-					}
-					case ID_SEQUENCE_RENAMESEQUENCE:
-					{
-						eProfile.renameSequence();
-						break;
-					}
-					case ID_SEQUENCE_ADD_TO_SEQUENCE:
-					{
-						eProfile.addToSequence(window);
-						break;
-					}
-					case ID_SEQUENCE_SAVE_SEQUENCE:
-					{
-						eProfile.saveSequence();
-						break;
-					}
-					case ID_SEQUENCE_NEW_SEQUENCE:
-					{
-						eProfile.newSequence(window);
-						break;
-					}
-					case ID_SEQUENCE_RESET_SEQUENCE:
-					{
-						eProfile.loadNullSequence();
-						break;
-					}
-					case ID_SEQUENCE_DELETE_SEQUENCE:
-					{
-						eProfile.deleteSequence();
-						break;
-					}
-					case ID_HELP_SCRIPT:
-					{
-						commonMessages::helpWindow(window);
-						break;
-					}
-					case ID_HELP_GENERALINFORMATION:
-					{
-						break;
-					}
-					case ID_NIAWG_RELOADDEFAULTWAVEFORMS:
-					{
-						commonMessages::reloadNIAWGDefaults(window);
-						break;
-					}
-					case ID_EXPERIMENT_NEW_EXPERIMENT_TYPE:
-					{
-						eProfile.newExperiment();
-						break;
-					}
-					case ID_EXPERIMENT_SAVEEXPERIMENTSETTINGS:
-					{
-						eProfile.saveExperimentOnly();
-						break;
-					}
-					case ID_EXPERIMENT_SAVEEXPERIMENTSETTINGSAS:
-					{
-						eProfile.saveExperimentAs();
-						break;
-					}
+				commonMessages::startSystem(parent->GetSafeHwnd(), msgID, scriptWin, mainWin);
+				break;
+			}
+			case ID_ACCELERATOR_ESC:
+			case ID_FILE_ABORT_GENERATION:
+			{
+				// finish the abort.
+				commonMessages::abortSystem(parent->GetSafeHwnd(), scriptWin);
+				break;
+			}
+			/// File Management 
+			case ID_FILE_SAVEALL:
+			{
+				// save the scripts
+				scriptWin->saveHorizontalScript();
+				scriptWin->saveVerticalScript();
+				scriptWin->saveIntensityScript();
+				// save the profile
+				mainWin->profile.saveEntireProfile(scriptWin, mainWin);
+				break;
+			}
+			case ID_PROFILE_SAVE_PROFILE:
+			{
+				mainWin->profile.saveEntireProfile(scriptWin, mainWin);
+				break;
+			}
+			case ID_FILE_MY_EXIT:
+			{
+				commonMessages::exitProgram(parent->GetSafeHwnd(), scriptWin, mainWin);
+				break;
+			}
+			case ID_FILE_MY_INTENSITY_NEW:
+			{
+				scriptWin->newIntensityScript();
+				break;
+			}
+			case ID_FILE_MY_INTENSITY_OPEN:
+			{
+				scriptWin->openIntensityScript(parent->GetSafeHwnd());
+				break;
+			}
+			case ID_FILE_MY_INTENSITY_SAVE:
+			{
+				scriptWin->saveIntensityScript();
+				break;
+			}
+			case ID_FILE_MY_INTENSITY_SAVEAS:
+			{
+				scriptWin->saveIntensityScriptAs(parent->GetSafeHwnd());
+				break;
+			}
+			case ID_FILE_MY_VERTICAL_NEW:
+			{
+				scriptWin->newVerticalScript();
+				break;
+			}
+			case ID_FILE_MY_VERTICAL_OPEN:
+			{
+				scriptWin->openVerticalScript(parent->GetSafeHwnd());
+				break;
+			}
+			case ID_FILE_MY_VERTICAL_SAVE:
+			{
+				scriptWin->saveVerticalScript();
+				break;
+			}
+			case ID_FILE_MY_VERTICAL_SAVEAS:
+			{
+				scriptWin->saveVerticalScriptAs(parent->GetSafeHwnd());
+				break;
+			}
+			case ID_FILE_MY_HORIZONTAL_NEW:
+			{
+				scriptWin->newHorizontalScript();
+				break;
+			}
+			case ID_FILE_MY_HORIZONTAL_OPEN:
+			{
+				scriptWin->openHorizontalScript(parent->GetSafeHwnd());
+				break;
+			}
+			case ID_FILE_MY_HORIZONTAL_SAVE:
+			{
+				scriptWin->saveHorizontalScript();
+				break;
+			}
+			case ID_FILE_MY_HORIZONTAL_SAVEAS:
+			{
+				scriptWin->saveHorizontalScriptAs(parent->GetSafeHwnd());
+				break;
+			}
+			case ID_SEQUENCE_RENAMESEQUENCE:
+			{
+				mainWin->profile.renameSequence();
+				break;
+			}
+			case ID_SEQUENCE_ADD_TO_SEQUENCE:
+			{
+				mainWin->profile.addToSequence(parent->GetSafeHwnd());
+				break;
+			}
+			case ID_SEQUENCE_SAVE_SEQUENCE:
+			{
+				mainWin->profile.saveSequence();
+				break;
+			}
+			case ID_SEQUENCE_NEW_SEQUENCE:
+			{
+				mainWin->profile.newSequence(parent->GetSafeHwnd());
+				break;
+			}
+			case ID_SEQUENCE_RESET_SEQUENCE:
+			{
+				mainWin->profile.loadNullSequence();
+				break;
+			}
+			case ID_SEQUENCE_DELETE_SEQUENCE:
+			{
+				mainWin->profile.deleteSequence();
+				break;
+			}
+			case ID_HELP_SCRIPT:
+			{
+				commonMessages::helpWindow(parent->GetSafeHwnd());
+				break;
+			}
+			case ID_HELP_GENERALINFORMATION:
+			{
+				break;
+			}
+			case ID_NIAWG_RELOADDEFAULTWAVEFORMS:
+			{
+				//commonMessages::reloadNIAWGDefaults(parent->GetSafeHwnd());
+				break;
+			}
+			case ID_EXPERIMENT_NEW_EXPERIMENT_TYPE:
+			{
+				mainWin->profile.newExperiment();
+				break;
+			}
+			case ID_EXPERIMENT_SAVEEXPERIMENTSETTINGS:
+			{
+				mainWin->profile.saveExperimentOnly(mainWin);
+				break;
+			}
+			case ID_EXPERIMENT_SAVEEXPERIMENTSETTINGSAS:
+			{
+				mainWin->profile.saveExperimentAs(mainWin);
+				break;
+			}
 
-					case ID_EXPERIMENT_RENAME_CURRENT_EXPERIMENT:
-					{
-						eProfile.renameExperiment();
-						break;
-					}
-					case ID_EXPERIMENT_DELETE_CURRENT_EXPERIMENT:
-					{
-						eProfile.deleteExperiment();
-						//commonMessages::deleteCurrentExperimentType(window);
-						break;
-					}
-					case ID_CATEGORY_NEW_CATEGORY:
-					{
-						eProfile.newCategory();
-						break;
-					}
-					case ID_CATEGORY_RENAME_CURRENT_CATEGORY:
-					{
-						eProfile.renameCategory();
-						break;
-					}
-					case ID_CATEGORY_DELETE_CURRENT_CATEGORY:
-					{
-						eProfile.deleteCategory();
-						break;
-					}
-					case ID_CATEGORY_SAVECATEGORYSETTINGS:
-					{
-						eProfile.saveCategoryOnly();
-						break;
-					}
-					case ID_CATEGORY_SAVECATEGORYSETTINGSAS:
-					{
-						eProfile.saveCategoryAs();
-						break;
-					}
-					case ID_CONFIGURATION_NEW_CONFIGURATION:
-					{
-						eProfile.newConfiguration();
-						break;
-					}
-					case ID_CONFIGURATION_RENAME_CURRENT_CONFIGURATION:
-					{
-						eProfile.renameConfiguration();
-						break;
-					}
-					case ID_CONFIGURATION_DELETE_CURRENT_CONFIGURATION:
-					{
-						eProfile.deleteConfiguration();
-						break;
-					}
-					case ID_CONFIGURATION_SAVE_CONFIGURATION_AS:
-					{
-						eProfile.saveConfigurationAs();
-						break;
-					}
-					case ID_CONFIGURATION_SAVECONFIGURATIONSETTINGS:
-					{
-						eProfile.saveConfigurationOnly();
-						break;
-					}
-				}
+			case ID_EXPERIMENT_RENAME_CURRENT_EXPERIMENT:
+			{
+				mainWin->profile.renameExperiment(mainWin);
+				break;
+			}
+			case ID_EXPERIMENT_DELETE_CURRENT_EXPERIMENT:
+			{
+				mainWin->profile.deleteExperiment();
+				//commonMessages::deleteCurrentExperimentType(window);
+				break;
+			}
+			case ID_CATEGORY_NEW_CATEGORY:
+			{
+				mainWin->profile.newCategory();
+				break;
+			}
+			case ID_CATEGORY_RENAME_CURRENT_CATEGORY:
+			{
+				mainWin->profile.renameCategory();
+				break;
+			}
+			case ID_CATEGORY_DELETE_CURRENT_CATEGORY:
+			{
+				mainWin->profile.deleteCategory();
+				break;
+			}
+			case ID_CATEGORY_SAVECATEGORYSETTINGS:
+			{
+				mainWin->profile.saveCategoryOnly(mainWin);
+				break;
+			}
+			case ID_CATEGORY_SAVECATEGORYSETTINGSAS:
+			{
+				mainWin->profile.saveCategoryAs(mainWin);
+				break;
+			}
+			case ID_CONFIGURATION_NEW_CONFIGURATION:
+			{
+				mainWin->profile.newConfiguration(mainWin);
+				break;
+			}
+			case ID_CONFIGURATION_RENAME_CURRENT_CONFIGURATION:
+			{
+				mainWin->profile.renameConfiguration();
+				break;
+			}
+			case ID_CONFIGURATION_DELETE_CURRENT_CONFIGURATION:
+			{
+				mainWin->profile.deleteConfiguration();
+				break;
+			}
+			case ID_CONFIGURATION_SAVE_CONFIGURATION_AS:
+			{
+				mainWin->profile.saveConfigurationAs(scriptWin, mainWin);
+				break;
+			}
+			case ID_CONFIGURATION_SAVECONFIGURATIONSETTINGS:
+			{
+				mainWin->profile.saveConfigurationOnly(scriptWin, mainWin);
+				break;
 			}
 		}
 		return false;
 	}
-	int startSystem(HWND parentWindow, WPARAM wParam)
+
+
+	int startSystem(HWND parentWindow, int msgID, ScriptingWindow* scriptWin, MainWindow* mainWin)
 	{
+		profileSettings profileInfo = mainWin->getCurentProfileSettings();
 		if (eSystemIsRunning)
 		{
 			int restart = MessageBox(0, "Restart Generation?", 0, MB_OKCANCEL);
@@ -267,93 +267,93 @@ namespace commonMessages
 				SetWindowText(eColoredStatusEdit, msgString.c_str());
 				eGenStatusColor = "B";
 				RedrawWindow(eColoredStatusEdit, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
-				RedrawWindow(eColorBox, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+				scriptWin->redrawBox();
 
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE)))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE), mainWin->getCurentProfileSettings().orientation))
 				{
 					return -3;
 				}
 				// Officially stop trying to generate anything.
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AbortGeneration(eSessionHandle)))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AbortGeneration(eSessionHandle), mainWin->getCurentProfileSettings().orientation))
 				{
 					return -3;
 				}
 				// clear the memory
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ClearArbMemory(eSessionHandle)))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ClearArbMemory(eSessionHandle), mainWin->getCurentProfileSettings().orientation))
 				{
 					return -3;
 				}
 				ViInt32 waveID;
-				if (eProfile.getOrientation() == "Horizontal")
+				if (profileInfo.orientation == "Horizontal")
 				{
 					// create waveform (necessary?)
-					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform, &waveID)))
+					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform, &waveID), mainWin->getCurentProfileSettings().orientation))
 					{
 						return -3;
 					}
 					// allocate waveform into the device memory
-					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize / 2)))
+					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize / 2), mainWin->getCurentProfileSettings().orientation))
 					{
 						return -3;
 					}
 					// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
-					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform)))
+					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform), mainWin->getCurentProfileSettings().orientation))
 					{
 						return -3;
 					}
 					// rewrite the script. default_hConfigScript should still be valid.
-					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigScript)))
+					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigScript), mainWin->getCurentProfileSettings().orientation))
 					{
 						return -3;
 
 					}
 					// start generic waveform to maintain power output to AOM.
-					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE)))
+					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), mainWin->getCurentProfileSettings().orientation))
 					{
 						return -3;
 					}
-					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript")))
+					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript"), mainWin->getCurentProfileSettings().orientation))
 					{
 						return -3;
 					}
 					eCurrentScript = "DefaultHConfigScript";
 
 				}
-				else if (eProfile.getOrientation() == "Vertical")
+				else if (profileInfo.orientation == "Vertical")
 				{
 					// create waveform (necessary?)
-					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform, &waveID)))
+					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform, &waveID), mainWin->getCurentProfileSettings().orientation))
 					{
 						return -3;
 					}
 					// allocate waveform into the device memory
-					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize / 2)))
+					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize / 2), mainWin->getCurentProfileSettings().orientation))
 					{
 						return -3;
 					}
 					// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
-					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform)))
+					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform), mainWin->getCurentProfileSettings().orientation))
 					{
 						return -3;
 					}
 					// rewrite the script. default_hConfigScript should still be valid.
-					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigScript)))
+					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigScript), mainWin->getCurentProfileSettings().orientation))
 					{
 						return -3;
 					}
 					// start generic waveform to maintain power output to AOM.
-					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE)))
+					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), mainWin->getCurentProfileSettings().orientation))
 					{
 						return -3;
 					}
-					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultVConfigScript")))
+					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultVConfigScript"), mainWin->getCurentProfileSettings().orientation))
 					{
 						return -3;
 					}
 					eCurrentScript = "DefaultVConfigScript";
 				}
 				// Initiate Generation.
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_InitiateGeneration(eSessionHandle)))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_InitiateGeneration(eSessionHandle), mainWin->getCurentProfileSettings().orientation))
 				{
 					return -3;
 				}
@@ -369,43 +369,38 @@ namespace commonMessages
 				return -4;
 			}
 		}
-		if (eProfile.getSequenceNames().size() == 0)
+		if (profileInfo.sequenceConfigurationNames.size() == 0)
 		{
 			appendText("ERROR: No configurations in current sequence! Please set some configurations to run in this sequence or set the null sequence.\r\n", 
 						IDC_SYSTEM_ERROR_TEXT, eMainWindowHandle);
 			return -9;
 		}
 		// check config settings
-		if (eProfile.allSettingsReadyCheck())
+		
+		if (mainWin->checkProfileReady()) //eProfile.allSettingsReadyCheck(scriptWin))
 		{
 			return -1;
 		}
-		if (eHorizontalNIAWGScript.checkSave())
+		if (scriptWin->checkScriptSaves())
 		{
 			return -1;
 		}
-		if (eVerticalNIAWGScript.checkSave())
-		{
-			return -1;
-		}
-		if (eIntensityAgilentScript.checkSave())
-		{
-			return -1;
-		}
-
-		std::string verticalNameString(eVerticalNIAWGScript.getScriptName());
-		std::string horizontalNameString(eHorizontalNIAWGScript.getScriptName());
-		std::string intensityNameString(eIntensityAgilentScript.getScriptName());
+		scriptInfo<std::string> scriptNames = scriptWin->getScriptNames();
+		// ordering matters here, make sure you get the correct script name.
+		std::string horizontalNameString(scriptNames.horizontalNIAWG);
+		std::string verticalNameString(scriptNames.verticalNIAWG);
+		std::string intensityNameString(scriptNames.intensityAgilent);
 		std::string beginInfo = "Current Settings:\r\n=============================\r\n\r\n";
-		std::string sequenceInfo = eProfile.getSequenceNamesString();
+		std::string sequenceInfo = "";//eProfile.getSequenceNamesString();
 		if (sequenceInfo != "")
 		{
 			beginInfo += sequenceInfo;
 		}
 		else
 		{
+			scriptInfo<bool> scriptSavedStatus = scriptWin->getScriptSavedStatuses();
 			beginInfo += "Vertical Script Name:............. " + std::string(verticalNameString);
-			if (eVerticalNIAWGScript.savedStatus())
+			if (scriptSavedStatus.verticalNIAWG)
 			{
 				beginInfo += " SAVED\r\n";
 			}
@@ -414,7 +409,7 @@ namespace commonMessages
 				beginInfo += " NOT SAVED\r\n";
 			}
 			beginInfo += "Horizontal Script Name:........... " + std::string(horizontalNameString);
-			if (eHorizontalNIAWGScript.savedStatus())
+			if (scriptSavedStatus.horizontalNIAWG)
 			{
 				beginInfo += " SAVED\r\n";
 			}
@@ -423,7 +418,7 @@ namespace commonMessages
 				beginInfo += " NOT SAVED\r\n";
 			}
 			beginInfo += "Intensity Script Name:............ " + std::string(intensityNameString);
-			if (eIntensityAgilentScript.savedStatus())
+			if (scriptSavedStatus.intensityAgilent)
 			{
 				beginInfo += " SAVED\r\n";
 			}
@@ -433,24 +428,25 @@ namespace commonMessages
 			}
 		}
 		beginInfo += "\r\n";
-		if (eVariables.getCurrentNumberOfVariables() == 0)
+		std::vector<variable> vars = mainWin->getAllVariables();
+		if (vars.size() == 0)
 		{
 			beginInfo += "Variable Names:................... NO VARIABLES\r\n";
 		}
 		else
 		{
 			beginInfo += "Variable Names:................... ";
-			for (int varInc = 0; varInc < eVariables.getCurrentNumberOfVariables(); varInc++)
+			for (int varInc = 0; varInc < vars.size(); varInc++)
 			{
-				beginInfo += eVariables.getVariableInfo(varInc).name + " ";
+				beginInfo += vars[varInc].name + " ";
 			}
 			beginInfo += "\r\n";
 		}
-
-		if (eConnectToMaster == true)
+		mainOptions settings = mainWin->getMainOptions();
+		if (settings.connectToMaster == true)
 		{
 			beginInfo += "Connecting To Master.............. TRUE\r\n";
-			if (eGetVarFilesFromMaster == true)
+			if (settings.getVariables== true)
 			{
 				beginInfo += "Getting Variables from Master:.... TRUE\r\n";
 			}
@@ -462,27 +458,18 @@ namespace commonMessages
 		else
 		{
 			beginInfo += "Connecting To Master:............. FALSE\r\n";
-			if (eGetVarFilesFromMaster == true)
+			if (settings.getVariables == true)
 			{
 				beginInfo += "Getting Variables from Master:.... TRUE ??????\r\n";
 			}
 		}
-		if (eProgramIntensityOption == true)
+		if (settings.programIntensity == true)
 		{
 			beginInfo += "Programming Intensity:............ TRUE\r\n";
 		}
 		else
 		{
 			beginInfo += "Programming Intensity:............ FALSE\r\n";
-		}
-
-		if (eLogScriptAndParams == true)
-		{
-			beginInfo += "Logging Script and Parameters:.... TRUE\r\n";
-		}
-		else
-		{
-			beginInfo += "Logging Script and Parameters:.... FALSE\r\n";
 		}
 		beginInfo += "\r\n";
 		std::string beginQuestion = "\r\n\r\nBegin Waveform Generation with these Settings?";
@@ -492,32 +479,31 @@ namespace commonMessages
 			std::string msgString = "Performing Initial Analysis and Writing and Loading Non-Varying Waveforms...";
 			SetWindowText(eColoredStatusEdit, msgString.c_str());
 			eGenStatusColor = "Y";
-			RedrawWindow(eColorBox, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+			scriptWin->redrawBox();
 			RedrawWindow(eColoredStatusEdit, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 
 			// Set the thread structure.
 			experimentThreadInputStructure* inputParams = new experimentThreadInputStructure();
 			// force accumulations to zero. This shouldn't affect anything, this should always get set by the master or be infinite.
-			(*inputParams).threadRepetitions = 0;
-			(*inputParams).threadConnectToMaster = eConnectToMaster;
-			(*inputParams).threadCurrentScript = eCurrentScript;
-			if (LOWORD(wParam) == ID_FILE_MY_WRITE_WAVEFORMS)
+			inputParams->threadRepetitions = 0;
+			inputParams->settings = settings;
+			inputParams->threadCurrentScript = eCurrentScript;
+			if (msgID == ID_FILE_MY_WRITE_WAVEFORMS)
 			{
-				(*inputParams).threadDontActuallyGenerate = true;
+				inputParams->threadDontActuallyGenerate = true;
 			}
 			else
 			{
-				(*inputParams).threadDontActuallyGenerate = false;
+				inputParams->threadDontActuallyGenerate = false;
 			}
-			(*inputParams).threadGetVarFilesFromMaster = eGetVarFilesFromMaster;
-			(*inputParams).threadSequenceFileNames = eProfile.getSequenceNames();
-			(*inputParams).threadLogScriptAndParams = eLogScriptAndParams;
-			(*inputParams).threadProgramIntensityOption = eProgramIntensityOption;
-			(*inputParams).currentFolderLocation = (eProfile.getCurrentPathIncludingCategory());
-			(*inputParams).debugOptions = eDebuggingOptions.getOptions();
-			eMostRecentVerticalScriptNames = eVerticalNIAWGScript.getScriptPathAndName();
-			eMostRecentHorizontalScriptNames = eHorizontalNIAWGScript.getScriptPathAndName();
-			eMostRecentIntensityScriptNames = eIntensityAgilentScript.getScriptPathAndName();
+			inputParams->threadSequenceFileNames = profileInfo.sequenceConfigurationNames;
+			inputParams->currentFolderLocation = (profileInfo.pathIncludingCategory);
+			inputParams->debugOptions = eDebugger.getOptions();
+			inputParams->numberOfVariables = mainWin->getAllVariables().size();
+			scriptInfo<std::string> addresses = scriptWin->getScriptAddresses();
+			eMostRecentVerticalScriptNames = addresses.verticalNIAWG;
+			eMostRecentHorizontalScriptNames = addresses.horizontalNIAWG;
+			eMostRecentIntensityScriptNames = addresses.intensityAgilent;
 			// Start the programming thread.
 			unsigned int experimentThreadID;
 			eExperimentThreadHandle = (HANDLE)_beginthreadex(0, 0, experimentProgrammingThread, (LPVOID *)inputParams, 0, &experimentThreadID);
@@ -584,15 +570,18 @@ namespace commonMessages
 			{
 				result = SendMessage(eSystemDebugTextHandle, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&currentFormat);
 			}
-			if (eOutputRunInfo)
+			if (mainWin->getDebuggingOptions().outputExcessInfo)
 			{
 				appendText(beginInfo, IDC_SYSTEM_DEBUG_TEXT, eMainWindowHandle);
 			}
 		}
 		return 0;
 	}
-	int abortSystem(HWND parentWindow)
+	
+	
+	int abortSystem(HWND parentWindow, ScriptingWindow* scriptWin)
 	{
+		std::string orientation = scriptWin->getCurrentProfileSettings().orientation;
 		if (!eSystemIsRunning)
 		{
 			appendText("System was not running. Can't Abort.\r\n", IDC_SYSTEM_ERROR_TEXT, eMainWindowHandle);
@@ -600,7 +589,7 @@ namespace commonMessages
 			std::string msgString = "Passively Outputting Default Waveform.";
 			SetWindowText(eColoredStatusEdit, msgString.c_str());
 			eGenStatusColor = "B";
-			RedrawWindow(eColorBox, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+			scriptWin->redrawBox();
 			RedrawWindow(eColoredStatusEdit, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 			return -1;
 		}
@@ -628,94 +617,95 @@ namespace commonMessages
 		std::string msgString = "Passively Outputting Default Waveform.";
 		SetWindowText(eColoredStatusEdit, msgString.c_str());
 		eGenStatusColor = "B";
-		RedrawWindow(eColorBox, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+		scriptWin->redrawBox();
 		RedrawWindow(eColoredStatusEdit, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+		//std::string currentOrientation = scriptWin->getCurrentProfileSettings().orientation;
 		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE)))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE), orientation))
 			{
 				return -2;
 			}
 			// Officially stop trying to generate anything.
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AbortGeneration(eSessionHandle)))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AbortGeneration(eSessionHandle), orientation))
 			{
 				return -2;
 			}
 			// clear the memory
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ClearArbMemory(eSessionHandle)))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ClearArbMemory(eSessionHandle), orientation))
 			{
 				return -2;
 			}
 		}
 		ViInt32 waveID;
 
-		if (eProfile.getOrientation() == "Horizontal")
+		if (orientation == "Horizontal")
 		{
 			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
 				// create waveform (necessary?)
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform, &waveID)))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform, &waveID), orientation))
 				{
 					return -2;
 				}
 				// allocate waveform into the device memory
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize / 2)))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize / 2), orientation))
 				{
 					return -2;
 				}
 				// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform)))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform), orientation))
 				{
 					return -2;
 				}
 				// rewrite the script. default_hConfigScript should still be valid.
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigScript)))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigScript), orientation))
 				{
 					return -2;
 				}
 				// start generic waveform to maintain power output to AOM.
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE)))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), orientation))
 				{
 					return -2;
 				}
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript")))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript"), orientation))
 				{
 					return -2;
 				}
 			}
 			eCurrentScript = "DefaultHConfigScript";
 		}
-		else if (eProfile.getOrientation() == "Vertical")
+		else if (orientation == "Vertical")
 		{
 			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
 				// create waveform (necessary?)
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform, &waveID)))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform, &waveID), orientation))
 				{
 					return -2;
 
 				}
 				// allocate waveform into the device memory
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize / 2)))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize / 2), orientation))
 				{
 					return -2;
 				}
 				// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform)))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform), orientation))
 				{
 					return -2;
 				}
 				// rewrite the script. default_hConfigScript should still be valid.
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigScript)))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigScript), orientation))
 				{
 					return -2;
 				}
 				// start generic waveform to maintain power output to AOM.
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE)))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), orientation))
 				{
 					return -2;
 				}
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultVConfigScript")))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultVConfigScript"), orientation))
 				{
 					return -2;
 				}
@@ -725,7 +715,7 @@ namespace commonMessages
 		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
 			// Initiate Generation.
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_InitiateGeneration(eSessionHandle)))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_InitiateGeneration(eSessionHandle), orientation))
 			{
 				return -2;
 			}
@@ -733,6 +723,8 @@ namespace commonMessages
 		eSystemIsRunning = false;
 		return 0;
 	}
+	
+	
 	int saveAll(HWND parentWindow)
 	{
 		// Just use the procedures that already exist. No need to rewrite the handling.
@@ -742,26 +734,22 @@ namespace commonMessages
 		PostMessage(parentWindow, WM_COMMAND, MAKEWPARAM(ID_PROFILE_SAVE_PROFILE, 0), 0);
 		return 0;
 	}
-	int exitProgram(HWND parentWindow)
+	
+	
+	int exitProgram(HWND parentWindow, ScriptingWindow* scriptWindow, MainWindow* mainWin)
 	{
 		if (eSystemIsRunning)
 		{
 			MessageBox(0, "System is Currently Running. Please stop the system before exiting so that devices devices can stop normally.", 0, 0);
 			return -1;
 		}
-		if (eHorizontalNIAWGScript.checkSave())
+		scriptInfo<bool> status = scriptWindow->getScriptSavedStatuses();
+		if (status.horizontalNIAWG || status.verticalNIAWG || status.intensityAgilent)
 		{
 			return true;
 		}
-		if (eVerticalNIAWGScript.checkSave())
-		{
-			return true;
-		}
-		if (eIntensityAgilentScript.checkSave())
-		{
-			return true;
-		}
-		if (eProfile.checkSaveEntireProfile())
+		if (mainWin->checkProfileSave())
+			//eProfile.checkSaveEntireProfile(scriptWindow))
 		{
 			return true;
 		}
@@ -780,148 +768,6 @@ namespace commonMessages
 		return 0;
 	}
 
-	int newIntensityScript(HWND parentWindow)
-	{
-		if (eIntensityAgilentScript.checkSave())
-		{
-			return true;
-		}
-		eIntensityAgilentScript.newScript();
-		eProfile.updateConfigurationSavedStatus(false);
-		eIntensityAgilentScript.updateScriptNameText();
-		return 0;
-	}
-	int openIntensityScript(HWND parentWindow)
-	{
-		if (eIntensityAgilentScript.checkSave())
-		{
-			return true;
-		}
-
-		std::string intensityOpenName = getFileNameDialog(parentWindow);
-		eIntensityAgilentScript.openParentScript(intensityOpenName);
-		eProfile.updateConfigurationSavedStatus(false);
-		eIntensityAgilentScript.updateScriptNameText();
-		return 0;
-	}
-	int saveIntensityScript(HWND parentWindow)
-	{
-		eIntensityAgilentScript.saveScript();
-		eIntensityAgilentScript.updateScriptNameText();
-		return 0;
-	}
-	int saveIntensityScriptAs(HWND parentWindow)
-	{
-		std::string extensionNoPeriod = eVerticalNIAWGScript.getExtension();
-		if (extensionNoPeriod.size() == 0)
-		{
-			return -1;
-		}
-		extensionNoPeriod = extensionNoPeriod.substr(1, extensionNoPeriod.size());
-		std::string newScriptAddress = saveTextFileFromEdit(parentWindow, extensionNoPeriod);
-		eIntensityAgilentScript.saveScriptAs(newScriptAddress);
-		eProfile.updateConfigurationSavedStatus(false);
-		eIntensityAgilentScript.updateScriptNameText();
-		return 0;
-	}
-	int newVerticalScript(HWND parentWindow)
-	{
-		if (eVerticalNIAWGScript.checkSave())
-		{
-			return true;
-		}
-		eVerticalNIAWGScript.newScript();
-		eProfile.updateConfigurationSavedStatus(false);
-		eVerticalNIAWGScript.updateScriptNameText();
-		return 0;
-	}
-	int openVerticalScript(HWND parentWindow)
-	{
-		if (eVerticalNIAWGScript.checkSave())
-		{
-			return true;
-		}
-		std::string intensityOpenName = getFileNameDialog(parentWindow);
-		eVerticalNIAWGScript.openParentScript(intensityOpenName);
-		eProfile.updateConfigurationSavedStatus(false);
-		eVerticalNIAWGScript.updateScriptNameText();
-		return 0;
-	}
-	int saveVerticalScript(HWND parentWindow)
-	{
-		eVerticalNIAWGScript.saveScript();
-		eVerticalNIAWGScript.updateScriptNameText();
-		return 0;
-	}
-	int saveVerticalScriptAs(HWND parentWindow)
-	{
-		std::string extensionNoPeriod = eVerticalNIAWGScript.getExtension();
-		if (extensionNoPeriod.size() == 0)
-		{
-			return -1;
-		}
-		extensionNoPeriod = extensionNoPeriod.substr(1, extensionNoPeriod.size());
-		std::string newScriptAddress = saveTextFileFromEdit(parentWindow, extensionNoPeriod);
-		eVerticalNIAWGScript.saveScriptAs(newScriptAddress);
-		eProfile.updateConfigurationSavedStatus(false);
-		eVerticalNIAWGScript.updateScriptNameText();
-		return 0;
-	}	
-	int newHorizontalScript(HWND parentWindow)
-	{
-		if (eHorizontalNIAWGScript.checkSave())
-		{
-			return true;
-		}
-		eHorizontalNIAWGScript.newScript();
-		eProfile.updateConfigurationSavedStatus(false);
-		eHorizontalNIAWGScript.updateScriptNameText();
-		return 0;
-	}
-	int openHorizontalScript(HWND parentWindow)
-	{
-		if (eHorizontalNIAWGScript.checkSave())
-		{
-			return true;
-		}
-		std::string intensityOpenName = getFileNameDialog(parentWindow);
-		eHorizontalNIAWGScript.openParentScript(intensityOpenName);
-		eProfile.updateConfigurationSavedStatus(false);
-		eHorizontalNIAWGScript.updateScriptNameText();
-		return 0;
-	}
-	int saveHorizontalScript(HWND parentWindow)
-	{
-		eHorizontalNIAWGScript.saveScript();
-		eHorizontalNIAWGScript.updateScriptNameText();
-		return 0;
-	}
-	int saveHorizontalScriptAs(HWND parentWindow)
-	{
-		std::string extensionNoPeriod = eVerticalNIAWGScript.getExtension();
-		if (extensionNoPeriod.size() == 0)
-		{
-			return -1;
-		}
-		extensionNoPeriod = extensionNoPeriod.substr(1, extensionNoPeriod.size());
-		std::string newScriptAddress = saveTextFileFromEdit(parentWindow, extensionNoPeriod);
-		eHorizontalNIAWGScript.saveScriptAs(newScriptAddress);
-		eProfile.updateConfigurationSavedStatus(false);
-		eHorizontalNIAWGScript.updateScriptNameText();
-		return 0;
-	}
-		
-	int saveProfile(HWND parentWindow)
-	{
-		//... If failed message pops up.
-		eProfile.saveEntireProfile();
-		eProfile.updateConfigurationSavedStatus(true);
-		eHorizontalNIAWGScript.updateScriptNameText();
-		eVerticalNIAWGScript.updateScriptNameText();
-		eIntensityAgilentScript.updateScriptNameText();
-		return 0;
-	}
-
 	int helpWindow(HWND parentWindow)
 	{
 		HWND infoRet = CreateDialog(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_SCRIPT_HELP_DIALOG), parentWindow, (DLGPROC)scriptWriteHelpProc);
@@ -937,7 +783,8 @@ namespace commonMessages
 		return 0;
 	}
 
-	int reloadNIAWGDefaults(HWND parentWindow)
+
+	int reloadNIAWGDefaults(HWND parentWindow, MainWindow* mainWin)
 	{
 		if (eSystemIsRunning)
 		{
@@ -956,8 +803,8 @@ namespace commonMessages
 		delete eDefault_vConfigMixedWaveform;
 		delete eDefault_hConfigScript;
 		delete eDefault_vConfigScript;
-
-		std::string tempOrientation = eProfile.getOrientation();
+		std::string orientation = mainWin->getCurentProfileSettings().orientation;
+		std::string tempOrientation = orientation;
 
 		int waveformCount = 0;
 		std::vector<int> defPredWaveLocs;
@@ -1024,11 +871,11 @@ namespace commonMessages
 		// called recursively by predefined scripts in the instructions file.
 		std::vector<variable> noSingletons;
 		/// Create Horizontal Configuration
-		eProfile.setOrientation(HORIZONTAL_ORIENTATION);
+		mainWin->setOrientation(HORIZONTAL_ORIENTATION);
 		if (myErrorHandler(myNIAWG::analyzeNIAWGScripts(default_hConfigVerticalScriptFile[0], default_hConfigHorizontalScriptFile[0], default_hConfigScriptString, TRIGGER_NAME, waveformCount, eSessionHandle, SESSION_CHANNELS,
 			eError, defXPredWaveformNames, defYPredWaveformNames, defPredWaveformCount, defPredWaveLocs, libWaveformArray,
-			fileOpenedStatus, allXWaveformParameters, xWaveformIsVaried, allYWaveformParameters, yWaveformIsVaried, true, false, "", noSingletons),
-			"", ConnectSocket, default_hConfigVerticalScriptFile, default_hConfigHorizontalScriptFile, false, eError, eSessionHandle, false, "", false, false)
+			fileOpenedStatus, allXWaveformParameters, xWaveformIsVaried, allYWaveformParameters, yWaveformIsVaried, true, false, "", noSingletons, orientation, mainWin->getDebuggingOptions()),
+			"", ConnectSocket, default_hConfigVerticalScriptFile, default_hConfigHorizontalScriptFile, false, eError, eSessionHandle, false, "", false, false, false)
 			== true)
 		{
 			MessageBox(0, "ERROR: Creation of Default Waveforms and Default Script Has Failed! The previous default waveforms are still running, "
@@ -1043,13 +890,13 @@ namespace commonMessages
 		sprintf_s(eDefault_hConfigScript, default_hConfigScriptString.length() + 1, "%s", default_hConfigScriptString.c_str());
 		strcpy_s(eDefault_hConfigScript, default_hConfigScriptString.length() + 1, default_hConfigScriptString.c_str());
 		// now do the vertical one.
-		eProfile.setOrientation(VERTICAL_ORIENTATION);
-
+		mainWin->setOrientation(VERTICAL_ORIENTATION);
 		if (myErrorHandler(myNIAWG::analyzeNIAWGScripts(default_vConfigVerticalScriptFile[0], default_vConfigHorizontalScriptFile[0],
 												   default_vConfigScriptString, TRIGGER_NAME, waveformCount, eSessionHandle, SESSION_CHANNELS,
 												   eError, defXPredWaveformNames, defYPredWaveformNames, defPredWaveformCount, defPredWaveLocs, libWaveformArray,
-												   fileOpenedStatus, allXWaveformParameters, xWaveformIsVaried, allYWaveformParameters, yWaveformIsVaried, true, false, "", noSingletons),
-			"", ConnectSocket, default_vConfigVerticalScriptFile, default_vConfigHorizontalScriptFile, false, eError, eSessionHandle, userScriptIsWritten, "", false, false)
+												   fileOpenedStatus, allXWaveformParameters, xWaveformIsVaried, allYWaveformParameters, yWaveformIsVaried, true, false, "", 
+													noSingletons, orientation, mainWin->getDebuggingOptions()),
+			"", ConnectSocket, default_vConfigVerticalScriptFile, default_vConfigHorizontalScriptFile, false, eError, eSessionHandle, userScriptIsWritten, "", false, false, false)
 			== true)
 		{
 			MessageBox(0, "ERROR: Creation of Default Waveforms and Default Script Has Failed! The previous default waveforms are still running, "
@@ -1064,13 +911,13 @@ namespace commonMessages
 		strcpy_s(eDefault_vConfigScript, default_vConfigScriptString.length() + 1, default_vConfigScriptString.c_str());
 
 		// go back to whatever configuration you were in.
-		eProfile.setOrientation(tempOrientation);
+		mainWin->setOrientation(tempOrientation);
 
 		// clear NIAWG memory.
 		myNIAWG::NIAWG_CheckDefaultError(niFgen_ClearArbMemory(eSessionHandle));
 
 		ViInt32 waveID;
-		if (eProfile.getOrientation() == HORIZONTAL_ORIENTATION)
+		if (orientation == HORIZONTAL_ORIENTATION)
 		{
 			// create waveform (necessary?)
 			myNIAWG::NIAWG_CheckDefaultError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform, &waveID));
@@ -1086,7 +933,7 @@ namespace commonMessages
 			eCurrentScript = "DefaultHConfigScript";
 
 		}
-		else if (eProfile.getOrientation() == VERTICAL_ORIENTATION)
+		else if (orientation == VERTICAL_ORIENTATION)
 		{
 			// create waveform (necessary?)
 			myNIAWG::NIAWG_CheckDefaultError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform, &waveID));
@@ -1107,4 +954,6 @@ namespace commonMessages
 		appendText("Initialized Default Waveform.\r\n", IDC_SYSTEM_STATUS_TEXT, eMainWindowHandle);
 		return 0;
 	}
+
+
 };

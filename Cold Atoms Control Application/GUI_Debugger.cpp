@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "GUI_Debugger.h"
 #include "fonts.h"
-
+/*
 GUI_Debugger::GUI_Debugger(int& idStart)
 {
 	this->reportAllScriptCommands.ID = idStart;
@@ -42,28 +42,28 @@ bool GUI_Debugger::handleClick(HWND parent, UINT msg, WPARAM wParam, LPARAM lPar
 //	int id = LOWORD(wParam);
 	if (id == this->reportAllScriptCommands.ID)
 	{
-		if (reportAllScriptCommands.parent.GetCheck())
+		if (reportAllScriptCommands.GetCheck())
 		{
-			reportAllScriptCommands.parent.SetCheck(FALSE);
+			reportAllScriptCommands.SetCheck(FALSE);
 			this->currentOptions.reportCommandList = false;
 		}
 		else
 		{
-			reportAllScriptCommands.parent.SetCheck(TRUE);
+			reportAllScriptCommands.SetCheck(TRUE);
 			this->currentOptions.reportCommandList = true;
 		}
 		return true;
 	}
 	else if (id == this->reportNiawgScriptOption.ID)
 	{
-		if (reportNiawgScriptOption.parent.GetCheck())
+		if (reportNiawgScriptOption.GetCheck())
 		{
-			reportNiawgScriptOption.parent.SetCheck(FALSE);
+			reportNiawgScriptOption.SetCheck(FALSE);
 			this->currentOptions.reportNiawgScript = false;
 		}
 		else
 		{
-			reportNiawgScriptOption.parent.SetCheck(TRUE);
+			reportNiawgScriptOption.SetCheck(TRUE);
 			this->currentOptions.reportNiawgScript = true;
 		}
 		return true;
@@ -71,3 +71,4 @@ bool GUI_Debugger::handleClick(HWND parent, UINT msg, WPARAM wParam, LPARAM lPar
 	// if not handled.
 	return false;
 }
+*/

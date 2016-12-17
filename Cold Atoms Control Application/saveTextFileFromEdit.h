@@ -3,5 +3,5 @@
 
 #include <string>
 
-std::string saveTextFileFromEdit(HWND hEdit, std::string extension);
+std::string saveTextFileFromEdit(HWND hEdit, std::string extension, profileSettings location);
 

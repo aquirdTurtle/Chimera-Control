@@ -75,88 +75,13 @@ int initializeMainWindow(HWND thisWindowHandle)
 	myCharFormat.crTextColor = RGB(13, 152, 186);
 	SendMessage(eSystemDebugTextHandle, EM_SETCHARFORMAT, SCF_ALL, (LPARAM)&myCharFormat);
 
-
-	/// NOTES
-	// TODO
-	POINT notesStart = { 960, 250 };
-	eNotes.initializeControls(notesStart, thisWindowHandle);
-	/// VARIABLES
-	POINT controlLocation = { 1440, 95 };
-	eVariables.initializeControls(controlLocation, thisWindowHandle);
-	/// SETUP / EXPERIMENTAL PARAMETERS
-	// Setup / Experimental Parameters Title
-	eSetupParametersTextHandle = CreateWindowEx(NULL, "STATIC", "SETUP / EXPERIMENTAL PARAMETERS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
-		1440, 320, 480, 20, thisWindowHandle, (HMENU)IDC_STATIC_3_TEXT, GetModuleHandle(NULL), NULL);
-	SendMessage(eSetupParametersTextHandle, WM_SETFONT, WPARAM(sHeadingFont), TRUE);
-	// Connect to Master Option
-	eConnectToMasterHandle = CreateWindowEx(NULL, "BUTTON", "Connect to Master Computer?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT,
-		1440, 345, 480, 20, thisWindowHandle, (HMENU)IDC_CONNECT_TO_MASTER_BUTTON, GetModuleHandle(NULL), NULL);
-	SendMessage(eConnectToMasterHandle, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	CheckDlgButton(thisWindowHandle, IDC_CONNECT_TO_MASTER_BUTTON, BST_CHECKED);
-	eConnectToMaster = true;
-	// Recieve Variable Files Option
-	eReceiveVariableFiles = CreateWindowEx(NULL, "BUTTON", "Get Variable Files From Master Computer?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT,
-		1440, 370, 480, 20, thisWindowHandle, (HMENU)IDC_RECEIVE_VAR_FILES_BUTTON, GetModuleHandle(NULL), NULL);
-	SendMessage(eReceiveVariableFiles, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	CheckDlgButton(thisWindowHandle, IDC_RECEIVE_VAR_FILES_BUTTON, BST_CHECKED);
-	eGetVarFilesFromMaster = true;
-	// Loc Script And Parameters Option
-	eLogScriptAndParamsButton = CreateWindowEx(NULL, "BUTTON", "Log Current Script and Experiment Parameters?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT,
-		1440, 395, 480, 20, thisWindowHandle, (HMENU)IDC_LOG_SCRIPT_PARAMS, GetModuleHandle(NULL), NULL);
-	SendMessage(eLogScriptAndParamsButton, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	CheckDlgButton(thisWindowHandle, IDC_LOG_SCRIPT_PARAMS, BST_CHECKED);
-	eLogScriptAndParams = true;
-	// Program intensity option
-	eProgramIntensityOptionButton = CreateWindowEx(NULL, "BUTTON", "Program Intensity?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT,
-		1440, 420, 480, 20, thisWindowHandle, (HMENU)IDC_PROGRAM_INTENSITY_BOX, GetModuleHandle(NULL), NULL);
-	SendMessage(eProgramIntensityOptionButton, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	CheckDlgButton(thisWindowHandle, IDC_LOG_SCRIPT_PARAMS, BST_CHECKED);
-	eProgramIntensityOption = true;
-	/// DEBUGGING OPTIONS
-	// Debugging Options Title
-	eDebuggingOptionsDisplayHandle = CreateWindowEx(NULL, "STATIC", "DEBUGGING OPTIONS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
-		1440, 445, 480, 20, thisWindowHandle, (HMENU)IDC_DEBUG_OPTION_DISPLAY_TEXT, GetModuleHandle(NULL), NULL);
-	SendMessage(eDebuggingOptionsDisplayHandle, WM_SETFONT, WPARAM(sHeadingFont), TRUE);
-	// Output Read Status Option
-	eOutputReadStatusButton = CreateWindowEx(NULL, "BUTTON", "Output Waveform Read Progress?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT,
-											1440, 495, 480, 20, thisWindowHandle, (HMENU)IDC_OUTPUT_READ_STATUS, GetModuleHandle(NULL), NULL);
-	SendMessage(eOutputReadStatusButton, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	CheckDlgButton(thisWindowHandle, IDC_OUTPUT_READ_WRITE_STATUS, BST_UNCHECKED);
-	eOutputReadStatus = false;
-	// Output Write Status Option
-	eOutputWriteStatusButton = CreateWindowEx(NULL, "BUTTON", "Output Waveform Write Progress?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT,
-											 1440, 520, 480, 20, thisWindowHandle, (HMENU)IDC_OUTPUT_WRITE_STATUS, GetModuleHandle(NULL), NULL);
-	SendMessage(eOutputWriteStatusButton, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	CheckDlgButton(thisWindowHandle, IDC_OUTPUT_READ_WRITE_STATUS, BST_UNCHECKED);
-	eOutputWriteStatus = false;
-	// Output Correction Waveform Times Option
-	eOutputCorrTimeButton = CreateWindowEx(NULL, "BUTTON", "Output Correction Waveform Times?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT,
-										  1440, 470, 480, 20, thisWindowHandle, (HMENU)IDC_OUTPUT_CORR_TIME_BUTTON, GetModuleHandle(NULL), NULL);
-	SendMessage(eOutputCorrTimeButton, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	CheckDlgButton(thisWindowHandle, IDC_OUTPUT_CORR_TIME_BUTTON, BST_UNCHECKED);
-	eOutputCorrTime = false;
-
-
-	eOutputMoreInfoCheckButton = CreateWindowEx(NULL, "BUTTON", "Output More Run Info?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT,
-												1440, 545, 480, 20, thisWindowHandle, (HMENU)IDC_OUTPUT_MORE_RUN_INFO, GetModuleHandle(NULL), NULL);
-	SendMessage(eOutputMoreInfoCheckButton, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	CheckDlgButton(thisWindowHandle, IDC_OUTPUT_MORE_RUN_INFO, BST_UNCHECKED);
-	eOutputRunInfo = false;
-
-	POINT loc = { 1440, 565 };
-	int id = 10090;
-	eDebuggingOptions.initialize(id, loc);
-	eDebugger.initialize({ 1440, 565 }, thisWindowHandle);
-
 	/// colored status display
 	eColoredStatusEdit = CreateWindowEx(NULL, "STATIC", "Passively Outuputing Default Waveform", WS_CHILD | WS_VISIBLE | SS_CENTER,
 		960, 910, 960, 100, thisWindowHandle, (HMENU)IDC_GUI_STAT_TEXT, GetModuleHandle(NULL), NULL);
 	SendMessage(eColoredStatusEdit, WM_SETFONT, WPARAM(sLargeHeadingFont), TRUE);
 
 
-	/// PROFILE DATA
-	POINT configStart = { 960, 0 };
-	eProfile.initializeControls(configStart, thisWindowHandle);
+
 
 	return 0;
 }

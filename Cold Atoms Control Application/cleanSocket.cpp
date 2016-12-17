@@ -9,10 +9,10 @@
 /*
  * This function shuts down the socket, closes it, and calls WSACleanup(). it returns true unless the shutdown fails, in which case it returns false.
  */
-bool cleanSocket(SOCKET mySocket, bool socketActive)
+bool cleanSocket(SOCKET mySocket, bool socketActive, bool connectedToMaster)
 {
 	// if false, the socket was never opened.
-	if (eConnectToMaster == true)
+	if (connectedToMaster == true)
 	{
 		if (socketActive)
 		{

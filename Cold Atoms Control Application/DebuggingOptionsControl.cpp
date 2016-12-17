@@ -2,103 +2,147 @@
 #include "fonts.h"
 #include "DebuggingOptionsControl.h"
 
-void DebuggingOptionsControl::initialize(int& idStart, POINT& loc)
+void DebuggingOptionsControl::initialize(int& id, POINT& loc, CWnd* parent)
 {
-	/*
-	TODO:
-	HwndControl outputNiawgScript;
-	HwndControl outputAgilentScript;
-	*/
-	RECT box;
-	///
-	outputNiawgMachineScript.ID = idStart++;
-	box = outputNiawgMachineScript.position = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
-	outputNiawgMachineScript.hwnd = CreateWindowEx(NULL, "BUTTON", "Output Machine NIAWG Script?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT,
-		box.left, box.top, box.right - box.left, box.bottom - box.top, eMainWindowHandle, (HMENU)outputNiawgMachineScript.ID, GetModuleHandle(NULL), NULL);
-	SendMessage(outputNiawgMachineScript.hwnd, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	CheckDlgButton(eMainWindowHandle, outputNiawgMachineScript.ID, BST_CHECKED);
-	this->currentOptions.outputNiawgMachineScriptSetting = true;
+	// Debugging Options Title
+	header.ID = id++;
+	header.position = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
+	header.Create("DEBUGGING OPTIONS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.position, parent, header.ID);
+	header.SetFont(&eHeadingFont);
 	loc.y += 20;
 	///
-	outputAgilentScript.ID = idStart++;
-	box = outputAgilentScript.position = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
-	outputAgilentScript.hwnd = CreateWindowEx(NULL, "BUTTON", "Output Agilent Script?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT,
-		box.left, box.top, box.right - box.left, box.bottom - box.top, eMainWindowHandle, (HMENU)outputAgilentScript.ID, GetModuleHandle(NULL), NULL);
-	SendMessage(outputAgilentScript.hwnd, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	CheckDlgButton(eMainWindowHandle, outputAgilentScript.ID, BST_CHECKED);
+	niawgMachineScript.ID = id++;
+	niawgMachineScript.position = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
+	niawgMachineScript.Create("Output Machine NIAWG Script?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, niawgMachineScript.position, parent, niawgMachineScript.ID);
+	niawgMachineScript.SetFont(&eNormalFont);
+	niawgMachineScript.SetCheck(BST_CHECKED);
+	this->currentOptions.outputNiawgMachineScript = true;
+	loc.y += 20;
+	///
+	outputAgilentScript.ID = id++;
+	outputAgilentScript.position = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
+	outputAgilentScript.Create("Output Agilent Script?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, outputAgilentScript.position, parent, outputAgilentScript.ID);
+	outputAgilentScript.SetFont(&eNormalFont);
+	outputAgilentScript.SetCheck(BST_CHECKED);
 	this->currentOptions.outputAgilentScript = true;
 	loc.y += 20;
 	///
-	outputNiawgScript.ID = idStart++;
-	box = outputNiawgScript.position = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
-	outputNiawgScript.hwnd = CreateWindowEx(NULL, "BUTTON", "Output Human NIAWG Script?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT,
-		box.left, box.top, box.right - box.left, box.bottom - box.top, eMainWindowHandle, (HMENU)outputNiawgScript.ID, GetModuleHandle(NULL), NULL);
-	SendMessage(outputNiawgScript.hwnd, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	CheckDlgButton(eMainWindowHandle, outputNiawgScript.ID, BST_CHECKED);
+	niawgScript.ID = id++;
+	niawgScript.position = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
+	niawgScript.Create("Output Human NIAWG Script?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, niawgScript.position, parent, niawgScript.ID);
+	niawgScript.SetFont(&eNormalFont);
+	niawgScript.SetCheck(BST_CHECKED);
 	this->currentOptions.outputNiawgHumanScript = true;
-	
+
+	loc.y += 20;
+	///
+	this->readProgress.ID = id++;
+	readProgress.position = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
+	readProgress.Create("Output Waveform Read Progress?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, readProgress.position, parent, readProgress.ID);
+	readProgress.SetFont(&eNormalFont);
+	readProgress.SetCheck(BST_CHECKED);
+	this->currentOptions.showReadProgress = true;
+	loc.y += 20;
+	///
+	this->writeProgress.ID = id++;
+	writeProgress.position = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
+	writeProgress.Create("Output Waveform Write Progress?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, writeProgress.position, parent, writeProgress.ID);
+	writeProgress.SetFont(&eNormalFont);
+	writeProgress.SetCheck(BST_CHECKED);
+	this->currentOptions.showWriteProgress = true;
+	loc.y += 20;
+	///
+	this->correctionTimes.ID = id++;
+	correctionTimes.position = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
+	correctionTimes.Create("Output Phase Correction Waveform Times?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, correctionTimes.position, parent, correctionTimes.ID);
+	correctionTimes.SetFont(&eNormalFont);
+	correctionTimes.SetCheck(BST_CHECKED);
+	this->currentOptions.showCorrectionTimes= true;
+	loc.y += 20;
+	///
+	this->excessInfo.ID = id++;
+	excessInfo.position = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
+	excessInfo.Create("Output Excess Run Info?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, correctionTimes.position, parent, correctionTimes.ID);
+	excessInfo.SetFont(&eNormalFont);
+	excessInfo.SetCheck(BST_CHECKED);
+	this->currentOptions.outputExcessInfo = true;	
+	/*
+	/// DEBUGGING OPTIONS
+	eOutputMoreInfoCheckButton = CreateWindowEx(NULL, "BUTTON", "Output More Run Info?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT,
+												1440, 545, 480, 20, thisWindowHandle, (HMENU)IDC_OUTPUT_MORE_RUN_INFO, GetModuleHandle(NULL), NULL);
+	SendMessage(eOutputMoreInfoCheckButton, WM_SETFONT, WPARAM(sNormalFont), TRUE);
+	CheckDlgButton(thisWindowHandle, IDC_OUTPUT_MORE_RUN_INFO, BST_UNCHECKED);
+	eOutputRunInfo = false;
+	*/
+
 	return;
 }
 
-bool DebuggingOptionsControl::handleEvent(HWND parent, UINT msg, WPARAM wParam, LPARAM lParam)
+bool DebuggingOptionsControl::handleEvent(HWND parent, UINT msg, WPARAM wParam, LPARAM lParam, MainWindow* mainWin)
 {
 	if (msg != WM_COMMAND)
 	{
 		return false;
 	}
 	int id = LOWORD(wParam);
-	if (id == this->outputNiawgMachineScript.ID)
+	if (id == this->niawgMachineScript.ID)
 	{
-		BOOL checked = IsDlgButtonChecked(parent, outputNiawgMachineScript.ID);
+		BOOL checked = niawgMachineScript.GetCheck();
 		if (checked) 
 		{
-			CheckDlgButton(parent, outputNiawgMachineScript.ID, BST_UNCHECKED);
-			this->currentOptions.outputNiawgMachineScriptSetting = false;
+			niawgMachineScript.SetCheck(BST_UNCHECKED);
+			this->currentOptions.outputNiawgMachineScript = false;
 		}
 		else 
 		{
-			CheckDlgButton(parent, outputNiawgMachineScript.ID, BST_CHECKED);
-			this->currentOptions.outputNiawgMachineScriptSetting = true;
+			niawgMachineScript.SetCheck(BST_UNCHECKED);
+			this->currentOptions.outputNiawgMachineScript = true;
 		}
-		eProfile.updateExperimentSavedStatus(false);
+		mainWin->updateConfigurationSavedStatus(false);
 		return true;
 	}
-	if (id == this->outputNiawgScript.ID)
+	if (id == this->niawgScript.ID)
 	{
-		BOOL checked = IsDlgButtonChecked(parent, outputNiawgScript.ID);
+		BOOL checked = niawgScript.GetCheck();
 		if (checked)
 		{
-			CheckDlgButton(parent, outputNiawgScript.ID, BST_UNCHECKED);
+			niawgScript.SetCheck(BST_UNCHECKED);
 			this->currentOptions.outputNiawgHumanScript = false;
 		}
 		else
 		{
-			CheckDlgButton(parent, outputNiawgScript.ID, BST_CHECKED);
+			niawgScript.SetCheck(BST_CHECKED);
 			this->currentOptions.outputNiawgHumanScript = true;
 		}
-		eProfile.updateExperimentSavedStatus(false);
+		mainWin->updateConfigurationSavedStatus(false);
 		return true;
 	}
 	if (id == this->outputAgilentScript.ID)
 	{
-		BOOL checked = IsDlgButtonChecked(parent, outputAgilentScript.ID);
+		BOOL checked = outputAgilentScript.GetCheck();
 		if (checked)
 		{
-			CheckDlgButton(parent, outputAgilentScript.ID, BST_UNCHECKED);
+			outputAgilentScript.SetCheck(0);
 			this->currentOptions.outputAgilentScript = false;
 		}
 		else
 		{
-			CheckDlgButton(parent, outputAgilentScript.ID, BST_CHECKED);
+			outputAgilentScript.SetCheck(1);
 			this->currentOptions.outputAgilentScript = true;
 		}
-		eProfile.updateExperimentSavedStatus(false);
+		mainWin->updateConfigurationSavedStatus(false);
 		return true;
 	}
 	return false;
 }
 
-debuggingOptionsList DebuggingOptionsControl::getOptions()
+debugOptions DebuggingOptionsControl::getOptions()
 {
 	return this->currentOptions;
+}
+
+void DebuggingOptionsControl::setOptions(debugOptions options)
+{
+	this->currentOptions = options;
+	return;
 }

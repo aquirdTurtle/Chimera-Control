@@ -8,6 +8,8 @@
 #include "cleanString.h"
 #include "textPromptDialogProcedure.h"
 
+Script::Script(){}
+ 
 Script::~Script(){}
 
 std::string Script::getScriptText()
@@ -15,7 +17,7 @@ std::string Script::getScriptText()
 	return false;
 }
 
-std::string Script::getSyntaxColor(std::string word, std::string editType)
+std::string Script::getSyntaxColor(std::string word, std::string editType, std::vector<variable> vars)
 {
 	// check special cases
 	if (word.size() == 0)
@@ -86,9 +88,9 @@ std::string Script::getSyntaxColor(std::string word, std::string editType)
 			}
 		}
 	}
-	for (int varInc = 0; varInc < eVariables.getCurrentNumberOfVariables(); varInc++)
+	for (int varInc = 0; varInc < vars.size(); varInc++)
 	{
-		if (word == eVariables.getVariableInfo(varInc).name)
+		if (word == vars[varInc].name)
 		{
 			return "variable";
 		}
@@ -115,11 +117,11 @@ bool Script::updateSavedStatus(bool scriptIsSaved)
 	this->isSaved = scriptIsSaved;
 	if (scriptIsSaved)
 	{
-		SendMessage(savedIndicator.hwnd, BM_SETCHECK, BST_CHECKED, NULL);
+		savedIndicator.SetCheck(BST_CHECKED);
 	}
 	else
 	{
-		SendMessage(savedIndicator.hwnd, BM_SETCHECK, BST_UNCHECKED, NULL);
+		savedIndicator.SetCheck(BST_UNCHECKED);
 	}
 	return false;
 }
@@ -129,7 +131,7 @@ bool Script::coloringIsNeeded()
 	return !syntaxColoringIsCurrent;
 }
 
-bool Script::handleTimerCall()
+bool Script::handleTimerCall(profileSettings profileInfo, std::vector<variable> vars)
 {
 	if (!syntaxColoringIsCurrent)
 	{
@@ -141,16 +143,17 @@ bool Script::handleTimerCall()
 		}
 		DWORD x1 = 1, x2 = 1;
 		int initScrollPos, finScrollPos;
-		SendMessage(edit.hwnd, EM_GETSEL, (WPARAM)&x1, (LPARAM)&x2);
-		initScrollPos = GetScrollPos(edit.hwnd, SB_VERT);
+		CHARRANGE range;
+		edit.GetSel(range);
+		initScrollPos = edit.GetScrollPos(SB_VERT);
 		// color syntax
-		this->colorScriptSection(editChangeBegin, editChangeEnd);
+		this->colorScriptSection(editChangeBegin, editChangeEnd, profileInfo, vars);
 		editChangeEnd = 0;
 		editChangeBegin = ULONG_MAX;
 		syntaxColoringIsCurrent = true;
-		SendMessage(edit.hwnd, EM_SETSEL, (WPARAM)x1, (LPARAM)x2);
-		finScrollPos = GetScrollPos(edit.hwnd, SB_VERT);
-		SendMessage(edit.hwnd, EM_LINESCROLL, 0, -(finScrollPos - initScrollPos));
+		edit.SetSel(range);
+		finScrollPos = edit.GetScrollPos(SB_VERT);
+		edit.LineScroll(-(finScrollPos - initScrollPos));
 		this->updateSavedStatus(tempSaved);
 	}
 	return false;
@@ -165,15 +168,15 @@ bool Script::handleEditChange(WPARAM wParam, LPARAM lParam)
 		{
 			//		int editChangeBegin;
 			// int editChangeEnd;
-			DWORD begin, end;
-			SendMessage(edit.hwnd, EM_GETSEL, (WPARAM)&begin, (LPARAM)&end);
-			if (begin < editChangeBegin)
+			CHARRANGE range;
+			edit.GetSel(range);
+			if (range.cpMin < editChangeBegin)
 			{
-				editChangeBegin = begin;
+				editChangeBegin = range.cpMin;
 			}
-			if (end > editChangeEnd)
+			if (range.cpMax > editChangeEnd)
 			{
-				editChangeEnd = end;
+				editChangeEnd = range.cpMax;
 			}
 			syntaxColoringIsCurrent = false;
 			this->updateSavedStatus(false);
@@ -187,20 +190,20 @@ bool Script::handleEditChange(WPARAM wParam, LPARAM lParam)
 	}
 }
 
-bool Script::colorEntireScript()
+bool Script::colorEntireScript(profileSettings profileInfo, std::vector<variable> vars)
 {
-	return (this->colorScriptSection(0, ULONG_MAX));
+	return this->colorScriptSection(0, ULONG_MAX, profileInfo, vars);
 }
 
-bool Script::colorScriptSection(DWORD beginingOfChange, DWORD endOfChange)
+bool Script::colorScriptSection(DWORD beginingOfChange, DWORD endOfChange, profileSettings profileInfo, std::vector<variable> vars)
 {
 	long long beginingSigned = beginingOfChange;
 	long long endSigned = endOfChange;
-	int scriptLength = SendMessage(this->edit.hwnd, WM_GETTEXTLENGTH, 0, 0);
-	char* buffer = new char[scriptLength + 1];
-	SendMessage(this->edit.hwnd, WM_GETTEXT, scriptLength + 1, (LPARAM)buffer);
+	
+	int scriptLength = edit.GetTextLength(); 
+	CString buffer;
+	edit.GetWindowText(buffer);
 	std::string script(buffer);
-	delete buffer;
 	std::vector<std::string> predefinedScripts;
 	std::string coloring;
 	std::string word;
@@ -213,244 +216,161 @@ bool Script::colorScriptSection(DWORD beginingOfChange, DWORD endOfChange)
 	memset(&syntaxFormat, 0, sizeof(CHARFORMAT));
 	syntaxFormat.cbSize = sizeof(CHARFORMAT);
 	syntaxFormat.dwMask = CFM_COLOR;
-	int relevantID = GetDlgCtrlID(edit.hwnd);
-	DWORD start = 0, end = 0;
+	int relevantID = edit.GetDlgCtrlID();
 	std::size_t prev, pos;
-
+	CHARRANGE range = {0, 0};
 	while (std::getline(fileTextStream, line))
 	{
-		DWORD lineStartCoordingate = start;
-		int endTest = end + line.size();
-		if (endTest < beginingSigned - 5 || start > endSigned)
+		DWORD lineStartCoordingate = range.cpMin;
+		int endTest = range.cpMax + line.size();
+		if (endTest < beginingSigned - 5 || range.cpMin > endSigned)
 		{
 			// then skip to next line.
-			end = endTest;
-			start = end;
+			range.cpMax = endTest;
+			range.cpMin = range.cpMax;
 			continue;
 		}
 		prev = 0;
 		coloring = "";
 		while ((pos = line.find_first_of(" \t\r\n", prev)) != std::string::npos)
 		{
-			end = lineStartCoordingate + pos;
+			range.cpMax = lineStartCoordingate + pos;
 			word = line.substr(prev, pos - prev + 1);
 			// kill whatever is on the end of it.
 			analysisWord = word.substr(0, word.length() - 1);
 			// if comment is found, the rest of the line is green.
 			if (coloring != "comment1" && coloring != "comment2")
 			{
-				tempColor = this->getSyntaxColor(analysisWord, deviceType);
+				tempColor = this->getSyntaxColor(analysisWord, deviceType, vars);
 				if (tempColor != coloring)
 				{
 					coloring = tempColor;
 					if (coloring == "comment1")
 					{
 						syntaxFormat.crTextColor = RGB(34, 139, 34);
-						SendMessage(edit.hwnd, EM_SETSEL, start, end);
-						SendMessage(edit.hwnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&syntaxFormat);
-						start = end;
 					}
 					else if (coloring == "comment2")
 					{
 						syntaxFormat.crTextColor = RGB(107, 35, 35);
-						SendMessage(edit.hwnd, EM_SETSEL, start, end);
-						SendMessage(edit.hwnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&syntaxFormat);
-						start = end;
 					}
 					else if (coloring == "command")
 					{
 						syntaxFormat.crTextColor = RGB(100, 100, 205);
-						SendMessage(edit.hwnd, EM_SETSEL, start, end);
-						SendMessage(edit.hwnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&syntaxFormat);
-						start = end;
 					}
 					else if (coloring == "number")
 					{
 						syntaxFormat.crTextColor = RGB(255, 255, 255);
-						SendMessage(edit.hwnd, EM_SETSEL, start, end);
-						SendMessage(edit.hwnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&syntaxFormat);
-						start = end;
 					}
 					else if (coloring == "logic")
 					{
 						syntaxFormat.crTextColor = RGB(0, 255, 255);
-						SendMessage(edit.hwnd, EM_SETSEL, start, end);
-						SendMessage(edit.hwnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&syntaxFormat);
-						start = end;
 					}
 					else if (coloring == "delimiter")
 					{
 						syntaxFormat.crTextColor = RGB(100, 100, 100);
-						SendMessage(edit.hwnd, EM_SETSEL, start, end);
-						SendMessage(edit.hwnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&syntaxFormat);
-						start = end;
 					}
 					else if (coloring == "variable")
 					{
 						syntaxFormat.crTextColor = RGB(255, 215, 0);
-						SendMessage(edit.hwnd, EM_SETSEL, start, end);
-						SendMessage(edit.hwnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&syntaxFormat);
-						start = end;
 					}
 					else if (coloring == "option")
 					{
 						syntaxFormat.crTextColor = RGB(210, 180, 140);
-						SendMessage(edit.hwnd, EM_SETSEL, start, end);
-						SendMessage(edit.hwnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&syntaxFormat);
-						start = end;
 					}
 					else if (coloring == "script")
 					{
 						syntaxFormat.crTextColor = RGB(147, 112, 219);
-						SendMessage(edit.hwnd, EM_SETSEL, start, end);
-						SendMessage(edit.hwnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&syntaxFormat);
-						start = end;
 					}
 					else if (coloring == "script file")
 					{
 						syntaxFormat.crTextColor = RGB(147, 112, 219);
-						SendMessage(edit.hwnd, EM_SETSEL, lineStartCoordingate, end);
-						SendMessage(edit.hwnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&syntaxFormat);
-						start = end;
-						/*
-						if (isParent)
-						{
-							bool isNew = true;
-							for (int predefinedInc = 0; predefinedInc < predefinedScripts.size(); predefinedInc++)
-							{
-								if (line.substr(0, line.size() - 8) == predefinedScripts[predefinedInc])
-								{
-									isNew = false;
-									break;
-								}
-							}
-							if (isNew)
-							{
-								predefinedScripts.push_back(line.substr(0, line.size() - 8));
-								SendMessage(childCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)line.substr(0, line.size() - 8).c_str());
-							}
-						}
-						*/
 					}
 					else if (coloring == "unrecognized")
 					{
 						syntaxFormat.crTextColor = RGB(255, 0, 0);
-						SendMessage(edit.hwnd, EM_SETSEL, start, end);
-						SendMessage(edit.hwnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&syntaxFormat);
-						start = end;
 					}
+					edit.SetSel(range);
+					edit.SetSelectionCharFormat(syntaxFormat);
+					range.cpMin = range.cpMax;
 				}
 			}
-
-			SendMessage(edit.hwnd, EM_SETSEL, start, end);
-			SendMessage(edit.hwnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&syntaxFormat);
-			end++;
-			start = end;
-			//SendMessage(edit.hwnd, EM_REPLACESEL, 0, (LPARAM)word.c_str());
+			edit.SetSel(range);
+			edit.SetSelectionCharFormat(syntaxFormat);
+			range.cpMax++;
+			range.cpMin = range.cpMax;
 			prev = pos + 1;
 		}
 		if (prev < std::string::npos)
 		{
 			word = line.substr(prev, std::string::npos);
-			end = lineStartCoordingate + line.length();
-			tempColor = getSyntaxColor(word, deviceType);
+			range.cpMax = lineStartCoordingate + line.length();
+			tempColor = getSyntaxColor(word, deviceType, vars);
 			if (coloring != "comment1" && coloring != "comment2")
 			{
 				coloring = tempColor;
 				if (coloring == "comment1")
 				{
 					syntaxFormat.crTextColor = RGB(34, 139, 34);
-					SendMessage(edit.hwnd, EM_SETSEL, start, end);
-					SendMessage(edit.hwnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&syntaxFormat);
-					start = end;
 				}
 				else if (coloring == "comment2")
 				{
 					syntaxFormat.crTextColor = RGB(107, 35, 35);
-					SendMessage(edit.hwnd, EM_SETSEL, start, end);
-					SendMessage(edit.hwnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&syntaxFormat);
-					start = end;
 				}
 				else if (coloring == "command")
 				{
 					syntaxFormat.crTextColor = RGB(100, 100, 205);
-					SendMessage(edit.hwnd, EM_SETSEL, start, end);
-					SendMessage(edit.hwnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&syntaxFormat);
-					start = end;
 				}
 				else if (coloring == "number")
 				{
 					syntaxFormat.crTextColor = RGB(255, 255, 255);
-					SendMessage(edit.hwnd, EM_SETSEL, start, end);
-					SendMessage(edit.hwnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&syntaxFormat);
-					start = end;
 				}
 				else if (coloring == "logic")
 				{
 					syntaxFormat.crTextColor = RGB(0, 255, 255);
-					SendMessage(edit.hwnd, EM_SETSEL, start, end);
-					SendMessage(edit.hwnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&syntaxFormat);
-					start = end;
 				}
 				else if (coloring == "unrecognized")
 				{
 					syntaxFormat.crTextColor = RGB(255, 0, 0);
-					SendMessage(edit.hwnd, EM_SETSEL, start, end);
-					SendMessage(edit.hwnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&syntaxFormat);
-					start = end;
 				}
 				else if (coloring == "delimiter")
 				{
 					syntaxFormat.crTextColor = RGB(100, 100, 100);
-					SendMessage(edit.hwnd, EM_SETSEL, start, end);
-					SendMessage(edit.hwnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&syntaxFormat);
-					start = end;
 				}
 				else if (coloring == "variable")
 				{
 					syntaxFormat.crTextColor = RGB(255, 215, 0);
-					SendMessage(edit.hwnd, EM_SETSEL, start, end);
-					SendMessage(edit.hwnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&syntaxFormat);
-					start = end;
 				}
 				else if (coloring == "option")
 				{
 					syntaxFormat.crTextColor = RGB(210, 180, 140);
-					SendMessage(edit.hwnd, EM_SETSEL, start, end);
-					SendMessage(edit.hwnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&syntaxFormat);
-					start = end;
 				}
 				else if (coloring == "script")
 				{
 					syntaxFormat.crTextColor = RGB(147, 112, 219);
-					SendMessage(edit.hwnd, EM_SETSEL, lineStartCoordingate, end);
-					SendMessage(edit.hwnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&syntaxFormat);
-					start = end;
 				}
 				else if (coloring == "script file")
 				{
 					syntaxFormat.crTextColor = RGB(147, 112, 219);
-					SendMessage(edit.hwnd, EM_SETSEL, lineStartCoordingate, end);
-					SendMessage(edit.hwnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&syntaxFormat);
-					start = end;
 				}
+				edit.SetSel(range);
+				edit.SetSelectionCharFormat(syntaxFormat);
+				range.cpMin = range.cpMax;
 			}
-			SendMessage(edit.hwnd, EM_SETSEL, start, end);
-			SendMessage(edit.hwnd, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&syntaxFormat);
-			//end += 1;
-			start = end;
+			edit.SetSel(range);
+			edit.SetSelectionCharFormat(syntaxFormat);
+			range.cpMin = range.cpMax;
 		}
 	}
-	this->updateChildCombo();
+	this->updateChildCombo(profileInfo);
 	return false;
 }
 
-bool Script::updateChildCombo()
+bool Script::updateChildCombo(profileSettings profileInfo)
 {
 	// check the current setting.
-	int selection = SendMessage(this->childCombo.hwnd, CB_GETCURSEL, 0, 0);
+	int selection = childCombo.GetCurSel();
 	TCHAR text[256];
-	SendMessage(this->childCombo.hwnd, CB_GETLBTEXT, selection, (LPARAM)text);
+	childCombo.GetLBText(selection, text);
 	std::string textStr(text);
 	if (textStr != "Parent Script")
 	{
@@ -459,18 +379,18 @@ bool Script::updateChildCombo()
 	}
 
 	// get script
-	int scriptLength = SendMessage(this->edit.hwnd, WM_GETTEXTLENGTH, 0, 0);
-	char* buffer = new char[scriptLength + 1];
-	SendMessage(this->edit.hwnd, WM_GETTEXT, scriptLength + 1, (LPARAM)buffer);
+	int scriptLength = edit.GetTextLength();
+	CString buffer;
+	edit.GetWindowText(buffer);
 	// get the name that's currently set.
-	selection = SendMessage(this->childCombo.hwnd, CB_GETCURSEL, 0, 0);
+
+	selection = childCombo.GetCurSel();
 	TCHAR name[256];
-	SendMessage(this->childCombo.hwnd, CB_GETLBTEXT, selection, (LPARAM)name);
+	childCombo.GetLBText(selection, name);
 	std::string currentName(name);
 	// I'll use this later to reset the combo.
 	// reset the combo and name vector.
-	SendMessage(this->childCombo.hwnd, CB_RESETCONTENT, 0, 0);
-
+	childCombo.ResetContent();
 	childrenNames.clear();
 	std::string script(buffer);
 	// look for predefined scripts.
@@ -490,30 +410,23 @@ bool Script::updateChildCombo()
 			scriptName = scriptName.substr(0, scriptName.size() - 1);
 			// test if script exists in nearby folder.
 			struct stat buffer;
-			std::string path = eProfile.getCurrentPathIncludingCategory() + scriptName;
+			std::string path = profileInfo.pathIncludingCategory + scriptName;
 			if (stat(path.c_str(), &buffer) == 0)
 			{
 				// add to combo normally.
-				SendMessage(this->childCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)scriptName.c_str());
+				childCombo.AddString(scriptName.c_str());
 				childrenNames.push_back(scriptName);
 			}
 			else
 			{
-				SendMessage(this->childCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)(scriptName + " (File Not Found!)").c_str());
+				childCombo.AddString((scriptName + " (File Not Found!)").c_str());
 			}
 		}
 	}
 	// add the parent string message
-	SendMessage(this->childCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Parent Script");
+	childCombo.AddString("Parent Script");
 	// reset the child window.
-	SendMessage(this->childCombo.hwnd, CB_SELECTSTRING, 0, (LPARAM)currentName.c_str());
-	return false;
-}
-
-bool Script::getControlIDRange(int& start, int& fin)
-{
-	start = idStart;
-	fin = idEnd;
+	childCombo.SelectString(0, currentName.c_str());
 	return false;
 }
 
@@ -558,9 +471,8 @@ INT_PTR Script::colorControl(LPARAM lParam, WPARAM wParam)
 	}
 }
 
-bool Script::initializeControls(int width, int height, POINT& startingLocation, HWND parent, std::string deviceTypeInput, int& idStart)
+bool Script::initializeControls(int width, int height, POINT& startingLocation, CWnd* parent, std::string deviceTypeInput, int& idStart)
 {
-
 	LoadLibrary(TEXT("Msftedit.dll"));
 	deviceType = deviceTypeInput;
 	if (deviceTypeInput == "Horizontal NIAWG" || deviceTypeInput == "Vertical NIAWG")
@@ -574,7 +486,7 @@ bool Script::initializeControls(int width, int height, POINT& startingLocation, 
 	else
 	{
 		extension = "Sadness";
-		errBox("sadness");
+		errBox("Device input type not recognized during construction of script control.");
 	}
 	isSaved = true;
 	editChangeEnd = 0;
@@ -601,50 +513,41 @@ bool Script::initializeControls(int width, int height, POINT& startingLocation, 
 	}
 	RECT itemBox;
 	//
-	itemBox = title.position = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
+	title.position = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
 	title.ID = idStart++;
-	title.hwnd = CreateWindowEx(NULL, "STATIC", titleText.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
-		itemBox.left, itemBox.top, itemBox.right - itemBox.left, itemBox.bottom - itemBox.top,
-		parent, (HMENU)title.ID, GetModuleHandle(NULL), NULL);
+	title.Create(titleText.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, title.position, parent, title.ID);
+	title.SetFont(&eHeadingFont);
+	startingLocation.y += 20;
+	//
+	fileNameText.position = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
+	fileNameText.ID = idStart++;
+	fileNameText.Create(WS_CHILD | WS_VISIBLE | SS_ENDELLIPSIS, fileNameText.position, parent, fileNameText.ID);
 	SendMessage(eStaticVerticalEditHandle, WM_SETFONT, WPARAM(sHeadingFont), TRUE);
 	startingLocation.y += 20;
 	//
-	itemBox = fileNameText.position = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
-	fileNameText.ID = idStart++;
-	fileNameText.hwnd = CreateWindowEx(NULL, "STATIC", "", WS_CHILD | WS_VISIBLE | SS_ENDELLIPSIS,
-		itemBox.left, itemBox.top, itemBox.right - itemBox.left, itemBox.bottom - itemBox.top, 
-		parent, (HMENU)fileNameText.ID, GetModuleHandle(NULL), NULL);
-	SendMessage(eStaticVerticalEditHandle, WM_SETFONT, WPARAM(sHeadingFont), TRUE);
-	startingLocation.y += 20;
-	itemBox = savedIndicator.position = { startingLocation.x, startingLocation.y, startingLocation.x + 80, startingLocation.y + 20 };
+	savedIndicator.position = { startingLocation.x, startingLocation.y, startingLocation.x + 80, startingLocation.y + 20 };
 	savedIndicator.ID = idStart++;
-	savedIndicator.hwnd = CreateWindowEx(NULL, "BUTTON", "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT,
-		itemBox.left, itemBox.top, itemBox.right - itemBox.left, itemBox.bottom - itemBox.top,
-		parent, (HMENU)savedIndicator.ID, GetModuleHandle(NULL), NULL);
-	SendMessage(savedIndicator.hwnd, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	SendMessage(savedIndicator.hwnd, BM_SETCHECK, BST_CHECKED, NULL);
+	savedIndicator.Create("Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, savedIndicator.position, parent, savedIndicator.ID);
+	savedIndicator.SetFont(&eNormalFont);
+	savedIndicator.SetCheck(BST_CHECKED);
 	isSaved = true;
 	startingLocation.y += 20;
-	itemBox = childCombo.position = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 800 };
+	//
+	childCombo.position = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 800 };
 	childCombo.ID = idStart++;
-	childCombo.hwnd = CreateWindowEx(NULL, TEXT("ComboBox"), "", CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
-		itemBox.left, itemBox.top, itemBox.right - itemBox.left, itemBox.bottom - itemBox.top, 
-		parent,	(HMENU)childCombo.ID, GetModuleHandle(NULL), NULL);
-	SendMessage(childCombo.hwnd, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	SendMessage(childCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)("Parent Script"));
-	SendMessage(childCombo.hwnd, CB_SETCURSEL, 0, 0);
+	childCombo.Create(CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, childCombo.position, parent, childCombo.ID);
+	childCombo.SetFont(&eNormalFont);
+	childCombo.AddString("Parent Script");
+	childCombo.SetCurSel(0);
 	startingLocation.y += 25;
 	// Edit
-	itemBox = edit.position = { startingLocation.x, startingLocation.y, startingLocation.x + width, height};
+	edit.position = { startingLocation.x, startingLocation.y, startingLocation.x + width, height};
 	edit.ID = idStart++;
-	edit.hwnd = CreateWindowEx(WS_EX_CLIENTEDGE, _T("RICHEDIT50W"), "",
-		WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | WS_HSCROLL,
-		itemBox.left, itemBox.top, itemBox.right - itemBox.left, itemBox.bottom - itemBox.top,
-		parent, (HMENU)edit.ID, GetModuleHandle(NULL), NULL);
-	SendMessage(edit.hwnd, WM_SETFONT, WPARAM(sCodeFont), TRUE);
-	SendMessage(edit.hwnd, EM_SETBKGNDCOLOR, 0, RGB(30, 25, 25));
-	SendMessage(edit.hwnd, EM_SETEVENTMASK, 0, ENM_CHANGE);
-	SendMessage(edit.hwnd, EM_SETCHARFORMAT, SCF_ALL, (LPARAM)&myCharFormat);
+	edit.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | WS_HSCROLL | WS_BORDER, edit.position, parent, edit.ID);
+	edit.SetFont(&eCodeFont);
+	edit.SetBackgroundColor(0, RGB(30, 25, 25));
+	edit.SetEventMask(ENM_CHANGE);
+	edit.SetDefaultCharFormat(myCharFormat);
 	return false;
 }
 
@@ -653,7 +556,7 @@ bool Script::reorganizeControls()
 	return false;
 }
 
-bool Script::childComboChangeHandler(WPARAM messageWParam, LPARAM messageLParam)
+bool Script::childComboChangeHandler(WPARAM messageWParam, LPARAM messageLParam, profileSettings profileInfo, std::vector<variable> vars)
 {
 	int controlID = GetDlgCtrlID((HWND)messageLParam);
 	if (controlID != this->childCombo.ID)
@@ -665,57 +568,57 @@ bool Script::childComboChangeHandler(WPARAM messageWParam, LPARAM messageLParam)
 		return true;
 	}
 	// prompt for save
-	this->checkSave();
+	this->checkSave(profileInfo);
 	// get text from child
 
 	// check what was selected.
-	int selection = SendMessage(this->childCombo.hwnd, CB_GETCURSEL, 0, 0);
+	int selection = childCombo.GetCurSel();
 	TCHAR selectedText[256];
-	SendMessage(this->childCombo.hwnd, CB_GETLBTEXT, selection, (LPARAM)selectedText);
+	childCombo.GetLBText(selection, selectedText);
 	std::string viewName(selectedText);
-	this->changeView(viewName);
+	this->changeView(viewName, profileInfo, vars);
 	this->updateSavedStatus(true);
 	return false;
 }
 
-bool Script::changeView(std::string viewName)
+bool Script::changeView(std::string viewName, profileSettings profileInfo, std::vector<variable> vars)
 {
 	if (viewName == "Parent Script")
 	{
 		// load parent
-		this->loadFile(eProfile.getCurrentPathIncludingCategory() + scriptName + extension);
+		this->loadFile(profileInfo.pathIncludingCategory + scriptName + extension, profileInfo, vars);
 	}
 	else
 	{
 		// load child
-		this->loadFile(eProfile.getCurrentPathIncludingCategory() + viewName);
+		this->loadFile(profileInfo.pathIncludingCategory + viewName, profileInfo, vars);
 	}
 	return false;
 }
 //
-bool Script::saveScript()
+bool Script::saveScript(profileSettings profileInfo)
 {
 	if (scriptName == "")
 	{
 		// must give new name. This should only work if the experiment and category have been set. 
-		if (eProfile.getCurrentExperiment() == "")
+		if (profileInfo.experiment == "")
 		{
 			errBox("The script is unnamed, and no experiment has been set. Please select an experiment and category or select \"Save As\" to save in an arbitrary location.");
 			return true;
 		}
-		if (eProfile.getCurrentCategory() == "")
+		if (profileInfo.category == "")
 		{
 			errBox("The script is unnamed, and no Category has been set. Please select a category or select \"Save As\" to save in an arbitrary location.");
 			return true;
 		}
 		std::string newName = (const char*)DialogBoxParam(eGlobalInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure,
-			(LPARAM)("The " + deviceType + " script is unnamed! Please enter new name for the script, and the script will be saved in the current location: " + eProfile.getCurrentExperiment() + " -> " + eProfile.getCurrentCategory()).c_str());
+			(LPARAM)("The " + deviceType + " script is unnamed! Please enter new name for the script, and the script will be saved in the current location: " + profileInfo.experiment + " -> " + profileInfo.category).c_str());
 		if (newName == "")
 		{
 			// canceled
 			return true;
 		}
-		std::string path = eProfile.getCurrentPathIncludingCategory() + newName + extension;
+		std::string path = profileInfo.pathIncludingCategory + newName + extension;
 		this->saveScriptAs(path);
 	}
 	if (eSystemIsRunning)
@@ -727,11 +630,10 @@ bool Script::saveScript()
 			return true;
 		}
 	}
-	int textLength = GetWindowTextLength(this->edit.hwnd);
-	// + 1 for null at end
-	char* editText = new char[textLength + 1];
-	int myError = GetWindowText(this->edit.hwnd, editText, textLength + 1);
-	//std::fstream saveFile(eProfile.getCurrentPathIncludingCategory() + scriptName + extension, std::fstream::out);
+
+	int textLength = edit.GetWindowTextLength();
+	CString editText;
+	edit.GetWindowText(editText);
 	std::fstream saveFile;
 	int extPos = this->scriptName.find_last_of(".");
 	if (extPos != -1)
@@ -745,7 +647,7 @@ bool Script::saveScript()
 				"extension, read by the code as " + existingExtension + ", and that extension doesn't match the extension for this device! Script name is: " +
 				scriptName + " While the proper extension is " + this->extension + ". The file will be saved as " +
 				nameNoExtension + extension);
-			std::string path = eProfile.getCurrentPathIncludingCategory() + nameNoExtension + extension;
+			std::string path = profileInfo.pathIncludingCategory + nameNoExtension + extension;
 			this->saveScriptAs(path);
 			return false;
 		}
@@ -753,25 +655,25 @@ bool Script::saveScript()
 		{
 			// take the extension off of the script name. That's no good. 
 			this->scriptName = nameNoExtension;
-			saveFile.open(eProfile.getCurrentPathIncludingCategory() + scriptName + extension, std::fstream::out);
+			saveFile.open(profileInfo.pathIncludingCategory + scriptName + extension, std::fstream::out);
 		}
 	}
 	else
 	{
 		// In theory the code should always do this line, not the above check.
-		saveFile.open(eProfile.getCurrentPathIncludingCategory() + scriptName + extension, std::fstream::out);
+		saveFile.open(profileInfo.pathIncludingCategory + scriptName + extension, std::fstream::out);
 	}
 	if (!saveFile.is_open())
 	{
-		MessageBox(0, ("ERROR: Failed to open script file: " + eProfile.getCurrentPathIncludingCategory() + scriptName + extension).c_str(), 0, 0);
+		MessageBox(0, ("ERROR: Failed to open script file: " + profileInfo.pathIncludingCategory + scriptName + extension).c_str(), 0, 0);
 		return true;
 	}
 	saveFile << editText;
 	delete editText;
 	saveFile.close();
-	this->scriptAddress = eProfile.getCurrentPathIncludingCategory() + scriptName + extension;
-	this->scriptCategory = eProfile.getCurrentCategory();
-	this->scriptExperiment = eProfile.getCurrentExperiment();
+	this->scriptAddress = profileInfo.pathIncludingCategory + scriptName + extension;
+	this->scriptCategory = profileInfo.category;
+	this->scriptExperiment = profileInfo.experiment;
 	this->updateSavedStatus(true);
 	return false;
 }
@@ -791,10 +693,10 @@ bool Script::saveScriptAs(std::string location)
 			return true;
 		}
 	}
-	int textLength = GetWindowTextLength(this->edit.hwnd);
-	// + 1 for null at end
-	char* editText = new char[textLength + 1];
-	int myError = GetWindowText(this->edit.hwnd, editText, textLength + 1);
+	
+	int textLength = edit.GetWindowTextLength();
+	CString editText;
+	edit.GetWindowText(editText);
 	std::fstream saveFile(location, std::fstream::out);
 	if (!saveFile.is_open())
 	{
@@ -818,7 +720,7 @@ bool Script::saveScriptAs(std::string location)
 	this->updateSavedStatus(true);
 	return false;
 }
-bool Script::checkChildSave()
+bool Script::checkChildSave(profileSettings profileInfo)
 {
 	// get the 
 	if (isSaved)
@@ -826,9 +728,9 @@ bool Script::checkChildSave()
 		// don't need to do anything
 		return false;
 	}
-	int selection = SendMessage(this->childCombo.hwnd, CB_GETCURSEL, 0, 0);
+	int selection = childCombo.GetCurSel();
 	TCHAR name[256];
-	SendMessage(this->childCombo.hwnd, CB_GETLBTEXT, selection, (LPARAM)name);
+	childCombo.GetLBText(selection, name);
 	std::string nameStr(name);
 	if (nameStr == "")
 	{
@@ -845,7 +747,7 @@ bool Script::checkChildSave()
 		{
 			std::string newName = (const char*)DialogBoxParam(eGlobalInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure,
 				(LPARAM)("Please enter new name for the script " + scriptName + ".").c_str());
-			std::string path = eProfile.getCurrentPathIncludingCategory() + newName + this->extension;
+			std::string path = profileInfo.pathIncludingCategory + newName + this->extension;
 			this->saveScriptAs(path);
 			return false;
 		}
@@ -880,7 +782,7 @@ bool Script::checkChildSave()
 	return false;
 }
 //
-bool Script::checkSave()
+bool Script::checkSave(profileSettings profileInfo)
 {
 	if (isSaved)
 	{
@@ -902,13 +804,13 @@ bool Script::checkSave()
 		{
 			std::string newName = (const char*)DialogBoxParam(eGlobalInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure,
 				(LPARAM)("Please enter new name for the script " + scriptName + ".").c_str());
-			std::string path = eProfile.getCurrentPathIncludingCategory() + newName + this->extension;
+			std::string path = profileInfo.pathIncludingCategory + newName + this->extension;
 			this->saveScriptAs(path);
 			return false;
 		}
 		else
 		{
-			MessageBox(0, "WTF", 0, 0);
+			MessageBox(0, "WTF ERROR", 0, 0);
 			return true;
 		}
 	}
@@ -925,7 +827,7 @@ bool Script::checkSave()
 		}
 		else if (answer == IDYES)
 		{
-			this->saveScript();
+			this->saveScript(profileInfo);
 			return false;
 		}
 		else
@@ -937,7 +839,7 @@ bool Script::checkSave()
 	return false;
 }
 //
-bool Script::renameScript()
+bool Script::renameScript(profileSettings profileInfo)
 {
 	if (this->scriptName == "")
 	{
@@ -950,20 +852,20 @@ bool Script::renameScript()
 		// canceled
 		return false;
 	}
-	int result = MoveFile((eProfile.getCurrentPathIncludingCategory() + scriptName + extension).c_str(),
-		(eProfile.getCurrentPathIncludingCategory() + newName + extension).c_str());
+	int result = MoveFile((profileInfo.pathIncludingCategory + scriptName + extension).c_str(),
+		(profileInfo.pathIncludingCategory + newName + extension).c_str());
 	if (result == 0)
 	{
 		MessageBox(0, "ERROR: Failed to move file.", 0, 0);
 		return true;
 	}
-	this->scriptAddress = eProfile.getCurrentPathIncludingCategory() + scriptName + extension;
-	this->scriptCategory = eProfile.getCurrentCategory();
-	this->scriptExperiment = eProfile.getCurrentExperiment();
+	this->scriptAddress = profileInfo.pathIncludingCategory + scriptName + extension;
+	this->scriptCategory = profileInfo.category;
+	this->scriptExperiment = profileInfo.experiment;
 	return false;
 }
 //
-bool Script::deleteScript()
+bool Script::deleteScript(profileSettings profileInfo)
 {
 	if (this->scriptName == "")
 	{
@@ -976,7 +878,7 @@ bool Script::deleteScript()
 		return false;
 	}
 
-	int result = DeleteFile((eProfile.getCurrentPathIncludingCategory() + scriptName + extension).c_str());
+	int result = DeleteFile((profileInfo.pathIncludingCategory + scriptName + extension).c_str());
 	if (result == 0)
 	{
 		MessageBox(0, "ERROR: Deleting script file failed!", 0, 0);
@@ -992,18 +894,18 @@ bool Script::deleteScript()
 	return false;
 }
 //
-bool Script::newScript()
+bool Script::newScript(profileSettings profileInfo, std::vector<variable> vars)
 {
 	std::string tempName;
 	tempName = DEFAULT_SCRIPT_FOLDER_PATH;
 	if (deviceType == "Horizontal NIAWG")
 	{
-		if (eProfile.getOrientation() == HORIZONTAL_ORIENTATION)
+		if (profileInfo.orientation == HORIZONTAL_ORIENTATION)
 		{
 			tempName += "DEFAULT_HCONFIG_HORIZONTAL_SCRIPT.nScript";
 			//"DEFAULT_HORIZONTAL_SCRIPT.script"
 		}
-		else if (eProfile.getOrientation() == VERTICAL_ORIENTATION)
+		else if (profileInfo.orientation == VERTICAL_ORIENTATION)
 		{
 			tempName += "DEFAULT_VCONFIG_HORIZONTAL_SCRIPT.nScript";
 		}
@@ -1015,12 +917,12 @@ bool Script::newScript()
 	}
 	else if (deviceType == "Vertical NIAWG")
 	{
-		if (eProfile.getOrientation() == HORIZONTAL_ORIENTATION)
+		if (profileInfo.orientation == HORIZONTAL_ORIENTATION)
 		{
 			tempName += "DEFAULT_HCONFIG_VERTICAL_SCRIPT.nScript";
 			//"DEFAULT_HORIZONTAL_SCRIPT.script"
 		}
-		else if (eProfile.getOrientation() == VERTICAL_ORIENTATION)
+		else if (profileInfo.orientation == VERTICAL_ORIENTATION)
 		{
 			tempName += "DEFAULT_VCONFIG_VERTICAL_SCRIPT.nScript";
 		}
@@ -1035,15 +937,15 @@ bool Script::newScript()
 		tempName += "DEFAULT_INTENSITY_SCRIPT.aScript";
 	}
 	this->reset();
-	this->loadFile(tempName);
+	this->loadFile(tempName, profileInfo, vars);
 	// add the current category to the address. 
-	this->scriptAddress = eProfile.getCurrentPathIncludingCategory();
-	this->scriptCategory = eProfile.getCurrentCategory();
-	this->scriptExperiment = eProfile.getCurrentExperiment();
+	this->scriptAddress = profileInfo.pathIncludingCategory;
+	this->scriptCategory = profileInfo.category;
+	this->scriptExperiment = profileInfo.experiment;
 	return false;
 }
 //
-bool Script::openParentScript(std::string parentScriptFileAndPath)
+bool Script::openParentScript(std::string parentScriptFileAndPath, profileSettings profileInfo, std::vector<variable> vars)
 {
 	if (parentScriptFileAndPath == "")
 	{
@@ -1075,10 +977,10 @@ bool Script::openParentScript(std::string parentScriptFileAndPath)
 		return true;
 	}
 	this->scriptName = std::string(fileChars);
-	this->scriptAddress = eProfile.getCurrentPathIncludingCategory() + scriptName + extension;
-	this->scriptCategory = eProfile.getCurrentCategory();
-	this->scriptExperiment = eProfile.getCurrentExperiment();
-	if (!this->loadFile(parentScriptFileAndPath))
+	this->scriptAddress = profileInfo.pathIncludingCategory + scriptName + extension;
+	this->scriptCategory = profileInfo.category;
+	this->scriptExperiment = profileInfo.experiment;
+	if (!this->loadFile(parentScriptFileAndPath, profileInfo, vars))
 	{
 		return true;
 	}
@@ -1096,14 +998,14 @@ bool Script::openParentScript(std::string parentScriptFileAndPath)
 	// Check location of the script.
 	position = parentScriptFileAndPath.find_last_of('\\');
 	std::string scriptLocation = parentScriptFileAndPath.substr(0, position);
-	if (scriptLocation + "\\" != (eProfile.getCurrentPathIncludingCategory()) && eProfile.getCurrentPathIncludingCategory() != "")
+	if (scriptLocation + "\\" != profileInfo.pathIncludingCategory && profileInfo.pathIncludingCategory != "")
 	{
 		int answer = MessageBox(0, ("The requested script " + scriptName + " at " + scriptLocation + " is not currently located in the current configuration "
-			"folder (" + eProfile.getCurrentPathIncludingCategory() + ". This is recommended so that scripts related to a particular configuration are "
+			"folder (" + profileInfo.pathIncludingCategory + ". This is recommended so that scripts related to a particular configuration are "
 			"reserved to that category folder. Copy script to current category folder?").c_str(), 0, MB_YESNO);
 		if (answer == IDYES)
 		{
-			std::string location = (eProfile.getCurrentPathIncludingCategory()) + scriptName;
+			std::string location = profileInfo.pathIncludingCategory + scriptName;
 			std::string path = location;
 			this->scriptAddress = location;
 			int position = location.find_last_of("\\");
@@ -1115,15 +1017,15 @@ bool Script::openParentScript(std::string parentScriptFileAndPath)
 			position = location.find_last_of("\\");
 			this->scriptExperiment = location.substr(position + 1, location.size());
 			std::string scriptName = parentScriptFileAndPath.substr(position + 1, parentScriptFileAndPath.size());
-			this->scriptAddress = eProfile.getCurrentPathIncludingCategory() + scriptName;
-			this->scriptCategory = eProfile.getCurrentCategory();
-			this->scriptExperiment = eProfile.getCurrentExperiment();
-			path = (eProfile.getCurrentPathIncludingCategory()) + scriptName;
+			this->scriptAddress = profileInfo.pathIncludingCategory + scriptName;
+			this->scriptCategory = profileInfo.category;
+			this->scriptExperiment = profileInfo.experiment;
+			path = profileInfo.pathIncludingCategory + scriptName;
 			this->saveScriptAs(path);
 		}
 	}
 	this->updateScriptNameText();
-	this->colorEntireScript();
+	this->colorEntireScript(profileInfo, vars);
 	return false;
 }
 
@@ -1131,7 +1033,7 @@ bool Script::openParentScript(std::string parentScriptFileAndPath)
 ]---	This function only puts the given file on the edit for this class, it doesn't change current settings parameters. It's used bare when just changing the
 ]-		view of the edit, while it's used with some surrounding changes for loading a new parent.
  */
-bool Script::loadFile(std::string pathToFile)
+bool Script::loadFile(std::string pathToFile, profileSettings profileInfo, std::vector<variable> vars)
 {
 	std::ifstream openFile(pathToFile.c_str());
 	if (!openFile.is_open())
@@ -1150,8 +1052,8 @@ bool Script::loadFile(std::string pathToFile)
 		// Append the line to the edit control here (use c_str() ).
 	}
 	// put the default into the new control.
-	SendMessage(this->edit.hwnd, WM_SETTEXT, NULL, (LPARAM)fileText.c_str());
-	this->colorEntireScript();
+	edit.SetWindowText(fileText.c_str());
+	this->colorEntireScript(profileInfo, vars);
 	this->updateScriptNameText();
 	openFile.close();
 	return true;
@@ -1164,8 +1066,8 @@ bool Script::reset()
 	this->scriptCategory = "";
 	this->scriptExperiment = "";
 	this->updateSavedStatus(false);
-	SetWindowText(this->fileNameText.hwnd, "");
-	SendMessage(this->edit.hwnd, WM_SETTEXT, NULL, (LPARAM)"");
+	fileNameText.SetWindowText("");
+	edit.SetWindowText("");
 	return false;
 }
 
@@ -1174,7 +1076,7 @@ bool Script::savedStatus()
 	return isSaved;
 }
 
-std::string Script::getScriptPathAndName()
+std::string Script::getScriptAddress()
 {
 	return this->scriptAddress;
 }
@@ -1184,26 +1086,26 @@ std::string Script::getScriptName()
 	return this->scriptName;
 }
 
-bool Script::considerCurrentLocation()
+bool Script::considerCurrentLocation(profileSettings profileInfo)
 {
 	if (this->scriptAddress.size() > 0)
 	{
 		// Check location of vertical script.
 		int position = this->scriptAddress.find_last_of('\\');
 		std::string scriptLocation = this->scriptAddress.substr(0, position);
-		if (scriptLocation + "\\" != eProfile.getCurrentPathIncludingCategory())
+		if (scriptLocation + "\\" != profileInfo.pathIncludingCategory)
 		{
 			int answer = MessageBox(0, ("The requested script " + scriptName + " at " + scriptLocation + " is not currently located in the current configuration "
-				"folder (" + eProfile.getCurrentPathIncludingCategory() + ". This is recommended so that scripts related to a particular configuration are "
+				"folder (" + profileInfo.pathIncludingCategory + ". This is recommended so that scripts related to a particular configuration are "
 				"reserved to that category folder. Copy script to current category folder?").c_str(), 0, MB_YESNO);
 			if (answer == IDYES)
 			{
 				// grab the correct file name at the end.
 				this->scriptName = this->scriptAddress.substr(position, this->scriptAddress.size());
 				// this name includes the extension already.
-				this->scriptAddress = eProfile.getCurrentPathIncludingCategory() + scriptName;
-				this->scriptCategory = eProfile.getCurrentCategory();
-				this->scriptExperiment = eProfile.getCurrentExperiment();
+				this->scriptAddress = profileInfo.pathIncludingCategory + scriptName;
+				this->scriptCategory = profileInfo.category;
+				this->scriptExperiment = profileInfo.experiment;
 				this->saveScriptAs(this->scriptAddress);
 			}
 		}
@@ -1251,6 +1153,6 @@ bool Script::updateScriptNameText()
 		text += this->scriptName;
 	}
 	// set text.
-	SendMessage(this->fileNameText.hwnd, WM_SETTEXT, 0, (LPARAM)text.c_str());
+	fileNameText.SetWindowText(text.c_str());
 	return false;
 }

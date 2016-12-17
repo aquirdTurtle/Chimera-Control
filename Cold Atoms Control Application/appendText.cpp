@@ -23,3 +23,14 @@ void appendText(std::string newText, int textIDC, HWND parentWindow)
 
 	return;
 }
+
+void appendText(std::string newText, CEdit& edit)
+{
+	// get the initial text length
+	int nLength = edit.GetWindowTextLength();
+	// put the selection at the end of text
+	edit.SetSel(nLength, nLength);
+	// replace the selection
+	edit.ReplaceSel(newText.c_str());
+	return;
+}

@@ -38,6 +38,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 		case WM_CLOSE:
 		case WM_DESTROY:
 		{
+			/*
 			if (eHorizontalNIAWGScript.checkSave())
 			{
 				break;
@@ -50,6 +51,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 			{
 				break;
 			}
+			*/
 
 			/*
 			if (eExperimentSaved == false)
@@ -199,13 +201,13 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 			{
 				case NM_DBLCLK:
 				{
-					eVariables.updateVariableInfo(lParam);
+					///eVariables.updateVariableInfo(lParam);
 					//eTextingHandler.updatePersonInfo(hWnd, lParam);
 					break;
 				}
 				case NM_RCLICK:
 				{
-					eVariables.deleteVariable(lParam);
+					//eVariables.deleteVariable(lParam);
 					//eTextingHandler.deletePersonInfo(hWnd, lParam);
 					break;
 				}
@@ -215,17 +217,17 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 		/// Everything Else
 		case WM_COMMAND:
 		{
-			if (eDebuggingOptions.handleEvent(thisWindow, msg, wParam, lParam))
-			{
-				break;
-			}
+			//if (eDebugger.handleEvent(thisWindow, msg, wParam, lParam))
+			//{
+			//	break;
+			//}
 			switch (LOWORD(wParam))
 			{
 				case IDC_EXPERIMENT_NOTES:
 				{
 					if (HIWORD(wParam) == EN_CHANGE)
 					{
-						eProfile.updateExperimentSavedStatus(false);
+						//eProfile.updateExperimentSavedStatus(false);
 						break;
 					}
 				}
@@ -233,7 +235,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 				{
 					if (HIWORD(wParam) == EN_CHANGE)
 					{
-						eProfile.updateCategorySavedStatus(false);
+						//eProfile.updateCategorySavedStatus(false);
 						break;
 					}
 				}
@@ -241,7 +243,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 				{
 					if (HIWORD(wParam) == EN_CHANGE)
 					{
-						eProfile.updateConfigurationSavedStatus(false);
+						//eProfile.updateConfigurationSavedStatus(false);
 					}
 					break;
 				}
@@ -249,7 +251,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 				{
 					if (HIWORD(wParam) == CBN_SELCHANGE)
 					{
-						eProfile.experimentChangeHandler(thisWindow);
+						//eProfile.experimentChangeHandler(thisWindow);
 					}
 					break;
 				}
@@ -257,7 +259,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 				{
 					if (HIWORD(wParam) == CBN_SELCHANGE)
 					{
-						eProfile.orientationChangeHandler(thisWindow);
+						//eProfile.orientationChangeHandler(thisWindow);
 					}
 					break;
 				}
@@ -265,7 +267,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 				{
 					if (HIWORD(wParam) == CBN_SELCHANGE)
 					{
-						eProfile.categoryChangeHandler(thisWindow);
+						//eProfile.categoryChangeHandler(thisWindow);
 					}
 					break;
 				}
@@ -273,7 +275,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 				{
 					if (HIWORD(wParam) == CBN_SELCHANGE)
 					{
-						eProfile.configurationChangeHandler(thisWindow);
+						///eProfile.configurationChangeHandler(thisWindow);
 						break;
 						/*
 						if (eConfigurationSaved == false)
@@ -342,7 +344,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 				{
 					if (HIWORD(wParam) == CBN_SELCHANGE)
 					{
-						eProfile.sequenceChangeHandler();
+						//eProfile.sequenceChangeHandler();
 					}
 					break;
 				}
@@ -391,7 +393,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 				case ID_CONFIGURATION_SAVECONFIGURATIONSETTINGS:
 				case ID_SEQUENCE_RENAMESEQUENCE:
 				{
-					commonMessages::handleCommonMessage(thisWindow, msg, wParam, lParam);
+					//commonMessages::handleCommonMessage(thisWindow, msg, wParam, lParam);
 					break;
 				}
 				/// Status Controls
@@ -571,7 +573,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 					eProfile.updateExperimentSavedStatus(false);
 					break;
 				}
-				*/
+				
 				// Debugging and window output options
 				case IDC_RECEIVE_VAR_FILES_BUTTON:
 				{
@@ -584,9 +586,10 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 						CheckDlgButton(thisWindow, IDC_RECEIVE_VAR_FILES_BUTTON, BST_CHECKED);
 						eGetVarFilesFromMaster = true;
 					}
-					eProfile.updateExperimentSavedStatus(false);
+					//eProfile.updateExperimentSavedStatus(false);
 					break;
 				}
+				/*
 				case IDC_OUTPUT_READ_STATUS:
 				{
 					BOOL checked = IsDlgButtonChecked(thisWindow, IDC_OUTPUT_READ_STATUS);
@@ -600,7 +603,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 						CheckDlgButton(thisWindow, IDC_OUTPUT_READ_STATUS, BST_CHECKED);
 						eOutputReadStatus = true;
 					}
-					eProfile.updateExperimentSavedStatus(false);
+					//eProfile.updateExperimentSavedStatus(false);
 					break;
 				}
 				case IDC_OUTPUT_WRITE_STATUS:
@@ -616,7 +619,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 						CheckDlgButton(thisWindow, IDC_OUTPUT_WRITE_STATUS, BST_CHECKED);
 						eOutputWriteStatus = true;
 					}
-					eProfile.updateExperimentSavedStatus(false);
+					//eProfile.updateExperimentSavedStatus(false);
 					break;
 				}
 				case IDC_OUTPUT_MORE_RUN_INFO:
@@ -632,9 +635,10 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 						CheckDlgButton(thisWindow, IDC_OUTPUT_MORE_RUN_INFO, BST_CHECKED);
 						eOutputRunInfo = true;
 					}
-					eProfile.updateExperimentSavedStatus(false);
+					//eProfile.updateExperimentSavedStatus(false);
 					break;
 				}
+				
 				case IDC_CONNECT_TO_MASTER_BUTTON:
 				{
 					BOOL checked = IsDlgButtonChecked(thisWindow, IDC_CONNECT_TO_MASTER_BUTTON);
@@ -648,7 +652,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 						CheckDlgButton(thisWindow, IDC_CONNECT_TO_MASTER_BUTTON, BST_CHECKED);
 						eConnectToMaster = true;
 					}
-					eProfile.updateExperimentSavedStatus(false);
+					//eProfile.updateExperimentSavedStatus(false);
 					break;
 				}
 				case IDC_LOG_SCRIPT_PARAMS:
@@ -664,7 +668,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 						CheckDlgButton(thisWindow, IDC_LOG_SCRIPT_PARAMS, BST_CHECKED);
 						eLogScriptAndParams = true;
 					}
-					eProfile.updateExperimentSavedStatus(false);
+					//eProfile.updateExperimentSavedStatus(false);
 					break;
 				}
 				case IDC_PROGRAM_INTENSITY_BOX:
@@ -680,9 +684,10 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 						CheckDlgButton(thisWindow, IDC_PROGRAM_INTENSITY_BOX, BST_CHECKED);
 						eProgramIntensityOption = true;
 					}
-					eProfile.updateExperimentSavedStatus(false);
+					//eProfile.updateExperimentSavedStatus(false);
 					break;
 				}
+				/*
 				case IDC_OUTPUT_CORR_TIME_BUTTON:
 				{
 					BOOL checked = IsDlgButtonChecked(thisWindow, IDC_OUTPUT_CORR_TIME_BUTTON);
@@ -696,9 +701,10 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 						CheckDlgButton(thisWindow, IDC_OUTPUT_CORR_TIME_BUTTON, BST_CHECKED);
 						eOutputCorrTime = true;
 					}
-					eProfile.updateExperimentSavedStatus(false);
+					//eProfile.updateExperimentSavedStatus(false);
 					break;
 				}
+				*/
 				/*
 				case IDC_DUMMY_BUTTON:
 				{
@@ -744,7 +750,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 				SetWindowText(eColoredStatusEdit, msgText.c_str());
 				eGenStatusColor = "Y";
 				// Redraw the three status windows.
-				RedrawWindow(eColorBox, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+				//RedrawWindow(eColorBox, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 				RedrawWindow(eColoredStatusEdit, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 				break;
 			}
@@ -752,7 +758,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 			{
 				eGenStatusColor = "G";
 				RedrawWindow(eColoredStatusEdit, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
-				RedrawWindow(eColorBox, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+				//RedrawWindow(eColorBox, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 				break;
 			}
 			if (msg == eStatusTextMessageID)
@@ -786,10 +792,10 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 				SetWindowText(eColoredStatusEdit, msgText.c_str());
 				eGenStatusColor = "R";
 				RedrawWindow(eColoredStatusEdit, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
-				RedrawWindow(eColorBox, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+				//RedrawWindow(eColorBox, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 				if (!TWEEZER_COMPUTER_SAFEMODE)
 				{
-					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE)))
+					/*if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE)))
 					{
 						return DefWindowProc(thisWindow, msg, wParam, lParam);
 					}
@@ -803,12 +809,15 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 					{
 						return DefWindowProc(thisWindow, msg, wParam, lParam);
 					}
+					*/
 				}
 				ViInt32 waveID;
-				if (eProfile.getOrientation() == HORIZONTAL_ORIENTATION)
+				//if (eProfile.getOrientation() == HORIZONTAL_ORIENTATION)
+				if (false)
 				{
 					if (!TWEEZER_COMPUTER_SAFEMODE)
 					{
+						/*
 						// create waveform (necessary?)
 						if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform, &waveID)))
 						{
@@ -838,15 +847,17 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 						{
 							return DefWindowProc(thisWindow, msg, wParam, lParam);
 						}
+						*/
 					}
 					eCurrentScript = "DefaultHConfigScript";
 
 				}
-				else if (eProfile.getOrientation() == VERTICAL_ORIENTATION)
+				else if (false)
+				//else if (eProfile.getOrientation() == VERTICAL_ORIENTATION)
 				{
 					if (!TWEEZER_COMPUTER_SAFEMODE)
 					{
-
+						/*
 						// create waveform (necessary?)
 						if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform, &waveID)))
 						{
@@ -876,6 +887,7 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 						{
 							return DefWindowProc(thisWindow, msg, wParam, lParam);
 						}
+						*/
 					}
 					eCurrentScript = "DefaultVConfigScript";
 				}
@@ -883,10 +895,12 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 				{
 
 					// Initiate Generation.
+					/*
 					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_InitiateGeneration(eSessionHandle)))
 					{
 						return DefWindowProc(thisWindow, msg, wParam, lParam);
 					}
+					*/
 				}
 				eSystemIsRunning = false;
 				break;
@@ -897,11 +911,11 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 				std::string msgText = "Passively Outputting Default Waveform";
 				SetWindowText(eColoredStatusEdit, msgText.c_str());
 				eGenStatusColor = "B";
-				RedrawWindow(eColorBox, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+				//RedrawWindow(eColorBox, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 				RedrawWindow(eColoredStatusEdit, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
 				if (!TWEEZER_COMPUTER_SAFEMODE)
 				{
-
+					/*
 					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE)))
 					{
 						return DefWindowProc(thisWindow, msg, wParam, lParam);
@@ -916,13 +930,15 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 					{
 						return DefWindowProc(thisWindow, msg, wParam, lParam);
 					}
+					*/
 				}
 				ViInt32 waveID;
-				if (eProfile.getOrientation() == HORIZONTAL_ORIENTATION)
+				if (false)
+//				if (eProfile.getOrientation() == HORIZONTAL_ORIENTATION)
 				{
 					if (!TWEEZER_COMPUTER_SAFEMODE)
 					{
-
+						/*
 						// create waveform (necessary?)
 						if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform, &waveID)))
 						{
@@ -952,15 +968,17 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 						{
 							return DefWindowProc(thisWindow, msg, wParam, lParam);
 						}
+						*/
 					}
 					eCurrentScript = "DefaultHConfigScript";
 
 				}
-				else if (eProfile.getOrientation() == VERTICAL_ORIENTATION)
+				else if (false)
+				//else if (eProfile.getOrientation() == VERTICAL_ORIENTATION)
 				{
 					if (!TWEEZER_COMPUTER_SAFEMODE)
 					{
-
+						/*
 						// create waveform (necessary?)
 						if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform, &waveID)))
 						{
@@ -990,17 +1008,19 @@ LRESULT CALLBACK winProcMain(HWND thisWindow, UINT msg, WPARAM wParam, LPARAM lP
 						{
 							return DefWindowProc(thisWindow, msg, wParam, lParam);
 						}
+						*/
 					}
 					eCurrentScript = "DefaultVConfigScript";
 				}
 				if (!TWEEZER_COMPUTER_SAFEMODE)
 				{
-
+					/*
 					// Initiate Generation.
 					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_InitiateGeneration(eSessionHandle)))
 					{
 						return DefWindowProc(thisWindow, msg, wParam, lParam);
 					}
+					*/
 				}
 				eSystemIsRunning = false;
 				break; 
