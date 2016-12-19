@@ -16,7 +16,7 @@ class DebuggingOptionsControl
 {
 	public:
 		void initialize(int& idStart, POINT& loc, CWnd* parent);
-		bool handleEvent(HWND parent, UINT msg, WPARAM wParam, LPARAM lParam, MainWindow* mainWin);
+		bool handleEvent(UINT id, MainWindow* mainWin);
 		debugOptions getOptions();
 		void setOptions(debugOptions options);
 	private:

@@ -14,12 +14,12 @@
 
 #include <string>
 #include <iostream>
-
+#include "postMyString.h"
 /*
  * This is a function for handling errors that MY functions return. Returns true if error is detected, false otherwise.
  */
 bool myErrorHandler(int errorCode, std::string errMsg, SOCKET& socketToClose, std::vector<std::fstream>& verticalFiles, std::vector<std::fstream>& horizontalFiles, bool aborting, ViStatus error, 
-					ViSession& mySession, bool scriptIsWritten, char scriptNameToDelete[260], bool sockActive, bool deleteScriptOpt, bool connected, bool isThreaded)
+					ViSession& mySession, bool scriptIsWritten, char scriptNameToDelete[260], bool sockActive, bool deleteScriptOpt, bool connected, MainWindow* mainWin, bool isThreaded)
 {
 	if (errorCode != 0)
 	{
@@ -34,25 +34,20 @@ bool myErrorHandler(int errorCode, std::string errMsg, SOCKET& socketToClose, st
 			if (!isThreaded)
 			{
 				// Append error message to the system error handle.
-				appendText(errMsg, IDC_SYSTEM_ERROR_TEXT, eMainWindowHandle);
-				SetWindowText(eColoredStatusEdit, "EXITED WITH ERROR! Passively Outputting Default Waveform");
-				// Set the status color.
-				eGenStatusColor = "R";
-				// Redraw the windows.
-				// T.T
-				//RedrawWindow(eColorBox, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
-				RedrawWindow(eColoredStatusEdit, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+				postMyString(mainWin, eErrorTextMessageID, errMsg);
+				mainWin->changeShortStatusColor("R");
+				mainWin->setShortStatus("EXITED WITH ERROR! Passively Outputting Default Waveform");
 			}
 		}
 		else if (aborting == true)
 		{
 			if (!isThreaded) 
 			{
-				appendText("Aborted Generation!\r\n", IDC_SYSTEM_STATUS_TEXT, eMainWindowHandle);
+				postMyString(mainWin, eStatusTextMessageID, "Aborted Generation!\r\n");
 			}
 		}
 		// Call Clean Socket.
-		cleanSocket(socketToClose, sockActive, connected);
+		cleanSocket(socketToClose, sockActive, connected, mainWin);
 		// turn the agilent to the default setting.
 		myAgilent::agilentDefault();
 		// close files.

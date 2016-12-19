@@ -15,4 +15,5 @@ struct experimentThreadInputStructure
 	mainOptions settings;
 	profileSettings profileInfo;
 	int numberOfVariables;
+	MainWindow* mainWin;
 };

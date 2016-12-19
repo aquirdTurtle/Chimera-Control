@@ -1,3 +1,3 @@
 #pragma once
 
-bool systemAbortCheck(void);
+bool systemAbortCheck(CWnd* window);

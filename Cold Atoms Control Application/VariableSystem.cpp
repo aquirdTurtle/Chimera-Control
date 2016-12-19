@@ -7,26 +7,27 @@
 #include <sstream>
 #include <algorithm>
 #include "ScriptingWindow.h"
-
-bool VariableSystem::updateVariableInfo(LPARAM lParamOfMessage, ScriptingWindow* scriptWin)
+#include <memory>
+bool VariableSystem::updateVariableInfo(MainWindow* mainWin, ScriptingWindow* scriptWin)
 {
-	/// get the item and subitem
 	POINT cursorPos;
 	GetCursorPos(&cursorPos);
 	listview.ScreenToClient(&cursorPos);
-	NMITEMACTIVATE itemClicked = *(NMITEMACTIVATE*)lParamOfMessage;
-	int subitemIndicator = itemClicked.iSubItem;
+	int subitemIndicator;
 	LVHITTESTINFO myItemInfo;
 	memset(&myItemInfo, 0, sizeof(LVHITTESTINFO));
 	myItemInfo.pt = cursorPos;
-	int itemIndicator =	listview.SubItemHitTest(&myItemInfo);
+	int itemIndicator;
+	listview.SubItemHitTest(&myItemInfo);
+	itemIndicator = myItemInfo.iItem;
+	subitemIndicator = myItemInfo.iSubItem;
 	if (itemIndicator == -1)
 	{
 		// user didn't click in an item.
 		return false;
 	}
 	// update the configuration saved status. variables are stored in the configuration-level file.
-	scriptWin->updateConfigurationSavedStatus(false);
+	mainWin->updateConfigurationSavedStatus(false);
 	LVITEM listViewItem;
 	memset(&listViewItem, 0, sizeof(listViewItem));
 	listViewItem.mask = LVIF_TEXT;   // Text Style
@@ -168,15 +169,13 @@ bool VariableSystem::updateVariableInfo(LPARAM lParamOfMessage, ScriptingWindow*
 	return false;
 }
 
-bool VariableSystem::deleteVariable(LPARAM lParamOfMessage)
+bool VariableSystem::deleteVariable()
 {
-
 	/// get the item and subitem
 	POINT cursorPos;
 	GetCursorPos(&cursorPos);
 	listview.ScreenToClient(&cursorPos);
-	NMITEMACTIVATE itemClicked = *(NMITEMACTIVATE*)lParamOfMessage;
-	int subitemIndicator = itemClicked.iSubItem;
+	int subitemIndicator =listview.HitTest(cursorPos);
 	LVHITTESTINFO myItemInfo;
 	memset(&myItemInfo, 0, sizeof(LVHITTESTINFO));
 	myItemInfo.pt = cursorPos;
@@ -296,12 +295,14 @@ bool VariableSystem::addVariable(std::string name, bool timelike, bool singleton
 	// Enter text to SubItes
 	listview.SetItem(&listViewItem);
 	listViewItem.iSubItem = 2;
+	std::string tempstr;
 	if (singleton)
 	{
 		std::ostringstream out;
 		out << std::setprecision(12) << value;
-		std::string tempstr = out.str();
+		tempstr = out.str();
 		listViewItem.pszText = (LPSTR)tempstr.c_str();
+		CHAR stuff;
 	}
 	else
 	{
@@ -325,14 +326,18 @@ bool VariableSystem::addVariable(std::string name, bool timelike, bool singleton
 	return false;
 }
 
-bool VariableSystem::initializeControls(POINT topLeftCorner, CWnd* parent, int& id)
+bool VariableSystem::initializeControls(POINT &topLeftCorner, CWnd* parent, int& id)
 {
 	header.ID = id++;
-	header.position = { topLeftCorner.x, topLeftCorner.y, topLeftCorner.x + 480, topLeftCorner.y + 25 };
+	header.position = { topLeftCorner.x, topLeftCorner.y, topLeftCorner.x + 480, topLeftCorner.y + 20 };
 	header.Create("VARIABLES", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, header.position, parent, header.ID);
 	header.SetFont(&eHeadingFont);
-	topLeftCorner.y += 25;
+	topLeftCorner.y += 20;
 	listview.ID = id++;
+	if (listview.ID != IDC_VARIABLES_LISTVIEW)
+	{
+		throw;
+	}
 	listview.position = { topLeftCorner.x, topLeftCorner.y, topLeftCorner.x + 480, topLeftCorner.y + 195 };
 	listview.Create(WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS, listview.position, parent, listview.ID);
 	listview.SetFont(&eNormalFont);
@@ -361,13 +366,13 @@ bool VariableSystem::initializeControls(POINT topLeftCorner, CWnd* parent, int& 
 	listViewDefaultItem.iItem = 0;          // choose item  
 	listViewDefaultItem.iSubItem = 0;       // Put in first coluom
 	listview.InsertItem(&listViewDefaultItem);
-	for (int itemInc = 1; itemInc < 3; itemInc++) // Add SubItems in a loop
+	for (int itemInc = 1; itemInc <= 3; itemInc++) // Add SubItems in a loop
 	{
 		listViewDefaultItem.iSubItem = itemInc;
 		// Enter text to SubItems
 		listview.SetItem(&listViewDefaultItem);
 	}
-	topLeftCorner.y += 400;
+	topLeftCorner.y += 195;
 	return false;
 }
 

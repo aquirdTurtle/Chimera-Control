@@ -44,10 +44,10 @@ bool NoteSystem::initializeControls(POINT& topLeftPosition, CWnd* parentWindow, 
 	topLeftPosition.y += 20;
 	//  Configuration Notes edit
 	configurationNotes.ID = id++;
-	configurationNotes.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 200 };
+	configurationNotes.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 215 };
 	configurationNotes.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL, configurationNotes.position, parentWindow, configurationNotes.ID);
 	configurationNotes.SetFont(&eNormalFont);
-	topLeftPosition.y += 200;
+	topLeftPosition.y += 215;
 	return false;
 }
 

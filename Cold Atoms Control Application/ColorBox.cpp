@@ -9,20 +9,48 @@ void ColorBox::initialize(POINT pos, int& id, CWnd* parent)
 	return;
 }
 
-void ColorBox::redraw()
-{
-	box.RedrawWindow();
-	return;
-}
-
-bool ColorBox::isColoringThisBox(int id)
+HBRUSH ColorBox::handleColoring(int id, CDC* pDC)
 {
 	if (id == box.ID)
 	{
-		return true;
+		if (currentColor == "G")
+		{
+			// Color Green. This is the "Ready to give next waveform" color. During this color you can also press esc to exit.
+			pDC->SetTextColor(RGB(255, 255, 255));
+			pDC->SetBkColor(RGB(0, 120, 0));
+			return eGreenBrush;
+		}
+		else if (currentColor == "Y")
+		{
+			// Color Yellow. This is the "Working" Color.
+			pDC->SetTextColor(RGB(255, 255, 255));
+			pDC->SetBkColor(RGB(104, 104, 0));
+			return eYellowBrush;
+		}
+		else if (currentColor == "R")
+		{
+			// Color Red. This is a big visual signifier for when the program exited with error.
+			pDC->SetTextColor(RGB(255, 255, 255));
+			pDC->SetBkColor(RGB(120, 0, 0));
+			return eRedBrush;
+		}
+		else
+		{
+			// color Blue. This is the default, ready for user input color.
+			pDC->SetTextColor(RGB(255, 255, 255));
+			pDC->SetBkColor(RGB(0, 0, 120));
+			return blueBrush;
+		}
 	}
 	else
 	{
-		return false;
+		return NULL;
 	}
+}
+
+void ColorBox::changeColor(std::string color)
+{
+	this->currentColor = color;
+	this->box.RedrawWindow();
+	return;
 }

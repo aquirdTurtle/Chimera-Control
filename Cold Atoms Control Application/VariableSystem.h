@@ -20,9 +20,9 @@ struct variable
 class VariableSystem
 {
 	public:
-		bool updateVariableInfo(LPARAM lParamOfMessage, ScriptingWindow* scriptWin);
-		bool deleteVariable(LPARAM lParamOfMessage);
-		bool initializeControls(POINT topLeftCorner, CWnd* parent, int& id);
+		bool updateVariableInfo(MainWindow* mainWin, ScriptingWindow* scriptWin);
+		bool deleteVariable();
+		bool initializeControls(POINT &topLeftCorner, CWnd* parent, int& id);
 		bool addVariable(std::string name, bool timelike, bool singleton, double value, int item);
 		variable getVariableInfo(int varNumber);
 		//std::vector<variable> getAllVariables();
@@ -36,8 +36,6 @@ class VariableSystem
 		int totalVariableNumber;
 		Control<CStatic> header;
 		Control<CListCtrl> listview;
-		//HwndControl variablesHeader;
-		//HwndControl variablesListview;
 		std::vector<variable> currentVariables;
 };
 

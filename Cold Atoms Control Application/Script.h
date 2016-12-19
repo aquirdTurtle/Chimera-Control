@@ -21,12 +21,12 @@ class Script
 		bool reorganizeControls();
 
 		INT_PTR colorControl(LPARAM lParam, WPARAM wParam);
-		bool handleEditChange(WPARAM wParam, LPARAM lParam);
+		bool handleEditChange();
 		bool handleTimerCall(profileSettings profileInfo, std::vector<variable> vars);
 
 		bool updateChildCombo(profileSettings profileInfo);
 		bool changeView(std::string viewName, profileSettings profileInfo, std::vector<variable> vars);
-		bool childComboChangeHandler(WPARAM messageWParam, LPARAM messageLParam, profileSettings profileInfo, std::vector<variable> vars);
+		bool childComboChangeHandler(ScriptingWindow* scriptWin, MainWindow* mainWin);
 		bool checkChildSave(profileSettings profileInfo);
 
 		std::string getSyntaxColor(std::string word, std::string editType, std::vector<variable> vars);
@@ -69,8 +69,8 @@ class Script
 		// no locations for children, they must all be local. 
 		std::vector<std::string> childrenNames;
 
-		int editChangeBegin;
-		int editChangeEnd;
+		unsigned long editChangeBegin;
+		unsigned long editChangeEnd;
 		bool syntaxColoringIsCurrent;
 
 };

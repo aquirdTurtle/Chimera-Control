@@ -52,9 +52,6 @@
     <ClCompile Include="NIAWGWaitThread.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="systemAbortCheck.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
     <ClCompile Include="externals.cpp">
       <Filter>Constants, Externals, Etc.</Filter>
     </ClCompile>
@@ -107,6 +104,15 @@
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="MainOptionsControl.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StatusControl.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StatusIndicator.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="systemAbortCheck.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -251,6 +257,17 @@
     </ClInclude>
     <ClInclude Include="errBox.h" />
     <ClInclude Include="MainOptionsControl.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="errBox.h" />
+    <ClInclude Include="StatusControl.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="StatusIndicator.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="errBox.h" />
+    <ClInclude Include="myApplicationApp.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
   </ItemGroup>

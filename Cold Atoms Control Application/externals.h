@@ -58,10 +58,6 @@ extern std::string eCurrentFolderDialogType;
 extern std::string eMostRecentVerticalScriptNames;
 extern std::string eMostRecentHorizontalScriptNames;
 extern std::string eMostRecentIntensityScriptNames;
-
-extern std::string eGenStatusColor;
-
-
 /// Global Options Variables
 
 // A variable which records what script is currently being executed by the NIAWG.
@@ -69,7 +65,7 @@ extern std::string eCurrentScript;
 
 extern unsigned int eAccumulations;
 
-extern unsigned int eGreenMessageID, eStatusTextMessageID, eErrorTextMessageID, 
+extern UINT eGreenMessageID, eStatusTextMessageID, eErrorTextMessageID, 
 					eFatalErrorMessageID, eVariableStatusMessageID, eNormalFinishMessageID, eColoredEditMessageID, 
 					eDebugMessageID;
 
@@ -77,9 +73,8 @@ extern bool eCurrentVerticalViewIsParent;
 extern bool eCurrentHorizontalViewIsParent;
 extern bool eCurrentIntensityViewIsParent;
 
-extern bool eSystemIsRunning;
+extern bool eExperimentIsRunning;
 extern bool eDontActuallyGenerate;
-extern bool eUseDummyVariables;
 extern bool eSyntaxTimerIsActive;
 extern bool eAbortSystemFlag;
 
@@ -88,6 +83,7 @@ extern bool eHorizontalSyntaxColorIsCurrent, eVerticalSyntaxColorIsCurrent, eInt
 extern ViSession eSessionHandle;
 
 /// Colors
+
 extern HBRUSH eYellowBrush;
 extern HBRUSH eGreenBrush;
 extern HBRUSH blueBrush;
@@ -110,65 +106,13 @@ extern HANDLE eNIAWGWaitThreadHandle;
 /// Global API Handles (Main Window)
 // main
 extern HWND eMainWindowHandle;
-// Titles and Static Text Handles
-extern HWND eExperimentTypeLabelHandle2;
-extern HWND eErrorStatusTextDisplay;
-extern HWND eExperimentStatusTextHandle;
-extern HWND eDebugStatusTextHandle;
-extern HWND eAccumulationsTextHandle;
-extern HWND eSystemStatusTextHandle;
-extern HWND eSystemErrorTextHandle;
-extern HWND eVariablesLabelTextHandle;
-extern HWND eSetupParametersTextHandle;
-extern HWND eNotesLabelTextHandle;
-
-// User-edited edit handles
-extern HWND eAccumulationsEditHandle;
-extern HWND eVariableNamesEditHandle;
-extern HWND eSystemDebugTextHandle;
-// Code-Dedited Edit Handles
-extern HWND eVar1NameTextHandle;
-extern HWND eVar2NameTextHandle;
-extern HWND eVar3NameTextHandle;
-extern HWND eVar4NameTextHandle;
-extern HWND eVar5NameTextHandle;
-extern HWND eVar6NameTextHandle;
-extern HWND eExperimentTypeTextHandle2;
-extern HWND eColoredStatusEdit;
-
-// Button Handles
-extern HWND eScriptErrorClearButtonHandle;
-extern HWND eAccumulationsButtonHandle;
-extern HWND eScriptStatusClearButtonHandle;
-extern HWND eScriptDebugClearButtonHandle;
-extern HWND eLoadConfigButtonHandle;
-// User-Edited Check-Boxes
-extern HWND eReceiveVariableFiles;
-extern HWND eLogScriptAndParamsButton;
-extern HWND eDummyVariableSelectHandle;
-extern HWND eDummyNumEditHandle;
-extern HWND eDummyNumTextHandle;
-extern HWND eDummyVariableButtonHandle;
-extern HWND eVariableSetButtonHandle;
-extern HWND eOutputMoreInfoCheckButton;
-
 /// Global API Handles (Scripting Window)
 // main
 extern HWND eScriptingWindowHandle;
-
-// Titles and Static Text Handles
-extern HWND eStaticIntensityTitleHandle;
-extern HWND eIntensityNameHandle;
-extern HWND eStaticVerticalEditHandle;
-extern HWND eStaticHorizontalEditHandle;
-
 /// Beginning Settings Dialog
 extern HWND eBeginDialogRichEdit;
 
 /// Temp!
 /// view Combos & texts
-extern HwndControl eHorizontalViewCombo, eVerticalViewCombo, eIntensityViewCombo, eHorizontalViewText, eVerticalViewText,
-			   eIntensityViewText;
-extern HwndControl eSequenceText, eSequenceCombo, eSequenceDisplay;
 
 

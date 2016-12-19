@@ -89,7 +89,7 @@ namespace myAndor
 			}
 			if (myAndor::setScanNumber() != 0)
 			{
-				eSystemIsRunning = false;
+				eExperimentIsRunning = false;
 				return -1;
 			}
 			// set this to 1.

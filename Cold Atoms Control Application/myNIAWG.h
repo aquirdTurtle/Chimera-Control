@@ -71,17 +71,17 @@ namespace myNIAWG
 					   int &predWaveCount, std::vector<int> predLocs, std::vector<std::string>(&libWaveformArray)[20], bool(&fileStatus)[20], 
 					   std::vector<waveData> &allVerticalWaveParameters, std::vector<bool> &verticalWaveformVaried, std::vector<waveData> &allHorizontalWaveParameters, 
 					   std::vector<bool> &horizontalWaveformVaried, bool isDefault, bool isThreaded, std::string currentCategoryFolder, std::vector<variable> singletons, 
-					   std::string orientation, debugOptions options);
+					   std::string orientation, debugOptions options, CWnd* mainWin);
 
 	int getVariedWaveform(waveData &varWvFmInfo, std::vector<waveData> all_X_Or_Y_WvFmParam, int waveOrderNum, std::vector<std::string>(&libWvFmArray)[20],
-						  bool(&fileStat)[20], ViReal64 *waveformRawData, debugOptions options);
+						  bool(&fileStat)[20], ViReal64 *waveformRawData, debugOptions options, CWnd* window);
 
-	int varyParam(std::vector<waveData> &allWvInfo1, std::vector<waveData> &allWvInfo2, int wfCount, int &paramNum, double paramVal);
+	int varyParam(std::vector<waveData> &allWvInfo1, std::vector<waveData> &allWvInfo2, int wfCount, int &paramNum, double paramVal, CWnd* window);
 	
 	// NIAWG error checkers...
-	bool NIAWG_CheckWindowsError(int err, std::string orientation);
-	bool NIAWG_CheckProgrammingError(int err);
-	bool NIAWG_CheckScriptError(int err, bool isDefaultError, bool isThreaded);
+	bool NIAWG_CheckWindowsError(int err, std::string orientation, MainWindow* mainWin);
+	bool NIAWG_CheckProgrammingError(int err, CWnd* window);
+	bool NIAWG_CheckScriptError(int err, bool isDefaultError, bool isThreaded, CWnd* window);
 	int myNIAWG_DoubleErrorChecker(int err);
 	int NIAWG_CheckDefaultError(int err);
 
@@ -92,7 +92,7 @@ namespace myNIAWG
 		int getWvFmData(std::fstream &scriptName, waveData &waveInfo, std::vector<variable> singletons);
 
 		int waveformGen(ViReal64 * & tempWaveform, ViReal64 * & readData, waveData & waveInfo, long int size,
-			std::vector<std::string>(&libWaveformArray)[20], bool &fileOpened, debugOptions options);
+			std::vector<std::string>(&libWaveformArray)[20], bool &fileOpened, debugOptions options, CWnd* window);
 
 		int logic(std::fstream &xFile, std::fstream &yFile, std::string xInput, std::string yInput, std::string &scriptString, std::string triggerName);
 
@@ -100,7 +100,7 @@ namespace myNIAWG
 			int &waveCount, ViSession vi, ViConstString channelName, ViStatus error, std::vector<std::string> xWaveformList, std::vector<std::string> yWaveformList,
 			int &predWaveCount, std::vector<int> waveListWaveCounts, std::vector<std::string>(&libWaveformArray)[20], bool(&fileStatus)[20], std::vector<waveData> &allXWaveParam,
 			std::vector<bool> &xWaveVaried, std::vector<waveData> &allYWaveParam, std::vector<bool> &yWaveVaried, bool isDefault, bool isThreaded, std::string currentCategoryFolder, 
-				std::vector<variable> singletons, std::string orientation, debugOptions options);
+				std::vector<variable> singletons, std::string orientation, debugOptions options, CWnd* parent);
 	}
 
 	/**

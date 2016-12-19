@@ -6,6 +6,8 @@
 #include "constants.h"
 #include "commonMessages.h"
 #include "MainOptionsControl.h"
+#include "StatusControl.h"
+#include "StatusIndicator.h"
 //#define PROFILES_PATH
 class ScriptingWindow;
 
@@ -14,7 +16,9 @@ class MainWindow : public CDialog
 	using CDialog::CDialog;
 	DECLARE_DYNAMIC(MainWindow);
 	public:
+		
 		MainWindow(UINT id) : CDialog(id), profile(PROFILES_PATH)
+		//MainWindow() : CDialog(), profile(PROFILES_PATH)
 		{
 			
 			mainRGBs["Dark Grey"] = RGB(15, 15, 15);
@@ -27,6 +31,7 @@ class MainWindow : public CDialog
 			mainRGBs["Gold"] = RGB(218, 165, 32);
 			mainRGBs["White"] = RGB(255, 255, 255);
 			mainRGBs["Light Red"] = RGB(255, 100, 100);
+			mainRGBs["Dark Red"] = RGB(150, 0, 0);
 			mainRGBs["Light Blue"] = RGB(100, 100, 255);
 			mainRGBs["Forest Green"] = RGB(34, 139, 34);
 			mainRGBs["Dull Red"] = RGB(107, 35, 35);
@@ -39,6 +44,8 @@ class MainWindow : public CDialog
 			mainRGBs["Black"] = RGB(0, 0, 0);
 			mainRGBs["Dark Blue"] = RGB(0, 0, 75);
 			// there are less brushes because these are only used for backgrounds.
+			mainBrushes["Dark Red"] = CreateSolidBrush(mainRGBs["Dark Red"]);
+			mainBrushes["Gold"] = CreateSolidBrush(mainRGBs["Gold"]);
 			mainBrushes["Dark Grey"] = CreateSolidBrush(mainRGBs["Dark Grey"]);
 			mainBrushes["Dark Grey Red"] = CreateSolidBrush(mainRGBs["Dark Grey Red"]);
 			mainBrushes["Medium Grey"] = CreateSolidBrush(mainRGBs["Medium Grey"]);
@@ -52,7 +59,6 @@ class MainWindow : public CDialog
 		BOOL OnInitDialog() override;
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 		void passCommonCommand(UINT id);
-		void getFriends(ScriptingWindow* mainWindowPointer);
 		profileSettings getCurentProfileSettings();
 		bool checkProfileReady();
 		bool checkProfileSave();
@@ -63,12 +69,40 @@ class MainWindow : public CDialog
 		std::vector<variable> getAllVariables();
 		void clearVariables();
 		void addVariable(std::string name, bool timelike, bool singleton, double value, int item);
+		LRESULT onGreenMessage(WPARAM wParam, LPARAM lParam);
+		LRESULT onStatusTextMessage(WPARAM wParam, LPARAM lParam);
+		LRESULT onErrorMessage(WPARAM wParam, LPARAM lParam);
+		LRESULT onFatalErrorMessage(WPARAM wParam, LPARAM lParam);
+		LRESULT onVariableStatusMessage(WPARAM wParam, LPARAM lParam);
+		LRESULT onNormalFinishMessage(WPARAM wParam, LPARAM lParam);
+		LRESULT onColoredEditMessage(WPARAM wParam, LPARAM lParam);
+		LRESULT onDebugMessage(WPARAM wParam, LPARAM lParam);
+
 		debugOptions getDebuggingOptions();
 		mainOptions getMainOptions();
 		void setDebuggingOptions(debugOptions options);
+		void setMainOptions(mainOptions options);
+		void updateStatusText(std::string whichStatus, std::string text);
+		void addTimebar(std::string whichStatus);
+		void setShortStatus(std::string text);
+		void changeShortStatusColor(std::string color);
+		void passDebugPress(UINT id);
+		void passMainOptionsPress(UINT id);
+		void listViewDblClick(NMHDR * pNotifyStruct, LRESULT * result);
+		void listViewRClick(NMHDR * pNotifyStruct, LRESULT * result);
+		void handleExperimentCombo();
+		void handleCategoryCombo();
+		void handleConfigurationCombo();
+		void handleSequenceCombo();
+		void handleOrientationCombo();
+		void sayHi(std::string msg);
+		void OnClose();
+		void OnDestroy();
+		void OnCancel() override;
+		void passClear(UINT id);
 	private:
 		DECLARE_MESSAGE_MAP();
-		ScriptingWindow* scriptingWindowFriend;
+		ScriptingWindow* theScriptingWindow;
 		std::unordered_map<std::string, HBRUSH> mainBrushes;
 		std::unordered_map<std::string, COLORREF> mainRGBs;		
 		ConfigurationFileSystem profile;
@@ -76,6 +110,13 @@ class MainWindow : public CDialog
 		VariableSystem variables;
 		DebuggingOptionsControl debugger;
 		MainOptionsControl settings;
+		StatusControl mainStatus;
+		StatusControl debugStatus;
+		StatusControl errorStatus;
+		StatusIndicator shortStatus;
 		friend bool commonMessages::handleCommonMessage(int msgID, CWnd* parent, MainWindow* mainWin, ScriptingWindow* scriptWin);
+
+public:
+	afx_msg void OnFileMyRun();
 };
 
