@@ -9,6 +9,10 @@ void MainOptionsControl::initialize(int& id, POINT& loc, CWnd* parent)
 	header.Create("MAIN OPTIONS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.position, parent, header.ID);
 	header.SetFont(&eHeadingFont);
 	loc.y += 20;
+	if (id != IDC_MAIN_OPTIONS_RANGE_BEGIN)
+	{
+		throw;
+	}
 	//
 	this->connectToMaster.ID = id++;
 	connectToMaster.position = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
@@ -32,25 +36,62 @@ void MainOptionsControl::initialize(int& id, POINT& loc, CWnd* parent)
 	controlIntensity.SetFont(&eNormalFont);
 	controlIntensity.SetCheck(0);
 	currentOptions.programIntensity = false;
-
-
-	/*
-	/// SETUP / EXPERIMENTAL PARAMETERS
-	// Program intensity option
-	eProgramIntensityOptionButton = CreateWindowEx(NULL, "BUTTON", "Program Intensity?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT,
-		1440, 420, 480, 20, thisWindowHandle, (HMENU)IDC_PROGRAM_INTENSITY_BOX, GetModuleHandle(NULL), NULL);
-	SendMessage(eProgramIntensityOptionButton, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	CheckDlgButton(thisWindowHandle, IDC_LOG_SCRIPT_PARAMS, BST_CHECKED);
-	eProgramIntensityOption = true;
-
-	*/
+	loc.y += 20;
+	if (id - 1 != IDC_MAIN_OPTIONS_RANGE_END)
+	{
+		throw;
+	}
 	return;
 }
 
 
-bool MainOptionsControl::handleEvent(HWND parent, UINT msg, WPARAM wParam, LPARAM lParam, MainWindow* mainWin)
+bool MainOptionsControl::handleEvent(UINT id, MainWindow* mainWin)
 {
-
+	if (id == this->connectToMaster.ID)
+	{
+		BOOL checked = connectToMaster.GetCheck();
+		if (checked)
+		{
+			connectToMaster.SetCheck(0);
+			this->currentOptions.connectToMaster = false;
+		}
+		else
+		{
+			connectToMaster.SetCheck(1);
+			this->currentOptions.connectToMaster = true;
+		}
+		mainWin->updateConfigurationSavedStatus(false);
+	}
+	else if (id == this->controlIntensity.ID)
+	{
+		BOOL checked = controlIntensity.GetCheck();
+		if (checked)
+		{
+			controlIntensity.SetCheck(0);
+			this->currentOptions.programIntensity = false;
+		}
+		else
+		{
+			controlIntensity.SetCheck(1);
+			this->currentOptions.programIntensity = true;
+		}
+		mainWin->updateConfigurationSavedStatus(false);
+	}
+	else if (id == this->getVariables.ID)
+	{
+		BOOL checked = getVariables.GetCheck();
+		if (checked)
+		{
+			getVariables.SetCheck(0);
+			this->currentOptions.getVariables = false;
+		}
+		else
+		{
+			getVariables.SetCheck(1);
+			this->currentOptions.getVariables = true;
+		}
+		mainWin->updateConfigurationSavedStatus(false);
+	}
 	return TRUE;
 }
 

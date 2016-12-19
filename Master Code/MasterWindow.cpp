@@ -13,7 +13,7 @@ IMPLEMENT_DYNAMIC(MasterWindow, CDialog)
 
 BEGIN_MESSAGE_MAP(MasterWindow, CDialog)
 	ON_WM_CTLCOLOR()
-//	ON_WM_TIMER()
+	//	ON_WM_TIMER()
 	ON_COMMAND_RANGE(TTL_ID_BEGIN, TTL_ID_END, &MasterWindow::handleTTLPush)
 	ON_COMMAND(TTL_HOLD, &MasterWindow::handlTTLHoldPush)
 	ON_COMMAND(ID_TTLS_VIEW_OR_CHANGE_TTL_NAMES, &MasterWindow::ViewOrChangeTTLNames)

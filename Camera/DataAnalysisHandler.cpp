@@ -92,7 +92,7 @@ bool DataAnalysisHandler::initializeControls(POINT& topLeftPosKinetic, POINT& to
 	setAnalysisLocationsButton.fontType = "Normal";
 	topLeftPosKinetic.y += 25;
 	topLeftPosAccumulate.y += 25;
-
+	
 	//
 	analyzeMostRecentButton.kineticSeriesModePos = { topLeftPosKinetic.x, topLeftPosKinetic.y, 
 													 topLeftPosKinetic.x + 480, topLeftPosKinetic.y + 25 };

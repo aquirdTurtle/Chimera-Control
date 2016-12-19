@@ -12,6 +12,7 @@
 #include "fonts.h"
 #include <boost/filesystem.hpp>
 #include "myNIAWG.h"
+#include "postMyString.h"
 
 ConfigurationFileSystem::ConfigurationFileSystem(std::string fileSystemPath)
 {
@@ -114,9 +115,9 @@ bool ConfigurationFileSystem::setOrientation(std::string orientation)
 	return false;
 }
 
-bool ConfigurationFileSystem::orientationChangeHandler(HWND parentWindow, profileSettings profileInfo, MainWindow* mainWin)
+bool ConfigurationFileSystem::orientationChangeHandler(MainWindow* mainWin)
 {
-
+	profileSettings profileInfo = mainWin->getCurentProfileSettings();
 	long long itemIndex = orientationCombo.GetCurSel();
 	TCHAR orientation[256];
 	orientationCombo.GetLBText(itemIndex, orientation);
@@ -139,17 +140,17 @@ bool ConfigurationFileSystem::orientationChangeHandler(HWND parentWindow, profil
 	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
 		/// Set the default accordingly
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE), profileInfo.orientation))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE), profileInfo.orientation, mainWin))
 		{
 			return true;
 		}
 		// Officially stop trying to generate anything.
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AbortGeneration(eSessionHandle), profileInfo.orientation))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AbortGeneration(eSessionHandle), profileInfo.orientation, mainWin))
 		{
 			return true;
 		}
 		// clear the memory
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ClearArbMemory(eSessionHandle), profileInfo.orientation))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ClearArbMemory(eSessionHandle), profileInfo.orientation, mainWin))
 		{
 			return true;
 		}
@@ -160,31 +161,31 @@ bool ConfigurationFileSystem::orientationChangeHandler(HWND parentWindow, profil
 		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
 			// create waveform (necessary?)
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform, &waveID), profileInfo.orientation))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform, &waveID), profileInfo.orientation, mainWin))
 			{
 				return true;
 			}
 			// allocate waveform into the device memory
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize / 2), profileInfo.orientation))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize / 2), profileInfo.orientation, mainWin))
 			{
 				return true;
 			}
 			// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script.
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform), profileInfo.orientation))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform), profileInfo.orientation, mainWin))
 			{
 				return true;
 			}
 			// rewrite the script. default_hConfigScript should still be valid.
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigScript), profileInfo.orientation))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigScript), profileInfo.orientation, mainWin))
 			{
 				return true;
 			}
 			// start generic waveform to maintain power output to AOM.
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), profileInfo.orientation))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), profileInfo.orientation, mainWin))
 			{
 				return true;
 			}
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript"), profileInfo.orientation))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript"), profileInfo.orientation, mainWin))
 			{
 				return true;
 			}
@@ -196,31 +197,31 @@ bool ConfigurationFileSystem::orientationChangeHandler(HWND parentWindow, profil
 		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
 			// create waveform (necessary?)
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform, &waveID), profileInfo.orientation))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform, &waveID), profileInfo.orientation, mainWin))
 			{
 				return true;
 			}
 			// allocate waveform into the device memory
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize / 2), profileInfo.orientation))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize / 2), profileInfo.orientation, mainWin))
 			{
 				return true;
 			}
 			// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script.
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform), profileInfo.orientation))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform), profileInfo.orientation, mainWin))
 			{
 				return true;
 			}
 			// rewrite the script. default_hConfigScript should still be valid.
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigScript), profileInfo.orientation))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigScript), profileInfo.orientation, mainWin))
 			{
 				return true;
 			}
 			// start generic waveform to maintain power output to AOM.
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), profileInfo.orientation))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), profileInfo.orientation, mainWin))
 			{
 				return true;
 			}
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultVConfigScript"), profileInfo.orientation))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultVConfigScript"), profileInfo.orientation, mainWin))
 			{
 				return true;
 			}
@@ -230,7 +231,7 @@ bool ConfigurationFileSystem::orientationChangeHandler(HWND parentWindow, profil
 	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
 		// Initiate Generation.
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_InitiateGeneration(eSessionHandle), profileInfo.orientation))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_InitiateGeneration(eSessionHandle), profileInfo.orientation, mainWin))
 		{
 			return true;
 		}
@@ -303,7 +304,7 @@ bool ConfigurationFileSystem::newConfiguration(MainWindow* mainWin)
 /*
 ]--- This function opens a given configuration file, sets all of the relevant parameters, and loads the associated scripts. 
 */
-bool ConfigurationFileSystem::openConfiguration(std::string configurationNameToOpen, HWND parentWindow, ScriptingWindow* scriptWindow, MainWindow* mainWin)
+bool ConfigurationFileSystem::openConfiguration(std::string configurationNameToOpen, ScriptingWindow* scriptWindow, MainWindow* mainWin)
 {
 	// no folder associated with configuraitons. They share the category folder.
 	std::string path = currentProfileSettings.pathIncludingCategory + configurationNameToOpen;
@@ -940,33 +941,33 @@ bool ConfigurationFileSystem::updateConfigurationSavedStatus(bool isSaved)
 
 bool ConfigurationFileSystem::configurationSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* mainWin)
 {
-	if (!configurationIsSaved)
+	// prompt for save.
+	if (this->checkConfigurationSave("There are unsaved configuration settings. Would you like to save the current configuration before starting?", scriptWindow, mainWin))
 	{
-		// prompt for save.
-		if (this->checkConfigurationSave("There are unsaved configuration settings. Would you like to save the current configuration before starting?", scriptWindow, mainWin))
-		{
-			// canceled
-			return true;
-		}
+		// canceled
+		return true;
 	}
 	return false;
 }
 
 bool ConfigurationFileSystem::checkConfigurationSave(std::string prompt, ScriptingWindow* scriptWindow, MainWindow* mainWin)
 {
-	int answer = MessageBox(0, prompt.c_str(), 0, MB_YESNOCANCEL);
-	if (answer == IDYES)
+	if (!this->configurationIsSaved)
 	{
-		this->saveConfigurationOnly(scriptWindow, mainWin);
-	}
-	else if (answer == IDCANCEL)
-	{
-		return true;
+		int answer = MessageBox(0, prompt.c_str(), 0, MB_YESNOCANCEL);
+		if (answer == IDYES)
+		{
+			this->saveConfigurationOnly(scriptWindow, mainWin);
+		}
+		else if (answer == IDCANCEL)
+		{
+			return true;
+		}
 	}
 	return false;
 }
 
-bool ConfigurationFileSystem::configurationChangeHandler(HWND parentWindow, ScriptingWindow* scriptWindow, MainWindow* mainWin)
+bool ConfigurationFileSystem::configurationChangeHandler(ScriptingWindow* scriptWindow, MainWindow* mainWin)
 {
 	if (!configurationIsSaved)
 	{
@@ -987,7 +988,7 @@ bool ConfigurationFileSystem::configurationChangeHandler(HWND parentWindow, Scri
 	TCHAR configurationToOpen[256];
 	// Send CB_GETLBTEXT message to get the item.
 	configCombo.GetLBText(itemIndex, configurationToOpen);
-	if (this->openConfiguration(configurationToOpen, parentWindow, scriptWindow, mainWin))
+	if (this->openConfiguration(configurationToOpen, scriptWindow, mainWin))
 	{
 		return true;
 	}
@@ -1224,7 +1225,7 @@ bool ConfigurationFileSystem::newCategory()
 	return false;
 }
 
-bool ConfigurationFileSystem::openCategory(std::string categoryToOpen, HWND parentWindow, ScriptingWindow* scriptWindow, MainWindow* mainWin)
+bool ConfigurationFileSystem::openCategory(std::string categoryToOpen, ScriptingWindow* scriptWindow, MainWindow* mainWin)
 {
 	// this gets called from the file menu.
 	// Assign based on the comboBox Item entry.
@@ -1298,19 +1299,22 @@ bool ConfigurationFileSystem::categorySettinsReadyCheck()
 
 bool ConfigurationFileSystem::checkCategorySave(std::string prompt, MainWindow* mainWin)
 {
-	int answer = MessageBox(0, prompt.c_str(), 0, MB_YESNOCANCEL);
-	if (answer == IDYES)
+	if (!this->categoryIsSaved)
 	{
-		this->saveCategoryOnly(mainWin);
-	}
-	else if (answer == IDCANCEL)
-	{
-		return true;
+		int answer = MessageBox(0, prompt.c_str(), 0, MB_YESNOCANCEL);
+		if (answer == IDYES)
+		{
+			this->saveCategoryOnly(mainWin);
+		}
+		else if (answer == IDCANCEL)
+		{
+			return true;
+		}
 	}
 	return false;
 }
 
-bool ConfigurationFileSystem::categoryChangeHandler(HWND parentWindow, ScriptingWindow* scriptWindow, MainWindow* mainWin)
+bool ConfigurationFileSystem::categoryChangeHandler(ScriptingWindow* scriptWindow, MainWindow* mainWin)
 {
 	if (!categoryIsSaved)
 	{
@@ -1331,7 +1335,7 @@ bool ConfigurationFileSystem::categoryChangeHandler(HWND parentWindow, Scripting
 	TCHAR categoryConfigToOpen[256];
 	// Send CB_GETLBTEXT message to get the item.
 	categoryCombo.GetLBText(itemIndex, categoryConfigToOpen);
-	if (this->openCategory(std::string(categoryConfigToOpen), parentWindow, scriptWindow, mainWin))
+	if (this->openCategory(std::string(categoryConfigToOpen), scriptWindow, mainWin))
 	{
 		return true;
 	}
@@ -1587,7 +1591,7 @@ bool ConfigurationFileSystem::newExperiment()
 	return false;
 }
 
-bool ConfigurationFileSystem::openExperiment(std::string experimentToOpen, HWND parentWindow, ScriptingWindow* scriptWindow, MainWindow* mainWin)
+bool ConfigurationFileSystem::openExperiment(std::string experimentToOpen, ScriptingWindow* scriptWindow, MainWindow* mainWin)
 {
 	// this gets called from the file menu.
 	// Assign based on the comboBox Item entry.
@@ -1618,44 +1622,18 @@ bool ConfigurationFileSystem::openExperiment(std::string experimentToOpen, HWND 
 	std::vector<std::string> configurationNames;
 	//this->reloadCombo(experimentCombo.hwnd, pathIncludingExperiment, CATEGORY_EXTENSION, "__NONE__");
 	std::string version;
-	std::getline(experimentConfigOpenFile, version);
-	/// Load Values from the experiment config file.
+	std::getline(experimentConfigOpenFile, version);/// Load Values from the experiment config file.
 	// Accumulations Number
 	experimentConfigOpenFile >> eAccumulations;
 	std::string accumString = std::to_string(eAccumulations);
-	SetWindowText(eAccumulationsTextHandle, (LPCSTR)accumString.c_str());
 	mainOptions settings = mainWin->getMainOptions();
 	// get var files from master option
 	experimentConfigOpenFile >> settings.getVariables;
-	if (settings.getVariables)
-	{
-		CheckDlgButton(parentWindow, IDC_RECEIVE_VAR_FILES_BUTTON, BST_CHECKED);
-	}
-	else
-	{
-		CheckDlgButton(parentWindow, IDC_RECEIVE_VAR_FILES_BUTTON, BST_UNCHECKED);
-	}
 	debugOptions options = mainWin->getDebuggingOptions();
 	// output waveform read progress option
 	experimentConfigOpenFile >> options.showReadProgress;
-	if (options.showReadProgress)
-	{
-		CheckDlgButton(parentWindow, IDC_OUTPUT_READ_STATUS, BST_CHECKED);
-	}
-	else
-	{
-		CheckDlgButton(parentWindow, IDC_OUTPUT_READ_STATUS, BST_UNCHECKED);
-	}
 	// output waveform write progress option
 	experimentConfigOpenFile >> options.showWriteProgress;
-	if (options.showWriteProgress)
-	{
-		CheckDlgButton(parentWindow, IDC_OUTPUT_WRITE_STATUS, BST_CHECKED);
-	}
-	else
-	{
-		CheckDlgButton(parentWindow, IDC_OUTPUT_WRITE_STATUS, BST_UNCHECKED);
-	}
 	if (version == "Version: 1.0")
 	{
 		// log current script option
@@ -1664,48 +1642,13 @@ bool ConfigurationFileSystem::openExperiment(std::string experimentToOpen, HWND 
 	}
 	// connect to master option
 	experimentConfigOpenFile >> settings.getVariables;
-	if (settings.getVariables)
-	{
-		CheckDlgButton(parentWindow, IDC_CONNECT_TO_MASTER_BUTTON, BST_CHECKED);
-	}
-	else
-	{
-		CheckDlgButton(parentWindow, IDC_CONNECT_TO_MASTER_BUTTON, BST_UNCHECKED);
-	}
-
 	// output correction waveform time option
 	experimentConfigOpenFile >> options.showCorrectionTimes;
-	if (options.showCorrectionTimes)
-	{
-		CheckDlgButton(parentWindow, IDC_OUTPUT_CORR_TIME_BUTTON, BST_CHECKED);
-	}
-	else
-	{
-		CheckDlgButton(parentWindow, IDC_OUTPUT_CORR_TIME_BUTTON, BST_UNCHECKED);
-	}
 	// program the agilent intensity functino generator option
 	experimentConfigOpenFile >> settings.programIntensity;
-	if (settings.programIntensity)
-	{
-		CheckDlgButton(parentWindow, IDC_PROGRAM_INTENSITY_BOX, BST_CHECKED);
-	}
-	else
-	{
-		CheckDlgButton(parentWindow, IDC_PROGRAM_INTENSITY_BOX, BST_UNCHECKED);
-	}
-
 	experimentConfigOpenFile >> options.outputExcessInfo;
-	if (options.outputExcessInfo)
-	{
-		CheckDlgButton(parentWindow, IDC_OUTPUT_MORE_RUN_INFO, BST_CHECKED);
-	}
-	else
-	{
-		CheckDlgButton(parentWindow, IDC_OUTPUT_MORE_RUN_INFO, BST_UNCHECKED);
-	}
-
-
-
+	mainWin->setMainOptions(settings);
+	mainWin->setDebuggingOptions(options);
 	std::string notes;
 	std::string tempNote;
 	// get the trailing newline after the >> operation.
@@ -1759,19 +1702,22 @@ bool ConfigurationFileSystem::experimentSettingsReadyCheck(MainWindow* mainWin)
 }
 bool ConfigurationFileSystem::checkExperimentSave(std::string prompt, MainWindow* mainWin)
 {
-	int answer = MessageBox(0, prompt.c_str(), 0, MB_YESNOCANCEL);
-	if (answer == IDYES)
+	if (!this->experimentIsSaved)
 	{
-		this->saveExperimentOnly(mainWin);
-	}
-	else if (answer == IDCANCEL)
-	{
-		return true;
+		int answer = MessageBox(0, prompt.c_str(), 0, MB_YESNOCANCEL);
+		if (answer == IDYES)
+		{
+			this->saveExperimentOnly(mainWin);
+		}
+		else if (answer == IDCANCEL)
+		{
+			return true;
+		}
 	}
 	return false;
 }
 
-bool ConfigurationFileSystem::experimentChangeHandler(HWND parentWindow, ScriptingWindow* scriptWindow, MainWindow* mainWin)
+bool ConfigurationFileSystem::experimentChangeHandler(ScriptingWindow* scriptWindow, MainWindow* mainWin)
 {
 	if (!experimentIsSaved)
 	{
@@ -1792,7 +1738,7 @@ bool ConfigurationFileSystem::experimentChangeHandler(HWND parentWindow, Scripti
 	TCHAR experimentConfigToOpen[256];
 	// Send CB_GETLBTEXT message to get the item.
 	experimentCombo.GetLBText(itemIndex, experimentConfigToOpen);
-	if (this->openExperiment(std::string(experimentConfigToOpen), parentWindow, scriptWindow, mainWin))
+	if (this->openExperiment(std::string(experimentConfigToOpen), scriptWindow, mainWin))
 	{
 		return true;
 	}
@@ -1834,7 +1780,7 @@ bool ConfigurationFileSystem::loadNullSequence()
 	return false;
 }
 
-bool ConfigurationFileSystem::addToSequence(HWND parentWindow)
+bool ConfigurationFileSystem::addToSequence(CWnd* parent)
 {
 	if (currentProfileSettings.configuration == "")
 	{
@@ -1851,7 +1797,7 @@ bool ConfigurationFileSystem::addToSequence(HWND parentWindow)
 	}
 	// add text to display.
 	appendText(std::to_string(this->currentProfileSettings.sequenceConfigurationNames.size()) + ". " 
-		+ this->currentProfileSettings.sequenceConfigurationNames.back() + "\r\n", IDC_SEQUENCE_DISPLAY, parentWindow);
+		+ this->currentProfileSettings.sequenceConfigurationNames.back() + "\r\n", this->sequenceInfoDisplay);
 	this->updateSequenceSavedStatus(false);
 	return false;
 }
@@ -2031,11 +1977,11 @@ bool ConfigurationFileSystem::deleteSequence()
 	this->reloadSequence("__NONE__");
 	return false;
 }
-bool ConfigurationFileSystem::newSequence(HWND parentWindow)
+bool ConfigurationFileSystem::newSequence(CWnd* parent)
 {
 	// prompt for name
 	TCHAR* result = NULL;
-	result = (TCHAR*)DialogBoxParam(eGlobalInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), parentWindow, textPromptDialogProcedure, (LPARAM)"Please Enter a new Sequence Name:");
+	result = (TCHAR*)DialogBoxParam(eGlobalInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), parent->GetSafeHwnd(), textPromptDialogProcedure, (LPARAM)"Please Enter a new Sequence Name:");
 	//
 	if (result == NULL || std::string(result) == "")
 	{
@@ -2124,14 +2070,17 @@ bool ConfigurationFileSystem::sequenceSettingsReadyCheck()
 
 bool ConfigurationFileSystem::checkSequenceSave(std::string prompt)
 {
-	int answer = MessageBox(0, prompt.c_str(), 0, MB_YESNOCANCEL);
-	if (answer == IDYES)
+	if (!this->sequenceIsSaved)
 	{
-		this->saveSequence();
-	}
-	else if (answer == IDCANCEL)
-	{
-		return true;
+		int answer = MessageBox(0, prompt.c_str(), 0, MB_YESNOCANCEL);
+		if (answer == IDYES)
+		{
+			this->saveSequence();
+		}
+		else if (answer == IDCANCEL)
+		{
+			return true;
+		}
 	}
 	return false;
 }
@@ -2188,6 +2137,10 @@ bool ConfigurationFileSystem::initializeControls(POINT& topLeftPosition, CWnd* p
 	// Experiment Combo
 	experimentCombo.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 800 };
 	experimentCombo.ID = id++;
+	if (experimentCombo.ID != IDC_EXPERIMENT_COMBO)
+	{
+		throw;
+	}
 	experimentCombo.Create(CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, 
 		experimentCombo.position, parent, experimentCombo.ID);
 	experimentCombo.SetFont(&eNormalFont);
@@ -2195,6 +2148,10 @@ bool ConfigurationFileSystem::initializeControls(POINT& topLeftPosition, CWnd* p
 	// Category Combo
 	categoryCombo.position = { topLeftPosition.x + 480, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 800 };
 	categoryCombo.ID = id++;
+	if (categoryCombo.ID != IDC_CATEGORY_COMBO)
+	{
+		throw;
+	}
 	categoryCombo.Create(CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, 
 		categoryCombo.position, parent, categoryCombo.ID);
 	categoryCombo.SetFont(&eNormalFont);
@@ -2226,6 +2183,10 @@ bool ConfigurationFileSystem::initializeControls(POINT& topLeftPosition, CWnd* p
 	orientationNames.push_back("Vertical");
 	orientationCombo.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 120, topLeftPosition.y + 800 };
 	orientationCombo.ID = id++;
+	if (orientationCombo.ID != IDC_ORIENTATION_COMBO)
+	{
+		throw;
+	}
 	orientationCombo.Create(CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, 
 		orientationCombo.position, parent, orientationCombo.ID);
 	orientationCombo.SetFont(&eNormalFont);
@@ -2237,6 +2198,10 @@ bool ConfigurationFileSystem::initializeControls(POINT& topLeftPosition, CWnd* p
 	// configuration combo
 	configCombo.position = { topLeftPosition.x + 120, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 800 };
 	configCombo.ID = id++;
+	if (configCombo.ID != IDC_CONFIGURATION_COMBO)
+	{
+		throw;
+	}
 	configCombo.Create(CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, configCombo.position,
 		parent, configCombo.ID);
 	configCombo.SetFont(&eNormalFont);
@@ -2251,6 +2216,10 @@ bool ConfigurationFileSystem::initializeControls(POINT& topLeftPosition, CWnd* p
 	// combo
 	sequenceCombo.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 800 };
 	sequenceCombo.ID = id++;
+	if (sequenceCombo.ID != IDC_SEQUENCE_COMBO)
+	{
+		throw;
+	}
 	sequenceCombo.Create(CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, 
 		sequenceCombo.position, parent, sequenceCombo.ID);
 	sequenceCombo.SetFont(&eNormalFont);
@@ -2263,6 +2232,14 @@ bool ConfigurationFileSystem::initializeControls(POINT& topLeftPosition, CWnd* p
 	sequenceInfoDisplay.Create(ES_READONLY | WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL, 
 		sequenceInfoDisplay.position, parent, sequenceInfoDisplay.ID);
 	sequenceInfoDisplay.SetWindowTextA("Sequence of Configurations to Run:\r\n");
+	sequenceSavedIndicator.position = { topLeftPosition.x + 860, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20 };
+	// saved indicator
+	sequenceSavedIndicator.ID = id++;
+	sequenceSavedIndicator.Create("Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT,
+		sequenceSavedIndicator.position, parent, sequenceSavedIndicator.ID);
+	sequenceSavedIndicator.SetFont(&eNormalFont);
+	sequenceSavedIndicator.SetCheck(BST_CHECKED);
+	updateSequenceSavedStatus(true);
 	return 0;
 }
 

@@ -64,7 +64,7 @@ extern int eNumberOfRunsToAverage;
 extern std::vector<std::string> eCurrentPlotNames;
 
 extern int ePicturesPerRepetition;
-extern bool eSystemIsRunning;
+extern bool eExperimentIsRunning;
 
 extern std::string eCurrentlySelectedCameraMode;
 extern std::string eCurrentlyRunningCameraMode;

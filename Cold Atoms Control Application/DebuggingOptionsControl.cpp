@@ -11,6 +11,10 @@ void DebuggingOptionsControl::initialize(int& id, POINT& loc, CWnd* parent)
 	header.SetFont(&eHeadingFont);
 	loc.y += 20;
 	///
+	if (id != IDC_DEBUG_OPTIONS_RANGE_BEGIN)
+	{
+		throw;
+	}
 	niawgMachineScript.ID = id++;
 	niawgMachineScript.position = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
 	niawgMachineScript.Create("Output Machine NIAWG Script?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, niawgMachineScript.position, parent, niawgMachineScript.ID);
@@ -66,58 +70,48 @@ void DebuggingOptionsControl::initialize(int& id, POINT& loc, CWnd* parent)
 	excessInfo.SetFont(&eNormalFont);
 	excessInfo.SetCheck(BST_CHECKED);
 	this->currentOptions.outputExcessInfo = true;	
-	/*
-	/// DEBUGGING OPTIONS
-	eOutputMoreInfoCheckButton = CreateWindowEx(NULL, "BUTTON", "Output More Run Info?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT,
-												1440, 545, 480, 20, thisWindowHandle, (HMENU)IDC_OUTPUT_MORE_RUN_INFO, GetModuleHandle(NULL), NULL);
-	SendMessage(eOutputMoreInfoCheckButton, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	CheckDlgButton(thisWindowHandle, IDC_OUTPUT_MORE_RUN_INFO, BST_UNCHECKED);
-	eOutputRunInfo = false;
-	*/
-
+	if (id - 1 != IDC_DEBUG_OPTIONS_RANGE_END)
+	{
+		throw;
+	}
 	return;
 }
 
-bool DebuggingOptionsControl::handleEvent(HWND parent, UINT msg, WPARAM wParam, LPARAM lParam, MainWindow* mainWin)
+bool DebuggingOptionsControl::handleEvent(UINT id, MainWindow* mainWin)
 {
-	if (msg != WM_COMMAND)
-	{
-		return false;
-	}
-	int id = LOWORD(wParam);
 	if (id == this->niawgMachineScript.ID)
 	{
 		BOOL checked = niawgMachineScript.GetCheck();
 		if (checked) 
 		{
-			niawgMachineScript.SetCheck(BST_UNCHECKED);
+			niawgMachineScript.SetCheck(0);
 			this->currentOptions.outputNiawgMachineScript = false;
 		}
 		else 
 		{
-			niawgMachineScript.SetCheck(BST_UNCHECKED);
+			niawgMachineScript.SetCheck(1);
 			this->currentOptions.outputNiawgMachineScript = true;
 		}
 		mainWin->updateConfigurationSavedStatus(false);
 		return true;
 	}
-	if (id == this->niawgScript.ID)
+	else if (id == this->niawgScript.ID)
 	{
 		BOOL checked = niawgScript.GetCheck();
 		if (checked)
 		{
-			niawgScript.SetCheck(BST_UNCHECKED);
+			niawgScript.SetCheck(0);
 			this->currentOptions.outputNiawgHumanScript = false;
 		}
 		else
 		{
-			niawgScript.SetCheck(BST_CHECKED);
+			niawgScript.SetCheck(1);
 			this->currentOptions.outputNiawgHumanScript = true;
 		}
 		mainWin->updateConfigurationSavedStatus(false);
 		return true;
 	}
-	if (id == this->outputAgilentScript.ID)
+	else if (id == this->outputAgilentScript.ID)
 	{
 		BOOL checked = outputAgilentScript.GetCheck();
 		if (checked)
@@ -132,6 +126,51 @@ bool DebuggingOptionsControl::handleEvent(HWND parent, UINT msg, WPARAM wParam, 
 		}
 		mainWin->updateConfigurationSavedStatus(false);
 		return true;
+	}
+	else if (id == this->readProgress.ID)
+	{
+		BOOL checked = readProgress.GetCheck();
+		if (checked)
+		{
+			readProgress.SetCheck(0);
+			this->currentOptions.showReadProgress= false;
+		}
+		else
+		{
+			readProgress.SetCheck(1);
+			this->currentOptions.showReadProgress= true;
+		}
+		mainWin->updateConfigurationSavedStatus(false);
+	}
+	else if (id == this->writeProgress.ID)
+	{
+		BOOL checked = writeProgress.GetCheck();
+		if (checked)
+		{
+			writeProgress.SetCheck(0);
+			this->currentOptions.showWriteProgress= false;
+		}
+		else
+		{
+			writeProgress.SetCheck(1);
+			this->currentOptions.showWriteProgress = true;
+		}
+		mainWin->updateConfigurationSavedStatus(false);
+	}
+	else if (id == this->correctionTimes.ID)
+	{
+		BOOL checked = correctionTimes.GetCheck();
+		if (checked)
+		{
+			correctionTimes.SetCheck(0);
+			this->currentOptions.showCorrectionTimes= false;
+		}
+		else
+		{
+			correctionTimes.SetCheck(1);
+			this->currentOptions.showCorrectionTimes = true;
+		}
+		mainWin->updateConfigurationSavedStatus(false);
 	}
 	return false;
 }

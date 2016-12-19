@@ -23,7 +23,7 @@ CFont eLargeHeadingFont;
 //VariableSystem eVariables;
 int scriptIDs = 110000;
 int debugID = 111000;
-DebuggingOptionsControl eDebugger;
+//DebuggingOptionsControl eDebugger;
 
 // Agilent Stuff
 double eCurrentAgilentLow = std::stod(AGILENT_DEFAULT_DC);
@@ -66,22 +66,23 @@ bool eCurrentVerticalViewIsParent = true;
 bool eCurrentHorizontalViewIsParent = true;
 bool eCurrentIntensityViewIsParent = true;
 
-bool eSystemIsRunning;
-bool eVerticalScriptSaved;
-bool eHorizontalScriptSaved;
-bool eIntensityScriptSaved;
+bool eExperimentIsRunning;
 bool eDontActuallyGenerate;
-bool eUseDummyVariables;
-bool eProgramIntensityOption;
 bool eSyntaxTimerIsActive;
 bool eAbortSystemFlag = false;
 bool eHorizontalSyntaxColorIsCurrent = true, eVerticalSyntaxColorIsCurrent = true, eIntensitySyntaxColorIsCurrent = true;
-int eDummyNum;
 
 unsigned int eAccumulations = 0;
 // thread messages
-unsigned int eGreenMessageID, eStatusTextMessageID, eErrorTextMessageID, eFatalErrorMessageID, 
-			 eVariableStatusMessageID, eNormalFinishMessageID, eColoredEditMessageID, eDebugMessageID;
+// register messages for main window.
+UINT eVariableStatusMessageID = RegisterWindowMessage("ID_THREAD_VARIABLE_STATUS");
+UINT eGreenMessageID = RegisterWindowMessage("ID_THREAD_GUI_GREEN");
+UINT eStatusTextMessageID = RegisterWindowMessage("ID_THREAD_STATUS_MESSAGE");
+UINT eDebugMessageID = RegisterWindowMessage("ID_THREAD_DEBUG_MESSAGE");
+UINT eErrorTextMessageID = RegisterWindowMessage("ID_THREAD_ERROR_MESSAGE");
+UINT eFatalErrorMessageID = RegisterWindowMessage("ID_THREAD_FATAL_ERROR_MESSAGE");
+UINT eNormalFinishMessageID = RegisterWindowMessage("ID_THREAD_NORMAL_FINISH_MESSAGE");
+UINT eColoredEditMessageID = RegisterWindowMessage("ID_VARIABLE_VALES_MESSAGE");
 
 char eVerticalCurrentParentScriptName[_MAX_FNAME];
 char eHorizontalCurrentParentScriptName[_MAX_FNAME];
@@ -90,7 +91,6 @@ char eVerticalCurrentViewScriptName[_MAX_FNAME];
 char eHorizontalCurrentViewScriptName[_MAX_FNAME];
 char eIntensityCurrentViewScriptName[_MAX_FNAME];
 
-std::string eGenStatusColor;
 // A variable which records what script is currently being executed by the NIAWG.
 std::string eCurrentScript;
 
@@ -121,91 +121,7 @@ HANDLE eWaitingForNIAWGEvent;
 HANDLE eExperimentThreadHandle;
 HANDLE eNIAWGWaitThreadHandle;
 
-/// //////////////////////////////////////////////////////////////////////////////////////////
-///
-///			Global API Handle Declarations (Main Window)
-/// 
-// Main
 HWND eMainWindowHandle;
-
-// Static Handles
-HWND eStaticIntensityTitleHandle;
-HWND eIntensityNameHandle;
-HWND eExperimentTypeLabelHandle2;
-HWND eErrorStatusTextDisplay;
-HWND eVariablesLabelTextHandle;
-HWND eSetupParametersTextHandle;
-HWND eNotesLabelTextHandle;
-
-// Code-Edited Edit Handles
-HWND eExperimentTypeTextHandle2;
-HWND eSystemErrorTextHandle;
-HWND eColoredStatusEdit;
-// Check Box Handles
-HWND eIntensityScriptSavedIndicatorHandle;
-HWND eOutputMoreInfoCheckButton;
-
-// User-Edited Edit Handles
-HWND eIntensityScriptEditHandle;
-// Button Handles
-HWND eScriptErrorClearButtonHandle;
-// edit handles
-HWND eVariableNamesEditHandle;
-
-HWND eLoadConfigButtonHandle;
-HWND eAccumulationsButtonHandle;
-HWND eScriptStatusClearButtonHandle;
-HWND eScriptDebugClearButtonHandle;
-HWND eReceiveVariableFiles;
-HWND eLogScriptAndParamsButton;
-HWND eDummyVariableSelectHandle;
-HWND eDummyNumEditHandle;
-HWND eDummyNumTextHandle;
-HWND eDummyVariableButtonHandle;
-HWND eVariableSetButtonHandle;
-
-HWND eVar1NameTextHandle;
-HWND eVar2NameTextHandle;
-HWND eVar3NameTextHandle;
-HWND eVar4NameTextHandle;
-HWND eVar5NameTextHandle;
-HWND eVar6NameTextHandle;
-HWND eAccumulationsEditHandle;
-HWND eAccumulationsTextHandle;
-
-HWND eExperimentStatusTextHandle;
-HWND eDebugStatusTextHandle;
-
-HWND eSystemStatusTextHandle;
-HWND eSystemDebugTextHandle;
-
-/// //////////////////////////////////////////////////////////////////////////////////////////
-///
-/// Global API Handle Declarations (Scripting Window)
-/// 
 HWND eScriptingWindowHandle;
-
-HWND eStaticVerticalEditHandle;
-HWND eStaticHorizontalEditHandle;
-
-HWND eVerticalScriptEditHandle;
-HWND eHorizontalScriptEditHandle;
-
-HWND eVerticalScriptSavedIndicatorHandle;
-HWND eHorizontalScriptSavedIndicatorHandle;
-HWND eConfigurationSavedIndicatorHandle;
-
-HWND eVerticalScriptNameTextHandle;
-HWND eHorizontalScriptNameTextHandle;
-HWND scriptSaveButtonHandle;
-
-HWND onlyWriteWaveformsButtonHandle;
-
 /// Beginning Settings Dialog
 HWND eBeginDialogRichEdit;
-/// Temp!
-/// View Combos and texts
-HwndControl eHorizontalViewCombo, eVerticalViewCombo, eIntensityViewCombo, eHorizontalViewText, eVerticalViewText,
-		eIntensityViewText;
-/// Sequence Combo and Display
-HwndControl eSequenceText, eSequenceCombo, eSequenceDisplay;

@@ -6,12 +6,12 @@
 /*
  * This function checks whether the system abort flag has been set, and if so, sends some messages and returns true. If not aborting, it returns false.
  */
-bool systemAbortCheck(void)
+bool systemAbortCheck(CWnd* window)
 {
 	// check if aborting
 	if (eAbortSystemFlag == true)
 	{
-		postMyString(eStatusTextMessageID, "Aborted!\r\n");
+		postMyString(window, eStatusTextMessageID, "Aborted!\r\n");
 		return true;
 	}
 	else

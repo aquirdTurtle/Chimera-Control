@@ -10,40 +10,47 @@ IMPLEMENT_DYNAMIC(ScriptingWindow, CDialog)
 
 BEGIN_MESSAGE_MAP(ScriptingWindow, CDialog)
 	ON_WM_CTLCOLOR()
-	ON_EN_CHANGE(0, &ScriptingWindow::horizontalEditChange)
-	ON_EN_CHANGE(0, &ScriptingWindow::agilentEditChange)
-	ON_EN_CHANGE(0, &ScriptingWindow::agilentEditChange)
+	ON_WM_TIMER()
+	ON_EN_CHANGE(IDC_HORIZONTAL_SCRIPT_EDIT, &ScriptingWindow::horizontalEditChange)
+	ON_EN_CHANGE(IDC_VERTICAL_SCRIPT_EDIT, &ScriptingWindow::verticalEditChange)
+	ON_EN_CHANGE(IDC_AGILENT_SCRIPT_EDIT, &ScriptingWindow::agilentEditChange)
+	// menu stuff
 	ON_COMMAND_RANGE(MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &ScriptingWindow::passCommonCommand)
-	ON_COMMAND(eVariableStatusMessageID, &ScriptingWindow::redrawBox)
-	ON_COMMAND(eGreenMessageID, &ScriptingWindow::redrawBox)
-	ON_COMMAND(eFatalErrorMessageID, &ScriptingWindow::redrawBox)
-	ON_COMMAND(eNormalFinishMessageID, &ScriptingWindow::redrawBox)
-	ON_WM_CLOSE()
+	// 
+	ON_CBN_SELENDOK(IDC_VERTICAL_SCRIPT_COMBO, &ScriptingWindow::handleVerticalScriptComboChange)
+	ON_CBN_SELENDOK(IDC_HORIZONTAL_SCRIPT_COMBO, &ScriptingWindow::handleHorizontalScriptComboChange)
+	ON_CBN_SELENDOK(IDC_AGILENT_SCRIPT_COMBO, &ScriptingWindow::handleAgilentScriptComboChange)
 END_MESSAGE_MAP()
 
-void ScriptingWindow::OnClose()
+void ScriptingWindow::handleHorizontalScriptComboChange()
 {
-	if (this->horizontalNIAWGScript.checkSave(this->getCurrentProfileSettings()))
-	{
-		return;
-	}
-	if (this->verticalNIAWGScript.checkSave(this->getCurrentProfileSettings()))
-	{
-		return;
-	}
-	if (this->intensityAgilentScript.checkSave(this->getCurrentProfileSettings()))
-	{
-		return;
-	}
-	PostQuitMessage(0);
-	CDialog::OnClose();
+	this->horizontalNIAWGScript.childComboChangeHandler(this, this->mainWindowFriend);
+	return;
+}
+
+void ScriptingWindow::handleVerticalScriptComboChange()
+{
+	this->verticalNIAWGScript.childComboChangeHandler(this, this->mainWindowFriend);
+	return;
+}
+
+void ScriptingWindow::handleAgilentScriptComboChange()
+{
+	this->intensityAgilentScript.childComboChangeHandler(this, this->mainWindowFriend);
+	return;
+}
+
+// this gets called when closing. The purpose here is to redirect the default, very abrupt close that would normally happen.
+void ScriptingWindow::OnCancel()
+{
+	passCommonCommand(ID_FILE_MY_EXIT);
 	return;
 }
 
 BOOL ScriptingWindow::OnInitDialog()
 {
 	// ADD MORE INITIALIZATIONS HERE
-	int id = 101234;
+	int id = 2000;
 	POINT startLocaiton = { 0, 28 };
 	verticalNIAWGScript.initializeControls(640, 1000, startLocaiton, this, "Vertical NIAWG", id);
 	startLocaiton = { 640, 28 };
@@ -63,6 +70,14 @@ BOOL ScriptingWindow::OnInitDialog()
 	return TRUE;
 }
 
+void ScriptingWindow::OnTimer(UINT_PTR eventID)
+{
+	this->horizontalNIAWGScript.handleTimerCall(this->mainWindowFriend->getCurentProfileSettings(), this->mainWindowFriend->getAllVariables());
+	this->intensityAgilentScript.handleTimerCall(this->mainWindowFriend->getCurentProfileSettings(), this->mainWindowFriend->getAllVariables());
+	this->verticalNIAWGScript.handleTimerCall(this->mainWindowFriend->getCurentProfileSettings(), this->mainWindowFriend->getAllVariables());
+	return;
+}
+
 bool ScriptingWindow::checkScriptSaves()
 {
 	if (this->horizontalNIAWGScript.checkSave(this->getCurrentProfileSettings()))
@@ -77,6 +92,7 @@ bool ScriptingWindow::checkScriptSaves()
 	{
 		return true;
 	}
+	return false;
 }
 
 void ScriptingWindow::getFriends(MainWindow* mainWindowPointer)
@@ -116,8 +132,8 @@ scriptInfo<std::string> ScriptingWindow::getScriptAddresses()
 {
 	scriptInfo<std::string> addresses;
 	addresses.horizontalNIAWG = this->horizontalNIAWGScript.getScriptAddress();
-	addresses.horizontalNIAWG = this->verticalNIAWGScript.getScriptAddress();
-	addresses.horizontalNIAWG = this->intensityAgilentScript.getScriptAddress();
+	addresses.verticalNIAWG = this->verticalNIAWGScript.getScriptAddress();
+	addresses.intensityAgilent = this->intensityAgilentScript.getScriptAddress();
 	return addresses;
 }
 
@@ -131,37 +147,10 @@ HBRUSH ScriptingWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		case CTLCOLOR_STATIC:
 		{
 			int num = (pWnd->GetDlgCtrlID());
-			bool result = this->statusBox.isColoringThisBox(num);
+			HBRUSH result = this->statusBox.handleColoring(num, pDC);
 			if (result)
 			{
-				if (eGenStatusColor == "G")
-				{
-					// Color Green. This is the "Ready to give next waveform" color. During this color you can also press esc to exit.
-					pDC->SetTextColor(RGB(255, 255, 255));
-					pDC->SetBkColor(RGB(0, 120, 0));
-					return eGreenBrush;
-				}
-				else if (eGenStatusColor == "Y")
-				{
-					// Color Yellow. This is the "Working" Color.
-					pDC->SetTextColor(RGB(255, 255, 255));
-					pDC->SetBkColor(RGB(104, 104, 0));
-					return eYellowBrush;
-				}
-				else if (eGenStatusColor == "R")
-				{
-					// Color Red. This is a big visual signifier for when the program exited with error.
-					pDC->SetTextColor(RGB(255, 255, 255));
-					pDC->SetBkColor(RGB(120, 0, 0));
-					return eRedBrush;
-				}
-				else
-				{
-					// color Blue. This is the default, ready for user input color.
-					pDC->SetTextColor(RGB(255, 255, 255));
-					pDC->SetBkColor(RGB(0, 0, 120));
-					return blueBrush;
-				}
+				return result;
 			}
 			else
 			{
@@ -191,16 +180,22 @@ HBRUSH ScriptingWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
 void ScriptingWindow::horizontalEditChange()
 {
+	this->horizontalNIAWGScript.handleEditChange();
+	this->SetTimer(SYNTAX_TIMER_ID, SYNTAX_TIMER_LENGTH, NULL);
 	return;
 }
 
 void ScriptingWindow::agilentEditChange()
 {
+	this->intensityAgilentScript.handleEditChange();
+	this->SetTimer(SYNTAX_TIMER_ID, SYNTAX_TIMER_LENGTH, NULL);
 	return;
 }
 
 void ScriptingWindow::verticalEditChange()
 {
+	this->verticalNIAWGScript.handleEditChange();
+	this->SetTimer(SYNTAX_TIMER_ID, SYNTAX_TIMER_LENGTH, NULL);
 	return;
 }
 
@@ -396,9 +391,9 @@ void ScriptingWindow::passCommonCommand(UINT id)
 	return;
 }
 
-void ScriptingWindow::redrawBox()
+void ScriptingWindow::changeBoxColor(std::string color)
 {
-	this->statusBox.redraw();
+	this->statusBox.changeColor(color);
 	return;
 }
 

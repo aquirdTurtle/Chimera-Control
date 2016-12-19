@@ -15,6 +15,7 @@
 #include "saveTextFileFromEdit.h"
 #include <array>
 #include "MainWindow.h"
+#include "postMyString.h"
 
 // Functions called by all windows to do the same thing, mostly things that happen on menu presses.
 namespace commonMessages
@@ -31,11 +32,12 @@ namespace commonMessages
 				commonMessages::startSystem(parent->GetSafeHwnd(), msgID, scriptWin, mainWin);
 				break;
 			}
+			case WM_CLOSE:
 			case ID_ACCELERATOR_ESC:
 			case ID_FILE_ABORT_GENERATION:
 			{
 				// finish the abort.
-				commonMessages::abortSystem(parent->GetSafeHwnd(), scriptWin);
+				commonMessages::abortSystem(parent->GetSafeHwnd(), scriptWin, mainWin);
 				break;
 			}
 			/// File Management 
@@ -126,7 +128,7 @@ namespace commonMessages
 			}
 			case ID_SEQUENCE_ADD_TO_SEQUENCE:
 			{
-				mainWin->profile.addToSequence(parent->GetSafeHwnd());
+				mainWin->profile.addToSequence(parent);
 				break;
 			}
 			case ID_SEQUENCE_SAVE_SEQUENCE:
@@ -136,7 +138,7 @@ namespace commonMessages
 			}
 			case ID_SEQUENCE_NEW_SEQUENCE:
 			{
-				mainWin->profile.newSequence(parent->GetSafeHwnd());
+				mainWin->profile.newSequence(parent);
 				break;
 			}
 			case ID_SEQUENCE_RESET_SEQUENCE:
@@ -248,7 +250,7 @@ namespace commonMessages
 	int startSystem(HWND parentWindow, int msgID, ScriptingWindow* scriptWin, MainWindow* mainWin)
 	{
 		profileSettings profileInfo = mainWin->getCurentProfileSettings();
-		if (eSystemIsRunning)
+		if (eExperimentIsRunning)
 		{
 			int restart = MessageBox(0, "Restart Generation?", 0, MB_OKCANCEL);
 			if (restart == IDOK)
@@ -264,22 +266,21 @@ namespace commonMessages
 				// abort the generation on the NIAWG.
 				myAgilent::agilentDefault();
 				std::string msgString = "Passively Outputting Default Waveform";
-				SetWindowText(eColoredStatusEdit, msgString.c_str());
-				eGenStatusColor = "B";
-				RedrawWindow(eColoredStatusEdit, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
-				scriptWin->redrawBox();
+				mainWin->setShortStatus(msgString);
+				mainWin->changeShortStatusColor("B");
+				scriptWin->changeBoxColor("B");
 
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE), mainWin->getCurentProfileSettings().orientation))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE), mainWin->getCurentProfileSettings().orientation, mainWin))
 				{
 					return -3;
 				}
 				// Officially stop trying to generate anything.
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AbortGeneration(eSessionHandle), mainWin->getCurentProfileSettings().orientation))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AbortGeneration(eSessionHandle), mainWin->getCurentProfileSettings().orientation, mainWin))
 				{
 					return -3;
 				}
 				// clear the memory
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ClearArbMemory(eSessionHandle), mainWin->getCurentProfileSettings().orientation))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ClearArbMemory(eSessionHandle), mainWin->getCurentProfileSettings().orientation, mainWin))
 				{
 					return -3;
 				}
@@ -287,32 +288,32 @@ namespace commonMessages
 				if (profileInfo.orientation == "Horizontal")
 				{
 					// create waveform (necessary?)
-					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform, &waveID), mainWin->getCurentProfileSettings().orientation))
+					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform, &waveID), mainWin->getCurentProfileSettings().orientation, mainWin))
 					{
 						return -3;
 					}
 					// allocate waveform into the device memory
-					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize / 2), mainWin->getCurentProfileSettings().orientation))
+					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize / 2), mainWin->getCurentProfileSettings().orientation, mainWin))
 					{
 						return -3;
 					}
 					// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
-					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform), mainWin->getCurentProfileSettings().orientation))
+					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform), mainWin->getCurentProfileSettings().orientation, mainWin))
 					{
 						return -3;
 					}
 					// rewrite the script. default_hConfigScript should still be valid.
-					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigScript), mainWin->getCurentProfileSettings().orientation))
+					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigScript), mainWin->getCurentProfileSettings().orientation, mainWin))
 					{
 						return -3;
 
 					}
 					// start generic waveform to maintain power output to AOM.
-					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), mainWin->getCurentProfileSettings().orientation))
+					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), mainWin->getCurentProfileSettings().orientation, mainWin))
 					{
 						return -3;
 					}
-					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript"), mainWin->getCurentProfileSettings().orientation))
+					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript"), mainWin->getCurentProfileSettings().orientation, mainWin))
 					{
 						return -3;
 					}
@@ -322,43 +323,43 @@ namespace commonMessages
 				else if (profileInfo.orientation == "Vertical")
 				{
 					// create waveform (necessary?)
-					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform, &waveID), mainWin->getCurentProfileSettings().orientation))
+					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform, &waveID), mainWin->getCurentProfileSettings().orientation, mainWin))
 					{
 						return -3;
 					}
 					// allocate waveform into the device memory
-					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize / 2), mainWin->getCurentProfileSettings().orientation))
+					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize / 2), mainWin->getCurentProfileSettings().orientation, mainWin))
 					{
 						return -3;
 					}
 					// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
-					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform), mainWin->getCurentProfileSettings().orientation))
+					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform), mainWin->getCurentProfileSettings().orientation, mainWin))
 					{
 						return -3;
 					}
 					// rewrite the script. default_hConfigScript should still be valid.
-					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigScript), mainWin->getCurentProfileSettings().orientation))
+					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigScript), mainWin->getCurentProfileSettings().orientation, mainWin))
 					{
 						return -3;
 					}
 					// start generic waveform to maintain power output to AOM.
-					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), mainWin->getCurentProfileSettings().orientation))
+					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), mainWin->getCurentProfileSettings().orientation, mainWin))
 					{
 						return -3;
 					}
-					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultVConfigScript"), mainWin->getCurentProfileSettings().orientation))
+					if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultVConfigScript"), mainWin->getCurentProfileSettings().orientation, mainWin))
 					{
 						return -3;
 					}
 					eCurrentScript = "DefaultVConfigScript";
 				}
 				// Initiate Generation.
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_InitiateGeneration(eSessionHandle), mainWin->getCurentProfileSettings().orientation))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_InitiateGeneration(eSessionHandle), mainWin->getCurentProfileSettings().orientation, mainWin))
 				{
 					return -3;
 				}
-				eSystemIsRunning = false;
-				appendText("Restarted Generation.\r\n", IDC_SYSTEM_STATUS_TEXT, eMainWindowHandle);
+				eExperimentIsRunning = false;
+				postMyString(mainWin, eErrorTextMessageID, "Restarted Generation.\r\n");
 			}
 			else if (restart == IDCANCEL)
 			{
@@ -371,8 +372,10 @@ namespace commonMessages
 		}
 		if (profileInfo.sequenceConfigurationNames.size() == 0)
 		{
-			appendText("ERROR: No configurations in current sequence! Please set some configurations to run in this sequence or set the null sequence.\r\n", 
-						IDC_SYSTEM_ERROR_TEXT, eMainWindowHandle);
+			mainWin->updateStatusText("error", "ERROR: No configurations in current sequence! Please set some configurations to run in this sequence or set the null sequence.\r\n");
+			mainWin->changeShortStatusColor("R");
+			scriptWin->changeBoxColor("R");
+			errBox("Error!");
 			return -9;
 		}
 		// check config settings
@@ -477,11 +480,9 @@ namespace commonMessages
 		if (areYouSure == 0)
 		{
 			std::string msgString = "Performing Initial Analysis and Writing and Loading Non-Varying Waveforms...";
-			SetWindowText(eColoredStatusEdit, msgString.c_str());
-			eGenStatusColor = "Y";
-			scriptWin->redrawBox();
-			RedrawWindow(eColoredStatusEdit, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
-
+			mainWin->setShortStatus(msgString);
+			mainWin->changeShortStatusColor("Y");
+			scriptWin->changeBoxColor("Y");
 			// Set the thread structure.
 			experimentThreadInputStructure* inputParams = new experimentThreadInputStructure();
 			// force accumulations to zero. This shouldn't affect anything, this should always get set by the master or be infinite.
@@ -498,8 +499,9 @@ namespace commonMessages
 			}
 			inputParams->threadSequenceFileNames = profileInfo.sequenceConfigurationNames;
 			inputParams->currentFolderLocation = (profileInfo.pathIncludingCategory);
-			inputParams->debugOptions = eDebugger.getOptions();
+			inputParams->debugOptions = mainWin->getDebuggingOptions();
 			inputParams->numberOfVariables = mainWin->getAllVariables().size();
+			inputParams->mainWin = mainWin;
 			scriptInfo<std::string> addresses = scriptWin->getScriptAddresses();
 			eMostRecentVerticalScriptNames = addresses.verticalNIAWG;
 			eMostRecentHorizontalScriptNames = addresses.horizontalNIAWG;
@@ -507,90 +509,27 @@ namespace commonMessages
 			// Start the programming thread.
 			unsigned int experimentThreadID;
 			eExperimentThreadHandle = (HANDLE)_beginthreadex(0, 0, experimentProgrammingThread, (LPVOID *)inputParams, 0, &experimentThreadID);
-			eSystemIsRunning = true;
-			time_t time_obj = time(0);   // get time now
-			struct tm currentTime;
-			localtime_s(&currentTime, &time_obj);
-			std::string timeStr = "(" + std::to_string(currentTime.tm_year + 1900) + ":" + std::to_string(currentTime.tm_mon + 1) + ":"
-				+ std::to_string(currentTime.tm_mday) + ")" + std::to_string(currentTime.tm_hour) + ":"
-				+ std::to_string(currentTime.tm_min) + ":" + std::to_string(currentTime.tm_sec);
-			CHARFORMAT currentFormat, tempFormat, getFormat;
-			memset(&getFormat, 0, sizeof(CHARFORMAT));
-			getFormat.cbSize = sizeof(CHARFORMAT);
-			memset(&tempFormat, 0, sizeof(CHARFORMAT));
-			tempFormat.cbSize = sizeof(CHARFORMAT);
-
-			tempFormat.dwMask = CFM_COLOR;
-			tempFormat.crTextColor = RGB(255, 255, 255);
-			memset(&currentFormat, 0, sizeof(CHARFORMAT));
-			currentFormat.cbSize = sizeof(CHARFORMAT);
-			currentFormat.dwMask = CFM_COLOR;
-
-			// make sure selection is at end of edit.
-			SendMessage(eSystemStatusTextHandle, EM_SETSEL, (WPARAM)(GetWindowTextLength(eSystemStatusTextHandle)), (LPARAM)GetWindowTextLength(eSystemStatusTextHandle));
-			LRESULT result = SendMessage(eSystemStatusTextHandle, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)&getFormat);
-			if (getFormat.crTextColor != tempFormat.crTextColor)
-			{
-				result = SendMessage(eSystemStatusTextHandle, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&tempFormat);
-			}
-			appendText("\r\n**********" + timeStr + "**********\r\nSystem is Running.\r\n", IDC_SYSTEM_STATUS_TEXT, eMainWindowHandle);
-			currentFormat.crTextColor = RGB(50, 50, 250);
-			result = SendMessage(eSystemStatusTextHandle, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)&getFormat);
-			if (getFormat.crTextColor != currentFormat.crTextColor)
-			{
-				result = SendMessage(eSystemStatusTextHandle, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&currentFormat);
-			}
-
-			// make sure selection is at end of edit.
-			SendMessage(eSystemErrorTextHandle, EM_SETSEL, (WPARAM)(GetWindowTextLength(eSystemErrorTextHandle)), (LPARAM)GetWindowTextLength(eSystemErrorTextHandle));
-			result = SendMessage(eSystemErrorTextHandle, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)&getFormat);
-			if (getFormat.crTextColor != tempFormat.crTextColor)
-			{
-				result = SendMessage(eSystemErrorTextHandle, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&tempFormat);
-			}
-			appendText("\r\n**********" + timeStr + "**********\r\n", IDC_SYSTEM_ERROR_TEXT, eMainWindowHandle);
-			currentFormat.crTextColor = RGB(200, 0, 0);
-			result = SendMessage(eSystemErrorTextHandle, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)&getFormat);
-			if (getFormat.crTextColor != currentFormat.crTextColor)
-			{
-				result = SendMessage(eSystemErrorTextHandle, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&currentFormat);
-			}
-
-			// make sure selection is at end of edit.
-			SendMessage(eSystemDebugTextHandle, EM_SETSEL, (WPARAM)(GetWindowTextLength(eSystemDebugTextHandle)), (LPARAM)GetWindowTextLength(eSystemDebugTextHandle));
-			result = SendMessage(eSystemDebugTextHandle, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)&getFormat);
-			if (getFormat.crTextColor != tempFormat.crTextColor)
-			{
-				result = SendMessage(eSystemDebugTextHandle, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&tempFormat);
-			}
-			appendText("\r\n**********" + timeStr + "**********\r\n", IDC_SYSTEM_DEBUG_TEXT, eMainWindowHandle);
-			currentFormat.crTextColor = RGB(13, 152, 186);
-			result = SendMessage(eSystemDebugTextHandle, EM_GETCHARFORMAT, SCF_SELECTION, (LPARAM)&getFormat);
-			if (getFormat.crTextColor != currentFormat.crTextColor)
-			{
-				result = SendMessage(eSystemDebugTextHandle, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&currentFormat);
-			}
-			if (mainWin->getDebuggingOptions().outputExcessInfo)
-			{
-				appendText(beginInfo, IDC_SYSTEM_DEBUG_TEXT, eMainWindowHandle);
-			}
+			eExperimentIsRunning = true;
+			mainWin->addTimebar("main");
+			mainWin->addTimebar("error");
+			mainWin->addTimebar("debug");
+			mainWin->updateStatusText("debug", beginInfo);
 		}
 		return 0;
 	}
 	
 	
-	int abortSystem(HWND parentWindow, ScriptingWindow* scriptWin)
+	int abortSystem(HWND parentWindow, ScriptingWindow* scriptWin, MainWindow* mainWin)
 	{
 		std::string orientation = scriptWin->getCurrentProfileSettings().orientation;
-		if (!eSystemIsRunning)
+		if (!eExperimentIsRunning)
 		{
-			appendText("System was not running. Can't Abort.\r\n", IDC_SYSTEM_ERROR_TEXT, eMainWindowHandle);
+			postMyString(mainWin, eErrorTextMessageID, "System was not running. Can't Abort.\r\n");
 			// change the color of the colored status window.
 			std::string msgString = "Passively Outputting Default Waveform.";
-			SetWindowText(eColoredStatusEdit, msgString.c_str());
-			eGenStatusColor = "B";
-			scriptWin->redrawBox();
-			RedrawWindow(eColoredStatusEdit, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+			mainWin->setShortStatus(msgString);
+			mainWin->changeShortStatusColor("B");
+			scriptWin->changeBoxColor("B");
 			return -1;
 		}
 		// set reset flag
@@ -615,24 +554,23 @@ namespace commonMessages
 		// abort the generation on the NIAWG.
 		myAgilent::agilentDefault();
 		std::string msgString = "Passively Outputting Default Waveform.";
-		SetWindowText(eColoredStatusEdit, msgString.c_str());
-		eGenStatusColor = "B";
-		scriptWin->redrawBox();
-		RedrawWindow(eColoredStatusEdit, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
+		mainWin->setShortStatus(msgString);
+		mainWin->changeShortStatusColor("B");
+		scriptWin->changeBoxColor("B");
 		//std::string currentOrientation = scriptWin->getCurrentProfileSettings().orientation;
 		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE), orientation))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE), orientation, mainWin))
 			{
 				return -2;
 			}
 			// Officially stop trying to generate anything.
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AbortGeneration(eSessionHandle), orientation))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AbortGeneration(eSessionHandle), orientation, mainWin))
 			{
 				return -2;
 			}
 			// clear the memory
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ClearArbMemory(eSessionHandle), orientation))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ClearArbMemory(eSessionHandle), orientation, mainWin))
 			{
 				return -2;
 			}
@@ -644,31 +582,31 @@ namespace commonMessages
 			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
 				// create waveform (necessary?)
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform, &waveID), orientation))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform, &waveID), orientation, mainWin))
 				{
 					return -2;
 				}
 				// allocate waveform into the device memory
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize / 2), orientation))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize / 2), orientation, mainWin))
 				{
 					return -2;
 				}
 				// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform), orientation))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform), orientation, mainWin))
 				{
 					return -2;
 				}
 				// rewrite the script. default_hConfigScript should still be valid.
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigScript), orientation))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigScript), orientation, mainWin))
 				{
 					return -2;
 				}
 				// start generic waveform to maintain power output to AOM.
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), orientation))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), orientation, mainWin))
 				{
 					return -2;
 				}
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript"), orientation))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript"), orientation, mainWin))
 				{
 					return -2;
 				}
@@ -680,32 +618,32 @@ namespace commonMessages
 			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
 				// create waveform (necessary?)
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform, &waveID), orientation))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform, &waveID), orientation, mainWin))
 				{
 					return -2;
 
 				}
 				// allocate waveform into the device memory
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize / 2), orientation))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize / 2), orientation, mainWin))
 				{
 					return -2;
 				}
 				// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform), orientation))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform), orientation, mainWin))
 				{
 					return -2;
 				}
 				// rewrite the script. default_hConfigScript should still be valid.
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigScript), orientation))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigScript), orientation, mainWin))
 				{
 					return -2;
 				}
 				// start generic waveform to maintain power output to AOM.
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), orientation))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), orientation, mainWin))
 				{
 					return -2;
 				}
-				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultVConfigScript"), orientation))
+				if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultVConfigScript"), orientation, mainWin))
 				{
 					return -2;
 				}
@@ -715,12 +653,12 @@ namespace commonMessages
 		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
 			// Initiate Generation.
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_InitiateGeneration(eSessionHandle), orientation))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_InitiateGeneration(eSessionHandle), orientation, mainWin))
 			{
 				return -2;
 			}
 		}
-		eSystemIsRunning = false;
+		eExperimentIsRunning = false;
 		return 0;
 	}
 	
@@ -738,13 +676,12 @@ namespace commonMessages
 	
 	int exitProgram(HWND parentWindow, ScriptingWindow* scriptWindow, MainWindow* mainWin)
 	{
-		if (eSystemIsRunning)
+		if (eExperimentIsRunning)
 		{
-			MessageBox(0, "System is Currently Running. Please stop the system before exiting so that devices devices can stop normally.", 0, 0);
+			MessageBox(0, "Experiment is Currently Running. Please stop the system before exiting so that devices devices can stop normally.", 0, 0);
 			return -1;
 		}
-		scriptInfo<bool> status = scriptWindow->getScriptSavedStatuses();
-		if (status.horizontalNIAWG || status.verticalNIAWG || status.intensityAgilent)
+		if (scriptWindow->checkScriptSaves())
 		{
 			return true;
 		}
@@ -786,7 +723,7 @@ namespace commonMessages
 
 	int reloadNIAWGDefaults(HWND parentWindow, MainWindow* mainWin)
 	{
-		if (eSystemIsRunning)
+		if (eExperimentIsRunning)
 		{
 			MessageBox(0, "The system is currently running. You cannot reload the default waveforms while the system is running. Please restart "
 				"the system before attempting to reload default waveforms.", 0, 0);
@@ -874,8 +811,8 @@ namespace commonMessages
 		mainWin->setOrientation(HORIZONTAL_ORIENTATION);
 		if (myErrorHandler(myNIAWG::analyzeNIAWGScripts(default_hConfigVerticalScriptFile[0], default_hConfigHorizontalScriptFile[0], default_hConfigScriptString, TRIGGER_NAME, waveformCount, eSessionHandle, SESSION_CHANNELS,
 			eError, defXPredWaveformNames, defYPredWaveformNames, defPredWaveformCount, defPredWaveLocs, libWaveformArray,
-			fileOpenedStatus, allXWaveformParameters, xWaveformIsVaried, allYWaveformParameters, yWaveformIsVaried, true, false, "", noSingletons, orientation, mainWin->getDebuggingOptions()),
-			"", ConnectSocket, default_hConfigVerticalScriptFile, default_hConfigHorizontalScriptFile, false, eError, eSessionHandle, false, "", false, false, false)
+			fileOpenedStatus, allXWaveformParameters, xWaveformIsVaried, allYWaveformParameters, yWaveformIsVaried, true, false, "", noSingletons, orientation, mainWin->getDebuggingOptions(), mainWin),
+			"", ConnectSocket, default_hConfigVerticalScriptFile, default_hConfigHorizontalScriptFile, false, eError, eSessionHandle, false, "", false, false, false, mainWin)
 			== true)
 		{
 			MessageBox(0, "ERROR: Creation of Default Waveforms and Default Script Has Failed! The previous default waveforms are still running, "
@@ -895,8 +832,8 @@ namespace commonMessages
 												   default_vConfigScriptString, TRIGGER_NAME, waveformCount, eSessionHandle, SESSION_CHANNELS,
 												   eError, defXPredWaveformNames, defYPredWaveformNames, defPredWaveformCount, defPredWaveLocs, libWaveformArray,
 												   fileOpenedStatus, allXWaveformParameters, xWaveformIsVaried, allYWaveformParameters, yWaveformIsVaried, true, false, "", 
-													noSingletons, orientation, mainWin->getDebuggingOptions()),
-			"", ConnectSocket, default_vConfigVerticalScriptFile, default_vConfigHorizontalScriptFile, false, eError, eSessionHandle, userScriptIsWritten, "", false, false, false)
+													noSingletons, orientation, mainWin->getDebuggingOptions(), mainWin),
+			"", ConnectSocket, default_vConfigVerticalScriptFile, default_vConfigHorizontalScriptFile, false, eError, eSessionHandle, userScriptIsWritten, "", false, false, false, mainWin)
 			== true)
 		{
 			MessageBox(0, "ERROR: Creation of Default Waveforms and Default Script Has Failed! The previous default waveforms are still running, "
@@ -950,8 +887,8 @@ namespace commonMessages
 		}
 		// Initiate Generation.
 		myNIAWG::NIAWG_CheckDefaultError(niFgen_InitiateGeneration(eSessionHandle));
-		appendText("Reloaded Default Waveforms.\r\n", IDC_SYSTEM_STATUS_TEXT, eMainWindowHandle);
-		appendText("Initialized Default Waveform.\r\n", IDC_SYSTEM_STATUS_TEXT, eMainWindowHandle);
+		postMyString(mainWin, eStatusTextMessageID, "Reloaded Default Waveforms.\r\n");
+		postMyString(mainWin, eStatusTextMessageID, "Initialized Default Waveform.\r\n");
 		return 0;
 	}
 

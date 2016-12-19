@@ -64,7 +64,7 @@ int eNumberOfRunsToAverage = 0;
 bool eIncDataFileNamesOption;
 
 int ePicturesPerRepetition = 1;
-bool eSystemIsRunning = false;
+bool eExperimentIsRunning = false;
 
 double eAccumulationTime;
 double eAccumulationModeAccumulationNumber;

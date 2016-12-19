@@ -59,8 +59,8 @@ class ScriptingWindow : public CDialog
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 		
 		BOOL OnInitDialog() override;
+		void OnTimer(UINT_PTR eventID);
 
-		void OnClose();
 		void passCommonCommand(UINT id);
 		void horizontalEditChange();
 		void agilentEditChange();
@@ -96,8 +96,14 @@ class ScriptingWindow : public CDialog
 		int saveHorizontalScript();
 		int saveHorizontalScriptAs(HWND parentWindow);
 
-		void redrawBox();
+		void changeBoxColor(std::string color);
 		void updateConfigurationSavedStatus(bool status);
+		void OnCancel() override;
+
+		void handleHorizontalScriptComboChange();
+		void handleVerticalScriptComboChange();
+		void handleAgilentScriptComboChange();
+
 	private:
 		DECLARE_MESSAGE_MAP();
 		

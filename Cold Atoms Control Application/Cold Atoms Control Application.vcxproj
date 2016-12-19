@@ -181,6 +181,7 @@
     <ClInclude Include="colorScript.h" />
     <ClInclude Include="ConfigurationFileSystem.h" />
     <ClInclude Include="MainOptionsControl.h" />
+    <ClInclude Include="myApplicationApp.h" />
     <ClInclude Include="ProfileIndicator.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="Control.h" />
@@ -194,6 +195,8 @@
     <ClInclude Include="Script.h" />
     <ClInclude Include="NoteSystem.h" />
     <ClInclude Include="ScriptingWindow.h" />
+    <ClInclude Include="StatusControl.h" />
+    <ClInclude Include="StatusIndicator.h" />
     <ClInclude Include="textPromptDialogProcedure.h" />
     <ClInclude Include="getFileName.h" />
     <ClInclude Include="fonts.h" />
@@ -238,6 +241,9 @@
     <ClCompile Include="ProfileIndicator.cpp" />
     <ClCompile Include="Script.cpp" />
     <ClCompile Include="ScriptingWindow.cpp" />
+    <ClCompile Include="StatusControl.cpp" />
+    <ClCompile Include="StatusIndicator.cpp" />
+    <ClCompile Include="systemAbortCheck.cpp" />
     <ClCompile Include="textPromptDialogProcedure.cpp" />
     <ClCompile Include="getFileName.cpp" />
     <ClCompile Include="initializeMainWindow.cpp" />
@@ -253,7 +259,6 @@
     <ClCompile Include="appendText.cpp" />
     <ClCompile Include="ScriptWritingInstructionsDialog.cpp" />
     <ClCompile Include="selectInCombo.cpp" />
-    <ClCompile Include="systemAbortCheck.cpp" />
     <ClCompile Include="VariableSystem.cpp" />
     <ClCompile Include="winProcMain.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -280,7 +285,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties RESOURCE_FILE="NI-PXIe-5451 Arb WvFm Gen 3.0.rc" />
+      <UserProperties RESOURCE_FILE="" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>
