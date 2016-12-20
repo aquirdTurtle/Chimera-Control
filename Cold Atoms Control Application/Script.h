@@ -26,11 +26,13 @@ class Script
 
 		bool updateChildCombo(profileSettings profileInfo);
 		bool changeView(std::string viewName, profileSettings profileInfo, std::vector<variable> vars);
-		bool childComboChangeHandler(ScriptingWindow* scriptWin, MainWindow* mainWin);
+		bool childComboChangeHandler(ScriptingWindow* scriptWin, MainWindow* comm);
 		bool checkChildSave(profileSettings profileInfo);
 
 		std::string getSyntaxColor(std::string word, std::string editType, std::vector<variable> vars);
+		bool saveScript(profileSettings profileInfo, bool isParent);
 		bool saveScript(profileSettings profileInfo);
+		bool saveScriptAs(std::string scriptAddress, bool isParent);
 		bool saveScriptAs(std::string scriptAddress);
 		bool renameScript(profileSettings profileInfo);
 		bool deleteScript(profileSettings profileInfo);
@@ -50,6 +52,8 @@ class Script
 		bool reset();
 		bool savedStatus();
 
+		void checkExtension(profileSettings profileInfo);
+
 	private:
 		Control<CRichEditCtrl> edit;
 		Control<CStatic> title;
@@ -64,10 +68,13 @@ class Script
 
 		std::string deviceType;
 		std::string extension;
+		std::string currentViewName;
+		bool currentViewIsParent;
 		bool isLocalReference;
 		bool isSaved;
 		// no locations for children, they must all be local. 
 		std::vector<std::string> childrenNames;
+		
 
 		unsigned long editChangeBegin;
 		unsigned long editChangeEnd;

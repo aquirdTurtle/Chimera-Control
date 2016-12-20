@@ -115,6 +115,9 @@
     <ClCompile Include="systemAbortCheck.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
+    <ClCompile Include="Communicator.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="winProcMain.h">
@@ -268,6 +271,10 @@
     </ClInclude>
     <ClInclude Include="errBox.h" />
     <ClInclude Include="myApplicationApp.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="errBox.h" />
+    <ClInclude Include="Communicator.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
   </ItemGroup>

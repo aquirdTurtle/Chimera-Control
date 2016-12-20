@@ -8,6 +8,7 @@
 #include "MainOptionsControl.h"
 #include "StatusControl.h"
 #include "StatusIndicator.h"
+#include "Communicator.h"
 //#define PROFILES_PATH
 class ScriptingWindow;
 
@@ -69,11 +70,9 @@ class MainWindow : public CDialog
 		std::vector<variable> getAllVariables();
 		void clearVariables();
 		void addVariable(std::string name, bool timelike, bool singleton, double value, int item);
-		LRESULT onGreenMessage(WPARAM wParam, LPARAM lParam);
 		LRESULT onStatusTextMessage(WPARAM wParam, LPARAM lParam);
 		LRESULT onErrorMessage(WPARAM wParam, LPARAM lParam);
 		LRESULT onFatalErrorMessage(WPARAM wParam, LPARAM lParam);
-		LRESULT onVariableStatusMessage(WPARAM wParam, LPARAM lParam);
 		LRESULT onNormalFinishMessage(WPARAM wParam, LPARAM lParam);
 		LRESULT onColoredEditMessage(WPARAM wParam, LPARAM lParam);
 		LRESULT onDebugMessage(WPARAM wParam, LPARAM lParam);
@@ -95,11 +94,12 @@ class MainWindow : public CDialog
 		void handleConfigurationCombo();
 		void handleSequenceCombo();
 		void handleOrientationCombo();
-		void sayHi(std::string msg);
 		void OnClose();
 		void OnDestroy();
 		void OnCancel() override;
 		void passClear(UINT id);
+
+		Communicator* getComm();
 	private:
 		DECLARE_MESSAGE_MAP();
 		ScriptingWindow* theScriptingWindow;
@@ -114,7 +114,8 @@ class MainWindow : public CDialog
 		StatusControl debugStatus;
 		StatusControl errorStatus;
 		StatusIndicator shortStatus;
-		friend bool commonMessages::handleCommonMessage(int msgID, CWnd* parent, MainWindow* mainWin, ScriptingWindow* scriptWin);
+		Communicator comm;
+		friend bool commonMessages::handleCommonMessage(int msgID, CWnd* parent, MainWindow* comm, ScriptingWindow* scriptWin);
 
 public:
 	afx_msg void OnFileMyRun();

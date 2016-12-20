@@ -20,7 +20,7 @@ struct variable
 class VariableSystem
 {
 	public:
-		bool updateVariableInfo(MainWindow* mainWin, ScriptingWindow* scriptWin);
+		bool updateVariableInfo(MainWindow* comm, ScriptingWindow* scriptWin);
 		bool deleteVariable();
 		bool initializeControls(POINT &topLeftCorner, CWnd* parent, int& id);
 		bool addVariable(std::string name, bool timelike, bool singleton, double value, int item);

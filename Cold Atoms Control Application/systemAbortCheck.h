@@ -1,3 +1,3 @@
 #pragma once
 
-bool systemAbortCheck(CWnd* window);
+bool systemAbortCheck(Communicator* comm);

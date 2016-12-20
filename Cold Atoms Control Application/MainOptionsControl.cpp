@@ -44,8 +44,7 @@ void MainOptionsControl::initialize(int& id, POINT& loc, CWnd* parent)
 	return;
 }
 
-
-bool MainOptionsControl::handleEvent(UINT id, MainWindow* mainWin)
+bool MainOptionsControl::handleEvent(UINT id, MainWindow* comm)
 {
 	if (id == this->connectToMaster.ID)
 	{
@@ -60,7 +59,7 @@ bool MainOptionsControl::handleEvent(UINT id, MainWindow* mainWin)
 			connectToMaster.SetCheck(1);
 			this->currentOptions.connectToMaster = true;
 		}
-		mainWin->updateConfigurationSavedStatus(false);
+		comm->updateConfigurationSavedStatus(false);
 	}
 	else if (id == this->controlIntensity.ID)
 	{
@@ -75,7 +74,7 @@ bool MainOptionsControl::handleEvent(UINT id, MainWindow* mainWin)
 			controlIntensity.SetCheck(1);
 			this->currentOptions.programIntensity = true;
 		}
-		mainWin->updateConfigurationSavedStatus(false);
+		comm->updateConfigurationSavedStatus(false);
 	}
 	else if (id == this->getVariables.ID)
 	{
@@ -90,7 +89,7 @@ bool MainOptionsControl::handleEvent(UINT id, MainWindow* mainWin)
 			getVariables.SetCheck(1);
 			this->currentOptions.getVariables = true;
 		}
-		mainWin->updateConfigurationSavedStatus(false);
+		comm->updateConfigurationSavedStatus(false);
 	}
 	return TRUE;
 }

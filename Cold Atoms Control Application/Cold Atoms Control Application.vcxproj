@@ -179,6 +179,7 @@
     <ClInclude Include="cleanString.h" />
     <ClInclude Include="ColorBox.h" />
     <ClInclude Include="colorScript.h" />
+    <ClInclude Include="Communicator.h" />
     <ClInclude Include="ConfigurationFileSystem.h" />
     <ClInclude Include="MainOptionsControl.h" />
     <ClInclude Include="myApplicationApp.h" />
@@ -229,6 +230,7 @@
     <ClCompile Include="cleanSocket.cpp" />
     <ClCompile Include="cleanString.cpp" />
     <ClCompile Include="ColorBox.cpp" />
+    <ClCompile Include="Communicator.cpp" />
     <ClCompile Include="ConfigurationFileSystem.cpp" />
     <ClCompile Include="DebuggingOptionsControl.cpp" />
     <ClCompile Include="errBox.cpp" />

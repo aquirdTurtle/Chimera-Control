@@ -4,5 +4,5 @@
 /*
 * This function shuts down the socket, closes it, and calls WSACleanup(). it returns true unless the shutdown fails, in which case it returns false.
 */
-bool cleanSocket(SOCKET mySocket, bool socketActive, bool connected, CWnd* window);
+bool cleanSocket(SOCKET mySocket, bool socketActive, bool connected, Communicator* comm);
 

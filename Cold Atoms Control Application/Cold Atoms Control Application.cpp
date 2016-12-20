@@ -383,55 +383,55 @@ BOOL myApplicationApp::InitInstance()
 	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
 		/// Initialize the waveform generator. Currently this is set to reset the initialization parameters from the last run.
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_init(NI_5451_LOCATION, VI_TRUE, VI_TRUE, &eSessionHandle), HORIZONTAL_ORIENTATION, &theMainApplicationWindow))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_init(NI_5451_LOCATION, VI_TRUE, VI_TRUE, &eSessionHandle), HORIZONTAL_ORIENTATION, theMainApplicationWindow.getComm()))
 		{
 			return -1;
 		}
 		// Configure channels
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureChannels(eSessionHandle, SESSION_CHANNELS), HORIZONTAL_ORIENTATION, &theMainApplicationWindow))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureChannels(eSessionHandle, SESSION_CHANNELS), HORIZONTAL_ORIENTATION, theMainApplicationWindow.getComm()))
 		{
 			return -1;
 		}
 		// Set output mode of the device to scripting mode (defined in constants.h)
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputMode(eSessionHandle, OUTPUT_MODE), HORIZONTAL_ORIENTATION, &theMainApplicationWindow))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputMode(eSessionHandle, OUTPUT_MODE), HORIZONTAL_ORIENTATION, theMainApplicationWindow.getComm()))
 		{
 			return -1;
 		}
 		// configure marker event. This is set to output on PFI1, a port on the front of the card.
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ExportSignal(eSessionHandle, NIFGEN_VAL_MARKER_EVENT, "Marker0", "PFI1"), HORIZONTAL_ORIENTATION, &theMainApplicationWindow))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ExportSignal(eSessionHandle, NIFGEN_VAL_MARKER_EVENT, "Marker0", "PFI1"), HORIZONTAL_ORIENTATION, theMainApplicationWindow.getComm()))
 		{
 			return -1;
 		}
 		// enable flatness correction. This allows there to be a bit less frequency dependence on the power outputted by the waveform generator.
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViBoolean(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_FLATNESS_CORRECTION_ENABLED, VI_TRUE), HORIZONTAL_ORIENTATION, &theMainApplicationWindow))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViBoolean(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_FLATNESS_CORRECTION_ENABLED, VI_TRUE), HORIZONTAL_ORIENTATION, theMainApplicationWindow.getComm()))
 		{
 			return -1;
 		}
 		// configure the trigger. Trigger mode doesn't need to be set because I'm using scripting mode.
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureDigitalEdgeScriptTrigger(eSessionHandle, TRIGGER_NAME, TRIGGER_SOURCE, TRIGGER_EDGE_TYPE), HORIZONTAL_ORIENTATION, &theMainApplicationWindow))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureDigitalEdgeScriptTrigger(eSessionHandle, TRIGGER_NAME, TRIGGER_SOURCE, TRIGGER_EDGE_TYPE), HORIZONTAL_ORIENTATION, theMainApplicationWindow.getComm()))
 		{
 			return -1;
 		}
 		// Configure the gain of the signal amplification.
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureGain(eSessionHandle, SESSION_CHANNELS, GAIN), HORIZONTAL_ORIENTATION, &theMainApplicationWindow))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureGain(eSessionHandle, SESSION_CHANNELS, GAIN), HORIZONTAL_ORIENTATION, theMainApplicationWindow.getComm()))
 		{
 			return -1;
 		}
 		// Configure Sample Rate. The maximum value of this is 400 mega-samples per second, but it is quite buggy, so we've been using 350 MS/s
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureSampleRate(eSessionHandle, SAMPLE_RATE), HORIZONTAL_ORIENTATION, &theMainApplicationWindow))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureSampleRate(eSessionHandle, SAMPLE_RATE), HORIZONTAL_ORIENTATION, theMainApplicationWindow.getComm()))
 		{
 			return -1;
 		}
 		// Configure the analogue filter. This is important for high frequency signals, as it smooths out the discrete steps that the waveform generator outputs.
 		// This is a low-pass filter.
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_EnableAnalogFilter(eSessionHandle, SESSION_CHANNELS, NIAWG_FILTER_FREQENCY), HORIZONTAL_ORIENTATION, &theMainApplicationWindow))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_EnableAnalogFilter(eSessionHandle, SESSION_CHANNELS, NIAWG_FILTER_FREQENCY), HORIZONTAL_ORIENTATION, theMainApplicationWindow.getComm()))
 		{
 			return -1;
 		}
 
 		/// Configure Clock input
 		// uncomment for high resolution mode
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureClockMode(eSessionHandle, NIFGEN_VAL_HIGH_RESOLUTION), HORIZONTAL_ORIENTATION, &theMainApplicationWindow))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureClockMode(eSessionHandle, NIFGEN_VAL_HIGH_RESOLUTION), HORIZONTAL_ORIENTATION, theMainApplicationWindow.getComm()))
 		{
 			return -1;
 		}
@@ -441,7 +441,7 @@ BOOL myApplicationApp::InitInstance()
 		// if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureSampleClockSource(eSessionHandle, "ClkIn"));
 
 		// Uncomment for using an external clock as a reference clock
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureReferenceClock(eSessionHandle, "ClkIn", 10000000), HORIZONTAL_ORIENTATION, &theMainApplicationWindow))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureReferenceClock(eSessionHandle, "ClkIn", 10000000), HORIZONTAL_ORIENTATION, theMainApplicationWindow.getComm()))
 		{
 			return -1;
 		}
@@ -482,8 +482,8 @@ BOOL myApplicationApp::InitInstance()
 	std::vector<variable> noSingletons;
 	if (myErrorHandler(myNIAWG::analyzeNIAWGScripts(default_hConfigVerticalScriptFile[0], default_hConfigHorizontalScriptFile[0], default_hConfigScriptString, TRIGGER_NAME, waveformCount, eSessionHandle, SESSION_CHANNELS,
 											   eError, defXPredWaveformNames, defYPredWaveformNames, defPredWaveformCount, defPredWaveLocs, libWaveformArray,
-											   fileOpenedStatus, allXWaveformParameters, xWaveformIsVaried, allYWaveformParameters, yWaveformIsVaried, true, false, "", noSingletons, HORIZONTAL_ORIENTATION, dummyOptions, &theMainApplicationWindow),
-		"", ConnectSocket, default_hConfigVerticalScriptFile, default_hConfigHorizontalScriptFile, false, eError, eSessionHandle, userScriptIsWritten, "", false, false, false, &theMainApplicationWindow)
+											   fileOpenedStatus, allXWaveformParameters, xWaveformIsVaried, allYWaveformParameters, yWaveformIsVaried, true, false, "", noSingletons, HORIZONTAL_ORIENTATION, dummyOptions, theMainApplicationWindow.getComm()),
+		"", ConnectSocket, default_hConfigVerticalScriptFile, default_hConfigHorizontalScriptFile, false, eError, eSessionHandle, userScriptIsWritten, "", false, false, false, theMainApplicationWindow.getComm())
 		== true)
 	{
 		MessageBox(0, "FATAL ERROR: Creation of Default Waveforms and Default Script Has Failed!", 0, MB_OK);
@@ -500,8 +500,8 @@ BOOL myApplicationApp::InitInstance()
 
 	if (myErrorHandler(myNIAWG::analyzeNIAWGScripts(default_vConfigVerticalScriptFile[0], default_vConfigHorizontalScriptFile[0], default_vConfigScriptString, TRIGGER_NAME, waveformCount, eSessionHandle, SESSION_CHANNELS,
 		eError, defXPredWaveformNames, defYPredWaveformNames, defPredWaveformCount, defPredWaveLocs, libWaveformArray,
-		fileOpenedStatus, allXWaveformParameters, xWaveformIsVaried, allYWaveformParameters, yWaveformIsVaried, true, false, "", noSingletons, VERTICAL_ORIENTATION, dummyOptions, &theMainApplicationWindow),
-		"", ConnectSocket, default_vConfigVerticalScriptFile, default_vConfigHorizontalScriptFile, false, eError, eSessionHandle, userScriptIsWritten, "", false, false, false, &theMainApplicationWindow)
+		fileOpenedStatus, allXWaveformParameters, xWaveformIsVaried, allYWaveformParameters, yWaveformIsVaried, true, false, "", noSingletons, VERTICAL_ORIENTATION, dummyOptions, theMainApplicationWindow.getComm()),
+		"", ConnectSocket, default_vConfigVerticalScriptFile, default_vConfigHorizontalScriptFile, false, eError, eSessionHandle, userScriptIsWritten, "", false, false, false, theMainApplicationWindow.getComm())
 		== true)
 	{
 		MessageBox(0, "FATAL ERROR: Creation of Default Waveforms and Default Script Has Failed!", 0, MB_OK);
@@ -522,15 +522,15 @@ BOOL myApplicationApp::InitInstance()
 	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
 		// write script to NIAWG
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigScript), HORIZONTAL_ORIENTATION, &theMainApplicationWindow))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigScript), HORIZONTAL_ORIENTATION, theMainApplicationWindow.getComm()))
 		{
 			return -1;
 		}
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), HORIZONTAL_ORIENTATION, &theMainApplicationWindow))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), HORIZONTAL_ORIENTATION, theMainApplicationWindow.getComm()))
 		{
 			return -1;
 		}
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript"), HORIZONTAL_ORIENTATION, &theMainApplicationWindow))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript"), HORIZONTAL_ORIENTATION, theMainApplicationWindow.getComm()))
 		{
 			return -1;
 		}
@@ -539,7 +539,7 @@ BOOL myApplicationApp::InitInstance()
 	// Initiate Generation.
 	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_InitiateGeneration(eSessionHandle), HORIZONTAL_ORIENTATION, &theMainApplicationWindow))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_InitiateGeneration(eSessionHandle), HORIZONTAL_ORIENTATION, theMainApplicationWindow.getComm()))
 		{
 			return -1;
 		}
@@ -571,7 +571,7 @@ BOOL myApplicationApp::InitInstance()
 	}
 
 	// catch for the first time you run through this when you will be running the default script going through here. 
-	cleanSocket(ConnectSocket, false, false, &theMainApplicationWindow);
+	cleanSocket(ConnectSocket, false, false, theMainApplicationWindow.getComm());
 	myAgilent::agilentDefault();
 	eDontActuallyGenerate = false;
 	//RedrawWindow(eColorBox, 0, 0, RDW_INVALIDATE | RDW_UPDATENOW);
@@ -593,12 +593,12 @@ BOOL myApplicationApp::InitInstance()
 		delete[] eDefault_vConfigScript;
 		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE), HORIZONTAL_ORIENTATION, &theMainApplicationWindow))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE), HORIZONTAL_ORIENTATION, theMainApplicationWindow.getComm()))
 			{
 				return -1;
 			}
 			// Officially stop trying to generate anything.
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AbortGeneration(eSessionHandle), HORIZONTAL_ORIENTATION, &theMainApplicationWindow))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AbortGeneration(eSessionHandle), HORIZONTAL_ORIENTATION, theMainApplicationWindow.getComm()))
 			{
 				return -1;
 			}

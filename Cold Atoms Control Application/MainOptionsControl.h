@@ -12,7 +12,7 @@ class MainOptionsControl
 {
 	public:
 		void initialize(int& idStart, POINT& loc, CWnd* parent);
-		bool handleEvent(UINT id, MainWindow* mainWin);
+		bool handleEvent(UINT id, MainWindow* comm);
 		mainOptions getOptions();
 		void setOptions(mainOptions options);
 	private:

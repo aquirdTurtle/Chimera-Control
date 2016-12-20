@@ -9,7 +9,7 @@
 /*
  * This function shuts down the socket, closes it, and calls WSACleanup(). it returns true unless the shutdown fails, in which case it returns false.
  */
-bool cleanSocket(SOCKET mySocket, bool socketActive, bool connectedToMaster, CWnd* window)
+bool cleanSocket(SOCKET mySocket, bool socketActive, bool connectedToMaster, Communicator* comm)
 {
 	// if false, the socket was never opened.
 	if (connectedToMaster == true)
@@ -25,7 +25,7 @@ bool cleanSocket(SOCKET mySocket, bool socketActive, bool connectedToMaster, CWn
 			// check for error
 			if (iResult == SOCKET_ERROR) 
 			{
-				postMyString(window, eErrorTextMessageID, "ERROR: Socket shutdown failed with error code:");
+				comm->sendError("ERROR: Socket shutdown failed!", "", "");
 				closesocket(mySocket);
 				WSACleanup();
 				return false;
