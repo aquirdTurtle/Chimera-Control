@@ -8,7 +8,7 @@
 #include <algorithm>
 #include "ScriptingWindow.h"
 #include <memory>
-bool VariableSystem::updateVariableInfo(MainWindow* mainWin, ScriptingWindow* scriptWin)
+bool VariableSystem::updateVariableInfo(MainWindow* comm, ScriptingWindow* scriptWin)
 {
 	POINT cursorPos;
 	GetCursorPos(&cursorPos);
@@ -27,7 +27,7 @@ bool VariableSystem::updateVariableInfo(MainWindow* mainWin, ScriptingWindow* sc
 		return false;
 	}
 	// update the configuration saved status. variables are stored in the configuration-level file.
-	mainWin->updateConfigurationSavedStatus(false);
+	comm->updateConfigurationSavedStatus(false);
 	LVITEM listViewItem;
 	memset(&listViewItem, 0, sizeof(listViewItem));
 	listViewItem.mask = LVIF_TEXT;   // Text Style

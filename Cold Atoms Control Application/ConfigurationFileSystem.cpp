@@ -24,20 +24,20 @@ ConfigurationFileSystem::~ConfigurationFileSystem()
 	// nothing for destructor right now
 }
 
-bool ConfigurationFileSystem::saveEntireProfile(ScriptingWindow* scriptWindow, MainWindow* mainWin)
+bool ConfigurationFileSystem::saveEntireProfile(ScriptingWindow* scriptWindow, MainWindow* comm)
 {
 	// save experiment
-	if (this->saveExperimentOnly(mainWin))
+	if (this->saveExperimentOnly(comm))
 	{
 		return true;
 	}
 	// save category
-	if (this->saveCategoryOnly(mainWin))
+	if (this->saveCategoryOnly(comm))
 	{
 		return true;
 	}
 	// save configuration
-	if (this->saveConfigurationOnly(scriptWindow, mainWin))
+	if (this->saveConfigurationOnly(scriptWindow, comm))
 	{
 		return true;
 	}
@@ -48,17 +48,17 @@ bool ConfigurationFileSystem::saveEntireProfile(ScriptingWindow* scriptWindow, M
 	}
 	return false;
 }
-bool ConfigurationFileSystem::checkSaveEntireProfile(ScriptingWindow* scriptWindow, MainWindow* mainWin)
+bool ConfigurationFileSystem::checkSaveEntireProfile(ScriptingWindow* scriptWindow, MainWindow* comm)
 {
-	if (this->checkExperimentSave("Save Experiment Settings?", mainWin))
+	if (this->checkExperimentSave("Save Experiment Settings?", comm))
 	{
 		return true;
 	}
-	if (this->checkCategorySave("Save Category Settings?", mainWin))
+	if (this->checkCategorySave("Save Category Settings?", comm))
 	{
 		return true;
 	}
-	if (this->checkConfigurationSave("Save Configuration Settings?", scriptWindow, mainWin))
+	if (this->checkConfigurationSave("Save Configuration Settings?", scriptWindow, comm))
 	{
 		return true;
 	}
@@ -69,10 +69,10 @@ bool ConfigurationFileSystem::checkSaveEntireProfile(ScriptingWindow* scriptWind
 	return false;
 }
 
-bool ConfigurationFileSystem::allSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* mainWin)
+bool ConfigurationFileSystem::allSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* comm)
 {
 	// check all components of this class.
-	if (this->experimentSettingsReadyCheck(mainWin))
+	if (this->experimentSettingsReadyCheck(comm))
 	{
 		return true;
 	}
@@ -80,7 +80,7 @@ bool ConfigurationFileSystem::allSettingsReadyCheck(ScriptingWindow* scriptWindo
 	{
 		return true;
 	}
-	else if (this->configurationSettingsReadyCheck(scriptWindow, mainWin))
+	else if (this->configurationSettingsReadyCheck(scriptWindow, comm))
 	{
 		return true;
 	}
@@ -117,6 +117,7 @@ bool ConfigurationFileSystem::setOrientation(std::string orientation)
 
 bool ConfigurationFileSystem::orientationChangeHandler(MainWindow* mainWin)
 {
+	Communicator* comm = mainWin->getComm();
 	profileSettings profileInfo = mainWin->getCurentProfileSettings();
 	long long itemIndex = orientationCombo.GetCurSel();
 	TCHAR orientation[256];
@@ -140,17 +141,17 @@ bool ConfigurationFileSystem::orientationChangeHandler(MainWindow* mainWin)
 	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
 		/// Set the default accordingly
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE), profileInfo.orientation, mainWin))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE), profileInfo.orientation, comm))
 		{
 			return true;
 		}
 		// Officially stop trying to generate anything.
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AbortGeneration(eSessionHandle), profileInfo.orientation, mainWin))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AbortGeneration(eSessionHandle), profileInfo.orientation, comm))
 		{
 			return true;
 		}
 		// clear the memory
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ClearArbMemory(eSessionHandle), profileInfo.orientation, mainWin))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ClearArbMemory(eSessionHandle), profileInfo.orientation, comm))
 		{
 			return true;
 		}
@@ -161,31 +162,31 @@ bool ConfigurationFileSystem::orientationChangeHandler(MainWindow* mainWin)
 		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
 			// create waveform (necessary?)
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform, &waveID), profileInfo.orientation, mainWin))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform, &waveID), profileInfo.orientation, comm))
 			{
 				return true;
 			}
 			// allocate waveform into the device memory
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize / 2), profileInfo.orientation, mainWin))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize / 2), profileInfo.orientation, comm))
 			{
 				return true;
 			}
 			// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script.
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform), profileInfo.orientation, mainWin))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform), profileInfo.orientation, comm))
 			{
 				return true;
 			}
 			// rewrite the script. default_hConfigScript should still be valid.
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigScript), profileInfo.orientation, mainWin))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigScript), profileInfo.orientation, comm))
 			{
 				return true;
 			}
 			// start generic waveform to maintain power output to AOM.
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), profileInfo.orientation, mainWin))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), profileInfo.orientation, comm))
 			{
 				return true;
 			}
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript"), profileInfo.orientation, mainWin))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript"), profileInfo.orientation, comm))
 			{
 				return true;
 			}
@@ -197,31 +198,31 @@ bool ConfigurationFileSystem::orientationChangeHandler(MainWindow* mainWin)
 		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
 			// create waveform (necessary?)
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform, &waveID), profileInfo.orientation, mainWin))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform, &waveID), profileInfo.orientation, comm))
 			{
 				return true;
 			}
 			// allocate waveform into the device memory
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize / 2), profileInfo.orientation, mainWin))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize / 2), profileInfo.orientation, comm))
 			{
 				return true;
 			}
 			// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script.
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform), profileInfo.orientation, mainWin))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform), profileInfo.orientation, comm))
 			{
 				return true;
 			}
 			// rewrite the script. default_hConfigScript should still be valid.
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigScript), profileInfo.orientation, mainWin))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigScript), profileInfo.orientation, comm))
 			{
 				return true;
 			}
 			// start generic waveform to maintain power output to AOM.
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), profileInfo.orientation, mainWin))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), profileInfo.orientation, comm))
 			{
 				return true;
 			}
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultVConfigScript"), profileInfo.orientation, mainWin))
+			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultVConfigScript"), profileInfo.orientation, comm))
 			{
 				return true;
 			}
@@ -231,7 +232,7 @@ bool ConfigurationFileSystem::orientationChangeHandler(MainWindow* mainWin)
 	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
 		// Initiate Generation.
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_InitiateGeneration(eSessionHandle), profileInfo.orientation, mainWin))
+		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_InitiateGeneration(eSessionHandle), profileInfo.orientation, comm))
 		{
 			return true;
 		}
@@ -241,7 +242,7 @@ bool ConfigurationFileSystem::orientationChangeHandler(MainWindow* mainWin)
 
 /// CONFIGURATION LEVEL HANDLING
 
-bool ConfigurationFileSystem::newConfiguration(MainWindow* mainWin)
+bool ConfigurationFileSystem::newConfiguration(MainWindow* comm)
 {
 	// check if category has been set yet.
 	if (currentProfileSettings.category == "")
@@ -304,7 +305,7 @@ bool ConfigurationFileSystem::newConfiguration(MainWindow* mainWin)
 /*
 ]--- This function opens a given configuration file, sets all of the relevant parameters, and loads the associated scripts. 
 */
-bool ConfigurationFileSystem::openConfiguration(std::string configurationNameToOpen, ScriptingWindow* scriptWindow, MainWindow* mainWin)
+bool ConfigurationFileSystem::openConfiguration(std::string configurationNameToOpen, ScriptingWindow* scriptWindow, MainWindow* comm)
 {
 	// no folder associated with configuraitons. They share the category folder.
 	std::string path = currentProfileSettings.pathIncludingCategory + configurationNameToOpen;
@@ -342,7 +343,7 @@ bool ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 
 	/// Get Variables
 	// Number of Variables
-	mainWin->clearVariables();
+	comm->clearVariables();
 	int varNum;
 	configurationFile >> varNum;
 	if (varNum < 0 || varNum > 10)
@@ -362,7 +363,7 @@ bool ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 			std::string varName;
 			configurationFile >> varName;
 			std::transform(varName.begin(), varName.end(), varName.begin(), ::tolower);
-			mainWin->addVariable(varName, false, false, 0, varInc);
+			comm->addVariable(varName, false, false, 0, varInc);
 		}
 	}
 	else if (version == "Version: 1.1")
@@ -414,7 +415,7 @@ bool ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 				MessageBox(0, ("ERROR: Failed to convert value in configuration file for variable's double value. Value was: " + valueString).c_str(), 0, 0);
 				break;
 			}
-			mainWin->addVariable(varName, timelike, singleton, value, varInc);
+			comm->addVariable(varName, timelike, singleton, value, varInc);
 		}
 	}
 	else if (version == "")
@@ -427,7 +428,7 @@ bool ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 		return true;
 	}
 	// add a blank line
-	mainWin->addVariable("", false, false, 0, varNum);
+	comm->addVariable("", false, false, 0, varNum);
 	this->updateConfigurationSavedStatus(true);
 	currentProfileSettings.configuration = configurationNameToOpen;
 	std::string notes;
@@ -446,11 +447,11 @@ bool ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 		{
 			notes = notes.substr(0, notes.size() - 2);
 		}
-		mainWin->setNotes("configuration", notes);
+		comm->setNotes("configuration", notes);
 	}
 	else
 	{
-		mainWin->setNotes("configuration", "");
+		comm->setNotes("configuration", "");
 	}
 	this->updateConfigurationSavedStatus(true);
 	// actually set this now
@@ -470,7 +471,7 @@ bool ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 ]- Save, i.e. if the file doesn't already exist or if the user tries to pass an empty name as an argument. It returns false if the configuration got saved,
 ]- true if something prevented the configuration from being saved.
 */
-bool ConfigurationFileSystem::saveConfigurationOnly(ScriptingWindow* scriptWindow, MainWindow* mainWin)
+bool ConfigurationFileSystem::saveConfigurationOnly(ScriptingWindow* scriptWindow, MainWindow* comm)
 {
 	std::string configurationNameToSave = currentProfileSettings.configuration;
 	// check if category has been set yet.
@@ -533,7 +534,7 @@ bool ConfigurationFileSystem::saveConfigurationOnly(ScriptingWindow* scriptWindo
 		else if (answer == IDYES)
 		{
 			// save the experiment!
-			this->saveExperimentOnly(mainWin);
+			this->saveExperimentOnly(comm);
 		}
 	}
 	if (!categoryIsSaved)
@@ -546,7 +547,7 @@ bool ConfigurationFileSystem::saveConfigurationOnly(ScriptingWindow* scriptWindo
 		else if (answer == IDYES)
 		{
 			// save the experiment!
-			this->saveCategoryOnly(mainWin);
+			this->saveCategoryOnly(comm);
 		}
 	}
 	
@@ -582,7 +583,7 @@ bool ConfigurationFileSystem::saveConfigurationOnly(ScriptingWindow* scriptWindo
 	// Intensity Script File Address
 	configurationSaveFile << addresses.intensityAgilent << "\n";
 	// Number of Variables
-	std::vector<variable> vars = mainWin->getAllVariables();
+	std::vector<variable> vars = comm->getAllVariables();
 	configurationSaveFile << vars.size() << "\n";
 	// Variable Names
 	// This part changed in version 1.1.
@@ -609,7 +610,7 @@ bool ConfigurationFileSystem::saveConfigurationOnly(ScriptingWindow* scriptWindo
 		configurationSaveFile << info.value << "\n";
 	}
 	
-	std::string notes = mainWin->getNotes("configuration");
+	std::string notes = comm->getNotes("configuration");
 	configurationSaveFile << notes + "\n";
 	configurationSaveFile << "END CONFIGURATION NOTES" << "\n";
 	configurationSaveFile.close();
@@ -620,7 +621,7 @@ bool ConfigurationFileSystem::saveConfigurationOnly(ScriptingWindow* scriptWindo
 /*
 ]--- Identical to saveConfigurationOnly except that it prompts the user for a name with a dialog box instead of taking one.
 */
-bool ConfigurationFileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindow* mainWin)
+bool ConfigurationFileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindow* comm)
 {
 	// check if category has been set yet.
 	if (currentProfileSettings.category == "")
@@ -687,7 +688,7 @@ bool ConfigurationFileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow,
 		else if (answer == IDYES)
 		{
 			// save the experiment!
-			this->saveExperimentOnly(mainWin);
+			this->saveExperimentOnly(comm);
 		}
 	}
 	if (!categoryIsSaved)
@@ -700,7 +701,7 @@ bool ConfigurationFileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow,
 		else if (answer == IDYES)
 		{
 			// save the experiment!
-			this->saveCategoryOnly(mainWin);
+			this->saveCategoryOnly(comm);
 		}
 	}
 
@@ -738,7 +739,7 @@ bool ConfigurationFileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow,
 	// Intensity Script File Address
 	configurationSaveFile << addresses.intensityAgilent << "\n";
 	// Number of Variables
-	std::vector<variable> vars = mainWin->getAllVariables();
+	std::vector<variable> vars = comm->getAllVariables();
 	configurationSaveFile << vars.size() << "\n";
 	// Variable Names
 	// This part changed in version 1.1.
@@ -764,7 +765,7 @@ bool ConfigurationFileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow,
 		}
 		configurationSaveFile << info.value << "\n";
 	}
-	std::string notes = mainWin->getNotes("configuration");
+	std::string notes = comm->getNotes("configuration");
 	configurationSaveFile << notes + "\n";
 	configurationSaveFile << "END CONFIGURATION NOTES" << "\n";
 	configurationSaveFile.close();
@@ -939,10 +940,10 @@ bool ConfigurationFileSystem::updateConfigurationSavedStatus(bool isSaved)
 	return false;
 }
 
-bool ConfigurationFileSystem::configurationSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* mainWin)
+bool ConfigurationFileSystem::configurationSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* comm)
 {
 	// prompt for save.
-	if (this->checkConfigurationSave("There are unsaved configuration settings. Would you like to save the current configuration before starting?", scriptWindow, mainWin))
+	if (this->checkConfigurationSave("There are unsaved configuration settings. Would you like to save the current configuration before starting?", scriptWindow, comm))
 	{
 		// canceled
 		return true;
@@ -950,14 +951,14 @@ bool ConfigurationFileSystem::configurationSettingsReadyCheck(ScriptingWindow* s
 	return false;
 }
 
-bool ConfigurationFileSystem::checkConfigurationSave(std::string prompt, ScriptingWindow* scriptWindow, MainWindow* mainWin)
+bool ConfigurationFileSystem::checkConfigurationSave(std::string prompt, ScriptingWindow* scriptWindow, MainWindow* comm)
 {
 	if (!this->configurationIsSaved)
 	{
 		int answer = MessageBox(0, prompt.c_str(), 0, MB_YESNOCANCEL);
 		if (answer == IDYES)
 		{
-			this->saveConfigurationOnly(scriptWindow, mainWin);
+			this->saveConfigurationOnly(scriptWindow, comm);
 		}
 		else if (answer == IDCANCEL)
 		{
@@ -967,11 +968,11 @@ bool ConfigurationFileSystem::checkConfigurationSave(std::string prompt, Scripti
 	return false;
 }
 
-bool ConfigurationFileSystem::configurationChangeHandler(ScriptingWindow* scriptWindow, MainWindow* mainWin)
+bool ConfigurationFileSystem::configurationChangeHandler(ScriptingWindow* scriptWindow, MainWindow* comm)
 {
 	if (!configurationIsSaved)
 	{
-		if (this->checkConfigurationSave("The current configuration is unsaved. Save current configuration before changing?", scriptWindow, mainWin))
+		if (this->checkConfigurationSave("The current configuration is unsaved. Save current configuration before changing?", scriptWindow, comm))
 		{
 			configCombo.SelectString(0, currentProfileSettings.configuration.c_str());
 			return true;
@@ -988,7 +989,7 @@ bool ConfigurationFileSystem::configurationChangeHandler(ScriptingWindow* script
 	TCHAR configurationToOpen[256];
 	// Send CB_GETLBTEXT message to get the item.
 	configCombo.GetLBText(itemIndex, configurationToOpen);
-	if (this->openConfiguration(configurationToOpen, scriptWindow, mainWin))
+	if (this->openConfiguration(configurationToOpen, scriptWindow, comm))
 	{
 		return true;
 	}
@@ -1001,7 +1002,7 @@ bool ConfigurationFileSystem::configurationChangeHandler(ScriptingWindow* script
 ]- Save, i.e. if the file doesn't already exist or if the user tries to pass an empty name as an argument. It returns false if the category got saved,
 ]- true if something prevented the category from being saved.
 */
-bool ConfigurationFileSystem::saveCategoryOnly(MainWindow* mainWin)
+bool ConfigurationFileSystem::saveCategoryOnly(MainWindow* comm)
 {
 	std::string categoryNameToSave = currentProfileSettings.category;
 	// check if experiment has been set
@@ -1039,7 +1040,7 @@ bool ConfigurationFileSystem::saveCategoryOnly(MainWindow* mainWin)
 		else if (answer == IDYES)
 		{
 			// save the experiment!
-			if (this->saveExperimentOnly(mainWin))
+			if (this->saveExperimentOnly(comm))
 			{
 				return true;
 			}
@@ -1052,7 +1053,7 @@ bool ConfigurationFileSystem::saveCategoryOnly(MainWindow* mainWin)
 		return true;
 	}
 	categoryFileToSave << "Version: 1.0\n";
-	std::string categoryNotes = mainWin->getNotes("category");
+	std::string categoryNotes = comm->getNotes("category");
 	categoryFileToSave << categoryNotes + "\n";
 	categoryFileToSave << "END CATEGORY NOTES\n";
 	currentProfileSettings.category = categoryNameToSave;
@@ -1069,7 +1070,7 @@ std::string ConfigurationFileSystem::getCurrentPathIncludingCategory()
 /*
 ]--- identical to saveCategoryOnly except that 
 */
-bool ConfigurationFileSystem::saveCategoryAs(MainWindow* mainWin)
+bool ConfigurationFileSystem::saveCategoryAs(MainWindow* comm)
 {
 	// check if experiment has been set
 	if (currentProfileSettings.experiment == "")
@@ -1106,7 +1107,7 @@ bool ConfigurationFileSystem::saveCategoryAs(MainWindow* mainWin)
 		else if (answer == IDYES)
 		{
 			// save the experiment!
-			if (this->saveExperimentOnly(mainWin))
+			if (this->saveExperimentOnly(comm))
 			{
 				return true;
 			}
@@ -1127,7 +1128,7 @@ bool ConfigurationFileSystem::saveCategoryAs(MainWindow* mainWin)
 	}
 	categoryFileToSave << "Version: 1.0\n";
 
-	std::string categoryNotes = mainWin->getNotes("category");
+	std::string categoryNotes = comm->getNotes("category");
 	categoryFileToSave << categoryNotes + "\n";
 	categoryFileToSave << "END CATEGORY NOTES\n";
 	currentProfileSettings.category = categoryNameToSave;
@@ -1225,7 +1226,7 @@ bool ConfigurationFileSystem::newCategory()
 	return false;
 }
 
-bool ConfigurationFileSystem::openCategory(std::string categoryToOpen, ScriptingWindow* scriptWindow, MainWindow* mainWin)
+bool ConfigurationFileSystem::openCategory(std::string categoryToOpen, ScriptingWindow* scriptWindow, MainWindow* comm)
 {
 	// this gets called from the file menu.
 	// Assign based on the comboBox Item entry.
@@ -1257,11 +1258,11 @@ bool ConfigurationFileSystem::openCategory(std::string categoryToOpen, Scripting
 			notes += tempNote + "\r\n";
 			std::getline(categoryConfigOpenFile, tempNote);
 		}
-		mainWin->setNotes("category", notes);
+		comm->setNotes("category", notes);
 	}
 	else
 	{
-		mainWin->setNotes("category", "");
+		comm->setNotes("category", "");
 	}
 	scriptWindow->updateProfile("");
 	// close.
@@ -1297,14 +1298,14 @@ bool ConfigurationFileSystem::categorySettinsReadyCheck()
 	return false;
 }
 
-bool ConfigurationFileSystem::checkCategorySave(std::string prompt, MainWindow* mainWin)
+bool ConfigurationFileSystem::checkCategorySave(std::string prompt, MainWindow* comm)
 {
 	if (!this->categoryIsSaved)
 	{
 		int answer = MessageBox(0, prompt.c_str(), 0, MB_YESNOCANCEL);
 		if (answer == IDYES)
 		{
-			this->saveCategoryOnly(mainWin);
+			this->saveCategoryOnly(comm);
 		}
 		else if (answer == IDCANCEL)
 		{
@@ -1314,11 +1315,11 @@ bool ConfigurationFileSystem::checkCategorySave(std::string prompt, MainWindow* 
 	return false;
 }
 
-bool ConfigurationFileSystem::categoryChangeHandler(ScriptingWindow* scriptWindow, MainWindow* mainWin)
+bool ConfigurationFileSystem::categoryChangeHandler(ScriptingWindow* scriptWindow, MainWindow* comm)
 {
 	if (!categoryIsSaved)
 	{
-		if (this->checkCategorySave("The current category is unsaved. Save current category before changing?", mainWin))
+		if (this->checkCategorySave("The current category is unsaved. Save current category before changing?", comm))
 		{
 			categoryCombo.SelectString(0, currentProfileSettings.category.c_str());
 			return true;
@@ -1335,12 +1336,12 @@ bool ConfigurationFileSystem::categoryChangeHandler(ScriptingWindow* scriptWindo
 	TCHAR categoryConfigToOpen[256];
 	// Send CB_GETLBTEXT message to get the item.
 	categoryCombo.GetLBText(itemIndex, categoryConfigToOpen);
-	if (this->openCategory(std::string(categoryConfigToOpen), scriptWindow, mainWin))
+	if (this->openCategory(std::string(categoryConfigToOpen), scriptWindow, comm))
 	{
 		return true;
 	}
 	// it'd be confusing if these notes stayed here.
-	mainWin->setNotes("configuration", "");
+	comm->setNotes("configuration", "");
 	if (currentProfileSettings.orientation == HORIZONTAL_ORIENTATION)
 	{
 		this->reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, std::string("*") + HORIZONTAL_EXTENSION, "__NONE__");
@@ -1355,7 +1356,7 @@ bool ConfigurationFileSystem::categoryChangeHandler(ScriptingWindow* scriptWindo
 }
 
 /// EXPERIMENT LEVEL HANDLING
-bool ConfigurationFileSystem::saveExperimentOnly(MainWindow* mainWin)
+bool ConfigurationFileSystem::saveExperimentOnly(MainWindow* comm)
 {
 	std::string experimentNameToSave = currentProfileSettings.experiment;
 	// check that the experiment name is not empty.
@@ -1383,8 +1384,8 @@ bool ConfigurationFileSystem::saveExperimentOnly(MainWindow* mainWin)
 	// That's the last prompt the user gets, so the save is final now.
 	currentProfileSettings.experiment = experimentNameToSave;
 
-	debugOptions options = mainWin->getDebuggingOptions();
-	mainOptions settings = mainWin->getMainOptions();
+	debugOptions options = comm->getDebuggingOptions();
+	mainOptions settings = comm->getMainOptions();
 	/// Start Outputting information
 	/// THIS IS EXPERIMENT SAVED STUFF. T>T
 	// this can be checked by reading functions to see what format to expect. From now on, a version will always be outputted at the beginning of the file.
@@ -1409,7 +1410,7 @@ bool ConfigurationFileSystem::saveExperimentOnly(MainWindow* mainWin)
 	experimentSaveFile << options.outputExcessInfo << "\n";
 	// notes.
 
-	std::string notes = mainWin->getNotes("experiment");
+	std::string notes = comm->getNotes("experiment");
 	experimentSaveFile << notes << "\n";
 	experimentSaveFile << "END EXPERIMENT NOTES" << "\n";
 	// And done.
@@ -1423,7 +1424,7 @@ bool ConfigurationFileSystem::saveExperimentOnly(MainWindow* mainWin)
 	return false;
 }
 
-bool ConfigurationFileSystem::saveExperimentAs(MainWindow* mainWin)
+bool ConfigurationFileSystem::saveExperimentAs(MainWindow* comm)
 {
 	if (currentProfileSettings.experiment == "")
 	{
@@ -1464,8 +1465,8 @@ bool ConfigurationFileSystem::saveExperimentAs(MainWindow* mainWin)
 	// That's the last prompt the user gets, so the save is final now.
 	currentProfileSettings.experiment = experimentNameToSave;
 
-	debugOptions options = mainWin->getDebuggingOptions();
-	mainOptions settings = mainWin->getMainOptions();
+	debugOptions options = comm->getDebuggingOptions();
+	mainOptions settings = comm->getMainOptions();
 	/// Start Outputting information
 	/// THIS IS EXPERIMENT SAVED STUFF. T>T
 	// this can be checked by reading functions to see what format to expect. From now on, a version will always be outputted at the beginning of the file.
@@ -1489,7 +1490,7 @@ bool ConfigurationFileSystem::saveExperimentAs(MainWindow* mainWin)
 	// Output more run info option.
 	experimentSaveFile << options.outputExcessInfo << "\n";
 	// notes.
-	std::string notes = mainWin->getNotes("experiment");
+	std::string notes = comm->getNotes("experiment");
 	experimentSaveFile << notes << "\n";
 	experimentSaveFile << "END EXPERIMENT NOTES" << "\n";
 	// And done.
@@ -1502,12 +1503,12 @@ bool ConfigurationFileSystem::saveExperimentAs(MainWindow* mainWin)
 	return false;
 }
 
-bool ConfigurationFileSystem::renameExperiment(MainWindow* mainWin)
+bool ConfigurationFileSystem::renameExperiment(MainWindow* comm)
 {
 	// check if saved
 	if (!experimentIsSaved)
 	{
-		if (checkExperimentSave("Save experiment before renaming it?", mainWin))
+		if (checkExperimentSave("Save experiment before renaming it?", comm))
 		{
 			return true;
 		}
@@ -1591,7 +1592,7 @@ bool ConfigurationFileSystem::newExperiment()
 	return false;
 }
 
-bool ConfigurationFileSystem::openExperiment(std::string experimentToOpen, ScriptingWindow* scriptWindow, MainWindow* mainWin)
+bool ConfigurationFileSystem::openExperiment(std::string experimentToOpen, ScriptingWindow* scriptWindow, MainWindow* comm)
 {
 	// this gets called from the file menu.
 	// Assign based on the comboBox Item entry.
@@ -1611,8 +1612,8 @@ bool ConfigurationFileSystem::openExperiment(std::string experimentToOpen, Scrip
 	this->currentProfileSettings.category = "";
 	this->currentProfileSettings.configuration = "";
 	// it'd be confusing if this category-specific text remained after the category get set to blank.
-	mainWin->setNotes("category", "");
-	mainWin->setNotes("configuration", "");
+	comm->setNotes("category", "");
+	comm->setNotes("configuration", "");
 
 	// no category saved currently.
 	currentProfileSettings.pathIncludingCategory = currentProfileSettings.pathIncludingExperiment;
@@ -1626,10 +1627,10 @@ bool ConfigurationFileSystem::openExperiment(std::string experimentToOpen, Scrip
 	// Accumulations Number
 	experimentConfigOpenFile >> eAccumulations;
 	std::string accumString = std::to_string(eAccumulations);
-	mainOptions settings = mainWin->getMainOptions();
+	mainOptions settings = comm->getMainOptions();
 	// get var files from master option
 	experimentConfigOpenFile >> settings.getVariables;
-	debugOptions options = mainWin->getDebuggingOptions();
+	debugOptions options = comm->getDebuggingOptions();
 	// output waveform read progress option
 	experimentConfigOpenFile >> options.showReadProgress;
 	// output waveform write progress option
@@ -1647,8 +1648,8 @@ bool ConfigurationFileSystem::openExperiment(std::string experimentToOpen, Scrip
 	// program the agilent intensity functino generator option
 	experimentConfigOpenFile >> settings.programIntensity;
 	experimentConfigOpenFile >> options.outputExcessInfo;
-	mainWin->setMainOptions(settings);
-	mainWin->setDebuggingOptions(options);
+	comm->setMainOptions(settings);
+	comm->setDebuggingOptions(options);
 	std::string notes;
 	std::string tempNote;
 	// get the trailing newline after the >> operation.
@@ -1661,11 +1662,11 @@ bool ConfigurationFileSystem::openExperiment(std::string experimentToOpen, Scrip
 			notes += tempNote + "\r\n";
 			std::getline(experimentConfigOpenFile, tempNote);
 		}
-		mainWin->setNotes("experiment", notes);
+		comm->setNotes("experiment", notes);
 	}
 	else
 	{
-		mainWin->setNotes("experiment", "");
+		comm->setNotes("experiment", "");
 	}
 	scriptWindow->updateProfile("");
 	// close.
@@ -1688,11 +1689,11 @@ bool ConfigurationFileSystem::updateExperimentSavedStatus(bool isSaved)
 	return false;
 }
 
-bool ConfigurationFileSystem::experimentSettingsReadyCheck(MainWindow* mainWin)
+bool ConfigurationFileSystem::experimentSettingsReadyCheck(MainWindow* comm)
 {
 	if (!experimentIsSaved)
 	{
-		if (this->checkExperimentSave("There are unsaved Experiment settings. Would you like to save the current experimnet before starting?", mainWin))
+		if (this->checkExperimentSave("There are unsaved Experiment settings. Would you like to save the current experimnet before starting?", comm))
 		{
 			// canceled
 			return true;
@@ -1700,14 +1701,14 @@ bool ConfigurationFileSystem::experimentSettingsReadyCheck(MainWindow* mainWin)
 	}
 	return false;
 }
-bool ConfigurationFileSystem::checkExperimentSave(std::string prompt, MainWindow* mainWin)
+bool ConfigurationFileSystem::checkExperimentSave(std::string prompt, MainWindow* comm)
 {
 	if (!this->experimentIsSaved)
 	{
 		int answer = MessageBox(0, prompt.c_str(), 0, MB_YESNOCANCEL);
 		if (answer == IDYES)
 		{
-			this->saveExperimentOnly(mainWin);
+			this->saveExperimentOnly(comm);
 		}
 		else if (answer == IDCANCEL)
 		{
@@ -1717,11 +1718,11 @@ bool ConfigurationFileSystem::checkExperimentSave(std::string prompt, MainWindow
 	return false;
 }
 
-bool ConfigurationFileSystem::experimentChangeHandler(ScriptingWindow* scriptWindow, MainWindow* mainWin)
+bool ConfigurationFileSystem::experimentChangeHandler(ScriptingWindow* scriptWindow, MainWindow* comm)
 {
 	if (!experimentIsSaved)
 	{
-		if (this->checkExperimentSave("The current experiment is unsaved. Save Current Experiment before Changing?", mainWin))
+		if (this->checkExperimentSave("The current experiment is unsaved. Save Current Experiment before Changing?", comm))
 		{
 			return true;
 		}
@@ -1738,7 +1739,7 @@ bool ConfigurationFileSystem::experimentChangeHandler(ScriptingWindow* scriptWin
 	TCHAR experimentConfigToOpen[256];
 	// Send CB_GETLBTEXT message to get the item.
 	experimentCombo.GetLBText(itemIndex, experimentConfigToOpen);
-	if (this->openExperiment(std::string(experimentConfigToOpen), scriptWindow, mainWin))
+	if (this->openExperiment(std::string(experimentConfigToOpen), scriptWindow, comm))
 	{
 		return true;
 	}

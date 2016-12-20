@@ -77,7 +77,7 @@ void DebuggingOptionsControl::initialize(int& id, POINT& loc, CWnd* parent)
 	return;
 }
 
-bool DebuggingOptionsControl::handleEvent(UINT id, MainWindow* mainWin)
+bool DebuggingOptionsControl::handleEvent(UINT id, MainWindow* comm)
 {
 	if (id == this->niawgMachineScript.ID)
 	{
@@ -92,7 +92,7 @@ bool DebuggingOptionsControl::handleEvent(UINT id, MainWindow* mainWin)
 			niawgMachineScript.SetCheck(1);
 			this->currentOptions.outputNiawgMachineScript = true;
 		}
-		mainWin->updateConfigurationSavedStatus(false);
+		comm->updateConfigurationSavedStatus(false);
 		return true;
 	}
 	else if (id == this->niawgScript.ID)
@@ -108,7 +108,7 @@ bool DebuggingOptionsControl::handleEvent(UINT id, MainWindow* mainWin)
 			niawgScript.SetCheck(1);
 			this->currentOptions.outputNiawgHumanScript = true;
 		}
-		mainWin->updateConfigurationSavedStatus(false);
+		comm->updateConfigurationSavedStatus(false);
 		return true;
 	}
 	else if (id == this->outputAgilentScript.ID)
@@ -124,7 +124,7 @@ bool DebuggingOptionsControl::handleEvent(UINT id, MainWindow* mainWin)
 			outputAgilentScript.SetCheck(1);
 			this->currentOptions.outputAgilentScript = true;
 		}
-		mainWin->updateConfigurationSavedStatus(false);
+		comm->updateConfigurationSavedStatus(false);
 		return true;
 	}
 	else if (id == this->readProgress.ID)
@@ -140,7 +140,7 @@ bool DebuggingOptionsControl::handleEvent(UINT id, MainWindow* mainWin)
 			readProgress.SetCheck(1);
 			this->currentOptions.showReadProgress= true;
 		}
-		mainWin->updateConfigurationSavedStatus(false);
+		comm->updateConfigurationSavedStatus(false);
 	}
 	else if (id == this->writeProgress.ID)
 	{
@@ -155,7 +155,7 @@ bool DebuggingOptionsControl::handleEvent(UINT id, MainWindow* mainWin)
 			writeProgress.SetCheck(1);
 			this->currentOptions.showWriteProgress = true;
 		}
-		mainWin->updateConfigurationSavedStatus(false);
+		comm->updateConfigurationSavedStatus(false);
 	}
 	else if (id == this->correctionTimes.ID)
 	{
@@ -170,7 +170,7 @@ bool DebuggingOptionsControl::handleEvent(UINT id, MainWindow* mainWin)
 			correctionTimes.SetCheck(1);
 			this->currentOptions.showCorrectionTimes = true;
 		}
-		mainWin->updateConfigurationSavedStatus(false);
+		comm->updateConfigurationSavedStatus(false);
 	}
 	return false;
 }

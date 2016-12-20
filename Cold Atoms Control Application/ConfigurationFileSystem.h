@@ -34,12 +34,12 @@ class ConfigurationFileSystem
 		ConfigurationFileSystem(std::string fileSystemPath);
 		~ConfigurationFileSystem();
 
-		bool saveEntireProfile(ScriptingWindow* scriptWindow, MainWindow* mainWin);
-		bool checkSaveEntireProfile(ScriptingWindow* scriptWindow, MainWindow* mainWin);
-		bool allSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* mainWin);
+		bool saveEntireProfile(ScriptingWindow* scriptWindow, MainWindow* comm);
+		bool checkSaveEntireProfile(ScriptingWindow* scriptWindow, MainWindow* comm);
+		bool allSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* comm);
 		bool reloadAllCombos();
 
-		bool orientationChangeHandler(MainWindow* mainWin);
+		bool orientationChangeHandler(MainWindow* comm);
 		std::string getOrientation();
 		bool setOrientation(std::string);
 
@@ -59,39 +59,39 @@ class ConfigurationFileSystem
 		std::vector<std::string> getSequenceNames();
 		bool reloadSequence(std::string sequenceToReload);
 
-		bool saveExperimentOnly(MainWindow* mainWin);
+		bool saveExperimentOnly(MainWindow* comm);
 		bool newExperiment();
-		bool saveExperimentAs(MainWindow* mainWin);
-		bool renameExperiment(MainWindow* mainWin);
+		bool saveExperimentAs(MainWindow* comm);
+		bool renameExperiment(MainWindow* comm);
 		bool deleteExperiment();
-		bool openExperiment(std::string experimentToOpen, ScriptingWindow* scriptWindow, MainWindow* mainWin);
+		bool openExperiment(std::string experimentToOpen, ScriptingWindow* scriptWindow, MainWindow* comm);
 		bool updateExperimentSavedStatus(bool isSaved);
-		bool experimentSettingsReadyCheck(MainWindow* mainWin);
-		bool checkExperimentSave(std::string prompt, MainWindow* mainWin);
-		bool experimentChangeHandler(ScriptingWindow* scriptWindow, MainWindow* mainWin);
+		bool experimentSettingsReadyCheck(MainWindow* comm);
+		bool checkExperimentSave(std::string prompt, MainWindow* comm);
+		bool experimentChangeHandler(ScriptingWindow* scriptWindow, MainWindow* comm);
 		std::string getCurrentExperiment();
 
-		bool saveConfigurationOnly(ScriptingWindow* scriptWindow, MainWindow* mainWin);
-		bool newConfiguration(MainWindow* mainWin);
-		bool saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindow* mainWin);
+		bool saveConfigurationOnly(ScriptingWindow* scriptWindow, MainWindow* comm);
+		bool newConfiguration(MainWindow* comm);
+		bool saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindow* comm);
 		bool renameConfiguration();
 		bool deleteConfiguration();
-		bool openConfiguration(std::string configurationNameToOpen, ScriptingWindow* scriptWindow, MainWindow* mainWin);
+		bool openConfiguration(std::string configurationNameToOpen, ScriptingWindow* scriptWindow, MainWindow* comm);
 		bool updateConfigurationSavedStatus(bool isSaved);
-		bool configurationSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* mainWin);
-		bool checkConfigurationSave(std::string prompt, ScriptingWindow* scriptWindow, MainWindow* mainWin);
-		bool configurationChangeHandler(ScriptingWindow* scriptWindow, MainWindow* mainWin);
+		bool configurationSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* comm);
+		bool checkConfigurationSave(std::string prompt, ScriptingWindow* scriptWindow, MainWindow* comm);
+		bool configurationChangeHandler(ScriptingWindow* scriptWindow, MainWindow* comm);
 
-		bool saveCategoryOnly(MainWindow* mainWin);
+		bool saveCategoryOnly(MainWindow* comm);
 		bool renameCategory();
 		bool newCategory();
 		bool deleteCategory();
-		bool saveCategoryAs(MainWindow* mainWin);
-		bool openCategory(std::string categoryToOpen, ScriptingWindow* scriptWindow, MainWindow* mainWin);
+		bool saveCategoryAs(MainWindow* comm);
+		bool openCategory(std::string categoryToOpen, ScriptingWindow* scriptWindow, MainWindow* comm);
 		bool updateCategorySavedStatus(bool isSaved);
 		bool categorySettinsReadyCheck();
-		bool checkCategorySave(std::string prompt, MainWindow* mainWin);
-		bool categoryChangeHandler(ScriptingWindow* scriptWindow, MainWindow* mainWin);
+		bool checkCategorySave(std::string prompt, MainWindow* comm);
+		bool categoryChangeHandler(ScriptingWindow* scriptWindow, MainWindow* comm);
 		std::string getCurrentCategory();
 		std::string getCurrentPathIncludingCategory();
 		profileSettings getCurrentProfileSettings();

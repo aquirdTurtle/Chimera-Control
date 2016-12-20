@@ -391,22 +391,22 @@ bool Script::updateChildCombo(profileSettings profileInfo)
 		std::transform(line.begin(), line.end(), line.begin(), ::tolower);
 		if (line == "predefined script")
 		{
-			std::string scriptName;
-			std::getline(scriptStream, scriptName);
+			std::string predefinedScriptName;
+			std::getline(scriptStream, predefinedScriptName);
 			// remove trailing '\r'
-			scriptName = scriptName.substr(0, scriptName.size() - 1);
+			predefinedScriptName = predefinedScriptName.substr(0, predefinedScriptName.size() - 1);
 			// test if script exists in nearby folder.
 			struct stat buffer;
-			std::string path = profileInfo.pathIncludingCategory + scriptName;
+			std::string path = profileInfo.pathIncludingCategory + predefinedScriptName;
 			if (stat(path.c_str(), &buffer) == 0)
 			{
 				// add to combo normally.
-				childCombo.AddString(scriptName.c_str());
-				childrenNames.push_back(scriptName);
+				childCombo.AddString(predefinedScriptName.c_str());
+				childrenNames.push_back(predefinedScriptName);
 			}
 			else
 			{
-				childCombo.AddString((scriptName + " (File Not Found!)").c_str());
+				childCombo.AddString((predefinedScriptName + " (File Not Found!)").c_str());
 			}
 		}
 	}
@@ -552,16 +552,16 @@ bool Script::reorganizeControls()
 	return false;
 }
 
-bool Script::childComboChangeHandler(ScriptingWindow* scriptWin, MainWindow* mainWin)
+bool Script::childComboChangeHandler(ScriptingWindow* scriptWin, MainWindow* comm)
 {
 	int selection = this->childCombo.GetCurSel();
 	
 	// prompt for save
-	this->checkSave(mainWin->getCurentProfileSettings());
+	this->checkSave(comm->getCurentProfileSettings());
 	TCHAR selectedText[256];
 	childCombo.GetLBText(selection, selectedText);
 	std::string viewName(selectedText);
-	this->changeView(viewName, mainWin->getCurentProfileSettings(), mainWin->getAllVariables());
+	this->changeView(viewName, comm->getCurentProfileSettings(), comm->getAllVariables());
 	this->updateSavedStatus(true);
 	return false;
 }
@@ -572,18 +572,32 @@ bool Script::changeView(std::string viewName, profileSettings profileInfo, std::
 	{
 		// load parent
 		this->loadFile(profileInfo.pathIncludingCategory + scriptName + extension, profileInfo, vars);
+		this->currentViewIsParent = true;
+		this->currentViewName = scriptName;
 	}
 	else
 	{
 		// load child
 		this->loadFile(profileInfo.pathIncludingCategory + viewName, profileInfo, vars);
+		this->currentViewIsParent = false;
+		this->currentViewName = viewName;
 	}
 	return false;
 }
-//
-bool Script::saveScript(profileSettings profileInfo)
+
+// can save either parent or child depending on input.
+bool Script::saveScript(profileSettings profileInfo, bool saveParent)
 {
-	if (scriptName == "")
+	std::string relevantName;
+	if (saveParent)
+	{
+		relevantName = scriptName;
+	}
+	else
+	{
+		relevantName = currentViewName;
+	}
+	if (relevantName == "")
 	{
 		// must give new name. This should only work if the experiment and category have been set. 
 		if (profileInfo.experiment == "")
@@ -604,8 +618,10 @@ bool Script::saveScript(profileSettings profileInfo)
 			return true;
 		}
 		std::string path = profileInfo.pathIncludingCategory + newName + extension;
-		this->saveScriptAs(path);
+		this->saveScriptAs(path, saveParent);
+		// continue and resave anyways.
 	}
+
 	if (eExperimentIsRunning)
 	{
 		if (scriptName == eMostRecentHorizontalScriptNames || scriptName == eMostRecentIntensityScriptNames || scriptName == eMostRecentVerticalScriptNames)
@@ -616,37 +632,45 @@ bool Script::saveScript(profileSettings profileInfo)
 		}
 	}
 
+
 	int textLength = edit.GetWindowTextLength();
 	CString editText;
 	edit.GetWindowText(editText);
 	std::fstream saveFile;
-	int extPos = this->scriptName.find_last_of(".");
+	int extPos = relevantName.find_last_of(".");
 	if (extPos != -1)
 	{
 		// the scriptname already has an extension...
-		std::string existingExtension = this->scriptName.substr(extPos);
-		std::string nameNoExtension = this->scriptName.substr(0, extPos);
+		std::string existingExtension = relevantName.substr(extPos);
+		std::string nameNoExtension = relevantName.substr(0, extPos);
 		if (existingExtension != this->extension)
 		{
 			errBox("ERROR: The " + this->deviceType + " scriptName (as understood by the code) already has an "
 				"extension, read by the code as " + existingExtension + ", and that extension doesn't match the extension for this device! Script name is: " +
-				scriptName + " While the proper extension is " + this->extension + ". The file will be saved as " +
+				relevantName + " While the proper extension is " + this->extension + ". The file will be saved as " +
 				nameNoExtension + extension);
 			std::string path = profileInfo.pathIncludingCategory + nameNoExtension + extension;
-			this->saveScriptAs(path);
+			this->saveScriptAs(path, saveParent);
 			return false;
 		}
 		else
 		{
-			// take the extension off of the script name. That's no good. 
-			this->scriptName = nameNoExtension;
-			saveFile.open(profileInfo.pathIncludingCategory + scriptName + extension, std::fstream::out);
+			// take the extension off of the script name. That's no good.
+			if (saveParent)
+			{
+				this->scriptName = nameNoExtension;
+			}
+			else
+			{
+				this->currentViewName = nameNoExtension;
+			}
+			saveFile.open(profileInfo.pathIncludingCategory + nameNoExtension + extension, std::fstream::out);
 		}
 	}
 	else
 	{
 		// In theory the code should always do this line, not the above check.
-		saveFile.open(profileInfo.pathIncludingCategory + scriptName + extension, std::fstream::out);
+		saveFile.open(profileInfo.pathIncludingCategory + relevantName + extension, std::fstream::out);
 	}
 	if (!saveFile.is_open())
 	{
@@ -655,14 +679,21 @@ bool Script::saveScript(profileSettings profileInfo)
 	}
 	saveFile << editText;
 	saveFile.close();
+	// for good measure.
 	this->scriptAddress = profileInfo.pathIncludingCategory + scriptName + extension;
 	this->scriptCategory = profileInfo.category;
 	this->scriptExperiment = profileInfo.experiment;
 	this->updateSavedStatus(true);
 	return false;
 }
+// can save either parent or child depending on input.
+bool Script::saveScript(profileSettings profileInfo)
+{
+	return this->saveScript(profileInfo, this->currentViewIsParent);
+}
+
 //
-bool Script::saveScriptAs(std::string location)
+bool Script::saveScriptAs(std::string location, bool saveParent)
 {
 	if (location == "")
 	{
@@ -692,7 +723,14 @@ bool Script::saveScriptAs(std::string location)
 	// this location should have the script name, the script category, and the script experiment location in it.
 	this->scriptAddress = location;
 	int position = location.find_last_of("\\");
-	scriptName = location.substr(position + 1, location.size());
+	if (saveParent)
+	{
+		scriptName = location.substr(position + 1, location.size());
+	}
+	else
+	{
+		currentViewName = location.substr(position + 1, location.size());
+	}
 	location = location.substr(0, position);
 	position = location.find_last_of("\\");
 	scriptCategory = location.substr(position + 1, location.size());
@@ -703,6 +741,14 @@ bool Script::saveScriptAs(std::string location)
 	this->updateSavedStatus(true);
 	return false;
 }
+
+// 
+bool Script::saveScriptAs(std::string location)
+{
+	return this->saveScriptAs(location, this->currentViewIsParent);
+}
+
+
 bool Script::checkChildSave(profileSettings profileInfo)
 {
 	// get the 
@@ -731,7 +777,7 @@ bool Script::checkChildSave(profileSettings profileInfo)
 			std::string newName = (const char*)DialogBoxParam(eGlobalInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure,
 				(LPARAM)("Please enter new name for the script " + scriptName + ".").c_str());
 			std::string path = profileInfo.pathIncludingCategory + newName + this->extension;
-			this->saveScriptAs(path);
+			this->saveScriptAs(path, false);
 			return false;
 		}
 		else
@@ -753,7 +799,7 @@ bool Script::checkChildSave(profileSettings profileInfo)
 		}
 		else if (answer == IDYES)
 		{
-			this->saveScriptAs(nameStr);
+			this->saveScriptAs(nameStr, false);
 			return false;
 		}
 		else
@@ -772,7 +818,7 @@ bool Script::checkSave(profileSettings profileInfo)
 		// don't need to do anything
 		return false;
 	}
-	if (scriptName == "")
+	if (currentViewName == "")
 	{
 		int answer = MessageBox(0, ("Current " + deviceType + " script file is unsaved and unnamed. Save it with a with new name?").c_str(), 0, MB_YESNOCANCEL);
 		if (answer == IDCANCEL)
@@ -800,7 +846,7 @@ bool Script::checkSave(profileSettings profileInfo)
 	}
 	else
 	{
-		int answer = MessageBox(0, ("Save " + deviceType + " script file as " + scriptName + "?").c_str(), 0, MB_YESNOCANCEL);
+		int answer = MessageBox(0, ("Save " + deviceType + " script file as " + currentViewName + "?").c_str(), 0, MB_YESNOCANCEL);
 		if (answer == IDCANCEL)
 		{
 			return true;
@@ -871,6 +917,7 @@ bool Script::deleteScript(profileSettings profileInfo)
 	else
 	{
 		this->scriptName = "";
+		this->currentViewName = scriptName;
 		this->scriptAddress = "";
 		this->scriptCategory = "";
 		this->scriptExperiment = "";
@@ -935,10 +982,22 @@ bool Script::openParentScript(std::string parentScriptFileAndPath, profileSettin
 	{
 		return false;
 	}
-	char fileChars[_MAX_FNAME];
-	char extChars[_MAX_EXT];
-	int myError = _splitpath_s(parentScriptFileAndPath.c_str(), NULL, 0, NULL, 0, fileChars, _MAX_FNAME, extChars, _MAX_EXT);
-	std::string extStr(extChars);
+	std::string location = parentScriptFileAndPath;
+	this->scriptAddress = location;
+	int position;
+	position = location.find_last_of(".");
+	// includes the .
+	std::string extStr = location.substr(position, location.size());
+	location = location.substr(0, position);
+	position = location.find_last_of("\\");
+	scriptName = location.substr(position + 1, location.size());
+	this->currentViewName = scriptName;
+	location = location.substr(0, position);
+	position = location.find_last_of("\\");
+	scriptCategory = location.substr(position + 1, location.size());
+	location = location.substr(0, position);
+	position = location.find_last_of("\\");
+	scriptExperiment = location.substr(position + 1, location.size());
 	if (deviceType == "Horizontal NIAWG" || deviceType == "Vertical NIAWG")
 	{
 		if (extStr != NIAWG_SCRIPT_EXTENSION)
@@ -960,27 +1019,12 @@ bool Script::openParentScript(std::string parentScriptFileAndPath, profileSettin
 		MessageBox(0, "ERROR: Unrecognized device type inside script control! Ask Mark about Bugs.", 0, 0);
 		return true;
 	}
-	this->scriptName = std::string(fileChars);
-	this->scriptAddress = profileInfo.pathIncludingCategory + scriptName + extension;
-	this->scriptCategory = profileInfo.category;
-	this->scriptExperiment = profileInfo.experiment;
 	if (!this->loadFile(parentScriptFileAndPath, profileInfo, vars))
 	{
 		return true;
 	}
-	std::string location = parentScriptFileAndPath;
-	this->scriptAddress = location;
-	int position = location.find_last_of("\\");
-	scriptName = location.substr(position + 1, location.size());
-	location = location.substr(0, position);
-	position = location.find_last_of("\\");
-	scriptCategory = location.substr(position + 1, location.size());
-	location = location.substr(0, position);
-	position = location.find_last_of("\\");
-	scriptExperiment = location.substr(position + 1, location.size());
-	this->updateSavedStatus(true);
-	// Check location of the script.
-	position = parentScriptFileAndPath.find_last_of('\\');
+	// Check the location of the script.
+	position = parentScriptFileAndPath.find_last_of("\\");
 	std::string scriptLocation = parentScriptFileAndPath.substr(0, position);
 	if (scriptLocation + "\\" != profileInfo.pathIncludingCategory && profileInfo.pathIncludingCategory != "")
 	{
@@ -994,22 +1038,25 @@ bool Script::openParentScript(std::string parentScriptFileAndPath, profileSettin
 			this->scriptAddress = location;
 			int position = location.find_last_of("\\");
 			this->scriptName = location.substr(position + 1, location.size());
+			this->currentViewName = scriptName;
 			location = location.substr(0, position);
 			position = location.find_last_of("\\");
 			this->scriptCategory = location.substr(position + 1, location.size());
 			location = location.substr(0, position);
 			position = location.find_last_of("\\");
 			this->scriptExperiment = location.substr(position + 1, location.size());
-			std::string scriptName = parentScriptFileAndPath.substr(position + 1, parentScriptFileAndPath.size());
+			scriptName = parentScriptFileAndPath.substr(position + 1, parentScriptFileAndPath.size());
+			this->currentViewName = scriptName;
 			this->scriptAddress = profileInfo.pathIncludingCategory + scriptName;
 			this->scriptCategory = profileInfo.category;
 			this->scriptExperiment = profileInfo.experiment;
 			path = profileInfo.pathIncludingCategory + scriptName;
-			this->saveScriptAs(path);
+			this->saveScriptAs(path, true);
 		}
 	}
 	this->updateScriptNameText();
 	this->colorEntireScript(profileInfo, vars);
+	this->updateSavedStatus(true);
 	return false;
 }
 
@@ -1046,6 +1093,8 @@ bool Script::loadFile(std::string pathToFile, profileSettings profileInfo, std::
 bool Script::reset()
 {
 	this->scriptName = "";
+	this->currentViewName = scriptName;
+	this->currentViewIsParent = true;
 	this->scriptAddress = "";
 	this->scriptCategory = "";
 	this->scriptExperiment = "";
@@ -1086,11 +1135,12 @@ bool Script::considerCurrentLocation(profileSettings profileInfo)
 			{
 				// grab the correct file name at the end.
 				this->scriptName = this->scriptAddress.substr(position, this->scriptAddress.size());
+				this->currentViewName = scriptName;
 				// this name includes the extension already.
 				this->scriptAddress = profileInfo.pathIncludingCategory + scriptName;
 				this->scriptCategory = profileInfo.category;
 				this->scriptExperiment = profileInfo.experiment;
-				this->saveScriptAs(this->scriptAddress);
+				this->saveScriptAs(this->scriptAddress, true);
 			}
 		}
 		// else nothing
@@ -1139,4 +1189,57 @@ bool Script::updateScriptNameText()
 	// set text.
 	fileNameText.SetWindowText(text.c_str());
 	return false;
+}
+
+void Script::checkExtension(profileSettings profileInfo)
+{
+	// check the view name
+	int extPos = this->currentViewName.find_last_of(".");
+	if (extPos != -1)
+	{
+		// the scriptname already has an extension...
+		std::string existingExtension = this->currentViewName.substr(extPos);
+		std::string nameNoExtension = this->currentViewName.substr(0, extPos);
+		if (existingExtension != this->extension)
+		{
+			errBox("ERROR: The " + this->deviceType + " scriptName (as understood by the code) already has an "
+				"extension, read by the code as " + existingExtension + ", and that extension doesn't match the extension for this device! Script name is: " +
+				currentViewName + " While the proper extension is " + this->extension + ". The file will be saved as " +
+				nameNoExtension + extension);
+			std::string path = profileInfo.pathIncludingCategory + nameNoExtension + extension;
+			this->saveScriptAs(path, false);
+			return;
+		}
+		else
+		{
+			// take the extension off of the script name. That's no good. 
+			this->currentViewName = nameNoExtension;
+		}
+	}
+
+	// check the view name
+	extPos = this->scriptName.find_last_of(".");
+	if (extPos != -1)
+	{
+		// the scriptname already has an extension...
+		std::string existingExtension = this->scriptName.substr(extPos);
+		std::string nameNoExtension = this->scriptName.substr(0, extPos);
+		if (existingExtension != this->extension)
+		{
+			errBox("ERROR: The " + this->deviceType + " scriptName (as understood by the code) already has an "
+				"extension, read by the code as " + existingExtension + ", and that extension doesn't match the extension for this device! Script name is: " +
+				currentViewName + " While the proper extension is " + this->extension + ". The file will be saved as " +
+				nameNoExtension + extension);
+			std::string path = profileInfo.pathIncludingCategory + nameNoExtension + extension;
+			this->saveScriptAs(path, true);
+			return;
+		}
+		else
+		{
+			// take the extension off of the script name. That's no good. 
+			this->scriptName = nameNoExtension;
+		}
+	}
+
+	return;
 }

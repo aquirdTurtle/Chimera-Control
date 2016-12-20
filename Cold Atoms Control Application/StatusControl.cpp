@@ -35,8 +35,9 @@ void StatusControl::initialize(POINT &loc, CWnd* parent, int& id, unsigned int s
 void StatusControl::setDefaultColor(COLORREF color)
 {
 	this->defaultColor = color;
+	this->setColor();
 	CHARFORMAT myCharFormat;
-	memset(&myCharFormat, 0, sizeof(CHARFORMAT));
+	this->edit.GetDefaultCharFormat(myCharFormat);
 	myCharFormat.cbSize = sizeof(CHARFORMAT);
 	myCharFormat.dwMask = CFM_COLOR;
 	myCharFormat.crTextColor = defaultColor;
@@ -46,34 +47,57 @@ void StatusControl::setDefaultColor(COLORREF color)
 
 void StatusControl::addStatusText(std::string text)
 {
+	this->addStatusText(text, false);
+}
+
+void StatusControl::addStatusText(std::string text, bool noColor)
+{
+	if (!noColor)
+	{
+		setColor();
+	}
 	appendText(text, this->edit);
 	return;
 }
 
+void StatusControl::setColor(COLORREF color)
+{
+	CHARFORMAT myCharFormat, t2;
+	memset(&myCharFormat, 0, sizeof(CHARFORMAT));
+	//this->edit.GetDefaultCharFormat(myCharFormat);
+	myCharFormat.cbSize = sizeof(CHARFORMAT);
+	myCharFormat.dwMask = CFM_COLOR;
+	myCharFormat.crTextColor = color;
+	edit.SetSel(edit.GetTextLength(), edit.GetTextLength());
+	//edit.SetDefaultCharFormat(myCharFormat);
+	edit.SetSelectionCharFormat(myCharFormat);
+	edit.GetDefaultCharFormat(t2);
+	//errBox(std::to_string(t2.bCharSet));
+}
+
+void StatusControl::setColor()
+{
+	this->setColor(this->defaultColor);
+}
+
 void StatusControl::clear() 
 {
-	this->edit.SetWindowTextA("*********************\r\n");
+	this->edit.SetWindowTextA("");
+	setColor(RGB(255, 255, 255));
+	addStatusText("\r\n******************************\r\n", true);
 	return;
 }
 
 void StatusControl::appendTimebar()
-{																			 
+{
 	time_t time_obj = time(0);   // get time now
 	struct tm currentTime;
 	localtime_s(&currentTime, &time_obj);
 	std::string timeStr = "(" + std::to_string(currentTime.tm_year + 1900) + ":" + std::to_string(currentTime.tm_mon + 1) + ":"
 		+ std::to_string(currentTime.tm_mday) + ")" + std::to_string(currentTime.tm_hour) + ":"
 		+ std::to_string(currentTime.tm_min) + ":" + std::to_string(currentTime.tm_sec);
-	CHARFORMAT myCharFormat;
-	memset(&myCharFormat, 0, sizeof(CHARFORMAT));
-	myCharFormat.cbSize = sizeof(CHARFORMAT);
-	myCharFormat.dwMask = CFM_COLOR;
-	// white
-	myCharFormat.crTextColor = RGB(255, 255, 255);
-	edit.SetDefaultCharFormat(myCharFormat);
-	addStatusText("\r\n**********" + timeStr + "**********\r\n");
-	myCharFormat.crTextColor = defaultColor;
-	edit.SetDefaultCharFormat(myCharFormat);
+	setColor(RGB(255, 255, 255));
+	addStatusText("\r\n**********" + timeStr + "**********\r\n", true);
 	return;
 }
 
