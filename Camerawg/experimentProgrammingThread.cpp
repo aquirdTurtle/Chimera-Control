@@ -489,18 +489,38 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 		inputStruct->comm->sendStatus("Working with configuraiton # " + std::to_string(sequenceInc + 1) + " in Sequence...\r\n", "", "");
 		/// Create Script and Write Waveforms //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// A reaaaaaly long function call. Not ideal.
-		if (myErrorHandler(
-			myNIAWG::analyzeNIAWGScripts(verticalScriptFiles[sequenceInc], horizontalScriptFiles[sequenceInc], 
-			workingUserScriptString[sequenceInc], TRIGGER_NAME, waveformCount, eSessionHandle, SESSION_CHANNELS, eError, xPredWaveformNames, 
-			yPredWaveformNames, predWaveformCount, predWaveLocs, libWaveformArray, fileOpenedStatus, allXWaveformParameters, xWaveformIsVaried, 
-			allYWaveformParameters, yWaveformIsVaried, false, true, (*inputStruct).currentFolderLocation, singletons, inputStruct->profileInfo.orientation, inputStruct->debugOptions, inputStruct->comm),
-			"analyzeNIAWGScripts() threw an error!\r\n",
-			ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
+		std::string warnings, debugMessages;
+		try
 		{
-			inputStruct->comm->sendFatalError("analyzeNIAWGScripts() threw an error!\r\n", "", "");
+			if (myErrorHandler(
+				myNIAWG::analyzeNIAWGScripts(verticalScriptFiles[sequenceInc], horizontalScriptFiles[sequenceInc],
+					workingUserScriptString[sequenceInc], TRIGGER_NAME, waveformCount, eSessionHandle, SESSION_CHANNELS, eError, xPredWaveformNames,
+					yPredWaveformNames, predWaveformCount, predWaveLocs, libWaveformArray, fileOpenedStatus, allXWaveformParameters, xWaveformIsVaried,
+					allYWaveformParameters, yWaveformIsVaried, false, (*inputStruct).currentFolderLocation, singletons, inputStruct->profileInfo.orientation, inputStruct->debugOptions, warnings, debugMessages),
+				"analyzeNIAWGScripts() threw an error!\r\n",
+				ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
+			{
+				inputStruct->comm->sendFatalError("analyzeNIAWGScripts() threw an error!\r\n", "", "");
+				delete inputStruct;
+				return -1;
+			}
+		}
+		catch (my_exception& except)
+		{
+			inputStruct->comm->sendFatalError("analyzeNIAWGScripts() threw an error!\r\n" + except.whatStr(), "", "");
 			delete inputStruct;
 			return -1;
 		}
+		// check if there are any warnings or debug messages from the script analysis.
+		if (warnings != "")
+		{
+			inputStruct->comm->sendError(warnings, "", "");
+		}
+		if (debugMessages != "")
+		{
+			inputStruct->comm->sendDebug(debugMessages, "", "");
+		}
+
 		// 
 		if (systemAbortCheck(inputStruct->comm))
 		{
@@ -1073,6 +1093,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			/// I think j = 0 is the default... should I be handling that at all??? shouldn't make a difference I don't think. ????????????????????????
 			for (int j = 0; j < waveformCount; j++)
 			{
+			// oh god... why am I using a goto???
 			BeginningOfWaveformLoop:
 				// change the waveform, if needed.
 				/// if need to change both... /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1093,6 +1114,8 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 							// This value is always set once to check for this because k loops to and including variableNames.size().
 							currentVar = '\'';
 						}
+						// will check this later.
+						std::string warnings;
 						/// Loop for jth Y Waveform
 						for (int m = 0; m < allYWaveformParameters[j].varNum; m++)
 						{
@@ -1148,7 +1171,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 								/// Not correction waveform...
 								// change parameters, depending on the case. The varTypes and variable Value sets were set previously.
 								if (myErrorHandler(myNIAWG::varyParam(allYWaveformParameters, allXWaveformParameters, j, allYWaveformParameters[j].varTypes[m],
-									variableValue, inputStruct->comm), "ERROR: varyParam() returned an error.\r\n", ConnectSocket, verticalScriptFiles,
+									variableValue, warnings), "ERROR: varyParam() returned an error.\r\n", ConnectSocket, verticalScriptFiles,
 									horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 								{
 									inputStruct->comm->sendFatalError("ERROR: varyParam() returned an error.\r\n", "", "");
@@ -1215,7 +1238,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 								}
 								// change parameters, depending on the case. The varTypes and variable Value sets were set previously.
 								if (myErrorHandler(myNIAWG::varyParam(allXWaveformParameters, allYWaveformParameters, j, allXWaveformParameters[j].varTypes[m],
-									variableValue, inputStruct->comm),
+									variableValue, warnings),
 									"ERROR: varyParam() returned an error.\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, eError,
 									eSessionHandle, userScriptIsWritten, userScriptName, /*Socket Active = */true, false, true, inputStruct->comm))
 								{
@@ -1225,6 +1248,10 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 								}
 							} // end if variables match
 						} // end parameters loop
+						if (warnings != "")
+						{
+							inputStruct->comm->sendError(warnings, "", "");
+						}
 					} // end variables loop
 
 					// If the user used a '-1' for the initial phase, this is code for "copy the ending phase of the previous waveform". You only get here if 
@@ -1306,11 +1333,15 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 						xVariedWaveforms.push_back(new ViReal64[allXWaveformParameters[j].sampleNum]);
 						xVariedWaveformReads.push_back(new ViReal64[allXWaveformParameters[j].sampleNum + allXWaveformParameters[j].signalNum]);
 					}
-
+					std::string debugMsg;
 					myNIAWG::getVariedWaveform(allXWaveformParameters[j], allXWaveformParameters, j, libWaveformArray, fileOpenedStatus,
-						xVariedWaveforms[xVarWriteCount], inputStruct->debugOptions, inputStruct->comm);
+						xVariedWaveforms[xVarWriteCount], inputStruct->debugOptions, debugMsg);
 					myNIAWG::getVariedWaveform(allYWaveformParameters[j], allYWaveformParameters, j, libWaveformArray, fileOpenedStatus,
-						yVariedWaveforms[yVarWriteCount], inputStruct->debugOptions, inputStruct->comm);
+						yVariedWaveforms[yVarWriteCount], inputStruct->debugOptions, debugMsg);
+					if (debugMsg != "")
+					{
+						inputStruct->comm->sendDebug(debugMsg, "", "");
+					}
 					if (repeatFlag == true || rewriteFlag == true)
 					{
 						if (rewriteFlag == true)
@@ -1376,6 +1407,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				}
 				// End WaveformLoop
 			}
+			
 			/// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			///
 			///		A series of sanity checks on the waveform parameters. This is ment to catch user error. The following checks for...
@@ -1559,13 +1591,17 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			{
 				if (!TWEEZER_COMPUTER_SAFEMODE)
 				{
-					if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE), inputStruct->comm))
+					try
 					{
-						delete inputStruct;
-						return -1;
+						myNIAWG::NIAWG_CheckProgrammingError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE));
+						myNIAWG::NIAWG_CheckProgrammingError(niFgen_AbortGeneration(eSessionHandle));
 					}
-					if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_AbortGeneration(eSessionHandle), inputStruct->comm))
+					catch (my_exception& excep)
 					{
+						inputStruct->comm->sendStatus("EXITED WITH ERROR!\r\n", "", "");
+						inputStruct->comm->sendError("EXITED WITH ERROR!\r\n", "", "");
+						inputStruct->comm->sendStatus("Initialized Default Waveform", "", "");
+						inputStruct->comm->sendFatalError("NIAWG ERROR : " + excep.whatStr() + "\r\n", "", "");
 						delete inputStruct;
 						return -1;
 					}
@@ -1630,7 +1666,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			{
 				eWaitError = false;
 
-				myNIAWG::NIAWG_CheckProgrammingError(-1, inputStruct->comm);
+				myNIAWG::NIAWG_CheckProgrammingError();
 				delete inputStruct;
 				return -1;
 			}
@@ -1663,107 +1699,78 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			// Restart Waveform
 			if ((*inputStruct).threadDontActuallyGenerate == false)
 			{
-				if (!TWEEZER_COMPUTER_SAFEMODE)
-				{
-					if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE), inputStruct->comm))
-					{
-						delete inputStruct;
-						return -1;
-					}
-					if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_AbortGeneration(eSessionHandle), inputStruct->comm))
-					{
-						delete inputStruct;
-						return -1;
-					}
-				}
-				// skip defaults so start at 2.
-				for (int o = 2; o < waveformCount; o++)
-				{
-					// delete old waveforms
-					ViChar variedWaveformName[11];
-					sprintf_s(variedWaveformName, 11, "Waveform%i", o);
-					if (xWaveformIsVaried[o] == true || yWaveformIsVaried[o] == true)
-					{
-						if (varValueLengthInc != 0)
-						{
-							if (!TWEEZER_COMPUTER_SAFEMODE)
-							{
-								if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_DeleteNamedWaveform(eSessionHandle, SESSION_CHANNELS, variedWaveformName), inputStruct->comm))
-								{
-									delete inputStruct;
-									return -1;
-								}
-							}
-						}
-						if (!TWEEZER_COMPUTER_SAFEMODE)
-						{
-							// And write the new one.
-							if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, variedWaveformName,
-								variedMixedSize[mixedWriteCount] / 2), inputStruct->comm))
-							{
-								delete inputStruct;
-								return -1;
-							}
-							if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, variedWaveformName, variedMixedSize[mixedWriteCount],
-								mixedWaveforms[mixedWriteCount]), inputStruct->comm))
-							{
-								delete inputStruct;
-								return -1;
-							}
-						}
-						mixedWriteCount++;
-					}
-				}
-
-				ViBoolean individualAccumulationIsDone = false;
-				if (!TWEEZER_COMPUTER_SAFEMODE)
-				{
-					if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, userScriptSubmit), inputStruct->comm))
-					{
-						delete inputStruct;
-						return -1;
-					}
-				}
-				userScriptIsWritten = true;
-				if (!TWEEZER_COMPUTER_SAFEMODE)
-				{
-					if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "experimentScript"), inputStruct->comm))
-					{
-						delete inputStruct;
-						return -1;
-					}
-				}
-
-				(*inputStruct).threadCurrentScript = "UserScript";
-				if (!TWEEZER_COMPUTER_SAFEMODE)
-				{
-					if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), inputStruct->comm))
-					{
-						delete inputStruct;
-						return -1;
-					}
-
-					if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_InitiateGeneration(eSessionHandle), inputStruct->comm))
-					{
-						delete inputStruct;
-						return -1;
-					}
-				}
-				if (inputStruct->settings.connectToMaster == true)
+				try
 				{
 					if (!TWEEZER_COMPUTER_SAFEMODE)
 					{
-						// Send returns -1 if failed, 0 otherwise.
-						iResult = send(ConnectSocket, "go", 2, 0);
-						if (myErrorHandler(iResult == -1, "ERROR: send failed!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles,
-							false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
+						myNIAWG::NIAWG_CheckProgrammingError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE));
+						myNIAWG::NIAWG_CheckProgrammingError(niFgen_AbortGeneration(eSessionHandle));
+					}
+					// skip defaults so start at 2.
+					for (int o = 2; o < waveformCount; o++)
+					{
+						// delete old waveforms
+						ViChar variedWaveformName[11];
+						sprintf_s(variedWaveformName, 11, "Waveform%i", o);
+						if (xWaveformIsVaried[o] == true || yWaveformIsVaried[o] == true)
 						{
-							inputStruct->comm->sendFatalError("ERROR: send failed!\r\n", "", "");
-							delete inputStruct;
-							return -1;
+
+							if (varValueLengthInc != 0)
+							{
+								if (!TWEEZER_COMPUTER_SAFEMODE)
+								{
+									myNIAWG::NIAWG_CheckProgrammingError(niFgen_DeleteNamedWaveform(eSessionHandle, SESSION_CHANNELS, variedWaveformName));
+								}
+							}
+							if (!TWEEZER_COMPUTER_SAFEMODE)
+							{
+								// And write the new one.
+								myNIAWG::NIAWG_CheckProgrammingError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, variedWaveformName,
+									variedMixedSize[mixedWriteCount] / 2));
+								myNIAWG::NIAWG_CheckProgrammingError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, variedWaveformName, variedMixedSize[mixedWriteCount],
+									mixedWaveforms[mixedWriteCount]));
+							}
+							mixedWriteCount++;
 						}
 					}
-					iResult = 0;
+
+					ViBoolean individualAccumulationIsDone = false;
+					if (!TWEEZER_COMPUTER_SAFEMODE)
+					{
+						myNIAWG::NIAWG_CheckProgrammingError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, userScriptSubmit));
+					}
+					userScriptIsWritten = true;
+					if (!TWEEZER_COMPUTER_SAFEMODE)
+					{
+						myNIAWG::NIAWG_CheckProgrammingError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "experimentScript"));
+					}
+
+					(*inputStruct).threadCurrentScript = "UserScript";
+					if (!TWEEZER_COMPUTER_SAFEMODE)
+					{
+						myNIAWG::NIAWG_CheckProgrammingError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE));
+						myNIAWG::NIAWG_CheckProgrammingError(niFgen_InitiateGeneration(eSessionHandle));
+					}
+					if (inputStruct->settings.connectToMaster == true)
+					{
+						if (!TWEEZER_COMPUTER_SAFEMODE)
+						{
+							// Send returns -1 if failed, 0 otherwise.
+							iResult = send(ConnectSocket, "go", 2, 0);
+							myErrorHandler(iResult == -1, "ERROR: send failed!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles,
+								false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm);
+						}
+						iResult = 0;
+					}
+				}
+				catch (my_exception& excep)
+				{
+					inputStruct->comm->sendStatus("EXITED WITH ERROR!\r\n", "", "");
+					inputStruct->comm->sendError("EXITED WITH ERROR!\r\n", "", "");
+					inputStruct->comm->sendStatus("Initialized Default Waveform", "", "");
+					inputStruct->comm->sendFatalError("NIAWG ERROR : " + excep.whatStr() + "\r\n", "", "");
+					delete inputStruct;
+					return -1;
 				}
 				eWaitError = false;
 				waitThreadInput input;
@@ -1799,6 +1806,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				}
 				mixedWaveforms.clear();
 				variedMixedSize.clear();
+				
 			}
 		}
 		// close things
@@ -1818,7 +1826,6 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			}
 		}
 	}
-
 	/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	///
 	///					If no Variables
@@ -1828,62 +1835,50 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 		inputStruct->comm->sendStatus("NO Variable looping this run.\r\n", "", "");
 		if ((*inputStruct).threadDontActuallyGenerate == false)
 		{
-			ViBoolean individualAccumulationIsDone = false;
-			if (!TWEEZER_COMPUTER_SAFEMODE)
+			try
 			{
-				if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE), inputStruct->comm))
+				ViBoolean individualAccumulationIsDone = false;
+				if (!TWEEZER_COMPUTER_SAFEMODE)
 				{
-					delete inputStruct;
-					return -1;
+					myNIAWG::NIAWG_CheckProgrammingError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE));
+					myNIAWG::NIAWG_CheckProgrammingError(niFgen_AbortGeneration(eSessionHandle));
 				}
-				if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_AbortGeneration(eSessionHandle), inputStruct->comm))
+				// Should be just ready to go
+				if (!TWEEZER_COMPUTER_SAFEMODE)
 				{
-					delete inputStruct;
-					return -1;
+					myNIAWG::NIAWG_CheckProgrammingError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, userScriptSubmit));
 				}
-			}
-			// Should be just ready to go
-			if (!TWEEZER_COMPUTER_SAFEMODE)
-			{
-				if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, userScriptSubmit), inputStruct->comm))
+				userScriptIsWritten = true;
+				if (!TWEEZER_COMPUTER_SAFEMODE)
 				{
-					delete inputStruct;
-					return -1;
+					myNIAWG::NIAWG_CheckProgrammingError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "experimentScript"));
 				}
-			}
-			userScriptIsWritten = true;
-			if (!TWEEZER_COMPUTER_SAFEMODE)
-			{
-				if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "experimentScript"), inputStruct->comm))
+				(*inputStruct).threadCurrentScript = "UserScript";
+				if (!TWEEZER_COMPUTER_SAFEMODE)
 				{
-					delete inputStruct;
-					return -1;
-				}
-			}
-			(*inputStruct).threadCurrentScript = "UserScript";
-			if (!TWEEZER_COMPUTER_SAFEMODE)
-			{
-				if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), inputStruct->comm))
-				{
-					delete inputStruct;
-					return -1;
-				}
-				if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_InitiateGeneration(eSessionHandle), inputStruct->comm))
-				{
-					delete inputStruct;
-					return -1;
-				}
-				if (inputStruct->settings.connectToMaster == true)
-				{
-					iResult = send(ConnectSocket, "go", 2, 0);
-					if (myErrorHandler(iResult == -1, "ERROR: intensity profile selection failed!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles,
-						false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, true, true, inputStruct->comm))
+					myNIAWG::NIAWG_CheckProgrammingError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE));
+					myNIAWG::NIAWG_CheckProgrammingError(niFgen_InitiateGeneration(eSessionHandle));
+					if (inputStruct->settings.connectToMaster == true)
 					{
-						inputStruct->comm->sendFatalError("ERROR: intensity profile selection failed!\r\n", "", "");
-						delete inputStruct;
-						return -1;
+						iResult = send(ConnectSocket, "go", 2, 0);
+						if (myErrorHandler(iResult == -1, "ERROR: intensity profile selection failed!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles,
+							false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, true, true, inputStruct->comm))
+						{
+							inputStruct->comm->sendFatalError("ERROR: intensity profile selection failed!\r\n", "", "");
+							delete inputStruct;
+							return -1;
+						}
 					}
 				}
+			}
+			catch (my_exception& excep)
+			{
+				inputStruct->comm->sendStatus("EXITED WITH ERROR!\r\n", "", "");
+				inputStruct->comm->sendError("EXITED WITH ERROR!\r\n", "", "");
+				inputStruct->comm->sendStatus("Initialized Default Waveform", "", "");
+				inputStruct->comm->sendFatalError("NIAWG ERROR : " + excep.whatStr() + "\r\n", "", "");
+				delete inputStruct;
+				return -1;
 			}
 			waitThreadInput input;
 			input.currentSession = eSessionHandle;
@@ -1993,36 +1988,41 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	if (eWaitError)
 	{
 		eWaitError = false;
-		myNIAWG::NIAWG_CheckProgrammingError(-1, inputStruct->comm);
+		// does not throw.
+		myNIAWG::NIAWG_CheckProgrammingError();
 		delete inputStruct;
 		return -1;
 	}
 	// Clear waveforms off of NIAWG (not working??? memory appears to still run out...)
 	ViChar waveformDeleteName[11];
-	for (int v = 2; v < waveformCount; v++)
+	try
 	{
-		sprintf_s(waveformDeleteName, 11, "Waveform%i", v);
-		if (!TWEEZER_COMPUTER_SAFEMODE)
+		for (int v = 2; v < waveformCount; v++)
 		{
-			if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_DeleteNamedWaveform(eSessionHandle, SESSION_CHANNELS, waveformDeleteName), inputStruct->comm))
+			sprintf_s(waveformDeleteName, 11, "Waveform%i", v);
+			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
-				delete inputStruct;
-				return -1;
+				myNIAWG::NIAWG_CheckProgrammingError(niFgen_DeleteNamedWaveform(eSessionHandle, SESSION_CHANNELS, waveformDeleteName));
 			}
+		}
+		if ((*inputStruct).threadDontActuallyGenerate == false)
+		{
+			if (!TWEEZER_COMPUTER_SAFEMODE)
+			{
+				// Delete relevant onboard memory.
+				myNIAWG::NIAWG_CheckProgrammingError(niFgen_DeleteScript(eSessionHandle, SESSION_CHANNELS, "experimentScript"));
+			}
+			userScriptIsWritten = false;
 		}
 	}
-	if ((*inputStruct).threadDontActuallyGenerate == false)
+	catch (my_exception& excep)
 	{
-		if (!TWEEZER_COMPUTER_SAFEMODE)
-		{
-			// Delete relevant onboard memory.
-			if (myNIAWG::NIAWG_CheckProgrammingError(niFgen_DeleteScript(eSessionHandle, SESSION_CHANNELS, "experimentScript"), inputStruct->comm))
-			{
-				delete inputStruct;
-				return -1;
-			}
-		}
-		userScriptIsWritten = false;
+		inputStruct->comm->sendStatus("EXITED WITH ERROR!\r\n", "", "");
+		inputStruct->comm->sendError("EXITED WITH ERROR!\r\n", "", "");
+		inputStruct->comm->sendStatus("Initialized Default Waveform", "", "");
+		inputStruct->comm->sendFatalError("NIAWG ERROR : " + excep.whatStr() + "\r\n", "", "");
+		delete inputStruct;
+		return -1;
 	}
 	// Delete the user script
 	delete[] userScriptSubmit;

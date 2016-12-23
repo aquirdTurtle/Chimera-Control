@@ -5,6 +5,8 @@
 #include "CameraImageParameters.h"
 #include "Andor.h"
 
+struct cameraPositions;
+
 /*
 // The following definition is inside Andor.h
 struct AndorRunSettings
@@ -44,7 +46,7 @@ class CameraSettingsControl
 			runSettings.cameraMode = "Kinetic Series Mode";
 			runSettings.triggerMode = "External";
 		}
-		void initialize(POINT& ksmPos, POINT& cssmPos, POINT& amPos, int& id, CWnd* parent);
+		void initialize(cameraPositions& pos, int& id, CWnd* parent);
 		void checkTimings(std::vector<float> exposureTimes, Communicator* comm);
 		void checkTimings(float kineticCycleTime, float accumulationTime, std::vector<float> exposureTimes, Communicator* comm);
 		imageParameters readImageParameters(CameraWindow* camWin, Communicator* comm);

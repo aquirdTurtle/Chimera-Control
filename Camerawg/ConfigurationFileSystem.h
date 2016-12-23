@@ -39,7 +39,7 @@ class ConfigurationFileSystem
 		bool allSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* comm);
 		bool reloadAllCombos();
 
-		bool orientationChangeHandler(MainWindow* comm);
+		void orientationChangeHandler(MainWindow* comm);
 		std::string getOrientation();
 		bool setOrientation(std::string);
 

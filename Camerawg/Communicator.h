@@ -11,8 +11,8 @@ class Communicator
 {
 	public:
 		void initialize(MainWindow* parent, ScriptingWindow* scriptingWin, CameraWindow* cameraWin);
-		void sendError(std::string statusMsg, std::string shortMsg, std::string color);
-		void sendFatalError(std::string statusMsg, std::string shortMsg, std::string color);
+		void sendErrorEx(std::string statusMsg, std::string shortMsg, std::string color, const char *file, int line);
+		void sendFatalErrorEx(std::string statusMsg, std::string shortMsg, std::string color, const char *file, int line);
 		void sendStatus(std::string statusMsg, std::string shortMsg, std::string color);
 		void sendDebug(std::string statusMsg, std::string shortMsg, std::string color);
 	private:
@@ -20,3 +20,7 @@ class Communicator
 		ScriptingWindow* scriptWin;
 		CameraWindow* camWin;
 };
+
+#define sendError(arg1, arg2, arg3) sendErrorEx(arg1, arg2, arg3, __FILE__, __LINE__);
+#define sendFatalError(arg1, arg2, arg3) sendFatalErrorEx(arg1, arg2, arg3, __FILE__, __LINE__);
+

@@ -5,7 +5,6 @@
 #include "externals.h"
 #include "constants.h"
 #include "Resource.h"
-#include "appendText.h"
 #include "Commctrl.h"
 #include "externals.h"
 #include "textPromptDialogProcedure.h"
@@ -115,7 +114,7 @@ bool ConfigurationFileSystem::setOrientation(std::string orientation)
 	return false;
 }
 
-bool ConfigurationFileSystem::orientationChangeHandler(MainWindow* mainWin)
+void ConfigurationFileSystem::orientationChangeHandler(MainWindow* mainWin)
 {
 	Communicator* comm = mainWin->getComm();
 	profileSettings profileInfo = mainWin->getCurentProfileSettings();
@@ -141,20 +140,11 @@ bool ConfigurationFileSystem::orientationChangeHandler(MainWindow* mainWin)
 	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
 		/// Set the default accordingly
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE), profileInfo.orientation, comm))
-		{
-			return true;
-		}
+		myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE), profileInfo.orientation);
 		// Officially stop trying to generate anything.
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AbortGeneration(eSessionHandle), profileInfo.orientation, comm))
-		{
-			return true;
-		}
+		myNIAWG::NIAWG_CheckWindowsError(niFgen_AbortGeneration(eSessionHandle), profileInfo.orientation);
 		// clear the memory
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ClearArbMemory(eSessionHandle), profileInfo.orientation, comm))
-		{
-			return true;
-		}
+		myNIAWG::NIAWG_CheckWindowsError(niFgen_ClearArbMemory(eSessionHandle), profileInfo.orientation);
 	}
 	ViInt32 waveID;
 	if (currentProfileSettings.orientation == HORIZONTAL_ORIENTATION)
@@ -162,34 +152,16 @@ bool ConfigurationFileSystem::orientationChangeHandler(MainWindow* mainWin)
 		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
 			// create waveform (necessary?)
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform, &waveID), profileInfo.orientation, comm))
-			{
-				return true;
-			}
+			myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform, &waveID), profileInfo.orientation);
 			// allocate waveform into the device memory
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize / 2), profileInfo.orientation, comm))
-			{
-				return true;
-			}
+			myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize / 2), profileInfo.orientation);
 			// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script.
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform), profileInfo.orientation, comm))
-			{
-				return true;
-			}
+			myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform), profileInfo.orientation);
 			// rewrite the script. default_hConfigScript should still be valid.
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigScript), profileInfo.orientation, comm))
-			{
-				return true;
-			}
+			myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigScript), profileInfo.orientation);
 			// start generic waveform to maintain power output to AOM.
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), profileInfo.orientation, comm))
-			{
-				return true;
-			}
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript"), profileInfo.orientation, comm))
-			{
-				return true;
-			}
+			myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), profileInfo.orientation);
+			myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript"), profileInfo.orientation);
 		}
 		eCurrentScript = "DefaultHConfigScript";
 	}
@@ -198,46 +170,25 @@ bool ConfigurationFileSystem::orientationChangeHandler(MainWindow* mainWin)
 		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
 			// create waveform (necessary?)
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform, &waveID), profileInfo.orientation, comm))
-			{
-				return true;
-			}
+			myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform, &waveID), profileInfo.orientation);
 			// allocate waveform into the device memory
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize / 2), profileInfo.orientation, comm))
-			{
-				return true;
-			}
+			myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize / 2), profileInfo.orientation);
 			// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script.
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform), profileInfo.orientation, comm))
-			{
-				return true;
-			}
+			myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform), profileInfo.orientation);
 			// rewrite the script. default_hConfigScript should still be valid.
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigScript), profileInfo.orientation, comm))
-			{
-				return true;
-			}
+			myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigScript), profileInfo.orientation);
 			// start generic waveform to maintain power output to AOM.
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), profileInfo.orientation, comm))
-			{
-				return true;
-			}
-			if (myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultVConfigScript"), profileInfo.orientation, comm))
-			{
-				return true;
-			}
+			myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), profileInfo.orientation);
+			myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultVConfigScript"), profileInfo.orientation);
 		}
 		eCurrentScript = "DefaultVConfigScript";
 	}
 	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
 		// Initiate Generation.
-		if (myNIAWG::NIAWG_CheckWindowsError(niFgen_InitiateGeneration(eSessionHandle), profileInfo.orientation, comm))
-		{
-			return true;
-		}
+		myNIAWG::NIAWG_CheckWindowsError(niFgen_InitiateGeneration(eSessionHandle), profileInfo.orientation);
 	}
-	return false;
+	return;
 }
 
 /// CONFIGURATION LEVEL HANDLING

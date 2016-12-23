@@ -4,6 +4,8 @@
 #include <mciapi.h>
 #pragma comment(lib, "Winmm.lib")
 
+struct cameraPositions;
+
 class AlertSystem
 {
 	public:
@@ -12,8 +14,7 @@ class AlertSystem
 			mciSendString("open \"C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Control\\Camera\\Final Fantasy VII - Victory Fanfare [HQ].mp3\" type mpegvideo alias mp3", NULL, 0, NULL);
 		}
 		~AlertSystem();
-		bool initialize(POINT& topLeftPositionKinetic, POINT& topLeftPositionAccumulate, POINT& topLeftPositionContinuous,
-			CWnd* parent, bool isTriggerModeSensitive, int& id);
+		bool initialize(cameraPositions& positions, CWnd* parent, bool isTriggerModeSensitive, int& id);
 		bool alertMainThread(int level);
 		bool soundAlert();
 		bool reorganizeControls(std::string cameraMode, std::string triggerMode, int width, int height);

@@ -6,7 +6,6 @@
 #include "waveformData.h"
 #include "constants.h"
 #include "externals.h"
-#include "appendText.h"
 #include "boost/math/common_factor.hpp"
 
 /*

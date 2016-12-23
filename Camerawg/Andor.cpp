@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "Andor.h"
-#include "appendText.h"
 //#include "plotThread.h"
 #include <process.h>
 //#include "plotterProcedure.h"

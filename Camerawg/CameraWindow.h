@@ -4,9 +4,18 @@
 #include "PictureStats.h"
 #include "PictureManager.h"
 #include "AlertSystem.h"
+#include "PlottingControl.h"
 
 class MainWindow;
 class ScriptingWindow;
+
+// pass a structure like this to initializers.
+struct cameraPositions
+{
+	POINT ksmPos;
+	POINT amPos;
+	POINT cssmPos;
+};
 
 class CameraWindow : public CDialog
 {
@@ -37,6 +46,7 @@ class CameraWindow : public CDialog
 		PictureStats stats;
 		PictureManager pics;
 		AlertSystem alerts;
+		PlottingControl plotters;
 
 		MainWindow* mainWindowFriend;
 		ScriptingWindow* scriptingWindowFriend;

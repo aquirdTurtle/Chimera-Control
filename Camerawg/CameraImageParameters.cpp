@@ -4,7 +4,6 @@
 #include "CameraImageParameters.h"
 #include "externals.h"
 #include "constants.h"
-#include "appendText.h"
 #include "reorganizeControl.h"
 #include "CameraWindow.h"
 #include "CameraSettingsControl.h"

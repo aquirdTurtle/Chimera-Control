@@ -4,6 +4,7 @@
 #include <Mmsystem.h>
 #include <mciapi.h>
 #pragma comment(lib, "Winmm.lib")
+#include "CameraWindow.h"
 
 AlertSystem::~AlertSystem()
 {
@@ -31,54 +32,53 @@ bool AlertSystem::setAlertThreshold()
 	return false;
 }
 
-bool AlertSystem::initialize(POINT& topLeftPositionKinetic, POINT& topLeftPositionAccumulate, POINT& topLeftPositionContinuous,
-	CWnd* parent, bool isTriggerModeSensitive, int& id)
+bool AlertSystem::initialize(cameraPositions& pos, CWnd* parent, bool isTriggerModeSensitive, int& id)
 {
 	this->alertMessageID = RegisterWindowMessage("ID_NOT_LOADING_ATOMS");
 	/// Title
-	this->title.ksmPos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 25 };
-	title.amPos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480, topLeftPositionAccumulate.y + 25 };
+	this->title.ksmPos = { pos.ksmPos.x, pos.ksmPos.y, pos.ksmPos.x + 480, pos.ksmPos.y + 25 };
+	title.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 25 };
 	title.cssmPos = { -1,-1,-1,-1 };
 	title.ID = id++;
 	title.Create("ALERT SYSTEM", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, title.ksmPos, parent, title.ID);
 	title.fontType = "Heading";
-	topLeftPositionKinetic.y += 25;
-	topLeftPositionAccumulate.y += 25;
+	pos.ksmPos.y += 25;
+	pos.amPos.y += 25;
 	/// Use Alerts Checkbox
-	this->alertsActiveCheckBox.ksmPos = { topLeftPositionKinetic.x + 0, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y + 20 };
-	alertsActiveCheckBox.amPos = { topLeftPositionAccumulate.x + 0, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y + 20 };
+	this->alertsActiveCheckBox.ksmPos = { pos.ksmPos.x + 0, pos.ksmPos.y, pos.ksmPos.x + 160, pos.ksmPos.y + 20 };
+	alertsActiveCheckBox.amPos = { pos.amPos.x + 0, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 20 };
 	alertsActiveCheckBox.cssmPos = { -1,-1,-1,-1 };
 	alertsActiveCheckBox.ID = id++;
 	alertsActiveCheckBox.Create("Use?", WS_CHILD | WS_VISIBLE | ES_LEFT | ES_READONLY | BS_CHECKBOX, alertsActiveCheckBox.ksmPos, parent, alertsActiveCheckBox.ID);
 	alertsActiveCheckBox.fontType = "Normal";
 	/// Alert threshold text
-	this->alertThresholdText.ksmPos = { topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y + 20 };
-	alertThresholdText.amPos = { topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y + 20 };
+	this->alertThresholdText.ksmPos = { pos.ksmPos.x + 160, pos.ksmPos.y, pos.ksmPos.x + 320, pos.ksmPos.y + 20 };
+	alertThresholdText.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 20 };
 	alertThresholdText.cssmPos = { -1,-1,-1,-1 };
 	alertThresholdText.ID = id++;
 	alertThresholdText.Create("Alert Threshold:", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, alertThresholdText.ksmPos, parent, alertThresholdText.ID);
 	alertThresholdText.fontType = "Normal";
 	/// Alert threshold edit
-	this->alertThresholdEdit.ksmPos = { topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 20 };
-	alertThresholdEdit.amPos = { topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480, topLeftPositionAccumulate.y + 20 };
+	this->alertThresholdEdit.ksmPos = { pos.ksmPos.x + 320, pos.ksmPos.y, pos.ksmPos.x + 480, pos.ksmPos.y + 20 };
+	alertThresholdEdit.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 20 };
 	alertThresholdEdit.cssmPos = { -1,-1,-1,-1 };
 	alertThresholdEdit.ID = id++;
 	alertThresholdEdit.Create(WS_CHILD | WS_VISIBLE | ES_CENTER, alertThresholdEdit.ksmPos, parent, alertThresholdEdit.ID);
 	alertThresholdEdit.SetWindowTextA("10");
 	alertThresholdEdit.fontType = "Normal";
-	topLeftPositionKinetic.y += 20;
-	topLeftPositionAccumulate.y += 20;
+	pos.ksmPos.y += 20;
+	pos.amPos.y += 20;
 	/// Sound checkbox
 	// soundAtFinshCheckBox.hwnd
-	this->soundAtFinshCheckBox.ksmPos = { topLeftPositionKinetic.x + 0, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 20 };
-	soundAtFinshCheckBox.amPos = { topLeftPositionAccumulate.x + 0, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480, topLeftPositionAccumulate.y + 20 };
+	this->soundAtFinshCheckBox.ksmPos = { pos.ksmPos.x + 0, pos.ksmPos.y, pos.ksmPos.x + 480, pos.ksmPos.y + 20 };
+	soundAtFinshCheckBox.amPos = { pos.amPos.x + 0, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 20 };
 	soundAtFinshCheckBox.cssmPos = { -1,-1,-1,-1 };
 	soundAtFinshCheckBox.ID = id++;
 	soundAtFinshCheckBox.Create("Play Sound at Finish?", WS_CHILD | WS_VISIBLE | ES_LEFT | ES_READONLY | BS_AUTOCHECKBOX, soundAtFinshCheckBox.ksmPos,
 		parent, soundAtFinshCheckBox.ID);
 	soundAtFinshCheckBox.fontType = "Normal";
-	topLeftPositionKinetic.y += 20;
-	topLeftPositionAccumulate.y += 20;
+	pos.ksmPos.y += 20;
+	pos.amPos.y += 20;
 	return false;
 }
 

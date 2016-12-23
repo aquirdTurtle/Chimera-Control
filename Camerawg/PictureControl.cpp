@@ -60,6 +60,7 @@ void PictureControl::initialize(POINT& loc, CWnd* parent, int& id, int width, in
 	editMax.ID = id++;
 	editMax.Create(WS_CHILD | WS_VISIBLE | SS_LEFT | ES_AUTOHSCROLL, editMax.sPos, parent, editMax.ID);
 	editMax.SetWindowTextA("395");
+	editMax.fontType = "Normal";
 	// maximum slider
 	sliderMax.sPos = { loc.x + 50, loc.y + 60, loc.x + 100, loc.y + backgroundArea.bottom - backgroundArea.top};
 	sliderMax.ID = id++;

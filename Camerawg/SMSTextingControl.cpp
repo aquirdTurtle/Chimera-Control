@@ -5,7 +5,6 @@
 #include "constants.h"
 //#include "dialogProcedures.h"
 #include <algorithm>
-#include "appendText.h"
 #include "reorganizeControl.h"
 #include <Algorithm>
 
@@ -26,20 +25,15 @@ bool SMSTextingControl::promptForEmailAddressAndPassword()
 	return false;
 }
 
-
-bool SMSTextingControl::initializeControls(POINT& topLeftPositionKinetic, POINT& topLeftPositionAccumulate, POINT& topLeftPositionContinuous, 
-										   CWnd* parent, bool isTriggerModeSensitive, int& id)
+bool SMSTextingControl::initializeControls(POINT& pos, CWnd* parent, bool isTriggerModeSensitive, int& id)
 {
-	title.ksmPos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 272, topLeftPositionKinetic.y + 25 };
-	title.amPos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 272, topLeftPositionAccumulate.y + 25 };
-	title.cssmPos = { -1,-1,-1,-1 };
+	title.ksmPos = { pos.x, pos.y, pos.x + 480, pos.y + 25 };
 	title.ID = id++;
-	title.Create("TEXT ME", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, title.ksmPos, parent, title.ID);
+	title.Create("TEXT ME", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY | WS_BORDER, title.ksmPos, parent, title.ID);
 	title.fontType = "Heading";
+	title.SetFont(&eNormalFont);
 
-	peopleListView.ksmPos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y + 25, topLeftPositionKinetic.x + 272, topLeftPositionKinetic.y + 120 };
-	peopleListView.amPos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y + 25, topLeftPositionAccumulate.x + 272, topLeftPositionAccumulate.y + 120 };
-	peopleListView.cssmPos = { -1, -1, -1, -1 };
+	peopleListView.ksmPos = { pos.x, pos.y + 25, pos.x + 480, pos.y + 120 };
 	peopleListView.ID = id++;
 	peopleListView.Create(WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS, peopleListView.ksmPos, parent, peopleListView.ID);
 	peopleListView.fontType = "Small";
@@ -49,7 +43,7 @@ bool SMSTextingControl::initializeControls(POINT& topLeftPositionKinetic, POINT&
 	// Type of mask
 	listViewDefaultCollumn.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
 	// width between each coloum
-	listViewDefaultCollumn.cx = 0x28;
+	listViewDefaultCollumn.cx = 0x42;
 	listViewDefaultCollumn.pszText = "Person";
 	// Inserting Couloms as much as we want
 	peopleListView.InsertColumn(0, &listViewDefaultCollumn);
@@ -57,7 +51,7 @@ bool SMSTextingControl::initializeControls(POINT& topLeftPositionKinetic, POINT&
 	peopleListView.InsertColumn(1, &listViewDefaultCollumn);
 	listViewDefaultCollumn.pszText = "Carrier";
 	peopleListView.InsertColumn(2, &listViewDefaultCollumn);
-	listViewDefaultCollumn.cx = 0x42;
+	listViewDefaultCollumn.cx = 0x62;
 	listViewDefaultCollumn.pszText = "At Finish?";
 	peopleListView.InsertColumn(3, &listViewDefaultCollumn);
 	listViewDefaultCollumn.pszText = "If No Loading?";
@@ -81,9 +75,7 @@ bool SMSTextingControl::initializeControls(POINT& topLeftPositionKinetic, POINT&
 	peopleListView.SetItem(&listViewDefaultItem);
 	listViewDefaultItem.iSubItem = 4;
 	peopleListView.SetItem(&listViewDefaultItem);
-	topLeftPositionKinetic.y += 120;
-	topLeftPositionAccumulate.y += 120;
-
+	pos.y += 120;
 	return false;
 }
 

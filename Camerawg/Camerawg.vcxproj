@@ -80,7 +80,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;C:\Program Files\Agilent\IO Libraries Suite\lib_x64;C:\Program Files\Agilent\IO Libraries Suite\include;$(VXIPNPPATH)WinNT\include;D:\Program Files\boost_1_60_0;C:\Program Files\boost_1_60_0;$(IncludePath);C:\Users\Mark\Anaconda3\include</IncludePath>
-    <LibraryPath>C:\Program Files\Andor SOLIS\Drivers;C:\Users\Mark\Documents\Quantum Gas Assembly Control\Camerawg;C:\Program Files (x86)\Visual Leak Detector\lib\Win64;C:\Program Files (x86)\Visual Leak Detector\src;C:\Program Files\Agilent\IO Libraries Suite\lib_x64;D:\Program Files\boost_1_60_0\lib64-msvc-14.0;C:\Program Files\boost_1_60_0\lib64-msvc-14.0;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Program Files\Andor SOLIS\Drivers;C:\Users\Mark\Documents\Quantum Gas Assembly Control\Camerawg;C:\Program Files (x86)\Visual Leak Detector\lib\Win64;C:\Program Files (x86)\Visual Leak Detector\src;C:\Program Files\Agilent\IO Libraries Suite\lib_x64;D:\Program Files\boost_1_60_0\lib64-msvc-14.0;C:\Program Files\boost_1_60_0\lib64-msvc-14.0;C:\Program Files\IVI Foundation\VISA\Win64\Lib_x64\msc;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
@@ -176,7 +176,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AlertSystem.h" />
-    <ClInclude Include="appendText.h" />
     <ClInclude Include="ATMCD32D.H" />
     <ClInclude Include="beginningSettingsDialogProc.h" />
     <ClInclude Include="CameraImageParameters.h" />
@@ -192,11 +191,13 @@
     <ClInclude Include="EmbeddedPythonHandler.h" />
     <ClInclude Include="MainOptionsControl.h" />
     <ClInclude Include="Andor.h" />
+    <ClInclude Include="miscellaneousCommonFunctions.h" />
     <ClInclude Include="myApplicationApp.h" />
     <ClInclude Include="PictureControl.h" />
     <ClInclude Include="PictureManager.h" />
     <ClInclude Include="PictureSettingsControl.h" />
     <ClInclude Include="PictureStats.h" />
+    <ClInclude Include="PlottingControl.h" />
     <ClInclude Include="ProfileIndicator.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="Control.h" />
@@ -263,6 +264,7 @@
     <ClCompile Include="PictureManager.cpp" />
     <ClCompile Include="PictureSettingsControl.cpp" />
     <ClCompile Include="PictureStats.cpp" />
+    <ClCompile Include="PlottingControl.cpp" />
     <ClCompile Include="postMyString.cpp" />
     <ClCompile Include="ProfileIndicator.cpp" />
     <ClCompile Include="reorganizeControl.cpp" />
@@ -284,7 +286,7 @@
     <ClCompile Include="NIAWGWaitThread.cpp" />
     <ClCompile Include="rmWhite.cpp" />
     <ClCompile Include="saveTextFileFromEdit.cpp" />
-    <ClCompile Include="appendText.cpp" />
+    <ClCompile Include="miscellaneousCommonFunctions.cpp" />
     <ClCompile Include="ScriptWritingInstructionsDialog.cpp" />
     <ClCompile Include="selectInCombo.cpp" />
     <ClCompile Include="VariableSystem.cpp" />

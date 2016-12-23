@@ -7,7 +7,7 @@
 // running in safemode means that the program doesn't actually try to connect to any devices. It can be used to debug other aspects of the program.
 #define TWEEZER_COMPUTER_SAFEMODE true
 #define ANDOR_SAFEMODE true
-#define LAPTOP_COMPUTER
+#define DESKTOP_COMPUTER
 
 /// File Locations
 // Files for Lab Computer
@@ -22,6 +22,8 @@
 
 // Files for Desktop
 #ifdef DESKTOP_COMPUTER
+	#define PYTHON_HOME L"C:\\Users\\Mark\\Anaconda3\\"
+	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
 	const std::string LIB_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\NIAWG Wavefunction Library\\";
 	const std::string DEFAULT_SCRIPT_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Default NIAWG Scripts\\";
 	const std::string EXPERIMENT_LOGGING_FILES_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\";
@@ -32,7 +34,6 @@
 
 // Files for my Laptop
 #ifdef LAPTOP_COMPUTER
-	#define USE_MFC
 	#define PYTHON_HOME L"C:\\Users\\Mark\\Anaconda3\\"
 	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
 	const std::string LIB_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Waveforms Library\\";
