@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "StatusControl.h"
-#include "appendText.h"
 
 //
 void StatusControl::initialize(POINT &loc, CWnd* parent, int& id, unsigned int size, std::string headerText, COLORREF textColor)

@@ -2,7 +2,6 @@
 #include "myNIAWG.h"
 #include "externals.h"
 #include "constants.h"
-#include "appendText.h"
 #include "rmWhite.h"
 #include <algorithm>
 #include "myMath.h"
@@ -73,8 +72,8 @@ namespace myNIAWG
 					   ViConstString channelName, ViStatus error, std::vector<std::string> verticalPredWaveNames, std::vector<std::string> horizontalPredWaveNames,
 					   int& predWaveCount, std::vector<int> predLocs, std::vector<std::string>(&libWaveformArray)[20], bool(&fileStatus)[20],
 					   std::vector<waveData>& allVerticalWaveParameters, std::vector<bool>& verticalWaveformVaried, std::vector<waveData>& allHorizontalWaveParameters,
-					   std::vector<bool>& horizontalWaveformVaried, bool isDefault, bool isThreaded, std::string currentCategoryFolder, std::vector<variable> singletons, 
-					   std::string orientation, debugOptions options, Communicator* comm)
+					   std::vector<bool>& horizontalWaveformVaried, bool isDefault, std::string currentCategoryFolder, std::vector<variable> singletons, 
+					   std::string orientation, debugOptions options, std::string& warnings, std::string& debugMsg)
 	{
 		// Some declarations.
 		std::string verticalInputTypeString, horizontalInputTypeString;
@@ -99,21 +98,7 @@ namespace myNIAWG
 			if (horizontalFile.eof())
 			{
 				std::string errMsg = "User's horizontal script file has ended before the vertical script file. Please make sure that the number of commands in each file matches.\r\n";
-				if (isThreaded)
-				{
-					comm->sendFatalError("User's horizontal script file has ended before the vertical-script file. Please make sure that the number of commands in each file matches.\r\n", "", "");
-				}
-				else
-				{
-					if (isDefault)
-					{
-						MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-					}
-					else
-					{
-						comm->sendError(errMsg, "", "");
-					}
-				}
+				thrower(errMsg)
 				return -3;
 			}
 
@@ -153,21 +138,7 @@ namespace myNIAWG
 				if (myNIAWG::handleInput::logic(verticalFile, horizontalFile, verticalInputTypeString, horizontalInputTypeString, scriptHolder, triggerName) != 0)
 				{
 					std::string errMsg = "handleInput::logic() threw an error when handling waveform #" + std::to_string(waveCount - 1) + "!\r\n";
-					if (isThreaded)
-					{
-						comm->sendFatalError(errMsg, "", "");
-					}
-					else
-					{
-						if (isDefault)
-						{
-							MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-						}
-						else
-						{
-							comm->sendError(errMsg, "", "");
-						}
-					}
+					thrower(errMsg)
 					return -13954;
 				}
 			}
@@ -179,21 +150,7 @@ namespace myNIAWG
 					// error:
 					std::string errMsg = "ERROR: The default waveform files contain sequences of waveforms. Right now, the default waveforms must be a single waveform, "
 										 "not a sequence.\r\n";
-					if (isThreaded)
-					{
-						comm->sendFatalError(errMsg, "", "");
-					}
-					else
-					{
-						if (isDefault)
-						{
-							MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-						}
-						else
-						{
-							comm->sendError(errMsg, "", "");
-						}
-					}
+					thrower(errMsg)
 					return -8293;
 				}
 				    
@@ -208,21 +165,7 @@ namespace myNIAWG
 				if (verticalWaveformParameters.initType == -1 || horizontalWaveformParameters.initType == -1)
 				{
 					std::string errMsg = "ERROR: getInputType threw an error!\r\n";
-					if (isThreaded)
-					{
-						comm->sendFatalError(errMsg, "", "");
-					}
-					else
-					{
-						if (isDefault)
-						{
-							MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-						}
-						else
-						{
-							comm->sendError(errMsg, "", "");
-						}
-					}
+					thrower(errMsg)
 					return -1923;
 				}
 				// this switch statement subdivides the inputs based off of the number of signals the given command was.
@@ -299,21 +242,7 @@ namespace myNIAWG
 				{
 					std::string errMsg;
 					errMsg = "getWvFmData() threw an error when handling vertical waveform #" + std::to_string(waveCount - 1) + "!";
-					if (isThreaded)
-					{
-						comm->sendError(errMsg, "", "");
-					}
-					else
-					{
-						if (isDefault)
-						{
-							MessageBox(NULL, errMsg.c_str(), "ERROR", MB_OK | MB_ICONERROR);
-						}
-						else
-						{
-							comm->sendError(errMsg, "", "");
-						}
-					}
+					thrower(errMsg)
 					return -1634;
 				}
 
@@ -321,21 +250,7 @@ namespace myNIAWG
 				if (myNIAWG::handleInput::getWvFmData(horizontalFile, horizontalWaveformParameters, singletons) != 0)
 				{
 					std::string errMsg = "getWvFmData() threw an error when handling horizontal waveform #" + std::to_string(waveCount - 1) + "!";
-					if (isThreaded)
-					{
-						comm->sendFatalError(errMsg, "", "");
-					}
-					else
-					{
-						if (isDefault)
-						{
-							MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-						}
-						else
-						{
-							comm->sendError(errMsg, "", "");
-						}
-					}
+					thrower(errMsg)
 					return -1634;
 				}
 				// check the delimeters
@@ -345,21 +260,7 @@ namespace myNIAWG
 						"The value placed in the delimeter location was " + verticalWaveformParameters.delim + " while it should have been '#'.This";
 					" indicates that either the code is not interpreting the user input correctly or that the user has inputted too many parameters for this type"
 						" of waveform.";
-					if (isThreaded)
-					{
-						comm->sendFatalError(errMsg, "", "");
-					}
-					else
-					{
-						if (isDefault)
-						{
-							MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-						}
-						else
-						{
-							comm->sendError(errMsg, "", "");
-						}
-					}
+					thrower(errMsg)
 					return -1635;
 				}
 				if (horizontalWaveformParameters.delim != "#")
@@ -368,21 +269,7 @@ namespace myNIAWG
 						"The value placed in the delimeter location was " + horizontalWaveformParameters.delim + " while it should have been '#'.This";
 					" indicates that either the code is not interpreting the user input correctly or that the user has inputted too many parameters for this type"
 						" of waveform.";
-					if (isThreaded)
-					{
-						comm->sendFatalError(errMsg, "", "");
-					}
-					else
-					{
-						if (isDefault)
-						{
-							MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-						}
-						else
-						{
-							comm->sendError(errMsg, "", "");
-						}
-					}
+					thrower(errMsg)
 					return -1635;
 				}
 				// check that each waveform has an integer number of 4 samples
@@ -392,21 +279,7 @@ namespace myNIAWG
 					std::string errMsg = "ERROR: Invalid sample number in vertical waveform #" + std::to_string(waveCount - 1)
 								+ ". The time that resulted in this was " + std::to_string(verticalWaveformParameters.time) + " which gave a sample number of "
 								+ std::to_string(verticalWaveformParameters.sampleNum) + "\r\n";
-					if (isThreaded)
-					{
-						comm->sendFatalError(errMsg, "", "");
-					}
-					else
-					{
-						if (isDefault)
-						{
-							MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-						}
-						else
-						{
-							comm->sendError(errMsg, "", "");
-						}
-					}
+					thrower(errMsg)
 					return -1699;
 				}
 
@@ -415,21 +288,7 @@ namespace myNIAWG
 					std::string errMsg = "ERROR: Invalid sample number in vertical waveform #" + std::to_string(waveCount - 1)
 						+ ". The time that resulted in this was " + std::to_string(horizontalWaveformParameters.time) + " which gave a sample number of "
 						+ std::to_string(horizontalWaveformParameters.sampleNum) + "\r\n";
-					if (isThreaded)
-					{
-						comm->sendFatalError(errMsg, "", "");
-					}
-					else
-					{
-						if (isDefault)
-						{
-							MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-						}
-						else
-						{
-							comm->sendError(errMsg, "", "");
-						}
-					}
+					thrower(errMsg)
 					return -1699;
 				}
 
@@ -438,21 +297,7 @@ namespace myNIAWG
 				if (verticalWaveformParameters.phaseManagementOption != horizontalWaveformParameters.phaseManagementOption)
 				{
 					std::string errMsg = "ERROR: the x and y waveforms must have the same time management option. They appear to be mismatched for waveform #" + std::to_string(waveCount - 1) + "!";
-					if (isThreaded)
-					{
-						comm->sendFatalError(errMsg, "", "");
-					}
-					else
-					{
-						if (isDefault)
-						{
-							MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-						}
-						else
-						{
-							comm->sendError(errMsg, "", "");
-						}
-					}
+					thrower(errMsg)
 					return -3739;
 				}
 				else
@@ -465,63 +310,21 @@ namespace myNIAWG
 				if (!(fabs(verticalWaveformParameters.time - horizontalWaveformParameters.time) < 1e-6))
 				{
 					std::string errMsg = "ERROR: the horizontal and vertical waveforms must have the same time value. They appear to be mismatched for waveform #" + std::to_string(waveCount - 1) + "!";
-					if (isThreaded)
-					{
-						comm->sendFatalError(errMsg, "", "");
-					}
-					else
-					{
-						if (isDefault)
-						{
-							MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-						}
-						else
-						{
-							comm->sendError(errMsg, "", "");
-						}
-					}
+					thrower(errMsg)
 					return -96338;
 				}
 
 				if (verticalWaveformParameters.varNum < 0)
 				{
 					std::string errMsg = "ERROR: handleInput::waveformData() threw an error while handling X waveform #" + std::to_string(waveCount - 1) + "!";
-					if (isThreaded)
-					{
-						comm->sendFatalError(errMsg, "", "");
-					}
-					else
-					{
-						if (isDefault)
-						{
-							MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-						}
-						else
-						{
-							comm->sendError(errMsg, "", "");
-						}
-					}
+					thrower(errMsg)
 					return -101;
 				}
 
 				if (horizontalWaveformParameters.varNum  < 0)
 				{
 					std::string errMsg = "ERROR: handleInput::waveformData() threw an error while handling horizontal waveform #" + std::to_string(waveCount - 1) + "!";
-					if (isThreaded)
-					{
-						comm->sendFatalError(errMsg, "", "");
-					}
-					else
-					{
-						if (isDefault)
-						{
-							MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-						}
-						else
-						{
-							comm->sendError(errMsg, "", "");
-						}
-					}
+					thrower(errMsg)
 					return -101;
 				}
 				/// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -554,21 +357,7 @@ namespace myNIAWG
 						{
 							std::string errMsg = "ERROR: You are trying to copy the phase of signal " + std::to_string(i + 1) + "  of X waveform #" + std::to_string(waveCount - 1)
 								+ ", but the previous waveform only " + "had " + std::to_string(allVerticalWaveParameters[waveCount - 1].signalNum) + " signals!\n";
-							if (isThreaded)
-							{
-								comm->sendFatalError(errMsg, "", "");
-							}
-							else
-							{
-								if (isDefault)
-								{
-									MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-								}
-								else
-								{
-									comm->sendError(errMsg, "", "");
-								}
-							}
+							thrower(errMsg)
 							return -1304;
 						}
 						verticalWaveformParameters.signals[i].initPhase = allVerticalWaveParameters[waveCount - 1].signals[i].finPhase;
@@ -598,21 +387,7 @@ namespace myNIAWG
 						{
 							std::string errMsg = "ERROR: You are trying to copy the phase of signal " + std::to_string(i + 1) + " of Y waveform #" + std::to_string(waveCount - 1)
 								+ ", but the previous waveform only " + "had " + std::to_string(allHorizontalWaveParameters[waveCount - 1].signalNum) + " signals!\n";
-							if (isThreaded)
-							{
-								comm->sendFatalError(errMsg, "", "");
-							}
-							else
-							{
-								if (isDefault)
-								{
-									MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-								}
-								else
-								{
-									comm->sendError(errMsg, "", "");
-								}
-							}
+							thrower(errMsg)
 							return -1304;
 						}
 						horizontalWaveformParameters.signals[i].initPhase = allHorizontalWaveParameters[waveCount - 1].signals[i].finPhase;
@@ -637,21 +412,7 @@ namespace myNIAWG
 							std::to_string(allVerticalWaveParameters[waveCount - 1].signalNum) + " signals and the latter has " +
 							std::to_string(verticalWaveformParameters.signalNum) +
 							" signals. In order for a waveform to correct the time of another waveform, the two must have the same number of signals.";
-						if (isThreaded)
-						{
-							comm->sendFatalError(errMsg, "", "");
-						}
-						else
-						{
-							if (isDefault)
-							{
-								MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-							}
-							else
-							{
-								comm->sendError(errMsg, "", "");
-							}
-						}
+						thrower(errMsg)
 						return -10583;
 					}
 					// check to make sure that the frequencies match
@@ -669,21 +430,7 @@ namespace myNIAWG
 												 + " in the vertical component of the latter has initial frequency of"
 												 + std::to_string(verticalWaveformParameters.signals[o].freqInit)
 												 + " signals. In order for a waveform to correct the time of another waveform, these frequencies should match.";
-							if (isThreaded)
-							{
-								comm->sendFatalError(errMsg, "", "");
-							}
-							else
-							{
-								if (isDefault)
-								{
-									MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-								}
-								else
-								{
-									comm->sendError(errMsg, "", "");
-								}
-							}
+							thrower(errMsg)
 							return -234923;
 						}
 						initPhasesForTimeManage.push_back(verticalWaveformParameters.signals[o].initPhase);
@@ -699,21 +446,7 @@ namespace myNIAWG
 								", but signal " + std::to_string(o) + " in the horizontal component of the former has final frequency " + std::to_string(allHorizontalWaveParameters[waveCount - 1].signals[o].freqFin) +
 								" and signal " + std::to_string(o) + " in the horizontal component of the latter has initial frequency of" + std::to_string(horizontalWaveformParameters.signals[o].freqInit) +
 								" signals. In order for a waveform to correct the time of another waveform, these frequencies should match.";
-							if (isThreaded)
-							{
-								comm->sendFatalError(errMsg, "", "");
-							}
-							else
-							{
-								if (isDefault)
-								{
-									MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-								}
-								else
-								{
-									comm->sendError(errMsg, "", "");
-								}
-							}
+							thrower(errMsg)
 							return -234923;
 						}
 						initPhasesForTimeManage.push_back(horizontalWaveformParameters.signals[o].initPhase);
@@ -749,11 +482,13 @@ namespace myNIAWG
 						{
 							std::string errMsg = "WARNING: Correction waveform was not able to match phases very well. The total phase mismatch was "
 								+ std::to_string(errVal) + "radians.\r\n";
-							comm->sendError(errMsg, "", "");
+							warnings += errMsg;
 							// throw warning
 						}
 					}
 				}
+
+
 				/// Waveform Creation
 				// only create waveform data if neither waveform is being varried and if the time management option is either 0 or -1. The time management  
 				// option has already been checked to be the same for x and Y waveforms.
@@ -764,25 +499,11 @@ namespace myNIAWG
 					xWaveReadData = new ViReal64[verticalWaveformParameters.sampleNum + verticalWaveformParameters.signalNum];
 					// either calculate or read waveform data into the above arrays. 
 					if (myNIAWG::handleInput::waveformGen(xWaveform, xWaveReadData, verticalWaveformParameters, verticalWaveformParameters.sampleNum, libWaveformArray,
-						fileStatus[verticalWaveformParameters.initType], options, comm) != 0)
+						fileStatus[verticalWaveformParameters.initType], options, debugMsg) != 0)
 					{
 						std::string errMsg;
 						errMsg = "ERROR: handleInput::waveformGen threw an error while handling vertical waveform #" + std::to_string(waveCount - 1) + "!";
-						if (isThreaded)
-						{
-							comm->sendFatalError(errMsg, "", "");
-						}
-						else
-						{
-							if (isDefault)
-							{
-								MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-							}
-							else
-							{
-								comm->sendError(errMsg, "", "");
-							}
-						}
+						thrower(errMsg)
 						return -101;
 					}
 					delete[] xWaveReadData;
@@ -802,7 +523,7 @@ namespace myNIAWG
 					yWaveReadData = new ViReal64[horizontalWaveformParameters.sampleNum + horizontalWaveformParameters.signalNum];
 					// either calculate or read waveform data into the above arrays. 
 					if (myNIAWG::handleInput::waveformGen(yWaveform, yWaveReadData, horizontalWaveformParameters, horizontalWaveformParameters.sampleNum, libWaveformArray,
-						fileStatus[horizontalWaveformParameters.initType], options, comm) != 0)
+						fileStatus[horizontalWaveformParameters.initType], options, debugMsg) != 0)
 					{
 						std::string errMsg;
 						errMsg = "ERROR: handleInput::waveformGen threw an error while handling horizontal waveform #" + std::to_string(waveCount - 1) + "!";
@@ -836,21 +557,7 @@ namespace myNIAWG
 								std::to_string(verticalWaveformParameters.signalNum) + " signals and the latter has " +
 								std::to_string(allVerticalWaveParameters[waveCount - 1].signalNum) +
 								" signals. In order for a waveform to correct the time of another waveform, the two must have the same number of signals.";
-							if (isThreaded)
-							{
-								comm->sendFatalError(errMsg, "", "");
-							}
-							else
-							{
-								if (isDefault)
-								{
-									MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-								}
-								else
-								{
-									comm->sendError(errMsg, "", "");
-								}
-							}
+							thrower(errMsg)
 							return -10238;
 						}
 						// check to make sure that the X frequencies match
@@ -865,21 +572,7 @@ namespace myNIAWG
 									", but signal " + std::to_string(o) + " in the vertical component of the former has final frequency " + std::to_string(verticalWaveformParameters.signals[o].freqInit) +
 									" and signal " + std::to_string(o) + " in the vertical component of the latter has initial frequency of" + std::to_string(allVerticalWaveParameters[waveCount - 1].signals[o].freqFin) +
 									" signals. In order for a waveform to correct the time of another waveform, these frequencies should match.";
-								if (isThreaded)
-								{
-									comm->sendFatalError(errMsg, "", "");
-								}
-								else
-								{
-									if (isDefault)
-									{
-										MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-									}
-									else
-									{
-										comm->sendError(errMsg, "", "");
-									}
-								}
+								thrower(errMsg)
 								return -234923;
 							}
 							initPhasesForTimeManage.push_back(verticalWaveformParameters.signals[o].finPhase + allVerticalWaveParameters[waveCount - 1].signals[o].initPhase);
@@ -895,21 +588,7 @@ namespace myNIAWG
 									", but signal " + std::to_string(o) + " in the horizontal component of the former has final frequency " + std::to_string(horizontalWaveformParameters.signals[o].freqInit) +
 									" and signal " + std::to_string(o) + " in the horizontal component of the latter has initial frequency of" + std::to_string(allHorizontalWaveParameters[waveCount - 1].signals[o].freqFin) +
 									" signals. In order for a waveform to correct the time of another waveform, these frequencies should match.";
-								if (isThreaded)
-								{
-									comm->sendFatalError(errMsg, "", "");
-								}
-								else
-								{
-									if (isDefault)
-									{
-										MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-									}
-									else
-									{
-										comm->sendError(errMsg, "", "");
-									}
-								}
+								thrower(errMsg)
 								return -234923;
 							}
 							initPhasesForTimeManage.push_back(horizontalWaveformParameters.signals[o].finPhase + allHorizontalWaveParameters[waveCount - 1].signals[o].initPhase);
@@ -939,7 +618,7 @@ namespace myNIAWG
 							{
 								std::string errMsg = "WARNING: Correction waveform was not able to match phases very well. The total phase mismatch was "
 									+ std::to_string(errVal) + "radians.\r\n";
-								comm->sendError(errMsg, "", "");
+								warnings += errMsg;
 								// throw warning
 							}
 
@@ -949,25 +628,11 @@ namespace myNIAWG
 							prevXWaveformRead = new ViReal64[allVerticalWaveParameters[waveCount - 1].sampleNum + allVerticalWaveParameters[waveCount - 1].signalNum];
 							// either calculate or read waveform data into the above arrays. 
 							if (myNIAWG::handleInput::waveformGen(prevXWaveform, prevXWaveformRead, allVerticalWaveParameters[waveCount - 1], allVerticalWaveParameters[waveCount - 1].sampleNum,
-								libWaveformArray, fileStatus[allVerticalWaveParameters[waveCount - 1].initType], options, comm) != 0)
+								libWaveformArray, fileStatus[allVerticalWaveParameters[waveCount - 1].initType], options, debugMsg) != 0)
 							{
 								std::string errMsg;
 								errMsg = "ERROR: handleInput::waveformGen threw an error while handling X waveform #" + std::to_string(waveCount - 1) + "!";
-								if (isThreaded)
-								{
-									comm->sendFatalError(errMsg, "", "");
-								}
-								else
-								{
-									if (isDefault)
-									{
-										MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-									}
-									else
-									{
-										comm->sendError(errMsg, "", "");
-									}
-								}
+								thrower(errMsg)
 								return -1010;
 							}
 							// modify the phases of the current waveform such that they reach the 0 phase after the waveform.
@@ -989,21 +654,7 @@ namespace myNIAWG
 								std::to_string(horizontalWaveformParameters.signalNum) + " signals and the horizontal component of the latter has " +
 								std::to_string(allHorizontalWaveParameters[waveCount - 1].signalNum) +
 								" signals. In order for a waveform to correct the time of another waveform, the two must have the same number of signals.";
-							if (isThreaded)
-							{
-								comm->sendFatalError(errMsg, "", "");
-							}
-							else
-							{
-								if (isDefault)
-								{
-									MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-								}
-								else
-								{
-									comm->sendError(errMsg, "", "");
-								}
-							}
+							thrower(errMsg)
 							return -10238;
 						}
 						for (int o = 0; o < allHorizontalWaveParameters[waveCount - 1].signalNum; o++)
@@ -1018,21 +669,7 @@ namespace myNIAWG
 									", but signal " + std::to_string(o) + " in the horizontal component of the former has final frequency " + std::to_string(horizontalWaveformParameters.signals[o].freqInit) +
 									" and signal " + std::to_string(o) + " in the horizontal component of the latter has initial frequency of" + std::to_string(allHorizontalWaveParameters[waveCount - 1].signals[o].freqFin) +
 									" signals. In order for a waveform to correct the time of another waveform, these frequencies should match.";
-								if (isThreaded)
-								{
-									comm->sendFatalError(errMsg, "", "");
-								}
-								else
-								{
-									if (isDefault)
-									{
-										MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-									}
-									else
-									{
-										comm->sendError(errMsg, "", "");
-									}
-								}
+								thrower(errMsg)
 								return -234923;
 							}
 							initPhasesForTimeManage.push_back(horizontalWaveformParameters.signals[o].finPhase + allHorizontalWaveParameters[waveCount - 1].signals[o].initPhase);
@@ -1048,21 +685,7 @@ namespace myNIAWG
 									", but signal " + std::to_string(o) + " in the vertical component of the former has final frequency " + std::to_string(verticalWaveformParameters.signals[o].freqInit) +
 									" and signal " + std::to_string(o) + " in the vertical component of the latter has initial frequency of" + std::to_string(allVerticalWaveParameters[waveCount - 1].signals[o].freqFin) +
 									" signals. In order for a waveform to correct the time of another waveform, these frequencies should match.";
-								if (isThreaded)
-								{
-									comm->sendFatalError(errMsg, "", "");
-								}
-								else
-								{
-									if (isDefault)
-									{
-										MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-									}
-									else
-									{
-										comm->sendError(errMsg, "", "");
-									}
-								}
+								thrower(errMsg)
 								return -234923;
 							}
 							initPhasesForTimeManage.push_back(verticalWaveformParameters.signals[o].finPhase + allVerticalWaveParameters[waveCount - 1].signals[o].initPhase);
@@ -1092,7 +715,7 @@ namespace myNIAWG
 							{
 								std::string errMsg = "WARNING: Correction waveform was not able to match phases very well. The total phase mismatch was "
 									+ std::to_string(errVal) + "radians.\r\n";
-								comm->sendError(errMsg, "", "");
+								warnings += errMsg;
 								// throw warning
 							}
 
@@ -1104,25 +727,11 @@ namespace myNIAWG
 							// either calculate or read waveform data into the above arrays. 
 							if (myNIAWG::handleInput::waveformGen(prevYWaveform, prevYWaveformRead, allHorizontalWaveParameters[waveCount - 1], 
 																  allHorizontalWaveParameters[waveCount - 1].sampleNum,
-								libWaveformArray, fileStatus[allHorizontalWaveParameters[waveCount - 1].initType], options, comm) != 0)
+								libWaveformArray, fileStatus[allHorizontalWaveParameters[waveCount - 1].initType], options, debugMsg) != 0)
 							{
 								std::string errMsg;
 								errMsg = "ERROR: handleInput::waveformGen threw an error while handling Y waveform #" + std::to_string(waveCount - 1) + "!";
-								if (isThreaded)
-								{
-									comm->sendFatalError(errMsg, "", "");
-								}
-								else
-								{
-									if (isDefault)
-									{
-										MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-									}
-									else
-									{
-										comm->sendError(errMsg, "", "");
-									}
-								}
+								thrower(errMsg)
 								return -1010;
 							}
 							// modify the phases of the current waveform such that they reach the 0 phase after the waveform.
@@ -1141,21 +750,7 @@ namespace myNIAWG
 						if (allVerticalWaveParameters[waveCount - 1].sampleNum != allHorizontalWaveParameters[waveCount - 1].sampleNum){
 							std::string errMsg;
 							errMsg = "ERROR: the x and y waveforms must have the same time values option. They appear to be mismatched for waveform #" + std::to_string(waveCount - 1) + "!";
-							if (isThreaded)
-							{
-								comm->sendFatalError(errMsg, "", "");
-							}
-							else
-							{
-								if (isDefault)
-								{
-									MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-								}
-								else
-								{
-									comm->sendError(errMsg, "", "");
-								}
-							}
+							thrower(errMsg)
 							return -15;
 						}
 
@@ -1168,20 +763,11 @@ namespace myNIAWG
 						// create waveform (necessary?)
 						if (!TWEEZER_COMPUTER_SAFEMODE)
 						{
-							if (NIAWG_CheckScriptError(niFgen_CreateWaveformF64(vi, SESSION_CHANNELS, mixedSize, prevMixedWaveform, &waveID), isDefault, isThreaded, comm))
-							{
-								return 0;
-							}
-							// allocate waveform into the device memory 
-							if (NIAWG_CheckScriptError(niFgen_AllocateNamedWaveform(vi, SESSION_CHANNELS, prevTempWaveName, mixedSize / 2), isDefault, isThreaded, comm))
-							{
-								return 0;
-							}
+							// these three functions are capable of throwing my_exception. analyzeNIAWGScripts should always be in a try/catch.
+							NIAWG_CheckScriptError(niFgen_CreateWaveformF64(vi, SESSION_CHANNELS, mixedSize, prevMixedWaveform, &waveID));
+							NIAWG_CheckScriptError(niFgen_AllocateNamedWaveform(vi, SESSION_CHANNELS, prevTempWaveName, mixedSize / 2));
 							// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
-							if (NIAWG_CheckScriptError(niFgen_WriteNamedWaveformF64(vi, SESSION_CHANNELS, prevTempWaveName, mixedSize, prevMixedWaveform), isDefault, isThreaded, comm))
-							{
-								return 0;
-							}
+							NIAWG_CheckScriptError(niFgen_WriteNamedWaveformF64(vi, SESSION_CHANNELS, prevTempWaveName, mixedSize, prevMixedWaveform));
 						}
 
 						// avoid memory leaks.
@@ -1203,25 +789,11 @@ namespace myNIAWG
 						xWaveReadData = new ViReal64[verticalWaveformParameters.sampleNum + verticalWaveformParameters.signalNum];
 						// either calculate or read waveform data into the above arrays. 
 						if (myNIAWG::handleInput::waveformGen(xWaveform, xWaveReadData, verticalWaveformParameters, verticalWaveformParameters.sampleNum, libWaveformArray,
-							fileStatus[verticalWaveformParameters.initType], options, comm) != 0)
+							fileStatus[verticalWaveformParameters.initType], options, debugMsg) != 0)
 						{
 							std::string errMsg;
-							errMsg = "ERROR: handleInput::waveformGen threw an error while handling X waveform #" + std::to_string(waveCount - 1) + "!";
-							if (isThreaded)
-							{
-								comm->sendFatalError(errMsg, "", "");
-							}
-							else
-							{
-								if (isDefault)
-								{
-									MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-								}
-								else
-								{
-									comm->sendError(errMsg, "", "");
-								}
-							}
+							errMsg = "ERROR: handleInput::waveformGen threw an error while handling vertical waveform #" + std::to_string(waveCount - 1) + "!";
+							thrower(errMsg)
 						}
 						delete[] xWaveReadData;
 					}
@@ -1242,25 +814,11 @@ namespace myNIAWG
 						yWaveReadData = new ViReal64[horizontalWaveformParameters.sampleNum + horizontalWaveformParameters.signalNum];
 						// either calculate or read waveform data into the above arrays. 
 						if (myNIAWG::handleInput::waveformGen(yWaveform, yWaveReadData, horizontalWaveformParameters, horizontalWaveformParameters.sampleNum, libWaveformArray,
-							fileStatus[horizontalWaveformParameters.initType], options, comm) != 0)
+							fileStatus[horizontalWaveformParameters.initType], options, debugMsg) != 0)
 						{
 							std::string errMsg;
 							errMsg = "ERROR: handleInput::waveformGen threw an error while handling Y waveform #" + std::to_string(waveCount - 1) + "!";
-							if (isThreaded)
-							{
-								comm->sendFatalError(errMsg, "", "");
-							}
-							else
-							{
-								if (isDefault)
-								{
-									MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-								}
-								else
-								{
-									comm->sendError(errMsg, "", "");
-								}
-							}
+							thrower(errMsg)
 							return -101;
 						}
 						delete[] yWaveReadData;
@@ -1285,25 +843,12 @@ namespace myNIAWG
 				if (horizontalWaveformParameters.varNum == 0 && verticalWaveformParameters.varNum == 0 && verticalWaveformParameters.phaseManagementOption < 1) 
 				{
 					// Check for bad input
-					if (verticalWaveformParameters.sampleNum != horizontalWaveformParameters.sampleNum) {
+					if (verticalWaveformParameters.sampleNum != horizontalWaveformParameters.sampleNum)
+					{
 						std::string errMsg;
 						errMsg = "ERROR: the x and y waveforms must have the same time values option. They appear to be mismatched for waveform #"
 							+ std::to_string(waveCount - 1) + "!";
-						if (isThreaded)
-						{
-							comm->sendFatalError(errMsg, "", "");
-						}
-						else
-						{
-							if (isDefault)
-							{
-								MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-							}
-							else
-							{
-								comm->sendError(errMsg, "", "");
-							}
-						}
+						thrower(errMsg)
 						return -15;
 					}
 					// Create the mixed waveform holder
@@ -1313,21 +858,13 @@ namespace myNIAWG
 					myNIAWG::script::mixWaveforms(xWaveform, yWaveform, mixedWaveform, verticalWaveformParameters.sampleNum);
 					if (!TWEEZER_COMPUTER_SAFEMODE)
 					{
+						// these three functions are capable of throwing my_exception. analyzeNIAWGScripts should always be in a try/catch.
 						// create waveform (necessary?)
-						if (NIAWG_CheckScriptError(niFgen_CreateWaveformF64(vi, SESSION_CHANNELS, mixedSize, mixedWaveform, &waveID), isDefault, isThreaded, comm))
-						{
-							return 0;
-						}
+						NIAWG_CheckScriptError(niFgen_CreateWaveformF64(vi, SESSION_CHANNELS, mixedSize, mixedWaveform, &waveID));
 						// allocate waveform into the device memory
-						if (NIAWG_CheckScriptError(niFgen_AllocateNamedWaveform(vi, SESSION_CHANNELS, tempWaveformName, mixedSize / 2), isDefault, isThreaded, comm))
-						{
-							return 0;
-						}
+						NIAWG_CheckScriptError(niFgen_AllocateNamedWaveform(vi, SESSION_CHANNELS, tempWaveformName, mixedSize / 2));
 						// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
-						if (NIAWG_CheckScriptError(niFgen_WriteNamedWaveformF64(vi, SESSION_CHANNELS, tempWaveformName, mixedSize, mixedWaveform), isDefault, isThreaded, comm))
-						{
-							return 0;
-						}
+						NIAWG_CheckScriptError(niFgen_WriteNamedWaveformF64(vi, SESSION_CHANNELS, tempWaveformName, mixedSize, mixedWaveform));
 					}
 					// avoid memory leaks, but only if not default...
 					if (isDefault)
@@ -1365,7 +902,7 @@ namespace myNIAWG
 			{
 				myError = myNIAWG::handleInput::special(verticalFile, horizontalFile, verticalInputTypeString, horizontalInputTypeString, scriptHolder, triggerName, waveCount, vi, SESSION_CHANNELS,
 					error, verticalPredWaveNames, horizontalPredWaveNames, predWaveCount, predLocs, libWaveformArray, fileStatus, allVerticalWaveParameters,
-					verticalWaveformVaried, allHorizontalWaveParameters, horizontalWaveformVaried, isDefault, isThreaded, currentCategoryFolder, singletons, orientation, options, comm);
+					verticalWaveformVaried, allHorizontalWaveParameters, horizontalWaveformVaried, isDefault, currentCategoryFolder, singletons, orientation, options, warnings, debugMsg);
 			}
 			else 
 			{			
@@ -1374,21 +911,7 @@ namespace myNIAWG
 				errMsg = "ERROR: Input types from the two files do not match or are unrecognized!\n Both must be logic commands, both must be generate "
 					"commands, or both must be special commands. See documentation on the correct format for these commands.\n\nThe two inputed types are: " + verticalInputTypeString +
 					" and " + horizontalInputTypeString + " for waveform #" + std::to_string(waveCount - 1) + "!";
-				if (isThreaded)
-				{
-					comm->sendFatalError(errMsg, "", "");
-				}
-				else
-				{
-					if (isDefault)
-					{
-						MessageBox(NULL, errMsg.c_str(), 0, MB_OK | MB_ICONERROR);
-					}
-					else
-					{
-						comm->sendError(errMsg, "", "");
-					}
-				}
+				thrower(errMsg)
 				return -3;
 			}
 			rmWhite(verticalFile);
@@ -1406,7 +929,7 @@ namespace myNIAWG
 	 * fileStat: the array that contains information on whether a waveform has been written before.
 	 */
 	int getVariedWaveform(waveData &varWvFmInfo, std::vector<waveData> all_X_Or_Y_WvFmParam, int waveOrderNum, std::vector<std::string>(&libWvFmArray)[20],
-		bool(&fileStat)[20], ViReal64 * waveformRawData, debugOptions options, Communicator* comm)
+		bool(&fileStat)[20], ViReal64 * waveformRawData, debugOptions options, std::string& debugMsg)
 	{
 		for (int i = 0; i < varWvFmInfo.signalNum; i++)
 		{
@@ -1431,7 +954,7 @@ namespace myNIAWG
 		ViReal64* waveReadData;
 		waveReadData = new ViReal64[varWvFmInfo.sampleNum + varWvFmInfo.signalNum];
 		// either calculate or read waveform data into the above arrays.
-		if (myNIAWG::handleInput::waveformGen(waveformRawData, waveReadData, varWvFmInfo, varWvFmInfo.sampleNum, libWvFmArray, fileStat[varWvFmInfo.initType], options, comm) != 0)
+		if (myNIAWG::handleInput::waveformGen(waveformRawData, waveReadData, varWvFmInfo, varWvFmInfo.sampleNum, libWvFmArray, fileStat[varWvFmInfo.initType], options, debugMsg) != 0)
 		{
 			MessageBox(NULL, "handleInput::waveformGen threw an error while getting a varied waveform!\n", NULL, MB_OK);
 			return -11434;
@@ -1455,7 +978,7 @@ namespace myNIAWG
 					  correction waveform handling places.
 	 * double paramVal: the value of the variable which is getting loaded into waveforms.
 	 */
-	int varyParam(std::vector<waveData>& allWvInfo1, std::vector<waveData>& allWvInfo2, int wfCount, int& paramNum, double paramVal, Communicator* comm)
+	int varyParam(std::vector<waveData>& allWvInfo1, std::vector<waveData>& allWvInfo2, int wfCount, int& paramNum, double paramVal, std::string& warnings)
 	{
 		// change parameters, depending on the case. This was set during input reading.
 		std::vector<double> initPhases;
@@ -1479,16 +1002,15 @@ namespace myNIAWG
 				double errVal = myMath::calculateCorrectionTime(allWvInfo1[wfCount], allWvInfo2[wfCount], initPhases, "before");
 				if (errVal == -1)
 				{
-					MessageBox(0, "ERROR: Correction waveform was not able to match phases.", 0, 0);
+					errBox("ERROR: Correction waveform was not able to match phases.");
 					// throw error
 					return -1029;
 				}
 				else if (errVal != 0)
 				{
-					std::string errMsg = "WARNING: Correction waveform was not able to match phases very well. The total phase mismatch was "
-						+ std::to_string(errVal) + "radians.\r\n";
-					comm->sendError(errMsg, "", "");
 					// throw warning
+					warnings += "WARNING: Correction waveform was not able to match phases very well. The total phase mismatch was "
+						+ std::to_string(errVal) + "radians.\r\n";
 				}
 
 				// modify the phases of the current waveform such that they reach the 0 phase after the waveform.
@@ -1505,7 +1027,7 @@ namespace myNIAWG
 				// Case -3 is the case initially set by a correction wavefunction set to correct the /next/ (as opposed to the previous) waveform. However, at the
 				// time that this gets called, the wavefunction can't get the correct time yet because the next waveform hasn't been written. This location should
 				// never be reached.
-				MessageBox(NULL, "Bad location reached: -3 case of varyParam().", NULL, MB_OK);
+				errBox("Bad location reached: -3 case of varyParam().");
 				return -1;
 				break;
 			}
@@ -1525,15 +1047,14 @@ namespace myNIAWG
 				double errVal = myMath::calculateCorrectionTime(allWvInfo1[wfCount], allWvInfo2[wfCount], initPhases, "after");
 				if (errVal == -1)
 				{
-					MessageBox(0, "ERROR: Correction waveform was not able to match phases.", 0, 0);
+					errBox("ERROR: Correction waveform was not able to match phases.");
 					// throw error
 					return -1029;
 				}
 				else if (errVal != 0)
 				{
-					std::string errMsg = "WARNING: Correction waveform was not able to match phases very well. The total phase mismatch was "
+					warnings += "WARNING: Correction waveform was not able to match phases very well. The total phase mismatch was "
 						+ std::to_string(errVal) + "radians.\r\n";
-					comm->sendError(errMsg, "", "");
 					// throw warning
 				}
 				break;
@@ -1832,7 +1353,7 @@ namespace myNIAWG
 	 * This function is the procedure for checking NIAWG errors while in the analyzeNIAWGScripts function. It returns true if an error is found, false otherwise. It just
 	 * posts a message to the main window if an error is found.
 	 */
-	bool NIAWG_CheckScriptError(int err, bool isDefaultError, bool isThreaded, Communicator* comm)
+	void NIAWG_CheckScriptError(int err)
 	{
 		if (err < 0)
 		{
@@ -1842,34 +1363,16 @@ namespace myNIAWG
 			{
 				niFgen_ErrorHandler(eSessionHandle, eError, errMsg);
 			}
-			if (isThreaded)
-			{
-				std::string errMsg = "ERROR! (detected in NIAWG_CheckScriptError())\r\n";
-				comm->sendFatalError(errMsg, "", "");
-			}
-			else
-			{
-				if (isDefaultError)
-				{
-					MessageBox(NULL, errMsg, 0, MB_OK | MB_ICONERROR);
-				}
-				else
-				{
-					comm->sendError(errMsg, "", "");
-				}
-			}
-			return true;
+			thrower(std::string("ERROR! (detected in NIAWG_CheckScriptError())\r\n") + errMsg)
+			return;
 		}
-		else
-		{
-			return false;
-		}
+		return;
 	}
 	/*
 	 * This function looks for NIAWG errors while in either of the windows procedures or in the main function. It returns true if an error is found, false
 	 * otherwise. It attempts to get the NIWAG just outputting default waveforms again.
 	 */
-	bool NIAWG_CheckWindowsError(int err, std::string orientaiton, Communicator* comm)
+	bool NIAWG_CheckWindowsError(int err, std::string orientaiton)
 	{
 		if (err < 0)
 		{
@@ -1891,9 +1394,6 @@ namespace myNIAWG
 			myNIAWG::myNIAWG_DoubleErrorChecker(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE));
 			// Officially stop trying to generate anything.
 			myNIAWG::myNIAWG_DoubleErrorChecker(niFgen_AbortGeneration(eSessionHandle));
-			comm->sendError("EXITED WITH ERROR! (Seen in function NIAWG_CheckWindowsError)\r\n", "", "");
-			comm->sendStatus("EXITED WITH ERROR! (Seen in function NIAWG_CheckWindowsError)\r\n", "", "");
-			comm->sendError("NIAWG ERROR: (" + err + ")\r\n", "EXITED WITH ERROR! Passively Outputting Default Waveform.", "R");
 			myAgilent::agilentDefault();
 			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
@@ -1943,7 +1443,13 @@ namespace myNIAWG
 				// Initiate Generation.
 				myNIAWG::myNIAWG_DoubleErrorChecker(niFgen_InitiateGeneration(eSessionHandle));
 			}
+			thrower("NIAWG ERROR : (" + err + ")\r\n)")
+			/*
+			comm->sendError("EXITED WITH ERROR! (Seen in function NIAWG_CheckWindowsError)\r\n", "", "");
+			comm->sendStatus("EXITED WITH ERROR! (Seen in function NIAWG_CheckWindowsError)\r\n", "", "");
+			comm->sendError("NIAWG ERROR: (" + err + ")\r\n", "EXITED WITH ERROR! Passively Outputting Default Waveform.", "R");
 			comm->sendStatus("Initialized Default Waveform\r\n", "", "");
+			*/
 			return true;
 		}
 
@@ -1951,10 +1457,26 @@ namespace myNIAWG
 	}
 
 	/*
+		this function forces this standard handling but DOES NOT THROW. not sure if this is a good idea yet. 
+	*/
+	void NIAWG_CheckProgrammingError()
+	{
+		try
+		{
+			NIAWG_CheckProgrammingError(-1);
+		}
+		catch (my_exception&)
+		{
+			// always happens.
+			return;
+		}
+	}
+
+	/*
 	 * This function looks for NIAWG errors in the programming thread. It returns true if an error is found, false otherwise. If an error is found, it sends
 	 * a series of messages to the main window.
 	 */
-	bool NIAWG_CheckProgrammingError(int err, Communicator* comm)
+	void NIAWG_CheckProgrammingError(int err)
 	{
 		if (err < 0)
 		{
@@ -1972,14 +1494,17 @@ namespace myNIAWG
 			}
 			std::string err(errMsg);
 			free(errMsg);
+			thrower("NIAWG ERROR : " + err)
+			/*
 			comm->sendStatus("EXITED WITH ERROR! (Seen in function NIAWG_CheckProgrammingError)\r\n","","");
 			comm->sendError("EXITED WITH ERROR! (Seen in function NIAWG_CheckProgrammingError)\r\n", "", "");
 			comm->sendStatus("Initialized Default Waveform", "", "");
 			comm->sendFatalError("NIAWG ERROR : " + err + "\r\n", "", "");
-			return true;
+			*/
+			return;
 		}
 
-		return false;
+		return;
 	}
 
 	/*
@@ -2499,7 +2024,7 @@ namespace myNIAWG
 		* strings read, before. If it hasn't the code knows to open the file and read in the strings for the first time.
 		*/
 		int waveformGen(ViReal64 * & tempWaveform, ViReal64 * & readData, waveData & waveInfo, long int size, std::vector<std::string>(&libWaveformArray)[20], 
-						bool& fileOpened, debugOptions options, Communicator* comm)
+						bool& fileOpened, debugOptions options, std::string& debugMsg)
 		{
 			// structures that hold a time stamp
 			unsigned long long time1, time2;
@@ -2585,7 +2110,7 @@ namespace myNIAWG
 						time2 = GetTickCount64();
 						double ellapsedTime = (time2 - time1) / 1000.0;
 						sprintf_s(processTimeMsg, "Finished Reading Waveform. Ellapsed Time: %.3f seconds.\r\n", ellapsedTime);
-						comm->sendDebug("Finished Reading Waveform. Ellapsed Time: %.3f seconds.\r\n", "", "");
+						debugMsg += "Finished Reading Waveform. Ellapsed Time: %.3f seconds.\r\n";
 						//appendText(processTimeMsg, IDC_SYSTEM_DEBUG_TEXT, eMainWindowHandle);
 					}
 					// if the file got read, I don't need to do any writing, so go ahead and return.
@@ -2640,7 +2165,7 @@ namespace myNIAWG
 					time2 = GetTickCount64();
 					double ellapsedTime = (time2 - time1) / 1000.0;
 					sprintf_s(processTimeMsg, "Finished Writing Waveform. Ellapsed Time: %.3f seconds.\r\n", ellapsedTime);
-					comm->sendDebug("Finished Reading Waveform. Ellapsed Time: %.3f seconds.\r\n", "", "");
+					debugMsg += "Finished Reading Waveform. Ellapsed Time: %.3f seconds.\r\n";
 				}
 			}
 			return 0;
@@ -2817,8 +2342,8 @@ namespace myNIAWG
 					std::string& scriptString, std::string triggerName,	int &waveCount, ViSession vi, ViConstString channelName, ViStatus error, 
 					std::vector<std::string> xWaveformList,	std::vector<std::string> yWaveformList, int &predWaveCount, std::vector<int> waveListWaveCounts,
 					std::vector<std::string>(&libWaveformArray)[20], bool(&fileStatus)[20], std::vector<waveData> &allXWaveParam, 
-					std::vector<bool> &xWaveVaried,	std::vector<waveData> &allYWaveParam, std::vector<bool> &yWaveVaried, bool isDefault, bool isThreaded, 
-					std::string currentCategoryFolder, std::vector<variable> singletons, std::string orientation, debugOptions options, Communicator* comm)
+					std::vector<bool> &xWaveVaried,	std::vector<waveData> &allYWaveParam, std::vector<bool> &yWaveVaried, bool isDefault, 
+					std::string currentCategoryFolder, std::vector<variable> singletons, std::string orientation, debugOptions options, std::string& warnings, std::string& debugMessages)
 		{
 			// declare some variables
 			std::string verticalExternalVerticalScriptName, verticalExternalHorizontalScriptName, horizontalExternalVerticalScriptName, 
@@ -2869,9 +2394,11 @@ namespace myNIAWG
 				}
 				// recursively call the analyzeNIAWGScripts function. This will go through the new script files, write all of their commands to the same script, write
 				// waveforms to the AWG, and eventually make it's way back here.
-				myNIAWG::analyzeNIAWGScripts(externalVerticalScriptFile, externalHorizontalScriptFile, scriptString, triggerName, waveCount, vi, channelName, error, xWaveformList, 
-										yWaveformList, predWaveCount, waveListWaveCounts, libWaveformArray, fileStatus, allXWaveParam, xWaveVaried, 
-										allYWaveParam, yWaveVaried, isDefault, isThreaded, currentCategoryFolder, singletons, orientation, options, comm);
+
+				// this doesn't need a try/except because it's always inside another analyze call.
+				myNIAWG::analyzeNIAWGScripts(externalVerticalScriptFile, externalHorizontalScriptFile, scriptString, triggerName, waveCount, vi, channelName, error, xWaveformList,
+					yWaveformList, predWaveCount, waveListWaveCounts, libWaveformArray, fileStatus, allXWaveParam, xWaveVaried,
+					allYWaveParam, yWaveVaried, isDefault, currentCategoryFolder, singletons, orientation, options, warnings, debugMessages);
 
 				return 0;
 			}
@@ -2955,7 +2482,7 @@ namespace myNIAWG
 				// file.
 				myNIAWG::analyzeNIAWGScripts(externalVerticalWaveformFile, externalHorizontalWaveformFile, scriptString, triggerName, waveCount, vi, channelName, error, xWaveformList, 
 										yWaveformList, predWaveCount, waveListWaveCounts, libWaveformArray, fileStatus, allXWaveParam, xWaveVaried, 
-										allYWaveParam, yWaveVaried, isDefault, isThreaded, currentCategoryFolder, singletons, orientation, options, comm);
+										allYWaveParam, yWaveVaried, isDefault, currentCategoryFolder, singletons, orientation, options, warnings, debugMessages);
 				return 0;
 			}
 			else

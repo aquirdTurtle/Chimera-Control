@@ -11,6 +11,7 @@ void PictureManager::handleScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar
 			control.handleScroll(id, nPos);
 		}
 	}
+
 	return;
 }
 

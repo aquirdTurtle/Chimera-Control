@@ -45,7 +45,6 @@
 #include "resource.h"
 #include "errBox.h"
  
-// shows error message if it exists. Could be function but for consistency with other ERR_X Macros...
-#define ERR_POP(string) {if (string != ""){errBox(string);}}
-// shows error message and exits given function with error.
-#define ERR_POP_RETURN(string) {if (string != ""){errBox(string); return true;}}
+// important!
+#include "miscellaneousCommonFunctions.h"
+

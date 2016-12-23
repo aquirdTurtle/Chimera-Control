@@ -2,7 +2,6 @@
 
 #include "myErrorHandler.h"
 
-#include "appendText.h"
 #include "cleanSocket.h"
 
 #include "constants.h"
@@ -45,7 +44,14 @@ bool myErrorHandler(int errorCode, std::string errMsg, SOCKET& socketToClose, st
 			}
 		}
 		// Call Clean Socket.
-		cleanSocket(socketToClose, sockActive, connected, comm);
+		try
+		{
+			cleanSocket(socketToClose, sockActive, connected);
+		}
+		catch (std::runtime_error& err)
+		{
+			comm->sendFatalError(err.what(), "", "");
+		}
 		// turn the agilent to the default setting.
 		myAgilent::agilentDefault();
 		// close files.

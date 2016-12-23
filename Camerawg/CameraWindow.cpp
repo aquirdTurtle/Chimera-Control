@@ -3,6 +3,8 @@
 #include "commonMessages.h"
 #include "CameraSettingsControl.h"
 
+
+
 IMPLEMENT_DYNAMIC(CameraWindow, CDialog)
 
 BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
@@ -44,14 +46,14 @@ void CameraWindow::OnCancel()
 
 BOOL CameraWindow::OnInitDialog()
 {
-	std::array<POINT, 3> cameraPositions;
+	cameraPositions positions;
 	// all of the initialization functions increment and use the id, so by the end it will be 3000 + # of controls.
 	int id = 3000;
-	cameraPositions[0] = { 0,0 }; 
-	box.initialize(cameraPositions[0], id, this, 480);
-	cameraPositions[1] = cameraPositions[2] = cameraPositions[0];
-	this->CameraSettings.initialize(cameraPositions[0], cameraPositions[1], cameraPositions[2], id, this);
-	alerts.initialize(cameraPositions[0], cameraPositions[1], cameraPositions[2], this, false, id);
+	positions.cssmPos = positions.amPos = positions.ksmPos = { 0,0 };
+	box.initialize(positions.ksmPos, id, this, 480);
+	this->CameraSettings.initialize(positions, id, this);
+	alerts.initialize(positions, this, false, id);
+	plotters.initialize(positions, id, this);
 	POINT position = { 480, 0 };
 	stats.initialize(position, this, id);
 	position = { 757, 0 };

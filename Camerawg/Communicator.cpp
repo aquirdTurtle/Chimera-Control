@@ -17,10 +17,13 @@ Note that in all of the following, using "" as the input means that the communic
 control of interest.
 */
 
-void Communicator::sendError(std::string statusMsg, std::string shortMsg, std::string color)
+void Communicator::sendErrorEx(std::string statusMsg, std::string shortMsg, std::string color, const char *file, int line)
 {
+
 	if (statusMsg != "")
 	{
+		statusMsg = statusMsg + "\r\n*********************************\r\nERROR! (Sent by file: " + std::string(file) + " on line: "
+			+ std::to_string(line) + ")\r\n*********************************\r\n";
 		postMyString(parent, eErrorTextMessageID, statusMsg);
 	}
 	if (shortMsg != "")
@@ -35,10 +38,12 @@ void Communicator::sendError(std::string statusMsg, std::string shortMsg, std::s
 	}
 }
 
-void Communicator::sendFatalError(std::string statusMsg, std::string shortMsg, std::string color)
+void Communicator::sendFatalErrorEx(std::string statusMsg, std::string shortMsg, std::string color, const char *file, int line)
 {
 	if (statusMsg != "")
 	{
+		statusMsg = statusMsg + "\r\n*********************************\r\nERROR! (Sent by file: " + std::string(file) + " on line: "
+			+ std::to_string(line) + ")\r\n*********************************\r\n";
 		postMyString(parent, eFatalErrorMessageID, statusMsg);
 	}
 	if (shortMsg != "")
