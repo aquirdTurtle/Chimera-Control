@@ -30,7 +30,7 @@ extern SMSTextingControl eTextingHandler;
 extern ConfigurationFileSystem eCameraFileSystem;
 extern ExperimentTimer eCameraWindowExperimentTimer;
 extern DataAnalysisHandler eAutoAnalysisHandler;
-extern CameraImage eImageControl;
+extern CameraImageParametersControl eImageControl;
 extern AlertSystem eAlerts;
 extern EmbeddedPythonHandler Python;
 extern PictureStats ePicStats;

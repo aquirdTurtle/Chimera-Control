@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cold Atoms Control Application", "Cold Atoms Control Application\Cold Atoms Control Application.vcxproj", "{BDB7E898-2F81-4410-90C7-0BD4D3212AF8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Camerawg", "Camerawg\Camerawg.vcxproj", "{BDB7E898-2F81-4410-90C7-0BD4D3212AF8}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Andor Camera Control", "Camera\Camera.vcxproj", "{F965DF0C-ACB6-4687-BC01-122F5AADA5D7}"
 EndProject

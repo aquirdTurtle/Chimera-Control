@@ -7,12 +7,12 @@
 #include "appendText.h"
 #include "reorganizeControl.h"
 
-CameraImage::CameraImage()
+CameraImageParametersControl::CameraImageParametersControl()
 {
 	isReady = false;
 }
 
-bool CameraImage::initiateControls(POINT& topLeftPositionKinetic, POINT& topLeftPositionAccumulate, POINT& topLeftPositionContinuous,
+bool CameraImageParametersControl::initiateControls(POINT& topLeftPositionKinetic, POINT& topLeftPositionAccumulate, POINT& topLeftPositionContinuous,
 	HWND parentWindow, bool isTriggerModeSensitive)
 {
 	setImageParametersButton.kineticSeriesModePos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 272, topLeftPositionKinetic.y + 25 };
@@ -208,7 +208,7 @@ bool CameraImage::initiateControls(POINT& topLeftPositionKinetic, POINT& topLeft
 	return false;
 }
 
-bool CameraImage::drawBackgrounds()
+bool CameraImageParametersControl::drawBackgrounds()
 {
 	// recolor the box, clearing last run
 	HDC hDC = GetDC(eCameraWindowHandle);
@@ -227,7 +227,7 @@ bool CameraImage::drawBackgrounds()
 	ReleaseDC(eCameraWindowHandle, hDC);
 	return true;
 }
-bool CameraImage::drawRectangleFrame()
+bool CameraImageParametersControl::drawRectangleFrame()
 {
 	// draw rectangles indicating where the pixels are.
 	HDC hDC2 = GetDC(eCameraWindowHandle);
@@ -244,7 +244,7 @@ bool CameraImage::drawRectangleFrame()
 	return true;
 }
 
-bool CameraImage::setImageParameters()
+bool CameraImageParametersControl::setImageParameters()
 {
 	this->drawBackgrounds();
 	// If new dimensions are set, we don't have data for those.
@@ -441,7 +441,7 @@ bool CameraImage::setImageParameters()
 /*
  * I forget why I needed a second function for this.
  */
-bool CameraImage::setImageParametersFromInput(imageParameters param)
+bool CameraImageParametersControl::setImageParametersFromInput(imageParameters param)
 {
 	this->drawBackgrounds();
 	eDataExists = false;
@@ -577,7 +577,7 @@ bool CameraImage::setImageParametersFromInput(imageParameters param)
 	return false;
 }
 
-bool CameraImage::checkReady()
+bool CameraImageParametersControl::checkReady()
 {
 	if (isReady)
 	{
@@ -589,12 +589,12 @@ bool CameraImage::checkReady()
 	}
 }
 
-imageParameters CameraImage::getImageParameters()
+imageParameters CameraImageParametersControl::getImageParameters()
 {
 	return currentImageParameters;
 }
 
-INT_PTR CameraImage::colorEdits(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CameraImageParametersControl::colorEdits(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	DWORD controlID = GetDlgCtrlID((HWND)lParam);
 	HDC hdcStatic = (HDC)wParam;
@@ -851,7 +851,7 @@ INT_PTR CameraImage::colorEdits(HWND window, UINT message, WPARAM wParam, LPARAM
 }
 
 
-bool CameraImage::reorganizeControls(RECT parentRectangle, std::string cameraMode)
+bool CameraImageParametersControl::reorganizeControls(RECT parentRectangle, std::string cameraMode)
 {
 	reorganizeControl(leftText, cameraMode, parentRectangle);
 	reorganizeControl(rightText, cameraMode, parentRectangle);

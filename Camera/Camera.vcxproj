@@ -173,6 +173,7 @@
   <ItemGroup>
     <ClInclude Include="acquisitionImmutables.h" />
     <ClInclude Include="AlertSystem.h" />
+    <ClInclude Include="CameraSettingsControl.h" />
     <ClInclude Include="PictureOptions.h" />
     <ClInclude Include="appendColoredText.h" />
     <ClInclude Include="appendText.h" />
@@ -218,6 +219,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AlertSystem.cpp" />
+    <ClCompile Include="CameraSettingsControl.cpp" />
     <ClCompile Include="PictureOptions.cpp" />
     <ClCompile Include="appendColoredText.cpp" />
     <ClCompile Include="appendText.cpp" />
