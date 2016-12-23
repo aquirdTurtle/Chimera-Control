@@ -147,10 +147,13 @@
     <ClInclude Include="doubleToString.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PictureOptions.h">
+    <ClInclude Include="plotterProcedure.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="plotterProcedure.h">
+    <ClInclude Include="CameraSettingsControl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PictureOptions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -248,10 +251,13 @@
     <ClCompile Include="doubleToString.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="PictureOptions.cpp">
+    <ClCompile Include="plotterProcedure.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="plotterProcedure.cpp">
+    <ClCompile Include="CameraSettingsControl.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PictureOptions.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
   </ItemGroup>

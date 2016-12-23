@@ -4,7 +4,7 @@
 #include <array>
 #include <vector>
 
-class PictureOptions
+class PictureSettingsControl
 {
 	public:
 		bool initialize(POINT& kineticPos, POINT& continuousPos, POINT& accumulatePos, HWND parent, int& id);
