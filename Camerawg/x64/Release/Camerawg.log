@@ -1,0 +1,145 @@
+﻿  stdafx.cpp
+  beginningSettingsDialogProc.cpp
+beginningSettingsDialogProc.cpp(36): warning C4267: '=': conversion from 'size_t' to 'DWORD', possible loss of data
+  CameraImageParameters.cpp
+CameraImageParameters.cpp(180): warning C4101: 'exception': unreferenced local variable
+CameraImageParameters.cpp(192): warning C4101: 'exception': unreferenced local variable
+CameraImageParameters.cpp(205): warning C4101: 'exception': unreferenced local variable
+CameraImageParameters.cpp(218): warning C4101: 'exception': unreferenced local variable
+CameraImageParameters.cpp(230): warning C4101: 'exception': unreferenced local variable
+CameraImageParameters.cpp(242): warning C4101: 'exception': unreferenced local variable
+  CameraSettingsControl.cpp
+  CameraWindow.cpp
+  cleanSocket.cpp
+  cleanString.cpp
+  ColorBox.cpp
+  Communicator.cpp
+  ConfigurationFileSystem.cpp
+ConfigurationFileSystem.cpp(124): warning C4244: 'argument': conversion from '__int64' to 'int', possible loss of data
+ConfigurationFileSystem.cpp(991): warning C4244: 'argument': conversion from '__int64' to 'int', possible loss of data
+ConfigurationFileSystem.cpp(1338): warning C4244: 'argument': conversion from '__int64' to 'int', possible loss of data
+ConfigurationFileSystem.cpp(1741): warning C4244: 'argument': conversion from '__int64' to 'int', possible loss of data
+ConfigurationFileSystem.cpp(1813): warning C4244: 'argument': conversion from '__int64' to 'int', possible loss of data
+ConfigurationFileSystem.cpp(1879): warning C4305: 'return': truncation from 'int' to 'bool'
+ConfigurationFileSystem.cpp(1913): warning C4305: 'return': truncation from 'int' to 'bool'
+ConfigurationFileSystem.cpp(1997): warning C4305: 'return': truncation from 'int' to 'bool'
+ConfigurationFileSystem.cpp(2371): warning C4244: 'initializing': conversion from 'uintmax_t' to 'int', possible loss of data
+  DebuggingOptionsControl.cpp
+  errBox.cpp
+  experimentProgrammingThread.cpp
+experimentProgrammingThread.cpp(453): warning C4267: '/=': conversion from 'size_t' to 'unsigned int', possible loss of data
+experimentProgrammingThread.cpp(1059): warning C4267: 'initializing': conversion from 'size_t' to 'long', possible loss of data
+  externals.cpp
+  MainOptionsControl.cpp
+  MainWindow.cpp
+  Andor.cpp
+Andor.cpp(40): warning C4101: 'aBuffer2': unreferenced local variable
+Andor.cpp(306): warning C4267: 'argument': conversion from 'size_t' to 'unsigned long', possible loss of data
+Andor.cpp(506): warning C4101: 'xscale': unreferenced local variable
+Andor.cpp(511): warning C4101: 'pixelsAreaHeight': unreferenced local variable
+Andor.cpp(506): warning C4101: 'zscale': unreferenced local variable
+Andor.cpp(509): warning C4101: 'imageBoxHeight': unreferenced local variable
+Andor.cpp(509): warning C4101: 'imageBoxWidth': unreferenced local variable
+Andor.cpp(838): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+Andor.cpp(991): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+  NoteSystem.cpp
+  PictureSettingsControl.cpp
+PictureSettingsControl.cpp(275): warning C4018: '>=': signed/unsigned mismatch
+PictureSettingsControl.cpp(275): warning C4018: '<=': signed/unsigned mismatch
+PictureSettingsControl.cpp(285): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+PictureSettingsControl.cpp(316): warning C4018: '>=': signed/unsigned mismatch
+PictureSettingsControl.cpp(316): warning C4018: '<=': signed/unsigned mismatch
+PictureSettingsControl.cpp(416): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+PictureSettingsControl.cpp(467): warning C4101: 'e': unreferenced local variable
+PictureSettingsControl.cpp(566): warning C4018: '<': signed/unsigned mismatch
+  postMyString.cpp
+  ProfileIndicator.cpp
+  Compiling...
+  reorganizeControl.cpp
+reorganizeControl.cpp(19): warning C4806: '==': unsafe operation: no value of type 'bool' promoted to type 'int' can equal the given constant
+reorganizeControl.cpp(28): warning C4838: conversion from 'double' to 'LONG' requires a narrowing conversion
+reorganizeControl.cpp(28): warning C4244: 'initializing': conversion from 'double' to 'LONG', possible loss of data
+reorganizeControl.cpp(34): warning C4806: '==': unsafe operation: no value of type 'bool' promoted to type 'int' can equal the given constant
+reorganizeControl.cpp(43): warning C4838: conversion from 'double' to 'LONG' requires a narrowing conversion
+reorganizeControl.cpp(43): warning C4244: 'initializing': conversion from 'double' to 'LONG', possible loss of data
+reorganizeControl.cpp(49): warning C4806: '==': unsafe operation: no value of type 'bool' promoted to type 'int' can equal the given constant
+reorganizeControl.cpp(58): warning C4838: conversion from 'double' to 'LONG' requires a narrowing conversion
+reorganizeControl.cpp(58): warning C4244: 'initializing': conversion from 'double' to 'LONG', possible loss of data
+  reorganizeWindow.cpp
+  Script.cpp
+Script.cpp(166): warning C4018: '<': signed/unsigned mismatch
+Script.cpp(170): warning C4018: '>': signed/unsigned mismatch
+Script.cpp(212): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+Script.cpp(224): warning C4267: '=': conversion from 'size_t' to 'LONG', possible loss of data
+Script.cpp(293): warning C4267: '=': conversion from 'size_t' to 'LONG', possible loss of data
+Script.cpp(639): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+Script.cpp(723): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+Script.cpp(733): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+Script.cpp(736): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+Script.cpp(986): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+Script.cpp(990): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+Script.cpp(994): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+Script.cpp(997): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+Script.cpp(1025): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+Script.cpp(1037): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+Script.cpp(1041): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+Script.cpp(1044): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+Script.cpp(1125): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+Script.cpp(1195): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+Script.cpp(1219): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+  ScriptingWindow.cpp
+  StatusControl.cpp
+  StatusIndicator.cpp
+  systemAbortCheck.cpp
+  textPromptDialogProcedure.cpp
+  getFileName.cpp
+  commonMessages.cpp
+commonMessages.cpp(504): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+  myAgilent.cpp
+  myErrorHandler.cpp
+  myMath.cpp
+  myNIAWG.cpp
+myNIAWG.cpp(3711): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+myNIAWG.cpp(3868): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+  Camerawg.cpp
+  NIAWGWaitThread.cpp
+NIAWGWaitThread.cpp(99): warning C4244: 'argument': conversion from 'float' to 'DWORD', possible loss of data
+  rmWhite.cpp
+  saveTextFileFromEdit.cpp
+  appendText.cpp
+  ScriptWritingInstructionsDialog.cpp
+  Compiling...
+  selectInCombo.cpp
+selectInCombo.cpp(11): warning C4244: 'initializing': conversion from 'LRESULT' to 'int', possible loss of data
+  VariableSystem.cpp
+VariableSystem.cpp(204): warning C4267: 'return': conversion from 'size_t' to 'unsigned int', possible loss of data
+Andor.obj : error LNK2001: unresolved external symbol SetADChannel
+Andor.obj : error LNK2001: unresolved external symbol SetHSSpeed
+Andor.obj : error LNK2001: unresolved external symbol GetNumberNewImages
+Andor.obj : error LNK2001: unresolved external symbol GetOldestImage
+Andor.obj : error LNK2001: unresolved external symbol SetTriggerMode
+Andor.obj : error LNK2001: unresolved external symbol SetAcquisitionMode
+Andor.obj : error LNK2001: unresolved external symbol SetReadMode
+Andor.obj : error LNK2001: unresolved external symbol SetRingExposureTimes
+Andor.obj : error LNK2001: unresolved external symbol SetImage
+Andor.obj : error LNK2001: unresolved external symbol SetKineticCycleTime
+Andor.obj : error LNK2001: unresolved external symbol SetNumberKinetics
+Andor.obj : error LNK2001: unresolved external symbol SetFrameTransferMode
+Andor.obj : error LNK2001: unresolved external symbol GetAcquisitionTimings
+Andor.obj : error LNK2001: unresolved external symbol GetAdjustedRingExposureTimes
+Andor.obj : error LNK2001: unresolved external symbol GetStatus
+Andor.obj : error LNK2001: unresolved external symbol StartAcquisition
+Andor.obj : error LNK2001: unresolved external symbol AbortAcquisition
+Andor.obj : error LNK2001: unresolved external symbol SetAccumulationCycleTime
+Andor.obj : error LNK2001: unresolved external symbol SetNumberAccumulations
+Andor.obj : error LNK2001: unresolved external symbol GetNumberPreAmpGains
+Andor.obj : error LNK2001: unresolved external symbol SetPreAmpGain
+Andor.obj : error LNK2001: unresolved external symbol GetPreAmpGain
+Andor.obj : error LNK2001: unresolved external symbol SetOutputAmplifier
+Andor.obj : error LNK2001: unresolved external symbol SetEMAdvanced
+Andor.obj : error LNK2001: unresolved external symbol SetEMCCDGain
+Andor.obj : error LNK2001: unresolved external symbol GetTemperatureRange
+Andor.obj : error LNK2001: unresolved external symbol CoolerON
+Andor.obj : error LNK2001: unresolved external symbol CoolerOFF
+Andor.obj : error LNK2001: unresolved external symbol SetTemperature
+C:\Users\Mark\Documents\Quantum Gas Assembly Control\x64\Release\Camerawg.exe : fatal error LNK1120: 29 unresolved externals
