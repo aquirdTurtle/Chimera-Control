@@ -4,7 +4,8 @@
 #include "PictureStats.h"
 #include "PictureManager.h"
 #include "AlertSystem.h"
-#include "PlottingControl.h"
+#include "DataAnalysisHandler.h"
+#include "ExperimentTimer.h"
 
 class MainWindow;
 class ScriptingWindow;
@@ -22,33 +23,60 @@ class CameraWindow : public CDialog
 	using CDialog::CDialog;
 	DECLARE_DYNAMIC(CameraWindow)
 	public:
-		CameraWindow::CameraWindow() : CDialog(), CameraSettings(&Andor) {};
+		/// overrides
+		CameraWindow::CameraWindow(MainWindow* mainWin, ScriptingWindow* scriptWin) : 
+			CDialog(), 
+			CameraSettings(&Andor), 
+			Andor(mainWin->getComm())
+		{
+			// because of these lines the camera window does not need to "get friends".
+			mainWindowFriend = mainWin;
+			scriptingWindowFriend = scriptWin;
+		};
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 		BOOL OnInitDialog() override;
+		BOOL PreTranslateMessage(MSG* pMsg);
 		void OnCancel() override;
 		void OnSize(UINT nType, int cx, int cy);
 		void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar);
-
-		void getFriends(MainWindow* mainWin, ScriptingWindow* scriptWin);
+		void OnTimer(UINT_PTR id);
+		/// Extra functions from this class.
 		void redrawPictures();
-		void changeBoxColor(std::string color);
-
+		void changeBoxColor( colorBoxes<char> colors );
+		std::vector<CToolTipCtrl*> getToolTips();
+		bool getCameraStatus();
+		void setTimerColor( std::string color );
+		void setTimerText( std::string timerText );
+		void prepareCamera();
+		void startCamera();
+		std::string getStartMessage();
+		/// passing commands on to members and their handling.
 		void readImageParameters();
 		void passCommonCommand(UINT id);
+		void passTrigger();
+		void passAlertPress();
+		void passSetTemperaturePress();
 		void setEmGain();
-		
+		void handlePictureSettings(UINT id);	
+		void onCameraFinish();
+
+		void listViewDblClick(NMHDR* info, LRESULT* lResult);
+		void listViewRClick(NMHDR* info, LRESULT* lResult);
 
 	private:
 		DECLARE_MESSAGE_MAP();
+		
 		AndorCamera Andor;
-		CameraSettingsControl CameraSettings;
+		CameraSettingsControl CameraSettings; 
 		ColorBox box;
 		PictureStats stats;
 		PictureManager pics;
 		AlertSystem alerts;
-		PlottingControl plotters;
+		DataHandlingControl dataHandler;
+		ExperimentTimer timer;
 
 		MainWindow* mainWindowFriend;
 		ScriptingWindow* scriptingWindowFriend;
 
+		std::vector<CToolTipCtrl*> tooltips;
 };

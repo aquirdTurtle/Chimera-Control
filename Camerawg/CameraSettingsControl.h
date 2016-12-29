@@ -45,14 +45,33 @@ class CameraSettingsControl
 			andorFriend = friendInitializer; 
 			runSettings.cameraMode = "Kinetic Series Mode";
 			runSettings.triggerMode = "External";
+			runSettings.exposureTimes = { 20 };
+			runSettings.picsPerRepetition = 1;
+			runSettings.kinetiCycleTime = 0.1;
+			if ( ANDOR_SAFEMODE )
+			{
+				runSettings.picsPerRepetition = 2;
+				runSettings.repetitionsPerVariation = 5;
+				runSettings.totalVariations = 3;
+				runSettings.totalPicsInExperiment = 30;
+				runSettings.totalPicsInVariation = 10;
+			}
 		}
-		void initialize(cameraPositions& pos, int& id, CWnd* parent);
-		void checkTimings(std::vector<float> exposureTimes, Communicator* comm);
-		void checkTimings(float kineticCycleTime, float accumulationTime, std::vector<float> exposureTimes, Communicator* comm);
-		imageParameters readImageParameters(CameraWindow* camWin, Communicator* comm);
-		void setEmGain(AndorCamera* andorObj, Communicator* comm);
-		void reorganizeControls(std::string cameraMode, std::string triggerMode, int width, int height);
+		CBrush* handleColor(int idNumber, CDC* colorer, std::unordered_map<std::string, CBrush*> brushes, std::unordered_map<std::string, COLORREF> rgbs);
+		void initialize(cameraPositions& pos, int& id, CWnd* parent, std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips);
+		void checkTimings(std::vector<float> exposureTimes);
+		void checkTimings(float kineticCycleTime, float accumulationTime, std::vector<float> exposureTimes);
+		imageParameters readImageParameters(CameraWindow* camWin);
+		void setEmGain(AndorCamera* andorObj);
+		void rearrange(std::string cameraMode, std::string triggerMode, int width, int height, std::unordered_map<std::string, CFont*> fonts);
+		void handlePictureSettings(UINT id, AndorCamera* andorObj);
+		void handleTriggerControl(CameraWindow* cameraWindow);
+		void handleSetTemperatureOffPress();
+		void handleSetTemperaturePress();
+		void handleTimer();
+		void checkIfReady();
 		AndorRunSettings getSettings();
+		std::array<int, 4> getThresholds();
 	private:
 		AndorCamera* andorFriend;
 		// Header
@@ -73,6 +92,7 @@ class CameraSettingsControl
 		Control<CEdit> temperatureEdit;
 		Control<CStatic> temperatureDisplay;
 		Control<CStatic> temperatureMessage;
+		std::string currentControlColor;
 		// CameraImageParametersControl
 		CameraImageParametersControl imageParametersObj;
 		// Individual Picture Settings
@@ -81,3 +101,4 @@ class CameraSettingsControl
 		// experiment.
 		AndorRunSettings runSettings;
 };
+

@@ -20,11 +20,12 @@ class CameraImageParametersControl
 		CameraImageParametersControl();
 		bool initialize(POINT& topLeftPositionKinetic, POINT& topLeftPositionAccumulate, POINT& topLeftPositionContinuous,
 							  CWnd* parentWindow, bool isTriggerModeSensitive, int& id);
-		imageParameters readImageParameters(CameraWindow* camWin, Communicator* comm);
-		bool setImageParametersFromInput(imageParameters param, Communicator* comm, CameraWindow* camWin);
+		imageParameters readImageParameters(CameraWindow* camWin);
+		bool setImageParametersFromInput(imageParameters param, CameraWindow* camWin);
 		bool checkReady();
 		imageParameters getImageParameters();
-		bool reorganizeControls(std::string cameraMode, std::string triggerMode, int width, int height);
+		bool rearrange(std::string cameraMode, std::string triggerMode, int width,
+			int height, std::unordered_map<std::string, CFont*> fonts);
 		HBRUSH colorEdits(HWND window, UINT message, WPARAM wParam, LPARAM lParam, MainWindow* mainWin);
 		bool drawBackgrounds(CameraWindow* camWin);
 		// TODO:

@@ -11,8 +11,8 @@ class CMyWinApp : CWinApp
 	private:
 		BOOL InitInstance() override
 		{
-			MessageBox(0, "RUNNING!", 0, 0);
-			return TRUE;
+			//MessageBox(0, "RUNNING!", 0, 0);
+			//return TRUE;
 			// initialize sockets.
 			AfxSocketInit();
 			// create the main window.

@@ -11,7 +11,8 @@ struct mainOptions
 class MainOptionsControl
 {
 	public:
-		void initialize(int& idStart, POINT& loc, CWnd* parent);
+		void initialize(int& idStart, POINT& loc, CWnd* parent, std::unordered_map<std::string, CFont*> fonts,
+			std::vector<CToolTipCtrl*>& tooltips);
 		bool handleEvent(UINT id, MainWindow* comm);
 		mainOptions getOptions();
 		void setOptions(mainOptions options);

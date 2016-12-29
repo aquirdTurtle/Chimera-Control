@@ -1610,7 +1610,6 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 				{
 					myAndor::setTemperature();
 					eCameraFileSystem.updateSaveStatus(false);
-					
 					break;
 				}
 				case IDC_SET_IMAGE_PARAMS_BUTTON: 

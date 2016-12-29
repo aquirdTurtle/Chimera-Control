@@ -22,6 +22,15 @@ BEGIN_MESSAGE_MAP(ScriptingWindow, CDialog)
 	ON_CBN_SELENDOK(IDC_AGILENT_SCRIPT_COMBO, &ScriptingWindow::handleAgilentScriptComboChange)
 END_MESSAGE_MAP()
 
+BOOL ScriptingWindow::PreTranslateMessage(MSG* pMsg)
+{
+	for (int toolTipInc = 0; toolTipInc < this->tooltips.size(); toolTipInc++)
+	{
+		this->tooltips[toolTipInc]->RelayEvent(pMsg);
+	}
+	return CDialog::PreTranslateMessage(pMsg);
+}
+
 void ScriptingWindow::handleHorizontalScriptComboChange()
 {
 	this->horizontalNIAWGScript.childComboChangeHandler(this, this->mainWindowFriend);
@@ -52,18 +61,20 @@ BOOL ScriptingWindow::OnInitDialog()
 	// ADD MORE INITIALIZATIONS HERE
 	int id = 2000;
 	POINT startLocaiton = { 0, 28 };
-	verticalNIAWGScript.initializeControls(640, 1000, startLocaiton, this, "Vertical NIAWG", id);
+	verticalNIAWGScript.initializeControls(640, 1000, startLocaiton, this, "Vertical NIAWG", id, 
+		mainWindowFriend->getFonts(), tooltips);
 	startLocaiton = { 640, 28 };
-	horizontalNIAWGScript.initializeControls(640, 1000, startLocaiton, this, "Horizontal NIAWG", id);
+	horizontalNIAWGScript.initializeControls(640, 1000, startLocaiton, this, "Horizontal NIAWG", id, 
+		mainWindowFriend->getFonts(), tooltips);
 	startLocaiton = { 1280, 28 };
-	intensityAgilentScript.initializeControls(640, 1000, startLocaiton, this, "Agilent", id);
+	intensityAgilentScript.initializeControls(640, 1000, startLocaiton, this, "Agilent", id, 
+		mainWindowFriend->getFonts(), tooltips);
 	startLocaiton = { 1880, 3 };
-	statusBox.initialize(startLocaiton, id, this, 40);
-	this->profileDisplay.initialize({ 0,3 }, id, this);
+	statusBox.initialize(startLocaiton, id, this, 40, mainWindowFriend->getFonts(), tooltips);
+	this->profileDisplay.initialize({ 0,3 }, id, this, mainWindowFriend->getFonts(), tooltips);
 	CMenu menu;
 	menu.LoadMenu(IDR_MAIN_MENU);
 	this->SetMenu(&menu);
-	
 	this->ShowWindow(SW_MAXIMIZE);
 	return TRUE;
 }
@@ -392,9 +403,9 @@ void ScriptingWindow::passCommonCommand(UINT id)
 	return;
 }
 
-void ScriptingWindow::changeBoxColor(std::string color)
+void ScriptingWindow::changeBoxColor( colorBoxes<char> colors )
 {
-	this->statusBox.changeColor(color);
+	this->statusBox.changeColor(colors);
 	return;
 }
 

@@ -19,8 +19,10 @@ struct conversions
 class PictureStats
 {
 	public:
-		bool initialize(POINT& pos, CWnd* parent, int& id);
-		bool reorganizeControls(std::string cameraMode, std::string trigMode, int width, int height);
+		bool initialize(POINT& pos, CWnd* parent, int& id, std::unordered_map<std::string, CFont*> fonts, 
+			std::vector<CToolTipCtrl*>& tooltips);
+		bool rearrange(std::string cameraMode, std::string trigMode, int width, int height, 
+			std::unordered_map<std::string, CFont*> fonts);
 		bool update(unsigned long selCounts, unsigned long maxCounts, unsigned long minCounts, double avgCounts, unsigned int image);
 		bool reset();
 		bool PictureStats::updateType(std::string typeText);

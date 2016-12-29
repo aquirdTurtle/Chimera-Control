@@ -103,8 +103,9 @@ class ConfigurationFileSystem
 		void updateSaveStatus(bool savedStatus);
 		bool fullyDeleteFolder(std::string folderToDelete);
 
-		bool initializeControls(POINT& topLeftPosition, CWnd* parent, int& id);
-		bool reorganizeControls(RECT parentRectangle, std::string mode);
+		bool initializeControls(POINT& topLeftPosition, CWnd* parent, int& id,
+			std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips);
+		bool rearrange(RECT parentRectangle, std::string mode);
 		
 	private:
 		profileSettings currentProfileSettings;

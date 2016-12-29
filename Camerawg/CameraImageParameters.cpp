@@ -16,7 +16,6 @@ CameraImageParametersControl::CameraImageParametersControl()
 bool CameraImageParametersControl::initialize(POINT& topLeftPositionKinetic, POINT& topLeftPositionAccumulate, POINT& topLeftPositionContinuous,
 	CWnd* parent, bool isTriggerModeSensitive, int& id)
 {
-	
 	setImageParametersButton.ID = id++;
 	if (setImageParametersButton.ID != IDC_SET_IMAGE_PARAMETERS_BUTTON)
 	{
@@ -25,7 +24,7 @@ bool CameraImageParametersControl::initialize(POINT& topLeftPositionKinetic, POI
 	setImageParametersButton.ksmPos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 25 };
 	setImageParametersButton.amPos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480, topLeftPositionAccumulate.y + 25 };
 	setImageParametersButton.cssmPos = { topLeftPositionContinuous.x, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 480, topLeftPositionContinuous.y + 25 };
-	setImageParametersButton.Create("Set Image Parameters", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, setImageParametersButton.ksmPos, parent, setImageParametersButton.ID);
+	setImageParametersButton.Create("Set Image Parameters", WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, setImageParametersButton.ksmPos, parent, setImageParametersButton.ID);
 	setImageParametersButton.fontType = "Normal";
 	topLeftPositionKinetic.y += 25;
 	topLeftPositionAccumulate.y += 25;
@@ -59,21 +58,21 @@ bool CameraImageParametersControl::initialize(POINT& topLeftPositionKinetic, POI
 	leftEdit.ksmPos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y + 25 };
 	leftEdit.amPos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y + 25 };
 	leftEdit.cssmPos = { topLeftPositionContinuous.x, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y + 25 };
-	leftEdit.Create(WS_CHILD | WS_VISIBLE | ES_CENTER, leftEdit.ksmPos, parent, leftEdit.ID);
+	leftEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, leftEdit.ksmPos, parent, leftEdit.ID);
 	leftEdit.fontType = "Normal";
 	//
 	rightEdit.ID = id++;
 	rightEdit.ksmPos = { topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y + 25 };
 	rightEdit.amPos = { topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y + 25 };
 	rightEdit.cssmPos = { topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y + 25 };
-	rightEdit.Create(WS_CHILD | WS_VISIBLE | ES_CENTER, rightEdit.ksmPos, parent, rightEdit.ID);
+	rightEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, rightEdit.ksmPos, parent, rightEdit.ID);
 	rightEdit.fontType = "Normal";
 	//
 	horizontalBinningEdit.ID = id++;
 	horizontalBinningEdit.ksmPos = { topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 25 };
 	horizontalBinningEdit.amPos = { topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480, topLeftPositionAccumulate.y + 25 };
 	horizontalBinningEdit.cssmPos = { topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 480, topLeftPositionContinuous.y + 25 };
-	horizontalBinningEdit.Create(WS_CHILD | WS_VISIBLE | ES_CENTER, horizontalBinningEdit.ksmPos, parent, horizontalBinningEdit.ID);
+	horizontalBinningEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, horizontalBinningEdit.ksmPos, parent, horizontalBinningEdit.ID);
 	horizontalBinningEdit.fontType = "Normal";
 	//
 	topLeftPositionKinetic.y += 25;
@@ -107,21 +106,21 @@ bool CameraImageParametersControl::initialize(POINT& topLeftPositionKinetic, POI
 	topEdit.ksmPos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y + 25 };
 	topEdit.amPos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y + 25 };
 	topEdit.cssmPos = { topLeftPositionContinuous.x, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y + 25 };
-	topEdit.Create(WS_CHILD | WS_VISIBLE | ES_CENTER, topEdit.ksmPos, parent, topEdit.ID);
+	topEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, topEdit.ksmPos, parent, topEdit.ID);
 	topEdit.fontType = "Normal";
 	//
 	bottomEdit.ID = id++;
 	bottomEdit.ksmPos = { topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y + 25 };
 	bottomEdit.amPos = { topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y + 25 };
 	bottomEdit.cssmPos = { topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y + 25 };
-	bottomEdit.Create(WS_CHILD | WS_VISIBLE | ES_CENTER, bottomEdit.ksmPos, parent, bottomEdit.ID);
+	bottomEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, bottomEdit.ksmPos, parent, bottomEdit.ID);
 	bottomEdit.fontType = "Normal";
 	//
 	verticalBinningEdit.ID = id++;
 	verticalBinningEdit.ksmPos = { topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 25 };
 	verticalBinningEdit.amPos = { topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480, topLeftPositionAccumulate.y + 25 };
 	verticalBinningEdit.cssmPos = { topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 480, topLeftPositionContinuous.y + 25 };
-	verticalBinningEdit.Create(WS_CHILD | WS_VISIBLE | ES_CENTER, verticalBinningEdit.ksmPos, parent, verticalBinningEdit.ID);
+	verticalBinningEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, verticalBinningEdit.ksmPos, parent, verticalBinningEdit.ID);
 	verticalBinningEdit.fontType = "Normal";
 	topLeftPositionKinetic.y += 25;
 	topLeftPositionAccumulate.y += 25;
@@ -152,7 +151,7 @@ bool CameraImageParametersControl::drawBackgrounds(CameraWindow* camWin)
 }
 
 
-imageParameters CameraImageParametersControl::readImageParameters(CameraWindow* camWin, Communicator* comm)
+imageParameters CameraImageParametersControl::readImageParameters(CameraWindow* camWin)
 {
 	this->drawBackgrounds(camWin);
 	// If new dimensions are set, we don't have data for the new dimensions.
@@ -166,8 +165,8 @@ imageParameters CameraImageParametersControl::readImageParameters(CameraWindow* 
 	}
 	catch (std::invalid_argument &exception)
 	{
-		comm->sendError("Left border argument not an integer!\r\n", "", "R");
 		isReady = false;
+		thrower( "Left border argument not an integer!\r\n" );
 		return currentImageParameters;
 	}
 	leftEdit.RedrawWindow();
@@ -178,8 +177,8 @@ imageParameters CameraImageParametersControl::readImageParameters(CameraWindow* 
 	}
 	catch (std::invalid_argument &exception)
 	{
-		comm->sendError("Right border argument not an integer!\r\n", "", "R");
 		isReady = false;
+		thrower("Right border argument not an integer!\r\n");
 		return currentImageParameters;
 	}
 	rightEdit.RedrawWindow();
@@ -191,8 +190,8 @@ imageParameters CameraImageParametersControl::readImageParameters(CameraWindow* 
 	}
 	catch (std::invalid_argument &exception)
 	{
-		comm->sendError("Top border argument not an integer!\r\n", "", "R");
 		isReady = false;
+		thrower("Top border argument not an integer!\r\n");
 		return currentImageParameters;
 	}
 	topEdit.RedrawWindow();
@@ -204,8 +203,8 @@ imageParameters CameraImageParametersControl::readImageParameters(CameraWindow* 
 	}
 	catch (std::invalid_argument &exception)
 	{
-		comm->sendError("Bottom border argument not an integer!\r\n", "", "R");
 		isReady = false;
+		thrower("Bottom border argument not an integer!\r\n");
 		return currentImageParameters;
 	}
 	bottomEdit.RedrawWindow();
@@ -216,8 +215,8 @@ imageParameters CameraImageParametersControl::readImageParameters(CameraWindow* 
 	}
 	catch (std::invalid_argument &exception)
 	{
-		comm->sendError("Horizontal binning argument not an integer!\r\n", "", "R");
 		isReady = false;
+		thrower("Horizontal binning argument not an integer!\r\n");
 		return currentImageParameters;
 	}
 	horizontalBinningEdit.RedrawWindow();
@@ -228,8 +227,8 @@ imageParameters CameraImageParametersControl::readImageParameters(CameraWindow* 
 	}
 	catch (std::invalid_argument &exception)
 	{
-		comm->sendError("Vertical binning argument not an integer!\r\n", "", "R");
 		isReady = false;
+		thrower("Vertical binning argument not an integer!\r\n");
 		return currentImageParameters;
 	}
 	verticalBinningEdit.RedrawWindow();
@@ -246,32 +245,32 @@ imageParameters CameraImageParametersControl::readImageParameters(CameraWindow* 
 	// Check Image parameters
 	if (currentImageParameters.leftBorder > currentImageParameters.rightBorder || currentImageParameters.topBorder > currentImageParameters.bottomBorder)
 	{
-		comm->sendError("ERROR: Image start positions must not be greater than end positions\r\n", "", "R");
 		isReady = false;
+		thrower("ERROR: Image start positions must not be greater than end positions\r\n");
 		return currentImageParameters;
 	}
 	if (currentImageParameters.leftBorder < 1 || currentImageParameters.rightBorder > 512)
 	{
-		comm->sendError("ERROR: Image horizontal borders must be greater than 0 and less than the detector width\r\n", "", "R");
 		isReady = false;
+		thrower("ERROR: Image horizontal borders must be greater than 0 and less than the detector width\r\n");
 		return currentImageParameters;
 	}
 	if (currentImageParameters.topBorder < 1 || currentImageParameters.bottomBorder > 512)
 	{
-		comm->sendError("ERROR: Image verttical borders must be greater than 0 and less than the detector height\r\n", "", "R");
 		isReady = false;
+		thrower("ERROR: Image verttical borders must be greater than 0 and less than the detector height\r\n");
 		return currentImageParameters;
 	}
 	if ((currentImageParameters.rightBorder - currentImageParameters.leftBorder + 1) % currentImageParameters.horizontalBinning != 0)
 	{
-		comm->sendError("ERROR: Image width must be a multiple of Horizontal Binning\r\n", "", "R");
 		isReady = false;
+		thrower("ERROR: Image width must be a multiple of Horizontal Binning\r\n");
 		return currentImageParameters;
 	}
 	if ((currentImageParameters.bottomBorder - currentImageParameters.topBorder + 1) % currentImageParameters.verticalBinning != 0)
 	{
-		comm->sendError("ERROR: Image height must be a multiple of Vertical Binning\r\n", "", "R");
 		isReady = false;
+		thrower("ERROR: Image height must be a multiple of Vertical Binning\r\n");
 		return currentImageParameters;
 	}
 	// made it through successfully.
@@ -342,7 +341,7 @@ imageParameters CameraImageParametersControl::readImageParameters(CameraWindow* 
 /*
  * I forget why I needed a second function for this.
  */
-bool CameraImageParametersControl::setImageParametersFromInput(imageParameters param, Communicator* comm, CameraWindow* camWin)
+bool CameraImageParametersControl::setImageParametersFromInput(imageParameters param, CameraWindow* camWin)
 {
 
 	this->drawBackgrounds(camWin);
@@ -372,32 +371,32 @@ bool CameraImageParametersControl::setImageParametersFromInput(imageParameters p
 	// Check Image parameters
 	if (currentImageParameters.leftBorder > currentImageParameters.rightBorder || currentImageParameters.topBorder > currentImageParameters.bottomBorder)
 	{
-		comm->sendError("ERROR: Image start positions must not be greater than end positions\r\n", "", "R");
 		isReady = false;
+		thrower("ERROR: Image start positions must not be greater than end positions\r\n");
 		return true;
 	}
 	if (currentImageParameters.leftBorder < 1 || currentImageParameters.rightBorder > 512)
 	{
-		comm->sendError("ERROR: Image horizontal borders must be greater than 0 and less than the detector width\r\n", "", "R");
 		isReady = false;
+		thrower("ERROR: Image horizontal borders must be greater than 0 and less than the detector width\r\n");
 		return true;
 	}
 	if (currentImageParameters.topBorder < 1 || currentImageParameters.bottomBorder > 512)
 	{
-		comm->sendError("ERROR: Image verttical borders must be greater than 0 and less than the detector height\r\n", "", "R");
 		isReady = false;
+		thrower("ERROR: Image verttical borders must be greater than 0 and less than the detector height\r\n");
 		return true;
 	}
 	if ((currentImageParameters.rightBorder - currentImageParameters.leftBorder + 1) % currentImageParameters.horizontalBinning != 0)
 	{
-		comm->sendError("ERROR: Image width must be a multiple of Horizontal Binning\r\n", "", "R");
 		isReady = false;
+		thrower("ERROR: Image width must be a multiple of Horizontal Binning\r\n");
 		return true;
 	}
 	if ((currentImageParameters.bottomBorder - currentImageParameters.topBorder + 1) % currentImageParameters.verticalBinning != 0)
 	{
-		comm->sendError("ERROR: Image height must be a multiple of Vertical Binning\r\n", "", "R");
 		isReady = false;
+		thrower("ERROR: Image height must be a multiple of Vertical Binning\r\n");
 		return true;
 	}
 	// made it through successfully.
@@ -730,22 +729,22 @@ HBRUSH CameraImageParametersControl::colorEdits(HWND window, UINT message, WPARA
 	return FALSE;
 }
 
-
-bool CameraImageParametersControl::reorganizeControls(std::string cameraMode, std::string triggerMode, int width, int height)
+bool CameraImageParametersControl::rearrange(std::string cameraMode, std::string triggerMode, int width, 
+	int height, std::unordered_map<std::string, CFont*> fonts)
 {
-	leftText.rearrange(cameraMode, triggerMode, width, height);
-	rightText.rearrange(cameraMode, triggerMode, width, height);
-	horizontalBinningText.rearrange(cameraMode, triggerMode, width, height);
-	topText.rearrange(cameraMode, triggerMode, width, height);
-	bottomText.rearrange(cameraMode, triggerMode, width, height);
-	verticalBinningText.rearrange(cameraMode, triggerMode, width, height);
-	leftEdit.rearrange(cameraMode, triggerMode, width, height);
-	rightEdit.rearrange(cameraMode, triggerMode, width, height);
-	horizontalBinningEdit.rearrange(cameraMode, triggerMode, width, height);
-	topEdit.rearrange(cameraMode, triggerMode, width, height);
-	bottomEdit.rearrange(cameraMode, triggerMode, width, height);
-	verticalBinningEdit.rearrange(cameraMode, triggerMode, width, height);
-	setImageParametersButton.rearrange(cameraMode, triggerMode, width, height);
+	leftText.rearrange(cameraMode, triggerMode, width, height, fonts);
+	rightText.rearrange(cameraMode, triggerMode, width, height, fonts);
+	horizontalBinningText.rearrange(cameraMode, triggerMode, width, height, fonts);
+	topText.rearrange(cameraMode, triggerMode, width, height, fonts);
+	bottomText.rearrange(cameraMode, triggerMode, width, height, fonts);
+	verticalBinningText.rearrange(cameraMode, triggerMode, width, height, fonts);
+	leftEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
+	rightEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
+	horizontalBinningEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
+	topEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
+	bottomEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
+	verticalBinningEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
+	setImageParametersButton.rearrange(cameraMode, triggerMode, width, height, fonts);
 	return false;
 }
 

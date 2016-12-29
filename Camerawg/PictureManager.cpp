@@ -11,21 +11,21 @@ void PictureManager::handleScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar
 			control.handleScroll(id, nPos);
 		}
 	}
-
 	return;
 }
 
-void PictureManager::initialize(POINT& loc, CWnd* parent, int& id)
+void PictureManager::initialize(POINT& loc, CWnd* parent, int& id, std::unordered_map<std::string, CFont*> fonts,
+	std::vector<CToolTipCtrl*>& tooltips)
 {
-	this->pictures[0].initialize(loc, parent, id, 570, 470);
+	this->pictures[0].initialize(loc, parent, id, 570, 460);
 	loc.x += 570;
-	this->pictures[1].initialize(loc, parent, id, 570, 470);
+	this->pictures[1].initialize(loc, parent, id, 570, 460);
 	loc.x -= 570;
 	// leave space for timer.
-	loc.y += 570;
-	this->pictures[2].initialize(loc, parent, id, 570, 470);
+	loc.y += 500;
+	this->pictures[2].initialize(loc, parent, id, 570, 460);
 	loc.x += 570;
-	this->pictures[3].initialize(loc, parent, id, 570, 470);
+	this->pictures[3].initialize(loc, parent, id, 570, 460);
 }
 
 void PictureManager::refreshBackgrounds(CWnd* parent)
@@ -53,10 +53,10 @@ void PictureManager::setParameters(imageParameters parameters)
 	}
 }
 
-void PictureManager::rearrange(std::string cameraMode, std::string triggerMode, int width, int height)
+void PictureManager::rearrange(std::string cameraMode, std::string triggerMode, int width, int height, std::unordered_map<std::string, CFont*> fonts)
 {
 	for (auto& control : this->pictures)
 	{
-		control.rearrange(cameraMode, triggerMode, width, height);
+		control.rearrange(cameraMode, triggerMode, width, height, fonts);
 	}
 }

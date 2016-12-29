@@ -8,6 +8,10 @@
 
 bool PictureSettingsControl::initialize(POINT& kineticPos, POINT& continuousPos, POINT& accumulatePos, CWnd* parent, int& id)
 {
+	if (id != PICTURE_SETTINGS_ID_START)
+	{
+		throw;
+	}
 	// introducing things row by row
 	/// Set Picture Options
 	setPictureOptionsButton.ksmPos = { kineticPos.x, kineticPos.y, kineticPos.x + 480, 
@@ -93,7 +97,7 @@ bool PictureSettingsControl::initialize(POINT& kineticPos, POINT& continuousPos,
 		continuousPos.y + 20 };
 	exposureLabel.ID = id++;
 	exposureLabel.Create("Exposure (ms):", WS_CHILD | WS_VISIBLE, exposureLabel.ksmPos, parent, exposureLabel.ID);
-	exposureTimes.resize(4);
+	exposureTimesUnofficial.resize(4);
 	for (int picInc = 0; picInc < 4; picInc++)
 	{
 		exposureEdits[picInc].ksmPos = { kineticPos.x + 100 + 95 * picInc, kineticPos.y,
@@ -106,7 +110,7 @@ bool PictureSettingsControl::initialize(POINT& kineticPos, POINT& continuousPos,
 		// first of group
 		exposureEdits[picInc].Create(WS_CHILD | WS_VISIBLE | WS_BORDER, exposureEdits[picInc].ksmPos, parent, exposureEdits[picInc].ID);
 		exposureEdits[picInc].SetWindowTextA("20");
-		exposureTimes[picInc] = 20;
+		exposureTimesUnofficial[picInc] = 20 / 1000.0;
 	}
 	kineticPos.y += 20;
 	accumulatePos.y += 20;
@@ -234,6 +238,10 @@ bool PictureSettingsControl::initialize(POINT& kineticPos, POINT& continuousPos,
 	this->disablePictureControls(3);
 	// should move up
 	this->picsPerRepetitionUnofficial = 1;
+	if (id - 1 != PICTURE_SETTINGS_ID_END)
+	{
+		throw;
+	}
 	return true;
 }
 
@@ -265,57 +273,61 @@ bool PictureSettingsControl::enablePictureControls(int pic)
 	return true;
 }
 
-
-INT_PTR PictureSettingsControl::colorControls(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
+CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer, std::unordered_map<std::string, CBrush*> brushes,
+	std::unordered_map<std::string, COLORREF> rgbs)
 {
-	DWORD controlID = GetDlgCtrlID((HWND)lParam);
-	HDC hdcStatic = (HDC)wParam;
 	/// Exposures
-	if (controlID >= exposureEdits.front().ID && controlID <= exposureEdits.back().ID)
+	if (id >= exposureEdits.front().ID && id <= exposureEdits.back().ID)
 	{
-		int picNum = controlID - exposureEdits.front().ID;
-		SetTextColor(hdcStatic, RGB(255, 255, 255));
+		int picNum = id - exposureEdits.front().ID;
+		if (!exposureEdits[picNum].IsWindowEnabled())
+		{
+			return NULL;
+		}
+		colorer->SetTextColor(rgbs["White"]);
 		//TCHAR textEdit[256];
 		CString text;
 		exposureEdits[picNum].GetWindowTextA(text);
-		int exposure;
+		double exposure;
 		try
 		{
 			exposure = std::stof(std::string(text));// / 1000.0f;
-			double dif = std::fabs(exposure/1000.0 - exposureTimes[picNum]);
+			double dif = std::fabs(exposure/1000.0 - exposureTimesUnofficial[picNum]);
 			if (dif < 0.000000001)
 			{
 				// good.
-				SetTextColor(hdcStatic, RGB(255, 255, 255));
-				SetBkColor(hdcStatic, RGB(100, 110, 100));
+				colorer->SetBkColor(rgbs["Dark Green"]);
 				// catch change of color and redraw window.
 				if (exposureEdits[picNum].colorState != 0)
 				{
 					exposureEdits[picNum].colorState = 0;
 					exposureEdits[picNum].RedrawWindow();
 				}
-				//return (INT_PTR)eGreyGreenBrush;
+				return brushes["Dark Green"];
 			}
 		}
 		catch (std::exception&)
 		{
 			// don't do anything with it.
 		}
-		SetTextColor(hdcStatic, RGB(255, 255, 255));
-		SetBkColor(hdcStatic, RGB(150, 100, 100));
+		colorer->SetBkColor(rgbs["Red"]);
 		// catch change of color and redraw window.
 		if (exposureEdits[picNum].colorState != 1)
 		{
 			exposureEdits[picNum].colorState = 1;
 			exposureEdits[picNum].RedrawWindow();
 		}
-		//return (INT_PTR)eGreyRedBrush;
+		return brushes["Red"];
 	}
 	/// Thresholds
-	else if (controlID >= this->thresholdEdits.front().ID && controlID <= this->thresholdEdits.back().ID)
+	else if (id >= this->thresholdEdits.front().ID && id <= this->thresholdEdits.back().ID)
 	{
-		int picNum = controlID - thresholdEdits.front().ID;
-		SetTextColor(hdcStatic, RGB(255, 255, 255));
+		int picNum = id - thresholdEdits.front().ID;
+		if (!thresholdEdits[picNum].IsWindowEnabled())
+		{
+			return NULL;
+		}
+		colorer->SetTextColor(RGB(255, 255, 255));
 		CString text;
 		thresholdEdits[picNum].GetWindowTextA(text);
 		int threshold;
@@ -326,30 +338,28 @@ INT_PTR PictureSettingsControl::colorControls(HWND window, UINT message, WPARAM 
 			if (dif < 0.000000001)
 			{
 				// good.
-				SetTextColor(hdcStatic, RGB(255, 255, 255));
-				SetBkColor(hdcStatic, RGB(100, 110, 100));
+				colorer->SetBkColor(rgbs["Dark Green"]);
 				// catch change of color and redraw window.
 				if (thresholdEdits[picNum].colorState != 0)
 				{
 					thresholdEdits[picNum].colorState = 0;
 					thresholdEdits[picNum].RedrawWindow();
 				}
-				//return (INT_PTR)eGreyGreenBrush;
+				return brushes["Dark Green"];
 			}
 		}
 		catch (std::exception&)
 		{
 			// don't do anything with it.
 		}
-		SetTextColor(hdcStatic, RGB(255, 255, 255));
-		SetBkColor(hdcStatic, RGB(150, 100, 100));
+		colorer->SetBkColor(rgbs["Red"]);
 		// catch change of color and redraw window.
 		if (exposureEdits[picNum].colorState != 1)
 		{
 			exposureEdits[picNum].colorState = 1;
 			exposureEdits[picNum].RedrawWindow();
 		}
-		return (INT_PTR)eGreyRedBrush;
+		return brushes["Red"];
 	}
 	else
 	{
@@ -357,12 +367,16 @@ INT_PTR PictureSettingsControl::colorControls(HWND window, UINT message, WPARAM 
 	}
 }
 
-bool PictureSettingsControl::handleOptionChange(HWND window, UINT msg, WPARAM wParam, LPARAM lParam, AndorCamera* andorObj, Communicator* comm)
+int PictureSettingsControl::getPicsPerRepetition()
 {
-	int controlID = LOWORD(wParam);
-	if (controlID >= this->totalNumberChoice.front().ID && controlID <= this->totalNumberChoice.back().ID)
+	return this->picsPerRepetitionUnofficial;
+}
+
+bool PictureSettingsControl::handleOptionChange(UINT id, AndorCamera* andorObj)
+{
+	if (id >= this->totalNumberChoice.front().ID && id <= this->totalNumberChoice.back().ID)
 	{
-		int picNum = controlID - totalNumberChoice.front().ID;
+		int picNum = id - totalNumberChoice.front().ID;
 		this->picsPerRepetitionUnofficial = picNum + 1;
 		// not all settings are changed here, and some are used to recalculate totals.
 		AndorRunSettings settings = andorObj->getSettings();
@@ -384,7 +398,7 @@ bool PictureSettingsControl::handleOptionChange(HWND window, UINT msg, WPARAM wP
 		return true;
 
 	}
-	else if (controlID == this->setPictureOptionsButton.ID)
+	else if (id == this->setPictureOptionsButton.ID)
 	{
 		// grab the thresholds
 		for (int thresholdInc = 0; thresholdInc < 4; thresholdInc++)
@@ -414,7 +428,7 @@ bool PictureSettingsControl::handleOptionChange(HWND window, UINT msg, WPARAM wP
 
 				exposure = std::stof(std::string(textEdit));
 
-				exposureTimes[exposureInc] = exposure / 1000.0f;
+				exposureTimesUnofficial[exposureInc] = exposure / 1000.0f;
 			}
 			catch (std::invalid_argument)
 			{
@@ -424,14 +438,14 @@ bool PictureSettingsControl::handleOptionChange(HWND window, UINT msg, WPARAM wP
 			exposureEdits[exposureInc].RedrawWindow();
 		}
 		/// set the exposure times via andor
-		this->setExposureTimes(andorObj, comm);
+		this->setExposureTimes(andorObj);
 		return true;
 	}
-	else if (controlID >= this->yellowBlueRadios[0].ID && controlID <= blackWhiteRadios[3].ID)
+	else if (id >= this->yellowBlueRadios[0].ID && id <= blackWhiteRadios[3].ID)
 	{
-		controlID -= yellowBlueRadios[0].ID;
-		int pic = controlID / 3;
-		int color = controlID % 3;
+		id -= yellowBlueRadios[0].ID;
+		int pic = id / 3;
+		int color = id % 3;
 		this->colors[pic] = color;
 
 	}
@@ -441,12 +455,12 @@ bool PictureSettingsControl::handleOptionChange(HWND window, UINT msg, WPARAM wP
 	}
 }
 
-bool PictureSettingsControl::setExposureTimes(AndorCamera* andorObj, Communicator* comm)
+bool PictureSettingsControl::setExposureTimes(AndorCamera* andorObj)
 {
-	return this->setExposureTimes(this->exposureTimes, andorObj, comm);
+	return this->setExposureTimes(this->exposureTimesUnofficial, andorObj);
 }
 
-bool PictureSettingsControl::setExposureTimes(std::vector<float> times, AndorCamera* andorObj, Communicator* comm)
+bool PictureSettingsControl::setExposureTimes(std::vector<float> times, AndorCamera* andorObj)
 {
 	std::vector<float> exposuresToSet;
 	exposuresToSet = times;
@@ -455,32 +469,27 @@ bool PictureSettingsControl::setExposureTimes(std::vector<float> times, AndorCam
 	settings.exposureTimes = exposuresToSet;
 	andorObj->setSettings(settings);
 	// try to set this time.
-	if (andorObj->setExposures(comm) < 0)
-	{
-		comm->sendError("ERROR: failed to set exposure times.", "", "R");
-		return false;
-	}
-
+	andorObj->setExposures();
 	// now check actual times.
-	try { this->parent2->checkTimings(exposuresToSet, comm); }
+	try { this->parentSettingsControl->checkTimings(exposuresToSet); }
 	catch (std::runtime_error& e) { throw; }
 
 	for (int exposureInc = 0; exposureInc < exposuresToSet.size(); exposureInc++)
 	{
-		this->exposureTimes[exposureInc] = exposuresToSet[exposureInc];
+		this->exposureTimesUnofficial[exposureInc] = exposuresToSet[exposureInc];
 	}
 
-	if (this->exposureTimes.size() <= 0)
+	if (this->exposureTimesUnofficial.size() <= 0)
 	{
 		// this shouldn't happend
-		comm->sendError("ERROR: reached bad location where exposure times was of zero size, "
-			"but this should have been detected earlier in the code.", "", "R");
+		thrower("ERROR: reached bad location where exposure times was of zero size, "
+			"but this should have been detected earlier in the code.");
 		return false;
 	}
 	// now output things.
 	for (int exposureInc = 0; exposureInc < 4; exposureInc++)
 	{
-		exposureEdits[exposureInc].SetWindowTextA(std::to_string(this->exposureTimes[exposureInc] * 1000).c_str());
+		exposureEdits[exposureInc].SetWindowTextA(std::to_string(this->exposureTimesUnofficial[exposureInc] * 1000).c_str());
 	}
 	/*
 	SendMessage(eKineticCycleTimeDispHandle.hwnd, WM_SETTEXT, 0, 
@@ -495,7 +504,7 @@ bool PictureSettingsControl::setExposureTimes(std::vector<float> times, AndorCam
 std::vector<float> PictureSettingsControl::getUsedExposureTimes()
 {
 	std::vector<float> usedTimes;
-	usedTimes = this->exposureTimes;
+	usedTimes = this->exposureTimesUnofficial;
 	usedTimes.resize(this->picsPerRepetitionUnofficial);
 	return usedTimes;
 }
@@ -503,14 +512,14 @@ std::vector<float> PictureSettingsControl::getUsedExposureTimes()
 /*
  * modifies values for exposures, accumlation time, kinetic cycle time as the andor camera reports them.
  */
-void PictureSettingsControl::confirmAcquisitionTimings(Communicator* comm)
+void PictureSettingsControl::confirmAcquisitionTimings()
 {
 	std::vector<float> usedExposures;
-	usedExposures = this->exposureTimes;
+	usedExposures = this->exposureTimesUnofficial;
 	usedExposures.resize(this->picsPerRepetitionUnofficial);
 	try
 	{
-		parent2->checkTimings(usedExposures, comm);
+		parentSettingsControl->checkTimings(usedExposures);
 	}
 	catch (std::runtime_error)
 	{
@@ -518,7 +527,7 @@ void PictureSettingsControl::confirmAcquisitionTimings(Communicator* comm)
 	}
 	for (int exposureInc = 0; exposureInc < usedExposures.size(); exposureInc++)
 	{
-		this->exposureTimes[exposureInc] = usedExposures[exposureInc];
+		this->exposureTimesUnofficial[exposureInc] = usedExposures[exposureInc];
 	}
 	
 	return;
@@ -586,44 +595,45 @@ std::array<int, 4> PictureSettingsControl::getPictureColors()
 /*
 
 */
-bool PictureSettingsControl::reorganizeControls(std::string cameraMode, std::string triggerMode, int width, int height)
+bool PictureSettingsControl::rearrange(std::string cameraMode, std::string triggerMode, int width, int height,
+	std::unordered_map<std::string, CFont*> fonts)
 {
-	this->setPictureOptionsButton.rearrange(cameraMode, triggerMode, width, height);
-	totalPicNumberLabel.rearrange(cameraMode, triggerMode, width, height);
-	pictureLabel.rearrange(cameraMode, triggerMode, width, height);
-	exposureLabel.rearrange(cameraMode, triggerMode, width, height);
-	thresholdLabel.rearrange(cameraMode, triggerMode, width, height);
-	blackWhiteLabel.rearrange(cameraMode, triggerMode, width, height);
-	redBlueLabel.rearrange(cameraMode, triggerMode, width, height);
-	yellowBlueLabel.rearrange(cameraMode, triggerMode, width, height);
+	this->setPictureOptionsButton.rearrange(cameraMode, triggerMode, width, height, fonts);
+	totalPicNumberLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
+	pictureLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
+	exposureLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
+	thresholdLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
+	blackWhiteLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
+	redBlueLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
+	yellowBlueLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
 
 	for (auto& control : this->pictureNumbers)
 	{
-		control.rearrange(cameraMode, triggerMode, width, height);
+		control.rearrange(cameraMode, triggerMode, width, height, fonts);
 	}
 	for (auto& control : this->totalNumberChoice)
 	{
-		control.rearrange(cameraMode, triggerMode, width, height);
+		control.rearrange(cameraMode, triggerMode, width, height, fonts);
 	}
 	for (auto& control : this->exposureEdits)
 	{
-		control.rearrange(cameraMode, triggerMode, width, height);
+		control.rearrange(cameraMode, triggerMode, width, height, fonts);
 	}
 	for (auto& control : this->thresholdEdits)
 	{
-		control.rearrange(cameraMode, triggerMode, width, height);
+		control.rearrange(cameraMode, triggerMode, width, height, fonts);
 	}
 	for (auto& control : this->redBlueRadios)
 	{
-		control.rearrange(cameraMode, triggerMode, width, height);
+		control.rearrange(cameraMode, triggerMode, width, height, fonts);
 	}
 	for (auto& control : this->yellowBlueRadios)
 	{
-		control.rearrange(cameraMode, triggerMode, width, height);
+		control.rearrange(cameraMode, triggerMode, width, height, fonts);
 	}
 	for (auto& control : this->blackWhiteRadios)
 	{
-		control.rearrange(cameraMode, triggerMode, width, height);
+		control.rearrange(cameraMode, triggerMode, width, height, fonts);
 	}
 	return false;
 }

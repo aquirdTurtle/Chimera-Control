@@ -68,7 +68,7 @@ bool EmbeddedPythonHandler::flush()
 	return true;
 }
 // for full data analysis set.
-/*
+
 bool EmbeddedPythonHandler::runDataAnalysis(std::string date, long runNumber, long accumulations, 
 											std::vector<std::pair<int, int>> atomLocations)
 {
@@ -142,7 +142,7 @@ bool EmbeddedPythonHandler::runDataAnalysis(std::string date, long runNumber, lo
 	// def analyzeSingleLocation(date, runNumber, atomLocationRow, atomLocationColumn, picturesPerExperiment, accumulations, fileName) :
 	// hard-coded for now to 2. (might change or remove later...)
 	// pythonFunctionArguments, pythonPicturesPerExperiment
-	PyObject* pythonPicturesPerExperiment = PyLong_FromLong(ePicturesPerRepetition);
+	PyObject* pythonPicturesPerExperiment = PyLong_FromLong(2/*ePicturesPerRepetition*/);
 	if (pythonPicturesPerExperiment == NULL)
 	{
 		Py_DECREF(pythonFunctionArguments);
@@ -174,7 +174,7 @@ bool EmbeddedPythonHandler::runDataAnalysis(std::string date, long runNumber, lo
 	// finished successfully.
 	return false;
 }
-*/
+
 // for texting.
 bool EmbeddedPythonHandler::sendText(personInfo person, std::string msg, std::string subject, std::string baseEmail, 
 									 std::string password)

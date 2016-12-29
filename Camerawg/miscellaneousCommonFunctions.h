@@ -11,15 +11,17 @@
 /*
  * A nice custom class and #define that makes my custom throws have file & code line information. Very nice.
  * stolen From http://stackoverflow.com/questions/348833/how-to-know-the-exact-line-of-code-where-where-an-exception-has-been-caused
+ * Slightly modified.
  */
 class my_exception : public std::runtime_error 
 {
 	public:
 		my_exception(const std::string &arg, const char *file, int line) : std::runtime_error(arg) 
 		{
-			std::ostringstream o;
-			o << file << ":" << line << ": " << arg;
-			msg = o.str();
+			std::ostringstream out;
+			out << file << ":" << line << ": " << arg;
+			msg = out.str();
+			bareMsg = arg;
 		}
 
 		~my_exception() throw() {}
@@ -32,8 +34,13 @@ class my_exception : public std::runtime_error
 		{
 			return msg;
 		}
+		std::string whatBare() const throw()
+		{
+			return bareMsg;
+		}
 	private:
 		std::string msg;
+		std::string bareMsg;
 };
 
 /*
@@ -57,10 +64,8 @@ class myStackWalker : public StackWalker
 		std::string callStack;
 };
 */
-
 // the following gives any throw call file and line information.
-#define thrower(arg) throw my_exception(arg, __FILE__, __LINE__);
-
+#define thrower(arg) throw my_exception(arg, __FILE__, __LINE__)
 // shows error message if it exists. Could be function but for consistency with other ERR_X Macros...
 #define ERR_POP(string) {if (string != ""){errBox(string);}}
 // shows error message and exits given function with error.
@@ -72,3 +77,6 @@ class myStackWalker : public StackWalker
 //void appendText(std::string newText, int textIDC, HWND parentWindow);
 void appendText(std::string newText, CEdit& edit);
 void appendText(std::string newText, Control<CRichEditCtrl>& edit);
+
+#define cstr(input) std::to_string(input).c_str()
+

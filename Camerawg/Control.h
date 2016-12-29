@@ -35,9 +35,10 @@ template <class ControlType> class Control : public ControlType
 		//
 		int ID;
 		int colorState = 0;
-		void rearrange(std::string cameraMode, std::string trigMode, int width, int height);
-		//bool ClassControl<CEdit>::setToolTip(std::string text, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master)
-		//bool ClassControl<ControlType>::setToolTip(std::string text, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master);
+		void rearrange(std::string cameraMode, std::string trigMode, int width, int height, 
+			std::unordered_map<std::string, CFont*> fonts);
+		//bool ClassControl<ControlType>::setToolTip(std::string text, std::vector<CToolTipCtrl*>& tooltips, MasterWindow* master);
+		bool setToolTip(std::string text, std::vector<CToolTipCtrl*>& tooltips, CWnd* master, CFont* font);
 	private:
 		int toolTipID;
 		CToolTipCtrl toolTip;
@@ -46,20 +47,32 @@ template <class ControlType> class Control : public ControlType
 
 template<class ControlType> Control<ControlType>::Control()
 {
-	// assert that the template class is derived from CWnd. This doesn't actually do anything in run-time.
+	// assert that the template class is derived from CWnd. This doesn't actually do anything in run-time. It's also
+	// probably redundant because of all the functionality designed around CWnd in this class, like the below function.
 	ControlType obj;
 	assert((CWnd const*)&obj);
 }
 
-template <class ControlType> void Control<ControlType>::rearrange(std::string cameraMode, std::string trigMode, int width, int height)
+template <class ControlType> void Control<ControlType>::rearrange(std::string cameraMode, std::string trigMode, 
+	int width, int height, std::unordered_map<std::string, CFont*> fonts)
 {
 	if (!this->m_hWnd)
 	{
 		return;
 	}
+	/*
+	HMONITOR monitor = MonitorFromWindow(this->GetParent()->GetSafeHwnd(), MONITOR_DEFAULTTONEAREST);
+	MONITORINFO info;
+	info.cbSize = sizeof(MONITORINFO);
+	GetMonitorInfo(monitor, &info);
+	double workspaceWidth = info.rcWork.right - info.rcWork.left;
+	double workspaceHeight = info.rcWork.bottom - info.rcWork.top;
+	*/
 	/// Set Positions
-	double widthScale = width / 1936.0;
-	double heightScale = height / 1056.0;
+	//double widthScale = width / workspaceWidth;
+	//double heightScale = height / workspaceHeight;
+	double widthScale = width / 1920.0;
+	double heightScale = height / 997.0;
 	// extra heigh added to certain controls based on random things like the trigger mode.
 	double extraHeight = 0;
 	if (trigMode == "External" && this->triggerModeSensitive && (cameraMode == "Kinetic Series Mode" || cameraMode == "Accumulate Mode"))
@@ -121,106 +134,105 @@ template <class ControlType> void Control<ControlType>::rearrange(std::string ca
 		}
 	}
 	/// Set Fonts
-	/// TODO
 	if (this->fontType == "Normal")
 	{
 		if (widthScale * heightScale > 0.8)
 		{
-			this->SetFont(&eNormalFontMax);
+			this->SetFont(fonts["Normal Font Max"]);
 		}
 		else if (widthScale * heightScale > 0.6)
 		{
-			this->SetFont(&eNormalFontMed);
+			this->SetFont(fonts["Normal Font Med"]);
 		}
 		else
 		{
-			this->SetFont(&eNormalFontSmall);
+			this->SetFont(fonts["Normal Font Small"]);
 		}
 	}
 	else if (this->fontType == "Code")
 	{
 		if (widthScale * heightScale > 0.8)
 		{
-			this->SetFont(&eCodeFontMax);
+			this->SetFont(fonts["Code Font Max"]);
 		}
 		else if (widthScale * heightScale > 0.6)
 		{
-			this->SetFont(&eCodeFontMed);
+			this->SetFont(fonts["Code Font Med"]);
 		}
 		else
 		{
-			this->SetFont(&eCodeFontSmall);
+			this->SetFont(fonts["Code Font Small"]);
 		}
 	}
 	else if (this->fontType == "Heading")
 	{
 		if (widthScale * heightScale > 0.8)
 		{
-			this->SetFont(&eHeadingFontMax);
+			this->SetFont(fonts["Heading Font Max"]);
 		}
 		else if (widthScale * heightScale > 0.6)
 		{
-			this->SetFont(&eHeadingFontMed);
+			this->SetFont(fonts["Heading Font Med"]);
 		}
 		else
 		{
-			this->SetFont(&eHeadingFontSmall);
+			this->SetFont(fonts["Heading Font Small"]);
 		}
 	}
 	else if (this->fontType == "Large")
 	{
 		if (widthScale * heightScale > 0.8)
 		{
-			this->SetFont(&eLargerFontMax);
+			this->SetFont(fonts["Larger Font Max"]);
 		}
 		else if (widthScale * heightScale > 0.6)
 		{
-			this->SetFont(&eLargerFontMed);
+			this->SetFont(fonts["Larger Font Med"]);
 		}
 		else
 		{
-			this->SetFont(&eLargerFontSmall);
+			this->SetFont(fonts["Larger Font Small"]);
 		}
 	}
 	else if (this->fontType == "Small")
 	{
 		if (widthScale * heightScale > 0.8)
 		{
-			this->SetFont(&eSmallerFontMax);
+			this->SetFont(fonts["Smaller Font Max"]);
 		}
 		else if (widthScale * heightScale > 0.6)
 		{
-			this->SetFont(&eSmallerFontMed);
+			this->SetFont(fonts["Smaller Font Med"]);
 		}
 		else
 		{
-			this->SetFont(&eSmallerFontSmall);
+			this->SetFont(fonts["Smaller Font Small"]);
 		}
 	}
 }
 
-/*
 /// template function for the class control system
-template <class Parent> bool ClassControl<Parent>::setToolTip(std::string text, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master)
+template <class ControlType> bool Control<ControlType>::setToolTip(std::string text, std::vector<CToolTipCtrl*>& tooltips, CWnd* parentWindow, CFont* font)
 {
 	if (!this->toolTipIsSet)
 	{
-		this->toolTipID = toolTips.size();
-		toolTips.push_back(new CToolTipCtrl);
-		toolTips.back()->Create(master, TTS_ALWAYSTIP | TTS_BALLOON);
-		toolTips.back()->SetMaxTipWidth(500);
-		toolTips.back()->SetTipBkColor(0x000000);
-		toolTips.back()->SetTipTextColor(0xe0e0d0);
-		toolTips.back()->SetFont(CFont::FromHandle(sNormalFont));
-		toolTips.back()->SetDelayTime(TTDT_AUTOPOP, 30000);
-		toolTips.back()->AddTool(&this->parent, text.c_str());
+		this->toolTipID = tooltips.size();
+		tooltips.push_back(new CToolTipCtrl);
+		tooltips.back()->Create(parentWindow, WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP | TTS_BALLOON);
+		tooltips.back()->SetMaxTipWidth(500);
+		tooltips.back()->SetTipBkColor(0x000000);
+		tooltips.back()->SetTipTextColor(0xe0e0d0);
+		tooltips.back()->SetDlgCtrlID(this->ID);
+		tooltips.back()->SetFont(font);
+		tooltips.back()->SetDelayTime(TTDT_AUTOPOP, 30000);
+		tooltips.back()->AddTool(this, text.c_str());
+		tooltips.back()->Activate(TRUE);
 		this->toolTipIsSet = true;
 	}
 	else
 	{
-		toolTips[this->toolTipID]->DelTool(&this->parent);
-		toolTips[this->toolTipID]->AddTool(&this->parent, text.c_str());
+		tooltips[this->toolTipID]->DelTool(this);
+		tooltips[this->toolTipID]->AddTool(this, text.c_str());
 	}
 	return true;
 }
-*/

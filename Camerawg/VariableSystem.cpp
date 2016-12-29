@@ -8,7 +8,7 @@
 #include <algorithm>
 #include "ScriptingWindow.h"
 #include <memory>
-bool VariableSystem::updateVariableInfo(MainWindow* comm, ScriptingWindow* scriptWin)
+bool VariableSystem::updateVariableInfo(MainWindow* mainWin, ScriptingWindow* scriptWin)
 {
 	POINT cursorPos;
 	GetCursorPos(&cursorPos);
@@ -27,7 +27,7 @@ bool VariableSystem::updateVariableInfo(MainWindow* comm, ScriptingWindow* scrip
 		return false;
 	}
 	// update the configuration saved status. variables are stored in the configuration-level file.
-	comm->updateConfigurationSavedStatus(false);
+	mainWin->updateConfigurationSavedStatus(false);
 	LVITEM listViewItem;
 	memset(&listViewItem, 0, sizeof(listViewItem));
 	listViewItem.mask = LVIF_TEXT;   // Text Style
@@ -325,12 +325,13 @@ bool VariableSystem::addVariable(std::string name, bool timelike, bool singleton
 	return false;
 }
 
-bool VariableSystem::initializeControls(POINT &topLeftCorner, CWnd* parent, int& id)
+bool VariableSystem::initializeControls(POINT &topLeftCorner, CWnd* parent, int& id, 
+	std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips)
 {
 	header.ID = id++;
 	header.sPos = { topLeftCorner.x, topLeftCorner.y, topLeftCorner.x + 480, topLeftCorner.y + 20 };
 	header.Create("VARIABLES", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, header.sPos, parent, header.ID);
-	header.SetFont(&eHeadingFont);
+	header.SetFont(fonts["Heading Font"]);
 	topLeftCorner.y += 20;
 	listview.ID = id++;
 	if (listview.ID != IDC_VARIABLES_LISTVIEW)
@@ -339,7 +340,7 @@ bool VariableSystem::initializeControls(POINT &topLeftCorner, CWnd* parent, int&
 	}
 	listview.sPos = { topLeftCorner.x, topLeftCorner.y, topLeftCorner.x + 480, topLeftCorner.y + 195 };
 	listview.Create(WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS, listview.sPos, parent, listview.ID);
-	listview.SetFont(&eNormalFont);
+	listview.SetFont(fonts["Normal Font"]);
 	LV_COLUMN listViewDefaultCollumn;
 	// Zero Members
 	memset(&listViewDefaultCollumn, 0, sizeof(listViewDefaultCollumn));

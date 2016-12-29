@@ -10,6 +10,7 @@
 #include "Commctrl.h"
 #include "Uxtheme.h"
 #include "reorganizeWindow.h"
+#include <process.h>
 
 bool initializeCameraWindow(HWND cameraWindow)
 {
@@ -726,6 +727,7 @@ bool initializeCameraWindow(HWND cameraWindow)
 
 	DWORD cameraThreadID;
 	eCameraThreadHandle = CreateThread(NULL, 0, cameraThread, NULL, 0, &cameraThreadID);
+	
 	// hard coded positions...
 	reorganizeWindow("Kinetic Series Mode", cameraWindow);
 	eImageDrawAreas = eImageBackgroundAreas;

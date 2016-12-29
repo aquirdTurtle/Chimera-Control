@@ -8,11 +8,420 @@
 #include "atmcd32d.h"
 #include "CameraWindow.h"
 
+void AndorCamera::pauseThread()
+{
+	// andor should not be taking images anymore at this point.
+	this->threadInput.spuriousWakeupHandler = false;
+}
+
+void AndorCamera::onFinish()
+{
+	// right now this is very simple.
+	this->cameraIsRunning = false;
+}
+
+void AndorCamera::getAcquisitionProgress( long& seriesNumber )
+{
+	if ( !ANDOR_SAFEMODE )
+	{
+		long dummyAccumulationNumber;
+		andorErrorChecker( GetAcquisitionProgress( &dummyAccumulationNumber, &seriesNumber ) );
+	}
+	
+}
+
+
+void AndorCamera::getAcquisitionProgress( long& accumulationNumber, long& seriesNumber )
+{
+	if ( !ANDOR_SAFEMODE )
+	{
+		andorErrorChecker( GetAcquisitionProgress( &accumulationNumber, &seriesNumber ) );
+	}
+}
+
+
+unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
+{
+	cameraThreadInput* input = (cameraThreadInput*) voidPtr;
+	std::unique_lock<std::mutex> lock( input->runMutex );
+
+	DWORD successWait;
+	int safeModeCount = 0;
+	int errorvalue, status;
+	long pictureNumber;
+
+	while ( !input->Andor->cameraThreadExitIndicator )
+	{
+		/* wait until unlocked. this happens when data is started.
+		 * the first argument is the lock.  The when the lock is locked, this function just sits and doesn't use cpu, 
+		 * unlike a while(gGlobalCheck){} loop that waits for gGlobalCheck to be set. The second argument here is a 
+		 * lambda, more or less a quick inline function that doesn't in this case have a name. This handles something
+		 * called spurious wakeups, which are weird and appear to relate to some optimization things from the quick
+		 * search I did. Regardless, I don't fully understand why spurious wakeups occur, but this protects against
+		 * them.
+		 */
+		// Also, anytime this gets locked, the count should be reset.
+		input->signaler.wait( lock, [input, &safeModeCount ]() { return input->spuriousWakeupHandler; } );
+		input->comm->sendStatus( "Loop!\r\n", "");
+		if ( !ANDOR_SAFEMODE )
+		{
+			try
+			{
+				// alternative to directly using events.
+				input->Andor->waitForAcquisition();
+				input->Andor->getStatus();
+			}
+			catch ( my_exception& exception )
+			{
+				if ( exception.whatBare() == "DRV_IDLE" )
+				{
+					// signal the end to the main thread.
+					input->comm->sendCameraFin();
+				}
+				else
+				{
+					try
+					{
+						input->Andor->getAcquisitionProgress( pictureNumber );
+					}
+					catch ( my_exception& exception )
+					{
+						input->comm->sendErrorDef( exception.what(), "");
+					}
+					input->comm->sendCameraProgress( pictureNumber );
+				}
+			}
+		}
+		else
+		{
+			// simulate an actual wait.
+			Sleep( input->Andor->runSettings.kinetiCycleTime * 1000 );
+			if ( input->Andor->cameraIsRunning && safeModeCount < input->Andor->runSettings.totalPicsInExperiment)
+			{
+				if ( input->Andor->runSettings.cameraMode == "Kinetic Series Mode" 
+					 || input->Andor->runSettings.cameraMode == "Accumulate Mode" )
+				{
+					safeModeCount++;
+					input->comm->sendCameraProgress( safeModeCount );
+				}
+				else
+				{
+					input->comm->sendCameraProgress( 1 );
+				}
+			}
+			else
+			{
+				input->Andor->cameraIsRunning = false;
+				safeModeCount = 0;
+				input->comm->sendCameraFin();
+				input->spuriousWakeupHandler = false;
+			}
+		}
+	}
+	return 0;
+}
+
+
+/// ANDOR SDK WRAPPERS
+// the following functions are wrapped to throw errors if error are returned by the raw functions, as well as to only 
+// excecute the raw functions if the camera is not in safemode.
+void AndorCamera::waitForAcquisition()
+{
+	if ( !ANDOR_SAFEMODE )
+	{
+		andorErrorChecker( WaitForAcquisition() );
+	}
+}
+
+void AndorCamera::getTemperature(int& temp)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(GetTemperature(&temp));
+	}
+	return;
+}
+
+//
+void AndorCamera::getAdjustedRingExposureTimes(int size, float* timesArray)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(GetAdjustedRingExposureTimes(size, timesArray));
+	}
+}
+
+void AndorCamera::setNumberKinetics(int number)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetNumberKinetics(number));
+	}
+
+}
+
+// Andor Wrappers
+void AndorCamera::getTemperatureRange(int& min, int& max)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(GetTemperatureRange(&min, &max));
+	}
+	return;
+}
+
+void AndorCamera::temperatureControlOn()
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(CoolerON());
+	}
+}
+
+
+void AndorCamera::temperatureControlOff()
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(CoolerOFF());
+	}
+}
+
+
+void AndorCamera::setTemperature(int temp)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetTemperature(temp));
+	}
+}
+
+
+void AndorCamera::setADChannel(int channel)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetADChannel(channel));
+	}
+}
+
+
+void AndorCamera::setHSSpeed(int type, int index)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetHSSpeed(type, index));
+	}
+}
+
+// note that the function used here could be used to get actual information about the number of images, I just only use
+// it to check whether there are any new images or not. Not sure if this is the smartest way to do this.
+void AndorCamera::checkForNewImages()
+{
+	long first, last;
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(GetNumberNewImages(&first, &last));
+	}
+	// don't do anything with the info.
+}
+
+
+void AndorCamera::getOldestImage(long& dataArray, int size)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(GetOldestImage(&dataArray, size));
+	}
+}
+
+
+void AndorCamera::setTriggerMode(int mode)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetTriggerMode(mode));
+	}
+}
+
+
+void AndorCamera::setAcquisitionMode(int mode)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetAcquisitionMode(mode));
+	}
+}
+
+
+void AndorCamera::setReadMode(int mode)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetReadMode(mode));
+	}
+}
+
+
+void AndorCamera::setRingExposureTimes(int sizeOfTimesArray, float* arrayOfTimes)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetRingExposureTimes(sizeOfTimesArray, arrayOfTimes));
+	}
+}
+
+
+void AndorCamera::setImage(int hBin, int vBin, int lBorder, int rBorder, int tBorder, int bBorder)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetImage(hBin, vBin, lBorder, rBorder, tBorder, bBorder));
+	}
+}
+
+
+void AndorCamera::setKineticCycleTime(float cycleTime)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetKineticCycleTime(cycleTime));
+	}
+}
+
+
+void AndorCamera::setFrameTransferMode(int mode)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetFrameTransferMode(mode));
+	}
+}
+
+
+void AndorCamera::getAcquisitionTimes(float& exposure, float& accumulation, float& kinetic)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(GetAcquisitionTimings(&exposure, &accumulation, &kinetic));
+	}
+}
+
+
+void AndorCamera::getStatus(int& status)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(GetStatus(&status));
+	}
+}
+
+
+void AndorCamera::startAcquisition()
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(StartAcquisition());
+	}
+}
+
+
+void AndorCamera::abortAcquisition()
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(AbortAcquisition());
+	}
+}
+
+
+void AndorCamera::setAccumulationCycleTime(float time)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetAccumulationCycleTime(time));
+	}
+}
+
+
+void AndorCamera::setAccumulationNumber(int number)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetNumberAccumulations(number));
+	}
+}
+
+
+void AndorCamera::getNumberOfPreAmpGains(int& number)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(GetNumberPreAmpGains(&number));
+	}
+}
+
+
+void AndorCamera::setPreAmpGain(int index)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetPreAmpGain(index));
+	}
+}
+
+
+void AndorCamera::getPreAmpGain(int index, float& gain)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(GetPreAmpGain(index, &gain));
+	}
+}
+
+
+void AndorCamera::setOutputAmplifier(int type)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetOutputAmplifier(type));
+	}
+}
+
+
+void AndorCamera::setEmGainSettingsAdvanced(int state)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetEMAdvanced(state));
+	}
+}
+
+
+void AndorCamera::setEmCcdGain(int gain)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetEMCCDGain(gain));
+	}
+}
+
+
+///
+
+
+
+bool AndorCamera::isRunning()
+{
+	return this->cameraIsRunning;
+}
+
 AndorCamera::AndorCamera()
 {
 	this->runSettings.emGainModeIsOn = false;
 }
-void AndorCamera::confirmAcquisitionTimings(float& kinetic, float& accumulation, std::vector<float>& exposures, Communicator* comm)
+
+void AndorCamera::confirmAcquisitionTimings(float& kinetic, float& accumulation, std::vector<float>& exposures)
 {
 	// not sure if this function is necessary...
 }
@@ -31,124 +440,53 @@ void AndorCamera::setSettings(AndorRunSettings settingsToSet)
 	return;
 }
 
+void AndorCamera::setAcquisitionMode()
+{
+	this->setAcquisitionMode(runSettings.acquisitionMode);
+}
+
 /* 
 	* Large function which initializes a given camera image run.
 	*/
-int AndorCamera::setSystem(CameraWindow* camWin, Communicator* comm)
+void AndorCamera::setSystem(CameraWindow* camWin)
 {
 	/// Set a bunch of parameters.
-	std::string errorMessage;
 	// Set to 1 MHz readout rate in both cases
+	setADChannel(1);
 	if (this->runSettings.emGainModeIsOn)
 	{
-		if (!ANDOR_SAFEMODE)
-		{
-			errorMessage = this->andorErrorChecker(SetADChannel(1));
-			if (errorMessage != "DRV_SUCCESS")
-			{
-				comm->sendError("ERROR: SetADChannel Error: " + errorMessage + "\r\n", "", "R");
-				return -1;
-			}
-			errorMessage = this->andorErrorChecker(SetHSSpeed(0, 0));
-			if (errorMessage != "DRV_SUCCESS")
-			{
-				comm->sendError("ERROR: SetHSSpeed Error: " + errorMessage + "\r\n", "", "R");
-				return -1;
-			}
-
-		}
+		setHSSpeed(0, 0);
 	}
 	else
 	{
-		if (!ANDOR_SAFEMODE)
-		{
-			errorMessage = this->andorErrorChecker(SetADChannel(1));
-			if (errorMessage != "DRV_SUCCESS")
-			{
-				comm->sendError("ERROR: SetADChannel Error: " + errorMessage + "\r\n", "", "R");
-				return -1;
-			}
-			errorMessage = this->andorErrorChecker(SetHSSpeed(1, 0));
-			if (errorMessage != "DRV_SUCCESS")
-			{
-				comm->sendError("ERROR: SetHSSpeed Error: " + errorMessage + "\r\n", "", "R");
-				return -1;
-			}
-		}
+		setHSSpeed(1, 0);
 	}
-
-	if (this->setAcquisitionMode(comm) != 0)
-	{
-		return -1;
-	}
-	if (this->setReadMode(comm) != 0)
-	{
-		return -1;
-	}
-	if (this->setExposures(comm) != 0)
-	{
-		return -1;
-	}
-	if (this->setImageParametersToCamera(comm) != 0)
-	{
-		return -1;
-	}
+	setAcquisitionMode();
+	setReadMode();
+	setExposures();
+	setImageParametersToCamera();
 	// Set Mode-Specific Parameters
 	if (runSettings.acquisitionMode == 5)
 	{
-		if (this->setFrameTransferMode(0) != 0)
-		{
-			return -1;
-		}
+		this->setFrameTransferMode();
 	}
 	else if (runSettings.acquisitionMode == 3)
 	{
-		if (this->setKineticCycleTime(comm) != 0)
-		{
-			return -1;
-		}
-		if (this->setScanNumber(comm) != 0)
-		{
-			this->cameraIsRunning = false;
-			return -1;
-		}
+		setKineticCycleTime();
+		setScanNumber();
 		// set this to 1.
-		if (this->setNumberAccumulations(true, comm) != 0)
-		{
-			return -1;
-		}
+		setNumberAccumulations(true);
 	}
 	else if (runSettings.acquisitionMode == 2)
 	{
-		if (this->setAccumulationCycleTime(comm) != 0)
-		{
-			return -1;
-		}
-		if (this->setNumberAccumulations(false, comm) != 0)
-		{
-			return -1;
-		}
+		setAccumulationCycleTime();
+		setNumberAccumulations(false);
 	}
-	try
-	{
-		this->confirmAcquisitionTimings(runSettings.kinetiCycleTime, runSettings.accumulationTime, 
-										runSettings.exposureTimes, comm);
-	}
-	catch (std::runtime_error)
-	{
-		comm->sendError("ERROR: Unable to check acquisition timings.\r\n", "", "R");
-		throw;
-	}
-
-	if (this->setGainMode(comm) != 0)
-	{
-		return -1;
-	}
+	this->confirmAcquisitionTimings(runSettings.kinetiCycleTime, runSettings.accumulationTime, 
+									runSettings.exposureTimes);
+	setGainMode();
+	setCameraTriggerMode();
 	// Set trigger mode.
-	if (this->setTriggerMode(comm) != 0)
-	{
-		return -1;
-	}
 	// check plotting parameters
 	/// TODO!
 	// CAREFUL! I can only modify these guys here because I'm sure that I'm also not writing to them in the plotting thread since the plotting thread hasn't
@@ -156,12 +494,7 @@ int AndorCamera::setSystem(CameraWindow* camWin, Communicator* comm)
 	// Initialize the thread accumulation number.
 	// this->??? = 1;
 	// //////////////////////////////
-	
-	if (this->getStatus(comm) != 0)
-	{
-		return -1;
-	}
-
+	getStatus();
 	/// setup fits files
 	std::string errMsg;
 	if (runSettings.cameraMode != "Continuous Single Scans Mode")
@@ -177,90 +510,39 @@ int AndorCamera::setSystem(CameraWindow* camWin, Communicator* comm)
 	}
 	/// Do some plotting stuffs
 	//eAlerts.setAlertThreshold();
+	//ePicStats.reset();
 
-	// set default colors and linewidths on plots
-	this->currentRepetitionNumber = 1;
-	// Create the Mutex. This function just opens the mutex if it already exists.
-	plottingMutex = CreateMutexEx(0, NULL, FALSE, MUTEX_ALL_ACCESS);
-	// prepare for start of thread.
-	plotThreadExitIndicator = true;
-	/// TODO!
-	// start thread.
-	/*
-	unsigned int * plottingThreadID = NULL;
-	std::vector<std::string>* argPlotNames;
-	argPlotNames = new std::vector<std::string>;
-	for (int plotNameInc = 0; plotNameInc < eCurrentPlotNames.size(); plotNameInc++)
-	{
-		argPlotNames->push_back(eCurrentPlotNames[plotNameInc]);
-	}
-	// clear this before starting the thread.
-	eImageVecQueue.clear();
-	// start the plotting thread.
-	ePlottingThreadHandle = (HANDLE)_beginthreadex(0, 0, plotterProcedure, argPlotNames, 0,
-													plottingThreadID);
-													*/
-	// color pictures, clearing last run.
-	/// TODO!
-	/*
-	HDC hDC = camWin->GetDC();
-
-	SelectObject(hDC, GetStockObject(DC_BRUSH));
-	SelectObject(hDC, GetStockObject(DC_PEN));
-	// dark green brush
-	SetDCBrushColor(hDC, RGB(0, 10, 0));
-	// Set the Pen to White
-	SetDCPenColor(hDC, RGB(255, 255, 255));
-	// Drawing a rectangle with the current Device Context
-	for (int imageInc = 0; imageInc < eImageBackgroundAreas.size(); imageInc++)
-	{
-		// slightly larger than the image zone.
-		Rectangle(hDC, eImageBackgroundAreas[imageInc].left - 5, eImageBackgroundAreas[imageInc].top - 5, eImageBackgroundAreas[imageInc].right + 5, eImageBackgroundAreas[imageInc].bottom + 5);
-	}
-	ReleaseDC(eCameraWindowHandle, hDC);
-	*/
-	// clear the plot grid
-	/*
-	ePicStats.reset();
-	if (this->startAcquisition() != 0)
-	{
-		return -1;
-	}
-	// Else started!
-	UpdateWindow(eStatusEditHandle.hwnd);
-	*/
-	return 0;
+	// the lock is released when the lock object function goes out of scope, which happens immediately after
+	// the start acquisition call
+	//std::lock_guard<std::mutex> lock( threadInput.runMutex );
+	
+	this->cameraIsRunning = true;
+	// remove the spurious wakeup check.
+	this->threadInput.spuriousWakeupHandler = true;
+	// notify the thread that the experiment has started..
+	this->threadInput.signaler.notify_all();
+	this->startAcquisition();
+	return;
 }
 
 // This function queries the camera for how many pictures are available, retrieves all of them, then paints them to the main window. It returns the success of
 // this operation.
-BOOL AndorCamera::acquireImageData(Communicator* comm)
+void AndorCamera::acquireImageData()
 {
-	long first, last;
-	// check the number of images available
-	std::string errMsg;
-
-	if (!ANDOR_SAFEMODE)
+	try
 	{
-		errMsg = this->andorErrorChecker(GetNumberNewImages(&first, &last));
+		this->checkForNewImages();
 	}
-	else
+	catch (my_exception& exception)
 	{
-		errMsg = "DRV_SUCCESS";
-		first = 0;
-		last = 0;
-	}
-	// check success.
-	if (errMsg != "DRV_SUCCESS")
-	{
-		if (errMsg == "DRV_NO_NEW_DATA")
+		if (exception.whatBare() == "DRV_NO_NEW_DATA")
 		{
-			return TRUE;
+			return;
 		}
 		else
 		{
-			comm->sendError("ERROR: GetNumberNewImages error: " + errMsg + "\r\n", "", "R");
-			return FALSE;
+			// pass it up.
+			throw;
 		}
 	}
 	/// ///
@@ -299,9 +581,9 @@ BOOL AndorCamera::acquireImageData(Communicator* comm)
 	WaitForSingleObject(imagesMutex, INFINITE);
 	imagesOfExperiment[experimentPictureNumber].resize(size);
 	ReleaseMutex(imagesMutex);
-	if (!ANDOR_SAFEMODE)
+ 	if (!ANDOR_SAFEMODE)
 	{
-		errMsg = this->andorErrorChecker(GetOldestImage(&tempImage[0], tempImage.size()));
+		getOldestImage(tempImage[0], tempImage.size());
 		// immediately rotate
 		WaitForSingleObject(imagesMutex, INFINITE);
 		for (int imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
@@ -314,7 +596,6 @@ BOOL AndorCamera::acquireImageData(Communicator* comm)
 	}
 	else
 	{
-		errMsg = "DRV_SUCCESS";
 		for (int imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 		{
 			tempImage[imageVecInc] = rand() % 50 + 95;
@@ -343,11 +624,6 @@ BOOL AndorCamera::acquireImageData(Communicator* comm)
 		ReleaseMutex(imagesMutex);
 
 	}
-	if (errMsg != "DRV_SUCCESS")
-	{
-		comm->sendError("ERROR: Acquisition Error on Retrieval: " + errMsg + "\r\n", "", "R");
-		return FALSE;
-	}
 	// ???
 	// eDataExists = true;
 	// Display data and query max data value to be displayed in status box
@@ -370,7 +646,7 @@ BOOL AndorCamera::acquireImageData(Communicator* comm)
 		}
 		if (maxValue == minValue)
 		{
-			return FALSE;
+			return;
 		}
 		// update the picture
 		if (experimentPictureNumber == this->runSettings.picsPerRepetition - 1 
@@ -397,27 +673,27 @@ BOOL AndorCamera::acquireImageData(Communicator* comm)
 			case WAIT_ABANDONED:
 			{
 				// handle error...
-				comm->sendError("ERROR: waiting for the plotting mutex failed (Wait Abandoned)!\r\n", "", "R");
+				thrower("ERROR: waiting for the plotting mutex failed (Wait Abandoned)!\r\n");
 				break;
 			}
 			case WAIT_TIMEOUT:
 			{
 				// handle error...
-				comm->sendError("ERROR: waiting for the plotting mutex failed (timout???)!\r\n", "", "R");
+				thrower("ERROR: waiting for the plotting mutex failed (timout???)!\r\n");
 				break;
 			}
 			case WAIT_FAILED:
 			{
 				// handle error...
 				int a = GetLastError();
-				comm->sendError("ERROR: waiting for the plotting mutex failed (Wait Failed: " + std::to_string(a) + ")!\r\n", "", "R");
+				thrower("ERROR: waiting for the plotting mutex failed (Wait Failed: " + std::to_string(a) + ")!\r\n");
 				break;
 
 			}
 			default:
 			{
 				// handle error...
-				comm->sendError("ERROR: unknown response from WaitForSingleObject!\r\n", "", "R");
+				thrower("ERROR: unknown response from WaitForSingleObject!\r\n");
 				break;
 			}
 		}
@@ -440,16 +716,15 @@ BOOL AndorCamera::acquireImageData(Communicator* comm)
 			/*
 			if (eExperimentData.writeFits(errMsg, experimentPictureNumber, this->currentMainThreadRepetitionNumber, eImagesOfExperiment))
 			{
-				comm->sendError(errMsg, "", "R");
+				thrower(errMsg);
 			}
 			*/
 		}
 	}
 	else
 	{
-		bRetValue = FALSE;
-		comm->sendError("ERROR: Data range is zero\r\n", "", "R");
-		return FALSE;
+		thrower("ERROR: Data range is zero\r\n");
+		return;
 	}
 	/// TODO
 	/*
@@ -462,7 +737,7 @@ BOOL AndorCamera::acquireImageData(Communicator* comm)
 	// % 4 at the end because there are only 4 pictures available on the screen.
 	int imageLocation = (((this->currentRepetitionNumber - 1) 
 		% this->runSettings.totalPicsInVariation) % runSettings.repetitionsPerVariation) % 4;
-	return TRUE;
+	return;
 }
 
 void AndorCamera::drawDataWindow(void)
@@ -738,7 +1013,7 @@ void AndorCamera::drawDataWindow(void)
 	return;
 }
 // The following are a set of simple functions that call the indicated andor SDK function if not in safe mode and check the error message.
-int AndorCamera::setTriggerMode(Communicator* comm)
+void AndorCamera::setCameraTriggerMode()
 {
 	std::string errMsg;
 	int trigType;
@@ -754,23 +1029,11 @@ int AndorCamera::setTriggerMode(Communicator* comm)
 	{
 		trigType = 6;
 	}
-
-	if (!ANDOR_SAFEMODE)
-	{
-		errMsg = this->andorErrorChecker(SetTriggerMode(trigType));
-	}
-	else
-	{
-		errMsg = "DRV_SUCCESS";
-	}
-	if (errMsg != "DRV_SUCCESS")
-	{
-		comm->sendError("ERROR: Set Trigger Mode Error: " + errMsg + "\r\n", "", "R");
-		return -1;
-	}
-	return 0;
+	setTriggerMode(trigType);
+	return;
 }
-int AndorCamera::setTemperature(Communicator* comm)
+
+void AndorCamera::setTemperature()
 {
 	// Get the current temperature
 	if (runSettings.temperatureSetting< -60 || runSettings.temperatureSetting > 25)
@@ -779,124 +1042,44 @@ int AndorCamera::setTemperature(Communicator* comm)
 			"anyways?", 0, MB_OKCANCEL);
 		if (answer == IDCANCEL)
 		{
-			return -1;
+			return;
 		}
 	}
 	// Proceedure to initiate cooling
-	this->changeTemperatureSetting(false, comm);
-	return 0;
-}
-int AndorCamera::setAcquisitionMode(Communicator* comm)
-{
-	std::string errMsg;
-	if (!ANDOR_SAFEMODE)
-	{
-		errMsg = this->andorErrorChecker(SetAcquisitionMode(runSettings.acquisitionMode));
-	}
-	else
-	{
-		errMsg = "DRV_SUCCESS";
-	}
-	if (errMsg != "DRV_SUCCESS")
-	{
-		comm->sendError("ERROR: Error while setting Acquisition mode: " + errMsg + "\r\n", "", "R");
-		return -1;
-	}
-
-	return 0;
-}
-int AndorCamera::setReadMode(Communicator* comm)
-{
-	std::string errMsg;
-	if (!ANDOR_SAFEMODE)
-	{
-		// Set read mode to required setting specified in xxxxWndw.c
-		errMsg = this->andorErrorChecker(SetReadMode(runSettings.readMode));
-	}
-	else
-	{
-		errMsg = "DRV_SUCCESS";
-	}
-	if (errMsg != "DRV_SUCCESS")
-	{
-		comm->sendError("ERROR: Error while setting read msode: " + errMsg + "\r\n", "", "R");
-		return -1;
-	}
-	return 0;
-}
-	
-
-int AndorCamera::setExposures(Communicator* comm)
-{
-	std::string errMsg;
-	if (!ANDOR_SAFEMODE)
-	{
-		if (runSettings.exposureTimes.size() > 0 && runSettings.exposureTimes.size() <= 16)
-		{
-			errMsg = this->andorErrorChecker(SetRingExposureTimes(runSettings.exposureTimes.size(), runSettings.exposureTimes.data()));
-		}
-		else
-		{
-			errMsg = "Invalid size for vector of exposure times, value of " + std::to_string(runSettings.exposureTimes.size()) + ".";
-		}
-	}
-	else
-	{
-		errMsg = "DRV_SUCCESS";
-	}
-	if (errMsg != "DRV_SUCCESS")
-	{
-		comm->sendError("ERROR: Exposure times error: " + errMsg + "\r\n", "", "R");
-		return -1;
-	}
-	return 0;
+	this->changeTemperatureSetting(false);
+	return;
 }
 
-/*
-	*
-	*/
-int AndorCamera::setImageParametersToCamera(Communicator* comm)
+void AndorCamera::setReadMode()
 {
-	std::string errMsg;
-	if (!ANDOR_SAFEMODE)
-	{
-		errMsg = this->andorErrorChecker(SetImage(runSettings.imageSettings.verticalBinning, 
-			runSettings.imageSettings.horizontalBinning, runSettings.imageSettings.topBorder, 
-			runSettings.imageSettings.bottomBorder, runSettings.imageSettings.leftBorder, 
-			runSettings.imageSettings.rightBorder));
-	}
-	else
-	{
-		errMsg = "DRV_SUCCESS";
-	}
+	setReadMode(runSettings.readMode);
+}
 
-	if (errMsg != "DRV_SUCCESS")
-	{
-		comm->sendError("Set Image Error: " + errMsg + "\r\n", "", "R");
-		return -1;
-	}
-	return 0;
-}
-int AndorCamera::setKineticCycleTime(Communicator* comm)
+void AndorCamera::setExposures()
 {
-	std::string errMsg;
-	if (!ANDOR_SAFEMODE)
+	if (runSettings.exposureTimes.size() > 0 && runSettings.exposureTimes.size() <= 16)
 	{
-		errMsg = this->andorErrorChecker(SetKineticCycleTime(this->runSettings.kinetiCycleTime));
+		setRingExposureTimes(runSettings.exposureTimes.size(), runSettings.exposureTimes.data());
 	}
 	else
 	{
-		errMsg = "DRV_SUCCESS";
+		thrower("ERROR: Invalid size for vector of exposure times, value of " + std::to_string(runSettings.exposureTimes.size()) + ".");
 	}
-	//
-	if (errMsg != "DRV_SUCCESS")
-	{
-		comm->sendError("ERROR: SetKineticCycleTime Error: " + errMsg + "\r\n", "", "R");
-		return -1;
-	}
-	return 0;
 }
-int AndorCamera::setScanNumber(Communicator* comm)
+
+void AndorCamera::setImageParametersToCamera()
+{
+	setImage(runSettings.imageSettings.verticalBinning, runSettings.imageSettings.horizontalBinning, 
+			 runSettings.imageSettings.topBorder, runSettings.imageSettings.bottomBorder, 
+			 runSettings.imageSettings.leftBorder, runSettings.imageSettings.rightBorder);
+}
+
+void AndorCamera::setKineticCycleTime()
+{
+	setKineticCycleTime(this->runSettings.kinetiCycleTime);
+}
+
+void AndorCamera::setScanNumber()
 {
 	if (runSettings.totalPicsInExperiment == 0 && runSettings.totalPicsInVariation != 0)
 	{
@@ -904,46 +1087,18 @@ int AndorCamera::setScanNumber(Communicator* comm)
 	}
 	else if (runSettings.totalPicsInVariation == 0)
 	{
-		comm->sendError("ERROR: Scan Number Was Zero.\r\n", "", "R");
+		thrower("ERROR: Scan Number Was Zero.\r\n");
 	}
 	else
 	{
-		std::string errMsg;
-		if (!ANDOR_SAFEMODE)
-		{
-			errMsg = this->andorErrorChecker(SetNumberKinetics(runSettings.totalPicsInExperiment));
-		}
-		else
-		{
-			errMsg = "DRV_SUCCESS";
-		}
-
-		if (errMsg != "DRV_SUCCESS")
-		{
-			comm->sendError("ERROR: Set number kinetics error\r\n", "", "R");
-			return -1;
-		}
+		setNumberKinetics(runSettings.totalPicsInExperiment);
 	}
-	return 0;
 }
-int AndorCamera::setFrameTransferMode(Communicator* comm)
+
+
+void AndorCamera::setFrameTransferMode()
 {
-	std::string errMsg;
-	if (!ANDOR_SAFEMODE)
-	{
-		errMsg = this->andorErrorChecker(SetFrameTransferMode(runSettings.frameTransferMode));
-	}
-	else
-	{
-		errMsg = "DRV_SUCCESS";
-	}
-		
-	if (errMsg != "DRV_SUCCESS")
-	{
-		comm->sendError("ERROR: SetFrameTransferMode returned error: " + errMsg + "\r\n", "", "R");
-		return -1;
-	}
-	return 0;
+	setFrameTransferMode(runSettings.frameTransferMode);
 }
 
 
@@ -952,8 +1107,7 @@ int AndorCamera::setFrameTransferMode(Communicator* comm)
 	* over-written.
 	* throws exception if fails
 	*/
-int AndorCamera::checkAcquisitionTimings(float& kinetic, float& accumulation, std::vector<float>& exposures,
-	Communicator* comm)
+void AndorCamera::checkAcquisitionTimings(float& kinetic, float& accumulation, std::vector<float>& exposures)
 {
 	float tempExposure, tempAccumTime, tempKineticTime;
 	float * timesArray = NULL;
@@ -981,339 +1135,155 @@ int AndorCamera::checkAcquisitionTimings(float& kinetic, float& accumulation, st
 	// It is necessary to get the actual times as the system will calculate the
 	// nearest possible time. eg if you set exposure time to be 0, the system
 	// will use the closest value (around 0.01s)
-	if (!ANDOR_SAFEMODE)
+	timesArray = new float[exposures.size()];
+	if (ANDOR_SAFEMODE)
 	{
-		// get times
-		errMsg = this->andorErrorChecker(GetAcquisitionTimings(&tempExposure, &tempAccumTime, &tempKineticTime));
-		timesArray = new float[exposures.size()];
-		errMsg = this->andorErrorChecker(GetAdjustedRingExposureTimes(exposures.size(), timesArray));
+		getAcquisitionTimes(tempExposure, tempAccumTime, tempKineticTime);
+		getAdjustedRingExposureTimes(exposures.size(), timesArray);
 	}
 	else 
 	{
-		timesArray = new float[exposures.size()];
 		for (int exposureInc = 0; exposureInc < exposures.size(); exposureInc++)
 		{
 			timesArray[exposureInc] = exposures[exposureInc];
 		}
-		errMsg = "DRV_SUCCESS";
 	}
-	// 
-	if (errMsg != "DRV_SUCCESS")
+	// success. Set times
+	if (exposures.size() > 0)
 	{
-		comm->sendError("ERROR: GetAcquisitionTimings returned error: " + errMsg + "\r\n", "", "R");
-		throw std::runtime_error("GetAcquisitionTimings returned error: " + errMsg);
-		return -1;
-	}
-	else
-	{
-		// success. Set times
-		if (exposures.size() > 0)
+		for (int exposureInc = 0; exposureInc < exposures.size(); exposureInc++)
 		{
-			for (int exposureInc = 0; exposureInc < exposures.size(); exposureInc++)
-			{
-				exposures[exposureInc] = timesArray[exposureInc];
-			}
-			delete[] timesArray;
+			exposures[exposureInc] = timesArray[exposureInc];
 		}
-		accumulation = tempAccumTime;
-		kinetic = tempKineticTime;
+		delete[] timesArray;
 	}
-	return 0;
+	accumulation = tempAccumTime;
+	kinetic = tempKineticTime;
 }
 	
 	
 /*
-*/
-int AndorCamera::getStatus(Communicator* comm)
+ */
+void AndorCamera::getStatus()
 {
 	int status;
-	std::string errMsg;
-	if (!ANDOR_SAFEMODE)
+	getStatus(status);
+	if (ANDOR_SAFEMODE)
 	{
-		errMsg = this->andorErrorChecker(GetStatus(&status));
-	}
-	else
-	{
-		errMsg = "DRV_SUCCESS";
 		status = DRV_IDLE;
 	}
-
-	if (errMsg != "DRV_SUCCESS")
-	{
-		comm->sendError("ERROR: GetStatus Error " + errMsg + "\r\n", "", "R");
-		return -1;
-	}
-
 	if (status != DRV_IDLE)
 	{
-		comm->sendError("ERROR: You tried to start the camera, but the camera was not idle! Camera was in state corresponding to " + std::to_string(status) + "\r\n", "", "R");
-		return -1;
+		thrower("ERROR: You tried to start the camera, but the camera was not idle! Camera was in state corresponding to " + std::to_string(status) + "\r\n");
+		return;
 	}
-	return 0;
+	return;
 }
-int AndorCamera::startAcquisition(Communicator* comm)
+
+/*
+ (
+ */
+void AndorCamera::setAccumulationCycleTime()
+{
+	setAccumulationCycleTime(runSettings.accumulationTime);
+}
+
+
+void AndorCamera::setNumberAccumulations(bool isKinetic)
 {
 	std::string errMsg;
-	if (!ANDOR_SAFEMODE)
+	if (isKinetic)
 	{
-		errMsg = this->andorErrorChecker(StartAcquisition());
+		// right now, kinetic series mode always has one accumulation. could add this feature later if desired.
+		setNumberAccumulations(true);
 	}
 	else
 	{
-		errMsg = "DRV_SUCCESS";
+		// ???
+		setNumberAccumulations(false);
 	}
-
-	if (errMsg != "DRV_SUCCESS")
-	{
-		comm->sendError("ERROR: Start acquisition error: " + errMsg + "\r\n", "", "R");
-		if (!ANDOR_SAFEMODE)
-		{
-			errMsg = this->andorErrorChecker(AbortAcquisition());
-		}
-		else
-		{
-			errMsg = "DRV_SUCCESS";
-		}
-		if (errMsg != "DRV_SUCCESS")
-		{
-			comm->sendError("ERROR: Abort Acquisition Error: " + errMsg + "\r\n", "", "R");
-			return -1;
-		}
-	}
-	return 0;
+	return;
 }
-int AndorCamera::setAccumulationCycleTime(Communicator* comm)
-{
-	std::string errMsg;
-	if (!ANDOR_SAFEMODE)
-	{
-		errMsg = this->andorErrorChecker(SetAccumulationCycleTime(runSettings.accumulationTime));
-	}
-	else
-	{
-		errMsg = "DRV_SUCCESS";
-	}
-	return 0;
-}
-int AndorCamera::setNumberAccumulations(bool isKinetic, Communicator* comm)
-{
-	std::string errMsg;
-	if (!ANDOR_SAFEMODE)
-	{
-		if (isKinetic)
-		{
-			// right now, kinetic series mode always has one accumulation. could add this feature later if desired.
-			errMsg = this->andorErrorChecker(SetNumberAccumulations(1));
-		}
-		else
-		{
-			errMsg = this->andorErrorChecker(SetNumberAccumulations(this->runSettings.totalPicsInExperiment));
-		}
-	}
-	else
-	{
-		errMsg = "DRV_SUCCESS";
-	}
 
-	if (errMsg != "DRV_SUCCESS")
-	{
-		comm->sendError("ERROR: SetNumberAccumulations() returned error: " + errMsg + "\r\n", "", "R");
-		return -1;
-	}
-
-	return 0;
-}
-int AndorCamera::setGainMode(Communicator* comm)
+void AndorCamera::setGainMode()
 {
 	if (this->runSettings.emGainModeIsOn == false)
 	{
 		// Set Gain
 		int numGain;
-		std::string errorMessage;
-		if (!ANDOR_SAFEMODE)
-		{
-			//
-			errorMessage = this->andorErrorChecker(GetNumberPreAmpGains(&numGain));
-			if (errorMessage != "DRV_SUCCESS")
-			{
-				comm->sendError("ERROR: GetNumberPreAmpGains() returned error: " + errorMessage + "\r\n", "", "R");
-				return -1;
-			}
-			errorMessage = this->andorErrorChecker(SetPreAmpGain(2));
-			if (errorMessage != "DRV_SUCCESS")
-			{
-				comm->sendError("ERROR: SetPreAmpGain() returned error: " + errorMessage + "\r\n", "", "R");
-				return -1;
-			}
-			float myGain;
-			errorMessage = this->andorErrorChecker(GetPreAmpGain(2, &myGain));
-			if (errorMessage != "DRV_SUCCESS")
-			{
-				comm->sendError("ERROR: GetPreAmpGain(2) returned error: " + errorMessage + "\r\n", "", "R");
-				return -1;
-			}
-			errorMessage = this->andorErrorChecker(SetOutputAmplifier(1));
-			if (errorMessage != "DRV_SUCCESS")
-			{
-				comm->sendError("ERROR: SetOutputAmplifier(1) (1 for conventional gain mode) returned error: " + errorMessage + "\r\n", "", "R");
-				return -1;
-			}
-		}
-		else
-		{
-			std::string errorMessage;
-			errorMessage = "DRV_SUCCESS";
-		}
+		getNumberOfPreAmpGains(numGain);
+		setPreAmpGain(2);
+		float myGain;
+		getPreAmpGain(2, myGain);
+		// 1 is for conventional gain mode.
+		setOutputAmplifier(1);
 	}
 	else
 	{
-		if (!ANDOR_SAFEMODE)
+		// 0 is for em gain mode.
+		setOutputAmplifier(0);
+		setPreAmpGain(2);
+		if (runSettings.emGainLevel > 300)
 		{
-			std::string errorMessage;
-			errorMessage = this->andorErrorChecker(SetOutputAmplifier(0));
-			if (errorMessage != "DRV_SUCCESS")
-			{
-				comm->sendError("ERROR: SetOutputAmplifier(0) (0 for EM gain mode) returned error: " + errorMessage + "\r\n", "", "R");
-				return -1;
-			}
-			errorMessage = this->andorErrorChecker(SetPreAmpGain(2));
-			if (errorMessage != "DRV_SUCCESS")
-			{
-				comm->sendError("ERROR: SetPreAmpGain() returned error: " + errorMessage + "\r\n", "", "R");
-				return -1;
-			}
-			if (runSettings.emGainLevel > 300)
-			{
-				errorMessage = this->andorErrorChecker(SetEMAdvanced(1));
-				if (errorMessage != "DRV_SUCCESS")
-				{
-					comm->sendError("ERROR: SetEMAdvanced(1) returned error: " + errorMessage + "\r\n", "", "R");
-					return -1;
-				}
-			}
-			else
-			{
-				errorMessage = this->andorErrorChecker(SetEMAdvanced(0));
-				if (errorMessage != "DRV_SUCCESS")
-				{
-					comm->sendError("ERROR: SetEMAdvanced(0) returned error: " + errorMessage + "\r\n", "", "R");
-					return -1;
-				}
-			}
-			errorMessage = this->andorErrorChecker(SetEMCCDGain(runSettings.emGainLevel));
-			if (errorMessage != "DRV_SUCCESS")
-			{
-				comm->sendError("ERROR: SetEMCCDGain(gainLevel) returned error: " + errorMessage + "\r\n", "", "R");
-				return -1;
-			}
+			setEmGainSettingsAdvanced(1);
 		}
 		else
 		{
-			std::string errorMessage;
-			errorMessage = "DRV_SUCCESS";
+			setEmGainSettingsAdvanced(0);
 		}
+		setEmCcdGain(runSettings.emGainLevel);
 	}
-
-	return 0;
+	return;
 }
 ///
 
-void AndorCamera::changeTemperatureSetting(bool temperatureControlOff, Communicator* comm)
+void AndorCamera::changeTemperatureSetting(bool turnTemperatureControlOff)
 {
 	char aBuffer[256];
 	int minimumAllowedTemp, maximumAllowedTemp;
-	std::string errMsg;
+	// the default, in case the program is in safemode.
+	minimumAllowedTemp = -60;
+	maximumAllowedTemp = 25;
 	// clear buffer
 	wsprintf(aBuffer, "");
-
 	// check if temp is in valid range
-	if (!ANDOR_SAFEMODE)
+	getTemperatureRange(minimumAllowedTemp, maximumAllowedTemp);
+	if (runSettings.temperatureSetting < minimumAllowedTemp || runSettings.temperatureSetting > maximumAllowedTemp)
 	{
-		errMsg = this->andorErrorChecker(GetTemperatureRange(&minimumAllowedTemp, &maximumAllowedTemp));
+		thrower("ERROR: Temperature is out of range\r\n");
 	}
 	else
 	{
-		errMsg = "DRV_SUCCESS";
-		minimumAllowedTemp = -60;
-		maximumAllowedTemp = 25;
-	}
-
-	if (errMsg != "DRV_SUCCESS")
-	{
-		comm->sendError("ERROR: Temperature error: " + errMsg + "\r\n", "", "R");
-	}
-	else
-	{
-		if (runSettings.temperatureSetting < minimumAllowedTemp || runSettings.temperatureSetting > maximumAllowedTemp)
+		// if it is in range, switch on cooler and set temp
+		if (turnTemperatureControlOff == false)
 		{
-			comm->sendError("ERROR: Temperature is out of range\r\n", "", "R");
+			temperatureControlOn();
 		}
 		else
 		{
-			// if it is in range, switch on cooler and set temp
-			if (!ANDOR_SAFEMODE)
-			{
-				if (temperatureControlOff == false)
-				{
-					errMsg = this->andorErrorChecker(CoolerON());
-				}
-				else
-				{
-					errMsg = this->andorErrorChecker(CoolerOFF());
-					if (errMsg != "DRV_SUCCESS")
-					{
-						comm->sendError("ERROR: failed to turn temperature control off: " + errMsg + "\r\n", "", "R");
-					}
-				}
-			}
-			else
-			{
-				errMsg = "DRV_SUCCESS";
-			}
-			// 
-			if (errMsg != "DRV_SUCCESS")
-			{
-				comm->sendError("ERROR: Could not switch cooler on/temperatureControlOff: " + errMsg + "\r\n", "", "R");
-			}
-			else
-			{
-				/*
-				eCooler = TRUE;
-				SetTimer(eCameraWindowHandle, ID_TEMPERATURE_TIMER, 1000, NULL);
-				*/
-				if (temperatureControlOff == false)
-				{
-					if (!ANDOR_SAFEMODE)
-					{
-						errMsg = this->andorErrorChecker(SetTemperature(runSettings.temperatureSetting));
-					}
-					else
-					{
-						errMsg == "DRV_SUCCESS";
-					}
-
-					if (errMsg != "DRV_SUCCESS")
-					{
-						comm->sendError("ERROR: Could not set temperature: " + errMsg + "\r\n", "", "R");
-					}
-					else
-					{
-						comm->sendStatus("Temperature has been set to " + std::to_string(this->runSettings.temperatureSetting) + " (C)\r\n", "", "");
-					}
-				}
-				else
-				{
-					comm->sendStatus("Temperature Control has been turned off.\r\n", "", "");
-				}
-			}
+			temperatureControlOff();
 		}
+	}
+
+	// ???
+	/*
+	eCooler = TRUE;
+	SetTimer(eCameraWindowHandle, ID_TEMPERATURE_TIMER, 1000, NULL);
+	*/
+	if (turnTemperatureControlOff == false)
+	{
+		setTemperature(runSettings.temperatureSetting);
+	}
+	else
+	{
+		thrower("Temperature Control has been turned off.\r\n");
 	}
 }
 
 /*
-	*
-	*/
-std::string AndorCamera::andorErrorChecker(int errorCode)
+ *
+ */
+void AndorCamera::andorErrorChecker(int errorCode)
 {
 	std::string errorMessage = "uninitialized";
 	switch (errorCode)
@@ -1720,9 +1690,14 @@ std::string AndorCamera::andorErrorChecker(int errorCode)
 		}
 		default:
 		{
-			errorMessage = "UNKNONW ERROR MESSAGE!";
+			errorMessage = "UNKNOWN ERROR MESSAGE RETURNED FROM CAMERA FUNCTION!";
 			break;
 		}
 	}
-	return errorMessage;
+	/// So no throw is considered success.
+	if (errorMessage != "DRV_SUCCESS")
+	{
+		thrower( errorMessage );
+	}
+	return;
 }

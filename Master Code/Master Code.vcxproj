@@ -169,6 +169,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Camerawg\getSyntaxColor.h" />
     <ClInclude Include="Combo.h" />
     <ClInclude Include="CRichEditCtrl2.h" />
     <ClInclude Include="Dio64.h" />

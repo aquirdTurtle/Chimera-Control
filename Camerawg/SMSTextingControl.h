@@ -20,8 +20,9 @@ class SMSTextingControl
 		SMSTextingControl();
 		~SMSTextingControl();
 		bool promptForEmailAddressAndPassword();
-		bool initializeControls(POINT& pos, CWnd* parent, bool isTriggerModeSensitive, int& id);
-		bool reorganizeControls(RECT parentRectangle, std::string mode);
+		bool initializeControls(POINT& pos, CWnd* parent, bool isTriggerModeSensitive, int& id, std::unordered_map<std::string, CFont*> fonts,
+			std::vector<CToolTipCtrl*>& tooltips);
+		bool rearrange(RECT parentRectangle, std::string mode);
 		bool sendMessage(std::string message, EmbeddedPythonHandler* pyHandler, std::string msgType);
 		bool updatePersonInfo(HWND parentHandle, LPARAM lparamOfMessage);
 		bool deletePersonInfo(HWND parentHandle, LPARAM lparamOfMessage);

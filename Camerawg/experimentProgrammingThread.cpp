@@ -8,7 +8,7 @@
 #include <algorithm>
 #include "myErrorHandler.h"
 #include "myAgilent.h"
-#include "myNIAWG.h"
+#include "NiawgController.h"
 #include "experimentThreadInputStructure.h"
 #include <sstream>
 #include "NIAWGWaitThread.h"
@@ -133,11 +133,11 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			// send error
 			if (myErrorHandler(1, "ERROR: Failed to open vertical script file named: " + verticalScriptAddress + " found in configuration: " 
 								  + inputStruct->threadSequenceFileNames[sequenceInc] + "\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,
-				eError, eSessionHandle, userScriptIsWritten, userScriptName, false, false, true, inputStruct->comm) == true)
+				  userScriptIsWritten, userScriptName, false, false, true, inputStruct->comm) == true)
 			{
-
-				inputStruct->comm->sendFatalError("ERROR: Failed to open vertical script file named: " + verticalScriptAddress + " found in configuration: "
-					+ inputStruct->threadSequenceFileNames[sequenceInc] + "\r\n", "", "");
+				colorBoxes<char> input = { '-','-','-' };
+				inputStruct->comm->sendFatalErrorDef("ERROR: Failed to open vertical script file named: " + verticalScriptAddress + " found in configuration: "
+												   + inputStruct->threadSequenceFileNames[sequenceInc] + "\r\n", "");
 				delete inputStruct;
 				return -1;
 			}
@@ -150,10 +150,10 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			// send error
 			if (myErrorHandler(1, "ERROR: Failed to open horizontal script file named: " + horizontalScriptAddress + " found in configuration: "
 				+ inputStruct->threadSequenceFileNames[sequenceInc] + "\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,
-				eError, eSessionHandle, userScriptIsWritten, userScriptName, false, false, true, inputStruct->comm) == true)
+				  userScriptIsWritten, userScriptName, false, false, true, inputStruct->comm) == true)
 			{
-				inputStruct->comm->sendFatalError("ERROR: Failed to open horizontal script file named: " + horizontalScriptAddress + " found in configuration: "
-					+ inputStruct->threadSequenceFileNames[sequenceInc] + "\r\n", "", "");
+				inputStruct->comm->sendFatalErrorDef("ERROR: Failed to open horizontal script file named: " + horizontalScriptAddress + " found in configuration: "
+					+ inputStruct->threadSequenceFileNames[sequenceInc] + "\r\n", "");
 				delete inputStruct;
 				return -1;
 			}
@@ -166,10 +166,10 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			// send error
 			if (myErrorHandler(1, "ERROR: Failed to open intensity script file named: " + intensityScriptAddress + " found in configuration: "
 				+ inputStruct->threadSequenceFileNames[sequenceInc] + "\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,
-				eError, eSessionHandle, userScriptIsWritten, userScriptName, false, false, true, inputStruct->comm) == true)
+				  userScriptIsWritten, userScriptName, false, false, true, inputStruct->comm) == true)
 			{
-				inputStruct->comm->sendFatalError("ERROR: Failed to open intensity script file named: " + intensityScriptAddress + " found in configuration: "
-					+ inputStruct->threadSequenceFileNames[sequenceInc] + "\r\n", "", "");
+				inputStruct->comm->sendFatalErrorDef("ERROR: Failed to open intensity script file named: " + intensityScriptAddress + " found in configuration: "
+					+ inputStruct->threadSequenceFileNames[sequenceInc] + "\r\n", "");
 				delete inputStruct;
 				return -1;
 			}
@@ -314,9 +314,9 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 		// Resolve the server address and port
 		iResult = getaddrinfo(SERVER_ADDRESS, DEFAULT_PORT, &hints, &result);
 		if (myErrorHandler(iResult, "ERROR: getaddrinfo failed: " + std::to_string(iResult) + "\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,
-			eError, eSessionHandle, userScriptIsWritten, userScriptName, false, false, true, inputStruct->comm) == true)
+			  userScriptIsWritten, userScriptName, false, false, true, inputStruct->comm) == true)
 		{
-			inputStruct->comm->sendFatalError("ERROR: getaddrinfo failed: " + std::to_string(iResult) + "\r\n", "", "");
+			inputStruct->comm->sendFatalErrorDef("ERROR: getaddrinfo failed: " + std::to_string(iResult) + "\r\n", "");
 			delete inputStruct;
 			return -1;
 		}
@@ -336,28 +336,28 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
 			// Handle Errors
 			if (myErrorHandler((ConnectSocket == -1), "ERROR: at socket() function: " + std::to_string(WSAGetLastError()) + "\r\n", ConnectSocket, verticalScriptFiles,
-				horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName, false, false, true, inputStruct->comm))
+				horizontalScriptFiles, false,   userScriptIsWritten, userScriptName, false, false, true, inputStruct->comm))
 			{
-				inputStruct->comm->sendFatalError("ERROR: at socket() function: " + std::to_string(WSAGetLastError()) + "\r\n", "", "");
+				inputStruct->comm->sendFatalErrorDef("ERROR: at socket() function: " + std::to_string(WSAGetLastError()) + "\r\n", "");
 				delete inputStruct;
 				return -1;
 			}
 		}
-		inputStruct->comm->sendStatus("Attempting to connect......", "", "");
+		inputStruct->comm->sendStatus("Attempting to connect......", "");
 		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
 			// Handle Errors
 			iResult = connect(ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
 			if (myErrorHandler(iResult, "Unable to connect to server!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles,	/*aborting = */false,
-				eError, eSessionHandle, userScriptIsWritten, userScriptName, /*Socket Active = */false, false, true, inputStruct->comm))
+				  userScriptIsWritten, userScriptName, /*Socket Active = */false, false, true, inputStruct->comm))
 			{
-				inputStruct->comm->sendFatalError("Unable to connect to server!\r\n", "", "");
+				inputStruct->comm->sendFatalErrorDef("Unable to connect to server!\r\n", "");
 				delete inputStruct;
 				return -1;
 			}
 			freeaddrinfo(result);
 		}
-		inputStruct->comm->sendStatus("Established Connection!\r\n", "", "");
+		inputStruct->comm->sendStatus("Established Connection!\r\n", "");
 	}
 
 	/// Get accumulations from master. Procedure is
@@ -368,15 +368,15 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	{
 		char recvbuf[256];
 		int recvbufn = 256;
-		inputStruct->comm->sendStatus("Waiting for Accumulations # from master...", "", "");
+		inputStruct->comm->sendStatus("Waiting for Accumulations # from master...", "");
 		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
 
 			iResult = send(ConnectSocket, "Accumulations?", 14, 0);
 			if (myErrorHandler(iResult == -1, "ERROR: Socket send failed with error code: " + std::to_string(WSAGetLastError()) + "\r\n", ConnectSocket,
-				verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
+				verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 			{
-				inputStruct->comm->sendFatalError("ERROR: Socket send failed with error code: " + std::to_string(WSAGetLastError()) + "\r\n", "", "");
+				inputStruct->comm->sendFatalErrorDef("ERROR: Socket send failed with error code: " + std::to_string(WSAGetLastError()) + "\r\n", "");
 				delete inputStruct;
 				return -1;
 			}
@@ -386,7 +386,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 		{
 			iResult = 1;
 		}
-		inputStruct->comm->sendStatus("Received!\r\n", "", "");
+		inputStruct->comm->sendStatus("Received!\r\n", "");
 		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
 			std::string tempAccumulations;
@@ -394,9 +394,9 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			accumulationsStream << recvbuf;
 			accumulationsStream >> tempAccumulations;
 			if (myErrorHandler(tempAccumulations != "Accumulations:", "ERROR: master's message did not start with \"Accumulations:\". It started with " + tempAccumulations + " . Assuming fatal error.", ConnectSocket,
-				verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
+				verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 			{
-				inputStruct->comm->sendFatalError("!", "", "");
+				inputStruct->comm->sendFatalErrorDef("!", "");
 				delete inputStruct;
 				return -1;
 			}
@@ -408,16 +408,16 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			catch (std::invalid_argument&)
 			{
 				if (myErrorHandler(true, "ERROR: master's message's number did not convert correctly to an integer. String trying to convert is "
-					+ tempAccumulations + ". Assuming fatal error.", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten,
+					+ tempAccumulations + ". Assuming fatal error.", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten,
 					userScriptName, true, false, true, inputStruct->comm))
 				{
-					inputStruct->comm->sendFatalError("!", "", "");
+					inputStruct->comm->sendFatalErrorDef("!", "");
 					delete inputStruct;
 					return -1;
 				}
 			}
 			if (myErrorHandler((*inputStruct).threadRepetitions < 0, "ERROR: master's message's number was negative! String trying to convert is " + tempAccumulations
-				+ ". Assuming fatal error.", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName,
+				+ ". Assuming fatal error.", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten, userScriptName,
 				true, false, true, inputStruct->comm))
 			{
 				PostMessage(eMainWindowHandle, eFatalErrorMessageID, 0, 0);
@@ -426,9 +426,9 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			}
 			iResult = send(ConnectSocket, "Received Accumulations.", 23, 0);
 			if (myErrorHandler(iResult == -1, "ERROR: Socket send failed with error code: " + std::to_string(WSAGetLastError()) + "\r\n", ConnectSocket,
-				verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
+				verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 			{
-				inputStruct->comm->sendFatalError("ERROR: Socket send failed with error code: " + std::to_string(WSAGetLastError()) + "\r\n", "", "");
+				inputStruct->comm->sendFatalErrorDef("ERROR: Socket send failed with error code: " + std::to_string(WSAGetLastError()) + "\r\n", "");
 				delete inputStruct;
 				return -1;
 			}
@@ -436,11 +436,11 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 							   "ERROR: Number of accumulations received from master: " + std::to_string((*inputStruct).threadRepetitions) 
 							   + ", is not an integer multiple of the number of configurations in the sequence: " 
 							   + std::to_string((*inputStruct).threadSequenceFileNames.size()) + ". It must be.\r\n", ConnectSocket, verticalScriptFiles, 
-							   horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
+							   horizontalScriptFiles, false,   userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 			{
-				inputStruct->comm->sendFatalError("ERROR: Number of accumulations received from master: " + std::to_string((*inputStruct).threadRepetitions)
+				inputStruct->comm->sendFatalErrorDef("ERROR: Number of accumulations received from master: " + std::to_string((*inputStruct).threadRepetitions)
 													+ ", is not an integer multiple of the number of configurations in the sequence: "
-													+ std::to_string((*inputStruct).threadSequenceFileNames.size()) + ". It must be.\r\n", "", "");
+													+ std::to_string((*inputStruct).threadSequenceFileNames.size()) + ". It must be.\r\n", "");
 				delete inputStruct;
 				return -1;
 			}
@@ -453,11 +453,11 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	(*inputStruct).threadRepetitions /= (*inputStruct).threadSequenceFileNames.size();
 
 	std::string message = "Accumulations # after sequence normalization: " + std::to_string((*inputStruct).threadRepetitions) + "\r\n";
-	inputStruct->comm->sendStatus(message, "", "");
+	inputStruct->comm->sendStatus( message, "" );
 	// analyze the input files and create the xy-script. Originally, I thought I'd write the script in two parts, the x and y parts, but it turns out 
 	// not to work like I thought it did. If I'd known this from the start, I probably wouldn't have created this subroutine, except perhaps for the 
 	// fact that it get called recursively by predefined scripts in the instructions file.
-	inputStruct->comm->sendStatus("Beginning Waveform Read, Calculate, and Write\r\nProcedure...\r\n", "", "");
+	inputStruct->comm->sendStatus("Beginning Waveform Read, Calculate, and Write\r\nProcedure...\r\n", "");
 	if (systemAbortCheck(inputStruct->comm))
 	{
 		for (int deleteInc = 0; deleteInc < yVariedWaveforms.size(); deleteInc++)
@@ -486,39 +486,40 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	for (int sequenceInc = 0; sequenceInc < workingUserScriptString.size(); sequenceInc++)
 	{
 
-		inputStruct->comm->sendStatus("Working with configuraiton # " + std::to_string(sequenceInc + 1) + " in Sequence...\r\n", "", "");
+		inputStruct->comm->sendStatus("Working with configuraiton # " + std::to_string(sequenceInc + 1) + " in Sequence...\r\n", "");
 		/// Create Script and Write Waveforms //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// A reaaaaaly long function call. Not ideal.
 		std::string warnings, debugMessages;
 		try
 		{
 			if (myErrorHandler(
-				myNIAWG::analyzeNIAWGScripts(verticalScriptFiles[sequenceInc], horizontalScriptFiles[sequenceInc],
-					workingUserScriptString[sequenceInc], TRIGGER_NAME, waveformCount, eSessionHandle, SESSION_CHANNELS, eError, xPredWaveformNames,
+				inputStruct->niawg->analyzeNIAWGScripts(verticalScriptFiles[sequenceInc], horizontalScriptFiles[sequenceInc],
+					workingUserScriptString[sequenceInc], waveformCount, xPredWaveformNames,
 					yPredWaveformNames, predWaveformCount, predWaveLocs, libWaveformArray, fileOpenedStatus, allXWaveformParameters, xWaveformIsVaried,
-					allYWaveformParameters, yWaveformIsVaried, false, (*inputStruct).currentFolderLocation, singletons, inputStruct->profileInfo.orientation, inputStruct->debugOptions, warnings, debugMessages),
+					allYWaveformParameters, yWaveformIsVaried, false, (*inputStruct).currentFolderLocation, singletons, 
+					inputStruct->profileInfo.orientation, inputStruct->debugOptions, warnings, debugMessages),
 				"analyzeNIAWGScripts() threw an error!\r\n",
-				ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
+				ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 			{
-				inputStruct->comm->sendFatalError("analyzeNIAWGScripts() threw an error!\r\n", "", "");
+				inputStruct->comm->sendFatalErrorDef("analyzeNIAWGScripts() threw an error!\r\n", "");
 				delete inputStruct;
 				return -1;
 			}
 		}
 		catch (my_exception& except)
 		{
-			inputStruct->comm->sendFatalError("analyzeNIAWGScripts() threw an error!\r\n" + except.whatStr(), "", "");
+			inputStruct->comm->sendFatalErrorDef("analyzeNIAWGScripts() threw an error!\r\n" + except.whatStr(), "");
 			delete inputStruct;
 			return -1;
 		}
 		// check if there are any warnings or debug messages from the script analysis.
 		if (warnings != "")
 		{
-			inputStruct->comm->sendError(warnings, "", "");
+			inputStruct->comm->sendErrorDef(warnings, "");
 		}
 		if (debugMessages != "")
 		{
-			inputStruct->comm->sendDebug(debugMessages, "", "");
+			inputStruct->comm->sendDebug(debugMessages, "");
 		}
 
 		// 
@@ -549,7 +550,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 		}
 	}
 	/// Final Cleanup before waveform initiation
-	inputStruct->comm->sendStatus("Constant Waveform Preparation Completed...\r\n", "", "");
+	inputStruct->comm->sendStatus("Constant Waveform Preparation Completed...\r\n", "");
 	// format the script to send to the 5451 according to the accumulation number and based on the number of sequences.
 	finalUserScriptString = "script " + userScriptNameString + "\n";
 	if ((*inputStruct).threadRepetitions == 0)
@@ -562,7 +563,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 		finalUserScriptString += "end repeat\n";
 		if ((*inputStruct).debugOptions.outputNiawgMachineScript)
 		{
-			inputStruct->comm->sendDebug(boost::replace_all_copy("Entire NIAWG Machine Script:\n" + finalUserScriptString + "end Script\n\n", "\n", "\r\n"), "", "");
+			inputStruct->comm->sendDebug(boost::replace_all_copy("Entire NIAWG Machine Script:\n" + finalUserScriptString + "end Script\n\n", "\n", "\r\n"), "");
 		}
 	}
 	else
@@ -580,7 +581,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				{
 
 					inputStruct->comm->sendDebug(boost::replace_all_copy("Single Repetition NIAWG Machine Script:\n"
-								 + finalUserScriptString + "end Script\n\n", "\n", "\r\n"), "", "");
+								 + finalUserScriptString + "end Script\n\n", "\n", "\r\n"), "");
 				}
 			}
 		}
@@ -609,14 +610,14 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 		{
 			std::string message = "Waiting for Variable Set #" + std::to_string(variableNameInc + 1) + "... ";
 
-			inputStruct->comm->sendStatus(message, "", "");
+			inputStruct->comm->sendStatus(message, "");
 			if (!TWEEZER_COMPUTER_SAFEMODE)    
 			{
 				iResult = send(ConnectSocket, "next variable", 13, 0);
 				if (myErrorHandler(iResult == -1, "ERROR: Socket send failed with error code: " + std::to_string(WSAGetLastError()) + "\r\n", ConnectSocket,
-					verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
+					verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 				{
-					inputStruct->comm->sendFatalError("ERROR: Socket send failed with error code: " + std::to_string(WSAGetLastError()) + "\r\n", "", "");
+					inputStruct->comm->sendFatalErrorDef("ERROR: Socket send failed with error code: " + std::to_string(WSAGetLastError()) + "\r\n", "");
 					delete inputStruct;
 					return -1;
 				}
@@ -632,7 +633,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			}
 			if (iResult > 0)
 			{
-				inputStruct->comm->sendStatus("Received!\r\n", "", "");
+				inputStruct->comm->sendStatus("Received!\r\n", "");
 				int varNameCursor = -1;
 				std::string tempVarName;
 				std::stringstream variableStream;
@@ -649,11 +650,11 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				if (!TWEEZER_COMPUTER_SAFEMODE)
 				{
 					if (myErrorHandler(varNameCursor == -1, "ERROR: The variable name sent by the master computer (" + tempVarName + ") doesn't match any current variables!\r\n",
-						ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false,
+						ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten, userScriptName, true, false,
 						true, inputStruct->comm))
 					{
-						inputStruct->comm->sendFatalError("ERROR: The variable name sent by the master computer (" 
-							+ tempVarName + ") doesn't match any current variables!\r\n", "", "");
+						inputStruct->comm->sendFatalErrorDef("ERROR: The variable name sent by the master computer (" 
+							+ tempVarName + ") doesn't match any current variables!\r\n", "");
 						delete inputStruct;
 						return -1;
 					}
@@ -676,10 +677,10 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 						// if it's a time value, check to make sure it's valid.
 						if (varyingParameters[varNameCursor].timelike)
 						{
-							if (myNIAWG::script::waveformSizeCalc(tempDouble) % 4 != 0)
+							if (inputStruct->niawg->waveformSizeCalc(tempDouble) % 4 != 0)
 							{
-								inputStruct->comm->sendFatalError("ERROR: a timelike value sent by the master computer did not correspond to an integer number of 4 samples. The "
-									"value was " + std::to_string(tempDouble) + "\r\n", "", "");
+								inputStruct->comm->sendFatalErrorDef("ERROR: a timelike value sent by the master computer did not correspond to an integer number of 4 samples. The "
+									"value was " + std::to_string(tempDouble) + "\r\n", "");
 								delete inputStruct;
 								return -1;
 							}
@@ -704,9 +705,9 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			else if (iResult == 0)
 			{
 				if (myErrorHandler(-1, "ERROR: The connection with the master computer was closed!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles,
-					false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
+					false,   userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 				{
-					inputStruct->comm->sendFatalError("ERROR: The connection with the master computer was closed!\r\n", "", "");
+					inputStruct->comm->sendFatalErrorDef("ERROR: The connection with the master computer was closed!\r\n", "");
 					delete inputStruct;
 					return -1;
 				}
@@ -714,13 +715,13 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			else
 			{
 				if (myErrorHandler(-1, "ERROR: Socket Recieve failed with error code: " + std::to_string(WSAGetLastError()) + "\r\n", ConnectSocket,
-					verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
+					verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 				{
-					inputStruct->comm->sendFatalError("ERROR: Socket Recieve failed with error code: " + std::to_string(WSAGetLastError()) + "\r\n", "", "");
+					inputStruct->comm->sendFatalErrorDef("ERROR: Socket Recieve failed with error code: " + std::to_string(WSAGetLastError()) + "\r\n", "");
 					delete inputStruct;
 					return -1;
 				}
-				inputStruct->comm->sendFatalError("ERROR: Socket Recieve failed with error code: " + std::to_string(WSAGetLastError()) + "\r\n", "", "");
+				inputStruct->comm->sendFatalErrorDef("ERROR: Socket Recieve failed with error code: " + std::to_string(WSAGetLastError()) + "\r\n", "");
 				delete inputStruct;
 				return -1;
 			}
@@ -735,7 +736,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	//if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
 		// This report goes to a folder I create on the Andor. NEW: Always log.
-		inputStruct->comm->sendStatus("Logging Script and Experiment Parameters...\r\n", "", "");
+		inputStruct->comm->sendStatus("Logging Script and Experiment Parameters...\r\n", "");
 		std::string verticalScriptLogPath = EXPERIMENT_LOGGING_FILES_PATH + "\\Vertical Script.txt";
 		std::string horizontalScriptLogPath = EXPERIMENT_LOGGING_FILES_PATH + "\\Horizontal Script.txt";
 		std::string intensityLogPath = EXPERIMENT_LOGGING_FILES_PATH + "\\Intensity Script.txt";
@@ -758,9 +759,9 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 					case IDABORT:
 					{
 						if (myErrorHandler(-1, "ERROR: Andor Disconected. User Aborted.\r\n", ConnectSocket,
-							verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
+							verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 						{
-							inputStruct->comm->sendFatalError("ERROR: Andor Disconected. User Aborted.\r\n", "", "");
+							inputStruct->comm->sendFatalErrorDef("ERROR: Andor Disconected. User Aborted.\r\n", "");
 							delete inputStruct;
 							return -1;
 						}
@@ -802,7 +803,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			}
 			if ((*inputStruct).debugOptions.outputNiawgHumanScript)
 			{
-				inputStruct->comm->sendDebug(verticalScriptText, "", "");
+				inputStruct->comm->sendDebug(verticalScriptText, "");
 			}
 
 			andorConnected = true;
@@ -825,10 +826,10 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				{
 				case IDABORT:
 				{
-					if (myErrorHandler(-1, "ERROR: Andor Disconected. User Aborted.\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, eError,
-						eSessionHandle, userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
+					if (myErrorHandler(-1, "ERROR: Andor Disconected. User Aborted.\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, 
+						userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 					{
-						inputStruct->comm->sendFatalError("ERROR: Andor Disconected. User Aborted.\r\n", "", "");
+						inputStruct->comm->sendFatalErrorDef("ERROR: Andor Disconected. User Aborted.\r\n", "");
 						delete inputStruct;
 						return -1;
 					}
@@ -874,7 +875,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			}
 			if ((*inputStruct).debugOptions.outputNiawgHumanScript)
 			{
-				inputStruct->comm->sendDebug(horizontalScriptText, "", "");
+				inputStruct->comm->sendDebug(horizontalScriptText, "");
 			}
 			andorConnected = true;
 		} while (andorConnected == false);
@@ -895,10 +896,10 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				{
 					case IDABORT:
 					{
-						if (myErrorHandler(-1, "ERROR: Andor Disconected. User Aborted.\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, eError,
-							eSessionHandle, userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
+						if (myErrorHandler(-1, "ERROR: Andor Disconected. User Aborted.\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, 
+							userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 						{
-							inputStruct->comm->sendFatalError("ERROR: Andor Disconected. User Aborted.\r\n", "", "");
+							inputStruct->comm->sendFatalErrorDef("ERROR: Andor Disconected. User Aborted.\r\n", "");
 							delete inputStruct;
 							return -1;
 						}
@@ -944,7 +945,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			}
 			if ((*inputStruct).debugOptions.outputAgilentScript)
 			{
-				inputStruct->comm->sendDebug(intensityScriptText, "", "");
+				inputStruct->comm->sendDebug(intensityScriptText, "");
 			}
 			andorConnected = true;
 		} while (andorConnected == false);
@@ -964,10 +965,10 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				{
 					case IDABORT:
 					{
-						if (myErrorHandler(-1, "ERROR: Andor Disconected. User Aborted.\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, eError,
-							eSessionHandle, userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
+						if (myErrorHandler(-1, "ERROR: Andor Disconected. User Aborted.\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, 
+							userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 						{
-							inputStruct->comm->sendFatalError("ERROR: Andor Disconected. User Aborted.\r\n", "", "");
+							inputStruct->comm->sendFatalErrorDef("ERROR: Andor Disconected. User Aborted.\r\n", "");
 							delete inputStruct;
 							return -1;
 						}
@@ -1013,9 +1014,9 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 		if (variableValuesLengths[varNameInc] != variableValuesLengths[varNameInc + 1])
 		{
 			if (myErrorHandler(-1, "Error: lengths of variable values are not all the same! They must be the same\r\n", ConnectSocket, verticalScriptFiles,
-				horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
+				horizontalScriptFiles, false,   userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 			{
-				inputStruct->comm->sendFatalError("Error: lengths of variable values are not all the same! They must be the same\r\n", "", "");
+				inputStruct->comm->sendFatalErrorDef("Error: lengths of variable values are not all the same! They must be the same\r\n", "");
 				delete inputStruct;
 				return -1;
 			}
@@ -1025,32 +1026,33 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	std::vector<std::vector<POINT>> intensityPoints;
 	if (inputStruct->settings.programIntensity == true)
 	{
-		inputStruct->comm->sendStatus("Programing Intensity Profile(s)...", "", "");
+		inputStruct->comm->sendStatus("Programing Intensity Profile(s)...", "");
 
 		if (myErrorHandler(myAgilent::programIntensity(boost::numeric_cast<int>(varyingParameters.size()), varyingParameters, variableValues, intIsVaried,
 			intensitySequenceMinAndMaxVector, intensityPoints, intensityScriptFiles, singletons, inputStruct->profileInfo),
-			"ERROR: Intensity Programming Failed!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle,
+			"ERROR: Intensity Programming Failed!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,  
 			userScriptIsWritten, userScriptName, /*Socket Active = */true, false, true, inputStruct->comm))
 		{
-			inputStruct->comm->sendFatalError("ERROR: Intensity Programming Failed!\r\n", "", "");
+			inputStruct->comm->sendFatalErrorDef("ERROR: Intensity Programming Failed!\r\n", "");
 			delete inputStruct;
 			return -1;
 		}
-		inputStruct->comm->sendStatus("Complete!\r\n", "", "");
+
+		inputStruct->comm->sendStatus("Complete!\r\n", "");
 		// select the first one.
 		if (myErrorHandler(myAgilent::selectIntensityProfile(0, intIsVaried, intensitySequenceMinAndMaxVector),
-			"ERROR: intensity profile selection failed!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, eError,
-			eSessionHandle, userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
+			"ERROR: intensity profile selection failed!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, 
+			userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 		{
-			inputStruct->comm->sendFatalError("ERROR: intensity profile selection failed!\r\n", "", "");
+			inputStruct->comm->sendFatalErrorDef("ERROR: intensity profile selection failed!\r\n", "");
 			delete inputStruct;
 			return -1;
 		}
-		inputStruct->comm->sendStatus("Intensity Profile Selected.\r\n", "", "");
+		inputStruct->comm->sendStatus("Intensity Profile Selected.\r\n", "");
 	}
 	else
 	{
-		inputStruct->comm->sendStatus("Intensity Profile NOT being programed.\r\n", "", "");
+		inputStruct->comm->sendStatus("Intensity Profile NOT being programed.\r\n", "");
 	}
 
 	/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1060,7 +1062,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	// If there are any varible files, enter big variable loop.
 	if (varyingParameters.size() > 0)
 	{
-		inputStruct->comm->sendStatus("Begin Variable & Execution Loop.\r\n", "", "");
+		inputStruct->comm->sendStatus("Begin Variable & Execution Loop.\r\n", "");
 		// create event thread
 		eWaitingForNIAWGEvent = CreateEvent(NULL, FALSE, FALSE, TEXT("eWaitingForNIAWGEvent"));
 		time_t timeObjCurr;
@@ -1080,7 +1082,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				long timeToCompleteM = timeToCompleteS / 60;
 				timeToCompleteS = timeToCompleteS % 60;
 				inputStruct->comm->sendStatus("Approximate Time To Complete: " + std::to_string(timeToCompleteM) + ":"
-											  + std::to_string(timeToCompleteS) + " (min:sec)\r\n", "", "");
+											  + std::to_string(timeToCompleteS) + " (min:sec)\r\n", "");
 			}
 			// Tell the main thread that another variable is being written.
 			//PostMessage(eMainWindowHandle, eVariableStatusMessageID, 0, varNameInc);
@@ -1170,11 +1172,11 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 								}
 								/// Not correction waveform...
 								// change parameters, depending on the case. The varTypes and variable Value sets were set previously.
-								if (myErrorHandler(myNIAWG::varyParam(allYWaveformParameters, allXWaveformParameters, j, allYWaveformParameters[j].varTypes[m],
+								if (myErrorHandler(inputStruct->niawg->varyParam(allYWaveformParameters, allXWaveformParameters, j, allYWaveformParameters[j].varTypes[m],
 									variableValue, warnings), "ERROR: varyParam() returned an error.\r\n", ConnectSocket, verticalScriptFiles,
-									horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
+									horizontalScriptFiles, false,   userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 								{
-									inputStruct->comm->sendFatalError("ERROR: varyParam() returned an error.\r\n", "", "");
+									inputStruct->comm->sendFatalErrorDef("ERROR: varyParam() returned an error.\r\n", "");
 									delete inputStruct;
 									return -1;
 								}
@@ -1207,11 +1209,11 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 									if (myErrorHandler(-1, "ERROR: The code has entered a part of the code which it should never enter, indicating a logic"
 										"error somewhere. Search \"Error location #1\" in the code to find this location. The code will "
 										"continue to run, but is likely about to crash.", ConnectSocket, verticalScriptFiles, horizontalScriptFiles,
-										false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
+										false, userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 									{
-										inputStruct->comm->sendFatalError("ERROR: The code has entered a part of "
+										inputStruct->comm->sendFatalErrorDef("ERROR: The code has entered a part of "
 											"the code which it should never enter, indicating a logic error somewhere. Search \"Error location #1\" in "
-											"the code to find this location. The code will continue to run, but is likely about to crash.", "", "");
+											"the code to find this location. The code will continue to run, but is likely about to crash.", "");
 										delete inputStruct;
 										return -1;
 									}
@@ -1237,12 +1239,12 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 									goto BeginningOfWaveformLoop;
 								}
 								// change parameters, depending on the case. The varTypes and variable Value sets were set previously.
-								if (myErrorHandler(myNIAWG::varyParam(allXWaveformParameters, allYWaveformParameters, j, allXWaveformParameters[j].varTypes[m],
+								if (myErrorHandler(inputStruct->niawg->varyParam(allXWaveformParameters, allYWaveformParameters, j, allXWaveformParameters[j].varTypes[m],
 									variableValue, warnings),
-									"ERROR: varyParam() returned an error.\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, eError,
-									eSessionHandle, userScriptIsWritten, userScriptName, /*Socket Active = */true, false, true, inputStruct->comm))
+									"ERROR: varyParam() returned an error.\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, 
+									userScriptIsWritten, userScriptName, /*Socket Active = */true, false, true, inputStruct->comm))
 								{
-									inputStruct->comm->sendFatalError("ERROR: varyParam() returned an error.\r\n", "", "");
+									inputStruct->comm->sendFatalErrorDef("ERROR: varyParam() returned an error.\r\n", "");
 									delete inputStruct;
 									return -1;
 								}
@@ -1250,7 +1252,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 						} // end parameters loop
 						if (warnings != "")
 						{
-							inputStruct->comm->sendError(warnings, "", "");
+							inputStruct->comm->sendErrorDef(warnings, "");
 						}
 					} // end variables loop
 
@@ -1265,12 +1267,12 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 								if (myErrorHandler(-1, "ERROR: You are trying to copy the phase of the " + std::to_string(n + 1) + " signal of the "
 									"previous waveform, but the previous waveform only had "
 									+ std::to_string(allXWaveformParameters[j - 1].signalNum) + " signals!\r\n", ConnectSocket,
-									verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten, userScriptName,
+									verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten, userScriptName,
 									true, false, inputStruct->settings.connectToMaster, inputStruct->comm))
 								{
-									inputStruct->comm->sendFatalError("ERROR: You are trying to copy the phase of "
+									inputStruct->comm->sendFatalErrorDef("ERROR: You are trying to copy the phase of "
 										"the " + std::to_string(n + 1) + " signal of the previous waveform, but the previous waveform only had "
-										+ std::to_string(allXWaveformParameters[j - 1].signalNum) + " signals!\r\n", "", "");
+										+ std::to_string(allXWaveformParameters[j - 1].signalNum) + " signals!\r\n", "");
 									delete inputStruct;
 									return -1;
 								}
@@ -1290,12 +1292,12 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 							{
 								if (myErrorHandler(-1, "ERROR: You are trying to copy the phase of the " + std::to_string(n + 1) + " signal of the "
 									"previous waveform, but the previous waveform only had " + std::to_string(allYWaveformParameters[j - 1].signalNum)
-									+ " signals!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, eError, eSessionHandle, userScriptIsWritten,
+									+ " signals!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten,
 									userScriptName, true, false, true, inputStruct->comm))
 								{
-									inputStruct->comm->sendFatalError("ERROR: You are trying to copy the phase of "
+									inputStruct->comm->sendFatalErrorDef("ERROR: You are trying to copy the phase of "
 										"the " + std::to_string(n + 1) + " signal of the previous waveform, but the previous waveform only had "
-										+ std::to_string(allYWaveformParameters[j - 1].signalNum) + " signals!\r\n", "", "");
+										+ std::to_string(allYWaveformParameters[j - 1].signalNum) + " signals!\r\n", "");
 									delete inputStruct;
 									return -1;
 								}
@@ -1334,13 +1336,13 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 						xVariedWaveformReads.push_back(new ViReal64[allXWaveformParameters[j].sampleNum + allXWaveformParameters[j].signalNum]);
 					}
 					std::string debugMsg;
-					myNIAWG::getVariedWaveform(allXWaveformParameters[j], allXWaveformParameters, j, libWaveformArray, fileOpenedStatus,
+					inputStruct->niawg->getVariedWaveform(allXWaveformParameters[j], allXWaveformParameters, j, libWaveformArray, fileOpenedStatus,
 						xVariedWaveforms[xVarWriteCount], inputStruct->debugOptions, debugMsg);
-					myNIAWG::getVariedWaveform(allYWaveformParameters[j], allYWaveformParameters, j, libWaveformArray, fileOpenedStatus,
+					inputStruct->niawg->getVariedWaveform(allYWaveformParameters[j], allYWaveformParameters, j, libWaveformArray, fileOpenedStatus,
 						yVariedWaveforms[yVarWriteCount], inputStruct->debugOptions, debugMsg);
 					if (debugMsg != "")
 					{
-						inputStruct->comm->sendDebug(debugMsg, "", "");
+						inputStruct->comm->sendDebug(debugMsg, "");
 					}
 					if (repeatFlag == true || rewriteFlag == true)
 					{
@@ -1357,7 +1359,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 						variedMixedSize.push_back(2 * allXWaveformParameters[j].sampleNum);
 						mixedWaveforms.push_back(new ViReal64[variedMixedSize[mixedCount]]);
 					}
-					myNIAWG::script::mixWaveforms(xVariedWaveforms[xVarWriteCount], yVariedWaveforms[yVarWriteCount], mixedWaveforms[mixedCount],
+					inputStruct->niawg->mixWaveforms(xVariedWaveforms[xVarWriteCount], yVariedWaveforms[yVarWriteCount], mixedWaveforms[mixedCount],
 						allXWaveformParameters[j].sampleNum);
 
 					// reset initial phase if needed.
@@ -1427,19 +1429,19 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 						if (allXWaveformParameters[contInc].signals[waveInc].initPower != allXWaveformParameters[contInc - 1].signals[waveInc].finPower)
 						{
 							std::string message = "Warning: Amplitude jump at waveform #" + std::to_string(contInc) + " in X component detected!\r\n";
-							inputStruct->comm->sendError(message, "", "");
+							inputStruct->comm->sendErrorDef(message, "");
 						}
 						if (allXWaveformParameters[contInc].signals[waveInc].freqInit != allXWaveformParameters[contInc - 1].signals[waveInc].freqFin)
 						{
 							std::string message = "Warning: Frequency jump at waveform #" + std::to_string(contInc) + " in X component detected!\r\n";
-							inputStruct->comm->sendError(message, "", "");
+							inputStruct->comm->sendErrorDef(message, "");
 						}
 						if (allXWaveformParameters[contInc].signals[waveInc].initPhase - allXWaveformParameters[contInc - 1].signals[waveInc].finPhase
 					> CORRECTION_WAVEFORM_ERROR_THRESHOLD)
 						{
 							std::string message = "Warning: Phase jump (greater than what's wanted for correction waveforms) at waveform #" + std::to_string(contInc) + " in X component "
 								"detected!\r\n";
-							inputStruct->comm->sendError(message, "", "");
+							inputStruct->comm->sendErrorDef(message, "");
 						}
 						// if there signal is ramping but the beginning and end amplitudes are the same, that's weird. It's not actually ramping.
 						if (allXWaveformParameters[contInc].signals[waveInc].powerRampType != "nr"
@@ -1447,7 +1449,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 						{
 							std::string warningText = "Warning: X waveform #" + std::to_string(contInc) + "is set to amplitude ramp, but the initial and final "
 								"amplitudes are the same. This is not a ramp.\r\n";
-							inputStruct->comm->sendError(message, "", "");
+							inputStruct->comm->sendErrorDef(message, "");
 						}
 						// if there signal is ramping but the beginning and end frequencies are the same, that's weird. It's not actually ramping.
 						if (allXWaveformParameters[contInc].signals[waveInc].freqRampType != "nr"
@@ -1455,7 +1457,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 						{
 							std::string warningText = "Warning: X waveform #" + std::to_string(contInc) + "is set to frequency ramp, but the initial and final "
 								"frequencies are the same. This is not a ramp.\r\n";
-							inputStruct->comm->sendError(message, "", "");
+							inputStruct->comm->sendErrorDef(message, "");
 						}
 
 						// if there signal is not ramping but the beginning and end amplitudes are different, that's weird. It's not actually ramping.
@@ -1464,7 +1466,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 						{
 							std::string warningText = "Warning: X waveform #" + std::to_string(contInc) + "is set to no amplitude ramp, but the initial and final "
 								"amplitudes are the different. This is not a ramp, the initial value will be used.\r\n";
-							inputStruct->comm->sendError(message, "", "");
+							inputStruct->comm->sendErrorDef(message, "");
 						}
 						// if there signal is not ramping but the beginning and end frequencies are different, that's weird. It's not actually ramping.
 						if (allXWaveformParameters[contInc].signals[waveInc].freqRampType == "nr"
@@ -1472,14 +1474,14 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 						{
 							std::string warningText = "Warning: X waveform #" + std::to_string(contInc) + "is set to no frequency ramp, but the initial and final "
 								"frequencies are different. This is not a ramp, the initial value will be used throughout.\r\n";
-							inputStruct->comm->sendError(message, "", "");
+							inputStruct->comm->sendErrorDef(message, "");
 						}
 						if (allXWaveformParameters[contInc].phaseManagementOption == -1 && allXWaveformParameters[contInc].signals[waveInc].phaseOption != -1)
 						{
 							std::string warningText = "Warning: X waveform #" + std::to_string(contInc) + "is set correct the phase of the previous waveform, "
 								"but is not using the final phase of the previous waveform. If you want phase continuity, set the initial phase of this waveform"
 								" to be -1, which is code for grabbing the final phase of the previous waveform.\r\n";
-							inputStruct->comm->sendError(message, "", "");
+							inputStruct->comm->sendErrorDef(message, "");
 						}
 						if (contInc != 0)
 						{
@@ -1489,7 +1491,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 								std::string warningText = "Warning: X waveform #" + std::to_string(contInc) + "is set correct the phase of the following waveform, "
 									"but the following waveform is grabbing the phase of this correction waveform. It's not supposed to do that, it needs to"
 									" start at zero phase in order for this to work correctly.\r\n";
-								inputStruct->comm->sendError(message, "", "");
+								inputStruct->comm->sendErrorDef(message, "");
 							}
 						}
 					}
@@ -1500,19 +1502,19 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 						if (allYWaveformParameters[contInc].signals[waveInc].initPower != allYWaveformParameters[contInc - 1].signals[waveInc].finPower)
 						{
 							std::string message = "Warning: Amplitude jump at waveform #" + std::to_string(contInc) + " in Y component detected!\r\n";
-							inputStruct->comm->sendError(message, "", "");
+							inputStruct->comm->sendErrorDef(message, "");
 						}
 						if (allYWaveformParameters[contInc].signals[waveInc].freqInit != allYWaveformParameters[contInc - 1].signals[waveInc].freqFin)
 						{
 							std::string message = "Warning: Frequency jump at waveform #" + std::to_string(contInc) + " in Y component detected!\r\n";
-							inputStruct->comm->sendError(message, "", "");
+							inputStruct->comm->sendErrorDef(message, "");
 						}
 						if (allYWaveformParameters[contInc].signals[waveInc].initPhase - allYWaveformParameters[contInc - 1].signals[waveInc].finPhase
 																				> CORRECTION_WAVEFORM_ERROR_THRESHOLD)
 						{
 							std::string message = "Warning: Phase jump (greater than what's wanted for correction waveforms) at waveform #" + std::to_string(contInc) + " in Y component "
 								"detected!\r\n";
-							inputStruct->comm->sendError(message, "", "");
+							inputStruct->comm->sendErrorDef(message, "");
 						}
 						// if there signal is ramping but the beginning and end amplitudes are the same, that's weird. It's not actually ramping.
 						if (allYWaveformParameters[contInc].signals[waveInc].powerRampType != "nr"
@@ -1520,7 +1522,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 						{
 							std::string warningText = "Warning: Y waveform #" + std::to_string(contInc) + "is set to amplitude ramp, but the initial and final "
 								"amplitudes are the same. This is not a ramp.\r\n";
-							inputStruct->comm->sendError(message, "", "");
+							inputStruct->comm->sendErrorDef(message, "");
 						}
 						// if there signal is ramping but the beginning and end frequencies are the same, that's weird. It's not actually ramping.
 						if (allYWaveformParameters[contInc].signals[waveInc].freqRampType != "nr"
@@ -1528,7 +1530,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 						{
 							std::string warningText = "Warning: Y waveform #" + std::to_string(contInc) + "is set to frequency ramp, but the initial and final "
 								"frequencies are the same. This is not a ramp.\r\n";
-							inputStruct->comm->sendError(message, "", "");
+							inputStruct->comm->sendErrorDef(message, "");
 						}
 						// if there signal is not ramping but the beginning and end amplitudes are different, that's weird. It's not actually ramping.
 						if (allYWaveformParameters[contInc].signals[waveInc].powerRampType == "nr"
@@ -1536,7 +1538,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 						{
 							std::string warningText = "Warning: Y waveform #" + std::to_string(contInc) + "is set to no amplitude ramp, but the initial and final "
 								"amplitudes are the different. This is not a ramp, the initial value will be used.\r\n";
-							inputStruct->comm->sendError(message, "", "");
+							inputStruct->comm->sendErrorDef(message, "");
 						}
 						// if there signal is not ramping but the beginning and end frequencies are different, that's weird. It's not actually ramping.
 						if (allYWaveformParameters[contInc].signals[waveInc].freqRampType == "nr"
@@ -1544,14 +1546,14 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 						{
 							std::string warningText = "Warning: Y waveform #" + std::to_string(contInc) + "is set to no frequency ramp, but the initial and final "
 								"frequencies are different. This is not a ramp, the initial value will be used throughout.\r\n";
-							inputStruct->comm->sendError(message, "", "");
+							inputStruct->comm->sendErrorDef(message, "");
 						}
 						if (allYWaveformParameters[contInc].phaseManagementOption == -1 && allYWaveformParameters[contInc].signals[waveInc].phaseOption != -1)
 						{
 							std::string warningText = "Warning: Y waveform #" + std::to_string(contInc) + "is set correct the phase of the previous waveform, "
 								"but is not using the final phase of the previous waveform. If you want phase continuity, set the initial phase of this waveform"
 								" to be -1, which is code for grabbing the final phase of the previous waveform.\r\n";
-							inputStruct->comm->sendError(message, "", "");
+							inputStruct->comm->sendErrorDef(message, "");
 						}
 						if (contInc != 0)
 						{
@@ -1561,7 +1563,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 								std::string warningText = "Warning: Y waveform #" + std::to_string(contInc) + "is set correct the phase of the following waveform, "
 									"but the following waveform is grabbing the phase of this correction waveform. It's not supposed to do that, it needs to"
 									" start at zero phase in order for this to work correctly.\r\n";
-								inputStruct->comm->sendError(message, "", "");
+								inputStruct->comm->sendErrorDef(message, "");
 							}
 						}
 					}
@@ -1579,7 +1581,8 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 					message += varyingParameters[varInc].name + " = " + std::to_string(variableValues[varInc][varValueLengthInc - 1]) + "; ";
 				}
 			}
-			inputStruct->comm->sendStatus("", message, "G");
+			colorBoxes<char> colors = { /*niawg*/'G', /*camera*/'-', /*intensity*/'-' };
+			inputStruct->comm->sendStatus("", message, colors);
 			/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			///
 			///					wait until done
@@ -1589,24 +1592,24 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			// will be done.
 			if ((*inputStruct).threadCurrentScript == "DefaultScript" && (*inputStruct).threadDontActuallyGenerate == false)
 			{
-				if (!TWEEZER_COMPUTER_SAFEMODE)
+
+				try
 				{
-					try
-					{
-						myNIAWG::NIAWG_CheckProgrammingError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE));
-						myNIAWG::NIAWG_CheckProgrammingError(niFgen_AbortGeneration(eSessionHandle));
-					}
-					catch (my_exception& excep)
-					{
-						inputStruct->comm->sendStatus("EXITED WITH ERROR!\r\n", "", "");
-						inputStruct->comm->sendError("EXITED WITH ERROR!\r\n", "", "");
-						inputStruct->comm->sendStatus("Initialized Default Waveform", "", "");
-						inputStruct->comm->sendFatalError("NIAWG ERROR : " + excep.whatStr() + "\r\n", "", "");
-						delete inputStruct;
-						return -1;
-					}
+					inputStruct->niawg->configureOutputEnabled(VI_FALSE);
+					inputStruct->niawg->abortGeneration();
+				}
+				catch (my_exception& excep)
+				{
+					inputStruct->comm->sendStatus("EXITED WITH ERROR!\r\n", "");
+					inputStruct->comm->sendErrorDef("EXITED WITH ERROR!\r\n", "");
+					inputStruct->comm->sendStatus("Initialized Default Waveform", "");
+					inputStruct->comm->sendFatalErrorDef("NIAWG ERROR : " + excep.whatStr() + "\r\n", "");
+					delete inputStruct;
+					return -1;
 				}
 			}
+			
+			///
 			if (systemAbortCheck(inputStruct->comm))
 			{
 				for (int deleteInc = 0; deleteInc < yVariedWaveforms.size(); deleteInc++)
@@ -1665,25 +1668,25 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			if (eWaitError == true)
 			{
 				eWaitError = false;
-
-				myNIAWG::NIAWG_CheckProgrammingError();
+				inputStruct->comm->sendFatalErrorDef("ERROR: Error in the wait function!\r\n", "");
 				delete inputStruct;
 				return -1;
 			}
 
 			if (inputStruct->settings.programIntensity == true && varValueLengthInc != 0)
 			{
-				if (myErrorHandler(myAgilent::selectIntensityProfile(boost::numeric_cast<int>(varValueLengthInc), intIsVaried, intensitySequenceMinAndMaxVector),
-					"ERROR: intensity profile selection failed!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, eError,
-					eSessionHandle, userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
+				if (myErrorHandler(myAgilent::selectIntensityProfile(boost::numeric_cast<int>(varValueLengthInc), 
+																	 intIsVaried, intensitySequenceMinAndMaxVector),
+					"ERROR: intensity profile selection failed!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, 
+					userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 				{
-					inputStruct->comm->sendFatalError("ERROR: intensity profile selection failed!\r\n", "", "");
+					inputStruct->comm->sendFatalErrorDef("ERROR: intensity profile selection failed!\r\n", "");
 					delete inputStruct;
 					return -1;
 				}
 				if (inputStruct->settings.programIntensity == true && intIsVaried == true)
 				{
-					inputStruct->comm->sendStatus("Intensity Profile Selected.\r\n", "", "");
+					inputStruct->comm->sendStatus("Intensity Profile Selected.\r\n", "");
 				}
 			}
 			/// Reinitialize Waveform Generation
@@ -1695,17 +1698,14 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			{
 				varBaseString += "\t" + varyingParameters[varNumInc].name + " = " + std::to_string(variableValues[varNumInc][varValueLengthInc]) + "\r\n";
 			}
-			inputStruct->comm->sendStatus(varBaseString, "", "");
+			inputStruct->comm->sendStatus(varBaseString, "");
 			// Restart Waveform
 			if ((*inputStruct).threadDontActuallyGenerate == false)
 			{
 				try
 				{
-					if (!TWEEZER_COMPUTER_SAFEMODE)
-					{
-						myNIAWG::NIAWG_CheckProgrammingError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE));
-						myNIAWG::NIAWG_CheckProgrammingError(niFgen_AbortGeneration(eSessionHandle));
-					}
+					inputStruct->niawg->configureOutputEnabled(VI_FALSE);
+					inputStruct->niawg->abortGeneration();
 					// skip defaults so start at 2.
 					for (int o = 2; o < waveformCount; o++)
 					{
@@ -1717,64 +1717,47 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 
 							if (varValueLengthInc != 0)
 							{
-								if (!TWEEZER_COMPUTER_SAFEMODE)
-								{
-									myNIAWG::NIAWG_CheckProgrammingError(niFgen_DeleteNamedWaveform(eSessionHandle, SESSION_CHANNELS, variedWaveformName));
-								}
+								inputStruct->niawg->deleteWaveform(variedWaveformName);
 							}
-							if (!TWEEZER_COMPUTER_SAFEMODE)
-							{
-								// And write the new one.
-								myNIAWG::NIAWG_CheckProgrammingError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, variedWaveformName,
-									variedMixedSize[mixedWriteCount] / 2));
-								myNIAWG::NIAWG_CheckProgrammingError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, variedWaveformName, variedMixedSize[mixedWriteCount],
-									mixedWaveforms[mixedWriteCount]));
-							}
+							// And write the new one.
+							inputStruct->niawg->allocateWaveform(variedWaveformName, variedMixedSize[mixedWriteCount] / 2);
+							inputStruct->niawg->writeWaveform(variedWaveformName, variedMixedSize[mixedWriteCount], mixedWaveforms[mixedWriteCount]);
 							mixedWriteCount++;
 						}
 					}
 
 					ViBoolean individualAccumulationIsDone = false;
-					if (!TWEEZER_COMPUTER_SAFEMODE)
-					{
-						myNIAWG::NIAWG_CheckProgrammingError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, userScriptSubmit));
-					}
+					inputStruct->niawg->writeScript(userScriptSubmit);
 					userScriptIsWritten = true;
-					if (!TWEEZER_COMPUTER_SAFEMODE)
-					{
-						myNIAWG::NIAWG_CheckProgrammingError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "experimentScript"));
-					}
+
+					inputStruct->niawg->setViStringAttribute(NIFGEN_ATTR_SCRIPT_TO_GENERATE, "experimentScript");
 
 					(*inputStruct).threadCurrentScript = "UserScript";
-					if (!TWEEZER_COMPUTER_SAFEMODE)
-					{
-						myNIAWG::NIAWG_CheckProgrammingError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE));
-						myNIAWG::NIAWG_CheckProgrammingError(niFgen_InitiateGeneration(eSessionHandle));
-					}
+
+					inputStruct->niawg->configureOutputEnabled(VI_TRUE);
+					inputStruct->niawg->initiateGeneration();
+
 					if (inputStruct->settings.connectToMaster == true)
 					{
-						if (!TWEEZER_COMPUTER_SAFEMODE)
-						{
-							// Send returns -1 if failed, 0 otherwise.
-							iResult = send(ConnectSocket, "go", 2, 0);
-							myErrorHandler(iResult == -1, "ERROR: send failed!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles,
-								false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm);
-						}
+						// Send returns -1 if failed, 0 otherwise.
+						iResult = send(ConnectSocket, "go", 2, 0);
+						myErrorHandler(iResult == -1, "ERROR: send failed!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles,
+							false,   userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm);
 						iResult = 0;
 					}
 				}
 				catch (my_exception& excep)
 				{
-					inputStruct->comm->sendStatus("EXITED WITH ERROR!\r\n", "", "");
-					inputStruct->comm->sendError("EXITED WITH ERROR!\r\n", "", "");
-					inputStruct->comm->sendStatus("Initialized Default Waveform", "", "");
-					inputStruct->comm->sendFatalError("NIAWG ERROR : " + excep.whatStr() + "\r\n", "", "");
+					inputStruct->comm->sendStatus("EXITED WITH ERROR!\r\n", "");
+					inputStruct->comm->sendErrorDef("EXITED WITH ERROR!\r\n", "");
+					inputStruct->comm->sendStatus("Initialized Default Waveform", "");
+					inputStruct->comm->sendFatalErrorDef("NIAWG ERROR : " + excep.whatStr() + "\r\n", "");
 					delete inputStruct;
 					return -1;
 				}
 				eWaitError = false;
 				waitThreadInput input;
-				input.currentSession = eSessionHandle;
+				input.niawg = inputStruct->niawg;
 				input.profileInfo = inputStruct->profileInfo;
 				// create the waiting thread.
 				unsigned int NIAWGThreadID;
@@ -1826,62 +1809,51 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			}
 		}
 	}
-	/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///
-	///					If no Variables
-	///
 	else
 	{
-		inputStruct->comm->sendStatus("NO Variable looping this run.\r\n", "", "");
+		/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		///
+		///					If no Variables
+		///
+
+		inputStruct->comm->sendStatus("NO Variable looping this run.\r\n", "");
 		if ((*inputStruct).threadDontActuallyGenerate == false)
 		{
 			try
 			{
 				ViBoolean individualAccumulationIsDone = false;
-				if (!TWEEZER_COMPUTER_SAFEMODE)
-				{
-					myNIAWG::NIAWG_CheckProgrammingError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE));
-					myNIAWG::NIAWG_CheckProgrammingError(niFgen_AbortGeneration(eSessionHandle));
-				}
+				inputStruct->niawg->configureOutputEnabled(VI_FALSE);
+				inputStruct->niawg->abortGeneration();
 				// Should be just ready to go
-				if (!TWEEZER_COMPUTER_SAFEMODE)
-				{
-					myNIAWG::NIAWG_CheckProgrammingError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, userScriptSubmit));
-				}
+				inputStruct->niawg->writeScript(userScriptSubmit);
 				userScriptIsWritten = true;
-				if (!TWEEZER_COMPUTER_SAFEMODE)
-				{
-					myNIAWG::NIAWG_CheckProgrammingError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "experimentScript"));
-				}
+				inputStruct->niawg->setViStringAttribute(NIFGEN_ATTR_SCRIPT_TO_GENERATE, "experimentScript");
 				(*inputStruct).threadCurrentScript = "UserScript";
-				if (!TWEEZER_COMPUTER_SAFEMODE)
+				inputStruct->niawg->configureOutputEnabled(VI_TRUE);
+				inputStruct->niawg->initiateGeneration();
+				if (inputStruct->settings.connectToMaster == true)
 				{
-					myNIAWG::NIAWG_CheckProgrammingError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE));
-					myNIAWG::NIAWG_CheckProgrammingError(niFgen_InitiateGeneration(eSessionHandle));
-					if (inputStruct->settings.connectToMaster == true)
+					iResult = send(ConnectSocket, "go", 2, 0);
+					if (myErrorHandler(iResult == -1, "ERROR: intensity profile selection failed!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles,
+						false,   userScriptIsWritten, userScriptName, true, true, true, inputStruct->comm))
 					{
-						iResult = send(ConnectSocket, "go", 2, 0);
-						if (myErrorHandler(iResult == -1, "ERROR: intensity profile selection failed!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles,
-							false, eError, eSessionHandle, userScriptIsWritten, userScriptName, true, true, true, inputStruct->comm))
-						{
-							inputStruct->comm->sendFatalError("ERROR: intensity profile selection failed!\r\n", "", "");
-							delete inputStruct;
-							return -1;
-						}
+						inputStruct->comm->sendFatalErrorDef("ERROR: intensity profile selection failed!\r\n", "");
+						delete inputStruct;
+						return -1;
 					}
 				}
 			}
 			catch (my_exception& excep)
 			{
-				inputStruct->comm->sendStatus("EXITED WITH ERROR!\r\n", "", "");
-				inputStruct->comm->sendError("EXITED WITH ERROR!\r\n", "", "");
-				inputStruct->comm->sendStatus("Initialized Default Waveform", "", "");
-				inputStruct->comm->sendFatalError("NIAWG ERROR : " + excep.whatStr() + "\r\n", "", "");
+				inputStruct->comm->sendStatus("EXITED WITH ERROR!\r\n", "");
+				inputStruct->comm->sendErrorDef("EXITED WITH ERROR!\r\n", "");
+				inputStruct->comm->sendStatus("Initialized Default Waveform", "");
+				inputStruct->comm->sendFatalErrorDef("NIAWG ERROR : " + excep.whatStr() + "\r\n", "");
 				delete inputStruct;
 				return -1;
 			}
 			waitThreadInput input;
-			input.currentSession = eSessionHandle;
+			input.niawg = inputStruct->niawg;
 			input.profileInfo = inputStruct->profileInfo;
 			eWaitError = false;
 			unsigned int NIAWGThreadID;
@@ -1911,8 +1883,9 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	///
 	if ((*inputStruct).threadRepetitions == 0 || (inputStruct->numberOfVariables == 0 && TWEEZER_COMPUTER_SAFEMODE))
 	{
+		colorBoxes<char> colors = { /*niawg*/'G', /*camera*/'-', /*intensity*/'-' };
 		inputStruct->comm->sendStatus("Scripts Loaded into NIAWG. This waveform sequence will run until aborted by the user.\r\n\r\n", 
-			"Scripts Loaded into NIAWG. This waveform sequence will run until aborted by the user.", "G");
+			"Scripts Loaded into NIAWG. This waveform sequence will run until aborted by the user.", colors);
 	}
 	else 
 	{
@@ -1929,7 +1902,8 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 		{
 			message += varyingParameters[varInc].name + " = " + std::to_string(variableValues[varInc].back()) + "; ";
 		}
-		inputStruct->comm->sendStatus("Completed Sending Scripts. Waiting for last script to finish.\r\n\r\n", message, "G");
+		colorBoxes<char> colors = { /*niawg*/'G', /*camera*/'-', /*intensity*/'-' };
+		inputStruct->comm->sendStatus("Completed Sending Scripts. Waiting for last script to finish.\r\n\r\n", message, colors);
 	}
 	
 	if (systemAbortCheck(inputStruct->comm))
@@ -1989,7 +1963,8 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	{
 		eWaitError = false;
 		// does not throw.
-		myNIAWG::NIAWG_CheckProgrammingError();
+		std::string msg = inputStruct->niawg->getErrorMsg();
+		inputStruct->comm->sendFatalErrorDef("ERROR: Wait thread error: " + msg, "");
 		delete inputStruct;
 		return -1;
 	}
@@ -2002,7 +1977,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			sprintf_s(waveformDeleteName, 11, "Waveform%i", v);
 			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
-				myNIAWG::NIAWG_CheckProgrammingError(niFgen_DeleteNamedWaveform(eSessionHandle, SESSION_CHANNELS, waveformDeleteName));
+				inputStruct->niawg->deleteWaveform(waveformDeleteName);
 			}
 		}
 		if ((*inputStruct).threadDontActuallyGenerate == false)
@@ -2010,17 +1985,17 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
 				// Delete relevant onboard memory.
-				myNIAWG::NIAWG_CheckProgrammingError(niFgen_DeleteScript(eSessionHandle, SESSION_CHANNELS, "experimentScript"));
+				inputStruct->niawg->deleteScript("experimentScript");
 			}
 			userScriptIsWritten = false;
 		}
 	}
 	catch (my_exception& excep)
 	{
-		inputStruct->comm->sendStatus("EXITED WITH ERROR!\r\n", "", "");
-		inputStruct->comm->sendError("EXITED WITH ERROR!\r\n", "", "");
-		inputStruct->comm->sendStatus("Initialized Default Waveform", "", "");
-		inputStruct->comm->sendFatalError("NIAWG ERROR : " + excep.whatStr() + "\r\n", "", "");
+		inputStruct->comm->sendStatus("EXITED WITH ERROR!\r\n", "");
+		inputStruct->comm->sendErrorDef("EXITED WITH ERROR!\r\n", "");
+		inputStruct->comm->sendStatus("Initialized Default Waveform", "");
+		inputStruct->comm->sendFatalErrorDef("NIAWG ERROR : " + excep.whatStr() + "\r\n", "");
 		delete inputStruct;
 		return -1;
 	}

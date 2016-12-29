@@ -9,7 +9,8 @@ class NoteSystem
 		bool setExperimentNotes(std::string notes);
 		bool setCategoryNotes(std::string notes);
 		bool setConfigurationNotes(std::string notes);
-		bool initializeControls(POINT& topLeftPosition, CWnd* parentWindow, int& id);
+		bool initializeControls(POINT& topLeftPosition, CWnd* parentWindow, int& id,
+			std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips);
 		std::string getExperimentNotes();
 		std::string getCategoryNotes();
 		std::string getConfigurationNotes();

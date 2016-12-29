@@ -14,11 +14,13 @@ class AlertSystem
 			mciSendString("open \"C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Control\\Camera\\Final Fantasy VII - Victory Fanfare [HQ].mp3\" type mpegvideo alias mp3", NULL, 0, NULL);
 		}
 		~AlertSystem();
-		bool initialize(cameraPositions& positions, CWnd* parent, bool isTriggerModeSensitive, int& id);
+		bool initialize(cameraPositions& positions, CWnd* parent, bool isTriggerModeSensitive, int& id,
+			std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips);
 		bool alertMainThread(int level);
 		bool soundAlert();
-		bool reorganizeControls(std::string cameraMode, std::string triggerMode, int width, int height);
-		bool handleCheckBoxPress(WPARAM messageWParam, LPARAM messageLParam);
+		bool rearrange(std::string cameraMode, std::string triggerMode, int width, int height,
+			std::unordered_map<std::string, CFont*> fonts);
+		void handleCheckBoxPress();
 		unsigned int getAlertThreshold();
 		unsigned int getAlertMessageID();
 		bool setAlertThreshold();

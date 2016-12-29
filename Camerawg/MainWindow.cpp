@@ -3,39 +3,73 @@
 #include "initializeMainWindow.h"
 #include "commonMessages.h"
 #include "myAgilent.h"
-#include "myNIAWG.h"
+#include "NiawgController.h"
 #include "CameraWindow.h"
+#include "myErrorHandler.h"
 
 IMPLEMENT_DYNAMIC(MainWindow, CDialog)
 
-BEGIN_MESSAGE_MAP(MainWindow, CDialog)
+BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_WM_CTLCOLOR()
-	ON_COMMAND_RANGE(ID_ACCELERATOR_ESC, ID_ACCELERATOR_ESC, &MainWindow::passCommonCommand)
-	ON_COMMAND_RANGE(ID_ACCELERATOR_F5, ID_ACCELERATOR_F5, &MainWindow::passCommonCommand)
-	ON_COMMAND_RANGE(MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &MainWindow::passCommonCommand)
-	ON_COMMAND_RANGE(IDC_DEBUG_OPTIONS_RANGE_BEGIN, IDC_DEBUG_OPTIONS_RANGE_END, &MainWindow::passDebugPress)
-	ON_COMMAND_RANGE(IDC_MAIN_OPTIONS_RANGE_BEGIN, IDC_MAIN_OPTIONS_RANGE_END, &MainWindow::passMainOptionsPress)
+	ON_COMMAND_RANGE( ID_ACCELERATOR_ESC, ID_ACCELERATOR_ESC, &MainWindow::passCommonCommand )
+	ON_COMMAND_RANGE( ID_ACCELERATOR_F5, ID_ACCELERATOR_F5, &MainWindow::passCommonCommand )
+	ON_COMMAND_RANGE( MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &MainWindow::passCommonCommand )
+	ON_COMMAND_RANGE( IDC_DEBUG_OPTIONS_RANGE_BEGIN, IDC_DEBUG_OPTIONS_RANGE_END, &MainWindow::passDebugPress )
+	ON_COMMAND_RANGE( IDC_MAIN_OPTIONS_RANGE_BEGIN, IDC_MAIN_OPTIONS_RANGE_END, &MainWindow::passMainOptionsPress )
 	// 
 
-	ON_CBN_SELENDOK(IDC_EXPERIMENT_COMBO, &MainWindow::handleExperimentCombo)
-	ON_CBN_SELENDOK(IDC_CATEGORY_COMBO, &MainWindow::handleCategoryCombo)
-	ON_CBN_SELENDOK(IDC_CONFIGURATION_COMBO, &MainWindow::handleConfigurationCombo)
-	ON_CBN_SELENDOK(IDC_SEQUENCE_COMBO, &MainWindow::handleSequenceCombo)
-	ON_CBN_SELENDOK(IDC_ORIENTATION_COMBO, &MainWindow::handleOrientationCombo)
+	ON_CBN_SELENDOK( IDC_EXPERIMENT_COMBO, &MainWindow::handleExperimentCombo )
+	ON_CBN_SELENDOK( IDC_CATEGORY_COMBO, &MainWindow::handleCategoryCombo )
+	ON_CBN_SELENDOK( IDC_CONFIGURATION_COMBO, &MainWindow::handleConfigurationCombo )
+	ON_CBN_SELENDOK( IDC_SEQUENCE_COMBO, &MainWindow::handleSequenceCombo )
+	ON_CBN_SELENDOK( IDC_ORIENTATION_COMBO, &MainWindow::handleOrientationCombo )
 	// 
-	ON_NOTIFY(NM_DBLCLK, IDC_VARIABLES_LISTVIEW, &MainWindow::listViewDblClick)
-	ON_NOTIFY(NM_RCLICK, IDC_VARIABLES_LISTVIEW, &MainWindow::listViewRClick)
-	ON_REGISTERED_MESSAGE(eStatusTextMessageID, &MainWindow::onStatusTextMessage)
-	ON_REGISTERED_MESSAGE(eErrorTextMessageID, &MainWindow::onErrorMessage)
-	ON_REGISTERED_MESSAGE(eFatalErrorMessageID, &MainWindow::onFatalErrorMessage)
-	ON_REGISTERED_MESSAGE(eNormalFinishMessageID, &MainWindow::onNormalFinishMessage)
-	ON_REGISTERED_MESSAGE(eColoredEditMessageID, &MainWindow::onColoredEditMessage)
-	ON_REGISTERED_MESSAGE(eDebugMessageID, &MainWindow::onDebugMessage)
+	ON_NOTIFY( NM_DBLCLK, IDC_VARIABLES_LISTVIEW, &MainWindow::listViewDblClick )
+	ON_NOTIFY( NM_RCLICK, IDC_VARIABLES_LISTVIEW, &MainWindow::listViewRClick )
+	ON_REGISTERED_MESSAGE( eStatusTextMessageID, &MainWindow::onStatusTextMessage )
+	ON_REGISTERED_MESSAGE( eErrorTextMessageID, &MainWindow::onErrorMessage )
+	ON_REGISTERED_MESSAGE( eFatalErrorMessageID, &MainWindow::onFatalErrorMessage )
+	ON_REGISTERED_MESSAGE( eNormalFinishMessageID, &MainWindow::onNormalFinishMessage )
+	ON_REGISTERED_MESSAGE( eColoredEditMessageID, &MainWindow::onColoredEditMessage )
+	ON_REGISTERED_MESSAGE( eDebugMessageID, &MainWindow::onDebugMessage )
+	ON_REGISTERED_MESSAGE( eCameraFinishMessageID, &MainWindow::onCameraFinishMessage )
+	ON_REGISTERED_MESSAGE( eCameraProgressMessageID, &MainWindow::onCameraProgressMessage )
 
-	ON_COMMAND_RANGE(IDC_MAIN_STATUS_BUTTON, IDC_MAIN_STATUS_BUTTON, &MainWindow::passClear)
-	ON_COMMAND_RANGE(IDC_ERROR_STATUS_BUTTON, IDC_ERROR_STATUS_BUTTON, &MainWindow::passClear)
-	ON_COMMAND_RANGE(IDC_DEBUG_STATUS_BUTTON, IDC_DEBUG_STATUS_BUTTON, &MainWindow::passClear)
+	ON_COMMAND_RANGE( IDC_MAIN_STATUS_BUTTON, IDC_MAIN_STATUS_BUTTON, &MainWindow::passClear )
+	ON_COMMAND_RANGE( IDC_ERROR_STATUS_BUTTON, IDC_ERROR_STATUS_BUTTON, &MainWindow::passClear )
+	ON_COMMAND_RANGE( IDC_DEBUG_STATUS_BUTTON, IDC_DEBUG_STATUS_BUTTON, &MainWindow::passClear )
 END_MESSAGE_MAP()
+
+LRESULT MainWindow::onCameraProgressMessage( WPARAM wParam, LPARAM lParam )
+{
+	return 0;
+}
+
+LRESULT MainWindow::onCameraFinishMessage( WPARAM wParam, LPARAM lParam )
+{
+	this->TheCameraWindow->onCameraFinish();
+	errBox( "Hi!" );
+	return 0;
+}
+
+BOOL MainWindow::PreTranslateMessage(MSG* pMsg)
+{
+	for (int toolTipInc = 0; toolTipInc < this->tooltips.size(); toolTipInc++)
+	{
+		this->tooltips[toolTipInc]->RelayEvent(pMsg);
+	}
+	return CDialog::PreTranslateMessage(pMsg);
+}
+
+void MainWindow::setNiawgDefaults(bool isFirstTime)
+{
+	this->niawg.setDefaultWaveforms(this, isFirstTime);
+}
+
+std::unordered_map<std::string, CFont*> MainWindow::getFonts()
+{
+	return mainFonts;
+}
 
 void MainWindow::passClear(UINT id)
 {
@@ -65,13 +99,117 @@ void MainWindow::OnClose()
 	return;
 }
 
+void MainWindow::stopNiawg()
+{
+	this->niawg.configureOutputEnabled(VI_FALSE);
+	this->niawg.abortGeneration();
+}
+
 BOOL MainWindow::OnInitDialog()
 {
-	// Initialize the scripting window
-	this->TheScriptingWindow = new ScriptingWindow;
-	this->TheCameraWindow = new CameraWindow;
 
-	TheCameraWindow->getFriends(this, TheScriptingWindow);
+	/// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	///
+	///				Initialize NIAWG
+	///
+	// get time now
+	time_t dateStart = time(0);
+	struct tm datePointerStart;
+	localtime_s(&datePointerStart, &dateStart);
+	std::string logFolderNameStart = "Date " + std::to_string(datePointerStart.tm_year + 1900) + "-" + std::to_string(datePointerStart.tm_mon + 1) + "-"
+		+ std::to_string(datePointerStart.tm_mday) + " Time " + std::to_string(datePointerStart.tm_hour) + "-" + std::to_string(datePointerStart.tm_min) + "-"
+		+ std::to_string(datePointerStart.tm_sec);
+	// initialize default file names and open the files.
+	std::vector<std::fstream> default_hConfigVerticalScriptFile, default_hConfigHorizontalScriptFile, default_vConfigVerticalScriptFile,
+		default_vConfigHorizontalScriptFile;
+	default_hConfigVerticalScriptFile.push_back(std::fstream(DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_HCONFIG_VERTICAL_SCRIPT.nScript"));
+	default_hConfigHorizontalScriptFile.push_back(std::fstream(DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_HCONFIG_HORIZONTAL_SCRIPT.nScript"));
+	default_vConfigVerticalScriptFile.push_back(std::fstream(DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_VCONFIG_VERTICAL_SCRIPT.nScript"));
+	default_vConfigHorizontalScriptFile.push_back(std::fstream((DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_VCONFIG_HORIZONTAL_SCRIPT.nScript")));
+
+	// check errors
+	if (!default_hConfigVerticalScriptFile[0].is_open())
+	{
+		errBox("FATAL ERROR: Couldn't open default file. Was looking for file " + DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_HCONFIG_VERTICAL_SCRIPT.nScript");
+		return -1;
+	}
+	if (!default_hConfigHorizontalScriptFile[0].is_open())
+	{
+		errBox("FATAL ERROR: Couldn't open default file. Was looking for file " + DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_HCONFIG_HORIZONTAL_SCRIPT.nScript");
+		return -1;
+	}
+	if (!default_vConfigVerticalScriptFile[0].is_open())
+	{
+		errBox("FATAL ERROR: Couldn't open default file. Was looking for file " + DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_VCONFIG_VERTICAL_SCRIPT.nScript");
+		return -1;
+	}
+	if (!default_vConfigHorizontalScriptFile[0].is_open())
+	{
+		errBox("FATAL ERROR: Couldn't open default file. Was looking for file " + DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_VCONFIG_HORIZONTAL_SCRIPT.nScript");
+		return -1;
+	}
+
+	// parameters for variables used by the default file. (there shouldn't be any, these are essentially just placeholders so that I can use the same functions.
+	std::vector<char> defXVarNames, defYVarNames;
+	// parameters for variables used by the default file. (there shouldn't be any, these are essentially just placeholders so that I can use the same functions.
+	std::vector<std::string> defXVarFileNames, defYVarFileNames;
+	// parameters for variables used by the default file. (there shouldn't be any, these are essentially just placeholders so that I can use the same functions.
+	std::vector<std::fstream> defXVarFiles;
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		std::ofstream hConfigVerticalDefaultScriptLog(EXPERIMENT_LOGGING_FILES_PATH + logFolderNameStart + "\\Default hConfig Vertical Script.script");
+		std::ofstream hConfigHorizontalDefaultScriptLog(EXPERIMENT_LOGGING_FILES_PATH + logFolderNameStart + "\\Default hConfig Horizontal Script.script");
+		std::ofstream vConfigVerticalDefaultScriptLog(EXPERIMENT_LOGGING_FILES_PATH + logFolderNameStart + "\\Default vConfig Vertical Script.script");
+		std::ofstream vConfigHorizontalDefaultScriptLog(EXPERIMENT_LOGGING_FILES_PATH + logFolderNameStart + "\\Default vConfig Horizontal Script.script");
+		hConfigVerticalDefaultScriptLog << default_hConfigVerticalScriptFile[0].rdbuf();
+		hConfigHorizontalDefaultScriptLog << default_hConfigHorizontalScriptFile[0].rdbuf();
+		vConfigVerticalDefaultScriptLog << default_vConfigVerticalScriptFile[0].rdbuf();
+		vConfigHorizontalDefaultScriptLog << default_vConfigHorizontalScriptFile[0].rdbuf();
+	}
+	try
+	{
+		niawg.initialize();
+	}
+	catch (my_exception& except)
+	{
+		errBox("ERROR: NIAWG Did not start smoothly: " + except.whatStr());
+		return -1;
+	}
+
+	// Use this section of code to output some characteristics of the 5451. If you want.
+	/*
+	ViInt32 maximumNumberofWaveforms, waveformQuantum, minimumWaveformSize, maximumWaveformSize;
+
+	if (myNIAWG::NIAWG_CheckWindowsError(niFgen_QueryArbWfmCapabilities(eSessionHandle, &maximumNumberofWaveforms, &waveformQuantum, &minimumWaveformSize, &maximumWaveformSize)))
+	{
+		return -1;
+	}
+
+	MessageBox(NULL, (LPCSTR)std::to_string(maximumNumberofWaveforms).c_str(), NULL, MB_OK);
+	MessageBox(NULL, (LPCSTR)std::to_string(waveformQuantum).c_str(), NULL, MB_OK);
+	MessageBox(NULL, (LPCSTR)std::to_string(minimumWaveformSize).c_str(), NULL, MB_OK);
+	MessageBox(NULL, (LPCSTR)std::to_string(maximumWaveformSize).c_str(), NULL, MB_OK);
+	*/
+
+	this->niawg.setDefaultWaveforms(this, true);
+	// but the default starts in the horizontal configuration, so switch back and start in this config.
+	this->setOrientation(HORIZONTAL_ORIENTATION);
+	try
+	{
+		this->restartNiawgDefaults();
+	}
+	catch (my_exception& exception)
+	{
+		errBox("ERROR: failed to start niawg default waveforms! Niawg gave the following error message: " + exception.whatStr());
+	}
+	// default value of this variable.
+	eDontActuallyGenerate = false;
+	eCurrentScript = "DefaultScript";
+	// not done with the script, it will not stay on the NIAWG, so I need to keep track of it so thatI can reload it onto the NIAWG when necessary.	
+	/// Initialize Windows
+	this->TheScriptingWindow = new ScriptingWindow;
+	this->TheCameraWindow = new CameraWindow(this, TheScriptingWindow);
+
 	TheScriptingWindow->getFriends(this, TheCameraWindow);
 
 	TheScriptingWindow->Create(IDD_LARGE_TEMPLATE, 0);
@@ -87,22 +225,24 @@ BOOL MainWindow::OnInitDialog()
 
 	int id = 1000;
 	POINT statusPos = { 0,0 };
-	this->mainStatus.initialize(statusPos, this, id, 975, "EXPERIMENT STATUS", RGB(50, 50, 250));
+	this->mainStatus.initialize(statusPos, this, id, 975, "EXPERIMENT STATUS", RGB(50, 50, 250), mainFonts, tooltips);
 	statusPos = { 480, 0 };
-	this->errorStatus.initialize(statusPos, this, id, 480, "ERROR STATUS", RGB(200, 0, 0)); 
-	this->debugStatus.initialize(statusPos, this, id, 480, "DEBUG STATUS", RGB(13, 152, 186));
+	this->errorStatus.initialize(statusPos, this, id, 480, "ERROR STATUS", RGB(200, 0, 0), mainFonts, tooltips); 
+	this->debugStatus.initialize(statusPos, this, id, 480, "DEBUG STATUS", RGB(13, 152, 186), mainFonts, tooltips);
 	POINT configStart = { 960, 0 };
-	this->profile.initializeControls(configStart, this, id);
+	this->profile.initializeControls(configStart, this, id, mainFonts, tooltips);
 	POINT notesStart = { 960, 235 };
-	this->notes.initializeControls(notesStart, this, id);
+	this->notes.initializeControls(notesStart, this, id, mainFonts, tooltips);
 	POINT controlLocation = { 1440, 95 };
-	this->variables.initializeControls(controlLocation, this, id);
-	this->settings.initialize(id, controlLocation, this);
-	this->debugger.initialize(id, controlLocation, this);
-	texter.initializeControls(controlLocation, this, false, id);
+	this->variables.initializeControls(controlLocation, this, id, mainFonts, tooltips);
+	this->settings.initialize(id, controlLocation, this, mainFonts, tooltips);
+	this->debugger.initialize(id, controlLocation, this, mainFonts, tooltips);
+	texter.initializeControls(controlLocation, this, false, id, mainFonts, tooltips);
 	POINT shortStatusLocation = { 960, 910 };
-	this->shortStatus.initialize(shortStatusLocation, this, id);
-	//initializeMainWindow(*this);
+	this->shortStatus.initialize(shortStatusLocation, this, id, mainFonts, tooltips);
+	
+	niawg.initialize();
+
 	CMenu menu;
 	menu.LoadMenu(IDR_MAIN_MENU);
 	this->SetMenu(&menu);
@@ -110,6 +250,11 @@ BOOL MainWindow::OnInitDialog()
 	// just initializes the rectangles.
 	TheCameraWindow->redrawPictures();
 	return TRUE;
+}
+
+void MainWindow::restartNiawgDefaults()
+{
+	niawg.restartDefault();
 }
 
 HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
@@ -374,7 +519,8 @@ void MainWindow::handleOrientationCombo()
 	}
 	catch (my_exception& except)
 	{
-		comm.sendError("ERROR: failed to change orientation: " + except.whatStr(), "", "R");
+		colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
+		comm.sendError("ERROR: failed to change orientation: " + except.whatStr(), "", colors);
 	}
 }
 
@@ -413,85 +559,23 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 	myAgilent::agilentDefault();
 	std::string msgText = "Exited with Error!\r\nPassively Outputting Default Waveform.";
 	this->changeShortStatusColor("R");
-	this->TheScriptingWindow->changeBoxColor("R");
+	colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
+	this->TheScriptingWindow->changeBoxColor(colors);
 	this->setShortStatus(msgText);
 	std::string orientation = this->getCurentProfileSettings().orientation;
 	try
 	{
-		if (!TWEEZER_COMPUTER_SAFEMODE)
-		{
-			myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE), orientation);
-			// Officially stop trying to generate anything.
-			myNIAWG::NIAWG_CheckWindowsError(niFgen_AbortGeneration(eSessionHandle), orientation);
-			// clear the memory
-			myNIAWG::NIAWG_CheckWindowsError(niFgen_ClearArbMemory(eSessionHandle), orientation);
-		}
-		ViInt32 waveID;
-		//if (eProfile.getOrientation() == HORIZONTAL_ORIENTATION)
-		if (false)
-		{
-			if (!TWEEZER_COMPUTER_SAFEMODE)
-			{
-				// create waveform (necessary?)
-				myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle,
-					SESSION_CHANNELS, eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform, &waveID), orientation);
-				// allocate waveform into the device memory
-				myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle,
-					SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize / 2), orientation);
-				// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script.
-				myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle,
-					SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize,
-					eDefault_hConfigMixedWaveform), orientation);
-				// rewrite the script. default_hConfigScript should still be valid.
-				myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle,
-					SESSION_CHANNELS, eDefault_hConfigScript), orientation);
-				// start generic waveform to maintain power output to AOM.
-				myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle,
-					SESSION_CHANNELS, VI_TRUE), orientation);
-				myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle,
-					SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript"), orientation);
-			}
-			eCurrentScript = "DefaultHConfigScript";
-		}
-		else if (false)
-		//else if (eProfile.getOrientation() == VERTICAL_ORIENTATION)
-		{
-			if (!TWEEZER_COMPUTER_SAFEMODE)
-			{
-				// create waveform (necessary?)
-				myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle,
-					SESSION_CHANNELS, eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform, &waveID), orientation);
-				// allocate waveform into the device memory
-				myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle,
-					SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize / 2), orientation);
-				// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script.
-				myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle,
-					SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform), orientation);
-				// rewrite the script. default_hConfigScript should still be valid.
-				myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle,
-					SESSION_CHANNELS, eDefault_vConfigScript), orientation);
-				// start generic waveform to maintain power output to AOM.
-				myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle,
-					SESSION_CHANNELS, VI_TRUE), orientation);
-				myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle,
-					SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultVConfigScript"), orientation);
-			}
-			eCurrentScript = "DefaultVConfigScript";
-		}
-		if (!TWEEZER_COMPUTER_SAFEMODE)
-		{
-
-			// Initiate Generation.
-			myNIAWG::NIAWG_CheckWindowsError(niFgen_InitiateGeneration(eSessionHandle), orientation);
-		}
+		niawg.restartDefault();
+		colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
+		comm.sendError("EXITED WITH ERROR!", "EXITED WITH ERROR! Passively Outputting Default Waveform.", colors);
+		comm.sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n", "");
 	}
 	catch (my_exception& except)
 	{
-		comm.sendError("EXITED WITH ERROR! " + except.whatStr(), "EXITED WITH ERROR! Passively Outputting Default Waveform.", "R");
-		comm.sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n", "", "");
-		return -3;
+		colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
+		comm.sendError("EXITED WITH ERROR! " + except.whatStr(), "EXITED WITH ERROR! NIAWG RESTART FAILED!.", colors);
+		comm.sendStatus("EXITED WITH ERROR!\r\nNIAWG RESTART FAILED!\r\n", "");
 	}
-
 	eExperimentIsRunning = false;
 	return 0;
 }
@@ -515,68 +599,19 @@ LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
 	std::string msgText = "Passively Outputting Default Waveform";
 	this->setShortStatus(msgText);
 	this->changeShortStatusColor("B");
-	this->TheScriptingWindow->changeBoxColor("B");
+	colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
+	this->TheScriptingWindow->changeBoxColor(colors);
 	std::string orientation = this->getCurentProfileSettings().orientation;
 	try
 	{
-		if (!TWEEZER_COMPUTER_SAFEMODE)
-		{
-			myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE), orientation);
-			// Officially stop trying to generate anything.
-			myNIAWG::NIAWG_CheckWindowsError(niFgen_AbortGeneration(eSessionHandle), orientation);
-			// clear the memory
-			myNIAWG::NIAWG_CheckWindowsError(niFgen_ClearArbMemory(eSessionHandle), orientation);
-		}
-		ViInt32 waveID;
-		if (false)
-			//				if (eProfile.getOrientation() == HORIZONTAL_ORIENTATION)
-		{
-			if (!TWEEZER_COMPUTER_SAFEMODE)
-			{
-				// create waveform (necessary?)
-				myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform, &waveID), orientation);
-				// allocate waveform into the device memory
-				myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize / 2), orientation);
-				// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script.
-				myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform), orientation);
-				// rewrite the script. default_hConfigScript should still be valid.
-				myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigScript), orientation);
-				// start generic waveform to maintain power output to AOM.
-				myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), orientation);
-				myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript"), orientation);
-			}
-			eCurrentScript = "DefaultHConfigScript";
-
-		}
-		else if (false)
-			//else if (eProfile.getOrientation() == VERTICAL_ORIENTATION)
-		{
-			if (!TWEEZER_COMPUTER_SAFEMODE)
-			{
-				// create waveform (necessary?)
-				myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform, &waveID), orientation);
-				// allocate waveform into the device memory
-				myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize / 2), orientation);
-				// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script.
-				myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform), orientation);
-				// rewrite the script. default_hConfigScript should still be valid.
-				myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigScript), orientation);
-				// start generic waveform to maintain power output to AOM.
-				myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), orientation);
-				myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultVConfigScript"), orientation);
-			}
-			eCurrentScript = "DefaultVConfigScript";
-		}
-		if (!TWEEZER_COMPUTER_SAFEMODE)
-		{
-			// Initiate Generation.
-			myNIAWG::NIAWG_CheckWindowsError(niFgen_InitiateGeneration(eSessionHandle), orientation);
-		}
+		niawg.restartDefault();
 	}
 	catch (my_exception& except)
 	{
-		comm.sendError("EXITED WITH ERROR! " + except.whatStr(), "EXITED WITH ERROR! Passively Outputting Default Waveform.", "R");
-		comm.sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n", "", "");
+		colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
+		comm.sendError("ERROR! The niawg finished normally, but upon restarting the default waveform, threw the "
+			"following error: " + except.whatStr(), "Error Restarting default waveform!.", colors);
+		comm.sendStatus("ERROR!\r\n", "");
 		return -3;
 	}
 	eExperimentIsRunning = false;

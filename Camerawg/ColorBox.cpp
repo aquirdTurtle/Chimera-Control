@@ -1,39 +1,58 @@
 #include "stdafx.h"
 #include "ColorBox.h"
+#include <tuple>
 
-void ColorBox::initialize(POINT& pos, int& id, CWnd* parent, int length)
+void ColorBox::initialize(POINT& pos, int& id, CWnd* parent, int length, std::unordered_map<std::string, CFont*> fonts,
+	std::vector<CToolTipCtrl*>& tooltips)
 {
-	box.sPos = { pos.x, pos.y, pos.x + length, pos.y + 20 };
-	box.ID = id++;
-	box.Create("", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | SS_CENTER, box.sPos, parent, box.ID);
+	//
+	boxes.niawg.sPos = { pos.x, pos.y, long(pos.x + length/3), pos.y + 20 };
+	boxes.niawg.ID = id++;
+	boxes.niawg.Create("NIAWG", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | SS_CENTER | WS_BORDER,
+					 boxes.niawg.sPos, parent, boxes.niawg.ID);
+	boxes.niawg.fontType = "Code";
+	//
+	boxes.camera.sPos = { long(pos.x + length/3.0), pos.y, long(pos.x + 2*length/3.0), pos.y + 20 };
+	boxes.camera.ID = id++;
+	boxes.camera.Create( "CAMERA", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | SS_CENTER | WS_BORDER, 
+					  boxes.camera.sPos, parent, boxes.camera.ID );
+	boxes.camera.fontType = "Code";
+	//
+	boxes.intensity.sPos = { long(pos.x + 2*length/3.0), pos.y, pos.x + length, pos.y + 20 };
+	boxes.intensity.ID = id++;
+	boxes.intensity.Create( "INTENSITY", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | SS_CENTER | WS_BORDER,
+						 boxes.intensity.sPos, parent, boxes.intensity.ID );
+	boxes.intensity.fontType = "Code";
 	pos.y += 20;
 	return;
 }
 
-void ColorBox::rearrange(std::string cameraMode, std::string triggerMode, int width, int height)
+void ColorBox::rearrange(std::string cameraMode, std::string triggerMode, int width, int height, std::unordered_map<std::string, CFont*> fonts)
 {
-	this->box.rearrange(cameraMode, triggerMode, width, height);
+	boxes.niawg.rearrange(cameraMode, triggerMode, width, height, fonts);
+	boxes.camera.rearrange( cameraMode, triggerMode, width, height, fonts );
+	boxes.intensity.rearrange( cameraMode, triggerMode, width, height, fonts );
 }
 
 CBrush* ColorBox::handleColoring(int id, CDC* pDC, std::unordered_map<std::string, CBrush*> brushes)
 {
-	if (id == box.ID)
+	if (id == boxes.niawg.ID)
 	{
-		if (currentColor == "G")
+		if (colors.niawg == 'G')
 		{
 			// Color Green. This is the "Ready to give next waveform" color. During this color you can also press esc to exit.
 			pDC->SetTextColor(RGB(255, 255, 255));
 			pDC->SetBkColor(RGB(0, 120, 0));
 			return brushes["Green"];
 		}
-		else if (currentColor == "Y")
+		else if (colors.niawg == 'Y')
 		{
 			// Color Yellow. This is the "Working" Color.
 			pDC->SetTextColor(RGB(255, 255, 255));
 			pDC->SetBkColor(RGB(104, 104, 0));
 			return brushes["Gold"];
 		}
-		else if (currentColor == "R")
+		else if (colors.niawg == 'R')
 		{
 			// Color Red. This is a big visual signifier for when the program exited with error.
 			pDC->SetTextColor(RGB(255, 255, 255));
@@ -48,15 +67,93 @@ CBrush* ColorBox::handleColoring(int id, CDC* pDC, std::unordered_map<std::strin
 			return brushes["Dark Grey"];
 		}
 	}
+	else if ( id == boxes.camera.ID )
+	{
+		if ( colors.camera == 'G' )
+		{
+			// Color Green. This is the "Ready to give next waveform" color. During this color you can also press esc to exit.
+			pDC->SetTextColor( RGB( 255, 255, 255 ) );
+			pDC->SetBkColor( RGB( 0, 120, 0 ) );
+			return brushes["Green"];
+		}
+		else if ( colors.camera == 'Y' )
+		{
+			// Color Yellow. This is the "Working" Color.
+			pDC->SetTextColor( RGB( 255, 255, 255 ) );
+			pDC->SetBkColor( RGB( 104, 104, 0 ) );
+			return brushes["Gold"];
+		}
+		else if ( colors.camera == 'R' )
+		{
+			// Color Red. This is a big visual signifier for when the program exited with error.
+			pDC->SetTextColor( RGB( 255, 255, 255 ) );
+			pDC->SetBkColor( RGB( 120, 0, 0 ) );
+			return brushes["Red"];
+		}
+		else
+		{
+			// color Blue. This is the default, ready for user input color.
+			pDC->SetTextColor( RGB( 255, 255, 255 ) );
+			pDC->SetBkColor( RGB( 0, 0, 120 ) );
+			return brushes["Dark Grey"];
+		}
+	}
+	else if ( id == boxes.intensity.ID )
+	{
+		if ( colors.intensity == 'G' )
+		{
+			// Color Green. This is the "Ready to give next waveform" color. During this color you can also press esc to exit.
+			pDC->SetTextColor( RGB( 255, 255, 255 ) );
+			pDC->SetBkColor( RGB( 0, 120, 0 ) );
+			return brushes["Green"];
+		}
+		else if ( colors.intensity == 'Y' )
+		{
+			// Color Yellow. This is the "Working" Color.
+			pDC->SetTextColor( RGB( 255, 255, 255 ) );
+			pDC->SetBkColor( RGB( 104, 104, 0 ) );
+			return brushes["Gold"];
+		}
+		else if ( colors.intensity == 'R' )
+		{
+			// Color Red. This is a big visual signifier for when the program exited with error.
+			pDC->SetTextColor( RGB( 255, 255, 255 ) );
+			pDC->SetBkColor( RGB( 120, 0, 0 ) );
+			return brushes["Red"];
+		}
+		else
+		{
+			// color Blue. This is the default, ready for user input color.
+			pDC->SetTextColor( RGB( 255, 255, 255 ) );
+			pDC->SetBkColor( RGB( 0, 0, 120 ) );
+			return brushes["Dark Grey"];
+		}
+	}
 	else
 	{
 		return NULL;
 	}
 }
 
-void ColorBox::changeColor(std::string color)
+/*
+ * color should be a three-character long 
+ */
+void ColorBox::changeColor( colorBoxes<char> newColors )
 {
-	this->currentColor = color;
-	this->box.RedrawWindow();
+	if ( newColors.niawg != '-' )
+	{
+		this->colors.niawg = newColors.niawg;
+		this->boxes.niawg.RedrawWindow();
+	}
+	if ( newColors.camera != '-' )
+	{
+		this->colors.camera = newColors.camera;
+		this->boxes.camera.RedrawWindow();
+	}
+	if ( newColors.intensity != '-' )
+	{
+		this->colors.intensity = newColors.intensity;
+		this->boxes.intensity.RedrawWindow();
+	}
 	return;
 }

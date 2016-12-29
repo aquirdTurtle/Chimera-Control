@@ -39,6 +39,7 @@ class ScriptingWindow : public CDialog
 		scriptInfo<bool> getScriptSavedStatuses();
 		scriptInfo<std::string> getScriptAddresses();
 		profileSettings getCurrentProfileSettings();
+		BOOL PreTranslateMessage(MSG* pMsg);
 
 		void updateScriptNamesOnScreen();
 		void updateProfile(std::string text);
@@ -63,7 +64,7 @@ class ScriptingWindow : public CDialog
 		int saveHorizontalScript();
 		int saveHorizontalScriptAs(HWND parentWindow);
 
-		void changeBoxColor(std::string color);
+		void changeBoxColor( colorBoxes<char> colors );
 		void updateConfigurationSavedStatus(bool status);
 		void OnCancel() override;
 
@@ -76,7 +77,9 @@ class ScriptingWindow : public CDialog
 		
 		MainWindow* mainWindowFriend;
 		CameraWindow* cameraWindowFriend;
-		// 
+		//
+		std::vector<CToolTipCtrl*> tooltips;
+
 		Script verticalNIAWGScript, horizontalNIAWGScript, intensityAgilentScript;
 		ColorBox statusBox;
 		ProfileIndicator profileDisplay;

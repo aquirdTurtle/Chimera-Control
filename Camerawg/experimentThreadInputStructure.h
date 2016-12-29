@@ -3,6 +3,7 @@
 #include <string>
 #include "VariableSystem.h"
 #include "DebuggingOptionsControl.h"
+#include "NiawgController.h"
 
 struct experimentThreadInputStructure
 {
@@ -16,4 +17,5 @@ struct experimentThreadInputStructure
 	profileSettings profileInfo;
 	int numberOfVariables;
 	Communicator* comm;
+	NiawgController* niawg;
 };

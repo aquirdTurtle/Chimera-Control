@@ -6,7 +6,8 @@
 class ProfileIndicator
 {
 	public:
-		void initialize(POINT position, int& id, CWnd* parent);
+		void initialize(POINT position, int& id, CWnd* parent, std::unordered_map<std::string, CFont*> fonts, 
+			std::vector<CToolTipCtrl*>& tooltips);
 		void update(std::string text);
 	private:
 		Control<CStatic> header;

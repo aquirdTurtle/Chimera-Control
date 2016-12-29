@@ -16,9 +16,10 @@ class Script
 		bool colorEntireScript(profileSettings profileInfo, std::vector<variable> vars);
 		bool colorScriptSection(DWORD beginingOfChange, DWORD endOfChange, profileSettings profileInfo, std::vector<variable> vars);
 
-		bool initializeControls(int width, int height, POINT& startingLocation, CWnd* parent, std::string deviceTypeInput, int& idStart);
+		bool initializeControls(int width, int height, POINT& startingLocation, CWnd* parent, std::string deviceTypeInput, 
+			int& idStart, std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips);
 
-		bool reorganizeControls();
+		bool rearrange();
 
 		INT_PTR colorControl(LPARAM lParam, WPARAM wParam);
 		bool handleEditChange();
