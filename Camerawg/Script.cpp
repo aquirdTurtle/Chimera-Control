@@ -458,7 +458,8 @@ INT_PTR Script::colorControl(LPARAM lParam, WPARAM wParam)
 	}
 }
 
-bool Script::initializeControls(int width, int height, POINT& startingLocation, CWnd* parent, std::string deviceTypeInput, int& idStart)
+bool Script::initializeControls(int width, int height, POINT& startingLocation, CWnd* parent, std::string deviceTypeInput, 
+	int& idStart, std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips)
 {
 	LoadLibrary(TEXT("Msftedit.dll"));
 	deviceType = deviceTypeInput;
@@ -501,19 +502,19 @@ bool Script::initializeControls(int width, int height, POINT& startingLocation, 
 	title.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
 	title.ID = idStart++;
 	title.Create(titleText.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, title.sPos, parent, title.ID);
-	title.SetFont(&eHeadingFont);
+	title.SetFont(fonts["Heading Font"]);
 	startingLocation.y += 20;
 	//
 	fileNameText.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
 	fileNameText.ID = idStart++;
 	fileNameText.Create(WS_CHILD | WS_VISIBLE | SS_ENDELLIPSIS | ES_READONLY, fileNameText.sPos, parent, fileNameText.ID);
-	fileNameText.SetFont(&eHeadingFont);
+	fileNameText.SetFont(fonts["Normal Font"]);
 	startingLocation.y += 20;
 	//
 	savedIndicator.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + 80, startingLocation.y + 20 };
 	savedIndicator.ID = idStart++;
 	savedIndicator.Create("Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, savedIndicator.sPos, parent, savedIndicator.ID);
-	savedIndicator.SetFont(&eNormalFont);
+	savedIndicator.SetFont(fonts["Normal Font"]);
 	savedIndicator.SetCheck(BST_CHECKED);
 	isSaved = true;
 	startingLocation.y += 20;
@@ -526,7 +527,7 @@ bool Script::initializeControls(int width, int height, POINT& startingLocation, 
 		throw;
 	}
 	childCombo.Create(CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, childCombo.sPos, parent, childCombo.ID);
-	childCombo.SetFont(&eNormalFont);
+	childCombo.SetFont(fonts["Normal Font"]);
 	childCombo.AddString("Parent Script");
 	childCombo.SetCurSel(0);
 	startingLocation.y += 25;
@@ -539,14 +540,14 @@ bool Script::initializeControls(int width, int height, POINT& startingLocation, 
 	}
 	edit.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | WS_HSCROLL 
 				| WS_BORDER | ES_WANTRETURN, edit.sPos, parent, edit.ID);
-	edit.SetFont(&eCodeFont);
+	edit.SetFont(fonts["Code Font"]);
 	edit.SetBackgroundColor(0, RGB(30, 25, 25));
 	edit.SetEventMask(ENM_CHANGE);
 	edit.SetDefaultCharFormat(myCharFormat);
 	return false;
 }
 
-bool Script::reorganizeControls()
+bool Script::rearrange()
 {
 	return false;
 }

@@ -7,7 +7,7 @@
 // running in safemode means that the program doesn't actually try to connect to any devices. It can be used to debug other aspects of the program.
 #define TWEEZER_COMPUTER_SAFEMODE true
 #define ANDOR_SAFEMODE true
-#define DESKTOP_COMPUTER
+#define LAPTOP_COMPUTER
 
 /// File Locations
 // Files for Lab Computer
@@ -19,10 +19,11 @@
 	const std::string ACTUAL_CODE_FOLDER_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Control\\Cold Atoms Control Application\\";
 	const std::string PROFILES_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Control\\Profiles\\";
 #endif
-
+	
 // Files for Desktop
 #ifdef DESKTOP_COMPUTER
 	#define PYTHON_HOME L"C:\\Users\\Mark\\Anaconda3\\"
+	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Plotting\\";
 	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
 	const std::string LIB_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\NIAWG Wavefunction Library\\";
 	const std::string DEFAULT_SCRIPT_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Default NIAWG Scripts\\";
@@ -35,6 +36,7 @@
 // Files for my Laptop
 #ifdef LAPTOP_COMPUTER
 	#define PYTHON_HOME L"C:\\Users\\Mark\\Anaconda3\\"
+	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Plotting\\";
 	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
 	const std::string LIB_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Waveforms Library\\";
 	const std::string DEFAULT_SCRIPT_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Default Scripts\\";
@@ -102,8 +104,10 @@ const char * const AGILENT_ADDRESS = "USB0::0x0957::0x2307::MY50004500::0::INSTR
 
 // Parameters that the user might want to change:
 const bool CONST_POWER_OUTPUT = true;
+
 // for floating point error... 0.2 was picked because this is the maximum power that can be outputted with 5 signals given the voltage restrictions.
 const double TOTAL_POWER = 0.2 - 1e-10;
+
 // Currently bugs with the 5451 for sample rates significantly above this sample rate (350 MS/s). T.T
 
 /// IF CHANGE MAKE SURE TO CHANGE LIBRARY FILE ADDRESS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -115,26 +119,49 @@ const long int SAMPLE_RATE = 350000000; // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #define DEFAULT_PORT "10010"
 const char * const SERVER_ADDRESS = "192.168.236.1";
 
-// Session Parameters:
-const ViInt32 OUTPUT_MODE = NIFGEN_VAL_OUTPUT_SCRIPT;
+/// Control IDs ///
+// All or near all of these #defines are specifically chosen to match the id's of corresponding controls that I need
+// to watch for input. Mostly this is for message maps for the various windows mentioned below. The exact value here
+// doesn't matter at all, it just matters that it matches the corresponding control ID. Around the ID definitions for
+// the controls of interest, there are throw statements that stop the program early on if an ID doesn't match, so 
+// you don't have to worry about these things so much.
+// 
+// Main Window
+#define IDC_MAIN_STATUS_BUTTON 1001
+#define IDC_ERROR_STATUS_BUTTON 1004
+#define IDC_DEBUG_STATUS_BUTTON 1007
+#define IDC_EXPERIMENT_COMBO 1013
+#define IDC_CATEGORY_COMBO 1014
+#define IDC_ORIENTATION_COMBO 1018
+#define IDC_CONFIGURATION_COMBO 1019
+#define IDC_SEQUENCE_COMBO 1021
+#define IDC_VARIABLES_LISTVIEW 1031
+#define IDC_MAIN_OPTIONS_RANGE_BEGIN 1033
+#define IDC_MAIN_OPTIONS_RANGE_END 1035
+#define IDC_DEBUG_OPTIONS_RANGE_BEGIN 1037
+#define IDC_DEBUG_OPTIONS_RANGE_END 1043
 
-const ViRsrc NI_5451_LOCATION = "PXI1Slot2";
+// Scripting Window
+#define SYNTAX_TIMER_ID 1999
+#define IDC_VERTICAL_SCRIPT_COMBO 2003
+#define IDC_VERTICAL_SCRIPT_EDIT 2004
+#define IDC_HORIZONTAL_SCRIPT_COMBO 2008
+#define IDC_HORIZONTAL_SCRIPT_EDIT 2009
+#define IDC_AGILENT_SCRIPT_COMBO 2013
+#define IDC_AGILENT_SCRIPT_EDIT 2014
 
-// Channel parameters
-const ViConstString SESSION_CHANNELS = "0,1";
-const ViConstString X_CHANNEL = "0";
-const ViConstString Y_CHANNEL = "1";
-
-// Minimum waveform size that the waveform generator can produce:
-const int MIN_WAVE_SAMPLE_SIZE = 100;
-const double MAX_CAP_TIME = 1e-3;
-
-// Trigger Parameters:
-const ViConstString TRIGGER_NAME = "ScriptTrigger0";
-const ViConstString TRIGGER_SOURCE = "PFI0";
-const ViInt32 TRIGGER_EDGE_TYPE = NIFGEN_VAL_RISING_EDGE;
-
-
+// Camera Window
+#define IDC_SET_EM_GAIN_BUTTON 3004
+#define IDC_TRIGGER_COMBO 3008
+#define IDC_SET_TEMPERATURE_BUTTON 3009
+#define PICTURE_SETTINGS_ID_START 3013
+#define PICTURE_SETTINGS_ID_END 3048
+#define IDC_SET_IMAGE_PARAMETERS_BUTTON 3049
+#define IDC_ALERTS_BOX 3063
+#define IDC_PLOTTING_LISTVIEW 3075
+//
+#define IDC_BEGINNING_DIALOG_RICH_EDIT 100
+//
 // Contains all of of the names of the files that hold actual data file names.
 const std::string WAVEFORM_NAME_FILES[20] = { "gen 1, const waveform file names.txt", "gen 2, const waveform file names.txt",
 "gen 3, const waveform file names.txt", "gen 4, const waveform file names.txt", "gen 5, const waveform file names.txt",
@@ -151,8 +178,8 @@ const std::string WAVEFORM_TYPE_FOLDERS[20] = { "gen1const\\", "gen2const\\", "g
 
 // Don't change! Or only change if you really kow what you are doing. Current Value: 5
 const float MAX_GAIN = 5.0; // Current Value: 5
-// Current Value: 5
-// Long... array...
+							// Current Value: 5
+							// Long... array...
 const char SCRIPT_INFO_TEXT[] =
 "/***********************************************************************\\\r\n"
 " NI 5451 ARBITRARY WAVEFORM GENERATOR INSTRUCTIONS FILE FORMATTING GUIDE\r\n"
@@ -240,35 +267,3 @@ const char SCRIPT_INFO_TEXT[] =
 "\"create marker event <samples after previous waveform to wait>\"\r\n"
 "\r\n";
 
-/// 
-// Real stuff. Mostly because windows need to know what id's to look out for in order
-// to direct messages to the correct handlers.
-// Main Window
-#define IDC_VARIABLES_LISTVIEW 1031
-#define IDC_MAIN_OPTIONS_RANGE_BEGIN 1033
-#define IDC_MAIN_OPTIONS_RANGE_END 1035
-#define IDC_DEBUG_OPTIONS_RANGE_BEGIN 1037
-#define IDC_DEBUG_OPTIONS_RANGE_END 1043
-#define IDC_EXPERIMENT_COMBO 1013
-#define IDC_CATEGORY_COMBO 1014
-#define IDC_CONFIGURATION_COMBO 1019
-#define IDC_SEQUENCE_COMBO 1021
-#define IDC_ORIENTATION_COMBO 1018
-#define IDC_MAIN_STATUS_BUTTON 1001
-#define IDC_ERROR_STATUS_BUTTON 1004
-#define IDC_DEBUG_STATUS_BUTTON 1007
-
-//
-#define SYNTAX_TIMER_ID 1999
-#define IDC_VERTICAL_SCRIPT_EDIT 2004
-#define IDC_HORIZONTAL_SCRIPT_EDIT 2009
-#define IDC_AGILENT_SCRIPT_EDIT 2014
-#define IDC_VERTICAL_SCRIPT_COMBO 2003
-#define IDC_HORIZONTAL_SCRIPT_COMBO 2008
-#define IDC_AGILENT_SCRIPT_COMBO 2013
-
-// 
-#define IDC_SET_IMAGE_PARAMETERS_BUTTON 3047
-#define IDC_SET_EM_GAIN_BUTTON 3002
-
-#define IDC_BEGINNING_DIALOG_RICH_EDIT 100

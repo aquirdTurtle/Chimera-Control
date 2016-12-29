@@ -11,7 +11,7 @@ bool systemAbortCheck(Communicator* comm)
 	// check if aborting
 	if (eAbortSystemFlag == true)
 	{
-		comm->sendStatus("Aborted!\r\n", "", "");
+		comm->sendStatus("Aborted!\r\n", "");
 		return true;
 	}
 	else

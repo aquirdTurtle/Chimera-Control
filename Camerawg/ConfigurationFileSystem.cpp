@@ -10,7 +10,7 @@
 #include "textPromptDialogProcedure.h"
 #include "fonts.h"
 #include <boost/filesystem.hpp>
-#include "myNIAWG.h"
+#include "NiawgController.h"
 #include "postMyString.h"
 
 ConfigurationFileSystem::ConfigurationFileSystem(std::string fileSystemPath)
@@ -137,57 +137,7 @@ void ConfigurationFileSystem::orientationChangeHandler(MainWindow* mainWin)
 	mainWin->setNotes("configuration", "");
 	currentProfileSettings.configuration = "";
 	/// Load the relevant NIAWG script.
-	if (!TWEEZER_COMPUTER_SAFEMODE)
-	{
-		/// Set the default accordingly
-		myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE), profileInfo.orientation);
-		// Officially stop trying to generate anything.
-		myNIAWG::NIAWG_CheckWindowsError(niFgen_AbortGeneration(eSessionHandle), profileInfo.orientation);
-		// clear the memory
-		myNIAWG::NIAWG_CheckWindowsError(niFgen_ClearArbMemory(eSessionHandle), profileInfo.orientation);
-	}
-	ViInt32 waveID;
-	if (currentProfileSettings.orientation == HORIZONTAL_ORIENTATION)
-	{
-		if (!TWEEZER_COMPUTER_SAFEMODE)
-		{
-			// create waveform (necessary?)
-			myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform, &waveID), profileInfo.orientation);
-			// allocate waveform into the device memory
-			myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize / 2), profileInfo.orientation);
-			// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script.
-			myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigWaveformName.c_str(), eDefault_hConfigMixedSize, eDefault_hConfigMixedWaveform), profileInfo.orientation);
-			// rewrite the script. default_hConfigScript should still be valid.
-			myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_hConfigScript), profileInfo.orientation);
-			// start generic waveform to maintain power output to AOM.
-			myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), profileInfo.orientation);
-			myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript"), profileInfo.orientation);
-		}
-		eCurrentScript = "DefaultHConfigScript";
-	}
-	else if (currentProfileSettings.orientation == VERTICAL_ORIENTATION)
-	{
-		if (!TWEEZER_COMPUTER_SAFEMODE)
-		{
-			// create waveform (necessary?)
-			myNIAWG::NIAWG_CheckWindowsError(niFgen_CreateWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform, &waveID), profileInfo.orientation);
-			// allocate waveform into the device memory
-			myNIAWG::NIAWG_CheckWindowsError(niFgen_AllocateNamedWaveform(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize / 2), profileInfo.orientation);
-			// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script.
-			myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteNamedWaveformF64(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigWaveformName.c_str(), eDefault_vConfigMixedSize, eDefault_vConfigMixedWaveform), profileInfo.orientation);
-			// rewrite the script. default_hConfigScript should still be valid.
-			myNIAWG::NIAWG_CheckWindowsError(niFgen_WriteScript(eSessionHandle, SESSION_CHANNELS, eDefault_vConfigScript), profileInfo.orientation);
-			// start generic waveform to maintain power output to AOM.
-			myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE), profileInfo.orientation);
-			myNIAWG::NIAWG_CheckWindowsError(niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultVConfigScript"), profileInfo.orientation);
-		}
-		eCurrentScript = "DefaultVConfigScript";
-	}
-	if (!TWEEZER_COMPUTER_SAFEMODE)
-	{
-		// Initiate Generation.
-		myNIAWG::NIAWG_CheckWindowsError(niFgen_InitiateGeneration(eSessionHandle), profileInfo.orientation);
-	}
+	mainWin->restartNiawgDefaults();
 	return;
 }
 
@@ -2055,20 +2005,20 @@ std::string ConfigurationFileSystem::getSequenceNamesString()
 	return namesString;
 }
 
-bool ConfigurationFileSystem::initializeControls(POINT& topLeftPos, CWnd* parent, int& id)
+bool ConfigurationFileSystem::initializeControls(POINT& topLeftPos, CWnd* parent, int& id, std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips)
 {
 	// Experiment Type
 	experimentLabel.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 20 };
 	experimentLabel.ID = id++;
 	experimentLabel.Create("EXPERIMENT", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, experimentLabel.sPos,
 		parent, experimentLabel.ID);
-	experimentLabel.SetFont(&eHeadingFont);
+	experimentLabel.SetFont(fonts["Heading Font"]);
 	// Experiment Saved Indicator
 	experimentSavedIndicator.sPos = { topLeftPos.x + 360, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 20 };
 	experimentSavedIndicator.ID = id++;
 	experimentSavedIndicator.Create("Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT,
 		experimentSavedIndicator.sPos, parent, experimentSavedIndicator.ID);
-	experimentSavedIndicator.SetFont(&eNormalFont);
+	experimentSavedIndicator.SetFont(fonts["Normal Font"]);
 	experimentSavedIndicator.SetCheck(BST_CHECKED);
 	updateExperimentSavedStatus(true);
 	// Category Title
@@ -2076,13 +2026,13 @@ bool ConfigurationFileSystem::initializeControls(POINT& topLeftPos, CWnd* parent
 	categoryLabel.ID = id++;
 	categoryLabel.Create("CATEGORY", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, categoryLabel.sPos, parent,
 		categoryLabel.ID);
-	categoryLabel.SetFont(&eHeadingFont);
+	categoryLabel.SetFont(fonts["Heading Font"]);
 	//
 	categorySavedIndicator.sPos = { topLeftPos.x + 480 + 380, topLeftPos.y, topLeftPos.x + 960, topLeftPos.y + 20};
 	categorySavedIndicator.ID = id++;
 	categorySavedIndicator.Create("Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, 
 		categorySavedIndicator.sPos, parent, categorySavedIndicator.ID);
-	categorySavedIndicator.SetFont(&eNormalFont);
+	categorySavedIndicator.SetFont(fonts["Normal Font"]);
 	categorySavedIndicator.SetCheck(BST_CHECKED);
 	updateCategorySavedStatus(true);
 	topLeftPos.y += 20;
@@ -2095,7 +2045,7 @@ bool ConfigurationFileSystem::initializeControls(POINT& topLeftPos, CWnd* parent
 	}
 	experimentCombo.Create(CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, 
 		experimentCombo.sPos, parent, experimentCombo.ID);
-	experimentCombo.SetFont(&eNormalFont);
+	experimentCombo.SetFont(fonts["Normal Font"]);
 	this->reloadCombo(experimentCombo.GetSafeHwnd(), PROFILES_PATH, std::string("*"), "__NONE__");
 	// Category Combo
 	categoryCombo.sPos = { topLeftPos.x + 480, topLeftPos.y, topLeftPos.x + 960, topLeftPos.y + 800 };
@@ -2106,25 +2056,25 @@ bool ConfigurationFileSystem::initializeControls(POINT& topLeftPos, CWnd* parent
 	}
 	categoryCombo.Create(CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, 
 		categoryCombo.sPos, parent, categoryCombo.ID);
-	categoryCombo.SetFont(&eNormalFont);
+	categoryCombo.SetFont(fonts["Normal Font"]);
 	topLeftPos.y += 25;
 	// Orientation Title
 	orientationLabel.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 120, topLeftPos.y + 20 };
 	orientationLabel.ID = id++;
 	orientationLabel.Create("ORIENTATION", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, orientationLabel.sPos, 
 		parent, orientationLabel.ID);
-	orientationLabel.SetFont(&eHeadingFont);
+	orientationLabel.SetFont(fonts["Heading Font"]);
 	// Configuration Title
 	configLabel.sPos = { topLeftPos.x + 120, topLeftPos.y, topLeftPos.x + 960, topLeftPos.y + 20 };
 	configLabel.ID = id++;
 	configLabel.Create("CONFIGURATION", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, configLabel.sPos, parent, configLabel.ID);
-	configLabel.SetFont(&eHeadingFont);
+	configLabel.SetFont(fonts["Heading Font"]);
 	// Configuration Saved Indicator
 	configurationSavedIndicator.sPos = { topLeftPos.x + 860, topLeftPos.y, topLeftPos.x + 960, topLeftPos.y + 20 };
 	configurationSavedIndicator.ID = id++;
 	configurationSavedIndicator.Create("Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, 
 		configurationSavedIndicator.sPos, parent, configurationSavedIndicator.ID);
-	configurationSavedIndicator.SetFont(&eNormalFont);
+	configurationSavedIndicator.SetFont(fonts["Normal Font"]);
 	configurationSavedIndicator.SetCheck(BST_CHECKED);
 	updateConfigurationSavedStatus(true);
 	topLeftPos.y += 20;
@@ -2141,7 +2091,7 @@ bool ConfigurationFileSystem::initializeControls(POINT& topLeftPos, CWnd* parent
 	}
 	orientationCombo.Create(CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, 
 		orientationCombo.sPos, parent, orientationCombo.ID);
-	orientationCombo.SetFont(&eNormalFont);
+	orientationCombo.SetFont(fonts["Normal Font"]);
 	for (int comboInc = 0; comboInc < orientationNames.size(); comboInc++)
 	{
 		orientationCombo.AddString(orientationNames[comboInc].c_str());
@@ -2156,14 +2106,14 @@ bool ConfigurationFileSystem::initializeControls(POINT& topLeftPos, CWnd* parent
 	}
 	configCombo.Create(CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, configCombo.sPos,
 		parent, configCombo.ID);
-	configCombo.SetFont(&eNormalFont);
+	configCombo.SetFont(fonts["Normal Font"]);
 	topLeftPos.y += 25;
 	/// SEQUENCE
 	sequenceLabel.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 20 };
 	sequenceLabel.ID = id++;
 	sequenceLabel.Create("SEQUENCE", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, sequenceLabel.sPos, parent, 
 		sequenceLabel.ID);
-	sequenceLabel.SetFont(&eHeadingFont);
+	sequenceLabel.SetFont(fonts["Heading Font"]);
 	topLeftPos.y += 20;
 	// combo
 	sequenceCombo.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 800 };
@@ -2174,7 +2124,7 @@ bool ConfigurationFileSystem::initializeControls(POINT& topLeftPos, CWnd* parent
 	}
 	sequenceCombo.Create(CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, 
 		sequenceCombo.sPos, parent, sequenceCombo.ID);
-	sequenceCombo.SetFont(&eNormalFont);
+	sequenceCombo.SetFont(fonts["Normal Font"]);
 	sequenceCombo.AddString("NULL SEQUENCE");
 	sequenceCombo.SetCurSel(0);
 	topLeftPos.y += 25;
@@ -2189,13 +2139,13 @@ bool ConfigurationFileSystem::initializeControls(POINT& topLeftPos, CWnd* parent
 	sequenceSavedIndicator.ID = id++;
 	sequenceSavedIndicator.Create("Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT,
 		sequenceSavedIndicator.sPos, parent, sequenceSavedIndicator.ID);
-	sequenceSavedIndicator.SetFont(&eNormalFont);
+	sequenceSavedIndicator.SetFont(fonts["Normal Font"]);
 	sequenceSavedIndicator.SetCheck(BST_CHECKED);
 	updateSequenceSavedStatus(true);
 	return 0;
 }
 
-bool ConfigurationFileSystem::reorganizeControls(RECT parentRectangle, std::string mode)
+bool ConfigurationFileSystem::rearrange(RECT parentRectangle, std::string mode)
 {
 
 	return 0;

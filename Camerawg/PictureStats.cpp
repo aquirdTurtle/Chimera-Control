@@ -4,7 +4,8 @@
 #include "doubleToString.h"
 
 // as of right now, the position of this control is not affected by the mode or the trigger mode.
-bool PictureStats::initialize(POINT& pos, CWnd* parent, int& id)
+bool PictureStats::initialize(POINT& pos, CWnd* parent, int& id, std::unordered_map<std::string, CFont*> fonts, 
+	std::vector<CToolTipCtrl*>& tooltips)
 {
 	this->pictureStatsHeader.sPos = { pos.x, pos.y, pos.x + 272, pos.y + 25 };
 	pictureStatsHeader.ID = id++;
@@ -116,33 +117,33 @@ bool PictureStats::initialize(POINT& pos, CWnd* parent, int& id)
 	return true;
 }
 
-bool PictureStats::reorganizeControls(std::string cameraMode, std::string trigMode, int width, int height)
+bool PictureStats::rearrange(std::string cameraMode, std::string trigMode, int width, int height, std::unordered_map<std::string, CFont*> fonts)
 {
-	pictureStatsHeader.rearrange(cameraMode, trigMode, width, height);
-	repetitionIndicator.rearrange(cameraMode, trigMode, width, height);
+	pictureStatsHeader.rearrange(cameraMode, trigMode, width, height, fonts);
+	repetitionIndicator.rearrange(cameraMode, trigMode, width, height, fonts);
 	for (auto& control : this->collumnHeaders)
 	{
-		control.rearrange(cameraMode, trigMode, width, height);
+		control.rearrange(cameraMode, trigMode, width, height, fonts);
 	}
 	for (auto& control : this->maxCounts)
 	{
-		control.rearrange(cameraMode, trigMode, width, height);
+		control.rearrange(cameraMode, trigMode, width, height, fonts);
 	}
 	for (auto& control : this->minCounts)
 	{
-		control.rearrange(cameraMode, trigMode, width, height);
+		control.rearrange(cameraMode, trigMode, width, height, fonts);
 	}
 	for (auto& control : this->picNumberIndicators)
 	{
-		control.rearrange(cameraMode, trigMode, width, height);
+		control.rearrange(cameraMode, trigMode, width, height, fonts);
 	}
 	for (auto& control : this->selCounts)
 	{
-		control.rearrange(cameraMode, trigMode, width, height);
+		control.rearrange(cameraMode, trigMode, width, height, fonts);
 	}
 	for (auto& control : this->avgCounts)
 	{
-		control.rearrange(cameraMode, trigMode, width, height);
+		control.rearrange(cameraMode, trigMode, width, height, fonts);
 	}
 	return true;
 }

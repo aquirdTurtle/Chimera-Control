@@ -22,7 +22,8 @@ class VariableSystem
 	public:
 		bool updateVariableInfo(MainWindow* comm, ScriptingWindow* scriptWin);
 		bool deleteVariable();
-		bool initializeControls(POINT &topLeftCorner, CWnd* parent, int& id);
+		bool initializeControls(POINT &topLeftCorner, CWnd* parent, int& id, 
+			std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips);
 		bool addVariable(std::string name, bool timelike, bool singleton, double value, int item);
 		variable getVariableInfo(int varNumber);
 		//std::vector<variable> getAllVariables();

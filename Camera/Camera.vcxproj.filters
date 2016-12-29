@@ -197,9 +197,6 @@
     <ClCompile Include="myAndor.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="cameraWndProc.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
     <ClCompile Include="reorganizeWindow.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>

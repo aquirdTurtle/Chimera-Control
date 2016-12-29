@@ -16,7 +16,7 @@ class PictureSettingsControl
 		std::array<int, 4> getPictureColors();
 		std::vector<float> getUsedExposureTimes();
 		std::array<int, 4> getThresholds();
-		INT_PTR colorControls(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
+		HBRUSH colorControls(int idNumber, CDC* colorer, std::unordered_map<std::string, CBrush> brushes);
 		void confirmAcquisitionTimings();
 		void setPicturesPerExperiment(unsigned int pics);
 		void setThresholds(std::array<int, 4> thresholds);

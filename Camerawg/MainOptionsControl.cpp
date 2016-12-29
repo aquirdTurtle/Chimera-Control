@@ -2,12 +2,13 @@
 #include "stdafx.h"
 #include "MainOptionsControl.h"
 
-void MainOptionsControl::initialize(int& id, POINT& loc, CWnd* parent)
+void MainOptionsControl::initialize(int& id, POINT& loc, CWnd* parent, std::unordered_map<std::string, CFont*> fonts,
+	std::vector<CToolTipCtrl*>& tooltips)
 {
 	header.ID = id++;
 	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
 	header.Create("MAIN OPTIONS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, parent, header.ID);
-	header.SetFont(&eHeadingFont);
+	header.SetFont(fonts["Heading Font"]);
 	loc.y += 20;
 	if (id != IDC_MAIN_OPTIONS_RANGE_BEGIN)
 	{
@@ -17,7 +18,7 @@ void MainOptionsControl::initialize(int& id, POINT& loc, CWnd* parent)
 	this->connectToMaster.ID = id++;
 	connectToMaster.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
 	connectToMaster.Create("Connect to Master Computer?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, connectToMaster.sPos, parent, connectToMaster.ID);
-	connectToMaster.SetFont(&eNormalFont);
+	connectToMaster.SetFont(fonts["Normal Font"]);
 	connectToMaster.SetCheck(0);
 	currentOptions.connectToMaster = false;
 	loc.y += 20;
@@ -25,7 +26,7 @@ void MainOptionsControl::initialize(int& id, POINT& loc, CWnd* parent)
 	this->getVariables.ID = id++;
 	getVariables.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
 	getVariables.Create("Get Variables from Master Computer?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, getVariables.sPos, parent, getVariables.ID);
-	getVariables.SetFont(&eNormalFont);
+	getVariables.SetFont(fonts["Normal Font"]);
 	getVariables.SetCheck(0);
 	currentOptions.getVariables= false;
 	loc.y += 20;
@@ -33,7 +34,7 @@ void MainOptionsControl::initialize(int& id, POINT& loc, CWnd* parent)
 	this->controlIntensity.ID = id++;
 	controlIntensity.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
 	controlIntensity.Create("Program Intensity?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, controlIntensity.sPos, parent, controlIntensity.ID);
-	controlIntensity.SetFont(&eNormalFont);
+	controlIntensity.SetFont(fonts["Normal Font"]);
 	controlIntensity.SetCheck(0);
 	currentOptions.programIntensity = false;
 	loc.y += 20;

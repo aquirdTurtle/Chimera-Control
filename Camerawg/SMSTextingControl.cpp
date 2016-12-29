@@ -25,13 +25,14 @@ bool SMSTextingControl::promptForEmailAddressAndPassword()
 	return false;
 }
 
-bool SMSTextingControl::initializeControls(POINT& pos, CWnd* parent, bool isTriggerModeSensitive, int& id)
+bool SMSTextingControl::initializeControls(POINT& pos, CWnd* parent, bool isTriggerModeSensitive, int& id, 
+	std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips)
 {
 	title.ksmPos = { pos.x, pos.y, pos.x + 480, pos.y + 25 };
 	title.ID = id++;
 	title.Create("TEXT ME", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY | WS_BORDER, title.ksmPos, parent, title.ID);
 	title.fontType = "Heading";
-	title.SetFont(&eNormalFont);
+	title.SetFont(fonts["Normal Font"]);
 
 	peopleListView.ksmPos = { pos.x, pos.y + 25, pos.x + 480, pos.y + 120 };
 	peopleListView.ID = id++;
@@ -302,7 +303,7 @@ bool SMSTextingControl::sendMessage(std::string message, EmbeddedPythonHandler* 
 	return false;
 }
 
-bool SMSTextingControl::reorganizeControls(RECT parentRectangle, std::string mode)
+bool SMSTextingControl::rearrange(RECT parentRectangle, std::string mode)
 {
 	//reorganizeControl(title, mode, parentRectangle);
 	//reorganizeControl(peopleListView, mode, parentRectangle);

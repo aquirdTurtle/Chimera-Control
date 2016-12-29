@@ -10,9 +10,11 @@
 #include "StatusIndicator.h"
 #include "Communicator.h"
 #include "SMSTextingControl.h"
-//#define PROFILES_PATH
-class ScriptingWindow;
+#include "NiawgController.h"
 
+//#define PROFILES_PATH
+
+class ScriptingWindow;
 class CameraWindow;
 
 class MainWindow : public CDialog
@@ -24,7 +26,6 @@ class MainWindow : public CDialog
 		MainWindow(UINT id) : CDialog(id), profile(PROFILES_PATH)
 		//MainWindow() : CDialog(), profile(PROFILES_PATH)
 		{
-			
 			mainRGBs["Dark Grey"] = RGB(15, 15, 15);
 			mainRGBs["Dark Grey Red"] = RGB(20, 12, 12);
 			mainRGBs["Medium Grey"] = RGB(30, 30, 30);
@@ -73,30 +74,83 @@ class MainWindow : public CDialog
 			mainBrushes["Dark Blue"]->CreateSolidBrush(mainRGBs["Dark Blue"]);
 			mainBrushes["Dark Green"] = new CBrush;
 			mainBrushes["Dark Green"]->CreateSolidBrush(mainRGBs["Dark Green"]);
+			// the following is all equivalent to:
+			// mainFonts["Font name"] = new CFont;
+			// mainFonts["Font name"].CreateFontA(...);
+			(mainFonts["Normal Font"] = new CFont)->CreateFontA(20, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+				DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(mainFonts["Small Font"] = new CFont)->CreateFontA(14, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+				DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(mainFonts["Code Font"] = new CFont)->CreateFontA(16, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+				DEFAULT_PITCH | FF_SWISS, TEXT("Consolas"));
+			(mainFonts["Small Code Font"] = new CFont)->CreateFontA(12, 0, 0, 0, 400, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+				DEFAULT_PITCH | FF_SWISS, TEXT("Consolas"));
+			(mainFonts["Heading Font"] = new CFont)->CreateFontA(18, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+				DEFAULT_PITCH | FF_SWISS, TEXT("Old Sans Black"));
+			(mainFonts["Large Heading Font"] = new CFont)->CreateFontA(28, 0, 0, 0, FW_DONTCARE, TRUE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+				DEFAULT_PITCH | FF_SWISS, TEXT("Old Sans Black"));
+			(mainFonts["Smaller Font Max"] = new CFont)->CreateFontA(14, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+				DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(mainFonts["Normal Font Max"] = new CFont)->CreateFontA(20, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+				DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(mainFonts["Heading Font Max"] = new CFont)->CreateFontA(28, 0, 0, 0, FW_DONTCARE, TRUE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+				DEFAULT_PITCH | FF_SWISS, TEXT("Old Sans Black"));
+			(mainFonts["Code Font Max"] = new CFont)->CreateFontA(16, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+				DEFAULT_PITCH | FF_SWISS, TEXT("Consolas"));
+			(mainFonts["Larger Font Max"] = new CFont)->CreateFontA(40, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+				DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(mainFonts["Smaller Font Med"] = new CFont)->CreateFontA(8, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+				DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(mainFonts["Normal Font Med"] = new CFont)->CreateFontA(12, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+				DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(mainFonts["Heading Font Med"] = new CFont)->CreateFontA(16, 0, 0, 0, FW_DONTCARE, TRUE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+				DEFAULT_PITCH | FF_SWISS, TEXT("Old Sans Black"));
+			(mainFonts["Code Font Med"] = new CFont)->CreateFontA(10, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+				DEFAULT_PITCH | FF_SWISS, TEXT("Consolas"));
+			(mainFonts["Larger Font Med"] = new CFont)->CreateFontA(22, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+				DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(mainFonts["Smaller Font Small"] = new CFont)->CreateFontA(6, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+				DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(mainFonts["Normal Font Small"] = new CFont)->CreateFontA(8, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+				DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(mainFonts["Heading Font Small"] = new CFont)->CreateFontA(12, 0, 0, 0, FW_DONTCARE, TRUE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+				DEFAULT_PITCH | FF_SWISS, TEXT("Old Sans Black"));
+			(mainFonts["Code Font Small"] = new CFont)->CreateFontA(7, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+				DEFAULT_PITCH | FF_SWISS, TEXT("Consolas"));
+			(mainFonts["Larger Font Small"] = new CFont)->CreateFontA(16, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+				DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
 		}
+
 		BOOL OnInitDialog() override;
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+		BOOL PreTranslateMessage(MSG* pMsg); 
+		
 		void passCommonCommand(UINT id);
-		profileSettings getCurentProfileSettings();
 		bool checkProfileReady();
 		bool checkProfileSave();
 		bool setOrientation(std::string orientation);
 		void updateConfigurationSavedStatus(bool status);
-		std::string getNotes(std::string whichLevel);
-		void setNotes(std::string whichLevel, std::string notes);
-		std::vector<variable> getAllVariables();
 		void clearVariables();
 		void addVariable(std::string name, bool timelike, bool singleton, double value, int item);
+
 		LRESULT onStatusTextMessage(WPARAM wParam, LPARAM lParam);
 		LRESULT onErrorMessage(WPARAM wParam, LPARAM lParam);
 		LRESULT onFatalErrorMessage(WPARAM wParam, LPARAM lParam);
 		LRESULT onNormalFinishMessage(WPARAM wParam, LPARAM lParam);
 		LRESULT onColoredEditMessage(WPARAM wParam, LPARAM lParam);
-		LRESULT onDebugMessage(WPARAM wParam, LPARAM lParam);
+		LRESULT onDebugMessage(WPARAM wParam, LPARAM lParam);		
+		LRESULT onCameraFinishMessage( WPARAM wParam, LPARAM lParam );
+		LRESULT onCameraProgressMessage( WPARAM wParam, LPARAM lParam );
 
+		void setNotes(std::string whichLevel, std::string notes);
+		void setNiawgDefaults(bool isFirstTime);
+
+		std::vector<variable> getAllVariables();
+		std::string getNotes(std::string whichLevel);
 		std::unordered_map<std::string, CBrush*> getBrushes();
 		std::unordered_map<std::string, COLORREF> getRGB();
-
+		std::unordered_map<std::string, CFont*> getFonts();
+		profileSettings getCurentProfileSettings();
 		debugOptions getDebuggingOptions();
 		mainOptions getMainOptions();
 		void setDebuggingOptions(debugOptions options);
@@ -117,7 +171,9 @@ class MainWindow : public CDialog
 		void OnClose();
 		void OnCancel() override;
 		void passClear(UINT id);
-
+		void restartNiawgDefaults();
+		void stopNiawg();
+		
 		Communicator* getComm();
 	private:
 		DECLARE_MESSAGE_MAP();
@@ -126,6 +182,7 @@ class MainWindow : public CDialog
 		CameraWindow* TheCameraWindow;
 		std::unordered_map<std::string, CBrush*> mainBrushes;
 		std::unordered_map<std::string, COLORREF> mainRGBs;		
+		std::unordered_map<std::string, CFont*> mainFonts;
 		ConfigurationFileSystem profile;
 		NoteSystem notes;
 		VariableSystem variables;
@@ -137,8 +194,9 @@ class MainWindow : public CDialog
 		SMSTextingControl texter;
 		StatusIndicator shortStatus;
 		Communicator comm;
+		NiawgController niawg;
+		std::vector<CToolTipCtrl*> tooltips;
 		friend bool commonMessages::handleCommonMessage(int msgID, CWnd* parent, MainWindow* comm, 
 														ScriptingWindow* scriptWin, CameraWindow* camWin);
-
 };
 

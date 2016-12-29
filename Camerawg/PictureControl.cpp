@@ -147,14 +147,18 @@ void PictureControl::drawCircle(CWnd* parent, CBrush* brush)
 
 }
 
-void PictureControl::rearrange(std::string cameraMode, std::string triggerMode, int width, int height)
+void PictureControl::rearrange(std::string cameraMode, std::string triggerMode, int width, int height, std::unordered_map<std::string, CFont*> fonts)
 {
-	editMax.rearrange(cameraMode, triggerMode, width, height);
-	editMin.rearrange(cameraMode, triggerMode, width, height);
-	labelMax.rearrange(cameraMode, triggerMode, width, height);
-	labelMin.rearrange(cameraMode, triggerMode, width, height);
-	sliderMax.rearrange(cameraMode, triggerMode, width, height);
-	sliderMin.rearrange(cameraMode, triggerMode, width, height);
+	editMax.rearrange(cameraMode, triggerMode, width, height, fonts);
+	editMin.rearrange(cameraMode, triggerMode, width, height, fonts);
+	labelMax.rearrange(cameraMode, triggerMode, width, height, fonts);
+	labelMin.rearrange(cameraMode, triggerMode, width, height, fonts);
+	sliderMax.rearrange(cameraMode, triggerMode, width, height, fonts);
+	sliderMin.rearrange(cameraMode, triggerMode, width, height, fonts);
+	this->backgroundArea.bottom *= height / 997;
+	this->backgroundArea.top *= height / 997;
+	this->backgroundArea.left *= width / 1920;
+	this->backgroundArea.right *= width / 1920;
 	// deal with draw areas & stuff...
 	return;
 }

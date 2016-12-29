@@ -2,13 +2,14 @@
 #include "StatusControl.h"
 
 //
-void StatusControl::initialize(POINT &loc, CWnd* parent, int& id, unsigned int size, std::string headerText, COLORREF textColor)
+void StatusControl::initialize(POINT &loc, CWnd* parent, int& id, unsigned int size, std::string headerText, COLORREF textColor,
+	std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips)
 {
 	// set formatting for these scripts
 	header.ID = id++;
 	header.sPos = { loc.x, loc.y, loc.x + 380, loc.y + 20 };
 	header.Create(headerText.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, parent, header.ID);
-	header.SetFont(&eHeadingFont);
+	header.SetFont(fonts["Heading Font"]);
 	//
 	clearButton.ID = id++;
 	if (clearButton.ID != IDC_MAIN_STATUS_BUTTON && clearButton.ID != IDC_ERROR_STATUS_BUTTON && clearButton.ID != IDC_DEBUG_STATUS_BUTTON)
@@ -17,13 +18,13 @@ void StatusControl::initialize(POINT &loc, CWnd* parent, int& id, unsigned int s
 	}
 	clearButton.sPos = { loc.x + 380, loc.y, loc.x + 480, loc.y + 20 };
 	clearButton.Create("Clear", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, clearButton.sPos, parent, clearButton.ID);
-	clearButton.SetFont(&eNormalFont);
+	clearButton.SetFont(fonts["Normal Font"]);
 	loc.y += 20;
 	//
 	edit.ID = id++;
 	edit.sPos = { loc.x, loc.y, loc.x + 480, loc.y + long(size)};
 	edit.Create(WS_CHILD | WS_VISIBLE | ES_READONLY | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | WS_BORDER, edit.sPos, parent, edit.ID);
-	edit.SetFont(&eCodeFont);
+	edit.SetFont(fonts["Code Font"]);
 	edit.SetBackgroundColor(0, RGB(15, 15, 20));
 	this->setDefaultColor(textColor);
 	loc.y += size;

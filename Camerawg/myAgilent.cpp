@@ -6,7 +6,7 @@
 //#include "rampCalc.h"
 #include "externals.h"
 #include "myMath.h"
-#include "myNIAWG.h"
+#include "NiawgController.h"
 #include "boost/cast.hpp"
 #include <algorithm>
 
@@ -100,15 +100,15 @@ namespace myAgilent
 			// this segment type means ramping.
 			rmWhite(scriptName);
 			scriptName >> tempRampType;
-			myNIAWG::script::getParamCheckVar(tempIntensityInit, scriptName, tempVarNum, tempVarNames, tempVarLocations, 1, singletons);
-			myNIAWG::script::getParamCheckVar(tempIntensityFin, scriptName, tempVarNum, tempVarNames, tempVarLocations, 2, singletons);
+			NiawgController::getParamCheckVar(tempIntensityInit, scriptName, tempVarNum, tempVarNames, tempVarLocations, 1, singletons);
+			NiawgController::getParamCheckVar(tempIntensityFin, scriptName, tempVarNum, tempVarNames, tempVarLocations, 2, singletons);
 		}
 		else
 		{
 			tempRampType = "nr";
-			myNIAWG::script::getParamCheckVarConst(tempIntensityInit, tempIntensityFin, scriptName, tempVarNum, tempVarNames, tempVarLocations, 1, 2, singletons);
+			NiawgController::getParamCheckVarConst(tempIntensityInit, tempIntensityFin, scriptName, tempVarNum, tempVarNames, tempVarLocations, 1, 2, singletons);
 		}
-		myNIAWG::script::getParamCheckVar(tempTimeInMilliSeconds, scriptName, tempVarNum, tempVarNames, tempVarLocations, 3, singletons);
+		NiawgController::getParamCheckVar(tempTimeInMilliSeconds, scriptName, tempVarNum, tempVarNames, tempVarLocations, 3, singletons);
 
 		rmWhite(scriptName);
 		scriptName >> tempContinuationType;

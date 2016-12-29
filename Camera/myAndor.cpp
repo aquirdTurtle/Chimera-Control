@@ -710,6 +710,7 @@ namespace myAndor
 
 		return 0;
 	}
+
 	int setTemperature(void)
 	{
 		// Get the current temperature

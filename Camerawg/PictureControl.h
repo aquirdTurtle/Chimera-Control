@@ -12,7 +12,7 @@ class PictureControl
 		void drawGrid(CWnd* parent, CBrush* brush);
 		void drawRectangle(CWnd* parent, CBrush* brush);
 		void drawCircle(CWnd* parent, CBrush* brush);
-		void rearrange(std::string cameraMode, std::string triggerMode, int width, int height);
+		void rearrange(std::string cameraMode, std::string triggerMode, int width, int height, std::unordered_map<std::string, CFont*> fonts);
 		void handleScroll(int id, UINT nPos);
 	private:
 		RECT backgroundArea;

@@ -1,13 +1,26 @@
 #pragma once
 #include <string>
 #include "CameraImageParameters.h"
-#include <vector>
+#include "Communicator.h"
+#include <process.h>
+#include <mutex>
+
+/// /////////////////////////////////////////////////////
+/// 
+///			The Andor Class
+///
+/// /////////////////////////////////////////////////////
+// This class is designed to facilitate interaction with the andor camera and
+// is based around the andor SDK. I did not write the Andor SDK, this was obtained from andor. I did write everything
+// else in this class.
 
 struct AndorBaseSettings
 {
 
 };
 
+// this structure contains all of the main options which are necessary to set when starting a camera acquisition. All
+// of these settings should be possibly modified by the user of the UI.
 struct AndorRunSettings
 {
 	imageParameters imageSettings;
@@ -23,6 +36,7 @@ struct AndorRunSettings
 		//
 	float kinetiCycleTime;
 	float accumulationTime;
+	int totalAccumulationNumber;
 	std::vector<float> exposureTimes;
 		//
 	int picsPerRepetition;
@@ -34,37 +48,107 @@ struct AndorRunSettings
 	int temperatureSetting;
 };
 
+class AndorCamera;
+
+struct cameraThreadInput
+{
+	bool spuriousWakeupHandler;
+	std::mutex runMutex;
+	std::condition_variable signaler;
+	Communicator* comm;
+	// Andor is set to this in the constructor of the andor camera.
+	AndorCamera* Andor;
+};
+
+/// the all-important camera class.
 class AndorCamera
 {
 	public:
+		AndorCamera::AndorCamera(Communicator* comm)
+		{
+			threadInput.comm = comm;
+			threadInput.Andor = this;
+			threadInput.spuriousWakeupHandler = false;
+			// begin the camera wait thread.
+			_beginthreadex( NULL, 0, &AndorCamera::cameraThread, &threadInput, 0, &cameraThreadID );
+		}
+
+		// Andor Wrappers, in alphabetical order. Versions that take no parameters just insert current settings into 
+		// the versions that take parameters. Note that my wrapper names don't always match the andor SDK names. If 
+		// looking for  specific sdk functions, search in the cpp file.
+		void abortAcquisition();
+
+		void checkForNewImages();
+
+		void getAcquisitionProgress( long& seriesNumber );
+		void getAcquisitionProgress( long& accumulationNumber, long& seriesNumber );
+		void getAcquisitionTimes(float& exposure, float& accumulation, float& kinetic);
+		void getAdjustedRingExposureTimes(int size, float* timesArray);
+		void getNumberOfPreAmpGains(int& number);
+		void getOldestImage(long& dataArray, int size);
+		void getPreAmpGain(int index, float& gain);
+		void getStatus();
+		void getStatus(int& status);
+		void getTemperatureRange(int& min, int& max);
+		void getTemperature(int& temp);
+
+		void setAccumulationCycleTime();
+		void setAccumulationCycleTime(float time);
+		void setAccumulationNumber(int number);
+		void setAcquisitionMode();
+		void setAcquisitionMode(int mode);
+		void setADChannel(int channel); 
+		void setEmCcdGain(int gain);
+		void setEmGainSettingsAdvanced(int state);
+		void setFrameTransferMode();
+		void setFrameTransferMode(int mode);
+		void setHSSpeed(int type, int index);
+		void setImage(int hBin, int vBin, int lBorder, int rBorder, int tBorder, int bBorder);
+		void setKineticCycleTime();
+		void setKineticCycleTime(float cycleTime);
+		void setNumberKinetics(int number);
+		void setOutputAmplifier(int type);
+		void setPreAmpGain(int index);
+		void setReadMode();
+		void setReadMode(int mode);
+		void setRingExposureTimes(int sizeOfTimesArray, float* arrayOfTimes);
+		void setTemperature(int temp);
+		void setTriggerMode(int mode);
+		void startAcquisition();
+
+		void temperatureControlOn();
+		void temperatureControlOff();
+
+		void waitForAcquisition();
+		/// End Andor sdk wrappers.
+
+		// all of the following do something more interesting.
 		AndorCamera::AndorCamera();
 		AndorRunSettings getSettings();
+		void pauseThread();
 		void setSettings(AndorRunSettings settingsToSet);
-		int setSystem(CameraWindow* camWin, Communicator* comm);
-		BOOL acquireImageData(Communicator* comm);
-		int setAcquisitionMode(Communicator* comm);
-		int setReadMode(Communicator* comm);
-		int setTemperature(Communicator* comm);
-		int setExposures(Communicator* comm);
-		int setImageParametersToCamera(Communicator* comm);
-		int setKineticCycleTime(Communicator* comm);
-		int setScanNumber(Communicator* comm);
-		int setFrameTransferMode(Communicator* comm);
-		int checkAcquisitionTimings(float& kinetic, float& accumulation, std::vector<float>& exposures, Communicator* comm);
-		void confirmAcquisitionTimings(float& kinetic, float& accumulation, std::vector<float>& exposures, Communicator* comm);
-		int getStatus(Communicator* comm);
-		int startAcquisition(Communicator* comm);
-		int setAccumulationCycleTime(Communicator* comm);
-		int setNumberAccumulations(bool isKinetic, Communicator* comm);
-	
-		int setTriggerMode(Communicator* comm);
-		int setGainMode(Communicator* comm);
-
+		void setSystem(CameraWindow* camWin);
+		void acquireImageData();
+		void setTemperature();
+		void setExposures();
+		void setImageParametersToCamera();
+		void setScanNumber();
+		void checkAcquisitionTimings(float& kinetic, float& accumulation, std::vector<float>& exposures);
+		void confirmAcquisitionTimings(float& kinetic, float& accumulation, std::vector<float>& exposures);
+		void setNumberAccumulations(bool isKinetic);
+		void setCameraTriggerMode();
+		void onFinish();
+		bool isRunning();
+		
+		void setGainMode();
 		void drawDataWindow(void);
+		void changeTemperatureSetting(bool temperatureControlOff);
+		void andorErrorChecker(int errorCode);
 
-		void changeTemperatureSetting(bool temperatureControlOff, Communicator* comm);
+		static unsigned int __stdcall cameraThread( void* voidPtr );
+		
 
-		std::string andorErrorChecker(int errorCode);
+
 	private:
 		/// These are official settings and are the final say on what the camera does. Some unofficial 
 		/// settings are stored in smaller classes.
@@ -76,12 +160,20 @@ class AndorCamera
 		imageParameters runningImageParameters;
 		// 
 		bool cameraIsRunning;
+		// set either of these to true in order to break corresponding threads out of their loops.
+		bool plotThreadExitIndicator;
+		bool cameraThreadExitIndicator = false;
+
 		int currentRepetitionNumber;
+
 		HANDLE plottingMutex;
 		// ???
 		HANDLE imagesMutex;
-		bool plotThreadExitIndicator;
-
+		//
 		std::vector<std::vector<long> > imagesOfExperiment;
 		std::vector<std::vector<long> > imageVecQueue;
+		unsigned int cameraThreadID = 0;
+
+		cameraThreadInput threadInput;
+
 };

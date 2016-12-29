@@ -89,6 +89,7 @@ class PlottingInfo
 		std::string title;
 		// arbitrary
 		std::string yLabel;
+
 		// analysisGroups[pixel #][pixel set][0] = row
 		// analysisGroups[pixel #][pixel set][1] = collumn
 		// analysisGroups[pixel #][pixel set][2] = pixel index (set durring plotting)

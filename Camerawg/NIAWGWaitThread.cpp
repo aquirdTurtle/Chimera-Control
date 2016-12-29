@@ -32,7 +32,11 @@ unsigned __stdcall NIAWGWaitThread(void* inputParam)
 	{
 		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
-			if ((niFgen_IsDone(input.currentSession, &isDone)) < 0)
+			try
+			{
+				isDone = input.niawg->isDone();
+			}
+			catch (my_exception&)
 			{
 				eWaitError = true;
 				return -1;
@@ -52,33 +56,30 @@ unsigned __stdcall NIAWGWaitThread(void* inputParam)
 		/// then it's not ready. start the default
 		if (input.profileInfo.orientation == HORIZONTAL_ORIENTATION)
 		{
-			if (!TWEEZER_COMPUTER_SAFEMODE)
+			// start generic waveform to maintain power output to AOM.
+			try
 			{
-				// start generic waveform to maintain power output to AOM.
-				if ((niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE)) < 0)
-				{
-					eWaitError = true;
-					return -1;
-				}
-				if ((niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript")) < 0)
-				{
-					eWaitError = true;
-					return -1;
-				}
+				input.niawg->configureOutputEnabled(VI_TRUE);
+				input.niawg->setViStringAttribute(NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript");
+			}
+			catch (my_exception&)
+			{
+				eWaitError = true;
+				return -1;
 			}
 			eCurrentScript = "DefaultHConfigScript";
-
 		}
 		else if (input.profileInfo.orientation == VERTICAL_ORIENTATION)
 		{
 			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
-				if ((niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_TRUE)) < 0)
+				// start generic waveform to maintain power output to AOM.
+				try
 				{
-					eWaitError = true;
-					return -1;
+					input.niawg->configureOutputEnabled(VI_TRUE);
+					input.niawg->setViStringAttribute(NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultVConfigScript");
 				}
-				if ((niFgen_SetAttributeViString(eSessionHandle, SESSION_CHANNELS, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultVConfigScript")) < 0)
+				catch (my_exception&)
 				{
 					eWaitError = true;
 					return -1;
@@ -86,33 +87,29 @@ unsigned __stdcall NIAWGWaitThread(void* inputParam)
 			}
 			eCurrentScript = "DefaultVConfigScript";
 		}
-		if (!TWEEZER_COMPUTER_SAFEMODE)
+		try
 		{
-			// Initiate Generation.
-			if ((niFgen_InitiateGeneration(eSessionHandle)) < 0)
-			{
-				eWaitError = true;
-				return -1;
-			}
+			input.niawg->initiateGeneration();
 		}
-		/// now wait until ready.
-		WaitForSingleObject(eWaitingForNIAWGEvent, INFINITY);
-		/// stop the default.
-		if (!TWEEZER_COMPUTER_SAFEMODE)
+		catch (my_exception&)
 		{
-			// then it's not ready. start the default
-			if ((niFgen_ConfigureOutputEnabled(eSessionHandle, SESSION_CHANNELS, VI_FALSE)) < 0)
-			{
-				eWaitError = true;
-				return -1;
-			}
-			// Officially stop trying to generate anything.
-			if ((niFgen_AbortGeneration(eSessionHandle)) < 0)
-			{
-				eWaitError = true;
-				return -1;
-			}
+			eWaitError = true;
+			return -1;
 		}
+	}
+	/// now wait until ready.
+	WaitForSingleObject(eWaitingForNIAWGEvent, INFINITY);
+	/// stop the default.
+	// now it's ready. stop the default.
+	try
+	{
+		input.niawg->configureOutputEnabled(VI_FALSE);
+		input.niawg->abortGeneration();
+	}
+	catch (my_exception&)
+	{
+		eWaitError = true;
+		return -1;
 	}
 	return 0;
 }

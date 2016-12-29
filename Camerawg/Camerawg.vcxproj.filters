@@ -22,9 +22,6 @@
     <ClCompile Include="myMath.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="myNIAWG.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
     <ClCompile Include="rmWhite.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
@@ -115,9 +112,6 @@
     <ClCompile Include="reorganizeControl.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="reorganizeWindow.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
     <ClCompile Include="PictureSettingsControl.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
@@ -148,10 +142,22 @@
     <ClCompile Include="AlertSystem.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="PlottingControl.cpp">
+    <ClCompile Include="miscellaneousCommonFunctions.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="miscellaneousCommonFunctions.cpp">
+    <ClCompile Include="NiawgController.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ExperimentTimer.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DataAnalysisHandler.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PlottingInfo.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DataSet.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -192,9 +198,6 @@
     <ClInclude Include="getFileName.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
-    <ClInclude Include="getSyntaxColor.h">
-      <Filter>Function Headers</Filter>
-    </ClInclude>
     <ClInclude Include="myAgilent.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
@@ -202,9 +205,6 @@
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="myMath.h">
-      <Filter>Function Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="myNIAWG.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="fonts.h">
@@ -224,9 +224,6 @@
     </ClInclude>
     <ClInclude Include="cleanSocket.h">
       <Filter>Function Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="externals.h">
-      <Filter>Constants, Externals, Etc.</Filter>
     </ClInclude>
     <ClInclude Include="constants.h">
       <Filter>Constants, Externals, Etc.</Filter>
@@ -304,9 +301,6 @@
     <ClInclude Include="reorganizeControl.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
-    <ClInclude Include="reorganizeWindow.h">
-      <Filter>Function Headers</Filter>
-    </ClInclude>
     <ClInclude Include="PictureSettingsControl.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
@@ -337,11 +331,26 @@
     <ClInclude Include="AlertSystem.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
-    <ClInclude Include="PlottingControl.h">
-      <Filter>Function Headers</Filter>
-    </ClInclude>
     <ClInclude Include="miscellaneousCommonFunctions.h">
       <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="NiawgController.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ExperimentTimer.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="DataAnalysisHandler.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="PlottingInfo.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="DataSet.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="externals.h">
+      <Filter>Code Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

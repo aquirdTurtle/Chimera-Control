@@ -5,21 +5,22 @@
 #include "fonts.h"
 #include "constants.h"
 
-bool NoteSystem::initializeControls(POINT& topLeftPos, CWnd* parentWindow, int& id)
+bool NoteSystem::initializeControls(POINT& topLeftPos, CWnd* parentWindow, int& id, 
+	std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips)
 {
 	/// EXPERIMENT LEVEL
 	experimentNotesHeader.ID = id++;
 	experimentNotesHeader.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 20};
 	experimentNotesHeader.Create("EXPERIMENT NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, experimentNotesHeader.sPos, parentWindow, 
 		experimentNotesHeader.ID);
-	experimentNotesHeader.SetFont(&eHeadingFont);
+	experimentNotesHeader.SetFont(fonts["Heading Font"]);
 	topLeftPos.y += 20;
 	//
 	experimentNotes.ID = id++;
 	experimentNotes.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 200 };
 	experimentNotes.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL, experimentNotes.sPos, parentWindow, 
 		experimentNotes.ID);
-	experimentNotes.SetFont(&eNormalFont);
+	experimentNotes.SetFont(fonts["Normal Font"]);
 	topLeftPos.y += 200;
 	/// CATEGORY LEVEL
 	// Category Notes Title
@@ -27,26 +28,26 @@ bool NoteSystem::initializeControls(POINT& topLeftPos, CWnd* parentWindow, int& 
 	categoryNotesHeader.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 20 };
 	categoryNotesHeader.Create("CATEGORY NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, categoryNotesHeader.sPos, 
 		parentWindow, categoryNotesHeader.ID);
-	categoryNotesHeader.SetFont(&eHeadingFont);
+	categoryNotesHeader.SetFont(fonts["Heading Font"]);
 	topLeftPos.y += 20;
 	//  Category Notes edit
 	categoryNotes.ID = id++;
 	categoryNotes.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 200 };
 	categoryNotes.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL, categoryNotes.sPos, parentWindow, categoryNotes.ID);
-	categoryNotes.SetFont(&eNormalFont);
+	categoryNotes.SetFont(fonts["Normal Font"]);
 	topLeftPos.y += 200;
 	/// CONFIGURAITON LEVEL
 	// Configuration Notes Title
 	configurationNotesHeader.ID = id++;
 	configurationNotesHeader.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 20 };
 	configurationNotesHeader.Create("CONFIGURAITON NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, configurationNotesHeader.sPos, parentWindow, id);
-	configurationNotesHeader.SetFont(&eHeadingFont);
+	configurationNotesHeader.SetFont(fonts["Heading Font"]);
 	topLeftPos.y += 20;
 	//  Configuration Notes edit
 	configurationNotes.ID = id++;
 	configurationNotes.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 215 };
 	configurationNotes.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL, configurationNotes.sPos, parentWindow, configurationNotes.ID);
-	configurationNotes.SetFont(&eNormalFont);
+	configurationNotes.SetFont(fonts["Normal Font"]);
 	topLeftPos.y += 215;
 	return false;
 }

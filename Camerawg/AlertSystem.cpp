@@ -32,7 +32,8 @@ bool AlertSystem::setAlertThreshold()
 	return false;
 }
 
-bool AlertSystem::initialize(cameraPositions& pos, CWnd* parent, bool isTriggerModeSensitive, int& id)
+bool AlertSystem::initialize(cameraPositions& pos, CWnd* parent, bool isTriggerModeSensitive, int& id, 
+	std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips)
 {
 	this->alertMessageID = RegisterWindowMessage("ID_NOT_LOADING_ATOMS");
 	/// Title
@@ -40,7 +41,7 @@ bool AlertSystem::initialize(cameraPositions& pos, CWnd* parent, bool isTriggerM
 	title.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 25 };
 	title.cssmPos = { -1,-1,-1,-1 };
 	title.ID = id++;
-	title.Create("ALERT SYSTEM", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, title.ksmPos, parent, title.ID);
+	title.Create("ALERT SYSTEM", WS_BORDER | WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, title.ksmPos, parent, title.ID);
 	title.fontType = "Heading";
 	pos.ksmPos.y += 25;
 	pos.amPos.y += 25;
@@ -49,6 +50,10 @@ bool AlertSystem::initialize(cameraPositions& pos, CWnd* parent, bool isTriggerM
 	alertsActiveCheckBox.amPos = { pos.amPos.x + 0, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 20 };
 	alertsActiveCheckBox.cssmPos = { -1,-1,-1,-1 };
 	alertsActiveCheckBox.ID = id++;
+	if (alertsActiveCheckBox.ID != IDC_ALERTS_BOX)
+	{
+		throw;
+	}
 	alertsActiveCheckBox.Create("Use?", WS_CHILD | WS_VISIBLE | ES_LEFT | ES_READONLY | BS_CHECKBOX, alertsActiveCheckBox.ksmPos, parent, alertsActiveCheckBox.ID);
 	alertsActiveCheckBox.fontType = "Normal";
 	/// Alert threshold text
@@ -106,37 +111,30 @@ bool AlertSystem::soundAlert()
 	return false;
 }
 
-bool AlertSystem::reorganizeControls(std::string cameraMode, std::string triggerMode, int width, int height)
+bool AlertSystem::rearrange(std::string cameraMode, std::string triggerMode, int width, int height, std::unordered_map<std::string, CFont*> fonts)
 {
-	title.rearrange(cameraMode, triggerMode, width, height);
-	alertsActiveCheckBox.rearrange(cameraMode, triggerMode, width, height);
-	alertThresholdText.rearrange(cameraMode, triggerMode, width, height);
-	alertThresholdEdit.rearrange(cameraMode, triggerMode, width, height);
-	soundAtFinshCheckBox.rearrange(cameraMode, triggerMode, width, height);
+	title.rearrange(cameraMode, triggerMode, width, height, fonts);
+	alertsActiveCheckBox.rearrange(cameraMode, triggerMode, width, height, fonts);
+	alertThresholdText.rearrange(cameraMode, triggerMode, width, height, fonts);
+	alertThresholdEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
+	soundAtFinshCheckBox.rearrange(cameraMode, triggerMode, width, height, fonts);
 	return false;
 }
 
-bool AlertSystem::handleCheckBoxPress(WPARAM messageWParam, LPARAM messageLParam)
+void AlertSystem::handleCheckBoxPress()
 {
-	if (LOWORD(messageWParam) == alertsActiveCheckBox.ID)
+	BOOL checked = alertsActiveCheckBox.GetCheck();
+	if (checked)
 	{
-		BOOL checked = alertsActiveCheckBox.GetCheck();
-		if (checked)
-		{
-			alertsActiveCheckBox.SetCheck(0);
-			useAlerts = false;
-		}
-		else
-		{
-			alertsActiveCheckBox.SetCheck(1);
-			useAlerts = true;
-		}
-		return false;
+		alertsActiveCheckBox.SetCheck(0);
+		useAlerts = false;
 	}
 	else
 	{
-		return true;
+		alertsActiveCheckBox.SetCheck(1);
+		useAlerts = true;
 	}
+	return;
 }
 
 

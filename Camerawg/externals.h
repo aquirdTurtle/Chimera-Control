@@ -14,48 +14,9 @@
 #include "ScriptingWindow.h"
 #include "DebuggingOptionsControl.h"
 
-//extern UINT REDRAW_INDICATORS;
-
-extern CFont eNormalFont;
-extern CFont eSmallFont;
-extern CFont eCodeFont;
-extern CFont eCodeFont;
-extern CFont eSmallCodeFont;
-extern CFont eHeadingFont;
-extern CFont eLargeHeadingFont;
-
-extern CFont eSmallerFontMax;
-extern CFont eNormalFontMax;
-extern CFont eHeadingFontMax;
-extern CFont eCodeFontMax;
-extern CFont eLargerFontMax;
-
-extern CFont eSmallerFontMed;
-extern CFont eNormalFontMed;
-extern CFont eHeadingFontMed;
-extern CFont eCodeFontMed;
-extern CFont eLargerFontMed;
-
-extern CFont eSmallerFontSmall;
-extern CFont eNormalFontSmall;
-extern CFont eHeadingFontSmall;
-extern CFont eCodeFontSmall;
-extern CFont eLargerFontSmall;
-
-extern ViStatus eError;
 extern bool eWaitError;
-
-// Default NIAWG Wavefunction Info.
-extern ViReal64* eDefault_hConfigMixedWaveform;
-extern std::string eDefault_hConfigWaveformName;
-extern long eDefault_hConfigMixedSize;
-extern ViChar* eDefault_hConfigScript;
-extern ViReal64* eDefault_vConfigMixedWaveform;
-extern std::string eDefault_vConfigWaveformName;
-extern long eDefault_vConfigMixedSize;
-extern ViChar* eDefault_vConfigScript;
-
 extern HINSTANCE eGlobalInstance;
+
 // stuff for syntax coloring
 extern DWORD eIntensityMinChange, eIntensityMaxChange;
 extern DWORD eHorizontalMinChange, eHorizontalMaxChange;
@@ -79,9 +40,9 @@ extern std::string eCurrentScript;
 
 extern unsigned int eAccumulations;
 
-extern UINT eGreenMessageID, eStatusTextMessageID, eErrorTextMessageID, 
-					eFatalErrorMessageID, eVariableStatusMessageID, eNormalFinishMessageID, eColoredEditMessageID, 
-					eDebugMessageID;
+extern UINT eGreenMessageID, eStatusTextMessageID, eErrorTextMessageID, eFatalErrorMessageID, eVariableStatusMessageID,
+			eNormalFinishMessageID, eColoredEditMessageID, eDebugMessageID, eCameraFinishMessageID, 
+			eCameraProgressMessageID;
 
 extern bool eCurrentVerticalViewIsParent;
 extern bool eCurrentHorizontalViewIsParent;
@@ -94,7 +55,6 @@ extern bool eAbortSystemFlag;
 
 extern bool eHorizontalSyntaxColorIsCurrent, eVerticalSyntaxColorIsCurrent, eIntensitySyntaxColorIsCurrent;
 
-extern ViSession eSessionHandle;
 
 /// Colors
 

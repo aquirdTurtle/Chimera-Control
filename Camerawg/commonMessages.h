@@ -17,8 +17,6 @@ namespace commonMessages
 	int exitProgram(ScriptingWindow* scriptWindow, MainWindow* mainWin);
 	/// Scripting Menu
 	int saveProfile(ScriptingWindow* scriptWindow, MainWindow* mainWin);
-	
-	int helpWindow();
-
-	int reloadNIAWGDefaults(profileSettings profileInfo, MainWindow* mainWin);
+	void helpWindow();
+	void reloadNIAWGDefaults( MainWindow* mainWin );
 };
