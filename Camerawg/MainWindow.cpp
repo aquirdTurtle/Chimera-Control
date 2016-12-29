@@ -221,25 +221,26 @@ BOOL MainWindow::OnInitDialog()
 
 
 	// initialize the COMM.
-	this->comm.initialize(this, this->TheScriptingWindow, this->TheCameraWindow);
+	this->comm.initialize( this, this->TheScriptingWindow, this->TheCameraWindow );
 
 	int id = 1000;
 	POINT statusPos = { 0,0 };
-	this->mainStatus.initialize(statusPos, this, id, 975, "EXPERIMENT STATUS", RGB(50, 50, 250), mainFonts, tooltips);
+	this->mainStatus.initialize( statusPos, this, id, 975, "EXPERIMENT STATUS", RGB( 50, 50, 250 ), mainFonts, tooltips );
 	statusPos = { 480, 0 };
-	this->errorStatus.initialize(statusPos, this, id, 480, "ERROR STATUS", RGB(200, 0, 0), mainFonts, tooltips); 
-	this->debugStatus.initialize(statusPos, this, id, 480, "DEBUG STATUS", RGB(13, 152, 186), mainFonts, tooltips);
+	this->errorStatus.initialize( statusPos, this, id, 480, "ERROR STATUS", RGB( 200, 0, 0 ), mainFonts, tooltips );
+	this->debugStatus.initialize( statusPos, this, id, 480, "DEBUG STATUS", RGB( 13, 152, 186 ), mainFonts, tooltips );
 	POINT configStart = { 960, 0 };
-	this->profile.initializeControls(configStart, this, id, mainFonts, tooltips);
+	this->profile.initializeControls( configStart, this, id, mainFonts, tooltips );
 	POINT notesStart = { 960, 235 };
-	this->notes.initializeControls(notesStart, this, id, mainFonts, tooltips);
+	this->notes.initializeControls( notesStart, this, id, mainFonts, tooltips );
 	POINT controlLocation = { 1440, 95 };
-	this->variables.initializeControls(controlLocation, this, id, mainFonts, tooltips);
-	this->settings.initialize(id, controlLocation, this, mainFonts, tooltips);
-	this->debugger.initialize(id, controlLocation, this, mainFonts, tooltips);
-	texter.initializeControls(controlLocation, this, false, id, mainFonts, tooltips);
-	POINT shortStatusLocation = { 960, 910 };
-	this->shortStatus.initialize(shortStatusLocation, this, id, mainFonts, tooltips);
+	this->variables.initializeControls( controlLocation, this, id, mainFonts, tooltips );
+	this->settings.initialize( id, controlLocation, this, mainFonts, tooltips );
+	this->debugger.initialize( id, controlLocation, this, mainFonts, tooltips );
+	texter.initializeControls( controlLocation, this, false, id, mainFonts, tooltips );
+	POINT statusLocations = { 960, 910 };
+	this->boxes.initialize( statusLocations, id, this, 960, mainFonts, tooltips );
+	this->shortStatus.initialize( statusLocations, this, id, mainFonts, tooltips );
 	
 	niawg.initialize();
 
@@ -263,8 +264,14 @@ HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	{
 		case CTLCOLOR_STATIC:
 		{
+			int num = pWnd->GetDlgCtrlID();
 			CBrush* ret = this->shortStatus.handleColor(pWnd, pDC, this->mainRGBs, this->mainBrushes);
 			if (ret)
+			{
+				return *ret;
+			}
+			ret = this->boxes.handleColoring( num, pDC, mainBrushes, mainRGBs );
+			if ( ret )
 			{
 				return *ret;
 			}
@@ -520,8 +527,14 @@ void MainWindow::handleOrientationCombo()
 	catch (my_exception& except)
 	{
 		colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
-		comm.sendError("ERROR: failed to change orientation: " + except.whatStr(), "", colors);
+		comm.sendColorBox( colors );
+		comm.sendError("ERROR: failed to change orientation: " + except.whatStr());
 	}
+}
+
+void MainWindow::changeBoxColor( colorBoxes<char> colors )
+{
+	this->boxes.changeColor( colors );
 }
 
 void MainWindow::setMainOptions(mainOptions options)
@@ -560,21 +573,22 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 	std::string msgText = "Exited with Error!\r\nPassively Outputting Default Waveform.";
 	this->changeShortStatusColor("R");
 	colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
-	this->TheScriptingWindow->changeBoxColor(colors);
-	this->setShortStatus(msgText);
+	comm.sendColorBox( colors );
 	std::string orientation = this->getCurentProfileSettings().orientation;
 	try
 	{
 		niawg.restartDefault();
 		colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
-		comm.sendError("EXITED WITH ERROR!", "EXITED WITH ERROR! Passively Outputting Default Waveform.", colors);
-		comm.sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n", "");
+		comm.sendError("EXITED WITH ERROR!");
+		comm.sendColorBox( colors );
+		comm.sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 	}
 	catch (my_exception& except)
 	{
 		colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
-		comm.sendError("EXITED WITH ERROR! " + except.whatStr(), "EXITED WITH ERROR! NIAWG RESTART FAILED!.", colors);
-		comm.sendStatus("EXITED WITH ERROR!\r\nNIAWG RESTART FAILED!\r\n", "");
+		comm.sendError("EXITED WITH ERROR! " + except.whatStr());
+		comm.sendColorBox( colors );
+		comm.sendStatus("EXITED WITH ERROR!\r\nNIAWG RESTART FAILED!\r\n");
 	}
 	eExperimentIsRunning = false;
 	return 0;
@@ -600,7 +614,7 @@ LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
 	this->setShortStatus(msgText);
 	this->changeShortStatusColor("B");
 	colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
-	this->TheScriptingWindow->changeBoxColor(colors);
+	comm.sendColorBox( colors );
 	std::string orientation = this->getCurentProfileSettings().orientation;
 	try
 	{
@@ -610,8 +624,9 @@ LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
 	{
 		colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
 		comm.sendError("ERROR! The niawg finished normally, but upon restarting the default waveform, threw the "
-			"following error: " + except.whatStr(), "Error Restarting default waveform!.", colors);
-		comm.sendStatus("ERROR!\r\n", "");
+			"following error: " + except.whatStr());
+		comm.sendColorBox( colors );
+		comm.sendStatus("ERROR!\r\n");
 		return -3;
 	}
 	eExperimentIsRunning = false;

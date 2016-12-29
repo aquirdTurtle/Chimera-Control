@@ -7,7 +7,7 @@
 // running in safemode means that the program doesn't actually try to connect to any devices. It can be used to debug other aspects of the program.
 #define TWEEZER_COMPUTER_SAFEMODE true
 #define ANDOR_SAFEMODE true
-#define LAPTOP_COMPUTER
+#define DESKTOP_COMPUTER
 
 /// File Locations
 // Files for Lab Computer

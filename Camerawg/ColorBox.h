@@ -16,8 +16,9 @@ class ColorBox
 		void initialize(POINT& pos, int& id, CWnd* parent, int length, std::unordered_map<std::string, CFont*> fonts, 
 			std::vector<CToolTipCtrl*>& tooltips);
 		void changeColor(colorBoxes<char> color);
-		CBrush* handleColoring(int id, CDC* pDC, std::unordered_map<std::string, CBrush*> brushes);
-		void rearrange(std::string cameraMode, std::string triggerMode, int width, int height, 
+		CBrush* handleColoring( int id, CDC* pDC, std::unordered_map<std::string, CBrush*> brushes,
+								std::unordered_map<std::string, COLORREF> rgbs );
+		void rearrange(std::string cameraMode, std::string triggerMode, int width, int height,
 			std::unordered_map<std::string, CFont*> fonts);
 	private:
 		colorBoxes<Control<CStatic>> boxes;

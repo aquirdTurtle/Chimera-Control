@@ -34,14 +34,14 @@ bool myErrorHandler(int errorCode, std::string errMsg, SOCKET& socketToClose, st
 			{
 				// Append error message to the system error handle.
 				colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
-				comm->sendError(errMsg, "EXITED WITH ERROR! Passively Outputting Default Waveform", colors);
+				comm->sendError(errMsg);
 			}
 		}
 		else if (aborting == true)
 		{
 			if (!isThreaded) 
 			{
-				comm->sendStatus("Aborted Generation!\r\n", "");
+				comm->sendStatus("Aborted Generation!\r\n");
 			}
 		}
 		// Call Clean Socket.
@@ -54,7 +54,7 @@ bool myErrorHandler(int errorCode, std::string errMsg, SOCKET& socketToClose, st
 		}
 		catch (std::runtime_error& err)
 		{
-			comm->sendFatalErrorDef(err.what(), "");
+			comm->sendFatalError(err.what());
 		}
 		// turn the agilent to the default setting.
 		myAgilent::agilentDefault();

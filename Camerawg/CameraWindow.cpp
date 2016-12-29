@@ -311,7 +311,7 @@ HBRUSH CameraWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	std::unordered_map<std::string, CBrush*> brushes = mainWindowFriend->getBrushes();
 	std::unordered_map<std::string, COLORREF> rgbs = mainWindowFriend->getRGB();
 	HBRUSH result;
-	int num = (pWnd->GetDlgCtrlID());
+	int num = pWnd->GetDlgCtrlID();
 
 	result = *this->CameraSettings.handleColor(num, pDC, mainWindowFriend->getBrushes(), mainWindowFriend->getRGB());
 	if (result) { return result; }
@@ -320,7 +320,7 @@ HBRUSH CameraWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	{
 		case CTLCOLOR_STATIC:
 		{			
-			CBrush* result = this->box.handleColoring(num, pDC, brushes);
+			CBrush* result = this->box.handleColoring(num, pDC, brushes, rgbs);
 			if (result)
 			{
 				return *result;
