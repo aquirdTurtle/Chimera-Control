@@ -69,8 +69,8 @@ BOOL ScriptingWindow::OnInitDialog()
 	startLocaiton = { 1280, 28 };
 	intensityAgilentScript.initializeControls(640, 1000, startLocaiton, this, "Agilent", id, 
 		mainWindowFriend->getFonts(), tooltips);
-	startLocaiton = { 1880, 3 };
-	statusBox.initialize(startLocaiton, id, this, 40, mainWindowFriend->getFonts(), tooltips);
+	startLocaiton = { 1700, 3 };
+	statusBox.initialize(startLocaiton, id, this, 220, mainWindowFriend->getFonts(), tooltips);
 	this->profileDisplay.initialize({ 0,3 }, id, this, mainWindowFriend->getFonts(), tooltips);
 	CMenu menu;
 	menu.LoadMenu(IDR_MAIN_MENU);
@@ -159,7 +159,7 @@ HBRUSH ScriptingWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		case CTLCOLOR_STATIC:
 		{
 			int num = (pWnd->GetDlgCtrlID());
-			CBrush* result = this->statusBox.handleColoring(num, pDC, brushes);
+			CBrush* result = this->statusBox.handleColoring(num, pDC, brushes, rgbs);
 			if (result)
 			{
 				return *result;

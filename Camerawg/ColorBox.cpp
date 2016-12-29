@@ -34,36 +34,37 @@ void ColorBox::rearrange(std::string cameraMode, std::string triggerMode, int wi
 	boxes.intensity.rearrange( cameraMode, triggerMode, width, height, fonts );
 }
 
-CBrush* ColorBox::handleColoring(int id, CDC* pDC, std::unordered_map<std::string, CBrush*> brushes)
+CBrush* ColorBox::handleColoring(int id, CDC* pDC, std::unordered_map<std::string, CBrush*> brushes, 
+								  std::unordered_map<std::string, COLORREF> rgbs)
 {
 	if (id == boxes.niawg.ID)
 	{
 		if (colors.niawg == 'G')
 		{
 			// Color Green. This is the "Ready to give next waveform" color. During this color you can also press esc to exit.
-			pDC->SetTextColor(RGB(255, 255, 255));
-			pDC->SetBkColor(RGB(0, 120, 0));
+			pDC->SetTextColor(rgbs["White"]);
+			pDC->SetBkColor(rgbs["Green"]);
 			return brushes["Green"];
 		}
 		else if (colors.niawg == 'Y')
 		{
 			// Color Yellow. This is the "Working" Color.
-			pDC->SetTextColor(RGB(255, 255, 255));
-			pDC->SetBkColor(RGB(104, 104, 0));
+			pDC->SetTextColor(rgbs["White"]);
+			pDC->SetBkColor(rgbs["Gold"]);
 			return brushes["Gold"];
 		}
 		else if (colors.niawg == 'R')
 		{
 			// Color Red. This is a big visual signifier for when the program exited with error.
-			pDC->SetTextColor(RGB(255, 255, 255));
-			pDC->SetBkColor(RGB(120, 0, 0));
+			pDC->SetTextColor(rgbs["White"]);
+			pDC->SetBkColor(rgbs["Red"]);
 			return brushes["Red"];
 		}
 		else
 		{
 			// color Blue. This is the default, ready for user input color.
-			pDC->SetTextColor(RGB(255, 255, 255));
-			pDC->SetBkColor(RGB(0, 0, 120));
+			pDC->SetTextColor( rgbs["White"] );
+			pDC->SetBkColor( rgbs["Dark Grey"] );
 			return brushes["Dark Grey"];
 		}
 	}
@@ -72,29 +73,29 @@ CBrush* ColorBox::handleColoring(int id, CDC* pDC, std::unordered_map<std::strin
 		if ( colors.camera == 'G' )
 		{
 			// Color Green. This is the "Ready to give next waveform" color. During this color you can also press esc to exit.
-			pDC->SetTextColor( RGB( 255, 255, 255 ) );
-			pDC->SetBkColor( RGB( 0, 120, 0 ) );
+			pDC->SetTextColor( rgbs["White"] );
+			pDC->SetBkColor( rgbs["Green"] );
 			return brushes["Green"];
 		}
 		else if ( colors.camera == 'Y' )
 		{
 			// Color Yellow. This is the "Working" Color.
-			pDC->SetTextColor( RGB( 255, 255, 255 ) );
-			pDC->SetBkColor( RGB( 104, 104, 0 ) );
+			pDC->SetTextColor( rgbs["White"] );
+			pDC->SetBkColor( rgbs["Gold"] );
 			return brushes["Gold"];
 		}
 		else if ( colors.camera == 'R' )
 		{
 			// Color Red. This is a big visual signifier for when the program exited with error.
-			pDC->SetTextColor( RGB( 255, 255, 255 ) );
-			pDC->SetBkColor( RGB( 120, 0, 0 ) );
+			pDC->SetTextColor( rgbs["White"] );
+			pDC->SetBkColor( rgbs["Red"] );
 			return brushes["Red"];
 		}
 		else
 		{
 			// color Blue. This is the default, ready for user input color.
-			pDC->SetTextColor( RGB( 255, 255, 255 ) );
-			pDC->SetBkColor( RGB( 0, 0, 120 ) );
+			pDC->SetTextColor( rgbs["White"] );
+			pDC->SetBkColor( rgbs["Dark Grey"] );
 			return brushes["Dark Grey"];
 		}
 	}
@@ -103,29 +104,29 @@ CBrush* ColorBox::handleColoring(int id, CDC* pDC, std::unordered_map<std::strin
 		if ( colors.intensity == 'G' )
 		{
 			// Color Green. This is the "Ready to give next waveform" color. During this color you can also press esc to exit.
-			pDC->SetTextColor( RGB( 255, 255, 255 ) );
-			pDC->SetBkColor( RGB( 0, 120, 0 ) );
+			pDC->SetTextColor( rgbs["White"] );
+			pDC->SetBkColor( rgbs["Green"] );
 			return brushes["Green"];
 		}
 		else if ( colors.intensity == 'Y' )
 		{
 			// Color Yellow. This is the "Working" Color.
-			pDC->SetTextColor( RGB( 255, 255, 255 ) );
-			pDC->SetBkColor( RGB( 104, 104, 0 ) );
+			pDC->SetTextColor( rgbs["White"] );
+			pDC->SetBkColor( rgbs["Gold"] );
 			return brushes["Gold"];
 		}
 		else if ( colors.intensity == 'R' )
 		{
 			// Color Red. This is a big visual signifier for when the program exited with error.
-			pDC->SetTextColor( RGB( 255, 255, 255 ) );
-			pDC->SetBkColor( RGB( 120, 0, 0 ) );
+			pDC->SetTextColor( rgbs["White"] );
+			pDC->SetBkColor( rgbs["Red"] );
 			return brushes["Red"];
 		}
 		else
 		{
 			// color Blue. This is the default, ready for user input color.
-			pDC->SetTextColor( RGB( 255, 255, 255 ) );
-			pDC->SetBkColor( RGB( 0, 0, 120 ) );
+			pDC->SetTextColor( rgbs["White"] );
+			pDC->SetBkColor( rgbs["Dark Grey"] );
 			return brushes["Dark Grey"];
 		}
 	}

@@ -173,7 +173,7 @@ class MainWindow : public CDialog
 		void passClear(UINT id);
 		void restartNiawgDefaults();
 		void stopNiawg();
-		
+		void changeBoxColor(colorBoxes<char> colors);
 		Communicator* getComm();
 	private:
 		DECLARE_MESSAGE_MAP();
@@ -195,6 +195,7 @@ class MainWindow : public CDialog
 		StatusIndicator shortStatus;
 		Communicator comm;
 		NiawgController niawg;
+		ColorBox boxes;
 		std::vector<CToolTipCtrl*> tooltips;
 		friend bool commonMessages::handleCommonMessage(int msgID, CWnd* parent, MainWindow* comm, 
 														ScriptingWindow* scriptWin, CameraWindow* camWin);

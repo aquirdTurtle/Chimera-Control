@@ -14,11 +14,12 @@ class Communicator
 {
 	public:
 		void initialize(MainWindow* parent, ScriptingWindow* scriptingWin, CameraWindow* cameraWin);
-		void sendErrorEx( std::string statusMsg, std::string shortMsg, const char *file, int line, colorBoxes<char> colors = { '-', '-', '-' } );
-		void sendFatalErrorEx(std::string statusMsg, std::string shortMsg, const char *file, int line, colorBoxes<char> colors = { '-','-','-' });
-		void sendStatus( std::string statusMsg, std::string shortMsg, colorBoxes<char> colors = { '-','-','-' } );
-		void sendDebug(std::string statusMsg, std::string shortMsg, colorBoxes<char> colors = { '-','-','-' } );
-		void sendTimer( std::string timerMsg, std::string timerColor );
+		void sendErrorEx( std::string statusMsg, const char *file, int line );
+		void sendFatalErrorEx( std::string statusMsg, const char *file, int line );
+		void sendStatus( std::string statusMsg );
+		void sendDebug( std::string statusMsg );
+		void sendTimer( std::string timerMsg );
+		void sendColorBox( colorBoxes<char> colors );
 		void sendCameraFin();
 		void sendCameraProgress( long prog );
 	private:
@@ -27,8 +28,7 @@ class Communicator
 		CameraWindow* camWin;
 };
 
-// macros to include file and line info in error messages, as well as overloads for default cases.
-#define sendErrorDef(arg1, arg2) sendErrorEx(arg1, arg2, __FILE__, __LINE__)
-#define sendError(arg1, arg2, arg3) sendErrorEx(arg1, arg2, __FILE__, __LINE__, arg3)
-#define sendFatalErrorDef(arg1, arg2) sendFatalErrorEx(arg1, arg2,  __FILE__, __LINE__)
-#define sendFatalError(arg1, arg2, arg3) sendFatalErrorEx(arg1, arg2,  __FILE__, __LINE__, arg3)
+// macros to include file and line info in error messages. Use these, not the associated functions directly.
+#define sendError(arg1) sendErrorEx(arg1, __FILE__, __LINE__)
+#define sendFatalError(arg1) sendFatalErrorEx(arg1, __FILE__, __LINE__)
+

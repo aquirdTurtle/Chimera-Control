@@ -62,7 +62,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 		 */
 		// Also, anytime this gets locked, the count should be reset.
 		input->signaler.wait( lock, [input, &safeModeCount ]() { return input->spuriousWakeupHandler; } );
-		input->comm->sendStatus( "Loop!\r\n", "");
+		input->comm->sendStatus( "Loop!\r\n");
 		if ( !ANDOR_SAFEMODE )
 		{
 			try
@@ -86,7 +86,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 					}
 					catch ( my_exception& exception )
 					{
-						input->comm->sendErrorDef( exception.what(), "");
+						input->comm->sendError( exception.what());
 					}
 					input->comm->sendCameraProgress( pictureNumber );
 				}
