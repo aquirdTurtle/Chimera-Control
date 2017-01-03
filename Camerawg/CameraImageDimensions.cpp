@@ -1,31 +1,40 @@
 /// This file contains all functiosn for the CameraImageParametersControlParameters singleton class.
 
 #include "stdafx.h"
-#include "CameraImageParameters.h"
+#include "CameraImageDimensions.h"
 #include "externals.h"
 #include "constants.h"
 #include "reorganizeControl.h"
 #include "CameraWindow.h"
 #include "CameraSettingsControl.h"
 
-CameraImageParametersControl::CameraImageParametersControl()
+
+void CameraImageDimensionsControl::cameraIsOn( bool state )
+{
+	this->setImageDimensionsButton.EnableWindow( !state );
+	return;
+}
+
+
+CameraImageDimensionsControl::CameraImageDimensionsControl()
 {
 	isReady = false;
 }
 
-bool CameraImageParametersControl::initialize(POINT& topLeftPositionKinetic, POINT& topLeftPositionAccumulate, POINT& topLeftPositionContinuous,
-	CWnd* parent, bool isTriggerModeSensitive, int& id)
+bool CameraImageDimensionsControl::initialize( POINT& topLeftPositionKinetic, POINT& topLeftPositionAccumulate, POINT& topLeftPositionContinuous,
+											   CWnd* parent, bool isTriggerModeSensitive, int& id )
 {
-	setImageParametersButton.ID = id++;
-	if (setImageParametersButton.ID != IDC_SET_IMAGE_PARAMETERS_BUTTON)
+	setImageDimensionsButton.ID = id++;
+	if (setImageDimensionsButton.ID != IDC_SET_IMAGE_PARAMETERS_BUTTON)
 	{
 		throw;
 	}
-	setImageParametersButton.ksmPos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 25 };
-	setImageParametersButton.amPos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480, topLeftPositionAccumulate.y + 25 };
-	setImageParametersButton.cssmPos = { topLeftPositionContinuous.x, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 480, topLeftPositionContinuous.y + 25 };
-	setImageParametersButton.Create("Set Image Parameters", WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, setImageParametersButton.ksmPos, parent, setImageParametersButton.ID);
-	setImageParametersButton.fontType = "Normal";
+	setImageDimensionsButton.ksmPos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 25 };
+	setImageDimensionsButton.amPos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480, topLeftPositionAccumulate.y + 25 };
+	setImageDimensionsButton.cssmPos = { topLeftPositionContinuous.x, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 480, topLeftPositionContinuous.y + 25 };
+	setImageDimensionsButton.Create( "Set Image Dimensions", WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY,
+									 setImageDimensionsButton.ksmPos, parent, setImageDimensionsButton.ID );
+	setImageDimensionsButton.fontType = "Normal";
 	topLeftPositionKinetic.y += 25;
 	topLeftPositionAccumulate.y += 25;
 	topLeftPositionContinuous.y += 25;
@@ -34,21 +43,21 @@ bool CameraImageParametersControl::initialize(POINT& topLeftPositionKinetic, POI
 	leftText.ksmPos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y + 25 };
 	leftText.amPos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y + 25 };
 	leftText.cssmPos = { topLeftPositionContinuous.x, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y + 25 };
-	leftText.Create("Left", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, leftText.ksmPos, parent, leftText.ID);
+	leftText.Create( "Left", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, leftText.ksmPos, parent, leftText.ID );
 	leftText.fontType = "Normal";
 	//
 	rightText.ID = id++;
 	rightText.ksmPos = { topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y + 25 };
 	rightText.amPos = { topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y + 25 };
 	rightText.cssmPos = { topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y + 25 };
-	rightText.Create("Right", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, rightText.ksmPos, parent, rightText.ID);
+	rightText.Create( "Right", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, rightText.ksmPos, parent, rightText.ID );
 	rightText.fontType = "Normal";
 	//
 	horizontalBinningText.ID = id++;
 	horizontalBinningText.ksmPos = { topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 25 };
 	horizontalBinningText.amPos = { topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480, topLeftPositionAccumulate.y + 25 };
 	horizontalBinningText.cssmPos = { topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 480, topLeftPositionContinuous.y + 25 };
-	horizontalBinningText.Create("H. Bin", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, horizontalBinningText.ksmPos, parent, horizontalBinningText.ID);
+	horizontalBinningText.Create( "H. Bin", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, horizontalBinningText.ksmPos, parent, horizontalBinningText.ID );
 	horizontalBinningText.fontType = "Normal";
 	topLeftPositionKinetic.y += 25;
 	topLeftPositionAccumulate.y += 25;
@@ -58,22 +67,25 @@ bool CameraImageParametersControl::initialize(POINT& topLeftPositionKinetic, POI
 	leftEdit.ksmPos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y + 25 };
 	leftEdit.amPos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y + 25 };
 	leftEdit.cssmPos = { topLeftPositionContinuous.x, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y + 25 };
-	leftEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, leftEdit.ksmPos, parent, leftEdit.ID);
+	leftEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, leftEdit.ksmPos, parent, leftEdit.ID );
 	leftEdit.fontType = "Normal";
+	leftEdit.SetWindowTextA( "1" );
 	//
 	rightEdit.ID = id++;
 	rightEdit.ksmPos = { topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y + 25 };
 	rightEdit.amPos = { topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y + 25 };
 	rightEdit.cssmPos = { topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y + 25 };
-	rightEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, rightEdit.ksmPos, parent, rightEdit.ID);
+	rightEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, rightEdit.ksmPos, parent, rightEdit.ID );
 	rightEdit.fontType = "Normal";
+	rightEdit.SetWindowTextA( "10" );
 	//
 	horizontalBinningEdit.ID = id++;
 	horizontalBinningEdit.ksmPos = { topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 25 };
 	horizontalBinningEdit.amPos = { topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480, topLeftPositionAccumulate.y + 25 };
 	horizontalBinningEdit.cssmPos = { topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 480, topLeftPositionContinuous.y + 25 };
-	horizontalBinningEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, horizontalBinningEdit.ksmPos, parent, horizontalBinningEdit.ID);
+	horizontalBinningEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, horizontalBinningEdit.ksmPos, parent, horizontalBinningEdit.ID );
 	horizontalBinningEdit.fontType = "Normal";
+	horizontalBinningEdit.SetWindowTextA( "1" );
 	//
 	topLeftPositionKinetic.y += 25;
 	topLeftPositionAccumulate.y += 25;
@@ -82,21 +94,22 @@ bool CameraImageParametersControl::initialize(POINT& topLeftPositionKinetic, POI
 	topText.ksmPos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y + 25 };
 	topText.amPos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y + 25 };
 	topText.cssmPos = { topLeftPositionContinuous.x, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y + 25 };
-	topText.Create("Top", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, topText.ksmPos, parent, topText.ID);
+	topText.Create( "Top", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, topText.ksmPos, parent, topText.ID );
 	topText.fontType = "Normal";
+
 	//
 	bottomText.ID = id++;
 	bottomText.ksmPos = { topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y + 25 };
 	bottomText.amPos = { topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y + 25 };
 	bottomText.cssmPos = { topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y + 25 };
-	bottomText.Create("Bottom", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, bottomText.ksmPos, parent, bottomText.ID);
+	bottomText.Create( "Bottom", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, bottomText.ksmPos, parent, bottomText.ID );
 	bottomText.fontType = "Normal";
 	//
 	verticalBinningText.ID = id++;
 	verticalBinningText.ksmPos = { topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 25 };
 	verticalBinningText.amPos = { topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480, topLeftPositionAccumulate.y + 25 };
 	verticalBinningText.cssmPos = { topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 480, topLeftPositionContinuous.y + 25 };
-	verticalBinningText.Create("V. Bin", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, verticalBinningText.ksmPos, parent, verticalBinningText.ID);
+	verticalBinningText.Create( "V. Bin", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, verticalBinningText.ksmPos, parent, verticalBinningText.ID );
 	verticalBinningText.fontType = "Normal";
 	topLeftPositionKinetic.y += 25;
 	topLeftPositionAccumulate.y += 25;
@@ -106,29 +119,32 @@ bool CameraImageParametersControl::initialize(POINT& topLeftPositionKinetic, POI
 	topEdit.ksmPos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y + 25 };
 	topEdit.amPos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y + 25 };
 	topEdit.cssmPos = { topLeftPositionContinuous.x, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y + 25 };
-	topEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, topEdit.ksmPos, parent, topEdit.ID);
+	topEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, topEdit.ksmPos, parent, topEdit.ID );
 	topEdit.fontType = "Normal";
+	topEdit.SetWindowTextA( "1" );
 	//
 	bottomEdit.ID = id++;
 	bottomEdit.ksmPos = { topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y + 25 };
 	bottomEdit.amPos = { topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y + 25 };
 	bottomEdit.cssmPos = { topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y + 25 };
-	bottomEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, bottomEdit.ksmPos, parent, bottomEdit.ID);
+	bottomEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, bottomEdit.ksmPos, parent, bottomEdit.ID );
 	bottomEdit.fontType = "Normal";
+	bottomEdit.SetWindowTextA( "10" );
 	//
 	verticalBinningEdit.ID = id++;
 	verticalBinningEdit.ksmPos = { topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 25 };
 	verticalBinningEdit.amPos = { topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480, topLeftPositionAccumulate.y + 25 };
 	verticalBinningEdit.cssmPos = { topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 480, topLeftPositionContinuous.y + 25 };
-	verticalBinningEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, verticalBinningEdit.ksmPos, parent, verticalBinningEdit.ID);
+	verticalBinningEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, verticalBinningEdit.ksmPos, parent, verticalBinningEdit.ID );
 	verticalBinningEdit.fontType = "Normal";
+	verticalBinningEdit.SetWindowTextA( "1" );
 	topLeftPositionKinetic.y += 25;
 	topLeftPositionAccumulate.y += 25;
 	topLeftPositionContinuous.y += 25;
 	return false;
 }
 
-bool CameraImageParametersControl::drawBackgrounds(CameraWindow* camWin)
+bool CameraImageDimensionsControl::drawBackgrounds(CameraWindow* camWin)
 {
 	// recolor the box, clearing last run
 	CDC* hDC = camWin->GetDC();
@@ -151,7 +167,7 @@ bool CameraImageParametersControl::drawBackgrounds(CameraWindow* camWin)
 }
 
 
-imageParameters CameraImageParametersControl::readImageParameters(CameraWindow* camWin)
+imageParameters CameraImageDimensionsControl::readImageParameters(CameraWindow* camWin)
 {
 	this->drawBackgrounds(camWin);
 	// If new dimensions are set, we don't have data for the new dimensions.
@@ -341,7 +357,7 @@ imageParameters CameraImageParametersControl::readImageParameters(CameraWindow* 
 /*
  * I forget why I needed a second function for this.
  */
-bool CameraImageParametersControl::setImageParametersFromInput(imageParameters param, CameraWindow* camWin)
+bool CameraImageDimensionsControl::setImageParametersFromInput(imageParameters param, CameraWindow* camWin)
 {
 
 	this->drawBackgrounds(camWin);
@@ -468,7 +484,7 @@ bool CameraImageParametersControl::setImageParametersFromInput(imageParameters p
 	return false;
 }
 
-bool CameraImageParametersControl::checkReady()
+bool CameraImageDimensionsControl::checkReady()
 {
 	if (isReady)
 	{
@@ -480,12 +496,12 @@ bool CameraImageParametersControl::checkReady()
 	}
 }
 
-imageParameters CameraImageParametersControl::getImageParameters()
+imageParameters CameraImageDimensionsControl::getImageParameters()
 {
 	return currentImageParameters;
 }
 
-HBRUSH CameraImageParametersControl::colorEdits(HWND window, UINT message, WPARAM wParam, LPARAM lParam, MainWindow* mainWin)
+HBRUSH CameraImageDimensionsControl::colorEdits(HWND window, UINT message, WPARAM wParam, LPARAM lParam, MainWindow* mainWin)
 {
 	std::unordered_map<std::string, CBrush*> brushes = mainWin->getBrushes();
 	
@@ -729,7 +745,7 @@ HBRUSH CameraImageParametersControl::colorEdits(HWND window, UINT message, WPARA
 	return FALSE;
 }
 
-bool CameraImageParametersControl::rearrange(std::string cameraMode, std::string triggerMode, int width, 
+bool CameraImageDimensionsControl::rearrange(std::string cameraMode, std::string triggerMode, int width, 
 	int height, std::unordered_map<std::string, CFont*> fonts)
 {
 	leftText.rearrange(cameraMode, triggerMode, width, height, fonts);
@@ -744,7 +760,7 @@ bool CameraImageParametersControl::rearrange(std::string cameraMode, std::string
 	topEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
 	bottomEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
 	verticalBinningEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
-	setImageParametersButton.rearrange(cameraMode, triggerMode, width, height, fonts);
+	setImageDimensionsButton.rearrange(cameraMode, triggerMode, width, height, fonts);
 	return false;
 }
 

@@ -9,6 +9,16 @@
 #include "postMyString.h"
 #include "myErrorHandler.h"
 
+bool NiawgController::isRunning()
+{
+	return runningState;
+}
+
+void NiawgController::setRunningState( bool newRunningState )
+{
+	this->runningState = newRunningState;
+}
+
 void NiawgController::configureOutputMode()
 {
 	if (!TWEEZER_COMPUTER_SAFEMODE)

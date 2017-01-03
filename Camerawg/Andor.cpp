@@ -8,6 +8,12 @@
 #include "atmcd32d.h"
 #include "CameraWindow.h"
 
+void AndorCamera::updatePictureNumber( int newNumber )
+{
+	this->currentPictureNumber = newNumber;
+	return;
+}
+
 void AndorCamera::pauseThread()
 {
 	// andor should not be taking images anymore at this point.
@@ -52,7 +58,8 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 
 	while ( !input->Andor->cameraThreadExitIndicator )
 	{
-		/* wait until unlocked. this happens when data is started.
+		/* 
+		 * wait until unlocked. this happens when data is started.
 		 * the first argument is the lock.  The when the lock is locked, this function just sits and doesn't use cpu, 
 		 * unlike a while(gGlobalCheck){} loop that waits for gGlobalCheck to be set. The second argument here is a 
 		 * lambda, more or less a quick inline function that doesn't in this case have a name. This handles something
@@ -62,7 +69,6 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 		 */
 		// Also, anytime this gets locked, the count should be reset.
 		input->signaler.wait( lock, [input, &safeModeCount ]() { return input->spuriousWakeupHandler; } );
-		input->comm->sendStatus( "Loop!\r\n");
 		if ( !ANDOR_SAFEMODE )
 		{
 			try
@@ -307,6 +313,28 @@ void AndorCamera::getAcquisitionTimes(float& exposure, float& accumulation, floa
 	}
 }
 
+/*
+*/
+void AndorCamera::getStatus()
+{
+	int status;
+	getStatus( status );
+	if (ANDOR_SAFEMODE)
+	{
+		status = DRV_IDLE;
+	}
+	if (status != DRV_IDLE)
+	{
+		thrower( "ERROR: You tried to start the camera, but the camera was not idle! Camera was in state corresponding to " + std::to_string( status ) + "\r\n" );
+		return;
+	}
+	return;
+}
+
+void AndorCamera::setIsRunningState( bool state )
+{
+	this->cameraIsRunning = state;
+}
 
 void AndorCamera::getStatus(int& status)
 {
@@ -476,7 +504,7 @@ void AndorCamera::setSystem(CameraWindow* camWin)
 		setScanNumber();
 		// set this to 1.
 		setNumberAccumulations(true);
-	}
+	}	
 	else if (runSettings.acquisitionMode == 2)
 	{
 		setAccumulationCycleTime();
@@ -527,7 +555,7 @@ void AndorCamera::setSystem(CameraWindow* camWin)
 
 // This function queries the camera for how many pictures are available, retrieves all of them, then paints them to the main window. It returns the success of
 // this operation.
-void AndorCamera::acquireImageData()
+std::vector<std::vector<long>> AndorCamera::acquireImageData()
 {
 	try
 	{
@@ -537,7 +565,8 @@ void AndorCamera::acquireImageData()
 	{
 		if (exception.whatBare() == "DRV_NO_NEW_DATA")
 		{
-			return;
+			// just return this anyways.
+			return this->imagesOfExperiment;
 		}
 		else
 		{
@@ -557,7 +586,7 @@ void AndorCamera::acquireImageData()
 	}
 	else
 	{
-		experimentPictureNumber = (((this->currentRepetitionNumber - 1) 
+		experimentPictureNumber = (((this->currentPictureNumber - 1) 
 						% runSettings.totalPicsInVariation) % runSettings.picsPerRepetition);
 	}
 	if (experimentPictureNumber == 0)
@@ -598,22 +627,29 @@ void AndorCamera::acquireImageData()
 	{
 		for (int imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 		{
-			tempImage[imageVecInc] = rand() % 50 + 95;
-			if (experimentPictureNumber == 0)
+			// tempImage[imageVecInc] = imageVecInc;// (imageVecInc == 5);
+			
+			//tempImage[0] = 1000;
+			if (experimentPictureNumber == 0 && imageVecInc == 0)
 			{
-				tempImage[0] = 1000;
+				tempImage[imageVecInc] = 400;
 			}
-			else
+			else if (experimentPictureNumber != 0 && imageVecInc == 0)
 			{
-				if (rand() % 2 == 0)
+				if (rand() % 2)
 				{
-					tempImage[0] = 0;
+					tempImage[imageVecInc] = 400;
 				}
 				else
 				{
-					tempImage[0] = 1000;
+					tempImage[imageVecInc] = rand() % 30 + 95;
 				}
 			}
+			else
+			{
+				tempImage[imageVecInc] = rand() % 30 + 95;
+			}
+
 		}
 		WaitForSingleObject(imagesMutex, INFINITE);
 		for (int imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
@@ -630,6 +666,7 @@ void AndorCamera::acquireImageData()
 	BOOL bRetValue = TRUE;
 	long maxValue = 1;
 	long minValue = 65536;
+	/*
 	if (imagesOfExperiment[experimentPictureNumber].size() != 0)
 	{
 		// Find max value and scale data to fill rect
@@ -646,15 +683,16 @@ void AndorCamera::acquireImageData()
 		}
 		if (maxValue == minValue)
 		{
-			return;
+			return this->imagesOfExperiment;
 		}
 		// update the picture
 		if (experimentPictureNumber == this->runSettings.picsPerRepetition - 1 
 			|| this->runSettings.showPicsInRealTime)
 		{
-			this->drawDataWindow();
+			//this->drawDataWindow();
 		}
 		// Wait until eImageVecQueue is available using the mutex.
+
 		DWORD mutexMsg = WaitForSingleObject(plottingMutex, INFINITE);
 		switch (mutexMsg)
 		{
@@ -662,12 +700,10 @@ void AndorCamera::acquireImageData()
 			{
 				// Add data to the plotting queue, only if actually plotting something.
 				/// TODO
-				/*
 				if (eCurrentPlotNames.size() != 0)
 				{
 					eImageVecQueue.push_back(eImagesOfExperiment[experimentPictureNumber]);
-				}
-				*/
+				}		
 				break;
 			}
 			case WAIT_ABANDONED:
@@ -698,6 +734,7 @@ void AndorCamera::acquireImageData()
 			}
 		}
 		ReleaseMutex(plottingMutex);
+
 		// write the data to the file.
 		std::string errMsg;
 		int experimentPictureNumber;
@@ -707,7 +744,7 @@ void AndorCamera::acquireImageData()
 		}
 		else
 		{
-			experimentPictureNumber = (((this->currentRepetitionNumber - 1) 
+			experimentPictureNumber = (((this->currentPictureNumber - 1) 
 				% this->runSettings.totalPicsInVariation) % runSettings.picsPerRepetition);
 		}
 		if (this->runSettings.cameraMode != "Continuous Single Scans Mode")
@@ -718,14 +755,15 @@ void AndorCamera::acquireImageData()
 			{
 				thrower(errMsg);
 			}
-			*/
+
 		}
 	}
 	else
 	{
 		thrower("ERROR: Data range is zero\r\n");
-		return;
+		return this->imagesOfExperiment;
 	}
+	*/
 	/// TODO
 	/*
 	if (eCooler)
@@ -735,10 +773,11 @@ void AndorCamera::acquireImageData()
 	}
 	*/
 	// % 4 at the end because there are only 4 pictures available on the screen.
-	int imageLocation = (((this->currentRepetitionNumber - 1) 
+	int imageLocation = (((this->currentPictureNumber - 1) 
 		% this->runSettings.totalPicsInVariation) % runSettings.repetitionsPerVariation) % 4;
-	return;
+	return this->imagesOfExperiment;
 }
+
 
 void AndorCamera::drawDataWindow(void)
 {
@@ -772,16 +811,14 @@ void AndorCamera::drawDataWindow(void)
 					return;
 				}
 			}
-			avgValue = std::accumulate(imagesOfExperiment[experimentImagesInc].begin(),
-				imagesOfExperiment[experimentImagesInc].end(), 0.0)
-										/ imagesOfExperiment[experimentImagesInc].size();
+			avgValue = std::accumulate( imagesOfExperiment[experimentImagesInc].begin(),
+										imagesOfExperiment[experimentImagesInc].end(), 0.0 )
+				/ imagesOfExperiment[experimentImagesInc].size();
 			HDC hDC = 0;
 			float xscale, yscale, zscale;
 			long modrange = 1;
 			double dTemp = 1;
 			int imageBoxWidth, imageBoxHeight;
-			int pixelsAreaWidth;
-			int pixelsAreaHeight;
 			int dataWidth, dataHeight;
 			int i, j, iTemp;
 			HANDLE hloc;
@@ -793,7 +830,7 @@ void AndorCamera::drawDataWindow(void)
 			int imageLocation;
 			if (runSettings.showPicsInRealTime)
 			{
-				imageLocation = (((currentRepetitionNumber - 1) % runSettings.totalPicsInVariation) 
+				imageLocation = (((currentPictureNumber - 1) % runSettings.totalPicsInVariation) 
 					% runSettings.picsPerRepetition) % 4;
 			}
 			else
@@ -828,11 +865,6 @@ void AndorCamera::drawDataWindow(void)
 			dataWidth = runSettings.imageSettings.width;
 			dataHeight = runSettings.imageSettings.height;
 			// imageBoxWidth must be a multiple of 4, otherwise StretchDIBits has problems apparently T.T
-			if (pixelsAreaWidth % 4)
-			{
-				pixelsAreaWidth += (4 - pixelsAreaWidth % 4);
-			}
-
 			yscale = (256.0f) / (float)modrange;
 
 			for (i = 0; i < PICTURE_PALLETE_SIZE; i++)
@@ -1162,23 +1194,6 @@ void AndorCamera::checkAcquisitionTimings(float& kinetic, float& accumulation, s
 }
 	
 	
-/*
- */
-void AndorCamera::getStatus()
-{
-	int status;
-	getStatus(status);
-	if (ANDOR_SAFEMODE)
-	{
-		status = DRV_IDLE;
-	}
-	if (status != DRV_IDLE)
-	{
-		thrower("ERROR: You tried to start the camera, but the camera was not idle! Camera was in state corresponding to " + std::to_string(status) + "\r\n");
-		return;
-	}
-	return;
-}
 
 /*
  (

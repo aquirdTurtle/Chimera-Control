@@ -1,8 +1,9 @@
 #include "stdafx.h"
 #include "CameraWindow.h"
-#include "commonMessages.h"
+#include "commonFunctions.h"
 #include "CameraSettingsControl.h"
 #include "PlottingInfo.h"
+#include "ATMCD32D.H"
 
 
 IMPLEMENT_DYNAMIC(CameraWindow, CDialog)
@@ -15,29 +16,145 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 	// menu stuff
 	ON_COMMAND_RANGE(MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &CameraWindow::passCommonCommand)
 	ON_COMMAND_RANGE(PICTURE_SETTINGS_ID_START, PICTURE_SETTINGS_ID_END, &CameraWindow::handlePictureSettings)
+	// these ids all go to the same function.
+	ON_CONTROL_RANGE(EN_CHANGE, IDC_PICTURE_1_MIN_EDIT, IDC_PICTURE_1_MIN_EDIT, &CameraWindow::handlePictureEditChange)
+	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_1_MAX_EDIT, IDC_PICTURE_1_MAX_EDIT, &CameraWindow::handlePictureEditChange )
+	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_2_MIN_EDIT, IDC_PICTURE_2_MIN_EDIT, &CameraWindow::handlePictureEditChange )
+	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_2_MAX_EDIT, IDC_PICTURE_2_MAX_EDIT, &CameraWindow::handlePictureEditChange )
+	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_3_MIN_EDIT, IDC_PICTURE_3_MIN_EDIT, &CameraWindow::handlePictureEditChange )
+	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_3_MAX_EDIT, IDC_PICTURE_3_MAX_EDIT, &CameraWindow::handlePictureEditChange )
+	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_4_MIN_EDIT, IDC_PICTURE_4_MIN_EDIT, &CameraWindow::handlePictureEditChange )
+	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_4_MAX_EDIT, IDC_PICTURE_4_MAX_EDIT, &CameraWindow::handlePictureEditChange )
 	// 
 	ON_COMMAND(IDC_SET_IMAGE_PARAMETERS_BUTTON, &CameraWindow::readImageParameters)
 	ON_COMMAND(IDC_SET_EM_GAIN_BUTTON, &CameraWindow::setEmGain)
 	ON_COMMAND(IDC_ALERTS_BOX, &CameraWindow::passAlertPress)
 	ON_COMMAND(IDC_SET_TEMPERATURE_BUTTON, &CameraWindow::passSetTemperaturePress)
-	//
+	// 
+
 	ON_CBN_SELENDOK(IDC_TRIGGER_COMBO, &CameraWindow::passTrigger)
+	// messages 
+	ON_REGISTERED_MESSAGE( eCameraFinishMessageID, &CameraWindow::onCameraFinish )
+	ON_REGISTERED_MESSAGE( eCameraProgressMessageID, &CameraWindow::onCameraProgress )
+
 	//
 	//ON_WM_LBUTTONDBLCLK()
-	//ON_NOTIFY(LVN_COLUMNCLICK, IDC_PLOTTING_LISTVIEW, &CameraWindow::listViewLClick)
+	ON_WM_RBUTTONUP()
+	ON_NOTIFY(LVN_COLUMNCLICK, IDC_PLOTTING_LISTVIEW, &CameraWindow::listViewLClick)
 	ON_NOTIFY(NM_DBLCLK, IDC_PLOTTING_LISTVIEW, &CameraWindow::listViewDblClick)
-	ON_NOTIFY(NM_RCLICK, IDC_PLOTTING_LISTVIEW, &CameraWindow::listViewRClick)
+	//ON_NOTIFY(NM_RCLICK, &CameraWindow::handleRClick)
 END_MESSAGE_MAP()
 
-void CameraWindow::onCameraFinish()
+void CameraWindow::abortCameraRun()
+{
+	int status;
+	Andor.getStatus(status);
+	if (ANDOR_SAFEMODE)
+	{
+		status = DRV_ACQUIRING;
+	}
+	if (status == DRV_ACQUIRING)
+	{
+		Andor.abortAcquisition();
+		timer.setTimerDisplay( "Aborted" );
+		Andor.setIsRunningState( false );
+		//ePlotThreadExitIndicator = false;
+		//eThreadExitIndicator = false;
+		// Wait until plotting thread is complete.
+		//WaitForSingleObject( ePlottingThreadHandle, INFINITE );
+		// camera is no longer running.
+		
+		/*
+		if (eExperimentData.closeFits( errorMessage ))
+		{
+			appendText( errorMessage, IDC_ERROR_EDIT );
+		}
+		*/
+		
+		if (Andor.getSettings().cameraMode != "Continuous Single Scans Mode")
+		{
+			/*
+			int answer = MessageBox( 0, "Acquisition Aborted. Delete Data (fits_#) and (key_#) files for this run?", 0, MB_YESNO );
+			if (answer == IDYES)
+			{
+				if (eExperimentData.deleteFitsAndKey( errorMessage ))
+				{
+					appendText( errorMessage, IDC_ERROR_EDIT );
+				}
+				else
+				{
+					appendText( "Deleted .fits and copied key file for this run.", IDC_STATUS_EDIT );
+				}
+			}
+			*/
+		}
+	}
+}
+
+bool CameraWindow::cameraIsRunning()
+{
+	return this->Andor.isRunning();
+}
+
+void CameraWindow::handlePictureEditChange( UINT id )
+{
+	this->pics.handleEditChange( id );
+	return;
+}
+
+LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam)
+{
+	
+	unsigned long long pictureNumber = lParam;
+	Andor.updatePictureNumber( pictureNumber );
+	std::vector<std::vector<long>> picData = Andor.acquireImageData();
+	CDC* drawer = this->GetDC();
+	AndorRunSettings currentSettings = Andor.getSettings();
+	if (this->realTimePic)
+	{
+		// draw the most recent pic.
+		this->pics.drawPicture( drawer, pictureNumber % currentSettings.picsPerRepetition, picData.back() );
+		this->timer.update( pictureNumber / currentSettings.picsPerRepetition, currentSettings.repetitionsPerVariation, 
+							currentSettings.totalVariations, currentSettings.picsPerRepetition );
+		stats.update( picData.back(), pictureNumber % currentSettings.picsPerRepetition, { 0,0 }, currentSettings.imageSettings.width, 
+					  pictureNumber / currentSettings.picsPerRepetition,
+					  currentSettings.totalPicsInExperiment / currentSettings.picsPerRepetition );
+	}
+	else if (pictureNumber % currentSettings.picsPerRepetition == 0)
+	{
+		int counter = 0;
+		for (auto data : picData)
+		{
+			stats.update( data, counter, { 0,0 }, currentSettings.imageSettings.width, 
+						  pictureNumber / currentSettings.picsPerRepetition, 
+						  currentSettings.totalPicsInExperiment / currentSettings.picsPerRepetition );
+			this->pics.drawPicture( drawer, counter, data );
+			counter++;
+		}
+		this->timer.update( pictureNumber / currentSettings.picsPerRepetition, currentSettings.repetitionsPerVariation, 
+							currentSettings.totalVariations, currentSettings.picsPerRepetition );
+	}
+	return 0;
+}
+
+LRESULT CameraWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 {
 	// notify the andor object that it is done.
 	this->Andor.onFinish();
 	this->Andor.pauseThread();
+	colorBoxes<char> colors = { /*niawg*/'-', /*camera*/'B', /*intensity*/'-' };
+	mainWindowFriend->getComm()->sendColorBox( colors );
+	mainWindowFriend->getComm()->sendStatus( "Camera has finished taking pictures and is no longer running.\r\n" );
+	this->CameraSettings.cameraIsOn( false );
+	return 0;
 }
 
 void CameraWindow::startCamera()
 {
+	// turn some buttons off.
+	this->CameraSettings.cameraIsOn( true );
+	this->pics.refreshBackgrounds( this );
+	this->stats.reset();
 	Andor.setSystem( this );
 }
 
@@ -52,9 +169,21 @@ void CameraWindow::listViewDblClick(NMHDR* info, LRESULT* lResult)
 	return;
 }
 
-void CameraWindow::listViewRClick(NMHDR* info, LRESULT* lResult)
+void CameraWindow::listViewLClick( NMHDR* info, LRESULT* lResult )
 {
 	this->dataHandler.handleRClick();
+	
+}
+
+// pics looks up the location itself.
+void CameraWindow::OnRButtonUp( UINT stuff, CPoint loc )
+{
+	POINT location = this->pics.handleRClick();
+	if (location.x != -1)
+	{
+		selectedPixel = location;
+		pics.redrawPictures(this, selectedPixel);
+	}
 	return;
 }
 
@@ -120,6 +249,7 @@ void CameraWindow::OnSize(UINT nType, int cx, int cy)
 	this->pics.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts());
 	this->alerts.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts());
 	this->dataHandler.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts());
+	this->pics.redrawPictures( this, this->selectedPixel );
 	return;
 }
 
@@ -158,6 +288,8 @@ void CameraWindow::prepareCamera()
 		}
 	}
 	this->pics.refreshBackgrounds(this);
+	//
+	this->pics.setNumberPicturesActive( CameraSettings.getSettings().picsPerRepetition );
 	/// start the plotting thread.
 	/*
 	// set default colors and linewidths on plots
@@ -182,7 +314,6 @@ void CameraWindow::prepareCamera()
 	ePlottingThreadHandle = (HANDLE)_beginthreadex(0, 0, plotterProcedure, argPlotNames, 0,
 	plottingThreadID);
 	*/
-
 	/// start the camera.
 	this->Andor.setSettings( CameraSettings.getSettings() );
 	return;
@@ -257,11 +388,6 @@ void CameraWindow::setTimerText( std::string timerText )
 	this->timer.setTimerDisplay( timerText );
 }
 
-void CameraWindow::setTimerColor(std::string color)
-{
-	this->timer.setColor( color );
-	return;
-}
 
 void CameraWindow::OnCancel()
 {
@@ -282,6 +408,7 @@ BOOL CameraWindow::OnInitDialog()
 	box.initialize(positions.ksmPos, id, this, 480, this->mainWindowFriend->getFonts(), tooltips);
 	
 	this->CameraSettings.initialize(positions, id, this, this->mainWindowFriend->getFonts(), tooltips);
+	// initialize the settings.
 	alerts.initialize(positions, this, false, id, this->mainWindowFriend->getFonts(), tooltips);
 	dataHandler.initialize(positions, id, this, this->mainWindowFriend->getFonts(), tooltips);
 	POINT position = { 480, 0 };
@@ -290,7 +417,8 @@ BOOL CameraWindow::OnInitDialog()
 	pics.initialize(position, this, id, this->mainWindowFriend->getFonts(), tooltips);
 	positions.ksmPos = positions.amPos = positions.cssmPos = { 757, 460 };
 	timer.initialize( positions, this, false, id, this->mainWindowFriend->getFonts(), tooltips );
-	
+	CameraSettings.readImageParameters( this );
+	pics.setParameters( CameraSettings.getSettings().imageSettings );
 	// load the menu
 	CMenu menu;
 	menu.LoadMenu(IDR_MAIN_MENU);
@@ -353,14 +481,25 @@ HBRUSH CameraWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
 void CameraWindow::passCommonCommand(UINT id)
 {
-	commonMessages::handleCommonMessage(id, this, mainWindowFriend, scriptingWindowFriend, this);
+	commonFunctions::handleCommonMessage(id, this, mainWindowFriend, scriptingWindowFriend, this);
 }
 
 void CameraWindow::readImageParameters()
 {
 	this->redrawPictures();
-	imageParameters parameters = this->CameraSettings.readImageParameters(this);
-	this->pics.setParameters(parameters);
+	try
+	{
+		imageParameters parameters = this->CameraSettings.readImageParameters( this );
+		this->pics.setParameters( parameters );
+	}
+	catch (my_exception& exception)
+	{
+		errBox( "Error!" );
+		Communicator* comm = mainWindowFriend->getComm();
+		colorBoxes<char> colors = { /*niawg*/'-', /*camera*/'R', /*intensity*/'-' };
+		comm->sendColorBox( colors );
+		comm->sendError( exception.whatStr() + "\r\n" );
+	}
 	this->pics.drawGrids(this, this->mainWindowFriend->getBrushes()["White"]);
 	return;
 }

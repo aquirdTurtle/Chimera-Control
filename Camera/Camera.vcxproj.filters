@@ -251,10 +251,10 @@
     <ClCompile Include="plotterProcedure.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="CameraSettingsControl.cpp">
+    <ClCompile Include="PictureOptions.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="PictureOptions.cpp">
+    <ClCompile Include="cameraWndProc.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
   </ItemGroup>

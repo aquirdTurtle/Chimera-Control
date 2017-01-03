@@ -14,7 +14,7 @@ void createIdentityPalette(HDC& ScreenDC)
 	} Palette = { 0x300, 256 };
 
 	GetSystemPaletteEntries(ScreenDC, 0, 256, Palette.aEntries);
-	// this is the __ colormap from matlab. It looks nice :D
+	// this is the parula colormap from matlab. It looks nice :D
 	double parula[256][3] = 
 	{
 		{0.2081,    0.1663,    0.5292},

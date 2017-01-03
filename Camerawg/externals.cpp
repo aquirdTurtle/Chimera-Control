@@ -45,8 +45,7 @@ bool eCurrentIntensityViewIsParent = true;
 
 bool eExperimentIsRunning;
 bool eDontActuallyGenerate;
-bool eSyntaxTimerIsActive;
-bool eAbortSystemFlag = false;
+bool eAbortNiawgFlag = false;
 bool eHorizontalSyntaxColorIsCurrent = true, eVerticalSyntaxColorIsCurrent = true, eIntensitySyntaxColorIsCurrent = true;
 
 unsigned int eAccumulations = 0;

@@ -289,13 +289,17 @@ namespace myAgilent
 	 * This function compiles the sequence string which tells the agilent what waveforms to output when and with what trigger control. The sequence is stored
 	 * as a part of the class.
 	 */
-	int IntensityWaveform::compileSequenceString(int totalSegNum, int sequenceNum)
+	void IntensityWaveform::compileSequenceString(int totalSegNum, int sequenceNum)
 	{
 		std::string tempSequenceString, tempSegmentInfoString;
 		// Total format is  #<n><n digits><sequence name>,<arb name1>,<repeat count1>,<play control1>,<marker mode1>,<marker point1>,<arb name2>,<repeat count2>,
 		// <play control2>, <marker mode2>, <marker point2>, and so on.
 		tempSequenceString = "DATA:SEQ #";
 		tempSegmentInfoString = "seq" + std::to_string(sequenceNum) + ",";
+		if ( totalSegNum == 0 )
+		{
+			return;
+		}
 		for (int segNumInc = 0; segNumInc < totalSegNum - 1; segNumInc++)
 		{
 			// Format is 
@@ -320,12 +324,13 @@ namespace myAgilent
 					break;
 				default:
 					// ERROR!
-					MessageBox(0, "ERROR: entered location in code that shouldn't be entered. Check for logic mistakes in code.", 0, MB_OK);
-					return -1;
+					errBox("ERROR: entered location in code that shouldn't be entered. Check for logic mistakes in code.");
+					return;
 					break;
 			}
 			tempSegmentInfoString += "highAtStart,4,";
 		}
+		
 		tempSegmentInfoString += "seg" + std::to_string((totalSegNum - 1) + totalSegNum * sequenceNum) + ",";
 		tempSegmentInfoString += std::to_string(waveformSegments[totalSegNum - 1].returnRepeatNum()) + ",";
 		switch (waveformSegments[totalSegNum - 1].returnContinuationType())
@@ -348,7 +353,7 @@ namespace myAgilent
 			default:
 				// ERROR!
 				MessageBox(0, "ERROR: entered location in code that shouldn't be entered. Check for logic mistakes in code.", 0, MB_OK);
-				return -1;
+				return;
 				break;
 		}
 		tempSegmentInfoString += "highAtStart,4";
@@ -358,7 +363,7 @@ namespace myAgilent
 
 		//
 		totalSequence = tempSequenceString;
-		return 0;
+		return;
 	}
 	/*
 	 * This function just returns the sequence string. It should already have been compiled using compileSequenceString when this is called.
@@ -979,6 +984,7 @@ namespace myAgilent
 
 			// Now handle seqeunce creation / writing.
 			intensityWaveformSequence.compileSequenceString(totalSegmentNumber, 0);
+
 			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
 				// submit the sequence

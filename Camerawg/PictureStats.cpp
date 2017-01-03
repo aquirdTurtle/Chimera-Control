@@ -2,6 +2,8 @@
 #include "PictureStats.h"
 #include "reorganizeControl.h"
 #include "doubleToString.h"
+#include <algorithm>
+#include <numeric>
 
 // as of right now, the position of this control is not affected by the mode or the trigger mode.
 bool PictureStats::initialize(POINT& pos, CWnd* parent, int& id, std::unordered_map<std::string, CFont*> fonts, 
@@ -165,6 +167,9 @@ bool PictureStats::reset()
 	{
 		control.SetWindowText("-");
 	}
+
+	this->repetitionIndicator.SetWindowTextA( "Repetition ---/---" );
+
 	return true;
 }
 
@@ -175,14 +180,48 @@ bool PictureStats::updateType(std::string typeText)
 }
 
 
-bool PictureStats::update(unsigned long selCounts, unsigned long maxCounts, unsigned long minCounts, double avgCounts, unsigned int image)
+
+void PictureStats::update( std::vector<long> image, unsigned int imageNumber, std::pair<int, int> selectedPixel, 
+						   int pictureWidth, int currentRepetitionNumber, int totalRepetitionCount)
 {
+	///
+	this->repetitionIndicator.SetWindowTextA( ("Repetition " + std::to_string( currentRepetitionNumber ) 
+												+ "/" + std::to_string( totalRepetitionCount )).c_str() );
+	///
+	long selCounts = image[selectedPixel.first + selectedPixel.second * pictureWidth];
+	long maxCounts = 1;
+	long minCounts = 65536;
+	double avgCounts;
+	// for all pixels... find the max and min of the picture.
+	for (int pixelInc = 0; pixelInc < image.size(); pixelInc++)
+	{
+		try
+		{
+			if (image[pixelInc] > maxCounts)
+			{
+				maxCounts = image[pixelInc];
+			}
+			if (image[pixelInc] < minCounts)
+			{
+				minCounts = image[pixelInc];
+			}
+		}
+		catch (std::out_of_range&)
+		{
+			errBox( "ERROR: caught std::out_of_range in this->drawDataWindow! experimentImagesInc = " + std::to_string( imageNumber )
+					+ ", pixelInc = " + std::to_string( pixelInc ) + ", image.size() = " 
+					+ std::to_string( image.size() ) + ". Attempting to continue..." );
+			return;
+		}
+	}
+	avgCounts = std::accumulate( image.begin(), image.end(), 0.0 ) / image.size();
+
 	if (this->displayDataType == RAW_COUNTS)
 	{
-		this->maxCounts[image].SetWindowTextA(std::to_string(maxCounts).c_str());
-		this->minCounts[image].SetWindowTextA(std::to_string(minCounts).c_str());
-		this->selCounts[image].SetWindowTextA(std::to_string(selCounts).c_str());
-		this->avgCounts[image].SetWindowTextA(doubleToString(avgCounts, 1).c_str());
+		this->maxCounts[imageNumber].SetWindowTextA(std::to_string(maxCounts).c_str());
+		this->minCounts[imageNumber].SetWindowTextA(std::to_string(minCounts).c_str());
+		this->selCounts[imageNumber].SetWindowTextA(std::to_string(selCounts).c_str());
+		this->avgCounts[imageNumber].SetWindowTextA(doubleToString( avgCounts, 1).c_str());
 	}
 	else if (this->displayDataType == CAMERA_PHOTONS)
 	{
@@ -202,10 +241,10 @@ bool PictureStats::update(unsigned long selCounts, unsigned long maxCounts, unsi
 			minPhotons = (minCounts - convs.conventionalBackgroundCount) * this->convs.countToCameraPhoton;
 			avgPhotons = (avgCounts - convs.conventionalBackgroundCount) * this->convs.countToCameraPhoton;
 		}
-		this->maxCounts[image].SetWindowTextA(doubleToString(maxPhotons, 1).c_str());
-		this->minCounts[image].SetWindowTextA(doubleToString(minPhotons, 1).c_str());
-		this->selCounts[image].SetWindowTextA(doubleToString(selPhotons, 1).c_str());
-		this->avgCounts[image].SetWindowTextA(doubleToString(avgPhotons, 1).c_str());
+		this->maxCounts[imageNumber].SetWindowTextA(doubleToString(maxPhotons, 1).c_str());
+		this->minCounts[imageNumber].SetWindowTextA(doubleToString(minPhotons, 1).c_str());
+		this->selCounts[imageNumber].SetWindowTextA(doubleToString(selPhotons, 1).c_str());
+		this->avgCounts[imageNumber].SetWindowTextA(doubleToString(avgPhotons, 1).c_str());
 	}
 	else if (this->displayDataType == ATOM_PHOTONS)
 	{
@@ -225,10 +264,10 @@ bool PictureStats::update(unsigned long selCounts, unsigned long maxCounts, unsi
 			minPhotons = (minCounts - convs.conventionalBackgroundCount) * this->convs.countToScatteredPhoton;
 			avgPhotons = (avgCounts - convs.conventionalBackgroundCount) * this->convs.countToScatteredPhoton;
 		}
-		this->maxCounts[image].SetWindowTextA(doubleToString(maxPhotons, 1).c_str());
-		this->minCounts[image].SetWindowTextA(doubleToString(minPhotons, 1).c_str());
-		this->selCounts[image].SetWindowTextA(doubleToString(selPhotons, 1).c_str());
-		this->avgCounts[image].SetWindowTextA(doubleToString(avgPhotons, 1).c_str());
+		this->maxCounts[imageNumber].SetWindowTextA(doubleToString(maxPhotons, 1).c_str());
+		this->minCounts[imageNumber].SetWindowTextA(doubleToString(minPhotons, 1).c_str());
+		this->selCounts[imageNumber].SetWindowTextA(doubleToString(selPhotons, 1).c_str());
+		this->avgCounts[imageNumber].SetWindowTextA(doubleToString(avgPhotons, 1).c_str());
 	}
-	return true;
+	return;
 }

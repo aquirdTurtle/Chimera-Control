@@ -299,8 +299,10 @@ bool PictureOptions::enablePictureControls(int pic)
 }
 
 
-HBRUSH PictureOptions::colorControls(int idNumber, CDC* colorer, std::unordered_map<std::string, CBrush> brushes)
+INT_PTR PictureOptions::colorControls( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
 {
+	int controlID = GetDlgCtrlID( hWnd );
+	HDC hdcStatic = GetDC( hWnd );
 	/// Exposures
 	if (controlID >= exposureEdits.front().ID && controlID <= exposureEdits.back().ID)
 	{

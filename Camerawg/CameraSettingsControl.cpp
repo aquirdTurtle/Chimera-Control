@@ -2,6 +2,18 @@
 #include "CameraSettingsControl.h"
 #include "CameraWindow.h"
 
+// note that this object doesn't actually store the camera state, it just uses it in passing to figure out whether buttons should be
+// on or off.
+void CameraSettingsControl::cameraIsOn(bool state)
+{
+	// Can't change em gain mode or camera settings once started.
+	this->emGainButton.EnableWindow( !state );
+	this->setTemperatureButton.EnableWindow( !state );
+	this->temperatureOffButton.EnableWindow( !state );
+	this->picSettingsObj.cameraIsOn( state );
+	this->imageDimensionsObj.cameraIsOn( state );
+	return;
+}
 
 std::array<int, 4> CameraSettingsControl::getThresholds()
 {
@@ -70,7 +82,7 @@ AndorRunSettings CameraSettingsControl::getSettings()
 
 void CameraSettingsControl::rearrange(std::string cameraMode, std::string triggerMode, int width, int height, std::unordered_map<std::string, CFont*> fonts)
 {
-	this->imageParametersObj.rearrange(cameraMode, triggerMode, width, height, fonts);
+	this->imageDimensionsObj.rearrange(cameraMode, triggerMode, width, height, fonts);
 	this->picSettingsObj.rearrange(cameraMode, triggerMode, width, height, fonts);
 	this->header.rearrange(cameraMode, triggerMode, width, height, fonts);
 	this->emGainButton.rearrange(cameraMode, triggerMode, width, height, fonts);
@@ -198,8 +210,10 @@ void CameraSettingsControl::handleTimer()
 void CameraSettingsControl::handlePictureSettings(UINT id, AndorCamera* andorObj)
 {
 	this->picSettingsObj.handleOptionChange(id, andorObj);
-	this->runSettings.exposureTimes = this->picSettingsObj.getUsedExposureTimes();
-	this->runSettings.totalPicsInExperiment = this->picSettingsObj.getPicsPerRepetition();
+	this->runSettings.exposureTimes = picSettingsObj.getUsedExposureTimes();
+	runSettings.picsPerRepetition = picSettingsObj.getPicsPerRepetition();
+	runSettings.totalPicsInVariation = runSettings.picsPerRepetition * runSettings.repetitionsPerVariation;
+	runSettings.totalPicsInExperiment = runSettings.picsPerRepetition  * runSettings.repetitionsPerVariation * runSettings.totalVariations;
 	return;
 }
 
@@ -321,7 +335,8 @@ void CameraSettingsControl::initialize(cameraPositions& pos, int& id, CWnd* pare
 	pos.ksmPos.y += 50;
 	//
 	picSettingsObj.initialize(pos.ksmPos, pos.cssmPos, pos.amPos, parent, id);
-	imageParametersObj.initialize(pos.ksmPos, pos.amPos, pos.cssmPos, parent, false, id);
+	imageDimensionsObj.initialize(pos.ksmPos, pos.amPos, pos.cssmPos, parent, false, id);
+	
 }
 
 void CameraSettingsControl::checkTimings(std::vector<float> exposureTimes)
@@ -337,7 +352,9 @@ void CameraSettingsControl::checkTimings(float kineticCycleTime, float accumulat
 
 imageParameters CameraSettingsControl::readImageParameters(CameraWindow* camWin)
 {
-	return this->imageParametersObj.readImageParameters(camWin);
+	imageParameters parameters = this->imageDimensionsObj.readImageParameters( camWin );
+	this->runSettings.imageSettings = parameters;
+	return parameters;
 }
 
 CBrush* CameraSettingsControl::handleColor(int idNumber, CDC* colorer, std::unordered_map<std::string, CBrush*> brushes,
@@ -356,7 +373,7 @@ void CameraSettingsControl::checkIfReady()
 		thrower("Please Set at least one exposure time.");
 		return;
 	}
-	if ( !this->imageParametersObj.checkReady() )
+	if ( !this->imageDimensionsObj.checkReady() )
 	{
 		thrower("Please set the image parameters.");
 		return;

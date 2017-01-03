@@ -11,7 +11,6 @@
 
 ExperimentTimer::ExperimentTimer()
 {
-	timeColor = "Blue";
 	// nothing
 }
 ExperimentTimer::~ExperimentTimer()
@@ -54,8 +53,7 @@ void ExperimentTimer::initialize( cameraPositions& inputLoc, CWnd* parent, bool 
 	return;
 }
 
-void ExperimentTimer::update(int currentRepNumber, int repsPerVariation, int numberOfVariations, int picsPerRep,
-							  CWnd* parentWindow)
+void ExperimentTimer::update(int currentRepNumber, int repsPerVariation, int numberOfVariations, int picsPerRep)
 {
 	int totalRepetitions = repsPerVariation * numberOfVariations;
 	int minAverageNumber = 10;
@@ -65,10 +63,7 @@ void ExperimentTimer::update(int currentRepNumber, int repsPerVariation, int num
 	overallProgress.SetPos( overallPosition );
 	if (currentRepNumber == 1)
 	{
-		timeColor = "Green";
 		this->firstTime = GetTickCount64();
-		RECT parentRectangle;
-		parentWindow->GetWindowRect ( &parentRectangle );
 		timeDisplay.fontType = "Normal";
 		timeDisplay.SetWindowTextA( "Estimating Time..." );
 		timeDisplay.RedrawWindow();
@@ -77,8 +72,6 @@ void ExperimentTimer::update(int currentRepNumber, int repsPerVariation, int num
 	{
 		if (currentRepNumber == minAverageNumber)
 		{
-			RECT parentRectangle;
-			parentWindow->GetWindowRect( &parentRectangle );
 			timeDisplay.fontType = "Large";
 			timeDisplay.RedrawWindow();
 		}
@@ -91,7 +84,7 @@ void ExperimentTimer::update(int currentRepNumber, int repsPerVariation, int num
 			int hours = timeLeft / 3600;
 			int minutes = (timeLeft % 3600) / 60;
 			int seconds = (timeLeft % 3600) % 60;
-			std::string timeString;
+			std::string timeString = "";
 			timeString += std::to_string(hours) + ":";
 			if (minutes < 10)
 			{
@@ -118,7 +111,7 @@ void ExperimentTimer::update(int currentRepNumber, int repsPerVariation, int num
 	else
 	{
 		timeDisplay.SetWindowTextA( "FIN!" );
-		timeColor = "Blue";
+		timeDisplay.RedrawWindow();
 	}
 	return;
 }
@@ -132,16 +125,7 @@ void ExperimentTimer::reorganizeControls( std::string cameraMode, std::string tr
 	return;
 }
 
-std::string ExperimentTimer::getColor()
-{
-	return timeColor;
-}
 
-void ExperimentTimer::setColor(std::string newColor)
-{
-	timeColor = newColor;
-	timeDisplay.RedrawWindow();
-}
 void ExperimentTimer::setTimerDisplay(std::string newText)
 {
 	timeDisplay.SetWindowTextA( newText.c_str() );

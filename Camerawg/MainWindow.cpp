@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "MainWindow.h"
 #include "initializeMainWindow.h"
-#include "commonMessages.h"
+#include "commonFunctions.h"
 #include "myAgilent.h"
 #include "NiawgController.h"
 #include "CameraWindow.h"
@@ -25,31 +25,28 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_CBN_SELENDOK( IDC_ORIENTATION_COMBO, &MainWindow::handleOrientationCombo )
 	// 
 	ON_NOTIFY( NM_DBLCLK, IDC_VARIABLES_LISTVIEW, &MainWindow::listViewDblClick )
-	ON_NOTIFY( NM_RCLICK, IDC_VARIABLES_LISTVIEW, &MainWindow::listViewRClick )
+	ON_NOTIFY( NM_RCLICK, IDC_VARIABLES_LISTVIEW, &MainWindow::handleRClick )
 	ON_REGISTERED_MESSAGE( eStatusTextMessageID, &MainWindow::onStatusTextMessage )
 	ON_REGISTERED_MESSAGE( eErrorTextMessageID, &MainWindow::onErrorMessage )
 	ON_REGISTERED_MESSAGE( eFatalErrorMessageID, &MainWindow::onFatalErrorMessage )
 	ON_REGISTERED_MESSAGE( eNormalFinishMessageID, &MainWindow::onNormalFinishMessage )
 	ON_REGISTERED_MESSAGE( eColoredEditMessageID, &MainWindow::onColoredEditMessage )
 	ON_REGISTERED_MESSAGE( eDebugMessageID, &MainWindow::onDebugMessage )
-	ON_REGISTERED_MESSAGE( eCameraFinishMessageID, &MainWindow::onCameraFinishMessage )
-	ON_REGISTERED_MESSAGE( eCameraProgressMessageID, &MainWindow::onCameraProgressMessage )
 
 	ON_COMMAND_RANGE( IDC_MAIN_STATUS_BUTTON, IDC_MAIN_STATUS_BUTTON, &MainWindow::passClear )
 	ON_COMMAND_RANGE( IDC_ERROR_STATUS_BUTTON, IDC_ERROR_STATUS_BUTTON, &MainWindow::passClear )
 	ON_COMMAND_RANGE( IDC_DEBUG_STATUS_BUTTON, IDC_DEBUG_STATUS_BUTTON, &MainWindow::passClear )
 END_MESSAGE_MAP()
 
-LRESULT MainWindow::onCameraProgressMessage( WPARAM wParam, LPARAM lParam )
+void MainWindow::setNiawgRunningState( bool newRunningState )
 {
-	return 0;
+	this->niawg.setRunningState( newRunningState );
+	return;
 }
 
-LRESULT MainWindow::onCameraFinishMessage( WPARAM wParam, LPARAM lParam )
+bool MainWindow::niawgIsRunning()
 {
-	this->TheCameraWindow->onCameraFinish();
-	errBox( "Hi!" );
-	return 0;
+	return this->niawg.isRunning();
 }
 
 BOOL MainWindow::PreTranslateMessage(MSG* pMsg)
@@ -305,7 +302,7 @@ HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 void MainWindow::passCommonCommand(UINT id)
 {
 	// pass the command id to the common function, filling in the pointers to the windows which own objects needed.
-	commonMessages::handleCommonMessage(id, this, this, this->TheScriptingWindow, this->TheCameraWindow);
+	commonFunctions::handleCommonMessage(id, this, this, this->TheScriptingWindow, this->TheCameraWindow);
 	return;
 }
 
@@ -494,7 +491,7 @@ void MainWindow::listViewDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 	this->profile.updateConfigurationSavedStatus(false);
 	return;
 }
-void MainWindow::listViewRClick(NMHDR * pNotifyStruct, LRESULT * result)
+void MainWindow::handleRClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	variables.deleteVariable();
 	this->profile.updateConfigurationSavedStatus(false);
@@ -590,7 +587,7 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 		comm.sendColorBox( colors );
 		comm.sendStatus("EXITED WITH ERROR!\r\nNIAWG RESTART FAILED!\r\n");
 	}
-	eExperimentIsRunning = false;
+	this->setNiawgRunningState( false );
 	return 0;
 }
 
@@ -629,7 +626,7 @@ LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
 		comm.sendStatus("ERROR!\r\n");
 		return -3;
 	}
-	eExperimentIsRunning = false;
+	this->setNiawgRunningState( false );
 	return 0;
 }
 

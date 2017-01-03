@@ -42,12 +42,12 @@ unsigned __stdcall NIAWGWaitThread(void* inputParam)
 				return -1;
 			}
 		}
-		if (eAbortSystemFlag == true)
+		if (eAbortNiawgFlag == true)
 		{
 			return -2;
 		}
 	}
-	if (eAbortSystemFlag == true)
+	if (eAbortNiawgFlag == true)
 	{
 		return -2;
 	}

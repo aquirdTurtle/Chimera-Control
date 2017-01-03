@@ -48,10 +48,8 @@ extern bool eCurrentVerticalViewIsParent;
 extern bool eCurrentHorizontalViewIsParent;
 extern bool eCurrentIntensityViewIsParent;
 
-extern bool eExperimentIsRunning;
 extern bool eDontActuallyGenerate;
-extern bool eSyntaxTimerIsActive;
-extern bool eAbortSystemFlag;
+extern bool eAbortNiawgFlag;
 
 extern bool eHorizontalSyntaxColorIsCurrent, eVerticalSyntaxColorIsCurrent, eIntensitySyntaxColorIsCurrent;
 

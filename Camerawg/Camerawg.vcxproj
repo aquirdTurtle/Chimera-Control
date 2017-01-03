@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -28,21 +28,21 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
@@ -50,7 +50,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
@@ -178,7 +178,7 @@
     <ClInclude Include="AlertSystem.h" />
     <ClInclude Include="ATMCD32D.H" />
     <ClInclude Include="beginningSettingsDialogProc.h" />
-    <ClInclude Include="CameraImageParameters.h" />
+    <ClInclude Include="CameraImageDimensions.h" />
     <ClInclude Include="CameraSettingsControl.h" />
     <ClInclude Include="CameraWindow.h" />
     <ClInclude Include="cleanSocket.h" />
@@ -220,7 +220,7 @@
     <ClInclude Include="textPromptDialogProcedure.h" />
     <ClInclude Include="getFileName.h" />
     <ClInclude Include="fonts.h" />
-    <ClInclude Include="commonMessages.h" />
+    <ClInclude Include="commonFunctions.h" />
     <ClInclude Include="myMath.h" />
     <ClInclude Include="myAgilent.h" />
     <ClInclude Include="myErrorHandler.h" />
@@ -243,7 +243,7 @@
   <ItemGroup>
     <ClCompile Include="AlertSystem.cpp" />
     <ClCompile Include="beginningSettingsDialogProc.cpp" />
-    <ClCompile Include="CameraImageParameters.cpp" />
+    <ClCompile Include="CameraImageDimensions.cpp" />
     <ClCompile Include="CameraSettingsControl.cpp" />
     <ClCompile Include="CameraWindow.cpp" />
     <ClCompile Include="cleanSocket.cpp" />
@@ -280,7 +280,7 @@
     <ClCompile Include="systemAbortCheck.cpp" />
     <ClCompile Include="textPromptDialogProcedure.cpp" />
     <ClCompile Include="getFileName.cpp" />
-    <ClCompile Include="commonMessages.cpp" />
+    <ClCompile Include="commonFunctions.cpp" />
     <ClCompile Include="myAgilent.cpp" />
     <ClCompile Include="myErrorHandler.cpp" />
     <ClCompile Include="myMath.cpp" />

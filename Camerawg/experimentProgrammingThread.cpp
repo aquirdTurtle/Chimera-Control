@@ -1027,7 +1027,8 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	if (inputStruct->settings.programIntensity == true)
 	{
 		inputStruct->comm->sendStatus("Programing Intensity Profile(s)...");
-
+		colorBoxes<char> colors = { /*niawg*/'-', /*camera*/'-', /*intensity*/'Y' };
+		inputStruct->comm->sendColorBox( colors );
 		if (myErrorHandler(myAgilent::programIntensity(boost::numeric_cast<int>(varyingParameters.size()), varyingParameters, variableValues, intIsVaried,
 			intensitySequenceMinAndMaxVector, intensityPoints, intensityScriptFiles, singletons, inputStruct->profileInfo),
 			"ERROR: Intensity Programming Failed!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,  
@@ -1676,6 +1677,8 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 
 			if (inputStruct->settings.programIntensity == true && varValueLengthInc != 0)
 			{
+				colorBoxes<char> colors = { /*niawg*/'-', /*camera*/'-', /*intensity*/'Y' };
+				inputStruct->comm->sendColorBox( colors );
 				if (myErrorHandler(myAgilent::selectIntensityProfile(boost::numeric_cast<int>(varValueLengthInc), 
 																	 intIsVaried, intensitySequenceMinAndMaxVector),
 					"ERROR: intensity profile selection failed!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, 
@@ -1689,6 +1692,8 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				{
 					inputStruct->comm->sendStatus("Intensity Profile Selected.\r\n");
 				}
+				colors = { /*niawg*/'-', /*camera*/'-', /*intensity*/'G' };
+				inputStruct->comm->sendColorBox( colors );
 			}
 			/// Reinitialize Waveform Generation
 			// Tell the master to begin the experiment

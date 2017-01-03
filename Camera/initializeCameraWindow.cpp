@@ -436,7 +436,6 @@ bool initializeCameraWindow(HWND cameraWindow)
 	collumnPosAccum.y += 25;
 	collumnPosCont.y += 25;
 
-	CTrackbar
 	/// IMAGE CONTRAST CONTROL #1
 	// "min" text
 	eMinSliderText1.accumulateModePos = eMinSliderText1.continuousSingleScansModePos = eMinSliderText1.kineticSeriesModePos = { 1236, 0, 1286, 30 };
