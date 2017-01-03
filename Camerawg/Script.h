@@ -27,14 +27,14 @@ class Script
 
 		bool updateChildCombo(profileSettings profileInfo);
 		bool changeView(std::string viewName, profileSettings profileInfo, std::vector<variable> vars);
-		bool childComboChangeHandler(ScriptingWindow* scriptWin, MainWindow* comm);
+		bool childComboChangeHandler( MainWindow* mainWin );
 		bool checkChildSave(profileSettings profileInfo);
 
 		std::string getSyntaxColor(std::string word, std::string editType, std::vector<variable> vars);
-		bool saveScript(profileSettings profileInfo, bool isParent);
-		bool saveScript(profileSettings profileInfo);
-		bool saveScriptAs(std::string scriptAddress, bool isParent);
-		bool saveScriptAs(std::string scriptAddress);
+		bool saveScript(profileSettings profileInfo, bool isParent, bool niawgIsRunning);
+		bool saveScript(profileSettings profileInfo, bool niawgIsRunning );
+		bool saveScriptAs(std::string scriptAddress, bool isParent, bool niawgIsRunning );
+		bool saveScriptAs(std::string scriptAddress, bool niawgIsRunning );
 		bool renameScript(profileSettings profileInfo);
 		bool deleteScript(profileSettings profileInfo);
 		bool newScript(profileSettings profileInfo, std::vector<variable> vars);
@@ -44,7 +44,7 @@ class Script
 		bool loadFile(std::string pathToFile, profileSettings profileInfo, std::vector<variable> vars);
 		bool openParentScript(std::string parentScriptName, profileSettings profileInfo, std::vector<variable> vars);
 		bool considerCurrentLocation(profileSettings profileInfo);
-		bool checkSave(profileSettings profileInfo);
+		bool checkSave(profileSettings profileInfo, bool niawgIsRunning );
 		bool updateSavedStatus(bool isSaved);
 		bool coloringIsNeeded();
 		

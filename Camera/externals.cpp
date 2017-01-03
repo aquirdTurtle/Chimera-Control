@@ -22,7 +22,7 @@ ExperimentTimer eCameraWindowExperimentTimer;
 DataFileSystem eExperimentData(SAVE_BASE_ADDRESS);
 SMSTextingControl eTextingHandler;
 DataAnalysisHandler eAutoAnalysisHandler;
-CameraImage eImageControl;
+CameraImageParametersControl eImageControl;
 AlertSystem eAlerts(8000);
 EmbeddedPythonHandler Python;
 PictureStats ePicStats;

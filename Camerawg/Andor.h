@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "CameraImageParameters.h"
+#include "CameraImageDimensions.h"
 #include "Communicator.h"
 #include <process.h>
 #include <mutex>
@@ -73,7 +73,7 @@ class AndorCamera
 			_beginthreadex( NULL, 0, &AndorCamera::cameraThread, &threadInput, 0, &cameraThreadID );
 		}
 
-		// Andor Wrappers, in alphabetical order. Versions that take no parameters just insert current settings into 
+		/// Andor Wrappers, in alphabetical order. Versions that take no parameters just insert current settings into 
 		// the versions that take parameters. Note that my wrapper names don't always match the andor SDK names. If 
 		// looking for  specific sdk functions, search in the cpp file.
 		void abortAcquisition();
@@ -128,7 +128,7 @@ class AndorCamera
 		void pauseThread();
 		void setSettings(AndorRunSettings settingsToSet);
 		void setSystem(CameraWindow* camWin);
-		void acquireImageData();
+		std::vector<std::vector<long>> acquireImageData();
 		void setTemperature();
 		void setExposures();
 		void setImageParametersToCamera();
@@ -139,7 +139,8 @@ class AndorCamera
 		void setCameraTriggerMode();
 		void onFinish();
 		bool isRunning();
-		
+		void setIsRunningState( bool state );
+		void updatePictureNumber( int newNumber );
 		void setGainMode();
 		void drawDataWindow(void);
 		void changeTemperatureSetting(bool temperatureControlOff);
@@ -164,6 +165,7 @@ class AndorCamera
 		bool plotThreadExitIndicator;
 		bool cameraThreadExitIndicator = false;
 
+		int currentPictureNumber;
 		int currentRepetitionNumber;
 
 		HANDLE plottingMutex;

@@ -32,6 +32,7 @@ class PictureSettingsControl
 		void setThresholds(std::array<int, 4> thresholds);
 		bool rearrange(std::string cameraMode, std::string triggerMode, int width, int height, std::unordered_map<std::string, CFont*> fonts);
 		int getPicsPerRepetition();
+		void cameraIsOn( bool state );
 	private:
 		CameraSettingsControl* parentSettingsControl;
 		std::array<int, 4> colors;

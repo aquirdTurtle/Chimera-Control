@@ -59,6 +59,7 @@ class NiawgController
 
 		void setDefaultOrientation(std::string orientation);
 		void restartDefault();
+		bool isRunning();
 
 		/**
 		* This function calculates the size in samples of the waveform to be generated.
@@ -82,6 +83,8 @@ class NiawgController
 		static int getParamCheckVarConst(int &data1ToAssign, double &data2ToAssign, std::fstream &scriptName, int &vCount, std::vector<std::string> &vNames,
 			std::vector<int> &vParamTypes, int dataType1, int dataType2, std::vector<variable> singletons);
 		ViReal64* mixWaveforms(ViReal64* waveform1, ViReal64* waveform2, ViReal64* finalWaveform, long int waveformSize);
+		
+		void NiawgController::setRunningState( bool newRunningState );
 
 	private:
 		// NIAWG error checkers...
@@ -151,6 +154,7 @@ class NiawgController
 		const ViConstString TRIGGER_NAME = "ScriptTrigger0";
 		const ViConstString TRIGGER_SOURCE = "PFI0";
 		const ViInt32 TRIGGER_EDGE_TYPE = NIFGEN_VAL_RISING_EDGE;
+		bool runningState;
 };
 
 template <typename WAVE_DATA_TYPE> long int NiawgController::waveformSizeCalc(WAVE_DATA_TYPE inputData)

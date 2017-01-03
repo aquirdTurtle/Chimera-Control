@@ -133,7 +133,7 @@ namespace myAgilent
 			int readIntoSegment(int segNum, std::fstream& scriptName, std::vector<variable> singletons, profileSettings profileInfo);
 			int writeData(int SegNum);
 			std::string compileAndReturnDataSendString(int segNum, int varNum, int totalSegNum);
-			int compileSequenceString(int totalSegNum, int sequenceNum);
+			void compileSequenceString(int totalSegNum, int sequenceNum);
 			std::string returnSequenceString();
 			bool returnIsVaried();
 			int replaceVarValues(std::string varName, double varValue);

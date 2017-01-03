@@ -4,7 +4,7 @@
 #include "ConfigurationFileSystem.h"
 #include "DebuggingOptionsControl.h"
 #include "constants.h"
-#include "commonMessages.h"
+#include "commonFunctions.h"
 #include "MainOptionsControl.h"
 #include "StatusControl.h"
 #include "StatusIndicator.h"
@@ -139,8 +139,6 @@ class MainWindow : public CDialog
 		LRESULT onNormalFinishMessage(WPARAM wParam, LPARAM lParam);
 		LRESULT onColoredEditMessage(WPARAM wParam, LPARAM lParam);
 		LRESULT onDebugMessage(WPARAM wParam, LPARAM lParam);		
-		LRESULT onCameraFinishMessage( WPARAM wParam, LPARAM lParam );
-		LRESULT onCameraProgressMessage( WPARAM wParam, LPARAM lParam );
 
 		void setNotes(std::string whichLevel, std::string notes);
 		void setNiawgDefaults(bool isFirstTime);
@@ -162,7 +160,7 @@ class MainWindow : public CDialog
 		void passDebugPress(UINT id);
 		void passMainOptionsPress(UINT id);
 		void listViewDblClick(NMHDR * pNotifyStruct, LRESULT * result);
-		void listViewRClick(NMHDR * pNotifyStruct, LRESULT * result);
+		void handleRClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void handleExperimentCombo();
 		void handleCategoryCombo();
 		void handleConfigurationCombo();
@@ -175,6 +173,10 @@ class MainWindow : public CDialog
 		void stopNiawg();
 		void changeBoxColor(colorBoxes<char> colors);
 		Communicator* getComm();
+
+		bool niawgIsRunning();
+		void setNiawgRunningState( bool newRunningState );
+
 	private:
 		DECLARE_MESSAGE_MAP();
 		CBrush* test;
@@ -197,7 +199,7 @@ class MainWindow : public CDialog
 		NiawgController niawg;
 		ColorBox boxes;
 		std::vector<CToolTipCtrl*> tooltips;
-		friend bool commonMessages::handleCommonMessage(int msgID, CWnd* parent, MainWindow* comm, 
+		friend bool commonFunctions::handleCommonMessage(int msgID, CWnd* parent, MainWindow* comm, 
 														ScriptingWindow* scriptWin, CameraWindow* camWin);
 };
 

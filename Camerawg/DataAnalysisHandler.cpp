@@ -11,6 +11,11 @@ void DataHandlingControl::rearrange(std::string cameraMode, std::string trigMode
 	updateFrequencyEdit.rearrange(cameraMode, trigMode, width, height, fonts);
 	header.rearrange(cameraMode, trigMode, width, height, fonts);
 	plotListview.rearrange(cameraMode, trigMode, width, height, fonts);
+	this->currentDataSetNumberEdit.rearrange( cameraMode, trigMode, width, height, fonts );
+	this->currentDataSetNumberText.rearrange( cameraMode, trigMode, width, height, fonts );
+	this->setAnalysisLocationsButton.rearrange( cameraMode, trigMode, width, height, fonts );
+	this->analyzeMostRecentButton.rearrange( cameraMode, trigMode, width, height, fonts );
+	this->autoAnalyzeCheckBox.rearrange( cameraMode, trigMode, width, height, fonts );
 	return;
 }
 

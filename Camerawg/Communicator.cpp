@@ -17,14 +17,15 @@ Note that in all of the following, using "" as the input means that the communic
 control of interest.
 */
 
+// the two camera messages go straight to the camera window.
 void Communicator::sendCameraFin()
 {
-	PostMessage( mainWin->GetSafeHwnd(), eCameraFinishMessageID, 0, 0 );
+	PostMessage( camWin->GetSafeHwnd(), eCameraFinishMessageID, 0, 0 );
 }
 
 void Communicator::sendCameraProgress(long progress)
 {
-	PostMessage( mainWin->GetSafeHwnd(), eCameraProgressMessageID, 0, (LPARAM)progress );
+	PostMessage( camWin->GetSafeHwnd(), eCameraProgressMessageID, 0, (LPARAM)progress );
 }
 
 void Communicator::sendTimer( std::string timerMsg )

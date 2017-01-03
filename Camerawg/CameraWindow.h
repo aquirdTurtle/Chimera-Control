@@ -40,12 +40,12 @@ class CameraWindow : public CDialog
 		void OnSize(UINT nType, int cx, int cy);
 		void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar);
 		void OnTimer(UINT_PTR id);
+		void handlePictureEditChange( UINT id );
 		/// Extra functions from this class.
 		void redrawPictures();
 		void changeBoxColor( colorBoxes<char> colors );
 		std::vector<CToolTipCtrl*> getToolTips();
 		bool getCameraStatus();
-		void setTimerColor( std::string color );
 		void setTimerText( std::string timerText );
 		void prepareCamera();
 		void startCamera();
@@ -57,11 +57,17 @@ class CameraWindow : public CDialog
 		void passAlertPress();
 		void passSetTemperaturePress();
 		void setEmGain();
-		void handlePictureSettings(UINT id);	
-		void onCameraFinish();
+		void handlePictureSettings(UINT id);
+		bool cameraIsRunning();
+		LRESULT onCameraFinish( WPARAM wParam, LPARAM lParam );
+		LRESULT onCameraProgress( WPARAM wParam, LPARAM lParam );
 
 		void listViewDblClick(NMHDR* info, LRESULT* lResult);
-		void listViewRClick(NMHDR* info, LRESULT* lResult);
+		void listViewLClick( NMHDR* info, LRESULT* lResult );
+		
+		void OnRButtonUp(UINT stuff, CPoint loc);
+
+		void abortCameraRun();
 
 	private:
 		DECLARE_MESSAGE_MAP();
@@ -79,4 +85,9 @@ class CameraWindow : public CDialog
 		ScriptingWindow* scriptingWindowFriend;
 
 		std::vector<CToolTipCtrl*> tooltips;
+		
+		POINT selectedPixel = { 0,0 };
+
+		bool autoScalePictureData;
+		bool realTimePic;
 };

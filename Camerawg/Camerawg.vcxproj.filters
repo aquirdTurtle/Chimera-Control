@@ -52,9 +52,6 @@
     <ClCompile Include="textPromptDialogProcedure.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="commonMessages.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
     <ClCompile Include="VariableSystem.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
@@ -118,9 +115,6 @@
     <ClCompile Include="CameraSettingsControl.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="CameraImageParameters.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
     <ClCompile Include="EmbeddedPythonHandler.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
@@ -158,6 +152,12 @@
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="DataSet.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="commonFunctions.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraImageDimensions.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -246,9 +246,6 @@
     <ClInclude Include="textPromptDialogProcedure.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
-    <ClInclude Include="commonMessages.h">
-      <Filter>Function Headers</Filter>
-    </ClInclude>
     <ClInclude Include="NoteSystem.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
@@ -307,9 +304,6 @@
     <ClInclude Include="CameraSettingsControl.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
-    <ClInclude Include="CameraImageParameters.h">
-      <Filter>Function Headers</Filter>
-    </ClInclude>
     <ClInclude Include="EmbeddedPythonHandler.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
@@ -349,8 +343,14 @@
     <ClInclude Include="DataSet.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
+    <ClInclude Include="commonFunctions.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
     <ClInclude Include="externals.h">
-      <Filter>Code Files</Filter>
+      <Filter>Constants, Externals, Etc.</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraImageDimensions.h">
+      <Filter>Function Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

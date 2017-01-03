@@ -4,7 +4,7 @@
 #include <array>
 #include <vector>
 
-class PictureSettingsControl
+class PictureOptions
 {
 	public:
 		bool initialize(POINT& kineticPos, POINT& continuousPos, POINT& accumulatePos, HWND parent, int& id);
@@ -16,7 +16,7 @@ class PictureSettingsControl
 		std::array<int, 4> getPictureColors();
 		std::vector<float> getUsedExposureTimes();
 		std::array<int, 4> getThresholds();
-		HBRUSH colorControls(int idNumber, CDC* colorer, std::unordered_map<std::string, CBrush> brushes);
+		INT_PTR colorControls( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
 		void confirmAcquisitionTimings();
 		void setPicturesPerExperiment(unsigned int pics);
 		void setThresholds(std::array<int, 4> thresholds);

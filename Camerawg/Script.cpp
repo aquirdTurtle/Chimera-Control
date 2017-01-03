@@ -552,16 +552,15 @@ bool Script::rearrange()
 	return false;
 }
 
-bool Script::childComboChangeHandler(ScriptingWindow* scriptWin, MainWindow* comm)
+bool Script::childComboChangeHandler( MainWindow* mainWin)
 {
 	int selection = this->childCombo.GetCurSel();
-	
 	// prompt for save
-	this->checkSave(comm->getCurentProfileSettings());
+	this->checkSave( mainWin->getCurentProfileSettings(), mainWin->niawgIsRunning() );
 	TCHAR selectedText[256];
 	childCombo.GetLBText(selection, selectedText);
 	std::string viewName(selectedText);
-	this->changeView(viewName, comm->getCurentProfileSettings(), comm->getAllVariables());
+	this->changeView(viewName, mainWin->getCurentProfileSettings(), mainWin->getAllVariables());
 	this->updateSavedStatus(true);
 	return false;
 }
@@ -586,7 +585,7 @@ bool Script::changeView(std::string viewName, profileSettings profileInfo, std::
 }
 
 // can save either parent or child depending on input.
-bool Script::saveScript(profileSettings profileInfo, bool saveParent)
+bool Script::saveScript(profileSettings profileInfo, bool saveParent, bool niawgIsRunning)
 {
 	std::string relevantName;
 	if (saveParent)
@@ -622,7 +621,7 @@ bool Script::saveScript(profileSettings profileInfo, bool saveParent)
 		// continue and resave anyways.
 	}
 
-	if (eExperimentIsRunning)
+	if (niawgIsRunning)
 	{
 		if (scriptName == eMostRecentHorizontalScriptNames || scriptName == eMostRecentIntensityScriptNames || scriptName == eMostRecentVerticalScriptNames)
 		{
@@ -687,19 +686,19 @@ bool Script::saveScript(profileSettings profileInfo, bool saveParent)
 	return false;
 }
 // can save either parent or child depending on input.
-bool Script::saveScript(profileSettings profileInfo)
+bool Script::saveScript(profileSettings profileInfo, bool niawgIsRunning)
 {
-	return this->saveScript(profileInfo, this->currentViewIsParent);
+	return this->saveScript(profileInfo, this->currentViewIsParent, niawgIsRunning);
 }
 
 //
-bool Script::saveScriptAs(std::string location, bool saveParent)
+bool Script::saveScriptAs(std::string location, bool saveParent, bool niawgIsRunning)
 {
 	if (location == "")
 	{
 		return true;
 	}
-	if (eExperimentIsRunning)
+	if (niawgIsRunning)
 	{
 		if (location == eMostRecentHorizontalScriptNames || location == eMostRecentIntensityScriptNames || location == eMostRecentVerticalScriptNames)
 		{
@@ -742,9 +741,9 @@ bool Script::saveScriptAs(std::string location, bool saveParent)
 }
 
 // 
-bool Script::saveScriptAs(std::string location)
+bool Script::saveScriptAs(std::string location, bool niawgIsRunning )
 {
-	return this->saveScriptAs(location, this->currentViewIsParent);
+	return this->saveScriptAs(location, this->currentViewIsParent, niawgIsRunning);
 }
 
 
@@ -810,7 +809,7 @@ bool Script::checkChildSave(profileSettings profileInfo)
 	return false;
 }
 //
-bool Script::checkSave(profileSettings profileInfo)
+bool Script::checkSave(profileSettings profileInfo, bool niawgIsRunning )
 {
 	if (isSaved)
 	{
@@ -834,7 +833,7 @@ bool Script::checkSave(profileSettings profileInfo)
 			std::string newName = (const char*)DialogBoxParam(eGlobalInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure,
 				(LPARAM)("Please enter new name for the script " + scriptName + ".").c_str());
 			std::string path = profileInfo.pathIncludingCategory + newName + this->extension;
-			this->saveScriptAs(path);
+			this->saveScriptAs(path, niawgIsRunning );
 			return false;
 		}
 		else
@@ -856,7 +855,7 @@ bool Script::checkSave(profileSettings profileInfo)
 		}
 		else if (answer == IDYES)
 		{
-			this->saveScript(profileInfo);
+			this->saveScript(profileInfo, niawgIsRunning );
 			return false;
 		}
 		else

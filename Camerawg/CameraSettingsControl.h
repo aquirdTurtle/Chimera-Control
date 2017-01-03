@@ -2,7 +2,7 @@
 
 #include "Control.h"
 #include "PictureSettingsControl.h"
-#include "CameraImageParameters.h"
+#include "CameraImageDimensions.h"
 #include "Andor.h"
 
 struct cameraPositions;
@@ -50,8 +50,8 @@ class CameraSettingsControl
 			runSettings.kinetiCycleTime = 0.1;
 			if ( ANDOR_SAFEMODE )
 			{
-				runSettings.picsPerRepetition = 2;
-				runSettings.repetitionsPerVariation = 5;
+				runSettings.picsPerRepetition = 1;
+				runSettings.repetitionsPerVariation = 10;
 				runSettings.totalVariations = 3;
 				runSettings.totalPicsInExperiment = 30;
 				runSettings.totalPicsInVariation = 10;
@@ -70,15 +70,17 @@ class CameraSettingsControl
 		void handleSetTemperaturePress();
 		void handleTimer();
 		void checkIfReady();
+		void cameraIsOn( bool state );
 		AndorRunSettings getSettings();
 		std::array<int, 4> getThresholds();
 	private:
 		AndorCamera* andorFriend;
-		// Header
+
 		Control<CStatic> header;
 		// Accumulation Time
 		// Accumulation Number
 		// Kinetic Cycle Time
+
 		// EM Gain
 		Control<CButton> emGainButton;
 		Control<CEdit> emGainEdit;
@@ -92,10 +94,10 @@ class CameraSettingsControl
 		Control<CEdit> temperatureEdit;
 		Control<CStatic> temperatureDisplay;
 		Control<CStatic> temperatureMessage;
+
 		std::string currentControlColor;
-		// CameraImageParametersControl
-		CameraImageParametersControl imageParametersObj;
-		// Individual Picture Settings
+		// two subclassed groups.
+		CameraImageDimensionsControl imageDimensionsObj;
 		PictureSettingsControl picSettingsObj;
 		// the currently selected settings, not necessarily those being used to run the current
 		// experiment.
