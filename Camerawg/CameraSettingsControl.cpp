@@ -80,21 +80,23 @@ AndorRunSettings CameraSettingsControl::getSettings()
 	return this->runSettings;
 }
 
-void CameraSettingsControl::rearrange(std::string cameraMode, std::string triggerMode, int width, int height, std::unordered_map<std::string, CFont*> fonts)
+void CameraSettingsControl::rearrange( std::string cameraMode, std::string triggerMode, int width, int height, std::unordered_map<std::string, CFont*> fonts )
 {
-	this->imageDimensionsObj.rearrange(cameraMode, triggerMode, width, height, fonts);
-	this->picSettingsObj.rearrange(cameraMode, triggerMode, width, height, fonts);
-	this->header.rearrange(cameraMode, triggerMode, width, height, fonts);
-	this->emGainButton.rearrange(cameraMode, triggerMode, width, height, fonts);
-	this->emGainDisplay.rearrange(cameraMode, triggerMode, width, height, fonts);
-	this->emGainEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
-	this->triggerCombo.rearrange(cameraMode, triggerMode, width, height, fonts);
-	this->triggerLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
-	setTemperatureButton.rearrange(cameraMode, triggerMode, width, height, fonts);
-	temperatureOffButton.rearrange(cameraMode, triggerMode, width, height, fonts);
-	temperatureEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
-	temperatureDisplay.rearrange(cameraMode, triggerMode, width, height, fonts);
-	temperatureMessage.rearrange(cameraMode, triggerMode, width, height, fonts);
+	this->imageDimensionsObj.rearrange( cameraMode, triggerMode, width, height, fonts );
+	this->picSettingsObj.rearrange( cameraMode, triggerMode, width, height, fonts );
+	this->header.rearrange( cameraMode, triggerMode, width, height, fonts );
+	this->emGainButton.rearrange( cameraMode, triggerMode, width, height, fonts );
+	this->emGainDisplay.rearrange( cameraMode, triggerMode, width, height, fonts );
+	this->emGainEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
+	this->triggerCombo.rearrange( cameraMode, triggerMode, width, height, fonts );
+	this->triggerLabel.rearrange( cameraMode, triggerMode, width, height, fonts );
+	setTemperatureButton.rearrange( cameraMode, triggerMode, width, height, fonts );
+	temperatureOffButton.rearrange( cameraMode, triggerMode, width, height, fonts );
+	temperatureEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
+	temperatureDisplay.rearrange( cameraMode, triggerMode, width, height, fonts );
+	temperatureMessage.rearrange( cameraMode, triggerMode, width, height, fonts );
+	kineticCycleTimeEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
+	kineticCycleTimeLabel.rearrange( cameraMode, triggerMode, width, height, fonts );
 }
 
 void CameraSettingsControl::setEmGain(AndorCamera* andorObj)
@@ -333,6 +335,26 @@ void CameraSettingsControl::initialize(cameraPositions& pos, int& id, CWnd* pare
 	temperatureMessage.Create("Temperature control is disabled", WS_CHILD | WS_VISIBLE | SS_LEFT, temperatureMessage.ksmPos, parent, temperatureMessage.ID);
 	temperatureMessage.fontType = "Normal";
 	pos.ksmPos.y += 50;
+
+	// Kinetic Cycle Time Label
+	kineticCycleTimeLabel.ksmPos = { pos.ksmPos.x, pos.ksmPos.y, pos.ksmPos.x + 240, pos.ksmPos.y + 25 };
+	kineticCycleTimeLabel.cssmPos = { -1,-1,-1,-1 };
+	kineticCycleTimeLabel.amPos = { -1,-1,-1,-1 };
+	kineticCycleTimeLabel.ID = id++;
+	kineticCycleTimeLabel.triggerModeSensitive = -1;
+	kineticCycleTimeLabel.Create( "Kinetic Cycle Time", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY,
+								  kineticCycleTimeLabel.ksmPos, parent, kineticCycleTimeLabel.ID );
+	kineticCycleTimeLabel.fontType = "Normal";
+	// Kinetic Cycle Time Edit
+	kineticCycleTimeEdit.ksmPos = { pos.ksmPos.x + 240, pos.ksmPos.y, pos.ksmPos.x + 480, pos.ksmPos.y + 25 };
+	kineticCycleTimeEdit.cssmPos = { -1,-1,-1,-1 };
+	kineticCycleTimeEdit.amPos = { -1,-1,-1,-1 };
+	kineticCycleTimeEdit.ID = id++;
+	kineticCycleTimeEdit.triggerModeSensitive = -1;
+	kineticCycleTimeEdit.Create( WS_CHILD | WS_VISIBLE | WS_BORDER, kineticCycleTimeEdit.ksmPos, parent, kineticCycleTimeEdit.ID );
+	kineticCycleTimeEdit.fontType = "Normal";
+
+	pos.ksmPos.y += 25;
 	//
 	picSettingsObj.initialize(pos.ksmPos, pos.cssmPos, pos.amPos, parent, id);
 	imageDimensionsObj.initialize(pos.ksmPos, pos.amPos, pos.cssmPos, parent, false, id);

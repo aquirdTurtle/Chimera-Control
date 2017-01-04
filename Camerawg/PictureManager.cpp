@@ -1,11 +1,25 @@
 #include "stdafx.h"
 #include "PictureManager.h"
 
-void PictureManager::redrawPictures( CWnd* parent, POINT selectedLocation )
+void PictureManager::redrawPictures( CWnd* parent, std::pair<int, int> selectedLocation )
 {
 	for (auto& pic : pictures)
 	{
 		pic.redrawImage( parent );
+		pic.drawGrid( parent, this->gridBrush );
+		//pic.drawCircle(parent, selectedLocation);
+		//pic.drawRectangles();
+	}
+	this->drawDongles(parent, selectedLocation);
+}
+
+/*
+ *  
+ */
+void PictureManager::drawDongles(CWnd* parent, std::pair<int, int> selectedLocation)
+{
+	for (auto& pic : pictures)
+	{
 		pic.drawCircle(parent, selectedLocation);
 		//pic.drawRectangles();
 	}
@@ -49,13 +63,13 @@ void PictureManager::handleScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar
 	return;
 }
 
-POINT PictureManager::handleRClick()
+std::pair<int, int> PictureManager::handleRClick( CPoint clickLocation )
 {
-	POINT location;
+	std::pair<int, int> location;
 	for (auto& pic : pictures)
 	{
-		location = pic.checkClickLocation();
-		if (location.x != -1)
+		location = pic.checkClickLocation( clickLocation );
+		if (location.first != -1)
 		{
 			return location;
 		}
@@ -65,8 +79,10 @@ POINT PictureManager::handleRClick()
 
 
 void PictureManager::initialize(POINT& loc, CWnd* parent, int& id, std::unordered_map<std::string, CFont*> fonts,
-	std::vector<CToolTipCtrl*>& tooltips)
+	std::vector<CToolTipCtrl*>& tooltips, CBrush* defaultBrush)
 {
+	this->gridBrush = defaultBrush;
+	//
 	this->pictures[0].initialize(loc, parent, id, 570, 460);
 	loc.x += 570;
 	this->pictures[1].initialize(loc, parent, id, 570, 460);
@@ -95,11 +111,11 @@ void PictureManager::refreshBackgrounds(CWnd* parent)
 	return;
 }
 
-void PictureManager::drawGrids(CWnd* parent, CBrush* brush)
+void PictureManager::drawGrids( CWnd* parent )
 {
 	for (auto& picture : this->pictures)
 	{
-		picture.drawGrid(parent, brush);
+		picture.drawGrid( parent, gridBrush );
 	}
 }
 

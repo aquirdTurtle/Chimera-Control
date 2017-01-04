@@ -79,7 +79,6 @@ class CameraSettingsControl
 		Control<CStatic> header;
 		// Accumulation Time
 		// Accumulation Number
-		// Kinetic Cycle Time
 
 		// EM Gain
 		Control<CButton> emGainButton;
@@ -94,6 +93,10 @@ class CameraSettingsControl
 		Control<CEdit> temperatureEdit;
 		Control<CStatic> temperatureDisplay;
 		Control<CStatic> temperatureMessage;
+
+		// Kinetic Cycle Time
+		Control<CEdit> kineticCycleTimeEdit;
+		Control<CStatic> kineticCycleTimeLabel;
 
 		std::string currentControlColor;
 		// two subclassed groups.

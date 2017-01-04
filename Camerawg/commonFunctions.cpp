@@ -31,7 +31,7 @@ namespace commonFunctions
 			case ID_ACCELERATOR_F5:
 			case ID_FILE_MY_WRITE_WAVEFORMS:
 			{
-				camWin->redrawPictures();
+				camWin->redrawPictures(false);
 				try
 				{
 					commonFunctions::startCamera( scriptWin, mainWin, camWin );
@@ -320,7 +320,7 @@ namespace commonFunctions
 
 	void startCamera(ScriptingWindow* scriptWindow, MainWindow* mainWin, CameraWindow* camWin)
 	{
-		camWin->redrawPictures();
+		camWin->redrawPictures(false);
 		mainWin->getComm()->sendTimer( "Starting..." );
 		camWin->prepareCamera();
 

@@ -246,7 +246,7 @@ BOOL MainWindow::OnInitDialog()
 	this->SetMenu(&menu);
 	this->ShowWindow(SW_MAXIMIZE);
 	// just initializes the rectangles.
-	TheCameraWindow->redrawPictures();
+	TheCameraWindow->redrawPictures( true );
 	return TRUE;
 }
 

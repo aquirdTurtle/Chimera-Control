@@ -104,7 +104,6 @@ void CameraWindow::handlePictureEditChange( UINT id )
 
 LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam)
 {
-	
 	unsigned long long pictureNumber = lParam;
 	Andor.updatePictureNumber( pictureNumber );
 	std::vector<std::vector<long>> picData = Andor.acquireImageData();
@@ -116,7 +115,8 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam)
 		this->pics.drawPicture( drawer, pictureNumber % currentSettings.picsPerRepetition, picData.back() );
 		this->timer.update( pictureNumber / currentSettings.picsPerRepetition, currentSettings.repetitionsPerVariation, 
 							currentSettings.totalVariations, currentSettings.picsPerRepetition );
-		stats.update( picData.back(), pictureNumber % currentSettings.picsPerRepetition, { 0,0 }, currentSettings.imageSettings.width, 
+		stats.update( picData.back(), pictureNumber % currentSettings.picsPerRepetition, selectedPixel,
+					  currentSettings.imageSettings.width,
 					  pictureNumber / currentSettings.picsPerRepetition,
 					  currentSettings.totalPicsInExperiment / currentSettings.picsPerRepetition );
 	}
@@ -125,10 +125,11 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam)
 		int counter = 0;
 		for (auto data : picData)
 		{
-			stats.update( data, counter, { 0,0 }, currentSettings.imageSettings.width, 
+			stats.update( data, counter, selectedPixel, currentSettings.imageSettings.width, 
 						  pictureNumber / currentSettings.picsPerRepetition, 
 						  currentSettings.totalPicsInExperiment / currentSettings.picsPerRepetition );
 			this->pics.drawPicture( drawer, counter, data );
+			this->pics.drawDongles( this, selectedPixel );
 			counter++;
 		}
 		this->timer.update( pictureNumber / currentSettings.picsPerRepetition, currentSettings.repetitionsPerVariation, 
@@ -176,12 +177,12 @@ void CameraWindow::listViewLClick( NMHDR* info, LRESULT* lResult )
 }
 
 // pics looks up the location itself.
-void CameraWindow::OnRButtonUp( UINT stuff, CPoint loc )
+void CameraWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 {
-	POINT location = this->pics.handleRClick();
-	if (location.x != -1)
+	std::pair<int, int> box = this->pics.handleRClick( clickLocation );
+	if (box.first != -1)
 	{
-		selectedPixel = location;
+		selectedPixel = box;
 		pics.redrawPictures(this, selectedPixel);
 	}
 	return;
@@ -414,7 +415,8 @@ BOOL CameraWindow::OnInitDialog()
 	POINT position = { 480, 0 };
 	stats.initialize(position, this, id, this->mainWindowFriend->getFonts(), tooltips);
 	position = { 757, 0 };
-	pics.initialize(position, this, id, this->mainWindowFriend->getFonts(), tooltips);
+	pics.initialize(position, this, id, this->mainWindowFriend->getFonts(), tooltips,
+					 this->mainWindowFriend->getBrushes()["Dark Green"]);
 	positions.ksmPos = positions.amPos = positions.cssmPos = { 757, 460 };
 	timer.initialize( positions, this, false, id, this->mainWindowFriend->getFonts(), tooltips );
 	CameraSettings.readImageParameters( this );
@@ -429,9 +431,13 @@ BOOL CameraWindow::OnInitDialog()
 	return TRUE;
 }
 
-void CameraWindow::redrawPictures()
+void CameraWindow::redrawPictures(bool andGrid)
 {
 	this->pics.refreshBackgrounds(this);
+	if (andGrid)
+	{
+		pics.drawGrids( this );
+	}
 }
 
 HBRUSH CameraWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
@@ -455,9 +461,9 @@ HBRUSH CameraWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 			}
 			else
 			{
-				pDC->SetTextColor(rgbs["White"]);
-				pDC->SetBkColor(rgbs["Dark Grey Red"]);
-				return *brushes["Dark Grey Red"];
+				pDC->SetTextColor( rgbs["White"] );
+				pDC->SetBkColor( rgbs["Medium Grey"] );
+				return *brushes["Medium Grey"];
 			}
 		}
 		case CTLCOLOR_EDIT:
@@ -486,7 +492,7 @@ void CameraWindow::passCommonCommand(UINT id)
 
 void CameraWindow::readImageParameters()
 {
-	this->redrawPictures();
+	this->redrawPictures(false);
 	try
 	{
 		imageParameters parameters = this->CameraSettings.readImageParameters( this );
@@ -500,7 +506,7 @@ void CameraWindow::readImageParameters()
 		comm->sendColorBox( colors );
 		comm->sendError( exception.whatStr() + "\r\n" );
 	}
-	this->pics.drawGrids(this, this->mainWindowFriend->getBrushes()["White"]);
+	this->pics.drawGrids( this );
 	return;
 }
 
