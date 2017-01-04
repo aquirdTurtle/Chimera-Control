@@ -178,6 +178,7 @@
     <ClInclude Include="AlertSystem.h" />
     <ClInclude Include="ATMCD32D.H" />
     <ClInclude Include="beginningSettingsDialogProc.h" />
+    <ClInclude Include="CameraConfigurationSystem.h" />
     <ClInclude Include="CameraImageDimensions.h" />
     <ClInclude Include="CameraSettingsControl.h" />
     <ClInclude Include="CameraWindow.h" />
@@ -243,6 +244,7 @@
   <ItemGroup>
     <ClCompile Include="AlertSystem.cpp" />
     <ClCompile Include="beginningSettingsDialogProc.cpp" />
+    <ClCompile Include="CameraConfigurationSystem.cpp" />
     <ClCompile Include="CameraImageDimensions.cpp" />
     <ClCompile Include="CameraSettingsControl.cpp" />
     <ClCompile Include="CameraWindow.cpp" />

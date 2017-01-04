@@ -42,7 +42,7 @@ class CameraWindow : public CDialog
 		void OnTimer(UINT_PTR id);
 		void handlePictureEditChange( UINT id );
 		/// Extra functions from this class.
-		void redrawPictures();
+		void redrawPictures( bool andGrid );
 		void changeBoxColor( colorBoxes<char> colors );
 		std::vector<CToolTipCtrl*> getToolTips();
 		bool getCameraStatus();
@@ -86,7 +86,7 @@ class CameraWindow : public CDialog
 
 		std::vector<CToolTipCtrl*> tooltips;
 		
-		POINT selectedPixel = { 0,0 };
+		std::pair<int, int> selectedPixel = { 0,0 };
 
 		bool autoScalePictureData;
 		bool realTimePic;

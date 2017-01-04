@@ -74,7 +74,7 @@ class MainWindow : public CDialog
 			mainBrushes["Dark Blue"]->CreateSolidBrush(mainRGBs["Dark Blue"]);
 			mainBrushes["Dark Green"] = new CBrush;
 			mainBrushes["Dark Green"]->CreateSolidBrush(mainRGBs["Dark Green"]);
-			// the following is all equivalent to:
+			/// the following is all equivalent to:
 			// mainFonts["Font name"] = new CFont;
 			// mainFonts["Font name"].CreateFontA(...);
 			(mainFonts["Normal Font"] = new CFont)->CreateFontA(20, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,

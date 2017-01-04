@@ -1,22 +1,20 @@
 ﻿#include "stdafx.h"
 #include "PictureControl.h"
 
-POINT PictureControl::checkClickLocation()
+std::pair<int, int> PictureControl::checkClickLocation( CPoint clickLocation )
 {
-	POINT cursorPos;
-	GetCursorPos( &cursorPos );
+	CPoint test;
 	for (int horizontalInc = 0; horizontalInc < grid.size(); horizontalInc++)
 	{
 		for (int verticalInc = 0; verticalInc < grid[horizontalInc].size(); verticalInc++)
 		{
 			RECT relevantRect = grid[horizontalInc][verticalInc];
 			// check if inside box
-			if (cursorPos.x < relevantRect.right && cursorPos.x > relevantRect.left 
-				 && cursorPos.y < relevantRect.bottom && cursorPos.y > relevantRect.top)
+			if (clickLocation.x < relevantRect.right && clickLocation.x > relevantRect.left
+				 && clickLocation.y < relevantRect.bottom && clickLocation.y > relevantRect.top)
 			{
 				return { horizontalInc , verticalInc };
 				// then click was inside a box so this should do something.
-
 			}
 		}
 	}
@@ -102,6 +100,7 @@ void PictureControl::initialize(POINT& loc, CWnd* parent, int& id, int width, in
 	this->originalBackgroundArea = { loc.x, loc.y, loc.x + width, loc.y + height};
 	// reserve some area for the texts.
 	originalBackgroundArea.right -= 100;
+	this->currentBackgroundArea = this->originalBackgroundArea;
 	loc.x += originalBackgroundArea.right - originalBackgroundArea.left;
 	// "min" text
 	labelMin.sPos = { loc.x, loc.y, loc.x + 50, loc.y + 30 };
@@ -383,7 +382,7 @@ void PictureControl::drawRectangles( CWnd* parent, CBrush* brush )
 
 }
 
-void PictureControl::drawCircle(CWnd* parent, POINT selectedLocation)
+void PictureControl::drawCircle(CWnd* parent, std::pair<int, int> selectedLocation)
 {
 	if (grid.size() == 0)
 	{
@@ -395,7 +394,7 @@ void PictureControl::drawCircle(CWnd* parent, POINT selectedLocation)
 		//this->drawGrid();
 	}
 	RECT smallRect;
-	RECT relevantRect = grid[selectedLocation.x][selectedLocation.y];
+	RECT relevantRect = grid[selectedLocation.first][selectedLocation.second];
 	smallRect.left = relevantRect.left + 7.0 * (relevantRect.right - relevantRect.left) / 16.0;
 	smallRect.right = relevantRect.left + 9.0 * (relevantRect.right - relevantRect.left) / 16.0;
 	smallRect.top = relevantRect.top + 7.0 * (relevantRect.bottom - relevantRect.top) / 16.0;

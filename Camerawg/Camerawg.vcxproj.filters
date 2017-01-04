@@ -160,6 +160,9 @@
     <ClCompile Include="CameraImageDimensions.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
+    <ClCompile Include="CameraConfigurationSystem.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="waveformData.h">
@@ -351,6 +354,9 @@
     </ClInclude>
     <ClInclude Include="CameraImageDimensions.h">
       <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraConfigurationSystem.h">
+      <Filter>Code Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
