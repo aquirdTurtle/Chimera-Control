@@ -21,8 +21,6 @@
 #include "externals.h"
 // a function used to clear any leading whitespace from the input files.
 #include "rmWhite.h"
-// cleans up parameters related to a socket
-#include "cleanSocket.h"
 // an namespace for agilent functions.
 #include "myAgilent.h"
 //
@@ -53,6 +51,8 @@
 #include <vector>
 #include <sstream>
 #include <stdlib.h>
+#include <afxsock.h>
+
 // contains the boost function for finding a common factor.
 #include "boost/math/common_factor.hpp"
 // contains stuff I use for file IO.
@@ -98,8 +98,6 @@ BOOL myApplicationApp::InitInstance()
 	{
 		MessageBox(0, "Starting in Safe Mode. The program will not actually communicate with any of the devices", 0, MB_OK);
 	}
-	// Socket object for communicating with the other computer.
-	SOCKET ConnectSocket = INVALID_SOCKET;
 	// An array of variable files. Only used if not receiving variable information from the master computer.
 	std::vector<std::fstream> xVarFiles;
 	// Vectors of structures that each contain all the basic information about a single waveform. Most of this (pardon the default waveforms) gets erased after 
@@ -281,7 +279,8 @@ BOOL myApplicationApp::InitInstance()
 	// Initialize Winsock
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	// check for errors initializing winsock
-	if (iResult != 0) {
+	if (iResult != 0) 
+	{
 		char tempChar[300];
 		sprintf_s(tempChar, "WSAStartup failed: %d\r\n", iResult);
 		MessageBox(NULL, tempChar, NULL, MB_OK);

@@ -11,7 +11,7 @@
 #include "Communicator.h"
 #include "SMSTextingControl.h"
 #include "NiawgController.h"
-
+#include <afxsock.h>
 //#define PROFILES_PATH
 
 class ScriptingWindow;
@@ -22,7 +22,6 @@ class MainWindow : public CDialog
 	using CDialog::CDialog;
 	DECLARE_DYNAMIC(MainWindow);
 	public:
-		
 		MainWindow(UINT id) : CDialog(id), profile(PROFILES_PATH)
 		//MainWindow() : CDialog(), profile(PROFILES_PATH)
 		{
@@ -173,6 +172,7 @@ class MainWindow : public CDialog
 		void stopNiawg();
 		void changeBoxColor(colorBoxes<char> colors);
 		Communicator* getComm();
+		CSocket* getSocket();
 
 		bool niawgIsRunning();
 		void setNiawgRunningState( bool newRunningState );
@@ -198,6 +198,7 @@ class MainWindow : public CDialog
 		Communicator comm;
 		NiawgController niawg;
 		ColorBox boxes;
+		CSocket masterSocket;
 		std::vector<CToolTipCtrl*> tooltips;
 		friend bool commonFunctions::handleCommonMessage(int msgID, CWnd* parent, MainWindow* comm, 
 														ScriptingWindow* scriptWin, CameraWindow* camWin);

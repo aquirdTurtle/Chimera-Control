@@ -47,7 +47,8 @@ void NiawgController::setDefaultWaveforms(MainWindow* mainWin, bool isFirstLoad)
 	// counts the number of varied waveform pairs for x or y waveforms.
 	int horizontalVariedWaveformPairsCount = 0, verticalVariedWaveformPairsCount = 0;
 	// Socket object for communicating with the other computer.
-	SOCKET ConnectSocket = INVALID_SOCKET;
+	CSocket* socket = mainWin->getSocket();
+	//SOCKET ConnectSocket = INVALID_SOCKET;
 	// An array of variable files. Only used if not receiving variable information from the master computer.
 	std::vector<std::fstream> xVarFiles;
 	// Vectors of structures that each contain all the basic information about a single waveform. Most of this (pardon the default waveforms) gets erased after 
@@ -125,7 +126,7 @@ void NiawgController::setDefaultWaveforms(MainWindow* mainWin, bool isFirstLoad)
 			verticalPredefinedWaveformNames, horizontalPredefinedWaveformNames, defPredWaveformCount, defPredWaveLocs, 
 			libWaveformArray, fileOpenedStatus, allXWaveformParameters, xWaveformIsVaried, allYWaveformParameters, 
 			yWaveformIsVaried, true, "", noSingletons, HORIZONTAL_ORIENTATION, dummyOptions, warnings, debugMessages),
-			"", ConnectSocket, hConfigVFile, hConfigHFile, false, userScriptIsWritten, "", false, false, false, mainWin->getComm())
+			"", socket, hConfigVFile, hConfigHFile, false, userScriptIsWritten, "", false, false, false, mainWin->getComm())
 			== true)
 		{
 			errBox("FATAL ERROR: Creation of Default Waveforms and Default Script Has Failed!");
@@ -138,7 +139,7 @@ void NiawgController::setDefaultWaveforms(MainWindow* mainWin, bool isFirstLoad)
 			waveformCount, verticalPredefinedWaveformNames, horizontalPredefinedWaveformNames, defPredWaveformCount, defPredWaveLocs,
 			libWaveformArray, fileOpenedStatus, allXWaveformParameters, xWaveformIsVaried, allYWaveformParameters, 
 			yWaveformIsVaried, true, "", noSingletons, VERTICAL_ORIENTATION, dummyOptions, warnings, debugMessages),
-			"", ConnectSocket, vConfigVFile, vConfigHFile, false,
+			"", socket, vConfigVFile, vConfigHFile, false,
 			userScriptIsWritten, "", false, false, false, mainWin->getComm())
 			== true)
 		{

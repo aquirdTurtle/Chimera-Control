@@ -7,7 +7,7 @@
 // running in safemode means that the program doesn't actually try to connect to any devices. It can be used to debug other aspects of the program.
 #define TWEEZER_COMPUTER_SAFEMODE true
 #define ANDOR_SAFEMODE true
-#define DESKTOP_COMPUTER
+#define LAPTOP_COMPUTER
 
 /// File Locations
 // Files for Lab Computer
@@ -154,9 +154,9 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_SET_EM_GAIN_BUTTON 3004
 #define IDC_TRIGGER_COMBO 3008
 #define IDC_SET_TEMPERATURE_BUTTON 3009
-#define PICTURE_SETTINGS_ID_START 3015
-#define PICTURE_SETTINGS_ID_END 3050
-#define IDC_SET_IMAGE_PARAMETERS_BUTTON 3051
+#define PICTURE_SETTINGS_ID_START 3013
+#define PICTURE_SETTINGS_ID_END 3048
+#define IDC_SET_IMAGE_PARAMETERS_BUTTON 3049
 #define IDC_ALERTS_BOX 3065
 #define IDC_PLOTTING_LISTVIEW 3077
 

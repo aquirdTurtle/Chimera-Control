@@ -336,29 +336,29 @@ void CameraSettingsControl::initialize(cameraPositions& pos, int& id, CWnd* pare
 	temperatureMessage.fontType = "Normal";
 	pos.ksmPos.y += 50;
 
+	//
+	picSettingsObj.initialize(pos.ksmPos, pos.cssmPos, pos.amPos, parent, id);
+	imageDimensionsObj.initialize(pos.ksmPos, pos.amPos, pos.cssmPos, parent, false, id);
+
 	// Kinetic Cycle Time Label
 	kineticCycleTimeLabel.ksmPos = { pos.ksmPos.x, pos.ksmPos.y, pos.ksmPos.x + 240, pos.ksmPos.y + 25 };
 	kineticCycleTimeLabel.cssmPos = { -1,-1,-1,-1 };
 	kineticCycleTimeLabel.amPos = { -1,-1,-1,-1 };
 	kineticCycleTimeLabel.ID = id++;
 	kineticCycleTimeLabel.triggerModeSensitive = -1;
-	kineticCycleTimeLabel.Create( "Kinetic Cycle Time", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY,
-								  kineticCycleTimeLabel.ksmPos, parent, kineticCycleTimeLabel.ID );
+	kineticCycleTimeLabel.Create("Kinetic Cycle Time", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY,
+		kineticCycleTimeLabel.ksmPos, parent, kineticCycleTimeLabel.ID);
 	kineticCycleTimeLabel.fontType = "Normal";
+
 	// Kinetic Cycle Time Edit
 	kineticCycleTimeEdit.ksmPos = { pos.ksmPos.x + 240, pos.ksmPos.y, pos.ksmPos.x + 480, pos.ksmPos.y + 25 };
 	kineticCycleTimeEdit.cssmPos = { -1,-1,-1,-1 };
 	kineticCycleTimeEdit.amPos = { -1,-1,-1,-1 };
 	kineticCycleTimeEdit.ID = id++;
 	kineticCycleTimeEdit.triggerModeSensitive = -1;
-	kineticCycleTimeEdit.Create( WS_CHILD | WS_VISIBLE | WS_BORDER, kineticCycleTimeEdit.ksmPos, parent, kineticCycleTimeEdit.ID );
+	kineticCycleTimeEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER, kineticCycleTimeEdit.ksmPos, parent, kineticCycleTimeEdit.ID);
 	kineticCycleTimeEdit.fontType = "Normal";
-
 	pos.ksmPos.y += 25;
-	//
-	picSettingsObj.initialize(pos.ksmPos, pos.cssmPos, pos.amPos, parent, id);
-	imageDimensionsObj.initialize(pos.ksmPos, pos.amPos, pos.cssmPos, parent, false, id);
-	
 }
 
 void CameraSettingsControl::checkTimings(std::vector<float> exposureTimes)

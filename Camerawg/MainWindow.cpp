@@ -661,3 +661,8 @@ std::unordered_map<std::string, COLORREF> MainWindow::getRGB()
 {
 	return this->mainRGBs;
 }
+
+CSocket* MainWindow::getSocket()
+{
+	return &this->masterSocket;
+}

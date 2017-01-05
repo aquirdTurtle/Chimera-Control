@@ -31,7 +31,7 @@ template <class ControlType> class Control : public ControlType
 		// Continuous Single Scan Mode Position
 		RECT cssmPos;
 		std::string fontType;
-		bool triggerModeSensitive;
+		int triggerModeSensitive;
 		//
 		int ID;
 		int colorState = 0;
@@ -77,7 +77,7 @@ template <class ControlType> void Control<ControlType>::rearrange(std::string ca
 	double extraHeight = 0;
 	if (trigMode == "External" && this->triggerModeSensitive && (cameraMode == "Kinetic Series Mode" || cameraMode == "Accumulate Mode"))
 	{
-		extraHeight += -30;
+		extraHeight += -25;
 	}
 	// handle simple case.
 	if (this->sPos.bottom != 0 || this->sPos.top != 0)
@@ -99,7 +99,7 @@ template <class ControlType> void Control<ControlType>::rearrange(std::string ca
 			this->ShowWindow(SW_SHOW);
 			RECT position = { widthScale * this->ksmPos.left, heightScale * (this->ksmPos.top + extraHeight),
 				widthScale * this->ksmPos.right,
-				heightScale * this->ksmPos.bottom };
+				heightScale * (this->ksmPos.bottom + extraHeight) };
 			this->MoveWindow(&position, TRUE);
 		}
 	}	 
@@ -114,7 +114,7 @@ template <class ControlType> void Control<ControlType>::rearrange(std::string ca
 			this->ShowWindow(SW_SHOW);
 			RECT position = { widthScale * this->cssmPos.left, heightScale * (this->cssmPos.top + extraHeight),
 				widthScale * this->cssmPos.right,
-				heightScale * this->cssmPos.bottom };
+				heightScale * (this->cssmPos.bottom + extraHeight) };
 			this->MoveWindow(&position, TRUE);
 		}
 	}
@@ -129,7 +129,7 @@ template <class ControlType> void Control<ControlType>::rearrange(std::string ca
 			this->ShowWindow(SW_SHOW);
 			RECT position = { widthScale * this->amPos.left, heightScale * (this->amPos.top + extraHeight),
 				widthScale * this->amPos.right,
-				heightScale * this->amPos.bottom };
+				heightScale * (this->amPos.bottom + extraHeight) };
 			this->MoveWindow(&position, TRUE);
 		}
 	}

@@ -41,6 +41,7 @@ bool AlertSystem::initialize(cameraPositions& pos, CWnd* parent, bool isTriggerM
 	title.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 25 };
 	title.cssmPos = { -1,-1,-1,-1 };
 	title.ID = id++;
+	title.triggerModeSensitive = isTriggerModeSensitive;
 	title.Create("ALERT SYSTEM", WS_BORDER | WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, title.ksmPos, parent, title.ID);
 	title.fontType = "Heading";
 	pos.ksmPos.y += 25;
@@ -50,6 +51,7 @@ bool AlertSystem::initialize(cameraPositions& pos, CWnd* parent, bool isTriggerM
 	alertsActiveCheckBox.amPos = { pos.amPos.x + 0, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 20 };
 	alertsActiveCheckBox.cssmPos = { -1,-1,-1,-1 };
 	alertsActiveCheckBox.ID = id++;
+	alertsActiveCheckBox.triggerModeSensitive = isTriggerModeSensitive;
 	if (alertsActiveCheckBox.ID != IDC_ALERTS_BOX)
 	{
 		throw;
@@ -61,6 +63,7 @@ bool AlertSystem::initialize(cameraPositions& pos, CWnd* parent, bool isTriggerM
 	alertThresholdText.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 20 };
 	alertThresholdText.cssmPos = { -1,-1,-1,-1 };
 	alertThresholdText.ID = id++;
+	alertThresholdText.triggerModeSensitive = isTriggerModeSensitive;
 	alertThresholdText.Create("Alert Threshold:", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, alertThresholdText.ksmPos, parent, alertThresholdText.ID);
 	alertThresholdText.fontType = "Normal";
 	/// Alert threshold edit
@@ -68,6 +71,7 @@ bool AlertSystem::initialize(cameraPositions& pos, CWnd* parent, bool isTriggerM
 	alertThresholdEdit.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 20 };
 	alertThresholdEdit.cssmPos = { -1,-1,-1,-1 };
 	alertThresholdEdit.ID = id++;
+	alertThresholdEdit.triggerModeSensitive = isTriggerModeSensitive;
 	alertThresholdEdit.Create(WS_CHILD | WS_VISIBLE | ES_CENTER, alertThresholdEdit.ksmPos, parent, alertThresholdEdit.ID);
 	alertThresholdEdit.SetWindowTextA("10");
 	alertThresholdEdit.fontType = "Normal";
@@ -79,6 +83,7 @@ bool AlertSystem::initialize(cameraPositions& pos, CWnd* parent, bool isTriggerM
 	soundAtFinshCheckBox.amPos = { pos.amPos.x + 0, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 20 };
 	soundAtFinshCheckBox.cssmPos = { -1,-1,-1,-1 };
 	soundAtFinshCheckBox.ID = id++;
+	soundAtFinshCheckBox.triggerModeSensitive = isTriggerModeSensitive;
 	soundAtFinshCheckBox.Create("Play Sound at Finish?", WS_CHILD | WS_VISIBLE | ES_LEFT | ES_READONLY | BS_AUTOCHECKBOX, soundAtFinshCheckBox.ksmPos,
 		parent, soundAtFinshCheckBox.ID);
 	soundAtFinshCheckBox.fontType = "Normal";
