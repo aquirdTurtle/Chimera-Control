@@ -17,7 +17,7 @@
 #include "postMyString.h"
 #include "VariableSystem.h"
 #include <boost/algorithm/string/replace.hpp>
-
+#include <afxsock.h>
 
 
 /*
@@ -27,16 +27,18 @@
  */
 unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 {
+
 	/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	///
 	///					Initializing and Checking Options
 	///
 
 	experimentThreadInputStructure* inputStruct = (experimentThreadInputStructure*)inputParam;
-	
+	AfxSocketInit();
 	ViBoolean isDoneTest = VI_FALSE;
 	char userScriptName[FILENAME_MAX];
-	SOCKET ConnectSocket = INVALID_SOCKET;
+	CSocket ConnectSocket;
+	//SOCKET ConnectSocket = INVALID_SOCKET;
 	bool userScriptIsWritten = false;
 	// initialize to 2 because of default waveforms...
 	int waveformCount = 2;
@@ -132,7 +134,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 		{
 			// send error
 			if (myErrorHandler(1, "ERROR: Failed to open vertical script file named: " + verticalScriptAddress + " found in configuration: " 
-								  + inputStruct->threadSequenceFileNames[sequenceInc] + "\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,
+								  + inputStruct->threadSequenceFileNames[sequenceInc] + "\r\n", &ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,
 				  userScriptIsWritten, userScriptName, false, false, true, inputStruct->comm) == true)
 			{
 				colorBoxes<char> input = { '-','-','-' };
@@ -149,7 +151,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 		{
 			// send error
 			if (myErrorHandler(1, "ERROR: Failed to open horizontal script file named: " + horizontalScriptAddress + " found in configuration: "
-				+ inputStruct->threadSequenceFileNames[sequenceInc] + "\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,
+				+ inputStruct->threadSequenceFileNames[sequenceInc] + "\r\n", &ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,
 				  userScriptIsWritten, userScriptName, false, false, true, inputStruct->comm) == true)
 			{
 				inputStruct->comm->sendFatalError("ERROR: Failed to open horizontal script file named: " + horizontalScriptAddress + " found in configuration: "
@@ -165,7 +167,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 		{
 			// send error
 			if (myErrorHandler(1, "ERROR: Failed to open intensity script file named: " + intensityScriptAddress + " found in configuration: "
-				+ inputStruct->threadSequenceFileNames[sequenceInc] + "\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,
+				+ inputStruct->threadSequenceFileNames[sequenceInc] + "\r\n", &ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,
 				  userScriptIsWritten, userScriptName, false, false, true, inputStruct->comm) == true)
 			{
 				inputStruct->comm->sendFatalError("ERROR: Failed to open intensity script file named: " + intensityScriptAddress + " found in configuration: "
@@ -313,7 +315,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	{
 		// Resolve the server address and port
 		iResult = getaddrinfo(SERVER_ADDRESS, DEFAULT_PORT, &hints, &result);
-		if (myErrorHandler(iResult, "ERROR: getaddrinfo failed: " + std::to_string(iResult) + "\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,
+		if (myErrorHandler(iResult, "ERROR: getaddrinfo failed: " + std::to_string(iResult) + "\r\n", &ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,
 			  userScriptIsWritten, userScriptName, false, false, true, inputStruct->comm) == true)
 		{
 			inputStruct->comm->sendFatalError("ERROR: getaddrinfo failed: " + std::to_string(iResult) + "\r\n");
@@ -333,9 +335,10 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
 			// make socket object
-			ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+			ConnectSocket.Socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+			//ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
 			// Handle Errors
-			if (myErrorHandler((ConnectSocket == -1), "ERROR: at socket() function: " + std::to_string(WSAGetLastError()) + "\r\n", ConnectSocket, verticalScriptFiles,
+			if (myErrorHandler((ConnectSocket == -1), "ERROR: at socket() function: " + std::to_string(WSAGetLastError()) + "\r\n",&ConnectSocket, verticalScriptFiles,
 				horizontalScriptFiles, false,   userScriptIsWritten, userScriptName, false, false, true, inputStruct->comm))
 			{
 				inputStruct->comm->sendFatalError("ERROR: at socket() function: " + std::to_string(WSAGetLastError()) + "\r\n");
@@ -348,7 +351,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 		{
 			// Handle Errors
 			iResult = connect(ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
-			if (myErrorHandler(iResult, "Unable to connect to server!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles,	/*aborting = */false,
+			if (myErrorHandler(iResult, "Unable to connect to server!\r\n",&ConnectSocket, verticalScriptFiles, horizontalScriptFiles,	/*aborting = */false,
 				  userScriptIsWritten, userScriptName, /*Socket Active = */false, false, true, inputStruct->comm))
 			{
 				inputStruct->comm->sendFatalError("Unable to connect to server!\r\n");
@@ -373,7 +376,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 		{
 
 			iResult = send(ConnectSocket, "Accumulations?", 14, 0);
-			if (myErrorHandler(iResult == -1, "ERROR: Socket send failed with error code: " + std::to_string(WSAGetLastError()) + "\r\n", ConnectSocket,
+			if (myErrorHandler(iResult == -1, "ERROR: Socket send failed with error code: " + std::to_string(WSAGetLastError()) + "\r\n",&ConnectSocket,
 				verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 			{
 				inputStruct->comm->sendFatalError("ERROR: Socket send failed with error code: " + std::to_string(WSAGetLastError()) + "\r\n");
@@ -393,7 +396,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			std::stringstream accumulationsStream;
 			accumulationsStream << recvbuf;
 			accumulationsStream >> tempAccumulations;
-			if (myErrorHandler(tempAccumulations != "Accumulations:", "ERROR: master's message did not start with \"Accumulations:\". It started with " + tempAccumulations + " . Assuming fatal error.", ConnectSocket,
+			if (myErrorHandler(tempAccumulations != "Accumulations:", "ERROR: master's message did not start with \"Accumulations:\". It started with " + tempAccumulations + " . Assuming fatal error.",&ConnectSocket,
 				verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 			{
 				inputStruct->comm->sendFatalError("!");
@@ -408,7 +411,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			catch (std::invalid_argument&)
 			{
 				if (myErrorHandler(true, "ERROR: master's message's number did not convert correctly to an integer. String trying to convert is "
-					+ tempAccumulations + ". Assuming fatal error.", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten,
+					+ tempAccumulations + ". Assuming fatal error.",&ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten,
 					userScriptName, true, false, true, inputStruct->comm))
 				{
 					inputStruct->comm->sendFatalError("!");
@@ -417,7 +420,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				}
 			}
 			if (myErrorHandler((*inputStruct).threadRepetitions < 0, "ERROR: master's message's number was negative! String trying to convert is " + tempAccumulations
-				+ ". Assuming fatal error.", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten, userScriptName,
+				+ ". Assuming fatal error.",&ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten, userScriptName,
 				true, false, true, inputStruct->comm))
 			{
 				PostMessage(eMainWindowHandle, eFatalErrorMessageID, 0, 0);
@@ -425,7 +428,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				return -1;
 			}
 			iResult = send(ConnectSocket, "Received Accumulations.", 23, 0);
-			if (myErrorHandler(iResult == -1, "ERROR: Socket send failed with error code: " + std::to_string(WSAGetLastError()) + "\r\n", ConnectSocket,
+			if (myErrorHandler(iResult == -1, "ERROR: Socket send failed with error code: " + std::to_string(WSAGetLastError()) + "\r\n",&ConnectSocket,
 				verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 			{
 				inputStruct->comm->sendFatalError("ERROR: Socket send failed with error code: " + std::to_string(WSAGetLastError()) + "\r\n");
@@ -435,7 +438,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			if (myErrorHandler((*inputStruct).threadRepetitions % ((*inputStruct).threadSequenceFileNames.size()) != 0, 
 							   "ERROR: Number of accumulations received from master: " + std::to_string((*inputStruct).threadRepetitions) 
 							   + ", is not an integer multiple of the number of configurations in the sequence: " 
-							   + std::to_string((*inputStruct).threadSequenceFileNames.size()) + ". It must be.\r\n", ConnectSocket, verticalScriptFiles, 
+							   + std::to_string((*inputStruct).threadSequenceFileNames.size()) + ". It must be.\r\n",&ConnectSocket, verticalScriptFiles, 
 							   horizontalScriptFiles, false,   userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 			{
 				inputStruct->comm->sendFatalError("ERROR: Number of accumulations received from master: " + std::to_string((*inputStruct).threadRepetitions)
@@ -499,7 +502,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 					allYWaveformParameters, yWaveformIsVaried, false, (*inputStruct).currentFolderLocation, singletons, 
 					inputStruct->profileInfo.orientation, inputStruct->debugOptions, warnings, debugMessages),
 				"analyzeNIAWGScripts() threw an error!\r\n",
-				ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
+				&ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 			{
 				inputStruct->comm->sendFatalError("analyzeNIAWGScripts() threw an error!\r\n");
 				delete inputStruct;
@@ -614,7 +617,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			if (!TWEEZER_COMPUTER_SAFEMODE)    
 			{
 				iResult = send(ConnectSocket, "next variable", 13, 0);
-				if (myErrorHandler(iResult == -1, "ERROR: Socket send failed with error code: " + std::to_string(WSAGetLastError()) + "\r\n", ConnectSocket,
+				if (myErrorHandler(iResult == -1, "ERROR: Socket send failed with error code: " + std::to_string(WSAGetLastError()) + "\r\n",&ConnectSocket,
 					verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 				{
 					inputStruct->comm->sendFatalError("ERROR: Socket send failed with error code: " + std::to_string(WSAGetLastError()) + "\r\n");
@@ -650,7 +653,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				if (!TWEEZER_COMPUTER_SAFEMODE)
 				{
 					if (myErrorHandler(varNameCursor == -1, "ERROR: The variable name sent by the master computer (" + tempVarName + ") doesn't match any current variables!\r\n",
-						ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten, userScriptName, true, false,
+						&ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten, userScriptName, true, false,
 						true, inputStruct->comm))
 					{
 						inputStruct->comm->sendFatalError("ERROR: The variable name sent by the master computer (" 
@@ -704,7 +707,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			}
 			else if (iResult == 0)
 			{
-				if (myErrorHandler(-1, "ERROR: The connection with the master computer was closed!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles,
+				if (myErrorHandler(-1, "ERROR: The connection with the master computer was closed!\r\n",&ConnectSocket, verticalScriptFiles, horizontalScriptFiles,
 					false,   userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 				{
 					inputStruct->comm->sendFatalError("ERROR: The connection with the master computer was closed!\r\n");
@@ -714,7 +717,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			}
 			else
 			{
-				if (myErrorHandler(-1, "ERROR: Socket Recieve failed with error code: " + std::to_string(WSAGetLastError()) + "\r\n", ConnectSocket,
+				if (myErrorHandler(-1, "ERROR: Socket Recieve failed with error code: " + std::to_string(WSAGetLastError()) + "\r\n",&ConnectSocket,
 					verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 				{
 					inputStruct->comm->sendFatalError("ERROR: Socket Recieve failed with error code: " + std::to_string(WSAGetLastError()) + "\r\n");
@@ -758,7 +761,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				{
 					case IDABORT:
 					{
-						if (myErrorHandler(-1, "ERROR: Andor Disconected. User Aborted.\r\n", ConnectSocket,
+						if (myErrorHandler(-1, "ERROR: Andor Disconected. User Aborted.\r\n",&ConnectSocket,
 							verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 						{
 							inputStruct->comm->sendFatalError("ERROR: Andor Disconected. User Aborted.\r\n");
@@ -826,7 +829,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				{
 				case IDABORT:
 				{
-					if (myErrorHandler(-1, "ERROR: Andor Disconected. User Aborted.\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, 
+					if (myErrorHandler(-1, "ERROR: Andor Disconected. User Aborted.\r\n",&ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, 
 						userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 					{
 						inputStruct->comm->sendFatalError("ERROR: Andor Disconected. User Aborted.\r\n");
@@ -896,7 +899,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				{
 					case IDABORT:
 					{
-						if (myErrorHandler(-1, "ERROR: Andor Disconected. User Aborted.\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, 
+						if (myErrorHandler(-1, "ERROR: Andor Disconected. User Aborted.\r\n",&ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, 
 							userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 						{
 							inputStruct->comm->sendFatalError("ERROR: Andor Disconected. User Aborted.\r\n");
@@ -965,7 +968,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				{
 					case IDABORT:
 					{
-						if (myErrorHandler(-1, "ERROR: Andor Disconected. User Aborted.\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, 
+						if (myErrorHandler(-1, "ERROR: Andor Disconected. User Aborted.\r\n",&ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, 
 							userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 						{
 							inputStruct->comm->sendFatalError("ERROR: Andor Disconected. User Aborted.\r\n");
@@ -1013,7 +1016,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	{
 		if (variableValuesLengths[varNameInc] != variableValuesLengths[varNameInc + 1])
 		{
-			if (myErrorHandler(-1, "Error: lengths of variable values are not all the same! They must be the same\r\n", ConnectSocket, verticalScriptFiles,
+			if (myErrorHandler(-1, "Error: lengths of variable values are not all the same! They must be the same\r\n",&ConnectSocket, verticalScriptFiles,
 				horizontalScriptFiles, false,   userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 			{
 				inputStruct->comm->sendFatalError("Error: lengths of variable values are not all the same! They must be the same\r\n");
@@ -1031,7 +1034,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 		inputStruct->comm->sendColorBox( colors );
 		if (myErrorHandler(myAgilent::programIntensity(boost::numeric_cast<int>(varyingParameters.size()), varyingParameters, variableValues, intIsVaried,
 			intensitySequenceMinAndMaxVector, intensityPoints, intensityScriptFiles, singletons, inputStruct->profileInfo),
-			"ERROR: Intensity Programming Failed!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,  
+			"ERROR: Intensity Programming Failed!\r\n",&ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,  
 			userScriptIsWritten, userScriptName, /*Socket Active = */true, false, true, inputStruct->comm))
 		{
 			inputStruct->comm->sendFatalError("ERROR: Intensity Programming Failed!\r\n");
@@ -1042,7 +1045,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 		inputStruct->comm->sendStatus("Complete!\r\n");
 		// select the first one.
 		if (myErrorHandler(myAgilent::selectIntensityProfile(0, intIsVaried, intensitySequenceMinAndMaxVector),
-			"ERROR: intensity profile selection failed!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, 
+			"ERROR: intensity profile selection failed!\r\n",&ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, 
 			userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 		{
 			inputStruct->comm->sendFatalError("ERROR: intensity profile selection failed!\r\n");
@@ -1174,7 +1177,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 								/// Not correction waveform...
 								// change parameters, depending on the case. The varTypes and variable Value sets were set previously.
 								if (myErrorHandler(inputStruct->niawg->varyParam(allYWaveformParameters, allXWaveformParameters, j, allYWaveformParameters[j].varTypes[m],
-									variableValue, warnings), "ERROR: varyParam() returned an error.\r\n", ConnectSocket, verticalScriptFiles,
+									variableValue, warnings), "ERROR: varyParam() returned an error.\r\n",&ConnectSocket, verticalScriptFiles,
 									horizontalScriptFiles, false,   userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 								{
 									inputStruct->comm->sendFatalError("ERROR: varyParam() returned an error.\r\n");
@@ -1209,7 +1212,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 								{
 									if (myErrorHandler(-1, "ERROR: The code has entered a part of the code which it should never enter, indicating a logic"
 										"error somewhere. Search \"Error location #1\" in the code to find this location. The code will "
-										"continue to run, but is likely about to crash.", ConnectSocket, verticalScriptFiles, horizontalScriptFiles,
+										"continue to run, but is likely about to crash.",&ConnectSocket, verticalScriptFiles, horizontalScriptFiles,
 										false, userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 									{
 										inputStruct->comm->sendFatalError("ERROR: The code has entered a part of "
@@ -1242,7 +1245,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 								// change parameters, depending on the case. The varTypes and variable Value sets were set previously.
 								if (myErrorHandler(inputStruct->niawg->varyParam(allXWaveformParameters, allYWaveformParameters, j, allXWaveformParameters[j].varTypes[m],
 									variableValue, warnings),
-									"ERROR: varyParam() returned an error.\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, 
+									"ERROR: varyParam() returned an error.\r\n",&ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, 
 									userScriptIsWritten, userScriptName, /*Socket Active = */true, false, true, inputStruct->comm))
 								{
 									inputStruct->comm->sendFatalError("ERROR: varyParam() returned an error.\r\n");
@@ -1267,7 +1270,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 							if (n + 1 > allXWaveformParameters[j - 1].signalNum) {
 								if (myErrorHandler(-1, "ERROR: You are trying to copy the phase of the " + std::to_string(n + 1) + " signal of the "
 									"previous waveform, but the previous waveform only had "
-									+ std::to_string(allXWaveformParameters[j - 1].signalNum) + " signals!\r\n", ConnectSocket,
+									+ std::to_string(allXWaveformParameters[j - 1].signalNum) + " signals!\r\n",&ConnectSocket,
 									verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten, userScriptName,
 									true, false, inputStruct->settings.connectToMaster, inputStruct->comm))
 								{
@@ -1293,7 +1296,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 							{
 								if (myErrorHandler(-1, "ERROR: You are trying to copy the phase of the " + std::to_string(n + 1) + " signal of the "
 									"previous waveform, but the previous waveform only had " + std::to_string(allYWaveformParameters[j - 1].signalNum)
-									+ " signals!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten,
+									+ " signals!\r\n",&ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false,   userScriptIsWritten,
 									userScriptName, true, false, true, inputStruct->comm))
 								{
 									inputStruct->comm->sendFatalError("ERROR: You are trying to copy the phase of "
@@ -1681,7 +1684,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				inputStruct->comm->sendColorBox( colors );
 				if (myErrorHandler(myAgilent::selectIntensityProfile(boost::numeric_cast<int>(varValueLengthInc), 
 																	 intIsVaried, intensitySequenceMinAndMaxVector),
-					"ERROR: intensity profile selection failed!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, 
+					"ERROR: intensity profile selection failed!\r\n",&ConnectSocket, verticalScriptFiles, horizontalScriptFiles, false, 
 					userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm))
 				{
 					inputStruct->comm->sendFatalError("ERROR: intensity profile selection failed!\r\n");
@@ -1747,7 +1750,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 					{
 						// Send returns -1 if failed, 0 otherwise.
 						iResult = send(ConnectSocket, "go", 2, 0);
-						myErrorHandler(iResult == -1, "ERROR: send failed!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles,
+						myErrorHandler(iResult == -1, "ERROR: send failed!\r\n",&ConnectSocket, verticalScriptFiles, horizontalScriptFiles,
 							false,   userScriptIsWritten, userScriptName, true, false, true, inputStruct->comm);
 						iResult = 0;
 					}
@@ -1840,7 +1843,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				if (inputStruct->settings.connectToMaster == true)
 				{
 					iResult = send(ConnectSocket, "go", 2, 0);
-					if (myErrorHandler(iResult == -1, "ERROR: intensity profile selection failed!\r\n", ConnectSocket, verticalScriptFiles, horizontalScriptFiles,
+					if (myErrorHandler(iResult == -1, "ERROR: intensity profile selection failed!\r\n",&ConnectSocket, verticalScriptFiles, horizontalScriptFiles,
 						false,   userScriptIsWritten, userScriptName, true, true, true, inputStruct->comm))
 					{
 						inputStruct->comm->sendFatalError("ERROR: intensity profile selection failed!\r\n");

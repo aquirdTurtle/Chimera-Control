@@ -410,8 +410,8 @@ BOOL CameraWindow::OnInitDialog()
 	
 	this->CameraSettings.initialize(positions, id, this, this->mainWindowFriend->getFonts(), tooltips);
 	// initialize the settings.
-	alerts.initialize(positions, this, false, id, this->mainWindowFriend->getFonts(), tooltips);
-	dataHandler.initialize(positions, id, this, this->mainWindowFriend->getFonts(), tooltips);
+	alerts.initialize(positions, this, true, id, this->mainWindowFriend->getFonts(), tooltips);
+	dataHandler.initialize(positions, id, this, this->mainWindowFriend->getFonts(), tooltips, true);
 	POINT position = { 480, 0 };
 	stats.initialize(position, this, id, this->mainWindowFriend->getFonts(), tooltips);
 	position = { 757, 0 };

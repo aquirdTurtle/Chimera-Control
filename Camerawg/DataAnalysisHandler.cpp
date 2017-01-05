@@ -127,12 +127,14 @@ void DataHandlingControl::clearAtomLocations()
 	return;
 }
 
-void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent, std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips)
+void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent, std::unordered_map<std::string, CFont*> fonts, 
+	std::vector<CToolTipCtrl*>& tooltips, int isTriggerModeSensitive)
 {
 
 	header.ksmPos = { pos.ksmPos.x,  pos.ksmPos.y,  pos.ksmPos.x + 480, pos.ksmPos.y + 25 };
 	header.cssmPos = { pos.cssmPos.x, pos.cssmPos.y, pos.cssmPos.x + 480, pos.cssmPos.y + 25 };
 	header.amPos = { pos.amPos.x,   pos.amPos.y,   pos.amPos.x + 480, pos.amPos.y + 25 };
+	header.triggerModeSensitive = isTriggerModeSensitive;
 	header.ID = id++;
 	header.Create("DATA ANALYSIS", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_CENTER, header.ksmPos, parent, header.ID);
 	header.fontType = "Heading";
@@ -147,6 +149,7 @@ void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	currentDataSetNumberText.amPos = { pos.amPos.x, pos.amPos.y,
 		pos.amPos.x + 400, pos.amPos.y + 25 };
 	currentDataSetNumberText.cssmPos = { -1,-1,-1,-1 };
+	currentDataSetNumberText.triggerModeSensitive = isTriggerModeSensitive;
 	currentDataSetNumberText.ID = id++;
 	currentDataSetNumberText.Create( "Most Recent Data Set #:", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY,
 									 currentDataSetNumberText.ksmPos, parent, currentDataSetNumberText.ID );
@@ -156,6 +159,7 @@ void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	currentDataSetNumberEdit.amPos = { pos.amPos.x + 400, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 25 };
 	currentDataSetNumberEdit.cssmPos = { -1,-1,-1,-1 };
 	currentDataSetNumberEdit.ID = id++;
+	currentDataSetNumberEdit.triggerModeSensitive = isTriggerModeSensitive;
 	currentDataSetNumberEdit.Create( "?", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, 
 									 currentDataSetNumberEdit.ksmPos, parent, currentDataSetNumberEdit.ID );
 	currentDataSetNumberEdit.fontType = "Normal";
@@ -165,6 +169,7 @@ void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	autoAnalyzeCheckBox.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 20 };
 	autoAnalyzeCheckBox.cssmPos = { -1,-1,-1,-1 };
 	autoAnalyzeCheckBox.ID = id++;
+	autoAnalyzeCheckBox.triggerModeSensitive = isTriggerModeSensitive;
 	autoAnalyzeCheckBox.Create( "Automatically Analyze Data at Finish?", WS_CHILD | WS_VISIBLE | ES_RIGHT |
 								ES_READONLY | BS_CHECKBOX, autoAnalyzeCheckBox.ksmPos, parent, autoAnalyzeCheckBox.ID );
 	autoAnalyzeCheckBox.fontType = "Normal";
@@ -177,6 +182,7 @@ void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 		pos.amPos.x + 480, pos.amPos.y + 25 };
 	setAnalysisLocationsButton.cssmPos = { -1,-1,-1,-1 };
 	setAnalysisLocationsButton.ID = id++;
+	setAnalysisLocationsButton.triggerModeSensitive = isTriggerModeSensitive;
 	setAnalysisLocationsButton.Create( "Set AutoAnalysis Points", WS_CHILD | WS_VISIBLE | BS_PUSHLIKE | BS_CHECKBOX,
 									   setAnalysisLocationsButton.ksmPos, parent, setAnalysisLocationsButton.ID );
 	setAnalysisLocationsButton.fontType = "Normal";
@@ -189,7 +195,9 @@ void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	analyzeMostRecentButton.amPos = { pos.amPos.x, pos.amPos.y,
 		pos.amPos.x + 480, pos.amPos.y + 25 };
 	analyzeMostRecentButton.cssmPos = { -1, -1, -1, -1 };
+	analyzeMostRecentButton.triggerModeSensitive = isTriggerModeSensitive;
 	analyzeMostRecentButton.ID = id++;
+	analyzeMostRecentButton.triggerModeSensitive = isTriggerModeSensitive;
 	analyzeMostRecentButton.Create( "Analyze Most Recent Data", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
 									analyzeMostRecentButton.ksmPos, parent, analyzeMostRecentButton.ID );
 	analyzeMostRecentButton.fontType = "Normal";
@@ -202,7 +210,8 @@ void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	updateFrequencyLabel1.cssmPos = { pos.cssmPos.x, pos.cssmPos.y, pos.cssmPos.x + 150, pos.cssmPos.y + 25 };
 	updateFrequencyLabel1.amPos =   { pos.amPos.x,   pos.amPos.y,   pos.amPos.x   + 150, pos.amPos.y   + 25 };
 	updateFrequencyLabel1.ID = id++;
-	updateFrequencyLabel1.triggerModeSensitive = false;
+	updateFrequencyLabel1.triggerModeSensitive = isTriggerModeSensitive;
+	
 	updateFrequencyLabel1.Create("Update plots every (", WS_CHILD | WS_VISIBLE | WS_BORDER,
 		updateFrequencyLabel1.ksmPos, parent, updateFrequencyLabel1.ID);
 	updateFrequencyLabel1.fontType = "Normal";
@@ -210,7 +219,7 @@ void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	updateFrequencyEdit.ksmPos = { pos.ksmPos.x + 150, pos.ksmPos.y,pos.ksmPos.x + 200, pos.ksmPos.y + 25 };
 	updateFrequencyEdit.cssmPos = { pos.cssmPos.x + 150, pos.cssmPos.y, pos.cssmPos.x + 200, pos.cssmPos.y + 25 };
 	updateFrequencyEdit.amPos = { pos.amPos.x + 150, pos.amPos.y, pos.amPos.x + 200, pos.amPos.y + 25 };
-	updateFrequencyEdit.triggerModeSensitive = false;
+	updateFrequencyEdit.triggerModeSensitive = isTriggerModeSensitive;
 	updateFrequencyEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER, updateFrequencyEdit.ksmPos, parent,
 		updateFrequencyEdit.ID);
 	updateFrequencyEdit.fontType = "Normal";
@@ -221,7 +230,7 @@ void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	updateFrequencyLabel2.cssmPos = { pos.cssmPos.x + 200, pos.cssmPos.y, pos.cssmPos.x + 480, pos.cssmPos.y + 25 };
 	updateFrequencyLabel2.amPos =   { pos.amPos.x + 200,   pos.amPos.y,   pos.amPos.x + 480, pos.amPos.y + 25 };
 	updateFrequencyLabel2.ID = id++;
-	updateFrequencyLabel2.triggerModeSensitive = false;
+	updateFrequencyLabel2.triggerModeSensitive = isTriggerModeSensitive;
 	updateFrequencyLabel2.Create(") repetitions.", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON,
 		updateFrequencyLabel2.ksmPos, parent, updateFrequencyLabel2.ID);
 	updateFrequencyLabel2.fontType = "Normal";
@@ -233,6 +242,7 @@ void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	plotListview.cssmPos = { pos.cssmPos.x, pos.cssmPos.y, pos.cssmPos.x + 480, pos.cssmPos.y + 100 };
 	plotListview.amPos = { pos.amPos.x,     pos.amPos.y,   pos.amPos.x + 480,   pos.amPos.y + 100 };
 	plotListview.ID = id++;
+	plotListview.triggerModeSensitive = isTriggerModeSensitive;
 	if (plotListview.ID != IDC_PLOTTING_LISTVIEW)
 	{
 		throw;
