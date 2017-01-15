@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Control.h"
 #include <unordered_map>
-
+/*
 bool HwndControl::setToolTip(std::string text, std::unordered_map<HWND, std::string>& masterTexts)
 {
 	HWND parent = GetParent(this->hwnd);
@@ -62,4 +62,4 @@ bool HwndControl::setToolTip(std::string text, std::unordered_map<HWND, std::str
 	
 	return true;
 }
-
+*/

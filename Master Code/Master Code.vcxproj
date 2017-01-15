@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -22,13 +22,13 @@
     <ProjectGuid>{74C41591-ED13-4BEE-9F46-45714616930F}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>MasterCode</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>7.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
@@ -43,14 +43,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
@@ -75,18 +75,18 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\lib64;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib\msvc;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib;C:\Program Files\boost_1_60_0\lib32-msvc-14.0;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
-    <IncludePath>C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\include;C:\Program Files\boost_1_60_0;$(VC_IncludePath);$(WindowsSDK_IncludePath);;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\include</IncludePath>
+    <LibraryPath>C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\lib64;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib\msvc;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib;C:\Program Files\boost_1_60_0\lib32-msvc-14.0;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;C:\Program Files %28x86%29\Microsoft SDKs\Windows\v7.1A\Include;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib</LibraryPath>
+    <IncludePath>C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\include;C:\Program Files\boost_1_60_0;$(VC_IncludePath);$(WindowsSDK_IncludePath);;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\include;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\include;C:\Program Files\boost_1_60_0;$(IncludePath);C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\include</IncludePath>
-    <LibraryPath>C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\lib64;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib\msvc;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib;C:\Program Files\boost_1_60_0\lib64-msvc-14.0;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+    <IncludePath>C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\include;C:\Program Files\boost_1_60_0;$(IncludePath);C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\include;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include</IncludePath>
+    <LibraryPath>C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\lib64;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib\msvc;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib;C:\Program Files\boost_1_60_0\lib64-msvc-14.0;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64;C:\Program Files %28x86%29\Microsoft SDKs\Windows\v7.1A\Include;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\lib64;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib\msvc;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib;C:\Program Files\boost_1_60_0\lib32-msvc-14.0;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
-    <IncludePath>C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\include;C:\Program Files\boost_1_60_0;$(VC_IncludePath);$(WindowsSDK_IncludePath);;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\include</IncludePath>
+    <LibraryPath>C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\lib64;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib\msvc;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib;C:\Program Files\boost_1_60_0\lib32-msvc-14.0;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib</LibraryPath>
+    <IncludePath>C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\include;C:\Program Files\boost_1_60_0;$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\include;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -100,7 +100,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -117,6 +117,7 @@
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <ShowIncludes>true</ShowIncludes>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -134,6 +135,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -153,7 +155,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ShowIncludes>true</ShowIncludes>
     </ClCompile>
     <Link>

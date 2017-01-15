@@ -23,11 +23,11 @@
 
 bool Script::functionChangeHandler(MasterWindow* master)
 {
-	int selection = this->availableFunctionsCombo.parent.GetCurSel();
+	int selection = this->availableFunctionsCombo.GetCurSel();
 	if (selection != -1)
 	{
 		CString text;
-		this->availableFunctionsCombo.parent.GetLBText(selection, text);
+		this->availableFunctionsCombo.GetLBText(selection, text);
 		std::string textStr(text.GetBuffer());
 		textStr = textStr.substr(0, textStr.find_first_of('('));
 		this->changeView(textStr, master, true);
@@ -86,7 +86,7 @@ std::string Script::getScriptPath()
 std::string Script::getScriptText()
 {
 	CString text;
-	this->edit.parent.GetWindowText(text);
+	this->edit.GetWindowText(text);
 	return text;
 }
 
@@ -250,11 +250,11 @@ bool Script::updateSavedStatus(bool scriptIsSaved)
 	this->isSaved = scriptIsSaved;
 	if (scriptIsSaved)
 	{
-		SendMessage(savedIndicator.hwnd, BM_SETCHECK, BST_CHECKED, NULL);
+		savedIndicator.SetCheck( true );
 	}
 	else
 	{
-		SendMessage(savedIndicator.hwnd, BM_SETCHECK, BST_UNCHECKED, NULL);
+		savedIndicator.SetCheck( false );
 	}
 	return false;
 }
@@ -277,16 +277,16 @@ bool Script::handleTimerCall(MasterWindow* Master)
 		DWORD x1 = 1, x2 = 1;
 		int initScrollPos, finScrollPos;
 		CHARRANGE charRange;
-		this->edit.parent.GetSel(charRange);
-		initScrollPos = this->edit.parent.GetScrollPos(SB_VERT);
+		this->edit.GetSel(charRange);
+		initScrollPos = this->edit.GetScrollPos(SB_VERT);
 		// color syntax
 		this->colorScriptSection(editChangeBegin, editChangeEnd, Master);
 		editChangeEnd = 0;
 		editChangeBegin = ULONG_MAX;
 		syntaxColoringIsCurrent = true;
-		this->edit.parent.SetSel(charRange);
-		finScrollPos = this->edit.parent.GetScrollPos(SB_VERT);
-		edit.parent.LineScroll(-(finScrollPos - initScrollPos));
+		this->edit.SetSel(charRange);
+		finScrollPos = this->edit.GetScrollPos(SB_VERT);
+		edit.LineScroll(-(finScrollPos - initScrollPos));
 		//SendMessage(edit.hwnd, EM_LINESCROLL, 0, -(finScrollPos - initScrollPos));
 		this->updateSavedStatus(tempSaved);
 	}
@@ -297,7 +297,7 @@ bool Script::handleEditChange(MasterWindow* master)
 {
 		DWORD begin, end;
 		CHARRANGE charRange;
-		edit.parent.GetSel(charRange);
+		edit.GetSel(charRange);
 		if (charRange.cpMin < editChangeBegin)
 		{
 			editChangeBegin = charRange.cpMin;
@@ -323,7 +323,7 @@ bool Script::colorScriptSection(DWORD beginingOfChange, DWORD endOfChange, Maste
 	long long beginingSigned = beginingOfChange;
 	long long endSigned = endOfChange;
 	CString text;
-	edit.parent.GetWindowTextA(text);
+	edit.GetWindowTextA(text);
 	std::string script(text);
 	std::vector<std::string> predefinedScripts;
 	COLORREF coloring;
@@ -374,16 +374,16 @@ bool Script::colorScriptSection(DWORD beginingOfChange, DWORD endOfChange, Maste
 					CHARRANGE charRange;
 					charRange.cpMin = start;
 					charRange.cpMax = end;
-					edit.parent.SetSel(charRange);
-					edit.parent.SetSelectionCharFormat(syntaxFormat);
+					edit.SetSel(charRange);
+					edit.SetSelectionCharFormat(syntaxFormat);
 					start = end;
 				}
 			}
 			CHARRANGE charRange;
 			charRange.cpMin = start;
 			charRange.cpMax = end;
-			edit.parent.SetSel(charRange);
-			edit.parent.SetSelectionCharFormat(syntaxFormat);
+			edit.SetSel(charRange);
+			edit.SetSelectionCharFormat(syntaxFormat);
 			end++;
 			start = end;
 			prev = pos + 1;
@@ -403,15 +403,15 @@ bool Script::colorScriptSection(DWORD beginingOfChange, DWORD endOfChange, Maste
 				CHARRANGE charRange;
 				charRange.cpMin = start;
 				charRange.cpMax = end;
-				edit.parent.SetSel(charRange);
-				edit.parent.SetSelectionCharFormat(syntaxFormat);
+				edit.SetSel(charRange);
+				edit.SetSelectionCharFormat(syntaxFormat);
 				start = end;
 			}
 			CHARRANGE charRange;
 			charRange.cpMin = start;
 			charRange.cpMax = end;
-			edit.parent.SetSel(charRange);
-			edit.parent.SetSelectionCharFormat(syntaxFormat);
+			edit.SetSel(charRange);
+			edit.SetSelectionCharFormat(syntaxFormat);
 			start = end;
 		}
 	}
@@ -422,9 +422,9 @@ bool Script::colorScriptSection(DWORD beginingOfChange, DWORD endOfChange, Maste
 bool Script::updateChildCombo(MasterWindow* Master)
 {
 	// check the current setting.
-	int selection = SendMessage(this->childCombo.hwnd, CB_GETCURSEL, 0, 0);
+	int selection = childCombo.GetCurSel();
 	TCHAR text[256];
-	SendMessage(this->childCombo.hwnd, CB_GETLBTEXT, selection, (LPARAM)text);
+	childCombo.GetLBText( selection, text );
 	std::string textStr(text);
 	if (textStr != "Parent Script")
 	{
@@ -432,16 +432,16 @@ bool Script::updateChildCombo(MasterWindow* Master)
 		return false;
 	}
 	CString myText;
-	edit.parent.GetWindowTextA(myText);
+	edit.GetWindowTextA(myText);
 	// get script
 	// get the name that's currently set.
-	selection = SendMessage(this->childCombo.hwnd, CB_GETCURSEL, 0, 0);
+	selection = childCombo.GetCurSel();
 	TCHAR name[256];
-	SendMessage(this->childCombo.hwnd, CB_GETLBTEXT, selection, (LPARAM)name);
+	childCombo.GetLBText( selection, name );
 	std::string currentName(name);
 	// I'll use this later to reset the combo.
 	// reset the combo and name vector.
-	SendMessage(this->childCombo.hwnd, CB_RESETCONTENT, 0, 0);
+	childCombo.ResetContent();
 
 	childrenNames.clear();
 	std::string script(myText);
@@ -466,19 +466,19 @@ bool Script::updateChildCombo(MasterWindow* Master)
 			if (stat(path.c_str(), &buffer) == 0)
 			{
 				// add to combo normally.
-				SendMessage(this->childCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)scriptName.c_str());
+				childCombo.AddString( scriptName.c_str() );
 				childrenNames.push_back(scriptName);
 			}
 			else
 			{
-				SendMessage(this->childCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)(scriptName + " (File Not Found!)").c_str());
+				childCombo.AddString( (scriptName + " (File Not Found!)").c_str() );
 			}
 		}
 	}
 	// add the parent string message
-	SendMessage(this->childCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)"Parent Script");
+	childCombo.AddString( "Parent Script" );
 	// reset the child window.
-	SendMessage(this->childCombo.hwnd, CB_SELECTSTRING, 0, (LPARAM)currentName.c_str());
+	childCombo.SelectString( 0, currentName.c_str() );
 	return false;
 }
 
@@ -559,32 +559,26 @@ bool Script::initialize(int width, int height, POINT& startingLocation, std::vec
 	{
 		titleText = "MASTER SCRIPT";
 	}
-	RECT itemBox;
 	// title
-	itemBox = title.position = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
-	title.hwnd = CreateWindowEx(NULL, "STATIC", titleText.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
-		itemBox.left, itemBox.top, itemBox.right - itemBox.left, itemBox.bottom - itemBox.top,
-		parentWindow, (HMENU)title.ID, GetModuleHandle(NULL), NULL);
-	SendMessage(title.hwnd, WM_SETFONT, WPARAM(sHeadingFont), TRUE);
+	title.position = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
+	title.Create( titleText.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, title.position, master, title.ID );
+	title.SetFont( CFont::FromHandle( sHeadingFont ) );
 	startingLocation.y += 20;
 	// saved indicator
-	itemBox = savedIndicator.position = { startingLocation.x, startingLocation.y, startingLocation.x + 80, startingLocation.y + 20 };
-	savedIndicator.hwnd = CreateWindowEx(NULL, "BUTTON", "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT,
-		itemBox.left, itemBox.top, itemBox.right - itemBox.left, itemBox.bottom - itemBox.top,
-		parentWindow, (HMENU)savedIndicator.ID, GetModuleHandle(NULL), NULL);
-	SendMessage(savedIndicator.hwnd, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	SendMessage(savedIndicator.hwnd, BM_SETCHECK, BST_CHECKED, NULL);
-	
+	savedIndicator.position = { startingLocation.x, startingLocation.y, startingLocation.x + 80, startingLocation.y + 20 };
+	savedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, savedIndicator.position, master, savedIndicator.ID );
+	savedIndicator.SetFont( CFont::FromHandle( sNormalFont ) );
+	savedIndicator.SetCheck( true );	
 	// filename
-	itemBox = fileNameText.position = { startingLocation.x + 80, startingLocation.y, startingLocation.x + width - 20, startingLocation.y + 20 };
-	fileNameText.parent.Create(WS_CHILD | WS_VISIBLE | SS_ENDELLIPSIS, itemBox, CWnd::FromHandle(parentWindow), fileNameText.ID);
-	fileNameText.parent.SetFont(CFont::FromHandle(sHeadingFont));
+	fileNameText.position = { startingLocation.x + 80, startingLocation.y, startingLocation.x + width - 20, startingLocation.y + 20 };
+	fileNameText.Create(WS_CHILD | WS_VISIBLE | SS_ENDELLIPSIS, fileNameText.position, master, fileNameText.ID);
+	fileNameText.SetFont(CFont::FromHandle(sHeadingFont));
 	isSaved = true;
 	// help
-	itemBox = this->help.position = { startingLocation.x + width - 20, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
-	//this->help.parent.Create("?", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, itemBox, CWnd::FromHandle(parentWindow), this->help.ID);
-	this->help.parent.Create(WS_CHILD | WS_VISIBLE | ES_READONLY, itemBox, CWnd::FromHandle(parentWindow), this->help.ID);
-	help.parent.SetWindowTextA("?");
+	this->help.position = { startingLocation.x + width - 20, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
+	//this->help.Create("?", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, itemBox, CWnd::FromHandle(parentWindow), this->help.ID);
+	this->help.Create(WS_CHILD | WS_VISIBLE | ES_READONLY, help.position, master, this->help.ID);
+	help.SetWindowTextA("?");
 	help.setToolTip("This is a script for programming master timing for TTLs, DACs, the RSG, and the raman outputs.\n"
 					"Acceptable Commands:\n"
 					"-      t++\n"
@@ -603,31 +597,29 @@ bool Script::initialize(int width, int height, POINT& startingLocation, std::vec
 	//this->help.setToolTip();
 	startingLocation.y += 20;
 	// available functions combo
-	itemBox = availableFunctionsCombo.position = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 800 };
-	availableFunctionsCombo.parent.Create(CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, CRect(itemBox), CWnd::FromHandle(parentWindow), availableFunctionsCombo.ID);
-	availableFunctionsCombo.parent.SetFont(CFont::FromHandle(sNormalFont));
-	availableFunctionsCombo.parent.AddString("Available Functions List:");
-	availableFunctionsCombo.parent.SetCurSel(0);
+	availableFunctionsCombo.position = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 800 };
+	availableFunctionsCombo.Create(CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, availableFunctionsCombo.position, master, availableFunctionsCombo.ID);
+	availableFunctionsCombo.SetFont(CFont::FromHandle(sNormalFont));
+	availableFunctionsCombo.AddString("Available Functions List:");
+	availableFunctionsCombo.SetCurSel(0);
 	this->loadFunctions();
 	
 	startingLocation.y += 25;
 	// children combo
-	itemBox = childCombo.position = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 800 };
-	childCombo.hwnd = CreateWindowEx(NULL, TEXT("ComboBox"), "", CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
-		itemBox.left, itemBox.top, itemBox.right - itemBox.left, itemBox.bottom - itemBox.top, 
-		parentWindow,	(HMENU)childCombo.ID, GetModuleHandle(NULL), NULL);
-	SendMessage(childCombo.hwnd, WM_SETFONT, WPARAM(sNormalFont), TRUE);
-	SendMessage(childCombo.hwnd, CB_ADDSTRING, 0, (LPARAM)("Parent Script"));
-	SendMessage(childCombo.hwnd, CB_SETCURSEL, 0, 0);
+	childCombo.position = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 800 };
+	childCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, childCombo.position, master, childCombo.ID );
+	childCombo.SetFont( CFont::FromHandle( sNormalFont ) );
+	childCombo.AddString( "Parent Script" );
+	childCombo.SetCurSel( 0 );
 	startingLocation.y += 25;
 	// Edit
-	itemBox = edit.position = { startingLocation.x, startingLocation.y, startingLocation.x + width, height};
-	edit.parent.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | WS_HSCROLL | ES_WANTRETURN | WS_BORDER,
-		itemBox, CWnd::FromHandle(parentWindow), edit.ID);
-	edit.parent.SetFont(CFont::FromHandle(sCodeFont));
-	edit.parent.SetBackgroundColor(FALSE, RGB(15, 15, 15));
-	edit.parent.SetEventMask(ENM_CHANGE);
-	edit.parent.SetDefaultCharFormat(myCharFormat);
+	edit.position = { startingLocation.x, startingLocation.y, startingLocation.x + width, height};
+	edit.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | WS_HSCROLL | ES_WANTRETURN | WS_BORDER,
+				 edit.position, master, edit.ID);
+	edit.SetFont(CFont::FromHandle(sCodeFont));
+	edit.SetBackgroundColor(FALSE, RGB(15, 15, 15));
+	edit.SetEventMask(ENM_CHANGE);
+	edit.SetDefaultCharFormat(myCharFormat);
 
 	// timer
 	this->syntaxTimer.Create(0, NULL, 0, { 0,0,0,0 }, CWnd::FromHandle(parentWindow), 0);
@@ -656,9 +648,9 @@ bool Script::childComboChangeHandler(WPARAM messageWParam, LPARAM messageLParam,
 	// get text from child
 
 	// check what was selected.
-	int selection = SendMessage(this->childCombo.hwnd, CB_GETCURSEL, 0, 0);
+	int selection = childCombo.GetCurSel();
 	TCHAR selectedText[256];
-	SendMessage(this->childCombo.hwnd, CB_GETLBTEXT, selection, (LPARAM)selectedText);
+	childCombo.GetLBText( selection, selectedText );
 	std::string viewName(selectedText);
 	this->changeView(viewName, Master, false);
 	this->colorEntireScript(Master);
@@ -722,7 +714,7 @@ bool Script::saveScript(MasterWindow* Master)
 		}
 	}
 	CString text;
-	this->edit.parent.GetWindowTextA(text);
+	this->edit.GetWindowTextA(text);
 	std::fstream saveFile(Master->profile.getCurrentPathIncludingCategory() + scriptName + extension, std::fstream::out);
 	if (!saveFile.is_open())
 	{
@@ -756,7 +748,7 @@ bool Script::saveScriptAs(std::string location, MasterWindow* Master)
 		}
 	}
 	CString text;
-	this->edit.parent.GetWindowTextA(text);
+	this->edit.GetWindowTextA(text);
 	std::fstream saveFile(location, std::fstream::out);
 	if (!saveFile.is_open())
 	{
@@ -784,9 +776,9 @@ bool Script::checkChildSave(MasterWindow* Master)
 		// don't need to do anything
 		return false;
 	}
-	int selection = SendMessage(this->childCombo.hwnd, CB_GETCURSEL, 0, 0);
+	int selection = childCombo.GetCurSel();
 	TCHAR name[256];
-	SendMessage(this->childCombo.hwnd, CB_GETLBTEXT, selection, (LPARAM)name);
+	childCombo.GetLBText( selection, name );
 	std::string nameStr(name);
 	if (nameStr == "")
 	{
@@ -1092,7 +1084,7 @@ bool Script::loadFile(std::string pathToFile)
 		// Append the line to the edit control here (use c_str() ).
 	}
 	// put the default into the new control.
-	this->edit.parent.SetWindowTextA(fileText.c_str());
+	this->edit.SetWindowTextA(fileText.c_str());
 	openFile.close();
 	return true;
 }
@@ -1103,8 +1095,8 @@ bool Script::reset()
 	this->scriptPath = "";
 	this->scriptFullAddress = "";
 	this->updateSavedStatus(false);
-	this->fileNameText.parent.SetWindowTextA("");
-	this->edit.parent.SetWindowTextA("");
+	this->fileNameText.SetWindowTextA("");
+	this->edit.SetWindowTextA("");
 	return false;
 }
 
@@ -1163,7 +1155,7 @@ bool Script::updateScriptNameText(std::string path)
 		position = categoryPath.find_last_of('\\');
 		std::string category = categoryPath.substr(position + 1, categoryPath.size());
 		std::string text = category + "->" + name;
-		this->fileNameText.parent.SetWindowTextA(text.c_str());
+		this->fileNameText.SetWindowTextA(text.c_str());
 	}
 	else
 	{
@@ -1176,7 +1168,7 @@ bool Script::updateScriptNameText(std::string path)
 		{
 			text += scriptName;
 		}
-		this->fileNameText.parent.SetWindowTextA(text.c_str());
+		this->fileNameText.SetWindowTextA(text.c_str());
 	}
 	return false;
 }
@@ -1207,7 +1199,7 @@ bool Script::saveAsFunction()
 {
 	// check to make sure that the current script is defined like a function
 	CString text;
-	this->edit.parent.GetWindowTextA(text);
+	this->edit.GetWindowTextA(text);
 	std::stringstream stream;
 	stream << text.GetBuffer();
 	ExperimentManager::eatComments(&stream);
@@ -1316,12 +1308,12 @@ bool Script::loadFunctions()
 		}
 	}
 	// clear the box.
-	this->availableFunctionsCombo.parent.ResetContent();
+	this->availableFunctionsCombo.ResetContent();
 	// 
-	this->availableFunctionsCombo.parent.AddString("Parent Script");
+	this->availableFunctionsCombo.AddString("Parent Script");
 	for (int nameInc = 0; nameInc < finalNames.size(); nameInc++)
 	{
-		this->availableFunctionsCombo.parent.AddString(finalNames[nameInc].c_str());
+		this->availableFunctionsCombo.AddString(finalNames[nameInc].c_str());
 	}
 	return true;
 }

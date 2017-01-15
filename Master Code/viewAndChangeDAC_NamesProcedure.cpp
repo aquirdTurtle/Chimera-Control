@@ -34,7 +34,7 @@ INT_PTR CALLBACK viewAndChangeDAC_NamesProcedure(HWND hDlg, UINT message, WPARAM
 					hDlg, (HMENU)-1, GetModuleHandle(NULL), NULL);
 				location.left += 20;
 				location.right += 140;
-				edits[dacInc] = CreateWindowEx(0, "EDIT", input.dacs->getName(dacInc).c_str(), WS_CHILD | WS_VISIBLE,
+				edits[dacInc] = CreateWindowEx(0, "EDIT", input.dacs->getName(dacInc).c_str(), WS_CHILD | WS_VISIBLE | WS_TABSTOP,
 					location.left, location.top, location.right - location.left, location.bottom - location.top,
 					hDlg, (HMENU)startID + dacInc, GetModuleHandle(NULL), NULL);
 

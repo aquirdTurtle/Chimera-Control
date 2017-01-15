@@ -13,7 +13,7 @@ IMPLEMENT_DYNAMIC(MasterWindow, CDialog)
 
 BEGIN_MESSAGE_MAP(MasterWindow, CDialog)
 	ON_WM_CTLCOLOR()
-//	ON_WM_TIMER()
+	ON_WM_TIMER()
 	ON_COMMAND_RANGE(TTL_ID_BEGIN, TTL_ID_END, &MasterWindow::handleTTLPush)
 	ON_COMMAND(TTL_HOLD, &MasterWindow::handlTTLHoldPush)
 	ON_COMMAND(ID_TTLS_VIEW_OR_CHANGE_TTL_NAMES, &MasterWindow::ViewOrChangeTTLNames)
@@ -73,91 +73,127 @@ BEGIN_MESSAGE_MAP(MasterWindow, CDialog)
 
 END_MESSAGE_MAP()
 
-afx_msg void MasterWindow::HandleFunctionChange()
+void MasterWindow::HandleAbort()
+{
+	errBox( "ABORT" );
+}
+
+void MasterWindow::OnCancel()
+{
+	int answer = MessageBox( "Are you sure you'd like to exit?", "Exit", MB_OKCANCEL );
+	if (answer == IDOK)
+	{
+		this->CDialog::OnCancel();
+	}
+}
+
+void MasterWindow::HandleFunctionChange()
 {
 	this->masterScript.functionChangeHandler(this);
 	return;
 }
 
-afx_msg void MasterWindow::StartExperiment()
+void MasterWindow::StartExperiment()
 {
 	this->generalStatus.appendText("Starting Experimment...\r\n", 0);
 	// check to make sure ready.
-	if (!this->profile.allSettingsReadyCheck(this))
+	try
 	{
-		this->generalStatus.appendText("ABORTED!\r\n", 0);
-		return;
+		this->profile.allSettingsReadyCheck( this );
+		this->masterScript.checkSave( this );
+		this->manager.startExperimentThread( this );
 	}
-	if (!this->masterScript.checkSave(this))
+	catch (myException& exception)
 	{
-		this->generalStatus.appendText("ABORTED!\r\n", 0);
-		return;
+		this->generalStatus.appendText( "ABORTED! " + exception.whatStr() + "\r\n", 0 );
 	}
-	// actually start now...
-	if (!this->manager.startExperimentThread(this))
-	{
-		this->generalStatus.appendText("ABORTED!\r\n", 0);
-	}
+
+	// actually start now...?.?.?.
 	return;
 }
 
-afx_msg void MasterWindow::ConfigurationNotesChange()
+
+void MasterWindow::ConfigurationNotesChange()
 {
 	this->profile.updateConfigurationSavedStatus(false);
 	return;
 }
 
-afx_msg void MasterWindow::CategoryNotesChange()
+
+void MasterWindow::CategoryNotesChange()
 {
 	this->profile.updateCategorySavedStatus(false);
 	return;
 }
 
-afx_msg void MasterWindow::ExperimentNotesChange()
+
+void MasterWindow::ExperimentNotesChange()
 {
 	this->profile.updateExperimentSavedStatus(false);
 	return;
 }
 
-afx_msg void MasterWindow::SaveEntireProfile()
+
+void MasterWindow::SaveEntireProfile()
 {
 	this->profile.saveEntireProfile(this);
 	return;
 }
 
-afx_msg void MasterWindow::LogSettings()
+
+void MasterWindow::LogSettings()
 {
 	this->logger.generateLog(this);
 	this->logger.exportLog();
 	return;
 }
 
-afx_msg void MasterWindow::SetDacs()
+
+void MasterWindow::SetDacs()
 {
-	this->dacBoards.handleButtonPress(&this->ttlBoard);
+	// have the dac values change
+	try
+	{
+		this->dacBoards.handleButtonPress( &this->ttlBoard );
+		dacBoards.analyzeDAC_Commands();
+		dacBoards.makeFinalDataFormat();
+		// start the boards which actually sets the dac values.
+		dacBoards.configureClocks();
+		dacBoards.stopDacs();
+		dacBoards.writeDacs();
+		this->ttlBoard.writeData();
+		ttlBoard.startBoard();
+		ttlBoard.waitTillFinished();
+	}
+	catch (myException& exception)
+	{
+		errBox( exception.what() );
+	}
 	this->profile.updateConfigurationSavedStatus(false);
 	return;
 }
 
-afx_msg void MasterWindow::DAC_EditChange(UINT id)
+
+void MasterWindow::DAC_EditChange(UINT id)
 {
 	this->dacBoards.handleEditChange(id - ID_DAC_FIRST_EDIT);
 	return;
 }
 
-afx_msg void MasterWindow::ClearError()
+
+void MasterWindow::ClearError()
 {
 	this->errorStatus.clear();
 	return;
 }
 
-afx_msg void MasterWindow::ClearGeneral()
+void MasterWindow::ClearGeneral()
 {
 	this->generalStatus.clear();
 	return;
 }
 
-afx_msg void MasterWindow::SetRepetitionNumber()
+void MasterWindow::SetRepetitionNumber()
 {
 	if (!this->repetitionControl.handleButtonPush())
 	{
@@ -167,7 +203,7 @@ afx_msg void MasterWindow::SetRepetitionNumber()
 	return;
 }
 
-afx_msg void MasterWindow::ListViewClick(NMHDR * pNotifyStruct, LRESULT * result)
+void MasterWindow::ListViewClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	if (!this->variables.handleClick(pNotifyStruct, result))
 	{
@@ -177,169 +213,304 @@ afx_msg void MasterWindow::ListViewClick(NMHDR * pNotifyStruct, LRESULT * result
 	return;
 }
 
-afx_msg void MasterWindow::OnExperimentChanged()
+void MasterWindow::OnExperimentChanged()
 {
-	if (!this->profile.experimentChangeHandler(this))
+	try
 	{
-		this->errorStatus.appendText("Handling Experiment Selection Change Failed!\r\n", 0);
+		this->profile.experimentChangeHandler( this );
 	}
-}
-afx_msg void MasterWindow::OnCategoryChanged()
-{
-	if (!this->profile.categoryChangeHandler(this))
+	catch (myException& exception)
 	{
-		this->errorStatus.appendText("Handling Category Selection Change Failed!\r\n", 0);
-	}
-}
-afx_msg void MasterWindow::OnConfigurationChanged()
-{
-	if (!this->profile.configurationChangeHandler(this))
-	{
-		this->errorStatus.appendText("Handling Configuration Selection Change Failed!\r\n", 0);
-	}
-}
-afx_msg void MasterWindow::OnSequenceChanged()
-{
-	if (!this->profile.sequenceChangeHandler(this))
-	{
-		this->errorStatus.appendText("Handling Sequence Selection Change Failed!\r\n", 0);
-	}
-}
-afx_msg void MasterWindow::OnOrientationChanged()
-{
-	if (!this->profile.orientationChangeHandler(this))
-	{
-		this->errorStatus.appendText("Handling Orientation Selection Change Failed!\r\n", 0);
+		this->errorStatus.appendText( "Handling Experiment Selection Change Failed!\r\n", 0 );
 	}
 }
 
-afx_msg void MasterWindow::DeleteConfiguration()
+
+void MasterWindow::OnCategoryChanged()
 {
-	if (!this->profile.deleteConfiguration())
+	try
 	{
-		this->errorStatus.appendText("Deleting Configuration Failed!\r\n", 0);
+		this->profile.categoryChangeHandler( this );
+	}
+	catch (myException& exception)
+	{
+		this->errorStatus.appendText( "Handling Category Selection Change Failed!\r\n", 0 );
 	}
 }
-afx_msg void MasterWindow::NewConfiguration()
+
+
+void MasterWindow::OnConfigurationChanged()
 {
-	if (!this->profile.newConfiguration(this))
+	try
 	{
-		this->errorStatus.appendText("New Configuration Failed!\r\n", 0);
+		this->profile.configurationChangeHandler( this );
+	}
+	catch (myException& exception)
+	{
+		this->errorStatus.appendText( "Handling Configuration Selection Change Failed!\r\n", 0 );
 	}
 }
-afx_msg void MasterWindow::SaveConfiguration()
+
+
+void MasterWindow::OnSequenceChanged()
 {
-	if (!this->profile.saveConfigurationOnly(this))
+	try
 	{
-		this->errorStatus.appendText("Saving Configuration Failed!\r\n", 0);
+		this->profile.sequenceChangeHandler( this );
+	}
+	catch (myException& exception)
+	{
+		this->errorStatus.appendText( "Handling Sequence Selection Change Failed!\r\n", 0 );
 	}
 }
-afx_msg void MasterWindow::SaveConfigurationAs()
+
+
+void MasterWindow::OnOrientationChanged()
 {
-	if (!this->profile.saveConfigurationAs(this))
+	try
 	{
-		this->errorStatus.appendText("Saving Configuration As Failed!\r\n", 0);
+		this->profile.orientationChangeHandler( this );
+	}
+	catch (myException* exception)
+	{
+		this->errorStatus.appendText( "Handling Orientation Selection Change Failed!\r\n", 0 );
 	}
 }
-afx_msg void MasterWindow::RenameConfiguration()
+
+
+void MasterWindow::DeleteConfiguration()
 {
-	if (!this->profile.renameConfiguration(this))
+	try
 	{
-		this->errorStatus.appendText("Renaming Configuration Failed!\r\n", 0);
+		this->profile.deleteConfiguration();
+	}
+	catch (myException& exception)
+	{
+		this->errorStatus.appendText( "Deleting Configuration Failed!\r\n", 0 );
+	}
+}
+
+
+void MasterWindow::NewConfiguration()
+{
+	try
+	{
+		this->profile.newConfiguration( this );
+	}
+	catch (myException& exception)
+	{
+		this->errorStatus.appendText( "New Configuration Failed!\r\n", 0 );
+	}
+}
+
+
+void MasterWindow::SaveConfiguration()
+{
+	try
+	{
+		this->profile.saveConfigurationOnly( this );
+	}
+	catch (myException& exception)
+	{
+		this->errorStatus.appendText( "Saving Configuration Failed!\r\n", 0 );
+	}
+}
+
+
+void MasterWindow::SaveConfigurationAs()
+{
+	try
+	{
+		this->profile.saveConfigurationAs( this );
+	}
+	catch (myException& exception)
+	{
+		this->errorStatus.appendText( "Saving Configuration As Failed!\r\n", 0 );
+	}
+}
+
+
+void MasterWindow::RenameConfiguration()
+{
+	try
+	{
+		this->profile.renameConfiguration( this );
+	}
+	catch (myException& exception)
+	{
+		this->errorStatus.appendText( "Renaming Configuration Failed!\r\n", 0 );
 	}
 	return;
 }
-afx_msg void MasterWindow::SaveCategory()
+
+
+void MasterWindow::SaveCategory()
 {
-	if (!this->profile.saveCategoryOnly(this))
+	try
 	{
-		this->errorStatus.appendText("Saving Category Failed!\r\n", 0);
+		this->profile.saveCategoryOnly( this );
+	}
+	catch (myException& exception)
+	{
+		this->errorStatus.appendText( "Saving Category Failed!\r\n", 0 );
 	}
 }
-afx_msg void MasterWindow::SaveCategoryAs()
+
+
+void MasterWindow::SaveCategoryAs()
 {
-	if (!this->profile.saveCategoryAs(this))
+	try
 	{
-		this->errorStatus.appendText("Saving Category As Failed!\r\n", 0);
+		this->profile.saveCategoryAs( this );
+	}
+	catch (myException& exception)
+	{
+		this->errorStatus.appendText( "Saving Category As Failed!\r\n", 0 );
 	}
 }
-afx_msg void MasterWindow::RenameCategory()
+
+
+void MasterWindow::RenameCategory()
 {
-	if (!this->profile.renameCategory())
+	try
 	{
-		this->errorStatus.appendText("Renaming Category Failed!\r\n", 0);
+		this->profile.renameCategory();
+	}
+	catch (myException& exception)
+	{
+		this->errorStatus.appendText( "Renaming Category Failed!\r\n", 0 );
 	}
 }
-afx_msg void MasterWindow::DeleteCategory()
+
+
+void MasterWindow::DeleteCategory()
 {
-	if (!this->profile.deleteCategory())
+	try
+	{
+		this->profile.deleteCategory();
+	}
+	catch (myException& exception)
 	{
 		this->errorStatus.appendText("Deleting Category Failed!\r\n", 0);
 	}
 }
-afx_msg void MasterWindow::NewCategory()
+
+
+void MasterWindow::NewCategory()
 {
-	if (!this->profile.newCategory(this))
+	try
+	{
+		this->profile.newCategory( this );
+	}
+	catch (myException& exception)
 	{
 		this->errorStatus.appendText("New Category Failed!\r\n", 0);
 	}
 }
-afx_msg void MasterWindow::NewExperiment()
+
+
+void MasterWindow::NewExperiment()
 {
-	if (!this->profile.newExperiment(this))
+	try
+	{
+		this->profile.newExperiment( this );
+	}
+	catch (myException& exception)
 	{
 		this->errorStatus.appendText("New Experiment Failed!\r\n", 0);
 	}
 }
-afx_msg void MasterWindow::DeleteExperiment()
+
+
+void MasterWindow::DeleteExperiment()
 {
-	if (!this->profile.deleteExperiment())
+	try
+	{
+		this->profile.deleteExperiment();
+	}
+	catch (myException& exception)
 	{
 		this->errorStatus.appendText("Delete Experiment Failed!\r\n", 0);
 	}
 }
-afx_msg void MasterWindow::SaveExperiment()
+
+
+void MasterWindow::SaveExperiment()
 {
-	if (!this->profile.saveExperimentOnly(this))
+	try
+	{
+		this->profile.saveExperimentOnly( this );
+	}
+	catch (myException& exception)
 	{
 		this->errorStatus.appendText("Save Experiment Failed!\r\n", 0);
 	}
 }
-afx_msg void MasterWindow::SaveExperimentAs()
+
+
+void MasterWindow::SaveExperimentAs()
 {
-	if (!this->profile.saveExperimentAs(this))
+	try
 	{
-		this->errorStatus.appendText("Save Experiment As Failed!\r\n", 0);
+		this->profile.saveExperimentAs( this );
+	}
+	catch (myException& exception)
+	{
+		this->errorStatus.appendText( "Save Experiment As Failed!\r\n", 0 );
 	}
 }
-afx_msg void MasterWindow::AddToSequence()
+
+
+void MasterWindow::AddToSequence()
 {
-	if (!this->profile.addToSequence(this))
+	try
+	{
+		this->profile.addToSequence( this );
+	}
+	catch (myException& exception)
 	{
 		this->errorStatus.appendText("Add to Sequence Failed!\r\n", 0);
 	}
 }
-afx_msg void MasterWindow::DeleteSequence()
+
+
+void MasterWindow::DeleteSequence()
 {
-	if (!this->profile.deleteSequence(this))
+	try
+	{
+		this->profile.deleteSequence( this );
+	}
+	catch (myException& exception)
 	{
 		this->errorStatus.appendText("Delete Sequence Failed!\r\n", 0);
 	}
 }
-afx_msg void MasterWindow::ResetSequence()
+
+
+void MasterWindow::ResetSequence()
 {
 	//this->profile.???
 }
-afx_msg void MasterWindow::RenameSequence()
+
+
+void MasterWindow::RenameSequence()
 {
-	if (!this->profile.renameSequence(this))
+	try
+	{
+		this->profile.renameSequence( this );
+	}
+	catch (myException& exception)
 	{
 		this->errorStatus.appendText("Rename Sequence Failed!\r\n", 0);
 	}
 }
-afx_msg void MasterWindow::NewSequence()
+void MasterWindow::NewSequence()
 {
-	if (!this->profile.newSequence(this))
+	try
+	{
+		this->profile.newSequence( this );
+	}
+	catch (myException& exception)
 	{
 		this->errorStatus.appendText("New Sequence Failed!\r\n", 0);
 	}
@@ -348,7 +519,7 @@ afx_msg void MasterWindow::NewSequence()
 
 //
 
-afx_msg void MasterWindow::SaveMasterScript()
+void MasterWindow::SaveMasterScript()
 {
 	if (!this->masterScript.saveScript(this))
 	{
@@ -357,7 +528,7 @@ afx_msg void MasterWindow::SaveMasterScript()
 	return;
 }
 
-afx_msg void MasterWindow::SaveMasterScriptAs()
+void MasterWindow::SaveMasterScriptAs()
 {
 	if (this->profile.getCurrentPathIncludingCategory() == "")
 	{
@@ -374,7 +545,7 @@ afx_msg void MasterWindow::SaveMasterScriptAs()
 	}
 	return;
 }
-afx_msg void MasterWindow::NewMasterScript()
+void MasterWindow::NewMasterScript()
 {
 	if (!this->masterScript.newScript(this))
 	{
@@ -383,7 +554,7 @@ afx_msg void MasterWindow::NewMasterScript()
 	this->profile.updateConfigurationSavedStatus(false);
 	return;
 }
-afx_msg void MasterWindow::OpenMasterScript()
+void MasterWindow::OpenMasterScript()
 {
 	// ???
 	std::string address = explorerOpen(this, "*.mScript\0All\0 * .*", this->profile.getCurrentPathIncludingCategory());
@@ -399,7 +570,7 @@ afx_msg void MasterWindow::OpenMasterScript()
 	return;
 }
 
-afx_msg void MasterWindow::SaveMasterFunction()
+void MasterWindow::SaveMasterFunction()
 {
 	if (!this->masterScript.saveAsFunction())
 	{
@@ -408,7 +579,7 @@ afx_msg void MasterWindow::SaveMasterFunction()
 	return;
 }
 
-afx_msg void MasterWindow::ListViewDblClick(NMHDR * pNotifyStruct, LRESULT * result)
+void MasterWindow::ListViewDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 {	
 	std::vector<Script*> scriptList;
 	scriptList.push_back(&masterScript);
@@ -420,7 +591,7 @@ afx_msg void MasterWindow::ListViewDblClick(NMHDR * pNotifyStruct, LRESULT * res
 	return;
 }
 
-afx_msg void MasterWindow::ListViewRClick(NMHDR * pNotifyStruct, LRESULT * result)
+void MasterWindow::ListViewRClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	if (!this->variables.deleteVariable())
 	{
@@ -430,7 +601,7 @@ afx_msg void MasterWindow::ListViewRClick(NMHDR * pNotifyStruct, LRESULT * resul
 	return;
 }
 
-afx_msg void MasterWindow::OnTimer(UINT TimerVal)
+void MasterWindow::OnTimer(UINT TimerVal)
 {
 	if (!this->masterScript.handleTimerCall(this))
 	{
@@ -439,7 +610,7 @@ afx_msg void MasterWindow::OnTimer(UINT TimerVal)
 	return;
 }
 
-afx_msg void MasterWindow::EditChange()
+void MasterWindow::EditChange()
 {
 	if (!this->masterScript.handleEditChange(this))
 	{
@@ -448,27 +619,35 @@ afx_msg void MasterWindow::EditChange()
 	return;
 }
 
-afx_msg void MasterWindow::handleTTLPush(UINT id)
+void MasterWindow::handleTTLPush(UINT id)
 {
-	if (!this->ttlBoard.handleTTLPress(id))
+	try
 	{
-		this->errorStatus.appendText("TTL Press Handler Failed!\r\n", 0);
+		this->ttlBoard.handleTTLPress( id );
+	}
+	catch (myException& exception)
+	{
+		this->errorStatus.appendText( "TTL Press Handler Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
 	this->profile.updateConfigurationSavedStatus(false);
 	return;
 }
 
-afx_msg void MasterWindow::handlTTLHoldPush()
+void MasterWindow::handlTTLHoldPush()
 {
-	if (!this->ttlBoard.handleHoldPress())
+	try
 	{
-		this->errorStatus.appendText("TTL Hold Handler Failed!\r\n", 0);
+		this->ttlBoard.handleHoldPress();
+	}
+	catch (myException& exception)
+	{
+		this->errorStatus.appendText( "TTL Hold Handler Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
 	this->profile.updateConfigurationSavedStatus(false);
 	return;
 }
 
-afx_msg void MasterWindow::ViewOrChangeTTLNames()
+void MasterWindow::ViewOrChangeTTLNames()
 {
 	ttlInputStruct input;
 	input.ttls = &this->ttlBoard;
@@ -477,7 +656,7 @@ afx_msg void MasterWindow::ViewOrChangeTTLNames()
 	return;
 }
 
-afx_msg void MasterWindow::ViewOrChangeDACNames()
+void MasterWindow::ViewOrChangeDACNames()
 {
 	dacInputStruct input;
 	input.dacs = &this->dacBoards;
@@ -486,7 +665,7 @@ afx_msg void MasterWindow::ViewOrChangeDACNames()
 	return;
 }
 
-afx_msg void MasterWindow::SaveMasterConfig()
+void MasterWindow::SaveMasterConfig()
 {
 	if (!this->masterConfig.save(&this->ttlBoard, &this->dacBoards))
 	{
@@ -495,7 +674,7 @@ afx_msg void MasterWindow::SaveMasterConfig()
 	return;
 }
 
-afx_msg void MasterWindow::Exit()
+void MasterWindow::Exit()
 {
 	this->EndDialog(0);
 	return;

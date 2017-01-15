@@ -24,7 +24,7 @@ INT_PTR CALLBACK viewAndChangeTTL_NamesProcedure(HWND hDlg, UINT message, WPARAM
 			{
 				for (int numberInc = 0; numberInc < edits[rowInc].size(); numberInc++)
 				{
-					edits[rowInc][numberInc] = CreateWindowEx(NULL, "EDIT", input->ttls->getName(rowInc, numberInc).c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | WS_BORDER | ES_AUTOHSCROLL,
+					edits[rowInc][numberInc] = CreateWindowEx(NULL, "EDIT", input->ttls->getName(rowInc, numberInc).c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | WS_BORDER | ES_AUTOHSCROLL | WS_TABSTOP,
 						startx + numberInc * width, starty + rowInc * height, width, 25,
 						hDlg, (HMENU)(startID + rowInc * edits[0].size() + numberInc), GetModuleHandle(NULL), NULL);
 				}

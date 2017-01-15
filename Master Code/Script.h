@@ -69,13 +69,13 @@ class Script
 		CWnd syntaxTimer;
 		const int idStart;
 		const int idEnd;
-		ClassControl<CRichEditCtrl> edit;
-		HwndControl title;
-		HwndControl savedIndicator;
-		HwndControl childCombo;
-		ClassControl<CEdit> fileNameText;
-		ClassControl<CComboBox> availableFunctionsCombo;
-		ClassControl<CEdit> help;
+		Control<CRichEditCtrl> edit;
+		Control<CStatic> title;
+		Control<CButton>  savedIndicator;
+		Control<CComboBox>  childCombo;
+		Control<CEdit> fileNameText;
+		Control<CComboBox> availableFunctionsCombo;
+		Control<CEdit> help;
 
 		std::vector<std::string> functionDeclarations;
 
