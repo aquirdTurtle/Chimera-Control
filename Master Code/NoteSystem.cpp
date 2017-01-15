@@ -36,64 +36,64 @@ bool NoteSystem::initializeControls(POINT& topLeftPosition, HWND parentWindow)
 	/// EXPERIMENT LEVEL
 	// Configuration Notes Title
 	currentRect = experimentNotesHeader.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 20};
-	experimentNotesHeader.parent.Create("EXPERIMENT NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, currentRect, CWnd::FromHandle(parentWindow),
+	experimentNotesHeader.Create("EXPERIMENT NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, currentRect, CWnd::FromHandle(parentWindow),
 		experimentNotesHeader.ID);
-	experimentNotesHeader.parent.SetFont(CFont::FromHandle(sNormalFont));
+	experimentNotesHeader.SetFont(CFont::FromHandle(sNormalFont));
 	topLeftPosition.y += 20;
 	// Configuration Notes edit
 	currentRect = experimentNotes.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 200 };
-	experimentNotes.parent.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | WS_BORDER, currentRect, CWnd::FromHandle(parentWindow), experimentNotes.ID);
-	experimentNotes.parent.SetFont(CFont::FromHandle(sNormalFont));
+	experimentNotes.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | WS_BORDER, currentRect, CWnd::FromHandle(parentWindow), experimentNotes.ID);
+	experimentNotes.SetFont(CFont::FromHandle(sNormalFont));
 	topLeftPosition.y += 200;
 	/// CATEGORY LEVEL
 	// Category Notes Title
 	currentRect = categoryNotesHeader.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 20 };
-	categoryNotesHeader.parent.Create("CATEGORY NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, currentRect, CWnd::FromHandle(parentWindow),
+	categoryNotesHeader.Create("CATEGORY NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, currentRect, CWnd::FromHandle(parentWindow),
 		categoryNotesHeader.ID);
-	categoryNotesHeader.parent.SetFont(CFont::FromHandle(sNormalFont));
+	categoryNotesHeader.SetFont(CFont::FromHandle(sNormalFont));
 	topLeftPosition.y += 20;
 	// Category Notes edit
 	currentRect = categoryNotes.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 200 };
-	categoryNotes.parent.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | WS_BORDER, currentRect, CWnd::FromHandle(parentWindow), categoryNotes.ID);
-	categoryNotes.parent.SetFont(CFont::FromHandle(sNormalFont));
+	categoryNotes.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | WS_BORDER, currentRect, CWnd::FromHandle(parentWindow), categoryNotes.ID);
+	categoryNotes.SetFont(CFont::FromHandle(sNormalFont));
 	topLeftPosition.y += 200;
 	/// CONFIGURAITON LEVEL
 	// Configuration Notes Title
 	currentRect = configurationNotesHeader.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 20 };
-	configurationNotesHeader.parent.Create("CONFIGURATION NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, currentRect, CWnd::FromHandle(parentWindow),
+	configurationNotesHeader.Create("CONFIGURATION NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, currentRect, CWnd::FromHandle(parentWindow),
 		configurationNotesHeader.ID);
-	configurationNotesHeader.parent.SetFont(CFont::FromHandle(sNormalFont));
+	configurationNotesHeader.SetFont(CFont::FromHandle(sNormalFont));
 	topLeftPosition.y += 20;
 	//  Configuration Notes edit
 	currentRect = configurationNotes.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 200 };
-	configurationNotes.parent.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | WS_BORDER, currentRect, CWnd::FromHandle(parentWindow), configurationNotes.ID);
+	configurationNotes.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | WS_BORDER, currentRect, CWnd::FromHandle(parentWindow), configurationNotes.ID);
 	
-	configurationNotes.parent.SetFont(CFont::FromHandle(sNormalFont));
+	configurationNotes.SetFont(CFont::FromHandle(sNormalFont));
 	topLeftPosition.y += 200;
 	return false;
 }
 bool NoteSystem::setExperimentNotes(std::string notes)
 {
-	experimentNotes.parent.SetWindowText(notes.c_str());
+	experimentNotes.SetWindowText(notes.c_str());
 	//SendMessage(experimentNotes.hwnd, WM_SETTEXT, 0, (LPARAM)notes.c_str());
 	return false;
 }
 bool NoteSystem::setCategoryNotes(std::string notes)
 {
-	categoryNotes.parent.SetWindowText(notes.c_str());
+	categoryNotes.SetWindowText(notes.c_str());
 	//SendMessage(categoryNotes.hwnd, WM_SETTEXT, 0, (LPARAM)notes.c_str());
 	return false;
 }
 bool NoteSystem::setConfigurationNotes(std::string notes)
 {
-	configurationNotes.parent.SetWindowText(notes.c_str());
+	configurationNotes.SetWindowText(notes.c_str());
 	//SendMessage(configurationNotes.hwnd, WM_SETTEXT, 0, (LPARAM)notes.c_str());
 	return false;
 }
 std::string NoteSystem::getExperimentNotes()
 {
 	CString text;
-	experimentNotes.parent.GetWindowText(text);
+	experimentNotes.GetWindowText(text);
 	return text;
 	/*
 	int length = SendMessage(experimentNotes.hwnd, WM_GETTEXTLENGTH, 0, 0);
@@ -107,7 +107,7 @@ std::string NoteSystem::getExperimentNotes()
 std::string NoteSystem::getCategoryNotes()
 {
 	CString text;
-	categoryNotes.parent.GetWindowText(text);
+	categoryNotes.GetWindowText(text);
 	return text;
 	/*
 	int length = SendMessage(categoryNotes.hwnd, WM_GETTEXTLENGTH, 0, 0);
@@ -121,7 +121,7 @@ std::string NoteSystem::getCategoryNotes()
 std::string NoteSystem::getConfigurationNotes()
 {
 	CString text;
-	configurationNotes.parent.GetWindowText(text);
+	configurationNotes.GetWindowText(text);
 	return text;
 	/*
 	int length = SendMessage(configurationNotes.hwnd, WM_GETTEXTLENGTH, 0, 0);

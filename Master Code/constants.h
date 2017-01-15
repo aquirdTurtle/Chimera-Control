@@ -1,7 +1,6 @@
-
 // define this as true in order stop the code from actually calling any dio64 functions. Use, e.g. if the device is not connected.
-#define DIO_SAFEMODE true
-#define DAQMX_SAFEMODE true
+#define DIO_SAFEMODE false
+#define DAQMX_SAFEMODE false
 
 #define PROFILES_PATH "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Master Profiles\\"
 #define FUNCTIONS_FOLDER_LOCATION "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Functions\\"

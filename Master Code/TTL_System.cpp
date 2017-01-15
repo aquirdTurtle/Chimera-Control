@@ -43,13 +43,12 @@ TTL_System::TTL_System(int& startID)
 	}
 	ttlHold.ID = startID;
 	startID += 1;
-
 	// load modules
 	// this first module is required for the second module which I actually load functions from.
 	HMODULE dioNT = LoadLibrary("dio64_nt.dll");
 	HMODULE dio = LoadLibrary("dio64_32.dll");
-	// initialize function pointers. This only requires the DLLs to be loaded (which requires them to be present on the machine...) so it's not in a safemode
-	// block.
+	// initialize function pointers. This only requires the DLLs to be loaded (which requires them to be present on the machine...) 
+	// so it's not in a safemode block.
 	this->dioOpen = (DIO64_Open)GetProcAddress(dio, "DIO64_Open");
 	this->dioLoad = (DIO64_Load)GetProcAddress(dio, "DIO64_Load");
 	this->dioClose = (DIO64_Close)GetProcAddress(dio, "DIO64_Close");
@@ -74,28 +73,34 @@ TTL_System::TTL_System(int& startID)
 	//Open and Load DIO64
 	if (!DIO_SAFEMODE)
 	{
-		int result;
-		char filename = ' ';
-		result = dioOpen(0, 0);
-		if (result != 0)
+		try
 		{
-			errBox("dioOpen failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
+			int result;
+			char* filename = "";
+			result = dioOpen( 0, 0 );
+			if (result != 0)
+			{
+				thrower( "dioOpen failed! : (" + std::to_string( result ) + "): " + this->getErrorMessage( result ) );
+			}
+			result = dioLoad( 0, filename, 0, 4 );
+			if (result != 0)
+			{
+				thrower( "dioLoad failed! : (" + std::to_string( result ) + "): " + this->getErrorMessage( result ) );
+			}
+			//
+			WORD temp = -1;
+			double tempd = 1000000;
+			result = dioOutConfig( 0, 0, &temp, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, &tempd );
+			if (result != 0)
+			{
+				thrower( "dioOutConfig failed! : (" + std::to_string( result ) + "): " + this->getErrorMessage( result ) );
+			}
+			// done initializing.
 		}
-
-		result = dioLoad(0, &filename, 0, 4);
-		if (result != 0)
+		catch (myException& exception)
 		{
-			errBox("dioLoad failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
+			errBox( exception.what() );
 		}
-		//
-		WORD temp = -1;
-		double tempd = 1000000;
-		result = dioOutConfig(0, 0, &temp, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, &tempd);
-		if (result != 0)
-		{
-			errBox("dioOutConfig failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
-		}
-		// done initializing.
 	}
 }
 
@@ -104,32 +109,32 @@ std::array<std::array<std::string, 16>, 4> TTL_System::getAllNames()
 	return this->ttlNames;
 }
 
-bool TTL_System::startBoard()
+void TTL_System::startBoard()
 {
 	// start the dio board.
 	int result = dioOutStart(0);
 	if (result != 0)
 	{
-		errBox("ERROR: Dio64OutStart() Failed! (" + std::to_string(result) + "):" + this->getErrorMessage(result));
-		return false;
+		thrower("ERROR: Dio64OutStart() Failed! (" + std::to_string(result) + "):" + this->getErrorMessage(result));
+		return;
 	}
-	return true;
+	return;
 }
 
-bool TTL_System::shadeTTLs(std::vector<std::pair<unsigned int, unsigned int>> shadeList)
+void TTL_System::shadeTTLs(std::vector<std::pair<unsigned int, unsigned int>> shadeList)
 {
 	for (int shadeInc = 0; shadeInc < shadeList.size(); shadeInc++)
 	{
 		// shade it.
-		this->ttlPushControls[shadeList[shadeInc].first][shadeList[shadeInc].second].parent.SetCheck(BST_INDETERMINATE);
+		this->ttlPushControls[shadeList[shadeInc].first][shadeList[shadeInc].second].SetCheck(BST_INDETERMINATE);
 		this->ttlShadeStatus[shadeList[shadeInc].first][shadeList[shadeInc].second] = true;
 		// a grey color is then used.
 		this->ttlPushControls[shadeList[shadeInc].first][shadeList[shadeInc].second].colorState = 2;
-		this->ttlPushControls[shadeList[shadeInc].first][shadeList[shadeInc].second].parent.RedrawWindow();
+		this->ttlPushControls[shadeList[shadeInc].first][shadeList[shadeInc].second].RedrawWindow();
 	}
-	return true;
+	return;
 }
-bool TTL_System::unshadeTTLs()
+void TTL_System::unshadeTTLs()
 {
 	for (int rowInc = 0; rowInc < this->getNumberOfTTLRows(); rowInc++)
 	{
@@ -139,22 +144,22 @@ bool TTL_System::unshadeTTLs()
 			if (this->ttlPushControls[rowInc][numberInc].colorState == 2)
 			{
 				this->ttlPushControls[rowInc][numberInc].colorState = 0;
-				this->ttlPushControls[rowInc][numberInc].parent.RedrawWindow();
+				this->ttlPushControls[rowInc][numberInc].RedrawWindow();
 			}			
 			if (this->ttlStatus[rowInc][numberInc])
 			{
-				this->ttlPushControls[rowInc][numberInc].parent.SetCheck(BST_CHECKED);
+				this->ttlPushControls[rowInc][numberInc].SetCheck(BST_CHECKED);
 			}
 			else
 			{
-				this->ttlPushControls[rowInc][numberInc].parent.SetCheck(BST_UNCHECKED);
+				this->ttlPushControls[rowInc][numberInc].SetCheck(BST_UNCHECKED);
 			}
 		}
 	}
-	return true;
+	return;
 }
 
-bool TTL_System::initialize(POINT& upperLeftCornerLocation, HWND windowHandle, HINSTANCE programInstance, std::unordered_map<HWND, std::string>& toolTipText, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master)
+void TTL_System::initialize(POINT& upperLeftCornerLocation, HWND windowHandle, HINSTANCE programInstance, std::unordered_map<HWND, std::string>& toolTipText, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master)
 {
 	// title
 	RECT location;
@@ -163,7 +168,7 @@ bool TTL_System::initialize(POINT& upperLeftCornerLocation, HWND windowHandle, H
 	location.right = location.left + 480;
 	location.bottom = location.top + 25;
 	ttlTitle.position = location;
-	ttlTitle.parent.Create("TTL Boards High / Low Control", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, location, CWnd::FromHandle(windowHandle), ttlTitle.ID);
+	ttlTitle.Create("TTL Boards High / Low Control", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, location, CWnd::FromHandle(windowHandle), ttlTitle.ID);
 	// all number labels
 	location.left += 32;
 	location.right = location.left + 28;
@@ -172,7 +177,7 @@ bool TTL_System::initialize(POINT& upperLeftCornerLocation, HWND windowHandle, H
 	for (int ttlNumberInc = 0; ttlNumberInc < ttlNumberLabels.size(); ttlNumberInc++)
 	{
 		ttlNumberLabels[ttlNumberInc].position = location;
-		ttlNumberLabels[ttlNumberInc].parent.Create(std::to_string(ttlNumberInc + 1).c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN, location,
+		ttlNumberLabels[ttlNumberInc].Create(std::to_string(ttlNumberInc + 1).c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN, location,
 			CWnd::FromHandle(windowHandle), ttlNumberLabels[ttlNumberInc].ID);
 		location.left += 28;
 		location.right += 28; 
@@ -201,7 +206,7 @@ bool TTL_System::initialize(POINT& upperLeftCornerLocation, HWND windowHandle, H
 				rowName = "D";
 				break;
 		}
-		ttlRowLabels[row].parent.Create(rowName.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, location, CWnd::FromHandle(windowHandle),
+		ttlRowLabels[row].Create(rowName.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, location, CWnd::FromHandle(windowHandle),
 			ttlRowLabels[row].ID);
 		location.top += 28;
 		location.bottom += 28;
@@ -234,7 +239,7 @@ bool TTL_System::initialize(POINT& upperLeftCornerLocation, HWND windowHandle, H
 			name += std::to_string(number + 1);
 			//this->ttlNames[row][number] = name;
 			ttlPushControls[row][number].position = location;
-			ttlPushControls[row][number].parent.Create("", WS_CHILD | WS_VISIBLE | BS_RIGHT | BS_3STATE, location, CWnd::FromHandle(windowHandle), 
+			ttlPushControls[row][number].Create("", WS_CHILD | WS_VISIBLE | BS_RIGHT | BS_3STATE, location, CWnd::FromHandle(windowHandle), 
 				ttlPushControls[row][number].ID);
 			if (!ttlPushControls[row][number].setToolTip(this->ttlNames[row][number], toolTips, master))
 			{
@@ -254,17 +259,17 @@ bool TTL_System::initialize(POINT& upperLeftCornerLocation, HWND windowHandle, H
 	location.right = location.left + 480;
 	location.bottom += 5;
 	ttlHold.position = location;
-	ttlHold.parent.Create("HOLD", WS_TABSTOP | WS_VISIBLE | BS_AUTOCHECKBOX | WS_CHILD | BS_PUSHLIKE, location, CWnd::FromHandle(windowHandle), ttlHold.ID);
+	ttlHold.Create("HOLD", WS_TABSTOP | WS_VISIBLE | BS_AUTOCHECKBOX | WS_CHILD | BS_PUSHLIKE, location, CWnd::FromHandle(windowHandle), ttlHold.ID);
 	if (!ttlHold.setToolTip("Press this button to change multiple TTLs simultaneously. Press the button, then change the ttls, then press the button again "
 		"to release it. Upon releasing the button, the TTLs will change.", toolTips, master))
 	{
 		MessageBox(0, "Button Tool tip failed!", 0, 0);
 	}
 	upperLeftCornerLocation.y = location.bottom;
-	return true;
+	return;
 }
 
-bool TTL_System::handleTTL_ScriptCommand(std::string command, std::pair<std::string, long> time, std::string name, std::vector<std::pair<unsigned int, unsigned int>>& ttlShadeLocations)
+void TTL_System::handleTTL_ScriptCommand(std::string command, std::pair<std::string, long> time, std::string name, std::vector<std::pair<unsigned int, unsigned int>>& ttlShadeLocations)
 {
 	/*
 
@@ -272,8 +277,8 @@ bool TTL_System::handleTTL_ScriptCommand(std::string command, std::pair<std::str
 	*/
 	if (!this->isValidTTLName(name))
 	{
-		errBox("ERROR: the name " + name + " is not the name of a ttl!");
-		return false;
+		thrower("ERROR: the name " + name + " is not the name of a ttl!");
+		return;
 	}
 	unsigned int row, collumn;
 	int ttlLine = this->getNameIdentifier(name, row, collumn);
@@ -286,7 +291,7 @@ bool TTL_System::handleTTL_ScriptCommand(std::string command, std::pair<std::str
 	{
 		this->ttlOff(row, collumn, time);
 	}
-	return true;
+	return;
 }
 
 // simple...
@@ -310,7 +315,7 @@ int TTL_System::getNumberOfTTLsPerRow()
 
 TTL_System::~TTL_System(){}
 
-bool TTL_System::handleTTLPress(UINT id)
+void TTL_System::handleTTLPress(UINT id)
 {
 	if (id >= ttlPushControls.front().front().ID && id <= ttlPushControls.back().back().ID)
 	{
@@ -321,7 +326,7 @@ bool TTL_System::handleTTLPress(UINT id)
 		// if indeterminante, you can't change it, but that's fine, return true.
 		if (ttlShadeStatus[row][number])
 		{
-			return true;
+			return;
 		}
 		if (holdStatus == false)
 		{
@@ -340,26 +345,25 @@ bool TTL_System::handleTTLPress(UINT id)
 			{
 				ttlHoldStatus[row][number] = false;
 					ttlPushControls[row][number].colorState = -1;
-				ttlPushControls[row][number].parent.RedrawWindow();
+				ttlPushControls[row][number].RedrawWindow();
 			}
 			else
 			{
 				ttlHoldStatus[row][number] = true;
 				ttlPushControls[row][number].colorState = 1;
-				ttlPushControls[row][number].parent.RedrawWindow();
+				ttlPushControls[row][number].RedrawWindow();
 			}
 		}
-		return true;
+		return;
 	}
 	else
 	{
-		return false;
+		return;
 	}
-
 }
 
 // this function handles when the hold button is pressed.
-bool TTL_System::handleHoldPress()
+void TTL_System::handleHoldPress()
 {
 	if (this->holdStatus == true)
 	{
@@ -371,20 +375,20 @@ bool TTL_System::handleHoldPress()
 			{
 				if (ttlHoldStatus[rowInc][numberInc])
 				{
-					ttlPushControls[rowInc][numberInc].parent.SetCheck(BST_CHECKED);					//SendMessage(ttlPushControls[rowInc][numberInc].hwnd, BM_SETCHECK, BST_CHECKED, 0);
+					ttlPushControls[rowInc][numberInc].SetCheck(BST_CHECKED);					
 					ttlStatus[rowInc][numberInc] = true;
 					// actually change the ttl.
 					this->forceTTL(rowInc, numberInc, 1);
 				}
 				else
 				{
-					ttlPushControls[rowInc][numberInc].parent.SetCheck(BST_UNCHECKED);
+					ttlPushControls[rowInc][numberInc].SetCheck(BST_UNCHECKED);
 					ttlStatus[rowInc][numberInc] = false;
 					// actually change the ttl.
 					this->forceTTL(rowInc, numberInc, 0);
 				}
 				ttlPushControls[rowInc][numberInc].colorState = 0;
-				ttlPushControls[rowInc][numberInc].parent.RedrawWindow();
+				ttlPushControls[rowInc][numberInc].RedrawWindow();
 			}
 		}
 	}
@@ -393,17 +397,19 @@ bool TTL_System::handleHoldPress()
 		this->holdStatus = true;
 		ttlHoldStatus = ttlStatus;
 	}
-	return true;
+	return;
 }
 
-bool TTL_System::resetTTLEvents()
+void TTL_System::resetTTLEvents()
 {
 	this->ttlCommandFormList.clear();
-	return true;
+	return;
 }
+
 HBRUSH TTL_System::handleColorMessage(CWnd* window, std::unordered_map<std::string, HBRUSH> brushes, std::unordered_map<std::string, COLORREF> rGBs, CDC* cDC)
 {
-	DWORD controlID = GetDlgCtrlID(*window);
+	
+	DWORD controlID = window->GetDlgCtrlID();
 	if (controlID >= ttlPushControls.front().front().ID && controlID <= ttlPushControls.back().back().ID)
 	{
 		// figure out row #
@@ -455,27 +461,27 @@ HBRUSH TTL_System::handleColorMessage(CWnd* window, std::unordered_map<std::stri
 	}
 }
 
-bool TTL_System::isValidTTLName(std::string name)
+bool TTL_System::isValidTTLName( std::string name )
 {
 	for (int rowInc = 0; rowInc < this->getNumberOfTTLRows(); rowInc++)
 	{
 		std::string rowStr;
 		switch (rowInc)
 		{
-		case 0: rowStr = "A"; break;
-		case 1: rowStr = "B"; break;
-		case 2: rowStr = "C"; break;
-		case 3: rowStr = "D"; break;
+			case 0: rowStr = "A"; break;
+			case 1: rowStr = "B"; break;
+			case 2: rowStr = "C"; break;
+			case 3: rowStr = "D"; break;
 		}
 		for (int numberInc = 0; numberInc < this->getNumberOfTTLsPerRow(); numberInc++)
 		{
 			// check default names
 			unsigned int row, number;
-			if (name == rowStr + std::to_string(numberInc + 1))
+			if (name == rowStr + std::to_string( numberInc + 1 ))
 			{
 				return true;
 			}
-			else if (this->getNameIdentifier(name, row, number) != -1)
+			else if (this->getNameIdentifier( name, row, number ) != -1)
 			{
 				return true;
 			}
@@ -484,30 +490,30 @@ bool TTL_System::isValidTTLName(std::string name)
 	return false;
 }
 
-bool TTL_System::ttlOn(unsigned int row, unsigned int column, std::pair<std::string, long> time)
+void TTL_System::ttlOn(unsigned int row, unsigned int column, std::pair<std::string, long> time)
 {
 	TTL_ComandForm command;
 	// make sure it's either a variable or a number that can be used.
 	this->ttlCommandFormList.push_back({ {row, column}, time, true });
-	return true;
+	return;
 }
 
-bool TTL_System::ttlOff(unsigned int row, unsigned int column, std::pair<std::string, long> time)
+void TTL_System::ttlOff(unsigned int row, unsigned int column, std::pair<std::string, long> time)
 {
 	// check to make sure either variable or actual value.
 	this->ttlCommandFormList.push_back({ {row, column}, time, false });
-	return true;
+	return;
 }
 
-bool TTL_System::stopBoard()
+void TTL_System::stopBoard()
 {
 	int result = dioOutStop(0);
 	if (result != 0)
 	{
-		errBox("DIO64_Out_Stop failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
-		return false;
+		thrower("DIO64_Out_Stop failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
+		return;
 	}
-	return true;
+	return;
 }
 
 double TTL_System::getClockStatus()
@@ -536,43 +542,68 @@ double TTL_System::getClockStatus()
 }
 
 // forceTTL forces the actual ttl to a given value and changes the checkbox status to reflect that.
-bool TTL_System::forceTTL(int row, int number, int state)
+void TTL_System::forceTTL(int row, int number, int state)
 {
 	// change the ttl checkbox.
 	if (state == 0)
 	{
-		this->ttlPushControls[row][number].parent.SetCheck(BST_UNCHECKED);
+		this->ttlPushControls[row][number].SetCheck(BST_UNCHECKED);
 		this->ttlStatus[row][number] = false;
 	}
 	else
 	{
-		this->ttlPushControls[row][number].parent.SetCheck(BST_CHECKED);
+		this->ttlPushControls[row][number].SetCheck(BST_CHECKED);
 		this->ttlStatus[row][number] = true;
 	}
+
 	// change the output.
-	if (!DIO_SAFEMODE)
+	int result = 0;
+	std::array<std::bitset<16>, 4> ttlBits;
+	for (int rowInc = 0; rowInc < 4; rowInc++)
 	{
-		int result;
-		WORD buffer;
-		result = dioOutForceOutput(0, &buffer, 15);
-		if (result != 0)
+		for (int numberInc = 0; numberInc < 16; numberInc++)
 		{
-			errBox("DIO64_Out_ForceOutput failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
+			if (this->ttlStatus[rowInc][numberInc])
+			{
+				// flip bit to 1.
+				ttlBits[rowInc].set( numberInc, true );
+			}
+			else
+			{
+				// flip bit to 0.
+				ttlBits[rowInc].set( numberInc, false );
+			}
 		}
 	}
-	return true;
+	std::array<unsigned short, 4> tempCommand;
+	//std::array<unsigned short, 6> tempCommand;
+	//tempCommand[0] = 0;
+	//tempCommand[1] = 0;
+	tempCommand[0] = static_cast <unsigned short>(ttlBits[0].to_ulong());
+	tempCommand[1] = static_cast <unsigned short>(ttlBits[1].to_ulong());
+	tempCommand[2] = static_cast <unsigned short>(ttlBits[2].to_ulong());
+	tempCommand[3] = static_cast <unsigned short>(ttlBits[3].to_ulong());
+	if (!DIO_SAFEMODE)
+	{
+		result = dioOutForceOutput( 0, tempCommand.data(), 15 );
+	}
+	if (result != 0)
+	{
+		thrower("DIO64_Out_ForceOutput failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
+	}
+	return;
 }
 
-bool TTL_System::setName(unsigned int row, unsigned int number, std::string name, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master)
+void TTL_System::setName(unsigned int row, unsigned int number, std::string name, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master)
 {
 	if (name == "")
 	{
 		// no empty names allowed.
-		return false;
+		return;
 	}
 	this->ttlNames[row][number] = name;
 	this->ttlPushControls[row][number].setToolTip(name, toolTips, master);
-	return true;
+	return;
 }
 
 int TTL_System::getNameIdentifier(std::string name, unsigned int& row, unsigned int& number)
@@ -610,7 +641,7 @@ int TTL_System::getNameIdentifier(std::string name, unsigned int& row, unsigned 
 	return -1;
 }
 
-bool TTL_System::writeData()
+void TTL_System::writeData()
 {
 	// Write to DIO board
 	// Called by qprep
@@ -630,14 +661,15 @@ bool TTL_System::writeData()
 	result = dioOutStop(0);
 	if (result != 0)
 	{
-		errBox("DIO64_Out_Stop failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
+		thrower("DIO64_Out_Stop failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
 	}
 	WORD temp = -1;
+	// scan rate = 10 MHz
 	double scan = 10000000;
 	result = dioOutConfig(0, 0, &temp, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, &scan);
 	if (result != 0)
 	{
-		errBox("DIO64_Out_Config failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
+		thrower("DIO64_Out_Config failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
 	}
 	DWORD availableScans = 0;
 	DIO64STAT status;
@@ -645,18 +677,23 @@ bool TTL_System::writeData()
 	result = dioOutStatus(0, &availableScans, &status);
 	if (result != 0)
 	{
-		errBox("DIO64_Out_Status failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
+		thrower("DIO64_Out_Status failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
 	}
 	//DIO64_Out_Write(0, TTLdatatoboard(0, 0), buffsize, status);
-	WORD buffer;
-	// this isn't right, I need to pass it the actual information that I want to write. 
-	result = dioOutWrite(0, &buffer, 5, &status);
+	std::vector<WORD> arrayOfAllData( finalFormattedCommandForDIO.size() * 6 );
+	int count = 0;
+	for (auto& element : arrayOfAllData)
+	{
+		// concatenate all the data at once.
+		element = finalFormattedCommandForDIO[count / 6][count % 6];
+	}
+	// now arrayOfAllData contains all the experiment data.
+	result = dioOutWrite(0, arrayOfAllData.data(), arrayOfAllData.size(), &status);
 	if (result != 0)
 	{
-		errBox("DIO64_Out_Write failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
+		thrower("DIO64_Out_Write failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
 	}
-
-	return true;
+	return;
 }
 
 std::string TTL_System::getName(unsigned int row, unsigned int number)
@@ -670,7 +707,7 @@ bool TTL_System::getTTL_Status(int row, int number)
 }
 
 // waits a time in ms, using the DIO clock
-bool TTL_System::wait(double time)
+void TTL_System::wait(double time)
 {
 	double startTime;
 	int dummy;
@@ -683,18 +720,18 @@ bool TTL_System::wait(double time)
 	}
 	// check faster closer to the stop.
 	while (time - abs(getClockStatus() - startTime) > 0.1 && getClockStatus() - startTime != 0){/*immediately check again*/}
-	return true;
+	return;
 }
 // uses the last time of the ttl trigger to wait until the experiment is finished.
-bool TTL_System::waitTillFinished()
+void TTL_System::waitTillFinished()
 {
 	double totalTime = (this->finalFormattedCommandForDIO.back()[0] + 65535*this->finalFormattedCommandForDIO.back()[1])/10000 + 1;
 	this->wait(totalTime);
 	this->stopBoard();
-	return true;
+	return;
 }
 
-bool TTL_System::interpretKey(std::unordered_map<std::string, std::vector<double>> key, unsigned int variationNum)
+void TTL_System::interpretKey(std::unordered_map<std::string, std::vector<double>> key, unsigned int variationNum)
 {
 	this->individualTTL_CommandList.clear();
 	for (int commandInc = 0; commandInc < this->ttlCommandFormList.size(); commandInc++)
@@ -713,10 +750,10 @@ bool TTL_System::interpretKey(std::unordered_map<std::string, std::vector<double
 		}
 		this->individualTTL_CommandList.push_back(tempCommand);
 	}
-	return true;
+	return;
 }
 
-bool TTL_System::analyzeCommandList()
+void TTL_System::analyzeCommandList()
 {
 	// each element of this is a different time (the double), and associated with each time is a vector which locates which commands were at this time, for
 	// ease of retrieving all of the values in a moment.
@@ -768,8 +805,8 @@ bool TTL_System::analyzeCommandList()
 	this->fullCommandList.push_back({0, this->ttlStatus});
 	if (orderedOrganizer.size() == 0)
 	{
-		errBox("ERROR: no ttl commands...?");
-		return false;
+		thrower("ERROR: no ttl commands...?");
+		return;
 	}
 	if (orderedOrganizer[0].first == 0)
 	{
@@ -797,10 +834,10 @@ bool TTL_System::analyzeCommandList()
 		}
 	}
 	// phew.
-	return true;
+	return;
 }
 
-bool TTL_System::convertToFinalFormat()
+void TTL_System::convertToFinalFormat()
 {
 	this->finalFormattedCommandForDIO.clear();
 	// do bit arithmetic.
@@ -839,8 +876,10 @@ bool TTL_System::convertToFinalFormat()
 		tempCommand[5] = static_cast <unsigned short>(ttlBits[3].to_ulong());
 		this->finalFormattedCommandForDIO.push_back(tempCommand);
 	}
-	return true;
+	return;
 }
+
+
 std::string TTL_System::getErrorMessage(int errorCode)
 {
 	switch (errorCode)

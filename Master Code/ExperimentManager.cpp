@@ -125,29 +125,30 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 	{
 		// update things based on the new key value.
 		input->status->appendText("Loading Key...", 0);
-		ERRCHK(input->dacs->interpretKey(input->key->getKey(), varInc, input->vars));
-		ERRCHK(input->ttls->interpretKey(input->key->getKey(), varInc));
-		ERRCHK(input->rsg->interpretKey(input->key->getKey(), varInc));
+		input->dacs->interpretKey( input->key->getKey(), varInc, input->vars );
+		input->ttls->interpretKey( input->key->getKey(), varInc );
+		input->rsg->interpretKey( input->key->getKey(), varInc );
 		std::array<double, 3> freqs = input->gpibHandler->interpretKeyForRaman(ramanFrequencies, input->key->getKey(), varInc);
 		// prepare dac and ttls. data to final forms.
 		input->status->appendText("Analyzing Script Data...", 0);
-		ERRCHK(input->dacs->analyzeDAC_Commands());
-		ERRCHK(input->dacs->makeFinalDataFormat());
-		ERRCHK(input->ttls->analyzeCommandList());
-		ERRCHK(input->ttls->convertToFinalFormat());
+		input->dacs->analyzeDAC_Commands();
+		input->dacs->makeFinalDataFormat();
+		input->ttls->analyzeCommandList();
+		input->ttls->convertToFinalFormat();
 		// program devices
 		input->status->appendText("Programming Hardware...", 0);
-		ERRCHK(input->gpibHandler->programRamanFGs(freqs[0], freqs[1], freqs[2]));
-		ERRCHK(input->rsg->programRSG(input->gpibHandler));
+		input->gpibHandler->programRamanFGs( freqs[0], freqs[1], freqs[2] );
+		input->rsg->programRSG( input->gpibHandler );
 		// loop for repetitions
 		for (int repInc = 0; repInc < input->repetitions; repInc++)
 		{
 			// this apparently needs to be re-written each time from looking at the VB6 code.
-			ERRCHK(input->dacs->writeDacs());
-			ERRCHK(input->ttls->writeData());
-			ERRCHK(input->ttls->startBoard());
+			input->dacs->writeDacs();
+
+			input->ttls->writeData();
+			input->ttls->startBoard();
 			// wait until finished.
-			ERRCHK(input->ttls->waitTillFinished());
+			input->ttls->waitTillFinished();
 		}
 	}
 	// do experiment stuff...
@@ -575,10 +576,7 @@ bool ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 				}
 			}
 			this->eatComments(&functionStream);
-			if (!ttls->handleTTL_ScriptCommand(word, operationTime, name, ttlShades))
-			{
-				return false;
-			}
+			ttls->handleTTL_ScriptCommand( word, operationTime, name, ttlShades );
 			this->eatComments(&functionStream);
 		}
 		/// deal with dac commands
@@ -602,10 +600,7 @@ bool ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 				}
 			}
 			this->eatComments(&functionStream);
-			if (!dacs->handleDAC_ScriptCommand(operationTime, name, value, 0, 0, 0, dacShades, variables, ttls))
-			{
-				return false;
-			}
+			dacs->handleDAC_ScriptCommand( operationTime, name, value, 0, 0, 0, dacShades, variables, ttls );
 			this->eatComments(&functionStream);
 		}
 		else if (word == "dacramp:")
@@ -650,10 +645,7 @@ bool ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 					rampInc = args[argInc];
 				}
 			}
-			if (!dacs->handleDAC_ScriptCommand(operationTime, name, initVal, finalVal, rampTime, rampInc, dacShades, variables, ttls))
-			{
-				return false;
-			}
+			dacs->handleDAC_ScriptCommand( operationTime, name, initVal, finalVal, rampTime, rampInc, dacShades, variables, ttls );
 		}
 		/// Handle RSG calls.
 		else if (word == "RSG:")
@@ -961,10 +953,7 @@ bool ExperimentManager::analyzeCurrentMasterScript(TTL_System* ttls, DAC_System*
 			this->eatComments(&this->currentMasterScript);
 			this->currentMasterScript >> name;
 			this->eatComments(&this->currentMasterScript);
-			if (!ttls->handleTTL_ScriptCommand(word, operationTime, name, ttlShades))
-			{
-				return false;
-			}
+			ttls->handleTTL_ScriptCommand( word, operationTime, name, ttlShades );
 			this->eatComments(&this->currentMasterScript);
 		}
 		/// deal with dac commands
@@ -976,10 +965,7 @@ bool ExperimentManager::analyzeCurrentMasterScript(TTL_System* ttls, DAC_System*
 			this->eatComments(&this->currentMasterScript);
 			this->currentMasterScript >> dacVoltageValue;
 			this->eatComments(&this->currentMasterScript);
-			if (!dacs->handleDAC_ScriptCommand(operationTime, dacName, dacVoltageValue, "", "", "", dacShades, variables, ttls))
-			{
-				return false;
-			}
+			dacs->handleDAC_ScriptCommand( operationTime, dacName, dacVoltageValue, "", "", "", dacShades, variables, ttls );
 			this->eatComments(&this->currentMasterScript);
 		}
 		else if (word == "dacramp:")
@@ -1001,10 +987,7 @@ bool ExperimentManager::analyzeCurrentMasterScript(TTL_System* ttls, DAC_System*
 			this->eatComments(&this->currentMasterScript);
 			currentMasterScript >> rampInc;
 			this->eatComments(&this->currentMasterScript);
-			if (!dacs->handleDAC_ScriptCommand(operationTime, name, initVal, finalVal, rampTime, rampInc, dacShades, variables, ttls))
-			{
-				return false;
-			}
+			dacs->handleDAC_ScriptCommand( operationTime, name, initVal, finalVal, rampTime, rampInc, dacShades, variables, ttls );
 		}
 		/// Deal with RSG calls
 		else if (word == "rsg:")

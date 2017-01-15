@@ -16,7 +16,7 @@ class Repetitions
 		bool handleButtonPush();
 	private:
 		unsigned int repetitionNumber;
-		ClassControl<CEdit> repetitionEdit;
-		ClassControl<CEdit> repetitionDisp;
-		ClassControl<CButton> setRepetitionButton;
+		Control<CEdit> repetitionEdit;
+		Control<CEdit> repetitionDisp;
+		Control<CButton> setRepetitionButton;
 };

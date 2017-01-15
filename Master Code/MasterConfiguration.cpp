@@ -119,7 +119,7 @@ bool MasterConfiguration::load(TTL_System* ttls, DAC_System& dacs, std::vector<C
 			break;
 		}
 		dacs.setName(dacInc, name, toolTips, master);
-		dacs.forceDacChange(dacInc, value, ttls);
+		dacs.prepareDacForceChange(dacInc, value, ttls);
 		this->defaultDACs[dacInc] = value;
 	}
 	configFile.close();

@@ -18,7 +18,7 @@ Repetitions::Repetitions(int& id)
 bool Repetitions::handleButtonPush()
 {
 	CString text;
-	this->repetitionEdit.parent.GetWindowTextA(text);
+	this->repetitionEdit.GetWindowTextA(text);
 	try
 	{
 		unsigned int repetitionNumber = std::stoi(text.GetBuffer());
@@ -37,12 +37,12 @@ bool Repetitions::initialize(POINT& topLeftPosition, HWND parentWindow, std::vec
 	// title
 	RECT position;
 	position = this->setRepetitionButton.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 180, topLeftPosition.y + 20 };
-	this->setRepetitionButton.parent.Create("Set Repetition #", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, position, CWnd::FromHandle(parentWindow), setRepetitionButton.ID);
+	this->setRepetitionButton.Create("Set Repetition #", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, position, CWnd::FromHandle(parentWindow), setRepetitionButton.ID);
 	position = this->repetitionEdit.position = { topLeftPosition.x + 180, topLeftPosition.y, topLeftPosition.x + 330, topLeftPosition.y + 25 };
-	this->repetitionEdit.parent.Create(WS_CHILD | WS_VISIBLE | SS_SUNKEN, position, CWnd::FromHandle(parentWindow), repetitionEdit.ID);	
+	this->repetitionEdit.Create(WS_CHILD | WS_VISIBLE | SS_SUNKEN, position, CWnd::FromHandle(parentWindow), repetitionEdit.ID);	
 	position = this->repetitionDisp.position = { topLeftPosition.x + 330, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 25 };
-	this->repetitionDisp.parent.Create(WS_CHILD | WS_VISIBLE | SS_SUNKEN | ES_CENTER | ES_READONLY | WS_BORDER, position, CWnd::FromHandle(parentWindow), repetitionDisp.ID);
-	repetitionDisp.parent.SetWindowTextA("100");
+	this->repetitionDisp.Create(WS_CHILD | WS_VISIBLE | SS_SUNKEN | ES_CENTER | ES_READONLY | WS_BORDER, position, CWnd::FromHandle(parentWindow), repetitionDisp.ID);
+	repetitionDisp.SetWindowTextA("100");
 	// initialize the number to match the display.
 	this->repetitionNumber = 100;
 	topLeftPosition.y += 20;
@@ -53,7 +53,7 @@ bool Repetitions::setRepetitions(unsigned int number)
 {
 	// check number for reasonable-ness.
 	this->repetitionNumber = number;
-	this->repetitionDisp.parent.SetWindowText(std::to_string(number).c_str());
+	this->repetitionDisp.SetWindowText(std::to_string(number).c_str());
 	return true;
 }
 

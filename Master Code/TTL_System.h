@@ -70,42 +70,40 @@ class TTL_System
 		TTL_System(int& startID);
 		TTL_System();
 		~TTL_System();
-		bool initialize(POINT& startLocation, HWND windowHandle, HINSTANCE programInstance, std::unordered_map<HWND, std::string>& masterText, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master);
+		void initialize(POINT& startLocation, HWND windowHandle, HINSTANCE programInstance, std::unordered_map<HWND, std::string>& masterText, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master);
 		int getNumberOfTTLRows();
 		int getNumberOfTTLsPerRow();
-		bool handleTTLPress(UINT id);
-		bool handleHoldPress();
+		void handleTTLPress(UINT id);
+		void handleHoldPress();
 		HBRUSH TTL_System::handleColorMessage(CWnd* window, std::unordered_map<std::string, HBRUSH> brushes, std::unordered_map<std::string, COLORREF> rGBs, CDC* cDC);
-		bool ttlOn(unsigned int row, unsigned int column, std::pair<std::string, long> time);
-		bool ttlOff(unsigned int row, unsigned int column, std::pair<std::string, long> time);
-		bool forceTTL(int row, int number, int state);
+		void ttlOn(unsigned int row, unsigned int column, std::pair<std::string, long> time);
+		void ttlOff(unsigned int row, unsigned int column, std::pair<std::string, long> time);
+		void forceTTL(int row, int number, int state);
 		
-		bool setName(unsigned int row, unsigned int number, std::string name, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master);
+		void setName(unsigned int row, unsigned int number, std::string name, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master);
 		std::string getName(unsigned int row, unsigned int number);
 		std::array<std::array<std::string, 16>, 4> TTL_System::getAllNames();
 		// returns -1 if not a name.get
 		int TTL_System::getNameIdentifier(std::string name, unsigned int& row, unsigned int& number);
 		bool getTTL_Status(int row, int number);
 		std::string getErrorMessage(int errorCode);
-		bool TTL_System::handleTTL_ScriptCommand(std::string command, std::pair<std::string, long> time, std::string name, 
+		void TTL_System::handleTTL_ScriptCommand(std::string command, std::pair<std::string, long> time, std::string name, 
 			std::vector<std::pair<unsigned int, unsigned int>>& ttlShadeLocations);
-		bool interpretKey(std::unordered_map<std::string, std::vector<double>> key, unsigned int variationNum);
-		bool analyzeCommandList();
-		bool convertToFinalFormat();
-		bool writeData();
-		bool startBoard();
-		bool stopBoard();
+		void interpretKey(std::unordered_map<std::string, std::vector<double>> key, unsigned int variationNum);
+		void analyzeCommandList();
+		void convertToFinalFormat();
+		void writeData();
+		void startBoard();
+		void stopBoard();
 		double getClockStatus();
-		bool wait(double time);
-		bool waitTillFinished();
+		void wait(double time);
+		void waitTillFinished();
 
 		//int TTL_System::getNameIdentifier(std::string name, unsigned int& row, unsigned int& number);
-		bool shadeTTLs(std::vector<std::pair<unsigned int, unsigned int>>);
-		bool unshadeTTLs();
-
+		void shadeTTLs(std::vector<std::pair<unsigned int, unsigned int>>);
+		void unshadeTTLs();
 		bool isValidTTLName(std::string name);
-		bool resetTTLEvents();
-
+		void resetTTLEvents();
 
 	private:
 		typedef int(CALLBACK* DIO64_Open)(WORD board, WORD baseio);
@@ -146,11 +144,11 @@ class TTL_System
 		DIO64_GetAttr dioGetAttr;
 
 		// one control for each TTL
-		ClassControl<CStatic> ttlTitle;
-		ClassControl<CButton> ttlHold;
-		std::array< std::array< ClassControl<CButton>, 16 >, 4 > ttlPushControls;
-		std::array< ClassControl<CStatic>, 16 > ttlNumberLabels;
-		std::array< ClassControl<CStatic>, 4 > ttlRowLabels;
+		Control<CStatic> ttlTitle;
+		Control<CButton> ttlHold;
+		std::array< std::array< Control<CButton>, 16 >, 4 > ttlPushControls;
+		std::array< Control<CStatic>, 16 > ttlNumberLabels;
+		std::array< Control<CStatic>, 4 > ttlRowLabels;
 		std::array< std::array<bool, 16>, 4 > ttlStatus;
 		std::array< std::array<bool, 16>, 4 > ttlShadeStatus;
 		std::array< std::array<bool, 16>, 4 > ttlHoldStatus;

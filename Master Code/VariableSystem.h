@@ -57,8 +57,8 @@ class VariableSystem
 	private:
 		int totalVariableNumber;
 		unsigned int currentVariations;
-		ClassControl<CStatic> variablesHeader;
-		ClassControl<CListCtrl> variablesListview;
+		Control<CStatic> variablesHeader;
+		Control<CListCtrl> variablesListview;
 		std::vector<variable> currentVariables;
 		HINSTANCE programInstance;
 		int variableRangeSets;
