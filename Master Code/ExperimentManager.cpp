@@ -323,7 +323,7 @@ bool ExperimentManager::analyzeFunctionDefinition(std::string defLine, std::stri
 	return true;
 }
 
-bool ExperimentManager::analyzeFunction(std::string function, std::vector<std::string> args, TTL_System* ttls, DAC_System* dacs, 
+bool ExperimentManager::analyzeFunction(std::string function, std::vector<std::string> args, TtlSystem* ttls, DacSystem* dacs, 
 	std::vector<std::pair<unsigned int, unsigned int>>& ttlShades, std::vector<unsigned int>& dacShades, RhodeSchwarz* rsg, 
 	std::array<std::string, 3>& ramanFreqs)
 {
@@ -839,7 +839,7 @@ bool ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 	return true;
 }
 
-bool ExperimentManager::analyzeCurrentMasterScript(TTL_System* ttls, DAC_System* dacs, std::vector<std::pair<unsigned int, unsigned int>>& ttlShades, 
+bool ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* dacs, std::vector<std::pair<unsigned int, unsigned int>>& ttlShades, 
 	std::vector<unsigned int>& dacShades, RhodeSchwarz* rsg, std::array<std::string, 3>& ramanFreqs)
 {
 	// reset this.

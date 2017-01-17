@@ -9,7 +9,7 @@ MasterConfiguration::MasterConfiguration(std::string address) : configurationFil
 {
 
 }
-bool MasterConfiguration::save(TTL_System* ttls, DAC_System* dacs)
+bool MasterConfiguration::save(TtlSystem* ttls, DacSystem* dacs)
 {
 	/*
 	information to save:
@@ -52,7 +52,7 @@ bool MasterConfiguration::save(TTL_System* ttls, DAC_System* dacs)
 	return true;
 }
 
-bool MasterConfiguration::load(TTL_System* ttls, DAC_System& dacs, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master)
+bool MasterConfiguration::load(TtlSystem* ttls, DacSystem& dacs, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master)
 {
 	// make sure that file exists
 
@@ -126,7 +126,7 @@ bool MasterConfiguration::load(TTL_System* ttls, DAC_System& dacs, std::vector<C
 	return true;
 }
 
-bool MasterConfiguration::updateDefaultDacs(DAC_System dacs)
+bool MasterConfiguration::updateDefaultDacs(DacSystem dacs)
 {
 	for (int dacInc = 0; dacInc < this->defaultDACs.size(); dacInc++)
 	{
@@ -135,7 +135,7 @@ bool MasterConfiguration::updateDefaultDacs(DAC_System dacs)
 	return true;
 }
 
-bool MasterConfiguration::updateDefaultTTLs(TTL_System ttls)
+bool MasterConfiguration::updateDefaultTTLs(TtlSystem ttls)
 {
 	for (int ttlRowInc = 0; ttlRowInc < ttls.getNumberOfTTLRows(); ttlRowInc++)
 	{
