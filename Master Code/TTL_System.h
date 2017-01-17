@@ -7,7 +7,7 @@
 class MasterWindow;
 
 // this struct keeps variable names.
-struct TTL_ComandForm
+struct TTL_CommandForm
 {
 	// the hardware location of this line
 	std::pair<unsigned int, unsigned int> line;
@@ -18,7 +18,7 @@ struct TTL_ComandForm
 };
 
 // no variables in this version. It's calculated each variation based on corresponding ComandForm structs.
-struct TTL_Comand
+struct TTL_Command
 {
 	// the hardware location of this line
 	std::pair<unsigned int, unsigned int> line;
@@ -77,7 +77,9 @@ class TTL_System
 		void handleHoldPress();
 		HBRUSH TTL_System::handleColorMessage(CWnd* window, std::unordered_map<std::string, HBRUSH> brushes, std::unordered_map<std::string, COLORREF> rGBs, CDC* cDC);
 		void ttlOn(unsigned int row, unsigned int column, std::pair<std::string, long> time);
+		void ttlOnDirect( unsigned int row, unsigned int column, long time );
 		void ttlOff(unsigned int row, unsigned int column, std::pair<std::string, long> time);
+		void ttlOffDirect( unsigned int row, unsigned int column, long time );
 		void forceTTL(int row, int number, int state);
 		
 		void setName(unsigned int row, unsigned int number, std::string name, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master);
@@ -154,8 +156,8 @@ class TTL_System
 		std::array< std::array<bool, 16>, 4 > ttlHoldStatus;
 		std::array< std::array<std::string, 16 >, 4> ttlNames;
 		bool holdStatus;
-		std::vector<TTL_ComandForm> ttlCommandFormList;
-		std::vector<TTL_Comand> individualTTL_CommandList;
+		std::vector<TTL_CommandForm> ttlCommandFormList;
+		std::vector<TTL_Command> individualTTL_CommandList;
 		std::vector<TTL_Snapshot> fullCommandList;
 		std::vector<std::array<WORD, 6>> finalFormattedCommandForDIO;
 };

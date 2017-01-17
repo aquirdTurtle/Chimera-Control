@@ -43,12 +43,30 @@ TTL_System::TTL_System(int& startID)
 	}
 	ttlHold.ID = startID;
 	startID += 1;
-	// load modules
+	/// load modules
 	// this first module is required for the second module which I actually load functions from.
-	HMODULE dioNT = LoadLibrary("dio64_nt.dll");
-	HMODULE dio = LoadLibrary("dio64_32.dll");
+	//HMODULE dioNT2 = LoadLibrary( "Dio64_NT.dll" );
+	HMODULE dioNT = LoadLibrary( "dio64_nt.dll" );
+	//HMODULE dioNT = LoadLibrary("C:/Windows/SysWOW64/dio64_nt.dll");
+	if (!dioNT)
+	{
+		int err = GetLastError();
+		errBox( std::to_string(err) );
+		errBox( "!" );
+	}
+	HMODULE dio = LoadLibrary( "dio64_32.dll" );
+	//HMODULE dio = LoadLibrary("C:/Windows/SysWOW64/dio64_32.dll");
+	if (!dio)
+	{
+		int err = GetLastError();
+		errBox( std::to_string( err ) );
+		errBox( "!" );
+		errBox( "!!" );
+	}
+	
 	// initialize function pointers. This only requires the DLLs to be loaded (which requires them to be present on the machine...) 
 	// so it's not in a safemode block.
+
 	this->dioOpen = (DIO64_Open)GetProcAddress(dio, "DIO64_Open");
 	this->dioLoad = (DIO64_Load)GetProcAddress(dio, "DIO64_Load");
 	this->dioClose = (DIO64_Close)GetProcAddress(dio, "DIO64_Close");
@@ -77,6 +95,7 @@ TTL_System::TTL_System(int& startID)
 		{
 			int result;
 			char* filename = "";
+
 			result = dioOpen( 0, 0 );
 			if (result != 0)
 			{
@@ -88,9 +107,9 @@ TTL_System::TTL_System(int& startID)
 				thrower( "dioLoad failed! : (" + std::to_string( result ) + "): " + this->getErrorMessage( result ) );
 			}
 			//
-			WORD temp = -1;
-			double tempd = 1000000;
-			result = dioOutConfig( 0, 0, &temp, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, &tempd );
+			WORD temp[4] = { -1, -1, -1, -1 };
+			double tempd = 10000000;
+			result = dioOutConfig( 0, 0, temp, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, &tempd );
 			if (result != 0)
 			{
 				thrower( "dioOutConfig failed! : (" + std::to_string( result ) + "): " + this->getErrorMessage( result ) );
@@ -111,13 +130,48 @@ std::array<std::array<std::string, 16>, 4> TTL_System::getAllNames()
 
 void TTL_System::startBoard()
 {
+	int result;
+	DIO64STAT status;
+	DWORD scansAvailable;
+
+	result = dioOutStatus( 0, &scansAvailable, &status );
+	if ( result != 0 )
+	{
+		thrower( "ERROR: Dio64OutStatus() Failed! (" + std::to_string( result ) + "):" + this->getErrorMessage( result ) );
+		return;
+	}
+	/*
+	errBox( std::to_string( status.time[0] ) );
+	errBox( std::to_string( status.time[1] ) );
+	errBox( std::to_string( status.portCount ) );
+	errBox( std::to_string( status.user[0] ) );
+	errBox( std::to_string( status.user[1] ) );
+	errBox( std::to_string( status.user[2] ) );
+	errBox( std::to_string( status.user[3] ) );
+	*/
 	// start the dio board.
-	int result = dioOutStart(0);
+	result = dioOutStart(0);
 	if (result != 0)
 	{
 		thrower("ERROR: Dio64OutStart() Failed! (" + std::to_string(result) + "):" + this->getErrorMessage(result));
 		return;
 	}
+	/*
+	result = dioOutStatus( 0, &scansAvailable, &status );
+	if ( result != 0 )
+	{
+		thrower( "ERROR: Dio64OutStatus() Failed! (" + std::to_string( result ) + "):" + this->getErrorMessage( result ) );
+		return;
+	}
+	errBox( std::to_string( status.time[0] ) );
+	errBox( std::to_string( status.time[1] ) );
+	errBox( std::to_string( status.portCount ) );
+	errBox( std::to_string( status.user[0] ) );
+	errBox( std::to_string( status.user[1] ) );
+	errBox( std::to_string( status.user[2] ) );
+	errBox( std::to_string( status.user[3] ) );
+	*/
+
 	return;
 }
 
@@ -492,7 +546,7 @@ bool TTL_System::isValidTTLName( std::string name )
 
 void TTL_System::ttlOn(unsigned int row, unsigned int column, std::pair<std::string, long> time)
 {
-	TTL_ComandForm command;
+	TTL_CommandForm command;
 	// make sure it's either a variable or a number that can be used.
 	this->ttlCommandFormList.push_back({ {row, column}, time, true });
 	return;
@@ -504,6 +558,27 @@ void TTL_System::ttlOff(unsigned int row, unsigned int column, std::pair<std::st
 	this->ttlCommandFormList.push_back({ {row, column}, time, false });
 	return;
 }
+
+
+void TTL_System::ttlOnDirect( unsigned int row, unsigned int column, long time )
+{
+	TTL_Command command;
+	command.line = { row, column };
+	command.time = time;
+	command.value = true;
+	individualTTL_CommandList.push_back( command );
+}
+
+
+void TTL_System::ttlOffDirect( unsigned int row, unsigned int column, long time )
+{
+	TTL_Command command;
+	command.line = { row, column };
+	command.time = time;
+	command.value = false;
+	individualTTL_CommandList.push_back( command );
+}
+
 
 void TTL_System::stopBoard()
 {
@@ -555,7 +630,7 @@ void TTL_System::forceTTL(int row, int number, int state)
 		this->ttlPushControls[row][number].SetCheck(BST_CHECKED);
 		this->ttlStatus[row][number] = true;
 	}
-
+	
 	// change the output.
 	int result = 0;
 	std::array<std::bitset<16>, 4> ttlBits;
@@ -593,6 +668,7 @@ void TTL_System::forceTTL(int row, int number, int state)
 	}
 	return;
 }
+
 
 void TTL_System::setName(unsigned int row, unsigned int number, std::string name, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master)
 {
@@ -641,32 +717,21 @@ int TTL_System::getNameIdentifier(std::string name, unsigned int& row, unsigned 
 	return -1;
 }
 
+
 void TTL_System::writeData()
 {
 	// Write to DIO board
-	// Called by qprep
-
 	int result;
-	
-	//  Dim availablescans As Long
-	//	Dim status As DIO64STAT
-
-	//	Dim maskvalue(3) As Integer
-
-	//	maskvalue(0) = -1
-	//	maskvalue(1) = -1
-	//	maskvalue(2) = -1
-	//	maskvalue(3) = -1
-
 	result = dioOutStop(0);
 	if (result != 0)
 	{
-		thrower("DIO64_Out_Stop failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
+		// I think this usually fails on the basic code actually...
+		//thrower("DIO64_Out_Stop failed! (" + std::to_string(result) + ") : " + this->getErrorMessage(result));
 	}
-	WORD temp = -1;
+	WORD temp[4] = { -1, -1, -1, -1 };
 	// scan rate = 10 MHz
 	double scan = 10000000;
-	result = dioOutConfig(0, 0, &temp, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, &scan);
+	result = dioOutConfig(0, 0, temp, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, &scan);
 	if (result != 0)
 	{
 		thrower("DIO64_Out_Config failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
@@ -686,9 +751,11 @@ void TTL_System::writeData()
 	{
 		// concatenate all the data at once.
 		element = finalFormattedCommandForDIO[count / 6][count % 6];
+		count++;
 	}
 	// now arrayOfAllData contains all the experiment data.
-	result = dioOutWrite(0, arrayOfAllData.data(), arrayOfAllData.size(), &status);
+	//result = dioOutWrite(0, arrayOfAllData.data(), arrayOfAllData.size(), &status);
+	result = dioOutWrite( 0, arrayOfAllData.data(), finalFormattedCommandForDIO.size(), &status );
 	if (result != 0)
 	{
 		thrower("DIO64_Out_Write failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
@@ -696,15 +763,18 @@ void TTL_System::writeData()
 	return;
 }
 
+
 std::string TTL_System::getName(unsigned int row, unsigned int number)
 {
 	return this->ttlNames[row][number];
 }
 
+
 bool TTL_System::getTTL_Status(int row, int number)
 {
 	return this->ttlStatus[row][number];
 }
+
 
 // waits a time in ms, using the DIO clock
 void TTL_System::wait(double time)
@@ -716,12 +786,14 @@ void TTL_System::wait(double time)
 	dummy = 0;
 	while (time - abs(getClockStatus() - startTime) > 110 && getClockStatus() - startTime != 0)
 	{
+		// in... ms??? this seems too long.
 		Sleep(100);
 	}
 	// check faster closer to the stop.
 	while (time - abs(getClockStatus() - startTime) > 0.1 && getClockStatus() - startTime != 0){/*immediately check again*/}
 	return;
 }
+
 // uses the last time of the ttl trigger to wait until the experiment is finished.
 void TTL_System::waitTillFinished()
 {
@@ -731,12 +803,13 @@ void TTL_System::waitTillFinished()
 	return;
 }
 
+
 void TTL_System::interpretKey(std::unordered_map<std::string, std::vector<double>> key, unsigned int variationNum)
 {
 	this->individualTTL_CommandList.clear();
 	for (int commandInc = 0; commandInc < this->ttlCommandFormList.size(); commandInc++)
 	{
-		TTL_Comand tempCommand;
+		TTL_Command tempCommand;
 		tempCommand.line = this->ttlCommandFormList[commandInc].line;
 		tempCommand.value = this->ttlCommandFormList[commandInc].value;
 		// if no variable...
@@ -752,6 +825,7 @@ void TTL_System::interpretKey(std::unordered_map<std::string, std::vector<double
 	}
 	return;
 }
+
 
 void TTL_System::analyzeCommandList()
 {
@@ -815,17 +889,19 @@ void TTL_System::analyzeCommandList()
 		{
 			// make sure to address he correct ttl. the ttl location is located in individuaTTL_CommandList but you need to make sure you access the correct 
 			// command.
-			this->fullCommandList[0].ttlStatus[individualTTL_CommandList[orderedOrganizer[0].second[zeroInc]].line.first][individualTTL_CommandList[orderedOrganizer[0].second[zeroInc]].line.second]
-				= individualTTL_CommandList[orderedOrganizer[0].second[zeroInc]].value;
+			unsigned int row =		individualTTL_CommandList[orderedOrganizer[0].second[zeroInc]].line.first;
+			unsigned int column =	individualTTL_CommandList[orderedOrganizer[0].second[zeroInc]].line.second;
+			this->fullCommandList[0].ttlStatus[row][column]	= individualTTL_CommandList[orderedOrganizer[0].second[zeroInc]].value;
 			//... setting it to the command's state.
 			// phew that's a long call for an =...
 		}
 	}
 	
-	for (int commandInc = 1; commandInc < timeOrganizer.size(); commandInc++)
+	for (int commandInc = 1; commandInc < orderedOrganizer.size(); commandInc++)
 	{
 		// first copy the last set so that things that weren't changed remain unchanged.
 		this->fullCommandList.push_back(this->fullCommandList.back());
+		fullCommandList.back().time = orderedOrganizer[commandInc].first;
 		for (int zeroInc = 0; zeroInc < orderedOrganizer[commandInc].second.size(); zeroInc++)
 		{
 			// see description of this command above... update everything that changed at this time.

@@ -1,4 +1,5 @@
 // define this as true in order stop the code from actually calling any dio64 functions. Use, e.g. if the device is not connected.
+
 #define DIO_SAFEMODE false
 #define DAQMX_SAFEMODE false
 

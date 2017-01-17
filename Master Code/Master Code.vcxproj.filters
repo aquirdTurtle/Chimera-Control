@@ -129,6 +129,9 @@
     <ClInclude Include="ExperimentLogger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="resource1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Master Code.cpp">
@@ -218,6 +221,9 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Master Code.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="Master Code1.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

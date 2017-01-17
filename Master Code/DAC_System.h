@@ -53,6 +53,7 @@ class DAC_System
 		void analyzeDAC_Commands();
 		void makeFinalDataFormat();
 		void writeDacs();
+		void startDacs();
 
 		void setName(int dacNumber, std::string name, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master);
 		std::string getName(int dacNumber);

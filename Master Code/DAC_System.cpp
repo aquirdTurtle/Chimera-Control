@@ -69,7 +69,6 @@ DAC_System::DAC_System(int& startID)
 				thrower( "Create Task 0 Failed (" + std::to_string( output ) + "): " + this->getErrorMessage( output ) );
 			}
 
-			/*
 			/// INPUTS
 			//This creates a task to read in a digital input from DAC 0 on port 0 line 0
 			output = DAQmxCreateTask( "", &this->digitalDAC_0_00 );
@@ -84,7 +83,7 @@ DAC_System::DAC_System(int& startID)
 			{
 				thrower( "Create Task 01 Failed (" + std::to_string( output ) + "): " + this->getErrorMessage( output ) );
 			}
-			*/
+
 			// Configure the output
 			output = DAQmxCreateAOVoltageChan( this->staticDAC_2, "PXI1Slot5/ao0:7", "StaticDAC_2", -10, 10, DAQmx_Val_Volts, "" );
 			if (output != 0)
@@ -104,7 +103,6 @@ DAC_System::DAC_System(int& startID)
 			{
 				thrower( "Create Voltage Channel 0 Failed (" + std::to_string( output ) + "): " + this->getErrorMessage( output ) );
 			}
-			/*
 			//INPUTS
 			output = DAQmxCreateDIChan( digitalDAC_0_00, "PXI1Slot3/port0/line0", "DIDAC_0", DAQmx_Val_ChanPerLine );
 			if (output != 0)
@@ -118,13 +116,19 @@ DAC_System::DAC_System(int& startID)
 			{
 				thrower( "Create Digital DAC 01 Failed (" + std::to_string( output ) + "): " + this->getErrorMessage( output ) );
 			}
-			*/
 		}
 		catch (myException& exception)
 		{
 			errBox( exception.what() );
 		}
 	}
+	// starts at 0...
+	dacTriggerLines[0] = { 3, 14 };
+	dacTriggerLines[1] = { 3, 15 };
+	dacTriggerLines[2] = { 3, 13 };
+	// paraphrasing adam...
+	// "in 100 ns, i.e. 10 = 1 us. Dacs sample at 1 MHz, so 0.5 us is appropriate."
+	dacTriggerTime = 40000;
 	return;
 }
 
@@ -598,6 +602,7 @@ void DAC_System::prepareDacForceChange(int line, double voltage, TTL_System* ttl
 	return;
 }
 
+
 void DAC_System::setForceDacEvent( int line, double val, TTL_System* ttls )
 {
 	DAC_IndividualEvent eventInfo;
@@ -612,18 +617,18 @@ void DAC_System::setForceDacEvent( int line, double val, TTL_System* ttls )
 	// you need to set up a corresponding trigger to tell the dacs to change the output at the correct time.
 	// I don't understand why three triggers are sent though... Seems like there should only be one depending on the board. This actually feels like it should screw everything up...
 	// maybe it's compensated for somewhere.
-
 	// turn them on...
-	ttls->ttlOn( dacTriggerLines[0].first, dacTriggerLines[0].second, { "", 0 } );
-	ttls->ttlOn( dacTriggerLines[1].first, dacTriggerLines[1].second, { "", 0 } );
-	ttls->ttlOn( dacTriggerLines[2].first, dacTriggerLines[2].second, { "", 0 } );
+	ttls->ttlOnDirect( dacTriggerLines[0].first, dacTriggerLines[0].second, 0 );
+	ttls->ttlOnDirect( dacTriggerLines[1].first, dacTriggerLines[1].second, 0 );
+	ttls->ttlOnDirect( dacTriggerLines[2].first, dacTriggerLines[2].second, 0 );
 	// turn them off...
 	std::pair<std::string, double> triggerOffTime( { "", 0 } );
 	triggerOffTime.second += dacTriggerTime;
-	ttls->ttlOff( dacTriggerLines[0].first, dacTriggerLines[0].second, triggerOffTime );
-	ttls->ttlOff( dacTriggerLines[1].first, dacTriggerLines[1].second, triggerOffTime );
-	ttls->ttlOff( dacTriggerLines[2].first, dacTriggerLines[2].second, triggerOffTime );
+	ttls->ttlOffDirect( dacTriggerLines[0].first, dacTriggerLines[0].second, dacTriggerTime );
+	ttls->ttlOffDirect( dacTriggerLines[1].first, dacTriggerLines[1].second, dacTriggerTime );
+	ttls->ttlOffDirect( dacTriggerLines[2].first, dacTriggerLines[2].second, dacTriggerTime );
 }
+
 
 void DAC_System::resetDACEvents()
 {
@@ -650,7 +655,6 @@ void DAC_System::resetDacs()
 void DAC_System::configureClocks()
 {	
 	long sampleNumber = this->dacSnapshots.size();
-	errBox( std::to_string( sampleNumber ) );
 	if (!DAQMX_SAFEMODE)
 	{
 		int result = DAQmxCfgSampClkTiming( this->staticDAC_0, "/PXI1Slot3/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
@@ -677,85 +681,55 @@ void DAC_System::writeDacs()
 {
 	bool32 nothing = NULL;
 	int32 samplesWritten;
-	float64* data;
-	data = new float64[finalFormattedData[0].size()];
-	data = finalFormattedData[0].data();
 	int output;
 	//
-	/*
-	try
+	float64* data;
+	data = new float64[finalFormattedData[0].size()];
+	data = &finalFormattedData[0].front();
+	output = DAQmxWriteAnalogF64( this->staticDAC_0, this->dacSnapshots.size(), false, 0.0001, DAQmx_Val_GroupByScanNumber, data, &samplesWritten, NULL );//&nothing);
+	if ( output != 0 )
 	{
-		float64 myData;
-		myData = 0;
-		errBox( std::to_string(finalFormattedData[0].size()) );
-		output = DAQmxWriteAnalogF64( this->staticDAC_2, 8, false, 10, DAQmx_Val_GroupByScanNumber, &myData, NULL, NULL );//&nothing);
-		if (output != 0)
-		{
-			thrower( "DAQmxWriteAnalogF64 (Writing Data) Failed! (" + std::to_string( output ) + "): " + this->getErrorMessage( output ) );
-		}
-	}
-	catch (std::exception& err)
-	{
-		errBox( err.what() );
-	}
-	try
-	{
-		float64 myData;
-		myData = 0;
-		errBox( std::to_string( finalFormattedData[0].size() ) );
-		output = DAQmxWriteAnalogF64( this->staticDAC_1, 1000, false, 10, DAQmx_Val_GroupByScanNumber, &myData, NULL, NULL );//&nothing);
-		if (output != 0)
-		{
-			thrower( "DAQmxWriteAnalogF64 (Writing Data) Failed! (" + std::to_string( output ) + "): " + this->getErrorMessage( output ) );
-		}
-	}
-	catch (std::exception& err)
-	{
-		errBox( err.what() );
-	}
-	try
-	{
-		float64 myData;
-		myData = 0;
-		errBox( std::to_string( finalFormattedData[0].size() ) );
-		int32 test;
-		output = DAQmxWriteAnalogF64( this->staticDAC_0, 16, false, 10, DAQmx_Val_GroupByScanNumber, &myData, NULL, NULL );//&nothing);
-		if (output != 0)
-		{
-			thrower( "DAQmxWriteAnalogF64 (Writing Data) Failed! (" + std::to_string( output ) + "): " + this->getErrorMessage( output ) );
-		}
-	}
-	catch (std::exception& err)
-	{
-		errBox( err.what() );
-	}
-	*/
-	//
-	//errBox( "end testing..." );
-	errBox( std::to_string( finalFormattedData[0].size() ) );
-	output = DAQmxWriteAnalogF64( this->staticDAC_0, this->finalFormattedData[0].size(), false, 0.0001, DAQmx_Val_GroupByScanNumber, data, &samplesWritten, NULL );//&nothing);
-	if (output != 0)
-	{
-		thrower("DAQmxWriteAnalogF64 (Writing Data) Failed! (" + std::to_string(output) + "): " + this->getErrorMessage(output));
+		thrower( "DAQmxWriteAnalogF64 (Writing Data) Failed! (" + std::to_string( output ) + "): " + this->getErrorMessage( output ) );
 	}
 	delete[] data;
 	data = new float64[finalFormattedData[1].size()];
-	data = finalFormattedData[1].data();
-	output = DAQmxWriteAnalogF64( this->staticDAC_1, this->finalFormattedData[1].size(), false, 0.0001, DAQmx_Val_GroupByScanNumber, data, &samplesWritten, NULL );//&nothing);
-	if (output != 0)
+	data = &finalFormattedData[1].front();
+	output = DAQmxWriteAnalogF64( this->staticDAC_1, this->dacSnapshots.size(), false, 0.0001, DAQmx_Val_GroupByScanNumber, data, &samplesWritten, NULL );//&nothing);
+	if ( output != 0 )
 	{
-		thrower("DAQmxWriteAnalogF64 (Writing Data) Failed! (" + std::to_string(output) + "): " + this->getErrorMessage(output));
+		thrower( "DAQmxWriteAnalogF64 (Writing Data) Failed! (" + std::to_string( output ) + "): " + this->getErrorMessage( output ) );
 	}
 	delete[] data;
 	data = new float64[finalFormattedData[2].size()];
-	data = finalFormattedData[2].data();
-	output = DAQmxWriteAnalogF64( this->staticDAC_2, this->finalFormattedData[2].size(), false, 0.0001, DAQmx_Val_GroupByScanNumber, data, &samplesWritten, NULL );// &nothing );
-	if (output != 0)
+	data = &finalFormattedData[2].front();
+	output = DAQmxWriteAnalogF64( this->staticDAC_2, this->dacSnapshots.size(), false, 0.0001, DAQmx_Val_GroupByScanNumber, data, &samplesWritten, NULL );// &nothing );
+	if ( output != 0 )
 	{
-		thrower("DAQmxWriteAnalogF64 (Writing Data) Failed! (" + std::to_string(output) + "): " + this->getErrorMessage(output));
+		thrower( "DAQmxWriteAnalogF64 (Writing Data) Failed! (" + std::to_string( output ) + "): " + this->getErrorMessage( output ) );
 	}
 	delete[] data;
 	return;
+}
+
+
+void DAC_System::startDacs()
+{
+	int result;
+	result = DAQmxStartTask( this->staticDAC_0 );
+	if ( result != 0 )
+	{
+		thrower( "DAQmxStartTask (Writing Data) Failed! (" + std::to_string( result ) + "): " + this->getErrorMessage( result ) );
+	}
+	result = DAQmxStartTask( this->staticDAC_1 );
+	if ( result != 0 )
+	{
+		thrower( "DAQmxStartTask (Writing Data) Failed! (" + std::to_string( result ) + "): " + this->getErrorMessage( result ) );
+	}
+	result = DAQmxStartTask( this->staticDAC_2 );
+	if ( result != 0 )
+	{
+		thrower( "DAQmxStartTask (Writing Data) Failed! (" + std::to_string( result ) + "): " + this->getErrorMessage( result ) );
+	}
 }
 
 
