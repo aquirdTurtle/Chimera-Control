@@ -249,7 +249,6 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Master Code.rc" />
-    <ResourceCompile Include="Master Code1.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\Atom.ico" />
