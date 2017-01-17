@@ -161,7 +161,10 @@ void MasterWindow::SetDacs()
 		dacBoards.configureClocks();
 		dacBoards.stopDacs();
 		dacBoards.writeDacs();
-		this->ttlBoard.writeData();
+		dacBoards.startDacs();
+		ttlBoard.analyzeCommandList();
+		ttlBoard.convertToFinalFormat();
+		ttlBoard.writeData();
 		ttlBoard.startBoard();
 		ttlBoard.waitTillFinished();
 	}
