@@ -19,8 +19,8 @@ class ExperimentManager;
 
 struct ExperimentThreadInput
 {
-	TTL_System* ttls;
-	DAC_System* dacs;
+	TtlSystem* ttls;
+	DacSystem* dacs;
 	unsigned int repetitions;
 	std::vector<variable> vars;
 	ExperimentManager* thisObj;
@@ -43,10 +43,10 @@ class ExperimentManager
 		bool pause();
 		bool stop();
 		bool clear();
-		bool start(TTL_System* ttls, DAC_System* dacs);
+		bool start(TtlSystem* ttls, DacSystem* dacs);
 		std::string getErrorMessage(int errorCode);
 		bool loadMasterScript(std::string scriptAddress);
-		bool analyzeCurrentMasterScript(TTL_System* ttls, DAC_System* dacs, std::vector<std::pair<unsigned int, unsigned int>>& ttlShades,
+		bool analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* dacs, std::vector<std::pair<unsigned int, unsigned int>>& ttlShades,
 			std::vector<unsigned int>& dacShades, RhodeSchwarz* rsg, std::array<std::string, 3>& ramanFreqs);
 		// this function needs the mastewindow in order to gather the relevant parameters for the experiment.
 		bool startExperimentThread(MasterWindow* master);
@@ -62,7 +62,7 @@ class ExperimentManager
 		std::stringstream currentMasterScript;
 		std::string functionsFolderLocation;
 		// called by analyzeScript functions only.
-		bool analyzeFunction(std::string function, std::vector<std::string> args, TTL_System* ttls, DAC_System* dacs,
+		bool analyzeFunction(std::string function, std::vector<std::string> args, TtlSystem* ttls, DacSystem* dacs,
 			std::vector<std::pair<unsigned int, unsigned int>>& ttlShades, std::vector<unsigned int>& dacShades, RhodeSchwarz* rsg,
 			std::array<std::string, 3>& ramanFreqs);
 		std::pair<std::string, long> operationTime;

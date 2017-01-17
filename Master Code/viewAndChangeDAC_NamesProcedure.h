@@ -4,7 +4,7 @@
 #include <unordered_map>
 struct dacInputStruct
 {
-	DAC_System* dacs;
+	DacSystem* dacs;
 	std::vector<CToolTipCtrl*> toolTips;
 	MasterWindow* master;
 };

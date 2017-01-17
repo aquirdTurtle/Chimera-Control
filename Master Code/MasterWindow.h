@@ -141,11 +141,11 @@ class MasterWindow : public CDialog
 		Script masterScript{ FUNCTIONS_FOLDER_LOCATION, "Master", id };
 		ConfigurationFileSystem profile{ PROFILES_PATH, id };
 		NoteSystem notes{ id };
-		TTL_System ttlBoard{ id };
+		TtlSystem ttlBoard{ id };
 		RichEditControl errorStatus{ id };
 		RichEditControl generalStatus{ id };
 		VariableSystem variables{ id };
-		DAC_System dacBoards{ id };
+		DacSystem dacBoards{ id };
 		Repetitions repetitionControl{ id };
 		MasterConfiguration masterConfig{ MASTER_CONFIGURATION_FILE_ADDRESS };
 

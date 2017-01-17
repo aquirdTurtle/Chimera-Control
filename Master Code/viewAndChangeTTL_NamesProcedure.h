@@ -5,7 +5,7 @@
 
 struct ttlInputStruct
 {
-	TTL_System* ttls;
+	TtlSystem* ttls;
 	std::vector<CToolTipCtrl*> toolTips;
 	MasterWindow* master;
 };

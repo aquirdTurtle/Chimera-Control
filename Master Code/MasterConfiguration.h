@@ -10,10 +10,10 @@ class MasterConfiguration
 {
 	public:
 		MasterConfiguration(std::string address);
-		bool save(TTL_System* ttls, DAC_System* dacs);
-		bool load(TTL_System* ttls, DAC_System& dacs, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master);
-		bool updateDefaultTTLs(TTL_System ttls);
-		bool updateDefaultDacs(DAC_System dacs);
+		bool save(TtlSystem* ttls, DacSystem* dacs);
+		bool load(TtlSystem* ttls, DacSystem& dacs, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master);
+		bool updateDefaultTTLs(TtlSystem ttls);
+		bool updateDefaultDacs(DacSystem dacs);
 	private:
 		std::array<std::array<bool, 16>, 4> defaultTTLs;
 		std::array<int, 24> defaultDACs;
