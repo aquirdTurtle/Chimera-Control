@@ -43,6 +43,12 @@ class CMyWinApp : CWinApp
 					// Do not process further
 					return TRUE;
 				}
+				if ( pMsg->wParam == VK_F1 )
+				{
+					this->TheMasterWindow.loadMotSettings();
+					// Do not process further
+					return TRUE;
+				}
 			}
 			return CWinApp::PreTranslateMessage( pMsg );
 		}

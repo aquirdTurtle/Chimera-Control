@@ -75,7 +75,69 @@ END_MESSAGE_MAP()
 
 void MasterWindow::HandleAbort()
 {
-	errBox( "ABORT" );
+	/// needs implementation...
+	errBox( "needs implementation..." );
+}
+
+void MasterWindow::loadMotSettings()
+{
+	/// Set TTL values.
+	// switch on MOT light, set power, set detuning
+	// MOT AO RF
+	ttlBoard.ttlOnDirect( 0, 0, 1 );
+	// MOT slave shutter
+	ttlBoard.ttlOnDirect( 3, 0, 1 );
+	// RP shutter open
+	ttlBoard.ttlOnDirect( 1, 1, 1 );
+	// F=2 shutter open (blocks side MOT beam)
+	ttlBoard.ttlOnDirect( 2, 13, 1);
+	// switch on repump light
+	ttlBoard.ttlOnDirect( 0, 1, 1 );
+	// Switch on side beam
+	ttlBoard.ttlOnDirect( 0, 5, 1 );
+	// Raman shutter Closed initially
+	ttlBoard.ttlOffDirect( 2, 4, 1 );
+	// (value time line) in vb6
+	dacBoards.setForceDacEvent(22, 0.07, &ttlBoard);
+	// trap light detuning
+	// '0 for MOT detuning (0 is 10 MHz detuning, -.3 is 17 MHz detuning)
+	dacBoards.setForceDacEvent( 20, -0.1, &ttlBoard );
+	// trap light power (Full power)
+	dacBoards.setForceDacEvent( 9, 0.2, &ttlBoard );
+	// trap light AO detuning
+	dacBoards.setForceDacEvent( 8, 0, &ttlBoard );
+	//setting power (was 0.285)
+	dacBoards.setForceDacEvent( 11, 0.32, &ttlBoard );
+	//setting frequency via offset lock
+	dacBoards.setForceDacEvent( 21, 0, &ttlBoard );
+	//quad coils on// CR
+	dacBoards.setForceDacEvent( 6, 7, &ttlBoard );
+	/// mot coils.
+	// Right, 0.117 from the perspective of looking east to west across the table '0.64
+	dacBoards.setForceDacEvent( 0, 0.59, &ttlBoard );
+	// Left, -0.64
+	dacBoards.setForceDacEvent( 1, -0.59, &ttlBoard );
+	// Front, -1.272
+	dacBoards.setForceDacEvent( 2, -1.07, &ttlBoard );
+	// Back, 1.272
+	dacBoards.setForceDacEvent( 3, 1.07, &ttlBoard );
+	// Bottom, -1.24
+	dacBoards.setForceDacEvent( 4, -1.3, &ttlBoard );
+	// top
+	dacBoards.setForceDacEvent( 5, 1.3, &ttlBoard );
+
+	// start the boards which actually sets the dac values.
+	dacBoards.analyzeDAC_Commands();
+	dacBoards.makeFinalDataFormat();
+	dacBoards.configureClocks();
+	dacBoards.stopDacs();
+	dacBoards.writeDacs();
+	dacBoards.startDacs();
+	ttlBoard.analyzeCommandList();
+	ttlBoard.convertToFinalFormat();
+	ttlBoard.writeData();
+	ttlBoard.startBoard();
+	ttlBoard.waitTillFinished();
 }
 
 void MasterWindow::OnCancel()
