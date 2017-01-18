@@ -536,10 +536,12 @@ void TtlSystem::handleTTL_ScriptCommand(std::string command, std::pair<std::stri
 	ttlShadeLocations.push_back({ row, collumn });
 	if (command == "on:")
 	{
+		errBox( "Setting On!" );
 		this->ttlOn(row, collumn, time);
 	}
 	else if (command == "off:")
 	{
+		errBox( "Setting Off!" );
 		this->ttlOff(row, collumn, time);
 	}
 	return;
@@ -925,9 +927,9 @@ void TtlSystem::writeData()
 	{
 		// concatenate all the data at once.
 		element = finalFormattedCommandForDIO[count / 6][count % 6];
+		errBox( std::to_string( element ) );
 		count++;
 	}
-
 	// now arrayOfAllData contains all the experiment data.
 	dioOutWrite( 0, arrayOfAllData.data(), finalFormattedCommandForDIO.size(), status );
 	return;
@@ -977,11 +979,14 @@ void TtlSystem::waitTillFinished()
 void TtlSystem::interpretKey(std::unordered_map<std::string, std::vector<double>> key, unsigned int variationNum)
 {
 	this->individualTTL_CommandList.clear();
+
 	for (int commandInc = 0; commandInc < this->ttlCommandFormList.size(); commandInc++)
 	{
 		TTL_Command tempCommand;
 		tempCommand.line = this->ttlCommandFormList[commandInc].line;
 		tempCommand.value = this->ttlCommandFormList[commandInc].value;
+		errBox( " tempCommand.line = " + std::to_string( tempCommand.line.first )  + std::to_string( tempCommand.line.second ) );
+		errBox( " tempCommand.value = " + std::to_string( tempCommand.value ) );
 		// if no variable...
 		if (this->ttlCommandFormList[commandInc].time.first == "")
 		{
@@ -1047,6 +1052,7 @@ void TtlSystem::analyzeCommandList()
 	this->fullCommandList.clear();
 	// give it the initial status.
 	this->fullCommandList.push_back({0, this->ttlStatus});
+	errBox( "orderedOrganizer.size() = " + std::to_string( orderedOrganizer.size() ) );
 	if (orderedOrganizer.size() == 0)
 	{
 		thrower("ERROR: no ttl commands...?");
@@ -1086,6 +1092,7 @@ void TtlSystem::analyzeCommandList()
 void TtlSystem::convertToFinalFormat()
 {
 	this->finalFormattedCommandForDIO.clear();
+	errBox( "fullCommandList.size() = " + std::to_string( fullCommandList.size() ) );
 	// do bit arithmetic.
 	for (int timeInc = 0; timeInc < this->fullCommandList.size(); timeInc++)
 	{

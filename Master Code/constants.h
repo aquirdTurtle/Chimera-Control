@@ -1,14 +1,32 @@
 // define this as true in order stop the code from actually calling any dio64 functions. Use, e.g. if the device is not connected.
 
-#define DIO_SAFEMODE true
-#define DAQMX_SAFEMODE true
+#define MASTER_COMPUTER
 
-#define PROFILES_PATH "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Master Profiles\\"
-#define FUNCTIONS_FOLDER_LOCATION "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Functions\\"
-#define MASTER_CONFIGURATION_FILE_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Master Configuration"
-#define DEFAULT_SCRIPT_FOLDER_PATH "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Default Scripts\\"
-#define LOGGING_FILE_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Master Log.txt"
-#define KEY_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\key.txt"
+#ifdef MASTER_COMPUTER
+	#define DIO_SAFEMODE false
+	#define DAQMX_SAFEMODE false
+
+	#define PROFILES_PATH "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\Master Profiles\\"
+	#define FUNCTIONS_FOLDER_LOCATION "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\Functions\\"
+	#define MASTER_CONFIGURATION_FILE_ADDRESS "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\Master Configuration"
+	#define DEFAULT_SCRIPT_FOLDER_PATH "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\Default Scripts\\"
+	#define LOGGING_FILE_ADDRESS "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\Master Log.txt"
+	#define KEY_ADDRESS "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\key.txt"
+#endif
+
+#ifdef LAPTOP_COMPUTER
+
+	#define DIO_SAFEMODE true
+	#define DAQMX_SAFEMODE true
+
+	#define PROFILES_PATH "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Master Profiles\\"
+	#define FUNCTIONS_FOLDER_LOCATION "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Functions\\"
+	#define MASTER_CONFIGURATION_FILE_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Master Configuration"
+	#define DEFAULT_SCRIPT_FOLDER_PATH "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Default Scripts\\"
+	#define LOGGING_FILE_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Master Log.txt"
+	#define KEY_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\key.txt"
+
+#endif
 
 #define MASTER_SCRIPT_EXTENSION ".mScript"
 #define NIAWG_SCRIPT_EXTENSION ".nScript"

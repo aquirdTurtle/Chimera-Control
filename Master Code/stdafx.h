@@ -61,7 +61,7 @@ class myException : public std::runtime_error
 		myException( const std::string &arg, const char *file, int line ) : std::runtime_error( arg )
 		{
 			std::ostringstream out;
-			out << file << ":" << line << ": " << arg;
+			out << file << ", Line " << line << ": " << arg;
 			msg = out.str();
 			bareMsg = arg;
 		}

@@ -14,148 +14,164 @@ ExperimentManager::ExperimentManager()
 
 UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 {
+	errBox( "Started Thread!" );
 	// convert it to the correct structure.
 	ExperimentThreadInput* input = (ExperimentThreadInput*)rawInput;
 	SocketWrapper socket;
-	input->status->appendText("............................\r\n", 1);
-	// load the variables.
-	input->status->appendText("Loading Variables...", 0);
-	if (input->key->loadVariables(input->vars))
+	try
 	{
-		input->status->appendText("Done.\r\n", 0);
-	}
-	else
-	{
-		input->status->appendText("FAILED!\r\n", 0);
-		return false;
-	}
-	// create the key
-	input->status->appendText("Creating Key...", 0);
-	if (input->key->generateKey())
-	{
-		input->status->appendText("Done.\r\n", 0);
-	}
-	else
-	{
-		input->status->appendText("FAILED!\r\n", 0);
-		return false;
-	}
-	input->status->appendText("Exporting Key...", 0);
-	if (input->key->exportKey())
-	{
-		input->status->appendText("Done.\r\n", 0);
-	}
-	else
-	{
-		input->status->appendText("FAILED!\r\n", 0);
-		return false;
-	}
-	// connect to the niawg program.
-	if (input->connectToNIAWG)
-	{
-
-		// must initialize socket inside the thread.
-		input->status->appendText("Initializing Socket...", 0);
-		if (socket.initialize())
+		input->status->appendText( "............................\r\n", 1 );
+		// load the variables.
+		input->status->appendText( "Loading Variables...", 0 );
+		if ( input->key->loadVariables( input->vars ) )
 		{
-			input->status->appendText("Done.!\r\n", 0);
+			input->status->appendText( "Done.\r\n", 0 );
 		}
 		else
 		{
-			input->status->appendText("FAILED!\r\n", 0);
+			input->status->appendText( "FAILED!\r\n", 0 );
 			return false;
 		}
-
-		input->status->appendText("Connecting to NIAWG...", 0);
-		if (socket.connect())
+		// create the key
+		input->status->appendText( "Creating Key...", 0 );
+		if ( input->key->generateKey() )
 		{
-			input->status->appendText("Done.!\r\n", 0);
+			input->status->appendText( "Done.\r\n", 0 );
 		}
 		else
 		{
-			input->status->appendText("FAILED!\r\n", 0);
+			input->status->appendText( "FAILED!\r\n", 0 );
 			return false;
 		}
-	}
-	else
-	{
-		input->status->appendText("Not Connecting to NIAWG.\r\n", 0);
-	}
-	input->status->appendText("Analyzing Master Script...", 0);
-	// analyze the master script.
-	std::vector<std::pair<unsigned int, unsigned int>> ttlShadeLocations;
-	std::vector<unsigned int> dacShadeLocations;
-	std::array<std::string, 3> ramanFrequencies;
-	input->dacs->resetDACEvents();
-	input->ttls->resetTTLEvents();
-	input->thisObj->loadVariables(input->vars);
-	if (input->thisObj->analyzeCurrentMasterScript(input->ttls, input->dacs, ttlShadeLocations, dacShadeLocations, input->rsg, ramanFrequencies))
-	{
-		input->status->appendText("Done.\r\n", 0);
-	}
-	else
-	{
-		input->status->appendText("FAILED!\r\n", 0);
-		return false;
-	}
-	// update ttl and dac looks based on which ones are used in the experiment.
-	input->ttls->shadeTTLs(ttlShadeLocations);
-	input->dacs->shadeDacs(dacShadeLocations);
+		input->status->appendText( "Exporting Key...", 0 );
+		if ( input->key->exportKey() )
+		{
+			input->status->appendText( "Done.\r\n", 0 );
+		}
+		else
+		{
+			input->status->appendText( "FAILED!\r\n", 0 );
+			return false;
+		}
+		// connect to the niawg program.
+		if ( input->connectToNIAWG )
+		{
 
-	std::unordered_map<std::string, std::vector<double>> workingKey;
-	workingKey = input->key->getKey();
-	int variations;
-	if (input->thisObj->variables.size() == 0)
-	{
-		variations = 1;
-	}
-	else
-	{
-		variations = workingKey[input->thisObj->variables[0].name].size();
-		if (variations == 0)
+			// must initialize socket inside the thread.
+			input->status->appendText( "Initializing Socket...", 0 );
+			if ( socket.initialize() )
+			{
+				input->status->appendText( "Done.!\r\n", 0 );
+			}
+			else
+			{
+				input->status->appendText( "FAILED!\r\n", 0 );
+				return false;
+			}
+
+			input->status->appendText( "Connecting to NIAWG...", 0 );
+			if ( socket.connect() )
+			{
+				input->status->appendText( "Done.!\r\n", 0 );
+			}
+			else
+			{
+				input->status->appendText( "FAILED!\r\n", 0 );
+				return false;
+			}
+		}
+		else
+		{
+			input->status->appendText( "Not Connecting to NIAWG.\r\n", 0 );
+		}
+		input->status->appendText( "Analyzing Master Script...", 0 );
+		// analyze the master script.
+		std::vector<std::pair<unsigned int, unsigned int>> ttlShadeLocations;
+		std::vector<unsigned int> dacShadeLocations;
+		std::array<std::string, 3> ramanFrequencies;
+		input->dacs->resetDACEvents();
+		input->ttls->resetTTLEvents();
+		input->thisObj->loadVariables( input->vars );
+		if ( input->thisObj->analyzeCurrentMasterScript( input->ttls, input->dacs, ttlShadeLocations, dacShadeLocations, input->rsg, ramanFrequencies ) )
+		{
+			input->status->appendText( "Done.\r\n", 0 );
+		}
+		else
+		{
+			input->status->appendText( "FAILED!\r\n", 0 );
+			return false;
+		}
+		// update ttl and dac looks based on which ones are used in the experiment.
+		input->ttls->shadeTTLs( ttlShadeLocations );
+		input->dacs->shadeDacs( dacShadeLocations );
+
+		std::unordered_map<std::string, std::vector<double>> workingKey;
+		workingKey = input->key->getKey();
+		int variations;
+		if ( input->thisObj->variables.size() == 0 )
 		{
 			variations = 1;
 		}
-	}
-	/// /////////////////////////////
-	/// Begin experiment loop
-	/// //////////
-	// loop for variations
-	for (int varInc = 0; varInc < variations; varInc++)
-	{
-		// update things based on the new key value.
-		input->status->appendText("Loading Key...", 0);
-		input->dacs->interpretKey( input->key->getKey(), varInc, input->vars );
-		input->ttls->interpretKey( input->key->getKey(), varInc );
-		input->rsg->interpretKey( input->key->getKey(), varInc );
-		std::array<double, 3> freqs = input->gpibHandler->interpretKeyForRaman(ramanFrequencies, input->key->getKey(), varInc);
-		// prepare dac and ttls. data to final forms.
-		input->status->appendText("Analyzing Script Data...", 0);
-		input->dacs->analyzeDAC_Commands();
-		input->dacs->makeFinalDataFormat();
-		input->ttls->analyzeCommandList();
-		input->ttls->convertToFinalFormat();
-		// program devices
-		input->status->appendText("Programming Hardware...", 0);
-		input->gpibHandler->programRamanFGs( freqs[0], freqs[1], freqs[2] );
-		input->rsg->programRSG( input->gpibHandler );
-		// loop for repetitions
-		for (int repInc = 0; repInc < input->repetitions; repInc++)
+		else
 		{
-			// this apparently needs to be re-written each time from looking at the VB6 code.
-			input->dacs->writeDacs();
-
-			input->ttls->writeData();
-			input->ttls->startBoard();
-			// wait until finished.
-			input->ttls->waitTillFinished();
+			variations = workingKey[input->thisObj->variables[0].name].size();
+			if ( variations == 0 )
+			{
+				variations = 1;
+			}
 		}
+		/// /////////////////////////////
+		/// Begin experiment loop
+		/// //////////
+		// loop for variations
+		for ( int varInc = 0; varInc < variations; varInc++ )
+		{
+			// update things based on the new key value.
+			input->status->appendText( "Loading Key...", 0 );
+			input->dacs->interpretKey( input->key->getKey(), varInc, input->vars );
+			input->ttls->interpretKey( input->key->getKey(), varInc );
+			input->rsg->interpretKey( input->key->getKey(), varInc );
+			std::array<double, 3> freqs = input->gpibHandler->interpretKeyForRaman( ramanFrequencies, input->key->getKey(), varInc );
+			// prepare dac and ttls. data to final forms.
+			input->status->appendText( "Analyzing Script Data...", 0 );
+			try
+			{
+				input->dacs->analyzeDAC_Commands();
+				input->dacs->makeFinalDataFormat();
+			}
+			// it's okay if scripts don't have dac commands.
+			catch (myException& exception ) {}
+			input->ttls->analyzeCommandList();
+			input->ttls->convertToFinalFormat();
+			// program devices
+			input->status->appendText( "Programming Hardware...\r\n", 0 );
+			//input->gpibHandler->programRamanFGs( freqs[0], freqs[1], freqs[2] );
+			//input->rsg->programRSG( input->gpibHandler );
+			// loop for repetitions
+			for ( int repInc = 0; repInc < input->repetitions; repInc++ )
+			{
+				input->status->appendText( "Repetition " + std::to_string(repInc + 1) + "...", 0 );
+				// this apparently needs to be re-written each time from looking at the VB6 code.
+				//input->dacs->writeDacs();
+				input->ttls->writeData();
+				input->ttls->startBoard();
+				// wait until finished.
+				input->ttls->waitTillFinished();
+			}
+		}
+		// do experiment stuff...
+		input->status->appendText( "Experiment Finished.", 0 );
+		input->dacs->unshadeDacs();
+		input->ttls->unshadeTTLs();
 	}
-	// do experiment stuff...
-	input->status->appendText("Experiment Finished.", 0);
-	input->dacs->unshadeDacs();
-	input->ttls->unshadeTTLs();
-	delete input;
+	catch ( myException& exception)
+	{
+		input->status->appendText( "Bad Exit!", 0 );
+		input->error->appendText( exception.what(), 0 );
+		delete input;
+		return false;
+	}
+
 	return true;
 }
 
@@ -205,11 +221,16 @@ bool ExperimentManager::loadMasterScript(std::string scriptAddress)
 {
 	std::ifstream scriptFile;
 	// check if file address is good.
-	struct stat buffer;
-	if (stat(scriptAddress.c_str(), &buffer) != 0)
+	FILE *file;
+	fopen_s( &file, scriptAddress.c_str(), "r" );
+	if ( !file )
 	{
-		MessageBox(0, ("ERROR: File " + scriptAddress + " does not exist!").c_str(), 0, 0);
+		errBox("ERROR: File " + scriptAddress + " does not exist!");
 		return false;
+	}
+	else
+	{
+		fclose( file );
 	}
 	scriptFile.open(scriptAddress.c_str());
 	// check opened correctly
@@ -330,11 +351,17 @@ bool ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 	/// load the file
 	std::fstream functionFile;
 	// check if file address is good.
-	struct stat buffer;
-	if (stat((FUNCTIONS_FOLDER_LOCATION + function + FUNCTION_EXTENSION).c_str(), &buffer) != 0)
+
+	FILE *file;
+	fopen_s( &file, (FUNCTIONS_FOLDER_LOCATION + function + FUNCTION_EXTENSION).c_str(), "r" );
+	if ( !file )
 	{
-		MessageBox(0, ("ERROR: Function " + function + " does not exist!").c_str(), 0, 0);
+		errBox("ERROR: Function " + function + " does not exist!");
 		return false;
+	}
+	else
+	{
+		fclose( file );
 	}
 	functionFile.open((FUNCTIONS_FOLDER_LOCATION + function + FUNCTION_EXTENSION).c_str(), std::ios::in);
 	// check opened correctly

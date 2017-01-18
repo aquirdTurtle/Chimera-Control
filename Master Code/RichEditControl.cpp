@@ -86,7 +86,9 @@ bool RichEditControl::initialize(RECT editSize, HWND windowHandle, std::string t
 	this->clearButton.Create("Clear", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, position, CWnd::FromHandle(windowHandle), clearButton.ID);
 	// Edit
 	position = richEdit.position = { editSize.left, editSize.top + 20, editSize.right, editSize.bottom };
-	richEdit.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | WS_HSCROLL | ES_READONLY, position, CWnd::FromHandle(windowHandle), richEdit.ID);
+	richEdit.Create( WS_CHILD | WS_VISIBLE | ES_READONLY | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | WS_BORDER, 
+					 position, CWnd::FromHandle(windowHandle), richEdit.ID);
+	
 	richEdit.SetBackgroundColor(0, RGB(15,15,15));
 	richEdit.SetEventMask(ENM_CHANGE);
 	richEdit.SetDefaultCharFormat(myCharFormat);

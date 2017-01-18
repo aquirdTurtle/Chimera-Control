@@ -461,17 +461,20 @@ bool Script::updateChildCombo(MasterWindow* Master)
 			// remove trailing '\r'
 			scriptName = scriptName.substr(0, scriptName.size() - 1);
 			// test if script exists in nearby folder.
-			struct stat buffer;
+			
 			std::string path = Master->profile.getCurrentPathIncludingCategory() + scriptName;
-			if (stat(path.c_str(), &buffer) == 0)
+			FILE *file;
+			fopen_s( &file, path.c_str(), "r" );
+			if ( !file )
 			{
-				// add to combo normally.
-				childCombo.AddString( scriptName.c_str() );
-				childrenNames.push_back(scriptName);
+				childCombo.AddString( (scriptName + " (File Not Found!)").c_str() );
 			}
 			else
 			{
-				childCombo.AddString( (scriptName + " (File Not Found!)").c_str() );
+				fclose( file );
+				// add to combo normally.
+				childCombo.AddString( scriptName.c_str() );
+				childrenNames.push_back( scriptName );
 			}
 		}
 	}
@@ -1225,11 +1228,17 @@ bool Script::saveAsFunction()
 		return false;
 	}
 	std::string path = FUNCTIONS_FOLDER_LOCATION + functionName + FUNCTION_EXTENSION;
-	struct stat buffer;
-	if (stat(path.c_str(), &buffer) == 0)
+	FILE *file;
+	fopen_s( &file, path.c_str(), "r" );
+	if ( !file )
 	{
-		int answer = MessageBox(0, ("The function \"" + functionName + "\" already exists! Overwrite it?").c_str(), 0, MB_YESNO);
-		if (answer == IDNO)
+		//
+	}
+	else
+	{
+		fclose( file );
+		int answer = MessageBox( 0, ("The function \"" + functionName + "\" already exists! Overwrite it?").c_str(), 0, MB_YESNO );
+		if ( answer == IDNO )
 		{
 			return false;
 		}

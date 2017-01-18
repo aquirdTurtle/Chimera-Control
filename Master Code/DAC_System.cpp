@@ -9,7 +9,7 @@
 
 void DacSystem::daqCreateTask( const char* taskName, TaskHandle& handle )
 {
-	if ( DAQMX_SAFEMODE )
+	if ( !DAQMX_SAFEMODE )
 	{
 		int result = DAQmxCreateTask( taskName, &handle );
 		if ( result )
@@ -26,7 +26,7 @@ void DacSystem::daqCreateAOVoltageChan( TaskHandle taskHandle, const char physic
 										 const char nameToAssignToChannel[], float64 minVal, float64 maxVal, int32 units,
 										 const char customScaleName[] )
 {
-	if ( DAQMX_SAFEMODE )
+	if ( !DAQMX_SAFEMODE )
 	{
 		int result = DAQmxCreateAOVoltageChan( taskHandle, physicalChannel, nameToAssignToChannel, minVal, maxVal, 
 											   units, customScaleName );
@@ -43,7 +43,7 @@ void DacSystem::daqCreateAOVoltageChan( TaskHandle taskHandle, const char physic
 void DacSystem::daqCreateDIChan( TaskHandle taskHandle, const char lines[], const char nameToAssignToLines[],
 								  int32 lineGrouping )
 {
-	if ( DAQMX_SAFEMODE )
+	if ( !DAQMX_SAFEMODE )
 	{
 		int result = DAQmxCreateDIChan( taskHandle, lines, nameToAssignToLines, lineGrouping );
 		if ( result )
@@ -58,13 +58,15 @@ void DacSystem::daqCreateDIChan( TaskHandle taskHandle, const char lines[], cons
 
 void DacSystem::daqStopTask( TaskHandle handle )
 {
-	if ( DAQMX_SAFEMODE )
+	if ( !DAQMX_SAFEMODE )
 	{
 		int result = DAQmxStopTask(handle);
+		// this function is currently meant to be silent.
 		if ( result )
 		{
-			thrower( "daqStopTask Failed! (" + std::to_string( result ) + "): "
-					 + this->getErrorMessage( result ) );
+			//thrower( "daqStopTask Failed! (" + std::to_string( result ) + "): "
+			//		 + this->getErrorMessage( result ) );
+			
 		}
 	}
 }
@@ -73,7 +75,7 @@ void DacSystem::daqStopTask( TaskHandle handle )
 void DacSystem::daqConfigSampleClkTiming( TaskHandle taskHandle, const char source[], float64 rate, int32 activeEdge,
 									  int32 sampleMode, uInt64 sampsPerChan )
 {
-	if ( DAQMX_SAFEMODE )
+	if ( !DAQMX_SAFEMODE )
 	{
 		int result = DAQmxCfgSampClkTiming( taskHandle, source, rate, activeEdge, sampleMode, sampsPerChan );
 		if ( result )
@@ -88,7 +90,7 @@ void DacSystem::daqConfigSampleClkTiming( TaskHandle taskHandle, const char sour
 void DacSystem::daqWriteAnalogF64( TaskHandle handle, int32 numSampsPerChan, bool32 autoStart, float64 timeout,
 									bool32 dataLayout, const float64 writeArray[], int32 *sampsPerChanWritten)
 {
-	if ( DAQMX_SAFEMODE )
+	if ( !DAQMX_SAFEMODE )
 	{
 		// the last argument must be null as of the writing of this wrapper. may be used in the future for something else.
 		int result = DAQmxWriteAnalogF64( handle, numSampsPerChan, autoStart, timeout, dataLayout, writeArray, 
@@ -104,7 +106,7 @@ void DacSystem::daqWriteAnalogF64( TaskHandle handle, int32 numSampsPerChan, boo
 
 void DacSystem::daqStartTask( TaskHandle handle )
 {
-	if ( DAQMX_SAFEMODE )
+	if ( !DAQMX_SAFEMODE )
 	{
 		int result = DAQmxStartTask(handle);
 		if ( result )

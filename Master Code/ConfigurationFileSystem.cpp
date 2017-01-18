@@ -2319,9 +2319,23 @@ void ConfigurationFileSystem::reloadCombo(HWND comboToReload, std::string locati
 
 bool ConfigurationFileSystem::fileOrFolderExists(std::string filePathway)
 {
+	
+	FILE *file;
+	fopen_s( &file, filePathway.c_str(), "r" );
+	if ( !file )
+	{
+		
+		return false;
+	}
+	else
+	{
+		fclose( file );
+		return true;
+	}
 	// got this from stack exchange. dunno how it works but it should be fast.
-	struct stat buffer;
-	return (stat(filePathway.c_str(), &buffer) == 0);
+	// doesn't work on xp???
+	// struct stat buffer;
+	// return (stat(filePathway.c_str(), &buffer) == 0);
 }
 
 

@@ -4,6 +4,7 @@
 #include "TTL_System.h"
 #include "DAC_System.h"
 #include <fstream>
+#include <sys/stat.h>
 
 MasterConfiguration::MasterConfiguration(std::string address) : configurationFileAddress{address}, version{"1.0"}
 {
@@ -18,18 +19,25 @@ bool MasterConfiguration::save(TtlSystem* ttls, DacSystem* dacs)
 	- DAC names
 	- DAC Values
 	*/
+
 	// make sure that file exists
-	struct stat buffer;
-	if (stat(this->configurationFileAddress.c_str(), &buffer) != 0)
+	FILE *file;
+	fopen_s( &file, configurationFileAddress.c_str(), "r" );
+	if ( !file )
 	{
-		MessageBox(0, "WARNING: Master Configuration File Not Found! Saving this file should normally mean over-writing the previous one.", 0, 0);
+		errBox( "WARNING: Master Configuration File Not Found! Saving this file should normally mean over-writing the previous one." );
+	}
+	else
+	{
+		fclose( file );
 	}
 	// open file
 	std::fstream configFile;
 	configFile.open(this->configurationFileAddress.c_str(), std::ios::out);
 	if (!configFile.is_open())
 	{
-		MessageBox(0, "ERROR: Master Configuration File Failed to Open! Changes cannot be saved.", 0, 0);
+		errBox( "ERROR: Master Configuration File Failed to Open! Changes cannot be saved. Attempted to open file in"
+				" location " + configurationFileAddress );
 		return false;
 	}
 	// output version
@@ -55,18 +63,23 @@ bool MasterConfiguration::save(TtlSystem* ttls, DacSystem* dacs)
 bool MasterConfiguration::load(TtlSystem* ttls, DacSystem& dacs, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master)
 {
 	// make sure that file exists
-
-	struct stat buffer;
-	if (stat(this->configurationFileAddress.c_str(), &buffer) != 0)
+	
+	FILE *file;
+	fopen_s( &file, configurationFileAddress.c_str(), "r" );
+	if ( !file )
 	{
-		MessageBox(0, "WARNING: Master Configuration File Not Found! Cannot load Master Configuration File. No Default names for TTLs, DACs, or default values.", 0, 0);
+		errBox("WARNING: Master Configuration File Not Found! Cannot load Master Configuration File. No Default names for TTLs, DACs, or default values.");
+	}
+	else
+	{
+		fclose( file );
 	}
 	// open file
 	std::fstream configFile;
 	configFile.open(this->configurationFileAddress.c_str(), std::ios::in);
 	if (!configFile.is_open())
 	{
-		MessageBox(0, "ERROR: Master Configuration File Failed to Open! No Default names for TTLs, DACs, or default values.", 0, 0);
+		errBox("ERROR: Master Configuration File Failed to Open! No Default names for TTLs, DACs, or default values.");
 		return false;
 	}
 	std::stringstream configStream;
