@@ -95,12 +95,14 @@ void MasterWindow::HandleFunctionChange()
 
 void MasterWindow::StartExperiment()
 {
-	this->generalStatus.appendText("Starting Experimment...\r\n", 0);
+	
 	// check to make sure ready.
 	try
 	{
+		this->generalStatus.appendText( "Checking Read status...\r\n", 0 );
 		this->profile.allSettingsReadyCheck( this );
 		this->masterScript.checkSave( this );
+		this->generalStatus.appendText( "Starting Experiment Thread...\r\n", 0 );
 		this->manager.startExperimentThread( this );
 	}
 	catch (myException& exception)
@@ -154,23 +156,38 @@ void MasterWindow::SetDacs()
 	// have the dac values change
 	try
 	{
+		this->generalStatus.appendText( "Starting Setting Dacs...\r\n", 0 );
 		this->dacBoards.handleButtonPress( &this->ttlBoard );
+		this->generalStatus.appendText( "Analyzing Dac Info...\r\n", 0 );
 		dacBoards.analyzeDAC_Commands();
+		this->generalStatus.appendText( "Finalizing Dacs Info...\r\n", 0 );
 		dacBoards.makeFinalDataFormat();
 		// start the boards which actually sets the dac values.
+		this->generalStatus.appendText( "Configuring Clocks...\r\n", 0 );
 		dacBoards.configureClocks();
+		this->generalStatus.appendText( "Stopping Dacs (if running)...\r\n", 0 );
 		dacBoards.stopDacs();
+		this->generalStatus.appendText( "Writing New Dac Settings...\r\n", 0 );
 		dacBoards.writeDacs();
+		this->generalStatus.appendText( "Arming Dacs...\r\n", 0 );
 		dacBoards.startDacs();
+		this->generalStatus.appendText( "Analyzing DAC TTL Triggers...\r\n", 0 );
 		ttlBoard.analyzeCommandList();
+		this->generalStatus.appendText( "Finalizing DAC TTL Triggers...\r\n", 0 );
 		ttlBoard.convertToFinalFormat();
+		this->generalStatus.appendText( "Writing DAC TTL Triggers...\r\n", 0 );
 		ttlBoard.writeData();
+		this->generalStatus.appendText( "Starting DAC TTL Triggers...\r\n", 0 );
 		ttlBoard.startBoard();
+		this->generalStatus.appendText( "Waiting until TTLs are finished...\r\n", 0 );
 		ttlBoard.waitTillFinished();
+		this->generalStatus.appendText( "Finished Setting Dacs.\r\n", 0 );
 	}
 	catch (myException& exception)
 	{
 		errBox( exception.what() );
+		this->generalStatus.appendText( "Failed!\r\n", 0 );
+		this->errorStatus.appendText( exception.what(), 0 );
 	}
 	this->profile.updateConfigurationSavedStatus(false);
 	return;
