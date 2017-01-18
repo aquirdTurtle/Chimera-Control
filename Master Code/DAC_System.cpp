@@ -118,10 +118,18 @@ void DacSystem::daqStartTask( TaskHandle handle )
 }
 
 
+
+
+/// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// 
+/// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
 DacSystem::DacSystem(int& startID)
 {
-	// set some constants...
-
+	/// set some constants...
 	// starts at 0... 
 	// should change this later because only 1 is actually used...
 	dacTriggerLines[0] = { 3, 14 };
@@ -164,9 +172,9 @@ DacSystem::DacSystem(int& startID)
 		long output = 0;
 		long sampsPerChanWritten;
 
-		//Create a task for each board
-		//assume 3 boards, 8 channels per board. AMK 11/2010, modified for three from 2
-		//task names are defined as public variables of type Long in TheMainProgram Declarations
+		// Create a task for each board
+		// assume 3 boards, 8 channels per board. AMK 11/2010, modified for three from 2
+		// task names are defined as public variables of type Long in TheMainProgram Declarations
 		//This creates the task to output from DAC 2
 		daqCreateTask( "Board 3 Dacs 16-23", this->staticDac2 );
 		//This creates the task to output from DAC 1
@@ -176,14 +184,13 @@ DacSystem::DacSystem(int& startID)
 		/// INPUTS
 		//This creates a task to read in a digital input from DAC 0 on port 0 line 0
 		daqCreateTask( "", this->digitalDAC_0_00 );
-		//This creates a task to read in a digital input from DAC 0 on port 1 line 1 (currently unused 11/08)
+		// currently unused 11/08 (<-date copied from VB6. what is the actual full date though T.T)
 		daqCreateTask( "", this->digitalDAC_0_01 );
 		// Configure the output
 		daqCreateAOVoltageChan( staticDac2, "PXI1Slot5/ao0:7", "StaticDAC_2", -10, 10, DAQmx_Val_Volts, "" );	
 		//'Not sure why Tara and Debbie chose to switch the labels (for staticDac_0 -> StaticDac_1) here, but I'll stick with it to be consistent everywhere else in the program.AMK, 11 / 2010
 		daqCreateAOVoltageChan( staticDac0, "PXI1Slot3/ao0:7", "StaticDAC_1", -10, 10, DAQmx_Val_Volts, "" );
 		daqCreateAOVoltageChan( staticDac1, "PXI1Slot4/ao0:7", "StaticDAC_0", -10, 10, DAQmx_Val_Volts, "" );
-		//INPUTS
 		daqCreateDIChan( digitalDAC_0_00, "PXI1Slot3/port0/line0", "DIDAC_0", DAQmx_Val_ChanPerLine );
 		// currently unused 11/08 (<-date copied from VB6. what is the actual full date though T.T)
 		daqCreateDIChan( digitalDAC_0_01, "PXI1Slot3/port0/line1", "DIDAC_0", DAQmx_Val_ChanPerLine );

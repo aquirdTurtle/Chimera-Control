@@ -117,6 +117,9 @@ class MasterWindow : public CDialog
 		void HandleFunctionChange();
 		std::unordered_map<std::string, COLORREF> getRGBs();
 		void HandleAbort();
+
+		void loadMotSettings();
+
 	private:
 		DECLARE_MESSAGE_MAP();
 		CMenu menu;
