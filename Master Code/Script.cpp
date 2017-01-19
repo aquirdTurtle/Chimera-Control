@@ -203,7 +203,7 @@ COLORREF Script::getSyntaxColor(std::string word, std::string editType, std::vec
 				{
 					return rgbs["Gold"];
 				}
-				if (word == row + std::to_string(numberInc + 1))
+				if (word == row + std::to_string(numberInc))
 				{
 					return rgbs["Gold"];
 				}
@@ -215,7 +215,7 @@ COLORREF Script::getSyntaxColor(std::string word, std::string editType, std::vec
 			{
 				return rgbs["Brown"];
 			}
-			if (word == "dac" + std::to_string(dacInc + 1))
+			if (word == "dac" + std::to_string(dacInc))
 			{
 				return rgbs["Brown"];
 			}

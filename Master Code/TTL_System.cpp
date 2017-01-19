@@ -298,7 +298,6 @@ TtlSystem::TtlSystem(int& startID)
 	{
 		int err = GetLastError();
 		errBox( std::to_string(err) );
-		errBox( "!" );
 	}
 	HMODULE dio = LoadLibrary( "dio64_32.dll" );
 	//HMODULE dio = LoadLibrary("C:/Windows/SysWOW64/dio64_32.dll");
@@ -306,8 +305,6 @@ TtlSystem::TtlSystem(int& startID)
 	{
 		int err = GetLastError();
 		errBox( std::to_string( err ) );
-		errBox( "!" );
-		errBox( "!!" );
 	}
 	
 	// initialize function pointers. This only requires the DLLs to be loaded (which requires them to be present on the machine...) 
@@ -428,7 +425,7 @@ void TtlSystem::initialize(POINT& upperLeftCornerLocation, HWND windowHandle, HI
 	for (int ttlNumberInc = 0; ttlNumberInc < ttlNumberLabels.size(); ttlNumberInc++)
 	{
 		ttlNumberLabels[ttlNumberInc].position = location;
-		ttlNumberLabels[ttlNumberInc].Create(std::to_string(ttlNumberInc + 1).c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN, location,
+		ttlNumberLabels[ttlNumberInc].Create(std::to_string(ttlNumberInc).c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN, location,
 			CWnd::FromHandle(windowHandle), ttlNumberLabels[ttlNumberInc].ID);
 		location.left += 28;
 		location.right += 28; 
@@ -487,7 +484,7 @@ void TtlSystem::initialize(POINT& upperLeftCornerLocation, HWND windowHandle, HI
 					name = "D";
 					break;
 			}
-			name += std::to_string(number + 1);
+			name += std::to_string(number);
 			//this->ttlNames[row][number] = name;
 			ttlPushControls[row][number].position = location;
 			ttlPushControls[row][number].Create("", WS_CHILD | WS_VISIBLE | BS_RIGHT | BS_3STATE, location, CWnd::FromHandle(windowHandle), 
@@ -536,12 +533,10 @@ void TtlSystem::handleTTL_ScriptCommand(std::string command, std::pair<std::stri
 	ttlShadeLocations.push_back({ row, collumn });
 	if (command == "on:")
 	{
-		errBox( "Setting On!" );
 		this->ttlOn(row, collumn, time);
 	}
 	else if (command == "off:")
 	{
-		errBox( "Setting Off!" );
 		this->ttlOff(row, collumn, time);
 	}
 	return;
@@ -730,7 +725,7 @@ bool TtlSystem::isValidTTLName( std::string name )
 		{
 			// check default names
 			unsigned int row, number;
-			if (name == rowStr + std::to_string( numberInc + 1 ))
+			if (name == rowStr + std::to_string( numberInc))
 			{
 				return true;
 			}
@@ -927,7 +922,6 @@ void TtlSystem::writeData()
 	{
 		// concatenate all the data at once.
 		element = finalFormattedCommandForDIO[count / 6][count % 6];
-		errBox( std::to_string( element ) );
 		count++;
 	}
 	// now arrayOfAllData contains all the experiment data.
@@ -985,8 +979,6 @@ void TtlSystem::interpretKey(std::unordered_map<std::string, std::vector<double>
 		TTL_Command tempCommand;
 		tempCommand.line = this->ttlCommandFormList[commandInc].line;
 		tempCommand.value = this->ttlCommandFormList[commandInc].value;
-		errBox( " tempCommand.line = " + std::to_string( tempCommand.line.first )  + std::to_string( tempCommand.line.second ) );
-		errBox( " tempCommand.value = " + std::to_string( tempCommand.value ) );
 		// if no variable...
 		if (this->ttlCommandFormList[commandInc].time.first == "")
 		{
@@ -1022,7 +1014,9 @@ void TtlSystem::analyzeCommandList()
 		}
 		if (timeIndex == -1)
 		{
-			timeOrganizer.push_back({ individualTTL_CommandList[commandInc].time, std::vector<unsigned int>(commandInc) });
+			std::vector<unsigned int> tempCorrespondingCommands;
+			tempCorrespondingCommands.push_back( commandInc );
+			timeOrganizer.push_back({ individualTTL_CommandList[commandInc].time, tempCorrespondingCommands });
 		}
 		else
 		{
@@ -1052,13 +1046,12 @@ void TtlSystem::analyzeCommandList()
 	this->fullCommandList.clear();
 	// give it the initial status.
 	this->fullCommandList.push_back({0, this->ttlStatus});
-	errBox( "orderedOrganizer.size() = " + std::to_string( orderedOrganizer.size() ) );
 	if (orderedOrganizer.size() == 0)
 	{
 		thrower("ERROR: no ttl commands...?");
 		return;
 	}
-	if (orderedOrganizer[0].first == 0)
+	if (orderedOrganizer[0].first < 1e-8)
 	{
 		// handle the zero case specially.
 		for (int zeroInc = 0; zeroInc < orderedOrganizer[0].second.size(); zeroInc++)
@@ -1092,7 +1085,6 @@ void TtlSystem::analyzeCommandList()
 void TtlSystem::convertToFinalFormat()
 {
 	this->finalFormattedCommandForDIO.clear();
-	errBox( "fullCommandList.size() = " + std::to_string( fullCommandList.size() ) );
 	// do bit arithmetic.
 	for (int timeInc = 0; timeInc < this->fullCommandList.size(); timeInc++)
 	{

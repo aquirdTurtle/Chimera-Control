@@ -14,7 +14,6 @@ ExperimentManager::ExperimentManager()
 
 UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 {
-	errBox( "Started Thread!" );
 	// convert it to the correct structure.
 	ExperimentThreadInput* input = (ExperimentThreadInput*)rawInput;
 	SocketWrapper socket;
@@ -131,16 +130,12 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 			input->dacs->interpretKey( input->key->getKey(), varInc, input->vars );
 			input->ttls->interpretKey( input->key->getKey(), varInc );
 			input->rsg->interpretKey( input->key->getKey(), varInc );
-			std::array<double, 3> freqs = input->gpibHandler->interpretKeyForRaman( ramanFrequencies, input->key->getKey(), varInc );
+			//std::array<double, 3> freqs = input->gpibHandler->interpretKeyForRaman( ramanFrequencies, input->key->getKey(), varInc );
 			// prepare dac and ttls. data to final forms.
 			input->status->appendText( "Analyzing Script Data...", 0 );
-			try
-			{
-				input->dacs->analyzeDAC_Commands();
-				input->dacs->makeFinalDataFormat();
-			}
-			// it's okay if scripts don't have dac commands.
-			catch (myException& exception ) {}
+			input->dacs->analyzeDAC_Commands();
+			input->dacs->makeFinalDataFormat();
+			input->dacs->configureClocks();
 			input->ttls->analyzeCommandList();
 			input->ttls->convertToFinalFormat();
 			// program devices
@@ -148,11 +143,25 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 			//input->gpibHandler->programRamanFGs( freqs[0], freqs[1], freqs[2] );
 			//input->rsg->programRSG( input->gpibHandler );
 			// loop for repetitions
+			/*
+				// start the boards which actually sets the dac values.
+				
+				dacBoards.stopDacs();
+				dacBoards.writeDacs();
+				dacBoards.startDacs();
+				ttlBoard.analyzeCommandList();
+				ttlBoard.convertToFinalFormat();
+				ttlBoard.writeData();
+				ttlBoard.startBoard();
+				ttlBoard.waitTillFinished();
+			*/
 			for ( int repInc = 0; repInc < input->repetitions; repInc++ )
 			{
 				input->status->appendText( "Repetition " + std::to_string(repInc + 1) + "...", 0 );
 				// this apparently needs to be re-written each time from looking at the VB6 code.
-				//input->dacs->writeDacs();
+				input->dacs->stopDacs();
+				input->dacs->writeDacs();
+				input->dacs->startDacs();
 				input->ttls->writeData();
 				input->ttls->startBoard();
 				// wait until finished.
@@ -992,7 +1001,7 @@ bool ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 			this->eatComments(&this->currentMasterScript);
 			this->currentMasterScript >> dacVoltageValue;
 			this->eatComments(&this->currentMasterScript);
-			dacs->handleDAC_ScriptCommand( operationTime, dacName, dacVoltageValue, "", "", "", dacShades, variables, ttls );
+			dacs->handleDAC_ScriptCommand( operationTime, dacName, "__NONE__", dacVoltageValue, "0", "__NONE__", dacShades, variables, ttls );
 			this->eatComments(&this->currentMasterScript);
 		}
 		else if (word == "dacramp:")

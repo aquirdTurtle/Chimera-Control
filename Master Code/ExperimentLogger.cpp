@@ -28,7 +28,7 @@ bool ExperimentLogger::generateLog(MasterWindow* master)
 	logText << "**VALUES**";
 	for (int ttlNumberInc = 0; ttlNumberInc < master->ttlBoard.getNumberOfTTLsPerRow(); ttlNumberInc++)
 	{
-		logText << std::setw(10) << ttlNumberInc + 1;
+		logText << std::setw(10) << ttlNumberInc;
 	}
 	logText << "\n";
 	for (int ttlRowInc = 0; ttlRowInc < master->ttlBoard.getNumberOfTTLRows(); ttlRowInc++)
@@ -65,7 +65,7 @@ bool ExperimentLogger::generateLog(MasterWindow* master)
 	logText << std::setw(10) << "**NAMES**";
 	for (int ttlNumberInc = 0; ttlNumberInc < master->ttlBoard.getNumberOfTTLsPerRow(); ttlNumberInc++)
 	{
-		logText << std::setw(10) << ttlNumberInc + 1;
+		logText << std::setw(10) << ttlNumberInc;
 	}
 	logText << "\n";
 	for (int ttlRowInc = 0; ttlRowInc < master->ttlBoard.getNumberOfTTLRows(); ttlRowInc++)

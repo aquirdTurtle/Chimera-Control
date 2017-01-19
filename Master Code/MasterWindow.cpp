@@ -81,6 +81,7 @@ void MasterWindow::HandleAbort()
 
 void MasterWindow::loadMotSettings()
 {
+	this->generalStatus.appendText( "Loading MOT Configuration...\r\n", 0 );
 	/// Set TTL values.
 	// switch on MOT light, set power, set detuning
 	// MOT AO RF
@@ -125,19 +126,27 @@ void MasterWindow::loadMotSettings()
 	dacBoards.setForceDacEvent( 4, -1.3, &ttlBoard );
 	// top
 	dacBoards.setForceDacEvent( 5, 1.3, &ttlBoard );
-
 	// start the boards which actually sets the dac values.
-	dacBoards.analyzeDAC_Commands();
-	dacBoards.makeFinalDataFormat();
-	dacBoards.configureClocks();
-	dacBoards.stopDacs();
-	dacBoards.writeDacs();
-	dacBoards.startDacs();
-	ttlBoard.analyzeCommandList();
-	ttlBoard.convertToFinalFormat();
-	ttlBoard.writeData();
-	ttlBoard.startBoard();
-	ttlBoard.waitTillFinished();
+	try
+	{
+		dacBoards.analyzeDAC_Commands();
+		dacBoards.makeFinalDataFormat();
+		dacBoards.configureClocks();
+		dacBoards.stopDacs();
+		dacBoards.writeDacs();
+		dacBoards.startDacs();
+		ttlBoard.analyzeCommandList();
+		ttlBoard.convertToFinalFormat();
+		ttlBoard.writeData();
+		ttlBoard.startBoard();
+		ttlBoard.waitTillFinished();
+		this->generalStatus.appendText( "Finished Loading MOT Configuration.!\r\n", 0 );
+	}
+	catch ( myException& exception )
+	{
+		this->errorStatus.appendText( exception.what(), 0 );
+		this->generalStatus.appendText( "Failed!\r\n", 0 );
+	}
 }
 
 void MasterWindow::OnCancel()
