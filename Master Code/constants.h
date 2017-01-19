@@ -1,6 +1,7 @@
 // define this as true in order stop the code from actually calling any dio64 functions. Use, e.g. if the device is not connected.
 
 #define MASTER_COMPUTER
+//#define LAPTOP_COMPUTER
 
 #ifdef MASTER_COMPUTER
 	#define DIO_SAFEMODE false

@@ -272,7 +272,7 @@ void DacSystem::initialize(POINT& upperLeftHandCornerPosition, HWND windowHandle
 		}
 		// create label
 		dacLabels[dacInc].position = location;
-		dacLabels[dacInc].Create(std::to_string(dacInc + 1).c_str(), WS_CHILD | WS_VISIBLE | SS_CENTER, location, 
+		dacLabels[dacInc].Create(std::to_string(dacInc).c_str(), WS_CHILD | WS_VISIBLE | SS_CENTER, location, 
 			CWnd::FromHandle(windowHandle), dacLabels[dacInc].ID);
 		dacLabels[dacInc].setToolTip(this->dacNames[dacInc], toolTips, master);
 		location.left += 20;
@@ -308,9 +308,6 @@ void DacSystem::handleButtonPress(TtlSystem* ttls)
 			thrower("ERROR: value entered in DAC #" + std::to_string(dacInc) + " (" + text.GetString() + ") failed to convert to a double!");
 		}
 	}
-	// qprep
-	// qgo
-
 	return;
 }
 
@@ -369,16 +366,18 @@ void DacSystem::analyzeDAC_Commands()
 	this->dacSnapshots.push_back({ 0, this->dacValues });
 	if (orderedOrganizer.size() == 0)
 	{
-		thrower("ERROR: no dac commands...?");
+		//thrower("ERROR: no dac commands...?");
 		return;
 	}
-	if (orderedOrganizer[0].first == 0)
+	// first copy the initial settings so that things that weren't changed remain unchanged.
+	this->dacSnapshots.push_back( { 0, this->dacValues } );
+	if (orderedOrganizer[0].first <= 1e-8)
 	{
 		// handle the zero case specially.
 		// for every event at the first time...
 		for (int zeroInc = 0; zeroInc < orderedOrganizer[0].second.size(); zeroInc++)
 		{
-			this->dacSnapshots[0].dacValues[orderedOrganizer[0].second[zeroInc].line] = orderedOrganizer[0].second[zeroInc].value;
+			this->dacSnapshots[1].dacValues[orderedOrganizer[0].second[zeroInc].line] = orderedOrganizer[0].second[zeroInc].value;
 			//... setting it to the command's state.
 		}
 	}
@@ -390,7 +389,7 @@ void DacSystem::analyzeDAC_Commands()
 		for (int zeroInc = 0; zeroInc < orderedOrganizer[commandInc].second.size(); zeroInc++)
 		{
 			// see description of this command above... update everything that changed at this time.
-			this->dacSnapshots[commandInc].dacValues[orderedOrganizer[commandInc].second[zeroInc].line] = orderedOrganizer[commandInc].second[zeroInc].value;
+			this->dacSnapshots.back().dacValues[orderedOrganizer[commandInc].second[zeroInc].line] = orderedOrganizer[commandInc].second[zeroInc].value;
 		}
 	}
 	// phew.
@@ -428,11 +427,43 @@ void DacSystem::interpretKey(std::unordered_map<std::string, std::vector<double>
 	this->dacIndividualEvents.clear();
 	for (int eventInc = 0; eventInc < this->dacComplexEventsList.size(); eventInc++)
 	{
+		double value, time;
+		DAC_IndividualEvent tempEvent;
+		tempEvent.line = dacComplexEventsList[eventInc].line;
+
+		//////////////////////////////////
+		// Deal with time.
+		if (dacComplexEventsList[eventInc].time.first == "")
+		{
+			// no variable portion of the time.
+			tempEvent.time = dacComplexEventsList[eventInc].time.second;
+		}
+		else
+		{
+			bool isVar = false;
+			for (int varInc = 0; varInc < vars.size(); varInc++)
+			{
+				if (vars[varInc].name == dacComplexEventsList[eventInc].time.first)
+				{
+					isVar = true;
+					break;
+				}
+			}
+			if (!isVar)
+			{
+				thrower( "ERROR: the time string " + dacComplexEventsList[eventInc].time.first + " is not a variable!" );
+				return;
+			}
+			double varTime = key[dacComplexEventsList[eventInc].time.first][variationNumber];
+			tempEvent.time = varTime + dacComplexEventsList[eventInc].time.second;
+		}
+
+
 		// interpret ramp time command. I need to know whether it's ramping or not.
 		double rampTime;
 		try
 		{
-			rampTime = std::stod(dacComplexEventsList[eventInc].rampTime);
+			rampTime = std::stod( dacComplexEventsList[eventInc].rampTime );
 		}
 		catch (std::invalid_argument&)
 		{
@@ -444,103 +475,49 @@ void DacSystem::interpretKey(std::unordered_map<std::string, std::vector<double>
 				}
 			}
 		}
+
 		if (rampTime == 0)
 		{
 			/// single point.
-			double value, time;
-			DAC_IndividualEvent tempEvent;
-			tempEvent.line = dacComplexEventsList[eventInc].line;
-			//////////////////////////////////
-			// Deal with time.
-			if (dacComplexEventsList[eventInc].time.first == "")
-			{
-				// no variable portion of the time.
-				tempEvent.time = dacComplexEventsList[eventInc].time.second;
-			}
-			else
-			{
-				bool isVar = false;
-				for (int varInc = 0; varInc < vars.size(); varInc++)
-				{
-					if (vars[varInc].name == dacComplexEventsList[eventInc].time.first)
-					{
-						isVar = true;
-						break;
-					}
-				}
-				if (!isVar)
-				{
-					thrower("ERROR: the time string " + dacComplexEventsList[eventInc].time.first + " is not a variable!");
-					return;
-				}
-				double varTime = key[dacComplexEventsList[eventInc].time.first][variationNumber];
-				tempEvent.time = varTime + dacComplexEventsList[eventInc].time.second;
-			}
+
 			////////////////
 			// deal with value
 			try
 			{
-				tempEvent.value = std::stod(dacComplexEventsList[eventInc].initVal);
+				tempEvent.value = std::stod(dacComplexEventsList[eventInc].finalVal);
 			}
 			catch (std::invalid_argument&)
 			{
 				bool isVar = false;
 				for (int varInc = 0; varInc < vars.size(); varInc++)
 				{
-					if (dacComplexEventsList[eventInc].initVal == vars[varInc].name)
+					if (dacComplexEventsList[eventInc].finalVal == vars[varInc].name)
 					{
-						tempEvent.value = key[dacComplexEventsList[eventInc].initVal][variationNumber];
+						tempEvent.value = key[dacComplexEventsList[eventInc].finalVal][variationNumber];
 						isVar = true;
 						break;
 					}
 				}
 				if (!isVar)
 				{
-					thrower("ERROR: the dac value " + dacComplexEventsList[eventInc].initVal + " is not a variable or a double!");
+					thrower("ERROR: the dac value " + dacComplexEventsList[eventInc].finalVal + " is not a variable or a double!");
 					return;
 				}
 			}
+
 			this->dacIndividualEvents.push_back(tempEvent);
+
 		}
 		else
 		{
 			/// many points to be made.
-			double value, time;
-			DAC_IndividualEvent tempEvent;
-			tempEvent.line = dacComplexEventsList[eventInc].line;
-			//////////////////////////////////
-			// Deal with time.
-			if (dacComplexEventsList[eventInc].time.first == "")
-			{
-				// no variable portion of the time.
-				tempEvent.time = dacComplexEventsList[eventInc].time.second;
-			}
-			else
-			{
-				bool isVar = false;
-				for (int varInc = 0; varInc < vars.size(); varInc++)
-				{
-					if (vars[varInc].name == dacComplexEventsList[eventInc].time.first)
-					{
-						isVar = true;
-						break;
-					}
-				}
-				if (!isVar)
-				{
-					thrower("ERROR: the time string " + dacComplexEventsList[eventInc].time.first + " is not a variable!");
-					return;
-				}
-				double varTime = key[dacComplexEventsList[eventInc].time.first][variationNumber];
-				tempEvent.time = varTime + dacComplexEventsList[eventInc].time.second;
-			}
 			// convert initValue and finalValue to doubles to be used 
 			double initValue, finalValue, rampInc;
 			try
 			{
 				initValue = std::stod(dacComplexEventsList[eventInc].initVal);
 			}
-			catch (std::invalid_argument)
+			catch (std::invalid_argument&)
 			{
 				bool isVar = false;
 				for (int varInc = 0; varInc < vars.size(); varInc++)
@@ -561,9 +538,9 @@ void DacSystem::interpretKey(std::unordered_map<std::string, std::vector<double>
 			// deal with final value;
 			try
 			{
-				finalValue = std::stod(dacComplexEventsList[eventInc].finalVal);
+				finalValue = std::stod( dacComplexEventsList[eventInc].finalVal );
 			}
-			catch (std::invalid_argument)
+			catch (std::invalid_argument&)
 			{
 				bool isVar = false;
 				for (int varInc = 0; varInc < vars.size(); varInc++)
@@ -577,14 +554,14 @@ void DacSystem::interpretKey(std::unordered_map<std::string, std::vector<double>
 				}
 				if (!isVar)
 				{
-					thrower("ERROR: the dac initial value " + dacComplexEventsList[eventInc].finalVal + " is not a variable or a double!");
+					thrower("ERROR: the dac final value " + dacComplexEventsList[eventInc].finalVal + " is not a variable or a double!");
 					return;
 				}
 			}
 			// deal with ramp inc
 			try
 			{
-				rampInc = std::stod(dacComplexEventsList[eventInc].rampInc);
+				rampInc = std::stod( dacComplexEventsList[eventInc].rampInc );
 			}
 			catch (std::invalid_argument)
 			{
@@ -604,10 +581,11 @@ void DacSystem::interpretKey(std::unordered_map<std::string, std::vector<double>
 					return;
 				}
 			}
-			// This might be the first not i++ usage of a for loop I've ever done...
+			// This might be the first not i++ usage of a for loop I've ever done... XD
 			// calculate the time increment:
 			double timeInc = rampTime / int((finalValue - initValue) / rampInc);
 			double currentTime = tempEvent.time;
+
 			for (int dacValue = initValue; dacValue < finalValue; dacValue += rampInc)
 			{
 				tempEvent.value = dacValue;
@@ -617,7 +595,7 @@ void DacSystem::interpretKey(std::unordered_map<std::string, std::vector<double>
 			}
 			// and get the final value.
 			tempEvent.value = finalValue;
-			tempEvent.time = tempEvent.time + rampTime;
+			tempEvent.time = currentTime;
 			this->dacIndividualEvents.push_back(tempEvent);
 		}
 	}
@@ -735,6 +713,11 @@ void DacSystem::configureClocks()
 
 void DacSystem::writeDacs()
 {
+	if (dacSnapshots.size() <= 1)
+	{
+		// need at least 2 events to run dacs.
+		return;
+	}
 	bool32 nothing = NULL;
 	int32 samplesWritten;
 	int output;
@@ -773,6 +756,7 @@ void DacSystem::makeFinalDataFormat()
 	this->finalFormattedData[0].clear();
 	this->finalFormattedData[1].clear();
 	this->finalFormattedData[2].clear();
+	
 	for (DAC_Snapshot snapshot : this->dacSnapshots)
 	{
 		for (int dacInc = 0; dacInc < 8; dacInc++)
@@ -801,32 +785,10 @@ void DacSystem::handleDAC_ScriptCommand(std::pair<std::string, long> time, std::
 		thrower("ERROR: the name " + name + " is not the name of a dac!");
 		return;
 	}
-	// work with initVal;
+	/// final value.
 	try
 	{
-		value = std::stod(initVal);
-	}
-	catch (std::invalid_argument& exception)
-	{
-		bool isVar = false;
-		for (int varInc = 0; varInc < vars.size(); varInc++)
-		{
-			if (vars[varInc].name == initVal)
-			{
-				isVar = true;
-				break;
-			}
-		}
-		if (!isVar)
-		{
-			thrower("ERROR: tried and failed to convert " + initVal + " to a double for a dac voltage value. It's also not a variable.");
-			return;
-		}
-	}
-	// work with finVal
-	try
-	{
-		value = std::stod(finalVal);
+		value = std::stod( finalVal );
 	}
 	catch (std::invalid_argument& exception)
 	{
@@ -841,52 +803,80 @@ void DacSystem::handleDAC_ScriptCommand(std::pair<std::string, long> time, std::
 		}
 		if (!isVar)
 		{
-			thrower("ERROR: tried and failed to convert " + finalVal + " to a double for a dac voltage value. It's also not a variable.");
+			thrower( "ERROR: tried and failed to convert " + finalVal + " to a double for a dac final voltage value. It's also not a variable." );
 			return;
 		}
 	}
-	// work with the ramp time
-	try
+	if (rampTime != "0")
 	{
-		value = std::stod(rampTime);
-	}
-	catch (std::invalid_argument& exception)
-	{
-		bool isVar = false;
-		for (int varInc = 0; varInc < vars.size(); varInc++)
+		// It's a ramp.
+		// work with initVal;
+		try
 		{
-			if (vars[varInc].name == rampTime)
+			value = std::stod( initVal );
+		}
+		catch (std::invalid_argument& exception)
+		{
+			bool isVar = false;
+			for (int varInc = 0; varInc < vars.size(); varInc++)
 			{
-				isVar = true;
-				break;
+				if (vars[varInc].name == initVal)
+				{
+					isVar = true;
+					break;
+				}
+			}
+			if (!isVar)
+			{
+				thrower( "ERROR: tried and failed to convert value of \"" + initVal + "\" to a double for a dac initial voltage value. It's also not a variable." );
+				return;
 			}
 		}
-		if (!isVar)
+
+		// work with finVal
+		// work with the ramp time
+		try
 		{
-			thrower("ERROR: tried and failed to convert " + rampTime + " to a double for a dac time value. It's also not a variable.");
-			return;
+			value = std::stod( rampTime );
 		}
-	}
-	// work with rampInc
-	try
-	{
-		value = std::stod(rampInc);
-	}
-	catch (std::invalid_argument& exception)
-	{
-		bool isVar = false;
-		for (int varInc = 0; varInc < vars.size(); varInc++)
+		catch (std::invalid_argument& exception)
 		{
-			if (vars[varInc].name == rampInc)
+			bool isVar = false;
+			for (int varInc = 0; varInc < vars.size(); varInc++)
 			{
-				isVar = true;
-				break;
+				if (vars[varInc].name == rampTime)
+				{
+					isVar = true;
+					break;
+				}
+			}
+			if (!isVar)
+			{
+				thrower( "ERROR: tried and failed to convert " + rampTime + " to a double for a dac time value. It's also not a variable." );
+				return;
 			}
 		}
-		if (!isVar)
+		// work with rampInc
+		try
 		{
-			thrower("ERROR: tried and failed to convert " + rampInc + " to a double for a dac voltage value. It's also not a variable.");
-			return;
+			value = std::stod( rampInc );
+		}
+		catch (std::invalid_argument& exception)
+		{
+			bool isVar = false;
+			for (int varInc = 0; varInc < vars.size(); varInc++)
+			{
+				if (vars[varInc].name == rampInc)
+				{
+					isVar = true;
+					break;
+				}
+			}
+			if (!isVar)
+			{
+				thrower( "ERROR: tried and failed to convert " + rampInc + " to a double for a dac ramp increment value. It's also not a variable." );
+				return;
+			}
 		}
 	}
 	// convert name to corresponding dac line.
@@ -911,7 +901,7 @@ int DacSystem::getDAC_Identifier(std::string name)
 			return dacInc;
 		}
 		// check standard names which are always acceptable.
-		if (name == "dac" + std::to_string(dacInc + 1))
+		if (name == "dac" + std::to_string(dacInc))
 		{
 			return dacInc;
 		}

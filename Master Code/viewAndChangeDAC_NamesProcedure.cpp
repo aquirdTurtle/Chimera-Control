@@ -29,7 +29,7 @@ INT_PTR CALLBACK viewAndChangeDAC_NamesProcedure(HWND hDlg, UINT message, WPARAM
 					location.bottom -= 25 * edits.size() / 3;
 				}
 				// create label
-				CreateWindowEx(0, "STATIC", std::to_string(dacInc + 1).c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
+				CreateWindowEx(0, "STATIC", std::to_string(dacInc).c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
 					location.left, location.top, location.right - location.left, location.bottom - location.top,
 					hDlg, (HMENU)-1, GetModuleHandle(NULL), NULL);
 				location.left += 20;

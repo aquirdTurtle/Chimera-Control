@@ -47,13 +47,40 @@ bool MasterConfiguration::save(TtlSystem* ttls, DacSystem* dacs)
 	{
 		for (int ttlNumberInc = 0; ttlNumberInc < ttls->getNumberOfTTLsPerRow(); ttlNumberInc++)
 		{
-			configFile << ttls->getName(ttlRowInc, ttlNumberInc) << "\n";
+			std::string name = ttls->getName( ttlRowInc, ttlNumberInc );
+			if ( name == "" )
+			{
+				// then no name has been set, so create the default name.
+				switch ( ttlRowInc )
+				{
+					case 0:
+						name = "A";
+						break;
+					case 1:
+						name = "B";
+						break;
+					case 2:
+						name = "C";
+						break;
+					case 3:
+						name = "D";
+						break;
+				}
+				name += std::to_string( ttlNumberInc );
+			}
+			configFile << name << "\n";
 			configFile << this->defaultTTLs[ttlRowInc][ttlNumberInc] << "\n";
 		}
 	}
 	for (int dacInc = 0; dacInc < dacs->getNumberOfDACs(); dacInc++)
 	{
-		configFile << dacs->getName(dacInc) << "\n";
+		std::string name = dacs->getName( dacInc );
+		if ( name == "" )
+		{
+			// then the name hasn't been set, so create the default name
+			name = "Dac" + std::to_string( dacInc );
+		}
+		configFile << name << "\n";
 		configFile << this->defaultDACs[dacInc] << "\n";
 	}
 	configFile.close();
