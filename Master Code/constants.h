@@ -1,4 +1,3 @@
-// define this as true in order stop the code from actually calling any dio64 functions. Use, e.g. if the device is not connected.
 
 //#define MASTER_COMPUTER
 #define LAPTOP_COMPUTER
@@ -7,6 +6,7 @@
 	#define DIO_SAFEMODE false
 	#define DAQMX_SAFEMODE false
 	#define GPIB_SAFEMODE false
+	#define AGILENT_SAFEMODE false
 	#define PROFILES_PATH "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\Master Profiles\\"
 	#define FUNCTIONS_FOLDER_LOCATION "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\Functions\\"
 	#define MASTER_CONFIGURATION_FILE_ADDRESS "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\Master Configuration"
@@ -19,6 +19,7 @@
 	#define DIO_SAFEMODE true
 	#define DAQMX_SAFEMODE true
 	#define GPIB_SAFEMODE true
+	#define AGILENT_SAFEMODE true
 	#define PROFILES_PATH "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Master Profiles\\"
 	#define FUNCTIONS_FOLDER_LOCATION "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Functions\\"
 	#define MASTER_CONFIGURATION_FILE_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Master Configuration"
