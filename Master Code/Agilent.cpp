@@ -10,6 +10,7 @@
 #include "boost/cast.hpp"
 #include <algorithm>
 #include <fstream>
+#include "C:\PROGRAM FILES (X86)\IVI FOUNDATION\VISA\WINNT\INCLUDE\VISA.H"
 
 /*
 * This Namespace includes all of my function handling for interacting withe agilent waveform generator. It includes:
@@ -1046,3 +1047,34 @@ void Agilent::selectIntensityProfile(int varNum, bool intensityIsVaried, std::ve
 	}
 	return;
 }
+
+
+void Agilent::visaWrite( ViSession vi, std::string message, ViPUInt32 retCnt )
+{
+	viWrite( vi, (unsigned char*)message.c_str(), (ViUInt32)message.size(), retCnt);
+}
+
+
+void Agilent::visaClose( ViObject obj )
+{
+
+}
+
+
+void Agilent::visaOpenDefaultRM( ViPSession session )
+{
+
+}
+
+
+void Agilent::visaOpen( ViSession sesn, ViRsrc name, ViAccessMode mode, ViUInt32 timeout, ViPSession vi )
+{
+
+}
+
+
+void Agilent::visaQueryf( ViSession vi, ViString writeFmt, ViString readFmt, ... )
+{
+
+}
+
