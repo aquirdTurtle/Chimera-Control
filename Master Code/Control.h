@@ -47,7 +47,7 @@ template <class Parent> bool Control<Parent>::setToolTip(std::string text, std::
 		this->toolTipID = toolTips.size();
 		toolTips.push_back(new CToolTipCtrl);
 		toolTips.back()->Create(master, TTS_ALWAYSTIP | TTS_BALLOON);
-		toolTips.back()->SetMaxTipWidth(500);
+		toolTips.back()->SetMaxTipWidth(1000);
 		toolTips.back()->SetTipBkColor(0x000000);
 		toolTips.back()->SetTipTextColor(0xe0e0d0);
 		toolTips.back()->SetFont(CFont::FromHandle(sNormalFont));

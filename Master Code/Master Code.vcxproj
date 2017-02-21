@@ -176,6 +176,7 @@
   <ItemGroup>
     <ClInclude Include="Combo.h" />
     <ClInclude Include="CRichEditCtrl2.h" />
+    <ClInclude Include="Debugger.h" />
     <ClInclude Include="Dio64.h" />
     <ClInclude Include="errBox.h" />
     <ClInclude Include="ExperimentLogger.h" />
@@ -202,6 +203,7 @@
     <ClInclude Include="DAC_System.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Script.h" />
+    <ClInclude Include="ScriptStream.h" />
     <ClInclude Include="SocketWrapper.h" />
     <ClInclude Include="SoundControl.h" />
     <ClInclude Include="stdafx.h" />
@@ -218,6 +220,7 @@
     <ClCompile Include="Combo.cpp" />
     <ClCompile Include="ConfigurationFileSystem.cpp" />
     <ClCompile Include="Control.cpp" />
+    <ClCompile Include="Debugger.cpp" />
     <ClCompile Include="errBox.cpp" />
     <ClCompile Include="ExperimentLogger.cpp" />
     <ClCompile Include="ExperimentManager.cpp" />
@@ -234,6 +237,7 @@
     <ClCompile Include="RhodeSchwarz.cpp" />
     <ClCompile Include="RichEditControl.cpp" />
     <ClCompile Include="Script.cpp" />
+    <ClCompile Include="ScriptStream.cpp" />
     <ClCompile Include="SocketWrapper.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

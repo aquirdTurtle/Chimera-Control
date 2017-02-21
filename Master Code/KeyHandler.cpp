@@ -6,20 +6,21 @@
 #include <fstream>
 #include <iomanip>
 
-std::unordered_map<std::string, std::vector<double>> KeyHandler::getKey()
+key KeyHandler::getKey()
 {
 	return this->keyValues;
 }
-bool KeyHandler::loadVariables(std::vector<variable> newVariables)
+
+
+void KeyHandler::loadVariables(std::vector<variable> newVariables)
 {
 	this->variables = newVariables;
-	return true;
 }
 
-bool KeyHandler::generateKey()
+void KeyHandler::generateKey()
 {
 	// get information from variables.
-	this->keyValues.clear();
+	keyValues.clear();
 	std::vector<int> variations;
 	variations.push_back(1);
 	std::vector<int> variableIndexes;
@@ -33,11 +34,12 @@ bool KeyHandler::generateKey()
 			{
 				if (variations.size() != 1)
 				{
-					errBox("ERROR: Not all variables seem to have the same number of ranges for their parameters!");
-					return false;
+					thrower("ERROR: Not all variables seem to have the same number of ranges for their parameters!");
+					return;
 				}
 				variations.resize(variables[varInc].ranges.size());
 			}
+
 			// make sure the variations number is consistent.
 			for (int rangeInc = 0; rangeInc < variations.size(); rangeInc++)
 			{
@@ -45,8 +47,8 @@ bool KeyHandler::generateKey()
 				{
 					if (variables[varInc].ranges[rangeInc].variations != variations[rangeInc])
 					{
-						errBox("ERROR: not all ranges of variables have the same number of variations!");
-						return false;
+						thrower("ERROR: not all ranges of variables have the same number of variations!");
+						return;
 					}
 				}
 				variations[rangeInc] = variables[varInc].ranges[rangeInc].variations;
@@ -90,7 +92,9 @@ bool KeyHandler::generateKey()
 			tempKeyRandomized.push_back(tempKey[randomizerKey[randomizerInc]]);
 		}
 		// now, finally, add to the actual key object.
-		this->keyValues[variables[varIndex].name] = tempKeyRandomized;
+		keyValues[variables[varIndex].name].first = tempKeyRandomized;
+		// varies
+		keyValues[variables[varIndex].name].second = true;
 		totalSize = tempKeyRandomized.size();
 	}
 	// now add all singleton objects.
@@ -104,31 +108,32 @@ bool KeyHandler::generateKey()
 				// the only singleton value is stored as the initial value here.
 				tempKey.push_back(var.ranges[0].initialValue);
 			}
-			this->keyValues[var.name] = tempKey;
+			keyValues[var.name].first = tempKey;
+			// does not vary
+			keyValues[var.name].second = false;
 		}
 	}
-	return true;
 }
 
-bool KeyHandler::exportKey()
+
+void KeyHandler::exportKey()
 {
 	// TODO
 	std::fstream keyFile(KEY_ADDRESS, std::ios::out);
 	if (!keyFile.is_open())
 	{
-		errBox("ERROR: Exporting Key File Failed!");
-		return false;
+		thrower("ERROR: Exporting Key File Failed!");
+		return;
 	}
 	for (int variableInc = 0; variableInc < variables.size(); variableInc++)
 	{
 		keyFile << std::setw(15) << variables[variableInc].name + ":";
-		for (int keyInc = 0; keyInc < keyValues[variables[variableInc].name].size(); keyInc++)
+		for (int keyInc = 0; keyInc < keyValues[variables[variableInc].name].first.size(); keyInc++)
 		{
-			keyFile << std::setprecision(12) << std::setw(15) << this->keyValues[variables[variableInc].name][keyInc];
+			keyFile << std::setprecision(12) << std::setw(15) << this->keyValues[variables[variableInc].name].first[keyInc];
 		}
 		keyFile << "\n";
 	}
 	keyFile.close();
-	// export this to the andor.
-	return true;
 }
+

@@ -7,7 +7,7 @@
 #include <fstream>
 #include "VariableSystem.h"
 
-bool ExperimentLogger::generateLog(MasterWindow* master)
+void ExperimentLogger::generateLog(MasterWindow* master)
 {
 	this->logText.clear();
 	// brief description.
@@ -120,7 +120,7 @@ bool ExperimentLogger::generateLog(MasterWindow* master)
 	// log the repetitions
 	logText << "\n\nRepetitions: " << master->repetitionControl.getRepetitionNumber();
 	logText << "\n\nVariables: ";
-	std::vector<variable> varCopy = master->variables.getEverything();
+	std::vector<variable> varCopy = master->configVariables.getEverything();
 	for (int varInc = 0; varInc < varCopy.size(); varInc++)
 	{
 		// output all variable information.
@@ -163,24 +163,22 @@ bool ExperimentLogger::generateLog(MasterWindow* master)
 	logText << "\n\nError Status:\n" << master->errorStatus.getText();
 	// log the general status
 	logText << "\n\nGeneral Status:\n" << master->generalStatus.getText();
-	return true;
+	return;
 }
 
-bool ExperimentLogger::exportLog()
+void ExperimentLogger::exportLog()
 {
 	// put this on the andor.
 	std::fstream exportFile;
 	exportFile.open(LOGGING_FILE_ADDRESS, std::ios::out);
 	if (!exportFile.is_open())
 	{
-		errBox("ERROR: logging file failed to open!");
-		return false;
+		thrower( "ERROR: logging file failed to open!" );
+		return;
 	}
 	// export...
 	exportFile << this->logText.str();
-
 	exportFile.close();
-	return true;
 }
 
 std::string ExperimentLogger::getLog()

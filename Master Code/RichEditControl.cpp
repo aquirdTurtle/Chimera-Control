@@ -4,25 +4,34 @@
 #include "Richedit.h"
 #include "appendText.h"
 #include <unordered_map>
+#include "MasterWindow.h"
 
-RichEditControl::RichEditControl(int& idStart) 
-{
-	// initialize control ids
-	this->richEdit.ID = idStart;
-	this->clearButton.ID = idStart + 1;
-	if (clearButton.ID != ID_ERROR_CLEAR && clearButton.ID != ID_STATUS_CLEAR)
-	{
-		errBox("ERROR: the clearButton.ID didn't match any clear button IDs. The id was: " + std::to_string(clearButton.ID));
-	}
-	this->title.ID = idStart + 2;
-	idStart += 3;
-}
 
 std::string RichEditControl::getText()
 {
 	CString text;
 	this->richEdit.GetWindowText(text);
 	return text.GetBuffer();
+}
+
+void RichEditControl::deleteChars( int num )
+{
+	//int nLength = richEdit.GetWindowTextLength();
+	CString text;
+	richEdit.GetWindowTextA( text );
+	std::string shorterText( text );
+	shorterText = shorterText.substr( 0, shorterText.size() - num );
+	richEdit.SetWindowTextA( shorterText.c_str() );
+	
+	// put the selection at the end of text
+	/*
+	CHARRANGE test;
+	int first = nLength - num;
+	richEdit.SetSel( HIWORD(first), nLength );
+	richEdit.
+	richEdit.GetSel( test );
+	richEdit.Clear();
+	*/
 }
 
 // can expand this to take arbitrary RGB if more colors are wanted. Right now, 0 = default color, 1 = white.
@@ -65,7 +74,8 @@ bool RichEditControl::clear()
 	return true;
 }
 
-bool RichEditControl::initialize(RECT editSize, HWND windowHandle, std::string titleText, COLORREF defaultColor)
+bool RichEditControl::initialize(RECT editSize, std::string titleText, COLORREF defaultColor, MasterWindow* master, 
+								  int& id)
 {
 	this->defaultTextColor = defaultColor;
 	AfxInitRichEdit();
@@ -76,18 +86,25 @@ bool RichEditControl::initialize(RECT editSize, HWND windowHandle, std::string t
 	myCharFormat.cbSize = sizeof(CHARFORMAT);
 	myCharFormat.dwMask = CFM_COLOR;
 	myCharFormat.crTextColor = defaultTextColor;
-	RECT position;	
 	// title
-	position = this->title.position = { editSize.left, editSize.top, editSize.right - 80, editSize.top + 20 };
-	this->title.Create(titleText.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER | ES_READONLY, position, CWnd::FromHandle(windowHandle),
-		title.ID);
-	// button
-	position = this->clearButton.position = { editSize.right - 80, editSize.top, editSize.right, editSize.top + 20 };
-	this->clearButton.Create("Clear", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, position, CWnd::FromHandle(windowHandle), clearButton.ID);
+	title.position = { editSize.left, editSize.top, editSize.right - 80, editSize.top + 20 };
+	title.ID = id++;
+	title.Create(titleText.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER | ES_READONLY, title.position, 
+				  master, title.ID);
+	// Clear Button
+	clearButton.position = { editSize.right - 80, editSize.top, editSize.right, editSize.top + 20 };
+	clearButton.ID = id++;
+	if ( clearButton.ID != ID_ERROR_CLEAR && clearButton.ID != ID_STATUS_CLEAR )
+	{
+		throw;
+	}
+	clearButton.Create("Clear", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, clearButton.position, master, 
+						clearButton.ID);
 	// Edit
-	position = richEdit.position = { editSize.left, editSize.top + 20, editSize.right, editSize.bottom };
+	richEdit.position = { editSize.left, editSize.top + 20, editSize.right, editSize.bottom };
+	richEdit.ID = id++;
 	richEdit.Create( WS_CHILD | WS_VISIBLE | ES_READONLY | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | WS_BORDER, 
-					 position, CWnd::FromHandle(windowHandle), richEdit.ID);
+					 richEdit.position, master, richEdit.ID);
 	
 	richEdit.SetBackgroundColor(0, RGB(15,15,15));
 	richEdit.SetEventMask(ENM_CHANGE);

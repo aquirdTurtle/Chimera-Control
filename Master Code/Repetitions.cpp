@@ -2,20 +2,9 @@
 #include "Repetitions.h"
 #include <unordered_map>
 #include "constants.h"
+#include "MasterWindow.h"
 
-Repetitions::Repetitions(int& id)
-{
-	if (id != SET_REPETITION_ID)
-	{
-		MessageBox(0, "ERROR: SET_REPETITION_ID is not the actual id number!", 0, 0);
-	}
-	this->setRepetitionButton.ID = id;
-	this->repetitionEdit.ID = id + 1;
-	this->repetitionDisp.ID = id + 2;
-	id += 3;
-}
-
-bool Repetitions::handleButtonPush()
+void Repetitions::handleButtonPush()
 {
 	CString text;
 	this->repetitionEdit.GetWindowTextA(text);
@@ -26,35 +15,41 @@ bool Repetitions::handleButtonPush()
 	}
 	catch (std::invalid_argument& exception)
 	{
-		errBox(std::string("ERROR: repetition number text did not convert to int! Text was") + text.GetBuffer());
-		return false;
+		thrower(std::string("ERROR: repetition number text did not convert to int! Text was") + text.GetBuffer());
 	}
-	return true;
 }
 
-bool Repetitions::initialize(POINT& topLeftPosition, HWND parentWindow, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master)
+
+void Repetitions::initialize(POINT& pos, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id)
 {
 	// title
-	RECT position;
-	position = this->setRepetitionButton.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 180, topLeftPosition.y + 20 };
-	this->setRepetitionButton.Create("Set Repetition #", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, position, CWnd::FromHandle(parentWindow), setRepetitionButton.ID);
-	position = this->repetitionEdit.position = { topLeftPosition.x + 180, topLeftPosition.y, topLeftPosition.x + 330, topLeftPosition.y + 25 };
-	this->repetitionEdit.Create(WS_CHILD | WS_VISIBLE | SS_SUNKEN, position, CWnd::FromHandle(parentWindow), repetitionEdit.ID);	
-	position = this->repetitionDisp.position = { topLeftPosition.x + 330, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 25 };
-	this->repetitionDisp.Create(WS_CHILD | WS_VISIBLE | SS_SUNKEN | ES_CENTER | ES_READONLY | WS_BORDER, position, CWnd::FromHandle(parentWindow), repetitionDisp.ID);
+	setRepetitionButton.position = { pos.x, pos.y, pos.x + 180, pos.y + 20 };
+	setRepetitionButton.ID = id++;
+	if ( setRepetitionButton.ID != SET_REPETITION_ID )
+	{
+		throw;
+	}
+	setRepetitionButton.Create("Set Repetition #", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 
+								setRepetitionButton.position, master, setRepetitionButton.ID);
+	repetitionEdit.position = { pos.x + 180, pos.y, pos.x + 330, pos.y + 20 };
+	repetitionEdit.ID = id++;
+	repetitionEdit.Create(WS_CHILD | WS_VISIBLE | SS_SUNKEN, repetitionEdit.position, master, repetitionEdit.ID);
+	repetitionDisp.position = { pos.x + 330, pos.y, pos.x + 480, pos.y + 20 };
+	repetitionDisp.ID = id++;
+	repetitionDisp.Create(WS_CHILD | WS_VISIBLE | SS_SUNKEN | ES_CENTER | ES_READONLY | WS_BORDER, 
+						   repetitionDisp.position, master, repetitionDisp.ID);
 	repetitionDisp.SetWindowTextA("100");
 	// initialize the number to match the display.
-	this->repetitionNumber = 100;
-	topLeftPosition.y += 20;
-	return true;
+	repetitionNumber = 100;
+	pos.y += 20;
+	return;
 }
 
-bool Repetitions::setRepetitions(unsigned int number)
+void Repetitions::setRepetitions(unsigned int number)
 {
-	// check number for reasonable-ness.
+	// check number for reasonable-ness?
 	this->repetitionNumber = number;
 	this->repetitionDisp.SetWindowText(std::to_string(number).c_str());
-	return true;
 }
 
 unsigned int Repetitions::getRepetitionNumber()

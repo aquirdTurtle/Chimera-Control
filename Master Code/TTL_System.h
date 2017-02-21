@@ -3,7 +3,19 @@
 #include "Control.h"
 #include <sstream>
 #include <unordered_map>
+#include "KeyHandler.h"
 
+/*
+ * Parts of changing ttls:
+ *  Ways to change TTLs:
+ * In Script:
+ * - Set array, then chnge
+ * In main Window:
+ * - Force TTL
+ *		- 
+ *
+ *
+ */
 class MasterWindow;
 
 // this struct keeps variable names.
@@ -12,7 +24,7 @@ struct TTL_CommandForm
 	// the hardware location of this line
 	std::pair<unsigned int, unsigned int> line;
 	// the time to make the change
-	std::pair<std::string, long> time;
+	timeType time;
 	// the value to set it to. 
 	bool value;
 };
@@ -23,7 +35,7 @@ struct TTL_Command
 	// the hardware location of this line
 	std::pair<unsigned int, unsigned int> line;
 	// the time to make the change
-	long time;
+	double time;
 	// the value to set it to. 
 	bool value;
 };
@@ -32,7 +44,7 @@ struct TTL_Command
 struct TTL_Snapshot
 {
 	// the time of the snapshot
-	long time;
+	double time;
 	// all values at this time.
 	std::array< std::array<bool, 16>, 4 > ttlStatus;
 };
@@ -67,21 +79,24 @@ typedef struct _DIO64STAT
 class TtlSystem
 {
 	public:
-		TtlSystem(int& startID);
 		TtlSystem();
 		~TtlSystem();
-		void initialize(POINT& startLocation, HWND windowHandle, HINSTANCE programInstance, std::unordered_map<HWND, std::string>& masterText, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master);
+		void initialize(POINT& startLocation, std::unordered_map<HWND, std::string>& masterText, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id);
 		int getNumberOfTTLRows();
 		int getNumberOfTTLsPerRow();
+		std::string getTtlSequenceMessage();
+		void zeroBoard();
 		void handleTTLPress(UINT id);
 		void handleHoldPress();
 		HBRUSH TtlSystem::handleColorMessage(CWnd* window, std::unordered_map<std::string, HBRUSH> brushes, std::unordered_map<std::string, COLORREF> rGBs, CDC* cDC);
-		void ttlOn(unsigned int row, unsigned int column, std::pair<std::string, long> time);
-		void ttlOnDirect( unsigned int row, unsigned int column, long time );
-		void ttlOff(unsigned int row, unsigned int column, std::pair<std::string, long> time);
-		void ttlOffDirect( unsigned int row, unsigned int column, long time );
-		void forceTTL(int row, int number, int state);
 		
+		void ttlOn(unsigned int row, unsigned int column, timeType time);
+		void ttlOnDirect( unsigned int row, unsigned int column, double time );
+		void ttlOff(unsigned int row, unsigned int column, timeType time);
+		void ttlOffDirect( unsigned int row, unsigned int column, double time );
+		void forceTtl(int row, int number, int state);
+
+		void abort();
 		void setName(unsigned int row, unsigned int number, std::string name, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master);
 		std::string getName(unsigned int row, unsigned int number);
 		std::array<std::array<std::string, 16>, 4> TtlSystem::getAllNames();
@@ -89,9 +104,12 @@ class TtlSystem
 		int TtlSystem::getNameIdentifier(std::string name, unsigned int& row, unsigned int& number);
 		bool getTTL_Status(int row, int number);
 		std::string getErrorMessage(int errorCode);
-		void TtlSystem::handleTTL_ScriptCommand(std::string command, std::pair<std::string, long> time, std::string name, 
-			std::vector<std::pair<unsigned int, unsigned int>>& ttlShadeLocations);
-		void interpretKey(std::unordered_map<std::string, std::vector<double>> key, unsigned int variationNum);
+		void handleTTL_ScriptCommand( std::string command, timeType time, std::string name,
+									  std::vector<std::pair<unsigned int, unsigned int>>& ttlShadeLocations );
+		void handleTTL_ScriptCommand( std::string command, timeType time, std::string name,
+									  std::string pulseLength,
+									  std::vector<std::pair<unsigned int, unsigned int>>& ttlShadeLocations );
+		void interpretKey(key variationKey, unsigned int variationNum);
 		void analyzeCommandList();
 		void convertToFinalFormat();
 		void writeData();
@@ -148,6 +166,7 @@ class TtlSystem
 		// one control for each TTL
 		Control<CStatic> ttlTitle;
 		Control<CButton> ttlHold;
+		Control<CButton> zeroTtls;
 		std::array< std::array< Control<CButton>, 16 >, 4 > ttlPushControls;
 		std::array< Control<CStatic>, 16 > ttlNumberLabels;
 		std::array< Control<CStatic>, 4 > ttlRowLabels;
@@ -158,7 +177,7 @@ class TtlSystem
 		bool holdStatus;
 		std::vector<TTL_CommandForm> ttlCommandFormList;
 		std::vector<TTL_Command> individualTTL_CommandList;
-		std::vector<TTL_Snapshot> fullCommandList;
+		std::vector<TTL_Snapshot> ttlSnapshots;
 		std::vector<std::array<WORD, 6>> finalFormattedCommandForDIO;
 
 		/// The following functions (all of the ones that start with "raw") ARE NOT MEANT TO BE DIRECTLY USED (at least

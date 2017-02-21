@@ -43,6 +43,8 @@
 #include <string>
 #include <vector>
 
+typedef std::pair<std::vector<std::string>, double> timeType;
+
 /// MY MACROS
 // these are all things that I use to make my code a tad simpler.
 // simple macro to condense this style of error checking. I might change my usage of errors later.

@@ -32,7 +32,7 @@ class MasterWindow;
 class ConfigurationFileSystem
 {
 	public:
-		ConfigurationFileSystem(std::string fileSystemPath, int& id);
+		ConfigurationFileSystem(std::string fileSystemPath);
 		~ConfigurationFileSystem();
 
 		void saveEntireProfile(MasterWindow* Master);
@@ -101,10 +101,11 @@ class ConfigurationFileSystem
 		void updateSaveStatus(bool savedStatus);
 		void fullyDeleteFolder(std::string folderToDelete);
 
-		void initialize(POINT& topLeftPosition, HWND masterWindowHandle, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master);
+		void initialize( POINT& topLeftPosition, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id );
 		void reorganizeControls(RECT parentRectangle, std::string mode);
 		
-		INT_PTR ConfigurationFileSystem::handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, std::unordered_map<std::string, HBRUSH> brushes);
+		INT_PTR ConfigurationFileSystem::handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, 
+															 std::unordered_map<std::string, HBRUSH> brushes);
 
 		std::string getMasterAddressFromConfig();
 

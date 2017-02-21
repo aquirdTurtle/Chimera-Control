@@ -12,45 +12,9 @@
 #include "myNIAWG.h"
 #include "MasterWindow.h"
 
-ConfigurationFileSystem::ConfigurationFileSystem(std::string fileSystemPath, int& id)
+ConfigurationFileSystem::ConfigurationFileSystem( std::string fileSystemPath )
 {
 	FILE_SYSTEM_PATH = fileSystemPath;
-	this->currentProfileSettings.orientation = HORIZONTAL_ORIENTATION;
-	this->experimentLabel.ID = id;
-	this->experimentSavedIndicator.ID = id + 1;
-	this->categoryLabel.ID = id + 2;
-	this->categorySavedIndicator.ID = id + 3;
-	this->experimentCombo.ID = id + 4;
-	if (experimentCombo.ID != EXPERIMENT_COMBO_ID)
-	{
-		MessageBox(0, "ERROR: EXPERIMENT_COMBO_ID didn't match actual id!", 0, 0);
-	}
-	this->categoryCombo.ID = id + 5;
-	if (categoryCombo.ID != CATEGORY_COMBO_ID)
-	{
-		MessageBox(0, "ERROR: CATEGORY_COMBO_ID didn't match actual id!", 0, 0);
-	}
-	this->orientationLabel.ID = id + 6;
-	this->configLabel.ID = id + 7;
-	this->configurationSavedIndicator.ID = id + 8;
-	this->orientationCombo.ID = id + 9;
-	if (orientationCombo.ID != ORIENTATION_COMBO_ID)
-	{
-		MessageBox(0, "ERROR: ORIENTATION_COMBO_ID didn't match actual id!", 0, 0);
-	}
-	this->configCombo.ID = id + 10;
-	if (configCombo.ID != CONFIGURATION_COMBO_ID)
-	{
-		MessageBox(0, "ERROR: CONFIGURATION_COMBO_ID doesn't match actual combo id!", 0, 0);
-	}
-	this->sequenceLabel.ID = id + 11;
-	this->sequenceCombo.ID = id + 12;
-	if (sequenceCombo.ID != SEQUENCE_COMBO_ID)
-	{
-		MessageBox(0, "ERROR: SEQUENCE_COMBO_ID doesn't match actual id!", 0, 0);
-	}
-	this->sequenceInfoDisplay.ID = id + 13;
-	id += 14;
 }
 
 ConfigurationFileSystem::~ConfigurationFileSystem()
@@ -344,7 +308,7 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 		}
 	}
 	// Number of Variables
-	Master->variables.clearVariables();
+	Master->configVariables.clearVariables();
 
 	for (int varInc = 0; varInc < varNum; varInc++)
 	{
@@ -390,7 +354,7 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 			thrower("ERROR: Bad range number! setting it to 1, but found " + std::to_string(rangeNumber) + " in the file.");
 			rangeNumber = 1;
 		}
-		Master->variables.setVariationRangeNumber(rangeNumber);
+		Master->configVariables.setVariationRangeNumber(rangeNumber);
 		// check if the range is actually too small.
 		for (int rangeInc = 0; rangeInc < rangeNumber; rangeInc++)
 		{
@@ -407,12 +371,12 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 			// make sure it has at least one entry.
 			tempVar.ranges.push_back({ 0,0,1 });
 		}
-		Master->variables.addVariable(tempVar, varInc);
+		Master->configVariables.addConfigVariable(tempVar, varInc);
 	}
 	// add the last line.
 	variable empty;
 	empty.name = "";
-	//Master->variables.addVariable(empty, -1);
+	//Master->variables.addConfigVariable(empty, -1);
 	//
 	std::string ttlText;
 	configurationFile >> ttlText;
@@ -430,7 +394,7 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 			try
 			{
 				bool state = std::stoi(ttlString);
-				Master->ttlBoard.forceTTL(ttlRowInc, ttlNumberInc, state);
+				Master->ttlBoard.forceTtl(ttlRowInc, ttlNumberInc, state);
 			}
 			catch (std::invalid_argument& exception)
 			{
@@ -486,7 +450,7 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 	tempVar.singleton = true;
 	tempVar.timelike = false;
 	tempVar.ranges.push_back({ 0,0,0 });
-	Master->variables.addVariable(tempVar, varNum);
+	Master->configVariables.addConfigVariable(tempVar, varNum);
 	this->updateConfigurationSavedStatus(true);
 	currentProfileSettings.configuration = configurationNameToOpen;
 	std::string notes;
@@ -518,7 +482,6 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 	{
 		Master->notes.setConfigurationNotes("");
 	}
-	this->updateConfigurationSavedStatus(true);
 	// actually set this now
 	//SetWindowText(eConfigurationDisplayInScripting, (currentProfileSettings.category + "->" + currentProfileSettings.configuration).c_str());
 	// close.
@@ -528,6 +491,7 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 		// reload it.
 		this->loadNullSequence(Master);
 	}
+	this->updateConfigurationSavedStatus( true );
 	return;
 }
 
@@ -651,11 +615,11 @@ void ConfigurationFileSystem::saveConfigurationOnly(MasterWindow* Master)
 	}
 	configurationSaveFile << "VARIABLES:\n";
 	// Number of Variables
-	configurationSaveFile << Master->variables.getCurrentNumberOfVariables() << "\n";
+	configurationSaveFile << Master->configVariables.getCurrentNumberOfVariables() << "\n";
 	/// Variable Names
-	for (int varInc = 0; varInc < Master->variables.getCurrentNumberOfVariables(); varInc++)
+	for (int varInc = 0; varInc < Master->configVariables.getCurrentNumberOfVariables(); varInc++)
 	{
-		variable info = Master->variables.getVariableInfo(varInc);
+		variable info = Master->configVariables.getVariableInfo(varInc);
 		configurationSaveFile << info.name << " ";
 		if (info.timelike)
 		{
@@ -834,11 +798,11 @@ void ConfigurationFileSystem::saveConfigurationAs(MasterWindow* Master)
 	}
 	configurationSaveFile << "VARIABLES:\n";
 	// Number of Variables
-	configurationSaveFile << Master->variables.getCurrentNumberOfVariables() << "\n";
+	configurationSaveFile << Master->configVariables.getCurrentNumberOfVariables() << "\n";
 	/// Variable Names
-	for (int varInc = 0; varInc < Master->variables.getCurrentNumberOfVariables(); varInc++)
+	for (int varInc = 0; varInc < Master->configVariables.getCurrentNumberOfVariables(); varInc++)
 	{
-		variable info = Master->variables.getVariableInfo(varInc);
+		variable info = Master->configVariables.getVariableInfo(varInc);
 		configurationSaveFile << info.name << " ";
 		if (info.timelike)
 		{
@@ -2122,14 +2086,19 @@ std::string ConfigurationFileSystem::getSequenceNamesString()
 }
 
 
-void ConfigurationFileSystem::initialize(POINT& topLeftPosition, HWND masterWindowHandle, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master)
+void ConfigurationFileSystem::initialize(POINT& topLeftPosition, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id)
 {
+	// initialize this.	
+	currentProfileSettings.orientation = HORIZONTAL_ORIENTATION;
+
 	// Experiment Type
 	experimentLabel.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 20 };
+	experimentLabel.ID = id++;
 	experimentLabel.Create( "EXPERIMENT", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, experimentLabel.position, master, experimentLabel.ID );
 	experimentLabel.SetFont( CFont::FromHandle( sHeadingFont ) );
 	// Experiment Saved Indicator
 	experimentSavedIndicator.position = { topLeftPosition.x + 360, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 20 };
+	experimentSavedIndicator.ID = id++;
 	experimentSavedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, 
 									 experimentSavedIndicator.position, master, experimentSavedIndicator.ID );
 	experimentSavedIndicator.SetFont( CFont::FromHandle( sNormalFont ) );
@@ -2137,10 +2106,12 @@ void ConfigurationFileSystem::initialize(POINT& topLeftPosition, HWND masterWind
 	updateExperimentSavedStatus(true);
 	// Category Title
 	categoryLabel.position = { topLeftPosition.x + 480, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20 };
+	categoryLabel.ID = id++;
 	categoryLabel.Create( "CATEGORY", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, categoryLabel.position, master, categoryLabel.ID );
 	categoryLabel.SetFont( CFont::FromHandle( sHeadingFont ) );
 	//
 	categorySavedIndicator.position = { topLeftPosition.x + 480 + 380, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20};
+	categorySavedIndicator.ID = id++;
 	categorySavedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, categorySavedIndicator.position, master, categorySavedIndicator.ID );
 	categorySavedIndicator.SetFont( CFont::FromHandle( sNormalFont ) );
 	categorySavedIndicator.SetCheck( true );
@@ -2148,24 +2119,37 @@ void ConfigurationFileSystem::initialize(POINT& topLeftPosition, HWND masterWind
 	topLeftPosition.y += 20;
 	// Experiment Combo
 	experimentCombo.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 800 };
+	experimentCombo.ID = id++;
+	if ( experimentCombo.ID != EXPERIMENT_COMBO_ID )
+	{
+		throw;
+	}
 	experimentCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, experimentCombo.position, master, experimentCombo.ID );
 	experimentCombo.SetFont( CFont::FromHandle(sNormalFont) );
 	this->reloadCombo(experimentCombo.GetSafeHwnd(), PROFILES_PATH, std::string("*"), "__NONE__");
 	// Category Combo
 	categoryCombo.position = { topLeftPosition.x + 480, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 800 };
+	categoryCombo.ID = id++;
+	if ( categoryCombo.ID != CATEGORY_COMBO_ID )
+	{
+		throw;
+	}
 	categoryCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, categoryCombo.position, master, categoryCombo.ID );
 	categoryCombo.SetFont( CFont::FromHandle( sNormalFont ) );
 	topLeftPosition.y += 25;
 	// Orientation Title
 	orientationLabel.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 120, topLeftPosition.y + 20 };
+	orientationLabel.ID = id++;
 	orientationLabel.Create( "ORIENTATION", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, orientationLabel.position, master, orientationLabel.ID );
 	orientationLabel.SetFont( CFont::FromHandle(sHeadingFont) );
 	// Configuration Title
 	configLabel.position = { topLeftPosition.x + 120, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20 };
+	configLabel.ID = id++;
 	configLabel.Create( "CONFIGURATION", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, configLabel.position, master, configLabel.ID );
 	configLabel.SetFont( CFont::FromHandle( sHeadingFont ) );
 	// Configuration Saved Indicator
 	configurationSavedIndicator.position = { topLeftPosition.x + 860, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20 };
+	configurationSavedIndicator.ID = id++;
 	configurationSavedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, configurationSavedIndicator.position, master, configurationSavedIndicator.ID );
 	configurationSavedIndicator.SetFont( CFont::FromHandle( sNormalFont ) );
 	configurationSavedIndicator.SetCheck( true );
@@ -2176,6 +2160,11 @@ void ConfigurationFileSystem::initialize(POINT& topLeftPosition, HWND masterWind
 	orientationNames.push_back("Horizontal");
 	orientationNames.push_back("Vertical");
 	orientationCombo.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 120, topLeftPosition.y + 800 };
+	orientationCombo.ID = id++;
+	if ( orientationCombo.ID != ORIENTATION_COMBO_ID )
+	{
+		throw;
+	}
 	orientationCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, orientationCombo.position, master, orientationCombo.ID );
 	orientationCombo.SetFont( CFont::FromHandle( sNormalFont ) );
 	for (int comboInc = 0; comboInc < orientationNames.size(); comboInc++)
@@ -2185,15 +2174,22 @@ void ConfigurationFileSystem::initialize(POINT& topLeftPosition, HWND masterWind
 	orientationCombo.SetCurSel(0);
 	// configuration combo
 	configCombo.position = { topLeftPosition.x + 120, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 800 };
+	configCombo.ID = id++;
+	if ( configCombo.ID != CONFIGURATION_COMBO_ID )
+	{
+		throw;
+	}
 	configCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, configCombo.position, master, configCombo.ID );
 	configCombo.SetFont( CFont::FromHandle( sNormalFont ) );
 	topLeftPosition.y += 25;
 	/// SEQUENCE
 	sequenceLabel.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 20 };
+	sequenceLabel.ID = id++;
 	sequenceLabel.Create( "SEQUENCE", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, sequenceLabel.position, master, sequenceLabel.ID );
 	sequenceLabel.SetFont( CFont::FromHandle( sHeadingFont ) );
 	
 	sequenceSavedIndicator.position = { topLeftPosition.x + 860, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20 };
+	sequenceSavedIndicator.ID = id++;
 	sequenceSavedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, sequenceSavedIndicator.position, master, sequenceSavedIndicator.ID );
 	sequenceSavedIndicator.SetFont( CFont::FromHandle( sNormalFont ) );
 	sequenceSavedIndicator.SetCheck( true );
@@ -2201,10 +2197,15 @@ void ConfigurationFileSystem::initialize(POINT& topLeftPosition, HWND masterWind
 
 	// combo
 	sequenceCombo.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 800 };
-	sequenceCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, sequenceCombo.position, master, sequenceCombo.ID );
-	sequenceCombo.SetFont(CFont::FromHandle(sNormalFont));
-	sequenceCombo.AddString( NULL_SEQUENCE );
+	sequenceCombo.ID = id++;
+	if ( sequenceCombo.ID != SEQUENCE_COMBO_ID )
+	{
+		throw;
+	}
+	sequenceCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, 
+						  sequenceCombo.position, master, sequenceCombo.ID );
 	sequenceCombo.SetCurSel( 0 );
+	sequenceCombo.AddString( NULL_SEQUENCE );
 	topLeftPosition.y += 25;
 	// display
 	sequenceInfoDisplay.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 100 };

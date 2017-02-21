@@ -6,11 +6,10 @@
 class NoteSystem
 {
 	public:
-		NoteSystem(int& startID);
-		bool setExperimentNotes(std::string notes);
-		bool setCategoryNotes(std::string notes);
-		bool setConfigurationNotes(std::string notes);
-		bool initializeControls(POINT& topLeftPosition, HWND parentWindow);
+		void setExperimentNotes(std::string notes);
+		void setCategoryNotes(std::string notes);
+		void setConfigurationNotes(std::string notes);
+		void initialize(POINT& topLeftPosition, MasterWindow* master, int& id);
 		std::string getExperimentNotes();
 		std::string getCategoryNotes();
 		std::string getConfigurationNotes();

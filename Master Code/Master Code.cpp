@@ -6,7 +6,6 @@
 #include "MasterWindow.h"
 #include "afxsock.h"
 
-
 // the application class definition.
 class CMyWinApp : CWinApp
 {
@@ -14,9 +13,8 @@ class CMyWinApp : CWinApp
 		CMyWinApp::CMyWinApp() : CWinApp(), TheMasterWindow( IDD_DIALOG1 ) {}
 
 	private:
-
 		MasterWindow TheMasterWindow;
-		
+
 		BOOL InitInstance() override
 		{
 			if (DIO_SAFEMODE)
@@ -24,8 +22,7 @@ class CMyWinApp : CWinApp
 				MessageBox( 0, "You are starting the program in SAFEMODE. The code will not attempt to connect "
 							"to any devices.", 0, MB_ICONINFORMATION );
 			}
-
-			// initialize sockets.
+			// initialize socketssave
 			AfxSocketInit();
 			// create the main window.
 			TheMasterWindow.DoModal();
@@ -49,6 +46,12 @@ class CMyWinApp : CWinApp
 					// Do not process further
 					return TRUE;
 				}
+				if (pMsg->wParam == VK_F5)
+				{
+					this->TheMasterWindow.StartExperiment();
+					// do not process further.
+					return TRUE;
+				} 
 			}
 			return CWinApp::PreTranslateMessage( pMsg );
 		}

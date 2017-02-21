@@ -19,6 +19,7 @@
 #include <unordered_map>
 #include "ExperimentManager.h"
 #include "KeyHandler.h"
+#include "Debugger.h"
 
 class MasterWindow : public CDialog
 {
@@ -47,6 +48,7 @@ class MasterWindow : public CDialog
 			masterRGBs["Orange"] = RGB(255, 165, 0);
 			masterRGBs["Brown"] = RGB(139, 69, 19);
 			masterRGBs["Black"] = RGB(0, 0, 0);
+			masterRGBs["Light Green"] = RGB( 50, 205, 50 );
 			// there are less brushes because these are only used for backgrounds.
 			masterBrushes["Dark Grey"] = CreateSolidBrush(masterRGBs["Dark Grey"]);
 			masterBrushes["Medium Grey"] = CreateSolidBrush(masterRGBs["Medium Grey"]);
@@ -71,9 +73,15 @@ class MasterWindow : public CDialog
 		void Exit();
 		void EditChange();
 		void OnTimer(UINT TimerVal);
-		void ListViewDblClick(NMHDR * pNotifyStruct, LRESULT * result);
-		void ListViewRClick(NMHDR * pNotifyStruct, LRESULT * result);
-		void ListViewClick(NMHDR * pNotifyStruct, LRESULT * result);
+
+		void ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result);
+		void ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result);
+		void ConfigVarsColumnClick(NMHDR * pNotifyStruct, LRESULT * result);
+
+		void GlobalVarDblClick( NMHDR * pNotifyStruct, LRESULT * result );
+		void GlobalVarRClick( NMHDR * pNotifyStruct, LRESULT * result );
+		void GlobalVarClick( NMHDR * pNotifyStruct, LRESULT * result );
+		
 		void SaveMasterScript();
 		void SaveMasterScriptAs();
 		void NewMasterScript();
@@ -116,17 +124,23 @@ class MasterWindow : public CDialog
 		void StartExperiment();
 		void HandleFunctionChange();
 		std::unordered_map<std::string, COLORREF> getRGBs();
-		void HandleAbort();
 
+		void HandlePause();
+		void HandleAbort();
+		void zeroTtls();
+		void zeroDacs();
+		void handleOptionsPress( UINT id );
 		void loadMotSettings();
+
+		void onStatusTextMessage();
+		void onErrorTextMessage();
 
 	private:
 		DECLARE_MESSAGE_MAP();
 		CMenu menu;
-		LRESULT MasterWindowMessageHandler(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 		//static LRESULT CALLBACK MasterWindowProcedure(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 		std::string title;
-		int InitializeWindowControls();
+
 		HWND masterWindowHandle;
 		std::unordered_map<std::string, HBRUSH> masterBrushes;
 		std::unordered_map<std::string, COLORREF> masterRGBs;
@@ -137,27 +151,31 @@ class MasterWindow : public CDialog
 		RunInfo systemRunningInfo;
 		SocketWrapper niawgSocket;
 		RhodeSchwarz RhodeSchwarzGenerator;
-		GPIB gpibHandler;
+		Gpib gpibHandler;
 		KeyHandler masterKey;
+		Debugger debugControl;
 
-		int id = 1200;
-		Script masterScript{ FUNCTIONS_FOLDER_LOCATION, "Master", id };
-		ConfigurationFileSystem profile{ PROFILES_PATH, id };
-		NoteSystem notes{ id };
-		TtlSystem ttlBoard{ id };
-		RichEditControl errorStatus{ id };
-		RichEditControl generalStatus{ id };
-		VariableSystem variables{ id };
-		DacSystem dacBoards{ id };
-		Repetitions repetitionControl{ id };
-		MasterConfiguration masterConfig{ MASTER_CONFIGURATION_FILE_ADDRESS };
+		Script masterScript{ FUNCTIONS_FOLDER_LOCATION, "Master" };
+		ConfigurationFileSystem profile{ PROFILES_PATH };
+		NoteSystem notes;
+ 		TtlSystem ttlBoard;
+ 		RichEditControl errorStatus;
+ 		RichEditControl generalStatus;
+ 		VariableSystem configVariables;
+		VariableSystem globalVariables;
+ 		DacSystem dacBoards;
+ 		Repetitions repetitionControl;
+ 		MasterConfiguration masterConfig{ MASTER_CONFIGURATION_FILE_ADDRESS };
 
 		HINSTANCE programInstance;
 
-		/// Friends (many friends)
-		friend bool ExperimentManager::startExperimentThread(MasterWindow* master);
+		//const static UINT eStatusTextMessageID = RegisterWindowMessage( "ID_THREAD_STATUS_MESSAGE" );
+		//const static UINT eErrorTextMessageID = RegisterWindowMessage( "ID_THREAD_ERROR_MESSAGE" );
 
-		friend bool ExperimentLogger::generateLog(MasterWindow* master);
+		/// Friends (many friends)
+		friend void ExperimentManager::startExperimentThread(MasterWindow* master);
+
+		friend void ExperimentLogger::generateLog(MasterWindow* master);
 		// configuration system friends
 		friend void ConfigurationFileSystem::orientationChangeHandler(MasterWindow* Master);
 		friend void ConfigurationFileSystem::newConfiguration(MasterWindow* Master);
@@ -185,16 +203,17 @@ class MasterWindow : public CDialog
 		// friend bool ConfigurationFileSystem::initialize(POINT& topLeftPosition, MasterWindow& Master);
 		// script friends
 		friend COLORREF Script::getSyntaxColor(std::string word, std::string editType, std::vector<variable> variables, std::unordered_map<std::string, COLORREF> rgbs, bool& colorLine, std::array<std::array<std::string, 16>, 4> ttlNames, std::array<std::string, 24> dacNames);
-		friend bool Script::updateChildCombo(MasterWindow* Master);
-		friend bool Script::changeView(std::string viewName, MasterWindow* Master, bool isFunction);
-		friend bool Script::saveScript(MasterWindow* Master);
-		friend bool Script::saveScriptAs(std::string location, MasterWindow* Master);
-		friend bool Script::checkChildSave(MasterWindow* Master);
-		friend bool Script::checkSave(MasterWindow* Master);
-		friend bool Script::renameScript(MasterWindow* Master);
-		friend bool Script::deleteScript(MasterWindow* Master);
-		friend bool Script::newScript(MasterWindow* Master);
-		friend bool Script::openParentScript(std::string parentScriptName, MasterWindow* Master);
-		friend bool Script::considerCurrentLocation(MasterWindow* Master);
-		friend bool Script::colorScriptSection(DWORD beginingOfChange, DWORD endOfChange, MasterWindow* Master);
+		friend void Script::updateChildCombo(MasterWindow* Master);
+		friend void Script::changeView(std::string viewName, MasterWindow* Master, bool isFunction);
+		friend void Script::saveScript(MasterWindow* Master);
+		friend void Script::saveScriptAs(std::string location, MasterWindow* Master);
+		friend void Script::checkChildSave(MasterWindow* Master);
+		friend void Script::checkSave(MasterWindow* Master);
+		friend void Script::renameScript(MasterWindow* Master);
+		friend void Script::deleteScript(MasterWindow* Master);
+		friend void Script::newScript(MasterWindow* Master);
+		friend void Script::openParentScript(std::string parentScriptName, MasterWindow* Master);
+		friend void Script::considerCurrentLocation(MasterWindow* Master);
+		friend void Script::colorScriptSection(DWORD beginingOfChange, DWORD endOfChange, MasterWindow* Master);
+
 };

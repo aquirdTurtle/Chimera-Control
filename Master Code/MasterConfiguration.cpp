@@ -6,11 +6,13 @@
 #include <fstream>
 #include <sys/stat.h>
 
-MasterConfiguration::MasterConfiguration(std::string address) : configurationFileAddress{address}, version{"1.0"}
+MasterConfiguration::MasterConfiguration(std::string address) : configurationFileAddress{address}, version{"1.1"}
 {
 
 }
-bool MasterConfiguration::save(TtlSystem* ttls, DacSystem* dacs)
+
+
+void MasterConfiguration::save(TtlSystem* ttls, DacSystem* dacs, VariableSystem* globalVars)
 {
 	/*
 	information to save:
@@ -36,9 +38,9 @@ bool MasterConfiguration::save(TtlSystem* ttls, DacSystem* dacs)
 	configFile.open(this->configurationFileAddress.c_str(), std::ios::out);
 	if (!configFile.is_open())
 	{
-		errBox( "ERROR: Master Configuration File Failed to Open! Changes cannot be saved. Attempted to open file in"
+		thrower( "ERROR: Master Configuration File Failed to Open! Changes cannot be saved. Attempted to open file in"
 				" location " + configurationFileAddress );
-		return false;
+		return;
 	}
 	// output version
 	configFile << "Version " + this->version + "\n";
@@ -83,14 +85,24 @@ bool MasterConfiguration::save(TtlSystem* ttls, DacSystem* dacs)
 		configFile << name << "\n";
 		configFile << this->defaultDACs[dacInc] << "\n";
 	}
+
+	// Number of Variables
+	configFile << globalVars->getCurrentNumberOfVariables() << "\n";
+	/// Variable Names
+	for (int varInc = 0; varInc < globalVars->getCurrentNumberOfVariables(); varInc++)
+	{
+		variable info = globalVars->getVariableInfo( varInc );
+		configFile << info.name << " ";
+		configFile << info.ranges.front().initialValue << " ";
+		configFile << "\n";
+	}
 	configFile.close();
-	return true;
+	return;
 }
 
-bool MasterConfiguration::load(TtlSystem* ttls, DacSystem& dacs, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master)
+void MasterConfiguration::load(TtlSystem* ttls, DacSystem& dacs, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, VariableSystem* globalVars)
 {
-	// make sure that file exists
-	
+	// make sure that file exists	
 	FILE *file;
 	fopen_s( &file, configurationFileAddress.c_str(), "r" );
 	if ( !file )
@@ -106,8 +118,8 @@ bool MasterConfiguration::load(TtlSystem* ttls, DacSystem& dacs, std::vector<CTo
 	configFile.open(this->configurationFileAddress.c_str(), std::ios::in);
 	if (!configFile.is_open())
 	{
-		errBox("ERROR: Master Configuration File Failed to Open! No Default names for TTLs, DACs, or default values.");
-		return false;
+		thrower("ERROR: Master Configuration File Failed to Open! No Default names for TTLs, DACs, or default values.");
+		return;
 	}
 	std::stringstream configStream;
 	configStream << configFile.rdbuf();
@@ -136,8 +148,9 @@ bool MasterConfiguration::load(TtlSystem* ttls, DacSystem& dacs, std::vector<CTo
 				MessageBox(0, "ERROR: Failed to load one of the default ttl values!", 0, 0);
 				break;
 			}
+
 			ttls->setName(ttlRowInc, ttlNumberInc, name, toolTips, master);
-			ttls->forceTTL(ttlRowInc, ttlNumberInc, status);
+			ttls->forceTtl(ttlRowInc, ttlNumberInc, status);
 			this->defaultTTLs[ttlRowInc][ttlNumberInc] = status;
 		}
 	}
@@ -162,20 +175,53 @@ bool MasterConfiguration::load(TtlSystem* ttls, DacSystem& dacs, std::vector<CTo
 		dacs.prepareDacForceChange(dacInc, value, ttls);
 		this->defaultDACs[dacInc] = value;
 	}
+
+	if (version == "1.1")
+	{
+
+		int varNum;
+		configStream >> varNum;
+		if (varNum < 0 || varNum > 10)
+		{
+			int answer = MessageBox( 0, ("ERROR: variable number retrieved from file appears suspicious. The number is " + std::to_string( varNum ) + ". Is this accurate?").c_str(), 0, MB_YESNO );
+			if (answer == IDNO)
+			{
+				// don't try to load anything.
+				varNum = 0;
+				return;
+			}
+		}
+		// Number of Variables
+		globalVars->clearVariables();
+		for (int varInc = 0; varInc < varNum; varInc++)
+		{
+			variable tempVar;
+			double value;
+			configStream >> tempVar.name;
+			configStream >> value;
+			tempVar.ranges.push_back( { value, value, 0 } );
+			globalVars->addGlobalVariable( tempVar, varInc );
+		}
+
+	}
+	variable tempVar;
+	tempVar.name = "";
+	globalVars->addGlobalVariable( tempVar, -1 );
 	configFile.close();
-	return true;
+	return;
 }
 
-bool MasterConfiguration::updateDefaultDacs(DacSystem dacs)
+
+void MasterConfiguration::updateDefaultDacs(DacSystem dacs)
 {
 	for (int dacInc = 0; dacInc < this->defaultDACs.size(); dacInc++)
 	{
 		this->defaultDACs[dacInc] = dacs.getDAC_Value(dacInc);
 	}
-	return true;
 }
 
-bool MasterConfiguration::updateDefaultTTLs(TtlSystem ttls)
+
+void MasterConfiguration::updateDefaultTTLs(TtlSystem ttls)
 {
 	for (int ttlRowInc = 0; ttlRowInc < ttls.getNumberOfTTLRows(); ttlRowInc++)
 	{
@@ -184,6 +230,5 @@ bool MasterConfiguration::updateDefaultTTLs(TtlSystem ttls)
 			this->defaultTTLs[ttlRowInc][ttlNumberInc] = ttls.getTTL_Status(ttlRowInc, ttlNumberInc);
 		}
 	}
-	return true;
 }
 

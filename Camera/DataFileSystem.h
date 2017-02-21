@@ -1,6 +1,7 @@
 #pragma once
 #include "fitsio.h"
 #include <string>
+
 class DataFileSystem
 {
 	public:
