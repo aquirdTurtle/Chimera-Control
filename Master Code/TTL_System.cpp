@@ -10,6 +10,47 @@
 // don't use this because I manually import dll functions.
 //#include "Dio64.h"
 
+void TtlSystem::abort()
+{
+
+}
+
+std::string TtlSystem::getTtlSequenceMessage()
+{
+	std::string message;
+	for ( auto snap : this->ttlSnapshots)
+	{
+		message += std::to_string( snap.time ) + ":\n";
+		int rowInc = 0;
+		for ( auto row : snap.ttlStatus )
+		{
+			switch ( rowInc )
+			{
+				case 0:
+					message += "A: ";
+					break;
+				case 1:
+					message += "B: ";
+					break;
+				case 2:
+					message += "C: ";
+					break;
+				case 3:
+					message += "D: ";
+					break;
+			}
+			rowInc++;
+			for ( auto num : row )
+			{
+				message += std::to_string(num) + ", ";
+			}
+			message += "\r\n";
+		}
+		message += "\r\n---\r\n";
+	}
+	return message;
+}
+
 void TtlSystem::dioOpen( WORD board, WORD baseio )
 {
 	if ( !DIO_SAFEMODE )
@@ -255,40 +296,8 @@ void TtlSystem::dioGetAttr( WORD board, DWORD& attrID, DWORD& value )
 }
 
 
-TtlSystem::TtlSystem() {}
-
-TtlSystem::TtlSystem(int& startID)
+TtlSystem::TtlSystem()
 {
-	ttlTitle.ID = startID;
-	startID += 1;
-	if (startID != TTL_ID_BEGIN)
-	{
-		MessageBox(0, "ERROR: TTL_ID_BEGIN doesn't match the actual ID.", 0, 0);
-	}
-	for (int ttlNumberInc = 0; ttlNumberInc < ttlNumberLabels.size(); ttlNumberInc++)
-	{
-		ttlNumberLabels[ttlNumberInc].ID = startID;
-		startID += 1;
-	}
-	for (int row = 0; row < ttlPushControls.size(); row++)
-	{
-		ttlRowLabels[row].ID = startID;
-		startID += 1;
-	}
-	for (int row = 0; row < ttlPushControls.size(); row++)
-	{
-		for (int number = 0; number < ttlPushControls[row].size(); number++)
-		{
-			ttlPushControls[row][number].ID = startID;
-			startID += 1;
-		}
-	}
-	if (startID != TTL_HOLD)
-	{
-		MessageBox(0, "ERROR: TTL_HOLD doesn't match button ID.", 0, 0);
-	}
-	ttlHold.ID = startID;
-	startID += 1;
 	/// load modules
 	// this first module is required for the second module which I actually load functions from.
 	//HMODULE dioNT2 = LoadLibrary( "Dio64_NT.dll" );
@@ -353,10 +362,12 @@ TtlSystem::TtlSystem(int& startID)
 	}
 }
 
+
 std::array<std::array<std::string, 16>, 4> TtlSystem::getAllNames()
 {
 	return this->ttlNames;
 }
+
 
 void TtlSystem::startBoard()
 {
@@ -368,6 +379,7 @@ void TtlSystem::startBoard()
 	dioOutStart( 0 );
 	return;
 }
+
 
 void TtlSystem::shadeTTLs(std::vector<std::pair<unsigned int, unsigned int>> shadeList)
 {
@@ -382,6 +394,8 @@ void TtlSystem::shadeTTLs(std::vector<std::pair<unsigned int, unsigned int>> sha
 	}
 	return;
 }
+
+
 void TtlSystem::unshadeTTLs()
 {
 	for (int rowInc = 0; rowInc < this->getNumberOfTTLRows(); rowInc++)
@@ -407,37 +421,58 @@ void TtlSystem::unshadeTTLs()
 	return;
 }
 
-void TtlSystem::initialize(POINT& upperLeftCornerLocation, HWND windowHandle, HINSTANCE programInstance, std::unordered_map<HWND, std::string>& toolTipText, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master)
+
+void TtlSystem::initialize(POINT& loc, std::unordered_map<HWND, std::string>& toolTipText, 
+							std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id)
 {
+
+
 	// title
-	RECT location;
-	location.left = upperLeftCornerLocation.x;
-	location.top = upperLeftCornerLocation.y;
-	location.right = location.left + 480;
-	location.bottom = location.top + 25;
-	ttlTitle.position = location;
-	ttlTitle.Create("TTL Boards High / Low Control", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, location, CWnd::FromHandle(windowHandle), ttlTitle.ID);
+	ttlTitle.position = { loc.x, loc.y, loc.x + 480, loc.y + 25 };
+	ttlTitle.ID = id++;
+	ttlTitle.Create("TTLS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, ttlTitle.position, master, ttlTitle.ID);
+	ttlTitle.SetFont( CFont::FromHandle( sHeadingFont ) );
 	// all number labels
-	location.left += 32;
-	location.right = location.left + 28;
-	location.top += 25;
-	location.bottom += 20;
+	loc.y += 25;
+	ttlHold.position = { loc.x, loc.y, loc.x + 240, loc.y + 20 };
+	ttlHold.ID = id++;
+	if ( ttlHold.ID != TTL_HOLD )
+	{
+		throw;
+	}
+	ttlHold.Create( "Hold Current Values", WS_TABSTOP | WS_VISIBLE | BS_AUTOCHECKBOX | WS_CHILD | BS_PUSHLIKE,
+					ttlHold.position, master, ttlHold.ID );
+	if ( !ttlHold.setToolTip( "Press this button to change multiple TTLs simultaneously. Press the button, then change the ttls, then press the button again "
+							  "to release it. Upon releasing the button, the TTLs will change.", toolTips, master ) )
+	{
+		MessageBox( 0, "Button Tool tip failed!", 0, 0 );
+	}
+
+	zeroTtls.position = { loc.x + 240, loc.y, loc.x + 480, loc.y + 20 };
+	zeroTtls.ID = id++;
+	if ( zeroTtls.ID != IDC_ZERO_TTLS )
+	{
+		throw;
+	}
+	zeroTtls.Create( "Zero TTLs", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, zeroTtls.position, master, zeroTtls.ID );
+	zeroTtls.setToolTip( "Pres this button to set all ttls to their zero (false) state.", toolTips, master );
+	loc.y += 20;
+
 	for (int ttlNumberInc = 0; ttlNumberInc < ttlNumberLabels.size(); ttlNumberInc++)
 	{
-		ttlNumberLabels[ttlNumberInc].position = location;
-		ttlNumberLabels[ttlNumberInc].Create(std::to_string(ttlNumberInc).c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN, location,
-			CWnd::FromHandle(windowHandle), ttlNumberLabels[ttlNumberInc].ID);
-		location.left += 28;
-		location.right += 28; 
+		ttlNumberLabels[ttlNumberInc].position = {loc.x + 32 + ttlNumberInc * 28, loc.y, 
+			loc.x + 32 + (ttlNumberInc + 1) * 28, loc.y + 20 };
+		ttlNumberLabels[ttlNumberInc].ID = id++;
+		ttlNumberLabels[ttlNumberInc].Create(std::to_string(ttlNumberInc).c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN, 
+											  ttlNumberLabels[ttlNumberInc].position, master, 
+											  ttlNumberLabels[ttlNumberInc].ID);
 	}
+	loc.y += 20;
 	// all row labels
-	location.left = upperLeftCornerLocation.x;
-	location.top = upperLeftCornerLocation.y + 45;
-	location.right = location.left + 32;
-	location.bottom = location.top + 28;
 	for (int row = 0; row < ttlPushControls.size(); row++)
 	{
-		ttlRowLabels[row].position = location;
+		ttlRowLabels[row].position = { loc.x, loc.y + row*28, loc.x + 32, loc.y + (row + 1)*28 };
+		ttlRowLabels[row].ID = id++;
 		std::string rowName;
 		switch (row)
 		{
@@ -454,16 +489,14 @@ void TtlSystem::initialize(POINT& upperLeftCornerLocation, HWND windowHandle, HI
 				rowName = "D";
 				break;
 		}
-		ttlRowLabels[row].Create(rowName.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, location, CWnd::FromHandle(windowHandle),
-			ttlRowLabels[row].ID);
-		location.top += 28;
-		location.bottom += 28;
+		ttlRowLabels[row].Create(rowName.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, 
+								  ttlRowLabels[row].position, master, ttlRowLabels[row].ID);
+	}
+	if ( id != TTL_ID_BEGIN )
+	{
+		throw;
 	}
 	// all push buttons
-	location.left = upperLeftCornerLocation.x + 32;
-	location.top = upperLeftCornerLocation.y + 45;
-	location.right = location.left + 28;
-	location.bottom = location.top + 28;
 	for (int row = 0; row < ttlPushControls.size(); row++)
 	{
 		for (int number = 0; number < ttlPushControls[row].size(); number++)
@@ -485,59 +518,79 @@ void TtlSystem::initialize(POINT& upperLeftCornerLocation, HWND windowHandle, HI
 					break;
 			}
 			name += std::to_string(number);
+
 			//this->ttlNames[row][number] = name;
-			ttlPushControls[row][number].position = location;
-			ttlPushControls[row][number].Create("", WS_CHILD | WS_VISIBLE | BS_RIGHT | BS_3STATE, location, CWnd::FromHandle(windowHandle), 
-				ttlPushControls[row][number].ID);
+			ttlPushControls[row][number].position = { loc.x + 32 + number * 28, loc.y + row * 28, 
+				loc.x + 32 + (number + 1) * 28, loc.y + (row + 1) * 28 };
+			ttlPushControls[row][number].ID = id++;
+			ttlPushControls[row][number].Create("", WS_CHILD | WS_VISIBLE | BS_RIGHT | BS_3STATE, 
+												 ttlPushControls[row][number].position, master,
+												 ttlPushControls[row][number].ID);
 			if (!ttlPushControls[row][number].setToolTip(this->ttlNames[row][number], toolTips, master))
 			{
 				MessageBox(0, "Tool tip creation failed!", 0, 0);
 			}
-
-			location.left += 28;
-			location.right += 28;
 		}
-
-		location.left = upperLeftCornerLocation.x + 32;
-		location.right = location.left + 28;
-		location.top += 28;
-		location.bottom += 28;
 	}
-	location.left = upperLeftCornerLocation.x;
-	location.right = location.left + 480;
-	location.bottom += 5;
-	ttlHold.position = location;
-	ttlHold.Create("HOLD", WS_TABSTOP | WS_VISIBLE | BS_AUTOCHECKBOX | WS_CHILD | BS_PUSHLIKE, location, CWnd::FromHandle(windowHandle), ttlHold.ID);
-	if (!ttlHold.setToolTip("Press this button to change multiple TTLs simultaneously. Press the button, then change the ttls, then press the button again "
-		"to release it. Upon releasing the button, the TTLs will change.", toolTips, master))
+	//???
+	if ( id != TTL_ID_END )
 	{
-		MessageBox(0, "Button Tool tip failed!", 0, 0);
+		throw;
 	}
-	upperLeftCornerLocation.y = location.bottom;
+
+	loc.y += 28 * 4;
+
 	return;
 }
 
-void TtlSystem::handleTTL_ScriptCommand(std::string command, std::pair<std::string, long> time, std::string name, std::vector<std::pair<unsigned int, unsigned int>>& ttlShadeLocations)
+void TtlSystem::handleTTL_ScriptCommand( std::string command, timeType time, std::string name,
+										 std::vector<std::pair<unsigned int, unsigned int>>& ttlShadeLocations )
 {
-	/*
+	this->handleTTL_ScriptCommand( command, time, name, "-.-", ttlShadeLocations );
+}
 
-	ExperimentManager::eatComments(&fileStream);
-	*/
+
+void TtlSystem::handleTTL_ScriptCommand(std::string command, timeType time, std::string name, std::string pulseLength, std::vector<std::pair<unsigned int, unsigned int>>& ttlShadeLocations)
+{
 	if (!this->isValidTTLName(name))
 	{
 		thrower("ERROR: the name " + name + " is not the name of a ttl!");
 		return;
 	}
+	timeType pulseEndTime = time;
 	unsigned int row, collumn;
 	int ttlLine = this->getNameIdentifier(name, row, collumn);
 	ttlShadeLocations.push_back({ row, collumn });
 	if (command == "on:")
 	{
-		this->ttlOn(row, collumn, time);
+		ttlOn(row, collumn, time);
 	}
 	else if (command == "off:")
 	{
-		this->ttlOff(row, collumn, time);
+		ttlOff(row, collumn, time);
+	}
+	else if (command == "pulseon:" || command == "pulseoff:")
+	{
+		double timeInc;
+		try
+		{
+			timeInc = std::stod( pulseLength );
+			pulseEndTime.second += timeInc;
+		}
+		catch (std::invalid_argument&)
+		{
+			pulseEndTime.first.push_back(pulseLength);
+		}
+		if (command == "pulseon:")
+		{
+			ttlOn( row, collumn, time );
+			ttlOff( row, collumn, pulseEndTime );
+		}
+		if (command == "pulseoff:")
+		{
+			ttlOff( row, collumn, time );
+			ttlOn( row, collumn, pulseEndTime );
+		}
 	}
 	return;
 }
@@ -580,11 +633,11 @@ void TtlSystem::handleTTLPress(UINT id)
 		{
 			if (this->ttlStatus[row][number])
 			{
-				this->forceTTL(row, number, 0);
+				this->forceTtl(row, number, 0);
 			}
 			else
 			{
-				this->forceTTL(row, number, 1);
+				this->forceTtl(row, number, 1);
 			}
 		}
 		else
@@ -626,14 +679,14 @@ void TtlSystem::handleHoldPress()
 					ttlPushControls[rowInc][numberInc].SetCheck(BST_CHECKED);					
 					ttlStatus[rowInc][numberInc] = true;
 					// actually change the ttl.
-					this->forceTTL(rowInc, numberInc, 1);
+					this->forceTtl(rowInc, numberInc, 1);
 				}
 				else
 				{
 					ttlPushControls[rowInc][numberInc].SetCheck(BST_UNCHECKED);
 					ttlStatus[rowInc][numberInc] = false;
 					// actually change the ttl.
-					this->forceTTL(rowInc, numberInc, 0);
+					this->forceTtl(rowInc, numberInc, 0);
 				}
 				ttlPushControls[rowInc][numberInc].colorState = 0;
 				ttlPushControls[rowInc][numberInc].RedrawWindow();
@@ -650,7 +703,10 @@ void TtlSystem::handleHoldPress()
 
 void TtlSystem::resetTTLEvents()
 {
-	this->ttlCommandFormList.clear();
+	ttlCommandFormList.clear();
+	ttlSnapshots.clear();
+	individualTTL_CommandList.clear();
+	finalFormattedCommandForDIO.clear();
 	return;
 }
 
@@ -716,10 +772,10 @@ bool TtlSystem::isValidTTLName( std::string name )
 		std::string rowStr;
 		switch (rowInc)
 		{
-			case 0: rowStr = "A"; break;
-			case 1: rowStr = "B"; break;
-			case 2: rowStr = "C"; break;
-			case 3: rowStr = "D"; break;
+			case 0: rowStr = "a"; break;
+			case 1: rowStr = "b"; break;
+			case 2: rowStr = "c"; break;
+			case 3: rowStr = "d"; break;
 		}
 		for (int numberInc = 0; numberInc < this->getNumberOfTTLsPerRow(); numberInc++)
 		{
@@ -738,15 +794,16 @@ bool TtlSystem::isValidTTLName( std::string name )
 	return false;
 }
 
-void TtlSystem::ttlOn(unsigned int row, unsigned int column, std::pair<std::string, long> time)
+
+void TtlSystem::ttlOn(unsigned int row, unsigned int column, timeType time)
 {
-	TTL_CommandForm command;
 	// make sure it's either a variable or a number that can be used.
 	this->ttlCommandFormList.push_back({ {row, column}, time, true });
 	return;
 }
 
-void TtlSystem::ttlOff(unsigned int row, unsigned int column, std::pair<std::string, long> time)
+
+void TtlSystem::ttlOff(unsigned int row, unsigned int column, timeType time)
 {
 	// check to make sure either variable or actual value.
 	this->ttlCommandFormList.push_back({ {row, column}, time, false });
@@ -754,7 +811,7 @@ void TtlSystem::ttlOff(unsigned int row, unsigned int column, std::pair<std::str
 }
 
 
-void TtlSystem::ttlOnDirect( unsigned int row, unsigned int column, long time )
+void TtlSystem::ttlOnDirect( unsigned int row, unsigned int column, double time )
 {
 	TTL_Command command;
 	command.line = { row, column };
@@ -764,7 +821,7 @@ void TtlSystem::ttlOnDirect( unsigned int row, unsigned int column, long time )
 }
 
 
-void TtlSystem::ttlOffDirect( unsigned int row, unsigned int column, long time )
+void TtlSystem::ttlOffDirect( unsigned int row, unsigned int column, double time )
 {
 	TTL_Command command;
 	command.line = { row, column };
@@ -789,6 +846,10 @@ double TtlSystem::getClockStatus()
 	try
 	{
 		dioOutStatus( 0, availableScans, stat );
+		if ( DIO_SAFEMODE )
+		{
+			thrower( "!" );
+		}
 	}
 	catch ( myException& )
 	{
@@ -797,13 +858,14 @@ double TtlSystem::getClockStatus()
 		// return = Now * 24 * 60 * 60 * 1000
 		return GetTickCount();
 	}
-		USHORT STUFF;
-		return ((long)stat.time / 10000.0);
-		// assuming the clock runs at 10 MHz, return in ms.
+	double timeInSeconds = stat.time[0] + stat.time[1] * 65535;
+	//double totalTime = (finalFormattedCommandForDIO.back()[0] + 65535 * finalFormattedCommandForDIO.back()[1]) / 10000.0 + 1;
+	return timeInSeconds / 10000.0;
+	// assuming the clock runs at 10 MHz, return in ms.
 }
 
-// forceTTL forces the actual ttl to a given value and changes the checkbox status to reflect that.
-void TtlSystem::forceTTL(int row, int number, int state)
+// forceTtl forces the actual ttl to a given value and changes the checkbox status to reflect that.
+void TtlSystem::forceTtl(int row, int number, int state)
 {
 	// change the ttl checkbox.
 	if (state == 0)
@@ -856,6 +918,7 @@ void TtlSystem::setName(unsigned int row, unsigned int number, std::string name,
 		// no empty names allowed.
 		return;
 	}
+	std::transform( name.begin(), name.end(), name.begin(), ::tolower );
 	this->ttlNames[row][number] = name;
 	this->ttlPushControls[row][number].setToolTip(name, toolTips, master);
 	return;
@@ -869,15 +932,17 @@ int TtlSystem::getNameIdentifier(std::string name, unsigned int& row, unsigned i
 		std::string rowName;
 		switch (rowInc)
 		{
-			case 0: rowName = "A"; break;
-			case 1: rowName = "B"; break;
-			case 2: rowName = "C"; break;
-			case 3: rowName = "D"; break;
+			case 0: rowName = "a"; break;
+			case 1: rowName = "b"; break;
+			case 2: rowName = "c"; break;
+			case 3: rowName = "d"; break;
 		}
 		for (unsigned int numberInc = 0; numberInc < this->ttlNames[rowInc].size(); numberInc++)
 		{
 			// check the names array.
-			if (this->ttlNames[rowInc][numberInc] == name)
+			std::transform( ttlNames[rowInc][numberInc].begin(), ttlNames[rowInc][numberInc].end(),
+							ttlNames[rowInc][numberInc].begin(), ::tolower );
+			if (ttlNames[rowInc][numberInc] == name)
 			{
 				row = rowInc;
 				number = numberInc;
@@ -946,49 +1011,52 @@ bool TtlSystem::getTTL_Status(int row, int number)
 void TtlSystem::wait(double time)
 {
 	double startTime;
-	int dummy;
 	//'clockstatus function reads the DIO clock, units are ms
 	startTime = getClockStatus();
-	dummy = 0;
-	while (time - abs(getClockStatus() - startTime) > 110 && getClockStatus() - startTime != 0)
+	//errBox( "start time = " + std::to_string( startTime ) );
+	while (time - abs(getClockStatus() - startTime) > 110 /*&& getClockStatus() - startTime*/ != 0)
 	{
-		// in... ms??? this seems too long.
 		Sleep(100);
 	}
 	// check faster closer to the stop.
-	while (time - abs(getClockStatus() - startTime) > 0.1 && getClockStatus() - startTime != 0){/*immediately check again*/}
+	while (time - abs(getClockStatus() - startTime) > 0.1)
+	{
+		/*immediately check again*/
+	}
+	double finTime = getClockStatus();
 	return;
 }
 
 // uses the last time of the ttl trigger to wait until the experiment is finished.
 void TtlSystem::waitTillFinished()
 {
-	double totalTime = (this->finalFormattedCommandForDIO.back()[0] + 65535*this->finalFormattedCommandForDIO.back()[1])/10000 + 1;
+	double totalTime = (finalFormattedCommandForDIO.back()[0] + 65535 * finalFormattedCommandForDIO.back()[1]) / 10000.0 + 1;
 	this->wait(totalTime);
 	this->stopBoard();
 	return;
 }
 
 
-void TtlSystem::interpretKey(std::unordered_map<std::string, std::vector<double>> key, unsigned int variationNum)
+void TtlSystem::interpretKey(key variationKey, unsigned int variationNum)
 {
 	this->individualTTL_CommandList.clear();
 
 	for (int commandInc = 0; commandInc < this->ttlCommandFormList.size(); commandInc++)
 	{
 		TTL_Command tempCommand;
-		tempCommand.line = this->ttlCommandFormList[commandInc].line;
-		tempCommand.value = this->ttlCommandFormList[commandInc].value;
-		// if no variable...
-		if (this->ttlCommandFormList[commandInc].time.first == "")
+		tempCommand.line = ttlCommandFormList[commandInc].line;
+		tempCommand.value = ttlCommandFormList[commandInc].value;
+		double variableTime = 0;
+		// add together current values for all variable times.
+		if (ttlCommandFormList[commandInc].time.first.size() != 0)
 		{
-			tempCommand.time = this->ttlCommandFormList[commandInc].time.second;
+			for (auto varTime : ttlCommandFormList[commandInc].time.first)
+			{
+				variableTime += variationKey[varTime].first[variationNum];
+			}
 		}
-		else
-		{
-			tempCommand.time = key[this->ttlCommandFormList[commandInc].time.first][variationNum] + this->ttlCommandFormList[commandInc].time.second;
-		}
-		this->individualTTL_CommandList.push_back(tempCommand);
+		tempCommand.time = variableTime + ttlCommandFormList[commandInc].time.second;
+		individualTTL_CommandList.push_back(tempCommand);
 	}
 	return;
 }
@@ -1043,39 +1111,37 @@ void TtlSystem::analyzeCommandList()
 		timeOrganizer.erase(timeOrganizer.begin() + index);
 	}
 	/// now figure out the state of the system at each time.
-	this->fullCommandList.clear();
-	// give it the initial status.
-	this->fullCommandList.push_back({0, this->ttlStatus});
 	if (orderedOrganizer.size() == 0)
 	{
-		thrower("ERROR: no ttl commands...?");
+		thrower("ERROR: no ttl commands...?\r\n");
 		return;
 	}
-	if (orderedOrganizer[0].first < 1e-8)
+	ttlSnapshots.clear();
+	ttlSnapshots.push_back( { 0, this->ttlStatus } );
+	// handle the zero case specially.
+	for (int zeroInc = 0; zeroInc < orderedOrganizer[0].second.size(); zeroInc++)
 	{
-		// handle the zero case specially.
-		for (int zeroInc = 0; zeroInc < orderedOrganizer[0].second.size(); zeroInc++)
-		{
-			// make sure to address he correct ttl. the ttl location is located in individuaTTL_CommandList but you need to make sure you access the correct 
-			// command.
-			unsigned int row =		individualTTL_CommandList[orderedOrganizer[0].second[zeroInc]].line.first;
-			unsigned int column =	individualTTL_CommandList[orderedOrganizer[0].second[zeroInc]].line.second;
-			this->fullCommandList[0].ttlStatus[row][column]	= individualTTL_CommandList[orderedOrganizer[0].second[zeroInc]].value;
-			//... setting it to the command's state.
-			// phew that's a long call for an =...
-		}
+		// make sure to address he correct ttl. the ttl location is located in individuaTTL_CommandList but you need to make sure you access the correct 
+		// command.
+		unsigned int row =		individualTTL_CommandList[orderedOrganizer[0].second[zeroInc]].line.first;
+		unsigned int column =	individualTTL_CommandList[orderedOrganizer[0].second[zeroInc]].line.second;
+		ttlSnapshots.back().time = orderedOrganizer[0].first;
+		this->ttlSnapshots.back().ttlStatus[row][column]	= individualTTL_CommandList[orderedOrganizer[0].second[zeroInc]].value;
+		//... setting it to the command's state.
 	}
 	
+
 	for (int commandInc = 1; commandInc < orderedOrganizer.size(); commandInc++)
 	{
 		// first copy the last set so that things that weren't changed remain unchanged.
-		this->fullCommandList.push_back(this->fullCommandList.back());
-		fullCommandList.back().time = orderedOrganizer[commandInc].first;
+		this->ttlSnapshots.push_back(this->ttlSnapshots.back());
+		ttlSnapshots.back().time = orderedOrganizer[commandInc].first;
 		for (int zeroInc = 0; zeroInc < orderedOrganizer[commandInc].second.size(); zeroInc++)
 		{
 			// see description of this command above... update everything that changed at this time.
-			this->fullCommandList.back().ttlStatus[individualTTL_CommandList[orderedOrganizer[commandInc].second[zeroInc]].line.first][individualTTL_CommandList[orderedOrganizer[commandInc].second[zeroInc]].line.second]
-				= individualTTL_CommandList[orderedOrganizer[commandInc].second[zeroInc]].value;
+			unsigned int row = individualTTL_CommandList[orderedOrganizer[commandInc].second[zeroInc]].line.first;
+			unsigned int column = individualTTL_CommandList[orderedOrganizer[commandInc].second[zeroInc]].line.second;
+			this->ttlSnapshots.back().ttlStatus[row][column] = individualTTL_CommandList[orderedOrganizer[commandInc].second[zeroInc]].value;
 		}
 	}
 	// phew.
@@ -1086,19 +1152,25 @@ void TtlSystem::convertToFinalFormat()
 {
 	this->finalFormattedCommandForDIO.clear();
 	// do bit arithmetic.
-	for (int timeInc = 0; timeInc < this->fullCommandList.size(); timeInc++)
+	for (int timeInc = 0; timeInc < this->ttlSnapshots.size(); timeInc++)
 	{
 		WORD lowordTime;
 		WORD hiwordTime;
-		lowordTime = fullCommandList[timeInc].time % 65535;
-		hiwordTime = fullCommandList[timeInc].time / 65535;
+		// convert to system clock ticks. Assume that the crate is running on a 10 MHz signal, so multiply by 10,000,000, but then my time is in milliseconds, so divide that
+		// by 1,000, ending with multiply by 10,000
+		lowordTime = long(ttlSnapshots[timeInc].time * 10000) % 65535;
+		hiwordTime = long(ttlSnapshots[timeInc].time * 10000) / 65535;
+		//errBox( "timeInc = " + std::to_string( timeInc ) );
+		//errBox( "ttlSnapshots[timeInc].time = " + std::to_string( ttlSnapshots[timeInc].time ) );
+		//errBox( "lowordTime = " + std::to_string( lowordTime ) );
+		//errBox( "hiwordTime = " + std::to_string( hiwordTime ) );
 		// each major index is a row (A, B, C, D), each minor index is a ttl state (0, 1) in that row.
 		std::array<std::bitset<16>, 4> ttlBits;
 		for (int rowInc = 0; rowInc < 4; rowInc++)
 		{
 			for (int numberInc = 0; numberInc < 16; numberInc++)
 			{
-				if (this->fullCommandList[timeInc].ttlStatus[rowInc][numberInc])
+				if (this->ttlSnapshots[timeInc].ttlStatus[rowInc][numberInc])
 				{
 					// flip bit to 1.
 					ttlBits[rowInc].set(numberInc, true);
@@ -1167,5 +1239,17 @@ std::string TtlSystem::getErrorMessage(int errorCode)
 			return "Not enough transitions specified for operation.";
 		default:
 			return "Unrecognized DIO64 error code!";
+	}
+}
+
+
+void TtlSystem::zeroBoard()
+{
+	for (int row = 0; row < this->ttlStatus.size(); row++)
+	{
+		for (int number = 0; number < this->ttlStatus[row].size(); number++)
+		{
+			this->forceTtl( row, number, 0 );
+		}
 	}
 }

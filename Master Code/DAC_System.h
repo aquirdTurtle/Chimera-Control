@@ -6,11 +6,12 @@
 #include <unordered_map>
 #include "VariableSystem.h"
 #include "TTL_System.h"
+#include "KeyHandler.h"
 
 struct DAC_ComplexEvent
 {
 	unsigned int line;
-	std::pair<std::string, double> time;
+	timeType time;
 	std::string initVal;
 	std::string finalVal;
 	std::string rampTime;
@@ -38,18 +39,19 @@ struct DAC_Snapshot
 class DacSystem
 {
 	public:
-		DacSystem::DacSystem(int& startID);
 		DacSystem::DacSystem();
-		~DacSystem();
-		void initialize(POINT& upperLeftHandCornerPosition, HWND windowHandle, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master);
+		void abort();
+		void initialize( POINT& pos, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id );
+		std::string getDacSequenceMessage();
 		void handleButtonPress(TtlSystem* ttls);
-		void setDacComplexEvent(int line, std::pair<std::string, double> time, std::string initVal, std::string finalVal, std::string rampTime, std::string rampInc, TtlSystem* ttls);
+		void setDacComplexEvent(int line, timeType time, std::string initVal, std::string finalVal, std::string rampTime, std::string rampInc);
 		void setForceDacEvent( int line, double val, TtlSystem* ttls );
 		void prepareDacForceChange(int line, double voltage, TtlSystem* ttls);
 		void stopDacs();
 		void resetDacs();
 		void configureClocks();
-		void interpretKey(std::unordered_map<std::string, std::vector<double>> key, unsigned int variationNumber, std::vector<variable> vars);
+		void setDacTtlTriggerEvents( TtlSystem* ttls );
+		void interpretKey(key variationKey, unsigned int variationNumber, std::vector<variable> vars);
 		void analyzeDAC_Commands();
 		void makeFinalDataFormat();
 		void writeDacs();
@@ -60,7 +62,7 @@ class DacSystem
 		std::array<std::string, 24> getAllNames();
 		std::string getErrorMessage(int errorCode);
 		
-		void DacSystem::handleDAC_ScriptCommand(std::pair<std::string, long> time, std::string name, std::string initVal, std::string finalVal, 
+		void DacSystem::handleDAC_ScriptCommand(timeType time, std::string name, std::string initVal, std::string finalVal,
 												 std::string rampTime, std::string rampInc, std::vector<unsigned int>& dacShadeLocations, 
 												 std::vector<variable> vars, TtlSystem* ttls);
 
@@ -81,6 +83,7 @@ class DacSystem
 
 		Control<CStatic> dacTitle;
 		Control<CButton> dacSetButton;
+		Control<CButton> zeroDacs;
 		std::array<Control<CStatic>, 24> dacLabels;
 		std::array<Control<CEdit>, 24> breakoutBoardEdits;
 		std::array<double, 24> dacValues;

@@ -14,61 +14,61 @@
 class Script
 {
 	public:
-		Script(std::string functionsLocation, std::string deviceTypeInput, int& idStart);
+		Script(std::string functionsLocation, std::string deviceTypeInput);
 		~Script();
 
 		std::string getScriptText();
-		bool functionChangeHandler(MasterWindow* master);
+		void functionChangeHandler(MasterWindow* master);
 
-		bool colorEntireScript(MasterWindow* Master);
-		bool colorScriptSection(DWORD beginingOfChange, DWORD endOfChange, MasterWindow* Master);
-		COLORREF Script::getSyntaxColor(std::string word, std::string editType, std::vector<variable> variables, std::unordered_map<std::string, COLORREF> rgbs,
-			bool& colorLine, std::array<std::array<std::string, 16>, 4> ttlNames, std::array<std::string, 24> dacNames);
+		void colorEntireScript(MasterWindow* Master);
+		void colorScriptSection(DWORD beginingOfChange, DWORD endOfChange, MasterWindow* Master);
+		COLORREF getSyntaxColor(std::string word, std::string editType, std::vector<variable> variables, 
+										 std::unordered_map<std::string, COLORREF> rgbs, bool& colorLine, 
+										 std::array<std::array<std::string, 16>, 4> ttlNames, 
+										 std::array<std::string, 24> dacNames);
 
-		bool initialize(int width, int height, POINT& startingLocation, std::vector<CToolTipCtrl*>& toolTips, HWND parentWindow, MasterWindow* master);
-		bool reorganizeControls();
-		bool getControlIDRange(int& start, int& fin);
+		void initialize( int width, int height, POINT& startingLocation, std::vector<CToolTipCtrl*>& toolTips,
+								 MasterWindow* master, int& id );
+		void reorganizeControls();
 		INT_PTR colorControl(LPARAM lParam, WPARAM wParam);
-		bool handleEditChange(MasterWindow* master);
+		void handleEditChange(MasterWindow* master);
 		//bool handleEditChange();
-		bool handleTimerCall(MasterWindow* Master);
+		void handleTimerCall(MasterWindow* Master);
 
-		bool updateChildCombo(MasterWindow* Master);
-		bool Script::changeView(std::string viewName, MasterWindow* Master, bool isFunction);
-		bool childComboChangeHandler(WPARAM messageWParam, LPARAM messageLParam, MasterWindow* Master);
-		bool checkChildSave(MasterWindow* Master);
+		void updateChildCombo(MasterWindow* Master);
+		void Script::changeView(std::string viewName, MasterWindow* Master, bool isFunction);
+		void childComboChangeHandler(WPARAM messageWParam, LPARAM messageLParam, MasterWindow* Master);
+		void checkChildSave(MasterWindow* Master);
 
-		bool saveScript(MasterWindow* Master);
-		bool saveScriptAs(std::string scriptAddress, MasterWindow* Master);
-		bool renameScript(MasterWindow* Master);
-		bool deleteScript(MasterWindow* Master);
-		bool newScript(MasterWindow* Master);
+		void saveScript(MasterWindow* Master);
+		void saveScriptAs(std::string scriptAddress, MasterWindow* Master);
+		void renameScript(MasterWindow* Master);
+		void deleteScript(MasterWindow* Master);
+		void newScript(MasterWindow* Master);
 		
 		std::string getScriptPathAndName();
 		std::string getScriptPath();
 		std::string getScriptName();
 		std::string getExtension();
 
-		bool loadFile(std::string pathToFile);
-		bool openParentScript(std::string parentScriptName, MasterWindow* Master);
-		bool considerCurrentLocation(MasterWindow* Master);
-		bool checkSave(MasterWindow* Master);
-		bool updateSavedStatus(bool isSaved);
+		void loadFile(std::string pathToFile);
+		void openParentScript(std::string parentScriptName, MasterWindow* Master);
+		void considerCurrentLocation(MasterWindow* Master);
+		void checkSave(MasterWindow* Master);
+		void updateSavedStatus(bool isSaved);
 		bool coloringIsNeeded();
-		bool updateScriptNameText(std::string path);
+		void updateScriptNameText(std::string path);
 
-		bool reset();
+		void reset();
 		bool savedStatus();
 
 		INT_PTR handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, std::unordered_map<std::string, HBRUSH> brushes);
 
-		bool saveAsFunction();
-		bool loadFunctions();
+		void saveAsFunction();
+		void loadFunctions();
 
 	private:
 		CWnd syntaxTimer;
-		const int idStart;
-		const int idEnd;
 		Control<CRichEditCtrl> edit;
 		Control<CStatic> title;
 		Control<CButton>  savedIndicator;

@@ -33,6 +33,7 @@ bool AlertSystem::setAlertThreshold()
 	return false;
 }
 
+
 bool AlertSystem::initialize(POINT& topLeftPositionKinetic, POINT& topLeftPositionAccumulate, POINT& topLeftPositionContinuous,
 	HWND parentWindow, bool isTriggerModeSensitive)
 {

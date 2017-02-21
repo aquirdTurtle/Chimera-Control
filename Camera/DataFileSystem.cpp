@@ -3,6 +3,7 @@
 #include "appendText.h"
 #include "externals.h"
 
+
 DataFileSystem::DataFileSystem(std::string systemLocation)
 {
 	// initialize this to false.
@@ -10,7 +11,7 @@ DataFileSystem::DataFileSystem(std::string systemLocation)
 	dataFilesBaseLocation = systemLocation;
 }
 
-// this file assumes that fits is the fits_#.fits file. User should check if incDataSet is on before calling. 
+// this file assumes that fits is the fits_#.fits file. User should check if incDataSet is on before calling. ???
 bool DataFileSystem::deleteFitsAndKey(std::string& errMsg)
 {
 	errMsg = "";
@@ -44,6 +45,7 @@ bool DataFileSystem::deleteFitsAndKey(std::string& errMsg)
 	}
 	return returnVal;
 }
+
 
 bool DataFileSystem::loadAndMoveKeyFile(std::string& errMsg)
 {
@@ -86,6 +88,7 @@ bool DataFileSystem::loadAndMoveKeyFile(std::string& errMsg)
 	return false;
 }
 
+
 bool DataFileSystem::forceFitsClosed()
 {
 
@@ -96,6 +99,7 @@ bool DataFileSystem::forceFitsClosed()
 	}
 	return false;
 }
+
 
 bool DataFileSystem::initializeDataFiles(std::string& errMsg)
 {
@@ -183,6 +187,7 @@ bool DataFileSystem::initializeDataFiles(std::string& errMsg)
 	return false;
 }
 
+
 bool DataFileSystem::writeFits(std::string& errMsg, int currentExperimentPictureNumber, int currentPictureNumber, std::vector<std::vector<long> > images)
 {
 	if (fitsIsOpen == false)
@@ -203,6 +208,8 @@ bool DataFileSystem::writeFits(std::string& errMsg, int currentExperimentPicture
 	// no errors
 	return false;
 }
+
+
 bool DataFileSystem::closeFits(std::string& errMsg)
 {
 	if (!fitsIsOpen)

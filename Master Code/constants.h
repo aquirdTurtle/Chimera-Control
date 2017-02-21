@@ -1,12 +1,12 @@
 // define this as true in order stop the code from actually calling any dio64 functions. Use, e.g. if the device is not connected.
 
-#define MASTER_COMPUTER
-//#define LAPTOP_COMPUTER
+//#define MASTER_COMPUTER
+#define LAPTOP_COMPUTER
 
 #ifdef MASTER_COMPUTER
 	#define DIO_SAFEMODE false
 	#define DAQMX_SAFEMODE false
-
+	#define GPIB_SAFEMODE false
 	#define PROFILES_PATH "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\Master Profiles\\"
 	#define FUNCTIONS_FOLDER_LOCATION "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\Functions\\"
 	#define MASTER_CONFIGURATION_FILE_ADDRESS "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\Master Configuration"
@@ -16,10 +16,9 @@
 #endif
 
 #ifdef LAPTOP_COMPUTER
-
 	#define DIO_SAFEMODE true
 	#define DAQMX_SAFEMODE true
-
+	#define GPIB_SAFEMODE true
 	#define PROFILES_PATH "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Master Profiles\\"
 	#define FUNCTIONS_FOLDER_LOCATION "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Functions\\"
 	#define MASTER_CONFIGURATION_FILE_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Master Configuration"
@@ -47,27 +46,37 @@
 
 #define RSG_ADDRESS 28
 #define RSG_POWER 10
+#define TEKTRONICS_AFG_1_ADDRESS 25
+#define TEKTRONICS_AFG_2_ADDRESS 24
 
 #define SYNTAX_TIMER_ID 500
 #define SYNTAX_TIMER_LENGTH 1000
 /// control numbers I need for message maps
-#define IDC_SEQUENCE_DISPLAY 1092
-#define TTL_ID_BEGIN 1228
-#define TTL_ID_END 1311
-#define TTL_HOLD 1312
-#define MASTER_RICH_EDIT 1204
-#define LISTVIEW_CONTROL 1320
-#define SET_REPETITION_ID 1370
-#define EXPERIMENT_COMBO_ID 1211
-#define CATEGORY_COMBO_ID 1212
-#define CONFIGURATION_COMBO_ID 1217
-#define SEQUENCE_COMBO_ID 1219
-#define ORIENTATION_COMBO_ID 1216
-#define ID_STATUS_CLEAR 1314
-#define ID_ERROR_CLEAR 1317
-#define ID_DAC_FIRST_EDIT 1321
-#define ID_DAC_SET_BUTTON 1369
-#define CONFIGURATION_NOTES_ID 1226
-#define CATEGORY_NOTES_ID 1224
-#define EXPERIMENT_NOTES_ID 1222
-#define FUNCTION_COMBO_ID 1205
+#define EXPERIMENT_COMBO_ID 1004
+#define CATEGORY_COMBO_ID 1005
+#define ORIENTATION_COMBO_ID 1009
+#define CONFIGURATION_COMBO_ID 1010
+#define SEQUENCE_COMBO_ID 1013
+#define IDC_GLOBAL_VARS_LISTVIEW 1015
+#define IDC_CONFIG_VARS_LISTVIEW 1017
+#define SET_REPETITION_ID 1018
+#define TTL_HOLD 1022
+#define IDC_ZERO_TTLS 1023
+#define TTL_ID_BEGIN 1044
+#define IDC_SEQUENCE_DISPLAY 1091
+#define TTL_ID_END 1108
+#define ID_DAC_SET_BUTTON 1109
+#define IDC_ZERO_DACS 1110
+#define ID_DAC_FIRST_EDIT 1112
+#define ID_STATUS_CLEAR 1160
+#define ID_ERROR_CLEAR 1163
+#define EXPERIMENT_NOTES_ID 1166
+#define CATEGORY_NOTES_ID 1168
+#define CONFIGURATION_NOTES_ID 1170
+#define IDC_SHOW_TTLS 1174
+#define IDC_SHOW_DACS 1175
+#define FUNCTION_COMBO_ID 1180
+#define MASTER_RICH_EDIT 1182
+
+
+

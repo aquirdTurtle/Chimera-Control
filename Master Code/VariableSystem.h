@@ -27,32 +27,21 @@ class MasterWindow;
 class VariableSystem
 {
 	public:
-		VariableSystem(int& startID)
-		{
-			this->variablesHeader.ID = startID;
-			startID++;
-			if (startID != LISTVIEW_CONTROL)
-			{
-				MessageBox(0, "ERROR: LISTVIEW_CONTROL is not equal to the actual ID.", 0, 0);
-			}
-			this->variablesListview.ID = startID;
-			startID++;
-
-		}
-		bool updateVariableInfo(std::vector<Script*> scripts, MasterWindow* Master);
-		bool deleteVariable();
-		bool initialize(POINT& topLeftCorner, HWND parentWindow, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master);
-		bool addVariable(variable var, int item);
-		bool handleClick(NMHDR * pNotifyStruct, LRESULT * result);
+		void updateVariableInfo(std::vector<Script*> scripts, MasterWindow* Master);
+		void deleteVariable();
+		void initialize(POINT& pos, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id, std::string title);
+		void addConfigVariable(variable var, int item);
+		void addGlobalVariable( variable var, int item );
+		void handleColumnClick(NMHDR * pNotifyStruct, LRESULT * result);
 		variable getVariableInfo(int varNumber);
 		//std::vector<variable> getAllVariables();
 		std::vector<variable> getAllSingletons();
 		std::vector<variable> getAllVaryingParameters();
 		std::vector<variable> getEverything();
 		unsigned int getCurrentNumberOfVariables();
-		bool clearVariables();
+		void clearVariables();
 		INT_PTR handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, std::unordered_map<std::string, HBRUSH> brushes);
-		bool setVariationRangeNumber(int num);
+		void setVariationRangeNumber(int num);
 
 	private:
 		int totalVariableNumber;
@@ -63,5 +52,6 @@ class VariableSystem
 		HINSTANCE programInstance;
 		int variableRangeSets;
 		std::vector<double> key;
+		bool isGlobal;
 };
 

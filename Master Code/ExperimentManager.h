@@ -13,6 +13,9 @@
 #include "SocketWrapper.h"
 #include "RhodeSchwarz.h"
 #include "GPIB.h"
+#include "Debugger.h"
+#include <mutex>
+#include "ScriptStream.h"
 
 class MasterWindow;
 class ExperimentManager;
@@ -30,8 +33,9 @@ struct ExperimentThreadInput
 	bool connectToNIAWG;
 	SocketWrapper* niawgSocket;
 	std::string masterScriptAddress;
-	GPIB* gpibHandler;
+	Gpib* gpibHandler;
 	RhodeSchwarz* rsg;
+	debuggingOptions debugOptions;
 	// first = top, second = bottom, third = axial.
 	std::array<std::string, 3> ramanFreqs;
 };
@@ -40,34 +44,42 @@ class ExperimentManager
 {
 	public:
 		ExperimentManager();
-		bool pause();
-		bool stop();
-		bool clear();
-		bool start(TtlSystem* ttls, DacSystem* dacs);
+		void pause();
+		void unPause();
+		bool getIsPaused();
+		void abort();
 		std::string getErrorMessage(int errorCode);
-		bool loadMasterScript(std::string scriptAddress);
-		bool analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* dacs, std::vector<std::pair<unsigned int, unsigned int>>& ttlShades,
+		void loadMasterScript(std::string scriptAddress);
+		void analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* dacs, std::vector<std::pair<unsigned int, unsigned int>>& ttlShades,
 			std::vector<unsigned int>& dacShades, RhodeSchwarz* rsg, std::array<std::string, 3>& ramanFreqs);
 		// this function needs the mastewindow in order to gather the relevant parameters for the experiment.
-		bool startExperimentThread(MasterWindow* master);
+		void startExperimentThread(MasterWindow* master);
 		static UINT __cdecl experimentThreadProcedure(LPVOID input);
-		bool loadVariables(std::vector<variable> newVariables);
-
-		static bool analyzeFunctionDefinition(std::string defLine, std::string& functionName, std::vector<std::string>& args);
-		static bool eatComments(std::stringstream* stream);
+		void loadVariables(std::vector<variable> newVariables);
+		bool runningStatus();
+		bool isValidWord(std::string word);
+		static void analyzeFunctionDefinition(std::string defLine, std::string& functionName, std::vector<std::string>& args);
 
 	private:
+		void callCppCodeFunction();
 		// the master script file contents get dumped into this.
+		std::string currentFunctionText;
+		std::string currentMasterScriptText;
 		std::vector<variable> variables;
-		std::stringstream currentMasterScript;
+		ScriptStream currentMasterScript;
 		std::string functionsFolderLocation;
-		// called by analyzeScript functions only.
-		bool analyzeFunction(std::string function, std::vector<std::string> args, TtlSystem* ttls, DacSystem* dacs,
-			std::vector<std::pair<unsigned int, unsigned int>>& ttlShades, std::vector<unsigned int>& dacShades, RhodeSchwarz* rsg,
-			std::array<std::string, 3>& ramanFreqs);
-		std::pair<std::string, long> operationTime;
+		// called by analyzeCurrentMasterScript functions only.
+		void analyzeFunction( std::string function, std::vector<std::string> args, TtlSystem* ttls, DacSystem* dacs,
+							  std::vector<std::pair<unsigned int, unsigned int>>& ttlShades, std::vector<unsigned int>& dacShades, RhodeSchwarz* rsg,
+							  std::array<std::string, 3>& ramanFreqs );
+
+		timeType operationTime;
 		bool experimentIsRunning;
 		/// task handles
 		CWinThread* runningThread;
+		// Important, these should only be written to by the pause and aborting functions...
+		std::mutex pauseLock;
+		bool isPaused;
+		std::mutex abortLock;
+		bool isAborting;
 };
-

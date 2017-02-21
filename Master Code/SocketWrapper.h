@@ -5,11 +5,11 @@
 class SocketWrapper
 {
 	public:
-		int initialize();
-		bool connect();
-		bool send(std::string message);
+		void initialize();
+		void connect();
+		void send(std::string message);
 		std::string recieve();
-		bool close();
+		void close();
 	private:
 		// socket constants
 		int identifier;
