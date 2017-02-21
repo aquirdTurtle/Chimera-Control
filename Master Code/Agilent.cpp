@@ -1,23 +1,19 @@
 #include "stdafx.h"
 #include "Agilent.h"
-//#include "rmWhite.h"
-//#include "scriptingFuncs.h"
 #include "constants.h"
-//#include "rampCalc.h"
-//#include "externals.h"
-//#include "myMath.h"
-//#include "NiawgController.h"
 #include "boost/cast.hpp"
 #include <algorithm>
 #include <fstream>
 #include "C:\PROGRAM FILES (X86)\IVI FOUNDATION\VISA\WINNT\INCLUDE\VISA.H"
+#include "VariableSystem.h"
+#include "ScriptStream.h"
 
 /*
 * This Namespace includes all of my function handling for interacting withe agilent waveform generator. It includes:
 * The Segment Class
 * The IntensityWaveform Class
 * The agilentDefault function
-* The agilentErrorCheck function
+* The errCheck function
 * The selectIntensityProfile function
 */
 IntensityWaveform::IntensityWaveform()
@@ -33,28 +29,25 @@ IntensityWaveform::IntensityWaveform()
 	* segNum: This tells the function what the next segment # is.
 	* scriptName: this is the file object to be read from.
 	*/
-void IntensityWaveform::readIntoSegment(int segNum, std::fstream& scriptName, std::vector<variable> singletons, profileSettings profileInfo)
+bool IntensityWaveform::readIntoSegment(int segNum, ScriptStream script, std::vector<variable> singletons, profileSettings profileInfo)
 {
-	rmWhite(scriptName);
 	std::string intensityCommand;
 	std::vector<std::string> tempVarNames;
 	std::vector<int> tempVarLocations;
 	int tempVarNum = 0;
-	if (scriptName.eof() == true)
+	if (script.peek == EOF)
 	{
-		// reached end of file, return with message.
-		return;
+		return true;
 	}
 	// Grab the command type (e.g. ramp, const). Looks for newline by default.
-	getline(scriptName, intensityCommand, '\r');
+	intensityCommand = script.getline( '\r' );
 	// get rid of case sensitivity.
-	std::transform(intensityCommand.begin(), intensityCommand.end(), intensityCommand.begin(), ::tolower);
-	if (intensityCommand == "agilent hold" || intensityCommand == "intensity hold")
+	if (intensityCommand == "agilent hold")
 	{
-		waveformSegments.resize(segNum + 1);
-		waveformSegments[segNum].assignSegType(0);
+		waveformSegments.resize( segNum + 1 );
+		waveformSegments[segNum].assignSegType( 0 );
 	}
-	else if (intensityCommand == "agilent ramp" || intensityCommand == "intensity ramp")
+	else if (intensityCommand == "agilent ramp")
 	{
 		waveformSegments.resize(segNum + 1);
 		waveformSegments[segNum].assignSegType(1);
@@ -63,23 +56,23 @@ void IntensityWaveform::readIntoSegment(int segNum, std::fstream& scriptName, st
 	{
 		std::string nestedFileName;
 		// remove \n at the end of last line.
-		scriptName.get();
-		getline(scriptName, nestedFileName, '\r');
+		script.get();
+		nestedFileName = script.getline( '\r' );
 		std::string path = profileInfo.pathIncludingCategory + nestedFileName + AGILENT_SCRIPT_EXTENSION;
 		std::fstream nestedFile(path.c_str(), std::ios::in);
 		if (!nestedFile.is_open())
 		{
 			thrower("ERROR: tried to open a nested intensity file, but failed! The file was " + profileInfo.pathIncludingCategory
 				+ nestedFileName + AGILENT_SCRIPT_EXTENSION);
-			return;
+			return false;
 		}
+
 		analyzeIntensityScript( nestedFile, this, segNum, singletons, profileInfo );
 	}
 	else 
 	{
-		std::string errMsg = "ERROR: Intensity command not recognized. The command was \"" + intensityCommand + "\"";
-		thrower(errMsg);
-		return;
+		thrower( "ERROR: Intensity command not recognized. The command was \"" + intensityCommand + "\"" );
+		return false;
 	}
 
 	double tempTimeInMilliSeconds, tempIntensityInit, tempIntensityFin;
@@ -92,8 +85,7 @@ void IntensityWaveform::readIntoSegment(int segNum, std::fstream& scriptName, st
 	if (waveformSegments[segNum].returnSegmentType() == 1)
 	{
 		// this segment type means ramping.
-		rmWhite(scriptName);
-		scriptName >> tempRampType;
+		script >> tempRampType;
 		NiawgController::getParamCheckVar(tempIntensityInit, scriptName, tempVarNum, tempVarNames, tempVarLocations, 1, singletons);
 		NiawgController::getParamCheckVar(tempIntensityFin, scriptName, tempVarNum, tempVarNames, tempVarLocations, 2, singletons);
 	}
@@ -147,9 +139,8 @@ void IntensityWaveform::readIntoSegment(int segNum, std::fstream& scriptName, st
 		{
 			// Invalid time
 			std::string errMsg;
-			errMsg = "ERROR: Invalid time entered in the intensity script file for Segment #" + std::to_string(segNum) + ". the value entered was " 
-						+ std::to_string(tempTimeInMilliSeconds) + ".";
-			thrower(errMsg);
+			thrower( "ERROR: Invalid time entered in the intensity script file for Segment #" + std::to_string( segNum ) + ". the value entered was "
+					 + std::to_string( tempTimeInMilliSeconds ) + "." );
 			return;
 		}
 	}
@@ -175,6 +166,7 @@ void IntensityWaveform::readIntoSegment(int segNum, std::fstream& scriptName, st
 			return;
 		}
 	}
+
 	if (tempIntensityFin < 0)
 	{
 		// check if being varied.
@@ -238,7 +230,6 @@ void IntensityWaveform::readIntoSegment(int segNum, std::fstream& scriptName, st
 	// the actual time that gets assigned is in seconds
 	waveformSegments[segNum].assignTime(tempTimeInMilliSeconds / 1000.0);
 	waveformSegments[segNum].assignRampType(tempRampType);
-
 	waveformSegments[segNum].assignVarNum(tempVarNum);
 	waveformSegments[segNum].assignSegVarNames(tempVarNames);
 	waveformSegments[segNum].assignVarLocations(tempVarLocations);
@@ -479,6 +470,8 @@ void IntensityWaveform::convertPowersToVoltages()
 	}
 	return;
 }
+
+
 /*
 	* This wavefunction loops through all the data values and figures out which ones are min and max.
 	*/
@@ -506,6 +499,8 @@ void IntensityWaveform::calcMinMax()
 	minVolt -= 1e-6;
 	return;
 }
+
+
 /*
 	* This function normalizes all of the data points to lie within the -1 to 1 range that I need to send to the agilent. The actual values outputted 
 	* by the agilent are determined jointly by these values and the output range. you therefore need to use calcMinMax before this function.
@@ -524,6 +519,8 @@ void IntensityWaveform::normalizeVoltages()
 	}
 	return;
 }
+
+
 /*
 	* Returns the maximum voltage level currently in data structures.
 	*/
@@ -531,6 +528,8 @@ double IntensityWaveform::returnMaxVolt()
 {
 	return maxVolt;
 }
+
+
 /*
 	* Returns the minimum voltage level currently in data structures.
 	*/
@@ -554,6 +553,8 @@ Segment::Segment()
 	// The actual initial value.
 	varNum = 0;
 };
+
+
 /*
 	* Nothing special right now.
 	*/
@@ -561,6 +562,8 @@ Segment::~Segment()
 {
 	//
 };
+
+
 /*
 	* segmentType = segTypeIn;
 	*/
@@ -568,6 +571,8 @@ void Segment::assignSegType(int segTypeIn)
 {
 	segmentType = segTypeIn;
 }
+
+
 /*
 	* initValue = initValIn;
 	*/
@@ -575,6 +580,8 @@ void Segment::assignInitValue(double initValIn)
 {
 	initValue = initValIn;
 }
+
+
 /*
 	* finValue = finValIn;
 	*/
@@ -582,6 +589,8 @@ void Segment::assignFinValue(double finValIn)
 {
 	finValue = finValIn;
 }
+
+
 /*
 	* rampType = rampTypeIn;
 	*/
@@ -589,6 +598,8 @@ void Segment::assignRampType(std::string rampTypeIn)
 {
 	rampType = rampTypeIn;
 }
+
+
 /*
 	* time = timeIn;
 	*/
@@ -596,6 +607,8 @@ void Segment::assignTime(double timeIn)
 {
 	time = timeIn;
 }
+
+
 /*
 	* continuationType = contTypeIn;
 	*/
@@ -603,6 +616,8 @@ void Segment::assignContinuationType(int contTypeIn)
 {
 	continuationType = contTypeIn;
 }
+
+
 /*
 	* repeatNum = repeatNumIn;
 	*/
@@ -610,6 +625,8 @@ void Segment::assignRepeatNum(int repeatNumIn)
 {
 	repeatNum = repeatNumIn;
 }
+
+
 /*
 	* return segmentType;
 	*/
@@ -617,6 +634,47 @@ int Segment::returnSegmentType()
 {
 	return segmentType;
 }
+
+
+/**
+* This function takes ramp-related information as an input and returns the "position" in the ramp (i.e. the amount to add to the initial value due to ramping)
+* that the waveform should be at.
+*
+* @return double is the ramp position.
+*
+* @param size is the total size of the waveform, in numbers of samples
+* @param iteration is the sample number that the waveform is currently at.
+* @param initPos is the initial frequency or amplitude of the waveform.
+* @param finPos is the final frequency or amplitude of the waveform.
+* @param rampType is the type of ramp being executed, as specified by the reader.
+*/
+double rampCalc( int size, int iteration, double initPos, double finPos, std::string rampType )
+{
+	// for linear ramps
+	if (rampType == "lin")
+	{
+		return iteration * (finPos - initPos) / size;
+	}
+	// for no ramp
+	else if (rampType == "nr")
+	{
+		return 0;
+	}
+	// for hyperbolic tangent ramps
+	else if (rampType == "tanh")
+	{
+		return (finPos - initPos) * (tanh( -4 + 8 * (double)iteration / size ) + 1) / 2;
+	}
+	// error message. I've already checked (outside this function) whether the ramp-type is a filename.
+	else
+	{
+		std::string errMsg = "ERROR: ramp type " + rampType + " is unrecognized. If this is a file name, make sure the file exists and is in the project folder.\r\n";
+		MessageBox( NULL, errMsg.c_str(), NULL, MB_OK );
+		return 0;
+	}
+}
+
+
 /*
 	* This function uses the initial and final points along with the ramp and time of the segment to calculate all of the data points. This should be used so 
 	* as to, after this function, you have all of the powers that you want (not voltages), and then call the voltage converter afterwards.
@@ -629,9 +687,9 @@ void Segment::calcData()
 	if (fabs(numDataPointsf - round(numDataPointsf)) > 1e-6)
 	{
 		// Bad Time Warning
-		MessageBox(0, "ERROR: Bad time entered for the time of an intensity sequence segment. This resulted in a non-integer number of samples. Time cannot be"
-						"defined with precision below the microsecond level for normal sample rates.", 0, MB_OK);
-		return -1;
+		thrower("ERROR: Bad time entered for the time of an intensity sequence segment. This resulted in a non-integer number of samples. Time cannot be"
+						"defined with precision below the microsecond level for normal sample rates.");
+		return;
 	}
 	// Convert to integer
 	int numDataPoints = (int)round(numDataPointsf);
@@ -643,7 +701,7 @@ void Segment::calcData()
 		for (int dataInc = 0; dataInc < numDataPoints; dataInc++)
 		{
 			// constant waveform. Every data point is the same.
-			dataArray.push_back(initValue + myMath::rampCalc(numDataPoints, dataInc, initValue, finValue, rampType));
+			dataArray.push_back(initValue + rampCalc(numDataPoints, dataInc, initValue, finValue, rampType));
 		}
 	}
 	else if (rampType == "")
@@ -754,27 +812,19 @@ double Segment::returnTime()
 	*/
 void Agilent::agilentDefault()
 {
-	unsigned long viDefaultRM, Instrument;
-	unsigned long actual;
-	std::string SCPIcmd;
-	if (!AGILENT_SAFEMODE)
-	{
-		viOpenDefaultRM(&viDefaultRM);
-		viOpen(viDefaultRM, (char *)AGILENT_ADDRESS, VI_NULL, VI_NULL, &Instrument);
-		// turn it to the default voltage...
-		SCPIcmd = std::string("APPLy:DC DEF, DEF, ") + AGILENT_DEFAULT_DC;
-		agilentErrorCheck(viWrite(Instrument, (unsigned char*)(SCPIcmd).c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-		// and leave...
-		viClose(Instrument);
-		viClose(viDefaultRM);
-	}
-
+	visaOpenDefaultRM();
+	visaOpen( AGILENT_ADDRESS );
+	// turn it to the default voltage...
+	visaWrite( std::string( "APPLy:DC DEF, DEF, " ) + AGILENT_DEFAULT_DC );
+	// and leave...
+	visaClose();
 	// update current values
 	currentAgilentLow = std::stod(AGILENT_DEFAULT_DC);
 	currentAgilentHigh = std::stod(AGILENT_DEFAULT_DC);
 }
 
-void Agilent::analyzeIntensityScript(std::fstream& intensityFile, IntensityWaveform* intensityWaveformData, int& currentSegmentNumber, std::vector<variable> singletons, profileSettings profileInfo)
+
+void Agilent::analyzeIntensityScript(ScriptStream intensityFile, IntensityWaveform* intensityWaveformData, int& currentSegmentNumber, std::vector<variable> singletons, profileSettings profileInfo)
 {
 	while (!intensityFile.eof())
 	{
@@ -802,37 +852,25 @@ void Agilent::analyzeIntensityScript(std::fstream& intensityFile, IntensityWavef
 	* segment and sequence information to the function generator.
 	*/
 void Agilent::programIntensity(int varNum, std::vector<variable> variables, std::vector<std::vector<double> > varValues, bool& intensityVaried,
-						std::vector<myMath::minMaxDoublet>& minsAndMaxes, std::vector<std::vector<POINT>>& pointsToDraw, 
+						std::vector<minMaxDoublet>& minsAndMaxes, std::vector<std::vector<POINT>>& pointsToDraw, 
 						std::vector<std::fstream>& intensityFiles, std::vector<variable> singletons, profileSettings profileInfo)
 {
 	// Initialize stuff
 	IntensityWaveform intensityWaveformSequence;
-
 	int currentSegmentNumber = 0;
-
 	// connect to the agilent. I refuse to use the stupid typecasts. The way you often see these variables defined is using stupid things like ViRsc, ViUInt32, etc.
-	unsigned long viDefaultRM = 0, Instrument = 0;
-	unsigned long actual;
-	std::string SCPIcmd;
-	if (!AGILENT_SAFEMODE)
-	{
-		viOpenDefaultRM(&viDefaultRM);
-		viOpen(viDefaultRM, (char *)AGILENT_ADDRESS, VI_NULL, VI_NULL, &Instrument);
-		// ???
-		agilentErrorCheck(viSetAttribute(Instrument, VI_ATTR_TMO_VALUE, 40000), Instrument);
-		// Set sample rate
-		SCPIcmd = "SOURCE1:FUNC:ARB:SRATE " + std::to_string(AGILENT_SAMPLE_RATE);
-		agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-		// Set filtering state
-		SCPIcmd = std::string("SOURCE1:FUNC:ARB:FILTER ") + AGILENT_FILTER_STATE;
-		agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-		// Set Trigger Parameters
-		SCPIcmd = std::string("TRIGGER1:SOURCE EXTERNAL");
-		agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-		//
-		SCPIcmd = std::string("TRIGGER1:SLOPE POSITIVE");
-		agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-	}
+	visaOpenDefaultRM();
+	visaOpen( AGILENT_ADDRESS );
+	// looks like I'm setting the timeout value here... to be 40 s?
+	visaSetAttribute( VI_ATTR_TMO_VALUE, 40000 );
+	// Set sample rate
+	visaWrite( "SOURCE1:FUNC:ARB:SRATE " + std::to_string( AGILENT_SAMPLE_RATE ) );
+	// Set filtering state
+	visaWrite( std::string( "SOURCE1:FUNC:ARB:FILTER " ) + AGILENT_FILTER_STATE );
+	// Set Trigger Parameters
+	visaWrite( "TRIGGER1:SOURCE EXTERNAL" );
+	//
+	visaWrite( "TRIGGER1:SLOPE POSITIVE" );
 	for (int sequenceInc = 0; sequenceInc < intensityFiles.size(); sequenceInc++)
 	{
 		analyzeIntensityScript( intensityFiles[sequenceInc], &intensityWaveformSequence, currentSegmentNumber, singletons, profileInfo );
@@ -867,40 +905,24 @@ void Agilent::programIntensity(int varNum, std::vector<variable> variables, std:
 
 			for (int segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
 			{
-				if (!AGILENT_SAFEMODE)
-				{
-					SCPIcmd = intensityWaveformSequence.compileAndReturnDataSendString(segNumInc, varValueCount, totalSegmentNumber);
-					// send to the agilent.
-					agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-					// Select the segment
-					SCPIcmd = "SOURCE1:FUNC:ARB seg" + std::to_string(segNumInc + totalSegmentNumber * varValueCount);
-					agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-					// Save the segment
-					SCPIcmd = "MMEM:STORE:DATA \"INT:\\seg" + std::to_string(segNumInc + totalSegmentNumber * varValueCount) + ".arb\"";
-					agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-					// increment for the next.
-					SCPIcmd = std::string("TRIGGER1:SLOPE POSITIVE");
-					agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-				}
+				// send to the agilent.
+				visaWrite( intensityWaveformSequence.compileAndReturnDataSendString( segNumInc, varValueCount, totalSegmentNumber ) );
+				// Select the segment
+				visaWrite( "SOURCE1:FUNC:ARB seg" + std::to_string( segNumInc + totalSegmentNumber * varValueCount ) );
+				// Save the segment
+				visaWrite( "MMEM:STORE:DATA \"INT:\\seg" + std::to_string( segNumInc + totalSegmentNumber * varValueCount ) + ".arb\"" );
+				// increment for the next.
+				visaWrite( "TRIGGER1:SLOPE POSITIVE" );
 			}
-
 			// Now handle seqeunce creation / writing.
 			intensityWaveformSequence.compileSequenceString(totalSegmentNumber, varValueCount);
-			if (!AGILENT_SAFEMODE)
-			{
-				// submit the sequence
-				SCPIcmd = intensityWaveformSequence.returnSequenceString();
-				agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-				// Save the sequence
-				SCPIcmd = "SOURCE1:FUNC:ARB seq" + std::to_string(varValueCount);
-				agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-
-				SCPIcmd = "MMEM:STORE:DATA \"INT:\\seq" + std::to_string(varValueCount) + ".seq\"";
-				agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-				// clear temporary memory.
-				SCPIcmd = "SOURCE1:DATA:VOL:CLEAR";
-				agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-			}
+			// submit the sequence
+			visaWrite( intensityWaveformSequence.returnSequenceString() );
+			// Save the sequence
+			visaWrite( "SOURCE1:FUNC:ARB seq" + std::to_string( varValueCount ) );
+			visaWrite( "MMEM:STORE:DATA \"INT:\\seq" + std::to_string( varValueCount ) + ".seq\"" );
+			// clear temporary memory.
+			visaWrite( "SOURCE1:DATA:VOL:CLEAR" );
 		}
 	}
 	// else not varying
@@ -922,60 +944,38 @@ void Agilent::programIntensity(int varNum, std::vector<variable> variables, std:
 
 		for (int segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
 		{
-			if (!AGILENT_SAFEMODE)
-			{
-				// Set output impedance...
-				SCPIcmd = std::string("OUTPUT1:LOAD ") + AGILENT_LOAD;
-				// set range of voltages...
-				agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-				SCPIcmd = std::string("SOURCE1:VOLT:LOW ") + std::to_string(minsAndMaxes[0].min) + " V";
-				agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-				SCPIcmd = std::string("SOURCE1:VOLT:HIGH ") + std::to_string(minsAndMaxes[0].max) + " V";
-				agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-				// get the send string
-				SCPIcmd = intensityWaveformSequence.compileAndReturnDataSendString(segNumInc, 0, totalSegmentNumber);
-				// send to the agilent.
-				agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-
-				// Select the segment
-				SCPIcmd = "SOURCE1:FUNC:ARB seg" + std::to_string(segNumInc);
-				agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-				// Save the segment
-				SCPIcmd = "MMEM:STORE:DATA \"INT:\\seg" + std::to_string(segNumInc) + ".arb\"";
-				agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-				// increment for the next.
-			}
+			// Set output impedance...
+			visaWrite( std::string( "OUTPUT1:LOAD " ) + AGILENT_LOAD );
+			// set range of voltages...
+			visaWrite( std::string( "SOURCE1:VOLT:LOW " ) + std::to_string( minsAndMaxes[0].min ) + " V" );
+			visaWrite( std::string( "SOURCE1:VOLT:HIGH " ) + std::to_string( minsAndMaxes[0].max ) + " V" );
+			// send to the agilent.
+			visaWrite( intensityWaveformSequence.compileAndReturnDataSendString( segNumInc, 0, totalSegmentNumber ) );
+			// Select the segment
+			visaWrite( "SOURCE1:FUNC:ARB seg" + std::to_string( segNumInc ) );
+			// Save the segment
+			visaWrite( "MMEM:STORE:DATA \"INT:\\seg" + std::to_string( segNumInc ) + ".arb\"" );
+			// increment for the next.
 		}
 
 
 		// Now handle seqeunce creation / writing.
 		intensityWaveformSequence.compileSequenceString(totalSegmentNumber, 0);
-
-		if (!AGILENT_SAFEMODE)
-		{
-			// submit the sequence
-			SCPIcmd = intensityWaveformSequence.returnSequenceString();
-			agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-			// Save the sequence
-			SCPIcmd = "SOURCE1:FUNC:ARB seq" + std::to_string(0);
-			viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual);
-			//		agilentErrorCheck(, Instrument);
-			SCPIcmd = "MMEM:STORE:DATA \"INT:\\seq" + std::to_string(0) + ".seq\"";
-			viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual);
-			//		agilentErrorCheck(, Instrument);
-			// clear temporary memory.
-			SCPIcmd = "SOURCE1:DATA:VOL:CLEAR";
-			agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-		}
+		// submit the sequence
+		visaWrite( intensityWaveformSequence.returnSequenceString() );
+		// Save the sequence
+		visaWrite( "SOURCE1:FUNC:ARB seq" + std::to_string( 0 ) );
+		visaWrite( "MMEM:STORE:DATA \"INT:\\seq" + std::to_string( 0 ) + ".seq\"" );
+		// clear temporary memory.
+		visaWrite( "SOURCE1:DATA:VOL:CLEAR" );
 	}
-	viClose(Instrument);
-	viClose(viDefaultRM);
+	visaClose();
 }
 
 /*
-	* This function checks if the agilent throws an error or if there is an error communicating with the agilent. it returns -1 if error, 0 otherwise.
+	* This function checks if the agilent throws an error or if there is an error communicating with the agilent.
 	*/
-int Agilent::agilentErrorCheck(long status, unsigned long vi)
+void Agilent::errCheck(long status)
 {
 	long errorCode = 0;
 	char buf[256] = { 0 };
@@ -983,29 +983,24 @@ int Agilent::agilentErrorCheck(long status, unsigned long vi)
 	if (status < 0)	
 	{
 		// Error detected.
-		errBox( "ERROR: Communcation error with agilent. Error Code: " + std::to_string( status ));
-		return -1;
+		thrower( "ERROR: Communcation error with agilent. Error Code: " + std::to_string( status ));
+		return;
 	}
-	if (!AGILENT_SAFEMODE)
-	{
-		// Query the agilent for errors.
-		viQueryf(vi, "SYST:ERR?\n", "%ld,%t", &errorCode, buf);
-	}
+	// Query the agilent for errors.
+	viQueryf(instrument, "SYST:ERR?\n", "%ld,%t", &errorCode, buf);
 	if (errorCode != 0)
 	{
 		// Agilent error
-		std::string agErrMsg;
-		agErrMsg = "ERROR: agilent returned error message: " + std::to_string(errorCode) + ":" + buf;
-		MessageBox(0, agErrMsg.c_str(), 0, MB_OK);
-		return -1;
+		thrower( "ERROR: agilent returned error message: " + std::to_string( errorCode ) + ":" + buf );
+		return;
 	}
-	return 0;
+	return;
 }
 
 /*
 	* This function tells the agilent to use sequence # (varNum) and sets settings correspondingly.
 	*/
-void Agilent::selectIntensityProfile(int varNum, bool intensityIsVaried, std::vector<myMath::minMaxDoublet> intensityMinMax)
+void Agilent::selectIntensityProfile(int varNum, bool intensityIsVaried, std::vector<minMaxDoublet> intensityMinMax)
 {
 	if (intensityIsVaried || varNum == 0)
 	{
@@ -1013,68 +1008,395 @@ void Agilent::selectIntensityProfile(int varNum, bool intensityIsVaried, std::ve
 		unsigned long actual;
 		if (!AGILENT_SAFEMODE)
 		{
-			viOpenDefaultRM(&viDefaultRM);
-			viOpen(viDefaultRM, (char *)AGILENT_ADDRESS, VI_NULL, VI_NULL, &Instrument);
+			visaOpenDefaultRM();
+			visaOpen( AGILENT_ADDRESS );
 		}
 		std::string SCPIcmd;
 		if (!AGILENT_SAFEMODE)
 		{
 			// Load sequence that was previously loaded.
-			SCPIcmd = "MMEM:LOAD:DATA \"INT:\\seq" + std::to_string(varNum) + ".seq\"";
-			agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-
-			SCPIcmd = "SOURCE1:FUNC ARB";
-			agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-
-			SCPIcmd = "SOURCE1:FUNC:ARB \"INT:\\seq" + std::to_string(varNum) + ".seq\"";
-			agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-
+			visaWrite("MMEM:LOAD:DATA \"INT:\\seq" + std::to_string(varNum) + ".seq\"");
+			visaWrite( "SOURCE1:FUNC ARB");
+			visaWrite( "SOURCE1:FUNC:ARB \"INT:\\seq" + std::to_string(varNum) + ".seq\"");
 			// Set output impedance...
-			SCPIcmd = std::string("OUTPUT1:LOAD ") + AGILENT_LOAD;
-
-			agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-			SCPIcmd = std::string("SOURCE1:VOLT:LOW ") + std::to_string(intensityMinMax[varNum].min) + " V";
-			agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-			SCPIcmd = std::string("SOURCE1:VOLT:HIGH ") + std::to_string(intensityMinMax[varNum].max) + " V";
-			agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-
-			SCPIcmd = "OUTPUT1 ON";
-			agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+			visaWrite( std::string("OUTPUT1:LOAD ") + AGILENT_LOAD);
+			visaWrite( std::string("SOURCE1:VOLT:LOW ") + std::to_string(intensityMinMax[varNum].min) + " V");
+			visaWrite( std::string("SOURCE1:VOLT:HIGH ") + std::to_string(intensityMinMax[varNum].max) + " V");
+			visaWrite( "OUTPUT1 ON" );
 			// and leave...
-			viClose(Instrument);
-			viClose(viDefaultRM);
+			visaClose();
 		}
 	}
 	return;
 }
 
+/// 
 
-void Agilent::visaWrite( ViSession vi, std::string message, ViPUInt32 retCnt )
+/// 
+
+void Agilent::visaWrite( std::string message )
 {
-	viWrite( vi, (unsigned char*)message.c_str(), (ViUInt32)message.size(), retCnt);
+	// not sure what this is for.
+	unsigned long actual;
+	if (AGILENT_SAFEMODE)
+	{
+		errCheck( viWrite( instrument, (unsigned char*)message.c_str(), (ViUInt32)message.size(), &actual ) );
+	}
 }
 
 
-void Agilent::visaClose( ViObject obj )
+void Agilent::visaClose()
 {
-
+	if (AGILENT_SAFEMODE)
+	{
+		errCheck( viClose( defaultResourceManager ) );
+	}
 }
 
 
-void Agilent::visaOpenDefaultRM( ViPSession session )
+void Agilent::visaOpenDefaultRM()
 {
-
+	if (AGILENT_SAFEMODE)
+	{
+		errCheck( viOpenDefaultRM( &defaultResourceManager ) );
+	}
 }
 
 
-void Agilent::visaOpen( ViSession sesn, ViRsrc name, ViAccessMode mode, ViUInt32 timeout, ViPSession vi )
+void Agilent::visaOpen( std::string address )
 {
+	if (AGILENT_SAFEMODE)
+	{
+		errCheck( viOpen( defaultResourceManager, (char *)address.c_str(), VI_NULL, VI_NULL, &instrument ) );
+	}
+}
 
+void Agilent::visaSetAttribute(ViAttr attributeName, ViAttrState value)
+{
+	if (AGILENT_SAFEMODE)
+	{
+		errCheck( viSetAttribute( instrument, attributeName, value ) );
+	}
 }
 
 
-void Agilent::visaQueryf( ViSession vi, ViString writeFmt, ViString readFmt, ... )
-{
 
+/**
+* Overload for double input.
+* Test if the input is a variable. If it was, store what parameter is getting varied (varParamTypes), store which variable name is associated
+* with this variable, increment the number of variables in this waveform, and increment the varPresent marker, which gets returned and tells the
+* function using this function to check the arrays that get returned for the specified number of variables.
+*
+* @param dataToAssign is the value of a waveData variable that is being read in. If a variable is found it isn't actually assigned.
+* @param file is the instructions file being read for this input.
+* @param vCount is the number of variables that have been assigned so far.
+* @param vNames is a vector that holds the names of the variables that are found in the script.
+* @param vParamTypes is a vector that holds the information as to what type of parameter is being varried for a given variable name.
+* @param dataType is the number to assign to vParamTypes if a variable is being used.
+*/
+void getParamCheckVar( double& dataToAssign, std::fstream& fName, int& vCount, std::vector<std::string>& vNames, std::vector<int>& vParamTypes,
+									   int dataType, std::vector<variable> singletons )
+{
+	std::string tempInput;
+	int stringPos;
+	rmWhite( fName );
+	fName >> tempInput;
+	// pull input to lower case to prevent stupid user input errors.
+	std::transform( tempInput.begin(), tempInput.end(), tempInput.begin(), tolower );
+	if (tempInput[0] == '\'')
+	{
+		thrower("ERROR: Don't use \' as a variable in your instructions file, this character is reserved by the program.\n");
+		return;
+	}
+	if (tempInput[0] == '#')
+	{
+		thrower("ERROR: the delimeter '#' was detected in a waveform before it was supposed to be. This indicates either that there are too few "
+					"inputs for this waveform type or that the program is not reading the input correctly, e.g. because of extraneous semicolons.");
+		return;
+	}
+	if (tempInput[0] == '%')
+	{
+		thrower("ERROR: the character % was detected in the input. This shouldn't be possible. Look for logic errors.");
+		return;
+	}
+	// the following aren't digits, but don't indicate variables.
+	if (tempInput[0] == '-' || tempInput[0] == '.')
+	{
+		stringPos = 1;
+		if (tempInput[1] == '-' || tempInput[1] == '.')
+		{
+			thrower("ERROR: The first two characters of some input are both either '-' or '.'. This might be because you tried to input a negative"
+						"decimal, which you aren't allowed to do.");
+			return;
+		}
+	}
+	else
+	{
+		stringPos = 0;
+	}
+	// check if this is a singleton variable. If so, immediately assign relevant data point to singleton value.
+	for (int singletonInc = 0; singletonInc < singletons.size(); singletonInc++)
+	{
+		if (tempInput == singletons[singletonInc].name)
+		{
+			dataToAssign = singletons[singletonInc].value;
+			return;
+		}
+	}
+	if (!isdigit( tempInput[stringPos] ))
+	{
+		// load variable name into structure.
+		vNames.push_back( tempInput );
+		vParamTypes.push_back( dataType );
+		vCount++;
+		return;
+	}
+	else
+	{
+		// this should happen most of the time.
+		dataToAssign = (std::stod( tempInput ));
+		return;
+	}
 }
 
+
+/**
+* overload for integer input.
+* Test if the input is a variable. If it was, store what parameter is getting varied (varParamTypes), store which variable name is associated
+* with this variable, increment the number of variables in this waveform, and increment the varPresent marker, which gets returned and tells the
+* function using this function to check the arrays that get returned for the specified number of variables.
+*
+* @param dataToAssign is the value of a waveData variable that is being read in. If a variable is found it isn't actually assigned.
+* @param file is the instructions file being read for this input.
+* @param vCount is the number of variables that have been assigned so far.
+* @param vNames is a vector that holds the names of the variables that are found in the script.
+* @param vParamTypes is a vector that holds the information as to what type of parameter is being varried for a given variable name.
+* @param dataType is the number to assign to vParamTypes if a variable is being used.
+*/
+int getParamCheckVar( int& dataToAssign, std::fstream& scriptName, int& vCount, std::vector<std::string>& vNames, std::vector<int>& vParamTypes,
+									   int dataType, std::vector<variable> singletons )
+{
+	std::string tempInput;
+	int stringPos;
+	rmWhite( scriptName );
+	scriptName >> tempInput;
+	// pull input to lower case to prevent stupid user input errors.
+	std::transform( tempInput.begin(), tempInput.end(), tempInput.begin(), ::tolower );
+
+	if (tempInput[0] == '\'')
+	{
+		thrower( "ERROR: Don't use \' as a variable in your instructions file, this character is reserved by the program.\n" );
+		return;
+	}
+	if (tempInput[0] == '#')
+	{
+		thrower("ERROR: the delimeter '#' was detected in a waveform before it was supposed to be. This indicates either that there are too few "
+					"inputs for this waveform type or that the program is not reading the input correctly, e.g. because of extraneous semicolons.");
+		return;
+	}
+	if (tempInput[0] == '%')
+	{
+		thrower( "ERROR: the character % was detected in the input. This shouldn't be possible. Look for logic errors." );
+		return;
+	}
+	// the following aren't digits, but don't indicate variables.
+	if (tempInput[0] == '-' || tempInput[0] == '.')
+	{
+		stringPos = 1;
+		if (tempInput[1] == '-' || tempInput[1] == '.')
+		{
+			thrower( "ERROR: The first two characters of some input are both either '-' or '.'. This might be because you tried to input a negative"
+					 "decimal, which you aren't allowed to do." );
+			return;
+		}
+	}
+	else
+	{
+		stringPos = 0;
+	}
+	// check if this is a singleton variable. If so, immediately assign relevant data point to singleton value.
+	for (int singletonInc = 0; singletonInc < singletons.size(); singletonInc++)
+	{
+		if (tempInput == singletons[singletonInc].name)
+		{
+			dataToAssign = singletons[singletonInc].value;
+			return;
+		}
+	}
+	if (!isdigit( tempInput[stringPos] ))
+	{
+		// load variable name into structure.
+		vNames.push_back( tempInput );
+		vParamTypes.push_back( dataType );
+		vCount++;
+		return;
+	}
+	else
+	{
+		// this should happen most of the time.
+		dataToAssign = (std::stoi( tempInput ));
+		return;
+	}
+}
+
+/**
+* Overload for double input.
+* Test if the input is a variable. If it was, store what parameter is getting varied (vParamTypes), store which variable name is associated
+* with this variable, increment the number of variables in this waveform, and increment the varPresent marker, which gets returned and tells the
+* function using this function to check the arrays that get returned for the specified number of variables. This function deals with constant waveforms,
+* where either the frequency or the ramp is not being ramped, and so the inputted data needs to be assigned to both the initial and final values of the
+* parameter type.
+*
+* data1ToAssign is the value of the first waveData variable that is being read in. If a variable is found it isn't actually assigned.
+* data2ToAssign is the value of the second waveData variable that is being read in. If a variable is found it isn't actually assigned.
+* file is the instructions file being read for this input.
+* vCount is the number of variables that have been assigned so far.
+* vNames is a vector that holds the names of the variables that are found in the script.
+* vParamTypes is a vector that holds the information as to what type of parameter is being varried for a given variable name.
+* dataType1 is the number to assign to vParamTypes for the first parameter if a variable is being used.
+* dataType2 is the number to assign to vParamTypes for the second parameter if a variable is being used.
+* singletons is the list of singletons that the user set for this configuration. If a variable name is found to match a singleton name, the value is
+*		immediately set to the singleton's value.
+*/
+int NiawgController::getParamCheckVarConst( double& data1ToAssign, double& data2ToAssign, std::fstream& file, int& vCount, std::vector<std::string>& vNames,
+											std::vector<int>& vParamTypes, int dataType1, int dataType2, std::vector<variable> singletons )
+{
+	std::string tempInput;
+	rmWhite( file );
+	file >> tempInput;
+	// pull input to lower case to prevent stupid user input errors.
+	std::transform( tempInput.begin(), tempInput.end(), tempInput.begin(), ::tolower );
+
+	// the following aren't digits, but don't indicate variables.
+	if (tempInput[0] == '\'')
+	{
+		thrower("ERROR: Don't use \' as a variable in your instructions file, this character is reserved by the program.\n");
+		return;
+	}
+	if (tempInput[0] == '#')
+	{
+		thrower( "ERROR: the delimeter '#' was detected in a waveform before it was supposed to be. This indicates either that there are too few "
+					"inputs for this waveform type or that the program is not reading the input correctly, e.g. because of extraneous semicolons.");
+		return;
+	}
+	if (tempInput[0] == '%')
+	{
+		thrower("ERROR: the character % was detected in the input. This shouldn't be possible. Look for logic errors.");
+		return;
+	}
+	if (tempInput[0] == '-')
+	{
+		thrower( "ERROR: it appears that you entered a negative frequency or amplitude. You can't do that.");
+		return;
+	}
+	// check if this is a singleton variable. If so, immediately assign relevant data point to singleton value.
+	for (int singletonInc = 0; singletonInc < singletons.size(); singletonInc++)
+	{
+		if (tempInput == singletons[singletonInc].name)
+		{
+			data1ToAssign = singletons[singletonInc].value;
+			data2ToAssign = data1ToAssign;
+			return;
+		}
+	}
+	// I don't need to check for -1 input because this function should never be used on the phase or the time, only frequency or amplitude for non-ramping waveforms. 
+	if (!isdigit( tempInput[0] ))
+	{
+		// add variable name
+		vNames.push_back( tempInput );
+		vParamTypes.push_back( dataType1 );
+		vCount++;
+		// Do the same for the second data that needs to be assigned.
+		vNames.push_back( tempInput );
+		vParamTypes.push_back( dataType2 );
+		vCount++;
+		return;
+	}
+	else
+	{
+		// this should happen most of the time.
+		data1ToAssign = std::stod( tempInput );
+		data2ToAssign = data1ToAssign;
+		return;
+	}
+}
+
+/**
+* Overload for integer input.
+* Test if the input is a variable. If it was, store what parameter is getting varied (vParamTypes), store which variable name is associated
+* with this variable, increment the number of variables in this waveform, and increment the varPresent marker, which gets returned and tells the
+* function using this function to check the arrays that get returned for the specified number of variables. This function deals with constant waveforms,
+* where either the frequency or the ramp is not being ramped, and so the inputted data needs to be assigned to both the initial and final values of the
+* parameter type.
+*
+* @param data1ToAssign is the value of the first waveData variable that is being read in. If a variable is found it isn't actually assigned.
+* @param data2ToAssign is the value of the second waveData variable that is being read in. If a variable is found it isn't actually assigned.
+* @param file is the instructions file being read for this input.
+* @param vCount is the number of variables that have been assigned so far.
+* @param vNames is a vector that holds the names of the variables that are found in the script.
+* @param vParamTypes is a vector that holds the information as to what type of parameter is being varried for a given variable name.
+* @param dataType1 is the number to assign to vParamTypes for the first parameter if a variable is being used.
+* @param dataType2 is the number to assign to vParamTypes for the second parameter if a variable is being used.
+*/
+int getParamCheckVarConst( int& data1ToAssign, double& data2ToAssign, std::fstream& scriptName, int& vCount, std::vector<std::string>& vNames,
+											std::vector<int>& vParamTypes, int dataType1, int dataType2, std::vector<variable> singletons )
+{
+	std::string tempInput;
+	rmWhite( scriptName );
+	scriptName >> tempInput;
+	// pull input to lower case to prevent stupid user input errors.
+	std::transform( tempInput.begin(), tempInput.end(), tempInput.begin(), ::tolower );
+
+	// the following aren't digits, but don't indicate variables.
+	if (tempInput[0] == '\'')
+	{
+		thrower( "ERROR: Don't use \' as a variable in your instructions file, this character is reserved by the program.\n");
+		return;
+	}
+	if (tempInput[0] == '#')
+	{
+		thrower( "ERROR: the delimeter '#' was detected in a waveform before it was supposed to be. This indicates either that there are too few "
+					"inputs for this waveform type or that the program is not reading the input correctly, e.g. because of extraneous semicolons.");
+		return;
+	}
+	if (tempInput[0] == '%')
+	{
+		thrower( "ERROR: the character % was detected in the input. This shouldn't be possible. Look for logic errors.");
+		return;
+	}
+	if (tempInput[0] == '-')
+	{
+		thrower( "ERROR: it appears that you entered a negative frequency or amplitude. You can't do that.");
+		return;
+	}
+	// check if this is a singleton variable. If so, immediately assign relevant data point to singleton value.
+	for (int singletonInc = 0; singletonInc < singletons.size(); singletonInc++)
+	{
+		if (tempInput == singletons[singletonInc].name)
+		{
+			data1ToAssign = singletons[singletonInc].value;
+			data2ToAssign = data1ToAssign;
+			return;
+		}
+	}
+	// I don't need to check for -1 input because this function should never be used on the phase or the time, only frequency or amplitude for non-ramping waveforms. 
+	if (!isdigit( tempInput[0] ))
+	{
+		// add variable name
+		vNames.push_back( tempInput );
+		vParamTypes.push_back( dataType1 );
+		vCount++;
+		// Do the same for the second data that needs to be assigned.
+		vNames.push_back( tempInput );
+		vParamTypes.push_back( dataType2 );
+		vCount++;
+		return;
+	}
+	else
+	{
+		// this should happen most of the time.
+		data1ToAssign = std::stoi( tempInput );
+		data2ToAssign = data1ToAssign;
+		return;
+	}
+}
