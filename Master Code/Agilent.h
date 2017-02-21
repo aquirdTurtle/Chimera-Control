@@ -107,5 +107,12 @@ class Agilent
 	private:
 		// usb address...
 		// name...?
-
+		ViSession session;
+		ViSession instr;
+		// since currently all visa communication is done to communicate with agilent machines, my visa wrappers exist in this class.
+		void visaWrite( std::string message, ViPUInt32 retCnt );
+		void visaClose(ViObject obj);
+		void visaOpenDefaultRM();
+		void visaOpen( ViSession sesn, ViRsrc name, ViAccessMode mode, ViUInt32 timeout);
+		void visaQueryf( ViString writeFmt, ViString readFmt, ... );
 }
