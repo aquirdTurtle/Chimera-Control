@@ -138,6 +138,9 @@
     <ClInclude Include="ScriptStream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Agilent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Master Code.cpp">
@@ -229,6 +232,9 @@
     </ClCompile>
     <ClCompile Include="ScriptStream.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Agilent.cpp">
+      <Filter>Header Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
