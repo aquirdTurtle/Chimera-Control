@@ -75,8 +75,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\lib64;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib\msvc;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib;C:\Program Files\boost_1_60_0\lib32-msvc-14.0;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;C:\Program Files %28x86%29\Microsoft SDKs\Windows\v7.1A\Include;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib</LibraryPath>
-    <IncludePath>C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\include;C:\Program Files\boost_1_60_0;$(VC_IncludePath);$(WindowsSDK_IncludePath);;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\include;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include</IncludePath>
+    <LibraryPath>C:\Program Files (x86)\IVI Foundation\VISA\WinNT\lib\msc;C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\lib64;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib\msvc;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib;C:\Program Files\boost_1_60_0\lib32-msvc-14.0;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;C:\Program Files %28x86%29\Microsoft SDKs\Windows\v7.1A\Include;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib</LibraryPath>
+    <IncludePath>C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\include;C:\Program Files\boost_1_60_0;$(VC_IncludePath);$(WindowsSDK_IncludePath);;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\include;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include;C:\Program Files (x86)\IVI Foundation\VISA\WinNT\include</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -85,8 +85,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\lib64;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib\msvc;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib;C:\Program Files\boost_1_60_0\lib32-msvc-14.0;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib</LibraryPath>
-    <IncludePath>C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\include;C:\Program Files\boost_1_60_0;$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\include;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include</IncludePath>
+    <LibraryPath>C:\Program Files (x86)\IVI Foundation\VISA\WinNT\lib\msc;C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\lib64;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib\msvc;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib;C:\Program Files\boost_1_60_0\lib32-msvc-14.0;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib</LibraryPath>
+    <IncludePath>C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\include;C:\Program Files\boost_1_60_0;$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\include;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include;C:\PROGRAM FILES (X86)\IVI FOUNDATION\VISA\WINNT\INCLUDE\;C:\Program Files (x86)\IVI Foundation\VISA\WinNT\include;C:\Program Files (x86)\IVI Foundation\VISA\WinNT\include</IncludePath>
     <CodeAnalysisRuleSet>C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Team Tools\Static Analysis Tools\Rule Sets\NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
@@ -108,7 +108,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\Program Files (x86)\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>NIDAQmx.lib;dio64_32.lib</AdditionalDependencies>
+      <AdditionalDependencies>NIDAQmx.lib;dio64_32.lib;visa32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -146,7 +146,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\Program Files (x86)\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>NIDAQmx.lib;dio64_32.lib</AdditionalDependencies>
+      <AdditionalDependencies>NIDAQmx.lib;dio64_32.lib;visa32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

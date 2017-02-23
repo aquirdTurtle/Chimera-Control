@@ -15,12 +15,8 @@ struct profileSettings
 	std::string category;
 	std::string sequence;
 	std::string orientation;
-};
-
-// add more to this later?
-struct profileFileAddresses
-{
-	std::string masterScriptFile;
+	std::string pathIncludingExperiment;
+	std::string pathIncludingCategory;
 };
 
 /*
@@ -33,7 +29,6 @@ class ConfigurationFileSystem
 {
 	public:
 		ConfigurationFileSystem(std::string fileSystemPath);
-		~ConfigurationFileSystem();
 
 		void saveEntireProfile(MasterWindow* Master);
 		void checkSaveEntireProfile(MasterWindow* Master);
@@ -112,8 +107,7 @@ class ConfigurationFileSystem
 	private:
 		profileSettings currentProfileSettings;
 		std::string FILE_SYSTEM_PATH;
-		std::string pathIncludingExperiment;
-		std::string pathIncludingCategory;
+
 		bool configurationIsSaved;
 		bool categoryIsSaved;
 		bool experimentIsSaved;

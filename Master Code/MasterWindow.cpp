@@ -115,7 +115,7 @@ void MasterWindow::GlobalVarRClick( NMHDR * pNotifyStruct, LRESULT * result )
 
 void MasterWindow::handleOptionsPress( UINT id )
 {
-	this->debugControl.handlePress( id );
+	debugControl.handlePress( id );
 	return;
 }
 
@@ -139,12 +139,12 @@ void MasterWindow::zeroDacs()
 		ttlBoard.writeData();
 		ttlBoard.startBoard();
 		ttlBoard.waitTillFinished();
-		this->generalStatus.appendText( "Zero'd DACs.\r\n", 0 );
+		generalStatus.appendText( "Zero'd DACs.\r\n", 0 );
 	}
 	catch (myException& exception)
 	{
-		this->generalStatus.appendText( "Failed to Zero DACs!!!\r\n", 0 );
-		this->errorStatus.appendText( exception.what(), 0 );
+		generalStatus.appendText( "Failed to Zero DACs!!!\r\n", 0 );
+		errorStatus.appendText( exception.what(), 0 );
 	}
 }
 
@@ -153,8 +153,8 @@ void MasterWindow::zeroTtls()
 {
 	try
 	{
-		this->ttlBoard.zeroBoard();
-		this->generalStatus.appendText( "Zero'd TTLs.\r\n", 0 );
+		ttlBoard.zeroBoard();
+		generalStatus.appendText( "Zero'd TTLs.\r\n", 0 );
 	}
 	catch (myException& exception)
 	{
@@ -762,7 +762,7 @@ void MasterWindow::SaveMasterScript()
 
 void MasterWindow::SaveMasterScriptAs()
 {
-	if (this->profile.getCurrentPathIncludingCategory() == "")
+	if (profile.getCurrentPathIncludingCategory() == "")
 	{
 		MessageBox("Please select a category before trying to save a the Master Script!", 0, 0);
 	}
