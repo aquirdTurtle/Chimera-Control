@@ -17,25 +17,21 @@ ConfigurationFileSystem::ConfigurationFileSystem( std::string fileSystemPath )
 	FILE_SYSTEM_PATH = fileSystemPath;
 }
 
-ConfigurationFileSystem::~ConfigurationFileSystem()
-{
-	// nothing for destructor right nowFget
-}
 
 std::string ConfigurationFileSystem::getMasterAddressFromConfig()
 {
 	std::string configurationAddress;
 	if (this->currentProfileSettings.orientation == HORIZONTAL_ORIENTATION)
 	{
-		configurationAddress = this->pathIncludingCategory + this->currentProfileSettings.configuration + HORIZONTAL_EXTENSION;
+		configurationAddress = currentProfileSettings.pathIncludingCategory + currentProfileSettings.configuration + HORIZONTAL_EXTENSION;
 	}
 	else if (this->currentProfileSettings.orientation == VERTICAL_ORIENTATION)
 	{
-		configurationAddress = this->pathIncludingCategory + this->currentProfileSettings.configuration + VERTICAL_EXTENSION;
+		configurationAddress = currentProfileSettings.pathIncludingCategory + currentProfileSettings.configuration + VERTICAL_EXTENSION;
 	}
 	else
 	{
-		thrower("ERROR: Unrecognized orientation: " + this->currentProfileSettings.orientation);
+		thrower("ERROR: Unrecognized orientation: " + currentProfileSettings.orientation);
 		return "";
 	}
 	std::fstream configFile(configurationAddress);
@@ -53,7 +49,7 @@ std::string ConfigurationFileSystem::getMasterAddressFromConfig()
 	{
 		configFile.get();
 		getline(configFile, address);
-		return this->getCurrentPathIncludingCategory() + address + MASTER_SCRIPT_EXTENSION;
+		return getCurrentPathIncludingCategory() + address + MASTER_SCRIPT_EXTENSION;
 	}
 	else if (word == "NONLOCAL")
 	{
@@ -142,11 +138,11 @@ void ConfigurationFileSystem::orientationChangeHandler(MasterWindow* Master)
 	{
 		if (currentProfileSettings.orientation == HORIZONTAL_ORIENTATION)
 		{
-			this->reloadCombo(configCombo.GetSafeHwnd(), pathIncludingCategory, std::string("*") + HORIZONTAL_EXTENSION, "__NONE__");
+			this->reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, std::string("*") + HORIZONTAL_EXTENSION, "__NONE__");
 		}
 		else if (currentProfileSettings.orientation == VERTICAL_ORIENTATION)
 		{
-			this->reloadCombo(configCombo.GetSafeHwnd(), pathIncludingCategory, std::string("*") + VERTICAL_EXTENSION, "__NONE__");
+			this->reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, std::string("*") + VERTICAL_EXTENSION, "__NONE__");
 		}
 	}
 	Master->notes.setConfigurationNotes("");
@@ -166,24 +162,24 @@ void ConfigurationFileSystem::newConfiguration(MasterWindow* Master)
 		// check if the experiment has also not been set.
 		if (currentProfileSettings.experiment == "")
 		{
-			MessageBox(0, "The Experiment and category have not yet been selected! Please select a category or create a new one before trying to save this "
-				"configuration.", 0, 0);
+			thrower( "The Experiment and category have not yet been selected! Please select a category or create a new one before trying to save this "
+					 "configuration." );
 		}
 		else
 		{
-			MessageBox(0, "The category has not yet been selected! Please select a category or create a new one before trying to save this configuration.",
-				0, 0);
+			thrower( "The category has not yet been selected! Please select a category or create a new one before trying to save this configuration." );
 		}
 		return;
 	}
 
-	std::string configurationNameToSave = (const char*)DialogBoxParam(Master->programInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure, (LPARAM)"Please enter new configuration name.");
+	std::string configurationNameToSave = (const char*)DialogBoxParam(Master->programInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, 
+		(DLGPROC)textPromptDialogProcedure, (LPARAM)"Please enter new configuration name.");
 	if (configurationNameToSave == "")
 	{
 		// canceled
 		return;
 	}
-	std::string newConfigurationPath = pathIncludingCategory + configurationNameToSave;
+	std::string newConfigurationPath = currentProfileSettings.pathIncludingCategory + configurationNameToSave;
 
 	if (currentProfileSettings.orientation == HORIZONTAL_ORIENTATION)
 	{
@@ -195,25 +191,25 @@ void ConfigurationFileSystem::newConfiguration(MasterWindow* Master)
 	}
 	else
 	{
-		MessageBox(0, "ERROR: Unrecognized orientation! Ask Mark about bugs.", 0, 0);
+		thrower( "ERROR: Unrecognized orientation! Ask Mark about bugs.");
 	}
 	std::ofstream newConfigurationFile(newConfigurationPath.c_str());
 	if (!newConfigurationFile.is_open())
 	{
-		MessageBox(0, "ERROR: Failed to create new configuration file. Ask Mark about bugs.", 0, 0);
+		thrower( "ERROR: Failed to create new configuration file. Ask Mark about bugs.");
 		return;
 	}
 	if (currentProfileSettings.orientation == HORIZONTAL_ORIENTATION)
 	{
-		this->reloadCombo(configCombo.GetSafeHwnd(), pathIncludingCategory, std::string("*") + HORIZONTAL_EXTENSION, currentProfileSettings.configuration.c_str());
+		reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, std::string("*") + HORIZONTAL_EXTENSION, currentProfileSettings.configuration.c_str());
 	}
 	else if (currentProfileSettings.orientation == VERTICAL_ORIENTATION)
 	{
-		this->reloadCombo(configCombo.GetSafeHwnd(), pathIncludingCategory, std::string("*") + VERTICAL_EXTENSION, currentProfileSettings.configuration.c_str());
+		reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, std::string("*") + VERTICAL_EXTENSION, currentProfileSettings.configuration.c_str());
 	}
 	else
 	{
-		MessageBox(0, "ERROR: Unrecognized orientation! Ask Mark about bugs.", 0, 0);
+		thrower( "ERROR: Unrecognized orientation! Ask Mark about bugs." );
 	}
 	return;
 }
@@ -224,7 +220,7 @@ void ConfigurationFileSystem::newConfiguration(MasterWindow* Master)
 void ConfigurationFileSystem::openConfiguration(std::string configurationNameToOpen, MasterWindow* Master)
 {
 	// no folder associated with configuraitons. They share the category folder.
-	std::string path = pathIncludingCategory + configurationNameToOpen;
+	std::string path = currentProfileSettings.pathIncludingCategory + configurationNameToOpen;
 	if (currentProfileSettings.orientation == HORIZONTAL_ORIENTATION)
 	{
 		path += HORIZONTAL_EXTENSION;
@@ -237,7 +233,7 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 	// check if opened correctly.
 	if (!configurationFile.is_open())
 	{
-		MessageBox(0, "Opening of Configuration File Failed!", 0, 0);
+		thrower( "Opening of Configuration File Failed!" );
 		return;
 	}
 	currentProfileSettings.configuration = configurationNameToOpen;
@@ -256,7 +252,7 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 		}
 		else
 		{
-			MessageBox(0, "ERROR: Unrecognized configuration version! Ask Mark about bugs.", 0, 0);
+			thrower( "ERROR: Unrecognized configuration version! Ask Mark about bugs." );
 			return;
 		}
 	}
@@ -509,20 +505,19 @@ void ConfigurationFileSystem::saveConfigurationOnly(MasterWindow* Master)
 		// check if the experiment has also not been set.
 		if (currentProfileSettings.experiment == "")
 		{
-			MessageBox(0, "The Experiment and category have not yet been selected! Please select a category or create a new one before trying to save this "
-				"configuration.", 0, 0);
+			thrower( "The Experiment and category have not yet been selected! Please select a category or create a new one before trying to save this "
+					 "configuration." );
 		}
 		else
 		{
-			MessageBox(0, "The category has not yet been selected! Please select a category or create a new one before trying to save this configuration.",
-				0, 0);
+			thrower( "The category has not yet been selected! Please select a category or create a new one before trying to save this configuration." );
 		}
 		return;
 	}
 	// check to make sure that this is a name.
 	if (configurationNameToSave == "")
 	{
-		MessageBox(0, "ERROR: The program requested the saving of the configuration file to an empty name! This shouldn't happen, ask Mark about bugs.", 0, 0);
+		thrower( "ERROR: The program requested the saving of the configuration file to an empty name! This shouldn't happen, ask Mark about bugs." );
 		return;
 	}
 
@@ -538,13 +533,13 @@ void ConfigurationFileSystem::saveConfigurationOnly(MasterWindow* Master)
 	}
 	else
 	{
-		MessageBox(0, "ERROR: unrecognized orientation! Ask Mark about bugs.", 0, 0);
+		thrower( "ERROR: unrecognized orientation! Ask Mark about bugs." );
 		return;
 	}
 
-	if (!ConfigurationFileSystem::fileOrFolderExists(pathIncludingCategory + configurationNameToSave + extension))
+	if (!ConfigurationFileSystem::fileOrFolderExists( currentProfileSettings.pathIncludingCategory + configurationNameToSave + extension))
 	{
-		int answer = MessageBox(0, ("This configuration file appears to not exist in the expected location: " + pathIncludingCategory + configurationNameToSave 
+		int answer = MessageBox(0, ("This configuration file appears to not exist in the expected location: " + currentProfileSettings.pathIncludingCategory + configurationNameToSave
 			+ extension + ". Continue by making a new configuration file?").c_str(), 0, MB_OKCANCEL);
 		if (answer == IDCANCEL)
 		{
@@ -590,13 +585,13 @@ void ConfigurationFileSystem::saveConfigurationOnly(MasterWindow* Master)
 	}
 	else
 	{
-		MessageBox(0, "ERROR: Unrecognized orientation! Ask Mark about bugs.", 0, 0);
+		thrower( "ERROR: Unrecognized orientation! Ask Mark about bugs." );
 		return;
 	}
-	std::ofstream configurationSaveFile(pathIncludingCategory + configurationNameToSave + extension);
+	std::ofstream configurationSaveFile( currentProfileSettings.pathIncludingCategory + configurationNameToSave + extension);
 	if (!configurationSaveFile.is_open())
 	{
-		MessageBox(0, "Couldn't save configuration file! Check the name for weird characters, or call Mark about bugs if everything seems right...", 0, 0);
+		thrower( "Couldn't save configuration file! Check the name for weird characters, or call Mark about bugs if everything seems right..." );
 		return;
 	}
 	// That's the last prompt the user gets, so the save is final now.
@@ -724,7 +719,7 @@ void ConfigurationFileSystem::saveConfigurationAs(MasterWindow* Master)
 	}
 
 	// check if file already exists
-	if (ConfigurationFileSystem::fileOrFolderExists(pathIncludingCategory + configurationNameToSave + extension))
+	if (ConfigurationFileSystem::fileOrFolderExists( currentProfileSettings.pathIncludingCategory + configurationNameToSave + extension))
 	{
 		int answer = MessageBox(0, "This configuration file name already exists! Overwrite it?", 0, MB_OKCANCEL);
 		if (answer == IDCANCEL)
@@ -771,13 +766,13 @@ void ConfigurationFileSystem::saveConfigurationAs(MasterWindow* Master)
 	}
 	else
 	{
-		MessageBox(0, "ERROR: Unrecognized orientation! Ask Mark about bugs.", 0, 0);
+		thrower( "ERROR: Unrecognized orientation! Ask Mark about bugs." );
 		return;
 	}
-	std::ofstream configurationSaveFile(pathIncludingCategory + configurationNameToSave + extension);
+	std::ofstream configurationSaveFile( currentProfileSettings.pathIncludingCategory + configurationNameToSave + extension);
 	if (!configurationSaveFile.is_open())
 	{
-		MessageBox(0, "Couldn't save configuration file! Check the name for weird characters, or call Mark about bugs if everything seems right...", 0, 0);
+		thrower( "Couldn't save configuration file! Check the name for weird characters, or call Mark about bugs if everything seems right..." );
 		return;
 	}
 
@@ -855,7 +850,7 @@ void ConfigurationFileSystem::saveConfigurationAs(MasterWindow* Master)
 	configurationSaveFile << "END CONFIGURATION NOTES" << "\n";
 
 	configurationSaveFile.close();
-	this->reloadCombo(configCombo.GetSafeHwnd(), pathIncludingCategory, "*" + extension, currentProfileSettings.configuration);
+	this->reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, "*" + extension, currentProfileSettings.configuration);
 	this->updateConfigurationSavedStatus(true);
 
 	return;
@@ -874,19 +869,18 @@ void ConfigurationFileSystem::renameConfiguration(MasterWindow* Master)
 			// check if the experiment has also not been set.
 			if (currentProfileSettings.experiment == "")
 			{
-				MessageBox(0, "The Experiment and category have not yet been selected! Please select a category or create a new one before trying to save this "
-					"configuration.", 0, 0);
+				thrower( "The Experiment and category have not yet been selected! Please select a category or create a new one before trying to save this "
+						 "configuration." );
 			}
 			else
 			{
-				MessageBox(0, "The category has not yet been selected! Please select a category or create a new one before trying to save this configuration.",
-					0, 0);
+				thrower( "The category has not yet been selected! Please select a category or create a new one before trying to save this configuration." );
 			}
 			return;
 		}
 		else
 		{
-			MessageBox(0, "The Configuration has not yet been selected! Please select a category or create a new one before trying to rename it.", 0, 0);
+			thrower( "The Configuration has not yet been selected! Please select a category or create a new one before trying to rename it." );
 		}
 	}
 	std::string newConfigurationName = (const char*)DialogBoxParam(Master->programInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure, (LPARAM)"Please enter new configuration name.");
@@ -895,8 +889,8 @@ void ConfigurationFileSystem::renameConfiguration(MasterWindow* Master)
 		// canceled
 		return;
 	}
-	std::string currentConfigurationLocation = pathIncludingCategory + currentProfileSettings.configuration;
-	std::string newConfigurationLocation = pathIncludingCategory + newConfigurationName;
+	std::string currentConfigurationLocation = currentProfileSettings.pathIncludingCategory + currentProfileSettings.configuration;
+	std::string newConfigurationLocation = currentProfileSettings.pathIncludingCategory + newConfigurationName;
 	if (currentProfileSettings.orientation == HORIZONTAL_ORIENTATION)
 	{
 		currentConfigurationLocation += HORIZONTAL_EXTENSION;
@@ -909,23 +903,23 @@ void ConfigurationFileSystem::renameConfiguration(MasterWindow* Master)
 	}
 	else
 	{
-		MessageBox(0, "ERROR: Orientation Unrecognized! Ask Mark about bugs.", 0, 0);
+		thrower( "ERROR: Orientation Unrecognized! Ask Mark about bugs." );
 		return;
 	}
 	int result = MoveFile(currentConfigurationLocation.c_str(), newConfigurationLocation.c_str());
 	if (result == 0)
 	{
-		MessageBox(0, "Renaming of the configuration file Failed! Ask Mark about bugs", 0, 0);
+		thrower( "Renaming of the configuration file Failed! Ask Mark about bugs" );
 		return;
 	}
 	currentProfileSettings.configuration = newConfigurationName;
 	if (currentProfileSettings.orientation == HORIZONTAL_ORIENTATION)
 	{
-		this->reloadCombo(configCombo.GetSafeHwnd(), pathIncludingCategory, std::string("*") + HORIZONTAL_EXTENSION, "__NONE__");
+		reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, std::string("*") + HORIZONTAL_EXTENSION, "__NONE__");
 	}
 	else if (currentProfileSettings.orientation == VERTICAL_ORIENTATION)
 	{
-		this->reloadCombo(configCombo.GetSafeHwnd(), pathIncludingCategory, std::string("*") + VERTICAL_EXTENSION, "__NONE__");
+		reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, std::string("*") + VERTICAL_EXTENSION, "__NONE__");
 	}
 	else
 	{
@@ -948,19 +942,18 @@ void ConfigurationFileSystem::deleteConfiguration()
 			// check if the experiment has also not been set.
 			if (currentProfileSettings.experiment == "")
 			{
-				MessageBox(0, "The Experiment and category have not yet been selected! Please select a category or create a new one before trying to save this "
-					"configuration.", 0, 0);
+				thrower( "The Experiment and category have not yet been selected! Please select a category or create a new one before trying to save this "
+						 "configuration." );
 			}
 			else
 			{
-				MessageBox(0, "The category has not yet been selected! Please select a category or create a new one before trying to save this configuration.",
-					0, 0);
+				thrower( "The category has not yet been selected! Please select a category or create a new one before trying to save this configuration." );
 			}
 			return;
 		}
 		else
 		{
-			MessageBox(0, "The Configuration has not yet been selected! Please select a category or create a new one before trying to rename it.", 0, 0);
+			thrower( "The Configuration has not yet been selected! Please select a category or create a new one before trying to rename it.", 0, 0);
 		}
 	}
 	int answer = MessageBox(0, ("Are you sure you want to delete the current configuration: " + currentProfileSettings.configuration).c_str(), 0, MB_YESNO);
@@ -968,7 +961,7 @@ void ConfigurationFileSystem::deleteConfiguration()
 	{
 		return;
 	}
-	std::string currentConfigurationLocation = pathIncludingCategory + currentProfileSettings.configuration;
+	std::string currentConfigurationLocation = currentProfileSettings.pathIncludingCategory + currentProfileSettings.configuration;
 	if (currentProfileSettings.orientation == HORIZONTAL_ORIENTATION)
 	{
 		currentConfigurationLocation += HORIZONTAL_EXTENSION;
@@ -979,13 +972,13 @@ void ConfigurationFileSystem::deleteConfiguration()
 	}
 	else
 	{
-		MessageBox(0, "ERROR: Invalid orientation! Ask Mark about bugs.", 0, 0);
+		thrower( "ERROR: Invalid orientation! Ask Mark about bugs." );
 		return;
 	}
 	int result = DeleteFile(currentConfigurationLocation.c_str());
 	if (result == 0)
 	{
-		MessageBox(0, "ERROR: Deleteing the configuration file failed!", 0, 0);
+		thrower( "ERROR: Deleteing the configuration file failed!" );
 		return;
 	}
 	// since the configuration this (may have been) was saved to is gone, no saved version of current code.
@@ -995,15 +988,15 @@ void ConfigurationFileSystem::deleteConfiguration()
 	// reset combo since the files have now changed after delete
 	if (currentProfileSettings.orientation == HORIZONTAL_ORIENTATION)
 	{
-		this->reloadCombo(configCombo.GetSafeHwnd(), pathIncludingCategory, std::string("*") + HORIZONTAL_EXTENSION, "__NONE__");
+		this->reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, std::string("*") + HORIZONTAL_EXTENSION, "__NONE__");
 	}
 	else if (currentProfileSettings.orientation == VERTICAL_ORIENTATION)
 	{
-		this->reloadCombo(configCombo.GetSafeHwnd(), pathIncludingCategory, std::string("*") + VERTICAL_EXTENSION, "__NONE__");
+		this->reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, std::string("*") + VERTICAL_EXTENSION, "__NONE__");
 	}
 	else
 	{
-		MessageBox(0, "ERROR: unrecognized orientation while resetting combobox! Ask Mark about bugs.", 0, 0);
+		thrower( "ERROR: unrecognized orientation while resetting combobox! Ask Mark about bugs." );
 		return;
 	}
 	return;
@@ -1098,10 +1091,10 @@ void ConfigurationFileSystem::saveCategoryOnly(MasterWindow* Master)
 	}
 
 	// check if file already exists. No extension, looking for a folder here. 
-	if (!ConfigurationFileSystem::fileOrFolderExists(pathIncludingCategory + categoryNameToSave + CATEGORY_EXTENSION))
+	if (!ConfigurationFileSystem::fileOrFolderExists( currentProfileSettings.pathIncludingCategory + categoryNameToSave + CATEGORY_EXTENSION))
 	{
-		int answer = MessageBox(0, ("This category file appears to not exist in the expected location: " + pathIncludingCategory + categoryNameToSave 
-			+ CATEGORY_EXTENSION + ".  Continue by making a new category file?").c_str(), 0, MB_OKCANCEL);
+		int answer = MessageBox(0, ("This category file appears to not exist in the expected location: " + currentProfileSettings.pathIncludingCategory 
+									 + categoryNameToSave + CATEGORY_EXTENSION + ".  Continue by making a new category file?").c_str(), 0, MB_OKCANCEL);
 		if (answer == IDCANCEL)
 		{
 			return;
@@ -1121,7 +1114,7 @@ void ConfigurationFileSystem::saveCategoryOnly(MasterWindow* Master)
 			this->saveExperimentOnly( Master );
 		}
 	}
-	std::fstream categoryFileToSave(pathIncludingCategory + categoryNameToSave + CATEGORY_EXTENSION, std::ios::out);
+	std::fstream categoryFileToSave( currentProfileSettings.pathIncludingCategory + categoryNameToSave + CATEGORY_EXTENSION, std::ios::out);
 	if (!categoryFileToSave.is_open())
 	{
 		thrower("ERROR: failed to save category file! Ask mark about bugs.");
@@ -1132,14 +1125,14 @@ void ConfigurationFileSystem::saveCategoryOnly(MasterWindow* Master)
 	categoryFileToSave << categoryNotes + "\n";
 	categoryFileToSave << "END CATEGORY NOTES\n";
 	currentProfileSettings.category = categoryNameToSave;
-	pathIncludingCategory = pathIncludingExperiment + categoryNameToSave + "\\";
+	currentProfileSettings.pathIncludingCategory = currentProfileSettings.pathIncludingExperiment + categoryNameToSave + "\\";
 	this->updateCategorySavedStatus(true);
 	return;
 }
 
 std::string ConfigurationFileSystem::getCurrentPathIncludingCategory()
 {
-	return pathIncludingCategory;
+	return currentProfileSettings.pathIncludingCategory;
 }
 
 /*
@@ -1157,14 +1150,14 @@ void ConfigurationFileSystem::saveCategoryAs(MasterWindow* Master)
 	std::string categoryNameToSave = (const char*)DialogBoxParam(Master->programInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure, (LPARAM)"Please enter new configuration name.");
 	if (categoryNameToSave == "")
 	{
-		MessageBox(0, "ERROR: The program requested the saving of the category file to an empty name! This shouldn't happen, ask Mark about bugs.", 0, 0);
+		thrower( "ERROR: The program requested the saving of the category file to an empty name! This shouldn't happen, ask Mark about bugs." );
 		return;
 	}
 
 	// check if file already exists. No extension, looking for a folder here. 
-	if (!ConfigurationFileSystem::fileOrFolderExists(pathIncludingCategory + categoryNameToSave + CATEGORY_EXTENSION))
+	if (!ConfigurationFileSystem::fileOrFolderExists( currentProfileSettings.pathIncludingCategory + categoryNameToSave + CATEGORY_EXTENSION))
 	{
-		int answer = MessageBox(0, ("This category file appears to not exist in the expected location: " + pathIncludingCategory + categoryNameToSave
+		int answer = MessageBox(0, ("This category file appears to not exist in the expected location: " + currentProfileSettings.pathIncludingCategory + categoryNameToSave
 			+ CATEGORY_EXTENSION + ".  Continue by making a new category file?").c_str(), 0, MB_OKCANCEL);
 		if (answer == IDCANCEL)
 		{
@@ -1186,13 +1179,13 @@ void ConfigurationFileSystem::saveCategoryAs(MasterWindow* Master)
 		}
 	}
 	// need to make a new folder as well.
-	int result = CreateDirectory((pathIncludingExperiment + categoryNameToSave).c_str(), 0);
+	int result = CreateDirectory((currentProfileSettings.pathIncludingExperiment + categoryNameToSave).c_str(), 0);
 	if (result == 0)
 	{
 		thrower("ERROR: failed to create new category directory during category save as! Ask Mark about Bugs.");
 		return;
 	}
-	std::fstream categoryFileToSave(pathIncludingCategory + categoryNameToSave + CATEGORY_EXTENSION, std::ios::out);
+	std::fstream categoryFileToSave( currentProfileSettings.pathIncludingCategory + categoryNameToSave + CATEGORY_EXTENSION, std::ios::out);
 	if (!categoryFileToSave.is_open())
 	{
 		thrower("ERROR: failed to save category file! Ask mark about bugs.");
@@ -1203,8 +1196,8 @@ void ConfigurationFileSystem::saveCategoryAs(MasterWindow* Master)
 	categoryFileToSave << categoryNotes + "\n";
 	categoryFileToSave << "END CATEGORY NOTES\n";
 	currentProfileSettings.category = categoryNameToSave;
-	pathIncludingCategory = pathIncludingExperiment + categoryNameToSave + "\\";
-	this->updateCategorySavedStatus(true);
+	currentProfileSettings.pathIncludingCategory = currentProfileSettings.pathIncludingExperiment + categoryNameToSave + "\\";
+	updateCategorySavedStatus(true);
 	return;
 }
 
@@ -1214,7 +1207,7 @@ void ConfigurationFileSystem::saveCategoryAs(MasterWindow* Master)
 void ConfigurationFileSystem::renameCategory()
 {
 	// TODO: this is a bit more complicated because of the way that all of the configuration fle locations are currently set.
-	MessageBox(0, "This feature still needs implementing! It doesn't work right now", 0, 0);
+	thrower( "This feature still needs implementing! It doesn't work right now");
 	return;
 }
 
@@ -1229,13 +1222,12 @@ void ConfigurationFileSystem::deleteCategory()
 		// check if the experiment has also not been set.
 		if (currentProfileSettings.experiment == "")
 		{
-			MessageBox(0, "The Experiment and category have not yet been selected! Please select a category or create a new one before trying to save this "
-				"category.", 0, 0);
+			thrower( "The Experiment and category have not yet been selected! Please select a category or create a new one before trying to save this "
+					 "category." );
 		}
 		else
 		{
-			MessageBox(0, "The category has not yet been selected! Please select a category or create a new one before trying to save this category.",
-				0, 0);
+			thrower( "The category has not yet been selected! Please select a category or create a new one before trying to save this category." );
 		}
 		return;
 	}
@@ -1249,12 +1241,12 @@ void ConfigurationFileSystem::deleteCategory()
 	{
 		return;
 	}
-	std::string currentCategoryLocation = pathIncludingExperiment + currentProfileSettings.category;
+	std::string currentCategoryLocation = currentProfileSettings.pathIncludingExperiment + currentProfileSettings.category;
 	fullyDeleteFolder( currentCategoryLocation );
 	updateCategorySavedStatus(false);
 	currentProfileSettings.category = "";
-	pathIncludingCategory == "";
-	reloadCombo(categoryCombo.GetSafeHwnd(), pathIncludingExperiment, "*", "__NONE__");
+	currentProfileSettings.pathIncludingCategory == "";
+	reloadCombo(categoryCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingExperiment, "*", "__NONE__");
 	return;
 }
 
@@ -1263,8 +1255,7 @@ void ConfigurationFileSystem::newCategory(MasterWindow* Master)
 	// check if experiment has been set
 	if (currentProfileSettings.experiment == "")
 	{
-		thrower("The Experiment has not yet been selected! Please select a Experiment or create a new one before trying to save this "
-			"category.");
+		thrower("The Experiment has not yet been selected! Please select a Experiment or create a new one before trying to save this category.");
 		return;
 	}
 	std::string categoryNameToSave = (const char*)DialogBoxParam(Master->programInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0,
@@ -1277,20 +1268,20 @@ void ConfigurationFileSystem::newCategory(MasterWindow* Master)
 	}
 
 	// check if file already exists. No extension, looking for a folder here. 
-	if (ConfigurationFileSystem::fileOrFolderExists(pathIncludingExperiment + categoryNameToSave))
+	if (ConfigurationFileSystem::fileOrFolderExists( currentProfileSettings.pathIncludingExperiment + categoryNameToSave))
 	{
 		thrower("This category name already exists! If it doesn't appear in the combo, try taking a look at what's in the relvant folder...");
 		return;
 	}
-	int result = CreateDirectory((pathIncludingExperiment + categoryNameToSave).c_str(), 0);
+	int result = CreateDirectory((currentProfileSettings.pathIncludingExperiment + categoryNameToSave).c_str(), 0);
 	if (result == 0)
 	{
 		thrower("ERROR: failed to create category directory! Ask Mark about bugs.");
 		return;
 	}
-	std::ofstream categorySaveFolder(pathIncludingExperiment + categoryNameToSave + "\\" + categoryNameToSave + CATEGORY_EXTENSION);
+	std::ofstream categorySaveFolder( currentProfileSettings.pathIncludingExperiment + categoryNameToSave + "\\" + categoryNameToSave + CATEGORY_EXTENSION);
 	categorySaveFolder.close();
-	this->reloadCombo(categoryCombo.GetSafeHwnd(), pathIncludingExperiment, "*", currentProfileSettings.category);
+	reloadCombo(categoryCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingExperiment, "*", currentProfileSettings.category);
 	return;
 }
 
@@ -1298,7 +1289,7 @@ void ConfigurationFileSystem::openCategory(std::string categoryToOpen, MasterWin
 {
 	// this gets called from the file menu.
 	// Assign based on the comboBox Item entry.
-	std::string path = pathIncludingExperiment + categoryToOpen + "\\" + categoryToOpen + CATEGORY_EXTENSION;
+	std::string path = currentProfileSettings.pathIncludingExperiment + categoryToOpen + "\\" + categoryToOpen + CATEGORY_EXTENSION;
 	std::ifstream categoryConfigOpenFile(path.c_str());
 	// check if opened correctly.
 	if (!categoryConfigOpenFile.is_open())
@@ -1307,7 +1298,7 @@ void ConfigurationFileSystem::openCategory(std::string categoryToOpen, MasterWin
 		return;
 	}
 	currentProfileSettings.category = categoryToOpen;
-	pathIncludingCategory = pathIncludingExperiment + categoryToOpen + "\\";
+	currentProfileSettings.pathIncludingCategory = currentProfileSettings.pathIncludingExperiment + categoryToOpen + "\\";
 	/// Set the Configuration combobox.
 	// Get all files in the relevant directory.
 	std::vector<std::string> configurationNames;
@@ -1400,11 +1391,11 @@ void ConfigurationFileSystem::categoryChangeHandler(MasterWindow* Master)
 	Master->notes.setConfigurationNotes("");
 	if (currentProfileSettings.orientation == HORIZONTAL_ORIENTATION)
 	{
-		this->reloadCombo(configCombo.GetSafeHwnd(), pathIncludingCategory, std::string("*") + HORIZONTAL_EXTENSION, "__NONE__");
+		this->reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, std::string("*") + HORIZONTAL_EXTENSION, "__NONE__");
 	}
 	else if (currentProfileSettings.orientation == VERTICAL_ORIENTATION)
 	{
-		this->reloadCombo(configCombo.GetSafeHwnd(), pathIncludingCategory, std::string("*") + VERTICAL_EXTENSION, "__NONE__");
+		this->reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, std::string("*") + VERTICAL_EXTENSION, "__NONE__");
 	}
 	currentProfileSettings.configuration = "";
 	this->reloadSequence(NULL_SEQUENCE, Master);
@@ -1418,7 +1409,7 @@ void ConfigurationFileSystem::saveExperimentOnly(MasterWindow* Master)
 	// check that the experiment name is not empty.
 	if (experimentNameToSave == "")
 	{
-		MessageBox(0, "ERROR: Please properly select the experiment or create a new one (\'new experiment\') before trying to save it!", 0, 0);
+		thrower( "ERROR: Please properly select the experiment or create a new one (\'new experiment\') before trying to save it!" );
 		return;
 	}
 	// check if file already exists
@@ -1434,7 +1425,7 @@ void ConfigurationFileSystem::saveExperimentOnly(MasterWindow* Master)
 	std::ofstream experimentSaveFile(FILE_SYSTEM_PATH + experimentNameToSave + "\\" + experimentNameToSave + EXPERIMENT_EXTENSION);
 	if (!experimentSaveFile.is_open())
 	{
-		MessageBox(0, "Couldn't save configuration file! Check the name for weird characters, or call Mark about bugs if everything seems right...", 0, 0);
+		thrower( "Couldn't save configuration file! Check the name for weird characters, or call Mark about bugs if everything seems right..." );
 		return;
 	}
 	// That's the last prompt the user gets, so the save is final now.
@@ -1454,7 +1445,7 @@ void ConfigurationFileSystem::saveExperimentOnly(MasterWindow* Master)
 	experimentSaveFile.close();
 	currentProfileSettings.experiment = experimentNameToSave;
 	// update the save path. 
-	pathIncludingExperiment = FILE_SYSTEM_PATH + experimentNameToSave + "\\";
+	currentProfileSettings.pathIncludingExperiment = FILE_SYSTEM_PATH + experimentNameToSave + "\\";
 	// update the configuration saved statis for "this" object.
 	this->updateExperimentSavedStatus(true);
 	this->reloadCombo(experimentCombo.GetSafeHwnd(), FILE_SYSTEM_PATH, "*", currentProfileSettings.experiment);
@@ -1491,13 +1482,13 @@ void ConfigurationFileSystem::saveExperimentAs(MasterWindow* Master)
 	int result = CreateDirectory((FILE_SYSTEM_PATH + experimentNameToSave).c_str(), 0);
 	if (result == 0)
 	{
-		MessageBox(0, "ERROR: failed to create new experiment directory during save as! Ask Mark about bugs.", 0, 0);
+		thrower( "ERROR: failed to create new experiment directory during save as! Ask Mark about bugs." );
 		return;
 	}
 	std::ofstream experimentSaveFile(FILE_SYSTEM_PATH + experimentNameToSave + "\\" + experimentNameToSave + ".eConfig");
 	if (!experimentSaveFile.is_open())
 	{
-		MessageBox(0, "Couldn't save configuration file! Check the name for weird characters, or call Mark about bugs if everything seems right...", 0, 0);
+		thrower( "Couldn't save configuration file! Check the name for weird characters, or call Mark about bugs if everything seems right..." );
 		return;
 	}
 	// That's the last prompt the user gets, so the save is final now.
@@ -1516,7 +1507,7 @@ void ConfigurationFileSystem::saveExperimentAs(MasterWindow* Master)
 	// And done.
 	experimentSaveFile.close();
 	// update the save path. 
-	pathIncludingExperiment = FILE_SYSTEM_PATH + experimentNameToSave + "\\";
+	currentProfileSettings.pathIncludingExperiment = FILE_SYSTEM_PATH + experimentNameToSave + "\\";
 	// update the configuration saved statis for "this" object.
 	this->updateExperimentSavedStatus(true);
 	this->reloadCombo(experimentCombo.GetSafeHwnd(), FILE_SYSTEM_PATH, "*", currentProfileSettings.experiment);
@@ -1575,7 +1566,7 @@ void ConfigurationFileSystem::deleteExperiment()
 {
 	if (currentProfileSettings.experiment == "")
 	{
-		MessageBox(0, "No experiment has been set!", 0, 0);
+		thrower( "No experiment has been set!" );
 		return;
 	}
 	int answer = MessageBox(0, ("Are you sure that you'd like to delete the current experiment and all categories and configurations within? Current Experiment: " + currentProfileSettings.experiment).c_str(), 0, MB_YESNO);
@@ -1591,14 +1582,14 @@ void ConfigurationFileSystem::deleteExperiment()
 	std::string experimentConfigLocation = FILE_SYSTEM_PATH + currentProfileSettings.experiment + "\\" + currentProfileSettings.experiment + EXPERIMENT_EXTENSION;
 	if (DeleteFile(experimentConfigLocation.c_str()))
 	{
-		MessageBox(0, "Deleting .eConfig file failed! Ask Mark about bugs.", 0, 0);
+		thrower( "Deleting .eConfig file failed! Ask Mark about bugs." );
 		return;
 	}
-	this->fullyDeleteFolder( pathIncludingExperiment + currentProfileSettings.experiment );
-	this->reloadCombo(experimentCombo.GetSafeHwnd(), FILE_SYSTEM_PATH, "*", "__NONE__");
+	fullyDeleteFolder( currentProfileSettings.pathIncludingExperiment + currentProfileSettings.experiment );
+	reloadCombo(experimentCombo.GetSafeHwnd(), FILE_SYSTEM_PATH, "*", "__NONE__");
 	updateExperimentSavedStatus(false);
 	currentProfileSettings.experiment = "";
-	pathIncludingExperiment = "";
+	currentProfileSettings.pathIncludingExperiment = "";
 	return;
 }
 
@@ -1610,7 +1601,7 @@ void ConfigurationFileSystem::newExperiment(MasterWindow* Master)
 	CreateDirectory(newExperimentPath.c_str(), 0);
 	std::ofstream newExperimentConfigFile;
 	newExperimentConfigFile.open((newExperimentPath + "\\" + newExperimentName + EXPERIMENT_EXTENSION).c_str());
-	this->reloadCombo(experimentCombo.GetSafeHwnd(), FILE_SYSTEM_PATH, "*", currentProfileSettings.experiment);
+	reloadCombo(experimentCombo.GetSafeHwnd(), FILE_SYSTEM_PATH, "*", currentProfileSettings.experiment);
 	return;
 }
 
@@ -1625,11 +1616,11 @@ void ConfigurationFileSystem::openExperiment(std::string experimentToOpen, Maste
 	// check if opened correctly.
 	if (!experimentConfigOpenFile.is_open())
 	{
-		MessageBox(0, "Opening of Experiment Configuration File Failed!", 0, 0);
+		thrower( "Opening of Experiment Configuration File Failed!" );
 		return;
 	}
 	currentProfileSettings.experiment = experimentToOpen;
-	pathIncludingExperiment = FILE_SYSTEM_PATH + experimentToOpen + "\\";
+	currentProfileSettings.pathIncludingExperiment = FILE_SYSTEM_PATH + experimentToOpen + "\\";
 	this->updateExperimentSavedStatus(true);
 	/// Set the Configuration combobox.
 	// Get all files in the relevant directory.
@@ -1719,7 +1710,7 @@ void ConfigurationFileSystem::experimentChangeHandler(MasterWindow* Master)
 	// Send CB_GETLBTEXT message to get the item.
 	experimentCombo.GetLBText( itemIndex, experimentConfigToOpen );
 	this->openExperiment( std::string( experimentConfigToOpen ), Master );
-	this->reloadCombo(categoryCombo.GetSafeHwnd(), pathIncludingExperiment, "*", "__NONE__");
+	this->reloadCombo(categoryCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingExperiment, "*", "__NONE__");
 	// it'd be confusing if this category-specific text remained after the category get set to blank.
 	Master->notes.setCategoryNotes("");
 	Master->notes.setConfigurationNotes("");
@@ -1743,7 +1734,7 @@ void ConfigurationFileSystem::loadNullSequence(MasterWindow* Master)
 		}
 		else
 		{
-			MessageBox(0, "ERROR: orientation not recognized! Ask Mark about bugs.", 0, 0);
+			thrower( "ERROR: orientation not recognized! Ask Mark about bugs." );
 			return;
 		}
 		// change edit
@@ -1812,7 +1803,7 @@ void ConfigurationFileSystem::sequenceChangeHandler(MasterWindow* Master)
 
 void ConfigurationFileSystem::reloadSequence(std::string sequenceToReload, MasterWindow* Master)
 {
-	this->reloadCombo(sequenceCombo.GetSafeHwnd(), pathIncludingCategory, std::string("*") + SEQUENCE_EXTENSION, sequenceToReload);
+	reloadCombo(sequenceCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, std::string("*") + SEQUENCE_EXTENSION, sequenceToReload);
 	sequenceCombo.AddString( NULL_SEQUENCE );
 	if (sequenceToReload == NULL_SEQUENCE)
 	{
@@ -1828,12 +1819,12 @@ void ConfigurationFileSystem::saveSequence(MasterWindow* Master)
 	{
 		if (this->currentProfileSettings.experiment == "")
 		{
-			MessageBox(0, "Please set category and experiment before saving sequence.", 0, 0);
+			thrower( "Please set category and experiment before saving sequence." );
 			return;
 		}
 		else
 		{
-			MessageBox(0, "Please set category before saving sequence.", 0, 0);
+			thrower( "Please set category before saving sequence." );
 			return;
 		}
 	}
@@ -1853,10 +1844,10 @@ void ConfigurationFileSystem::saveSequence(MasterWindow* Master)
 		}
 		currentProfileSettings.sequence = result;
 	}
-	std::fstream sequenceSaveFile(pathIncludingCategory + "\\" + currentProfileSettings.sequence + SEQUENCE_EXTENSION, std::fstream::out);
+	std::fstream sequenceSaveFile( currentProfileSettings.pathIncludingCategory + "\\" + currentProfileSettings.sequence + SEQUENCE_EXTENSION, std::fstream::out);
 	if (!sequenceSaveFile.is_open())
 	{
-		MessageBox(0, "ERROR: Couldn't open sequence file for saving!", 0, 0);
+		thrower( "ERROR: Couldn't open sequence file for saving!" );
 		return;
 	}
 	sequenceSaveFile << "Version: 1.0\n";
@@ -1887,10 +1878,10 @@ void ConfigurationFileSystem::saveSequenceAs(MasterWindow* Master)
 		return;
 	}
 	// if not saved...
-	std::fstream sequenceSaveFile(pathIncludingCategory + "\\" + std::string(result) + SEQUENCE_EXTENSION, std::fstream::out);
+	std::fstream sequenceSaveFile( currentProfileSettings.pathIncludingCategory + "\\" + std::string(result) + SEQUENCE_EXTENSION, std::fstream::out);
 	if (!sequenceSaveFile.is_open())
 	{
-		MessageBox(0, "ERROR: Couldn't open sequence file for saving!", 0, 0);
+		thrower( "ERROR: Couldn't open sequence file for saving!" );
 		return;
 	}
 	currentProfileSettings.sequence = std::string(result);
@@ -1912,14 +1903,15 @@ void ConfigurationFileSystem::renameSequence(MasterWindow* Master)
 		thrower("Please select a sequence for renaming.");
 		return;
 	}
-	std::string newSequenceName = (const char*)DialogBoxParam(Master->programInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure, (LPARAM)"Please enter new configuration name.");
+	std::string newSequenceName = (const char*)DialogBoxParam(Master->programInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 
+															   0, (DLGPROC)textPromptDialogProcedure, (LPARAM)"Please enter new configuration name.");
 	if (newSequenceName == "")
 	{
 		// canceled
 		return;
 	}
-	int result = MoveFile((pathIncludingCategory + currentProfileSettings.sequence + SEQUENCE_EXTENSION).c_str(), 
-						  (pathIncludingCategory + newSequenceName + SEQUENCE_EXTENSION).c_str());
+	int result = MoveFile((currentProfileSettings.pathIncludingCategory + currentProfileSettings.sequence + SEQUENCE_EXTENSION).c_str(),
+						  (currentProfileSettings.pathIncludingCategory + newSequenceName + SEQUENCE_EXTENSION).c_str());
 	if (result == 0)
 	{
 		thrower( "Renaming of the sequence file Failed! Ask Mark about bugs" );
@@ -1936,7 +1928,7 @@ void ConfigurationFileSystem::deleteSequence(MasterWindow* Master)
 	// check if configuration has been set yet.
 	if (currentProfileSettings.sequence == "" || currentProfileSettings.sequence == NULL_SEQUENCE)
 	{
-		MessageBox(0, "Please select a sequence for deleting.", 0, 0);
+		thrower( "Please select a sequence for deleting." );
 		return;
 	}
 	int answer = MessageBox(0, ("Are you sure you want to delete the current sequence: " + currentProfileSettings.sequence).c_str(), 0, MB_YESNO);
@@ -1944,11 +1936,11 @@ void ConfigurationFileSystem::deleteSequence(MasterWindow* Master)
 	{
 		return;
 	}
-	std::string currentSequenceLocation = pathIncludingCategory + currentProfileSettings.sequence + SEQUENCE_EXTENSION;
+	std::string currentSequenceLocation = currentProfileSettings.pathIncludingCategory + currentProfileSettings.sequence + SEQUENCE_EXTENSION;
 	int result = DeleteFile(currentSequenceLocation.c_str());
 	if (result == 0)
 	{
-		MessageBox(0, "ERROR: Deleteing the configuration file failed!", 0, 0);
+		thrower( "ERROR: Deleteing the configuration file failed!" );
 		return;
 	}
 	// since the sequence this (may have been) was saved to is gone, no saved version of current code.
@@ -1973,7 +1965,7 @@ void ConfigurationFileSystem::newSequence(MasterWindow* Master)
 		return;
 	}
 	// try to open the file.
-	std::fstream sequenceFile(pathIncludingCategory + "\\" + result + SEQUENCE_EXTENSION, std::fstream::out);
+	std::fstream sequenceFile( currentProfileSettings.pathIncludingCategory + "\\" + result + SEQUENCE_EXTENSION, std::fstream::out);
 	if (!sequenceFile.is_open())
 	{
 		thrower( "Couldn't create a file with this sequence name! Make sure there are no forbidden characters in your name." );
@@ -1996,10 +1988,11 @@ void ConfigurationFileSystem::newSequence(MasterWindow* Master)
 void ConfigurationFileSystem::openSequence(std::string sequenceName, MasterWindow* Master)
 {
 	// try to open the file
-	std::fstream sequenceFile(pathIncludingCategory + sequenceName + SEQUENCE_EXTENSION);
+	std::fstream sequenceFile( currentProfileSettings.pathIncludingCategory + sequenceName + SEQUENCE_EXTENSION);
 	if (!sequenceFile.is_open())
 	{
-		MessageBox(0, ("ERROR: sequence file failed to open! Make sure the sequence with address ..." + pathIncludingCategory + sequenceName + SEQUENCE_EXTENSION + " exists.").c_str(), 0, 0);
+		thrower( "ERROR: sequence file failed to open! Make sure the sequence with address ..." + currentProfileSettings.pathIncludingCategory
+				 + sequenceName + SEQUENCE_EXTENSION + " exists." );
 		return;
 	}
 	currentProfileSettings.sequence = std::string(sequenceName);
@@ -2362,8 +2355,7 @@ void ConfigurationFileSystem::fullyDeleteFolder(std::string folderToDelete)
 	int filesRemoved = boost::filesystem::remove_all(folderToDelete.c_str());
 	if (filesRemoved == 0)
 	{
-		std::string errMsg = "Delete Failed! Ask mark about bugs.";
-		MessageBox(0, errMsg.c_str(), 0, 0);
+		thrower( "Delete Failed! Ask mark about bugs." );
 		return;
 	}
 	return;
