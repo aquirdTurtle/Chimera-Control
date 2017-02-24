@@ -832,7 +832,8 @@ void Agilent::initialize( POINT& loc, std::vector<CToolTipCtrl*>& toolTips, Mast
 	dcButton.ID = id++;
 	dcButton.Create( "DC", BS_AUTORADIOBUTTON | WS_GROUP | WS_VISIBLE | WS_CHILD, dcButton.position, master, dcButton.ID );
 	dcButton.SetCheck( true );
-
+	chan1Setting = 0;
+	chan2Setting = 0;
 
 	presetButton.position = { loc.x, loc.y, loc.x += 160, loc.y + 20 };
 	presetButton.ID = id++;
@@ -848,45 +849,6 @@ void Agilent::initialize( POINT& loc, std::vector<CToolTipCtrl*>& toolTips, Mast
 	presetEdit.ID = id++;
 	presetEdit.Create( WS_CHILD | WS_VISIBLE | SS_SUNKEN, presetEdit.position, master, presetEdit.ID );
 
-	inputSettings.chan1Setting = 0;
-	inputSettings.chan1DcLevel = "0";
-	inputSettings.chan1String = "";
-	inputSettings.chan2Setting = 0;
-	inputSettings.chan2DcLevel = "0";
-	inputSettings.chan2String = "";
-}
-
-
-agilentSettingsInfoInput Agilent::getInputSettings()
-{
-	return inputSettings;
-}
-
-
-agilentSettingsInfoFinal Agilent::getFinalSettings()
-{
-	return finalSettings;
-}
-
-
-void Agilent::convertInputToFinalSettings( key variableKey, unsigned int variation )
-{
-	try
-	{
-		finalSettings.chan1DcLevel = std::stod( inputSettings.chan1DcLevel );
-	}
-	catch (std::invalid_argument&)
-	{
-		finalSettings.chan1DcLevel = variableKey[inputSettings.chan1DcLevel].first[variation];
-	}
-	try
-	{
-		finalSettings.chan2DcLevel = std::stod( inputSettings.chan2DcLevel );
-	}
-	catch (std::invalid_argument&)
-	{
-		finalSettings.chan2DcLevel = variableKey[inputSettings.chan2DcLevel].first[variation];
-	}
 }
 
 

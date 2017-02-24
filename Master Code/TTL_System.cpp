@@ -422,35 +422,35 @@ void TtlSystem::unshadeTTLs()
 }
 
 
-void TtlSystem::initialize(POINT& loc, std::unordered_map<HWND, std::string>& toolTipText, 
-							std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id)
+void TtlSystem::initialize( POINT& loc, std::unordered_map<HWND, std::string>& toolTipText,
+							std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id )
 {
 
 
 	// title
 	ttlTitle.position = { loc.x, loc.y, loc.x + 480, loc.y + 25 };
 	ttlTitle.ID = id++;
-	ttlTitle.Create("TTLS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, ttlTitle.position, master, ttlTitle.ID);
+	ttlTitle.Create( "TTLS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, ttlTitle.position, master, ttlTitle.ID );
 	ttlTitle.SetFont( CFont::FromHandle( sHeadingFont ) );
 	// all number labels
 	loc.y += 25;
 	ttlHold.position = { loc.x, loc.y, loc.x + 240, loc.y + 20 };
 	ttlHold.ID = id++;
-	if ( ttlHold.ID != TTL_HOLD )
+	if (ttlHold.ID != TTL_HOLD)
 	{
 		throw;
 	}
 	ttlHold.Create( "Hold Current Values", WS_TABSTOP | WS_VISIBLE | BS_AUTOCHECKBOX | WS_CHILD | BS_PUSHLIKE,
 					ttlHold.position, master, ttlHold.ID );
-	if ( !ttlHold.setToolTip( "Press this button to change multiple TTLs simultaneously. Press the button, then change the ttls, then press the button again "
-							  "to release it. Upon releasing the button, the TTLs will change.", toolTips, master ) )
+	if (!ttlHold.setToolTip( "Press this button to change multiple TTLs simultaneously. Press the button, then change the ttls, then press the button again "
+							 "to release it. Upon releasing the button, the TTLs will change.", toolTips, master ))
 	{
 		MessageBox( 0, "Button Tool tip failed!", 0, 0 );
 	}
 
 	zeroTtls.position = { loc.x + 240, loc.y, loc.x + 480, loc.y + 20 };
 	zeroTtls.ID = id++;
-	if ( zeroTtls.ID != IDC_ZERO_TTLS )
+	if (zeroTtls.ID != IDC_ZERO_TTLS)
 	{
 		throw;
 	}
@@ -460,18 +460,18 @@ void TtlSystem::initialize(POINT& loc, std::unordered_map<HWND, std::string>& to
 
 	for (int ttlNumberInc = 0; ttlNumberInc < ttlNumberLabels.size(); ttlNumberInc++)
 	{
-		ttlNumberLabels[ttlNumberInc].position = {loc.x + 32 + ttlNumberInc * 28, loc.y, 
+		ttlNumberLabels[ttlNumberInc].position = { loc.x + 32 + ttlNumberInc * 28, loc.y,
 			loc.x + 32 + (ttlNumberInc + 1) * 28, loc.y + 20 };
 		ttlNumberLabels[ttlNumberInc].ID = id++;
-		ttlNumberLabels[ttlNumberInc].Create(std::to_string(ttlNumberInc).c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN, 
-											  ttlNumberLabels[ttlNumberInc].position, master, 
-											  ttlNumberLabels[ttlNumberInc].ID);
+		ttlNumberLabels[ttlNumberInc].Create( std::to_string( ttlNumberInc ).c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN,
+											  ttlNumberLabels[ttlNumberInc].position, master,
+											  ttlNumberLabels[ttlNumberInc].ID );
 	}
 	loc.y += 20;
 	// all row labels
 	for (int row = 0; row < ttlPushControls.size(); row++)
 	{
-		ttlRowLabels[row].position = { loc.x, loc.y + row*28, loc.x + 32, loc.y + (row + 1)*28 };
+		ttlRowLabels[row].position = { loc.x, loc.y + row * 28, loc.x + 32, loc.y + (row + 1) * 28 };
 		ttlRowLabels[row].ID = id++;
 		std::string rowName;
 		switch (row)
@@ -489,10 +489,10 @@ void TtlSystem::initialize(POINT& loc, std::unordered_map<HWND, std::string>& to
 				rowName = "D";
 				break;
 		}
-		ttlRowLabels[row].Create(rowName.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, 
-								  ttlRowLabels[row].position, master, ttlRowLabels[row].ID);
+		ttlRowLabels[row].Create( rowName.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
+								  ttlRowLabels[row].position, master, ttlRowLabels[row].ID );
 	}
-	if ( id != TTL_ID_BEGIN )
+	if (id != TTL_ID_BEGIN)
 	{
 		throw;
 	}
@@ -517,23 +517,23 @@ void TtlSystem::initialize(POINT& loc, std::unordered_map<HWND, std::string>& to
 					name = "D";
 					break;
 			}
-			name += std::to_string(number);
+			name += std::to_string( number );
 
 			//this->ttlNames[row][number] = name;
-			ttlPushControls[row][number].position = { loc.x + 32 + number * 28, loc.y + row * 28, 
+			ttlPushControls[row][number].position = { loc.x + 32 + number * 28, loc.y + row * 28,
 				loc.x + 32 + (number + 1) * 28, loc.y + (row + 1) * 28 };
 			ttlPushControls[row][number].ID = id++;
-			ttlPushControls[row][number].Create("", WS_CHILD | WS_VISIBLE | BS_RIGHT | BS_3STATE, 
+			ttlPushControls[row][number].Create( "", WS_CHILD | WS_VISIBLE | BS_RIGHT | BS_3STATE,
 												 ttlPushControls[row][number].position, master,
-												 ttlPushControls[row][number].ID);
-			if (!ttlPushControls[row][number].setToolTip(this->ttlNames[row][number], toolTips, master))
+												 ttlPushControls[row][number].ID );
+			if (!ttlPushControls[row][number].setToolTip( this->ttlNames[row][number], toolTips, master ))
 			{
-				MessageBox(0, "Tool tip creation failed!", 0, 0);
+				MessageBox( 0, "Tool tip creation failed!", 0, 0 );
 			}
 		}
 	}
 	//???
-	if ( id != TTL_ID_END )
+	if (id != TTL_ID_END)
 	{
 		throw;
 	}
