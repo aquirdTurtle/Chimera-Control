@@ -1013,7 +1013,14 @@ BOOL MasterWindow::OnInitDialog()
 	repetitionControl.initialize( controlLocation, this->toolTips, this, id );
 	ttlBoard.initialize( controlLocation, this->toolTipText, this->toolTips, this, id );
 	dacBoards.initialize( controlLocation, this->toolTips, this, id );
-	masterConfig.load( &ttlBoard, dacBoards, toolTips, this, &globalVariables );
+	try
+	{
+		masterConfig.load( &ttlBoard, dacBoards, toolTips, this, &globalVariables );
+	}
+	catch (myException& exeption)
+	{
+		errBox( exeption.what() );
+	}
 
 	RECT controlArea = { 960, 0, 1320, 540 };
 	//RECT editSize, HWND windowHandle, std::string titleText
@@ -1024,6 +1031,9 @@ BOOL MasterWindow::OnInitDialog()
 	notes.initialize( controlLocation, this, id );
 	RhodeSchwarzGenerator.initialize( controlLocation, toolTips, this, id );
 	debugControl.initialize( controlLocation, this, this->toolTips, id );
+	agilent1.initialize( controlLocation, toolTips, this, id, "STUFF", "Top/Bottom Agilent" );
+	agilent2.initialize( controlLocation, toolTips, this, id, "STUFF...", "U-Wave / Axial Agilent" );
+
 	controlLocation = POINT{ 1320, 0 };
 	masterScript.initialize( 600, 1080, controlLocation, this->toolTips, this, id );
 

@@ -192,7 +192,7 @@
     <ClInclude Include="Control.h" />
     <ClInclude Include="ExperimentManager.h" />
     <ClInclude Include="fonts.h" />
-    <ClInclude Include="GPIB.h" />
+    <ClInclude Include="Gpib.h" />
     <ClInclude Include="myNIAWG.h" />
     <ClInclude Include="NoteSystem.h" />
     <ClInclude Include="resource1.h" />

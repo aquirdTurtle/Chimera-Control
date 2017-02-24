@@ -9,11 +9,33 @@
 #include "visa.h"
 
 class Agilent;
+class MasterWindow;
 
 struct minMaxDoublet
 {
 	double min;
 	double max;
+};
+
+struct agilentSettingsInfoInput
+{
+	int chan1Setting;
+	std::string chan1DcLevel;
+	std::string chan1String;
+	int chan2Setting;
+	std::string chan2DcLevel;
+	std::string chan2String;
+};
+
+
+struct agilentSettingsInfoFinal
+{
+	int chan1Setting;
+	double chan1DcLevel;
+	std::string chan1String;
+	int chan2Setting;
+	double chan2DcLevel;
+	std::string chan2String;
 };
 
 
@@ -44,9 +66,10 @@ struct segmentInfoFinal
 	int continuationType;
 };
 
+
 /*
 	* The Segment class contains all of the information and handling for a single segment of the waveform to be programmed to the Agilent. The class includes
-	* the following functions and variables:
+	* the following functions and variables
 	*/
 class Segment
 {
@@ -67,10 +90,11 @@ class Segment
 		std::vector<double> dataArray;
 };
 
-	/*
-	 * The class IntensityWaveform contains all of the information and handling relevant for the entire intensity waveform that gets programmed to the Andor.
-	 * This includes a vector of segments which contain segment-specific information. The functions and variabels relevant for this class are:
-	 */
+
+/*
+	* The class IntensityWaveform contains all of the information and handling relevant for the entire intensity waveform that gets programmed to the Andor.
+	* This includes a vector of segments which contain segment-specific information. The functions and variabels relevant for this class are:
+	*/
 class IntensityWaveform
 {
 	public:
@@ -100,14 +124,18 @@ class IntensityWaveform
 class Agilent
 {
 	public:
-		void initialize(std::string address);
+		void initialize( POINT& loc, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id, 
+						 std::string address, std::string header );
 		void setDC( std::string level );
-		void setExistingWaveform();
+		void setExistingWaveform( std::string address );
 		void agilentDefault();
 		void analyzeIntensityScript( ScriptStream& intensityFile, IntensityWaveform* intensityWaveformData, int& currentSegmentNumber, profileSettings profileInfo );
 		void programIntensity( int varNum, key variableKey, bool& intensityVaried, std::vector<minMaxDoublet>& minsAndMaxes,
 							   std::vector<std::vector<POINT>>& pointsToDraw, std::vector<ScriptStream>& intensityFiles, profileSettings profileInfo );
 		void selectIntensityProfile( int varNum, bool intensityIsVaried, std::vector<minMaxDoublet> intensityMinMax );
+
+		agilentSettingsInfoInput getInputSettings();
+		agilentSettingsInfoFinal getFinalSettings();
 
 	private:
 		// usb address...
@@ -125,4 +153,17 @@ class Agilent
 		void visaOpen( std::string address );
 		void errCheck( long status );
 		void visaSetAttribute( ViAttr attributeName, ViAttrState value );
+		void convertInputToFinalSettings( key variableKey, unsigned int variation );
+		// GUI ELEMENTS
+		Control<CStatic> header;
+		Control<CButton> channel1Button;
+		Control<CButton> channel2Button;
+		Control<CButton> dcButton;
+		Control<CButton> presetButton;
+		Control<CButton> scriptButton;
+		Control<CEdit> presetEdit;
+
+		agilentSettingsInfoInput inputSettings;
+		agilentSettingsInfoFinal finalSettings;
+
 };

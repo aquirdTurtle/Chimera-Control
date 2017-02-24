@@ -20,6 +20,7 @@
 #include "ExperimentManager.h"
 #include "KeyHandler.h"
 #include "Debugger.h"
+#include "Agilent.h"
 
 class MasterWindow : public CDialog
 {
@@ -154,6 +155,8 @@ class MasterWindow : public CDialog
 		Gpib gpibHandler;
 		KeyHandler masterKey;
 		Debugger debugControl;
+		Agilent agilent1;
+		Agilent agilent2;
 
 		Script masterScript{ FUNCTIONS_FOLDER_LOCATION, "Master" };
 		ConfigurationFileSystem profile{ PROFILES_PATH };

@@ -75,9 +75,6 @@
     <ClInclude Include="RichEditControl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GPIB.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Repetitions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -139,6 +136,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Agilent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Gpib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

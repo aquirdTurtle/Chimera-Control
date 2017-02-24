@@ -1,8 +1,9 @@
 #include "stdafx.h"
-#include "GPIB.h"
+#include "Gpib.h"
 #include "ni488.h"
 #include <array>
 #include "constants.h"
+
 void Gpib::gpibWrite( int deviceID, std::string msg )
 {
 	int size = msg.size();
@@ -19,7 +20,7 @@ Gpib::Gpib()
 {
 	int hpone, agilentTwo, srsTwo, srsThree, pulseGen, pulseGen2, microHP, powerHP, agilent;
 	// I think that a lot of these aren't actually doing anything...
-	hpone = this->gpibIbdev( 17 );
+	hpone = gpibIbdev( 17 );
 	agilentTwo = gpibIbdev( 12 );
 	srsTwo = gpibIbdev( 6 );
 	srsThree = gpibIbdev( 19 );
@@ -86,7 +87,7 @@ void Gpib::gpibSend(int address, std::string message)
 {
 	if ( !GPIB_SAFEMODE )
 	{
-		errBox( "attempting to send message: " + message );
+		//errBox( "attempting to send message: " + message );
 		Send( 0, address, (void*) message.c_str(), message.size(), NLend );
 		if ( ibsta == ERR )
 		{
@@ -94,7 +95,7 @@ void Gpib::gpibSend(int address, std::string message)
 		}
 		else
 		{
-			errBox( "success??" );
+			// errBox( "success??" );
 		}
 	}
 	return;
