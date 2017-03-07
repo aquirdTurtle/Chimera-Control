@@ -36,6 +36,7 @@ class RhodeSchwarz
 		void setInfoDisp();
 		std::string getRsgTtl();
 		double getTriggerTime();
+
 	private:
 		std::vector<rsgEventStructuralInfo> eventStructures;
 		std::vector<rsgEventInfoFinal> events;

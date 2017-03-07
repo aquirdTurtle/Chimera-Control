@@ -12,6 +12,7 @@ ExperimentManager::ExperimentManager()
 	functionsFolderLocation = FUNCTIONS_FOLDER_LOCATION;
 }
 
+
 UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 {
 	
@@ -45,6 +46,12 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 		else
 		{
 			input->status->appendText( "NOT Connecting to NIAWG.\r\n", 0 );
+		}
+
+		input->status->appendText( "Loading Agilent Info...", 0 );
+		for (auto agilent : input->agilents)
+		{
+			agilent->handleInput();
 		}
 		input->status->appendText( "Analyzing Master Script...", 0 );
 		// analyze the master script.
@@ -83,6 +90,15 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 			return 0;
 		}
 
+		for (auto& agilent : input->agilents)
+		{
+			for (int varInc = 0; varInc < variations; varInc++)
+			{
+				// not needed yet because no agilent scripts in this program.
+				//agilent->programScript( varInc, input->key->getKey(), ? ? ? , input-> ? ? ? );
+			}
+		}
+
 		/// /////////////////////////////
 		/// Begin experiment loop
 		/// //////////
@@ -110,8 +126,47 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 			input->dacs->makeFinalDataFormat();
 			input->ttls->analyzeCommandList();
 			input->ttls->convertToFinalFormat();
+
 			// program devices
 			input->status->appendText( "Programming Hardware...\r\n", 0 );
+			for (auto& agilent : input->agilents)
+			{
+				if (!agilent->connected())
+				{
+					continue;
+				}
+				agilent->convertInputToFinalSettings( input->key->getKey(), varInc );
+				deviceOutputInfo info = agilent->getOutputInfo();
+				for (auto chan : range( 2 ))
+				{
+					switch (info.channel[chan].option)
+					{
+						case -2:
+							// don't do anything.
+							break;
+						case -1:
+							agilent->outputOff( chan );
+							break;
+						case 0:
+							agilent->setDC( chan, info.channel[chan].dc );
+							break;
+						case 1:
+							agilent->setSingleFreq( chan, info.channel[chan].sine );
+							break;
+						case 2:
+							agilent->setSquare( chan, info.channel[chan].square );
+							break;
+						case 3:
+							agilent->setExistingWaveform( chan, info.channel[chan].preloadedArb );
+							break;
+						case 4:
+							// TODO
+						default:
+							thrower( "ERROR: unrecognized channel 1 setting: " + std::to_string( info.channel[chan].option ) );
+					}
+				}
+			}
+
 			input->gpibHandler->programRamanFGs( freqs[0], freqs[1], freqs[2] );
 			input->rsg->orderEvents();
 			input->rsg->programRSG( input->gpibHandler );
@@ -126,6 +181,8 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 				input->status->appendText( input->dacs->getDacSequenceMessage(), 0);
 			}
 
+			input->status->appendText( "Total Repetition time: " + std::to_string( input->ttls->getTotalTime() ) + "\r\n", 0 );
+			input->status->appendText( "Total Experiment time: " + std::to_string( input->ttls->getTotalTime() * input->repetitions * variations ) + "\r\n", 0 );
 			// loop for repetitions
 			input->status->appendText( "Repetition...", 0 );
 			for ( int repInc = 0; repInc < input->repetitions; repInc++ )
@@ -158,6 +215,7 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 				input->dacs->startDacs();
 				input->ttls->writeData();
 				input->ttls->startBoard();
+
 				// wait until finished.
 				input->ttls->waitTillFinished();
 			}
@@ -221,6 +279,9 @@ void ExperimentManager::startExperimentThread(MasterWindow* master)
 	input->rsg = &master->RhodeSchwarzGenerator;
 	input->gpibHandler = &master->gpibHandler;
 	input->debugOptions = master->debugControl.getOptions();
+	input->agilents.push_back( &master->topBottomAgilent );
+	input->agilents.push_back( &master->uWaveAxialAgilent );
+
 	loadMasterScript(master->profile.getMasterAddressFromConfig());
 	master->logger.generateLog(master);
 	master->logger.exportLog();

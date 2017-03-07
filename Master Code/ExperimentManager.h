@@ -16,9 +16,12 @@
 #include "Debugger.h"
 #include <mutex>
 #include "ScriptStream.h"
+#include "Agilent.h"
+
 
 class MasterWindow;
 class ExperimentManager;
+
 
 struct ExperimentThreadInput
 {
@@ -36,9 +39,12 @@ struct ExperimentThreadInput
 	Gpib* gpibHandler;
 	RhodeSchwarz* rsg;
 	debuggingOptions debugOptions;
+	std::vector<Agilent*> agilents;
 	// first = top, second = bottom, third = axial.
 	std::array<std::string, 3> ramanFreqs;
 };
+
+
 
 class ExperimentManager
 {
@@ -50,8 +56,12 @@ class ExperimentManager
 		void abort();
 		std::string getErrorMessage(int errorCode);
 		void loadMasterScript(std::string scriptAddress);
-		void analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* dacs, std::vector<std::pair<unsigned int, unsigned int>>& ttlShades,
-			std::vector<unsigned int>& dacShades, RhodeSchwarz* rsg, std::array<std::string, 3>& ramanFreqs);
+
+		void analyzeCurrentMasterScript( TtlSystem* ttls, DacSystem* dacs, 
+										 std::vector<std::pair<unsigned int, unsigned int>>& ttlShades,
+										 std::vector<unsigned int>& dacShades, RhodeSchwarz* rsg, 
+										 std::array<std::string, 3>& ramanFreqs );
+
 		// this function needs the mastewindow in order to gather the relevant parameters for the experiment.
 		void startExperimentThread(MasterWindow* master);
 		static UINT __cdecl experimentThreadProcedure(LPVOID input);

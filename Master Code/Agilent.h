@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <array>
 //#include "minMaxDoublet.h"
 //#include "myMath.h"
 #include "Windows.h"
@@ -11,31 +12,78 @@
 class Agilent;
 class MasterWindow;
 
+
 struct minMaxDoublet
 {
 	double min;
 	double max;
 };
 
-struct agilentSettingsInfoInput
+
+struct generalAgilentOutputInfo
 {
-	int chan1Setting;
-	std::string chan1DcLevel;
-	std::string chan1String;
-	int chan2Setting;
-	std::string chan2DcLevel;
-	std::string chan2String;
+	std::string load;
+	double sampleRate;
+	bool synced;
 };
 
 
-struct agilentSettingsInfoFinal
+struct dcInfo : public generalAgilentOutputInfo
 {
-	int chan1Setting;
-	double chan1DcLevel;
-	std::string chan1String;
-	int chan2Setting;
-	double chan2DcLevel;
-	std::string chan2String;
+	std::string dcLevelInput;
+	double dcLevel;
+};
+
+
+struct scriptedArbInfo : public generalAgilentOutputInfo
+{
+		// ??
+};
+
+
+struct squareInfo : public generalAgilentOutputInfo
+{
+	std::string frequencyInput;
+	double frequency;
+	std::string amplitudeInput;
+	double amplitude;
+	std::string offsetInput;
+	double offset;
+};
+
+
+struct sineInfo : public generalAgilentOutputInfo
+{
+	std::string frequencyInput;
+	double frequency;
+	std::string amplitudeInput;
+	double amplitude;
+};
+
+
+struct preloadedArbInfo : public generalAgilentOutputInfo
+{
+	std::string address;
+	// could add burst settings options
+};
+
+
+struct channelInfo
+{
+	int option;
+	dcInfo dc;
+	sineInfo sine;
+	squareInfo square;
+	preloadedArbInfo preloadedArb;
+	scriptedArbInfo scriptedArb;
+};
+
+
+struct deviceOutputInfo
+{
+	// first ([0]) is channel 1, second ([1]) is channel 2.
+	std::array<channelInfo, 2> channel;
+	bool synced;
 };
 
 
@@ -92,13 +140,13 @@ class Segment
 
 
 /*
-	* The class IntensityWaveform contains all of the information and handling relevant for the entire intensity waveform that gets programmed to the Andor.
+	* The class ScriptedAgilentWaveform contains all of the information and handling relevant for the entire intensity waveform that gets programmed to the Andor.
 	* This includes a vector of segments which contain segment-specific information. The functions and variabels relevant for this class are:
 	*/
-class IntensityWaveform
+class ScriptedAgilentWaveform
 {
 	public:
-		IntensityWaveform();
+		ScriptedAgilentWaveform();
 		bool readIntoSegment( int segNum, ScriptStream& script, profileSettings profileInfo, Agilent* parent );
 		void writeData( int SegNum );
 		std::string compileAndReturnDataSendString( int segNum, int varNum, int totalSegNum );
@@ -125,22 +173,37 @@ class Agilent
 {
 	public:
 		void initialize( POINT& loc, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id, 
-						 std::string address, std::string header );
-		void setDC( std::string level );
-		void setExistingWaveform( std::string address );
-		void agilentDefault();
-		void analyzeIntensityScript( ScriptStream& intensityFile, IntensityWaveform* intensityWaveformData, int& currentSegmentNumber, profileSettings profileInfo );
-		void programIntensity( int varNum, key variableKey, bool& intensityVaried, std::vector<minMaxDoublet>& minsAndMaxes,
-							   std::vector<std::vector<POINT>>& pointsToDraw, std::vector<ScriptStream>& intensityFiles, profileSettings profileInfo );
-		void selectIntensityProfile( int varNum, bool intensityIsVaried, std::vector<minMaxDoublet> intensityMinMax );
-
-		agilentSettingsInfoInput getInputSettings();
-		agilentSettingsInfoFinal getFinalSettings();
+						 std::string address, std::string header );		
+		void handleChannelPress( int channel );
+		void handleCombo();
+		void setDC( int channel, dcInfo info );
+		void setExistingWaveform( int channel, preloadedArbInfo info );
+		void setSquare( int channel, squareInfo info );
+		void setSingleFreq( int channel, sineInfo info );
+		void outputOff(int channel);
+		void handleInput();
+		void handleInput(int chan);
+		void agilentDefault( int channel );
+		void zeroSettings();
+		bool connected();
+		void analyzeAgilentScript( ScriptStream& intensityFile, ScriptedAgilentWaveform* intensityWaveformData, 
+								   int& currentSegmentNumber, profileSettings profileInfo );
+		std::string getConfigurationString();
+		std::string getDeviceIdentity();
+		void readConfigurationFile( std::ifstream& file );
+		void programScript( int varNum, key variableKey, std::vector<ScriptStream>& intensityFiles, profileSettings profileInfo );
+		void selectIntensityProfile( int varNum );
+		void convertInputToFinalSettings( key variableKey, unsigned int variation );
+		void selectScriptProfile( int channel, int varNum );
+		void updateEdit(int chan);
+		deviceOutputInfo getOutputInfo();
 
 	private:
 		// usb address...
 		std::string usbAddress;
 		std::string deviceName;
+		minMaxDoublet chan1Range;
+		minMaxDoublet chan2Range;
 		ViSession session;
 		unsigned long instrument;
 		unsigned long defaultResourceManager;
@@ -153,17 +216,23 @@ class Agilent
 		void visaOpen( std::string address );
 		void errCheck( long status );
 		void visaSetAttribute( ViAttr attributeName, ViAttrState value );
-		void convertInputToFinalSettings( key variableKey, unsigned int variation );
+		void visaPrintf( std::string msg );
+		void visaErrQuery(std::string& errMsg, long& errCode);
+		std::string visaIdentityQuery();
+		bool isVaried;
+		bool isConnected;
+		int currentChannel;
+		std::string deviceInfo;
+		std::vector<minMaxDoublet> ranges;		
+		deviceOutputInfo settings;
+
 		// GUI ELEMENTS
 		Control<CStatic> header;
+		Control<CStatic> deviceInfoDisplay;
 		Control<CButton> channel1Button;
 		Control<CButton> channel2Button;
-		Control<CButton> dcButton;
-		Control<CButton> presetButton;
-		Control<CButton> scriptButton;
-		Control<CEdit> presetEdit;
-
-		agilentSettingsInfoInput inputSettings;
-		agilentSettingsInfoFinal finalSettings;
-
+		Control<CButton> syncedButton;
+		Control<CComboBox> settingCombo;
+		Control<CStatic> optionsFormat;
+		Control<CEdit> optionsEdit;
 };

@@ -362,6 +362,80 @@ TtlSystem::TtlSystem()
 	}
 }
 
+std::string TtlSystem::getSystemInfo()
+{
+	DWORD answer = -1;
+	std::string info = "TTL System Info:\nInput Mode: ";
+	DWORD query = 0;
+	raw_DIO64_GetAttr( 1, &query, &answer);
+	switch ( answer )
+	{
+		case -1:
+			// didn't change from start; no board or system connected.
+			return "";
+		case 0:
+			info += "Polled\n";
+			break;
+		case 1:
+			info += "Interrupt\n";
+			break;
+		case 2:
+			info += "Packet\n";
+			break;
+		case 3:
+			info += "Demand\n";
+			break;
+		default:
+			info += "UNKNOWN!\n";
+	}
+	query = 1;
+	raw_DIO64_GetAttr( 1, &query, &answer );
+	info += "Output Mode: ";
+	switch ( answer )
+	{
+		case 0:
+			info += "Polled\n";
+			break;
+		case 1:
+			info += "Interrupt\n";
+			break;
+		case 2:
+			info += "Packet\n";
+			break;
+		case 3:
+			info += "Demand\n";
+			break;
+		default:
+			info += "UNKNOWN!\n";
+	}
+	query = 2;
+	raw_DIO64_GetAttr( 1, &query, &answer );
+	info += "Input Buffer Size: " + std::to_string( answer ) + "\n";
+	query = 3;
+	raw_DIO64_GetAttr( 1, &query, &answer );
+	info += "Output Buffer Size: " + std::to_string( answer ) + "\n";
+	raw_DIO64_GetAttr( 1, &query, &answer );
+	info += "Major Clock Source: ";
+	switch ( answer )
+	{
+		case 0:
+			info += "Local 40 MHz Clock\n";
+			break;
+		case 1:
+			info += "External Clock\n";
+			break;
+		case 2:
+			info += "RTSI Clock / PXI chassis Clock\n";
+			break;
+		case 3:
+			info += "10 MHz Clock\n";
+			break;
+		default:
+			info += "UNKNOWN!";
+	}
+	// this is just a sampling... many more exist.
+	return info;
+}
 
 std::array<std::array<std::string, 16>, 4> TtlSystem::getAllNames()
 {
@@ -1037,6 +1111,12 @@ void TtlSystem::waitTillFinished()
 }
 
 
+double TtlSystem::getTotalTime()
+{
+	return (finalFormattedCommandForDIO.back()[0] + 65535 * finalFormattedCommandForDIO.back()[1]) / 10000.0 + 1;
+}
+
+
 void TtlSystem::interpretKey(key variationKey, unsigned int variationNum)
 {
 	this->individualTTL_CommandList.clear();
@@ -1111,11 +1191,15 @@ void TtlSystem::analyzeCommandList()
 		timeOrganizer.erase(timeOrganizer.begin() + index);
 	}
 	/// now figure out the state of the system at each time.
+	
 	if (orderedOrganizer.size() == 0)
 	{
-		thrower("ERROR: no ttl commands...?\r\n");
+		thrower("ERROR: No ttl commands! The Ttl system is the master behind everything in a repetition, and so it "
+				 "must contain something.\r\n");
 		return;
 	}
+
+
 	ttlSnapshots.clear();
 	ttlSnapshots.push_back( { 0, this->ttlStatus } );
 	// handle the zero case specially.

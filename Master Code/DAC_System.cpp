@@ -205,6 +205,20 @@ DacSystem::DacSystem()
 	return;
 }
 
+std::string DacSystem::getDacSystemInfo()
+{
+	int32 answer = -1;
+	// don't think I'm calling this right but there are no fucking examples.
+	DAQmxGetDevProductCategory( "Board 1 Dacs 0-7", &answer );
+	if ( answer == 12588 )
+	{
+		return "Dac System: Not connected?";
+	}
+	else
+	{
+		return "Dac System: Connected... " + std::to_string( answer );
+	}
+}
 
 void DacSystem::handleEditChange(unsigned int dacNumber)
 {

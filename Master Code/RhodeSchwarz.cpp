@@ -51,6 +51,8 @@ void RhodeSchwarz::initialize( POINT& pos, std::vector<CToolTipCtrl*>& toolTips,
 	return;
 }
 
+
+
 /*
  * The following function takes the existing list of events (already evaluated for a particular variation) and
  * orders them in time. 

@@ -55,7 +55,7 @@ class ConfigurationFileSystem
 		std::vector<std::string> getSequenceNames();
 		void reloadSequence(std::string sequenceToReload, MasterWindow* Master);
 
-		void saveExperimentOnly(MasterWindow* Master);
+		void saveExperiment(MasterWindow* Master);
 		void newExperiment(MasterWindow* Master);
 		void saveExperimentAs(MasterWindow* Master);
 		void renameExperiment();
@@ -66,7 +66,7 @@ class ConfigurationFileSystem
 		void checkExperimentSave(std::string prompt, MasterWindow* Master);
 		void experimentChangeHandler(MasterWindow* Master);
 
-		void saveConfigurationOnly(MasterWindow* Master);
+		void saveConfiguration(MasterWindow* Master);
 		void newConfiguration(MasterWindow* Master);
 		void saveConfigurationAs(MasterWindow* Master);
 		void renameConfiguration(MasterWindow* Master);
@@ -77,7 +77,7 @@ class ConfigurationFileSystem
 		void checkConfigurationSave(std::string prompt, MasterWindow* Master);
 		void configurationChangeHandler(MasterWindow* Master);
 
-		void saveCategoryOnly(MasterWindow* Master);
+		void saveCategory(MasterWindow* Master);
 		void renameCategory();
 		void newCategory(MasterWindow* Master);
 		void saveCategoryAs(MasterWindow* Master);

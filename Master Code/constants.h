@@ -1,4 +1,3 @@
-
 //#define MASTER_COMPUTER
 #define LAPTOP_COMPUTER
 
@@ -15,11 +14,12 @@
 	#define KEY_ADDRESS "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\key.txt"
 #endif
 
+
 #ifdef LAPTOP_COMPUTER
 	#define DIO_SAFEMODE true
 	#define DAQMX_SAFEMODE true
 	#define GPIB_SAFEMODE true
-	#define AGILENT_SAFEMODE true
+	#define AGILENT_SAFEMODE false
 	#define PROFILES_PATH "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Master Profiles\\"
 	#define FUNCTIONS_FOLDER_LOCATION "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Functions\\"
 	#define MASTER_CONFIGURATION_FILE_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Master Configuration"
@@ -81,5 +81,18 @@
 #define CONFIGURATION_NOTES_ID 1170
 #define IDC_SHOW_TTLS 1174
 #define IDC_SHOW_DACS 1175
-#define FUNCTION_COMBO_ID 1194
-#define MASTER_RICH_EDIT 1196
+#define IDC_TOP_BOTTOM_CHANNEL1_BUTTON 1178
+#define IDC_TOP_BOTTOM_CHANNEL2_BUTTON 1179
+#define IDC_TOP_BOTTOM_SYNC_BUTTON 1180
+#define IDC_TOP_BOTTOM_AGILENT_COMBO 1181
+#define IDC_AXIAL_UWAVE_CHANNEL1_BUTTON 1186
+#define IDC_AXIAL_UWAVE_CHANNEL2_BUTTON 1187
+#define IDC_AXIAL_UWAVE_SYNC_BUTTON 1188
+#define IDC_AXIAL_UWAVE_AGILENT_COMBO 1189
+#define IDC_FLASHING_CHANNEL1_BUTTON 1194
+#define IDC_FLASHING_CHANNEL2_BUTTON 1195
+#define IDC_FLASHING_SYNC_BUTTON 1196
+#define IDC_FLASHING_AGILENT_COMBO 1197
+
+#define FUNCTION_COMBO_ID 1204
+#define MASTER_RICH_EDIT 1206

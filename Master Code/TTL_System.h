@@ -82,6 +82,7 @@ class TtlSystem
 		TtlSystem();
 		~TtlSystem();
 		void initialize(POINT& startLocation, std::unordered_map<HWND, std::string>& masterText, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id);
+		double getTotalTime();
 		int getNumberOfTTLRows();
 		int getNumberOfTTLsPerRow();
 		std::string getTtlSequenceMessage();
@@ -89,7 +90,8 @@ class TtlSystem
 		void handleTTLPress(UINT id);
 		void handleHoldPress();
 		HBRUSH TtlSystem::handleColorMessage(CWnd* window, std::unordered_map<std::string, HBRUSH> brushes, std::unordered_map<std::string, COLORREF> rGBs, CDC* cDC);
-		
+		std::string getSystemInfo();
+
 		void ttlOn(unsigned int row, unsigned int column, timeType time);
 		void ttlOnDirect( unsigned int row, unsigned int column, double time );
 		void ttlOff(unsigned int row, unsigned int column, timeType time);

@@ -10,22 +10,16 @@ class Gpib
 {
 	public:
 		Gpib::Gpib();
-		// a lot of these are not used currently... not sure if I will need them yet.
-		bool copyIBVars();
-		
-		bool ibwrti();
-		bool ibrd();
-		bool ibeot();
-		bool enableRemote();
-		
-		//
 		void gpibWrite( int deviceID, std::string msg );
+		std::string gpibRead( int deviceID );
+		std::string gpibQuery( int deviceID, std::string query );
+		std::string queryIdentity( int deviceAddress );
+
 		int gpibIbdev( int pad );
-		
 		void gpibSend( int address, std::string message );
 		
+		// as of now the raman stuff isn't complicated enough to warrant it's own control. might change in the future.
 		void programRamanFGs(double topFreq, double bottomFreq, double axialFreq);
-		
 		std::array<double, 3> interpretKeyForRaman( std::array<std::string, 3> raman,  key variationKey, unsigned int variableNumber );
 
 		std::string getErrMessage( long errCode );
