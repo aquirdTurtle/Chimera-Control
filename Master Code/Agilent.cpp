@@ -3,6 +3,7 @@
 #include "constants.h"
 #include "boost/cast.hpp"
 #include <algorithm>
+#include <numeric>
 #include <fstream>
 #include "C:\PROGRAM FILES (X86)\IVI FOUNDATION\VISA\WINNT\INCLUDE\VISA.H"
 #include "VariableSystem.h"
@@ -11,7 +12,7 @@
 #include "MasterWindow.h"
 
 
-IntensityWaveform::IntensityWaveform()
+ScriptedAgilentWaveform::ScriptedAgilentWaveform()
 {
 	segmentNum = 0;
 	totalSequence = "";
@@ -23,7 +24,7 @@ IntensityWaveform::IntensityWaveform()
 	* segNum: This tells the function what the next segment # is.
 	* script: this is the object to be read from.
 	*/
-bool IntensityWaveform::readIntoSegment(int segNum, ScriptStream& script, profileSettings profileInfo, Agilent* parent)
+bool ScriptedAgilentWaveform::readIntoSegment(int segNum, ScriptStream& script, profileSettings profileInfo, Agilent* parent)
 {
 	segmentInfoInput workingInput;
 	std::string intensityCommand;
@@ -58,7 +59,7 @@ bool IntensityWaveform::readIntoSegment(int segNum, ScriptStream& script, profil
 		}
 		ScriptStream subStream;
 		subStream << nestedFile.rdbuf();
-		parent->analyzeIntensityScript( subStream, this, segNum, profileInfo);
+		parent->analyzeAgilentScript( subStream, this, segNum, profileInfo);
 	}
 	else 
 	{
@@ -214,7 +215,7 @@ segmentInfoInput Segment::getInput()
 	* varNum: This is the variation number for this segment (matters for naming the segments)
 	* totalSegNum: This is the number of segments in the waveform (also matters for naming)
 	*/
-std::string IntensityWaveform::compileAndReturnDataSendString(int segNum, int varNum, int totalSegNum)
+std::string ScriptedAgilentWaveform::compileAndReturnDataSendString(int segNum, int varNum, int totalSegNum)
 {
 	// must get called after data conversion
 	std::string tempSendString;
@@ -232,7 +233,7 @@ std::string IntensityWaveform::compileAndReturnDataSendString(int segNum, int va
 
 /*
 	*/
-void IntensityWaveform::writeData(int segNum)
+void ScriptedAgilentWaveform::writeData(int segNum)
 {
 	waveformSegments[segNum].calcData();
 }
@@ -242,7 +243,7 @@ void IntensityWaveform::writeData(int segNum)
 	* This function compiles the sequence string which tells the agilent what waveforms to output when and with what trigger control. The sequence is stored
 	* as a part of the class.
 	*/
-void IntensityWaveform::compileSequenceString(int totalSegNum, int sequenceNum)
+void ScriptedAgilentWaveform::compileSequenceString(int totalSegNum, int sequenceNum)
 {
 	std::string tempSequenceString, tempSegmentInfoString;
 	// Total format is  #<n><n digits><sequence name>,<arb name1>,<repeat count1>,<play control1>,<marker mode1>,<marker point1>,<arb name2>,<repeat count2>,
@@ -305,7 +306,7 @@ void IntensityWaveform::compileSequenceString(int totalSegNum, int sequenceNum)
 			break;
 		default:
 			// ERROR!
-			MessageBox(0, "ERROR: entered location in code that shouldn't be entered. Check for logic mistakes in code.", 0, MB_OK);
+			thrower("ERROR: entered location in code that shouldn't be entered. Check for logic mistakes in code.");
 			return;
 			break;
 	}
@@ -320,7 +321,7 @@ void IntensityWaveform::compileSequenceString(int totalSegNum, int sequenceNum)
 /*
 	* This function just returns the sequence string. It should already have been compiled using compileSequenceString when this is called.
 	*/
-std::string IntensityWaveform::returnSequenceString()
+std::string ScriptedAgilentWaveform::returnSequenceString()
 {
 	return totalSequence;
 }
@@ -329,7 +330,7 @@ std::string IntensityWaveform::returnSequenceString()
 /*
 	* This function returns the truth of whether this sequence is being varied or not. This gets determined during the reading process.
 	*/
-bool IntensityWaveform::returnIsVaried()
+bool ScriptedAgilentWaveform::returnIsVaried()
 {
 	return isVaried;
 }
@@ -338,7 +339,7 @@ bool IntensityWaveform::returnIsVaried()
 /*
 	* This waveform loops through all of the segments to find places where a variable value needs to be changed, and changes it.
 	*/
-void IntensityWaveform::replaceVarValues( key variableKey, unsigned int variation )
+void ScriptedAgilentWaveform::replaceVarValues( key variableKey, unsigned int variation )
 {
 	for (int segNumInc = 0; segNumInc < waveformSegments.size(); segNumInc++)
 	{
@@ -352,7 +353,7 @@ void IntensityWaveform::replaceVarValues( key variableKey, unsigned int variatio
 	* that the agilent needs to output in order to reach those powers. The calibration is currently hard-coded. This needs to be run before compiling the 
 	* data string. 
 	*/
-void IntensityWaveform::convertPowersToVoltages()
+void ScriptedAgilentWaveform::convertPowersToVoltages()
 {
 	/// NOTES
 	// TODO:make a structure and a front panel option. 
@@ -378,7 +379,7 @@ void IntensityWaveform::convertPowersToVoltages()
 	//double a = 0.246862, b = 227.363;
 
 	/// CLIBRATIOND WITH DIGITAL LOCK BOX
-	/// newValue = a +  b * log(y - c); // here c is treated as a background light level, and the voltage output should be positive
+	/// newValue = a +  b * log(y - info); // here info is treated as a background light level, and the voltage output should be positive
 	
 	// July 14 2016, NE10 filter in front of log pd
 	double a = 0.479262, b = 0.215003, c = 0.018189;
@@ -404,7 +405,7 @@ void IntensityWaveform::convertPowersToVoltages()
 /*
 	* This wavefunction loops through all the data values and figures out which ones are min and max.
 	*/
-void IntensityWaveform::calcMinMax()
+void ScriptedAgilentWaveform::calcMinMax()
 {
 	// NOT DBL_MIN, which is a really small number, not a large negative number. I need a large negative number.
 	maxVolt = -DBL_MAX;
@@ -434,7 +435,7 @@ void IntensityWaveform::calcMinMax()
 	* This function normalizes all of the data points to lie within the -1 to 1 range that I need to send to the agilent. The actual values outputted 
 	* by the agilent are determined jointly by these values and the output range. you therefore need to use calcMinMax before this function.
 	*/
-void IntensityWaveform::normalizeVoltages()
+void ScriptedAgilentWaveform::normalizeVoltages()
 {
 	double scaleFactor = 2.0 / (maxVolt - minVolt);
 	for (int normSegInc = 0; normSegInc < waveformSegments.size(); normSegInc++)
@@ -453,7 +454,7 @@ void IntensityWaveform::normalizeVoltages()
 /*
 	* Returns the maximum voltage level currently in data structures.
 	*/
-double IntensityWaveform::returnMaxVolt()
+double ScriptedAgilentWaveform::returnMaxVolt()
 {
 	return maxVolt;
 }
@@ -467,7 +468,7 @@ segmentInfoFinal Segment::getFinalSettings()
 /*
 	* Returns the minimum voltage level currently in data structures.
 	*/
-double IntensityWaveform::returnMinVolt()
+double ScriptedAgilentWaveform::returnMinVolt()
 {
 	return minVolt;
 }
@@ -601,7 +602,7 @@ void Segment::assignDataVal(int dataNum, double val)
 /*
 	* This function tells the agilent to put out the DC default waveform.
 	*/
-void Agilent::agilentDefault()
+void Agilent::agilentDefault( int channel )
 {
 	visaOpenDefaultRM();
 	visaOpen( usbAddress );
@@ -615,7 +616,7 @@ void Agilent::agilentDefault()
 }
 
 
-void Agilent::analyzeIntensityScript( ScriptStream& intensityFile, IntensityWaveform* intensityWaveformData, int& currentSegmentNumber, 
+void Agilent::analyzeAgilentScript( ScriptStream& intensityFile, ScriptedAgilentWaveform* intensityWaveformData, int& currentSegmentNumber, 
 									  profileSettings profileInfo )
 {
 	while (!intensityFile.eof())
@@ -638,14 +639,13 @@ void Agilent::analyzeIntensityScript( ScriptStream& intensityFile, IntensityWave
 }
 
 /*
-	* programIntensity opens the intensity file, reads the contents, loads them into an appropriate data structure, then from this data structure writes
+	* programScript opens the intensity file, reads the contents, loads them into an appropriate data structure, then from this data structure writes
 	* segment and sequence information to the function generator.
 	*/
-void Agilent::programIntensity( int varNum, key variableKey, bool& intensityVaried, std::vector<minMaxDoublet>& minsAndMaxes,
-					   std::vector<std::vector<POINT>>& pointsToDraw, std::vector<ScriptStream>& intensityFiles, profileSettings profileInfo )
+void Agilent::programScript( int varNum, key variableKey, std::vector<ScriptStream>& intensityFiles, profileSettings profileInfo )
 {
 	// Initialize stuff
-	IntensityWaveform intensityWaveformSequence;
+	ScriptedAgilentWaveform intensityWaveformSequence;
 	int currentSegmentNumber = 0;
 	// connect to the agilent. I refuse to use the stupid typecasts. The way you often see these variables defined is using stupid things like ViRsc, ViUInt32, etc.
 	visaOpenDefaultRM();
@@ -662,10 +662,10 @@ void Agilent::programIntensity( int varNum, key variableKey, bool& intensityVari
 	visaWrite( "TRIGGER1:SLOPE POSITIVE" );
 	for (int sequenceInc = 0; sequenceInc < intensityFiles.size(); sequenceInc++)
 	{
-		analyzeIntensityScript( intensityFiles[sequenceInc], &intensityWaveformSequence, currentSegmentNumber, profileInfo );
+		analyzeAgilentScript( intensityFiles[sequenceInc], &intensityWaveformSequence, currentSegmentNumber, profileInfo );
 	}
 	int totalSegmentNumber = currentSegmentNumber;
-	intensityVaried = intensityWaveformSequence.returnIsVaried();
+	isVaried = intensityWaveformSequence.returnIsVaried();
 	// if varied
 	if (intensityWaveformSequence.returnIsVaried() == true)
 	{
@@ -682,9 +682,9 @@ void Agilent::programIntensity( int varNum, key variableKey, bool& intensityVari
 			// loop through again and calc/normalize/write values.
 			intensityWaveformSequence.convertPowersToVoltages();
 			intensityWaveformSequence.calcMinMax();
-			minsAndMaxes.resize(variation + 1);
-			minsAndMaxes[variation].max = intensityWaveformSequence.returnMaxVolt();
-			minsAndMaxes[variation].min = intensityWaveformSequence.returnMinVolt();
+			ranges.resize( variation + 1 );
+			ranges[variation].max = intensityWaveformSequence.returnMaxVolt();
+			ranges[variation].min = intensityWaveformSequence.returnMinVolt();
 			intensityWaveformSequence.normalizeVoltages();
 
 			for (int segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
@@ -721,9 +721,9 @@ void Agilent::programIntensity( int varNum, key variableKey, bool& intensityVari
 		// no reassignment nessesary, no variables
 		intensityWaveformSequence.convertPowersToVoltages();
 		intensityWaveformSequence.calcMinMax();
-		minsAndMaxes.resize(1);
-		minsAndMaxes[0].max = intensityWaveformSequence.returnMaxVolt();
-		minsAndMaxes[0].min = intensityWaveformSequence.returnMinVolt();
+		ranges.resize( 1 );
+		ranges[0].max = intensityWaveformSequence.returnMaxVolt();
+		ranges[0].min = intensityWaveformSequence.returnMinVolt();
 		intensityWaveformSequence.normalizeVoltages();
 
 		for (int segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
@@ -731,8 +731,8 @@ void Agilent::programIntensity( int varNum, key variableKey, bool& intensityVari
 			// Set output impedance...
 			visaWrite( std::string( "OUTPUT1:LOAD " ) + AGILENT_LOAD );
 			// set range of voltages...
-			visaWrite( std::string( "SOURCE1:VOLT:LOW " ) + std::to_string( minsAndMaxes[0].min ) + " V" );
-			visaWrite( std::string( "SOURCE1:VOLT:HIGH " ) + std::to_string( minsAndMaxes[0].max ) + " V" );
+			visaWrite( std::string( "SOURCE1:VOLT:LOW " ) + std::to_string( ranges[0].min ) + " V" );
+			visaWrite( std::string( "SOURCE1:VOLT:HIGH " ) + std::to_string( ranges[0].max ) + " V" );
 			// send to the agilent.
 			visaWrite( intensityWaveformSequence.compileAndReturnDataSendString( segNumInc, 0, totalSegmentNumber ) );
 			// Select the segment
@@ -757,39 +757,15 @@ void Agilent::programIntensity( int varNum, key variableKey, bool& intensityVari
 }
 
 
-/*
-	* This function checks if the agilent throws an error or if there is an error communicating with the agilent.
-	*/
-void Agilent::errCheck(long status)
-{
-	long errorCode = 0;
-	char buf[256] = { 0 };
-	// Check comm status
-	if (status < 0)	
-	{
-		// Error detected.
-		thrower( "ERROR: Communcation error with agilent. Error Code: " + std::to_string( status ));
-		return;
-	}
-	// Query the agilent for errors.
-	viQueryf(instrument, "SYST:ERR?\n", "%ld,%t", &errorCode, buf);
-	if (errorCode != 0)
-	{
-		// Agilent error
-		thrower( "ERROR: agilent returned error message: " + std::to_string( errorCode ) + ":" + buf );
-		return;
-	}
-	return;
-}
-
 
 /*
 	* This function tells the agilent to use sequence # (varNum) and sets settings correspondingly.
 	*/
-void Agilent::selectIntensityProfile(int varNum, bool intensityIsVaried, std::vector<minMaxDoublet> intensityMinMax)
+void Agilent::selectIntensityProfile(int varNum)
 {
+	// TODO: add checks for differnet types of programmings.
 	// 
-	if (intensityIsVaried || varNum == 0)
+	if (isVaried || varNum == 0)
 	{
 		visaOpenDefaultRM();
 		visaOpen( usbAddress );
@@ -799,8 +775,8 @@ void Agilent::selectIntensityProfile(int varNum, bool intensityIsVaried, std::ve
 		visaWrite( "SOURCE1:FUNC:ARB \"INT:\\seq" + std::to_string(varNum) + ".seq\"");
 		// Set output impedance...
 		visaWrite( std::string("OUTPUT1:LOAD ") + AGILENT_LOAD);
-		visaWrite( std::string("SOURCE1:VOLT:LOW ") + std::to_string(intensityMinMax[varNum].min) + " V");
-		visaWrite( std::string("SOURCE1:VOLT:HIGH ") + std::to_string(intensityMinMax[varNum].max) + " V");
+		visaWrite( std::string("SOURCE1:VOLT:LOW ") + std::to_string(ranges[varNum].min) + " V");
+		visaWrite( std::string("SOURCE1:VOLT:HIGH ") + std::to_string(ranges[varNum].max) + " V");
 		visaWrite( "OUTPUT1 ON" );
 		// and leave...
 		visaClose();
@@ -809,125 +785,613 @@ void Agilent::selectIntensityProfile(int varNum, bool intensityIsVaried, std::ve
 }
 
 
+std::string Agilent::getDeviceIdentity()
+{
+	std::string msg = visaIdentityQuery();
+	if ( msg == "" )
+	{
+		msg = "Disconnected...\n";
+	}
+	return msg;
+}
+
 void Agilent::initialize( POINT& loc, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id,
 						  std::string address, std::string headerText )
 {
 	usbAddress = address;
-
-	header.position = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
+	try
+	{
+		visaOpenDefaultRM();
+		visaOpen( usbAddress );
+		int errCode = 0;
+		deviceInfo = visaIdentityQuery();
+		isConnected = true;
+	}
+	catch (myException& except)
+	{
+		deviceInfo = "Disconnected";
+		isConnected = false;
+	}
+	
+	header.position = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
 	header.ID = id++;
 	header.Create( headerText.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.position, master, header.ID );
+	header.SetFont( CFont::FromHandle(sHeadingFont) );
 
-	channel1Button.position = { loc.x, loc.y, loc.x += 240, loc.y + 20 };
+	deviceInfoDisplay.position = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
+	deviceInfoDisplay.ID = id++;
+	deviceInfoDisplay.Create(deviceInfo.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, deviceInfoDisplay.position, master, deviceInfoDisplay.ID );
+	deviceInfoDisplay.SetFont( CFont::FromHandle( sSmallFont ) );
+
+	channel1Button.position = { loc.x, loc.y, loc.x += 160, loc.y + 20 };
 	channel1Button.ID = id++;
+	if (channel1Button.ID != IDC_TOP_BOTTOM_CHANNEL1_BUTTON && channel1Button.ID != IDC_AXIAL_UWAVE_CHANNEL1_BUTTON && channel1Button.ID != IDC_FLASHING_CHANNEL1_BUTTON)
+	{
+		throw;
+	}
 	channel1Button.Create( "Channel 1", BS_AUTORADIOBUTTON | WS_GROUP | WS_VISIBLE | WS_CHILD, channel1Button.position, master, channel1Button.ID );
 	channel1Button.SetCheck( true );
 
-	channel2Button.position = { loc.x, loc.y, loc.x += 240, loc.y += 20 };
+	channel2Button.position = { loc.x, loc.y, loc.x += 160, loc.y + 20 };
 	channel2Button.ID = id++;
+	if (channel2Button.ID != IDC_TOP_BOTTOM_CHANNEL2_BUTTON && channel2Button.ID != IDC_AXIAL_UWAVE_CHANNEL2_BUTTON && channel2Button.ID != IDC_FLASHING_CHANNEL2_BUTTON)
+	{
+		throw;
+	}
 	channel2Button.Create( "Channel 2", BS_AUTORADIOBUTTON | WS_VISIBLE | WS_CHILD, channel2Button.position, master, channel2Button.ID );
+
+	syncedButton.position = { loc.x, loc.y, loc.x += 160, loc.y += 20 };
+	syncedButton.ID = id++;
+	if (syncedButton.ID != IDC_TOP_BOTTOM_SYNC_BUTTON && syncedButton.ID != IDC_AXIAL_UWAVE_SYNC_BUTTON && syncedButton.ID != IDC_FLASHING_SYNC_BUTTON)
+	{
+		throw;
+	}
+	syncedButton.Create( "Synced?", BS_AUTOCHECKBOX | WS_VISIBLE | WS_CHILD, syncedButton.position, master, syncedButton.ID );
+	
 	loc.x -= 480;
 
-	dcButton.position = { loc.x, loc.y, loc.x += 160, loc.y + 20 };
-	dcButton.ID = id++;
-	dcButton.Create( "DC", BS_AUTORADIOBUTTON | WS_GROUP | WS_VISIBLE | WS_CHILD, dcButton.position, master, dcButton.ID );
-	dcButton.SetCheck( true );
+	settingCombo.position = { loc.x, loc.y, loc.x += 240, loc.y + 200 };
+	settingCombo.ID = id++;	
+	if (settingCombo.ID != IDC_TOP_BOTTOM_AGILENT_COMBO && settingCombo.ID != IDC_AXIAL_UWAVE_AGILENT_COMBO
+      		 && settingCombo.ID != IDC_FLASHING_AGILENT_COMBO)
+	{
+		throw;
+	}
+	settingCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, settingCombo.position, master, settingCombo.ID );
+	settingCombo.AddString( "No Control" );
+	settingCombo.AddString( "Output Off" );
+	settingCombo.AddString( "DC Output" );
+	settingCombo.AddString( "Single Frequency Output" );
+	settingCombo.AddString( "Square Output" );
+	settingCombo.AddString( "Preloaded Arbitrary Waveform" );
+	settingCombo.AddString( "Scripted Arbitrary Waveform" );
+	settingCombo.SetCurSel( 0 );
 
-
-	presetButton.position = { loc.x, loc.y, loc.x += 160, loc.y + 20 };
-	presetButton.ID = id++;
-	presetButton.Create( "Preset Waveform", BS_AUTORADIOBUTTON | WS_VISIBLE | WS_CHILD, presetButton.position, master, presetButton.ID );
-
-	scriptButton.position = { loc.x, loc.y, loc.x += 160, loc.y += 20 };
-	scriptButton.ID = id++;
-	scriptButton.Create( "Script", BS_AUTORADIOBUTTON | WS_VISIBLE | WS_CHILD, scriptButton.position, master, scriptButton.ID );
-	scriptButton.EnableWindow( false );
+	optionsFormat.position = { loc.x, loc.y, loc.x += 240, loc.y += 25 };
+	optionsFormat.ID = id++;
+	optionsFormat.Create( "---", WS_CHILD | WS_VISIBLE | SS_SUNKEN, optionsFormat.position, 
+						  master, optionsFormat.ID );
 	loc.x -= 480;
 
-	presetEdit.position = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
-	presetEdit.ID = id++;
-	presetEdit.Create( WS_CHILD | WS_VISIBLE | SS_SUNKEN, presetEdit.position, master, presetEdit.ID );
-
-	inputSettings.chan1Setting = 0;
-	inputSettings.chan1DcLevel = "0";
-	inputSettings.chan1String = "";
-	inputSettings.chan2Setting = 0;
-	inputSettings.chan2DcLevel = "0";
-	inputSettings.chan2String = "";
+	optionsEdit.position = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
+	optionsEdit.ID = id++;
+	optionsEdit.Create( WS_CHILD | WS_VISIBLE | SS_SUNKEN, optionsEdit.position, master, optionsEdit.ID );
+	
+	settings.channel[0].option = -2;
+	settings.channel[1].option = -2;
+	currentChannel = 1;
 }
 
 
-agilentSettingsInfoInput Agilent::getInputSettings()
+void Agilent::handleInput(int chan)
 {
-	return inputSettings;
+	chan -= 1;
+	CString text;
+	optionsEdit.GetWindowTextA(text);
+	std::string textStr( text );
+	ScriptStream stream;
+	stream << textStr;
+	stream.seekg( 0 );		
+	switch (settings.channel[chan].option)
+	{
+		case -2:
+			// no control.
+			break;
+		case -1:
+			// output off.
+			break;
+		case 0:
+			// DC.
+			stream >> settings.channel[chan].dc.dcLevelInput;
+			break;
+		case 1:
+			// sine wave
+			stream >> settings.channel[chan].sine.frequencyInput;
+			stream >> settings.channel[chan].sine.amplitudeInput;
+			break;
+		case 2:
+			stream >> settings.channel[chan].square.frequencyInput;
+			stream >> settings.channel[chan].square.amplitudeInput;
+			stream >> settings.channel[chan].square.offsetInput;
+			break;
+		case 3:
+			stream >> settings.channel[chan].preloadedArb.address;
+			break;
+		case 4:
+			thrower( "ERROR: attempted to use a scripted agilent sequence. This feature has"
+						" yet to be implemented on this code." );
+			break;
+		default:
+			thrower( "ERROR: unknown agilent option" );
+	}
 }
 
 
-agilentSettingsInfoFinal Agilent::getFinalSettings()
+void Agilent::handleInput()
 {
-	return finalSettings;
+	handleInput( (!channel1Button.GetCheck()) + 1);
+}
+
+
+
+void Agilent::updateEdit(int chan)
+{
+	chan -= 1;
+	std::string str;
+	switch ( settings.channel[chan].option )
+	{
+		case -2:
+			str = "";
+			settingCombo.SetCurSel( 0 );
+			break;
+		case -1:
+			str = "";
+			settingCombo.SetCurSel( 1 );
+			break;
+		case 0:
+			// dc
+			str = settings.channel[chan].dc.dcLevelInput;
+			settingCombo.SetCurSel( 2 );
+			break;
+		case 1:
+			// sine
+			str = settings.channel[chan].sine.frequencyInput + " " + settings.channel[chan].sine.amplitudeInput;
+			settingCombo.SetCurSel( 3 );
+			break;
+		case 2:
+			// square
+			str = settings.channel[chan].square.frequencyInput + " " + settings.channel[chan].square.amplitudeInput
+				+ " " + settings.channel[chan].square.offsetInput;
+			settingCombo.SetCurSel( 4 );
+			break;
+		case 3:
+			// preprogrammed
+			str = settings.channel[chan].preloadedArb.address;
+			settingCombo.SetCurSel( 5 );
+			break;
+		case 4:
+			// scripted
+			// ???
+			settingCombo.SetCurSel( 6 );
+			break;
+		default:
+			thrower( "ERROR: unrecognized agilent setting: " + std::to_string( settings.channel[chan].option ) );
+	}
+	if ( chan == 0 )
+	{
+		channel1Button.SetCheck( true );
+		channel2Button.SetCheck( false );
+	}
+	else
+	{
+		channel1Button.SetCheck( false );
+		channel2Button.SetCheck( true );
+	}
+	optionsEdit.SetWindowTextA( str.c_str() );
+
+}
+
+
+void Agilent::handleChannelPress( int chan )
+{
+	// convert from channel 1/2 to 0/1 to access the right array entr
+	handleInput(currentChannel);
+	updateEdit(chan);
+	if (channel1Button.GetCheck())
+	{
+		currentChannel = 1;
+	}
+	else
+	{
+		currentChannel = 2;
+	}
+}
+
+
+void Agilent::handleCombo()
+{
+	int selection = settingCombo.GetCurSel();
+	int selectedChannel = int( !channel1Button.GetCheck() );
+	switch (selection)
+	{
+		case 0:
+			// do nothing
+			optionsFormat.SetWindowTextA( "---" );
+			settings.channel[selectedChannel].option = -2;
+			break;
+		case 1:
+			// do nothing
+			optionsFormat.SetWindowTextA( "---" );
+			settings.channel[selectedChannel].option = -1;
+			break;
+		case 2:
+			optionsFormat.SetWindowTextA( "[DC Level]" );
+			settings.channel[selectedChannel].option = 0;
+			break;
+		case 3:
+			optionsFormat.SetWindowTextA( "[Frequency] [Amplitude]" );
+			settings.channel[selectedChannel].option = 1;
+			break;
+		case 4:
+			optionsFormat.SetWindowTextA( "[Frequency] [Amplitude] [Offset]" );
+			settings.channel[selectedChannel].option = 2;
+			break;
+		case 5:
+			optionsFormat.SetWindowTextA( "[Address]" );
+			settings.channel[selectedChannel].option = 3;
+			break;
+		case 6:
+			optionsFormat.SetWindowTextA( "[Not yet implemented]" );
+			settings.channel[selectedChannel].option = 4;
+			break;
+	}
+}
+
+
+deviceOutputInfo Agilent::getOutputInfo()
+{
+	return settings;
 }
 
 
 void Agilent::convertInputToFinalSettings( key variableKey, unsigned int variation )
 {
+	// iterate between 0 and 1...
 	try
 	{
-		finalSettings.chan1DcLevel = std::stod( inputSettings.chan1DcLevel );
+		for (auto chan : range( 2 ))
+		{
+			switch (settings.channel[chan].option)
+			{
+				case -2:
+					// no control
+					break;
+				case -1:
+					// no ouput
+					break;
+				case 0:
+					// DC output
+					try
+					{
+						settings.channel[chan].dc.dcLevel = std::stod( settings.channel[chan].dc.dcLevelInput );
+					}
+					catch (std::invalid_argument&)
+					{
+						settings.channel[chan].dc.dcLevel = variableKey[settings.channel[chan].dc.dcLevelInput]
+							.first[variation];
+					}
+					break;
+				case 1:
+					// single frequency output
+					// frequency
+					try
+					{
+						settings.channel[chan].sine.frequency = std::stod( settings.channel[chan].sine.frequencyInput );
+					}
+					catch (std::invalid_argument&)
+					{
+						settings.channel[chan].sine.frequency = variableKey[settings.channel[chan].sine.frequencyInput].first[variation];
+					}
+					// amplitude
+					try
+					{
+						settings.channel[chan].sine.amplitude = std::stod( settings.channel[chan].sine.amplitudeInput );
+					}
+					catch (std::invalid_argument&)
+					{
+						settings.channel[chan].sine.amplitude = variableKey[settings.channel[chan].sine.amplitudeInput].first[variation];
+					}
+					break;
+				case 2:
+					// Square Output
+					// frequency
+					try
+					{
+						settings.channel[chan].square.frequency = std::stod( settings.channel[chan].square.frequencyInput );
+					}
+					catch (std::invalid_argument&)
+					{
+						settings.channel[chan].square.frequency = variableKey[settings.channel[chan].square.frequencyInput].first[variation];
+					}
+					// amplitude
+					try
+					{
+						settings.channel[chan].square.amplitude = std::stod( settings.channel[chan].square.amplitudeInput );
+					}
+					catch (std::invalid_argument&)
+					{
+						settings.channel[chan].square.amplitude = variableKey[settings.channel[chan].square.amplitudeInput].first[variation];
+					}
+
+					break;
+				case 3:
+					// Preloaded Arb Output
+					break;
+				case 4:
+					// Scripted Arb Output
+					break;
+				default:
+					thrower( "Unrecognized Agilent Setting: " + std::to_string( settings.channel[chan].option ) );
+			}
+		}
 	}
-	catch (std::invalid_argument&)
+	catch (std::out_of_range&)
 	{
-		finalSettings.chan1DcLevel = variableKey[inputSettings.chan1DcLevel].first[variation];
-	}
-	try
-	{
-		finalSettings.chan2DcLevel = std::stod( inputSettings.chan2DcLevel );
-	}
-	catch (std::invalid_argument&)
-	{
-		finalSettings.chan2DcLevel = variableKey[inputSettings.chan2DcLevel].first[variation];
+		thrower( "ERROR: unrecognized variable!" );
 	}
 }
 
 
-void Agilent::setDC( std::string level )
+/*
+This function outputs a string that contains all of the information that is set by the user for a given configuration. 
+*/
+std::string Agilent::getConfigurationString()
 {
-	try
+	// make sure data is up to date.
+	handleInput();
+	// start outputting.
+	std::stringstream info;
+	info << "AGILENTVERSION 1.0\n";
+	info << std::to_string(settings.synced); 
+	info << "\nCHANNEL 1\n";
+	info << std::to_string(settings.channel[0].option) + ", ";
+	info << settings.channel[0].dc.dcLevelInput + ", ";
+	info << settings.channel[0].sine.amplitudeInput + ", ";
+	info << settings.channel[0].sine.frequencyInput + ", ";
+	info << settings.channel[0].square.amplitudeInput + ", ";
+	info << settings.channel[0].square.frequencyInput + ", ";
+	info << settings.channel[0].square.offsetInput + ", ";
+	info << settings.channel[0].preloadedArb.address + ", ";
+	info << "\nCHANNEL 2\n";
+	info << std::to_string( settings.channel[1].option ) + ", ";
+	info << settings.channel[1].dc.dcLevelInput + ", ";
+	info << settings.channel[1].sine.amplitudeInput + ", ";
+	info << settings.channel[1].sine.frequencyInput + ", ";
+	info << settings.channel[1].square.amplitudeInput + ", ";
+	info << settings.channel[1].square.frequencyInput + ", ";
+	info << settings.channel[1].square.offsetInput + ", ";
+	info << settings.channel[1].preloadedArb.address + ", \n";
+	return info.str();
+}
+
+
+void Agilent::zeroSettings()
+{
+	settings = deviceOutputInfo();
+	settings.channel[0].option = -2;
+	settings.channel[1].option = -2;
+}
+
+
+void Agilent::readConfigurationFile( std::ifstream& file )
+{
+	std::string input;
+	int pos = file.tellg();
+	file >> input;
+	if ( input != "AGILENTVERSION" )
 	{
-		double test = std::stod( level );
-	}
-	catch (std::invalid_argument&)
-	{
-		thrower( "ERROR: DC level was not a double!" );
+		// assume old version of file which did not include agilent info.
+		// return to the original position and return silently.
+		file.seekg( pos );
+		zeroSettings();
+		updateEdit( 1 );
 		return;
 	}
+	
+	file >> input;
+
+	if ( input != "1.0" )
+	{
+		thrower( "ERROR: Unexpected version for agilent info in config file!" );
+	}
+	file >> settings.synced;
+	file.get();
+	std::getline( file, input );
+	if ( input != "CHANNEL 1" )
+	{
+		thrower( "ERROR: Expected \"CHANNEL 1\" but instead found " + input + " inside configuration file." );
+	}
+	// the extra step in all of the following is to remove the , at the end of each input.
+	file >> input;
+	try
+	{
+		settings.channel[0].option = std::stoi( input.substr( 0, input.size() - 1 ) );
+	}
+	catch (std::invalid_argument&)
+	{
+		thrower( "ERROR: Bad channel 1 option!" );
+	}
+	file >> input;
+	settings.channel[0].dc.dcLevelInput = input.substr( 0, input.size() - 1 );
+	file >> input;
+	settings.channel[0].sine.amplitudeInput = input.substr( 0, input.size() - 1 );
+	file >> input;
+	settings.channel[0].sine.frequencyInput = input.substr( 0, input.size() - 1 );
+	file >> input;
+	settings.channel[0].square.amplitudeInput = input.substr( 0, input.size() - 1 );
+	file >> input;
+	settings.channel[0].square.frequencyInput = input.substr( 0, input.size() - 1 );
+	file >> input;
+	settings.channel[0].square.offsetInput = input.substr( 0, input.size() - 1 );
+	file >> input;
+	settings.channel[0].preloadedArb.address = input.substr( 0, input.size() - 1 );
+	file.get(); 
+	file.get();
+	std::getline( file, input );
+	if ( input != "CHANNEL 2" )
+	{
+		thrower( "ERROR: Expected \"CHANNEL 2\" but instead found " + input + " inside configuration file." );
+	}
+	file >> input;
+	settings.channel[1].option = std::stoi( input.substr( 0, input.size() - 1 ) );
+	file >> input;
+	settings.channel[1].dc.dcLevelInput = input.substr( 0, input.size() - 1 );
+	file >> input;
+	settings.channel[1].sine.amplitudeInput = input.substr( 0, input.size() - 1 );
+	file >> input;
+	settings.channel[1].sine.frequencyInput = input.substr( 0, input.size() - 1 );
+	file >> input;
+	settings.channel[1].square.amplitudeInput = input.substr( 0, input.size() - 1 );
+	file >> input;
+	settings.channel[1].square.frequencyInput = input.substr( 0, input.size() - 1 );
+	file >> input;
+	settings.channel[1].square.offsetInput = input.substr( 0, input.size() - 1 );
+	file >> input;
+	settings.channel[1].preloadedArb.address = input.substr( 0, input.size() - 1 );
+	// default to first channel.
+	updateEdit( 1 );
+	return;
+}
+
+
+void Agilent::outputOff( int channel )
+{
+	channel++;
 	visaOpenDefaultRM();
 	visaOpen( std::string( usbAddress ) );
-	// turn it to the default voltage...
-	visaWrite( std::string( "APPLy:DC DEF, DEF, " ) + level + " V" );
+	if (channel == 1)
+	{
+		visaWrite( "OUTPUT1 OFF" );
+	}
+	else if (channel == 2)
+	{
+		visaWrite( "OUTPUT2 OFF" );
+	}
+	else
+	{
+		thrower( "ERROR: Attempted to turn off channel " + std::to_string( channel ) + " which does not exist! Use channel 1 or 2." );
+	}
+	visaClose();
+}
+
+
+bool Agilent::connected()
+{
+	return isConnected;
+}
+
+
+void Agilent::setDC( int channel, dcInfo info )
+{
+	channel++;
+	visaOpenDefaultRM();
+	visaOpen( std::string( usbAddress ) );
+	if (channel == 1)
+	{
+		visaWrite( "SOURce1:APPLy:DC DEF, DEF, " + std::to_string( info.dcLevel ) + " V" );
+		chan1Range.min = chan1Range.max = info.dcLevel;
+	}
+	else if (channel == 2)
+	{
+		visaWrite( "SOURce2:APPLy:DC DEF, DEF, " + std::to_string( info.dcLevel ) + " V" );
+		chan2Range.min = chan2Range.max = info.dcLevel;
+	}
+	else
+	{
+		thrower( "tried to set DC level for \"channel\" " + std::to_string( channel ) + ", which is not supported! "
+				 "Channel should be either 1 or 2" );
+	}
 	// and leave...
 	visaClose();
-	// update current values
-	currentAgilentLow = std::stod( level );
-	currentAgilentHigh = std::stod( level );
 }
 
 
-void Agilent::setExistingWaveform( std::string address )
+void Agilent::setExistingWaveform( int channel, preloadedArbInfo info )
 {
+	channel++;
 	visaOpenDefaultRM();
 	visaOpen( usbAddress );
-	// Load sequence that was previously loaded.
-	visaWrite( "MMEM:LOAD:DATA \"" + address + "\"" );
-	visaWrite( "SOURCE1:FUNC ARB" );
-	visaWrite( "SOURCE1:FUNC:ARB \"" + address + "\"" );
-	// Set output impedance...
-	visaWrite( std::string( "OUTPUT1:LOAD " ) + AGILENT_LOAD );
-	visaWrite( "BURSt::STATe ON" );
-	visaWrite( "OUTPUT1 ON" );
+	if (channel == 1)
+	{
+		// Load sequence that was previously loaded.
+		visaWrite( "MMEM:LOAD:DATA \"" + info.address + "\"" );
+		// tell it that it's outputting something arbitrary (not sure if necessary)
+		visaWrite( "SOURCE1:FUNC ARB" );
+		// tell it what arb it's outputting.
+		visaWrite( "SOURCE1:FUNC:ARB \"" + info.address + "\"" );
+		// Set output impedance...
+		visaWrite( std::string( "OUTPUT1:LOAD " ) + AGILENT_LOAD );
+		// not really bursting... but this allows us to reapeat on triggers. Might be another way to do this.
+		visaWrite( "SOURCE1:BURST::MODE TRIGGERED" );
+		visaWrite( "SOURCE1:BURST::NCYCLES 1" );
+		visaWrite( "SOURCE1:BURST::PHASE 0" );
+		// 
+		visaWrite( "SOURCE1:BURST::STATE ON" );
+		visaWrite( "OUTPUT1 ON" );
+	}
+	else if (channel == 2)
+	{
+		// Load sequence that was previously loaded onto the agilent's non-volitile memory.
+		visaWrite( "MMEM:LOAD:DATA \"" + info.address + "\"" );
+		// tell it that it's outputting something arbitrary (not sure if necessary)
+		visaWrite( "SOURCE2:FUNC ARB" );
+		// tell it what arb it's outputting.
+		visaWrite( "SOURCE2:FUNC:ARB \"" + info.address + "\"" );
+		// not really bursting... but this allows us to reapeat on triggers. Probably another way to do this.
+		visaWrite( "SOURCE2:BURST::MODE TRIGGERED" );
+		visaWrite( "SOURCE2:BURST::NCYCLES 1" );
+		visaWrite( "SOURCE2:BURST::PHASE 0" );
+		visaWrite( "SOURCE2:BURST::STATE ON" );
+		// Set output impedance...
+		visaWrite( std::string( "OUTPUT2:LOAD " ) + AGILENT_LOAD );
+		visaWrite( "OUTPUT2 ON" );
+
+	}
+	else
+	{
+		thrower( "tried to set arbitrary function for \"channel\" " + std::to_string( channel ) + ", which is not supported! "
+				 "Channel should be either 1 or 2" );
+	}
+	visaClose();
 }
 
+void Agilent::setSquare( int channel, squareInfo info )
+{
+	channel++;
+	visaOpenDefaultRM();
+	visaOpen( usbAddress );
+	if (channel == 1)
+	{
+		visaWrite( "SOURCE1:APPLY:SQUARE " + std::to_string(info.frequency) + " KHZ, " 
+				   + std::to_string(info.amplitude) + " VPP, " + std::to_string(info.offset) + " V" );
+	}
+	else if (channel == 2)
+	{
+		visaWrite( "SOURCE2:APPLY:SQUARE " + std::to_string( info.frequency ) + " KHZ, "
+				   + std::to_string( info.amplitude ) + " VPP, " + std::to_string( info.offset ) + " V" );
+	}
+	else
+	{
+		thrower( "tried to set square function for \"channel\" " + std::to_string( channel ) + ", which is not supported! "
+				 "Channel should be either 1 or 2" );
+	}
+	visaClose();
+}
 
+void Agilent::setSingleFreq( int channel, sineInfo info )
+{
+
+}
 
 /// 
 
@@ -937,16 +1401,15 @@ void Agilent::visaWrite( std::string message )
 {
 	// not sure what this is for.
 	unsigned long actual;
-	if (AGILENT_SAFEMODE)
+	if (!AGILENT_SAFEMODE)
 	{
 		errCheck( viWrite( instrument, (unsigned char*)message.c_str(), (ViUInt32)message.size(), &actual ) );
 	}
 }
 
-
 void Agilent::visaClose()
 {
-	if (AGILENT_SAFEMODE)
+	if (!AGILENT_SAFEMODE)
 	{
 		errCheck( viClose( defaultResourceManager ) );
 	}
@@ -960,7 +1423,7 @@ void Agilent::visaClose()
 // sessions( which that Resource Manager session was used to create ) are closed.
 void Agilent::visaOpenDefaultRM()
 {
-	if (AGILENT_SAFEMODE)
+	if (!AGILENT_SAFEMODE)
 	{
 		errCheck( viOpenDefaultRM( &defaultResourceManager ) );
 	}
@@ -969,7 +1432,7 @@ void Agilent::visaOpenDefaultRM()
 
 void Agilent::visaOpen( std::string address )
 {
-	if (AGILENT_SAFEMODE)
+	if (!AGILENT_SAFEMODE)
 	{
 		errCheck( viOpen( defaultResourceManager, (char *)address.c_str(), VI_NULL, VI_NULL, &instrument ) );
 	}
@@ -978,9 +1441,75 @@ void Agilent::visaOpen( std::string address )
 
 void Agilent::visaSetAttribute( unsigned long attributeName, unsigned long value )
 {
-	if (AGILENT_SAFEMODE)
+	if (!AGILENT_SAFEMODE)
 	{
 		errCheck( viSetAttribute( instrument, attributeName, value ) );
+	}
+}
+
+
+std::string Agilent::visaIdentityQuery()
+{
+	char buf[256] = { 0 };
+	if (!AGILENT_SAFEMODE)
+	{
+		viQueryf( instrument, (ViString)"*IDN?\n", "%t", buf );
+	}
+	else
+	{
+		return "Agilent Safemode...";
+	}
+	return buf;
+}
+
+
+void Agilent::visaErrQuery( std::string& errMsg, long& errCode )
+{
+	char buf[256] = { 0 };
+	if (!AGILENT_SAFEMODE)
+	{
+		viQueryf( instrument, (ViString)"SYST:ERR?\n", "%ld,%t", &errCode, buf );
+	}
+	else
+	{
+		return;
+	}
+	errMsg = std::string( buf );
+}
+
+/*
+* This function checks if the agilent throws an error or if there is an error communicating with the agilent.
+*/
+void Agilent::errCheck( long status )
+{
+	long errorCode = 0;
+	// Check comm status
+	if (status < 0)
+	{
+		// Error detected.
+		thrower( "ERROR: Communication error with agilent. Error Code: " + std::to_string( status ) + "\r\n" );
+		return;
+	}
+	// Query the agilent for errors.
+	std::string errMessage;
+	visaErrQuery( errMessage, errorCode );
+	//viQueryf( instrument, "SYST:ERR?\n", "%ld,%t", &errorCode, buf );
+	if (errorCode != 0)
+	{
+		// Agilent error
+		thrower( "ERROR: agilent returned error message: " + std::to_string( errorCode ) + ":" + errMessage );
+		return;
+	}
+	return;
+}
+
+
+void Agilent::visaPrintf( std::string msg )
+{
+
+	if (!AGILENT_SAFEMODE)
+	{
+		errCheck( viPrintf( instrument, (ViString)msg.c_str() ) );
 	}
 }
 

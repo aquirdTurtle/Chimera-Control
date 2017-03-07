@@ -455,7 +455,7 @@ void Script::updateChildCombo(MasterWindow* Master)
 	// look for predefined scripts.
 	ScriptStream scriptStream(script);
 
-	while (scriptStream)
+	while (scriptStream.peek() != EOF)
 	{
 		std::string line;
 		line = scriptStream.getline( '\n' );

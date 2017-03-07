@@ -55,16 +55,20 @@ BEGIN_MESSAGE_MAP( MasterWindow, CDialog )
 	ON_COMMAND( ID_PROFILE_SAVE_PROFILE, &MasterWindow::SaveEntireProfile )
 	ON_COMMAND( IDC_ZERO_TTLS, &MasterWindow::zeroTtls )
 	ON_COMMAND( IDC_ZERO_DACS, &MasterWindow::zeroDacs )
-
 	ON_COMMAND_RANGE( IDC_SHOW_TTLS, IDC_SHOW_TTLS, &MasterWindow::handleOptionsPress )
 	ON_COMMAND_RANGE( IDC_SHOW_DACS, IDC_SHOW_DACS, &MasterWindow::handleOptionsPress )
-
+	ON_COMMAND_RANGE(IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_FLASHING_AGILENT_COMBO, &MasterWindow::handleAgilentOptions)
+	ON_CBN_SELENDOK( IDC_TOP_BOTTOM_AGILENT_COMBO, &MasterWindow::handleTopBottomAgilentCombo )
+	ON_CBN_SELENDOK( IDC_AXIAL_UWAVE_AGILENT_COMBO, &MasterWindow::handleAxialUWaveAgilentCombo )
+	ON_CBN_SELENDOK( IDC_FLASHING_AGILENT_COMBO, &MasterWindow::handleFlashingAgilentCombo )
 	ON_CBN_SELENDOK( EXPERIMENT_COMBO_ID, &MasterWindow::OnExperimentChanged )
 	ON_CBN_SELENDOK( CATEGORY_COMBO_ID, &MasterWindow::OnCategoryChanged )
 	ON_CBN_SELENDOK( CONFIGURATION_COMBO_ID, &MasterWindow::OnConfigurationChanged )
 	ON_CBN_SELENDOK( SEQUENCE_COMBO_ID, &MasterWindow::OnSequenceChanged )
 	ON_CBN_SELENDOK( ORIENTATION_COMBO_ID, &MasterWindow::OnOrientationChanged )
 	ON_CBN_SELENDOK( FUNCTION_COMBO_ID, &MasterWindow::HandleFunctionChange )
+
+	
 
 	ON_CONTROL_RANGE( EN_CHANGE, ID_DAC_FIRST_EDIT, (ID_DAC_FIRST_EDIT + 23), &MasterWindow::DAC_EditChange )
 
@@ -81,6 +85,67 @@ BEGIN_MESSAGE_MAP( MasterWindow, CDialog )
 	ON_NOTIFY( NM_RCLICK, IDC_GLOBAL_VARS_LISTVIEW, &MasterWindow::GlobalVarRClick )
 
 END_MESSAGE_MAP()
+
+void MasterWindow::handleAgilentOptions( UINT id )
+{
+	// zero the id.
+	id -= IDC_TOP_BOTTOM_CHANNEL1_BUTTON;
+	int agilentNum = id / 8;
+	// figure out which box it was.
+	Agilent* agilent = NULL;
+	if (agilentNum == 0)
+	{
+		agilent = &topBottomAgilent;
+	}
+	else if (agilentNum == 1)
+	{
+		agilent = &uWaveAxialAgilent;
+	}
+	else if (agilentNum == 2)
+	{
+		agilent = &flashingAgilent;
+	}
+	else
+	{
+		errBox( "4th agilent???" );
+		return;
+	}
+	// call the correct function.
+	if (id % 8 == 0)
+	{
+		// channel 1
+		agilent->handleChannelPress( 1 );
+	}
+	else if (id % 8 == 1)
+	{
+		// channel 2
+		agilent->handleChannelPress( 2 );
+	}
+	else if (id % 8 == 3)
+	{
+		// sync 
+		//agilent->handleSync();
+	}
+	// else it's a boring combo that I don't care about at the moment.
+}
+
+
+void MasterWindow::handleTopBottomAgilentCombo()
+{
+	topBottomAgilent.handleCombo();
+}
+
+
+void MasterWindow::handleAxialUWaveAgilentCombo()
+{
+	uWaveAxialAgilent.handleCombo();
+}
+
+
+void MasterWindow::handleFlashingAgilentCombo()
+{
+	flashingAgilent.handleCombo();
+}
 
 
 void MasterWindow::GlobalVarDblClick( NMHDR * pNotifyStruct, LRESULT * result )
@@ -536,11 +601,11 @@ void MasterWindow::SaveConfiguration()
 {
 	try
 	{
-		this->profile.saveConfigurationOnly( this );
+		profile.saveConfiguration( this );
 	}
 	catch (myException& exception)
 	{
-		this->errorStatus.appendText( "Saving Configuration Failed: " + exception.whatStr() + "\r\n", 0 );
+		errorStatus.appendText( "Saving Configuration Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
 }
 
@@ -553,7 +618,7 @@ void MasterWindow::SaveConfigurationAs()
 	}
 	catch (myException& exception)
 	{
-		this->errorStatus.appendText( "Saving Configuration As Failed: " + exception.whatStr() + "\r\n", 0 );
+		errorStatus.appendText( "Saving Configuration As Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
 }
 
@@ -576,11 +641,11 @@ void MasterWindow::SaveCategory()
 {
 	try
 	{
-		this->profile.saveCategoryOnly( this );
+		profile.saveCategory( this );
 	}
 	catch (myException& exception)
 	{
-		this->errorStatus.appendText( "Saving Category Failed: " + exception.whatStr() + "\r\n", 0 );
+		errorStatus.appendText( "Saving Category Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
 }
 
@@ -667,11 +732,11 @@ void MasterWindow::SaveExperiment()
 {
 	try
 	{
-		this->profile.saveExperimentOnly( this );
+		profile.saveExperiment( this );
 	}
 	catch (myException& exception)
 	{
-		this->errorStatus.appendText("Save Experiment : " + exception.whatStr() + "\r\n", 0);
+		errorStatus.appendText("ERROR: Save Experiment : " + exception.whatStr() + "\r\n", 0);
 	}
 }
 
@@ -1023,7 +1088,6 @@ BOOL MasterWindow::OnInitDialog()
 	}
 
 	RECT controlArea = { 960, 0, 1320, 540 };
-	//RECT editSize, HWND windowHandle, std::string titleText
 	generalStatus.initialize( controlArea, "Status", this->masterRGBs["Light Blue"], this, id);
 	controlArea = { 960, 540, 1320, 1080 };
 	errorStatus.initialize( controlArea, "Errors", this->masterRGBs["Light Red"], this, id );
@@ -1031,14 +1095,78 @@ BOOL MasterWindow::OnInitDialog()
 	notes.initialize( controlLocation, this, id );
 	RhodeSchwarzGenerator.initialize( controlLocation, toolTips, this, id );
 	debugControl.initialize( controlLocation, this, this->toolTips, id );
-	agilent1.initialize( controlLocation, toolTips, this, id, "STUFF", "Top/Bottom Agilent" );
-	agilent2.initialize( controlLocation, toolTips, this, id, "STUFF...", "U-Wave / Axial Agilent" );
-
+	topBottomAgilent.initialize( controlLocation, toolTips, this, id, "USB0::2391::11271::MY52801397::0::INSTR", "Top/Bottom Agilent" );
+	uWaveAxialAgilent.initialize( controlLocation, toolTips, this, id, "STUFF...", "U-Wave / Axial Agilent" );
+	flashingAgilent.initialize( controlLocation, toolTips, this, id, "STUFF...", "Flashing Agilent" );
 	controlLocation = POINT{ 1320, 0 };
 	masterScript.initialize( 600, 1080, controlLocation, this->toolTips, this, id );
 
-	// controls are done.
+	// controls are done. Report the initialization status...
+	std::string msg;
+	msg +=	"===============================================\n"
+			"=============MASTER CONTROL=====================\n"
+			"===============================================\n"
+			"==The Quantum Gas Assembly Control System================\n"
+			"===============================================\n\n";
+	
+	msg += "<<Code Safemode Settings>>\n";
+	msg += "TTL System... ";
+	if ( !DIO_SAFEMODE )
+	{
+		msg += "ACTIVE!\n";
+	}
+	else
+	{
+		msg += "DISABLED!\n";
+	}
+	msg += "DAC System... ";
+	if ( !DAQMX_SAFEMODE )
+	{
+		msg += "ACTIVE!\n";
+	}
+	else
+	{
+		msg += "DISABLED!\n";
+	}
+	msg += "GPIB System... ";
+	if ( !GPIB_SAFEMODE )
+	{
+		msg += "ACTIVE!\n";
+	}
+	else
+	{
+		msg += "DISABLED!\n";
+	}
+	msg += "Agilent System... ";
+	if ( !AGILENT_SAFEMODE )
+	{
+		msg += "ACTIVE!\n";
+	}
+	else
+	{
+		msg += "DISABLED!\n";
+	}
+	// 
+	msg += "\n<<Device Connectivity>>\n";
 
+	msg += "TTL Board: ";
+	if ( ttlBoard.getSystemInfo() == "" )
+	{
+		msg += "Disconnected?\n";
+	}
+	else
+	{
+		msg += "Connected\n";
+	}
+	msg += dacBoards.getDacSystemInfo() + "\n";
+	msg += "Top / Bottom Agilent: " + topBottomAgilent.getDeviceIdentity();
+	msg += "U Wave / Axial Agilent: " + uWaveAxialAgilent.getDeviceIdentity();
+	msg += "Flashing Agilent: " + flashingAgilent.getDeviceIdentity();
+	msg += "Tektronics 1: " + gpibHandler.queryIdentity( TEKTRONICS_AFG_1_ADDRESS ) + "\n";
+	msg += "Tektronics 2: " + gpibHandler.queryIdentity( TEKTRONICS_AFG_2_ADDRESS ) + "\n";
+	msg += "RSG: " + gpibHandler.queryIdentity( RSG_ADDRESS ) + "\n";
+	errBox( msg );
+	
 	menu.LoadMenu(IDC_MASTERCODE);
 	this->SetMenu(&menu);
 	this->ShowWindow(SW_MAXIMIZE);

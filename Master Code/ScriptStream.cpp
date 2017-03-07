@@ -4,14 +4,16 @@
 
 ScriptStream & ScriptStream::operator>>( std::string& outputString )
 {
-	this->eatComments();
+	eatComments();
 	// there might be a better way to do this. I'm really just creating a 
 	// stringstream object in order to access the stringstream >> operator
 	// directly. I was having trouble calling the parent class version, not
 	// really sure why.
-	std::stringstream temp( this->str() );
+	std::string text = str();
+	std::stringstream temp( text );
 	// make sure they are at the same place...
-	temp.seekg( this->tellg() );
+	int pos = tellg();
+	temp.seekg( pos );
 	// get the word.
 	temp >> outputString;
 	// convert to lower-case
@@ -121,6 +123,15 @@ void ScriptStream::eatComments()
 	char next = this->peek();
 	if (next == EOF)
 	{
+		if (this->eof())
+		{
+			this->clear();
+			this->seekg( -1, SEEK_CUR );
+			if (this->eof())
+			{
+				errBox( "!" );
+			}
+		}
 		return;
 	}
 	std::streamoff position = this->tellg();

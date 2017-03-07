@@ -131,6 +131,11 @@ class MasterWindow : public CDialog
 		void zeroTtls();
 		void zeroDacs();
 		void handleOptionsPress( UINT id );
+		void handleAgilentOptions( UINT id );
+		void handleTopBottomAgilentCombo();
+		void handleAxialUWaveAgilentCombo();
+		void handleFlashingAgilentCombo();
+
 		void loadMotSettings();
 
 		void onStatusTextMessage();
@@ -155,8 +160,9 @@ class MasterWindow : public CDialog
 		Gpib gpibHandler;
 		KeyHandler masterKey;
 		Debugger debugControl;
-		Agilent agilent1;
-		Agilent agilent2;
+		Agilent topBottomAgilent;
+		Agilent uWaveAxialAgilent;
+		Agilent flashingAgilent;
 
 		Script masterScript{ FUNCTIONS_FOLDER_LOCATION, "Master" };
 		ConfigurationFileSystem profile{ PROFILES_PATH };
@@ -185,15 +191,15 @@ class MasterWindow : public CDialog
 		friend void ConfigurationFileSystem::openConfiguration(std::string configurationNameToOpen, MasterWindow* Master);
 		friend void ConfigurationFileSystem::openExperiment(std::string experimentToOpen, MasterWindow* Master);
 		friend void ConfigurationFileSystem::experimentChangeHandler(MasterWindow* Master);
-		friend void ConfigurationFileSystem::saveConfigurationOnly(MasterWindow* Master);
+		friend void ConfigurationFileSystem::saveConfiguration(MasterWindow* Master);
 		friend void ConfigurationFileSystem::saveConfigurationAs(MasterWindow* Master);
 		friend void ConfigurationFileSystem::renameConfiguration(MasterWindow* Master);
-		friend void ConfigurationFileSystem::saveCategoryOnly(MasterWindow* Master);
+		friend void ConfigurationFileSystem::saveCategory(MasterWindow* Master);
 		friend void ConfigurationFileSystem::newCategory(MasterWindow* Master);
 		friend void ConfigurationFileSystem::saveCategoryAs(MasterWindow* Master);
 		friend void ConfigurationFileSystem::openCategory(std::string categoryToOpen, MasterWindow* Master);
 		friend void ConfigurationFileSystem::categoryChangeHandler(MasterWindow* Master);
-		friend void ConfigurationFileSystem::saveExperimentOnly(MasterWindow* Master);
+		friend void ConfigurationFileSystem::saveExperiment(MasterWindow* Master);
 		friend void ConfigurationFileSystem::saveExperimentAs(MasterWindow* Master);
 		friend void ConfigurationFileSystem::newExperiment(MasterWindow* Master);
 		friend void ConfigurationFileSystem::addToSequence(MasterWindow* Master);

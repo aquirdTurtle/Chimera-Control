@@ -70,9 +70,9 @@ std::string ConfigurationFileSystem::getMasterAddressFromConfig()
 
 void ConfigurationFileSystem::saveEntireProfile(MasterWindow* Master)
 {
-	saveExperimentOnly( Master );
-	saveCategoryOnly( Master );
-	saveConfigurationOnly( Master );
+	saveExperiment( Master );
+	saveCategory( Master );
+	saveConfiguration( Master );
 	saveSequence( Master );
 	return;
 }
@@ -214,6 +214,7 @@ void ConfigurationFileSystem::newConfiguration(MasterWindow* Master)
 	return;
 }
 
+
 /*
 ]--- This function opens a given configuration file, sets all of the relevant parameters, and loads the associated scripts. 
 */
@@ -243,7 +244,7 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 	std::getline(configurationFile, version);
 	/// Get Variables
 	// early version didn't have variable type indicators.
-	if (version != "Master Version: 1.0")
+	if (version != "Master Version: 1.0" && version != "Master Version: 1.1" )
 	{
 		if (version == "")
 		{
@@ -267,7 +268,8 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 	configurationFile >> masterText;
 	if (masterText == "LOCAL")
 	{
-		configurationFile >> masterText;
+		configurationFile.get();
+		getline( configurationFile, masterText );
 		std::string newPath = this->getCurrentPathIncludingCategory() + masterText + MASTER_SCRIPT_EXTENSION;
 		Master->masterScript.openParentScript(newPath, Master);
 	}
@@ -369,11 +371,7 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 		}
 		Master->configVariables.addConfigVariable(tempVar, varInc);
 	}
-	// add the last line.
-	variable empty;
-	empty.name = "";
-	//Master->variables.addConfigVariable(empty, -1);
-	//
+
 	std::string ttlText;
 	configurationFile >> ttlText;
 	if (ttlText != "TTLS:")
@@ -447,8 +445,13 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 	tempVar.timelike = false;
 	tempVar.ranges.push_back({ 0,0,0 });
 	Master->configVariables.addConfigVariable(tempVar, varNum);
-	this->updateConfigurationSavedStatus(true);
+	updateConfigurationSavedStatus(true);
 	currentProfileSettings.configuration = configurationNameToOpen;
+
+	Master->topBottomAgilent.readConfigurationFile( configurationFile );
+	Master->uWaveAxialAgilent.readConfigurationFile( configurationFile );
+	Master->flashingAgilent.readConfigurationFile( configurationFile );
+
 	std::string notes;
 	std::string tempNote;
 	std::string notesNote;
@@ -496,7 +499,7 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 ]- Save, i.e. if the file doesn't already exist or if the user tries to pass an empty name as an argument. It returns false if the configuration got saved,
 ]- true if something prevented the configuration from being saved.
 */
-void ConfigurationFileSystem::saveConfigurationOnly(MasterWindow* Master)
+void ConfigurationFileSystem::saveConfiguration( MasterWindow* Master )
 {
 	std::string configurationNameToSave = currentProfileSettings.configuration;
 	// check if category has been set yet.
@@ -537,19 +540,19 @@ void ConfigurationFileSystem::saveConfigurationOnly(MasterWindow* Master)
 		return;
 	}
 
-	if (!ConfigurationFileSystem::fileOrFolderExists( currentProfileSettings.pathIncludingCategory + configurationNameToSave + extension))
+	if (!ConfigurationFileSystem::fileOrFolderExists( currentProfileSettings.pathIncludingCategory + configurationNameToSave + extension ))
 	{
-		int answer = MessageBox(0, ("This configuration file appears to not exist in the expected location: " + currentProfileSettings.pathIncludingCategory + configurationNameToSave
-			+ extension + ". Continue by making a new configuration file?").c_str(), 0, MB_OKCANCEL);
+		int answer = MessageBox( 0, ("This configuration file appears to not exist in the expected location: " + currentProfileSettings.pathIncludingCategory + configurationNameToSave
+									  + extension + ". Continue by making a new configuration file?").c_str(), 0, MB_OKCANCEL );
 		if (answer == IDCANCEL)
 		{
 			return;
 		}
 	}
-	
+
 	if (!experimentIsSaved)
 	{
-		int answer = MessageBox(0, "The Experiment settings have not yet been saved. Save them before the configuration? (Optional)", 0, MB_YESNOCANCEL);
+		int answer = MessageBox( 0, "The Experiment settings have not yet been saved. Save them before the configuration? (Optional)", 0, MB_YESNOCANCEL );
 		if (answer == IDCANCEL)
 		{
 			return;
@@ -557,12 +560,12 @@ void ConfigurationFileSystem::saveConfigurationOnly(MasterWindow* Master)
 		else if (answer == IDYES)
 		{
 			// save the experiment!
-			this->saveExperimentOnly(Master);
+			this->saveExperiment( Master );
 		}
 	}
 	if (!categoryIsSaved)
 	{
-		int answer = MessageBox(0, "The Category settings have not yet been saved. Save them before the configuration? (Optional)", 0, MB_YESNOCANCEL);
+		int answer = MessageBox( 0, "The Category settings have not yet been saved. Save them before the configuration? (Optional)", 0, MB_YESNOCANCEL );
 		if (answer == IDCANCEL)
 		{
 			return;
@@ -570,10 +573,10 @@ void ConfigurationFileSystem::saveConfigurationOnly(MasterWindow* Master)
 		else if (answer == IDYES)
 		{
 			// save the experiment!
-			this->saveCategoryOnly(Master);
+			this->saveCategory( Master );
 		}
 	}
-	
+
 	// else open it.
 	if (currentProfileSettings.orientation == HORIZONTAL_ORIENTATION)
 	{
@@ -588,7 +591,7 @@ void ConfigurationFileSystem::saveConfigurationOnly(MasterWindow* Master)
 		thrower( "ERROR: Unrecognized orientation! Ask Mark about bugs." );
 		return;
 	}
-	std::ofstream configurationSaveFile( currentProfileSettings.pathIncludingCategory + configurationNameToSave + extension);
+	std::ofstream configurationSaveFile( currentProfileSettings.pathIncludingCategory + configurationNameToSave + extension );
 	if (!configurationSaveFile.is_open())
 	{
 		thrower( "Couldn't save configuration file! Check the name for weird characters, or call Mark about bugs if everything seems right..." );
@@ -596,7 +599,7 @@ void ConfigurationFileSystem::saveConfigurationOnly(MasterWindow* Master)
 	}
 	// That's the last prompt the user gets, so the save is final now.
 	currentProfileSettings.configuration = configurationNameToSave;
-	configurationSaveFile << "Master Version: 1.0\n";
+	configurationSaveFile << "Master Version: 1.1\n";
 	/// master script
 	configurationSaveFile << "MASTER SCRIPT:\n";
 	// keep track of whether the script is saved locally or not. This should make renaming things easier. 
@@ -614,7 +617,7 @@ void ConfigurationFileSystem::saveConfigurationOnly(MasterWindow* Master)
 	/// Variable Names
 	for (int varInc = 0; varInc < Master->configVariables.getCurrentNumberOfVariables(); varInc++)
 	{
-		variable info = Master->configVariables.getVariableInfo(varInc);
+		variable info = Master->configVariables.getVariableInfo( varInc );
 		configurationSaveFile << info.name << " ";
 		if (info.timelike)
 		{
@@ -647,30 +650,34 @@ void ConfigurationFileSystem::saveConfigurationOnly(MasterWindow* Master)
 	{
 		for (int ttlNumberInc = 0; ttlNumberInc < Master->ttlBoard.getNumberOfTTLsPerRow(); ttlNumberInc++)
 		{
-			configurationSaveFile << Master->ttlBoard.getTTL_Status(ttlRowInc, ttlNumberInc) << "\n";
+			configurationSaveFile << Master->ttlBoard.getTTL_Status( ttlRowInc, ttlNumberInc ) << "\n";
 		}
 	}
 	/// dac settings
 	configurationSaveFile << "DACS:\n";
 	for (int dacInc = 0; dacInc < Master->dacBoards.getNumberOfDACs(); dacInc++)
 	{
-		configurationSaveFile << Master->dacBoards.getDAC_Value(dacInc) << "\n";
+		configurationSaveFile << Master->dacBoards.getDAC_Value( dacInc ) << "\n";
 	}
 	/// repetitions
 	configurationSaveFile << "REPETITIONS:\n";
 	configurationSaveFile << Master->repetitionControl.getRepetitionNumber() << "\n";
+
+	configurationSaveFile << Master->topBottomAgilent.getConfigurationString();
+	configurationSaveFile << Master->uWaveAxialAgilent.getConfigurationString();
+	configurationSaveFile << Master->flashingAgilent.getConfigurationString();
 
 	configurationSaveFile << "NOTES:\n";
 	std::string notes = Master->notes.getConfigurationNotes();
 	configurationSaveFile << notes + "\n";
 	configurationSaveFile << "END CONFIGURATION NOTES" << "\n";
 	configurationSaveFile.close();
-	this->updateConfigurationSavedStatus(true);
+	this->updateConfigurationSavedStatus( true );
 	return;
 }
 
 /*
-]--- Identical to saveConfigurationOnly except that it prompts the user for a name with a dialog box instead of taking one.
+]--- Identical to saveConfiguration except that it prompts the user for a name with a dialog box instead of taking one.
 */
 void ConfigurationFileSystem::saveConfigurationAs(MasterWindow* Master)
 {
@@ -738,7 +745,7 @@ void ConfigurationFileSystem::saveConfigurationAs(MasterWindow* Master)
 		else if (answer == IDYES)
 		{
 			// save the experiment!
-			this->saveExperimentOnly(Master);
+			this->saveExperiment(Master);
 		}
 	}
 	if (!categoryIsSaved)
@@ -751,7 +758,7 @@ void ConfigurationFileSystem::saveConfigurationAs(MasterWindow* Master)
 		else if (answer == IDYES)
 		{
 			// save the experiment!
-			this->saveCategoryOnly(Master);
+			this->saveCategory(Master);
 		}
 	}
 
@@ -1035,7 +1042,7 @@ void ConfigurationFileSystem::checkConfigurationSave(std::string prompt, MasterW
 	int answer = MessageBox(0, prompt.c_str(), 0, MB_YESNOCANCEL);
 	if (answer == IDYES)
 	{
-		this->saveConfigurationOnly(Master);
+		this->saveConfiguration(Master);
 	}
 	else if (answer == IDCANCEL)
 	{
@@ -1073,7 +1080,7 @@ void ConfigurationFileSystem::configurationChangeHandler(MasterWindow* Master)
 ]- Save, i.e. if the file doesn't already exist or if the user tries to pass an empty name as an argument. It returns false if the category got saved,
 ]- true if something prevented the category from being saved.
 */
-void ConfigurationFileSystem::saveCategoryOnly(MasterWindow* Master)
+void ConfigurationFileSystem::saveCategory(MasterWindow* Master)
 {
 	std::string categoryNameToSave = currentProfileSettings.category;
 	// check if experiment has been set
@@ -1111,7 +1118,7 @@ void ConfigurationFileSystem::saveCategoryOnly(MasterWindow* Master)
 		else if (answer == IDYES)
 		{
 			// save the experiment!
-			this->saveExperimentOnly( Master );
+			this->saveExperiment( Master );
 		}
 	}
 	std::fstream categoryFileToSave( currentProfileSettings.pathIncludingCategory + categoryNameToSave + CATEGORY_EXTENSION, std::ios::out);
@@ -1136,7 +1143,7 @@ std::string ConfigurationFileSystem::getCurrentPathIncludingCategory()
 }
 
 /*
-]--- identical to saveCategoryOnly except that 
+]--- identical to saveCategory except that 
 */
 void ConfigurationFileSystem::saveCategoryAs(MasterWindow* Master)
 {
@@ -1175,7 +1182,7 @@ void ConfigurationFileSystem::saveCategoryAs(MasterWindow* Master)
 		else if (answer == IDYES)
 		{
 			// save the experiment!
-			this->saveExperimentOnly( Master );
+			this->saveExperiment( Master );
 		}
 	}
 	// need to make a new folder as well.
@@ -1358,7 +1365,7 @@ void ConfigurationFileSystem::checkCategorySave(std::string prompt, MasterWindow
 	int answer = MessageBox(0, prompt.c_str(), 0, MB_YESNOCANCEL);
 	if (answer == IDYES)
 	{
-		this->saveCategoryOnly(Master);
+		this->saveCategory(Master);
 	}
 	else if (answer == IDCANCEL)
 	{
@@ -1403,7 +1410,7 @@ void ConfigurationFileSystem::categoryChangeHandler(MasterWindow* Master)
 }
 
 /// EXPERIMENT LEVEL HANDLING
-void ConfigurationFileSystem::saveExperimentOnly(MasterWindow* Master)
+void ConfigurationFileSystem::saveExperiment(MasterWindow* Master)
 {
 	std::string experimentNameToSave = currentProfileSettings.experiment;
 	// check that the experiment name is not empty.
@@ -1683,7 +1690,7 @@ void ConfigurationFileSystem::checkExperimentSave(std::string prompt, MasterWind
 	int answer = MessageBox(0, prompt.c_str(), 0, MB_YESNOCANCEL);
 	if (answer == IDYES)
 	{
-		this->saveExperimentOnly(Master);
+		this->saveExperiment(Master);
 	}
 	else if (answer == IDCANCEL)
 	{

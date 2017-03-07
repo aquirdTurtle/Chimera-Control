@@ -12,14 +12,14 @@ void NoteSystem::initialize( POINT& pos, MasterWindow* master, int& id )
 {
 	/// EXPERIMENT LEVEL
 	// Configuration Notes Title
-	experimentNotesHeader.position = { pos.x, pos.y, pos.x + 480, pos.y + 20 };
+	experimentNotesHeader.position = { pos.x, pos.y, pos.x + 480, pos.y += 20 };
 	experimentNotesHeader.ID = id++;
 	experimentNotesHeader.Create( "EXPERIMENT NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
 								  experimentNotesHeader.position, master, experimentNotesHeader.ID );
 	experimentNotesHeader.SetFont( CFont::FromHandle( sNormalFont ) );
-	pos.y += 20;
+	
 	// Configuration Notes edit
-	experimentNotes.position = { pos.x, pos.y, pos.x + 480, pos.y + 150 };
+	experimentNotes.position = { pos.x, pos.y, pos.x + 480, pos.y += 100 };
 	experimentNotes.ID = id++;
 	if (experimentNotes.ID != EXPERIMENT_NOTES_ID)
 	{
@@ -28,17 +28,15 @@ void NoteSystem::initialize( POINT& pos, MasterWindow* master, int& id )
 	experimentNotes.Create( WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | WS_BORDER,
 							experimentNotes.position, master, experimentNotes.ID );
 	experimentNotes.SetFont( CFont::FromHandle( sNormalFont ) );
-	pos.y += 150;
 	/// CATEGORY LEVEL
 	// Category Notes Title
-	categoryNotesHeader.position = { pos.x, pos.y, pos.x + 480, pos.y + 20 };
+	categoryNotesHeader.position = { pos.x, pos.y, pos.x + 480, pos.y += 20 };
 	categoryNotesHeader.ID = id++;
 	categoryNotesHeader.Create( "CATEGORY NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, categoryNotesHeader.position, master,
 								categoryNotesHeader.ID );
 	categoryNotesHeader.SetFont( CFont::FromHandle( sNormalFont ) );
-	pos.y += 20;
 	// Category Notes edit
-	categoryNotes.position = { pos.x, pos.y, pos.x + 480, pos.y + 150 };
+	categoryNotes.position = { pos.x, pos.y, pos.x + 480, pos.y += 100 };
 	categoryNotes.ID = id++;
 	if (categoryNotes.ID != CATEGORY_NOTES_ID)
 	{
@@ -47,17 +45,15 @@ void NoteSystem::initialize( POINT& pos, MasterWindow* master, int& id )
 	categoryNotes.Create( WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | WS_BORDER,
 						  categoryNotes.position, master, categoryNotes.ID );
 	categoryNotes.SetFont( CFont::FromHandle( sNormalFont ) );
-	pos.y += 150;
 	/// CONFIGURAITON LEVEL
 	// Configuration Notes Title
-	configurationNotesHeader.position = { pos.x, pos.y, pos.x + 480, pos.y + 20 };
+	configurationNotesHeader.position = { pos.x, pos.y, pos.x + 480, pos.y += 20 };
 	configurationNotesHeader.ID = id++;
 	configurationNotesHeader.Create( "CONFIGURATION NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
 									 configurationNotesHeader.position, master, configurationNotesHeader.ID );
 	configurationNotesHeader.SetFont( CFont::FromHandle( sNormalFont ) );
-	pos.y += 20;
 	//  Configuration Notes edit
-	configurationNotes.position = { pos.x, pos.y, pos.x + 480, pos.y + 150 };
+	configurationNotes.position = { pos.x, pos.y, pos.x + 480, pos.y += 100 };
 	configurationNotes.ID = id++;
 	if (configurationNotes.ID != CONFIGURATION_NOTES_ID)
 	{
@@ -66,7 +62,6 @@ void NoteSystem::initialize( POINT& pos, MasterWindow* master, int& id )
 	configurationNotes.Create( WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | WS_BORDER,
 							   configurationNotes.position, master, configurationNotes.ID );
 	configurationNotes.SetFont( CFont::FromHandle( sNormalFont ) );
-	pos.y += 150;
 	return;
 }
 

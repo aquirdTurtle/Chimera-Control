@@ -66,6 +66,8 @@ class DacSystem
 												 std::string rampTime, std::string rampInc, std::vector<unsigned int>& dacShadeLocations, 
 												 std::vector<variable> vars, TtlSystem* ttls);
 
+		std::string getDacSystemInfo();
+
 		void handleEditChange(unsigned int dacNumber);
 		int getDAC_Identifier(std::string name);
 		double getDAC_Value(int dacNumber);

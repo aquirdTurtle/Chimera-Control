@@ -4,15 +4,34 @@
 #include <array>
 #include "constants.h"
 
+
 void Gpib::gpibWrite( int deviceID, std::string msg )
 {
 	int size = msg.size();
-	int errCode = ERR;
 	int result = ibwrt(deviceID, (void*)msg.c_str(), size);
 	if ( result == ERR )
 	{
-		thrower( "gpib write failed!" + this->getErrMessage(iberr ));
+		thrower( "gpib write failed! " + this->getErrMessage(iberr ));
 	}
+}
+
+
+std::string Gpib::gpibRead( int deviceID )
+{
+	char result[256];
+	int code = ibrd( deviceID, result, 256 );
+	if ( code == ERR )
+	{
+		thrower( "gpib read failed!" + this->getErrMessage( iberr ) );
+	}
+	return std::string( result );
+}
+
+
+std::string Gpib::gpibQuery( int deviceID, std::string query )
+{
+	gpibWrite( deviceID, query );
+	return gpibRead( deviceID );
 }
 
 
@@ -31,6 +50,7 @@ Gpib::Gpib()
 	agilent = gpibIbdev( 11 );
 	return;
 }
+
 
 std::array<double, 3> Gpib::interpretKeyForRaman(std::array<std::string, 3> raman, key variationKey, 
 	unsigned int variableNumber)
@@ -52,35 +72,9 @@ std::array<double, 3> Gpib::interpretKeyForRaman(std::array<std::string, 3> rama
 			realFrequencies[ramanInc] = variationKey[raman[ramanInc]].first[variableNumber];
 		}
 	}
-	
-	return realFrequencies;
-	
+	return realFrequencies;	
 }
 
-
-bool Gpib::copyIBVars()
-{
-	return true;
-}
-
-
-bool Gpib::ibwrti()
-{
-	return true;
-}
-
-
-bool Gpib::ibrd()
-{
-	return true;
-}
-
-
-bool Gpib::ibeot()
-{
-	
-	return true;
-}
 
 // send message to address.
 void Gpib::gpibSend(int address, std::string message)
@@ -102,10 +96,6 @@ void Gpib::gpibSend(int address, std::string message)
 }
 
 
-bool Gpib::enableRemote()
-{
-	return true;
-}
 
 // gets the device descriptor ud. Input the device address.
 int Gpib::gpibIbdev(int pad)
@@ -123,6 +113,27 @@ int Gpib::gpibIbdev(int pad)
 		thrower( "ibdev failed!" );
 	}
 	return id;
+}
+
+
+
+std::string Gpib::queryIdentity( int deviceAddress )
+{
+	try
+	{
+		return gpibQuery( deviceAddress, "*IDN?" );
+	}
+	catch ( myException& exception )
+	{
+		if ( exception.whatBare() == "gpib write failed! Code 0: System Error" )
+		{
+			return "Disconnected...";
+		}
+		else
+		{
+			return exception.what();
+		}
+	}
 }
 
 
@@ -152,11 +163,11 @@ void Gpib::programRamanFGs(double topFreq, double bottomFreq, double axialFreq)
 	// 
 	if (true)
 	{
-		this->gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE1:FREQ " + std::to_string(specFreqs));
-		this->gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE1:FSKey:STATe On");
-		this->gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE1:FSKey:FREQ " + std::to_string(topRamanCoolFreq));
-		this->gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE1:FSKey:SOURce External");
-		this->gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE1:VOLT:UNIT DBM");
+		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE1:FREQ " + std::to_string(specFreqs));
+		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE1:FSKey:STATe On");
+		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE1:FSKey:FREQ " + std::to_string(topRamanCoolFreq));
+		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE1:FSKey:SOURce External");
+		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE1:VOLT:UNIT DBM");
 		if (topRamanPow < -2)
 		{
 			this->gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE1:VOLT " + std::to_string(topRamanPow));
@@ -165,16 +176,16 @@ void Gpib::programRamanFGs(double topFreq, double bottomFreq, double axialFreq)
 		{
 			errBox( "AO power set too high!" );
 		}
-		this->gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE1:VOLT:OFFS 0");
-		this->gpibSend( TEKTRONICS_AFG_1_ADDRESS, "OUTput1:STATe ON");
+		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE1:VOLT:OFFS 0");
+		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "OUTput1:STATe ON");
 
 		//---------Source 2-------------------------------
 
-		this->gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE2:FREQ " + std::to_string(specFreqs));
-		this->gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE2:FSKey:STATe On");
-		this->gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE2:FSKey:FREQ " + std::to_string(botRamanCoolFreq));
-		this->gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE2:FSKey:SOURce External");
-		this->gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE2:VOLT:UNIT DBM");
+		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE2:FREQ " + std::to_string(specFreqs));
+		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE2:FSKey:STATe On");
+		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE2:FSKey:FREQ " + std::to_string(botRamanCoolFreq));
+		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE2:FSKey:SOURce External");
+		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE2:VOLT:UNIT DBM");
 
 		if (botRamanPow < -2)
 		{
@@ -184,13 +195,13 @@ void Gpib::programRamanFGs(double topFreq, double bottomFreq, double axialFreq)
 		{
 			errBox( "AO power set too high!" );
 		}
-		this->gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE2:VOLT:OFFS 0");
-		this->gpibSend( TEKTRONICS_AFG_1_ADDRESS, "OUTput2:STATe ON");
+		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE2:VOLT:OFFS 0");
+		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "OUTput2:STATe ON");
 	}
 	else
 	{
-		this->gpibSend( TEKTRONICS_AFG_1_ADDRESS, "OUTPut1:STATe OFF");
-		this->gpibSend( TEKTRONICS_AFG_1_ADDRESS, "OUTPut2:STATe OFF");
+		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "OUTPut1:STATe OFF");
+		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "OUTPut2:STATe OFF");
 	}
 
 	//-------------------------------------------------------------------------------------
@@ -198,50 +209,49 @@ void Gpib::programRamanFGs(double topFreq, double bottomFreq, double axialFreq)
 
 	if (true)
 	{
-		this->gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE1:FUNC SIN");
-		this->gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE1:FREQuency:MODE CW");
-		this->gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE1:FREQ " + std::to_string(EOramanFreq));
-		this->gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE1:VOLT:UNIT DBM");
+		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE1:FUNC SIN");
+		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE1:FREQuency:MODE CW");
+		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE1:FREQ " + std::to_string(EOramanFreq));
+		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE1:VOLT:UNIT DBM");
 		if (EOramanPow < -2)
 		{
-			this->gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE1:VOLT " + std::to_string(EOramanPow));
+			gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE1:VOLT " + std::to_string(EOramanPow));
 		}
 		else
 		{
-			errBox( "Raman EO RF power too high!" );
+			thrower( "Raman EO RF power too high!" );
 		}
-		this->gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE1:VOLT:OFFS 0");
-		this->gpibSend( TEKTRONICS_AFG_2_ADDRESS, "OUTput1:STATe ON");
+		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE1:VOLT:OFFS 0");
+		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "OUTput1:STATe ON");
 
 		//-------Source 2----------------
-
-		this->gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE2:FREQ " + std::to_string(specFreqs));
-		this->gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE2:FSKey:STATe On");
-		this->gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE2:FSKey:FREQ " + std::to_string(axialRamanCoolFreq));
-		this->gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE2:FSKey:SOURce External");
-		this->gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE2:VOLT:UNIT DBM");
+		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE2:FREQ " + std::to_string(specFreqs));
+		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE2:FSKey:STATe On");
+		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE2:FSKey:FREQ " + std::to_string(axialRamanCoolFreq));
+		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE2:FSKey:SOURce External");
+		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE2:VOLT:UNIT DBM");
 		if (axialRamanPow < -2)
 		{
 			//
-			this->gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE2:VOLT " + std::to_string(axialRamanPow));
-
+			gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE2:VOLT " + std::to_string(axialRamanPow));
 		}
 		else
 		{
 			errBox( "Axial Raman power too high!" );
 		}
-		this->gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE2:VOLT:OFFS 0");
-		this->gpibSend( TEKTRONICS_AFG_2_ADDRESS, "OUTput2:STATe ON");
+		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE2:VOLT:OFFS 0");
+		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "OUTput2:STATe ON");
 	}
 	else
 	{
-		this->gpibSend( TEKTRONICS_AFG_2_ADDRESS, "OUTPut1:STATe OFF");
-		this->gpibSend( TEKTRONICS_AFG_2_ADDRESS, "OUTPut2:STATe OFF");
+		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "OUTPut1:STATe OFF");
+		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "OUTPut2:STATe OFF");
 	}
-
 	//	t = t + 0.01 ????????????????????????????????
 	return;
 }
+
+
 
 std::string Gpib::getErrMessage( long errCode )
 {

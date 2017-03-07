@@ -17,18 +17,12 @@ class CMyWinApp : CWinApp
 
 		BOOL InitInstance() override
 		{
-			if (DIO_SAFEMODE)
-			{
-				MessageBox( 0, "You are starting the program in SAFEMODE. The code will not attempt to connect "
-							"to any devices.", 0, MB_ICONINFORMATION );
-			}
-			// initialize socketssave
+			// initialize sockets
 			AfxSocketInit();
 			// create the main window.
 			TheMasterWindow.DoModal();
 			return TRUE;
 		}
-
 
 		BOOL PreTranslateMessage( MSG* pMsg )
 		{
