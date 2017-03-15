@@ -193,17 +193,16 @@ void PictureControl::redrawImage( CWnd* parent )
 void PictureControl::drawBitmap(CDC* deviceContext, std::vector<long> picData)
 {
 	this->mostRecentImage = picData;
-	float xscale, yscale, zscale;
+	float yscale;
 	long modrange = this->maxSliderPosition - this->minSliderPosition;
 	double dTemp = 1;
-	int imageBoxWidth, imageBoxHeight;
 	int pixelsAreaWidth;
 	int pixelsAreaHeight;
 	int dataWidth, dataHeight;
 	int iTemp;
 	HANDLE hloc;
 	PBITMAPINFO pbmi;
-	WORD argbq[PICTURE_PALLETE_SIZE];
+	WORD argbq[PICTURE_PALETTE_SIZE];
 	BYTE *DataArray;
 	// Rotated
 	SelectPalette( deviceContext->GetSafeHdc(), (HPALETTE)this->imagePalette, true );
@@ -226,12 +225,12 @@ void PictureControl::drawBitmap(CDC* deviceContext, std::vector<long> picData)
 
 	yscale = (256.0f) / (float)modrange;
 
-	for (int paletteIndex = 0; paletteIndex < PICTURE_PALLETE_SIZE; paletteIndex++)
+	for (int paletteIndex = 0; paletteIndex < PICTURE_PALETTE_SIZE; paletteIndex++)
 	{
 		argbq[paletteIndex] = (WORD)paletteIndex;
 	}
 
-	//hloc = LocalAlloc(LMEM_ZEROINIT | LMEM_MOVEABLE, sizeof(BITMAPINFOHEADER) + (sizeof(WORD)*PICTURE_PALLETE_SIZE));
+	//hloc = LocalAlloc(LMEM_ZEROINIT | LMEM_MOVEABLE, sizeof(BITMAPINFOHEADER) + (sizeof(WORD)*PICTURE_PALETTE_SIZE));
 	//hloc = LocalAlloc( LMEM_ZEROINIT | LMEM_MOVEABLE, sizeof( pbmi ) );
 	//hloc = LocalAlloc( LMEM_ZEROINIT | LMEM_MOVEABLE, sizeof( BITMAPINFOHEADER ));
 	//pbmi = (PBITMAPINFO)LocalLock(hloc);
@@ -242,38 +241,38 @@ void PictureControl::drawBitmap(CDC* deviceContext, std::vector<long> picData)
 	pbmi->bmiHeader.biPlanes = 1;
 	pbmi->bmiHeader.biBitCount = 8;
 	pbmi->bmiHeader.biCompression = BI_RGB;
-	pbmi->bmiHeader.biClrUsed = PICTURE_PALLETE_SIZE;
+	pbmi->bmiHeader.biClrUsed = PICTURE_PALETTE_SIZE;
 	pbmi->bmiHeader.biSizeImage = 0;// ((pbmi->bmiHeader.biWidth * 8 + 31) & ~31) / 8 * pbmi->bmiHeader.biHeight;
 
 	pbmi->bmiHeader.biHeight = dataHeight;
-	memcpy(pbmi->bmiColors, argbq, sizeof(WORD) * PICTURE_PALLETE_SIZE);
+	memcpy(pbmi->bmiColors, argbq, sizeof(WORD) * PICTURE_PALETTE_SIZE);
 
 	//errBox( std::to_string( sizeof( DataArray ) / sizeof( DataArray[0] ) ) );
 	//DataArray = (BYTE*)malloc(dataWidth * dataHeight * sizeof(BYTE));
 	//memset(DataArray, 0, dataWidth * dataHeight);
 	DataArray = (BYTE*)malloc( (dataWidth * dataHeight) * sizeof( BYTE ) );
 	memset( DataArray, 255, (dataWidth * dataHeight) * sizeof( BYTE ) );
-	for (int i = 0; i < dataHeight; i++)
+	for (int heightInc = 0; heightInc < dataHeight; heightInc++)
 	{
-		for (int j = 0; j < dataWidth; j++)
+		for (int widthInc = 0; widthInc < dataWidth; widthInc++)
 		{
 			if (false)
 			{
-				//dTemp = ceil( yscale * (eImagesOfExperiment[experimentImagesInc][j + i * tempParam.width] - minValue) );
+				//dTemp = ceil( yscale * (eImagesOfExperiment[experimentImagesInc][widthInc + heightInc * tempParam.width] - minValue) );
 			}
 			else
 			{
-				dTemp = ceil( yscale * (picData[j + i * dataWidth] - this->minSliderPosition) );
+				dTemp = ceil( yscale * (picData[widthInc + heightInc * dataWidth] - this->minSliderPosition) );
 			}
 			if (dTemp < 0)
 			{
 				// raise value to zero which is the floor of values this parameter can take.
 				iTemp = 0;
 			}
-			else if (dTemp > PICTURE_PALLETE_SIZE - 1)
+			else if (dTemp > PICTURE_PALETTE_SIZE - 1)
 			{
 				// round to maximum value.
-				iTemp = PICTURE_PALLETE_SIZE - 1;
+				iTemp = PICTURE_PALETTE_SIZE - 1;
 			}
 			else
 			{
@@ -281,7 +280,7 @@ void PictureControl::drawBitmap(CDC* deviceContext, std::vector<long> picData)
 				iTemp = (int)dTemp;
 			}
 			// store the value.
-			DataArray[j + i * dataWidth] = (BYTE)iTemp;
+			DataArray[widthInc + heightInc * dataWidth] = (BYTE)iTemp;
 		}
 	}
 	SetStretchBltMode( deviceContext->GetSafeHdc(), COLORONCOLOR );

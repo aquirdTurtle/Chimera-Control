@@ -237,7 +237,7 @@ unsigned int WINAPI GetNewData(at_32 * arr, unsigned long size);
 unsigned int WINAPI GetNewData16(WORD * arr, unsigned long size);
 unsigned int WINAPI GetNewData8(unsigned char * arr, unsigned long size);
 unsigned int WINAPI GetNewFloatData(float * arr, unsigned long size);
-unsigned int WINAPI GetNumberADChannels(int * channels);
+unsigned int WINAPI GetNumberADChannels(int * axes);
 unsigned int WINAPI GetNumberAmp(int * amp);
 unsigned int WINAPI GetNumberAvailableImages(at_32 * first, at_32 * last);
 unsigned int WINAPI GetNumberDDGExternalOutputs(at_u32 * puiCount);

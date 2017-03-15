@@ -163,6 +163,9 @@
     <ClCompile Include="CameraConfigurationSystem.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
+    <ClCompile Include="ScriptStream.cpp">
+      <Filter>Function Headers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="waveformData.h">
@@ -194,9 +197,6 @@
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Constants, Externals, Etc.</Filter>
-    </ClInclude>
-    <ClInclude Include="NIAWGWaitThread.h">
-      <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="getFileName.h">
       <Filter>Function Headers</Filter>
@@ -357,6 +357,12 @@
     </ClInclude>
     <ClInclude Include="CameraConfigurationSystem.h">
       <Filter>Code Files</Filter>
+    </ClInclude>
+    <ClInclude Include="niawgWaitThread.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptStream.h">
+      <Filter>Function Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

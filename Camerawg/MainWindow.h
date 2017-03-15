@@ -125,9 +125,9 @@ class MainWindow : public CDialog
 		BOOL PreTranslateMessage(MSG* pMsg); 
 		
 		void passCommonCommand(UINT id);
-		bool checkProfileReady();
-		bool checkProfileSave();
-		bool setOrientation(std::string orientation);
+		void checkProfileReady();
+		void checkProfileSave();
+		void setOrientation(std::string orientation);
 		void updateConfigurationSavedStatus(bool status);
 		void clearVariables();
 		void addVariable(std::string name, bool timelike, bool singleton, double value, int item);
@@ -148,9 +148,9 @@ class MainWindow : public CDialog
 		std::unordered_map<std::string, COLORREF> getRGB();
 		std::unordered_map<std::string, CFont*> getFonts();
 		profileSettings getCurentProfileSettings();
-		debugOptions getDebuggingOptions();
+		debugInfo getDebuggingOptions();
 		mainOptions getMainOptions();
-		void setDebuggingOptions(debugOptions options);
+		void setDebuggingOptions(debugInfo options);
 		void setMainOptions(mainOptions options);
 		void updateStatusText(std::string whichStatus, std::string text);
 		void addTimebar(std::string whichStatus);

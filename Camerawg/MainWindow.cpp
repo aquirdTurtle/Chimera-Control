@@ -82,29 +82,28 @@ void MainWindow::passClear(UINT id)
 	{
 		this->debugStatus.clear();
 	}
-	return;
 }
 
 void MainWindow::OnCancel()
 {
 	passCommonCommand(ID_FILE_MY_EXIT);
-	return;
 }
+
+
 void MainWindow::OnClose()
 {
 	passCommonCommand(WM_CLOSE);
-	return;
 }
+
 
 void MainWindow::stopNiawg()
 {
-	this->niawg.configureOutputEnabled(VI_FALSE);
-	this->niawg.abortGeneration();
+	niawg.configureOutputEnabled(VI_FALSE);
+	niawg.abortGeneration();
 }
 
 BOOL MainWindow::OnInitDialog()
 {
-
 	/// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	///
 	///				Initialize NIAWG
@@ -167,7 +166,7 @@ BOOL MainWindow::OnInitDialog()
 	{
 		niawg.initialize();
 	}
-	catch (my_exception& except)
+	catch (myException& except)
 	{
 		errBox("ERROR: NIAWG Did not start smoothly: " + except.whatStr());
 		return -1;
@@ -187,15 +186,14 @@ BOOL MainWindow::OnInitDialog()
 	MessageBox(NULL, (LPCSTR)std::to_string(minimumWaveformSize).c_str(), NULL, MB_OK);
 	MessageBox(NULL, (LPCSTR)std::to_string(maximumWaveformSize).c_str(), NULL, MB_OK);
 	*/
-
-	this->niawg.setDefaultWaveforms(this, true);
-	// but the default starts in the horizontal configuration, so switch back and start in this config.
-	this->setOrientation(HORIZONTAL_ORIENTATION);
 	try
 	{
-		this->restartNiawgDefaults();
+		niawg.setDefaultWaveforms( this, true );
+		// but the default starts in the horizontal configuration, so switch back and start in this config.
+		setOrientation( HORIZONTAL_ORIENTATION );
+		restartNiawgDefaults();
 	}
-	catch (my_exception& exception)
+	catch (myException& exception)
 	{
 		errBox("ERROR: failed to start niawg default waveforms! Niawg gave the following error message: " + exception.whatStr());
 	}
@@ -204,56 +202,50 @@ BOOL MainWindow::OnInitDialog()
 	eCurrentScript = "DefaultScript";
 	// not done with the script, it will not stay on the NIAWG, so I need to keep track of it so thatI can reload it onto the NIAWG when necessary.	
 	/// Initialize Windows
-	this->TheScriptingWindow = new ScriptingWindow;
-	this->TheCameraWindow = new CameraWindow(this, TheScriptingWindow);
-
+	TheScriptingWindow = new ScriptingWindow;
+	TheCameraWindow = new CameraWindow(this, TheScriptingWindow);
 	TheScriptingWindow->getFriends(this, TheCameraWindow);
-
 	TheScriptingWindow->Create(IDD_LARGE_TEMPLATE, 0);
 	TheScriptingWindow->ShowWindow(SW_SHOW);
-	// initialize the camera window
-	
+	// initialize the camera window	
 	TheCameraWindow->Create(IDD_LARGE_TEMPLATE, 0);
 	TheCameraWindow->ShowWindow(SW_SHOW);
-
-
 	// initialize the COMM.
-	this->comm.initialize( this, this->TheScriptingWindow, this->TheCameraWindow );
-
+	comm.initialize( this, TheScriptingWindow, TheCameraWindow );
 	int id = 1000;
 	POINT statusPos = { 0,0 };
-	this->mainStatus.initialize( statusPos, this, id, 975, "EXPERIMENT STATUS", RGB( 50, 50, 250 ), mainFonts, tooltips );
+	mainStatus.initialize( statusPos, this, id, 975, "EXPERIMENT STATUS", RGB( 50, 50, 250 ), mainFonts, tooltips );
 	statusPos = { 480, 0 };
-	this->errorStatus.initialize( statusPos, this, id, 480, "ERROR STATUS", RGB( 200, 0, 0 ), mainFonts, tooltips );
-	this->debugStatus.initialize( statusPos, this, id, 480, "DEBUG STATUS", RGB( 13, 152, 186 ), mainFonts, tooltips );
+	errorStatus.initialize( statusPos, this, id, 480, "ERROR STATUS", RGB( 200, 0, 0 ), mainFonts, tooltips );
+	debugStatus.initialize( statusPos, this, id, 480, "DEBUG STATUS", RGB( 13, 152, 186 ), mainFonts, tooltips );
 	POINT configStart = { 960, 0 };
-	this->profile.initializeControls( configStart, this, id, mainFonts, tooltips );
+	profile.initializeControls( configStart, this, id, mainFonts, tooltips );
 	POINT notesStart = { 960, 235 };
-	this->notes.initializeControls( notesStart, this, id, mainFonts, tooltips );
+	notes.initializeControls( notesStart, this, id, mainFonts, tooltips );
 	POINT controlLocation = { 1440, 95 };
-	this->variables.initializeControls( controlLocation, this, id, mainFonts, tooltips );
-	this->settings.initialize( id, controlLocation, this, mainFonts, tooltips );
-	this->debugger.initialize( id, controlLocation, this, mainFonts, tooltips );
+	variables.initializeControls( controlLocation, this, id, mainFonts, tooltips );
+	settings.initialize( id, controlLocation, this, mainFonts, tooltips );
+	debugger.initialize( id, controlLocation, this, mainFonts, tooltips );
 	texter.initializeControls( controlLocation, this, false, id, mainFonts, tooltips );
 	POINT statusLocations = { 960, 910 };
-	this->boxes.initialize( statusLocations, id, this, 960, mainFonts, tooltips );
-	this->shortStatus.initialize( statusLocations, this, id, mainFonts, tooltips );
-	
+	boxes.initialize( statusLocations, id, this, 960, mainFonts, tooltips );
+	shortStatus.initialize( statusLocations, this, id, mainFonts, tooltips );
 	niawg.initialize();
-
 	CMenu menu;
 	menu.LoadMenu(IDR_MAIN_MENU);
-	this->SetMenu(&menu);
-	this->ShowWindow(SW_MAXIMIZE);
+	SetMenu(&menu);
+	ShowWindow(SW_MAXIMIZE);
 	// just initializes the rectangles.
 	TheCameraWindow->redrawPictures( true );
 	return TRUE;
 }
 
+
 void MainWindow::restartNiawgDefaults()
 {
 	niawg.restartDefault();
 }
+
 
 HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
@@ -299,38 +291,43 @@ HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	return NULL;
 }
 
+
 void MainWindow::passCommonCommand(UINT id)
 {
 	// pass the command id to the common function, filling in the pointers to the windows which own objects needed.
 	commonFunctions::handleCommonMessage(id, this, this, this->TheScriptingWindow, this->TheCameraWindow);
-	return;
 }
+
 
 profileSettings MainWindow::getCurentProfileSettings()
 {
-	return this->profile.getCurrentProfileSettings();
+	return profile.getCurrentProfileSettings();
 }
 
-bool MainWindow::checkProfileReady()
+
+void MainWindow::checkProfileReady()
 {
-	return this->profile.allSettingsReadyCheck(this->TheScriptingWindow, this);
+	profile.allSettingsReadyCheck( this->TheScriptingWindow, this );
 }
 
-bool MainWindow::checkProfileSave()
+
+void MainWindow::checkProfileSave()
 {
-	return this->profile.checkSaveEntireProfile(this->TheScriptingWindow, this);
+	profile.checkSaveEntireProfile( this->TheScriptingWindow, this );
 }
 
-bool MainWindow::setOrientation(std::string orientation)
+
+void MainWindow::setOrientation(std::string orientation)
 {
-	return this->profile.setOrientation(orientation);
+	profile.setOrientation( orientation );
 }
+
 
 void MainWindow::updateConfigurationSavedStatus(bool status)
 {
-	this->profile.updateConfigurationSavedStatus(status);
-	return;
+	profile.updateConfigurationSavedStatus(status);
 }
+
 
 std::string MainWindow::getNotes(std::string whichLevel)
 {
@@ -355,6 +352,8 @@ std::string MainWindow::getNotes(std::string whichLevel)
 	}
 	return "";
 }
+
+
 void MainWindow::setNotes(std::string whichLevel, std::string notes)
 {
 	std::transform(whichLevel.begin(), whichLevel.end(), whichLevel.begin(), ::tolower);
@@ -376,152 +375,161 @@ void MainWindow::setNotes(std::string whichLevel, std::string notes)
 			+ whichLevel + ". Acceptable arguments are \"experiment\", \"category\", and \"configuration\". "
 			"This throw can be continued successfully, the notes will just not load.").c_str());
 	}
-	return;
 }
+
 
 std::vector<variable> MainWindow::getAllVariables()
 {
-	return this->variables.getAllVariables();
+	return variables.getAllVariables();
 }
+
 
 void MainWindow::clearVariables()
 {
-	this->variables.clearVariables();
-	return;
+	variables.clearVariables();
 }
+
 
 void MainWindow::addVariable(std::string name, bool timelike, bool singleton, double value, int item)
 {
-	this->variables.addVariable(name, timelike, singleton, value, item);
-	return;
+	variables.addVariable(name, timelike, singleton, value, item);
 }
 
-debugOptions MainWindow::getDebuggingOptions()
+
+debugInfo MainWindow::getDebuggingOptions()
 {
-	return this->debugger.getOptions();
+	return debugger.getOptions();
 }
 
-void MainWindow::setDebuggingOptions(debugOptions options)
+
+void MainWindow::setDebuggingOptions(debugInfo options)
 {
-	this->debugger.setOptions(options);
-	return;
+	debugger.setOptions(options);
 }
+
 
 mainOptions MainWindow::getMainOptions()
 {
-	return this->settings.getOptions();
+	return settings.getOptions();
 }
+
 
 void MainWindow::updateStatusText(std::string whichStatus, std::string text)
 {
 	std::transform(whichStatus.begin(), whichStatus.end(), whichStatus.begin(), ::tolower);
 	if (whichStatus == "error")
 	{
-		this->errorStatus.addStatusText(text);
+		errorStatus.addStatusText(text);
 	}
 	else if (whichStatus == "debug")
 	{
-		this->debugStatus.addStatusText(text);
+		debugStatus.addStatusText(text);
 	}
 	else if (whichStatus == "main")
 	{
-		this->mainStatus.addStatusText(text);
+		mainStatus.addStatusText(text);
 	}
 	else
 	{
-		throw std::invalid_argument("Main Window's updateStatusText function recieved a bad argument for which status"
-			" control to update. Options are \"error\", \"debug\", and \"main\", but recieved " + whichStatus + ". This"
-			"exception can be safely ignored.");
+		thrower( "Main Window's updateStatusText function recieved a bad argument for which status"
+				 " control to update. Options are \"error\", \"debug\", and \"main\", but recieved " + whichStatus);
 	}
-	return;
 }
+
 
 void MainWindow::addTimebar(std::string whichStatus)
 {
 	std::transform(whichStatus.begin(), whichStatus.end(), whichStatus.begin(), ::tolower);
 	if (whichStatus == "error")
 	{
-		this->errorStatus.appendTimebar();
+		errorStatus.appendTimebar();
 	}
 	else if (whichStatus == "debug")
 	{
-		this->debugStatus.appendTimebar();
+		debugStatus.appendTimebar();
 	}
 	else if (whichStatus == "main")
 	{
-		this->mainStatus.appendTimebar();
+		mainStatus.appendTimebar();
 	}
 	else
 	{
-		throw std::invalid_argument("Main Window's addTimebar function recieved a bad argument for which status"
+		thrower("Main Window's addTimebar function recieved a bad argument for which status"
 			" control to update. Options are \"error\", \"debug\", and \"main\", but recieved " + whichStatus + ". This"
 			"exception can be safely ignored.");
 	}
-	return;
-	return;
 }
+
 
 void MainWindow::setShortStatus(std::string text)
 {
-	this->shortStatus.setText(text);
-	return;
+	shortStatus.setText(text);
 }
+
 
 void MainWindow::changeShortStatusColor(std::string color)
 {
-	this->shortStatus.setColor(color);
-	return;
+	shortStatus.setColor(color);
 }
+
 
 void MainWindow::passDebugPress(UINT id)
 {
-	this->debugger.handleEvent(id, this);
-	return;
+	debugger.handleEvent(id, this);
 }
+
 
 void MainWindow::passMainOptionsPress(UINT id)
 {
-	this->settings.handleEvent(id, this);
-	return;
+	settings.handleEvent(id, this);
 }
+
 
 void MainWindow::listViewDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	variables.updateVariableInfo(this, this->TheScriptingWindow);
-	this->profile.updateConfigurationSavedStatus(false);
-	return;
+	profile.updateConfigurationSavedStatus(false);
 }
+
+
 void MainWindow::handleRClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	variables.deleteVariable();
-	this->profile.updateConfigurationSavedStatus(false);
-	return;
+	profile.updateConfigurationSavedStatus(false);
 }
+
 
 void MainWindow::handleExperimentCombo()
 {
-	this->profile.experimentChangeHandler(this->TheScriptingWindow, this);
-	return;
+	profile.experimentChangeHandler(TheScriptingWindow, this);
 }
+
+
 void MainWindow::handleCategoryCombo()
 {
-	this->profile.categoryChangeHandler(this->TheScriptingWindow, this);
+	profile.categoryChangeHandler(this->TheScriptingWindow, this);
 }
+
+
 void MainWindow::handleConfigurationCombo()
 {
-	this->profile.configurationChangeHandler(this->TheScriptingWindow, this);
+	profile.configurationChangeHandler(this->TheScriptingWindow, this);
 }
+
+
 void MainWindow::handleSequenceCombo()
 {
-	this->profile.sequenceChangeHandler();
+	profile.sequenceChangeHandler();
 }
+
+
 void MainWindow::handleOrientationCombo()
 {
 	try
 	{
-		this->profile.orientationChangeHandler(this);
+		profile.orientationChangeHandler(this);
 	}
-	catch (my_exception& except)
+	catch (myException& except)
 	{
 		colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
 		comm.sendColorBox( colors );
@@ -531,32 +539,35 @@ void MainWindow::handleOrientationCombo()
 
 void MainWindow::changeBoxColor( colorBoxes<char> colors )
 {
-	this->boxes.changeColor( colors );
+	boxes.changeColor( colors );
 }
+
 
 void MainWindow::setMainOptions(mainOptions options)
 {
-	this->settings.setOptions(options);
-	return;
+	settings.setOptions(options);
 }
+
 
 LRESULT MainWindow::onStatusTextMessage(WPARAM wParam, LPARAM lParam)
 {
 	char* pointerToMessage = (char*)lParam;
 	std::string statusMessage(pointerToMessage);
 	delete[] pointerToMessage;
-	this->mainStatus.addStatusText(statusMessage);
+	mainStatus.addStatusText(statusMessage);
 	return 0;
 }
+
 
 LRESULT MainWindow::onErrorMessage(WPARAM wParam, LPARAM lParam)
 {
 	char* pointerToMessage = (char*)lParam;
 	std::string statusMessage(pointerToMessage);
 	delete[] pointerToMessage;
-	this->errorStatus.addStatusText(statusMessage);
+	errorStatus.addStatusText(statusMessage);
 	return 0;
 }
+
 
 LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 {
@@ -568,7 +579,7 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 	//
 	myAgilent::agilentDefault();
 	std::string msgText = "Exited with Error!\r\nPassively Outputting Default Waveform.";
-	this->changeShortStatusColor("R");
+	changeShortStatusColor("R");
 	colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
 	comm.sendColorBox( colors );
 	std::string orientation = this->getCurentProfileSettings().orientation;
@@ -580,14 +591,14 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 		comm.sendColorBox( colors );
 		comm.sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 	}
-	catch (my_exception& except)
+	catch (myException& except)
 	{
 		colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
 		comm.sendError("EXITED WITH ERROR! " + except.whatStr());
 		comm.sendColorBox( colors );
 		comm.sendStatus("EXITED WITH ERROR!\r\nNIAWG RESTART FAILED!\r\n");
 	}
-	this->setNiawgRunningState( false );
+	setNiawgRunningState( false );
 	return 0;
 }
 
@@ -608,8 +619,8 @@ LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
 {
 	myAgilent::agilentDefault();
 	std::string msgText = "Passively Outputting Default Waveform";
-	this->setShortStatus(msgText);
-	this->changeShortStatusColor("B");
+	setShortStatus(msgText);
+	changeShortStatusColor("B");
 	colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
 	comm.sendColorBox( colors );
 	std::string orientation = this->getCurentProfileSettings().orientation;
@@ -617,7 +628,7 @@ LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
 	{
 		niawg.restartDefault();
 	}
-	catch (my_exception& except)
+	catch (myException& except)
 	{
 		colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
 		comm.sendError("ERROR! The niawg finished normally, but upon restarting the default waveform, threw the "
@@ -635,32 +646,38 @@ Communicator* MainWindow::getComm()
 	return &comm;
 }
 
+
 LRESULT MainWindow::onColoredEditMessage(WPARAM wParam, LPARAM lParam)
 {
 	char* pointerToMessage = (char*)lParam;
 	std::string statusMessage(pointerToMessage);
 	delete[] pointerToMessage;
-	this->setShortStatus(statusMessage);
+	setShortStatus(statusMessage);
 	return 0;
 }
+
 
 LRESULT MainWindow::onDebugMessage(WPARAM wParam, LPARAM lParam)
 {
 	char* pointerToMessage = (char*)lParam;
 	std::string statusMessage(pointerToMessage);
 	delete[] pointerToMessage;
-	this->debugStatus.addStatusText(statusMessage);
+	debugStatus.addStatusText(statusMessage);
 	return 0;
 }
 
+
 std::unordered_map<std::string, CBrush*> MainWindow::getBrushes()
 {
-	return this->mainBrushes;
+	return mainBrushes;
 }
+
+
 std::unordered_map<std::string, COLORREF> MainWindow::getRGB()
 {
-	return this->mainRGBs;
+	return mainRGBs;
 }
+
 
 CSocket* MainWindow::getSocket()
 {

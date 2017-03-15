@@ -14,6 +14,9 @@
 #include "ScriptingWindow.h"
 #include "DebuggingOptionsControl.h"
 
+extern std::string WAVEFORM_NAME_FILES[4 * MAX_NIAWG_SIGNALS];
+extern std::string WAVEFORM_TYPE_FOLDERS[4 * MAX_NIAWG_SIGNALS];
+
 extern bool eWaitError;
 extern HINSTANCE eGlobalInstance;
 

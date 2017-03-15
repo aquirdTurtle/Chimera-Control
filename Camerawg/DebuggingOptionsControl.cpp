@@ -75,10 +75,9 @@ void DebuggingOptionsControl::initialize(int& id, POINT& loc, CWnd* parent,
 	{
 		throw;
 	}
-	return;
 }
 
-bool DebuggingOptionsControl::handleEvent(UINT id, MainWindow* comm)
+void DebuggingOptionsControl::handleEvent(UINT id, MainWindow* comm)
 {
 	if (id == this->niawgMachineScript.ID)
 	{
@@ -86,7 +85,7 @@ bool DebuggingOptionsControl::handleEvent(UINT id, MainWindow* comm)
 		if (checked) 
 		{
 			niawgMachineScript.SetCheck(0);
-			this->currentOptions.outputNiawgMachineScript = false;
+			currentOptions.outputNiawgMachineScript = false;
 		}
 		else 
 		{
@@ -94,7 +93,6 @@ bool DebuggingOptionsControl::handleEvent(UINT id, MainWindow* comm)
 			this->currentOptions.outputNiawgMachineScript = true;
 		}
 		comm->updateConfigurationSavedStatus(false);
-		return true;
 	}
 	else if (id == this->niawgScript.ID)
 	{
@@ -110,7 +108,6 @@ bool DebuggingOptionsControl::handleEvent(UINT id, MainWindow* comm)
 			this->currentOptions.outputNiawgHumanScript = true;
 		}
 		comm->updateConfigurationSavedStatus(false);
-		return true;
 	}
 	else if (id == this->outputAgilentScript.ID)
 	{
@@ -126,7 +123,6 @@ bool DebuggingOptionsControl::handleEvent(UINT id, MainWindow* comm)
 			this->currentOptions.outputAgilentScript = true;
 		}
 		comm->updateConfigurationSavedStatus(false);
-		return true;
 	}
 	else if (id == this->readProgress.ID)
 	{
@@ -173,16 +169,15 @@ bool DebuggingOptionsControl::handleEvent(UINT id, MainWindow* comm)
 		}
 		comm->updateConfigurationSavedStatus(false);
 	}
-	return false;
 }
 
-debugOptions DebuggingOptionsControl::getOptions()
+
+debugInfo DebuggingOptionsControl::getOptions()
 {
 	return this->currentOptions;
 }
 
-void DebuggingOptionsControl::setOptions(debugOptions options)
+void DebuggingOptionsControl::setOptions(debugInfo options)
 {
-	this->currentOptions = options;
-	return;
+	currentOptions = options;
 }

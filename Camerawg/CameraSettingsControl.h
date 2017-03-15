@@ -8,29 +8,6 @@
 struct cameraPositions;
 
 /*
-// The following definition is inside Andor.h
-struct AndorRunSettings
-{
-//
-bool emGainModeIsOn;
-int readMode;
-int acquisitionMode;
-std::string triggerMode;
-std::string cameraMode;
-bool showPicsInRealTime;
-//
-double kinetiCycleTime;
-double accumulationTime;
-//
-int picsPerRepetition;
-int repetitionsPerVariation;
-int totalVariations;
-int totalPicsInExperiment;
-int totalPicsInVariation;
-};
-*/
-
-/*
  * This large class maintains all of the settings & user interactions for said settings of the Andor camera. It more or
  * less contains the PictureSettingsControl Class, as this is meant to be the parent of such an object. It is distinct
  * but highly related to the Andor class, where the Andor class is the class that actually manages communications with

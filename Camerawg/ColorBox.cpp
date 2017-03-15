@@ -24,8 +24,8 @@ void ColorBox::initialize(POINT& pos, int& id, CWnd* parent, int length, std::un
 						 boxes.intensity.sPos, parent, boxes.intensity.ID );
 	boxes.intensity.fontType = "Code";
 	pos.y += 20;
-	return;
 }
+
 
 void ColorBox::rearrange(std::string cameraMode, std::string triggerMode, int width, int height, std::unordered_map<std::string, CFont*> fonts)
 {
@@ -143,18 +143,17 @@ void ColorBox::changeColor( colorBoxes<char> newColors )
 {
 	if ( newColors.niawg != '-' )
 	{
-		this->colors.niawg = newColors.niawg;
-		this->boxes.niawg.RedrawWindow();
+		colors.niawg = newColors.niawg;
+		boxes.niawg.RedrawWindow();
 	}
 	if ( newColors.camera != '-' )
 	{
-		this->colors.camera = newColors.camera;
-		this->boxes.camera.RedrawWindow();
+		colors.camera = newColors.camera;
+		boxes.camera.RedrawWindow();
 	}
 	if ( newColors.intensity != '-' )
 	{
-		this->colors.intensity = newColors.intensity;
-		this->boxes.intensity.RedrawWindow();
+		colors.intensity = newColors.intensity;
+		boxes.intensity.RedrawWindow();
 	}
-	return;
 }

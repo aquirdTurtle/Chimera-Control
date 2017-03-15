@@ -4,12 +4,11 @@
 #include "postMyString.h"
 #include "CameraWindow.h"
 
-void Communicator::initialize(MainWindow* comm, ScriptingWindow* scriptingWin, CameraWindow* cameraWin)
+void Communicator::initialize(MainWindow* mainWinParent, ScriptingWindow* scriptingWin, CameraWindow* cameraWin)
 {
-	this->mainWin = comm;
-	this->scriptWin = scriptingWin;
-	this->camWin = cameraWin;
-	return;
+	mainWin = mainWinParent;
+	scriptWin = scriptingWin;
+	camWin = cameraWin;
 }
 
 /*

@@ -10,8 +10,7 @@
 
 void AndorCamera::updatePictureNumber( int newNumber )
 {
-	this->currentPictureNumber = newNumber;
-	return;
+	currentPictureNumber = newNumber;
 }
 
 void AndorCamera::pauseThread()
@@ -50,10 +49,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 {
 	cameraThreadInput* input = (cameraThreadInput*) voidPtr;
 	std::unique_lock<std::mutex> lock( input->runMutex );
-
-	DWORD successWait;
 	int safeModeCount = 0;
-	int errorvalue, status;
 	long pictureNumber;
 
 	while ( !input->Andor->cameraThreadExitIndicator )
@@ -77,7 +73,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 				input->Andor->waitForAcquisition();
 				input->Andor->getStatus();
 			}
-			catch ( my_exception& exception )
+			catch ( myException& exception )
 			{
 				if ( exception.whatBare() == "DRV_IDLE" )
 				{
@@ -90,7 +86,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 					{
 						input->Andor->getAcquisitionProgress( pictureNumber );
 					}
-					catch ( my_exception& exception )
+					catch ( myException& exception )
 					{
 						input->comm->sendError( exception.what());
 					}
@@ -145,7 +141,6 @@ void AndorCamera::getTemperature(int& temp)
 	{
 		andorErrorChecker(GetTemperature(&temp));
 	}
-	return;
 }
 
 //
@@ -173,7 +168,6 @@ void AndorCamera::getTemperatureRange(int& min, int& max)
 	{
 		andorErrorChecker(GetTemperatureRange(&min, &max));
 	}
-	return;
 }
 
 void AndorCamera::temperatureControlOn()
@@ -325,15 +319,14 @@ void AndorCamera::getStatus()
 	}
 	if (status != DRV_IDLE)
 	{
-		thrower( "ERROR: You tried to start the camera, but the camera was not idle! Camera was in state corresponding to " + std::to_string( status ) + "\r\n" );
-		return;
+		thrower( "ERROR: You tried to start the camera, but the camera was not idle! Camera was in state corresponding to " 
+				 + std::to_string( status ) + "\r\n" );
 	}
-	return;
 }
 
 void AndorCamera::setIsRunningState( bool state )
 {
-	this->cameraIsRunning = state;
+	cameraIsRunning = state;
 }
 
 void AndorCamera::getStatus(int& status)
@@ -459,13 +452,12 @@ void AndorCamera::confirmAcquisitionTimings(float& kinetic, float& accumulation,
  */
 AndorRunSettings AndorCamera::getSettings()
 {
-	return this->runSettings;
+	return runSettings;
 }
 
 void AndorCamera::setSettings(AndorRunSettings settingsToSet)
 {
-	this->runSettings = settingsToSet;
-	return;
+	runSettings = settingsToSet;
 }
 
 void AndorCamera::setAcquisitionMode()
@@ -544,13 +536,12 @@ void AndorCamera::setSystem(CameraWindow* camWin)
 	// the start acquisition call
 	//std::lock_guard<std::mutex> lock( threadInput.runMutex );
 	
-	this->cameraIsRunning = true;
+	cameraIsRunning = true;
 	// remove the spurious wakeup check.
-	this->threadInput.spuriousWakeupHandler = true;
+	threadInput.spuriousWakeupHandler = true;
 	// notify the thread that the experiment has started..
-	this->threadInput.signaler.notify_all();
-	this->startAcquisition();
-	return;
+	threadInput.signaler.notify_all();
+	startAcquisition();
 }
 
 // This function queries the camera for how many pictures are available, retrieves all of them, then paints them to the main window. It returns the success of
@@ -561,7 +552,7 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 	{
 		this->checkForNewImages();
 	}
-	catch (my_exception& exception)
+	catch (myException& exception)
 	{
 		if (exception.whatBare() == "DRV_NO_NEW_DATA")
 		{
@@ -804,26 +795,24 @@ void AndorCamera::drawDataWindow(void)
 				}
 				catch (std::out_of_range&)
 				{
-					errBox("ERROR: caught std::out_of_range in this->drawDataWindow! experimentImagesInc = " + std::to_string(experimentImagesInc)
-						+ ", pixelInc = " + std::to_string(pixelInc) + ", eImagesOfExperiment.size() = " + std::to_string(imagesOfExperiment.size())
-						+ ", eImagesOfExperiment[experimentImagesInc].size() = " + std::to_string(imagesOfExperiment[experimentImagesInc].size())
-						+ ". Attempting to continue...");
-					return;
+					thrower( "ERROR: caught std::out_of_range in this->drawDataWindow! experimentImagesInc = " + std::to_string( experimentImagesInc )
+							 + ", pixelInc = " + std::to_string( pixelInc ) + ", eImagesOfExperiment.size() = " + std::to_string( imagesOfExperiment.size() )
+							 + ", eImagesOfExperiment[experimentImagesInc].size() = " + std::to_string( imagesOfExperiment[experimentImagesInc].size() )
+							 + ". Attempting to continue..." );
 				}
 			}
 			avgValue = std::accumulate( imagesOfExperiment[experimentImagesInc].begin(),
 										imagesOfExperiment[experimentImagesInc].end(), 0.0 )
 				/ imagesOfExperiment[experimentImagesInc].size();
 			HDC hDC = 0;
-			float xscale, yscale, zscale;
+			float yscale;
 			long modrange = 1;
 			double dTemp = 1;
-			int imageBoxWidth, imageBoxHeight;
 			int dataWidth, dataHeight;
-			int i, j, iTemp;
+			int palletteInc, j, iTemp;
 			HANDLE hloc;
 			PBITMAPINFO pbmi;
-			WORD argbq[PICTURE_PALLETE_SIZE];
+			WORD argbq[PICTURE_PALETTE_SIZE];
 			BYTE *DataArray;
 			// % 4 at the end because there are only 4 pictures available on the screen.
 				
@@ -867,37 +856,37 @@ void AndorCamera::drawDataWindow(void)
 			// imageBoxWidth must be a multiple of 4, otherwise StretchDIBits has problems apparently T.T
 			yscale = (256.0f) / (float)modrange;
 
-			for (i = 0; i < PICTURE_PALLETE_SIZE; i++)
+			for (palletteInc = 0; palletteInc < PICTURE_PALETTE_SIZE; palletteInc++)
 			{
-				argbq[i] = (WORD)i;
+				argbq[palletteInc] = (WORD)palletteInc;
 			}
 
-			hloc = LocalAlloc(LMEM_ZEROINIT | LMEM_MOVEABLE, sizeof(BITMAPINFOHEADER) + (sizeof(WORD)*PICTURE_PALLETE_SIZE));
+			hloc = LocalAlloc(LMEM_ZEROINIT | LMEM_MOVEABLE, sizeof(BITMAPINFOHEADER) + (sizeof(WORD)*PICTURE_PALETTE_SIZE));
 
 			pbmi = (PBITMAPINFO)LocalLock(hloc);
 			pbmi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 			pbmi->bmiHeader.biPlanes = 1;
 			pbmi->bmiHeader.biBitCount = 8;
 			pbmi->bmiHeader.biCompression = BI_RGB;
-			pbmi->bmiHeader.biClrUsed = PICTURE_PALLETE_SIZE;
+			pbmi->bmiHeader.biClrUsed = PICTURE_PALETTE_SIZE;
 
 			pbmi->bmiHeader.biHeight = dataHeight;
-			memcpy(pbmi->bmiColors, argbq, sizeof(WORD) * PICTURE_PALLETE_SIZE);
+			memcpy(pbmi->bmiColors, argbq, sizeof(WORD) * PICTURE_PALETTE_SIZE);
 
 			DataArray = (BYTE*)malloc(dataWidth * dataHeight * sizeof(BYTE));
-			memset(DataArray, PICTURE_PALLETE_SIZE - 1, dataWidth * dataHeight);
-			for (i = 0; i < runSettings.imageSettings.height; i++)
+			memset(DataArray, PICTURE_PALETTE_SIZE - 1, dataWidth * dataHeight);
+			for (palletteInc = 0; palletteInc < runSettings.imageSettings.height; palletteInc++)
 			{
 				for (j = 0; j < runSettings.imageSettings.width; j++)
 				{
 					/*
 					if (eAutoscalePictures)
 					{
-						dTemp = ceil(yscale * (eImagesOfExperiment[experimentImagesInc][j + i * tempParam.width] - minValue));
+						dTemp = ceil(yscale * (eImagesOfExperiment[experimentImagesInc][j + palletteInc * tempParam.width] - minValue));
 					}
 					else
 					{
-						dTemp = ceil(yscale * (eImagesOfExperiment[experimentImagesInc][j + i * tempParam.width] - eCurrentMinimumPictureCount[imageLocation]));
+						dTemp = ceil(yscale * (eImagesOfExperiment[experimentImagesInc][j + palletteInc * tempParam.width] - eCurrentMinimumPictureCount[imageLocation]));
 					}
 					*/
 					if (dTemp < 0)
@@ -905,10 +894,10 @@ void AndorCamera::drawDataWindow(void)
 						// raise value to zero which is the floor of values this parameter can take.
 						iTemp = 0;
 					}
-					else if (dTemp > PICTURE_PALLETE_SIZE - 1)
+					else if (dTemp > PICTURE_PALETTE_SIZE - 1)
 					{
 						// round to maximum value.
-						iTemp = PICTURE_PALLETE_SIZE - 1;
+						iTemp = PICTURE_PALETTE_SIZE - 1;
 					}
 					else
 					{
@@ -916,7 +905,7 @@ void AndorCamera::drawDataWindow(void)
 						iTemp = (int)dTemp;
 					}
 					// store the value.
-					DataArray[j + i * dataWidth] = (BYTE)iTemp;
+					DataArray[j + palletteInc * dataWidth] = (BYTE)iTemp;
 				}
 			}
 			SetStretchBltMode(hDC, COLORONCOLOR);
@@ -1042,7 +1031,6 @@ void AndorCamera::drawDataWindow(void)
 			*/
 		}
 	}
-	return;
 }
 // The following are a set of simple functions that call the indicated andor SDK function if not in safe mode and check the error message.
 void AndorCamera::setCameraTriggerMode()
@@ -1062,24 +1050,23 @@ void AndorCamera::setCameraTriggerMode()
 		trigType = 6;
 	}
 	setTriggerMode(trigType);
-	return;
 }
+
 
 void AndorCamera::setTemperature()
 {
 	// Get the current temperature
-	if (runSettings.temperatureSetting< -60 || runSettings.temperatureSetting > 25)
+	if (runSettings.temperatureSetting < -60 || runSettings.temperatureSetting > 25)
 	{
-		int answer = MessageBox(0, "Warning: The selected temperature is outside the normal temperature range of the camera (-60 through 25 C). Proceed "
-			"anyways?", 0, MB_OKCANCEL);
+		int answer = MessageBox( 0, "Warning: The selected temperature is outside the normal temperature range of the camera (-60 through "
+								 "25 C). Proceed anyways?", 0, MB_OKCANCEL );
 		if (answer == IDCANCEL)
 		{
 			return;
 		}
 	}
 	// Proceedure to initiate cooling
-	this->changeTemperatureSetting(false);
-	return;
+	changeTemperatureSetting( false );
 }
 
 void AndorCamera::setReadMode()
@@ -1210,14 +1197,13 @@ void AndorCamera::setNumberAccumulations(bool isKinetic)
 	if (isKinetic)
 	{
 		// right now, kinetic series mode always has one accumulation. could add this feature later if desired.
-		setNumberAccumulations(true);
+		//setNumberAccumulations(true);
 	}
 	else
 	{
 		// ???
-		setNumberAccumulations(false);
+		//setNumberAccumulations(false);
 	}
-	return;
 }
 
 void AndorCamera::setGainMode()
@@ -1248,7 +1234,6 @@ void AndorCamera::setGainMode()
 		}
 		setEmCcdGain(runSettings.emGainLevel);
 	}
-	return;
 }
 ///
 
@@ -1714,5 +1699,4 @@ void AndorCamera::andorErrorChecker(int errorCode)
 	{
 		thrower( errorMessage );
 	}
-	return;
 }

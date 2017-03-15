@@ -49,3 +49,4 @@ void appendText(std::string newText, Control<CRichEditCtrl>& edit)
 	edit.ReplaceSel(newText.c_str());
 	return;
 }
+

@@ -19,11 +19,11 @@ EmbeddedPythonHandler::EmbeddedPythonHandler()
 							"catchOutErr = CatchOutErr()\n"
 							"sys.stderr = catchOutErr\n";
 	//create main module
-	this->mainModule = PyImport_AddModule("__main__"); 
+	mainModule = PyImport_AddModule("__main__"); 
 	//invoke code to redirect
 	PyRun_SimpleString(stdOutErr.c_str()); 
 	//get our catchOutErr object (of type CatchOutErr) created above
-	this->errorCatcher = PyObject_GetAttrString(mainModule, "catchOutErr"); 
+	errorCatcher = PyObject_GetAttrString(mainModule, "catchOutErr"); 
 	// start using the run function.
 	ERR_POP(run("import stuffs"));
 	ERR_POP(run("from astropy.io import fits"));
@@ -60,19 +60,19 @@ EmbeddedPythonHandler::EmbeddedPythonHandler()
 	return;
 }
 
-bool EmbeddedPythonHandler::flush()
+
+void EmbeddedPythonHandler::flush()
 {
 	// this resets the value of the class object, meaning that it resets the error text inside it.
 	std::string flushMsg = "catchOutErr.__init__()";
-	this->run(flushMsg, false);
-	return true;
+	run(flushMsg, false);
 }
-// for full data analysis set.
 
-bool EmbeddedPythonHandler::runDataAnalysis(std::string date, long runNumber, long accumulations, 
+// for full data analysis set.
+void EmbeddedPythonHandler::runDataAnalysis(std::string date, long runNumber, long accumulations, 
 											std::vector<std::pair<int, int>> atomLocations)
 {
-	this->flush();
+	flush();
 	if (this->autoAnalysisModule == NULL)
 	{
 		errBox("autoAnalysisModule is no longer available! This shouldn't happen... Continuing...");
@@ -80,15 +80,13 @@ bool EmbeddedPythonHandler::runDataAnalysis(std::string date, long runNumber, lo
 	// interpret the text here to get the actual function name.
 	if (this->atomAnalysisFunction == NULL)
 	{
-		errBox("ERROR: Atom analysis function is null! The program can no longer call this function for some"
-			"reason. Auto-Analysis will not occur.");
-		return true;
+		thrower( "ERROR: Atom analysis function is null! The program can no longer call this function for some"
+				 "reason. Auto-Analysis will not occur." );
 	}
 	if (!PyCallable_Check(this->atomAnalysisFunction))
 	{
-		errBox("ERROR: Python is telling me that it cannot call the Atom analysis function. I don't know why"
-			", since the function pointer is not null. Auto-Analysis will not occur.");
-		return true;
+		thrower( "ERROR: Python is telling me that it cannot call the Atom analysis function. I don't know why"
+				 ", since the function pointer is not null. Auto-Analysis will not occur." );
 	}
 		
 	// I'm going to use comments before relevant commands to keep track of which python objects have references that I 
@@ -98,8 +96,7 @@ bool EmbeddedPythonHandler::runDataAnalysis(std::string date, long runNumber, lo
 	PyObject* pythonFunctionArguments = PyTuple_New(5);
 	if (pythonFunctionArguments == NULL)
 	{
-		errBox("ERROR: creating tuple for python function arguments failed!?!?!?!? Auto-Analysis will terminate.");
-		return true;
+		thrower("ERROR: creating tuple for python function arguments failed!?!?!?!? Auto-Analysis will terminate.");
 	}
 	// pythonFunctionArguments, pythonDate
 	PyObject* pythonDate = Py_BuildValue("s", date.c_str());
@@ -107,8 +104,7 @@ bool EmbeddedPythonHandler::runDataAnalysis(std::string date, long runNumber, lo
 	if (pythonDate == NULL)
 	{
 		Py_DECREF(pythonFunctionArguments);
-		errBox("ERROR: Cannot Convert date! Auto-Analysis will terminate.");
-		return true;
+		thrower("ERROR: Cannot Convert date! Auto-Analysis will terminate.");
 	}
 	// pythonFunctionArguments
 	PyTuple_SetItem(pythonFunctionArguments, 0, pythonDate);
@@ -117,8 +113,7 @@ bool EmbeddedPythonHandler::runDataAnalysis(std::string date, long runNumber, lo
 	if (pythonRunNumber == NULL)
 	{
 		Py_DECREF(pythonFunctionArguments);
-		errBox("Cannot Convert run number?!?!?!?!?! Auto-Analysis terminating...\r\n");
-		return true;
+		thrower("Cannot Convert run number?!?!?!?!?! Auto-Analysis terminating...\r\n");
 	}
 	// pythonFunctionArguments
 	PyTuple_SetItem(pythonFunctionArguments, 1, pythonRunNumber);
@@ -146,8 +141,7 @@ bool EmbeddedPythonHandler::runDataAnalysis(std::string date, long runNumber, lo
 	if (pythonPicturesPerExperiment == NULL)
 	{
 		Py_DECREF(pythonFunctionArguments);
-		errBox("Cannot Convert Pictures per experiment?!?!?!?!? Auto-Analysis terminating...");
-		return true;
+		thrower("Cannot Convert Pictures per experiment?!?!?!?!? Auto-Analysis terminating...");
 	}
 	// pythonFunctionArguments
 	PyTuple_SetItem(pythonFunctionArguments, 3, pythonPicturesPerExperiment);
@@ -156,34 +150,30 @@ bool EmbeddedPythonHandler::runDataAnalysis(std::string date, long runNumber, lo
 	if (pythonAccumulations == NULL)
 	{
 		Py_DECREF(pythonFunctionArguments);
-		errBox("Cannot Convert Accumulations?!?!?!?!?!?!?!?!?!? Auto-Analysis terminating...");
-		return true;
+		thrower("Cannot Convert Accumulations?!?!?!?!?!?!?!?!?!? Auto-Analysis terminating...");
 	}
 	// pythonFunctionArguments
 	PyTuple_SetItem(pythonFunctionArguments, 4, pythonAccumulations);
 	PyObject* pythonReturnValue = PyObject_CallObject(this->atomAnalysisFunction, pythonFunctionArguments);
 	if (pythonReturnValue == NULL)
 	{
-		errBox("Python function call returned NULL!");
 		PyErr_Print();
-		PyObject *output = PyObject_GetAttrString(errorCatcher, "value");
-		errBox(PyBytes_AS_STRING(PyUnicode_AsEncodedString(output, "ASCII", "strict")));
-		return true;
+		PyObject *output = PyObject_GetAttrString( errorCatcher, "value" );
+		errBox( PyBytes_AS_STRING( PyUnicode_AsEncodedString( output, "ASCII", "strict" ) ) );
+		thrower("Python function call returned NULL!");
 	}
 	Py_DECREF(pythonReturnValue);
 	// finished successfully.
-	return false;
 }
 
 // for texting.
-bool EmbeddedPythonHandler::sendText(personInfo person, std::string msg, std::string subject, std::string baseEmail, 
+void EmbeddedPythonHandler::sendText(personInfo person, std::string msg, std::string subject, std::string baseEmail, 
 									 std::string password)
 {
-	this->flush();
+	flush();
 	if (baseEmail == "" || password == "")
 	{
-		errBox("ERROR: Please set an email and password for sending texts with!");
-		return true;
+		thrower("ERROR: Please set an email and password for sending texts with!");
 	}
 
 	ERR_POP_RETURN(run("email = MIMEText('" + msg + "', 'plain')"));
@@ -214,7 +204,6 @@ bool EmbeddedPythonHandler::sendText(personInfo person, std::string msg, std::st
 	ERR_POP_RETURN(run("mail.starttls()"));
 	ERR_POP_RETURN(run("mail.login('" + baseEmail + "', '" + password + "')"));
 	ERR_POP_RETURN(run("mail.sendmail(email['From'], email['To'], email.as_string())"));
-	return false;
 }
 
 // for a single python command. Returns python's output of said command.

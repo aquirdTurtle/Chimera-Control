@@ -7,38 +7,36 @@
 void CameraSettingsControl::cameraIsOn(bool state)
 {
 	// Can't change em gain mode or camera settings once started.
-	this->emGainButton.EnableWindow( !state );
-	this->setTemperatureButton.EnableWindow( !state );
-	this->temperatureOffButton.EnableWindow( !state );
-	this->picSettingsObj.cameraIsOn( state );
-	this->imageDimensionsObj.cameraIsOn( state );
-	return;
+	emGainButton.EnableWindow( !state );
+	setTemperatureButton.EnableWindow( !state );
+	temperatureOffButton.EnableWindow( !state );
+	picSettingsObj.cameraIsOn( state );
+	imageDimensionsObj.cameraIsOn( state );
 }
 
 std::array<int, 4> CameraSettingsControl::getThresholds()
 {
-	return this->picSettingsObj.getThresholds();
+	return picSettingsObj.getThresholds();
 }
 
 
 void CameraSettingsControl::handleSetTemperatureOffPress()
 {
-	this->andorFriend->changeTemperatureSetting(true);
+	andorFriend->changeTemperatureSetting(true);
 	//eCameraFileSystem.updateSaveStatus(false);
 }
 
 
 void CameraSettingsControl::handleSetTemperaturePress()
 {
-	if (this->andorFriend->isRunning())
+	if (andorFriend->isRunning())
 	{
-		errBox("ERROR: the camera (thinks that it?) is running. You can't change temperature settings during camera "
-			"operation.");
-		return;
+		thrower( "ERROR: the camera (thinks that it?) is running. You can't change temperature settings during camera "
+				 "operation." );
 	}
 	AndorRunSettings cameraSettings = this->andorFriend->getSettings();
 	CString text;
-	this->temperatureEdit.GetWindowTextA(text);
+	temperatureEdit.GetWindowTextA(text);
 	double temp;
 	try
 	{
@@ -46,15 +44,13 @@ void CameraSettingsControl::handleSetTemperaturePress()
 	}
 	catch (std::invalid_argument&)
 	{
-		errBox("Error: Couldn't convert temperature input to a double! Check for unusual characters.");
-		return;
+		thrower("Error: Couldn't convert temperature input to a double! Check for unusual characters.");
 	}
-	this->runSettings.temperatureSetting = temp;
+	runSettings.temperatureSetting = temp;
 	cameraSettings.temperatureSetting = temp;
 
-	this->andorFriend->setTemperature();
+	andorFriend->setTemperature();
 	//eCameraFileSystem.updateSaveStatus(false);
-	return;
 }
 
 void CameraSettingsControl::handleTriggerControl(CameraWindow* cameraWindow)
@@ -72,7 +68,6 @@ void CameraSettingsControl::handleTriggerControl(CameraWindow* cameraWindow)
 	cameraWindow->OnSize(0, rect.right - rect.left, rect.bottom - rect.top);
 	/// TODO.
 	//eCameraFileSystem.updateSaveStatus(false);
-	return;
 }
 
 AndorRunSettings CameraSettingsControl::getSettings()
@@ -108,10 +103,9 @@ void CameraSettingsControl::setEmGain(AndorCamera* andorObj)
 	{
 		emGain = std::stoi(std::string(emGainText));
 	}
-	catch (std::invalid_argument &exception)
+	catch (std::invalid_argument&)
 	{
-		errBox("ERROR: Couldn't convert EM Gain text to integer.");
-		return;
+		thrower("ERROR: Couldn't convert EM Gain text to integer.");
 	}
 	// < 0 corresponds to NOT USING EM GAIN (using conventional gain).
 	if (emGain < 0)
@@ -150,7 +144,7 @@ void CameraSettingsControl::handleTimer()
 		andorFriend->getTemperature(temperature);
 		if ( ANDOR_SAFEMODE ) { thrower( "SAFEMODE" ); }
 	}
-	catch (my_exception& exception)
+	catch (myException& exception)
 	{
 		// if not stable this won't get changed.
 		if (exception.whatBare() == "DRV_TEMPERATURE_STABILIZED")
@@ -206,18 +200,18 @@ void CameraSettingsControl::handleTimer()
 			temperatureMessage.SetWindowTextA(("Unexpected Temperature Code: " + exception.whatBare() + ". Temperature: " + std::to_string(temperature)).c_str());
 		}
 	}
-	return;
 }
+
 
 void CameraSettingsControl::handlePictureSettings(UINT id, AndorCamera* andorObj)
 {
-	this->picSettingsObj.handleOptionChange(id, andorObj);
-	this->runSettings.exposureTimes = picSettingsObj.getUsedExposureTimes();
+	picSettingsObj.handleOptionChange(id, andorObj);
+	runSettings.exposureTimes = picSettingsObj.getUsedExposureTimes();
 	runSettings.picsPerRepetition = picSettingsObj.getPicsPerRepetition();
 	runSettings.totalPicsInVariation = runSettings.picsPerRepetition * runSettings.repetitionsPerVariation;
 	runSettings.totalPicsInExperiment = runSettings.picsPerRepetition  * runSettings.repetitionsPerVariation * runSettings.totalVariations;
-	return;
 }
+
 
 void CameraSettingsControl::initialize(cameraPositions& pos, int& id, CWnd* parent, std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips)
 {
@@ -390,54 +384,42 @@ CBrush* CameraSettingsControl::handleColor(int idNumber, CDC* colorer, std::unor
 void CameraSettingsControl::checkIfReady()
 {
 
-	if ( this->picSettingsObj.getUsedExposureTimes().size() == 0 )
+	if ( picSettingsObj.getUsedExposureTimes().size() == 0 )
 	{
 		thrower("Please Set at least one exposure time.");
-		return;
 	}
-	if ( !this->imageDimensionsObj.checkReady() )
+	if ( !imageDimensionsObj.checkReady() )
 	{
 		thrower("Please set the image parameters.");
-		return;
 	}
-	if ( this->runSettings.picsPerRepetition <= 0 )
+	if ( runSettings.picsPerRepetition <= 0 )
 	{
 		thrower("ERROR: Please set the number of pictures per experiment to a positive non-zero value.");
-		return;
 	}
-	if ( this->runSettings.cameraMode == "Kinetic Series Mode" )
+	if ( runSettings.cameraMode == "Kinetic Series Mode" )
 	{
 		if ( runSettings.kinetiCycleTime == 0 && runSettings.triggerMode == "Internal" )
 		{
 			thrower("ERROR: Since you are running in internal trigger mode, please Set a kinetic cycle time.");
-			return;
 		}
 		if ( runSettings.repetitionsPerVariation <= 0 )
 		{
 			thrower("ERROR: Please set the \"Experiments per Stack\" variable to a positive non-zero value.");
-			return;
 		}
 		if ( runSettings.totalVariations <= 0 )
 		{
 			thrower("ERROR: Please set the number of accumulation stacks to a positive non-zero value.");
-			return;
 		}
-
 	}
 	if ( runSettings.cameraMode == "Accumulate Mode" )
 	{
 		if ( runSettings.totalAccumulationNumber <= 0 )
 		{
-		
 			thrower("ERROR: Please set the current Accumulation Number to a positive non-zero value.");
-			return;
 		}
 		if ( runSettings.accumulationTime <= 0 )
 		{
 			thrower("ERROR: Please set the current Accumulation Time to a positive non-zero value.");
-			return;
 		}
 	}
-
-	return;
 }

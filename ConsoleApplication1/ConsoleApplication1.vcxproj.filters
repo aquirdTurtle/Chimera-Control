@@ -39,9 +39,4 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="libmgl.dll">
-      <Filter>Source Files</Filter>
-    </None>
-  </ItemGroup>
 </Project>

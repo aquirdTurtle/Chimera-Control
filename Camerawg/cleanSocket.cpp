@@ -30,12 +30,10 @@ void cleanSocket(CSocket* mySocket, bool socketActive)
 			//closesocket(mySocket);
 			WSACleanup();
 			thrower("ERROR: Socket shutdown failed!");
-			return;
 		}
 	}
 	// cleanup
 	mySocket->Close();
 	//closesocket(mySocket);
 	WSACleanup();
-	return;
 }

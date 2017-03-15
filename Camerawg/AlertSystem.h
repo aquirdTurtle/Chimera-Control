@@ -11,23 +11,27 @@ class AlertSystem
 	public:
 		AlertSystem() : alertMessageID{ 0 } 
 		{
+			// load the music!
 			mciSendString("open \"C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Control\\Camera\\Final Fantasy VII - Victory Fanfare [HQ].mp3\" type mpegvideo alias mp3", NULL, 0, NULL);
 		}
-		~AlertSystem();
-		bool initialize(cameraPositions& positions, CWnd* parent, bool isTriggerModeSensitive, int& id,
+		~AlertSystem()
+		{
+			mciSendString( "close mp3", NULL, 0, NULL );
+		}
+		void initialize(cameraPositions& positions, CWnd* parent, bool isTriggerModeSensitive, int& id,
 			std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips);
-		bool alertMainThread(int level);
-		bool soundAlert();
-		bool rearrange(std::string cameraMode, std::string triggerMode, int width, int height,
+		void alertMainThread(int level);
+		void soundAlert();
+		void rearrange(std::string cameraMode, std::string triggerMode, int width, int height,
 			std::unordered_map<std::string, CFont*> fonts);
 		void handleCheckBoxPress();
 		unsigned int getAlertThreshold();
 		unsigned int getAlertMessageID();
-		bool setAlertThreshold();
+		void setAlertThreshold();
 		bool alertsAreToBeUsed();
 		bool soundIsToBePlayed();
-		bool playSound();
-		bool stopSound();
+		void playSound();
+		void stopSound();
 	private:
 		Control<CStatic> title;
 		Control<CButton> alertsActiveCheckBox;

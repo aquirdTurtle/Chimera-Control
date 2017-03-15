@@ -97,10 +97,10 @@ bool MainOptionsControl::handleEvent(UINT id, MainWindow* comm)
 
 mainOptions MainOptionsControl::getOptions()
 {
-	return this->currentOptions;
+	return currentOptions;
 }
 
 void MainOptionsControl::setOptions(mainOptions options)
 {
-	return;
+	// todo
 }

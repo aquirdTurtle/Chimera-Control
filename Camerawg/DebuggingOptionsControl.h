@@ -1,7 +1,7 @@
 #pragma once
 #include "Control.h"
 
-struct debugOptions
+struct debugInfo
 {
 	bool showReadProgress;
 	bool showWriteProgress;
@@ -17,9 +17,9 @@ class DebuggingOptionsControl
 	public:
 		void initialize(int& idStart, POINT& loc, CWnd* parent, std::unordered_map<std::string, CFont*> fonts,
 			std::vector<CToolTipCtrl*>& tooltips);
-		bool handleEvent(UINT id, MainWindow* comm);
-		debugOptions getOptions();
-		void setOptions(debugOptions options);
+		void handleEvent(UINT id, MainWindow* comm);
+		debugInfo getOptions();
+		void setOptions(debugInfo options);
 	private:
 		Control<CStatic> header;
 		Control<CButton> readProgress;
@@ -29,5 +29,5 @@ class DebuggingOptionsControl
 		Control<CButton> outputAgilentScript;
 		Control<CButton> niawgMachineScript;
 		Control<CButton> excessInfo;
-		debugOptions currentOptions;
+		debugInfo currentOptions;
 };

@@ -11,12 +11,11 @@ void DataHandlingControl::rearrange(std::string cameraMode, std::string trigMode
 	updateFrequencyEdit.rearrange(cameraMode, trigMode, width, height, fonts);
 	header.rearrange(cameraMode, trigMode, width, height, fonts);
 	plotListview.rearrange(cameraMode, trigMode, width, height, fonts);
-	this->currentDataSetNumberEdit.rearrange( cameraMode, trigMode, width, height, fonts );
-	this->currentDataSetNumberText.rearrange( cameraMode, trigMode, width, height, fonts );
-	this->setAnalysisLocationsButton.rearrange( cameraMode, trigMode, width, height, fonts );
-	this->analyzeMostRecentButton.rearrange( cameraMode, trigMode, width, height, fonts );
-	this->autoAnalyzeCheckBox.rearrange( cameraMode, trigMode, width, height, fonts );
-	return;
+	currentDataSetNumberEdit.rearrange( cameraMode, trigMode, width, height, fonts );
+	currentDataSetNumberText.rearrange( cameraMode, trigMode, width, height, fonts );
+	setAnalysisLocationsButton.rearrange( cameraMode, trigMode, width, height, fonts );
+	analyzeMostRecentButton.rearrange( cameraMode, trigMode, width, height, fonts );
+	autoAnalyzeCheckBox.rearrange( cameraMode, trigMode, width, height, fonts );
 }
 
 std::vector<std::string> DataHandlingControl::getActivePlotList()
@@ -47,7 +46,6 @@ void DataHandlingControl::updateDataSetNumberEdit( int number )
 	{
 		currentDataSetNumberEdit.SetWindowTextA( "None" );
 	}
-	return;
 }
 
 void DataHandlingControl::analyze( std::string date, long runNumber, long accumulations, 
@@ -56,7 +54,6 @@ void DataHandlingControl::analyze( std::string date, long runNumber, long accumu
 	// Note: python is initialized in the constructor for the data handler object. 
 	// Get information to send to the python script from inputParam
 	pyHandler->runDataAnalysis( date, runNumber, accumulations, this->atomLocations );
-	return ;
 }
 
 
@@ -96,7 +93,6 @@ void DataHandlingControl::onButtonPushed()
 		//myAndor::drawDataWindow();
 	}
 	*/
-	return;
 }
 
 void DataHandlingControl::setAtomLocation( std::pair<int, int> location )
@@ -113,7 +109,6 @@ void DataHandlingControl::setAtomLocation( std::pair<int, int> location )
 	{
 		atomLocations.push_back( location );
 	}
-	return;
 }
 
 std::vector<std::pair<int, int>> DataHandlingControl::getAtomLocations()
@@ -124,7 +119,6 @@ std::vector<std::pair<int, int>> DataHandlingControl::getAtomLocations()
 void DataHandlingControl::clearAtomLocations()
 {
 	atomLocations.clear();
-	return;
 }
 
 void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent, std::unordered_map<std::string, CFont*> fonts, 
@@ -223,7 +217,7 @@ void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	updateFrequencyEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER, updateFrequencyEdit.ksmPos, parent,
 		updateFrequencyEdit.ID);
 	updateFrequencyEdit.fontType = "Normal";
-	this->updateFrequency = 5; 
+	updateFrequency = 5; 
 	updateFrequencyEdit.SetWindowTextA("5");
 	// end of that statement
 	updateFrequencyLabel2.ksmPos =  { pos.ksmPos.x + 200,  pos.ksmPos.y,  pos.ksmPos.x + 480, pos.ksmPos.y + 25 };
@@ -286,7 +280,6 @@ void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 		// Enter text to SubItems
 		plotListview.SetItem(&listViewDefaultItem);
 	}
-	return;
 }
 
 void DataHandlingControl::handleDoubleClick()
@@ -391,15 +384,4 @@ void DataHandlingControl::handleRClick()
 		plotListview.DeleteItem(itemIndicator);
 		allPlots.erase(allPlots.begin() + itemIndicator);
 	}
-	return;
-}
-
-void DataHandlingControl::addPlot()
-{
-
-}
-
-void DataHandlingControl::openPlotter()
-{
-
 }

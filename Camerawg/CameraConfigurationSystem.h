@@ -16,8 +16,8 @@ class CameraConfigurationSystem
 		AndorRunSettings openConfiguration( std::string configurationNameToOpen, AndorRunSettings baseSettings );
 		void saveConfiguration(bool isFromSaveAs, AndorRunSettings settings );
 		void saveConfigurationAs(std::string newConfigurationName, AndorRunSettings settings );
-		int renameConfiguration(std::string newConfigurationName );
-		int deleteConfiguration();
+		void renameConfiguration(std::string newConfigurationName );
+		void deleteConfiguration();
 		int checkSave();
 		void initialize( cameraPositions& positions, CWnd* parent, bool isTriggerModeSensitive, int& id );
 		void reorganizeControls(RECT parentRectangle, std::string mode);

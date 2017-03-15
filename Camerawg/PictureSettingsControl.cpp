@@ -12,7 +12,7 @@ void PictureSettingsControl::cameraIsOn( bool state )
 	return;
 }
 
-bool PictureSettingsControl::initialize( POINT& kineticPos, POINT& continuousPos, POINT& accumulatePos, CWnd* parent, int& id )
+void PictureSettingsControl::initialize( POINT& kineticPos, POINT& continuousPos, POINT& accumulatePos, CWnd* parent, int& id )
 {
 	if (id != PICTURE_SETTINGS_ID_START)
 	{
@@ -249,35 +249,34 @@ bool PictureSettingsControl::initialize( POINT& kineticPos, POINT& continuousPos
 	{
 		throw;
 	}
-	return true;
 }
 
-bool PictureSettingsControl::disablePictureControls(int pic)
+
+void PictureSettingsControl::disablePictureControls(int pic)
 {
 	if (pic > 3)
 	{
-		return false;
+		return;
 	}
 	exposureEdits[pic].EnableWindow(0);
 	thresholdEdits[pic].EnableWindow(0);
 	blackWhiteRadios[pic].EnableWindow(0);
 	yellowBlueRadios[pic].EnableWindow(0);
 	redBlueRadios[pic].EnableWindow(0);
-	return true;
 }
 
-bool PictureSettingsControl::enablePictureControls( int pic )
+
+void PictureSettingsControl::enablePictureControls( int pic )
 {
 	if (pic > 3)
 	{
-		return false;
+		return;
 	}
 	exposureEdits[pic].EnableWindow();
 	thresholdEdits[pic].EnableWindow();
 	blackWhiteRadios[pic].EnableWindow();
 	yellowBlueRadios[pic].EnableWindow();
 	redBlueRadios[pic].EnableWindow();
-	return true;
 }
 
 CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer, std::unordered_map<std::string, CBrush*> brushes,
@@ -379,9 +378,9 @@ int PictureSettingsControl::getPicsPerRepetition()
 	return this->picsPerRepetitionUnofficial;
 }
 
-bool PictureSettingsControl::handleOptionChange(UINT id, AndorCamera* andorObj)
+void PictureSettingsControl::handleOptionChange(UINT id, AndorCamera* andorObj)
 {
-	if (id >= this->totalNumberChoice.front().ID && id <= this->totalNumberChoice.back().ID)
+	if (id >= totalNumberChoice.front().ID && id <= this->totalNumberChoice.back().ID)
 	{
 		int picNum = id - totalNumberChoice.front().ID;
 		this->picsPerRepetitionUnofficial = picNum + 1;
@@ -402,10 +401,10 @@ bool PictureSettingsControl::handleOptionChange(UINT id, AndorCamera* andorObj)
 				this->disablePictureControls(picInc);
 			}
 		}
-		return true;
+		return;
 
 	}
-	else if (id == this->setPictureOptionsButton.ID)
+	else if (id == setPictureOptionsButton.ID)
 	{
 		// grab the thresholds
 		for (int thresholdInc = 0; thresholdInc < 4; thresholdInc++)
@@ -445,8 +444,7 @@ bool PictureSettingsControl::handleOptionChange(UINT id, AndorCamera* andorObj)
 			exposureEdits[exposureInc].RedrawWindow();
 		}
 		/// set the exposure times via andor
-		this->setExposureTimes(andorObj);
-		return true;
+		setExposureTimes(andorObj);
 	}
 	else if (id >= this->yellowBlueRadios[0].ID && id <= blackWhiteRadios[3].ID)
 	{
@@ -456,30 +454,26 @@ bool PictureSettingsControl::handleOptionChange(UINT id, AndorCamera* andorObj)
 		this->colors[pic] = color;
 
 	}
-	else
-	{
-		return false;
-	}
 }
 
-bool PictureSettingsControl::setExposureTimes(AndorCamera* andorObj)
+void PictureSettingsControl::setExposureTimes(AndorCamera* andorObj)
 {
-	return this->setExposureTimes(this->exposureTimesUnofficial, andorObj);
+	setExposureTimes( this->exposureTimesUnofficial, andorObj );
 }
 
-bool PictureSettingsControl::setExposureTimes(std::vector<float> times, AndorCamera* andorObj)
+void PictureSettingsControl::setExposureTimes(std::vector<float> times, AndorCamera* andorObj)
 {
 	std::vector<float> exposuresToSet;
 	exposuresToSet = times;
-	exposuresToSet.resize(this->picsPerRepetitionUnofficial);
+	exposuresToSet.resize(picsPerRepetitionUnofficial);
 	AndorRunSettings settings = andorObj->getSettings();
 	settings.exposureTimes = exposuresToSet;
 	andorObj->setSettings(settings);
 	// try to set this time.
 	andorObj->setExposures();
 	// now check actual times.
-	try { this->parentSettingsControl->checkTimings(exposuresToSet); }
-	catch (std::runtime_error& e) { throw; }
+	try { parentSettingsControl->checkTimings(exposuresToSet); }
+	catch (std::runtime_error&) { throw; }
 
 	for (int exposureInc = 0; exposureInc < exposuresToSet.size(); exposureInc++)
 	{
@@ -489,9 +483,8 @@ bool PictureSettingsControl::setExposureTimes(std::vector<float> times, AndorCam
 	if (this->exposureTimesUnofficial.size() <= 0)
 	{
 		// this shouldn't happend
-		thrower("ERROR: reached bad location where exposure times was of zero size, "
-			"but this should have been detected earlier in the code.");
-		return false;
+		thrower("ERROR: reached bad location where exposure times was of zero size, but this should have been detected earlier in the "
+				 "code.");
 	}
 	// now output things.
 	for (int exposureInc = 0; exposureInc < 4; exposureInc++)
@@ -505,7 +498,6 @@ bool PictureSettingsControl::setExposureTimes(std::vector<float> times, AndorCam
 		(LPARAM)std::to_string(eAccumulationTime * 1000).c_str());
 	eCameraFileSystem.updateSaveStatus(false);
 	*/
-	return true;
 }
 
 std::vector<float> PictureSettingsControl::getUsedExposureTimes()
@@ -602,10 +594,10 @@ std::array<int, 4> PictureSettingsControl::getPictureColors()
 /*
 
 */
-bool PictureSettingsControl::rearrange(std::string cameraMode, std::string triggerMode, int width, int height,
+void PictureSettingsControl::rearrange(std::string cameraMode, std::string triggerMode, int width, int height,
 	std::unordered_map<std::string, CFont*> fonts)
 {
-	this->setPictureOptionsButton.rearrange(cameraMode, triggerMode, width, height, fonts);
+	setPictureOptionsButton.rearrange(cameraMode, triggerMode, width, height, fonts);
 	totalPicNumberLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
 	pictureLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
 	exposureLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
@@ -642,5 +634,4 @@ bool PictureSettingsControl::rearrange(std::string cameraMode, std::string trigg
 	{
 		control.rearrange(cameraMode, triggerMode, width, height, fonts);
 	}
-	return false;
 }
