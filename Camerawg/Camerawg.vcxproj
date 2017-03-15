@@ -23,6 +23,7 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>NIPXIe5451ArbWvFmGen20</RootNamespace>
     <ProjectName>Camerawg</ProjectName>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -215,6 +216,7 @@
     <ClInclude Include="Script.h" />
     <ClInclude Include="NoteSystem.h" />
     <ClInclude Include="ScriptingWindow.h" />
+    <ClInclude Include="ScriptStream.h" />
     <ClInclude Include="SMSTextingControl.h" />
     <ClInclude Include="StatusControl.h" />
     <ClInclude Include="StatusIndicator.h" />
@@ -226,7 +228,7 @@
     <ClInclude Include="myAgilent.h" />
     <ClInclude Include="myErrorHandler.h" />
     <ClInclude Include="NiawgController.h" />
-    <ClInclude Include="NIAWGWaitThread.h" />
+    <ClInclude Include="niawgWaitThread.h" />
     <ClInclude Include="postMyString.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="rmWhite.h" />
@@ -276,6 +278,7 @@
     <ClCompile Include="reorganizeControl.cpp" />
     <ClCompile Include="Script.cpp" />
     <ClCompile Include="ScriptingWindow.cpp" />
+    <ClCompile Include="ScriptStream.cpp" />
     <ClCompile Include="SMSTextingControl.cpp" />
     <ClCompile Include="StatusControl.cpp" />
     <ClCompile Include="StatusIndicator.cpp" />

@@ -16,12 +16,12 @@ class PictureSettingsControl
 	public:
 		// must have parent. Enforced partially because both are singletons.
 		PictureSettingsControl::PictureSettingsControl(CameraSettingsControl* parentObj) { parentSettingsControl = parentObj; }
-		bool initialize(POINT& kineticPos, POINT& continuousPos, POINT& accumulatePos, CWnd* parent, int& id);
-		bool handleOptionChange(UINT id, AndorCamera* andorObj);
-		bool disablePictureControls(int pic);
-		bool enablePictureControls(int pic);
-		bool setExposureTimes(std::vector<float> times, AndorCamera* andorObj);
-		bool setExposureTimes(AndorCamera* andorObj);
+		void initialize(POINT& kineticPos, POINT& continuousPos, POINT& accumulatePos, CWnd* parent, int& id);
+		void handleOptionChange(UINT id, AndorCamera* andorObj);
+		void disablePictureControls(int pic);
+		void enablePictureControls(int pic);
+		void setExposureTimes(std::vector<float> times, AndorCamera* andorObj);
+		void setExposureTimes(AndorCamera* andorObj);
 		std::array<int, 4> getPictureColors();
 		std::vector<float> getUsedExposureTimes();
 		std::array<int, 4> getThresholds();
@@ -30,7 +30,7 @@ class PictureSettingsControl
 		void confirmAcquisitionTimings();
 		void setPicturesPerExperiment(unsigned int pics, AndorCamera* andorObj);
 		void setThresholds(std::array<int, 4> thresholds);
-		bool rearrange(std::string cameraMode, std::string triggerMode, int width, int height, std::unordered_map<std::string, CFont*> fonts);
+		void rearrange(std::string cameraMode, std::string triggerMode, int width, int height, std::unordered_map<std::string, CFont*> fonts);
 		int getPicsPerRepetition();
 		void cameraIsOn( bool state );
 	private:

@@ -11,6 +11,7 @@ struct tinyPlotInfo
 	std::string name;
 };
 
+
 class DataHandlingControl
 {
 	public:
@@ -18,8 +19,6 @@ class DataHandlingControl
 			std::vector<CToolTipCtrl*>& tooltips, int isTriggerModeSensitive);
 		void handleDoubleClick();
 		void handleRClick();
-		void addPlot();
-		void openPlotter();
 		void rearrange(std::string cameraMode, std::string trigMode, int width, int height, std::unordered_map<std::string, CFont*> fonts);
 		//
 		void updateDataSetNumberEdit( int number );

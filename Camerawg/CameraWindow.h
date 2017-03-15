@@ -21,25 +21,25 @@ struct cameraPositions
 class CameraWindow : public CDialog
 {
 	using CDialog::CDialog;
-	DECLARE_DYNAMIC(CameraWindow)
+	DECLARE_DYNAMIC( CameraWindow )
 	public:
 		/// overrides
-		CameraWindow::CameraWindow(MainWindow* mainWin, ScriptingWindow* scriptWin) : 
-			CDialog(), 
-			CameraSettings(&Andor), 
-			Andor(mainWin->getComm())
+		CameraWindow::CameraWindow( MainWindow* mainWin, ScriptingWindow* scriptWin ) :
+			CDialog(),
+			CameraSettings( &Andor ),
+			Andor( mainWin->getComm() )
 		{
 			// because of these lines the camera window does not need to "get friends".
 			mainWindowFriend = mainWin;
 			scriptingWindowFriend = scriptWin;
 		};
-		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+		HBRUSH OnCtlColor( CDC* pDC, CWnd* pWnd, UINT nCtlColor );
 		BOOL OnInitDialog() override;
-		BOOL PreTranslateMessage(MSG* pMsg);
+		BOOL PreTranslateMessage( MSG* pMsg );
 		void OnCancel() override;
-		void OnSize(UINT nType, int cx, int cy);
-		void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar);
-		void OnTimer(UINT_PTR id);
+		void OnSize( UINT nType, int cx, int cy );
+		void OnVScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar );
+		void OnTimer( UINT_PTR id );
 		void handlePictureEditChange( UINT id );
 		/// Extra functions from this class.
 		void redrawPictures( bool andGrid );
@@ -52,28 +52,28 @@ class CameraWindow : public CDialog
 		std::string getStartMessage();
 		/// passing commands on to members and their handling.
 		void readImageParameters();
-		void passCommonCommand(UINT id);
+		void passCommonCommand( UINT id );
 		void passTrigger();
 		void passAlertPress();
 		void passSetTemperaturePress();
 		void setEmGain();
-		void handlePictureSettings(UINT id);
+		void handlePictureSettings( UINT id );
 		bool cameraIsRunning();
 		LRESULT onCameraFinish( WPARAM wParam, LPARAM lParam );
 		LRESULT onCameraProgress( WPARAM wParam, LPARAM lParam );
 
-		void listViewDblClick(NMHDR* info, LRESULT* lResult);
+		void listViewDblClick( NMHDR* info, LRESULT* lResult );
 		void listViewLClick( NMHDR* info, LRESULT* lResult );
-		
-		void OnRButtonUp(UINT stuff, CPoint loc);
+
+		void OnRButtonUp( UINT stuff, CPoint loc );
 
 		void abortCameraRun();
 
 	private:
 		DECLARE_MESSAGE_MAP();
-		
+
 		AndorCamera Andor;
-		CameraSettingsControl CameraSettings; 
+		CameraSettingsControl CameraSettings;
 		ColorBox box;
 		PictureStats stats;
 		PictureManager pics;
@@ -85,7 +85,7 @@ class CameraWindow : public CDialog
 		ScriptingWindow* scriptingWindowFriend;
 
 		std::vector<CToolTipCtrl*> tooltips;
-		
+
 		std::pair<int, int> selectedPixel = { 0,0 };
 
 		bool autoScalePictureData;

@@ -113,7 +113,6 @@ void ExperimentTimer::update(int currentRepNumber, int repsPerVariation, int num
 		timeDisplay.SetWindowTextA( "FIN!" );
 		timeDisplay.RedrawWindow();
 	}
-	return;
 }
 
 void ExperimentTimer::reorganizeControls( std::string cameraMode, std::string triggerMode, int width, int height,
@@ -122,12 +121,10 @@ void ExperimentTimer::reorganizeControls( std::string cameraMode, std::string tr
 	timeDisplay.rearrange( cameraMode, triggerMode, width, height, fonts );
 	variationProgress.rearrange( cameraMode, triggerMode, width, height, fonts );
 	overallProgress.rearrange( cameraMode, triggerMode, width, height, fonts );
-	return;
 }
 
 
 void ExperimentTimer::setTimerDisplay(std::string newText)
 {
 	timeDisplay.SetWindowTextA( newText.c_str() );
-	return;
 }

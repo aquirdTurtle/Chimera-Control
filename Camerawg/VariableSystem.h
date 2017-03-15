@@ -30,7 +30,7 @@ class VariableSystem
 		std::vector<variable> getAllSingletons();
 		std::vector<variable> getAllVaryingParameters();
 		std::vector<variable> getAllVariables();
-		unsigned int getCurrentNumberOfVariables();
+		unsigned long long getCurrentNumberOfVariables();
 		bool clearVariables();
 
 	private:

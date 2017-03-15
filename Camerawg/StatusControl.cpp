@@ -42,12 +42,11 @@ void StatusControl::setDefaultColor(COLORREF color)
 	myCharFormat.dwMask = CFM_COLOR;
 	myCharFormat.crTextColor = defaultColor;
 	edit.SetDefaultCharFormat(myCharFormat);
-	return;
 }
 
 void StatusControl::addStatusText(std::string text)
 {
-	this->addStatusText(text, false);
+	addStatusText(text, false);
 }
 
 void StatusControl::addStatusText(std::string text, bool noColor)
@@ -77,16 +76,17 @@ void StatusControl::setColor(COLORREF color)
 
 void StatusControl::setColor()
 {
-	this->setColor(this->defaultColor);
+	setColor(this->defaultColor);
 }
+
 
 void StatusControl::clear() 
 {
 	this->edit.SetWindowTextA("");
 	setColor(RGB(255, 255, 255));
 	addStatusText("\r\n******************************\r\n", true);
-	return;
 }
+
 
 void StatusControl::appendTimebar()
 {
@@ -98,6 +98,5 @@ void StatusControl::appendTimebar()
 		+ std::to_string(currentTime.tm_min) + ":" + std::to_string(currentTime.tm_sec);
 	setColor(RGB(255, 255, 255));
 	addStatusText("\r\n**********" + timeStr + "**********\r\n", true);
-	return;
 }
 

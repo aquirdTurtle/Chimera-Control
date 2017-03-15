@@ -93,14 +93,15 @@ void CameraWindow::abortCameraRun()
 
 bool CameraWindow::cameraIsRunning()
 {
-	return this->Andor.isRunning();
+	return Andor.isRunning();
 }
+
 
 void CameraWindow::handlePictureEditChange( UINT id )
 {
-	this->pics.handleEditChange( id );
-	return;
+	pics.handleEditChange( id );
 }
+
 
 LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam)
 {
@@ -166,8 +167,7 @@ bool CameraWindow::getCameraStatus()
 
 void CameraWindow::listViewDblClick(NMHDR* info, LRESULT* lResult)
 {
-	this->dataHandler.handleDoubleClick();
-	return;
+	dataHandler.handleDoubleClick();
 }
 
 void CameraWindow::listViewLClick( NMHDR* info, LRESULT* lResult )
@@ -185,7 +185,6 @@ void CameraWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 		selectedPixel = box;
 		pics.redrawPictures(this, selectedPixel);
 	}
-	return;
 }
 
 /*
@@ -193,8 +192,7 @@ void CameraWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
  */
 void CameraWindow::passSetTemperaturePress()
 {
-	this->CameraSettings.handleSetTemperaturePress();
-	return;
+	CameraSettings.handleSetTemperaturePress();
 }
 
 /*
@@ -202,16 +200,14 @@ void CameraWindow::passSetTemperaturePress()
  */
 void CameraWindow::OnTimer(UINT_PTR id)
 {
-	this->CameraSettings.handleTimer();
-	return;
+	CameraSettings.handleTimer();
 }
 /*
  *
  */
 void CameraWindow::passAlertPress()
 {
-	this->alerts.handleCheckBoxPress();
-	return;
+	alerts.handleCheckBoxPress();
 }
 
 /*
@@ -219,14 +215,15 @@ void CameraWindow::passAlertPress()
  */
 void CameraWindow::passTrigger()
 {
-	this->CameraSettings.handleTriggerControl(this);
-	return;
+	CameraSettings.handleTriggerControl(this);
 }
+
 
 void CameraWindow::handlePictureSettings(UINT id)
 {
-	this->CameraSettings.handlePictureSettings(id, &this->Andor);
+	CameraSettings.handlePictureSettings(id, &this->Andor);
 }
+
 
 BOOL CameraWindow::PreTranslateMessage(MSG* pMsg)
 {
@@ -237,60 +234,61 @@ BOOL CameraWindow::PreTranslateMessage(MSG* pMsg)
 	return CDialog::PreTranslateMessage(pMsg);
 }
 
+
 void CameraWindow::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar)
 {
-	this->pics.handleScroll(nSBCode, nPos, scrollbar);
+	pics.handleScroll(nSBCode, nPos, scrollbar);
 }
+
+
 void CameraWindow::OnSize(UINT nType, int cx, int cy)
 {
 	AndorRunSettings settings = this->CameraSettings.getSettings();
-	this->stats.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts());
-	this->CameraSettings.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts());
-	this->box.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts());
-	this->pics.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts());
-	this->alerts.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts());
-	this->dataHandler.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts());
-	this->pics.redrawPictures( this, this->selectedPixel );
-	return;
+	stats.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts());
+	CameraSettings.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts());
+	box.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts());
+	pics.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts());
+	alerts.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts());
+	dataHandler.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts());
+	pics.redrawPictures( this, this->selectedPixel );
 }
+
 
 void CameraWindow::setEmGain()
 {
-	this->CameraSettings.setEmGain(&this->Andor);
+	CameraSettings.setEmGain(&this->Andor);
 }
 
 void CameraWindow::prepareCamera()
 {
-	if ( this->Andor.isRunning() )
+	if ( Andor.isRunning() )
 	{
 		thrower( "System is already running! Please Abort to restart.\r\n" );
-		return;
 	}
-	if ( this->dataHandler.getLocationSettingStatus() )
+	if ( dataHandler.getLocationSettingStatus() )
 	{
 		thrower( "Please finish selecting analysis points!" );
-		return;
 	}
 	// biggest check here, camera settings includes a lot of things.
 	CameraSettings.checkIfReady();
 	try
 	{
-		this->Andor.getStatus();
+		Andor.getStatus();
 		if ( ANDOR_SAFEMODE )
 		{
 			thrower( "DRV_IDLE" );
 		}
 	}
-	catch ( my_exception& exception )
+	catch ( myException& exception )
 	{
 		if ( exception.whatBare() != "DRV_IDLE" )
 		{
 			throw;
 		}
 	}
-	this->pics.refreshBackgrounds(this);
+	pics.refreshBackgrounds(this);
 	//
-	this->pics.setNumberPicturesActive( CameraSettings.getSettings().picsPerRepetition );
+	pics.setNumberPicturesActive( CameraSettings.getSettings().picsPerRepetition );
 	/// start the plotting thread.
 	/*
 	// set default colors and linewidths on plots
@@ -316,8 +314,7 @@ void CameraWindow::prepareCamera()
 	plottingThreadID);
 	*/
 	/// start the camera.
-	this->Andor.setSettings( CameraSettings.getSettings() );
-	return;
+	Andor.setSettings( CameraSettings.getSettings() );
 }
 
 std::string CameraWindow::getStartMessage()
@@ -393,7 +390,6 @@ void CameraWindow::setTimerText( std::string timerText )
 void CameraWindow::OnCancel()
 {
 	passCommonCommand(ID_FILE_MY_EXIT);
-	return;
 }
 std::vector<CToolTipCtrl*> CameraWindow::getToolTips()
 {
@@ -498,7 +494,7 @@ void CameraWindow::readImageParameters()
 		imageParameters parameters = this->CameraSettings.readImageParameters( this );
 		this->pics.setParameters( parameters );
 	}
-	catch (my_exception& exception)
+	catch (myException& exception)
 	{
 		errBox( "Error!" );
 		Communicator* comm = mainWindowFriend->getComm();
@@ -506,12 +502,10 @@ void CameraWindow::readImageParameters()
 		comm->sendColorBox( colors );
 		comm->sendError( exception.whatStr() + "\r\n" );
 	}
-	this->pics.drawGrids( this );
-	return;
+	pics.drawGrids( this );
 }
 
 void CameraWindow::changeBoxColor(colorBoxes<char> colors)
 {
-	this->box.changeColor(colors);
-	return;
+	box.changeColor(colors);
 }

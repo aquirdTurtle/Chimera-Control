@@ -4,7 +4,7 @@
 struct waitThreadInput
 {
 	NiawgController* niawg;
-	profileSettings profileInfo;
+	profileSettings profile;
 };
 
 /*
@@ -12,4 +12,4 @@ struct waitThreadInput
 * ViSession inputParam: this is the session handle for the session with the NIAWG.
 * Return: the function returns -1 if error, -2 if abort, 0 if normal.
 */
-unsigned __stdcall NIAWGWaitThread(void* inputParam);
+unsigned __stdcall niawgWaitThread(void* inputParam);

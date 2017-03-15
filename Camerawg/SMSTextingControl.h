@@ -17,15 +17,13 @@ struct personInfo
 class SMSTextingControl
 {
 	public:
-		SMSTextingControl();
-		~SMSTextingControl();
-		bool promptForEmailAddressAndPassword();
-		bool initializeControls(POINT& pos, CWnd* parent, bool isTriggerModeSensitive, int& id, std::unordered_map<std::string, CFont*> fonts,
+		void promptForEmailAddressAndPassword();
+		void initializeControls(POINT& pos, CWnd* parent, bool isTriggerModeSensitive, int& id, std::unordered_map<std::string, CFont*> fonts,
 			std::vector<CToolTipCtrl*>& tooltips);
-		bool rearrange(RECT parentRectangle, std::string mode);
-		bool sendMessage(std::string message, EmbeddedPythonHandler* pyHandler, std::string msgType);
-		bool updatePersonInfo(HWND parentHandle, LPARAM lparamOfMessage);
-		bool deletePersonInfo(HWND parentHandle, LPARAM lparamOfMessage);
+		void rearrange(RECT parentRectangle, std::string mode);
+		void sendMessage(std::string message, EmbeddedPythonHandler* pyHandler, std::string msgType);
+		void updatePersonInfo(HWND parentHandle, LPARAM lparamOfMessage);
+		void deletePersonInfo(HWND parentHandle, LPARAM lparamOfMessage);
 	private:
 		std::string emailAddress;
 		std::string password;

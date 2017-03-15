@@ -138,7 +138,6 @@ void PictureManager::rearrange(std::string cameraMode, std::string triggerMode, 
 
 void PictureManager::createPalettes( CDC* dc )
 {
-
 	struct
 	{
 		WORD Version;
@@ -409,20 +408,18 @@ void PictureManager::createPalettes( CDC* dc )
 	};
 
 	int r, g, b;
-	for (int i = 0; i < PICTURE_PALLETE_SIZE; i++)
+	for (int paletteInc = 0; paletteInc < PICTURE_PALETTE_SIZE; paletteInc++)
 	{
 		// scaling it to make it a bit darker near the bottom.
-		r = int( (parula[i][0] * 255.0) * (1.0 / 4 + 3.0 * i / (4 * 256.0)) );
-		g = int( (parula[i][1] * 255.0) * (1.0 / 4 + 3.0 * i / (4 * 256.0)) );
-		b = int( (parula[i][2] * 255.0) * (1.0 / 4 + 3.0 * i / (4 * 256.0)) );
-		Palette.aEntries[i].peRed = LOBYTE( r );
-		Palette.aEntries[i].peGreen = LOBYTE( g );
-		Palette.aEntries[i].peBlue = LOBYTE( b );
-		Palette.aEntries[i].peFlags = PC_RESERVED;
+		r = int( (parula[paletteInc][0] * 255.0) * (1.0 / 4 + 3.0 * paletteInc / (4 * 256.0)) );
+		g = int( (parula[paletteInc][1] * 255.0) * (1.0 / 4 + 3.0 * paletteInc / (4 * 256.0)) );
+		b = int( (parula[paletteInc][2] * 255.0) * (1.0 / 4 + 3.0 * paletteInc / (4 * 256.0)) );
+		Palette.aEntries[paletteInc].peRed = LOBYTE( r );
+		Palette.aEntries[paletteInc].peGreen = LOBYTE( g );
+		Palette.aEntries[paletteInc].peBlue = LOBYTE( b );
+		Palette.aEntries[paletteInc].peFlags = PC_RESERVED;
 	}
-	this->palettes[0] = CreatePalette((LOGPALETTE *)&Palette );
-	//dc->SelectPalette( this->palettes[0], TRUE );
-	//dc->RealizePalette();
+	palettes[0] = CreatePalette((LOGPALETTE *)&Palette );
 	/// 
 	double blueToRed[256][3];
 	for (int paletteInc = 0; paletteInc < 256; paletteInc++)
@@ -431,16 +428,16 @@ void PictureManager::createPalettes( CDC* dc )
 		blueToRed[paletteInc][1] = 0;
 		blueToRed[paletteInc][2] = ((7 * paletteInc + 256.0) / (8 * 256.0)) * ((256 - paletteInc) / 256.0);
 	}
-	for (int i = 0; i < PICTURE_PALLETE_SIZE; i++)
+	for (int paletteValueInc = 0; paletteValueInc < PICTURE_PALETTE_SIZE; paletteValueInc++)
 	{
 		// scaling it to make it a bit darker near the bottom.
-		r = int( blueToRed[i][0] * 255.0 );
-		g = int( blueToRed[i][1] * 255.0 );
-		b = int( blueToRed[i][2] * 255.0 );
-		Palette.aEntries[i].peRed = LOBYTE( r );
-		Palette.aEntries[i].peGreen = LOBYTE( g );
-		Palette.aEntries[i].peBlue = LOBYTE( b );
-		Palette.aEntries[i].peFlags = PC_RESERVED;
+		r = int( blueToRed[paletteValueInc][0] * 255.0 );
+		g = int( blueToRed[paletteValueInc][1] * 255.0 );
+		b = int( blueToRed[paletteValueInc][2] * 255.0 );
+		Palette.aEntries[paletteValueInc].peRed = LOBYTE( r );
+		Palette.aEntries[paletteValueInc].peGreen = LOBYTE( g );
+		Palette.aEntries[paletteValueInc].peBlue = LOBYTE( b );
+		Palette.aEntries[paletteValueInc].peFlags = PC_RESERVED;
 	}
 
 	this->palettes[1] = CreatePalette( (LOGPALETTE *)&Palette );
@@ -454,16 +451,16 @@ void PictureManager::createPalettes( CDC* dc )
 		blackToWhite[paletteInc][1] = paletteInc / 256.0;
 		blackToWhite[paletteInc][2] = paletteInc / 256.0;
 	}
-	for (int i = 0; i < PICTURE_PALLETE_SIZE; i++)
+	for (int paletteValueInc = 0; paletteValueInc < PICTURE_PALETTE_SIZE; paletteValueInc++)
 	{
 		// scaling it to make it a bit darker near the bottom.
-		r = int( blackToWhite[i][0] * 255.0 );
-		g = int( blackToWhite[i][1] * 255.0 );
-		b = int( blackToWhite[i][2] * 255.0 );
-		Palette.aEntries[i].peRed = LOBYTE( r );
-		Palette.aEntries[i].peGreen = LOBYTE( g );
-		Palette.aEntries[i].peBlue = LOBYTE( b );
-		Palette.aEntries[i].peFlags = PC_RESERVED;
+		r = int( blackToWhite[paletteValueInc][0] * 255.0 );
+		g = int( blackToWhite[paletteValueInc][1] * 255.0 );
+		b = int( blackToWhite[paletteValueInc][2] * 255.0 );
+		Palette.aEntries[paletteValueInc].peRed = LOBYTE( r );
+		Palette.aEntries[paletteValueInc].peGreen = LOBYTE( g );
+		Palette.aEntries[paletteValueInc].peBlue = LOBYTE( b );
+		Palette.aEntries[paletteValueInc].peFlags = PC_RESERVED;
 	}
 
 	this->palettes[2] = CreatePalette( (LOGPALETTE *)&Palette );

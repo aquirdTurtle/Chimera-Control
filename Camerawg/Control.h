@@ -53,10 +53,10 @@ template<class ControlType> Control<ControlType>::Control()
 	assert((CWnd const*)&obj);
 }
 
-template <class ControlType> void Control<ControlType>::rearrange(std::string cameraMode, std::string trigMode, 
-	int width, int height, std::unordered_map<std::string, CFont*> fonts)
+template <class ControlType> void Control<ControlType>::rearrange(std::string cameraMode, std::string trigMode, int width, int height, 
+																   std::unordered_map<std::string, CFont*> fonts)
 {
-	if (!this->m_hWnd)
+	if (!m_hWnd)
 	{
 		return;
 	}
@@ -222,7 +222,7 @@ template <class ControlType> bool Control<ControlType>::setToolTip(std::string t
 		tooltips.back()->SetMaxTipWidth(500);
 		tooltips.back()->SetTipBkColor(0x000000);
 		tooltips.back()->SetTipTextColor(0xe0e0d0);
-		tooltips.back()->SetDlgCtrlID(this->ID);
+		tooltips.back()->SetDlgCtrlID(ID);
 		tooltips.back()->SetFont(font);
 		tooltips.back()->SetDelayTime(TTDT_AUTOPOP, 30000);
 		tooltips.back()->AddTool(this, text.c_str());
@@ -231,8 +231,8 @@ template <class ControlType> bool Control<ControlType>::setToolTip(std::string t
 	}
 	else
 	{
-		tooltips[this->toolTipID]->DelTool(this);
-		tooltips[this->toolTipID]->AddTool(this, text.c_str());
+		tooltips[toolTipID]->DelTool(this);
+		tooltips[toolTipID]->AddTool(this, text.c_str());
 	}
 	return true;
 }

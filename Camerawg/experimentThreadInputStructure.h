@@ -7,15 +7,15 @@
 
 struct experimentThreadInputStructure
 {
-	std::string threadCurrentScript;
-	unsigned int threadRepetitions;
-	bool threadDontActuallyGenerate;
+	std::string currentScript;
+	unsigned int repetitions;
+	bool dontActuallyGenerate;
 	std::string currentFolderLocation;
-	std::vector<std::string> threadSequenceFileNames;
-	debugOptions debugOptions;
+	std::vector<std::string> sequenceFileNames;
+	debugInfo debugInfo;
 	mainOptions settings;
-	profileSettings profileInfo;
-	int numberOfVariables;
+	profileSettings profile;
+	int variableNumber;
 	Communicator* comm;
 	NiawgController* niawg;
 };

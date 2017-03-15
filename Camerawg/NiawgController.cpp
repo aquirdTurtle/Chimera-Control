@@ -8,16 +8,20 @@
 #include "myAgilent.h"
 #include "postMyString.h"
 #include "myErrorHandler.h"
+#include "miscellaneousCommonFunctions.h"
+#include "ScriptStream.h"
 
 bool NiawgController::isRunning()
 {
 	return runningState;
 }
 
+
 void NiawgController::setRunningState( bool newRunningState )
 {
 	this->runningState = newRunningState;
 }
+
 
 void NiawgController::configureOutputMode()
 {
@@ -27,7 +31,8 @@ void NiawgController::configureOutputMode()
 	}
 }
 
-void NiawgController::setDefaultWaveforms(MainWindow* mainWin, bool isFirstLoad)
+
+void NiawgController::setDefaultWaveforms( MainWindow* mainWin, bool isFirstLoad )
 {
 	if (!isFirstLoad)
 	{
@@ -36,12 +41,6 @@ void NiawgController::setDefaultWaveforms(MainWindow* mainWin, bool isFirstLoad)
 		delete default_hConfigMixedWaveform;
 		delete default_vConfigMixedWaveform;
 	}
-	// Contains the names of predefined x waveforms
-	std::vector<std::string> verticalPredefinedWaveformNames;
-	// Contains the names of predefined y waveforms
-	std::vector<std::string> horizontalPredefinedWaveformNames;
-	// Counts the number of waveforms that have been handled so far.
-	int waveformCount = 0;
 	// counts the number of predefined waveforms that have been handled or defined.
 	int predWaveformCount = 0;
 	// counts the number of varied waveform pairs for x or y waveforms.
@@ -51,59 +50,49 @@ void NiawgController::setDefaultWaveforms(MainWindow* mainWin, bool isFirstLoad)
 	//SOCKET ConnectSocket = INVALID_SOCKET;
 	// An array of variable files. Only used if not receiving variable information from the master computer.
 	std::vector<std::fstream> xVarFiles;
-	// Vectors of structures that each contain all the basic information about a single waveform. Most of this (pardon the default waveforms) gets erased after 
-	// an experiment.
-	std::vector<waveData> allXWaveformParameters, allYWaveformParameters;
 	// Vectors of flags that signify whether a given waveform is being varied or not.
-	std::vector<bool> xWaveformIsVaried, yWaveformIsVaried, intensityIsVaried;
+	std::vector<bool> verticalWaveformIsVaried, horizontalWaveformIsVaried, intensityIsVaried;
 	// A vector of vectors that hold variables. Each sub-vector contains all of the values that an individual variable will take on. The main vector then 
 	// contains all of the variable value data.
 	std::vector<std::vector<double> > variableValues;
 	// A vector which stores the number of values that a given variable will take through an experiment.
 	std::vector<std::size_t> length;
-	// The eSessionHandle variable is used as an input to many of the arbitrary waveform generator functions so that the functions know which NI device (we only
-	// have one, but we could have more) the given function is meant for.
 	// An array of vectors holding strings. Each vector within the array is for a specific type of waveform output (e.g. gen 1, const). The each string within a
 	// vector contains unique descriptions of waveforms. I check this list to see if a waveform has been written already.
-	std::vector<std::string> libWaveformArray[20];
-	// an array of boolian values with one-to-one correspondence to the array above. A value of 1 corresponds to the file holding the strings having already
-	// been opened and read for the first time.
-	bool fileOpenedStatus[20] = { 0 };
-	// This array stores the waveform #s of the predefined waveforms.
-	std::vector<int> defPredWaveLocs;
+	std::vector<std::string> libWaveformArray[MAX_NIAWG_SIGNALS * 4];
 	std::vector<std::fstream> hConfigHFile, hConfigVFile, vConfigHFile, vConfigVFile;
 
-	hConfigHFile.push_back(std::fstream(DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_HCONFIG_HORIZONTAL_SCRIPT.nScript"));
-	hConfigVFile.push_back(std::fstream(DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_HCONFIG_VERTICAL_SCRIPT.nScript"));
-	vConfigHFile.push_back(std::fstream(DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_VCONFIG_HORIZONTAL_SCRIPT.nScript"));
-	vConfigVFile.push_back(std::fstream(DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_VCONFIG_VERTICAL_SCRIPT.nScript"));
+	hConfigHFile.push_back( std::fstream( DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_HCONFIG_HORIZONTAL_SCRIPT.nScript" ) );
+	hConfigVFile.push_back( std::fstream( DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_HCONFIG_VERTICAL_SCRIPT.nScript" ) );
+	vConfigHFile.push_back( std::fstream( DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_VCONFIG_HORIZONTAL_SCRIPT.nScript" ) );
+	vConfigVFile.push_back( std::fstream( DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_VCONFIG_VERTICAL_SCRIPT.nScript" ) );
 	// check errors
 	if (!hConfigHFile[0].is_open())
 	{
-		errBox("FATAL ERROR: Couldn't open default file. Was looking for file " + DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_HCONFIG_VERTICAL_SCRIPT.nScript");
-		return;
+		thrower( "FATAL ERROR: Couldn't open default file. Was looking for file " + DEFAULT_SCRIPT_FOLDER_PATH
+				 + "DEFAULT_HCONFIG_VERTICAL_SCRIPT.nScript" );
 	}
 	if (!hConfigHFile[0].is_open())
 	{
-		errBox("FATAL ERROR: Couldn't open default file. Was looking for file " + DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_HCONFIG_HORIZONTAL_SCRIPT.nScript");
-		return;
+		thrower( "FATAL ERROR: Couldn't open default file. Was looking for file " + DEFAULT_SCRIPT_FOLDER_PATH
+				 + "DEFAULT_HCONFIG_HORIZONTAL_SCRIPT.nScript" );
 	}
 	if (!hConfigHFile[0].is_open())
 	{
-		errBox("FATAL ERROR: Couldn't open default file. Was looking for file " + DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_VCONFIG_VERTICAL_SCRIPT.nScript");
-		return;
+		thrower( "FATAL ERROR: Couldn't open default file. Was looking for file " + DEFAULT_SCRIPT_FOLDER_PATH
+				 + "DEFAULT_VCONFIG_VERTICAL_SCRIPT.nScript" );
 	}
 	if (!hConfigHFile[0].is_open())
 	{
-		errBox("FATAL ERROR: Couldn't open default file. Was looking for file " + DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_VCONFIG_HORIZONTAL_SCRIPT.nScript");
-		return;
+		thrower( "FATAL ERROR: Couldn't open default file. Was looking for file " + DEFAULT_SCRIPT_FOLDER_PATH
+				 + "DEFAULT_VCONFIG_HORIZONTAL_SCRIPT.nScript" );
 	}
-	
-	std::string default_hConfigScriptString;
-	std::string default_vConfigScriptString;
+
+	outputInfo output;
 	// first line of every script is "script 'name'".
-	default_hConfigScriptString = "script DefaultHConfigScript\n";
-	default_vConfigScriptString = "script DefaultVConfigScript\n";
+	output.niawgLanguageScript = "script DefaultHConfigScript\n";
+	output.waveCount = 0;
+	output.predefinedWaveCount = 0;
 	/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	///
 	///					Load Default Waveforms
@@ -115,70 +104,56 @@ void NiawgController::setDefaultWaveforms(MainWindow* mainWin, bool isFirstLoad)
 	// work like I thought it did. If  I'd known this from the start, I probably wouldn't have created this subroutine, except perhaps for the fact that it get 
 	// called recursively by predefined scripts in the instructions file.
 	/// Create Horizontal Configuration
-	debugOptions dummyOptions;
+	debugInfo dummyOptions;
 	dummyOptions.outputAgilentScript = false;
 	std::vector<variable> noSingletons;
 	std::string warnings, debugMessages;
+	// doesn't get used for anything...
+	profileSettings profile;
+	profile.orientation = HORIZONTAL_ORIENTATION;
 	try
 	{
-		mainWin->setOrientation(HORIZONTAL_ORIENTATION);
-		if (myErrorHandler(this->analyzeNIAWGScripts(hConfigVFile[0], hConfigHFile[0], default_hConfigScriptString, waveformCount,
-			verticalPredefinedWaveformNames, horizontalPredefinedWaveformNames, defPredWaveformCount, defPredWaveLocs, 
-			libWaveformArray, fileOpenedStatus, allXWaveformParameters, xWaveformIsVaried, allYWaveformParameters, 
-			yWaveformIsVaried, true, "", noSingletons, HORIZONTAL_ORIENTATION, dummyOptions, warnings, debugMessages),
-			"", socket, hConfigVFile, hConfigHFile, false, userScriptIsWritten, "", false, false, false, mainWin->getComm())
-			== true)
-		{
-			errBox("FATAL ERROR: Creation of Default Waveforms and Default Script Has Failed!");
-			return;
-		}
-
-		mainWin->setOrientation(VERTICAL_ORIENTATION);
-
-		if (myErrorHandler(this->analyzeNIAWGScripts(vConfigVFile[0], vConfigHFile[0], default_vConfigScriptString, 
-			waveformCount, verticalPredefinedWaveformNames, horizontalPredefinedWaveformNames, defPredWaveformCount, defPredWaveLocs,
-			libWaveformArray, fileOpenedStatus, allXWaveformParameters, xWaveformIsVaried, allYWaveformParameters, 
-			yWaveformIsVaried, true, "", noSingletons, VERTICAL_ORIENTATION, dummyOptions, warnings, debugMessages),
-			"", socket, vConfigVFile, vConfigHFile, false,
-			userScriptIsWritten, "", false, false, false, mainWin->getComm())
-			== true)
-		{
-			errBox("FATAL ERROR: Creation of Default Waveforms and Default Script Has Failed!");
-			return;
-		}
+		niawgPair<ScriptStream> scripts;
+		scripts[Horizontal] << hConfigHFile[0].rdbuf();
+		scripts[Vertical] << hConfigVFile[0].rdbuf();
+		mainWin->setOrientation( HORIZONTAL_ORIENTATION );
+		analyzeNiawgScripts( scripts, output, libWaveformArray, profile, noSingletons, dummyOptions, warnings, debugMessages );
+		// the script file must end with "end script".
+		output.niawgLanguageScript += "end Script";
+		// Convert script string to ViConstString. +1 for a null character on the end.
+		default_hConfigScript = new ViChar[output.niawgLanguageScript.length() + 1];
+		sprintf_s( default_hConfigScript, output.niawgLanguageScript.length() + 1, "%s", output.niawgLanguageScript.c_str() );
+		strcpy_s( default_hConfigScript, output.niawgLanguageScript.length() + 1, output.niawgLanguageScript.c_str() );
+		output.niawgLanguageScript = "script DefaultVConfigScript\n";
+		profile.orientation = VERTICAL_ORIENTATION;
+		mainWin->setOrientation( VERTICAL_ORIENTATION );
+		scripts[Horizontal].clear();
+		scripts[Horizontal] << vConfigHFile[0].rdbuf();
+		scripts[Vertical].clear();
+		scripts[Vertical] << vConfigVFile[0].rdbuf();
+		analyzeNiawgScripts( scripts, output, libWaveformArray, profile, noSingletons, dummyOptions, warnings, debugMessages );
+		// Convert script string to ViConstString. +1 for a null character on the end.
+		default_vConfigScript = new ViChar[output.niawgLanguageScript.length() + 1];
+		sprintf_s( default_vConfigScript, output.niawgLanguageScript.length() + 1, "%s", output.niawgLanguageScript.c_str() );
+		strcpy_s( default_vConfigScript, output.niawgLanguageScript.length() + 1, output.niawgLanguageScript.c_str() );
 	}
-	catch (my_exception& except)
+	catch (myException& except)
 	{
-		errBox(except.what());
-		errBox("FATAL ERROR: Analysis of Default Waveforms and Default Script Has Failed!");
-		return;
+		thrower( "FATAL ERROR: Analysis of Default Waveforms and Default Script Has Failed: " + except.whatStr() );
 	}
 	// check for warnings.
 	if (warnings != "")
 	{
-		errBox("Warnings detected during initial default waveform script analysis: " + warnings);
+		errBox( "Warnings detected during initial default waveform script analysis: " + warnings );
 	}
 	if (debugMessages != "")
 	{
-		errBox("debug messages detected during initial default waveform script analysis: " + debugMessages);
+		errBox( "Debug messages detected during initial default waveform script analysis: " + debugMessages );
 	}
-	// the script file must end with "end script".
-	default_hConfigScriptString += "end Script";
-	// Convert script string to ViConstString. +1 for a null character on the end.
-	default_hConfigScript = new ViChar[default_hConfigScriptString.length() + 1];
-	sprintf_s(default_hConfigScript, default_hConfigScriptString.length() + 1, "%s", default_hConfigScriptString.c_str());
-	strcpy_s(default_hConfigScript, default_hConfigScriptString.length() + 1, default_hConfigScriptString.c_str());
-	// the script file must end with "end script".
-	default_vConfigScriptString += "end Script";
-	// Convert script string to ViConstString. +1 for a null character on the end.
-	default_vConfigScript = new ViChar[default_vConfigScriptString.length() + 1];
-	sprintf_s(default_vConfigScript, default_vConfigScriptString.length() + 1, "%s", default_vConfigScriptString.c_str());
-	strcpy_s(default_vConfigScript, default_vConfigScriptString.length() + 1, default_vConfigScriptString.c_str());
 	// but the default starts in the horizontal configuration, so switch back and start in this config.
-	mainWin->setOrientation(this->defaultOrientation);
-	return;
-
+	mainWin->setOrientation( this->defaultOrientation );
 }
+
 
 signed short NiawgController::isDone()
 {
@@ -190,11 +165,6 @@ signed short NiawgController::isDone()
 	return isDone;
 }
 
-void NiawgController::loadDefaults()
-{
-
-	return;
-}
 
 void NiawgController::initialize()
 {
@@ -229,6 +199,7 @@ void NiawgController::initialize()
 	// myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureReferenceClock(eSessionHandle, "ClkIn", 10000000), HORIZONTAL_ORIENTATION, theMainApplicationWindow.getComm())
 }
 
+
 void NiawgController::restartDefault()
 {
 	try
@@ -255,9 +226,9 @@ void NiawgController::restartDefault()
 				// allocate waveform into the device memory
 				errChecker(niFgen_AllocateNamedWaveform(sessionHandle, outputChannels, default_hConfigWaveformName.c_str(), default_hConfigMixedSize / 2));
 				// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
-				errChecker(niFgen_WriteNamedWaveformF64(sessionHandle, outputChannels, default_hConfigWaveformName.c_str(), default_hConfigMixedSize, default_hConfigMixedWaveform));
-				// rewrite the script. default_hConfigScript should still be valid.
-				errChecker(niFgen_WriteScript(sessionHandle, outputChannels, default_hConfigScript));
+errChecker( niFgen_WriteNamedWaveformF64( sessionHandle, outputChannels, default_hConfigWaveformName.c_str(), default_hConfigMixedSize, default_hConfigMixedWaveform ) );
+// rewrite the script. default_hConfigScript should still be valid.
+errChecker( niFgen_WriteScript( sessionHandle, outputChannels, default_hConfigScript ) );
 			}
 			eCurrentScript = "DefaultHConfigScript";
 		}
@@ -266,541 +237,200 @@ void NiawgController::restartDefault()
 			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
 				// create waveform (necessary?)
-				errChecker(niFgen_CreateWaveformF64(sessionHandle, outputChannels, default_vConfigMixedSize, default_vConfigMixedWaveform, &waveID));
+				errChecker( niFgen_CreateWaveformF64( sessionHandle, outputChannels, default_vConfigMixedSize, default_vConfigMixedWaveform, &waveID ) );
 				// allocate waveform into the device memory
-				errChecker(niFgen_AllocateNamedWaveform(sessionHandle, outputChannels, default_vConfigWaveformName.c_str(), default_vConfigMixedSize / 2));
+				errChecker( niFgen_AllocateNamedWaveform( sessionHandle, outputChannels, default_vConfigWaveformName.c_str(), default_vConfigMixedSize / 2 ) );
 				// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
-				errChecker(niFgen_WriteNamedWaveformF64(sessionHandle, outputChannels, default_vConfigWaveformName.c_str(), default_vConfigMixedSize, default_vConfigMixedWaveform));
+				errChecker( niFgen_WriteNamedWaveformF64( sessionHandle, outputChannels, default_vConfigWaveformName.c_str(), default_vConfigMixedSize, default_vConfigMixedWaveform ) );
 				// rewrite the script. default_hConfigScript should still be valid.
-				errChecker(niFgen_WriteScript(sessionHandle, outputChannels, default_vConfigScript));
+				errChecker( niFgen_WriteScript( sessionHandle, outputChannels, default_vConfigScript ) );
 			}
 			eCurrentScript = "DefaultVConfigScript";
 		}
 		if (!TWEEZER_COMPUTER_SAFEMODE)
 		{
-		
-			errChecker(niFgen_ConfigureOutputEnabled(sessionHandle, outputChannels, VI_TRUE));
-			errChecker(niFgen_SetAttributeViString(sessionHandle, outputChannels, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultVConfigScript"));
+
+			errChecker( niFgen_ConfigureOutputEnabled( sessionHandle, outputChannels, VI_TRUE ) );
+			errChecker( niFgen_SetAttributeViString( sessionHandle, outputChannels, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultVConfigScript" ) );
 			// Initiate Generation.
-			errChecker(niFgen_InitiateGeneration(sessionHandle));
+			errChecker( niFgen_InitiateGeneration( sessionHandle ) );
 		}
 	}
-	catch (my_exception& except)
+	catch (myException& except)
 	{
 		std::string errMsg = "WARNING! The NIAWG encountered an error and was not able to restart smoothly. It is (probably) not outputting anything. You may "
 			"consider restarting the code. Inside the restart area, NIAWG function returned " + except.whatStr();
-		errBox(errMsg.c_str());
+		errBox( errMsg.c_str() );
 	}
 }
 
-void NiawgController::setDefaultOrientation(std::string orientation)
+
+void NiawgController::setDefaultOrientation( std::string orientation )
 {
 	this->defaultOrientation = orientation;
 }
 
-std::string NiawgController::getErrorMsg()
-{
-	ViChar* errMsg;
-	int errMsgSize = 0;
-	if (!TWEEZER_COMPUTER_SAFEMODE)
-	{
-		errMsgSize = niFgen_GetError(sessionHandle, VI_NULL, 0, VI_NULL);
-	}
-	errMsg = (ViChar *)malloc(sizeof(ViChar) * errMsgSize);
-	if (!TWEEZER_COMPUTER_SAFEMODE)
-	{
-		niFgen_GetError(sessionHandle, &error, errMsgSize, errMsg);
-	}
-	std::string errStr(errMsg);
-	free(errMsg);
-	return errStr;
-}
-
-void NiawgController::configureGain(ViReal64 gain)
-{
-	if (!TWEEZER_COMPUTER_SAFEMODE)
-	{
-		errChecker(niFgen_ConfigureGain(sessionHandle, outputChannels, gain));
-	}
-}
-void NiawgController::configureSampleRate(ViReal64 sampleRate)
-{
-	if (!TWEEZER_COMPUTER_SAFEMODE)
-	{
-		errChecker(niFgen_ConfigureSampleRate(sessionHandle, sampleRate));
-	}
-}
-
-void NiawgController::configureChannels(ViConstString channelName)
-{
-	if (!TWEEZER_COMPUTER_SAFEMODE)
-	{
-		errChecker(niFgen_ConfigureChannels(sessionHandle, channelName));
-	}
-}
-
-void NiawgController::configureMarker(ViConstString markerName, ViConstString outputLocation)
-{
-	if (!TWEEZER_COMPUTER_SAFEMODE)
-	{
-		errChecker(niFgen_ExportSignal(sessionHandle, NIFGEN_VAL_MARKER_EVENT, markerName, outputLocation));
-	}
-}
-// initialize the session handle, which is a member of this class.
-void NiawgController::init(ViRsrc location, ViBoolean idQuery, ViBoolean resetDevice)
-{
-	if (!TWEEZER_COMPUTER_SAFEMODE)
-	{
-		errChecker(niFgen_init(location, idQuery, resetDevice, &sessionHandle));
-	}
-}
-
-void NiawgController::createWaveform(long size, ViReal64* mixedWaveform)
-{
-	ViInt32 waveID;
-	if (!TWEEZER_COMPUTER_SAFEMODE)
-	{
-		errChecker(niFgen_CreateWaveformF64(sessionHandle, outputChannels, size, mixedWaveform, &waveID));
-	}
-}
-
-// create waveform (necessary?)
-// allocate waveform into the device memory
-void NiawgController::writeWaveform(ViConstString waveformName, ViInt32 mixedSampleNumber, ViReal64* mixedWaveform)
-{
-	if (!TWEEZER_COMPUTER_SAFEMODE)
-	{
-		errChecker(niFgen_WriteNamedWaveformF64(sessionHandle, outputChannels, waveformName, mixedSampleNumber, mixedWaveform));
-	}
-}
-
-void NiawgController::writeScript(ViConstString script)
-{
-	if (!TWEEZER_COMPUTER_SAFEMODE)
-	{
-		errChecker(niFgen_WriteScript(sessionHandle, outputChannels, script));
-	}
-}
-
-void NiawgController::deleteWaveform(ViConstString waveformName)
-{
-	if (!TWEEZER_COMPUTER_SAFEMODE)
-	{
-		errChecker(niFgen_DeleteNamedWaveform(sessionHandle, outputChannels, waveformName));
-	}
-}
-
-void NiawgController::deleteScript(ViConstString scriptName)
-{
-	if (!TWEEZER_COMPUTER_SAFEMODE)
-	{
-		errChecker(niFgen_DeleteScript(sessionHandle, outputChannels, scriptName));
-	}
-}
-
-void NiawgController::allocateWaveform(ViConstString waveformName, ViInt32 unmixedSampleNumber)
-{
-	if (!TWEEZER_COMPUTER_SAFEMODE)
-	{
-		errChecker(niFgen_AllocateNamedWaveform(sessionHandle, outputChannels, waveformName, unmixedSampleNumber));
-	}
-}
-void NiawgController::configureOutputEnabled(int state)
-{
-	if (!TWEEZER_COMPUTER_SAFEMODE)
-	{
-		errChecker(niFgen_ConfigureOutputEnabled(sessionHandle, outputChannels, VI_FALSE));
-	}
-}
-void NiawgController::clearMemory()
-{
-	if (!TWEEZER_COMPUTER_SAFEMODE)
-	{
-		errChecker(niFgen_ClearArbMemory(sessionHandle));
-	}
-}
-void NiawgController::setViStringAttribute(ViAttr atributeID, ViConstString attributeValue)
-{
-	if (!TWEEZER_COMPUTER_SAFEMODE)
-	{
-		errChecker(niFgen_SetAttributeViString(sessionHandle, outputChannels, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript"));
-	}
-}
-void NiawgController::setViBooleanAttribute(ViAttr attribute, bool state)
-{
-	if (!TWEEZER_COMPUTER_SAFEMODE)
-	{
-		errChecker(niFgen_SetAttributeViBoolean(sessionHandle, outputChannels, NIFGEN_ATTR_FLATNESS_CORRECTION_ENABLED, VI_TRUE));
-	}
-}
-void NiawgController::enableAnalogFilter(ViReal64 filterFrequency)
-{
-	if (!TWEEZER_COMPUTER_SAFEMODE)
-	{
-		errChecker(niFgen_EnableAnalogFilter(sessionHandle, outputChannels, filterFrequency));
-	}
-}
-
-void NiawgController::configureDigtalEdgeScriptTrigger()
-{
-	if (!TWEEZER_COMPUTER_SAFEMODE)
-	{
-		errChecker(niFgen_ConfigureDigitalEdgeScriptTrigger(sessionHandle, TRIGGER_NAME, TRIGGER_SOURCE, TRIGGER_EDGE_TYPE));
-	}
-}
-
-void NiawgController::configureClockMode(ViInt32 clockMode)
-{
-	if (!TWEEZER_COMPUTER_SAFEMODE)
-	{
-		errChecker(niFgen_ConfigureClockMode(sessionHandle, clockMode));
-	}
-}
-
-void NiawgController::initiateGeneration()
-{
-	if (!TWEEZER_COMPUTER_SAFEMODE)
-	{
-		errChecker(niFgen_InitiateGeneration(sessionHandle));
-	}
-}
-
-void NiawgController::abortGeneration()
-{
-	if (!TWEEZER_COMPUTER_SAFEMODE)
-	{
-		errChecker(niFgen_AbortGeneration(sessionHandle));
-	}
-}
 
 /**
-	* analyzeNIAWGScripts() is essentially a massive subroutine. In retrospect, making this a subroutine was probably mostly unnecessary, and makes the code heierarchy
+	* analyzeNiawgScripts() is essentially a massive subroutine. In retrospect, making this a subroutine was probably mostly unnecessary, and makes the code heierarchy
 	* needlessly more complicated. The purpose of this function is to systematically read the input instructions files, create and read waveforms associated with
 	* them, write the script as it goes, and eventually combine the x and y-waveforms into their final form for being sent to the waveform generator.
 	*/
-int NiawgController::analyzeNIAWGScripts(std::fstream& verticalFile, std::fstream& horizontalFile, std::string& scriptHolder, int& waveCount,
-					std::vector<std::string> verticalPredWaveNames, std::vector<std::string> horizontalPredWaveNames,
-					int& predWaveCount, std::vector<int> predLocs, std::vector<std::string>(&libWaveformArray)[20], bool(&fileStatus)[20],
-					std::vector<waveData>& allVerticalWaveParameters, std::vector<bool>& verticalWaveformVaried, std::vector<waveData>& allHorizontalWaveParameters,
-					std::vector<bool>& horizontalWaveformVaried, bool isDefault, std::string currentCategoryFolder, std::vector<variable> singletons, 
-					std::string orientation, debugOptions options, std::string& warnings, std::string& debugMsg)
+void NiawgController::analyzeNiawgScripts( niawgPair<ScriptStream>& scripts, outputInfo& output,
+										   std::vector<std::string>( &libWaveformArray )[MAX_NIAWG_SIGNALS * 4],
+										   profileSettings profile, std::vector<variable> singletons, debugInfo options,
+										   std::string& warnings, std::string& debugMsg )
 {
+	std::stringstream temp;
+	for (auto& axis : AXES)
+	{
+		temp = std::stringstream();
+		temp << scripts[axis].rdbuf();
+		currentScripts[axis] = temp.str();
+		scripts[axis].clear();
+		scripts[axis].seekg( 0, std::ios::beg );
+	}
 	// Some declarations.
-	std::string verticalInputTypeString, horizontalInputTypeString;
-	int myError;
-	// Variables which, after the first waveform generated, hold the basic information about the previous waveform.
-	ViInt32 waveID;
-	// This parameter is used to hold the waveform name that actually appears in the final script. I included a couple extra places for good measure.
+	niawgPair<std::string> inputTypes;
+	// This parameter is used to hold the waveform name (e.g. waveform1) that actually appears in the final script. I included a couple 
+	// extra places for good measure.
 	ViChar tempWaveformName[11];
 	ViChar prevTempWaveName[11];
-	// Holds actual waveform data.
-	ViReal64 *xWaveform = NULL, *yWaveform = NULL, *mixedWaveform = NULL, *xWaveReadData = NULL, *yWaveReadData = NULL;
-	// Holds data in the case that a previous waveform is used to correct for the current waveform's phase.
-	ViReal64 *prevXWaveform = NULL, *prevYWaveform = NULL, *prevXWaveformRead = NULL, *prevYWaveformRead = NULL, *prevMixedWaveform = NULL;
-
-	// these are the variables that hold current basic information about the waveform being generated. They are used to create the raw data points. They are 
-	// temporary, and pass their information into the larger array of waveData structures.
-	waveData verticalWaveformParameters, horizontalWaveformParameters;
+	// these hold actual waveform data.
+	niawgPair<ViReal64*> waveVoltages = { NULL, NULL }, waveFileData = { NULL, NULL }, prevVoltages = { NULL, NULL },
+		prevFileData = { NULL, NULL };
+	ViReal64* mixedWaveVoltages = NULL, *prevMixedVoltages = NULL;
+	openWaveformFiles( libWaveformArray );
 	/// analyze complete vertical file.
-	while (!verticalFile.eof())
+	while (!scripts[Vertical].eof())
 	{
-		// Check to see if y-file is at end of file
-		if (horizontalFile.eof())
+		if (scripts[Horizontal].eof())
 		{
-			std::string errMsg = "User's horizontal script file has ended before the vertical script file. Please make sure that the number of commands in each file matches.\r\n";
-			thrower( errMsg );
-			return -3;
+			thrower( "User's horizontal script file has ended before the vertical script file. Please make sure that the "
+					 "number of commands in each file matches.\r\n" );
 		}
+		// these are the variables that hold current basic information about the waveform being generated. They are used to create the raw 
+		// data points. They are temporary, and pass their information into the larger array of waveData structures.
+		niawgPair<waveData> waveParams;
 
-		verticalWaveformParameters = {};
-		horizontalWaveformParameters = {};
-		sprintf_s(tempWaveformName, 11, "Waveform%i", waveCount);
-		sprintf_s(prevTempWaveName, 11, "Waveform%i", waveCount - 1);
-
-		// get rid of white space before instructions line,
-		rmWhite(verticalFile);
-		// get vertical instructions line,
-		std::getline(verticalFile, verticalInputTypeString);
-		// handle trailing newline characters
-		if (verticalInputTypeString.length() != 0)
+		sprintf_s( tempWaveformName, 11, "Waveform%i", output.waveCount );
+		sprintf_s( prevTempWaveName, 11, "Waveform%i", output.waveCount - 1 );
+		for (auto axis : AXES)
+		//for (auto& type : inputTypes.AXES)
 		{
-			if (verticalInputTypeString[verticalInputTypeString.length() - 1] == '\r')
+			// get the instructions line.
+			inputTypes[axis] = scripts[axis].getline();
+			// handle trailing newline characters
+			if (inputTypes[axis].length() != 0)
 			{
-				verticalInputTypeString.erase(verticalInputTypeString.length() - 1);
+				if (inputTypes[axis][inputTypes[axis].length() - 1] == '\r')
+				{
+					inputTypes[axis].erase( inputTypes[axis].length() - 1 );
+				}
 			}
 		}
-		// same for horizontal
-		rmWhite(horizontalFile);
-		std::getline(horizontalFile, horizontalInputTypeString);
-		if (horizontalInputTypeString.length() != 0)
-		{
-			if (horizontalInputTypeString[horizontalInputTypeString.length() - 1] == '\r')
-			{
-				horizontalInputTypeString.erase(horizontalInputTypeString.length() - 1);
-			}
-		}
-		// make the input all lower case to prevent trivial user errors in CaPiTaLiZaTiOn.
-		std::transform(verticalInputTypeString.begin(), verticalInputTypeString.end(), verticalInputTypeString.begin(), ::tolower);
-		std::transform(horizontalInputTypeString.begin(), horizontalInputTypeString.end(), horizontalInputTypeString.begin(), ::tolower);
+
 		// Send the command to different places depending on what type of command it is.
-		if (this->isLogicCommand(verticalInputTypeString) && this-> isLogicCommand(horizontalInputTypeString))
+		if (inputTypes[Horizontal] != inputTypes[Vertical])
 		{
-			if (this->logic(verticalFile, horizontalFile, verticalInputTypeString, horizontalInputTypeString, scriptHolder) != 0)
-			{
-				std::string errMsg = " logic() threw an error when handling waveform #" + std::to_string(waveCount - 1) + "!\r\n";
-				thrower( errMsg );
-				return -13954;
-			}
+			thrower( "ERROR: Input types must match, and they don't!" );
 		}
-		else if (this-> isGenCommand(verticalInputTypeString) && this-> isGenCommand(horizontalInputTypeString))
+		else if (isLogicCommand( inputTypes[Horizontal] ))
+		{
+			logic( scripts, inputTypes, output.niawgLanguageScript );
+		}
+		else if (isSpecialCommand( inputTypes[Horizontal] ) )
+		{
+			special( scripts, output, inputTypes, libWaveformArray, profile, singletons, options, warnings, debugMsg );
+		}
+		// the most complex case.
+		else if (isGenCommand( inputTypes[Horizontal] ) )
 		{
 			//
-			if ((waveCount == 1 && isDefault && orientation == HORIZONTAL_ORIENTATION) || (waveCount == 2 && isDefault && orientation == VERTICAL_ORIENTATION))
+			if ((output.waveCount == 1 && output.isDefault && profile.orientation == HORIZONTAL_ORIENTATION)
+				 || (output.waveCount == 2 && output.isDefault && profile.orientation == VERTICAL_ORIENTATION))
 			{
-				// error:
-				std::string errMsg = "ERROR: The default waveform files contain sequences of waveforms. Right now, the default waveforms must be a single waveform, "
-										"not a sequence.\r\n";
-				thrower( errMsg );
-				return -8293;
+				thrower( "ERROR: The default waveform files contain sequences of waveforms. Right now, the default waveforms must be a "
+						 "single waveform, not a sequence.\r\n" );
 			}
-				    
-			// Create a spot in the verticalWaveformVaried vector for this waveform. The default value is false. If the waveform isn't varied, it gets changed to true.
-			verticalWaveformVaried.push_back(false);
-			horizontalWaveformVaried.push_back(false);
+			// 
+			for (auto axis : AXES)
+			{
+				// The default value is false. If the waveform isn't varied, it gets changed to true.
+				waveParams[axis].isVaried = false;
+				// Get a number corresponding directly to the given input type.
+				getInputType(inputTypes[axis], waveParams[axis]);
+				// infer the number of signals from the type assigned.
+				waveParams[axis].signalNum = waveParams[axis].initType % MAX_NIAWG_SIGNALS;
+				// Gather the parameters the user inputted for the waveforms and sort them into the appropriate data structures.
+				getWaveData( scripts[axis], waveParams[axis], singletons );
 
-			// Get a number corresponding directly to the given input type.
-			this-> getInputType(verticalInputTypeString, verticalWaveformParameters);
-			this-> getInputType(horizontalInputTypeString, horizontalWaveformParameters);
+				if (waveParams[axis].delim != "#")
+				{
+					thrower( "ERROR: The delimeter is missing in the " + AXES_NAMES[axis] + " script file for waveform #"
+							 + str( output.waveCount - 1 ) + "The value placed in the delimeter location was " + waveParams[axis].delim
+							 + " while it should have been '#'. This indicates that either the code is not interpreting the user input "
+							 "correctly or that the user has inputted too many parameters for this type of waveform." );
+				}
+				if (waveParams[axis].sampleNum % 4 != 0)
+				{
+					thrower( "ERROR: Invalid sample number in " + AXES_NAMES[axis] + " waveform #" + str( output.waveCount - 1 )
+							 + ". The time that resulted in this was " + str( waveParams[axis].time ) + " which gave a sample number of "
+							 + str( waveParams[axis].sampleNum ) + "\r\n" );
+				}
+			}			
 
-			if (verticalWaveformParameters.initType == -1 || horizontalWaveformParameters.initType == -1)
-			{
-				std::string errMsg = "ERROR: getInputType threw an error!\r\n";
-				thrower( errMsg );
-				return -1923;
-			}
-			// this switch statement subdivides the inputs based off of the number of signals the given command was.
-			switch (verticalWaveformParameters.initType)
-			{
-				case 0:
-				case 5:
-				case 10:
-				case 15:
-					verticalWaveformParameters.signalNum = 1;
-					break;
-				case 1:
-				case 6:
-				case 11:
-				case 16:
-					verticalWaveformParameters.signalNum = 2;
-					break;
-				case 2:
-				case 7:
-				case 12:
-				case 17:
-					verticalWaveformParameters.signalNum = 3;
-					break;
-				case 3:
-				case 8:
-				case 13:
-				case 18:
-					verticalWaveformParameters.signalNum = 4;
-					break;
-				case 4:
-				case 9:
-				case 14:
-				case 19:
-					verticalWaveformParameters.signalNum = 5;
-					break;
-			}
-
-			switch (horizontalWaveformParameters.initType)
-			{
-				case 0:
-				case 5:
-				case 10:
-				case 15:
-					horizontalWaveformParameters.signalNum = 1;
-					break;
-				case 1:
-				case 6:
-				case 11:
-				case 16:
-					horizontalWaveformParameters.signalNum = 2;
-					break;
-				case 2:
-				case 7:
-				case 12:
-				case 17:
-					horizontalWaveformParameters.signalNum = 3;
-					break;
-				case 3:
-				case 8:
-				case 13:
-				case 18:
-					horizontalWaveformParameters.signalNum = 4;
-					break;
-				case 4:
-				case 9:
-				case 14:
-				case 19:
-					horizontalWaveformParameters.signalNum = 5;
-					break;
-			}
-
-			// Gather the parameters the user inputted for the X waveform and sort them into the appropriate data structure.
-			if (this-> getWvFmData(verticalFile, verticalWaveformParameters, singletons) != 0)
-			{
-				std::string errMsg;
-				errMsg = "getWvFmData() threw an error when handling vertical waveform #" + std::to_string(waveCount - 1) + "!";
-				thrower( errMsg );
-				return -1634;
-			}
-
-			// Gather the parameters the user inputted for the Y waveform and sort them into the appropriate data structure.
-			if (this-> getWvFmData(horizontalFile, horizontalWaveformParameters, singletons) != 0)
-			{
-				std::string errMsg = "getWvFmData() threw an error when handling horizontal waveform #" + std::to_string(waveCount - 1) + "!";
-				thrower( errMsg );
-				return -1634;
-			}
-			// check the delimeters
-			if (verticalWaveformParameters.delim != "#")
-			{
-				std::string errMsg = std::string("ERROR: The delimeter is missing in the vertical script file for waveform #") + std::to_string(waveCount - 1) +
-					"The value placed in the delimeter location was " + verticalWaveformParameters.delim + " while it should have been '#'.This";
-				" indicates that either the code is not interpreting the user input correctly or that the user has inputted too many parameters for this type"
-					" of waveform.";
-				thrower( errMsg );
-				return -1635;
-			}
-			if (horizontalWaveformParameters.delim != "#")
-			{
-				std::string errMsg = std::string("ERROR: The delimeter is missing in the Y script file for waveform #") + std::to_string(waveCount - 1) +
-					"The value placed in the delimeter location was " + horizontalWaveformParameters.delim + " while it should have been '#'.This";
-				" indicates that either the code is not interpreting the user input correctly or that the user has inputted too many parameters for this type"
-					" of waveform.";
-				thrower( errMsg );
-				return -1635;
-			}
-			// check that each waveform has an integer number of 4 samples
-			// waveformSizeCalc
-			if (verticalWaveformParameters.sampleNum % 4 != 0)
-			{
-				std::string errMsg = "ERROR: Invalid sample number in vertical waveform #" + std::to_string(waveCount - 1)
-							+ ". The time that resulted in this was " + std::to_string(verticalWaveformParameters.time) + " which gave a sample number of "
-							+ std::to_string(verticalWaveformParameters.sampleNum) + "\r\n";
-				thrower( errMsg );
-				return -1699;
-			}
-
-			if (horizontalWaveformParameters.sampleNum % 4 != 0)
-			{
-				std::string errMsg = "ERROR: Invalid sample number in vertical waveform #" + std::to_string(waveCount - 1)
-					+ ". The time that resulted in this was " + std::to_string(horizontalWaveformParameters.time) + " which gave a sample number of "
-					+ std::to_string(horizontalWaveformParameters.sampleNum) + "\r\n";
-				thrower( errMsg );
-				return -1699;
-			}
-
-			int currentTimeManageOption;
+			int currentPhaseManageOption;
 			// make sure that the waveform management options match (they must, or else the times might not match.
-			if (verticalWaveformParameters.phaseManagementOption != horizontalWaveformParameters.phaseManagementOption)
+			if (waveParams[Horizontal].phaseManagementOption != waveParams[Vertical].phaseManagementOption)
 			{
-				std::string errMsg = "ERROR: the x and y waveforms must have the same time management option. They appear to be mismatched for waveform #" + std::to_string(waveCount - 1) + "!";
-				thrower( errMsg );
-				return -3739;
+				thrower( "ERROR: the vertical and horizontal waveforms must have the same time management option. They appear to be "
+						 "mismatched for waveform #" + str( output.waveCount - 1 ) + "!" );
 			}
-			else
-			{
-				// set this as a more transparent way of checking the current time management option. X or y should be the same.
-				currentTimeManageOption = verticalWaveformParameters.phaseManagementOption;
-			}
-
+			// set this as a more transparent way of checking the current time management option. X or y should be the same.
+			currentPhaseManageOption = waveParams[Horizontal].phaseManagementOption;
 			// make sure the times match.
-			if (!(fabs(verticalWaveformParameters.time - horizontalWaveformParameters.time) < 1e-6))
+			if (!(fabs( waveParams[Horizontal].time - waveParams[Vertical].time ) < 1e-6))
 			{
-				std::string errMsg = "ERROR: the horizontal and vertical waveforms must have the same time value. They appear to be mismatched for waveform #" + std::to_string(waveCount - 1) + "!";
-				thrower( errMsg );
-				return -96338;
-			}
-
-			if (verticalWaveformParameters.varNum < 0)
-			{
-				std::string errMsg = "ERROR:  waveformData() threw an error while handling X waveform #" + std::to_string(waveCount - 1) + "!";
-				thrower( errMsg );
-				return -101;
-			}
-
-			if (horizontalWaveformParameters.varNum  < 0)
-			{
-				std::string errMsg = "ERROR:  waveformData() threw an error while handling horizontal waveform #" + std::to_string(waveCount - 1) + "!";
-				thrower( errMsg );
-				return -101;
+				thrower( "ERROR: the horizontal and vertical waveforms must have the same time value. They appear to be mismatched for waveform #"
+						 + str( output.waveCount - 1 ) + "!" );
 			}
 			/// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			///
 			///					Handle -1 Phase (Use the phase that the previous waveform ended with)
 			///
-
-			/// Handle phase = -1 for Vertical
-			// If the user used a '-1' for the initial phase, this means the user wants to copy the ending phase of the previous waveform.
-			for (int i = 0; i < verticalWaveformParameters.signalNum; i++)
+			// loop through both AXES.
+			for (auto axis : AXES)
 			{
-				if (verticalWaveformParameters.signals[i].initPhase == -1)
+				// If the user used a '-1' for the initial phase, this means the user wants to copy the ending phase of the previous waveform.
+				int count = 0;
+				// loop through all signals in a the current waveform for a given axis.
+				for (auto signal : waveParams[axis].signals)
 				{
-					verticalWaveformParameters.signals[i].phaseOption = -1;
-					// if you are trying to copy the phase from a waveform that is being varied, this can only be accomplished if this waveform is also varied.
-					// mark this waveform for varying and break.
-					if (verticalWaveformVaried[waveCount - 1] == true)
+					if (signal.initPhase == -1)
 					{
-						verticalWaveformVaried[waveCount] = true;
-						// Currently, it isn't handled specially when only one of the waves in a waveform is varied.
-						horizontalWaveformVaried[waveCount] = true;
-						verticalWaveformParameters.varNum++;
-						// the % sign is reserved. Don't use it in a script file. It's just a place-holder here to make sure the number of varied waveforms gets
-						// understood properly.
-						verticalWaveformParameters.varNames.push_back("\'");
-						verticalWaveformParameters.varTypes.push_back(-1);
-						break;
+						// if you are trying to copy the phase from a waveform that is being varied, this can only be accomplished if this 
+						// waveform is also varied. mark this waveform for varying and break.
+						if (output.channel[axis].waveData[output.waveCount - 1].isVaried == true)
+						{
+							waveParams[Horizontal].isVaried = true;
+							waveParams[Vertical].isVaried = true;
+							waveParams[axis].varNum++;
+							// the ' sign is reserved. Don't use it in a script file. It's just a place-holder here to make sure the number of 
+							// varied waveforms gets understood properly.
+							waveParams[axis].varNames.push_back( "\'" );
+							waveParams[axis].varTypes.push_back( -1 );
+							break;
+						}
+						if (count + 1 > output.channel[axis].waveData[output.waveCount - 1].signalNum)
+						{
+							thrower( "ERROR: You are trying to copy the phase of signal " + str( count + 1 ) + "  of " + AXES_NAMES[axis] 
+									 + " waveform #" + str( output.waveCount - 1 ) + ", but the previous waveform only had "
+									 + str( output.channel[axis].waveData[output.waveCount - 1].signalNum ) + " signals!\n" );
+						}
+						signal.initPhase = output.channel[axis].waveData[output.waveCount - 1].signals[count].finPhase;
 					}
-					if (i + 1 > allVerticalWaveParameters[waveCount - 1].signalNum)
-					{
-						std::string errMsg = "ERROR: You are trying to copy the phase of signal " + std::to_string(i + 1) + "  of X waveform #" + std::to_string(waveCount - 1)
-							+ ", but the previous waveform only " + "had " + std::to_string(allVerticalWaveParameters[waveCount - 1].signalNum) + " signals!\n";
-						thrower( errMsg );
-						return -1304;
-					}
-					verticalWaveformParameters.signals[i].initPhase = allVerticalWaveParameters[waveCount - 1].signals[i].finPhase;
-				}
-			}
-			/// Handle phase = -1 for Horizontal
-			// If the user used a '-1' for the initial phase, this is code for "copy the ending phase of the previous waveform".
-			for (int i = 0; i < horizontalWaveformParameters.signalNum; i++)
-			{
-				if (horizontalWaveformParameters.signals[i].initPhase == -1)
-				{
-					horizontalWaveformParameters.signals[i].phaseOption = -1;
-					// if you are trying to copy the phase from a waveform that is being varied, this can only be accomplished if this waveform is also varied.
-					// mark this waveform for varying and break.
-					if (horizontalWaveformVaried[waveCount - 1] == true)
-					{
-						horizontalWaveformVaried[waveCount] = true;
-						verticalWaveformVaried[waveCount] = true;
-						horizontalWaveformParameters.varNum++;
-						// the ' (single quote) sign is reserved. Don't use it in a script file. It's just a place-holder here to make sure the number of varied waveforms gets
-						// understood properly.
-						horizontalWaveformParameters.varNames.push_back("\'");
-						horizontalWaveformParameters.varTypes.push_back(-1);
-						break;
-					}
-					if (i + 1 > allHorizontalWaveParameters[waveCount - 1].signalNum)
-					{
-						std::string errMsg = "ERROR: You are trying to copy the phase of signal " + std::to_string(i + 1) + " of Y waveform #" + std::to_string(waveCount - 1)
-							+ ", but the previous waveform only " + "had " + std::to_string(allHorizontalWaveParameters[waveCount - 1].signalNum) + " signals!\n";
-						thrower( errMsg );
-						return -1304;
-					}
-					horizontalWaveformParameters.signals[i].initPhase = allHorizontalWaveParameters[waveCount - 1].signals[i].finPhase;
+					count++;
 				}
 			}
 
@@ -812,559 +442,347 @@ int NiawgController::analyzeNIAWGScripts(std::fstream& verticalFile, std::fstrea
 
 			/// Handle -1 Time Management for Both
 			// Check if user used -1 for the time management of this waveform.
-			if (currentTimeManageOption == -1)
+			if (currentPhaseManageOption == -1)
 			{
 				std::vector<double> initPhasesForTimeManage;
 				// Make sure that both waveforms have the right number of signals.
-				if (verticalWaveformParameters.signalNum != allVerticalWaveParameters[waveCount - 1].signalNum){
-					std::string errMsg = "ERROR: Signal Number Mismatch! You appear to be attempting to correcting the phase of waveform number " +
-						std::to_string(waveCount - 2) + " with waveform number" + std::to_string(waveCount - 1) + ", but the vertical component of the former has " +
-						std::to_string(allVerticalWaveParameters[waveCount - 1].signalNum) + " signals and the latter has " +
-						std::to_string(verticalWaveformParameters.signalNum) +
-						" signals. In order for a waveform to correct the time of another waveform, the two must have the same number of signals.";
-					thrower( errMsg );
-					return -10583;
-				}
-				// check to make sure that the frequencies match
-				// For all X signals in a waveform...
-				for (int o = 0; o < allVerticalWaveParameters[waveCount - 1].signalNum; o++)
+				for (auto axis : AXES)
 				{
-					// Check...
-					if (allVerticalWaveParameters[waveCount - 1].signals[o].freqFin != verticalWaveformParameters.signals[o].freqInit)
+					if (waveParams[axis].signalNum != output.channel[axis].waveData[output.waveCount - 1].signalNum)
 					{
-						// report error
-						std::string errMsg = "ERROR: Frequency Mismatch! You appear to be attempting to correcting the phase of waveform number "
-												+ std::to_string(waveCount - 2) + " with waveform number" + std::to_string(waveCount - 1) + ", but signal "
-												+ std::to_string(o) + " in the vertical component of the former has final frequency "
-												+ std::to_string(allVerticalWaveParameters[waveCount - 1].signals[o].freqFin) + " and signal " + std::to_string(o)
-												+ " in the vertical component of the latter has initial frequency of"
-												+ std::to_string(verticalWaveformParameters.signals[o].freqInit)
-												+ " signals. In order for a waveform to correct the time of another waveform, these frequencies should match.";
-						thrower( errMsg );
-						return -234923;
+						thrower( "ERROR: Signal Number Mismatch! You appear to be attempting to correcting the phase of waveform number " +
+								 str( output.waveCount - 2 ) + " with waveform number" + str( output.waveCount - 1 ) + ", but the " +
+								 AXES_NAMES[axis] + " component of the former has " + str( output.channel[axis].waveData[output.waveCount - 1].signalNum )
+								 + " signals and the latter has " + str( waveParams[axis].signalNum ) + " signals. In order for a waveform "
+								 "to correct the time of another waveform, the two must have the same number of signals." );
 					}
-					initPhasesForTimeManage.push_back(verticalWaveformParameters.signals[o].initPhase);
-				}
-				// for all Y signals in a waveform...
-				for (int o = 0; o < allHorizontalWaveParameters[waveCount - 1].signalNum; o++)
-				{
-					// check to make sure that the frequencies match
-					if (allHorizontalWaveParameters[waveCount - 1].signals[o].freqFin != horizontalWaveformParameters.signals[o].freqInit)
+					for (auto signal : range( output.channel[axis].waveData[output.waveCount - 1].signalNum ))
 					{
-						std::string errMsg = "ERROR: Frequency Mismatch! You appear to be attempting to correcting the phase of waveform number " + std::to_string(waveCount - 2) +
-							" with waveform number" + std::to_string(waveCount - 1) +
-							", but signal " + std::to_string(o) + " in the horizontal component of the former has final frequency " + std::to_string(allHorizontalWaveParameters[waveCount - 1].signals[o].freqFin) +
-							" and signal " + std::to_string(o) + " in the horizontal component of the latter has initial frequency of" + std::to_string(horizontalWaveformParameters.signals[o].freqInit) +
-							" signals. In order for a waveform to correct the time of another waveform, these frequencies should match.";
-						thrower( errMsg );
-						return -234923;
-					}
-					initPhasesForTimeManage.push_back(horizontalWaveformParameters.signals[o].initPhase);
-				}
-
-				if (verticalWaveformVaried[waveCount - 1] == true)
-				{
-					// Then mark this waveform as being Varied.
-					verticalWaveformVaried[waveCount] = true;
-					horizontalWaveformVaried[waveCount] = true;
-					// increase the variable number in x.
-					verticalWaveformParameters.varNum++;
-					// the ' single quotation mark is reserved. Don't use it in a script file. It's just a place-holder here to make sure the number of 
-					// varied waveforms gets understood properly.
-					verticalWaveformParameters.varNames.push_back("\'");
-					verticalWaveformParameters.varTypes.push_back(-2);
-					horizontalWaveformParameters.varNum++;
-					// the ' sign is reserved. Don't use it in a script file. It's just a place-holder here to make sure the number of varied waveforms 
-					// gets understood properly.
-					horizontalWaveformParameters.varNames.push_back("\'");
-					horizontalWaveformParameters.varTypes.push_back(-2);
-				}
-				else if (verticalWaveformVaried[waveCount - 1] == false)
-				{
-					double errVal = myMath::calculateCorrectionTime(verticalWaveformParameters, horizontalWaveformParameters, initPhasesForTimeManage, "after");
-					if (errVal == -1)
-					{
-						MessageBox(0, "ERROR: Correction waveform was not able to match phases.", 0, 0);
-						// throw error
-						return -1029;
-					}
-					else if (errVal != 0)
-					{
-						std::string errMsg = "WARNING: Correction waveform was not able to match phases very well. The total phase mismatch was "
-							+ std::to_string(errVal) + "radians.\r\n";
-						warnings += errMsg;
-						// throw warning
-					}
-				}
-			}
-
-
-			/// Waveform Creation
-			// only create waveform data if neither waveform is being varried and if the time management option is either 0 or -1. The time management  
-			// option has already been checked to be the same for x and Y waveforms.
-			if (verticalWaveformParameters.varNum == 0 && horizontalWaveformParameters.varNum == 0 && verticalWaveformParameters.phaseManagementOption < 1)
-			{
-				// Initialize the giant waveform arrays.
-				xWaveform = new ViReal64[verticalWaveformParameters.sampleNum];
-				xWaveReadData = new ViReal64[verticalWaveformParameters.sampleNum + verticalWaveformParameters.signalNum];
-				// either calculate or read waveform data into the above arrays. 
-				if (this-> waveformGen(xWaveform, xWaveReadData, verticalWaveformParameters, verticalWaveformParameters.sampleNum, libWaveformArray,
-					fileStatus[verticalWaveformParameters.initType], options, debugMsg) != 0)
-				{
-					std::string errMsg;
-					errMsg = "ERROR:  waveformGen threw an error while handling vertical waveform #" + std::to_string(waveCount - 1) + "!";
-					thrower( errMsg );
-					return -101;
-				}
-				delete[] xWaveReadData;
-			}
-			else if (verticalWaveformParameters.varNum > 0)
-			{
-				// Mark this waveform as being varied.
-				verticalWaveformVaried[waveCount] = true;
-				horizontalWaveformVaried[waveCount] = true;
-			}
-
-			// only create waveform data if neither waveform is being varried.
-			if (verticalWaveformParameters.varNum == 0 && horizontalWaveformParameters.varNum == 0 && verticalWaveformParameters.phaseManagementOption < 1)
-			{
-				// Initialize the giant waveform arrays.
-				yWaveform = new ViReal64[horizontalWaveformParameters.sampleNum];
-				yWaveReadData = new ViReal64[horizontalWaveformParameters.sampleNum + horizontalWaveformParameters.signalNum];
-				// either calculate or read waveform data into the above arrays. 
-				if (this-> waveformGen(yWaveform, yWaveReadData, horizontalWaveformParameters, horizontalWaveformParameters.sampleNum, libWaveformArray,
-					fileStatus[horizontalWaveformParameters.initType], options, debugMsg) != 0)
-				{
-					std::string errMsg;
-					errMsg = "ERROR:  waveformGen threw an error while handling horizontal waveform #" + std::to_string(waveCount - 1) + "!";
-					MessageBox(NULL, errMsg.c_str(), "ERROR", MB_OK | MB_ICONERROR);
-
-					return -101;
-				}
-				delete[] yWaveReadData;
-			}
-			else if (horizontalWaveformParameters.varNum  > 0)
-			{
-				// Mark this waveform as being varied.
-				horizontalWaveformVaried[waveCount] = true;
-				verticalWaveformVaried[waveCount] = true;
-			}
-
-			/// Handle +1 Time Management ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-			// if not the first waveform
-			if (waveCount != 0)
-			{
-				/// Handle +1 for X
-				// check if user used +1 for the time of the previous waveform.
-				if (allVerticalWaveParameters[waveCount - 1].phaseManagementOption == 1)
-				{
-					// Make sure the waveforms are compatible.
-					std::vector<double> initPhasesForTimeManage;
-					if (verticalWaveformParameters.signalNum != allVerticalWaveParameters[waveCount - 1].signalNum){
-						std::string errMsg;
-						errMsg = "ERROR: Signal Number Mismatch! You appear to be attempting to correcting the phase of waveform number " +
-							std::to_string(waveCount - 1) + " with waveform number" + std::to_string(waveCount - 2) + ", but the vertical component of the former has " +
-							std::to_string(verticalWaveformParameters.signalNum) + " signals and the latter has " +
-							std::to_string(allVerticalWaveParameters[waveCount - 1].signalNum) +
-							" signals. In order for a waveform to correct the time of another waveform, the two must have the same number of signals.";
-						thrower( errMsg );
-						return -10238;
-					}
-					// check to make sure that the X frequencies match
-					for (int o = 0; o < allVerticalWaveParameters[waveCount - 1].signalNum; o++)
-					{
-						if (allVerticalWaveParameters[waveCount - 1].signals[o].freqInit != verticalWaveformParameters.signals[o].freqInit)
+						// Check...
+						if (output.channel[axis].waveData[output.waveCount - 1].signals[signal].freqFin 
+							 != waveParams[axis].signals[signal].freqInit)
 						{
-							std::string errMsg;
-
-							errMsg = "ERROR: Frequency Mismatch! You appear to be attempting to correcting the phase of waveform number " + std::to_string(waveCount - 1) +
-								" with waveform number" + std::to_string(waveCount - 2) +
-								", but signal " + std::to_string(o) + " in the vertical component of the former has final frequency " + std::to_string(verticalWaveformParameters.signals[o].freqInit) +
-								" and signal " + std::to_string(o) + " in the vertical component of the latter has initial frequency of" + std::to_string(allVerticalWaveParameters[waveCount - 1].signals[o].freqFin) +
-								" signals. In order for a waveform to correct the time of another waveform, these frequencies should match.";
-							thrower( errMsg );
-							return -234923;
+							// report error
+							thrower( "ERROR: Frequency Mismatch! You appear to be attempting to correcting the phase of waveform number "
+									 + str( output.waveCount - 2 ) + " with waveform number" + str( output.waveCount - 1 ) + ", but signal "
+									 + str( signal ) + " in the vertical component of the former has final frequency "
+									 + str( output.channel[axis].waveData[output.waveCount - 1].signals[signal].freqFin ) + " and signal " 
+									 + str( signal ) + " in the " + AXES_NAMES[axis] + " component of the latter has initial frequency of"
+									 + str( waveParams[axis].signals[signal].freqInit ) + " signals. In order for a waveform to correct the "
+									 "time of another waveform, these frequencies should match." );
 						}
-						initPhasesForTimeManage.push_back(verticalWaveformParameters.signals[o].finPhase + allVerticalWaveParameters[waveCount - 1].signals[o].initPhase);
+						initPhasesForTimeManage.push_back( waveParams[axis].signals[signal].initPhase );
 					}
-					// check to make sure that the X frequencies match
-					for (int o = 0; o < allHorizontalWaveParameters[waveCount - 1].signalNum; o++)
-					{
-						// check to make sure that the frequencies match
-						if (allHorizontalWaveParameters[waveCount - 1].signals[o].freqInit != horizontalWaveformParameters.signals[o].freqInit){
-							std::string errMsg;
-							errMsg = "ERROR: Frequency Mismatch! You appear to be attempting to correcting the phase of waveform number " + std::to_string(waveCount - 1) +
-								" with waveform number" + std::to_string(waveCount - 2) +
-								", but signal " + std::to_string(o) + " in the horizontal component of the former has final frequency " + std::to_string(horizontalWaveformParameters.signals[o].freqInit) +
-								" and signal " + std::to_string(o) + " in the horizontal component of the latter has initial frequency of" + std::to_string(allHorizontalWaveParameters[waveCount - 1].signals[o].freqFin) +
-								" signals. In order for a waveform to correct the time of another waveform, these frequencies should match.";
-							thrower( errMsg );
-							return -234923;
-						}
-						initPhasesForTimeManage.push_back(horizontalWaveformParameters.signals[o].finPhase + allHorizontalWaveParameters[waveCount - 1].signals[o].initPhase);
-					}
-
-					if (verticalWaveformVaried[waveCount] == true)
-					{
-						verticalWaveformVaried[waveCount - 1] = true;
-						horizontalWaveformVaried[waveCount - 1] = true;
-						allVerticalWaveParameters[waveCount - 1].varNum++;
-						// the ' sign is reserved. Don't use it in a script file. It's just a place-holder here to make sure the number of varied waveforms gets
-						// understood properly.
-						allVerticalWaveParameters[waveCount - 1].varNames.push_back("\'");
-						allVerticalWaveParameters[waveCount - 1].varTypes.push_back(-3);
-					}
-					else if (verticalWaveformVaried[waveCount] == false)
-					{
-						// calculate a time for the previous waveform.
-						double errVal = myMath::calculateCorrectionTime(allVerticalWaveParameters[waveCount - 1], allHorizontalWaveParameters[waveCount - 1], initPhasesForTimeManage, "before");
-						if (errVal == -1)
-						{
-							MessageBox(0, "ERROR: Correction waveform was not able to match phases.", 0, 0);
-							// throw error
-							return -1029;
-						}
-						else if (errVal != 0)
-						{
-							std::string errMsg = "WARNING: Correction waveform was not able to match phases very well. The total phase mismatch was "
-								+ std::to_string(errVal) + "radians.\r\n";
-							warnings += errMsg;
-							// throw warning
-						}
-
-						// calculate the previous waveform.
-						// Initialize the giant waveform arrays.
-						prevXWaveform = new ViReal64[allVerticalWaveParameters[waveCount - 1].sampleNum];
-						prevXWaveformRead = new ViReal64[allVerticalWaveParameters[waveCount - 1].sampleNum + allVerticalWaveParameters[waveCount - 1].signalNum];
-						// either calculate or read waveform data into the above arrays. 
-						if (this-> waveformGen(prevXWaveform, prevXWaveformRead, allVerticalWaveParameters[waveCount - 1], allVerticalWaveParameters[waveCount - 1].sampleNum,
-							libWaveformArray, fileStatus[allVerticalWaveParameters[waveCount - 1].initType], options, debugMsg) != 0)
-						{
-							std::string errMsg;
-							errMsg = "ERROR:  waveformGen threw an error while handling X waveform #" + std::to_string(waveCount - 1) + "!";
-							thrower( errMsg );
-							return -1010;
-						}
-						// modify the phases of the current waveform such that they reach the 0 phase after the waveform.
-						for (int v = 0; v < verticalWaveformParameters.signalNum; v++){
-							verticalWaveformParameters.signals[v].initPhase = 2 * PI - verticalWaveformParameters.signals[v].finPhase;
-						}
-					}
-				}
-
-				/// Handle +1 for Y
-				if (allHorizontalWaveParameters[waveCount - 1].phaseManagementOption == 1)
+				}			
+				if (output.channel[Vertical].waveData[output.waveCount - 1].isVaried == true 
+					 || output.channel[Horizontal].waveData[output.waveCount - 1].isVaried == true)
 				{
-					std::vector<double> initPhasesForTimeManage;
-					if (horizontalWaveformParameters.signalNum != allHorizontalWaveParameters[waveCount - 1].signalNum)
+					for (auto axis : AXES)
 					{
-						std::string errMsg;
-						errMsg = "ERROR: Signal Number Mismatch! You appear to be attempting to correcting the phase of waveform number " +
-							std::to_string(waveCount - 1) + " with waveform number" + std::to_string(waveCount - 2) + ", but the horizontal component of the former has " +
-							std::to_string(horizontalWaveformParameters.signalNum) + " signals and the horizontal component of the latter has " +
-							std::to_string(allHorizontalWaveParameters[waveCount - 1].signalNum) +
-							" signals. In order for a waveform to correct the time of another waveform, the two must have the same number of signals.";
-						thrower( errMsg );
-						return -10238;
-					}
-					for (int o = 0; o < allHorizontalWaveParameters[waveCount - 1].signalNum; o++)
-					{
-						// check to make sure that the frequencies match
-						if (allHorizontalWaveParameters[waveCount - 1].signals[o].freqInit != horizontalWaveformParameters.signals[o].freqInit)
-						{
-							std::string errMsg;
-
-							errMsg = "ERROR: Frequency Mismatch! You appear to be attempting to correcting the phase of waveform number " + std::to_string(waveCount - 1) +
-								" with waveform number" + std::to_string(waveCount - 2) +
-								", but signal " + std::to_string(o) + " in the horizontal component of the former has final frequency " + std::to_string(horizontalWaveformParameters.signals[o].freqInit) +
-								" and signal " + std::to_string(o) + " in the horizontal component of the latter has initial frequency of" + std::to_string(allHorizontalWaveParameters[waveCount - 1].signals[o].freqFin) +
-								" signals. In order for a waveform to correct the time of another waveform, these frequencies should match.";
-							thrower( errMsg );
-							return -234923;
-						}
-						initPhasesForTimeManage.push_back(horizontalWaveformParameters.signals[o].finPhase + allHorizontalWaveParameters[waveCount - 1].signals[o].initPhase);
-					}
-					for (int o = 0; o < allVerticalWaveParameters[waveCount - 1].signalNum; o++)
-					{
-						// check to make sure that the frequencies match
-						if (allVerticalWaveParameters[waveCount - 1].signals[o].freqInit != verticalWaveformParameters.signals[o].freqInit){
-							std::string errMsg;
-
-							errMsg = "ERROR: Frequency Mismatch! You appear to be attempting to correcting the phase of waveform number " + std::to_string(waveCount - 1) +
-								" with waveform number" + std::to_string(waveCount - 2) +
-								", but signal " + std::to_string(o) + " in the vertical component of the former has final frequency " + std::to_string(verticalWaveformParameters.signals[o].freqInit) +
-								" and signal " + std::to_string(o) + " in the vertical component of the latter has initial frequency of" + std::to_string(allVerticalWaveParameters[waveCount - 1].signals[o].freqFin) +
-								" signals. In order for a waveform to correct the time of another waveform, these frequencies should match.";
-							thrower( errMsg );
-							return -234923;
-						}
-						initPhasesForTimeManage.push_back(verticalWaveformParameters.signals[o].finPhase + allVerticalWaveParameters[waveCount - 1].signals[o].initPhase);
-					}
-					if (horizontalWaveformVaried[waveCount] == true)
-					{
-						horizontalWaveformVaried[waveCount - 1] = true;
-						verticalWaveformVaried[waveCount - 1] = true;
-						allHorizontalWaveParameters[waveCount - 1].varNum++;
-						// the ' sign is reserved. Don't use it in a script file. It's just a place-holder here to make sure the number of varied waveforms gets
-						// understood properly.
-						allHorizontalWaveParameters[waveCount - 1].varNames.push_back("\'");
-						allHorizontalWaveParameters[waveCount - 1].varTypes.push_back(-3);
-					}
-					else if (horizontalWaveformVaried[waveCount - 1] == false)
-					{
-
-						double errVal = myMath::calculateCorrectionTime(allHorizontalWaveParameters[waveCount - 1], allVerticalWaveParameters[waveCount - 1], initPhasesForTimeManage,
-							"before");
-						if (errVal == -1)
-						{
-							MessageBox(0, "ERROR: Correction waveform was not able to match phases.", 0, 0);
-							// throw error
-							return -1029;
-						}
-						else if (errVal != 0)
-						{
-							std::string errMsg = "WARNING: Correction waveform was not able to match phases very well. The total phase mismatch was "
-								+ std::to_string(errVal) + "radians.\r\n";
-							warnings += errMsg;
-							// throw warning
-						}
-
-
-						// calculate the previous waveform.
-						// Initialize the giant waveform arrays.
-						prevYWaveform = new ViReal64[allHorizontalWaveParameters[waveCount - 1].sampleNum];
-						prevYWaveformRead = new ViReal64[allHorizontalWaveParameters[waveCount - 1].sampleNum + allHorizontalWaveParameters[waveCount - 1].signalNum];
-						// either calculate or read waveform data into the above arrays. 
-						if (this-> waveformGen(prevYWaveform, prevYWaveformRead, allHorizontalWaveParameters[waveCount - 1], 
-																allHorizontalWaveParameters[waveCount - 1].sampleNum,
-							libWaveformArray, fileStatus[allHorizontalWaveParameters[waveCount - 1].initType], options, debugMsg) != 0)
-						{
-							std::string errMsg;
-							errMsg = "ERROR:  waveformGen threw an error while handling Y waveform #" + std::to_string(waveCount - 1) + "!";
-							thrower( errMsg );
-							return -1010;
-						}
-						// modify the phases of the current waveform such that they reach the 0 phase after the waveform.
-						for (int v = 0; v < horizontalWaveformParameters.signalNum; v++){
-
-							horizontalWaveformParameters.signals[v].initPhase = 2 * PI - horizontalWaveformParameters.signals[v].finPhase;
-						}
-					}
-				}
-
-				// Now That I've calculated the waveforms, I need to actually write them. I should always enter all three of these if statements if any.
-				if (allHorizontalWaveParameters[waveCount - 1].phaseManagementOption == 1 && allVerticalWaveParameters[waveCount - 1].phaseManagementOption == 1
-					&& horizontalWaveformVaried[waveCount] == false && verticalWaveformVaried[waveCount] == false)
-				{
-					// Check for bad input
-					if (allVerticalWaveParameters[waveCount - 1].sampleNum != allHorizontalWaveParameters[waveCount - 1].sampleNum){
-						std::string errMsg;
-						errMsg = "ERROR: the x and y waveforms must have the same time values option. They appear to be mismatched for waveform #" + std::to_string(waveCount - 1) + "!";
-						thrower( errMsg );
-						return -15;
-					}
-
-					// Create the mixed waveform holder
-					long int mixedSize = 2 * allVerticalWaveParameters[waveCount - 1].sampleNum;
-					prevMixedWaveform = new ViReal64[mixedSize];
-					// Mix the waveforms
-					this-> mixWaveforms(prevXWaveform, prevYWaveform, prevMixedWaveform, allVerticalWaveParameters[waveCount - 1].sampleNum);
-					// wvfmToConsole(mixedWaveform, verticalWaveformParameters.sampleNum * 2);
-					// create waveform (necessary?)
-					if (!TWEEZER_COMPUTER_SAFEMODE)
-					{
-						// these three functions are capable of throwing my_exception. analyzeNIAWGScripts should always be in a try/catch.
-						this->createWaveform(mixedSize, prevMixedWaveform);
-						allocateWaveform(prevTempWaveName, mixedSize / 2);
-						// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
-						writeWaveform(prevTempWaveName, mixedSize, prevMixedWaveform);
-					}
-
-					// avoid memory leaks.
-					delete[] prevXWaveform;
-					delete[] prevYWaveform;
-					delete[] prevXWaveformRead;
-					delete[] prevYWaveformRead;
-					delete[] prevMixedWaveform;
-					rmWhite(verticalFile);
-				}
-
-				// only create waveform data if neither waveform is being varried, and for this second time, if the previous wave was correcting this waveform such
-				// that the waveform needs to be recalculated.
-				if (verticalWaveformParameters.varNum == 0 && horizontalWaveformParameters.varNum == 0 && verticalWaveformParameters.phaseManagementOption < 1 
-					&& allVerticalWaveParameters[waveCount - 1].phaseManagementOption == 1)
-				{
-					// Initialize the giant waveform arrays.
-					xWaveform = new ViReal64[verticalWaveformParameters.sampleNum];
-					xWaveReadData = new ViReal64[verticalWaveformParameters.sampleNum + verticalWaveformParameters.signalNum];
-					// either calculate or read waveform data into the above arrays. 
-					if (this-> waveformGen(xWaveform, xWaveReadData, verticalWaveformParameters, verticalWaveformParameters.sampleNum, libWaveformArray,
-						fileStatus[verticalWaveformParameters.initType], options, debugMsg) != 0)
-					{
-						std::string errMsg;
-						errMsg = "ERROR:  waveformGen threw an error while handling vertical waveform #" + std::to_string(waveCount - 1) + "!";
-						thrower( errMsg );
-					}
-					delete[] xWaveReadData;
-				}
-				else if (verticalWaveformParameters.varNum > 0)
-				{
-					// Mark this waveform as being varied.
-					verticalWaveformVaried[waveCount] = true;
-					horizontalWaveformVaried[waveCount] = true;
-				}
-
-				// only create waveform data if neither waveform is being varried, and for this second time, if the previous wave was correcting this waveform such
-				// that the waveform needs to be recalculated.
-				if (verticalWaveformParameters.varNum == 0 && horizontalWaveformParameters.varNum == 0 && verticalWaveformParameters.phaseManagementOption < 1 
-					&& allHorizontalWaveParameters[waveCount - 1].phaseManagementOption == 1)
-				{
-					// Initialize the giant waveform arrays.
-					yWaveform = new ViReal64[horizontalWaveformParameters.sampleNum];
-					yWaveReadData = new ViReal64[horizontalWaveformParameters.sampleNum + horizontalWaveformParameters.signalNum];
-					// either calculate or read waveform data into the above arrays. 
-					if (this-> waveformGen(yWaveform, yWaveReadData, horizontalWaveformParameters, horizontalWaveformParameters.sampleNum, libWaveformArray,
-						fileStatus[horizontalWaveformParameters.initType], options, debugMsg) != 0)
-					{
-						std::string errMsg;
-						errMsg = "ERROR:  waveformGen threw an error while handling Y waveform #" + std::to_string(waveCount - 1) + "!";
-						thrower( errMsg );
-						return -101;
-					}
-					delete[] yWaveReadData;
-				}
-				else if (horizontalWaveformParameters.varNum  > 0)
-				{
-					// Mark this waveform as being varied.
-					horizontalWaveformVaried[waveCount] = true;
-					verticalWaveformVaried[waveCount] = true;
-				}
-			}
-			if (verticalWaveformParameters.varNum >= 0)
-			{
-				allVerticalWaveParameters.push_back(verticalWaveformParameters);
-			}
-
-			if (horizontalWaveformParameters.varNum >= 0)
-			{
-				allHorizontalWaveParameters.push_back(horizontalWaveformParameters);
-			}
-
-			if (horizontalWaveformParameters.varNum == 0 && verticalWaveformParameters.varNum == 0 && verticalWaveformParameters.phaseManagementOption < 1) 
-			{
-				// Check for bad input
-				if (verticalWaveformParameters.sampleNum != horizontalWaveformParameters.sampleNum)
-				{
-					std::string errMsg;
-					errMsg = "ERROR: the x and y waveforms must have the same time values option. They appear to be mismatched for waveform #"
-						+ std::to_string(waveCount - 1) + "!";
-					thrower( errMsg );
-					return -15;
-				}
-				// Create the mixed waveform holder
-				long int mixedSize = 2 * verticalWaveformParameters.sampleNum;
-				mixedWaveform = new ViReal64[mixedSize];
-				// Mix the waveforms
-				this-> mixWaveforms(xWaveform, yWaveform, mixedWaveform, verticalWaveformParameters.sampleNum);
-				if (!TWEEZER_COMPUTER_SAFEMODE)
-				{
-					// these three functions are capable of throwing my_exception. analyzeNIAWGScripts should always be in a try/catch.
-					// create waveform (necessary?)
-					this->createWaveform(mixedSize, mixedWaveform);
-					// allocate waveform into the device memory
-					allocateWaveform(tempWaveformName, mixedSize / 2);
-					// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
-					writeWaveform(tempWaveformName, mixedSize, mixedWaveform);
-				}
-				// avoid memory leaks, but only if not default...
-				if (isDefault)
-				{
-					if (orientation == HORIZONTAL_ORIENTATION)
-					{
-						this->default_hConfigMixedWaveform = mixedWaveform;
-						this->default_hConfigMixedSize = mixedSize;
-						this->default_hConfigWaveformName = tempWaveformName;
-					}
-					if (orientation == VERTICAL_ORIENTATION)
-					{
-						this->default_vConfigMixedWaveform = mixedWaveform;
-						this->default_vConfigMixedSize = mixedSize;
-						this->default_vConfigWaveformName = tempWaveformName;
+						waveParams[axis].isVaried = true;
+						waveParams[axis].varNum++;
+						// the ' single quotation mark is reserved. Don't use it in a script file. It's just a place-holder here to make sure 
+						// the number of varied waveforms gets understood properly.
+						waveParams[axis].varNames.push_back( "\'" );
+						waveParams[axis].varTypes.push_back( -2 );
 					}
 				}
 				else
 				{
-					delete[] mixedWaveform;
+					double errVal = myMath::calculateCorrectionTime( waveParams[Vertical], waveParams[Horizontal], initPhasesForTimeManage, 
+																	 "after" );
+					if (errVal == -1)
+					{
+						thrower( "ERROR: Correction waveform was not able to match phases." );
+					}
+					else if (errVal != 0)
+					{
+						warnings += "WARNING: Correction waveform was not able to match phases very well. The total phase mismatch was "
+							+ str( errVal ) + "radians.\r\n";
+					}
 				}
-				delete[] xWaveform;
-				delete[] yWaveform;
-				rmWhite(verticalFile);
 			}
-			// append script with the relevant command. This needs to be done even if variable waveforms are used, because I don't want to have to rewrite the
-			// script to insert the new waveform name into it.
-			std::string tempWfmNameString(tempWaveformName);
-			scriptHolder += "generate " + tempWfmNameString + "\n";
 
+			/// Waveform Creation /////////////////////////////////////////////////////////////////////////////////////////////////////////
+			// only create waveform data if neither waveform is being varried and if the time management option is either 0 or -1. The time management  
+			// option has already been checked to be the same for x and Y waveforms.
+			for (auto axis : AXES)
+			{
+				if (waveParams[Vertical].varNum == 0 && waveParams[Horizontal].varNum == 0 && waveParams[axis].phaseManagementOption < 1)
+				{
+					// Initialize the giant waveform arrays.
+					waveVoltages[axis] = new ViReal64[waveParams[axis].sampleNum];
+					waveFileData[axis] = new ViReal64[waveParams[axis].sampleNum + waveParams[axis].signalNum];
+					// either calculate or read waveform data into the above arrays. 
+					waveformGen( waveVoltages[axis], waveFileData[axis], waveParams[axis], libWaveformArray, options, debugMsg );
+					delete[] waveFileData[axis];
+				}
+				else if (waveParams[axis].varNum > 0)
+				{
+					// Mark this waveform as being varied. 
+					waveParams[Horizontal].isVaried = true;
+					waveParams[Vertical].isVaried = true;
+				}
+			}
+
+			/// Handle +1 Time Management ////////////////////////////////////////////////////////////////////////////////////////////////
+			// if not the first waveform
+			if (output.waveCount != 0)
+			{
+				/// Handle +1 for vertical
+				// check if user used +1 for the time of the previous waveform.
+				for (auto axis : AXES)
+				{
+					if (output.channel[axis].waveData[output.waveCount - 1].phaseManagementOption == 1)
+					{
+						// Make sure the waveforms are compatible.
+						std::vector<double> initPhasesForTimeManage;
+						if (waveParams[axis].signalNum != output.channel[axis].waveData[output.waveCount - 1].signalNum)
+						{
+							thrower( "ERROR: Signal Number Mismatch! You appear to be attempting to correcting the phase of waveform number " +
+									 str( output.waveCount - 1 ) + " with waveform number" + str( output.waveCount - 2 ) + ", but the vertical "
+									 "component of the former has " + str( waveParams[axis].signalNum ) + " signals and the latter has " +
+									 str( output.channel[axis].waveData[output.waveCount - 1].signalNum ) + " signals. In order for a waveform to "
+									 "correct the time of another waveform, the two must have the same number of signals." );
+						}
+						// check to make sure that the X frequencies match
+						for (int signal = 0; signal < output.channel[axis].waveData[output.waveCount - 1].signalNum; signal++)
+						{
+							if (output.channel[axis].waveData[output.waveCount - 1].signals[signal].freqInit 
+								 != waveParams[axis].signals[signal].freqInit)
+							{
+								thrower( "ERROR: Frequency Mismatch! You appear to be attempting to correcting the phase of waveform number "
+										 + str( output.waveCount - 1 ) + " with waveform number" + str( output.waveCount - 2 ) +
+										 ", but signal " + str( signal ) + " in the vertical component of the former has final frequency "
+										 + str( waveParams[axis].signals[signal].freqInit ) + " and signal " + str( signal ) + " in the "
+										 "vertical component of the latter has initial frequency of "
+										 + str( output.channel[axis].waveData[output.waveCount - 1].signals[signal].freqFin ) + " signals. In order "
+										 "for a waveform to correct the time of another waveform, these frequencies should match." );
+							}
+							initPhasesForTimeManage.push_back( waveParams[axis].signals[signal].finPhase 
+															   + output.channel[axis].waveData[output.waveCount - 1].signals[signal].initPhase );
+						}
+						// check to make sure that the frequencies match
+						for (int signal = 0; signal < output.channel[ALT_AXES[axis]].waveData[output.waveCount - 1].signalNum; signal++)
+						{
+							// check to make sure that the frequencies match
+							if (output.channel[ALT_AXES[axis]].waveData[output.waveCount - 1].signals[signal].freqInit 
+								 != waveParams[ALT_AXES[axis]].signals[signal].freqInit)
+							{
+								thrower( "ERROR: Frequency Mismatch! You appear to be attempting to correcting the phase of waveform number "
+										 + str( output.waveCount - 1 ) + " with waveform number" + str( output.waveCount - 2 ) + ", but signal "
+										 + str( signal ) + " in the " + AXES_NAMES[ALT_AXES[axis]] + " component of the former has final frequency "
+										 + str( waveParams[ALT_AXES[axis]].signals[signal].freqInit ) + " and signal " + str( signal ) + " in the "
+										 + AXES_NAMES[ALT_AXES[axis]] + " component of the latter has initial frequency of "
+										 + str( output.channel[ALT_AXES[axis]].waveData[output.waveCount - 1].signals[signal].freqFin ) +
+										 " signals. In order for a waveform to correct the time of another waveform, these frequencies should match." );
+							}
+							initPhasesForTimeManage.push_back( waveParams[ALT_AXES[axis]].signals[signal].finPhase
+															   + output.channel[ALT_AXES[axis]].waveData[output.waveCount - 1].signals[signal].initPhase );
+						}
+
+						if (waveParams[axis].isVaried == true)
+						{
+							output.channel[Vertical].waveData[output.waveCount - 1].isVaried = true;
+							output.channel[Horizontal].waveData[output.waveCount - 1].isVaried = true;
+							output.channel[axis].waveData[output.waveCount - 1].varNum++;
+							// the ' sign is reserved. Don't use it in a script file. It's just a place-holder here to make sure the number of varied waveforms gets
+							// understood properly.
+							output.channel[axis].waveData[output.waveCount - 1].varNames.push_back( "\'" );
+							output.channel[axis].waveData[output.waveCount - 1].varTypes.push_back( -3 );
+						}
+						else
+						{
+							// calculate a time for the previous waveform.
+							double errVal = myMath::calculateCorrectionTime( output.channel[axis].waveData[output.waveCount - 1],
+																			 output.channel[ALT_AXES[axis]].waveData[output.waveCount - 1],
+																			 initPhasesForTimeManage, "before" );
+							if (errVal == -1)
+							{
+								thrower( "ERROR: Correction waveform was not able to match phases." );
+							}
+							else if (errVal != 0)
+							{
+								warnings += "WARNING: Correction waveform was not able to match phases very well. The total phase"
+											" mismatch was " + str( errVal ) + "radians.\r\n";
+							}
+
+							// calculate the previous waveform.
+							// Initialize the giant waveform arrays.
+							
+							prevVoltages[axis] = new ViReal64[output.channel[axis].waveData[output.waveCount - 1].sampleNum];
+							prevFileData[axis] = new ViReal64[output.channel[axis].waveData[output.waveCount - 1].sampleNum 
+															  + output.channel[axis].waveData[output.waveCount - 1].signalNum];
+							// either calculate or read waveform data into the above arrays. 
+							waveformGen( prevVoltages[axis], prevFileData[axis], output.channel[axis].waveData[output.waveCount - 1],
+										 libWaveformArray, options, debugMsg );
+							// modify the phases of the current waveform such that they reach the 0 phase after the waveform.
+							for (int signal = 0; signal < waveParams[axis].signalNum; signal++)
+							{
+								waveParams[axis].signals[signal].initPhase = 2 * PI - waveParams[axis].signals[signal].finPhase;
+							}
+						}
+					}
+				}
+
+
+				// Now That I've calculated the waveforms, I need to actually write them. I should always enter all three of these if 
+				// statements if any.
+				if (output.channel[Horizontal].waveData[output.waveCount - 1].phaseManagementOption == 1 
+					 && output.channel[Vertical].waveData[output.waveCount - 1].phaseManagementOption == 1
+					 && waveParams[Horizontal].isVaried == false && waveParams[Vertical].isVaried == false)
+				{
+					// Check for bad input
+					if (output.channel[Vertical].waveData[output.waveCount - 1].sampleNum 
+						 != output.channel[Horizontal].waveData[output.waveCount - 1].sampleNum)
+					{
+						thrower( "ERROR: the x and y waveforms must have the same time values option. They appear to be mismatched for waveform #"
+								 + str( output.waveCount - 1 ) + "!" );
+					}
+					// Create the mixed waveform holder
+					long int mixedSize = 2 * output.channel[Vertical].waveData[output.waveCount - 1].sampleNum;
+					prevMixedVoltages = new ViReal64[mixedSize];
+					// Mix the waveforms
+					mixWaveforms( prevVoltages, prevMixedVoltages, output.channel[Vertical].waveData[output.waveCount - 1].sampleNum );
+					// create waveform (necessary?)
+					// these three functions are capable of throwing myException. analyzeNiawgScripts should always be in a try/catch.
+					createWaveform( mixedSize, prevMixedVoltages );
+					// ...
+					allocateWaveform( prevTempWaveName, mixedSize / 2 );
+					// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
+					writeWaveform( prevTempWaveName, mixedSize, prevMixedVoltages );
+					// avoid memory leaks.
+					delete[] prevVoltages[Vertical];
+					delete[] prevVoltages[Horizontal];
+					delete[] prevFileData[Vertical];
+					delete[] prevFileData[Horizontal];
+					delete[] prevMixedVoltages;
+				}
+
+				// only create waveform data if neither waveform is being varried, and for this second time, if the previous wave was 
+				// correcting this waveform such that the waveform needs to be recalculated.
+				for (auto axis : AXES)
+				{
+					if (waveParams[Vertical].varNum == 0 && waveParams[Horizontal].varNum == 0
+						 && waveParams[axis].phaseManagementOption < 1
+						 && output.channel[axis].waveData[output.waveCount - 1].phaseManagementOption == 1)
+					{
+						// Initialize the giant waveform arrays.
+						waveVoltages[axis] = new ViReal64[waveParams[axis].sampleNum];
+						waveFileData[axis] = new ViReal64[waveParams[axis].sampleNum + waveParams[axis].signalNum];
+						// either calculate or read waveform data into the above arrays. 
+						waveformGen( waveVoltages[axis], waveFileData[axis], waveParams[axis], libWaveformArray, options, debugMsg );
+						delete[] waveFileData[axis];
+					}
+					else if (waveParams[axis].varNum > 0)
+					{
+						// Mark this waveform as being varied.
+						waveParams[axis].isVaried = true;
+						waveParams[ALT_AXES[axis]].isVaried = true;
+					}
+				}
+			}
+
+			for (auto axis : AXES)
+			{
+				if (waveParams[axis].varNum >= 0)
+				{
+					output.channel[axis].waveData.push_back( waveParams[axis] );
+				}
+			}
+
+			if (waveParams[Horizontal].varNum == 0 && waveParams[Vertical].varNum == 0 && waveParams[Vertical].phaseManagementOption < 1)
+			{
+				// Check for bad input
+				if (waveParams[Vertical].sampleNum != waveParams[Horizontal].sampleNum)
+				{
+					thrower( "ERROR: the vertical and horizontal waveforms must have the same time values option. They appear to be "
+							 "mismatched for waveform #" + str( output.waveCount - 1 ) + "!" );
+				}
+				// Create the mixed waveform holder
+				long int mixedSize = 2 * waveParams[Vertical].sampleNum;
+				mixedWaveVoltages = new ViReal64[mixedSize];
+				// Mix the waveforms
+				mixWaveforms( waveVoltages, mixedWaveVoltages, waveParams[Vertical].sampleNum );
+				if (!TWEEZER_COMPUTER_SAFEMODE)
+				{
+					// these three functions are capable of throwing myException. analyzeNiawgScripts should always be in a try/catch.
+					// create waveform (necessary?)
+					createWaveform( mixedSize, mixedWaveVoltages );
+					// allocate waveform into the device memory
+					allocateWaveform( tempWaveformName, mixedSize / 2 );
+					// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
+					writeWaveform( tempWaveformName, mixedSize, mixedWaveVoltages );
+				}
+				// avoid memory leaks, but only if not default...
+				if (output.isDefault)
+				{
+					if (profile.orientation == HORIZONTAL_ORIENTATION)
+					{
+						default_hConfigMixedWaveform = mixedWaveVoltages;
+						default_hConfigMixedSize = mixedSize;
+						default_hConfigWaveformName = tempWaveformName;
+					}
+					if (profile.orientation == VERTICAL_ORIENTATION)
+					{
+						default_vConfigMixedWaveform = mixedWaveVoltages;
+						default_vConfigMixedSize = mixedSize;
+						default_vConfigWaveformName = tempWaveformName;
+					}
+				}
+				else
+				{
+					delete[] mixedWaveVoltages;
+				}
+				delete[] waveVoltages[Vertical];
+				delete[] waveVoltages[Horizontal];
+			}
+			// append script with the relevant command. This needs to be done even if variable waveforms are used, because I don't want to
+			//  have to rewrite the script to insert the new waveform name into it.
+			std::string tempWfmNameString( tempWaveformName );
+			output.niawgLanguageScript += "generate " + tempWfmNameString + "\n";
 			// increment waveform count.
-			waveCount++;
+			output.waveCount++;
 		}
-		else if (this-> isSpecialCommand(verticalInputTypeString) && this-> isSpecialCommand(horizontalInputTypeString))
+		else
 		{
-			myError = this-> special(verticalFile, horizontalFile, verticalInputTypeString, horizontalInputTypeString, scriptHolder,  waveCount, 
-				verticalPredWaveNames, horizontalPredWaveNames, predWaveCount, predLocs, libWaveformArray, fileStatus, allVerticalWaveParameters,
-				verticalWaveformVaried, allHorizontalWaveParameters, horizontalWaveformVaried, isDefault, currentCategoryFolder, singletons, 
-				orientation, options, warnings, debugMsg);
-		}
-		else 
-		{			
 			// Catch bad input.
-			std::string errMsg;
-			errMsg = "ERROR: Input types from the two files do not match or are unrecognized!\n Both must be logic commands, both must be generate "
-				"commands, or both must be special commands. See documentation on the correct format for these commands.\n\nThe two inputed types are: " + verticalInputTypeString +
-				" and " + horizontalInputTypeString + " for waveform #" + std::to_string(waveCount - 1) + "!";
-			thrower( errMsg );
-			return -3;
+			thrower( "ERROR: Input types from the two files do not match or are unrecofgnized!\nBoth must be logic commands, both must be "
+					 "generate commands, or both must be special commands. See documentation on the correct format for these commands.\n\n"
+					 "The two inputed types are: " + inputTypes[Vertical] + " and " + inputTypes[Horizontal]+ " for waveform #" 
+					 + str( output.waveCount - 1) + "!" );
 		}
-		rmWhite(verticalFile);
-		rmWhite(horizontalFile);
+		// end while !eof() loop
 	}
-	return 0;
 }
 
-int NiawgController::getVariedWaveform(waveData &varWvFmInfo, std::vector<waveData> all_X_Or_Y_WvFmParam, int waveOrderNum, std::vector<std::string>(&libWvFmArray)[20],
-	bool(&fileStat)[20], ViReal64 * waveformRawData, debugOptions options, std::string& debugMsg)
+
+void NiawgController::getVariedWaveform(waveData &varWvFmInfo, std::vector<waveData> all_X_Or_Y_WvFmParam, int waveOrderNum, 
+										 std::vector<std::string>(&libWvFmArray)[MAX_NIAWG_SIGNALS * 4], ViReal64 * waveformRawData, 
+										 debugInfo options, std::string& debugMsg)
 {
-	for (int i = 0; i < varWvFmInfo.signalNum; i++)
+	for ( auto signal : range( varWvFmInfo.signalNum ) )
 	{
 		// check if this is supposed to be overwritten during variable runs.
-		for (int j = 0; j < varWvFmInfo.varTypes.size(); j++)
+		for ( auto vartype : varWvFmInfo.varTypes )
 		{
-			if (varWvFmInfo.varTypes[j] == -1)
+			if ( vartype == -1 )
 			{
-				if (i + 1 > all_X_Or_Y_WvFmParam[waveOrderNum - 1].signalNum)
+				if ( signal + 1 > all_X_Or_Y_WvFmParam[waveOrderNum - 1].signalNum )
 				{
-					char tempChar[300];
-					sprintf_s(tempChar, "ERROR: You are trying to copy the phase of the %ith signal of the previous waveform, but the previous "
-						"waveform only had %i signals!\n", i + 1, all_X_Or_Y_WvFmParam[waveOrderNum - 1].signalNum);
-					MessageBox(NULL, tempChar, NULL, MB_OK);
-					return -2767;
+					thrower( "ERROR: You are trying to copy the phase of the " + str( signal + 1 )
+							 + "th signal of the previous waveform, but the previous waveform only had "
+							 + str( all_X_Or_Y_WvFmParam[waveOrderNum - 1].signalNum ) + " signals!\n" );
 				}
-				varWvFmInfo.signals[i].initPhase = all_X_Or_Y_WvFmParam[waveOrderNum - 1].signals[i].finPhase;
+				varWvFmInfo.signals[signal].initPhase = all_X_Or_Y_WvFmParam[waveOrderNum - 1].signals[signal].finPhase;
 			}
 		}
 	}
-
 	ViReal64* waveReadData;
 	waveReadData = new ViReal64[varWvFmInfo.sampleNum + varWvFmInfo.signalNum];
 	// either calculate or read waveform data into the above arrays.
-	if (this->waveformGen(waveformRawData, waveReadData, varWvFmInfo, varWvFmInfo.sampleNum, libWvFmArray, fileStat[varWvFmInfo.initType], options, debugMsg) != 0)
-	{
-		MessageBox(NULL, " waveformGen threw an error while getting a varied waveform!\n", NULL, MB_OK);
-		return -11434;
-	}
+	waveformGen( waveformRawData, waveReadData, varWvFmInfo, libWvFmArray, options, debugMsg );
 	delete[] waveReadData;
-
-	return 0;
 }
 
 /*
@@ -1377,11 +795,12 @@ int NiawgController::getVariedWaveform(waveData &varWvFmInfo, std::vector<waveDa
 	* std::vector<waveData>& allWvInfo2: This is used in the case of correction waveforms as you need both waveform's information in order to calculate the 
 										correction time.
 	* int wfCount: The current waveform being handled. Used to get information from and assign information to the correct waveform in the variation sequence.
-	* int& paramNum: A number which tells the function what to do with the data, i.e. which value where to assign it to. It get's altered during one of the 
+	* int& paramNum: A number which tells the function what to do with the data, signalInc.e. which value where to assign it to. It get's altered during one of the 
 					correction waveform handling places.
 	* double paramVal: the value of the variable which is getting loaded into waveforms.
 	*/
-int NiawgController::varyParam(std::vector<waveData>& allWvInfo1, std::vector<waveData>& allWvInfo2, int wfCount, int& paramNum, double paramVal, std::string& warnings)
+void NiawgController::varyParam(std::vector<waveData>& allWvInfo1, std::vector<waveData>& allWvInfo2, int wfCount, int& paramNum,
+								 double paramVal, std::string& warnings)
 {
 	// change parameters, depending on the case. This was set during input reading.
 	std::vector<double> initPhases;
@@ -1391,29 +810,27 @@ int NiawgController::varyParam(std::vector<waveData>& allWvInfo1, std::vector<wa
 		{
 			// this is the 1 option for time management control when the next waveform is being varied. 
 			// calculate a time for the previous waveform.
-			for (int o = 0; o < allWvInfo1[wfCount].signalNum; o++) 
+			for (auto signal : range( allWvInfo1[wfCount].signalNum ) )
 			{
 				// check to make sure that the frequencies match
-				initPhases.push_back(allWvInfo1[wfCount + 1].signals[o].finPhase + allWvInfo1[wfCount].signals[o].initPhase);
+				initPhases.push_back(allWvInfo1[wfCount + 1].signals[signal].finPhase + allWvInfo1[wfCount].signals[signal].initPhase);
 			}
-			for (int o = 0; o < allWvInfo2[wfCount].signalNum; o++) 
+			for ( auto signal : range( allWvInfo2[wfCount].signalNum ) )
 			{
 				// check to make sure that the frequencies match
-				initPhases.push_back(allWvInfo2[wfCount + 1].signals[o].finPhase + allWvInfo2[wfCount].signals[o].initPhase);
+				initPhases.push_back(allWvInfo2[wfCount + 1].signals[signal].finPhase + allWvInfo2[wfCount].signals[signal].initPhase);
 			}
 				
 			double errVal = myMath::calculateCorrectionTime(allWvInfo1[wfCount], allWvInfo2[wfCount], initPhases, "before");
 			if (errVal == -1)
 			{
-				errBox("ERROR: Correction waveform was not able to match phases.");
-				// throw error
-				return -1029;
+				thrower("ERROR: Correction waveform was not able to match phases.");
 			}
 			else if (errVal != 0)
 			{
 				// throw warning
 				warnings += "WARNING: Correction waveform was not able to match phases very well. The total phase mismatch was "
-					+ std::to_string(errVal) + "radians.\r\n";
+					+ str(errVal) + "radians.\r\n";
 			}
 
 			// modify the phases of the current waveform such that they reach the 0 phase after the waveform.
@@ -1430,34 +847,30 @@ int NiawgController::varyParam(std::vector<waveData>& allWvInfo1, std::vector<wa
 			// Case -3 is the case initially set by a correction wavefunction set to correct the /next/ (as opposed to the previous) waveform. However, at the
 			// time that this gets called, the wavefunction can't get the correct time yet because the next waveform hasn't been written. This location should
 			// never be reached.
-			errBox("Bad location reached: -3 case of varyParam().");
-			return -1;
-			break;
+			thrower("BUG! Bad location reached: -3 case of varyParam().");
 		}
 
 		case -2:
 		{
-			for (int o = 0; o < allWvInfo1[wfCount - 1].signalNum; o++) 
-			{
-				initPhases.push_back(allWvInfo1[wfCount].signals[o].initPhase);
-			}
-			for (int o = 0; o < allWvInfo2[wfCount - 1].signalNum; o++) 
-			{
-				initPhases.push_back(allWvInfo2[wfCount].signals[o].initPhase);
-			}
 			// this is the -1 option for time management control when the previous waveform is being varied. 
-
-			double errVal = myMath::calculateCorrectionTime(allWvInfo1[wfCount], allWvInfo2[wfCount], initPhases, "after");
+			for (auto signal : range(allWvInfo1[wfCount - 1].signalNum) )
+			{
+				initPhases.push_back(allWvInfo1[wfCount].signals[signal].initPhase);
+			}
+			for ( auto signal : range( allWvInfo2[wfCount - 1].signalNum ) )
+			{
+				initPhases.push_back(allWvInfo2[wfCount].signals[signal].initPhase);
+			}
+			double errVal = myMath::calculateCorrectionTime(allWvInfo1[wfCount], allWvInfo2[wfCount], initPhases, 
+															 "after");
 			if (errVal == -1)
 			{
-				errBox("ERROR: Correction waveform was not able to match phases.");
-				// throw error
-				return -1029;
+				thrower("ERROR: Correction waveform was not able to match phases.");
 			}
 			else if (errVal != 0)
 			{
 				warnings += "WARNING: Correction waveform was not able to match phases very well. The total phase mismatch was "
-					+ std::to_string(errVal) + "radians.\r\n";
+					+ str(errVal) + "radians.\r\n";
 				// throw warning
 			}
 			break;
@@ -1465,291 +878,111 @@ int NiawgController::varyParam(std::vector<waveData>& allWvInfo1, std::vector<wa
 		case -1:
 		{
 			// This is the -1 option for phase control when the previous waveform is being varied.
-			for (int i = 0; i < allWvInfo1[wfCount].signalNum; i++) 
+			for (auto signal : range(allWvInfo1[wfCount].signalNum) )
 			{
 				// check if this is supposed to be overwritten during variable runs.
-				for (int j = 0; j < allWvInfo1[wfCount].varTypes.size(); j++) 
+				for (auto varType : allWvInfo1[wfCount].varTypes )
 				{
-					if (allWvInfo1[wfCount].varTypes[j] == -1) 
+					if (varType == -1) 
 					{
-						if (i + 1 > allWvInfo1[wfCount - 1].signalNum) 
+						if (signal + 1 > allWvInfo1[wfCount - 1].signalNum) 
 						{
-
-							char tempChar[300];
-							sprintf_s(tempChar, "ERROR: You are trying to copy the phase of the %ith signal of the previous waveform, but the previous "
-								"waveform only had %i signals!\n)", i + 1, allWvInfo1[wfCount - 1].signalNum);
-
-							MessageBox(NULL, tempChar, NULL, MB_OK);
-							return -2767;
+							thrower( "ERROR: You are trying to copy the phase of the " + str( signal + 1 )
+									 + "th signal of the previous waveform, but the previous "
+									 "waveform only had " + str( allWvInfo1[wfCount - 1].signalNum ) + " signals!\n)" );
 						}
-						allWvInfo1[wfCount].signals[i].initPhase = allWvInfo1[wfCount - 1].signals[i].finPhase;
+						allWvInfo1[wfCount].signals[signal].initPhase = allWvInfo1[wfCount - 1].signals[signal].finPhase;
 					}
 				}
 			}
-			for (int i = 0; i < allWvInfo2[wfCount].signalNum; i++) 
+			for (auto signal : range( allWvInfo2[wfCount].signalNum ) )
 			{
 				// need to check both waveforms at once on this specifically since this information gets used by time-correction waveforms, and the time-correction
 				// procedure for x will get called before y changes its initial phase. This is not very efficient currently since this will cause this phase
 				// information to get written twice.
-				for (int j = 0; j < allWvInfo2[wfCount].varTypes.size(); j++) 
+				for (auto varType : allWvInfo2[wfCount].varTypes )
 				{
-					if (allWvInfo2[wfCount].varTypes[j] == -1) 
+					if (varType == -1) 
 					{
-						if (i + 1 > allWvInfo2[wfCount - 1].signalNum) 
+						if (signal + 1 > allWvInfo2[wfCount - 1].signalNum) 
 						{
-							char tempChar[300];
-							sprintf_s(tempChar, "ERROR: You are trying to copy the phase of the %ith signal of the previous waveform, but the previous "
-								"waveform only had %i signals!\n)", i + 1, allWvInfo2[wfCount - 1].signalNum);
-							MessageBox(NULL, tempChar, NULL, MB_OK);
-							return -2767;
+							thrower( "ERROR: You are trying to copy the phase of the " + str( signal + 1 )
+									 + "th signal of the previous waveform, but the previous "
+									 "waveform only had " + str( allWvInfo2[wfCount - 1].signalNum ) + " signals!\n)" );
 						}
-						allWvInfo2[wfCount].signals[i].initPhase = allWvInfo2[wfCount - 1].signals[i].finPhase;
+						allWvInfo2[wfCount].signals[signal].initPhase = allWvInfo2[wfCount - 1].signals[signal].finPhase;
 					}
 				}
 			}
 
 			break;
 		}
-		case 1:
+		case 5 * MAX_NIAWG_SIGNALS + 1:
 		{
-			if (paramVal < 0)
+			if ( paramVal < 0 )
 			{
-				MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
-				return -1;
-			}
-			allWvInfo1[wfCount].signals[0].freqInit = paramVal;
-			break;
-		}
-		case 2:
-		{
-			if (paramVal < 0)
-			{
-				MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
-				return -1;
-			}
-			allWvInfo1[wfCount].signals[0].freqFin = paramVal;
-			break;
-		}
-		case 3:
-		{
-			if (paramVal < 0)
-			{
-				MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
-				return -1;
-			}
-			allWvInfo1[wfCount].signals[0].initPower = paramVal;
-			break;
-		}
-		case 4:
-		{
-			if (paramVal < 0) 
-			{
-				MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
-				return -1;
-			}
-			allWvInfo1[wfCount].signals[0].finPower = paramVal;
-			break;
-		}
-		case 5:
-		{
-			allWvInfo1[wfCount].signals[0].initPhase = paramVal;
-			break;
-		}
-		case 6:
-		{
-			if (paramVal < 0) 
-			{
-				MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
-				return -1;
-			}
-			allWvInfo1[wfCount].signals[1].freqInit = paramVal;
-			break;
-		}
-		case 7:
-		{
-			if (paramVal < 0) 
-			{
-				MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
-				return -1;
-			}
-			allWvInfo1[wfCount].signals[1].freqFin = paramVal;
-			break;
-		}
-		case 8:
-		{
-			if (paramVal < 0) 
-			{
-				MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
-				return -1;
-			}
-			allWvInfo1[wfCount].signals[1].initPower = paramVal;
-			break;
-		}
-		case 9:
-		{
-			if (paramVal < 0) 
-			{
-				MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
-				return -1;
-			}
-			allWvInfo1[wfCount].signals[1].finPower = paramVal;
-			break;
-		}
-		case 10:
-		{
-			allWvInfo1[wfCount].signals[1].initPhase = paramVal;
-			break;
-		}
-		case 11:
-		{
-			if (paramVal < 0) 
-			{
-				MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
-				return -1;
-			}
-			allWvInfo1[wfCount].signals[2].freqInit = paramVal;
-			break;
-		}
-		case 12:
-		{
-			if (paramVal < 0) 
-			{
-				MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
-				return -1;
-			}
-			allWvInfo1[wfCount].signals[2].freqFin = paramVal;
-			break;
-		}
-		case 13:
-		{
-			if (paramVal < 0) 
-			{
-				MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
-				return -1;
-			}
-			allWvInfo1[wfCount].signals[2].initPower = paramVal;
-			break;
-		}
-		case 14:
-		{
-			if (paramVal < 0) 
-			{
-				MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
-				return -1;
-			}
-			allWvInfo1[wfCount].signals[2].finPower = paramVal;
-			break;
-		}
-		case 15:
-		{
-			allWvInfo1[wfCount].signals[2].initPhase = paramVal;
-			break;
-		}
-		case 16:
-		{
-			if (paramVal < 0) 
-			{
-				MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
-				return -1;
-			}
-			allWvInfo1[wfCount].signals[3].freqInit = paramVal;
-			break;
-		}
-		case 17:
-		{
-			if (paramVal < 0) 
-			{
-				MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
-				return -1;
-			}
-			allWvInfo1[wfCount].signals[3].freqFin = paramVal;
-			break;
-		}
-		case 18:
-		{
-			if (paramVal < 0) 
-			{
-				MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
-				return -1;
-			}
-			allWvInfo1[wfCount].signals[3].initPower = paramVal;
-			break;
-		}
-		case 19:
-		{
-			if (paramVal < 0) 
-			{
-				MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
-				return -1;
-			}
-			allWvInfo1[wfCount].signals[3].finPower = paramVal;
-			break;
-		}
-		case 20:
-		{
-			allWvInfo1[wfCount].signals[3].initPhase = paramVal;
-			break;
-		}
-		case 21:
-		{
-			if (paramVal < 0) 
-			{
-				MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
-				return -1;
-			}
-			allWvInfo1[wfCount].signals[4].freqInit = paramVal;
-			break;
-		}
-		case 22:
-		{
-			if (paramVal < 0) 
-			{
-				MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
-				return -1;
-			}
-			allWvInfo1[wfCount].signals[4].freqFin = paramVal;
-			break;
-		}
-		case 23:
-		{
-			if (paramVal < 0) 
-			{
-				MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
-				return -1;
-			}
-			allWvInfo1[wfCount].signals[4].initPower = paramVal;
-			break;
-		}
-		case 24:
-		{
-			if (paramVal < 0) 
-			{
-				MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
-				return -1;
-			}
-			allWvInfo1[wfCount].signals[4].finPower = paramVal;
-			break;
-		}
-		case 25:
-		{
-			allWvInfo1[wfCount].signals[4].initPhase = paramVal;
-			break;
-		}
-		case 26:
-		{
-			if (paramVal < 0) 
-			{
-				MessageBox(NULL, ("ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + std::to_string(paramVal)).c_str(), NULL, MB_OK);
-				return -1;
+				thrower( "ERROR: Attempted to set negative waveform parameter. Don't do that. Value was"
+						 + str( paramVal ) );
 			}
 			// CONVERT from milliseconds...
 			allWvInfo1[wfCount].time = paramVal * 0.001;
 			// Changing the time changes the sample number, so recalculate that.
-			allWvInfo1[wfCount].sampleNum = this->waveformSizeCalc(allWvInfo1[wfCount]);
+			allWvInfo1[wfCount].sampleNum = this->waveformSizeCalc( allWvInfo1[wfCount] );
 			break;
 		}
+		// all the cases in-between 0 and 5 * MAX_NIAWG_SIGNALS + 1
+		default:
+		{
+			int signalNum = paramNum / 5;
+			switch ( paramNum % 5 + 1)
+			{
+				case 1:
+				{
+					if ( paramVal < 0 )
+					{
+						thrower( "ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" 
+								 + str( paramVal ) );
+					}
+					allWvInfo1[wfCount].signals[signalNum].freqInit = paramVal;
+					break;
+				}
+				case 2:
+				{
+					if ( paramVal < 0 )
+					{
+						thrower( "ERROR: Attempted to set negative waveform parameter. Don't do that. Value was" + str( paramVal ) );
+					}
+					allWvInfo1[wfCount].signals[signalNum].freqFin = paramVal;
+					break;
+				}
+				case 3:
+				{
+					if ( paramVal < 0 )
+					{
+						thrower( "ERROR: Attempted to set negative waveform parameter. Don't do that. Value was"
+								+ str( paramVal ) );
+					}
+					allWvInfo1[wfCount].signals[signalNum].initPower = paramVal;
+					break;
+				}
+				case 4:
+				{
+					if ( paramVal < 0 )
+					{
+						thrower( "ERROR: Attempted to set negative waveform parameter. Don't do that. Value was"
+								+ str( paramVal ) );
+					}
+					allWvInfo1[wfCount].signals[signalNum].finPower = paramVal;
+					break;
+				}
+				case 5:
+				{
+					allWvInfo1[wfCount].signals[signalNum].initPhase = paramVal;
+					break;
+				}
+			}
+		}
 	}
-	return 0;
 }
 
 
@@ -1774,428 +1007,239 @@ void NiawgController::errChecker(int err)
 void NiawgController::getInputType(std::string inputType, waveData &wvInfo)
 {
 	// Check against every possible generate input type. 
-	if (inputType == "gen 1, const <freq> <amp>; <time> <t manage>" || inputType == "gen 1, const") 
+	wvInfo.initType = -1;
+	for ( auto number : range( MAX_NIAWG_SIGNALS ) )
 	{
-		wvInfo.initType = 0;
-		return;
+		number += 1;
+		if ( inputType == "gen " + str( number ) + ", const" )
+		{
+			wvInfo.initType = number;
+		}
+		else if ( inputType == "gen " + str( number ) + ", amp ramp " )
+		{
+			wvInfo.initType = number + MAX_NIAWG_SIGNALS;
+		}
+		else if ( inputType == "gen " + str( number ) + ", freq ramp " )
+		{
+			wvInfo.initType = number + 2 * MAX_NIAWG_SIGNALS;
+		}
+		else if ( inputType == "gen " + str( number ) + ", freq & amp ramp " )
+		{
+			wvInfo.initType = number + 3 * MAX_NIAWG_SIGNALS;
+		}
 	}
-	else if (inputType == "gen 2, const <freq1> <amp1>; <sim for 2nd> <phase (rad)>; <time> <t manage>" || inputType == "gen 2, const") 
+	if (wvInfo.initType == -1)
 	{
-		wvInfo.initType = 1;
-		return;
-	}
-	else if (inputType == "gen 3, const <freq1> <amp1>; <sim for 2nd, 3rd> <phase (rad)>; <time> <t manage>" || inputType == "gen 3, const") 
-	{
-		wvInfo.initType = 2;
-		return;
-	}
-	else if (inputType == "gen 4, const" || inputType == "gen4, const <freq1> <amp1> <phase (rad)>; <sim for 2nd, 3rd, 4th>; <time> <t manage>") 
-	{
-		wvInfo.initType = 3;
-		return;
-	}
-	else if (inputType == "gen 5, const" || inputType == "gen 5, const <freq1> <amp1> <phase (rad)>; <sim for 2nd, 3rd, 4th, 5th>; <time> <t manage>") 
-	{
-		wvInfo.initType = 4;
-		return;
-	}
-	else if (inputType == "gen 1, amp ramp <freq> <amp ramp type> <initial amp> <final amp> <phase (rad)>; <time> <t manage>" || inputType == "gen 1, amp ramp") 
-	{
-		wvInfo.initType = 5;
-		return;
-	}
-	else if (inputType == "gen 2, amp ramp <freq1> <amp1 ramp type> <initial amp1> <final amp1> <phase (rad)>; <sim for 2nd>; <time> <t manage>"
-		|| inputType == "gen 2, amp ramp") 
-	{
-		wvInfo.initType = 6;
-		return;
-	}
-	else if (inputType == "gen 3, amp ramp <freq1> <amp1 ramp type> <initial amp1> <final amp1> <phase (rad)>; <sim for 2nd, 3rd>; <time> <t manage>"
-		|| inputType == "gen 3, amp ramp") 
-	{
-		wvInfo.initType = 7;
-		return;
-	}
-	else if (inputType == "gen 4, amp ramp"
-		|| inputType == "gen 4, amp ramp <freq1> <amp1 ramp type> <initial amp1> <final amp1> <phase (rad)>; <sim for 2nd, 3rd, 4th>; <time> <t manage>") 
-	{
-		wvInfo.initType = 8;
-		return;
-	}
-	else if (inputType == "gen 5, amp ramp"
-		|| inputType == "gen 5, amp ramp <freq1> <amp1 ramp type> <initial amp1> <final amp1> <phase (rad)>; <sim for 2nd, 3rd, 4th, 5th>; <time> <t manage>") 
-	{
-		wvInfo.initType = 9;
-		return;
-	}
-	else if (inputType == "gen 1, freq ramp <freq ramp type> <initial freq> <final freq> <amp> <phase (rad)>; <time> <t manage>"
-		|| inputType == "gen 1, freq ramp") 
-	{
-		wvInfo.initType = 10;
-		return;
-	}
-	else if (inputType == "gen 2, freq ramp <freq1 ramp type> <initial freq1> <final freq1> <amp1> <phase (rad)>; <sim for 2nd>; <time> <t manage>"
-		|| inputType == "gen 2, freq ramp") 
-	{
-		wvInfo.initType = 11;
-		return;
-	}
-	else if (inputType == "gen 3, freq ramp <freq1 ramp type> <initial freq1> <final freq1> <amp1> <phase (rad)>; <sim for 2nd, 3rd>; <time> <t manage>"
-		|| inputType == "gen 3, freq ramp") 
-	{
-		wvInfo.initType = 12;
-		return;
-	}
-	else if (inputType == "gen 4, freq ramp <freq1 ramp type> <initial freq1> <final freq1> <amp1> <phase (rad)>; <sim for 2nd, 3rd, 4th>; <time> <t manage>"
-		|| inputType == "gen 4, freq ramp") 
-	{
-		wvInfo.initType = 13;
-		return;
-	}
-	else if (inputType == "gen 5, freq ramp <freq1 ramp type> <initial freq1> <final freq1> <amp1> <phase (rad)>; <sim for 2nd, 3rd, 4th, 5th>; <time> <t manage>"
-		|| inputType == "gen 5, freq ramp") 
-	{
-		wvInfo.initType = 14;
-		return;
-	}
-	else if (inputType == "gen 1, freq & amp ramp <freq ramp type> <initial freq> <final freq> <amp ramp type> <initial amp> <final amp> <phase (rad)>;"
-		"<time> <t manage>" || inputType == "gen 1, freq & amp ramp") 
-	{
-		wvInfo.initType = 15;
-		return;
-	}
-	else if (inputType == "gen 2, freq & amp ramp <freq1 ramp type> <initial freq1> <final freq1> <amp ramp1 type> <initial ramp1> <final ramp1> <phase "
-		"(rad)>; <sim for 2nd>; <time> <t manage>" || inputType == "gen 2, freq & amp ramp") 
-	{
-		wvInfo.initType = 16;
-		return;
-	}
-	else if (inputType == "gen 3, freq & amp ramp <freq1 ramp type> <initial freq1> <final freq1> <amp ramp1 type> <initial ramp1> <final ramp1> <phase "
-		"(rad)>; <sim for 2nd, 3rd>; <time> <t manage>" || inputType == "gen 3, freq & amp ramp") 
-	{
-		wvInfo.initType = 17;
-		return;
-	}
-	else if (inputType == "gen 4, freq & amp ramp <freq1 ramp type> <initial freq1> <final freq1> <amp ramp1 type> <initial ramp1> <final ramp1> <phase "
-		"(rad)>; <sim for 2nd, 3rd, 4th>; <time> <t manage>" || inputType == "gen 4, freq & amp ramp") 
-	{
-		wvInfo.initType = 18;
-		return;
-	}
-	else if (inputType == "gen 5, freq & amp ramp <freq1 ramp type> <initial freq1> <final freq1> <amp ramp1 type> <initial ramp1> <final ramp1> <phase "
-		"(rad)>; <sim for 2nd, 3rd, 4th, 5th>; <time> <t manage>" || inputType == "gen 5, freq & amp ramp") 
-	{
-		wvInfo.initType = 19;
-		return;
-	}
-	else 
-	{
-		MessageBox(NULL, "ERROR: code not found in the inputToWaveform for this input.\n\n", NULL, MB_OK);
-		return;
+		thrower( "ERROR: waveform input type not found for this input.\n\n" );
 	}
 }
+
 
 /**
 * WaveformData1 gathers input from the file, and based on the input type, sorts that input into the appropriate structure. It also calculates the number of
 * samples that the waveform will have to contain. This function deals with single waveforms.
 * @param inputCase is the number associated with the input type, obtained from getInputType() above.
-* @param scriptName is the name of the file being read, which contains all of the waveform data on the next line.
+* @param script is the name of the file being read, which contains all of the waveform data on the next line.
 * @param size is the size of the waveform in question, to be determined by this function.
 * @param waveInfo is the structure which stores the info being read in this function.
 */
-int NiawgController::getWvFmData(std::fstream &scriptName, waveData &waveInfo, std::vector<variable> singletons)
+void NiawgController::getWaveData( ScriptStream &script, waveData &waveInfo, std::vector<variable> singletons )
 {
-	rmWhite(scriptName);
 	// Initialize the variable counter inside the waveData struct to zero:
 	waveInfo.varNum = 0;
-	waveInfo.signals.resize(waveInfo.signalNum);
+	waveInfo.signals.resize( waveInfo.signalNum );
 
-	switch (waveInfo.initType) 
+	switch ( waveInfo.initType / MAX_NIAWG_SIGNALS )
 	{
 		/// the case for "gen ?, const"
 		case 0:
-		case 1:
-		case 2:
-		case 3:
-		case 4:
 		{
-			for (int i = 0; i < waveInfo.signalNum; i++)
+			for ( auto signal : range( waveInfo.signalNum ) )
 			{
 				// set the initial and final values to be equal, and to not use a ramp, unless variable present.
-				if (this-> getParamCheckVarConst(waveInfo.signals[i].freqInit, waveInfo.signals[i].freqFin, scriptName, waveInfo.varNum,
-															waveInfo.varNames, waveInfo.varTypes, (5 * i) + 1, (5 * i) + 2, singletons)
-					!= 0)
-				{
-					MessageBox(NULL, "getParamCheckVarConst() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
-					return -1;
-				}
+				getParamCheckVarConst( waveInfo.signals[signal].freqInit, waveInfo.signals[signal].freqFin, script, waveInfo.varNum,   
+									   waveInfo.varNames, waveInfo.varTypes, 5 * signal + 1, 5 * signal + 2, singletons );
 				// Scale the frequencies to be in hertz. (input is MHz)
-				waveInfo.signals[i].freqInit *= 1000000.;
-				waveInfo.signals[i].freqFin *= 1000000.;
+				waveInfo.signals[signal].freqInit *= 1000000.;
+				waveInfo.signals[signal].freqFin *= 1000000.;
 				// Can't be varied for this case type
-				waveInfo.signals[i].freqRampType = "nr";
+				waveInfo.signals[signal].freqRampType = "nr";
 				// set the initial and final values to be equal, and to not use a ramp, unless variable present.
-				if (this-> getParamCheckVarConst(waveInfo.signals[i].initPower, waveInfo.signals[i].finPower, scriptName, waveInfo.varNum,
-															waveInfo.varNames, waveInfo.varTypes, (5 * i) + 3, (5 * i) + 4, singletons)
-					!= 0)
-				{
-					MessageBox(NULL, "getParamCheckVarConst() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
-					return -1;
-				}
+				getParamCheckVarConst( waveInfo.signals[signal].initPower, waveInfo.signals[signal].finPower,
+									   script, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes,
+									   5 * signal + 3, 5 * signal + 4, singletons );
 				// Can't be varied
-				waveInfo.signals[i].powerRampType = "nr";
+				waveInfo.signals[signal].powerRampType = "nr";
 				// Get phase, unless varied.
-				if (this-> getParamCheckVar(waveInfo.signals[i].initPhase, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes,
-														(5 * i) + 5, singletons)
-					!= 0)
-				{
-					MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
-					return -1;
-				}
+				getParamCheckVar( waveInfo.signals[signal].initPhase, script, waveInfo.varNum, waveInfo.varNames,
+								  waveInfo.varTypes, 5 * signal + 5, singletons );
 			}
 			// Get time, unless varied.
-			if (this-> getParamCheckVar(waveInfo.time, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 26, singletons) != 0)
-			{
-				MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
-				return -1;
-			}
+			getParamCheckVar( waveInfo.time, script, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes,
+							  MAX_NIAWG_SIGNALS * 5 + 1, singletons );
 			// Scale the time to be in seconds. (input is ms)
 			waveInfo.time *= 0.001;
 			// get the time management option.
-			if (this-> getParamCheckVar(waveInfo.phaseManagementOption, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 27, 
-													singletons)
-				!= 0)
-			{
-				MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
-				return -1;
-			}
+			getParamCheckVar( waveInfo.phaseManagementOption, script, waveInfo.varNum, waveInfo.varNames,
+							  waveInfo.varTypes, MAX_NIAWG_SIGNALS * 5 + 2, singletons );
 			// pick up the delimeter.
-			rmWhite(scriptName);
-			scriptName >> waveInfo.delim;
+			script >> waveInfo.delim;
 			break;
 		}
 		/// The case for "gen ?, amp ramp"
-		case 5:
-		case 6:
-		case 7:
-		case 8:
-		case 9:
+		case 1:
 		{
-			for (int i = 0; i < waveInfo.signalNum; i++)
+			for ( auto signal : range( waveInfo.signalNum ) )
 			{
 				// set the initial and final values to be equal, and to not use a ramp.
-				if (this-> getParamCheckVarConst(waveInfo.signals[i].freqInit, waveInfo.signals[i].freqFin, scriptName, waveInfo.varNum, 
-															waveInfo.varNames, waveInfo.varTypes, (5 * i) + 1, (5 * i) + 2, singletons)
-					!= 0)
-				{
-					MessageBox(NULL, "getParamCheckVarConst() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
-					return -1;
-				}
+				getParamCheckVarConst( waveInfo.signals[signal].freqInit, waveInfo.signals[signal].freqFin,
+									   script, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes,
+									   5 * signal + 1, 5 * signal + 2, singletons );
 				// Scale the frequencies to be in hertz.(input is MHz)
-				waveInfo.signals[i].freqInit *= 1000000.;
-				waveInfo.signals[i].freqFin *= 1000000.;
+				waveInfo.signals[signal].freqInit *= 1000000.;
+				waveInfo.signals[signal].freqFin *= 1000000.;
 				// can't be varried.
-				waveInfo.signals[i].freqRampType = "nr";
+				waveInfo.signals[signal].freqRampType = "nr";
 				std::string tempStr;
-				scriptName >> tempStr;
-				std::transform(tempStr.begin(), tempStr.end(), tempStr.begin(), ::tolower);
-				waveInfo.signals[i].powerRampType = tempStr;
-				if (this-> getParamCheckVar(waveInfo.signals[i].initPower, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes,
-														(5 * i) + 3, singletons)
-					!= 0)
-				{
-					MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
-					return -1;
-				}
-				if (this-> getParamCheckVar(waveInfo.signals[i].finPower, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
-														(5 * i) + 4, singletons)
-					!= 0)
-				{
-					MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
-					return -1;
-				}
-				if (this-> getParamCheckVar(waveInfo.signals[i].initPhase, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
-														(5 * i) + 5, singletons)
-					!= 0) 
-				{
-					MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
-					return -1;
-				}
+				script >> tempStr;
+				std::transform( tempStr.begin(), tempStr.end(), tempStr.begin(), ::tolower );
+				waveInfo.signals[signal].powerRampType = tempStr;
+				getParamCheckVar( waveInfo.signals[signal].initPower, script, waveInfo.varNum,
+								  waveInfo.varNames, waveInfo.varTypes, 5 * signal + 3, singletons );
+				getParamCheckVar( waveInfo.signals[signal].finPower, script, waveInfo.varNum, waveInfo.varNames,
+								  waveInfo.varTypes, 5 * signal + 4, singletons );
+				getParamCheckVar( waveInfo.signals[signal].initPhase, script, waveInfo.varNum,
+								  waveInfo.varNames, waveInfo.varTypes, 5 * signal + 5,
+								  singletons );
 			}
-			if (this-> getParamCheckVar(waveInfo.time, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 26, singletons) 
-				!= 0)
-			{
-				MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
-				return -1;
-			}
+			getParamCheckVar( waveInfo.time, script, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes,
+							  MAX_NIAWG_SIGNALS * 5 + 1, singletons );
 			// Scale the time to be in seconds. (input is ms)
 			waveInfo.time *= 0.001;
 			// get the time management option.
-			if (this-> getParamCheckVar(waveInfo.phaseManagementOption, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 27, 
-													singletons)
-				!= 0)
-			{
-				MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
-				return -1;
-			}
+			getParamCheckVar( waveInfo.phaseManagementOption, script, waveInfo.varNum, waveInfo.varNames,
+							  waveInfo.varTypes, MAX_NIAWG_SIGNALS * 5 + 2, singletons );
 			// pick up the delimeter.
-			rmWhite(scriptName);
-			scriptName >> waveInfo.delim;
+			script >> waveInfo.delim;
 			break;
 		}
 		/// The case for "gen ?, freq ramp"
-		case 10:
-		case 11:
-		case 12:
-		case 13:
-		case 14:
+		case 2:
 		{
-			for (int i = 0; i < waveInfo.signalNum; i++) 
+			for ( auto signal : range( waveInfo.signalNum ) )
 			{
 				// get all parameters from the file
 				std::string tempStr;
-				scriptName >> tempStr;
-				std::transform(tempStr.begin(), tempStr.end(), tempStr.begin(), tolower);
-				waveInfo.signals[i].freqRampType = tempStr;
-				if (this-> getParamCheckVar(waveInfo.signals[i].freqInit, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
-														(5 * i) + 1, singletons)
-					!= 0) 
-				{
-					MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
-					return -1;
-				}
-				if (this-> getParamCheckVar(waveInfo.signals[i].freqFin, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
-														(5 * i) + 2, singletons)
-					!= 0) 
-				{
-					MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
-					return -1;
-				}
+				script >> tempStr;
+				std::transform( tempStr.begin(), tempStr.end(), tempStr.begin(), tolower );
+				waveInfo.signals[signal].freqRampType = tempStr;
+				getParamCheckVar( waveInfo.signals[signal].freqInit, script, waveInfo.varNum, waveInfo.varNames, 
+								  waveInfo.varTypes, 5 * signal + 1, singletons );
+				getParamCheckVar( waveInfo.signals[signal].freqFin, script, waveInfo.varNum, waveInfo.varNames,
+								  waveInfo.varTypes, 5 * signal + 2, singletons );
 				// Scale the frequencies to be in hertz.(input is MHz)
-				waveInfo.signals[i].freqInit *= 1000000.;
-				waveInfo.signals[i].freqFin *= 1000000.;
+				waveInfo.signals[signal].freqInit *= 1000000.;
+				waveInfo.signals[signal].freqFin *= 1000000.;
 				// set the initial and final values to be equal, and to not use a ramp.
-				if (this-> getParamCheckVarConst(waveInfo.signals[i].initPower, waveInfo.signals[i].finPower, scriptName, waveInfo.varNum,
-															waveInfo.varNames, waveInfo.varTypes, (5 * i) + 3, (5 * i) + 4, singletons)
-					!= 0) 
-				{
-					MessageBox(NULL, "getParamCheckVarConst() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
-					return -1;
-				}
-				waveInfo.signals[i].powerRampType = "nr";
-				if (this-> getParamCheckVar(waveInfo.signals[i].initPhase, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
-														(5 * i) + 5, singletons) != 0)
-				{
-					MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
-					return -1;
-				}
+				getParamCheckVarConst( waveInfo.signals[signal].initPower, waveInfo.signals[signal].finPower,
+									   script, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes,
+									   5 * signal + 3, 5 * signal + 4, singletons );
+				waveInfo.signals[signal].powerRampType = "nr";
+				getParamCheckVar( waveInfo.signals[signal].initPhase, script, waveInfo.varNum, waveInfo.varNames,
+								  waveInfo.varTypes, 5 * signal + 5, singletons );
 			}
-			if (this-> getParamCheckVar(waveInfo.time, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 26, singletons) != 0)
-			{
-				MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
-				getchar();
-				return -1;
-			}
+			getParamCheckVar( waveInfo.time, script, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes,
+							  MAX_NIAWG_SIGNALS * 5 + 1, singletons );
 			// Scale the time to be in seconds. (input is ms)
 			waveInfo.time *= 0.001;
 			// get the time management option.
-			if (this-> getParamCheckVar(waveInfo.phaseManagementOption, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 27,
-													singletons)
-				!= 0) 
-			{
-				MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
-				return -1;
-			}
+			getParamCheckVar( waveInfo.phaseManagementOption, script, waveInfo.varNum, waveInfo.varNames,
+							  waveInfo.varTypes, MAX_NIAWG_SIGNALS * 5 + 2, singletons );
 			// pick up the delimeter.
-			rmWhite(scriptName);
-			scriptName >> waveInfo.delim;
+			script >> waveInfo.delim;
 			break;
 		}
 			/// The case for "gen ?, freq & amp ramp"
-		case 15:
-		case 16:
-		case 17:
-		case 18:
-		case 19:
+		case 3:
 		{
-			for (int i = 0; i < waveInfo.signalNum; i++) 
+			for ( int signal = 0; signal < waveInfo.signalNum; signal++ )
 			{
 				// get all parameters from the file
 				std::string tempStr;
-				scriptName >> tempStr;
-				std::transform(tempStr.begin(), tempStr.end(), tempStr.begin(), ::tolower);
-				waveInfo.signals[i].freqRampType = tempStr;
-				if (this-> getParamCheckVar(waveInfo.signals[i].freqInit, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
-														(5 * i) + 1, singletons)
-					!= 0) 
-				{
-					MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
-					return -1;
-				}
-				if (this-> getParamCheckVar(waveInfo.signals[i].freqFin, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
-														(5 * i) + 2, singletons)
-					!= 0) 
-				{
-					MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
-					return -1;
-				}
+				script >> tempStr;
+				std::transform( tempStr.begin(), tempStr.end(), tempStr.begin(), ::tolower );
+				waveInfo.signals[signal].freqRampType = tempStr;
+				getParamCheckVar( waveInfo.signals[signal].freqInit, script, waveInfo.varNum, waveInfo.varNames,
+								  waveInfo.varTypes, 5 * signal + 1, singletons );
+				getParamCheckVar( waveInfo.signals[signal].freqFin, script, waveInfo.varNum, waveInfo.varNames,
+								  waveInfo.varTypes, 5 * signal + 2, singletons );
 				// Scale the frequencies to be in hertz.(input is MHz)
-				waveInfo.signals[i].freqInit *= 1000000.;
-				waveInfo.signals[i].freqFin *= 1000000.;
+				waveInfo.signals[signal].freqInit *= 1000000.;
+				waveInfo.signals[signal].freqFin *= 1000000.;
 
 				// get all parameters from the file
-				scriptName >> tempStr;
-				std::transform(tempStr.begin(), tempStr.end(), tempStr.begin(), ::tolower);
-				waveInfo.signals[i].powerRampType = tempStr;
-				if (this-> getParamCheckVar(waveInfo.signals[i].initPower, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
-														(5 * i) + 3, singletons)
-					!= 0) 
-				{
-					MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
-					return -1;
-				}
-				if (this-> getParamCheckVar(waveInfo.signals[i].finPower, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
-														(5 * i) + 4, singletons)
-					!= 0) 
-				{
-					MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
-					return -1;
-				}
-				if (this-> getParamCheckVar(waveInfo.signals[i].initPhase, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 
-														(5 * i) + 5, singletons)
-					!= 0) 
-				{
-					MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
-					return -1;
-				}
+				script >> tempStr;
+				std::transform( tempStr.begin(), tempStr.end(), tempStr.begin(), ::tolower );
+				waveInfo.signals[signal].powerRampType = tempStr;
+				getParamCheckVar( waveInfo.signals[signal].initPower, script, waveInfo.varNum,
+								  waveInfo.varNames, waveInfo.varTypes, 5 * signal + 3, singletons );
+				getParamCheckVar( waveInfo.signals[signal].finPower, script, waveInfo.varNum, waveInfo.varNames,
+								  waveInfo.varTypes, 5 * signal + 4, singletons );
+				getParamCheckVar( waveInfo.signals[signal].initPhase, script, waveInfo.varNum,
+								  waveInfo.varNames, waveInfo.varTypes, 5 * signal + 5, singletons );
+
 				//?????????????????????????????????????????????????????????????????????????????
-				//waveInfo.signals.push_back(waveInfo.signals[i]); // Why is this here???????????
+				//waveInfo.signals.push_back(waveInfo.signals[signalInc]); // Why is this here???????????
 				//?????????????????????????????????????????????????????????????????????????????
 			}
-			if (this-> getParamCheckVar(waveInfo.time, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 26, singletons) != 0)
-			{
-				MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
-				return -1;
-			}
+			getParamCheckVar( waveInfo.time, script, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes,
+							  MAX_NIAWG_SIGNALS * 5 + 2, singletons );
 			// Scale the time to be in seconds. (input is ms)
 			waveInfo.time *= 0.001;
 			// get the time management option.
-			if (this-> getParamCheckVar(waveInfo.phaseManagementOption, scriptName, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, 27, 
-													singletons)
-				!= 0) 
-			{
-				MessageBox(NULL, "getParamCheckVar() threw an error!", "ERROR", MB_OK | MB_ICONERROR);
-				return -1;
-			}
+			getParamCheckVar( waveInfo.phaseManagementOption, script, waveInfo.varNum, waveInfo.varNames,
+							  waveInfo.varTypes, MAX_NIAWG_SIGNALS * 5 + 2, singletons );
 			// pick up the delimeter.
-			rmWhite(scriptName);
-			scriptName >> waveInfo.delim;
+			script >> waveInfo.delim;
 			break;
 		}
 	}
 	// Also get the size (all cases)
-	waveInfo.sampleNum = this-> waveformSizeCalc(waveInfo);
-	return 0;
+	waveInfo.sampleNum = waveformSizeCalc( waveInfo );
+	return;
+}
+
+
+// load all values for libWaveformArray.
+void NiawgController::openWaveformFiles( std::vector<std::string>( &libWaveformArray )[MAX_NIAWG_SIGNALS * 4] )
+{
+	std::string tempStr;
+	std::fstream libNameFile;
+	for (int folderInc = 0; folderInc < WAVEFORM_TYPE_FOLDERS->size(); folderInc++)
+	{
+		// open the file. It's written in binary.
+		std::string libNameFilePath = LIB_PATH + WAVEFORM_TYPE_FOLDERS[folderInc] + WAVEFORM_NAME_FILES[folderInc];
+		libNameFile.open( libNameFilePath.c_str(), std::ios::binary | std::ios::in );
+		// Make sure that the file opened correctly.
+		if (!libNameFile.is_open())
+		{
+			thrower( "ERROR: waveform library file did not open correctly. Name was " + libNameFilePath );
+		}
+		// read all of the waveforms into libWaveformArray
+		int waveInfoInc = 0;
+		// if not empty, the first line will just have a newline on it, so there is no harm in getting rid of it.
+		std::getline( libNameFile, tempStr, '\n' );
+		while (!libNameFile.eof())
+		{
+			// read waveform names...
+			std::getline( libNameFile, tempStr, '\n' );
+			// put them into the array...
+			libWaveformArray[folderInc].push_back( tempStr );
+			waveInfoInc++;
+		}
+		// save the fileOpened value reflecting it's new status.
+		libNameFile.close();
+	}
 }
 
 /**
@@ -2226,8 +1270,9 @@ int NiawgController::getWvFmData(std::fstream &scriptName, waveData &waveInfo, s
 * @param fileOpened this carries information that tells if the file correspoinding to the inputCase in question has been opened, and the libWaveformArray
 * strings read, before. If it hasn't the code knows to open the file and read in the strings for the first time.
 */
-int NiawgController::waveformGen(ViReal64 * & tempWaveform, ViReal64 * & readData, waveData & waveInfo, long int size, std::vector<std::string>(&libWaveformArray)[20],
-				bool& fileOpened, debugOptions options, std::string& debugMsg)
+void NiawgController::waveformGen( ViReal64 * & tempWaveform, ViReal64 * & readData, waveData & waveInfo, 
+								   std::vector<std::string>( &libWaveformArray )[MAX_NIAWG_SIGNALS * 4], debugInfo options, 
+								   std::string& debugMsg )
 {
 	// structures that hold a time stamp
 	unsigned long long time1, time2;
@@ -2239,140 +1284,95 @@ int NiawgController::waveformGen(ViReal64 * & tempWaveform, ViReal64 * & readDat
 
 	// Construct the name of the raw data file from the parameters for the waveform. This can be a pretty long name, but that's okay because it's just text
 	// in a file at the end.
-	for (int i = 0; i < waveInfo.signalNum; i++) 
+	// this might become a problem if the name gets toooo long...
+	for ( auto signal : range( waveInfo.signalNum ) )
 	{
-		waveformFileSpecs += (std::to_string(waveInfo.signals[i].freqInit) + " " + std::to_string(waveInfo.signals[i].freqFin) + " " 
-								+ waveInfo.signals[i].freqRampType + " " + std::to_string(waveInfo.signals[i].initPower) + " " 
-								+ std::to_string(waveInfo.signals[i].finPower) + " " + waveInfo.signals[i].powerRampType + " " 
-								+ std::to_string(waveInfo.signals[i].initPhase) + ", ");
+		waveformFileSpecs += (str( waveInfo.signals[signal].freqInit ) + " " + str( waveInfo.signals[signal].freqFin ) + " "
+							   + waveInfo.signals[signal].freqRampType + " " + str( waveInfo.signals[signal].initPower ) + " "
+							   + str( waveInfo.signals[signal].finPower ) + " " + waveInfo.signals[signal].powerRampType + " "
+							   + str( waveInfo.signals[signal].initPhase ) + ", ");
 	}
-	waveformFileSpecs += (std::to_string(waveInfo.time * 1000.0) + "; ");
-
-	// if the file containing the list of waveforms hasn't already been opened...
-	if (fileOpened == false) 
-	{
-		// open the file. It's written in binary. std::ios::app is for writing new waveforms to the end of the file without replacing already existing
-		// waveforms.
-		std::string libNameFilePath = LIB_PATH + WAVEFORM_TYPE_FOLDERS[waveInfo.initType] + WAVEFORM_NAME_FILES[waveInfo.initType];
-		libNameFile.open(libNameFilePath.c_str(), std::ios::binary | std::ios::in);
-		// Make sure that the file opened correctly.
-			
-		if (!libNameFile.is_open())
-		{
-			MessageBox(NULL, "ERROR: waveform library file did not open correctly.\n", NULL, MB_OK);
-			return -1;
-		}
-
-		// read all of the waveforms into libWaveformArray
-		int waveInfoInc = 0;
-		// if not empty, the first line will just have a newline on it, so there is no harm in getting rid of it.
-		std::getline(libNameFile, tempStr, '\n');
-
-		while (!libNameFile.eof()) 
-		{
-			// read waveform names...
-			std::getline(libNameFile, tempStr, '\n');
-			// put them into the array...
-			libWaveformArray[waveInfo.initType].push_back(tempStr);
-			// next.
-			waveInfoInc++;
-		}
-		// save the fileOpened value reflecting it's new status.
-		fileOpened = true;
-		// Close the file.
-		libNameFile.close();
-	}
+	waveformFileSpecs += str( waveInfo.time * 1000.0 ) + "; ";
 	// Start timer
 	time1 = GetTickCount64();
-
-	// Loop over all previously recorded files
-	for (unsigned int i = 0; i < libWaveformArray[waveInfo.initType].size(); i++) 
+	/// Loop over all previously recorded files (these should have been filled by a previous call to openWaveformFiles()).
+	for ( unsigned int fileInc = 0; fileInc < libWaveformArray[waveInfo.initType].size(); fileInc++ )
 	{
 		// if you find this waveform to have already been written...
-		if (libWaveformArray[waveInfo.initType][i] == waveformFileSpecs) 
+		if ( libWaveformArray[waveInfo.initType][fileInc] == waveformFileSpecs )
 		{
 			// Construct the file address
-			std::string waveFileReadName = LIB_PATH + WAVEFORM_TYPE_FOLDERS[waveInfo.initType] + std::to_string(waveInfo.initType) + "_"
-											+ std::to_string(i) + ".txt";
-			// open the file
-			waveformFileRead.open(waveFileReadName, std::ios::binary | std::ios::in);
+			std::string waveFileReadName = LIB_PATH + WAVEFORM_TYPE_FOLDERS[waveInfo.initType] + str( waveInfo.initType ) + "_"
+				+ str( fileInc ) + ".txt";
+			waveformFileRead.open( waveFileReadName, std::ios::binary | std::ios::in );
 			// read the file. size + signalnum because of the phase data on the end.
-			waveformFileRead.read((char *)readData, (size + waveInfo.signalNum) * sizeof(ViReal64));
+			waveformFileRead.read( (char *) readData, (waveInfo.sampleNum + waveInfo.signalNum) * sizeof( ViReal64 ) );
 			// grab the phase data off of the end.
-			for (int i = 0; i < waveInfo.signalNum; i++) 
+			for ( auto signal : range( waveInfo.signalNum ) )
 			{
-				waveInfo.signals[i].finPhase = readData[size + i];
+				waveInfo.signals[signal].finPhase = readData[waveInfo.sampleNum + signal];
 			}
 			// put the relevant voltage data into a the new array.
-			std::copy_n(readData, size, tempWaveform);
-			// close file.
+			std::copy_n( readData, waveInfo.sampleNum, tempWaveform );
 			waveformFileRead.close();
-			if (options.showReadProgress == true)
+			if ( options.showReadProgress == true )
 			{
-				char processTimeMsg[200];
 				time2 = GetTickCount64();
 				double ellapsedTime = (time2 - time1) / 1000.0;
-				sprintf_s(processTimeMsg, "Finished Reading Waveform. Ellapsed Time: %.3f seconds.\r\n", ellapsedTime);
-				debugMsg += "Finished Reading Waveform. Ellapsed Time: %.3f seconds.\r\n";
-				//appendText(processTimeMsg, IDC_SYSTEM_DEBUG_TEXT, eMainWindowHandle);
+				debugMsg += "Finished Reading Waveform. Ellapsed Time: " + str(ellapsedTime) + " seconds.\r\n";
 			}
 			// if the file got read, I don't need to do any writing, so go ahead and return.
-			return 0;
+			return;
 		}
 	}
 
-	// if the code reaches this point, it could not find a file to read, and so will now create the data from scratch and write it. 
-	waveformFileName = LIB_PATH + WAVEFORM_TYPE_FOLDERS[waveInfo.initType] + std::to_string(waveInfo.initType) + "_"
-						+ std::to_string(libWaveformArray[waveInfo.initType].size()) + ".txt";
+	/// if the code reaches this point, it could not find a file to read, and so will now create the data from scratch and write it. 
+	waveformFileName = (LIB_PATH + WAVEFORM_TYPE_FOLDERS[waveInfo.initType] + str( waveInfo.initType ) + "_"
+						 + str( libWaveformArray[waveInfo.initType].size() ) + ".txt");
 	// open file for writing.
-	waveformFileWrite.open(waveformFileName, std::ios::binary | std::ios::out);
+	waveformFileWrite.open( waveformFileName, std::ios::binary | std::ios::out );
 	// make sure it opened.
-	if (!waveformFileWrite.is_open()) 
+	if ( !waveformFileWrite.is_open() )
 	{
 		// shouldn't ever happen.
-		MessageBox(NULL, "ERROR: Data Storage File could not open. File name is probably too long?\n", NULL, MB_OK);
-		return -2;
+		thrower( "ERROR: Data Storage File could not open. File name is probably too long? File name is " + waveformFileName );
 	}
 	else
 	{
 		// start timer.
 		unsigned long long time1 = GetTickCount64();
 		// calculate all voltage values and final phases and store them in the readData variable.
-		this-> calcWaveData(waveInfo, readData, size);
+		calcWaveData( waveInfo, readData );
 		// Write the data, with phases, to the write file.
-		waveformFileWrite.write((const char *)readData, (size + waveInfo.signalNum) * sizeof(ViReal64));
-		// close file.
+		waveformFileWrite.write( (const char *) readData, (waveInfo.sampleNum + waveInfo.signalNum) * sizeof( ViReal64 ) );
 		waveformFileWrite.close();
 		// put the relevant data into another string.
-		std::copy_n(readData, size, tempWaveform);
+		std::copy_n( readData, waveInfo.sampleNum, tempWaveform );
 		// write the newly written waveform's name to the library file.
-		libNameFile.open(LIB_PATH + WAVEFORM_TYPE_FOLDERS[waveInfo.initType] + WAVEFORM_NAME_FILES[waveInfo.initType], 
-							std::ios::binary | std::ios::out | std::ios::app);
-		// make sure the library file opened correctly.
-		if (!libNameFile.is_open()) 
+		libNameFile.open( LIB_PATH + WAVEFORM_TYPE_FOLDERS[waveInfo.initType] + WAVEFORM_NAME_FILES[waveInfo.initType],
+						  std::ios::binary | std::ios::out | std::ios::app );
+		if ( !libNameFile.is_open() )
 		{
-			MessageBox(NULL, "ERROR! waveform name file not opening correctly.\n", NULL, MB_OK);
-			return -3;
+			thrower("ERROR! waveform name file not opening correctly.\n");
 		}
 		// add the waveform name to the current list of strings. do it BEFORE adding the newline T.T
-		libWaveformArray[waveInfo.initType].push_back(waveformFileSpecs.c_str());
+		libWaveformArray[waveInfo.initType].push_back( waveformFileSpecs.c_str() );
 		// put a newline in front of the name so that all of the names don't get put on the same line.
 		waveformFileSpecs = "\n" + waveformFileSpecs;
-		// write the waveform name.
-		libNameFile.write((waveformFileSpecs).c_str(), waveformFileSpecs.size());
-		// aaaand close.
+		libNameFile.write( (waveformFileSpecs).c_str(), waveformFileSpecs.size() );
 		libNameFile.close();
-		if (options.showWriteProgress == true)
+		if ( options.showWriteProgress == true )
 		{
 			char processTimeMsg[200];
 			time2 = GetTickCount64();
 			double ellapsedTime = (time2 - time1) / 1000.0;
-			sprintf_s(processTimeMsg, "Finished Writing Waveform. Ellapsed Time: %.3f seconds.\r\n", ellapsedTime);
+			sprintf_s( processTimeMsg, "Finished Writing Waveform. Ellapsed Time: %.3f seconds.\r\n", ellapsedTime );
 			debugMsg += "Finished Reading Waveform. Ellapsed Time: %.3f seconds.\r\n";
 		}
 	}
-	return 0;
+	return;
 }
+
 
 /**
 * This function handles logic input. Most of the function of this is to simply figure out which command the user was going for, and append that to the
@@ -2386,133 +1386,105 @@ int NiawgController::waveformGen(ViReal64 * & tempWaveform, ViReal64 * & readDat
 * @param horizontalInput this is the actual command name recently grabbed from the horizontalFile.
 * @param scriptString this is the string that contains all of the final script. It gets written to.
 */
-int NiawgController::logic(std::fstream& verticalFile, std::fstream& horizontalFile, std::string verticalInput, std::string horizontalInput, std::string& scriptString) 
+void NiawgController::logic( niawgPair<ScriptStream>& scripts, niawgPair<std::string> inputs, std::string& scriptString )
 {
 	// Declare some parameters.
-	int xSampleNum, ySampleNum;
-	int xRepeatNum, yRepeatNum;
+	niawgPair<int> sampleNums;
+	niawgPair<int> repeatNums;
+	for (auto axis : AXES)
+	{
+		sampleNums[axis] = 0;
+		repeatNums[axis] = 0;
+	}
 
 	// In each of the following cases, the x input string is used first identified, and the the y-input command is checked to make sure that it matches
 	// the x input command.
 
-	// Wait commands //
-	if (verticalInput == "wait until trigger") 
+	if (inputs[Horizontal] != inputs[Vertical])
 	{
-		if (horizontalInput != "wait until trigger") 
-		{
-			// error message
-			MessageBox(NULL, "ERROR: logical input commands must match, and they don't!\n\n", NULL, MB_OK);
-			return -4;
-		}
-		// Append command to script holder
-		scriptString += "wait until " + std::string(this->TRIGGER_NAME) + "\n";
+		thrower( "ERROR: logical input commands must match, and they don't!\n\n" );
 	}
-	else if ((verticalInput == "wait set # <# of samples to wait>") || (verticalInput == "wait set #"))
+	// Wait commands //
+	if (inputs[Horizontal] == "wait until trigger")
 	{
-		// about to read from file so make sure no random extra newlines before read data...
-		rmWhite(verticalFile);
-		rmWhite(horizontalFile);
+		// Append command to script holder
+		scriptString += "wait until " + std::string( this->TRIGGER_NAME ) + "\n";
+	}
+	else if (inputs[Horizontal] == "wait set #")
+	{
 		// grab the # of samples the user wants to wait.
-		verticalFile >> xSampleNum;
-		horizontalFile >> ySampleNum;
-		// make sure they are the same.
-		if (xSampleNum != ySampleNum) 
+		std::string temp;
+		try
 		{
-			MessageBox(NULL, "ERROR: sample numbers to wait for must match, and they don't!\n\n", NULL, MB_OK);
-			return -5;
+			for (auto axis : AXES)
+			{
+				scripts[axis] >> temp;
+				sampleNums[axis] = std::stoi( temp );
+			}
+		}
+		catch (std::invalid_argument&)
+		{
+			thrower( "ERROR: Sample number inside wait command wasn't an integer! Value was " + temp );
+		}
+		// make sure they are the same.
+		if (sampleNums[Horizontal] != sampleNums[Vertical])
+		{
+			thrower( "ERROR: sample numbers to wait for must match, and they don't!\n\n" );
 		}
 		// append command to script holder
-		scriptString += "wait " + std::to_string((long long)xSampleNum) + "\n";
+		scriptString += "wait " + str( (long long)sampleNums[Horizontal] ) + "\n";
 	}
 	// Repeat commands // 
-	else if ((verticalInput == "repeat set # <# of times to repeat>") || (verticalInput == "repeat set #")) 
+	else if (inputs[Horizontal] == "repeat set #")
 	{
-		if ((horizontalInput != "repeat set # <# of times to repeat>") && (horizontalInput != "repeat set #")) 
-		{
-			// error message
-			MessageBox(NULL, "ERROR: logical input commands must match, and they don't!\n\n", NULL, MB_OK);
-			return -6;
-		}
-		// before reading...
-		rmWhite(verticalFile);
-		rmWhite(horizontalFile);
-
 		// grab the number of times to repeat the user is going for.
-		verticalFile >> xRepeatNum;
-		horizontalFile >> yRepeatNum;
+		std::string temp;
+		try
+		{
+			for (auto axis : AXES)
+			{
+				scripts[axis] >> temp;
+				repeatNums[axis] = std::stoi( temp );
+			}
+		}
+		catch (std::invalid_argument&)
+		{
+			thrower( "ERROR: repeat number was not an integer! value was " + temp );
+		}
 		// verify that the numbers match
-		if (xRepeatNum != yRepeatNum) 
+		if (repeatNums[Horizontal] != repeatNums[Vertical])
 		{
-			MessageBox(NULL, "ERROR: number of times to repeat must match, and they don't!\n\n", NULL, MB_OK);
-			return -7;
+			thrower( "ERROR: number of times to repeat must match, and they don't!\n\n" );
 		}
-
-		// append command to script holder
-		scriptString += "repeat " + std::to_string((long long)xRepeatNum) + "\n";
+		scriptString += "repeat " + str( (long long)repeatNums[Horizontal] ) + "\n";
 
 	}
-	else if (verticalInput == "repeat until trigger") 
+	else if (inputs[Horizontal] == "repeat until trigger")
 	{
-		if (horizontalInput != "repeat until trigger") 
-		{
-			MessageBox(NULL, "ERROR: logical input commands must match, and they don't!\n\n", NULL, MB_OK);
-			return -8;
-		}
-		// append command to script holder
-		scriptString += "repeat until " + std::string(this->TRIGGER_NAME) + "\n";
+		scriptString += "repeat until " + std::string( TRIGGER_NAME ) + "\n";
 	}
-	else if (verticalInput == "repeat forever") 
+	else if (inputs[Horizontal] == "repeat forever")
 	{
-		// append command to script holder
-		if (horizontalInput != "repeat forever") 
-		{
-			MessageBox(NULL, "ERROR: logical input commands must match, and they don't!\n\n", NULL, MB_OK);
-			return -9;
-		}
 		scriptString += "repeat forever\n";
 	}
-	else if (verticalInput == "end repeat") 
+	else if (inputs[Horizontal] == "end repeat")
 	{
-		if (horizontalInput != "end repeat") 
-		{
-			MessageBox(NULL, "ERROR: logical input commands must match, and they don't!\n\n", NULL, MB_OK);
-			return -10;
-		}
-		// append command to script holder
 		scriptString += "end repeat\n";
 	}
 	// if-else Commands //
-	else if (verticalInput == "if trigger") 
+	else if (inputs[Horizontal] == "if trigger")
 	{
-		if (horizontalInput != "if trigger") 
-		{
-			MessageBox(NULL, "ERROR: logical input commands must match, and they don't!\n\n", NULL, MB_OK);
-			return -11;
-		}
-		// append command to script holder
-		scriptString += "if " + std::string(this->TRIGGER_NAME) + "\n";
+		scriptString += "if " + std::string( TRIGGER_NAME ) + "\n";
 	}
-	else if (verticalInput == "else") 
+	else if (inputs[Horizontal] == "else")
 	{
-		if (horizontalInput != "else") 
-		{
-			MessageBox(NULL, "ERROR: logical input commands must match, and they don't!\n\n", NULL, MB_OK);
-			return -12;
-		}
-		// append command to script holder
 		scriptString += "else\n";
 	}
-	else if (verticalInput == "end if") 
+	else if (inputs[Horizontal] == "end if")
 	{
-		if (horizontalInput != "end if") 
-		{
-			MessageBox(NULL, "ERROR: logical input commands must match, and they don't!\n\n", NULL, MB_OK);
-			return -13;
-		}
-		// append command to script holder
 		scriptString += "end if\n";
 	}
-	return 0;
+	return;
 }
 
 
@@ -2531,168 +1503,148 @@ int NiawgController::logic(std::fstream& verticalFile, std::fstream& horizontalF
 * @param vi is the session handle currently in use for communication with the AWG.
 * @param channelName is the channel name ("0,1" normally) that the signal is currently being put through.
 * @param error is the NI fgen error variable which grabs error messages.
-* @param xWaveformList is the list of all of the previously written x-waveforms.
-* @param yWaveformList is the list of all of the previously written y-waveforms.
-* @param predWaveCount is the number of predefined waves (i.e. referring to a file that contains the waveform parameters) that have been used so far.
-* @param waveListWaveCounts is the array that tells which waveforms (i.e. waveform0, waveform1, the names used for the final script) the predefined
+* @param verticalWaveformList is the list of all of the previously written x-waveforms.
+* @param horizontalWaveformList is the list of all of the previously written y-waveforms.
+* @param predWaveCount is the number of predefined waves (signalInc.e. referring to a file that contains the waveform parameters) that have been used so far.
+* @param waveListWaveCounts is the array that tells which waveforms (signalInc.e. waveform0, waveform1, the names used for the final script) the predefined
 * waveforms refer to.
 * @param libWaveformArray is the array of vectors to strings that contain all of the names of the waveforms currently in the library.
 * @param fileStatus is the array that contains the information as to whether each library file has been opened yet this run or not.
 */
-int NiawgController::special(std::fstream &verticalFile, std::fstream &horizontalFile, std::string verticalInputType, 
-			std::string horizontalInputType, std::string &scriptString, int &waveCount,	std::vector<std::string> xWaveformList,
-			std::vector<std::string> yWaveformList, int &predWaveCount, std::vector<int> waveListWaveCounts,
-			std::vector<std::string>(&libWaveformArray)[20], bool(&fileStatus)[20], std::vector<waveData> &allXWaveParam, 
-			std::vector<bool> &xWaveVaried,	std::vector<waveData> &allYWaveParam, std::vector<bool> &yWaveVaried, bool isDefault, 
-			std::string currentCategoryFolder, std::vector<variable> singletons, std::string orientation, debugOptions options, 
-	std::string& warnings, std::string& debugMessages)
+void NiawgController::special( niawgPair<ScriptStream>& scripts, outputInfo& output, niawgPair<std::string> inputTypes, 
+							   std::vector<std::string>( &libWaveformArray )[MAX_NIAWG_SIGNALS * 4], profileSettings profile, 
+							   std::vector<variable> singletons, debugInfo options, std::string& warnings, std::string& debugMessages )
 {
 	// declare some variables
-	std::string verticalExternalVerticalScriptName, verticalExternalHorizontalScriptName, horizontalExternalVerticalScriptName, 
-				horizontalExternalHorizontalScriptName, verticalSampleWait, horizontalSampleWait, verticalExternalVerticalWaveformName, 
-				verticalExternalHorizontalWaveformName,	horizontalExternalVerticalWaveformName, horizontalExternalHorizontalWaveformName, 
-				verticalImportType, horizontalImportType;
-	std::fstream externalVerticalWaveformFile, externalHorizontalWaveformFile;
+	// first level is file the name was found in, second level is the name inside that file.
+	niawgPair<niawgPair<std::string>> externalScriptNames, externalWaveformNames;
+	niawgPair<std::string> waitSamples, importTypes;
+	niawgPair<std::fstream> externalWaveformFiles;
 
 	// Interpreting a predefined scripting file.
-	if ((verticalInputType == "predefined script \\n <vertical filename.script> \\n <horizontal filename.script>") || (verticalInputType == "predefined script"))
+	if (inputTypes[Vertical] == "predefined script")
 	{
 		// make sure that both scripts refer to the same predefined scripts
-		if (horizontalInputType != "predefined script \\n <vertical filename.txt> \\n <horizontal filename.txt>" && horizontalInputType != "predefined script") 
+		if (inputTypes[Horizontal]!= "predefined script")
 		{
-			MessageBox(NULL, "ERROR: logical input commands must match, and they don't!\n\n", NULL, MB_OK);
-			return -16;
+			thrower("ERROR: logical input commands must match, and they don't!\n\n");
 		}
-		// before reading...
-		rmWhite(verticalFile);
-		rmWhite(horizontalFile);
 		// grab the script names from each file
-		getline(verticalFile, verticalExternalVerticalScriptName, '\r');
-		rmWhite(verticalFile);
-		getline(verticalFile, verticalExternalHorizontalScriptName, '\r');
-		getline(horizontalFile, horizontalExternalVerticalScriptName, '\r');
-		rmWhite(horizontalFile);
-		getline(horizontalFile, horizontalExternalHorizontalScriptName, '\r');
-
-		// make sure the names match.
-		if (verticalExternalVerticalScriptName != horizontalExternalVerticalScriptName || verticalExternalHorizontalScriptName != horizontalExternalHorizontalScriptName) 
+		for (auto axis : AXES)
 		{
-			MessageBox(NULL, "ERROR: external script names must match!\n\n", NULL, MB_OK);
-			return -17;
+			// get both the names from a given script.
+			externalScriptNames[axis][Vertical] = scripts[axis].getline( '\r' );
+			externalScriptNames[axis][Horizontal] = scripts[axis].getline( '\r' );
+		}
+		// make sure the names match.
+		if (externalScriptNames[Vertical][Vertical] != externalScriptNames[Horizontal][Vertical]
+			 || externalScriptNames[Vertical][Horizontal] != externalScriptNames[Horizontal][Horizontal])
+		{
+			thrower("ERROR: external script names must match for a predefined script command!\n\n");
 		}
 		// open the scripts
-		std::fstream externalVerticalScriptFile, externalHorizontalScriptFile;
-		externalVerticalScriptFile.open(currentCategoryFolder + "\\" + verticalExternalVerticalScriptName);
-		if (!externalVerticalScriptFile.is_open())
+		niawgPair<std::fstream> externalScriptFiles;
+		for (auto axis : AXES)
 		{
-			MessageBox(0, ("ERROR: external vertical script file: " + verticalExternalVerticalScriptName + " could not be opened! make sure it exists in the current category folder: " + currentCategoryFolder).c_str(), 0, 0);
-			return -1;
+			externalScriptFiles[axis].open( profile.categoryPath + "\\" + externalScriptNames[Vertical][axis] );
+			if (!externalScriptFiles[axis].is_open())
+			{
+				thrower( "ERROR: external " + AXES_NAMES[axis] + " script file: " + externalScriptNames[Vertical][axis]
+						 + " could not be opened! make sure it exists in the current category folder: " + profile.categoryPath );
+			}
 		}
-		externalHorizontalScriptFile.open(currentCategoryFolder + "\\" + verticalExternalHorizontalScriptName);
-		if (!externalVerticalScriptFile.is_open())
-		{
-			MessageBox(0, ("ERROR: external horizontal script file: " + verticalExternalHorizontalScriptName + " could not be opened! make sure it exists in the current category folder: " + currentCategoryFolder).c_str(), 0, 0);
-			return -1;
-		}
-		// recursively call the analyzeNIAWGScripts function. This will go through the new script files, write all of their commands to the same script, write
+		// recursively call the analyzeNiawgScripts function. This will go through the new script files, write all of their commands to the same script, write
 		// waveforms to the AWG, and eventually make it's way back here.
-
 		// this doesn't need a try/except because it's always inside another analyze call.
-		this->analyzeNIAWGScripts(externalVerticalScriptFile, externalHorizontalScriptFile, scriptString, waveCount, xWaveformList,
-			yWaveformList, predWaveCount, waveListWaveCounts, libWaveformArray, fileStatus, allXWaveParam, xWaveVaried,
-			allYWaveParam, yWaveVaried, isDefault, currentCategoryFolder, singletons, orientation, options, warnings, debugMessages);
+		niawgPair<ScriptStream> externalScripts;
+		for (auto axis : AXES)
+		{
+			externalScripts[axis] << externalScriptFiles[axis].rdbuf();
+		}
 
-		return 0;
+		analyzeNiawgScripts( externalScripts, output, libWaveformArray, profile, singletons, options, warnings, debugMessages );
 	}
 	// work with marker events
-	else if (verticalInputType == "create marker event <samples after previous waveform to wait>" || verticalInputType == "create marker event")
+	else if (inputTypes[Vertical] == "create marker event")
 	{
 		// Make sure the commands match
-		if (horizontalInputType != "create marker event <samples after previous waveform to wait>" && horizontalInputType != "create marker event")
+		if (inputTypes[Horizontal] != "create marker event")
 		{
-			MessageBox(NULL, "ERROR: logical input commands must match, and they don't!\n\n", NULL, MB_OK);
-			return -16;
+			thrower("ERROR: logical input commands must match, and they don't!\n\n");
 		}
-		// before reading...
-		rmWhite(verticalFile);
-		rmWhite(horizontalFile);
-
 		// get the timing information from the file.
-		verticalFile >> verticalSampleWait;
-		horizontalFile >> horizontalSampleWait;
-		// remove previous newline to put this command on the same line as a generate command, as it needs to be for the final script.
-		scriptString.pop_back();
+		for (auto axis : AXES)
+		{
+			scripts[axis] >> waitSamples[axis];
+		}
+		if (waitSamples[Vertical] != waitSamples[Horizontal])
+		{
+			thrower( "ERROR: Numer of samples to wait must be the same in the vertical and horizontal files, and they aren't!" );
+		}
+		// ! remove previous newline to put this command on the same line as a generate command, as it needs to be for the final script. !
+		output.niawgLanguageScript.pop_back();
 		// append script
-		scriptString += " marker0 (" + verticalSampleWait + ")\n";
-		return 0;
+		output.niawgLanguageScript += " marker0 (" + waitSamples[Vertical] + ")\n";
 	}
 	// work with predefined waveforms (mini-scripts)
-	else if ((verticalInputType == "predefined waveform" )
-			|| (verticalInputType == "predefined waveform <x filename.txt> <y filename.txt> <waveform type>"))
+	else if (inputTypes[Vertical] == "predefined waveform" )
 	{
 		// make sure the commands match
-		if ((horizontalInputType != "predefined waveform") && (horizontalInputType != "predefined waveform <x filename.txt> <y filename.txt>"))
+		if (inputTypes[Horizontal] != "predefined waveform")
 		{
-			MessageBox(NULL, "ERROR: logical input commands must match, and they don't!\n\n", NULL, MB_OK);
-			return -18;
+			thrower("ERROR: logical input commands must match, and they don't!\n\n");
 		}
-		// before reading...
-		rmWhite(verticalFile);
-		rmWhite(horizontalFile);
 		// grab the waveform names and command types
-		verticalFile >> verticalExternalVerticalWaveformName;
-		verticalFile >> verticalExternalHorizontalWaveformName;
-		horizontalFile >> horizontalExternalVerticalWaveformName;
-		horizontalFile >> horizontalExternalHorizontalWaveformName;
-		// make sure names match
-		if (verticalExternalVerticalWaveformName != horizontalExternalVerticalWaveformName || verticalExternalHorizontalWaveformName != horizontalExternalHorizontalWaveformName) 
+		// grab the script names from each file
+		for (auto axis : AXES)
 		{
-			MessageBox(NULL, "ERROR: external waveform names must match!\n\n", NULL, MB_OK);
-			return -19;
+			// get both the names from a given script.
+			externalWaveformNames[axis][Vertical] = scripts[axis].getline( '\r' );
+			externalWaveformNames[axis][Horizontal] = scripts[axis].getline( '\r' );
 		}
-		if (verticalImportType != horizontalImportType) 
+		// make sure names match
+		if (externalWaveformNames[Vertical][Vertical] != externalWaveformNames[Horizontal][Vertical]
+			 || externalWaveformNames[Vertical][Horizontal] != externalWaveformNames[Horizontal][Horizontal])
 		{
-			MessageBox(NULL, "ERROR: import types of the x and y waveforms must match!\n\n", NULL, MB_OK);
-			return -20;
+			thrower("ERROR: external waveform names must match!");
 		}
 		// check if this waveform has already been used. If it has, then just refer to that waveform by name in the script.
-		for (int i = 0; i < predWaveCount; i++) 
+		for (int predefinedWaveformInc = 0; predefinedWaveformInc < output.predefinedWaveCount; predefinedWaveformInc++) 
 		{
-			if (verticalExternalVerticalWaveformName == xWaveformList[i]) 
+			if (externalWaveformNames[Vertical][Vertical] == output.channel[Vertical].predefinedWaveNames[predefinedWaveformInc]) 
 			{
-				if (verticalExternalHorizontalWaveformName == yWaveformList[i]) 
+				if (externalWaveformNames[Vertical][Horizontal] == output.channel[Horizontal].predefinedWaveNames[predefinedWaveformInc])
 				{
-					scriptString += "generate Waveform" + std::to_string(waveListWaveCounts[i]) + "\n";
-					return 0;
+					output.niawgLanguageScript += "generate Waveform" + str(output.predefinedWaveLocs[predefinedWaveformInc]) + "\n";
 				}
 			}
 		}
-
 		// add the name of the waveform to the list.
-		xWaveformList.push_back(verticalExternalVerticalWaveformName);
-		yWaveformList.push_back(verticalExternalHorizontalWaveformName);
+		output.channel[Vertical].predefinedWaveNames.push_back( externalWaveformNames[Vertical][Vertical] );
+		output.channel[Horizontal].predefinedWaveNames.push_back( externalWaveformNames[Vertical][Horizontal] );
 		// record the waveform number that corresponds to this new waveform.
-		waveListWaveCounts.push_back(waveCount);
+		output.predefinedWaveLocs.push_back(output.predefinedWaveCount);
 		// incremend the number of predefined waves that have been used.
-		predWaveCount++;
+		output.predefinedWaveCount++;
 
 		// open the waveform files
-		externalVerticalWaveformFile.open(verticalExternalVerticalWaveformName);
-		externalHorizontalWaveformFile.open(verticalExternalHorizontalWaveformName);
-
-		// analyzeNIAWGScripts here works in the same way as it does for longer scripts. The effect here is simply to read the one waveform into the same script 
+		externalWaveformFiles[Vertical].open( externalWaveformNames[Vertical][Vertical] );
+		externalWaveformFiles[Horizontal].open( externalWaveformNames[Vertical][Horizontal] );
+		niawgPair<ScriptStream> externalWaveformStreams;
+		for (auto axis : AXES)
+		{
+			externalWaveformStreams[axis] << externalWaveformFiles[axis].rdbuf();
+		}
+		// analyzeNiawgScripts here works in the same way as it does for longer scripts. The effect here is simply to read the one waveform into the same script 
 		// file.
-		this->analyzeNIAWGScripts(externalVerticalWaveformFile, externalHorizontalWaveformFile, scriptString, waveCount, xWaveformList, 
-								yWaveformList, predWaveCount, waveListWaveCounts, libWaveformArray, fileStatus, allXWaveParam, xWaveVaried, 
-								allYWaveParam, yWaveVaried, isDefault, currentCategoryFolder, singletons, orientation, options, warnings, debugMessages);
-		return 0;
+		analyzeNiawgScripts( externalWaveformStreams, output, libWaveformArray, profile, singletons, options, warnings, debugMessages );
 	}
 	else
 	{
-		MessageBox(NULL, "ERROR: no special command found", NULL, MB_OK);
-		return -21;
+		thrower("ERROR: special command not found!");
 	}
 }
+
 
 /**
 * This namespace includes all of the relevant functions for generating waveforms.
@@ -2702,6 +1654,7 @@ long NiawgController::waveformSizeCalc(double time)
 	double waveSize = time * SAMPLE_RATE;
 	return (long int)(waveSize + 0.5);
 }
+
 
 /**
 * This function takes in the data for a single waveform and calculates all if the waveform's data points, and returns a pointer to an array containing
@@ -2713,7 +1666,7 @@ long NiawgController::waveformSizeCalc(double time)
 * @param readData is the array which will hold all of the waveform and phase data.
 * @param waveformSize is the size of the waveform to be written in number of samples.
 */
-ViReal64* NiawgController::calcWaveData(waveData& inputData, ViReal64*& readData, long int waveformSize)
+ViReal64* NiawgController::calcWaveData(waveData& inputData, ViReal64*& readData)
 {
 	// Declarations
 	std::vector<double> powerPos, freqRampPos, phasePos(inputData.signalNum);
@@ -2723,80 +1676,73 @@ ViReal64* NiawgController::calcWaveData(waveData& inputData, ViReal64*& readData
 	std::string tempStr;
 
 	/// deal with ramp calibration files. check all signals for files and read if yes.
-	for (int j = 0; j < inputData.signalNum; j++)
+	for (auto signal : range(inputData.signalNum))
 	{
 		// create spots for the ramp positions.
 		powerPos.push_back(0);
 		freqRampPos.push_back(0);
-
 		// If the ramp type isn't a standard command...
-		if (inputData.signals[j].powerRampType != "lin" && inputData.signals[j].powerRampType != "nr" && inputData.signals[j].powerRampType != "tanh")
+		if (inputData.signals[signal].powerRampType != "lin" && inputData.signals[signal].powerRampType != "nr" 
+			 && inputData.signals[signal].powerRampType != "tanh")
 		{
-			powerRampFileData.push_back(new double[waveformSize]);
+			powerRampFileData.push_back(new double[inputData.sampleNum]);
 			// try to open it as a file
-			powerRampFile.open(inputData.signals[j].powerRampType);
+			powerRampFile.open(inputData.signals[signal].powerRampType);
 			// if successful....
 			if (powerRampFile.is_open())
 			{
-				int i = 0;
+				int powerValNumber = 0;
 				// load the data in
 				while (!powerRampFile.eof())
 				{
-					powerRampFile >> powerRampFileData[j][i];
-					i++;
+					powerRampFile >> powerRampFileData[signal][powerValNumber];
+					powerValNumber++;
 				}
 				// error message for bad size (powerRampFile.eof() reached too early or too late).
-				if (i != waveformSize + 1)
+				if (powerValNumber != inputData.sampleNum + 1)
 				{
-					char tempChar[300];
-					sprintf_s(tempChar, "ERROR: file not the correct size?\nSize of upload is %i; size of file is %i ", i, waveformSize);
-					MessageBox(NULL, tempChar, NULL, MB_OK);
-					return NULL;
+					
+					thrower( "ERROR: file not the correct size?\nSize of upload is " + str( powerValNumber ) 
+							 + "; size of file is " + str( inputData.sampleNum ));
 				}
 				// close the file.
 				powerRampFile.close();
 			}
 			else
 			{
-				std::string errMsg = "ERROR: ramp type " + std::string(inputData.signals[j].powerRampType) 
-										+ " is unrecognized. If this is a file name, make sure the file exists and is in the project folder. ";
-				MessageBox(NULL, errMsg.c_str(), NULL, MB_OK);
-				return NULL;
+				thrower("ERROR: ramp type " + std::string(inputData.signals[signal].powerRampType)
+						+ " is unrecognized. If this is a file name, make sure the file exists and is in the project folder. ");
 			}
 		}
 		// If the ramp type isn't a standard command...
-		if (inputData.signals[j].freqRampType != "lin" && inputData.signals[j].freqRampType != "nr" && inputData.signals[j].freqRampType != "tanh")
+		if (inputData.signals[signal].freqRampType != "lin" && inputData.signals[signal].freqRampType != "nr"
+			 && inputData.signals[signal].freqRampType != "tanh")
 		{
-			// try to open
-			freqRampFileData.push_back(new double[waveformSize]);
-
-			freqRampFile.open(inputData.signals[j].freqRampType, std::ios::in);
+			// try to open it
+			freqRampFileData.push_back(new double[inputData.sampleNum]);
+			freqRampFile.open(inputData.signals[signal].freqRampType, std::ios::in);
 			// if open
 			if (freqRampFile.is_open())
 			{
-				int i = 0;
+				int freqRampValNum = 0;
 				while (!freqRampFile.eof())
 				{
-					freqRampFile >> freqRampFileData[j][i];
-					i++;
+					freqRampFile >> freqRampFileData[signal][freqRampValNum];
+					freqRampValNum++;
 				}
 				// error message for bad size (powerRampFile.eof() reached too early or too late).
-				if (i != waveformSize + 1)
+				if (freqRampValNum != inputData.sampleNum + 1)
 				{
-					char tempChar[300];
-					sprintf_s(tempChar, "ERROR: file not the correct size?\nSize of upload is %i; size of file is %i", i, waveformSize);
-					MessageBox(NULL, tempChar, NULL, MB_OK);
-					return NULL;
+					thrower("ERROR: file not the correct size?\nSize of upload is " + str(freqRampValNum) 
+							 + "; size of file is " + str( inputData.sampleNum ));
 				}
 				// close file
 				freqRampFile.close();
 			}
 			else
 			{
-				std::string errMsg = "ERROR: ramp type " + inputData.signals[j].freqRampType +" is unrecognized. If this is a file name, make sure the"
-										" file exists and is in the project folder.";
-				MessageBox(NULL, errMsg.c_str(), NULL, MB_OK);
-				return NULL;
+				thrower( "ERROR: ramp type " + inputData.signals[signal].freqRampType + " is unrecognized. If this is a file name, make sure the"
+						 " file exists and is in the project folder." );
 			}
 		}
 	}
@@ -2804,35 +1750,35 @@ ViReal64* NiawgController::calcWaveData(waveData& inputData, ViReal64*& readData
 	/// calculate frequency differences for every signal. This is used for frequency ramps.
 	std::vector<double> deltaOmega;
 	double deltaTanh = std::tanh(4) - std::tanh(-4);
-	for (int j = 0; j < inputData.signalNum; j++)
+	for (int signal = 0; signal < inputData.signalNum; signal++)
 	{
-		deltaOmega.push_back(2 * PI * (inputData.signals[j].freqFin - inputData.signals[j].freqInit));
+		deltaOmega.push_back(2 * PI * (inputData.signals[signal].freqFin - inputData.signals[signal].freqInit));
 	}
 	/// ////////////////////////////////////////
 	///
 	///		Get Data Points.
 	///
-	// initialize i before the loop so that I have access to it afterwards.
-	int i = 0;
+	// initialize signalInc before the loop so that I have access to it afterwards.
+	int sample = 0;
 	/// increment through all samples
-	for (; i < waveformSize; i++)
+	for (; sample < inputData.sampleNum; sample++)
 	{
 		// calculate the time that this sample number refers to
-		double curTime = (double)i / SAMPLE_RATE;
+		double curTime = (double)sample / SAMPLE_RATE;
 		/// Calculate Phase and Power Positions. For Every signal...
-		for (int j = 0; j < inputData.signalNum; j++)
+		for (auto signal : range(inputData.signalNum) )
 		{
 			/// Handle Frequency Ramps
 			// Frequency ramps are actually a little complex. we have dPhi/dt = omega(t) and we need phi to calculate data points. So in order to get 
 			// the phase you need to integrate the omega(t) you want and modify the integration constant to get your initial phase.
-			if (inputData.signals[j].freqRampType == "lin")
+			if (inputData.signals[signal].freqRampType == "lin")
 			{
 				// W{t} = Wi + (DeltaW * t) / (Tfin)
 				// Phi{t}   = Wi * t + (DeltaW * t ^ 2) / 2 + phi_i
-				phasePos[j] = 2 * PI * inputData.signals[j].freqInit * curTime + deltaOmega[j] * pow(curTime, 2) / (2 * inputData.time) 
-							+ inputData.signals[j].initPhase;
+				phasePos[signal] = 2 * PI * inputData.signals[signal].freqInit * curTime + deltaOmega[signal] * pow(curTime, 2) / (2 * inputData.time) 
+							+ inputData.signals[signal].initPhase;
 			}
-			else if (inputData.signals[j].freqRampType == "tanh")
+			else if (inputData.signals[signal].freqRampType == "tanh")
 			{
 				// We want
 				// W{t} = Wi + (DeltaW * (Tanh{-4 + 8 * t' / Tf} - Tanh{-4}) / (Tanh{4} - Tanh{-4})
@@ -2842,36 +1788,35 @@ ViReal64* NiawgController::calcWaveData(waveData& inputData, ViReal64*& readData
 				// Evaluating C to give the correct phase gives
 				// phi{t} = (w_i+dw/2)t+(dw)/dtanh * T_f/8 * (ln{cosh{-4+8t/T_f}}-ln{cosh{-4}}) + phi_0
 				// See onenote for more math.
-				phasePos[j] = (2 * PI * inputData.signals[j].freqInit + deltaOmega[j] / 2.0) * curTime
-								+ (deltaOmega[j] / deltaTanh ) * (inputData.time / 8.0) * ( std::log(std::cosh(4 - (8 / inputData.time) * curTime))
-								- std::log(std::cosh(4))) + inputData.signals[j].initPhase;
+				phasePos[signal] = (2 * PI * inputData.signals[signal].freqInit + deltaOmega[signal] / 2.0) * curTime
+								+ (deltaOmega[signal] / deltaTanh ) * (inputData.time / 8.0) * ( std::log(std::cosh(4 - (8 / inputData.time) * curTime))
+								- std::log(std::cosh(4))) + inputData.signals[signal].initPhase;
 			}
-			else if (inputData.signals[j].freqRampType == "nr")
+			else if (inputData.signals[signal].freqRampType == "nr")
 			{
 				// omega{t} = omega
 				// phi = omega*t
-				phasePos[j] = 2 * PI * inputData.signals[j].freqInit * curTime + inputData.signals[j].initPhase;
+				phasePos[signal] = 2 * PI * inputData.signals[signal].freqInit * curTime + inputData.signals[signal].initPhase;
 			}
 			else
 			{
 				// special ramp case. I'm not sure if this is actually useful. The frequency file would have to be designed very carefully.
-				freqRampPos[j] = freqRampFileData[j][i] * (inputData.signals[j].freqFin - inputData.signals[j].freqInit);
-				phasePos[j] = (ViReal64)i * 2 * PI * (inputData.signals[j].freqInit + freqRampPos[j]) / SAMPLE_RATE
-								+ inputData.signals[j].initPhase;
+				freqRampPos[signal] = freqRampFileData[signal][sample] * (inputData.signals[signal].freqFin - inputData.signals[signal].freqInit);
+				phasePos[signal] = (ViReal64)sample * 2 * PI * (inputData.signals[signal].freqInit + freqRampPos[signal]) / SAMPLE_RATE
+								+ inputData.signals[signal].initPhase;
 			}
-
 			/// amplitude ramps are much simpler.
-			if (inputData.signals[j].powerRampType != "lin" && inputData.signals[j].powerRampType != "nr" && inputData.signals[j].powerRampType 
-				!= "tanh")
+			if (inputData.signals[signal].powerRampType != "lin" && inputData.signals[signal].powerRampType != "nr" && inputData.signals[signal].powerRampType
+				 != "tanh")
 			{
 				// use data from file
-				powerPos[j] = powerRampFileData[j][i] * (inputData.signals[j].finPower - inputData.signals[j].initPower);
+				powerPos[signal] = powerRampFileData[signal][sample] * (inputData.signals[signal].finPower - inputData.signals[signal].initPower);
 			}
 			else
 			{
 				// use the ramp calc function to find the current power.
-				powerPos[j] = myMath::rampCalc(waveformSize, i, inputData.signals[j].initPower, inputData.signals[j].finPower, 
-												inputData.signals[j].powerRampType);
+				powerPos[signal] = myMath::rampCalc( inputData.sampleNum, sample, inputData.signals[signal].initPower, inputData.signals[signal].finPower,
+													 inputData.signals[signal].powerRampType );
 			}
 		}
 
@@ -2880,73 +1825,74 @@ ViReal64* NiawgController::calcWaveData(waveData& inputData, ViReal64*& readData
 		{
 			double currentPower = 0;
 			// calculate the total current amplitude.
-			for (int j = 0; j < inputData.signalNum; j++)
+			for (auto signal : range(inputData.signalNum) )
 			{
-				currentPower += fabs(inputData.signals[j].initPower + powerPos[j]);
+				currentPower += fabs(inputData.signals[signal].initPower + powerPos[signal]);
 				/// modify here for calibrations!
 				/// need current frequency and calibration file.
 			}
 
 			// normalize each signal.
-			for (int j = 0; j < inputData.signalNum; j++)
+			for (auto signal : range(inputData.signalNum) )
 			{
-				powerPos[j] = (inputData.signals[j].initPower + powerPos[j]) * (TOTAL_POWER / currentPower) - inputData.signals[j].initPower;
+				powerPos[signal] = (inputData.signals[signal].initPower + powerPos[signal]) 
+					* (TOTAL_POWER / currentPower) - inputData.signals[signal].initPower;
 			}
 		}
 		///  Calculate data point.
-		readData[i] = 0;
-		for (int j = 0; j < inputData.signalNum; j++)
+		readData[sample] = 0;
+		for (auto signal : range(inputData.signalNum) )
 		{
 			// get data point. V = Sqrt(Power) * Sin(Phase)
-			readData[i] += sqrt(inputData.signals[j].initPower + powerPos[j]) * sin(phasePos[j]);
+			readData[sample] += sqrt(inputData.signals[signal].initPower + powerPos[signal]) * sin(phasePos[signal]);
 		}
 	}
 
 	/// Calculate one last time for the final phases. I want the final phase to be the phase of the NEXT data point. Then, following waveforms can
 	/// START at this phase.
-	double curTime = (double)i / SAMPLE_RATE;
-	for (int j = 0; j < inputData.signalNum; j++)
+	double curTime = (double)sample / SAMPLE_RATE;
+	for (auto signal : range( inputData.signalNum ) )
 	{
 		/// Calculate Phase Position. See above for description.
-		if (inputData.signals[j].freqRampType == "lin")
+		if (inputData.signals[signal].freqRampType == "lin")
 		{
-			phasePos[j] = 2 * PI * inputData.signals[j].freqInit * curTime + deltaOmega[j] * pow(curTime, 2) * 1 / (2 * inputData.time) 
-							+ inputData.signals[j].initPhase;
+			phasePos[signal] = 2 * PI * inputData.signals[signal].freqInit * curTime + deltaOmega[signal] * pow(curTime, 2) * 1 / (2 * inputData.time) 
+							+ inputData.signals[signal].initPhase;
 		}
-		else if (inputData.signals[j].freqRampType == "tanh")
+		else if (inputData.signals[signal].freqRampType == "tanh")
 		{
-			phasePos[j] = (2 * PI * inputData.signals[j].freqInit + deltaOmega[j] / 2.0) * curTime
-				+ (deltaOmega[j] / deltaTanh) * (inputData.time / 8.0) * std::log(std::cosh(4 - (8 / inputData.time) * curTime))
-				- (deltaOmega[j] / deltaTanh) * (inputData.time / 8.0) * std::log(std::cosh(4))
-				+ inputData.signals[j].initPhase;
+			phasePos[signal] = (2 * PI * inputData.signals[signal].freqInit + deltaOmega[signal] / 2.0) * curTime
+				+ (deltaOmega[signal] / deltaTanh) * (inputData.time / 8.0) * std::log(std::cosh(4 - (8 / inputData.time) * curTime))
+				- (deltaOmega[signal] / deltaTanh) * (inputData.time / 8.0) * std::log(std::cosh(4))
+				+ inputData.signals[signal].initPhase;
 		}
-		else if (inputData.signals[j].freqRampType == "nr")
+		else if (inputData.signals[signal].freqRampType == "nr")
 		{
-			phasePos[j] = 2 * PI * inputData.signals[j].freqInit * curTime + inputData.signals[j].initPhase;
+			phasePos[signal] = 2 * PI * inputData.signals[signal].freqInit * curTime + inputData.signals[signal].initPhase;
 		}
 		else
 		{
-			freqRampPos[j] = freqRampFileData[j][i] * (inputData.signals[j].freqFin - inputData.signals[j].freqInit);
-			phasePos[j] = (ViReal64)i * 2 * PI * (inputData.signals[j].freqInit + freqRampPos[j]) / (SAMPLE_RATE)
-							+inputData.signals[j].initPhase;
+			freqRampPos[signal] = freqRampFileData[signal][sample] * (inputData.signals[signal].freqFin - inputData.signals[signal].freqInit);
+			phasePos[signal] = (ViReal64)sample * 2 * PI * (inputData.signals[signal].freqInit + freqRampPos[signal]) / (SAMPLE_RATE)
+							+inputData.signals[signal].initPhase;
 		}
 		// Don't need amplitude info.
 	}
-
-	for (int j = 0; j < inputData.signalNum; j++)
+	
+	for (auto signal : range(inputData.signalNum) )
 	{
-		// get the final phase of this waveform. Note that this is the phase of the /next/ data point (the last time i gets incremented, the for loop 
+		// get the final phase of this waveform. Note that this is the phase of the /next/ data point (the last time signalInc gets incremented, the for loop 
 		// doesn't run) so that if the next waveform starts at this data point, it will avoid repeating the same data point. This is used for the 
 		// option where the user uses this phase as the starting phase of the next waveform.
-		inputData.signals[j].finPhase = fmod(phasePos[j], 2 * PI);
+		inputData.signals[signal].finPhase = fmod(phasePos[signal], 2 * PI);
 		// catch the case in which the final phase is virtually identical to 2*PI, which isn't caught in the above line because of bad floating point 
 		// arithmetic.
-		if (fabs(inputData.signals[j].finPhase - 2 * PI) < 0.00000005)
+		if (fabs(inputData.signals[signal].finPhase - 2 * PI) < 0.00000005)
 		{
-			inputData.signals[j].finPhase = 0;
+			inputData.signals[signal].finPhase = 0;
 		}
 		// put the final phase in the last data point.
-		readData[i + j] = inputData.signals[j].finPhase;
+		readData[sample + signal] = inputData.signals[signal].finPhase;
 	}
 	return readData;
 }
@@ -2959,12 +1905,14 @@ ViReal64* NiawgController::calcWaveData(waveData& inputData, ViReal64*& readData
 * @param finalWaveform the larger (2X) array which enters unfilled and exits with the interweaved data
 * @param waveformSize the size in samples of one of the original arrays (they should be the same size).
 */
-ViReal64* NiawgController::mixWaveforms(ViReal64* waveform1, ViReal64* waveform2, ViReal64* finalWaveform, long int waveformSize)
+ViReal64* NiawgController::mixWaveforms( niawgPair<ViReal64*> waveforms, ViReal64* finalWaveform, long int waveformSize )
 {
-	for (long int i = 0; i < waveformSize; i++)
+	for (auto sample : range(waveformSize))
 	{
-		finalWaveform[2 * i] = waveform1[i];
-		finalWaveform[2 * i + 1] = waveform2[i];
+		// the order (Vertical -> Horizontal) here is important. Vertical is first because it's port zero on the Niawg. I believe that
+		// switching the order here and changing nothing else would flip the output of the niawg..
+		finalWaveform[2 * sample] = waveforms[Vertical][sample];
+		finalWaveform[2 * sample + 1] = waveforms[Horizontal][sample];
 	}
 	return finalWaveform;
 }
@@ -2977,16 +1925,10 @@ ViReal64* NiawgController::mixWaveforms(ViReal64* waveform1, ViReal64* waveform2
 */
 bool NiawgController::isLogicCommand(std::string command)
 {
-	if (command == "wait until trigger" || command == "wait set # <# of samples to wait>" || command == "wait set #"
-		|| command == "repeat set # <# of times to repeat>" || command == "repeat set #")
+	if (command == "wait until trigger" || command == "wait set #" || command == "repeat set #" || command == "repeat until trigger" 
+		 || command == "repeat forever" || command == "end repeat" || command == "if trigger" || command == "else" || command == "end if")
 	{
 		return true;
-	}
-	else if (command == "repeat until trigger" || command == "repeat forever" || command == "end repeat" || command == "if trigger" || command == "else"
-		|| command == "end if")
-	{
-		return true;
-
 	}
 	else
 	{
@@ -3000,89 +1942,28 @@ bool NiawgController::isLogicCommand(std::string command)
 * @param command the command being checked for being a generate command or not.
 * @return bool the truth value to the statement "command is a generate command"
 */
-bool NiawgController::isGenCommand(std::string c)
+bool NiawgController::isGenCommand(std::string inputType)
 {
-	if (c == "gen 1, const" || c == "gen 1, const <freq> <amp> <phase (rad)>; <time>" || c == "gen 2, const"
-		|| c == "gen 2, const <freq1> <amp1> <phase (rad)>; <sim for 2nd>; <time>" || c == "gen 3, const")
+	for ( auto number : range( MAX_NIAWG_SIGNALS ) )
 	{
-		return true;
+		if ( inputType == "gen " + str( number ) + ", const" )
+		{
+			return true;
+		}
+		else if ( inputType == "gen " + str( number ) + ", amp ramp " )
+		{
+			return true;
+		}
+		else if ( inputType == "gen " + str( number ) + ", freq ramp " )
+		{
+			return true;
+		}
+		else if ( inputType == "gen " + str( number ) + ", freq & amp ramp " )
+		{
+			return true;
+		}
 	}
-	else if (c == "gen 3, const <freq1> <amp1> <phase (rad)>; <sim for 2nd, 3rd>; <time>" || c == "gen 4, const"
-		|| c == "gen 4, const <freq1> <amp1> <phase (rad)>; <sim for 2nd, 3rd, 4th>; <time>")
-	{
-		return true;
-	}
-	else if (c == "gen 5, const" || c == "gen 5, const <freq1> <amp1> <phase (rad)>; <sim for 2nd, 3rd, 4th, 5th>; <time>" || c == "gen 1, amp ramp")
-	{
-		return true;
-	}
-	else if (c == "gen 1, amp ramp <freq> <amp ramp type> <initial amp> <final amp> <phase (rad)>; <time>")
-	{
-		return true;
-	}
-	else if (c == "gen 2, amp ramp" || c == "gen 2, amp ramp <freq1> <amp1 ramp type> <initial amp1> <final amp1> <phase (rad)>; <sim for 2nd>; <time>"
-		|| c == "gen 3, amp ramp")
-	{
-		return true;
-	}
-	else if (c == "gen 3, amp ramp <freq1> <amp1 ramp type> <initial amp1> <final amp1> <phase (rad)>; <sim for 2nd, 3rd>; <time>"
-		|| c == "gen 4, amp ramp")
-	{
-		return true;
-	}
-	else if (c == "gen 4, amp ramp <freq1> <amp1 ramp type> <initial amp1> <final amp1> <phase (rad)>; <sim for 2nd, 3rd, 4th>; <time>"
-		|| c == "gen 5, amp ramp")
-	{
-		return true;
-	}
-	else if (c == "gen 5, amp ramp <freq1> <amp1 ramp type> <initial amp1> <final amp1> <phase (rad)>; <sim for 2nd, 3rd, 4th, 5th>; <time>")
-	{
-		return true;
-	}
-	else if (c == "gen 1, freq ramp" || c == "gen 1, freq ramp <freq ramp type> <initial freq> <final freq> <amp> <phase (rad)>; <time>"
-		|| c == "gen 2, freq ramp")
-	{
-		return true;
-	}
-	else if (c == "gen 2, freq ramp <freq1 ramp type> <initial freq1> <final freq1> <amp1> <phase (rad)>; <sim for 2nd>; <time>"
-		|| c == "gen 3, freq ramp")
-	{
-		return true;
-	}
-	else if (c == "gen 3, freq ramp <freq1 ramp type> <initial freq1> <final freq1> <amp1> <phase (rad)>; <sim for 2nd, 3rd>; <time>"
-		|| c == "gen 4, freq ramp")
-	{
-		return true;
-	}
-	else if (c == "gen 4, freq ramp <freq1 ramp type> <initial freq1> <final freq1> <amp1> <phase (rad)>; <sim for 2nd, 3rd, 4th>; <time>"
-		|| c == "gen 5, freq ramp")
-	{
-		return true;
-	}
-	else if (c == "gen 2, freq & amp ramp" || c == "gen 2, freq & amp ramp <freq1 ramp type> <initial freq1> <final freq1> <amp ramp1 type> <initial ramp1>"
-		" <final ramp1> <phase (rad)>; <sim for 2nd>; <time>")
-	{
-		return true;
-	}
-	else if (c == "gen 3, freq & amp ramp" || c == "gen 3, freq & amp ramp <freq1 ramp type> <initial freq1> <final freq1> <amp ramp1 type> <initial ramp1>"
-		" <final ramp1> <phase (rad)>; <sim for 2nd, 3rd>; <time>")
-	{
-		return true;
-	}
-	else if (c == "gen 4, freq & amp ramp" || c == "gen 4, freq & amp ramp <freq1 ramp type> <initial freq1> <final freq1> <amp ramp1 type> <initial ramp1>"
-		" <final ramp1> <phase (rad)>; <sim for 2nd, 3rd, 4th>; <time>")
-	{
-		return true;
-	}
-	else if (c == "gen 5, freq & amp ramp" || c == "gen 5, freq & amp ramp <freq1 ramp type> <initial freq1> <final freq1> <amp ramp1 type> <initial ramp1>"
-		" <final ramp1> <phase (rad)>; <sim for 2nd, 3rd, 4th, 5th>; <time>")
-	{
-		return true;
-	}
-	else 
-	{
-		return false;
-	}
+	return false;
 }
 
 /**
@@ -3091,18 +1972,9 @@ bool NiawgController::isGenCommand(std::string c)
 	* @param command the command being checked for being special or not.
 	* @return bool the truth value to the statement "command is a special command"
 	*/
-bool NiawgController::isSpecialCommand(std::string c)
+bool NiawgController::isSpecialCommand(std::string command)
 {
-	if (c == "predefined script" || c == "predefined script <verticalFile.txt> <horizontalFile.txt>" || c == "create marker event"
-		|| c == "create marker event <samples after previous waveform to wait>" || c == "predefined waveform")
-	{
-		return true;
-	}
-	else if (c == "predefined waveform <x filename.txt> <y filename.txt>")
-	{
-		return true;
-	}
-	else if (c == "create marker event <samples after previous waveform to wait>")
+	if (command == "predefined script" || command == "create marker event" || command == "predefined waveform")
 	{
 		return true;
 	}
@@ -3110,189 +1982,6 @@ bool NiawgController::isSpecialCommand(std::string c)
 	{
 		return false;
 	}
-}
-
-/*
-	* - This function checks the beginning of two file for their variable status. It also compares the two files output to check for errors
-	* @param file1 the first file to check
-	* @param file2 the second file to check
-	* @return exit status indicates whether error was encountered during the read & or comparison.
-	*/ 
-bool NiawgController::readForVariables(std::fstream &file1, std::fstream &file2, std::vector<std::string> &file1Names, std::vector<std::string> &file2Names,
-	std::vector<char> &var1Names, std::vector<char> &var2Names, std::vector<std::fstream> &varFiles, bool isDef)
-{
-	// Before reading from a file, clear any extra white-space the user put in it.
-	rmWhite(file1);
-
-	std::string varType1;
-	//char temp = file1.get();
-	// Read in variable information, which is stored at the top of the instructions file.
-	std::string tempstr;
-	//file1 >> tempstr;
-	std::getline(file1, varType1);
-
-	if (varType1.length() != 0)
-	{
-		if (varType1[varType1.length() - 1] == '\r')
-		{
-			varType1.erase(varType1.length() - 1);
-		}
-	}
-
-	if (varType1 == "NO VARIABLES")
-	{
-		// Don't do anything.
-	}
-	else if (varType1 == "1 VARIABLE <variable name> <file.txt for variable values>" || varType1 == "1 VARIABLE")
-	{
-		if (isDef == true)
-		{
-			MessageBox(NULL, "ERROR: default script should not have any variables in it!", "ERROR", MB_OK | MB_ICONERROR);
-			return false;
-		}
-		// read in variable info
-		std::string tempString;
-		rmWhite(file1);
-		file1 >> tempString;
-		// this string should be a single character.
-		var1Names.push_back(tempString[0]);
-		file1 >> tempString;
-		file1Names.push_back(tempString);
-	}
-	else if (varType1 == "2 VARIABLES <variable #1 name> <file.txt for variable #1 values>; <variable #2 name> <file.txt for variable #2 values>"
-		|| varType1 == "2 VARIABLES") 
-	{
-		if (isDef == true)
-		{
-			MessageBox(NULL, "ERROR: default script should not have any variables in it!", "ERROR", MB_OK | MB_ICONERROR);
-			return false;
-		}
-		// read in variable info
-		std::string tempString;
-		rmWhite(file1);
-		file1 >> tempString;
-		// this string should be a single character.
-		var1Names.push_back(tempString[0]);
-		file1 >> tempString;
-		file1Names.push_back(tempString);
-
-		file1.ignore(1, ';');
-		file1 >> tempString;
-		// this string should be a single character.
-		var1Names.push_back(tempString[0]);
-		file1 >> tempString;
-		file1Names.push_back(tempString);
-	}
-	else
-	{
-		char tempStr[200];
-		sprintf_s(tempStr, "ERROR: Variable status not described correctly at top of x instructions file. Relevant bad string is \"%s\"", varType1.c_str());
-		MessageBox(NULL, tempStr, "ERROR", MB_OK | MB_ICONERROR);
-		return false;
-	}
-
-	// clear extra whitespace before reading.
-	rmWhite(file2);
-	std::string varType2;
-	// Similar
-	std::getline(file2, varType2);
-	if (varType2.length() != 0)
-	{
-		if (varType2[varType2.length() - 1] == '\r')
-		{
-			varType2.erase(varType2.length() - 1);
-		}
-	}
-
-
-	if (varType2 == "NO VARIABLES")
-	{
-		// Don't do anything.
-	}
-	else if (varType2 == "1 VARIABLE <variable name> <file.txt for variable values>" || varType2 == "1 VARIABLE")
-	{
-		if (isDef == true)
-		{
-			MessageBox(NULL, "ERROR: default script should not have any variables in it!", "ERROR", MB_OK | MB_ICONERROR);
-			return false;
-		}
-		// read in variable info
-		std::string tempString;
-		rmWhite(file2);
-		file2 >> tempString;
-		// this string should be a single character.
-		var2Names.push_back(tempString[0]);
-		file2 >> tempString;
-		file2Names.push_back(tempString);
-	}
-	else if (varType2 == "2 VARIABLES <variable #1 name> <file.txt for variable #1 values>; <variable #2 name> <file.txt for variable #2 values>"
-				|| varType2 == "2 VARIABLES") 
-	{
-		if (isDef == true)
-		{
-			MessageBox(NULL, "ERROR: default script should not have any variables in it!", "ERROR", MB_OK | MB_ICONERROR);
-			return false;
-		}
-		// read in variable info
-		std::string tempString;
-		rmWhite(file2);
-		file2 >> tempString;
-		// this string should be a single character.
-		var2Names.push_back(tempString[0]);
-		file2 >> tempString;
-		file2Names.push_back(tempString);
-		file2.ignore(1, ';');
-		file2 >> tempString;
-		// this string should be a single character.
-		var2Names.push_back(tempString[0]);
-		file2 >> tempString;
-		file2Names.push_back(tempString);
-	}
-	else
-	{
-		char tempStr[200];
-		sprintf_s(tempStr, "ERROR: Variable status not described correctly at top of x instructions file. Relevant bad string is \"%s\"", 
-					varType2.c_str());
-		MessageBox(NULL, tempStr, "ERROR", MB_OK | MB_ICONERROR);
-		return false;
-	}
-
-	// Check if the right number of varibles.
-	if (file1Names.size() != file2Names.size() || file1Names.size() != var1Names.size() || file1Names.size() != var2Names.size())
-	{
-		MessageBox(NULL, "ERROR: the x-instructions file and the y-instructions file don't have the same number of variables! They must both have the exact "
-			"variables, even if some are only used in one files.\n", NULL, MB_OK);
-		return false;
-	}
-	// Check if the variables are the same
-	for (unsigned int i = 0; i < file1Names.size(); i++)
-	{
-		if (file1Names[i] != file2Names[i])
-		{
-			MessageBox(NULL, "ERROR: The files referenced for each variable don't match! A variable must reference the same file in the x and y instruction "
-								"files.\n", NULL, MB_OK);
-			return false;
-		}
-
-		if (var1Names[i] != var2Names[i])
-		{
-			MessageBox(NULL, "ERROR: The names of the variables listed in each file don't match! The names of the variables in the x-instructions file must "
-								"the names of the variables in the y-instructions file, in order.\n", NULL, MB_OK);
-			return false;
-		}
-		std::fstream tempFile;
-		// try to open variable files
-		tempFile.open(file1Names[i]);
-		varFiles.push_back(std::move(tempFile));
-		if (!varFiles[i].is_open())
-		{
-			char tempStr[200];
-			sprintf_s(tempStr, "ERROR: can't open file number %i", i);
-			MessageBox(NULL, tempStr, "ERROR", MB_OK | MB_ICONERROR);
-			return false;
-		}
-	}
-	return true;
 }
 
 
@@ -3309,31 +1998,24 @@ bool NiawgController::readForVariables(std::fstream &file1, std::fstream &file2,
 	* @param vParamTypes is a vector that holds the information as to what type of parameter is being varried for a given variable name.
 	* @param dataType is the number to assign to vParamTypes if a variable is being used.
 	*/
-int NiawgController::getParamCheckVar(double& dataToAssign, std::fstream& fName, int& vCount, std::vector<std::string>& vNames, std::vector<int>& vParamTypes,
+void NiawgController::getParamCheckVar(double& dataToAssign, ScriptStream& fName, int& vCount, std::vector<std::string>& vNames, std::vector<int>& vParamTypes,
 						int dataType, std::vector<variable> singletons)
 {
 	std::string tempInput;
 	int stringPos;
-	rmWhite(fName);
 	fName >> tempInput;
-	// pull input to lower case to prevent stupid user input errors.
-		std::transform(tempInput.begin(), tempInput.end(), tempInput.begin(), tolower);
 	if (tempInput[0] == '\'')
 	{
-		MessageBox(NULL, "ERROR: Don't use \' as a variable in your instructions file, this character is reserved by the program.\n", NULL, MB_OK);
-		return -1;
+		thrower("ERROR: Don't use \' as a variable in your instructions file, this character is reserved by the program.\n");
 	}
 	if (tempInput[0] == '#')
 	{
-		MessageBox(NULL, "ERROR: the delimeter '#' was detected in a waveform before it was supposed to be. This indicates either that there are too few "
-							"inputs for this waveform type or that the program is not reading the input correctly, e.g. because of extraneous semicolons.",
-					NULL, MB_OK);
-		return -2;
+		thrower("ERROR: the delimeter '#' was detected in a waveform before it was supposed to be. This indicates either that there are too few "
+				"inputs for this waveform type or that the program is not reading the input correctly, e.g. because of extraneous semicolons.");
 	}
 	if (tempInput[0] == '%')
 	{
-		MessageBox(NULL, "ERROR: the character % was detected in the input. This shouldn't be possible. Look for logic errors.", NULL, MB_OK);
-		return -3;
+		thrower("ERROR: the character % was detected in the input. This shouldn't be possible. Look for logic errors.");
 	}
 	// the following aren't digits, but don't indicate variables.
 	if (tempInput[0] == '-' || tempInput[0] == '.')
@@ -3341,9 +2023,9 @@ int NiawgController::getParamCheckVar(double& dataToAssign, std::fstream& fName,
 		stringPos = 1;
 		if (tempInput[1] == '-' || tempInput[1] == '.')
 		{
-			MessageBox(NULL, "ERROR: The first two characters of some input are both either '-' or '.'. This might be because you tried to input a negative"
-								"decimal, which you aren't allowed to do.", NULL, MB_OK);
-			return -4;
+			thrower("ERROR: The first two characters of some input are both either '-' or '.'. This might be because you tried to input a negative"
+								"decimal, which you aren't allowed to do.");
+			return;
 		}
 	}
 	else 
@@ -3356,7 +2038,7 @@ int NiawgController::getParamCheckVar(double& dataToAssign, std::fstream& fName,
 		if (tempInput == singletons[singletonInc].name)
 		{
 			dataToAssign = singletons[singletonInc].value;
-			return 0;
+			return;
 		}
 	}
 	if (!isdigit(tempInput[stringPos]))
@@ -3365,15 +2047,16 @@ int NiawgController::getParamCheckVar(double& dataToAssign, std::fstream& fName,
 		vNames.push_back(tempInput);
 		vParamTypes.push_back(dataType);
 		vCount++;
-		return 0;
 	}
 	else
 	{
 		// this should happen most of the time.
 		dataToAssign = (std::stod(tempInput));
-		return 0;
 	}
+	return;
 }
+
+
 /**
 	* overload for integer input.
 	* Test if the input is a variable. If it was, store what parameter is getting varied (varParamTypes), store which variable name is associated
@@ -3387,32 +2070,24 @@ int NiawgController::getParamCheckVar(double& dataToAssign, std::fstream& fName,
 	* @param vParamTypes is a vector that holds the information as to what type of parameter is being varried for a given variable name.
 	* @param dataType is the number to assign to vParamTypes if a variable is being used.
 	*/
-int NiawgController::getParamCheckVar(int& dataToAssign, std::fstream& scriptName, int& vCount, std::vector<std::string>& vNames, std::vector<int>& vParamTypes,
-	int dataType, std::vector<variable> singletons)
+void NiawgController::getParamCheckVar(int& dataToAssign, ScriptStream& scriptName, int& vCount, std::vector<std::string>& vNames, std::vector<int>& vParamTypes,
+										int dataType, std::vector<variable> singletons)
 {
 	std::string tempInput;
 	int stringPos;
-	rmWhite(scriptName);
 	scriptName >> tempInput;
-	// pull input to lower case to prevent stupid user input errors.
-	std::transform(tempInput.begin(), tempInput.end(), tempInput.begin(), ::tolower);
-
 	if (tempInput[0] == '\'') 
 	{
-		MessageBox(NULL, "ERROR: Don't use \' as a variable in your instructions file, this character is reserved by the program.\n", NULL, MB_OK);
-		return -1;
+		thrower("ERROR: Don't use \' as a variable in your instructions file, this character is reserved by the program.\n");
 	}
 	if (tempInput[0] == '#') 
 	{
-		MessageBox(NULL, "ERROR: the delimeter '#' was detected in a waveform before it was supposed to be. This indicates either that there are too few "
-							"inputs for this waveform type or that the program is not reading the input correctly, e.g. because of extraneous semicolons.",
-					NULL, MB_OK);
-		return -2;
+		thrower("ERROR: the delimeter '#' was detected in a waveform before it was supposed to be. This indicates either that there are too few "
+							"inputs for this waveform type or that the program is not reading the input correctly, e.g. because of extraneous semicolons.");
 	}
 	if (tempInput[0] == '%') 
 	{
-		MessageBox(NULL, "ERROR: the character % was detected in the input. This shouldn't be possible. Look for logic errors.", NULL, MB_OK);
-		return -3;
+		thrower("ERROR: the character % was detected in the input. This shouldn't be possible. Look for logic errors.");
 	}
 	// the following aren't digits, but don't indicate variables.
 	if (tempInput[0] == '-' || tempInput[0] == '.') 
@@ -3420,9 +2095,8 @@ int NiawgController::getParamCheckVar(int& dataToAssign, std::fstream& scriptNam
 		stringPos = 1;
 		if (tempInput[1] == '-' || tempInput[1] == '.') 
 		{
-			MessageBox(NULL, "ERROR: The first two characters of some input are both either '-' or '.'. This might be because you tried to input a negative"
-								"decimal, which you aren't allowed to do.", NULL, MB_OK);
-			return -4;
+			thrower("ERROR: The first two characters of some input are both either '-' or '.'. This might be because you tried to input a negative"
+								"decimal, which you aren't allowed to do.");
 		}
 	}
 	else 
@@ -3435,24 +2109,24 @@ int NiawgController::getParamCheckVar(int& dataToAssign, std::fstream& scriptNam
 		if (tempInput == singletons[singletonInc].name)
 		{
 			dataToAssign = singletons[singletonInc].value;
-			return 0;
 		}
 	}
+
 	if (!isdigit(tempInput[stringPos])) 
 	{
 		// load variable name into structure.
 		vNames.push_back(tempInput);
 		vParamTypes.push_back(dataType);
 		vCount++;
-		return 0;
 	}
 	else 
 	{
 		// this should happen most of the time.
 		dataToAssign = (std::stoi(tempInput));
-		return 0;
 	}
+	return;
 }
+
 
 /**
 	* Overload for double input.
@@ -3473,37 +2147,29 @@ int NiawgController::getParamCheckVar(int& dataToAssign, std::fstream& scriptNam
 	* singletons is the list of singletons that the user set for this configuration. If a variable name is found to match a singleton name, the value is 
 	*		immediately set to the singleton's value.
 	*/
-int NiawgController::getParamCheckVarConst(double& data1ToAssign, double& data2ToAssign, std::fstream& file, int& vCount, std::vector<std::string>& vNames,
-	std::vector<int>& vParamTypes, int dataType1, int dataType2, std::vector<variable> singletons)
+void NiawgController::getParamCheckVarConst(double& data1ToAssign, double& data2ToAssign, ScriptStream& file, int& vCount, 
+											 std::vector<std::string>& vNames, std::vector<int>& vParamTypes, int dataType1, int dataType2,
+											 std::vector<variable> singletons)
 {
 	std::string tempInput;
-	rmWhite(file);
 	file >> tempInput;
-	// pull input to lower case to prevent stupid user input errors.
-	std::transform(tempInput.begin(), tempInput.end(), tempInput.begin(), ::tolower);
-
 	// the following aren't digits, but don't indicate variables.
 	if (tempInput[0] == '\'')
 	{
-		MessageBox(NULL, "ERROR: Don't use \' as a variable in your instructions file, this character is reserved by the program.\n", NULL, MB_OK);
-		return -1;
+		thrower("ERROR: Don't use \' as a variable in your instructions file, this character is reserved by the program.");
 	}
 	if (tempInput[0] == '#')
 	{
-		MessageBox(NULL, "ERROR: the delimeter '#' was detected in a waveform before it was supposed to be. This indicates either that there are too few "
-			"inputs for this waveform type or that the program is not reading the input correctly, e.g. because of extraneous semicolons.",
-			NULL, MB_OK);
-		return -2;
+		thrower("ERROR: the delimeter '#' was detected in a waveform before it was supposed to be. This indicates either that there are too few "
+			"inputs for this waveform type or that the program is not reading the input correctly, e.g. because of extraneous semicolons.");
 	}
 	if (tempInput[0] == '%')
 	{
-		MessageBox(NULL, "ERROR: the character % was detected in the input. This shouldn't be possible. Look for logic errors.", NULL, MB_OK);
-		return -3;
+		thrower("ERROR: the character % was detected in the input. This shouldn't be possible. Look for logic errors.");
 	}
 	if (tempInput[0] == '-')
 	{
-		MessageBox(NULL, "ERROR: it appears that you entered a negative frequency or amplitude. You can't do that.", NULL, MB_OK);
-		return -4;
+		thrower("ERROR: it appears that you entered a negative frequency or amplitude. You can't do that.");
 	}
 	// check if this is a singleton variable. If so, immediately assign relevant data point to singleton value.
 	for (int singletonInc = 0; singletonInc < singletons.size(); singletonInc++)
@@ -3512,7 +2178,7 @@ int NiawgController::getParamCheckVarConst(double& data1ToAssign, double& data2T
 		{
 			data1ToAssign = singletons[singletonInc].value;
 			data2ToAssign = data1ToAssign;
-			return 0;
+			return;
 		}
 	}
 	// I don't need to check for -1 input because this function should never be used on the phase or the time, only frequency or amplitude for non-ramping waveforms. 
@@ -3526,16 +2192,16 @@ int NiawgController::getParamCheckVarConst(double& data1ToAssign, double& data2T
 		vNames.push_back(tempInput);
 		vParamTypes.push_back(dataType2);
 		vCount++;
-		return 0;
 	}
 	else
 	{
 		// this should happen most of the time.
 		data1ToAssign = std::stod(tempInput);
 		data2ToAssign = data1ToAssign;
-		return 0;
 	}
+	return;
 }
+
 
 /**
 	* Overload for integer input.
@@ -3554,37 +2220,29 @@ int NiawgController::getParamCheckVarConst(double& data1ToAssign, double& data2T
 	* @param dataType1 is the number to assign to vParamTypes for the first parameter if a variable is being used.
 	* @param dataType2 is the number to assign to vParamTypes for the second parameter if a variable is being used.
 	*/
-int NiawgController::getParamCheckVarConst(int& data1ToAssign, double& data2ToAssign, std::fstream& scriptName, int& vCount, std::vector<std::string>& vNames,
-							std::vector<int>& vParamTypes, int dataType1, int dataType2, std::vector<variable> singletons)
+void NiawgController::getParamCheckVarConst(int& data1ToAssign, double& data2ToAssign, ScriptStream& scriptName, int& vCount, 
+											 std::vector<std::string>& vNames, std::vector<int>& vParamTypes, int dataType1, int dataType2,
+											 std::vector<variable> singletons)
 {
 	std::string tempInput;
-	rmWhite(scriptName);
 	scriptName >> tempInput;
-	// pull input to lower case to prevent stupid user input errors.
-	std::transform(tempInput.begin(), tempInput.end(), tempInput.begin(), ::tolower);
-
 	// the following aren't digits, but don't indicate variables.
 	if (tempInput[0] == '\'')
 	{
-		MessageBox(NULL, "ERROR: Don't use \' as a variable in your instructions file, this character is reserved by the program.\n", NULL, MB_OK);
-		return -1;
+		thrower("ERROR: Don't use \' as a variable in your instructions file, this character is reserved by the program.\n");
 	}
 	if (tempInput[0] == '#')
 	{
-		MessageBox(NULL, "ERROR: the delimeter '#' was detected in a waveform before it was supposed to be. This indicates either that there are too few "
-			"inputs for this waveform type or that the program is not reading the input correctly, e.g. because of extraneous semicolons.",
-			NULL, MB_OK);
-		return -2;
+		thrower("ERROR: the delimeter '#' was detected in a waveform before it was supposed to be. This indicates either that there are too few "
+			"inputs for this waveform type or that the program is not reading the input correctly, e.g. because of extraneous semicolons.");
 	}
 	if (tempInput[0] == '%')
 	{
-		MessageBox(NULL, "ERROR: the character % was detected in the input. This shouldn't be possible. Look for logic errors.", NULL, MB_OK);
-		return -3;
+		thrower("ERROR: the character % was detected in the input. This shouldn't be possible. Look for logic errors.");
 	}
 	if (tempInput[0] == '-')
 	{
-		MessageBox(NULL, "ERROR: it appears that you entered a negative frequency or amplitude. You can't do that.", NULL, MB_OK);
-		return -4;
+		thrower("ERROR: it appears that you entered a negative frequency or amplitude. You can't do that.");
 	}
 	// check if this is a singleton variable. If so, immediately assign relevant data point to singleton value.
 	for (int singletonInc = 0; singletonInc < singletons.size(); singletonInc++)
@@ -3593,7 +2251,7 @@ int NiawgController::getParamCheckVarConst(int& data1ToAssign, double& data2ToAs
 		{
 			data1ToAssign = singletons[singletonInc].value;
 			data2ToAssign = data1ToAssign;
-			return 0;
+			return;
 		}
 	}
 	// I don't need to check for -1 input because this function should never be used on the phase or the time, only frequency or amplitude for non-ramping waveforms. 
@@ -3607,14 +2265,281 @@ int NiawgController::getParamCheckVarConst(int& data1ToAssign, double& data2ToAs
 		vNames.push_back(tempInput);
 		vParamTypes.push_back(dataType2);
 		vCount++;
-		return 0;
 	}
 	else
 	{
 		// this should happen most of the time.
 		data1ToAssign = std::stoi(tempInput);
 		data2ToAssign = data1ToAssign;
-		return 0;
 	}
 }
-		
+
+
+std::string NiawgController::getErrorMsg()
+{
+	ViChar* errMsg;
+	int errMsgSize = 0;
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		errMsgSize = niFgen_GetError( sessionHandle, VI_NULL, 0, VI_NULL );
+	}
+	errMsg = (ViChar *)malloc( sizeof( ViChar ) * errMsgSize );
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		niFgen_GetError( sessionHandle, &error, errMsgSize, errMsg );
+	}
+	std::string errStr( errMsg );
+	free( errMsg );
+	return errStr;
+}
+
+
+void NiawgController::configureGain( ViReal64 gain )
+{
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		errChecker( niFgen_ConfigureGain( sessionHandle, outputChannels, gain ) );
+	}
+}
+
+
+void NiawgController::configureSampleRate( ViReal64 sampleRate )
+{
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		errChecker( niFgen_ConfigureSampleRate( sessionHandle, sampleRate ) );
+	}
+}
+
+
+void NiawgController::configureChannels( ViConstString channelName )
+{
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		errChecker( niFgen_ConfigureChannels( sessionHandle, channelName ) );
+	}
+}
+
+
+void NiawgController::configureMarker( ViConstString markerName, ViConstString outputLocation )
+{
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		errChecker( niFgen_ExportSignal( sessionHandle, NIFGEN_VAL_MARKER_EVENT, markerName, outputLocation ) );
+	}
+}
+
+
+// initialize the session handle, which is a member of this class.
+void NiawgController::init( ViRsrc location, ViBoolean idQuery, ViBoolean resetDevice )
+{
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		errChecker( niFgen_init( location, idQuery, resetDevice, &sessionHandle ) );
+	}
+}
+
+
+void NiawgController::createWaveform( long size, ViReal64* mixedWaveform )
+{
+	ViInt32 waveID;
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		errChecker( niFgen_CreateWaveformF64( sessionHandle, outputChannels, size, mixedWaveform, &waveID ) );
+	}
+}
+
+
+// create waveform (necessary?)
+// allocate waveform into the device memory
+void NiawgController::writeWaveform( ViConstString waveformName, ViInt32 mixedSampleNumber, ViReal64* mixedWaveform )
+{
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		errChecker( niFgen_WriteNamedWaveformF64( sessionHandle, outputChannels, waveformName, mixedSampleNumber, mixedWaveform ) );
+	}
+}
+
+
+void NiawgController::writeScript( ViConstString script )
+{
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		errChecker( niFgen_WriteScript( sessionHandle, outputChannels, script ) );
+	}
+}
+
+
+void NiawgController::deleteWaveform( ViConstString waveformName )
+{
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		errChecker( niFgen_DeleteNamedWaveform( sessionHandle, outputChannels, waveformName ) );
+	}
+}
+
+
+void NiawgController::deleteScript( ViConstString scriptName )
+{
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		errChecker( niFgen_DeleteScript( sessionHandle, outputChannels, scriptName ) );
+	}
+}
+
+
+void NiawgController::allocateWaveform( ViConstString waveformName, ViInt32 unmixedSampleNumber )
+{
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		errChecker( niFgen_AllocateNamedWaveform( sessionHandle, outputChannels, waveformName, unmixedSampleNumber ) );
+	}
+}
+
+
+void NiawgController::configureOutputEnabled( int state )
+{
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		errChecker( niFgen_ConfigureOutputEnabled( sessionHandle, outputChannels, VI_FALSE ) );
+	}
+}
+
+
+void NiawgController::clearMemory()
+{
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		errChecker( niFgen_ClearArbMemory( sessionHandle ) );
+	}
+}
+
+
+void NiawgController::setViStringAttribute( ViAttr atributeID, ViConstString attributeValue )
+{
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		errChecker( niFgen_SetAttributeViString( sessionHandle, outputChannels, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript" ) );
+	}
+}
+
+
+void NiawgController::setViBooleanAttribute( ViAttr attribute, bool state )
+{
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		errChecker( niFgen_SetAttributeViBoolean( sessionHandle, outputChannels, NIFGEN_ATTR_FLATNESS_CORRECTION_ENABLED, VI_TRUE ) );
+	}
+}
+
+
+void NiawgController::enableAnalogFilter( ViReal64 filterFrequency )
+{
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		errChecker( niFgen_EnableAnalogFilter( sessionHandle, outputChannels, filterFrequency ) );
+	}
+}
+
+
+void NiawgController::configureDigtalEdgeScriptTrigger()
+{
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		errChecker( niFgen_ConfigureDigitalEdgeScriptTrigger( sessionHandle, TRIGGER_NAME, TRIGGER_SOURCE, TRIGGER_EDGE_TYPE ) );
+	}
+}
+
+
+void NiawgController::configureClockMode( ViInt32 clockMode )
+{
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		errChecker( niFgen_ConfigureClockMode( sessionHandle, clockMode ) );
+	}
+}
+
+
+void NiawgController::initiateGeneration()
+{
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		errChecker( niFgen_InitiateGeneration( sessionHandle ) );
+	}
+}
+
+
+void NiawgController::abortGeneration()
+{
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		errChecker( niFgen_AbortGeneration( sessionHandle ) );
+	}
+}
+
+
+ViInt32 NiawgController::getInt32Attribute( ViAttr attribute )
+{
+	ViInt32 value = 0;
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		errChecker( niFgen_GetAttributeViInt32( sessionHandle, outputChannels, attribute, &value ) );
+	}
+	return value;
+}
+
+
+ViInt64 NiawgController::getInt64Attribute( ViAttr attribute )
+{
+	ViInt64 value = 0;
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		errChecker( niFgen_GetAttributeViInt64(sessionHandle, outputChannels, attribute, &value ));
+	}
+	return value;
+}
+
+
+ViReal64 NiawgController::getReal64Attribute( ViAttr attribute )
+{
+	ViReal64 value = 0;
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		errChecker( niFgen_GetAttributeViReal64( sessionHandle, outputChannels, attribute, &value ) );
+	}
+	return value;
+}
+
+
+std::string NiawgController::getViStringAttribute( ViAttr attribute )
+{
+	char value[256];
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		errChecker( niFgen_GetAttributeViString( sessionHandle, outputChannels, attribute, 256, value ) );
+	}
+	return std::string(value);
+}
+
+
+ViBoolean NiawgController::getViBoolAttribute( ViAttr attribute )
+{
+	ViBoolean value = false;
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		errChecker( niFgen_GetAttributeViBoolean( sessionHandle, outputChannels, attribute, &value ) );
+	}
+	return value;
+}
+
+
+ViSession NiawgController::getViSessionAttribute( ViAttr attribute )
+{
+	ViSession value = 0;
+	if (!TWEEZER_COMPUTER_SAFEMODE)
+	{
+		errChecker( niFgen_GetAttributeViSession(sessionHandle, outputChannels, attribute, &value) );
+	}
+	return value;
+}
+

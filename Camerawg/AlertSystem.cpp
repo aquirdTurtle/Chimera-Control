@@ -6,38 +6,35 @@
 #pragma comment(lib, "Winmm.lib")
 #include "CameraWindow.h"
 
-AlertSystem::~AlertSystem()
-{
-	mciSendString("close mp3", NULL, 0, NULL);
-}
+
 
 unsigned int AlertSystem::getAlertThreshold()
 {
 	return alertThreshold;
 }
 
-bool AlertSystem::setAlertThreshold()
+
+void AlertSystem::setAlertThreshold()
 {
 	CString text;
-	alertThresholdEdit.GetWindowTextA(text);
+	alertThresholdEdit.GetWindowTextA( text );
 	try
 	{
-		alertThreshold = std::stoi(std::string(text));
+		alertThreshold = std::stoi( std::string( text ) );
 	}
-	catch (std::invalid_argument& exception)
+	catch (std::invalid_argument& )
 	{
-		MessageBox(0, "ERROR: Alert threshold must be an integer!", 0, 0);
-		return true;
+		thrower( "ERROR: Alert threshold must be an integer!" );
 	}
-	return false;
 }
 
-bool AlertSystem::initialize(cameraPositions& pos, CWnd* parent, bool isTriggerModeSensitive, int& id, 
-	std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips)
+
+void AlertSystem::initialize(cameraPositions& pos, CWnd* parent, bool isTriggerModeSensitive, int& id, 
+							  std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips)
 {
-	this->alertMessageID = RegisterWindowMessage("ID_NOT_LOADING_ATOMS");
+	alertMessageID = RegisterWindowMessage("ID_NOT_LOADING_ATOMS");
 	/// Title
-	this->title.ksmPos = { pos.ksmPos.x, pos.ksmPos.y, pos.ksmPos.x + 480, pos.ksmPos.y + 25 };
+	title.ksmPos = { pos.ksmPos.x, pos.ksmPos.y, pos.ksmPos.x + 480, pos.ksmPos.y + 25 };
 	title.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 25 };
 	title.cssmPos = { -1,-1,-1,-1 };
 	title.ID = id++;
@@ -89,10 +86,9 @@ bool AlertSystem::initialize(cameraPositions& pos, CWnd* parent, bool isTriggerM
 	soundAtFinshCheckBox.fontType = "Normal";
 	pos.ksmPos.y += 20;
 	pos.amPos.y += 20;
-	return false;
 }
 
-bool AlertSystem::alertMainThread(int runsWithoutAtoms)
+void AlertSystem::alertMainThread(int runsWithoutAtoms)
 {
 	int* alertLevel = new int;
 	if (runsWithoutAtoms == this->alertThreshold)
@@ -106,25 +102,28 @@ bool AlertSystem::alertMainThread(int runsWithoutAtoms)
 		//PostMessage(eCameraWindowHandle, alertMessageID, 0, (LPARAM)alertLevel);
 	}
 	// don't sound the alert EVERY time... hence the % above.
-	return false;
 }
-bool AlertSystem::soundAlert()
+
+
+void AlertSystem::soundAlert()
 {
 	Beep(523, 100);
 	Beep(523, 100);
 	Beep(523, 100);
-	return false;
+	return ;
 }
 
-bool AlertSystem::rearrange(std::string cameraMode, std::string triggerMode, int width, int height, std::unordered_map<std::string, CFont*> fonts)
+
+void AlertSystem::rearrange(std::string cameraMode, std::string triggerMode, int width, int height, 
+							 std::unordered_map<std::string, CFont*> fonts)
 {
 	title.rearrange(cameraMode, triggerMode, width, height, fonts);
 	alertsActiveCheckBox.rearrange(cameraMode, triggerMode, width, height, fonts);
 	alertThresholdText.rearrange(cameraMode, triggerMode, width, height, fonts);
 	alertThresholdEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
 	soundAtFinshCheckBox.rearrange(cameraMode, triggerMode, width, height, fonts);
-	return false;
 }
+
 
 void AlertSystem::handleCheckBoxPress()
 {
@@ -139,7 +138,6 @@ void AlertSystem::handleCheckBoxPress()
 		alertsActiveCheckBox.SetCheck(1);
 		useAlerts = true;
 	}
-	return;
 }
 
 
@@ -147,21 +145,26 @@ unsigned int AlertSystem::getAlertMessageID()
 {
 	return alertMessageID;
 }
+
+
 bool AlertSystem::alertsAreToBeUsed()
 {
 	return useAlerts;
 }
 
-bool AlertSystem::playSound()
+
+void AlertSystem::playSound()
 {
 	mciSendString("play mp3 from 0", NULL, 0, NULL);
-	return false;
 }
-bool AlertSystem::stopSound()
+
+
+void AlertSystem::stopSound()
 {
 	mciSendString("stop mp3", NULL, 0, NULL);
-	return false;
 }
+
+
 bool AlertSystem::soundIsToBePlayed()
 {
 	return soundAtFinshCheckBox.GetCheck();

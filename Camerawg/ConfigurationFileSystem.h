@@ -17,11 +17,13 @@ struct profileSettings
 	std::string category;
 	std::string sequence;
 	std::string orientation;
-	std::string pathIncludingExperiment;
-	std::string pathIncludingCategory;
-
-	std::vector<std::string> sequenceConfigurationNames;
+	// Note: The experiment (category) path include the expriment (category) name in the string.
+	std::string experimentPath;
+	// Note: The experiment (category) path include the expriment (category) name in the string.
+	std::string categoryPath;
+	std::vector<std::string> sequenceConfigNames;
 };
+
 
 /*
 ]--- This singleton class manages the entire "profile" system, where "profiles" are my term for the entirety of the settings in the code (strange word choice I
@@ -34,78 +36,78 @@ class ConfigurationFileSystem
 		ConfigurationFileSystem(std::string fileSystemPath);
 		~ConfigurationFileSystem();
 
-		bool saveEntireProfile(ScriptingWindow* scriptWindow, MainWindow* comm);
-		bool checkSaveEntireProfile(ScriptingWindow* scriptWindow, MainWindow* comm);
-		bool allSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* comm);
-		bool reloadAllCombos();
+		void saveEntireProfile(ScriptingWindow* scriptWindow, MainWindow* comm);
+		void checkSaveEntireProfile(ScriptingWindow* scriptWindow, MainWindow* comm);
+		void allSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* comm);
+		void reloadAllCombos();
 
 		void orientationChangeHandler(MainWindow* comm);
 		std::string getOrientation();
-		bool setOrientation(std::string);
+		void setOrientation(std::string);
 
-		bool saveSequence();
-		bool saveSequenceAs();
-		bool renameSequence();
-		bool deleteSequence();
-		bool newSequence(CWnd* parent);
-		bool openSequence(std::string sequenceName);
-		bool updateSequenceSavedStatus(bool isSaved);
+		void saveSequence();
+		void saveSequenceAs();
+		void renameSequence();
+		void deleteSequence();
+		void newSequence(CWnd* parent);
+		void openSequence(std::string sequenceName);
+		void updateSequenceSavedStatus(bool isSaved);
 		bool sequenceSettingsReadyCheck();
 		bool checkSequenceSave(std::string prompt);
-		bool sequenceChangeHandler();
+		void sequenceChangeHandler();
 		std::string getSequenceNamesString();
-		bool loadNullSequence();
-		bool addToSequence(CWnd* parent);
+		void loadNullSequence();
+		void addToSequence(CWnd* parent);
 		std::vector<std::string> getSequenceNames();
-		bool reloadSequence(std::string sequenceToReload);
+		void reloadSequence(std::string sequenceToReload);
 
-		bool saveExperimentOnly(MainWindow* comm);
-		bool newExperiment();
-		bool saveExperimentAs(MainWindow* comm);
-		bool renameExperiment(MainWindow* comm);
-		bool deleteExperiment();
-		bool openExperiment(std::string experimentToOpen, ScriptingWindow* scriptWindow, MainWindow* comm);
-		bool updateExperimentSavedStatus(bool isSaved);
-		bool experimentSettingsReadyCheck(MainWindow* comm);
+		void saveExperimentOnly(MainWindow* comm);
+		void newExperiment();
+		void saveExperimentAs(MainWindow* comm);
+		void renameExperiment(MainWindow* comm);
+		void deleteExperiment();
+		void openExperiment(std::string experimentToOpen, ScriptingWindow* scriptWindow, MainWindow* comm);
+		void updateExperimentSavedStatus(bool isSaved);
+		void experimentSettingsReadyCheck(MainWindow* comm);
 		bool checkExperimentSave(std::string prompt, MainWindow* comm);
-		bool experimentChangeHandler(ScriptingWindow* scriptWindow, MainWindow* comm);
+		void experimentChangeHandler(ScriptingWindow* scriptWindow, MainWindow* comm);
 		std::string getCurrentExperiment();
 
-		bool saveConfigurationOnly(ScriptingWindow* scriptWindow, MainWindow* comm);
-		bool newConfiguration(MainWindow* comm);
-		bool saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindow* comm);
-		bool renameConfiguration();
-		bool deleteConfiguration();
-		bool openConfiguration(std::string configurationNameToOpen, ScriptingWindow* scriptWindow, MainWindow* comm);
-		bool updateConfigurationSavedStatus(bool isSaved);
+		void saveConfigurationOnly(ScriptingWindow* scriptWindow, MainWindow* comm);
+		void newConfiguration(MainWindow* comm);
+		void saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindow* comm);
+		void renameConfiguration();
+		void deleteConfiguration();
+		void openConfiguration(std::string configurationNameToOpen, ScriptingWindow* scriptWindow, MainWindow* comm);
+		void updateConfigurationSavedStatus(bool isSaved);
 		bool configurationSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* comm);
 		bool checkConfigurationSave(std::string prompt, ScriptingWindow* scriptWindow, MainWindow* comm);
-		bool configurationChangeHandler(ScriptingWindow* scriptWindow, MainWindow* comm);
+		void configurationChangeHandler(ScriptingWindow* scriptWindow, MainWindow* comm);
 
-		bool saveCategoryOnly(MainWindow* comm);
-		bool renameCategory();
-		bool newCategory();
-		bool deleteCategory();
-		bool saveCategoryAs(MainWindow* comm);
-		bool openCategory(std::string categoryToOpen, ScriptingWindow* scriptWindow, MainWindow* comm);
-		bool updateCategorySavedStatus(bool isSaved);
+		void saveCategoryOnly(MainWindow* comm);
+		void renameCategory();
+		void newCategory();
+		void deleteCategory();
+		void saveCategoryAs(MainWindow* comm);
+		void openCategory(std::string categoryToOpen, ScriptingWindow* scriptWindow, MainWindow* comm);
+		void updateCategorySavedStatus(bool isSaved);
 		bool categorySettinsReadyCheck();
 		bool checkCategorySave(std::string prompt, MainWindow* comm);
-		bool categoryChangeHandler(ScriptingWindow* scriptWindow, MainWindow* comm);
+		void categoryChangeHandler(ScriptingWindow* scriptWindow, MainWindow* comm);
 		std::string getCurrentCategory();
 		std::string getCurrentPathIncludingCategory();
 		profileSettings getCurrentProfileSettings();
 
 		std::vector<std::string> searchForFiles(std::string locationToSearch, std::string extensions);
-		bool reloadCombo(HWND comboToReload, std::string locationToLook, std::string extension, std::string nameToLoad);
+		void reloadCombo(HWND comboToReload, std::string locationToLook, std::string extension, std::string nameToLoad);
 		std::string getComboText();
 		bool fileOrFolderExists(std::string filePathway);
 		void updateSaveStatus(bool savedStatus);
-		bool fullyDeleteFolder(std::string folderToDelete);
+		void fullyDeleteFolder(std::string folderToDelete);
 
-		bool initializeControls(POINT& topLeftPosition, CWnd* parent, int& id,
-			std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips);
-		bool rearrange(RECT parentRectangle, std::string mode);
+		void initializeControls( POINT& topLeftPosition, CWnd* parent, int& id,
+								 std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips );
+		void rearrange(RECT parentRectangle, std::string mode);
 		
 	private:
 		profileSettings currentProfileSettings;

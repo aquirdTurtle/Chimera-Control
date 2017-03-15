@@ -253,7 +253,6 @@ AndorRunSettings CameraConfigurationSystem::openConfiguration(std::string config
 void CameraConfigurationSystem::saveConfiguration(bool isFromSaveAs, AndorRunSettings settings )
 {
 	// check if file exists
-	struct stat buffer;
 	if (configurationName == "" || (!CameraConfigurationSystem::fileExists(FILE_SYSTEM_PATH + configurationName + ".cConfig") && !isFromSaveAs))
 	{
 		//configurationName = (const char*)DialogBoxParam(eHInst, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)dialogProcedures::textPromptDialogProcedure, (LPARAM)"This configuration "
@@ -268,8 +267,7 @@ void CameraConfigurationSystem::saveConfiguration(bool isFromSaveAs, AndorRunSet
 	std::ofstream configurationSaveFile(FILE_SYSTEM_PATH + configurationName + ".cConfig");
 	if (!configurationSaveFile.is_open())
 	{
-		errBox("Couldn't save configuration file! Check the name for weird characters, or call Mark if everything seems right...");
-		return;
+		thrower("Couldn't save configuration file! Check the name for weird characters, or call Mark if everything seems right...");
 	}
 	/// Start Outputting information
 	// version
@@ -333,7 +331,6 @@ void CameraConfigurationSystem::saveConfiguration(bool isFromSaveAs, AndorRunSet
 	///}
 	CameraConfigurationSystem::reloadCombo(configurationName);
 	updateSaveStatus(true);
-	return;
 }
 
 
@@ -347,9 +344,10 @@ void CameraConfigurationSystem::saveConfigurationAs(std::string newConfiguration
 	}
 	CameraConfigurationSystem::saveConfiguration(true, settings );
 	CameraConfigurationSystem::reloadCombo(configurationName);
-	return;
 }
-int CameraConfigurationSystem::renameConfiguration(std::string newConfigurationName)
+
+
+void CameraConfigurationSystem::renameConfiguration(std::string newConfigurationName)
 {
 	std::string tempConfigurationName;
 	//std::string tempConfigurationName = (const char*)DialogBoxParam(eHInst, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)dialogProcedures::textPromptDialogProcedure, (LPARAM)"Please enter a configuration name.");
@@ -362,32 +360,35 @@ int CameraConfigurationSystem::renameConfiguration(std::string newConfigurationN
 	MoveFile((FILE_SYSTEM_PATH + configurationName + ".cConfig").c_str(), (FILE_SYSTEM_PATH + tempConfigurationName + ".cConfig").c_str());
 	configurationName = tempConfigurationName;
 	CameraConfigurationSystem::reloadCombo(configurationName);
-	return 0;
 }
-int CameraConfigurationSystem::deleteConfiguration()
+
+
+void CameraConfigurationSystem::deleteConfiguration()
 {
-	int answer = MessageBox(0, ("Are you sure that you want to delete the following configuraiton: " + configurationName).c_str(), 0, MB_OKCANCEL);
+	int answer = MessageBox( 0, ("Are you sure that you want to delete the following configuraiton: " + configurationName).c_str(), 0, 
+							 MB_OKCANCEL );
 	if (answer == IDOK)
 	{
-		int result = DeleteFile((FILE_SYSTEM_PATH + configurationName + ".cConfig").c_str());
+		int result = DeleteFile( (FILE_SYSTEM_PATH + configurationName + ".cConfig").c_str() );
 		if (!result)
 		{
-			MessageBox(0, ("ERROR: Couldn't delete configuration File. Error code: " + std::to_string(GetLastError()) + ". Talk to Mark or try to delete it "
-						   "yourself from the appropriate folder in explorer.").c_str(), 0, 0);
+			thrower( "ERROR: Couldn't delete configuration File. Error code: " + std::to_string( GetLastError() ) + ". Talk to Mark or try to delete it "
+					 "yourself from the appropriate folder in explorer." );
 		}
 		configurationName = "";
 	}
-	CameraConfigurationSystem::reloadCombo("__NONE__");
+	CameraConfigurationSystem::reloadCombo( "__NONE__" );
 	// no configuration loaded so don't want save prompt
-	updateSaveStatus(true);
-	return 0;
+	updateSaveStatus( true );
 }
+
+
 int CameraConfigurationSystem::checkSave()
 {
 	if (!configurationSaved)
 	{
 		// ask the user if they want to save
-		return MessageBox(0, "Save Current Camera Configuration First?", 0, MB_YESNOCANCEL);
+		return MessageBox( 0, "Save Current Camera Configuration First?", 0, MB_YESNOCANCEL );
 	}
 	else
 	{
@@ -395,19 +396,20 @@ int CameraConfigurationSystem::checkSave()
 	}
 }
 
-void CameraConfigurationSystem::initialize( cameraPositions& positions, CWnd* parent, bool isTriggerModeSensitive, int& id)
+
+void CameraConfigurationSystem::initialize( cameraPositions& positions, CWnd* parent, bool isTriggerModeSensitive, int& id )
 {
 	configLabel.ksmPos = { positions.ksmPos.x, positions.ksmPos.y, positions.ksmPos.x + 150, positions.ksmPos.y + 25 };
-	configLabel.amPos = { positions.amPos.x, positions.amPos.y, positions.amPos.x + 150, 
+	configLabel.amPos = { positions.amPos.x, positions.amPos.y, positions.amPos.x + 150,
 									  positions.amPos.y + 25 };
-	configLabel.cssmPos = { positions.cssmPos.x, positions.cssmPos.y, positions.cssmPos.x + 150, 
+	configLabel.cssmPos = { positions.cssmPos.x, positions.cssmPos.y, positions.cssmPos.x + 150,
 												 positions.cssmPos.y + 25 };
 	configLabel.ID = id++;
 	configLabel.Create( "Configuration: ", WS_CHILD | WS_VISIBLE | ES_CENTER, configLabel.ksmPos, parent, configLabel.ID );
 	configLabel.fontType = "Normal";
 
 	/// CAMERA MODE
-	configCombo.ksmPos = { positions.ksmPos.x + 150, positions.ksmPos.y, positions.ksmPos.x + 480, 
+	configCombo.ksmPos = { positions.ksmPos.x + 150, positions.ksmPos.y, positions.ksmPos.x + 480,
 		positions.ksmPos.y + 800 };
 	configCombo.amPos = { positions.amPos.x + 150, positions.amPos.y, positions.amPos.x + 480,
 		positions.amPos.y + 800 };
@@ -417,22 +419,21 @@ void CameraConfigurationSystem::initialize( cameraPositions& positions, CWnd* pa
 	configCombo.Create( WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, configCombo.ksmPos, parent, configCombo.ID );
 	// add options
 	configCombo.fontType = "Normal";
-	CameraConfigurationSystem::reloadCombo("__NONE__");
+	CameraConfigurationSystem::reloadCombo( "__NONE__" );
 	positions.ksmPos.y += 25;
 	positions.amPos.y += 25;
 	positions.cssmPos.y += 25;
-	updateSaveStatus(true);
-	return;
+	updateSaveStatus( true );
 }
+
 
 void CameraConfigurationSystem::reorganizeControls(RECT parentRectangle, std::string mode)
 {
-	//configLabel.rearrange();
-	//configCombo.rearrange();
-	return ;
+	// TBD
 }
 
-std::vector<std::string> CameraConfigurationSystem::searchForFiles(std::string locationToSearch, std::string extensions)
+
+std::vector<std::string> CameraConfigurationSystem::searchForFiles( std::string locationToSearch, std::string extensions )
 {
 	// Re-add the entries back in and figure out which one is the current one.
 	std::vector<std::string> names;
@@ -441,11 +442,11 @@ std::vector<std::string> CameraConfigurationSystem::searchForFiles(std::string l
 	HANDLE hFind;
 	if (extensions == "*")
 	{
-		hFind = FindFirstFileEx(search_path.c_str(), FindExInfoStandard, &fd, FindExSearchLimitToDirectories, NULL, 0);
+		hFind = FindFirstFileEx( search_path.c_str(), FindExInfoStandard, &fd, FindExSearchLimitToDirectories, NULL, 0 );
 	}
 	else
 	{
-		hFind = FindFirstFile(search_path.c_str(), &fd);
+		hFind = FindFirstFile( search_path.c_str(), &fd );
 	}
 	if (hFind != INVALID_HANDLE_VALUE)
 	{
@@ -456,9 +457,9 @@ std::vector<std::string> CameraConfigurationSystem::searchForFiles(std::string l
 			{
 				if ((fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY)
 				{
-					if (std::string(fd.cFileName) != "." && std::string(fd.cFileName) != "..")
+					if (std::string( fd.cFileName ) != "." && std::string( fd.cFileName ) != "..")
 					{
-						names.push_back(fd.cFileName);
+						names.push_back( fd.cFileName );
 					}
 				}
 			}
@@ -466,24 +467,24 @@ std::vector<std::string> CameraConfigurationSystem::searchForFiles(std::string l
 			{
 				if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 				{
-					names.push_back(fd.cFileName);
+					names.push_back( fd.cFileName );
 				}
 			}
-		} while (FindNextFile(hFind, &fd));
-		FindClose(hFind);
+		} while (FindNextFile( hFind, &fd ));
+		FindClose( hFind );
 	}
 
 	// Remove suffix from file names and...
 	for (int configListInc = 0; configListInc < names.size(); configListInc++)
 	{
-		if (extensions == "*" || extensions == "*.*" || extensions == "*.hSubConfig" || extensions == "*.vSubConfig" || extensions == "*.seq" 
-			|| extensions == "*.cConfig")
+		if (extensions == "*" || extensions == "*.*" || extensions == "*.hSubConfig" || extensions == "*.vSubConfig" || extensions == "*.seq"
+			 || extensions == "*.cConfig")
 		{
-			names[configListInc] = names[configListInc].substr(0, names[configListInc].size() - (extensions.size() - 1));
+			names[configListInc] = names[configListInc].substr( 0, names[configListInc].size() - (extensions.size() - 1) );
 		}
 		else
 		{
-			names[configListInc] = names[configListInc].substr(0, names[configListInc].size() - extensions.size());
+			names[configListInc] = names[configListInc].substr( 0, names[configListInc].size() - extensions.size() );
 		}
 	}
 	// Make the final vector out of the unique objects left.
@@ -491,11 +492,11 @@ std::vector<std::string> CameraConfigurationSystem::searchForFiles(std::string l
 }
 
 
-void CameraConfigurationSystem::reloadCombo(std::string nameToLoad)
+void CameraConfigurationSystem::reloadCombo( std::string nameToLoad )
 {
 	std::vector<std::string> names;
 	// search for folders
-	names = CameraConfigurationSystem::searchForFiles(FILE_SYSTEM_PATH, "*.cConfig");
+	names = CameraConfigurationSystem::searchForFiles( FILE_SYSTEM_PATH, "*.cConfig" );
 
 	/// Get current selection
 	long long itemIndex = configCombo.GetCurSel();
@@ -521,8 +522,8 @@ void CameraConfigurationSystem::reloadCombo(std::string nameToLoad)
 	}
 	// Set initial value
 	configCombo.SetCurSel( currentInc );
-	return;
 }
+
 
 bool CameraConfigurationSystem::fileExists(std::string filePathway)
 {
@@ -530,9 +531,10 @@ bool CameraConfigurationSystem::fileExists(std::string filePathway)
 	struct stat buffer;
 	return (stat(filePathway.c_str(), &buffer) == 0);
 }
+
+
 std::string CameraConfigurationSystem::getComboText()
 {
-
 	int selectionNum = configCombo.GetCurSel();
 	if (selectionNum == -1)
 	{
@@ -545,6 +547,7 @@ std::string CameraConfigurationSystem::getComboText()
 		return text;
 	}
 }
+
 
 void CameraConfigurationSystem::updateSaveStatus(bool saved)
 {

@@ -18,21 +18,21 @@ class CameraImageDimensionsControl
 {
 	public:
 		CameraImageDimensionsControl();
-		bool initialize(POINT& topLeftPositionKinetic, POINT& topLeftPositionAccumulate, POINT& topLeftPositionContinuous,
-							  CWnd* parentWindow, bool isTriggerModeSensitive, int& id);
-		imageParameters readImageParameters(CameraWindow* camWin);
-		bool setImageParametersFromInput(imageParameters param, CameraWindow* camWin);
+		void initialize( POINT& topLeftPositionKinetic, POINT& topLeftPositionAccumulate, POINT& topLeftPositionContinuous,
+						 CWnd* parentWindow, bool isTriggerModeSensitive, int& id );
+		imageParameters readImageParameters( CameraWindow* camWin );
+		void setImageParametersFromInput( imageParameters param, CameraWindow* camWin );
 		bool checkReady();
 		imageParameters getImageParameters();
-		bool rearrange(std::string cameraMode, std::string triggerMode, int width,
-			int height, std::unordered_map<std::string, CFont*> fonts);
-		HBRUSH colorEdits(HWND window, UINT message, WPARAM wParam, LPARAM lParam, MainWindow* mainWin);
-		bool drawBackgrounds(CameraWindow* camWin);
+		void rearrange( std::string cameraMode, std::string triggerMode, int width,
+						int height, std::unordered_map<std::string, CFont*> fonts );
+		HBRUSH colorEdits( HWND window, UINT message, WPARAM wParam, LPARAM lParam, MainWindow* mainWin );
+		void drawBackgrounds( CameraWindow* camWin );
 		void cameraIsOn( bool state );
-		// TODO:
-		// bool drawPicture();
-		// bool drawSelectionCircle();
-		// bool drawAnalysisSquares();
+	// TODO:
+	// bool drawPicture();
+	// bool drawSelectionCircle();
+	// bool drawAnalysisSquares();
 	private:
 		Control<CStatic> leftText;
 		Control<CStatic>  rightText;

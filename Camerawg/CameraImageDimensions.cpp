@@ -11,8 +11,7 @@
 
 void CameraImageDimensionsControl::cameraIsOn( bool state )
 {
-	this->setImageDimensionsButton.EnableWindow( !state );
-	return;
+	setImageDimensionsButton.EnableWindow( !state );
 }
 
 
@@ -21,7 +20,8 @@ CameraImageDimensionsControl::CameraImageDimensionsControl()
 	isReady = false;
 }
 
-bool CameraImageDimensionsControl::initialize( POINT& topLeftPositionKinetic, POINT& topLeftPositionAccumulate, POINT& topLeftPositionContinuous,
+
+void CameraImageDimensionsControl::initialize( POINT& topLeftPositionKinetic, POINT& topLeftPositionAccumulate, POINT& topLeftPositionContinuous,
 											   CWnd* parent, bool isTriggerModeSensitive, int& id )
 {
 	setImageDimensionsButton.ID = id++;
@@ -141,19 +141,19 @@ bool CameraImageDimensionsControl::initialize( POINT& topLeftPositionKinetic, PO
 	topLeftPositionKinetic.y += 25;
 	topLeftPositionAccumulate.y += 25;
 	topLeftPositionContinuous.y += 25;
-	return false;
 }
 
-bool CameraImageDimensionsControl::drawBackgrounds(CameraWindow* camWin)
+
+void CameraImageDimensionsControl::drawBackgrounds( CameraWindow* camWin )
 {
 	// recolor the box, clearing last run
 	CDC* hDC = camWin->GetDC();
-	SelectObject(*hDC, GetStockObject(DC_BRUSH));
-	SelectObject(*hDC, GetStockObject(DC_PEN));
+	SelectObject( *hDC, GetStockObject( DC_BRUSH ) );
+	SelectObject( *hDC, GetStockObject( DC_PEN ) );
 	// dark green brush
-	SetDCBrushColor(*hDC, RGB(0, 10, 0));
+	SetDCBrushColor( *hDC, RGB( 0, 10, 0 ) );
 	// Set the Pen to White
-	SetDCPenColor(*hDC, RGB(255, 255, 255));
+	SetDCPenColor( *hDC, RGB( 255, 255, 255 ) );
 	// Drawing a rectangle with the current Device Context
 	/*
 	for (int imageInc = 0; imageInc < eImageBackgroundAreas.size(); imageInc++)
@@ -162,90 +162,83 @@ bool CameraImageDimensionsControl::drawBackgrounds(CameraWindow* camWin)
 		Rectangle(*hDC, eImageBackgroundAreas[imageInc].left - 5, eImageBackgroundAreas[imageInc].top - 5, eImageBackgroundAreas[imageInc].right + 5, eImageBackgroundAreas[imageInc].bottom + 5);
 	}
 	*/
-	camWin->ReleaseDC(hDC);
-	return true;
+	camWin->ReleaseDC( hDC );
 }
 
 
-imageParameters CameraImageDimensionsControl::readImageParameters(CameraWindow* camWin)
+imageParameters CameraImageDimensionsControl::readImageParameters( CameraWindow* camWin )
 {
-	this->drawBackgrounds(camWin);
+	this->drawBackgrounds( camWin );
 	// If new dimensions are set, we don't have data for the new dimensions.
 	// eDataExists = false;
 	// set all of the image parameters
 	CString tempStr;
-	leftEdit.GetWindowTextA(tempStr);
+	leftEdit.GetWindowTextA( tempStr );
 	try
 	{
-		currentImageParameters.leftBorder = std::stoi(std::string(tempStr));
+		currentImageParameters.leftBorder = std::stoi( std::string( tempStr ) );
 	}
-	catch (std::invalid_argument &exception)
+	catch (std::invalid_argument&)
 	{
 		isReady = false;
 		thrower( "Left border argument not an integer!\r\n" );
-		return currentImageParameters;
 	}
 	leftEdit.RedrawWindow();
-	rightEdit.GetWindowTextA(tempStr);
+	rightEdit.GetWindowTextA( tempStr );
 	try
 	{
-		currentImageParameters.rightBorder = std::stoi(std::string(tempStr));
+		currentImageParameters.rightBorder = std::stoi( std::string( tempStr ) );
 	}
-	catch (std::invalid_argument &exception)
+	catch (std::invalid_argument&)
 	{
 		isReady = false;
-		thrower("Right border argument not an integer!\r\n");
-		return currentImageParameters;
+		thrower( "Right border argument not an integer!\r\n" );
 	}
 	rightEdit.RedrawWindow();
 	//
-	topEdit.GetWindowTextA(tempStr);
+	topEdit.GetWindowTextA( tempStr );
 	try
 	{
-		currentImageParameters.topBorder = std::stoi(std::string(tempStr));
+		currentImageParameters.topBorder = std::stoi( std::string( tempStr ) );
 	}
-	catch (std::invalid_argument &exception)
+	catch (std::invalid_argument&)
 	{
 		isReady = false;
-		thrower("Top border argument not an integer!\r\n");
-		return currentImageParameters;
+		thrower( "Top border argument not an integer!\r\n" );
 	}
 	topEdit.RedrawWindow();
 	//
-	bottomEdit.GetWindowTextA(tempStr);
+	bottomEdit.GetWindowTextA( tempStr );
 	try
 	{
-		currentImageParameters.bottomBorder = std::stoi(std::string(tempStr));
+		currentImageParameters.bottomBorder = std::stoi( std::string( tempStr ) );
 	}
-	catch (std::invalid_argument &exception)
+	catch (std::invalid_argument&)
 	{
 		isReady = false;
-		thrower("Bottom border argument not an integer!\r\n");
-		return currentImageParameters;
+		thrower( "Bottom border argument not an integer!\r\n" );
 	}
 	bottomEdit.RedrawWindow();
-	horizontalBinningEdit.GetWindowTextA(tempStr);
+	horizontalBinningEdit.GetWindowTextA( tempStr );
 	try
 	{
-		currentImageParameters.horizontalBinning = std::stoi(std::string(tempStr));
+		currentImageParameters.horizontalBinning = std::stoi( std::string( tempStr ) );
 	}
-	catch (std::invalid_argument &exception)
+	catch (std::invalid_argument&)
 	{
 		isReady = false;
-		thrower("Horizontal binning argument not an integer!\r\n");
-		return currentImageParameters;
+		thrower( "Horizontal binning argument not an integer!\r\n" );
 	}
 	horizontalBinningEdit.RedrawWindow();
-	verticalBinningEdit.GetWindowTextA(tempStr);
+	verticalBinningEdit.GetWindowTextA( tempStr );
 	try
 	{
-		currentImageParameters.verticalBinning = std::stoi(std::string(tempStr));
+		currentImageParameters.verticalBinning = std::stoi( std::string( tempStr ) );
 	}
-	catch (std::invalid_argument &exception)
+	catch (std::invalid_argument&)
 	{
 		isReady = false;
-		thrower("Vertical binning argument not an integer!\r\n");
-		return currentImageParameters;
+		thrower( "Vertical binning argument not an integer!\r\n" );
 	}
 	verticalBinningEdit.RedrawWindow();
 	// reset this. There must be at least one pixel...
@@ -262,32 +255,27 @@ imageParameters CameraImageDimensionsControl::readImageParameters(CameraWindow* 
 	if (currentImageParameters.leftBorder > currentImageParameters.rightBorder || currentImageParameters.topBorder > currentImageParameters.bottomBorder)
 	{
 		isReady = false;
-		thrower("ERROR: Image start positions must not be greater than end positions\r\n");
-		return currentImageParameters;
+		thrower( "ERROR: Image start positions must not be greater than end positions\r\n" );
 	}
 	if (currentImageParameters.leftBorder < 1 || currentImageParameters.rightBorder > 512)
 	{
 		isReady = false;
-		thrower("ERROR: Image horizontal borders must be greater than 0 and less than the detector width\r\n");
-		return currentImageParameters;
+		thrower( "ERROR: Image horizontal borders must be greater than 0 and less than the detector width\r\n" );
 	}
 	if (currentImageParameters.topBorder < 1 || currentImageParameters.bottomBorder > 512)
 	{
 		isReady = false;
-		thrower("ERROR: Image verttical borders must be greater than 0 and less than the detector height\r\n");
-		return currentImageParameters;
+		thrower( "ERROR: Image verttical borders must be greater than 0 and less than the detector height\r\n" );
 	}
 	if ((currentImageParameters.rightBorder - currentImageParameters.leftBorder + 1) % currentImageParameters.horizontalBinning != 0)
 	{
 		isReady = false;
-		thrower("ERROR: Image width must be a multiple of Horizontal Binning\r\n");
-		return currentImageParameters;
+		thrower( "ERROR: Image width must be a multiple of Horizontal Binning\r\n" );
 	}
 	if ((currentImageParameters.bottomBorder - currentImageParameters.topBorder + 1) % currentImageParameters.verticalBinning != 0)
 	{
 		isReady = false;
-		thrower("ERROR: Image height must be a multiple of Vertical Binning\r\n");
-		return currentImageParameters;
+		thrower( "ERROR: Image height must be a multiple of Vertical Binning\r\n" );
 	}
 	// made it through successfully.
 	/*
@@ -357,24 +345,23 @@ imageParameters CameraImageDimensionsControl::readImageParameters(CameraWindow* 
 /*
  * I forget why I needed a second function for this.
  */
-bool CameraImageDimensionsControl::setImageParametersFromInput(imageParameters param, CameraWindow* camWin)
+void CameraImageDimensionsControl::setImageParametersFromInput( imageParameters param, CameraWindow* camWin )
 {
-
-	this->drawBackgrounds(camWin);
+	drawBackgrounds( camWin );
 	//eDataExists = false;
 	// set all of the image parameters
 	currentImageParameters.leftBorder = param.leftBorder;
-	leftEdit.SetWindowText(std::to_string(currentImageParameters.leftBorder).c_str());
+	leftEdit.SetWindowText( std::to_string( currentImageParameters.leftBorder ).c_str() );
 	currentImageParameters.rightBorder = param.rightBorder;
-	rightEdit.SetWindowText(std::to_string(currentImageParameters.rightBorder).c_str());
+	rightEdit.SetWindowText( std::to_string( currentImageParameters.rightBorder ).c_str() );
 	currentImageParameters.topBorder = param.topBorder;
-	topEdit.SetWindowText(std::to_string(currentImageParameters.topBorder).c_str());	
+	topEdit.SetWindowText( std::to_string( currentImageParameters.topBorder ).c_str() );
 	currentImageParameters.bottomBorder = param.bottomBorder;
-	bottomEdit.SetWindowText(std::to_string(currentImageParameters.bottomBorder).c_str());
+	bottomEdit.SetWindowText( std::to_string( currentImageParameters.bottomBorder ).c_str() );
 	currentImageParameters.horizontalBinning = param.horizontalBinning;
-	horizontalBinningEdit.SetWindowText(std::to_string(currentImageParameters.horizontalBinning).c_str());
+	horizontalBinningEdit.SetWindowText( std::to_string( currentImageParameters.horizontalBinning ).c_str() );
 	currentImageParameters.verticalBinning = param.verticalBinning;
-	verticalBinningEdit.SetWindowText(std::to_string(currentImageParameters.verticalBinning).c_str());
+	verticalBinningEdit.SetWindowText( std::to_string( currentImageParameters.verticalBinning ).c_str() );
 	// reset this. There must be at least one pixel...
 	/*
 	eCurrentlySelectedPixel.first = 0;
@@ -388,32 +375,27 @@ bool CameraImageDimensionsControl::setImageParametersFromInput(imageParameters p
 	if (currentImageParameters.leftBorder > currentImageParameters.rightBorder || currentImageParameters.topBorder > currentImageParameters.bottomBorder)
 	{
 		isReady = false;
-		thrower("ERROR: Image start positions must not be greater than end positions\r\n");
-		return true;
+		thrower( "ERROR: Image start positions must not be greater than end positions\r\n" );
 	}
 	if (currentImageParameters.leftBorder < 1 || currentImageParameters.rightBorder > 512)
 	{
 		isReady = false;
-		thrower("ERROR: Image horizontal borders must be greater than 0 and less than the detector width\r\n");
-		return true;
+		thrower( "ERROR: Image horizontal borders must be greater than 0 and less than the detector width\r\n" );
 	}
 	if (currentImageParameters.topBorder < 1 || currentImageParameters.bottomBorder > 512)
 	{
 		isReady = false;
-		thrower("ERROR: Image verttical borders must be greater than 0 and less than the detector height\r\n");
-		return true;
+		thrower( "ERROR: Image verttical borders must be greater than 0 and less than the detector height\r\n" );
 	}
 	if ((currentImageParameters.rightBorder - currentImageParameters.leftBorder + 1) % currentImageParameters.horizontalBinning != 0)
 	{
 		isReady = false;
-		thrower("ERROR: Image width must be a multiple of Horizontal Binning\r\n");
-		return true;
+		thrower( "ERROR: Image width must be a multiple of Horizontal Binning\r\n" );
 	}
 	if ((currentImageParameters.bottomBorder - currentImageParameters.topBorder + 1) % currentImageParameters.verticalBinning != 0)
 	{
 		isReady = false;
-		thrower("ERROR: Image height must be a multiple of Vertical Binning\r\n");
-		return true;
+		thrower( "ERROR: Image height must be a multiple of Vertical Binning\r\n" );
 	}
 	// made it through successfully.
 	/*
@@ -463,16 +445,16 @@ bool CameraImageDimensionsControl::setImageParametersFromInput(imageParameters p
 			{
 				// for all 4 pictures...
 				ePixelRectangles[pictureInc][widthInc][heightInc].left = (int)(eImageDrawAreas[pictureInc].left
-					+ (double)widthInc * (eImageDrawAreas[pictureInc].right - eImageDrawAreas[pictureInc].left) 
+					+ (double)widthInc * (eImageDrawAreas[pictureInc].right - eImageDrawAreas[pictureInc].left)
 					/ (double)currentImageParameters.width + 2);
 				ePixelRectangles[pictureInc][widthInc][heightInc].right = (int)(eImageDrawAreas[pictureInc].left
-					+ (double)(widthInc + 1) * (eImageDrawAreas[pictureInc].right - eImageDrawAreas[pictureInc].left) 
+					+ (double)(widthInc + 1) * (eImageDrawAreas[pictureInc].right - eImageDrawAreas[pictureInc].left)
 					/ (double)currentImageParameters.width + 2);
 				ePixelRectangles[pictureInc][widthInc][heightInc].top = (int)(eImageDrawAreas[pictureInc].top
-					+ (double)(heightInc)* (eImageDrawAreas[pictureInc].bottom - eImageDrawAreas[pictureInc].top) 
+					+ (double)(heightInc)* (eImageDrawAreas[pictureInc].bottom - eImageDrawAreas[pictureInc].top)
 					/ (double)currentImageParameters.height);
 				ePixelRectangles[pictureInc][widthInc][heightInc].bottom = (int)(eImageDrawAreas[pictureInc].top
-					+ (double)(heightInc + 1)* (eImageDrawAreas[pictureInc].bottom - eImageDrawAreas[pictureInc].top) 
+					+ (double)(heightInc + 1)* (eImageDrawAreas[pictureInc].bottom - eImageDrawAreas[pictureInc].top)
 					/ (double)currentImageParameters.height);
 			}
 		}
@@ -481,8 +463,8 @@ bool CameraImageDimensionsControl::setImageParametersFromInput(imageParameters p
 	*/
 	// eCameraFileSystem.updateSaveStatus(false);
 	isReady = true;
-	return false;
 }
+
 
 bool CameraImageDimensionsControl::checkReady()
 {
@@ -496,35 +478,37 @@ bool CameraImageDimensionsControl::checkReady()
 	}
 }
 
+
 imageParameters CameraImageDimensionsControl::getImageParameters()
 {
 	return currentImageParameters;
 }
 
-HBRUSH CameraImageDimensionsControl::colorEdits(HWND window, UINT message, WPARAM wParam, LPARAM lParam, MainWindow* mainWin)
+
+HBRUSH CameraImageDimensionsControl::colorEdits( HWND window, UINT message, WPARAM wParam, LPARAM lParam, MainWindow* mainWin )
 {
 	std::unordered_map<std::string, CBrush*> brushes = mainWin->getBrushes();
-	
+
 	std::unordered_map<std::string, COLORREF> rgbs = mainWin->getRGB();
-	DWORD controlID = GetDlgCtrlID((HWND)lParam);
+	DWORD controlID = GetDlgCtrlID( (HWND)lParam );
 	HDC hdcStatic = (HDC)wParam;
 	imageParameters currentImageParameters = { 0,0,0,0,0,0 };
 
 	if (controlID == bottomEdit.ID)
 	{
 		//imageParameters currentImageParameters = eImageControl.getImageParameters();
-		SetTextColor(hdcStatic, RGB(255, 255, 255));
+		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
 		CString textEdit;
-		bottomEdit.GetWindowTextA(textEdit);
+		bottomEdit.GetWindowTextA( textEdit );
 		int bottom;
 		try
 		{
-			bottom = std::stoi(std::string(textEdit));
+			bottom = std::stoi( std::string( textEdit ) );
 			if (bottom == currentImageParameters.bottomBorder)
 			{
 				// good.
-				SetTextColor(hdcStatic, RGB(255, 255, 255));
-				SetBkColor(hdcStatic, RGB(100, 110, 100));
+				SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
+				SetBkColor( hdcStatic, RGB( 100, 110, 100 ) );
 				// catch change of color and redraw window.
 				if (bottomEdit.colorState != 0)
 				{
@@ -538,12 +522,12 @@ HBRUSH CameraImageDimensionsControl::colorEdits(HWND window, UINT message, WPARA
 		{
 			// don't do anything with it.
 		}
-		SetTextColor(hdcStatic, RGB(255, 255, 255));
-		SetBkColor(hdcStatic, RGB(150, 100, 100));
+		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
+		SetBkColor( hdcStatic, RGB( 150, 100, 100 ) );
 		// catch change of color and redraw window.
 		if (bottomEdit.colorState != 1)
 		{
-			bottomEdit.colorState = 1; 
+			bottomEdit.colorState = 1;
 			bottomEdit.RedrawWindow();
 		}
 		return *brushes["Grey Red"];
@@ -551,18 +535,18 @@ HBRUSH CameraImageDimensionsControl::colorEdits(HWND window, UINT message, WPARA
 	else if (controlID == topEdit.ID)
 	{
 		//imageParameters currentImageParameters = eImageControl.getImageParameters();
-		SetTextColor(hdcStatic, RGB(255, 255, 255));
+		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
 		CString textEdit;
-		topEdit.GetWindowTextA(textEdit);
+		topEdit.GetWindowTextA( textEdit );
 		int top;
 		try
 		{
-			top = std::stoi(std::string(textEdit));
+			top = std::stoi( std::string( textEdit ) );
 			if (top == currentImageParameters.topBorder)
 			{
 				// good.
-				SetTextColor(hdcStatic, RGB(255, 255, 255));
-				SetBkColor(hdcStatic, RGB(100, 110, 100));
+				SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
+				SetBkColor( hdcStatic, RGB( 100, 110, 100 ) );
 				// catch change of color and redraw window.
 				if (topEdit.colorState != 0)
 				{
@@ -576,8 +560,8 @@ HBRUSH CameraImageDimensionsControl::colorEdits(HWND window, UINT message, WPARA
 		{
 			// don't do anything with it.
 		}
-		SetTextColor(hdcStatic, RGB(255, 255, 255));
-		SetBkColor(hdcStatic, RGB(150, 100, 100));
+		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
+		SetBkColor( hdcStatic, RGB( 150, 100, 100 ) );
 		// catch change of color and redraw window.
 		if (topEdit.colorState != 1)
 		{
@@ -589,18 +573,18 @@ HBRUSH CameraImageDimensionsControl::colorEdits(HWND window, UINT message, WPARA
 	else if (controlID == verticalBinningEdit.ID)
 	{
 		//imageParameters currentImageParameters = eImageControl.getImageParameters();
-		SetTextColor(hdcStatic, RGB(255, 255, 255));
+		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
 		CString textEdit;
-		verticalBinningEdit.GetWindowTextA(textEdit);
+		verticalBinningEdit.GetWindowTextA( textEdit );
 		int verticalBin;
 		try
 		{
-			verticalBin = std::stoi(std::string(textEdit));
+			verticalBin = std::stoi( std::string( textEdit ) );
 			if (verticalBin == currentImageParameters.verticalBinning)
 			{
 				// good.
-				SetTextColor(hdcStatic, RGB(255, 255, 255));
-				SetBkColor(hdcStatic, RGB(100, 110, 100));
+				SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
+				SetBkColor( hdcStatic, RGB( 100, 110, 100 ) );
 				// catch change of color and redraw window.
 				if (verticalBinningEdit.colorState != 0)
 				{
@@ -614,8 +598,8 @@ HBRUSH CameraImageDimensionsControl::colorEdits(HWND window, UINT message, WPARA
 		{
 			// don't do anything with it.
 		}
-		SetTextColor(hdcStatic, RGB(255, 255, 255));
-		SetBkColor(hdcStatic, RGB(150, 100, 100));
+		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
+		SetBkColor( hdcStatic, RGB( 150, 100, 100 ) );
 		// catch change of color and redraw window.
 		if (verticalBinningEdit.colorState != 1)
 		{
@@ -627,18 +611,18 @@ HBRUSH CameraImageDimensionsControl::colorEdits(HWND window, UINT message, WPARA
 	else if (controlID == leftEdit.ID)
 	{
 		//imageParameters currentImageParameters = eImageControl.getImageParameters();
-		SetTextColor(hdcStatic, RGB(255, 255, 255));
+		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
 		CString textEdit;
-		leftEdit.GetWindowTextA(textEdit);
+		leftEdit.GetWindowTextA( textEdit );
 		int leftSide;
 		try
 		{
-			leftSide = std::stoi(std::string(textEdit));
+			leftSide = std::stoi( std::string( textEdit ) );
 			if (leftSide == currentImageParameters.leftBorder)
 			{
 				// good.
-				SetTextColor(hdcStatic, RGB(255, 255, 255));
-				SetBkColor(hdcStatic, RGB(100, 110, 100));
+				SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
+				SetBkColor( hdcStatic, RGB( 100, 110, 100 ) );
 				// catch change of color and redraw window.
 				if (leftEdit.colorState != 0)
 				{
@@ -656,8 +640,8 @@ HBRUSH CameraImageDimensionsControl::colorEdits(HWND window, UINT message, WPARA
 		{
 			// don't do anything with it.
 		}
-		SetTextColor(hdcStatic, RGB(255, 255, 255));
-		SetBkColor(hdcStatic, RGB(150, 100, 100));
+		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
+		SetBkColor( hdcStatic, RGB( 150, 100, 100 ) );
 		// catch change of color and redraw window.
 		if (leftEdit.colorState != 1)
 		{
@@ -669,18 +653,18 @@ HBRUSH CameraImageDimensionsControl::colorEdits(HWND window, UINT message, WPARA
 	else if (controlID == rightEdit.ID)
 	{
 		//imageParameters currentImageParameters = eImageControl.getImageParameters();
-		SetTextColor(hdcStatic, RGB(255, 255, 255));
+		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
 		CString textEdit;
-		rightEdit.GetWindowTextA(textEdit);
+		rightEdit.GetWindowTextA( textEdit );
 		int rightSide;
 		try
 		{
-			rightSide = std::stoi(std::string(textEdit));
+			rightSide = std::stoi( std::string( textEdit ) );
 			if (rightSide == currentImageParameters.rightBorder)
 			{
 				// good.
-				SetTextColor(hdcStatic, RGB(255, 255, 255));
-				SetBkColor(hdcStatic, RGB(100, 110, 100));
+				SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
+				SetBkColor( hdcStatic, RGB( 100, 110, 100 ) );
 				// catch change of color and redraw window.
 				if (rightEdit.colorState != 0)
 				{
@@ -694,8 +678,8 @@ HBRUSH CameraImageDimensionsControl::colorEdits(HWND window, UINT message, WPARA
 		{
 			// don't do anything with it.
 		}
-		SetTextColor(hdcStatic, RGB(255, 255, 255));
-		SetBkColor(hdcStatic, RGB(150, 100, 100));
+		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
+		SetBkColor( hdcStatic, RGB( 150, 100, 100 ) );
 		// catch change of color and redraw window.
 		if (rightEdit.colorState != 1)
 		{
@@ -707,18 +691,18 @@ HBRUSH CameraImageDimensionsControl::colorEdits(HWND window, UINT message, WPARA
 	else if (controlID == horizontalBinningEdit.ID)
 	{
 		//imageParameters currentImageParameters = eImageControl.getImageParameters();
-		SetTextColor(hdcStatic, RGB(255, 255, 255));
+		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
 		CString textEdit;
-		horizontalBinningEdit.GetWindowTextA(textEdit);
+		horizontalBinningEdit.GetWindowTextA( textEdit );
 		int horizontalBin;
 		try
 		{
-			horizontalBin = std::stoi(std::string(textEdit));
+			horizontalBin = std::stoi( std::string( textEdit ) );
 			if (horizontalBin == currentImageParameters.horizontalBinning)
 			{
 				// good.
-				SetTextColor(hdcStatic, RGB(255, 255, 255));
-				SetBkColor(hdcStatic, RGB(100, 110, 100));
+				SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
+				SetBkColor( hdcStatic, RGB( 100, 110, 100 ) );
 				// catch change of color and redraw window.
 				if (horizontalBinningEdit.colorState != 0)
 				{
@@ -732,8 +716,8 @@ HBRUSH CameraImageDimensionsControl::colorEdits(HWND window, UINT message, WPARA
 		{
 			// don't do anything with it.
 		}
-		SetTextColor(hdcStatic, RGB(255, 255, 255));
-		SetBkColor(hdcStatic, RGB(150, 100, 100));
+		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
+		SetBkColor( hdcStatic, RGB( 150, 100, 100 ) );
 		// catch change of color and redraw window.
 		if (horizontalBinningEdit.colorState != 1)
 		{
@@ -745,22 +729,22 @@ HBRUSH CameraImageDimensionsControl::colorEdits(HWND window, UINT message, WPARA
 	return FALSE;
 }
 
-bool CameraImageDimensionsControl::rearrange(std::string cameraMode, std::string triggerMode, int width, 
-	int height, std::unordered_map<std::string, CFont*> fonts)
+
+void CameraImageDimensionsControl::rearrange( std::string cameraMode, std::string triggerMode, int width,
+											  int height, std::unordered_map<std::string, CFont*> fonts )
 {
-	leftText.rearrange(cameraMode, triggerMode, width, height, fonts);
-	rightText.rearrange(cameraMode, triggerMode, width, height, fonts);
-	horizontalBinningText.rearrange(cameraMode, triggerMode, width, height, fonts);
-	topText.rearrange(cameraMode, triggerMode, width, height, fonts);
-	bottomText.rearrange(cameraMode, triggerMode, width, height, fonts);
-	verticalBinningText.rearrange(cameraMode, triggerMode, width, height, fonts);
-	leftEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
-	rightEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
-	horizontalBinningEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
-	topEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
-	bottomEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
-	verticalBinningEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
-	setImageDimensionsButton.rearrange(cameraMode, triggerMode, width, height, fonts);
-	return false;
+	leftText.rearrange( cameraMode, triggerMode, width, height, fonts );
+	rightText.rearrange( cameraMode, triggerMode, width, height, fonts );
+	horizontalBinningText.rearrange( cameraMode, triggerMode, width, height, fonts );
+	topText.rearrange( cameraMode, triggerMode, width, height, fonts );
+	bottomText.rearrange( cameraMode, triggerMode, width, height, fonts );
+	verticalBinningText.rearrange( cameraMode, triggerMode, width, height, fonts );
+	leftEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
+	rightEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
+	horizontalBinningEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
+	topEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
+	bottomEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
+	verticalBinningEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
+	setImageDimensionsButton.rearrange( cameraMode, triggerMode, width, height, fonts );
 }
 

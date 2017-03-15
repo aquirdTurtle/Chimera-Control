@@ -146,4 +146,3 @@ bool MasterConfiguration::updateDefaultTTLs(TTL_System ttls)
 	}
 	return true;
 }
-

@@ -33,24 +33,21 @@ namespace myAgilent
 	/*
 	 * This function reads out a segment of script file and loads it into a segment to be calculated and manipulated.
 	 * segNum: This tells the function what the next segment # is.
-	 * scriptName: this is the file object to be read from.
+	 * script: this is the file object to be read from.
 	 */
-	int IntensityWaveform::readIntoSegment(int segNum, std::fstream& scriptName, std::vector<variable> singletons, profileSettings profileInfo)
+	int IntensityWaveform::readIntoSegment(int segNum, ScriptStream& script, std::vector<variable> singletons, profileSettings profile)
 	{
-		rmWhite(scriptName);
 		std::string intensityCommand;
 		std::vector<std::string> tempVarNames;
 		std::vector<int> tempVarLocations;
 		int tempVarNum = 0;
-		if (scriptName.eof() == true)
+		if (script.eof() == true)
 		{
 			// reached end of file, return with message.
 			return 1;
 		}
 		// Grab the command type (e.g. ramp, const). Looks for newline by default.
-		getline(scriptName, intensityCommand, '\r');
-		// get rid of case sensitivity.
-		std::transform(intensityCommand.begin(), intensityCommand.end(), intensityCommand.begin(), ::tolower);
+		intensityCommand = script.getline( '\r' );
 		if (intensityCommand == "agilent hold" || intensityCommand == "intensity hold")
 		{
 			waveformSegments.resize(segNum + 1);
@@ -65,17 +62,19 @@ namespace myAgilent
 		{
 			std::string nestedFileName;
 			// remove \n at the end of last line.
-			scriptName.get();
-			getline(scriptName, nestedFileName, '\r');
-			std::string path = profileInfo.pathIncludingCategory + nestedFileName + AGILENT_SCRIPT_EXTENSION;
+			script.get();
+			nestedFileName = script.getline( '\r' );
+			std::string path = profile.categoryPath + nestedFileName + AGILENT_SCRIPT_EXTENSION;
 			std::fstream nestedFile(path.c_str(), std::ios::in);
 			if (!nestedFile.is_open())
 			{
-				MessageBox(0, ("ERROR: tried to open a nested intensity file, but failed! The file was " + profileInfo.pathIncludingCategory
+				MessageBox(0, ("ERROR: tried to open a nested intensity file, but failed! The file was " + profile.categoryPath
 					+ nestedFileName + AGILENT_SCRIPT_EXTENSION).c_str(), 0, 0);
 				return -1;
 			}
-			if (myAgilent::analyzeIntensityScript(nestedFile, this, segNum, singletons, profileInfo))
+			ScriptStream nestedStream;
+			nestedStream << nestedFile.rdbuf();
+			if (myAgilent::analyzeIntensityScript(nestedStream, this, segNum, singletons, profile))
 			{
 				return -1;
 			}
@@ -98,33 +97,37 @@ namespace myAgilent
 		if (waveformSegments[segNum].returnSegmentType() == 1)
 		{
 			// this segment type means ramping.
-			rmWhite(scriptName);
-			scriptName >> tempRampType;
-			NiawgController::getParamCheckVar(tempIntensityInit, scriptName, tempVarNum, tempVarNames, tempVarLocations, 1, singletons);
-			NiawgController::getParamCheckVar(tempIntensityFin, scriptName, tempVarNum, tempVarNames, tempVarLocations, 2, singletons);
+			script >> tempRampType;
+			NiawgController::getParamCheckVar(tempIntensityInit, script, tempVarNum, tempVarNames, tempVarLocations, 1, singletons);
+			NiawgController::getParamCheckVar(tempIntensityFin, script, tempVarNum, tempVarNames, tempVarLocations, 2, singletons);
 		}
 		else
 		{
 			tempRampType = "nr";
-			NiawgController::getParamCheckVarConst(tempIntensityInit, tempIntensityFin, scriptName, tempVarNum, tempVarNames, tempVarLocations, 1, 2, singletons);
+			NiawgController::getParamCheckVarConst(tempIntensityInit, tempIntensityFin, script, tempVarNum, tempVarNames, tempVarLocations, 1, 2, singletons);
 		}
-		NiawgController::getParamCheckVar(tempTimeInMilliSeconds, scriptName, tempVarNum, tempVarNames, tempVarLocations, 3, singletons);
-
-		rmWhite(scriptName);
-		scriptName >> tempContinuationType;
+		NiawgController::getParamCheckVar(tempTimeInMilliSeconds, script, tempVarNum, tempVarNames, tempVarLocations, 3, singletons);
+		script >> tempContinuationType;
 		std::transform(tempContinuationType.begin(), tempContinuationType.end(), tempContinuationType.begin(), ::tolower);
 		if (tempContinuationType == "repeat")
 		{
 			// There is an extra input in this case.
-			rmWhite(scriptName);
-			scriptName >> tempRepeatNum;
+			std::string temp;
+			script >> temp;
+			try
+			{
+				tempRepeatNum = std::stoi( temp );
+			}
+			catch (std::invalid_argument&)
+			{
+				thrower( "ERROR: repeat number in agilent script was not an integer!" );
+			}
 		}
 		else
 		{
 			tempRepeatNum = 0;
 		}
-		rmWhite(scriptName);
-		scriptName >> delimiter;
+		script >> delimiter;
 		if (delimiter != "#")
 		{
 			// input number mismatch.
@@ -790,12 +793,12 @@ namespace myAgilent
 		return 0;
 	}
 
-	bool analyzeIntensityScript(std::fstream& intensityFile, myAgilent::IntensityWaveform* intensityWaveformData, int& currentSegmentNumber, std::vector<variable> singletons, profileSettings profileInfo)
+	bool analyzeIntensityScript(ScriptStream& intensityFile, myAgilent::IntensityWaveform* intensityWaveformData, int& currentSegmentNumber, std::vector<variable> singletons, profileSettings profile)
 	{
 		while (!intensityFile.eof())
 		{
 			// Procedurally read lines into segment informations.
-			int leaveTest = intensityWaveformData->readIntoSegment(currentSegmentNumber, intensityFile, singletons, profileInfo);
+			int leaveTest = intensityWaveformData->readIntoSegment(currentSegmentNumber, intensityFile, singletons, profile);
 			if (leaveTest < 0)
 			{
 				// Error
@@ -820,7 +823,7 @@ namespace myAgilent
 	 */
 	int programIntensity(int varNum, std::vector<variable> variables, std::vector<std::vector<double> > varValues, bool& intensityVaried, 
 						 std::vector<myMath::minMaxDoublet>& minsAndMaxes, std::vector<std::vector<POINT>>& pointsToDraw, 
-						 std::vector<std::fstream>& intensityFiles, std::vector<variable> singletons, profileSettings profileInfo)
+						 std::vector<std::fstream>& intensityFiles, std::vector<variable> singletons, profileSettings profile)
 	{
 		// Initialize stuff
 		myAgilent::IntensityWaveform intensityWaveformSequence;
@@ -852,7 +855,9 @@ namespace myAgilent
 		}
 		for (int sequenceInc = 0; sequenceInc < intensityFiles.size(); sequenceInc++)
 		{
-			if (analyzeIntensityScript(intensityFiles[sequenceInc], &intensityWaveformSequence, currentSegmentNumber, singletons, profileInfo))
+			ScriptStream intensityScript;
+			intensityScript << intensityFiles[sequenceInc].rdbuf();
+			if (analyzeIntensityScript(intensityScript, &intensityWaveformSequence, currentSegmentNumber, singletons, profile))
 			{
 				return -1;
 			}

@@ -229,6 +229,7 @@ int ScriptingWindow::newIntensityScript()
 	return 0;
 }
 
+
 int ScriptingWindow::openIntensityScript(HWND parentWindow)
 {
 	if (intensityAgilentScript.checkSave(this->getCurrentProfileSettings(), this->mainWindowFriend->niawgIsRunning() ))
@@ -242,12 +243,16 @@ int ScriptingWindow::openIntensityScript(HWND parentWindow)
 	intensityAgilentScript.updateScriptNameText();
 	return 0;
 }
+
+
 int ScriptingWindow::saveIntensityScript()
 {
 	intensityAgilentScript.saveScript(this->getCurrentProfileSettings(), this->mainWindowFriend->niawgIsRunning() );
 	intensityAgilentScript.updateScriptNameText();
 	return 0;
 }
+
+
 int ScriptingWindow::saveIntensityScriptAs(HWND parentWindow)
 {
 	std::string extensionNoPeriod = intensityAgilentScript.getExtension();
@@ -262,6 +267,8 @@ int ScriptingWindow::saveIntensityScriptAs(HWND parentWindow)
 	intensityAgilentScript.updateScriptNameText();
 	return 0;
 }
+
+
 int ScriptingWindow::newVerticalScript()
 {
 	if (this->verticalNIAWGScript.checkSave(this->getCurrentProfileSettings(), this->mainWindowFriend->niawgIsRunning() ))
@@ -273,6 +280,8 @@ int ScriptingWindow::newVerticalScript()
 	verticalNIAWGScript.updateScriptNameText();
 	return 0;
 }
+
+
 int ScriptingWindow::openVerticalScript(HWND parentWindow)
 {
 	if (verticalNIAWGScript.checkSave(this->getCurrentProfileSettings(), this->mainWindowFriend->niawgIsRunning() ))
@@ -281,10 +290,11 @@ int ScriptingWindow::openVerticalScript(HWND parentWindow)
 	}
 	std::string intensityOpenName = getFileNameDialog(parentWindow);
 	verticalNIAWGScript.openParentScript(intensityOpenName, this->getCurrentProfileSettings(), this->mainWindowFriend->getAllVariables());
-	this->updateConfigurationSavedStatus(false);
+	updateConfigurationSavedStatus(false);
 	verticalNIAWGScript.updateScriptNameText();
 	return 0;
 }
+
 int ScriptingWindow::saveVerticalScript()
 {
 	verticalNIAWGScript.saveScript(this->getCurrentProfileSettings(), this->mainWindowFriend->niawgIsRunning());
@@ -321,12 +331,12 @@ int ScriptingWindow::newHorizontalScript()
 
 int ScriptingWindow::openHorizontalScript(HWND parentWindow)
 {
-	if (horizontalNIAWGScript.checkSave(this->getCurrentProfileSettings(), this->mainWindowFriend->niawgIsRunning() ))
+	if (horizontalNIAWGScript.checkSave(getCurrentProfileSettings(), mainWindowFriend->niawgIsRunning() ))
 	{
 		return true;
 	}
 	std::string horizontalOpenName = getFileNameDialog(parentWindow);
-	horizontalNIAWGScript.openParentScript(horizontalOpenName, this->getCurrentProfileSettings(), this->mainWindowFriend->getAllVariables());
+	horizontalNIAWGScript.openParentScript(horizontalOpenName, getCurrentProfileSettings(), mainWindowFriend->getAllVariables());
 	this->updateConfigurationSavedStatus(false);
 	horizontalNIAWGScript.updateScriptNameText();
 	return 0;
@@ -335,7 +345,7 @@ int ScriptingWindow::openHorizontalScript(HWND parentWindow)
 
 int ScriptingWindow::saveHorizontalScript()
 {
-	horizontalNIAWGScript.saveScript(this->getCurrentProfileSettings(), this->mainWindowFriend->niawgIsRunning() );
+	horizontalNIAWGScript.saveScript(getCurrentProfileSettings(), mainWindowFriend->niawgIsRunning() );
 	horizontalNIAWGScript.updateScriptNameText();
 	return 0;
 }
@@ -343,14 +353,14 @@ int ScriptingWindow::saveHorizontalScript()
 
 int ScriptingWindow::saveHorizontalScriptAs(HWND parentWindow)
 {
-	std::string extensionNoPeriod = this->horizontalNIAWGScript.getExtension();
+	std::string extensionNoPeriod = horizontalNIAWGScript.getExtension();
 	if (extensionNoPeriod.size() == 0)
 	{
 		return -1;
 	}
 	extensionNoPeriod = extensionNoPeriod.substr(1, extensionNoPeriod.size());
-	std::string newScriptAddress = saveTextFileFromEdit(parentWindow, extensionNoPeriod, this->getCurrentProfileSettings());
-	horizontalNIAWGScript.saveScriptAs(newScriptAddress, this->mainWindowFriend->niawgIsRunning() );
+	std::string newScriptAddress = saveTextFileFromEdit(parentWindow, extensionNoPeriod, getCurrentProfileSettings());
+	horizontalNIAWGScript.saveScriptAs(newScriptAddress, mainWindowFriend->niawgIsRunning() );
 	this->updateConfigurationSavedStatus(false);
 	horizontalNIAWGScript.updateScriptNameText();
 	return 0;
@@ -366,33 +376,32 @@ void ScriptingWindow::updateScriptNamesOnScreen()
 
 void ScriptingWindow::recolorScripts()
 {
-	this->verticalNIAWGScript.colorEntireScript(this->getCurrentProfileSettings(), this->mainWindowFriend->getAllVariables());
-	horizontalNIAWGScript.colorEntireScript(this->getCurrentProfileSettings(), this->mainWindowFriend->getAllVariables());
-	intensityAgilentScript.colorEntireScript(this->getCurrentProfileSettings(), this->mainWindowFriend->getAllVariables());
+	this->verticalNIAWGScript.colorEntireScript(getCurrentProfileSettings(), mainWindowFriend->getAllVariables());
+	horizontalNIAWGScript.colorEntireScript(getCurrentProfileSettings(), mainWindowFriend->getAllVariables());
+	intensityAgilentScript.colorEntireScript(getCurrentProfileSettings(), mainWindowFriend->getAllVariables());
 	return;
 }
 
 int ScriptingWindow::openIntensityScript(std::string name)
 {
-	return this->intensityAgilentScript.openParentScript(name, this->getCurrentProfileSettings(), this->mainWindowFriend->getAllVariables());
+	return this->intensityAgilentScript.openParentScript(name, getCurrentProfileSettings(), mainWindowFriend->getAllVariables());
 }
 
 int ScriptingWindow::openVerticalScript(std::string name)
 {
-	return this->verticalNIAWGScript.openParentScript(name, this->getCurrentProfileSettings(), this->mainWindowFriend->getAllVariables());
+	return this->verticalNIAWGScript.openParentScript(name, getCurrentProfileSettings(), mainWindowFriend->getAllVariables());
 }
 
 int ScriptingWindow::openHorizontalScript(std::string name)
 {
-	return this->horizontalNIAWGScript.openParentScript(name, this->getCurrentProfileSettings(), this->mainWindowFriend->getAllVariables());
+	return horizontalNIAWGScript.openParentScript(name, getCurrentProfileSettings(), mainWindowFriend->getAllVariables());
 }
 
 void ScriptingWindow::considerScriptLocations()
 {
-	verticalNIAWGScript.considerCurrentLocation(this->getCurrentProfileSettings());
-	horizontalNIAWGScript.considerCurrentLocation(this->getCurrentProfileSettings());
-	intensityAgilentScript.considerCurrentLocation(this->getCurrentProfileSettings());
-	return;
+	verticalNIAWGScript.considerCurrentLocation(getCurrentProfileSettings());
+	horizontalNIAWGScript.considerCurrentLocation(getCurrentProfileSettings());
+	intensityAgilentScript.considerCurrentLocation(getCurrentProfileSettings());
 }
 
 /// End common functions
@@ -400,28 +409,24 @@ void ScriptingWindow::passCommonCommand(UINT id)
 {
 	// pass the command id to the common function, filling in the pointers to the windows which own objects needed.
 	commonFunctions::handleCommonMessage(id, this, this->mainWindowFriend, this, this->cameraWindowFriend);
-	return;
 }
 
 void ScriptingWindow::changeBoxColor( colorBoxes<char> colors )
 {
-	this->statusBox.changeColor(colors);
-	return;
+	statusBox.changeColor(colors);
 }
 
 void ScriptingWindow::updateProfile(std::string text)
 {
-	this->profileDisplay.update(text);
-	return;
+	profileDisplay.update(text);
 }
 
 profileSettings ScriptingWindow::getCurrentProfileSettings()
 {	
-	return this->mainWindowFriend->getCurentProfileSettings();
+	return mainWindowFriend->getCurentProfileSettings();
 }
 
 void ScriptingWindow::updateConfigurationSavedStatus(bool status)
 {
-	this->mainWindowFriend->updateConfigurationSavedStatus(status);
-	return;
+	mainWindowFriend->updateConfigurationSavedStatus(status);
 }

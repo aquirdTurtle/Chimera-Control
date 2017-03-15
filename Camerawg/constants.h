@@ -50,6 +50,9 @@
 // We calibrated this. // GAIN = 1.34.
 #define GAIN 1.34
 // GAIN = 1.34.
+
+#define MAX_NIAWG_SIGNALS 10
+
 // This is the minimum time (in seconds) that a correction waveform will be allowed to have. Without this, the algorithm might decide that the 1/2 of a period 
 // of a waveform might be enough, even though this would probably be far below the amount of time an individual waveform is allowed to have according to the 
 // NIAWG (the NIAWG has a minimum waveform size).
@@ -80,7 +83,7 @@
 #define NIAWG_SCRIPT_EXTENSION ".nScript"
 
 //
-#define PICTURE_PALLETE_SIZE 256
+#define PICTURE_PALETTE_SIZE 256
 #define RAW_COUNTS "Raw Counts"
 #define CAMERA_PHOTONS "Camera Photons"
 #define ATOM_PHOTONS "Atom Photons"
@@ -171,19 +174,6 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 //
 #define IDC_BEGINNING_DIALOG_RICH_EDIT 100
 //
-// Contains all of of the names of the files that hold actual data file names.
-const std::string WAVEFORM_NAME_FILES[20] = { "gen 1, const waveform file names.txt", "gen 2, const waveform file names.txt",
-"gen 3, const waveform file names.txt", "gen 4, const waveform file names.txt", "gen 5, const waveform file names.txt",
-"gen 1, amp ramp waveform file names.txt", "gen 2, amp ramp waveform file names.txt", "gen 3, amp ramp waveform file names.txt",
-"gen 4, amp ramp waveform file names.txt", "gen 5, amp ramp waveform file names.txt", "gen 1, freq ramp waveform file names.txt",
-"gen 2, freq ramp waveform file names.txt", "gen 3, freq ramp waveform file names.txt", "gen 4, freq ramp waveform file names.txt",
-"gen 5, freq ramp waveform file names.txt", "gen 1, freq & amp ramp waveform file names.txt", "gen 2, freq & amp ramp waveform file names.txt",
-"gen 3, freq & amp ramp waveform file names.txt", "gen 4, freq & amp ramp waveform file names.txt", "gen 5, freq & ""amp ramp waveform file names.txt" };
-
-const std::string WAVEFORM_TYPE_FOLDERS[20] = { "gen1const\\", "gen2const\\", "gen3const\\", "gen4const\\", "gen5const\\",
-"gen1ampramp\\", "gen2ampramp\\", "gen3ampramp\\", "gen4ampramp\\", "gen5ampramp\\",
-"gen1freqramp\\", "gen2freqramp\\", "gen3freqramp\\", "gen4freqramp\\", "gen5freqramp\\",
-"gen1ampfreqramp\\", "gen2ampfreqramp\\", "gen3ampfreqramp\\", "gen4ampfreqramp\\", "gen5ampfreqramp\\" };
 
 // Don't change! Or only change if you really kow what you are doing. Current Value: 5
 const float MAX_GAIN = 5.0; // Current Value: 5
@@ -200,7 +190,7 @@ const char SCRIPT_INFO_TEXT[] =
 " markers.\r\n"
 " \r\n"
 " In each case, if a command requires input(for example, the frequency and amplitude of a waveform), the input\r\n"
-" format is referenced below using angled brackets <...>.Place the input on the line below the command in the\r\n"
+" format is referenced below using angled brackets <...>. Place the input on the line below the command in the\r\n"
 " format specified.\r\n"
 "\r\n"
 " You can use the waveform commands with or without(if you are already familiar with the format) including the\r\n"
@@ -241,30 +231,22 @@ const char SCRIPT_INFO_TEXT[] =
 "(d)Constant Waveforms\r\n"
 "\"gen 1, const <freq> <amp> <phase (rad)>; <time> <t manage>\"\r\n"
 "\"gen 2, const <freq1> <amp1> <phase1 (rad)>; <sim for 2nd>; <time> <t manage>\"\r\n"
-"\"gen 3, const <freq1> <amp1> <phase1 (rad)>; <sim for 2nd, 3rd>; <time> <t manage>\"\r\n"
-"\"gen 4, const <freq1> <amp1> <phase1 (rad)>; <sim for 2nd, 3rd, 4th>; <time> <t manage>\"\r\n"
-"\"gen 5, const <freq1> <amp1> <phase1 (rad)>; <sim for 2nd, 3rd, 4th, 5th>; <time> <t manage>\"\r\n"
+"Etc.\r\n"
 "\r\n"
 "(e)Amplitude Ramps\r\n"
 "\"gen 1, amp ramp <freq> <amp ramp type> <initial amp> <final amp> <phase (rad)>; <time> <t manage>\"\r\n"
 "\"gen 2, amp ramp <freq1> <amp1 ramp type> <initial amp1> <final amp1> <phase1 (rad)>; <sim for 2nd>; <time> <t manage>\"\r\n"
-"\"gen 3, amp ramp <freq1> <amp1 ramp type> <initial amp1> <final amp1> <phase1 (rad)>; <sim for 2nd, 3rd>; <time> <t manage>\"\r\n"
-"\"gen 4, amp ramp <freq1> <amp1 ramp type> <initial amp1> <final amp1> <phase1 (rad)>; <sim for 2nd, 3rd, 4th>; <time> <t manage>\"\r\n"
-"\"gen 5, amp ramp <freq1> <amp1 ramp type> <initial amp1> <final amp1> <phase1 (rad)>; <sim for 2nd, 3rd, 4th, 5th>; <time> <t manage>\"\r\n"
+"Etc.\r\n"
 "\r\n"
 "(f)frequency Ramps\r\n"
 "\"gen 1, freq ramp <freq ramp type> <initial freq> <final freq> <amp> <phase (rad)>; <time> <t manage>\"\r\n"
 "\"gen 2, freq ramp <freq1 ramp type> <initial freq1> <final freq1> <amp1> <phase1 (rad)>; <sim for 2nd>; <time> <t manage>\"\r\n"
-"\"gen 3, freq ramp <freq1 ramp type> <initial freq1> <final freq1> <amp1> <phase1 (rad)>; <sim for 2nd, 3rd>; <time> <t manage>\"\r\n"
-"\"gen 4, freq ramp <freq1 ramp type> <initial freq1> <final freq1> <amp1> <phase1 (rad)>; <sim for 2nd, 3rd, 4th>; <time> <t manage>\"\r\n"
-"\"gen 5, freq ramp <freq1 ramp type> <initial freq1> <final freq1> <amp1> <phase1 (rad)>; <sim for 2nd, 3rd, 4th, 5th>; <time> <t manage>\"\r\n"
+"Etc.\r\n"
 "\r\n"
 "(g)Amplitude and Frequency Ramps\r\n"
 "\"gen 1, freq & amp ramp <freq ramp type> <initial freq> <final freq> <amp ramp type> <initial amp> <final amp> <phase (rad)>; <time> <t manage>\"\r\n"
 "\"gen 2, freq & amp ramp <freq1 ramp type> <initial freq1> <final freq1> <amp ramp1 type> <initial ramp1> <final ramp1> <phase1 (rad)>; <sim for 2nd>; <time> <t manage>\"\r\n"
-"\"gen 3, freq & amp ramp <freq1 ramp type> <initial freq1> <final freq1> <amp ramp1 type> <initial ramp1> <final ramp1> <phase1 (rad)>; <sim for 2nd, 3rd>; <time> <t manage>\"\r\n"
-"\"gen 4, freq & amp ramp <freq1 ramp type> <initial freq1> <final freq1> <amp ramp1 type> <initial ramp1> <final ramp1> <phase1 (rad)>; <sim for 2nd, 3rd, 4th>; <time> <t manage>\"\r\n"
-"\"gen 5, freq & amp ramp <freq1 ramp type> <initial freq1> <final freq1> <amp ramp1 type> <initial ramp1> <final ramp1> <phase1 (rad)>; <sim for 2nd, 3rd, 4th, 5th>; <time> <t manage>\"\r\n"
+"Etc.\r\n"
 "\r\n"
 "(h)Predefined Waveform\r\n"
 "\"predefined waveform <vertical filename.txt> <horizontal filename.txt> <waveform type ('command' or 'raw')>\"\r\n"

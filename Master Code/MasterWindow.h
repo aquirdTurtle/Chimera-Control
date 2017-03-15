@@ -42,7 +42,7 @@ class MasterWindow : public CDialog
 			masterRGBs["Dull Red"] = RGB(107, 35, 35);
 			masterRGBs["Dark Lavender"] = RGB(100, 100, 205);
 			masterRGBs["Teal"] = RGB(0, 255, 255);
-			masterRGBs["Tan"] = RGB(210, 180, 140); 
+			masterRGBs["Tan"] = RGB(210, 180, 140);
 			masterRGBs["Purple"] = RGB(147, 112, 219);
 			masterRGBs["Orange"] = RGB(255, 165, 0);
 			masterRGBs["Brown"] = RGB(139, 69, 19);

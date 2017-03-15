@@ -15,7 +15,7 @@
  * ViSession inputParam: this is the session handle for the session with the NIAWG. 
  * Return: the function returns -1 if error, -2 if abort, 0 if normal.
  */
-unsigned __stdcall NIAWGWaitThread(void* inputParam)
+unsigned __stdcall niawgWaitThread(void* inputParam)
 {
 	waitThreadInput input = *(waitThreadInput*)inputParam;
 	ViBoolean isDone;
@@ -36,7 +36,7 @@ unsigned __stdcall NIAWGWaitThread(void* inputParam)
 			{
 				isDone = input.niawg->isDone();
 			}
-			catch (my_exception&)
+			catch (myException&)
 			{
 				eWaitError = true;
 				return -1;
@@ -54,7 +54,7 @@ unsigned __stdcall NIAWGWaitThread(void* inputParam)
 	if (WaitForSingleObjectEx(eWaitingForNIAWGEvent, 0, true) == WAIT_TIMEOUT)
 	{
 		/// then it's not ready. start the default
-		if (input.profileInfo.orientation == HORIZONTAL_ORIENTATION)
+		if (input.profile.orientation == HORIZONTAL_ORIENTATION)
 		{
 			// start generic waveform to maintain power output to AOM.
 			try
@@ -62,14 +62,14 @@ unsigned __stdcall NIAWGWaitThread(void* inputParam)
 				input.niawg->configureOutputEnabled(VI_TRUE);
 				input.niawg->setViStringAttribute(NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript");
 			}
-			catch (my_exception&)
+			catch (myException&)
 			{
 				eWaitError = true;
 				return -1;
 			}
 			eCurrentScript = "DefaultHConfigScript";
 		}
-		else if (input.profileInfo.orientation == VERTICAL_ORIENTATION)
+		else if (input.profile.orientation == VERTICAL_ORIENTATION)
 		{
 			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
@@ -79,7 +79,7 @@ unsigned __stdcall NIAWGWaitThread(void* inputParam)
 					input.niawg->configureOutputEnabled(VI_TRUE);
 					input.niawg->setViStringAttribute(NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultVConfigScript");
 				}
-				catch (my_exception&)
+				catch (myException&)
 				{
 					eWaitError = true;
 					return -1;
@@ -91,7 +91,7 @@ unsigned __stdcall NIAWGWaitThread(void* inputParam)
 		{
 			input.niawg->initiateGeneration();
 		}
-		catch (my_exception&)
+		catch (myException&)
 		{
 			eWaitError = true;
 			return -1;
@@ -106,7 +106,7 @@ unsigned __stdcall NIAWGWaitThread(void* inputParam)
 		input.niawg->configureOutputEnabled(VI_FALSE);
 		input.niawg->abortGeneration();
 	}
-	catch (my_exception&)
+	catch (myException&)
 	{
 		eWaitError = true;
 		return -1;

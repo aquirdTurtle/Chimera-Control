@@ -10,17 +10,19 @@ void StatusIndicator::initialize(POINT &loc, CWnd* parent, int& id, std::unorder
 	status.SetFont(fonts["Large Heading Font"]);
 }
 
+
 void StatusIndicator::setText(std::string text)
 {
 	status.SetWindowText(text.c_str());
-	return;
 }
+
 
 void StatusIndicator::setColor(std::string color)
 {
 	currentColor = color;
 	status.RedrawWindow();
 }
+
 
 CBrush* StatusIndicator::handleColor(CWnd* window, CDC* pDC, std::unordered_map<std::string, COLORREF> rgbs, 
 	std::unordered_map<std::string, CBrush*> brushes)

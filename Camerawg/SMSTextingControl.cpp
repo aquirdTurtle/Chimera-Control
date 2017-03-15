@@ -8,24 +8,15 @@
 #include "reorganizeControl.h"
 #include <Algorithm>
 
-SMSTextingControl::SMSTextingControl()
-{
-
-}
-SMSTextingControl::~SMSTextingControl()
-{
-
-}
-
-bool SMSTextingControl::promptForEmailAddressAndPassword()
+void SMSTextingControl::promptForEmailAddressAndPassword()
 {
 	/// TODO
 	//emailAddress = (const char*)DialogBoxParam(eHInst, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)dialogProcedures::textPromptDialogProcedure, (LPARAM)std::string("Please enter an email address:").c_str());
 	//password = (const char*)DialogBoxParam(eHInst, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)dialogProcedures::textPromptDialogProcedure, (LPARAM)std::string("Please enter a password:").c_str());
-	return false;
+	return;
 }
 
-bool SMSTextingControl::initializeControls(POINT& pos, CWnd* parent, bool isTriggerModeSensitive, int& id, 
+void SMSTextingControl::initializeControls(POINT& pos, CWnd* parent, bool isTriggerModeSensitive, int& id, 
 	std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips)
 {
 	title.ksmPos = { pos.x, pos.y, pos.x + 480, pos.y + 25 };
@@ -77,10 +68,10 @@ bool SMSTextingControl::initializeControls(POINT& pos, CWnd* parent, bool isTrig
 	listViewDefaultItem.iSubItem = 4;
 	peopleListView.SetItem(&listViewDefaultItem);
 	pos.y += 120;
-	return false;
+	return;
 }
 
-bool SMSTextingControl::updatePersonInfo(HWND parentHandle, LPARAM lparamOfMessage)
+void SMSTextingControl::updatePersonInfo(HWND parentHandle, LPARAM lparamOfMessage)
 {
 	/// get the item and subitem
 	POINT cursorPos;
@@ -95,7 +86,7 @@ bool SMSTextingControl::updatePersonInfo(HWND parentHandle, LPARAM lparamOfMessa
 	if (itemIndicator == -1)
 	{
 		// user didn't click in an item.
-		return false;
+		return;
 	}
 	LVITEM listViewItem;
 	memset(&listViewItem, 0, sizeof(listViewItem));
@@ -155,15 +146,13 @@ bool SMSTextingControl::updatePersonInfo(HWND parentHandle, LPARAM lparamOfMessa
 			{
 				long long test = std::stoll(phoneNumber);
 			}
-			catch (std::invalid_argument& exception)
+			catch (std::invalid_argument&)
 			{
-				MessageBox(0, "Numbers only, please!", 0, 0);
-				break;
+				thrower("Numbers only, please!");
 			}
-			catch (std::out_of_range& exception)
+			catch (std::out_of_range&)
 			{
-				MessageBox(0, "number was too long...", 0, 0);
-				break;
+				thrower("number was too long...");
 			}
 			peopleToText[itemIndicator].number = phoneNumber;
 			listViewItem.iItem = itemIndicator;
@@ -234,11 +223,10 @@ bool SMSTextingControl::updatePersonInfo(HWND parentHandle, LPARAM lparamOfMessa
 			break;
 		}
 	}
-
-	return false;
 }
 
-bool SMSTextingControl::deletePersonInfo(HWND parentHandle, LPARAM lparamOfMessage)
+
+void SMSTextingControl::deletePersonInfo(HWND parentHandle, LPARAM lparamOfMessage)
 {
 	/// get the item and subitem
 	POINT cursorPos;
@@ -254,7 +242,7 @@ bool SMSTextingControl::deletePersonInfo(HWND parentHandle, LPARAM lparamOfMessa
 	if (itemIndicator == -1 || itemIndicator == peopleToText.size())
 	{
 		// user didn't click in a deletable item.
-		return false;
+		return;
 	}
 	int answer = MessageBox(0, ("Delete info for " + peopleToText[itemIndicator].name + "?").c_str(), 0, MB_YESNO);
 	if (answer == IDYES)
@@ -262,10 +250,10 @@ bool SMSTextingControl::deletePersonInfo(HWND parentHandle, LPARAM lparamOfMessa
 		peopleListView.DeleteItem(itemIndicator);
 		peopleToText.erase(peopleToText.begin() + itemIndicator);
 	}
-	return false;
 }
 
-bool SMSTextingControl::sendMessage(std::string message, EmbeddedPythonHandler* pyHandler, std::string msgType)
+
+void SMSTextingControl::sendMessage(std::string message, EmbeddedPythonHandler* pyHandler, std::string msgType)
 {
 	if (msgType == "Loading")
 	{
@@ -274,10 +262,7 @@ bool SMSTextingControl::sendMessage(std::string message, EmbeddedPythonHandler* 
 			if (person.textIfLoadingStops)
 			{
 				// send text gives an appropriate error message.
-				if (pyHandler->sendText(person, message, "Not Loading Atoms", this->emailAddress, this->password))
-				{
-					return true;
-				}
+				pyHandler->sendText( person, message, "Not Loading Atoms", this->emailAddress, this->password );
 			}
 		}
 	}
@@ -288,24 +273,20 @@ bool SMSTextingControl::sendMessage(std::string message, EmbeddedPythonHandler* 
 			if (person.textWhenComplete)
 			{
 				// send text gives an appropriate error message.
-				if (pyHandler->sendText(person, message, "Experiment Finished", this->emailAddress, this->password))
-				{
-					return true;
-				}
+				pyHandler->sendText( person, message, "Experiment Finished", this->emailAddress, this->password );
 			}
 		}
 	}
 	else
 	{
-		errBox("ERROR: unrecognized text message type: " + msgType);
-		return true;
+		thrower("ERROR: unrecognized text message type: " + msgType);
 	}
-	return false;
 }
 
-bool SMSTextingControl::rearrange(RECT parentRectangle, std::string mode)
+
+void SMSTextingControl::rearrange(RECT parentRectangle, std::string mode)
 {
 	//reorganizeControl(title, mode, parentRectangle);
 	//reorganizeControl(peopleListView, mode, parentRectangle);
-	return false;
 }
+

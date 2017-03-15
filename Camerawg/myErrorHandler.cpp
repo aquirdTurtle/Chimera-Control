@@ -17,8 +17,9 @@
 /*
  * This is a function for handling errors that MY functions return. Returns true if error is detected, false otherwise.
  */
-bool myErrorHandler(int errorCode, std::string errMsg, CSocket* socketToClose, std::vector<std::fstream>& verticalFiles, std::vector<std::fstream>& horizontalFiles, bool aborting, 
-					bool scriptIsWritten, char scriptNameToDelete[260], bool sockActive, bool deleteScriptOpt, bool connected, Communicator* comm, bool isThreaded)
+bool myErrorHandler(int errorCode, std::string errMsg, CSocket* socketToClose, niawgPair<std::vector<std::fstream>>& scriptFiles, 
+					 bool aborting, bool scriptIsWritten, char scriptNameToDelete[260], bool sockActive, bool deleteScriptOpt, 
+					 bool connected, Communicator* comm, bool isThreaded)
 {
 	if (errorCode != 0)
 	{
@@ -59,21 +60,16 @@ bool myErrorHandler(int errorCode, std::string errMsg, CSocket* socketToClose, s
 		// turn the agilent to the default setting.
 		myAgilent::agilentDefault();
 		// close files.
-		for (int sequenceInc = 0; sequenceInc < verticalFiles.size(); sequenceInc++)
+		for (auto axis : AXES)
 		{
-			if (verticalFiles[sequenceInc].is_open())
+			for (auto& file : scriptFiles[axis])
 			{
-				verticalFiles[sequenceInc].close();
+				if (file.is_open())
+				{
+					file.close();
+				}
 			}
 		}
-		for (int sequenceInc = 0; sequenceInc < horizontalFiles.size(); sequenceInc++)
-		{
-			if (horizontalFiles[sequenceInc].is_open())
-			{
-				horizontalFiles[sequenceInc].close();
-			}
-		}
-		// Leave.
 		return true;
 	}
 	return false;

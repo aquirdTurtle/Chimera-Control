@@ -11,14 +11,14 @@ class EmbeddedPythonHandler
 		// constructor is important.
 		EmbeddedPythonHandler();
 		// for full data analysis set.
-		bool EmbeddedPythonHandler::runDataAnalysis(std::string date, long runNumber, long accumulations,
+		void runDataAnalysis(std::string date, long runNumber, long accumulations,
 			std::vector<std::pair<int, int>> atomLocations);
 		// for texting.
-		bool sendText(personInfo person, std::string msg, std::string subject, std::string baseEmail,
+		void sendText(personInfo person, std::string msg, std::string subject, std::string baseEmail,
 			std::string password);
 		// for a single python command.
 		std::string run(std::string cmd, bool flush = true);
-		bool flush();
+		void flush();
 	private:
 		PyObject* autoAnalysisModule;
 		PyObject* atomAnalysisFunction;

@@ -194,16 +194,17 @@ bool VariableSystem::deleteVariable()
 	return false;
 }
 
+
 variable VariableSystem::getVariableInfo(int varNumber)
 {
 	return currentVariables[varNumber];
 }
 
-unsigned int VariableSystem::getCurrentNumberOfVariables()
+
+unsigned long long VariableSystem::getCurrentNumberOfVariables()
 {
 	return currentVariables.size();
 }
-
 
 
 bool VariableSystem::clearVariables()

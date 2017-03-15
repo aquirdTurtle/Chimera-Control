@@ -13,8 +13,8 @@ class Script
 		~Script();
 		std::string getScriptText();
 
-		bool colorEntireScript(profileSettings profileInfo, std::vector<variable> vars);
-		bool colorScriptSection(DWORD beginingOfChange, DWORD endOfChange, profileSettings profileInfo, std::vector<variable> vars);
+		bool colorEntireScript(profileSettings profile, std::vector<variable> vars);
+		bool colorScriptSection(DWORD beginingOfChange, DWORD endOfChange, profileSettings profile, std::vector<variable> vars);
 
 		bool initializeControls(int width, int height, POINT& startingLocation, CWnd* parent, std::string deviceTypeInput, 
 			int& idStart, std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips);
@@ -23,28 +23,28 @@ class Script
 
 		INT_PTR colorControl(LPARAM lParam, WPARAM wParam);
 		bool handleEditChange();
-		bool handleTimerCall(profileSettings profileInfo, std::vector<variable> vars);
+		bool handleTimerCall(profileSettings profile, std::vector<variable> vars);
 
-		bool updateChildCombo(profileSettings profileInfo);
-		bool changeView(std::string viewName, profileSettings profileInfo, std::vector<variable> vars);
+		bool updateChildCombo(profileSettings profile);
+		bool changeView(std::string viewName, profileSettings profile, std::vector<variable> vars);
 		bool childComboChangeHandler( MainWindow* mainWin );
-		bool checkChildSave(profileSettings profileInfo);
+		bool checkChildSave(profileSettings profile);
 
 		std::string getSyntaxColor(std::string word, std::string editType, std::vector<variable> vars);
-		bool saveScript(profileSettings profileInfo, bool isParent, bool niawgIsRunning);
-		bool saveScript(profileSettings profileInfo, bool niawgIsRunning );
+		bool saveScript(profileSettings profile, bool isParent, bool niawgIsRunning);
+		bool saveScript(profileSettings profile, bool niawgIsRunning );
 		bool saveScriptAs(std::string scriptAddress, bool isParent, bool niawgIsRunning );
 		bool saveScriptAs(std::string scriptAddress, bool niawgIsRunning );
-		bool renameScript(profileSettings profileInfo);
-		bool deleteScript(profileSettings profileInfo);
-		bool newScript(profileSettings profileInfo, std::vector<variable> vars);
+		bool renameScript(profileSettings profile);
+		bool deleteScript(profileSettings profile);
+		bool newScript(profileSettings profile, std::vector<variable> vars);
 		std::string getScriptAddress();
 		std::string getScriptName();
 		std::string getExtension();
-		bool loadFile(std::string pathToFile, profileSettings profileInfo, std::vector<variable> vars);
-		bool openParentScript(std::string parentScriptName, profileSettings profileInfo, std::vector<variable> vars);
-		bool considerCurrentLocation(profileSettings profileInfo);
-		bool checkSave(profileSettings profileInfo, bool niawgIsRunning );
+		bool loadFile(std::string pathToFile, profileSettings profile, std::vector<variable> vars);
+		bool openParentScript(std::string parentScriptName, profileSettings profile, std::vector<variable> vars);
+		bool considerCurrentLocation(profileSettings profile);
+		bool checkSave(profileSettings profile, bool niawgIsRunning );
 		bool updateSavedStatus(bool isSaved);
 		bool coloringIsNeeded();
 		
@@ -53,7 +53,7 @@ class Script
 		bool reset();
 		bool savedStatus();
 
-		void checkExtension(profileSettings profileInfo);
+		void checkExtension(profileSettings profile);
 
 	private:
 		Control<CRichEditCtrl> edit;

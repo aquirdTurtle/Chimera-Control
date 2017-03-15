@@ -275,17 +275,17 @@ int PlottingInfo::setPlotData(int dataSet, bool plotData)
 	return 0;
 }
 
+
 bool PlottingInfo::getPlotThisDataValue(int dataSet)
 {
 	if (dataSet >= dataSets.size() || dataSet < 0)
 	{
-		MessageBox(0, ("ERROR: tried to get \"Plot this data\" value for data set that hasn't been assigned. dataSet = " + std::to_string(dataSet)).c_str(), 0,
-			0);
-		return -1;
+		thrower("ERROR: tried to get \"Plot this data\" value for data set that hasn't been assigned. dataSet = " + std::to_string(dataSet));
+		return true;
 	}
-	
 	return dataSets[dataSet].getPlotThisDataValue();
 }
+
 
 int PlottingInfo::getDataCountsLocation(int dataSet, int& pixel, int& picture)
 {
@@ -995,6 +995,7 @@ int PlottingInfo::getConditionNumber()
 	return currentConditionNumber;
 }
 
+
 int PlottingInfo::getPixelGroupNumber()
 {
 	if (analysisGroups.size() == 0)
@@ -1004,10 +1005,12 @@ int PlottingInfo::getPixelGroupNumber()
 	return analysisGroups[0].size();
 }
 
+
 int PlottingInfo::getDataSetNumber()
 {
 	return dataSets.size();
 }
+
 
 int PlottingInfo::setPixelIndex(int pixel, int group, int index)
 {
@@ -1015,10 +1018,12 @@ int PlottingInfo::setPixelIndex(int pixel, int group, int index)
 	return 0;
 }
 
+
 int PlottingInfo::getPixelIndex(int pixel, int group)
 {
 	return analysisGroups[pixel][group][2];
 }
+
 
 int PlottingInfo::setFitOption(int dataSet, int fitType)
 {
@@ -1026,21 +1031,25 @@ int PlottingInfo::setFitOption(int dataSet, int fitType)
 	return 0;
 }
 
+
 int PlottingInfo::setWhenToFit(int dataSet, int whenToFit)
 {
 	dataSets[dataSet].setWhenToFit(whenToFit);
 	return 0;
 }
 
+
 int PlottingInfo::getFitOption(int dataSet)
 {
 	return dataSets[dataSet].getFitType();
 }
 
+
 int PlottingInfo::getWhenToFit(int dataSet)
 {
 	return dataSets[dataSet].getWhenToFit();
 }
+
 
 std::vector<std::pair<int, int>> PlottingInfo::getAllPixelLocations()
 {
@@ -1069,6 +1078,7 @@ std::vector<std::pair<int, int>> PlottingInfo::getAllPixelLocations()
 	return allUniqueLocations;
 }
 
+
 bool PlottingInfo::setGroups(std::vector<std::pair<int, int>> locations)
 {
 	if (locations.size() % this->currentPixelNumber != 0)
@@ -1089,3 +1099,4 @@ bool PlottingInfo::setGroups(std::vector<std::pair<int, int>> locations)
 	}
 	return true;
 }
+

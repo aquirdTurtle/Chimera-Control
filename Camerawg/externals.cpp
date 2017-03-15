@@ -12,6 +12,8 @@
 
 int scriptIDs = 110000;
 int debugID = 111000;
+std::string WAVEFORM_NAME_FILES[4 * MAX_NIAWG_SIGNALS];
+std::string WAVEFORM_TYPE_FOLDERS[4 * MAX_NIAWG_SIGNALS];
 
 // Agilent Stuff
 double eCurrentAgilentLow = std::stod(AGILENT_DEFAULT_DC);

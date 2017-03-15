@@ -37,7 +37,7 @@ namespace commonFunctions
 					commonFunctions::startCamera( scriptWin, mainWin, camWin );
 					commonFunctions::startNiawg(msgID, scriptWin, mainWin, camWin);
 				}
-				catch (my_exception& except)
+				catch (myException& except)
 				{
 					colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'R', /*intensity*/'-' };
 					mainWin->getComm()->sendError("EXITED WITH ERROR! " + except.whatStr());
@@ -57,7 +57,7 @@ namespace commonFunctions
 					commonFunctions::abortNiawg(scriptWin, mainWin);
 					commonFunctions::abortCamera( camWin, mainWin );
 				}				
-				catch (my_exception& except)
+				catch (myException& except)
 				{
 					colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
 					mainWin->getComm()->sendError("EXITED WITH ERROR! " + except.whatStr());
@@ -79,7 +79,7 @@ namespace commonFunctions
 					mainWin->getComm()->sendColorBox( colors );
 					mainWin->getComm()->sendStatus( "Camera is Running.\r\n" );
 				}
-				catch ( my_exception& exception )
+				catch ( myException& exception )
 				{
 					if (exception.whatBare() == "CANCEL")
 					{
@@ -103,7 +103,7 @@ namespace commonFunctions
 				{
 					commonFunctions::startNiawg(msgID, scriptWin, mainWin, camWin);
 				}
-				catch (my_exception& except)
+				catch (myException& except)
 				{
 					colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
 					mainWin->getComm()->sendColorBox( colors );
@@ -318,6 +318,7 @@ namespace commonFunctions
 		return false;
 	}
 
+
 	void startCamera(ScriptingWindow* scriptWindow, MainWindow* mainWin, CameraWindow* camWin)
 	{
 		camWin->redrawPictures(false);
@@ -330,7 +331,6 @@ namespace commonFunctions
 		{
 			// user doesn't want to start the camera.
 			thrower( "CANCEL" );
-			return;
 		}
 		// tells system an acq has taken place
 
@@ -363,16 +363,15 @@ namespace commonFunctions
 			}
 			appendText("Failed to start camera aquisition.\r\n", IDC_STATUS_EDIT);
 			*/
-		return;
 	}
 
 	/* 
-	 *  Can throw my_exception.
+	 *  Can throw myException.
 	 */ 
 	int startNiawg(int msgID, ScriptingWindow* scriptWin, MainWindow* mainWin, CameraWindow* camWin)
 	{
 		Communicator* comm = mainWin->getComm();
-		profileSettings profileInfo = mainWin->getCurentProfileSettings();
+		profileSettings profile = mainWin->getCurentProfileSettings();
 		if (mainWin->niawgIsRunning())
 		{
 			int restart = MessageBox(0, "Restart Generation?", 0, MB_OKCANCEL);
@@ -395,11 +394,11 @@ namespace commonFunctions
 				{
 					mainWin->restartNiawgDefaults();
 				}
-				catch (my_exception& except)
+				catch (myException& except)
 				{
 					colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
 					mainWin->getComm()->sendColorBox( colors );
-					mainWin->getComm()->sendFatalError("Failed to restart the NIAWG default during the script restart procedure! Error reported is" + except.whatStr(), "", colors);
+					mainWin->getComm()->sendFatalError("Failed to restart the NIAWG default during the script restart procedure! Error reported is" + except.whatStr());
 					mainWin->setNiawgRunningState( false );
 					return -1;
 				}								
@@ -413,19 +412,15 @@ namespace commonFunctions
 				return -4;
 			}
 		}
-		if (profileInfo.sequenceConfigurationNames.size() == 0)
+		if (profile.sequenceConfigNames.size() == 0)
 		{
 			colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
 			mainWin->getComm()->sendColorBox( colors );
-			mainWin->getComm()->sendError("ERROR: No configurations in current sequence! Please set some configurations to run in this sequence or set the null sequence.\r\n", "", colors);
+			mainWin->getComm()->sendError("ERROR: No configurations in current sequence! Please set some configurations to run in this sequence or set the null sequence.\r\n");
 			return -9;
 		}
 		// check config settings
-		
-		if (mainWin->checkProfileReady()) //eProfile.allSettingsReadyCheck(scriptWin))
-		{
-			return -1;
-		}
+		mainWin->checkProfileReady();
 		if (scriptWin->checkScriptSaves())
 		{
 			return -1;
@@ -528,21 +523,21 @@ namespace commonFunctions
 			// Set the thread structure.
 			experimentThreadInputStructure* inputParams = new experimentThreadInputStructure();
 			// force accumulations to zero. This shouldn't affect anything, this should always get set by the master or be infinite.
-			inputParams->threadRepetitions = 0;
+			inputParams->repetitions = 0;
 			inputParams->settings = settings;
-			inputParams->threadCurrentScript = eCurrentScript;
+			inputParams->currentScript = eCurrentScript;
 			if (msgID == ID_FILE_MY_WRITE_WAVEFORMS)
 			{
-				inputParams->threadDontActuallyGenerate = true;
+				inputParams->dontActuallyGenerate = true;
 			}
 			else
 			{
-				inputParams->threadDontActuallyGenerate = false;
+				inputParams->dontActuallyGenerate = false;
 			}
-			inputParams->threadSequenceFileNames = profileInfo.sequenceConfigurationNames;
-			inputParams->currentFolderLocation = (profileInfo.pathIncludingCategory);
-			inputParams->debugOptions = mainWin->getDebuggingOptions();
-			inputParams->numberOfVariables = mainWin->getAllVariables().size();
+			inputParams->sequenceFileNames = profile.sequenceConfigNames;
+			inputParams->currentFolderLocation = (profile.categoryPath);
+			inputParams->debugInfo = mainWin->getDebuggingOptions();
+			inputParams->variableNumber = mainWin->getAllVariables().size();
 			inputParams->comm = mainWin->getComm();
 			scriptInfo<std::string> addresses = scriptWin->getScriptAddresses();
 			eMostRecentVerticalScriptNames = addresses.verticalNIAWG;
@@ -578,7 +573,7 @@ namespace commonFunctions
 	}
 
 	/*
-	 *  Can throw my_exception.
+	 *  Can throw myException.
 	 */
 	int abortNiawg(ScriptingWindow* scriptWin, MainWindow* mainWin)
 	{
@@ -638,23 +633,17 @@ namespace commonFunctions
 	{
 		if (mainWin->niawgIsRunning())
 		{
-			errBox("The NIAWG is Currently Running. Please stop the system before exiting so that devices devices can stop normally.");
-			return -1;
+			thrower( "The NIAWG is Currently Running. Please stop the system before exiting so that devices devices can stop normally." );
 		}
 		if (camWin->cameraIsRunning())
 		{
-			errBox("The Camera is Currently Running. Please stop the system before exiting so that devices devices can stop normally.");
-			return -1;
+			thrower( "The Camera is Currently Running. Please stop the system before exiting so that devices devices can stop normally." );
 		}
 		if (scriptWindow->checkScriptSaves())
 		{
 			return true;
 		}
-		if (mainWin->checkProfileSave())
-			//eProfile.checkSaveEntireProfile(scriptWindow))
-		{
-			return true;
-		}
+		mainWin->checkProfileSave();
 		std::string exitQuestion = "Are you sure you want to exit?\n\nThis will stop all output of the arbitrary waveform generator.";
 		int areYouSure = MessageBox(NULL, exitQuestion.c_str(), "Exit", MB_OKCANCEL | MB_ICONWARNING);
 		switch (areYouSure)
@@ -668,7 +657,7 @@ namespace commonFunctions
 					{
 						mainWin->stopNiawg();
 					}
-					catch (my_exception& except)
+					catch (myException& except)
 					{
 						errBox("ERROR: The NIAWG did not exit smoothly. : " + except.whatStr());
 					}
@@ -697,20 +686,18 @@ namespace commonFunctions
 			MessageBox(parentWindow, "CreateDialog returned NULL", "Warning!", MB_OK | MB_ICONINFORMATION);
 		}
 		*/
-		return;
 	}
 
 	void commonFunctions::reloadNIAWGDefaults( MainWindow* mainWin )
 	{
-		profileSettings profileInfo = mainWin->getCurentProfileSettings();
+		profileSettings profile = mainWin->getCurentProfileSettings();
 		if (mainWin->niawgIsRunning())
 		{
-			MessageBox(0, "The system is currently running. You cannot reload the default waveforms while the system is running. Please restart "
-				"the system before attempting to reload default waveforms.", 0, 0);
-			return;
+			thrower( "The system is currently running. You cannot reload the default waveforms while the system is running. Please restart "
+					 "the system before attempting to reload default waveforms." );
 		}
-		int choice = MessageBox(0, "Reload the default waveforms from (presumably) updated files? Please make sure that the updated files are "
-			"syntactically correct, or else the program will crash.", 0, MB_OKCANCEL);
+		int choice = MessageBox( 0, "Reload the default waveforms from (presumably) updated files? Please make sure that the updated files are "
+								 "syntactically correct, or else the program will crash.", 0, MB_OKCANCEL );
 		if (choice == IDCANCEL)
 		{
 			return;
@@ -720,13 +707,11 @@ namespace commonFunctions
 			mainWin->setNiawgDefaults(false);
 			mainWin->restartNiawgDefaults();
 		}
-		catch (my_exception& exception)
+		catch (myException& exception)
 		{
-			errBox("ERROR: failed to reload the niawg default waveforms! Error message: " + exception.whatStr());
 			mainWin->restartNiawgDefaults();
-			return;
+			thrower("ERROR: failed to reload the niawg default waveforms! Error message: " + exception.whatStr());
 		}
 		mainWin->getComm()->sendStatus("Reloaded Default Waveforms.\r\nInitialized Default Waveform.\r\n");
-		return;
 	}
 };
