@@ -1,3 +1,3 @@
 #pragma once
 
-bool systemAbortCheck(Communicator* comm);
+void systemAbortCheck(Communicator* comm, bool& aborting);

@@ -1,6 +1,7 @@
 #pragma once
 #include "Control.h"
 
+
 struct debugInfo
 {
 	bool showReadProgress;
@@ -11,6 +12,7 @@ struct debugInfo
 	bool outputAgilentScript;
 	bool outputExcessInfo;
 };
+
 
 class DebuggingOptionsControl
 {

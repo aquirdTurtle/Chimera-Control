@@ -183,7 +183,6 @@
     <ClInclude Include="CameraImageDimensions.h" />
     <ClInclude Include="CameraSettingsControl.h" />
     <ClInclude Include="CameraWindow.h" />
-    <ClInclude Include="cleanSocket.h" />
     <ClInclude Include="cleanString.h" />
     <ClInclude Include="ColorBox.h" />
     <ClInclude Include="colorScript.h" />
@@ -192,6 +191,7 @@
     <ClInclude Include="DataSet.h" />
     <ClInclude Include="doubleToString.h" />
     <ClInclude Include="EmbeddedPythonHandler.h" />
+    <ClInclude Include="ExperimentLogger.h" />
     <ClInclude Include="ExperimentTimer.h" />
     <ClInclude Include="MainOptionsControl.h" />
     <ClInclude Include="Andor.h" />
@@ -209,7 +209,6 @@
     <ClInclude Include="DebuggingOptionsControl.h" />
     <ClInclude Include="errBox.h" />
     <ClInclude Include="experimentProgrammingThread.h" />
-    <ClInclude Include="experimentThreadInputStructure.h" />
     <ClInclude Include="externals.h" />
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="reorganizeControl.h" />
@@ -218,6 +217,7 @@
     <ClInclude Include="ScriptingWindow.h" />
     <ClInclude Include="ScriptStream.h" />
     <ClInclude Include="SMSTextingControl.h" />
+    <ClInclude Include="SocketWrapper.h" />
     <ClInclude Include="StatusControl.h" />
     <ClInclude Include="StatusIndicator.h" />
     <ClInclude Include="textPromptDialogProcedure.h" />
@@ -226,7 +226,6 @@
     <ClInclude Include="commonFunctions.h" />
     <ClInclude Include="myMath.h" />
     <ClInclude Include="myAgilent.h" />
-    <ClInclude Include="myErrorHandler.h" />
     <ClInclude Include="NiawgController.h" />
     <ClInclude Include="niawgWaitThread.h" />
     <ClInclude Include="postMyString.h" />
@@ -250,7 +249,6 @@
     <ClCompile Include="CameraImageDimensions.cpp" />
     <ClCompile Include="CameraSettingsControl.cpp" />
     <ClCompile Include="CameraWindow.cpp" />
-    <ClCompile Include="cleanSocket.cpp" />
     <ClCompile Include="cleanString.cpp" />
     <ClCompile Include="ColorBox.cpp" />
     <ClCompile Include="Communicator.cpp" />
@@ -260,6 +258,7 @@
     <ClCompile Include="doubleToString.cpp" />
     <ClCompile Include="EmbeddedPythonHandler.cpp" />
     <ClCompile Include="errBox.cpp" />
+    <ClCompile Include="ExperimentLogger.cpp" />
     <ClCompile Include="experimentProgrammingThread.cpp" />
     <ClCompile Include="ExperimentTimer.cpp" />
     <ClCompile Include="externals.cpp" />
@@ -280,6 +279,7 @@
     <ClCompile Include="ScriptingWindow.cpp" />
     <ClCompile Include="ScriptStream.cpp" />
     <ClCompile Include="SMSTextingControl.cpp" />
+    <ClCompile Include="SocketWrapper.cpp" />
     <ClCompile Include="StatusControl.cpp" />
     <ClCompile Include="StatusIndicator.cpp" />
     <ClCompile Include="systemAbortCheck.cpp" />
@@ -287,7 +287,6 @@
     <ClCompile Include="getFileName.cpp" />
     <ClCompile Include="commonFunctions.cpp" />
     <ClCompile Include="myAgilent.cpp" />
-    <ClCompile Include="myErrorHandler.cpp" />
     <ClCompile Include="myMath.cpp" />
     <ClCompile Include="NiawgController.cpp" />
     <ClCompile Include="Camerawg.cpp" />

@@ -18,9 +18,168 @@ ConfigurationFileSystem::ConfigurationFileSystem(std::string fileSystemPath)
 	FILE_SYSTEM_PATH = fileSystemPath;
 	currentProfileSettings.orientation = HORIZONTAL_ORIENTATION;
 }
-ConfigurationFileSystem::~ConfigurationFileSystem()
+
+// just looks at the info in a file and loads it into references, doesn't change anything in the gui or main settings.
+void ConfigurationFileSystem::getConfigInfo( niawgPair<std::vector<std::fstream>> scriptFiles, std::vector<std::fstream> intensityScriptFiles,
+											 profileSettings profile, std::vector<variable> singletons, std::vector<variable> variables )
 {
-	// nothing for destructor right now
+	scriptFiles[Vertical].resize( profile.sequenceConfigNames.size() );
+	scriptFiles[Horizontal].resize( profile.sequenceConfigNames.size() );
+	intensityScriptFiles.resize( profile.sequenceConfigNames.size() );
+	/// gather information from every configuration in the sequence. /////////////////////////////////////////////////////////////////////
+	for (int sequenceInc = 0; sequenceInc < profile.sequenceConfigNames.size(); sequenceInc++)
+	{
+		// open configuration file
+		std::fstream configFile( profile.categoryPath + "\\" + profile.sequenceConfigNames[sequenceInc] );
+		std::string intensityScriptAddress, version;
+		niawgPair<std::string> niawgScriptAddresses;
+		// first get version info:
+		std::getline( configFile, version );
+		/// load files
+		for (auto axis : AXES)
+		{
+			getline( configFile, niawgScriptAddresses[axis] );
+			scriptFiles[axis][sequenceInc].open( niawgScriptAddresses[axis] );
+			if (!scriptFiles[axis][sequenceInc].is_open())
+			{
+				thrower( "ERROR: Failed to open vertical script file named: " + niawgScriptAddresses[axis]
+						 + " found in configuration: " + profile.sequenceConfigNames[sequenceInc] + "\r\n" );
+			}
+		}
+		/// load intensity file
+		getline( configFile, intensityScriptAddress );
+		intensityScriptFiles[sequenceInc].open( intensityScriptAddress );
+		if (!intensityScriptFiles[sequenceInc].is_open())
+		{
+			thrower( "ERROR: Failed to open intensity script file named: " + intensityScriptAddress + " found in configuration: "
+					 + profile.sequenceConfigNames[sequenceInc] + "\r\n" );
+		}
+		/// load variables
+		int varNum;
+		configFile >> varNum;
+		// early version didn't have variable type indicators.
+		if (version == "Version: 1.0")
+		{
+			for (int varInc = 0; varInc < varNum; varInc++)
+			{
+				std::string varName;
+				configFile >> varName;
+				variable tempVariable;
+				tempVariable.name = varName;
+				// assume certain things for old files. E.g. singletons didn't exist. 
+				tempVariable.singleton = false;
+				tempVariable.timelike = false;
+				tempVariable.value = 0;
+				bool alreadyExists = false;
+				for (int varInc = 0; varInc < variables.size(); varInc++)
+				{
+					if (tempVariable.name == variables[varInc].name)
+					{
+						alreadyExists = true;
+						break;
+					}
+				}
+				if (!alreadyExists)
+				{
+					// add new varying parameters.
+					variables.push_back( tempVariable );
+				}
+			}
+		}
+		else if (version == "Version: 1.1")
+		{
+			for (int varInc = 0; varInc < varNum; varInc++)
+			{
+				variable tempVar;
+				std::string varName, timelikeText, typeText, valueString;
+				bool timelike;
+				bool singleton;
+				double value;
+				configFile >> varName;
+				configFile >> timelikeText;
+				configFile >> typeText;
+				configFile >> valueString;
+				if (timelikeText == "Timelike")
+				{
+					timelike = true;
+				}
+				else if (timelikeText == "Not_Timelike")
+				{
+					timelike = false;
+				}
+				else
+				{
+					thrower( "ERROR: unknown timelike option. Check the formatting of the configuration file." );
+				}
+				if (typeText == "Singleton")
+				{
+					singleton = true;
+				}
+				else if (typeText == "From_Master")
+				{
+					singleton = false;
+				}
+				else
+				{
+					thrower( "ERROR: unknown variable type option. Check the formatting of the configuration file." );
+				}
+				try
+				{
+					value = std::stod( valueString );
+				}
+				catch (std::invalid_argument&)
+				{
+					thrower( "ERROR: Failed to convert value in configuration file for variable's double value. Value was: " + valueString );
+				}
+				tempVar.name = varName;
+				tempVar.timelike = timelike;
+				tempVar.singleton = singleton;
+				tempVar.value = value;
+
+				if (tempVar.singleton)
+				{
+					// handle singletons
+					// check if it already has been loaded
+					bool alreadyExists = false;
+					for (int varInc = 0; varInc < singletons.size(); varInc++)
+					{
+						if (tempVar.name == singletons[varInc].name)
+						{
+							alreadyExists = true;
+							break;
+						}
+					}
+					if (!alreadyExists)
+					{
+						// load new singleton
+						singletons.push_back( tempVar );
+					}
+				}
+				else
+				{
+					// handle varying parameters
+					bool alreadyExists = false;
+					for (int varInc = 0; varInc < variables.size(); varInc++)
+					{
+						if (tempVar.name == variables[varInc].name)
+						{
+							alreadyExists = true;
+							break;
+						}
+					}
+					if (!alreadyExists)
+					{
+						// add new varying parameters.
+						variables.push_back( tempVar );
+					}
+				}
+			}
+		}
+		else
+		{
+			thrower( "ERROR: Unrecognized configuration version! Ask Mark about bugs." );
+		}
+	}
 }
 
 void ConfigurationFileSystem::saveEntireProfile(ScriptingWindow* scriptWindow, MainWindow* comm)

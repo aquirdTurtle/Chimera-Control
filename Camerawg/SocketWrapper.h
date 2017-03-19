@@ -5,14 +5,20 @@
 class SocketWrapper
 {
 	public:
+		// general usage
 		void initialize();
 		void connect();
 		void send(std::string message);
 		std::string recieve();
 		void close();
+		bool isConnected();
+		// specific
+		int getAccumulations(int scalingFactor);
+
 	private:
 		// socket constants
+		bool connectedStatus;
 		int identifier;
-		CAsyncSocket server;
-		CAsyncSocket client;
+		CSocket server;
+		CSocket client;
 };

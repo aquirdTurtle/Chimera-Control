@@ -47,7 +47,7 @@ bool ScriptStream::isNotPartOfName( char test)
 
 std::string ScriptStream::getline()
 {
-	return getline( '\n' );
+	return this->getline( '\n' );
 }
 
 /*

@@ -6,7 +6,6 @@
 #include <string>
 #include "afxwin.h"
 #include "Control.h"
-//#include "StackWalker.h"
 
 /*
  * A nice custom class and #define that makes my custom throws have file & code line information. Very nice.
@@ -43,29 +42,9 @@ class myException : public std::runtime_error
 		std::string bareMsg;
 };
 
-/*
-Tried to use this class from code exchange but it's old and uses deprecated functionality.
-class myStackWalker : public StackWalker
-{
-	public:
-		myStackWalker() : StackWalker() {}
-		std::string ShowCallstack()
-		{
-			StackWalker::ShowCallstack();
-			return callStack;
-		}
-	protected:
-		virtual void OnOutput(LPCSTR szText)
-		{
-			callStack = std::string(szText); 
-			StackWalker::OnOutput(szText);
-		}
-	private:
-		std::string callStack;
-};
-*/
-	// the following gives any throw call file and line information.
-	#define thrower(arg) throw myException(arg, __FILE__, __LINE__)
+
+// the following gives any throw call file and line information.
+#define thrower(arg) throw myException(arg, __FILE__, __LINE__)
 // shows error message if it exists. Could be function but for consistency with other ERR_X Macros...
 #define ERR_POP(string) {if (string != ""){errBox(string);}}
 // shows error message and exits given function with error.

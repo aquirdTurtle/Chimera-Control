@@ -24,7 +24,7 @@ namespace myAgilent
 	{
 		segmentNum = 0;
 		totalSequence = "";
-		isVaried = false;
+		varies = false;
 	};
 	IntensityWaveform::~IntensityWaveform()
 	{
@@ -98,15 +98,16 @@ namespace myAgilent
 		{
 			// this segment type means ramping.
 			script >> tempRampType;
-			NiawgController::getParamCheckVar(tempIntensityInit, script, tempVarNum, tempVarNames, tempVarLocations, 1, singletons);
-			NiawgController::getParamCheckVar(tempIntensityFin, script, tempVarNum, tempVarNames, tempVarLocations, 2, singletons);
+			NiawgController::loadParam( tempIntensityInit, script, tempVarNum, tempVarNames, tempVarLocations, { 1 }, singletons );
+			NiawgController::loadParam( tempIntensityFin, script, tempVarNum, tempVarNames, tempVarLocations, { 2 }, singletons );
 		}
 		else
 		{
 			tempRampType = "nr";
-			NiawgController::getParamCheckVarConst(tempIntensityInit, tempIntensityFin, script, tempVarNum, tempVarNames, tempVarLocations, 1, 2, singletons);
+			NiawgController::loadParam( tempIntensityInit, script, tempVarNum, tempVarNames, tempVarLocations, { 1, 2 }, singletons );
+			tempIntensityFin = tempIntensityInit;
 		}
-		NiawgController::getParamCheckVar(tempTimeInMilliSeconds, script, tempVarNum, tempVarNames, tempVarLocations, 3, singletons);
+		NiawgController::loadParam( tempTimeInMilliSeconds, script, tempVarNum, tempVarNames, tempVarLocations, { 3 }, singletons );
 		script >> tempContinuationType;
 		std::transform(tempContinuationType.begin(), tempContinuationType.end(), tempContinuationType.begin(), ::tolower);
 		if (tempContinuationType == "repeat")
@@ -253,7 +254,7 @@ namespace myAgilent
 
 		if (tempVarNum > 0)
 		{
-			isVaried = true;
+			varies = true;
 		}
 
 		return 0;
@@ -380,7 +381,7 @@ namespace myAgilent
 	 */
 	bool IntensityWaveform::returnIsVaried()
 	{
-		return isVaried;
+		return varies;
 	}
 	/*
 	 * This waveform loops through all of the segments to find places where a variable value needs to be changed, and changes it.
@@ -821,7 +822,7 @@ namespace myAgilent
 	 * programIntensity opens the intensity file, reads the contents, loads them into an appropriate data structure, then from this data structure writes
 	 * segment and sequence information to the function generator.
 	 */
-	int programIntensity(int varNum, std::vector<variable> variables, std::vector<std::vector<double> > varValues, bool& intensityVaried, 
+	void programIntensity(int varNum, std::vector<variable> variables, std::vector<std::vector<double> > varValues, bool& intensityVaried, 
 						 std::vector<myMath::minMaxDoublet>& minsAndMaxes, std::vector<std::vector<POINT>>& pointsToDraw, 
 						 std::vector<std::fstream>& intensityFiles, std::vector<variable> singletons, profileSettings profile)
 	{
@@ -859,7 +860,7 @@ namespace myAgilent
 			intensityScript << intensityFiles[sequenceInc].rdbuf();
 			if (analyzeIntensityScript(intensityScript, &intensityWaveformSequence, currentSegmentNumber, singletons, profile))
 			{
-				return -1;
+				thrower( "analyzeIntensityScript threw an error!" );
 			}
 		}
 		int totalSegmentNumber = currentSegmentNumber;
@@ -882,11 +883,8 @@ namespace myAgilent
 					// Use that information to write the data.
 					if (intensityWaveformSequence.writeData(segNumInc) < 0)
 					{
-						// Error
-						std::string errMsg;
-						errMsg = "ERROR: IntensityWaveform.writeData threw an error! Error occurred in segment #" + std::to_string(totalSegmentNumber) + ".";
-						MessageBox(NULL, errMsg.c_str(), NULL, MB_OK);
-						return -1;
+						thrower("ERROR: IntensityWaveform.writeData threw an error! Error occurred in segment #" 
+								 + std::to_string(totalSegmentNumber) + ".");
 					}
 				}
 				// loop through again and calc/normalize/write values.
@@ -944,11 +942,8 @@ namespace myAgilent
 				// Use that information to write the data.
 				if (intensityWaveformSequence.writeData(segNumInc) < 0)
 				{
-					// Error
-					std::string errMsg;
-					errMsg = "ERROR: IntensityWaveform.writeData threw an error! Error occurred in segment #" + std::to_string(totalSegmentNumber) + ".";
-					MessageBox(NULL, errMsg.c_str(), NULL, MB_OK);
-					return -1;
+					thrower("ERROR: IntensityWaveform.writeData threw an error! Error occurred in segment #" 
+							 + std::to_string(totalSegmentNumber) + ".");
 				}
 			}
 			// no reassignment nessesary, no variables
@@ -1009,7 +1004,6 @@ namespace myAgilent
 		}
 		viClose(Instrument);
 		viClose(viDefaultRM);
-		return 0;
 	}
 
 	/*
@@ -1047,7 +1041,7 @@ namespace myAgilent
 	/*
 	 * This function tells the agilent to use sequence # (varNum) and sets settings correspondingly.
 	 */
-	int selectIntensityProfile(int varNum, bool intensityIsVaried, std::vector<myMath::minMaxDoublet> intensityMinMax)
+	void selectIntensityProfile(int varNum, bool intensityIsVaried, std::vector<myMath::minMaxDoublet> intensityMinMax)
 	{
 		if (intensityIsVaried || varNum == 0)
 		{
@@ -1087,6 +1081,5 @@ namespace myAgilent
 				viClose(viDefaultRM);
 			}
 		}
-		return 0;
 	}
 }
