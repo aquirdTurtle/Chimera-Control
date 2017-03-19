@@ -7,7 +7,6 @@
 #include "experimentThreadInputStructure.h"
 #include "experimentProgrammingThread.h"
 #include "scriptWriteHelpProc.h"
-#include "myErrorHandler.h"
 #include "beginningSettingsDialogProc.h"
 #include "selectInCombo.h"
 #include "getFileName.h"
@@ -534,11 +533,10 @@ namespace commonFunctions
 			{
 				inputParams->dontActuallyGenerate = false;
 			}
-			inputParams->sequenceFileNames = profile.sequenceConfigNames;
-			inputParams->currentFolderLocation = (profile.categoryPath);
 			inputParams->debugInfo = mainWin->getDebuggingOptions();
 			inputParams->variableNumber = mainWin->getAllVariables().size();
 			inputParams->comm = mainWin->getComm();
+			inputParams->profile = profile;
 			scriptInfo<std::string> addresses = scriptWin->getScriptAddresses();
 			eMostRecentVerticalScriptNames = addresses.verticalNIAWG;
 			eMostRecentHorizontalScriptNames = addresses.horizontalNIAWG;

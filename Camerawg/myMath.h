@@ -9,7 +9,7 @@
  * struct minMaxDoublet;
  *
  * This namespace includes the functions:
- *		double calculateCorrectionTime(waveData& wvData1, waveData& wvData2, std::vector<double> startPhases, std::string order);
+ *		double calculateCorrectionTime(waveInfo& wvData1, waveInfo& wvData2, std::vector<double> startPhases, std::string order);
  *		double rampCalc(int size, int iteration, double initPos, double finPos, std::string rampType);
  */
 namespace myMath
@@ -42,6 +42,6 @@ namespace myMath
 	* Else throw error.
 	* Return time.
 	*/
-	double calculateCorrectionTime(waveData& wvData1, waveData& wvData2, std::vector<double> startPhases, std::string order);
+	double calculateCorrectionTime(waveInfo& wvData1, waveInfo& wvData2, std::vector<double> startPhases, std::string order);
 	double rampCalc(int size, int iteration, double initPos, double finPos, std::string rampType);
 };

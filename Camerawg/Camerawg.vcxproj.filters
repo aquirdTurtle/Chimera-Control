@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="cleanSocket.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
     <ClCompile Include="cleanString.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
@@ -14,9 +11,6 @@
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="myAgilent.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
-    <ClCompile Include="myErrorHandler.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="myMath.cpp">
@@ -166,6 +160,12 @@
     <ClCompile Include="ScriptStream.cpp">
       <Filter>Function Headers</Filter>
     </ClCompile>
+    <ClCompile Include="SocketWrapper.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ExperimentLogger.cpp">
+      <Filter>Function Headers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="waveformData.h">
@@ -204,17 +204,11 @@
     <ClInclude Include="myAgilent.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
-    <ClInclude Include="myErrorHandler.h">
-      <Filter>Function Headers</Filter>
-    </ClInclude>
     <ClInclude Include="myMath.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="fonts.h">
       <Filter>Constants, Externals, Etc.</Filter>
-    </ClInclude>
-    <ClInclude Include="experimentThreadInputStructure.h">
-      <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="experimentProgrammingThread.h">
       <Filter>Function Headers</Filter>
@@ -223,9 +217,6 @@
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="cleanString.h">
-      <Filter>Function Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="cleanSocket.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="constants.h">
@@ -362,6 +353,12 @@
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="ScriptStream.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="SocketWrapper.h">
+      <Filter>Code Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ExperimentLogger.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
   </ItemGroup>

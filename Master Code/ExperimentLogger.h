@@ -8,8 +8,8 @@ class MasterWindow;
 class ExperimentLogger
 {
 	public:
-		bool generateLog(MasterWindow* master);
-		bool exportLog();
+		void generateLog(MasterWindow* master);
+		void exportLog();
 		std::string getLog();
 	private:
 		std::stringstream logText;

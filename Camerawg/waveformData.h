@@ -10,29 +10,19 @@
 
 
 /**
- * These structures contain all of the needed input data about the waveform in question. Specifically:
- * std::vector<signal> signals;
- * double time;
- * int phaseManagementOption;
- * int signalNum;
- * int initType;
- * long int sampleNum;
- * bool isVaried;
- * int varNum;
- * std::vector<std::string> varNames;
- * std::vector<int> varTypes;
- * std::string delim;
+ * These structures contain all of the needed input data about the waveform in question.
  */
-struct waveData
+struct waveInfo
 {
 	std::vector<signal> signals;
 	double time;
-	int phaseManagementOption;
+	//int phaseOption;
 
 	int signalNum;
 	int initType;
 	long int sampleNum;
-	bool isVaried;
+	// tells if the wave is varied
+	bool varies;
 	// variables for dealing with varied waveforms. These only get set when a varied waveform is used, and they serve the purpose of carrying relevant info to
 	// the end of the program, when these varried waveforms are compiled.
 	int varNum;
@@ -40,6 +30,6 @@ struct waveData
 	std::vector<int> varTypes;
 	// This should usually just be a single char, but if it's wrong I can use the whole string to debug.
 	std::string delim;
-
+	bool isStreamed;
 };
 #endif

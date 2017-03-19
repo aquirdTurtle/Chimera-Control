@@ -11,7 +11,7 @@
 /*
  * Contains a couple of math functions that I use. Specifically:
  * double rampCalc(int size, int iteration, double initPos, double finPos, std::string rampType)
- * double calculateCorrectionTime(waveData& wvData1, waveData& wvData2, std::vector<double> startPhases, std::string order)
+ * double calculateCorrectionTime(waveInfo& wvData1, waveInfo& wvData2, std::vector<double> startPhases, std::string order)
  */
 namespace myMath
 {
@@ -73,7 +73,7 @@ namespace myMath
 	 * Else throw error.
 	 * Return phase mismatch.
 	*/
-	double calculateCorrectionTime(waveData& wvData1, waveData& wvData2, std::vector<double> startPhases, std::string order)
+	double calculateCorrectionTime(waveInfo& wvData1, waveInfo& wvData2, std::vector<double> startPhases, std::string order)
 	{
 		std::vector<double> freqList;
 		for (int signalInc = 0; signalInc < wvData1.signalNum; signalInc++)

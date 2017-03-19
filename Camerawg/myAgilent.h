@@ -123,7 +123,7 @@ namespace myAgilent
 	 *		 double minVolt;
 	 *		 int segmentNum;
 	 *		 std::string totalSequence;
-	 *		 bool isVaried;
+	 *		 bool varies;
 	 */
 	class IntensityWaveform
 	{
@@ -148,7 +148,7 @@ namespace myAgilent
 			double minVolt;
 			int segmentNum;
 			std::string totalSequence;
-			bool isVaried;
+			bool varies;
 	};
 
 	/*
@@ -167,12 +167,12 @@ namespace myAgilent
 	 * ready for usage. 
 	 * 
 	 */
-	int programIntensity(int varNum, std::vector<variable> varNames, std::vector<std::vector<double> > varValues, bool& intensityVaried,
+	void programIntensity(int varNum, std::vector<variable> varNames, std::vector<std::vector<double> > varValues, bool& intensityVaried,
 						 std::vector<myMath::minMaxDoublet>& minsAndMaxes, std::vector<std::vector<POINT>>& pointsToDraw, 
 						 std::vector<std::fstream>& intensityFiles, std::vector<variable> singletons, profileSettings profile);
 
 	int agilentErrorCheck(long status, unsigned long vi);
 	
-	int selectIntensityProfile(int varNum, bool intensityIsVaried, std::vector<myMath::minMaxDoublet> intensityMinMax);
+	void selectIntensityProfile(int varNum, bool intensityIsVaried, std::vector<myMath::minMaxDoublet> intensityMinMax);
 
 }

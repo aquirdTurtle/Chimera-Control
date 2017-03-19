@@ -176,7 +176,8 @@ BOOL MainWindow::OnInitDialog()
 	/*
 	ViInt32 maximumNumberofWaveforms, waveformQuantum, minimumWaveformSize, maximumWaveformSize;
 
-	if (myNIAWG::NIAWG_CheckWindowsError(niFgen_QueryArbWfmCapabilities(eSessionHandle, &maximumNumberofWaveforms, &waveformQuantum, &minimumWaveformSize, &maximumWaveformSize)))
+	if (myNIAWG::NIAWG_CheckWindowsError(niFgen_QueryArbWfmCapabilities(eSessionHandle, &maximumNumberofWaveforms, &waveformQuantum, 
+		&minimumWaveformSize, &maximumWaveformSize)))
 	{
 		return -1;
 	}
@@ -575,7 +576,7 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 	char* pointerToMessage = (char*)lParam;
 	std::string statusMessage(pointerToMessage);
 	delete[] pointerToMessage;
-	this->errorStatus.addStatusText(statusMessage);
+	errorStatus.addStatusText(statusMessage);
 	//
 	myAgilent::agilentDefault();
 	std::string msgText = "Exited with Error!\r\nPassively Outputting Default Waveform.";

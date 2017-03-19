@@ -4,7 +4,7 @@
 #include <string>
 
 /**
- * A "Signal" structure contains all of the information for a single signal. Vectors of these are included in a "waveData" structure.
+ * A "Signal" structure contains all of the information for a single signal. Vectors of these are included in a "waveInfo" structure.
  */
 struct signal
 {
