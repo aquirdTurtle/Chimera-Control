@@ -5,12 +5,13 @@
 // Some headers used for communication protocols.
 #include <winsock2.h>
 #include <ws2tcpip.h>
+
 #include <algorithm>
 #include "myAgilent.h"
 #include "NiawgController.h"
 #include "experimentThreadInputStructure.h"
 #include <sstream>
-#include "NIAWGWaitThread.h"
+#include "NiawgWaiter.h"
 #include "boost/cast.hpp"
 #include "VariableSystem.h"
 #include <boost/algorithm/string/replace.hpp>
