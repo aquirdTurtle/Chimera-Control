@@ -194,7 +194,7 @@ void NiawgController::restartDefault()
 
 void NiawgController::setDefaultOrientation( std::string orientation )
 {
-	this->defaultOrientation = orientation;
+	defaultOrientation = orientation;
 }
 
 
