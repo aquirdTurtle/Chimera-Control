@@ -8,7 +8,7 @@ bool NiawgController::isRunning()
 
 void NiawgController::setRunningState( bool newRunningState )
 {
-	this->runningState = newRunningState;
+	runningState = newRunningState;
 }
 
 
@@ -110,7 +110,7 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin, bool isFirstLoad
 		errBox( "Debug messages detected during initial default waveform script analysis: " + debug.message );
 	}
 	// but the default starts in the horizontal configuration, so switch back and start in this config.
-	mainWin->setOrientation( this->defaultOrientation );
+	mainWin->setOrientation( defaultOrientation );
 }
 
 
@@ -544,7 +544,7 @@ void NiawgController::varyParam(std::vector<waveInfo>& allWvInfo1, std::vector<w
 			// CONVERT from milliseconds to seconds.
 			allWvInfo1[wfCount].time = paramVal * 0.001;
 			// Changing the time changes the sample number, so recalculate that.
-			allWvInfo1[wfCount].sampleNum = this->waveformSizeCalc( allWvInfo1[wfCount] );
+			allWvInfo1[wfCount].sampleNum = waveformSizeCalc( allWvInfo1[wfCount] );
 			break;
 		}
 		// all the cases in-between 0 and 5 * MAX_NIAWG_SIGNALS + 1
@@ -583,7 +583,7 @@ void NiawgController::errChecker( int err )
 {
 	if (err < 0)
 	{
-		thrower( "NIAWG Error: " + this->getErrorMsg() );
+		thrower( "NIAWG Error: " + getErrorMsg() );
 	}
 }
 

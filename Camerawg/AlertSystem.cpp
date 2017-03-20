@@ -44,7 +44,7 @@ void AlertSystem::initialize(cameraPositions& pos, CWnd* parent, bool isTriggerM
 	pos.ksmPos.y += 25;
 	pos.amPos.y += 25;
 	/// Use Alerts Checkbox
-	this->alertsActiveCheckBox.ksmPos = { pos.ksmPos.x + 0, pos.ksmPos.y, pos.ksmPos.x + 160, pos.ksmPos.y + 20 };
+	alertsActiveCheckBox.ksmPos = { pos.ksmPos.x + 0, pos.ksmPos.y, pos.ksmPos.x + 160, pos.ksmPos.y + 20 };
 	alertsActiveCheckBox.amPos = { pos.amPos.x + 0, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 20 };
 	alertsActiveCheckBox.cssmPos = { -1,-1,-1,-1 };
 	alertsActiveCheckBox.ID = id++;
@@ -56,7 +56,7 @@ void AlertSystem::initialize(cameraPositions& pos, CWnd* parent, bool isTriggerM
 	alertsActiveCheckBox.Create("Use?", WS_CHILD | WS_VISIBLE | ES_LEFT | ES_READONLY | BS_CHECKBOX, alertsActiveCheckBox.ksmPos, parent, alertsActiveCheckBox.ID);
 	alertsActiveCheckBox.fontType = "Normal";
 	/// Alert threshold text
-	this->alertThresholdText.ksmPos = { pos.ksmPos.x + 160, pos.ksmPos.y, pos.ksmPos.x + 320, pos.ksmPos.y + 20 };
+	alertThresholdText.ksmPos = { pos.ksmPos.x + 160, pos.ksmPos.y, pos.ksmPos.x + 320, pos.ksmPos.y + 20 };
 	alertThresholdText.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 20 };
 	alertThresholdText.cssmPos = { -1,-1,-1,-1 };
 	alertThresholdText.ID = id++;
@@ -64,7 +64,7 @@ void AlertSystem::initialize(cameraPositions& pos, CWnd* parent, bool isTriggerM
 	alertThresholdText.Create("Alert Threshold:", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, alertThresholdText.ksmPos, parent, alertThresholdText.ID);
 	alertThresholdText.fontType = "Normal";
 	/// Alert threshold edit
-	this->alertThresholdEdit.ksmPos = { pos.ksmPos.x + 320, pos.ksmPos.y, pos.ksmPos.x + 480, pos.ksmPos.y + 20 };
+	alertThresholdEdit.ksmPos = { pos.ksmPos.x + 320, pos.ksmPos.y, pos.ksmPos.x + 480, pos.ksmPos.y + 20 };
 	alertThresholdEdit.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 20 };
 	alertThresholdEdit.cssmPos = { -1,-1,-1,-1 };
 	alertThresholdEdit.ID = id++;
@@ -76,7 +76,7 @@ void AlertSystem::initialize(cameraPositions& pos, CWnd* parent, bool isTriggerM
 	pos.amPos.y += 20;
 	/// Sound checkbox
 	// soundAtFinshCheckBox.hwnd
-	this->soundAtFinshCheckBox.ksmPos = { pos.ksmPos.x + 0, pos.ksmPos.y, pos.ksmPos.x + 480, pos.ksmPos.y + 20 };
+	soundAtFinshCheckBox.ksmPos = { pos.ksmPos.x + 0, pos.ksmPos.y, pos.ksmPos.x + 480, pos.ksmPos.y + 20 };
 	soundAtFinshCheckBox.amPos = { pos.amPos.x + 0, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 20 };
 	soundAtFinshCheckBox.cssmPos = { -1,-1,-1,-1 };
 	soundAtFinshCheckBox.ID = id++;
@@ -91,12 +91,12 @@ void AlertSystem::initialize(cameraPositions& pos, CWnd* parent, bool isTriggerM
 void AlertSystem::alertMainThread(int runsWithoutAtoms)
 {
 	int* alertLevel = new int;
-	if (runsWithoutAtoms == this->alertThreshold)
+	if (runsWithoutAtoms == alertThreshold)
 	{
 		*alertLevel = 2;
 		//PostMessage(eCameraWindowHandle, alertMessageID, 0, (LPARAM)alertLevel);
 	}
-	else if (runsWithoutAtoms % this->alertThreshold == 0)
+	else if (runsWithoutAtoms % alertThreshold == 0)
 	{
 		*alertLevel = 1;
 		//PostMessage(eCameraWindowHandle, alertMessageID, 0, (LPARAM)alertLevel);

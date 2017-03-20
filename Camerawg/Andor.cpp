@@ -16,13 +16,13 @@ void AndorCamera::updatePictureNumber( int newNumber )
 void AndorCamera::pauseThread()
 {
 	// andor should not be taking images anymore at this point.
-	this->threadInput.spuriousWakeupHandler = false;
+	threadInput.spuriousWakeupHandler = false;
 }
 
 void AndorCamera::onFinish()
 {
 	// right now this is very simple.
-	this->cameraIsRunning = false;
+	cameraIsRunning = false;
 }
 
 void AndorCamera::getAcquisitionProgress( long& seriesNumber )
@@ -427,19 +427,16 @@ void AndorCamera::setEmCcdGain(int gain)
 	}
 }
 
-
 ///
-
-
 
 bool AndorCamera::isRunning()
 {
-	return this->cameraIsRunning;
+	return cameraIsRunning;
 }
 
 AndorCamera::AndorCamera()
 {
-	this->runSettings.emGainModeIsOn = false;
+	runSettings.emGainModeIsOn = false;
 }
 
 void AndorCamera::confirmAcquisitionTimings(float& kinetic, float& accumulation, std::vector<float>& exposures)
@@ -462,7 +459,7 @@ void AndorCamera::setSettings(AndorRunSettings settingsToSet)
 
 void AndorCamera::setAcquisitionMode()
 {
-	this->setAcquisitionMode(runSettings.acquisitionMode);
+	setAcquisitionMode(runSettings.acquisitionMode);
 }
 
 /* 
@@ -473,7 +470,7 @@ void AndorCamera::setSystem(CameraWindow* camWin)
 	/// Set a bunch of parameters.
 	// Set to 1 MHz readout rate in both cases
 	setADChannel(1);
-	if (this->runSettings.emGainModeIsOn)
+	if (runSettings.emGainModeIsOn)
 	{
 		setHSSpeed(0, 0);
 	}
@@ -488,7 +485,7 @@ void AndorCamera::setSystem(CameraWindow* camWin)
 	// Set Mode-Specific Parameters
 	if (runSettings.acquisitionMode == 5)
 	{
-		this->setFrameTransferMode();
+		setFrameTransferMode();
 	}
 	else if (runSettings.acquisitionMode == 3)
 	{
@@ -502,7 +499,7 @@ void AndorCamera::setSystem(CameraWindow* camWin)
 		setAccumulationCycleTime();
 		setNumberAccumulations(false);
 	}
-	this->confirmAcquisitionTimings(runSettings.kinetiCycleTime, runSettings.accumulationTime, 
+	confirmAcquisitionTimings(runSettings.kinetiCycleTime, runSettings.accumulationTime, 
 									runSettings.exposureTimes);
 	setGainMode();
 	setCameraTriggerMode();
@@ -550,14 +547,14 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 {
 	try
 	{
-		this->checkForNewImages();
+		checkForNewImages();
 	}
 	catch (myException& exception)
 	{
 		if (exception.whatBare() == "DRV_NO_NEW_DATA")
 		{
 			// just return this anyways.
-			return this->imagesOfExperiment;
+			return imagesOfExperiment;
 		}
 		else
 		{
@@ -571,26 +568,25 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 	// If there is no data the acquisition must have been aborted
 	// free all allocated memory
 	int experimentPictureNumber;
-	if (this->runSettings.showPicsInRealTime)
+	if (runSettings.showPicsInRealTime)
 	{
 		experimentPictureNumber = 0;
 	}
 	else
 	{
-		experimentPictureNumber = (((this->currentPictureNumber - 1) 
-						% runSettings.totalPicsInVariation) % runSettings.picsPerRepetition);
+		experimentPictureNumber = (((currentPictureNumber - 1) % runSettings.totalPicsInVariation) % runSettings.picsPerRepetition);
 	}
 	if (experimentPictureNumber == 0)
 	{
 		WaitForSingleObject(imagesMutex, INFINITE);
 		imagesOfExperiment.clear();
-		if (this->runSettings.showPicsInRealTime)
+		if (runSettings.showPicsInRealTime)
 		{
 			imagesOfExperiment.resize(1);
 		}
 		else
 		{
-			imagesOfExperiment.resize(this->runSettings.picsPerRepetition);
+			imagesOfExperiment.resize(runSettings.picsPerRepetition);
 		}
 		ReleaseMutex(imagesMutex);
 	}
@@ -764,9 +760,8 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 	}
 	*/
 	// % 4 at the end because there are only 4 pictures available on the screen.
-	int imageLocation = (((this->currentPictureNumber - 1) 
-		% this->runSettings.totalPicsInVariation) % runSettings.repetitionsPerVariation) % 4;
-	return this->imagesOfExperiment;
+	int imageLocation = (((currentPictureNumber - 1) % runSettings.totalPicsInVariation) % runSettings.repetitionsPerVariation) % 4;
+	return imagesOfExperiment;
 }
 
 
@@ -795,7 +790,7 @@ void AndorCamera::drawDataWindow(void)
 				}
 				catch (std::out_of_range&)
 				{
-					thrower( "ERROR: caught std::out_of_range in this->drawDataWindow! experimentImagesInc = " + std::to_string( experimentImagesInc )
+					thrower( "ERROR: caught std::out_of_range in drawDataWindow! experimentImagesInc = " + std::to_string( experimentImagesInc )
 							 + ", pixelInc = " + std::to_string( pixelInc ) + ", eImagesOfExperiment.size() = " + std::to_string( imagesOfExperiment.size() )
 							 + ", eImagesOfExperiment[experimentImagesInc].size() = " + std::to_string( imagesOfExperiment[experimentImagesInc].size() )
 							 + ". Attempting to continue..." );
@@ -1095,7 +1090,7 @@ void AndorCamera::setImageParametersToCamera()
 
 void AndorCamera::setKineticCycleTime()
 {
-	setKineticCycleTime(this->runSettings.kinetiCycleTime);
+	setKineticCycleTime(runSettings.kinetiCycleTime);
 }
 
 void AndorCamera::setScanNumber()
@@ -1208,7 +1203,7 @@ void AndorCamera::setNumberAccumulations(bool isKinetic)
 
 void AndorCamera::setGainMode()
 {
-	if (this->runSettings.emGainModeIsOn == false)
+	if (runSettings.emGainModeIsOn == false)
 	{
 		// Set Gain
 		int numGain;
@@ -1235,6 +1230,7 @@ void AndorCamera::setGainMode()
 		setEmCcdGain(runSettings.emGainLevel);
 	}
 }
+
 ///
 
 void AndorCamera::changeTemperatureSetting(bool turnTemperatureControlOff)
