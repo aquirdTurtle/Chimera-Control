@@ -40,27 +40,27 @@ END_MESSAGE_MAP()
 
 void MainWindow::setNiawgRunningState( bool newRunningState )
 {
-	this->niawg.setRunningState( newRunningState );
+	niawg.setRunningState( newRunningState );
 	return;
 }
 
 bool MainWindow::niawgIsRunning()
 {
-	return this->niawg.isRunning();
+	return niawg.isRunning();
 }
 
 BOOL MainWindow::PreTranslateMessage(MSG* pMsg)
 {
-	for (int toolTipInc = 0; toolTipInc < this->tooltips.size(); toolTipInc++)
+	for (int toolTipInc = 0; toolTipInc < tooltips.size(); toolTipInc++)
 	{
-		this->tooltips[toolTipInc]->RelayEvent(pMsg);
+		tooltips[toolTipInc]->RelayEvent(pMsg);
 	}
 	return CDialog::PreTranslateMessage(pMsg);
 }
 
 void MainWindow::setNiawgDefaults(bool isFirstTime)
 {
-	this->niawg.setDefaultWaveforms(this, isFirstTime);
+	niawg.setDefaultWaveforms(this, isFirstTime);
 }
 
 std::unordered_map<std::string, CFont*> MainWindow::getFonts()
@@ -72,15 +72,15 @@ void MainWindow::passClear(UINT id)
 {
 	if (id == IDC_MAIN_STATUS_BUTTON)
 	{
-		this->mainStatus.clear();
+		mainStatus.clear();
 	}
 	else if (id == IDC_ERROR_STATUS_BUTTON)
 	{
-		this->errorStatus.clear();
+		errorStatus.clear();
 	}
 	else if (id == IDC_DEBUG_STATUS_BUTTON)
 	{
-		this->debugStatus.clear();
+		debugStatus.clear();
 	}
 }
 
@@ -255,12 +255,12 @@ HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		case CTLCOLOR_STATIC:
 		{
 			int num = pWnd->GetDlgCtrlID();
-			CBrush* ret = this->shortStatus.handleColor(pWnd, pDC, this->mainRGBs, this->mainBrushes);
+			CBrush* ret = shortStatus.handleColor(pWnd, pDC, mainRGBs, mainBrushes);
 			if (ret)
 			{
 				return *ret;
 			}
-			ret = this->boxes.handleColoring( num, pDC, mainBrushes, mainRGBs );
+			ret = boxes.handleColoring( num, pDC, mainBrushes, mainRGBs );
 			if ( ret )
 			{
 				return *ret;
@@ -296,7 +296,7 @@ HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 void MainWindow::passCommonCommand(UINT id)
 {
 	// pass the command id to the common function, filling in the pointers to the windows which own objects needed.
-	commonFunctions::handleCommonMessage(id, this, this, this->TheScriptingWindow, this->TheCameraWindow);
+	commonFunctions::handleCommonMessage(id, this, this, TheScriptingWindow, TheCameraWindow);
 }
 
 
@@ -308,13 +308,13 @@ profileSettings MainWindow::getCurentProfileSettings()
 
 void MainWindow::checkProfileReady()
 {
-	profile.allSettingsReadyCheck( this->TheScriptingWindow, this );
+	profile.allSettingsReadyCheck( TheScriptingWindow, this );
 }
 
 
 void MainWindow::checkProfileSave()
 {
-	profile.checkSaveEntireProfile( this->TheScriptingWindow, this );
+	profile.checkSaveEntireProfile( TheScriptingWindow, this );
 }
 
 
@@ -335,15 +335,15 @@ std::string MainWindow::getNotes(std::string whichLevel)
 	std::transform(whichLevel.begin(), whichLevel.end(), whichLevel.begin(), ::tolower);
 	if (whichLevel == "experiment")
 	{
-		return this->notes.getExperimentNotes();
+		return notes.getExperimentNotes();
 	}
 	else if (whichLevel == "category")
 	{
-		return this->notes.getCategoryNotes();
+		return notes.getCategoryNotes();
 	}
 	else if (whichLevel == "configuration")
 	{
-		return this->notes.getConfigurationNotes();
+		return notes.getConfigurationNotes();
 	}
 	else
 	{
@@ -355,26 +355,25 @@ std::string MainWindow::getNotes(std::string whichLevel)
 }
 
 
-void MainWindow::setNotes(std::string whichLevel, std::string notes)
+void MainWindow::setNotes(std::string whichLevel, std::string newNotes)
 {
 	std::transform(whichLevel.begin(), whichLevel.end(), whichLevel.begin(), ::tolower);
 	if (whichLevel == "experiment")
 	{
-		this->notes.setExperimentNotes(notes);
+		notes.setExperimentNotes(newNotes);
 	}
 	else if (whichLevel == "category")
 	{
-		this->notes.setCategoryNotes(notes);
+		notes.setCategoryNotes(newNotes);
 	}
 	else if (whichLevel == "configuration")
 	{
-		this->notes.setConfigurationNotes(notes);
+		notes.setConfigurationNotes(newNotes);
 	}
 	else
 	{
-		throw std::invalid_argument(("The Main window's setNotes function was called with a bad argument:"
-			+ whichLevel + ". Acceptable arguments are \"experiment\", \"category\", and \"configuration\". "
-			"This throw can be continued successfully, the notes will just not load.").c_str());
+		thrower( "ERROR: The Main window's setNotes function was called with a bad argument:" + whichLevel + ". Acceptable arguments are "
+				 "\"experiment\", \"category\", and \"configuration\"." );
 	}
 }
 
@@ -488,7 +487,7 @@ void MainWindow::passMainOptionsPress(UINT id)
 
 void MainWindow::listViewDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
-	variables.updateVariableInfo(this, this->TheScriptingWindow);
+	variables.updateVariableInfo(this, TheScriptingWindow);
 	profile.updateConfigurationSavedStatus(false);
 }
 
@@ -508,13 +507,13 @@ void MainWindow::handleExperimentCombo()
 
 void MainWindow::handleCategoryCombo()
 {
-	profile.categoryChangeHandler(this->TheScriptingWindow, this);
+	profile.categoryChangeHandler(TheScriptingWindow, this);
 }
 
 
 void MainWindow::handleConfigurationCombo()
 {
-	profile.configurationChangeHandler(this->TheScriptingWindow, this);
+	profile.configurationChangeHandler(TheScriptingWindow, this);
 }
 
 
@@ -583,7 +582,7 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 	changeShortStatusColor("R");
 	colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
 	comm.sendColorBox( colors );
-	std::string orientation = this->getCurentProfileSettings().orientation;
+	std::string orientation = getCurentProfileSettings().orientation;
 	try
 	{
 		niawg.restartDefault();
@@ -603,18 +602,6 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-/*
-LRESULT MainWindow::onVariableStatusMessage(WPARAM wParam, LPARAM lParam)
-{
-	int currentOutput = (int)lParam;
-	std::string msgText = "Outpitting Series #" + std::to_string(currentOutput) + ". \r\nWriting Varying Waveforms for Set # "
-		+ std::to_string(currentOutput + 1) + "...\r\n";
-	this->setShortStatus(msgText);
-	this->changeShortStatusColor("Y");
-	this->theScriptingWindow->changeBoxColor("Y");
-	return 0;
-}
-*/
 
 LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
 {
@@ -624,7 +611,7 @@ LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
 	changeShortStatusColor("B");
 	colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
 	comm.sendColorBox( colors );
-	std::string orientation = this->getCurentProfileSettings().orientation;
+	std::string orientation = getCurentProfileSettings().orientation;
 	try
 	{
 		niawg.restartDefault();
@@ -638,7 +625,7 @@ LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
 		comm.sendStatus("ERROR!\r\n");
 		return -3;
 	}
-	this->setNiawgRunningState( false );
+	setNiawgRunningState( false );
 	return 0;
 }
 
@@ -682,5 +669,5 @@ std::unordered_map<std::string, COLORREF> MainWindow::getRGB()
 
 CSocket* MainWindow::getSocket()
 {
-	return &this->masterSocket;
+	return &masterSocket;
 }

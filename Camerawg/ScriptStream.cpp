@@ -19,7 +19,7 @@ ScriptStream & ScriptStream::operator>>( std::string& outputString )
 	// convert to lower-case
 	std::transform( outputString.begin(), outputString.end(), outputString.begin(), ::tolower );
 	// replace any keywords
-	for (auto repl : this->replacements)
+	for (auto repl : replacements)
 	{
 		if (outputString == repl.first)
 		{
@@ -47,7 +47,7 @@ bool ScriptStream::isNotPartOfName( char test)
 
 std::string ScriptStream::getline()
 {
-	return this->getline( '\n' );
+	return getline( '\n' );
 }
 
 /*
@@ -98,13 +98,13 @@ std::string ScriptStream::getline(char delim)
  */
 void ScriptStream::loadReplacements( std::vector<std::pair<std::string, std::string>> args )
 {
-	this->replacements = args;
+	replacements = args;
 }
 
 
 void ScriptStream::clearReplacements()
 {
-	this->replacements.clear();
+	replacements.clear();
 }
 
 
@@ -112,10 +112,10 @@ void ScriptStream::eatComments()
 {
 	// Grab the first character
 	std::string comment;
-	char currentChar = this->get();
+	char currentChar = get();
 	// including the !file.eof() to avoid grabbing the null character at the end. 
-	while ((currentChar == ' ' && !this->eof()) || (currentChar == '\n' && !this->eof()) || (currentChar == '\r' && !this->eof())
-			|| (currentChar == '\t' && !this->eof()) || currentChar == '%' || (currentChar == ';' && !this->eof()))
+	while ((currentChar == ' ' && !eof()) || (currentChar == '\n' && !eof()) || (currentChar == '\r' && !eof())
+			|| (currentChar == '\t' && !eof()) || currentChar == '%' || (currentChar == ';' && !eof()))
 	{
 		// remove entire comments from the input
 		if (currentChar == '%')
@@ -123,30 +123,30 @@ void ScriptStream::eatComments()
 			std::getline( *this, comment , '\n' );
 		}
 		// get the next char
-		currentChar = this->get();
+		currentChar = get();
 	}
-	char next = this->peek();
+	char next = peek();
 	if (next == EOF)
 	{
-		if (this->eof())
+		if (eof())
 		{
-			this->clear();
-			this->seekg( -1, SEEK_CUR );
-			if (this->eof())
+			clear();
+			seekg( -1, SEEK_CUR );
+			if (eof())
 			{
-				errBox( "!" );
+				thrower( "!" );
 			}
 		}
 		return;
 	}
-	std::streamoff position = this->tellg();
+	std::streamoff position = tellg();
 	// when it exits the loop, it will just have moved passed the first non-whitespace character. I want that character. Go back.
 	if (position == 0)
 	{
-		this->seekg( 0, std::ios::beg );
+		seekg( 0, std::ios::beg );
 	}
 	else
 	{
-		this->seekg( -1, SEEK_CUR );
+		seekg( -1, SEEK_CUR );
 	}
 }
