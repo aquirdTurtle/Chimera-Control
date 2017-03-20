@@ -1,5 +1,6 @@
 #pragma once
 #include "windows.h"
+#include "experimentProgrammingThread.h"
 
 struct waitThreadInput
 {
@@ -12,4 +13,14 @@ struct waitThreadInput
 * ViSession inputParam: this is the session handle for the session with the NIAWG.
 * Return: the function returns -1 if error, -2 if abort, 0 if normal.
 */
-unsigned __stdcall niawgWaitThread(void* inputParam);
+
+class NiawgWaiter
+{
+	public:
+		void initialize();
+		unsigned __stdcall niawgWaitThread( void* inputParam );
+		void startWait( experimentThreadInput* input);
+		void wait( Communicator* comm, bool& deleteWaveforms );
+		void systemAbortCheck( Communicator* comm, bool& deleteWaveforms );
+		void systemAbortCheck( Communicator* comm );
+};

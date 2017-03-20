@@ -25,9 +25,6 @@
     <ClCompile Include="ScriptWritingInstructionsDialog.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="NIAWGWaitThread.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
     <ClCompile Include="externals.cpp">
       <Filter>Constants, Externals, Etc.</Filter>
     </ClCompile>
@@ -83,9 +80,6 @@
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="StatusIndicator.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
-    <ClCompile Include="systemAbortCheck.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="Communicator.cpp">
@@ -166,22 +160,16 @@
     <ClCompile Include="ExperimentLogger.cpp">
       <Filter>Function Headers</Filter>
     </ClCompile>
+    <ClCompile Include="NiawgWaiter.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="waveformData.h">
-      <Filter>Function Headers</Filter>
-    </ClInclude>
     <ClInclude Include="targetver.h">
       <Filter>Things I Don%27t Mess With %28Often%29</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>Things I Don%27t Mess With %28Often%29</Filter>
-    </ClInclude>
-    <ClInclude Include="signal.h">
-      <Filter>Function Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="systemAbortCheck.h">
-      <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="ScriptWritingInstructionsDialog.h">
       <Filter>Function Headers</Filter>
@@ -349,9 +337,6 @@
     <ClInclude Include="CameraConfigurationSystem.h">
       <Filter>Code Files</Filter>
     </ClInclude>
-    <ClInclude Include="niawgWaitThread.h">
-      <Filter>Function Headers</Filter>
-    </ClInclude>
     <ClInclude Include="ScriptStream.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
@@ -359,6 +344,9 @@
       <Filter>Code Files</Filter>
     </ClInclude>
     <ClInclude Include="ExperimentLogger.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="NiawgWaiter.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
   </ItemGroup>

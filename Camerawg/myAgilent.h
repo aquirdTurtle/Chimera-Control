@@ -1,8 +1,15 @@
 #pragma once
 #include <vector>
-//#include "minMaxDoublet.h"
 #include "myMath.h"
 #include "Windows.h"
+#include "rmWhite.h"
+#include "constants.h"
+#include "externals.h"
+#include "NiawgController.h"
+#include "boost/cast.hpp"
+#include <algorithm>
+#include "ScriptStream.h"
+
 
 /*
  * This Namespace includes all of my function handling for interacting withe agilent waveform generator. It includes:
@@ -14,48 +21,7 @@
  */
 namespace myAgilent
 {
-	/*
-	 * The Segment class contains all of the information and handling for a single segment of the waveform to be programmed to the Agilent. The class includes
-	 * the following functions and variables:
-	 *
-	 *	public:
-	 *		Segment();
-	 *		~Segment();
-	 *		int assignSegType(int segTypeIn);
-	 *		int assignRampType(std::string rampTypeIn);
-	 *		int assignInitValue(double initValIn);
-	 *		int assignFinValue(double finValIn);
-	 *		int assignContinuationType(int contTypeIn);
-	 *		int assignTime(double timeIn);
-	 *		int	assignRepeatNum(int repeatNumIn);
-	 *		int returnSegmentType();
-	 *		long returnDataSize();
-	 *		int returnRepeatNum();
-	 *		int returnContinuationType();
-	 *		int assignVarNum(int vNumIn);
-	 *		int assignSegVarNames(std::vector<std::string> vNamesIn);
-	 *		int assignVarLocations(std::vector<int> varLocationsIn);
-	 *		int returnSegVarNamesSize();
-	 *		std::string returnVarName(int varNameIdentifier);
-	 *		int returnVarLocation(int varNameIdentifier);
-	 *		int assignDataVal(int dataNum, double val);
-	 *		double returnDataVal(long dataNum);
-	 *		int calcData();
-	 *		double returnTime();
-	 *	private:
-	 *		int segmentType;
-	 *		std::string rampType;
-	 *		int repeatNum;
-	 *		double initValue;
-	 *		double finValue;
-	 *		double time;
-	 *		// values such as repeat, repeat until trigger, no repeat, etc.
-	 *		int continuationType;
-	 *		std::vector<double> dataArray;
-	 *		int varNum;
-	 *		std::vector<std::string> segVarNames;
-	 *		std::vector<int> varLocations;
-	 */
+
 	class Segment
 	{
 		public:
@@ -97,34 +63,7 @@ namespace myAgilent
 			std::vector<int> varLocations;
 	};
 
-	/*
-	 * The class IntensityWaveform contains all of the information and handling relevant for the entire intensity waveform that gets programmed to the Andor.
-	 * This includes a vector of segments which contain segment-specific information. The functions and variabels relevant for this class are:
-	 *	 public:
-	 *		 IntensityWaveform();
-	 *		 ~IntensityWaveform();
-	 *		 int readIntoSegment(int segNum, std::fstream& scriptName);
-	 *		 int writeData(int SegNum);
-	 *		 std::string compileAndReturnDataSendString(int segNum, int varNum, int totalSegNum);
-	 *		 int compileSequenceString(int totalSegNum, int sequenceNum);
-	 *		 std::string returnSequenceString();
-	 *		 bool returnIsVaried();
-	 *		 int returnGivenSegVarNamesSize(int segNum);
-	 *		 int replaceVarValues(std::string varName, double varValue);
-	 *		 int convertPowersToVoltages();
-	 *		 int normalizeVoltages();
-	 *		 int calcMinMax();
-	 *		 double returnMaxVolt();
-	 *		 double returnMinVolt();
-	 *		 std::vector<POINT> returnIntensityPointsForDraw();
-	 *	 private:
-	 *		 std::vector<myAgilent::Segment> waveformSegments;
-	 *		 double maxVolt;
-	 *		 double minVolt;
-	 *		 int segmentNum;
-	 *		 std::string totalSequence;
-	 *		 bool varies;
-	 */
+
 	class IntensityWaveform
 	{
 		public:
@@ -167,9 +106,9 @@ namespace myAgilent
 	 * ready for usage. 
 	 * 
 	 */
-	void programIntensity(int varNum, std::vector<variable> varNames, std::vector<std::vector<double> > varValues, bool& intensityVaried,
-						 std::vector<myMath::minMaxDoublet>& minsAndMaxes, std::vector<std::vector<POINT>>& pointsToDraw, 
-						 std::vector<std::fstream>& intensityFiles, std::vector<variable> singletons, profileSettings profile);
+	void programIntensity( int varNum, std::vector<variable> varNames, std::vector<std::vector<double> > varValues, bool& intensityVaried,
+						   std::vector<myMath::minMaxDoublet>& minsAndMaxes, std::vector<std::fstream>& intensityFiles,
+						   std::vector<variable> singletons, profileSettings profile );
 
 	int agilentErrorCheck(long status, unsigned long vi);
 	

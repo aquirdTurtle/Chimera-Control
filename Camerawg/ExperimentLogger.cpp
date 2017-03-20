@@ -9,7 +9,7 @@
 #include <boost/algorithm/string/replace.hpp>
 
 
-void ExperimentLogger::generateNiawgLog( experimentThreadInputStructure* input, niawgPair<std::vector<std::fstream>>& niawgScripts,
+void ExperimentLogger::generateNiawgLog( experimentThreadInput* input, niawgPair<std::vector<std::fstream>>& niawgScripts,
 										 std::vector<std::fstream > &intensityScripts )
 {
 	/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////

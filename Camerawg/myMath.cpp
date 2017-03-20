@@ -2,8 +2,6 @@
 #include "myMath.h"
 #include <vector>
 #include <string>
-
-#include "waveformData.h"
 #include "constants.h"
 #include "externals.h"
 #include "boost/math/common_factor.hpp"

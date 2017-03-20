@@ -520,7 +520,7 @@ namespace commonFunctions
 			colorBoxes<char> colors = { /*niawg*/'Y', /*camera*/'-', /*intensity*/'-' };
 			mainWin->getComm()->sendColorBox( colors );
 			// Set the thread structure.
-			experimentThreadInputStructure* inputParams = new experimentThreadInputStructure();
+			experimentThreadInput* inputParams = new experimentThreadInput();
 			// force accumulations to zero. This shouldn't affect anything, this should always get set by the master or be infinite.
 			inputParams->repetitions = 0;
 			inputParams->settings = settings;

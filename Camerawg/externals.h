@@ -23,7 +23,7 @@ extern const std::array<int, 2> AXES;
 // the following is used to receive the index of whatever axis is not your current axis.
 extern const std::array<int, 2> ALT_AXES;
 extern const std::array<std::string, 2> AXES_NAMES;
-extern const niawgPair<std::string> ORIENTATION_AXES;
+extern const niawgPair<std::string> ORIENTATION;
 
 
 extern bool eWaitError;

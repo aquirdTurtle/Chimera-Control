@@ -10,7 +10,7 @@ class ExperimentLogger
 {
 	public:
 		//void generateLog(MasterWindow* master);
-	static void generateNiawgLog( experimentThreadInputStructure* input, niawgPair<std::vector<std::fstream>>& niawgScripts,
+	static void generateNiawgLog( experimentThreadInput* input, niawgPair<std::vector<std::fstream>>& niawgScripts,
 								  std::vector<std::fstream > &intensityScripts );
 		void exportLog();
 		std::string getLog();
