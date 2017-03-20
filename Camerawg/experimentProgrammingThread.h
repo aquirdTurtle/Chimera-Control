@@ -5,7 +5,7 @@
 #include "DebuggingOptionsControl.h"
 #include "NiawgController.h"
 
-struct experimentThreadInputStructure
+struct experimentThreadInput
 {
 	std::string currentScript;
 	unsigned int repetitions;
@@ -24,15 +24,3 @@ struct experimentThreadInputStructure
 * inputParam is the list of all of the relevant parameters to be used during this run of the experiment.
 */
 unsigned __stdcall experimentProgrammingThread( LPVOID inputParam );
-/*
-class ExperimentManager
-{
-	public:
-		
-	private:
-
-}
-
-
-
-*/

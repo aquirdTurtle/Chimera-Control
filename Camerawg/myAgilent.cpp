@@ -1,14 +1,5 @@
 #include "stdafx.h"
 #include "myAgilent.h"
-#include "rmWhite.h"
-//#include "scriptingFuncs.h"
-#include "constants.h"
-//#include "rampCalc.h"
-#include "externals.h"
-#include "myMath.h"
-#include "NiawgController.h"
-#include "boost/cast.hpp"
-#include <algorithm>
 
 /*
 * This Namespace includes all of my function handling for interacting withe agilent waveform generator. It includes:
@@ -823,8 +814,8 @@ namespace myAgilent
 	 * segment and sequence information to the function generator.
 	 */
 	void programIntensity(int varNum, std::vector<variable> variables, std::vector<std::vector<double> > varValues, bool& intensityVaried, 
-						 std::vector<myMath::minMaxDoublet>& minsAndMaxes, std::vector<std::vector<POINT>>& pointsToDraw, 
-						 std::vector<std::fstream>& intensityFiles, std::vector<variable> singletons, profileSettings profile)
+						 std::vector<myMath::minMaxDoublet>& minsAndMaxes, std::vector<std::fstream>& intensityFiles, 
+						   std::vector<variable> singletons, profileSettings profile)
 	{
 		// Initialize stuff
 		myAgilent::IntensityWaveform intensityWaveformSequence;

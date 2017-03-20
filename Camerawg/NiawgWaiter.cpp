@@ -15,7 +15,7 @@
  * ViSession inputParam: this is the session handle for the session with the NIAWG. 
  * Return: the function returns -1 if error, -2 if abort, 0 if normal.
  */
-unsigned __stdcall niawgWaitThread(void* inputParam)
+unsigned __stdcall NiawgWaiter::niawgWaitThread(void* inputParam)
 {
 	waitThreadInput input = *(waitThreadInput*)inputParam;
 	ViBoolean isDone;
@@ -112,4 +112,56 @@ unsigned __stdcall niawgWaitThread(void* inputParam)
 		return -1;
 	}
 	return 0;
+}
+
+
+void NiawgWaiter::startWait( experimentThreadInput* input )
+{
+	eWaitError = false;
+	// create the waiting thread.
+	waitThreadInput waitInput;
+	waitInput.niawg = input->niawg;
+	waitInput.profile = input->profile;
+	unsigned int NIAWGThreadID;
+	eNIAWGWaitThreadHandle = (HANDLE)_beginthreadex( 0, 0, this->niawgWaitThread, &waitInput, 0, &NIAWGThreadID );
+}
+
+void NiawgWaiter::initialize()
+{
+	eWaitingForNIAWGEvent = CreateEvent( NULL, FALSE, FALSE, TEXT( "eWaitingForNIAWGEvent" ) );
+}
+
+
+void NiawgWaiter::wait( Communicator* comm, bool& deleteWaveforms )
+{
+	systemAbortCheck( comm, deleteWaveforms );
+	SetEvent( eWaitingForNIAWGEvent );
+	WaitForSingleObject( eNIAWGWaitThreadHandle, INFINITE );
+	systemAbortCheck( comm, deleteWaveforms );
+	// check this flag that can be set by the wait thread.
+	if (eWaitError == true)
+	{
+		eWaitError = false;
+		thrower( "ERROR: Error in the wait function!\r\n" );
+	}
+}
+
+/*
+* This function checks whether the system abort flag has been set, and if so, sends some messages and returns true. If not aborting, it returns false.
+*/
+void NiawgWaiter::systemAbortCheck( Communicator* comm )
+{
+	bool dummy;
+	systemAbortCheck( comm, dummy );
+}
+
+void NiawgWaiter::systemAbortCheck( Communicator* comm, bool& aborting )
+{
+	// check if aborting
+	if (eAbortNiawgFlag == true)
+	{
+		comm->sendStatus( "Aborted!\r\n" );
+		aborting = true;
+		thrower( "Aborted!" );
+	}
 }

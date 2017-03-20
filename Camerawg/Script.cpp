@@ -1026,35 +1026,36 @@ bool Script::openParentScript(std::string parentScriptFileAndPath, profileSettin
 	std::string scriptLocation = parentScriptFileAndPath.substr(0, index);
 	if (scriptLocation + "\\" != profile.categoryPath && profile.categoryPath != "")
 	{
-		int answer = MessageBox(0, ("The requested script " + scriptName + " at " + scriptLocation + " is not currently located in the current configuration "
-			"folder (" + profile.categoryPath + ". This is recommended so that scripts related to a particular configuration are "
-			"reserved to that category folder. Copy script to current category folder?").c_str(), 0, MB_YESNO);
+		int answer = MessageBox( 0, ("The requested script " + scriptName + " at " + scriptLocation + " is not currently located in the "
+									  "current configuration folder (" + profile.categoryPath + ". This is recommended so that scripts "
+									  "related to a particular configuration are reserved to that category folder. Copy script to current "
+									  "category folder?").c_str(), 0, MB_YESNO );
 		if (answer == IDYES)
 		{
 			std::string location = profile.categoryPath + scriptName;
 			std::string path = location;
-			this->scriptAddress = location;
+			scriptAddress = location;
 			int index = location.find_last_of("\\");
-			this->scriptName = location.substr(index + 1, location.size());
-			this->currentViewName = scriptName;
+			scriptName = location.substr(index + 1, location.size());
+			currentViewName = scriptName;
 			location = location.substr(0, index);
 			index = location.find_last_of("\\");
-			this->scriptCategory = location.substr(index + 1, location.size());
+			scriptCategory = location.substr(index + 1, location.size());
 			location = location.substr(0, index);
 			index = location.find_last_of("\\");
-			this->scriptExperiment = location.substr(index + 1, location.size());
+			scriptExperiment = location.substr(index + 1, location.size());
 			scriptName = parentScriptFileAndPath.substr(index + 1, parentScriptFileAndPath.size());
-			this->currentViewName = scriptName;
-			this->scriptAddress = profile.categoryPath + scriptName;
-			this->scriptCategory = profile.category;
-			this->scriptExperiment = profile.experiment;
+			currentViewName = scriptName;
+			scriptAddress = profile.categoryPath + scriptName;
+			scriptCategory = profile.category;
+			scriptExperiment = profile.experiment;
 			path = profile.categoryPath + scriptName;
-			this->saveScriptAs(path, true);
+			saveScriptAs(path, true);
 		}
 	}
-	this->updateScriptNameText();
-	this->colorEntireScript(profile, vars);
-	this->updateSavedStatus(true);
+	updateScriptNameText();
+	colorEntireScript(profile, vars);
+	updateSavedStatus(true);
 	return false;
 }
 
@@ -1068,7 +1069,7 @@ bool Script::loadFile(std::string pathToFile, profileSettings profile, std::vect
 	if (!openFile.is_open())
 	{
 		MessageBox(0, ("ERROR: Failed to open script file: " + pathToFile + ".").c_str(), 0, 0);
-		this->reset();
+		reset();
 		return false;
 	}
 	std::string tempLine;
@@ -1076,9 +1077,7 @@ bool Script::loadFile(std::string pathToFile, profileSettings profile, std::vect
 	while (std::getline(openFile, tempLine))
 	{
 		cleanString(tempLine);
-
 		fileText += tempLine;
-		// Append the line to the edit control here (use c_str() ).
 	}
 	// put the default into the new control.
 	edit.SetWindowText(fileText.c_str());

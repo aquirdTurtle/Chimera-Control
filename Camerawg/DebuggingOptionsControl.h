@@ -11,6 +11,7 @@ struct debugInfo
 	bool outputNiawgHumanScript;
 	bool outputAgilentScript;
 	bool outputExcessInfo;
+	std::string message;
 };
 
 
