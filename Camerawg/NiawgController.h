@@ -9,6 +9,10 @@
 #include "miscellaneousCommonFunctions.h"
 #include "ScriptStream.h"
 #include "SocketWrapper.h"
+#include "ConfigurationFileSystem.h"
+#include "DebuggingOptionsControl.h"
+#include "Communicator.h"
+#include <memory>
 
 // order here matches the literal channel number on the 5451. Vertical is actually channel0 and Horizontal is actually channel1.
 enum AXES { Vertical = 0, Horizontal = 1 };
@@ -38,40 +42,43 @@ struct waveformSignal
 
 
 // These structures contain all of the needed input data about the waveform in question.
-struct waveInfo
+struct singleChannelWave
 {
 	std::vector<waveformSignal> signals;
-	double time;
-	long int sampleNum;
-	//int phaseOption;
+	// should be 0 until this option is re-implemented!
+	int phaseOption;
 	int initType;
-	bool varies;
 	// variables for dealing with varied waveforms. These only get set when a varied waveform is used, and they serve the purpose of carrying relevant info to
 	// the end of the program, when these varried waveforms are compiled.
 	int varNum;
 	std::vector<std::string> varNames;
 	std::vector<int> varTypes;
-	bool isStreamed;
 	// This should usually just be a single char, but if it's wrong I can use the whole string to debug.
 	std::string delim;
+	// the actual waveform data.
+	std::vector<ViReal64> waveform;
 };
+
+
+struct waveInfo
+{
+	niawgPair<singleChannelWave> channel;
+	double time;
+	long int sampleNum;
+	bool varies;
+	bool isStreamed;
+	std::vector<ViReal64> mixedWaveform;
+};
+
 
 struct flashInfo
 {
-	niawgPair<std::vector<waveInfo>> waves;
+	niawgPair<std::vector<singleChannelWave>> waves;
 	niawgPair<std::string> flashCycleFreqInput;
 	niawgPair<double> flashCycleFreq;
 	niawgPair<unsigned int> flashNumber;
 	double totalTime;
 	bool varies;
-};
-
-// contains a slew of information about waveforms being outputted to a given chan (vertical, horizontal)
-struct channelInfo
-{
-	// wave <-> waveform
-	std::vector<std::string> predefinedWaveNames;
-	std::vector<waveInfo> waves;
 };
 
 
@@ -84,7 +91,8 @@ struct outputInfo
 	bool isDefault;
 	std::string niawgLanguageScript;
 	// output channel
-	niawgPair<channelInfo> chan;
+	std::vector<waveInfo> waves;
+	niawgPair<std::vector<std::string>> predefinedWaveNames;
 };
 
 
@@ -96,19 +104,19 @@ class NiawgController
 			defaultOrientation = HORIZONTAL_ORIENTATION;
 		}
 		void setDefaultWaveforms( MainWindow* mainWin, bool isFirstLoad );
-		void analyzeNiawgScripts( niawgPair<ScriptStream>& scripts, outputInfo& output, library &waveLibrary, profileSettings profile,
+		void analyzeNiawgScripts( niawgPair<ScriptStream>& scripts, outputInfo& output, profileSettings profile,
 								  std::vector<variable> singletons, debugInfo& options, std::string& warnings );
-		void handleVariations( outputInfo& output, std::vector<variable>& variables, std::vector<std::vector<double>> variableValues,
-							   size_t& variation, std::vector<long int> mixedWaveSizes, std::vector<ViReal64 *> mixedWaveforms,
-							   std::string& warnings, library& waveLibrary, debugInfo& options );
+		void handleVariations( outputInfo& output, std::vector<variable>& variables, std::vector<std::vector<double>> varValues,
+							   size_t variation, std::vector<long> mixedWaveSizes, std::string& warnings, debugInfo& debugOptions );
 		void getVariables( SocketWrapper& socket, std::vector<std::vector<double>>& varValues, std::vector<variable> variables );
-
-		void getVariedWaveform( waveInfo &varWvFmInfo, std::vector<waveInfo> all_X_Or_Y_WvFmParam, int waveOrderNum, library &waveLibrary,
-								ViReal64 *waveformRawData, debugInfo& options );
-		void varyParam( std::vector<waveInfo> &allWvInfo1, std::vector<waveInfo> &allWvInfo2, int wfCount, int &paramNum,
-						double paramVal, std::string& warnings );
-		void finalizeScript( unsigned long long repetitions, std::string name, std::vector<std::string> workingUserScripts, 
-							 ViChar* userScriptSubmit );
+		void getWaveformData( outputInfo& output, profileSettings profile, niawgPair<std::string> command, debugInfo& debug, 
+							  niawgPair<ScriptStream>& scripts, std::vector<variable> singletons );
+		void getVariedWaveform( std::vector<waveInfo>& waves, int waveNum, int axis, debugInfo& options );
+		void varyParam( std::vector<waveInfo> waves, int waveNum, int axis, int &paramNum, double paramVal, std::string& warnings );
+		//void varyParam( std::vector<waveInfo> &allWvInfo1, std::vector<waveInfo> &allWvInfo2, int wfCount, int &paramNum,
+		//				double paramVal, std::string& warnings );
+		void finalizeScript( unsigned long long repetitions, std::string name, std::vector<std::string> workingUserScripts,
+							 std::vector<ViChar> userScriptSubmit );
 		// wrappers around niFgen functions.
 		void initialize();
 		signed short isDone();
@@ -155,7 +163,7 @@ class NiawgController
 														std::vector<std::string>& varNames, std::vector<int> &varParamTypes,
 														std::vector<int> dataTypes, std::vector<variable> singletons );
 
-		ViReal64* mixWaveforms( ViReal64* verticalWaveform, ViReal64* HorizontalWaveform, ViReal64* finalWaveform, long waveformSize );
+		void mixWaveforms( waveInfo& waveInfo );
 		void setRunningState( bool newRunningState );
 		void checkThatWaveformsAreSensible( Communicator* comm, outputInfo& output );
 
@@ -164,20 +172,19 @@ class NiawgController
 
 	private:
 		void errChecker( int err );
-		void getStandardInputType( std::string inputType, waveInfo &wvInfo );
-		void getWaveData( ScriptStream& scriptName, waveInfo &waveInfo, std::vector<variable> singletons );
-		void openWaveformFiles( library &waveLibrary );
-		void generateWaveform( ViReal64 * & tempWaveform, waveInfo & waveInfo, library &waveLibrary, debugInfo& options );
+		void calcWaveData( singleChannelWave& inputData, std::vector<ViReal64>& readData, long int sampleNum, double time );
+		void getStandardInputType( std::string inputType, singleChannelWave &wvInfo );
+		void openWaveformFiles( );
+		void generateWaveform( singleChannelWave & waveInfo, debugInfo& options, long int sampleNum, double time );
+
 		void handleLogic( niawgPair<ScriptStream>& script, niawgPair<std::string> inputs, std::string &scriptString );
-		void handleSpecial( niawgPair<ScriptStream>& script, outputInfo& output, niawgPair<std::string> inputTypes, library &waveLibrary,
+		void handleSpecial( niawgPair<ScriptStream>& script, outputInfo& output, niawgPair<std::string> inputTypes,
 							profileSettings profile, std::vector<variable> singletons, debugInfo& options, std::string& warnings );
 		void handleStandardWaveform( outputInfo& output, profileSettings profile, niawgPair<std::string> command,
-									 niawgPair<ScriptStream>& scripts, std::vector<variable> singletons, library waveLibrary,
-									 debugInfo& options );
+									 niawgPair<ScriptStream>& scripts, std::vector<variable> singletons, debugInfo& options );
 		void handleSpecialWaveform( outputInfo& output, profileSettings profile, niawgPair<std::string> command,
-									niawgPair<ScriptStream>& scripts, std::vector<variable> singletons, library waveLibrary,
-									debugInfo& options );
-		ViReal64* calcWaveData( waveInfo & inputData, ViReal64 * & waveform );
+									niawgPair<ScriptStream>& scripts, std::vector<variable> singletons, debugInfo& options );
+		void getWaveData( ScriptStream &script, singleChannelWave &waveInfo, std::vector<variable> singletons, double& time );
 		bool isLogic( std::string command );
 		bool isStandardWaveform( std::string command );
 		bool isSpecialWaveform( std::string command );
@@ -187,12 +194,12 @@ class NiawgController
 		std::string defaultOrientation;
 		niawgPair<std::string> currentScripts;
 		bool runningState;
-
+		library waveLibrary;
 		// pair is of horizontal and vertical configurations.
-		niawgPair<ViReal64*> defaultMixedWaveforms;
+		niawgPair<std::vector<ViReal64>> defaultMixedWaveforms;
 		niawgPair<std::string> defaultWaveformNames;
 		niawgPair<long> defaultMixedSizes;
-		niawgPair<ViChar*> defaultScripts;
+		niawgPair<std::vector<ViChar>> defaultScripts;
 		ViStatus error;
 		ViSession sessionHandle;
 		ViConstString outputChannels;
@@ -211,15 +218,15 @@ class NiawgController
 };
 
 /**
-* This function calculates the size in samples of the waveform to be generated.
-* This function works the same for all waveInfo types, so I use a template definition.
-* You can't include the template in the header file and in the source file, as when the function gets called from the header file,
-* the reference will be to a specific instantiation of the template function, which won't explicitly exist in the source file.
-* Instead, I put the entire definition here. There is probably a moer elegant way of doing this here.
-*
-* @param inputData this is the data which contains the time for which the waveform will be running, which along with the sample rate, determines the
-* waveform size.
-*/
+ * This function calculates the size in samples of the waveform to be generated.
+ * This function works the same for all waveInfo types, so I use a template definition.
+ * You can't include the template in the header file and in the source file, as when the function gets called from the header file,
+ * the reference will be to a specific instantiation of the template function, which won't explicitly exist in the source file.
+ * Instead, I put the entire definition here. There is probably a moer elegant way of doing this here.
+ *
+ * @param inputData this is the data which contains the time for which the waveform will be running, which along with the sample rate, 
+ * determines the waveform size.
+ */
 template <typename WAVE_DATA_TYPE> long NiawgController::waveformSizeCalc(WAVE_DATA_TYPE inputData)
 {
 	double waveSize = inputData.time * SAMPLE_RATE;

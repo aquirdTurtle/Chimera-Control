@@ -401,8 +401,8 @@ BOOL CameraWindow::OnInitDialog()
 	cameraPositions positions;
 	// all of the initialization functions increment and use the id, so by the end it will be 3000 + # of controls.
 	int id = 3000;
-	positions.cssmPos = positions.amPos = positions.ksmPos = { 0,0 };
-	box.initialize(positions.ksmPos, id, this, 480, this->mainWindowFriend->getFonts(), tooltips);
+	positions.videoPos = positions.amPos = positions.seriesPos = { 0,0 };
+	box.initialize(positions.seriesPos, id, this, 480, this->mainWindowFriend->getFonts(), tooltips);
 	
 	this->CameraSettings.initialize(positions, id, this, this->mainWindowFriend->getFonts(), tooltips);
 	// initialize the settings.
@@ -413,7 +413,7 @@ BOOL CameraWindow::OnInitDialog()
 	position = { 757, 0 };
 	pics.initialize(position, this, id, this->mainWindowFriend->getFonts(), tooltips,
 					 this->mainWindowFriend->getBrushes()["Dark Green"]);
-	positions.ksmPos = positions.amPos = positions.cssmPos = { 757, 460 };
+	positions.seriesPos = positions.amPos = positions.videoPos = { 757, 460 };
 	timer.initialize( positions, this, false, id, this->mainWindowFriend->getFonts(), tooltips );
 	CameraSettings.readImageParameters( this );
 	pics.setParameters( CameraSettings.getSettings().imageSettings );

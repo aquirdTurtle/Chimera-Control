@@ -37,15 +37,16 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 	niawgPair<std::vector<std::fstream>> scriptFiles;
 	std::vector<std::fstream> intensityScriptFiles;
 	// this can be leaked by this code. I should fix that.
-	ViChar* userScriptSubmit;
+	std::vector<ViChar> userScriptSubmit;
 	bool intIsVaried;
 	std::vector<long int> variedMixedSize;
 	std::vector<myMath::minMaxDoublet> intensityRanges;
 	std::string userScriptNameString;
-	std::vector<ViReal64 *> mixedWaveforms;
+	//std::vector<ViReal64 *> mixedWaveforms;
 	// initialize the script string. The script needs a script name at the top.
 	userScriptNameString = "experimentScript";
-	std::vector<variable> singletons, variables;
+	std::vector<variable> singletons, variables;		
+	outputInfo output;
 	try
 	{ 
 		ConfigurationFileSystem::getConfigInfo( scriptFiles, intensityScriptFiles, input->profile, singletons, variables );
@@ -66,30 +67,29 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 		input->comm->sendStatus( "Beginning Waveform Read, Calculate, and Write Procedure...\r\n" );
 		waiter.systemAbortCheck( input->comm );
 		std::vector<std::string> workingUserScripts( input->profile.sequenceConfigNames.size() );
-		outputInfo output;
+
 		library libWaveformArray;
 		// initialize to 2 because of default waveforms...
 		output.waveCount = 2;
 		output.predefinedWaveCount = 0;
-		output.chan[Vertical].waves.resize( 2 );
-		output.chan[Horizontal].waves.resize( 2 );
+		output.waves.resize( 2 );
 		for (int sequenceInc = 0; sequenceInc < workingUserScripts.size(); sequenceInc++)
 		{
+			niawgPair<ScriptStream> scripts; 
 			output.niawgLanguageScript = "";
 			input->comm->sendStatus("Working with configuraiton # " + std::to_string(sequenceInc + 1) + " in Sequence...\r\n");
 			/// Create Script and Write Waveforms ////////////////////////////////////////////////////////////////////////////////////////
-			niawgPair<ScriptStream> scripts;
 			scripts[Vertical] << scriptFiles[Vertical][sequenceInc].rdbuf();
 			scripts[Horizontal] << scriptFiles[Horizontal][sequenceInc].rdbuf();
-			std::string warnings, debugMessages;
-			input->niawg->analyzeNiawgScripts( scripts, output, libWaveformArray, input->profile, singletons, input->debugInfo, warnings );
+			std::string warnings;
+			input->niawg->analyzeNiawgScripts( scripts, output, input->profile, singletons, input->debugInfo, warnings );
 			if (warnings != "")
 			{
 				input->comm->sendError(warnings);
 			}
-			if (debugMessages != "")
+			if (input->debugInfo.message != "")
 			{
-				input->comm->sendDebug(debugMessages);
+				input->comm->sendDebug(input->debugInfo.message);
 			}
 			workingUserScripts[sequenceInc] = output.niawgLanguageScript;
 			// 
@@ -99,7 +99,8 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 		input->niawg->finalizeScript(input->repetitions, userScriptNameString, workingUserScripts, userScriptSubmit);
 		if (input->debugInfo.outputNiawgMachineScript)
 		{
-			input->comm->sendDebug( boost::replace_all_copy( "Single Repetition NIAWG Machine Script:\n" + std::string(userScriptSubmit)
+			input->comm->sendDebug( boost::replace_all_copy( "Single Repetition NIAWG Machine Script:\n" 
+															 + std::string(userScriptSubmit.begin(), userScriptSubmit.end())
 															 + "end Script\n\n", "\n", "\r\n" ) );
 		}
 		if (input->settings.getVariables == true)
@@ -133,8 +134,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 			for (std::size_t variation = 0; variation < varValues[0].size(); variation++)
 			{
 				std::string warnings;
-				input->niawg->handleVariations( output ,variables, varValues, variation, variedMixedSize, mixedWaveforms, warnings, 
-												libWaveformArray, input->debugInfo);
+				input->niawg->handleVariations( output ,variables, varValues, variation, variedMixedSize, warnings, input->debugInfo);
 				if (warnings != "")
 				{
 					input->comm->sendError( warnings );
@@ -194,7 +194,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 						// delete old waveforms
 						ViChar variedWaveformName[11];
 						sprintf_s(variedWaveformName, 11, "Waveform%i", waveInc);
-						if (output.chan[Vertical].waves[waveInc].varies == true || output.chan[Horizontal].waves[waveInc].varies == true)
+						if (output.waves[waveInc].varies == true )
 						{
 							if (variation != 0)
 							{
@@ -202,11 +202,11 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 							}
 							// And write the new one.
 							input->niawg->allocateWaveform(variedWaveformName, variedMixedSize[mixedWriteCount] / 2);
-							input->niawg->writeWaveform(variedWaveformName, variedMixedSize[mixedWriteCount], mixedWaveforms[mixedWriteCount]);
+							input->niawg->writeWaveform(variedWaveformName, variedMixedSize[mixedWriteCount], output.waves[waveInc].mixedWaveform.data());
 							mixedWriteCount++;
 						}
 					}
-					input->niawg->writeScript(userScriptSubmit);
+					input->niawg->writeScript(userScriptSubmit.data());
 					input->niawg->setViStringAttribute(NIFGEN_ATTR_SCRIPT_TO_GENERATE, "experimentScript");
 					input->currentScript = "UserScript";
 					input->niawg->configureOutputEnabled(VI_TRUE);
@@ -218,12 +218,12 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 						masterSocket.send( "go" );
 					}
 					waiter.startWait( input );
-					// clear some memory.
-					for (auto& waveform : mixedWaveforms)
+
+					for (int waveInc = 2; waveInc < output.waveCount; waveInc++)
 					{
-						delete[] waveform;
+						output.waves[waveInc].mixedWaveform.clear();
+						output.waves[waveInc].mixedWaveform.shrink_to_fit();
 					}
-					mixedWaveforms.clear();
 					variedMixedSize.clear();
 				}
 			}
@@ -238,7 +238,7 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				input->niawg->configureOutputEnabled(VI_FALSE);
 				input->niawg->abortGeneration();
 				// Should be just ready to go
-				input->niawg->writeScript(userScriptSubmit);
+				input->niawg->writeScript(userScriptSubmit.data());
 				input->niawg->setViStringAttribute(NIFGEN_ATTR_SCRIPT_TO_GENERATE, "experimentScript");
 				input->currentScript = "UserScript";
 				input->niawg->configureOutputEnabled(VI_TRUE);
@@ -308,14 +308,12 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 		{
 			masterSocket.close();
 		}
-		delete[] userScriptSubmit;
-		for (auto& waveform : mixedWaveforms)
+		for (auto& waveform : output.waves)
 		{
-			delete[] waveform;
+			waveform.mixedWaveform.clear();
+			waveform.mixedWaveform.shrink_to_fit();
 		}
-		mixedWaveforms.clear();
 		PostMessage(eMainWindowHandle, eNormalFinishMessageID, 0, 0);
-
 	}
 	catch (myException& exception)
 	{
@@ -342,15 +340,14 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 				}
 			}
 		}
-		if (deleteWaveforms)
+		for (auto& waveform : output.waves)
 		{
-			for (int deleteInc = 0; deleteInc < mixedWaveforms.size(); deleteInc++)
-			{
-				delete[] mixedWaveforms[deleteInc];
-			}
+			waveform.mixedWaveform.clear();
+			waveform.mixedWaveform.shrink_to_fit();
 		}
 		input->comm->sendFatalError( "ERROR: " + exception.whatStr() );
 	}
 	delete input;
+	return 0;
 };
 

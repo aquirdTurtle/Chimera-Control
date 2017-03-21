@@ -230,7 +230,6 @@
     <ClInclude Include="NiawgWaiter.h" />
     <ClInclude Include="postMyString.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="rmWhite.h" />
     <ClInclude Include="saveTextFileFromEdit.h" />
     <ClInclude Include="scriptWriteHelpProc.h" />
     <ClInclude Include="ScriptWritingInstructionsDialog.h" />
@@ -287,7 +286,6 @@
     <ClCompile Include="NiawgController.cpp" />
     <ClCompile Include="Camerawg.cpp" />
     <ClCompile Include="NiawgWaiter.cpp" />
-    <ClCompile Include="rmWhite.cpp" />
     <ClCompile Include="saveTextFileFromEdit.cpp" />
     <ClCompile Include="miscellaneousCommonFunctions.cpp" />
     <ClCompile Include="ScriptWritingInstructionsDialog.cpp" />

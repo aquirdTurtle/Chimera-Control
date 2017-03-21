@@ -4,6 +4,7 @@
 
 class MainWindow;
 class ScriptingWindow;
+class CameraWindow;
 
 
 /*

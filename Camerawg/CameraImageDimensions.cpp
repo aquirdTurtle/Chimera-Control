@@ -29,61 +29,61 @@ void CameraImageDimensionsControl::initialize( POINT& topLeftPositionKinetic, PO
 	{
 		throw;
 	}
-	setImageDimensionsButton.ksmPos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 25 };
+	setImageDimensionsButton.seriesPos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 25 };
 	setImageDimensionsButton.amPos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480, topLeftPositionAccumulate.y + 25 };
-	setImageDimensionsButton.cssmPos = { topLeftPositionContinuous.x, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 480, topLeftPositionContinuous.y + 25 };
+	setImageDimensionsButton.videoPos = { topLeftPositionContinuous.x, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 480, topLeftPositionContinuous.y + 25 };
 	setImageDimensionsButton.Create( "Set Image Dimensions", WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY,
-									 setImageDimensionsButton.ksmPos, parent, setImageDimensionsButton.ID );
+									 setImageDimensionsButton.seriesPos, parent, setImageDimensionsButton.ID );
 	setImageDimensionsButton.fontType = "Normal";
 	topLeftPositionKinetic.y += 25;
 	topLeftPositionAccumulate.y += 25;
 	topLeftPositionContinuous.y += 25;
 	//
 	leftText.ID = id++;
-	leftText.ksmPos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y + 25 };
+	leftText.seriesPos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y + 25 };
 	leftText.amPos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y + 25 };
-	leftText.cssmPos = { topLeftPositionContinuous.x, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y + 25 };
-	leftText.Create( "Left", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, leftText.ksmPos, parent, leftText.ID );
+	leftText.videoPos = { topLeftPositionContinuous.x, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y + 25 };
+	leftText.Create( "Left", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, leftText.seriesPos, parent, leftText.ID );
 	leftText.fontType = "Normal";
 	//
 	rightText.ID = id++;
-	rightText.ksmPos = { topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y + 25 };
+	rightText.seriesPos = { topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y + 25 };
 	rightText.amPos = { topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y + 25 };
-	rightText.cssmPos = { topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y + 25 };
-	rightText.Create( "Right", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, rightText.ksmPos, parent, rightText.ID );
+	rightText.videoPos = { topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y + 25 };
+	rightText.Create( "Right", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, rightText.seriesPos, parent, rightText.ID );
 	rightText.fontType = "Normal";
 	//
 	horizontalBinningText.ID = id++;
-	horizontalBinningText.ksmPos = { topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 25 };
+	horizontalBinningText.seriesPos = { topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 25 };
 	horizontalBinningText.amPos = { topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480, topLeftPositionAccumulate.y + 25 };
-	horizontalBinningText.cssmPos = { topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 480, topLeftPositionContinuous.y + 25 };
-	horizontalBinningText.Create( "H. Bin", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, horizontalBinningText.ksmPos, parent, horizontalBinningText.ID );
+	horizontalBinningText.videoPos = { topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 480, topLeftPositionContinuous.y + 25 };
+	horizontalBinningText.Create( "H. Bin", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, horizontalBinningText.seriesPos, parent, horizontalBinningText.ID );
 	horizontalBinningText.fontType = "Normal";
 	topLeftPositionKinetic.y += 25;
 	topLeftPositionAccumulate.y += 25;
 	topLeftPositionContinuous.y += 25;
 	//
 	leftEdit.ID = id++;
-	leftEdit.ksmPos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y + 25 };
+	leftEdit.seriesPos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y + 25 };
 	leftEdit.amPos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y + 25 };
-	leftEdit.cssmPos = { topLeftPositionContinuous.x, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y + 25 };
-	leftEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, leftEdit.ksmPos, parent, leftEdit.ID );
+	leftEdit.videoPos = { topLeftPositionContinuous.x, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y + 25 };
+	leftEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, leftEdit.seriesPos, parent, leftEdit.ID );
 	leftEdit.fontType = "Normal";
 	leftEdit.SetWindowTextA( "1" );
 	//
 	rightEdit.ID = id++;
-	rightEdit.ksmPos = { topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y + 25 };
+	rightEdit.seriesPos = { topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y + 25 };
 	rightEdit.amPos = { topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y + 25 };
-	rightEdit.cssmPos = { topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y + 25 };
-	rightEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, rightEdit.ksmPos, parent, rightEdit.ID );
+	rightEdit.videoPos = { topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y + 25 };
+	rightEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, rightEdit.seriesPos, parent, rightEdit.ID );
 	rightEdit.fontType = "Normal";
 	rightEdit.SetWindowTextA( "10" );
 	//
 	horizontalBinningEdit.ID = id++;
-	horizontalBinningEdit.ksmPos = { topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 25 };
+	horizontalBinningEdit.seriesPos = { topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 25 };
 	horizontalBinningEdit.amPos = { topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480, topLeftPositionAccumulate.y + 25 };
-	horizontalBinningEdit.cssmPos = { topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 480, topLeftPositionContinuous.y + 25 };
-	horizontalBinningEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, horizontalBinningEdit.ksmPos, parent, horizontalBinningEdit.ID );
+	horizontalBinningEdit.videoPos = { topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 480, topLeftPositionContinuous.y + 25 };
+	horizontalBinningEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, horizontalBinningEdit.seriesPos, parent, horizontalBinningEdit.ID );
 	horizontalBinningEdit.fontType = "Normal";
 	horizontalBinningEdit.SetWindowTextA( "1" );
 	//
@@ -91,51 +91,51 @@ void CameraImageDimensionsControl::initialize( POINT& topLeftPositionKinetic, PO
 	topLeftPositionAccumulate.y += 25;
 	topLeftPositionContinuous.y += 25;
 	topText.ID = id++;
-	topText.ksmPos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y + 25 };
+	topText.seriesPos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y + 25 };
 	topText.amPos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y + 25 };
-	topText.cssmPos = { topLeftPositionContinuous.x, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y + 25 };
-	topText.Create( "Top", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, topText.ksmPos, parent, topText.ID );
+	topText.videoPos = { topLeftPositionContinuous.x, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y + 25 };
+	topText.Create( "Top", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, topText.seriesPos, parent, topText.ID );
 	topText.fontType = "Normal";
 
 	//
 	bottomText.ID = id++;
-	bottomText.ksmPos = { topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y + 25 };
+	bottomText.seriesPos = { topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y + 25 };
 	bottomText.amPos = { topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y + 25 };
-	bottomText.cssmPos = { topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y + 25 };
-	bottomText.Create( "Bottom", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, bottomText.ksmPos, parent, bottomText.ID );
+	bottomText.videoPos = { topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y + 25 };
+	bottomText.Create( "Bottom", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, bottomText.seriesPos, parent, bottomText.ID );
 	bottomText.fontType = "Normal";
 	//
 	verticalBinningText.ID = id++;
-	verticalBinningText.ksmPos = { topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 25 };
+	verticalBinningText.seriesPos = { topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 25 };
 	verticalBinningText.amPos = { topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480, topLeftPositionAccumulate.y + 25 };
-	verticalBinningText.cssmPos = { topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 480, topLeftPositionContinuous.y + 25 };
-	verticalBinningText.Create( "V. Bin", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, verticalBinningText.ksmPos, parent, verticalBinningText.ID );
+	verticalBinningText.videoPos = { topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 480, topLeftPositionContinuous.y + 25 };
+	verticalBinningText.Create( "V. Bin", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, verticalBinningText.seriesPos, parent, verticalBinningText.ID );
 	verticalBinningText.fontType = "Normal";
 	topLeftPositionKinetic.y += 25;
 	topLeftPositionAccumulate.y += 25;
 	topLeftPositionContinuous.y += 25;
 	//
 	topEdit.ID = id++;
-	topEdit.ksmPos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y + 25 };
+	topEdit.seriesPos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y + 25 };
 	topEdit.amPos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y + 25 };
-	topEdit.cssmPos = { topLeftPositionContinuous.x, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y + 25 };
-	topEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, topEdit.ksmPos, parent, topEdit.ID );
+	topEdit.videoPos = { topLeftPositionContinuous.x, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y + 25 };
+	topEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, topEdit.seriesPos, parent, topEdit.ID );
 	topEdit.fontType = "Normal";
 	topEdit.SetWindowTextA( "1" );
 	//
 	bottomEdit.ID = id++;
-	bottomEdit.ksmPos = { topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y + 25 };
+	bottomEdit.seriesPos = { topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y + 25 };
 	bottomEdit.amPos = { topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y + 25 };
-	bottomEdit.cssmPos = { topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y + 25 };
-	bottomEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, bottomEdit.ksmPos, parent, bottomEdit.ID );
+	bottomEdit.videoPos = { topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y + 25 };
+	bottomEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, bottomEdit.seriesPos, parent, bottomEdit.ID );
 	bottomEdit.fontType = "Normal";
 	bottomEdit.SetWindowTextA( "10" );
 	//
 	verticalBinningEdit.ID = id++;
-	verticalBinningEdit.ksmPos = { topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 25 };
+	verticalBinningEdit.seriesPos = { topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 25 };
 	verticalBinningEdit.amPos = { topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480, topLeftPositionAccumulate.y + 25 };
-	verticalBinningEdit.cssmPos = { topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 480, topLeftPositionContinuous.y + 25 };
-	verticalBinningEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, verticalBinningEdit.ksmPos, parent, verticalBinningEdit.ID );
+	verticalBinningEdit.videoPos = { topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 480, topLeftPositionContinuous.y + 25 };
+	verticalBinningEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, verticalBinningEdit.seriesPos, parent, verticalBinningEdit.ID );
 	verticalBinningEdit.fontType = "Normal";
 	verticalBinningEdit.SetWindowTextA( "1" );
 	topLeftPositionKinetic.y += 25;

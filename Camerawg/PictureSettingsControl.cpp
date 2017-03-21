@@ -20,75 +20,75 @@ void PictureSettingsControl::initialize( POINT& kineticPos, POINT& continuousPos
 	}
 	// introducing things row by row
 	/// Set Picture Options
-	setPictureOptionsButton.ksmPos = { kineticPos.x, kineticPos.y, kineticPos.x + 480,
+	setPictureOptionsButton.seriesPos = { kineticPos.x, kineticPos.y, kineticPos.x + 480,
 		kineticPos.y + 25 };
 	setPictureOptionsButton.amPos = { accumulatePos.x, accumulatePos.y, accumulatePos.x + 480,
 		accumulatePos.y + 25 };
-	setPictureOptionsButton.cssmPos = { continuousPos.x, continuousPos.y, continuousPos.x + 480,
+	setPictureOptionsButton.videoPos = { continuousPos.x, continuousPos.y, continuousPos.x + 480,
 		continuousPos.y + 25 };
 	setPictureOptionsButton.ID = id++;
-	setPictureOptionsButton.Create( "Set Picture Options", WS_CHILD | WS_VISIBLE, setPictureOptionsButton.ksmPos,
+	setPictureOptionsButton.Create( "Set Picture Options", WS_CHILD | WS_VISIBLE, setPictureOptionsButton.seriesPos,
 									parent, setPictureOptionsButton.ID );
 	setPictureOptionsButton.fontType = "Normal";
 	kineticPos.y += 25;
 	accumulatePos.y += 25;
 	continuousPos.y += 25;
 	/// Picture Numbers
-	pictureLabel.ksmPos = { kineticPos.x, kineticPos.y, kineticPos.x + 100,
+	pictureLabel.seriesPos = { kineticPos.x, kineticPos.y, kineticPos.x + 100,
 		kineticPos.y + 20 };
 	pictureLabel.amPos = { accumulatePos.x, accumulatePos.y, accumulatePos.x + 100,
 		accumulatePos.y + 20 };
-	pictureLabel.cssmPos = { continuousPos.x, continuousPos.y, continuousPos.x + 100,
+	pictureLabel.videoPos = { continuousPos.x, continuousPos.y, continuousPos.x + 100,
 		continuousPos.y + 20 };
 	pictureLabel.ID = id++;
-	pictureLabel.Create( "Picture #:", WS_CHILD | WS_VISIBLE, pictureLabel.ksmPos, parent, pictureLabel.ID );
+	pictureLabel.Create( "Picture #:", WS_CHILD | WS_VISIBLE, pictureLabel.seriesPos, parent, pictureLabel.ID );
 	for (int picInc = 0; picInc < 4; picInc++)
 	{
-		pictureNumbers[picInc].ksmPos = { kineticPos.x + 100 + 95 * picInc, kineticPos.y,
+		pictureNumbers[picInc].seriesPos = { kineticPos.x + 100 + 95 * picInc, kineticPos.y,
 			kineticPos.x + 100 + 95 * (picInc + 1), kineticPos.y + 20 };
 		pictureNumbers[picInc].amPos = { accumulatePos.x + 100 + 95 * picInc, accumulatePos.y,
 			accumulatePos.x + 100 + 95 * (picInc + 1), accumulatePos.y + 20 };
-		pictureNumbers[picInc].cssmPos = { continuousPos.x + 100 + 95 * picInc, continuousPos.y,
+		pictureNumbers[picInc].videoPos = { continuousPos.x + 100 + 95 * picInc, continuousPos.y,
 			continuousPos.x + 100 + 95 * (picInc + 1), continuousPos.y + 20 };
 		pictureNumbers[picInc].ID = id++;
 		this->pictureNumbers[picInc].Create( std::to_string( picInc + 1 ).c_str(),
-											 WS_CHILD | WS_VISIBLE | SS_CENTER, pictureNumbers[picInc].ksmPos, parent, pictureNumbers[picInc].ID );
+											 WS_CHILD | WS_VISIBLE | SS_CENTER, pictureNumbers[picInc].seriesPos, parent, pictureNumbers[picInc].ID );
 	}
 	kineticPos.y += 20;
 	accumulatePos.y += 20;
 	continuousPos.y += 20;
 
 	/// Total picture number
-	totalPicNumberLabel.ksmPos = { kineticPos.x, kineticPos.y, kineticPos.x + 100,
+	totalPicNumberLabel.seriesPos = { kineticPos.x, kineticPos.y, kineticPos.x + 100,
 		kineticPos.y + 20 };
 	totalPicNumberLabel.amPos = { accumulatePos.x, accumulatePos.y, accumulatePos.x + 100,
 											  accumulatePos.y + 20 };
-	totalPicNumberLabel.cssmPos = { continuousPos.x, continuousPos.y, continuousPos.x + 100,
+	totalPicNumberLabel.videoPos = { continuousPos.x, continuousPos.y, continuousPos.x + 100,
 														 continuousPos.y + 20 };
 	totalPicNumberLabel.ID = id++;
 	totalPicNumberLabel.Create( "Total Picture #", WS_CHILD | WS_VISIBLE,
-								totalPicNumberLabel.ksmPos, parent, totalPicNumberLabel.ID );
+								totalPicNumberLabel.seriesPos, parent, totalPicNumberLabel.ID );
 	for (int picInc = 0; picInc < 4; picInc++)
 	{
-		totalNumberChoice[picInc].ksmPos = { kineticPos.x + 100 + 95 * picInc, kineticPos.y,
+		totalNumberChoice[picInc].seriesPos = { kineticPos.x + 100 + 95 * picInc, kineticPos.y,
 			kineticPos.x + 100 + 95 * (picInc + 1), kineticPos.y + 20 };
 		totalNumberChoice[picInc].amPos = { accumulatePos.x + 100 + 95 * picInc, accumulatePos.y,
 			accumulatePos.x + 100 + 95 * (picInc + 1), accumulatePos.y + 20 };
-		totalNumberChoice[picInc].cssmPos = { continuousPos.x + 100 + 95 * picInc, continuousPos.y,
+		totalNumberChoice[picInc].videoPos = { continuousPos.x + 100 + 95 * picInc, continuousPos.y,
 			continuousPos.x + 100 + 95 * (picInc + 1), continuousPos.y + 20 };
 		totalNumberChoice[picInc].ID = id++;
 		if (picInc == 0)
 		{
 			// first of group
 			this->totalNumberChoice[picInc].Create( "", WS_CHILD | WS_VISIBLE | BS_CENTER | WS_GROUP | BS_AUTORADIOBUTTON,
-													totalNumberChoice[picInc].ksmPos, parent, totalNumberChoice[picInc].ID );
+													totalNumberChoice[picInc].seriesPos, parent, totalNumberChoice[picInc].ID );
 			totalNumberChoice[picInc].SetCheck( 1 );
 		}
 		else
 		{
 			// members of group.
 			totalNumberChoice[picInc].Create( "", WS_CHILD | WS_VISIBLE | BS_CENTER | BS_AUTORADIOBUTTON,
-											  totalNumberChoice[picInc].ksmPos, parent, totalNumberChoice[picInc].ID );
+											  totalNumberChoice[picInc].seriesPos, parent, totalNumberChoice[picInc].ID );
 		}
 	}
 	kineticPos.y += 20;
@@ -96,26 +96,26 @@ void PictureSettingsControl::initialize( POINT& kineticPos, POINT& continuousPos
 	continuousPos.y += 20;
 
 	/// Exposure Times
-	exposureLabel.ksmPos = { kineticPos.x, kineticPos.y, kineticPos.x + 100,
+	exposureLabel.seriesPos = { kineticPos.x, kineticPos.y, kineticPos.x + 100,
 		kineticPos.y + 20 };
 	exposureLabel.amPos = { accumulatePos.x, accumulatePos.y, accumulatePos.x + 100,
 		accumulatePos.y + 20 };
-	exposureLabel.cssmPos = { continuousPos.x, continuousPos.y, continuousPos.x + 100,
+	exposureLabel.videoPos = { continuousPos.x, continuousPos.y, continuousPos.x + 100,
 		continuousPos.y + 20 };
 	exposureLabel.ID = id++;
-	exposureLabel.Create( "Exposure (ms):", WS_CHILD | WS_VISIBLE, exposureLabel.ksmPos, parent, exposureLabel.ID );
+	exposureLabel.Create( "Exposure (ms):", WS_CHILD | WS_VISIBLE, exposureLabel.seriesPos, parent, exposureLabel.ID );
 	exposureTimesUnofficial.resize( 4 );
 	for (int picInc = 0; picInc < 4; picInc++)
 	{
-		exposureEdits[picInc].ksmPos = { kineticPos.x + 100 + 95 * picInc, kineticPos.y,
+		exposureEdits[picInc].seriesPos = { kineticPos.x + 100 + 95 * picInc, kineticPos.y,
 			kineticPos.x + 100 + 95 * (picInc + 1), kineticPos.y + 20 };
 		exposureEdits[picInc].amPos = { accumulatePos.x + 100 + 95 * picInc, accumulatePos.y,
 			accumulatePos.x + 100 + 95 * (picInc + 1), accumulatePos.y + 20 };
-		exposureEdits[picInc].cssmPos = { continuousPos.x + 100 + 95 * picInc, continuousPos.y,
+		exposureEdits[picInc].videoPos = { continuousPos.x + 100 + 95 * picInc, continuousPos.y,
 			continuousPos.x + 100 + 95 * (picInc + 1), continuousPos.y + 20 };
 		exposureEdits[picInc].ID = id++;
 		// first of group
-		exposureEdits[picInc].Create( WS_CHILD | WS_VISIBLE | WS_BORDER, exposureEdits[picInc].ksmPos, parent, exposureEdits[picInc].ID );
+		exposureEdits[picInc].Create( WS_CHILD | WS_VISIBLE | WS_BORDER, exposureEdits[picInc].seriesPos, parent, exposureEdits[picInc].ID );
 		exposureEdits[picInc].SetWindowTextA( "20" );
 		exposureTimesUnofficial[picInc] = 20 / 1000.0;
 	}
@@ -124,25 +124,25 @@ void PictureSettingsControl::initialize( POINT& kineticPos, POINT& continuousPos
 	continuousPos.y += 20;
 
 	/// Thresholds
-	thresholdLabel.ksmPos = { kineticPos.x, kineticPos.y, kineticPos.x + 100,
+	thresholdLabel.seriesPos = { kineticPos.x, kineticPos.y, kineticPos.x + 100,
 		kineticPos.y + 20 };
 	thresholdLabel.amPos = { accumulatePos.x, accumulatePos.y, accumulatePos.x + 100,
 		accumulatePos.y + 20 };
-	thresholdLabel.cssmPos = { continuousPos.x, continuousPos.y, continuousPos.x + 100,
+	thresholdLabel.videoPos = { continuousPos.x, continuousPos.y, continuousPos.x + 100,
 		continuousPos.y + 20 };
 	thresholdLabel.ID = id++;
-	thresholdLabel.Create( "Threshold (cts)", WS_CHILD | WS_VISIBLE, thresholdLabel.ksmPos, parent, thresholdLabel.ID );
+	thresholdLabel.Create( "Threshold (cts)", WS_CHILD | WS_VISIBLE, thresholdLabel.seriesPos, parent, thresholdLabel.ID );
 	for (int picInc = 0; picInc < 4; picInc++)
 	{
-		thresholdEdits[picInc].ksmPos = { kineticPos.x + 100 + 95 * picInc, kineticPos.y,
+		thresholdEdits[picInc].seriesPos = { kineticPos.x + 100 + 95 * picInc, kineticPos.y,
 			kineticPos.x + 100 + 95 * (picInc + 1), kineticPos.y + 20 };
 		thresholdEdits[picInc].amPos = { accumulatePos.x + 100 + 95 * picInc, accumulatePos.y,
 			accumulatePos.x + 100 + 95 * (picInc + 1), accumulatePos.y + 20 };
-		thresholdEdits[picInc].cssmPos = { continuousPos.x + 100 + 95 * picInc, continuousPos.y,
+		thresholdEdits[picInc].videoPos = { continuousPos.x + 100 + 95 * picInc, continuousPos.y,
 			continuousPos.x + 100 + 95 * (picInc + 1), continuousPos.y + 20 };
 		thresholdEdits[picInc].ID = id++;
 		// first of group
-		thresholdEdits[picInc].Create( WS_CHILD | WS_VISIBLE | WS_BORDER, thresholdEdits[picInc].ksmPos, parent,
+		thresholdEdits[picInc].Create( WS_CHILD | WS_VISIBLE | WS_BORDER, thresholdEdits[picInc].seriesPos, parent,
 									   thresholdEdits[picInc].ID );
 		thresholdEdits[picInc].SetWindowTextA( "100" );
 		this->thresholds[picInc] = 100;
@@ -152,40 +152,40 @@ void PictureSettingsControl::initialize( POINT& kineticPos, POINT& continuousPos
 	continuousPos.y += 20;
 
 	/// Yellow --> Blue Color
-	yellowBlueLabel.ksmPos = { kineticPos.x, kineticPos.y, kineticPos.x + 100,
+	yellowBlueLabel.seriesPos = { kineticPos.x, kineticPos.y, kineticPos.x + 100,
 		kineticPos.y + 20 };
 	yellowBlueLabel.amPos = { accumulatePos.x, accumulatePos.y, accumulatePos.x + 100,
 		accumulatePos.y + 20 };
-	yellowBlueLabel.cssmPos = { continuousPos.x, continuousPos.y, continuousPos.x + 100,
+	yellowBlueLabel.videoPos = { continuousPos.x, continuousPos.y, continuousPos.x + 100,
 		continuousPos.y + 20 };
 	yellowBlueLabel.ID = id++;
-	yellowBlueLabel.Create( "Yellow --> Blue", WS_CHILD | WS_VISIBLE, yellowBlueLabel.ksmPos, parent, yellowBlueLabel.ID );
+	yellowBlueLabel.Create( "Yellow --> Blue", WS_CHILD | WS_VISIBLE, yellowBlueLabel.seriesPos, parent, yellowBlueLabel.ID );
 	kineticPos.y += 20;
 	accumulatePos.y += 20;
 	continuousPos.y += 20;
 
 	/// Red --> Blue color
-	redBlueLabel.ksmPos = { kineticPos.x, kineticPos.y, kineticPos.x + 100,
+	redBlueLabel.seriesPos = { kineticPos.x, kineticPos.y, kineticPos.x + 100,
 		kineticPos.y + 20 };
 	redBlueLabel.amPos = { accumulatePos.x, accumulatePos.y, accumulatePos.x + 100,
 		accumulatePos.y + 20 };
-	redBlueLabel.cssmPos = { continuousPos.x, continuousPos.y, continuousPos.x + 100,
+	redBlueLabel.videoPos = { continuousPos.x, continuousPos.y, continuousPos.x + 100,
 		continuousPos.y + 20 };
 	redBlueLabel.ID = id++;
-	redBlueLabel.Create( "Red --> Blue", WS_CHILD | WS_VISIBLE, redBlueLabel.ksmPos, parent, redBlueLabel.ID );
+	redBlueLabel.Create( "Red --> Blue", WS_CHILD | WS_VISIBLE, redBlueLabel.seriesPos, parent, redBlueLabel.ID );
 	kineticPos.y += 20;
 	accumulatePos.y += 20;
 	continuousPos.y += 20;
 
 	/// Black --> White color
-	blackWhiteLabel.ksmPos = { kineticPos.x, kineticPos.y, kineticPos.x + 100,
+	blackWhiteLabel.seriesPos = { kineticPos.x, kineticPos.y, kineticPos.x + 100,
 		kineticPos.y + 20 };
 	blackWhiteLabel.amPos = { accumulatePos.x, accumulatePos.y, accumulatePos.x + 100,
 		accumulatePos.y + 20 };
-	blackWhiteLabel.cssmPos = { continuousPos.x, continuousPos.y, continuousPos.x + 100,
+	blackWhiteLabel.videoPos = { continuousPos.x, continuousPos.y, continuousPos.x + 100,
 		continuousPos.y + 20 };
 	blackWhiteLabel.ID = id++;
-	blackWhiteLabel.Create( "Black --> White", WS_CHILD | WS_VISIBLE, blackWhiteLabel.ksmPos,
+	blackWhiteLabel.Create( "Black --> White", WS_CHILD | WS_VISIBLE, blackWhiteLabel.seriesPos,
 							parent, blackWhiteLabel.ID );
 	kineticPos.y += 20;
 	accumulatePos.y += 20;
@@ -197,40 +197,40 @@ void PictureSettingsControl::initialize( POINT& kineticPos, POINT& continuousPos
 		kineticPos.y -= 60;
 		accumulatePos.y -= 60;
 		continuousPos.y -= 60;
-		yellowBlueRadios[picInc].ksmPos = { kineticPos.x + 100 + 95 * picInc, kineticPos.y,
+		yellowBlueRadios[picInc].seriesPos = { kineticPos.x + 100 + 95 * picInc, kineticPos.y,
 			kineticPos.x + 100 + 95 * (picInc + 1), kineticPos.y + 20 };
 		yellowBlueRadios[picInc].amPos = { accumulatePos.x + 100 + 95 * picInc, accumulatePos.y,
 			accumulatePos.x + 100 + 95 * (picInc + 1), accumulatePos.y + 20 };
-		yellowBlueRadios[picInc].cssmPos = { continuousPos.x + 100 + 95 * picInc, continuousPos.y,
+		yellowBlueRadios[picInc].videoPos = { continuousPos.x + 100 + 95 * picInc, continuousPos.y,
 			continuousPos.x + 100 + 95 * (picInc + 1), continuousPos.y + 20 };
 		this->yellowBlueRadios[picInc].ID = id++;
 		yellowBlueRadios[picInc].Create( "", BS_CENTER | WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON | WS_GROUP,
-										 yellowBlueRadios[picInc].ksmPos, parent, yellowBlueRadios[picInc].ID );
+										 yellowBlueRadios[picInc].seriesPos, parent, yellowBlueRadios[picInc].ID );
 		kineticPos.y += 20;
 		accumulatePos.y += 20;
 		continuousPos.y += 20;
-		redBlueRadios[picInc].ksmPos = { kineticPos.x + 100 + 95 * picInc, kineticPos.y,
+		redBlueRadios[picInc].seriesPos = { kineticPos.x + 100 + 95 * picInc, kineticPos.y,
 			kineticPos.x + 100 + 95 * (picInc + 1), kineticPos.y + 20 };
 		redBlueRadios[picInc].amPos = { accumulatePos.x + 100 + 95 * picInc, accumulatePos.y,
 			accumulatePos.x + 100 + 95 * (picInc + 1), accumulatePos.y + 20 };
-		redBlueRadios[picInc].cssmPos = { continuousPos.x + 100 + 95 * picInc, continuousPos.y,
+		redBlueRadios[picInc].videoPos = { continuousPos.x + 100 + 95 * picInc, continuousPos.y,
 			continuousPos.x + 100 + 95 * (picInc + 1), continuousPos.y + 20 };
 		redBlueRadios[picInc].ID = id++;
 		redBlueRadios[picInc].Create( "", BS_CENTER | WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
-									  redBlueRadios[picInc].ksmPos, parent, redBlueRadios[picInc].ID );
+									  redBlueRadios[picInc].seriesPos, parent, redBlueRadios[picInc].ID );
 		kineticPos.y += 20;
 		accumulatePos.y += 20;
 		continuousPos.y += 20;
-		blackWhiteRadios[picInc].ksmPos = { kineticPos.x + 100 + 95 * picInc, kineticPos.y,
+		blackWhiteRadios[picInc].seriesPos = { kineticPos.x + 100 + 95 * picInc, kineticPos.y,
 			kineticPos.x + 100 + 95 * (picInc + 1), kineticPos.y + 20 };
 		blackWhiteRadios[picInc].amPos = { accumulatePos.x + 100 + 95 * picInc, accumulatePos.y,
 			accumulatePos.x + 100 + 95 * (picInc + 1), accumulatePos.y + 20 };
-		blackWhiteRadios[picInc].cssmPos = { continuousPos.x + 100 + 95 * picInc, continuousPos.y,
+		blackWhiteRadios[picInc].videoPos = { continuousPos.x + 100 + 95 * picInc, continuousPos.y,
 			continuousPos.x + 100 + 95 * (picInc + 1), continuousPos.y + 20 };
 		blackWhiteRadios[picInc].ID = id++;
 		// first of group
 		blackWhiteRadios[picInc].Create( "", BS_CENTER | WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
-										 blackWhiteRadios[picInc].ksmPos, parent, blackWhiteRadios[picInc].ID );
+										 blackWhiteRadios[picInc].seriesPos, parent, blackWhiteRadios[picInc].ID );
 		blackWhiteRadios[picInc].SetCheck( 1 );
 		this->colors[picInc] = 2;
 		kineticPos.y += 20;

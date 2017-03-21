@@ -19,15 +19,15 @@ void SMSTextingControl::promptForEmailAddressAndPassword()
 void SMSTextingControl::initializeControls(POINT& pos, CWnd* parent, bool isTriggerModeSensitive, int& id, 
 	std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips)
 {
-	title.ksmPos = { pos.x, pos.y, pos.x + 480, pos.y + 25 };
+	title.seriesPos = { pos.x, pos.y, pos.x + 480, pos.y + 25 };
 	title.ID = id++;
-	title.Create("TEXT ME", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY | WS_BORDER, title.ksmPos, parent, title.ID);
+	title.Create("TEXT ME", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY | WS_BORDER, title.seriesPos, parent, title.ID);
 	title.fontType = "Heading";
 	title.SetFont(fonts["Normal Font"]);
 
-	peopleListView.ksmPos = { pos.x, pos.y + 25, pos.x + 480, pos.y + 120 };
+	peopleListView.seriesPos = { pos.x, pos.y + 25, pos.x + 480, pos.y + 120 };
 	peopleListView.ID = id++;
-	peopleListView.Create(WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS, peopleListView.ksmPos, parent, peopleListView.ID);
+	peopleListView.Create(WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS, peopleListView.seriesPos, parent, peopleListView.ID);
 	peopleListView.fontType = "Small";
 	LV_COLUMN listViewDefaultCollumn;
 	// Zero Members

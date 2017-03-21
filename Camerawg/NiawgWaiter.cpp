@@ -1,7 +1,7 @@
 #pragma once
 
 #include "stdafx.h"
-#include "NIAWGWaitThread.h"
+#include "NiawgWaiter.h"
 #include "Windows.h"
 #include "niFgen.h"
 #include "externals.h"
@@ -123,8 +123,9 @@ void NiawgWaiter::startWait( experimentThreadInput* input )
 	waitInput.niawg = input->niawg;
 	waitInput.profile = input->profile;
 	unsigned int NIAWGThreadID;
-	eNIAWGWaitThreadHandle = (HANDLE)_beginthreadex( 0, 0, this->niawgWaitThread, &waitInput, 0, &NIAWGThreadID );
+	eNIAWGWaitThreadHandle = (HANDLE)_beginthreadex( 0, 0, &NiawgWaiter::niawgWaitThread, &waitInput, 0, &NIAWGThreadID );
 }
+
 
 void NiawgWaiter::initialize()
 {

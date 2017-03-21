@@ -4,6 +4,7 @@
 #include "Control.h"
 #include "Windows.h"
 
+class MainWindow;
 class ScriptingWindow;
 
 struct variable

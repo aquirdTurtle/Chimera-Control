@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "Andor.h"
-//#include "plotThread.h"
 #include <process.h>
-//#include "plotterProcedure.h"
 #include <algorithm>
 #include <numeric>
 #include "atmcd32d.h"

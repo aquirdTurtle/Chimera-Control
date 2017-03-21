@@ -216,70 +216,70 @@ void CameraSettingsControl::handlePictureSettings(UINT id, AndorCamera* andorObj
 void CameraSettingsControl::initialize(cameraPositions& pos, int& id, CWnd* parent, std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips)
 {
 	/// Header
-	header.ksmPos = { pos.ksmPos.x, pos.ksmPos.y, pos.ksmPos.x + 480,
-		pos.ksmPos.y + 25 };
+	header.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480,
+		pos.seriesPos.y + 25 };
 	header.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480,
 		pos.amPos.y + 25 };
-	header.cssmPos = { pos.cssmPos.x, pos.cssmPos.y, pos.cssmPos.x + 480,
-		pos.cssmPos.y + 25 };
+	header.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480,
+		pos.videoPos.y + 25 };
 	header.ID = id++;
-	header.Create("CAMERA SETTINGS", WS_BORDER | WS_CHILD | WS_VISIBLE | ES_READONLY | ES_CENTER, header.ksmPos,
+	header.Create("CAMERA SETTINGS", WS_BORDER | WS_CHILD | WS_VISIBLE | ES_READONLY | ES_CENTER, header.seriesPos,
 		parent, header.ID);	
 	header.fontType = "Heading";
-	pos.ksmPos.y += 25;
+	pos.seriesPos.y += 25;
 	pos.amPos.y += 25;
-	pos.cssmPos.y += 25;
+	pos.videoPos.y += 25;
 	
 	/// EM Gain
-	emGainButton.ksmPos = { pos.ksmPos.x, pos.ksmPos.y, pos.ksmPos.x + 120, pos.ksmPos.y + 20 };
-	emGainButton.cssmPos = emGainButton.amPos = emGainButton.ksmPos;
+	emGainButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 120, pos.seriesPos.y + 20 };
+	emGainButton.videoPos = emGainButton.amPos = emGainButton.seriesPos;
 	emGainButton.ID = id++;
 	if (emGainButton.ID != IDC_SET_EM_GAIN_BUTTON)
 	{
 		throw;
 	}
-	emGainButton.Create("Set EM Gain", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, emGainButton.ksmPos, parent, emGainButton.ID);
+	emGainButton.Create("Set EM Gain", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, emGainButton.seriesPos, parent, emGainButton.ID);
 	emGainButton.fontType = "Normal";
 	emGainButton.setToolTip("Set the state & gain of the EM gain of the camera. Enter a negative number to turn EM Gain"
 		" mode off. The program will immediately change the state of the camera after pressing this button.", tooltips, 
 		parent, fonts["Normal Font"]);
 	//
-	emGainEdit.ksmPos = { pos.ksmPos.x + 120, pos.ksmPos.y, pos.ksmPos.x + 300, pos.ksmPos.y + 20 };
-	emGainEdit.cssmPos = emGainEdit.amPos = emGainEdit.ksmPos;
+	emGainEdit.seriesPos = { pos.seriesPos.x + 120, pos.seriesPos.y, pos.seriesPos.x + 300, pos.seriesPos.y + 20 };
+	emGainEdit.videoPos = emGainEdit.amPos = emGainEdit.seriesPos;
 	emGainEdit.ID = id++;
-	emGainEdit.Create(WS_CHILD | WS_VISIBLE | BS_RIGHT, emGainEdit.ksmPos, parent, emGainEdit.ID);
+	emGainEdit.Create(WS_CHILD | WS_VISIBLE | BS_RIGHT, emGainEdit.seriesPos, parent, emGainEdit.ID);
 	emGainEdit.fontType = "Normal";
 	//
-	emGainDisplay.ksmPos = { pos.ksmPos.x + 300, pos.ksmPos.y, pos.ksmPos.x + 480, pos.ksmPos.y + 20 };
-	emGainDisplay.cssmPos = emGainDisplay.amPos = emGainDisplay.ksmPos;
+	emGainDisplay.seriesPos = { pos.seriesPos.x + 300, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 20 };
+	emGainDisplay.videoPos = emGainDisplay.amPos = emGainDisplay.seriesPos;
 	emGainDisplay.ID = id++;
-	emGainDisplay.Create("OFF", WS_CHILD | WS_VISIBLE | BS_RIGHT | ES_READONLY | ES_CENTER, emGainDisplay.ksmPos, parent, emGainDisplay.ID);
+	emGainDisplay.Create("OFF", WS_CHILD | WS_VISIBLE | BS_RIGHT | ES_READONLY | ES_CENTER, emGainDisplay.seriesPos, parent, emGainDisplay.ID);
 	emGainDisplay.fontType = "Normal";
 	// initialize settings.
 	runSettings.emGainLevel = 0;
 	runSettings.emGainModeIsOn = false;
 	//
-	pos.ksmPos.y += 20;
+	pos.seriesPos.y += 20;
 	pos.amPos.y += 20;
-	pos.cssmPos.y += 20;
+	pos.videoPos.y += 20;
 	// Trigger Text
 
-	triggerLabel.ksmPos = { pos.ksmPos.x, pos.ksmPos.y, pos.ksmPos.x + 240, pos.ksmPos.y + 25 };
- 	triggerLabel.cssmPos = { pos.cssmPos.x, pos.cssmPos.y, pos.cssmPos.x + 240, pos.cssmPos.y + 25 };
+	triggerLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 240, pos.seriesPos.y + 25 };
+ 	triggerLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 240, pos.videoPos.y + 25 };
  	triggerLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 240, pos.amPos.y + 25 };
  	triggerLabel.ID = id++;
- 	triggerLabel.Create("Trigger Mode:", WS_CHILD | WS_VISIBLE | ES_CENTER, triggerLabel.ksmPos, parent, triggerLabel.ID);
+ 	triggerLabel.Create("Trigger Mode:", WS_CHILD | WS_VISIBLE | ES_CENTER, triggerLabel.seriesPos, parent, triggerLabel.ID);
  	triggerLabel.fontType = "Normal";
  	// trigger combo
- 	triggerCombo.ksmPos = { pos.ksmPos.x + 240, pos.ksmPos.y, pos.ksmPos.x + 480, pos.ksmPos.y + 800 };
- 	triggerCombo.cssmPos = { pos.cssmPos.x + 240, pos.cssmPos.y,pos.cssmPos.x + 480, pos.cssmPos.y + 800 };
+ 	triggerCombo.seriesPos = { pos.seriesPos.x + 240, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 800 };
+ 	triggerCombo.videoPos = { pos.videoPos.x + 240, pos.videoPos.y,pos.videoPos.x + 480, pos.videoPos.y + 800 };
  	triggerCombo.amPos = { pos.amPos.x + 240, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 800 };
 	triggerCombo.ID = id++;
 	if (triggerCombo.ID != IDC_TRIGGER_COMBO)
 	{
 		throw;
 	}
-	triggerCombo.Create(WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, triggerCombo.ksmPos, parent, triggerCombo.ID);
+	triggerCombo.Create(WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, triggerCombo.seriesPos, parent, triggerCombo.ID);
 	// set options for the combo
 	triggerCombo.fontType = "Normal";
  	triggerCombo.AddString("Internal");
@@ -287,15 +287,15 @@ void CameraSettingsControl::initialize(cameraPositions& pos, int& id, CWnd* pare
  	triggerCombo.AddString("Start On Trigger");
  	// Select default trigger
  	triggerCombo.SelectString(0, "External");
- 	pos.ksmPos.y += 25;
+ 	pos.seriesPos.y += 25;
 	pos.amPos.y += 25;
-	pos.cssmPos.y += 25;
+	pos.videoPos.y += 25;
 	runSettings.triggerMode = "External";
 	// Set temperature Button
-	setTemperatureButton.ksmPos = { pos.ksmPos.x, pos.ksmPos.y, pos.ksmPos.x + 270, pos.ksmPos.y + 25};
-	setTemperatureButton.cssmPos = setTemperatureButton.amPos = setTemperatureButton.ksmPos;
+	setTemperatureButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 270, pos.seriesPos.y + 25};
+	setTemperatureButton.videoPos = setTemperatureButton.amPos = setTemperatureButton.seriesPos;
 	setTemperatureButton.ID = id++;
-	setTemperatureButton.Create("Set Camera Temperature (C)", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON, setTemperatureButton.ksmPos, 
+	setTemperatureButton.Create("Set Camera Temperature (C)", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON, setTemperatureButton.seriesPos, 
 		parent, setTemperatureButton.ID);
 	setTemperatureButton.fontType = "Normal";
 	if (setTemperatureButton.ID != IDC_SET_TEMPERATURE_BUTTON)
@@ -303,56 +303,56 @@ void CameraSettingsControl::initialize(cameraPositions& pos, int& id, CWnd* pare
 		throw;
 	}
 	// Temperature Edit
-	temperatureEdit.ksmPos = { pos.ksmPos.x + 270, pos.ksmPos.y, pos.ksmPos.x + 350, pos.ksmPos.y + 25 };
-	temperatureEdit.cssmPos = temperatureEdit.amPos = temperatureEdit.ksmPos;
+	temperatureEdit.seriesPos = { pos.seriesPos.x + 270, pos.seriesPos.y, pos.seriesPos.x + 350, pos.seriesPos.y + 25 };
+	temperatureEdit.videoPos = temperatureEdit.amPos = temperatureEdit.seriesPos;
 	temperatureEdit.ID = id++;
-	temperatureEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT, temperatureEdit.ksmPos, parent, temperatureEdit.ID);
+	temperatureEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT, temperatureEdit.seriesPos, parent, temperatureEdit.ID);
 	temperatureEdit.SetWindowTextA("0");
 	temperatureEdit.fontType = "Normal";
 	// Temperature Setting Display
-	temperatureDisplay.ksmPos = { pos.ksmPos.x + 350, pos.ksmPos.y, pos.ksmPos.x + 430, pos.ksmPos.y + 25 };
-	temperatureDisplay.cssmPos = temperatureDisplay.amPos = temperatureDisplay.ksmPos;
+	temperatureDisplay.seriesPos = { pos.seriesPos.x + 350, pos.seriesPos.y, pos.seriesPos.x + 430, pos.seriesPos.y + 25 };
+	temperatureDisplay.videoPos = temperatureDisplay.amPos = temperatureDisplay.seriesPos;
 	temperatureDisplay.ID = id++;
-	temperatureDisplay.Create("", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT | ES_READONLY, temperatureDisplay.ksmPos, parent, temperatureDisplay.ID);
+	temperatureDisplay.Create("", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT | ES_READONLY, temperatureDisplay.seriesPos, parent, temperatureDisplay.ID);
 	temperatureDisplay.fontType = "Normal";
 	// Temperature Control Off Button
-	temperatureOffButton.ksmPos = { pos.ksmPos.x + 430, pos.ksmPos.y, pos.ksmPos.x + 480, pos.ksmPos.y + 25 };
-	temperatureOffButton.cssmPos = temperatureOffButton.amPos = temperatureOffButton.ksmPos;
+	temperatureOffButton.seriesPos = { pos.seriesPos.x + 430, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 25 };
+	temperatureOffButton.videoPos = temperatureOffButton.amPos = temperatureOffButton.seriesPos;
 	temperatureOffButton.Create("OFF",
-		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON, temperatureOffButton.ksmPos, parent, temperatureOffButton.ID);
+		WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON, temperatureOffButton.seriesPos, parent, temperatureOffButton.ID);
 	temperatureOffButton.fontType = "Normal";
-	pos.ksmPos.y += 25;
+	pos.seriesPos.y += 25;
 	// Temperature Message Display
-	temperatureMessage.ksmPos = { pos.ksmPos.x, pos.ksmPos.y, pos.ksmPos.x + 480, pos.ksmPos.y + 50 };
-	temperatureMessage.cssmPos = temperatureMessage.amPos = temperatureMessage.ksmPos;
+	temperatureMessage.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 50 };
+	temperatureMessage.videoPos = temperatureMessage.amPos = temperatureMessage.seriesPos;
 	temperatureMessage.ID = id++;
-	temperatureMessage.Create("Temperature control is disabled", WS_CHILD | WS_VISIBLE | SS_LEFT, temperatureMessage.ksmPos, parent, temperatureMessage.ID);
+	temperatureMessage.Create("Temperature control is disabled", WS_CHILD | WS_VISIBLE | SS_LEFT, temperatureMessage.seriesPos, parent, temperatureMessage.ID);
 	temperatureMessage.fontType = "Normal";
-	pos.ksmPos.y += 50;
+	pos.seriesPos.y += 50;
 
 	//
-	picSettingsObj.initialize(pos.ksmPos, pos.cssmPos, pos.amPos, parent, id);
-	imageDimensionsObj.initialize(pos.ksmPos, pos.amPos, pos.cssmPos, parent, false, id);
+	picSettingsObj.initialize(pos.seriesPos, pos.videoPos, pos.amPos, parent, id);
+	imageDimensionsObj.initialize(pos.seriesPos, pos.amPos, pos.videoPos, parent, false, id);
 
 	// Kinetic Cycle Time Label
-	kineticCycleTimeLabel.ksmPos = { pos.ksmPos.x, pos.ksmPos.y, pos.ksmPos.x + 240, pos.ksmPos.y + 25 };
-	kineticCycleTimeLabel.cssmPos = { -1,-1,-1,-1 };
+	kineticCycleTimeLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 240, pos.seriesPos.y + 25 };
+	kineticCycleTimeLabel.videoPos = { -1,-1,-1,-1 };
 	kineticCycleTimeLabel.amPos = { -1,-1,-1,-1 };
 	kineticCycleTimeLabel.ID = id++;
 	kineticCycleTimeLabel.triggerModeSensitive = -1;
 	kineticCycleTimeLabel.Create("Kinetic Cycle Time", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY,
-		kineticCycleTimeLabel.ksmPos, parent, kineticCycleTimeLabel.ID);
+		kineticCycleTimeLabel.seriesPos, parent, kineticCycleTimeLabel.ID);
 	kineticCycleTimeLabel.fontType = "Normal";
 
 	// Kinetic Cycle Time Edit
-	kineticCycleTimeEdit.ksmPos = { pos.ksmPos.x + 240, pos.ksmPos.y, pos.ksmPos.x + 480, pos.ksmPos.y + 25 };
-	kineticCycleTimeEdit.cssmPos = { -1,-1,-1,-1 };
+	kineticCycleTimeEdit.seriesPos = { pos.seriesPos.x + 240, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 25 };
+	kineticCycleTimeEdit.videoPos = { -1,-1,-1,-1 };
 	kineticCycleTimeEdit.amPos = { -1,-1,-1,-1 };
 	kineticCycleTimeEdit.ID = id++;
 	kineticCycleTimeEdit.triggerModeSensitive = -1;
-	kineticCycleTimeEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER, kineticCycleTimeEdit.ksmPos, parent, kineticCycleTimeEdit.ID);
+	kineticCycleTimeEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER, kineticCycleTimeEdit.seriesPos, parent, kineticCycleTimeEdit.ID);
 	kineticCycleTimeEdit.fontType = "Normal";
-	pos.ksmPos.y += 25;
+	pos.seriesPos.y += 25;
 }
 
 void CameraSettingsControl::checkTimings(std::vector<float> exposureTimes)
