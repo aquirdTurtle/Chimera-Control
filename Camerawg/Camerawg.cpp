@@ -98,18 +98,15 @@ BOOL myApplicationApp::InitInstance()
 	// Contains all of of the names of the files that hold actual data file names.
 	for (auto number : range( MAX_NIAWG_SIGNALS ))
 	{
-		WAVEFORM_NAME_FILES[number] = "gen " + std::to_string( number + 1 ) + ", const waveform file names.txt";
-		WAVEFORM_NAME_FILES[number + MAX_NIAWG_SIGNALS] = "gen " + std::to_string( number + 1 )
-			+ ", amp ramp waveform file names.txt";
-		WAVEFORM_NAME_FILES[number + 2 * MAX_NIAWG_SIGNALS] = "gen " + std::to_string( number + 1 )
-			+ ", freq ramp waveform file names.txt";
-		WAVEFORM_NAME_FILES[number + 3 * MAX_NIAWG_SIGNALS] = "gen " + std::to_string( number + 1 )
-			+ ", freq & amp ramp waveform file names.txt";
+		WAVEFORM_NAME_FILES[number] = "gen " + str( number + 1 ) + ", const waveform file names.txt";
+		WAVEFORM_NAME_FILES[number + MAX_NIAWG_SIGNALS] = "gen " + str( number + 1 ) + ", amp ramp waveform file names.txt";
+		WAVEFORM_NAME_FILES[number + 2 * MAX_NIAWG_SIGNALS] = "gen " + str( number + 1 ) + ", freq ramp waveform file names.txt";
+		WAVEFORM_NAME_FILES[number + 3 * MAX_NIAWG_SIGNALS] = "gen " + str( number + 1 ) + ", freq & amp ramp waveform file names.txt";
 
-		WAVEFORM_TYPE_FOLDERS[number] = "gen" + std::to_string( number + 1 ) + "const\\";
-		WAVEFORM_TYPE_FOLDERS[number + MAX_NIAWG_SIGNALS] = "gen" + std::to_string( number + 1 ) + "ampramp\\";
-		WAVEFORM_TYPE_FOLDERS[number + 2 * MAX_NIAWG_SIGNALS] = "gen" + std::to_string( number + 1 ) + "freqramp\\";
-		WAVEFORM_TYPE_FOLDERS[number + 3 * MAX_NIAWG_SIGNALS] = "gen" + std::to_string( number + 1 ) + "ampfreqramp\\";
+		WAVEFORM_TYPE_FOLDERS[number] = "gen" + str( number + 1 ) + "const\\";
+		WAVEFORM_TYPE_FOLDERS[number + MAX_NIAWG_SIGNALS] = "gen" + str( number + 1 ) + "ampramp\\";
+		WAVEFORM_TYPE_FOLDERS[number + 2 * MAX_NIAWG_SIGNALS] = "gen" + str( number + 1 ) + "freqramp\\";
+		WAVEFORM_TYPE_FOLDERS[number + 3 * MAX_NIAWG_SIGNALS] = "gen" + str( number + 1 ) + "ampfreqramp\\";
 	}
 
 	/// Other General Initializations
@@ -130,10 +127,11 @@ BOOL myApplicationApp::InitInstance()
 	time_t dateStart = time( 0 );
 	struct tm datePointerStart;
 	localtime_s( &datePointerStart, &dateStart );
-	std::string logFolderNameStart = "Date " + std::to_string( datePointerStart.tm_year + 1900 ) + "-" + std::to_string( datePointerStart.tm_mon + 1 ) + "-"
-		+ std::to_string( datePointerStart.tm_mday ) + " Time " + std::to_string( datePointerStart.tm_hour ) + "-" + std::to_string( datePointerStart.tm_min ) + "-"
-		+ std::to_string( datePointerStart.tm_sec );
+	std::string logFolderNameStart = ("Date " + str( datePointerStart.tm_year + 1900 ) + "-" + str( datePointerStart.tm_mon + 1 ) + "-"
+									   + str( datePointerStart.tm_mday ) + " Time " + str( datePointerStart.tm_hour ) + "-" 
+									   + str( datePointerStart.tm_min ) + "-" + str( datePointerStart.tm_sec ));
 	bool andorConnectedForFolder = false;
+
 	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
 		boost::filesystem::path dir( CODE_LOGGING_FILES_PATH + logFolderNameStart );
@@ -259,17 +257,17 @@ BOOL myApplicationApp::InitInstance()
 
 	/// Initialize Socket stuffs
 	// Communication object used to open up the windows socket applications (WSA) DLL. 
-	WSADATA wsaData;
+	//WSADATA wsaData;
 	// object that contains error information.
-	int iResult;
+	int iResult = 0;
 	// the socket object used to connect to the other computer. Starts invalid because it isn't active yet.
 
 	// Initialize Winsock
-	iResult = WSAStartup( MAKEWORD( 2, 2 ), &wsaData );
+	//iResult = WSAStartup( MAKEWORD( 2, 2 ), &wsaData );
 	// check for errors initializing winsock
 	if (iResult != 0)
 	{
-		errBox( "WSAStartup failed: " + std::to_string( iResult ) );
+		errBox( "WSAStartup failed: " + str( iResult ) );
 		return 1;
 	}
 	myAgilent::agilentDefault();

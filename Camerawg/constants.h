@@ -7,7 +7,7 @@
 // running in safemode means that the program doesn't actually try to connect to any devices. It can be used to debug other aspects of the program.
 #define TWEEZER_COMPUTER_SAFEMODE true
 #define ANDOR_SAFEMODE true
-#define LAPTOP_COMPUTER
+#define DESKTOP_COMPUTER
 
 /// File Locations
 // Files for Lab Computer
@@ -20,7 +20,7 @@
 	const std::string ACTUAL_CODE_FOLDER_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Control\\Cold Atoms Control Application\\";
 	const std::string PROFILES_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Control\\Profiles\\";
 #endif
-	
+
 // Files for Desktop
 #ifdef DESKTOP_COMPUTER
 	#define PYTHON_HOME L"C:\\Users\\Mark\\Anaconda3\\"

@@ -383,18 +383,28 @@ std::string CameraWindow::getStartMessage()
 
 void CameraWindow::setTimerText( std::string timerText )
 {
-	this->timer.setTimerDisplay( timerText );
+	timer.setTimerDisplay( timerText );
 }
 
 
 void CameraWindow::OnCancel()
 {
-	passCommonCommand(ID_FILE_MY_EXIT);
+	try
+	{
+		passCommonCommand( ID_FILE_MY_EXIT );
+	}
+	catch (myException& exception)
+	{
+		errBox( exception.what() );
+	}
 }
+
+
 std::vector<CToolTipCtrl*> CameraWindow::getToolTips()
 {
-	return this->tooltips;
+	return tooltips;
 }
+
 
 BOOL CameraWindow::OnInitDialog()
 {

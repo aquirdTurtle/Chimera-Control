@@ -114,8 +114,8 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 		{
 			input->comm->sendStatus("Programing Intensity Profile(s)...");
 			input->comm->sendColorBox( { /*niawg*/'-', /*camera*/'-', /*intensity*/'Y' } );
-			myAgilent::programIntensity( boost::numeric_cast<int>(variables.size()), variables, varValues, intIsVaried, 
-										 intensityRanges, intensityScriptFiles, singletons, input->profile );
+			myAgilent::programIntensity( boost::numeric_cast<int>(variables.size()), variables, varValues, intIsVaried, intensityRanges, 
+										 intensityScriptFiles, singletons, input->profile );
 			input->comm->sendStatus("Complete!\r\n");
 			myAgilent::selectIntensityProfile( 0, intIsVaried, intensityRanges );
 			input->comm->sendStatus("Intensity Profile Selected.\r\n");

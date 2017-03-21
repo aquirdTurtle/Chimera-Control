@@ -13,6 +13,7 @@
 #include "DebuggingOptionsControl.h"
 #include "Communicator.h"
 #include <memory>
+#include <cmath>
 
 // order here matches the literal channel number on the 5451. Vertical is actually channel0 and Horizontal is actually channel1.
 enum AXES { Vertical = 0, Horizontal = 1 };
@@ -21,11 +22,15 @@ template<typename type> using niawgPair = std::array<type, 2>;
 // don't take the word "library" too seriously... it's just a listing of all of the waveforms that have been already created.
 typedef std::array<std::vector<std::string>, MAX_NIAWG_SIGNALS * 4> library;
 
+/* * * * 
+ * Niawg Data structure objects, in increasing order of complexity. I.e. waveSignals make up channelWaves which make up...
+ * Names need some work :/
+ * */
 
-/**
+/* * * * *
  * A "Signal" structure contains all of the information for a single signal. Vectors of these are included in a "waveInfo" structure.
- */
-struct waveformSignal
+ * */
+struct waveSignal
 {
 	double freqInit;
 	double freqFin;
@@ -41,15 +46,20 @@ struct waveformSignal
 };
 
 
-// These structures contain all of the needed input data about the waveform in question.
-struct singleChannelWave
+/* * * * * * *
+ * info for a single channel's output.
+ * note that this structure does not contain any information about the time of a waveform because these always come with pairs in a waveInfo
+ * struct, and I think it's better to just have a single copy of the time in the waveInfo struct rather than two (potentially conflicting)
+ * copies in each channel.
+ * */
+struct channelWave
 {
-	std::vector<waveformSignal> signals;
+	std::vector<waveSignal> signals;
 	// should be 0 until this option is re-implemented!
 	int phaseOption;
 	int initType;
-	// variables for dealing with varied waveforms. These only get set when a varied waveform is used, and they serve the purpose of carrying relevant info to
-	// the end of the program, when these varried waveforms are compiled.
+	// variables for dealing with varied waveforms. These only get set when a varied waveform is used, and they serve the purpose of 
+	// carrying relevant info to the end of the program, when these varried waveforms are compiled.
 	int varNum;
 	std::vector<std::string> varNames;
 	std::vector<int> varTypes;
@@ -60,28 +70,43 @@ struct singleChannelWave
 };
 
 
+struct flashInfo
+{
+	niawgPair<std::string> flashCycleFreqInput;
+	niawgPair<std::string> totalTimeInput;
+
+	double flashCycleFreq;
+	unsigned int flashNumber;
+	double totalTime;
+	long int sampleNum;
+	bool varies;
+	bool isStreamed;
+
+	niawgPair<double> initPhase;
+	niawgPair<double> finPhase;
+
+	std::vector<ViReal64> waveform;
+};
+
+
+// contains all info for a waveform on the niawg; i.e. info for both channels, special options, time, and waveform data.
 struct waveInfo
 {
-	niawgPair<singleChannelWave> channel;
+	niawgPair<channelWave> channel;
+	// may or may not be filled... check the "is flashing variable". Don't have a better way of doing this atm...
+	flashInfo flash;
 	double time;
 	long int sampleNum;
 	bool varies;
 	bool isStreamed;
+	bool isFlashing;
 	std::vector<ViReal64> mixedWaveform;
 };
 
-
-struct flashInfo
-{
-	niawgPair<std::vector<singleChannelWave>> waves;
-	niawgPair<std::string> flashCycleFreqInput;
-	niawgPair<double> flashCycleFreq;
-	niawgPair<unsigned int> flashNumber;
-	double totalTime;
-	bool varies;
-};
-
-
+/* * * * * 
+ * The largest output structure, contains all info for a script to be outputted. Because this contains a lot of info, it gets passed around
+ * a lot between functions under a name "output". 
+ * */
 struct outputInfo
 {
 	// wave <-> waveform
@@ -113,10 +138,26 @@ class NiawgController
 							  niawgPair<ScriptStream>& scripts, std::vector<variable> singletons );
 		void getVariedWaveform( std::vector<waveInfo>& waves, int waveNum, int axis, debugInfo& options );
 		void varyParam( std::vector<waveInfo> waves, int waveNum, int axis, int &paramNum, double paramVal, std::string& warnings );
-		//void varyParam( std::vector<waveInfo> &allWvInfo1, std::vector<waveInfo> &allWvInfo2, int wfCount, int &paramNum,
-		//				double paramVal, std::string& warnings );
 		void finalizeScript( unsigned long long repetitions, std::string name, std::vector<std::string> workingUserScripts,
 							 std::vector<ViChar> userScriptSubmit );
+
+		void setDefaultOrientation( std::string orientation );
+		void restartDefault();
+		bool isRunning();
+
+		long int waveformSizeCalc( double time );
+		template <typename WAVE_DATA_TYPE> long int waveformSizeCalc( WAVE_DATA_TYPE inputData );
+		template <typename type> static void loadParam( type& dataToAssign, ScriptStream& scriptName, int& varCount,
+														std::vector<std::string>& varNames, std::vector<int> &varParamTypes,
+														std::vector<int> dataTypes, std::vector<variable> singletons );
+
+		void mixWaveforms( waveInfo& waveInfo );
+		void setRunningState( bool newRunningState );
+		void checkThatWaveformsAreSensible( Communicator* comm, outputInfo& output );
+
+		void calculateFlashingWaveform();
+		void streamWaveformData();	
+
 		// wrappers around niFgen functions.
 		void initialize();
 		signed short isDone();
@@ -153,29 +194,12 @@ class NiawgController
 		void setViStringAttribute( ViAttr atributeID, ViConstString attributeValue );
 		void setViBooleanAttribute( ViAttr attribute, bool state );
 
-		void setDefaultOrientation( std::string orientation );
-		void restartDefault();
-		bool isRunning();
-
-		long int waveformSizeCalc( double time );
-		template <typename WAVE_DATA_TYPE> long int waveformSizeCalc( WAVE_DATA_TYPE inputData );
-		template <typename type> static void loadParam( type& dataToAssign, ScriptStream& scriptName, int& varCount,
-														std::vector<std::string>& varNames, std::vector<int> &varParamTypes,
-														std::vector<int> dataTypes, std::vector<variable> singletons );
-
-		void mixWaveforms( waveInfo& waveInfo );
-		void setRunningState( bool newRunningState );
-		void checkThatWaveformsAreSensible( Communicator* comm, outputInfo& output );
-
-		void calculateFlashingWaveform();
-		void streamWaveformData();	
-
 	private:
 		void errChecker( int err );
-		void calcWaveData( singleChannelWave& inputData, std::vector<ViReal64>& readData, long int sampleNum, double time );
-		void getStandardInputType( std::string inputType, singleChannelWave &wvInfo );
+		void calcWaveData( channelWave& inputData, std::vector<ViReal64>& readData, long int sampleNum, double time );
+		void getStandardInputType( std::string inputType, channelWave &wvInfo );
 		void openWaveformFiles( );
-		void generateWaveform( singleChannelWave & waveInfo, debugInfo& options, long int sampleNum, double time );
+		void generateWaveform( channelWave & waveInfo, debugInfo& options, long int sampleNum, double time );
 
 		void handleLogic( niawgPair<ScriptStream>& script, niawgPair<std::string> inputs, std::string &scriptString );
 		void handleSpecial( niawgPair<ScriptStream>& script, outputInfo& output, niawgPair<std::string> inputTypes,
@@ -184,7 +208,7 @@ class NiawgController
 									 niawgPair<ScriptStream>& scripts, std::vector<variable> singletons, debugInfo& options );
 		void handleSpecialWaveform( outputInfo& output, profileSettings profile, niawgPair<std::string> command,
 									niawgPair<ScriptStream>& scripts, std::vector<variable> singletons, debugInfo& options );
-		void getWaveData( ScriptStream &script, singleChannelWave &waveInfo, std::vector<variable> singletons, double& time );
+		void getWaveData( ScriptStream &script, channelWave &waveInfo, std::vector<variable> singletons, double& time );
 		bool isLogic( std::string command );
 		bool isStandardWaveform( std::string command );
 		bool isSpecialWaveform( std::string command );
@@ -217,7 +241,7 @@ class NiawgController
 		const ViInt32 TRIGGER_EDGE_TYPE = NIFGEN_VAL_RISING_EDGE;
 };
 
-/**
+/* * * *
  * This function calculates the size in samples of the waveform to be generated.
  * This function works the same for all waveInfo types, so I use a template definition.
  * You can't include the template in the header file and in the source file, as when the function gets called from the header file,
@@ -226,7 +250,7 @@ class NiawgController
  *
  * @param inputData this is the data which contains the time for which the waveform will be running, which along with the sample rate, 
  * determines the waveform size.
- */
+ * */
 template <typename WAVE_DATA_TYPE> long NiawgController::waveformSizeCalc(WAVE_DATA_TYPE inputData)
 {
 	double waveSize = inputData.time * SAMPLE_RATE;
