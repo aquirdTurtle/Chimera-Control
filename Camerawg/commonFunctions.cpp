@@ -130,7 +130,7 @@ namespace commonFunctions
 			}
 			case ID_FILE_MY_EXIT:
 			{
-				commonFunctions::exitProgram(scriptWin, mainWin, camWin);
+				commonFunctions::exitProgram( scriptWin, mainWin, camWin );
 				break;
 			}
 			case ID_FILE_MY_INTENSITY_NEW:

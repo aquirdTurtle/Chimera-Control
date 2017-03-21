@@ -17,7 +17,7 @@
  */
 unsigned __stdcall NiawgWaiter::niawgWaitThread(void* inputParam)
 {
-	waitThreadInput input = *(waitThreadInput*)inputParam;
+	waitThreadInput* input = (waitThreadInput*)inputParam;
 	ViBoolean isDone;
 	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
@@ -34,7 +34,7 @@ unsigned __stdcall NiawgWaiter::niawgWaitThread(void* inputParam)
 		{
 			try
 			{
-				isDone = input.niawg->isDone();
+				isDone = input->niawg->isDone();
 			}
 			catch (myException&)
 			{
@@ -54,13 +54,13 @@ unsigned __stdcall NiawgWaiter::niawgWaitThread(void* inputParam)
 	if (WaitForSingleObjectEx(eWaitingForNIAWGEvent, 0, true) == WAIT_TIMEOUT)
 	{
 		/// then it's not ready. start the default
-		if (input.profile.orientation == HORIZONTAL_ORIENTATION)
+		if (input->profile.orientation == HORIZONTAL_ORIENTATION)
 		{
 			// start generic waveform to maintain power output to AOM.
 			try
 			{
-				input.niawg->configureOutputEnabled(VI_TRUE);
-				input.niawg->setViStringAttribute(NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript");
+				input->niawg->configureOutputEnabled(VI_TRUE);
+				input->niawg->setViStringAttribute(NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript");
 			}
 			catch (myException&)
 			{
@@ -69,15 +69,15 @@ unsigned __stdcall NiawgWaiter::niawgWaitThread(void* inputParam)
 			}
 			eCurrentScript = "DefaultHConfigScript";
 		}
-		else if (input.profile.orientation == VERTICAL_ORIENTATION)
+		else if (input->profile.orientation == VERTICAL_ORIENTATION)
 		{
 			if (!TWEEZER_COMPUTER_SAFEMODE)
 			{
 				// start generic waveform to maintain power output to AOM.
 				try
 				{
-					input.niawg->configureOutputEnabled(VI_TRUE);
-					input.niawg->setViStringAttribute(NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultVConfigScript");
+					input->niawg->configureOutputEnabled(VI_TRUE);
+					input->niawg->setViStringAttribute(NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultVConfigScript");
 				}
 				catch (myException&)
 				{
@@ -89,7 +89,7 @@ unsigned __stdcall NiawgWaiter::niawgWaitThread(void* inputParam)
 		}
 		try
 		{
-			input.niawg->initiateGeneration();
+			input->niawg->initiateGeneration();
 		}
 		catch (myException&)
 		{
@@ -103,8 +103,8 @@ unsigned __stdcall NiawgWaiter::niawgWaitThread(void* inputParam)
 	// now it's ready. stop the default.
 	try
 	{
-		input.niawg->configureOutputEnabled(VI_FALSE);
-		input.niawg->abortGeneration();
+		input->niawg->configureOutputEnabled(VI_FALSE);
+		input->niawg->abortGeneration();
 	}
 	catch (myException&)
 	{
