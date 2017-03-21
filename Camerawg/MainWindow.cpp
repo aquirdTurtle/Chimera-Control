@@ -127,22 +127,22 @@ BOOL MainWindow::OnInitDialog()
 	if (!default_hConfigVerticalScriptFile[0].is_open())
 	{
 		errBox("FATAL ERROR: Couldn't open default file. Was looking for file " + DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_HCONFIG_VERTICAL_SCRIPT.nScript");
-		return -1;
+		return 0;
 	}
 	if (!default_hConfigHorizontalScriptFile[0].is_open())
 	{
 		errBox("FATAL ERROR: Couldn't open default file. Was looking for file " + DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_HCONFIG_HORIZONTAL_SCRIPT.nScript");
-		return -1;
+		return 0;
 	}
 	if (!default_vConfigVerticalScriptFile[0].is_open())
 	{
 		errBox("FATAL ERROR: Couldn't open default file. Was looking for file " + DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_VCONFIG_VERTICAL_SCRIPT.nScript");
-		return -1;
+		return 0;
 	}
 	if (!default_vConfigHorizontalScriptFile[0].is_open())
 	{
 		errBox("FATAL ERROR: Couldn't open default file. Was looking for file " + DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_VCONFIG_HORIZONTAL_SCRIPT.nScript");
-		return -1;
+		return 0;
 	}
 
 	// parameters for variables used by the default file. (there shouldn't be any, these are essentially just placeholders so that I can use the same functions.

@@ -20,7 +20,7 @@ ConfigurationFileSystem::ConfigurationFileSystem(std::string fileSystemPath)
 }
 
 // just looks at the info in a file and loads it into references, doesn't change anything in the gui or main settings.
-void ConfigurationFileSystem::getConfigInfo( niawgPair<std::vector<std::fstream>> scriptFiles, std::vector<std::fstream> intensityScriptFiles,
+void ConfigurationFileSystem::getConfigInfo( niawgPair<std::vector<std::fstream>>& scriptFiles, std::vector<std::fstream>& intensityScriptFiles,
 											 profileSettings profile, std::vector<variable> singletons, std::vector<variable> variables )
 {
 	scriptFiles[Vertical].resize( profile.sequenceConfigNames.size() );

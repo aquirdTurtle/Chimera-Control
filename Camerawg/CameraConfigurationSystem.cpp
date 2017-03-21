@@ -399,30 +399,30 @@ int CameraConfigurationSystem::checkSave()
 
 void CameraConfigurationSystem::initialize( cameraPositions& positions, CWnd* parent, bool isTriggerModeSensitive, int& id )
 {
-	configLabel.ksmPos = { positions.ksmPos.x, positions.ksmPos.y, positions.ksmPos.x + 150, positions.ksmPos.y + 25 };
+	configLabel.seriesPos = { positions.seriesPos.x, positions.seriesPos.y, positions.seriesPos.x + 150, positions.seriesPos.y + 25 };
 	configLabel.amPos = { positions.amPos.x, positions.amPos.y, positions.amPos.x + 150,
 									  positions.amPos.y + 25 };
-	configLabel.cssmPos = { positions.cssmPos.x, positions.cssmPos.y, positions.cssmPos.x + 150,
-												 positions.cssmPos.y + 25 };
+	configLabel.videoPos = { positions.videoPos.x, positions.videoPos.y, positions.videoPos.x + 150,
+												 positions.videoPos.y + 25 };
 	configLabel.ID = id++;
-	configLabel.Create( "Configuration: ", WS_CHILD | WS_VISIBLE | ES_CENTER, configLabel.ksmPos, parent, configLabel.ID );
+	configLabel.Create( "Configuration: ", WS_CHILD | WS_VISIBLE | ES_CENTER, configLabel.seriesPos, parent, configLabel.ID );
 	configLabel.fontType = "Normal";
 
 	/// CAMERA MODE
-	configCombo.ksmPos = { positions.ksmPos.x + 150, positions.ksmPos.y, positions.ksmPos.x + 480,
-		positions.ksmPos.y + 800 };
+	configCombo.seriesPos = { positions.seriesPos.x + 150, positions.seriesPos.y, positions.seriesPos.x + 480,
+		positions.seriesPos.y + 800 };
 	configCombo.amPos = { positions.amPos.x + 150, positions.amPos.y, positions.amPos.x + 480,
 		positions.amPos.y + 800 };
-	configCombo.cssmPos = { positions.cssmPos.x + 150, positions.cssmPos.y, positions.cssmPos.x + 480,
-		positions.cssmPos.y + 800 };
+	configCombo.videoPos = { positions.videoPos.x + 150, positions.videoPos.y, positions.videoPos.x + 480,
+		positions.videoPos.y + 800 };
 	configCombo.ID = id++;
-	configCombo.Create( WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, configCombo.ksmPos, parent, configCombo.ID );
+	configCombo.Create( WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, configCombo.seriesPos, parent, configCombo.ID );
 	// add options
 	configCombo.fontType = "Normal";
 	CameraConfigurationSystem::reloadCombo( "__NONE__" );
-	positions.ksmPos.y += 25;
+	positions.seriesPos.y += 25;
 	positions.amPos.y += 25;
-	positions.cssmPos.y += 25;
+	positions.videoPos.y += 25;
 	updateSaveStatus( true );
 }
 

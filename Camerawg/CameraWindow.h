@@ -13,9 +13,9 @@ class ScriptingWindow;
 // pass a structure like this to initializers.
 struct cameraPositions
 {
-	POINT ksmPos;
+	POINT seriesPos;
 	POINT amPos;
-	POINT cssmPos;
+	POINT videoPos;
 };
 
 class CameraWindow : public CDialog

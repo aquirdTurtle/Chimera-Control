@@ -2,7 +2,6 @@
 #include <vector>
 #include "myMath.h"
 #include "Windows.h"
-#include "rmWhite.h"
 #include "constants.h"
 #include "externals.h"
 #include "NiawgController.h"
@@ -10,6 +9,7 @@
 #include <algorithm>
 #include "ScriptStream.h"
 
+struct profileSettings;
 
 /*
  * This Namespace includes all of my function handling for interacting withe agilent waveform generator. It includes:

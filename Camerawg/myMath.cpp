@@ -70,15 +70,16 @@ namespace myMath
 	 * Else if terrible flag not thrown, report best time and throw warning.
 	 * Else throw error.
 	 * Return phase mismatch.
-	*/
-	double calculateCorrectionTime(waveInfo& wvData1, waveInfo& wvData2, std::vector<double> startPhases, std::string order)
+	 */
+	double calculateCorrectionTime( singleChannelWave& wvData1, singleChannelWave& wvData2, std::vector<double> startPhases, 
+									std::string order, double time, long int sampleNum )
 	{
 		std::vector<double> freqList;
-		for (int signalInc = 0; signalInc < wvData1.signalNum; signalInc++)
+		for (int signalInc = 0; signalInc < wvData1.signals.size(); signalInc++)
 		{
 			freqList.push_back(wvData1.signals[signalInc].freqInit);
 		}
-		for (int signalInc = 0; signalInc < wvData2.signalNum; signalInc++)
+		for (int signalInc = 0; signalInc < wvData2.signals.size(); signalInc++)
 		{
 			freqList.push_back(wvData2.signals[signalInc].freqInit);
 		}
@@ -173,17 +174,13 @@ namespace myMath
 				// set values
 				if (order == "before")
 				{
-					wvData1.time = (bestSampleNum - 2) / SAMPLE_RATE;
-					wvData1.sampleNum = bestSampleNum;
-					wvData2.time = (bestSampleNum - 2) / SAMPLE_RATE;
-					wvData2.sampleNum = bestSampleNum;
+					time = (bestSampleNum - 2) / SAMPLE_RATE;
+					sampleNum = bestSampleNum;
 				}
 				else
 				{
-					wvData1.time = bestSampleNum / SAMPLE_RATE;
-					wvData1.sampleNum = bestSampleNum;
-					wvData2.time = bestSampleNum / SAMPLE_RATE;
-					wvData2.sampleNum = bestSampleNum;
+					time = bestSampleNum / SAMPLE_RATE;
+					sampleNum = bestSampleNum;
 				}
 				// throw warning!
 				return totalPhaseMismatch;
@@ -192,20 +189,15 @@ namespace myMath
 		// set values
 		if (order == "before")
 		{
-			wvData1.time = (bestSampleNum - 2) / SAMPLE_RATE;
-			wvData1.sampleNum = bestSampleNum;
-			wvData2.time = (bestSampleNum - 2) / SAMPLE_RATE;
-			wvData2.sampleNum = bestSampleNum;
+			time = (bestSampleNum - 2) / SAMPLE_RATE;
+			sampleNum = bestSampleNum;
 		}
 		else
 		{
-			wvData1.time = bestSampleNum / SAMPLE_RATE;
-			wvData1.sampleNum = bestSampleNum;
-			wvData2.time = bestSampleNum / SAMPLE_RATE;
-			wvData2.sampleNum = bestSampleNum;
+			time = bestSampleNum / SAMPLE_RATE;
+			sampleNum = bestSampleNum;
 		}
 		// if here, a good time must have been found.
 		return 0;
 	}
-
 };

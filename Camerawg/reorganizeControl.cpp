@@ -16,31 +16,31 @@ int reorganizeControl(Control<CWnd>& controlToReposition, std::string mode, RECT
 	}
 	if (mode == "Kinetic Series Mode")
 	{
-		if (controlToReposition.ksmPos.left == -1 || (controlToReposition.triggerModeSensitive == -1 && trigMode == "External"))
+		if (controlToReposition.seriesPos.left == -1 || (controlToReposition.triggerModeSensitive == -1 && trigMode == "External"))
 		{
 			controlToReposition.ShowWindow(SW_HIDE);
 		}
 		else
 		{
 			controlToReposition.ShowWindow(SW_SHOW);
-			RECT position = { widthScale * controlToReposition.ksmPos.left, heightScale * (controlToReposition.ksmPos.top + extraHeight),
-				widthScale * (controlToReposition.ksmPos.right - controlToReposition.ksmPos.left),
-				heightScale * (controlToReposition.ksmPos.bottom - controlToReposition.ksmPos.top) };
+			RECT position = { widthScale * controlToReposition.seriesPos.left, heightScale * (controlToReposition.seriesPos.top + extraHeight),
+				widthScale * (controlToReposition.seriesPos.right - controlToReposition.seriesPos.left),
+				heightScale * (controlToReposition.seriesPos.bottom - controlToReposition.seriesPos.top) };
 			controlToReposition.MoveWindow(&position, TRUE);
 		}
 	}
 	else if (mode == "Continuous Single Scans Mode")
 	{
-		if (controlToReposition.cssmPos.left == -1 || (controlToReposition.triggerModeSensitive == -1 && trigMode == "External"))
+		if (controlToReposition.videoPos.left == -1 || (controlToReposition.triggerModeSensitive == -1 && trigMode == "External"))
 		{
 			controlToReposition.ShowWindow(SW_HIDE);
 		}
 		else
 		{
 			controlToReposition.ShowWindow(SW_SHOW);
-			RECT position = { widthScale * controlToReposition.cssmPos.left, heightScale * (controlToReposition.cssmPos.top + extraHeight),
-				widthScale * (controlToReposition.cssmPos.right - controlToReposition.cssmPos.left),
-				heightScale * (controlToReposition.cssmPos.bottom - controlToReposition.cssmPos.top) };
+			RECT position = { widthScale * controlToReposition.videoPos.left, heightScale * (controlToReposition.videoPos.top + extraHeight),
+				widthScale * (controlToReposition.videoPos.right - controlToReposition.videoPos.left),
+				heightScale * (controlToReposition.videoPos.bottom - controlToReposition.videoPos.top) };
 			controlToReposition.MoveWindow(&position, TRUE);
 		}
 	}

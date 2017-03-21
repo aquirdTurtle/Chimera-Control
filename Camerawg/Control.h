@@ -25,11 +25,11 @@ template <class ControlType> class Control : public ControlType
 		// Standard Position: for objects that don't move around and have permanent positions in their windows.
 		RECT sPos;
 		// Kinetic Series Mode Positon: position for camera-mode-sensitive objects in kinetic series mode.
-		RECT ksmPos;
+		RECT seriesPos;
 		// Accumulate Mode Position
 		RECT amPos;
 		// Continuous Single Scan Mode Position
-		RECT cssmPos;
+		RECT videoPos;
 		std::string fontType;
 		int triggerModeSensitive;
 		//
@@ -90,31 +90,31 @@ template <class ControlType> void Control<ControlType>::rearrange(std::string ca
 	}
 	else if (cameraMode == "Kinetic Series Mode")
 	{
-		if (this->ksmPos.left == -1 || (this->triggerModeSensitive == -1 && trigMode == "External"))
+		if (this->seriesPos.left == -1 || (this->triggerModeSensitive == -1 && trigMode == "External"))
 		{
 			this->ShowWindow(SW_HIDE);
 		}
 		else
 		{
 			this->ShowWindow(SW_SHOW);
-			RECT position = { widthScale * this->ksmPos.left, heightScale * (this->ksmPos.top + extraHeight),
-				widthScale * this->ksmPos.right,
-				heightScale * (this->ksmPos.bottom + extraHeight) };
+			RECT position = { widthScale * this->seriesPos.left, heightScale * (this->seriesPos.top + extraHeight),
+				widthScale * this->seriesPos.right,
+				heightScale * (this->seriesPos.bottom + extraHeight) };
 			this->MoveWindow(&position, TRUE);
 		}
 	}	 
 	else if (cameraMode == "Continuous Single Scans Mode")
 	{
-		if (this->cssmPos.left == -1 || (this->triggerModeSensitive == -1 && trigMode == "External"))
+		if (this->videoPos.left == -1 || (this->triggerModeSensitive == -1 && trigMode == "External"))
 		{
 			this->ShowWindow(SW_HIDE);
 		}
 		else
 		{
 			this->ShowWindow(SW_SHOW);
-			RECT position = { widthScale * this->cssmPos.left, heightScale * (this->cssmPos.top + extraHeight),
-				widthScale * this->cssmPos.right,
-				heightScale * (this->cssmPos.bottom + extraHeight) };
+			RECT position = { widthScale * this->videoPos.left, heightScale * (this->videoPos.top + extraHeight),
+				widthScale * this->videoPos.right,
+				heightScale * (this->videoPos.bottom + extraHeight) };
 			this->MoveWindow(&position, TRUE);
 		}
 	}

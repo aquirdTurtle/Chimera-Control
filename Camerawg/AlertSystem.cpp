@@ -34,57 +34,57 @@ void AlertSystem::initialize(cameraPositions& pos, CWnd* parent, bool isTriggerM
 {
 	alertMessageID = RegisterWindowMessage("ID_NOT_LOADING_ATOMS");
 	/// Title
-	title.ksmPos = { pos.ksmPos.x, pos.ksmPos.y, pos.ksmPos.x + 480, pos.ksmPos.y + 25 };
+	title.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 25 };
 	title.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 25 };
-	title.cssmPos = { -1,-1,-1,-1 };
+	title.videoPos = { -1,-1,-1,-1 };
 	title.ID = id++;
 	title.triggerModeSensitive = isTriggerModeSensitive;
-	title.Create("ALERT SYSTEM", WS_BORDER | WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, title.ksmPos, parent, title.ID);
+	title.Create("ALERT SYSTEM", WS_BORDER | WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, title.seriesPos, parent, title.ID);
 	title.fontType = "Heading";
-	pos.ksmPos.y += 25;
+	pos.seriesPos.y += 25;
 	pos.amPos.y += 25;
 	/// Use Alerts Checkbox
-	alertsActiveCheckBox.ksmPos = { pos.ksmPos.x + 0, pos.ksmPos.y, pos.ksmPos.x + 160, pos.ksmPos.y + 20 };
+	alertsActiveCheckBox.seriesPos = { pos.seriesPos.x + 0, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 20 };
 	alertsActiveCheckBox.amPos = { pos.amPos.x + 0, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 20 };
-	alertsActiveCheckBox.cssmPos = { -1,-1,-1,-1 };
+	alertsActiveCheckBox.videoPos = { -1,-1,-1,-1 };
 	alertsActiveCheckBox.ID = id++;
 	alertsActiveCheckBox.triggerModeSensitive = isTriggerModeSensitive;
 	if (alertsActiveCheckBox.ID != IDC_ALERTS_BOX)
 	{
 		throw;
 	}
-	alertsActiveCheckBox.Create("Use?", WS_CHILD | WS_VISIBLE | ES_LEFT | ES_READONLY | BS_CHECKBOX, alertsActiveCheckBox.ksmPos, parent, alertsActiveCheckBox.ID);
+	alertsActiveCheckBox.Create("Use?", WS_CHILD | WS_VISIBLE | ES_LEFT | ES_READONLY | BS_CHECKBOX, alertsActiveCheckBox.seriesPos, parent, alertsActiveCheckBox.ID);
 	alertsActiveCheckBox.fontType = "Normal";
 	/// Alert threshold text
-	alertThresholdText.ksmPos = { pos.ksmPos.x + 160, pos.ksmPos.y, pos.ksmPos.x + 320, pos.ksmPos.y + 20 };
+	alertThresholdText.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 20 };
 	alertThresholdText.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 20 };
-	alertThresholdText.cssmPos = { -1,-1,-1,-1 };
+	alertThresholdText.videoPos = { -1,-1,-1,-1 };
 	alertThresholdText.ID = id++;
 	alertThresholdText.triggerModeSensitive = isTriggerModeSensitive;
-	alertThresholdText.Create("Alert Threshold:", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, alertThresholdText.ksmPos, parent, alertThresholdText.ID);
+	alertThresholdText.Create("Alert Threshold:", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, alertThresholdText.seriesPos, parent, alertThresholdText.ID);
 	alertThresholdText.fontType = "Normal";
 	/// Alert threshold edit
-	alertThresholdEdit.ksmPos = { pos.ksmPos.x + 320, pos.ksmPos.y, pos.ksmPos.x + 480, pos.ksmPos.y + 20 };
+	alertThresholdEdit.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 20 };
 	alertThresholdEdit.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 20 };
-	alertThresholdEdit.cssmPos = { -1,-1,-1,-1 };
+	alertThresholdEdit.videoPos = { -1,-1,-1,-1 };
 	alertThresholdEdit.ID = id++;
 	alertThresholdEdit.triggerModeSensitive = isTriggerModeSensitive;
-	alertThresholdEdit.Create(WS_CHILD | WS_VISIBLE | ES_CENTER, alertThresholdEdit.ksmPos, parent, alertThresholdEdit.ID);
+	alertThresholdEdit.Create(WS_CHILD | WS_VISIBLE | ES_CENTER, alertThresholdEdit.seriesPos, parent, alertThresholdEdit.ID);
 	alertThresholdEdit.SetWindowTextA("10");
 	alertThresholdEdit.fontType = "Normal";
-	pos.ksmPos.y += 20;
+	pos.seriesPos.y += 20;
 	pos.amPos.y += 20;
 	/// Sound checkbox
 	// soundAtFinshCheckBox.hwnd
-	soundAtFinshCheckBox.ksmPos = { pos.ksmPos.x + 0, pos.ksmPos.y, pos.ksmPos.x + 480, pos.ksmPos.y + 20 };
+	soundAtFinshCheckBox.seriesPos = { pos.seriesPos.x + 0, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 20 };
 	soundAtFinshCheckBox.amPos = { pos.amPos.x + 0, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 20 };
-	soundAtFinshCheckBox.cssmPos = { -1,-1,-1,-1 };
+	soundAtFinshCheckBox.videoPos = { -1,-1,-1,-1 };
 	soundAtFinshCheckBox.ID = id++;
 	soundAtFinshCheckBox.triggerModeSensitive = isTriggerModeSensitive;
-	soundAtFinshCheckBox.Create("Play Sound at Finish?", WS_CHILD | WS_VISIBLE | ES_LEFT | ES_READONLY | BS_AUTOCHECKBOX, soundAtFinshCheckBox.ksmPos,
+	soundAtFinshCheckBox.Create("Play Sound at Finish?", WS_CHILD | WS_VISIBLE | ES_LEFT | ES_READONLY | BS_AUTOCHECKBOX, soundAtFinshCheckBox.seriesPos,
 		parent, soundAtFinshCheckBox.ID);
 	soundAtFinshCheckBox.fontType = "Normal";
-	pos.ksmPos.y += 20;
+	pos.seriesPos.y += 20;
 	pos.amPos.y += 20;
 }
 

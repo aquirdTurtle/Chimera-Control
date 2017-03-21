@@ -16,9 +16,6 @@
     <ClCompile Include="myMath.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="rmWhite.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
     <ClCompile Include="saveTextFileFromEdit.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
@@ -151,16 +148,16 @@
     <ClCompile Include="CameraConfigurationSystem.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="ScriptStream.cpp">
-      <Filter>Function Headers</Filter>
-    </ClCompile>
     <ClCompile Include="SocketWrapper.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="ExperimentLogger.cpp">
-      <Filter>Function Headers</Filter>
-    </ClCompile>
     <ClCompile Include="NiawgWaiter.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ExperimentLogger.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptStream.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -178,9 +175,6 @@
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="saveTextFileFromEdit.h">
-      <Filter>Function Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="rmWhite.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
@@ -334,19 +328,19 @@
     <ClInclude Include="CameraImageDimensions.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
-    <ClInclude Include="CameraConfigurationSystem.h">
-      <Filter>Code Files</Filter>
-    </ClInclude>
     <ClInclude Include="ScriptStream.h">
       <Filter>Function Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="SocketWrapper.h">
-      <Filter>Code Files</Filter>
     </ClInclude>
     <ClInclude Include="ExperimentLogger.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="NiawgWaiter.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="SocketWrapper.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraConfigurationSystem.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
   </ItemGroup>

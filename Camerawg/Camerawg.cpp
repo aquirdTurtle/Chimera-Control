@@ -19,8 +19,6 @@
 // Contains some user-defined global parameters and options used throughout the code.
 #include "constants.h"
 #include "externals.h"
-// a function used to clear any leading whitespace from the input files.
-#include "rmWhite.h"
 // an namespace for agilent functions.
 #include "myAgilent.h"
 //

@@ -1,7 +1,8 @@
 #pragma once
 #include "stdafx.h"
 #include <vector>
-#include "NiawgController.h"
+
+struct singleChannelWave;
 
 /*
  * This namespace includes functions that I've programmed that essentially just do mathematical calculations. Most of these are highly specialized and revolve 
@@ -14,6 +15,7 @@ namespace myMath
 		double min;
 		double max;
 	};
-	double calculateCorrectionTime(waveInfo& wvData1, waveInfo& wvData2, std::vector<double> startPhases, std::string order);
+	double calculateCorrectionTime( singleChannelWave& wvData1, singleChannelWave& wvData2, std::vector<double> startPhases, 
+									std::string order, double time, long int sampleNum );
 	double rampCalc(int size, int iteration, double initPos, double finPos, std::string rampType);
 };

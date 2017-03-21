@@ -125,115 +125,115 @@ void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	std::vector<CToolTipCtrl*>& tooltips, int isTriggerModeSensitive)
 {
 
-	header.ksmPos = { pos.ksmPos.x,  pos.ksmPos.y,  pos.ksmPos.x + 480, pos.ksmPos.y + 25 };
-	header.cssmPos = { pos.cssmPos.x, pos.cssmPos.y, pos.cssmPos.x + 480, pos.cssmPos.y + 25 };
+	header.seriesPos = { pos.seriesPos.x,  pos.seriesPos.y,  pos.seriesPos.x + 480, pos.seriesPos.y + 25 };
+	header.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y + 25 };
 	header.amPos = { pos.amPos.x,   pos.amPos.y,   pos.amPos.x + 480, pos.amPos.y + 25 };
 	header.triggerModeSensitive = isTriggerModeSensitive;
 	header.ID = id++;
-	header.Create("DATA ANALYSIS", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_CENTER, header.ksmPos, parent, header.ID);
+	header.Create("DATA ANALYSIS", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_CENTER, header.seriesPos, parent, header.ID);
 	header.fontType = "Heading";
-	pos.ksmPos.y += 25;
-	pos.cssmPos.y += 25;
+	pos.seriesPos.y += 25;
+	pos.videoPos.y += 25;
 	pos.amPos.y += 25;
 	
 	/// Data analysis stuffs.
 	//
-	currentDataSetNumberText.ksmPos = { pos.ksmPos.x, pos.ksmPos.y,
-		pos.ksmPos.x + 400, pos.ksmPos.y + 25 };
+	currentDataSetNumberText.seriesPos = { pos.seriesPos.x, pos.seriesPos.y,
+		pos.seriesPos.x + 400, pos.seriesPos.y + 25 };
 	currentDataSetNumberText.amPos = { pos.amPos.x, pos.amPos.y,
 		pos.amPos.x + 400, pos.amPos.y + 25 };
-	currentDataSetNumberText.cssmPos = { -1,-1,-1,-1 };
+	currentDataSetNumberText.videoPos = { -1,-1,-1,-1 };
 	currentDataSetNumberText.triggerModeSensitive = isTriggerModeSensitive;
 	currentDataSetNumberText.ID = id++;
 	currentDataSetNumberText.Create( "Most Recent Data Set #:", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY,
-									 currentDataSetNumberText.ksmPos, parent, currentDataSetNumberText.ID );
+									 currentDataSetNumberText.seriesPos, parent, currentDataSetNumberText.ID );
 	currentDataSetNumberText.fontType = "Normal";
 	//
-	currentDataSetNumberEdit.ksmPos = { pos.ksmPos.x + 400, pos.ksmPos.y, pos.ksmPos.x + 480, pos.ksmPos.y + 25 };
+	currentDataSetNumberEdit.seriesPos = { pos.seriesPos.x + 400, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 25 };
 	currentDataSetNumberEdit.amPos = { pos.amPos.x + 400, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 25 };
-	currentDataSetNumberEdit.cssmPos = { -1,-1,-1,-1 };
+	currentDataSetNumberEdit.videoPos = { -1,-1,-1,-1 };
 	currentDataSetNumberEdit.ID = id++;
 	currentDataSetNumberEdit.triggerModeSensitive = isTriggerModeSensitive;
 	currentDataSetNumberEdit.Create( "?", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, 
-									 currentDataSetNumberEdit.ksmPos, parent, currentDataSetNumberEdit.ID );
+									 currentDataSetNumberEdit.seriesPos, parent, currentDataSetNumberEdit.ID );
 	currentDataSetNumberEdit.fontType = "Normal";
-	pos.ksmPos.y += 25;
+	pos.seriesPos.y += 25;
 	pos.amPos.y += 25;
-	autoAnalyzeCheckBox.ksmPos = { pos.ksmPos.x, pos.ksmPos.y, pos.ksmPos.x + 480, pos.ksmPos.y + 20 };
+	autoAnalyzeCheckBox.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 20 };
 	autoAnalyzeCheckBox.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 20 };
-	autoAnalyzeCheckBox.cssmPos = { -1,-1,-1,-1 };
+	autoAnalyzeCheckBox.videoPos = { -1,-1,-1,-1 };
 	autoAnalyzeCheckBox.ID = id++;
 	autoAnalyzeCheckBox.triggerModeSensitive = isTriggerModeSensitive;
 	autoAnalyzeCheckBox.Create( "Automatically Analyze Data at Finish?", WS_CHILD | WS_VISIBLE | ES_RIGHT |
-								ES_READONLY | BS_CHECKBOX, autoAnalyzeCheckBox.ksmPos, parent, autoAnalyzeCheckBox.ID );
+								ES_READONLY | BS_CHECKBOX, autoAnalyzeCheckBox.seriesPos, parent, autoAnalyzeCheckBox.ID );
 	autoAnalyzeCheckBox.fontType = "Normal";
-	pos.ksmPos.y += 20;
+	pos.seriesPos.y += 20;
 	pos.amPos.y += 20;
 	// 
-	setAnalysisLocationsButton.ksmPos = { pos.ksmPos.x, pos.ksmPos.y,
-		pos.ksmPos.x + 480, pos.ksmPos.y + 25 };
+	setAnalysisLocationsButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y,
+		pos.seriesPos.x + 480, pos.seriesPos.y + 25 };
 	setAnalysisLocationsButton.amPos = { pos.amPos.x, pos.amPos.y,
 		pos.amPos.x + 480, pos.amPos.y + 25 };
-	setAnalysisLocationsButton.cssmPos = { -1,-1,-1,-1 };
+	setAnalysisLocationsButton.videoPos = { -1,-1,-1,-1 };
 	setAnalysisLocationsButton.ID = id++;
 	setAnalysisLocationsButton.triggerModeSensitive = isTriggerModeSensitive;
 	setAnalysisLocationsButton.Create( "Set AutoAnalysis Points", WS_CHILD | WS_VISIBLE | BS_PUSHLIKE | BS_CHECKBOX,
-									   setAnalysisLocationsButton.ksmPos, parent, setAnalysisLocationsButton.ID );
+									   setAnalysisLocationsButton.seriesPos, parent, setAnalysisLocationsButton.ID );
 	setAnalysisLocationsButton.fontType = "Normal";
-	pos.ksmPos.y += 25;
+	pos.seriesPos.y += 25;
 	pos.amPos.y += 25;
 
 	//
-	analyzeMostRecentButton.ksmPos = { pos.ksmPos.x, pos.ksmPos.y,
-		pos.ksmPos.x + 480, pos.ksmPos.y + 25 };
+	analyzeMostRecentButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y,
+		pos.seriesPos.x + 480, pos.seriesPos.y + 25 };
 	analyzeMostRecentButton.amPos = { pos.amPos.x, pos.amPos.y,
 		pos.amPos.x + 480, pos.amPos.y + 25 };
-	analyzeMostRecentButton.cssmPos = { -1, -1, -1, -1 };
+	analyzeMostRecentButton.videoPos = { -1, -1, -1, -1 };
 	analyzeMostRecentButton.triggerModeSensitive = isTriggerModeSensitive;
 	analyzeMostRecentButton.ID = id++;
 	analyzeMostRecentButton.triggerModeSensitive = isTriggerModeSensitive;
 	analyzeMostRecentButton.Create( "Analyze Most Recent Data", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
-									analyzeMostRecentButton.ksmPos, parent, analyzeMostRecentButton.ID );
+									analyzeMostRecentButton.seriesPos, parent, analyzeMostRecentButton.ID );
 	analyzeMostRecentButton.fontType = "Normal";
-	pos.ksmPos.y += 25;
+	pos.seriesPos.y += 25;
 	pos.amPos.y += 25;
 
 	/// PLOTTING FREQUENCY CONTROLS
 	// Set Plotting Frequency
-	updateFrequencyLabel1.ksmPos =  { pos.ksmPos.x,  pos.ksmPos.y,  pos.ksmPos.x  + 150, pos.ksmPos.y  + 25 };
-	updateFrequencyLabel1.cssmPos = { pos.cssmPos.x, pos.cssmPos.y, pos.cssmPos.x + 150, pos.cssmPos.y + 25 };
+	updateFrequencyLabel1.seriesPos =  { pos.seriesPos.x,  pos.seriesPos.y,  pos.seriesPos.x  + 150, pos.seriesPos.y  + 25 };
+	updateFrequencyLabel1.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 150, pos.videoPos.y + 25 };
 	updateFrequencyLabel1.amPos =   { pos.amPos.x,   pos.amPos.y,   pos.amPos.x   + 150, pos.amPos.y   + 25 };
 	updateFrequencyLabel1.ID = id++;
 	updateFrequencyLabel1.triggerModeSensitive = isTriggerModeSensitive;
 	
 	updateFrequencyLabel1.Create("Update plots every (", WS_CHILD | WS_VISIBLE | WS_BORDER,
-		updateFrequencyLabel1.ksmPos, parent, updateFrequencyLabel1.ID);
+		updateFrequencyLabel1.seriesPos, parent, updateFrequencyLabel1.ID);
 	updateFrequencyLabel1.fontType = "Normal";
 	// Plotting Frequency Edit
-	updateFrequencyEdit.ksmPos = { pos.ksmPos.x + 150, pos.ksmPos.y,pos.ksmPos.x + 200, pos.ksmPos.y + 25 };
-	updateFrequencyEdit.cssmPos = { pos.cssmPos.x + 150, pos.cssmPos.y, pos.cssmPos.x + 200, pos.cssmPos.y + 25 };
+	updateFrequencyEdit.seriesPos = { pos.seriesPos.x + 150, pos.seriesPos.y,pos.seriesPos.x + 200, pos.seriesPos.y + 25 };
+	updateFrequencyEdit.videoPos = { pos.videoPos.x + 150, pos.videoPos.y, pos.videoPos.x + 200, pos.videoPos.y + 25 };
 	updateFrequencyEdit.amPos = { pos.amPos.x + 150, pos.amPos.y, pos.amPos.x + 200, pos.amPos.y + 25 };
 	updateFrequencyEdit.triggerModeSensitive = isTriggerModeSensitive;
-	updateFrequencyEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER, updateFrequencyEdit.ksmPos, parent,
+	updateFrequencyEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER, updateFrequencyEdit.seriesPos, parent,
 		updateFrequencyEdit.ID);
 	updateFrequencyEdit.fontType = "Normal";
 	updateFrequency = 5; 
 	updateFrequencyEdit.SetWindowTextA("5");
 	// end of that statement
-	updateFrequencyLabel2.ksmPos =  { pos.ksmPos.x + 200,  pos.ksmPos.y,  pos.ksmPos.x + 480, pos.ksmPos.y + 25 };
-	updateFrequencyLabel2.cssmPos = { pos.cssmPos.x + 200, pos.cssmPos.y, pos.cssmPos.x + 480, pos.cssmPos.y + 25 };
+	updateFrequencyLabel2.seriesPos =  { pos.seriesPos.x + 200,  pos.seriesPos.y,  pos.seriesPos.x + 480, pos.seriesPos.y + 25 };
+	updateFrequencyLabel2.videoPos = { pos.videoPos.x + 200, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y + 25 };
 	updateFrequencyLabel2.amPos =   { pos.amPos.x + 200,   pos.amPos.y,   pos.amPos.x + 480, pos.amPos.y + 25 };
 	updateFrequencyLabel2.ID = id++;
 	updateFrequencyLabel2.triggerModeSensitive = isTriggerModeSensitive;
 	updateFrequencyLabel2.Create(") repetitions.", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON,
-		updateFrequencyLabel2.ksmPos, parent, updateFrequencyLabel2.ID);
+		updateFrequencyLabel2.seriesPos, parent, updateFrequencyLabel2.ID);
 	updateFrequencyLabel2.fontType = "Normal";
-	pos.ksmPos.y += 25;
-	pos.cssmPos.y += 25;
+	pos.seriesPos.y += 25;
+	pos.videoPos.y += 25;
 	pos.amPos.y += 25;
 	/// the listview
-	plotListview.ksmPos = { pos.ksmPos.x,   pos.ksmPos.y,  pos.ksmPos.x + 480,  pos.ksmPos.y + 100 };
-	plotListview.cssmPos = { pos.cssmPos.x, pos.cssmPos.y, pos.cssmPos.x + 480, pos.cssmPos.y + 100 };
+	plotListview.seriesPos = { pos.seriesPos.x,   pos.seriesPos.y,  pos.seriesPos.x + 480,  pos.seriesPos.y + 100 };
+	plotListview.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y + 100 };
 	plotListview.amPos = { pos.amPos.x,     pos.amPos.y,   pos.amPos.x + 480,   pos.amPos.y + 100 };
 	plotListview.ID = id++;
 	plotListview.triggerModeSensitive = isTriggerModeSensitive;
@@ -241,7 +241,7 @@ void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	{
 		throw;
 	}
-	plotListview.Create(WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS, plotListview.ksmPos, parent,
+	plotListview.Create(WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS, plotListview.seriesPos, parent,
 		plotListview.ID);
 	plotListview.fontType == "Normal";
 	// initialize the listview
