@@ -1032,7 +1032,7 @@ namespace myAgilent
 	/*
 	 * This function tells the agilent to use sequence # (varNum) and sets settings correspondingly.
 	 */
-	void selectIntensityProfile(int varNum, bool intensityIsVaried, std::vector<myMath::minMaxDoublet> intensityMinMax)
+	void setIntensity(int varNum, bool intensityIsVaried, std::vector<myMath::minMaxDoublet> intensityMinMax)
 	{
 		if (intensityIsVaried || varNum == 0)
 		{

@@ -45,19 +45,10 @@ std::string eMostRecentVerticalScriptNames;
 std::string eMostRecentHorizontalScriptNames;
 std::string eMostRecentIntensityScriptNames;
 std::vector<std::string> eSequenceFileNames;
-//std::vector<std::string> eVariableNames;
-//std::vector<std::string> eVerticalVarFileNames;
 
-bool eCurrentVerticalViewIsParent = true;
-bool eCurrentHorizontalViewIsParent = true;
-bool eCurrentIntensityViewIsParent = true;
 
-bool eExperimentIsRunning;
-bool eDontActuallyGenerate;
 bool eAbortNiawgFlag = false;
-bool eHorizontalSyntaxColorIsCurrent = true, eVerticalSyntaxColorIsCurrent = true, eIntensitySyntaxColorIsCurrent = true;
 
-unsigned int eAccumulations = 0;
 // thread messages
 // register messages for main window.
 UINT eVariableStatusMessageID = RegisterWindowMessage( "ID_THREAD_VARIABLE_STATUS" );
@@ -71,43 +62,18 @@ UINT eColoredEditMessageID = RegisterWindowMessage( "ID_VARIABLE_VALUES_MESSAGE"
 UINT eCameraFinishMessageID = RegisterWindowMessage( "ID_CAMERA_FINISH_MESSAGE" );
 UINT eCameraProgressMessageID = RegisterWindowMessage( "ID_CAMERA_PROGRESS_MESSAGE" );
 
-char eVerticalCurrentParentScriptName[_MAX_FNAME];
-char eHorizontalCurrentParentScriptName[_MAX_FNAME];
-char eIntensityCurrentParentScriptName[_MAX_FNAME];
-char eVerticalCurrentViewScriptName[_MAX_FNAME];
-char eHorizontalCurrentViewScriptName[_MAX_FNAME];
-char eIntensityCurrentViewScriptName[_MAX_FNAME];
 
 // A variable which records what script is currently being executed by the NIAWG.
 std::string eCurrentScript;
 
-
-HWND mainToolTipClass;
-HWND tooltipTest;
 // Colors
-HBRUSH eYellowBrush = CreateSolidBrush(RGB(104, 104, 0));
-HBRUSH eGreenBrush = CreateSolidBrush(RGB(0, 120, 0));
-HBRUSH blueBrush = CreateSolidBrush(RGB(0, 0, 120));
-HBRUSH eRedBrush = CreateSolidBrush(RGB(120, 0, 0));
-HBRUSH eDarkBlueBrush = CreateSolidBrush(RGB(0, 0, 75));
-HBRUSH eTealBrush = CreateSolidBrush(RGB(0, 60, 80));
-HBRUSH eVeryDarkBlueBrush = CreateSolidBrush(RGB(25, 25, 35));
-HBRUSH eNearBlackBlueBrush = CreateSolidBrush(RGB(15, 15, 20));
-HBRUSH eDarkPurpleBrush = CreateSolidBrush(RGB(32, 0, 65));
 HBRUSH eDullRedBrush = CreateSolidBrush(RGB(25, 0, 0));
 HBRUSH eDarkRedBrush = CreateSolidBrush(RGB(75, 0, 0));
-HBRUSH eNearBlackRedBrush = CreateSolidBrush(RGB(30, 25, 25));
 HBRUSH eGreyRedBrush = CreateSolidBrush(RGB(50, 45, 45));
-
-/// Objects for drawings
-RECT eRampCanvasRECT;
-HDC eRampsRectangleHDC;
 
 HANDLE eWaitingForNIAWGEvent;
 HANDLE eExperimentThreadHandle;
 HANDLE eNIAWGWaitThreadHandle;
 
-HWND eMainWindowHandle;
-HWND eScriptingWindowHandle;
 /// Beginning Settings Dialog
 HWND eBeginDialogRichEdit;

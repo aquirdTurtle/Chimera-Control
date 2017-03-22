@@ -13,7 +13,7 @@ class SocketWrapper
 		void close();
 		bool isConnected();
 		// specific
-		int getAccumulations(int scalingFactor);
+		int getRepetitions(int scalingFactor);
 
 	private:
 		// socket constants

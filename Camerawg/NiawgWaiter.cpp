@@ -133,12 +133,12 @@ void NiawgWaiter::initialize()
 }
 
 
-void NiawgWaiter::wait( Communicator* comm, bool& deleteWaveforms )
+void NiawgWaiter::wait( Communicator* comm )
 {
-	systemAbortCheck( comm, deleteWaveforms );
+	systemAbortCheck( comm );
 	SetEvent( eWaitingForNIAWGEvent );
 	WaitForSingleObject( eNIAWGWaitThreadHandle, INFINITE );
-	systemAbortCheck( comm, deleteWaveforms );
+	systemAbortCheck( comm );
 	// check this flag that can be set by the wait thread.
 	if (eWaitError == true)
 	{
@@ -152,17 +152,10 @@ void NiawgWaiter::wait( Communicator* comm, bool& deleteWaveforms )
 */
 void NiawgWaiter::systemAbortCheck( Communicator* comm )
 {
-	bool dummy;
-	systemAbortCheck( comm, dummy );
-}
-
-void NiawgWaiter::systemAbortCheck( Communicator* comm, bool& aborting )
-{
 	// check if aborting
 	if (eAbortNiawgFlag == true)
 	{
 		comm->sendStatus( "Aborted!\r\n" );
-		aborting = true;
 		thrower( "Aborted!" );
 	}
 }

@@ -198,8 +198,6 @@ BOOL MainWindow::OnInitDialog()
 	{
 		errBox("ERROR: failed to start niawg default waveforms! Niawg gave the following error message: " + exception.whatStr());
 	}
-	// default value of this variable.
-	eDontActuallyGenerate = false;
 	eCurrentScript = "DefaultScript";
 	// not done with the script, it will not stay on the NIAWG, so I need to keep track of it so thatI can reload it onto the NIAWG when necessary.	
 	/// Initialize Windows

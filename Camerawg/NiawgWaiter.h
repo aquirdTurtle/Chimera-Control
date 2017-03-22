@@ -20,7 +20,6 @@ class NiawgWaiter
 		void initialize();
 		static unsigned __stdcall niawgWaitThread( void* inputParam );
 		void startWait( experimentThreadInput* input);
-		void wait( Communicator* comm, bool& deleteWaveforms );
-		void systemAbortCheck( Communicator* comm, bool& deleteWaveforms );
+		void wait( Communicator* comm );
 		void systemAbortCheck( Communicator* comm );
 };

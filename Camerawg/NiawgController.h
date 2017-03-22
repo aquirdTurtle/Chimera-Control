@@ -24,7 +24,6 @@ typedef std::array<std::vector<std::string>, MAX_NIAWG_SIGNALS * 4> library;
 
 /* * * * 
  * Niawg Data structure objects, in increasing order of complexity. I.e. waveSignals make up channelWaves which make up...
- * Names need some work :/
  * */
 
 /* * * * *
@@ -66,26 +65,19 @@ struct channelWave
 	// This should usually just be a single char, but if it's wrong I can use the whole string to debug.
 	std::string delim;
 	// the actual waveform data.
-	std::vector<ViReal64> waveform;
+	std::vector<ViReal64> wave;
 };
+
+// declare it so that flashInfo knows what it is.
+struct waveInfo;
 
 struct flashInfo
 {
 	niawgPair<std::string> flashCycleFreqInput;
 	niawgPair<std::string> totalTimeInput;
-	std::vector<waveInfo> waves;
-
+	std::vector<waveInfo> flashWaves;
 	double flashCycleFreq;
 	unsigned int flashNumber;
-	double totalTime;
-	long int sampleNum;
-	bool varies;
-	bool isStreamed;
-
-	niawgPair<double> initPhase;
-	niawgPair<double> finPhase;
-
-	std::vector<ViReal64> waveform;
 };
 
 // contains all info for a waveform on the niawg; i.e. info for both channels, special options, time, and waveform data.
@@ -99,7 +91,7 @@ struct waveInfo
 	bool varies;
 	bool isStreamed;
 	bool isFlashing;
-	std::vector<ViReal64> mixedWaveform;
+	std::vector<ViReal64> waveVals;
 };
 
 /* * * * * 
@@ -132,7 +124,7 @@ class NiawgController
 		void handleVariations( outputInfo& output, std::vector<variable>& variables, std::vector<std::vector<double>> varValues,
 							   size_t variation, std::vector<long> mixedWaveSizes, std::string& warnings, debugInfo& debugOptions );
 		void getVariables( SocketWrapper& socket, std::vector<std::vector<double>>& varValues, std::vector<variable> variables );
-		void getWaveformData( outputInfo& output, profileSettings profile, niawgPair<std::string> command, debugInfo& debug, 
+		void loadWaveformParameters( outputInfo& output, profileSettings profile, niawgPair<std::string> command, debugInfo& debug, 
 							  niawgPair<ScriptStream>& scripts, std::vector<variable> singletons );
 		void getVariedWaveform( std::vector<waveInfo>& waves, int waveNum, int axis, debugInfo& options );
 		void varyParam( std::vector<waveInfo> waves, int waveNum, int axis, int &paramNum, double paramVal, std::string& warnings );
@@ -155,8 +147,41 @@ class NiawgController
 
 		void calculateFlashingWaveform();
 		void streamWaveformData();	
+		
+		void abortGeneration();
+		void initiateGeneration();
+		void configureOutputEnabled( int state );
+		void allocateNamedWaveform( ViConstString waveformName, ViInt32 unmixedSampleNumber );
+		void writeScript( ViConstString script );
+		void setViStringAttribute( ViAttr atributeID, ViConstString attributeValue );
+		void deleteWaveform( ViConstString waveformName );
+		void writeNamedWaveform( ViConstString waveformName, ViInt32 mixedSampleNumber, ViReal64* wave );
+		void deleteScript( ViConstString scriptName );
 
-		// wrappers around niFgen functions.
+	private:
+		void errChecker( int err );
+		void calcWaveData( channelWave& inputData, std::vector<ViReal64>& readData, long int sampleNum, double time );
+		void getStandardInputType( std::string inputType, channelWave &wvInfo );
+		void openWaveformFiles( );
+		void generateWaveform( channelWave & waveInfo, debugInfo& options, long int sampleNum, double time );
+		void createStandardWave( waveInfo& wave, debugInfo options );
+		void createFlashingWave( waveInfo& wave, debugInfo options );
+		void handleLogic( niawgPair<ScriptStream>& script, niawgPair<std::string> inputs, std::string &scriptString );
+		void handleSpecial( niawgPair<ScriptStream>& script, outputInfo& output, niawgPair<std::string> inputTypes,
+							profileSettings profile, std::vector<variable> singletons, debugInfo& options, std::string& warnings );
+		void handleStandardWaveform( outputInfo& output, profileSettings profile, niawgPair<std::string> command,
+									 niawgPair<ScriptStream>& scripts, std::vector<variable> singletons, debugInfo& options );
+		void handleSpecialWaveform( outputInfo& output, profileSettings profile, niawgPair<std::string> command,
+									niawgPair<ScriptStream>& scripts, std::vector<variable> singletons, debugInfo& options );
+		
+		void getWaveRawParameters( ScriptStream &script, channelWave &waveInfo, std::vector<variable> singletons, double& time );
+		
+		bool isLogic( std::string command );
+		bool isStandardWaveform( std::string command );
+		bool isSpecialWaveform( std::string command );
+		bool isSpecialCommand( std::string command );
+
+		/// wrappers around niFgen functions.
 		void initialize();
 		signed short isDone();
 		ViInt32 getInt32Attribute( ViAttr attribute );
@@ -166,15 +191,13 @@ class NiawgController
 		ViBoolean getViBoolAttribute( ViAttr attribute );
 		ViSession getViSessionAttribute( ViAttr attribute );
 		void setAttributeViString( ViAttr attribute, ViString string );
-		void createWaveform( long size, ViReal64* mixedWaveform );
-		void writeNamedWaveform( ViConstString waveformName, ViInt32 mixedSampleNumber, ViReal64* mixedWaveform );
-		void writeUnNamedWaveform( ViInt32 waveID, ViInt32 mixedSampleNumber, ViReal64* mixedWaveform );
-		void writeScript( ViConstString script );
-		void deleteScript( ViConstString scriptName );
-		void allocateNamedWaveform( ViConstString waveformName, ViInt32 unmixedSampleNumber );
+		void createWaveform( long size, ViReal64* wave );
+		void writeUnNamedWaveform( ViInt32 waveID, ViInt32 mixedSampleNumber, ViReal64* wave );
+		
+		
 		ViInt32 allocateUnNamedWaveform( ViInt32 unmixedSampleNumber );
 		void clearMemory();
-		void configureOutputEnabled( int state );
+
 		void configureSoftwareTrigger();
 		void configureDigtalEdgeScriptTrigger();
 		void configureOutputMode();
@@ -185,36 +208,14 @@ class NiawgController
 		void configureSampleRate( ViReal64 sampleRate );
 		void enableAnalogFilter( ViReal64 filterFrequency );
 		void init( ViRsrc location, ViBoolean idQuery, ViBoolean resetDevice );
-		void initiateGeneration();
-		void abortGeneration();
-		void deleteWaveform( ViConstString waveformName );
-		std::string getErrorMsg();
+		
 
-		// might need to add more handlers for other objects.
-		void setViStringAttribute( ViAttr atributeID, ViConstString attributeValue );
+		
+		std::string getErrorMsg();		
+		
+
 		void setViInt32Attribute( ViAttr attributeID, ViInt32 value );
 		void setViBooleanAttribute( ViAttr attribute, bool state );
-
-	private:
-		void errChecker( int err );
-		void calcWaveData( channelWave& inputData, std::vector<ViReal64>& readData, long int sampleNum, double time );
-		void getStandardInputType( std::string inputType, channelWave &wvInfo );
-		void openWaveformFiles( );
-		void generateWaveform( channelWave & waveInfo, debugInfo& options, long int sampleNum, double time );
-
-		void handleLogic( niawgPair<ScriptStream>& script, niawgPair<std::string> inputs, std::string &scriptString );
-		void handleSpecial( niawgPair<ScriptStream>& script, outputInfo& output, niawgPair<std::string> inputTypes,
-							profileSettings profile, std::vector<variable> singletons, debugInfo& options, std::string& warnings );
-		void handleStandardWaveform( outputInfo& output, profileSettings profile, niawgPair<std::string> command,
-									 niawgPair<ScriptStream>& scripts, std::vector<variable> singletons, debugInfo& options );
-		void handleSpecialWaveform( outputInfo& output, profileSettings profile, niawgPair<std::string> command,
-									niawgPair<ScriptStream>& scripts, std::vector<variable> singletons, debugInfo& options );
-		void getWaveData( ScriptStream &script, channelWave &waveInfo, std::vector<variable> singletons, double& time );
-		bool isLogic( std::string command );
-		bool isStandardWaveform( std::string command );
-		bool isSpecialWaveform( std::string command );
-		bool isSpecialCommand( std::string command );
-
 		/// member variables
 		std::string defaultOrientation;
 		niawgPair<std::string> currentScripts;

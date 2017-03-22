@@ -71,7 +71,7 @@ namespace myMath
 	 * Else throw error.
 	 * Return phase mismatch.
 	 */
-	double calculateCorrectionTime( singleChannelWave& wvData1, singleChannelWave& wvData2, std::vector<double> startPhases, 
+	double calculateCorrectionTime( channelWave& wvData1, channelWave& wvData2, std::vector<double> startPhases, 
 									std::string order, double time, long int sampleNum )
 	{
 		std::vector<double> freqList;

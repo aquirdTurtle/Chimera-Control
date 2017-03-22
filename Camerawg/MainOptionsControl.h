@@ -3,6 +3,7 @@
 
 struct mainOptions
 {
+	bool dontActuallyGenerate;
 	bool connectToMaster;
 	bool getVariables;
 	bool programIntensity;

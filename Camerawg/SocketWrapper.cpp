@@ -16,7 +16,7 @@ void SocketWrapper::initialize()
 // this computer >> Other Computer ("Acumulations?")
 // Other Computer >> this computer ("Accumulations: (#)")
 // this computer >> other computer ("Received Accumulations.")
-int SocketWrapper::getAccumulations(int scalingFactor)
+int SocketWrapper::getRepetitions(int scalingFactor)
 {
 	int num = 0;
 	send( "Accumulations?" );

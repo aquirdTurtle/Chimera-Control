@@ -271,7 +271,6 @@ BOOL myApplicationApp::InitInstance()
 		return 1;
 	}
 	myAgilent::agilentDefault();
-	eDontActuallyGenerate = false;
 	INT_PTR returnVal = theMainApplicationWindow.DoModal();
 	// end of program.
 	return 0;
