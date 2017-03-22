@@ -201,8 +201,8 @@ unsigned __stdcall experimentProgrammingThread(LPVOID inputParam)
 								input->niawg->deleteWaveform(variedWaveformName);
 							}
 							// And write the new one.
-							input->niawg->allocateWaveform(variedWaveformName, variedMixedSize[mixedWriteCount] / 2);
-							input->niawg->writeWaveform(variedWaveformName, variedMixedSize[mixedWriteCount], output.waves[waveInc].mixedWaveform.data());
+							input->niawg->allocateNamedWaveform(variedWaveformName, variedMixedSize[mixedWriteCount] / 2);
+							input->niawg->writeNamedWaveform(variedWaveformName, variedMixedSize[mixedWriteCount], output.waves[waveInc].mixedWaveform.data());
 							mixedWriteCount++;
 						}
 					}
