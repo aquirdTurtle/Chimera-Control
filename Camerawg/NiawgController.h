@@ -69,11 +69,11 @@ struct channelWave
 	std::vector<ViReal64> waveform;
 };
 
-
 struct flashInfo
 {
 	niawgPair<std::string> flashCycleFreqInput;
 	niawgPair<std::string> totalTimeInput;
+	std::vector<waveInfo> waves;
 
 	double flashCycleFreq;
 	unsigned int flashNumber;
@@ -87,7 +87,6 @@ struct flashInfo
 
 	std::vector<ViReal64> waveform;
 };
-
 
 // contains all info for a waveform on the niawg; i.e. info for both channels, special options, time, and waveform data.
 struct waveInfo
@@ -119,7 +118,6 @@ struct outputInfo
 	std::vector<waveInfo> waves;
 	niawgPair<std::vector<std::string>> predefinedWaveNames;
 };
-
 
 class NiawgController
 {
@@ -169,10 +167,12 @@ class NiawgController
 		ViSession getViSessionAttribute( ViAttr attribute );
 		void setAttributeViString( ViAttr attribute, ViString string );
 		void createWaveform( long size, ViReal64* mixedWaveform );
-		void writeWaveform( ViConstString waveformName, ViInt32 mixedSampleNumber, ViReal64* mixedWaveform );
+		void writeNamedWaveform( ViConstString waveformName, ViInt32 mixedSampleNumber, ViReal64* mixedWaveform );
+		void writeUnNamedWaveform( ViInt32 waveID, ViInt32 mixedSampleNumber, ViReal64* mixedWaveform );
 		void writeScript( ViConstString script );
 		void deleteScript( ViConstString scriptName );
-		void allocateWaveform( ViConstString waveformName, ViInt32 unmixedSampleNumber );
+		void allocateNamedWaveform( ViConstString waveformName, ViInt32 unmixedSampleNumber );
+		ViInt32 allocateUnNamedWaveform( ViInt32 unmixedSampleNumber );
 		void clearMemory();
 		void configureOutputEnabled( int state );
 		void configureSoftwareTrigger();
@@ -192,6 +192,7 @@ class NiawgController
 
 		// might need to add more handlers for other objects.
 		void setViStringAttribute( ViAttr atributeID, ViConstString attributeValue );
+		void setViInt32Attribute( ViAttr attributeID, ViInt32 value );
 		void setViBooleanAttribute( ViAttr attribute, bool state );
 
 	private:
@@ -219,12 +220,15 @@ class NiawgController
 		niawgPair<std::string> currentScripts;
 		bool runningState;
 		library waveLibrary;
+		ViInt32 streamWaveHandle;
+		ViInt32 streamWaveformSize;
+		std::string streamWaveformName;
+
 		// pair is of horizontal and vertical configurations.
 		niawgPair<std::vector<ViReal64>> defaultMixedWaveforms;
 		niawgPair<std::string> defaultWaveformNames;
 		niawgPair<long> defaultMixedSizes;
 		niawgPair<std::vector<ViChar>> defaultScripts;
-		ViStatus error;
 		ViSession sessionHandle;
 		ViConstString outputChannels;
 
