@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include <vector>
 
-struct singleChannelWave;
+struct channelWave;
 
 /*
  * This namespace includes functions that I've programmed that essentially just do mathematical calculations. Most of these are highly specialized and revolve 
@@ -15,7 +15,7 @@ namespace myMath
 		double min;
 		double max;
 	};
-	double calculateCorrectionTime( singleChannelWave& wvData1, singleChannelWave& wvData2, std::vector<double> startPhases, 
+	double calculateCorrectionTime( channelWave& wvData1, channelWave& wvData2, std::vector<double> startPhases, 
 									std::string order, double time, long int sampleNum );
 	double rampCalc(int size, int iteration, double initPos, double finPos, std::string rampType);
 };

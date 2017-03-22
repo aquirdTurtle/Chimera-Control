@@ -11,7 +11,7 @@ class ExperimentLogger
 	public:
 		//void generateLog(MasterWindow* master);
 	static void generateNiawgLog( experimentThreadInput* input, niawgPair<std::vector<std::fstream>>& niawgScripts,
-								  std::vector<std::fstream > &intensityScripts );
+								  std::vector<std::fstream > &intensityScripts, unsigned int repetitions );
 		void exportLog();
 		std::string getLog();
 	private:

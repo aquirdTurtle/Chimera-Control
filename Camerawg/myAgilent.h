@@ -112,6 +112,6 @@ namespace myAgilent
 
 	int agilentErrorCheck(long status, unsigned long vi);
 	
-	void selectIntensityProfile(int varNum, bool intensityIsVaried, std::vector<myMath::minMaxDoublet> intensityMinMax);
+	void setIntensity(int varNum, bool intensityIsVaried, std::vector<myMath::minMaxDoublet> intensityMinMax);
 
 }

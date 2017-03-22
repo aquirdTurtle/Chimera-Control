@@ -1360,10 +1360,9 @@ void ConfigurationFileSystem::saveExperimentOnly(MainWindow* comm)
 	/// THIS IS EXPERIMENT SAVED STUFF. T>T
 	// this can be checked by reading functions to see what format to expect. From now on, a version will always be outputted at the beginning of the file.
 	// (05/29/2016)
-	experimentSaveFile << "Version: 1.1\n";
+	experimentSaveFile << "Version: 1.2\n";
 	// NOTE: Dummy variables used to be outputted here. 
-	// Accumulations Number
-	experimentSaveFile << eAccumulations << "\n";
+	// NOTE: accumulations used to be outputted here.
 	// get var files from master option
 	experimentSaveFile << settings.getVariables << "\n";
 	// output waveform read progress option
@@ -1441,8 +1440,7 @@ void ConfigurationFileSystem::saveExperimentAs(MainWindow* comm)
 	// (05/29/2016)
 	experimentSaveFile << "Version: 1.1\n";
 	// NOTE: Dummy variables used to be outputted here. 
-	// Accumulations Number
-	experimentSaveFile << eAccumulations << "\n";
+	// Note: accumulations used to be outputted here.
 	// get var files from master option
 	experimentSaveFile << settings.getVariables << "\n";
 	// output waveform read progress option
@@ -1586,8 +1584,11 @@ void ConfigurationFileSystem::openExperiment(std::string experimentToOpen, Scrip
 	std::string version;
 	std::getline(experimentConfigOpenFile, version);/// Load Values from the experiment config file.
 	// Accumulations Number
-	experimentConfigOpenFile >> eAccumulations;
-	std::string accumString = std::to_string(eAccumulations);
+	if (version == "Version: 1.0" || version == "Version: 1.1")
+	{
+		std::string trash;
+		experimentConfigOpenFile >> trash;
+	}
 	mainOptions settings = comm->getMainOptions();
 	// get var files from master option
 	experimentConfigOpenFile >> settings.getVariables;

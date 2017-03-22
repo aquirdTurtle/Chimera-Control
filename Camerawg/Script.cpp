@@ -172,8 +172,7 @@ bool Script::handleEditChange()
 		editChangeEnd = range.cpMax;
 	}
 	syntaxColoringIsCurrent = false;
-	this->updateSavedStatus(false);
-	//SetTimer(eScriptingWindowHandle, SYNTAX_TIMER_ID, SYNTAX_TIMER_LENGTH, (TIMERPROC)NULL);
+	updateSavedStatus(false);
 	return TRUE;
 }
 

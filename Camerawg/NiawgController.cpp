@@ -341,10 +341,10 @@ void NiawgController::handleVariations( outputInfo& output, std::vector<variable
 	// clear some memory
 	for (auto axis : AXES)
 	{
-		for (auto& waveform : output.waves)
+		for (auto& wave : output.waves)
 		{
-			waveform.channel[axis].waveform.clear();
-			waveform.channel[axis].waveform.shrink_to_fit();
+			wave.channel[axis].wave.clear();
+			wave.channel[axis].wave.shrink_to_fit();
 		}
 	}
 }
@@ -591,11 +591,11 @@ void NiawgController::getStandardInputType( std::string inputType, channelWave &
 }
 
 
-/**
-* WaveformData1 gathers input from the file, and based on the input type, sorts that input into the appropriate structure. It also calculates the number of
-* samples that the waveform will have to contain. This function deals with single waveforms.
-*/
-void NiawgController::getWaveData( ScriptStream &script, channelWave &waveInfo, std::vector<variable> singletons, double& time )
+/* * * *
+ * loads the relevant parameters from the file into the wave information structure for a single channel. just loads them, more
+ * analysis & checks done later.
+ * */
+void NiawgController::getWaveRawParameters( ScriptStream &script, channelWave &waveInfo, std::vector<variable> singletons, double& time )
 {
 	// Initialize the variable counter inside the wave struct to zero:
 	waveInfo.varNum = 0;
@@ -712,8 +712,6 @@ void NiawgController::getWaveData( ScriptStream &script, channelWave &waveInfo, 
 	loadParam( waveInfo.phaseOption, script, waveInfo.varNum, waveInfo.varNames, waveInfo.varTypes, { MAX_NIAWG_SIGNALS * 5 + 2 }, 
 			   singletons );
 	script >> waveInfo.delim;
-	// TODO
-	//wave.sampleNum = waveformSizeCalc( wave );
 }
 
 
@@ -779,6 +777,7 @@ void NiawgController::openWaveformFiles()
 */
 void NiawgController::generateWaveform( channelWave & waveInfo, debugInfo& options, long int sampleNum, double time)
 {
+	waveInfo.wave.resize( sampleNum );
 	unsigned long long time1, time2;
 	// the number of seconds
 	std::string waveformFileSpecs, waveformFileName;
@@ -815,7 +814,7 @@ void NiawgController::generateWaveform( channelWave & waveInfo, debugInfo& optio
 				waveInfo.signals[signal].finPhase = readData[sampleNum + signal];
 			}
 			// put the relevant voltage data into a the new array.
-			waveInfo.waveform = std::vector<ViReal64>( readData.begin(), readData.begin() + sampleNum );
+			waveInfo.wave = std::vector<ViReal64>( readData.begin(), readData.begin() + sampleNum );
 			readData.clear();
 			// make sure the large amount of memory is deallocated.
 			readData.shrink_to_fit();
@@ -857,7 +856,7 @@ void NiawgController::generateWaveform( channelWave & waveInfo, debugInfo& optio
 		waveformFileWrite.write( (const char *) readData.data(), (sampleNum + waveInfo.signals.size()) * sizeof( ViReal64 ) );
 		waveformFileWrite.close();
 		// put the relevant data into another string.
-		waveInfo.waveform = std::vector<ViReal64>( readData.begin(), readData.begin() + sampleNum );
+		waveInfo.wave = std::vector<ViReal64>( readData.begin(), readData.begin() + sampleNum );
 		readData.clear();
 		// make sure the large amount of memory is deallocated.
 		readData.shrink_to_fit();
@@ -1380,13 +1379,13 @@ void NiawgController::calcWaveData(channelWave& inputData, std::vector<ViReal64>
 */
 void NiawgController::mixWaveforms( waveInfo& waveInfo )
 {
-	waveInfo.mixedWaveform.resize( 2 * waveInfo.sampleNum );
+	waveInfo.waveVals.resize( 2 * waveInfo.sampleNum );
 	for (auto sample : range(waveInfo.sampleNum))
 	{
 		// the order (Vertical -> Horizontal) here is important. Vertical is first because it's port zero on the Niawg. I believe that
 		// switching the order here and changing nothing else would flip the output of the niawg..			
-		waveInfo.mixedWaveform[2 * sample] = waveInfo.channel[Vertical].waveform[sample];
-		waveInfo.mixedWaveform[2 * sample + 1] = waveInfo.channel[Horizontal].waveform[sample];
+		waveInfo.waveVals[2 * sample] = waveInfo.channel[Vertical].wave[sample];
+		waveInfo.waveVals[2 * sample + 1] = waveInfo.channel[Horizontal].wave[sample];
 	}
 }
 
@@ -1411,16 +1410,14 @@ bool NiawgController::isLogic(std::string command)
 }
 
 
-void NiawgController::getWaveformData( outputInfo& output, profileSettings profile, niawgPair<std::string> command, debugInfo& debug, 
-									   niawgPair<ScriptStream>& scripts, std::vector<variable> singletons)
+/*
+ * loads data from file, does various checks on it, interprets input for variations.
+ */
+void NiawgController::loadWaveformParameters( outputInfo& output, profileSettings profile, niawgPair<std::string> command, debugInfo& debug, 
+											  niawgPair<ScriptStream>& scripts, std::vector<variable> singletons)
 {
 	waveInfo waveParams;
 	long int sampleNum;
-	// these hold literal waveform data (i.e. the voltage values that the waveforms take).
-	//niawgPair<ViReal64*> waveVoltages = { NULL, NULL }, prevVoltages = { NULL, NULL };
-	//ViReal64* mixedWaveVoltages = NULL, *prevMixedVoltages = NULL;
-	// holds the waveform name (e.g. waveform1) that appears in the final script. Included extra places for large #s of waveforms.
-
 	// not sure why I have this limitation built in.
 	if (output.isDefault && ((output.waveCount == 1 && profile.orientation == ORIENTATION[Vertical])
 							  || (output.waveCount == 2 && profile.orientation == ORIENTATION[Horizontal])))
@@ -1434,7 +1431,7 @@ void NiawgController::getWaveformData( outputInfo& output, profileSettings profi
 		// Get a number corresponding directly to the given input type.
 		getStandardInputType( command[axis], waveParams.channel[axis] );
 		// Gather the parameters the user inputted for the waveforms and sort them into the appropriate data structures.
-		getWaveData( scripts[axis], waveParams.channel[axis], singletons, time[axis]);
+		getWaveRawParameters( scripts[axis], waveParams.channel[axis], singletons, time[axis]);
 
 		if (waveParams.channel[axis].delim != "#")
 		{
@@ -1444,8 +1441,6 @@ void NiawgController::getWaveformData( outputInfo& output, profileSettings profi
 					 "correctly or that the user has inputted too many parameters for this type of waveform." );
 		}
 	}
-
-
 	// make sure the times match to nanosecond precision.
 	if (!(fabs( time[Horizontal] - time[Vertical] ) < 1e-6))
 	{
@@ -1454,19 +1449,19 @@ void NiawgController::getWaveformData( outputInfo& output, profileSettings profi
 	}
 	waveParams.time = time[Horizontal];
 	waveParams.sampleNum = waveformSizeCalc( waveParams.time );
-	///	Handle -1 Phase (Use the phase that the previous waveform ended with) /////////////////////////////////////////////////////
+	///	Handle -1 Phase (start with the phase that the previous waveform ended with) /////////////////////////////////////////////////////
 	for (auto axis : AXES)
 	{
-		// If the user used a '-1' for the initial phase, this means the user wants to copy the ending phase of the previous waveform.
 		int count = 0;
 		// loop through all signals in a the current waveform for a given axis.
 		for (auto signal : waveParams.channel[axis].signals)
 		{
+			// If the user used a '-1' for the initial phase, this means the user wants to copy the ending phase of the previous waveform.
 			if (signal.initPhase == -1)
 			{
 				// if you are trying to copy the phase from a waveform that is being varied, this can only be accomplished if this 
 				// waveform is also varied. mark this waveform for varying and break.
-				if (output.waves[output.waveCount - 1].varies == true)
+				if (output.waves[output.waveCount - 1].varies)
 				{
 					waveParams.varies = true;
 					waveParams.channel[axis].varNum++;
@@ -1482,39 +1477,22 @@ void NiawgController::getWaveformData( outputInfo& output, profileSettings profi
 							 + " waveform #" + str( output.waveCount - 1 ) + ", but the previous waveform only had "
 							 + str( output.waves[output.waveCount - 1].channel[axis].signals.size() ) + " signals!\n" );
 				}
-
 				signal.initPhase = output.waves[output.waveCount - 1].channel[axis].signals[count].finPhase;
 			}
 			count++;
 		}
 	}
-	/// Waveform Creation /////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// only create waveform data if neither waveform is being varried and if the time management option is either 0 or -1. The time
-	//  management option has already been checked to be the same for Vertical and Horizontal waveforms.
+	// figure out if the waveform varies
+	// only create waveform data if the waveform is not being varried.
+	waveParams.varies = false;
 	for (auto axis : AXES)
 	{
-		// The default value is false. If the waveform is varied, it gets changed to true.
-		waveParams.varies = false;
-		if (waveParams.channel[Vertical].varNum == 0 && waveParams.channel[Horizontal].varNum == 0)
-		{
-			// Initialize the giant waveform arrays.
-			waveParams.channel[axis].waveform.resize( waveParams.sampleNum );
-			generateWaveform( waveParams.channel[axis], debug, waveParams.sampleNum, waveParams.time );
-		}
-		else if (waveParams.channel[axis].varNum > 0)
+		if (waveParams.channel[axis].varNum > 0)
 		{
 			waveParams.varies = true;
 		}
 	}
-
-	if (!waveParams.varies)
-	{
-		// Mix the waveforms
-		mixWaveforms( waveParams );
-	}
-	
 	output.waves.push_back( waveParams );
-
 }
 
 
@@ -1522,19 +1500,23 @@ void NiawgController::getWaveformData( outputInfo& output, profileSettings profi
 void NiawgController::handleStandardWaveform( outputInfo& output, profileSettings profile, niawgPair<std::string> command, 
 											  niawgPair<ScriptStream>& scripts, std::vector<variable> singletons, debugInfo& options )
 {
-	getWaveformData( output, profile, command, options, scripts, singletons );
-	
+	loadWaveformParameters( output, profile, command, options, scripts, singletons );
 	ViChar tempWaveformName[11];
 	sprintf_s( tempWaveformName, 11, "Waveform%i", output.waveCount );
 	if (!output.waves.back().varies)
 	{
-		// these three functions are capable of throwing myException. analyzeNiawgScripts should always be in a try/catch.
-		// create waveform (necessary?)
-		//createWaveform( output.waves.back().mixedWaveform.size(), output.waves.back().mixedWaveform.data() );
+		// prepare the waveforms/
+		generateWaveform( output.waves.back().channel[Horizontal], options, output.waves.back().sampleNum, output.waves.back().time );
+		generateWaveform( output.waves.back().channel[Vertical], options, output.waves.back().sampleNum, output.waves.back().time );
+		mixWaveforms( output.waves.back() );
+		output.waves.back().channel[Vertical].wave.clear();
+		output.waves.back().channel[Vertical].wave.shrink_to_fit();
+		output.waves.back().channel[Horizontal].wave.clear();
+		output.waves.back().channel[Horizontal].wave.shrink_to_fit();
 		// allocate waveform into the device memory
-		allocateNamedWaveform( tempWaveformName, output.waves.back().mixedWaveform.size() / 2 );
+		allocateNamedWaveform( tempWaveformName, output.waves.back().waveVals.size() / 2 );
 		// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
-		writeNamedWaveform( tempWaveformName, output.waves.back().mixedWaveform.size(), output.waves.back().mixedWaveform.data() );
+		writeNamedWaveform( tempWaveformName, output.waves.back().waveVals.size(), output.waves.back().waveVals.data() );
 		// avoid memory leaks, but only if not default...
 		if (output.isDefault)
 		{
@@ -1542,21 +1524,18 @@ void NiawgController::handleStandardWaveform( outputInfo& output, profileSetting
 			{
 				if (profile.orientation == ORIENTATION[axis])
 				{
-					defaultMixedWaveforms[axis] = output.waves.back().mixedWaveform;
-					defaultMixedSizes[axis] = output.waves.back().mixedWaveform.size();
+					defaultMixedWaveforms[axis] = output.waves.back().waveVals;
+					defaultMixedSizes[axis] = output.waves.back().waveVals.size();
 					defaultWaveformNames[axis] = tempWaveformName;
 				}
 			}
 		}
 		else
 		{
-			output.waves.back().mixedWaveform.clear();
-			output.waves.back().mixedWaveform.shrink_to_fit();
+			output.waves.back().waveVals.clear();
+			output.waves.back().waveVals.shrink_to_fit();
 		}
-		output.waves.back().channel[Vertical].waveform.clear();
-		output.waves.back().channel[Vertical].waveform.shrink_to_fit();
-		output.waves.back().channel[Horizontal].waveform.clear();
-		output.waves.back().channel[Horizontal].waveform.shrink_to_fit();
+
 	}
 	// append script with the relevant command. This needs to be done even if variable waveforms are used, because I don't want to
 	// have to rewrite the script to insert the new waveform name into it.
@@ -1612,7 +1591,8 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 	std::string command = commands[Horizontal];
 	if (command == "flash")
 	{
-		flashInfo flashingWave;
+		waveInfo flashingWave;
+		flashingWave.isFlashing = true;
 		/// get general flashing info
 		try
 		{
@@ -1621,7 +1601,7 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 			for (auto axis : AXES)
 			{
 				scripts[axis] >> waveformsToFlashInput[axis];
-				scripts[axis] >> flashingWave.flashCycleFreqInput[axis];
+				scripts[axis] >> flashingWave.flash.flashCycleFreqInput[axis];
 				scripts[axis] >> timesInput[axis];
 				flashNum[axis] = std::stoi( waveformsToFlashInput[axis] );
 			}
@@ -1629,7 +1609,7 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 			{
 				thrower( "ERROR: Flashing number didn't match between the horizontal and vertical files!" );
 			}
-			flashingWave.flashNumber = flashNum[Horizontal];
+			flashingWave.flash.flashNumber = flashNum[Horizontal];
 		}
 		catch (std::invalid_argument&)
 		{
@@ -1641,11 +1621,11 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 			niawgPair<double> flashCycleFreq, totalTime;
 			for (auto axis : AXES)
 			{
-				flashCycleFreq[axis] = std::stod( flashingWave.flashCycleFreqInput[axis] );
+				flashCycleFreq[axis] = std::stod( flashingWave.flash.flashCycleFreqInput[axis] );
 				// convert to Hertz from Megahertz
 				flashCycleFreq[axis] *= 1e6;
 				
-				totalTime[axis] = std::stod( flashingWave.totalTimeInput[axis] );
+				totalTime[axis] = std::stod( flashingWave.flash.totalTimeInput[axis] );
 				// convert to s from ms
 				totalTime[axis] *= 1e-3;
 			}
@@ -1655,22 +1635,22 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 			{
 				thrower( "ERROR: Flashing cycle frequency didn't match between the horizontal and vertical files!" );
 			}
-			flashingWave.flashCycleFreq = flashCycleFreq[Horizontal];
+			flashingWave.flash.flashCycleFreq = flashCycleFreq[Horizontal];
 
 			if (totalTime[Horizontal] != totalTime[Vertical])
 			{
 				thrower( "ERROR: Flashing cycle frequency didn't match between the horizontal and vertical files!" );
 			}
-			flashingWave.totalTime = totalTime[Horizontal];
+			flashingWave.time = totalTime[Horizontal];
 		}
 		catch (std::invalid_argument&) 
 		{
 			// that's fine, prob just means it varies. Will get caught later if it's not a variable. Check to make sure variables match.
-			if (flashingWave.flashCycleFreqInput[Horizontal] != flashingWave.flashCycleFreqInput[Vertical])
+			if (flashingWave.flash.flashCycleFreqInput[Horizontal] != flashingWave.flash.flashCycleFreqInput[Vertical])
 			{
 				thrower( "ERROR: Flashing cycle frequency didn't match between the horizontal and vertical files!" );
 			}
-			if (flashingWave.totalTimeInput[Horizontal] != flashingWave.totalTimeInput[Vertical])
+			if (flashingWave.flash.totalTimeInput[Horizontal] != flashingWave.flash.totalTimeInput[Vertical])
 			{
 				thrower( "ERROR: Flashing cycle frequency didn't match between the horizontal and vertical files!" );
 			}
@@ -1689,7 +1669,7 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 		/// get waveforms to flash.
 		outputInfo flashingOutputInfo = output;
 		int initSize = output.waveCount;
-		for (size_t waveCount = 0; waveCount < flashingWave.flashNumber; waveCount++)
+		for (size_t waveCount = 0; waveCount < flashingWave.flash.flashNumber; waveCount++)
 		{
 			niawgPair<std::string> flashingWaveCommands;
 			// get the first input
@@ -1710,12 +1690,12 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 				thrower( "ERROR: detected command in flashing section that does not denote a standard waveform (e.g. a logic command or a "
 						 "pre-written system). This is not allowed!" );
 			}
-			getWaveformData( flashingOutputInfo, profile, flashingWaveCommands, options, scripts, singletons );
+			loadWaveformParameters( flashingOutputInfo, profile, flashingWaveCommands, options, scripts, singletons );
 			// add the new wave in flashingOutputInfo to flashingInfo structure
-			flashingWave.waves.push_back( flashingOutputInfo.waves.back() );
+			flashingWave.flash.flashWaves.push_back( flashingOutputInfo.waves.back() );
 			// immediately kill the original waveforms here so as to reduce memory usage.
-			flashingOutputInfo.waves.back().mixedWaveform.clear();
-			flashingOutputInfo.waves.back().mixedWaveform.shrink_to_fit();
+			flashingOutputInfo.waves.back().waveVals.clear();
+			flashingOutputInfo.waves.back().waveVals.shrink_to_fit();
 		}
 		
 		// load these waveforms into the flashing info
@@ -1729,83 +1709,45 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 			}
 		}
 
-		flashingWave.totalTime = 0;
-		double singleWaveTime = flashingWave.waves.front().time;
+		flashingWave.time = 0;
+		double singleWaveTime = flashingWave.flash.flashWaves.front().time;
 
-		for (int waveCount = initSize; waveCount < flashingWave.waves.size(); waveCount++)
+		for (int waveCount = initSize; waveCount < flashingWave.flash.flashWaves.size(); waveCount++)
 		{
-			if (flashingWave.waves[waveCount].varies)
+			if (flashingWave.flash.flashWaves[waveCount].varies)
 			{
 				/// check if it varies
 				flashingWave.varies = true;
 			}
 			
-			if (singleWaveTime != flashingWave.waves[waveCount].time)
+			if (singleWaveTime != flashingWave.flash.flashWaves[waveCount].time)
 			{
 				thrower( "ERROR: all times in a flashing waveform must match, and they don't!" );
 			}
-			flashingWave.totalTime += flashingWave.waves[waveCount].time;
+			flashingWave.time += flashingWave.flash.flashWaves[waveCount].time;
 		}
 		
-		if (flashingWave.totalTime != flashingWave.flashNumber * singleWaveTime)
+		if (flashingWave.time != flashingWave.flash.flashNumber * singleWaveTime)
 		{
 			thrower( "ERROR: somehow, the total time doesn't appear to be the number of flashing waveforms times the time of each waveform???" );
 		}
 		
 		if (!flashingWave.varies)
 		{
-			/// potentially mix
-			// in seconds...
-			double period = 1.0 / flashingWave.flashCycleFreq;
-			// in samples...
-			long int samplePeriod = long int(period * SAMPLE_RATE + 0.5);
-			if (std::floor( flashingWave.totalTime / period ) != flashingWave.totalTime / period)
-			{
-				thrower( "ERROR: flashing cycle time doesn't result in an integer number of flashing cycles during the given waveform time!"
-						 " This is not allowed currently." );
-			}
-			long int cycles = std::floor( flashingWave.totalTime / period );
-			// cycle through cycles...
-			for (auto cycleInc : range( cycles ))
-			{
-				for (auto waveInc : range(flashingWave.flashNumber))
-				{
-					// samplePeriod * 2 because need to account for the mixed nature of the waveform I'm adding.
-					for (auto sampleInc : range( 2 * samplePeriod ))
-					{
-						int newSampleNum = sampleInc + (cycleInc * flashingWave.flashNumber + waveInc) * 2 * samplePeriod;
-						int sampleFromMixed = sampleInc + cycleInc * 2 * samplePeriod;
-						flashingWave.waveform[newSampleNum] = flashingWave.waves[waveInc].mixedWaveform[sampleFromMixed];
-					}
-				}
-			}
-			// should be good now. immediately delete the old waveforms...
-			for (auto waveInc : range( flashingWave.flashNumber ))
-			{
-				flashingOutputInfo.waves[waveInc].mixedWaveform.clear();
-				flashingOutputInfo.waves[waveInc].mixedWaveform.shrink_to_fit();
-				flashingWave.waves[waveInc].mixedWaveform.clear();
-				flashingWave.waves[waveInc].mixedWaveform.shrink_to_fit();
-			}
+			createFlashingWave( flashingWave, options );
+
 			ViChar tempWaveformName[11];
 			sprintf_s( tempWaveformName, 11, "Waveform%i", output.waveCount );
-			waveInfo tempInfo;
-			tempInfo.isFlashing = true;
-			tempInfo.flash = flashingWave;
-			output.waves.push_back( tempInfo );
-			// write waveform to niawg.
-			if (!output.waves.back().flash.varies)
-			{
-				// create waveform (necessary?)
-				//createWaveform( output.waves.back().flash.waveform.size(), output.waves.back().flash.waveform.data() );
-				// allocate waveform into the device memory
-				allocateNamedWaveform( tempWaveformName, output.waves.back().flash.waveform.size() / 2 );
-				// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script.
-				writeNamedWaveform( tempWaveformName, output.waves.back().flash.waveform.size(), output.waves.back().flash.waveform.data() );
-				// avoid memory leaks, but only if not default...
-			}
-			output.waves.back().mixedWaveform.clear();
-			output.waves.back().mixedWaveform.shrink_to_fit();
+			// allocate waveform into the device memory
+			allocateNamedWaveform( tempWaveformName, output.waves.back().waveVals.size() / 2 );
+			// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
+			writeNamedWaveform( tempWaveformName, output.waves.back().waveVals.size(), output.waves.back().waveVals.data() );
+			// append script with the relevant command. This needs to be done even if variable waveforms are used, because I don't want to
+			// have to rewrite the script to insert the new waveform name into it.
+			std::string tempWfmNameString( tempWaveformName );
+			output.niawgLanguageScript += "generate " + tempWfmNameString + "\n";
+			// increment waveform count.
+			output.waveCount++;
 		}
  	}
 	else if (command == "stream")
@@ -1829,6 +1771,71 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 	else
 	{
 		thrower( "wat" );
+	}
+	output.waveCount++;
+}
+
+
+void NiawgController::createStandardWave( waveInfo& wave, debugInfo options )
+{
+	// prepare each channel
+	generateWaveform( wave.channel[Horizontal], options, wave.sampleNum, wave.time );
+	generateWaveform( wave.channel[Vertical], options, wave.sampleNum, wave.time );
+	// mix
+	mixWaveforms( wave );
+	// clear channel data, no longer needed.
+	wave.channel[Vertical].wave.clear();
+	wave.channel[Vertical].wave.shrink_to_fit();
+	wave.channel[Horizontal].wave.clear();
+	wave.channel[Horizontal].wave.shrink_to_fit();
+}
+
+
+/* * * * * 
+ * creates the mixed flashing wave from the wave dta in the flash part of the waveform.
+ * * */
+void NiawgController::createFlashingWave( waveInfo& wave, debugInfo options )
+{
+	if (!wave.isFlashing)
+	{
+		thrower( "ERROR: tried to create flashing wave data for a waveform that wasn't flashing!" );
+	}
+	// create each wave individually
+	for (int waveInc = 0; waveInc < wave.flash.flashNumber; waveInc++)
+	{
+		createStandardWave( wave.flash.flashWaves[waveInc], options );
+	}
+
+	// then mix them to create the flashing version.
+	// in seconds...
+	double period = 1.0 / wave.flash.flashCycleFreq;
+	// in samples...
+	long int samplePeriod = long int( period * SAMPLE_RATE + 0.5 );
+	if (std::floor( wave.time / period ) != wave.time / period)
+	{
+		thrower( "ERROR: flashing cycle time doesn't result in an integer number of flashing cycles during the given waveform time!"
+				 " This is not allowed currently." );
+	}
+	long int cycles = std::floor( wave.time / period );
+	// cycle through cycles...
+	for (auto cycleInc : range( cycles ))
+	{
+		for (auto waveInc : range( wave.flash.flashNumber ))
+		{
+			// samplePeriod * 2 because need to account for the mixed nature of the waveform I'm adding.
+			for (auto sampleInc : range( 2 * samplePeriod ))
+			{
+				int newSampleNum = sampleInc + (cycleInc * wave.flash.flashNumber + waveInc) * 2 * samplePeriod;
+				int sampleFromMixed = sampleInc + cycleInc * 2 * samplePeriod;
+				wave.waveVals[newSampleNum] = wave.flash.flashWaves[waveInc].waveVals[sampleFromMixed];
+			}
+		}
+	}
+	// should be good now. immediately delete the old waveforms. Wait until after all cycles done.
+	for (auto waveInc : range( wave.flash.flashNumber ))
+	{
+		wave.flash.flashWaves[waveInc].waveVals.clear();
+		wave.flash.flashWaves[waveInc].waveVals.shrink_to_fit();
 	}
 }
 
@@ -2049,31 +2056,31 @@ void NiawgController::init( ViRsrc location, ViBoolean idQuery, ViBoolean resetD
 
 // I think that this is only for arbitrary waveform output mode (single) or sequence mode, neither of which I use, and so this shouldn't
 // appear in my code anywhere.
-void NiawgController::createWaveform( long size, ViReal64* mixedWaveform )
+void NiawgController::createWaveform( long size, ViReal64* wave )
 {
 	ViInt32 waveID;
 	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
-		errChecker( niFgen_CreateWaveformF64( sessionHandle, outputChannels, size, mixedWaveform, &waveID ) );
+		errChecker( niFgen_CreateWaveformF64( sessionHandle, outputChannels, size, wave, &waveID ) );
 	}
 }
 
 
-void NiawgController::writeUnNamedWaveform( ViInt32 waveID, ViInt32 mixedSampleNumber, ViReal64* mixedWaveform )
+void NiawgController::writeUnNamedWaveform( ViInt32 waveID, ViInt32 mixedSampleNumber, ViReal64* wave )
 {
 	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
-		errChecker( niFgen_WriteWaveform( sessionHandle, outputChannels, waveID, mixedSampleNumber, mixedWaveform ) );
+		errChecker( niFgen_WriteWaveform( sessionHandle, outputChannels, waveID, mixedSampleNumber, wave ) );
 	}
 }
 
 
 // put waveform into the device memory
-void NiawgController::writeNamedWaveform( ViConstString waveformName, ViInt32 mixedSampleNumber, ViReal64* mixedWaveform )
+void NiawgController::writeNamedWaveform( ViConstString waveformName, ViInt32 mixedSampleNumber, ViReal64* wave )
 {
 	if (!TWEEZER_COMPUTER_SAFEMODE)
 	{
-		errChecker( niFgen_WriteNamedWaveformF64( sessionHandle, outputChannels, waveformName, mixedSampleNumber, mixedWaveform ) );
+		errChecker( niFgen_WriteNamedWaveformF64( sessionHandle, outputChannels, waveformName, mixedSampleNumber, wave ) );
 	}
 }
 

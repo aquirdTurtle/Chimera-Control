@@ -367,7 +367,7 @@ namespace commonFunctions
 	/* 
 	 *  Can throw myException.
 	 */ 
-	int startNiawg(int msgID, ScriptingWindow* scriptWin, MainWindow* mainWin, CameraWindow* camWin)
+	void startNiawg(int msgID, ScriptingWindow* scriptWin, MainWindow* mainWin, CameraWindow* camWin)
 	{
 		Communicator* comm = mainWin->getComm();
 		profileSettings profile = mainWin->getCurentProfileSettings();
@@ -399,16 +399,12 @@ namespace commonFunctions
 					mainWin->getComm()->sendColorBox( colors );
 					mainWin->getComm()->sendFatalError("Failed to restart the NIAWG default during the script restart procedure! Error reported is" + except.whatStr());
 					mainWin->setNiawgRunningState( false );
-					return -1;
+					return;
 				}								
-			}
-			else if (restart == IDCANCEL)
-			{
-				return -4;
 			}
 			else
 			{
-				return -4;
+				return;
 			}
 		}
 		if (profile.sequenceConfigNames.size() == 0)
@@ -416,13 +412,13 @@ namespace commonFunctions
 			colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
 			mainWin->getComm()->sendColorBox( colors );
 			mainWin->getComm()->sendError("ERROR: No configurations in current sequence! Please set some configurations to run in this sequence or set the null sequence.\r\n");
-			return -9;
+			return;
 		}
 		// check config settings
 		mainWin->checkProfileReady();
 		if (scriptWin->checkScriptSaves())
 		{
-			return -1;
+			return;
 		}
 		scriptInfo<std::string> scriptNames = scriptWin->getScriptNames();
 		// ordering matters here, make sure you get the correct script name.
@@ -522,7 +518,6 @@ namespace commonFunctions
 			// Set the thread structure.
 			experimentThreadInput* inputParams = new experimentThreadInput();
 			// force accumulations to zero. This shouldn't affect anything, this should always get set by the master or be infinite.
-			inputParams->repetitions = 0;
 			inputParams->settings = settings;
 			inputParams->currentScript = eCurrentScript;
 			if (msgID == ID_FILE_MY_WRITE_WAVEFORMS)
@@ -534,7 +529,6 @@ namespace commonFunctions
 				inputParams->dontActuallyGenerate = false;
 			}
 			inputParams->debugInfo = mainWin->getDebuggingOptions();
-			inputParams->variableNumber = mainWin->getAllVariables().size();
 			inputParams->comm = mainWin->getComm();
 			inputParams->profile = profile;
 			scriptInfo<std::string> addresses = scriptWin->getScriptAddresses();
@@ -542,15 +536,13 @@ namespace commonFunctions
 			eMostRecentHorizontalScriptNames = addresses.horizontalNIAWG;
 			eMostRecentIntensityScriptNames = addresses.intensityAgilent;
 			// Start the programming thread.
-			unsigned int experimentThreadID;
-			eExperimentThreadHandle = (HANDLE)_beginthreadex(0, 0, experimentProgrammingThread, (LPVOID *)inputParams, 0, &experimentThreadID);
+			
 			mainWin->setNiawgRunningState( true );
 			mainWin->addTimebar("main");
 			mainWin->addTimebar("error");
 			mainWin->addTimebar("debug");
 			mainWin->updateStatusText("debug", beginInfo);
 		}
-		return 0;
 	}
 	
 	void abortCamera( CameraWindow* camWin, MainWindow* mainWin)
@@ -570,10 +562,8 @@ namespace commonFunctions
 		// todo: here handle data closing as well.
 	}
 
-	/*
-	 *  Can throw myException.
-	 */
-	int abortNiawg(ScriptingWindow* scriptWin, MainWindow* mainWin)
+	
+	void abortNiawg(ScriptingWindow* scriptWin, MainWindow* mainWin)
 	{
 		Communicator* comm = mainWin->getComm();
 		std::string orientation = scriptWin->getCurrentProfileSettings().orientation;
@@ -583,7 +573,7 @@ namespace commonFunctions
 			colorBoxes<char> colors = { /*niawg*/'B', /*camera*/'-', /*intensity*/'-' };
 			mainWin->getComm()->sendColorBox( colors );
 			mainWin->getComm()->sendError("System was not running. Can't Abort.\r\n");
-			return -1;
+			return;
 		}
 		// set reset flag
 		eAbortNiawgFlag = true;
@@ -593,14 +583,14 @@ namespace commonFunctions
 		if (result == WAIT_TIMEOUT)
 		{
 			mainWin->PostMessageA(WM_COMMAND, MAKEWPARAM(ID_FILE_ABORT_GENERATION, 0));
-			return -1;
+			return;
 		}
 		result = WaitForSingleObject(eExperimentThreadHandle, 0);
 		if (result == WAIT_TIMEOUT)
 		{
 			// try again. this will put this message at the back of the message queue so waiting messages will get handled first.
 			mainWin->PostMessageA(WM_COMMAND, MAKEWPARAM(ID_FILE_ABORT_GENERATION, 0));	
-			return -1;
+			return;
 		}
 		eAbortNiawgFlag = false;
 		// abort the generation on the NIAWG.
@@ -612,22 +602,10 @@ namespace commonFunctions
 		comm->sendColorBox( colors );
 		mainWin->restartNiawgDefaults();
 		mainWin->setNiawgRunningState( false );
-		return 0;
 	}
 	
 	
-	int saveAll(HWND parentWindow)
-	{
-		// Just use the procedures that already exist. No need to rewrite the handling.
-		PostMessage(parentWindow, WM_COMMAND, MAKEWPARAM(ID_FILE_MY_INTENSITY_SAVE, 0), 0);
-		PostMessage(parentWindow, WM_COMMAND, MAKEWPARAM(ID_FILE_MY_VERTICAL_SAVE, 0), 0);
-		PostMessage(parentWindow, WM_COMMAND, MAKEWPARAM(ID_FILE_MY_HORIZONTAL_SAVE, 0), 0);
-		PostMessage(parentWindow, WM_COMMAND, MAKEWPARAM(ID_PROFILE_SAVE_PROFILE, 0), 0);
-		return 0;
-	}
-	
-	
-	int exitProgram(ScriptingWindow* scriptWindow, MainWindow* mainWin, CameraWindow* camWin)
+	void exitProgram(ScriptingWindow* scriptWindow, MainWindow* mainWin, CameraWindow* camWin) 
 	{
 		if (mainWin->niawgIsRunning())
 		{
@@ -639,35 +617,28 @@ namespace commonFunctions
 		}
 		if (scriptWindow->checkScriptSaves())
 		{
-			return true;
+			return;
 		}
 		mainWin->checkProfileSave();
 		std::string exitQuestion = "Are you sure you want to exit?\n\nThis will stop all output of the arbitrary waveform generator.";
 		int areYouSure = MessageBox(NULL, exitQuestion.c_str(), "Exit", MB_OKCANCEL | MB_ICONWARNING);
-		switch (areYouSure)
+		if (areYouSure == IDOK)
 		{
-			case IDOK:
-				/// Exiting
-				// Close the NIAWG normally.
-				if (!TWEEZER_COMPUTER_SAFEMODE)
+			/// Exiting
+			// Close the NIAWG normally.
+			if (!TWEEZER_COMPUTER_SAFEMODE)
+			{
+				try
 				{
-					try
-					{
-						mainWin->stopNiawg();
-					}
-					catch (myException& except)
-					{
-						errBox("ERROR: The NIAWG did not exit smoothly. : " + except.whatStr());
-					}
+					mainWin->stopNiawg();
 				}
-				PostQuitMessage(1);
-				break;
-			case IDCANCEL:
-				break;
-			default:
-				break;
+				catch (myException& except)
+				{
+					errBox("ERROR: The NIAWG did not exit smoothly. : " + except.whatStr());
+				}
+			}
+			PostQuitMessage(1);
 		}
-		return 0;
 	}
 
 	void commonFunctions::helpWindow()

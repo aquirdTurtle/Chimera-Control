@@ -8,7 +8,7 @@
 #include <boost/algorithm/string/replace.hpp>
 
 void ExperimentLogger::generateNiawgLog( experimentThreadInput* input, niawgPair<std::vector<std::fstream>>& niawgScripts,
-										 std::vector<std::fstream > &intensityScripts )
+										 std::vector<std::fstream > &intensityScripts, unsigned int repetitions )
 {
 	/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	///
@@ -180,7 +180,7 @@ void ExperimentLogger::generateNiawgLog( experimentThreadInput* input, niawgPair
 			std::string paramtersString = "\nDont Actually Generate = " + std::to_string( input->dontActuallyGenerate )
 				+ "\nConnect To Master = " + std::to_string( input->settings.connectToMaster )
 				+ "\nGet Variable Files From Master = " + std::to_string( input->settings.getVariables )
-				+ "\nRepetitions = " + std::to_string( input->repetitions )
+				+ "\nRepetitions = " + std::to_string( repetitions )
 				+ "\nDon't Actually Generate = " + std::to_string( input->dontActuallyGenerate )
 				+ "\nProgramming Intensity = " + std::to_string( input->settings.programIntensity )
 				+ "\nSequence File Names = \n";
