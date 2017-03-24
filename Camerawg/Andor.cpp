@@ -426,16 +426,17 @@ void AndorCamera::setEmCcdGain(int gain)
 }
 
 ///
-
 bool AndorCamera::isRunning()
 {
 	return cameraIsRunning;
 }
 
+
 AndorCamera::AndorCamera()
 {
 	runSettings.emGainModeIsOn = false;
 }
+
 
 void AndorCamera::confirmAcquisitionTimings(float& kinetic, float& accumulation, std::vector<float>& exposures)
 {
@@ -1201,7 +1202,7 @@ void AndorCamera::setNumberAccumulations(bool isKinetic)
 
 void AndorCamera::setGainMode()
 {
-	if (runSettings.emGainModeIsOn == false)
+	if (!runSettings.emGainModeIsOn)
 	{
 		// Set Gain
 		int numGain;

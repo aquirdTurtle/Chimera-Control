@@ -50,3 +50,9 @@ void appendText(std::string newText, Control<CRichEditCtrl>& edit)
 	return;
 }
 
+std::string doubleToString( double number, long precision )
+{
+	std::stringstream stream;
+	stream << std::fixed << std::setprecision( precision ) << number;
+	return stream.str();
+}

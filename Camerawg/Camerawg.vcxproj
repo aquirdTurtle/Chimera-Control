@@ -208,7 +208,7 @@
     <ClInclude Include="Control.h" />
     <ClInclude Include="DebuggingOptionsControl.h" />
     <ClInclude Include="errBox.h" />
-    <ClInclude Include="experimentProgrammingThread.h" />
+    <ClInclude Include="ExperimentManager.h" />
     <ClInclude Include="externals.h" />
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="reorganizeControl.h" />
@@ -228,7 +228,6 @@
     <ClInclude Include="myAgilent.h" />
     <ClInclude Include="NiawgController.h" />
     <ClInclude Include="NiawgWaiter.h" />
-    <ClInclude Include="postMyString.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="saveTextFileFromEdit.h" />
     <ClInclude Include="scriptWriteHelpProc.h" />
@@ -255,7 +254,7 @@
     <ClCompile Include="EmbeddedPythonHandler.cpp" />
     <ClCompile Include="errBox.cpp" />
     <ClCompile Include="ExperimentLogger.cpp" />
-    <ClCompile Include="experimentProgrammingThread.cpp" />
+    <ClCompile Include="ExperimentManager.cpp" />
     <ClCompile Include="ExperimentTimer.cpp" />
     <ClCompile Include="externals.cpp" />
     <ClCompile Include="MainOptionsControl.cpp" />
@@ -268,7 +267,6 @@
     <ClCompile Include="PictureStats.cpp" />
     <ClCompile Include="DataAnalysisHandler.cpp" />
     <ClCompile Include="PlottingInfo.cpp" />
-    <ClCompile Include="postMyString.cpp" />
     <ClCompile Include="ProfileIndicator.cpp" />
     <ClCompile Include="reorganizeControl.cpp" />
     <ClCompile Include="Script.cpp" />

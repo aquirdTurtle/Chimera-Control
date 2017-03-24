@@ -4,6 +4,8 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <iomanip>
+
 #include "afxwin.h"
 #include "Control.h"
 
@@ -57,8 +59,6 @@ class myException : public std::runtime_error
 void appendText(std::string newText, CEdit& edit);
 void appendText(std::string newText, Control<CRichEditCtrl>& edit);
 
-#define cstr(input) std::to_string(input).c_str()
-
 template <typename IntType> std::vector<IntType> range( IntType start, IntType stop, IntType step )
 {
 	if ( step == IntType( 0 ) )
@@ -90,6 +90,8 @@ template <typename IntType> std::vector<IntType> range( IntType stop )
 /// a set of functions that take more arbitrary things to strings that std::to_string (which is also rather wordy for such a simple 
 /// function...
 
+#define cstr(input) str(input).c_str()
+
 std::string str(std::string string)
 {
 	return string;
@@ -109,3 +111,6 @@ template <typename type> std::string str( type quantity )
 {
 	return std::to_string( quantity );
 }
+
+std::string doubleToString( double number, long precision );
+

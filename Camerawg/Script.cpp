@@ -137,7 +137,7 @@ bool Script::handleTimerCall(profileSettings profile, std::vector<variable> vars
 	{
 		// preserve saved state
 		bool tempSaved = false;
-		if (isSaved == true)
+		if (isSaved )
 		{
 			tempSaved = true;
 		}

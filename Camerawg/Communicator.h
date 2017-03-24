@@ -27,6 +27,7 @@ class Communicator
 		MainWindow* mainWin;
 		ScriptingWindow* scriptWin;
 		CameraWindow* camWin;
+		void postMyString( CWnd* window, unsigned int messageTypeID, std::string message );
 };
 
 // macros to include file and line info in error messages. Use these, not the associated functions directly.

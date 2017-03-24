@@ -5,7 +5,6 @@
 #include "constants.h"
 #include "myMath.h"
 #include "myAgilent.h"
-#include "postMyString.h"
 #include "miscellaneousCommonFunctions.h"
 #include "ScriptStream.h"
 #include "SocketWrapper.h"
@@ -83,7 +82,7 @@ struct flashInfo
 // contains all info for a waveform on the niawg; i.e. info for both channels, special options, time, and waveform data.
 struct waveInfo
 {
-	niawgPair<channelWave> channel;
+	niawgPair<channelWave> chan;
 	// may or may not be filled... check the "is flashing variable". Don't have a better way of doing this atm...
 	flashInfo flash;
 	double time;
@@ -118,7 +117,7 @@ class NiawgController
 		{
 			defaultOrientation = HORIZONTAL_ORIENTATION;
 		}
-		void setDefaultWaveforms( MainWindow* mainWin, bool isFirstLoad );
+		void setDefaultWaveforms( MainWindow* mainWin );
 		void analyzeNiawgScripts( niawgPair<ScriptStream>& scripts, outputInfo& output, profileSettings profile,
 								  std::vector<variable> singletons, debugInfo& options, std::string& warnings );
 		void handleVariations( outputInfo& output, std::vector<variable>& variables, std::vector<std::vector<double>> varValues,
@@ -126,8 +125,7 @@ class NiawgController
 		void getVariables( SocketWrapper& socket, std::vector<std::vector<double>>& varValues, std::vector<variable> variables );
 		void loadWaveformParameters( outputInfo& output, profileSettings profile, niawgPair<std::string> command, debugInfo& debug, 
 							  niawgPair<ScriptStream>& scripts, std::vector<variable> singletons );
-		void getVariedWaveform( std::vector<waveInfo>& waves, int waveNum, int axis, debugInfo& options );
-		void varyParam( std::vector<waveInfo> waves, int waveNum, int axis, int &paramNum, double paramVal, std::string& warnings );
+		void varyParam( waveInfo& wave, waveInfo previousWave, int axis, int &paramNum, double paramVal, std::string& warnings );
 		void finalizeScript( unsigned long long repetitions, std::string name, std::vector<std::string> workingUserScripts,
 							 std::vector<ViChar> userScriptSubmit );
 
@@ -157,6 +155,9 @@ class NiawgController
 		void deleteWaveform( ViConstString waveformName );
 		void writeNamedWaveform( ViConstString waveformName, ViInt32 mixedSampleNumber, ViReal64* wave );
 		void deleteScript( ViConstString scriptName );
+		void sendSoftwareTrigger();
+		signed short isDone();
+		void initialize();
 
 	private:
 		void errChecker( int err );
@@ -164,7 +165,7 @@ class NiawgController
 		void getStandardInputType( std::string inputType, channelWave &wvInfo );
 		void openWaveformFiles( );
 		void generateWaveform( channelWave & waveInfo, debugInfo& options, long int sampleNum, double time );
-		void createStandardWave( waveInfo& wave, debugInfo options );
+		void finalizeStandardWave( waveInfo& wave, debugInfo options );
 		void createFlashingWave( waveInfo& wave, debugInfo options );
 		void handleLogic( niawgPair<ScriptStream>& script, niawgPair<std::string> inputs, std::string &scriptString );
 		void handleSpecial( niawgPair<ScriptStream>& script, outputInfo& output, niawgPair<std::string> inputTypes,
@@ -173,17 +174,14 @@ class NiawgController
 									 niawgPair<ScriptStream>& scripts, std::vector<variable> singletons, debugInfo& options );
 		void handleSpecialWaveform( outputInfo& output, profileSettings profile, niawgPair<std::string> command,
 									niawgPair<ScriptStream>& scripts, std::vector<variable> singletons, debugInfo& options );
-		
-		void getWaveRawParameters( ScriptStream &script, channelWave &waveInfo, std::vector<variable> singletons, double& time );
-		
 		bool isLogic( std::string command );
 		bool isStandardWaveform( std::string command );
 		bool isSpecialWaveform( std::string command );
 		bool isSpecialCommand( std::string command );
+		
 
 		/// wrappers around niFgen functions.
-		void initialize();
-		signed short isDone();
+		
 		ViInt32 getInt32Attribute( ViAttr attribute );
 		ViInt64 getInt64Attribute( ViAttr attribute );
 		ViReal64 getReal64Attribute( ViAttr attribute );
@@ -194,10 +192,8 @@ class NiawgController
 		void createWaveform( long size, ViReal64* wave );
 		void writeUnNamedWaveform( ViInt32 waveID, ViInt32 mixedSampleNumber, ViReal64* wave );
 		
-		
 		ViInt32 allocateUnNamedWaveform( ViInt32 unmixedSampleNumber );
 		void clearMemory();
-
 		void configureSoftwareTrigger();
 		void configureDigtalEdgeScriptTrigger();
 		void configureOutputMode();
@@ -208,14 +204,10 @@ class NiawgController
 		void configureSampleRate( ViReal64 sampleRate );
 		void enableAnalogFilter( ViReal64 filterFrequency );
 		void init( ViRsrc location, ViBoolean idQuery, ViBoolean resetDevice );
-		
-
-		
 		std::string getErrorMsg();		
-		
-
 		void setViInt32Attribute( ViAttr attributeID, ViInt32 value );
 		void setViBooleanAttribute( ViAttr attribute, bool state );
+
 		/// member variables
 		std::string defaultOrientation;
 		niawgPair<std::string> currentScripts;
@@ -224,7 +216,6 @@ class NiawgController
 		ViInt32 streamWaveHandle;
 		ViInt32 streamWaveformSize;
 		std::string streamWaveformName;
-
 		// pair is of horizontal and vertical configurations.
 		niawgPair<std::vector<ViReal64>> defaultMixedWaveforms;
 		niawgPair<std::string> defaultWaveformNames;
@@ -232,7 +223,6 @@ class NiawgController
 		niawgPair<std::vector<ViChar>> defaultScripts;
 		ViSession sessionHandle;
 		ViConstString outputChannels;
-
 		// Session Parameters
 		const ViInt32 OUTPUT_MODE = NIFGEN_VAL_OUTPUT_SCRIPT;
 		const ViRsrc NI_5451_LOCATION = "PXI1Slot2";
@@ -264,6 +254,7 @@ template <typename WAVE_DATA_TYPE> long NiawgController::waveformSizeCalc(WAVE_D
 }
 
 
+
 template <typename type> static void NiawgController::loadParam( type& dataToAssign, ScriptStream& file, int& varCount,
 																 std::vector<std::string>& varNames, std::vector<int> &varParamTypes,
 																 std::vector<int> dataTypes, std::vector<variable> singletons )
@@ -273,7 +264,7 @@ template <typename type> static void NiawgController::loadParam( type& dataToAss
 	file >> tempInput;
 	if (tempInput.size() > 0)
 	{
-		if (tempInput[0] == '\'' || tempInput[0] == '#')
+		if (tempInput[0] == '\'' || tempInput[0] == '#' || tempInput[0] == '}' || tempInput[0] == '{')
 		{
 			thrower( "ERROR: Detected reserved character out of place inside niawg script string \"" + tempInput + "\"" );
 		}
@@ -308,5 +299,4 @@ template <typename type> static void NiawgController::loadParam( type& dataToAss
 		dataToAssign = val;
 	}
 }
-
 

@@ -21,7 +21,7 @@ int SocketWrapper::getRepetitions(int scalingFactor)
 	int num = 0;
 	send( "Accumulations?" );
 	std::string recievedMsg = recieve();
-	if (!TWEEZER_COMPUTER_SAFEMODE)
+	if (!NIAWG_SAFEMODE)
 	{
 		std::string tempRepetitions;
 		std::stringstream repetitionStream;

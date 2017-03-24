@@ -11,7 +11,6 @@
 #include "fonts.h"
 #include <boost/filesystem.hpp>
 #include "NiawgController.h"
-#include "postMyString.h"
 
 ConfigurationFileSystem::ConfigurationFileSystem(std::string fileSystemPath)
 {
@@ -40,6 +39,9 @@ void ConfigurationFileSystem::getConfigInfo( niawgPair<std::vector<std::fstream>
 		{
 			getline( configFile, niawgScriptAddresses[axis] );
 			scriptFiles[axis][sequenceInc].open( niawgScriptAddresses[axis] );
+			std::stringstream temp;
+			temp << scriptFiles[axis][sequenceInc].rdbuf();
+			errBox( temp.str() );
 			if (!scriptFiles[axis][sequenceInc].is_open())
 			{
 				thrower( "ERROR: Failed to open vertical script file named: " + niawgScriptAddresses[axis]

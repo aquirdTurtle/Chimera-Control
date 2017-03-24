@@ -1,14 +1,6 @@
 #pragma once
-
 #include "stdafx.h"
 #include "NiawgWaiter.h"
-#include "Windows.h"
-#include "niFgen.h"
-#include "externals.h"
-#include "time.h"
-#include <chrono>
-#include <thread>
-#include "constants.h"
 
 /*
  * This function is called to wait on the NIAWG until it finishes. It will eventually send messages to other threads to indicate when it finishes. 
@@ -19,18 +11,18 @@ unsigned __stdcall NiawgWaiter::niawgWaitThread(void* inputParam)
 {
 	waitThreadInput* input = (waitThreadInput*)inputParam;
 	ViBoolean isDone;
-	if (!TWEEZER_COMPUTER_SAFEMODE)
+	if (!NIAWG_SAFEMODE)
 	{
 		 isDone = FALSE;
 	}
-	else if (TWEEZER_COMPUTER_SAFEMODE)
+	else if (NIAWG_SAFEMODE)
 	{
 		isDone = TRUE;
 		Sleep(2000);
 	}
 	while (!isDone)
 	{
-		if (!TWEEZER_COMPUTER_SAFEMODE)
+		if (!NIAWG_SAFEMODE)
 		{
 			try
 			{
@@ -42,12 +34,12 @@ unsigned __stdcall NiawgWaiter::niawgWaitThread(void* inputParam)
 				return -1;
 			}
 		}
-		if (eAbortNiawgFlag == true)
+		if (eAbortNiawgFlag)
 		{
 			return -2;
 		}
 	}
-	if (eAbortNiawgFlag == true)
+	if (eAbortNiawgFlag)
 	{
 		return -2;
 	}
@@ -71,7 +63,7 @@ unsigned __stdcall NiawgWaiter::niawgWaitThread(void* inputParam)
 		}
 		else if (input->profile.orientation == VERTICAL_ORIENTATION)
 		{
-			if (!TWEEZER_COMPUTER_SAFEMODE)
+			if (!NIAWG_SAFEMODE)
 			{
 				// start generic waveform to maintain power output to AOM.
 				try
@@ -140,7 +132,7 @@ void NiawgWaiter::wait( Communicator* comm )
 	WaitForSingleObject( eNIAWGWaitThreadHandle, INFINITE );
 	systemAbortCheck( comm );
 	// check this flag that can be set by the wait thread.
-	if (eWaitError == true)
+	if (eWaitError)
 	{
 		eWaitError = false;
 		thrower( "ERROR: Error in the wait function!\r\n" );
@@ -153,7 +145,7 @@ void NiawgWaiter::wait( Communicator* comm )
 void NiawgWaiter::systemAbortCheck( Communicator* comm )
 {
 	// check if aborting
-	if (eAbortNiawgFlag == true)
+	if (eAbortNiawgFlag )
 	{
 		comm->sendStatus( "Aborted!\r\n" );
 		thrower( "Aborted!" );

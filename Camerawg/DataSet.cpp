@@ -256,7 +256,7 @@ int DataSet::getDataCountsLocation(int& pixel, int& picture)
 	{
 		for (int pictureInc = 0; pictureInc < dataCountsLocation[pixelInc].size(); pictureInc++)
 		{
-			if (dataCountsLocation[pixelInc][pictureInc] == true)
+			if (dataCountsLocation[pixelInc][pictureInc] )
 			{
 				pixel = pixelInc;
 				picture = pictureInc;
