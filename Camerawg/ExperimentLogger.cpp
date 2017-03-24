@@ -10,10 +10,7 @@
 void ExperimentLogger::generateNiawgLog( experimentThreadInput* input, niawgPair<std::vector<std::fstream>>& niawgScripts,
 										 std::vector<std::fstream > &intensityScripts, unsigned int repetitions )
 {
-	/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///
 	///					Logging
-	///
 	// This report goes to a folder I create on the Andor. NEW: Always log.
 	input->comm->sendStatus( "Logging Script and Experiment Parameters...\r\n" );
 	niawgPair<std::string> niawgScriptLogPaths;
@@ -31,7 +28,7 @@ void ExperimentLogger::generateNiawgLog( experimentThreadInput* input, niawgPair
 			niawgScriptLogPaths[axis] = EXPERIMENT_LOGGING_FILES_PATH + "\\" + AXES_NAMES[axis] + " Script.txt";
 			niawgScriptLogs[axis].open( niawgScriptLogPaths[axis] );
 			std::string scriptText = "\n\n====================\n" + AXES_NAMES[axis] + " Script Being Used:\n====================\n";
-			if (niawgScriptLogs[axis].is_open() == false)
+			if (!niawgScriptLogs[axis].is_open() )
 			{
 				int andorDisconnectedOption = MessageBox( NULL, "This computer can't currently open logging files on the andor.\nAbort will quit the "
 														  "current script output sequence and will keep the default waveform running."
@@ -73,7 +70,7 @@ void ExperimentLogger::generateNiawgLog( experimentThreadInput* input, niawgPair
 			// make sure all line endings are \r\signal.
 			boost::replace_all( scriptText, "\r", "" );
 			boost::replace_all( scriptText, "\n", "\r\n" );
-			if (andorConnected && !TWEEZER_COMPUTER_SAFEMODE)
+			if (andorConnected && !NIAWG_SAFEMODE)
 			{
 				niawgScriptLogs[axis] << scriptText;
 			}
@@ -83,7 +80,7 @@ void ExperimentLogger::generateNiawgLog( experimentThreadInput* input, niawgPair
 			}
 			andorConnected = true;
 			niawgScriptLogs[axis].close();
-		} while (andorConnected == false);
+		} while (!andorConnected);
 		andorConnected = false;
 	}
 	andorConnected = false;
@@ -92,7 +89,7 @@ void ExperimentLogger::generateNiawgLog( experimentThreadInput* input, niawgPair
 	{
 		std::ofstream intensityScriptLog( intensityLogPath );
 		std::string intensityScriptText = "\n\n====================\nIntensity Script Being Used:\n====================\n";
-		if (intensityScriptLog.is_open() == false)
+		if (!intensityScriptLog.is_open())
 		{
 			int andorDisconnectedOption = MessageBox( NULL, "This computer can't currently open logging files on the andor.\nAbort will quit the "
 													  "current script output sequence and will keep the default waveform running."
@@ -133,7 +130,7 @@ void ExperimentLogger::generateNiawgLog( experimentThreadInput* input, niawgPair
 		// make sure all line endings are \r\n.
 		boost::replace_all( intensityScriptText, "\r", "" );
 		boost::replace_all( intensityScriptText, "\n", "\r\n" );
-		if (andorConnected && !TWEEZER_COMPUTER_SAFEMODE)
+		if (andorConnected && !NIAWG_SAFEMODE)
 		{
 			intensityScriptLog << intensityScriptText;
 		}
@@ -142,14 +139,14 @@ void ExperimentLogger::generateNiawgLog( experimentThreadInput* input, niawgPair
 			input->comm->sendDebug( intensityScriptText );
 		}
 		andorConnected = true;
-	} while (andorConnected == false);
+	} while (!andorConnected);
 
 	andorConnected = false;
 	/// Log other parameters
 	do
 	{
 		std::ofstream parametersFileLog( parametersFileLogPath );
-		if (parametersFileLog.is_open() == false)
+		if (!parametersFileLog.is_open())
 		{
 			int disconnectOption = MessageBox( NULL, "This computer can't currently open logging files on the andor.\nAbort will quit the "
 											   "current script output sequence and will keep the default waveform running."
@@ -191,7 +188,7 @@ void ExperimentLogger::generateNiawgLog( experimentThreadInput* input, niawgPair
 			}
 			parametersFileLog << paramtersString;
 		}
-	} while (andorConnected == false);
+	} while (!andorConnected);
 }
 
 

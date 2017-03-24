@@ -5,7 +5,6 @@
 #include "NiawgController.h"
 #include "externals.h"
 #include "constants.h"
-// Some headers used for communication protocols.
 #include <algorithm>
 #include "myAgilent.h"
 #include "experimentThreadInputStructure.h"
@@ -17,7 +16,6 @@
 #include <afxsock.h>
 #include "SocketWrapper.h"
 #include "ExperimentLogger.h"
-
 
 struct experimentThreadInput
 {

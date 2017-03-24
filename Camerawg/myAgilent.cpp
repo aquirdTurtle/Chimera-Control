@@ -32,7 +32,7 @@ namespace myAgilent
 		std::vector<std::string> tempVarNames;
 		std::vector<int> tempVarLocations;
 		int tempVarNum = 0;
-		if (script.eof() == true)
+		if (script.eof() )
 		{
 			// reached end of file, return with message.
 			return 1;
@@ -144,7 +144,7 @@ namespace myAgilent
 					break;
 				}
 			}
-			if (varCheck == false)
+			if (!varCheck)
 			{
 				// Invalid time
 				std::string errMsg;
@@ -165,7 +165,7 @@ namespace myAgilent
 					varCheck = true;
 				}
 			}
-			if (varCheck == false)
+			if (!varCheck)
 			{
 				// Invalid intensity
 				std::string errMsg;
@@ -186,7 +186,7 @@ namespace myAgilent
 					varCheck = true;
 				}
 			}
-			if (varCheck == false)
+			if (varCheck )
 			{
 				std::string errMsg;
 				errMsg = "ERROR: Invalid Initial intensity entered in the intensity script file for Segment #" + std::to_string(segNum)	
@@ -766,7 +766,7 @@ namespace myAgilent
 		unsigned long viDefaultRM, Instrument;
 		unsigned long actual;
 		std::string SCPIcmd;
-		if (!TWEEZER_COMPUTER_SAFEMODE)
+		if (!NIAWG_SAFEMODE)
 		{
 			viOpenDefaultRM(&viDefaultRM);
 			viOpen(viDefaultRM, (char *)AGILENT_ADDRESS, VI_NULL, VI_NULL, &Instrument);
@@ -826,7 +826,7 @@ namespace myAgilent
 		unsigned long viDefaultRM = 0, Instrument = 0;
 		unsigned long actual;
 		std::string SCPIcmd;
-		if (!TWEEZER_COMPUTER_SAFEMODE)
+		if (!NIAWG_SAFEMODE)
 		{
 			viOpenDefaultRM(&viDefaultRM);
 			viOpen(viDefaultRM, (char *)AGILENT_ADDRESS, VI_NULL, VI_NULL, &Instrument);
@@ -857,7 +857,7 @@ namespace myAgilent
 		int totalSegmentNumber = currentSegmentNumber;
 		intensityVaried = intensityWaveformSequence.returnIsVaried();
 		// if varied
-		if (intensityWaveformSequence.returnIsVaried() == true)
+		if (intensityWaveformSequence.returnIsVaried() )
 		{
 			// loop through # of variable values
 			for (int varValueCount = 0; varValueCount < varValues[0].size(); varValueCount++)
@@ -888,7 +888,7 @@ namespace myAgilent
 
 				for (int segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
 				{
-					if (!TWEEZER_COMPUTER_SAFEMODE)
+					if (!NIAWG_SAFEMODE)
 					{
 						SCPIcmd = intensityWaveformSequence.compileAndReturnDataSendString(segNumInc, varValueCount, totalSegmentNumber);
 						// send to the agilent.
@@ -907,7 +907,7 @@ namespace myAgilent
 
 				// Now handle seqeunce creation / writing.
 				intensityWaveformSequence.compileSequenceString(totalSegmentNumber, varValueCount);
-				if (!TWEEZER_COMPUTER_SAFEMODE)
+				if (!NIAWG_SAFEMODE)
 				{
 					// submit the sequence
 					SCPIcmd = intensityWaveformSequence.returnSequenceString();
@@ -947,7 +947,7 @@ namespace myAgilent
 
 			for (int segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
 			{
-				if (!TWEEZER_COMPUTER_SAFEMODE)
+				if (!NIAWG_SAFEMODE)
 				{
 					// Set output impedance...
 					SCPIcmd = std::string("OUTPUT1:LOAD ") + AGILENT_LOAD;
@@ -976,7 +976,7 @@ namespace myAgilent
 			// Now handle seqeunce creation / writing.
 			intensityWaveformSequence.compileSequenceString(totalSegmentNumber, 0);
 
-			if (!TWEEZER_COMPUTER_SAFEMODE)
+			if (!NIAWG_SAFEMODE)
 			{
 				// submit the sequence
 				SCPIcmd = intensityWaveformSequence.returnSequenceString();
@@ -1013,7 +1013,7 @@ namespace myAgilent
 			MessageBox(0, commErrMsg.c_str(), 0, MB_OK);
 			return -1;
 		}
-		if (!TWEEZER_COMPUTER_SAFEMODE)
+		if (!NIAWG_SAFEMODE)
 		{
 			// Query the agilent for errors.
 			viQueryf(vi, "SYST:ERR?\n", "%ld,%t", &errorCode, buf);
@@ -1038,13 +1038,13 @@ namespace myAgilent
 		{
 			unsigned long viDefaultRM, Instrument;
 			unsigned long actual;
-			if (!TWEEZER_COMPUTER_SAFEMODE)
+			if (!NIAWG_SAFEMODE)
 			{
 				viOpenDefaultRM(&viDefaultRM);
 				viOpen(viDefaultRM, (char *)AGILENT_ADDRESS, VI_NULL, VI_NULL, &Instrument);
 			}
 			std::string SCPIcmd;
-			if (!TWEEZER_COMPUTER_SAFEMODE)
+			if (!NIAWG_SAFEMODE)
 			{
 				// Load sequence that was previously loaded.
 				SCPIcmd = "MMEM:LOAD:DATA \"INT:\\seq" + std::to_string(varNum) + ".seq\"";

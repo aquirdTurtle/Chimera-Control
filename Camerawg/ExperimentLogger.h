@@ -2,8 +2,9 @@
 
 #include <string>
 #include <sstream>
-#include "experimentProgrammingThread.h"
+#include "ExperimentManager.h"
 
+struct experimentThreadInput;
 class MasterWindow;
 
 class ExperimentLogger

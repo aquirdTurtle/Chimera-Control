@@ -1,7 +1,15 @@
 #pragma once
 #include "windows.h"
-#include "experimentProgrammingThread.h"
+#include "ExperimentManager.h"
+#include "niFgen.h"
+#include "externals.h"
+#include "time.h"
+#include <chrono>
+#include <thread>
+#include "constants.h"
 
+
+struct experimentThreadInput;
 struct waitThreadInput
 {
 	NiawgController* niawg;
@@ -13,7 +21,6 @@ struct waitThreadInput
 * ViSession inputParam: this is the session handle for the session with the NIAWG.
 * Return: the function returns -1 if error, -2 if abort, 0 if normal.
 */
-
 class NiawgWaiter
 {
 	public:

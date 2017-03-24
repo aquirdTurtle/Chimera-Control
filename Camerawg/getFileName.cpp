@@ -1,7 +1,6 @@
 #include "stdafx.h"
 
 #include "getFileName.h"
-
 #include <string>
 
 /*
@@ -10,30 +9,30 @@
  */
 std::string getFileNameDialog(HWND parentWindow)
 {
-	OPENFILENAME ofn;       // common dialog box structure
-	char szFile[260];       // buffer for file name
-	
+	OPENFILENAME dialogInfo;
+	// buffer for file name
+	char fileName[260];       	
 	// Initialize OPENFILENAME
-	ZeroMemory(&ofn, sizeof(ofn));
-	ofn.lStructSize = sizeof(ofn);
-	ofn.hwndOwner = parentWindow;
-	ofn.lpstrFile = szFile;
+	ZeroMemory(&dialogInfo, sizeof(dialogInfo));
+	dialogInfo.lStructSize = sizeof(dialogInfo);
+	dialogInfo.hwndOwner = parentWindow;
+	dialogInfo.lpstrFile = fileName;
 	// Set lpstrFile[0] to '\0' so that GetOpenFileName does not 
 	// use the contents of szFile to initialize itself.
-	ofn.lpstrFile[0] = '\0';
-	ofn.nMaxFile = sizeof(szFile);
-	ofn.lpstrFilter = NULL;//"All\0*.*\0Text\0*.TXT\0";
-	ofn.nFilterIndex = 1;
-	ofn.lpstrFileTitle = NULL;
-	ofn.nMaxFileTitle = 0;
-	ofn.lpstrInitialDir = NULL;
-	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+	dialogInfo.lpstrFile[0] = '\0';
+	dialogInfo.nMaxFile = sizeof(fileName);
+	dialogInfo.lpstrFilter = NULL;//"All\0*.*\0Text\0*.TXT\0";
+	dialogInfo.nFilterIndex = 1;
+	dialogInfo.lpstrFileTitle = NULL;
+	dialogInfo.nMaxFileTitle = 0;
+	dialogInfo.lpstrInitialDir = NULL;
+	dialogInfo.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
 	// Display the Open dialog box. 
 
-	if (GetOpenFileName(&ofn) == TRUE)
+	if (GetOpenFileName(&dialogInfo))
 	{
-		return ofn.lpstrFile;
+		return dialogInfo.lpstrFile;
 	}
 	else 
 	{

@@ -58,9 +58,9 @@ BOOL MainWindow::PreTranslateMessage(MSG* pMsg)
 	return CDialog::PreTranslateMessage(pMsg);
 }
 
-void MainWindow::setNiawgDefaults(bool isFirstTime)
+void MainWindow::setNiawgDefaults()
 {
-	niawg.setDefaultWaveforms(this, isFirstTime);
+	niawg.setDefaultWaveforms(this);
 }
 
 std::unordered_map<std::string, CFont*> MainWindow::getFonts()
@@ -151,7 +151,7 @@ BOOL MainWindow::OnInitDialog()
 	std::vector<std::string> defXVarFileNames, defYVarFileNames;
 	// parameters for variables used by the default file. (there shouldn't be any, these are essentially just placeholders so that I can use the same functions.
 	std::vector<std::fstream> defXVarFiles;
-	if (!TWEEZER_COMPUTER_SAFEMODE)
+	if (!NIAWG_SAFEMODE)
 	{
 		std::ofstream hConfigVerticalDefaultScriptLog(EXPERIMENT_LOGGING_FILES_PATH + logFolderNameStart + "\\Default hConfig Vertical Script.script");
 		std::ofstream hConfigHorizontalDefaultScriptLog(EXPERIMENT_LOGGING_FILES_PATH + logFolderNameStart + "\\Default hConfig Horizontal Script.script");
@@ -189,7 +189,7 @@ BOOL MainWindow::OnInitDialog()
 	*/
 	try
 	{
-		niawg.setDefaultWaveforms( this, true );
+		niawg.setDefaultWaveforms( this );
 		// but the default starts in the horizontal configuration, so switch back and start in this config.
 		setOrientation( HORIZONTAL_ORIENTATION );
 		restartNiawgDefaults();
@@ -245,6 +245,12 @@ void MainWindow::restartNiawgDefaults()
 	niawg.restartDefault();
 }
 
+
+void MainWindow::startExperiment( experimentThreadInput* input )
+{
+	input->niawg = &niawg;
+	manager.startThread( input );
+}
 
 HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {

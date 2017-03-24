@@ -90,7 +90,7 @@ BOOL myApplicationApp::ProcessMessageFilter(int code, LPMSG lpMsg)
 
 BOOL myApplicationApp::InitInstance()
 {
-	if (TWEEZER_COMPUTER_SAFEMODE)
+	if (NIAWG_SAFEMODE)
 	{
 		errBox("Starting in Safe Mode. The program will not actually communicate with any of the devices");
 	}
@@ -132,7 +132,7 @@ BOOL myApplicationApp::InitInstance()
 									   + str( datePointerStart.tm_min ) + "-" + str( datePointerStart.tm_sec ));
 	bool andorConnectedForFolder = false;
 
-	if (!TWEEZER_COMPUTER_SAFEMODE)
+	if (!NIAWG_SAFEMODE)
 	{
 		boost::filesystem::path dir( CODE_LOGGING_FILES_PATH + logFolderNameStart );
 
@@ -179,7 +179,7 @@ BOOL myApplicationApp::InitInstance()
 	HANDLE h_Find_Handle;
 	std::string cppFindString = ACTUAL_CODE_FOLDER_PATH + "*.cpp";
 	std::string hFindString = ACTUAL_CODE_FOLDER_PATH + "*.h";
-	if (!TWEEZER_COMPUTER_SAFEMODE)
+	if (!NIAWG_SAFEMODE)
 	{
 		cpp_Find_Handle = FindFirstFile( (LPSTR)cppFindString.c_str(), &find_cpp_Data );
 		if (cpp_Find_Handle != INVALID_HANDLE_VALUE)
@@ -235,7 +235,7 @@ BOOL myApplicationApp::InitInstance()
 			errBox( "Failed to find any .cpp files in folder!" );
 		}
 	}
-	if (!TWEEZER_COMPUTER_SAFEMODE)
+	if (!NIAWG_SAFEMODE)
 	{
 		h_Find_Handle = FindFirstFile( (LPSTR)hFindString.c_str(), &find_cpp_Data );
 		if (h_Find_Handle != INVALID_HANDLE_VALUE)

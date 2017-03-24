@@ -4,9 +4,6 @@
     <ClCompile Include="cleanString.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="experimentProgrammingThread.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
     <ClCompile Include="getFileName.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
@@ -50,9 +47,6 @@
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="NoteSystem.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
-    <ClCompile Include="postMyString.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="MainWindow.cpp">
@@ -160,6 +154,9 @@
     <ClCompile Include="ScriptStream.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
+    <ClCompile Include="ExperimentManager.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -192,9 +189,6 @@
     <ClInclude Include="fonts.h">
       <Filter>Constants, Externals, Etc.</Filter>
     </ClInclude>
-    <ClInclude Include="experimentProgrammingThread.h">
-      <Filter>Function Headers</Filter>
-    </ClInclude>
     <ClInclude Include="colorScript.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
@@ -203,9 +197,6 @@
     </ClInclude>
     <ClInclude Include="constants.h">
       <Filter>Constants, Externals, Etc.</Filter>
-    </ClInclude>
-    <ClInclude Include="postMyString.h">
-      <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="beginningSettingsDialogProc.h">
       <Filter>Function Headers</Filter>
@@ -341,6 +332,9 @@
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="CameraConfigurationSystem.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ExperimentManager.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
   </ItemGroup>

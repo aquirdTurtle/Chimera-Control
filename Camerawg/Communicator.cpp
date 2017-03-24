@@ -1,7 +1,6 @@
 
 #include "stdafx.h"
 #include "Communicator.h"
-#include "postMyString.h"
 #include "CameraWindow.h"
 
 void Communicator::initialize(MainWindow* mainWinParent, ScriptingWindow* scriptingWin, CameraWindow* cameraWin)
@@ -12,8 +11,8 @@ void Communicator::initialize(MainWindow* mainWinParent, ScriptingWindow* script
 }
 
 /*
-Note that in all of the following, using "" as the input means that the communicaotr does not send any message to the
-control of interest.
+	Note that in all of the following, using "" as the input means that the communicaotr does not send any message to the
+	control of interest.
 */
 
 // the two camera messages go straight to the camera window.
@@ -31,7 +30,7 @@ void Communicator::sendTimer( std::string timerMsg )
 {
 	if ( timerMsg != "" )
 	{
-		this->camWin->setTimerText( timerMsg );
+		camWin->setTimerText( timerMsg );
 	}
 }
 
@@ -74,4 +73,13 @@ void Communicator::sendDebug(std::string statusMsg)
 	{
 		postMyString(mainWin, eDebugMessageID, statusMsg);
 	}
+}
+
+
+void Communicator::postMyString( CWnd* window, unsigned int messageTypeID, std::string message )
+{
+	// The window recieving this message is responsible for deleting this pointer.
+	char* messageChars = new char[message.size() + 1];
+	sprintf_s( messageChars, message.size() + 1, "%s", message.c_str() );
+	window->PostMessageA( messageTypeID, 0, (LPARAM)messageChars );
 }

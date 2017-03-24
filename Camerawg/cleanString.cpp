@@ -50,5 +50,5 @@ void cleanString(std::string &str)
 			}
 		}
 
-	} while (erasingFlag == true);
+	} while (erasingFlag );
 }
