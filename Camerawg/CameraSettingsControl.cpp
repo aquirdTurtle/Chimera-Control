@@ -56,12 +56,12 @@ void CameraSettingsControl::handleSetTemperaturePress()
 void CameraSettingsControl::handleTriggerControl(CameraWindow* cameraWindow)
 {
 	CString triggerMode;
-	long long itemIndex = this->triggerCombo.GetCurSel();
+	long long itemIndex = triggerCombo.GetCurSel();
 	if (itemIndex == -1)
 	{
 		return;
 	}
-	this->triggerCombo.GetLBText(itemIndex, triggerMode);
+	triggerCombo.GetLBText(itemIndex, triggerMode);
 	runSettings.triggerMode = triggerMode;
 	CRect rect;
 	cameraWindow->GetWindowRect(&rect);
@@ -216,20 +216,33 @@ void CameraSettingsControl::handlePictureSettings(UINT id, AndorCamera* andorObj
 void CameraSettingsControl::initialize(cameraPositions& pos, int& id, CWnd* parent, std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips)
 {
 	/// Header
-	header.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480,
-		pos.seriesPos.y + 25 };
-	header.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480,
-		pos.amPos.y + 25 };
-	header.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480,
-		pos.videoPos.y + 25 };
+	header.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
+	header.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
+	header.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
 	header.ID = id++;
 	header.Create("CAMERA SETTINGS", WS_BORDER | WS_CHILD | WS_VISIBLE | ES_READONLY | ES_CENTER, header.seriesPos,
 		parent, header.ID);	
 	header.fontType = "Heading";
-	pos.seriesPos.y += 25;
+	
+	/// camera mode
+	cameraModeCombo.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 100 };
+	cameraModeCombo.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 100 };
+	cameraModeCombo.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y + 100 };
+	cameraModeCombo.ID = id++;
+	if (cameraModeCombo.ID != IDC_CAMERA_MODE_COMBO)
+	{
+		throw;
+	}
+	cameraModeCombo.Create( WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, cameraModeCombo.seriesPos, parent, cameraModeCombo.ID );
+	cameraModeCombo.fontType = "Normal";
+	cameraModeCombo.AddString( "Kinetic Series Mode" );
+	cameraModeCombo.AddString( "Accumulation Mode" );
+	cameraModeCombo.AddString( "Video Mode" );
+	cameraModeCombo.SelectString( 0, "Kinetic Series Mode" );
+	runSettings.cameraMode = "Kinetic Series Mode";
 	pos.amPos.y += 25;
 	pos.videoPos.y += 25;
-	
+	pos.seriesPos.y += 25;
 	/// EM Gain
 	emGainButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 120, pos.seriesPos.y + 20 };
 	emGainButton.videoPos = emGainButton.amPos = emGainButton.seriesPos;
@@ -355,28 +368,42 @@ void CameraSettingsControl::initialize(cameraPositions& pos, int& id, CWnd* pare
 	pos.seriesPos.y += 25;
 }
 
+void CameraSettingsControl::handleModeChange( CameraWindow* cameraWindow )
+{
+	int sel = cameraModeCombo.GetCurSel();
+	if (sel == -1)
+	{
+		return;
+	}
+	CString mode;
+	cameraModeCombo.GetLBText( sel, mode );
+	runSettings.cameraMode = mode;
+	CRect rect;
+	cameraWindow->GetWindowRect( &rect );
+	cameraWindow->OnSize( 0, rect.right - rect.left, rect.bottom - rect.top );
+}
+
 void CameraSettingsControl::checkTimings(std::vector<float> exposureTimes)
 {
 	checkTimings(runSettings.kinetiCycleTime, runSettings.accumulationTime, exposureTimes);
 }
 
-void CameraSettingsControl::checkTimings(float kineticCycleTime, float accumulationTime, 
-										 std::vector<float> exposureTimes)
+void CameraSettingsControl::checkTimings(float kineticCycleTime, float accumulationTime, std::vector<float> exposureTimes)
 {
 	andorFriend->checkAcquisitionTimings(kineticCycleTime, accumulationTime, exposureTimes);
 }
 
 imageParameters CameraSettingsControl::readImageParameters(CameraWindow* camWin)
 {
-	imageParameters parameters = this->imageDimensionsObj.readImageParameters( camWin );
-	this->runSettings.imageSettings = parameters;
+	imageParameters parameters = imageDimensionsObj.readImageParameters( camWin );
+	runSettings.imageSettings = parameters;
 	return parameters;
 }
 
-CBrush* CameraSettingsControl::handleColor(int idNumber, CDC* colorer, std::unordered_map<std::string, CBrush*> brushes,
-	std::unordered_map<std::string, COLORREF> rgbs)
+CBrush* CameraSettingsControl::handleColor( int idNumber, CDC* colorer, std::unordered_map<std::string, CBrush*> brushes,
+											std::unordered_map<std::string, COLORREF> rgbs )
 {
-	return this->picSettingsObj.colorControls(idNumber, colorer, brushes, rgbs);
+	return picSettingsObj.colorControls( idNumber, colorer, brushes, rgbs );
 }
 
 

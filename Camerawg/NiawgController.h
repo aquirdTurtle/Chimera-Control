@@ -260,7 +260,6 @@ template <typename type> static void NiawgController::loadParam( type& dataToAss
 																 std::vector<int> dataTypes, std::vector<variable> singletons )
 {
 	std::string tempInput;
-	int stringPos;
 	file >> tempInput;
 	if (tempInput.size() > 0)
 	{

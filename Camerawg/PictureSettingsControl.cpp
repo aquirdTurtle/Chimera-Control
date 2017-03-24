@@ -375,7 +375,7 @@ CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer, std::unorder
 
 int PictureSettingsControl::getPicsPerRepetition()
 {
-	return this->picsPerRepetitionUnofficial;
+	return picsPerRepetitionUnofficial;
 }
 
 void PictureSettingsControl::handleOptionChange(UINT id, AndorCamera* andorObj)
@@ -383,26 +383,23 @@ void PictureSettingsControl::handleOptionChange(UINT id, AndorCamera* andorObj)
 	if (id >= totalNumberChoice.front().ID && id <= this->totalNumberChoice.back().ID)
 	{
 		int picNum = id - totalNumberChoice.front().ID;
-		this->picsPerRepetitionUnofficial = picNum + 1;
+		picsPerRepetitionUnofficial = picNum + 1;
 		// not all settings are changed here, and some are used to recalculate totals.
 		AndorRunSettings settings = andorObj->getSettings();
-		settings.picsPerRepetition = this->picsPerRepetitionUnofficial;
+		settings.picsPerRepetition = picsPerRepetitionUnofficial;
 		settings.totalPicsInVariation = settings.picsPerRepetition  * settings.repetitionsPerVariation;
 		settings.totalPicsInExperiment = settings.totalVariations * settings.totalPicsInVariation;
-		// andorObj->setSettings(settings);
 		for (int picInc = 0; picInc < 4; picInc++)
 		{
 			if (picInc <= picNum)
 			{
-				this->enablePictureControls(picInc);
+				enablePictureControls(picInc);
 			}
 			else
 			{
-				this->disablePictureControls(picInc);
+				disablePictureControls(picInc);
 			}
 		}
-		return;
-
 	}
 	else if (id == setPictureOptionsButton.ID)
 	{
@@ -431,9 +428,7 @@ void PictureSettingsControl::handleOptionChange(UINT id, AndorCamera* andorObj)
 			int exposure;
 			try
 			{
-
 				exposure = std::stof(std::string(textEdit));
-
 				exposureTimesUnofficial[exposureInc] = exposure / 1000.0f;
 			}
 			catch (std::invalid_argument)
@@ -446,13 +441,12 @@ void PictureSettingsControl::handleOptionChange(UINT id, AndorCamera* andorObj)
 		/// set the exposure times via andor
 		setExposureTimes(andorObj);
 	}
-	else if (id >= this->yellowBlueRadios[0].ID && id <= blackWhiteRadios[3].ID)
+	else if (id >= yellowBlueRadios[0].ID && id <= blackWhiteRadios[3].ID)
 	{
 		id -= yellowBlueRadios[0].ID;
 		int pic = id / 3;
 		int color = id % 3;
-		this->colors[pic] = color;
-
+		colors[pic] = color;
 	}
 }
 

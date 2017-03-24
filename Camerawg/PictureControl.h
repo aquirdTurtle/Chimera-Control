@@ -7,6 +7,7 @@ class PictureControl
 	public:
 		void initialize(POINT& loc, CWnd* parent, int& id, int width, int height);
 		void updateGridSpecs( imageParameters newParameters );
+		void setPictureArea( POINT loc, int width, int height );
 		void drawBitmap( CDC* deviceContext, std::vector<long> picData );
 		void drawBackground(CWnd* parent);
 		void drawGrid(CWnd* parent, CBrush* brush);
@@ -18,6 +19,7 @@ class PictureControl
 		void updatePalette( HPALETTE pallete );
 		void redrawImage( CWnd* parent );
 		void setActive( bool activeState );
+		bool isActive();
 		std::pair<int, int> checkClickLocation( CPoint clickLocation );
 	private:
 		// for replotting.

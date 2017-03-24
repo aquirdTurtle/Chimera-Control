@@ -1266,7 +1266,6 @@ void NiawgController::loadWaveformParameters( outputInfo& output, profileSetting
 											  niawgPair<ScriptStream>& scripts, std::vector<variable> singletons)
 {
 	waveInfo wave;
-	long int sampleNum;
 	// not sure why I have this limitation built in.
 	if (output.isDefault && ((output.waveCount == 1 && profile.orientation == ORIENTATION[Vertical])
 							  || (output.waveCount == 2 && profile.orientation == ORIENTATION[Horizontal])))
@@ -1563,13 +1562,12 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 		/// get general flashing info
 		try
 		{
-			niawgPair<std::string> waveformsToFlashInput, timesInput;
+			niawgPair<std::string> waveformsToFlashInput;
 			niawgPair<int> flashNum;
 			for (auto axis : AXES)
 			{
 				scripts[axis] >> waveformsToFlashInput[axis];
 				scripts[axis] >> flashingWave.flash.flashCycleFreqInput[axis];
-				scripts[axis] >> timesInput[axis];
 				flashNum[axis] = std::stoi( waveformsToFlashInput[axis] );
 			}
 			if (flashNum[Horizontal] != flashNum[Vertical])
@@ -1629,13 +1627,14 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 			scripts[axis] >> bracket;
 			if (bracket != "{")
 			{
-				thrower( "ERROR: Expected \"{\" but found " + bracket + " in" + AXES_NAMES[axis] + "File during flashing waveform read" );
+				thrower( "ERROR: Expected \"{\" but found \"" + bracket + "\" in " + AXES_NAMES[axis] + " File during flashing waveform read" );
 			}
 		}
 
 		/// get waveforms to flash.
 		outputInfo flashingOutputInfo = output;
 		int initSize = output.waveCount;
+		
 		for (size_t waveCount = 0; waveCount < flashingWave.flash.flashNumber; waveCount++)
 		{
 			niawgPair<std::string> flashingWaveCommands;
@@ -1651,7 +1650,13 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 						flashingWaveCommands[axis].erase( flashingWaveCommands[axis].length() - 1 );
 					}
 				}
-			}			
+			}
+
+			if (flashingWaveCommands[Horizontal] == "}" || flashingWaveCommands[Vertical] == "}")
+			{
+				thrower( "ERROR: Expected " + str( flashingWave.flash.flashNumber ) + " waveforms for flashing but only found" 
+						 + str(waveCount) );
+			}
 			if (!isStandardWaveform( flashingWaveCommands[Horizontal] ) || !isStandardWaveform( flashingWaveCommands[Vertical] ))
 			{
 				thrower( "ERROR: detected command in flashing section that does not denote a standard waveform (e.g. a logic command or a "
@@ -1679,7 +1684,7 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 		flashingWave.time = 0;
 		double singleWaveTime = flashingWave.flash.flashWaves.front().time;
 
-		for (int waveCount = initSize; waveCount < flashingWave.flash.flashWaves.size(); waveCount++)
+		for (int waveCount = 0; waveCount < flashingWave.flash.flashWaves.size(); waveCount++)
 		{
 			if (flashingWave.flash.flashWaves[waveCount].varies)
 			{

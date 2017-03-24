@@ -20,11 +20,9 @@ class CameraSettingsControl
 		CameraSettingsControl::CameraSettingsControl(AndorCamera* friendInitializer) : picSettingsObj(this)
 		{ 
 			andorFriend = friendInitializer; 
-			runSettings.cameraMode = "Kinetic Series Mode";
-			runSettings.triggerMode = "External";
 			runSettings.exposureTimes = { 20 };
 			runSettings.picsPerRepetition = 1;
-			runSettings.kinetiCycleTime = 0.1;
+			runSettings.kinetiCycleTime = 0.1f;
 			if ( ANDOR_SAFEMODE )
 			{
 				runSettings.picsPerRepetition = 1;
@@ -48,6 +46,7 @@ class CameraSettingsControl
 		void handleTimer();
 		void checkIfReady();
 		void cameraIsOn( bool state );
+		void handleModeChange( CameraWindow* cameraWindow );
 		AndorRunSettings getSettings();
 		std::array<int, 4> getThresholds();
 	private:
@@ -57,6 +56,8 @@ class CameraSettingsControl
 		// Accumulation Time
 		// Accumulation Number
 
+		// cameraMode
+		Control<CComboBox> cameraModeCombo;
 		// EM Gain
 		Control<CButton> emGainButton;
 		Control<CEdit> emGainEdit;
