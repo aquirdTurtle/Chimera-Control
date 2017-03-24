@@ -9,14 +9,6 @@
 #include "fonts.h"
 #include "CameraWindow.h"
 
-ExperimentTimer::ExperimentTimer()
-{
-	// nothing
-}
-ExperimentTimer::~ExperimentTimer()
-{
-	// nothing
-}
 
 void ExperimentTimer::initialize( cameraPositions& inputLoc, CWnd* parent, bool isTriggerModeSensitive, int& id,
 								  std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*> toolTips )
@@ -50,7 +42,6 @@ void ExperimentTimer::initialize( cameraPositions& inputLoc, CWnd* parent, bool 
 	inputLoc.seriesPos.y += 40;
 	inputLoc.amPos.y += 40;
 	inputLoc.videoPos.y += 40;
-	return;
 }
 
 void ExperimentTimer::update(int currentRepNumber, int repsPerVariation, int numberOfVariations, int picsPerRep)

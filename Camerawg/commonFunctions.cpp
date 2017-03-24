@@ -37,9 +37,8 @@ namespace commonFunctions
 				}
 				catch (myException& except)
 				{
-					colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'R', /*intensity*/'-' };
 					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + except.whatStr() );
-					mainWin->getComm()->sendColorBox( colors );
+					mainWin->getComm()->sendColorBox( { /*niawg*/'R', /*camera*/'R', /*intensity*/'-' } );
 					mainWin->getComm()->sendStatus( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
 					mainWin->getComm()->sendTimer( "ERROR!" );
 				}
@@ -56,9 +55,8 @@ namespace commonFunctions
 				}
 				catch (myException& except)
 				{
-					colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
 					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + except.whatStr() );
-					mainWin->getComm()->sendColorBox( colors );
+					mainWin->getComm()->sendColorBox( { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' } );
 					mainWin->getComm()->sendStatus( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
 					mainWin->getComm()->sendTimer( "ERROR!" );
 				}
@@ -66,27 +64,23 @@ namespace commonFunctions
 			}
 			case ID_RUNMENU_RUNCAMERA:
 			{
-				colorBoxes<char> colors = { /*niawg*/'-', /*camera*/'Y', /*intensity*/'-' };
-				mainWin->getComm()->sendColorBox( colors );
+				mainWin->getComm()->sendColorBox( { /*niawg*/'-', /*camera*/'Y', /*intensity*/'-' } );
 				mainWin->getComm()->sendStatus( "Starting Camera...\r\n" );
 				try
 				{
 					commonFunctions::startCamera( scriptWin, mainWin, camWin );
-					colors = { /*niawg*/'-', /*camera*/'G', /*intensity*/'-' };
-					mainWin->getComm()->sendColorBox( colors );
+					mainWin->getComm()->sendColorBox( { /*niawg*/'-', /*camera*/'G', /*intensity*/'-' } );
 					mainWin->getComm()->sendStatus( "Camera is Running.\r\n" );
 				}
 				catch (myException& exception)
 				{
 					if (exception.whatBare() == "CANCEL")
 					{
-						colors = { /*niawg*/'-', /*camera*/'B', /*intensity*/'-' };
-						mainWin->getComm()->sendColorBox( colors );
+						mainWin->getComm()->sendColorBox( { /*niawg*/'-', /*camera*/'B', /*intensity*/'-' } );
 						mainWin->getComm()->sendStatus( "Camera is Not Running, User Canceled.\r\n" );
 						break;
 					}
-					colorBoxes<char> colors = { /*niawg*/'-', /*camera*/'R', /*intensity*/'-' };
-					mainWin->getComm()->sendColorBox( colors );
+					mainWin->getComm()->sendColorBox( { /*niawg*/'-', /*camera*/'R', /*intensity*/'-' } );
 					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + exception.whatStr() );
 					mainWin->getComm()->sendStatus( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
 					mainWin->getComm()->sendTimer( "ERROR!" );
@@ -102,8 +96,7 @@ namespace commonFunctions
 				}
 				catch (myException& except)
 				{
-					colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
-					mainWin->getComm()->sendColorBox( colors );
+					mainWin->getComm()->sendColorBox( { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' } );
 					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + except.whatStr() );
 					mainWin->getComm()->sendStatus( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
 					return true;
@@ -387,8 +380,7 @@ namespace commonFunctions
 				myAgilent::agilentDefault();
 				std::string msgString = "Passively Outputting Default Waveform";
 				mainWin->getComm()->sendStatus( msgString );
-				colorBoxes<char> colors = { /*niawg*/'B', /*camera*/'-', /*intensity*/'-' };
-				mainWin->getComm()->sendColorBox( colors );
+				mainWin->getComm()->sendColorBox( { /*niawg*/'B', /*camera*/'-', /*intensity*/'-' } );
 
 				try
 				{
@@ -396,9 +388,9 @@ namespace commonFunctions
 				}
 				catch (myException& except)
 				{
-					colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
-					mainWin->getComm()->sendColorBox( colors );
-					mainWin->getComm()->sendFatalError( "Failed to restart the NIAWG default during the script restart procedure! Error reported is" + except.whatStr() );
+					mainWin->getComm()->sendColorBox( { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' } );
+					mainWin->getComm()->sendFatalError( "Failed to restart the NIAWG default during the script restart procedure! Error "
+														"reported is" + except.whatStr() );
 					mainWin->setNiawgRunningState( false );
 					return;
 				}
@@ -410,9 +402,9 @@ namespace commonFunctions
 		}
 		if (profile.sequenceConfigNames.size() == 0)
 		{
-			colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
-			mainWin->getComm()->sendColorBox( colors );
-			mainWin->getComm()->sendError( "ERROR: No configurations in current sequence! Please set some configurations to run in this sequence or set the null sequence.\r\n" );
+			mainWin->getComm()->sendColorBox( { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' } );
+			mainWin->getComm()->sendError( "ERROR: No configurations in current sequence! Please set some configurations to run in this "
+										   "sequence or set the null sequence.\r\n" );
 			return;
 		}
 		// check config settings
@@ -512,9 +504,8 @@ namespace commonFunctions
 		INT_PTR areYouSure = DialogBoxParam( eGlobalInstance, MAKEINTRESOURCE( IDD_BEGINNING_SETTINGS ), 0, beginningSettingsDialogProc, (LPARAM)(beginInfo + beginQuestion).c_str() );
 		if (areYouSure == 0)
 		{
-			mainWin->getComm()->sendStatus( "Performing Initial Analysis and Writing and Loading Non-Varying Waveforms..." );
-			colorBoxes<char> colors = { /*niawg*/'Y', /*camera*/'-', /*intensity*/'-' };
-			mainWin->getComm()->sendColorBox( colors );
+			mainWin->getComm()->sendStatus( "Performing Initial Analysis and Writing and Loading Non-Varying Waveforms...\r\n" );
+			mainWin->getComm()->sendColorBox( { /*niawg*/'Y', /*camera*/'-', /*intensity*/'-' } );
 			// Set the thread structure.
 			experimentThreadInput* inputParams = new experimentThreadInput();
 			// force accumulations to zero. This shouldn't affect anything, this should always get set by the master or be infinite.
@@ -550,9 +541,7 @@ namespace commonFunctions
 	{
 		if (!camWin->cameraIsRunning())
 		{
-			std::string msgString = "Passively Outputting Default Waveform.";
-			colorBoxes<char> colors = { /*niawg*/'B', /*camera*/'-', /*intensity*/'-' };
-			mainWin->getComm()->sendColorBox( colors );
+			mainWin->getComm()->sendColorBox( { /*niawg*/'B', /*camera*/'-', /*intensity*/'-' } );
 			mainWin->getComm()->sendError( "System was not running. Can't Abort.\r\n" );
 			return;
 		}
@@ -571,8 +560,7 @@ namespace commonFunctions
 		if (!mainWin->niawgIsRunning())
 		{
 			std::string msgString = "Passively Outputting Default Waveform.";
-			colorBoxes<char> colors = { /*niawg*/'B', /*camera*/'-', /*intensity*/'-' };
-			mainWin->getComm()->sendColorBox( colors );
+			mainWin->getComm()->sendColorBox( { /*niawg*/'B', /*camera*/'-', /*intensity*/'-' } );
 			mainWin->getComm()->sendError( "System was not running. Can't Abort.\r\n" );
 			return;
 		}
@@ -598,9 +586,8 @@ namespace commonFunctions
 		myAgilent::agilentDefault();
 
 		std::string msgString = "Passively Outputting Default Waveform.";
-		colorBoxes<char> colors = { /*niawg*/'B', /*camera*/'-', /*intensity*/'-' };
 		comm->sendStatus( msgString );
-		comm->sendColorBox( colors );
+		comm->sendColorBox( { /*niawg*/'B', /*camera*/'-', /*intensity*/'-' } );
 		mainWin->restartNiawgDefaults();
 		mainWin->setNiawgRunningState( false );
 	}

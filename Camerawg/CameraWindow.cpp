@@ -33,6 +33,7 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 	// 
 
 	ON_CBN_SELENDOK(IDC_TRIGGER_COMBO, &CameraWindow::passTrigger)
+	ON_CBN_SELENDOK( IDC_CAMERA_MODE_COMBO, &CameraWindow::passCameraMode )
 	// messages 
 	ON_REGISTERED_MESSAGE( eCameraFinishMessageID, &CameraWindow::onCameraFinish )
 	ON_REGISTERED_MESSAGE( eCameraProgressMessageID, &CameraWindow::onCameraProgress )
@@ -44,6 +45,11 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 	ON_NOTIFY(NM_DBLCLK, IDC_PLOTTING_LISTVIEW, &CameraWindow::listViewDblClick)
 	//ON_NOTIFY(NM_RCLICK, &CameraWindow::handleRClick)
 END_MESSAGE_MAP()
+
+void CameraWindow::passCameraMode()
+{
+	CameraSettings.handleModeChange(this);
+}
 
 void CameraWindow::abortCameraRun()
 {
@@ -108,13 +114,13 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam)
 	unsigned long long pictureNumber = lParam;
 	Andor.updatePictureNumber( pictureNumber );
 	std::vector<std::vector<long>> picData = Andor.acquireImageData();
-	CDC* drawer = this->GetDC();
+	CDC* drawer = GetDC();
 	AndorRunSettings currentSettings = Andor.getSettings();
-	if (this->realTimePic)
+	if (realTimePic)
 	{
 		// draw the most recent pic.
-		this->pics.drawPicture( drawer, pictureNumber % currentSettings.picsPerRepetition, picData.back() );
-		this->timer.update( pictureNumber / currentSettings.picsPerRepetition, currentSettings.repetitionsPerVariation, 
+		pics.drawPicture( drawer, pictureNumber % currentSettings.picsPerRepetition, picData.back() );
+		timer.update( pictureNumber / currentSettings.picsPerRepetition, currentSettings.repetitionsPerVariation, 
 							currentSettings.totalVariations, currentSettings.picsPerRepetition );
 		stats.update( picData.back(), pictureNumber % currentSettings.picsPerRepetition, selectedPixel,
 					  currentSettings.imageSettings.width,
@@ -126,15 +132,15 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam)
 		int counter = 0;
 		for (auto data : picData)
 		{
-			stats.update( data, counter, selectedPixel, currentSettings.imageSettings.width, 
+			stats.update( data, counter, selectedPixel, currentSettings.imageSettings.width,
 						  pictureNumber / currentSettings.picsPerRepetition, 
 						  currentSettings.totalPicsInExperiment / currentSettings.picsPerRepetition );
-			this->pics.drawPicture( drawer, counter, data );
-			this->pics.drawDongles( this, selectedPixel );
+			pics.drawPicture( drawer, counter, data );
+			pics.drawDongles( this, selectedPixel );
 			counter++;
 		}
-		this->timer.update( pictureNumber / currentSettings.picsPerRepetition, currentSettings.repetitionsPerVariation, 
-							currentSettings.totalVariations, currentSettings.picsPerRepetition );
+		timer.update( pictureNumber / currentSettings.picsPerRepetition, currentSettings.repetitionsPerVariation,
+					  currentSettings.totalVariations, currentSettings.picsPerRepetition );
 	}
 	return 0;
 }
@@ -142,27 +148,26 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam)
 LRESULT CameraWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 {
 	// notify the andor object that it is done.
-	this->Andor.onFinish();
-	this->Andor.pauseThread();
-	colorBoxes<char> colors = { /*niawg*/'-', /*camera*/'B', /*intensity*/'-' };
-	mainWindowFriend->getComm()->sendColorBox( colors );
+	Andor.onFinish();
+	Andor.pauseThread();
+	mainWindowFriend->getComm()->sendColorBox( { /*niawg*/'-', /*camera*/'B', /*intensity*/'-' } );
 	mainWindowFriend->getComm()->sendStatus( "Camera has finished taking pictures and is no longer running.\r\n" );
-	this->CameraSettings.cameraIsOn( false );
+	CameraSettings.cameraIsOn( false );
 	return 0;
 }
 
 void CameraWindow::startCamera()
 {
 	// turn some buttons off.
-	this->CameraSettings.cameraIsOn( true );
-	this->pics.refreshBackgrounds( this );
-	this->stats.reset();
+	CameraSettings.cameraIsOn( true );
+	pics.refreshBackgrounds( this );
+	stats.reset();
 	Andor.setSystem( this );
 }
 
 bool CameraWindow::getCameraStatus()
 {
-	return this->Andor.isRunning();
+	return Andor.isRunning();
 }
 
 void CameraWindow::listViewDblClick(NMHDR* info, LRESULT* lResult)
@@ -172,14 +177,13 @@ void CameraWindow::listViewDblClick(NMHDR* info, LRESULT* lResult)
 
 void CameraWindow::listViewLClick( NMHDR* info, LRESULT* lResult )
 {
-	this->dataHandler.handleRClick();
-	
+	dataHandler.handleRClick();
 }
 
 // pics looks up the location itself.
 void CameraWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 {
-	std::pair<int, int> box = this->pics.handleRClick( clickLocation );
+	std::pair<int, int> box = pics.handleRClick( clickLocation );
 	if (box.first != -1)
 	{
 		selectedPixel = box;
@@ -221,15 +225,23 @@ void CameraWindow::passTrigger()
 
 void CameraWindow::handlePictureSettings(UINT id)
 {
-	CameraSettings.handlePictureSettings(id, &this->Andor);
+	CameraSettings.handlePictureSettings(id, &Andor);
+	if (CameraSettings.getSettings().picsPerRepetition == 1)
+	{
+		pics.setSinglePicture(this, selectedPixel, CameraSettings.readImageParameters( this ) );
+	}
+	else
+	{
+		pics.setMultiplePictures( this, selectedPixel, CameraSettings.readImageParameters( this ) );
+	}
 }
 
 
 BOOL CameraWindow::PreTranslateMessage(MSG* pMsg)
 {
-	for (int toolTipInc = 0; toolTipInc < this->tooltips.size(); toolTipInc++)
+	for (int toolTipInc = 0; toolTipInc < tooltips.size(); toolTipInc++)
 	{
-		this->tooltips[toolTipInc]->RelayEvent(pMsg);
+		tooltips[toolTipInc]->RelayEvent(pMsg);
 	}
 	return CDialog::PreTranslateMessage(pMsg);
 }
@@ -250,7 +262,7 @@ void CameraWindow::OnSize(UINT nType, int cx, int cy)
 	pics.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts());
 	alerts.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts());
 	dataHandler.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts());
-	pics.redrawPictures( this, this->selectedPixel );
+	pics.redrawPictures( this, selectedPixel );
 }
 
 
@@ -320,17 +332,17 @@ void CameraWindow::prepareCamera()
 std::string CameraWindow::getStartMessage()
 {
 	// get selected plots
-	std::vector<std::string> plots = this->dataHandler.getActivePlotList();
-	imageParameters currentImageParameters = this->CameraSettings.readImageParameters(this);
+	std::vector<std::string> plots = dataHandler.getActivePlotList();
+	imageParameters currentImageParameters = CameraSettings.readImageParameters( this );
 	bool errCheck = false;
-	for ( int plotInc = 0; plotInc < plots.size(); plotInc++ )
+	for (int plotInc = 0; plotInc < plots.size(); plotInc++)
 	{
 		PlottingInfo tempInfoCheck;
-		if ( tempInfoCheck.loadPlottingInfoFromFile( PLOT_FILES_SAVE_LOCATION + plots[plotInc] + ".plot" ) == -1 )
+		if (tempInfoCheck.loadPlottingInfoFromFile( PLOT_FILES_SAVE_LOCATION + plots[plotInc] + ".plot" ) == -1)
 		{
 			thrower( "Failed to load a plot file: " + plots[plotInc] );
 		}
-		if ( tempInfoCheck.getPictureNumber() != this->CameraSettings.getSettings().picsPerRepetition )
+		if (tempInfoCheck.getPictureNumber() != this->CameraSettings.getSettings().picsPerRepetition)
 		{
 			thrower( "ERROR: one of the plots selected, " + plots[plotInc] + ", is not built for the currently "
 					 "selected number of pictures per experiment. Please revise either the current setting or the plot"
@@ -341,39 +353,33 @@ std::string CameraWindow::getStartMessage()
 	}
 	std::string dialogMsg;
 	dialogMsg = "Starting Parameters:\r\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\r\n";
-	dialogMsg += "Current Camera Temperature Setting: " + std::to_string(
+	dialogMsg += "Current Camera Temperature Setting: " + str(
 		CameraSettings.getSettings().temperatureSetting ) + "\r\n";
 	dialogMsg += "Exposure Times: ";
-	for ( int exposureInc = 0; exposureInc < this->CameraSettings.getSettings().exposureTimes.size(); exposureInc++ )
+	for (int exposureInc = 0; exposureInc < this->CameraSettings.getSettings().exposureTimes.size(); exposureInc++)
 	{
-		dialogMsg += std::to_string( CameraSettings.getSettings().exposureTimes[exposureInc] * 1000 ) + ", ";
+		dialogMsg += str( CameraSettings.getSettings().exposureTimes[exposureInc] * 1000 ) + ", ";
 	}
 	dialogMsg += "\r\n";
-
-	dialogMsg += "Image Settings: " + std::to_string( currentImageParameters.leftBorder ) + " - " 
-		+ std::to_string( currentImageParameters.rightBorder ) + ", " + std::to_string( 
-			currentImageParameters.topBorder ) + " - " + std::to_string( currentImageParameters.bottomBorder ) + "\r\n";
+	dialogMsg += "Image Settings: " + str( currentImageParameters.leftBorder ) + " - " + str( currentImageParameters.rightBorder ) + ", "
+		+ str( currentImageParameters.topBorder ) + " - " + str( currentImageParameters.bottomBorder ) + "\r\n";
 	dialogMsg += "\r\n";
-	dialogMsg += "Kintetic Cycle Time: " + std::to_string( CameraSettings.getSettings().kinetiCycleTime ) + "\r\n";
-	dialogMsg += "Pictures per Repetition: " + std::to_string( CameraSettings.getSettings().picsPerRepetition ) 
-		+ "\r\n";
-	dialogMsg += "Repetitions per Variation: " + std::to_string( CameraSettings.getSettings().totalPicsInVariation ) 
-		+ "\r\n";
-	dialogMsg += "Variations per Experiment: " + std::to_string( CameraSettings.getSettings().totalVariations ) 
-		+ "\r\n";
-	dialogMsg += "Total Pictures per Experiment: " 
-		+ std::to_string( CameraSettings.getSettings().totalPicsInExperiment ) + "\r\n";
+	dialogMsg += "Kintetic Cycle Time: " + str( CameraSettings.getSettings().kinetiCycleTime ) + "\r\n";
+	dialogMsg += "Pictures per Repetition: " + str( CameraSettings.getSettings().picsPerRepetition ) + "\r\n";
+	dialogMsg += "Repetitions per Variation: " + str( CameraSettings.getSettings().totalPicsInVariation ) + "\r\n";
+	dialogMsg += "Variations per Experiment: " + str( CameraSettings.getSettings().totalVariations ) + "\r\n";
+	dialogMsg += "Total Pictures per Experiment: " + str( CameraSettings.getSettings().totalPicsInExperiment ) + "\r\n";
 	dialogMsg += "Real-Time Atom Detection Thresholds: ";
 
-	for ( int exposureInc = 0; exposureInc < CameraSettings.getThresholds().size(); exposureInc++ )
+	for (int exposureInc = 0; exposureInc < CameraSettings.getThresholds().size(); exposureInc++)
 	{
-		dialogMsg += std::to_string( CameraSettings.getThresholds()[exposureInc] ) + ", ";
+		dialogMsg += str( CameraSettings.getThresholds()[exposureInc] ) + ", ";
 	}
 
 	dialogMsg += "\r\n";
 	dialogMsg += "Current Plotting Options: \r\n";
 
-	for ( int plotInc = 0; plotInc < plots.size(); plotInc++ )
+	for (int plotInc = 0; plotInc < plots.size(); plotInc++)
 	{
 		dialogMsg += "\t" + plots[plotInc] + "\r\n";
 	}
@@ -412,39 +418,38 @@ BOOL CameraWindow::OnInitDialog()
 	// all of the initialization functions increment and use the id, so by the end it will be 3000 + # of controls.
 	int id = 3000;
 	positions.videoPos = positions.amPos = positions.seriesPos = { 0,0 };
-	box.initialize(positions.seriesPos, id, this, 480, this->mainWindowFriend->getFonts(), tooltips);
-	
-	this->CameraSettings.initialize(positions, id, this, this->mainWindowFriend->getFonts(), tooltips);
+	box.initialize(positions.seriesPos, id, this, 480, mainWindowFriend->getFonts(), tooltips);
+	CameraSettings.initialize(positions, id, this, mainWindowFriend->getFonts(), tooltips);
 	// initialize the settings.
-	alerts.initialize(positions, this, true, id, this->mainWindowFriend->getFonts(), tooltips);
-	dataHandler.initialize(positions, id, this, this->mainWindowFriend->getFonts(), tooltips, true);
+	alerts.initialize(positions, this, true, id, mainWindowFriend->getFonts(), tooltips);
+	dataHandler.initialize(positions, id, this, mainWindowFriend->getFonts(), tooltips, true);
 	POINT position = { 480, 0 };
-	stats.initialize(position, this, id, this->mainWindowFriend->getFonts(), tooltips);
-	position = { 757, 0 };
-	pics.initialize(position, this, id, this->mainWindowFriend->getFonts(), tooltips,
-					 this->mainWindowFriend->getBrushes()["Dark Green"]);
-	positions.seriesPos = positions.amPos = positions.videoPos = { 757, 460 };
-	timer.initialize( positions, this, false, id, this->mainWindowFriend->getFonts(), tooltips );
-	CameraSettings.readImageParameters( this );
-	pics.setParameters( CameraSettings.getSettings().imageSettings );
+	stats.initialize(position, this, id, mainWindowFriend->getFonts(), tooltips);
+	positions.amPos = positions.seriesPos = positions.videoPos = { 757, 0 };
+	timer.initialize( positions, this, false, id, mainWindowFriend->getFonts(), tooltips );
+	position = positions.seriesPos;
+	pics.initialize( position, this, id, mainWindowFriend->getFonts(), tooltips, mainWindowFriend->getBrushes()["Dark Green"]);
+	pics.setSinglePicture( this, { 0,0 }, CameraSettings.readImageParameters( this ) );
 	// load the menu
 	CMenu menu;
 	menu.LoadMenu(IDR_MAIN_MENU);
-	this->SetMenu(&menu);
+	SetMenu(&menu);
 	// final steps
-	this->ShowWindow(SW_MAXIMIZE);
-	this->SetTimer(NULL, 1000, NULL);
+	ShowWindow(SW_MAXIMIZE);
+	SetTimer(NULL, 1000, NULL);
 	return TRUE;
 }
 
-void CameraWindow::redrawPictures(bool andGrid)
+
+void CameraWindow::redrawPictures( bool andGrid )
 {
-	this->pics.refreshBackgrounds(this);
+	pics.refreshBackgrounds( this );
 	if (andGrid)
 	{
 		pics.drawGrids( this );
 	}
 }
+
 
 HBRUSH CameraWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
@@ -453,14 +458,14 @@ HBRUSH CameraWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	HBRUSH result;
 	int num = pWnd->GetDlgCtrlID();
 
-	result = *this->CameraSettings.handleColor(num, pDC, mainWindowFriend->getBrushes(), mainWindowFriend->getRGB());
+	result = *CameraSettings.handleColor(num, pDC, mainWindowFriend->getBrushes(), mainWindowFriend->getRGB());
 	if (result) { return result; }
 
 	switch (nCtlColor)
 	{
 		case CTLCOLOR_STATIC:
 		{			
-			CBrush* result = this->box.handleColoring(num, pDC, brushes, rgbs);
+			CBrush* result = box.handleColoring(num, pDC, brushes, rgbs);
 			if (result)
 			{
 				return *result;
@@ -498,18 +503,17 @@ void CameraWindow::passCommonCommand(UINT id)
 
 void CameraWindow::readImageParameters()
 {
-	this->redrawPictures(false);
+	redrawPictures(false);
 	try
 	{
-		imageParameters parameters = this->CameraSettings.readImageParameters( this );
-		this->pics.setParameters( parameters );
+		imageParameters parameters = CameraSettings.readImageParameters( this );
+		pics.setParameters( parameters );
 	}
 	catch (myException& exception)
 	{
 		errBox( "Error!" );
 		Communicator* comm = mainWindowFriend->getComm();
-		colorBoxes<char> colors = { /*niawg*/'-', /*camera*/'R', /*intensity*/'-' };
-		comm->sendColorBox( colors );
+		comm->sendColorBox( { /*niawg*/'-', /*camera*/'R', /*intensity*/'-' } );
 		comm->sendError( exception.whatStr() + "\r\n" );
 	}
 	pics.drawGrids( this );

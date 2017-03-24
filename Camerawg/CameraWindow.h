@@ -54,6 +54,7 @@ class CameraWindow : public CDialog
 		void readImageParameters();
 		void passCommonCommand( UINT id );
 		void passTrigger();
+		void passCameraMode();
 		void passAlertPress();
 		void passSetTemperaturePress();
 		void setEmGain();
