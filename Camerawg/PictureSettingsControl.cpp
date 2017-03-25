@@ -5,6 +5,7 @@
 #include "reorganizeControl.h"
 #include "Andor.h"
 #include "CameraSettingsControl.h"
+#include "CameraWindow.h"
 
 void PictureSettingsControl::cameraIsOn( bool state )
 {
@@ -12,7 +13,7 @@ void PictureSettingsControl::cameraIsOn( bool state )
 	return;
 }
 
-void PictureSettingsControl::initialize( POINT& kineticPos, POINT& continuousPos, POINT& accumulatePos, CWnd* parent, int& id )
+void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int& id )
 {
 	if (id != PICTURE_SETTINGS_ID_START)
 	{
@@ -20,68 +21,55 @@ void PictureSettingsControl::initialize( POINT& kineticPos, POINT& continuousPos
 	}
 	// introducing things row by row
 	/// Set Picture Options
-	setPictureOptionsButton.seriesPos = { kineticPos.x, kineticPos.y, kineticPos.x + 480,
-		kineticPos.y + 25 };
-	setPictureOptionsButton.amPos = { accumulatePos.x, accumulatePos.y, accumulatePos.x + 480,
-		accumulatePos.y + 25 };
-	setPictureOptionsButton.videoPos = { continuousPos.x, continuousPos.y, continuousPos.x + 480,
-		continuousPos.y + 25 };
+	setPictureOptionsButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
+	setPictureOptionsButton.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
+	setPictureOptionsButton.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
 	setPictureOptionsButton.ID = id++;
-	setPictureOptionsButton.Create( "Set Picture Options", WS_CHILD | WS_VISIBLE, setPictureOptionsButton.seriesPos,
-									parent, setPictureOptionsButton.ID );
+	setPictureOptionsButton.Create( "Set Picture Options", WS_CHILD | WS_VISIBLE, setPictureOptionsButton.seriesPos, parent, 
+									setPictureOptionsButton.ID );
 	setPictureOptionsButton.fontType = "Normal";
-	kineticPos.y += 25;
-	accumulatePos.y += 25;
-	continuousPos.y += 25;
 	/// Picture Numbers
-	pictureLabel.seriesPos = { kineticPos.x, kineticPos.y, kineticPos.x + 100,
-		kineticPos.y + 20 };
-	pictureLabel.amPos = { accumulatePos.x, accumulatePos.y, accumulatePos.x + 100,
-		accumulatePos.y + 20 };
-	pictureLabel.videoPos = { continuousPos.x, continuousPos.y, continuousPos.x + 100,
-		continuousPos.y + 20 };
+	pictureLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y + 20 };
+	pictureLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100,	pos.amPos.y + 20 };
+	pictureLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100,	pos.videoPos.y + 20 };
 	pictureLabel.ID = id++;
 	pictureLabel.Create( "Picture #:", WS_CHILD | WS_VISIBLE, pictureLabel.seriesPos, parent, pictureLabel.ID );
 	for (int picInc = 0; picInc < 4; picInc++)
 	{
-		pictureNumbers[picInc].seriesPos = { kineticPos.x + 100 + 95 * picInc, kineticPos.y,
-			kineticPos.x + 100 + 95 * (picInc + 1), kineticPos.y + 20 };
-		pictureNumbers[picInc].amPos = { accumulatePos.x + 100 + 95 * picInc, accumulatePos.y,
-			accumulatePos.x + 100 + 95 * (picInc + 1), accumulatePos.y + 20 };
-		pictureNumbers[picInc].videoPos = { continuousPos.x + 100 + 95 * picInc, continuousPos.y,
-			continuousPos.x + 100 + 95 * (picInc + 1), continuousPos.y + 20 };
+		pictureNumbers[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y, 
+											 pos.seriesPos.x + 100 + 95 * (picInc + 1), pos.seriesPos.y + 20 };
+		pictureNumbers[picInc].amPos = { pos.amPos.x + 100 + 95 * picInc, pos.amPos.y, pos.amPos.x + 100 + 95 * (picInc + 1), 
+										 pos.amPos.y + 20 };
+		pictureNumbers[picInc].videoPos = { pos.videoPos.x + 100 + 95 * picInc, pos.videoPos.y, pos.videoPos.x + 100 + 95 * (picInc + 1), 
+											pos.videoPos.y + 20 };
 		pictureNumbers[picInc].ID = id++;
-		this->pictureNumbers[picInc].Create( std::to_string( picInc + 1 ).c_str(),
-											 WS_CHILD | WS_VISIBLE | SS_CENTER, pictureNumbers[picInc].seriesPos, parent, pictureNumbers[picInc].ID );
+		pictureNumbers[picInc].Create( cstr( picInc + 1 ), WS_CHILD | WS_VISIBLE | SS_CENTER, pictureNumbers[picInc].seriesPos, parent, 
+									   pictureNumbers[picInc].ID );
 	}
-	kineticPos.y += 20;
-	accumulatePos.y += 20;
-	continuousPos.y += 20;
+	pos.seriesPos.y += 20;
+	pos.amPos.y += 20;
+	pos.videoPos.y += 20;
 
 	/// Total picture number
-	totalPicNumberLabel.seriesPos = { kineticPos.x, kineticPos.y, kineticPos.x + 100,
-		kineticPos.y + 20 };
-	totalPicNumberLabel.amPos = { accumulatePos.x, accumulatePos.y, accumulatePos.x + 100,
-											  accumulatePos.y + 20 };
-	totalPicNumberLabel.videoPos = { continuousPos.x, continuousPos.y, continuousPos.x + 100,
-														 continuousPos.y + 20 };
+	totalPicNumberLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y + 20 };
+	totalPicNumberLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y + 20 };
+	totalPicNumberLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y + 20 };
 	totalPicNumberLabel.ID = id++;
-	totalPicNumberLabel.Create( "Total Picture #", WS_CHILD | WS_VISIBLE,
-								totalPicNumberLabel.seriesPos, parent, totalPicNumberLabel.ID );
+	totalPicNumberLabel.Create( "Total Picture #", WS_CHILD | WS_VISIBLE, totalPicNumberLabel.seriesPos, parent, totalPicNumberLabel.ID );
 	for (int picInc = 0; picInc < 4; picInc++)
 	{
-		totalNumberChoice[picInc].seriesPos = { kineticPos.x + 100 + 95 * picInc, kineticPos.y,
-			kineticPos.x + 100 + 95 * (picInc + 1), kineticPos.y + 20 };
-		totalNumberChoice[picInc].amPos = { accumulatePos.x + 100 + 95 * picInc, accumulatePos.y,
-			accumulatePos.x + 100 + 95 * (picInc + 1), accumulatePos.y + 20 };
-		totalNumberChoice[picInc].videoPos = { continuousPos.x + 100 + 95 * picInc, continuousPos.y,
-			continuousPos.x + 100 + 95 * (picInc + 1), continuousPos.y + 20 };
+		totalNumberChoice[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y, 
+												pos.seriesPos.x + 100 + 95 * (picInc + 1), pos.seriesPos.y + 20 };
+		totalNumberChoice[picInc].amPos = { pos.amPos.x + 100 + 95 * picInc, pos.amPos.y, pos.amPos.x + 100 + 95 * (picInc + 1), 
+											pos.amPos.y + 20 };
+		totalNumberChoice[picInc].videoPos = { pos.videoPos.x + 100 + 95 * picInc, pos.videoPos.y, pos.videoPos.x + 100 + 95 * (picInc + 1),
+											   pos.videoPos.y + 20 };
 		totalNumberChoice[picInc].ID = id++;
 		if (picInc == 0)
 		{
 			// first of group
-			this->totalNumberChoice[picInc].Create( "", WS_CHILD | WS_VISIBLE | BS_CENTER | WS_GROUP | BS_AUTORADIOBUTTON,
-													totalNumberChoice[picInc].seriesPos, parent, totalNumberChoice[picInc].ID );
+			totalNumberChoice[picInc].Create( "", WS_CHILD | WS_VISIBLE | BS_CENTER | WS_GROUP | BS_AUTORADIOBUTTON,
+											  totalNumberChoice[picInc].seriesPos, parent, totalNumberChoice[picInc].ID );
 			totalNumberChoice[picInc].SetCheck( 1 );
 		}
 		else
@@ -91,160 +79,135 @@ void PictureSettingsControl::initialize( POINT& kineticPos, POINT& continuousPos
 											  totalNumberChoice[picInc].seriesPos, parent, totalNumberChoice[picInc].ID );
 		}
 	}
-	kineticPos.y += 20;
-	accumulatePos.y += 20;
-	continuousPos.y += 20;
+	pos.seriesPos.y += 20;
+	pos.amPos.y += 20;
+	pos.videoPos.y += 20;
 
 	/// Exposure Times
-	exposureLabel.seriesPos = { kineticPos.x, kineticPos.y, kineticPos.x + 100,
-		kineticPos.y + 20 };
-	exposureLabel.amPos = { accumulatePos.x, accumulatePos.y, accumulatePos.x + 100,
-		accumulatePos.y + 20 };
-	exposureLabel.videoPos = { continuousPos.x, continuousPos.y, continuousPos.x + 100,
-		continuousPos.y + 20 };
+	exposureLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y + 20 };
+	exposureLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y + 20 };
+	exposureLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y + 20 };
 	exposureLabel.ID = id++;
 	exposureLabel.Create( "Exposure (ms):", WS_CHILD | WS_VISIBLE, exposureLabel.seriesPos, parent, exposureLabel.ID );
 	exposureTimesUnofficial.resize( 4 );
 	for (int picInc = 0; picInc < 4; picInc++)
 	{
-		exposureEdits[picInc].seriesPos = { kineticPos.x + 100 + 95 * picInc, kineticPos.y,
-			kineticPos.x + 100 + 95 * (picInc + 1), kineticPos.y + 20 };
-		exposureEdits[picInc].amPos = { accumulatePos.x + 100 + 95 * picInc, accumulatePos.y,
-			accumulatePos.x + 100 + 95 * (picInc + 1), accumulatePos.y + 20 };
-		exposureEdits[picInc].videoPos = { continuousPos.x + 100 + 95 * picInc, continuousPos.y,
-			continuousPos.x + 100 + 95 * (picInc + 1), continuousPos.y + 20 };
+		exposureEdits[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y,
+			pos.seriesPos.x + 100 + 95 * (picInc + 1), pos.seriesPos.y + 20 };
+		exposureEdits[picInc].amPos = { pos.amPos.x + 100 + 95 * picInc, pos.amPos.y,
+			pos.amPos.x + 100 + 95 * (picInc + 1), pos.amPos.y + 20 };
+		exposureEdits[picInc].videoPos = { pos.videoPos.x + 100 + 95 * picInc, pos.videoPos.y,
+			pos.videoPos.x + 100 + 95 * (picInc + 1), pos.videoPos.y + 20 };
 		exposureEdits[picInc].ID = id++;
 		// first of group
 		exposureEdits[picInc].Create( WS_CHILD | WS_VISIBLE | WS_BORDER, exposureEdits[picInc].seriesPos, parent, exposureEdits[picInc].ID );
 		exposureEdits[picInc].SetWindowTextA( "20" );
 		exposureTimesUnofficial[picInc] = 20 / 1000.0;
 	}
-	kineticPos.y += 20;
-	accumulatePos.y += 20;
-	continuousPos.y += 20;
+	pos.seriesPos.y += 20;
+	pos.amPos.y += 20;
+	pos.videoPos.y += 20;
 
 	/// Thresholds
-	thresholdLabel.seriesPos = { kineticPos.x, kineticPos.y, kineticPos.x + 100,
-		kineticPos.y + 20 };
-	thresholdLabel.amPos = { accumulatePos.x, accumulatePos.y, accumulatePos.x + 100,
-		accumulatePos.y + 20 };
-	thresholdLabel.videoPos = { continuousPos.x, continuousPos.y, continuousPos.x + 100,
-		continuousPos.y + 20 };
+	thresholdLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y + 20 };
+	thresholdLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y + 20 };
+	thresholdLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y + 20 };
 	thresholdLabel.ID = id++;
 	thresholdLabel.Create( "Threshold (cts)", WS_CHILD | WS_VISIBLE, thresholdLabel.seriesPos, parent, thresholdLabel.ID );
 	for (int picInc = 0; picInc < 4; picInc++)
 	{
-		thresholdEdits[picInc].seriesPos = { kineticPos.x + 100 + 95 * picInc, kineticPos.y,
-			kineticPos.x + 100 + 95 * (picInc + 1), kineticPos.y + 20 };
-		thresholdEdits[picInc].amPos = { accumulatePos.x + 100 + 95 * picInc, accumulatePos.y,
-			accumulatePos.x + 100 + 95 * (picInc + 1), accumulatePos.y + 20 };
-		thresholdEdits[picInc].videoPos = { continuousPos.x + 100 + 95 * picInc, continuousPos.y,
-			continuousPos.x + 100 + 95 * (picInc + 1), continuousPos.y + 20 };
+		thresholdEdits[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y,
+			pos.seriesPos.x + 100 + 95 * (picInc + 1), pos.seriesPos.y + 20 };
+		thresholdEdits[picInc].amPos = { pos.amPos.x + 100 + 95 * picInc, pos.amPos.y,
+			pos.amPos.x + 100 + 95 * (picInc + 1), pos.amPos.y + 20 };
+		thresholdEdits[picInc].videoPos = { pos.videoPos.x + 100 + 95 * picInc, pos.videoPos.y,
+			pos.videoPos.x + 100 + 95 * (picInc + 1), pos.videoPos.y + 20 };
 		thresholdEdits[picInc].ID = id++;
 		// first of group
-		thresholdEdits[picInc].Create( WS_CHILD | WS_VISIBLE | WS_BORDER, thresholdEdits[picInc].seriesPos, parent,
+		thresholdEdits[picInc].Create( WS_CHILD | WS_VISIBLE | WS_BORDER, thresholdEdits[picInc].seriesPos, parent, 
 									   thresholdEdits[picInc].ID );
 		thresholdEdits[picInc].SetWindowTextA( "100" );
 		this->thresholds[picInc] = 100;
 	}
-	kineticPos.y += 20;
-	accumulatePos.y += 20;
-	continuousPos.y += 20;
+	pos.seriesPos.y += 20;
+	pos.amPos.y += 20;
+	pos.videoPos.y += 20;
 
 	/// Yellow --> Blue Color
-	yellowBlueLabel.seriesPos = { kineticPos.x, kineticPos.y, kineticPos.x + 100,
-		kineticPos.y + 20 };
-	yellowBlueLabel.amPos = { accumulatePos.x, accumulatePos.y, accumulatePos.x + 100,
-		accumulatePos.y + 20 };
-	yellowBlueLabel.videoPos = { continuousPos.x, continuousPos.y, continuousPos.x + 100,
-		continuousPos.y + 20 };
+	yellowBlueLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y += 20 };
+	yellowBlueLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y += 20 };
+	yellowBlueLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y += 20 };
 	yellowBlueLabel.ID = id++;
 	yellowBlueLabel.Create( "Yellow --> Blue", WS_CHILD | WS_VISIBLE, yellowBlueLabel.seriesPos, parent, yellowBlueLabel.ID );
-	kineticPos.y += 20;
-	accumulatePos.y += 20;
-	continuousPos.y += 20;
 
 	/// Red --> Blue color
-	redBlueLabel.seriesPos = { kineticPos.x, kineticPos.y, kineticPos.x + 100,
-		kineticPos.y + 20 };
-	redBlueLabel.amPos = { accumulatePos.x, accumulatePos.y, accumulatePos.x + 100,
-		accumulatePos.y + 20 };
-	redBlueLabel.videoPos = { continuousPos.x, continuousPos.y, continuousPos.x + 100,
-		continuousPos.y + 20 };
+	redBlueLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y += 20 };
+	redBlueLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y += 20 };
+	redBlueLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y += 20 };
 	redBlueLabel.ID = id++;
 	redBlueLabel.Create( "Red --> Blue", WS_CHILD | WS_VISIBLE, redBlueLabel.seriesPos, parent, redBlueLabel.ID );
-	kineticPos.y += 20;
-	accumulatePos.y += 20;
-	continuousPos.y += 20;
 
 	/// Black --> White color
-	blackWhiteLabel.seriesPos = { kineticPos.x, kineticPos.y, kineticPos.x + 100,
-		kineticPos.y + 20 };
-	blackWhiteLabel.amPos = { accumulatePos.x, accumulatePos.y, accumulatePos.x + 100,
-		accumulatePos.y + 20 };
-	blackWhiteLabel.videoPos = { continuousPos.x, continuousPos.y, continuousPos.x + 100,
-		continuousPos.y + 20 };
+	blackWhiteLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y += 20 };
+	blackWhiteLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y += 20 };
+	blackWhiteLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y += 20 };
 	blackWhiteLabel.ID = id++;
-	blackWhiteLabel.Create( "Black --> White", WS_CHILD | WS_VISIBLE, blackWhiteLabel.seriesPos,
-							parent, blackWhiteLabel.ID );
-	kineticPos.y += 20;
-	accumulatePos.y += 20;
-	continuousPos.y += 20;
+	blackWhiteLabel.Create( "Black --> White", WS_CHILD | WS_VISIBLE, blackWhiteLabel.seriesPos, parent, blackWhiteLabel.ID );
 
 	/// The radio buttons
 	for (int picInc = 0; picInc < 4; picInc++)
 	{
-		kineticPos.y -= 60;
-		accumulatePos.y -= 60;
-		continuousPos.y -= 60;
-		yellowBlueRadios[picInc].seriesPos = { kineticPos.x + 100 + 95 * picInc, kineticPos.y,
-			kineticPos.x + 100 + 95 * (picInc + 1), kineticPos.y + 20 };
-		yellowBlueRadios[picInc].amPos = { accumulatePos.x + 100 + 95 * picInc, accumulatePos.y,
-			accumulatePos.x + 100 + 95 * (picInc + 1), accumulatePos.y + 20 };
-		yellowBlueRadios[picInc].videoPos = { continuousPos.x + 100 + 95 * picInc, continuousPos.y,
-			continuousPos.x + 100 + 95 * (picInc + 1), continuousPos.y + 20 };
+		pos.seriesPos.y -= 60;
+		pos.amPos.y -= 60;
+		pos.videoPos.y -= 60;
+		yellowBlueRadios[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y,
+			pos.seriesPos.x + 100 + 95 * (picInc + 1), pos.seriesPos.y + 20 };
+		yellowBlueRadios[picInc].amPos = { pos.amPos.x + 100 + 95 * picInc, pos.amPos.y,
+			pos.amPos.x + 100 + 95 * (picInc + 1), pos.amPos.y + 20 };
+		yellowBlueRadios[picInc].videoPos = { pos.videoPos.x + 100 + 95 * picInc, pos.videoPos.y,
+			pos.videoPos.x + 100 + 95 * (picInc + 1), pos.videoPos.y + 20 };
 		this->yellowBlueRadios[picInc].ID = id++;
 		yellowBlueRadios[picInc].Create( "", BS_CENTER | WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON | WS_GROUP,
 										 yellowBlueRadios[picInc].seriesPos, parent, yellowBlueRadios[picInc].ID );
-		kineticPos.y += 20;
-		accumulatePos.y += 20;
-		continuousPos.y += 20;
-		redBlueRadios[picInc].seriesPos = { kineticPos.x + 100 + 95 * picInc, kineticPos.y,
-			kineticPos.x + 100 + 95 * (picInc + 1), kineticPos.y + 20 };
-		redBlueRadios[picInc].amPos = { accumulatePos.x + 100 + 95 * picInc, accumulatePos.y,
-			accumulatePos.x + 100 + 95 * (picInc + 1), accumulatePos.y + 20 };
-		redBlueRadios[picInc].videoPos = { continuousPos.x + 100 + 95 * picInc, continuousPos.y,
-			continuousPos.x + 100 + 95 * (picInc + 1), continuousPos.y + 20 };
+		pos.seriesPos.y += 20;
+		pos.amPos.y += 20;
+		pos.videoPos.y += 20;
+		redBlueRadios[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y,
+			pos.seriesPos.x + 100 + 95 * (picInc + 1), pos.seriesPos.y + 20 };
+		redBlueRadios[picInc].amPos = { pos.amPos.x + 100 + 95 * picInc, pos.amPos.y,
+			pos.amPos.x + 100 + 95 * (picInc + 1), pos.amPos.y + 20 };
+		redBlueRadios[picInc].videoPos = { pos.videoPos.x + 100 + 95 * picInc, pos.videoPos.y,
+			pos.videoPos.x + 100 + 95 * (picInc + 1), pos.videoPos.y + 20 };
 		redBlueRadios[picInc].ID = id++;
 		redBlueRadios[picInc].Create( "", BS_CENTER | WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
 									  redBlueRadios[picInc].seriesPos, parent, redBlueRadios[picInc].ID );
-		kineticPos.y += 20;
-		accumulatePos.y += 20;
-		continuousPos.y += 20;
-		blackWhiteRadios[picInc].seriesPos = { kineticPos.x + 100 + 95 * picInc, kineticPos.y,
-			kineticPos.x + 100 + 95 * (picInc + 1), kineticPos.y + 20 };
-		blackWhiteRadios[picInc].amPos = { accumulatePos.x + 100 + 95 * picInc, accumulatePos.y,
-			accumulatePos.x + 100 + 95 * (picInc + 1), accumulatePos.y + 20 };
-		blackWhiteRadios[picInc].videoPos = { continuousPos.x + 100 + 95 * picInc, continuousPos.y,
-			continuousPos.x + 100 + 95 * (picInc + 1), continuousPos.y + 20 };
+		pos.seriesPos.y += 20;
+		pos.amPos.y += 20;
+		pos.videoPos.y += 20;
+		blackWhiteRadios[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y,
+			pos.seriesPos.x + 100 + 95 * (picInc + 1), pos.seriesPos.y + 20 };
+		blackWhiteRadios[picInc].amPos = { pos.amPos.x + 100 + 95 * picInc, pos.amPos.y,
+			pos.amPos.x + 100 + 95 * (picInc + 1), pos.amPos.y + 20 };
+		blackWhiteRadios[picInc].videoPos = { pos.videoPos.x + 100 + 95 * picInc, pos.videoPos.y,
+			pos.videoPos.x + 100 + 95 * (picInc + 1), pos.videoPos.y + 20 };
 		blackWhiteRadios[picInc].ID = id++;
 		// first of group
 		blackWhiteRadios[picInc].Create( "", BS_CENTER | WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
 										 blackWhiteRadios[picInc].seriesPos, parent, blackWhiteRadios[picInc].ID );
 		blackWhiteRadios[picInc].SetCheck( 1 );
-		this->colors[picInc] = 2;
-		kineticPos.y += 20;
-		accumulatePos.y += 20;
-		continuousPos.y += 20;
+		colors[picInc] = 2;
+		pos.seriesPos.y += 20;
+		pos.amPos.y += 20;
+		pos.videoPos.y += 20;
 	}
 
 	// above, the total number was set to 1.
-	this->enablePictureControls( 0 );
-	this->disablePictureControls( 1 );
-	this->disablePictureControls( 2 );
-	this->disablePictureControls( 3 );
+	enablePictureControls( 0 );
+	disablePictureControls( 1 );
+	disablePictureControls( 2 );
+	disablePictureControls( 3 );
 	// should move up
-	this->picsPerRepetitionUnofficial = 1;
+	picsPerRepetitionUnofficial = 1;
 	if (id - 1 != PICTURE_SETTINGS_ID_END)
 	{
 		throw;
@@ -375,7 +338,7 @@ CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer, std::unorder
 
 int PictureSettingsControl::getPicsPerRepetition()
 {
-	return this->picsPerRepetitionUnofficial;
+	return picsPerRepetitionUnofficial;
 }
 
 void PictureSettingsControl::handleOptionChange(UINT id, AndorCamera* andorObj)
@@ -383,26 +346,23 @@ void PictureSettingsControl::handleOptionChange(UINT id, AndorCamera* andorObj)
 	if (id >= totalNumberChoice.front().ID && id <= this->totalNumberChoice.back().ID)
 	{
 		int picNum = id - totalNumberChoice.front().ID;
-		this->picsPerRepetitionUnofficial = picNum + 1;
+		picsPerRepetitionUnofficial = picNum + 1;
 		// not all settings are changed here, and some are used to recalculate totals.
 		AndorRunSettings settings = andorObj->getSettings();
-		settings.picsPerRepetition = this->picsPerRepetitionUnofficial;
+		settings.picsPerRepetition = picsPerRepetitionUnofficial;
 		settings.totalPicsInVariation = settings.picsPerRepetition  * settings.repetitionsPerVariation;
 		settings.totalPicsInExperiment = settings.totalVariations * settings.totalPicsInVariation;
-		// andorObj->setSettings(settings);
 		for (int picInc = 0; picInc < 4; picInc++)
 		{
 			if (picInc <= picNum)
 			{
-				this->enablePictureControls(picInc);
+				enablePictureControls(picInc);
 			}
 			else
 			{
-				this->disablePictureControls(picInc);
+				disablePictureControls(picInc);
 			}
 		}
-		return;
-
 	}
 	else if (id == setPictureOptionsButton.ID)
 	{
@@ -431,9 +391,7 @@ void PictureSettingsControl::handleOptionChange(UINT id, AndorCamera* andorObj)
 			int exposure;
 			try
 			{
-
 				exposure = std::stof(std::string(textEdit));
-
 				exposureTimesUnofficial[exposureInc] = exposure / 1000.0f;
 			}
 			catch (std::invalid_argument)
@@ -446,13 +404,12 @@ void PictureSettingsControl::handleOptionChange(UINT id, AndorCamera* andorObj)
 		/// set the exposure times via andor
 		setExposureTimes(andorObj);
 	}
-	else if (id >= this->yellowBlueRadios[0].ID && id <= blackWhiteRadios[3].ID)
+	else if (id >= yellowBlueRadios[0].ID && id <= blackWhiteRadios[3].ID)
 	{
 		id -= yellowBlueRadios[0].ID;
 		int pic = id / 3;
 		int color = id % 3;
-		this->colors[pic] = color;
-
+		colors[pic] = color;
 	}
 }
 

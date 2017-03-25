@@ -535,8 +535,7 @@ void MainWindow::handleOrientationCombo()
 	}
 	catch (myException& except)
 	{
-		colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
-		comm.sendColorBox( colors );
+		comm.sendColorBox( { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' } );
 		comm.sendError("ERROR: failed to change orientation: " + except.whatStr());
 	}
 }
@@ -584,22 +583,19 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 	myAgilent::agilentDefault();
 	std::string msgText = "Exited with Error!\r\nPassively Outputting Default Waveform.";
 	changeShortStatusColor("R");
-	colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
-	comm.sendColorBox( colors );
+	comm.sendColorBox( { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' } );
 	std::string orientation = getCurentProfileSettings().orientation;
 	try
 	{
 		niawg.restartDefault();
-		colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
 		comm.sendError("EXITED WITH ERROR!");
-		comm.sendColorBox( colors );
+		comm.sendColorBox( { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' } );
 		comm.sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 	}
 	catch (myException& except)
 	{
-		colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
 		comm.sendError("EXITED WITH ERROR! " + except.whatStr());
-		comm.sendColorBox( colors );
+		comm.sendColorBox( { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' } );
 		comm.sendStatus("EXITED WITH ERROR!\r\nNIAWG RESTART FAILED!\r\n");
 	}
 	setNiawgRunningState( false );
@@ -613,8 +609,7 @@ LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
 	std::string msgText = "Passively Outputting Default Waveform";
 	setShortStatus(msgText);
 	changeShortStatusColor("B");
-	colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
-	comm.sendColorBox( colors );
+	comm.sendColorBox( { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' } );
 	std::string orientation = getCurentProfileSettings().orientation;
 	try
 	{
@@ -622,10 +617,9 @@ LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
 	}
 	catch (myException& except)
 	{
-		colorBoxes<char> colors = { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' };
 		comm.sendError("ERROR! The niawg finished normally, but upon restarting the default waveform, threw the "
 			"following error: " + except.whatStr());
-		comm.sendColorBox( colors );
+		comm.sendColorBox( { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' } );
 		comm.sendStatus("ERROR!\r\n");
 		return -3;
 	}

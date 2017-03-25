@@ -39,9 +39,6 @@ void ConfigurationFileSystem::getConfigInfo( niawgPair<std::vector<std::fstream>
 		{
 			getline( configFile, niawgScriptAddresses[axis] );
 			scriptFiles[axis][sequenceInc].open( niawgScriptAddresses[axis] );
-			std::stringstream temp;
-			temp << scriptFiles[axis][sequenceInc].rdbuf();
-			errBox( temp.str() );
 			if (!scriptFiles[axis][sequenceInc].is_open())
 			{
 				thrower( "ERROR: Failed to open vertical script file named: " + niawgScriptAddresses[axis]
@@ -1801,7 +1798,6 @@ void ConfigurationFileSystem::reloadSequence(std::string sequenceToReload)
 	{
 		loadNullSequence();
 	}
-	return;
 }
 
 
@@ -2276,7 +2272,7 @@ void ConfigurationFileSystem::reloadCombo( HWND comboToReload, std::string locat
 {
 	std::vector<std::string> names;
 	// search for folders
-	names = this->searchForFiles( locationToLook, extension );
+	names = searchForFiles( locationToLook, extension );
 
 	/// Get current selection
 	long long itemIndex = SendMessage( comboToReload, CB_GETCURSEL, 0, 0 );
@@ -2341,15 +2337,15 @@ void ConfigurationFileSystem::fullyDeleteFolder(std::string folderToDelete)
 
 std::string ConfigurationFileSystem::getCurrentCategory()
 {
-	return this->currentProfileSettings.category;
+	return currentProfileSettings.category;
 }
 
 std::string ConfigurationFileSystem::getCurrentExperiment()
 {
-	return this->currentProfileSettings.experiment;
+	return currentProfileSettings.experiment;
 }
 
 profileSettings ConfigurationFileSystem::getCurrentProfileSettings()
 {
-	return this->currentProfileSettings;
+	return currentProfileSettings;
 }

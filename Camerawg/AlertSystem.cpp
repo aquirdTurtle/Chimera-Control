@@ -34,15 +34,13 @@ void AlertSystem::initialize(cameraPositions& pos, CWnd* parent, bool isTriggerM
 {
 	alertMessageID = RegisterWindowMessage("ID_NOT_LOADING_ATOMS");
 	/// Title
-	title.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 25 };
-	title.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 25 };
+	title.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
+	title.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
 	title.videoPos = { -1,-1,-1,-1 };
 	title.ID = id++;
 	title.triggerModeSensitive = isTriggerModeSensitive;
 	title.Create("ALERT SYSTEM", WS_BORDER | WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, title.seriesPos, parent, title.ID);
 	title.fontType = "Heading";
-	pos.seriesPos.y += 25;
-	pos.amPos.y += 25;
 	/// Use Alerts Checkbox
 	alertsActiveCheckBox.seriesPos = { pos.seriesPos.x + 0, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 20 };
 	alertsActiveCheckBox.amPos = { pos.amPos.x + 0, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 20 };

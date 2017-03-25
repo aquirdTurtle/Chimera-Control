@@ -56,6 +56,7 @@ template<class ControlType> Control<ControlType>::Control()
 template <class ControlType> void Control<ControlType>::rearrange(std::string cameraMode, std::string trigMode, int width, int height, 
 																   std::unordered_map<std::string, CFont*> fonts)
 {
+	// make sure the control has been initialized
 	if (!m_hWnd)
 	{
 		return;
@@ -75,138 +76,137 @@ template <class ControlType> void Control<ControlType>::rearrange(std::string ca
 	double heightScale = height / 997.0;
 	// extra heigh added to certain controls based on random things like the trigger mode.
 	double extraHeight = 0;
-	if (trigMode == "External" && this->triggerModeSensitive && (cameraMode == "Kinetic Series Mode" || cameraMode == "Accumulate Mode"))
+	// The last check here is that the mode is affected by the trigger and that the control in question gets drawn in this mode.
+	if (trigMode == "External" && triggerModeSensitive && ((cameraMode == "Kinetic Series Mode" && seriesPos.bottom != -1)
+															|| cameraMode == "Accumulation Mode" && amPos.bottom != -1))
 	{
 		extraHeight += -25;
 	}
 	// handle simple case.
-	if (this->sPos.bottom != 0 || this->sPos.top != 0)
+	if (sPos.bottom != 0 || sPos.top != 0)
 	{
-		this->ShowWindow(SW_SHOW);
-		RECT position = { widthScale * this->sPos.left, heightScale * (this->sPos.top + extraHeight),
-			widthScale * this->sPos.right,
-			heightScale * this->sPos.bottom };
-		this->MoveWindow(&position, TRUE);
+		ShowWindow(SW_SHOW);
+		RECT position = { widthScale * sPos.left, heightScale * (sPos.top + extraHeight), widthScale * sPos.right,
+						  heightScale * sPos.bottom };
+		MoveWindow(&position, TRUE);
 	}
 	else if (cameraMode == "Kinetic Series Mode")
 	{
-		if (this->seriesPos.left == -1 || (this->triggerModeSensitive == -1 && trigMode == "External"))
+		if (seriesPos.left == -1 || (triggerModeSensitive == -1 && trigMode == "External"))
 		{
-			this->ShowWindow(SW_HIDE);
+			ShowWindow(SW_HIDE);
 		}
 		else
 		{
-			this->ShowWindow(SW_SHOW);
-			RECT position = { widthScale * this->seriesPos.left, heightScale * (this->seriesPos.top + extraHeight),
-				widthScale * this->seriesPos.right,
-				heightScale * (this->seriesPos.bottom + extraHeight) };
-			this->MoveWindow(&position, TRUE);
+			ShowWindow(SW_SHOW);
+			RECT position = { widthScale * seriesPos.left, heightScale * (seriesPos.top + extraHeight), widthScale * seriesPos.right,
+							  heightScale * (seriesPos.bottom + extraHeight) };
+			MoveWindow(&position, TRUE);
 		}
 	}	 
-	else if (cameraMode == "Continuous Single Scans Mode")
+	else if (cameraMode == "Video Mode")
 	{
-		if (this->videoPos.left == -1 || (this->triggerModeSensitive == -1 && trigMode == "External"))
+		if (videoPos.left == -1 || (triggerModeSensitive == -1 && trigMode == "External"))
 		{
-			this->ShowWindow(SW_HIDE);
+			ShowWindow(SW_HIDE);
 		}
 		else
 		{
-			this->ShowWindow(SW_SHOW);
-			RECT position = { widthScale * this->videoPos.left, heightScale * (this->videoPos.top + extraHeight),
-				widthScale * this->videoPos.right,
-				heightScale * (this->videoPos.bottom + extraHeight) };
-			this->MoveWindow(&position, TRUE);
+			ShowWindow(SW_SHOW);
+			RECT position = { widthScale * videoPos.left, heightScale * (videoPos.top + extraHeight), widthScale * videoPos.right,
+							  heightScale * (videoPos.bottom + extraHeight) };
+			MoveWindow(&position, TRUE);
 		}
 	}
-	else if (cameraMode == "Accumulate Mode")
+	else if (cameraMode == "Accumulation Mode")
 	{
-		if (this->amPos.left == -1 || (this->triggerModeSensitive == -1 && trigMode == "External"))
+		if (amPos.left == -1 || (triggerModeSensitive == -1 && trigMode == "External"))
 		{
-			this->ShowWindow(SW_HIDE);
+			ShowWindow(SW_HIDE);
 		}
 		else
 		{
-			this->ShowWindow(SW_SHOW);
-			RECT position = { widthScale * this->amPos.left, heightScale * (this->amPos.top + extraHeight),
-				widthScale * this->amPos.right,
-				heightScale * (this->amPos.bottom + extraHeight) };
-			this->MoveWindow(&position, TRUE);
+			ShowWindow(SW_SHOW);
+			RECT position = { widthScale * amPos.left, heightScale * (amPos.top + extraHeight),
+				widthScale * amPos.right,
+				heightScale * (amPos.bottom + extraHeight) };
+			MoveWindow(&position, TRUE);
 		}
 	}
 	/// Set Fonts
-	if (this->fontType == "Normal")
+	if (fontType == "Normal")
 	{
 		if (widthScale * heightScale > 0.8)
 		{
-			this->SetFont(fonts["Normal Font Max"]);
+			SetFont(fonts["Normal Font Max"]);
 		}
 		else if (widthScale * heightScale > 0.6)
 		{
-			this->SetFont(fonts["Normal Font Med"]);
+			SetFont(fonts["Normal Font Med"]);
 		}
 		else
 		{
-			this->SetFont(fonts["Normal Font Small"]);
+			SetFont(fonts["Normal Font Small"]);
 		}
 	}
-	else if (this->fontType == "Code")
+	else if (fontType == "Code")
 	{
 		if (widthScale * heightScale > 0.8)
 		{
-			this->SetFont(fonts["Code Font Max"]);
+			SetFont(fonts["Code Font Max"]);
 		}
 		else if (widthScale * heightScale > 0.6)
 		{
-			this->SetFont(fonts["Code Font Med"]);
+			SetFont(fonts["Code Font Med"]);
 		}
 		else
 		{
-			this->SetFont(fonts["Code Font Small"]);
+			SetFont(fonts["Code Font Small"]);
 		}
 	}
-	else if (this->fontType == "Heading")
+	else if (fontType == "Heading")
 	{
 		if (widthScale * heightScale > 0.8)
 		{
-			this->SetFont(fonts["Heading Font Max"]);
+			SetFont(fonts["Heading Font Max"]);
 		}
 		else if (widthScale * heightScale > 0.6)
 		{
-			this->SetFont(fonts["Heading Font Med"]);
+			SetFont(fonts["Heading Font Med"]);
 		}
 		else
 		{
-			this->SetFont(fonts["Heading Font Small"]);
+			SetFont(fonts["Heading Font Small"]);
 		}
 	}
 	else if (this->fontType == "Large")
 	{
 		if (widthScale * heightScale > 0.8)
 		{
-			this->SetFont(fonts["Larger Font Max"]);
+			SetFont(fonts["Larger Font Max"]);
 		}
 		else if (widthScale * heightScale > 0.6)
 		{
-			this->SetFont(fonts["Larger Font Med"]);
+			SetFont(fonts["Larger Font Med"]);
 		}
 		else
 		{
-			this->SetFont(fonts["Larger Font Small"]);
+			SetFont(fonts["Larger Font Small"]);
 		}
 	}
-	else if (this->fontType == "Small")
+	else if (fontType == "Small")
 	{
 		if (widthScale * heightScale > 0.8)
 		{
-			this->SetFont(fonts["Smaller Font Max"]);
+			SetFont(fonts["Smaller Font Max"]);
 		}
 		else if (widthScale * heightScale > 0.6)
 		{
-			this->SetFont(fonts["Smaller Font Med"]);
+			SetFont(fonts["Smaller Font Med"]);
 		}
 		else
 		{
-			this->SetFont(fonts["Smaller Font Small"]);
+			SetFont(fonts["Smaller Font Small"]);
 		}
 	}
 }
@@ -214,9 +214,9 @@ template <class ControlType> void Control<ControlType>::rearrange(std::string ca
 /// template function for the class control system
 template <class ControlType> bool Control<ControlType>::setToolTip(std::string text, std::vector<CToolTipCtrl*>& tooltips, CWnd* parentWindow, CFont* font)
 {
-	if (!this->toolTipIsSet)
+	if (!toolTipIsSet)
 	{
-		this->toolTipID = tooltips.size();
+		toolTipID = tooltips.size();
 		tooltips.push_back(new CToolTipCtrl);
 		tooltips.back()->Create(parentWindow, WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP | TTS_BALLOON);
 		tooltips.back()->SetMaxTipWidth(500);
@@ -227,7 +227,7 @@ template <class ControlType> bool Control<ControlType>::setToolTip(std::string t
 		tooltips.back()->SetDelayTime(TTDT_AUTOPOP, 30000);
 		tooltips.back()->AddTool(this, text.c_str());
 		tooltips.back()->Activate(TRUE);
-		this->toolTipIsSet = true;
+		toolTipIsSet = true;
 	}
 	else
 	{

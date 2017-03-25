@@ -18,8 +18,7 @@
 enum AXES { Vertical = 0, Horizontal = 1 };
 // used to pair together info for each channel of the niawg in an easy, iterable way.
 template<typename type> using niawgPair = std::array<type, 2>;
-// don't take the word "library" too seriously... it's just a listing of all of the waveforms that have been already created.
-typedef std::array<std::vector<std::string>, MAX_NIAWG_SIGNALS * 4> library;
+
 
 /* * * * 
  * Niawg Data structure objects, in increasing order of complexity. I.e. waveSignals make up channelWaves which make up...
@@ -67,6 +66,7 @@ struct channelWave
 	std::vector<ViReal64> wave;
 };
 
+
 // declare it so that flashInfo knows what it is.
 struct waveInfo;
 
@@ -78,6 +78,7 @@ struct flashInfo
 	double flashCycleFreq;
 	unsigned int flashNumber;
 };
+
 
 // contains all info for a waveform on the niawg; i.e. info for both channels, special options, time, and waveform data.
 struct waveInfo
@@ -92,6 +93,7 @@ struct waveInfo
 	bool isFlashing;
 	std::vector<ViReal64> waveVals;
 };
+
 
 /* * * * * 
  * The largest output structure, contains all info for a script to be outputted. Because this contains a lot of info, it gets passed around
@@ -109,6 +111,7 @@ struct outputInfo
 	std::vector<waveInfo> waves;
 	niawgPair<std::vector<std::string>> predefinedWaveNames;
 };
+
 
 class NiawgController
 {
@@ -142,10 +145,7 @@ class NiawgController
 		void mixWaveforms( waveInfo& waveInfo );
 		void setRunningState( bool newRunningState );
 		void checkThatWaveformsAreSensible( Communicator* comm, outputInfo& output );
-
-		void calculateFlashingWaveform();
-		void streamWaveformData();	
-		
+				
 		void abortGeneration();
 		void initiateGeneration();
 		void configureOutputEnabled( int state );
@@ -212,14 +212,14 @@ class NiawgController
 		std::string defaultOrientation;
 		niawgPair<std::string> currentScripts;
 		bool runningState;
-		library waveLibrary;
+		// don't take the word "library" too seriously... it's just a listing of all of the waveforms that have been already created.
+		std::array<std::vector<std::string>, MAX_NIAWG_SIGNALS * 4> waveLibrary;
 		ViInt32 streamWaveHandle;
 		ViInt32 streamWaveformSize;
 		std::string streamWaveformName;
 		// pair is of horizontal and vertical configurations.
 		niawgPair<std::vector<ViReal64>> defaultMixedWaveforms;
-		niawgPair<std::string> defaultWaveformNames;
-		niawgPair<long> defaultMixedSizes;
+		niawgPair<std::string> defaultWaveNames;
 		niawgPair<std::vector<ViChar>> defaultScripts;
 		ViSession sessionHandle;
 		ViConstString outputChannels;
@@ -260,7 +260,6 @@ template <typename type> static void NiawgController::loadParam( type& dataToAss
 																 std::vector<int> dataTypes, std::vector<variable> singletons )
 {
 	std::string tempInput;
-	int stringPos;
 	file >> tempInput;
 	if (tempInput.size() > 0)
 	{

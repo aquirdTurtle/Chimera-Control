@@ -11,16 +11,6 @@ void NiawgController::setRunningState( bool newRunningState )
 	runningState = newRunningState;
 }
 
-
-void NiawgController::configureOutputMode()
-{
-	if (!NIAWG_SAFEMODE)
-	{
-		errChecker(niFgen_ConfigureOutputMode(sessionHandle, OUTPUT_MODE));
-	}
-}
-
-
 void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 {
 	defaultScripts[Vertical].clear();
@@ -31,7 +21,6 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 	defaultMixedWaveforms[Vertical].shrink_to_fit();
 	defaultMixedWaveforms[Horizontal].clear();
 	defaultMixedWaveforms[Horizontal].shrink_to_fit();
-
 	// counts the number of predefined waveforms that have been handled or defined.
 	int predWaveformCount = 0;
 	// Socket object for communicating with the other computer.
@@ -40,7 +29,6 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 	std::vector<std::size_t> length;
 	// first level is for different configurations, second is for horizontal or vertical file within a configuration.
 	niawgPair<niawgPair<std::vector<std::fstream>>> configFiles;
-	//std::vector<std::fstream> hConfigHFile, hConfigVFile, vConfigHFile, vConfigVFile;
 	configFiles[Horizontal][Horizontal].push_back( std::fstream( DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_HCONFIG_HORIZONTAL_SCRIPT.nScript" ) );
 	configFiles[Horizontal][Vertical].push_back( std::fstream( DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_HCONFIG_VERTICAL_SCRIPT.nScript" ) );
 	configFiles[Vertical][Horizontal].push_back( std::fstream( DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_VCONFIG_HORIZONTAL_SCRIPT.nScript" ) );
@@ -60,13 +48,6 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 	output.waveCount = 0;
 	output.predefinedWaveCount = 0;
 	///					Load Default Waveforms
-	// Contains a bool that tells whether the user script has been written or not. This is used to tell whether I need to delete it or not.
-	bool userScriptIsWritten = false;
-	int defPredWaveformCount = 0;
-	// analyze the input files and create the xy-script. Originally, I thought I'd write the script in two parts, the x and y parts, but it turns out not to 
-	// work like I thought it did. If  I'd known this from the start, I probably wouldn't have created this subroutine, except perhaps for the fact that it get 
-	// called recursively by predefined scripts in the instructions file.
-	/// Create Horizontal Configuration
 	debugInfo debug;
 	debug.outputAgilentScript = false;
 	std::vector<variable> noSingletons;
@@ -150,7 +131,8 @@ void NiawgController::initialize()
 	// Unccoment for using an external clock as a "sample clock"
 	// myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureSampleClockSource(eSessionHandle, "ClkIn")
 	// Uncomment for using an external clock as a reference clock
-	// myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureReferenceClock(eSessionHandle, "ClkIn", 10000000), HORIZONTAL_ORIENTATION, theMainApplicationWindow.getComm())
+	// myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureReferenceClock(eSessionHandle, "ClkIn", 10000000), HORIZONTAL_ORIENTATION, 
+	//									theMainApplicationWindow.getComm())
 }
 
 
@@ -161,16 +143,14 @@ void NiawgController::restartDefault()
 		configureOutputEnabled( VI_FALSE );
 		abortGeneration();
 		clearMemory();
-		// do I really want this here? prob not.
+		// do I really want this here? prob not...
 		myAgilent::agilentDefault();
-
 		for (auto axis : AXES)
 		{
 			if (defaultOrientation == ORIENTATION[axis])
 			{
-				//createWaveform( defaultMixedSizes[axis], defaultMixedWaveforms[axis].data() );
-				allocateNamedWaveform( defaultWaveformNames[axis].c_str(), defaultMixedSizes[axis] / 2 );
-				writeNamedWaveform( defaultWaveformNames[axis].c_str(), defaultMixedSizes[axis], defaultMixedWaveforms[axis].data() );
+				allocateNamedWaveform( defaultWaveNames[axis].c_str(), defaultMixedWaveforms[axis].size() / 2 );
+				writeNamedWaveform( defaultWaveNames[axis].c_str(), defaultMixedWaveforms[axis].size(), defaultMixedWaveforms[axis].data() );
 				writeScript( defaultScripts[axis].data() );
 				eCurrentScript = "Default" + AXES_NAMES[axis] + "ConfigScript";
 			}
@@ -1266,7 +1246,6 @@ void NiawgController::loadWaveformParameters( outputInfo& output, profileSetting
 											  niawgPair<ScriptStream>& scripts, std::vector<variable> singletons)
 {
 	waveInfo wave;
-	long int sampleNum;
 	// not sure why I have this limitation built in.
 	if (output.isDefault && ((output.waveCount == 1 && profile.orientation == ORIENTATION[Vertical])
 							  || (output.waveCount == 2 && profile.orientation == ORIENTATION[Horizontal])))
@@ -1492,8 +1471,7 @@ void NiawgController::handleStandardWaveform( outputInfo& output, profileSetting
 				if (profile.orientation == ORIENTATION[axis])
 				{
 					defaultMixedWaveforms[axis] = output.waves.back().waveVals;
-					defaultMixedSizes[axis] = output.waves.back().waveVals.size();
-					defaultWaveformNames[axis] = tempWaveformName;
+					defaultWaveNames[axis] = tempWaveformName;
 				}
 			}
 		}
@@ -1563,13 +1541,12 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 		/// get general flashing info
 		try
 		{
-			niawgPair<std::string> waveformsToFlashInput, timesInput;
+			niawgPair<std::string> waveformsToFlashInput;
 			niawgPair<int> flashNum;
 			for (auto axis : AXES)
 			{
 				scripts[axis] >> waveformsToFlashInput[axis];
 				scripts[axis] >> flashingWave.flash.flashCycleFreqInput[axis];
-				scripts[axis] >> timesInput[axis];
 				flashNum[axis] = std::stoi( waveformsToFlashInput[axis] );
 			}
 			if (flashNum[Horizontal] != flashNum[Vertical])
@@ -1629,13 +1606,14 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 			scripts[axis] >> bracket;
 			if (bracket != "{")
 			{
-				thrower( "ERROR: Expected \"{\" but found " + bracket + " in" + AXES_NAMES[axis] + "File during flashing waveform read" );
+				thrower( "ERROR: Expected \"{\" but found \"" + bracket + "\" in " + AXES_NAMES[axis] + " File during flashing waveform read" );
 			}
 		}
 
 		/// get waveforms to flash.
 		outputInfo flashingOutputInfo = output;
 		int initSize = output.waveCount;
+		
 		for (size_t waveCount = 0; waveCount < flashingWave.flash.flashNumber; waveCount++)
 		{
 			niawgPair<std::string> flashingWaveCommands;
@@ -1651,7 +1629,13 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 						flashingWaveCommands[axis].erase( flashingWaveCommands[axis].length() - 1 );
 					}
 				}
-			}			
+			}
+
+			if (flashingWaveCommands[Horizontal] == "}" || flashingWaveCommands[Vertical] == "}")
+			{
+				thrower( "ERROR: Expected " + str( flashingWave.flash.flashNumber ) + " waveforms for flashing but only found" 
+						 + str(waveCount) );
+			}
 			if (!isStandardWaveform( flashingWaveCommands[Horizontal] ) || !isStandardWaveform( flashingWaveCommands[Vertical] ))
 			{
 				thrower( "ERROR: detected command in flashing section that does not denote a standard waveform (e.g. a logic command or a "
@@ -1679,7 +1663,7 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 		flashingWave.time = 0;
 		double singleWaveTime = flashingWave.flash.flashWaves.front().time;
 
-		for (int waveCount = initSize; waveCount < flashingWave.flash.flashWaves.size(); waveCount++)
+		for (int waveCount = 0; waveCount < flashingWave.flash.flashWaves.size(); waveCount++)
 		{
 			if (flashingWave.flash.flashWaves[waveCount].varies)
 			{
@@ -1807,19 +1791,6 @@ void NiawgController::createFlashingWave( waveInfo& wave, debugInfo options )
 		wave.flash.flashWaves[waveInc].waveVals.clear();
 		wave.flash.flashWaves[waveInc].waveVals.shrink_to_fit();
 	}
-}
-
-// should take as input info for flashing waveforms, which will include the data in each waveform and the flashing interval. Will
-// probably return ViReal64*.
-void NiawgController::calculateFlashingWaveform()
-{
-
-}
-
-// gets called during execution in order to stream the data.
-void NiawgController::streamWaveformData()
-{
-
 }
 
 
@@ -2273,3 +2244,10 @@ ViSession NiawgController::getViSessionAttribute( ViAttr attribute )
 	return value;
 }
 
+void NiawgController::configureOutputMode()
+{
+	if (!NIAWG_SAFEMODE)
+	{
+		errChecker( niFgen_ConfigureOutputMode( sessionHandle, OUTPUT_MODE ) );
+	}
+}

@@ -616,7 +616,7 @@ bool Script::saveScript(profileSettings profile, bool saveParent, bool niawgIsRu
 			return true;
 		}
 		std::string path = profile.categoryPath + newName + extension;
-		this->saveScriptAs(path, saveParent);
+		saveScriptAs(path, saveParent);
 		// continue and resave anyways.
 	}
 
@@ -678,16 +678,16 @@ bool Script::saveScript(profileSettings profile, bool saveParent, bool niawgIsRu
 	saveFile << editText;
 	saveFile.close();
 	// for good measure.
-	this->scriptAddress = profile.categoryPath + scriptName + extension;
-	this->scriptCategory = profile.category;
-	this->scriptExperiment = profile.experiment;
-	this->updateSavedStatus(true);
+	scriptAddress = profile.categoryPath + scriptName + extension;
+	scriptCategory = profile.category;
+	scriptExperiment = profile.experiment;
+	updateSavedStatus(true);
 	return false;
 }
 // can save either parent or child depending on input.
 bool Script::saveScript(profileSettings profile, bool niawgIsRunning)
 {
-	return this->saveScript(profile, this->currentViewIsParent, niawgIsRunning);
+	return saveScript(profile, currentViewIsParent, niawgIsRunning);
 }
 
 //
@@ -980,7 +980,7 @@ bool Script::openParentScript(std::string parentScriptFileAndPath, profileSettin
 		return false;
 	}
 	std::string location = parentScriptFileAndPath;
-	this->scriptAddress = location;
+	scriptAddress = location;
 	int index;
 	index = location.find_last_of(".");
 	// includes the .
@@ -988,7 +988,7 @@ bool Script::openParentScript(std::string parentScriptFileAndPath, profileSettin
 	location = location.substr(0, index);
 	index = location.find_last_of("\\");
 	scriptName = location.substr(index + 1, location.size());
-	this->currentViewName = scriptName;
+	currentViewName = scriptName;
 	location = location.substr(0, index);
 	index = location.find_last_of("\\");
 	scriptCategory = location.substr(index + 1, location.size());
