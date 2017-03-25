@@ -4,6 +4,7 @@
 #include <array>
 #include <vector>
 
+struct cameraPositions;
 class AndorCamera;
 class CameraSettingsControl;
 
@@ -16,7 +17,7 @@ class PictureSettingsControl
 	public:
 		// must have parent. Enforced partially because both are singletons.
 		PictureSettingsControl::PictureSettingsControl(CameraSettingsControl* parentObj) { parentSettingsControl = parentObj; }
-		void initialize(POINT& kineticPos, POINT& continuousPos, POINT& accumulatePos, CWnd* parent, int& id);
+		void initialize( cameraPositions& pos, CWnd* parent, int& id);
 		void handleOptionChange(UINT id, AndorCamera* andorObj);
 		void disablePictureControls(int pic);
 		void enablePictureControls(int pic);

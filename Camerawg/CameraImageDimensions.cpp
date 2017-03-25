@@ -21,126 +21,115 @@ CameraImageDimensionsControl::CameraImageDimensionsControl()
 }
 
 
-void CameraImageDimensionsControl::initialize( POINT& topLeftPositionKinetic, POINT& topLeftPositionAccumulate, POINT& topLeftPositionContinuous,
-											   CWnd* parent, bool isTriggerModeSensitive, int& id )
+void CameraImageDimensionsControl::initialize( cameraPositions& pos, CWnd* parent, bool isTriggerModeSensitive, int& id )
 {
 	setImageDimensionsButton.ID = id++;
 	if (setImageDimensionsButton.ID != IDC_SET_IMAGE_PARAMETERS_BUTTON)
 	{
 		throw;
 	}
-	setImageDimensionsButton.seriesPos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 25 };
-	setImageDimensionsButton.amPos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480, topLeftPositionAccumulate.y + 25 };
-	setImageDimensionsButton.videoPos = { topLeftPositionContinuous.x, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 480, topLeftPositionContinuous.y + 25 };
+	setImageDimensionsButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
+	setImageDimensionsButton.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
+	setImageDimensionsButton.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
 	setImageDimensionsButton.Create( "Set Image Dimensions", WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY,
 									 setImageDimensionsButton.seriesPos, parent, setImageDimensionsButton.ID );
 	setImageDimensionsButton.fontType = "Normal";
-	topLeftPositionKinetic.y += 25;
-	topLeftPositionAccumulate.y += 25;
-	topLeftPositionContinuous.y += 25;
 	//
 	leftText.ID = id++;
-	leftText.seriesPos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y + 25 };
-	leftText.amPos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y + 25 };
-	leftText.videoPos = { topLeftPositionContinuous.x, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y + 25 };
+	leftText.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 25 };
+	leftText.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 25 };
+	leftText.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 160, pos.videoPos.y + 25 };
 	leftText.Create( "Left", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, leftText.seriesPos, parent, leftText.ID );
 	leftText.fontType = "Normal";
 	//
 	rightText.ID = id++;
-	rightText.seriesPos = { topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y + 25 };
-	rightText.amPos = { topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y + 25 };
-	rightText.videoPos = { topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y + 25 };
+	rightText.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 25 };
+	rightText.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 25 };
+	rightText.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
 	rightText.Create( "Right", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, rightText.seriesPos, parent, rightText.ID );
 	rightText.fontType = "Normal";
 	//
 	horizontalBinningText.ID = id++;
-	horizontalBinningText.seriesPos = { topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 25 };
-	horizontalBinningText.amPos = { topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480, topLeftPositionAccumulate.y + 25 };
-	horizontalBinningText.videoPos = { topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 480, topLeftPositionContinuous.y + 25 };
-	horizontalBinningText.Create( "H. Bin", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, horizontalBinningText.seriesPos, parent, horizontalBinningText.ID );
+	horizontalBinningText.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
+	horizontalBinningText.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
+	horizontalBinningText.videoPos = { pos.videoPos.x + 320, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
+	horizontalBinningText.Create( "H. Bin", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, horizontalBinningText.seriesPos, parent, 
+								  horizontalBinningText.ID );
 	horizontalBinningText.fontType = "Normal";
-	topLeftPositionKinetic.y += 25;
-	topLeftPositionAccumulate.y += 25;
-	topLeftPositionContinuous.y += 25;
 	//
 	leftEdit.ID = id++;
-	leftEdit.seriesPos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y + 25 };
-	leftEdit.amPos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y + 25 };
-	leftEdit.videoPos = { topLeftPositionContinuous.x, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y + 25 };
+	leftEdit.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 25 };
+	leftEdit.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 25 };
+	leftEdit.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 160, pos.videoPos.y + 25 };
 	leftEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, leftEdit.seriesPos, parent, leftEdit.ID );
 	leftEdit.fontType = "Normal";
 	leftEdit.SetWindowTextA( "1" );
 	//
 	rightEdit.ID = id++;
-	rightEdit.seriesPos = { topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y + 25 };
-	rightEdit.amPos = { topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y + 25 };
-	rightEdit.videoPos = { topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y + 25 };
+	rightEdit.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 25 };
+	rightEdit.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 25 };
+	rightEdit.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
 	rightEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, rightEdit.seriesPos, parent, rightEdit.ID );
 	rightEdit.fontType = "Normal";
 	rightEdit.SetWindowTextA( "10" );
 	//
 	horizontalBinningEdit.ID = id++;
-	horizontalBinningEdit.seriesPos = { topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 25 };
-	horizontalBinningEdit.amPos = { topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480, topLeftPositionAccumulate.y + 25 };
-	horizontalBinningEdit.videoPos = { topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 480, topLeftPositionContinuous.y + 25 };
-	horizontalBinningEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, horizontalBinningEdit.seriesPos, parent, horizontalBinningEdit.ID );
+	horizontalBinningEdit.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
+	horizontalBinningEdit.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
+	horizontalBinningEdit.videoPos = { pos.videoPos.x + 320, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
+	horizontalBinningEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, horizontalBinningEdit.seriesPos, parent, 
+								  horizontalBinningEdit.ID );
 	horizontalBinningEdit.fontType = "Normal";
 	horizontalBinningEdit.SetWindowTextA( "1" );
 	//
-	topLeftPositionKinetic.y += 25;
-	topLeftPositionAccumulate.y += 25;
-	topLeftPositionContinuous.y += 25;
 	topText.ID = id++;
-	topText.seriesPos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y + 25 };
-	topText.amPos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y + 25 };
-	topText.videoPos = { topLeftPositionContinuous.x, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y + 25 };
+	topText.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 25 };
+	topText.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 25 };
+	topText.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 160, pos.videoPos.y + 25 };
 	topText.Create( "Top", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, topText.seriesPos, parent, topText.ID );
 	topText.fontType = "Normal";
 
 	//
 	bottomText.ID = id++;
-	bottomText.seriesPos = { topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y + 25 };
-	bottomText.amPos = { topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y + 25 };
-	bottomText.videoPos = { topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y + 25 };
-	bottomText.Create( "Bottom", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, bottomText.seriesPos, parent, bottomText.ID );
+	bottomText.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 25 };
+	bottomText.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 25 };
+	bottomText.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
+	bottomText.Create( "Bottom", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, bottomText.seriesPos, parent, 
+					   bottomText.ID );
 	bottomText.fontType = "Normal";
 	//
 	verticalBinningText.ID = id++;
-	verticalBinningText.seriesPos = { topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 25 };
-	verticalBinningText.amPos = { topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480, topLeftPositionAccumulate.y + 25 };
-	verticalBinningText.videoPos = { topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 480, topLeftPositionContinuous.y + 25 };
-	verticalBinningText.Create( "V. Bin", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, verticalBinningText.seriesPos, parent, verticalBinningText.ID );
+	verticalBinningText.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
+	verticalBinningText.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
+	verticalBinningText.videoPos = { pos.videoPos.x + 320, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
+	verticalBinningText.Create( "V. Bin", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, verticalBinningText.seriesPos, parent, 
+								verticalBinningText.ID );
 	verticalBinningText.fontType = "Normal";
-	topLeftPositionKinetic.y += 25;
-	topLeftPositionAccumulate.y += 25;
-	topLeftPositionContinuous.y += 25;
 	//
 	topEdit.ID = id++;
-	topEdit.seriesPos = { topLeftPositionKinetic.x, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y + 25 };
-	topEdit.amPos = { topLeftPositionAccumulate.x, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y + 25 };
-	topEdit.videoPos = { topLeftPositionContinuous.x, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y + 25 };
+	topEdit.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 25 };
+	topEdit.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 25 };
+	topEdit.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 160, pos.videoPos.y + 25 };
 	topEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, topEdit.seriesPos, parent, topEdit.ID );
 	topEdit.fontType = "Normal";
 	topEdit.SetWindowTextA( "1" );
 	//
 	bottomEdit.ID = id++;
-	bottomEdit.seriesPos = { topLeftPositionKinetic.x + 160, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y + 25 };
-	bottomEdit.amPos = { topLeftPositionAccumulate.x + 160, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y + 25 };
-	bottomEdit.videoPos = { topLeftPositionContinuous.x + 160, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y + 25 };
+	bottomEdit.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 25 };
+	bottomEdit.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 25 };
+	bottomEdit.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
 	bottomEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, bottomEdit.seriesPos, parent, bottomEdit.ID );
 	bottomEdit.fontType = "Normal";
 	bottomEdit.SetWindowTextA( "10" );
 	//
 	verticalBinningEdit.ID = id++;
-	verticalBinningEdit.seriesPos = { topLeftPositionKinetic.x + 320, topLeftPositionKinetic.y, topLeftPositionKinetic.x + 480, topLeftPositionKinetic.y + 25 };
-	verticalBinningEdit.amPos = { topLeftPositionAccumulate.x + 320, topLeftPositionAccumulate.y, topLeftPositionAccumulate.x + 480, topLeftPositionAccumulate.y + 25 };
-	verticalBinningEdit.videoPos = { topLeftPositionContinuous.x + 320, topLeftPositionContinuous.y, topLeftPositionContinuous.x + 480, topLeftPositionContinuous.y + 25 };
-	verticalBinningEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, verticalBinningEdit.seriesPos, parent, verticalBinningEdit.ID );
+	verticalBinningEdit.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
+	verticalBinningEdit.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
+	verticalBinningEdit.videoPos = { pos.videoPos.x + 320, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
+	verticalBinningEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, verticalBinningEdit.seriesPos, parent, 
+								verticalBinningEdit.ID );
 	verticalBinningEdit.fontType = "Normal";
 	verticalBinningEdit.SetWindowTextA( "1" );
-	topLeftPositionKinetic.y += 25;
-	topLeftPositionAccumulate.y += 25;
-	topLeftPositionContinuous.y += 25;
 }
 
 
@@ -168,7 +157,12 @@ void CameraImageDimensionsControl::drawBackgrounds( CameraWindow* camWin )
 
 imageParameters CameraImageDimensionsControl::readImageParameters( CameraWindow* camWin )
 {
-	this->drawBackgrounds( camWin );
+	// in case called before initialized
+	if (!leftEdit)
+	{
+		return currentImageParameters;
+	}
+	drawBackgrounds( camWin );
 	// If new dimensions are set, we don't have data for the new dimensions.
 	// eDataExists = false;
 	// set all of the image parameters
@@ -730,8 +724,8 @@ HBRUSH CameraImageDimensionsControl::colorEdits( HWND window, UINT message, WPAR
 }
 
 
-void CameraImageDimensionsControl::rearrange( std::string cameraMode, std::string triggerMode, int width,
-											  int height, std::unordered_map<std::string, CFont*> fonts )
+void CameraImageDimensionsControl::rearrange( std::string cameraMode, std::string triggerMode, int width, int height, 
+											  std::unordered_map<std::string, CFont*> fonts )
 {
 	leftText.rearrange( cameraMode, triggerMode, width, height, fonts );
 	rightText.rearrange( cameraMode, triggerMode, width, height, fonts );

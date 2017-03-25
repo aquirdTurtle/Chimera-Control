@@ -3,14 +3,21 @@
 
 void PictureManager::redrawPictures( CWnd* parent, std::pair<int, int> selectedLocation )
 {
+	if (!pictures[1].isActive())
+	{
+		pictures[0].redrawImage( parent );
+		pictures[0].drawGrid( parent, gridBrush );
+		drawDongles( parent, selectedLocation ); 
+		return;
+	}
 	for (auto& pic : pictures)
 	{
 		pic.redrawImage( parent );
-		pic.drawGrid( parent, this->gridBrush );
+		pic.drawGrid( parent, gridBrush );
 		//pic.drawCircle(parent, selectedLocation);
 		//pic.drawRectangles();
 	}
-	this->drawDongles(parent, selectedLocation);
+	drawDongles(parent, selectedLocation);
 }
 
 /*
@@ -41,13 +48,11 @@ void PictureManager::handleEditChange( UINT id )
 	{
 		pic.handleEditChange( id );
 	}
-	return;
 }
 
 void PictureManager::drawPicture( CDC* deviceContext, int pictureNumber, std::vector<long> picData )
 {
-	this->pictures[pictureNumber].drawBitmap( deviceContext, picData);
-	return;
+	pictures[pictureNumber].drawBitmap( deviceContext, picData);
 }
 
 void PictureManager::handleScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar)
@@ -60,7 +65,6 @@ void PictureManager::handleScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar
 			control.handleScroll(id, nPos);
 		}
 	}
-	return;
 }
 
 std::pair<int, int> PictureManager::handleRClick( CPoint clickLocation )
@@ -78,42 +82,76 @@ std::pair<int, int> PictureManager::handleRClick( CPoint clickLocation )
 }
 
 
+void PictureManager::setSinglePicture( CWnd* parent, std::pair<int, int> selectedLocation, imageParameters imageParams )
+{
+
+	pictures.front().setPictureArea( picturesLocation, picturesWidth, picturesHeight );
+	setParameters( imageParams );
+	redrawPictures( parent, selectedLocation );
+}
+
+void PictureManager::setMultiplePictures( CWnd* parent, std::pair<int, int> selectedLocation, imageParameters imageParams )
+{
+	POINT loc = picturesLocation;
+	pictures[0].setPictureArea( loc, 570, 460 );
+	loc.x += 570;
+	pictures[1].setPictureArea( loc, 570, 460 );
+	loc.x -= 570;
+	loc.y += 465;
+	pictures[2].setPictureArea( loc, 570, 460 );
+	loc.x += 570;
+	pictures[3].setPictureArea( loc, 570, 460 );
+	setParameters( imageParams );
+	redrawPictures( parent, selectedLocation );
+}
+
 void PictureManager::initialize(POINT& loc, CWnd* parent, int& id, std::unordered_map<std::string, CFont*> fonts,
 	std::vector<CToolTipCtrl*>& tooltips, CBrush* defaultBrush)
 {
-	this->gridBrush = defaultBrush;
+	picturesLocation = loc;
+	picturesWidth = 570 * 2;
+	picturesHeight = 460 * 2 + 5;
+	gridBrush = defaultBrush;
 	//
-	this->pictures[0].initialize(loc, parent, id, 570, 460);
+	pictures[0].initialize(loc, parent, id, 570, 460);
 	loc.x += 570;
-	this->pictures[1].initialize(loc, parent, id, 570, 460);
+	pictures[1].initialize(loc, parent, id, 570, 460);
 	loc.x -= 570;
-	// leave space for timer.
-	loc.y += 500;
-	this->pictures[2].initialize(loc, parent, id, 570, 460);
+	loc.y += 465;
+	pictures[2].initialize(loc, parent, id, 570, 460);
 	loc.x += 570;
-	this->pictures[3].initialize(loc, parent, id, 570, 460);
-	this->createPalettes( parent->GetDC() );
+	pictures[3].initialize(loc, parent, id, 570, 460);
+	loc.y += 460;
+	loc.x -= 570;
+	createPalettes( parent->GetDC() );
 	for (auto& pic : pictures)
 	{
-		pic.updatePalette( this->palettes[2] );
+		pic.updatePalette( palettes[2] );
 	}
 	// initialize to one. this matches the camera settings initialization.
-	this->setNumberPicturesActive( 1 );
+	setNumberPicturesActive( 1 );
 
 }
 
 void PictureManager::refreshBackgrounds(CWnd* parent)
 {
-	for (auto& picture : this->pictures)
+	if (!pictures[1].isActive())
 	{
-		picture.drawBackground(parent);
+		pictures[0].drawBackground( parent );
+		return;
 	}
-	return;
+	else
+	{
+		for (auto& picture : pictures)
+		{
+			picture.drawBackground( parent );
+		}
+	}
 }
 
 void PictureManager::drawGrids( CWnd* parent )
 {
-	for (auto& picture : this->pictures)
+	for (auto& picture : pictures)
 	{
 		picture.drawGrid( parent, gridBrush );
 	}
@@ -121,7 +159,7 @@ void PictureManager::drawGrids( CWnd* parent )
 
 void PictureManager::setParameters(imageParameters parameters)
 {
-	for (auto& picture : this->pictures)
+	for (auto& picture : pictures)
 	{
 		picture.updateGridSpecs(parameters);
 	}
@@ -129,7 +167,7 @@ void PictureManager::setParameters(imageParameters parameters)
 
 void PictureManager::rearrange(std::string cameraMode, std::string triggerMode, int width, int height, std::unordered_map<std::string, CFont*> fonts)
 {
-	for (auto& control : this->pictures)
+	for (auto& control : pictures)
 	{
 		control.rearrange(cameraMode, triggerMode, width, height, fonts);
 	}
@@ -440,9 +478,7 @@ void PictureManager::createPalettes( CDC* dc )
 		Palette.aEntries[paletteValueInc].peFlags = PC_RESERVED;
 	}
 
-	this->palettes[1] = CreatePalette( (LOGPALETTE *)&Palette );
-	//dc->SelectPalette( &this->palettes[1], TRUE );
-	//dc->RealizePalette();
+	palettes[1] = CreatePalette( (LOGPALETTE *)&Palette );
 	///
 	double blackToWhite[256][3];
 	for (int paletteInc = 0; paletteInc < 256; paletteInc++)
@@ -463,8 +499,6 @@ void PictureManager::createPalettes( CDC* dc )
 		Palette.aEntries[paletteValueInc].peFlags = PC_RESERVED;
 	}
 
-	this->palettes[2] = CreatePalette( (LOGPALETTE *)&Palette );
-	//dc->SelectPalette( &this->palettes[2], TRUE );
-	//dc->RealizePalette();
+	palettes[2] = CreatePalette( (LOGPALETTE *)&Palette );
 }
 

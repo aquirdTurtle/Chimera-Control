@@ -10,12 +10,12 @@
 class MainWindow;
 class ScriptingWindow;
 
-// pass a structure like this to initializers.
 struct cameraPositions
 {
 	POINT seriesPos;
 	POINT amPos;
 	POINT videoPos;
+	POINT sPos;
 };
 
 class CameraWindow : public CDialog
@@ -54,6 +54,7 @@ class CameraWindow : public CDialog
 		void readImageParameters();
 		void passCommonCommand( UINT id );
 		void passTrigger();
+		void passCameraMode();
 		void passAlertPress();
 		void passSetTemperaturePress();
 		void setEmGain();

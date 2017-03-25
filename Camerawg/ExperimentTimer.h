@@ -8,8 +8,6 @@ struct cameraPositions;
 class ExperimentTimer
 {
 	public:
-		ExperimentTimer();
-		~ExperimentTimer();
 		void initialize( cameraPositions& inputLoc, CWnd* parent, bool isTriggerModeSensitive, int& id,
 						 std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*> toolTips );
 		void update( int currentRepNumber, int repsPerVariation, int numberOfVariations, int picsPerRep );

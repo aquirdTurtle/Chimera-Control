@@ -21,9 +21,14 @@ class PictureManager
 		void redrawPictures( CWnd* parent, std::pair<int, int> selectedLocation );
 		void setNumberPicturesActive( int numberActive );
 		std::pair<int, int> handleRClick(CPoint clickLocation);
+		void setSinglePicture( CWnd* parent, std::pair<int, int> selectedLocation, imageParameters imageParams );
+		void setMultiplePictures( CWnd* parent, std::pair<int, int> selectedLocation, imageParameters imageParams );
 	private:
 		std::array<PictureControl, 4> pictures;
 		std::array<HPALETTE, 3> palettes;
 		CBrush* gridBrush;
+		POINT picturesLocation;
+		int picturesWidth;
+		int picturesHeight;
 };
 
