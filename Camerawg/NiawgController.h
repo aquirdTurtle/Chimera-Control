@@ -130,7 +130,7 @@ class NiawgController
 							  niawgPair<ScriptStream>& scripts, std::vector<variable> singletons );
 		void varyParam( waveInfo& wave, waveInfo previousWave, int axis, int &paramNum, double paramVal, std::string& warnings );
 		void finalizeScript( unsigned long long repetitions, std::string name, std::vector<std::string> workingUserScripts,
-							 std::vector<ViChar> userScriptSubmit );
+							 std::vector<ViChar>& userScriptSubmit );
 
 		void setDefaultOrientation( std::string orientation );
 		void restartDefault();
@@ -150,7 +150,7 @@ class NiawgController
 		void initiateGeneration();
 		void configureOutputEnabled( int state );
 		void allocateNamedWaveform( ViConstString waveformName, ViInt32 unmixedSampleNumber );
-		void writeScript( ViConstString script );
+		void writeScript(std::vector<ViChar> script);
 		void setViStringAttribute( ViAttr atributeID, ViConstString attributeValue );
 		void deleteWaveform( ViConstString waveformName );
 		void writeNamedWaveform( ViConstString waveformName, ViInt32 mixedSampleNumber, ViReal64* wave );
@@ -222,7 +222,8 @@ class NiawgController
 		niawgPair<std::string> defaultWaveNames;
 		niawgPair<std::vector<ViChar>> defaultScripts;
 		ViSession sessionHandle;
-		ViConstString outputChannels;
+
+		ViConstString outputChannels = "0,1";
 		// Session Parameters
 		const ViInt32 OUTPUT_MODE = NIFGEN_VAL_OUTPUT_SCRIPT;
 		const ViRsrc NI_5451_LOCATION = "PXI1Slot2";
@@ -231,7 +232,7 @@ class NiawgController
 		const double MAX_CAP_TIME = 1e-3;
 		// Trigger Parameters:
 		const ViConstString EXTERNAL_TRIGGER_NAME = "ScriptTrigger0";
-		const ViConstString SOFTWARE_TRIGGER_NAME = "SoftwareTrigger0";
+		const ViConstString SOFTWARE_TRIGGER_NAME = "ScriptTrigger1";
 		const ViConstString TRIGGER_SOURCE = "PFI0";
 		const ViInt32 TRIGGER_EDGE_TYPE = NIFGEN_VAL_RISING_EDGE;
 };

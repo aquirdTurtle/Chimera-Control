@@ -138,7 +138,15 @@ BOOL myApplicationApp::InitInstance()
 
 		do
 		{
-			int andorTest = boost::filesystem::create_directory( dir );
+			bool andorTest;
+			try
+			{
+				andorTest = boost::filesystem::create_directory(dir);
+			}
+			catch (boost::filesystem::filesystem_error& err)
+			{
+				andorTest = false;
+			}
 			if (andorTest == false)
 			{
 				// For some reason this doesn't seem to get called when the connection breaks.

@@ -80,8 +80,9 @@ class ConfigurationFileSystem
 		void renameConfiguration();
 		void deleteConfiguration();
 		void openConfiguration(std::string configurationNameToOpen, ScriptingWindow* scriptWindow, MainWindow* comm);
-		static void getConfigInfo( niawgPair<std::vector<std::fstream>>& scriptFiles, std::vector<std::fstream>& intensityScriptFiles,
-								   profileSettings profile, std::vector<variable> singletons, std::vector<variable> variables );
+		static void getConfigInfo ( niawgPair<std::vector<std::fstream>>& scriptFiles, std::vector<std::fstream>& intensityScriptFiles,
+									profileSettings profile, std::vector<variable> singletons, std::vector<variable> variables, 
+									bool programInt );
 		void updateConfigurationSavedStatus(bool isSaved);
 		bool configurationSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* comm);
 		bool checkConfigurationSave(std::string prompt, ScriptingWindow* scriptWindow, MainWindow* comm);

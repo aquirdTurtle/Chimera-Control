@@ -4,15 +4,19 @@
 #include "niFgen.h"
 #include <string>
 
-// running in safemode means that the program doesn't actually try to connect to any devices. It can be used to debug other aspects of the program.
-#define NIAWG_SAFEMODE true
+// running in safemode means that the program doesn't actually try to connect to various devices. It can be used to build and debug other 
+// aspects of the program.
+#define NIAWG_SAFEMODE false
 #define ANDOR_SAFEMODE true
-#define DESKTOP_COMPUTER
+#define LAB_COMPUTER
 
 /// File Locations
 // Files for Lab Computer
 #ifdef LAB_COMPUTER
 	#define SOCKET_SAFEMODE false
+	#define PYTHON_HOME L"C:\\ProgramData\\Anaconda3\\"
+	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Control\\Plotting\\";
+    const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
 	const std::string LIB_PATH = "D:\\Waveforms Library\\Wavefunction Library 350 MS per second V6\\";
 	const std::string DEFAULT_SCRIPT_FOLDER_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Control\\Default Scripts\\";
 	const std::string EXPERIMENT_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Individual Experiments\\";
@@ -168,8 +172,6 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define PICTURE_SETTINGS_ID_END 3063
 #define IDC_SET_IMAGE_PARAMETERS_BUTTON 3064
 
-
-
 #define IDC_PICTURE_1_MIN_EDIT 3110
 #define IDC_PICTURE_1_MAX_EDIT 3113
 #define IDC_PICTURE_2_MIN_EDIT 3116
@@ -185,7 +187,8 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 // Don't change! Or only change if you really kow what you are doing. Current Value: 5
 const float MAX_GAIN = 5.0; // Current Value: 5
 							// Current Value: 5
-							// Long... array...
+
+// Long... array...
 const char SCRIPT_INFO_TEXT[] =
 "/***********************************************************************\\\r\n"
 " NI 5451 ARBITRARY WAVEFORM GENERATOR INSTRUCTIONS FILE FORMATTING GUIDE\r\n"

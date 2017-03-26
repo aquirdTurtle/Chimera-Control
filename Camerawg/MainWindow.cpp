@@ -229,7 +229,6 @@ BOOL MainWindow::OnInitDialog()
 	POINT statusLocations = { 960, 910 };
 	boxes.initialize( statusLocations, id, this, 960, mainFonts, tooltips );
 	shortStatus.initialize( statusLocations, this, id, mainFonts, tooltips );
-	niawg.initialize();
 	CMenu menu;
 	menu.LoadMenu(IDR_MAIN_MENU);
 	SetMenu(&menu);
@@ -300,7 +299,14 @@ HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 void MainWindow::passCommonCommand(UINT id)
 {
 	// pass the command id to the common function, filling in the pointers to the windows which own objects needed.
-	commonFunctions::handleCommonMessage(id, this, this, TheScriptingWindow, TheCameraWindow);
+	try
+	{
+		commonFunctions::handleCommonMessage ( id, this, this, TheScriptingWindow, TheCameraWindow );
+	}
+	catch (myException& exception)
+	{
+		errBox ( exception.what () );
+	}
 }
 
 
