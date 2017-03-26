@@ -252,7 +252,6 @@
     <ClInclude Include="Communicator.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
-    <ClInclude Include="errBox.h" />
     <ClInclude Include="CameraWindow.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
@@ -335,6 +334,9 @@
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="ExperimentManager.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="errBox.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
   </ItemGroup>

@@ -47,6 +47,7 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 	outputInfo output;
 	output.waveCount = 0;
 	output.predefinedWaveCount = 0;
+	output.isDefault = true;
 	///					Load Default Waveforms
 	debugInfo debug;
 	debug.outputAgilentScript = false;
@@ -151,7 +152,7 @@ void NiawgController::restartDefault()
 			{
 				allocateNamedWaveform( defaultWaveNames[axis].c_str(), defaultMixedWaveforms[axis].size() / 2 );
 				writeNamedWaveform( defaultWaveNames[axis].c_str(), defaultMixedWaveforms[axis].size(), defaultMixedWaveforms[axis].data() );
-				writeScript( defaultScripts[axis].data() );
+				writeScript(defaultScripts[axis]);
 				eCurrentScript = "Default" + AXES_NAMES[axis] + "ConfigScript";
 			}
 		}
@@ -1492,7 +1493,7 @@ void NiawgController::handleStandardWaveform( outputInfo& output, profileSetting
 
 
 void NiawgController::finalizeScript( unsigned long long repetitions, std::string name, std::vector<std::string> workingUserScripts, 
-									  std::vector<ViChar> userScriptSubmit )
+									  std::vector<ViChar>& userScriptSubmit )
 {
 	// format the script to send to the 5451 according to the accumulation number and based on the number of sequences.
 	std::string finalUserScriptString = "script " + name + "\n";
@@ -1945,7 +1946,7 @@ void NiawgController::sendSoftwareTrigger()
 {
 	if (!NIAWG_SAFEMODE)
 	{
-		errChecker( niFgen_SendSoftwareTrigger( sessionHandle ) );
+		errChecker ( niFgen_SendSoftwareEdgeTrigger ( sessionHandle, NIFGEN_VAL_SCRIPT_TRIGGER, SOFTWARE_TRIGGER_NAME ) );
 	}
 }
 
@@ -2027,11 +2028,13 @@ void NiawgController::writeNamedWaveform( ViConstString waveformName, ViInt32 mi
 }
 
 
-void NiawgController::writeScript( ViConstString script )
+void NiawgController::writeScript( std::vector<ViChar> script )
 {
+	std::string temp(script.begin(), script.end());
+	ViConstString constScript = temp.c_str();
 	if (!NIAWG_SAFEMODE)
 	{
-		errChecker( niFgen_WriteScript( sessionHandle, outputChannels, script ) );
+		errChecker( niFgen_WriteScript( sessionHandle, outputChannels, constScript) );
 	}
 }
 
@@ -2077,7 +2080,7 @@ void NiawgController::configureOutputEnabled( int state )
 {
 	if (!NIAWG_SAFEMODE)
 	{
-		errChecker( niFgen_ConfigureOutputEnabled( sessionHandle, outputChannels, VI_FALSE ) );
+		errChecker( niFgen_ConfigureOutputEnabled( sessionHandle, outputChannels, state) );
 	}
 }
 
@@ -2095,7 +2098,7 @@ void NiawgController::setViStringAttribute( ViAttr atributeID, ViConstString att
 {
 	if (!NIAWG_SAFEMODE)
 	{
-		errChecker( niFgen_SetAttributeViString( sessionHandle, outputChannels, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript" ) );
+		errChecker( niFgen_SetAttributeViString( sessionHandle, outputChannels, atributeID, attributeValue ) );
 	}
 }
 
@@ -2104,7 +2107,7 @@ void NiawgController::setViBooleanAttribute( ViAttr attribute, bool state )
 {
 	if (!NIAWG_SAFEMODE)
 	{
-		errChecker( niFgen_SetAttributeViBoolean( sessionHandle, outputChannels, NIFGEN_ATTR_FLATNESS_CORRECTION_ENABLED, VI_TRUE ) );
+		errChecker( niFgen_SetAttributeViBoolean( sessionHandle, outputChannels, attribute, state ) );
 	}
 }
 
@@ -2112,7 +2115,7 @@ void NiawgController::setViInt32Attribute( ViAttr attributeID, ViInt32 value )
 {
 	if (!NIAWG_SAFEMODE)
 	{
-		errChecker( niFgen_SetAttributeViInt32( sessionHandle, outputChannels, NIFGEN_ATTR_STREAMING_WAVEFORM_HANDLE, value ) );
+		errChecker( niFgen_SetAttributeViInt32( sessionHandle, outputChannels, attributeID, value ) );
 	}
 }
 

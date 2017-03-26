@@ -33,7 +33,7 @@ std::vector<std::string> DataHandlingControl::getActivePlotList()
 
 bool DataHandlingControl::getLocationSettingStatus()
 {
-	return this->currentlySettingAnalysisLocations;
+	return currentlySettingAnalysisLocations;
 }
 
 void DataHandlingControl::updateDataSetNumberEdit( int number )
