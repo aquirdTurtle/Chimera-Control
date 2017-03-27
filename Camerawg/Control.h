@@ -76,7 +76,9 @@ template <class ControlType> void Control<ControlType>::rearrange(std::string ca
 	double heightScale = height / 997.0;
 	// extra heigh added to certain controls based on random things like the trigger mode.
 	double extraHeight = 0;
-	if (trigMode == "External" && triggerModeSensitive && (cameraMode == "Kinetic Series Mode" || cameraMode == "Accumulate Mode"))
+	// The last check here is that the mode is affected by the trigger and that the control in question gets drawn in this mode.
+	if (trigMode == "External" && triggerModeSensitive && ((cameraMode == "Kinetic Series Mode" && seriesPos.bottom != -1)
+															|| cameraMode == "Accumulation Mode" && amPos.bottom != -1))
 	{
 		extraHeight += -25;
 	}
@@ -102,7 +104,7 @@ template <class ControlType> void Control<ControlType>::rearrange(std::string ca
 			MoveWindow(&position, TRUE);
 		}
 	}	 
-	else if (cameraMode == "Continuous Single Scans Mode")
+	else if (cameraMode == "Video Mode")
 	{
 		if (videoPos.left == -1 || (triggerModeSensitive == -1 && trigMode == "External"))
 		{
@@ -116,7 +118,7 @@ template <class ControlType> void Control<ControlType>::rearrange(std::string ca
 			MoveWindow(&position, TRUE);
 		}
 	}
-	else if (cameraMode == "Accumulate Mode")
+	else if (cameraMode == "Accumulation Mode")
 	{
 		if (amPos.left == -1 || (triggerModeSensitive == -1 && trigMode == "External"))
 		{

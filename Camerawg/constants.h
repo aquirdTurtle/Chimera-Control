@@ -4,15 +4,23 @@
 #include "niFgen.h"
 #include <string>
 
-// running in safemode means that the program doesn't actually try to connect to any devices. It can be used to debug other aspects of the program.
-#define NIAWG_SAFEMODE true
+// running in safemode means that the program doesn't actually try to connect to various devices. It can be used to build and debug other 
+// aspects of the program.
+#define NIAWG_SAFEMODE false
 #define ANDOR_SAFEMODE true
+<<<<<<< HEAD
 #define DESKTOP_COMPUTER
+=======
+#define LAB_COMPUTER
+>>>>>>> 99d0e9f7beb86e1a56be998155021b70787acaa9
 
 /// File Locations
 // Files for Lab Computer
 #ifdef LAB_COMPUTER
 	#define SOCKET_SAFEMODE false
+	#define PYTHON_HOME L"C:\\ProgramData\\Anaconda3\\"
+	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Control\\Plotting\\";
+    const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
 	const std::string LIB_PATH = "D:\\Waveforms Library\\Wavefunction Library 350 MS per second V6\\";
 	const std::string DEFAULT_SCRIPT_FOLDER_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Control\\Default Scripts\\";
 	const std::string EXPERIMENT_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Individual Experiments\\";
@@ -157,6 +165,7 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_AGILENT_SCRIPT_EDIT 2014
 
 // Camera Window
+<<<<<<< HEAD
 #define IDC_CAMERA_MODE_COMBO 3004
 #define IDC_SET_EM_GAIN_BUTTON 3005
 #define IDC_TRIGGER_COMBO 3009
@@ -167,6 +176,19 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_ALERTS_BOX 3066
 #define IDC_PLOTTING_LISTVIEW 3078
 
+=======
+#define IDC_ALERTS_BOX 3004
+#define IDC_PLOTTING_LISTVIEW 3016
+
+#define IDC_CAMERA_MODE_COMBO 3018
+#define IDC_SET_EM_GAIN_BUTTON 3019
+#define IDC_TRIGGER_COMBO 3023
+#define IDC_SET_TEMPERATURE_BUTTON 3024
+#define PICTURE_SETTINGS_ID_START 3028
+#define PICTURE_SETTINGS_ID_END 3063
+#define IDC_SET_IMAGE_PARAMETERS_BUTTON 3064
+
+>>>>>>> 99d0e9f7beb86e1a56be998155021b70787acaa9
 #define IDC_PICTURE_1_MIN_EDIT 3110
 #define IDC_PICTURE_1_MAX_EDIT 3113
 #define IDC_PICTURE_2_MIN_EDIT 3116
@@ -182,7 +204,8 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 // Don't change! Or only change if you really kow what you are doing. Current Value: 5
 const float MAX_GAIN = 5.0; // Current Value: 5
 							// Current Value: 5
-							// Long... array...
+
+// Long... array...
 const char SCRIPT_INFO_TEXT[] =
 "/***********************************************************************\\\r\n"
 " NI 5451 ARBITRARY WAVEFORM GENERATOR INSTRUCTIONS FILE FORMATTING GUIDE\r\n"

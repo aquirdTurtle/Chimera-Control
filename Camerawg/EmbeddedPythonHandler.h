@@ -1,7 +1,14 @@
 #pragma once
-#include "python.h"
+
+#ifdef _DEBUG
+#undef _DEBUG
+#include <Python.h>
+#define _DEBUG
+#else
+#include "Python.h"
+#endif
+
 #include <string>
-//#include "SMSTextingControl.h"
 
 struct personInfo;
 

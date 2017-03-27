@@ -18,8 +18,7 @@
 enum AXES { Vertical = 0, Horizontal = 1 };
 // used to pair together info for each channel of the niawg in an easy, iterable way.
 template<typename type> using niawgPair = std::array<type, 2>;
-// don't take the word "library" too seriously... it's just a listing of all of the waveforms that have been already created.
-typedef std::array<std::vector<std::string>, MAX_NIAWG_SIGNALS * 4> library;
+
 
 /* * * * 
  * Niawg Data structure objects, in increasing order of complexity. I.e. waveSignals make up channelWaves which make up...
@@ -67,6 +66,7 @@ struct channelWave
 	std::vector<ViReal64> wave;
 };
 
+
 // declare it so that flashInfo knows what it is.
 struct waveInfo;
 
@@ -79,6 +79,7 @@ struct flashInfo
 	unsigned int flashNumber;
 };
 
+
 // contains all info for a waveform on the niawg; i.e. info for both channels, special options, time, and waveform data.
 struct waveInfo
 {
@@ -90,8 +91,10 @@ struct waveInfo
 	bool varies;
 	bool isStreamed;
 	bool isFlashing;
+	std::string name;
 	std::vector<ViReal64> waveVals;
 };
+
 
 /* * * * * 
  * The largest output structure, contains all info for a script to be outputted. Because this contains a lot of info, it gets passed around
@@ -110,6 +113,7 @@ struct outputInfo
 	niawgPair<std::vector<std::string>> predefinedWaveNames;
 };
 
+
 class NiawgController
 {
 	public:
@@ -127,7 +131,7 @@ class NiawgController
 							  niawgPair<ScriptStream>& scripts, std::vector<variable> singletons );
 		void varyParam( waveInfo& wave, waveInfo previousWave, int axis, int &paramNum, double paramVal, std::string& warnings );
 		void finalizeScript( unsigned long long repetitions, std::string name, std::vector<std::string> workingUserScripts,
-							 std::vector<ViChar> userScriptSubmit );
+							 std::vector<ViChar>& userScriptSubmit );
 
 		void setDefaultOrientation( std::string orientation );
 		void restartDefault();
@@ -142,15 +146,12 @@ class NiawgController
 		void mixWaveforms( waveInfo& waveInfo );
 		void setRunningState( bool newRunningState );
 		void checkThatWaveformsAreSensible( Communicator* comm, outputInfo& output );
-
-		void calculateFlashingWaveform();
-		void streamWaveformData();	
-		
+				
 		void abortGeneration();
 		void initiateGeneration();
 		void configureOutputEnabled( int state );
 		void allocateNamedWaveform( ViConstString waveformName, ViInt32 unmixedSampleNumber );
-		void writeScript( ViConstString script );
+		void writeScript(std::vector<ViChar> script);
 		void setViStringAttribute( ViAttr atributeID, ViConstString attributeValue );
 		void deleteWaveform( ViConstString waveformName );
 		void writeNamedWaveform( ViConstString waveformName, ViInt32 mixedSampleNumber, ViReal64* wave );
@@ -158,6 +159,7 @@ class NiawgController
 		void sendSoftwareTrigger();
 		signed short isDone();
 		void initialize();
+		void streamWaveform();
 
 	private:
 		void errChecker( int err );
@@ -192,6 +194,7 @@ class NiawgController
 		void createWaveform( long size, ViReal64* wave );
 		void writeUnNamedWaveform( ViInt32 waveID, ViInt32 mixedSampleNumber, ViReal64* wave );
 		
+
 		ViInt32 allocateUnNamedWaveform( ViInt32 unmixedSampleNumber );
 		void clearMemory();
 		void configureSoftwareTrigger();
@@ -212,17 +215,18 @@ class NiawgController
 		std::string defaultOrientation;
 		niawgPair<std::string> currentScripts;
 		bool runningState;
-		library waveLibrary;
+		// don't take the word "library" too seriously... it's just a listing of all of the waveforms that have been already created.
+		std::array<std::vector<std::string>, MAX_NIAWG_SIGNALS * 4> waveLibrary;
 		ViInt32 streamWaveHandle;
-		ViInt32 streamWaveformSize;
 		std::string streamWaveformName;
+		std::vector<double> streamWaveformVals;
 		// pair is of horizontal and vertical configurations.
 		niawgPair<std::vector<ViReal64>> defaultMixedWaveforms;
-		niawgPair<std::string> defaultWaveformNames;
-		niawgPair<long> defaultMixedSizes;
+		niawgPair<std::string> defaultWaveNames;
 		niawgPair<std::vector<ViChar>> defaultScripts;
 		ViSession sessionHandle;
-		ViConstString outputChannels;
+
+		ViConstString outputChannels = "0,1";
 		// Session Parameters
 		const ViInt32 OUTPUT_MODE = NIFGEN_VAL_OUTPUT_SCRIPT;
 		const ViRsrc NI_5451_LOCATION = "PXI1Slot2";
@@ -231,7 +235,7 @@ class NiawgController
 		const double MAX_CAP_TIME = 1e-3;
 		// Trigger Parameters:
 		const ViConstString EXTERNAL_TRIGGER_NAME = "ScriptTrigger0";
-		const ViConstString SOFTWARE_TRIGGER_NAME = "SoftwareTrigger0";
+		const ViConstString SOFTWARE_TRIGGER_NAME = "ScriptTrigger1";
 		const ViConstString TRIGGER_SOURCE = "PFI0";
 		const ViInt32 TRIGGER_EDGE_TYPE = NIFGEN_VAL_RISING_EDGE;
 };

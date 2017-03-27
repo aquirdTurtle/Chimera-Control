@@ -11,16 +11,6 @@ void NiawgController::setRunningState( bool newRunningState )
 	runningState = newRunningState;
 }
 
-
-void NiawgController::configureOutputMode()
-{
-	if (!NIAWG_SAFEMODE)
-	{
-		errChecker(niFgen_ConfigureOutputMode(sessionHandle, OUTPUT_MODE));
-	}
-}
-
-
 void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 {
 	defaultScripts[Vertical].clear();
@@ -31,7 +21,6 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 	defaultMixedWaveforms[Vertical].shrink_to_fit();
 	defaultMixedWaveforms[Horizontal].clear();
 	defaultMixedWaveforms[Horizontal].shrink_to_fit();
-
 	// counts the number of predefined waveforms that have been handled or defined.
 	int predWaveformCount = 0;
 	// Socket object for communicating with the other computer.
@@ -40,7 +29,6 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 	std::vector<std::size_t> length;
 	// first level is for different configurations, second is for horizontal or vertical file within a configuration.
 	niawgPair<niawgPair<std::vector<std::fstream>>> configFiles;
-	//std::vector<std::fstream> hConfigHFile, hConfigVFile, vConfigHFile, vConfigVFile;
 	configFiles[Horizontal][Horizontal].push_back( std::fstream( DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_HCONFIG_HORIZONTAL_SCRIPT.nScript" ) );
 	configFiles[Horizontal][Vertical].push_back( std::fstream( DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_HCONFIG_VERTICAL_SCRIPT.nScript" ) );
 	configFiles[Vertical][Horizontal].push_back( std::fstream( DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_VCONFIG_HORIZONTAL_SCRIPT.nScript" ) );
@@ -59,14 +47,8 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 	outputInfo output;
 	output.waveCount = 0;
 	output.predefinedWaveCount = 0;
+	output.isDefault = true;
 	///					Load Default Waveforms
-	// Contains a bool that tells whether the user script has been written or not. This is used to tell whether I need to delete it or not.
-	bool userScriptIsWritten = false;
-	int defPredWaveformCount = 0;
-	// analyze the input files and create the xy-script. Originally, I thought I'd write the script in two parts, the x and y parts, but it turns out not to 
-	// work like I thought it did. If  I'd known this from the start, I probably wouldn't have created this subroutine, except perhaps for the fact that it get 
-	// called recursively by predefined scripts in the instructions file.
-	/// Create Horizontal Configuration
 	debugInfo debug;
 	debug.outputAgilentScript = false;
 	std::vector<variable> noSingletons;
@@ -89,7 +71,7 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 			defaultScripts[configAxis] = std::vector<ViChar>( output.niawgLanguageScript.begin(), output.niawgLanguageScript.end());
 		}
 	}
-	catch (myException& except)
+	catch (Error& except)
 	{
 		thrower( "FATAL ERROR: Analysis of Default Waveforms and Default Script Has Failed: " + except.whatStr() );
 	}
@@ -150,7 +132,8 @@ void NiawgController::initialize()
 	// Unccoment for using an external clock as a "sample clock"
 	// myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureSampleClockSource(eSessionHandle, "ClkIn")
 	// Uncomment for using an external clock as a reference clock
-	// myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureReferenceClock(eSessionHandle, "ClkIn", 10000000), HORIZONTAL_ORIENTATION, theMainApplicationWindow.getComm())
+	// myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureReferenceClock(eSessionHandle, "ClkIn", 10000000), HORIZONTAL_ORIENTATION, 
+	//									theMainApplicationWindow.getComm())
 }
 
 
@@ -161,17 +144,15 @@ void NiawgController::restartDefault()
 		configureOutputEnabled( VI_FALSE );
 		abortGeneration();
 		clearMemory();
-		// do I really want this here? prob not.
+		// do I really want this here? prob not...
 		myAgilent::agilentDefault();
-
 		for (auto axis : AXES)
 		{
 			if (defaultOrientation == ORIENTATION[axis])
 			{
-				//createWaveform( defaultMixedSizes[axis], defaultMixedWaveforms[axis].data() );
-				allocateNamedWaveform( defaultWaveformNames[axis].c_str(), defaultMixedSizes[axis] / 2 );
-				writeNamedWaveform( defaultWaveformNames[axis].c_str(), defaultMixedSizes[axis], defaultMixedWaveforms[axis].data() );
-				writeScript( defaultScripts[axis].data() );
+				allocateNamedWaveform( defaultWaveNames[axis].c_str(), defaultMixedWaveforms[axis].size() / 2 );
+				writeNamedWaveform( defaultWaveNames[axis].c_str(), defaultMixedWaveforms[axis].size(), defaultMixedWaveforms[axis].data() );
+				writeScript(defaultScripts[axis]);
 				eCurrentScript = "Default" + AXES_NAMES[axis] + "ConfigScript";
 			}
 		}
@@ -179,7 +160,7 @@ void NiawgController::restartDefault()
 		setAttributeViString( NIFGEN_ATTR_SCRIPT_TO_GENERATE, ViString(eCurrentScript.c_str()) );
 		initiateGeneration();
 	}
-	catch (myException& except)
+	catch (Error& except)
 	{
 		thrower( "WARNING! The NIAWG encountered an error and was not able to restart smoothly. It is (probably) not outputting anything. You may "
 				 "consider restarting the code. Inside the restart area, NIAWG function returned " + except.whatStr() );
@@ -1470,19 +1451,19 @@ void NiawgController::loadWaveformParameters( outputInfo& output, profileSetting
 
 
 // handles constant & ramping waveforms.
-void NiawgController::handleStandardWaveform( outputInfo& output, profileSettings profile, niawgPair<std::string> command, 
+void NiawgController::handleStandardWaveform( outputInfo& output, profileSettings profile, niawgPair<std::string> command,
 											  niawgPair<ScriptStream>& scripts, std::vector<variable> singletons, debugInfo& options )
 {
 	loadWaveformParameters( output, profile, command, options, scripts, singletons );
-	std::string tempWaveformName = "Waveform" + str(output.waveCount);
+	output.waves.back().name = "Waveform" + str( output.waveCount );
 	if (!output.waves.back().varies)
 	{
 		// prepare the waveforms/
 		finalizeStandardWave( output.waves.back(), options );
 		// allocate waveform into the device memory
-		allocateNamedWaveform( tempWaveformName.c_str(), output.waves.back().waveVals.size() / 2 );
+		allocateNamedWaveform( output.waves.back().name.c_str(), output.waves.back().waveVals.size() / 2 );
 		// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
-		writeNamedWaveform( tempWaveformName.c_str(), output.waves.back().waveVals.size(), output.waves.back().waveVals.data() );
+		writeNamedWaveform( output.waves.back().name.c_str(), output.waves.back().waveVals.size(), output.waves.back().waveVals.data() );
 		// avoid memory leaks, but only if not default...
 		if (output.isDefault)
 		{
@@ -1491,8 +1472,7 @@ void NiawgController::handleStandardWaveform( outputInfo& output, profileSetting
 				if (profile.orientation == ORIENTATION[axis])
 				{
 					defaultMixedWaveforms[axis] = output.waves.back().waveVals;
-					defaultMixedSizes[axis] = output.waves.back().waveVals.size();
-					defaultWaveformNames[axis] = tempWaveformName;
+					defaultWaveNames[axis] = output.waves.back().name;
 				}
 			}
 		}
@@ -1505,15 +1485,14 @@ void NiawgController::handleStandardWaveform( outputInfo& output, profileSetting
 	}
 	// append script with the relevant command. This needs to be done even if variable waveforms are used, because I don't want to
 	// have to rewrite the script to insert the new waveform name into it.
-	std::string tempWfmNameString( tempWaveformName );
-	output.niawgLanguageScript += "generate " + tempWfmNameString + "\n";
+	output.niawgLanguageScript += "generate " + output.waves.back().name + "\n";
 	// increment waveform count.
 	output.waveCount++;
 }
 
 
 void NiawgController::finalizeScript( unsigned long long repetitions, std::string name, std::vector<std::string> workingUserScripts, 
-									  std::vector<ViChar> userScriptSubmit )
+									  std::vector<ViChar>& userScriptSubmit )
 {
 	// format the script to send to the 5451 according to the accumulation number and based on the number of sequences.
 	std::string finalUserScriptString = "script " + name + "\n";
@@ -1633,8 +1612,7 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 
 		/// get waveforms to flash.
 		outputInfo flashingOutputInfo = output;
-		int initSize = output.waveCount;
-		
+
 		for (size_t waveCount = 0; waveCount < flashingWave.flash.flashNumber; waveCount++)
 		{
 			niawgPair<std::string> flashingWaveCommands;
@@ -1707,16 +1685,14 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 		if (!flashingWave.varies)
 		{
 			createFlashingWave( flashingWave, options );
-
-			std::string tempWaveformName = "Waveform" + str(output.waveCount);
+			flashingWave.name = "Waveform" + str(output.waveCount);
 			// allocate waveform into the device memory
-			allocateNamedWaveform( tempWaveformName.c_str(), output.waves.back().waveVals.size() / 2 );
+			allocateNamedWaveform( flashingWave.name.c_str(), output.waves.back().waveVals.size() / 2 );
 			// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
-			writeNamedWaveform( tempWaveformName.c_str(), output.waves.back().waveVals.size(), output.waves.back().waveVals.data() );
+			writeNamedWaveform( flashingWave.name.c_str(), output.waves.back().waveVals.size(), output.waves.back().waveVals.data() );
 			// append script with the relevant command. This needs to be done even if variable waveforms are used, because I don't want to
 			// have to rewrite the script to insert the new waveform name into it.
-			std::string tempWfmNameString( tempWaveformName );
-			output.niawgLanguageScript += "generate " + tempWfmNameString + "\n";
+			output.niawgLanguageScript += "generate " + flashingWave.name + "\n";
 			// increment waveform count.
 			output.waveCount++;
 		}
@@ -1728,9 +1704,65 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 
 		// Note: I'm not sure if the below business of setting the streaming handle and recieving the name (which is opposite of what I 
 		// normally do, normally I just use named waveforms) is necessary, but it might be for streamed waveforms.
+		
+		/// bracket
+		for (auto axis : AXES)
+		{
+			std::string bracket;
+			scripts[axis] >> bracket;
+			if (bracket != "{")
+			{
+				thrower ( "ERROR: Expected \"{\" but found \"" + bracket + "\" in " + AXES_NAMES[axis] + " File during flashing waveform read" );
+			}
+		}
 
-		// allocate memory to niawg assuming that streamWaveformsize has been allocated previously.
-		streamWaveHandle = allocateUnNamedWaveform( streamWaveformSize );
+		/// get waveforms to flash.
+		outputInfo streamInfo = output;
+		waveInfo info;
+		info.isStreamed = true;
+		niawgPair<std::string> streamCommand;
+		// get the first input
+		for (auto axis : AXES)
+		{
+			streamCommand[axis] = scripts[axis].getline ();
+			// handle trailing newline characters
+			if (streamCommand[axis].length () != 0)
+			{
+				if (streamCommand[axis][streamCommand[axis].length () - 1] == '\r')
+				{
+					streamCommand[axis].erase ( streamCommand[axis].length () - 1 );
+				}
+			}
+		}
+
+		if (streamCommand[Horizontal] == "}" || streamCommand[Vertical] == "}")
+		{
+			thrower ( "ERROR: Expected waveform for flashing didn't find it! " );
+		}
+		if (!isStandardWaveform ( streamCommand[Horizontal] ) || !isStandardWaveform ( streamCommand[Vertical] ))
+		{
+			thrower ( "ERROR: detected command in flashing section that does not denote a standard waveform (e.g. a logic command or a "
+						"pre-written system). This is not allowed!" );
+		}
+
+		loadWaveformParameters( streamInfo, profile, streamCommand, options, scripts, singletons );
+		
+		/// bracket
+		for (auto axis : AXES)
+		{
+			std::string bracket;
+			scripts[axis] >> bracket;
+			if (bracket != "}")
+			{
+				thrower ( "ERROR: Expected \"}\" but found \"" + bracket + "\" in " + AXES_NAMES[axis] + " File during flashing waveform read" );
+			}
+		}
+		streamWaveformVals = streamInfo.waves.back().waveVals;
+		// immediately kill the original waveforms here so as to reduce memory usage.
+		streamInfo.waves.back().waveVals.clear();
+		streamInfo.waves.back().waveVals.shrink_to_fit();
+
+		streamWaveHandle = allocateUnNamedWaveform( streamWaveformVals.size() );
 		// tell the niawg which waveform is streamed.
 		setViInt32Attribute( NIFGEN_ATTR_STREAMING_WAVEFORM_HANDLE, streamWaveHandle );
 		// get the name of the waveform. Now this can be used in the script sent to the niawg.
@@ -1740,14 +1772,20 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 		// the niawg will expect to have waveform in its stream buffer when this runs.
 		waveInfo tempInfo;
 		tempInfo.isStreamed = true;
+		tempInfo.name = streamWaveformName;
 		output.waves.push_back( tempInfo );
-		output.waveCount++;
 	}
 	else
 	{
-		thrower( "wat" );
+		thrower( "ERROR: Bad waveform command!" );
 	}
 	output.waveCount++;
+}
+
+
+void NiawgController::streamWaveform()
+{
+	writeUnNamedWaveform( streamWaveHandle, streamWaveformVals.size(), streamWaveformVals.data());
 }
 
 
@@ -1812,19 +1850,6 @@ void NiawgController::createFlashingWave( waveInfo& wave, debugInfo options )
 		wave.flash.flashWaves[waveInc].waveVals.clear();
 		wave.flash.flashWaves[waveInc].waveVals.shrink_to_fit();
 	}
-}
-
-// should take as input info for flashing waveforms, which will include the data in each waveform and the flashing interval. Will
-// probably return ViReal64*.
-void NiawgController::calculateFlashingWaveform()
-{
-
-}
-
-// gets called during execution in order to stream the data.
-void NiawgController::streamWaveformData()
-{
-
 }
 
 
@@ -1979,7 +2004,7 @@ void NiawgController::sendSoftwareTrigger()
 {
 	if (!NIAWG_SAFEMODE)
 	{
-		errChecker( niFgen_SendSoftwareTrigger( sessionHandle ) );
+		errChecker ( niFgen_SendSoftwareEdgeTrigger ( sessionHandle, NIFGEN_VAL_SCRIPT_TRIGGER, SOFTWARE_TRIGGER_NAME ) );
 	}
 }
 
@@ -2061,11 +2086,13 @@ void NiawgController::writeNamedWaveform( ViConstString waveformName, ViInt32 mi
 }
 
 
-void NiawgController::writeScript( ViConstString script )
+void NiawgController::writeScript( std::vector<ViChar> script )
 {
+	std::string temp(script.begin(), script.end());
+	ViConstString constScript = temp.c_str();
 	if (!NIAWG_SAFEMODE)
 	{
-		errChecker( niFgen_WriteScript( sessionHandle, outputChannels, script ) );
+		errChecker( niFgen_WriteScript( sessionHandle, outputChannels, constScript) );
 	}
 }
 
@@ -2111,7 +2138,7 @@ void NiawgController::configureOutputEnabled( int state )
 {
 	if (!NIAWG_SAFEMODE)
 	{
-		errChecker( niFgen_ConfigureOutputEnabled( sessionHandle, outputChannels, VI_FALSE ) );
+		errChecker( niFgen_ConfigureOutputEnabled( sessionHandle, outputChannels, state) );
 	}
 }
 
@@ -2129,7 +2156,7 @@ void NiawgController::setViStringAttribute( ViAttr atributeID, ViConstString att
 {
 	if (!NIAWG_SAFEMODE)
 	{
-		errChecker( niFgen_SetAttributeViString( sessionHandle, outputChannels, NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript" ) );
+		errChecker( niFgen_SetAttributeViString( sessionHandle, outputChannels, atributeID, attributeValue ) );
 	}
 }
 
@@ -2138,7 +2165,7 @@ void NiawgController::setViBooleanAttribute( ViAttr attribute, bool state )
 {
 	if (!NIAWG_SAFEMODE)
 	{
-		errChecker( niFgen_SetAttributeViBoolean( sessionHandle, outputChannels, NIFGEN_ATTR_FLATNESS_CORRECTION_ENABLED, VI_TRUE ) );
+		errChecker( niFgen_SetAttributeViBoolean( sessionHandle, outputChannels, attribute, state ) );
 	}
 }
 
@@ -2146,7 +2173,7 @@ void NiawgController::setViInt32Attribute( ViAttr attributeID, ViInt32 value )
 {
 	if (!NIAWG_SAFEMODE)
 	{
-		errChecker( niFgen_SetAttributeViInt32( sessionHandle, outputChannels, NIFGEN_ATTR_STREAMING_WAVEFORM_HANDLE, value ) );
+		errChecker( niFgen_SetAttributeViInt32( sessionHandle, outputChannels, attributeID, value ) );
 	}
 }
 

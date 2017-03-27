@@ -20,7 +20,8 @@ ConfigurationFileSystem::ConfigurationFileSystem(std::string fileSystemPath)
 
 // just looks at the info in a file and loads it into references, doesn't change anything in the gui or main settings.
 void ConfigurationFileSystem::getConfigInfo( niawgPair<std::vector<std::fstream>>& scriptFiles, std::vector<std::fstream>& intensityScriptFiles,
-											 profileSettings profile, std::vector<variable> singletons, std::vector<variable> variables )
+											 profileSettings profile, std::vector<variable> singletons, std::vector<variable> variables,
+											 bool programIntensity )
 {
 	scriptFiles[Vertical].resize( profile.sequenceConfigNames.size() );
 	scriptFiles[Horizontal].resize( profile.sequenceConfigNames.size() );
@@ -46,12 +47,15 @@ void ConfigurationFileSystem::getConfigInfo( niawgPair<std::vector<std::fstream>
 			}
 		}
 		/// load intensity file
-		getline( configFile, intensityScriptAddress );
-		intensityScriptFiles[sequenceInc].open( intensityScriptAddress );
-		if (!intensityScriptFiles[sequenceInc].is_open())
+		getline(configFile, intensityScriptAddress);
+		if (programIntensity)
 		{
-			thrower( "ERROR: Failed to open intensity script file named: " + intensityScriptAddress + " found in configuration: "
-					 + profile.sequenceConfigNames[sequenceInc] + "\r\n" );
+			intensityScriptFiles[sequenceInc].open(intensityScriptAddress);
+			if (!intensityScriptFiles[sequenceInc].is_open())
+			{
+				thrower("ERROR: Failed to open intensity script file named: " + intensityScriptAddress + " found in configuration: "
+					+ profile.sequenceConfigNames[sequenceInc] + "\r\n");
+			}
 		}
 		/// load variables
 		int varNum;

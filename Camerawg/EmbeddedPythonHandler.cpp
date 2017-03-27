@@ -1,6 +1,13 @@
 #include "stdafx.h"
 // main header.
-#include "Python.h"
+#ifdef _DEBUG
+#undef _DEBUG
+#include <python.h>
+#define _DEBUG
+#else
+#include <python.h>
+#endif
+#include <Python.h>
 #include "EmbeddedPythonHandler.h"
 // for personInfo structure.
 #include "SMSTextingControl.h"

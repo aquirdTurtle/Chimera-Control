@@ -20,8 +20,7 @@ namespace commonFunctions
 {
 	// this function handles messages that all windows can recieve, e.g. accelerator keys and menu messages. It redirects
 	// everything to all of the other functions below, for the most part.
-	bool handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, ScriptingWindow* scriptWin,
-							  CameraWindow* camWin )
+	bool handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, ScriptingWindow* scriptWin, CameraWindow* camWin )
 	{
 		switch (msgID)
 		{
@@ -35,7 +34,7 @@ namespace commonFunctions
 					commonFunctions::startCamera( scriptWin, mainWin, camWin );
 					commonFunctions::startNiawg( msgID, scriptWin, mainWin, camWin );
 				}
-				catch (myException& except)
+				catch (Error& except)
 				{
 					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + except.whatStr() );
 					mainWin->getComm()->sendColorBox( { /*niawg*/'R', /*camera*/'R', /*intensity*/'-' } );
@@ -53,7 +52,7 @@ namespace commonFunctions
 					commonFunctions::abortNiawg( scriptWin, mainWin );
 					commonFunctions::abortCamera( camWin, mainWin );
 				}
-				catch (myException& except)
+				catch (Error& except)
 				{
 					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + except.whatStr() );
 					mainWin->getComm()->sendColorBox( { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' } );
@@ -72,7 +71,7 @@ namespace commonFunctions
 					mainWin->getComm()->sendColorBox( { /*niawg*/'-', /*camera*/'G', /*intensity*/'-' } );
 					mainWin->getComm()->sendStatus( "Camera is Running.\r\n" );
 				}
-				catch (myException& exception)
+				catch (Error& exception)
 				{
 					if (exception.whatBare() == "CANCEL")
 					{
@@ -94,7 +93,7 @@ namespace commonFunctions
 				{
 					commonFunctions::startNiawg( msgID, scriptWin, mainWin, camWin );
 				}
-				catch (myException& except)
+				catch (Error& except)
 				{
 					mainWin->getComm()->sendColorBox( { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' } );
 					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + except.whatStr() );
@@ -307,6 +306,11 @@ namespace commonFunctions
 				mainWin->niawg.sendSoftwareTrigger();
 				break;
 			}
+			case ID_NIAWG_STREAMWAVEFORM :
+			{
+				mainWin->niawg.streamWaveform();
+				break;
+			}
 		}
 		return false;
 	}
@@ -386,7 +390,7 @@ namespace commonFunctions
 				{
 					mainWin->restartNiawgDefaults();
 				}
-				catch (myException& except)
+				catch (Error& except)
 				{
 					mainWin->getComm()->sendColorBox( { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' } );
 					mainWin->getComm()->sendFatalError( "Failed to restart the NIAWG default during the script restart procedure! Error "
@@ -620,7 +624,7 @@ namespace commonFunctions
 				{
 					mainWin->stopNiawg();
 				}
-				catch (myException& except)
+				catch (Error& except)
 				{
 					errBox( "ERROR: The NIAWG did not exit smoothly. : " + except.whatStr() );
 				}
@@ -664,7 +668,7 @@ namespace commonFunctions
 			mainWin->setNiawgDefaults();
 			mainWin->restartNiawgDefaults();
 		}
-		catch (myException& exception)
+		catch (Error& exception)
 		{
 			mainWin->restartNiawgDefaults();
 			thrower( "ERROR: failed to reload the niawg default waveforms! Error message: " + exception.whatStr() );
