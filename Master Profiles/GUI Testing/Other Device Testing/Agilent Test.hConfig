@@ -1,0 +1,119 @@
+Master Version: 1.1
+MASTER SCRIPT:
+NONLOCAL 
+VARIABLES:
+0
+TTLS:
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+DACS:
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+REPETITIONS:
+100
+AGILENTVERSION 1.0
+
+CHANNEL 1
+0, 12, , , , , , , 
+CHANNEL 2
+-2, , , , , , , , 
+AGILENTVERSION 1.0
+
+CHANNEL 1
+-2, , , , , , , , 
+CHANNEL 2
+-2, , , , , , , , 
+AGILENTVERSION 1.0
+
+CHANNEL 1
+-2, , , , , , , , 
+CHANNEL 2
+-2, , , , , , , , 
+NOTES:
+
+
+END CONFIGURATION NOTES

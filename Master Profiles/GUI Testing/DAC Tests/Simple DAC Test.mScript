@@ -1,0 +1,6 @@
+t = 0
+dac: dac1 0
+t += 1000
+dac: dac1 1
+t += 1000
+dac: dac1 0

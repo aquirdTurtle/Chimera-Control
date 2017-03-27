@@ -1,0 +1,80 @@
+% NET TIME INCREMENT: t += 0.1 + 1 + 4 +0.9 + 0.1 + 0.01 + 5
+% t += 11.11 + imageLength
+
+% This function Sets up Pgc cooling and imaging. The camera shutter
+% - imageLength: The length the camera shutter is open.
+def StandardPgcImage(imageLength):
+	%% **IMPORTANT NOTE!!!--> The shutter for the imaging beams 
+	% (both the side-MOT and Repump shutters) will not be actuated 
+	% within this subroutine, so that we have the flexibility to 
+	% minimize the number of times it opens and closes (so we do 
+	% not break the shutter so often) by only closing it for the 
+	% main portion of the experiment (which will be done in the 
+	% main code).
+
+	%% **To be clear: The only shutter being actuated in the code 
+	% is the shutter for the Andor camera, which we always run at 
+	% this high rate (though, if we go to shorter imaging times, 
+	% we will need to add an hold time to extend the shutter 
+	% lifetime.
+	%-------------------------------------------------------------
+	    
+	% Setting PGC fields for imaging while cooling with side MOT 
+	% beam:
+	dac: RightCoilCurrent 0.8819
+	dac: LeftCoilCurrent 0.0281
+	dac: FrontCoilCurrent -0.7037
+	dac: BackCoilCurrent 0.3719
+	dac: BottomCoilCurrent -2.0304
+	dac: TopCoilCurrent 2.0104           
+	t += 0.1
+
+	% was 0.2 on 150408
+	dac: SideMotPower 0.2 
+	% Set image detuning   
+	dac: MotFreq 0.17
+	dac: RepumpFreq 0
+	dac: MotPower 0
+	% Repumplight power
+	dac: RepumpPower 0.32   
+	t += 1
+	on: AndorShutter
+	t += 4
+	% <<**Be sure to open the 
+	% repump shutter before calling this subroutine!!**>>
+	on: RepumpRf
+	% repump on 1 ms before (141121)
+	t += 0.9
+	on: AndorTrigger
+	t += 0.1
+	% Flourescence
+	on: MotRf
+	on: SigmaOpRf
+	t += imageLength
+
+	%Shutting off all light and closing the relevant shutters:
+	off: AndorTrigger
+	off: AndorShutter
+	off: SideMotRf
+	off: MotRf
+	off: RepumpRf
+
+	% was 0.2 on 150408
+	dac: SideMotPower 0
+	dac: MotFreq 0
+	dac: RepumpFreq 0
+	dac: MotPower 0
+	dac: RepumpPower 0
+
+	% Sending a pulse to oscilloscope trace, for observing the timing sequence
+	% Call markerOscilloscope   
+	t += 0.01
+    
+	% we found the camera needs at least 5ms gap time before immediately turning on the next takePGCimage subroutine 05/18/2016
+	t += 5
+
+
+
+
+
+

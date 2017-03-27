@@ -1,0 +1,28 @@
+% Total Time Added: t += 0.1
+
+% These (historically) have always been called at the beginning
+% of an experiment.
+def SetDefaultTtls():
+	% Turning on the Dipole trap with standard parameters:    
+	on: TweezerRf
+	% Explicitly initializing important TTLs at the beginning of each sequence:
+      off: IntensityTrigger
+	off: AxialUwaveGaussianPulseTrig
+	off: TopBottomGaussianPulseTrig
+	off: RsgTrig
+	off: OscilloscopeTrig
+	% Setting Shutters: (Note specifically, that most 
+	% shutters are not actuated within subroutines (both 
+	% for flexibility and longevity of the shutter lifetimes, 
+	% the main exception is the camera shutter), so we need 
+	% to manually open/close these throughout the code!
+	off: RamanShutter
+	off: LightShiftShutter
+	on: MotSlaveShutter
+	on: RepumpShutter
+	on: SideMotShutter
+	off: ProbeShutter
+	off: OpShutter
+	% ----> May have to add some shutters here for the 
+	% enhanced loading and magic LS beam (when available)
+ 	t += 0.1
