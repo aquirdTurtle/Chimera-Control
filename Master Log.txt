@@ -1,0 +1,109 @@
+An experiment ran at (y-m-d h:m:s)2017-3-6, 23:33:25 with the following parameters:
+==========================================================================================
+TTL Settings:
+**VALUES**         0         1         2         3         4         5         6         7         8         9        10        11        12        13        14        15
+        A:       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF
+        B:       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF
+        C:       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF
+        D:       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF
+ **NAMES**         0         1         2         3         4         5         6         7         8         9        10        11        12        13        14        15
+        A:     motrf  repumprfbottomramanrfsigmarepumprf sigmaoprf sidemotrf tweezerrf        a7 eoramanrf        a9topramanrfaxialramanrf       a12gaussianpulsetriggeroscilloscopesignal       a15         
+        B:baslertriggerrepumpshutter opshutterlightshiftshutter        b4        b5intensitytrigger        b7        b822pshutter795shutter       b11       b12       b13niawgtrigger       b15         
+        C:   eouwaveeouwavedupandortrigger        c3ramanshutterflashingtriggerlightshiftrfflashingtrigger2        c8     22prf     795rfoscilloscopetriggerprobeshutter opshutter       c14       c15         
+        D:motslaveshutter        d1andorshuttergaussianpulsetrigger2topfsktriggerbottomfsktriggeraxialfsktrigger        d7        d8        d9       d10       d11       d12       d13       d14dacboardstrigger         
+
+
+DAC Settings:
+    VALUES
+ 1:0.000000  2: 0.000000  3: 0.000000  4: 0.000000  5: 0.000000  6: 0.000000  7: 0.000000  8: 0.000000  
+9: 0.000000  10:0.000000  11:0.000000  12:0.000000  13:0.000000  14:0.000000  15:0.000000  16:0.000000  
+17:0.000000  18:0.000000  19:0.000000  20:0.000000  21:0.000000  22:0.000000  23:0.000000  24:0.000000  
+NAMES    
+1: rightcoilcurrent2: leftcoilcurrent3: frontcoilcurrent4: backcoilcurrent5: bottomcoilcurrent6: topcoilcurrent7: motgradientcurrent8: dac7      
+9: depumppower10:motpower  11:depumpfreq12:repumppower13:sigmaopfreq14:sigmaoppower15:sigmarepumpfreq16:sigmarepumppower
+17:lightshiftpower18:795freq   19:795power  20:dac19     21:probefreq 22:repumpfreq23:sidemotpower24:piezomirror
+
+Master Script:
+% Default Master Script. Hover your mouse over the "?"
+% in the top right corner of this control for help.
+
+on: a1
+t += 50
+off: a1
+
+
+Repetitions: 100
+
+Variables: 
+
+Error Status:
+Handling Configuration Selection Change Failed: c:\users\mark\documents\quantum gas assembly control\master code\agilent.cpp, Line 976: ERROR: unrecognized agilent setting: 3
+Handling Configuration Selection Change Failed: c:\users\mark\documents\quantum gas assembly control\master code\agilent.cpp, Line 976: ERROR: unrecognized agilent setting: 3
+Handling Configuration Selection Change Failed: c:\users\mark\documents\quantum gas assembly control\master code\agilent.cpp, Line 976: ERROR: unrecognized agilent setting: 3
+Handling Configuration Selection Change Failed: c:\users\mark\documents\quantum gas assembly control\master code\agilent.cpp, Line 978: ERROR: unrecognized agilent setting: 3
+
+
+General Status:
+............................
+Checking if Ready...r
+Starting Experiment Thread...
+An experiment ran at (y-m-d h:m:s)2017-3-6, 23:34:21 with the following parameters:
+==========================================================================================
+TTL Settings:
+**VALUES**0         1         2         3         4         5         6         7         8         9         10        11        12        13        14        15        
+A:        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
+B:        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
+C:        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
+D:        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
+**NAMES** 0         1         2         3         4         5         6         7         8         9         10        11        12        13        14        15        
+A:        motrf     repumprf  bottomramanrfsigmarepumprfsigmaoprf sidemotrf tweezerrf a7        eoramanrf a9        topramanrfaxialramanrfa12       gaussianpulsetriggeroscilloscopesignala15       
+         B:        baslertriggerrepumpshutteropshutter lightshiftshutterb4        b5        intensitytriggerb7        b8        22pshutter795shutterb11       b12       b13       niawgtriggerb15       
+         C:        eouwave   eouwavedupandortriggerc3        ramanshutterflashingtriggerlightshiftrfflashingtrigger2c8        22prf     795rf     oscilloscopetriggerprobeshutteropshutter c14       c15       
+         D:        motslaveshutterd1        andorshuttergaussianpulsetrigger2topfsktriggerbottomfsktriggeraxialfsktriggerd7        d8        d9        d10       d11       d12       d13       d14       dacboardstrigger
+         
+
+DAC Settings:
+VALUES    
+1: 0.000000  2: 0.000000  3: 0.000000  4: 0.000000  5: 0.000000  6: 0.000000  7: 0.000000  8: 0.000000  
+9: 0.000000  10:0.000000  11:0.000000  12:0.000000  13:0.000000  14:0.000000  15:0.000000  16:0.000000  
+17:0.000000  18:0.000000  19:0.000000  20:0.000000  21:0.000000  22:0.000000  23:0.000000  24:0.000000  
+NAMES    
+1: rightcoilcurrent2: leftcoilcurrent3: frontcoilcurrent4: backcoilcurrent5: bottomcoilcurrent6: topcoilcurrent7: motgradientcurrent8: dac7      
+9: depumppower10:motpower  11:depumpfreq12:repumppower13:sigmaopfreq14:sigmaoppower15:sigmarepumpfreq16:sigmarepumppower
+17:lightshiftpower18:795freq   19:795power  20:dac19     21:probefreq 22:repumpfreq23:sidemotpower24:piezomirror
+
+Master Script:
+% Default Master Script. Hover your mouse over the "?"
+% in the top right corner of this control for help.
+
+on: a1
+t += 50
+off: a1
+
+
+Repetitions: 100
+
+Variables: 
+
+Error Status:
+
+
+General Status:
+............................
+Checking if Ready...r
+Starting Experiment Thread...
+Loading Key...Done.
+Exporting Key...Done.
+NOT Connecting to NIAWG.
+Loading Agilent Info...Analyzing Master Script...Done.
+Variation #1
+Loading Key & Analyzing Script Data...
+Programming Hardware...
+Total Repetition time: 51.000000
+Total Experiment time: 5100.000000
+Repetition...100
+
+Experiment Finished Normally.
+............................
+Checking if Ready...r
+Starting Experiment Thread...

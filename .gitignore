@@ -1,0 +1,42 @@
+Data/
+*.tlog
+*.ico
+*.enc
+Waveforms Library/
+x64/
+ipch/
+MFCApplication2/
+MFCApplication1/
+MFCApplication3/
+.vs/
+*.fits
+*.script
+*.nScript
+*.cConfig
+*.hConfig
+*.vConfig
+*.mScript
+*.catConfig
+*.eConfig
+*.fits
+*.aConfig
+*.aScript
+*.sConfig
+!Profiles/Program Tests/*.script
+!Profiles/Program Tests/*.nScript
+!Profiles/Program Tests/*.cConfig
+!Profiles/Program Tests/*.hConfig
+!Profiles/Program Tests/*.vConfig
+!Profiles/Program Tests/*.mScript
+!Profiles/Program Tests/*.catConfig
+!Profiles/Program Tests/*.eConfig
+!Profiles/Program Tests/*.aConfig
+!Profiles/Program Tests/*.aScript
+!Profiles/Program Tests/*.sConfig
+Experiment Scripts/Old Scripts (Format No Longer Supported)/
+*.res
+*.iobj
+*.ipdb
+*.idb
+*.sdf
+*.db
