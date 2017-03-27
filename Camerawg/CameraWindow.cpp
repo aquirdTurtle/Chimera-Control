@@ -273,7 +273,7 @@ void CameraWindow::setEmGain()
 	{
 		CameraSettings.setEmGain( &Andor );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
 		errBox( exception.what() );
 	}
@@ -299,7 +299,7 @@ void CameraWindow::prepareCamera()
 			thrower( "DRV_IDLE" );
 		}
 	}
-	catch ( myException& exception )
+	catch ( Error& exception )
 	{
 		if ( exception.whatBare() != "DRV_IDLE" )
 		{
@@ -407,7 +407,7 @@ void CameraWindow::OnCancel()
 	{
 		passCommonCommand( ID_FILE_MY_EXIT );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
 		errBox( exception.what() );
 	}
@@ -510,7 +510,15 @@ HBRUSH CameraWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
 void CameraWindow::passCommonCommand(UINT id)
 {
-	commonFunctions::handleCommonMessage(id, this, mainWindowFriend, scriptingWindowFriend, this);
+	try
+	{
+		commonFunctions::handleCommonMessage( id, this, mainWindowFriend, scriptingWindowFriend, this );
+	}
+	catch (Error& err)
+	{
+		// catch any extra errors that handleCommonMessage doesn't explicitly handle.
+		errBox( err.what() );
+	}
 }
 
 void CameraWindow::readImageParameters()
@@ -521,7 +529,7 @@ void CameraWindow::readImageParameters()
 		imageParameters parameters = CameraSettings.readImageParameters( this );
 		pics.setParameters( parameters );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
 		errBox( "Error!" );
 		Communicator* comm = mainWindowFriend->getComm();
