@@ -30,26 +30,24 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 	ON_COMMAND(IDC_SET_EM_GAIN_BUTTON, &CameraWindow::setEmGain)
 	ON_COMMAND(IDC_ALERTS_BOX, &CameraWindow::passAlertPress)
 	ON_COMMAND(IDC_SET_TEMPERATURE_BUTTON, &CameraWindow::passSetTemperaturePress)
-	// 
 
 	ON_CBN_SELENDOK(IDC_TRIGGER_COMBO, &CameraWindow::passTrigger)
 	ON_CBN_SELENDOK( IDC_CAMERA_MODE_COMBO, &CameraWindow::passCameraMode )
-	// messages 
+
 	ON_REGISTERED_MESSAGE( eCameraFinishMessageID, &CameraWindow::onCameraFinish )
 	ON_REGISTERED_MESSAGE( eCameraProgressMessageID, &CameraWindow::onCameraProgress )
 
-	//
-	//ON_WM_LBUTTONDBLCLK()
 	ON_WM_RBUTTONUP()
 	ON_NOTIFY(LVN_COLUMNCLICK, IDC_PLOTTING_LISTVIEW, &CameraWindow::listViewLClick)
 	ON_NOTIFY(NM_DBLCLK, IDC_PLOTTING_LISTVIEW, &CameraWindow::listViewDblClick)
-	//ON_NOTIFY(NM_RCLICK, &CameraWindow::handleRClick)
 END_MESSAGE_MAP()
+
 
 void CameraWindow::passCameraMode()
 {
 	CameraSettings.handleModeChange(this);
 }
+
 
 void CameraWindow::abortCameraRun()
 {
@@ -253,22 +251,32 @@ void CameraWindow::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar)
 }
 
 
-void CameraWindow::OnSize(UINT nType, int cx, int cy)
+void CameraWindow::OnSize( UINT nType, int cx, int cy )
 {
-	AndorRunSettings settings = this->CameraSettings.getSettings();
-	stats.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts());
-	CameraSettings.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts());
-	box.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts());
-	pics.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts());
-	alerts.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts());
-	dataHandler.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts());
+	AndorRunSettings settings = CameraSettings.getSettings();
+	stats.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts() );
+	CameraSettings.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts() );
+	box.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts() );
+	pics.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts() );
+	alerts.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts() );
+	dataHandler.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts() );
+
+	pics.setParameters( CameraSettings.readImageParameters( this ) );
+	RedrawWindow();
 	pics.redrawPictures( this, selectedPixel );
 }
 
 
 void CameraWindow::setEmGain()
 {
-	CameraSettings.setEmGain(&this->Andor);
+	try 
+	{
+		CameraSettings.setEmGain( &Andor );
+	}
+	catch (Error& exception)
+	{
+		errBox( exception.what() );
+	}
 }
 
 void CameraWindow::prepareCamera()
@@ -291,7 +299,7 @@ void CameraWindow::prepareCamera()
 			thrower( "DRV_IDLE" );
 		}
 	}
-	catch ( myException& exception )
+	catch ( Error& exception )
 	{
 		if ( exception.whatBare() != "DRV_IDLE" )
 		{
@@ -399,7 +407,7 @@ void CameraWindow::OnCancel()
 	{
 		passCommonCommand( ID_FILE_MY_EXIT );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
 		errBox( exception.what() );
 	}
@@ -417,26 +425,30 @@ BOOL CameraWindow::OnInitDialog()
 	cameraPositions positions;
 	// all of the initialization functions increment and use the id, so by the end it will be 3000 + # of controls.
 	int id = 3000;
-	positions.videoPos = positions.amPos = positions.seriesPos = { 0,0 };
-	box.initialize(positions.seriesPos, id, this, 480, mainWindowFriend->getFonts(), tooltips);
-	CameraSettings.initialize(positions, id, this, mainWindowFriend->getFonts(), tooltips);
-	// initialize the settings.
-	alerts.initialize(positions, this, true, id, mainWindowFriend->getFonts(), tooltips);
-	dataHandler.initialize(positions, id, this, mainWindowFriend->getFonts(), tooltips, true);
+	positions.sPos = { 0, 0 };
+	box.initialize( positions.sPos, id, this, 480, mainWindowFriend->getFonts(), tooltips );
+	positions.videoPos = positions.amPos = positions.seriesPos = positions.sPos;
+	alerts.initialize( positions, this, false, id, mainWindowFriend->getFonts(), tooltips );
+	dataHandler.initialize( positions, id, this, mainWindowFriend->getFonts(), tooltips, false );
+	CameraSettings.initialize( positions, id, this, mainWindowFriend->getFonts(), tooltips );
 	POINT position = { 480, 0 };
-	stats.initialize(position, this, id, mainWindowFriend->getFonts(), tooltips);
+	stats.initialize( position, this, id, mainWindowFriend->getFonts(), tooltips );
 	positions.amPos = positions.seriesPos = positions.videoPos = { 757, 0 };
 	timer.initialize( positions, this, false, id, mainWindowFriend->getFonts(), tooltips );
 	position = positions.seriesPos;
-	pics.initialize( position, this, id, mainWindowFriend->getFonts(), tooltips, mainWindowFriend->getBrushes()["Dark Green"]);
+	pics.initialize( position, this, id, mainWindowFriend->getFonts(), tooltips, mainWindowFriend->getBrushes()["Dark Green"] );
 	pics.setSinglePicture( this, { 0,0 }, CameraSettings.readImageParameters( this ) );
 	// load the menu
 	CMenu menu;
-	menu.LoadMenu(IDR_MAIN_MENU);
-	SetMenu(&menu);
+	menu.LoadMenu( IDR_MAIN_MENU );
+	SetMenu( &menu );
 	// final steps
-	ShowWindow(SW_MAXIMIZE);
-	SetTimer(NULL, 1000, NULL);
+	ShowWindow( SW_MAXIMIZE );
+	SetTimer( NULL, 1000, NULL );
+
+	CRect rect;
+	GetWindowRect( &rect );
+	OnSize( 0, rect.right - rect.left, rect.bottom - rect.top );
 	return TRUE;
 }
 
@@ -498,7 +510,15 @@ HBRUSH CameraWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
 void CameraWindow::passCommonCommand(UINT id)
 {
-	commonFunctions::handleCommonMessage(id, this, mainWindowFriend, scriptingWindowFriend, this);
+	try
+	{
+		commonFunctions::handleCommonMessage( id, this, mainWindowFriend, scriptingWindowFriend, this );
+	}
+	catch (Error& err)
+	{
+		// catch any extra errors that handleCommonMessage doesn't explicitly handle.
+		errBox( err.what() );
+	}
 }
 
 void CameraWindow::readImageParameters()
@@ -509,7 +529,7 @@ void CameraWindow::readImageParameters()
 		imageParameters parameters = CameraSettings.readImageParameters( this );
 		pics.setParameters( parameters );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
 		errBox( "Error!" );
 		Communicator* comm = mainWindowFriend->getComm();

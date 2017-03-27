@@ -15,7 +15,7 @@ struct tinyPlotInfo
 class DataHandlingControl
 {
 	public:
-		void initialize(cameraPositions& pos, int& id, CWnd* parent, std::unordered_map<std::string, CFont*> fonts, 
+		void initialize(cameraPositions& pos, int& id, CWnd* parent, std::unordered_map<std::string, CFont*> fonts,
 			std::vector<CToolTipCtrl*>& tooltips, int isTriggerModeSensitive);
 		void handleDoubleClick();
 		void handleRClick();

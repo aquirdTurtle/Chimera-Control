@@ -33,7 +33,7 @@ std::vector<std::string> DataHandlingControl::getActivePlotList()
 
 bool DataHandlingControl::getLocationSettingStatus()
 {
-	return this->currentlySettingAnalysisLocations;
+	return currentlySettingAnalysisLocations;
 }
 
 void DataHandlingControl::updateDataSetNumberEdit( int number )
@@ -220,21 +220,18 @@ void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	updateFrequency = 5; 
 	updateFrequencyEdit.SetWindowTextA("5");
 	// end of that statement
-	updateFrequencyLabel2.seriesPos =  { pos.seriesPos.x + 200,  pos.seriesPos.y,  pos.seriesPos.x + 480, pos.seriesPos.y + 25 };
-	updateFrequencyLabel2.videoPos = { pos.videoPos.x + 200, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y + 25 };
-	updateFrequencyLabel2.amPos =   { pos.amPos.x + 200,   pos.amPos.y,   pos.amPos.x + 480, pos.amPos.y + 25 };
+	updateFrequencyLabel2.seriesPos =  { pos.seriesPos.x + 200,  pos.seriesPos.y,  pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
+	updateFrequencyLabel2.videoPos = { pos.videoPos.x + 200, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
+	updateFrequencyLabel2.amPos =   { pos.amPos.x + 200,   pos.amPos.y,   pos.amPos.x + 480, pos.amPos.y += 25 };
 	updateFrequencyLabel2.ID = id++;
 	updateFrequencyLabel2.triggerModeSensitive = isTriggerModeSensitive;
 	updateFrequencyLabel2.Create(") repetitions.", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON,
 		updateFrequencyLabel2.seriesPos, parent, updateFrequencyLabel2.ID);
 	updateFrequencyLabel2.fontType = "Normal";
-	pos.seriesPos.y += 25;
-	pos.videoPos.y += 25;
-	pos.amPos.y += 25;
 	/// the listview
-	plotListview.seriesPos = { pos.seriesPos.x,   pos.seriesPos.y,  pos.seriesPos.x + 480,  pos.seriesPos.y + 100 };
-	plotListview.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y + 100 };
-	plotListview.amPos = { pos.amPos.x,     pos.amPos.y,   pos.amPos.x + 480,   pos.amPos.y + 100 };
+	plotListview.seriesPos = { pos.seriesPos.x,   pos.seriesPos.y,  pos.seriesPos.x + 480,  pos.seriesPos.y += 100 };
+	plotListview.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 100 };
+	plotListview.amPos = { pos.amPos.x,     pos.amPos.y,   pos.amPos.x + 480,   pos.amPos.y += 100 };
 	plotListview.ID = id++;
 	plotListview.triggerModeSensitive = isTriggerModeSensitive;
 	if (plotListview.ID != IDC_PLOTTING_LISTVIEW)

@@ -24,7 +24,8 @@ std::pair<int, int> PictureControl::checkClickLocation( CPoint clickLocation )
 
 void PictureControl::updatePalette( HPALETTE palette )
 {
-	imagePalette = palette;
+	this->imagePalette = palette;
+	return;
 }
 
 void PictureControl::handleEditChange( int id )
@@ -44,7 +45,7 @@ void PictureControl::handleEditChange( int id )
 			return;
 		}
 		sliderMax.SetPos( max );
-		maxSliderPosition = max;
+		this->maxSliderPosition = max;
 	}
 	if (id == this->editMin.ID)
 	{
@@ -61,59 +62,45 @@ void PictureControl::handleEditChange( int id )
 			return;
 		}
 		sliderMin.SetPos( min );
-		minSliderPosition = min;
+		this->minSliderPosition = min;
 	}
+	return;
 }
-
 
 void PictureControl::handleScroll(int id, UINT nPos)
 {
-	if (id == sliderMax.ID)
+	if (id == this->sliderMax.ID)
 	{
 		sliderMax.SetPos(nPos);
 		editMax.SetWindowTextA(std::to_string(nPos).c_str());
-		maxSliderPosition = nPos;
+		this->maxSliderPosition = nPos;
 	}
-	else if (id == sliderMin.ID)
+	else if (id == this->sliderMin.ID)
 	{
 		sliderMin.SetPos(nPos);
 		editMin.SetWindowTextA(std::to_string(nPos).c_str());
-		minSliderPosition = nPos;
+		this->minSliderPosition = nPos;
 	}
+	return;
 }
-
-
-void PictureControl::setPictureArea( POINT loc, int width, int height )
-{
-	// this is important for the control to know where it should draw controls.
-	originalBackgroundArea = { loc.x, loc.y, loc.x + width, loc.y + height };
-	// reserve some area for the scroll bars.
-	originalBackgroundArea.right -= 100;
-	currentBackgroundArea = originalBackgroundArea;
-	// handle sliders
-	loc.x += originalBackgroundArea.right - originalBackgroundArea.left;
-	labelMin.sPos = { loc.x, loc.y, loc.x + 50, loc.y + 30 };
-	editMin.sPos = { loc.x, loc.y + 30, loc.x + 50, loc.y + 60 };
-	sliderMin.sPos = { loc.x, loc.y + 60, loc.x + 50, loc.y + originalBackgroundArea.bottom - originalBackgroundArea.top };
-	labelMax.sPos = { loc.x + 50, loc.y, loc.x + 100, loc.y + 30 };
-	editMax.sPos = { loc.x + 50, loc.y + 30, loc.x + 100, loc.y + 60 };
-	sliderMax.sPos = { loc.x + 50, loc.y + 60, loc.x + 100, loc.y + originalBackgroundArea.bottom - originalBackgroundArea.top };
-}
-
 
 void PictureControl::initialize(POINT& loc, CWnd* parent, int& id, int width, int height)
 {
 	if (width < 100)
 	{
-		thrower("Pictures must be greater than 100 in width because this is the size of the max/min controls.");
+		throw std::invalid_argument("Pictures must be greater than 100 in width because this is the size of the max/min"
+			"controls.");
 	}
 	if (height < 100)
 	{
-		thrower( "Pictures must be greater than 100 in height because this is the minimum height of the max/min controls." );
+		throw std::invalid_argument("Pictures must be greater than 100 in height because this is the minimum height "
+			"of the max/min controls.");
 	}
 	// this is important for the control to know where it should draw controls.
-	setPictureArea( loc, width, height );
-
+	this->originalBackgroundArea = { loc.x, loc.y, loc.x + width, loc.y + height};
+	// reserve some area for the texts.
+	originalBackgroundArea.right -= 100;
+	this->currentBackgroundArea = this->originalBackgroundArea;
 	loc.x += originalBackgroundArea.right - originalBackgroundArea.left;
 	// "min" text
 	labelMin.sPos = { loc.x, loc.y, loc.x + 50, loc.y + 30 };
@@ -162,28 +149,33 @@ void PictureControl::initialize(POINT& loc, CWnd* parent, int& id, int width, in
 	// manually scroll the objects to initial positions.
 	handleScroll( sliderMin.ID, 95);
 	handleScroll( sliderMax.ID, 395);
+	return;
 }
 
-void PictureControl::updateGridSpecs( imageParameters newParameters )
+void PictureControl::updateGridSpecs(imageParameters newParameters)
 {
 	// not strictly necessary.
 	grid.clear();
-	RECT& area = currentBackgroundArea;
 	//
-	grid.resize( newParameters.width );
+	this->grid.resize(newParameters.width);
 	for (int widthInc = 0; widthInc < grid.size(); widthInc++)
 	{
-		grid[widthInc].resize( newParameters.height );
+		grid[widthInc].resize(newParameters.height);
 		for (int heightInc = 0; heightInc < grid[widthInc].size(); heightInc++)
 		{
 			// for all 4 pictures...
-			grid[widthInc][heightInc].left = (int)(area.left + (double)widthInc * (area.right - area.left) / (double)grid.size() + 2);
-			grid[widthInc][heightInc].right = (int)(area.left + (double)(widthInc + 1) * (area.right - area.left) / (double)grid.size() + 2);
-			grid[widthInc][heightInc].top = (int)(area.top + (double)(heightInc)* (area.bottom - area.top) / (double)grid[widthInc].size());
-			grid[widthInc][heightInc].bottom = (int)(area.top + (double)(heightInc + 1) * (area.bottom - area.top) / (double)grid[widthInc].size());
+			grid[widthInc][heightInc].left = (int)(currentBackgroundArea.left
+				+ (double)widthInc * (currentBackgroundArea.right - currentBackgroundArea.left) / (double)grid.size() + 2);
+			grid[widthInc][heightInc].right = (int)(currentBackgroundArea.left
+				+ (double)(widthInc + 1) * (currentBackgroundArea.right - currentBackgroundArea.left) / (double)grid.size() + 2);
+			grid[widthInc][heightInc].top = (int)(currentBackgroundArea.top
+				+ (double)(heightInc)* (currentBackgroundArea.bottom - currentBackgroundArea.top) / (double)grid[widthInc].size());
+			grid[widthInc][heightInc].bottom = (int)(currentBackgroundArea.top
+				+ (double)(heightInc + 1)* (currentBackgroundArea.bottom - currentBackgroundArea.top) / (double)grid[widthInc].size());
 		}
 	}
 }
+
 
 void PictureControl::setActive( bool activeState )
 {
@@ -192,17 +184,17 @@ void PictureControl::setActive( bool activeState )
 
 void PictureControl::redrawImage( CWnd* parent )
 {
-	drawBackground(parent);
-	if (active && mostRecentImage.size() != 0)
+	this->drawBackground(parent);
+	if (active && this->mostRecentImage.size() != 0)
 	{
-		drawBitmap( parent->GetDC(), mostRecentImage );
+		this->drawBitmap( parent->GetDC(), this->mostRecentImage );
 	}
 }
 
 // input is the 2D array which gets mapped to the image.
 void PictureControl::drawBitmap(CDC* deviceContext, std::vector<long> picData)
 {
-	mostRecentImage = picData;
+	this->mostRecentImage = picData;
 	float yscale;
 	long modrange = this->maxSliderPosition - this->minSliderPosition;
 	double dTemp = 1;
@@ -370,17 +362,8 @@ void PictureControl::drawBackground(CWnd* parent)
 	parent->ReleaseDC(colorObj);
 }
 
-bool PictureControl::isActive()
-{
-	return active;
-}
-
 void PictureControl::drawGrid(CWnd* parent, CBrush* brush)
 {
-	if (!active)
-	{
-		return;
-	}
 	CDC* easel = parent->GetDC();
 	easel->SelectObject(GetStockObject(DC_BRUSH));
 	easel->SetDCBrushColor(RGB(255, 255, 255));
@@ -392,16 +375,17 @@ void PictureControl::drawGrid(CWnd* parent, CBrush* brush)
 			easel->FrameRect(&grid[widthInc][heightInc], brush);
 		}
 	}
+	return;
 }
 
 void PictureControl::drawRectangles( CWnd* parent, CBrush* brush )
 {
-	// locations for atom analysis...
+
 }
 
 void PictureControl::drawCircle(CWnd* parent, std::pair<int, int> selectedLocation)
 {
-	if (grid.size() == 0 || !active)
+	if (grid.size() == 0)
 	{
 		return;
 	}
@@ -439,9 +423,7 @@ void PictureControl::drawCircle(CWnd* parent, std::pair<int, int> selectedLocati
 	parent->ReleaseDC( dc );
 }
 
-
-void PictureControl::rearrange(std::string cameraMode, std::string triggerMode, int width, int height, 
-								std::unordered_map<std::string, CFont*> fonts)
+void PictureControl::rearrange(std::string cameraMode, std::string triggerMode, int width, int height, std::unordered_map<std::string, CFont*> fonts)
 {
 	editMax.rearrange(cameraMode, triggerMode, width, height, fonts);
 	editMin.rearrange(cameraMode, triggerMode, width, height, fonts);
@@ -449,8 +431,10 @@ void PictureControl::rearrange(std::string cameraMode, std::string triggerMode, 
 	labelMin.rearrange(cameraMode, triggerMode, width, height, fonts);
 	sliderMax.rearrange(cameraMode, triggerMode, width, height, fonts);
 	sliderMin.rearrange(cameraMode, triggerMode, width, height, fonts);
-	currentBackgroundArea.bottom =  originalBackgroundArea.bottom * height / 997.0;
-	currentBackgroundArea.top = originalBackgroundArea.top * height / 997.0;
-	currentBackgroundArea.left = originalBackgroundArea.left * width / 1920.0;
-	currentBackgroundArea.right = originalBackgroundArea.right * width / 1920.0;
+	this->currentBackgroundArea.bottom =  originalBackgroundArea.bottom * height / 997.0;
+	this->currentBackgroundArea.top = originalBackgroundArea.top * height / 997.0;
+	this->currentBackgroundArea.left = originalBackgroundArea.left * width / 1920.0;
+	this->currentBackgroundArea.right = originalBackgroundArea.right * width / 1920.0;
+	// deal with draw areas & stuff...
+	return;
 }

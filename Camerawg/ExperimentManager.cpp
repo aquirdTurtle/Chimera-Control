@@ -35,7 +35,7 @@ unsigned __stdcall ExperimentManager::experimentProgrammingThread(LPVOID inputPa
 	output.isDefault = false;
 	try
 	{ 
-		ConfigurationFileSystem::getConfigInfo( scriptFiles, intensityScriptFiles, input->profile, singletons, variables );
+		ConfigurationFileSystem::getConfigInfo( scriptFiles, intensityScriptFiles, input->profile, singletons, variables, input->settings.programIntensity );
 		if (input->settings.connectToMaster)
 		{
 			masterSocket.initialize();
@@ -188,7 +188,7 @@ unsigned __stdcall ExperimentManager::experimentProgrammingThread(LPVOID inputPa
 							mixedWriteCount++;
 						}
 					}
-					input->niawg->writeScript(userScriptSubmit.data());
+					input->niawg->writeScript(userScriptSubmit);
 					input->niawg->setViStringAttribute(NIFGEN_ATTR_SCRIPT_TO_GENERATE, "experimentScript");
 					input->currentScript = "UserScript";
 					input->niawg->configureOutputEnabled(VI_TRUE);
@@ -221,7 +221,7 @@ unsigned __stdcall ExperimentManager::experimentProgrammingThread(LPVOID inputPa
 				input->niawg->configureOutputEnabled(VI_FALSE);
 				input->niawg->abortGeneration();
 				// Should be just ready to go
-				input->niawg->writeScript(userScriptSubmit.data());
+				input->niawg->writeScript(userScriptSubmit);
 				input->niawg->setViStringAttribute(NIFGEN_ATTR_SCRIPT_TO_GENERATE, "experimentScript");
 				input->currentScript = "UserScript";
 				input->niawg->configureOutputEnabled(VI_TRUE);

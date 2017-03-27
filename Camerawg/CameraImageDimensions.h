@@ -2,6 +2,8 @@
 
 #include "Control.h"
 
+struct cameraPositions;
+
 struct imageParameters
 {
 	int leftBorder;
@@ -18,8 +20,7 @@ class CameraImageDimensionsControl
 {
 	public:
 		CameraImageDimensionsControl();
-		void initialize( POINT& topLeftPositionKinetic, POINT& topLeftPositionAccumulate, POINT& topLeftPositionContinuous,
-						 CWnd* parentWindow, bool isTriggerModeSensitive, int& id );
+		void initialize( cameraPositions& pos, CWnd* parentWindow, bool isTriggerModeSensitive, int& id );
 		imageParameters readImageParameters( CameraWindow* camWin );
 		void setImageParametersFromInput( imageParameters param, CameraWindow* camWin );
 		bool checkReady();
