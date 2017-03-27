@@ -91,6 +91,7 @@ struct waveInfo
 	bool varies;
 	bool isStreamed;
 	bool isFlashing;
+	std::string name;
 	std::vector<ViReal64> waveVals;
 };
 
@@ -158,6 +159,7 @@ class NiawgController
 		void sendSoftwareTrigger();
 		signed short isDone();
 		void initialize();
+		void streamWaveform();
 
 	private:
 		void errChecker( int err );
@@ -192,6 +194,7 @@ class NiawgController
 		void createWaveform( long size, ViReal64* wave );
 		void writeUnNamedWaveform( ViInt32 waveID, ViInt32 mixedSampleNumber, ViReal64* wave );
 		
+
 		ViInt32 allocateUnNamedWaveform( ViInt32 unmixedSampleNumber );
 		void clearMemory();
 		void configureSoftwareTrigger();
@@ -215,8 +218,8 @@ class NiawgController
 		// don't take the word "library" too seriously... it's just a listing of all of the waveforms that have been already created.
 		std::array<std::vector<std::string>, MAX_NIAWG_SIGNALS * 4> waveLibrary;
 		ViInt32 streamWaveHandle;
-		ViInt32 streamWaveformSize;
 		std::string streamWaveformName;
+		std::vector<double> streamWaveformVals;
 		// pair is of horizontal and vertical configurations.
 		niawgPair<std::vector<ViReal64>> defaultMixedWaveforms;
 		niawgPair<std::string> defaultWaveNames;
