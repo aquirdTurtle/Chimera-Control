@@ -1775,6 +1775,44 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 		tempInfo.name = streamWaveformName;
 		output.waves.push_back( tempInfo );
 	}
+	else if (command == "rearrange")
+	{
+		/// bracket
+		for (auto axis : AXES)
+		{
+			std::string bracket;
+			scripts[axis] >> bracket;
+			if (bracket != "{")
+			{
+				thrower( "ERROR: Expected \"{\" but found \"" + bracket + "\" in " + AXES_NAMES[axis] + " File during flashing waveform read" );
+			}
+		}
+		// get the waiting waveform
+
+
+		// get picture the user wants arranged
+
+		// check that the picture is compatable with the waiting waveform in terms of signal number.
+
+		// set up the rearranger.
+
+		// add the following to the script:
+		// - repeat until software trigger
+		// - waveform
+		// - end repeat
+		// - streaming waveform.
+
+		/// bracket
+		for (auto axis : AXES)
+		{
+			std::string bracket;
+			scripts[axis] >> bracket;
+			if (bracket != "}")
+			{
+				thrower( "ERROR: Expected \"}\" but found \"" + bracket + "\" in " + AXES_NAMES[axis] + " File during flashing waveform read" );
+			}
+		}
+	}
 	else
 	{
 		thrower( "ERROR: Bad waveform command!" );
@@ -1873,7 +1911,7 @@ bool NiawgController::isStandardWaveform(std::string inputType)
 
 bool NiawgController::isSpecialWaveform( std::string command )
 {
-	if (command == "flash" || command == "stream")
+	if (command == "flash" || command == "stream" || command == "rearrange")
 	{
 		return true;
 	}
@@ -2134,6 +2172,7 @@ ViInt32 NiawgController::allocateUnNamedWaveform( ViInt32 unmixedSampleNumber )
 	return id;
 }
 
+
 void NiawgController::configureOutputEnabled( int state )
 {
 	if (!NIAWG_SAFEMODE)
@@ -2168,6 +2207,7 @@ void NiawgController::setViBooleanAttribute( ViAttr attribute, bool state )
 		errChecker( niFgen_SetAttributeViBoolean( sessionHandle, outputChannels, attribute, state ) );
 	}
 }
+
 
 void NiawgController::setViInt32Attribute( ViAttr attributeID, ViInt32 value )
 {
@@ -2240,6 +2280,7 @@ void NiawgController::setAttributeViString( ViAttr attribute, ViString string )
 	}
 }
 
+
 ViInt32 NiawgController::getInt32Attribute( ViAttr attribute )
 {
 	ViInt32 value = 0;
@@ -2305,3 +2346,11 @@ ViSession NiawgController::getViSessionAttribute( ViAttr attribute )
 	return value;
 }
 
+
+void NiawgController::configureOutputMode()
+{
+	if (!NIAWG_SAFEMODE)
+	{
+		errChecker( niFgen_ConfigureOutputMode( sessionHandle, OUTPUT_MODE ) );
+	}
+}

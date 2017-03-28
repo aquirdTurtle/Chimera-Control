@@ -8,16 +8,15 @@
 // aspects of the program.
 #define NIAWG_SAFEMODE false
 #define ANDOR_SAFEMODE true
-<<<<<<< HEAD
-#define DESKTOP_COMPUTER
-=======
-#define LAB_COMPUTER
->>>>>>> 99d0e9f7beb86e1a56be998155021b70787acaa9
+#define MASTER_COMPUTER
 
 /// File Locations
 // Files for Lab Computer
 #ifdef LAB_COMPUTER
 	#define SOCKET_SAFEMODE false
+	#define NIAWG_SAFEMODE false
+	#define ANDOR_SAFEMODE true
+	#define CONNECT_TO_ANDOR_SAFEMODE false
 	#define PYTHON_HOME L"C:\\ProgramData\\Anaconda3\\"
 	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Control\\Plotting\\";
     const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
@@ -32,7 +31,10 @@
 // Files for Desktop
 #ifdef DESKTOP_COMPUTER
 	#define PYTHON_HOME L"C:\\Users\\Mark\\Anaconda3\\"
+	#define NIAWG_SAFEMODE false
+	#define ANDOR_SAFEMODE true
 	#define SOCKET_SAFEMODE true
+	#define CONNECT_TO_ANDOR_SAFEMODE true
 	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Plotting\\";
 	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
 	const std::string LIB_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\NIAWG Wavefunction Library\\";
@@ -46,15 +48,38 @@
 // Files for my Laptop
 #ifdef LAPTOP_COMPUTER
 	#define PYTHON_HOME L"C:\\Users\\Mark\\Anaconda3\\"
+	#define NIAWG_SAFEMODE false
+	#define ANDOR_SAFEMODE true
 	#define SOCKET_SAFEMODE true
+	#define CONNECT_TO_ANDOR_SAFEMODE true
 	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Plotting\\";
 	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
 	const std::string LIB_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Waveforms Library\\";
 	const std::string DEFAULT_SCRIPT_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Default Scripts\\";
-	const std::string EXPERIMENT_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Individual Experiments\\";
+	const std::string EXPERIMENT_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\"
+		"Individual Experiments\\";
 	const std::string CODE_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Code Versions\\";
 	const std::string ACTUAL_CODE_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Cold Atoms Control Application\\";
 	const std::string PROFILES_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Profiles\\";
+#endif
+
+#ifdef MASTER_COMPUTER
+	#define SOCKET_SAFEMODE true
+	#define NIAWG_SAFEMODE true
+	#define ANDOR_SAFEMODE true
+	#define CONNECT_TO_ANDOR_SAFEMODE true
+	#define PYTHON_HOME L"C:\\ProgramData\\Anaconda3\\"
+	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Control\\Plotting\\";
+	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
+	const std::string LIB_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum-Gas-Assembly-Control\\Waveforms Library\\Waveform Library 350 "
+		"MS per second V6\\";
+	const std::string DEFAULT_SCRIPT_FOLDER_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum-Gas-Assembly-Control\\Default Scripts\\";
+	const std::string EXPERIMENT_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\"
+		"Individual Experiments\\";
+	const std::string CODE_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Code "
+		"Versions\\";
+	const std::string ACTUAL_CODE_FOLDER_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum-Gas-Assembly-Control\\Camerawg\\";
+	const std::string PROFILES_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Control\\Profiles\\";
 #endif
 
 
@@ -165,18 +190,6 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_AGILENT_SCRIPT_EDIT 2014
 
 // Camera Window
-<<<<<<< HEAD
-#define IDC_CAMERA_MODE_COMBO 3004
-#define IDC_SET_EM_GAIN_BUTTON 3005
-#define IDC_TRIGGER_COMBO 3009
-#define IDC_SET_TEMPERATURE_BUTTON 3010
-#define PICTURE_SETTINGS_ID_START 3014
-#define PICTURE_SETTINGS_ID_END 3049
-#define IDC_SET_IMAGE_PARAMETERS_BUTTON 3050
-#define IDC_ALERTS_BOX 3066
-#define IDC_PLOTTING_LISTVIEW 3078
-
-=======
 #define IDC_ALERTS_BOX 3004
 #define IDC_PLOTTING_LISTVIEW 3016
 
@@ -188,7 +201,6 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define PICTURE_SETTINGS_ID_END 3063
 #define IDC_SET_IMAGE_PARAMETERS_BUTTON 3064
 
->>>>>>> 99d0e9f7beb86e1a56be998155021b70787acaa9
 #define IDC_PICTURE_1_MIN_EDIT 3110
 #define IDC_PICTURE_1_MAX_EDIT 3113
 #define IDC_PICTURE_2_MIN_EDIT 3116

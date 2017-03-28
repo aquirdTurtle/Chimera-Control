@@ -1,6 +1,22 @@
 ﻿#include "stdafx.h"
 #include "PictureControl.h"
 
+bool PictureControl::isActive()
+{
+	return active;
+}
+
+
+void PictureControl::setPictureArea( POINT loc, int width, int height )
+{
+	// this is important for the control to know where it should draw controls.
+	originalBackgroundArea = { loc.x, loc.y, loc.x + width, loc.y + height };
+	// reserve some area for the texts.
+	originalBackgroundArea.right -= 100;
+	currentBackgroundArea = originalBackgroundArea;
+}
+
+
 std::pair<int, int> PictureControl::checkClickLocation( CPoint clickLocation )
 {
 	CPoint test;
@@ -69,19 +85,18 @@ void PictureControl::handleEditChange( int id )
 
 void PictureControl::handleScroll(int id, UINT nPos)
 {
-	if (id == this->sliderMax.ID)
+	if (id == sliderMax.ID)
 	{
 		sliderMax.SetPos(nPos);
 		editMax.SetWindowTextA(std::to_string(nPos).c_str());
-		this->maxSliderPosition = nPos;
+		maxSliderPosition = nPos;
 	}
-	else if (id == this->sliderMin.ID)
+	else if (id == sliderMin.ID)
 	{
 		sliderMin.SetPos(nPos);
 		editMin.SetWindowTextA(std::to_string(nPos).c_str());
-		this->minSliderPosition = nPos;
+		minSliderPosition = nPos;
 	}
-	return;
 }
 
 void PictureControl::initialize(POINT& loc, CWnd* parent, int& id, int width, int height)
@@ -96,11 +111,9 @@ void PictureControl::initialize(POINT& loc, CWnd* parent, int& id, int width, in
 		throw std::invalid_argument("Pictures must be greater than 100 in height because this is the minimum height "
 			"of the max/min controls.");
 	}
-	// this is important for the control to know where it should draw controls.
-	this->originalBackgroundArea = { loc.x, loc.y, loc.x + width, loc.y + height};
-	// reserve some area for the texts.
-	originalBackgroundArea.right -= 100;
-	this->currentBackgroundArea = this->originalBackgroundArea;
+
+	setPictureArea( loc, width, height );
+
 	loc.x += originalBackgroundArea.right - originalBackgroundArea.left;
 	// "min" text
 	labelMin.sPos = { loc.x, loc.y, loc.x + 50, loc.y + 30 };

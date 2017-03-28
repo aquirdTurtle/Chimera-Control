@@ -166,7 +166,7 @@ BOOL MainWindow::OnInitDialog()
 	{
 		niawg.initialize();
 	}
-	catch (myException& except)
+	catch (Error& except)
 	{
 		errBox("ERROR: NIAWG Did not start smoothly: " + except.whatStr());
 		return -1;
@@ -194,7 +194,7 @@ BOOL MainWindow::OnInitDialog()
 		setOrientation( HORIZONTAL_ORIENTATION );
 		restartNiawgDefaults();
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
 		errBox("ERROR: failed to start niawg default waveforms! Niawg gave the following error message: " + exception.whatStr());
 	}
@@ -303,7 +303,7 @@ void MainWindow::passCommonCommand(UINT id)
 	{
 		commonFunctions::handleCommonMessage ( id, this, this, TheScriptingWindow, TheCameraWindow );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
 		errBox ( exception.what () );
 	}
@@ -539,7 +539,7 @@ void MainWindow::handleOrientationCombo()
 	{
 		profile.orientationChangeHandler(this);
 	}
-	catch (myException& except)
+	catch (Error& except)
 	{
 		comm.sendColorBox( { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' } );
 		comm.sendError("ERROR: failed to change orientation: " + except.whatStr());
@@ -598,7 +598,7 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 		comm.sendColorBox( { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' } );
 		comm.sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 	}
-	catch (myException& except)
+	catch (Error& except)
 	{
 		comm.sendError("EXITED WITH ERROR! " + except.whatStr());
 		comm.sendColorBox( { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' } );
@@ -621,7 +621,7 @@ LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
 	{
 		niawg.restartDefault();
 	}
-	catch (myException& except)
+	catch (Error& except)
 	{
 		comm.sendError("ERROR! The niawg finished normally, but upon restarting the default waveform, threw the "
 			"following error: " + except.whatStr());

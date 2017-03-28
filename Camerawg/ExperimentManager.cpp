@@ -297,7 +297,7 @@ unsigned __stdcall ExperimentManager::experimentProgrammingThread(LPVOID inputPa
 			wave.waveVals.shrink_to_fit();
 		}
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
 		if ( !input->dontActuallyGenerate )
 		{
