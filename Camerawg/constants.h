@@ -8,7 +8,7 @@
 // aspects of the program.
 #define NIAWG_SAFEMODE false
 #define ANDOR_SAFEMODE true
-#define MASTER_COMPUTER
+#define LAB_COMPUTER
 
 /// File Locations
 // Files for Lab Computer

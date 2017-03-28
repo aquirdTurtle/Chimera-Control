@@ -308,7 +308,6 @@ namespace commonFunctions
 			}
 			case ID_NIAWG_STREAMWAVEFORM :
 			{
-				errBox( "HI!" );
 				mainWin->niawg.streamWaveform();
 				break;
 			}
@@ -432,7 +431,7 @@ namespace commonFunctions
 		else
 		{
 			scriptInfo<bool> scriptSavedStatus = scriptWin->getScriptSavedStatuses();
-			beginInfo += "Vertical Script Name:............. " + std::string( verticalNameString );
+			beginInfo += "Vertical Script Name:........ " + std::string( verticalNameString );
 			if (scriptSavedStatus.verticalNIAWG)
 			{
 				beginInfo += " SAVED\r\n";
@@ -441,7 +440,7 @@ namespace commonFunctions
 			{
 				beginInfo += " NOT SAVED\r\n";
 			}
-			beginInfo += "Horizontal Script Name:........... " + std::string( horizontalNameString );
+			beginInfo += "Horizontal Script Name:...... " + std::string( horizontalNameString );
 			if (scriptSavedStatus.horizontalNIAWG)
 			{
 				beginInfo += " SAVED\r\n";
@@ -450,7 +449,7 @@ namespace commonFunctions
 			{
 				beginInfo += " NOT SAVED\r\n";
 			}
-			beginInfo += "Intensity Script Name:............ " + std::string( intensityNameString );
+			beginInfo += "Intensity Script Name:....... " + std::string( intensityNameString );
 			if (scriptSavedStatus.intensityAgilent)
 			{
 				beginInfo += " SAVED\r\n";
@@ -464,11 +463,11 @@ namespace commonFunctions
 		std::vector<variable> vars = mainWin->getAllVariables();
 		if (vars.size() == 0)
 		{
-			beginInfo += "Variable Names:................... NO VARIABLES\r\n";
+			beginInfo += "Variable Names:.............. NO VARIABLES\r\n";
 		}
 		else
 		{
-			beginInfo += "Variable Names:................... ";
+			beginInfo += "Variable Names:.............. ";
 			for (int varInc = 0; varInc < vars.size(); varInc++)
 			{
 				beginInfo += vars[varInc].name + " ";
@@ -490,7 +489,7 @@ namespace commonFunctions
 		}
 		else
 		{
-			beginInfo += "Connecting To Master:............. FALSE\r\n";
+			beginInfo += "Connecting To Master:........ FALSE\r\n";
 			if (settings.getVariables)
 			{
 				beginInfo += "Getting Variables from Master:.... TRUE ??????\r\n";
@@ -498,11 +497,11 @@ namespace commonFunctions
 		}
 		if (settings.programIntensity)
 		{
-			beginInfo += "Programming Intensity:............ TRUE\r\n";
+			beginInfo += "Programming Intensity:....... TRUE\r\n";
 		}
 		else
 		{
-			beginInfo += "Programming Intensity:............ FALSE\r\n";
+			beginInfo += "Programming Intensity:....... FALSE\r\n";
 		}
 		beginInfo += "\r\n";
 		std::string beginQuestion = "\r\n\r\nBegin Waveform Generation with these Settings?";

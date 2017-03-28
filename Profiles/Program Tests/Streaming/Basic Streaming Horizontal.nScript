@@ -1,4 +1,4 @@
-% Default X Script
+% Default Y Script
 % 
 %%%%% RECOMMENDED FORMAT %%%%%
 
@@ -29,21 +29,44 @@
 %%--------------------------------------------------------------%%
 %%--------------------------------------------------------------%%
 
-repeat forever
+repeat until software trigger
 
- gen 1, const
- %%%%%		freq			amp		phase
-			73			1		0
- %%%%%	time	p.m.	delim
+gen 1, const
+%%%%%		freq			amp		phase
+	78			1		0
+%%%%%	time	p.m.	delim
 	0.1	0	#
 
-%gen 2, const
-%%%%%%		freq			amp		phase
-%		74.5			0.485		0
-%		82			0.515		0
-%%%%%%	time	p.m.	delim
-%	0.1	0	#
-
 end repeat
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% buffer
+
+gen 1, const
+%%%%%		freq			amp		phase
+	78			1		0
+%%%%%	time	p.m.	delim
+	1	0	#
+
+stream
+{
+gen 2, const
+%%%%%		freq			amp		phase
+	78			1		0
+	80			1		0
+%%%%%	time	p.m.	delim
+	1	0	#
+
+
+}
+
+% buffer
+
+gen 1, const
+%%%%%		freq			amp		phase
+	78			1		0
+%%%%%	time	p.m.	delim
+	1	0	#
+
 
 %%--------------------------------------------------------------%%
