@@ -38,6 +38,18 @@ MFCApplication3/
 !Profiles/Program Tests/*.aScript
 !Profiles/Program Tests/*.sConfig
 
+!Profiles/Program Tests/*/*.script
+!Profiles/Program Tests/*/*.nScript
+!Profiles/Program Tests/*/*.cConfig
+!Profiles/Program Tests/*/*.hConfig
+!Profiles/Program Tests/*/*.vConfig
+!Profiles/Program Tests/*/*.mScript
+!Profiles/Program Tests/*/*.catConfig
+!Profiles/Program Tests/*/*.eConfig
+!Profiles/Program Tests/*/*.aConfig
+!Profiles/Program Tests/*/*.aScript
+!Profiles/Program Tests/*/*.sConfig
+
 !Default Scripts/*.script
 !Default Scripts/*.nScript
 !Default Scripts/*.cConfig

@@ -1565,6 +1565,7 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 			niawgPair<double> flashCycleFreq, totalTime;
 			for (auto axis : AXES)
 			{
+				scripts[axis] >> flashingWave.flash.totalTimeInput[axis];
 				flashCycleFreq[axis] = std::stod( flashingWave.flash.flashCycleFreqInput[axis] );
 				// convert to Hertz from Megahertz
 				flashCycleFreq[axis] *= 1e6;
@@ -1686,13 +1687,14 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 		{
 			createFlashingWave( flashingWave, options );
 			flashingWave.name = "Waveform" + str(output.waveCount);
+			output.waves.push_back(flashingWave);
 			// allocate waveform into the device memory
-			allocateNamedWaveform( flashingWave.name.c_str(), output.waves.back().waveVals.size() / 2 );
+			allocateNamedWaveform(output.waves.back().name.c_str(), output.waves.back().waveVals.size() / 2 );
 			// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
-			writeNamedWaveform( flashingWave.name.c_str(), output.waves.back().waveVals.size(), output.waves.back().waveVals.data() );
+			writeNamedWaveform(output.waves.back().name.c_str(), output.waves.back().waveVals.size(), output.waves.back().waveVals.data() );
 			// append script with the relevant command. This needs to be done even if variable waveforms are used, because I don't want to
 			// have to rewrite the script to insert the new waveform name into it.
-			output.niawgLanguageScript += "generate " + flashingWave.name + "\n";
+			output.niawgLanguageScript += "generate " + output.waves.back().name + "\n";
 			// increment waveform count.
 			output.waveCount++;
 		}
@@ -1757,16 +1759,26 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 				thrower ( "ERROR: Expected \"}\" but found \"" + bracket + "\" in " + AXES_NAMES[axis] + " File during flashing waveform read" );
 			}
 		}
+
+		finalizeStandardWave(streamInfo.waves.back(), options);
+
 		streamWaveformVals = streamInfo.waves.back().waveVals;
 		// immediately kill the original waveforms here so as to reduce memory usage.
 		streamInfo.waves.back().waveVals.clear();
 		streamInfo.waves.back().waveVals.shrink_to_fit();
 
 		streamWaveHandle = allocateUnNamedWaveform( streamWaveformVals.size() );
+		
+		// output must be off in order to set the streaming waveform handle.
+		configureOutputEnabled(VI_FALSE);
+		abortGeneration();
 		// tell the niawg which waveform is streamed.
 		setViInt32Attribute( NIFGEN_ATTR_STREAMING_WAVEFORM_HANDLE, streamWaveHandle );
 		// get the name of the waveform. Now this can be used in the script sent to the niawg.
-		streamWaveformName = getViStringAttribute( NIFGEN_ATTR_STREAMING_WAVEFORM_NAME );
+		streamWaveformName = getViStringAttribute(NIFGEN_ATTR_STREAMING_WAVEFORM_NAME);
+
+		//restartDefault();
+
 		// 3) Fill the Streaming Memory Buffer with data using niFgen_WriteBinary16Waveform and Streaming Waveform Handle
 		output.niawgLanguageScript += "generate " + streamWaveformName + "\n";
 		// the niawg will expect to have waveform in its stream buffer when this runs.
@@ -1862,22 +1874,25 @@ void NiawgController::createFlashingWave( waveInfo& wave, debugInfo options )
 	double period = 1.0 / wave.flash.flashCycleFreq;
 	// in samples...
 	long int samplePeriod = long int( period * SAMPLE_RATE + 0.5 );
-	if (std::floor( wave.time / period ) != wave.time / period)
+	long int samplesPerWavePerPeriod = samplePeriod / wave.flash.flashNumber;
+	if (!(fabs(std::floor( wave.time / period ) - wave.time / period) < 1e-9 ))
 	{
 		thrower( "ERROR: flashing cycle time doesn't result in an integer number of flashing cycles during the given waveform time!"
 				 " This is not allowed currently." );
 	}
 	long int cycles = std::floor( wave.time / period );
 	// cycle through cycles...
+	wave.waveVals.resize(wave.flash.flashWaves.front().waveVals.size() * wave.flash.flashNumber);
+
 	for (auto cycleInc : range( cycles ))
 	{
 		for (auto waveInc : range( wave.flash.flashNumber ))
 		{
-			// samplePeriod * 2 because need to account for the mixed nature of the waveform I'm adding.
-			for (auto sampleInc : range( 2 * samplePeriod ))
+			// samplesPerWavePerPeriod * 2 because need to account for the mixed nature of the waveform I'm adding.
+			for (auto sampleInc : range( 2 * samplesPerWavePerPeriod))
 			{
-				int newSampleNum = sampleInc + (cycleInc * wave.flash.flashNumber + waveInc) * 2 * samplePeriod;
-				int sampleFromMixed = sampleInc + cycleInc * 2 * samplePeriod;
+				int newSampleNum = sampleInc + (cycleInc * wave.flash.flashNumber + waveInc) * 2 * samplesPerWavePerPeriod;
+				int sampleFromMixed = sampleInc + cycleInc * 2 * samplesPerWavePerPeriod;
 				wave.waveVals[newSampleNum] = wave.flash.flashWaves[waveInc].waveVals[sampleFromMixed];
 			}
 		}
@@ -2316,7 +2331,7 @@ ViReal64 NiawgController::getReal64Attribute( ViAttr attribute )
 
 std::string NiawgController::getViStringAttribute( ViAttr attribute )
 {
-	char value[256];
+	ViChar value[256];
 	if (!NIAWG_SAFEMODE)
 	{
 		errChecker( niFgen_GetAttributeViString( sessionHandle, outputChannels, attribute, 256, value ) );

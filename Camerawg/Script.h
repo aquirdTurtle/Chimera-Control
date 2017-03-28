@@ -9,8 +9,6 @@ struct profileSettings;
 class Script
 {
 	public:
-		Script();
-		~Script();
 		std::string getScriptText();
 
 		bool colorEntireScript(profileSettings profile, std::vector<variable> vars);

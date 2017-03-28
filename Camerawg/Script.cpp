@@ -7,10 +7,6 @@
 #include "boost/lexical_cast.hpp"
 #include "textPromptDialogProcedure.h"
 
-Script::Script(){}
- 
-Script::~Script(){}
-
 std::string Script::getScriptText()
 {
 	return false;
@@ -38,13 +34,20 @@ std::string Script::getSyntaxColor(std::string word, std::string editType, std::
 	// Check NIAWG-specific commands
 	if (editType == "Horizontal NIAWG" || editType == "Vertical NIAWG")
 	{
-		if (word == "gen" || word == "1," || word == "2," || word == "3," || word == "4," || word == "5," || word == "freq" || word == "amp" || word == "const"
-			|| word == "&" || word == "ramp")
+		for (auto num : range(MAX_NIAWG_SIGNALS))
+		{
+			if (word == str(num) + ",")
+			{
+				return "command";
+			}
+		}
+		if (word == "gen" || word == "freq" || word == "amp" || word == "const" || word == "&" || word == "ramp")
 		{
 			return "command";
 		}
 		// check logic
-		if (word == "repeat" || word == "until" || word == "trigger" || word == "end" || word == "forever" || word == "software")
+		if (word == "repeat" || word == "until" || word == "trigger" || word == "end" || word == "forever" || word == "software" 
+			|| word == "flash" || word == "stream")
 		{
 			return "logic";
 		}
@@ -95,7 +98,7 @@ std::string Script::getSyntaxColor(std::string word, std::string editType, std::
 		}
 	}
 	// check delimiter
-	if (word == "#")
+	if (word == "#" || word == "{" || word == "}")
 	{
 		return "delimiter";
 	}
@@ -177,7 +180,7 @@ bool Script::handleEditChange()
 
 bool Script::colorEntireScript(profileSettings profile, std::vector<variable> vars)
 {
-	return this->colorScriptSection(0, ULONG_MAX, profile, vars);
+	return colorScriptSection(0, ULONG_MAX, profile, vars);
 }
 
 bool Script::colorScriptSection(DWORD beginingOfChange, DWORD endOfChange, profileSettings profile, std::vector<variable> vars)
@@ -226,7 +229,7 @@ bool Script::colorScriptSection(DWORD beginingOfChange, DWORD endOfChange, profi
 			// if comment is found, the rest of the line is green.
 			if (coloring != "comment1" && coloring != "comment2")
 			{
-				tempColor = this->getSyntaxColor(analysisWord, deviceType, vars);
+				tempColor = getSyntaxColor(analysisWord, deviceType, vars);
 				if (tempColor != coloring)
 				{
 					coloring = tempColor;

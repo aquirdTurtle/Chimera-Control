@@ -33,7 +33,7 @@ repeat forever
 
  gen 1, const
  %%%%%		freq			amp		phase
-			73			1		0
+		78			1		0
  %%%%%	time	p.m.	delim
 	0.1	0	#
 
