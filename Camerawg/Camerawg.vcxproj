@@ -74,14 +74,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;$(IncludePath);C:\Users\Mark\Anaconda3\include;C:\ProgramData\Anaconda3\include</IncludePath>
+    <IncludePath>C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;$(IncludePath);C:\Users\Mark\Anaconda3\include;C:\ProgramData\Anaconda3\include;C:\ProgramData\boost_1_63_0</IncludePath>
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
-    <LibraryPath>C:\Program Files\Andor SOLIS\Drivers;C:\Users\Mark\Documents\Quantum Gas Assembly Control\Camerawg;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Program Files\Andor SOLIS\Drivers;C:\Users\Mark\Documents\Quantum Gas Assembly Control\Camerawg;C:\ProgramData\boost_1_63_0\lib64-msvc-14.0;C:\ProgramData\boost_1_63_0\stage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\ProgramData\Anaconda3\include;C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;C:\Program Files\Agilent\IO Libraries Suite\lib_x64;C:\Program Files\Agilent\IO Libraries Suite\include;$(VXIPNPPATH)WinNT\include;D:\Program Files\boost_1_60_0;C:\Program Files\boost_1_60_0;$(IncludePath);C:\Users\Mark\Anaconda3\include</IncludePath>
-    <LibraryPath>C:\Program Files\Andor SOLIS\Drivers;C:\Users\Mark\Documents\Quantum Gas Assembly Control\Camerawg;C:\Program Files (x86)\Visual Leak Detector\lib\Win64;C:\Program Files (x86)\Visual Leak Detector\src;C:\Program Files\Agilent\IO Libraries Suite\lib_x64;D:\Program Files\boost_1_60_0\lib64-msvc-14.0;C:\Program Files\boost_1_60_0\lib64-msvc-14.0;C:\Program Files\IVI Foundation\VISA\Win64\Lib_x64\msc;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\ProgramData\Anaconda3\include;C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;C:\Program Files\Agilent\IO Libraries Suite\lib_x64;C:\Program Files\Agilent\IO Libraries Suite\include;$(VXIPNPPATH)WinNT\include;D:\Program Files\boost_1_60_0;C:\Program Files\boost_1_60_0;$(IncludePath);C:\Users\Mark\Anaconda3\include;C:\ProgramData\boost_1_63_0</IncludePath>
+    <LibraryPath>C:\Program Files\Andor SOLIS\Drivers;C:\Users\Mark\Documents\Quantum Gas Assembly Control\Camerawg;C:\Program Files (x86)\Visual Leak Detector\lib\Win64;C:\Program Files (x86)\Visual Leak Detector\src;C:\Program Files\Agilent\IO Libraries Suite\lib_x64;D:\Program Files\boost_1_60_0\lib64-msvc-14.0;C:\Program Files\boost_1_60_0\lib64-msvc-14.0;C:\Program Files\IVI Foundation\VISA\Win64\Lib_x64\msc;C:\ProgramData\boost_1_63_0\stage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
@@ -183,7 +183,6 @@
     <ClInclude Include="CameraImageDimensions.h" />
     <ClInclude Include="CameraSettingsControl.h" />
     <ClInclude Include="CameraWindow.h" />
-    <ClInclude Include="cleanString.h" />
     <ClInclude Include="ColorBox.h" />
     <ClInclude Include="colorScript.h" />
     <ClInclude Include="Communicator.h" />
@@ -211,6 +210,7 @@
     <ClInclude Include="ExperimentManager.h" />
     <ClInclude Include="externals.h" />
     <ClInclude Include="MainWindow.h" />
+    <ClInclude Include="Rearranger.h" />
     <ClInclude Include="reorganizeControl.h" />
     <ClInclude Include="Script.h" />
     <ClInclude Include="NoteSystem.h" />
@@ -244,7 +244,6 @@
     <ClCompile Include="CameraImageDimensions.cpp" />
     <ClCompile Include="CameraSettingsControl.cpp" />
     <ClCompile Include="CameraWindow.cpp" />
-    <ClCompile Include="cleanString.cpp" />
     <ClCompile Include="ColorBox.cpp" />
     <ClCompile Include="Communicator.cpp" />
     <ClCompile Include="ConfigurationFileSystem.cpp" />
@@ -268,6 +267,7 @@
     <ClCompile Include="DataAnalysisHandler.cpp" />
     <ClCompile Include="PlottingInfo.cpp" />
     <ClCompile Include="ProfileIndicator.cpp" />
+    <ClCompile Include="Rearranger.cpp" />
     <ClCompile Include="reorganizeControl.cpp" />
     <ClCompile Include="Script.cpp" />
     <ClCompile Include="ScriptingWindow.cpp" />

@@ -2,6 +2,10 @@ Data/
 *.tlog
 *.ico
 *.enc
+*.obj
+*.pch
+*.log
+*.pdb
 Waveforms Library/
 x64/
 ipch/

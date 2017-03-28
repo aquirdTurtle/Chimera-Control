@@ -308,6 +308,7 @@ namespace commonFunctions
 			}
 			case ID_NIAWG_STREAMWAVEFORM :
 			{
+				errBox( "HI!" );
 				mainWin->niawg.streamWaveform();
 				break;
 			}

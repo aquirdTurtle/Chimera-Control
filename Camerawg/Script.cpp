@@ -5,7 +5,6 @@
 #include <sstream>
 #include <algorithm>
 #include "boost/lexical_cast.hpp"
-#include "cleanString.h"
 #include "textPromptDialogProcedure.h"
 
 Script::Script(){}
@@ -45,7 +44,7 @@ std::string Script::getSyntaxColor(std::string word, std::string editType, std::
 			return "command";
 		}
 		// check logic
-		if (word == "repeat" || word == "until" || word == "trigger" || word == "end" || word == "forever")
+		if (word == "repeat" || word == "until" || word == "trigger" || word == "end" || word == "forever" || word == "software")
 		{
 			return "logic";
 		}
@@ -1218,24 +1217,75 @@ void Script::checkExtension(profileSettings profile)
 	if (extPos != -1)
 	{
 		// the scriptname already has an extension...
-		std::string existingExtension = this->scriptName.substr(extPos);
-		std::string nameNoExtension = this->scriptName.substr(0, extPos);
-		if (existingExtension != this->extension)
+		std::string existingExtension = scriptName.substr(extPos);
+		std::string nameNoExtension = scriptName.substr(0, extPos);
+		if (existingExtension != extension)
 		{
-			errBox("ERROR: The " + this->deviceType + " scriptName (as understood by the code) already has an "
+			errBox("ERROR: The " + deviceType + " scriptName (as understood by the code) already has an "
 				"extension, read by the code as " + existingExtension + ", and that extension doesn't match the extension for this device! Script name is: " +
-				currentViewName + " While the proper extension is " + this->extension + ". The file will be saved as " +
+				currentViewName + " While the proper extension is " + extension + ". The file will be saved as " +
 				nameNoExtension + extension);
 			std::string path = profile.categoryPath + nameNoExtension + extension;
-			this->saveScriptAs(path, true);
-			return;
+			saveScriptAs(path, true);
 		}
 		else
 		{
 			// take the extension off of the script name. That's no good. 
-			this->scriptName = nameNoExtension;
+			scriptName = nameNoExtension;
 		}
 	}
-
-	return;
 }
+
+
+/*
+* This function deals with the trailing \r\n on each line required for edit controls to make sure everything is consistent. It also makes sure that there is
+* no crap at the beginning of the string, which happens sommetimes. str is the string which it does this to.
+*/
+void Script::cleanString(std::string &str)
+{
+	// make sure that the end of the line has the proper "\r\n" newline structure.
+	if (str.length() == 0)
+	{
+		str += "\r\n";
+	}
+	else if (str[str.length() - 1] == '\r')
+	{
+		str.append("\n");
+	}
+	else if (str[str.length() - 1] == '\n' && str[str.length() - 2] != '\r')
+	{
+		str[str.length() - 1] = '\n';
+		str.append("\n");
+	}
+	else
+	{
+		// no such characters at the end
+		str.append("\r\n");
+	}
+
+	// make sure the beginning of the line doesn't start with crap.
+	// should always be at least one character long based on previous looping.
+	bool erasingFlag;
+	do
+	{
+		erasingFlag = false;
+		if (!isalpha(str[0]) && !isdigit(str[0]) && str[0] != ' ' && str[0] != '\t' && !iscntrl(str[0]) && str[0] != '%' && str[0] != '{'
+			&& str[0] != '}')
+		{
+			// kill it!
+			str.erase(0);
+			erasingFlag = true;
+		}
+		else if (iscntrl(str[0]) && str[0] != '\0' && str[0] != '\t')
+		{
+			// if the line is just a blank line, it should only be two characters long and be "\r\n"
+			if (str != "\r\n")
+			{
+				str.erase(0, 1);
+				erasingFlag = true;
+			}
+		}
+
+	} while (erasingFlag);
+}
+
