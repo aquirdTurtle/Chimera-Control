@@ -56,6 +56,9 @@ class Script
 		void checkExtension(profileSettings profile);
 
 	private:
+
+		void cleanString(std::string &str);
+
 		Control<CRichEditCtrl> edit;
 		Control<CStatic> title;
 		Control<CButton> savedIndicator;

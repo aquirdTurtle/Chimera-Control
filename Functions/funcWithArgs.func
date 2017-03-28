@@ -1,0 +1,7 @@
+%% Default Master Script. Hover your mouse over the "?" in the top right
+%% corner of this control for help.
+
+def funcWithArgs(arg1):
+    dac: arg1 1
+    t += 1000
+    dac: arg1 0

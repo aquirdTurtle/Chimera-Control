@@ -8,12 +8,15 @@
 // aspects of the program.
 #define NIAWG_SAFEMODE false
 #define ANDOR_SAFEMODE true
-#define LAB_COMPUTER
+#define MASTER_COMPUTER
 
 /// File Locations
 // Files for Lab Computer
 #ifdef LAB_COMPUTER
 	#define SOCKET_SAFEMODE false
+	#define NIAWG_SAFEMODE false
+	#define ANDOR_SAFEMODE true
+	#define CONNECT_TO_ANDOR_SAFEMODE false
 	#define PYTHON_HOME L"C:\\ProgramData\\Anaconda3\\"
 	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Control\\Plotting\\";
     const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
@@ -28,7 +31,10 @@
 // Files for Desktop
 #ifdef DESKTOP_COMPUTER
 	#define PYTHON_HOME L"C:\\Users\\Mark\\Anaconda3\\"
+	#define NIAWG_SAFEMODE false
+	#define ANDOR_SAFEMODE true
 	#define SOCKET_SAFEMODE true
+	#define CONNECT_TO_ANDOR_SAFEMODE true
 	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Plotting\\";
 	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
 	const std::string LIB_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\NIAWG Wavefunction Library\\";
@@ -42,15 +48,38 @@
 // Files for my Laptop
 #ifdef LAPTOP_COMPUTER
 	#define PYTHON_HOME L"C:\\Users\\Mark\\Anaconda3\\"
+	#define NIAWG_SAFEMODE false
+	#define ANDOR_SAFEMODE true
 	#define SOCKET_SAFEMODE true
+	#define CONNECT_TO_ANDOR_SAFEMODE true
 	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Plotting\\";
 	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
 	const std::string LIB_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Waveforms Library\\";
 	const std::string DEFAULT_SCRIPT_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Default Scripts\\";
-	const std::string EXPERIMENT_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Individual Experiments\\";
+	const std::string EXPERIMENT_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\"
+		"Individual Experiments\\";
 	const std::string CODE_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Code Versions\\";
 	const std::string ACTUAL_CODE_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Cold Atoms Control Application\\";
 	const std::string PROFILES_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Profiles\\";
+#endif
+
+#ifdef MASTER_COMPUTER
+	#define SOCKET_SAFEMODE true
+	#define NIAWG_SAFEMODE true
+	#define ANDOR_SAFEMODE true
+	#define CONNECT_TO_ANDOR_SAFEMODE true
+	#define PYTHON_HOME L"C:\\ProgramData\\Anaconda3\\"
+	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Control\\Plotting\\";
+	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
+	const std::string LIB_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum-Gas-Assembly-Control\\Waveforms Library\\Waveform Library 350 "
+		"MS per second V6\\";
+	const std::string DEFAULT_SCRIPT_FOLDER_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum-Gas-Assembly-Control\\Default Scripts\\";
+	const std::string EXPERIMENT_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\"
+		"Individual Experiments\\";
+	const std::string CODE_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Code "
+		"Versions\\";
+	const std::string ACTUAL_CODE_FOLDER_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum-Gas-Assembly-Control\\Camerawg\\";
+	const std::string PROFILES_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Control\\Profiles\\";
 #endif
 
 

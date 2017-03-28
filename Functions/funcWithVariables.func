@@ -1,0 +1,8 @@
+% Default Master Script. Hover your mouse over the "?"
+% in the top right corner of this control for help.
+
+def funcWithVariables():
+	on: A1
+	t += GlobalVariableTest
+	off: A1
+	

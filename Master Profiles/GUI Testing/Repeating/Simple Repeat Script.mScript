@@ -1,0 +1,10 @@
+t = 0
+repeat: 10
+    t += 1000
+    on: A1
+    t += 10
+    off: A1
+    dac: Dac1 1
+end
+% stuff
+%% stufffffff

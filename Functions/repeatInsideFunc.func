@@ -1,0 +1,11 @@
+% Default Master Script. Hover your mouse over the "?"
+% in the top right corner of this control for help.
+
+def repeatInsideFunc():
+	on: A1
+	repeat: 100
+		t += 10
+	end
+	off: A1
+
+

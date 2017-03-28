@@ -1,0 +1,42 @@
+Camerawg todo list:
+-------------------
+- Implement re-ordering
+- If only one picture make picture big.
+
+
+Master Code Todo list:
+----------------------
+
+Necessary things:
+- Write Replacements for existing VB6 experiments.
+- check RSA programming
+- Test functions w/ real stuff
+- Implement Communicating with NIAWG...
+- test variables... in Exp.
+- Fix "Enter" bug
+Significant Future Features:
+- scrambling data sets options
+- Support Math expressions in scripts
+- Support variable repeat #s
+- Support Two-dimensional variable scans.
+Medium things
+- Add capability to set Dac Limits
+- Add capability to set RSG Limits
+ - Add capability to set Raman Limits
+- Add capability to set agilent limits
+- Code considers how to optimize script.
+Small things:
+- Add sanity checks on scripts. 
+	- Changing Values too fast
+- Be able to modify variable values without extra window
+- Modify Tetronix
+	- separate control, I think.
+- Check agilent programming
+	- Check All simple commands (while connected):
+		- Off
+		- DC
+		- sine
+		- square
+		- preprogrammed
+	- Check variables
+	
