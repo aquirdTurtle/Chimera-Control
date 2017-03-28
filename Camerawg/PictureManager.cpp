@@ -84,7 +84,6 @@ std::pair<int, int> PictureManager::handleRClick( CPoint clickLocation )
 
 void PictureManager::setSinglePicture( CWnd* parent, std::pair<int, int> selectedLocation, imageParameters imageParams )
 {
-
 	pictures.front().setPictureArea( picturesLocation, picturesWidth, picturesHeight );
 	setParameters( imageParams );
 	redrawPictures( parent, selectedLocation );
@@ -130,7 +129,6 @@ void PictureManager::initialize(POINT& loc, CWnd* parent, int& id, std::unordere
 	}
 	// initialize to one. this matches the camera settings initialization.
 	setNumberPicturesActive( 1 );
-
 }
 
 void PictureManager::refreshBackgrounds(CWnd* parent)
@@ -138,7 +136,6 @@ void PictureManager::refreshBackgrounds(CWnd* parent)
 	if (!pictures[1].isActive())
 	{
 		pictures[0].drawBackground( parent );
-		return;
 	}
 	else
 	{

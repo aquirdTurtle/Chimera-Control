@@ -11,17 +11,20 @@ void AndorCamera::updatePictureNumber( int newNumber )
 	currentPictureNumber = newNumber;
 }
 
+
 void AndorCamera::pauseThread()
 {
 	// andor should not be taking images anymore at this point.
 	threadInput.spuriousWakeupHandler = false;
 }
 
+
 void AndorCamera::onFinish()
 {
 	// right now this is very simple.
 	cameraIsRunning = false;
 }
+
 
 void AndorCamera::getAcquisitionProgress( long& seriesNumber )
 {
@@ -71,7 +74,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 				input->Andor->waitForAcquisition();
 				input->Andor->getStatus();
 			}
-			catch ( myException& exception )
+			catch (Error& exception )
 			{
 				if ( exception.whatBare() == "DRV_IDLE" )
 				{
@@ -84,7 +87,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 					{
 						input->Andor->getAcquisitionProgress( pictureNumber );
 					}
-					catch ( myException& exception )
+					catch (Error& exception )
 					{
 						input->comm->sendError( exception.what());
 					}
@@ -99,7 +102,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 			if ( input->Andor->cameraIsRunning && safeModeCount < input->Andor->runSettings.totalPicsInExperiment)
 			{
 				if ( input->Andor->runSettings.cameraMode == "Kinetic Series Mode" 
-					 || input->Andor->runSettings.cameraMode == "Accumulate Mode" )
+					 || input->Andor->runSettings.cameraMode == "Accumulation Mode" )
 				{
 					safeModeCount++;
 					input->comm->sendCameraProgress( safeModeCount );
@@ -133,6 +136,7 @@ void AndorCamera::waitForAcquisition()
 	}
 }
 
+
 void AndorCamera::getTemperature(int& temp)
 {
 	if (!ANDOR_SAFEMODE)
@@ -149,6 +153,7 @@ void AndorCamera::getAdjustedRingExposureTimes(int size, float* timesArray)
 		andorErrorChecker(GetAdjustedRingExposureTimes(size, timesArray));
 	}
 }
+
 
 void AndorCamera::setNumberKinetics(int number)
 {
@@ -167,6 +172,7 @@ void AndorCamera::getTemperatureRange(int& min, int& max)
 		andorErrorChecker(GetTemperatureRange(&min, &max));
 	}
 }
+
 
 void AndorCamera::temperatureControlOn()
 {
@@ -513,7 +519,7 @@ void AndorCamera::setSystem(CameraWindow* camWin)
 	getStatus();
 	/// setup fits files
 	std::string errMsg;
-	if (runSettings.cameraMode != "Continuous Single Scans Mode")
+	if (runSettings.cameraMode != "Video Mode")
 	{
 		/// TODO: also, change to HDF5
 		/*
@@ -548,7 +554,7 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 	{
 		checkForNewImages();
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
 		if (exception.whatBare() == "DRV_NO_NEW_DATA")
 		{
@@ -759,7 +765,7 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 	}
 	*/
 	// % 4 at the end because there are only 4 pictures available on the screen.
-	int imageLocation = (((currentPictureNumber - 1) % runSettings.totalPicsInVariation) % runSettings.repetitionsPerVariation) % 4;
+	//int imageLocation = (((currentPictureNumber - 1) % runSettings.totalPicsInVariation) % runSettings.repetitionsPerVariation) % 4;
 	return imagesOfExperiment;
 }
 
@@ -795,9 +801,8 @@ void AndorCamera::drawDataWindow(void)
 							 + ". Attempting to continue..." );
 				}
 			}
-			avgValue = std::accumulate( imagesOfExperiment[experimentImagesInc].begin(),
-										imagesOfExperiment[experimentImagesInc].end(), 0.0 )
-				/ imagesOfExperiment[experimentImagesInc].size();
+			avgValue = std::accumulate(imagesOfExperiment[experimentImagesInc].begin(), imagesOfExperiment[experimentImagesInc].end(), 0.0)
+						/ imagesOfExperiment[experimentImagesInc].size();
 			HDC hDC = 0;
 			float yscale;
 			long modrange = 1;
@@ -1026,6 +1031,8 @@ void AndorCamera::drawDataWindow(void)
 		}
 	}
 }
+
+
 // The following are a set of simple functions that call the indicated andor SDK function if not in safe mode and check the error message.
 void AndorCamera::setCameraTriggerMode()
 {
@@ -1063,10 +1070,12 @@ void AndorCamera::setTemperature()
 	changeTemperatureSetting( false );
 }
 
+
 void AndorCamera::setReadMode()
 {
 	setReadMode(runSettings.readMode);
 }
+
 
 void AndorCamera::setExposures()
 {
@@ -1080,6 +1089,7 @@ void AndorCamera::setExposures()
 	}
 }
 
+
 void AndorCamera::setImageParametersToCamera()
 {
 	setImage(runSettings.imageSettings.verticalBinning, runSettings.imageSettings.horizontalBinning, 
@@ -1087,10 +1097,12 @@ void AndorCamera::setImageParametersToCamera()
 			 runSettings.imageSettings.leftBorder, runSettings.imageSettings.rightBorder);
 }
 
+
 void AndorCamera::setKineticCycleTime()
 {
 	setKineticCycleTime(runSettings.kinetiCycleTime);
 }
+
 
 void AndorCamera::setScanNumber()
 {
@@ -1174,7 +1186,6 @@ void AndorCamera::checkAcquisitionTimings(float& kinetic, float& accumulation, s
 	kinetic = tempKineticTime;
 }
 	
-	
 
 /*
  (
@@ -1199,6 +1210,7 @@ void AndorCamera::setNumberAccumulations(bool isKinetic)
 		//setNumberAccumulations(false);
 	}
 }
+
 
 void AndorCamera::setGainMode()
 {

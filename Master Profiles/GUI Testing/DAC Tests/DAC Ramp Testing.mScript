@@ -1,0 +1,8 @@
+% Default Master Script. Hover your mouse over the "?"
+% in the top right corner of this control for help.
+t = 0
+dacRamp: dac1 0 1 100 0.01
+t += 100
+dacRamp: dac1 1 0 1000 0.01
+
+
