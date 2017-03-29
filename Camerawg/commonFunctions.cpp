@@ -49,8 +49,22 @@ namespace commonFunctions
 			{
 				try
 				{
-					commonFunctions::abortNiawg( scriptWin, mainWin );
-					commonFunctions::abortCamera( camWin, mainWin );
+					bool aborted = false;
+					if (mainWin->niawg.isRunning())
+					{
+						commonFunctions::abortNiawg( scriptWin, mainWin );
+						aborted = true;
+					}
+					if (camWin->Andor.isRunning())
+					{
+						commonFunctions::abortCamera( camWin, mainWin );
+						aborted = true;
+					}
+					if (!aborted)
+					{
+						mainWin->getComm()->sendColorBox( { /*niawg*/'B', /*camera*/'-', /*intensity*/'-' } );
+						mainWin->getComm()->sendError( "System was not running. Can't Abort.\r\n" );
+					}
 				}
 				catch (Error& except)
 				{
@@ -311,6 +325,11 @@ namespace commonFunctions
 				mainWin->niawg.streamWaveform();
 				break;
 			}
+			case ID_NIAWG_GETNIAWGERROR:
+			{
+				errBox( mainWin->niawg.getErrorMsg() );
+				break;
+			}
 		}
 		return false;
 	}
@@ -553,7 +572,9 @@ namespace commonFunctions
 		std::string errorMessage;
 		// abort acquisition if in progress
 		camWin->abortCameraRun();
+		mainWin->getComm()->sendStatus( "Aborted Camera Operation.\r\n" );
 		// todo: here handle data closing as well.
+
 	}
 
 
@@ -589,8 +610,7 @@ namespace commonFunctions
 		// abort the generation on the NIAWG.
 		myAgilent::agilentDefault();
 
-		std::string msgString = "Passively Outputting Default Waveform.";
-		comm->sendStatus( msgString );
+		comm->sendStatus( "Aborted NIAWG Operation. Passively Outputting Default Waveform." );
 		comm->sendColorBox( { /*niawg*/'B', /*camera*/'-', /*intensity*/'-' } );
 		mainWin->restartNiawgDefaults();
 		mainWin->setNiawgRunningState( false );

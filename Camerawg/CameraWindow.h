@@ -69,6 +69,8 @@ class CameraWindow : public CDialog
 		void OnRButtonUp( UINT stuff, CPoint loc );
 
 		void abortCameraRun();
+		friend bool commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, ScriptingWindow* scriptWin, 
+														  CameraWindow* camWin );
 
 	private:
 		DECLARE_MESSAGE_MAP();

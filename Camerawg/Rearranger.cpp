@@ -26,11 +26,10 @@ void Rearranger::rearrange()
 	// convert pattern to waveform data. 
 	// stream data.
 	// send software trigger.
-
 }
 
 
-void Rearranger::calculateRearrangingMoves(std::vector<std::vector<int>> initArrangement)
+void Rearranger::calculateRearrangingMoves(std::vector<std::vector<bool>> initArrangement)
 {
 	//... Kai's work
 }

@@ -1766,16 +1766,19 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 		// immediately kill the original waveforms here so as to reduce memory usage.
 		streamInfo.waves.back().waveVals.clear();
 		streamInfo.waves.back().waveVals.shrink_to_fit();
-
-		streamWaveHandle = allocateUnNamedWaveform( streamWaveformVals.size() );
 		
-		// output must be off in order to set the streaming waveform handle.
-		configureOutputEnabled(VI_FALSE);
-		abortGeneration();
+		//configureOutputEnabled( VI_FALSE );
+		//abortGeneration();
+		streamWaveformName = "streamedWaveform";
+		allocateNamedWaveform( streamWaveformName.c_str(), streamWaveformVals.size() );
+		//streamWaveHandle = allocateUnNamedWaveform( streamWaveformVals.size() );
+		
+		// output must be off in order to set the streaming waveform handle. I will need a better way of handling this.
+		
 		// tell the niawg which waveform is streamed.
-		setViInt32Attribute( NIFGEN_ATTR_STREAMING_WAVEFORM_HANDLE, streamWaveHandle );
+		//setViInt32Attribute( NIFGEN_ATTR_STREAMING_WAVEFORM_HANDLE, streamWaveHandle );
 		// get the name of the waveform. Now this can be used in the script sent to the niawg.
-		streamWaveformName = getViStringAttribute(NIFGEN_ATTR_STREAMING_WAVEFORM_NAME);
+		//streamWaveformName = getViStringAttribute(NIFGEN_ATTR_STREAMING_WAVEFORM_NAME);
 
 		//restartDefault();
 
@@ -1835,7 +1838,8 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 
 void NiawgController::streamWaveform()
 {
-	writeUnNamedWaveform( streamWaveHandle, streamWaveformVals.size(), streamWaveformVals.data());
+	writeNamedWaveform( streamWaveformName.c_str() , streamWaveformVals.size(), streamWaveformVals.data());
+	//writeUnNamedWaveform( streamWaveHandle, streamWaveformVals.size(), streamWaveformVals.data());
 }
 
 
@@ -2026,6 +2030,7 @@ void NiawgController::checkThatWaveformsAreSensible(Communicator* comm, outputIn
 	}
 }
 
+
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///																NI Fgen wrappers
@@ -2038,15 +2043,14 @@ std::string NiawgController::getErrorMsg()
 	ViStatus errorStat;
 	ViChar* errMsg;
 	int errMsgSize = 0;
-	if (!NIAWG_SAFEMODE)
+	errMsgSize = niFgen_GetError( sessionHandle, VI_NULL, 0, VI_NULL );
+	if (errMsgSize == 1)
 	{
-		errMsgSize = niFgen_GetError( sessionHandle, VI_NULL, 0, VI_NULL );
+		return "No NIAWG Errors.";
 	}
+
 	errMsg = (ViChar *)malloc( sizeof( ViChar ) * errMsgSize );
-	if (!NIAWG_SAFEMODE)
-	{
-		niFgen_GetError( sessionHandle, &errorStat, errMsgSize, errMsg );
-	}
+	niFgen_GetError( sessionHandle, &errorStat, errMsgSize, errMsg );
 	std::string errStr( errMsg );
 	free( errMsg );
 	return errStr;

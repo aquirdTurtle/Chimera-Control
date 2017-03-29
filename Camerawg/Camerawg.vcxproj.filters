@@ -100,9 +100,6 @@
     <ClCompile Include="PictureStats.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="doubleToString.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
     <ClCompile Include="PictureControl.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
@@ -274,9 +271,6 @@
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="PictureStats.h">
-      <Filter>Function Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="doubleToString.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="PictureManager.h">
