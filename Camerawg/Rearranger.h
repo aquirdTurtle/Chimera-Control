@@ -3,6 +3,7 @@
 
 struct rearrangementThreadInfo
 {
+	// might need links to camera, niawg
 
 };
 
@@ -15,7 +16,7 @@ class Rearranger
 		double getStreamingTime();
 	private:
 		static unsigned int __stdcall rearrangerThreadFunction(LPVOID input);
-		void calculateRearrangingMoves( std::vector<std::vector<int>> initArrangement );
+		void calculateRearrangingMoves( std::vector<std::vector<bool>> initArrangement );
 		// true = active;
 		bool threadState;
 		std::vector<std::vector<bool>> finalState;
