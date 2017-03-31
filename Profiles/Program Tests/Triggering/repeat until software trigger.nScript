@@ -41,9 +41,10 @@ end repeat
 
 repeat until software trigger
 
-gen 1, const
+gen 2, const
 %%%%%		freq			amp		phase
 		78			1		0
+		80			1		0
 %%%%%	time	p.m.	delim
 	0.1	0	#
 

@@ -8,7 +8,7 @@
 // aspects of the program.
 #define NIAWG_SAFEMODE false
 #define ANDOR_SAFEMODE true
-#define MASTER_COMPUTER
+#define LAB_COMPUTER
 
 /// File Locations
 // Files for Lab Computer
@@ -139,22 +139,25 @@
 // This is the length of time waited before the code decides to update your syntax coloring after a change is made.
 #define SYNTAX_TIMER_LENGTH 1000
 
+// intensity agilent address
 const char * const AGILENT_ADDRESS = "USB0::0x0957::0x2307::MY50004500::0::INSTR";
 
 // Parameters that the user might want to change:
 const bool CONST_POWER_OUTPUT = true;
 
-// for floating point error... 0.2 was picked because this is the maximum power that can be outputted with 5 signals given the voltage restrictions.
+// for floating point error... 0.2 was picked because this is the maximum power that can be outputted with 5 signals given the voltage 
+// restrictions.
 const double TOTAL_POWER = 0.2 - 1e-10;
 
-// Currently bugs with the 5451 for sample rates significantly above this sample rate (350 MS/s). T.T
-
+// Currently bugs with the 5451 for sample rates significantly above this sample rate (350 MS/s). <---- very much T.T T.T T.T
 /// IF CHANGE MAKE SURE TO CHANGE LIBRARY FILE ADDRESS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-const long int SAMPLE_RATE = 350000000; // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+const long int SAMPLE_RATE = 350000000; /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-/// This is important. If you don't change the libary file, you will be running waveforms that were compiled with a different sample rate.
+/// This is important. If you don't change the libary file, you will be running waveforms that were compiled with a different sample rate. 
+/// This would probably cause the code to throw weird errors since the number of samples in the file wouldn't match what was needed at the 
+/// given sample rate.
 
-/// Communication Parameters
+/// Communication Parameters for communication with master computer.
 #define DEFAULT_PORT "10010"
 const char * const SERVER_ADDRESS = "192.168.236.1";
 
@@ -216,7 +219,6 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 // Don't change! Or only change if you really kow what you are doing. Current Value: 5
 const float MAX_GAIN = 5.0; // Current Value: 5
 							// Current Value: 5
-
 // Long... array...
 const char SCRIPT_INFO_TEXT[] =
 "/***********************************************************************\\\r\n"

@@ -34,7 +34,7 @@ void ColorBox::rearrange(std::string cameraMode, std::string triggerMode, int wi
 	boxes.intensity.rearrange( cameraMode, triggerMode, width, height, fonts );
 }
 
-CBrush* ColorBox::handleColoring(int id, CDC* pDC, std::unordered_map<std::string, CBrush*> brushes, 
+CBrush* ColorBox::handleColoring( int id, CDC* pDC, std::unordered_map<std::string, CBrush*> brushes,  
 								  std::unordered_map<std::string, COLORREF> rgbs)
 {
 	if (id == boxes.niawg.ID)
