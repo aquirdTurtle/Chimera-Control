@@ -36,7 +36,7 @@ std::string Script::getSyntaxColor(std::string word, std::string editType, std::
 	{
 		for (auto num : range(MAX_NIAWG_SIGNALS))
 		{
-			if (word == str(num) + ",")
+			if (word == str(num+1) + ",")
 			{
 				return "command";
 			}

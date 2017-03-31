@@ -1267,11 +1267,18 @@ void NiawgController::loadWaveformParameters( outputInfo& output, profileSetting
 		// Initialize the variable counter inside the wave struct to zero:
 		wave.chan[axis].varNum = 0;
 		// infer the number of signals from the type assigned.
-		wave.chan[axis].signals.resize( wave.chan[axis].initType % MAX_NIAWG_SIGNALS );
+		if (wave.chan[axis].initType % MAX_NIAWG_SIGNALS == 0)
+		{
+			wave.chan[axis].signals.resize(MAX_NIAWG_SIGNALS);
+		}
+		else
+		{
+			wave.chan[axis].signals.resize(wave.chan[axis].initType % MAX_NIAWG_SIGNALS);
+		}
 
 		for (int signal = 0; signal < wave.chan[axis].signals.size(); signal++)
 		{
-			switch (wave.chan[axis].initType / MAX_NIAWG_SIGNALS)
+			switch ((wave.chan[axis].initType-1) / MAX_NIAWG_SIGNALS)
 			{
 				/// the case for "gen ?, const"
 				case 0:
@@ -1918,8 +1925,8 @@ bool NiawgController::isStandardWaveform(std::string inputType)
 {
 	for ( auto number : range( MAX_NIAWG_SIGNALS ) )
 	{
-		if ( inputType == "gen " + str( number ) + ", const" || inputType == "gen " + str( number ) + ", amp ramp " 
-			 || inputType == "gen " + str( number ) + ", freq ramp " || inputType == "gen " + str( number ) + ", freq & amp ramp ")
+		if ( inputType == "gen " + str( number+1 ) + ", const" || inputType == "gen " + str(number + 1) + ", amp ramp "
+			 || inputType == "gen " + str(number + 1) + ", freq ramp " || inputType == "gen " + str(number + 1) + ", freq & amp ramp ")
 		{
 			return true;
 		}
