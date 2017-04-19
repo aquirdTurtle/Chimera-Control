@@ -32,14 +32,32 @@ namespace commonFunctions
 				try
 				{
 					commonFunctions::startCamera( scriptWin, mainWin, camWin );
-					commonFunctions::startNiawg( msgID, scriptWin, mainWin, camWin );
+					
 				}
-				catch (Error& except)
+				catch (Error& err)
 				{
-					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + except.whatStr() );
-					mainWin->getComm()->sendColorBox( { /*niawg*/'R', /*camera*/'R', /*intensity*/'-' } );
+					if (err.whatBare() == "CANCEL")
+					{
+						mainWin->getComm()->sendStatus("Canceled camera initialization.\r\n");
+						mainWin->getComm()->sendColorBox({ /*niawg*/'B', /*camera*/'B', /*intensity*/'-' });
+						break;
+					}
+					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + err.whatStr() );
+					mainWin->getComm()->sendColorBox( { /*niawg*/'-', /*camera*/'R', /*intensity*/'-' } );
 					mainWin->getComm()->sendStatus( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
 					mainWin->getComm()->sendTimer( "ERROR!" );
+					break;
+				}
+				try
+				{
+					commonFunctions::startNiawg(msgID, scriptWin, mainWin, camWin);
+				}
+				catch (Error& err)
+				{
+					mainWin->getComm()->sendError("EXITED WITH ERROR! " + err.whatStr());
+					mainWin->getComm()->sendColorBox({ /*niawg*/'R', /*camera*/'R', /*intensity*/'-' });
+					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
+					mainWin->getComm()->sendTimer("ERROR!");
 				}
 				break;
 			}
@@ -63,7 +81,7 @@ namespace commonFunctions
 					if (!aborted)
 					{
 						mainWin->getComm()->sendColorBox( { /*niawg*/'B', /*camera*/'-', /*intensity*/'-' } );
-						mainWin->getComm()->sendError( "System was not running. Can't Abort.\r\n" );
+						mainWin->getComm()->sendError( "Neither Camera nor NIAWG was not running. Can't Abort.\r\n" );
 					}
 				}
 				catch (Error& except)
@@ -581,16 +599,16 @@ namespace commonFunctions
 	void abortNiawg( ScriptingWindow* scriptWin, MainWindow* mainWin )
 	{
 		Communicator* comm = mainWin->getComm();
-		std::string orientation = scriptWin->getCurrentProfileSettings().orientation;
+		// set reset flag
+		eAbortNiawgFlag = true;
 		if (!mainWin->niawgIsRunning())
 		{
 			std::string msgString = "Passively Outputting Default Waveform.";
-			mainWin->getComm()->sendColorBox( { /*niawg*/'B', /*camera*/'-', /*intensity*/'-' } );
-			mainWin->getComm()->sendError( "System was not running. Can't Abort.\r\n" );
+			comm->sendColorBox( { /*niawg*/'B', /*camera*/'-', /*intensity*/'-' } );
+			comm->sendError( "System was not running. Can't Abort.\r\n" );
 			return;
 		}
-		// set reset flag
-		eAbortNiawgFlag = true;
+		std::string orientation = scriptWin->getCurrentProfileSettings().orientation;
 		// wait for reset to occur
 		int result = 1;
 		result = WaitForSingleObject( eNIAWGWaitThreadHandle, 0 );
@@ -609,9 +627,8 @@ namespace commonFunctions
 		eAbortNiawgFlag = false;
 		// abort the generation on the NIAWG.
 		myAgilent::agilentDefault();
-
-		comm->sendStatus( "Aborted NIAWG Operation. Passively Outputting Default Waveform." );
-		comm->sendColorBox( { /*niawg*/'B', /*camera*/'-', /*intensity*/'-' } );
+		comm->sendStatus( "Aborted NIAWG Operation. Passively Outputting Default Waveform.\r\n" );
+		comm->sendColorBox( { /*niawg*/'B', /*camera*/'-', /*intensity*/'B' } );
 		mainWin->restartNiawgDefaults();
 		mainWin->setNiawgRunningState( false );
 	}
