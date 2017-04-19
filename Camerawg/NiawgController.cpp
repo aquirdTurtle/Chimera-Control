@@ -2048,7 +2048,6 @@ std::string NiawgController::getErrorMsg()
 	{
 		return "No NIAWG Errors.";
 	}
-
 	errMsg = (ViChar *)malloc( sizeof( ViChar ) * errMsgSize );
 	niFgen_GetError( sessionHandle, &errorStat, errMsgSize, errMsg );
 	std::string errStr( errMsg );

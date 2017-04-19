@@ -1,44 +1,84 @@
 // ConsoleApplication1.cpp : Defines the entry point for the console application.
 //
 
-
 #include "stdafx.h"
-#include "TRandom1.h"
 
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/video/video.hpp>
+
+#include "pylon/PylonIncludes.h"
+#include <pylon/PylonGUI.h>
+
+static const uint32_t c_countOfImagesToGrab = 10;
 
 int main()
 {
-	TRandom1* myrand = new TRandom1();
-	/*
-	// The values and the errors on the Y axis
-	const int n_points = 10;
-	double x_vals[n_points] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-	double y_vals[n_points] = {6, 12, 14, 20, 22, 24, 35, 45, 44, 53};
-	double y_errs[n_points] = {5, 5, 4.7, 4.5, 4.2, 5.1, 2.9, 4.1, 4.8, 5.43};
-	
-	// Instance of the graph
-	TGraphErrors graph(n_points, x_vals, y_vals, nullptr, y_errs);
-	graph.SetTitle("Measurement XYZ;lenght [cm];Arb.Units");
-	
-	// Make the plot estetically better
-	graph.SetMarkerStyle(kOpenCircle);
-	graph.SetMarkerColor(kBlue);
-	graph.SetLineColor(kBlue);
-	
-	// The canvas on which we'll draw the graph
-	auto mycanvas = new TCanvas();
-	// Draw the graph !
-	graph.DrawClone("APE");
-	// Define a linear function
-	TF1 f("Linear law", "[0]+x*[1]", .5, 10.5);
-	// Let's make the funcion line nicer
-	f.SetLineColor(kRed); f.SetLineStyle(2);
-	// Fit it to the graph and draw it
-	graph.Fit(&f);
-	f.DrawClone("Same");
-	// Build and Draw a legend
-	TLegend leg(.1, .7, .3, .9, "Lab. Lesson 1");
-	leg.SetFillColor(0);
-	*/
+	Pylon::PylonAutoInitTerm autoInitTerm;
+
+	try
+	{
+		Pylon::CInstantCamera camera( Pylon::CTlFactory::GetInstance().CreateFirstDevice() );
+		// 
+		std::cout << "Using device " << camera.GetDeviceInfo().GetModelName() << std::endl;
+		GenApi::INodeMap& nodemap = camera.GetNodeMap();
+		camera.Open();
+		GenApi::CIntegerPtr width = nodemap.GetNode( "Width" );
+		GenApi::CIntegerPtr height = nodemap.GetNode( "Height" );
+		camera.MaxNumBuffer = 5;
+		Pylon::CImageFormatConverter formatConverter;
+		formatConverter.OutputPixelFormat = Pylon::PixelType_BGR8packed;
+		Pylon::CPylonImage pylonImage;
+		int grabbedImages = 0;
+		cv::VideoWriter cvVideoCreator;
+		cv::Mat openCvImage;
+		std::string videoFileName = "openCvVideo.avi";
+		cv::Size frameSize = cv::Size( (int)width->GetValue(), (int)height->GetValue() );
+		cvVideoCreator.open( videoFileName, CV_FOURCC( 'D', 'I', 'V', 'X' ), 20, frameSize, true );
+
+		camera.StartGrabbing( c_countOfImagesToGrab, Pylon::GrabStrategy_LatestImageOnly );
+
+		Pylon::CGrabResultPtr ptrGrabResult;
+
+		while (camera.IsGrabbing())
+		{
+			camera.RetrieveResult( 5000, ptrGrabResult, Pylon::TimeoutHandling_ThrowException );
+			if (ptrGrabResult->GrabSucceeded())
+			{
+				std::cout << "SizeX: " << ptrGrabResult->GetWidth() << std::endl;
+				std::cout << "SizeY: " << ptrGrabResult->GetHeight() << std::endl;
+				formatConverter.Convert( pylonImage, ptrGrabResult );
+				std::vector<std::vector<uint8_t>> image;
+				uint8_t* data = (uint8_t*)pylonImage.GetBuffer();
+				image.resize( ptrGrabResult->GetHeight() );
+				int offset = 0;
+				for (auto& elem : image)
+				{
+					elem = std::vector<uint8_t>( offset + data, offset + data + ptrGrabResult->GetWidth() );
+					offset += ptrGrabResult->GetWidth();
+				}
+				openCvImage = cv::Mat( ptrGrabResult->GetHeight(), ptrGrabResult->GetWidth(), CV_8UC3, (uint8_t*)pylonImage.GetBuffer() );
+				std::ostringstream s;
+				s << "image_" << grabbedImages << ".jpg";
+				std::string imageName( s.str() );
+				cv::imwrite( imageName, openCvImage );
+				grabbedImages++;
+			}
+			cvVideoCreator.write( openCvImage );
+
+			cv::namedWindow( "OpenCV Display Window", CV_WINDOW_NORMAL );
+
+			cv::imshow( "OpenCv Display Window", openCvImage );
+			cv::waitKey( 1 );
+
+		}
+	}
+	catch (Pylon::GenericException & err)
+	{
+		std::cout << "Error: " << err.what() << std::endl;
+	}
+	std::string stf;
+	std::cin >> stf;
+
 	return 0;
 }
