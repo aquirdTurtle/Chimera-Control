@@ -72,14 +72,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <ExecutablePath>C:\Users\Mark\Downloads\mathgl-2.3.5.1.Win10-mingw.i386\bin;C:\Program Files (x86)\GnuWin32\include;$(ExecutablePath); C:\root_v5.34.36\bin; </ExecutablePath>
-    <IncludePath>C:\Users\Mark\Downloads\mathgl-2.3.5.1.Win10-mingw.i386\include;C:\Program Files %28x86%29\GnuWin32\include;$(IncludePath);C:\root_v5.34.36\include</IncludePath>
-    <LibraryPath>C:\root_v5.34.36\lib;$(LibraryPath)</LibraryPath>
+    <ExecutablePath>C:\ProgramData\opencv\Build\bin\Debug;$(ExecutablePath)</ExecutablePath>
+    <IncludePath>$(IncludePath);C:\Program Files\Basler\pylon 5\Development\include;C:\ProgramData\opencv\Build\install\include</IncludePath>
+    <LibraryPath>C:\Program Files\Basler\pylon 5\Development\lib\Win32;C:\ProgramData\opencv\Build\lib\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);;C:\root_v5.34.36\include</IncludePath>
-    <LibraryPath>C:\root_v5.34.36\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\Program Files\Basler\pylon 5\Development\include;C:\ProgramData\opencv\Build\install\include</IncludePath>
+    <LibraryPath>C:\Program Files\Basler\pylon 5\Development\lib;$(LibraryPath)</LibraryPath>
     <ExecutablePath>C:\root_v5.34.36\bin; $(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(PATH);</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -106,6 +106,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\root_v5.34.36\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opencv_ts320d.lib;opencv_world320d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
