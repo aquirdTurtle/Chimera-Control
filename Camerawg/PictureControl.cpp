@@ -22,9 +22,10 @@ std::pair<int, int> PictureControl::checkClickLocation( CPoint clickLocation )
 	return { -1, -1 };
 }
 
+
 void PictureControl::updatePalette( HPALETTE palette )
 {
-	this->imagePalette = palette;
+	imagePalette = palette;
 	return;
 }
 
