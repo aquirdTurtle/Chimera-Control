@@ -123,8 +123,8 @@ void PictureControl::initialize(POINT& loc, CWnd* parent, int& id, int width, in
 	// minimum number text
 	editMin.sPos = { loc.x, loc.y + 30, loc.x + 50, loc.y + 60 };
 	editMin.ID = id++;
-	if (editMin.ID != IDC_PICTURE_1_MIN_EDIT && editMin.ID != IDC_PICTURE_2_MIN_EDIT 
-		 && editMin.ID != IDC_PICTURE_3_MIN_EDIT && editMin.ID != IDC_PICTURE_4_MIN_EDIT)
+	if (editMin.ID != IDC_PICTURE_1_MIN_EDIT && editMin.ID != IDC_PICTURE_2_MIN_EDIT && editMin.ID != IDC_PICTURE_3_MIN_EDIT 
+		 && editMin.ID != IDC_PICTURE_4_MIN_EDIT)
 	{
 		throw;
 	}
