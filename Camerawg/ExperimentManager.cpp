@@ -4,6 +4,7 @@
 
 void ExperimentManager::startThread( experimentThreadInput* inputParam )
 {
+	eAbortNiawgFlag = false;
 	eExperimentThreadHandle = (HANDLE)_beginthreadex( 0, 0, &ExperimentManager::experimentProgrammingThread, (LPVOID *)inputParam, 0, NULL );
 }
 
@@ -297,7 +298,7 @@ unsigned __stdcall ExperimentManager::experimentProgrammingThread(LPVOID inputPa
 			wave.waveVals.shrink_to_fit();
 		}
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
 		if ( !input->dontActuallyGenerate )
 		{
@@ -327,7 +328,14 @@ unsigned __stdcall ExperimentManager::experimentProgrammingThread(LPVOID inputPa
 			wave.waveVals.clear();
 			wave.waveVals.shrink_to_fit();
 		}
-		input->comm->sendFatalError( "ERROR: " + exception.whatStr() );
+		if (exception.whatBare() != "Aborted!\r\n")
+		{
+			input->comm->sendFatalError("ERROR: " + exception.whatStr());
+		}
+		else
+		{
+			input->comm->sendStatus(exception.what());
+		}
 	}
 	delete input;
 	return 0;

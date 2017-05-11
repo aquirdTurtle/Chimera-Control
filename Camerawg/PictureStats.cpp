@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "PictureStats.h"
 #include "reorganizeControl.h"
-#include "doubleToString.h"
 #include <algorithm>
 #include <numeric>
 

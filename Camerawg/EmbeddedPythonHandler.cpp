@@ -52,19 +52,18 @@ EmbeddedPythonHandler::EmbeddedPythonHandler()
 		errBox("ERROR: failed to interpret \"AutoanalysisFunctions\" as python string?!?!?!?!?");
 		return;
 	}
-	this->autoAnalysisModule = PyImport_Import(pythonModuleName);
+	autoAnalysisModule = PyImport_Import(pythonModuleName);
 	//Py_XDECREF(pythonModuleName);
 	if (autoAnalysisModule == NULL)
 	{
 		errBox("ERROR: Failed to load python module for automatic data analysis!");
 		return;
 	}
-	this->atomAnalysisFunction = PyObject_GetAttrString(autoAnalysisModule, "atomAnalysis");
-	if (this->atomAnalysisFunction == NULL)
+	atomAnalysisFunction = PyObject_GetAttrString(autoAnalysisModule, "atomAnalysis");
+	if (atomAnalysisFunction == NULL)
 	{
 		errBox("Failed to load python function \"singlePointAnalysis\"");
 	}
-	return;
 }
 
 

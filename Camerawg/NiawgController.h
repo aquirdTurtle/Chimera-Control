@@ -160,7 +160,7 @@ class NiawgController
 		signed short isDone();
 		void initialize();
 		void streamWaveform();
-
+		std::string getErrorMsg();
 	private:
 		void errChecker( int err );
 		void calcWaveData( channelWave& inputData, std::vector<ViReal64>& readData, long int sampleNum, double time );
@@ -207,7 +207,7 @@ class NiawgController
 		void configureSampleRate( ViReal64 sampleRate );
 		void enableAnalogFilter( ViReal64 filterFrequency );
 		void init( ViRsrc location, ViBoolean idQuery, ViBoolean resetDevice );
-		std::string getErrorMsg();		
+			
 		void setViInt32Attribute( ViAttr attributeID, ViInt32 value );
 		void setViBooleanAttribute( ViAttr attribute, bool state );
 

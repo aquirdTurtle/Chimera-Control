@@ -28,7 +28,7 @@ unsigned __stdcall NiawgWaiter::niawgWaitThread(void* inputParam)
 			{
 				isDone = input->niawg->isDone();
 			}
-			catch (myException&)
+			catch (Error&)
 			{
 				eWaitError = true;
 				return -1;
@@ -54,7 +54,7 @@ unsigned __stdcall NiawgWaiter::niawgWaitThread(void* inputParam)
 				input->niawg->configureOutputEnabled(VI_TRUE);
 				input->niawg->setViStringAttribute(NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript");
 			}
-			catch (myException&)
+			catch (Error&)
 			{
 				eWaitError = true;
 				return -1;
@@ -71,7 +71,7 @@ unsigned __stdcall NiawgWaiter::niawgWaitThread(void* inputParam)
 					input->niawg->configureOutputEnabled(VI_TRUE);
 					input->niawg->setViStringAttribute(NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultVConfigScript");
 				}
-				catch (myException&)
+				catch (Error&)
 				{
 					eWaitError = true;
 					return -1;
@@ -83,7 +83,7 @@ unsigned __stdcall NiawgWaiter::niawgWaitThread(void* inputParam)
 		{
 			input->niawg->initiateGeneration();
 		}
-		catch (myException&)
+		catch (Error&)
 		{
 			eWaitError = true;
 			return -1;
@@ -98,7 +98,7 @@ unsigned __stdcall NiawgWaiter::niawgWaitThread(void* inputParam)
 		input->niawg->configureOutputEnabled(VI_FALSE);
 		input->niawg->abortGeneration();
 	}
-	catch (myException&)
+	catch (Error&)
 	{
 		eWaitError = true;
 		return -1;

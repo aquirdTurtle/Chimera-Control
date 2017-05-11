@@ -9,8 +9,6 @@ struct profileSettings;
 class Script
 {
 	public:
-		Script();
-		~Script();
 		std::string getScriptText();
 
 		bool colorEntireScript(profileSettings profile, std::vector<variable> vars);
@@ -56,6 +54,9 @@ class Script
 		void checkExtension(profileSettings profile);
 
 	private:
+
+		void cleanString(std::string &str);
+
 		Control<CRichEditCtrl> edit;
 		Control<CStatic> title;
 		Control<CButton> savedIndicator;

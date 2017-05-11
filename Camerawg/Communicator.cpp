@@ -39,7 +39,6 @@ void Communicator::sendTimer( std::string timerMsg )
  */
 void Communicator::sendErrorEx( std::string statusMsg, const char *file, int line)
 {
-	statusMsg += "\r\n*********************************\r\n";
 	postMyString( mainWin, eErrorTextMessageID, statusMsg );
 }
 
@@ -48,7 +47,6 @@ void Communicator::sendErrorEx( std::string statusMsg, const char *file, int lin
 */
 void Communicator::sendFatalErrorEx( std::string statusMsg, const char *file, int line)
 {
-	statusMsg += "\r\n*********************************\r\n";
 	postMyString( mainWin, eFatalErrorMessageID, statusMsg );
 }
 

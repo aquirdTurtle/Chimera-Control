@@ -14,10 +14,10 @@
  * stolen From http://stackoverflow.com/questions/348833/how-to-know-the-exact-line-of-code-where-where-an-exception-has-been-caused
  * Slightly modified.
  */
-class myException : public std::runtime_error 
+class Error : public std::runtime_error
 {
 	public:
-		myException(const std::string &arg, const char *file, int line) : std::runtime_error(arg) 
+		Error(const std::string &arg, const char *file, int line) : std::runtime_error(arg)
 		{
 			std::ostringstream out;
 			out << file << ":" << line << ": " << arg;
@@ -25,7 +25,7 @@ class myException : public std::runtime_error
 			bareMsg = arg;
 		}
 
-		~myException() throw() {}
+		~Error() throw() {}
 
 		const char *what() const throw() 
 		{
@@ -46,7 +46,7 @@ class myException : public std::runtime_error
 
 
 // the following gives any throw call file and line information.
-#define thrower(arg) throw myException(arg, __FILE__, __LINE__)
+#define thrower(arg) throw Error(arg, __FILE__, __LINE__)
 // shows error message if it exists. Could be function but for consistency with other ERR_X Macros...
 #define ERR_POP(string) {if (string != ""){errBox(string);}}
 // shows error message and exits given function with error.
