@@ -145,7 +145,7 @@ void CameraSettingsControl::handleTimer()
 		andorFriend->getTemperature(temperature);
 		if ( ANDOR_SAFEMODE ) { thrower( "SAFEMODE" ); }
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
 		// if not stable this won't get changed.
 		if (exception.whatBare() == "DRV_TEMPERATURE_STABILIZED")

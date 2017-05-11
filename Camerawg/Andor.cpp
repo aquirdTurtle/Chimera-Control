@@ -74,7 +74,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 				input->Andor->waitForAcquisition();
 				input->Andor->getStatus();
 			}
-			catch ( myException& exception )
+			catch (Error& exception )
 			{
 				if ( exception.whatBare() == "DRV_IDLE" )
 				{
@@ -87,7 +87,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 					{
 						input->Andor->getAcquisitionProgress( pictureNumber );
 					}
-					catch ( myException& exception )
+					catch (Error& exception )
 					{
 						input->comm->sendError( exception.what());
 					}
@@ -554,7 +554,7 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 	{
 		checkForNewImages();
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
 		if (exception.whatBare() == "DRV_NO_NEW_DATA")
 		{
@@ -765,7 +765,7 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 	}
 	*/
 	// % 4 at the end because there are only 4 pictures available on the screen.
-	int imageLocation = (((currentPictureNumber - 1) % runSettings.totalPicsInVariation) % runSettings.repetitionsPerVariation) % 4;
+	//int imageLocation = (((currentPictureNumber - 1) % runSettings.totalPicsInVariation) % runSettings.repetitionsPerVariation) % 4;
 	return imagesOfExperiment;
 }
 
@@ -801,9 +801,8 @@ void AndorCamera::drawDataWindow(void)
 							 + ". Attempting to continue..." );
 				}
 			}
-			avgValue = std::accumulate( imagesOfExperiment[experimentImagesInc].begin(),
-										imagesOfExperiment[experimentImagesInc].end(), 0.0 )
-				/ imagesOfExperiment[experimentImagesInc].size();
+			avgValue = std::accumulate(imagesOfExperiment[experimentImagesInc].begin(), imagesOfExperiment[experimentImagesInc].end(), 0.0)
+						/ imagesOfExperiment[experimentImagesInc].size();
 			HDC hDC = 0;
 			float yscale;
 			long modrange = 1;

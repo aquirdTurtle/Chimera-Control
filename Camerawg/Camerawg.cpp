@@ -67,7 +67,7 @@ BOOL myApplicationApp::PreTranslateMessage(MSG* pMsg)
 	{
 		if (pMsg->wParam == VK_ESCAPE)
 		{
-			this->theMainApplicationWindow.passCommonCommand(ID_ACCELERATOR_ESC);
+			theMainApplicationWindow.passCommonCommand(ID_ACCELERATOR_ESC);
 			// Do not process further
 			return TRUE;
 		}
@@ -80,10 +80,11 @@ BOOL myApplicationApp::ProcessMessageFilter(int code, LPMSG lpMsg)
 {
 	if (code >= 0 && theMainApplicationWindow && m_haccel)
 	{
-		if (::TranslateAcceleratorA(this->theMainApplicationWindow.m_hWnd, m_haccel, lpMsg))
+		if (::TranslateAcceleratorA( this->theMainApplicationWindow.m_hWnd, m_haccel, lpMsg ))
+		{
 			return(TRUE);
+		}
 	}
-
 	return CWinApp::ProcessMessageFilter(code, lpMsg);
 }
 
@@ -94,7 +95,6 @@ BOOL myApplicationApp::InitInstance()
 	{
 		errBox("Starting in Safe Mode. The program will not actually communicate with any of the devices");
 	}
-
 	// Contains all of of the names of the files that hold actual data file names.
 	for (auto number : range( MAX_NIAWG_SIGNALS ))
 	{
@@ -117,12 +117,7 @@ BOOL myApplicationApp::InitInstance()
 		return -10000;
 	}
 
-
-	/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///
 	///				Outputting the code version to the Andor Computer 
-	///
-
 	// get time now
 	time_t dateStart = time( 0 );
 	struct tm datePointerStart;
@@ -132,27 +127,22 @@ BOOL myApplicationApp::InitInstance()
 									   + str( datePointerStart.tm_min ) + "-" + str( datePointerStart.tm_sec ));
 	bool andorConnectedForFolder = false;
 
-	if (!NIAWG_SAFEMODE)
+	if (!CONNECT_TO_ANDOR_SAFEMODE)
 	{
 		boost::filesystem::path dir( CODE_LOGGING_FILES_PATH + logFolderNameStart );
-
 		do
 		{
-			bool andorTest;
 			try
 			{
-				andorTest = boost::filesystem::create_directory(dir);
+				boost::filesystem::create_directory(dir);
+				andorConnectedForFolder = true;
 			}
 			catch (boost::filesystem::filesystem_error& err)
-			{
-				andorTest = false;
-			}
-			if (andorTest == false)
 			{
 				// For some reason this doesn't seem to get called when the connection breaks.
 				int andorDisconnectedOption = MessageBox( NULL, "This computer can't currently open logging files on the andor.\nAbort "
 														  "will quit the program (no output has started).\nRetry will re-attempt to "
-														  "connect to the Andor.\nIgnore will continue without saving the current file.", 
+														  "connect to the Andor.\nIgnore will continue without saving the current file.",  
 														  "Andor Disconnected", MB_ABORTRETRYIGNORE );
 				switch (andorDisconnectedOption)
 				{
@@ -172,10 +162,6 @@ BOOL myApplicationApp::InitInstance()
 						break;
 					}
 				}
-			}
-			else
-			{
-				andorConnectedForFolder = true;
 			}
 		} while (andorConnectedForFolder == false);
 	}
@@ -242,9 +228,7 @@ BOOL myApplicationApp::InitInstance()
 		{
 			errBox( "Failed to find any .cpp files in folder!" );
 		}
-	}
-	if (!NIAWG_SAFEMODE)
-	{
+
 		h_Find_Handle = FindFirstFile( (LPSTR)hFindString.c_str(), &find_cpp_Data );
 		if (h_Find_Handle != INVALID_HANDLE_VALUE)
 		{
@@ -281,7 +265,7 @@ BOOL myApplicationApp::InitInstance()
 	myAgilent::agilentDefault();
 	INT_PTR returnVal = theMainApplicationWindow.DoModal();
 	// end of program.
-	return 0;
+	return returnVal;
 }
 
 myApplicationApp app;
