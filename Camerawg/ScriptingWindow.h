@@ -67,6 +67,7 @@ class ScriptingWindow : public CDialog
 		void changeBoxColor( colorBoxes<char> colors );
 		void updateConfigurationSavedStatus(bool status);
 		void OnCancel() override;
+		void OnSize(UINT nType, int cx, int cy);
 
 		void handleHorizontalScriptComboChange();
 		void handleVerticalScriptComboChange();
@@ -80,7 +81,7 @@ class ScriptingWindow : public CDialog
 		//
 		std::vector<CToolTipCtrl*> tooltips;
 
-		Script verticalNIAWGScript, horizontalNIAWGScript, intensityAgilentScript;
+		Script verticalNiawgScript, horizontalNiawgScript, intensityAgilentScript;
 		ColorBox statusBox;
 		ProfileIndicator profileDisplay;
 };

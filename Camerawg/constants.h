@@ -6,9 +6,8 @@
 
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to build and debug other 
 // aspects of the program.
-#define NIAWG_SAFEMODE false
-#define ANDOR_SAFEMODE true
-#define LAB_COMPUTER
+//#define LAB_COMPUTER
+#define SPECTRE_LAPTOP
 
 /// File Locations
 // Files for Lab Computer
@@ -61,6 +60,23 @@
 	const std::string CODE_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Code Versions\\";
 	const std::string ACTUAL_CODE_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Cold Atoms Control Application\\";
 	const std::string PROFILES_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Profiles\\";
+#endif
+
+#ifdef SPECTRE_LAPTOP
+	#define PYTHON_HOME L"C:\\Users\\Mark\\Anaconda3\\"
+	#define NIAWG_SAFEMODE true
+	#define ANDOR_SAFEMODE true
+	#define SOCKET_SAFEMODE true
+	#define CONNECT_TO_ANDOR_SAFEMODE true
+	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Plotting\\";
+	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
+	const std::string LIB_PATH = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Waveforms Library\\";
+	const std::string DEFAULT_SCRIPT_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Default Scripts\\";
+	const std::string EXPERIMENT_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\"
+		"Individual Experiments\\";
+	const std::string CODE_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Code Versions\\";
+	const std::string ACTUAL_CODE_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Cold Atoms Control Application\\";
+	const std::string PROFILES_PATH = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Profiles\\";
 #endif
 
 #ifdef MASTER_COMPUTER

@@ -17,7 +17,7 @@ class Script
 		bool initializeControls(int width, int height, POINT& startingLocation, CWnd* parent, std::string deviceTypeInput, 
 			int& idStart, std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips);
 
-		bool rearrange();
+		void rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts);
 
 		INT_PTR colorControl(LPARAM lParam, WPARAM wParam);
 		bool handleEditChange();

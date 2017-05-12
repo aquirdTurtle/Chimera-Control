@@ -560,7 +560,7 @@ void NiawgController::openWaveformFiles()
 			// create directory
 			if (!CreateDirectory( (folderPath).c_str(), NULL ))
 			{
-				thrower( "ERROR: Error Creating directory for waveform library system. Error was windows error " + str( GetLastError() ) );
+				thrower( "ERROR: Error Creating directory for waveform library system. Error was windows error " + str( GetLastError()) + ", Path was " + folderPath);
 			}
 		}
 		// open the file. It's written in binary.

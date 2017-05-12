@@ -1,9 +1,17 @@
 #include "stdafx.h"
 #include "StatusControl.h"
 
+
+void StatusControl::rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts)
+{
+	header.rearrange("", "", width, height, fonts);
+	edit.rearrange("", "", width, height, fonts);
+	clearButton.rearrange("", "", width, height, fonts);
+}
+
 //
-void StatusControl::initialize(POINT &loc, CWnd* parent, int& id, unsigned int size, std::string headerText, COLORREF textColor,
-	std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips)
+void StatusControl::initialize(POINT &loc, CWnd* parent, int& id, unsigned int size, std::string headerText, 
+							   COLORREF textColor, std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips)
 {
 	// set formatting for these scripts
 	header.ID = id++;

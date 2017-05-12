@@ -111,7 +111,7 @@ class ConfigurationFileSystem
 
 		void initializeControls( POINT& topLeftPosition, CWnd* parent, int& id,
 								 std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips );
-		void rearrange(RECT parentRectangle, std::string mode);
+		void rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts);
 		
 	private:
 		profileSettings currentProfileSettings;

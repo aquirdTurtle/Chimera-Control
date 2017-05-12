@@ -1,10 +1,15 @@
 #include "stdafx.h"
 #include "StatusIndicator.h"
 
+void StatusIndicator::rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts)
+{
+	status.rearrange("", "", width, height, fonts);
+}
+
 void StatusIndicator::initialize(POINT &loc, CWnd* parent, int& id, std::unordered_map<std::string, CFont*> fonts,
 	std::vector<CToolTipCtrl*>& tooltips)
 {
-	this->status.ID = id++;
+	status.ID = id++;
 	status.sPos = { loc.x, loc.y, loc.x + 960, loc.y + 100 };
 	status.Create("Passively Outputing Default Waveform", WS_CHILD | WS_VISIBLE | SS_CENTER, status.sPos, parent, status.ID);
 	status.SetFont(fonts["Large Heading Font"]);

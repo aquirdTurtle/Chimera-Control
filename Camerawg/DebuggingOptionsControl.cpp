@@ -2,13 +2,27 @@
 #include "fonts.h"
 #include "DebuggingOptionsControl.h"
 
-void DebuggingOptionsControl::initialize(int& id, POINT& loc, CWnd* parent, 
-	std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips)
+
+void DebuggingOptionsControl::rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts)
+{
+	header.rearrange("", "", width, height, fonts);
+	readProgress.rearrange("", "", width, height, fonts);
+	writeProgress.rearrange("", "", width, height, fonts);
+	correctionTimes.rearrange("", "", width, height, fonts);
+	niawgScript.rearrange("", "", width, height, fonts);
+	outputAgilentScript.rearrange("", "", width, height, fonts);
+	niawgMachineScript.rearrange("", "", width, height, fonts);
+	excessInfo.rearrange("", "", width, height, fonts);
+}
+
+void DebuggingOptionsControl::initialize(int& id, POINT& loc, CWnd* parent,  
+										 std::unordered_map<std::string, CFont*> fonts,
+										 std::vector<CToolTipCtrl*>& tooltips)
 {
 	// Debugging Options Title
 	header.ID = id++;
 	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
-	header.Create("DEBUGGING OPTIONS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, parent, header.ID);
+	header.Create("DEBUGGING OPTIONS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, parent, header.ID);	
 	header.SetFont(fonts["Heading Font"]);
 	loc.y += 20;
 	///
@@ -18,7 +32,8 @@ void DebuggingOptionsControl::initialize(int& id, POINT& loc, CWnd* parent,
 	}
 	niawgMachineScript.ID = id++;
 	niawgMachineScript.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
-	niawgMachineScript.Create("Output Machine NIAWG Script?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, niawgMachineScript.sPos, parent, niawgMachineScript.ID);
+	niawgMachineScript.Create("Output Machine NIAWG Script?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT,
+							  niawgMachineScript.sPos, parent, niawgMachineScript.ID);
 	niawgMachineScript.SetFont(fonts["Normal Font"]);
 	niawgMachineScript.SetCheck(BST_CHECKED);
 	this->currentOptions.outputNiawgMachineScript = true;

@@ -2,6 +2,14 @@
 #include "stdafx.h"
 #include "MainOptionsControl.h"
 
+void MainOptionsControl::rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts)
+{
+	header.rearrange("", "", width, height, fonts);
+	connectToMaster.rearrange("", "", width, height, fonts);
+	getVariables.rearrange("", "", width, height, fonts);
+	controlIntensity.rearrange("", "", width, height, fonts);
+}
+
 void MainOptionsControl::initialize(int& id, POINT& loc, CWnd* parent, std::unordered_map<std::string, CFont*> fonts,
 	std::vector<CToolTipCtrl*>& tooltips)
 {

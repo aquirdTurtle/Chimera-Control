@@ -19,10 +19,12 @@ class DebuggingOptionsControl
 {
 	public:
 		void initialize(int& idStart, POINT& loc, CWnd* parent, std::unordered_map<std::string, CFont*> fonts,
-			std::vector<CToolTipCtrl*>& tooltips);
+						std::vector<CToolTipCtrl*>& tooltips);
 		void handleEvent(UINT id, MainWindow* comm);
 		debugInfo getOptions();
 		void setOptions(debugInfo options);
+		void rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts);
+
 	private:
 		Control<CStatic> header;
 		Control<CButton> readProgress;

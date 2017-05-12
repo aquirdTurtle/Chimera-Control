@@ -33,7 +33,7 @@ class VariableSystem
 		std::vector<variable> getAllVariables();
 		unsigned long long getCurrentNumberOfVariables();
 		bool clearVariables();
-
+		void rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts);
 	private:
 		int totalVariableNumber;
 		Control<CStatic> header;

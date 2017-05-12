@@ -143,7 +143,7 @@ class MainWindow : public CDialog
 		BOOL OnInitDialog() override;
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 		BOOL PreTranslateMessage(MSG* pMsg); 
-		
+		void OnSize(UINT nType, int cx, int cy);
 		void passCommonCommand(UINT id);
 		void checkProfileReady();
 		void checkProfileSave();

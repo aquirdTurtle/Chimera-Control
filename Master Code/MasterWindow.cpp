@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "MasterWindow.h"
 #include "Control.h"
-//#include "newVariableDialogProcedure.h"
 #include "constants.h"
 #include "viewAndChangeTTL_NamesProcedure.h"
 #include "viewAndChangeDAC_NamesProcedure.h"

@@ -17,6 +17,7 @@ class MainOptionsControl
 		bool handleEvent(UINT id, MainWindow* comm);
 		mainOptions getOptions();
 		void setOptions(mainOptions options);
+		void rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts);
 	private:
 		Control<CStatic> header;
 		Control<CButton> connectToMaster;

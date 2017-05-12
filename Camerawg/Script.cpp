@@ -548,9 +548,13 @@ bool Script::initializeControls(int width, int height, POINT& startingLocation, 
 	return false;
 }
 
-bool Script::rearrange()
+void Script::rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts)
 {
-	return false;
+	edit.rearrange("", "", width, height, fonts);
+	title.rearrange("", "", width, height, fonts);
+	savedIndicator.rearrange("", "", width, height, fonts);
+	childCombo.rearrange("", "", width, height, fonts);
+	fileNameText.rearrange("", "", width, height, fonts);
 }
 
 bool Script::childComboChangeHandler( MainWindow* mainWin)

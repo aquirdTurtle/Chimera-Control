@@ -14,6 +14,7 @@ class StatusControl
 		void setColor();
 		void setColor(COLORREF color);
 		void appendTimebar();
+		void rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts);
 	private:
 		Control<CStatic> header;
 		Control<CRichEditCtrl> edit;
