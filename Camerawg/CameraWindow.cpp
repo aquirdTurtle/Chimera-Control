@@ -260,7 +260,6 @@ void CameraWindow::OnSize( UINT nType, int cx, int cy )
 	pics.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts() );
 	alerts.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts() );
 	dataHandler.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts() );
-
 	pics.setParameters( CameraSettings.readImageParameters( this ) );
 	RedrawWindow();
 	pics.redrawPictures( this, selectedPixel );

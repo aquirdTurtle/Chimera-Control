@@ -154,6 +154,9 @@
     <ClCompile Include="Rearranger.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
+    <ClCompile Include="Control.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -331,7 +334,7 @@
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="Rearranger.h">
-      <Filter>Code Files</Filter>
+      <Filter>Function Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

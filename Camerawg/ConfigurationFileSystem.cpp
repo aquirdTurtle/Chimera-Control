@@ -2184,10 +2184,11 @@ void ConfigurationFileSystem::initializeControls( POINT& topLeftPos, CWnd* paren
 		throw;
 	}
 	sequenceCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
-						  sequenceCombo.sPos, parent, sequenceCombo.ID );
+						 sequenceCombo.sPos, parent, sequenceCombo.ID );
 	sequenceCombo.SetFont( fonts["Normal Font"] );
 	sequenceCombo.AddString( "NULL SEQUENCE" );
 	sequenceCombo.SetCurSel( 0 );
+	sequenceCombo.SetItemHeight(0, 50);
 	topLeftPos.y += 25;
 	// display
 	sequenceInfoDisplay.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 100 };
@@ -2206,9 +2207,23 @@ void ConfigurationFileSystem::initializeControls( POINT& topLeftPos, CWnd* paren
 }
 
 
-void ConfigurationFileSystem::rearrange( RECT parentRectangle, std::string mode )
+void ConfigurationFileSystem::rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts)
 {
-	// todo
+	configLabel.rearrange("", "", width, height, fonts);
+	configCombo.rearrange("", "", width, height, fonts);
+	experimentLabel.rearrange("", "", width, height, fonts);
+	experimentCombo.rearrange("", "", width, height, fonts);
+	categoryLabel.rearrange("", "", width, height, fonts);
+	categoryCombo.rearrange("", "", width, height, fonts);
+	sequenceLabel.rearrange("", "", width, height, fonts);
+	sequenceCombo.rearrange("", "", width, height, fonts);
+	sequenceInfoDisplay.rearrange("", "", width, height, fonts);
+	sequenceSavedIndicator.rearrange("", "", width, height, fonts);
+	orientationLabel.rearrange("", "", width, height, fonts);
+	orientationCombo.rearrange("", "", width, height, fonts);
+	categorySavedIndicator.rearrange("", "", width, height, fonts);
+	configurationSavedIndicator.rearrange("", "", width, height, fonts);
+	experimentSavedIndicator.rearrange("", "", width, height, fonts);
 }
 
 

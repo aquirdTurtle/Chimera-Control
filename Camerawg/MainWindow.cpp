@@ -11,6 +11,7 @@ IMPLEMENT_DYNAMIC(MainWindow, CDialog)
 
 BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_WM_CTLCOLOR()
+	ON_WM_SIZE()
 	ON_COMMAND_RANGE( ID_ACCELERATOR_ESC, ID_ACCELERATOR_ESC, &MainWindow::passCommonCommand )
 	ON_COMMAND_RANGE( ID_ACCELERATOR_F5, ID_ACCELERATOR_F5, &MainWindow::passCommonCommand )
 	ON_COMMAND_RANGE( MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &MainWindow::passCommonCommand )
@@ -37,6 +38,22 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_COMMAND_RANGE( IDC_ERROR_STATUS_BUTTON, IDC_ERROR_STATUS_BUTTON, &MainWindow::passClear )
 	ON_COMMAND_RANGE( IDC_DEBUG_STATUS_BUTTON, IDC_DEBUG_STATUS_BUTTON, &MainWindow::passClear )
 END_MESSAGE_MAP()
+
+void MainWindow::OnSize(UINT nType, int cx, int cy)
+{
+	profile.rearrange(cx, cy, getFonts());
+	notes.rearrange(cx, cy, getFonts());
+	variables.rearrange(cx, cy, getFonts());
+	debugger.rearrange(cx, cy, getFonts());
+	settings.rearrange(cx, cy, getFonts());
+	mainStatus.rearrange(cx, cy, getFonts());
+	debugStatus.rearrange(cx, cy, getFonts());
+	errorStatus.rearrange(cx, cy, getFonts());
+	texter.rearrange(cx, cy, getFonts());
+	shortStatus.rearrange(cx, cy, getFonts());
+	boxes.rearrange("", "", cx, cy, getFonts());
+	RedrawWindow();
+}
 
 void MainWindow::setNiawgRunningState( bool newRunningState )
 {

@@ -35,15 +35,15 @@ template <class ControlType> class Control : public ControlType
 		//
 		int ID;
 		int colorState = 0;
-		void rearrange(std::string cameraMode, std::string trigMode, int width, int height, 
-			std::unordered_map<std::string, CFont*> fonts);
-		//bool ClassControl<ControlType>::setToolTip(std::string text, std::vector<CToolTipCtrl*>& tooltips, MasterWindow* master);
+		void rearrange(std::string cameraMode, std::string trigMode, int width, int height,
+					   std::unordered_map<std::string, CFont*> fonts);
 		bool setToolTip(std::string text, std::vector<CToolTipCtrl*>& tooltips, CWnd* master, CFont* font);
 	private:
 		int toolTipID;
 		CToolTipCtrl toolTip;
 		bool toolTipIsSet;
 };
+
 
 template<class ControlType> Control<ControlType>::Control()
 {
@@ -61,17 +61,7 @@ template <class ControlType> void Control<ControlType>::rearrange(std::string ca
 	{
 		return;
 	}
-	/*
-	HMONITOR monitor = MonitorFromWindow(this->GetParent()->GetSafeHwnd(), MONITOR_DEFAULTTONEAREST);
-	MONITORINFO info;
-	info.cbSize = sizeof(MONITORINFO);
-	GetMonitorInfo(monitor, &info);
-	double workspaceWidth = info.rcWork.right - info.rcWork.left;
-	double workspaceHeight = info.rcWork.bottom - info.rcWork.top;
-	*/
 	/// Set Positions
-	//double widthScale = width / workspaceWidth;
-	//double heightScale = height / workspaceHeight;
 	double widthScale = width / 1920.0;
 	double heightScale = height / 997.0;
 	// extra heigh added to certain controls based on random things like the trigger mode.
@@ -210,6 +200,9 @@ template <class ControlType> void Control<ControlType>::rearrange(std::string ca
 		}
 	}
 }
+
+
+
 
 /// template function for the class control system
 template <class ControlType> bool Control<ControlType>::setToolTip(std::string text, std::vector<CToolTipCtrl*>& tooltips, CWnd* parentWindow, CFont* font)

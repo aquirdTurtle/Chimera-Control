@@ -5,6 +5,16 @@
 #include "fonts.h"
 #include "constants.h"
 
+void NoteSystem::rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts)
+{
+	experimentNotes.rearrange("", "", width, height, fonts);
+	categoryNotes.rearrange("", "", width, height, fonts);
+	configurationNotes.rearrange("", "", width, height, fonts);
+	experimentNotesHeader.rearrange("", "", width, height, fonts);
+	categoryNotesHeader.rearrange("", "", width, height, fonts);
+	configurationNotesHeader.rearrange("", "", width, height, fonts);
+}
+
 bool NoteSystem::initializeControls(POINT& topLeftPos, CWnd* parentWindow, int& id, 
 	std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips)
 {

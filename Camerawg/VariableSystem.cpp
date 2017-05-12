@@ -8,6 +8,13 @@
 #include <algorithm>
 #include "ScriptingWindow.h"
 #include <memory>
+
+void VariableSystem::rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts)
+{
+	header.rearrange("", "", width, height, fonts);
+	listview.rearrange("", "", width, height, fonts);
+}
+
 bool VariableSystem::updateVariableInfo(MainWindow* mainWin, ScriptingWindow* scriptWin)
 {
 	POINT cursorPos;

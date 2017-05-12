@@ -14,6 +14,7 @@ class NoteSystem
 		std::string getExperimentNotes();
 		std::string getCategoryNotes();
 		std::string getConfigurationNotes();
+		void rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts);
 	private:
 		Control<CEdit> experimentNotes;
 		Control<CEdit> categoryNotes;
