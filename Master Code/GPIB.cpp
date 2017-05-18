@@ -107,12 +107,19 @@ int Gpib::gpibIbdev(int pad)
 	int tmo = 13;
 	int eot = 1;
 	int eos = 0;
-	int id = ibdev( bdindx, pad, sad, tmo, eot, eos );
-	if ( id == -1 )
+	if (!GPIB_SAFEMODE)
 	{
-		thrower( "ibdev failed!" );
+		int id = ibdev(bdindx, pad, sad, tmo, eot, eos);
+		if (id == -1)
+		{
+			thrower("ibdev failed!");
+		}
+		return id;
 	}
-	return id;
+	else
+	{
+		return 0;
+	}
 }
 
 

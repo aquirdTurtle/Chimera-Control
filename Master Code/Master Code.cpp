@@ -30,13 +30,13 @@ class CMyWinApp : CWinApp
 			{
 				if (pMsg->wParam == VK_ESCAPE)
 				{
-					this->TheMasterWindow.HandleAbort();
+					TheMasterWindow.HandleAbort();
 					// Do not process further
 					return TRUE;
 				}
 				if ( pMsg->wParam == VK_F1 )
 				{
-					this->TheMasterWindow.loadMotSettings();
+					TheMasterWindow.loadMotSettings();
 					// Do not process further
 					return TRUE;
 				}

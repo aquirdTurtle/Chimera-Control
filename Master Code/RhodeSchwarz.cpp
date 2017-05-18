@@ -18,18 +18,18 @@ void RhodeSchwarz::initialize( POINT& pos, std::vector<CToolTipCtrl*>& toolTips,
 	this->rsgTtl = "a1";
 
 	// controls
-	header.position = { pos.x, pos.y, pos.x + 480, pos.y + 25 };
+	header.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 25 };
 	header.ID = id++;
 	header.Create( "RHODE-SHWARTZ GENERATOR INFO (READ-ONLY)", WS_BORDER | WS_CHILD | WS_VISIBLE 
-				   | ES_CENTER | ES_READONLY, header.position, master, header.ID );
-	header.SetFont( CFont::FromHandle( sHeadingFont ) );
+				   | ES_CENTER | ES_READONLY, header.sPos, master, header.ID );
+	header.fontType = Heading;
 	pos.y += 25;
 
-	infoControl.position = { pos.x, pos.y, pos.x + 480, pos.y + 100 };
+	infoControl.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 100 };
 	infoControl.ID = id++;
 	infoControl.Create( WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS | WS_BORDER,
-						infoControl.position, master, infoControl.ID );
-	infoControl.SetFont( CFont::FromHandle( sSmallFont ) );
+						infoControl.sPos, master, infoControl.ID );
+	infoControl.fontType = Small;
 	infoControl.SetBkColor( RGB( 15, 15, 15 ) );
 	infoControl.SetTextBkColor( RGB( 15, 15, 15 ) );
 	infoControl.SetTextColor( RGB( 255, 255, 255 ) );
@@ -51,7 +51,11 @@ void RhodeSchwarz::initialize( POINT& pos, std::vector<CToolTipCtrl*>& toolTips,
 	return;
 }
 
-
+void RhodeSchwarz::rearrange(UINT width, UINT height, fontMap fonts)
+{
+	header.rearrange("", "", width, height, fonts);
+	infoControl.rearrange("", "", width, height, fonts);
+}
 
 /*
  * The following function takes the existing list of events (already evaluated for a particular variation) and

@@ -11,7 +11,6 @@ MasterConfiguration::MasterConfiguration(std::string address) : configurationFil
 
 }
 
-
 void MasterConfiguration::save(TtlSystem* ttls, DacSystem* dacs, VariableSystem* globalVars)
 {
 	/*
@@ -21,7 +20,6 @@ void MasterConfiguration::save(TtlSystem* ttls, DacSystem* dacs, VariableSystem*
 	- DAC names
 	- DAC Values
 	*/
-
 	// make sure that file exists
 	FILE *file;
 	fopen_s( &file, configurationFileAddress.c_str(), "r" );
@@ -40,7 +38,6 @@ void MasterConfiguration::save(TtlSystem* ttls, DacSystem* dacs, VariableSystem*
 	{
 		thrower( "ERROR: Master Configuration File Failed to Open! Changes cannot be saved. Attempted to open file in"
 				" location " + configurationFileAddress );
-		return;
 	}
 	// output version
 	configFile << "Version " + this->version + "\n";

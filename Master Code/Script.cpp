@@ -22,6 +22,19 @@
 #include "MasterWindow.h"
 #include <algorithm>
 
+
+void Script::rearrange(UINT width, UINT height, fontMap fonts)
+{
+	edit.rearrange("", "", width, height, fonts);
+	title.rearrange("", "", width, height, fonts);
+	savedIndicator.rearrange("", "", width, height, fonts);
+	childCombo.rearrange("", "", width, height, fonts);
+	fileNameText.rearrange("", "", width, height, fonts);
+	availableFunctionsCombo.rearrange("", "", width, height, fonts);
+	help.rearrange("", "", width, height, fonts);
+}
+
+
 void Script::functionChangeHandler(MasterWindow* master)
 {
 	int selection = availableFunctionsCombo.GetCurSel();
@@ -566,27 +579,27 @@ void Script::initialize(int width, int height, POINT& startingLocation, std::vec
 		titleText = "MASTER SCRIPT";
 	}
 	// title
-	title.position = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
+	title.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
 	title.ID = id++;
-	title.Create( titleText.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, title.position, master, title.ID );
-	title.SetFont( CFont::FromHandle( sHeadingFont ) );
+	title.Create( titleText.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, title.sPos, master, title.ID );
+	title.fontType = Heading;
 	startingLocation.y += 20;
 	// saved indicator
-	savedIndicator.position = { startingLocation.x, startingLocation.y, startingLocation.x + 80, startingLocation.y + 20 };
+	savedIndicator.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + 80, startingLocation.y + 20 };
 	savedIndicator.ID = id++;
-	savedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, savedIndicator.position, master, savedIndicator.ID );
-	savedIndicator.SetFont( CFont::FromHandle( sNormalFont ) );
+	savedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, savedIndicator.sPos, master, savedIndicator.ID );
+	savedIndicator.fontType = Normal;
 	savedIndicator.SetCheck( true );	
 	// filename
-	fileNameText.position = { startingLocation.x + 80, startingLocation.y, startingLocation.x + width - 20, startingLocation.y + 20 };
+	fileNameText.sPos = { startingLocation.x + 80, startingLocation.y, startingLocation.x + width - 20, startingLocation.y + 20 };
 	fileNameText.ID = id++;
-	fileNameText.Create(WS_CHILD | WS_VISIBLE | SS_ENDELLIPSIS, fileNameText.position, master, fileNameText.ID);
-	fileNameText.SetFont(CFont::FromHandle(sHeadingFont));
+	fileNameText.Create(WS_CHILD | WS_VISIBLE | SS_ENDELLIPSIS, fileNameText.sPos, master, fileNameText.ID);
+	fileNameText.fontType = Heading;
 	isSaved = true;
 	// help
-	help.position = { startingLocation.x + width - 20, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
+	help.sPos = { startingLocation.x + width - 20, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
 	help.ID = id++;
-	help.Create(WS_CHILD | WS_VISIBLE | ES_READONLY, help.position, master, help.ID);
+	help.Create(WS_CHILD | WS_VISIBLE | ES_READONLY, help.sPos, master, help.ID);
 	help.SetWindowTextA("?");
 	help.setToolTip("This is a script for programming master timing for TTLs, DACs, the RSG, and the raman outputs.\n"
 					"Acceptable Commands:\n"
@@ -612,37 +625,37 @@ void Script::initialize(int width, int height, POINT& startingLocation, std::vec
 					toolTips, master);
 	startingLocation.y += 20;
 	// available functions combo
-	availableFunctionsCombo.position = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 800 };
+	availableFunctionsCombo.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 800 };
 	availableFunctionsCombo.ID = id++;
 	if ( availableFunctionsCombo.ID != FUNCTION_COMBO_ID )
 	{
 		throw;
 	}
-	availableFunctionsCombo.Create(CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, availableFunctionsCombo.position, master, availableFunctionsCombo.ID);
-	availableFunctionsCombo.SetFont(CFont::FromHandle(sNormalFont));
+	availableFunctionsCombo.Create(CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, availableFunctionsCombo.sPos, master, availableFunctionsCombo.ID);
+	availableFunctionsCombo.fontType = Normal;
 	availableFunctionsCombo.AddString("Available Functions List:");
 	availableFunctionsCombo.SetCurSel(0);
 	this->loadFunctions();
 	
 	startingLocation.y += 25;
 	// children combo
-	childCombo.position = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 800 };
+	childCombo.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 800 };
 	childCombo.ID = id++;
-	childCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, childCombo.position, master, childCombo.ID );
-	childCombo.SetFont( CFont::FromHandle( sNormalFont ) );
+	childCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, childCombo.sPos, master, childCombo.ID );
+	childCombo.fontType = Normal;
 	childCombo.AddString( "Parent Script" );
 	childCombo.SetCurSel( 0 );
 	startingLocation.y += 25;
 	// Edit
-	edit.position = { startingLocation.x, startingLocation.y, startingLocation.x + width, height};
+	edit.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, height};
 	edit.ID = id++;
 	if ( edit.ID != MASTER_RICH_EDIT )
 	{
 		throw;
 	}
 	edit.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | WS_HSCROLL | ES_WANTRETURN | WS_BORDER,
-				 edit.position, master, edit.ID);
-	edit.SetFont(CFont::FromHandle(sCodeFont));
+				 edit.sPos, master, edit.ID);
+	edit.fontType = Code;
 	edit.SetBackgroundColor(FALSE, RGB(15, 15, 15));
 	edit.SetEventMask(ENM_CHANGE);
 	edit.SetDefaultCharFormat(myCharFormat);
@@ -1045,15 +1058,15 @@ void Script::openParentScript(std::string parentScriptFileAndPath, MasterWindow*
 	this->scriptFullAddress = parentScriptFileAndPath;
 	this->updateSavedStatus(true);
 	// Check location of vertical script.
-	int position = parentScriptFileAndPath.find_last_of('\\');
-	std::string scriptLocation = parentScriptFileAndPath.substr(0, position);
+	int sPos = parentScriptFileAndPath.find_last_of('\\');
+	std::string scriptLocation = parentScriptFileAndPath.substr(0, sPos);
 	if (scriptLocation + "\\" != (Master->profile.getCurrentPathIncludingCategory()) && Master->profile.getCurrentPathIncludingCategory() != "")
 	{
 		int answer = MessageBox(0, "The requested script is not currently located in the current configuration folder. This is recommended so that scripts "
 			"related to a particular configuration are reserved to that configuration folder. Copy script to current configuration folder?", 0, MB_YESNO);
 		if (answer == IDYES)
 		{
-			std::string scriptName = parentScriptFileAndPath.substr(position, parentScriptFileAndPath.size());
+			std::string scriptName = parentScriptFileAndPath.substr(sPos, parentScriptFileAndPath.size());
 			std::string path = (Master->profile.getCurrentPathIncludingCategory()) + scriptName;
 			this->saveScriptAs(path, Master);
 			//fileManage::saveScript(relevantEdit, filePathway, savedInd, savedVar);
@@ -1124,15 +1137,15 @@ void Script::considerCurrentLocation(MasterWindow* Master)
 	if (this->scriptFullAddress.size() > 0)
 	{
 		// Check location of vertical script.
-		int position = this->scriptFullAddress.find_last_of('\\');
-		std::string scriptLocation = this->scriptFullAddress.substr(0, position);
+		int sPos = this->scriptFullAddress.find_last_of('\\');
+		std::string scriptLocation = this->scriptFullAddress.substr(0, sPos);
 		if (scriptLocation + "\\" != Master->profile.getCurrentPathIncludingCategory())
 		{
 			int answer = MessageBox(0, "The requested vertical script is not currently located in the current configuration folder. This is recommended so that scripts related to a"
 				" particular configuration are reserved to that configuration folder. Copy script to current configuration folder?", 0, MB_YESNO);
 			if (answer == IDYES)
 			{
-				std::string scriptName = this->scriptFullAddress.substr(position, this->scriptFullAddress.size());
+				std::string scriptName = this->scriptFullAddress.substr(sPos, this->scriptFullAddress.size());
 				this->scriptFullAddress = Master->profile.getCurrentPathIncludingCategory() + scriptName;
 				this->scriptPath = Master->profile.getCurrentPathIncludingCategory();
 				this->saveScriptAs(this->scriptFullAddress, Master);
@@ -1151,13 +1164,13 @@ std::string Script::getExtension()
 void Script::updateScriptNameText(std::string path)
 {
 	//std::string categoryPath = eProfile.getCurrentPathIncludingCategory();
-	int position = path.find_last_of('\\');
-	if (position != -1)
+	int sPos = path.find_last_of('\\');
+	if (sPos != -1)
 	{
-		std::string categoryPath = path.substr(0, position);
-		std::string name = path.substr(position + 1, path.size());
-		position = categoryPath.find_last_of('\\');
-		std::string category = categoryPath.substr(position + 1, categoryPath.size());
+		std::string categoryPath = path.substr(0, sPos);
+		std::string name = path.substr(sPos + 1, path.size());
+		sPos = categoryPath.find_last_of('\\');
+		std::string category = categoryPath.substr(sPos + 1, categoryPath.size());
 		std::string text = category + "->" + name;
 		this->fileNameText.SetWindowTextA(text.c_str());
 	}

@@ -75,8 +75,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>C:\Program Files (x86)\IVI Foundation\VISA\WinNT\lib\msc;C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\lib64;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib\msvc;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib;C:\Program Files\boost_1_60_0\lib32-msvc-14.0;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;C:\Program Files %28x86%29\Microsoft SDKs\Windows\v7.1A\Include;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib</LibraryPath>
-    <IncludePath>C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\include;C:\Program Files\boost_1_60_0;$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\include;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include;C:\Program Files (x86)\IVI Foundation\VISA\WinNT\include;C:\ProgramData\boost_1_63_0</IncludePath>
+    <LibraryPath>C:\Program Files\boost_1_64_0\lib_32bit;C:\Program Files (x86)\IVI Foundation\VISA\WinNT\lib\msc;C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\lib64;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib\msvc;C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib;C:\Program Files\boost_1_60_0\lib32-msvc-14.0;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;C:\Program Files %28x86%29\Microsoft SDKs\Windows\v7.1A\Include;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib</LibraryPath>
+    <IncludePath>C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C\include;C:\Program Files\boost_1_60_0;$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\Program Files %28x86%29\National Instruments\NI-DAQ\DAQmx ANSI C Dev\include;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include;C:\Program Files (x86)\IVI Foundation\VISA\WinNT\include;C:\ProgramData\boost_1_63_0;C:\Program Files\boost_1_64_0</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -176,6 +176,7 @@
   <ItemGroup>
     <ClInclude Include="Agilent.h" />
     <ClInclude Include="Combo.h" />
+    <ClInclude Include="commonTypes.h" />
     <ClInclude Include="CRichEditCtrl2.h" />
     <ClInclude Include="Debugger.h" />
     <ClInclude Include="Dio64.h" />

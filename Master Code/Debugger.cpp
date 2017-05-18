@@ -2,13 +2,20 @@
 #include "Debugger.h"
 #include "MasterWindow.h"
 
+void Debugger::rearrange(UINT width, UINT height, fontMap fonts)
+{
+	heading.rearrange(width, height, fonts);
+	showTtlsButton.rearrange( width, height, fonts);
+	showDacsButton.rearrange(width, height, fonts);
+}
+
 void Debugger::initialize(POINT& pos, MasterWindow* master, std::vector<CToolTipCtrl*> tooltips, int& id)
 {
 	heading.ID = id++;
-	heading.position = { pos.x, pos.y, pos.x + 480, pos.y + 20 };
+	heading.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 20 };
 	heading.Create( "DEBUGGING OPTIONS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, 
-					heading.position, master, heading.ID );
-	heading.SetFont( CFont::FromHandle( sHeadingFont ) );
+					heading.sPos, master, heading.ID );
+	heading.fontType = Heading;
 	pos.y += 20;
 
 	showTtlsButton.ID = id++;
@@ -16,10 +23,10 @@ void Debugger::initialize(POINT& pos, MasterWindow* master, std::vector<CToolTip
 	{
 		throw;
 	}
-	showTtlsButton.position = { pos.x, pos.y, pos.x + 480, pos.y + 20 };
+	showTtlsButton.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 20 };
 	showTtlsButton.Create( "Show All TTL Events", WS_CHILD | WS_VISIBLE | SS_CENTER | BS_CHECKBOX,
-						   showTtlsButton.position, master, showTtlsButton.ID );
-	showTtlsButton.SetFont( CFont::FromHandle( sHeadingFont ) );
+						   showTtlsButton.sPos, master, showTtlsButton.ID );
+	showTtlsButton.fontType = Heading;
 	pos.y += 20;
 
 	showDacsButton.ID = id++;
@@ -27,10 +34,10 @@ void Debugger::initialize(POINT& pos, MasterWindow* master, std::vector<CToolTip
 	{
 		throw;
 	}
-	showDacsButton.position = { pos.x, pos.y, pos.x + 480, pos.y + 20 };
+	showDacsButton.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 20 };
 	showDacsButton.Create( "Show All Dac Events", WS_CHILD | WS_VISIBLE | SS_CENTER | BS_CHECKBOX,
-						   showDacsButton.position, master, showDacsButton.ID );
-	showDacsButton.SetFont( CFont::FromHandle( sHeadingFont ) );
+						   showDacsButton.sPos, master, showDacsButton.ID );
+	showDacsButton.fontType = Heading;
 	pos.y += 20;
 }
 

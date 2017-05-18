@@ -36,7 +36,7 @@ class RhodeSchwarz
 		void setInfoDisp();
 		std::string getRsgTtl();
 		double getTriggerTime();
-
+		void rearrange(UINT width, UINT height, fontMap fonts);
 	private:
 		std::vector<rsgEventStructuralInfo> eventStructures;
 		std::vector<rsgEventInfoFinal> events;

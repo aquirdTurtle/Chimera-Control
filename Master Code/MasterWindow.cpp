@@ -14,6 +14,7 @@ IMPLEMENT_DYNAMIC( MasterWindow, CDialog )
 BEGIN_MESSAGE_MAP( MasterWindow, CDialog )
 	ON_WM_CTLCOLOR()
 	ON_WM_TIMER()
+	ON_WM_SIZE()
 	ON_COMMAND_RANGE( TTL_ID_BEGIN, TTL_ID_END, &MasterWindow::handleTTLPush )
 	ON_COMMAND( TTL_HOLD, &MasterWindow::handlTTLHoldPush )
 	ON_COMMAND( ID_TTLS_VIEW_OR_CHANGE_TTL_NAMES, &MasterWindow::ViewOrChangeTTLNames )
@@ -85,6 +86,46 @@ BEGIN_MESSAGE_MAP( MasterWindow, CDialog )
 	ON_NOTIFY( NM_RCLICK, IDC_GLOBAL_VARS_LISTVIEW, &MasterWindow::GlobalVarRClick )
 
 END_MESSAGE_MAP()
+
+fontMap MasterWindow::getFonts()
+{
+	return masterFonts;
+}
+
+void MasterWindow::OnSize(UINT nType, int cx, int cy)
+{
+	topBottomAgilent.rearrange(cx, cy, getFonts());
+	uWaveAxialAgilent.rearrange(cx, cy, getFonts());
+	flashingAgilent.rearrange(cx, cy, getFonts());
+	profile.rearrange(cx, cy, getFonts());
+	notes.rearrange(cx, cy, getFonts());
+	masterScript.rearrange(cx, cy, getFonts());
+
+	errorStatus.rearrange(cx, cy, getFonts());
+	generalStatus.rearrange(cx, cy, getFonts());
+
+	RhodeSchwarzGenerator.rearrange(cx, cy, getFonts());
+
+	configVariables.rearrange(cx, cy, getFonts());
+	globalVariables.rearrange(cx, cy, getFonts());
+
+	ttlBoard.rearrange(cx, cy, getFonts());
+	dacBoards.rearrange(cx, cy, getFonts());
+
+	repetitionControl.rearrange(cx, cy, getFonts());
+	debugControl.rearrange(cx, cy, getFonts());
+
+	/*
+	ExperimentLogger logger;
+	ExperimentManager manager;
+	RunInfo systemRunningInfo;
+	SocketWrapper niawgSocket;
+	Gpib gpibHandler;
+	KeyHandler masterKey;
+	Debugger debugControl;
+	MasterConfiguration masterConfig{ MASTER_CONFIGURATION_FILE_ADDRESS };
+	*/
+}
 
 void MasterWindow::handleAgilentOptions( UINT id )
 {
@@ -234,9 +275,9 @@ void MasterWindow::HandleAbort()
 	/// needs implementation...
 	if ( manager.runningStatus() )
 	{
-		this->manager.abort();
-		this->ttlBoard.unshadeTTLs();
-		this->dacBoards.unshadeDacs();
+		manager.abort();
+		ttlBoard.unshadeTTLs();
+		dacBoards.unshadeDacs();
 	}
 	else
 	{
@@ -258,13 +299,13 @@ void MasterWindow::HandlePause()
 		{
 			// then it's currently paused, so unpause it.
 			menu->CheckMenuItem( ID_FILE_PAUSE, MF_UNCHECKED | MF_BYCOMMAND );
-			this->manager.unPause();
+			manager.unPause();
 		}
 		else
 		{
 			// then not paused so pause it.
 			menu->CheckMenuItem( ID_FILE_PAUSE, MF_CHECKED | MF_BYCOMMAND );
-			this->manager.pause();
+			manager.pause();
 		}
 	}
 	else
@@ -275,7 +316,16 @@ void MasterWindow::HandlePause()
 
 void MasterWindow::loadMotSettings()
 {
-	this->generalStatus.appendText( "Loading MOT Configuration...\r\n", 0 );
+	try
+	{
+		generalStatus.appendText("Loading MOT Configuration...\r\n", 0);
+		manager.startExperimentThread(this);
+	}
+	catch (myException& exception)
+	{
+		generalStatus.appendText(": " + exception.whatStr() + " " + exception.whatStr() + "\r\n", 0);
+	}
+	
 	/// Set TTL values.
 	// switch on MOT light, set power, set detuning
 	// forceTtl(row, number, state), A = 0, B = 1, C = 2, D = 3
@@ -375,14 +425,12 @@ void MasterWindow::StartExperiment()
 	{
 		generalStatus.appendText( ": " + exception.whatStr() + " " + exception.whatStr() + "\r\n", 0 );
 	}
-	return;
 }
 
 
 void MasterWindow::ConfigurationNotesChange()
 {
-	this->profile.updateConfigurationSavedStatus(false);
-	return;
+	profile.updateConfigurationSavedStatus(false);
 }
 
 
@@ -1103,11 +1151,11 @@ BOOL MasterWindow::OnInitDialog()
 
 	// controls are done. Report the initialization status...
 	std::string msg;
-	msg +=	"===============================================\n"
-			"=============MASTER CONTROL=====================\n"
-			"===============================================\n"
-			"==The Quantum Gas Assembly Control System================\n"
-			"===============================================\n\n";
+	msg +=	"==========================================\n"
+			"=============MASTER CONTROL===============\n"
+			"==========================================\n"
+			"==The Quantum Gas Assembly Control System=\n"
+			"==========================================\n\n";
 	
 	msg += "<<Code Safemode Settings>>\n";
 	msg += "TTL System... ";

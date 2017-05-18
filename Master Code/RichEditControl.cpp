@@ -7,6 +7,13 @@
 #include "MasterWindow.h"
 
 
+void RichEditControl::rearrange(UINT width, UINT height, fontMap fonts)
+{
+	title.rearrange("", "", width, height, fonts);
+	richEdit.rearrange("", "", width, height, fonts);
+	clearButton.rearrange("", "", width, height, fonts);
+}
+
 std::string RichEditControl::getText()
 {
 	CString text;
@@ -87,24 +94,24 @@ bool RichEditControl::initialize(RECT editSize, std::string titleText, COLORREF 
 	myCharFormat.dwMask = CFM_COLOR;
 	myCharFormat.crTextColor = defaultTextColor;
 	// title
-	title.position = { editSize.left, editSize.top, editSize.right - 80, editSize.top + 20 };
+	title.sPos = { editSize.left, editSize.top, editSize.right - 80, editSize.top + 20 };
 	title.ID = id++;
-	title.Create(titleText.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER | ES_READONLY, title.position, 
+	title.Create(titleText.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER | ES_READONLY, title.sPos, 
 				  master, title.ID);
 	// Clear Button
-	clearButton.position = { editSize.right - 80, editSize.top, editSize.right, editSize.top + 20 };
+	clearButton.sPos = { editSize.right - 80, editSize.top, editSize.right, editSize.top + 20 };
 	clearButton.ID = id++;
 	if ( clearButton.ID != ID_ERROR_CLEAR && clearButton.ID != ID_STATUS_CLEAR )
 	{
 		throw;
 	}
-	clearButton.Create("Clear", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, clearButton.position, master, 
+	clearButton.Create("Clear", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, clearButton.sPos, master, 
 						clearButton.ID);
 	// Edit
-	richEdit.position = { editSize.left, editSize.top + 20, editSize.right, editSize.bottom };
+	richEdit.sPos = { editSize.left, editSize.top + 20, editSize.right, editSize.bottom };
 	richEdit.ID = id++;
 	richEdit.Create( WS_CHILD | WS_VISIBLE | ES_READONLY | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | WS_BORDER, 
-					 richEdit.position, master, richEdit.ID);
+					 richEdit.sPos, master, richEdit.ID);
 	
 	richEdit.SetBackgroundColor(0, RGB(15,15,15));
 	richEdit.SetEventMask(ENM_CHANGE);

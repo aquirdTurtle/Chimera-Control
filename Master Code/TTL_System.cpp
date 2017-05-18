@@ -495,57 +495,79 @@ void TtlSystem::unshadeTTLs()
 	return;
 }
 
+void TtlSystem::rearrange(UINT width, UINT height, fontMap fonts)
+{
+	ttlTitle.rearrange("", "", width, height, fonts);
+	ttlHold.rearrange("", "", width, height, fonts);
+	zeroTtls.rearrange("", "", width, height, fonts);
+
+	for (auto& row : ttlPushControls)
+	{
+		for (auto& control : row)
+		{
+			control.rearrange("", "", width, height, fonts);
+		}
+	}
+
+	for (auto& control : ttlNumberLabels)
+	{
+		control.rearrange("", "", width, height, fonts);
+	}
+	for (auto& control : ttlRowLabels)
+	{
+		control.rearrange("", "", width, height, fonts);
+	}
+}
+
 
 void TtlSystem::initialize( POINT& loc, std::unordered_map<HWND, std::string>& toolTipText,
 							std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id )
 {
-
-
 	// title
-	ttlTitle.position = { loc.x, loc.y, loc.x + 480, loc.y + 25 };
+	ttlTitle.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 25 };
 	ttlTitle.ID = id++;
-	ttlTitle.Create( "TTLS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, ttlTitle.position, master, ttlTitle.ID );
-	ttlTitle.SetFont( CFont::FromHandle( sHeadingFont ) );
+	ttlTitle.Create( "TTLS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, ttlTitle.sPos, master, ttlTitle.ID );
+	ttlTitle.fontType = Heading;
 	// all number labels
 	loc.y += 25;
-	ttlHold.position = { loc.x, loc.y, loc.x + 240, loc.y + 20 };
+	ttlHold.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 20 };
 	ttlHold.ID = id++;
 	if (ttlHold.ID != TTL_HOLD)
 	{
 		throw;
 	}
 	ttlHold.Create( "Hold Current Values", WS_TABSTOP | WS_VISIBLE | BS_AUTOCHECKBOX | WS_CHILD | BS_PUSHLIKE,
-					ttlHold.position, master, ttlHold.ID );
+					ttlHold.sPos, master, ttlHold.ID );
 	if (!ttlHold.setToolTip( "Press this button to change multiple TTLs simultaneously. Press the button, then change the ttls, then press the button again "
 							 "to release it. Upon releasing the button, the TTLs will change.", toolTips, master ))
 	{
 		MessageBox( 0, "Button Tool tip failed!", 0, 0 );
 	}
 
-	zeroTtls.position = { loc.x + 240, loc.y, loc.x + 480, loc.y + 20 };
+	zeroTtls.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y + 20 };
 	zeroTtls.ID = id++;
 	if (zeroTtls.ID != IDC_ZERO_TTLS)
 	{
 		throw;
 	}
-	zeroTtls.Create( "Zero TTLs", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, zeroTtls.position, master, zeroTtls.ID );
+	zeroTtls.Create( "Zero TTLs", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, zeroTtls.sPos, master, zeroTtls.ID );
 	zeroTtls.setToolTip( "Pres this button to set all ttls to their zero (false) state.", toolTips, master );
 	loc.y += 20;
 
 	for (int ttlNumberInc = 0; ttlNumberInc < ttlNumberLabels.size(); ttlNumberInc++)
 	{
-		ttlNumberLabels[ttlNumberInc].position = { loc.x + 32 + ttlNumberInc * 28, loc.y,
+		ttlNumberLabels[ttlNumberInc].sPos = { loc.x + 32 + ttlNumberInc * 28, loc.y,
 			loc.x + 32 + (ttlNumberInc + 1) * 28, loc.y + 20 };
 		ttlNumberLabels[ttlNumberInc].ID = id++;
 		ttlNumberLabels[ttlNumberInc].Create( std::to_string( ttlNumberInc ).c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN,
-											  ttlNumberLabels[ttlNumberInc].position, master,
+											  ttlNumberLabels[ttlNumberInc].sPos, master,
 											  ttlNumberLabels[ttlNumberInc].ID );
 	}
 	loc.y += 20;
 	// all row labels
 	for (int row = 0; row < ttlPushControls.size(); row++)
 	{
-		ttlRowLabels[row].position = { loc.x, loc.y + row * 28, loc.x + 32, loc.y + (row + 1) * 28 };
+		ttlRowLabels[row].sPos = { loc.x, loc.y + row * 28, loc.x + 32, loc.y + (row + 1) * 28 };
 		ttlRowLabels[row].ID = id++;
 		std::string rowName;
 		switch (row)
@@ -564,7 +586,7 @@ void TtlSystem::initialize( POINT& loc, std::unordered_map<HWND, std::string>& t
 				break;
 		}
 		ttlRowLabels[row].Create( rowName.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
-								  ttlRowLabels[row].position, master, ttlRowLabels[row].ID );
+								  ttlRowLabels[row].sPos, master, ttlRowLabels[row].ID );
 	}
 	if (id != TTL_ID_BEGIN)
 	{
@@ -594,11 +616,11 @@ void TtlSystem::initialize( POINT& loc, std::unordered_map<HWND, std::string>& t
 			name += std::to_string( number );
 
 			//this->ttlNames[row][number] = name;
-			ttlPushControls[row][number].position = { loc.x + 32 + number * 28, loc.y + row * 28,
+			ttlPushControls[row][number].sPos = { loc.x + 32 + number * 28, loc.y + row * 28,
 				loc.x + 32 + (number + 1) * 28, loc.y + (row + 1) * 28 };
 			ttlPushControls[row][number].ID = id++;
 			ttlPushControls[row][number].Create( "", WS_CHILD | WS_VISIBLE | BS_RIGHT | BS_3STATE,
-												 ttlPushControls[row][number].position, master,
+												 ttlPushControls[row][number].sPos, master,
 												 ttlPushControls[row][number].ID );
 			if (!ttlPushControls[row][number].setToolTip( this->ttlNames[row][number], toolTips, master ))
 			{

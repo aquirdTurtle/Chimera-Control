@@ -11,13 +11,14 @@
 #include "ConfigurationFileSystem.h"
 #include "MasterWindow.h"
 
-
 ScriptedAgilentWaveform::ScriptedAgilentWaveform()
 {
 	segmentNum = 0;
 	totalSequence = "";
 	isVaried = false;
 };
+
+
 
 
 /*	* This function reads out a segment of script file and loads it into a segment to be calculated and manipulated.
@@ -598,6 +599,19 @@ void Segment::assignDataVal(int dataNum, double val)
 	dataArray[dataNum] = val;
 }
 
+void Agilent::rearrange(UINT width, UINT height, fontMap fonts)
+{
+	// GUI ELEMENTS
+	header.rearrange("", "", width, height, fonts);
+	deviceInfoDisplay.rearrange("", "", width, height, fonts);
+	channel1Button.rearrange("", "", width, height, fonts);
+	channel2Button.rearrange("", "", width, height, fonts);
+	syncedButton.rearrange("", "", width, height, fonts);
+	settingCombo.rearrange("", "", width, height, fonts);
+	optionsFormat.rearrange("", "", width, height, fonts);
+	optionsEdit.rearrange("", "", width, height, fonts);
+
+}
 
 /*
 	* This function tells the agilent to put out the DC default waveform.
@@ -813,51 +827,52 @@ void Agilent::initialize( POINT& loc, std::vector<CToolTipCtrl*>& toolTips, Mast
 		isConnected = false;
 	}
 	
-	header.position = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
+	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
 	header.ID = id++;
-	header.Create( headerText.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.position, master, header.ID );
-	header.SetFont( CFont::FromHandle(sHeadingFont) );
+	header.Create( headerText.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, master, header.ID );
+	header.fontType = Heading;
 
-	deviceInfoDisplay.position = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
+	deviceInfoDisplay.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
 	deviceInfoDisplay.ID = id++;
-	deviceInfoDisplay.Create(deviceInfo.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, deviceInfoDisplay.position, master, deviceInfoDisplay.ID );
-	deviceInfoDisplay.SetFont( CFont::FromHandle( sSmallFont ) );
+	deviceInfoDisplay.Create(deviceInfo.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, deviceInfoDisplay.sPos, 
+							 master, deviceInfoDisplay.ID );
+	deviceInfoDisplay.fontType = Small;
 
-	channel1Button.position = { loc.x, loc.y, loc.x += 160, loc.y + 20 };
+	channel1Button.sPos = { loc.x, loc.y, loc.x += 160, loc.y + 20 };
 	channel1Button.ID = id++;
 	if (channel1Button.ID != IDC_TOP_BOTTOM_CHANNEL1_BUTTON && channel1Button.ID != IDC_AXIAL_UWAVE_CHANNEL1_BUTTON && channel1Button.ID != IDC_FLASHING_CHANNEL1_BUTTON)
 	{
 		throw;
 	}
-	channel1Button.Create( "Channel 1", BS_AUTORADIOBUTTON | WS_GROUP | WS_VISIBLE | WS_CHILD, channel1Button.position, master, channel1Button.ID );
+	channel1Button.Create( "Channel 1", BS_AUTORADIOBUTTON | WS_GROUP | WS_VISIBLE | WS_CHILD, channel1Button.sPos, master, channel1Button.ID );
 	channel1Button.SetCheck( true );
 
-	channel2Button.position = { loc.x, loc.y, loc.x += 160, loc.y + 20 };
+	channel2Button.sPos = { loc.x, loc.y, loc.x += 160, loc.y + 20 };
 	channel2Button.ID = id++;
 	if (channel2Button.ID != IDC_TOP_BOTTOM_CHANNEL2_BUTTON && channel2Button.ID != IDC_AXIAL_UWAVE_CHANNEL2_BUTTON && channel2Button.ID != IDC_FLASHING_CHANNEL2_BUTTON)
 	{
 		throw;
 	}
-	channel2Button.Create( "Channel 2", BS_AUTORADIOBUTTON | WS_VISIBLE | WS_CHILD, channel2Button.position, master, channel2Button.ID );
+	channel2Button.Create( "Channel 2", BS_AUTORADIOBUTTON | WS_VISIBLE | WS_CHILD, channel2Button.sPos, master, channel2Button.ID );
 
-	syncedButton.position = { loc.x, loc.y, loc.x += 160, loc.y += 20 };
+	syncedButton.sPos = { loc.x, loc.y, loc.x += 160, loc.y += 20 };
 	syncedButton.ID = id++;
 	if (syncedButton.ID != IDC_TOP_BOTTOM_SYNC_BUTTON && syncedButton.ID != IDC_AXIAL_UWAVE_SYNC_BUTTON && syncedButton.ID != IDC_FLASHING_SYNC_BUTTON)
 	{
 		throw;
 	}
-	syncedButton.Create( "Synced?", BS_AUTOCHECKBOX | WS_VISIBLE | WS_CHILD, syncedButton.position, master, syncedButton.ID );
+	syncedButton.Create( "Synced?", BS_AUTOCHECKBOX | WS_VISIBLE | WS_CHILD, syncedButton.sPos, master, syncedButton.ID );
 	
 	loc.x -= 480;
 
-	settingCombo.position = { loc.x, loc.y, loc.x += 240, loc.y + 200 };
+	settingCombo.sPos = { loc.x, loc.y, loc.x += 240, loc.y + 200 };
 	settingCombo.ID = id++;	
 	if (settingCombo.ID != IDC_TOP_BOTTOM_AGILENT_COMBO && settingCombo.ID != IDC_AXIAL_UWAVE_AGILENT_COMBO
       		 && settingCombo.ID != IDC_FLASHING_AGILENT_COMBO)
 	{
 		throw;
 	}
-	settingCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, settingCombo.position, master, settingCombo.ID );
+	settingCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, settingCombo.sPos, master, settingCombo.ID );
 	settingCombo.AddString( "No Control" );
 	settingCombo.AddString( "Output Off" );
 	settingCombo.AddString( "DC Output" );
@@ -867,15 +882,15 @@ void Agilent::initialize( POINT& loc, std::vector<CToolTipCtrl*>& toolTips, Mast
 	settingCombo.AddString( "Scripted Arbitrary Waveform" );
 	settingCombo.SetCurSel( 0 );
 
-	optionsFormat.position = { loc.x, loc.y, loc.x += 240, loc.y += 25 };
+	optionsFormat.sPos = { loc.x, loc.y, loc.x += 240, loc.y += 25 };
 	optionsFormat.ID = id++;
-	optionsFormat.Create( "---", WS_CHILD | WS_VISIBLE | SS_SUNKEN, optionsFormat.position, 
+	optionsFormat.Create( "---", WS_CHILD | WS_VISIBLE | SS_SUNKEN, optionsFormat.sPos, 
 						  master, optionsFormat.ID );
 	loc.x -= 480;
 
-	optionsEdit.position = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
+	optionsEdit.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
 	optionsEdit.ID = id++;
-	optionsEdit.Create( WS_CHILD | WS_VISIBLE | SS_SUNKEN, optionsEdit.position, master, optionsEdit.ID );
+	optionsEdit.Create( WS_CHILD | WS_VISIBLE | SS_SUNKEN, optionsEdit.sPos, master, optionsEdit.ID );
 	
 	settings.channel[0].option = -2;
 	settings.channel[1].option = -2;

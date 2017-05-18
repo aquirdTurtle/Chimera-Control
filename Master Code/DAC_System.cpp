@@ -261,34 +261,49 @@ bool DacSystem::isValidDACName(std::string name)
 	return false;
 }
 
+void DacSystem::rearrange(UINT width, UINT height, fontMap fonts)
+{
+	dacTitle.rearrange("", "", width, height, fonts);
+	dacSetButton.rearrange("", "", width, height, fonts);
+	zeroDacs.rearrange("", "", width, height, fonts);
+	for (auto& control : dacLabels)
+	{
+		control.rearrange("", "", width, height, fonts);
+	}
+	for (auto& control : breakoutBoardEdits)
+	{
+		control.rearrange("", "", width, height, fonts);
+	}
+}
+
 // this function returns the end location of the set of controls. This can be used for the location for the next control beneath it.
 void DacSystem::initialize(POINT& pos, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id)
 {
 	// title
-	dacTitle.position = { pos.x, pos.y, pos.x + 480, pos.y + 25 };
+	dacTitle.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 25 };
 	dacTitle.ID = id++;
-	dacTitle.Create("DACS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, dacTitle.position, master, dacTitle.ID);
-	dacTitle.SetFont( CFont::FromHandle( sHeadingFont ) );
+	dacTitle.Create("DACS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, dacTitle.sPos, master, dacTitle.ID);
+	dacTitle.fontType = Heading;
 	pos.y += 25;
 	// 
-	dacSetButton.position = { pos.x, pos.y, pos.x + 240, pos.y + 25};
+	dacSetButton.sPos = { pos.x, pos.y, pos.x + 240, pos.y + 25};
 	dacSetButton.ID = id++;
 	if ( dacSetButton.ID != ID_DAC_SET_BUTTON )
 	{
 		throw;
 	}
 	dacSetButton.Create("Set New DAC Values", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 
-						 dacSetButton.position, master, dacSetButton.ID);
+						 dacSetButton.sPos, master, dacSetButton.ID);
 	dacSetButton.setToolTip("Press this button to attempt force all DAC values to the values currently recorded in the"
 							 " edits below.", toolTips, master);
 	//
-	zeroDacs.position = { pos.x + 240, pos.y, pos.x + 480, pos.y + 25 };
+	zeroDacs.sPos = { pos.x + 240, pos.y, pos.x + 480, pos.y + 25 };
 	zeroDacs.ID = id++;
 	if ( zeroDacs.ID != IDC_ZERO_DACS )
 	{
 		throw;
 	}
-	zeroDacs.Create( "Zero Dacs", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, zeroDacs.position, master, 
+	zeroDacs.Create( "Zero Dacs", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, zeroDacs.sPos, master, 
 					 zeroDacs.ID );
 	zeroDacs.setToolTip( "Press this button to set all dac values to zero.", toolTips, master );
 
@@ -318,15 +333,15 @@ void DacSystem::initialize(POINT& pos, std::vector<CToolTipCtrl*>& toolTips, Mas
 			pos.y -= 25 * dacLabels.size() / 3;
 		}
 		// create label
-		dacLabels[dacInc].position = { pos.x + collumnInc * 160, pos.y, pos.x + 20 + collumnInc * 160, pos.y + 25 };
+		dacLabels[dacInc].sPos = { pos.x + collumnInc * 160, pos.y, pos.x + 20 + collumnInc * 160, pos.y + 25 };
 		dacLabels[dacInc].Create( std::to_string( dacInc ).c_str(), WS_CHILD | WS_VISIBLE | SS_CENTER,
-								  dacLabels[dacInc].position, master, dacLabels[dacInc].ID );
-		dacLabels[dacInc].setToolTip( this->dacNames[dacInc], toolTips, master );
-
-		breakoutBoardEdits[dacInc].position = { pos.x + 20 + collumnInc * 160, pos.y, pos.x + 160 + collumnInc * 160,
+								  dacLabels[dacInc].sPos, master, dacLabels[dacInc].ID );
+		dacLabels[dacInc].setToolTip( dacNames[dacInc], toolTips, master );
+		dacLabels[dacInc].fontType = Normal;
+		breakoutBoardEdits[dacInc].sPos = { pos.x + 20 + collumnInc * 160, pos.y, pos.x + 160 + collumnInc * 160,
 												pos.y + 25 };
 		breakoutBoardEdits[dacInc].colorState = 0;
-		breakoutBoardEdits[dacInc].Create( WS_CHILD | WS_VISIBLE | WS_BORDER, breakoutBoardEdits[dacInc].position,
+		breakoutBoardEdits[dacInc].Create( WS_CHILD | WS_VISIBLE | WS_BORDER, breakoutBoardEdits[dacInc].sPos,
 										   master, breakoutBoardEdits[dacInc].ID );
 		breakoutBoardEdits[dacInc].setToolTip(this->dacNames[dacInc], toolTips, master);
 

@@ -20,6 +20,8 @@ class Script
 		std::string getScriptText();
 		void functionChangeHandler(MasterWindow* master);
 
+		void rearrange(UINT width, UINT height, fontMap fonts);
+
 		void colorEntireScript(MasterWindow* Master);
 		void colorScriptSection(DWORD beginingOfChange, DWORD endOfChange, MasterWindow* Master);
 		COLORREF getSyntaxColor(std::string word, std::string editType, std::vector<variable> variables, 

@@ -76,6 +76,8 @@ class ConfigurationFileSystem
 		void configurationSettingsReadyCheck(MasterWindow* Master);
 		void checkConfigurationSave(std::string prompt, MasterWindow* Master);
 		void configurationChangeHandler(MasterWindow* Master);
+		
+		void rearrange(int width, int height, fontMap fonts);
 
 		void saveCategory(MasterWindow* Master);
 		void renameCategory();
