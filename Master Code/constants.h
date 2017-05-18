@@ -1,5 +1,6 @@
 //#define MASTER_COMPUTER
-#define LAPTOP_COMPUTER
+//#define LAPTOP_COMPUTER
+#define HP_LAPTOP
 
 #ifdef MASTER_COMPUTER
 	#define DIO_SAFEMODE false
@@ -12,6 +13,7 @@
 	#define DEFAULT_SCRIPT_FOLDER_PATH "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\Default Scripts\\"
 	#define LOGGING_FILE_ADDRESS "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\Master Log.txt"
 	#define KEY_ADDRESS "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\key.txt"
+	#define MOT_ROUTINE_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Master Profiles\\turnOnMot.mScript"
 #endif
 
 
@@ -26,7 +28,21 @@
 	#define DEFAULT_SCRIPT_FOLDER_PATH "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Default Scripts\\"
 	#define LOGGING_FILE_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Master Log.txt"
 	#define KEY_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\key.txt"
+	#define MOT_ROUTINE_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Master Profiles\\turnOnMot.mScript"
+#endif
 
+#ifdef HP_LAPTOP
+	#define DIO_SAFEMODE true
+	#define DAQMX_SAFEMODE true
+	#define GPIB_SAFEMODE true
+	#define AGILENT_SAFEMODE true
+	#define PROFILES_PATH "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Master Profiles\\"
+	#define FUNCTIONS_FOLDER_LOCATION "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Functions\\"
+	#define MASTER_CONFIGURATION_FILE_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Master Configuration"
+	#define DEFAULT_SCRIPT_FOLDER_PATH "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Default Scripts\\"
+	#define LOGGING_FILE_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Master Log.txt"
+	#define KEY_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\key.txt"
+	#define MOT_ROUTINE_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Master Profiles\\turnOnMot.mScript"
 #endif
 
 #define MASTER_SCRIPT_EXTENSION ".mScript"

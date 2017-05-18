@@ -92,6 +92,8 @@ class TtlSystem
 		HBRUSH TtlSystem::handleColorMessage(CWnd* window, std::unordered_map<std::string, HBRUSH> brushes, std::unordered_map<std::string, COLORREF> rGBs, CDC* cDC);
 		std::string getSystemInfo();
 
+		void rearrange(UINT width, UINT height, fontMap fonts);
+
 		void ttlOn(unsigned int row, unsigned int column, timeType time);
 		void ttlOnDirect( unsigned int row, unsigned int column, double time );
 		void ttlOff(unsigned int row, unsigned int column, timeType time);

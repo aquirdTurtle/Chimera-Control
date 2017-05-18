@@ -12,59 +12,68 @@ void NoteSystem::initialize( POINT& pos, MasterWindow* master, int& id )
 {
 	/// EXPERIMENT LEVEL
 	// Configuration Notes Title
-	experimentNotesHeader.position = { pos.x, pos.y, pos.x + 480, pos.y += 20 };
+	experimentNotesHeader.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 20 };
 	experimentNotesHeader.ID = id++;
 	experimentNotesHeader.Create( "EXPERIMENT NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
-								  experimentNotesHeader.position, master, experimentNotesHeader.ID );
-	experimentNotesHeader.SetFont( CFont::FromHandle( sNormalFont ) );
+								  experimentNotesHeader.sPos, master, experimentNotesHeader.ID );
+	experimentNotesHeader.fontType = Heading;
 	
 	// Configuration Notes edit
-	experimentNotes.position = { pos.x, pos.y, pos.x + 480, pos.y += 100 };
+	experimentNotes.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 100 };
 	experimentNotes.ID = id++;
 	if (experimentNotes.ID != EXPERIMENT_NOTES_ID)
 	{
 		throw;
 	}
 	experimentNotes.Create( WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | WS_BORDER,
-							experimentNotes.position, master, experimentNotes.ID );
-	experimentNotes.SetFont( CFont::FromHandle( sNormalFont ) );
+							experimentNotes.sPos, master, experimentNotes.ID );
+	experimentNotes.fontType = Normal;
 	/// CATEGORY LEVEL
 	// Category Notes Title
-	categoryNotesHeader.position = { pos.x, pos.y, pos.x + 480, pos.y += 20 };
+	categoryNotesHeader.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 20 };
 	categoryNotesHeader.ID = id++;
-	categoryNotesHeader.Create( "CATEGORY NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, categoryNotesHeader.position, master,
+	categoryNotesHeader.Create( "CATEGORY NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, categoryNotesHeader.sPos, master,
 								categoryNotesHeader.ID );
-	categoryNotesHeader.SetFont( CFont::FromHandle( sNormalFont ) );
+	categoryNotesHeader.fontType = Heading;
 	// Category Notes edit
-	categoryNotes.position = { pos.x, pos.y, pos.x + 480, pos.y += 100 };
+	categoryNotes.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 100 };
 	categoryNotes.ID = id++;
 	if (categoryNotes.ID != CATEGORY_NOTES_ID)
 	{
 		throw;
 	}
 	categoryNotes.Create( WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | WS_BORDER,
-						  categoryNotes.position, master, categoryNotes.ID );
-	categoryNotes.SetFont( CFont::FromHandle( sNormalFont ) );
+						  categoryNotes.sPos, master, categoryNotes.ID );
+	categoryNotes.fontType = Normal;
 	/// CONFIGURAITON LEVEL
 	// Configuration Notes Title
-	configurationNotesHeader.position = { pos.x, pos.y, pos.x + 480, pos.y += 20 };
+	configurationNotesHeader.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 20 };
 	configurationNotesHeader.ID = id++;
 	configurationNotesHeader.Create( "CONFIGURATION NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
-									 configurationNotesHeader.position, master, configurationNotesHeader.ID );
-	configurationNotesHeader.SetFont( CFont::FromHandle( sNormalFont ) );
+									 configurationNotesHeader.sPos, master, configurationNotesHeader.ID );
+	configurationNotesHeader.fontType = Heading;
 	//  Configuration Notes edit
-	configurationNotes.position = { pos.x, pos.y, pos.x + 480, pos.y += 100 };
+	configurationNotes.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 100 };
 	configurationNotes.ID = id++;
 	if (configurationNotes.ID != CONFIGURATION_NOTES_ID)
 	{
 		throw;
 	}
 	configurationNotes.Create( WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | WS_BORDER,
-							   configurationNotes.position, master, configurationNotes.ID );
-	configurationNotes.SetFont( CFont::FromHandle( sNormalFont ) );
+							   configurationNotes.sPos, master, configurationNotes.ID );
+	configurationNotes.fontType = Normal;
 	return;
 }
 
+void NoteSystem::rearrange(UINT width, UINT height, fontMap fonts)
+{
+	experimentNotes.rearrange("", "", width, height, fonts);
+	experimentNotesHeader.rearrange("", "", width, height, fonts);
+	categoryNotes.rearrange("", "", width, height, fonts);
+	categoryNotesHeader.rearrange("", "", width, height, fonts);
+	configurationNotes.rearrange("", "", width, height, fonts);
+	configurationNotesHeader.rearrange("", "", width, height, fonts);
+}
 
 void NoteSystem::setExperimentNotes(std::string notes)
 {

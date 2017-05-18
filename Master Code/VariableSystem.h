@@ -42,7 +42,7 @@ class VariableSystem
 		void clearVariables();
 		INT_PTR handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, std::unordered_map<std::string, HBRUSH> brushes);
 		void setVariationRangeNumber(int num);
-
+		void rearrange(UINT width, UINT height, fontMap fonts);
 	private:
 		int totalVariableNumber;
 		unsigned int currentVariations;

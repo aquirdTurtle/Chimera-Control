@@ -1,16 +1,12 @@
 #pragma once
 #include <vector>
 #include <array>
-//#include "minMaxDoublet.h"
-//#include "myMath.h"
 #include "Windows.h"
 #include "ConfigurationFileSystem.h"
 #include "KeyHandler.h"
 #include "ScriptStream.h"
 #include "visa.h"
-
-class Agilent;
-class MasterWindow;
+#include "commonTypes.h"
 
 
 struct minMaxDoublet
@@ -132,6 +128,7 @@ class Segment
 		double returnDataVal( long dataNum );
 		void calcData();
 		double rampCalc( int size, int iteration, double initPos, double finPos, std::string rampType );
+		
 	private:
 		segmentInfoInput input;
 		segmentInfoFinal finalSettings;
@@ -197,7 +194,7 @@ class Agilent
 		void selectScriptProfile( int channel, int varNum );
 		void updateEdit(int chan);
 		deviceOutputInfo getOutputInfo();
-
+		void rearrange(UINT width, UINT height, fontMap fonts);
 	private:
 		// usb address...
 		std::string usbAddress;

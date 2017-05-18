@@ -134,9 +134,9 @@ void ScriptStream::eatComments()
 		}
 		return;
 	}
-	std::streamoff position = this->tellg();
+	std::streamoff sPos = this->tellg();
 	// when it exits the loop, it will just have moved passed the first non-whitespace character. I want that character. Go back.
-	if (position == 0)
+	if (sPos == 0)
 	{
 		this->seekg( 0, std::ios::beg );
 	}

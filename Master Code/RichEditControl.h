@@ -14,7 +14,7 @@ class RichEditControl
 		INT_PTR handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, 
 									std::unordered_map<std::string, HBRUSH> brushes);
 		std::string getText();
-
+		void rearrange(UINT width, UINT height, fontMap fonts);
 	private:
 		Control<CStatic> title;
 		Control<CRichEditCtrl> richEdit;

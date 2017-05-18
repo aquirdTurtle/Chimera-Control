@@ -12,6 +12,27 @@
 #include "myNIAWG.h"
 #include "MasterWindow.h"
 
+
+void ConfigurationFileSystem::rearrange(int width, int height, fontMap fonts)
+{
+	configLabel.rearrange("", "", width, height, fonts);
+	configCombo.rearrange("", "", width, height, fonts);
+	experimentLabel.rearrange("", "", width, height, fonts);
+	experimentCombo.rearrange("", "", width, height, fonts);
+	categoryLabel.rearrange("", "", width, height, fonts);
+	categoryCombo.rearrange("", "", width, height, fonts);
+	sequenceLabel.rearrange("", "", width, height, fonts);
+	sequenceCombo.rearrange("", "", width, height, fonts);
+	sequenceInfoDisplay.rearrange("", "", width, height, fonts);
+	sequenceSavedIndicator.rearrange("", "", width, height, fonts);
+	orientationLabel.rearrange("", "", width, height, fonts);
+	orientationCombo.rearrange("", "", width, height, fonts);
+	categorySavedIndicator.rearrange("", "", width, height, fonts);
+	configurationSavedIndicator.rearrange("", "", width, height, fonts);
+	experimentSavedIndicator.rearrange("", "", width, height, fonts);
+}
+
+
 ConfigurationFileSystem::ConfigurationFileSystem( std::string fileSystemPath )
 {
 	FILE_SYSTEM_PATH = fileSystemPath;
@@ -32,13 +53,11 @@ std::string ConfigurationFileSystem::getMasterAddressFromConfig()
 	else
 	{
 		thrower("ERROR: Unrecognized orientation: " + currentProfileSettings.orientation);
-		return "";
 	}
 	std::fstream configFile(configurationAddress);
 	if (!configFile.is_open())
 	{
 		thrower("ERROR: Failed to open configuration file.");
-		return "";
 	}
 	// get the first couple lines...
 	std::string line, word, address;
@@ -62,7 +81,6 @@ std::string ConfigurationFileSystem::getMasterAddressFromConfig()
 	else
 	{
 		thrower("ERROR: Expected either \"LOCAL\" or \"NONLOCAL\" in configuration file, but instead found " + word);
-		return false;
 	}
 
 }
@@ -2092,66 +2110,66 @@ void ConfigurationFileSystem::initialize(POINT& topLeftPosition, std::vector<CTo
 	currentProfileSettings.orientation = HORIZONTAL_ORIENTATION;
 
 	// Experiment Type
-	experimentLabel.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 20 };
+	experimentLabel.sPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 20 };
 	experimentLabel.ID = id++;
-	experimentLabel.Create( "EXPERIMENT", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, experimentLabel.position, master, experimentLabel.ID );
-	experimentLabel.SetFont( CFont::FromHandle( sHeadingFont ) );
+	experimentLabel.Create( "EXPERIMENT", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, experimentLabel.sPos, master, experimentLabel.ID );
+	experimentLabel.fontType = Heading;
 	// Experiment Saved Indicator
-	experimentSavedIndicator.position = { topLeftPosition.x + 360, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 20 };
+	experimentSavedIndicator.sPos = { topLeftPosition.x + 360, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 20 };
 	experimentSavedIndicator.ID = id++;
 	experimentSavedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, 
-									 experimentSavedIndicator.position, master, experimentSavedIndicator.ID );
-	experimentSavedIndicator.SetFont( CFont::FromHandle( sNormalFont ) );
+									 experimentSavedIndicator.sPos, master, experimentSavedIndicator.ID );
+	experimentSavedIndicator.fontType = Normal;
 	experimentSavedIndicator.SetCheck( true );
 	updateExperimentSavedStatus(true);
 	// Category Title
-	categoryLabel.position = { topLeftPosition.x + 480, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20 };
+	categoryLabel.sPos = { topLeftPosition.x + 480, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20 };
 	categoryLabel.ID = id++;
-	categoryLabel.Create( "CATEGORY", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, categoryLabel.position, master, categoryLabel.ID );
-	categoryLabel.SetFont( CFont::FromHandle( sHeadingFont ) );
+	categoryLabel.Create( "CATEGORY", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, categoryLabel.sPos, master, categoryLabel.ID );
+	categoryLabel.fontType = Heading;
 	//
-	categorySavedIndicator.position = { topLeftPosition.x + 480 + 380, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20};
+	categorySavedIndicator.sPos = { topLeftPosition.x + 480 + 380, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20};
 	categorySavedIndicator.ID = id++;
-	categorySavedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, categorySavedIndicator.position, master, categorySavedIndicator.ID );
-	categorySavedIndicator.SetFont( CFont::FromHandle( sNormalFont ) );
+	categorySavedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, categorySavedIndicator.sPos, master, categorySavedIndicator.ID );
+	categorySavedIndicator.fontType = Normal;
 	categorySavedIndicator.SetCheck( true );
 	updateCategorySavedStatus(true);
 	topLeftPosition.y += 20;
 	// Experiment Combo
-	experimentCombo.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 800 };
+	experimentCombo.sPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 800 };
 	experimentCombo.ID = id++;
 	if ( experimentCombo.ID != EXPERIMENT_COMBO_ID )
 	{
 		throw;
 	}
-	experimentCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, experimentCombo.position, master, experimentCombo.ID );
-	experimentCombo.SetFont( CFont::FromHandle(sNormalFont) );
+	experimentCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, experimentCombo.sPos, master, experimentCombo.ID );
+	experimentCombo.fontType = Normal;
 	this->reloadCombo(experimentCombo.GetSafeHwnd(), PROFILES_PATH, std::string("*"), "__NONE__");
 	// Category Combo
-	categoryCombo.position = { topLeftPosition.x + 480, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 800 };
+	categoryCombo.sPos = { topLeftPosition.x + 480, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 800 };
 	categoryCombo.ID = id++;
 	if ( categoryCombo.ID != CATEGORY_COMBO_ID )
 	{
 		throw;
 	}
-	categoryCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, categoryCombo.position, master, categoryCombo.ID );
-	categoryCombo.SetFont( CFont::FromHandle( sNormalFont ) );
+	categoryCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, categoryCombo.sPos, master, categoryCombo.ID );
+	categoryCombo.fontType = Normal;
 	topLeftPosition.y += 25;
 	// Orientation Title
-	orientationLabel.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 120, topLeftPosition.y + 20 };
+	orientationLabel.sPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 120, topLeftPosition.y + 20 };
 	orientationLabel.ID = id++;
-	orientationLabel.Create( "ORIENTATION", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, orientationLabel.position, master, orientationLabel.ID );
-	orientationLabel.SetFont( CFont::FromHandle(sHeadingFont) );
+	orientationLabel.Create( "ORIENTATION", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, orientationLabel.sPos, master, orientationLabel.ID );
+	orientationLabel.fontType = Heading;
 	// Configuration Title
-	configLabel.position = { topLeftPosition.x + 120, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20 };
+	configLabel.sPos = { topLeftPosition.x + 120, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20 };
 	configLabel.ID = id++;
-	configLabel.Create( "CONFIGURATION", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, configLabel.position, master, configLabel.ID );
-	configLabel.SetFont( CFont::FromHandle( sHeadingFont ) );
+	configLabel.Create( "CONFIGURATION", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, configLabel.sPos, master, configLabel.ID );
+	configLabel.fontType = Heading;
 	// Configuration Saved Indicator
-	configurationSavedIndicator.position = { topLeftPosition.x + 860, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20 };
+	configurationSavedIndicator.sPos = { topLeftPosition.x + 860, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20 };
 	configurationSavedIndicator.ID = id++;
-	configurationSavedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, configurationSavedIndicator.position, master, configurationSavedIndicator.ID );
-	configurationSavedIndicator.SetFont( CFont::FromHandle( sNormalFont ) );
+	configurationSavedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, configurationSavedIndicator.sPos, master, configurationSavedIndicator.ID );
+	configurationSavedIndicator.fontType = Normal; 
 	configurationSavedIndicator.SetCheck( true );
 	updateConfigurationSavedStatus(true);
 	topLeftPosition.y += 20;
@@ -2159,58 +2177,58 @@ void ConfigurationFileSystem::initialize(POINT& topLeftPosition, std::vector<CTo
 	std::vector<std::string> orientationNames;
 	orientationNames.push_back("Horizontal");
 	orientationNames.push_back("Vertical");
-	orientationCombo.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 120, topLeftPosition.y + 800 };
+	orientationCombo.sPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 120, topLeftPosition.y + 800 };
 	orientationCombo.ID = id++;
 	if ( orientationCombo.ID != ORIENTATION_COMBO_ID )
 	{
 		throw;
 	}
-	orientationCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, orientationCombo.position, master, orientationCombo.ID );
-	orientationCombo.SetFont( CFont::FromHandle( sNormalFont ) );
+	orientationCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, orientationCombo.sPos, master, orientationCombo.ID );
+	orientationCombo.fontType = Normal;
 	for (int comboInc = 0; comboInc < orientationNames.size(); comboInc++)
 	{
 		orientationCombo.AddString( orientationNames[comboInc].c_str() );
 	}
 	orientationCombo.SetCurSel(0);
 	// configuration combo
-	configCombo.position = { topLeftPosition.x + 120, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 800 };
+	configCombo.sPos = { topLeftPosition.x + 120, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 800 };
 	configCombo.ID = id++;
 	if ( configCombo.ID != CONFIGURATION_COMBO_ID )
 	{
 		throw;
 	}
-	configCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, configCombo.position, master, configCombo.ID );
-	configCombo.SetFont( CFont::FromHandle( sNormalFont ) );
+	configCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, configCombo.sPos, master, configCombo.ID );
+	configCombo.fontType = Normal;
 	topLeftPosition.y += 25;
 	/// SEQUENCE
-	sequenceLabel.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 20 };
+	sequenceLabel.sPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 20 };
 	sequenceLabel.ID = id++;
-	sequenceLabel.Create( "SEQUENCE", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, sequenceLabel.position, master, sequenceLabel.ID );
-	sequenceLabel.SetFont( CFont::FromHandle( sHeadingFont ) );
+	sequenceLabel.Create( "SEQUENCE", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, sequenceLabel.sPos, master, sequenceLabel.ID );
+	sequenceLabel.fontType = Heading;
 	
-	sequenceSavedIndicator.position = { topLeftPosition.x + 860, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20 };
+	sequenceSavedIndicator.sPos = { topLeftPosition.x + 860, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20 };
 	sequenceSavedIndicator.ID = id++;
-	sequenceSavedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, sequenceSavedIndicator.position, master, sequenceSavedIndicator.ID );
-	sequenceSavedIndicator.SetFont( CFont::FromHandle( sNormalFont ) );
+	sequenceSavedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, sequenceSavedIndicator.sPos, master, sequenceSavedIndicator.ID );
+	sequenceSavedIndicator.fontType = Normal;
 	sequenceSavedIndicator.SetCheck( true );
 	updateConfigurationSavedStatus( true );
 
 	// combo
-	sequenceCombo.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 800 };
+	sequenceCombo.sPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 800 };
 	sequenceCombo.ID = id++;
 	if ( sequenceCombo.ID != SEQUENCE_COMBO_ID )
 	{
 		throw;
 	}
 	sequenceCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, 
-						  sequenceCombo.position, master, sequenceCombo.ID );
+						  sequenceCombo.sPos, master, sequenceCombo.ID );
 	sequenceCombo.SetCurSel( 0 );
 	sequenceCombo.AddString( NULL_SEQUENCE );
 	topLeftPosition.y += 25;
 	// display
-	sequenceInfoDisplay.position = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 100 };
+	sequenceInfoDisplay.sPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 100 };
 	sequenceInfoDisplay.Create( ES_READONLY | WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL,
-								sequenceInfoDisplay.position, master, sequenceInfoDisplay.ID );
+								sequenceInfoDisplay.sPos, master, sequenceInfoDisplay.ID );
 	sequenceInfoDisplay.SetWindowTextA( "Sequence of Configurations to Run:\r\n" );
 	topLeftPosition.y += 100;
 	return;

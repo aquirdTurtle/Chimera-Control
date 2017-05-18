@@ -12,6 +12,12 @@
 
 #include "MasterWindow.h"
 
+void VariableSystem::rearrange(UINT width, UINT height, fontMap fonts)
+{
+	variablesHeader.rearrange("", "", width, height, fonts);
+	variablesListview.rearrange("", "", width, height, fonts);
+}
+
 void VariableSystem::setVariationRangeNumber(int num)
 {
 	int currentRanges = (this->variablesListview.GetHeaderCtrl()->GetItemCount() - 3) / 3;
@@ -906,14 +912,14 @@ void VariableSystem::initialize( POINT& pos, std::vector<CToolTipCtrl*>& toolTip
 	// initialize this number to reflect the initial status of the window.
 	this->variableRangeSets = 1;
 	// controls
-	variablesHeader.position = { pos.x, pos.y, pos.x + 480, pos.y + 25 };
+	variablesHeader.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 25 };
 	variablesHeader.ID = id++;
 	variablesHeader.Create( title.c_str(), WS_BORDER | WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY,
-							variablesHeader.position, master, variablesHeader.ID );
-	variablesHeader.SetFont(CFont::FromHandle(sHeadingFont));
+							variablesHeader.sPos, master, variablesHeader.ID );
+	variablesHeader.fontType = Heading;
 	pos.y += 25;
 
-	variablesListview.position = { pos.x, pos.y, pos.x + 480, pos.y + 125 };
+	variablesListview.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 125 };
 	variablesListview.ID = id++;
 	if (!	 ((variablesListview.ID == IDC_CONFIG_VARS_LISTVIEW && isGlobal == false) 
 		   || (variablesListview.ID == IDC_GLOBAL_VARS_LISTVIEW && isGlobal == true)))
@@ -921,8 +927,8 @@ void VariableSystem::initialize( POINT& pos, std::vector<CToolTipCtrl*>& toolTip
 		throw;
 	}
 	variablesListview.Create(WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS | WS_BORDER, 
-							  variablesListview.position, master, variablesListview.ID);
-	variablesListview.SetFont(CFont::FromHandle(sSmallFont));
+							  variablesListview.sPos, master, variablesListview.ID);
+	variablesListview.fontType = Small;
 	variablesListview.SetBkColor(RGB(15, 15, 15));
 	variablesListview.SetTextBkColor(RGB(15, 15, 15));
 	variablesListview.SetTextColor(RGB(255, 255, 255));

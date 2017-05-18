@@ -250,17 +250,52 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 
 bool ExperimentManager::runningStatus()
 {
-	return this->experimentIsRunning;
+	return experimentIsRunning;
 }
 
+/*** this function is very similar to startExperimentThread but instead of getting anything from the current profile, it
+ * knows exactly where to look for the MOT profile. This is currently hard-coded.
+ */
+void ExperimentManager::loadMotSettings(MasterWindow* master)
+{	
+	if ( experimentIsRunning )
+	{
+		thrower( "Experiment is Running! Please abort the current run before setting the MOT settings." );
+	}
+	ExperimentThreadInput* input = new ExperimentThreadInput;
+	input->ttls = &master->ttlBoard;
+	input->dacs = &master->dacBoards;
+	// don't get configuration variables. The MOT shouldn't depend on config variables.
+	input->vars = master->globalVariables.getEverything();
+	// Only set it once, clearly.
+	input->repetitions = 1;
+	input->thisObj = this;
+	input->status = &master->generalStatus;
+	input->error = &master->errorStatus;
+	input->key = &master->masterKey;
+	input->masterScriptAddress = MOT_ROUTINE_ADDRESS;
+	input->rsg = &master->RhodeSchwarzGenerator;
+	input->gpibHandler = &master->gpibHandler;
+	input->debugOptions = master->debugControl.getOptions();
+	input->agilents.push_back( &master->topBottomAgilent );
+	input->agilents.push_back( &master->uWaveAxialAgilent );
 
+	// don't load, leave whatever the user is working with on the screen.
+	// no logging needed for simple mot load.
+	
+	// TODO: Make a control for this.
+	input->connectToNIAWG = false;
+	input->niawgSocket = &master->niawgSocket;
+	// gather parameters.
+	// start thread.
+	runningThread = AfxBeginThread(experimentThreadProcedure, input);	
+}
 
 void ExperimentManager::startExperimentThread(MasterWindow* master)
 {
-	if ( this->experimentIsRunning )
+	if ( experimentIsRunning )
 	{
 		thrower( "Experiment is already Running!  You can only run one experiment at a time!" );
-		return;
 	}
 	ExperimentThreadInput* input = new ExperimentThreadInput;
 	input->ttls = &master->ttlBoard;
@@ -291,7 +326,6 @@ void ExperimentManager::startExperimentThread(MasterWindow* master)
 	// gather parameters.
 	// start thread.
 	runningThread = AfxBeginThread(experimentThreadProcedure, input);
-	return;
 }
 
 
@@ -330,7 +364,6 @@ void ExperimentManager::loadMasterScript(std::string scriptAddress)
 	if ( !file )
 	{
 		thrower("ERROR: Master Script File " + scriptAddress + " does not exist!");
-		return;
 	}
 	else
 	{
@@ -341,7 +374,6 @@ void ExperimentManager::loadMasterScript(std::string scriptAddress)
 	if (!scriptFile.is_open())
 	{
 		thrower("ERROR: File passed test making sure the file exists, but it still failed to open!");
-		return;
 	}
 	// dump the file into the stringstream.
 	std::stringstream buf( std::ios_base::app | std::ios_base::out | std::ios_base::in );
@@ -350,14 +382,13 @@ void ExperimentManager::loadMasterScript(std::string scriptAddress)
 	buf << "\r\n\r\n__END__";
 	// for whatever reason, after loading rdbuf into a stringstream, the stream seems to not 
 	// want to >> into a string. tried resetting too using seekg, but whatever, this works.
-	this->currentMasterScript.str("");
+	currentMasterScript.str("");
 	//this->currentMasterScript = std::stringstream(buf.str());
-	this->currentMasterScript.str( buf.str());
-	this->currentMasterScript.clear();
-	this->currentMasterScript.seekg(0);
+	currentMasterScript.str( buf.str());
+	currentMasterScript.clear();
+	currentMasterScript.seekg(0);
 	//std::string str(this->currentMasterScript.str());
 	scriptFile.close();
-	return;
 }
 
 void ExperimentManager::loadVariables(std::vector<variable> newVariables)
@@ -381,7 +412,6 @@ void ExperimentManager::analyzeFunctionDefinition(std::string defLine, std::stri
 	{
 		thrower("ERROR: Function file in functions folder was not a function because it did not start with \"def\"! Functions must start with this. Instead it"
 			" started with " + word);
-		return;
 	}
 	std::string functionDeclaration, functionArgumentList;
 	functionDeclaration = defStream.getline( ':' );

@@ -17,11 +17,7 @@
 #include <mutex>
 #include "ScriptStream.h"
 #include "Agilent.h"
-
-
-class MasterWindow;
-class ExperimentManager;
-
+#include "commonTypes.h"
 
 struct ExperimentThreadInput
 {
@@ -64,6 +60,7 @@ class ExperimentManager
 
 		// this function needs the mastewindow in order to gather the relevant parameters for the experiment.
 		void startExperimentThread(MasterWindow* master);
+		void loadMotSettings(MasterWindow* master);
 		static UINT __cdecl experimentThreadProcedure(LPVOID input);
 		void loadVariables(std::vector<variable> newVariables);
 		bool runningStatus();

@@ -13,6 +13,7 @@ class Repetitions
 		unsigned int getRepetitionNumber();
 		INT_PTR handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, std::unordered_map<std::string, HBRUSH> brushes);
 		void handleButtonPush();
+		void rearrange(UINT width, UINT height, fontMap fonts);
 	private:
 		unsigned int repetitionNumber;
 		Control<CEdit> repetitionEdit;

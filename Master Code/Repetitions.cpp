@@ -4,6 +4,15 @@
 #include "constants.h"
 #include "MasterWindow.h"
 
+
+void Repetitions::rearrange(UINT width, UINT height, fontMap fonts)
+{
+	repetitionEdit.rearrange(width, height, fonts);
+	repetitionDisp.rearrange(width, height, fonts);
+	setRepetitionButton.rearrange(width, height, fonts);
+}
+
+
 void Repetitions::handleButtonPush()
 {
 	CString text;
@@ -23,21 +32,21 @@ void Repetitions::handleButtonPush()
 void Repetitions::initialize(POINT& pos, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id)
 {
 	// title
-	setRepetitionButton.position = { pos.x, pos.y, pos.x + 180, pos.y + 20 };
+	setRepetitionButton.sPos = { pos.x, pos.y, pos.x + 180, pos.y + 20 };
 	setRepetitionButton.ID = id++;
 	if ( setRepetitionButton.ID != SET_REPETITION_ID )
 	{
 		throw;
 	}
 	setRepetitionButton.Create("Set Repetition #", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 
-								setRepetitionButton.position, master, setRepetitionButton.ID);
-	repetitionEdit.position = { pos.x + 180, pos.y, pos.x + 330, pos.y + 20 };
+								setRepetitionButton.sPos, master, setRepetitionButton.ID);
+	repetitionEdit.sPos = { pos.x + 180, pos.y, pos.x + 330, pos.y + 20 };
 	repetitionEdit.ID = id++;
-	repetitionEdit.Create(WS_CHILD | WS_VISIBLE | SS_SUNKEN, repetitionEdit.position, master, repetitionEdit.ID);
-	repetitionDisp.position = { pos.x + 330, pos.y, pos.x + 480, pos.y + 20 };
+	repetitionEdit.Create(WS_CHILD | WS_VISIBLE | SS_SUNKEN, repetitionEdit.sPos, master, repetitionEdit.ID);
+	repetitionDisp.sPos = { pos.x + 330, pos.y, pos.x + 480, pos.y + 20 };
 	repetitionDisp.ID = id++;
 	repetitionDisp.Create(WS_CHILD | WS_VISIBLE | SS_SUNKEN | ES_CENTER | ES_READONLY | WS_BORDER, 
-						   repetitionDisp.position, master, repetitionDisp.ID);
+						   repetitionDisp.sPos, master, repetitionDisp.ID);
 	repetitionDisp.SetWindowTextA("100");
 	// initialize the number to match the display.
 	repetitionNumber = 100;

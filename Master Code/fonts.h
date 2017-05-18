@@ -1,6 +1,7 @@
 #pragma once
 #include "Windows.h"
 /// Fonts used by the windows in the win32 api.
+/*
 static HFONT sLargeFont = CreateFont(26, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
 	DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
 static HFONT sNormalFont = CreateFont(20, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
@@ -13,3 +14,4 @@ static HFONT sHeadingFont = CreateFontA(18, 0, 0, 0, FW_DONTCARE, TRUE, FALSE, F
 	DEFAULT_PITCH | FF_SWISS, TEXT("Old Sans Black"));
 static HFONT sLargeHeadingFont = CreateFont(28, 0, 0, 0, FW_DONTCARE, TRUE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
 	DEFAULT_PITCH | FF_SWISS, TEXT("Old Sans Black"));
+*/

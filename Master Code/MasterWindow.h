@@ -21,6 +21,7 @@
 #include "KeyHandler.h"
 #include "Debugger.h"
 #include "Agilent.h"
+#include "commonTypes.h"
 
 class MasterWindow : public CDialog
 {
@@ -55,13 +56,95 @@ class MasterWindow : public CDialog
 			masterBrushes["Medium Grey"] = CreateSolidBrush(masterRGBs["Medium Grey"]);
 			masterBrushes["Light Grey"] = CreateSolidBrush(masterRGBs["Light Grey"]);
 			masterBrushes["Green"] = CreateSolidBrush(masterRGBs["Green"]);
-			masterBrushes["Red"] = CreateSolidBrush(masterRGBs["Red"]);
 			masterBrushes["White"] = CreateSolidBrush(masterRGBs["White"]);
+			masterBrushes["Red"] = CreateSolidBrush(masterRGBs["Red"]);
+			
+			/*
+			(masterFonts["Normal Font"] = new CFont)
+				->CreateFontA(20, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, 
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(masterFonts["Small Font"] = new CFont)
+				->CreateFontA(14, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, 
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(masterFonts["Code Font"] = new CFont)
+				->CreateFontA(16, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, 
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Consolas"));
+			(masterFonts["Small Code Font"] = new CFont)
+				->CreateFontA(12, 0, 0, 0, 400, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, 
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Consolas"));
+			(masterFonts["Heading Font"] = new CFont)
+				->CreateFontA(18, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, 
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Old Sans Black"));
+			(masterFonts["Large Heading Font"] = new CFont)
+				->CreateFontA(28, 0, 0, 0, FW_DONTCARE, TRUE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, 
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Old Sans Black"));
+			*/
+			(masterFonts["Smaller Font Max"] = new CFont)
+				->CreateFontA(25, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(masterFonts["Normal Font Max"] = new CFont)
+				->CreateFontA(30, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(masterFonts["Heading Font Max"] = new CFont)
+				->CreateFontA(38, 0, 0, 0, FW_DONTCARE, TRUE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Old Sans Black"));
+			(masterFonts["Code Font Max"] = new CFont)
+				->CreateFontA(28, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Consolas"));
+			(masterFonts["Larger Font Max"] = new CFont)
+				->CreateFontA(36, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(masterFonts["Smaller Font Large"] = new CFont)
+				->CreateFontA(14, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, 
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(masterFonts["Normal Font Large"] = new CFont)
+				->CreateFontA(20, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, 
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(masterFonts["Heading Font Large"] = new CFont)
+				->CreateFontA(28, 0, 0, 0, FW_DONTCARE, TRUE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, 
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Old Sans Black"));
+			(masterFonts["Code Font Large"] = new CFont)
+				->CreateFontA(16, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, 
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Consolas"));
+			(masterFonts["Larger Font Large"] = new CFont)
+				->CreateFontA(40, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, 
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(masterFonts["Smaller Font Med"] = new CFont)
+				->CreateFontA(8, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, 
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(masterFonts["Normal Font Med"] = new CFont)
+				->CreateFontA(12, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, 
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(masterFonts["Heading Font Med"] = new CFont)
+				->CreateFontA(16, 0, 0, 0, FW_DONTCARE, TRUE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, 
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Old Sans Black"));
+			(masterFonts["Code Font Med"] = new CFont)
+				->CreateFontA(10, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, 
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Consolas"));
+			(masterFonts["Larger Font Med"] = new CFont)
+				->CreateFontA(22, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, 
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(masterFonts["Smaller Font Small"] = new CFont)
+				->CreateFontA(6, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, 
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(masterFonts["Normal Font Small"] = new CFont)
+				->CreateFontA(8, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, 
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(masterFonts["Heading Font Small"] = new CFont)
+				->CreateFontA(12, 0, 0, 0, FW_DONTCARE, TRUE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, 
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Old Sans Black"));
+			(masterFonts["Code Font Small"] = new CFont)
+				->CreateFontA(7, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, 
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Consolas"));
+			(masterFonts["Larger Font Small"] = new CFont)
+				->CreateFontA(16, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, 
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
 		}
 		~MasterWindow();
 		virtual BOOL OnInitDialog();
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 		void OnCancel();
+		void OnSize(UINT nType, int cx, int cy);
 		// the master needs to handle tooltip stuff.
 		std::vector<CToolTipCtrl*> toolTips;
 		BOOL MasterWindow::PreTranslateMessage(MSG* pMsg);
@@ -124,7 +207,10 @@ class MasterWindow : public CDialog
 		void ExperimentNotesChange();
 		void StartExperiment();
 		void HandleFunctionChange();
-		std::unordered_map<std::string, COLORREF> getRGBs();
+		
+		rgbMap getRGBs();
+		brushMap getBrushes();
+		fontMap getFonts();
 
 		void HandlePause();
 		void HandleAbort();
@@ -148,9 +234,10 @@ class MasterWindow : public CDialog
 		std::string title;
 
 		HWND masterWindowHandle;
-		std::unordered_map<std::string, HBRUSH> masterBrushes;
-		std::unordered_map<std::string, COLORREF> masterRGBs;
-		std::unordered_map<HWND, std::string> toolTipText;
+		brushMap masterBrushes;
+		rgbMap masterRGBs;
+		toolTipTextMap toolTipText;
+		fontMap masterFonts;
 		/// control system classes
 		ExperimentLogger logger;
 		ExperimentManager manager;
@@ -183,8 +270,10 @@ class MasterWindow : public CDialog
 
 		/// Friends (many friends)
 		friend void ExperimentManager::startExperimentThread(MasterWindow* master);
+		friend void ExperimentManager::loadMotSettings(MasterWindow* master);
 
 		friend void ExperimentLogger::generateLog(MasterWindow* master);
+
 		// configuration system friends
 		friend void ConfigurationFileSystem::orientationChangeHandler(MasterWindow* Master);
 		friend void ConfigurationFileSystem::newConfiguration(MasterWindow* Master);

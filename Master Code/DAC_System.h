@@ -56,7 +56,7 @@ class DacSystem
 		void makeFinalDataFormat();
 		void writeDacs();
 		void startDacs();
-
+		void rearrange();
 		void setName(int dacNumber, std::string name, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master);
 		std::string getName(int dacNumber);
 		std::array<std::string, 24> getAllNames();
@@ -75,6 +75,8 @@ class DacSystem
 		
 		void shadeDacs(std::vector<unsigned int>& dacShadeLocations);
 		void unshadeDacs();
+		
+		void rearrange(UINT width, UINT height, fontMap fonts);
 
 		bool isValidDACName(std::string name);
 
