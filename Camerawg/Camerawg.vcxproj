@@ -74,9 +74,9 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;$(IncludePath);C:\Users\Mark\Anaconda3\include;C:\ProgramData\Anaconda3\include;C:\ProgramData\boost_1_63_0</IncludePath>
+    <IncludePath>C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;$(IncludePath);C:\Users\Mark\Anaconda3\include;C:\ProgramData\Anaconda3\include;C:\ProgramData\boost_1_63_0;C:\Program Files\boost_1_64_0</IncludePath>
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
-    <LibraryPath>C:\Program Files\Andor SOLIS\Drivers;C:\Users\Mark\Documents\Quantum Gas Assembly Control\Camerawg;C:\ProgramData\boost_1_63_0\lib64-msvc-14.0;C:\ProgramData\boost_1_63_0\stage\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Program Files\Andor SOLIS\Drivers;C:\Users\Mark\Documents\Quantum Gas Assembly Control\Camerawg;C:\ProgramData\boost_1_63_0\lib64-msvc-14.0;C:\ProgramData\boost_1_63_0\stage\lib;C:\Program Files\boost_1_64_0\lib_32bit;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -86,13 +86,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
-    <IncludePath>C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;C:\Program Files\Andor SOLIS\Drivers;$(IncludePath);C:\Users\Mark\Anaconda3\include</IncludePath>
-    <LibraryPath>C:\Program Files\Andor SOLIS\Drivers;C:\Users\Mark\Documents\Quantum Gas Assembly Control\Camerawg;C:\Program Files\Andor SOLIS\Drivers;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;C:\Program Files\Andor SOLIS\Drivers;$(IncludePath);C:\Users\Mark\Anaconda3\include;C:\Program Files\boost_1_64_0</IncludePath>
+    <LibraryPath>C:\Program Files\Andor SOLIS\Drivers;C:\Users\Mark\Documents\Quantum Gas Assembly Control\Camerawg;C:\Program Files\boost_1_64_0\lib_64bit;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;C:\Program Files\boost_1_60_0;$(IncludePath);C:\Users\Mark\Anaconda3\include;C:\ProgramData\Anaconda3\include</IncludePath>
+    <IncludePath>C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;C:\Program Files\boost_1_60_0;$(IncludePath);C:\Users\Mark\Anaconda3\include;C:\ProgramData\Anaconda3\include;C:\Program Files\boost_1_64_0</IncludePath>
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>C:\Program Files\Andor SOLIS\Drivers;C:\Users\Mark\Documents\Quantum Gas Assembly Control\Camerawg;D:\Program Files\boost_1_60_0\lib64-msvc-14.0;C:\Program Files\boost_1_60_0\lib64-msvc-14.0;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Program Files\Andor SOLIS\Drivers;C:\Users\Mark\Documents\Quantum Gas Assembly Control\Camerawg;D:\Program Files\boost_1_60_0\lib64-msvc-14.0;C:\Program Files\boost_1_60_0\lib64-msvc-14.0;C:\Program Files\boost_1_64_0\lib_64bit;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
