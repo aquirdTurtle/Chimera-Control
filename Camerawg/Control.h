@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <string>
 #include <type_traits>
+#include "commonTypes.h"
 
 /*
  * This is a complex class definition. The first line here declares that this is a template class with a class template
@@ -30,13 +31,14 @@ template <class ControlType> class Control : public ControlType
 		RECT amPos;
 		// Continuous Single Scan Mode Position
 		RECT videoPos;
-		std::string fontType;
+
+		fontTypes fontType;
+		
 		int triggerModeSensitive;
 		//
 		int ID;
 		int colorState = 0;
-		void rearrange(std::string cameraMode, std::string trigMode, int width, int height,
-					   std::unordered_map<std::string, CFont*> fonts);
+		void rearrange(std::string cameraMode, std::string trigMode, int width, int height, fontMap fonts);
 		bool setToolTip(std::string text, std::vector<CToolTipCtrl*>& tooltips, CWnd* master, CFont* font);
 	private:
 		int toolTipID;
@@ -53,8 +55,8 @@ template<class ControlType> Control<ControlType>::Control()
 	assert((CWnd const*)&obj);
 }
 
-template <class ControlType> void Control<ControlType>::rearrange(std::string cameraMode, std::string trigMode, int width, int height, 
-																   std::unordered_map<std::string, CFont*> fonts)
+template <class ControlType> void Control<ControlType>::rearrange( std::string cameraMode, std::string trigMode, 
+																   int width, int height, fontMap fonts)
 {
 	// make sure the control has been initialized
 	if (!m_hWnd)
@@ -124,11 +126,15 @@ template <class ControlType> void Control<ControlType>::rearrange(std::string ca
 		}
 	}
 	/// Set Fonts
-	if (fontType == "Normal")
+	if (fontType == Normal)
 	{
-		if (widthScale * heightScale > 0.8)
+		if (widthScale * heightScale > 2)
 		{
 			SetFont(fonts["Normal Font Max"]);
+		}
+		else if (widthScale * heightScale > 0.8)
+		{
+			SetFont(fonts["Normal Font Large"]);
 		}
 		else if (widthScale * heightScale > 0.6)
 		{
@@ -139,11 +145,15 @@ template <class ControlType> void Control<ControlType>::rearrange(std::string ca
 			SetFont(fonts["Normal Font Small"]);
 		}
 	}
-	else if (fontType == "Code")
+	else if (fontType == Code)
 	{
-		if (widthScale * heightScale > 0.8)
+		if (widthScale * heightScale > 2)
 		{
 			SetFont(fonts["Code Font Max"]);
+		}
+		else if (widthScale * heightScale > 0.8)
+		{
+			SetFont(fonts["Code Font Large"]);
 		}
 		else if (widthScale * heightScale > 0.6)
 		{
@@ -154,11 +164,15 @@ template <class ControlType> void Control<ControlType>::rearrange(std::string ca
 			SetFont(fonts["Code Font Small"]);
 		}
 	}
-	else if (fontType == "Heading")
+	else if (fontType == Heading)
 	{
-		if (widthScale * heightScale > 0.8)
+		if (widthScale * heightScale > 2)
 		{
 			SetFont(fonts["Heading Font Max"]);
+		}
+		else if (widthScale * heightScale > 0.8)
+		{
+			SetFont(fonts["Heading Font Large"]);
 		}
 		else if (widthScale * heightScale > 0.6)
 		{
@@ -169,11 +183,15 @@ template <class ControlType> void Control<ControlType>::rearrange(std::string ca
 			SetFont(fonts["Heading Font Small"]);
 		}
 	}
-	else if (this->fontType == "Large")
+	else if (fontType == Large)
 	{
-		if (widthScale * heightScale > 0.8)
+		if (widthScale * heightScale > 2)
 		{
 			SetFont(fonts["Larger Font Max"]);
+		}
+		else if (widthScale * heightScale > 0.8)
+		{
+			SetFont(fonts["Larger Font Large"]);
 		}
 		else if (widthScale * heightScale > 0.6)
 		{
@@ -184,11 +202,15 @@ template <class ControlType> void Control<ControlType>::rearrange(std::string ca
 			SetFont(fonts["Larger Font Small"]);
 		}
 	}
-	else if (fontType == "Small")
+	else if (fontType == Small)
 	{
-		if (widthScale * heightScale > 0.8)
+		if (widthScale * heightScale > 2)
 		{
 			SetFont(fonts["Smaller Font Max"]);
+		}
+		else if (widthScale * heightScale > 0.8)
+		{
+			SetFont(fonts["Smaller Font Large"]);
 		}
 		else if (widthScale * heightScale > 0.6)
 		{

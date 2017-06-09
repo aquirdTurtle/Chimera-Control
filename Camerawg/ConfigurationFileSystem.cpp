@@ -480,7 +480,7 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 
 /*
 ]--- This function attempts to save the configuration given the configuration name in the argument. It throws errors and warnings if this 
-]- is not a "normal" Save, i.e. if the file doesn't already exist or if the user tries to pass an empty name as an argument. It returns 
+]- is not a Normal Save, i.e. if the file doesn't already exist or if the user tries to pass an empty name as an argument. It returns 
 ]- false if the configuration got saved, true if something prevented the configuration from being saved.
 */
 void ConfigurationFileSystem::saveConfigurationOnly(ScriptingWindow* scriptWindow, MainWindow* comm)
@@ -989,7 +989,7 @@ void ConfigurationFileSystem::configurationChangeHandler(ScriptingWindow* script
 
 /// CATEGORY LEVEL HANDLING
 /*
-]--- This function attempts to save the category given the category name in the argument. It throws errors and warnings if this is not a "normal"
+]--- This function attempts to save the category given the category name in the argument. It throws errors and warnings if this is not a Normal
 ]- Save, i.e. if the file doesn't already exist or if the user tries to pass an empty name as an argument. It returns false if the category got saved,
 ]- true if something prevented the category from being saved.
 */
@@ -2066,7 +2066,7 @@ std::string ConfigurationFileSystem::getSequenceNamesString()
 }
 
 
-void ConfigurationFileSystem::initializeControls( POINT& topLeftPos, CWnd* parent, int& id, std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips )
+void ConfigurationFileSystem::initializeControls( POINT& topLeftPos, CWnd* parent, int& id, fontMap fonts, std::vector<CToolTipCtrl*>& tooltips )
 {
 	// Experiment Type
 	experimentLabel.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 20 };
@@ -2207,7 +2207,7 @@ void ConfigurationFileSystem::initializeControls( POINT& topLeftPos, CWnd* paren
 }
 
 
-void ConfigurationFileSystem::rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts)
+void ConfigurationFileSystem::rearrange(int width, int height, fontMap fonts)
 {
 	configLabel.rearrange("", "", width, height, fonts);
 	configCombo.rearrange("", "", width, height, fonts);

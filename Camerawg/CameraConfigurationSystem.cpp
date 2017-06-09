@@ -406,7 +406,7 @@ void CameraConfigurationSystem::initialize( cameraPositions& positions, CWnd* pa
 												 positions.videoPos.y + 25 };
 	configLabel.ID = id++;
 	configLabel.Create( "Configuration: ", WS_CHILD | WS_VISIBLE | ES_CENTER, configLabel.seriesPos, parent, configLabel.ID );
-	configLabel.fontType = "Normal";
+	configLabel.fontType = Normal;
 
 	/// CAMERA MODE
 	configCombo.seriesPos = { positions.seriesPos.x + 150, positions.seriesPos.y, positions.seriesPos.x + 480,
@@ -418,7 +418,7 @@ void CameraConfigurationSystem::initialize( cameraPositions& positions, CWnd* pa
 	configCombo.ID = id++;
 	configCombo.Create( WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, configCombo.seriesPos, parent, configCombo.ID );
 	// add options
-	configCombo.fontType = "Normal";
+	configCombo.fontType = Normal;
 	CameraConfigurationSystem::reloadCombo( "__NONE__" );
 	positions.seriesPos.y += 25;
 	positions.amPos.y += 25;

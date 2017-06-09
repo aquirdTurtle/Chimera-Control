@@ -162,8 +162,8 @@ scriptInfo<std::string> ScriptingWindow::getScriptAddresses()
 */
 HBRUSH ScriptingWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
-	std::unordered_map<std::string, CBrush*> brushes = mainWindowFriend->getBrushes();
-	std::unordered_map<std::string, COLORREF> rgbs = mainWindowFriend->getRGB();
+	brushMap brushes = mainWindowFriend->getBrushes();
+	rgbMap rgbs = mainWindowFriend->getRGB();
 	switch (nCtlColor)
 	{
 		case CTLCOLOR_STATIC:

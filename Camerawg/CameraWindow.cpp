@@ -116,24 +116,25 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam)
 	AndorRunSettings currentSettings = Andor.getSettings();
 	if (realTimePic)
 	{
+		std::pair<int, int> minMax;
 		// draw the most recent pic.
-		pics.drawPicture( drawer, pictureNumber % currentSettings.picsPerRepetition, picData.back() );
+		minMax = stats.update(picData.back(), pictureNumber % currentSettings.picsPerRepetition, selectedPixel,
+					 currentSettings.imageSettings.width,
+					 pictureNumber / currentSettings.picsPerRepetition,
+					 currentSettings.totalPicsInExperiment / currentSettings.picsPerRepetition);
+		pics.drawPicture( drawer, pictureNumber % currentSettings.picsPerRepetition, picData.back(), minMax );
 		timer.update( pictureNumber / currentSettings.picsPerRepetition, currentSettings.repetitionsPerVariation, 
 							currentSettings.totalVariations, currentSettings.picsPerRepetition );
-		stats.update( picData.back(), pictureNumber % currentSettings.picsPerRepetition, selectedPixel,
-					  currentSettings.imageSettings.width,
-					  pictureNumber / currentSettings.picsPerRepetition,
-					  currentSettings.totalPicsInExperiment / currentSettings.picsPerRepetition );
 	}
 	else if (pictureNumber % currentSettings.picsPerRepetition == 0)
 	{
 		int counter = 0;
 		for (auto data : picData)
 		{
-			stats.update( data, counter, selectedPixel, currentSettings.imageSettings.width,
+			std::pair<int, int> minMax = stats.update( data, counter, selectedPixel, currentSettings.imageSettings.width,
 						  pictureNumber / currentSettings.picsPerRepetition, 
 						  currentSettings.totalPicsInExperiment / currentSettings.picsPerRepetition );
-			pics.drawPicture( drawer, counter, data );
+			pics.drawPicture( drawer, counter, data, minMax);
 			pics.drawDongles( this, selectedPixel );
 			counter++;
 		}
@@ -141,6 +142,21 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam)
 					  currentSettings.totalVariations, currentSettings.picsPerRepetition );
 	}
 	return 0;
+}
+
+void CameraWindow::handleAutoscaleSelection()
+{
+	if (autoScalePictureData)
+	{
+		autoScalePictureData = false;
+		menu.CheckMenuItem(ID_PICTURES_AUTOSCALEPICTURES, MF_UNCHECKED);
+	}
+	else
+	{
+		autoScalePictureData = true;
+		menu.CheckMenuItem(ID_PICTURES_AUTOSCALEPICTURES, MF_CHECKED);
+	}
+	pics.setAutoScalePicturesOption(autoScalePictureData);
 }
 
 LRESULT CameraWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
@@ -226,12 +242,19 @@ void CameraWindow::handlePictureSettings(UINT id)
 	CameraSettings.handlePictureSettings(id, &Andor);
 	if (CameraSettings.getSettings().picsPerRepetition == 1)
 	{
-		pics.setSinglePicture(this, selectedPixel, CameraSettings.readImageParameters( this ) );
+		pics.setSinglePicture( this, selectedPixel, CameraSettings.readImageParameters( this ) );
 	}
 	else
 	{
-		pics.setMultiplePictures( this, selectedPixel, CameraSettings.readImageParameters( this ) );
+		pics.setMultiplePictures( this, selectedPixel, CameraSettings.readImageParameters( this ), 
+								  CameraSettings.getSettings().picsPerRepetition );
 	}
+	std::array<int, 4> nums = CameraSettings.getPaletteNumbers();
+	pics.setPalletes(nums);
+
+	CRect rect;
+	GetWindowRect(&rect);
+	OnSize(0, rect.right - rect.left, rect.bottom - rect.top);
 }
 
 
@@ -263,6 +286,7 @@ void CameraWindow::OnSize( UINT nType, int cx, int cy )
 	pics.setParameters( CameraSettings.readImageParameters( this ) );
 	RedrawWindow();
 	pics.redrawPictures( this, selectedPixel );
+	timer.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts());
 }
 
 
@@ -432,15 +456,16 @@ BOOL CameraWindow::OnInitDialog()
 	CameraSettings.initialize( positions, id, this, mainWindowFriend->getFonts(), tooltips );
 	POINT position = { 480, 0 };
 	stats.initialize( position, this, id, mainWindowFriend->getFonts(), tooltips );
-	positions.amPos = positions.seriesPos = positions.videoPos = { 757, 0 };
+	positions.sPos = { 757, 0 };
 	timer.initialize( positions, this, false, id, mainWindowFriend->getFonts(), tooltips );
-	position = positions.seriesPos;
+	position = { 757, 40 };
 	pics.initialize( position, this, id, mainWindowFriend->getFonts(), tooltips, mainWindowFriend->getBrushes()["Dark Green"] );
 	pics.setSinglePicture( this, { 0,0 }, CameraSettings.readImageParameters( this ) );
 	// load the menu
-	CMenu menu;
+	
 	menu.LoadMenu( IDR_MAIN_MENU );
 	SetMenu( &menu );
+
 	// final steps
 	ShowWindow( SW_MAXIMIZE );
 	SetTimer( NULL, 1000, NULL );
@@ -459,13 +484,14 @@ void CameraWindow::redrawPictures( bool andGrid )
 	{
 		pics.drawGrids( this );
 	}
+	//... and pictures???
 }
 
 
 HBRUSH CameraWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
-	std::unordered_map<std::string, CBrush*> brushes = mainWindowFriend->getBrushes();
-	std::unordered_map<std::string, COLORREF> rgbs = mainWindowFriend->getRGB();
+	brushMap brushes = mainWindowFriend->getBrushes();
+	rgbMap rgbs = mainWindowFriend->getRGB();
 	HBRUSH result;
 	int num = pWnd->GetDlgCtrlID();
 
@@ -519,6 +545,7 @@ void CameraWindow::passCommonCommand(UINT id)
 		errBox( err.what() );
 	}
 }
+
 
 void CameraWindow::readImageParameters()
 {

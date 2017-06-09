@@ -32,15 +32,16 @@ class CameraSettingsControl
 				runSettings.totalPicsInVariation = 10;
 			}
 		}
-		CBrush* handleColor(int idNumber, CDC* colorer, std::unordered_map<std::string, CBrush*> brushes, std::unordered_map<std::string, COLORREF> rgbs);
-		void initialize(cameraPositions& pos, int& id, CWnd* parent, std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips);
+		CBrush* handleColor(int idNumber, CDC* colorer, brushMap brushes, rgbMap rgbs);
+		void initialize(cameraPositions& pos, int& id, CWnd* parent, fontMap fonts, std::vector<CToolTipCtrl*>& tooltips);
 		void checkTimings(std::vector<float> exposureTimes);
 		void checkTimings(float kineticCycleTime, float accumulationTime, std::vector<float> exposureTimes);
 		imageParameters readImageParameters(CameraWindow* camWin);
 		void setEmGain(AndorCamera* andorObj);
-		void rearrange(std::string cameraMode, std::string triggerMode, int width, int height, std::unordered_map<std::string, CFont*> fonts);
+		void rearrange(std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts);
 		void handlePictureSettings(UINT id, AndorCamera* andorObj);
 		void handleTriggerControl(CameraWindow* cameraWindow);
+		std::array<int, 4> getPaletteNumbers();
 		void handleSetTemperatureOffPress();
 		void handleSetTemperaturePress();
 		void handleTimer();

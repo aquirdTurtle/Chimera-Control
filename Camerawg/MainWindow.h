@@ -13,6 +13,7 @@
 #include "SMSTextingControl.h"
 #include "NiawgController.h"
 #include "ExperimentManager.h"
+#include "commonTypes.h"
 
 class ScriptingWindow;
 class CameraWindow;
@@ -75,69 +76,66 @@ class MainWindow : public CDialog
 			/// the following is all equivalent to:
 			// mainFonts["Font name"] = new CFont;
 			// mainFonts["Font name"].CreateFontA(...);
-			(mainFonts["Normal Font"] = new CFont)->CreateFontA( 20, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
-																 OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-																 DEFAULT_PITCH | FF_SWISS, TEXT( "Arial" ) );
-			(mainFonts["Small Font"] = new CFont)->CreateFontA( 14, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
-																OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-																DEFAULT_PITCH | FF_SWISS, TEXT( "Arial" ) );
-			(mainFonts["Code Font"] = new CFont)->CreateFontA( 16, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
-															   CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-															   DEFAULT_PITCH | FF_SWISS, TEXT( "Consolas" ) );
-			(mainFonts["Small Code Font"] = new CFont)->CreateFontA( 12, 0, 0, 0, 400, FALSE, FALSE, FALSE, ANSI_CHARSET,
-																	 OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-																	 DEFAULT_PITCH | FF_SWISS, TEXT( "Consolas" ) );
-			(mainFonts["Heading Font"] = new CFont)->CreateFontA( 18, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
-																  OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-																  DEFAULT_PITCH | FF_SWISS, TEXT( "Old Sans Black" ) );
-			(mainFonts["Large Heading Font"] = new CFont)->CreateFontA( 28, 0, 0, 0, FW_DONTCARE, TRUE, FALSE, FALSE, ANSI_CHARSET,
-																		OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-																		DEFAULT_PITCH | FF_SWISS, TEXT( "Old Sans Black" ) );
-			(mainFonts["Smaller Font Max"] = new CFont)->CreateFontA( 14, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
-																	  OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-																	  DEFAULT_PITCH | FF_SWISS, TEXT( "Arial" ) );
-			(mainFonts["Normal Font Max"] = new CFont)->CreateFontA( 20, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
-																	 OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-																	 DEFAULT_PITCH | FF_SWISS, TEXT( "Arial" ) );
-			(mainFonts["Heading Font Max"] = new CFont)->CreateFontA( 28, 0, 0, 0, FW_DONTCARE, TRUE, FALSE, FALSE, ANSI_CHARSET,
-																	  OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-																	  DEFAULT_PITCH | FF_SWISS, TEXT( "Old Sans Black" ) );
-			(mainFonts["Code Font Max"] = new CFont)->CreateFontA( 16, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET,
-																   OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-																   DEFAULT_PITCH | FF_SWISS, TEXT( "Consolas" ) );
-			(mainFonts["Larger Font Max"] = new CFont)->CreateFontA( 40, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
-																	 OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-																	 DEFAULT_PITCH | FF_SWISS, TEXT( "Arial" ) );
-			(mainFonts["Smaller Font Med"] = new CFont)->CreateFontA( 8, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
-																	  OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-																	  DEFAULT_PITCH | FF_SWISS, TEXT( "Arial" ) );
-			(mainFonts["Normal Font Med"] = new CFont)->CreateFontA( 12, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
-																	 OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-																	 DEFAULT_PITCH | FF_SWISS, TEXT( "Arial" ) );
-			(mainFonts["Heading Font Med"] = new CFont)->CreateFontA( 16, 0, 0, 0, FW_DONTCARE, TRUE, FALSE, FALSE, ANSI_CHARSET,
-																	  OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-																	  DEFAULT_PITCH | FF_SWISS, TEXT( "Old Sans Black" ) );
-			(mainFonts["Code Font Med"] = new CFont)->CreateFontA( 10, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET,
-																   OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-																   DEFAULT_PITCH | FF_SWISS, TEXT( "Consolas" ) );
-			(mainFonts["Larger Font Med"] = new CFont)->CreateFontA( 22, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
-																	 OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-																	 DEFAULT_PITCH | FF_SWISS, TEXT( "Arial" ) );
-			(mainFonts["Smaller Font Small"] = new CFont)->CreateFontA( 6, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
-																		OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-																		DEFAULT_PITCH | FF_SWISS, TEXT( "Arial" ) );
-			(mainFonts["Normal Font Small"] = new CFont)->CreateFontA( 8, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
-																	   OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-																	   DEFAULT_PITCH | FF_SWISS, TEXT( "Arial" ) );
-			(mainFonts["Heading Font Small"] = new CFont)->CreateFontA( 12, 0, 0, 0, FW_DONTCARE, TRUE, FALSE, FALSE, ANSI_CHARSET,
-																		OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-																		DEFAULT_PITCH | FF_SWISS, TEXT( "Old Sans Black" ) );
-			(mainFonts["Code Font Small"] = new CFont)->CreateFontA( 7, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET,
-																	 OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-																	 DEFAULT_PITCH | FF_SWISS, TEXT( "Consolas" ) );
-			(mainFonts["Larger Font Small"] = new CFont)->CreateFontA( 16, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET,
-																	   OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-																	   DEFAULT_PITCH | FF_SWISS, TEXT( "Arial" ) );
+			(mainFonts["Smaller Font Max"] = new CFont)
+				->CreateFontA(27, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(mainFonts["Normal Font Max"] = new CFont)
+				->CreateFontA(34, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(mainFonts["Heading Font Max"] = new CFont)
+				->CreateFontA(42, 0, 0, 0, FW_DONTCARE, TRUE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Old Sans Black"));
+			(mainFonts["Code Font Max"] = new CFont)
+				->CreateFontA(32, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Consolas"));
+			(mainFonts["Larger Font Max"] = new CFont)
+				->CreateFontA(40, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(mainFonts["Smaller Font Large"] = new CFont)
+				->CreateFontA(14, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(mainFonts["Normal Font Large"] = new CFont)
+				->CreateFontA(20, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(mainFonts["Heading Font Large"] = new CFont)
+				->CreateFontA(28, 0, 0, 0, FW_DONTCARE, TRUE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Old Sans Black"));
+			(mainFonts["Code Font Large"] = new CFont)
+				->CreateFontA(16, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Consolas"));
+			(mainFonts["Larger Font Large"] = new CFont)
+				->CreateFontA(40, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(mainFonts["Smaller Font Med"] = new CFont)
+				->CreateFontA(8, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(mainFonts["Normal Font Med"] = new CFont)
+				->CreateFontA(12, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(mainFonts["Heading Font Med"] = new CFont)
+				->CreateFontA(16, 0, 0, 0, FW_DONTCARE, TRUE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Old Sans Black"));
+			(mainFonts["Code Font Med"] = new CFont)
+				->CreateFontA(10, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Consolas"));
+			(mainFonts["Larger Font Med"] = new CFont)
+				->CreateFontA(22, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(mainFonts["Smaller Font Small"] = new CFont)
+				->CreateFontA(6, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(mainFonts["Normal Font Small"] = new CFont)
+				->CreateFontA(8, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+			(mainFonts["Heading Font Small"] = new CFont)
+				->CreateFontA(12, 0, 0, 0, FW_DONTCARE, TRUE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Old Sans Black"));
+			(mainFonts["Code Font Small"] = new CFont)
+				->CreateFontA(7, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Consolas"));
+			(mainFonts["Larger Font Small"] = new CFont)
+				->CreateFontA(16, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+							  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
 		}
 
 		BOOL OnInitDialog() override;
@@ -164,9 +162,9 @@ class MainWindow : public CDialog
 
 		std::vector<variable> getAllVariables();
 		std::string getNotes(std::string whichLevel);
-		std::unordered_map<std::string, CBrush*> getBrushes();
-		std::unordered_map<std::string, COLORREF> getRGB();
-		std::unordered_map<std::string, CFont*> getFonts();
+		brushMap getBrushes();
+		rgbMap getRGB();
+		fontMap getFonts();
 		profileSettings getCurentProfileSettings();
 		debugInfo getDebuggingOptions();
 		mainOptions getMainOptions();
@@ -204,9 +202,9 @@ class MainWindow : public CDialog
 		CBrush* test;
 		ScriptingWindow* TheScriptingWindow;
 		CameraWindow* TheCameraWindow;
-		std::unordered_map<std::string, CBrush*> mainBrushes;
-		std::unordered_map<std::string, COLORREF> mainRGBs;		
-		std::unordered_map<std::string, CFont*> mainFonts;
+		brushMap mainBrushes;
+		rgbMap mainRGBs;		
+		fontMap mainFonts;
 		ConfigurationFileSystem profile;
 		NoteSystem notes;
 		VariableSystem variables;

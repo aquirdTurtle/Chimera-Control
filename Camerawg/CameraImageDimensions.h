@@ -25,8 +25,7 @@ class CameraImageDimensionsControl
 		void setImageParametersFromInput( imageParameters param, CameraWindow* camWin );
 		bool checkReady();
 		imageParameters getImageParameters();
-		void rearrange( std::string cameraMode, std::string triggerMode, int width,
-						int height, std::unordered_map<std::string, CFont*> fonts );
+		void rearrange( std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts );
 		HBRUSH colorEdits( HWND window, UINT message, WPARAM wParam, LPARAM lParam, MainWindow* mainWin );
 		void drawBackgrounds( CameraWindow* camWin );
 		void cameraIsOn( bool state );
@@ -51,3 +50,4 @@ class CameraImageDimensionsControl
 		bool isReady;
 		imageParameters currentImageParameters;
 };
+;

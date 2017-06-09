@@ -6,46 +6,39 @@
 #include "atmcd32d.h"
 #include "CameraWindow.h"
 
+
+AndorCamera::AndorCamera()
+{
+	runSettings.emGainModeIsOn = false;
+}
+
+
 void AndorCamera::updatePictureNumber( int newNumber )
 {
 	currentPictureNumber = newNumber;
 }
 
-
+/* 
+ * pause the camera thread which watches the camera for pictures
+ */
 void AndorCamera::pauseThread()
 {
 	// andor should not be taking images anymore at this point.
 	threadInput.spuriousWakeupHandler = false;
 }
 
-
+/*
+ * this should get called when the camera finishes running. right now this is very simple.
+ */
 void AndorCamera::onFinish()
 {
-	// right now this is very simple.
 	cameraIsRunning = false;
 }
 
 
-void AndorCamera::getAcquisitionProgress( long& seriesNumber )
-{
-	if ( !ANDOR_SAFEMODE )
-	{
-		long dummyAccumulationNumber;
-		andorErrorChecker( GetAcquisitionProgress( &dummyAccumulationNumber, &seriesNumber ) );
-	}
-	
-}
-
-
-void AndorCamera::getAcquisitionProgress( long& accumulationNumber, long& seriesNumber )
-{
-	if ( !ANDOR_SAFEMODE )
-	{
-		andorErrorChecker( GetAcquisitionProgress( &accumulationNumber, &seriesNumber ) );
-	}
-}
-
-
+/*
+ * this thread watches the camera for pictuers and when it sees a picture lets the main thread know via a message. 
+ */
 unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 {
 	cameraThreadInput* input = (cameraThreadInput*) voidPtr;
@@ -122,325 +115,6 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 		}
 	}
 	return 0;
-}
-
-
-/// ANDOR SDK WRAPPERS
-// the following functions are wrapped to throw errors if error are returned by the raw functions, as well as to only 
-// excecute the raw functions if the camera is not in safemode.
-void AndorCamera::waitForAcquisition()
-{
-	if ( !ANDOR_SAFEMODE )
-	{
-		andorErrorChecker( WaitForAcquisition() );
-	}
-}
-
-
-void AndorCamera::getTemperature(int& temp)
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(GetTemperature(&temp));
-	}
-}
-
-//
-void AndorCamera::getAdjustedRingExposureTimes(int size, float* timesArray)
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(GetAdjustedRingExposureTimes(size, timesArray));
-	}
-}
-
-
-void AndorCamera::setNumberKinetics(int number)
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(SetNumberKinetics(number));
-	}
-
-}
-
-// Andor Wrappers
-void AndorCamera::getTemperatureRange(int& min, int& max)
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(GetTemperatureRange(&min, &max));
-	}
-}
-
-
-void AndorCamera::temperatureControlOn()
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(CoolerON());
-	}
-}
-
-
-void AndorCamera::temperatureControlOff()
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(CoolerOFF());
-	}
-}
-
-
-void AndorCamera::setTemperature(int temp)
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(SetTemperature(temp));
-	}
-}
-
-
-void AndorCamera::setADChannel(int channel)
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(SetADChannel(channel));
-	}
-}
-
-
-void AndorCamera::setHSSpeed(int type, int index)
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(SetHSSpeed(type, index));
-	}
-}
-
-// note that the function used here could be used to get actual information about the number of images, I just only use
-// it to check whether there are any new images or not. Not sure if this is the smartest way to do this.
-void AndorCamera::checkForNewImages()
-{
-	long first, last;
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(GetNumberNewImages(&first, &last));
-	}
-	// don't do anything with the info.
-}
-
-
-void AndorCamera::getOldestImage(long& dataArray, int size)
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(GetOldestImage(&dataArray, size));
-	}
-}
-
-
-void AndorCamera::setTriggerMode(int mode)
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(SetTriggerMode(mode));
-	}
-}
-
-
-void AndorCamera::setAcquisitionMode(int mode)
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(SetAcquisitionMode(mode));
-	}
-}
-
-
-void AndorCamera::setReadMode(int mode)
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(SetReadMode(mode));
-	}
-}
-
-
-void AndorCamera::setRingExposureTimes(int sizeOfTimesArray, float* arrayOfTimes)
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(SetRingExposureTimes(sizeOfTimesArray, arrayOfTimes));
-	}
-}
-
-
-void AndorCamera::setImage(int hBin, int vBin, int lBorder, int rBorder, int tBorder, int bBorder)
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(SetImage(hBin, vBin, lBorder, rBorder, tBorder, bBorder));
-	}
-}
-
-
-void AndorCamera::setKineticCycleTime(float cycleTime)
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(SetKineticCycleTime(cycleTime));
-	}
-}
-
-
-void AndorCamera::setFrameTransferMode(int mode)
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(SetFrameTransferMode(mode));
-	}
-}
-
-
-void AndorCamera::getAcquisitionTimes(float& exposure, float& accumulation, float& kinetic)
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(GetAcquisitionTimings(&exposure, &accumulation, &kinetic));
-	}
-}
-
-/*
-*/
-void AndorCamera::getStatus()
-{
-	int status;
-	getStatus( status );
-	if (ANDOR_SAFEMODE)
-	{
-		status = DRV_IDLE;
-	}
-	if (status != DRV_IDLE)
-	{
-		thrower( "ERROR: You tried to start the camera, but the camera was not idle! Camera was in state corresponding to " 
-				 + std::to_string( status ) + "\r\n" );
-	}
-}
-
-void AndorCamera::setIsRunningState( bool state )
-{
-	cameraIsRunning = state;
-}
-
-void AndorCamera::getStatus(int& status)
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(GetStatus(&status));
-	}
-}
-
-
-void AndorCamera::startAcquisition()
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(StartAcquisition());
-	}
-}
-
-
-void AndorCamera::abortAcquisition()
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(AbortAcquisition());
-	}
-}
-
-
-void AndorCamera::setAccumulationCycleTime(float time)
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(SetAccumulationCycleTime(time));
-	}
-}
-
-
-void AndorCamera::setAccumulationNumber(int number)
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(SetNumberAccumulations(number));
-	}
-}
-
-
-void AndorCamera::getNumberOfPreAmpGains(int& number)
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(GetNumberPreAmpGains(&number));
-	}
-}
-
-
-void AndorCamera::setPreAmpGain(int index)
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(SetPreAmpGain(index));
-	}
-}
-
-
-void AndorCamera::getPreAmpGain(int index, float& gain)
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(GetPreAmpGain(index, &gain));
-	}
-}
-
-
-void AndorCamera::setOutputAmplifier(int type)
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(SetOutputAmplifier(type));
-	}
-}
-
-
-void AndorCamera::setEmGainSettingsAdvanced(int state)
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(SetEMAdvanced(state));
-	}
-}
-
-
-void AndorCamera::setEmCcdGain(int gain)
-{
-	if (!ANDOR_SAFEMODE)
-	{
-		andorErrorChecker(SetEMCCDGain(gain));
-	}
-}
-
-///
-bool AndorCamera::isRunning()
-{
-	return cameraIsRunning;
-}
-
-
-AndorCamera::AndorCamera()
-{
-	runSettings.emGainModeIsOn = false;
 }
 
 
@@ -546,8 +220,11 @@ void AndorCamera::setSystem(CameraWindow* camWin)
 	startAcquisition();
 }
 
-// This function queries the camera for how many pictures are available, retrieves all of them, then paints them to the main window. It returns the success of
-// this operation.
+
+/* 
+ * This function queries the camera for how many pictures are available, retrieves all of them, then paints them to 
+ * the main window. It returns the success of this operation.
+ */
 std::vector<std::vector<long>> AndorCamera::acquireImageData()
 {
 	try
@@ -619,9 +296,6 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 	{
 		for (int imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 		{
-			// tempImage[imageVecInc] = imageVecInc;// (imageVecInc == 5);
-			
-			//tempImage[0] = 1000;
 			if (experimentPictureNumber == 0 && imageVecInc == 0)
 			{
 				tempImage[imageVecInc] = 400;
@@ -634,14 +308,21 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 				}
 				else
 				{
-					tempImage[imageVecInc] = rand() % 30 + 95;
+					tempImage[imageVecInc] = rand() % 200 + 95;
 				}
+			}
+			else if (imageVecInc == 1)
+			{
+				tempImage[imageVecInc] = 300;
+			}
+			else if (imageVecInc == 2)
+			{
+				tempImage[imageVecInc] = 200;
 			}
 			else
 			{
 				tempImage[imageVecInc] = rand() % 30 + 95;
-			}
-
+			}	
 		}
 		WaitForSingleObject(imagesMutex, INFINITE);
 		for (int imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
@@ -650,39 +331,16 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 				+ 1) * runSettings.imageSettings.height - imageVecInc / runSettings.imageSettings.width - 1];
 		}
 		ReleaseMutex(imagesMutex);
-
 	}
-	// ???
-	// eDataExists = true;
+
 	// Display data and query max data value to be displayed in status box
 	BOOL bRetValue = TRUE;
 	long maxValue = 1;
-	long minValue = 65536;
-	/*
-	if (imagesOfExperiment[experimentPictureNumber].size() != 0)
-	{
-		// Find max value and scale data to fill rect
-		for (int pixelInc = 0; pixelInc < runSettings.imageSettings.width * runSettings.imageSettings.height; pixelInc++)
-		{
-			if (imagesOfExperiment[experimentPictureNumber][pixelInc] > maxValue)
-			{
-				maxValue = imagesOfExperiment[experimentPictureNumber][pixelInc];
-			}
-			if (imagesOfExperiment[experimentPictureNumber][pixelInc] < minValue)
-			{
-				minValue = imagesOfExperiment[experimentPictureNumber][pixelInc];
-			}
-		}
-		if (maxValue == minValue)
-		{
-			return this->imagesOfExperiment;
-		}
-		// update the picture
-		if (experimentPictureNumber == this->runSettings.picsPerRepetition - 1 
-			|| this->runSettings.showPicsInRealTime)
-		{
-			//this->drawDataWindow();
-		}
+ 	long minValue = 65536;
+
+	/// handle plotting & data writing.
+
+	/*			
 		// Wait until eImageVecQueue is available using the mutex.
 
 		DWORD mutexMsg = WaitForSingleObject(plottingMutex, INFINITE);
@@ -770,270 +428,7 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 }
 
 
-void AndorCamera::drawDataWindow(void)
-{
-	if (imagesOfExperiment.size() != 0)
-	{
-		for (int experimentImagesInc = 0; experimentImagesInc < imagesOfExperiment.size(); experimentImagesInc++)
-		{
-			long maxValue = 1;
-			long minValue = 65536;
-			double avgValue;
-			// for all pixels... find the max and min of the picture.
-			for (int pixelInc = 0; pixelInc < imagesOfExperiment[experimentImagesInc].size(); pixelInc++)
-			{
-				try
-				{
-					if (imagesOfExperiment[experimentImagesInc][pixelInc] > maxValue)
-					{
-						maxValue = imagesOfExperiment[experimentImagesInc][pixelInc];
-					}
-					if (imagesOfExperiment[experimentImagesInc][pixelInc] < minValue)
-					{
-						minValue = imagesOfExperiment[experimentImagesInc][pixelInc];
-					}
-				}
-				catch (std::out_of_range&)
-				{
-					thrower( "ERROR: caught std::out_of_range in drawDataWindow! experimentImagesInc = " + std::to_string( experimentImagesInc )
-							 + ", pixelInc = " + std::to_string( pixelInc ) + ", eImagesOfExperiment.size() = " + std::to_string( imagesOfExperiment.size() )
-							 + ", eImagesOfExperiment[experimentImagesInc].size() = " + std::to_string( imagesOfExperiment[experimentImagesInc].size() )
-							 + ". Attempting to continue..." );
-				}
-			}
-			avgValue = std::accumulate(imagesOfExperiment[experimentImagesInc].begin(), imagesOfExperiment[experimentImagesInc].end(), 0.0)
-						/ imagesOfExperiment[experimentImagesInc].size();
-			HDC hDC = 0;
-			float yscale;
-			long modrange = 1;
-			double dTemp = 1;
-			int dataWidth, dataHeight;
-			int palletteInc, j, iTemp;
-			HANDLE hloc;
-			PBITMAPINFO pbmi;
-			WORD argbq[PICTURE_PALETTE_SIZE];
-			BYTE *DataArray;
-			// % 4 at the end because there are only 4 pictures available on the screen.
-				
-			int imageLocation;
-			if (runSettings.showPicsInRealTime)
-			{
-				imageLocation = (((currentPictureNumber - 1) % runSettings.totalPicsInVariation) 
-					% runSettings.picsPerRepetition) % 4;
-			}
-			else
-			{
-				imageLocation = experimentImagesInc % 4;
-			}
-			// Rotated
-			/*
-			int selectedPixelCount = imagesOfExperiment[experimentImagesInc][eCurrentlySelectedPixel.first 
-																				+ eCurrentlySelectedPixel.second * tempParam.width];
-
-			ePicStats.update(selectedPixelCount, maxValue, minValue, avgValue, imageLocation);
-			*/
-			/*
-			hDC = GetDC(eCameraWindowHandle);
-			std::array<int, 4> colors = ePictureOptionsControl.getPictureColors();
-			SelectPalette(hDC, eAppPalette[colors[imageLocation]], TRUE);
-			RealizePalette(hDC);
-			pixelsAreaWidth = eImageDrawAreas[imageLocation].right - eImageDrawAreas[imageLocation].left + 1;
-			pixelsAreaHeight = eImageDrawAreas[imageLocation].bottom - eImageDrawAreas[imageLocation].top + 1;
-			*/
-			/*
-			if (eAutoscalePictures)
-			{
-				modrange = maxValue - minValue;
-			}
-			else
-			{
-				modrange = eCurrentMaximumPictureCount[imageLocation] - eCurrentMinimumPictureCount[imageLocation];
-			}
-			*/
-			dataWidth = runSettings.imageSettings.width;
-			dataHeight = runSettings.imageSettings.height;
-			// imageBoxWidth must be a multiple of 4, otherwise StretchDIBits has problems apparently T.T
-			yscale = (256.0f) / (float)modrange;
-
-			for (palletteInc = 0; palletteInc < PICTURE_PALETTE_SIZE; palletteInc++)
-			{
-				argbq[palletteInc] = (WORD)palletteInc;
-			}
-
-			hloc = LocalAlloc(LMEM_ZEROINIT | LMEM_MOVEABLE, sizeof(BITMAPINFOHEADER) + (sizeof(WORD)*PICTURE_PALETTE_SIZE));
-
-			pbmi = (PBITMAPINFO)LocalLock(hloc);
-			pbmi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-			pbmi->bmiHeader.biPlanes = 1;
-			pbmi->bmiHeader.biBitCount = 8;
-			pbmi->bmiHeader.biCompression = BI_RGB;
-			pbmi->bmiHeader.biClrUsed = PICTURE_PALETTE_SIZE;
-
-			pbmi->bmiHeader.biHeight = dataHeight;
-			memcpy(pbmi->bmiColors, argbq, sizeof(WORD) * PICTURE_PALETTE_SIZE);
-
-			DataArray = (BYTE*)malloc(dataWidth * dataHeight * sizeof(BYTE));
-			memset(DataArray, PICTURE_PALETTE_SIZE - 1, dataWidth * dataHeight);
-			for (palletteInc = 0; palletteInc < runSettings.imageSettings.height; palletteInc++)
-			{
-				for (j = 0; j < runSettings.imageSettings.width; j++)
-				{
-					/*
-					if (eAutoscalePictures)
-					{
-						dTemp = ceil(yscale * (eImagesOfExperiment[experimentImagesInc][j + palletteInc * tempParam.width] - minValue));
-					}
-					else
-					{
-						dTemp = ceil(yscale * (eImagesOfExperiment[experimentImagesInc][j + palletteInc * tempParam.width] - eCurrentMinimumPictureCount[imageLocation]));
-					}
-					*/
-					if (dTemp < 0)
-					{
-						// raise value to zero which is the floor of values this parameter can take.
-						iTemp = 0;
-					}
-					else if (dTemp > PICTURE_PALETTE_SIZE - 1)
-					{
-						// round to maximum value.
-						iTemp = PICTURE_PALETTE_SIZE - 1;
-					}
-					else
-					{
-						// no rounding or flooring to min or max needed.
-						iTemp = (int)dTemp;
-					}
-					// store the value.
-					DataArray[j + palletteInc * dataWidth] = (BYTE)iTemp;
-				}
-			}
-			SetStretchBltMode(hDC, COLORONCOLOR);
-			// eCurrentAccumulationNumber starts at 1.
-			BYTE *finalDataArray = NULL;
-			switch (runSettings.imageSettings.width % 4)
-			{
-				case 0:
-				{
-					pbmi->bmiHeader.biWidth = dataWidth;
-					/*
-					StretchDIBits(hDC, eImageDrawAreas[imageLocation].left, eImageDrawAreas[imageLocation].top, pixelsAreaWidth, pixelsAreaHeight, 0, 0, dataWidth,
-						dataHeight, DataArray, (BITMAPINFO FAR*)pbmi, DIB_PAL_COLORS,
-						SRCCOPY);
-					*/
-					break;
-				}
-				case 2:
-				{
-					// make array that is twice as long.
-					finalDataArray = (BYTE*)malloc(dataWidth * dataHeight * 2);
-					memset(finalDataArray, 255, dataWidth * dataHeight * 2);
-
-					for (int dataInc = 0; dataInc < dataWidth * dataHeight; dataInc++)
-					{
-						finalDataArray[2 * dataInc] = DataArray[dataInc];
-						finalDataArray[2 * dataInc + 1] = DataArray[dataInc];
-					}
-					pbmi->bmiHeader.biWidth = dataWidth * 2;
-					/*
-					StretchDIBits(hDC, eImageDrawAreas[imageLocation].left, eImageDrawAreas[imageLocation].top, pixelsAreaWidth, pixelsAreaHeight, 0, 0, dataWidth * 2, dataHeight,
-						finalDataArray, (BITMAPINFO FAR*)pbmi, DIB_PAL_COLORS, SRCCOPY);
-						*/
-					free(finalDataArray);
-					break;
-				}
-				default:
-				{
-					// make array that is 4X as long.
-					finalDataArray = (BYTE*)malloc(dataWidth * dataHeight * 4);
-					memset(finalDataArray, 255, dataWidth * dataHeight * 4);
-					for (int dataInc = 0; dataInc < dataWidth * dataHeight; dataInc++)
-					{
-						int data = DataArray[dataInc];
-						finalDataArray[4 * dataInc] = data;
-						finalDataArray[4 * dataInc + 1] = data;
-						finalDataArray[4 * dataInc + 2] = data;
-						finalDataArray[4 * dataInc + 3] = data;
-					}
-					pbmi->bmiHeader.biWidth = dataWidth * 4;
-					/*
-					StretchDIBits(hDC, eImageDrawAreas[imageLocation].left, eImageDrawAreas[imageLocation].top, pixelsAreaWidth, pixelsAreaHeight, 0, 0, dataWidth * 4, dataHeight,
-						finalDataArray, (BITMAPINFO FAR*)pbmi, DIB_PAL_COLORS, SRCCOPY);
-						*/
-					free(finalDataArray);
-					break;
-				}
-			}
-			free(DataArray);
-			/// other drawings
-			/*
-			RECT relevantRect = ePixelRectangles[imageLocation][eCurrentlySelectedPixel.first][tempParam.height - 1 - eCurrentlySelectedPixel.second];
-			*/
-			// make crosses
-			/*
-			std::vector<std::pair<int, int>> atomLocations = eAutoAnalysisHandler.getAtomLocations();
-			for (int analysisPointInc = 0; analysisPointInc < atomLocations.size(); analysisPointInc++)
-			{
-				RECT crossRect = ePixelRectangles[imageLocation][atomLocations[analysisPointInc].first][tempParam.height - 1 - atomLocations[analysisPointInc].second];
-				HDC hdc;
-				HPEN crossPen;
-				hdc = GetDC(eCameraWindowHandle);
-				if (colors[imageLocation] == 0 || colors[imageLocation] == 2)
-				{
-					crossPen = CreatePen(0, 1, RGB(255, 0, 0));
-				}
-				else
-				{
-					crossPen = CreatePen(0, 1, RGB(0, 255, 0));
-				}
-				SelectObject(hdc, crossPen);
-				MoveToEx(hdc, crossRect.left, crossRect.top, 0);
-				LineTo(hdc, crossRect.right, crossRect.top);
-				LineTo(hdc, crossRect.right, crossRect.bottom);
-				LineTo(hdc, crossRect.left, crossRect.bottom);
-				LineTo(hdc, crossRect.left, crossRect.top);
-				SetBkMode(hdc, TRANSPARENT);
-				SetTextColor(hdc, RGB(200, 200, 200));
-				int atomNumber = analysisPointInc + 1;
-				DrawTextEx(hdc, const_cast<char *>(std::to_string(atomNumber).c_str()), std::to_string(atomNumber).size(),
-					&crossRect, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL);
-				ReleaseDC(eCameraWindowHandle, hdc);
-				DeleteObject(crossPen);
-			}
-			// color circle
-			RECT halfRect;
-			halfRect.left = relevantRect.left + 7.0 * (relevantRect.right - relevantRect.left) / 16.0;
-			halfRect.right = relevantRect.left + 9.0 * (relevantRect.right - relevantRect.left) / 16.0;
-			halfRect.top = relevantRect.top + 7.0 * (relevantRect.bottom - relevantRect.top) / 16.0;
-			halfRect.bottom = relevantRect.top + 9.0 * (relevantRect.bottom - relevantRect.top) / 16.0;
-			HGDIOBJ originalBrush = SelectObject(hDC, GetStockObject(HOLLOW_BRUSH));
-			HGDIOBJ originalPen = SelectObject(hDC, GetStockObject(DC_PEN));
-			if (colors[imageLocation] == 0 || colors[imageLocation] == 2)
-			{
-				SetDCPenColor(hDC, RGB(255, 0, 0));
-				Ellipse(hDC, relevantRect.left, relevantRect.top, relevantRect.right, relevantRect.bottom);
-				SelectObject(hDC, GetStockObject(DC_BRUSH));
-				SetDCBrushColor(hDC, RGB(255, 0, 0));
-			}
-			else
-			{
-				SetDCPenColor(hDC, RGB(0, 255, 0));
-				Ellipse(hDC, relevantRect.left, relevantRect.top, relevantRect.right, relevantRect.bottom);
-				SelectObject(hDC, GetStockObject(DC_BRUSH));
-				SetDCBrushColor(hDC, RGB(0, 255, 0));
-			}
-			Ellipse(hDC, halfRect.left, halfRect.top, halfRect.right, halfRect.bottom);
-			SelectObject(hDC, originalBrush);
-			SelectObject(hDC, originalPen);
-			ReleaseDC(eCameraWindowHandle, hDC);
-			LocalUnlock(hloc);
-			LocalFree(hloc);
-			*/
-		}
-	}
-}
-
-
-// The following are a set of simple functions that call the indicated andor SDK function if not in safe mode and check the error message.
+// sets this based on internal settings object.
 void AndorCamera::setCameraTriggerMode()
 {
 	std::string errMsg;
@@ -1108,7 +503,7 @@ void AndorCamera::setScanNumber()
 {
 	if (runSettings.totalPicsInExperiment == 0 && runSettings.totalPicsInVariation != 0)
 	{
-		// all is good. The eCurrentTotalVariationNumber has not been set yet.
+		// all is good. The first variable has not been set yet.
 	}
 	else if (runSettings.totalPicsInVariation == 0)
 	{
@@ -1128,10 +523,10 @@ void AndorCamera::setFrameTransferMode()
 
 
 /*
-	* exposures should be initialized to be the correct size. Nothing else matters for the inputs, they get 
-	* over-written.
-	* throws exception if fails
-	*/
+ * exposures should be initialized to be the correct size. Nothing else matters for the inputs, they get 
+ * over-written.
+ * throws exception if fails
+ */
 void AndorCamera::checkAcquisitionTimings(float& kinetic, float& accumulation, std::vector<float>& exposures)
 {
 	float tempExposure, tempAccumTime, tempKineticTime;
@@ -1202,12 +597,14 @@ void AndorCamera::setNumberAccumulations(bool isKinetic)
 	if (isKinetic)
 	{
 		// right now, kinetic series mode always has one accumulation. could add this feature later if desired.
-		//setNumberAccumulations(true);
+		//setNumberAccumulations(true); // ???
+		//SetNumberAccumulations(1);
 	}
 	else
 	{
 		// ???
-		//setNumberAccumulations(false);
+		// setNumberAccumulations(false); // ???
+		// SetNumberAccumulations(num);
 	}
 }
 
@@ -1242,7 +639,6 @@ void AndorCamera::setGainMode()
 	}
 }
 
-///
 
 void AndorCamera::changeTemperatureSetting(bool turnTemperatureControlOff)
 {
@@ -1705,5 +1101,341 @@ void AndorCamera::andorErrorChecker(int errorCode)
 	if (errorMessage != "DRV_SUCCESS")
 	{
 		thrower( errorMessage );
+	}
+}
+
+/// ANDOR SDK WRAPPERS
+// the following functions are wrapped to throw errors if error are returned by the raw functions, as well as to only 
+// excecute the raw functions if the camera is not in safemode.
+void AndorCamera::waitForAcquisition()
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(WaitForAcquisition());
+	}
+}
+
+
+void AndorCamera::getTemperature(int& temp)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(GetTemperature(&temp));
+	}
+}
+
+//
+void AndorCamera::getAdjustedRingExposureTimes(int size, float* timesArray)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(GetAdjustedRingExposureTimes(size, timesArray));
+	}
+}
+
+
+void AndorCamera::setNumberKinetics(int number)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetNumberKinetics(number));
+	}
+
+}
+
+// Andor Wrappers
+void AndorCamera::getTemperatureRange(int& min, int& max)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(GetTemperatureRange(&min, &max));
+	}
+}
+
+
+void AndorCamera::temperatureControlOn()
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(CoolerON());
+	}
+}
+
+
+void AndorCamera::temperatureControlOff()
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(CoolerOFF());
+	}
+}
+
+
+void AndorCamera::setTemperature(int temp)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetTemperature(temp));
+	}
+}
+
+
+void AndorCamera::setADChannel(int channel)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetADChannel(channel));
+	}
+}
+
+
+void AndorCamera::setHSSpeed(int type, int index)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetHSSpeed(type, index));
+	}
+}
+
+// note that the function used here could be used to get actual information about the number of images, I just only use
+// it to check whether there are any new images or not. Not sure if this is the smartest way to do this.
+void AndorCamera::checkForNewImages()
+{
+	long first, last;
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(GetNumberNewImages(&first, &last));
+	}
+	// don't do anything with the info.
+}
+
+
+void AndorCamera::getOldestImage(long& dataArray, int size)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(GetOldestImage(&dataArray, size));
+	}
+}
+
+
+void AndorCamera::setTriggerMode(int mode)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetTriggerMode(mode));
+	}
+}
+
+
+void AndorCamera::setAcquisitionMode(int mode)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetAcquisitionMode(mode));
+	}
+}
+
+
+void AndorCamera::setReadMode(int mode)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetReadMode(mode));
+	}
+}
+
+
+void AndorCamera::setRingExposureTimes(int sizeOfTimesArray, float* arrayOfTimes)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetRingExposureTimes(sizeOfTimesArray, arrayOfTimes));
+	}
+}
+
+
+void AndorCamera::setImage(int hBin, int vBin, int lBorder, int rBorder, int tBorder, int bBorder)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetImage(hBin, vBin, lBorder, rBorder, tBorder, bBorder));
+	}
+}
+
+
+void AndorCamera::setKineticCycleTime(float cycleTime)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetKineticCycleTime(cycleTime));
+	}
+}
+
+
+void AndorCamera::setFrameTransferMode(int mode)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetFrameTransferMode(mode));
+	}
+}
+
+
+void AndorCamera::getAcquisitionTimes(float& exposure, float& accumulation, float& kinetic)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(GetAcquisitionTimings(&exposure, &accumulation, &kinetic));
+	}
+}
+
+/*
+*/
+void AndorCamera::getStatus()
+{
+	int status;
+	getStatus(status);
+	if (ANDOR_SAFEMODE)
+	{
+		status = DRV_IDLE;
+	}
+	if (status != DRV_IDLE)
+	{
+		thrower("ERROR: You tried to start the camera, but the camera was not idle! Camera was in state corresponding to "
+				+ std::to_string(status) + "\r\n");
+	}
+}
+
+void AndorCamera::setIsRunningState(bool state)
+{
+	cameraIsRunning = state;
+}
+
+void AndorCamera::getStatus(int& status)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(GetStatus(&status));
+	}
+}
+
+
+void AndorCamera::startAcquisition()
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(StartAcquisition());
+	}
+}
+
+
+void AndorCamera::abortAcquisition()
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(AbortAcquisition());
+	}
+}
+
+
+void AndorCamera::setAccumulationCycleTime(float time)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetAccumulationCycleTime(time));
+	}
+}
+
+
+void AndorCamera::setAccumulationNumber(int number)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetNumberAccumulations(number));
+	}
+}
+
+
+void AndorCamera::getNumberOfPreAmpGains(int& number)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(GetNumberPreAmpGains(&number));
+	}
+}
+
+
+void AndorCamera::setPreAmpGain(int index)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetPreAmpGain(index));
+	}
+}
+
+
+void AndorCamera::getPreAmpGain(int index, float& gain)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(GetPreAmpGain(index, &gain));
+	}
+}
+
+
+void AndorCamera::setOutputAmplifier(int type)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetOutputAmplifier(type));
+	}
+}
+
+
+void AndorCamera::setEmGainSettingsAdvanced(int state)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetEMAdvanced(state));
+	}
+}
+
+
+void AndorCamera::setEmCcdGain(int gain)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(SetEMCCDGain(gain));
+	}
+}
+
+///
+bool AndorCamera::isRunning()
+{
+	return cameraIsRunning;
+}
+
+
+/*
+* the input here will store how many whole pictures (not accumulations) have been taken.
+*/
+void AndorCamera::getAcquisitionProgress(long& seriesNumber)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		long dummyAccumulationNumber;
+		andorErrorChecker(GetAcquisitionProgress(&dummyAccumulationNumber, &seriesNumber));
+	}
+}
+
+/*
+* overload to get both the acccumulation progress and the whole picture progress.
+*/
+void AndorCamera::getAcquisitionProgress(long& accumulationNumber, long& seriesNumber)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(GetAcquisitionProgress(&accumulationNumber, &seriesNumber));
 	}
 }

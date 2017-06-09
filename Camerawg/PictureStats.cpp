@@ -5,14 +5,13 @@
 #include <numeric>
 
 // as of right now, the position of this control is not affected by the mode or the trigger mode.
-bool PictureStats::initialize( POINT& pos, CWnd* parent, int& id, std::unordered_map<std::string, CFont*> fonts,
-							   std::vector<CToolTipCtrl*>& tooltips )
+bool PictureStats::initialize( POINT& pos, CWnd* parent, int& id, fontMap fonts, std::vector<CToolTipCtrl*>& tooltips )
 {
 	pictureStatsHeader.sPos = { pos.x, pos.y, pos.x + 272, pos.y + 25 };
 	pictureStatsHeader.ID = id++;
 	pictureStatsHeader.Create( "Raw Counts", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY | ES_CENTER,
 							   pictureStatsHeader.sPos, parent, pictureStatsHeader.ID );
-	pictureStatsHeader.fontType = "Heading";
+	pictureStatsHeader.fontType = Heading;
 	pos.y += 25;
 	/// CURRENT IMAGE DATA
 	// Current Accumulation Number Display
@@ -20,7 +19,7 @@ bool PictureStats::initialize( POINT& pos, CWnd* parent, int& id, std::unordered
 	repetitionIndicator.ID = id++;
 	repetitionIndicator.Create( "Repetition ?/?", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY | ES_CENTER, repetitionIndicator.sPos,
 								parent, repetitionIndicator.ID );
-	repetitionIndicator.fontType = "Normal";
+	repetitionIndicator.fontType = Normal;
 	pos.y += 25;
 	/// Picture labels ////////////////////////////////////////////////////////////
 
@@ -28,7 +27,7 @@ bool PictureStats::initialize( POINT& pos, CWnd* parent, int& id, std::unordered
 	collumnHeaders[0].sPos = { pos.x, pos.y, pos.x + 54, pos.y + 25 };
 	collumnHeaders[0].ID = id++;
 	collumnHeaders[0].Create( "Pic:", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, collumnHeaders[0].sPos, parent, collumnHeaders[0].ID );
-	collumnHeaders[0].fontType = "Small";
+	collumnHeaders[0].fontType = Small;
 	pos.y += 25;
 	int inc = 0;
 	for (auto& control : picNumberIndicators)
@@ -37,7 +36,7 @@ bool PictureStats::initialize( POINT& pos, CWnd* parent, int& id, std::unordered
 		control.sPos = { pos.x, pos.y, pos.x + 54, pos.y + 25 };
 		control.ID = id++;
 		control.Create( ("#" + str( inc ) + ":").c_str(), WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, control.sPos, parent, control.ID );
-		control.fontType = "Small";
+		control.fontType = Small;
 		pos.y += 25;
 	}
 	pos.y -= 125;
@@ -48,7 +47,7 @@ bool PictureStats::initialize( POINT& pos, CWnd* parent, int& id, std::unordered
 	collumnHeaders[1].ID = id++;
 	collumnHeaders[1].Create( "Max:", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, collumnHeaders[1].sPos,
 							  parent, collumnHeaders[1].ID );
-	collumnHeaders[1].fontType = "Small";
+	collumnHeaders[1].fontType = Small;
 	pos.y += 25;
 	// #1
 	for (auto& control : maxCounts)
@@ -56,7 +55,7 @@ bool PictureStats::initialize( POINT& pos, CWnd* parent, int& id, std::unordered
 		control.sPos = { pos.x + 54, pos.y, pos.x + 108, pos.y + 25 };
 		control.ID = id++;
 		control.Create( "-", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, control.sPos, parent, control.ID );
-		control.fontType = "Small";
+		control.fontType = Small;
 		pos.y += 25;
 	}
 	// back to top.
@@ -67,7 +66,7 @@ bool PictureStats::initialize( POINT& pos, CWnd* parent, int& id, std::unordered
 	collumnHeaders[2].ID = id++;
 	collumnHeaders[2].Create( "Min:", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, collumnHeaders[2].sPos,
 							  parent, collumnHeaders[2].ID );
-	collumnHeaders[2].fontType = "Small";
+	collumnHeaders[2].fontType = Small;
 	pos.y += 25;
 
 	for (auto& control : minCounts)
@@ -75,7 +74,7 @@ bool PictureStats::initialize( POINT& pos, CWnd* parent, int& id, std::unordered
 		control.sPos = { pos.x + 108, pos.y, pos.x + 162, pos.y + 25 };
 		control.ID = id++;
 		control.Create( "-", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, control.sPos, parent, control.ID );
-		control.fontType = "Small";
+		control.fontType = Small;
 		pos.y += 25;
 	}
 	pos.y -= 125;
@@ -84,7 +83,7 @@ bool PictureStats::initialize( POINT& pos, CWnd* parent, int& id, std::unordered
 	collumnHeaders[3].ID = id++;
 	collumnHeaders[3].Create( "Avg:", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, collumnHeaders[3].sPos,
 							  parent, collumnHeaders[3].ID );
-	collumnHeaders[3].fontType = "Small";
+	collumnHeaders[3].fontType = Small;
 	pos.y += 25;
 	// 
 	for (auto& control : avgCounts)
@@ -92,7 +91,7 @@ bool PictureStats::initialize( POINT& pos, CWnd* parent, int& id, std::unordered
 		control.sPos = { pos.x + 162, pos.y, pos.x + 216, pos.y + 25 };
 		control.ID = id++;
 		control.Create( "-", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, control.sPos, parent, control.ID );
-		control.fontType = "Small";
+		control.fontType = Small;
 		pos.y += 25;
 	}
 
@@ -102,7 +101,7 @@ bool PictureStats::initialize( POINT& pos, CWnd* parent, int& id, std::unordered
 	collumnHeaders[4].ID = id++;
 	collumnHeaders[4].Create( "Sel:", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, collumnHeaders[4].sPos,
 							  parent, collumnHeaders[4].ID );
-	collumnHeaders[4].fontType = "Small";
+	collumnHeaders[4].fontType = Small;
 	pos.y += 25;
 	// #1
 	for (auto& control : selCounts)
@@ -110,13 +109,13 @@ bool PictureStats::initialize( POINT& pos, CWnd* parent, int& id, std::unordered
 		control.sPos = { pos.x + 216, pos.y, pos.x + 272, pos.y + 25 };
 		control.ID = id++;
 		control.Create( "-", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, control.sPos, parent, control.ID );
-		control.fontType = "Small";
+		control.fontType = Small;
 		pos.y += 25;
 	}
 	return true;
 }
 
-bool PictureStats::rearrange(std::string cameraMode, std::string trigMode, int width, int height, std::unordered_map<std::string, CFont*> fonts)
+bool PictureStats::rearrange(std::string cameraMode, std::string trigMode, int width, int height, fontMap fonts)
 {
 	pictureStatsHeader.rearrange(cameraMode, trigMode, width, height, fonts);
 	repetitionIndicator.rearrange(cameraMode, trigMode, width, height, fonts);
@@ -170,53 +169,53 @@ bool PictureStats::reset()
 	return true;
 }
 
-bool PictureStats::updateType(std::string typeText)
+void PictureStats::updateType(std::string typeText)
 {
 	pictureStatsHeader.SetWindowText(typeText.c_str());
-	return true;
 }
 
-
-
-void PictureStats::update( std::vector<long> image, unsigned int imageNumber, std::pair<int, int> selectedPixel, int pictureWidth, 
-						   int currentRepetitionNumber, int totalRepetitionCount)
+/**/
+std::pair<int, int> PictureStats::update( std::vector<long> image, unsigned int imageNumber, std::pair<int, int> selectedPixel, 
+						  int pictureWidth, int currentRepetitionNumber, int totalRepetitionCount)
 {
-	///
-	repetitionIndicator.SetWindowTextA( ("Repetition " + str( currentRepetitionNumber ) + "/" + str( totalRepetitionCount )).c_str() );
-	///
-	long selCounts = image[selectedPixel.first + selectedPixel.second * pictureWidth];
-	long maxCounts = 1;
-	long minCounts = 65536;
-	double avgCounts;
+	repetitionIndicator.SetWindowTextA( ("Repetition " + str( currentRepetitionNumber ) + "/" 
+									   + str( totalRepetitionCount )).c_str() );
+
+	long currentSelectedCount = image[selectedPixel.first + selectedPixel.second * pictureWidth];
+	long currentMaxCount = 1;
+	long currentMinCount = 65536;
+	double currentAvgCount;
 	// for all pixels... find the max and min of the picture.
 	for (int pixelInc = 0; pixelInc < image.size(); pixelInc++)
 	{
 		try
 		{
-			if (image[pixelInc] > maxCounts)
+			if (image[pixelInc] > currentMaxCount)
 			{
-				maxCounts = image[pixelInc];
+				currentMaxCount = image[pixelInc];
 			}
-			if (image[pixelInc] < minCounts)
+			if (image[pixelInc] < currentMinCount)
 			{
-				minCounts = image[pixelInc];
+				currentMinCount = image[pixelInc];
 			}
 		}
 		catch (std::out_of_range&)
 		{
-			errBox( "ERROR: caught std::out_of_range in this->drawDataWindow! experimentImagesInc = " + str( imageNumber )
-					+ ", pixelInc = " + str( pixelInc ) + ", image.size() = " + str( image.size() ) + ". Attempting to continue..." );
-			return;
+			// I haven't seen this error in a while, but it was a mystery when we did.
+			errBox( "ERROR: caught std::out_of_range while updating picture statistics! experimentImagesInc = " 
+				   + str( imageNumber ) + ", pixelInc = " + str( pixelInc ) + ", image.size() = " + str( image.size() ) 
+				   + ". Attempting to continue..." );
+			return {0,0};
 		}
 	}
-	avgCounts = std::accumulate( image.begin(), image.end(), 0.0 ) / image.size();
+	currentAvgCount = std::accumulate( image.begin(), image.end(), 0.0 ) / image.size();
 
 	if (displayDataType == RAW_COUNTS)
 	{
-		this->maxCounts[imageNumber].SetWindowTextA(str(maxCounts).c_str());
-		this->minCounts[imageNumber].SetWindowTextA(str(minCounts).c_str());
-		this->selCounts[imageNumber].SetWindowTextA(str(selCounts).c_str());
-		this->avgCounts[imageNumber].SetWindowTextA(doubleToString( avgCounts, 1).c_str());
+		maxCounts[imageNumber].SetWindowTextA(str(currentMaxCount).c_str());
+		minCounts[imageNumber].SetWindowTextA(str(currentMinCount).c_str());
+		selCounts[imageNumber].SetWindowTextA(str(currentSelectedCount).c_str());
+		avgCounts[imageNumber].SetWindowTextA(doubleToString( currentAvgCount, 1).c_str());
 	}
 	else if (displayDataType == CAMERA_PHOTONS)
 	{
@@ -224,45 +223,45 @@ void PictureStats::update( std::vector<long> image, unsigned int imageNumber, st
 		//if (eEMGainMode)
 		if (false)
 		{
-			selPhotons = (selCounts - convs.EMGain200BackgroundCount) * convs.countToCameraPhotonEM200;
-			maxPhotons = (maxCounts - convs.EMGain200BackgroundCount) * convs.countToCameraPhotonEM200;
-			minPhotons = (minCounts - convs.EMGain200BackgroundCount) * convs.countToCameraPhotonEM200;
-			avgPhotons = (avgCounts - convs.EMGain200BackgroundCount) * convs.countToCameraPhotonEM200;
+			selPhotons = (currentSelectedCount - convs.EMGain200BackgroundCount) * convs.countToCameraPhotonEM200;
+			maxPhotons = (currentMaxCount - convs.EMGain200BackgroundCount) * convs.countToCameraPhotonEM200;
+			minPhotons = (currentMinCount - convs.EMGain200BackgroundCount) * convs.countToCameraPhotonEM200;
+			avgPhotons = (currentAvgCount - convs.EMGain200BackgroundCount) * convs.countToCameraPhotonEM200;
 		}
 		else
 		{
-			selPhotons = (selCounts - convs.conventionalBackgroundCount) * convs.countToCameraPhoton;
-			maxPhotons = (maxCounts - convs.conventionalBackgroundCount) * convs.countToCameraPhoton;
-			minPhotons = (minCounts - convs.conventionalBackgroundCount) * convs.countToCameraPhoton;
-			avgPhotons = (avgCounts - convs.conventionalBackgroundCount) * convs.countToCameraPhoton;
+			selPhotons = (currentSelectedCount - convs.conventionalBackgroundCount) * convs.countToCameraPhoton;
+			maxPhotons = (currentMaxCount - convs.conventionalBackgroundCount) * convs.countToCameraPhoton;
+			minPhotons = (currentMinCount - convs.conventionalBackgroundCount) * convs.countToCameraPhoton;
+			avgPhotons = (currentAvgCount - convs.conventionalBackgroundCount) * convs.countToCameraPhoton;
 		}
-		this->maxCounts[imageNumber].SetWindowTextA(doubleToString(maxPhotons, 1).c_str());
-		this->minCounts[imageNumber].SetWindowTextA(doubleToString(minPhotons, 1).c_str());
-		this->selCounts[imageNumber].SetWindowTextA(doubleToString(selPhotons, 1).c_str());
-		this->avgCounts[imageNumber].SetWindowTextA(doubleToString(avgPhotons, 1).c_str());
+		maxCounts[imageNumber].SetWindowTextA(doubleToString(maxPhotons, 1).c_str());
+		minCounts[imageNumber].SetWindowTextA(doubleToString(minPhotons, 1).c_str());
+		selCounts[imageNumber].SetWindowTextA(doubleToString(selPhotons, 1).c_str());
+		avgCounts[imageNumber].SetWindowTextA(doubleToString(avgPhotons, 1).c_str());
 	}
-	else if (this->displayDataType == ATOM_PHOTONS)
+	else if (displayDataType == ATOM_PHOTONS)
 	{
 		double selPhotons, maxPhotons, minPhotons, avgPhotons;
 		//if (eEMGainMode)
 		if (false)
 		{
-			selPhotons = (selCounts - convs.EMGain200BackgroundCount) * convs.countToScatteredPhotonEM200;
-			maxPhotons = (maxCounts - convs.EMGain200BackgroundCount) * convs.countToScatteredPhotonEM200;
-			minPhotons = (minCounts - convs.EMGain200BackgroundCount) * convs.countToScatteredPhotonEM200;
-			avgPhotons = (avgCounts - convs.EMGain200BackgroundCount) * convs.countToScatteredPhotonEM200;
+			selPhotons = (currentSelectedCount - convs.EMGain200BackgroundCount) * convs.countToScatteredPhotonEM200;
+			maxPhotons = (currentMaxCount - convs.EMGain200BackgroundCount) * convs.countToScatteredPhotonEM200;
+			minPhotons = (currentMinCount - convs.EMGain200BackgroundCount) * convs.countToScatteredPhotonEM200;
+			avgPhotons = (currentAvgCount - convs.EMGain200BackgroundCount) * convs.countToScatteredPhotonEM200;
 		}
 		else
 		{
-			selPhotons = (selCounts - convs.conventionalBackgroundCount) * convs.countToScatteredPhoton;
-			maxPhotons = (maxCounts - convs.conventionalBackgroundCount) * convs.countToScatteredPhoton;
-			minPhotons = (minCounts - convs.conventionalBackgroundCount) * convs.countToScatteredPhoton;
-			avgPhotons = (avgCounts - convs.conventionalBackgroundCount) * convs.countToScatteredPhoton;
+			selPhotons = (currentSelectedCount - convs.conventionalBackgroundCount) * convs.countToScatteredPhoton;
+			maxPhotons = (currentMaxCount - convs.conventionalBackgroundCount) * convs.countToScatteredPhoton;
+			minPhotons = (currentMinCount - convs.conventionalBackgroundCount) * convs.countToScatteredPhoton;
+			avgPhotons = (currentAvgCount - convs.conventionalBackgroundCount) * convs.countToScatteredPhoton;
 		}
-		this->maxCounts[imageNumber].SetWindowTextA(doubleToString(maxPhotons, 1).c_str());
-		this->minCounts[imageNumber].SetWindowTextA(doubleToString(minPhotons, 1).c_str());
-		this->selCounts[imageNumber].SetWindowTextA(doubleToString(selPhotons, 1).c_str());
-		this->avgCounts[imageNumber].SetWindowTextA(doubleToString(avgPhotons, 1).c_str());
+		maxCounts[imageNumber].SetWindowTextA(doubleToString(maxPhotons, 1).c_str());
+		minCounts[imageNumber].SetWindowTextA(doubleToString(minPhotons, 1).c_str());
+		selCounts[imageNumber].SetWindowTextA(doubleToString(selPhotons, 1).c_str());
+		avgCounts[imageNumber].SetWindowTextA(doubleToString(avgPhotons, 1).c_str());
 	}
-	return;
+	return { currentMinCount, currentMaxCount };
 }

@@ -185,6 +185,7 @@
     <ClInclude Include="CameraWindow.h" />
     <ClInclude Include="ColorBox.h" />
     <ClInclude Include="colorScript.h" />
+    <ClInclude Include="commonTypes.h" />
     <ClInclude Include="Communicator.h" />
     <ClInclude Include="ConfigurationFileSystem.h" />
     <ClInclude Include="DataSet.h" />

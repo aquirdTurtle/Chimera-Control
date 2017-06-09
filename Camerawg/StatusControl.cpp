@@ -2,7 +2,7 @@
 #include "StatusControl.h"
 
 
-void StatusControl::rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts)
+void StatusControl::rearrange(int width, int height, fontMap fonts)
 {
 	header.rearrange("", "", width, height, fonts);
 	edit.rearrange("", "", width, height, fonts);
@@ -11,7 +11,7 @@ void StatusControl::rearrange(int width, int height, std::unordered_map<std::str
 
 //
 void StatusControl::initialize(POINT &loc, CWnd* parent, int& id, unsigned int size, std::string headerText, 
-							   COLORREF textColor, std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips)
+							   COLORREF textColor, fontMap fonts, std::vector<CToolTipCtrl*>& tooltips)
 {
 	// set formatting for these scripts
 	header.ID = id++;

@@ -5,7 +5,7 @@
 #include "fonts.h"
 #include "constants.h"
 
-void NoteSystem::rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts)
+void NoteSystem::rearrange(int width, int height, fontMap fonts)
 {
 	experimentNotes.rearrange("", "", width, height, fonts);
 	categoryNotes.rearrange("", "", width, height, fonts);
@@ -15,8 +15,8 @@ void NoteSystem::rearrange(int width, int height, std::unordered_map<std::string
 	configurationNotesHeader.rearrange("", "", width, height, fonts);
 }
 
-bool NoteSystem::initializeControls(POINT& topLeftPos, CWnd* parentWindow, int& id, 
-	std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips)
+bool NoteSystem::initializeControls(POINT& topLeftPos, CWnd* parentWindow, int& id, fontMap fonts, 
+									std::vector<CToolTipCtrl*>& tooltips)
 {
 	/// EXPERIMENT LEVEL
 	experimentNotesHeader.ID = id++;

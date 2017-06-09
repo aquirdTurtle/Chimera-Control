@@ -4,6 +4,7 @@
 #include "Control.h"
 #include "ConfigurationFileSystem.h"
 #include "NiawgController.h"
+#include "commonTypes.h"
 
 class MainWindow;
 class ScriptingWindow;
@@ -109,10 +110,9 @@ class ConfigurationFileSystem
 		void updateSaveStatus(bool savedStatus);
 		void fullyDeleteFolder(std::string folderToDelete);
 
-		void initializeControls( POINT& topLeftPosition, CWnd* parent, int& id,
-								 std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips );
-		void rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts);
-		
+		void initializeControls( POINT& topLeftPosition, CWnd* parent, int& id, fontMap fonts, 
+								std::vector<CToolTipCtrl*>& tooltips );
+		void rearrange(int width, int height, fontMap fonts);		
 	private:
 		profileSettings currentProfileSettings;
 		std::string FILE_SYSTEM_PATH;

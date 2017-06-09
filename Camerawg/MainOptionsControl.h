@@ -1,5 +1,7 @@
 #pragma once
+
 #include "Control.h"
+#include "commonTypes.h"
 
 struct mainOptions
 {
@@ -12,12 +14,11 @@ struct mainOptions
 class MainOptionsControl
 {
 	public:
-		void initialize(int& idStart, POINT& loc, CWnd* parent, std::unordered_map<std::string, CFont*> fonts,
-			std::vector<CToolTipCtrl*>& tooltips);
+		void initialize(int& idStart, POINT& loc, CWnd* parent, fontMap fonts, std::vector<CToolTipCtrl*>& tooltips);
 		bool handleEvent(UINT id, MainWindow* comm);
 		mainOptions getOptions();
 		void setOptions(mainOptions options);
-		void rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts);
+		void rearrange(int width, int height, fontMap fonts);
 	private:
 		Control<CStatic> header;
 		Control<CButton> connectToMaster;

@@ -3,6 +3,7 @@
 #include "Control.h"
 #include <string>
 #include <vector>
+#include "commonTypes.h"
 
 struct profileSettings;
 
@@ -15,9 +16,9 @@ class Script
 		bool colorScriptSection(DWORD beginingOfChange, DWORD endOfChange, profileSettings profile, std::vector<variable> vars);
 
 		bool initializeControls(int width, int height, POINT& startingLocation, CWnd* parent, std::string deviceTypeInput, 
-			int& idStart, std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips);
+			int& idStart, fontMap fonts, std::vector<CToolTipCtrl*>& tooltips);
 
-		void rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts);
+		void rearrange(int width, int height, fontMap fonts);
 
 		INT_PTR colorControl(LPARAM lParam, WPARAM wParam);
 		bool handleEditChange();
