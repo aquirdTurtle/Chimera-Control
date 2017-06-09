@@ -28,11 +28,10 @@ namespace commonFunctions
 			case ID_ACCELERATOR_F5:
 			case ID_FILE_MY_WRITE_WAVEFORMS:
 			{
-				camWin->redrawPictures( false );
+				camWin->redrawPictures(false);
 				try
 				{
-					commonFunctions::startCamera( scriptWin, mainWin, camWin );
-					
+					commonFunctions::startCamera(scriptWin, mainWin, camWin);
 				}
 				catch (Error& err)
 				{
@@ -42,10 +41,10 @@ namespace commonFunctions
 						mainWin->getComm()->sendColorBox({ /*niawg*/'B', /*camera*/'B', /*intensity*/'-' });
 						break;
 					}
-					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + err.whatStr() );
-					mainWin->getComm()->sendColorBox( { /*niawg*/'-', /*camera*/'R', /*intensity*/'-' } );
-					mainWin->getComm()->sendStatus( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
-					mainWin->getComm()->sendTimer( "ERROR!" );
+					mainWin->getComm()->sendError("EXITED WITH ERROR! " + err.whatStr());
+					mainWin->getComm()->sendColorBox({ /*niawg*/'-', /*camera*/'R', /*intensity*/'-' });
+					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
+					mainWin->getComm()->sendTimer("ERROR!");
 					break;
 				}
 				try
@@ -70,51 +69,51 @@ namespace commonFunctions
 					bool aborted = false;
 					if (mainWin->niawg.isRunning())
 					{
-						commonFunctions::abortNiawg( scriptWin, mainWin );
+						commonFunctions::abortNiawg(scriptWin, mainWin);
 						aborted = true;
 					}
 					if (camWin->Andor.isRunning())
 					{
-						commonFunctions::abortCamera( camWin, mainWin );
+						commonFunctions::abortCamera(camWin, mainWin);
 						aborted = true;
 					}
 					if (!aborted)
 					{
-						mainWin->getComm()->sendColorBox( { /*niawg*/'B', /*camera*/'-', /*intensity*/'-' } );
-						mainWin->getComm()->sendError( "Neither Camera nor NIAWG was not running. Can't Abort.\r\n" );
+						mainWin->getComm()->sendColorBox({ /*niawg*/'B', /*camera*/'-', /*intensity*/'-' });
+						mainWin->getComm()->sendError("Neither Camera nor NIAWG was not running. Can't Abort.\r\n");
 					}
 				}
 				catch (Error& except)
 				{
-					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + except.whatStr() );
-					mainWin->getComm()->sendColorBox( { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' } );
-					mainWin->getComm()->sendStatus( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
-					mainWin->getComm()->sendTimer( "ERROR!" );
+					mainWin->getComm()->sendError("EXITED WITH ERROR! " + except.whatStr());
+					mainWin->getComm()->sendColorBox({ /*niawg*/'R', /*camera*/'-', /*intensity*/'-' });
+					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
+					mainWin->getComm()->sendTimer("ERROR!");
 				}
 				break;
 			}
 			case ID_RUNMENU_RUNCAMERA:
 			{
-				mainWin->getComm()->sendColorBox( { /*niawg*/'-', /*camera*/'Y', /*intensity*/'-' } );
-				mainWin->getComm()->sendStatus( "Starting Camera...\r\n" );
+				mainWin->getComm()->sendColorBox({ /*niawg*/'-', /*camera*/'Y', /*intensity*/'-' });
+				mainWin->getComm()->sendStatus("Starting Camera...\r\n");
 				try
 				{
-					commonFunctions::startCamera( scriptWin, mainWin, camWin );
-					mainWin->getComm()->sendColorBox( { /*niawg*/'-', /*camera*/'G', /*intensity*/'-' } );
-					mainWin->getComm()->sendStatus( "Camera is Running.\r\n" );
+					commonFunctions::startCamera(scriptWin, mainWin, camWin);
+					mainWin->getComm()->sendColorBox({ /*niawg*/'-', /*camera*/'G', /*intensity*/'-' });
+					mainWin->getComm()->sendStatus("Camera is Running.\r\n");
 				}
 				catch (Error& exception)
 				{
 					if (exception.whatBare() == "CANCEL")
 					{
-						mainWin->getComm()->sendColorBox( { /*niawg*/'-', /*camera*/'B', /*intensity*/'-' } );
-						mainWin->getComm()->sendStatus( "Camera is Not Running, User Canceled.\r\n" );
+						mainWin->getComm()->sendColorBox({ /*niawg*/'-', /*camera*/'B', /*intensity*/'-' });
+						mainWin->getComm()->sendStatus("Camera is Not Running, User Canceled.\r\n");
 						break;
 					}
-					mainWin->getComm()->sendColorBox( { /*niawg*/'-', /*camera*/'R', /*intensity*/'-' } );
-					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + exception.whatStr() );
-					mainWin->getComm()->sendStatus( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
-					mainWin->getComm()->sendTimer( "ERROR!" );
+					mainWin->getComm()->sendColorBox({ /*niawg*/'-', /*camera*/'R', /*intensity*/'-' });
+					mainWin->getComm()->sendError("EXITED WITH ERROR! " + exception.whatStr());
+					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
+					mainWin->getComm()->sendTimer("ERROR!");
 					break;
 				}
 				break;
@@ -123,13 +122,13 @@ namespace commonFunctions
 			{
 				try
 				{
-					commonFunctions::startNiawg( msgID, scriptWin, mainWin, camWin );
+					commonFunctions::startNiawg(msgID, scriptWin, mainWin, camWin);
 				}
 				catch (Error& except)
 				{
-					mainWin->getComm()->sendColorBox( { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' } );
-					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + except.whatStr() );
-					mainWin->getComm()->sendStatus( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
+					mainWin->getComm()->sendColorBox({ /*niawg*/'R', /*camera*/'-', /*intensity*/'-' });
+					mainWin->getComm()->sendError("EXITED WITH ERROR! " + except.whatStr());
+					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 					return true;
 				}
 				break;
@@ -140,17 +139,17 @@ namespace commonFunctions
 				scriptWin->saveHorizontalScript();
 				scriptWin->saveVerticalScript();
 				scriptWin->saveIntensityScript();
-				mainWin->profile.saveEntireProfile( scriptWin, mainWin );
+				mainWin->profile.saveEntireProfile(scriptWin, mainWin);
 				break;
 			}
 			case ID_PROFILE_SAVE_PROFILE:
 			{
-				mainWin->profile.saveEntireProfile( scriptWin, mainWin );
+				mainWin->profile.saveEntireProfile(scriptWin, mainWin);
 				break;
 			}
 			case ID_FILE_MY_EXIT:
 			{
-				commonFunctions::exitProgram( scriptWin, mainWin, camWin );
+				commonFunctions::exitProgram(scriptWin, mainWin, camWin);
 				break;
 			}
 			case ID_FILE_MY_INTENSITY_NEW:
@@ -160,7 +159,7 @@ namespace commonFunctions
 			}
 			case ID_FILE_MY_INTENSITY_OPEN:
 			{
-				scriptWin->openIntensityScript( parent->GetSafeHwnd() );
+				scriptWin->openIntensityScript(parent->GetSafeHwnd());
 				break;
 			}
 			case ID_FILE_MY_INTENSITY_SAVE:
@@ -170,7 +169,7 @@ namespace commonFunctions
 			}
 			case ID_FILE_MY_INTENSITY_SAVEAS:
 			{
-				scriptWin->saveIntensityScriptAs( parent->GetSafeHwnd() );
+				scriptWin->saveIntensityScriptAs(parent->GetSafeHwnd());
 				break;
 			}
 			case ID_FILE_MY_VERTICAL_NEW:
@@ -180,7 +179,7 @@ namespace commonFunctions
 			}
 			case ID_FILE_MY_VERTICAL_OPEN:
 			{
-				scriptWin->openVerticalScript( parent->GetSafeHwnd() );
+				scriptWin->openVerticalScript(parent->GetSafeHwnd());
 				break;
 			}
 			case ID_FILE_MY_VERTICAL_SAVE:
@@ -190,7 +189,7 @@ namespace commonFunctions
 			}
 			case ID_FILE_MY_VERTICAL_SAVEAS:
 			{
-				scriptWin->saveVerticalScriptAs( parent->GetSafeHwnd() );
+				scriptWin->saveVerticalScriptAs(parent->GetSafeHwnd());
 				break;
 			}
 			case ID_FILE_MY_HORIZONTAL_NEW:
@@ -200,7 +199,7 @@ namespace commonFunctions
 			}
 			case ID_FILE_MY_HORIZONTAL_OPEN:
 			{
-				scriptWin->openHorizontalScript( parent->GetSafeHwnd() );
+				scriptWin->openHorizontalScript(parent->GetSafeHwnd());
 				break;
 			}
 			case ID_FILE_MY_HORIZONTAL_SAVE:
@@ -210,7 +209,7 @@ namespace commonFunctions
 			}
 			case ID_FILE_MY_HORIZONTAL_SAVEAS:
 			{
-				scriptWin->saveHorizontalScriptAs( parent->GetSafeHwnd() );
+				scriptWin->saveHorizontalScriptAs(parent->GetSafeHwnd());
 				break;
 			}
 			case ID_SEQUENCE_RENAMESEQUENCE:
@@ -220,7 +219,7 @@ namespace commonFunctions
 			}
 			case ID_SEQUENCE_ADD_TO_SEQUENCE:
 			{
-				mainWin->profile.addToSequence( parent );
+				mainWin->profile.addToSequence(parent);
 				break;
 			}
 			case ID_SEQUENCE_SAVE_SEQUENCE:
@@ -230,7 +229,7 @@ namespace commonFunctions
 			}
 			case ID_SEQUENCE_NEW_SEQUENCE:
 			{
-				mainWin->profile.newSequence( parent );
+				mainWin->profile.newSequence(parent);
 				break;
 			}
 			case ID_SEQUENCE_RESET_SEQUENCE:
@@ -254,7 +253,7 @@ namespace commonFunctions
 			}
 			case ID_NIAWG_RELOADDEFAULTWAVEFORMS:
 			{
-				commonFunctions::reloadNIAWGDefaults( mainWin );
+				commonFunctions::reloadNIAWGDefaults(mainWin);
 				break;
 			}
 			case ID_EXPERIMENT_NEW_EXPERIMENT_TYPE:
@@ -264,18 +263,18 @@ namespace commonFunctions
 			}
 			case ID_EXPERIMENT_SAVEEXPERIMENTSETTINGS:
 			{
-				mainWin->profile.saveExperimentOnly( mainWin );
+				mainWin->profile.saveExperimentOnly(mainWin);
 				break;
 			}
 			case ID_EXPERIMENT_SAVEEXPERIMENTSETTINGSAS:
 			{
-				mainWin->profile.saveExperimentAs( mainWin );
+				mainWin->profile.saveExperimentAs(mainWin);
 				break;
 			}
 
 			case ID_EXPERIMENT_RENAME_CURRENT_EXPERIMENT:
 			{
-				mainWin->profile.renameExperiment( mainWin );
+				mainWin->profile.renameExperiment(mainWin);
 				break;
 			}
 			case ID_EXPERIMENT_DELETE_CURRENT_EXPERIMENT:
@@ -300,17 +299,17 @@ namespace commonFunctions
 			}
 			case ID_CATEGORY_SAVECATEGORYSETTINGS:
 			{
-				mainWin->profile.saveCategoryOnly( mainWin );
+				mainWin->profile.saveCategoryOnly(mainWin);
 				break;
 			}
 			case ID_CATEGORY_SAVECATEGORYSETTINGSAS:
 			{
-				mainWin->profile.saveCategoryAs( mainWin );
+				mainWin->profile.saveCategoryAs(mainWin);
 				break;
 			}
 			case ID_CONFIGURATION_NEW_CONFIGURATION:
 			{
-				mainWin->profile.newConfiguration( mainWin );
+				mainWin->profile.newConfiguration(mainWin);
 				break;
 			}
 			case ID_CONFIGURATION_RENAME_CURRENT_CONFIGURATION:
@@ -325,12 +324,12 @@ namespace commonFunctions
 			}
 			case ID_CONFIGURATION_SAVE_CONFIGURATION_AS:
 			{
-				mainWin->profile.saveConfigurationAs( scriptWin, mainWin );
+				mainWin->profile.saveConfigurationAs(scriptWin, mainWin);
 				break;
 			}
 			case ID_CONFIGURATION_SAVECONFIGURATIONSETTINGS:
 			{
-				mainWin->profile.saveConfigurationOnly( scriptWin, mainWin );
+				mainWin->profile.saveConfigurationOnly(scriptWin, mainWin);
 				break;
 			}
 			case ID_NIAWG_SENDSOFTWARETRIGGER:
@@ -338,20 +337,23 @@ namespace commonFunctions
 				mainWin->niawg.sendSoftwareTrigger();
 				break;
 			}
-			case ID_NIAWG_STREAMWAVEFORM :
+			case ID_NIAWG_STREAMWAVEFORM:
 			{
 				mainWin->niawg.streamWaveform();
 				break;
 			}
 			case ID_NIAWG_GETNIAWGERROR:
 			{
-				errBox( mainWin->niawg.getErrorMsg() );
+				errBox(mainWin->niawg.getErrorMsg());
 				break;
+			}
+			case ID_PICTURES_AUTOSCALEPICTURES:
+			{
+				camWin->handleAutoscaleSelection();
 			}
 		}
 		return false;
 	}
-
 
 	void startCamera( ScriptingWindow* scriptWindow, MainWindow* mainWin, CameraWindow* camWin )
 	{

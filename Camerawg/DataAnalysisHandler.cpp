@@ -4,7 +4,7 @@
 #include "Control.h"
 #include "CameraWindow.h"
 
-void DataHandlingControl::rearrange(std::string cameraMode, std::string trigMode, int width, int height, std::unordered_map<std::string, CFont*> fonts)
+void DataHandlingControl::rearrange(std::string cameraMode, std::string trigMode, int width, int height, fontMap fonts)
 {
 	updateFrequencyLabel1.rearrange(cameraMode, trigMode, width, height, fonts);
 	updateFrequencyLabel2.rearrange(cameraMode, trigMode, width, height, fonts);
@@ -87,12 +87,6 @@ void DataHandlingControl::onButtonPushed()
 	{
 		//experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerVariation) % ePicturesPerRepetition);
 	}
-	/*
-	if ( (experimentPictureNumber == ePicturesPerRepetition - 1 || eRealTimePictures) && eDataExists )
-	{
-		//myAndor::drawDataWindow();
-	}
-	*/
 }
 
 void DataHandlingControl::setAtomLocation( std::pair<int, int> location )
@@ -121,7 +115,7 @@ void DataHandlingControl::clearAtomLocations()
 	atomLocations.clear();
 }
 
-void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent, std::unordered_map<std::string, CFont*> fonts, 
+void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent, fontMap fonts, 
 	std::vector<CToolTipCtrl*>& tooltips, int isTriggerModeSensitive)
 {
 
@@ -131,7 +125,7 @@ void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	header.triggerModeSensitive = isTriggerModeSensitive;
 	header.ID = id++;
 	header.Create("DATA ANALYSIS", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_CENTER, header.seriesPos, parent, header.ID);
-	header.fontType = "Heading";
+	header.fontType = Heading;
 	pos.seriesPos.y += 25;
 	pos.videoPos.y += 25;
 	pos.amPos.y += 25;
@@ -147,7 +141,7 @@ void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	currentDataSetNumberText.ID = id++;
 	currentDataSetNumberText.Create( "Most Recent Data Set #:", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY,
 									 currentDataSetNumberText.seriesPos, parent, currentDataSetNumberText.ID );
-	currentDataSetNumberText.fontType = "Normal";
+	currentDataSetNumberText.fontType = Normal;
 	//
 	currentDataSetNumberEdit.seriesPos = { pos.seriesPos.x + 400, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 25 };
 	currentDataSetNumberEdit.amPos = { pos.amPos.x + 400, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 25 };
@@ -156,7 +150,7 @@ void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	currentDataSetNumberEdit.triggerModeSensitive = isTriggerModeSensitive;
 	currentDataSetNumberEdit.Create( "?", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, 
 									 currentDataSetNumberEdit.seriesPos, parent, currentDataSetNumberEdit.ID );
-	currentDataSetNumberEdit.fontType = "Normal";
+	currentDataSetNumberEdit.fontType = Normal;
 	pos.seriesPos.y += 25;
 	pos.amPos.y += 25;
 	autoAnalyzeCheckBox.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 20 };
@@ -166,7 +160,7 @@ void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	autoAnalyzeCheckBox.triggerModeSensitive = isTriggerModeSensitive;
 	autoAnalyzeCheckBox.Create( "Automatically Analyze Data at Finish?", WS_CHILD | WS_VISIBLE | ES_RIGHT |
 								ES_READONLY | BS_CHECKBOX, autoAnalyzeCheckBox.seriesPos, parent, autoAnalyzeCheckBox.ID );
-	autoAnalyzeCheckBox.fontType = "Normal";
+	autoAnalyzeCheckBox.fontType = Normal;
 	pos.seriesPos.y += 20;
 	pos.amPos.y += 20;
 	// 
@@ -179,7 +173,7 @@ void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	setAnalysisLocationsButton.triggerModeSensitive = isTriggerModeSensitive;
 	setAnalysisLocationsButton.Create( "Set AutoAnalysis Points", WS_CHILD | WS_VISIBLE | BS_PUSHLIKE | BS_CHECKBOX,
 									   setAnalysisLocationsButton.seriesPos, parent, setAnalysisLocationsButton.ID );
-	setAnalysisLocationsButton.fontType = "Normal";
+	setAnalysisLocationsButton.fontType = Normal;
 	pos.seriesPos.y += 25;
 	pos.amPos.y += 25;
 
@@ -194,7 +188,7 @@ void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	analyzeMostRecentButton.triggerModeSensitive = isTriggerModeSensitive;
 	analyzeMostRecentButton.Create( "Analyze Most Recent Data", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
 									analyzeMostRecentButton.seriesPos, parent, analyzeMostRecentButton.ID );
-	analyzeMostRecentButton.fontType = "Normal";
+	analyzeMostRecentButton.fontType = Normal;
 	pos.seriesPos.y += 25;
 	pos.amPos.y += 25;
 
@@ -208,7 +202,7 @@ void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	
 	updateFrequencyLabel1.Create("Update plots every (", WS_CHILD | WS_VISIBLE | WS_BORDER,
 		updateFrequencyLabel1.seriesPos, parent, updateFrequencyLabel1.ID);
-	updateFrequencyLabel1.fontType = "Normal";
+	updateFrequencyLabel1.fontType = Normal;
 	// Plotting Frequency Edit
 	updateFrequencyEdit.seriesPos = { pos.seriesPos.x + 150, pos.seriesPos.y,pos.seriesPos.x + 200, pos.seriesPos.y + 25 };
 	updateFrequencyEdit.videoPos = { pos.videoPos.x + 150, pos.videoPos.y, pos.videoPos.x + 200, pos.videoPos.y + 25 };
@@ -216,7 +210,7 @@ void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	updateFrequencyEdit.triggerModeSensitive = isTriggerModeSensitive;
 	updateFrequencyEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER, updateFrequencyEdit.seriesPos, parent,
 		updateFrequencyEdit.ID);
-	updateFrequencyEdit.fontType = "Normal";
+	updateFrequencyEdit.fontType = Normal;
 	updateFrequency = 5; 
 	updateFrequencyEdit.SetWindowTextA("5");
 	// end of that statement
@@ -227,7 +221,7 @@ void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	updateFrequencyLabel2.triggerModeSensitive = isTriggerModeSensitive;
 	updateFrequencyLabel2.Create(") repetitions.", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON,
 		updateFrequencyLabel2.seriesPos, parent, updateFrequencyLabel2.ID);
-	updateFrequencyLabel2.fontType = "Normal";
+	updateFrequencyLabel2.fontType = Normal;
 	/// the listview
 	plotListview.seriesPos = { pos.seriesPos.x,   pos.seriesPos.y,  pos.seriesPos.x + 480,  pos.seriesPos.y += 100 };
 	plotListview.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 100 };
@@ -240,7 +234,7 @@ void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	}
 	plotListview.Create(WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS, plotListview.seriesPos, parent,
 		plotListview.ID);
-	plotListview.fontType == "Normal";
+	plotListview.fontType == Normal;
 	// initialize the listview
 	LV_COLUMN listViewDefaultCollumn;
 	// Zero Members

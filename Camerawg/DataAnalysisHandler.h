@@ -15,11 +15,11 @@ struct tinyPlotInfo
 class DataHandlingControl
 {
 	public:
-		void initialize(cameraPositions& pos, int& id, CWnd* parent, std::unordered_map<std::string, CFont*> fonts,
-			std::vector<CToolTipCtrl*>& tooltips, int isTriggerModeSensitive);
+		void initialize(cameraPositions& pos, int& id, CWnd* parent, fontMap fonts, std::vector<CToolTipCtrl*>& tooltips,
+						int isTriggerModeSensitive);
 		void handleDoubleClick();
 		void handleRClick();
-		void rearrange(std::string cameraMode, std::string trigMode, int width, int height, std::unordered_map<std::string, CFont*> fonts);
+		void rearrange(std::string cameraMode, std::string trigMode, int width, int height, fontMap fonts);
 		//
 		void updateDataSetNumberEdit( int number );
 		void analyze( std::string date, long runNumber, long accumulations, EmbeddedPythonHandler* pyHandler,

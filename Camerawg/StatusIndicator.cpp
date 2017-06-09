@@ -1,13 +1,12 @@
 #include "stdafx.h"
 #include "StatusIndicator.h"
 
-void StatusIndicator::rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts)
+void StatusIndicator::rearrange(int width, int height, fontMap fonts)
 {
 	status.rearrange("", "", width, height, fonts);
 }
 
-void StatusIndicator::initialize(POINT &loc, CWnd* parent, int& id, std::unordered_map<std::string, CFont*> fonts,
-	std::vector<CToolTipCtrl*>& tooltips)
+void StatusIndicator::initialize(POINT &loc, CWnd* parent, int& id, fontMap fonts, std::vector<CToolTipCtrl*>& tooltips)
 {
 	status.ID = id++;
 	status.sPos = { loc.x, loc.y, loc.x + 960, loc.y + 100 };
@@ -29,8 +28,7 @@ void StatusIndicator::setColor(std::string color)
 }
 
 
-CBrush* StatusIndicator::handleColor(CWnd* window, CDC* pDC, std::unordered_map<std::string, COLORREF> rgbs, 
-	std::unordered_map<std::string, CBrush*> brushes)
+CBrush* StatusIndicator::handleColor(CWnd* window, CDC* pDC, rgbMap rgbs, brushMap brushes)
 {
 	DWORD controlID = GetDlgCtrlID(window->GetSafeHwnd());
 	if (controlID == this->status.ID)

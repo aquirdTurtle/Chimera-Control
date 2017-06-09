@@ -3,6 +3,7 @@
 #include <string>
 #include "Control.h"
 #include "Windows.h"
+#include "commonTypes.h"
 
 class MainWindow;
 class ScriptingWindow;
@@ -23,8 +24,8 @@ class VariableSystem
 	public:
 		bool updateVariableInfo(MainWindow* comm, ScriptingWindow* scriptWin);
 		bool deleteVariable();
-		bool initializeControls(POINT &topLeftCorner, CWnd* parent, int& id, 
-			std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips);
+		bool initializeControls(POINT &topLeftCorner, CWnd* parent, int& id, fontMap fonts, 
+								std::vector<CToolTipCtrl*>& tooltips);
 		bool addVariable(std::string name, bool timelike, bool singleton, double value, int item);
 		variable getVariableInfo(int varNumber);
 		//std::vector<variable> getAllVariables();
@@ -33,7 +34,7 @@ class VariableSystem
 		std::vector<variable> getAllVariables();
 		unsigned long long getCurrentNumberOfVariables();
 		bool clearVariables();
-		void rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts);
+		void rearrange(int width, int height, fontMap fonts);
 	private:
 		int totalVariableNumber;
 		Control<CStatic> header;

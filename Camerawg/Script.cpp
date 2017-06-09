@@ -460,7 +460,7 @@ INT_PTR Script::colorControl(LPARAM lParam, WPARAM wParam)
 }
 
 bool Script::initializeControls(int width, int height, POINT& startingLocation, CWnd* parent, std::string deviceTypeInput, 
-	int& idStart, std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips)
+								int& idStart, fontMap fonts, std::vector<CToolTipCtrl*>& tooltips)
 {
 	LoadLibrary(TEXT("Msftedit.dll"));
 	deviceType = deviceTypeInput;
@@ -548,7 +548,7 @@ bool Script::initializeControls(int width, int height, POINT& startingLocation, 
 	return false;
 }
 
-void Script::rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts)
+void Script::rearrange(int width, int height, fontMap fonts)
 {
 	edit.rearrange("", "", width, height, fonts);
 	title.rearrange("", "", width, height, fonts);

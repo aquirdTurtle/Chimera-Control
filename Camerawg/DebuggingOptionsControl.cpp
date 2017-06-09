@@ -3,7 +3,7 @@
 #include "DebuggingOptionsControl.h"
 
 
-void DebuggingOptionsControl::rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts)
+void DebuggingOptionsControl::rearrange(int width, int height, fontMap fonts)
 {
 	header.rearrange("", "", width, height, fonts);
 	readProgress.rearrange("", "", width, height, fonts);
@@ -15,8 +15,7 @@ void DebuggingOptionsControl::rearrange(int width, int height, std::unordered_ma
 	excessInfo.rearrange("", "", width, height, fonts);
 }
 
-void DebuggingOptionsControl::initialize(int& id, POINT& loc, CWnd* parent,  
-										 std::unordered_map<std::string, CFont*> fonts,
+void DebuggingOptionsControl::initialize(int& id, POINT& loc, CWnd* parent, fontMap fonts,  
 										 std::vector<CToolTipCtrl*>& tooltips)
 {
 	// Debugging Options Title

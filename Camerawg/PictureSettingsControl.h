@@ -17,6 +17,7 @@ class PictureSettingsControl
 	public:
 		// must have parent. Enforced partially because both are singletons.
 		PictureSettingsControl::PictureSettingsControl(CameraSettingsControl* parentObj) { parentSettingsControl = parentObj; }
+
 		void initialize( cameraPositions& pos, CWnd* parent, int& id);
 		void handleOptionChange(UINT id, AndorCamera* andorObj);
 		void disablePictureControls(int pic);
@@ -26,12 +27,11 @@ class PictureSettingsControl
 		std::array<int, 4> getPictureColors();
 		std::vector<float> getUsedExposureTimes();
 		std::array<int, 4> getThresholds();
-		CBrush* colorControls(int idNumber, CDC* colorer, std::unordered_map<std::string, CBrush*> brushes,
-			std::unordered_map<std::string, COLORREF> rgbs);
+		CBrush* colorControls(int idNumber, CDC* colorer, brushMap brushes, rgbMap rgbs);
 		void confirmAcquisitionTimings();
 		void setPicturesPerExperiment(unsigned int pics, AndorCamera* andorObj);
 		void setThresholds(std::array<int, 4> thresholds);
-		void rearrange(std::string cameraMode, std::string triggerMode, int width, int height, std::unordered_map<std::string, CFont*> fonts);
+		void rearrange(std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts);
 		int getPicsPerRepetition();
 		void cameraIsOn( bool state );
 	private:
@@ -49,16 +49,16 @@ class PictureSettingsControl
 		Control<CStatic> exposureLabel;
 		Control<CStatic> thresholdLabel;
 		Control<CStatic> blackWhiteLabel;
-		Control<CStatic> redBlueLabel;
-		Control<CStatic> yellowBlueLabel;
+		Control<CStatic> infernoLabel;
+		Control<CStatic> viridaLabel;
 		// 
 		std::array<Control<CButton>, 4> totalNumberChoice;
 		std::array<Control<CStatic>, 4> pictureNumbers;
 		std::array<Control<CEdit>, 4> exposureEdits;
 		std::array<Control<CEdit>, 4> thresholdEdits;
 		std::array<Control<CButton>, 4> blackWhiteRadios;
-		std::array<Control<CButton>, 4> yellowBlueRadios;
-		std::array<Control<CButton>, 4> redBlueRadios;
+		std::array<Control<CButton>, 4> veridaRadios;
+		std::array<Control<CButton>, 4> infernoRadios;
 };
 
 

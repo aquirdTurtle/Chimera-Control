@@ -1,8 +1,7 @@
 #include "stdafx.h"
 #include "ProfileIndicator.h"
 
-void ProfileIndicator::initialize(POINT pos, int& id, CWnd* parent, std::unordered_map<std::string, CFont*> fonts,
-								  std::vector<CToolTipCtrl*>& tooltips)
+void ProfileIndicator::initialize(POINT pos, int& id, CWnd* parent, fontMap fonts, std::vector<CToolTipCtrl*>& tooltips)
 {
 	header.sPos = { pos.x, pos.y, pos.x + 200, pos.y + 20 };
 	header.ID = id++;
@@ -21,7 +20,7 @@ void ProfileIndicator::update(std::string text)
 	indicator.SetWindowTextA(text.c_str());
 }
 
-void ProfileIndicator::rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts)
+void ProfileIndicator::rearrange(int width, int height, fontMap fonts)
 {
 	header.rearrange("", "", width, height, fonts);
 	indicator.rearrange("", "", width, height, fonts);

@@ -25,14 +25,13 @@ class CameraWindow : public CDialog
 	public:
 		/// overrides
 		CameraWindow::CameraWindow( MainWindow* mainWin, ScriptingWindow* scriptWin ) :
-			CDialog(),
-			CameraSettings( &Andor ),
-			Andor( mainWin->getComm() )
+			CDialog(), CameraSettings( &Andor ), Andor( mainWin->getComm() )
 		{
 			// because of these lines the camera window does not need to "get friends".
 			mainWindowFriend = mainWin;
 			scriptingWindowFriend = scriptWin;
 		};
+
 		HBRUSH OnCtlColor( CDC* pDC, CWnd* pWnd, UINT nCtlColor );
 		BOOL OnInitDialog() override;
 		BOOL PreTranslateMessage( MSG* pMsg );
@@ -62,7 +61,6 @@ class CameraWindow : public CDialog
 		bool cameraIsRunning();
 		LRESULT onCameraFinish( WPARAM wParam, LPARAM lParam );
 		LRESULT onCameraProgress( WPARAM wParam, LPARAM lParam );
-
 		void listViewDblClick( NMHDR* info, LRESULT* lResult );
 		void listViewLClick( NMHDR* info, LRESULT* lResult );
 
@@ -71,7 +69,7 @@ class CameraWindow : public CDialog
 		void abortCameraRun();
 		friend bool commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, ScriptingWindow* scriptWin, 
 														  CameraWindow* camWin );
-
+		void handleAutoscaleSelection();
 	private:
 		DECLARE_MESSAGE_MAP();
 
@@ -90,7 +88,8 @@ class CameraWindow : public CDialog
 		std::vector<CToolTipCtrl*> tooltips;
 
 		std::pair<int, int> selectedPixel = { 0,0 };
-
+		CMenu menu;
 		bool autoScalePictureData;
 		bool realTimePic;
+
 };

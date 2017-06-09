@@ -75,7 +75,7 @@ AndorRunSettings CameraSettingsControl::getSettings()
 	return runSettings;
 }
 
-void CameraSettingsControl::rearrange( std::string cameraMode, std::string triggerMode, int width, int height, std::unordered_map<std::string, CFont*> fonts )
+void CameraSettingsControl::rearrange( std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts )
 {
 	imageDimensionsObj.rearrange( cameraMode, triggerMode, width, height, fonts );
 	picSettingsObj.rearrange( cameraMode, triggerMode, width, height, fonts );
@@ -213,8 +213,12 @@ void CameraSettingsControl::handlePictureSettings(UINT id, AndorCamera* andorObj
 	runSettings.totalPicsInExperiment = runSettings.picsPerRepetition  * runSettings.repetitionsPerVariation * runSettings.totalVariations;
 }
 
+std::array<int, 4> CameraSettingsControl::getPaletteNumbers()
+{
+	return picSettingsObj.getPictureColors();
+}
 
-void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* parent, std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips )
+void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* parent, fontMap fonts, std::vector<CToolTipCtrl*>& tooltips )
 {
 	/// Header
 	header.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
@@ -222,7 +226,7 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	header.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
 	header.ID = id++;
 	header.Create( "CAMERA SETTINGS", WS_BORDER | WS_CHILD | WS_VISIBLE | ES_READONLY | ES_CENTER, header.seriesPos, parent, header.ID );
-	header.fontType = "Heading";
+	header.fontType = Heading;
 
 	/// camera mode
 	cameraModeCombo.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 100 };
@@ -234,7 +238,7 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 		throw;
 	}
 	cameraModeCombo.Create( WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, cameraModeCombo.seriesPos, parent, cameraModeCombo.ID );
-	cameraModeCombo.fontType = "Normal";
+	cameraModeCombo.fontType = Normal;
 	cameraModeCombo.AddString( "Kinetic Series Mode" );
 	cameraModeCombo.AddString( "Accumulation Mode" );
 	cameraModeCombo.AddString( "Video Mode" );
@@ -252,7 +256,7 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 		throw;
 	}
 	emGainButton.Create( "Set EM Gain", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, emGainButton.seriesPos, parent, emGainButton.ID );
-	emGainButton.fontType = "Normal";
+	emGainButton.fontType = Normal;
 	emGainButton.setToolTip( "Set the state & gain of the EM gain of the camera. Enter a negative number to turn EM Gain"
 							 " mode off. The program will immediately change the state of the camera after pressing this button.", tooltips,
 							 parent, fonts["Normal Font"] );
@@ -261,13 +265,13 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	emGainEdit.videoPos = emGainEdit.amPos = emGainEdit.seriesPos;
 	emGainEdit.ID = id++;
 	emGainEdit.Create( WS_CHILD | WS_VISIBLE | BS_RIGHT, emGainEdit.seriesPos, parent, emGainEdit.ID );
-	emGainEdit.fontType = "Normal";
+	emGainEdit.fontType = Normal;
 	//
 	emGainDisplay.seriesPos = { pos.seriesPos.x + 300, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 20 };
 	emGainDisplay.videoPos = emGainDisplay.amPos = emGainDisplay.seriesPos;
 	emGainDisplay.ID = id++;
 	emGainDisplay.Create( "OFF", WS_CHILD | WS_VISIBLE | BS_RIGHT | ES_READONLY | ES_CENTER, emGainDisplay.seriesPos, parent, emGainDisplay.ID );
-	emGainDisplay.fontType = "Normal";
+	emGainDisplay.fontType = Normal;
 	// initialize settings.
 	runSettings.emGainLevel = 0;
 	runSettings.emGainModeIsOn = false;
@@ -282,7 +286,7 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	triggerLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 240, pos.amPos.y + 25 };
 	triggerLabel.ID = id++;
 	triggerLabel.Create( "Trigger Mode:", WS_CHILD | WS_VISIBLE | ES_CENTER, triggerLabel.seriesPos, parent, triggerLabel.ID );
-	triggerLabel.fontType = "Normal";
+	triggerLabel.fontType = Normal;
 	// trigger combo
 	triggerCombo.seriesPos = { pos.seriesPos.x + 240, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 800 };
 	triggerCombo.videoPos = { pos.videoPos.x + 240, pos.videoPos.y,pos.videoPos.x + 480, pos.videoPos.y + 800 };
@@ -294,7 +298,7 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	}
 	triggerCombo.Create( WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, triggerCombo.seriesPos, parent, triggerCombo.ID );
 	// set options for the combo
-	triggerCombo.fontType = "Normal";
+	triggerCombo.fontType = Normal;
 	triggerCombo.AddString( "Internal" );
 	triggerCombo.AddString( "External" );
 	triggerCombo.AddString( "Start On Trigger" );
@@ -310,7 +314,7 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	setTemperatureButton.ID = id++;
 	setTemperatureButton.Create( "Set Camera Temperature (C)", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON, setTemperatureButton.seriesPos,
 								 parent, setTemperatureButton.ID );
-	setTemperatureButton.fontType = "Normal";
+	setTemperatureButton.fontType = Normal;
 	if (setTemperatureButton.ID != IDC_SET_TEMPERATURE_BUTTON)
 	{
 		throw;
@@ -321,19 +325,19 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	temperatureEdit.ID = id++;
 	temperatureEdit.Create( WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT, temperatureEdit.seriesPos, parent, temperatureEdit.ID );
 	temperatureEdit.SetWindowTextA( "0" );
-	temperatureEdit.fontType = "Normal";
+	temperatureEdit.fontType = Normal;
 	// Temperature Setting Display
 	temperatureDisplay.seriesPos = { pos.seriesPos.x + 350, pos.seriesPos.y, pos.seriesPos.x + 430, pos.seriesPos.y + 25 };
 	temperatureDisplay.videoPos = temperatureDisplay.amPos = temperatureDisplay.seriesPos;
 	temperatureDisplay.ID = id++;
 	temperatureDisplay.Create( "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT | ES_READONLY, temperatureDisplay.seriesPos, parent, temperatureDisplay.ID );
-	temperatureDisplay.fontType = "Normal";
+	temperatureDisplay.fontType = Normal;
 	// Temperature Control Off Button
 	temperatureOffButton.seriesPos = { pos.seriesPos.x + 430, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 25 };
 	temperatureOffButton.videoPos = temperatureOffButton.amPos = temperatureOffButton.seriesPos;
 	temperatureOffButton.Create( "OFF",
 								 WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON, temperatureOffButton.seriesPos, parent, temperatureOffButton.ID );
-	temperatureOffButton.fontType = "Normal";
+	temperatureOffButton.fontType = Normal;
 	pos.seriesPos.y += 25;
 	pos.amPos.y += 25;
 	pos.videoPos.y += 25;
@@ -343,7 +347,7 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	temperatureMessage.ID = id++;
 	temperatureMessage.Create( "Temperature control is disabled", WS_CHILD | WS_VISIBLE | SS_LEFT, temperatureMessage.seriesPos, parent,
 							   temperatureMessage.ID );
-	temperatureMessage.fontType = "Normal";
+	temperatureMessage.fontType = Normal;
 	pos.seriesPos.y += 50;
 	pos.amPos.y += 50;
 	pos.videoPos.y += 50;
@@ -360,7 +364,7 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	kineticCycleTimeLabel.triggerModeSensitive = -1;
 	kineticCycleTimeLabel.Create( "Kinetic Cycle Time", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, kineticCycleTimeLabel.seriesPos,
 								  parent, kineticCycleTimeLabel.ID );
-	kineticCycleTimeLabel.fontType = "Normal";
+	kineticCycleTimeLabel.fontType = Normal;
 
 	// Kinetic Cycle Time Edit
 	kineticCycleTimeEdit.seriesPos = { pos.seriesPos.x + 240, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
@@ -369,7 +373,7 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	kineticCycleTimeEdit.ID = id++;
 	kineticCycleTimeEdit.triggerModeSensitive = -1;
 	kineticCycleTimeEdit.Create( WS_CHILD | WS_VISIBLE | WS_BORDER, kineticCycleTimeEdit.seriesPos, parent, kineticCycleTimeEdit.ID );
-	kineticCycleTimeEdit.fontType = "Normal";
+	kineticCycleTimeEdit.fontType = Normal;
 }
 
 void CameraSettingsControl::handleModeChange( CameraWindow* cameraWindow )
@@ -404,8 +408,7 @@ imageParameters CameraSettingsControl::readImageParameters(CameraWindow* camWin)
 	return parameters;
 }
 
-CBrush* CameraSettingsControl::handleColor( int idNumber, CDC* colorer, std::unordered_map<std::string, CBrush*> brushes,
-											std::unordered_map<std::string, COLORREF> rgbs )
+CBrush* CameraSettingsControl::handleColor( int idNumber, CDC* colorer, brushMap brushes, rgbMap rgbs )
 {
 	return picSettingsObj.colorControls( idNumber, colorer, brushes, rgbs );
 }

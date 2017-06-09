@@ -11,32 +11,23 @@
 
 
 void ExperimentTimer::initialize( cameraPositions& inputLoc, CWnd* parent, bool isTriggerModeSensitive, int& id,
-								  std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*> toolTips )
+								  fontMap fonts, std::vector<CToolTipCtrl*> toolTips )
 {
-	timeDisplay.seriesPos = { inputLoc.seriesPos.x, inputLoc.seriesPos.y, inputLoc.seriesPos.x + 168, inputLoc.seriesPos.y + 40 };
-	timeDisplay.amPos = { inputLoc.amPos.x, inputLoc.amPos.y, inputLoc.amPos.x + 168, inputLoc.amPos.y + 40 };
-	timeDisplay.videoPos = { inputLoc.videoPos.x, inputLoc.videoPos.y, inputLoc.videoPos.x + 168, inputLoc.videoPos.y + 40 };
+	timeDisplay.sPos = { inputLoc.sPos.x, inputLoc.sPos.y, inputLoc.sPos.x + 168, inputLoc.sPos.y + 40 };
 	timeDisplay.ID = id++;
-	timeDisplay.Create("", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, timeDisplay.seriesPos, parent, timeDisplay.ID);
-	timeDisplay.fontType = "Normal";
+	timeDisplay.Create("", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, timeDisplay.sPos, parent, timeDisplay.ID);
+	timeDisplay.fontType = Normal;
 	/// PROGRESS BARS
 	// subseries progress bar
-	variationProgress.seriesPos = { inputLoc.seriesPos.x + 168, inputLoc.seriesPos.y, inputLoc.seriesPos.x + 1168, inputLoc.seriesPos.y + 15 };
-	variationProgress.amPos = { inputLoc.amPos.x + 168, inputLoc.amPos.y, inputLoc.amPos.x + 1168, inputLoc.amPos.y + 15 };
-	variationProgress.videoPos = { inputLoc.videoPos.x + 168, inputLoc.videoPos.y, inputLoc.videoPos.x + 1168, 
-		inputLoc.videoPos.y + 15 };
+	variationProgress.sPos = { inputLoc.sPos.x + 168, inputLoc.sPos.y, inputLoc.sPos.x + 1168, inputLoc.sPos.y + 15 };
 	variationProgress.ID = id++;
-	variationProgress.Create(WS_CHILD | WS_VISIBLE, variationProgress.seriesPos, parent, variationProgress.ID);
+	variationProgress.Create(WS_CHILD | WS_VISIBLE, variationProgress.sPos, parent, variationProgress.ID);
 	variationProgress.SetBkColor(RGB(100, 110, 100));
 	variationProgress.SetBarColor(RGB(0, 200, 0));
 	// series progress bar display
-	overallProgress.seriesPos = { inputLoc.seriesPos.x + 168, inputLoc.seriesPos.y + 15, inputLoc.seriesPos.x + 1168, inputLoc.seriesPos.y + 40 };
-	overallProgress.amPos = { inputLoc.amPos.x + 168, inputLoc.amPos.y + 15, inputLoc.amPos.x + 1168,
-		inputLoc.amPos.y + 40 };
-	overallProgress.videoPos = { inputLoc.videoPos.x + 168, inputLoc.videoPos.y + 15, inputLoc.videoPos.x + 1168,
-		inputLoc.videoPos.y + 40 };
+	overallProgress.sPos = { inputLoc.sPos.x + 168, inputLoc.sPos.y + 15, inputLoc.sPos.x + 1168, inputLoc.sPos.y + 40 };
 	overallProgress.ID = id++;
-	overallProgress.Create(WS_CHILD | WS_VISIBLE, overallProgress.seriesPos, parent, overallProgress.ID);
+	overallProgress.Create(WS_CHILD | WS_VISIBLE, overallProgress.sPos, parent, overallProgress.ID);
 	overallProgress.SetBkColor(RGB(100, 110, 100));
 	overallProgress.SetBarColor(RGB(255, 255, 255));	
 	inputLoc.seriesPos.y += 40;
@@ -54,8 +45,8 @@ void ExperimentTimer::update(int currentRepNumber, int repsPerVariation, int num
 	overallProgress.SetPos( overallPosition );
 	if (currentRepNumber == 1)
 	{
-		this->firstTime = GetTickCount64();
-		timeDisplay.fontType = "Normal";
+		firstTime = GetTickCount64();
+		timeDisplay.fontType = Normal;
 		timeDisplay.SetWindowTextA( "Estimating Time..." );
 		timeDisplay.RedrawWindow();
 	}
@@ -63,7 +54,7 @@ void ExperimentTimer::update(int currentRepNumber, int repsPerVariation, int num
 	{
 		if (currentRepNumber == minAverageNumber)
 		{
-			timeDisplay.fontType = "Large";
+			timeDisplay.fontType = Large;
 			timeDisplay.RedrawWindow();
 		}
 		long long thisTime = GetTickCount64();
@@ -106,8 +97,8 @@ void ExperimentTimer::update(int currentRepNumber, int repsPerVariation, int num
 	}
 }
 
-void ExperimentTimer::reorganizeControls( std::string cameraMode, std::string triggerMode, int width, int height,
-										 std::unordered_map<std::string, CFont* > fonts )
+void ExperimentTimer::rearrange( std::string cameraMode, std::string triggerMode, int width, int height,
+										 fontMap fonts )
 {
 	timeDisplay.rearrange( cameraMode, triggerMode, width, height, fonts );
 	variationProgress.rearrange( cameraMode, triggerMode, width, height, fonts );

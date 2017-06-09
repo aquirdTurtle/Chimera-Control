@@ -103,7 +103,7 @@
 #define GAIN 1.34
 // GAIN = 1.34.
 
-#define MAX_NIAWG_SIGNALS 10
+#define MAX_NIAWG_SIGNALS 32
 
 // This is the minimum time (in seconds) that a correction waveform will be allowed to have. Without this, the algorithm might decide that the 1/2 of a period 
 // of a waveform might be enough, even though this would probably be far below the amount of time an individual waveform is allowed to have according to the 

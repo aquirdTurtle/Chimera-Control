@@ -31,23 +31,24 @@ void CameraImageDimensionsControl::initialize( cameraPositions& pos, CWnd* paren
 	setImageDimensionsButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
 	setImageDimensionsButton.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
 	setImageDimensionsButton.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
-	setImageDimensionsButton.Create( "Set Image Dimensions", WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY,
+	setImageDimensionsButton.Create( "Set Image Dimensions", WS_TABSTOP | WS_CHILD | WS_VISIBLE,
 									 setImageDimensionsButton.seriesPos, parent, setImageDimensionsButton.ID );
-	setImageDimensionsButton.fontType = "Normal";
+
+	setImageDimensionsButton.fontType = Normal;
 	//
 	leftText.ID = id++;
 	leftText.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 25 };
 	leftText.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 25 };
 	leftText.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 160, pos.videoPos.y + 25 };
 	leftText.Create( "Left", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, leftText.seriesPos, parent, leftText.ID );
-	leftText.fontType = "Normal";
+	leftText.fontType = Normal;
 	//
 	rightText.ID = id++;
 	rightText.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 25 };
 	rightText.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 25 };
 	rightText.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
 	rightText.Create( "Right", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, rightText.seriesPos, parent, rightText.ID );
-	rightText.fontType = "Normal";
+	rightText.fontType = Normal;
 	//
 	horizontalBinningText.ID = id++;
 	horizontalBinningText.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
@@ -55,14 +56,14 @@ void CameraImageDimensionsControl::initialize( cameraPositions& pos, CWnd* paren
 	horizontalBinningText.videoPos = { pos.videoPos.x + 320, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
 	horizontalBinningText.Create( "H. Bin", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, horizontalBinningText.seriesPos, parent, 
 								  horizontalBinningText.ID );
-	horizontalBinningText.fontType = "Normal";
+	horizontalBinningText.fontType = Normal;
 	//
 	leftEdit.ID = id++;
 	leftEdit.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 25 };
 	leftEdit.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 25 };
 	leftEdit.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 160, pos.videoPos.y + 25 };
 	leftEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, leftEdit.seriesPos, parent, leftEdit.ID );
-	leftEdit.fontType = "Normal";
+	leftEdit.fontType = Normal;
 	leftEdit.SetWindowTextA( "1" );
 	//
 	rightEdit.ID = id++;
@@ -70,7 +71,7 @@ void CameraImageDimensionsControl::initialize( cameraPositions& pos, CWnd* paren
 	rightEdit.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 25 };
 	rightEdit.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
 	rightEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, rightEdit.seriesPos, parent, rightEdit.ID );
-	rightEdit.fontType = "Normal";
+	rightEdit.fontType = Normal;
 	rightEdit.SetWindowTextA( "10" );
 	//
 	horizontalBinningEdit.ID = id++;
@@ -79,7 +80,7 @@ void CameraImageDimensionsControl::initialize( cameraPositions& pos, CWnd* paren
 	horizontalBinningEdit.videoPos = { pos.videoPos.x + 320, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
 	horizontalBinningEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, horizontalBinningEdit.seriesPos, parent, 
 								  horizontalBinningEdit.ID );
-	horizontalBinningEdit.fontType = "Normal";
+	horizontalBinningEdit.fontType = Normal;
 	horizontalBinningEdit.SetWindowTextA( "1" );
 	//
 	topText.ID = id++;
@@ -87,7 +88,7 @@ void CameraImageDimensionsControl::initialize( cameraPositions& pos, CWnd* paren
 	topText.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 25 };
 	topText.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 160, pos.videoPos.y + 25 };
 	topText.Create( "Top", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, topText.seriesPos, parent, topText.ID );
-	topText.fontType = "Normal";
+	topText.fontType = Normal;
 
 	//
 	bottomText.ID = id++;
@@ -96,7 +97,7 @@ void CameraImageDimensionsControl::initialize( cameraPositions& pos, CWnd* paren
 	bottomText.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
 	bottomText.Create( "Bottom", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, bottomText.seriesPos, parent, 
 					   bottomText.ID );
-	bottomText.fontType = "Normal";
+	bottomText.fontType = Normal;
 	//
 	verticalBinningText.ID = id++;
 	verticalBinningText.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
@@ -104,14 +105,14 @@ void CameraImageDimensionsControl::initialize( cameraPositions& pos, CWnd* paren
 	verticalBinningText.videoPos = { pos.videoPos.x + 320, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
 	verticalBinningText.Create( "V. Bin", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, verticalBinningText.seriesPos, parent, 
 								verticalBinningText.ID );
-	verticalBinningText.fontType = "Normal";
+	verticalBinningText.fontType = Normal;
 	//
 	topEdit.ID = id++;
 	topEdit.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 25 };
 	topEdit.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 25 };
 	topEdit.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 160, pos.videoPos.y + 25 };
 	topEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, topEdit.seriesPos, parent, topEdit.ID );
-	topEdit.fontType = "Normal";
+	topEdit.fontType = Normal;
 	topEdit.SetWindowTextA( "1" );
 	//
 	bottomEdit.ID = id++;
@@ -119,7 +120,7 @@ void CameraImageDimensionsControl::initialize( cameraPositions& pos, CWnd* paren
 	bottomEdit.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 25 };
 	bottomEdit.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
 	bottomEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, bottomEdit.seriesPos, parent, bottomEdit.ID );
-	bottomEdit.fontType = "Normal";
+	bottomEdit.fontType = Normal;
 	bottomEdit.SetWindowTextA( "10" );
 	//
 	verticalBinningEdit.ID = id++;
@@ -128,7 +129,7 @@ void CameraImageDimensionsControl::initialize( cameraPositions& pos, CWnd* paren
 	verticalBinningEdit.videoPos = { pos.videoPos.x + 320, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
 	verticalBinningEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, verticalBinningEdit.seriesPos, parent, 
 								verticalBinningEdit.ID );
-	verticalBinningEdit.fontType = "Normal";
+	verticalBinningEdit.fontType = Normal;
 	verticalBinningEdit.SetWindowTextA( "1" );
 }
 
@@ -481,9 +482,9 @@ imageParameters CameraImageDimensionsControl::getImageParameters()
 
 HBRUSH CameraImageDimensionsControl::colorEdits( HWND window, UINT message, WPARAM wParam, LPARAM lParam, MainWindow* mainWin )
 {
-	std::unordered_map<std::string, CBrush*> brushes = mainWin->getBrushes();
+	brushMap brushes = mainWin->getBrushes();
 
-	std::unordered_map<std::string, COLORREF> rgbs = mainWin->getRGB();
+	rgbMap rgbs = mainWin->getRGB();
 	DWORD controlID = GetDlgCtrlID( (HWND)lParam );
 	HDC hdcStatic = (HDC)wParam;
 	imageParameters currentImageParameters = { 0,0,0,0,0,0 };
@@ -725,7 +726,7 @@ HBRUSH CameraImageDimensionsControl::colorEdits( HWND window, UINT message, WPAR
 
 
 void CameraImageDimensionsControl::rearrange( std::string cameraMode, std::string triggerMode, int width, int height, 
-											  std::unordered_map<std::string, CFont*> fonts )
+											  fontMap fonts )
 {
 	leftText.rearrange( cameraMode, triggerMode, width, height, fonts );
 	rightText.rearrange( cameraMode, triggerMode, width, height, fonts );

@@ -33,18 +33,18 @@ struct AndorRunSettings
 	std::string triggerMode;
 	std::string cameraMode;
 	bool showPicsInRealTime;
-		//
+	//
 	float kinetiCycleTime;
 	float accumulationTime;
 	int totalAccumulationNumber;
 	std::vector<float> exposureTimes;
-		//
+	//
 	int picsPerRepetition;
 	int repetitionsPerVariation;
 	int totalVariations;
 	int totalPicsInExperiment;
 	int totalPicsInVariation;
-		// 
+	// 
 	int temperatureSetting;
 };
 
@@ -142,7 +142,6 @@ class AndorCamera
 		void setIsRunningState( bool state );
 		void updatePictureNumber( int newNumber );
 		void setGainMode();
-		void drawDataWindow(void);
 		void changeTemperatureSetting(bool temperatureControlOff);
 		void andorErrorChecker(int errorCode);
 

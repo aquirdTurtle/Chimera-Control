@@ -9,7 +9,7 @@
 #include "ScriptingWindow.h"
 #include <memory>
 
-void VariableSystem::rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts)
+void VariableSystem::rearrange(int width, int height, fontMap fonts)
 {
 	header.rearrange("", "", width, height, fonts);
 	listview.rearrange("", "", width, height, fonts);
@@ -333,8 +333,8 @@ bool VariableSystem::addVariable(std::string name, bool timelike, bool singleton
 	return false;
 }
 
-bool VariableSystem::initializeControls(POINT &topLeftCorner, CWnd* parent, int& id, 
-	std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips)
+bool VariableSystem::initializeControls(POINT &topLeftCorner, CWnd* parent, int& id, fontMap fonts, 
+										std::vector<CToolTipCtrl*>& tooltips)
 {
 	header.ID = id++;
 	header.sPos = { topLeftCorner.x, topLeftCorner.y, topLeftCorner.x + 480, topLeftCorner.y + 20 };

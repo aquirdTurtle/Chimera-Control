@@ -62,7 +62,7 @@ int reorganizeControl(Control<CWnd>& controlToReposition, std::string mode, RECT
 	/// Set Fonts
 	/// TODO
 	/*
-	if (controlToReposition.fontType == "Normal")
+	if (controlToReposition.fontType == Normal)
 	{
 		if (widthScale * heightScale > 0.8)
 		{
@@ -78,7 +78,7 @@ int reorganizeControl(Control<CWnd>& controlToReposition, std::string mode, RECT
 			SendMessage(controlToReposition.hwnd, WM_SETFONT, WPARAM(sNormalFontSmall), TRUE);
 		}
 	}
-	else if (controlToReposition.fontType == "Code")
+	else if (controlToReposition.fontType == Code)
 	{
 		if (widthScale * heightScale > 0.8)
 		{
@@ -93,7 +93,7 @@ int reorganizeControl(Control<CWnd>& controlToReposition, std::string mode, RECT
 			SendMessage(controlToReposition.hwnd, WM_SETFONT, WPARAM(sCodeFontSmall), TRUE);
 		}
 	}
-	else if (controlToReposition.fontType == "Heading")
+	else if (controlToReposition.fontType == Heading)
 	{
 		if (widthScale * heightScale > 0.8)
 		{
@@ -108,7 +108,7 @@ int reorganizeControl(Control<CWnd>& controlToReposition, std::string mode, RECT
 			SendMessage(controlToReposition.hwnd, WM_SETFONT, WPARAM(sHeadingFontSmall), TRUE);
 		}
 	}
-	else if (controlToReposition.fontType == "Large")
+	else if (controlToReposition.fontType == Large)
 	{
 		if (widthScale * heightScale > 0.8)
 		{
@@ -123,7 +123,7 @@ int reorganizeControl(Control<CWnd>& controlToReposition, std::string mode, RECT
 			SendMessage(controlToReposition.hwnd, WM_SETFONT, WPARAM(sLargerFontSmall), TRUE);
 		}
 	}
-	else if (controlToReposition.fontType == "Small")
+	else if (controlToReposition.fontType == Small)
 	{
 		if (widthScale * heightScale > 0.8)
 		{

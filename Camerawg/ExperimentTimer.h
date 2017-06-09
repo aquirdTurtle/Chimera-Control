@@ -8,11 +8,10 @@ struct cameraPositions;
 class ExperimentTimer
 {
 	public:
-		void initialize( cameraPositions& inputLoc, CWnd* parent, bool isTriggerModeSensitive, int& id,
-						 std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*> toolTips );
+		void initialize( cameraPositions& inputLoc, CWnd* parent, bool isTriggerModeSensitive, int& id, fontMap fonts, 
+						 std::vector<CToolTipCtrl*> toolTips );
 		void update( int currentRepNumber, int repsPerVariation, int numberOfVariations, int picsPerRep );
-		void reorganizeControls( std::string cameraMode, std::string triggerMode, int width, int height,
-								 std::unordered_map<std::string, CFont* > fonts );
+		void rearrange( std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts );
 		void setTimerDisplay( std::string newText );
 	private:
 		Control<CStatic> timeDisplay;

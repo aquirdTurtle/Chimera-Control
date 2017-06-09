@@ -2,7 +2,7 @@
 #include "ColorBox.h"
 #include <tuple>
 
-void ColorBox::initialize(POINT& pos, int& id, CWnd* parent, int length, std::unordered_map<std::string, CFont*> fonts,
+void ColorBox::initialize(POINT& pos, int& id, CWnd* parent, int length, fontMap fonts,
 	std::vector<CToolTipCtrl*>& tooltips)
 {
 	//
@@ -10,32 +10,31 @@ void ColorBox::initialize(POINT& pos, int& id, CWnd* parent, int length, std::un
 	boxes.niawg.ID = id++;
 	boxes.niawg.Create("NIAWG", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | SS_CENTER | WS_BORDER,
 					 boxes.niawg.sPos, parent, boxes.niawg.ID);
-	boxes.niawg.fontType = "Code";
+	boxes.niawg.fontType = Code;
 	//
 	boxes.camera.sPos = { long(pos.x + length/3.0), pos.y, long(pos.x + 2*length/3.0), pos.y + 20 };
 	boxes.camera.ID = id++;
 	boxes.camera.Create( "CAMERA", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | SS_CENTER | WS_BORDER, 
 					  boxes.camera.sPos, parent, boxes.camera.ID );
-	boxes.camera.fontType = "Code";
+	boxes.camera.fontType = Code;
 	//
 	boxes.intensity.sPos = { long(pos.x + 2*length/3.0), pos.y, pos.x + length, pos.y + 20 };
 	boxes.intensity.ID = id++;
 	boxes.intensity.Create( "INTENSITY", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | SS_CENTER | WS_BORDER,
 						 boxes.intensity.sPos, parent, boxes.intensity.ID );
-	boxes.intensity.fontType = "Code";
+	boxes.intensity.fontType = Code;
 	pos.y += 20;
 }
 
 
-void ColorBox::rearrange(std::string cameraMode, std::string triggerMode, int width, int height, std::unordered_map<std::string, CFont*> fonts)
+void ColorBox::rearrange(std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts)
 {
 	boxes.niawg.rearrange(cameraMode, triggerMode, width, height, fonts);
 	boxes.camera.rearrange( cameraMode, triggerMode, width, height, fonts );
 	boxes.intensity.rearrange( cameraMode, triggerMode, width, height, fonts );
 }
 
-CBrush* ColorBox::handleColoring( int id, CDC* pDC, std::unordered_map<std::string, CBrush*> brushes,  
-								  std::unordered_map<std::string, COLORREF> rgbs)
+CBrush* ColorBox::handleColoring( int id, CDC* pDC, brushMap brushes, rgbMap rgbs)
 {
 	if (id == boxes.niawg.ID)
 	{

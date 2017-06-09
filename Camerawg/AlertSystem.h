@@ -18,12 +18,11 @@ class AlertSystem
 		{
 			mciSendString( "close mp3", NULL, 0, NULL );
 		}
-		void initialize(cameraPositions& positions, CWnd* parent, bool isTriggerModeSensitive, int& id,
-			std::unordered_map<std::string, CFont*> fonts, std::vector<CToolTipCtrl*>& tooltips);
+		void initialize(cameraPositions& positions, CWnd* parent, bool isTriggerModeSensitive, int& id, fontMap fonts, 
+						std::vector<CToolTipCtrl*>& tooltips);
 		void alertMainThread(int level);
 		void soundAlert();
-		void rearrange(std::string cameraMode, std::string triggerMode, int width, int height,
-			std::unordered_map<std::string, CFont*> fonts);
+		void rearrange(std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts);
 		void handleCheckBoxPress();
 		unsigned int getAlertThreshold();
 		unsigned int getAlertMessageID();

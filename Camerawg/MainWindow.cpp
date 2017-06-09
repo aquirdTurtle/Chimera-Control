@@ -80,7 +80,7 @@ void MainWindow::setNiawgDefaults()
 	niawg.setDefaultWaveforms(this);
 }
 
-std::unordered_map<std::string, CFont*> MainWindow::getFonts()
+fontMap MainWindow::getFonts()
 {
 	return mainFonts;
 }
@@ -676,13 +676,13 @@ LRESULT MainWindow::onDebugMessage(WPARAM wParam, LPARAM lParam)
 }
 
 
-std::unordered_map<std::string, CBrush*> MainWindow::getBrushes()
+brushMap MainWindow::getBrushes()
 {
 	return mainBrushes;
 }
 
 
-std::unordered_map<std::string, COLORREF> MainWindow::getRGB()
+rgbMap MainWindow::getRGB()
 {
 	return mainRGBs;
 }

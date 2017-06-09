@@ -9,7 +9,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Andor Camera Control", "Cam
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Master Code", "Master Code\Master Code.vcxproj", "{74C41591-ED13-4BEE-9F46-45714616930F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Console Testing", "ConsoleApplication1\ConsoleApplication1.vcxproj", "{70993E60-B2D9-4A2E-9F31-56F1B35F46B8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConsoleApplication1", "ConsoleApplication1\ConsoleApplication1.vcxproj", "{70993E60-B2D9-4A2E-9F31-56F1B35F46B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -27,7 +27,7 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	setPictureOptionsButton.ID = id++;
 	setPictureOptionsButton.Create( "Set Picture Options", WS_CHILD | WS_VISIBLE, setPictureOptionsButton.seriesPos, parent, 
 									setPictureOptionsButton.ID );
-	setPictureOptionsButton.fontType = "Normal";
+	setPictureOptionsButton.fontType = Normal;
 	/// Picture Numbers
 	pictureLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y + 20 };
 	pictureLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100,	pos.amPos.y + 20 };
@@ -134,25 +134,25 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	pos.videoPos.y += 20;
 
 	/// Yellow --> Blue Color
-	yellowBlueLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y += 20 };
-	yellowBlueLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y += 20 };
-	yellowBlueLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y += 20 };
-	yellowBlueLabel.ID = id++;
-	yellowBlueLabel.Create( "Yellow --> Blue", WS_CHILD | WS_VISIBLE, yellowBlueLabel.seriesPos, parent, yellowBlueLabel.ID );
+	viridaLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y += 20 };
+	viridaLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y += 20 };
+	viridaLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y += 20 };
+	viridaLabel.ID = id++;
+	viridaLabel.Create( "Virida", WS_CHILD | WS_VISIBLE, viridaLabel.seriesPos, parent, viridaLabel.ID );
 
 	/// Red --> Blue color
-	redBlueLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y += 20 };
-	redBlueLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y += 20 };
-	redBlueLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y += 20 };
-	redBlueLabel.ID = id++;
-	redBlueLabel.Create( "Red --> Blue", WS_CHILD | WS_VISIBLE, redBlueLabel.seriesPos, parent, redBlueLabel.ID );
+	infernoLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y += 20 };
+	infernoLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y += 20 };
+	infernoLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y += 20 };
+	infernoLabel.ID = id++;
+	infernoLabel.Create( "Inferno", WS_CHILD | WS_VISIBLE, infernoLabel.seriesPos, parent, infernoLabel.ID );
 
 	/// Black --> White color
 	blackWhiteLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y += 20 };
 	blackWhiteLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y += 20 };
 	blackWhiteLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y += 20 };
 	blackWhiteLabel.ID = id++;
-	blackWhiteLabel.Create( "Black --> White", WS_CHILD | WS_VISIBLE, blackWhiteLabel.seriesPos, parent, blackWhiteLabel.ID );
+	blackWhiteLabel.Create( "Black and White", WS_CHILD | WS_VISIBLE, blackWhiteLabel.seriesPos, parent, blackWhiteLabel.ID );
 
 	/// The radio buttons
 	for (int picInc = 0; picInc < 4; picInc++)
@@ -160,27 +160,27 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 		pos.seriesPos.y -= 60;
 		pos.amPos.y -= 60;
 		pos.videoPos.y -= 60;
-		yellowBlueRadios[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y,
+		veridaRadios[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y,
 			pos.seriesPos.x + 100 + 95 * (picInc + 1), pos.seriesPos.y + 20 };
-		yellowBlueRadios[picInc].amPos = { pos.amPos.x + 100 + 95 * picInc, pos.amPos.y,
+		veridaRadios[picInc].amPos = { pos.amPos.x + 100 + 95 * picInc, pos.amPos.y,
 			pos.amPos.x + 100 + 95 * (picInc + 1), pos.amPos.y + 20 };
-		yellowBlueRadios[picInc].videoPos = { pos.videoPos.x + 100 + 95 * picInc, pos.videoPos.y,
+		veridaRadios[picInc].videoPos = { pos.videoPos.x + 100 + 95 * picInc, pos.videoPos.y,
 			pos.videoPos.x + 100 + 95 * (picInc + 1), pos.videoPos.y + 20 };
-		this->yellowBlueRadios[picInc].ID = id++;
-		yellowBlueRadios[picInc].Create( "", BS_CENTER | WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON | WS_GROUP,
-										 yellowBlueRadios[picInc].seriesPos, parent, yellowBlueRadios[picInc].ID );
+		this->veridaRadios[picInc].ID = id++;
+		veridaRadios[picInc].Create( "", BS_CENTER | WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON | WS_GROUP,
+										 veridaRadios[picInc].seriesPos, parent, veridaRadios[picInc].ID );
 		pos.seriesPos.y += 20;
 		pos.amPos.y += 20;
 		pos.videoPos.y += 20;
-		redBlueRadios[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y,
+		infernoRadios[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y,
 			pos.seriesPos.x + 100 + 95 * (picInc + 1), pos.seriesPos.y + 20 };
-		redBlueRadios[picInc].amPos = { pos.amPos.x + 100 + 95 * picInc, pos.amPos.y,
+		infernoRadios[picInc].amPos = { pos.amPos.x + 100 + 95 * picInc, pos.amPos.y,
 			pos.amPos.x + 100 + 95 * (picInc + 1), pos.amPos.y + 20 };
-		redBlueRadios[picInc].videoPos = { pos.videoPos.x + 100 + 95 * picInc, pos.videoPos.y,
+		infernoRadios[picInc].videoPos = { pos.videoPos.x + 100 + 95 * picInc, pos.videoPos.y,
 			pos.videoPos.x + 100 + 95 * (picInc + 1), pos.videoPos.y + 20 };
-		redBlueRadios[picInc].ID = id++;
-		redBlueRadios[picInc].Create( "", BS_CENTER | WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
-									  redBlueRadios[picInc].seriesPos, parent, redBlueRadios[picInc].ID );
+		infernoRadios[picInc].ID = id++;
+		infernoRadios[picInc].Create( "", BS_CENTER | WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
+									  infernoRadios[picInc].seriesPos, parent, infernoRadios[picInc].ID );
 		pos.seriesPos.y += 20;
 		pos.amPos.y += 20;
 		pos.videoPos.y += 20;
@@ -224,8 +224,8 @@ void PictureSettingsControl::disablePictureControls(int pic)
 	exposureEdits[pic].EnableWindow(0);
 	thresholdEdits[pic].EnableWindow(0);
 	blackWhiteRadios[pic].EnableWindow(0);
-	yellowBlueRadios[pic].EnableWindow(0);
-	redBlueRadios[pic].EnableWindow(0);
+	veridaRadios[pic].EnableWindow(0);
+	infernoRadios[pic].EnableWindow(0);
 }
 
 
@@ -238,12 +238,11 @@ void PictureSettingsControl::enablePictureControls( int pic )
 	exposureEdits[pic].EnableWindow();
 	thresholdEdits[pic].EnableWindow();
 	blackWhiteRadios[pic].EnableWindow();
-	yellowBlueRadios[pic].EnableWindow();
-	redBlueRadios[pic].EnableWindow();
+	veridaRadios[pic].EnableWindow();
+	infernoRadios[pic].EnableWindow();
 }
 
-CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer, std::unordered_map<std::string, CBrush*> brushes,
-	std::unordered_map<std::string, COLORREF> rgbs)
+CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer, brushMap brushes, rgbMap rgbs)
 {
 	/// Exposures
 	if (id >= exposureEdits.front().ID && id <= exposureEdits.back().ID)
@@ -404,9 +403,9 @@ void PictureSettingsControl::handleOptionChange(UINT id, AndorCamera* andorObj)
 		/// set the exposure times via andor
 		setExposureTimes(andorObj);
 	}
-	else if (id >= yellowBlueRadios[0].ID && id <= blackWhiteRadios[3].ID)
+	else if (id >= veridaRadios[0].ID && id <= blackWhiteRadios[3].ID)
 	{
-		id -= yellowBlueRadios[0].ID;
+		id -= veridaRadios[0].ID;
 		int pic = id / 3;
 		int color = id % 3;
 		colors[pic] = color;
@@ -551,8 +550,8 @@ std::array<int, 4> PictureSettingsControl::getPictureColors()
 /*
 
 */
-void PictureSettingsControl::rearrange(std::string cameraMode, std::string triggerMode, int width, int height,
-	std::unordered_map<std::string, CFont*> fonts)
+void PictureSettingsControl::rearrange(std::string cameraMode, std::string triggerMode, int width, int height, 
+									   fontMap fonts)
 {
 	setPictureOptionsButton.rearrange(cameraMode, triggerMode, width, height, fonts);
 	totalPicNumberLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
@@ -560,8 +559,8 @@ void PictureSettingsControl::rearrange(std::string cameraMode, std::string trigg
 	exposureLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
 	thresholdLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
 	blackWhiteLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
-	redBlueLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
-	yellowBlueLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
+	infernoLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
+	viridaLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
 
 	for (auto& control : this->pictureNumbers)
 	{
@@ -579,11 +578,11 @@ void PictureSettingsControl::rearrange(std::string cameraMode, std::string trigg
 	{
 		control.rearrange(cameraMode, triggerMode, width, height, fonts);
 	}
-	for (auto& control : this->redBlueRadios)
+	for (auto& control : this->infernoRadios)
 	{
 		control.rearrange(cameraMode, triggerMode, width, height, fonts);
 	}
-	for (auto& control : this->yellowBlueRadios)
+	for (auto& control : this->veridaRadios)
 	{
 		control.rearrange(cameraMode, triggerMode, width, height, fonts);
 	}
