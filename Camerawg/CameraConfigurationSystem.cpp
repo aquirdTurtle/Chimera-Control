@@ -499,7 +499,7 @@ void CameraConfigurationSystem::reloadCombo( std::string nameToLoad )
 	names = CameraConfigurationSystem::searchForFiles( FILE_SYSTEM_PATH, "*.cConfig" );
 
 	/// Get current selection
-	long long itemIndex = configCombo.GetCurSel();
+	int itemIndex = configCombo.GetCurSel();
 	CString experimentConfigToOpen;
 	std::string currentSelection;
 	int currentInc = -1;
@@ -511,6 +511,7 @@ void CameraConfigurationSystem::reloadCombo( std::string nameToLoad )
 	}
 	/// Reset stuffs
 	configCombo.ResetContent();
+
 	// Send list to object
 	for (int comboInc = 0; comboInc < names.size(); comboInc++)
 	{
@@ -544,7 +545,7 @@ std::string CameraConfigurationSystem::getComboText()
 	{
 		CString text;
 		configCombo.GetLBText( selectionNum, text );
-		return text;
+		return std::string(text);
 	}
 }
 

@@ -77,6 +77,7 @@
 	const std::string CODE_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Code Versions\\";
 	const std::string ACTUAL_CODE_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Cold Atoms Control Application\\";
 	const std::string PROFILES_PATH = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Profiles\\";
+	const std::string DATA_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Data\\";
 #endif
 
 #ifdef MASTER_COMPUTER

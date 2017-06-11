@@ -191,19 +191,7 @@ void AndorCamera::setSystem(CameraWindow* camWin)
 	// this->??? = 1;
 	// //////////////////////////////
 	getStatus();
-	/// setup fits files
-	std::string errMsg;
-	if (runSettings.cameraMode != "Video Mode")
-	{
-		/// TODO: also, change to HDF5
-		/*
-		if (eExperimentData.initializeDataFiles(errMsg))
-		{
-			appendText(errMsg, IDC_ERROR_EDIT);
-			return -1;
-		}
-		*/
-	}
+
 	/// Do some plotting stuffs
 	//eAlerts.setAlertThreshold();
 	//ePicStats.reset();
@@ -222,8 +210,8 @@ void AndorCamera::setSystem(CameraWindow* camWin)
 
 
 /* 
- * This function queries the camera for how many pictures are available, retrieves all of them, then paints them to 
- * the main window. It returns the success of this operation.
+ * This function checks for new pictures, if they exist it gets them, and shapes them into the array which holds all of
+ * the pictures for a given repetition.
  */
 std::vector<std::vector<long>> AndorCamera::acquireImageData()
 {
@@ -332,98 +320,6 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 		}
 		ReleaseMutex(imagesMutex);
 	}
-
-	// Display data and query max data value to be displayed in status box
-	BOOL bRetValue = TRUE;
-	long maxValue = 1;
- 	long minValue = 65536;
-
-	/// handle plotting & data writing.
-
-	/*			
-		// Wait until eImageVecQueue is available using the mutex.
-
-		DWORD mutexMsg = WaitForSingleObject(plottingMutex, INFINITE);
-		switch (mutexMsg)
-		{
-			case WAIT_OBJECT_0:
-			{
-				// Add data to the plotting queue, only if actually plotting something.
-				/// TODO
-				if (eCurrentPlotNames.size() != 0)
-				{
-					eImageVecQueue.push_back(eImagesOfExperiment[experimentPictureNumber]);
-				}		
-				break;
-			}
-			case WAIT_ABANDONED:
-			{
-				// handle error...
-				thrower("ERROR: waiting for the plotting mutex failed (Wait Abandoned)!\r\n");
-				break;
-			}
-			case WAIT_TIMEOUT:
-			{
-				// handle error...
-				thrower("ERROR: waiting for the plotting mutex failed (timout???)!\r\n");
-				break;
-			}
-			case WAIT_FAILED:
-			{
-				// handle error...
-				int a = GetLastError();
-				thrower("ERROR: waiting for the plotting mutex failed (Wait Failed: " + std::to_string(a) + ")!\r\n");
-				break;
-
-			}
-			default:
-			{
-				// handle error...
-				thrower("ERROR: unknown response from WaitForSingleObject!\r\n");
-				break;
-			}
-		}
-		ReleaseMutex(plottingMutex);
-
-		// write the data to the file.
-		std::string errMsg;
-		int experimentPictureNumber;
-		if (this->runSettings.showPicsInRealTime)
-		{
-			experimentPictureNumber = 0;
-		}
-		else
-		{
-			experimentPictureNumber = (((this->currentPictureNumber - 1) 
-				% this->runSettings.totalPicsInVariation) % runSettings.picsPerRepetition);
-		}
-		if (this->runSettings.cameraMode != "Continuous Single Scans Mode")
-		{
-			/// TODO
-			/*
-			if (eExperimentData.writeFits(errMsg, experimentPictureNumber, this->currentMainThreadRepetitionNumber, eImagesOfExperiment))
-			{
-				thrower(errMsg);
-			}
-
-		}
-	}
-	else
-	{
-		thrower("ERROR: Data range is zero\r\n");
-		return this->imagesOfExperiment;
-	}
-	*/
-	/// TODO
-	/*
-	if (eCooler)
-	{
-		// start temp timer again when acq is complete
-		SetTimer(eCameraWindowHandle, ID_TEMPERATURE_TIMER, 1000, NULL);
-	}
-	*/
-	// % 4 at the end because there are only 4 pictures available on the screen.
-	//int imageLocation = (((currentPictureNumber - 1) % runSettings.totalPicsInVariation) % runSettings.repetitionsPerVariation) % 4;
 	return imagesOfExperiment;
 }
 

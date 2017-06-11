@@ -107,7 +107,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>niFgen.lib;atmcd64m.lib;atmcd32m.lib;%(AdditionalDependencies);python35_d.lib;python35.lib</AdditionalDependencies>
+      <AdditionalDependencies>niFgen.lib;atmcd64m.lib;cfitsio.lib;atmcd32m.lib;%(AdditionalDependencies);python35_d.lib;python35.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(NIIVIPATH)\Lib\msc;$(PXIPNPPATH)\winnt\Lib\msc;C:\Program Files\boost\boost_1_58_0\stage\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -126,7 +126,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>niFgen.lib;atmcd64m.lib;atmcd32m.lib;visa32.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies);python35.lib</AdditionalDependencies>
+      <AdditionalDependencies>cfitsio.lib;niFgen.lib;atmcd64m.lib;atmcd32m.lib;visa32.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies);python35.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(NIIVIPATH)\Lib_x64\msc;$(PXIPNPPATH)\winnt\Lib_x64\msc;C:\Program Files (x86)\IVI Foundation\VISA\WinNT\Lib_x64\msc;C:\Program Files (x86)\IVI Foundation\VISA\WinNT\agvisa\Lib_x64\msc;D:\Program Files\boost_1_60_0\lib64-msvc-14.0;C:\Program Files\boost_1_60_0\lib64-msvc-14.0</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -188,10 +188,12 @@
     <ClInclude Include="commonTypes.h" />
     <ClInclude Include="Communicator.h" />
     <ClInclude Include="ConfigurationFileSystem.h" />
+    <ClInclude Include="DataLogger.h" />
     <ClInclude Include="DataSet.h" />
     <ClInclude Include="EmbeddedPythonHandler.h" />
     <ClInclude Include="ExperimentLogger.h" />
     <ClInclude Include="ExperimentTimer.h" />
+    <ClInclude Include="longnam.h" />
     <ClInclude Include="MainOptionsControl.h" />
     <ClInclude Include="Andor.h" />
     <ClInclude Include="miscellaneousCommonFunctions.h" />
@@ -248,6 +250,7 @@
     <ClCompile Include="Communicator.cpp" />
     <ClCompile Include="ConfigurationFileSystem.cpp" />
     <ClCompile Include="Control.cpp" />
+    <ClCompile Include="DataLogger.cpp" />
     <ClCompile Include="DataSet.cpp" />
     <ClCompile Include="DebuggingOptionsControl.cpp" />
     <ClCompile Include="EmbeddedPythonHandler.cpp" />

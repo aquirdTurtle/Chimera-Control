@@ -4,7 +4,7 @@
 #include "Control.h"
 #include "CameraWindow.h"
 
-void DataHandlingControl::rearrange(std::string cameraMode, std::string trigMode, int width, int height, fontMap fonts)
+void DataAnalysisControl::rearrange(std::string cameraMode, std::string trigMode, int width, int height, fontMap fonts)
 {
 	updateFrequencyLabel1.rearrange(cameraMode, trigMode, width, height, fonts);
 	updateFrequencyLabel2.rearrange(cameraMode, trigMode, width, height, fonts);
@@ -18,7 +18,7 @@ void DataHandlingControl::rearrange(std::string cameraMode, std::string trigMode
 	autoAnalyzeCheckBox.rearrange( cameraMode, trigMode, width, height, fonts );
 }
 
-std::vector<std::string> DataHandlingControl::getActivePlotList()
+std::vector<std::string> DataAnalysisControl::getActivePlotList()
 {
 	std::vector<std::string> list;
 	for ( auto plot : this->allPlots )
@@ -31,12 +31,12 @@ std::vector<std::string> DataHandlingControl::getActivePlotList()
 	return list;
 }
 
-bool DataHandlingControl::getLocationSettingStatus()
+bool DataAnalysisControl::getLocationSettingStatus()
 {
 	return currentlySettingAnalysisLocations;
 }
 
-void DataHandlingControl::updateDataSetNumberEdit( int number )
+void DataAnalysisControl::updateDataSetNumberEdit( int number )
 {
 	if ( number > 0 )
 	{
@@ -48,7 +48,7 @@ void DataHandlingControl::updateDataSetNumberEdit( int number )
 	}
 }
 
-void DataHandlingControl::analyze( std::string date, long runNumber, long accumulations, 
+void DataAnalysisControl::analyze( std::string date, long runNumber, long accumulations, 
 								   EmbeddedPythonHandler* pyHandler, Communicator* comm )
 {
 	// Note: python is initialized in the constructor for the data handler object. 
@@ -59,7 +59,7 @@ void DataHandlingControl::analyze( std::string date, long runNumber, long accumu
 
 // handles the pressing of the analysis points button.
 // TODO: handle different cases where single locations or pairs of locations are being analyzed. 
-void DataHandlingControl::onButtonPushed()
+void DataAnalysisControl::onButtonPushed()
 {	
 	
 	if ( setAnalysisLocationsButton.GetCheck() )
@@ -89,7 +89,7 @@ void DataHandlingControl::onButtonPushed()
 	}
 }
 
-void DataHandlingControl::setAtomLocation( std::pair<int, int> location )
+void DataAnalysisControl::setAtomLocation( std::pair<int, int> location )
 {
 	bool exists = false;
 	for ( int locInc = 0; locInc < this->atomLocations.size(); locInc++ )
@@ -105,17 +105,17 @@ void DataHandlingControl::setAtomLocation( std::pair<int, int> location )
 	}
 }
 
-std::vector<std::pair<int, int>> DataHandlingControl::getAtomLocations()
+std::vector<std::pair<int, int>> DataAnalysisControl::getAtomLocations()
 {
 	return atomLocations;
 }
 
-void DataHandlingControl::clearAtomLocations()
+void DataAnalysisControl::clearAtomLocations()
 {
 	atomLocations.clear();
 }
 
-void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent, fontMap fonts, 
+void DataAnalysisControl::initialize(cameraPositions& pos, int& id, CWnd* parent, fontMap fonts, 
 	std::vector<CToolTipCtrl*>& tooltips, int isTriggerModeSensitive)
 {
 
@@ -273,7 +273,7 @@ void DataHandlingControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	}
 }
 
-void DataHandlingControl::handleDoubleClick()
+void DataAnalysisControl::handleDoubleClick()
 {
 	POINT cursorPos;
 	GetCursorPos(&cursorPos);
@@ -352,7 +352,7 @@ void DataHandlingControl::handleDoubleClick()
 }
 
 
-void DataHandlingControl::handleRClick()
+void DataAnalysisControl::handleRClick()
 {
 	// delete...
 	/// get the item and subitem

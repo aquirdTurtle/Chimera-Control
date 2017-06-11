@@ -6,6 +6,7 @@
 #include <type_traits>
 #include "commonTypes.h"
 
+
 /*
  * This is a complex class definition. The first line here declares that this is a template class with a class template
  * argument named ControlType.  I.e. my class is based on a class called ControlType.
@@ -78,8 +79,8 @@ template <class ControlType> void Control<ControlType>::rearrange( std::string c
 	if (sPos.bottom != 0 || sPos.top != 0)
 	{
 		ShowWindow(SW_SHOW);
-		RECT position = { widthScale * sPos.left, heightScale * (sPos.top + extraHeight), widthScale * sPos.right,
-						  heightScale * sPos.bottom };
+		RECT position = { long(widthScale * sPos.left), long(heightScale * (sPos.top + extraHeight)), 
+						  long(widthScale * sPos.right), long(heightScale * sPos.bottom) };
 		MoveWindow(&position, TRUE);
 	}
 	else if (cameraMode == "Kinetic Series Mode")
@@ -91,8 +92,8 @@ template <class ControlType> void Control<ControlType>::rearrange( std::string c
 		else
 		{
 			ShowWindow(SW_SHOW);
-			RECT position = { widthScale * seriesPos.left, heightScale * (seriesPos.top + extraHeight), widthScale * seriesPos.right,
-							  heightScale * (seriesPos.bottom + extraHeight) };
+			RECT position = { long(widthScale * seriesPos.left), long(heightScale * (seriesPos.top + extraHeight)),
+							  long(widthScale * seriesPos.right), long(heightScale * (seriesPos.bottom + extraHeight))};
 			MoveWindow(&position, TRUE);
 		}
 	}	 
@@ -105,8 +106,8 @@ template <class ControlType> void Control<ControlType>::rearrange( std::string c
 		else
 		{
 			ShowWindow(SW_SHOW);
-			RECT position = { widthScale * videoPos.left, heightScale * (videoPos.top + extraHeight), widthScale * videoPos.right,
-							  heightScale * (videoPos.bottom + extraHeight) };
+			RECT position = { long(widthScale * videoPos.left), long(heightScale * (videoPos.top + extraHeight)), 
+							  long(widthScale * videoPos.right), long(heightScale * (videoPos.bottom + extraHeight)) };
 			MoveWindow(&position, TRUE);
 		}
 	}
@@ -119,9 +120,8 @@ template <class ControlType> void Control<ControlType>::rearrange( std::string c
 		else
 		{
 			ShowWindow(SW_SHOW);
-			RECT position = { widthScale * amPos.left, heightScale * (amPos.top + extraHeight),
-				widthScale * amPos.right,
-				heightScale * (amPos.bottom + extraHeight) };
+			RECT position = { long(widthScale * amPos.left), long(heightScale * (amPos.top + extraHeight)),
+							  long(widthScale * amPos.right), long(heightScale * (amPos.bottom + extraHeight)) };
 			MoveWindow(&position, TRUE);
 		}
 	}

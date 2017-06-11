@@ -6,9 +6,12 @@
 #include "AlertSystem.h"
 #include "DataAnalysisHandler.h"
 #include "ExperimentTimer.h"
+#include "DataLogger.h"
+
 
 class MainWindow;
 class ScriptingWindow;
+
 
 struct cameraPositions
 {
@@ -18,20 +21,17 @@ struct cameraPositions
 	POINT sPos;
 };
 
+
 class CameraWindow : public CDialog
 {
+	
 	using CDialog::CDialog;
+	
 	DECLARE_DYNAMIC( CameraWindow )
+
 	public:
 		/// overrides
-		CameraWindow::CameraWindow( MainWindow* mainWin, ScriptingWindow* scriptWin ) :
-			CDialog(), CameraSettings( &Andor ), Andor( mainWin->getComm() )
-		{
-			// because of these lines the camera window does not need to "get friends".
-			mainWindowFriend = mainWin;
-			scriptingWindowFriend = scriptWin;
-		};
-
+		CameraWindow::CameraWindow(MainWindow* mainWin, ScriptingWindow* scriptWin);
 		HBRUSH OnCtlColor( CDC* pDC, CWnd* pWnd, UINT nCtlColor );
 		BOOL OnInitDialog() override;
 		BOOL PreTranslateMessage( MSG* pMsg );
@@ -39,8 +39,8 @@ class CameraWindow : public CDialog
 		void OnSize( UINT nType, int cx, int cy );
 		void OnVScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar );
 		void OnTimer( UINT_PTR id );
-		void handlePictureEditChange( UINT id );
-		/// Extra functions from this class.
+		/// 
+		void handlePictureEditChange(UINT id);
 		void redrawPictures( bool andGrid );
 		void changeBoxColor( colorBoxes<char> colors );
 		std::vector<CToolTipCtrl*> getToolTips();
@@ -49,7 +49,6 @@ class CameraWindow : public CDialog
 		void prepareCamera();
 		void startCamera();
 		std::string getStartMessage();
-		/// passing commands on to members and their handling.
 		void readImageParameters();
 		void passCommonCommand( UINT id );
 		void passTrigger();
@@ -65,11 +64,13 @@ class CameraWindow : public CDialog
 		void listViewLClick( NMHDR* info, LRESULT* lResult );
 
 		void OnRButtonUp( UINT stuff, CPoint loc );
-
+		void handleSpecialGreaterThanMaxSelection();
+		void handleSpecialLessThanMinSelection();
 		void abortCameraRun();
 		friend bool commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, ScriptingWindow* scriptWin, 
 														  CameraWindow* camWin );
 		void handleAutoscaleSelection();
+
 	private:
 		DECLARE_MESSAGE_MAP();
 
@@ -79,8 +80,10 @@ class CameraWindow : public CDialog
 		PictureStats stats;
 		PictureManager pics;
 		AlertSystem alerts;
-		DataHandlingControl dataHandler;
-		ExperimentTimer timer;
+		ExperimentTimer timer;		
+		// these two could probably be combined in a sensible way.
+		DataAnalysisControl analysisHandler;
+		DataLogger dataHandler;
 
 		MainWindow* mainWindowFriend;
 		ScriptingWindow* scriptingWindowFriend;
@@ -89,7 +92,10 @@ class CameraWindow : public CDialog
 
 		std::pair<int, int> selectedPixel = { 0,0 };
 		CMenu menu;
+		// some picture menu options
 		bool autoScalePictureData;
+		bool specialLessThanMin;
+		bool specialGreaterThanMax;
 		bool realTimePic;
 
 };
