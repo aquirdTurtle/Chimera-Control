@@ -350,6 +350,17 @@ namespace commonFunctions
 			case ID_PICTURES_AUTOSCALEPICTURES:
 			{
 				camWin->handleAutoscaleSelection();
+				break;
+			}
+			case ID_PICTURES_GREATER_THAN_MAX_SPECIAL:
+			{
+				camWin->handleSpecialGreaterThanMaxSelection();
+				break;
+			}
+			case ID_PICTURES_LESS_THAN_MIN_SPECIAL:
+			{
+				camWin->handleSpecialLessThanMinSelection();
+				break;
 			}
 		}
 		return false;

@@ -39,8 +39,8 @@ void ExperimentTimer::update(int currentRepNumber, int repsPerVariation, int num
 {
 	int totalRepetitions = repsPerVariation * numberOfVariations;
 	int minAverageNumber = 10;
-	int variationPosition = (currentRepNumber % repsPerVariation) * 100.0 / repsPerVariation;
-	int overallPosition = currentRepNumber / (double)totalRepetitions * 100;
+	int variationPosition = int((currentRepNumber % repsPerVariation) * 100.0 / repsPerVariation);
+	int overallPosition = int(currentRepNumber / (double)totalRepetitions * 100);
 	variationProgress.SetPos ( variationPosition );
 	overallProgress.SetPos( overallPosition );
 	if (currentRepNumber == 1)
@@ -60,9 +60,9 @@ void ExperimentTimer::update(int currentRepNumber, int repsPerVariation, int num
 		long long thisTime = GetTickCount64();
 		if (currentRepNumber % picsPerRep == 0)
 		{
-			double averageTime = (thisTime - firstTime) / currentRepNumber;
+			double averageTime = double((thisTime - firstTime) / currentRepNumber);
 			// in seconds...
-			int timeLeft = (repsPerVariation * numberOfVariations - currentRepNumber) * averageTime / 1000;
+			int timeLeft = int((repsPerVariation * numberOfVariations - currentRepNumber) * averageTime / 1000);
 			int hours = timeLeft / 3600;
 			int minutes = (timeLeft % 3600) / 60;
 			int seconds = (timeLeft % 3600) % 60;

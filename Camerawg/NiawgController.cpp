@@ -263,7 +263,7 @@ void NiawgController::handleVariations( outputInfo& output, std::vector<variable
 				if (output.waves[waveInc].isFlashing)
 				{
 					std::string currentVar = variables[variableInc].name, warnings;
-					for (int flashInc = 0; flashInc < output.waves[waveInc].flash.flashNumber; flashInc++)
+					for (unsigned int flashInc = 0; flashInc < output.waves[waveInc].flash.flashNumber; flashInc++)
 					{
 						for (auto axis : AXES)
 						{
@@ -1696,9 +1696,9 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 			flashingWave.name = "Waveform" + str(output.waveCount);
 			output.waves.push_back(flashingWave);
 			// allocate waveform into the device memory
-			allocateNamedWaveform(output.waves.back().name.c_str(), output.waves.back().waveVals.size() / 2 );
+			allocateNamedWaveform(output.waves.back().name.c_str(), long(output.waves.back().waveVals.size() / 2) );
 			// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
-			writeNamedWaveform(output.waves.back().name.c_str(), output.waves.back().waveVals.size(), output.waves.back().waveVals.data() );
+			writeNamedWaveform(output.waves.back().name.c_str(), long(output.waves.back().waveVals.size()), output.waves.back().waveVals.data() );
 			// append script with the relevant command. This needs to be done even if variable waveforms are used, because I don't want to
 			// have to rewrite the script to insert the new waveform name into it.
 			output.niawgLanguageScript += "generate " + output.waves.back().name + "\n";
@@ -1875,7 +1875,7 @@ void NiawgController::createFlashingWave( waveInfo& wave, debugInfo options )
 		thrower( "ERROR: tried to create flashing wave data for a waveform that wasn't flashing!" );
 	}
 	// create each wave individually
-	for (int waveInc = 0; waveInc < wave.flash.flashNumber; waveInc++)
+	for (unsigned int waveInc = 0; waveInc < wave.flash.flashNumber; waveInc++)
 	{
 		finalizeStandardWave( wave.flash.flashWaves[waveInc], options );
 	}
@@ -1891,7 +1891,7 @@ void NiawgController::createFlashingWave( waveInfo& wave, debugInfo options )
 		thrower( "ERROR: flashing cycle time doesn't result in an integer number of flashing cycles during the given waveform time!"
 				 " This is not allowed currently." );
 	}
-	long int cycles = std::floor( wave.time / period );
+	long cycles = long(std::floor(wave.time / period));
 	// cycle through cycles...
 	wave.waveVals.resize(wave.flash.flashWaves.front().waveVals.size() * wave.flash.flashNumber);
 

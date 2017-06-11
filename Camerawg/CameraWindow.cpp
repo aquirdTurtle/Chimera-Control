@@ -5,6 +5,16 @@
 #include "PlottingInfo.h"
 #include "ATMCD32D.H"
 
+CameraWindow::CameraWindow(MainWindow* mainWin, ScriptingWindow* scriptWin) :
+	CDialog(),
+	CameraSettings(&Andor),
+	Andor(mainWin->getComm()),
+	dataHandler(DATA_SAVE_LOCATION)
+{
+	// because of these lines the camera window does not need to "get friends".
+	mainWindowFriend = mainWin;
+	scriptingWindowFriend = scriptWin;
+};
 
 IMPLEMENT_DYNAMIC(CameraWindow, CDialog)
 
@@ -43,6 +53,7 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 END_MESSAGE_MAP()
 
 
+
 void CameraWindow::passCameraMode()
 {
 	CameraSettings.handleModeChange(this);
@@ -67,30 +78,30 @@ void CameraWindow::abortCameraRun()
 		// Wait until plotting thread is complete.
 		//WaitForSingleObject( ePlottingThreadHandle, INFINITE );
 		// camera is no longer running.
-		
-		/*
-		if (eExperimentData.closeFits( errorMessage ))
+		try
 		{
-			appendText( errorMessage, IDC_ERROR_EDIT );
+			dataHandler.closeFits();
 		}
-		*/
+		catch (Error& err)
+		{
+			mainWindowFriend->getComm()->sendError(err.what());
+		}
 		
 		if (Andor.getSettings().cameraMode != "Continuous Single Scans Mode")
 		{
-			/*
-			int answer = MessageBox( 0, "Acquisition Aborted. Delete Data (fits_#) and (key_#) files for this run?", 0, MB_YESNO );
+			int answer = MessageBox( 0, "Acquisition Aborted. Delete Data (fits_#) and (key_#) files for this run?", 
+									MB_YESNO );
 			if (answer == IDYES)
 			{
-				if (eExperimentData.deleteFitsAndKey( errorMessage ))
+				try
 				{
-					appendText( errorMessage, IDC_ERROR_EDIT );
+					dataHandler.deleteFitsAndKey(mainWindowFriend->getComm());
 				}
-				else
+				catch (Error& err)
 				{
-					appendText( "Deleted .fits and copied key file for this run.", IDC_STATUS_EDIT );
+					mainWindowFriend->getComm()->sendError(err.what());
 				}
 			}
-			*/
 		}
 	}
 }
@@ -103,7 +114,15 @@ bool CameraWindow::cameraIsRunning()
 
 void CameraWindow::handlePictureEditChange( UINT id )
 {
-	pics.handleEditChange( id );
+	try
+	{
+		pics.handleEditChange(id);
+	}
+	catch (Error& err)
+	{
+		// these errors seem more deserving of an error box.
+		errBox(err.what());
+	}
 }
 
 
@@ -141,7 +160,96 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam)
 		timer.update( pictureNumber / currentSettings.picsPerRepetition, currentSettings.repetitionsPerVariation,
 					  currentSettings.totalVariations, currentSettings.picsPerRepetition );
 	}
+		
+	/*
+	// Wait until eImageVecQueue is available using the mutex.
+	DWORD mutexMsg = WaitForSingleObject(plottingMutex, INFINITE);
+	switch (mutexMsg)
+	{
+		case WAIT_OBJECT_0:
+		{
+			// Add data to the plotting queue, only if actually plotting something.
+			/// TODO
+			if (eCurrentPlotNames.size() != 0)
+			{
+				eImageVecQueue.push_back(eImagesOfExperiment[experimentPictureNumber]);
+			}
+			break;
+		}
+		case WAIT_ABANDONED:
+		{
+			// handle error...
+			thrower("ERROR: waiting for the plotting mutex failed (Wait Abandoned)!\r\n");
+			break;
+		}
+		case WAIT_TIMEOUT:
+		{
+			// handle error...
+			thrower("ERROR: waiting for the plotting mutex failed (timout???)!\r\n");
+			break;
+		}
+		case WAIT_FAILED:
+		{
+			// handle error...
+			int a = GetLastError();
+			thrower("ERROR: waiting for the plotting mutex failed (Wait Failed: " + std::to_string(a) + ")!\r\n");
+			break;
+		}
+		default:
+		{
+			// handle error...
+			thrower("ERROR: unknown response from WaitForSingleObject!\r\n");
+			break;
+		}
+	}
+	ReleaseMutex(plottingMutex);
+	*/
+
+	// write the data to the file.
+	if (currentSettings.cameraMode != "Continuous Single Scans Mode")
+	{
+		dataHandler.writeFits(pictureNumber, picData.back());
+	}
+
+	/// TODO...?
+	/*
+	if (eCooler)
+	{
+	// start temp timer again when acq is complete
+	SetTimer(eCameraWindowHandle, ID_TEMPERATURE_TIMER, 1000, NULL);
+	}
+	*/
 	return 0;
+}
+
+void CameraWindow::handleSpecialLessThanMinSelection()
+{
+	if (specialLessThanMin)
+	{
+		specialLessThanMin = false;
+		menu.CheckMenuItem(ID_PICTURES_LESS_THAN_MIN_SPECIAL, MF_UNCHECKED);
+	}
+	else
+	{
+		specialLessThanMin = true;
+		menu.CheckMenuItem(ID_PICTURES_LESS_THAN_MIN_SPECIAL, MF_CHECKED);
+	}
+	pics.setSpecialLessThanMin(specialLessThanMin);
+}
+
+void CameraWindow::handleSpecialGreaterThanMaxSelection()
+{
+	if (specialGreaterThanMax)
+	{
+		specialGreaterThanMax = false;
+		menu.CheckMenuItem(ID_PICTURES_GREATER_THAN_MAX_SPECIAL, MF_UNCHECKED);
+	}
+	else
+	{
+		specialGreaterThanMax = true;
+		menu.CheckMenuItem(ID_PICTURES_GREATER_THAN_MAX_SPECIAL, MF_CHECKED);
+	}
+	pics.setSpecialGreaterThanMax(specialGreaterThanMax);
 }
 
 void CameraWindow::handleAutoscaleSelection()
@@ -170,6 +278,7 @@ LRESULT CameraWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 	return 0;
 }
 
+
 void CameraWindow::startCamera()
 {
 	// turn some buttons off.
@@ -177,6 +286,20 @@ void CameraWindow::startCamera()
 	pics.refreshBackgrounds( this );
 	stats.reset();
 	Andor.setSystem( this );
+	/// setup fits files
+	if (Andor.getSettings().cameraMode != "Video Mode")
+	{
+		/// TODO: also, change to HDF5
+		try
+		{
+			dataHandler.initializeDataFiles(&analysisHandler, Andor.getSettings().imageSettings,
+											Andor.getSettings().totalPicsInVariation);
+		}
+		catch (Error& err)
+		{
+			mainWindowFriend->getComm()->sendError(err.what());
+		}
+	}
 }
 
 bool CameraWindow::getCameraStatus()
@@ -186,12 +309,12 @@ bool CameraWindow::getCameraStatus()
 
 void CameraWindow::listViewDblClick(NMHDR* info, LRESULT* lResult)
 {
-	dataHandler.handleDoubleClick();
+	analysisHandler.handleDoubleClick();
 }
 
 void CameraWindow::listViewLClick( NMHDR* info, LRESULT* lResult )
 {
-	dataHandler.handleRClick();
+	analysisHandler.handleRClick();
 }
 
 // pics looks up the location itself.
@@ -282,7 +405,7 @@ void CameraWindow::OnSize( UINT nType, int cx, int cy )
 	box.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts() );
 	pics.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts() );
 	alerts.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts() );
-	dataHandler.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts() );
+	analysisHandler.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts() );
 	pics.setParameters( CameraSettings.readImageParameters( this ) );
 	RedrawWindow();
 	pics.redrawPictures( this, selectedPixel );
@@ -308,7 +431,7 @@ void CameraWindow::prepareCamera()
 	{
 		thrower( "System is already running! Please Abort to restart.\r\n" );
 	}
-	if ( dataHandler.getLocationSettingStatus() )
+	if ( analysisHandler.getLocationSettingStatus() )
 	{
 		thrower( "Please finish selecting analysis points!" );
 	}
@@ -363,7 +486,7 @@ void CameraWindow::prepareCamera()
 std::string CameraWindow::getStartMessage()
 {
 	// get selected plots
-	std::vector<std::string> plots = dataHandler.getActivePlotList();
+	std::vector<std::string> plots = analysisHandler.getActivePlotList();
 	imageParameters currentImageParameters = CameraSettings.readImageParameters( this );
 	bool errCheck = false;
 	for (int plotInc = 0; plotInc < plots.size(); plotInc++)
@@ -379,7 +502,7 @@ std::string CameraWindow::getStartMessage()
 					 "selected number of pictures per experiment. Please revise either the current setting or the plot"
 					 " file." );
 		}
-		tempInfoCheck.setGroups( dataHandler.getAtomLocations() );
+		tempInfoCheck.setGroups( analysisHandler.getAtomLocations() );
 		std::vector<std::pair<int, int>> plotLocations = tempInfoCheck.getAllPixelLocations();
 	}
 	std::string dialogMsg;
@@ -452,7 +575,7 @@ BOOL CameraWindow::OnInitDialog()
 	box.initialize( positions.sPos, id, this, 480, mainWindowFriend->getFonts(), tooltips );
 	positions.videoPos = positions.amPos = positions.seriesPos = positions.sPos;
 	alerts.initialize( positions, this, false, id, mainWindowFriend->getFonts(), tooltips );
-	dataHandler.initialize( positions, id, this, mainWindowFriend->getFonts(), tooltips, false );
+	analysisHandler.initialize( positions, id, this, mainWindowFriend->getFonts(), tooltips, false );
 	CameraSettings.initialize( positions, id, this, mainWindowFriend->getFonts(), tooltips );
 	POINT position = { 480, 0 };
 	stats.initialize( position, this, id, mainWindowFriend->getFonts(), tooltips );

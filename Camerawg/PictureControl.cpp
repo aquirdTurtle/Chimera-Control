@@ -32,15 +32,15 @@ void PictureControl::setSliderLocations(CWnd* parent)
 {
 	CRect rect;
 	parent->GetWindowRect(&rect);
-	int width = rect.right - rect.left;
-	int height = rect.bottom - rect.top;
+	long width = rect.right - rect.left;
+	long height = rect.bottom - rect.top;
 	double widthScale = width / 1920.0;
 	double heightScale = height / 997.0;
 	widthScale = 1;
 	heightScale = 1;
-	POINT loc = { unscaledBackgroundArea.right * widthScale, unscaledBackgroundArea.top * heightScale };
-	int collumnWidth = 50 * widthScale;
-	int blockHeight = 30 * heightScale;
+	POINT loc = { long(unscaledBackgroundArea.right * widthScale), long(unscaledBackgroundArea.top * heightScale) };
+	long collumnWidth = long(50 * widthScale);
+	long blockHeight = long(30 * heightScale);
 	labelMin.sPos = { loc.x, loc.y, loc.x + collumnWidth , loc.y + blockHeight };
 	// minimum number text
 	editMin.sPos = { loc.x, loc.y + blockHeight, loc.x + collumnWidth , loc.y + 2* blockHeight };
@@ -285,7 +285,8 @@ void PictureControl::redrawImage( CWnd* parent)
 	drawBackground(parent);
 	if (active && mostRecentImage.size() != 0)
 	{
-		drawPicture( parent->GetDC(), mostRecentImage, mostRecentAutoscaleInfo);
+		drawPicture( parent->GetDC(), mostRecentImage, mostRecentAutoscaleInfo, mostRecentSpecialMinSetting, 
+					mostRecentSpecialMaxSetting );
 	}
 
 	// TODO?
@@ -298,7 +299,9 @@ void PictureControl::redrawImage( CWnd* parent)
  * the camera window context since there's no direct control associated with the picture itself. Could probably change 
  * that.
  */
-void PictureControl::drawPicture(CDC* deviceContext, std::vector<long> picData, std::tuple<bool, int/*min*/, int/*max*/> autoScaleInfo)
+void PictureControl::drawPicture(CDC* deviceContext, std::vector<long> picData, 
+								 std::tuple<bool, int/*min*/, int/*max*/> autoScaleInfo, bool specialMin, 
+								 bool specialMax)
 {
 	mostRecentImage = picData;
 	float yscale;
@@ -318,6 +321,9 @@ void PictureControl::drawPicture(CDC* deviceContext, std::vector<long> picData, 
 	}
 
 	mostRecentAutoscaleInfo = autoScaleInfo;
+	mostRecentSpecialMinSetting = specialMin;
+	mostRecentSpecialMaxSetting = specialMax;
+
 
 	double dTemp = 1;
 	int pixelsAreaWidth;
@@ -386,15 +392,33 @@ void PictureControl::drawPicture(CDC* deviceContext, std::vector<long> picData, 
 			dTemp = ceil(yscale * (picData[widthInc + heightInc * dataWidth] - minColor));
 
 			// interpret the value depending on the range of values it can take.
-			if (dTemp < 0)
+			if (dTemp < 1)
 			{
 				// raise value to zero which is the floor of values this parameter can take.
-				iTemp = 0;
+				if (specialMin)
+				{
+					// the absolute lowest color is a special color that doesn't match the rest of the pallete. 
+					// Typically a bright blue.
+					iTemp = 0;
+				}
+				else
+				{
+					iTemp = 1;
+				}
 			}
-			else if (dTemp > PICTURE_PALETTE_SIZE - 1)
+			else if (dTemp > PICTURE_PALETTE_SIZE - 2)
 			{
 				// round to maximum value.
-				iTemp = PICTURE_PALETTE_SIZE - 1;
+				if (specialMax)
+				{
+					// the absolute highest color is a special color that doesn't match the rest of the pallete.
+					// typically a bright red.
+					iTemp = PICTURE_PALETTE_SIZE - 1;
+				}
+				else
+				{
+					iTemp = PICTURE_PALETTE_SIZE - 2;
+				}
 			}
 			else
 			{
@@ -417,7 +441,7 @@ void PictureControl::drawPicture(CDC* deviceContext, std::vector<long> picData, 
 			pbmi->bmiHeader.biWidth = dataWidth;
 			pbmi->bmiHeader.biSizeImage = 1;// pbmi->bmiHeader.biWidth * pbmi->bmiHeader.biHeight;// * sizeof( BYTE );
 			//memset( DataArray, 0, (dataWidth*dataHeight) * sizeof( *DataArray ) );
-			StretchDIBits( deviceContext->GetSafeHdc(), this->scaledBackgroundArea.left, scaledBackgroundArea.top,
+			StretchDIBits( deviceContext->GetSafeHdc(), scaledBackgroundArea.left, scaledBackgroundArea.top,
 						   pixelsAreaWidth, pixelsAreaHeight, 0, 0, dataWidth,
 						   dataHeight, DataArray, (BITMAPINFO FAR*)pbmi, DIB_PAL_COLORS, SRCCOPY );
 			break;
@@ -566,9 +590,9 @@ void PictureControl::rearrange(std::string cameraMode, std::string triggerMode, 
 		labelMin.rearrange(cameraMode, triggerMode, width, height, fonts);
 		sliderMax.rearrange(cameraMode, triggerMode, width, height, fonts);
 		sliderMin.rearrange(cameraMode, triggerMode, width, height, fonts);
-		scaledBackgroundArea.bottom = unscaledBackgroundArea.bottom * height / 997.0;
-		scaledBackgroundArea.top = unscaledBackgroundArea.top * height / 997.0;
-		scaledBackgroundArea.left = unscaledBackgroundArea.left * width / 1920.0;
-		scaledBackgroundArea.right = unscaledBackgroundArea.right * width / 1920.0;
+		scaledBackgroundArea.bottom = long(unscaledBackgroundArea.bottom * height / 997.0);
+		scaledBackgroundArea.top = long(unscaledBackgroundArea.top * height / 997.0);
+		scaledBackgroundArea.left = long(unscaledBackgroundArea.left * width / 1920.0);
+		scaledBackgroundArea.right = long(unscaledBackgroundArea.right * width / 1920.0);
 	}	
 }

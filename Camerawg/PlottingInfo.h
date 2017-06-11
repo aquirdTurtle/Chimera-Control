@@ -75,8 +75,8 @@ class PlottingInfo
 
 		int clear();
 
-		int getPixelGroupNumber();
-		int getDataSetNumber();
+		size_t getPixelGroupNumber();
+		size_t getDataSetNumber();
 
 		int getFitOption(int dataSet);
 		int setFitOption(int dataSet, int fitType);

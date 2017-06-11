@@ -238,7 +238,7 @@ void ConfigurationFileSystem::orientationChangeHandler(MainWindow* mainWin)
 	profileSettings profile = mainWin->getCurentProfileSettings();
 	long long itemIndex = orientationCombo.GetCurSel();
 	TCHAR orientation[256];
-	orientationCombo.GetLBText(itemIndex, orientation);
+	orientationCombo.GetLBText(int(itemIndex), orientation);
 	// reset some things.
 	currentProfileSettings.orientation = std::string(orientation);
 	if (currentProfileSettings.category != "")
@@ -981,7 +981,7 @@ void ConfigurationFileSystem::configurationChangeHandler(ScriptingWindow* script
 	}
 	TCHAR configurationToOpen[256];
 	// Send CB_GETLBTEXT message to get the item.
-	configCombo.GetLBText(itemIndex, configurationToOpen);
+	configCombo.GetLBText(int(itemIndex), configurationToOpen);
 	openConfiguration( configurationToOpen, scriptWindow, comm );
 	// it'd be confusing if these notes stayed here.
 }
@@ -1309,7 +1309,7 @@ void ConfigurationFileSystem::categoryChangeHandler(ScriptingWindow* scriptWindo
 	}
 	TCHAR categoryConfigToOpen[256];
 	// Send CB_GETLBTEXT message to get the item.
-	categoryCombo.GetLBText(itemIndex, categoryConfigToOpen);
+	categoryCombo.GetLBText(int(itemIndex), categoryConfigToOpen);
 	openCategory( std::string( categoryConfigToOpen ), scriptWindow, comm );
 
 	// it'd be confusing if these notes stayed here.
@@ -1706,7 +1706,7 @@ void ConfigurationFileSystem::experimentChangeHandler(ScriptingWindow* scriptWin
 	}
 	TCHAR experimentConfigToOpen[256];
 	// Send CB_GETLBTEXT message to get the item.
-	experimentCombo.GetLBText(itemIndex, experimentConfigToOpen);
+	experimentCombo.GetLBText(int(itemIndex), experimentConfigToOpen);
 	openExperiment( std::string( experimentConfigToOpen ), scriptWindow, comm );
 	reloadSequence(NULL_SEQUENCE);
 }
@@ -1772,7 +1772,7 @@ void ConfigurationFileSystem::sequenceChangeHandler()
 	// get the name
 	long long itemIndex = sequenceCombo.GetCurSel(); 
 	TCHAR sequenceName[256];
-	sequenceCombo.GetLBText(itemIndex, sequenceName);
+	sequenceCombo.GetLBText(int(itemIndex), sequenceName);
 	if (itemIndex == -1)
 	{
 		// This means that the oreintation combo was set before the Configuration list combo was set so that the configuration list combo
@@ -2346,7 +2346,7 @@ std::string ConfigurationFileSystem::getComboText()
 void ConfigurationFileSystem::fullyDeleteFolder(std::string folderToDelete)
 {
 	// this used to call SHFileOperation. Boost is better. Much better. 
-	int filesRemoved = boost::filesystem::remove_all(folderToDelete.c_str());
+	uintmax_t filesRemoved = boost::filesystem::remove_all(folderToDelete.c_str());
 	if (filesRemoved == 0)
 	{
 		thrower("Delete Failed! Ask mark about bugs.");

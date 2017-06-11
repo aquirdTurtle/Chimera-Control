@@ -161,7 +161,7 @@ bool Script::handleTimerCall(profileSettings profile, std::vector<variable> vars
 	return false;
 }
 
-bool Script::handleEditChange()
+void Script::handleEditChange()
 {
 	CHARRANGE range;
 	edit.GetSel(range);
@@ -175,7 +175,6 @@ bool Script::handleEditChange()
 	}
 	syntaxColoringIsCurrent = false;
 	updateSavedStatus(false);
-	return TRUE;
 }
 
 bool Script::colorEntireScript(profileSettings profile, std::vector<variable> vars)
@@ -210,7 +209,7 @@ bool Script::colorScriptSection(DWORD beginingOfChange, DWORD endOfChange, profi
 	while (std::getline(fileTextStream, line))
 	{
 		DWORD lineStartCoordingate = range.cpMin;
-		int endTest = range.cpMax + line.size();
+		size_t endTest = range.cpMax + line.size();
 		if (endTest < beginingSigned - 5 || range.cpMin > endSigned)
 		{
 			// then skip to next line.
@@ -641,7 +640,7 @@ bool Script::saveScript(profileSettings profile, bool saveParent, bool niawgIsRu
 	CString editText;
 	edit.GetWindowText(editText);
 	std::fstream saveFile;
-	int extPos = relevantName.find_last_of(".");
+	size_t extPos = relevantName.find_last_of(".");
 	if (extPos != -1)
 	{
 		// the scriptname already has an extension...
@@ -724,8 +723,8 @@ bool Script::saveScriptAs(std::string location, bool saveParent, bool niawgIsRun
 	}
 	saveFile << editText;
 	// this location should have the script name, the script category, and the script experiment location in it.
-	this->scriptAddress = location;
-	int index = location.find_last_of("\\");
+	scriptAddress = location;
+	size_t index = location.find_last_of("\\");
 	if (saveParent)
 	{
 		scriptName = location.substr(index + 1, location.size());
@@ -1040,7 +1039,7 @@ bool Script::openParentScript(std::string parentScriptFileAndPath, profileSettin
 			std::string location = profile.categoryPath + scriptName;
 			std::string path = location;
 			scriptAddress = location;
-			int index = location.find_last_of("\\");
+			size_t index = location.find_last_of("\\");
 			scriptName = location.substr(index + 1, location.size());
 			currentViewName = scriptName;
 			location = location.substr(0, index);
@@ -1113,20 +1112,20 @@ bool Script::savedStatus()
 
 std::string Script::getScriptAddress()
 {
-	return this->scriptAddress;
+	return scriptAddress;
 }
 
 std::string Script::getScriptName()
 {
-	return this->scriptName;
+	return scriptName;
 }
 
 bool Script::considerCurrentLocation(profileSettings profile)
 {
-	if (this->scriptAddress.size() > 0)
+	if (scriptAddress.size() > 0)
 	{
 		// Check location of vertical script.
-		int index = this->scriptAddress.find_last_of('\\');
+		size_t index = this->scriptAddress.find_last_of('\\');
 		std::string scriptLocation = this->scriptAddress.substr(0, index);
 		if (scriptLocation + "\\" != profile.categoryPath)
 		{
@@ -1196,7 +1195,7 @@ bool Script::updateScriptNameText()
 void Script::checkExtension(profileSettings profile)
 {
 	// check the view name
-	int extPos = this->currentViewName.find_last_of(".");
+	size_t extPos = currentViewName.find_last_of(".");
 	if (extPos != -1)
 	{
 		// the scriptname already has an extension...

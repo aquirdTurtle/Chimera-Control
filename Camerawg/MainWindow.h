@@ -203,7 +203,7 @@ class MainWindow : public CDialog
 		ScriptingWindow* TheScriptingWindow;
 		CameraWindow* TheCameraWindow;
 		brushMap mainBrushes;
-		rgbMap mainRGBs;		
+		rgbMap mainRGBs;
 		fontMap mainFonts;
 		ConfigurationFileSystem profile;
 		NoteSystem notes;

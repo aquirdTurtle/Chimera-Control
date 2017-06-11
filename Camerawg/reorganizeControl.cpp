@@ -23,9 +23,10 @@ int reorganizeControl(Control<CWnd>& controlToReposition, std::string mode, RECT
 		else
 		{
 			controlToReposition.ShowWindow(SW_SHOW);
-			RECT position = { widthScale * controlToReposition.seriesPos.left, heightScale * (controlToReposition.seriesPos.top + extraHeight),
-				widthScale * (controlToReposition.seriesPos.right - controlToReposition.seriesPos.left),
-				heightScale * (controlToReposition.seriesPos.bottom - controlToReposition.seriesPos.top) };
+			RECT position = { long(widthScale * controlToReposition.seriesPos.left), 
+				long(heightScale * (controlToReposition.seriesPos.top + extraHeight)),
+				long(widthScale * (controlToReposition.seriesPos.right - controlToReposition.seriesPos.left)),
+				long(heightScale * (controlToReposition.seriesPos.bottom - controlToReposition.seriesPos.top)) };
 			controlToReposition.MoveWindow(&position, TRUE);
 		}
 	}
@@ -38,9 +39,10 @@ int reorganizeControl(Control<CWnd>& controlToReposition, std::string mode, RECT
 		else
 		{
 			controlToReposition.ShowWindow(SW_SHOW);
-			RECT position = { widthScale * controlToReposition.videoPos.left, heightScale * (controlToReposition.videoPos.top + extraHeight),
-				widthScale * (controlToReposition.videoPos.right - controlToReposition.videoPos.left),
-				heightScale * (controlToReposition.videoPos.bottom - controlToReposition.videoPos.top) };
+			RECT position = { long(widthScale * controlToReposition.videoPos.left), 
+				long(heightScale * (controlToReposition.videoPos.top + extraHeight)),
+				long(widthScale * (controlToReposition.videoPos.right - controlToReposition.videoPos.left)),
+				long(heightScale * (controlToReposition.videoPos.bottom - controlToReposition.videoPos.top)) };
 			controlToReposition.MoveWindow(&position, TRUE);
 		}
 	}
@@ -53,9 +55,10 @@ int reorganizeControl(Control<CWnd>& controlToReposition, std::string mode, RECT
 		else
 		{
 			controlToReposition.ShowWindow(SW_SHOW);
-			RECT position = { widthScale * controlToReposition.amPos.left, heightScale * (controlToReposition.amPos.top + extraHeight),
-				widthScale * (controlToReposition.amPos.right - controlToReposition.amPos.left),
-				heightScale * (controlToReposition.amPos.bottom - controlToReposition.amPos.top) };
+			RECT position = { long(widthScale * controlToReposition.amPos.left), 
+				long(heightScale * (controlToReposition.amPos.top + extraHeight)),
+				long(widthScale * (controlToReposition.amPos.right - controlToReposition.amPos.left)),
+				long(heightScale * (controlToReposition.amPos.bottom - controlToReposition.amPos.top)) };
 			controlToReposition.MoveWindow(&position, TRUE);
 		}
 	}

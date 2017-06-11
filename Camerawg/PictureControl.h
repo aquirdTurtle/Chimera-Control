@@ -16,8 +16,8 @@ class PictureControl
 		void recalculateGrid( imageParameters newParameters );
 		void setPictureArea( POINT loc, int width, int height );
 		void setSliderLocations(CWnd* parent);
-		void drawPicture( CDC* deviceContext, std::vector<long> picData, 
-						 std::tuple<bool, int/*min*/, int/*max*/> autoScaleInfo);
+		void drawPicture(CDC* deviceContext, std::vector<long> picData, 
+						 std::tuple<bool, int/*min*/, int/*max*/> autoScaleInfo, bool specialMin, bool specialMax);
 		void drawBackground(CWnd* parent);
 		void drawGrid(CWnd* parent, CBrush* brush);
 		void drawCircle(CWnd* parent, std::pair<int, int> selectedLocation );
@@ -31,6 +31,8 @@ class PictureControl
 		std::pair<int, int> checkClickLocation( CPoint clickLocation );
 	private:
 		std::tuple<bool, int, int> mostRecentAutoscaleInfo;
+		bool mostRecentSpecialMinSetting;
+		bool mostRecentSpecialMaxSetting;
 		// for replotting.
 		std::vector<long> mostRecentImage;
 		// stores info as to whether the control is currently being used in plotting camera data or was used 

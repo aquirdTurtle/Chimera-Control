@@ -3,6 +3,9 @@
 #include "appendText.h"
 #include "externals.h"
 #include "fitsio.h"
+#include "longnam.h"
+#include "DataAnalysisHandler.h"
+#include "CameraImageDimensions.h"
 
 
 DataLogger::DataLogger(std::string systemLocation)
@@ -14,13 +17,14 @@ DataLogger::DataLogger(std::string systemLocation)
 
 
 // this file assumes that fits is the fits_#.fits file. User should check if incDataSet is on before calling. ???
-void DataLogger::deleteFitsAndKey()
+void DataLogger::deleteFitsAndKey(Communicator* comm)
 {
 	if (fitsIsOpen)
 	{
 		thrower("ERROR: Can't delete current fits file, the fits file is open!");
 	}
-	std::string fitsAddress = SAVE_BASE_ADDRESS + currentSaveFolder + "\\Raw Data\\data_" + std::to_string(currentDataFileNumber) + ".fits";
+	std::string fitsAddress = dataFilesBaseLocation + currentSaveFolder + "\\Raw Data\\data_"
+		+ std::to_string(currentDataFileNumber) + ".fits";
 	int success = DeleteFile(fitsAddress.c_str());
 	if (success == false)
 	{
@@ -28,17 +32,18 @@ void DataLogger::deleteFitsAndKey()
 	}
 	else
 	{
-		appendText("Deleted Fits file located at \"" + fitsAddress + "\"\r\n", IDC_STATUS_EDIT);
+		comm->sendStatus("Deleted Fits file located at \"" + fitsAddress + "\"\r\n");
 	}
-	success = DeleteFile((SAVE_BASE_ADDRESS + currentSaveFolder + "\\Raw Data\\key_" + std::to_string(currentDataFileNumber) + ".txt").c_str());
+	success = DeleteFile((dataFilesBaseLocation + currentSaveFolder + "\\Raw Data\\key_"
+						 + std::to_string(currentDataFileNumber) + ".txt").c_str());
 	if (success == false)
 	{
 		thrower("Failed to delete key file! Error code: " + std::to_string(GetLastError()) + ".\r\n");
 	}
 	else
 	{
-		appendText("Deleted Key file located at \"" + SAVE_BASE_ADDRESS + currentSaveFolder + "\\Raw Data\\key_" + std::to_string(currentDataFileNumber)
-				   + ".txt\"\r\n", IDC_STATUS_EDIT);
+		comm->sendStatus("Deleted Key file located at \"" + dataFilesBaseLocation + currentSaveFolder + "\\Raw Data\\key_"
+						 + std::to_string(currentDataFileNumber) + ".txt\"\r\n");
 	}
 }
 
@@ -46,7 +51,7 @@ void DataLogger::deleteFitsAndKey()
 void DataLogger::loadAndMoveKeyFile()
 {
 	int result = 0;
-	result = CopyFile((KEY_FILE_LOCATION + "key.txt").c_str(), (SAVE_BASE_ADDRESS + currentSaveFolder
+	result = CopyFile((dataFilesBaseLocation + "key.txt").c_str(), (dataFilesBaseLocation + currentSaveFolder
 					  + "\\Raw Data\\key_" + std::to_string(currentDataFileNumber) + ".txt").c_str(), FALSE);
 	if (result == 0)
 	{
@@ -55,7 +60,8 @@ void DataLogger::loadAndMoveKeyFile()
 	}
 
 	std::ifstream keyFile;
-	keyFile.open(SAVE_BASE_ADDRESS + currentSaveFolder + "\\Raw Data\\key_" + std::to_string(currentDataFileNumber) + ".txt");
+	keyFile.open(dataFilesBaseLocation + currentSaveFolder + "\\Raw Data\\key_" + std::to_string(currentDataFileNumber)
+				 + ".txt");
 	if (!keyFile.is_open())
 	{
 		thrower("Couldn't open key file!? Does a key file exist???\r\n");
@@ -63,6 +69,7 @@ void DataLogger::loadAndMoveKeyFile()
 	keyValues.clear();
 	std::string keyString;
 	std::getline(keyFile, keyString);
+
 	while (keyFile)
 	{
 		double keyItem;
@@ -82,7 +89,6 @@ void DataLogger::loadAndMoveKeyFile()
 
 void DataLogger::forceFitsClosed()
 {
-
 	int fitsStatus = 0;
 	if (myFitsFile != NULL)
 	{
@@ -91,7 +97,8 @@ void DataLogger::forceFitsClosed()
 }
 
 
-void DataLogger::initializeDataFiles()
+void DataLogger::initializeDataFiles(DataAnalysisControl* autoAnalysisHandler, imageParameters currentImageParameters,
+									 int totalPicsInSeries)
 {
 	forceFitsClosed();
 	// if the function fails, the fits file will not be open. If it succeeds, this will get set to true.
@@ -99,39 +106,40 @@ void DataLogger::initializeDataFiles()
 	/// First, create the folder for today's fits data.
 	// Get the date and use it to set the folder where this data run will be saved.
 	// get time now
-	time_t t = time(0);
-	struct tm now;
-	localtime_s(&now, &t);
-	std::string tempStr = std::to_string(now.tm_year + 1900);
+	
+	time_t timeInt = time(0);
+	struct tm timeStruct;
+	localtime_s(&timeStruct, &timeInt);
+	std::string tempStr = std::to_string(timeStruct.tm_year + 1900);
 	// Create the string of the date.
 	std::string finalSaveFolder;
 	finalSaveFolder = tempStr[2];
 	finalSaveFolder += tempStr[3];
-	if (now.tm_mon + 1 < 10)
+	if (timeStruct.tm_mon + 1 < 10)
 	{
 		finalSaveFolder += "0";
-		finalSaveFolder += std::to_string(now.tm_mon + 1);
+		finalSaveFolder += std::to_string(timeStruct.tm_mon + 1);
 	}
 	else
 	{
-		finalSaveFolder += std::to_string(now.tm_mon + 1);
+		finalSaveFolder += std::to_string(timeStruct.tm_mon + 1);
 	}
-	if (now.tm_mday < 10)
+	if (timeStruct.tm_mday < 10)
 	{
 		finalSaveFolder += "0";
-		finalSaveFolder += std::to_string(now.tm_mday);
+		finalSaveFolder += std::to_string(timeStruct.tm_mday);
 	}
 	else
 	{
-		finalSaveFolder += std::to_string(now.tm_mday);
+		finalSaveFolder += std::to_string(timeStruct.tm_mday);
 	}
 	currentDate = finalSaveFolder;
 	// right now the save folder IS the date...
 	currentSaveFolder = finalSaveFolder;
 	// create date's folder.
-	int result = CreateDirectory((SAVE_BASE_ADDRESS + finalSaveFolder).c_str(), 0);
+	int result = CreateDirectory((dataFilesBaseLocation + finalSaveFolder).c_str(), 0);
 	finalSaveFolder += "\\Raw Data";
-	int result2 = CreateDirectory((SAVE_BASE_ADDRESS + finalSaveFolder).c_str(), 0);
+	int result2 = CreateDirectory((dataFilesBaseLocation + finalSaveFolder).c_str(), 0);
 	finalSaveFolder += "\\";
 	/// Get a filename appropriate for the data
 	std::string finalSaveFileName;
@@ -140,7 +148,9 @@ void DataLogger::initializeDataFiles()
 	int fileNum = 1;
 	// The while condition here check if file exists. No idea how this actually works.
 	struct stat statBuffer;
-	while ((stat((SAVE_BASE_ADDRESS + finalSaveFolder + "\\data_" + std::to_string(fileNum) + ".fits").c_str(), &statBuffer) == 0))
+	// figure out the next file number
+	while ((stat((dataFilesBaseLocation + finalSaveFolder + "\\data_" + std::to_string(fileNum) + ".fits").c_str(),
+		   &statBuffer) == 0))
 	{
 		fileNum++;
 	}
@@ -148,23 +158,24 @@ void DataLogger::initializeDataFiles()
 	finalSaveFileName = "data_" + std::to_string(fileNum) + ".fits";
 	// update this, which is used later to move the key file.
 	currentDataFileNumber = fileNum;
-	eAutoAnalysisHandler.updateDataSetNumberEdit(currentDataFileNumber);
+
+	//??
+	autoAnalysisHandler->updateDataSetNumberEdit(currentDataFileNumber);
+
 	/// save the file
 	int fitsStatus = 0;
 
-	fits_create_file(&myFitsFile, (SAVE_BASE_ADDRESS + finalSaveFolder + finalSaveFileName).c_str(), &fitsStatus);
+	fits_create_file(&myFitsFile, (dataFilesBaseLocation + finalSaveFolder + finalSaveFileName).c_str(), &fitsStatus);
 	checkFitsError(fitsStatus);
 	//immediately change this.
 	fitsIsOpen = true;
-	imageParameters currentImageParameters = eImageControl.getImageParameters();
-	long axis[] = { currentImageParameters.width, currentImageParameters.height, eTotalNumberOfPicturesInSeries };
+	long axis[] = { currentImageParameters.width, currentImageParameters.height, totalPicsInSeries };
 	fits_create_img(myFitsFile, LONG_IMG, 3, axis, &fitsStatus);
-	DataLogger::checkFitsError(fitsStatus);
+	checkFitsError(fitsStatus);
 }
 
 
-void DataLogger::writeFits(int currentExperimentPictureNumber, int currentPictureNumber, 
-						   std::vector<std::vector<long> > images)
+void DataLogger::writeFits(int currentPictureNumber, std::vector<long> image)
 {
 	if (fitsIsOpen == false)
 	{
@@ -173,10 +184,9 @@ void DataLogger::writeFits(int currentExperimentPictureNumber, int currentPictur
 	// MUST initialize status
 	int status = 0;
 	// starting coordinates of write area in the fits file of the array of picture data points.
-	long fpixel[] = { 1, 1, currentPictureNumber };
-	fits_write_pix(myFitsFile, TLONG, fpixel, images[currentExperimentPictureNumber].size(), 
-				   &images[currentExperimentPictureNumber][0], &status);
-	DataLogger::checkFitsError(status);
+	long firstPixel[] = { 1, 1, currentPictureNumber };
+	fits_write_pix(myFitsFile, TLONG, firstPixel, image.size(), &image[0], &status);
+	checkFitsError(status);
 }
 
 

@@ -21,7 +21,7 @@ class Script
 		void rearrange(int width, int height, fontMap fonts);
 
 		INT_PTR colorControl(LPARAM lParam, WPARAM wParam);
-		bool handleEditChange();
+		void handleEditChange();
 		bool handleTimerCall(profileSettings profile, std::vector<variable> vars);
 
 		bool updateChildCombo(profileSettings profile);

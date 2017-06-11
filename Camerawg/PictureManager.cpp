@@ -9,6 +9,9 @@ void PictureManager::setPalletes(std::array<int, 4> palleteIds)
 	}
 }
 
+
+
+
 void PictureManager::redrawPictures( CWnd* parent, std::pair<int, int> selectedLocation )
 {
 	if (!pictures[1].isActive())
@@ -56,16 +59,31 @@ void PictureManager::handleEditChange( UINT id )
 	}
 }
 
+
 void PictureManager::setAutoScalePicturesOption(bool autoScaleOption)
 {
 	autoScalePictures = autoScaleOption;
 }
 
+
+void PictureManager::setSpecialLessThanMin(bool option)
+{
+	specialLessThanMin = option;
+}
+
+
+void PictureManager::setSpecialGreaterThanMax(bool option)
+{
+	specialGreaterThanMax = option;
+}
+
+
 void PictureManager::drawPicture( CDC* deviceContext, int pictureNumber, std::vector<long> picData, 
 								 std::pair<int, int> minMaxPair )
 {
 	std::tuple<bool, int, int> autoScaleInfo = std::make_tuple(autoScalePictures, minMaxPair.first, minMaxPair.second);
-	pictures[pictureNumber].drawPicture( deviceContext, picData, autoScaleInfo);
+	pictures[pictureNumber].drawPicture( deviceContext, picData, autoScaleInfo, specialLessThanMin, 
+										specialGreaterThanMax);
 }
 
 void PictureManager::handleScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar)
@@ -268,7 +286,9 @@ void PictureManager::createPalettes( CDC* dc )
 	// this is the parula colormap from matlab. It looks nice :D
 	double virida[256][3] =
 	{
-		{ 0.267004 , 0.004874 , 0.329415 },
+		// special entry
+		{ 0 , 0 , 1 },
+		//
 		{ 0.26851 , 0.009605 , 0.335427 },
 		{ 0.269944 , 0.014625 , 0.341379 },
 		{ 0.271305 , 0.019942 , 0.347269 },
@@ -523,7 +543,9 @@ void PictureManager::createPalettes( CDC* dc )
 		{ 0.964894 , 0.902323 , 0.123941 },
 		{ 0.974417 , 0.90359 , 0.130215 },
 		{ 0.983868 , 0.904867 , 0.136897 },
-		{ 0.993248 , 0.906157 , 0.143936 },
+		// special value
+		{ 1 , 0 , 0 },
+		//
 	};
 
 	int r, g, b;
@@ -542,7 +564,9 @@ void PictureManager::createPalettes( CDC* dc )
 	
 	double inferno[256][3] = 
 	{
-		{ 0.001462 , 0.000466 , 0.013866 },
+		// special value
+		{ 0 , 0 , 1 },
+		// 
 		{ 0.002267 , 0.00127 , 0.01857 },
 		{ 0.003299 , 0.002249 , 0.024239 },
 		{ 0.004547 , 0.003392 , 0.030909 },
@@ -797,7 +821,9 @@ void PictureManager::createPalettes( CDC* dc )
 		{ 0.971162 , 0.985282 , 0.602154 },
 		{ 0.976511 , 0.989753 , 0.61676 },
 		{ 0.982257 , 0.994109 , 0.631017 },
-		{ 0.988362 , 0.998364 , 0.644924 }
+		// special value
+		{ 1 , 0 , 0 }
+		//
 	};
 
 	for (int paletteValueInc = 0; paletteValueInc < PICTURE_PALETTE_SIZE; paletteValueInc++)
@@ -821,6 +847,14 @@ void PictureManager::createPalettes( CDC* dc )
 		blackToWhite[paletteInc][1] = paletteInc / 256.0;
 		blackToWhite[paletteInc][2] = paletteInc / 256.0;
 	}
+	// special values
+	blackToWhite[0][0] = 0;
+	blackToWhite[0][1] = 0;
+	blackToWhite[0][2] = 1;
+	// 	
+	blackToWhite[255][0] = 1;
+	blackToWhite[255][1] = 0;
+	blackToWhite[255][2] = 0;
 	for (int paletteValueInc = 0; paletteValueInc < PICTURE_PALETTE_SIZE; paletteValueInc++)
 	{
 		// scaling it to make it a bit darker near the bottom.

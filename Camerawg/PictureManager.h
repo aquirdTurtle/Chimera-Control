@@ -28,6 +28,8 @@ class PictureManager
 		void setMultiplePictures( CWnd* parent, std::pair<int, int> selectedLocation, imageParameters imageParams, 
 								  int numberActivePics);
 		void setAutoScalePicturesOption(bool autoScaleOption);
+		void setSpecialLessThanMin(bool option);
+		void setSpecialGreaterThanMax(bool option);
 
 	private:
 		std::array<PictureControl, 4> pictures;
@@ -37,5 +39,7 @@ class PictureManager
 		int picturesWidth;
 		int picturesHeight;
 		bool autoScalePictures;
+		bool specialGreaterThanMax;
+		bool specialLessThanMin;
 };
 

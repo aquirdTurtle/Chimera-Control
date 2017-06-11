@@ -8,7 +8,7 @@
 int selectInCombo(HWND comboHWND, std::string stringToFind)
 {
 	// get number of entries in combo.
-	int count = SendMessage(comboHWND, CB_GETCOUNT, 0, 0);
+	long long count = SendMessage(comboHWND, CB_GETCOUNT, 0, 0);
 	TCHAR comboText[256];
 	// loop through all entries in combo
 	for (int comboInc = 0; comboInc < count; comboInc++)

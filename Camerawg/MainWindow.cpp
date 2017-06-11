@@ -125,6 +125,7 @@ BOOL MainWindow::OnInitDialog()
 	///
 	///				Initialize NIAWG
 	///
+
 	// get time now
 	time_t dateStart = time(0);
 	struct tm datePointerStart;

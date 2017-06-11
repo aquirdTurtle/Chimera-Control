@@ -134,7 +134,7 @@ void DataSet::setPostSelectionCondition(int conditionNumber, int pixel, int pict
 void DataSet::removePixel()
 {
 	// make sure there is a pixel to remove.
-	int currentPixelNum = trueConditions.size();
+	size_t currentPixelNum = trueConditions.size();
 	if (currentPixelNum < 2)
 	{
 		thrower("ERROR: Something tried to remove the last pixel!");
@@ -152,9 +152,9 @@ void DataSet::removePicture()
 	// make sure there is a picture to remove.
 	// all data structures have access to the same number of pictures. Currently there is no to have one data structure work on 2 picture increments and one on
 	// 3, for example.
-	int currentPixelNum = trueConditions.size();
+	size_t currentPixelNum = trueConditions.size();
 	// this should always be at least one large.
-	int currentPictureNum = trueConditions[0].size();
+	size_t currentPictureNum = trueConditions[0].size();
 	
 	if (currentPictureNum < 2)
 	{
@@ -210,7 +210,7 @@ void DataSet::addPostSelectionCondition(int pixelNum, int pictureNum)
 {
 	// add condition, pixels, pictures
 	postSelectionConditions.resize(postSelectionConditions.size() + 1);
-	int back = postSelectionConditions.size() - 1;
+	size_t back = postSelectionConditions.size() - 1;
 	postSelectionConditions[back].resize(pixelNum);
 	for (int pixelInc = 0; pixelInc < pixelNum; pixelInc++)
 	{

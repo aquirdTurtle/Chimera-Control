@@ -12,7 +12,7 @@ struct tinyPlotInfo
 };
 
 
-class DataHandlingControl
+class DataAnalysisControl
 {
 	public:
 		void initialize(cameraPositions& pos, int& id, CWnd* parent, fontMap fonts, std::vector<CToolTipCtrl*>& tooltips,

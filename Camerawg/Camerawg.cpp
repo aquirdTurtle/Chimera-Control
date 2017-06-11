@@ -137,7 +137,7 @@ BOOL myApplicationApp::InitInstance()
 				boost::filesystem::create_directory(dir);
 				andorConnectedForFolder = true;
 			}
-			catch (boost::filesystem::filesystem_error& err)
+			catch (boost::filesystem::filesystem_error&)
 			{
 				// For some reason this doesn't seem to get called when the connection breaks.
 				int andorDisconnectedOption = MessageBox( NULL, "This computer can't currently open logging files on the andor.\nAbort "
@@ -265,7 +265,7 @@ BOOL myApplicationApp::InitInstance()
 	myAgilent::agilentDefault();
 	INT_PTR returnVal = theMainApplicationWindow.DoModal();
 	// end of program.
-	return returnVal;
+	return int(returnVal);
 }
 
 myApplicationApp app;

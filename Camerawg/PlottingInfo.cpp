@@ -996,7 +996,7 @@ int PlottingInfo::getConditionNumber()
 }
 
 
-int PlottingInfo::getPixelGroupNumber()
+size_t PlottingInfo::getPixelGroupNumber()
 {
 	if (analysisGroups.size() == 0)
 	{
@@ -1006,7 +1006,7 @@ int PlottingInfo::getPixelGroupNumber()
 }
 
 
-int PlottingInfo::getDataSetNumber()
+size_t PlottingInfo::getDataSetNumber()
 {
 	return dataSets.size();
 }
