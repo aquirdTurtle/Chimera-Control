@@ -64,43 +64,30 @@ namespace commonFunctions
 			case ID_ACCELERATOR_ESC:
 			case ID_FILE_ABORT_GENERATION:
 			{
-				std::string status;
 				try
 				{
-					bool niawgAborted = false, andorAborted=false;
+					bool aborted = false;
 					if (mainWin->niawg.isRunning())
 					{
-						status = "NIAWG";
 						commonFunctions::abortNiawg(scriptWin, mainWin);
-						niawgAborted = true;
+						aborted = true;
 					}
-					mainWin->getComm()->sendColorBox({ /*niawg*/'B', /*camera*/'-', /*intensity*/'-' });
 					if (camWin->Andor.isRunning())
 					{
-						status = "ANDOR";
 						commonFunctions::abortCamera(camWin, mainWin);
-						andorAborted = true;
+						aborted = true;
 					}
-					mainWin->getComm()->sendColorBox({ /*niawg*/'-', /*camera*/'B', /*intensity*/'-' });
 					camWin->assertOff();
-					// todo... intensity
-
-					if (!niawgAborted && !andorAborted)
-					{					
+					if (!aborted)
+					{
+						mainWin->getComm()->sendColorBox({ /*niawg*/'B', /*camera*/'-', /*intensity*/'-' });
 						mainWin->getComm()->sendError("Neither Camera nor NIAWG was not running. Can't Abort.\r\n");
 					}
 				}
 				catch (Error& except)
 				{
 					mainWin->getComm()->sendError("EXITED WITH ERROR! " + except.whatStr());
-					if (status == "NIAWG")
-					{
-						mainWin->getComm()->sendColorBox({ /*niawg*/'R', /*camera*/'-', /*intensity*/'-' });
-					}
-					else if (status == "ANDOR")
-					{
-						mainWin->getComm()->sendColorBox({ /*niawg*/'-', /*camera*/'R', /*intensity*/'-' });
-					}
+					mainWin->getComm()->sendColorBox({ /*niawg*/'R', /*camera*/'-', /*intensity*/'-' });
 					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 					mainWin->getComm()->sendTimer("ERROR!");
 				}

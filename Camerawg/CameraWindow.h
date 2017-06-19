@@ -72,6 +72,7 @@ class CameraWindow : public CDialog
 		friend bool commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, ScriptingWindow* scriptWin, 
 														  CameraWindow* camWin );
 		void handleAutoscaleSelection();
+		void assertOff();
 
 	private:
 		DECLARE_MESSAGE_MAP();
