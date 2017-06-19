@@ -22,7 +22,7 @@
     <ProjectGuid>{F965DF0C-ACB6-4687-BC01-122F5AADA5D7}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Camera</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
     <ProjectName>Andor Camera Control</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
