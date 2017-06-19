@@ -40,6 +40,8 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 	ON_COMMAND(IDC_SET_EM_GAIN_BUTTON, &CameraWindow::setEmGain)
 	ON_COMMAND(IDC_ALERTS_BOX, &CameraWindow::passAlertPress)
 	ON_COMMAND(IDC_SET_TEMPERATURE_BUTTON, &CameraWindow::passSetTemperaturePress)
+	ON_COMMAND(IDC_SET_REPETITONS_PER_VARIATION_BUTTON, &CameraWindow::passRepsPerVarPress)
+	ON_COMMAND(IDC_SET_VARIATION_NUMBER, &CameraWindow::passVariationNumberPress)
 
 	ON_CBN_SELENDOK(IDC_TRIGGER_COMBO, &CameraWindow::passTrigger)
 	ON_CBN_SELENDOK( IDC_CAMERA_MODE_COMBO, &CameraWindow::passCameraMode )
@@ -53,6 +55,30 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 END_MESSAGE_MAP()
 
 
+void CameraWindow::passRepsPerVarPress()
+{
+	try
+	{
+		CameraSettings.handleSetRepsPerVar();
+	}
+	catch (Error& err)
+	{
+		mainWindowFriend->getComm()->sendError(err.what());
+	}
+}
+
+
+void CameraWindow::passVariationNumberPress()
+{
+	try
+	{
+		CameraSettings.handleSetVarNum();
+	}
+	catch (Error& err)
+	{
+		mainWindowFriend->getComm()->sendError(err.what());
+	}
+}
 
 void CameraWindow::passCameraMode()
 {
@@ -130,7 +156,16 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam)
 {
 	unsigned long long pictureNumber = lParam;
 	Andor.updatePictureNumber( pictureNumber );
-	std::vector<std::vector<long>> picData = Andor.acquireImageData();
+	std::vector<std::vector<long>> picData;
+	try
+	{
+		 picData = Andor.acquireImageData();
+	}
+	catch (Error& err)
+	{
+		mainWindowFriend->getComm()->sendError(err.what());
+		return NULL;
+	}
 	CDC* drawer = GetDC();
 	AndorRunSettings currentSettings = Andor.getSettings();
 	if (realTimePic)
@@ -333,7 +368,14 @@ void CameraWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
  */
 void CameraWindow::passSetTemperaturePress()
 {
-	CameraSettings.handleSetTemperaturePress();
+	try
+	{
+		CameraSettings.handleSetTemperaturePress();
+	}
+	catch (Error& err)
+	{
+		mainWindowFriend->getComm()->sendError(err.what());
+	}
 }
 
 /*

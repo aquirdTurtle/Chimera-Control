@@ -758,6 +758,7 @@ namespace myAgilent
 		return time;
 	}
 
+
 	/*
 	 * This function tells the agilent to put out the DC default waveform.
 	 */
@@ -769,7 +770,7 @@ namespace myAgilent
 		if (!NIAWG_SAFEMODE)
 		{
 			viOpenDefaultRM(&viDefaultRM);
-			viOpen(viDefaultRM, (char *)AGILENT_ADDRESS, VI_NULL, VI_NULL, &Instrument);
+			int val = viOpen(viDefaultRM, (char *)AGILENT_ADDRESS, VI_NULL, VI_NULL, &Instrument);
 			// turn it to the default voltage...
 			SCPIcmd = std::string("APPLy:DC DEF, DEF, ") + AGILENT_DEFAULT_DC;
 			agilentErrorCheck(viWrite(Instrument, (unsigned char*)(SCPIcmd).c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
@@ -784,6 +785,7 @@ namespace myAgilent
 
 		return 0;
 	}
+
 
 	bool analyzeIntensityScript(ScriptStream& intensityFile, myAgilent::IntensityWaveform* intensityWaveformData, int& currentSegmentNumber, std::vector<variable> singletons, profileSettings profile)
 	{
@@ -1009,7 +1011,7 @@ namespace myAgilent
 		{
 			// Error detected.
 			std::string commErrMsg;
-			commErrMsg = "ERROR: Communcation error with agilent. Error Code: " + std::to_string(status);
+			commErrMsg = "ERROR: Communication error with agilent. Error Code: " + std::to_string(status);
 			MessageBox(0, commErrMsg.c_str(), 0, MB_OK);
 			return -1;
 		}

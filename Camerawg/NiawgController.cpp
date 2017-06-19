@@ -550,7 +550,8 @@ void NiawgController::openWaveformFiles()
 {
 	std::string tempStr;
 	std::fstream libNameFile;
-	for (int folderInc = 0; folderInc < WAVEFORM_TYPE_FOLDERS->size(); folderInc++)
+	errBox(str(WAVEFORM_TYPE_FOLDERS.size()));
+	for (int folderInc = 0; folderInc < WAVEFORM_TYPE_FOLDERS.size(); folderInc++)
 	{
 		std::string folderPath = LIB_PATH + WAVEFORM_TYPE_FOLDERS[folderInc];
 		folderPath.resize( folderPath.size() - 1 );

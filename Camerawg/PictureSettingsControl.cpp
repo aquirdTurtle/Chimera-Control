@@ -212,6 +212,8 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	{
 		throw;
 	}
+
+
 }
 
 
@@ -387,7 +389,7 @@ void PictureSettingsControl::handleOptionChange(UINT id, AndorCamera* andorObj)
 		{
 			CString textEdit;
 			exposureEdits[exposureInc].GetWindowTextA(textEdit);
-			int exposure;
+			double exposure;
 			try
 			{
 				exposure = std::stof(std::string(textEdit));

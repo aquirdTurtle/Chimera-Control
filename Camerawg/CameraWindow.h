@@ -55,6 +55,8 @@ class CameraWindow : public CDialog
 		void passCameraMode();
 		void passAlertPress();
 		void passSetTemperaturePress();
+		void passRepsPerVarPress();
+		void passVariationNumberPress();
 		void setEmGain();
 		void handlePictureSettings( UINT id );
 		bool cameraIsRunning();

@@ -408,7 +408,6 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 	}
 	else
 	{
-		// generate a fake image.
 		for (int imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 		{
 			if (experimentPictureNumber == 0 && imageVecInc == 0)

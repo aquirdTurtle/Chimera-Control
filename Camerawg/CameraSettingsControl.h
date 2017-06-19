@@ -20,17 +20,20 @@ class CameraSettingsControl
 		CameraSettingsControl::CameraSettingsControl(AndorCamera* friendInitializer) : picSettingsObj(this)
 		{ 
 			andorFriend = friendInitializer; 
-			runSettings.exposureTimes = { 20 };
+			// initialize settings
+			runSettings.exposureTimes = { 0.020f };
 			runSettings.picsPerRepetition = 1;
 			runSettings.kinetiCycleTime = 0.1f;
-			if ( ANDOR_SAFEMODE )
-			{
-				runSettings.picsPerRepetition = 1;
-				runSettings.repetitionsPerVariation = 10;
-				runSettings.totalVariations = 3;
-				runSettings.totalPicsInExperiment = 30;
-				runSettings.totalPicsInVariation = 10;
-			}
+			runSettings.repetitionsPerVariation = 10;
+			runSettings.totalVariations = 3;
+			runSettings.totalPicsInExperiment = 30;
+			runSettings.totalPicsInVariation = 10;
+			// this one never gets changed.
+			runSettings.readMode = 4;
+			runSettings.acquisitionMode = 3;
+			runSettings.emGainModeIsOn = false;
+			runSettings.showPicsInRealTime = false;
+			runSettings.triggerMode = "External";
 		}
 		CBrush* handleColor(int idNumber, CDC* colorer, brushMap brushes, rgbMap rgbs);
 		void initialize(cameraPositions& pos, int& id, CWnd* parent, fontMap fonts, std::vector<CToolTipCtrl*>& tooltips);
@@ -48,6 +51,8 @@ class CameraSettingsControl
 		void checkIfReady();
 		void cameraIsOn( bool state );
 		void handleModeChange( CameraWindow* cameraWindow );
+		void handleSetVarNum();
+		void handleSetRepsPerVar();
 		AndorRunSettings getSettings();
 		std::array<int, 4> getThresholds();
 	private:
@@ -76,6 +81,17 @@ class CameraSettingsControl
 		// Kinetic Cycle Time
 		Control<CEdit> kineticCycleTimeEdit;
 		Control<CStatic> kineticCycleTimeLabel;
+
+		// repetitions per variation
+		Control<CButton> setRepsPerVar;
+		Control<CEdit> repsPerVarEdit;
+		Control<CStatic> repsPerVarDisp;
+
+		// total variations
+		Control<CButton> setVarNum;
+		Control<CEdit> varNumEdit;
+		Control<CStatic> varNumDisp;
+
 
 		std::string currentControlColor;
 		// two subclassed groups.

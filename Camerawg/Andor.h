@@ -64,14 +64,7 @@ struct cameraThreadInput
 class AndorCamera
 {
 	public:
-		AndorCamera::AndorCamera(Communicator* comm)
-		{
-			threadInput.comm = comm;
-			threadInput.Andor = this;
-			threadInput.spuriousWakeupHandler = false;
-			// begin the camera wait thread.
-			_beginthreadex( NULL, 0, &AndorCamera::cameraThread, &threadInput, 0, &cameraThreadID );
-		}
+		AndorCamera::AndorCamera(Communicator* comm);
 
 		/// Andor Wrappers, in alphabetical order. Versions that take no parameters just insert current settings into 
 		// the versions that take parameters. Note that my wrapper names don't always match the andor SDK names. If 
@@ -85,7 +78,7 @@ class AndorCamera
 		void getAcquisitionTimes(float& exposure, float& accumulation, float& kinetic);
 		void getAdjustedRingExposureTimes(int size, float* timesArray);
 		void getNumberOfPreAmpGains(int& number);
-		void getOldestImage(long& dataArray, int size);
+		void getOldestImage(std::vector<long>& dataArray);
 		void getPreAmpGain(int index, float& gain);
 		void getStatus();
 		void getStatus(int& status);
@@ -123,7 +116,7 @@ class AndorCamera
 		/// End Andor sdk wrappers.
 
 		// all of the following do something more interesting.
-		AndorCamera::AndorCamera();
+		//AndorCamera::AndorCamera();
 		AndorRunSettings getSettings();
 		void pauseThread();
 		void setSettings(AndorRunSettings settingsToSet);
@@ -144,6 +137,11 @@ class AndorCamera
 		void setGainMode();
 		void changeTemperatureSetting(bool temperatureControlOff);
 		void andorErrorChecker(int errorCode);
+		
+		void initialize();
+		void setBaselineClamp(int clamp);
+		void setBaselineOffset(int offset);
+		void setDMAParameters(int maxImagesPerDMA, float secondsPerDMA);
 
 		static unsigned int __stdcall cameraThread( void* voidPtr );
 		
