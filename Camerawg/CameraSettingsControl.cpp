@@ -2,8 +2,8 @@
 #include "CameraSettingsControl.h"
 #include "CameraWindow.h"
 
-// note that this object doesn't actually store the camera state, it just uses it in passing to figure out whether buttons should be
-// on or off.
+// note that this object doesn't actually store the camera state, it just uses it in passing to figure out whether 
+// buttons should be on or off.
 void CameraSettingsControl::cameraIsOn(bool state)
 {
 	// Can't change em gain mode or camera settings once started.

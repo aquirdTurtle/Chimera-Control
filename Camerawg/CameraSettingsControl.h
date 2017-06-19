@@ -59,6 +59,7 @@ class CameraSettingsControl
 		AndorCamera* andorFriend;
 
 		Control<CStatic> header;
+		/// TODO
 		// Accumulation Time
 		// Accumulation Number
 

@@ -712,6 +712,12 @@ void CameraWindow::passCommonCommand(UINT id)
 }
 
 
+void CameraWindow::assertOff()
+{
+	CameraSettings.cameraIsOn(false);
+}
+
+
 void CameraWindow::readImageParameters()
 {
 	redrawPictures(false);
