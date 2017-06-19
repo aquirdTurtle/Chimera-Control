@@ -229,7 +229,7 @@ class NiawgController
 		ViConstString outputChannels = "0,1";
 		// Session Parameters
 		const ViInt32 OUTPUT_MODE = NIFGEN_VAL_OUTPUT_SCRIPT;
-		const ViRsrc NI_5451_LOCATION = "PXI1Slot2";
+		const ViRsrc NI_5451_LOCATION = "Dev1";
 		// Minimum waveform size that the waveform generator can produce:
 		const int MIN_WAVE_SAMPLE_SIZE = 100;
 		const double MAX_CAP_TIME = 1e-3;

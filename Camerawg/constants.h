@@ -7,7 +7,8 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to build and debug other 
 // aspects of the program.
 //#define LAB_COMPUTER
-#define SPECTRE_LAPTOP
+#define MASTER_COMPUTER
+//#define SPECTRE_LAPTOP
 
 /// File Locations
 // Files for Lab Computer
@@ -82,21 +83,19 @@
 
 #ifdef MASTER_COMPUTER
 	#define SOCKET_SAFEMODE true
-	#define NIAWG_SAFEMODE true
-	#define ANDOR_SAFEMODE true
-	#define CONNECT_TO_ANDOR_SAFEMODE true
-	#define PYTHON_HOME L"C:\\ProgramData\\Anaconda3\\"
+	#define NIAWG_SAFEMODE false
+	#define ANDOR_SAFEMODE false
+	#define CONNECT_TO_ANDOR_SAFEMODE false
+	#define PYTHON_HOME L"C:\\Anaconda3\\"
 	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Regal Lab\\Documents\\Quantum-Gas-Assembly-Control\\Plotting\\";
 	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
-	const std::string LIB_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum-Gas-Assembly-Control\\Waveforms Library\\Waveform Library 350 "
-		"MS per second V6\\";
+	const std::string LIB_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum-Gas-Assembly-Control\\Waveforms Library\\WaveLibrary 350 MSpS\\";
 	const std::string DEFAULT_SCRIPT_FOLDER_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum-Gas-Assembly-Control\\Default Scripts\\";
-	const std::string EXPERIMENT_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\"
-		"Individual Experiments\\";
-	const std::string CODE_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Code "
-		"Versions\\";
+	const std::string EXPERIMENT_LOGGING_FILES_PATH = "D:\\NIAWG Logging Files\\Individual Experiments\\";
+	const std::string CODE_LOGGING_FILES_PATH = "D:\\Code Versions\\";
 	const std::string ACTUAL_CODE_FOLDER_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum-Gas-Assembly-Control\\Camerawg\\";
 	const std::string PROFILES_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum-Gas-Assembly-Control\\Profiles\\";
+	const std::string DATA_SAVE_LOCATION = "C:\\Users\\Regal Lab\\Documents\\Quantum-Gas-Assembly-Control\\Data\\";
 #endif
 
 
@@ -148,7 +147,7 @@
 #define AGILENT_FILTER_STATE "OFF"
 #define AGILENT_LOAD "INF"
 #define AGILENT_DEFAULT_DC "2.383 V"
-#define NUMBER_OF_LIBRARY_FILES 20
+#define NUMBER_OF_LIBRARY_FILES MAX_NIAWG_SIGNALS*4
 
 /// Random other Constants
 // It's PI.
@@ -157,13 +156,15 @@
 #define SYNTAX_TIMER_LENGTH 1000
 
 // intensity agilent address
-const char * const AGILENT_ADDRESS = "USB0::0x0957::0x2307::MY50004500::0::INSTR";
+//const char * const AGILENT_ADDRESS = "USB0::0x0957::0x2307::MY50004500::0::INSTR";
+const char * const AGILENT_ADDRESS = "USB0::2391::8967::MY50004500::0::INSTR";
 
 // Parameters that the user might want to change:
 const bool CONST_POWER_OUTPUT = true;
 
 // for floating point error... 0.2 was picked because this is the maximum power that can be outputted with 5 signals given the voltage 
 // restrictions.
+// TEMP: need to change back to 0.2
 const double TOTAL_POWER = 0.2 - 1e-10;
 
 // Currently bugs with the 5451 for sample rates significantly above this sample rate (350 MS/s). <---- very much T.T T.T T.T
@@ -184,7 +185,7 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 // doesn't matter at all, it just matters that it matches the corresponding control ID. Around the ID definitions for
 // the controls of interest, there are throw statements that stop the program early on if an ID doesn't match, so 
 // you don't have to worry about these things so much.
-// 
+
 // Main Window
 #define IDC_MAIN_STATUS_BUTTON 1001
 #define IDC_ERROR_STATUS_BUTTON 1004
@@ -221,14 +222,18 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define PICTURE_SETTINGS_ID_END 3063
 #define IDC_SET_IMAGE_PARAMETERS_BUTTON 3064
 
-#define IDC_PICTURE_1_MIN_EDIT 3110
-#define IDC_PICTURE_1_MAX_EDIT 3113
-#define IDC_PICTURE_2_MIN_EDIT 3116
-#define IDC_PICTURE_2_MAX_EDIT 3119
-#define IDC_PICTURE_3_MIN_EDIT 3122
-#define IDC_PICTURE_3_MAX_EDIT 3125
-#define IDC_PICTURE_4_MIN_EDIT 3128
-#define IDC_PICTURE_4_MAX_EDIT 3131
+#define IDC_SET_REPETITONS_PER_VARIATION_BUTTON 3077
+#define IDC_SET_VARIATION_NUMBER 3080
+
+#define IDC_PICTURE_1_MIN_EDIT 3116
+#define IDC_PICTURE_1_MAX_EDIT 3119
+#define IDC_PICTURE_2_MIN_EDIT 3122
+#define IDC_PICTURE_2_MAX_EDIT 3125
+#define IDC_PICTURE_3_MIN_EDIT 3128
+#define IDC_PICTURE_3_MAX_EDIT 3131
+#define IDC_PICTURE_4_MIN_EDIT 3134
+#define IDC_PICTURE_4_MAX_EDIT 3137
+
 //
 #define IDC_BEGINNING_DIALOG_RICH_EDIT 100
 //

@@ -53,6 +53,56 @@ void CameraSettingsControl::handleSetTemperaturePress()
 	//eCameraFileSystem.updateSaveStatus(false);
 }
 
+void CameraSettingsControl::handleSetRepsPerVar()
+{
+	CString tempStr;
+	repsPerVarEdit.GetWindowTextA(tempStr);
+	// GetWindowText(eRepetitionsPerVariationEdit.hwnd, (LPSTR)tempStr.c_str(), 20);
+	std::string input(tempStr);
+	try
+	{
+		runSettings.repetitionsPerVariation = std::stoi(input);
+		runSettings.totalPicsInVariation = runSettings.repetitionsPerVariation * runSettings.picsPerRepetition;
+		runSettings.totalPicsInExperiment = runSettings.totalVariations * runSettings.totalPicsInVariation;
+	}
+	catch (std::invalid_argument &exception)
+	{
+		thrower("ERROR: number entered was not valid.");
+		runSettings.repetitionsPerVariation = 1;
+		runSettings.totalPicsInVariation = runSettings.repetitionsPerVariation * runSettings.picsPerRepetition;
+		runSettings.totalPicsInExperiment = runSettings.totalVariations * runSettings.totalPicsInVariation;
+	}
+	repsPerVarDisp.SetWindowTextA(cstr(runSettings.repetitionsPerVariation));
+	//
+	//eCameraFileSystem.updateSaveStatus(false);
+	repsPerVarEdit.RedrawWindow();
+}
+
+
+void CameraSettingsControl::handleSetVarNum()
+{
+	CString tempStr;
+	varNumEdit.GetWindowTextA(tempStr);
+	// GetWindowText(eRepetitionsPerVariationEdit.hwnd, (LPSTR)tempStr.c_str(), 20);
+	std::string input(tempStr);
+	try
+	{
+		runSettings.totalVariations = std::stoi(input);
+		runSettings.totalPicsInExperiment = runSettings.totalVariations * runSettings.totalPicsInVariation;
+	}
+	catch (std::invalid_argument &exception)
+	{
+		thrower("ERROR: number entered was not valid.");
+		runSettings.totalVariations = 1;
+		runSettings.totalPicsInExperiment = runSettings.totalVariations * runSettings.totalPicsInVariation;
+	}
+	varNumDisp.SetWindowTextA(cstr(runSettings.totalVariations));
+	//
+	//eCameraFileSystem.updateSaveStatus(false);
+	varNumEdit.RedrawWindow();
+}
+
+
 void CameraSettingsControl::handleTriggerControl(CameraWindow* cameraWindow)
 {
 	CString triggerMode;
@@ -93,6 +143,12 @@ void CameraSettingsControl::rearrange( std::string cameraMode, std::string trigg
 	temperatureMessage.rearrange( cameraMode, triggerMode, width, height, fonts );
 	kineticCycleTimeEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
 	kineticCycleTimeLabel.rearrange( cameraMode, triggerMode, width, height, fonts );
+	setRepsPerVar.rearrange(cameraMode, triggerMode, width, height, fonts);
+	repsPerVarEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
+	repsPerVarDisp.rearrange(cameraMode, triggerMode, width, height, fonts);
+	setVarNum.rearrange(cameraMode, triggerMode, width, height, fonts);
+	varNumEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
+	varNumDisp.rearrange(cameraMode, triggerMode, width, height, fonts);
 }
 
 void CameraSettingsControl::setEmGain(AndorCamera* andorObj)
@@ -218,14 +274,14 @@ std::array<int, 4> CameraSettingsControl::getPaletteNumbers()
 	return picSettingsObj.getPictureColors();
 }
 
-void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* parent, fontMap fonts, std::vector<CToolTipCtrl*>& tooltips )
+void CameraSettingsControl::initialize(cameraPositions& pos, int& id, CWnd* parent, fontMap fonts, std::vector<CToolTipCtrl*>& tooltips)
 {
 	/// Header
 	header.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
 	header.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
 	header.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
 	header.ID = id++;
-	header.Create( "CAMERA SETTINGS", WS_BORDER | WS_CHILD | WS_VISIBLE | ES_READONLY | ES_CENTER, header.seriesPos, parent, header.ID );
+	header.Create("CAMERA SETTINGS", WS_BORDER | WS_CHILD | WS_VISIBLE | ES_READONLY | ES_CENTER, header.seriesPos, parent, header.ID);
 	header.fontType = Heading;
 
 	/// camera mode
@@ -237,12 +293,12 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	{
 		throw;
 	}
-	cameraModeCombo.Create( WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, cameraModeCombo.seriesPos, parent, cameraModeCombo.ID );
+	cameraModeCombo.Create(WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, cameraModeCombo.seriesPos, parent, cameraModeCombo.ID);
 	cameraModeCombo.fontType = Normal;
-	cameraModeCombo.AddString( "Kinetic Series Mode" );
-	cameraModeCombo.AddString( "Accumulation Mode" );
-	cameraModeCombo.AddString( "Video Mode" );
-	cameraModeCombo.SelectString( 0, "Kinetic Series Mode" );
+	cameraModeCombo.AddString("Kinetic Series Mode");
+	cameraModeCombo.AddString("Accumulation Mode");
+	cameraModeCombo.AddString("Video Mode");
+	cameraModeCombo.SelectString(0, "Kinetic Series Mode");
 	runSettings.cameraMode = "Kinetic Series Mode";
 	pos.amPos.y += 25;
 	pos.videoPos.y += 25;
@@ -255,22 +311,22 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	{
 		throw;
 	}
-	emGainButton.Create( "Set EM Gain", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, emGainButton.seriesPos, parent, emGainButton.ID );
+	emGainButton.Create("Set EM Gain", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, emGainButton.seriesPos, parent, emGainButton.ID);
 	emGainButton.fontType = Normal;
-	emGainButton.setToolTip( "Set the state & gain of the EM gain of the camera. Enter a negative number to turn EM Gain"
-							 " mode off. The program will immediately change the state of the camera after pressing this button.", tooltips,
-							 parent, fonts["Normal Font"] );
-						 //
+	emGainButton.setToolTip("Set the state & gain of the EM gain of the camera. Enter a negative number to turn EM Gain"
+							" mode off. The program will immediately change the state of the camera after pressing this button.", tooltips,
+							parent, fonts["Normal Font"]);
+						//
 	emGainEdit.seriesPos = { pos.seriesPos.x + 120, pos.seriesPos.y, pos.seriesPos.x + 300, pos.seriesPos.y + 20 };
 	emGainEdit.videoPos = emGainEdit.amPos = emGainEdit.seriesPos;
 	emGainEdit.ID = id++;
-	emGainEdit.Create( WS_CHILD | WS_VISIBLE | BS_RIGHT, emGainEdit.seriesPos, parent, emGainEdit.ID );
+	emGainEdit.Create(WS_CHILD | WS_VISIBLE | BS_RIGHT, emGainEdit.seriesPos, parent, emGainEdit.ID);
 	emGainEdit.fontType = Normal;
 	//
 	emGainDisplay.seriesPos = { pos.seriesPos.x + 300, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 20 };
 	emGainDisplay.videoPos = emGainDisplay.amPos = emGainDisplay.seriesPos;
 	emGainDisplay.ID = id++;
-	emGainDisplay.Create( "OFF", WS_CHILD | WS_VISIBLE | BS_RIGHT | ES_READONLY | ES_CENTER, emGainDisplay.seriesPos, parent, emGainDisplay.ID );
+	emGainDisplay.Create("OFF", WS_CHILD | WS_VISIBLE | BS_RIGHT | ES_READONLY | ES_CENTER, emGainDisplay.seriesPos, parent, emGainDisplay.ID);
 	emGainDisplay.fontType = Normal;
 	// initialize settings.
 	runSettings.emGainLevel = 0;
@@ -285,7 +341,7 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	triggerLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 240, pos.videoPos.y + 25 };
 	triggerLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 240, pos.amPos.y + 25 };
 	triggerLabel.ID = id++;
-	triggerLabel.Create( "Trigger Mode:", WS_CHILD | WS_VISIBLE | ES_CENTER, triggerLabel.seriesPos, parent, triggerLabel.ID );
+	triggerLabel.Create("Trigger Mode:", WS_CHILD | WS_VISIBLE | ES_CENTER, triggerLabel.seriesPos, parent, triggerLabel.ID);
 	triggerLabel.fontType = Normal;
 	// trigger combo
 	triggerCombo.seriesPos = { pos.seriesPos.x + 240, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 800 };
@@ -296,14 +352,14 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	{
 		throw;
 	}
-	triggerCombo.Create( WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, triggerCombo.seriesPos, parent, triggerCombo.ID );
+	triggerCombo.Create(WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, triggerCombo.seriesPos, parent, triggerCombo.ID);
 	// set options for the combo
 	triggerCombo.fontType = Normal;
-	triggerCombo.AddString( "Internal" );
-	triggerCombo.AddString( "External" );
-	triggerCombo.AddString( "Start On Trigger" );
+	triggerCombo.AddString("Internal");
+	triggerCombo.AddString("External");
+	triggerCombo.AddString("Start On Trigger");
 	// Select default trigger
-	triggerCombo.SelectString( 0, "External" );
+	triggerCombo.SelectString(0, "External");
 	pos.seriesPos.y += 25;
 	pos.amPos.y += 25;
 	pos.videoPos.y += 25;
@@ -312,8 +368,8 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	setTemperatureButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 270, pos.seriesPos.y + 25 };
 	setTemperatureButton.videoPos = setTemperatureButton.amPos = setTemperatureButton.seriesPos;
 	setTemperatureButton.ID = id++;
-	setTemperatureButton.Create( "Set Camera Temperature (C)", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON, setTemperatureButton.seriesPos,
-								 parent, setTemperatureButton.ID );
+	setTemperatureButton.Create("Set Camera Temperature (C)", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON, setTemperatureButton.seriesPos,
+								parent, setTemperatureButton.ID);
 	setTemperatureButton.fontType = Normal;
 	if (setTemperatureButton.ID != IDC_SET_TEMPERATURE_BUTTON)
 	{
@@ -323,20 +379,20 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	temperatureEdit.seriesPos = { pos.seriesPos.x + 270, pos.seriesPos.y, pos.seriesPos.x + 350, pos.seriesPos.y + 25 };
 	temperatureEdit.videoPos = temperatureEdit.amPos = temperatureEdit.seriesPos;
 	temperatureEdit.ID = id++;
-	temperatureEdit.Create( WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT, temperatureEdit.seriesPos, parent, temperatureEdit.ID );
-	temperatureEdit.SetWindowTextA( "0" );
+	temperatureEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT, temperatureEdit.seriesPos, parent, temperatureEdit.ID);
+	temperatureEdit.SetWindowTextA("0");
 	temperatureEdit.fontType = Normal;
 	// Temperature Setting Display
 	temperatureDisplay.seriesPos = { pos.seriesPos.x + 350, pos.seriesPos.y, pos.seriesPos.x + 430, pos.seriesPos.y + 25 };
 	temperatureDisplay.videoPos = temperatureDisplay.amPos = temperatureDisplay.seriesPos;
 	temperatureDisplay.ID = id++;
-	temperatureDisplay.Create( "", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT | ES_READONLY, temperatureDisplay.seriesPos, parent, temperatureDisplay.ID );
+	temperatureDisplay.Create("", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT | ES_READONLY, temperatureDisplay.seriesPos, parent, temperatureDisplay.ID);
 	temperatureDisplay.fontType = Normal;
 	// Temperature Control Off Button
 	temperatureOffButton.seriesPos = { pos.seriesPos.x + 430, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 25 };
 	temperatureOffButton.videoPos = temperatureOffButton.amPos = temperatureOffButton.seriesPos;
-	temperatureOffButton.Create( "OFF",
-								 WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON, temperatureOffButton.seriesPos, parent, temperatureOffButton.ID );
+	temperatureOffButton.Create("OFF",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON, temperatureOffButton.seriesPos, parent, temperatureOffButton.ID);
 	temperatureOffButton.fontType = Normal;
 	pos.seriesPos.y += 25;
 	pos.amPos.y += 25;
@@ -345,25 +401,86 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	temperatureMessage.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 50 };
 	temperatureMessage.videoPos = temperatureMessage.amPos = temperatureMessage.seriesPos;
 	temperatureMessage.ID = id++;
-	temperatureMessage.Create( "Temperature control is disabled", WS_CHILD | WS_VISIBLE | SS_LEFT, temperatureMessage.seriesPos, parent,
-							   temperatureMessage.ID );
+	temperatureMessage.Create("Temperature control is disabled", WS_CHILD | WS_VISIBLE | SS_LEFT, temperatureMessage.seriesPos, parent,
+							  temperatureMessage.ID);
 	temperatureMessage.fontType = Normal;
 	pos.seriesPos.y += 50;
 	pos.amPos.y += 50;
 	pos.videoPos.y += 50;
 	//
-	picSettingsObj.initialize( pos, parent, id );
+	picSettingsObj.initialize(pos, parent, id);
 
-	imageDimensionsObj.initialize( pos, parent, false, id );
+	imageDimensionsObj.initialize(pos, parent, false, id);
 
+	/// REPETITIONS PER VARIATION
+	// Set Repetitions Per Variation Button
+	setRepsPerVar.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 220, pos.seriesPos.y + 25 };
+	setRepsPerVar.videoPos = { -1,-1,-1,-1 };
+	setRepsPerVar.amPos = { -1,-1,-1,-1 };
+	setRepsPerVar.ID = id++;
+	if (setRepsPerVar.ID != IDC_SET_REPETITONS_PER_VARIATION_BUTTON)
+	{
+		throw;
+	}
+	setRepsPerVar.Create("Set Rep. / Variation", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON, setRepsPerVar.seriesPos,
+						 parent, setRepsPerVar.ID);
+	setRepsPerVar.fontType = Normal;
+	// Repetitions Per Variation Edit
+	repsPerVarEdit.seriesPos = { pos.seriesPos.x + 220, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 25 };
+	repsPerVarEdit.videoPos = { -1,-1,-1,-1 };
+	repsPerVarEdit.amPos = { -1,-1,-1,-1 };
+	repsPerVarEdit.ID = id++;
+	repsPerVarEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER, repsPerVarEdit.seriesPos, parent, repsPerVarEdit.ID);
+	repsPerVarEdit.SetWindowTextA("10");
+	repsPerVarEdit.fontType = Normal;
+
+	// Repetitions Per Variation Display
+	repsPerVarDisp.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
+	repsPerVarDisp.videoPos = { -1,-1,-1,-1 };
+	repsPerVarDisp.amPos = { -1,-1,-1,-1 };
+	repsPerVarDisp.ID = id++;
+	repsPerVarDisp.Create("", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, repsPerVarDisp.seriesPos, parent,
+						  repsPerVarDisp.ID);
+	repsPerVarDisp.fontType = Normal;
+
+	/// VARIATION NUMBER
+	// Set Variation Number Button
+	setVarNum.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x+220, pos.seriesPos.y + 25 };
+	setVarNum.videoPos = { -1,-1,-1,-1 };
+	setVarNum.amPos = { -1,-1,-1,-1 };
+	setVarNum.ID = id++;
+	if (setVarNum.ID != IDC_SET_VARIATION_NUMBER)
+	{
+		throw;
+	}
+	setVarNum.Create("Set # Variations", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON, setVarNum.seriesPos, parent, setVarNum.ID);
+	setVarNum.fontType = Normal;
+
+	// Variation # Edit
+	varNumEdit.seriesPos = { pos.seriesPos.x + 220, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 25 };
+	varNumEdit.videoPos = { -1,-1,-1,-1 };
+	varNumEdit.amPos = { -1,-1,-1,-1 };
+	varNumEdit.ID = id++;
+	varNumEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER, varNumEdit.seriesPos, parent, varNumEdit.ID);
+	varNumEdit.SetWindowTextA("1");
+	varNumEdit.fontType = Normal;
+	// Variation Number Display
+	varNumDisp.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
+	varNumDisp.videoPos = { -1,-1,-1,-1 };
+	varNumDisp.amPos = { -1,-1,-1,-1 };
+	varNumDisp.ID = id++;
+	varNumDisp.Create("", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, varNumDisp.seriesPos, parent, varNumDisp.ID);
+	varNumDisp.fontType = Normal;
+
+	/// Kinetic Cycle Time
 	// Kinetic Cycle Time Label
 	kineticCycleTimeLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 240, pos.seriesPos.y + 25 };
 	kineticCycleTimeLabel.videoPos = { -1,-1,-1,-1 };
 	kineticCycleTimeLabel.amPos = { -1,-1,-1,-1 };
 	kineticCycleTimeLabel.ID = id++;
 	kineticCycleTimeLabel.triggerModeSensitive = -1;
-	kineticCycleTimeLabel.Create( "Kinetic Cycle Time", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, kineticCycleTimeLabel.seriesPos,
-								  parent, kineticCycleTimeLabel.ID );
+	kineticCycleTimeLabel.Create("Kinetic Cycle Time", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, kineticCycleTimeLabel.seriesPos,
+								 parent, kineticCycleTimeLabel.ID);
 	kineticCycleTimeLabel.fontType = Normal;
 
 	// Kinetic Cycle Time Edit
@@ -372,7 +489,7 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	kineticCycleTimeEdit.amPos = { -1,-1,-1,-1 };
 	kineticCycleTimeEdit.ID = id++;
 	kineticCycleTimeEdit.triggerModeSensitive = -1;
-	kineticCycleTimeEdit.Create( WS_CHILD | WS_VISIBLE | WS_BORDER, kineticCycleTimeEdit.seriesPos, parent, kineticCycleTimeEdit.ID );
+	kineticCycleTimeEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER, kineticCycleTimeEdit.seriesPos, parent, kineticCycleTimeEdit.ID);
 	kineticCycleTimeEdit.fontType = Normal;
 }
 
@@ -386,6 +503,43 @@ void CameraSettingsControl::handleModeChange( CameraWindow* cameraWindow )
 	CString mode;
 	cameraModeCombo.GetLBText( sel, mode );
 	runSettings.cameraMode = mode;
+
+
+	//						
+	if (runSettings.cameraMode == "Video Mode")
+	{
+		runSettings.acquisitionMode = 5;
+		/*
+		if (ePicturesPerVariation != INT_MAX)
+		{
+			ePreviousPicturesPerSubSeries = ePicturesPerVariation;
+		}
+		*/
+		runSettings.totalPicsInVariation = INT_MAX;
+		runSettings.repetitionsPerVariation = runSettings.totalPicsInVariation / runSettings.picsPerRepetition;
+		repsPerVarDisp.SetWindowTextA(cstr(runSettings.repetitionsPerVariation));
+
+	}
+	else if (runSettings.cameraMode == "Kinetic Series Mode")
+	{
+		runSettings.acquisitionMode = 3;
+		//ePicturesPerVariation = ePreviousPicturesPerSubSeries;
+		repsPerVarDisp.SetWindowTextA(cstr(runSettings.repetitionsPerVariation));
+	}
+	else if (runSettings.cameraMode == "Accumulate Mode")
+	{
+		runSettings.acquisitionMode = 2;
+		/*
+		if (ePicturesPerVariation != INT_MAX)
+		{
+			ePreviousPicturesPerSubSeries = ePicturesPerVariation;
+		}
+		*/		
+		//ePicturesPerVariation = INT_MAX;
+		//SendMessage(eRepetitionsPerVariationDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerVariation).c_str());
+	}
+
+
 	CRect rect;
 	cameraWindow->GetWindowRect( &rect );
 	cameraWindow->OnSize( 0, rect.right - rect.left, rect.bottom - rect.top );
@@ -438,7 +592,7 @@ void CameraSettingsControl::checkIfReady()
 		}
 		if ( runSettings.repetitionsPerVariation <= 0 )
 		{
-			thrower("ERROR: Please set the \"Experiments per Stack\" variable to a positive non-zero value.");
+			thrower("ERROR: Please set the \"Repetitions Per Variation\" variable to a positive non-zero value.");
 		}
 		if ( runSettings.totalVariations <= 0 )
 		{

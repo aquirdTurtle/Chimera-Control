@@ -15,8 +15,8 @@
 #include "DebuggingOptionsControl.h"
 #include "NiawgController.h"
 
-extern std::string WAVEFORM_NAME_FILES[4 * MAX_NIAWG_SIGNALS];
-extern std::string WAVEFORM_TYPE_FOLDERS[4 * MAX_NIAWG_SIGNALS];
+extern std::vector<std::string> WAVEFORM_NAME_FILES;// = std::vector<std::string>(4 * MAX_NIAWG_SIGNALS);
+extern std::vector<std::string> WAVEFORM_TYPE_FOLDERS;// = std::vector<std::string>(4 * MAX_NIAWG_SIGNALS);
 
 /// some globals for niawg stuff, only for niawg stuff so I keep it here...?
 extern const std::array<int, 2> AXES;
