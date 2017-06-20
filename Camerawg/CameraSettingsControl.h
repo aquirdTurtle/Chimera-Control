@@ -20,7 +20,8 @@ class CameraSettingsControl
 		CameraSettingsControl::CameraSettingsControl(AndorCamera* friendInitializer) : picSettingsObj(this)
 		{ 
 			andorFriend = friendInitializer; 
-			// initialize settings
+			// initialize settings. Most of these have been picked to match initial settings set in the "initialize" 
+			// function.
 			runSettings.exposureTimes = { 0.020f };
 			runSettings.picsPerRepetition = 1;
 			runSettings.kinetiCycleTime = 0.1f;
@@ -28,12 +29,12 @@ class CameraSettingsControl
 			runSettings.totalVariations = 3;
 			runSettings.totalPicsInExperiment = 30;
 			runSettings.totalPicsInVariation = 10;
-			// this one never gets changed.
+			// the read mode never gets changed currently. we always want images.
 			runSettings.readMode = 4;
 			runSettings.acquisitionMode = 3;
 			runSettings.emGainModeIsOn = false;
 			runSettings.showPicsInRealTime = false;
-			runSettings.triggerMode = "External";
+			runSettings.triggerMode = "External Trigger";
 		}
 		CBrush* handleColor(int idNumber, CDC* colorer, brushMap brushes, rgbMap rgbs);
 		void initialize(cameraPositions& pos, int& id, CWnd* parent, fontMap fonts, std::vector<CToolTipCtrl*>& tooltips);
@@ -71,7 +72,6 @@ class CameraSettingsControl
 		Control<CEdit> emGainEdit;
 		Control<CStatic> emGainDisplay;
 		// Trigger Mode
-		Control<CStatic> triggerLabel;
 		Control<CComboBox> triggerCombo;
 		// Temperature
 		Control<CButton> setTemperatureButton;

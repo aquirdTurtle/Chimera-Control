@@ -16,7 +16,9 @@ CameraWindow::CameraWindow(MainWindow* mainWin, ScriptingWindow* scriptWin) :
 	scriptingWindowFriend = scriptWin;
 };
 
+
 IMPLEMENT_DYNAMIC(CameraWindow, CDialog)
+
 
 BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 	ON_WM_CTLCOLOR()

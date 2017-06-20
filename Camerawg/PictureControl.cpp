@@ -516,6 +516,17 @@ void PictureControl::drawGrid(CWnd* parent, CBrush* brush)
 	{
 		return;
 	}
+
+	if (grid.size() != 0)
+	{
+		// hard set to 5000. Could easily change this to be able to see finer grids.
+		// Tested before and 5000 seems reasonable.
+		if (grid.size() * grid.front().size() > 5000)
+		{
+			return;
+		}
+	}
+
 	CDC* easel = parent->GetDC();
 	easel->SelectObject(GetStockObject(DC_BRUSH));
 	easel->SetDCBrushColor(RGB(255, 255, 255));
@@ -527,7 +538,6 @@ void PictureControl::drawGrid(CWnd* parent, CBrush* brush)
 			easel->FrameRect(&grid[widthInc][heightInc], brush);
 		}
 	}
-	return;
 }
 
 /*

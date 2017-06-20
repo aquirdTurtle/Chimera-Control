@@ -72,7 +72,7 @@ void CameraImageDimensionsControl::initialize( cameraPositions& pos, CWnd* paren
 	rightEdit.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
 	rightEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, rightEdit.seriesPos, parent, rightEdit.ID );
 	rightEdit.fontType = Normal;
-	rightEdit.SetWindowTextA( "512" );
+	rightEdit.SetWindowTextA( "50" );
 	//
 	horizontalBinningEdit.ID = id++;
 	horizontalBinningEdit.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
@@ -121,7 +121,7 @@ void CameraImageDimensionsControl::initialize( cameraPositions& pos, CWnd* paren
 	bottomEdit.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
 	bottomEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, bottomEdit.seriesPos, parent, bottomEdit.ID );
 	bottomEdit.fontType = Normal;
-	bottomEdit.SetWindowTextA( "512" );
+	bottomEdit.SetWindowTextA( "50" );
 	//
 	verticalBinningEdit.ID = id++;
 	verticalBinningEdit.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
