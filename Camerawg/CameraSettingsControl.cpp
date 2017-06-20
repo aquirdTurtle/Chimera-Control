@@ -269,6 +269,27 @@ void CameraSettingsControl::handlePictureSettings(UINT id, AndorCamera* andorObj
 	runSettings.totalPicsInExperiment = runSettings.picsPerRepetition  * runSettings.repetitionsPerVariation * runSettings.totalVariations;
 }
 
+
+/*
+ * This function checks things that don't have "Set" buttons. should be called to load the most recent values.
+ */
+void CameraSettingsControl::updatePassivelySetSettings()
+{
+	CString text;
+	kineticCycleTimeEdit.GetWindowTextA(text);
+	try
+	{
+		runSettings.kinetiCycleTime = std::stof(std::string(text));
+		kineticCycleTimeEdit.SetWindowTextA(cstr(runSettings.kinetiCycleTime));
+	}
+	catch (std::invalid_argument& err)
+	{
+		runSettings.kinetiCycleTime = 0.1f;
+		kineticCycleTimeEdit.SetWindowTextA(cstr(runSettings.kinetiCycleTime));
+		thrower("Please enter a valid float for the kinetic cycle time.");
+	}
+}
+
 std::array<int, 4> CameraSettingsControl::getPaletteNumbers()
 {
 	return picSettingsObj.getPictureColors();
@@ -439,7 +460,7 @@ void CameraSettingsControl::initialize(cameraPositions& pos, int& id, CWnd* pare
 	repsPerVarDisp.videoPos = { -1,-1,-1,-1 };
 	repsPerVarDisp.amPos = { -1,-1,-1,-1 };
 	repsPerVarDisp.ID = id++;
-	repsPerVarDisp.Create("", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, repsPerVarDisp.seriesPos, parent,
+	repsPerVarDisp.Create("10", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, repsPerVarDisp.seriesPos, parent,
 						  repsPerVarDisp.ID);
 	repsPerVarDisp.fontType = Normal;
 
@@ -462,14 +483,14 @@ void CameraSettingsControl::initialize(cameraPositions& pos, int& id, CWnd* pare
 	varNumEdit.amPos = { -1,-1,-1,-1 };
 	varNumEdit.ID = id++;
 	varNumEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER, varNumEdit.seriesPos, parent, varNumEdit.ID);
-	varNumEdit.SetWindowTextA("1");
+	varNumEdit.SetWindowTextA("3");
 	varNumEdit.fontType = Normal;
 	// Variation Number Display
 	varNumDisp.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
 	varNumDisp.videoPos = { -1,-1,-1,-1 };
 	varNumDisp.amPos = { -1,-1,-1,-1 };
 	varNumDisp.ID = id++;
-	varNumDisp.Create("", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, varNumDisp.seriesPos, parent, varNumDisp.ID);
+	varNumDisp.Create("3", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, varNumDisp.seriesPos, parent, varNumDisp.ID);
 	varNumDisp.fontType = Normal;
 
 	/// Kinetic Cycle Time
@@ -490,6 +511,7 @@ void CameraSettingsControl::initialize(cameraPositions& pos, int& id, CWnd* pare
 	kineticCycleTimeEdit.ID = id++;
 	kineticCycleTimeEdit.triggerModeSensitive = -1;
 	kineticCycleTimeEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER, kineticCycleTimeEdit.seriesPos, parent, kineticCycleTimeEdit.ID);
+	kineticCycleTimeEdit.SetWindowTextA("0.1");
 	kineticCycleTimeEdit.fontType = Normal;
 }
 

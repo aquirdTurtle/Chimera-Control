@@ -55,6 +55,7 @@ class CameraSettingsControl
 		void handleSetRepsPerVar();
 		AndorRunSettings getSettings();
 		std::array<int, 4> getThresholds();
+		void updatePassivelySetSettings();
 	private:
 		AndorCamera* andorFriend;
 
