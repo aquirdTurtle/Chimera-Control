@@ -90,10 +90,13 @@ void CameraWindow::abortCameraRun()
 {
 	int status;
 	Andor.getStatus(status);
+	
 	if (ANDOR_SAFEMODE)
 	{
+		// simulate as if you needed to abort.
 		status = DRV_ACQUIRING;
 	}
+
 	if (status == DRV_ACQUIRING)
 	{
 		Andor.abortAcquisition();
@@ -115,8 +118,9 @@ void CameraWindow::abortCameraRun()
 		
 		if (Andor.getSettings().cameraMode != "Continuous Single Scans Mode")
 		{
-			int answer = MessageBox( 0, "Acquisition Aborted. Delete Data (fits_#) and (key_#) files for this run?", 
-									MB_YESNO );
+			
+			int answer = MessageBoxA("Acquisition Aborted. Delete Data (fits_#) and (key_#) files for this run?", "Acquisition Aborted.", 
+									 MB_YESNO );
 			if (answer == IDYES)
 			{
 				try
@@ -129,6 +133,10 @@ void CameraWindow::abortCameraRun()
 				}
 			}
 		}
+	}
+	else if (status == DRV_IDLE)
+	{
+		Andor.setIsRunningState(false);
 	}
 }
 
@@ -496,7 +504,9 @@ void CameraWindow::prepareCamera()
 	}
 	pics.refreshBackgrounds(this);
 	//
+	CameraSettings.updatePassivelySetSettings();
 	pics.setNumberPicturesActive( CameraSettings.getSettings().picsPerRepetition );
+
 	/// start the plotting thread.
 	/*
 	// set default colors and linewidths on plots
