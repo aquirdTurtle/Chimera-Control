@@ -135,7 +135,6 @@ void CameraSettingsControl::rearrange( std::string cameraMode, std::string trigg
 	emGainDisplay.rearrange( cameraMode, triggerMode, width, height, fonts );
 	emGainEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
 	triggerCombo.rearrange( cameraMode, triggerMode, width, height, fonts );
-	triggerLabel.rearrange( cameraMode, triggerMode, width, height, fonts );
 	setTemperatureButton.rearrange( cameraMode, triggerMode, width, height, fonts );
 	temperatureOffButton.rearrange( cameraMode, triggerMode, width, height, fonts );
 	temperatureEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
@@ -326,7 +325,8 @@ void CameraSettingsControl::initialize(cameraPositions& pos, int& id, CWnd* pare
 	pos.seriesPos.y += 25;
 	/// EM Gain
 	emGainButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 120, pos.seriesPos.y + 20 };
-	emGainButton.videoPos = emGainButton.amPos = emGainButton.seriesPos;
+	emGainButton.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 120, pos.videoPos.y + 20 };
+	emGainButton.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 120, pos.amPos.y + 20 };
 	emGainButton.ID = id++;
 	if (emGainButton.ID != IDC_SET_EM_GAIN_BUTTON)
 	{
@@ -339,13 +339,15 @@ void CameraSettingsControl::initialize(cameraPositions& pos, int& id, CWnd* pare
 							parent, fonts["Normal Font"]);
 						//
 	emGainEdit.seriesPos = { pos.seriesPos.x + 120, pos.seriesPos.y, pos.seriesPos.x + 300, pos.seriesPos.y + 20 };
-	emGainEdit.videoPos = emGainEdit.amPos = emGainEdit.seriesPos;
+	emGainEdit.amPos = { pos.amPos.x + 120, pos.amPos.y, pos.amPos.x + 300, pos.amPos.y + 20 };
+	emGainEdit.videoPos = { pos.videoPos.x + 120, pos.videoPos.y, pos.videoPos.x + 300, pos.videoPos.y + 20 };
 	emGainEdit.ID = id++;
 	emGainEdit.Create(WS_CHILD | WS_VISIBLE | BS_RIGHT, emGainEdit.seriesPos, parent, emGainEdit.ID);
 	emGainEdit.fontType = Normal;
 	//
 	emGainDisplay.seriesPos = { pos.seriesPos.x + 300, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 20 };
-	emGainDisplay.videoPos = emGainDisplay.amPos = emGainDisplay.seriesPos;
+	emGainDisplay.videoPos = { pos.videoPos.x + 300, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y + 20 };
+	emGainDisplay.amPos = { pos.amPos.x + 300, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 20 };
 	emGainDisplay.ID = id++;
 	emGainDisplay.Create("OFF", WS_CHILD | WS_VISIBLE | BS_RIGHT | ES_READONLY | ES_CENTER, emGainDisplay.seriesPos, parent, emGainDisplay.ID);
 	emGainDisplay.fontType = Normal;
@@ -356,18 +358,11 @@ void CameraSettingsControl::initialize(cameraPositions& pos, int& id, CWnd* pare
 	pos.seriesPos.y += 20;
 	pos.amPos.y += 20;
 	pos.videoPos.y += 20;
-	// Trigger Text
 
-	triggerLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 240, pos.seriesPos.y + 25 };
-	triggerLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 240, pos.videoPos.y + 25 };
-	triggerLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 240, pos.amPos.y + 25 };
-	triggerLabel.ID = id++;
-	triggerLabel.Create("Trigger Mode:", WS_CHILD | WS_VISIBLE | ES_CENTER, triggerLabel.seriesPos, parent, triggerLabel.ID);
-	triggerLabel.fontType = Normal;
 	// trigger combo
-	triggerCombo.seriesPos = { pos.seriesPos.x + 240, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 800 };
-	triggerCombo.videoPos = { pos.videoPos.x + 240, pos.videoPos.y,pos.videoPos.x + 480, pos.videoPos.y + 800 };
-	triggerCombo.amPos = { pos.amPos.x + 240, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 800 };
+	triggerCombo.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 800 };
+	triggerCombo.videoPos = { pos.videoPos.x, pos.videoPos.y,pos.videoPos.x + 480, pos.videoPos.y + 800 };
+	triggerCombo.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 800 };
 	triggerCombo.ID = id++;
 	if (triggerCombo.ID != IDC_TRIGGER_COMBO)
 	{
@@ -376,18 +371,19 @@ void CameraSettingsControl::initialize(cameraPositions& pos, int& id, CWnd* pare
 	triggerCombo.Create(WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, triggerCombo.seriesPos, parent, triggerCombo.ID);
 	// set options for the combo
 	triggerCombo.fontType = Normal;
-	triggerCombo.AddString("Internal");
-	triggerCombo.AddString("External");
+	triggerCombo.AddString("Internal Trigger");
+	triggerCombo.AddString("External Trigger");
 	triggerCombo.AddString("Start On Trigger");
 	// Select default trigger
-	triggerCombo.SelectString(0, "External");
+	triggerCombo.SelectString(0, "External Trigger");
 	pos.seriesPos.y += 25;
 	pos.amPos.y += 25;
 	pos.videoPos.y += 25;
-	runSettings.triggerMode = "External";
+	runSettings.triggerMode = "External Trigger";
 	// Set temperature Button
 	setTemperatureButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 270, pos.seriesPos.y + 25 };
-	setTemperatureButton.videoPos = setTemperatureButton.amPos = setTemperatureButton.seriesPos;
+	setTemperatureButton.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 270, pos.videoPos.y + 25 };
+	setTemperatureButton.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 270, pos.amPos.y + 25 };
 	setTemperatureButton.ID = id++;
 	setTemperatureButton.Create("Set Camera Temperature (C)", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON, setTemperatureButton.seriesPos,
 								parent, setTemperatureButton.ID);
@@ -398,20 +394,23 @@ void CameraSettingsControl::initialize(cameraPositions& pos, int& id, CWnd* pare
 	}
 	// Temperature Edit
 	temperatureEdit.seriesPos = { pos.seriesPos.x + 270, pos.seriesPos.y, pos.seriesPos.x + 350, pos.seriesPos.y + 25 };
-	temperatureEdit.videoPos = temperatureEdit.amPos = temperatureEdit.seriesPos;
+	temperatureEdit.videoPos = { pos.videoPos.x + 270, pos.videoPos.y, pos.videoPos.x + 350, pos.videoPos.y + 25 };
+	temperatureEdit.amPos = { pos.amPos.x + 270, pos.amPos.y, pos.amPos.x + 350, pos.amPos.y + 25 };
 	temperatureEdit.ID = id++;
 	temperatureEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT, temperatureEdit.seriesPos, parent, temperatureEdit.ID);
 	temperatureEdit.SetWindowTextA("0");
 	temperatureEdit.fontType = Normal;
 	// Temperature Setting Display
 	temperatureDisplay.seriesPos = { pos.seriesPos.x + 350, pos.seriesPos.y, pos.seriesPos.x + 430, pos.seriesPos.y + 25 };
-	temperatureDisplay.videoPos = temperatureDisplay.amPos = temperatureDisplay.seriesPos;
+	temperatureDisplay.videoPos = { pos.videoPos.x + 350, pos.videoPos.y, pos.videoPos.x + 430, pos.videoPos.y + 25 };
+	temperatureDisplay.amPos = { pos.amPos.x + 350, pos.amPos.y, pos.amPos.x + 430, pos.amPos.y + 25 };
 	temperatureDisplay.ID = id++;
 	temperatureDisplay.Create("", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT | ES_READONLY, temperatureDisplay.seriesPos, parent, temperatureDisplay.ID);
 	temperatureDisplay.fontType = Normal;
 	// Temperature Control Off Button
 	temperatureOffButton.seriesPos = { pos.seriesPos.x + 430, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 25 };
-	temperatureOffButton.videoPos = temperatureOffButton.amPos = temperatureOffButton.seriesPos;
+	temperatureOffButton.videoPos = { pos.videoPos.x + 430, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y + 25 };
+	temperatureOffButton.amPos = { pos.amPos.x + 430, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 25 };
 	temperatureOffButton.Create("OFF",
 								WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON, temperatureOffButton.seriesPos, parent, temperatureOffButton.ID);
 	temperatureOffButton.fontType = Normal;
@@ -420,7 +419,8 @@ void CameraSettingsControl::initialize(cameraPositions& pos, int& id, CWnd* pare
 	pos.videoPos.y += 25;
 	// Temperature Message Display
 	temperatureMessage.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 50 };
-	temperatureMessage.videoPos = temperatureMessage.amPos = temperatureMessage.seriesPos;
+	temperatureMessage.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y + 50 };
+	temperatureMessage.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 50 };	
 	temperatureMessage.ID = id++;
 	temperatureMessage.Create("Temperature control is disabled", WS_CHILD | WS_VISIBLE | SS_LEFT, temperatureMessage.seriesPos, parent,
 							  temperatureMessage.ID);
@@ -608,7 +608,7 @@ void CameraSettingsControl::checkIfReady()
 	}
 	if ( runSettings.cameraMode == "Kinetic Series Mode" )
 	{
-		if ( runSettings.kinetiCycleTime == 0 && runSettings.triggerMode == "Internal" )
+		if ( runSettings.kinetiCycleTime == 0 && runSettings.triggerMode == "Internal Trigger" )
 		{
 			thrower("ERROR: Since you are running in internal trigger mode, please Set a kinetic cycle time.");
 		}

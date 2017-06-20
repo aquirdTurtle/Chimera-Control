@@ -152,7 +152,7 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	blackWhiteLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y += 20 };
 	blackWhiteLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y += 20 };
 	blackWhiteLabel.ID = id++;
-	blackWhiteLabel.Create( "Black and White", WS_CHILD | WS_VISIBLE, blackWhiteLabel.seriesPos, parent, blackWhiteLabel.ID );
+	blackWhiteLabel.Create( "Greyscale", WS_CHILD | WS_VISIBLE, blackWhiteLabel.seriesPos, parent, blackWhiteLabel.ID );
 
 	/// The radio buttons
 	for (int picInc = 0; picInc < 4; picInc++)
