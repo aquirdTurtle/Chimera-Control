@@ -60,7 +60,15 @@ void ExperimentTimer::update(int currentRepNumber, int repsPerVariation, int num
 		long long thisTime = GetTickCount64();
 		if (currentRepNumber % picsPerRep == 0)
 		{
-			double averageTime = double((thisTime - firstTime) / currentRepNumber);
+			double averageTime;
+			if (currentRepNumber != 0)
+			{
+				averageTime = double((thisTime - firstTime) / currentRepNumber);
+			}
+			else
+			{
+				averageTime = 0;
+			}
 			// in seconds...
 			int timeLeft = int((repsPerVariation * numberOfVariations - currentRepNumber) * averageTime / 1000);
 			int hours = timeLeft / 3600;

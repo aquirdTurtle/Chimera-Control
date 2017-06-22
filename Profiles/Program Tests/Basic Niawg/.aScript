@@ -1,9 +1,0 @@
-% Simple Example for Testing. Default is no Intensity Ramps Currently.
-%
-%Intensity Ramp
-%%%%%%%	RTKW	Init	Fin	Time	CT	Rep#?	delim
-% 	_	_	_	_	_	_	#
-%Intensity Hold
-%%%%%%%	 	IntVal		Time 	CT	Rep#?		delim
-%		0		0.001	RepeatUntilTrigger 	#
-%

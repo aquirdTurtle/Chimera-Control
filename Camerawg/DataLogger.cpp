@@ -51,7 +51,7 @@ void DataLogger::deleteFitsAndKey(Communicator* comm)
 void DataLogger::loadAndMoveKeyFile()
 {
 	int result = 0;
-	result = CopyFile((dataFilesBaseLocation + "key.txt").c_str(), (dataFilesBaseLocation + currentSaveFolder
+	result = CopyFile((KEY_ORIGINAL_SAVE_LOCATION + "key.txt").c_str(), (dataFilesBaseLocation + currentSaveFolder
 					  + "\\Raw Data\\key_" + std::to_string(currentDataFileNumber) + ".txt").c_str(), FALSE);
 	if (result == 0)
 	{
@@ -100,7 +100,7 @@ void DataLogger::forceFitsClosed()
 void DataLogger::initializeDataFiles(DataAnalysisControl* autoAnalysisHandler, imageParameters currentImageParameters,
 									 int totalPicsInSeries)
 {
-	forceFitsClosed();
+	//forceFitsClosed();
 	// if the function fails, the fits file will not be open. If it succeeds, this will get set to true.
 	fitsIsOpen = false;
 	/// First, create the folder for today's fits data.
@@ -113,33 +113,56 @@ void DataLogger::initializeDataFiles(DataAnalysisControl* autoAnalysisHandler, i
 	std::string tempStr = std::to_string(timeStruct.tm_year + 1900);
 	// Create the string of the date.
 	std::string finalSaveFolder;
-	finalSaveFolder = tempStr[2];
-	finalSaveFolder += tempStr[3];
-	if (timeStruct.tm_mon + 1 < 10)
+	finalSaveFolder += tempStr + "\\";
+	std::string month;
+	switch (timeStruct.tm_mon + 1)
 	{
-		finalSaveFolder += "0";
-		finalSaveFolder += std::to_string(timeStruct.tm_mon + 1);
+		case 1:
+			month = "January";
+			break;
+		case 2:
+			month = "February";
+			break;
+		case 3:
+			month = "March";
+			break;
+		case 4:
+			month = "April";
+			break;
+		case 5:
+			month = "May";
+			break;
+		case 6:
+			month = "June";
+			break;
+		case 7:
+			month = "July";
+			break;
+		case 8:
+			month = "August";
+			break;
+		case 9:
+			month = "September";
+			break;
+		case 10:
+			month = "October";
+			break;
+		case 11:
+			month = "November";
+			break;
+		case 12:
+			month = "December";
+			break;
 	}
-	else
-	{
-		finalSaveFolder += std::to_string(timeStruct.tm_mon + 1);
-	}
-	if (timeStruct.tm_mday < 10)
-	{
-		finalSaveFolder += "0";
-		finalSaveFolder += std::to_string(timeStruct.tm_mday);
-	}
-	else
-	{
-		finalSaveFolder += std::to_string(timeStruct.tm_mday);
-	}
-	currentDate = finalSaveFolder;
+	
+	finalSaveFolder += month + "\\";
+	finalSaveFolder += month + " " + str(timeStruct.tm_mday);
 	// right now the save folder IS the date...
 	currentSaveFolder = finalSaveFolder;
 	// create date's folder.
-	int result = CreateDirectory((dataFilesBaseLocation + finalSaveFolder).c_str(), 0);
+	int result = CreateDirectory((dataFilesBaseLocation + currentSaveFolder).c_str(), 0);
 	finalSaveFolder += "\\Raw Data";
-	int result2 = CreateDirectory((dataFilesBaseLocation + finalSaveFolder).c_str(), 0);
+	int result2 = CreateDirectory((dataFilesBaseLocation + currentSaveFolder).c_str(), 0);
 	finalSaveFolder += "\\";
 	/// Get a filename appropriate for the data
 	std::string finalSaveFileName;
@@ -218,15 +241,12 @@ void DataLogger::checkFitsError(int fitsStatusIndicator)
 	}
 }
 
+
 std::vector<double> DataLogger::getKey()
 {
 	return keyValues;
 }
 
-std::string DataLogger::getDate()
-{
-	return currentDate;
-}
 
 int DataLogger::getDataFileNumber()
 {

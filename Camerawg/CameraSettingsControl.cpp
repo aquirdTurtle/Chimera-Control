@@ -34,7 +34,8 @@ void CameraSettingsControl::handleSetTemperaturePress()
 		thrower( "ERROR: the camera (thinks that it?) is running. You can't change temperature settings during camera "
 				 "operation." );
 	}
-	AndorRunSettings cameraSettings = this->andorFriend->getSettings();
+	
+	//runSettings = andorFriend->getSettings();
 	CString text;
 	temperatureEdit.GetWindowTextA(text);
 	double temp;
@@ -47,7 +48,7 @@ void CameraSettingsControl::handleSetTemperaturePress()
 		thrower("Error: Couldn't convert temperature input to a double! Check for unusual characters.");
 	}
 	runSettings.temperatureSetting = temp;
-	cameraSettings.temperatureSetting = temp;
+	andorFriend->setSettings(runSettings);
 
 	andorFriend->setTemperature();
 	//eCameraFileSystem.updateSaveStatus(false);
@@ -193,11 +194,13 @@ void CameraSettingsControl::handleTimer()
 	// This case displays the current temperature in the main window. When the temp stabilizes at the desired 
 	// level the appropriate message is displayed.
 	// initial value is only relevant for safemode.
-	int temperature = 25;
+	int currentTemperature = INT_MAX;
+	int setTemperature = INT_MAX;
 	try
 	{
 		// in this case you expect it to throw.
-		andorFriend->getTemperature(temperature);
+		setTemperature = andorFriend->getSettings().temperatureSetting;
+		andorFriend->getTemperature(currentTemperature);
 		if ( ANDOR_SAFEMODE ) { thrower( "SAFEMODE" ); }
 	}
 	catch (Error& exception)
@@ -206,54 +209,53 @@ void CameraSettingsControl::handleTimer()
 		if (exception.whatBare() == "DRV_TEMPERATURE_STABILIZED")
 		{
 			currentControlColor = "Green";
-			temperatureDisplay.SetWindowTextA(cstr(temperature));
-			temperatureMessage.SetWindowTextA(("Temperature has stabilized at " + std::to_string(temperature) + " (C)\r\n").c_str());
+			temperatureDisplay.SetWindowTextA(cstr(setTemperature));
+			temperatureMessage.SetWindowTextA(("Temperature has stabilized at " + std::to_string(currentTemperature) + " (C)\r\n").c_str());
 		}
 		else if (exception.whatBare() == "DRV_TEMPERATURE_NOT_REACHED")
 		{
 			currentControlColor = "Red";
-			temperatureDisplay.SetWindowTextA(cstr(temperature));
-			temperatureMessage.SetWindowTextA(("Current temperature is " + std::to_string(temperature) + " (C)\r\n").c_str());
+			temperatureDisplay.SetWindowTextA(cstr(setTemperature));
+			temperatureMessage.SetWindowTextA(("Set temperature not yet reached. Current temperature is " + std::to_string(currentTemperature) + " (C)\r\n").c_str());
 		}
 		else if (exception.whatBare() == "DRV_TEMPERATURE_NOT_STABILIZED")
 		{
 			currentControlColor = "Red";
-			temperatureDisplay.SetWindowTextA(cstr(temperature));
-			temperatureMessage.SetWindowTextA(("Temperature of " + std::to_string(temperature) + " (C) reached but not stable.").c_str());
+			temperatureDisplay.SetWindowTextA(cstr(setTemperature));
+			temperatureMessage.SetWindowTextA(("Temperature of " + std::to_string(currentTemperature) + " (C) reached but not stable.").c_str());
 		}
 		else if (exception.whatBare() == "DRV_TEMPERATURE_DRIFT")
 		{
 			currentControlColor = "Red";
-			temperatureDisplay.SetWindowTextA(cstr(temperature));
-			temperatureMessage.SetWindowTextA(("Temperature had stabilized but has since drifted. Temperature: " + std::to_string(temperature)).c_str());
+			temperatureDisplay.SetWindowTextA(cstr(setTemperature));
+			temperatureMessage.SetWindowTextA(("Temperature had stabilized but has since drifted. Temperature: " + std::to_string(currentTemperature)).c_str());
 		}
 		else if (exception.whatBare() == "DRV_TEMPERATURE_OFF")
 		{
 			currentControlColor = "Red";
-			temperatureDisplay.SetWindowTextA(cstr(temperature));
-			temperatureMessage.SetWindowTextA(("Temperature control is off. Temperature: " + std::to_string(temperature)).c_str());
+			temperatureDisplay.SetWindowTextA(cstr(setTemperature));
+			temperatureMessage.SetWindowTextA(("Temperature control is off. Temperature: " + std::to_string(currentTemperature)).c_str());
 		}
 		else if (exception.whatBare() == "DRV_ACQUIRING")
 		{
 			// doesn't change color of temperature control. This way the color of the control represents the state of
 			// the temperature right before the acquisition started, so that you can tell if you remembered to let it
 			// completely stabilize or not.
-			temperatureDisplay.SetWindowTextA(cstr(temperature));
+			temperatureDisplay.SetWindowTextA(cstr(setTemperature));
 			temperatureMessage.SetWindowTextA("Camera is Acquiring data. No Temperature updates are available.");
 		}
 		else if (exception.whatBare() == "SAFEMODE")
 		{
 			currentControlColor = "Red";
-			const char * test = cstr(temperature);
-			temperatureDisplay.SetWindowTextA(cstr(temperature));
+			temperatureDisplay.SetWindowTextA(cstr(setTemperature));
 			temperatureMessage.SetWindowTextA("Application is running in Safemode... No Real Temperature Data is available.");
 		}
 		else
 		{
 			currentControlColor = "Red";
-			temperatureDisplay.SetWindowTextA(cstr(temperature));
+			temperatureDisplay.SetWindowTextA(cstr(currentTemperature));
 			temperatureMessage.SetWindowTextA(("Unexpected Temperature Code: " + exception.whatBare() + ". Temperature: " 
-												+ str(temperature)).c_str());
+												+ str(currentTemperature)).c_str());
 		}
 	}
 }
@@ -604,7 +606,7 @@ void CameraSettingsControl::checkIfReady()
 	}
 	if ( runSettings.picsPerRepetition <= 0 )
 	{
-		thrower("ERROR: Please set the number of pictures per experiment to a positive non-zero value.");
+		thrower("ERROR: Please set the number of pictures per repetition to a positive non-zero value.");
 	}
 	if ( runSettings.cameraMode == "Kinetic Series Mode" )
 	{

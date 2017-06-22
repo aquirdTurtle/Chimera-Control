@@ -159,6 +159,7 @@ void AndorCamera::pauseThread()
  */
 void AndorCamera::onFinish()
 {
+	threadInput.signaler.notify_all();
 	cameraIsRunning = false;
 }
 
@@ -168,10 +169,12 @@ void AndorCamera::onFinish()
  */
 unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 {
+
 	cameraThreadInput* input = (cameraThreadInput*) voidPtr;
 	std::unique_lock<std::mutex> lock( input->runMutex );
 	int safeModeCount = 0;
 	long pictureNumber;
+	bool armed = false;
 
 	while ( !input->Andor->cameraThreadExitIndicator )
 	{
@@ -191,28 +194,32 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 			try
 			{
 				// alternative to directly using events.
-				input->Andor->waitForAcquisition();
-				input->Andor->getStatus();
-			}
-			catch (Error& exception )
-			{
-				if ( exception.whatBare() == "DRV_IDLE" )
+				int status;
+				input->Andor->getStatus(status);
+				if (status == DRV_IDLE && armed)
 				{
 					// signal the end to the main thread.
 					input->comm->sendCameraFin();
+					armed = false;
 				}
 				else
 				{
+					input->Andor->waitForAcquisition();
+					armed = true;
 					try
 					{
-						input->Andor->getAcquisitionProgress( pictureNumber );
+						input->Andor->getAcquisitionProgress(pictureNumber);
 					}
-					catch (Error& exception )
+					catch (Error& exception)
 					{
-						input->comm->sendError( exception.what());
+						input->comm->sendError(exception.what());
 					}
-					input->comm->sendCameraProgress( pictureNumber );
+					input->comm->sendCameraProgress(pictureNumber);
 				}
+			}
+			catch (Error& exception )
+			{
+				//...
 			}
 		}
 		else
@@ -331,6 +338,7 @@ void AndorCamera::setSystem(CameraWindow* camWin)
 	threadInput.spuriousWakeupHandler = true;
 	// notify the thread that the experiment has started..
 	threadInput.signaler.notify_all();
+	
 	startAcquisition();
 }
 

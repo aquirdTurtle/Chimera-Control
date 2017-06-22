@@ -12,31 +12,31 @@ void PictureManager::setPalletes(std::array<int, 4> palleteIds)
 
 
 
-void PictureManager::redrawPictures( CWnd* parent, std::pair<int, int> selectedLocation )
+void PictureManager::redrawPictures(CDC* easel, std::pair<int, int> selectedLocation )
 {
 	if (!pictures[1].isActive())
 	{
-		pictures[0].redrawImage( parent );
-		pictures[0].drawGrid( parent, gridBrush );
-		drawDongles( parent, selectedLocation ); 
+		pictures[0].redrawImage(easel);
+		pictures[0].drawGrid(easel, gridBrush );
+		drawDongles(easel, selectedLocation );
 		return;
 	}
 	for (auto& pic : pictures)
 	{
-		pic.redrawImage( parent );
-		pic.drawGrid( parent, gridBrush );
+		pic.redrawImage(easel);
+		pic.drawGrid(easel, gridBrush );
 	}
-	drawDongles(parent, selectedLocation);
+	drawDongles(easel, selectedLocation);
 }
 
 /*
  *  
  */
-void PictureManager::drawDongles(CWnd* parent, std::pair<int, int> selectedLocation)
+void PictureManager::drawDongles(CDC* dc, std::pair<int, int> selectedLocation)
 {
 	for (auto& pic : pictures)
 	{
-		pic.drawCircle(parent, selectedLocation);
+		pic.drawCircle(dc, selectedLocation);
 		//pic.drawRectangles();
 	}
 }
@@ -197,11 +197,11 @@ void PictureManager::setPictureSliders(CWnd* parent)
 	}
 }
 
-void PictureManager::drawBackgrounds(CWnd* parent)
+void PictureManager::drawBackgrounds(CDC* easel)
 {
 	for (auto& pic : pictures)
 	{
-		pic.drawBackground(parent);
+		pic.drawBackground(easel);
 	}
 }
 
@@ -232,26 +232,26 @@ void PictureManager::initialize(POINT& loc, CWnd* parent, int& id, fontMap fonts
 	setNumberPicturesActive( 1 );
 }
 
-void PictureManager::refreshBackgrounds(CWnd* parent)
+void PictureManager::refreshBackgrounds(CDC* easel)
 {
 	if (!pictures[1].isActive())
 	{
-		pictures[0].drawBackground( parent );
+		pictures[0].drawBackground( easel );
 	}
 	else
 	{
 		for (auto& picture : pictures)
 		{
-			picture.drawBackground( parent );
+			picture.drawBackground( easel );
 		}
 	}
 }
 
-void PictureManager::drawGrids( CWnd* parent )
+void PictureManager::drawGrids(CDC* easel)
 {
 	for (auto& picture : pictures)
 	{
-		picture.drawGrid( parent, gridBrush );
+		picture.drawGrid(easel, gridBrush );
 	}
 }
 
@@ -552,9 +552,9 @@ void PictureManager::createPalettes( CDC* dc )
 	for (int paletteInc = 0; paletteInc < PICTURE_PALETTE_SIZE; paletteInc++)
 	{
 		// scaling it to make it a bit darker near the bottom.
-		r = virida[paletteInc][0] * 255.0;
-		g = virida[paletteInc][1] * 255.0;
-		b = virida[paletteInc][2] * 255.0;
+		r = virida[paletteInc][0] * (255.0-1) * (1.0/4 + 3.0*paletteInc / (4*255.0));
+		g = virida[paletteInc][1] * (255.0 - 1) * (1.0 / 4 + 3.0*paletteInc / (4 * 255.0));;
+		b = virida[paletteInc][2] * (255.0 - 1) * (1.0 / 4 + 3.0*paletteInc / (4 * 255.0));;
 		Palette.aEntries[paletteInc].peRed = LOBYTE( r );
 		Palette.aEntries[paletteInc].peGreen = LOBYTE( g );
 		Palette.aEntries[paletteInc].peBlue = LOBYTE( b );
