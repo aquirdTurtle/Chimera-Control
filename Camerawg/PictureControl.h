@@ -18,14 +18,14 @@ class PictureControl
 		void setSliderLocations(CWnd* parent);
 		void drawPicture(CDC* deviceContext, std::vector<long> picData, 
 						 std::tuple<bool, int/*min*/, int/*max*/> autoScaleInfo, bool specialMin, bool specialMax);
-		void drawBackground(CWnd* parent);
-		void drawGrid(CWnd* parent, CBrush* brush);
-		void drawCircle(CWnd* parent, std::pair<int, int> selectedLocation );
+		void drawBackground(CDC* easel);
+		void drawGrid(CDC* easel, CBrush* brush);
+		void drawCircle(CDC* dc, std::pair<int, int> selectedLocation );
 		void rearrange( std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts );
 		void handleScroll( int id, UINT nPos );
 		void handleEditChange( int id );
 		void updatePalette( HPALETTE pallete );
-		void redrawImage(CWnd* parent);
+		void redrawImage(CDC* easel);
 		void setActive( bool activeState );
 		bool isActive();
 		std::pair<int, int> checkClickLocation( CPoint clickLocation );

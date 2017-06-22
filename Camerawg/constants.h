@@ -7,8 +7,8 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to build and debug other 
 // aspects of the program.
 //#define LAB_COMPUTER
-//#define MASTER_COMPUTER
-#define SPECTRE_LAPTOP
+#define MASTER_COMPUTER
+//#define SPECTRE_LAPTOP
 
 /// File Locations
 // Files for Lab Computer
@@ -84,7 +84,7 @@
 #ifdef MASTER_COMPUTER
 	#define SOCKET_SAFEMODE true
 	#define NIAWG_SAFEMODE false
-	#define ANDOR_SAFEMODE true
+	#define ANDOR_SAFEMODE false
 	#define CONNECT_TO_ANDOR_SAFEMODE false
 	#define PYTHON_HOME L"C:\\Anaconda3\\"
 	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Regal Lab\\Documents\\Quantum-Gas-Assembly-Control\\Plotting\\";
@@ -95,7 +95,8 @@
 	const std::string CODE_LOGGING_FILES_PATH = "D:\\Code Versions\\";
 	const std::string ACTUAL_CODE_FOLDER_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum-Gas-Assembly-Control\\Camerawg\\";
 	const std::string PROFILES_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum-Gas-Assembly-Control\\Profiles\\";
-	const std::string DATA_SAVE_LOCATION = "C:\\Users\\Regal Lab\\Documents\\Quantum-Gas-Assembly-Control\\Data\\";
+	const std::string DATA_SAVE_LOCATION = "J:\\Data Repository\\New Data Repository\\";
+	const std::string KEY_ORIGINAL_SAVE_LOCATION = "C:\\Shared\\";
 #endif
 
 // We calibrated this. // GAIN = 1.34.

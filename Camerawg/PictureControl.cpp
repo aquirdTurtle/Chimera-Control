@@ -280,12 +280,12 @@ void PictureControl::setActive( bool activeState )
 /*
  * redraws the background and image. 
  */
-void PictureControl::redrawImage( CWnd* parent)
+void PictureControl::redrawImage( CDC* easel)
 {
-	drawBackground(parent);
+	drawBackground(easel);
 	if (active && mostRecentImage.size() != 0)
 	{
-		drawPicture( parent->GetDC(), mostRecentImage, mostRecentAutoscaleInfo, mostRecentSpecialMinSetting, 
+		drawPicture(easel, mostRecentImage, mostRecentAutoscaleInfo, mostRecentSpecialMinSetting,
 					mostRecentSpecialMaxSetting );
 	}
 
@@ -489,28 +489,26 @@ void PictureControl::drawPicture(CDC* deviceContext, std::vector<long> picData,
 /*
  * recolor the background box, clearing last run.
  */
-void PictureControl::drawBackground(CWnd* parent)
+void PictureControl::drawBackground(CDC* easel)
 {	
-	CDC* colorObj = parent->GetDC();
-	colorObj->SelectObject(GetStockObject(DC_BRUSH));
-	colorObj->SelectObject(GetStockObject(DC_PEN));
+	easel->SelectObject(GetStockObject(DC_BRUSH));
+	easel->SelectObject(GetStockObject(DC_PEN));
 	// dark green brush
-	colorObj->SetDCBrushColor(RGB(0, 10, 0));
+	easel->SetDCBrushColor(RGB(0, 10, 0));
 	// Set the Pen to White
-	colorObj->SetDCPenColor(RGB(255, 255, 255));
+	easel->SetDCPenColor(RGB(255, 255, 255));
 	// Drawing a rectangle with the current Device Context
 	// (slightly larger than the image zone).
 	RECT rectArea = { scaledBackgroundArea.left, scaledBackgroundArea.top, scaledBackgroundArea.right, 
 					  scaledBackgroundArea.bottom };
-	colorObj->Rectangle(&rectArea);
-	parent->ReleaseDC(colorObj);
+	easel->Rectangle(&rectArea);
 }
 
 /* 
  * draw the grid which outlines where each pixel is.  Especially needs to be done when selecting pixels and no picture
  * is displayed. 
  */
-void PictureControl::drawGrid(CWnd* parent, CBrush* brush)
+void PictureControl::drawGrid(CDC* easel, CBrush* brush)
 {
 	if (!active)
 	{
@@ -526,8 +524,6 @@ void PictureControl::drawGrid(CWnd* parent, CBrush* brush)
 			return;
 		}
 	}
-
-	CDC* easel = parent->GetDC();
 	easel->SelectObject(GetStockObject(DC_BRUSH));
 	easel->SetDCBrushColor(RGB(255, 255, 255));
 	// draw rectangles indicating where the pixels are.
@@ -543,7 +539,7 @@ void PictureControl::drawGrid(CWnd* parent, CBrush* brush)
 /*
  * draws the circle which denotes the selected pixel that the user wants to know the counts for. 
  */
-void PictureControl::drawCircle(CWnd* parent, std::pair<int, int> selectedLocation)
+void PictureControl::drawCircle(CDC* dc, std::pair<int, int> selectedLocation)
 {
 	if (grid.size() == 0)
 	{
@@ -564,7 +560,10 @@ void PictureControl::drawCircle(CWnd* parent, std::pair<int, int> selectedLocati
 	smallRect.top = relevantRect.top + 7.0 * (relevantRect.bottom - relevantRect.top) / 16.0;
 	smallRect.bottom = relevantRect.top + 9.0 * (relevantRect.bottom - relevantRect.top) / 16.0;
 	// get appropriate brush and pen
-	CDC* dc = parent->GetDC();
+	if (dc == NULL)
+	{
+		thrower("dc was null!");
+	}
 	dc->SelectObject( GetStockObject( HOLLOW_BRUSH ) );
 	dc->SelectObject( GetStockObject( DC_PEN ) );
 	
@@ -583,7 +582,6 @@ void PictureControl::drawCircle(CWnd* parent, std::pair<int, int> selectedLocati
 		dc->SetDCBrushColor( RGB( 0, 255, 0 ) );
 	}
 	dc->Ellipse( smallRect.left, smallRect.top, smallRect.right, smallRect.bottom );
-	parent->ReleaseDC( dc );
 }
 
 

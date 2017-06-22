@@ -165,6 +165,10 @@ void CameraWindow::handlePictureEditChange( UINT id )
 LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam)
 {
 	unsigned long long pictureNumber = lParam;
+	if (lParam == 0)
+	{
+		return NULL;
+	}
 	Andor.updatePictureNumber( pictureNumber );
 	std::vector<std::vector<long>> picData;
 	try
@@ -176,35 +180,61 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam)
 		mainWindowFriend->getComm()->sendError(err.what());
 		return NULL;
 	}
+
+	if (pictureNumber == 1)
+	{
+		try
+		{
+			dataHandler.loadAndMoveKeyFile();
+		}
+		catch (Error& err)
+		{
+			mainWindowFriend->getComm()->sendError(err.what());
+		}
+	}
+
 	CDC* drawer = GetDC();
 	AndorRunSettings currentSettings = Andor.getSettings();
-	if (realTimePic)
+	try
 	{
-		std::pair<int, int> minMax;
-		// draw the most recent pic.
-		minMax = stats.update(picData.back(), pictureNumber % currentSettings.picsPerRepetition, selectedPixel,
-					 currentSettings.imageSettings.width,
-					 pictureNumber / currentSettings.picsPerRepetition,
-					 currentSettings.totalPicsInExperiment / currentSettings.picsPerRepetition);
-		pics.drawPicture( drawer, pictureNumber % currentSettings.picsPerRepetition, picData.back(), minMax );
-		timer.update( pictureNumber / currentSettings.picsPerRepetition, currentSettings.repetitionsPerVariation, 
-							currentSettings.totalVariations, currentSettings.picsPerRepetition );
-	}
-	else if (pictureNumber % currentSettings.picsPerRepetition == 0)
-	{
-		int counter = 0;
-		for (auto data : picData)
+		
+		if (realTimePic)
 		{
-			std::pair<int, int> minMax = stats.update( data, counter, selectedPixel, currentSettings.imageSettings.width,
-						  pictureNumber / currentSettings.picsPerRepetition, 
-						  currentSettings.totalPicsInExperiment / currentSettings.picsPerRepetition );
-			pics.drawPicture( drawer, counter, data, minMax);
-			pics.drawDongles( this, selectedPixel );
-			counter++;
+			std::pair<int, int> minMax;
+			// draw the most recent pic.
+			minMax = stats.update(picData.back(), pictureNumber % currentSettings.picsPerRepetition, selectedPixel,
+								  currentSettings.imageSettings.width,
+								  pictureNumber / currentSettings.picsPerRepetition,
+								  currentSettings.totalPicsInExperiment / currentSettings.picsPerRepetition);
+			pics.drawPicture(drawer, pictureNumber % currentSettings.picsPerRepetition, picData.back(), minMax);
+			timer.update(pictureNumber / currentSettings.picsPerRepetition, currentSettings.repetitionsPerVariation,
+						 currentSettings.totalVariations, currentSettings.picsPerRepetition);
 		}
-		timer.update( pictureNumber / currentSettings.picsPerRepetition, currentSettings.repetitionsPerVariation,
-					  currentSettings.totalVariations, currentSettings.picsPerRepetition );
+		else if (pictureNumber % currentSettings.picsPerRepetition == 0)
+		{
+
+			int counter = 0;
+			for (auto data : picData)
+			{
+				std::pair<int, int> minMax = stats.update(data, counter, selectedPixel, currentSettings.imageSettings.width,
+														  pictureNumber / currentSettings.picsPerRepetition,
+														  currentSettings.totalPicsInExperiment / currentSettings.picsPerRepetition);
+
+				pics.drawPicture(drawer, counter, data, minMax);
+				pics.drawDongles(drawer, selectedPixel);
+				counter++;
+			}
+			timer.update(pictureNumber / currentSettings.picsPerRepetition, currentSettings.repetitionsPerVariation,
+						 currentSettings.totalVariations, currentSettings.picsPerRepetition);
+		}
+
 	}
+	catch (Error& err)
+	{
+		mainWindowFriend->getComm()->sendError(err.what());
+	}
+
+	ReleaseDC(drawer);
 		
 	/*
 	// Wait until eImageVecQueue is available using the mutex.
@@ -253,7 +283,14 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam)
 	// write the data to the file.
 	if (currentSettings.cameraMode != "Continuous Single Scans Mode")
 	{
-		dataHandler.writeFits(pictureNumber, picData.back());
+		try
+		{
+			dataHandler.writeFits(pictureNumber, picData[(pictureNumber-1) % currentSettings.picsPerRepetition]);
+		}
+		catch (Error& err)
+		{
+			mainWindowFriend->getComm()->sendError(err.what());
+		}
 	}
 
 	/// TODO...?
@@ -317,6 +354,7 @@ LRESULT CameraWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 	// notify the andor object that it is done.
 	Andor.onFinish();
 	Andor.pauseThread();
+	dataHandler.forceFitsClosed();
 	mainWindowFriend->getComm()->sendColorBox( { /*niawg*/'-', /*camera*/'B', /*intensity*/'-' } );
 	mainWindowFriend->getComm()->sendStatus( "Camera has finished taking pictures and is no longer running.\r\n" );
 	CameraSettings.cameraIsOn( false );
@@ -328,7 +366,9 @@ void CameraWindow::startCamera()
 {
 	// turn some buttons off.
 	CameraSettings.cameraIsOn( true );
-	pics.refreshBackgrounds( this );
+	CDC* dc = GetDC();
+	pics.refreshBackgrounds( dc );
+	ReleaseDC(dc);
 	stats.reset();
 	Andor.setSystem( this );
 	/// setup fits files
@@ -338,7 +378,7 @@ void CameraWindow::startCamera()
 		try
 		{
 			dataHandler.initializeDataFiles(&analysisHandler, Andor.getSettings().imageSettings,
-											Andor.getSettings().totalPicsInVariation);
+											Andor.getSettings().totalPicsInExperiment);
 		}
 		catch (Error& err)
 		{
@@ -365,11 +405,21 @@ void CameraWindow::listViewLClick( NMHDR* info, LRESULT* lResult )
 // pics looks up the location itself.
 void CameraWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 {
-	std::pair<int, int> box = pics.handleRClick( clickLocation );
-	if (box.first != -1)
+	CDC* dc = GetDC();
+	try
 	{
-		selectedPixel = box;
-		pics.redrawPictures(this, selectedPixel);
+		std::pair<int, int> box = pics.handleRClick(clickLocation);
+		if (box.first != -1)
+		{
+			selectedPixel = box;
+			pics.redrawPictures(dc, selectedPixel);
+		}
+		ReleaseDC(dc);
+	}
+	catch (Error& err)
+	{
+		ReleaseDC(dc);
+		mainWindowFriend->getComm()->sendError(err.what());
 	}
 }
 
@@ -460,7 +510,16 @@ void CameraWindow::OnSize( UINT nType, int cx, int cy )
 	analysisHandler.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, this->mainWindowFriend->getFonts() );
 	pics.setParameters( CameraSettings.readImageParameters( this ) );
 	RedrawWindow();
-	pics.redrawPictures( this, selectedPixel );
+	CDC* dc = GetDC();
+	try
+	{
+		pics.redrawPictures(dc, selectedPixel );
+	}
+	catch (Error& err)
+	{
+		mainWindowFriend->getComm()->sendError(err.what());
+	}
+	ReleaseDC(dc);
 	timer.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts());
 }
 
@@ -504,7 +563,9 @@ void CameraWindow::prepareCamera()
 			throw;
 		}
 	}
-	pics.refreshBackgrounds(this);
+	CDC* dc = GetDC();
+	pics.refreshBackgrounds(dc);
+	ReleaseDC(dc);
 	//
 	CameraSettings.updatePassivelySetSettings();
 	pics.setNumberPicturesActive( CameraSettings.getSettings().picsPerRepetition );
@@ -638,8 +699,10 @@ BOOL CameraWindow::OnInitDialog()
 	position = { 757, 40 };
 	pics.initialize( position, this, id, mainWindowFriend->getFonts(), tooltips, mainWindowFriend->getBrushes()["Dark Green"] );
 	pics.setSinglePicture( this, { 0,0 }, CameraSettings.readImageParameters( this ) );
-	// load the menu
 	
+	Andor.setSettings(CameraSettings.getSettings());
+
+	// load the menu
 	menu.LoadMenu( IDR_MAIN_MENU );
 	SetMenu( &menu );
 
@@ -656,10 +719,20 @@ BOOL CameraWindow::OnInitDialog()
 
 void CameraWindow::redrawPictures( bool andGrid )
 {
-	pics.refreshBackgrounds( this );
-	if (andGrid)
+	CDC* dc = GetDC();
+	try
 	{
-		pics.drawGrids( this );
+		pics.refreshBackgrounds(dc);
+		if (andGrid)
+		{
+			pics.drawGrids(dc);
+		}
+		ReleaseDC(dc);
+	}
+	catch (Error& err)
+	{
+		ReleaseDC(dc);
+		mainWindowFriend->getComm()->sendError(err.what());
 	}
 	//... and pictures???
 }
@@ -732,20 +805,22 @@ void CameraWindow::assertOff()
 
 void CameraWindow::readImageParameters()
 {
-	redrawPictures(false);
 	try
 	{
+		redrawPictures(false);
 		imageParameters parameters = CameraSettings.readImageParameters( this );
 		pics.setParameters( parameters );
 	}
 	catch (Error& exception)
 	{
-		errBox( "Error!" );
+		//errBox( "Error!" );
 		Communicator* comm = mainWindowFriend->getComm();
 		comm->sendColorBox( { /*niawg*/'-', /*camera*/'R', /*intensity*/'-' } );
 		comm->sendError( exception.whatStr() + "\r\n" );
 	}
-	pics.drawGrids( this );
+	CDC* dc = GetDC();
+	pics.drawGrids(dc);
+	ReleaseDC(dc);
 }
 
 void CameraWindow::changeBoxColor(colorBoxes<char> colors)

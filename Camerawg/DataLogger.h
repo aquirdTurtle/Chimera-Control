@@ -23,7 +23,6 @@ class DataLogger
 		void forceFitsClosed();
 		void loadAndMoveKeyFile();
 		void deleteFitsAndKey(Communicator* comm);
-		std::string getDate();
 		int getDataFileNumber();
 	private:
 		fitsfile* myFitsFile;
@@ -32,7 +31,6 @@ class DataLogger
 		std::string dataFilesBaseLocation;
 		std::string currentSaveFolder;
 		int currentDataFileNumber;
-		std::string currentDate;
 		std::vector<double> keyValues;
 };
 

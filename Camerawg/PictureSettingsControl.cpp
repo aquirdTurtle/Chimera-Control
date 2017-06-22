@@ -9,8 +9,7 @@
 
 void PictureSettingsControl::cameraIsOn( bool state )
 {
-	this->setPictureOptionsButton.EnableWindow( !state );
-	return;
+	setPictureOptionsButton.EnableWindow( !state );
 }
 
 void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int& id )
@@ -101,7 +100,7 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 		exposureEdits[picInc].ID = id++;
 		// first of group
 		exposureEdits[picInc].Create( WS_CHILD | WS_VISIBLE | WS_BORDER, exposureEdits[picInc].seriesPos, parent, exposureEdits[picInc].ID );
-		exposureEdits[picInc].SetWindowTextA( "20" );
+		exposureEdits[picInc].SetWindowTextA( "26.0" );
 		exposureTimesUnofficial[picInc] = 20 / 1000.0;
 	}
 	pos.seriesPos.y += 20;
@@ -212,8 +211,6 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	{
 		throw;
 	}
-
-
 }
 
 
@@ -243,6 +240,7 @@ void PictureSettingsControl::enablePictureControls( int pic )
 	veridaRadios[pic].EnableWindow();
 	infernoRadios[pic].EnableWindow();
 }
+
 
 CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer, brushMap brushes, rgbMap rgbs)
 {
@@ -461,8 +459,8 @@ void PictureSettingsControl::setExposureTimes(std::vector<float> times, AndorCam
 std::vector<float> PictureSettingsControl::getUsedExposureTimes()
 {
 	std::vector<float> usedTimes;
-	usedTimes = this->exposureTimesUnofficial;
-	usedTimes.resize(this->picsPerRepetitionUnofficial);
+	usedTimes = exposureTimesUnofficial;
+	usedTimes.resize(picsPerRepetitionUnofficial);
 	return usedTimes;
 }
 

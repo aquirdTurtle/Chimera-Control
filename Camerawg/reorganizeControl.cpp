@@ -16,7 +16,7 @@ int reorganizeControl(Control<CWnd>& controlToReposition, std::string mode, RECT
 	}
 	if (mode == "Kinetic Series Mode")
 	{
-		if (controlToReposition.seriesPos.left == -1 || (controlToReposition.triggerModeSensitive == -1 && trigMode == "External"))
+		if (controlToReposition.seriesPos.left == -1 || (controlToReposition.triggerModeSensitive == -1 && trigMode == "External Trigger"))
 		{
 			controlToReposition.ShowWindow(SW_HIDE);
 		}
@@ -32,7 +32,7 @@ int reorganizeControl(Control<CWnd>& controlToReposition, std::string mode, RECT
 	}
 	else if (mode == "Continuous Single Scans Mode")
 	{
-		if (controlToReposition.videoPos.left == -1 || (controlToReposition.triggerModeSensitive == -1 && trigMode == "External"))
+		if (controlToReposition.videoPos.left == -1 || (controlToReposition.triggerModeSensitive == -1 && trigMode == "External Trigger"))
 		{
 			controlToReposition.ShowWindow(SW_HIDE);
 		}
@@ -48,7 +48,7 @@ int reorganizeControl(Control<CWnd>& controlToReposition, std::string mode, RECT
 	}
 	else if (mode == "Accumulate Mode")
 	{
-		if (controlToReposition.amPos.left == -1 || (controlToReposition.triggerModeSensitive == -1 && trigMode == "External"))
+		if (controlToReposition.amPos.left == -1 || (controlToReposition.triggerModeSensitive == -1 && trigMode == "External Trigger"))
 		{
 			controlToReposition.ShowWindow(SW_HIDE);
 		}
