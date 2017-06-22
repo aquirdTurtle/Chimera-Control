@@ -210,7 +210,7 @@ bool Script::colorScriptSection(DWORD beginingOfChange, DWORD endOfChange, profi
 	{
 		DWORD lineStartCoordingate = range.cpMin;
 		size_t endTest = range.cpMax + line.size();
-		if (endTest < beginingSigned - 5 || range.cpMin > endSigned)
+		if (long long(endTest) < beginingSigned - 5 || range.cpMin > endSigned)
 		{
 			// then skip to next line.
 			range.cpMax = endTest;
@@ -348,7 +348,7 @@ bool Script::colorScriptSection(DWORD beginingOfChange, DWORD endOfChange, profi
 			range.cpMin = range.cpMax;
 		}
 	}
-	this->updateChildCombo(profile);
+	updateChildCombo(profile);
 	return false;
 }
 
@@ -969,12 +969,12 @@ bool Script::newScript(profileSettings profile, std::vector<variable> vars)
 	{
 		tempName += "DEFAULT_INTENSITY_SCRIPT.aScript";
 	}
-	this->reset();
-	this->loadFile(tempName, profile, vars);
+	reset();
+	loadFile(tempName, profile, vars);
 	// add the current category to the address. 
-	this->scriptAddress = profile.categoryPath;
-	this->scriptCategory = profile.category;
-	this->scriptExperiment = profile.experiment;
+	scriptAddress = profile.categoryPath;
+	scriptCategory = profile.category;
+	scriptExperiment = profile.experiment;
 	return false;
 }
 //
@@ -1085,8 +1085,8 @@ bool Script::loadFile(std::string pathToFile, profileSettings profile, std::vect
 	}
 	// put the default into the new control.
 	edit.SetWindowText(fileText.c_str());
-	this->colorEntireScript(profile, vars);
-	this->updateScriptNameText();
+	colorEntireScript(profile, vars);
+	updateScriptNameText();
 	openFile.close();
 	return true;
 }

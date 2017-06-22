@@ -15,6 +15,7 @@
 #include "MainWindow.h"
 #include "CameraWindow.h"
 
+
 // Functions called by all windows to do the same thing, mostly things that happen on menu presses.
 namespace commonFunctions
 {
@@ -374,6 +375,53 @@ namespace commonFunctions
 			case ID_PICTURES_LESS_THAN_MIN_SPECIAL:
 			{
 				camWin->handleSpecialLessThanMinSelection();
+				break;
+			}
+			case ID_RUNMENU_ABORTCAMERA:
+			{
+				try
+				{
+					if (camWin->Andor.isRunning())
+					{
+						commonFunctions::abortCamera(camWin, mainWin);
+					}
+					else
+					{
+						mainWin->getComm()->sendError("Camera was not running. Can't Abort.\r\n");
+					}
+					mainWin->getComm()->sendColorBox({ /*niawg*/'-', /*camera*/'B', /*intensity*/'-' });
+					camWin->assertOff();
+				}
+				catch (Error& except)
+				{
+					mainWin->getComm()->sendError("EXITED WITH ERROR! " + except.whatStr());
+					mainWin->getComm()->sendColorBox({ /*niawg*/'-', /*camera*/'R', /*intensity*/'-' });
+					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
+					mainWin->getComm()->sendTimer("ERROR!");
+				}
+				break;
+			}
+			case ID_RUNMENU_ABORTNIAWG:
+			{
+				try
+				{
+					if (mainWin->niawg.isRunning())
+					{
+						commonFunctions::abortNiawg(scriptWin, mainWin);
+					}
+					else
+					{
+						mainWin->getComm()->sendError("NIAWG was not running. Can't Abort.\r\n");
+					}
+					mainWin->getComm()->sendColorBox({ /*niawg*/'B', /*camera*/'-', /*intensity*/'-' });
+				}
+				catch (Error& except)
+				{
+					mainWin->getComm()->sendError("EXITED WITH ERROR! " + except.whatStr());
+					mainWin->getComm()->sendColorBox({ /*niawg*/'R', /*camera*/'-', /*intensity*/'-' });
+					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
+					mainWin->getComm()->sendTimer("ERROR!");
+				}
 				break;
 			}
 		}
