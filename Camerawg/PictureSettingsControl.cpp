@@ -101,7 +101,7 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 		// first of group
 		exposureEdits[picInc].Create( WS_CHILD | WS_VISIBLE | WS_BORDER, exposureEdits[picInc].seriesPos, parent, exposureEdits[picInc].ID );
 		exposureEdits[picInc].SetWindowTextA( "26.0" );
-		exposureTimesUnofficial[picInc] = 20 / 1000.0;
+		exposureTimesUnofficial[picInc] = 26 / 1000.0;
 	}
 	pos.seriesPos.y += 20;
 	pos.amPos.y += 20;

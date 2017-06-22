@@ -11,11 +11,6 @@ AndorCamera::AndorCamera(Communicator* comm)
 {
 	runSettings.emGainModeIsOn = false;
 
-
-	// appendColoredText("INITIALIZATION MESSAGES:\r\n", eRichEditMessageBoxRichEditHandle, IDC_RICH_EDIT_MESSAGE_BOX_RICH_EDIT_ID, defaultCharFormat,
-	//				  eInitializeDialogBoxHandle);
-
-
 	std::string errorMessage;
 	if (ANDOR_SAFEMODE)
 	{

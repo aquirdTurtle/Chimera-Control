@@ -22,7 +22,7 @@ class CameraSettingsControl
 			andorFriend = friendInitializer; 
 			// initialize settings. Most of these have been picked to match initial settings set in the "initialize" 
 			// function.
-			runSettings.exposureTimes = { 0.020f };
+			runSettings.exposureTimes = { 0.026f };
 			runSettings.picsPerRepetition = 1;
 			runSettings.kinetiCycleTime = 0.1f;
 			runSettings.repetitionsPerVariation = 10;

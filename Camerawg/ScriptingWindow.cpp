@@ -281,12 +281,12 @@ int ScriptingWindow::saveIntensityScriptAs(HWND parentWindow)
 
 int ScriptingWindow::newVerticalScript()
 {
-	if (this->verticalNiawgScript.checkSave(this->getCurrentProfileSettings(), this->mainWindowFriend->niawgIsRunning() ))
+	if (verticalNiawgScript.checkSave(getCurrentProfileSettings(), mainWindowFriend->niawgIsRunning() ))
 	{
 		return true;
 	}
-	verticalNiawgScript.newScript(this->getCurrentProfileSettings(), this->mainWindowFriend->getAllVariables());
-	this->updateConfigurationSavedStatus(false);
+	verticalNiawgScript.newScript(getCurrentProfileSettings(), mainWindowFriend->getAllVariables());
+	updateConfigurationSavedStatus(false);
 	verticalNiawgScript.updateScriptNameText();
 	return 0;
 }
