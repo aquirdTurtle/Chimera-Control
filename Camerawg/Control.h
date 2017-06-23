@@ -85,7 +85,7 @@ template <class ControlType> void Control<ControlType>::rearrange( std::string c
 	}
 	else if (cameraMode == "Kinetic Series Mode")
 	{
-		if (seriesPos.left == -1 || (triggerModeSensitive == -1 && trigMode == "External"))
+		if (seriesPos.left == -1 || (triggerModeSensitive == -1 && trigMode == "External Trigger"))
 		{
 			ShowWindow(SW_HIDE);
 		}
@@ -99,7 +99,7 @@ template <class ControlType> void Control<ControlType>::rearrange( std::string c
 	}	 
 	else if (cameraMode == "Video Mode")
 	{
-		if (videoPos.left == -1 || (triggerModeSensitive == -1 && trigMode == "External"))
+		if (videoPos.left == -1 || (triggerModeSensitive == -1 && trigMode == "External Trigger"))
 		{
 			ShowWindow(SW_HIDE);
 		}
@@ -113,7 +113,7 @@ template <class ControlType> void Control<ControlType>::rearrange( std::string c
 	}
 	else if (cameraMode == "Accumulation Mode")
 	{
-		if (amPos.left == -1 || (triggerModeSensitive == -1 && trigMode == "External"))
+		if (amPos.left == -1 || (triggerModeSensitive == -1 && trigMode == "External Trigger"))
 		{
 			ShowWindow(SW_HIDE);
 		}

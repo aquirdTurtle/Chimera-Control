@@ -63,7 +63,11 @@ class CameraSettingsControl
 		Control<CStatic> header;
 		/// TODO
 		// Accumulation Time
+		Control<CStatic> accumulationCycleTimeLabel;
+		Control<CEdit> accumulationCycleTimeEdit;
 		// Accumulation Number
+		Control<CStatic> accumulationNumberLabel;
+		Control<CEdit> accumulationNumberEdit;
 
 		// cameraMode
 		Control<CComboBox> cameraModeCombo;

@@ -52,8 +52,12 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 	ON_REGISTERED_MESSAGE( eCameraProgressMessageID, &CameraWindow::onCameraProgress )
 
 	ON_WM_RBUTTONUP()
+	ON_WM_LBUTTONUP()
+
 	ON_NOTIFY(LVN_COLUMNCLICK, IDC_PLOTTING_LISTVIEW, &CameraWindow::listViewLClick)
 	ON_NOTIFY(NM_DBLCLK, IDC_PLOTTING_LISTVIEW, &CameraWindow::listViewDblClick)
+
+	ON_COMMAND(IDC_ALERTS_BOX, &CameraWindow::passAlertPress)
 END_MESSAGE_MAP()
 
 
@@ -203,7 +207,7 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam)
 			std::pair<int, int> minMax;
 			// draw the most recent pic.
 			minMax = stats.update(picData.back(), pictureNumber % currentSettings.picsPerRepetition, selectedPixel,
-								  currentSettings.imageSettings.width,
+								  currentSettings.imageSettings.width, currentSettings.imageSettings.height,
 								  pictureNumber / currentSettings.picsPerRepetition,
 								  currentSettings.totalPicsInExperiment / currentSettings.picsPerRepetition);
 			pics.drawPicture(drawer, pictureNumber % currentSettings.picsPerRepetition, picData.back(), minMax);
@@ -216,9 +220,10 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam)
 			int counter = 0;
 			for (auto data : picData)
 			{
-				std::pair<int, int> minMax = stats.update(data, counter, selectedPixel, currentSettings.imageSettings.width,
-														  pictureNumber / currentSettings.picsPerRepetition,
-														  currentSettings.totalPicsInExperiment / currentSettings.picsPerRepetition);
+				std::pair<int, int> minMax;
+				minMax = stats.update(data, counter, selectedPixel, currentSettings.imageSettings.width,
+									  currentSettings.imageSettings.height, pictureNumber / currentSettings.picsPerRepetition,
+									  currentSettings.totalPicsInExperiment / currentSettings.picsPerRepetition);
 
 				pics.drawPicture(drawer, counter, data, minMax);
 				pics.drawDongles(drawer, selectedPixel);
@@ -354,6 +359,10 @@ LRESULT CameraWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 	// notify the andor object that it is done.
 	Andor.onFinish();
 	Andor.pauseThread();
+	if (alerts.soundIsToBePlayed())
+	{
+		alerts.playSound();
+	}
 	dataHandler.forceFitsClosed();
 	mainWindowFriend->getComm()->sendColorBox( { /*niawg*/'-', /*camera*/'B', /*intensity*/'-' } );
 	mainWindowFriend->getComm()->sendStatus( "Camera has finished taking pictures and is no longer running.\r\n" );
@@ -402,9 +411,15 @@ void CameraWindow::listViewLClick( NMHDR* info, LRESULT* lResult )
 	analysisHandler.handleRClick();
 }
 
+void CameraWindow::OnLButtonUp(UINT stuff, CPoint loc)
+{
+	alerts.stopSound();
+}
+
 // pics looks up the location itself.
 void CameraWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 {
+	alerts.stopSound();
 	CDC* dc = GetDC();
 	try
 	{
@@ -464,6 +479,7 @@ void CameraWindow::passTrigger()
 
 void CameraWindow::handlePictureSettings(UINT id)
 {
+	selectedPixel = { 0,0 };
 	CameraSettings.handlePictureSettings(id, &Andor);
 	if (CameraSettings.getSettings().picsPerRepetition == 1)
 	{
@@ -521,6 +537,9 @@ void CameraWindow::OnSize( UINT nType, int cx, int cy )
 	}
 	ReleaseDC(dc);
 	timer.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts());
+
+
+
 }
 
 
@@ -805,6 +824,7 @@ void CameraWindow::assertOff()
 
 void CameraWindow::readImageParameters()
 {
+	selectedPixel = { 0,0 };
 	try
 	{
 		redrawPictures(false);

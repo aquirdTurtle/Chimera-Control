@@ -36,7 +36,7 @@ class PictureStats
 		bool initialize( POINT& pos, CWnd* parent, int& id, fontMap fonts, std::vector<CToolTipCtrl*>& tooltips );
 		bool rearrange( std::string cameraMode, std::string trigMode, int width, int height, fontMap fonts );
 		std::pair<int, int> update( std::vector<long> image, unsigned int imageNumber, std::pair<int, int> selectedPixel,
-					 int pictureWidth, int currentRepetitionNumbar, int totalRepetitionCount );
+					 int pictureWidth, int pictureHeight, int currentRepetitionNumbar, int totalRepetitionCount );
 		bool reset();
 		void updateType( std::string typeText );
 	private:

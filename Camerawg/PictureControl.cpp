@@ -22,6 +22,29 @@ void PictureControl::setPictureArea( POINT loc, int width, int height )
 	scaledBackgroundArea.right *= width;
 	scaledBackgroundArea.top *= height;
 	scaledBackgroundArea.bottom *= height;
+
+	double widthPicScale;
+	double heightPicScale;
+	if (unofficialImageParameters.width > unofficialImageParameters.height)
+	{
+		widthPicScale = 1;
+		heightPicScale = double(unofficialImageParameters.height) / unofficialImageParameters.width;
+	}
+	else
+	{
+		heightPicScale = 1;
+		widthPicScale = double(unofficialImageParameters.width) / unofficialImageParameters.height;
+	}
+	long picWidth = (scaledBackgroundArea.right - scaledBackgroundArea.left)*widthPicScale;
+	long picHeight = scaledBackgroundArea.bottom - scaledBackgroundArea.top;
+	POINT mid = { (scaledBackgroundArea.left + scaledBackgroundArea.right) / 2,
+		(scaledBackgroundArea.top + scaledBackgroundArea.bottom) / 2 };
+	pictureArea.left = mid.x - picWidth / 2;
+	pictureArea.right = mid.x + picWidth / 2;
+	pictureArea.top = mid.y - picHeight / 2;
+	pictureArea.bottom = mid.y + picHeight / 2;
+
+
 }
 
 
@@ -227,7 +250,30 @@ void PictureControl::recalculateGrid(imageParameters newParameters)
 {
 	// not strictly necessary.
 	grid.clear();
+	// find the maximum dimension.
+	unofficialImageParameters = newParameters;
+	double widthPicScale;
+	double heightPicScale;
+	if (unofficialImageParameters.width > unofficialImageParameters.height)
+	{
+		widthPicScale = 1;
+		heightPicScale = double(unofficialImageParameters.height) / unofficialImageParameters.width;
+	}
+	else
+	{
+		heightPicScale = 1;
+		widthPicScale = double(unofficialImageParameters.width) / unofficialImageParameters.height;
+	}
+	long width = (scaledBackgroundArea.right - scaledBackgroundArea.left)*widthPicScale;
+	long height = (scaledBackgroundArea.bottom - scaledBackgroundArea.top)*heightPicScale;
+	POINT mid = { (scaledBackgroundArea.left + scaledBackgroundArea.right) / 2,
+				  (scaledBackgroundArea.top + scaledBackgroundArea.bottom) / 2 };
+	pictureArea.left = mid.x - width / 2;
+	pictureArea.right = mid.x + width / 2;
+	pictureArea.top = mid.y - height / 2;
+	pictureArea.bottom = mid.y + height / 2;
 	//
+
 	grid.resize(newParameters.width);
 	for (int widthInc = 0; widthInc < grid.size(); widthInc++)
 	{
@@ -235,14 +281,14 @@ void PictureControl::recalculateGrid(imageParameters newParameters)
 		for (int heightInc = 0; heightInc < grid[widthInc].size(); heightInc++)
 		{
 			// for all 4 pictures...
-			grid[widthInc][heightInc].left = (int)(scaledBackgroundArea.left
-				+ (double)widthInc * (scaledBackgroundArea.right - scaledBackgroundArea.left) / (double)grid.size() + 2);
-			grid[widthInc][heightInc].right = (int)(scaledBackgroundArea.left
-				+ (double)(widthInc + 1) * (scaledBackgroundArea.right - scaledBackgroundArea.left) / (double)grid.size() + 2);
-			grid[widthInc][heightInc].top = (int)(scaledBackgroundArea.top
-				+ (double)(heightInc)* (scaledBackgroundArea.bottom - scaledBackgroundArea.top) / (double)grid[widthInc].size());
-			grid[widthInc][heightInc].bottom = (int)(scaledBackgroundArea.top
-				+ (double)(heightInc + 1)* (scaledBackgroundArea.bottom - scaledBackgroundArea.top) / (double)grid[widthInc].size());
+			grid[widthInc][heightInc].left = (int)(pictureArea.left
+				+ (double)widthInc * (pictureArea.right - pictureArea.left) / (double)grid.size() + 2);
+			grid[widthInc][heightInc].right = (int)(pictureArea.left
+				+ (double)(widthInc + 1) * (pictureArea.right - pictureArea.left) / (double)grid.size() + 2);
+			grid[widthInc][heightInc].top = (int)(pictureArea.top
+				+ (double)(heightInc)* (pictureArea.bottom - pictureArea.top) / (double)grid[widthInc].size());
+			grid[widthInc][heightInc].bottom = (int)(pictureArea.top
+				+ (double)(heightInc + 1)* (pictureArea.bottom - pictureArea.top) / (double)grid[widthInc].size());
 		}
 	}
 }
@@ -340,8 +386,8 @@ void PictureControl::drawPicture(CDC* deviceContext, std::vector<long> picData,
 	//deviceContext->SelectPalette( this->imagePalette, true );
 	//deviceContext->RealizePalette();
 
-	pixelsAreaWidth = scaledBackgroundArea.right - scaledBackgroundArea.left + 1;
-	pixelsAreaHeight = scaledBackgroundArea.bottom - scaledBackgroundArea.top + 1;
+	pixelsAreaWidth = pictureArea.right - pictureArea.left + 1;
+	pixelsAreaHeight = pictureArea.bottom - pictureArea.top + 1;
 	
 	dataWidth = grid.size();
 	// assumes non-zero size...
@@ -441,7 +487,7 @@ void PictureControl::drawPicture(CDC* deviceContext, std::vector<long> picData,
 			pbmi->bmiHeader.biWidth = dataWidth;
 			pbmi->bmiHeader.biSizeImage = 1;// pbmi->bmiHeader.biWidth * pbmi->bmiHeader.biHeight;// * sizeof( BYTE );
 			//memset( DataArray, 0, (dataWidth*dataHeight) * sizeof( *DataArray ) );
-			StretchDIBits( deviceContext->GetSafeHdc(), scaledBackgroundArea.left, scaledBackgroundArea.top,
+			StretchDIBits( deviceContext->GetSafeHdc(), pictureArea.left, pictureArea.top,
 						   pixelsAreaWidth, pixelsAreaHeight, 0, 0, dataWidth,
 						   dataHeight, DataArray, (BITMAPINFO FAR*)pbmi, DIB_PAL_COLORS, SRCCOPY );
 			break;
@@ -458,7 +504,7 @@ void PictureControl::drawPicture(CDC* deviceContext, std::vector<long> picData,
 				finalDataArray[2 * dataInc + 1] = DataArray[dataInc];
 			}
 			pbmi->bmiHeader.biWidth = dataWidth * 2;
-			StretchDIBits( *deviceContext, scaledBackgroundArea.left, scaledBackgroundArea.top, pixelsAreaWidth, pixelsAreaHeight, 0, 0, dataWidth * 2, dataHeight,
+			StretchDIBits( *deviceContext, pictureArea.left, pictureArea.top, pixelsAreaWidth, pixelsAreaHeight, 0, 0, dataWidth * 2, dataHeight,
 						   finalDataArray, (BITMAPINFO FAR*)pbmi, DIB_PAL_COLORS, SRCCOPY );
 			free(finalDataArray);
 			break;
@@ -477,7 +523,7 @@ void PictureControl::drawPicture(CDC* deviceContext, std::vector<long> picData,
 				finalDataArray[4 * dataInc + 3] = data;
 			}
 			pbmi->bmiHeader.biWidth = dataWidth * 4;
-			StretchDIBits( *deviceContext, scaledBackgroundArea.left, scaledBackgroundArea.top, pixelsAreaWidth, pixelsAreaHeight, 0, 0, dataWidth * 4, dataHeight,
+			StretchDIBits( *deviceContext, pictureArea.left, pictureArea.top, pixelsAreaWidth, pixelsAreaHeight, 0, 0, dataWidth * 4, dataHeight,
 						   finalDataArray, (BITMAPINFO FAR*)pbmi, DIB_PAL_COLORS, SRCCOPY );
 			free(finalDataArray);
 			break;
@@ -602,5 +648,27 @@ void PictureControl::rearrange(std::string cameraMode, std::string triggerMode, 
 		scaledBackgroundArea.top = long(unscaledBackgroundArea.top * height / 997.0);
 		scaledBackgroundArea.left = long(unscaledBackgroundArea.left * width / 1920.0);
 		scaledBackgroundArea.right = long(unscaledBackgroundArea.right * width / 1920.0);
+
+		double widthPicScale;
+		double heightPicScale;
+		if (unofficialImageParameters.width > unofficialImageParameters.height)
+		{
+			widthPicScale = 1;
+			heightPicScale = double(unofficialImageParameters.height) / unofficialImageParameters.width;
+		}
+		else
+		{
+			heightPicScale = 1;
+			widthPicScale = double(unofficialImageParameters.width) / unofficialImageParameters.height;
+		}
+		long width = (scaledBackgroundArea.right - scaledBackgroundArea.left)*widthPicScale;
+		long height = scaledBackgroundArea.bottom - scaledBackgroundArea.top;
+		POINT mid = { (scaledBackgroundArea.left + scaledBackgroundArea.right) / 2,
+			(scaledBackgroundArea.top + scaledBackgroundArea.bottom) / 2 };
+		pictureArea.left = mid.x - width / 2;
+		pictureArea.right = mid.x + width / 2;
+		pictureArea.top = mid.y - height / 2;
+		pictureArea.bottom = mid.y + height / 2;
+
 	}	
 }

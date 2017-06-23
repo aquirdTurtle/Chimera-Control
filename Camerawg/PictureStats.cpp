@@ -175,13 +175,14 @@ void PictureStats::updateType(std::string typeText)
 }
 
 /**/
-std::pair<int, int> PictureStats::update( std::vector<long> image, unsigned int imageNumber, std::pair<int, int> selectedPixel, 
-						  int pictureWidth, int currentRepetitionNumber, int totalRepetitionCount)
+std::pair<int, int> PictureStats::update( std::vector<long> image, unsigned int imageNumber, 
+										 std::pair<int, int> selectedPixel, int pictureWidth, int pictureHeight, 
+										 int currentRepetitionNumber, int totalRepetitionCount)
 {
 	repetitionIndicator.SetWindowTextA( ("Repetition " + str( currentRepetitionNumber ) + "/" 
 									   + str( totalRepetitionCount )).c_str() );
 
-	long currentSelectedCount = image[selectedPixel.first + selectedPixel.second * pictureWidth];
+	long currentSelectedCount = image[selectedPixel.first + (pictureHeight - 1 - selectedPixel.second) * pictureWidth];
 	long currentMaxCount = 1;
 	long currentMinCount = 65536;
 	double currentAvgCount;
