@@ -30,6 +30,10 @@ void ScriptingWindow::OnSize(UINT nType, int cx, int cy)
 	intensityAgilentScript.rearrange(cx, cy, mainWindowFriend->getFonts());
 	statusBox.rearrange("", "", cx, cy, mainWindowFriend->getFonts());
 	profileDisplay.rearrange(cx, cy, mainWindowFriend->getFonts());
+
+	verticalNiawgScript.colorEntireScript(getCurrentProfileSettings(), mainWindowFriend->getAllVariables());
+	horizontalNiawgScript.colorEntireScript(getCurrentProfileSettings(), mainWindowFriend->getAllVariables());
+	intensityAgilentScript.colorEntireScript(getCurrentProfileSettings(), mainWindowFriend->getAllVariables());
 }
 
 BOOL ScriptingWindow::PreTranslateMessage(MSG* pMsg)
@@ -304,6 +308,7 @@ int ScriptingWindow::openVerticalScript(HWND parentWindow)
 	verticalNiawgScript.updateScriptNameText();
 	return 0;
 }
+
 
 int ScriptingWindow::saveVerticalScript()
 {

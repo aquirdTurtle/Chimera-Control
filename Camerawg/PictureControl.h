@@ -38,9 +38,17 @@ class PictureControl
 		// stores info as to whether the control is currently being used in plotting camera data or was used 
 		// in the most recent run.
 		bool active;
+
+		// unofficial; these are just parameters this uses to keep track of grid size on redraws.
+		imageParameters unofficialImageParameters;
+
 		// Arguably I should make these static controls instead of keeping track explicitly of these things. 
 		RECT unscaledBackgroundArea;
+		// scaled for the size of the window
 		RECT scaledBackgroundArea;
+		// scaled for the dimensions of the picture
+		RECT pictureArea;
+
 		// 
 		int maxSliderPosition;
 		int minSliderPosition;

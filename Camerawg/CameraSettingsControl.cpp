@@ -296,7 +296,7 @@ std::array<int, 4> CameraSettingsControl::getPaletteNumbers()
 	return picSettingsObj.getPictureColors();
 }
 
-void CameraSettingsControl::initialize(cameraPositions& pos, int& id, CWnd* parent, fontMap fonts, std::vector<CToolTipCtrl*>& tooltips)
+void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* parent, fontMap fonts, std::vector<CToolTipCtrl*>& tooltips)
 {
 	/// Header
 	header.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
@@ -494,6 +494,25 @@ void CameraSettingsControl::initialize(cameraPositions& pos, int& id, CWnd* pare
 	varNumDisp.ID = id++;
 	varNumDisp.Create("3", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, varNumDisp.seriesPos, parent, varNumDisp.ID);
 	varNumDisp.fontType = Normal;
+
+	// Accumulation Time
+	accumulationCycleTimeLabel.seriesPos = { -1,-1,-1,-1 };
+	accumulationCycleTimeLabel.videoPos = { -1,-1,-1,-1 };
+	accumulationCycleTimeLabel.amPos = { pos.amPos.x,pos.amPos.y,pos.amPos.x +240,pos.amPos.y + 25 };
+	accumulationCycleTimeLabel.ID = id++;
+	accumulationCycleTimeLabel.Create( "Accumulation Cycle Time", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY,
+									   accumulationCycleTimeLabel.seriesPos, parent, accumulationCycleTimeLabel.ID);
+
+	accumulationCycleTimeEdit.seriesPos = { -1,-1,-1,-1 };
+	accumulationCycleTimeEdit.videoPos = { -1,-1,-1,-1 };
+	accumulationCycleTimeEdit.amPos = { -1,-1,-1,-1 };
+	accumulationCycleTimeEdit.ID = id++;
+	accumulationCycleTimeEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY,
+									 accumulationCycleTimeEdit.seriesPos, parent, accumulationCycleTimeEdit.ID);
+	
+	// Accumulation Number
+	accumulationNumberLabel;
+	accumulationNumberEdit;
 
 	/// Kinetic Cycle Time
 	// Kinetic Cycle Time Label

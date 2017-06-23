@@ -7,8 +7,8 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to build and debug other 
 // aspects of the program.
 //#define LAB_COMPUTER
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP
 
 /// File Locations
 // Files for Lab Computer
@@ -80,7 +80,7 @@
 	const std::string PROFILES_PATH = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Profiles\\";
 	const std::string DATA_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Data\\";
 	const std::string KEY_ORIGINAL_SAVE_LOCATION = "C:\\Shared\\";
-
+	const std::string MUSIC_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Camerawg\\Final Fantasy VII - Victory Fanfare [HQ].mp3";
 #endif
 
 #ifdef MASTER_COMPUTER
@@ -228,14 +228,14 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_SET_REPETITONS_PER_VARIATION_BUTTON 3076
 #define IDC_SET_VARIATION_NUMBER 3079
 
-#define IDC_PICTURE_1_MIN_EDIT 3115
-#define IDC_PICTURE_1_MAX_EDIT 3118
-#define IDC_PICTURE_2_MIN_EDIT 3121
-#define IDC_PICTURE_2_MAX_EDIT 3124
-#define IDC_PICTURE_3_MIN_EDIT 3127
-#define IDC_PICTURE_3_MAX_EDIT 3130
-#define IDC_PICTURE_4_MIN_EDIT 3133
-#define IDC_PICTURE_4_MAX_EDIT 3136
+#define IDC_PICTURE_1_MIN_EDIT 3117
+#define IDC_PICTURE_1_MAX_EDIT 3120
+#define IDC_PICTURE_2_MIN_EDIT 3123
+#define IDC_PICTURE_2_MAX_EDIT 3126
+#define IDC_PICTURE_3_MIN_EDIT 3129
+#define IDC_PICTURE_3_MAX_EDIT 3132
+#define IDC_PICTURE_4_MIN_EDIT 3135
+#define IDC_PICTURE_4_MAX_EDIT 3138
 
 //
 #define IDC_BEGINNING_DIALOG_RICH_EDIT 100

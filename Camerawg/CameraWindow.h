@@ -39,6 +39,7 @@ class CameraWindow : public CDialog
 		void OnSize( UINT nType, int cx, int cy );
 		void OnVScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar );
 		void OnTimer( UINT_PTR id );
+
 		/// 
 		void handlePictureEditChange(UINT id);
 		void redrawPictures( bool andGrid );
@@ -64,7 +65,8 @@ class CameraWindow : public CDialog
 		LRESULT onCameraProgress( WPARAM wParam, LPARAM lParam );
 		void listViewDblClick( NMHDR* info, LRESULT* lResult );
 		void listViewLClick( NMHDR* info, LRESULT* lResult );
-
+		
+		void OnLButtonUp(UINT stuff, CPoint loc);
 		void OnRButtonUp( UINT stuff, CPoint loc );
 		void handleSpecialGreaterThanMaxSelection();
 		void handleSpecialLessThanMinSelection();

@@ -186,7 +186,10 @@ bool Script::colorScriptSection(DWORD beginingOfChange, DWORD endOfChange, profi
 {
 	long long beginingSigned = beginingOfChange;
 	long long endSigned = endOfChange;
-	
+	if (edit.GetSafeHwnd() == NULL)
+	{
+		return false;
+	}
 	int scriptLength = edit.GetTextLength(); 
 	CString buffer;
 	edit.GetWindowText(buffer);
