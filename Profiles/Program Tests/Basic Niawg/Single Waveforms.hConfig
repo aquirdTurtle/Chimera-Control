@@ -1,7 +1,9 @@
 Version: 1.1
 C:\Users\Regal Lab\Documents\Quantum-Gas-Assembly-Control\Profiles\Program Tests\Basic Niawg\single vertical waveform.nScript
 C:\Users\Regal Lab\Documents\Quantum-Gas-Assembly-Control\Profiles\Program Tests\Basic Niawg\single horizontal waveform.nScript
-
-0
+C:\Users\Regal Lab\Documents\Quantum-Gas-Assembly-Control\Profiles\Program Tests\Basic Niawg\.aScript
+2
+horfreq Not_Timelike Singleton 80
+vertfreq Not_Timelike Singleton 80
 
 END CONFIGURATION NOTES
