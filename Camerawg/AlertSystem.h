@@ -12,7 +12,7 @@ class AlertSystem
 		AlertSystem() : alertMessageID{ 0 } 
 		{
 			// load the music!
-			mciSendString("open \"C:\\Users\\Regal Lab\\Documents\\Quantum Gas Assembly Control\\Camera\\Final Fantasy VII - Victory Fanfare [HQ].mp3\" type mpegvideo alias mp3", NULL, 0, NULL);
+			mciSendString((std::string("open \"") + MUSIC_LOCATION + "\" type mpegvideo alias mp3").c_str(), NULL, 0, NULL);
 		}
 		~AlertSystem()
 		{
