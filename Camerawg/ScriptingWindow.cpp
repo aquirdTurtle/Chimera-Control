@@ -5,6 +5,7 @@
 #include "getFileName.h"
 #include "saveTextFileFromEdit.h"
 #include "commonFunctions.h"
+#include "textPromptDialogProcedure.h"
 
 IMPLEMENT_DYNAMIC(ScriptingWindow, CDialog)
 
@@ -15,6 +16,9 @@ BEGIN_MESSAGE_MAP(ScriptingWindow, CDialog)
 	ON_EN_CHANGE(IDC_HORIZONTAL_SCRIPT_EDIT, &ScriptingWindow::horizontalEditChange)
 	ON_EN_CHANGE(IDC_VERTICAL_SCRIPT_EDIT, &ScriptingWindow::verticalEditChange)
 	ON_EN_CHANGE(IDC_AGILENT_SCRIPT_EDIT, &ScriptingWindow::agilentEditChange)
+
+	ON_COMMAND(IDOK, &ScriptingWindow::catchEnter)
+
 	// menu stuff
 	ON_COMMAND_RANGE(MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &ScriptingWindow::passCommonCommand)
 	// 
@@ -22,6 +26,13 @@ BEGIN_MESSAGE_MAP(ScriptingWindow, CDialog)
 	ON_CBN_SELENDOK(IDC_HORIZONTAL_SCRIPT_COMBO, &ScriptingWindow::handleHorizontalScriptComboChange)
 	ON_CBN_SELENDOK(IDC_AGILENT_SCRIPT_COMBO, &ScriptingWindow::handleAgilentScriptComboChange)
 END_MESSAGE_MAP()
+
+
+void ScriptingWindow::catchEnter()
+{
+	errBox("Secret Message!");
+}
+
 
 void ScriptingWindow::OnSize(UINT nType, int cx, int cy)
 {
@@ -155,9 +166,9 @@ scriptInfo<bool> ScriptingWindow::getScriptSavedStatuses()
 scriptInfo<std::string> ScriptingWindow::getScriptAddresses()
 {
 	scriptInfo<std::string> addresses;
-	addresses.horizontalNIAWG = this->horizontalNiawgScript.getScriptAddress();
-	addresses.verticalNIAWG = this->verticalNiawgScript.getScriptAddress();
-	addresses.intensityAgilent = this->intensityAgilentScript.getScriptAddress();
+	addresses.horizontalNIAWG = horizontalNiawgScript.getScriptAddress();
+	addresses.verticalNIAWG = verticalNiawgScript.getScriptAddress();
+	addresses.intensityAgilent = intensityAgilentScript.getScriptAddress();
 	return addresses;
 }
 
@@ -404,12 +415,28 @@ int ScriptingWindow::openIntensityScript(std::string name)
 
 int ScriptingWindow::openVerticalScript(std::string name)
 {
-	return this->verticalNiawgScript.openParentScript(name, getCurrentProfileSettings(), mainWindowFriend->getAllVariables());
+	try
+	{
+		return verticalNiawgScript.openParentScript(name, getCurrentProfileSettings(), mainWindowFriend->getAllVariables());
+	}
+	catch(Error& err)
+	{
+		mainWindowFriend->getComm()->sendError(err.what());
+		return 0;
+	}
 }
 
 int ScriptingWindow::openHorizontalScript(std::string name)
 {
-	return horizontalNiawgScript.openParentScript(name, getCurrentProfileSettings(), mainWindowFriend->getAllVariables());
+	try
+	{
+		return horizontalNiawgScript.openParentScript(name, getCurrentProfileSettings(), mainWindowFriend->getAllVariables());
+	}
+	catch (Error& err)
+	{
+		mainWindowFriend->getComm()->sendError(err.what());
+		return 0;
+	}
 }
 
 void ScriptingWindow::considerScriptLocations()

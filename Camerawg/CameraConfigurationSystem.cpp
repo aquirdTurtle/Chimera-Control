@@ -174,7 +174,7 @@ AndorRunSettings CameraConfigurationSystem::openConfiguration(std::string config
 	configurationOpenFile >> settings.accumulationTime;
 	//SendMessage(eAccumulationTimeDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eAccumulationTime * 1000).c_str());
 	//SendMessage(eAccumulationTimeEdit.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eAccumulationTime * 1000).c_str());
-	configurationOpenFile >> settings.totalAccumulationNumber;
+	configurationOpenFile >> settings.accumulationNumber;
 	//SendMessage(eSetAccumulationNumberDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eCurrentAccumulationModeTotalAccumulationNumber * 1000).c_str());
 	//SendMessage(eAccumulationNumberEdit.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eCurrentAccumulationModeTotalAccumulationNumber * 1000).c_str());
 	// I don't remember what this was...
@@ -304,7 +304,7 @@ void CameraConfigurationSystem::saveConfiguration(bool isFromSaveAs, AndorRunSet
 	// accumulation cycle time
 	configurationSaveFile << std::to_string( settings.accumulationTime ) + "\n";
 	// accumulation #
-	configurationSaveFile << std::to_string( settings.totalAccumulationNumber) + "\n";
+	configurationSaveFile << std::to_string( settings.accumulationNumber) + "\n";
 	// plotting frequency
 	///configurationSaveFile << std::to_string(ePlottingFrequency) + "\n";
 	// atom threshold

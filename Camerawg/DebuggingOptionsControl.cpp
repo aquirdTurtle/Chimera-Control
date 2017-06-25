@@ -20,75 +20,62 @@ void DebuggingOptionsControl::initialize(int& id, POINT& loc, CWnd* parent, font
 {
 	// Debugging Options Title
 	header.ID = id++;
-	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
+	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
 	header.Create("DEBUGGING OPTIONS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, parent, header.ID);	
 	header.SetFont(fonts["Heading Font"]);
-	loc.y += 20;
 	///
-	if (id != IDC_DEBUG_OPTIONS_RANGE_BEGIN)
-	{
-		throw;
-	}
+	idVerify(id, IDC_DEBUG_OPTIONS_RANGE_BEGIN);
 	niawgMachineScript.ID = id++;
-	niawgMachineScript.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
+	niawgMachineScript.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
 	niawgMachineScript.Create("Output Machine NIAWG Script?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT,
 							  niawgMachineScript.sPos, parent, niawgMachineScript.ID);
 	niawgMachineScript.SetFont(fonts["Normal Font"]);
 	niawgMachineScript.SetCheck(BST_CHECKED);
-	this->currentOptions.outputNiawgMachineScript = true;
-	loc.y += 20;
+	currentOptions.outputNiawgMachineScript = true;
 	///
 	outputAgilentScript.ID = id++;
-	outputAgilentScript.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
+	outputAgilentScript.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
 	outputAgilentScript.Create("Output Agilent Script?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, outputAgilentScript.sPos, parent, outputAgilentScript.ID);
 	outputAgilentScript.SetFont(fonts["Normal Font"]);
 	outputAgilentScript.SetCheck(BST_CHECKED);
-	this->currentOptions.outputAgilentScript = true;
-	loc.y += 20;
+	currentOptions.outputAgilentScript = true;
 	///
 	niawgScript.ID = id++;
-	niawgScript.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
+	niawgScript.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
 	niawgScript.Create("Output Human NIAWG Script?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, niawgScript.sPos, parent, niawgScript.ID);
 	niawgScript.SetFont(fonts["Normal Font"]);
 	niawgScript.SetCheck(BST_CHECKED);
-	this->currentOptions.outputNiawgHumanScript = true;
+	currentOptions.outputNiawgHumanScript = true;
 
-	loc.y += 20;
 	///
-	this->readProgress.ID = id++;
-	readProgress.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
+	readProgress.ID = id++;
+	readProgress.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
 	readProgress.Create("Output Waveform Read Progress?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, readProgress.sPos, parent, readProgress.ID);
 	readProgress.SetFont(fonts["Normal Font"]);
 	readProgress.SetCheck(BST_CHECKED);
-	this->currentOptions.showReadProgress = true;
-	loc.y += 20;
+	currentOptions.showReadProgress = true;
 	///
-	this->writeProgress.ID = id++;
-	writeProgress.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
+	writeProgress.ID = id++;
+	writeProgress.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
 	writeProgress.Create("Output Waveform Write Progress?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, writeProgress.sPos, parent, writeProgress.ID);
 	writeProgress.SetFont(fonts["Normal Font"]);
 	writeProgress.SetCheck(BST_CHECKED);
-	this->currentOptions.showWriteProgress = true;
-	loc.y += 20;
+	currentOptions.showWriteProgress = true;
 	///
-	this->correctionTimes.ID = id++;
-	correctionTimes.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
+	correctionTimes.ID = id++;
+	correctionTimes.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
 	correctionTimes.Create("Output Phase Correction Waveform Times?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, correctionTimes.sPos, parent, correctionTimes.ID);
 	correctionTimes.SetFont(fonts["Normal Font"]);
 	correctionTimes.SetCheck(BST_CHECKED);
-	this->currentOptions.showCorrectionTimes= true;
-	loc.y += 20;
+	currentOptions.showCorrectionTimes= true;
 	///
-	this->excessInfo.ID = id++;
-	excessInfo.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
+	excessInfo.ID = id++;
+	excessInfo.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
 	excessInfo.Create("Output Excess Run Info?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, correctionTimes.sPos, parent, correctionTimes.ID);
 	excessInfo.SetFont(fonts["Normal Font"]);
 	excessInfo.SetCheck(BST_CHECKED);
-	this->currentOptions.outputExcessInfo = true;	
-	if (id - 1 != IDC_DEBUG_OPTIONS_RANGE_END)
-	{
-		throw;
-	}
+	currentOptions.outputExcessInfo = true;	
+	idVerify(id - 1, IDC_DEBUG_OPTIONS_RANGE_END);
 }
 
 void DebuggingOptionsControl::handleEvent(UINT id, MainWindow* comm)

@@ -47,6 +47,8 @@ class Error : public std::runtime_error
 
 // the following gives any throw call file and line information.
 #define thrower(arg) throw Error(arg, __FILE__, __LINE__)
+
+
 // shows error message if it exists. Could be function but for consistency with other ERR_X Macros...
 #define ERR_POP(string) {if (string != ""){errBox(string);}}
 // shows error message and exits given function with error.
@@ -113,4 +115,18 @@ template <typename type> std::string str( type quantity )
 }
 
 std::string doubleToString( double number, long precision );
+
+void inline errBox(std::string msg)
+{
+	MessageBox(0, msg.c_str(), "ERROR!", MB_ICONERROR);
+}
+
+void inline idVerify(int idSet, int idDefined)
+{
+	if (idSet != idDefined)
+	{
+		errBox("ERROR: these two IDs should match: " + str(idSet) + " and " + str(idDefined) + ". Please change the second ID in order to make them match. Throwing to show the location of this error...");
+		throw;
+	}
+}
 

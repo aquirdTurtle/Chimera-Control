@@ -44,6 +44,8 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 	ON_COMMAND(IDC_SET_TEMPERATURE_BUTTON, &CameraWindow::passSetTemperaturePress)
 	ON_COMMAND(IDC_SET_REPETITONS_PER_VARIATION_BUTTON, &CameraWindow::passRepsPerVarPress)
 	ON_COMMAND(IDC_SET_VARIATION_NUMBER, &CameraWindow::passVariationNumberPress)
+	ON_COMMAND(IDOK, &CameraWindow::catchEnter)
+	ON_COMMAND(IDC_SET_ANALYSIS_LOCATIONS, &CameraWindow::passSetAnalysisLocations)
 
 	ON_CBN_SELENDOK(IDC_TRIGGER_COMBO, &CameraWindow::passTrigger)
 	ON_CBN_SELENDOK( IDC_CAMERA_MODE_COMBO, &CameraWindow::passCameraMode )
@@ -55,10 +57,41 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 	ON_WM_LBUTTONUP()
 
 	ON_NOTIFY(LVN_COLUMNCLICK, IDC_PLOTTING_LISTVIEW, &CameraWindow::listViewLClick)
-	ON_NOTIFY(NM_DBLCLK, IDC_PLOTTING_LISTVIEW, &CameraWindow::listViewDblClick)
+	ON_NOTIFY(NM_DBLCLK, IDC_PLOTTING_LISTVIEW, &CameraWindow::handleDblClick)
 
 	ON_COMMAND(IDC_ALERTS_BOX, &CameraWindow::passAlertPress)
 END_MESSAGE_MAP()
+
+
+void CameraWindow::passSetAnalysisLocations()
+{
+	analysisHandler.onButtonPushed();
+}
+
+
+void CameraWindow::catchEnter()
+{
+	errBox("Hello there!");
+}
+
+
+void CameraWindow::passAlwaysShowGrid()
+{
+	if (alwaysShowGrid)
+	{
+		alwaysShowGrid = false;
+		menu.CheckMenuItem(ID_PICTURES_ALWAYSSHOWGRID, MF_UNCHECKED);
+	}
+	else
+	{
+		alwaysShowGrid = true;
+		menu.CheckMenuItem(ID_PICTURES_ALWAYSSHOWGRID, MF_CHECKED);
+	}
+	CDC* dc = GetDC();
+	pics.setAlwaysShowGrid(alwaysShowGrid, dc);	
+	ReleaseDC(dc);
+	pics.setSpecialGreaterThanMax(specialGreaterThanMax);
+}
 
 
 void CameraWindow::passRepsPerVarPress()
@@ -367,6 +400,7 @@ LRESULT CameraWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 	mainWindowFriend->getComm()->sendColorBox( { /*niawg*/'-', /*camera*/'B', /*intensity*/'-' } );
 	mainWindowFriend->getComm()->sendStatus( "Camera has finished taking pictures and is no longer running.\r\n" );
 	CameraSettings.cameraIsOn( false );
+	mainWindowFriend->handleFinish();
 	return 0;
 }
 
@@ -379,7 +413,7 @@ void CameraWindow::startCamera()
 	pics.refreshBackgrounds( dc );
 	ReleaseDC(dc);
 	stats.reset();
-	Andor.setSystem( this );
+	Andor.armCamera( this );
 	/// setup fits files
 	if (Andor.getSettings().cameraMode != "Video Mode")
 	{
@@ -401,14 +435,16 @@ bool CameraWindow::getCameraStatus()
 	return Andor.isRunning();
 }
 
-void CameraWindow::listViewDblClick(NMHDR* info, LRESULT* lResult)
+void CameraWindow::handleDblClick(NMHDR* info, LRESULT* lResult)
 {
 	analysisHandler.handleDoubleClick();
 }
 
 void CameraWindow::listViewLClick( NMHDR* info, LRESULT* lResult )
 {
+	
 	analysisHandler.handleRClick();
+
 }
 
 void CameraWindow::OnLButtonUp(UINT stuff, CPoint loc)

@@ -24,10 +24,7 @@ CameraImageDimensionsControl::CameraImageDimensionsControl()
 void CameraImageDimensionsControl::initialize( cameraPositions& pos, CWnd* parent, bool isTriggerModeSensitive, int& id )
 {
 	setImageDimensionsButton.ID = id++;
-	if (setImageDimensionsButton.ID != IDC_SET_IMAGE_PARAMETERS_BUTTON)
-	{
-		throw;
-	}
+	idVerify(setImageDimensionsButton.ID, IDC_SET_IMAGE_PARAMETERS_BUTTON);
 	setImageDimensionsButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
 	setImageDimensionsButton.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
 	setImageDimensionsButton.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };

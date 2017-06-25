@@ -20,6 +20,7 @@ class PictureManager
 		void drawDongles(CDC* dc, std::pair<int, int> selectedLocation );
 		void createPalettes( CDC* dc );
 		void handleEditChange( UINT id );
+		void setAlwaysShowGrid(bool showOption, CDC* easel);
 		void redrawPictures(CDC* easel, std::pair<int, int> selectedLocation );
 		void setPictureSliders(CWnd* parent);
 		void setNumberPicturesActive( int numberActive );
@@ -41,5 +42,6 @@ class PictureManager
 		bool autoScalePictures;
 		bool specialGreaterThanMax;
 		bool specialLessThanMin;
+		bool alwaysShowGrid;
 };
 

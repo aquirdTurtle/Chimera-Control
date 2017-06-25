@@ -18,19 +18,23 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_COMMAND_RANGE( IDC_DEBUG_OPTIONS_RANGE_BEGIN, IDC_DEBUG_OPTIONS_RANGE_END, &MainWindow::passDebugPress )
 	ON_COMMAND_RANGE( IDC_MAIN_OPTIONS_RANGE_BEGIN, IDC_MAIN_OPTIONS_RANGE_END, &MainWindow::passMainOptionsPress )
 	// 
-
+	
+	//
 	ON_CBN_SELENDOK( IDC_EXPERIMENT_COMBO, &MainWindow::handleExperimentCombo )
 	ON_CBN_SELENDOK( IDC_CATEGORY_COMBO, &MainWindow::handleCategoryCombo )
 	ON_CBN_SELENDOK( IDC_CONFIGURATION_COMBO, &MainWindow::handleConfigurationCombo )
 	ON_CBN_SELENDOK( IDC_SEQUENCE_COMBO, &MainWindow::handleSequenceCombo )
 	ON_CBN_SELENDOK( IDC_ORIENTATION_COMBO, &MainWindow::handleOrientationCombo )
 	// 
-	ON_NOTIFY( NM_DBLCLK, IDC_VARIABLES_LISTVIEW, &MainWindow::listViewDblClick )
+	ON_NOTIFY( NM_DBLCLK, IDC_VARIABLES_LISTVIEW, &MainWindow::handleDblClick )
 	ON_NOTIFY( NM_RCLICK, IDC_VARIABLES_LISTVIEW, &MainWindow::handleRClick )
+	ON_NOTIFY(NM_DBLCLK, IDC_SMS_TEXTING_LISTVIEW, &MainWindow::handleDblClick)
+	ON_NOTIFY(NM_RCLICK, IDC_SMS_TEXTING_LISTVIEW, &MainWindow::handleRClick)
+
 	ON_REGISTERED_MESSAGE( eStatusTextMessageID, &MainWindow::onStatusTextMessage )
 	ON_REGISTERED_MESSAGE( eErrorTextMessageID, &MainWindow::onErrorMessage )
 	ON_REGISTERED_MESSAGE( eFatalErrorMessageID, &MainWindow::onFatalErrorMessage )
-	ON_REGISTERED_MESSAGE( eNormalFinishMessageID, &MainWindow::onNormalFinishMessage )
+	//ON_REGISTERED_MESSAGE( eNormalFinishMessageID, &MainWindow::onNormalFinishMessage )
 	ON_REGISTERED_MESSAGE( eColoredEditMessageID, &MainWindow::onColoredEditMessage )
 	ON_REGISTERED_MESSAGE( eDebugMessageID, &MainWindow::onDebugMessage )
 
@@ -244,6 +248,7 @@ BOOL MainWindow::OnInitDialog()
 	settings.initialize( id, controlLocation, this, mainFonts, tooltips );
 	debugger.initialize( id, controlLocation, this, mainFonts, tooltips );
 	texter.initializeControls( controlLocation, this, false, id, mainFonts, tooltips );
+	texter.promptForEmailAddressAndPassword();
 	POINT statusLocations = { 960, 910 };
 	boxes.initialize( statusLocations, id, this, 960, mainFonts, tooltips );
 	shortStatus.initialize( statusLocations, this, id, mainFonts, tooltips );
@@ -513,8 +518,9 @@ void MainWindow::passMainOptionsPress(UINT id)
 }
 
 
-void MainWindow::listViewDblClick(NMHDR * pNotifyStruct, LRESULT * result)
+void MainWindow::handleDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
+	texter.updatePersonInfo();
 	variables.updateVariableInfo(this, TheScriptingWindow);
 	profile.updateConfigurationSavedStatus(false);
 }
@@ -522,6 +528,7 @@ void MainWindow::listViewDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 
 void MainWindow::handleRClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
+	texter.deletePersonInfo();
 	variables.deleteVariable();
 	profile.updateConfigurationSavedStatus(false);
 }
@@ -567,6 +574,22 @@ void MainWindow::handleOrientationCombo()
 void MainWindow::changeBoxColor( colorBoxes<char> colors )
 {
 	boxes.changeColor( colors );
+	if (colors.camera == 'R' || colors.intensity == 'R' || colors.niawg == 'R')
+	{
+		changeShortStatusColor("R");
+	}
+	else if (colors.camera == 'Y' || colors.intensity == 'Y' || colors.niawg == 'Y')
+	{
+		changeShortStatusColor("Y");
+	}
+	else if (colors.camera == 'G' || colors.intensity == 'G' || colors.niawg == 'G')
+	{
+		changeShortStatusColor("G");
+	}
+	else
+	{
+		changeShortStatusColor("B");
+	}
 }
 
 
@@ -626,14 +649,14 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-
+// I think I can delete this...
 LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
 {
 	myAgilent::agilentDefault();
 	std::string msgText = "Passively Outputting Default Waveform";
 	setShortStatus(msgText);
 	changeShortStatusColor("B");
-	comm.sendColorBox( { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' } );
+	comm.sendColorBox( { /*niawg*/'B', /*camera*/'-', /*intensity*/'-' } );
 	std::string orientation = getCurentProfileSettings().orientation;
 	try
 	{
@@ -643,12 +666,45 @@ LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
 	{
 		comm.sendError("ERROR! The niawg finished normally, but upon restarting the default waveform, threw the "
 			"following error: " + except.whatStr());
-		comm.sendColorBox( { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' } );
+		comm.sendColorBox( { /*niawg*/'B', /*camera*/'-', /*intensity*/'-' } );
 		comm.sendStatus("ERROR!\r\n");
 		return -3;
 	}
 	setNiawgRunningState( false );
 	return 0;
+}
+
+
+void MainWindow::handleFinish()
+{
+	time_t t = time(0);
+	struct tm now;
+	localtime_s(&now, &t);
+	std::string message = "Experiment Completed at ";
+	if (now.tm_hour < 10)
+	{
+		message += "0";
+	}
+	message += std::to_string(now.tm_hour) + ":";
+	if (now.tm_min < 10)
+	{
+		message += "0";
+	}
+	message += std::to_string(now.tm_min) + ":";
+	if (now.tm_sec < 10)
+	{
+		message += "0";
+	}
+	message += std::to_string(now.tm_sec);
+
+	try
+	{
+		texter.sendMessage(message, &python, "Finished");
+	}
+	catch (Error& err)
+	{
+		comm.sendError(err.what());
+	}
 }
 
 Communicator* MainWindow::getComm()

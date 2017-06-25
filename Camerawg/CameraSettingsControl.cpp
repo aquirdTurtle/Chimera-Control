@@ -149,6 +149,11 @@ void CameraSettingsControl::rearrange( std::string cameraMode, std::string trigg
 	setVarNum.rearrange(cameraMode, triggerMode, width, height, fonts);
 	varNumEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
 	varNumDisp.rearrange(cameraMode, triggerMode, width, height, fonts);
+
+	accumulationCycleTimeEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
+	accumulationCycleTimeLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
+	accumulationNumberEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
+	accumulationNumberLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
 }
 
 void CameraSettingsControl::setEmGain(AndorCamera* andorObj)
@@ -289,6 +294,32 @@ void CameraSettingsControl::updatePassivelySetSettings()
 		kineticCycleTimeEdit.SetWindowTextA(cstr(runSettings.kinetiCycleTime));
 		thrower("Please enter a valid float for the kinetic cycle time.");
 	}
+
+	accumulationCycleTimeEdit.GetWindowTextA(text);
+	try
+	{
+		runSettings.accumulationTime = std::stof(std::string(text));
+		accumulationCycleTimeEdit.SetWindowTextA(cstr(runSettings.accumulationTime));
+	}
+	catch (std::invalid_argument& err)
+	{
+		runSettings.accumulationTime = 0.1f;
+		accumulationCycleTimeEdit.SetWindowTextA(cstr(runSettings.accumulationTime));
+		thrower("Please enter a valid float for the accumulation cycle time.");
+	}
+
+	accumulationNumberEdit.GetWindowTextA(text);
+	try
+	{
+		runSettings.accumulationNumber= std::stof(std::string(text));
+		accumulationNumberEdit.SetWindowTextA(cstr(runSettings.accumulationNumber));
+	}
+	catch (std::invalid_argument& err)
+	{
+		runSettings.accumulationNumber = 0.1f;
+		accumulationNumberEdit.SetWindowTextA(cstr(runSettings.accumulationNumber));
+		thrower("Please enter a valid float for the Accumulation number.");
+	}
 }
 
 std::array<int, 4> CameraSettingsControl::getPaletteNumbers()
@@ -311,10 +342,7 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	cameraModeCombo.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 100 };
 	cameraModeCombo.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y + 100 };
 	cameraModeCombo.ID = id++;
-	if (cameraModeCombo.ID != IDC_CAMERA_MODE_COMBO)
-	{
-		throw;
-	}
+	idVerify(cameraModeCombo.ID, IDC_CAMERA_MODE_COMBO);
 	cameraModeCombo.Create(WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, cameraModeCombo.seriesPos, parent, cameraModeCombo.ID);
 	cameraModeCombo.fontType = Normal;
 	cameraModeCombo.AddString("Kinetic Series Mode");
@@ -330,10 +358,7 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	emGainButton.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 120, pos.videoPos.y + 20 };
 	emGainButton.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 120, pos.amPos.y + 20 };
 	emGainButton.ID = id++;
-	if (emGainButton.ID != IDC_SET_EM_GAIN_BUTTON)
-	{
-		throw;
-	}
+	idVerify(emGainButton.ID, IDC_SET_EM_GAIN_BUTTON);
 	emGainButton.Create("Set EM Gain", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, emGainButton.seriesPos, parent, emGainButton.ID);
 	emGainButton.fontType = Normal;
 	emGainButton.setToolTip("Set the state & gain of the EM gain of the camera. Enter a negative number to turn EM Gain"
@@ -366,10 +391,7 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	triggerCombo.videoPos = { pos.videoPos.x, pos.videoPos.y,pos.videoPos.x + 480, pos.videoPos.y + 800 };
 	triggerCombo.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 800 };
 	triggerCombo.ID = id++;
-	if (triggerCombo.ID != IDC_TRIGGER_COMBO)
-	{
-		throw;
-	}
+	idVerify(triggerCombo.ID, IDC_TRIGGER_COMBO);
 	triggerCombo.Create(WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, triggerCombo.seriesPos, parent, triggerCombo.ID);
 	// set options for the combo
 	triggerCombo.fontType = Normal;
@@ -390,10 +412,7 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	setTemperatureButton.Create("Set Camera Temperature (C)", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON, setTemperatureButton.seriesPos,
 								parent, setTemperatureButton.ID);
 	setTemperatureButton.fontType = Normal;
-	if (setTemperatureButton.ID != IDC_SET_TEMPERATURE_BUTTON)
-	{
-		throw;
-	}
+	idVerify(setTemperatureButton.ID, IDC_SET_TEMPERATURE_BUTTON);
 	// Temperature Edit
 	temperatureEdit.seriesPos = { pos.seriesPos.x + 270, pos.seriesPos.y, pos.seriesPos.x + 350, pos.seriesPos.y + 25 };
 	temperatureEdit.videoPos = { pos.videoPos.x + 270, pos.videoPos.y, pos.videoPos.x + 350, pos.videoPos.y + 25 };
@@ -441,10 +460,7 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	setRepsPerVar.videoPos = { -1,-1,-1,-1 };
 	setRepsPerVar.amPos = { -1,-1,-1,-1 };
 	setRepsPerVar.ID = id++;
-	if (setRepsPerVar.ID != IDC_SET_REPETITONS_PER_VARIATION_BUTTON)
-	{
-		throw;
-	}
+	idVerify(setRepsPerVar.ID, IDC_SET_REPETITONS_PER_VARIATION_BUTTON);
 	setRepsPerVar.Create("Set Rep. / Variation", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON, setRepsPerVar.seriesPos,
 						 parent, setRepsPerVar.ID);
 	setRepsPerVar.fontType = Normal;
@@ -472,10 +488,7 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	setVarNum.videoPos = { -1,-1,-1,-1 };
 	setVarNum.amPos = { -1,-1,-1,-1 };
 	setVarNum.ID = id++;
-	if (setVarNum.ID != IDC_SET_VARIATION_NUMBER)
-	{
-		throw;
-	}
+	idVerify(setVarNum.ID, IDC_SET_VARIATION_NUMBER);
 	setVarNum.Create("Set # Variations", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON, setVarNum.seriesPos, parent, setVarNum.ID);
 	setVarNum.fontType = Normal;
 
@@ -505,15 +518,27 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 
 	accumulationCycleTimeEdit.seriesPos = { -1,-1,-1,-1 };
 	accumulationCycleTimeEdit.videoPos = { -1,-1,-1,-1 };
-	accumulationCycleTimeEdit.amPos = { -1,-1,-1,-1 };
+	accumulationCycleTimeEdit.amPos = { pos.amPos.x + 240,pos.amPos.y,pos.amPos.x + 480, pos.amPos.y += 25 };
 	accumulationCycleTimeEdit.ID = id++;
-	accumulationCycleTimeEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY,
+	accumulationCycleTimeEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER ,
 									 accumulationCycleTimeEdit.seriesPos, parent, accumulationCycleTimeEdit.ID);
+	accumulationCycleTimeEdit.SetWindowTextA("0.1");
 	
 	// Accumulation Number
-	accumulationNumberLabel;
-	accumulationNumberEdit;
-
+	accumulationNumberLabel.seriesPos = { -1,-1,-1,-1 };
+	accumulationNumberLabel.videoPos = { -1,-1,-1,-1 };
+	accumulationNumberLabel.amPos = { pos.amPos.x,pos.amPos.y,pos.amPos.x + 240,pos.amPos.y + 25 };
+	accumulationNumberLabel.ID = id++;
+	accumulationNumberLabel.Create("Accumulation #", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY,
+								   accumulationNumberLabel.seriesPos, parent, accumulationNumberLabel.ID);
+	//
+	accumulationNumberEdit.seriesPos = { -1,-1,-1,-1 };
+	accumulationNumberEdit.videoPos = { -1,-1,-1,-1 };
+	accumulationNumberEdit.amPos = { pos.amPos.x + 240,pos.amPos.y,pos.amPos.x + 480,pos.amPos.y += 25 };
+	accumulationNumberEdit.ID = id++;
+	accumulationNumberEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER , accumulationNumberEdit.seriesPos, 
+								  parent, accumulationNumberEdit.ID);
+	accumulationNumberEdit.SetWindowTextA("1");
 	/// Kinetic Cycle Time
 	// Kinetic Cycle Time Label
 	kineticCycleTimeLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 240, pos.seriesPos.y + 25 };
@@ -644,7 +669,7 @@ void CameraSettingsControl::checkIfReady()
 	}
 	if ( runSettings.cameraMode == "Accumulate Mode" )
 	{
-		if ( runSettings.totalAccumulationNumber <= 0 )
+		if ( runSettings.accumulationNumber <= 0 )
 		{
 			thrower("ERROR: Please set the current Accumulation Number to a positive non-zero value.");
 		}

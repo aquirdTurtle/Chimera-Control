@@ -47,10 +47,7 @@ void AlertSystem::initialize(cameraPositions& pos, CWnd* parent, bool isTriggerM
 	alertsActiveCheckBox.videoPos = { -1,-1,-1,-1 };
 	alertsActiveCheckBox.ID = id++;
 	alertsActiveCheckBox.triggerModeSensitive = isTriggerModeSensitive;
-	if (alertsActiveCheckBox.ID != IDC_ALERTS_BOX)
-	{
-		throw;
-	}
+	idVerify(alertsActiveCheckBox.ID, IDC_ALERTS_BOX);
 	alertsActiveCheckBox.Create("Use?", WS_CHILD | WS_VISIBLE | ES_LEFT | ES_READONLY | BS_CHECKBOX, alertsActiveCheckBox.seriesPos, parent, alertsActiveCheckBox.ID);
 	alertsActiveCheckBox.fontType = Normal;
 	/// Alert threshold text

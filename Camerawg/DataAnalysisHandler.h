@@ -44,8 +44,8 @@ class DataAnalysisControl
 		bool currentlySettingAnalysisLocations;
 		Control<CStatic> currentDataSetNumberText;
 		Control<CStatic> currentDataSetNumberEdit;
-		Control<CButton> autoAnalyzeCheckBox;
+		//Control<CButton> autoAnalyzeCheckBox;
 		Control<CButton> setAnalysisLocationsButton;
-		Control<CButton> analyzeMostRecentButton;
+		//Control<CButton> analyzeMostRecentButton;
 		std::vector<std::pair<int, int>> atomLocations;
 };

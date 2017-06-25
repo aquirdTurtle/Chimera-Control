@@ -279,7 +279,10 @@ void ConfigurationFileSystem::newConfiguration(MainWindow* comm)
 		}
 	}
 
-	std::string configurationNameToSave = (const char*)DialogBoxParam(eGlobalInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure, (LPARAM)"Please enter new configuration name.");
+	std::string configurationNameToSave;
+	TextPromptDialog dialog(&configurationNameToSave, "Please enter new configuration name.");
+	dialog.DoModal();
+
 	if (configurationNameToSave == "")
 	{
 		// canceled
@@ -645,7 +648,10 @@ void ConfigurationFileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow,
 			thrower( "The category has not yet been selected! Please select a category or create a new one before trying to save this configuration.");
 		}
 	}
-	std::string configurationNameToSave = (const char*)DialogBoxParam(eGlobalInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure, (LPARAM)"Please enter new configuration name.");
+	std::string configurationNameToSave;
+	TextPromptDialog dialog(&configurationNameToSave, "Please enter new configuration name.");
+	dialog.DoModal();
+
 	if (configurationNameToSave == "")
 	{
 		// canceled
@@ -804,7 +810,11 @@ void ConfigurationFileSystem::renameConfiguration()
 			thrower( "The Configuration has not yet been selected! Please select a category or create a new one before trying to rename it." );
 		}
 	}
-	std::string newConfigurationName = (const char*)DialogBoxParam(eGlobalInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure, (LPARAM)"Please enter new configuration name.");
+
+	std::string newConfigurationName;
+	TextPromptDialog dialog(&newConfigurationName, "Please enter new configuration name.");
+	dialog.DoModal();
+
 	if (newConfigurationName == "")
 	{
 		// canceled
@@ -1065,7 +1075,11 @@ void ConfigurationFileSystem::saveCategoryAs( MainWindow* comm )
 		thrower( "The Experiment has not yet been selected! Please select a Experiment or create a new one before trying to save this "
 				 "category." );
 	}
-	std::string categoryNameToSave = (const char*)DialogBoxParam( eGlobalInstance, MAKEINTRESOURCE( IDD_TEXT_PROMPT_DIALOG ), 0, (DLGPROC)textPromptDialogProcedure, (LPARAM)"Please enter new configuration name." );
+
+	std::string categoryNameToSave;
+	TextPromptDialog dialog(&categoryNameToSave, "Please enter new category name.");
+	dialog.DoModal();
+
 	if (categoryNameToSave == "")
 	{
 		thrower( "ERROR: The program requested the saving of the category file to an empty name! This shouldn't happen, ask Mark about bugs." );
@@ -1176,8 +1190,11 @@ void ConfigurationFileSystem::newCategory()
 		thrower( "The Experiment has not yet been selected! Please select a Experiment or create a new one before trying to save this "
 				 "category." );
 	}
-	std::string categoryNameToSave = (const char*)DialogBoxParam( eGlobalInstance, MAKEINTRESOURCE( IDD_TEXT_PROMPT_DIALOG ), 0,
-		(DLGPROC) textPromptDialogProcedure, (LPARAM)"Please enter name for the new Category." );
+
+	std::string categoryNameToSave;
+	TextPromptDialog dialog(&categoryNameToSave, "Please enter new category name.");
+	dialog.DoModal();
+
 	// check to make sure that this is a name.
 	if (categoryNameToSave == "")
 	{
@@ -1402,7 +1419,10 @@ void ConfigurationFileSystem::saveExperimentAs(MainWindow* comm)
 	{
 		thrower("Please select an experiment before using \"Save As\"");
 	}
-	std::string experimentNameToSave = (const char*)DialogBoxParam(eGlobalInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure, (LPARAM)"Please enter new experiment name.");
+	std::string experimentNameToSave;
+	TextPromptDialog dialog(&experimentNameToSave, "Please enter a new experiment name.");
+	dialog.DoModal();
+
 	// check that the experiment name is not empty. 
 	if (experimentNameToSave == "")
 	{
@@ -1483,8 +1503,10 @@ void ConfigurationFileSystem::renameExperiment(MainWindow* comm)
 		}
 	}
 	// get name
-	std::string experimentNameToSave = (const char*)DialogBoxParam(eGlobalInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, 
-										(DLGPROC)textPromptDialogProcedure, (LPARAM)"Please enter new experiment name.");
+	std::string experimentNameToSave;
+	TextPromptDialog dialog(&experimentNameToSave, "Please enter a new experiment name.");
+	dialog.DoModal();
+
 	// check if file already exists. No extension, looking for a folder here. 
 	if (ConfigurationFileSystem::fileOrFolderExists(FILE_SYSTEM_PATH + experimentNameToSave))
 	{
@@ -1546,8 +1568,9 @@ void ConfigurationFileSystem::deleteExperiment()
 
 void ConfigurationFileSystem::newExperiment()
 {
-	std::string newExperimentName = (const char*)DialogBoxParam(eGlobalInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0,
-																(DLGPROC)textPromptDialogProcedure, (LPARAM)"Please enter name for the new Experiment.");
+	std::string newExperimentName;
+	TextPromptDialog dialog(&newExperimentName, "Please enter a new experiment name.");
+	dialog.DoModal();
 	std::string newExperimentPath = FILE_SYSTEM_PATH + newExperimentName;
 	CreateDirectory(newExperimentPath.c_str(), 0);
 	std::ofstream newExperimentConfigFile;
@@ -1826,9 +1849,11 @@ void ConfigurationFileSystem::saveSequence()
 	// if not saved...
 	if (currentProfileSettings.sequence == "")
 	{
-		TCHAR* result = NULL;
-		result = (TCHAR*)DialogBoxParam(eGlobalInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, textPromptDialogProcedure, (LPARAM)"Please enter a name for this sequence: ");
-		if (std::string(result) == "")
+		std::string result;
+		TextPromptDialog dialog(&result, "Please enter a new name for this sequence.");
+		dialog.DoModal();
+
+		if (result == "")
 		{
 			return;
 		}
@@ -1853,10 +1878,11 @@ void ConfigurationFileSystem::saveSequence()
 void ConfigurationFileSystem::saveSequenceAs()
 {
 	// prompt for name
-	TCHAR* result = NULL;
-	result = (TCHAR*)DialogBoxParam(eGlobalInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, textPromptDialogProcedure, (LPARAM)"Please Enter a new Sequence Name:");
+	std::string result;
+	TextPromptDialog dialog(&result, "Please enter a new name for this sequence.");
+	dialog.DoModal();
 	//
-	if (result == NULL || std::string(result) == "")
+	if (result == "" || result == "")
 	{
 		// user canceled or entered nothing
 		return;
@@ -1890,7 +1916,9 @@ void ConfigurationFileSystem::renameSequence()
 	{
 		thrower( "Please select a sequence for renaming." );
 	}
-	std::string newSequenceName = (const char*)DialogBoxParam( eGlobalInstance, MAKEINTRESOURCE( IDD_TEXT_PROMPT_DIALOG ), 0, (DLGPROC)textPromptDialogProcedure, (LPARAM)"Please enter new configuration name." );
+	std::string newSequenceName;
+	TextPromptDialog dialog(&newSequenceName, "Please enter a new name for this sequence.");
+	dialog.DoModal();
 	if (newSequenceName == "")
 	{
 		// canceled
@@ -1939,10 +1967,11 @@ void ConfigurationFileSystem::deleteSequence()
 void ConfigurationFileSystem::newSequence(CWnd* parent)
 {
 	// prompt for name
-	TCHAR* result = NULL;
-	result = (TCHAR*)DialogBoxParam(eGlobalInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), parent->GetSafeHwnd(), textPromptDialogProcedure, (LPARAM)"Please Enter a new Sequence Name:");
-	//
-	if (result == NULL || std::string(result) == "")
+	std::string result;
+	TextPromptDialog dialog(&result, "Please enter a new name for this sequence.");
+	dialog.DoModal();
+
+	if (result == "")
 	{
 		// user canceled or entered nothing
 		return;
@@ -2100,10 +2129,7 @@ void ConfigurationFileSystem::initializeControls( POINT& topLeftPos, CWnd* paren
 	// Experiment Combo
 	experimentCombo.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 800 };
 	experimentCombo.ID = id++;
-	if (experimentCombo.ID != IDC_EXPERIMENT_COMBO)
-	{
-		throw;
-	}
+	idVerify(experimentCombo.ID, IDC_EXPERIMENT_COMBO);
 	experimentCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
 							experimentCombo.sPos, parent, experimentCombo.ID );
 	experimentCombo.SetFont( fonts["Normal Font"] );
@@ -2111,10 +2137,7 @@ void ConfigurationFileSystem::initializeControls( POINT& topLeftPos, CWnd* paren
 	// Category Combo
 	categoryCombo.sPos = { topLeftPos.x + 480, topLeftPos.y, topLeftPos.x + 960, topLeftPos.y + 800 };
 	categoryCombo.ID = id++;
-	if (categoryCombo.ID != IDC_CATEGORY_COMBO)
-	{
-		throw;
-	}
+	idVerify(categoryCombo.ID, IDC_CATEGORY_COMBO);
 	categoryCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
 						  categoryCombo.sPos, parent, categoryCombo.ID );
 	categoryCombo.SetFont( fonts["Normal Font"] );
@@ -2146,10 +2169,7 @@ void ConfigurationFileSystem::initializeControls( POINT& topLeftPos, CWnd* paren
 	orientationNames.push_back( "Vertical" );
 	orientationCombo.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 120, topLeftPos.y + 800 };
 	orientationCombo.ID = id++;
-	if (orientationCombo.ID != IDC_ORIENTATION_COMBO)
-	{
-		throw;
-	}
+	idVerify(orientationCombo.ID, IDC_ORIENTATION_COMBO);
 	orientationCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
 							 orientationCombo.sPos, parent, orientationCombo.ID );
 	orientationCombo.SetFont( fonts["Normal Font"] );
@@ -2161,10 +2181,7 @@ void ConfigurationFileSystem::initializeControls( POINT& topLeftPos, CWnd* paren
 	// configuration combo
 	configCombo.sPos = { topLeftPos.x + 120, topLeftPos.y, topLeftPos.x + 960, topLeftPos.y + 800 };
 	configCombo.ID = id++;
-	if (configCombo.ID != IDC_CONFIGURATION_COMBO)
-	{
-		throw;
-	}
+	idVerify(configCombo.ID, IDC_CONFIGURATION_COMBO);
 	configCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, configCombo.sPos,
 						parent, configCombo.ID );
 	configCombo.SetFont( fonts["Normal Font"] );
@@ -2179,10 +2196,7 @@ void ConfigurationFileSystem::initializeControls( POINT& topLeftPos, CWnd* paren
 	// combo
 	sequenceCombo.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 800 };
 	sequenceCombo.ID = id++;
-	if (sequenceCombo.ID != IDC_SEQUENCE_COMBO)
-	{
-		throw;
-	}
+	idVerify(sequenceCombo.ID, IDC_SEQUENCE_COMBO);
 	sequenceCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
 						 sequenceCombo.sPos, parent, sequenceCombo.ID );
 	sequenceCombo.SetFont( fonts["Normal Font"] );

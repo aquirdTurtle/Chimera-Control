@@ -377,6 +377,11 @@ namespace commonFunctions
 				camWin->handleSpecialLessThanMinSelection();
 				break;
 			}
+			case ID_PICTURES_ALWAYSSHOWGRID:
+			{
+				camWin->passAlwaysShowGrid();
+				break;
+			}
 			case ID_RUNMENU_ABORTCAMERA:
 			{
 				try
@@ -617,7 +622,7 @@ namespace commonFunctions
 		}
 		beginInfo += "\r\n";
 		std::string beginQuestion = "\r\n\r\nBegin Waveform Generation with these Settings?";
-		INT_PTR areYouSure = DialogBoxParam( eGlobalInstance, MAKEINTRESOURCE( IDD_BEGINNING_SETTINGS ), 0, beginningSettingsDialogProc, (LPARAM)(beginInfo + beginQuestion).c_str() );
+		INT_PTR areYouSure = DialogBoxParam( NULL, MAKEINTRESOURCE( IDD_BEGINNING_SETTINGS ), 0, beginningSettingsDialogProc, (LPARAM)(beginInfo + beginQuestion).c_str() );
 		if (areYouSure == 0)
 		{
 			mainWin->getComm()->sendStatus( "Performing Initial Analysis and Writing and Loading Non-Varying Waveforms...\r\n" );

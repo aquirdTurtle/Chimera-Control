@@ -22,8 +22,8 @@ class SMSTextingControl
 								std::vector<CToolTipCtrl*>& tooltips);
 		void rearrange(RECT parentRectangle, std::string mode);
 		void sendMessage(std::string message, EmbeddedPythonHandler* pyHandler, std::string msgType);
-		void updatePersonInfo(HWND parentHandle, LPARAM lparamOfMessage);
-		void deletePersonInfo(HWND parentHandle, LPARAM lparamOfMessage);
+		void updatePersonInfo();
+		void deletePersonInfo();
 		void rearrange(int width, int height, fontMap fonts);
 	private:
 		std::string emailAddress;

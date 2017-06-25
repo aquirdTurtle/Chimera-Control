@@ -273,7 +273,7 @@ void AndorCamera::setAcquisitionMode()
 /* 
 	* Large function which initializes a given camera image run.
 	*/
-void AndorCamera::setSystem(CameraWindow* camWin)
+void AndorCamera::armCamera(CameraWindow* camWin)
 {
 	/// Set a bunch of parameters.
 	// Set to 1 MHz readout rate in both cases
@@ -624,13 +624,13 @@ void AndorCamera::setNumberAccumulations(bool isKinetic)
 	{
 		// right now, kinetic series mode always has one accumulation. could add this feature later if desired.
 		//setNumberAccumulations(true); // ???
-		//SetNumberAccumulations(1);
+		setAccumulationNumber(1);
 	}
 	else
 	{
 		// ???
 		// setNumberAccumulations(false); // ???
-		// SetNumberAccumulations(num);
+		setAccumulationNumber(runSettings.accumulationNumber);
 	}
 }
 

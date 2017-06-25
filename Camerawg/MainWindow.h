@@ -14,6 +14,7 @@
 #include "NiawgController.h"
 #include "ExperimentManager.h"
 #include "commonTypes.h"
+#include "EmbeddedPythonHandler.h"
 
 class ScriptingWindow;
 class CameraWindow;
@@ -176,7 +177,7 @@ class MainWindow : public CDialog
 		void changeShortStatusColor(std::string color);
 		void passDebugPress(UINT id);
 		void passMainOptionsPress(UINT id);
-		void listViewDblClick(NMHDR * pNotifyStruct, LRESULT * result);
+		void handleDblClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void handleRClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void handleExperimentCombo();
 		void handleCategoryCombo();
@@ -196,7 +197,7 @@ class MainWindow : public CDialog
 		void setNiawgRunningState( bool newRunningState );
 
 		void startExperiment( experimentThreadInput* input );
-
+		void handleFinish();
 	private:
 		DECLARE_MESSAGE_MAP();
 		CBrush* test;
@@ -223,5 +224,6 @@ class MainWindow : public CDialog
 		std::vector<CToolTipCtrl*> tooltips;
 		friend bool commonFunctions::handleCommonMessage(int msgID, CWnd* parent, MainWindow* mainWin, 
 														ScriptingWindow* scriptWin, CameraWindow* camWin);
+		EmbeddedPythonHandler python;
 };
 

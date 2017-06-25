@@ -74,7 +74,9 @@ bool VariableSystem::updateVariableInfo(MainWindow* mainWin, ScriptingWindow* sc
 		{
 			/// person name
 			// prompt for a name
-			std::string newName = (const char*)DialogBoxParam(eGlobalInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure, (LPARAM)"Please enter a name for the variable:");
+			std::string newName;// = (const char*)DialogBoxParam(NULL, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure, (LPARAM));
+			TextPromptDialog dialog(&newName, "Please enter a name for the variable:");
+			dialog.DoModal();
 			if (newName == "")
 			{
 				// probably canceled.
@@ -126,8 +128,9 @@ bool VariableSystem::updateVariableInfo(MainWindow* mainWin, ScriptingWindow* sc
 				break;
 			}
 			// else singleton.
-			std::string newValue = (const char*)DialogBoxParam(eGlobalInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure,
-				(LPARAM)"Please enter a value for this variable. Value will be formatted as a double.");
+			std::string newValue;
+			TextPromptDialog dialog(&newValue, "Please enter a value for this variable. Value will be formatted as a double.");
+			dialog.DoModal();
 			if (newValue == "")
 			{
 				// probably canceled.
@@ -342,10 +345,7 @@ bool VariableSystem::initializeControls(POINT &topLeftCorner, CWnd* parent, int&
 	header.SetFont(fonts["Heading Font"]);
 	topLeftCorner.y += 20;
 	listview.ID = id++;
-	if (listview.ID != IDC_VARIABLES_LISTVIEW)
-	{
-		throw;
-	}
+	idVerify(listview.ID, IDC_VARIABLES_LISTVIEW);
 	listview.sPos = { topLeftCorner.x, topLeftCorner.y, topLeftCorner.x + 480, topLeftCorner.y + 195 };
 	listview.Create(WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS, listview.sPos, parent, listview.ID);
 	listview.SetFont(fonts["Normal Font"]);

@@ -41,6 +41,7 @@ class CameraWindow : public CDialog
 		void OnTimer( UINT_PTR id );
 
 		/// 
+		void catchEnter();
 		void handlePictureEditChange(UINT id);
 		void redrawPictures( bool andGrid );
 		void changeBoxColor( colorBoxes<char> colors );
@@ -58,12 +59,14 @@ class CameraWindow : public CDialog
 		void passSetTemperaturePress();
 		void passRepsPerVarPress();
 		void passVariationNumberPress();
+		void passAlwaysShowGrid();
+		void passSetAnalysisLocations();
 		void setEmGain();
 		void handlePictureSettings( UINT id );
 		bool cameraIsRunning();
 		LRESULT onCameraFinish( WPARAM wParam, LPARAM lParam );
 		LRESULT onCameraProgress( WPARAM wParam, LPARAM lParam );
-		void listViewDblClick( NMHDR* info, LRESULT* lResult );
+		void handleDblClick( NMHDR* info, LRESULT* lResult );
 		void listViewLClick( NMHDR* info, LRESULT* lResult );
 		
 		void OnLButtonUp(UINT stuff, CPoint loc);
@@ -99,8 +102,9 @@ class CameraWindow : public CDialog
 		CMenu menu;
 		// some picture menu options
 		bool autoScalePictureData;
+		bool alwaysShowGrid;
 		bool specialLessThanMin;
 		bool specialGreaterThanMax;
 		bool realTimePic;
-
 };
+
