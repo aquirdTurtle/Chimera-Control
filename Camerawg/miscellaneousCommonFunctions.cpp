@@ -35,7 +35,7 @@ void appendText(std::string newText, CEdit& edit)
 	edit.SetSel(nLength, nLength);
 	// replace the selection
 	edit.ReplaceSel(newText.c_str());
-	return;
+	edit.LineScroll(INT_MAX);
 }
 
 // for mfc rich edits
@@ -47,7 +47,11 @@ void appendText(std::string newText, Control<CRichEditCtrl>& edit)
 	edit.SetSel(nLength, nLength);
 	// replace the selection
 	edit.ReplaceSel(newText.c_str());
-	return;
+	edit.SetFocus();
+	nLength = edit.GetWindowTextLength();
+	// put the selection at the end of text
+	edit.SetSel(nLength, nLength);
+	//	edit.LineScroll(INT_MAX);
 }
 
 std::string doubleToString( double number, long precision )

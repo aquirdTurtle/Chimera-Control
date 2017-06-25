@@ -73,8 +73,8 @@
 	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
 	const std::string LIB_PATH = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Waveforms Library\\";
 	const std::string DEFAULT_SCRIPT_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Default Scripts\\";
-	const std::string EXPERIMENT_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\"
-		"Individual Experiments\\";
+	const std::string EXPERIMENT_LOGGING_FILES_PATH = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\NIAWG Logging Files\\"
+														"Individual Experiments\\";
 	const std::string CODE_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Code Versions\\";
 	const std::string ACTUAL_CODE_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Cold Atoms Control Application\\";
 	const std::string PROFILES_PATH = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Profiles\\";
@@ -203,6 +203,8 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_MAIN_OPTIONS_RANGE_END 1035
 #define IDC_DEBUG_OPTIONS_RANGE_BEGIN 1037
 #define IDC_DEBUG_OPTIONS_RANGE_END 1043
+#define IDC_SMS_TEXTING_LISTVIEW 1045
+
 
 // Scripting Window
 #define SYNTAX_TIMER_ID 1999
@@ -214,19 +216,21 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_AGILENT_SCRIPT_EDIT 2014
 
 // Camera Window
+
 #define IDC_ALERTS_BOX 3004
-#define IDC_PLOTTING_LISTVIEW 3016
+#define IDC_SET_ANALYSIS_LOCATIONS 3011
+#define IDC_PLOTTING_LISTVIEW 3014
 
-#define IDC_CAMERA_MODE_COMBO 3018
-#define IDC_SET_EM_GAIN_BUTTON 3019
-#define IDC_TRIGGER_COMBO 3022
-#define IDC_SET_TEMPERATURE_BUTTON 3023
-#define PICTURE_SETTINGS_ID_START 3027
-#define PICTURE_SETTINGS_ID_END 3062
-#define IDC_SET_IMAGE_PARAMETERS_BUTTON 3063
+#define IDC_CAMERA_MODE_COMBO 3016
+#define IDC_SET_EM_GAIN_BUTTON 3017
+#define IDC_TRIGGER_COMBO 3020
+#define IDC_SET_TEMPERATURE_BUTTON 3021
+#define PICTURE_SETTINGS_ID_START 3025
+#define PICTURE_SETTINGS_ID_END 3060
+#define IDC_SET_IMAGE_PARAMETERS_BUTTON 3061
+#define IDC_SET_REPETITONS_PER_VARIATION_BUTTON 3074
+#define IDC_SET_VARIATION_NUMBER 3077
 
-#define IDC_SET_REPETITONS_PER_VARIATION_BUTTON 3076
-#define IDC_SET_VARIATION_NUMBER 3079
 
 #define IDC_PICTURE_1_MIN_EDIT 3117
 #define IDC_PICTURE_1_MAX_EDIT 3120

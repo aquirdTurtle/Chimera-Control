@@ -36,7 +36,7 @@ struct AndorRunSettings
 	//
 	float kinetiCycleTime;
 	float accumulationTime;
-	int totalAccumulationNumber;
+	int accumulationNumber;
 	std::vector<float> exposureTimes;
 	//
 	int picsPerRepetition;
@@ -120,7 +120,7 @@ class AndorCamera
 		AndorRunSettings getSettings();
 		void pauseThread();
 		void setSettings(AndorRunSettings settingsToSet);
-		void setSystem(CameraWindow* camWin);
+		void armCamera(CameraWindow* camWin);
 		std::vector<std::vector<long>> acquireImageData();
 		void setTemperature();
 		void setExposures();

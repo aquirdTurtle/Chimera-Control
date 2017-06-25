@@ -10,6 +10,22 @@ void PictureManager::setPalletes(std::array<int, 4> palleteIds)
 }
 
 
+void PictureManager::setAlwaysShowGrid(bool showOption, CDC* easel)
+{
+	alwaysShowGrid = showOption;
+	if (alwaysShowGrid)
+	{
+		if (!pictures[1].isActive())
+		{
+			pictures[0].drawGrid(easel, gridBrush);
+			return;
+		}
+		for (auto& pic : pictures)
+		{
+			pic.drawGrid(easel, gridBrush);
+		}
+	}
+}
 
 
 void PictureManager::redrawPictures(CDC* easel, std::pair<int, int> selectedLocation )
@@ -17,17 +33,24 @@ void PictureManager::redrawPictures(CDC* easel, std::pair<int, int> selectedLoca
 	if (!pictures[1].isActive())
 	{
 		pictures[0].redrawImage(easel);
-		pictures[0].drawGrid(easel, gridBrush );
+		if (alwaysShowGrid)
+		{
+			pictures[0].drawGrid(easel, gridBrush);
+		}
 		drawDongles(easel, selectedLocation );
 		return;
 	}
 	for (auto& pic : pictures)
 	{
 		pic.redrawImage(easel);
-		pic.drawGrid(easel, gridBrush );
+		if (alwaysShowGrid)
+		{
+			pic.drawGrid(easel, gridBrush);
+		}
 	}
 	drawDongles(easel, selectedLocation);
 }
+
 
 /*
  *  
@@ -84,6 +107,10 @@ void PictureManager::drawPicture( CDC* deviceContext, int pictureNumber, std::ve
 	std::tuple<bool, int, int> autoScaleInfo = std::make_tuple(autoScalePictures, minMaxPair.first, minMaxPair.second);
 	pictures[pictureNumber].drawPicture( deviceContext, picData, autoScaleInfo, specialLessThanMin, 
 										specialGreaterThanMax);
+	if (alwaysShowGrid)
+	{
+		pictures[pictureNumber].drawGrid(deviceContext, gridBrush);
+	}
 }
 
 void PictureManager::handleScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar)

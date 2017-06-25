@@ -72,7 +72,7 @@ class ScriptingWindow : public CDialog
 		void handleHorizontalScriptComboChange();
 		void handleVerticalScriptComboChange();
 		void handleAgilentScriptComboChange();
-
+		void catchEnter();
 	private:
 		DECLARE_MESSAGE_MAP();
 		

@@ -31,7 +31,8 @@ void StatusControl::initialize(POINT &loc, CWnd* parent, int& id, unsigned int s
 	//
 	edit.ID = id++;
 	edit.sPos = { loc.x, loc.y, loc.x + 480, loc.y + long(size)};
-	edit.Create(WS_CHILD | WS_VISIBLE | ES_READONLY | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | WS_BORDER, edit.sPos, parent, edit.ID);
+	edit.Create( WS_CHILD | WS_VISIBLE | ES_READONLY | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | WS_BORDER, 
+				edit.sPos, parent, edit.ID);
 	edit.SetFont(fonts["Code Font"]);
 	edit.SetBackgroundColor(0, RGB(15, 15, 20));
 	this->setDefaultColor(textColor);
@@ -63,8 +64,7 @@ void StatusControl::addStatusText(std::string text, bool noColor)
 	{
 		setColor();
 	}
-	appendText(text, this->edit);
-	return;
+	appendText(text, edit);
 }
 
 void StatusControl::setColor(COLORREF color)
@@ -76,21 +76,19 @@ void StatusControl::setColor(COLORREF color)
 	myCharFormat.dwMask = CFM_COLOR;
 	myCharFormat.crTextColor = color;
 	edit.SetSel(edit.GetTextLength(), edit.GetTextLength());
-	//edit.SetDefaultCharFormat(myCharFormat);
 	edit.SetSelectionCharFormat(myCharFormat);
 	edit.GetDefaultCharFormat(t2);
-	//errBox(std::to_string(t2.bCharSet));
 }
 
 void StatusControl::setColor()
 {
-	setColor(this->defaultColor);
+	setColor(defaultColor);
 }
 
 
 void StatusControl::clear() 
 {
-	this->edit.SetWindowTextA("");
+	edit.SetWindowTextA("");
 	setColor(RGB(255, 255, 255));
 	addStatusText("\r\n******************************\r\n", true);
 }

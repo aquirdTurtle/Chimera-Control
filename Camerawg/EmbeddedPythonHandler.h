@@ -16,7 +16,7 @@ class EmbeddedPythonHandler
 {
 	public:
 		// constructor is important.
-		EmbeddedPythonHandler();
+		EmbeddedPythonHandler::EmbeddedPythonHandler();
 		// for full data analysis set.
 		void runDataAnalysis(std::string date, long runNumber, long accumulations,
 			std::vector<std::pair<int, int>> atomLocations);

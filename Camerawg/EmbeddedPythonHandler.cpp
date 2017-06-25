@@ -32,7 +32,6 @@ EmbeddedPythonHandler::EmbeddedPythonHandler()
 	//get our catchOutErr object (of type CatchOutErr) created above
 	errorCatcher = PyObject_GetAttrString(mainModule, "catchOutErr"); 
 	// start using the run function.
-	ERR_POP(run("import stuffs"));
 	ERR_POP(run("from astropy.io import fits"));
 	ERR_POP(run("import smtplib"));
 	ERR_POP(run("from email.mime.text import MIMEText"));
@@ -45,6 +44,7 @@ EmbeddedPythonHandler::EmbeddedPythonHandler()
 	// Make sure that python can find my module.
 	ERR_POP(run("import sys"));
 	ERR_POP(run("sys.path.append(\"" + ANALYSIS_CODE_LOCATION + "\")"));
+	/*
 	ERR_POP(run("import AutoanalysisFunctions"));
 	PyObject* pythonModuleName = PyUnicode_DecodeFSDefault("AutoanalysisFunctions");
 	if (pythonModuleName == NULL)
@@ -64,6 +64,7 @@ EmbeddedPythonHandler::EmbeddedPythonHandler()
 	{
 		errBox("Failed to load python function \"singlePointAnalysis\"");
 	}
+	*/
 }
 
 

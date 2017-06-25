@@ -148,6 +148,6 @@ void NiawgWaiter::systemAbortCheck( Communicator* comm )
 	if (eAbortNiawgFlag )
 	{
 		comm->sendStatus( "Aborted!\r\n" );
-		thrower( "Aborted!" );
+		thrower( "Aborted!\r\n" );
 	}
 }

@@ -616,15 +616,18 @@ bool Script::saveScript(profileSettings profile, bool saveParent, bool niawgIsRu
 			errBox("The script is unnamed, and no Category has been set. Please select a category or select \"Save As\" to save in an arbitrary location.");
 			return true;
 		}
-		std::string newName = (const char*)DialogBoxParam(eGlobalInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure,
-			(LPARAM)("The " + deviceType + " script is unnamed! Please enter new name for the script, and the script will be saved in the current location: " + profile.experiment + " -> " + profile.category).c_str());
+		std::string newName;
+		TextPromptDialog dialog(&newName, "The " + deviceType + " script is unnamed! Please enter new name for the "
+								"script, and the script will be saved in the current location: " + profile.experiment 
+								+ " -> " + profile.category);
+		dialog.DoModal();
 		if (newName == "")
 		{
 			// canceled
 			return true;
 		}
 		std::string path = profile.categoryPath + newName + extension;
-		saveScriptAs(path, saveParent);
+		saveScriptAs(path, niawgIsRunning);//, saveParent);
 		// continue and resave anyways.
 	}
 
@@ -636,6 +639,14 @@ bool Script::saveScript(profileSettings profile, bool saveParent, bool niawgIsRu
 				"horizontal and vertical AOM scripts and the intensity script.", 0, 0);
 			return true;
 		}
+	}
+	if (saveParent)
+	{
+		relevantName = scriptName;
+	}
+	else
+	{
+		relevantName = currentViewName;
 	}
 
 
@@ -656,7 +667,7 @@ bool Script::saveScript(profileSettings profile, bool saveParent, bool niawgIsRu
 				relevantName + " While the proper extension is " + this->extension + ". The file will be saved as " +
 				nameNoExtension + extension);
 			std::string path = profile.categoryPath + nameNoExtension + extension;
-			this->saveScriptAs(path, saveParent);
+			saveScriptAs(path, saveParent);
 			return false;
 		}
 		else
@@ -664,13 +675,13 @@ bool Script::saveScript(profileSettings profile, bool saveParent, bool niawgIsRu
 			// take the extension off of the script name. That's no good.
 			if (saveParent)
 			{
-				this->scriptName = nameNoExtension;
+				scriptName = nameNoExtension;
 			}
 			else
 			{
-				this->currentViewName = nameNoExtension;
+				currentViewName = nameNoExtension;
 			}
-			saveFile.open(profile.categoryPath + nameNoExtension + extension, std::fstream::out);
+			saveFile.open(profile.categoryPath + scriptName + extension, std::fstream::out);
 		}
 	}
 	else
@@ -692,11 +703,14 @@ bool Script::saveScript(profileSettings profile, bool saveParent, bool niawgIsRu
 	updateSavedStatus(true);
 	return false;
 }
+
+
 // can save either parent or child depending on input.
 bool Script::saveScript(profileSettings profile, bool niawgIsRunning)
 {
 	return saveScript(profile, currentViewIsParent, niawgIsRunning);
 }
+
 
 //
 bool Script::saveScriptAs(std::string location, bool saveParent, bool niawgIsRunning)
@@ -728,9 +742,20 @@ bool Script::saveScriptAs(std::string location, bool saveParent, bool niawgIsRun
 	// this location should have the script name, the script category, and the script experiment location in it.
 	scriptAddress = location;
 	size_t index = location.find_last_of("\\");
+
 	if (saveParent)
 	{
-		scriptName = location.substr(index + 1, location.size());
+		std::string temp = location.substr(index + 1, location.size());
+		size_t extIndex = temp.find_last_of(".");
+		if (extIndex == -1)
+		{
+			scriptName = temp;
+		}
+		else
+		{
+			scriptName = temp.substr(0, extIndex);
+		}
+		currentViewName = scriptName;
 	}
 	else
 	{
@@ -750,7 +775,7 @@ bool Script::saveScriptAs(std::string location, bool saveParent, bool niawgIsRun
 // 
 bool Script::saveScriptAs(std::string location, bool niawgIsRunning )
 {
-	return this->saveScriptAs(location, this->currentViewIsParent, niawgIsRunning);
+	return saveScriptAs(location, this->currentViewIsParent, niawgIsRunning);
 }
 
 
@@ -779,8 +804,9 @@ bool Script::checkChildSave(profileSettings profile)
 		}
 		else if (answer == IDYES)
 		{
-			std::string newName = (const char*)DialogBoxParam(eGlobalInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure,
-				(LPARAM)("Please enter new name for the script " + scriptName + ".").c_str());
+			std::string newName;
+			TextPromptDialog dialog(&newName, "Please enter new name for the script " + scriptName + ".");
+			dialog.DoModal();
 			std::string path = profile.categoryPath + newName + this->extension;
 			this->saveScriptAs(path, false);
 			return false;
@@ -837,8 +863,10 @@ bool Script::checkSave(profileSettings profile, bool niawgIsRunning )
 		}
 		else if (answer == IDYES)
 		{
-			std::string newName = (const char*)DialogBoxParam(eGlobalInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure,
-				(LPARAM)("Please enter new name for the script " + scriptName + ".").c_str());
+			std::string newName;			
+			TextPromptDialog dialog(&newName, "Please enter new name for the script " + scriptName + ".");
+			dialog.DoModal();
+
 			std::string path = profile.categoryPath + newName + this->extension;
 			this->saveScriptAs(path, niawgIsRunning );
 			return false;
@@ -876,12 +904,15 @@ bool Script::checkSave(profileSettings profile, bool niawgIsRunning )
 //
 bool Script::renameScript(profileSettings profile)
 {
-	if (this->scriptName == "")
+	if (scriptName == "")
 	{
 		return false;
 	}
-	std::string newName = (const char*)DialogBoxParam(eGlobalInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure, 
-		(LPARAM)("Please enter new name for the script " + scriptName + ".").c_str());
+
+	std::string newName;
+	TextPromptDialog dialog(&newName, "Please enter a new name for this script.");
+	dialog.DoModal();
+
 	if (newName == "")
 	{
 		// canceled
@@ -991,6 +1022,10 @@ bool Script::openParentScript(std::string parentScriptFileAndPath, profileSettin
 	scriptAddress = location;
 	int index;
 	index = location.find_last_of(".");
+	if (index == -1)
+	{
+		thrower("ERROR: No extension in script name?!?!?!?");
+	}
 	// includes the .
 	std::string extStr = location.substr(index, location.size());
 	location = location.substr(0, index);

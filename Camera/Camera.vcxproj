@@ -72,14 +72,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>C:\Program Files\Andor SOLIS\Drivers;C:\Users\Mark\Documents\Cold Atoms Control Application\Camera; C:\Program Files\boost_1_60_0\lib32-msvc-14.0;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <LibraryPath>C:\Program Files\Andor SOLIS\Drivers;C:\Users\Mark\Documents\Cold Atoms Control Application\Camera;C:\Program Files\boost_1_60_0\lib32-msvc-14.0;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
     <IncludePath>C:\Users\Mark\Anaconda3\include;C:\Users\Mark\Documents\Cold Atoms Control Application\Camera;C:\Program Files\Andor SOLIS\Drivers;C:\Program Files\boost_1_60_0;$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\Users\Regal Lab\Anaconda3\include</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\Mark\Anaconda3\include; C:\Users\Mark\Documents\Cold Atoms Control Application\Camera;C:\Program Files\Andor SOLIS\Drivers;C:\Program Files\boost_1_60_0;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Mark\Anaconda3\include;C:\Users\Mark\Documents\Cold Atoms Control Application\Camera;C:\Program Files\Andor SOLIS\Drivers;C:\Program Files\boost_1_60_0;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Program Files\Andor SOLIS\Drivers;C:\Users\Mark\Documents\Cold Atoms Control Application\Camera; C:\Program Files\boost_1_60_0\lib64-msvc-14.0;$(LibraryPath)</LibraryPath>
-    <ExecutablePath>$(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(PATH);C:\Program Files\Andor SOLIS\Drivers; C:\Users\Mark\Documents\Cold Atoms Control Application\Camera</ExecutablePath>
+    <ExecutablePath>$(VC_ExecutablePath_x64);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(FxCopDir);$(PATH);C:\Program Files\Andor SOLIS\Drivers;C:\Users\Mark\Documents\Cold Atoms Control Application\Camera</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>

@@ -107,7 +107,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>niFgen.lib;atmcd64m.lib;cfitsio.lib;atmcd32m.lib;%(AdditionalDependencies);python35_d.lib;python35.lib</AdditionalDependencies>
+      <AdditionalDependencies>cfitsio.lib; niFgen.lib;atmcd64m.lib;cfitsio.lib;atmcd32m.lib;%(AdditionalDependencies);python35_d.lib;python35.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(NIIVIPATH)\Lib\msc;$(PXIPNPPATH)\winnt\Lib\msc;C:\Program Files\boost\boost_1_58_0\stage\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -170,7 +170,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(NIIVIPATH)\Lib_x64\msc;$(PXIPNPPATH)\winnt\Lib_x64\msc;C:\Program Files (x86)\IVI Foundation\VISA\WinNT\agvisa\Lib_x64\msc;D:\Program Files\boost_1_60_0\lib64-msvc-14.0</AdditionalLibraryDirectories>
-      <AdditionalDependencies>niFgen.lib;atmcd64m.lib;atmcd32m.lib;visa32.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies);python36.lib</AdditionalDependencies>
+      <AdditionalDependencies>cfitsio.lib; niFgen.lib;atmcd64m.lib;atmcd32m.lib;visa32.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies);python36.lib</AdditionalDependencies>
       <HeapReserveSize>
       </HeapReserveSize>
     </Link>

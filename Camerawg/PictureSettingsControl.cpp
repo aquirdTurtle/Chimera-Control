@@ -14,10 +14,8 @@ void PictureSettingsControl::cameraIsOn( bool state )
 
 void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int& id )
 {
-	if (id != PICTURE_SETTINGS_ID_START)
-	{
-		throw;
-	}
+	
+	idVerify(id, PICTURE_SETTINGS_ID_START);
 	// introducing things row by row
 	/// Set Picture Options
 	setPictureOptionsButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
@@ -207,10 +205,8 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	disablePictureControls( 3 );
 	// should move up
 	picsPerRepetitionUnofficial = 1;
-	if (id - 1 != PICTURE_SETTINGS_ID_END)
-	{
-		throw;
-	}
+	
+	idVerify(id - 1, PICTURE_SETTINGS_ID_END);
 }
 
 

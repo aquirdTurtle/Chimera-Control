@@ -18,10 +18,7 @@ void MainOptionsControl::initialize(int& id, POINT& loc, CWnd* parent, fontMap f
 	header.Create("MAIN OPTIONS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, parent, header.ID);
 	header.SetFont(fonts["Heading Font"]);
 	loc.y += 20;
-	if (id != IDC_MAIN_OPTIONS_RANGE_BEGIN)
-	{
-		throw;
-	}
+	idVerify(id, IDC_MAIN_OPTIONS_RANGE_BEGIN);
 	//
 	this->connectToMaster.ID = id++;
 	connectToMaster.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
@@ -45,12 +42,8 @@ void MainOptionsControl::initialize(int& id, POINT& loc, CWnd* parent, fontMap f
 	controlIntensity.SetFont(fonts["Normal Font"]);
 	controlIntensity.SetCheck(0);
 	currentOptions.programIntensity = false;
-	loc.y += 20;
-	if (id - 1 != IDC_MAIN_OPTIONS_RANGE_END)
-	{
-		throw;
-	}
-	return;
+	loc.y += 20;	
+	idVerify(id - 1, IDC_MAIN_OPTIONS_RANGE_END);
 }
 
 bool MainOptionsControl::handleEvent(UINT id, MainWindow* comm)

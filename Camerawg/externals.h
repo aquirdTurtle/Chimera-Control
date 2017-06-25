@@ -27,7 +27,6 @@ extern const niawgPair<std::string> ORIENTATION;
 
 
 extern bool eWaitError;
-extern HINSTANCE eGlobalInstance;
 
 // stuff for syntax coloring
 extern DWORD eIntensityMinChange, eIntensityMaxChange;

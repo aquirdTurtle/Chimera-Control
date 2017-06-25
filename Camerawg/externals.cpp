@@ -32,7 +32,6 @@ DWORD eIntensityMinChange = ULONG_MAX, eIntensityMaxChange = 0;
 DWORD eHorizontalMinChange = ULONG_MAX, eHorizontalMaxChange = 0;
 DWORD eVerticalMinChange = ULONG_MAX, eVerticalMaxChange = 0;
 //
-HINSTANCE eGlobalInstance;
 
 std::string eExperimentConfigPathString;
 std::string eVerticalParentScriptPathString;

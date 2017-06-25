@@ -7,14 +7,15 @@
 #include <algorithm>
 #include "reorganizeControl.h"
 #include <Algorithm>
-
+#include "textPromptDialogProcedure.h"
 
 void SMSTextingControl::promptForEmailAddressAndPassword()
 {
 	/// TODO
-	//emailAddress = (const char*)DialogBoxParam(eHInst, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)dialogProcedures::textPromptDialogProcedure, (LPARAM)std::string("Please enter an email address:").c_str());
-	//password = (const char*)DialogBoxParam(eHInst, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)dialogProcedures::textPromptDialogProcedure, (LPARAM)std::string("Please enter a password:").c_str());
-	return;
+	TextPromptDialog dialog(&emailAddress, "Please enter an email address:");
+	dialog.DoModal();	
+	TextPromptDialog dialog2(&password, "Please enter a password:");
+	dialog2.DoModal();
 }
 
 
@@ -36,6 +37,7 @@ void SMSTextingControl::initializeControls(POINT& pos, CWnd* parent, bool isTrig
 
 	peopleListView.sPos = { pos.x, pos.y + 25, pos.x + 480, pos.y + 120 };
 	peopleListView.ID = id++;
+	idVerify(peopleListView.ID, IDC_SMS_TEXTING_LISTVIEW);
 	peopleListView.Create(WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS, peopleListView.sPos, parent, peopleListView.ID);
 	peopleListView.fontType = Small;
 	LV_COLUMN listViewDefaultCollumn;
@@ -77,21 +79,24 @@ void SMSTextingControl::initializeControls(POINT& pos, CWnd* parent, bool isTrig
 	listViewDefaultItem.iSubItem = 4;
 	peopleListView.SetItem(&listViewDefaultItem);
 	pos.y += 120;
-	return;
 }
 
-void SMSTextingControl::updatePersonInfo(HWND parentHandle, LPARAM lparamOfMessage)
+
+void SMSTextingControl::updatePersonInfo()
 {
 	/// get the item and subitem
 	POINT cursorPos;
 	GetCursorPos(&cursorPos);
 	peopleListView.ScreenToClient(&cursorPos);
-	NMITEMACTIVATE itemClicked = *(NMITEMACTIVATE*)lparamOfMessage;
-	int subitemIndicator = itemClicked.iSubItem;
+
 	LVHITTESTINFO myItemInfo;
 	memset(&myItemInfo, 0, sizeof(LVHITTESTINFO));
-	myItemInfo.pt = cursorPos;	
-	int itemIndicator = peopleListView.SubItemHitTest(&myItemInfo); 
+	myItemInfo.pt = cursorPos;
+	int itemIndicator;
+	int subitemIndicator;
+	peopleListView.SubItemHitTest(&myItemInfo);
+	itemIndicator = myItemInfo.iItem;
+	subitemIndicator = myItemInfo.iSubItem;
 	if (itemIndicator == -1)
 	{
 		// user didn't click in an item.
@@ -134,23 +139,27 @@ void SMSTextingControl::updatePersonInfo(HWND parentHandle, LPARAM lparamOfMessa
 		{
 			/// person name
 			// prompt for a name
-			//std::string newName = (const char*)DialogBoxParam(eHInst, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)dialogProcedures::textPromptDialogProcedure, (LPARAM)std::string("Please enter a name:").c_str());
+			std::string newName;
+			TextPromptDialog dialog(&newName, "Please enter a name:");
+			dialog.DoModal();
+
 			// update the info inside
-			//peopleToText[itemIndicator].name = newName;
-			// update the screen
+			peopleToText[itemIndicator].name = newName;
 			listViewItem.iItem = itemIndicator;
 			listViewItem.iSubItem = subitemIndicator;
-			//listViewItem.pszText = (LPSTR)newName.c_str();
+			listViewItem.pszText = (LPSTR)newName.c_str();
 			peopleListView.SetItem(&listViewItem);
 			break;
 		}
 		case 1:
 		{
 			/// number
-			// Prompt for a phone number
-			//std::string phoneNumber = (const char*)DialogBoxParam(eHInst, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)dialogProcedures::textPromptDialogProcedure, (LPARAM)std::string("Please enter a phone number (numbers only!):").c_str());
+			// Prompt for a phone number			
+			std::string phoneNumber;
+			TextPromptDialog dialog(&phoneNumber, "Please enter a phone number (numbers only!):");
+			dialog.DoModal();
+
 			// test to see if it is a number like it should be (note: not sure if this catches a single decimal or not...)
-			std::string phoneNumber = "...";
 			try
 			{
 				long long test = std::stoll(phoneNumber);
@@ -174,12 +183,11 @@ void SMSTextingControl::updatePersonInfo(HWND parentHandle, LPARAM lparamOfMessa
 		{
 			/// provider
 			// Prompt for provider
-			std::string newProvider = "";
-			/*
-			std::string newProvider = (const char*)DialogBoxParam(eHInst, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, 
-																  (DLGPROC)dialogProcedures::textPromptDialogProcedure, 
-																  (LPARAM)std::string("Please enter provider (either \"verizon\", \"tmobile\", \"at&t\", or \"googlefi\"):").c_str());
-																  */
+			std::string newProvider;
+			TextPromptDialog dialog(&newProvider, 
+									"Please enter provider (either \"verizon\", \"tmobile\", \"at&t\", or "
+									"\"googlefi\"):");
+			dialog.DoModal();
 			std::transform(newProvider.begin(), newProvider.end(), newProvider.begin(), ::tolower);
 			if (newProvider != "verizon" && newProvider != "tmobile" && newProvider != "at&t" && newProvider != "googlefi")
 			{
@@ -235,19 +243,19 @@ void SMSTextingControl::updatePersonInfo(HWND parentHandle, LPARAM lparamOfMessa
 }
 
 
-void SMSTextingControl::deletePersonInfo(HWND parentHandle, LPARAM lparamOfMessage)
+void SMSTextingControl::deletePersonInfo()
 {
 	/// get the item and subitem
 	POINT cursorPos;
 	GetCursorPos(&cursorPos);
 	peopleListView.ScreenToClient(&cursorPos);
-	NMITEMACTIVATE itemClicked = *(NMITEMACTIVATE*)lparamOfMessage;
-	int subitemIndicator = itemClicked.iSubItem;
+
 	LVHITTESTINFO myItemInfo;
 	memset(&myItemInfo, 0, sizeof(LVHITTESTINFO));
 	myItemInfo.pt = cursorPos;
-	int itemIndicator = peopleListView.SubItemHitTest(&myItemInfo);
-
+	int itemIndicator;
+	peopleListView.SubItemHitTest(&myItemInfo);
+	itemIndicator = myItemInfo.iItem;
 	if (itemIndicator == -1 || itemIndicator == peopleToText.size())
 	{
 		// user didn't click in a deletable item.
@@ -282,7 +290,7 @@ void SMSTextingControl::sendMessage(std::string message, EmbeddedPythonHandler* 
 			if (person.textWhenComplete)
 			{
 				// send text gives an appropriate error message.
-				pyHandler->sendText( person, message, "Experiment Finished", this->emailAddress, this->password );
+				pyHandler->sendText(person, message, "Experiment Finished", this->emailAddress, this->password);
 			}
 		}
 	}

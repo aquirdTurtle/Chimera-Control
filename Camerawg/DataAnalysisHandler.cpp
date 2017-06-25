@@ -14,8 +14,8 @@ void DataAnalysisControl::rearrange(std::string cameraMode, std::string trigMode
 	currentDataSetNumberEdit.rearrange( cameraMode, trigMode, width, height, fonts );
 	currentDataSetNumberText.rearrange( cameraMode, trigMode, width, height, fonts );
 	setAnalysisLocationsButton.rearrange( cameraMode, trigMode, width, height, fonts );
-	analyzeMostRecentButton.rearrange( cameraMode, trigMode, width, height, fonts );
-	autoAnalyzeCheckBox.rearrange( cameraMode, trigMode, width, height, fonts );
+	// analyzeMostRecentButton.rearrange( cameraMode, trigMode, width, height, fonts );
+	// autoAnalyzeCheckBox.rearrange( cameraMode, trigMode, width, height, fonts );
 }
 
 std::vector<std::string> DataAnalysisControl::getActivePlotList()
@@ -61,7 +61,6 @@ void DataAnalysisControl::analyze( std::string date, long runNumber, long accumu
 // TODO: handle different cases where single locations or pairs of locations are being analyzed. 
 void DataAnalysisControl::onButtonPushed()
 {	
-	
 	if ( setAnalysisLocationsButton.GetCheck() )
 	{
 		// if pressed currently, then upress it.
@@ -116,7 +115,7 @@ void DataAnalysisControl::clearAtomLocations()
 }
 
 void DataAnalysisControl::initialize(cameraPositions& pos, int& id, CWnd* parent, fontMap fonts, 
-	std::vector<CToolTipCtrl*>& tooltips, int isTriggerModeSensitive)
+									 std::vector<CToolTipCtrl*>& tooltips, int isTriggerModeSensitive)
 {
 
 	header.seriesPos = { pos.seriesPos.x,  pos.seriesPos.y,  pos.seriesPos.x + 480, pos.seriesPos.y + 25 };
@@ -153,6 +152,8 @@ void DataAnalysisControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	currentDataSetNumberEdit.fontType = Normal;
 	pos.seriesPos.y += 25;
 	pos.amPos.y += 25;
+
+	/*
 	autoAnalyzeCheckBox.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 20 };
 	autoAnalyzeCheckBox.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 20 };
 	autoAnalyzeCheckBox.videoPos = { -1,-1,-1,-1 };
@@ -163,6 +164,7 @@ void DataAnalysisControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	autoAnalyzeCheckBox.fontType = Normal;
 	pos.seriesPos.y += 20;
 	pos.amPos.y += 20;
+	*/
 	// 
 	setAnalysisLocationsButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y,
 		pos.seriesPos.x + 480, pos.seriesPos.y + 25 };
@@ -170,6 +172,7 @@ void DataAnalysisControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 		pos.amPos.x + 480, pos.amPos.y + 25 };
 	setAnalysisLocationsButton.videoPos = { -1,-1,-1,-1 };
 	setAnalysisLocationsButton.ID = id++;
+	idVerify(setAnalysisLocationsButton.ID, IDC_SET_ANALYSIS_LOCATIONS);
 	setAnalysisLocationsButton.triggerModeSensitive = isTriggerModeSensitive;
 	setAnalysisLocationsButton.Create( "Set AutoAnalysis Points", WS_CHILD | WS_VISIBLE | BS_PUSHLIKE | BS_CHECKBOX,
 									   setAnalysisLocationsButton.seriesPos, parent, setAnalysisLocationsButton.ID );
@@ -178,6 +181,7 @@ void DataAnalysisControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	pos.amPos.y += 25;
 
 	//
+	/*
 	analyzeMostRecentButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y,
 		pos.seriesPos.x + 480, pos.seriesPos.y + 25 };
 	analyzeMostRecentButton.amPos = { pos.amPos.x, pos.amPos.y,
@@ -191,7 +195,7 @@ void DataAnalysisControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	analyzeMostRecentButton.fontType = Normal;
 	pos.seriesPos.y += 25;
 	pos.amPos.y += 25;
-
+	*/
 	/// PLOTTING FREQUENCY CONTROLS
 	// Set Plotting Frequency
 	updateFrequencyLabel1.seriesPos =  { pos.seriesPos.x,  pos.seriesPos.y,  pos.seriesPos.x  + 150, pos.seriesPos.y  + 25 };
@@ -228,10 +232,7 @@ void DataAnalysisControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	plotListview.amPos = { pos.amPos.x,     pos.amPos.y,   pos.amPos.x + 480,   pos.amPos.y += 100 };
 	plotListview.ID = id++;
 	plotListview.triggerModeSensitive = isTriggerModeSensitive;
-	if (plotListview.ID != IDC_PLOTTING_LISTVIEW)
-	{
-		throw;
-	}
+	idVerify(plotListview.ID, IDC_PLOTTING_LISTVIEW);
 	plotListview.Create(WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS, plotListview.seriesPos, parent,
 		plotListview.ID);
 	plotListview.fontType == Normal;
@@ -316,7 +317,7 @@ void DataAnalysisControl::handleDoubleClick()
 			/// person name
 			// prompt for a name
 			std::string newName;
-			//std::string newName = (const char*)DialogBoxParam(eGlobalInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure, (LPARAM)"Please enter a name for the variable:");
+			//std::string newName = (const char*)DialogBoxParam(NULL, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure, (LPARAM)"Please enter a name for the variable:");
 			if (newName == "")
 			{
 				// probably canceled.
