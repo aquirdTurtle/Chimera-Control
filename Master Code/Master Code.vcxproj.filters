@@ -63,9 +63,6 @@
     <ClInclude Include="myNIAWG.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="appendText.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="NoteSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -144,6 +141,9 @@
     <ClInclude Include="commonTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="StatusControl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Master Code.cpp">
@@ -171,9 +171,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="myNIAWG.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="appendText.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="NoteSystem.cpp">
@@ -237,6 +234,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Agilent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StatusControl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

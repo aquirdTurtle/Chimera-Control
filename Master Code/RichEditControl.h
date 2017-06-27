@@ -22,5 +22,4 @@ class RichEditControl
 		COLORREF defaultTextColor;
 		unsigned int textColor;
 		unsigned int backgroundColor;
-
 };

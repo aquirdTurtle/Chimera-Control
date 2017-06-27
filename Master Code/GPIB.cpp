@@ -39,16 +39,22 @@ Gpib::Gpib()
 {
 	int hpone, agilentTwo, srsTwo, srsThree, pulseGen, pulseGen2, microHP, powerHP, agilent;
 	// I think that a lot of these aren't actually doing anything...
-	hpone = gpibIbdev( 17 );
-	agilentTwo = gpibIbdev( 12 );
-	srsTwo = gpibIbdev( 6 );
-	srsThree = gpibIbdev( 19 );
-	pulseGen = gpibIbdev( 7 );
-	pulseGen2 = gpibIbdev( 4 );
-	microHP = gpibIbdev( 10 );
-	powerHP = gpibIbdev( 5 );
-	agilent = gpibIbdev( 11 );
-	return;
+	try
+	{
+		hpone = gpibIbdev(17);
+		agilentTwo = gpibIbdev(12);
+		srsTwo = gpibIbdev(6);
+		srsThree = gpibIbdev(19);
+		pulseGen = gpibIbdev(7);
+		pulseGen2 = gpibIbdev(4);
+		microHP = gpibIbdev(10);
+		powerHP = gpibIbdev(5);
+		agilent = gpibIbdev(11);
+	}
+	catch (Error& err)
+	{
+		errBox("GPIB Initialization failed!: " + err.whatStr());
+	}
 }
 
 
@@ -130,7 +136,7 @@ std::string Gpib::queryIdentity( int deviceAddress )
 	{
 		return gpibQuery( deviceAddress, "*IDN?" );
 	}
-	catch ( myException& exception )
+	catch ( Error& exception )
 	{
 		if ( exception.whatBare() == "gpib write failed! Code 0: System Error" )
 		{

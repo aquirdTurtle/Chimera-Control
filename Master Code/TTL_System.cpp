@@ -12,287 +12,36 @@
 
 void TtlSystem::abort()
 {
-
+	// TODO
 }
 
-std::string TtlSystem::getTtlSequenceMessage()
+
+std::array< std::array<bool, 16>, 4 > TtlSystem::getFinalSnapshot()
 {
-	std::string message;
-	for ( auto snap : this->ttlSnapshots)
+	return ttlSnapshots.back().ttlStatus;
+}
+
+
+void TtlSystem::setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > status)
+{
+	ttlStatus = status;
+
+	for (int rowInc = 0; rowInc < ttlStatus.size(); rowInc++)
 	{
-		message += std::to_string( snap.time ) + ":\n";
-		int rowInc = 0;
-		for ( auto row : snap.ttlStatus )
+		for (int numberInc = 0; numberInc < ttlStatus[0].size(); numberInc++)
 		{
-			switch ( rowInc )
+			if (ttlStatus[rowInc][numberInc])
 			{
-				case 0:
-					message += "A: ";
-					break;
-				case 1:
-					message += "B: ";
-					break;
-				case 2:
-					message += "C: ";
-					break;
-				case 3:
-					message += "D: ";
-					break;
+				ttlPushControls[rowInc][numberInc].SetCheck(BST_CHECKED);
 			}
-			rowInc++;
-			for ( auto num : row )
+			else
 			{
-				message += std::to_string(num) + ", ";
+				ttlPushControls[rowInc][numberInc].SetCheck(BST_UNCHECKED);
 			}
-			message += "\r\n";
-		}
-		message += "\r\n---\r\n";
-	}
-	return message;
-}
-
-void TtlSystem::dioOpen( WORD board, WORD baseio )
-{
-	if ( !DIO_SAFEMODE )
-	{
-		int result = raw_DIO64_Open( board, baseio );
-		if ( result )
-		{
-			thrower( "dioOpen failed! : (" + std::to_string( result ) + "): " + this->getErrorMessage( result ) );
+			ttlPushControls[rowInc][numberInc].colorState = 0;
+			ttlPushControls[rowInc][numberInc].RedrawWindow();
 		}
 	}
-	return;
-}
-
-
-void TtlSystem::dioMode( WORD board, WORD mode )
-{
-	if ( !DIO_SAFEMODE )
-	{
-		int result = raw_DIO64_Mode( board, mode );
-		if ( result )
-		{
-			thrower( "dioMode failed! : (" + std::to_string( result ) + "): " + this->getErrorMessage( result ) );
-		}
-	}
-	return;
-}
-
-
-void TtlSystem::dioLoad( WORD board, char *rbfFile, int inputHint, int outputHint )
-{
-	if ( !DIO_SAFEMODE )
-	{
-		int result = raw_DIO64_Load( board, rbfFile, inputHint, outputHint );
-		if ( result )
-		{
-			thrower( "dioLoad failed! : (" + std::to_string( result ) + "): " + this->getErrorMessage( result ) );
-		}
-	}
-	return;
-}
-
-
-void TtlSystem::dioClose( WORD board )
-{
-	if ( !DIO_SAFEMODE )
-	{
-		int result = raw_DIO64_Close( board );
-		if ( result )
-		{
-			thrower( "dioClose failed! : (" + std::to_string( result ) + "): " + this->getErrorMessage( result ) );
-		}
-	}
-	return;
-}
-
-
-void TtlSystem::dioInStart( WORD board, DWORD ticks, WORD& mask, WORD maskLength, WORD flags, WORD clkControl,
-							 WORD startType, WORD startSource, WORD stopType, WORD stopSource, DWORD AIControl,
-							 double& scanRate )
-{
-	if ( !DIO_SAFEMODE )
-	{
-		int result = raw_DIO64_In_Start( board, ticks, &mask, maskLength, flags, clkControl, startType, startSource, 
-										 stopType, stopSource, AIControl, &scanRate );
-		if ( result )
-		{
-			thrower( "dioInStart failed! : (" + std::to_string( result ) + "): " + this->getErrorMessage( result ) );
-		}
-	}
-	return;
-}
-
-
-void TtlSystem::dioInStatus( WORD board, DWORD& scansAvail, DIO64STAT& status )
-{
-	if ( !DIO_SAFEMODE )
-	{
-		int result = raw_DIO64_In_Status( board, &scansAvail, &status );
-		if ( result )
-		{
-			thrower( "dioInStatus failed! : (" + std::to_string( result ) + "): " + this->getErrorMessage( result ) );
-		}
-	}
-	return;
-}
-
-
-void TtlSystem::dioInRead( WORD board, WORD& buffer, DWORD scansToRead, DIO64STAT& status )
-{
-	if ( !DIO_SAFEMODE )
-	{
-		int result = raw_DIO64_In_Read( board, &buffer, scansToRead, &status );
-		if ( result )
-		{
-			thrower( "dioInRead failed! : (" + std::to_string( result ) + "): " + this->getErrorMessage( result ) );
-		}
-	}
-	return;
-}
-
-
-void TtlSystem::dioInStop( WORD board )
-{
-	if ( !DIO_SAFEMODE )
-	{
-		int result = raw_DIO64_In_Stop( board );
-		if ( result )
-		{
-			thrower( "dioInStop failed! : (" + std::to_string( result ) + "): " + this->getErrorMessage( result ) );
-		}
-	}
-	return;
-}
-
-
-void TtlSystem::dioForceOutput( WORD board, WORD* buffer, DWORD mask )
-{
-	if ( !DIO_SAFEMODE )
-	{
-		int result = raw_DIO64_Out_ForceOutput( board, buffer, mask );
-		if ( result )
-		{
-			thrower( "dioForceOutput failed! : (" + std::to_string( result ) + "): " + this->getErrorMessage( result ) );
-		}
-	}
-	return;
-}
-
-
-void TtlSystem::dioOutGetInput( WORD board, WORD& buffer )
-{
-	if ( !DIO_SAFEMODE )
-	{
-		int result = raw_DIO64_Out_GetInput( board, &buffer );
-		if ( result )
-		{
-			thrower( "dioOutGetInput failed! : (" + std::to_string( result ) + "): " + this->getErrorMessage( result ) );
-		}
-	}
-	return;
-}
-
-
-void TtlSystem::dioOutConfig( WORD board, DWORD ticks, WORD* mask, WORD maskLength, WORD flags, WORD clkControl,
-							   WORD startType, WORD startSource, WORD stopType, WORD stopSource, DWORD AIControl,
-							   DWORD reps, WORD ntrans, double& scanRate )
-{
-	if ( !DIO_SAFEMODE )
-	{
-		int result = raw_DIO64_Out_Config( board, ticks, mask, maskLength, flags, clkControl,
-										   startType, startSource, stopType, stopSource, AIControl,
-										   reps, ntrans, &scanRate );
-		if ( result )
-		{
-			thrower( "dioOutConfig failed! : (" + std::to_string( result ) + "): " + this->getErrorMessage( result ) );
-		}
-	}
-	return;
-}
-
-
-void TtlSystem::dioOutStart( WORD board )
-{
-	if ( !DIO_SAFEMODE )
-	{
-		int result = raw_DIO64_Out_Start( board );
-		if ( result )
-		{
-			thrower( "dioOutStart failed! : (" + std::to_string( result ) + "): " + this->getErrorMessage( result ) );
-		}
-	}
-	return;
-}
-
-
-void TtlSystem::dioOutStatus( WORD board, DWORD& scansAvail, DIO64STAT& status )
-{
-	if ( !DIO_SAFEMODE )
-	{
-		int result = raw_DIO64_Out_Status( board, &scansAvail, &status );
-		if ( result )
-		{
-			thrower( "dioOutStatus failed! : (" + std::to_string( result ) + "): " + this->getErrorMessage( result ) );
-		}
-	}
-	return;
-}
-
-
-void TtlSystem::dioOutWrite( WORD board, WORD* buffer, DWORD bufsize, DIO64STAT& status )
-{
-	if ( !DIO_SAFEMODE )
-	{
-		int result = raw_DIO64_Out_Write( board, buffer, bufsize, &status );
-		if ( result )
-		{
-			thrower( "dioOutWrite failed! : (" + std::to_string( result ) + "): " + this->getErrorMessage( result ) );
-		}
-	}
-	return;
-}
-
-
-void TtlSystem::dioOutStop( WORD board )
-{
-	if ( !DIO_SAFEMODE )
-	{
-		int result = raw_DIO64_Out_Stop( board );
-		if ( result )
-		{
-			thrower( "dioOutStop failed! : (" + std::to_string( result ) + "): " + this->getErrorMessage( result ) );
-		}
-	}
-	return;
-}
-
-
-void TtlSystem::dioSetAttr( WORD board, DWORD attrID, DWORD value )
-{
-	if ( !DIO_SAFEMODE )
-	{
-		int result = raw_DIO64_SetAttr( board, attrID, value );
-		if ( result )
-		{
-			thrower( "dioSetAttr failed! : (" + std::to_string( result ) + "): " + this->getErrorMessage( result ) );
-		}
-	}
-	return;
-}
-
-
-void TtlSystem::dioGetAttr( WORD board, DWORD& attrID, DWORD& value )
-{
-	if ( !DIO_SAFEMODE )
-	{
-		int result = raw_DIO64_GetAttr( board, &attrID, &value );
-		if ( result )
-		{
-			thrower( "dioGetAttr failed! : (" + std::to_string( result ) + "): " + this->getErrorMessage( result ) );
-		}
-	}
-	return;
 }
 
 
@@ -355,7 +104,7 @@ TtlSystem::TtlSystem()
 			dioOutConfig( 0, 0, temp, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, tempd );
 			// done initializing.
 		}
-		catch (myException& exception)
+		catch (Error& exception)
 		{
 			errBox( exception.what() );
 		}
@@ -364,15 +113,16 @@ TtlSystem::TtlSystem()
 
 std::string TtlSystem::getSystemInfo()
 {
-	DWORD answer = -1;
+	DWORD answer = 1000;
 	std::string info = "TTL System Info:\nInput Mode: ";
-	DWORD query = 0;
-	raw_DIO64_GetAttr( 1, &query, &answer);
+	dioGetAttr( 1, 0, answer);
 	switch ( answer )
 	{
-		case -1:
+		case 1100:
 			// didn't change from start; no board or system connected.
-			return "";
+			info += "no answer?\n";
+			break;
+			//return "";
 		case 0:
 			info += "Polled\n";
 			break;
@@ -388,11 +138,13 @@ std::string TtlSystem::getSystemInfo()
 		default:
 			info += "UNKNOWN!\n";
 	}
-	query = 1;
-	raw_DIO64_GetAttr( 1, &query, &answer );
+	dioGetAttr( 1, 1, answer );
 	info += "Output Mode: ";
 	switch ( answer )
 	{
+		case 1000:
+			info += "no answer?\n";
+			break;
 		case 0:
 			info += "Polled\n";
 			break;
@@ -408,16 +160,25 @@ std::string TtlSystem::getSystemInfo()
 		default:
 			info += "UNKNOWN!\n";
 	}
-	query = 2;
-	raw_DIO64_GetAttr( 1, &query, &answer );
+	dioGetAttr( 1, 2, answer );
+	if (answer == 1000)
+	{
+		info += "Input Buffer Size: no answer?\n";
+	}
 	info += "Input Buffer Size: " + std::to_string( answer ) + "\n";
-	query = 3;
-	raw_DIO64_GetAttr( 1, &query, &answer );
+	dioGetAttr( 1, 3, answer );
+	if (answer == 1000)
+	{
+		info += "Output Buffer Size: no answer?\n";
+	}
 	info += "Output Buffer Size: " + std::to_string( answer ) + "\n";
-	raw_DIO64_GetAttr( 1, &query, &answer );
+	dioGetAttr( 1, 4, answer );
 	info += "Major Clock Source: ";
 	switch ( answer )
 	{
+		case 1000:
+			info += "no answer?\n";
+			break;
 		case 0:
 			info += "Local 40 MHz Clock\n";
 			break;
@@ -628,34 +389,30 @@ void TtlSystem::initialize( POINT& loc, std::unordered_map<HWND, std::string>& t
 			}
 		}
 	}
-	//???
 	if (id != TTL_ID_END)
 	{
 		throw;
 	}
-
 	loc.y += 28 * 4;
-
-	return;
 }
+
 
 void TtlSystem::handleTTL_ScriptCommand( std::string command, timeType time, std::string name,
 										 std::vector<std::pair<unsigned int, unsigned int>>& ttlShadeLocations )
 {
-	this->handleTTL_ScriptCommand( command, time, name, "-.-", ttlShadeLocations );
+	handleTTL_ScriptCommand( command, time, name, "-.-", ttlShadeLocations );
 }
 
 
 void TtlSystem::handleTTL_ScriptCommand(std::string command, timeType time, std::string name, std::string pulseLength, std::vector<std::pair<unsigned int, unsigned int>>& ttlShadeLocations)
 {
-	if (!this->isValidTTLName(name))
+	if (!isValidTTLName(name))
 	{
 		thrower("ERROR: the name " + name + " is not the name of a ttl!");
-		return;
 	}
 	timeType pulseEndTime = time;
 	unsigned int row, collumn;
-	int ttlLine = this->getNameIdentifier(name, row, collumn);
+	int ttlLine = getNameIdentifier(name, row, collumn);
 	ttlShadeLocations.push_back({ row, collumn });
 	if (command == "on:")
 	{
@@ -688,7 +445,6 @@ void TtlSystem::handleTTL_ScriptCommand(std::string command, timeType time, std:
 			ttlOn( row, collumn, pulseEndTime );
 		}
 	}
-	return;
 }
 
 // simple...
@@ -727,13 +483,13 @@ void TtlSystem::handleTTLPress(UINT id)
 		}
 		if (holdStatus == false)
 		{
-			if (this->ttlStatus[row][number])
+			if (ttlStatus[row][number])
 			{
-				this->forceTtl(row, number, 0);
+				forceTtl(row, number, 0);
 			}
 			else
 			{
-				this->forceTtl(row, number, 1);
+				forceTtl(row, number, 1);
 			}
 		}
 		else
@@ -751,20 +507,15 @@ void TtlSystem::handleTTLPress(UINT id)
 				ttlPushControls[row][number].RedrawWindow();
 			}
 		}
-		return;
-	}
-	else
-	{
-		return;
 	}
 }
 
 // this function handles when the hold button is pressed.
 void TtlSystem::handleHoldPress()
 {
-	if (this->holdStatus == true)
+	if (holdStatus == true)
 	{
-		this->holdStatus = false;
+		holdStatus = false;
 		// make changes
 		for (int rowInc = 0; rowInc < ttlHoldStatus.size(); rowInc++)
 		{
@@ -775,14 +526,14 @@ void TtlSystem::handleHoldPress()
 					ttlPushControls[rowInc][numberInc].SetCheck(BST_CHECKED);					
 					ttlStatus[rowInc][numberInc] = true;
 					// actually change the ttl.
-					this->forceTtl(rowInc, numberInc, 1);
+					forceTtl(rowInc, numberInc, 1);
 				}
 				else
 				{
 					ttlPushControls[rowInc][numberInc].SetCheck(BST_UNCHECKED);
 					ttlStatus[rowInc][numberInc] = false;
 					// actually change the ttl.
-					this->forceTtl(rowInc, numberInc, 0);
+					forceTtl(rowInc, numberInc, 0);
 				}
 				ttlPushControls[rowInc][numberInc].colorState = 0;
 				ttlPushControls[rowInc][numberInc].RedrawWindow();
@@ -791,10 +542,9 @@ void TtlSystem::handleHoldPress()
 	}
 	else
 	{
-		this->holdStatus = true;
+		holdStatus = true;
 		ttlHoldStatus = ttlStatus;
 	}
-	return;
 }
 
 void TtlSystem::resetTTLEvents()
@@ -803,7 +553,6 @@ void TtlSystem::resetTTLEvents()
 	ttlSnapshots.clear();
 	individualTTL_CommandList.clear();
 	finalFormattedCommandForDIO.clear();
-	return;
 }
 
 HBRUSH TtlSystem::handleColorMessage(CWnd* window, std::unordered_map<std::string, HBRUSH> brushes, std::unordered_map<std::string, COLORREF> rGBs, CDC* cDC)
@@ -894,16 +643,14 @@ bool TtlSystem::isValidTTLName( std::string name )
 void TtlSystem::ttlOn(unsigned int row, unsigned int column, timeType time)
 {
 	// make sure it's either a variable or a number that can be used.
-	this->ttlCommandFormList.push_back({ {row, column}, time, true });
-	return;
+	ttlCommandFormList.push_back({ {row, column}, time, true });
 }
 
 
 void TtlSystem::ttlOff(unsigned int row, unsigned int column, timeType time)
 {
 	// check to make sure either variable or actual value.
-	this->ttlCommandFormList.push_back({ {row, column}, time, false });
-	return;
+	ttlCommandFormList.push_back({ {row, column}, time, false });
 }
 
 
@@ -947,7 +694,7 @@ double TtlSystem::getClockStatus()
 			thrower( "!" );
 		}
 	}
-	catch ( myException& )
+	catch ( Error& )
 	{
 		// get current time in ms...
 		// ***NOT SURE*** if this is what I want. The vb6 code used...
@@ -1073,7 +820,7 @@ void TtlSystem::writeData()
 		dioOutStop( 0 );
 	}
 	// literally.. just try.
-	catch ( myException& ) {} 
+	catch ( Error& ) {} 
 	// scan rate = 10 MHz
 	dioOutConfig( 0, 0, temp, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, scan );
 	dioOutStatus( 0, availableScans, status );
@@ -1141,9 +888,9 @@ double TtlSystem::getTotalTime()
 
 void TtlSystem::interpretKey(key variationKey, unsigned int variationNum)
 {
-	this->individualTTL_CommandList.clear();
+	individualTTL_CommandList.clear();
 
-	for (int commandInc = 0; commandInc < this->ttlCommandFormList.size(); commandInc++)
+	for (int commandInc = 0; commandInc < ttlCommandFormList.size(); commandInc++)
 	{
 		TTL_Command tempCommand;
 		tempCommand.line = ttlCommandFormList[commandInc].line;
@@ -1160,14 +907,13 @@ void TtlSystem::interpretKey(key variationKey, unsigned int variationNum)
 		tempCommand.time = variableTime + ttlCommandFormList[commandInc].time.second;
 		individualTTL_CommandList.push_back(tempCommand);
 	}
-	return;
 }
 
 
 void TtlSystem::analyzeCommandList()
 {
-	// each element of this is a different time (the double), and associated with each time is a vector which locates which commands were at this time, for
-	// ease of retrieving all of the values in a moment.
+	// each element of this is a different time (the double), and associated with each time is a vector which locates 
+	// which commands were on at this time, for ease of retrieving all of the values in a moment.
 	std::vector<std::pair<double, std::vector<unsigned int>>> timeOrganizer;
 	/// organize all of the commands.
 	for (int commandInc = 0; commandInc < individualTTL_CommandList.size(); commandInc++)
@@ -1176,14 +922,17 @@ void TtlSystem::analyzeCommandList()
 		int timeIndex = -1;
 		for (int timeInc = 0; timeInc < timeOrganizer.size(); timeInc++)
 		{
+			// if this time is already in the time-organizer,
 			if (individualTTL_CommandList[commandInc].time == timeOrganizer[timeInc].first)
 			{
+				// grab the index
 				timeIndex = timeInc;
 				break;
 			}
 		}
 		if (timeIndex == -1)
 		{
+			// It didn't find the time in the organizer, so it's a new time.
 			std::vector<unsigned int> tempCorrespondingCommands;
 			tempCorrespondingCommands.push_back( commandInc );
 			timeOrganizer.push_back({ individualTTL_CommandList[commandInc].time, tempCorrespondingCommands });
@@ -1193,6 +942,7 @@ void TtlSystem::analyzeCommandList()
 			timeOrganizer[timeIndex].second.push_back(commandInc);
 		}
 	}
+
 	// this one will have all of the times ordered in sequence, in case the other doesn't.
 	std::vector<std::pair<double, std::vector<unsigned int>>> orderedOrganizer;
 	/// order the commands.
@@ -1212,42 +962,49 @@ void TtlSystem::analyzeCommandList()
 		orderedOrganizer.push_back(timeOrganizer[index]);
 		timeOrganizer.erase(timeOrganizer.begin() + index);
 	}
+
 	/// now figure out the state of the system at each time.
-	
 	if (orderedOrganizer.size() == 0)
 	{
 		thrower("ERROR: No ttl commands! The Ttl system is the master behind everything in a repetition, and so it "
 				 "must contain something.\r\n");
-		return;
 	}
-
 
 	ttlSnapshots.clear();
-	ttlSnapshots.push_back( { 0, this->ttlStatus } );
-	// handle the zero case specially.
+	// start with the initial status.
+	ttlSnapshots.push_back({ 0, ttlStatus });
+	if (orderedOrganizer[0].first != 0)
+	{
+		// then there were no commands at time 0, so just set the initial state to be exactly the original state before
+		// the experiment started. I don't need to modify the first snapshot in this case, it's already set. Add a snapshot
+		// here so that the thing modified is the second snapshot.
+		ttlSnapshots.push_back({ 0, ttlStatus });
+	}
+
+	// handle the zero case specially. This may or may not be the literal first snapshot.
+	ttlSnapshots.back().time = orderedOrganizer[0].first;
 	for (int zeroInc = 0; zeroInc < orderedOrganizer[0].second.size(); zeroInc++)
 	{
-		// make sure to address he correct ttl. the ttl location is located in individuaTTL_CommandList but you need to make sure you access the correct 
-		// command.
+		// make sure to address he correct ttl. the ttl location is located in individuaTTL_CommandList but you need 
+		// to make sure you access the correct command.
 		unsigned int row =		individualTTL_CommandList[orderedOrganizer[0].second[zeroInc]].line.first;
-		unsigned int column =	individualTTL_CommandList[orderedOrganizer[0].second[zeroInc]].line.second;
-		ttlSnapshots.back().time = orderedOrganizer[0].first;
-		this->ttlSnapshots.back().ttlStatus[row][column]	= individualTTL_CommandList[orderedOrganizer[0].second[zeroInc]].value;
-		//... setting it to the command's state.
+		unsigned int column =	individualTTL_CommandList[orderedOrganizer[0].second[zeroInc]].line.second;		
+		ttlSnapshots.back().ttlStatus[row][column]	= individualTTL_CommandList[orderedOrganizer[0].second[zeroInc]].value;
 	}
 	
-
+	// already handled the first case.
 	for (int commandInc = 1; commandInc < orderedOrganizer.size(); commandInc++)
 	{
 		// first copy the last set so that things that weren't changed remain unchanged.
-		this->ttlSnapshots.push_back(this->ttlSnapshots.back());
+		ttlSnapshots.push_back(ttlSnapshots.back());
+		//
 		ttlSnapshots.back().time = orderedOrganizer[commandInc].first;
 		for (int zeroInc = 0; zeroInc < orderedOrganizer[commandInc].second.size(); zeroInc++)
 		{
 			// see description of this command above... update everything that changed at this time.
 			unsigned int row = individualTTL_CommandList[orderedOrganizer[commandInc].second[zeroInc]].line.first;
 			unsigned int column = individualTTL_CommandList[orderedOrganizer[commandInc].second[zeroInc]].line.second;
-			this->ttlSnapshots.back().ttlStatus[row][column] = individualTTL_CommandList[orderedOrganizer[commandInc].second[zeroInc]].value;
+			ttlSnapshots.back().ttlStatus[row][column] = individualTTL_CommandList[orderedOrganizer[commandInc].second[zeroInc]].value;
 		}
 	}
 	// phew.
@@ -1356,6 +1113,271 @@ void TtlSystem::zeroBoard()
 		for (int number = 0; number < this->ttlStatus[row].size(); number++)
 		{
 			this->forceTtl( row, number, 0 );
+		}
+	}
+}
+
+
+/// DIO64 Wrapper functions that I actually use
+std::string TtlSystem::getTtlSequenceMessage()
+{
+	std::string message;
+	for (auto snap : this->ttlSnapshots)
+	{
+		message += std::to_string(snap.time) + ":\n";
+		int rowInc = 0;
+		for (auto row : snap.ttlStatus)
+		{
+			switch (rowInc)
+			{
+				case 0:
+					message += "A: ";
+					break;
+				case 1:
+					message += "B: ";
+					break;
+				case 2:
+					message += "C: ";
+					break;
+				case 3:
+					message += "D: ";
+					break;
+			}
+			rowInc++;
+			for (auto num : row)
+			{
+				message += std::to_string(num) + ", ";
+			}
+			message += "\r\n";
+		}
+		message += "\r\n---\r\n";
+	}
+	return message;
+}
+
+void TtlSystem::dioOpen(WORD board, WORD baseio)
+{
+	if (!DIO_SAFEMODE)
+	{
+		int result = raw_DIO64_Open(board, baseio);
+		if (result)
+		{
+			thrower("dioOpen failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
+		}
+	}
+}
+
+
+void TtlSystem::dioMode(WORD board, WORD mode)
+{
+	if (!DIO_SAFEMODE)
+	{
+		int result = raw_DIO64_Mode(board, mode);
+		if (result)
+		{
+			thrower("dioMode failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
+		}
+	}
+}
+
+
+void TtlSystem::dioLoad(WORD board, char *rbfFile, int inputHint, int outputHint)
+{
+	if (!DIO_SAFEMODE)
+	{
+		int result = raw_DIO64_Load(board, rbfFile, inputHint, outputHint);
+		if (result)
+		{
+			thrower("dioLoad failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
+		}
+	}
+}
+
+
+void TtlSystem::dioClose(WORD board)
+{
+	if (!DIO_SAFEMODE)
+	{
+		int result = raw_DIO64_Close(board);
+		if (result)
+		{
+			thrower("dioClose failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
+		}
+	}
+}
+
+
+void TtlSystem::dioInStart(WORD board, DWORD ticks, WORD& mask, WORD maskLength, WORD flags, WORD clkControl,
+						   WORD startType, WORD startSource, WORD stopType, WORD stopSource, DWORD AIControl,
+						   double& scanRate)
+{
+	if (!DIO_SAFEMODE)
+	{
+		int result = raw_DIO64_In_Start(board, ticks, &mask, maskLength, flags, clkControl, startType, startSource,
+										stopType, stopSource, AIControl, &scanRate);
+		if (result)
+		{
+			thrower("dioInStart failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
+		}
+	}
+}
+
+
+void TtlSystem::dioInStatus(WORD board, DWORD& scansAvail, DIO64STAT& status)
+{
+	if (!DIO_SAFEMODE)
+	{
+		int result = raw_DIO64_In_Status(board, &scansAvail, &status);
+		if (result)
+		{
+			thrower("dioInStatus failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
+		}
+	}
+}
+
+
+void TtlSystem::dioInRead(WORD board, WORD& buffer, DWORD scansToRead, DIO64STAT& status)
+{
+	if (!DIO_SAFEMODE)
+	{
+		int result = raw_DIO64_In_Read(board, &buffer, scansToRead, &status);
+		if (result)
+		{
+			thrower("dioInRead failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
+		}
+	}
+}
+
+
+void TtlSystem::dioInStop(WORD board)
+{
+	if (!DIO_SAFEMODE)
+	{
+		int result = raw_DIO64_In_Stop(board);
+		if (result)
+		{
+			thrower("dioInStop failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
+		}
+	}
+}
+
+
+void TtlSystem::dioForceOutput(WORD board, WORD* buffer, DWORD mask)
+{
+	if (!DIO_SAFEMODE)
+	{
+		int result = raw_DIO64_Out_ForceOutput(board, buffer, mask);
+		if (result)
+		{
+			thrower("dioForceOutput failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
+		}
+	}
+}
+
+
+void TtlSystem::dioOutGetInput(WORD board, WORD& buffer)
+{
+	if (!DIO_SAFEMODE)
+	{
+		int result = raw_DIO64_Out_GetInput(board, &buffer);
+		if (result)
+		{
+			thrower("dioOutGetInput failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
+		}
+	}
+}
+
+
+void TtlSystem::dioOutConfig(WORD board, DWORD ticks, WORD* mask, WORD maskLength, WORD flags, WORD clkControl,
+							 WORD startType, WORD startSource, WORD stopType, WORD stopSource, DWORD AIControl,
+							 DWORD reps, WORD ntrans, double& scanRate)
+{
+	if (!DIO_SAFEMODE)
+	{
+		int result = raw_DIO64_Out_Config(board, ticks, mask, maskLength, flags, clkControl,
+										  startType, startSource, stopType, stopSource, AIControl,
+										  reps, ntrans, &scanRate);
+		if (result)
+		{
+			thrower("dioOutConfig failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
+		}
+	}
+}
+
+
+void TtlSystem::dioOutStart(WORD board)
+{
+	if (!DIO_SAFEMODE)
+	{
+		int result = raw_DIO64_Out_Start(board);
+		if (result)
+		{
+			thrower("dioOutStart failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
+		}
+	}
+}
+
+
+void TtlSystem::dioOutStatus(WORD board, DWORD& scansAvail, DIO64STAT& status)
+{
+	if (!DIO_SAFEMODE)
+	{
+		int result = raw_DIO64_Out_Status(board, &scansAvail, &status);
+		if (result)
+		{
+			thrower("dioOutStatus failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
+		}
+	}
+}
+
+
+void TtlSystem::dioOutWrite(WORD board, WORD* buffer, DWORD bufsize, DIO64STAT& status)
+{
+	if (!DIO_SAFEMODE)
+	{
+		int result = raw_DIO64_Out_Write(board, buffer, bufsize, &status);
+		if (result)
+		{
+			thrower("dioOutWrite failed! : (" + std::to_string(result) + "): " + this->getErrorMessage(result));
+		}
+	}
+}
+
+
+void TtlSystem::dioOutStop(WORD board)
+{
+	if (!DIO_SAFEMODE)
+	{
+		int result = raw_DIO64_Out_Stop(board);
+		if (result)
+		{
+			thrower("dioOutStop failed! : (" + std::to_string(result) + "): " + getErrorMessage(result));
+		}
+	}
+}
+
+
+void TtlSystem::dioSetAttr(WORD board, DWORD attrID, DWORD value)
+{
+	if (!DIO_SAFEMODE)
+	{
+		int result = raw_DIO64_SetAttr(board, attrID, value);
+		if (result)
+		{
+			thrower("dioSetAttr failed! : (" + std::to_string(result) + "): " + getErrorMessage(result));
+		}
+	}
+}
+
+
+void TtlSystem::dioGetAttr(WORD board, DWORD attrID, DWORD& value)
+{
+	if (!DIO_SAFEMODE)
+	{
+		int result = raw_DIO64_GetAttr(board, &attrID, &value);
+		if (result)
+		{
+			thrower("dioGetAttr failed! : (" + std::to_string(result) + "): " + getErrorMessage(result));
 		}
 	}
 }

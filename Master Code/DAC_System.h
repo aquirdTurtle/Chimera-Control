@@ -46,9 +46,10 @@ class DacSystem
 		void handleButtonPress(TtlSystem* ttls);
 		void setDacComplexEvent(int line, timeType time, std::string initVal, std::string finalVal, std::string rampTime, std::string rampInc);
 		void setForceDacEvent( int line, double val, TtlSystem* ttls );
+
+		void setDacStatusNoForceOut(std::array<double, 24> status);
 		void prepareDacForceChange(int line, double voltage, TtlSystem* ttls);
 		void stopDacs();
-		void resetDacs();
 		void configureClocks();
 		void setDacTtlTriggerEvents( TtlSystem* ttls );
 		void interpretKey(key variationKey, unsigned int variationNumber, std::vector<variable> vars);
@@ -82,9 +83,9 @@ class DacSystem
 
 		HBRUSH handleColorMessage(CWnd* hwnd, std::unordered_map<std::string, HBRUSH> brushes, std::unordered_map<std::string, COLORREF> rgbs, CDC* cDC);
 		void resetDACEvents();
-		
+		std::array<double, 24> getDacStatus();
+		std::array<double, 24> getFinalSnapshot();
 	private:
-
 		Control<CStatic> dacTitle;
 		Control<CButton> dacSetButton;
 		Control<CButton> zeroDacs;
@@ -131,5 +132,7 @@ class DacSystem
 		void daqWriteAnalogF64( TaskHandle handle, int32 numSampsPerChan, bool32 autoStart, float64 timeout, 
 								bool32 dataLayout, const float64 writeArray[], int32 *sampsPerChanWritten);
 		void daqStartTask( TaskHandle handle );
+
+
 
 };

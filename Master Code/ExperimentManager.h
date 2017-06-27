@@ -18,6 +18,7 @@
 #include "ScriptStream.h"
 #include "Agilent.h"
 #include "commonTypes.h"
+#include "StatusControl.h"
 
 struct ExperimentThreadInput
 {
@@ -26,8 +27,9 @@ struct ExperimentThreadInput
 	unsigned int repetitions;
 	std::vector<variable> vars;
 	ExperimentManager* thisObj;
-	RichEditControl* status;
-	RichEditControl* error;
+	
+	StatusControl* status;
+	StatusControl* error;
 	KeyHandler* key;
 	bool connectToNIAWG;
 	SocketWrapper* niawgSocket;
@@ -79,7 +81,7 @@ class ExperimentManager
 		void analyzeFunction( std::string function, std::vector<std::string> args, TtlSystem* ttls, DacSystem* dacs,
 							  std::vector<std::pair<unsigned int, unsigned int>>& ttlShades, std::vector<unsigned int>& dacShades, RhodeSchwarz* rsg,
 							  std::array<std::string, 3>& ramanFreqs );
-
+		// 
 		timeType operationTime;
 		bool experimentIsRunning;
 		/// task handles

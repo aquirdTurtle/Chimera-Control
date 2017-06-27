@@ -91,6 +91,8 @@ class TtlSystem
 		void handleHoldPress();
 		HBRUSH TtlSystem::handleColorMessage(CWnd* window, std::unordered_map<std::string, HBRUSH> brushes, std::unordered_map<std::string, COLORREF> rGBs, CDC* cDC);
 		std::string getSystemInfo();
+		std::array< std::array<bool, 16>, 4 > getFinalSnapshot();
+		void setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > status);
 
 		void rearrange(UINT width, UINT height, fontMap fonts);
 
@@ -165,7 +167,7 @@ class TtlSystem
 		void dioOutWrite(WORD board, WORD* buffer, DWORD bufsize, DIO64STAT& status);
 		void dioOutStop( WORD board );
 		void dioSetAttr( WORD board, DWORD attrID, DWORD value );
-		void dioGetAttr( WORD board, DWORD& attrID, DWORD& value );
+		void dioGetAttr( WORD board, DWORD attrID, DWORD& value );
 
 		// one control for each TTL
 		Control<CStatic> ttlTitle;

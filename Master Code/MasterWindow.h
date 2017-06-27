@@ -22,6 +22,7 @@
 #include "Debugger.h"
 #include "Agilent.h"
 #include "commonTypes.h"
+#include "StatusControl.h"
 
 class MasterWindow : public CDialog
 {
@@ -255,8 +256,7 @@ class MasterWindow : public CDialog
 		ConfigurationFileSystem profile{ PROFILES_PATH };
 		NoteSystem notes;
  		TtlSystem ttlBoard;
- 		RichEditControl errorStatus;
- 		RichEditControl generalStatus;
+		StatusControl errorStatus, generalStatus;
  		VariableSystem configVariables;
 		VariableSystem globalVariables;
  		DacSystem dacBoards;

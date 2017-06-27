@@ -593,7 +593,7 @@ void Script::initialize(int width, int height, POINT& startingLocation, std::vec
 	// filename
 	fileNameText.sPos = { startingLocation.x + 80, startingLocation.y, startingLocation.x + width - 20, startingLocation.y + 20 };
 	fileNameText.ID = id++;
-	fileNameText.Create(WS_CHILD | WS_VISIBLE | SS_ENDELLIPSIS, fileNameText.sPos, master, fileNameText.ID);
+	fileNameText.Create(WS_CHILD | WS_VISIBLE | SS_ENDELLIPSIS | ES_READONLY, fileNameText.sPos, master, fileNameText.ID);
 	fileNameText.fontType = Heading;
 	isSaved = true;
 	// help

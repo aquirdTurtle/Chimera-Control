@@ -18,9 +18,6 @@ ScriptedAgilentWaveform::ScriptedAgilentWaveform()
 	isVaried = false;
 };
 
-
-
-
 /*	* This function reads out a segment of script file and loads it into a segment to be calculated and manipulated.
 	* segNum: This tells the function what the next segment # is.
 	* script: this is the object to be read from.
@@ -821,7 +818,7 @@ void Agilent::initialize( POINT& loc, std::vector<CToolTipCtrl*>& toolTips, Mast
 		deviceInfo = visaIdentityQuery();
 		isConnected = true;
 	}
-	catch (myException& except)
+	catch (Error& except)
 	{
 		deviceInfo = "Disconnected";
 		isConnected = false;
