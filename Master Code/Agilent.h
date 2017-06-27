@@ -60,7 +60,7 @@ struct sineInfo : public generalAgilentOutputInfo
 struct preloadedArbInfo : public generalAgilentOutputInfo
 {
 	std::string address;
-	// could add burst settings options
+	// could add burst settings options, impedance options, etc.
 };
 
 

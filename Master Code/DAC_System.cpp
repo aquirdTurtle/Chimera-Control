@@ -6,15 +6,22 @@
 #include "ExperimentManager.h"
 #include "MasterWindow.h"
 
+
+std::array<double, 24> DacSystem::getDacStatus()
+{
+	return dacValues;
+}
+
+
 void DacSystem::abort()
 {
-
+	// TODO!
 }
 
 std::string DacSystem::getDacSequenceMessage()
 {
 	std::string message;
-	for ( auto snap : this->dacSnapshots )
+	for ( auto snap : dacSnapshots )
 	{
 		std::string time = std::to_string( snap.time );
 		time.erase( time.find_last_not_of( '0' ) + 1, std::string::npos );
@@ -47,7 +54,6 @@ void DacSystem::daqCreateTask( const char* taskName, TaskHandle& handle )
 					 + this->getErrorMessage( result ) );
 		}
 	}
-	return;
 }
 
 
@@ -65,7 +71,6 @@ void DacSystem::daqCreateAOVoltageChan( TaskHandle taskHandle, const char physic
 					 + this->getErrorMessage( result ) );
 		}
 	}
-	return;
 }
 
 
@@ -198,7 +203,7 @@ DacSystem::DacSystem()
 		daqCreateDIChan( digitalDAC_0_01, "PXI1Slot3/port0/line1", "DIDAC_0", DAQmx_Val_ChanPerLine );
 	}
 	// I catch here because it's the constructor, and catching elsewhere is weird.
-	catch (myException& exception)
+	catch (Error& exception)
 	{
 		errBox( exception.what() );
 	}
@@ -208,15 +213,25 @@ DacSystem::DacSystem()
 std::string DacSystem::getDacSystemInfo()
 {
 	int32 answer = -1;
-	// don't think I'm calling this right but there are no fucking examples.
-	DAQmxGetDevProductCategory( "Board 1 Dacs 0-7", &answer );
-	if ( answer == 12588 )
+	int32 errCode = DAQmxGetDevProductCategory( "Board 1 Dacs 0-7", &answer );
+	
+	// TODO: interpret the number which is the answer to the query.
+	if (errCode != 0)
 	{
-		return "Dac System: Not connected?";
+		std::string err = getErrorMessage(0);
+		return "DAC System: Error! " + err;
+	}
+	else if ( answer == 12588 )
+	{
+		return "Dac System: Unknown Category?";
+	}
+	else if (answer == -1)
+	{
+		return "Dac System: no response... " + std::to_string(answer);
 	}
 	else
 	{
-		return "Dac System: Connected... " + std::to_string( answer );
+		return "Dac System: Connected... result = " + std::to_string( answer );
 	}
 }
 
@@ -343,16 +358,19 @@ void DacSystem::initialize(POINT& pos, std::vector<CToolTipCtrl*>& toolTips, Mas
 		breakoutBoardEdits[dacInc].colorState = 0;
 		breakoutBoardEdits[dacInc].Create( WS_CHILD | WS_VISIBLE | WS_BORDER, breakoutBoardEdits[dacInc].sPos,
 										   master, breakoutBoardEdits[dacInc].ID );
-		breakoutBoardEdits[dacInc].setToolTip(this->dacNames[dacInc], toolTips, master);
+		breakoutBoardEdits[dacInc].setToolTip(dacNames[dacInc], toolTips, master);
 
 		pos.y += 25;
 	}
-	return;
 }
 
+
+/*
+ * get the text from every edit and prepare a change.
+ */
 void DacSystem::handleButtonPress(TtlSystem* ttls)
 {
-	this->dacComplexEventsList.clear();
+	dacComplexEventsList.clear();
 
 	for (int dacInc = 0; dacInc < dacLabels.size(); dacInc++)
 	{
@@ -361,14 +379,13 @@ void DacSystem::handleButtonPress(TtlSystem* ttls)
 		try
 		{
 			double tempDac = _tstof(text);
-			this->prepareDacForceChange(dacInc, tempDac, ttls);
+			prepareDacForceChange(dacInc, tempDac, ttls);
 		}
 		catch (std::exception& exc)
 		{
 			thrower("ERROR: value entered in DAC #" + std::to_string(dacInc) + " (" + text.GetString() + ") failed to convert to a double!");
 		}
 	}
-	return;
 }
 
 
@@ -427,38 +444,63 @@ void DacSystem::analyzeDAC_Commands()
 		//thrower("ERROR: no dac commands...?");
 		return;
 	}
-	this->dacSnapshots.clear();
+	dacSnapshots.clear();
 	// first copy the initial settings so that things that weren't changed remain unchanged.
-	this->dacSnapshots.push_back( { 0, this->dacValues } );
-	// handle the zero case specially.
-	// for every event at the first time...
-	this->dacSnapshots.back().time = orderedOrganizer[0].first;
+	dacSnapshots.push_back( { 0, dacValues } );
+
+	/*
+	if (orderedOrganizer[0].first != 0)
+	{
+		// then no over-writing the first values.
+		dacSnapshots.push_back({ 0, dacValues });
+	}
+	
+	dacSnapshots.back().time = orderedOrganizer[0].first;
 	for (int zeroInc = 0; zeroInc < orderedOrganizer[0].second.size(); zeroInc++)
-	{		
-		this->dacSnapshots.back().dacValues[orderedOrganizer[0].second[zeroInc].line] = orderedOrganizer[0].second[zeroInc].value;
+	{
+		dacSnapshots.back().dacValues[orderedOrganizer[0].second[zeroInc].line] = orderedOrganizer[0].second[zeroInc].value;
 		//... setting it to the command's state.
 	}
+	*/
 	// 
-	for (int commandInc = 1; commandInc < orderedOrganizer.size(); commandInc++)
+	for (int commandInc = 0; commandInc < orderedOrganizer.size(); commandInc++)
 	{
 		// first copy the last set so that things that weren't changed remain unchanged.
-		this->dacSnapshots.push_back(this->dacSnapshots.back());
-		this->dacSnapshots.back().time = orderedOrganizer[commandInc].first;
+		dacSnapshots.push_back(this->dacSnapshots.back());
+		dacSnapshots.back().time = orderedOrganizer[commandInc].first;
 		for (int zeroInc = 0; zeroInc < orderedOrganizer[commandInc].second.size(); zeroInc++)
 		{
 			// see description of this command above... update everything that changed at this time.
-			this->dacSnapshots.back().dacValues[orderedOrganizer[commandInc].second[zeroInc].line] = orderedOrganizer[commandInc].second[zeroInc].value;
+			dacSnapshots.back().dacValues[orderedOrganizer[commandInc].second[zeroInc].line] = orderedOrganizer[commandInc].second[zeroInc].value;
 		}
 	}
 	// phew.
-
-	return;
 }
-
+std::array<double, 24> DacSystem::getFinalSnapshot()
+{
+	return dacSnapshots.back().dacValues;
+}
 
 std::array<std::string, 24> DacSystem::getAllNames()
 {
-	return this->dacNames;
+	return dacNames;
+}
+
+/*
+ * IMPORTANT: this does not actually change any of the outputs of the board. It is meant to be called when things have
+ * happened such that the control doesn't know what it's own status is, e.g. at the end of an experiment, since the 
+ * program doesn't change it's internal memory of all of the status of the dacs as the experiment runs. (it can't, 
+ * besides it would intensive to keep track of that in real time).
+ */
+void DacSystem::setDacStatusNoForceOut(std::array<double, 24> status)
+{
+	// set the internal values
+	dacValues = status;
+	// change the edits
+	for (int dacInc = 0; dacInc < dacLabels.size(); dacInc++)
+	{
+		breakoutBoardEdits[dacInc].SetWindowTextA(cstr(dacValues[dacInc]));
+	}
 }
 
 
@@ -482,7 +524,7 @@ std::string DacSystem::getErrorMessage(int errorCode)
 
 void DacSystem::interpretKey(key variationKey, unsigned int variationNumber, std::vector<variable> vars)
 {
-	this->dacIndividualEvents.clear();
+	dacIndividualEvents.clear();
 	for (int eventInc = 0; eventInc < this->dacComplexEventsList.size(); eventInc++)
 	{
 		double value, time;
@@ -498,7 +540,7 @@ void DacSystem::interpretKey(key variationKey, unsigned int variationNumber, std
 		}
 		else
 		{
-			double varTime;
+			double varTime = 0;
 			for (auto variableTimeString : dacComplexEventsList[eventInc].time.first)
 			{
 				bool isVar = false;
@@ -514,7 +556,6 @@ void DacSystem::interpretKey(key variationKey, unsigned int variationNumber, std
 				if (!isVar)
 				{
 					thrower( "ERROR: the time string " + variableTimeString + " is not a variable!" );
-					return;
 				}
 				varTime += variationKey[variableTimeString].first[variationNumber];
 			}			
@@ -562,11 +603,10 @@ void DacSystem::interpretKey(key variationKey, unsigned int variationNumber, std
 				if (!isVar)
 				{
 					thrower("ERROR: the dac value " + dacComplexEventsList[eventInc].finalVal + " is not a variable or a double!");
-					return;
 				}
 			}
 
-			this->dacIndividualEvents.push_back(tempEvent);
+			dacIndividualEvents.push_back(tempEvent);
 
 		}
 		else
@@ -592,14 +632,14 @@ void DacSystem::interpretKey(key variationKey, unsigned int variationNumber, std
 				}
 				if (!isVar)
 				{
-					thrower("ERROR: the dac initial value " + dacComplexEventsList[eventInc].initVal + " is not a variable or a double!");
-					return;
+					thrower("ERROR: the dac initial value " + dacComplexEventsList[eventInc].initVal 
+							+ " is not a variable or a double!");
 				}
 			}
 			// deal with final value;
 			try
 			{
-			finalValue = std::stod( dacComplexEventsList[eventInc].finalVal );
+				finalValue = std::stod( dacComplexEventsList[eventInc].finalVal );
 			}
 			catch ( std::invalid_argument& )
 			{
@@ -615,8 +655,8 @@ void DacSystem::interpretKey(key variationKey, unsigned int variationNumber, std
 				}
 				if ( !isVar )
 				{
-					thrower( "ERROR: the dac final value " + dacComplexEventsList[eventInc].finalVal + " is not a variable or a double!" );
-					return;
+					thrower( "ERROR: the dac final value " + dacComplexEventsList[eventInc].finalVal + 
+							" is not a variable or a double!" );
 				}
 			}
 			// deal with ramp inc
@@ -639,7 +679,6 @@ void DacSystem::interpretKey(key variationKey, unsigned int variationNumber, std
 				if ( !isVar )
 				{
 					thrower( "ERROR: the dac ramp increment value " + dacComplexEventsList[eventInc].rampInc + " is not a variable or a double!" );
-					return;
 				}
 			}
 			// This might be the first not i++ usage of a for loop I've ever done... XD
@@ -652,7 +691,7 @@ void DacSystem::interpretKey(key variationKey, unsigned int variationNumber, std
 				{
 					tempEvent.value = dacValue;
 					tempEvent.time = currentTime;
-					this->dacIndividualEvents.push_back( tempEvent );
+					dacIndividualEvents.push_back( tempEvent );
 					currentTime += timeInc;
 				}
 			}
@@ -662,17 +701,16 @@ void DacSystem::interpretKey(key variationKey, unsigned int variationNumber, std
 				{
 					tempEvent.value = dacValue;
 					tempEvent.time = currentTime;
-					this->dacIndividualEvents.push_back( tempEvent );
+					dacIndividualEvents.push_back( tempEvent );
 					currentTime += timeInc;
 				}
 			}
 			// and get the final value.
 			tempEvent.value = finalValue;
 			tempEvent.time = currentTime;
-			this->dacIndividualEvents.push_back( tempEvent );
+			dacIndividualEvents.push_back( tempEvent );
 		}
 	}
-	return;
 }
 
 // note that this is not directly tied to changing any "current" parameters in the DacSystem object (it of course changes a list parameter). The 
@@ -691,28 +729,27 @@ void DacSystem::setDacComplexEvent( int line, timeType time, std::string initVal
 	dacComplexEventsList.push_back( eventInfo );
 	// you need to set up a corresponding trigger to tell the dacs to change the output at the correct time. 
 	// This is done later on interpretation of ramps etc.
-	return;
 }
 
 
 void DacSystem::setDacTtlTriggerEvents(TtlSystem* ttls)
 {
-	for ( auto snapshot : this->dacSnapshots)
+	for ( auto snapshot : dacSnapshots)
 	{
 		// turn them on...
 		timeType triggerOnTime;
 		triggerOnTime.second = snapshot.time;
-		ttls->ttlOn( dacTriggerLines[0].first, dacTriggerLines[0].second, triggerOnTime );
-		ttls->ttlOn( dacTriggerLines[1].first, dacTriggerLines[1].second, triggerOnTime );
-		ttls->ttlOn( dacTriggerLines[2].first, dacTriggerLines[2].second, triggerOnTime );
+		ttls->ttlOnDirect( dacTriggerLines[0].first, dacTriggerLines[0].second, snapshot.time);
+		ttls->ttlOnDirect( dacTriggerLines[1].first, dacTriggerLines[1].second, snapshot.time);
+		ttls->ttlOnDirect( dacTriggerLines[2].first, dacTriggerLines[2].second, snapshot.time);
 
 		// turn them off...
 		timeType triggerOffTime;
 		triggerOffTime.second = snapshot.time + dacTriggerTime;
 
-		ttls->ttlOff( dacTriggerLines[0].first, dacTriggerLines[0].second, triggerOffTime );
-		ttls->ttlOff( dacTriggerLines[1].first, dacTriggerLines[1].second, triggerOffTime );
-		ttls->ttlOff( dacTriggerLines[2].first, dacTriggerLines[2].second, triggerOffTime );
+		ttls->ttlOffDirect( dacTriggerLines[0].first, dacTriggerLines[0].second, snapshot.time + dacTriggerTime);
+		ttls->ttlOffDirect( dacTriggerLines[1].first, dacTriggerLines[1].second, snapshot.time + dacTriggerTime);
+		ttls->ttlOffDirect( dacTriggerLines[2].first, dacTriggerLines[2].second, snapshot.time + dacTriggerTime);
 	}
 }
 
@@ -722,14 +759,13 @@ void DacSystem::prepareDacForceChange(int line, double voltage, TtlSystem* ttls)
 	// change parameters in the DacSystem object so that the object knows what the current settings are.
 	std::string volt = std::to_string(voltage);
 	volt.erase(volt.find_last_not_of('0') + 1, std::string::npos);
-	this->breakoutBoardEdits[line].SetWindowText(volt.c_str());
-	this->breakoutBoardEdits[line].colorState = 0;
-	this->breakoutBoardEdits[line].RedrawWindow();
-	this->dacValues[line] = voltage;
+	breakoutBoardEdits[line].SetWindowText(volt.c_str());
+	breakoutBoardEdits[line].colorState = 0;
+	breakoutBoardEdits[line].RedrawWindow();
+	dacValues[line] = voltage;
 	// I'm not sure it's necessary to go through the procedure of doing this and using the DIO to trigger the dacs for a foce out. I'm guessing it's 
 	// possible to tell the DAC to just immediately change without waiting for a trigger.
-	this->setForceDacEvent( line, voltage, ttls );
-	return;
+	setForceDacEvent( line, voltage, ttls );
 }
 
 
@@ -763,7 +799,6 @@ void DacSystem::resetDACEvents()
 	dacComplexEventsList.clear();
 	dacIndividualEvents.clear();
 	dacSnapshots.clear();
-	return;
 }
 
 
@@ -772,23 +807,17 @@ void DacSystem::stopDacs()
 	daqStopTask( staticDac0 );
 	daqStopTask( staticDac1 );
 	daqStopTask( staticDac2 );
-	return;
 }
 
 
-void DacSystem::resetDacs()
-{
-	return;
-}
 
 
 void DacSystem::configureClocks()
 {	
-	long sampleNumber = this->dacSnapshots.size();
-	daqConfigSampleClkTiming( this->staticDac0, "/PXI1Slot3/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
-	daqConfigSampleClkTiming( this->staticDac1, "/PXI1Slot4/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
-	daqConfigSampleClkTiming( this->staticDac2, "/PXI1Slot5/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
-	return;
+	long sampleNumber = dacSnapshots.size();
+	daqConfigSampleClkTiming( staticDac0, "/PXI1Slot3/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
+	daqConfigSampleClkTiming( staticDac1, "/PXI1Slot4/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
+	daqConfigSampleClkTiming( staticDac2, "/PXI1Slot5/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
 }
 
 
@@ -804,51 +833,52 @@ void DacSystem::writeDacs()
 		 || finalFormattedData[2].size() != 8 * dacSnapshots.size())
 	{
 		thrower( "Data array size doesn't match the number of time slices in the experiment!" );
-		return;
 	}
+
 	bool32 nothing = NULL;
 	int32 samplesWritten;
 	int output;
+
 	//
-	daqWriteAnalogF64( staticDac0, dacSnapshots.size(), false, 0.0001, DAQmx_Val_GroupByScanNumber, &finalFormattedData[0].front(), &samplesWritten );
-	daqWriteAnalogF64( staticDac1, dacSnapshots.size(), false, 0.0001, DAQmx_Val_GroupByScanNumber, &finalFormattedData[1].front(), &samplesWritten );
-	daqWriteAnalogF64( staticDac2, dacSnapshots.size(), false, 0.0001, DAQmx_Val_GroupByScanNumber, &finalFormattedData[2].front(), &samplesWritten );	
-	return;
+	daqWriteAnalogF64( staticDac0, dacSnapshots.size(), false, 0.0001, DAQmx_Val_GroupByScanNumber, 
+					  &finalFormattedData[0].front(), &samplesWritten );
+	daqWriteAnalogF64( staticDac1, dacSnapshots.size(), false, 0.0001, DAQmx_Val_GroupByScanNumber, 
+					  &finalFormattedData[1].front(), &samplesWritten );
+	daqWriteAnalogF64( staticDac2, dacSnapshots.size(), false, 0.0001, DAQmx_Val_GroupByScanNumber, 
+					  &finalFormattedData[2].front(), &samplesWritten );	
+
 }
 
 
 void DacSystem::startDacs()
 {
 	daqStartTask( staticDac0 );
-
 	daqStartTask( staticDac1 );
 	daqStartTask( staticDac2 );
-	return;
 }
 
 
 void DacSystem::makeFinalDataFormat()
 {
-	this->finalFormattedData[0].clear();
-	this->finalFormattedData[1].clear();
-	this->finalFormattedData[2].clear();
+	finalFormattedData[0].clear();
+	finalFormattedData[1].clear();
+	finalFormattedData[2].clear();
 	
 	for (DAC_Snapshot snapshot : this->dacSnapshots)
 	{
 		for (int dacInc = 0; dacInc < 8; dacInc++)
 		{
-			this->finalFormattedData[0].push_back(snapshot.dacValues[dacInc]);
+			finalFormattedData[0].push_back(snapshot.dacValues[dacInc]);
 		}
 		for (int dacInc = 8; dacInc < 16; dacInc++)
 		{
-			this->finalFormattedData[1].push_back(snapshot.dacValues[dacInc]);
+			finalFormattedData[1].push_back(snapshot.dacValues[dacInc]);
 		}
 		for (int dacInc = 16; dacInc < 24; dacInc++)
 		{
-			this->finalFormattedData[2].push_back(snapshot.dacValues[dacInc]);
+			finalFormattedData[2].push_back(snapshot.dacValues[dacInc]);
 		}
 	}
-	return;
 }
 
 

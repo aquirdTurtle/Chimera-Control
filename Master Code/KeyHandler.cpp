@@ -21,34 +21,38 @@ void KeyHandler::generateKey()
 {
 	// get information from variables.
 	keyValues.clear();
+	// each element of the vector refers to the number of variations within a given variation range.
 	std::vector<int> variations;
-	variations.push_back(1);
+	//variations.push_back(1);
 	std::vector<int> variableIndexes;
 	for (int varInc = 0; varInc < variables.size(); varInc++)
 	{
 		// find a varying parameter.
 		if (!variables[varInc].singleton)
 		{
+			// then this variable varies. 
+
 			variableIndexes.push_back(varInc);
+			// variations.size is the number of ranges currently.
 			if (variations.size() != variables[varInc].ranges.size())
 			{
-				if (variations.size() != 1)
+				// if its zero its just the initial size on the initial variable.
+				if (variations.size() != 0)
 				{
 					thrower("ERROR: Not all variables seem to have the same number of ranges for their parameters!");
-					return;
 				}
 				variations.resize(variables[varInc].ranges.size());
 			}
 
-			// make sure the variations number is consistent.
+			// make sure the variations number is consistent between 
 			for (int rangeInc = 0; rangeInc < variations.size(); rangeInc++)
 			{
-				if ((rangeInc == 0 && variations[rangeInc] != 1) || (rangeInc != 0 && variations[rangeInc] != 0))
+				// avoid the case of zero as this just hasn't been set yet.
+				if (variations[rangeInc] != 0)
 				{
 					if (variables[varInc].ranges[rangeInc].variations != variations[rangeInc])
 					{
 						thrower("ERROR: not all ranges of variables have the same number of variations!");
-						return;
 					}
 				}
 				variations[rangeInc] = variables[varInc].ranges[rangeInc].variations;

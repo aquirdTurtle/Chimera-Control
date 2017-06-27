@@ -22,38 +22,38 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 	SocketWrapper socket;
 	try
 	{
-		input->status->appendText( "Loading Key...", 0 );
+		input->status->addStatusText( "Loading Key...", 0 );
 		// load the variables.
 		input->key->loadVariables( input->vars );
 		// create the key
 		input->key->generateKey();
-		input->status->appendText( "Done.\r\n", 0 );
-		input->status->appendText( "Exporting Key...", 0 );
+		input->status->addStatusText( "Done.\r\n", 0 );
+		input->status->addStatusText( "Exporting Key...", 0 );
 		input->key->exportKey();
-		input->status->appendText( "Done.\r\n", 0 );
+		input->status->addStatusText( "Done.\r\n", 0 );
 		// connect to the niawg program.
 		if ( input->connectToNIAWG )
 		{
 			// must initialize socket inside the thread.
-			input->status->appendText( "Initializing Socket...", 0 );
+			input->status->addStatusText( "Initializing Socket...", 0 );
 			socket.initialize();
-			input->status->appendText( "Done.!\r\n", 0 );
+			input->status->addStatusText( "Done.!\r\n", 0 );
 
-			input->status->appendText( "Connecting to NIAWG...", 0 );
+			input->status->addStatusText( "Connecting to NIAWG...", 0 );
 			socket.connect();
-			input->status->appendText( "Done.!\r\n", 0 );
+			input->status->addStatusText( "Done.!\r\n", 0 );
 		}
 		else
 		{
-			input->status->appendText( "NOT Connecting to NIAWG.\r\n", 0 );
+			input->status->addStatusText( "NOT Connecting to NIAWG.\r\n", 0 );
 		}
 
-		input->status->appendText( "Loading Agilent Info...", 0 );
+		input->status->addStatusText( "Loading Agilent Info...", 0 );
 		for (auto agilent : input->agilents)
 		{
 			agilent->handleInput();
 		}
-		input->status->appendText( "Analyzing Master Script...", 0 );
+		input->status->addStatusText( "Analyzing Master Script...", 0 );
 		// analyze the master script.
 		std::vector<std::pair<unsigned int, unsigned int>> ttlShadeLocations;
 		std::vector<unsigned int> dacShadeLocations;
@@ -63,7 +63,7 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 		input->rsg->clearFrequencies();
 		input->thisObj->loadVariables( input->vars );
 		input->thisObj->analyzeCurrentMasterScript( input->ttls, input->dacs, ttlShadeLocations, dacShadeLocations, input->rsg, ramanFrequencies );
-		input->status->appendText( "Done.\r\n", 0 );
+		input->status->addStatusText( "Done.\r\n", 0 );
 		// update ttl and dac looks & interaction based on which ones are used in the experiment.
 		input->ttls->shadeTTLs( ttlShadeLocations );
 		input->dacs->shadeDacs( dacShadeLocations );
@@ -86,7 +86,7 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 		// go ahead and check if abort was pressed real fast...
 		if ( input->thisObj->isAborting )
 		{
-			input->status->appendText( "\r\nABORTED!\r\n", 0 );
+			input->status->addStatusText( "\r\nABORTED!\r\n", 0 );
 			return 0;
 		}
 
@@ -105,21 +105,27 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 		// loop for variations
 		for (int varInc = 0; varInc < variations; varInc++)
 		{
-			input->status->appendText( "Variation #" + std::to_string( varInc + 1 ) + "\r\n", 0 );
+			input->status->addStatusText( "Variation #" + std::to_string( varInc + 1 ) + "\r\n", 0 );
 			for (auto var : input->key->getKey())
 			{
 				// if varies...
 				if (var.second.second)
 				{
-					input->status->appendText( var.first + ": " + std::to_string( var.second.first[varInc] ) + "\r\n", 0 );
+					if (var.second.first.size() == 0)
+					{
+						thrower("ERROR: Variable " + var.first + " varies, but has no values assigned to it!");
+					}
+					input->status->addStatusText( var.first + ": " + std::to_string( var.second.first[varInc] ) + "\r\n", 0 );
 				}
 			}
 			// update things based on the new key value.
-			input->status->appendText( "Loading Key & Analyzing Script Data...\r\n", 0 );
+			input->status->addStatusText( "Loading Key & Analyzing Script Data...\r\n", 0 );
 			input->dacs->interpretKey( input->key->getKey(), varInc, input->vars );
 			input->dacs->analyzeDAC_Commands();
-			input->dacs->setDacTtlTriggerEvents( input->ttls );
+
+			// must interpret key before setting the trigger events.
 			input->ttls->interpretKey( input->key->getKey(), varInc );
+			input->dacs->setDacTtlTriggerEvents(input->ttls);
 			input->rsg->interpretKey( input->key->getKey(), varInc );
 			std::array<double, 3> freqs = input->gpibHandler->interpretKeyForRaman( ramanFrequencies, input->key->getKey(), varInc );
 			// prepare dac and ttls. data to final forms.
@@ -128,7 +134,7 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 			input->ttls->convertToFinalFormat();
 
 			// program devices
-			input->status->appendText( "Programming Hardware...\r\n", 0 );
+			input->status->addStatusText( "Programming Hardware...\r\n", 0 );
 			for (auto& agilent : input->agilents)
 			{
 				if (!agilent->connected())
@@ -174,17 +180,17 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 
 			if ( input->debugOptions.showTtls )
 			{
-				input->status->appendText(input->ttls->getTtlSequenceMessage(), 0);
+				input->status->addStatusText(input->ttls->getTtlSequenceMessage(), 0);
 			}
 			if ( input->debugOptions.showDacs )
 			{
-				input->status->appendText( input->dacs->getDacSequenceMessage(), 0);
+				input->status->addStatusText( input->dacs->getDacSequenceMessage(), 0);
 			}
 
-			input->status->appendText( "Total Repetition time: " + std::to_string( input->ttls->getTotalTime() ) + "\r\n", 0 );
-			input->status->appendText( "Total Experiment time: " + std::to_string( input->ttls->getTotalTime() * input->repetitions * variations ) + "\r\n", 0 );
+			input->status->addStatusText( "Total Repetition time: " + std::to_string( input->ttls->getTotalTime() ) + "\r\n", 0 );
+			input->status->addStatusText( "Total Experiment time: " + std::to_string( input->ttls->getTotalTime() * input->repetitions * variations ) + "\r\n", 0 );
 			// loop for repetitions
-			input->status->appendText( "Repetition...", 0 );
+			input->status->addStatusText( "Repetition...", 0 );
 			for ( int repInc = 0; repInc < input->repetitions; repInc++ )
 			{
 				// reading these variables should be safe.
@@ -194,20 +200,20 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 				}
 				else if ( input->thisObj->isPaused )
 				{
-					input->status->appendText( "\r\nPaused!\r\n...", 0 );
+					input->status->addStatusText( "\r\nPaused!\r\n...", 0 );
 					// wait...
 					while ( input->thisObj->isPaused )
 					{
 						// this could be changed to be a bit smarter I think.
 						Sleep( 100 );
 					}
-					input->status->appendText( "\r\nUn-Paused!\r\nRepetition.....", 0 );
+					input->status->addStatusText( "\r\nUn-Paused!\r\nRepetition.....", 0 );
 				}
 				if ( repInc != 0 )
 				{
 					input->status->deleteChars( std::to_string( repInc ).size() );
 				}
-				input->status->appendText( std::to_string(repInc + 1), 0 );
+				input->status->addStatusText( std::to_string(repInc + 1), 0 );
 				// this apparently needs to be re-written each time from looking at the VB6 code.
 				input->dacs->stopDacs();
 				input->dacs->configureClocks();
@@ -215,27 +221,33 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 				input->dacs->startDacs();
 				input->ttls->writeData();
 				input->ttls->startBoard();
-
 				// wait until finished.
 				input->ttls->waitTillFinished();
 			}
-			input->status->appendText( "\r\n", 0 );
+			input->status->addStatusText( "\r\n", 0 );
 		}
 		// do experiment stuff...
-		input->status->appendText( "\r\nExperiment Finished Normally.\r\n", 0 );
+		input->status->addStatusText( "\r\nExperiment Finished Normally.\r\n", 0 );
+		// this is necessary. If not, the dac system will still be "running" and won't allow updates through normal 
+		// means.
+		input->dacs->stopDacs();
 		input->dacs->unshadeDacs();
+		// make sure the display accurately displays the state that the experiment finished at.
+		input->dacs->setDacStatusNoForceOut(input->dacs->getFinalSnapshot());
+
 		input->ttls->unshadeTTLs();
+		input->ttls->setTtlStatusNoForceOut(input->ttls->getFinalSnapshot());
 	}
-	catch ( myException& exception)
+	catch ( Error& exception)
 	{
 		if ( input->thisObj->isAborting )
 		{
-			input->status->appendText( "\r\nABORTED!\r\n", 0 );
+			input->status->addStatusText( "\r\nABORTED!\r\n", 0 );
 		}
 		else
 		{
-			input->status->appendText( "Bad Exit!\r\n", 0 );
-			input->error->appendText( exception.what(), 0 );
+			input->status->addStatusText( "Bad Exit!\r\n", 0 );
+			input->error->addStatusText( exception.what(), 0 );
 		}
 		input->thisObj->experimentIsRunning = false;
 		std::lock_guard<std::mutex> locker( input->thisObj->abortLock );
@@ -253,7 +265,8 @@ bool ExperimentManager::runningStatus()
 	return experimentIsRunning;
 }
 
-/*** this function is very similar to startExperimentThread but instead of getting anything from the current profile, it
+/*** 
+ * this function is very similar to startExperimentThread but instead of getting anything from the current profile, it
  * knows exactly where to look for the MOT profile. This is currently hard-coded.
  */
 void ExperimentManager::loadMotSettings(MasterWindow* master)
@@ -287,6 +300,7 @@ void ExperimentManager::loadMotSettings(MasterWindow* master)
 	input->connectToNIAWG = false;
 	input->niawgSocket = &master->niawgSocket;
 	// gather parameters.
+	loadMasterScript(input->masterScriptAddress);
 	// start thread.
 	runningThread = AfxBeginThread(experimentThreadProcedure, input);	
 }
@@ -527,7 +541,7 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 	defLine = functionStream.getline( ':' );
 	std::string name;
 	std::vector<std::string> functionArgs;
-	this->analyzeFunctionDefinition( defLine, name, functionArgs );
+	analyzeFunctionDefinition( defLine, name, functionArgs );
 	if (functionArgs.size() != args.size())
 	{
 		thrower("ERROR: incorrect number of arguments in the function call. Number in call was: " 
@@ -963,26 +977,23 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 		else
 		{
 			thrower("ERROR: unrecognized master script command: " + word);
-			return;
 		}
 		functionStream >> word;
 	}
-	return;
 }
 
 
 void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* dacs, std::vector<std::pair<unsigned int, unsigned int>>& ttlShades, 
-	std::vector<unsigned int>& dacShades, RhodeSchwarz* rsg, std::array<std::string, 3>& ramanFreqs)
+												   std::vector<unsigned int>& dacShades, RhodeSchwarz* rsg, std::array<std::string, 3>& ramanFreqs)
 {
 	// reset this.
 	currentMasterScriptText = currentMasterScript.str();
 
-	operationTime.second = 0;
+	operationTime.second = 1;
 	operationTime.first.clear();
 	if (currentMasterScript.str() == "")
 	{
 		thrower("ERROR: Master script is empty!\r\n");
-		return;
 	}
 	std::string word;
 	currentMasterScript >> word;
@@ -997,7 +1008,7 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 		{
 			std::string command;
 			// assume that there's an '=' or '+=' etc. to still get...
-			this->currentMasterScript >> command;
+			currentMasterScript >> command;
 			word += command;
 		}
 		/// Handle Time Commands.		
@@ -1008,7 +1019,7 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 		else if (word == "t+=")
 		{
 			std::string time;
-			this->currentMasterScript >> time;
+			currentMasterScript >> time;
 			try
 			{
 				operationTime.second += std::stoi(time);
@@ -1029,17 +1040,21 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 				if (!isVar)
 				{
 					thrower("ERROR: tried and failed to convert " + time + " to an integer for a time += command.");
-					return;
 				}
 			}
 		}
 		else if (word == "t=")
 		{
 			std::string time;
-			this->currentMasterScript >> time;
+			currentMasterScript >> time;
 			try
 			{
 				operationTime.second = std::stoi(time);
+				if (operationTime.second < 1)
+				{
+					thrower("ERROR: you attempted to set commands before the first 1 ms of the experiment. This time is"
+							"reserved by the code for initializing the dac state. Please start at 1ms.");
+				}
 			}
 			catch (std::invalid_argument &exception)
 			{
@@ -1059,7 +1074,6 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 				if (!isVar)
 				{
 					thrower("ERROR: tried and failed to convert " + time + " to an integer for a time += command.");
-					return;
 				}
 			}
 		}
@@ -1102,7 +1116,6 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 				if (!isVar)
 				{
 					thrower( "ERROR: tried and failed to convert " + pulseLength + " to an integer for a pulse command." );
-					return;
 				}
 			}
 			// should be good to go.
@@ -1113,15 +1126,15 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 		else if (word == "dac:")
 		{
 			std::string dacName, dacVoltageValue;
-			this->currentMasterScript >> dacName;
-			this->currentMasterScript >> dacVoltageValue;
+			currentMasterScript >> dacName;
+			currentMasterScript >> dacVoltageValue;
 			dacs->handleDAC_ScriptCommand( operationTime, dacName, "__NONE__", dacVoltageValue, "0", "__NONE__", dacShades, variables, ttls );
 		}
 		else if (word == "dacramp:")
 		{
 			std::string name, initVal, finalVal, rampTime, rampInc;
 			// get dac name
-			this->currentMasterScript >> name;
+			currentMasterScript >> name;
 			// get ramp initial value
 			currentMasterScript >> initVal;
 			// get ramp final value
@@ -1130,6 +1143,7 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 			currentMasterScript >> rampTime;
 			// ge ramp point increment.
 			currentMasterScript >> rampInc;
+
 			dacs->handleDAC_ScriptCommand( operationTime, name, initVal, finalVal, rampTime, rampInc, dacShades, variables, ttls );
 		}
 		/// Deal with RSG calls
@@ -1158,7 +1172,6 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 				{
 					thrower( "ERROR: Argument " + info.frequency + " is not a double or a variable name. Can't program the RSG "
 							 "using this." );
-					return;
 				}
 			}
 			// test power
@@ -1181,7 +1194,6 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 				{
 					thrower( "ERROR: Argument " + info.power + " is not a double or a variable name. Can't program the RSG "
 							 "using this." );
-					return;
 				}
 			}
 			info.time = operationTime;
@@ -1195,7 +1207,6 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 			if (ramanFreqs[0] != "")
 			{
 				thrower("ERROR: you tried to set raman frequencies twice!");
-				return;
 			}
 			std::string top, bottom, axial;
 			this->currentMasterScript >> top;
@@ -1220,7 +1231,6 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 				if (!isVar)
 				{
 					thrower("ERROR: the string " + top + " is neither a double nor a variable!");
-					return;
 				}
 			}
 			ramanFreqs[0] = top;
@@ -1244,7 +1254,6 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 				if (!isVar)
 				{
 					thrower("ERROR: the string " + bottom + " is neither a double nor a variable!");
-					return;
 				}
 			}
 			ramanFreqs[1] = bottom;
@@ -1267,7 +1276,6 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 				if (!isVar)
 				{
 					thrower("ERROR: the string " + axial + " is neither a double nor a variable!");
-					return;
 				}
 			}
 			ramanFreqs[2] = axial;
@@ -1303,7 +1311,7 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 				// cut oinputut that argument off the string.
 				functionArgs = functionArgs.substr(pos + 1, functionArgs.size());
 			}
-			this->analyzeFunction(functionName, args, ttls, dacs, ttlShades, dacShades, rsg, ramanFreqs);
+			analyzeFunction(functionName, args, ttls, dacs, ttlShades, dacShades, rsg, ramanFreqs);
 		}
 		else if (word == "repeat:")
 		{
@@ -1317,7 +1325,6 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 			{
 				thrower("ERROR: the repeat number failed to convert to an integer! Note that the repeat number can not"
 						 " currently be a variable.");
-				return;
 			}
 			repeatPos.push_back( this->currentMasterScript.tellg() );
 
@@ -1329,7 +1336,6 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 			if (currentRepeatNum.size() == 0)
 			{
 				thrower("ERROR! Tried to end repeat, but you weren't repeating!");
-				return;
 			}
 			if (currentRepeatNum.back() < totalRepeatNum.back())
 			{
@@ -1346,12 +1352,10 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 		else
 		{
 			thrower("ERROR: unrecognized master script command: \"" + word + "\"");
-			return;
 		}
 		word = "";
 		currentMasterScript >> word;
 	}
-	return;
 }
 
 

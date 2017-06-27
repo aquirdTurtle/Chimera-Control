@@ -43,6 +43,9 @@
 #include <string>
 #include <vector>
 
+#include "Control.h"
+
+// need to remind myself how this works...
 typedef std::pair<std::vector<std::string>, double> timeType;
 
 /// MY MACROS
@@ -57,10 +60,10 @@ typedef std::pair<std::vector<std::string>, double> timeType;
 * stolen From http://stackoverflow.com/questions/348833/how-to-know-the-exact-line-of-code-where-where-an-exception-has-been-caused
 * Slightly modified.
 */
-class myException : public std::runtime_error
+class Error : public std::runtime_error
 {
 	public:
-		myException( const std::string &arg, const char *file, int line ) : std::runtime_error( arg )
+		Error( const std::string &arg, const char *file, int line ) : std::runtime_error( arg )
 		{
 			std::ostringstream out;
 			out << file << ", Line " << line << ": " << arg;
@@ -68,7 +71,7 @@ class myException : public std::runtime_error
 			bareMsg = arg;
 		}
 
-		~myException() throw() {}
+		~Error() throw() {}
 
 		const char *what() const throw()
 		{
@@ -89,7 +92,7 @@ class myException : public std::runtime_error
 
 
 // the following gives any throw call file and line information.
-#define thrower(arg) throw myException(arg, __FILE__, __LINE__)
+#define thrower(arg) throw Error(arg, __FILE__, __LINE__)
 
 #include <stdexcept>
 
@@ -123,4 +126,32 @@ std::vector<IntType> range( IntType stop )
 {
 	return range( IntType( 0 ), stop, IntType( 1 ) );
 }
+
+void appendText(std::string newText, CEdit& edit);
+void appendText(std::string newText, Control<CRichEditCtrl>& edit);
+
+
+#define cstr(input) str(input).c_str()
+
+std::string str(std::string string)
+{
+	return string;
+}
+
+std::string str(const char * text)
+{
+	return std::string(text);
+}
+
+std::string str(char * text)
+{
+	return std::string(text);
+}
+
+template <typename type> std::string str(type quantity)
+{
+	return std::to_string(quantity);
+}
+
+std::string doubleToString(double number, long precision);
 

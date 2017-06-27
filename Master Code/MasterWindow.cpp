@@ -197,9 +197,9 @@ void MasterWindow::GlobalVarDblClick( NMHDR * pNotifyStruct, LRESULT * result )
 	{
 		globalVariables.updateVariableInfo( scriptList, this );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		errorStatus.appendText( "Global Variables Double Click Handler : " + exception.whatStr() + "\r\n", 0 );
+		errorStatus.addStatusText( "Global Variables Double Click Handler : " + exception.whatStr() + "\r\n", 0 );
 	}
 	masterConfig.save( &ttlBoard, &dacBoards, &globalVariables );
 }
@@ -211,9 +211,9 @@ void MasterWindow::GlobalVarRClick( NMHDR * pNotifyStruct, LRESULT * result )
 	{
 		globalVariables.deleteVariable();
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		errorStatus.appendText( "Global Variables Right Click Handler : " + exception.whatStr() + "\r\n", 0 );
+		errorStatus.addStatusText( "Global Variables Right Click Handler : " + exception.whatStr() + "\r\n", 0 );
 	}
 	masterConfig.save( &ttlBoard, &dacBoards, &globalVariables );
 }
@@ -230,14 +230,16 @@ void MasterWindow::zeroDacs()
 {
 	try
 	{
+		dacBoards.resetDACEvents();
+		ttlBoard.resetTTLEvents();
 		for (int dacInc = 0; dacInc < 24; dacInc++)
 		{
 			dacBoards.prepareDacForceChange( dacInc, 0, &ttlBoard );
 		}
 		dacBoards.analyzeDAC_Commands();
 		dacBoards.makeFinalDataFormat();
+		dacBoards.stopDacs(); 
 		dacBoards.configureClocks();
-		dacBoards.stopDacs();
 		dacBoards.writeDacs();
 		dacBoards.startDacs();
 		ttlBoard.analyzeCommandList();
@@ -245,12 +247,12 @@ void MasterWindow::zeroDacs()
 		ttlBoard.writeData();
 		ttlBoard.startBoard();
 		ttlBoard.waitTillFinished();
-		generalStatus.appendText( "Zero'd DACs.\r\n", 0 );
+		generalStatus.addStatusText( "Zero'd DACs.\r\n", 0 );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		generalStatus.appendText( "Failed to Zero DACs!!!\r\n", 0 );
-		errorStatus.appendText( exception.what(), 0 );
+		generalStatus.addStatusText( "Failed to Zero DACs!!!\r\n", 0 );
+		errorStatus.addStatusText( exception.what(), 0 );
 	}
 }
 
@@ -260,12 +262,12 @@ void MasterWindow::zeroTtls()
 	try
 	{
 		ttlBoard.zeroBoard();
-		generalStatus.appendText( "Zero'd TTLs.\r\n", 0 );
+		generalStatus.addStatusText( "Zero'd TTLs.\r\n", 0 );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		this->generalStatus.appendText( "Failed to Zero TTLs!!!\r\n", 0 );
-		this->errorStatus.appendText( exception.what(), 0 );
+		this->generalStatus.addStatusText( "Failed to Zero TTLs!!!\r\n", 0 );
+		this->errorStatus.addStatusText( exception.what(), 0 );
 	}
 }
 
@@ -281,7 +283,7 @@ void MasterWindow::HandleAbort()
 	}
 	else
 	{
-		generalStatus.appendText( "Can't abort, experiment was not running.\r\n", 0 );
+		generalStatus.addStatusText( "Can't abort, experiment was not running.\r\n", 0 );
 	}
 }
 
@@ -310,7 +312,7 @@ void MasterWindow::HandlePause()
 	}
 	else
 	{
-		generalStatus.appendText( "Can't pause, experiment was not running.\r\n", 0 );
+		generalStatus.addStatusText( "Can't pause, experiment was not running.\r\n", 0 );
 	}
 }
 
@@ -318,14 +320,15 @@ void MasterWindow::loadMotSettings()
 {
 	try
 	{
-		generalStatus.appendText("Loading MOT Configuration...\r\n", 0);
-		manager.startExperimentThread(this);
+		generalStatus.addStatusText("Loading MOT Configuration...\r\n", 1);
+		//
+		manager.loadMotSettings(this);
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		generalStatus.appendText(": " + exception.whatStr() + " " + exception.whatStr() + "\r\n", 0);
+		generalStatus.addStatusText(": " + exception.whatStr() + " " + exception.whatStr() + "\r\n", 1);
 	}
-	
+	/*	
 	/// Set TTL values.
 	// switch on MOT light, set power, set detuning
 	// forceTtl(row, number, state), A = 0, B = 1, C = 2, D = 3
@@ -385,13 +388,14 @@ void MasterWindow::loadMotSettings()
 		ttlBoard.writeData();
 		ttlBoard.startBoard();
 		ttlBoard.waitTillFinished();
-		this->generalStatus.appendText( "Finished Loading MOT Configuration!\r\n", 0 );
+		generalStatus.appendText( "Finished Loading MOT Configuration!\r\n", 1 );
 	}
-	catch ( myException& exception )
+	catch ( Error& exception )
 	{
-		this->errorStatus.appendText( exception.what(), 0 );
-		this->generalStatus.appendText( ": " + exception.whatStr() + "\r\n", 0 );
+		errorStatus.appendText( exception.what(), 1 );
+		generalStatus.appendText( ": " + exception.whatStr() + "\r\n", 1 );
 	}
+	*/
 }
 
 void MasterWindow::OnCancel()
@@ -414,16 +418,16 @@ void MasterWindow::StartExperiment()
 	// check to make sure ready.
 	try
 	{
-		generalStatus.appendText( "............................\r\n", 1 );
-		generalStatus.appendText( "Checking if Ready...r\n", 0 );
+		generalStatus.addStatusText( "............................\r\n", 1 );
+		generalStatus.addStatusText( "Checking if Ready...\n", 0 );
 		profile.allSettingsReadyCheck( this );
 		masterScript.checkSave( this );
-		generalStatus.appendText( "Starting Experiment Thread...\r\n", 0 );
+		generalStatus.addStatusText( "Starting Experiment Thread...\r\n", 0 );
 		manager.startExperimentThread( this );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		generalStatus.appendText( ": " + exception.whatStr() + " " + exception.whatStr() + "\r\n", 0 );
+		generalStatus.addStatusText( ": " + exception.whatStr() + " " + exception.whatStr() + "\r\n", 0 );
 	}
 }
 
@@ -468,48 +472,49 @@ void MasterWindow::SetDacs()
 	// have the dac values change
 	try
 	{
-		this->generalStatus.appendText( "Starting Setting Dacs...\r\n", 0 );
-		this->dacBoards.handleButtonPress( &this->ttlBoard );
-		this->generalStatus.appendText( "Analyzing Dac Info...\r\n", 0 );
+		dacBoards.resetDACEvents();
+		ttlBoard.resetTTLEvents();
+
+		generalStatus.addStatusText( "Starting Setting Dacs...\r\n", 0 );
+		dacBoards.handleButtonPress( &this->ttlBoard );
+		generalStatus.addStatusText( "Analyzing Dac Info...\r\n", 0 );
 		dacBoards.analyzeDAC_Commands();
-		this->generalStatus.appendText( "Finalizing Dacs Info...\r\n", 0 );
+		generalStatus.addStatusText( "Finalizing Dacs Info...\r\n", 0 );
 		dacBoards.makeFinalDataFormat();
 		// start the boards which actually sets the dac values.
-		this->generalStatus.appendText( "Stopping Dacs (if running)...\r\n", 0 );
+		generalStatus.addStatusText( "Stopping Dacs (if running)...\r\n", 0 );
 		dacBoards.stopDacs();
-		this->generalStatus.appendText( "Configuring Clocks...\r\n", 0 );
+		generalStatus.addStatusText( "Configuring Clocks...\r\n", 0 );
 		dacBoards.configureClocks();
-		this->generalStatus.appendText( "Writing New Dac Settings...\r\n", 0 );
+		generalStatus.addStatusText( "Writing New Dac Settings...\r\n", 0 );
 		dacBoards.writeDacs();
-		this->generalStatus.appendText( "Arming Dacs...\r\n", 0 );
+		generalStatus.addStatusText( "Arming Dacs...\r\n", 0 );
 		dacBoards.startDacs();
-		this->generalStatus.appendText( "Analyzing DAC TTL Triggers...\r\n", 0 );
+		generalStatus.addStatusText( "Analyzing DAC TTL Triggers...\r\n", 0 );
 		ttlBoard.analyzeCommandList();
-		this->generalStatus.appendText( "Finalizing DAC TTL Triggers...\r\n", 0 );
+		generalStatus.addStatusText( "Finalizing DAC TTL Triggers...\r\n", 0 );
 		ttlBoard.convertToFinalFormat();
-		this->generalStatus.appendText( "Writing DAC TTL Triggers...\r\n", 0 );
+		generalStatus.addStatusText( "Writing DAC TTL Triggers...\r\n", 0 );
 		ttlBoard.writeData();
-		this->generalStatus.appendText( "Starting DAC TTL Triggers...\r\n", 0 );
+		generalStatus.addStatusText( "Starting DAC TTL Triggers...\r\n", 0 );
 		ttlBoard.startBoard();
-		this->generalStatus.appendText( "Waiting until TTLs are finished...\r\n", 0 );
+		generalStatus.addStatusText( "Waiting until TTLs are finished...\r\n", 0 );
 		ttlBoard.waitTillFinished();
-		this->generalStatus.appendText( "Finished Setting Dacs.\r\n", 0 );
+		generalStatus.addStatusText( "Finished Setting Dacs.\r\n", 0 );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
 		errBox( exception.what() );
-		this->generalStatus.appendText( ": " + exception.whatStr() + "\r\n", 0 );
-		this->errorStatus.appendText( exception.what(), 0 );
+		generalStatus.addStatusText( ": " + exception.whatStr() + "\r\n", 0 );
+		errorStatus.addStatusText( exception.what(), 0 );
 	}
-	this->profile.updateConfigurationSavedStatus(false);
-	return;
+	profile.updateConfigurationSavedStatus(false);
 }
 
 
 void MasterWindow::DAC_EditChange(UINT id)
 {
-	this->dacBoards.handleEditChange(id - ID_DAC_FIRST_EDIT + 1);
-	return;
+	dacBoards.handleEditChange(id - ID_DAC_FIRST_EDIT + 1);
 }
 
 
@@ -529,14 +534,13 @@ void MasterWindow::SetRepetitionNumber()
 {
 	try
 	{
-		this->repetitionControl.handleButtonPush();
+		repetitionControl.handleButtonPush();
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		this->errorStatus.appendText( "Set Repetition Number : " + exception.whatStr() + "\r\n", 0 );
+		errorStatus.addStatusText( "Set Repetition Number : " + exception.whatStr() + "\r\n", 0 );
 	}
-	this->profile.updateConfigurationSavedStatus(false);
-	return;
+	profile.updateConfigurationSavedStatus(false);
 }
 
 
@@ -546,9 +550,9 @@ void MasterWindow::ConfigVarsColumnClick(NMHDR * pNotifyStruct, LRESULT * result
 	{
 		this->configVariables.handleColumnClick( pNotifyStruct, result );
 	}
-	catch(myException& exception )
+	catch(Error& exception )
 	{
-		this->errorStatus.appendText("Handling config variable listview click : " + exception.whatStr() + "\r\n", 0);
+		this->errorStatus.addStatusText("Handling config variable listview click : " + exception.whatStr() + "\r\n", 0);
 	}
 	this->profile.updateConfigurationSavedStatus(false);
 	return;
@@ -560,9 +564,9 @@ void MasterWindow::OnExperimentChanged()
 	{
 		this->profile.experimentChangeHandler( this );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		this->errorStatus.appendText( "Handling Experiment Selection Change : " + exception.whatStr() + "\r\n", 0 );
+		this->errorStatus.addStatusText( "Handling Experiment Selection Change : " + exception.whatStr() + "\r\n", 0 );
 	}
 }
 
@@ -573,9 +577,9 @@ void MasterWindow::OnCategoryChanged()
 	{
 		this->profile.categoryChangeHandler( this );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		this->errorStatus.appendText( "Handling Category Selection Change : " + exception.whatStr() + "\r\n", 0 );
+		this->errorStatus.addStatusText( "Handling Category Selection Change : " + exception.whatStr() + "\r\n", 0 );
 	}
 }
 
@@ -586,9 +590,9 @@ void MasterWindow::OnConfigurationChanged()
 	{
 		this->profile.configurationChangeHandler( this );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		this->errorStatus.appendText( "Handling Configuration Selection Change Failed: " + exception.whatStr() + "\r\n", 0 );
+		this->errorStatus.addStatusText( "Handling Configuration Selection Change Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
 }
 
@@ -599,9 +603,9 @@ void MasterWindow::OnSequenceChanged()
 	{
 		this->profile.sequenceChangeHandler( this );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		this->errorStatus.appendText( "Handling Sequence Selection Change Failed: " + exception.whatStr() + "\r\n", 0 );
+		this->errorStatus.addStatusText( "Handling Sequence Selection Change Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
 }
 
@@ -612,9 +616,9 @@ void MasterWindow::OnOrientationChanged()
 	{
 		this->profile.orientationChangeHandler( this );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		this->errorStatus.appendText( "Handling Orientation Selection Change Failed: " + exception.whatStr() + "\r\n", 0 );
+		this->errorStatus.addStatusText( "Handling Orientation Selection Change Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
 }
 
@@ -625,9 +629,9 @@ void MasterWindow::DeleteConfiguration()
 	{
 		this->profile.deleteConfiguration();
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		this->errorStatus.appendText( "Deleting Configuration Failed: " + exception.whatStr() + "\r\n", 0 );
+		this->errorStatus.addStatusText( "Deleting Configuration Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
 }
 
@@ -638,9 +642,9 @@ void MasterWindow::NewConfiguration()
 	{
 		this->profile.newConfiguration( this );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		this->errorStatus.appendText( "New Configuration Failed: " + exception.whatStr() + "\r\n", 0 );
+		this->errorStatus.addStatusText( "New Configuration Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
 }
 
@@ -651,9 +655,9 @@ void MasterWindow::SaveConfiguration()
 	{
 		profile.saveConfiguration( this );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		errorStatus.appendText( "Saving Configuration Failed: " + exception.whatStr() + "\r\n", 0 );
+		errorStatus.addStatusText( "Saving Configuration Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
 }
 
@@ -664,9 +668,9 @@ void MasterWindow::SaveConfigurationAs()
 	{
 		this->profile.saveConfigurationAs( this );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		errorStatus.appendText( "Saving Configuration As Failed: " + exception.whatStr() + "\r\n", 0 );
+		errorStatus.addStatusText( "Saving Configuration As Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
 }
 
@@ -677,9 +681,9 @@ void MasterWindow::RenameConfiguration()
 	{
 		this->profile.renameConfiguration( this );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		this->errorStatus.appendText( "Renaming Configuration Failed: " + exception.whatStr() + "\r\n", 0 );
+		this->errorStatus.addStatusText( "Renaming Configuration Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
 	return;
 }
@@ -691,9 +695,9 @@ void MasterWindow::SaveCategory()
 	{
 		profile.saveCategory( this );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		errorStatus.appendText( "Saving Category Failed: " + exception.whatStr() + "\r\n", 0 );
+		errorStatus.addStatusText( "Saving Category Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
 }
 
@@ -704,9 +708,9 @@ void MasterWindow::SaveCategoryAs()
 	{
 		this->profile.saveCategoryAs( this );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		this->errorStatus.appendText( "Saving Category As Failed: " + exception.whatStr() + "\r\n", 0 );
+		this->errorStatus.addStatusText( "Saving Category As Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
 }
 
@@ -717,9 +721,9 @@ void MasterWindow::RenameCategory()
 	{
 		this->profile.renameCategory();
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		this->errorStatus.appendText( "Renaming Category Failed: " + exception.whatStr() + "\r\n", 0 );
+		this->errorStatus.addStatusText( "Renaming Category Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
 }
 
@@ -730,9 +734,9 @@ void MasterWindow::DeleteCategory()
 	{
 		this->profile.deleteCategory();
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		this->errorStatus.appendText("Deleting Category Failed: " + exception.whatStr() + "\r\n", 0);
+		this->errorStatus.addStatusText("Deleting Category Failed: " + exception.whatStr() + "\r\n", 0);
 	}
 }
 
@@ -743,9 +747,9 @@ void MasterWindow::NewCategory()
 	{
 		this->profile.newCategory( this );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		this->errorStatus.appendText("New Category Failed: " + exception.whatStr() + "\r\n", 0);
+		this->errorStatus.addStatusText("New Category Failed: " + exception.whatStr() + "\r\n", 0);
 	}
 }
 
@@ -756,9 +760,9 @@ void MasterWindow::NewExperiment()
 	{
 		this->profile.newExperiment( this );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		this->errorStatus.appendText("New Experiment : " + exception.whatStr() + "\r\n", 0);
+		this->errorStatus.addStatusText("New Experiment : " + exception.whatStr() + "\r\n", 0);
 	}
 }
 
@@ -769,9 +773,9 @@ void MasterWindow::DeleteExperiment()
 	{
 		this->profile.deleteExperiment();
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		this->errorStatus.appendText("Delete Experiment : " + exception.whatStr() + "\r\n", 0);
+		this->errorStatus.addStatusText("Delete Experiment : " + exception.whatStr() + "\r\n", 0);
 	}
 }
 
@@ -782,9 +786,9 @@ void MasterWindow::SaveExperiment()
 	{
 		profile.saveExperiment( this );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		errorStatus.appendText("ERROR: Save Experiment : " + exception.whatStr() + "\r\n", 0);
+		errorStatus.addStatusText("ERROR: Save Experiment : " + exception.whatStr() + "\r\n", 0);
 	}
 }
 
@@ -795,9 +799,9 @@ void MasterWindow::SaveExperimentAs()
 	{
 		this->profile.saveExperimentAs( this );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		this->errorStatus.appendText( "Save Experiment As : " + exception.whatStr() + "\r\n", 0 );
+		this->errorStatus.addStatusText( "Save Experiment As : " + exception.whatStr() + "\r\n", 0 );
 	}
 }
 
@@ -808,9 +812,9 @@ void MasterWindow::AddToSequence()
 	{
 		this->profile.addToSequence( this );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		this->errorStatus.appendText("Add to Sequence : " + exception.whatStr() + "\r\n", 0);
+		this->errorStatus.addStatusText("Add to Sequence : " + exception.whatStr() + "\r\n", 0);
 	}
 }
 
@@ -821,9 +825,9 @@ void MasterWindow::DeleteSequence()
 	{
 		this->profile.deleteSequence( this );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		this->errorStatus.appendText("Delete Sequence : " + exception.whatStr() + "\r\n", 0);
+		this->errorStatus.addStatusText("Delete Sequence : " + exception.whatStr() + "\r\n", 0);
 	}
 }
 
@@ -840,9 +844,9 @@ void MasterWindow::RenameSequence()
 	{
 		this->profile.renameSequence( this );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		this->errorStatus.appendText("Rename Sequence : " + exception.whatStr() + "\r\n", 0);
+		this->errorStatus.addStatusText("Rename Sequence : " + exception.whatStr() + "\r\n", 0);
 	}
 }
 void MasterWindow::NewSequence()
@@ -851,9 +855,9 @@ void MasterWindow::NewSequence()
 	{
 		this->profile.newSequence( this );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		this->errorStatus.appendText("New Sequence : " + exception.whatStr() + "\r\n", 0);
+		this->errorStatus.addStatusText("New Sequence : " + exception.whatStr() + "\r\n", 0);
 	}
 	return;
 }
@@ -866,9 +870,9 @@ void MasterWindow::SaveMasterScript()
 	{
 		this->masterScript.saveScript( this );
 	}
-	catch ( myException& exception )
+	catch ( Error& exception )
 	{
-		this->errorStatus.appendText("Save Master Script Failed: " + exception.whatStr() + "\r\n", 0);
+		this->errorStatus.addStatusText("Save Master Script Failed: " + exception.whatStr() + "\r\n", 0);
 	}
 	return;
 }
@@ -888,9 +892,9 @@ void MasterWindow::SaveMasterScriptAs()
 	{
 		this->masterScript.saveScriptAs( this->profile.getCurrentPathIncludingCategory() + scriptName + MASTER_SCRIPT_EXTENSION, this );
 	}
-	catch(myException& exception )
+	catch(Error& exception )
 	{
-		this->errorStatus.appendText("Save Master Script As : " + exception.whatStr() + "\r\n", 0);
+		this->errorStatus.addStatusText("Save Master Script As : " + exception.whatStr() + "\r\n", 0);
 	}
 	return;
 }
@@ -900,9 +904,9 @@ void MasterWindow::NewMasterScript()
 	{
 		this->masterScript.newScript( this );
 	}
-	catch ( myException& exception )
+	catch ( Error& exception )
 	{
-		this->errorStatus.appendText( "New Master Script Failed: " + exception.whatStr() + "\r\n", 0 );
+		this->errorStatus.addStatusText( "New Master Script Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
 	this->profile.updateConfigurationSavedStatus(false);
 	return;
@@ -919,9 +923,9 @@ void MasterWindow::OpenMasterScript()
 	{
 		this->masterScript.openParentScript( address, this );
 	}
-	catch(myException& exception )
+	catch(Error& exception )
 	{
-		this->errorStatus.appendText("Open Master Script : " + exception.whatStr() + "" + exception.whatStr() + "\r\n", 0);
+		this->errorStatus.addStatusText("Open Master Script : " + exception.whatStr() + "" + exception.whatStr() + "\r\n", 0);
 	}
 	this->profile.updateConfigurationSavedStatus(false);
 	return;
@@ -933,9 +937,9 @@ void MasterWindow::SaveMasterFunction()
 	{
 		this->masterScript.saveAsFunction();
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		this->errorStatus.appendText("Save Master Script Function Failed: " + exception.whatStr() + "\r\n", 0);
+		this->errorStatus.addStatusText("Save Master Script Function Failed: " + exception.whatStr() + "\r\n", 0);
 	}
 	return;
 }
@@ -948,9 +952,9 @@ void MasterWindow::ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 	{
 		this->configVariables.updateVariableInfo( scriptList, this );
 	}
-	catch(myException& exception )
+	catch(Error& exception )
 	{
-		this->errorStatus.appendText("Variables Double Click Handler : " + exception.whatStr() + "\r\n", 0);
+		this->errorStatus.addStatusText("Variables Double Click Handler : " + exception.whatStr() + "\r\n", 0);
 	}
 	this->profile.updateConfigurationSavedStatus(false);
 	return;
@@ -962,9 +966,9 @@ void MasterWindow::ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result)
 	{
 		this->configVariables.deleteVariable();
 	}
-	catch(myException& exception)
+	catch(Error& exception)
 	{
-		this->errorStatus.appendText("Variables Right Click Handler : " + exception.whatStr() + "\r\n", 0);
+		this->errorStatus.addStatusText("Variables Right Click Handler : " + exception.whatStr() + "\r\n", 0);
 	}
 	this->profile.updateConfigurationSavedStatus(false);
 	return;
@@ -976,9 +980,9 @@ void MasterWindow::OnTimer(UINT TimerVal)
 	{
 		this->masterScript.handleTimerCall( this );
 	}
-	catch (myException& exception )
+	catch (Error& exception )
 	{
-		this->errorStatus.appendText("Timer Call Handler Failed: " + exception.whatStr() + "\r\n", 0);
+		this->errorStatus.addStatusText("Timer Call Handler Failed: " + exception.whatStr() + "\r\n", 0);
 	}
 	return;
 }
@@ -989,9 +993,9 @@ void MasterWindow::EditChange()
 	{
 		this->masterScript.handleEditChange( this );
 	}
-	catch ( myException& exception )
+	catch ( Error& exception )
 	{
-		this->errorStatus.appendText( "Edit Change Handler Failed: " + exception.whatStr() + "\r\n", 0 );
+		this->errorStatus.addStatusText( "Edit Change Handler Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
 	return;
 }
@@ -1002,9 +1006,9 @@ void MasterWindow::handleTTLPush(UINT id)
 	{
 		this->ttlBoard.handleTTLPress( id );
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		this->errorStatus.appendText( "TTL Press Handler Failed: " + exception.whatStr() + "\r\n", 0 );
+		this->errorStatus.addStatusText( "TTL Press Handler Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
 	this->profile.updateConfigurationSavedStatus(false);
 	return;
@@ -1016,9 +1020,9 @@ void MasterWindow::handlTTLHoldPush()
 	{
 		this->ttlBoard.handleHoldPress();
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		this->errorStatus.appendText( "TTL Hold Handler Failed: " + exception.whatStr() + "\r\n", 0 );
+		this->errorStatus.addStatusText( "TTL Hold Handler Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
 	this->profile.updateConfigurationSavedStatus(false);
 	return;
@@ -1048,9 +1052,9 @@ void MasterWindow::SaveMasterConfig()
 	{
 		this->masterConfig.save( &this->ttlBoard, &this->dacBoards, &globalVariables);
 	}
-	catch (myException& exception)
+	catch (Error& exception)
 	{
-		this->errorStatus.appendText("Master Configuration Save Handler : " + exception.whatStr() + "\r\n", 0);
+		this->errorStatus.addStatusText("Master Configuration Save Handler : " + exception.whatStr() + "\r\n", 0);
 	}
 	return;
 }
@@ -1130,15 +1134,20 @@ BOOL MasterWindow::OnInitDialog()
 	{
 		masterConfig.load( &ttlBoard, dacBoards, toolTips, this, &globalVariables );
 	}
-	catch (myException& exeption)
+	catch (Error& exeption)
 	{
 		errBox( exeption.what() );
 	}
 
 	RECT controlArea = { 960, 0, 1320, 540 };
-	generalStatus.initialize( controlArea, "Status", this->masterRGBs["Light Blue"], this, id);
-	controlArea = { 960, 540, 1320, 1080 };
-	errorStatus.initialize( controlArea, "Errors", this->masterRGBs["Light Red"], this, id );
+	POINT statusLoc = { 960, 0 };
+	generalStatus.initialize(statusLoc, this, id, 1320-960, 540, "General Status", masterRGBs["Light Blue"],
+							 getFonts(), toolTips);
+	//generalStatus.initialize( controlArea, "Status", this->masterRGBs["Light Blue"], this, id);
+	statusLoc = { 960, 540 };
+	errorStatus.initialize(statusLoc, this, id, 1320 - 960, 540, "General Status", masterRGBs["Light Red"],
+						   getFonts(), toolTips);
+	//errorStatus.initialize( controlArea, "Errors", this->masterRGBs["Light Red"], this, id );
 	controlLocation = POINT{ 480, 90 };
 	notes.initialize( controlLocation, this, id );
 	RhodeSchwarzGenerator.initialize( controlLocation, toolTips, this, id );
@@ -1198,14 +1207,15 @@ BOOL MasterWindow::OnInitDialog()
 	msg += "\n<<Device Connectivity>>\n";
 
 	msg += "TTL Board: ";
-	if ( ttlBoard.getSystemInfo() == "" )
+	try
 	{
-		msg += "Disconnected?\n";
+		msg += ttlBoard.getSystemInfo() + "\n";
 	}
-	else
+	catch (Error& err)
 	{
-		msg += "Connected\n";
+		msg += "Failed! " + err.whatStr() + "\n";
 	}
+
 	msg += dacBoards.getDacSystemInfo() + "\n";
 	msg += "Top / Bottom Agilent: " + topBottomAgilent.getDeviceIdentity();
 	msg += "U Wave / Axial Agilent: " + uWaveAxialAgilent.getDeviceIdentity();
