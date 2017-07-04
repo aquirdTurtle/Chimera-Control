@@ -1,0 +1,86 @@
+### MASTER TODO: ###
+
+Main Features
+- Test Output Functionality
+  - Run MOT Experiments
+    - MOT Temperature Measurement
+    - PGC Temperature Measurement
+  - Create / Run / Test Atoms Experiments
+	- Load Atoms & Image
+    - Trap Frequency Measurement
+      - Axial
+      - Radial
+    - Trap Depth Measurement
+	- Pushout
+    - etc....
+- Scripting for the Agilent controls
+- Option to see the startup message after startup
+- Convert input in edit to actual dac value based on discretization
+- Be able to manually set limits on dac values in the code.
+- make randomizing the variation order an option
+- make randomize the repetition between variations an option.
+- Grey out controls when experiment/category/config has yet to be selected.
+	- Controls that should be sensitive:
+		- Comments (all levels)
+		- higher level combos (e.g. config should be grey if category hasn't been set)
+		- Config variables
+- Be able to have a scroll-bar when window shrinks instead of re-sizing everything.
+- change repetitions to just be a label and an edit.
+- Handle repetition updates better... perhaps just a seperate control.
+- More options for programming textronics generators.
+- make the color coding better.
+- Make "active" and "inactive" global variables
+	- make it possible to run through the analysis routine without running experiment to see what variables are active.
+	- Add custom colorings for different states
+	https://www.codeproject.com/Articles/79/Neat-Stuff-to-Do-in-List-Controls-Using-Custom-Dra	
+- When setting parameter for variable, the variable name should appear in the dialog so that the user can be sure that 
+	they are setting the right thing.
+- check save before exit
+
+Bugs
+- Header text size too large / boxes too small on master comp
+- On New script, the combo should automatically switch to parent? or something. Should not stay.
+- If the last command is a time command, the code doesn't realize it needs to wait extra long or anything.
+- get the default master script uploaded
+- hanlde 0 variations for variables better. If more than one range, you should be able to set a number for a range
+	to be zero, but there always needs to be at least one variable. I might need to write special handling in the key
+	for zero variations in one range as well.
+- fix "total experiment time" calculation to be accurate when a time is varying between variations.
+- after new script & saving function, script name appears to be lost. is probably
+  lost at "new script", so I should probably have something like a "new function" 
+  option that preserves the parent script so that it's easy to go back?
+- Tektronix generators should be turned off by default. Right now if you run a config without them they turn on.
+- make sure local variables can over-write globals if you need to scan a global variable.
+- After "Rename config", the config name is set to blank.
+- Enter shouldn't crash program
+- If experiment doesn't exist in correct location, and cancel, code crashes.
+- After prompt to save script before starting, selecting "cancel" doesn't cancel.
+- Saving adds boxes to experiment notes... Perhaps related to line endings.
+- Bug where code doesn't appear to be doing anything after 2-deep function call???
+- don't let the user save a function as a .mscript.
+
+### Finished ###
+Features
+- Code throws a warning if it sees zero variations for a variable.
+- Checked the following experiments:
+	- Mot fill
+	- Mot Temperature
+	- PGC Temperature
+Bugs
+- Fix issues with notes: 
+	- Config notes dds the square character on the end
+	- experiment notes eats the first character on saving
+	- category notes seem to dissapear entirely.
+- Dac0 goes red correctly now.
+- more info for function args not matching in # error.
+- adjusted "suspicious variable number" limit to be set off by >1000.
+- Fixed bug where function args got filled with empty strings
+- Fixed bug in function analysis which caused it to pull things from the main script instead of the function for
+	dacramp and a couple rare commands.
+- show all dacs and show all ttls are no longerheader style
+- fixed key save location
+- Fix Key Output, Constants aren't outputted now
+- Removed extra children bar, which was originally for subroutines
+
+Other Changes
+- change variable text from "From Master" to "Variable" and "Singleton" to "Constant".

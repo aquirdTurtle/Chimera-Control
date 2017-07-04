@@ -304,7 +304,7 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 	}
 	int varNum;
 	configurationFile >> varNum;
-	if (varNum < 0 || varNum > 10)
+	if (varNum < 0 || varNum > 1000)
 	{
 		int answer = MessageBox(0, ("ERROR: variable number retrieved from file appears suspicious. The number is " + std::to_string(varNum) + ". Is this accurate?").c_str(), 0, MB_YESNO);
 		if (answer == IDNO)
@@ -322,7 +322,7 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 		variable tempVar;
 		std::string varName, timelikeText, typeText, valueString;
 		bool timelike;
-		bool singleton;
+		bool constant;
 		double value;
 		configurationFile >> tempVar.name;
 		configurationFile >> timelikeText;
@@ -341,18 +341,18 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 		}
 
 		configurationFile >> typeText;
-		if (typeText == "Singleton")
+		if (typeText == "Constant")
 		{
-			tempVar.singleton = true;
+			tempVar.constant = true;
 		}
-		else if (typeText == "From_Master")
+		else if (typeText == "Variable")
 		{
-			tempVar.singleton = false;
+			tempVar.constant = false;
 		}
 		else
 		{
-			thrower("ERROR: unknown variable type option. Check the formatting of the configuration file. Default to singleton.");
-			tempVar.singleton = true;
+			thrower("ERROR: unknown variable type option. Check the formatting of the configuration file. Default to constant.");
+			tempVar.constant = true;
 		}
 		int rangeNumber;
 		configurationFile >> rangeNumber;
@@ -448,7 +448,7 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 	// add a blank line
 	variable tempVar;
 	tempVar.name = "";
-	tempVar.singleton = true;
+	tempVar.constant = true;
 	tempVar.timelike = false;
 	tempVar.ranges.push_back({ 0,0,0 });
 	Master->configVariables.addConfigVariable(tempVar, varNum);
@@ -627,13 +627,13 @@ void ConfigurationFileSystem::saveConfiguration( MasterWindow* Master )
 		{
 			configurationSaveFile << "Not_Timelike ";
 		}
-		if (info.singleton)
+		if (info.constant)
 		{
-			configurationSaveFile << "Singleton ";
+			configurationSaveFile << "Constant ";
 		}
 		else
 		{
-			configurationSaveFile << "From_Master ";
+			configurationSaveFile << "Variable ";
 		}
 		configurationSaveFile << info.ranges.size() << " ";
 		for (int rangeInc = 0; rangeInc < info.ranges.size(); rangeInc++)
@@ -808,13 +808,13 @@ void ConfigurationFileSystem::saveConfigurationAs(MasterWindow* Master)
 		{
 			configurationSaveFile << "Not_Timelike ";
 		}
-		if (info.singleton)
+		if (info.constant)
 		{
-			configurationSaveFile << "Singleton ";
+			configurationSaveFile << "Constant ";
 		}
 		else
 		{
-			configurationSaveFile << "From_Master ";
+			configurationSaveFile << "Variable ";
 		}
 		configurationSaveFile << info.ranges.size() + " ";
 		for (int rangeInc = 0; rangeInc < info.ranges.size(); rangeInc++)
@@ -1277,9 +1277,7 @@ void ConfigurationFileSystem::openCategory(std::string categoryToOpen, MasterWin
 	std::string notes;
 	std::string tempNote;
 	std::string version;
-	std::getline(categoryConfigOpenFile, version);
-	categoryConfigOpenFile.get();
-	
+	std::getline(categoryConfigOpenFile, version);	
 	std::getline(categoryConfigOpenFile, tempNote);
 	if (tempNote != "END CATEGORY NOTES")
 	{
@@ -1585,7 +1583,7 @@ void ConfigurationFileSystem::openExperiment(std::string experimentToOpen, Maste
 	std::string notes;
 	std::string tempNote;
 	// get the trailing newline after the >> operation.
-	experimentConfigOpenFile.get();
+	//experimentConfigOpenFile.get();
 	std::getline(experimentConfigOpenFile, tempNote);
 	if (tempNote != "END EXPERIMENT NOTES")
 	{

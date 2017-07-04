@@ -630,7 +630,7 @@ bool TtlSystem::isValidTTLName( std::string name )
 			{
 				return true;
 			}
-			else if (this->getNameIdentifier( name, row, number ) != -1)
+			else if (getNameIdentifier( name, row, number ) != -1)
 			{
 				return true;
 			}
@@ -762,15 +762,14 @@ void TtlSystem::setName(unsigned int row, unsigned int number, std::string name,
 		return;
 	}
 	std::transform( name.begin(), name.end(), name.begin(), ::tolower );
-	this->ttlNames[row][number] = name;
-	this->ttlPushControls[row][number].setToolTip(name, toolTips, master);
-	return;
+	ttlNames[row][number] = name;
+	ttlPushControls[row][number].setToolTip(name, toolTips, master);
 }
 
 int TtlSystem::getNameIdentifier(std::string name, unsigned int& row, unsigned int& number)
 {
 	
-	for (int rowInc = 0; rowInc < this->ttlNames.size(); rowInc++)
+	for (int rowInc = 0; rowInc < ttlNames.size(); rowInc++)
 	{
 		std::string rowName;
 		switch (rowInc)

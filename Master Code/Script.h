@@ -37,10 +37,7 @@ class Script
 		//bool handleEditChange();
 		void handleTimerCall(MasterWindow* Master);
 
-		void updateChildCombo(MasterWindow* Master);
-		void Script::changeView(std::string viewName, MasterWindow* Master, bool isFunction);
-		void childComboChangeHandler(WPARAM messageWParam, LPARAM messageLParam, MasterWindow* Master);
-		void checkChildSave(MasterWindow* Master);
+		void changeView(std::string viewName, MasterWindow* Master, bool isFunction);
 
 		void saveScript(MasterWindow* Master);
 		void saveScriptAs(std::string scriptAddress, MasterWindow* Master);
@@ -74,7 +71,6 @@ class Script
 		Control<CRichEditCtrl> edit;
 		Control<CStatic> title;
 		Control<CButton>  savedIndicator;
-		Control<CComboBox>  childCombo;
 		Control<CEdit> fileNameText;
 		Control<CComboBox> availableFunctionsCombo;
 		Control<CEdit> help;

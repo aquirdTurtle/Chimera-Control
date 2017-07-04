@@ -493,8 +493,9 @@ void ExperimentManager::analyzeFunctionDefinition(std::string defLine, std::stri
 
 
 void ExperimentManager::analyzeFunction(std::string function, std::vector<std::string> args, TtlSystem* ttls, DacSystem* dacs, 
-	std::vector<std::pair<unsigned int, unsigned int>>& ttlShades, std::vector<unsigned int>& dacShades, RhodeSchwarz* rsg, 
-	std::array<std::string, 3>& ramanFreqs)
+										std::vector<std::pair<unsigned int, unsigned int>>& ttlShades, 
+										std::vector<unsigned int>& dacShades, RhodeSchwarz* rsg, 
+										std::array<std::string, 3>& ramanFreqs)
 {
 	/// load the file
 	std::fstream functionFile;
@@ -505,7 +506,6 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 	if ( !file )
 	{
 		thrower("ERROR: Function " + function + " does not exist!");
-		return;
 	}
 	else
 	{
@@ -516,7 +516,6 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 	if (!functionFile.is_open())
 	{
 		thrower("ERROR: Function file " + function + "File passed test making sure the file exists, but it still failed to open!");
-		return;
 	}
 	std::stringstream buf;
 	ScriptStream functionStream;
@@ -528,7 +527,6 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 	if (functionStream.str() == "")
 	{
 		thrower("ERROR: Function File for " + function + "was empty!");
-		return;
 	}
 
 	std::string word;
@@ -544,9 +542,14 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 	analyzeFunctionDefinition( defLine, name, functionArgs );
 	if (functionArgs.size() != args.size())
 	{
-		thrower("ERROR: incorrect number of arguments in the function call. Number in call was: " 
-				 + std::to_string(args.size()) + ", number expected was " + std::to_string(functionArgs.size()));
-		return;
+		std::string functionArgsString;
+		for (auto elem : args)
+		{
+			functionArgsString += elem + ",";
+		}
+		thrower("ERROR: incorrect number of arguments in the call for function " + function + ". Number in call was: "
+				 + std::to_string(args.size()) + ", number expected was " + std::to_string(functionArgs.size()) + ". "
+				"Function arguments were:" + functionArgsString + ".");
 	}
 	std::vector<std::pair<std::string, std::string>> replacements;
 	for (int replacementInc =0; replacementInc < args.size(); replacementInc++)
@@ -565,7 +568,7 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 			functionStream >> command;
 			if (command == "++")
 			{
-				this->operationTime.second++;
+				operationTime.second++;
 			}
 			if (command == "+=")
 			{
@@ -620,14 +623,12 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 					if (!isVar)
 					{
 						thrower("ERROR: tried and failed to convert " + time + " to an integer for a time += command.");
-						return;
 					}
 				}
 			}
 			else
 			{
 				thrower("ERROR: unrecognized time operator: " + command + ". Expected operators are \"++\", \"+=\", and \"=\"");
-				return;
 			}
 		}
 		else if (word == "t++")
@@ -658,7 +659,6 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 				if (!isVar)
 				{
 					thrower("ERROR: tried and failed to convert " + time + " to an integer for a time += command.");
-					return;
 				}
 			}
 		}
@@ -688,7 +688,6 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 				if (!isVar)
 				{
 					thrower("ERROR: tried and failed to convert " + time + " to an integer for a time += command.");
-					return;
 				}
 			}
 		}
@@ -745,30 +744,44 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 			functionStream >> name;
 			std::string value;
 			functionStream >> value;
-			dacs->handleDAC_ScriptCommand( operationTime, name, "__NONE__", value, "0", "__NONE__", dacShades, variables, ttls );
+			try
+			{
+				dacs->handleDAC_ScriptCommand(operationTime, name, "__NONE__", value, "0", "__NONE__", dacShades, variables, ttls);
+			}
+			catch (Error& err)
+			{
+				thrower(err.whatStr() + "... in \"dac:\" command inside function " + function);
+			}
 		}
 		else if (word == "dacramp:")
 		{
 			std::string name, initVal, finalVal, rampTime, rampInc;
 			// get dac name
-			this->currentMasterScript >> name;
+			functionStream >> name;
 			// get ramp initial value
-			currentMasterScript >> initVal;
+			functionStream >> initVal;
 			// get ramp final value
-			currentMasterScript >> finalVal;
+			functionStream >> finalVal;
 			// get total ramp time;
-			currentMasterScript >> rampTime;
+			functionStream >> rampTime;
 			// get ramp point increment.
-			currentMasterScript >> rampInc;
+			functionStream >> rampInc;
 			//
-			dacs->handleDAC_ScriptCommand( operationTime, name, initVal, finalVal, rampTime, rampInc, dacShades, variables, ttls );
+			try
+			{
+				dacs->handleDAC_ScriptCommand(operationTime, name, initVal, finalVal, rampTime, rampInc, dacShades, variables, ttls);
+			}
+			catch (Error& err)
+			{
+				thrower(err.whatStr() + "... in \"dacramp:\" command inside function " + function);
+			}
 		}
 		/// Handle RSG calls.
 		else if (word == "RSG:")
 		{
 			rsgEventStructuralInfo info;
-			currentMasterScript >> info.frequency;
-			currentMasterScript >> info.power;
+			functionStream >> info.frequency;
+			functionStream >> info.power;
 			// test frequency
 			try
 			{
@@ -789,7 +802,6 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 				{
 					thrower("ERROR: Argument " + info.frequency + " is not a double or a variable name. Can't program the RSG "
 							 "using this.");
-					return;
 				}
 			}
 			// test power
@@ -812,7 +824,6 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 				{
 					thrower( "ERROR: Argument " + info.power + " is not a double or a variable name. Can't program the RSG "
 							 "using this." );
-					return;
 				}
 			}
 			info.time = operationTime;
@@ -826,12 +837,11 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 			if (ramanFreqs[0] != "")
 			{
 				thrower("ERROR: you tried to set raman frequencies twice!");
-				return;
 			}
 			std::string top, bottom, axial;
-			currentMasterScript >> top;
-			currentMasterScript >> bottom;
-			currentMasterScript >> axial;
+			functionStream >> top;
+			functionStream >> bottom;
+			functionStream >> axial;
 			// deal with top frequency.
 			try
 			{
@@ -851,7 +861,6 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 				if (!isVar)
 				{
 					thrower("ERROR: the string " + top + " is neither a double nor a variable!");
-					return;
 				}
 			}
 			ramanFreqs[0] = top;
@@ -875,7 +884,6 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 				if (!isVar)
 				{
 					thrower("ERROR: the string " + bottom + " is neither a double nor a variable!");
-					return;
 				}
 			}
 			ramanFreqs[1] = bottom;
@@ -898,7 +906,6 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 				if (!isVar)
 				{
 					thrower("ERROR: the string " + axial + " is neither a double nor a variable!");
-					return;
 				}
 			}
 			ramanFreqs[2] = axial;
@@ -922,20 +929,25 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 				if (pos == std::string::npos)
 				{
 					arg = functionInputArgs.substr(0, functionInputArgs.size());
-					newArgs.push_back(arg);
+					if (arg != "")
+					{
+						newArgs.push_back(arg);
+					}
 					break;
 				}
 				arg = functionInputArgs.substr(0, pos);
-				newArgs.push_back(arg);
+				if (arg != "")
+				{
+					newArgs.push_back(arg);
+				}
 				// cut out that argument off the string.
 				functionInputArgs = functionInputArgs.substr(pos, functionInputArgs.size());
 			}
 			if (functionName == function)
 			{
 				thrower( "ERROR: Recursive function call detected! " + function + " called itself! This is not allowed." );
-				return;
 			}
-			this->analyzeFunction(functionName, newArgs, ttls, dacs, ttlShades, dacShades, rsg, ramanFreqs);
+			analyzeFunction(functionName, newArgs, ttls, dacs, ttlShades, dacShades, rsg, ramanFreqs);
 		}
 		else if ( word == "repeat:" )
 		{
@@ -949,7 +961,6 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 			{
 				thrower( "ERROR: the repeat number failed to convert to an integer! Note that the repeat number can not"
 						 " currently be a variable." );
-				return;
 			}
 			repeatPos.push_back( functionStream.tellg() );
 			currentRepeatNum.push_back(1);
@@ -1128,7 +1139,14 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 			std::string dacName, dacVoltageValue;
 			currentMasterScript >> dacName;
 			currentMasterScript >> dacVoltageValue;
-			dacs->handleDAC_ScriptCommand( operationTime, dacName, "__NONE__", dacVoltageValue, "0", "__NONE__", dacShades, variables, ttls );
+			try
+			{
+				dacs->handleDAC_ScriptCommand(operationTime, dacName, "__NONE__", dacVoltageValue, "0", "__NONE__", dacShades, variables, ttls);
+			}
+			catch (Error& err)
+			{
+				thrower(err.whatStr() + "... in \"dac:\" command inside main script");
+			}
 		}
 		else if (word == "dacramp:")
 		{
@@ -1143,8 +1161,15 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 			currentMasterScript >> rampTime;
 			// ge ramp point increment.
 			currentMasterScript >> rampInc;
-
-			dacs->handleDAC_ScriptCommand( operationTime, name, initVal, finalVal, rampTime, rampInc, dacShades, variables, ttls );
+			try
+			{
+				dacs->handleDAC_ScriptCommand( operationTime, name, initVal, finalVal, rampTime, rampInc, dacShades, 
+											  variables, ttls );
+			}
+			catch (Error& err)
+			{
+				thrower(err.whatStr() + "... in \"dacramp:\" command inside main script");
+			}
 		}
 		/// Deal with RSG calls
 		else if (word == "rsg:")

@@ -185,6 +185,7 @@
     <ClInclude Include="explorerOpen.h" />
     <ClInclude Include="KeyHandler.h" />
     <ClInclude Include="MasterConfiguration.h" />
+    <ClInclude Include="Planning.txt" />
     <ClInclude Include="Repetitions.h" />
     <ClInclude Include="cleanString.h" />
     <ClInclude Include="ConfigurationFileSystem.h" />

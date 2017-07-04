@@ -20,7 +20,7 @@ struct profileSettings
 };
 
 /*
-]--- This singleton class manages the entire "profile" system, where "profiles" are my term for the entirety of the settings in the code (strange word choice I
+]--- This constant class manages the entire "profile" system, where "profiles" are my term for the entirety of the settings in the code (strange word choice I
 ]- know). It consists of the relevant controls, some saved indicators that can be checked to determine if the user should be prompted to save at a given point,
 ]- and all of the functions for saving, renaming, deleting, and creating new levels within the code. 
 */

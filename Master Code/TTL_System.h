@@ -74,7 +74,7 @@ typedef struct _DIO64STAT
 /*
 ]- The TtlSystem class is based on the DIO64.bas module in the original VB6 code. It does use the dio64_32.dll system, but we always refer to these 
 ]- controls as the TTLs, so I call it that.
-]- This should be converted to a singleton class at some point.
+]- This should be converted to a constant class at some point.
 */
 class TtlSystem
 {

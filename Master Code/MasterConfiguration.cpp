@@ -178,7 +178,7 @@ void MasterConfiguration::load(TtlSystem* ttls, DacSystem& dacs, std::vector<CTo
 
 		int varNum;
 		configStream >> varNum;
-		if (varNum < 0 || varNum > 10)
+		if (varNum < 0 || varNum > 1000)
 		{
 			int answer = MessageBox( 0, ("ERROR: variable number retrieved from file appears suspicious. The number is " + std::to_string( varNum ) + ". Is this accurate?").c_str(), 0, MB_YESNO );
 			if (answer == IDNO)

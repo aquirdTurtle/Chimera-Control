@@ -28,7 +28,6 @@ void Script::rearrange(UINT width, UINT height, fontMap fonts)
 	edit.rearrange("", "", width, height, fonts);
 	title.rearrange("", "", width, height, fonts);
 	savedIndicator.rearrange("", "", width, height, fonts);
-	childCombo.rearrange("", "", width, height, fonts);
 	fileNameText.rearrange("", "", width, height, fonts);
 	availableFunctionsCombo.rearrange("", "", width, height, fonts);
 	help.rearrange("", "", width, height, fonts);
@@ -434,77 +433,9 @@ void Script::colorScriptSection(DWORD beginingOfChange, DWORD endOfChange, Maste
 			start = end;
 		}
 	}
-	this->updateChildCombo(Master);
-	this->updateSavedStatus( tempSaveStatus );
-	return;
+	updateSavedStatus( tempSaveStatus );
 }
 
-void Script::updateChildCombo(MasterWindow* Master)
-{
-	// check the current setting.
-	int selection = childCombo.GetCurSel();
-	TCHAR text[256];
-	childCombo.GetLBText( selection, text );
-	std::string textStr(text);
-	if (textStr != "Parent Script")
-	{
-		// if not parent, don't update the child combo.
-		return;
-	}
-	CString myText;
-	edit.GetWindowTextA(myText);
-	// get script
-	// get the name that's currently set.
-	selection = childCombo.GetCurSel();
-	TCHAR name[256];
-	childCombo.GetLBText( selection, name );
-	std::string currentName(name);
-	// I'll use this later to reset the combo.
-	// reset the combo and name vector.
-	childCombo.ResetContent();
-
-	childrenNames.clear();
-	std::string script(myText);
-	// look for predefined scripts.
-	ScriptStream scriptStream(script);
-
-	while (scriptStream.peek() != EOF)
-	{
-		std::string line;
-		line = scriptStream.getline( '\n' );
-		// remove trailing '\r' from line.
-		line = line.substr(0, line.size() - 1);
-		std::transform(line.begin(), line.end(), line.begin(), ::tolower);
-		if (line == "predefined script")
-		{
-			std::string scriptName;
-			scriptName = scriptStream.getline( '\n' );
-			// remove trailing '\r'
-			scriptName = scriptName.substr(0, scriptName.size() - 1);
-			// test if script exists in nearby folder.
-			
-			std::string path = Master->profile.getCurrentPathIncludingCategory() + scriptName;
-			FILE *file;
-			fopen_s( &file, path.c_str(), "r" );
-			if ( !file )
-			{
-				childCombo.AddString( (scriptName + " (File Not Found!)").c_str() );
-			}
-			else
-			{
-				fclose( file );
-				// add to combo normally.
-				childCombo.AddString( scriptName.c_str() );
-				childrenNames.push_back( scriptName );
-			}
-		}
-	}
-	// add the parent string message
-	childCombo.AddString( "Parent Script" );
-	// reset the child window.
-	childCombo.SelectString( 0, currentName.c_str() );
-	return;
-}
 
 
 INT_PTR Script::colorControl(LPARAM lParam, WPARAM wParam)
@@ -530,10 +461,6 @@ INT_PTR Script::colorControl(LPARAM lParam, WPARAM wParam)
 		SetBkMode(hdcStatic, TRANSPARENT);
 		SetBkColor(hdcStatic, RGB(50, 45, 45));
 		//return (INT_PTR)eGreyRedBrush;
-	}
-	else if (controlID == childCombo.ID)
-	{
-		return false;
 	}
 	else if (controlID == fileNameText.ID)
 	{
@@ -635,16 +562,8 @@ void Script::initialize(int width, int height, POINT& startingLocation, std::vec
 	availableFunctionsCombo.fontType = Normal;
 	availableFunctionsCombo.AddString("Available Functions List:");
 	availableFunctionsCombo.SetCurSel(0);
-	this->loadFunctions();
+	loadFunctions();
 	
-	startingLocation.y += 25;
-	// children combo
-	childCombo.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 800 };
-	childCombo.ID = id++;
-	childCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, childCombo.sPos, master, childCombo.ID );
-	childCombo.fontType = Normal;
-	childCombo.AddString( "Parent Script" );
-	childCombo.SetCurSel( 0 );
 	startingLocation.y += 25;
 	// Edit
 	edit.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, height};
@@ -671,31 +590,6 @@ void Script::reorganizeControls()
 	return;
 }
 
-void Script::childComboChangeHandler(WPARAM messageWParam, LPARAM messageLParam, MasterWindow* Master)
-{
-	int controlID = GetDlgCtrlID((HWND)messageLParam);
-	if (controlID != this->childCombo.ID)
-	{
-		return;
-	}
-	if (HIWORD(messageWParam) != CBN_SELCHANGE)
-	{
-		return;
-	}
-	// prompt for save
-	this->checkSave(Master);
-	// get text from child
-
-	// check what was selected.
-	int selection = childCombo.GetCurSel();
-	TCHAR selectedText[256];
-	childCombo.GetLBText( selection, selectedText );
-	std::string viewName(selectedText);
-	this->changeView(viewName, Master, false);
-	this->colorEntireScript(Master);
-	this->updateSavedStatus(true);
-	return;
-}
 
 void Script::changeView(std::string viewName, MasterWindow* Master, bool isFunction)
 {
@@ -783,12 +677,11 @@ void Script::saveScriptAs(std::string location, MasterWindow* Master)
 			{
 				thrower("ERROR: System is currently running. You can't save over any files in use by the system while it runs, which includes the "
 					"horizontal and vertical AOM scripts and the intensity script.");
-				return;
 			}
 		}
 	}
 	CString text;
-	this->edit.GetWindowTextA(text);
+	edit.GetWindowTextA(text);
 	std::fstream saveFile(location, std::fstream::out);
 	if (!saveFile.is_open())
 	{
@@ -801,64 +694,14 @@ void Script::saveScriptAs(std::string location, MasterWindow* Master)
 	char pathChars[_MAX_FNAME];
 	int myError = _splitpath_s(location.c_str(), dirChars, _MAX_FNAME, pathChars, _MAX_FNAME, fileChars, _MAX_FNAME, NULL, 0);
 	scriptName = std::string(fileChars);
-	this->scriptPath = std::string(fileChars) + std::string(pathChars);
+	scriptPath = std::string(fileChars) + std::string(pathChars);
 	saveFile.close();
-	this->scriptFullAddress = location;
-	this->updateScriptNameText(location);
-	this->updateSavedStatus(true);
-	return;
+	scriptFullAddress = location;
+	updateScriptNameText(location);
+	updateSavedStatus(true);
 }
-void Script::checkChildSave(MasterWindow* Master)
-{
-	// get the 
-	if (isSaved)
-	{
-		// don't need to do anything
-		return;
-	}
-	int selection = childCombo.GetCurSel();
-	TCHAR name[256];
-	childCombo.GetLBText( selection, name );
-	std::string nameStr(name);
-	if (nameStr == "")
-	{
-		int answer = MessageBox(0, ("Current " + deviceType + " script file is unsaved and unnamed. Save it with a with new name?").c_str(), 0, MB_YESNOCANCEL);
-		if (answer == IDCANCEL)
-		{
-			return;
-		}
-		else if (answer == IDNO)
-		{
-			return;
-		}
-		else if (answer == IDYES)
-		{
-			std::string newName = (const char*)DialogBoxParam(Master->programInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure,
-				(LPARAM)("Please enter new name for the script " + scriptName + ".").c_str());
-			std::string path = Master->profile.getCurrentPathIncludingCategory() + newName + this->extension;
-			this->saveScriptAs(path, Master);
-			return;
-		}
-	}
-	else
-	{
-		int answer = MessageBox(0, ("Save " + deviceType + " script file as " + nameStr + "?").c_str(), 0, MB_YESNOCANCEL);
-		if (answer == IDCANCEL)
-		{
-			return;
-		}
-		else if (answer == IDNO)
-		{
-			return;
-		}
-		else if (answer == IDYES)
-		{
-			this->saveScriptAs(nameStr, Master);
-			return;
-		}
-	}
-	return;
-}
+
+
 //
 void Script::checkSave(MasterWindow* Master)
 {
@@ -1194,13 +1037,14 @@ INT_PTR Script::handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
 {
 	DWORD controlID = GetDlgCtrlID((HWND)lParam);
 	HDC hdcStatic = (HDC)wParam;
-	if (controlID == this->childCombo.ID || controlID == this->edit.ID)
+	if (controlID == edit.ID)
 	{
 		SetTextColor(hdcStatic, RGB(255, 255, 255));
 		SetBkColor(hdcStatic, RGB(15, 15, 15));
 		return (LRESULT)brushes["Dark Grey"];
 	}
-	else if (controlID == this->title.ID || controlID == this->savedIndicator.ID || controlID == this->fileNameText.ID || controlID == this->availableFunctionsCombo.ID)
+	else if (controlID == title.ID || controlID == savedIndicator.ID || controlID == fileNameText.ID 
+			 || controlID == availableFunctionsCombo.ID)
 	{
 		SetTextColor(hdcStatic, RGB(218, 165, 32));
 		SetBkColor(hdcStatic, RGB(25, 25, 25));
@@ -1261,14 +1105,12 @@ void Script::saveAsFunction()
 	if (!functionFile.is_open())
 	{
 		thrower("ERROR: the function file failed to open!");
-		return;
 	}
 	functionFile << text.GetBuffer();
 	functionFile.close();
 	// refresh this.
-	this->loadFunctions();
+	loadFunctions();
 	// test if script exists in nearby folder.
-	return;
 }
 
 void Script::loadFunctions()

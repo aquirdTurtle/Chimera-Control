@@ -28,7 +28,7 @@ void KeyHandler::generateKey()
 	for (int varInc = 0; varInc < variables.size(); varInc++)
 	{
 		// find a varying parameter.
-		if (!variables[varInc].singleton)
+		if (!variables[varInc].constant)
 		{
 			// then this variable varies. 
 
@@ -74,7 +74,7 @@ void KeyHandler::generateKey()
 	std::mt19937 urng(rng());
 	std::shuffle(randomizerKey.begin(), randomizerKey.end(), urng);
 	// we now have a random key for the shuffling which every variable will follow
-	// initialize this to one so that singletons always get at least one value.
+	// initialize this to one so that constants always get at least one value.
 	int totalSize = 1;
 	for (int variableInc = 0; variableInc < variableIndexes.size(); variableInc++)
 	{
@@ -101,15 +101,15 @@ void KeyHandler::generateKey()
 		keyValues[variables[varIndex].name].second = true;
 		totalSize = tempKeyRandomized.size();
 	}
-	// now add all singleton objects.
+	// now add all constant objects.
 	for (variable var : variables)
 	{
-		if (var.singleton)
+		if (var.constant)
 		{
 			std::vector<double> tempKey;
 			for (int variationInc = 0; variationInc < totalSize; variationInc++)
 			{
-				// the only singleton value is stored as the initial value here.
+				// the only constant value is stored as the initial value here.
 				tempKey.push_back(var.ranges[0].initialValue);
 			}
 			keyValues[var.name].first = tempKey;
@@ -126,17 +126,19 @@ void KeyHandler::exportKey()
 	std::fstream keyFile(KEY_ADDRESS, std::ios::out);
 	if (!keyFile.is_open())
 	{
-		thrower("ERROR: Exporting Key File Failed!");
-		return;
+		thrower("ERROR: Exporting Key File Failed to open!");
 	}
 	for (int variableInc = 0; variableInc < variables.size(); variableInc++)
 	{
-		keyFile << std::setw(15) << variables[variableInc].name + ":";
-		for (int keyInc = 0; keyInc < keyValues[variables[variableInc].name].first.size(); keyInc++)
+		if (!variables[variableInc].constant)
 		{
-			keyFile << std::setprecision(12) << std::setw(15) << this->keyValues[variables[variableInc].name].first[keyInc];
+			keyFile << std::setw(15) << variables[variableInc].name + ":";
+			for (int keyInc = 0; keyInc < keyValues[variables[variableInc].name].first.size(); keyInc++)
+			{
+				keyFile << std::setprecision(12) << std::setw(15) << this->keyValues[variables[variableInc].name].first[keyInc];
+			}
+			keyFile << "\n";
 		}
-		keyFile << "\n";
 	}
 	keyFile.close();
 }

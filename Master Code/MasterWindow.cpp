@@ -514,20 +514,25 @@ void MasterWindow::SetDacs()
 
 void MasterWindow::DAC_EditChange(UINT id)
 {
-	dacBoards.handleEditChange(id - ID_DAC_FIRST_EDIT + 1);
+	try
+	{
+		dacBoards.handleEditChange(id - ID_DAC_FIRST_EDIT);
+	}
+	catch (Error& err)
+	{
+		errorStatus.addStatusText(err.what());
+	}
 }
 
 
 void MasterWindow::ClearError()
 {
-	this->errorStatus.clear();
-	return;
+	errorStatus.clear();
 }
 
 void MasterWindow::ClearGeneral()
 {
-	this->generalStatus.clear();
-	return;
+	generalStatus.clear();
 }
 
 void MasterWindow::SetRepetitionNumber()
@@ -548,25 +553,25 @@ void MasterWindow::ConfigVarsColumnClick(NMHDR * pNotifyStruct, LRESULT * result
 {
 	try
 	{
-		this->configVariables.handleColumnClick( pNotifyStruct, result );
+		configVariables.handleColumnClick( pNotifyStruct, result );
 	}
 	catch(Error& exception )
 	{
-		this->errorStatus.addStatusText("Handling config variable listview click : " + exception.whatStr() + "\r\n", 0);
+		errorStatus.addStatusText("Handling config variable listview click : " + exception.whatStr() + "\r\n", 0);
 	}
-	this->profile.updateConfigurationSavedStatus(false);
-	return;
+	profile.updateConfigurationSavedStatus(false);
 }
+
 
 void MasterWindow::OnExperimentChanged()
 {
 	try
 	{
-		this->profile.experimentChangeHandler( this );
+		profile.experimentChangeHandler( this );
 	}
 	catch (Error& exception)
 	{
-		this->errorStatus.addStatusText( "Handling Experiment Selection Change : " + exception.whatStr() + "\r\n", 0 );
+		errorStatus.addStatusText( "Handling Experiment Selection Change : " + exception.whatStr() + "\r\n", 0 );
 	}
 }
 
@@ -575,11 +580,11 @@ void MasterWindow::OnCategoryChanged()
 {
 	try
 	{
-		this->profile.categoryChangeHandler( this );
+		profile.categoryChangeHandler( this );
 	}
 	catch (Error& exception)
 	{
-		this->errorStatus.addStatusText( "Handling Category Selection Change : " + exception.whatStr() + "\r\n", 0 );
+		errorStatus.addStatusText( "Handling Category Selection Change : " + exception.whatStr() + "\r\n", 0 );
 	}
 }
 
@@ -588,11 +593,11 @@ void MasterWindow::OnConfigurationChanged()
 {
 	try
 	{
-		this->profile.configurationChangeHandler( this );
+		profile.configurationChangeHandler( this );
 	}
 	catch (Error& exception)
 	{
-		this->errorStatus.addStatusText( "Handling Configuration Selection Change Failed: " + exception.whatStr() + "\r\n", 0 );
+		errorStatus.addStatusText( "Handling Configuration Selection Change Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
 }
 
@@ -601,11 +606,11 @@ void MasterWindow::OnSequenceChanged()
 {
 	try
 	{
-		this->profile.sequenceChangeHandler( this );
+		profile.sequenceChangeHandler( this );
 	}
 	catch (Error& exception)
 	{
-		this->errorStatus.addStatusText( "Handling Sequence Selection Change Failed: " + exception.whatStr() + "\r\n", 0 );
+		errorStatus.addStatusText( "Handling Sequence Selection Change Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
 }
 
@@ -614,11 +619,11 @@ void MasterWindow::OnOrientationChanged()
 {
 	try
 	{
-		this->profile.orientationChangeHandler( this );
+		profile.orientationChangeHandler( this );
 	}
 	catch (Error& exception)
 	{
-		this->errorStatus.addStatusText( "Handling Orientation Selection Change Failed: " + exception.whatStr() + "\r\n", 0 );
+		errorStatus.addStatusText( "Handling Orientation Selection Change Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
 }
 
@@ -627,11 +632,11 @@ void MasterWindow::DeleteConfiguration()
 {
 	try
 	{
-		this->profile.deleteConfiguration();
+		profile.deleteConfiguration();
 	}
 	catch (Error& exception)
 	{
-		this->errorStatus.addStatusText( "Deleting Configuration Failed: " + exception.whatStr() + "\r\n", 0 );
+		errorStatus.addStatusText( "Deleting Configuration Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
 }
 
@@ -640,11 +645,11 @@ void MasterWindow::NewConfiguration()
 {
 	try
 	{
-		this->profile.newConfiguration( this );
+		profile.newConfiguration( this );
 	}
 	catch (Error& exception)
 	{
-		this->errorStatus.addStatusText( "New Configuration Failed: " + exception.whatStr() + "\r\n", 0 );
+		errorStatus.addStatusText( "New Configuration Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
 }
 
@@ -666,7 +671,7 @@ void MasterWindow::SaveConfigurationAs()
 {
 	try
 	{
-		this->profile.saveConfigurationAs( this );
+		profile.saveConfigurationAs( this );
 	}
 	catch (Error& exception)
 	{
@@ -679,13 +684,12 @@ void MasterWindow::RenameConfiguration()
 {
 	try
 	{
-		this->profile.renameConfiguration( this );
+		profile.renameConfiguration( this );
 	}
 	catch (Error& exception)
 	{
-		this->errorStatus.addStatusText( "Renaming Configuration Failed: " + exception.whatStr() + "\r\n", 0 );
+		errorStatus.addStatusText( "Renaming Configuration Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
-	return;
 }
 
 
@@ -706,11 +710,11 @@ void MasterWindow::SaveCategoryAs()
 {
 	try
 	{
-		this->profile.saveCategoryAs( this );
+		profile.saveCategoryAs( this );
 	}
 	catch (Error& exception)
 	{
-		this->errorStatus.addStatusText( "Saving Category As Failed: " + exception.whatStr() + "\r\n", 0 );
+		errorStatus.addStatusText( "Saving Category As Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
 }
 
@@ -719,11 +723,11 @@ void MasterWindow::RenameCategory()
 {
 	try
 	{
-		this->profile.renameCategory();
+		profile.renameCategory();
 	}
 	catch (Error& exception)
 	{
-		this->errorStatus.addStatusText( "Renaming Category Failed: " + exception.whatStr() + "\r\n", 0 );
+		errorStatus.addStatusText( "Renaming Category Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
 }
 
@@ -732,11 +736,11 @@ void MasterWindow::DeleteCategory()
 {
 	try
 	{
-		this->profile.deleteCategory();
+		profile.deleteCategory();
 	}
 	catch (Error& exception)
 	{
-		this->errorStatus.addStatusText("Deleting Category Failed: " + exception.whatStr() + "\r\n", 0);
+		errorStatus.addStatusText("Deleting Category Failed: " + exception.whatStr() + "\r\n", 0);
 	}
 }
 
@@ -745,11 +749,11 @@ void MasterWindow::NewCategory()
 {
 	try
 	{
-		this->profile.newCategory( this );
+		profile.newCategory( this );
 	}
 	catch (Error& exception)
 	{
-		this->errorStatus.addStatusText("New Category Failed: " + exception.whatStr() + "\r\n", 0);
+		errorStatus.addStatusText("New Category Failed: " + exception.whatStr() + "\r\n", 0);
 	}
 }
 
@@ -758,11 +762,11 @@ void MasterWindow::NewExperiment()
 {
 	try
 	{
-		this->profile.newExperiment( this );
+		profile.newExperiment( this );
 	}
 	catch (Error& exception)
 	{
-		this->errorStatus.addStatusText("New Experiment : " + exception.whatStr() + "\r\n", 0);
+		errorStatus.addStatusText("New Experiment : " + exception.whatStr() + "\r\n", 0);
 	}
 }
 
@@ -771,11 +775,11 @@ void MasterWindow::DeleteExperiment()
 {
 	try
 	{
-		this->profile.deleteExperiment();
+		profile.deleteExperiment();
 	}
 	catch (Error& exception)
 	{
-		this->errorStatus.addStatusText("Delete Experiment : " + exception.whatStr() + "\r\n", 0);
+		errorStatus.addStatusText("Delete Experiment : " + exception.whatStr() + "\r\n", 0);
 	}
 }
 
@@ -797,11 +801,11 @@ void MasterWindow::SaveExperimentAs()
 {
 	try
 	{
-		this->profile.saveExperimentAs( this );
+		profile.saveExperimentAs( this );
 	}
 	catch (Error& exception)
 	{
-		this->errorStatus.addStatusText( "Save Experiment As : " + exception.whatStr() + "\r\n", 0 );
+		errorStatus.addStatusText( "Save Experiment As : " + exception.whatStr() + "\r\n", 0 );
 	}
 }
 
@@ -810,11 +814,11 @@ void MasterWindow::AddToSequence()
 {
 	try
 	{
-		this->profile.addToSequence( this );
+		profile.addToSequence( this );
 	}
 	catch (Error& exception)
 	{
-		this->errorStatus.addStatusText("Add to Sequence : " + exception.whatStr() + "\r\n", 0);
+		errorStatus.addStatusText("Add to Sequence : " + exception.whatStr() + "\r\n", 0);
 	}
 }
 
@@ -823,11 +827,11 @@ void MasterWindow::DeleteSequence()
 {
 	try
 	{
-		this->profile.deleteSequence( this );
+		profile.deleteSequence( this );
 	}
 	catch (Error& exception)
 	{
-		this->errorStatus.addStatusText("Delete Sequence : " + exception.whatStr() + "\r\n", 0);
+		errorStatus.addStatusText("Delete Sequence : " + exception.whatStr() + "\r\n", 0);
 	}
 }
 
@@ -842,25 +846,27 @@ void MasterWindow::RenameSequence()
 {
 	try
 	{
-		this->profile.renameSequence( this );
+		profile.renameSequence( this );
 	}
 	catch (Error& exception)
 	{
-		this->errorStatus.addStatusText("Rename Sequence : " + exception.whatStr() + "\r\n", 0);
+		errorStatus.addStatusText("Rename Sequence : " + exception.whatStr() + "\r\n", 0);
 	}
 }
+
+
 void MasterWindow::NewSequence()
 {
 	try
 	{
-		this->profile.newSequence( this );
+		profile.newSequence( this );
 	}
 	catch (Error& exception)
 	{
-		this->errorStatus.addStatusText("New Sequence : " + exception.whatStr() + "\r\n", 0);
+		errorStatus.addStatusText("New Sequence : " + exception.whatStr() + "\r\n", 0);
 	}
-	return;
 }
+
 
 //
 
@@ -868,14 +874,14 @@ void MasterWindow::SaveMasterScript()
 {
 	try
 	{
-		this->masterScript.saveScript( this );
+		masterScript.saveScript( this );
 	}
 	catch ( Error& exception )
 	{
-		this->errorStatus.addStatusText("Save Master Script Failed: " + exception.whatStr() + "\r\n", 0);
+		errorStatus.addStatusText("Save Master Script Failed: " + exception.whatStr() + "\r\n", 0);
 	}
-	return;
 }
+
 
 void MasterWindow::SaveMasterScriptAs()
 {
@@ -890,27 +896,29 @@ void MasterWindow::SaveMasterScriptAs()
 	}
 	try
 	{
-		this->masterScript.saveScriptAs( this->profile.getCurrentPathIncludingCategory() + scriptName + MASTER_SCRIPT_EXTENSION, this );
+		masterScript.saveScriptAs( this->profile.getCurrentPathIncludingCategory() + scriptName + MASTER_SCRIPT_EXTENSION, this );
 	}
 	catch(Error& exception )
 	{
-		this->errorStatus.addStatusText("Save Master Script As : " + exception.whatStr() + "\r\n", 0);
+		errorStatus.addStatusText("Save Master Script As : " + exception.whatStr() + "\r\n", 0);
 	}
-	return;
 }
+
+
 void MasterWindow::NewMasterScript()
 {
 	try
 	{
-		this->masterScript.newScript( this );
+		masterScript.newScript( this );
 	}
 	catch ( Error& exception )
 	{
-		this->errorStatus.addStatusText( "New Master Script Failed: " + exception.whatStr() + "\r\n", 0 );
+		errorStatus.addStatusText( "New Master Script Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
-	this->profile.updateConfigurationSavedStatus(false);
-	return;
+	profile.updateConfigurationSavedStatus(false);
 }
+
+
 void MasterWindow::OpenMasterScript()
 {
 	// ???
@@ -921,28 +929,28 @@ void MasterWindow::OpenMasterScript()
 	}
 	try
 	{
-		this->masterScript.openParentScript( address, this );
+		masterScript.openParentScript( address, this );
 	}
 	catch(Error& exception )
 	{
-		this->errorStatus.addStatusText("Open Master Script : " + exception.whatStr() + "" + exception.whatStr() + "\r\n", 0);
+		errorStatus.addStatusText("Open Master Script : " + exception.whatStr() + "" + exception.whatStr() + "\r\n", 0);
 	}
-	this->profile.updateConfigurationSavedStatus(false);
-	return;
+	profile.updateConfigurationSavedStatus(false);
 }
+
 
 void MasterWindow::SaveMasterFunction()
 {
 	try
 	{
-		this->masterScript.saveAsFunction();
+		masterScript.saveAsFunction();
 	}
 	catch (Error& exception)
 	{
-		this->errorStatus.addStatusText("Save Master Script Function Failed: " + exception.whatStr() + "\r\n", 0);
+		errorStatus.addStatusText("Save Master Script Function Failed: " + exception.whatStr() + "\r\n", 0);
 	}
-	return;
 }
+
 
 void MasterWindow::ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 {	
@@ -950,83 +958,83 @@ void MasterWindow::ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 	scriptList.push_back(&masterScript);
 	try
 	{
-		this->configVariables.updateVariableInfo( scriptList, this );
+		configVariables.updateVariableInfo( scriptList, this );
 	}
 	catch(Error& exception )
 	{
-		this->errorStatus.addStatusText("Variables Double Click Handler : " + exception.whatStr() + "\r\n", 0);
+		errorStatus.addStatusText("Variables Double Click Handler : " + exception.whatStr() + "\r\n", 0);
 	}
-	this->profile.updateConfigurationSavedStatus(false);
-	return;
+	profile.updateConfigurationSavedStatus(false);
 }
+
 
 void MasterWindow::ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	try
 	{
-		this->configVariables.deleteVariable();
+		configVariables.deleteVariable();
 	}
 	catch(Error& exception)
 	{
-		this->errorStatus.addStatusText("Variables Right Click Handler : " + exception.whatStr() + "\r\n", 0);
+		errorStatus.addStatusText("Variables Right Click Handler : " + exception.whatStr() + "\r\n", 0);
 	}
-	this->profile.updateConfigurationSavedStatus(false);
-	return;
+	profile.updateConfigurationSavedStatus(false);
 }
+
 
 void MasterWindow::OnTimer(UINT TimerVal)
 {
 	try
 	{
-		this->masterScript.handleTimerCall( this );
+		masterScript.handleTimerCall( this );
 	}
 	catch (Error& exception )
 	{
-		this->errorStatus.addStatusText("Timer Call Handler Failed: " + exception.whatStr() + "\r\n", 0);
+		errorStatus.addStatusText("Timer Call Handler Failed: " + exception.whatStr() + "\r\n", 0);
 	}
-	return;
 }
+
 
 void MasterWindow::EditChange()
 {
 	try
 	{
-		this->masterScript.handleEditChange( this );
+		masterScript.handleEditChange( this );
 	}
 	catch ( Error& exception )
 	{
-		this->errorStatus.addStatusText( "Edit Change Handler Failed: " + exception.whatStr() + "\r\n", 0 );
+		errorStatus.addStatusText( "Edit Change Handler Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
-	return;
 }
+
 
 void MasterWindow::handleTTLPush(UINT id)
 {
 	try
 	{
-		this->ttlBoard.handleTTLPress( id );
+		ttlBoard.handleTTLPress( id );
 	}
 	catch (Error& exception)
 	{
-		this->errorStatus.addStatusText( "TTL Press Handler Failed: " + exception.whatStr() + "\r\n", 0 );
+		errorStatus.addStatusText( "TTL Press Handler Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
-	this->profile.updateConfigurationSavedStatus(false);
-	return;
+	profile.updateConfigurationSavedStatus(false);
 }
+
 
 void MasterWindow::handlTTLHoldPush()
 {
 	try
 	{
-		this->ttlBoard.handleHoldPress();
+		ttlBoard.handleHoldPress();
 	}
 	catch (Error& exception)
 	{
-		this->errorStatus.addStatusText( "TTL Hold Handler Failed: " + exception.whatStr() + "\r\n", 0 );
+		errorStatus.addStatusText( "TTL Hold Handler Failed: " + exception.whatStr() + "\r\n", 0 );
 	}
-	this->profile.updateConfigurationSavedStatus(false);
-	return;
+	profile.updateConfigurationSavedStatus(false);
 }
+
 
 void MasterWindow::ViewOrChangeTTLNames()
 {
@@ -1034,35 +1042,33 @@ void MasterWindow::ViewOrChangeTTLNames()
 	input.ttls = &this->ttlBoard;
 	input.toolTips = this->toolTips;
 	DialogBoxParam(this->programInstance, MAKEINTRESOURCE(IDD_VIEW_AND_CHANGE_TTL_NAMES), 0, (DLGPROC)viewAndChangeTTL_NamesProcedure, (LPARAM)&input);
-	return;
 }
+
 
 void MasterWindow::ViewOrChangeDACNames()
 {
 	dacInputStruct input;
-	input.dacs = &this->dacBoards;
-	input.toolTips = this->toolTips;
-	DialogBoxParam(this->programInstance, MAKEINTRESOURCE(IDD_VIEW_AND_CHANGE_DAC_NAMES), 0, (DLGPROC)viewAndChangeDAC_NamesProcedure, (LPARAM)&input);
-	return;
+	input.dacs = &dacBoards;
+	input.toolTips = toolTips;
+	DialogBoxParam(programInstance, MAKEINTRESOURCE(IDD_VIEW_AND_CHANGE_DAC_NAMES), 0, (DLGPROC)viewAndChangeDAC_NamesProcedure, (LPARAM)&input);
 }
 
 void MasterWindow::SaveMasterConfig()
 {
 	try
 	{
-		this->masterConfig.save( &this->ttlBoard, &this->dacBoards, &globalVariables);
+		masterConfig.save( &this->ttlBoard, &this->dacBoards, &globalVariables);
 	}
 	catch (Error& exception)
 	{
-		this->errorStatus.addStatusText("Master Configuration Save Handler : " + exception.whatStr() + "\r\n", 0);
+		errorStatus.addStatusText("Master Configuration Save Handler : " + exception.whatStr() + "\r\n", 0);
 	}
-	return;
 }
+
 
 void MasterWindow::Exit()
 {
-	this->EndDialog(0);
-	return;
+	EndDialog(0);
 }
 
 MasterWindow::~MasterWindow()
@@ -1075,12 +1081,12 @@ MasterWindow::~MasterWindow()
 
 HBRUSH MasterWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
-	HBRUSH result = this->ttlBoard.handleColorMessage(pWnd, this->masterBrushes, this->masterRGBs, pDC);
+	HBRUSH result = ttlBoard.handleColorMessage(pWnd, masterBrushes, masterRGBs, pDC);
 	if (result != NULL)
 	{
 		return result;
 	}
-	result = this->dacBoards.handleColorMessage(pWnd, this->masterBrushes, this->masterRGBs, pDC);
+	result = dacBoards.handleColorMessage(pWnd, masterBrushes, masterRGBs, pDC);
 	if (result != NULL)
 	{
 		return result;
@@ -1111,25 +1117,27 @@ HBRUSH MasterWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	}
 }
 
+
 BOOL MasterWindow::PreTranslateMessage(MSG* pMsg)
 {
 	for (int toolTipInc = 0; toolTipInc < this->toolTips.size(); toolTipInc++)
 	{
-		this->toolTips[toolTipInc]->RelayEvent(pMsg);
+		toolTips[toolTipInc]->RelayEvent(pMsg);
 	}
 	return CDialog::PreTranslateMessage(pMsg);
 }
+
 
 BOOL MasterWindow::OnInitDialog()
 {
 	int id = 1000;
 	POINT controlLocation{ 0, 0 };
-	profile.initialize( controlLocation, this->toolTips, this, id );
-	globalVariables.initialize( controlLocation, this->toolTips, this, id, "GLOBAL VARIABLES" );
-	configVariables.initialize( controlLocation, this->toolTips, this, id, "CONFIGURATION VARIABLES" );
-	repetitionControl.initialize( controlLocation, this->toolTips, this, id );
-	ttlBoard.initialize( controlLocation, this->toolTipText, this->toolTips, this, id );
-	dacBoards.initialize( controlLocation, this->toolTips, this, id );
+	profile.initialize( controlLocation, toolTips, this, id );
+	globalVariables.initialize( controlLocation, toolTips, this, id, "GLOBAL VARIABLES" );
+	configVariables.initialize( controlLocation, toolTips, this, id, "CONFIGURATION VARIABLES" );
+	repetitionControl.initialize( controlLocation, toolTips, this, id );
+	ttlBoard.initialize( controlLocation, toolTipText, this->toolTips, this, id );
+	dacBoards.initialize( controlLocation, toolTips, this, id );
 	try
 	{
 		masterConfig.load( &ttlBoard, dacBoards, toolTips, this, &globalVariables );
@@ -1145,7 +1153,7 @@ BOOL MasterWindow::OnInitDialog()
 							 getFonts(), toolTips);
 	//generalStatus.initialize( controlArea, "Status", this->masterRGBs["Light Blue"], this, id);
 	statusLoc = { 960, 540 };
-	errorStatus.initialize(statusLoc, this, id, 1320 - 960, 540, "General Status", masterRGBs["Light Red"],
+	errorStatus.initialize(statusLoc, this, id, 1320 - 960, 540, "Error Status", masterRGBs["Light Red"],
 						   getFonts(), toolTips);
 	//errorStatus.initialize( controlArea, "Errors", this->masterRGBs["Light Red"], this, id );
 	controlLocation = POINT{ 480, 90 };
@@ -1226,12 +1234,12 @@ BOOL MasterWindow::OnInitDialog()
 	errBox( msg );
 	
 	menu.LoadMenu(IDC_MASTERCODE);
-	this->SetMenu(&menu);
-	this->ShowWindow(SW_MAXIMIZE);
+	SetMenu(&menu);
+	ShowWindow(SW_MAXIMIZE);
 	return TRUE;
 }
 
-std::unordered_map<std::string, COLORREF> MasterWindow::getRGBs()
+rgbMap MasterWindow::getRGBs()
 {
-	return this->masterRGBs;
+	return masterRGBs;
 }

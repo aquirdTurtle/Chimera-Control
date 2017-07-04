@@ -125,9 +125,9 @@ void ExperimentLogger::generateLog(MasterWindow* master)
 	{
 		// output all variable information.
 		logText << std::setw(10) << varCopy[varInc].name;
-		if (varCopy[varInc].singleton)
+		if (varCopy[varInc].constant)
 		{
-			logText << std::setw(10) << "Singleton";
+			logText << std::setw(10) << "Constant";
 			if (varCopy[varInc].timelike)
 			{
 				logText << std::setw(15) << "Timelike";

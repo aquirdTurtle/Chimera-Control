@@ -26,7 +26,7 @@ void Debugger::initialize(POINT& pos, MasterWindow* master, std::vector<CToolTip
 	showTtlsButton.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 20 };
 	showTtlsButton.Create( "Show All TTL Events", WS_CHILD | WS_VISIBLE | SS_CENTER | BS_CHECKBOX,
 						   showTtlsButton.sPos, master, showTtlsButton.ID );
-	showTtlsButton.fontType = Heading;
+	showTtlsButton.fontType = Normal;
 	pos.y += 20;
 
 	showDacsButton.ID = id++;
@@ -37,7 +37,7 @@ void Debugger::initialize(POINT& pos, MasterWindow* master, std::vector<CToolTip
 	showDacsButton.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 20 };
 	showDacsButton.Create( "Show All Dac Events", WS_CHILD | WS_VISIBLE | SS_CENTER | BS_CHECKBOX,
 						   showDacsButton.sPos, master, showDacsButton.ID );
-	showDacsButton.fontType = Heading;
+	showDacsButton.fontType = Normal;
 	pos.y += 20;
 }
 

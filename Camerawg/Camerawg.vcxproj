@@ -80,7 +80,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\ProgramData\Anaconda3\include;C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;C:\Program Files\Agilent\IO Libraries Suite\lib_x64;C:\Program Files\Agilent\IO Libraries Suite\include;$(VXIPNPPATH)WinNT\include;D:\Program Files\boost_1_60_0;C:\Program Files\boost_1_60_0;$(IncludePath);C:\Users\Mark\Anaconda3\include;C:\ProgramData\boost_1_63_0;C:\Program Files\boost_1_64_0</IncludePath>
+    <IncludePath>C:\ProgramData\Anaconda3\include;C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;C:\Program Files\Agilent\IO Libraries Suite\lib_x64;C:\Program Files\Agilent\IO Libraries Suite\include;$(VXIPNPPATH)WinNT\include;D:\Program Files\boost_1_60_0;C:\Program Files\boost_1_60_0;$(IncludePath);C:\Users\Mark\Anaconda3\include;C:\ProgramData\boost_1_63_0;C:\Program Files\boost_1_64_0;C:\Users\Regal Lab\Anaconda3\include;C:\Anaconda3\include</IncludePath>
     <LibraryPath>C:\Program Files\Andor SOLIS\Drivers;C:\Users\Mark\Documents\Quantum Gas Assembly Control\Camerawg;C:\Program Files (x86)\Visual Leak Detector\lib\Win64;C:\Program Files (x86)\Visual Leak Detector\src;C:\Program Files\Agilent\IO Libraries Suite\lib_x64;D:\Program Files\boost_1_60_0\lib64-msvc-14.0;C:\Program Files\boost_1_60_0\lib64-msvc-14.0;C:\Program Files\IVI Foundation\VISA\Win64\Lib_x64\msc;C:\ProgramData\boost_1_63_0\stage\lib;C:\Program Files\boost_1_64_0\lib_64bit;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -107,7 +107,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>niFgen.lib;atmcd64m.lib;atmcd32m.lib;%(AdditionalDependencies);python35_d.lib;python35.lib</AdditionalDependencies>
+      <AdditionalDependencies>cfitsio.lib; niFgen.lib;atmcd64m.lib;cfitsio.lib;atmcd32m.lib;%(AdditionalDependencies);python35_d.lib;python35.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(NIIVIPATH)\Lib\msc;$(PXIPNPPATH)\winnt\Lib\msc;C:\Program Files\boost\boost_1_58_0\stage\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -126,7 +126,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>niFgen.lib;atmcd64m.lib;atmcd32m.lib;visa32.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies);python35.lib</AdditionalDependencies>
+      <AdditionalDependencies>cfitsio.lib;niFgen.lib;atmcd64m.lib;atmcd32m.lib;visa32.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies);python35.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(NIIVIPATH)\Lib_x64\msc;$(PXIPNPPATH)\winnt\Lib_x64\msc;C:\Program Files (x86)\IVI Foundation\VISA\WinNT\Lib_x64\msc;C:\Program Files (x86)\IVI Foundation\VISA\WinNT\agvisa\Lib_x64\msc;D:\Program Files\boost_1_60_0\lib64-msvc-14.0;C:\Program Files\boost_1_60_0\lib64-msvc-14.0</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -170,7 +170,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(NIIVIPATH)\Lib_x64\msc;$(PXIPNPPATH)\winnt\Lib_x64\msc;C:\Program Files (x86)\IVI Foundation\VISA\WinNT\agvisa\Lib_x64\msc;D:\Program Files\boost_1_60_0\lib64-msvc-14.0</AdditionalLibraryDirectories>
-      <AdditionalDependencies>niFgen.lib;atmcd64m.lib;atmcd32m.lib;visa32.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies);python36.lib</AdditionalDependencies>
+      <AdditionalDependencies>cfitsio.lib; niFgen.lib;atmcd64m.lib;atmcd32m.lib;visa32.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies);python36.lib</AdditionalDependencies>
       <HeapReserveSize>
       </HeapReserveSize>
     </Link>
@@ -193,6 +193,7 @@
     <ClInclude Include="EmbeddedPythonHandler.h" />
     <ClInclude Include="ExperimentLogger.h" />
     <ClInclude Include="ExperimentTimer.h" />
+    <ClInclude Include="longnam.h" />
     <ClInclude Include="MainOptionsControl.h" />
     <ClInclude Include="Andor.h" />
     <ClInclude Include="miscellaneousCommonFunctions.h" />
@@ -308,6 +309,9 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Camerawg.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Planning.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
