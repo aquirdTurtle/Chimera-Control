@@ -1,7 +1,7 @@
 // define one (and only one) of the following:
-#define MASTER_COMPUTER
+//#define MASTER_COMPUTER
 //#define LAPTOP_COMPUTER
-//#define HP_LAPTOP
+#define HP_LAPTOP
 
 #ifdef MASTER_COMPUTER
 	#define DIO_SAFEMODE false
@@ -13,7 +13,7 @@
 	#define MASTER_CONFIGURATION_FILE_ADDRESS "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\Master Configuration"
 	#define DEFAULT_SCRIPT_FOLDER_PATH "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\Default Scripts\\"
 	#define LOGGING_FILE_ADDRESS "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\Master Log.txt"
-	#define KEY_ADDRESS "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\key.txt"
+	#define KEY_ADDRESS "\\\\Callisto\\Shared\\key.txt"
 	#define MOT_ROUTINE_ADDRESS "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\Master Profiles\\Hotkey Experiments\\MOT\\turnOnMot.mScript"
 #endif
 
@@ -90,7 +90,7 @@
 #define TTL_ID_END 1108
 #define ID_DAC_SET_BUTTON 1109
 #define IDC_ZERO_DACS 1110
-#define ID_DAC_FIRST_EDIT 1112
+#define ID_DAC_FIRST_EDIT 1111
 #define ID_STATUS_CLEAR 1160
 #define ID_ERROR_CLEAR 1163
 #define EXPERIMENT_NOTES_ID 1166
@@ -112,4 +112,4 @@
 #define IDC_FLASHING_AGILENT_COMBO 1197
 
 #define FUNCTION_COMBO_ID 1204
-#define MASTER_RICH_EDIT 1206
+#define MASTER_RICH_EDIT 1205

@@ -235,17 +235,16 @@ std::string DacSystem::getDacSystemInfo()
 	}
 }
 
+
 void DacSystem::handleEditChange(unsigned int dacNumber)
 {
-	if (dacNumber > this->breakoutBoardEdits.size())
+	if (dacNumber >= breakoutBoardEdits.size())
 	{
 		thrower("ERROR: attempted to handle dac edit change, but the dac number reported doesn't exist!");
-		return;
 	}
 	CString text;
-
 	breakoutBoardEdits[dacNumber].GetWindowTextA(text);
-	std::string current = std::to_string( this->dacValues[dacNumber] );
+	std::string current = std::to_string( dacValues[dacNumber] );
 	if ( fabs( atof( current.c_str() ) - atof( text ) ) < 1e-8)
 	{
 		// mark this to change color.
@@ -257,18 +256,18 @@ void DacSystem::handleEditChange(unsigned int dacNumber)
 		breakoutBoardEdits[dacNumber].colorState = 1;
 		breakoutBoardEdits[dacNumber].RedrawWindow();
 	}
-	return;
 }
+
 
 bool DacSystem::isValidDACName(std::string name)
 {
-	for (int dacInc = 0; dacInc < this->getNumberOfDACs(); dacInc++)
+	for (int dacInc = 0; dacInc < getNumberOfDACs(); dacInc++)
 	{
 		if (name == "dac" + std::to_string(dacInc))
 		{
 			return true;
 		}
-		else if (this->getDAC_Identifier(name) != -1)
+		else if (getDAC_Identifier(name) != -1)
 		{
 			return true;
 		}
@@ -326,7 +325,7 @@ void DacSystem::initialize(POINT& pos, std::vector<CToolTipCtrl*>& toolTips, Mas
 	int collumnInc = 0;
 	
 	// there's a single label first, hence the +1.
-	if ( id + 1 != ID_DAC_FIRST_EDIT )
+	if ( id != ID_DAC_FIRST_EDIT )
 	{
 		throw;
 	}
@@ -888,10 +887,9 @@ void DacSystem::handleDAC_ScriptCommand(timeType time, std::string name, std::st
 										 TtlSystem* ttls)
 {
 	double value;
-	if (!this->isValidDACName(name))
+	if (!isValidDACName(name))
 	{
 		thrower("ERROR: the name " + name + " is not the name of a dac!");
-		return;
 	}
 	/// final value.
 	try
@@ -913,7 +911,6 @@ void DacSystem::handleDAC_ScriptCommand(timeType time, std::string name, std::st
 		{
 			thrower( "ERROR: tried and failed to convert " + finalVal + " to a double for a dac final voltage value. "
 					 "It's also not a variable." );
-			return;
 		}
 	}
 	if (rampTime != "0")
@@ -939,7 +936,6 @@ void DacSystem::handleDAC_ScriptCommand(timeType time, std::string name, std::st
 			{
 				thrower( "ERROR: tried and failed to convert value of \"" + initVal + "\" to a double for a dac "
 						 "initial voltage value. It's also not a variable." );
-				return;
 			}
 		}
 
@@ -987,26 +983,23 @@ void DacSystem::handleDAC_ScriptCommand(timeType time, std::string name, std::st
 			{
 				thrower( "ERROR: tried and failed to convert " + rampInc + " to a double for a dac ramp increment "
 						 "value. It's also not a variable." );
-				return;
 			}
 		}
 	}
 	// convert name to corresponding dac line.
-	int line = this->getDAC_Identifier(name);
+	int line = getDAC_Identifier(name);
 	if (line == -1)
 	{
 		thrower("ERROR: the name " + name + " is not the name of a dac!");
-		return;
 	}
 	dacShadeLocations.push_back(line);
-	this->setDacComplexEvent(line, time, initVal, finalVal, rampTime, rampInc);
-	return;
+	setDacComplexEvent(line, time, initVal, finalVal, rampTime, rampInc);
 }
 
 
 int DacSystem::getDAC_Identifier(std::string name)
 {
-	for (int dacInc = 0; dacInc < this->dacValues.size(); dacInc++)
+	for (int dacInc = 0; dacInc < dacValues.size(); dacInc++)
 	{
 		// check names set by user.
 		std::transform( dacNames[dacInc].begin(), dacNames[dacInc].end(), 
@@ -1047,23 +1040,27 @@ HBRUSH DacSystem::handleColorMessage(CWnd* window, std::unordered_map<std::strin
 									  std::unordered_map<std::string, COLORREF> rgbs, CDC* cDC)
 {
 	DWORD controlID = GetDlgCtrlID(*window);
-	if (controlID >= this->dacLabels[0].ID && controlID <= this->dacLabels.back().ID)
+	if (controlID >= dacLabels[0].ID && controlID <= dacLabels.back().ID)
 	{
 		cDC->SetBkColor(rgbs["Medium Grey"]);
 		cDC->SetTextColor(rgbs["Gold"]);
 		return brushes["Medium Grey"];
 	}
-	else if (controlID >= this->breakoutBoardEdits[0].ID && controlID <= this->breakoutBoardEdits.back().ID)
+	else if (controlID >= breakoutBoardEdits[0].ID && controlID <= breakoutBoardEdits.back().ID)
 	{
-		int editNum = (controlID - this->breakoutBoardEdits[0].ID);
-		if (this->breakoutBoardEdits[editNum].colorState == 0)
+		int editNum = (controlID - breakoutBoardEdits[0].ID);
+		if (controlID == breakoutBoardEdits[0].ID)
+		{
+			Sleep(1);
+		}
+		if (breakoutBoardEdits[editNum].colorState == 0)
 		{
 			// default.
 			cDC->SetTextColor(rgbs["White"]);
 			cDC->SetBkColor(rgbs["Dark Grey"]);
 			return brushes["Dark Grey"];
 		}
-		else if (this->breakoutBoardEdits[editNum].colorState == 1)
+		else if (breakoutBoardEdits[editNum].colorState == 1)
 		{
 			// in this case, the actuall setting hasn't been changed despite the edit being updated.
 			//CString text;
@@ -1073,7 +1070,7 @@ HBRUSH DacSystem::handleColorMessage(CWnd* window, std::unordered_map<std::strin
 			cDC->SetBkColor(rgbs["Red"]);
 			return brushes["Red"];
 		}
-		else if (this->breakoutBoardEdits[editNum].colorState == -1)
+		else if (breakoutBoardEdits[editNum].colorState == -1)
 		{
 			// in use during experiment.
 			cDC->SetTextColor(rgbs["Black"]);
@@ -1081,7 +1078,7 @@ HBRUSH DacSystem::handleColorMessage(CWnd* window, std::unordered_map<std::strin
 			return brushes["White"];
 		}
 	}
-	else if (controlID == this->dacTitle.ID)
+	else if (controlID == dacTitle.ID)
 	{
 		cDC->SetTextColor(rgbs["Gold"]);
 		cDC->SetBkColor(rgbs["Medium Grey"]);
@@ -1093,36 +1090,39 @@ HBRUSH DacSystem::handleColorMessage(CWnd* window, std::unordered_map<std::strin
 	}
 }
 
+
 unsigned int DacSystem::getNumberOfDACs()
 {
-	return this->dacValues.size();
+	return dacValues.size();
 }
+
 
 double DacSystem::getDAC_Value(int dacNumber)
 {
-	return this->dacValues[dacNumber];
+	return dacValues[dacNumber];
 }
+
 
 void DacSystem::shadeDacs(std::vector<unsigned int>& dacShadeLocations)
 {
 	for (int shadeInc = 0; shadeInc < dacShadeLocations.size(); shadeInc++)
 	{
-		this->breakoutBoardEdits[dacShadeLocations[shadeInc]].colorState = -1;
-		this->breakoutBoardEdits[dacShadeLocations[shadeInc]].SetReadOnly(true);
-		this->breakoutBoardEdits[dacShadeLocations[shadeInc]].RedrawWindow();
+		breakoutBoardEdits[dacShadeLocations[shadeInc]].colorState = -1;
+		breakoutBoardEdits[dacShadeLocations[shadeInc]].SetReadOnly(true);
+		breakoutBoardEdits[dacShadeLocations[shadeInc]].RedrawWindow();
 	}
-	return;
 }
+
+
 void DacSystem::unshadeDacs()
 {
 	for (int shadeInc = 0; shadeInc < this->breakoutBoardEdits.size(); shadeInc++)
 	{
-		if (this->breakoutBoardEdits[shadeInc].colorState == -1)
+		if (breakoutBoardEdits[shadeInc].colorState == -1)
 		{
-			this->breakoutBoardEdits[shadeInc].colorState = 0;
-			this->breakoutBoardEdits[shadeInc].SetReadOnly(false);
-			this->breakoutBoardEdits[shadeInc].RedrawWindow();
+			breakoutBoardEdits[shadeInc].colorState = 0;
+			breakoutBoardEdits[shadeInc].SetReadOnly(false);
+			breakoutBoardEdits[shadeInc].RedrawWindow();
 		}
 	}
-	return;
 }

@@ -18,12 +18,14 @@ struct variable
 {
 	std::string name;
 	bool timelike;
-	bool singleton;
+	// whether this variable is constant or varies.
+	bool constant;
 	std::vector<variationRangeInfo> ranges;
 };
 
 class Script;
 class MasterWindow;
+
 class VariableSystem
 {
 	public:
@@ -35,8 +37,8 @@ class VariableSystem
 		void handleColumnClick(NMHDR * pNotifyStruct, LRESULT * result);
 		variable getVariableInfo(int varNumber);
 		//std::vector<variable> getAllVariables();
-		std::vector<variable> getAllSingletons();
-		std::vector<variable> getAllVaryingParameters();
+		std::vector<variable> getAllConstants();
+		std::vector<variable> getAllVariables();
 		std::vector<variable> getEverything();
 		unsigned int getCurrentNumberOfVariables();
 		void clearVariables();

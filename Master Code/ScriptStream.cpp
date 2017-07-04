@@ -87,19 +87,19 @@ std::string ScriptStream::getline(char delim)
 /*
  if you load a vector of function arguments into this object, then the object will
  automatically replace the argument name with the value as the stream dumps contents
- via >>. Arguments must all be singletons; this variable doesn't keep track of variations
+ via >>. Arguments must all be constants; this variable doesn't keep track of variations
  or anything, although perhaps it could, if the design of this system was different. Right
  now I don't think it suits the design.
  */
 void ScriptStream::loadReplacements( std::vector<std::pair<std::string, std::string>> args )
 {
-	this->replacements = args;
+	replacements = args;
 }
 
 
 void ScriptStream::clearReplacements()
 {
-	this->replacements.clear();
+	replacements.clear();
 }
 
 
@@ -120,13 +120,13 @@ void ScriptStream::eatComments()
 		// get the next char
 		currentChar = this->get();
 	}
-	char next = this->peek();
+	char next = peek();
 	if (next == EOF)
 	{
-		if (this->eof())
+		if (eof())
 		{
-			this->clear();
-			this->seekg( -1, SEEK_CUR );
+			clear();
+			seekg( -1, SEEK_CUR );
 			if (this->eof())
 			{
 				errBox( "!" );
@@ -134,14 +134,14 @@ void ScriptStream::eatComments()
 		}
 		return;
 	}
-	std::streamoff sPos = this->tellg();
+	std::streamoff sPos = tellg();
 	// when it exits the loop, it will just have moved passed the first non-whitespace character. I want that character. Go back.
 	if (sPos == 0)
 	{
-		this->seekg( 0, std::ios::beg );
+		seekg( 0, std::ios::beg );
 	}
 	else
 	{
-		this->seekg( -1, SEEK_CUR );
+		seekg( -1, SEEK_CUR );
 	}
 }

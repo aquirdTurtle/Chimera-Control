@@ -144,6 +144,7 @@
     <ClInclude Include="StatusControl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Planning.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Master Code.cpp">

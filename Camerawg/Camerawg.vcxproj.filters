@@ -345,6 +345,9 @@
     <ClInclude Include="DataLogger.h">
       <Filter>Code Files</Filter>
     </ClInclude>
+    <ClInclude Include="longnam.h">
+      <Filter>Code Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
@@ -385,5 +388,8 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Camerawg.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Planning.txt" />
   </ItemGroup>
 </Project>

@@ -300,12 +300,13 @@ class MasterWindow : public CDialog
 		friend void ConfigurationFileSystem::openSequence(std::string sequenceName, MasterWindow* Master);
 		// friend bool ConfigurationFileSystem::initialize(POINT& topLeftPosition, MasterWindow& Master);
 		// script friends
-		friend COLORREF Script::getSyntaxColor(std::string word, std::string editType, std::vector<variable> variables, std::unordered_map<std::string, COLORREF> rgbs, bool& colorLine, std::array<std::array<std::string, 16>, 4> ttlNames, std::array<std::string, 24> dacNames);
-		friend void Script::updateChildCombo(MasterWindow* Master);
+		friend COLORREF Script::getSyntaxColor(std::string word, std::string editType, std::vector<variable> variables, 
+											   std::unordered_map<std::string, COLORREF> rgbs, bool& colorLine, 
+											   std::array<std::array<std::string, 16>, 4> ttlNames, 
+											   std::array<std::string, 24> dacNames);
 		friend void Script::changeView(std::string viewName, MasterWindow* Master, bool isFunction);
 		friend void Script::saveScript(MasterWindow* Master);
 		friend void Script::saveScriptAs(std::string location, MasterWindow* Master);
-		friend void Script::checkChildSave(MasterWindow* Master);
 		friend void Script::checkSave(MasterWindow* Master);
 		friend void Script::renameScript(MasterWindow* Master);
 		friend void Script::deleteScript(MasterWindow* Master);

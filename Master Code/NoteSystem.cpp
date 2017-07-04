@@ -12,7 +12,7 @@ void NoteSystem::initialize( POINT& pos, MasterWindow* master, int& id )
 {
 	/// EXPERIMENT LEVEL
 	// Configuration Notes Title
-	experimentNotesHeader.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 20 };
+	experimentNotesHeader.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
 	experimentNotesHeader.ID = id++;
 	experimentNotesHeader.Create( "EXPERIMENT NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
 								  experimentNotesHeader.sPos, master, experimentNotesHeader.ID );
@@ -30,7 +30,7 @@ void NoteSystem::initialize( POINT& pos, MasterWindow* master, int& id )
 	experimentNotes.fontType = Normal;
 	/// CATEGORY LEVEL
 	// Category Notes Title
-	categoryNotesHeader.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 20 };
+	categoryNotesHeader.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
 	categoryNotesHeader.ID = id++;
 	categoryNotesHeader.Create( "CATEGORY NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, categoryNotesHeader.sPos, master,
 								categoryNotesHeader.ID );
@@ -47,7 +47,7 @@ void NoteSystem::initialize( POINT& pos, MasterWindow* master, int& id )
 	categoryNotes.fontType = Normal;
 	/// CONFIGURAITON LEVEL
 	// Configuration Notes Title
-	configurationNotesHeader.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 20 };
+	configurationNotesHeader.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
 	configurationNotesHeader.ID = id++;
 	configurationNotesHeader.Create( "CONFIGURATION NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
 									 configurationNotesHeader.sPos, master, configurationNotesHeader.ID );
@@ -62,7 +62,6 @@ void NoteSystem::initialize( POINT& pos, MasterWindow* master, int& id )
 	configurationNotes.Create( WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | WS_BORDER,
 							   configurationNotes.sPos, master, configurationNotes.ID );
 	configurationNotes.fontType = Normal;
-	return;
 }
 
 void NoteSystem::rearrange(UINT width, UINT height, fontMap fonts)
@@ -78,21 +77,18 @@ void NoteSystem::rearrange(UINT width, UINT height, fontMap fonts)
 void NoteSystem::setExperimentNotes(std::string notes)
 {
 	experimentNotes.SetWindowText(notes.c_str());
-	return;
 }
 
 
 void NoteSystem::setCategoryNotes(std::string notes)
 {
 	categoryNotes.SetWindowText(notes.c_str());
-	return;
 }
 
 
 void NoteSystem::setConfigurationNotes(std::string notes)
 {
 	configurationNotes.SetWindowText(notes.c_str());
-	return;
 }
 
 
@@ -120,7 +116,7 @@ std::string NoteSystem::getConfigurationNotes()
 }
 
 
-INT_PTR NoteSystem::handleColorMessage(HWND parent, UINT msg, WPARAM wParam, LPARAM lParam, std::unordered_map<std::string, HBRUSH> brushes)
+INT_PTR NoteSystem::handleColorMessage(WPARAM wParam, LPARAM lParam, brushMap brushes)
 {
 	DWORD ctrlID = GetDlgCtrlID((HWND)lParam); // Window Control ID
 	HDC hdcStatic = (HDC)wParam;

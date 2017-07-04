@@ -32,7 +32,7 @@ struct DAC_Snapshot
 };
 
 /*
-]- The DacSystem is meant to be a singleton class but it currently doesn't actually prevent the user from making multiple copies of the object.
+]- The DacSystem is meant to be a constant class but it currently doesn't actually prevent the user from making multiple copies of the object.
 ]- This class is based off of the DAC.bas module in the original VB6 code, of course adapted for this gui in controlling the relevant controls
 ]- and handling changes more directly.
 */
