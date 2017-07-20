@@ -4,9 +4,9 @@
 //#include "newVariableDialogProcedure.h"
 #include "constants.h"
 #include "viewAndChangeTTL_NamesProcedure.h"
-#include "viewAndChangeDAC_NamesProcedure.h"
+#include "DacSettingsDialog.h"
 #include "textPromptDialogProcedure.h"
-#include "TTL_System.h"
+#include "TtlSystem.h"
 #include "explorerOpen.h"
 
 IMPLEMENT_DYNAMIC( MasterWindow, CDialog )
@@ -24,6 +24,7 @@ BEGIN_MESSAGE_MAP( MasterWindow, CDialog )
 	ON_COMMAND( ID_MASTERSCRIPT_SAVESCRIPT, &MasterWindow::SaveMasterScript )
 	ON_COMMAND( ID_MASTERSCRIPT_SAVESCRIPTAS, &MasterWindow::SaveMasterScriptAs )
 	ON_COMMAND( ID_MASTERSCRIPT_NEWSCRIPT, &MasterWindow::NewMasterScript )
+	ON_COMMAND( ID_MASTERSCRIPT_NEWFUNCTION, &MasterWindow::NewMasterFunction)
 	ON_COMMAND( ID_MASTERSCRIPT_OPENSCRIPT, &MasterWindow::OpenMasterScript )
 	ON_COMMAND( ID_MASTERSCRIPT_SAVEFUNCTION, &MasterWindow::SaveMasterFunction )
 	ON_COMMAND( ID_CONFIGURATION_DELETE_CURRENT_CONFIGURATION, &MasterWindow::DeleteConfiguration )
@@ -45,7 +46,7 @@ BEGIN_MESSAGE_MAP( MasterWindow, CDialog )
 	ON_COMMAND( ID_SEQUENCE_RESET_SEQUENCE, &MasterWindow::ResetSequence )
 	ON_COMMAND( ID_SEQUENCE_RENAMESEQUENCE, &MasterWindow::RenameSequence )
 	ON_COMMAND( ID_SEQUENCE_NEW_SEQUENCE, &MasterWindow::NewSequence )
-	ON_COMMAND( SET_REPETITION_ID, &MasterWindow::SetRepetitionNumber )
+	//ON_COMMAND( SET_REPETITION_ID, &MasterWindow::SetRepetitionNumber )
 	ON_COMMAND( ID_ERROR_CLEAR, &MasterWindow::ClearError )
 	ON_COMMAND( ID_STATUS_CLEAR, &MasterWindow::ClearGeneral )
 	ON_COMMAND( ID_DAC_SET_BUTTON, &MasterWindow::SetDacs )
@@ -56,9 +57,24 @@ BEGIN_MESSAGE_MAP( MasterWindow, CDialog )
 	ON_COMMAND( ID_PROFILE_SAVE_PROFILE, &MasterWindow::SaveEntireProfile )
 	ON_COMMAND( IDC_ZERO_TTLS, &MasterWindow::zeroTtls )
 	ON_COMMAND( IDC_ZERO_DACS, &MasterWindow::zeroDacs )
+	ON_COMMAND(IDOK, &MasterWindow::handleEnter)
+
 	ON_COMMAND_RANGE( IDC_SHOW_TTLS, IDC_SHOW_TTLS, &MasterWindow::handleOptionsPress )
 	ON_COMMAND_RANGE( IDC_SHOW_DACS, IDC_SHOW_DACS, &MasterWindow::handleOptionsPress )
 	ON_COMMAND_RANGE(IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_FLASHING_AGILENT_COMBO, &MasterWindow::handleAgilentOptions)
+	ON_COMMAND_RANGE(TOP_ON_OFF, AXIAL_FSK, &MasterWindow::handleTektronicsButtons)
+	/*
+	#define AXIAL_ON_OFF 1191
+	#define BOTTOM_ON_OFF 1173
+	#define TOP_ON_OFF 1167
+	#define EO_ON_OFF 1185
+
+	#define AXIAL_FSK 1192
+	#define BOTTOM_FSK 1174
+	#define TOP_FSK 1168
+	#define EO_FSK 1186
+	*/
+	
 	ON_CBN_SELENDOK( IDC_TOP_BOTTOM_AGILENT_COMBO, &MasterWindow::handleTopBottomAgilentCombo )
 	ON_CBN_SELENDOK( IDC_AXIAL_UWAVE_AGILENT_COMBO, &MasterWindow::handleAxialUWaveAgilentCombo )
 	ON_CBN_SELENDOK( IDC_FLASHING_AGILENT_COMBO, &MasterWindow::handleFlashingAgilentCombo )
@@ -84,8 +100,45 @@ BEGIN_MESSAGE_MAP( MasterWindow, CDialog )
 
 	ON_NOTIFY( NM_DBLCLK, IDC_GLOBAL_VARS_LISTVIEW, &MasterWindow::GlobalVarDblClick )
 	ON_NOTIFY( NM_RCLICK, IDC_GLOBAL_VARS_LISTVIEW, &MasterWindow::GlobalVarRClick )
+	ON_NOTIFY( NM_CUSTOMDRAW, IDC_GLOBAL_VARS_LISTVIEW, &MasterWindow::drawGlobals)
 
 END_MESSAGE_MAP()
+
+
+void MasterWindow::handleTektronicsButtons(UINT id)
+{
+	if (id >= TOP_ON_OFF && id <= BOTTOM_FSK)
+	{
+		tektronics1.handleButtons(id - TOP_ON_OFF);
+	}
+	if (id >= EO_ON_OFF && id <= AXIAL_FSK)
+	{
+		tektronics2.handleButtons(id - EO_ON_OFF);
+	}
+}
+
+
+void MasterWindow::drawGlobals(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	globalVariables.handleDraw(pNMHDR, pResult);
+}
+
+void MasterWindow::NewMasterFunction()
+{
+	try
+	{
+		masterScript.newFunction(this);
+	}
+	catch (Error& exception)
+	{
+		errorStatus.addStatusText("New Master function Failed: " + exception.whatStr() + "\r\n", 0);
+	}
+}
+
+void MasterWindow::handleEnter()
+{
+	errBox("Hello, there!");
+}
 
 fontMap MasterWindow::getFonts()
 {
@@ -94,9 +147,13 @@ fontMap MasterWindow::getFonts()
 
 void MasterWindow::OnSize(UINT nType, int cx, int cy)
 {
+	tektronics1.rearrange(cx, cy, getFonts());
+	tektronics2.rearrange(cx, cy, getFonts());
+
 	topBottomAgilent.rearrange(cx, cy, getFonts());
 	uWaveAxialAgilent.rearrange(cx, cy, getFonts());
 	flashingAgilent.rearrange(cx, cy, getFonts());
+
 	profile.rearrange(cx, cy, getFonts());
 	notes.rearrange(cx, cy, getFonts());
 	masterScript.rearrange(cx, cy, getFonts());
@@ -108,19 +165,20 @@ void MasterWindow::OnSize(UINT nType, int cx, int cy)
 
 	configVariables.rearrange(cx, cy, getFonts());
 	globalVariables.rearrange(cx, cy, getFonts());
-
+	
 	ttlBoard.rearrange(cx, cy, getFonts());
 	dacBoards.rearrange(cx, cy, getFonts());
 
 	repetitionControl.rearrange(cx, cy, getFonts());
 	debugControl.rearrange(cx, cy, getFonts());
+	masterKey.rearrange(cx, cy, getFonts());
 
 	/*
 	ExperimentLogger logger;
 	ExperimentManager manager;
 	RunInfo systemRunningInfo;
 	SocketWrapper niawgSocket;
-	Gpib gpibHandler;
+	Gpib gpib;
 	KeyHandler masterKey;
 	Debugger debugControl;
 	MasterConfiguration masterConfig{ MASTER_CONFIGURATION_FILE_ADDRESS };
@@ -266,8 +324,8 @@ void MasterWindow::zeroTtls()
 	}
 	catch (Error& exception)
 	{
-		this->generalStatus.addStatusText( "Failed to Zero TTLs!!!\r\n", 0 );
-		this->errorStatus.addStatusText( exception.what(), 0 );
+		generalStatus.addStatusText( "Failed to Zero TTLs!!!\r\n", 0 );
+		errorStatus.addStatusText( exception.what(), 0 );
 	}
 }
 
@@ -403,14 +461,22 @@ void MasterWindow::OnCancel()
 	int answer = MessageBox( "Are you sure you'd like to exit?", "Exit", MB_OKCANCEL );
 	if (answer == IDOK)
 	{
-		this->CDialog::OnCancel();
+		try
+		{
+			profile.checkSaveEntireProfile(this);
+			masterScript.checkSave(this);
+			CDialog::OnCancel();
+		}
+		catch (Error& err)
+		{
+			generalStatus.addStatusText(": " + err.whatStr() + "\r\n", 0);
+		}
 	}
 }
 
 void MasterWindow::HandleFunctionChange()
 {
-	this->masterScript.functionChangeHandler(this);
-	return;
+	masterScript.functionChangeHandler(this);
 }
 
 void MasterWindow::StartExperiment()
@@ -427,7 +493,7 @@ void MasterWindow::StartExperiment()
 	}
 	catch (Error& exception)
 	{
-		generalStatus.addStatusText( ": " + exception.whatStr() + " " + exception.whatStr() + "\r\n", 0 );
+		generalStatus.addStatusText( ": " + exception.whatStr() + "\r\n", 0 );
 	}
 }
 
@@ -440,30 +506,33 @@ void MasterWindow::ConfigurationNotesChange()
 
 void MasterWindow::CategoryNotesChange()
 {
-	this->profile.updateCategorySavedStatus(false);
-	return;
+	profile.updateCategorySavedStatus(false);
 }
 
 
 void MasterWindow::ExperimentNotesChange()
 {
-	this->profile.updateExperimentSavedStatus(false);
-	return;
+	profile.updateExperimentSavedStatus(false);
 }
 
 
 void MasterWindow::SaveEntireProfile()
 {
-	this->profile.saveEntireProfile(this);
-	return;
+	try
+	{
+		profile.saveEntireProfile(this);
+	}
+	catch (Error& err)
+	{
+		errorStatus.addStatusText(err.what());
+	}
 }
 
 
 void MasterWindow::LogSettings()
 {
-	this->logger.generateLog(this);
-	this->logger.exportLog();
-	return;
+	logger.generateLog(this);
+	logger.exportLog();
 }
 
 
@@ -474,9 +543,8 @@ void MasterWindow::SetDacs()
 	{
 		dacBoards.resetDACEvents();
 		ttlBoard.resetTTLEvents();
-
 		generalStatus.addStatusText( "Starting Setting Dacs...\r\n", 0 );
-		dacBoards.handleButtonPress( &this->ttlBoard );
+		dacBoards.handleButtonPress( &ttlBoard );
 		generalStatus.addStatusText( "Analyzing Dac Info...\r\n", 0 );
 		dacBoards.analyzeDAC_Commands();
 		generalStatus.addStatusText( "Finalizing Dacs Info...\r\n", 0 );
@@ -535,6 +603,7 @@ void MasterWindow::ClearGeneral()
 	generalStatus.clear();
 }
 
+/*
 void MasterWindow::SetRepetitionNumber()
 {
 	try
@@ -547,6 +616,7 @@ void MasterWindow::SetRepetitionNumber()
 	}
 	profile.updateConfigurationSavedStatus(false);
 }
+*/
 
 
 void MasterWindow::ConfigVarsColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
@@ -889,14 +959,14 @@ void MasterWindow::SaveMasterScriptAs()
 	{
 		MessageBox("Please select a category before trying to save a the Master Script!", 0, 0);
 	}
-	std::string scriptName = (const char*)DialogBoxParam(this->programInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure, (LPARAM)"Please enter new master script name.");
+	std::string scriptName = (const char*)DialogBoxParam(programInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure, (LPARAM)"Please enter new master script name.");
 	if (scriptName == "")
 	{
 		return;
 	}
 	try
 	{
-		masterScript.saveScriptAs( this->profile.getCurrentPathIncludingCategory() + scriptName + MASTER_SCRIPT_EXTENSION, this );
+		masterScript.saveScriptAs( profile.getCurrentPathIncludingCategory() + scriptName + MASTER_SCRIPT_EXTENSION, this );
 	}
 	catch(Error& exception )
 	{
@@ -922,7 +992,7 @@ void MasterWindow::NewMasterScript()
 void MasterWindow::OpenMasterScript()
 {
 	// ???
-	std::string address = explorerOpen(this, "*.mScript\0All\0 * .*", this->profile.getCurrentPathIncludingCategory());
+	std::string address = explorerOpen(this, "*.mScript\0All\0 * .*", profile.getCurrentPathIncludingCategory());
 	if (address == "")
 	{
 		return;
@@ -1039,9 +1109,9 @@ void MasterWindow::handlTTLHoldPush()
 void MasterWindow::ViewOrChangeTTLNames()
 {
 	ttlInputStruct input;
-	input.ttls = &this->ttlBoard;
-	input.toolTips = this->toolTips;
-	DialogBoxParam(this->programInstance, MAKEINTRESOURCE(IDD_VIEW_AND_CHANGE_TTL_NAMES), 0, (DLGPROC)viewAndChangeTTL_NamesProcedure, (LPARAM)&input);
+	input.ttls = &ttlBoard;
+	input.toolTips = toolTips;
+	DialogBoxParam(programInstance, MAKEINTRESOURCE(IDD_VIEW_AND_CHANGE_TTL_NAMES), 0, (DLGPROC)viewAndChangeTTL_NamesProcedure, (LPARAM)&input);
 }
 
 
@@ -1050,14 +1120,17 @@ void MasterWindow::ViewOrChangeDACNames()
 	dacInputStruct input;
 	input.dacs = &dacBoards;
 	input.toolTips = toolTips;
-	DialogBoxParam(programInstance, MAKEINTRESOURCE(IDD_VIEW_AND_CHANGE_DAC_NAMES), 0, (DLGPROC)viewAndChangeDAC_NamesProcedure, (LPARAM)&input);
+	DacSettingsDialog dialog(&input, IDD_VIEW_AND_CHANGE_DAC_NAMES);
+	dialog.DoModal();
+
+	//DialogBoxParam(programInstance, MAKEINTRESOURCE(IDD_VIEW_AND_CHANGE_DAC_NAMES), 0, (DLGPROC)viewAndChangeDAC_NamesProcedure, (LPARAM)&input);
 }
 
 void MasterWindow::SaveMasterConfig()
 {
 	try
 	{
-		masterConfig.save( &this->ttlBoard, &this->dacBoards, &globalVariables);
+		masterConfig.save( &ttlBoard, &dacBoards, &globalVariables);
 	}
 	catch (Error& exception)
 	{
@@ -1120,7 +1193,7 @@ HBRUSH MasterWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
 BOOL MasterWindow::PreTranslateMessage(MSG* pMsg)
 {
-	for (int toolTipInc = 0; toolTipInc < this->toolTips.size(); toolTipInc++)
+	for (int toolTipInc = 0; toolTipInc < toolTips.size(); toolTipInc++)
 	{
 		toolTips[toolTipInc]->RelayEvent(pMsg);
 	}
@@ -1135,9 +1208,11 @@ BOOL MasterWindow::OnInitDialog()
 	profile.initialize( controlLocation, toolTips, this, id );
 	globalVariables.initialize( controlLocation, toolTips, this, id, "GLOBAL VARIABLES" );
 	configVariables.initialize( controlLocation, toolTips, this, id, "CONFIGURATION VARIABLES" );
+	configVariables.setActive(false);
 	repetitionControl.initialize( controlLocation, toolTips, this, id );
-	ttlBoard.initialize( controlLocation, toolTipText, this->toolTips, this, id );
+	ttlBoard.initialize( controlLocation, toolTipText, toolTips, this, id );
 	dacBoards.initialize( controlLocation, toolTips, this, id );
+	masterKey.initialize( controlLocation, this, id );
 	try
 	{
 		masterConfig.load( &ttlBoard, dacBoards, toolTips, this, &globalVariables );
@@ -1149,22 +1224,24 @@ BOOL MasterWindow::OnInitDialog()
 
 	RECT controlArea = { 960, 0, 1320, 540 };
 	POINT statusLoc = { 960, 0 };
-	generalStatus.initialize(statusLoc, this, id, 1320-960, 540, "General Status", masterRGBs["Light Blue"],
+	generalStatus.initialize(statusLoc, this, id, 360, 300, "General Status", masterRGBs["Light Blue"],
 							 getFonts(), toolTips);
-	//generalStatus.initialize( controlArea, "Status", this->masterRGBs["Light Blue"], this, id);
-	statusLoc = { 960, 540 };
-	errorStatus.initialize(statusLoc, this, id, 1320 - 960, 540, "Error Status", masterRGBs["Light Red"],
+	statusLoc = { 960, 300 };
+	errorStatus.initialize(statusLoc, this, id, 360, 300, "Error Status", masterRGBs["Light Red"],
 						   getFonts(), toolTips);
-	//errorStatus.initialize( controlArea, "Errors", this->masterRGBs["Light Red"], this, id );
+	statusLoc = { 960, 600 };
+	tektronics1.initialize(statusLoc, this, id, "Top / Bottom", "Top", "Bottom", 360);
+	tektronics2.initialize(statusLoc, this, id, "u-Wave / Axial", "u-Wave", "Axial", 360);
 	controlLocation = POINT{ 480, 90 };
 	notes.initialize( controlLocation, this, id );
+	notes.setActiveControls("none");
 	RhodeSchwarzGenerator.initialize( controlLocation, toolTips, this, id );
-	debugControl.initialize( controlLocation, this, this->toolTips, id );
+	debugControl.initialize( controlLocation, this, toolTips, id );
 	topBottomAgilent.initialize( controlLocation, toolTips, this, id, "USB0::2391::11271::MY52801397::0::INSTR", "Top/Bottom Agilent" );
 	uWaveAxialAgilent.initialize( controlLocation, toolTips, this, id, "STUFF...", "U-Wave / Axial Agilent" );
 	flashingAgilent.initialize( controlLocation, toolTips, this, id, "STUFF...", "Flashing Agilent" );
 	controlLocation = POINT{ 1320, 0 };
-	masterScript.initialize( 600, 1080, controlLocation, this->toolTips, this, id );
+	masterScript.initialize( 600, 1080, controlLocation, toolTips, this, id );
 
 	// controls are done. Report the initialization status...
 	std::string msg;
@@ -1228,9 +1305,9 @@ BOOL MasterWindow::OnInitDialog()
 	msg += "Top / Bottom Agilent: " + topBottomAgilent.getDeviceIdentity();
 	msg += "U Wave / Axial Agilent: " + uWaveAxialAgilent.getDeviceIdentity();
 	msg += "Flashing Agilent: " + flashingAgilent.getDeviceIdentity();
-	msg += "Tektronics 1: " + gpibHandler.queryIdentity( TEKTRONICS_AFG_1_ADDRESS ) + "\n";
-	msg += "Tektronics 2: " + gpibHandler.queryIdentity( TEKTRONICS_AFG_2_ADDRESS ) + "\n";
-	msg += "RSG: " + gpibHandler.queryIdentity( RSG_ADDRESS ) + "\n";
+	msg += "Tektronics 1: " + gpib.queryIdentity( TEKTRONICS_AFG_1_ADDRESS ) + "\n";
+	msg += "Tektronics 2: " + gpib.queryIdentity( TEKTRONICS_AFG_2_ADDRESS ) + "\n";
+	msg += "RSG: " + gpib.queryIdentity( RSG_ADDRESS ) + "\n";
 	errBox( msg );
 	
 	menu.LoadMenu(IDC_MASTERCODE);

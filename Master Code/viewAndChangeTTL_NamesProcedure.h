@@ -1,6 +1,6 @@
 #pragma once
 #include "windows.h"
-#include "TTL_System.h"
+#include "TtlSystem.h"
 #include <unordered_map>
 
 struct ttlInputStruct

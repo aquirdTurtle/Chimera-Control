@@ -12,6 +12,8 @@ struct variationRangeInfo
 	double initialValue;
 	double finalValue;
 	unsigned int variations;
+	bool leftInclusive;
+	bool rightInclusive;
 };
 
 struct variable
@@ -20,6 +22,10 @@ struct variable
 	bool timelike;
 	// whether this variable is constant or varies.
 	bool constant;
+
+	bool active = false;
+	bool overwritten = false;
+
 	std::vector<variationRangeInfo> ranges;
 };
 
@@ -29,6 +35,7 @@ class MasterWindow;
 class VariableSystem
 {
 	public:
+		void handleDraw(NMHDR* pNMHDR, LRESULT* pResult);
 		void updateVariableInfo(std::vector<Script*> scripts, MasterWindow* Master);
 		void deleteVariable();
 		void initialize(POINT& pos, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id, std::string title);
@@ -45,6 +52,9 @@ class VariableSystem
 		INT_PTR handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, std::unordered_map<std::string, HBRUSH> brushes);
 		void setVariationRangeNumber(int num);
 		void rearrange(UINT width, UINT height, fontMap fonts);
+		void setActive(bool active);
+		void setUsages(std::vector<variable> vars);
+
 	private:
 		int totalVariableNumber;
 		unsigned int currentVariations;

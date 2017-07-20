@@ -1,12 +1,12 @@
 #include "stdafx.h"
 #include "MasterConfiguration.h"
 #include <string>
-#include "TTL_System.h"
-#include "DAC_System.h"
+#include "TtlSystem.h"
+#include "DacSystem.h"
 #include <fstream>
 #include <sys/stat.h>
 
-MasterConfiguration::MasterConfiguration(std::string address) : configurationFileAddress{address}, version{"1.1"}
+MasterConfiguration::MasterConfiguration(std::string address) : configurationFileAddress{address}, version{"1.3"}
 {
 
 }
@@ -19,6 +19,7 @@ void MasterConfiguration::save(TtlSystem* ttls, DacSystem* dacs, VariableSystem*
 	- TTL Values
 	- DAC names
 	- DAC Values
+	- DAC Min/Max Values
 	*/
 	// make sure that file exists
 	FILE *file;
@@ -33,15 +34,16 @@ void MasterConfiguration::save(TtlSystem* ttls, DacSystem* dacs, VariableSystem*
 	}
 	// open file
 	std::fstream configFile;
-	configFile.open(this->configurationFileAddress.c_str(), std::ios::out);
+	configFile.open(configurationFileAddress.c_str(), std::ios::out);
 	if (!configFile.is_open())
 	{
 		thrower( "ERROR: Master Configuration File Failed to Open! Changes cannot be saved. Attempted to open file in"
 				" location " + configurationFileAddress );
 	}
 	// output version
-	configFile << "Version " + this->version + "\n";
+	configFile << "Version " + version + "\n";
 	// save info
+	/// ttls
 	for (int ttlRowInc = 0; ttlRowInc < ttls->getNumberOfTTLRows(); ttlRowInc++)
 	{
 		for (int ttlNumberInc = 0; ttlNumberInc < ttls->getNumberOfTTLsPerRow(); ttlNumberInc++)
@@ -68,33 +70,36 @@ void MasterConfiguration::save(TtlSystem* ttls, DacSystem* dacs, VariableSystem*
 				name += std::to_string( ttlNumberInc );
 			}
 			configFile << name << "\n";
-			configFile << this->defaultTTLs[ttlRowInc][ttlNumberInc] << "\n";
+			configFile << defaultTTLs[ttlRowInc][ttlNumberInc] << "\n";
 		}
 	}
+	// DAC Names
 	for (int dacInc = 0; dacInc < dacs->getNumberOfDACs(); dacInc++)
 	{
 		std::string name = dacs->getName( dacInc );
+		std::pair<double, double> minMax = dacs->getDacRange(dacInc);
 		if ( name == "" )
 		{
 			// then the name hasn't been set, so create the default name
 			name = "Dac" + std::to_string( dacInc );
 		}
 		configFile << name << "\n";
-		configFile << this->defaultDACs[dacInc] << "\n";
+		configFile << minMax.first << " - " << minMax.second << "\n";
+		configFile << defaultDACs[dacInc] << "\n";
 	}
 
 	// Number of Variables
 	configFile << globalVars->getCurrentNumberOfVariables() << "\n";
-	/// Variable Names
+	/// Variables
+	
 	for (int varInc = 0; varInc < globalVars->getCurrentNumberOfVariables(); varInc++)
 	{
 		variable info = globalVars->getVariableInfo( varInc );
 		configFile << info.name << " ";
-		configFile << info.ranges.front().initialValue << " ";
-		configFile << "\n";
+		configFile << info.ranges.front().initialValue << "\n";
+		// all globals are constants, no need to output anything else.
 	}
 	configFile.close();
-	return;
 }
 
 void MasterConfiguration::load(TtlSystem* ttls, DacSystem& dacs, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, VariableSystem* globalVars)
@@ -112,11 +117,10 @@ void MasterConfiguration::load(TtlSystem* ttls, DacSystem& dacs, std::vector<CTo
 	}
 	// open file
 	std::fstream configFile;
-	configFile.open(this->configurationFileAddress.c_str(), std::ios::in);
+	configFile.open(configurationFileAddress.c_str(), std::ios::in);
 	if (!configFile.is_open())
 	{
 		thrower("ERROR: Master Configuration File Failed to Open! No Default names for TTLs, DACs, or default values.");
-		return;
 	}
 	std::stringstream configStream;
 	configStream << configFile.rdbuf();
@@ -126,9 +130,9 @@ void MasterConfiguration::load(TtlSystem* ttls, DacSystem& dacs, std::vector<CTo
 	configStream >> version;
 	configStream >> version;
 	// save info
-	for (int ttlRowInc = 0; ttlRowInc < this->defaultTTLs.size(); ttlRowInc++)
+	for (int ttlRowInc = 0; ttlRowInc < defaultTTLs.size(); ttlRowInc++)
 	{
-		for (int ttlNumberInc = 0; ttlNumberInc < this->defaultTTLs[ttlRowInc].size(); ttlNumberInc++)
+		for (int ttlNumberInc = 0; ttlNumberInc < defaultTTLs[ttlRowInc].size(); ttlNumberInc++)
 		{
 			std::string name;
 			std::string statusString;
@@ -142,40 +146,63 @@ void MasterConfiguration::load(TtlSystem* ttls, DacSystem& dacs, std::vector<CTo
 			}
 			catch (std::invalid_argument& exception)
 			{
-				MessageBox(0, "ERROR: Failed to load one of the default ttl values!", 0, 0);
-				break;
+				thrower("ERROR: Failed to load one of the default ttl values!");
 			}
 
 			ttls->setName(ttlRowInc, ttlNumberInc, name, toolTips, master);
 			ttls->forceTtl(ttlRowInc, ttlNumberInc, status);
-			this->defaultTTLs[ttlRowInc][ttlNumberInc] = status;
+			defaultTTLs[ttlRowInc][ttlNumberInc] = status;
 		}
 	}
 
 	for (int dacInc = 0; dacInc < dacs.getNumberOfDACs(); dacInc++)
 	{
 		std::string name;
-		std::string valueString;
-		double value;
+		std::string defaultValueString;
+		double defaultValue;
+		std::string minString;
+		std::string maxString;
+		double min;
+		double max;
 		configStream >> name;
-		configStream >> valueString;
+		if (version == "1.2")
+		{
+			configStream >> minString;
+			std::string trash;
+			configStream >> trash;
+			if (trash != "-")
+			{
+				thrower("ERROR: Expected \"-\" in config file between min and max values!");
+			}
+			configStream >> maxString;
+		}
+		configStream >> defaultValueString;
 		try
 		{
-			value = std::stod(valueString);
+			defaultValue = std::stod(defaultValueString);
+			if (version == "1.2")
+			{
+				min = std::stod(minString);
+				max = std::stod(maxString);
+			}
+			else
+			{
+				min = -10;
+				max = 10;
+			}
 		}
 		catch (std::invalid_argument& exception)
 		{
-			MessageBox(0, "ERROR: Failed to load one of the default DAC values!", 0, 0);
-			break;
+			thrower("ERROR: Failed to load one of the default DAC values!");
 		}
 		dacs.setName(dacInc, name, toolTips, master);
-		dacs.prepareDacForceChange(dacInc, value, ttls);
-		this->defaultDACs[dacInc] = value;
+		dacs.setMinMax(dacInc, min, max);
+		dacs.prepareDacForceChange(dacInc, defaultValue, ttls);
+		defaultDACs[dacInc] = defaultValue;
 	}
 
-	if (version == "1.1")
+	if (version == "1.1" || version == "1.2")
 	{
-
 		int varNum;
 		configStream >> varNum;
 		if (varNum < 0 || varNum > 1000)
@@ -193,27 +220,29 @@ void MasterConfiguration::load(TtlSystem* ttls, DacSystem& dacs, std::vector<CTo
 		for (int varInc = 0; varInc < varNum; varInc++)
 		{
 			variable tempVar;
+			tempVar.constant = true;
+			tempVar.overwritten = false;
+			tempVar.active = false;
 			double value;
 			configStream >> tempVar.name;
 			configStream >> value;
-			tempVar.ranges.push_back( { value, value, 0 } );
+			tempVar.ranges.push_back( { value, value, 0, false, true } );
 			globalVars->addGlobalVariable( tempVar, varInc );
 		}
-
 	}
+
 	variable tempVar;
 	tempVar.name = "";
 	globalVars->addGlobalVariable( tempVar, -1 );
 	configFile.close();
-	return;
 }
 
 
 void MasterConfiguration::updateDefaultDacs(DacSystem dacs)
 {
-	for (int dacInc = 0; dacInc < this->defaultDACs.size(); dacInc++)
+	for (int dacInc = 0; dacInc < defaultDACs.size(); dacInc++)
 	{
-		this->defaultDACs[dacInc] = dacs.getDAC_Value(dacInc);
+		defaultDACs[dacInc] = dacs.getDAC_Value(dacInc);
 	}
 }
 
@@ -224,7 +253,7 @@ void MasterConfiguration::updateDefaultTTLs(TtlSystem ttls)
 	{
 		for (int ttlNumberInc = 0; ttlNumberInc < ttls.getNumberOfTTLsPerRow(); ttlNumberInc++)
 		{
-			this->defaultTTLs[ttlRowInc][ttlNumberInc] = ttls.getTTL_Status(ttlRowInc, ttlNumberInc);
+			defaultTTLs[ttlRowInc][ttlNumberInc] = ttls.getTTL_Status(ttlRowInc, ttlNumberInc);
 		}
 	}
 }

@@ -121,32 +121,15 @@ void RhodeSchwarz::setInfoDisp()
 	}
 }
 
-void RhodeSchwarz::interpretKey(key variationKey, unsigned int variationNum)
+void RhodeSchwarz::interpretKey(key variationKey, unsigned int variationNum, std::vector<variable>& vars)
 {
-	for (int freqInc = 0; freqInc < this->eventStructures.size(); freqInc++)
+	for (int freqInc = 0; freqInc < eventStructures.size(); freqInc++)
 	{
 		rsgEventInfoFinal event;
 		// convert freq
-		try
-		{
-			event.frequency = std::stod( eventStructures[freqInc].frequency);
-		}
-		catch (std::invalid_argument&)
-		{
-			// test if it's a variable.
-			event.frequency = variationKey[eventStructures[freqInc].frequency].first[variationNum];
-		}
+		event.frequency = reduce(eventStructures[freqInc].frequency, variationKey, variationNum, vars);
 		// convert power
-		try
-		{
-			event.power = std::stod( eventStructures[freqInc].power );
-		}
-		catch (std::invalid_argument&)
-		{
-			// test if it's a variable.
-			event.power = variationKey[eventStructures[freqInc].power].first[variationNum];
-		}
-
+		event.power = reduce(eventStructures[freqInc].power, variationKey, variationNum, vars);
 		/// deal with time!
 		if (eventStructures[freqInc].time.first.size() == 0)
 		{
@@ -156,7 +139,7 @@ void RhodeSchwarz::interpretKey(key variationKey, unsigned int variationNum)
 		{
 			for (auto timeStr : eventStructures[freqInc].time.first)
 			{
-				event.time += variationKey[timeStr].first[variationNum];
+				event.time += reduce(timeStr, variationKey, variationNum, vars);
 			}
 			event.time += eventStructures[freqInc].time.second;
 		}
@@ -171,7 +154,7 @@ void RhodeSchwarz::addFrequency(rsgEventStructuralInfo info)
 }
 
 
-void RhodeSchwarz::programRSG( Gpib* gpibHandler )
+void RhodeSchwarz::programRSG( Gpib* gpib )
 {
 	if (events.size() == 0)
 	{
@@ -180,16 +163,16 @@ void RhodeSchwarz::programRSG( Gpib* gpibHandler )
 	}
 	else if (events.size() == 1)
 	{
-		gpibHandler->gpibSend( RSG_ADDRESS, "OUTPUT ON" );
-		gpibHandler->gpibSend( RSG_ADDRESS, "SOURce:FREQuency:MODE CW" );
-		gpibHandler->gpibSend( RSG_ADDRESS, "FREQ " + std::to_string( events[0].frequency ) + " GHz" );
-		gpibHandler->gpibSend( RSG_ADDRESS, "POW " + std::to_string( events[0].power ) + " dBm" );
-		gpibHandler->gpibSend( RSG_ADDRESS, "OUTP ON" );
+		gpib->gpibSend( RSG_ADDRESS, "OUTPUT ON" );
+		gpib->gpibSend( RSG_ADDRESS, "SOURce:FREQuency:MODE CW" );
+		gpib->gpibSend( RSG_ADDRESS, "FREQ " + std::to_string( events[0].frequency ) + " GHz" );
+		gpib->gpibSend( RSG_ADDRESS, "POW " + std::to_string( events[0].power ) + " dBm" );
+		gpib->gpibSend( RSG_ADDRESS, "OUTP ON" );
 	}
 	else
 	{
-		gpibHandler->gpibSend( RSG_ADDRESS, "OUTP ON" );
-		gpibHandler->gpibSend( RSG_ADDRESS, "SOURce:LIST:SEL 'freqList" + std::to_string( events.size() ) + "'" );
+		gpib->gpibSend( RSG_ADDRESS, "OUTP ON" );
+		gpib->gpibSend( RSG_ADDRESS, "SOURce:LIST:SEL 'freqList" + std::to_string( events.size() ) + "'" );
 		std::string frequencyList = "SOURce:LIST:FREQ " + std::to_string( events[0].frequency );
 		std::string powerList = "SOURce:LIST:POW " + std::to_string( events[0].power ) + "dBm";
 		for (int eventInc = 1; eventInc < events.size(); eventInc++)
@@ -199,11 +182,11 @@ void RhodeSchwarz::programRSG( Gpib* gpibHandler )
 			powerList += ", ";
 			powerList += std::to_string( events[eventInc].power ) + "dBm";
 		}
-		gpibHandler->gpibSend( RSG_ADDRESS, frequencyList.c_str() );
-		gpibHandler->gpibSend( RSG_ADDRESS, powerList.c_str() );
-		gpibHandler->gpibSend( RSG_ADDRESS, "SOURce:LIST:MODE STEP" );
-		gpibHandler->gpibSend( RSG_ADDRESS, "SOURce:LIST:TRIG:SOURce EXT" );
-		gpibHandler->gpibSend( RSG_ADDRESS, "SOURce:FREQ:MODE LIST" );
+		gpib->gpibSend( RSG_ADDRESS, frequencyList.c_str() );
+		gpib->gpibSend( RSG_ADDRESS, powerList.c_str() );
+		gpib->gpibSend( RSG_ADDRESS, "SOURce:LIST:MODE STEP" );
+		gpib->gpibSend( RSG_ADDRESS, "SOURce:LIST:TRIG:SOURce EXT" );
+		gpib->gpibSend( RSG_ADDRESS, "SOURce:FREQ:MODE LIST" );
 	}
 }
 

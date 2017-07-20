@@ -1,10 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
@@ -15,6 +11,10 @@
     </Filter>
     <Filter Include="Constants, Externals, etc.">
       <UniqueIdentifier>{b40ca9f8-6555-42a9-83bb-38e600fb1631}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -66,9 +66,6 @@
     <ClInclude Include="NoteSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DAC_System.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="RichEditControl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -87,13 +84,7 @@
     <ClInclude Include="ExperimentManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TTL_System.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="viewAndChangeTTL_NamesProcedure.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="viewAndChangeDAC_NamesProcedure.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MasterConfiguration.h">
@@ -145,6 +136,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Planning.txt" />
+    <ClInclude Include="DacSettingsDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DacSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TtlSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TektronicsControl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Master Code.cpp">
@@ -177,9 +180,6 @@
     <ClCompile Include="NoteSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DAC_System.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="RichEditControl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -198,16 +198,10 @@
     <ClCompile Include="ExperimentManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TTL_System.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Control.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="viewAndChangeTTL_NamesProcedure.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="viewAndChangeDAC_NamesProcedure.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MasterConfiguration.cpp">
@@ -238,6 +232,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="StatusControl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DacSettingsDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DacSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TtlSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TektronicsControl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

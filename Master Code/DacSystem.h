@@ -5,7 +5,7 @@
 #include "nidaqmx2.h"
 #include <unordered_map>
 #include "VariableSystem.h"
-#include "TTL_System.h"
+#include "TtlSystem.h"
 #include "KeyHandler.h"
 
 struct DAC_ComplexEvent
@@ -31,6 +31,7 @@ struct DAC_Snapshot
 	std::array<double, 24> dacValues;
 };
 
+
 /*
 ]- The DacSystem is meant to be a constant class but it currently doesn't actually prevent the user from making multiple copies of the object.
 ]- This class is based off of the DAC.bas module in the original VB6 code, of course adapted for this gui in controlling the relevant controls
@@ -52,20 +53,22 @@ class DacSystem
 		void stopDacs();
 		void configureClocks();
 		void setDacTtlTriggerEvents( TtlSystem* ttls );
-		void interpretKey(key variationKey, unsigned int variationNumber, std::vector<variable> vars);
+		void interpretKey(key variationKey, unsigned int variationNumber, std::vector<variable>& vars, 
+						  std::string& warnings);
 		void analyzeDAC_Commands();
 		void makeFinalDataFormat();
 		void writeDacs();
 		void startDacs();
-		void rearrange();
+		unsigned int getNumberSnapshots();
+		void checkTimingsWork();
 		void setName(int dacNumber, std::string name, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master);
 		std::string getName(int dacNumber);
 		std::array<std::string, 24> getAllNames();
 		std::string getErrorMessage(int errorCode);
 		
-		void DacSystem::handleDAC_ScriptCommand(timeType time, std::string name, std::string initVal, std::string finalVal,
-												 std::string rampTime, std::string rampInc, std::vector<unsigned int>& dacShadeLocations, 
-												 std::vector<variable> vars, TtlSystem* ttls);
+		void handleDacScriptCommand( timeType time, std::string name, std::string initVal, std::string finalVal,
+									  std::string rampTime, std::string rampInc, std::vector<unsigned int>& dacShadeLocations, 
+									  std::vector<variable>& vars, TtlSystem* ttls);
 
 		std::string getDacSystemInfo();
 
@@ -73,7 +76,10 @@ class DacSystem
 		int getDAC_Identifier(std::string name);
 		double getDAC_Value(int dacNumber);
 		unsigned int getNumberOfDACs();
-		
+		std::pair<double, double> getDacRange(int dacNumber);
+		void setMinMax(int dacNumber, double min, double max);
+
+
 		void shadeDacs(std::vector<unsigned int>& dacShadeLocations);
 		void unshadeDacs();
 		
@@ -85,6 +91,11 @@ class DacSystem
 		void resetDACEvents();
 		std::array<double, 24> getDacStatus();
 		std::array<double, 24> getFinalSnapshot();
+
+		void checkValuesAgainstLimits();
+
+
+
 	private:
 		Control<CStatic> dacTitle;
 		Control<CButton> dacSetButton;
@@ -92,8 +103,9 @@ class DacSystem
 		std::array<Control<CStatic>, 24> dacLabels;
 		std::array<Control<CEdit>, 24> breakoutBoardEdits;
 		std::array<double, 24> dacValues;
-		//std::array<bool, 24> dacShadeStatus;
 		std::array<std::string, 24> dacNames;
+		std::array<double, 24> dacMinVals;
+		std::array<double, 24> dacMaxVals;
 
 		std::vector<DAC_ComplexEvent> dacComplexEventsList;
 		std::vector<DAC_IndividualEvent> dacIndividualEvents;
@@ -132,7 +144,4 @@ class DacSystem
 		void daqWriteAnalogF64( TaskHandle handle, int32 numSampsPerChan, bool32 autoStart, float64 timeout, 
 								bool32 dataLayout, const float64 writeArray[], int32 *sampsPerChanWritten);
 		void daqStartTask( TaskHandle handle );
-
-
-
 };

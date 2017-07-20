@@ -4,7 +4,6 @@
 #include <array>
 #include "constants.h"
 
-
 void Gpib::gpibWrite( int deviceID, std::string msg )
 {
 	int size = msg.size();
@@ -58,29 +57,32 @@ Gpib::Gpib()
 }
 
 
-std::array<double, 3> Gpib::interpretKeyForRaman(std::array<std::string, 3> raman, key variationKey, 
-	unsigned int variableNumber)
+void Gpib::interpretKeyForTektronics(tektronicsInfo& info, key variationKey, UINT variableNumber, std::vector<variable>& vars)
 {
-	std::array<double, 3> realFrequencies;
-	for (int ramanInc = 0; ramanInc < realFrequencies.size(); ramanInc++)
+	/// deal with first channel.
+	if (info.channels.first.on)
 	{
-		if (raman[ramanInc] == "")
+		info.channels.first.mainFreqVal = reduce(info.channels.first.mainFreq, variationKey, variableNumber, vars);
+		info.channels.first.powerVal = reduce(info.channels.first.power, variationKey, variableNumber, vars);
+		// handle FSK options
+		if (info.channels.first.fsk)
 		{
-			continue;
-		}
-		try
-		{
-			double freq = std::stod(raman[ramanInc]);
-			realFrequencies[ramanInc] = freq;
-		}
-		catch (std::invalid_argument&)
-		{
-			realFrequencies[ramanInc] = variationKey[raman[ramanInc]].first[variableNumber];
+			info.channels.first.fskFreqVal = reduce(info.channels.first.fskFreq, variationKey, variableNumber, vars);
 		}
 	}
-	return realFrequencies;	
+	// if off don't worry about trying to convert anything, user can not-enter things and it can be fine.
+	/// handle second channel.
+	if (info.channels.second.on)
+	{
+		info.channels.second.mainFreqVal = reduce(info.channels.second.mainFreq, variationKey, variableNumber, vars);
+		info.channels.second.powerVal = reduce(info.channels.second.power, variationKey, variableNumber, vars);
+		// handle FSK options
+		if (info.channels.second.fsk)
+		{
+			info.channels.second.fskFreqVal = reduce(info.channels.second.fskFreq, variationKey, variableNumber, vars);
+		}
+	}
 }
-
 
 // send message to address.
 void Gpib::gpibSend(int address, std::string message)
@@ -150,118 +152,55 @@ std::string Gpib::queryIdentity( int deviceAddress )
 }
 
 
-void Gpib::programRamanFGs(double topFreq, double bottomFreq, double axialFreq)
+void Gpib::programTektronixs(tektronicsInfo info)
 {
-	// ' 70 MHz spectroscopy frequency for both top/bottom beams
-	double specFreqs = 70000000;
-	
-	double topRamanCoolFreq = topFreq; 
-	//'-2.8 'this is the power we use to get high efficiency deflection(and 41 kHz carrier Rabi on 151210)
-	double topRamanPow = -3.03;
-	
-	double botRamanCoolFreq = bottomFreq;
-	//'-2.32 ' - 2.1 '-3.8 'this is the power we use to get 41 kHz carrier Rabi on 151210
-	double botRamanPow = -4.95;
-	//
-	double EOramanFreq = 80000000;
-	// '-18.5 ' - 5.5 '-3 'this is the power we use to get high efficiency deflection(and 41 kHz carrier Rabi on 151210)
-	double EOramanPow = -20;
-
-	double axialRamanCoolFreq = axialFreq;
-	//'-4.5 ' - 2.56 'this is the power we use to get 41 kHz carrier Rabi on 151210
-	double axialRamanPow = -5.5;
-
-	//
-	// Programming Tektronics 3102 AFG #1 , Gpib 25, used for generating the top and bottom Raman RF tones:
-	// 
-	if (true)
+	if (info.channels.first.on)
 	{
-		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE1:FREQ " + std::to_string(specFreqs));
-		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE1:FSKey:STATe On");
-		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE1:FSKey:FREQ " + std::to_string(topRamanCoolFreq));
-		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE1:FSKey:SOURce External");
-		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE1:VOLT:UNIT DBM");
-		if (topRamanPow < -2)
+		gpibSend(info.machineAddress, "SOURCE1:FREQ " + std::to_string(info.channels.first.mainFreqVal));
+		gpibSend(info.machineAddress, "SOURCE1:VOLT:UNIT DBM");
+		gpibSend(info.machineAddress, "SOURCE1:VOLT " + std::to_string(info.channels.first.powerVal));
+		gpibSend(info.machineAddress, "SOURCE1:VOLT:OFFS 0");
+		
+		if (info.channels.first.fsk)
 		{
-			this->gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE1:VOLT " + std::to_string(topRamanPow));
+			gpibSend(info.machineAddress, "SOURCE1:FSKey:STATe On");
+			gpibSend(info.machineAddress, "SOURCE1:FSKey:FREQ " + std::to_string(info.channels.first.fskFreqVal));
+			gpibSend(info.machineAddress, "SOURCE1:FSKey:SOURce External");
 		}
 		else
 		{
-			errBox( "AO power set too high!" );
+			gpibSend(info.machineAddress, "SOURCE1:FSKey:STATe Off");
 		}
-		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE1:VOLT:OFFS 0");
-		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "OUTput1:STATe ON");
-
-		//---------Source 2-------------------------------
-
-		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE2:FREQ " + std::to_string(specFreqs));
-		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE2:FSKey:STATe On");
-		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE2:FSKey:FREQ " + std::to_string(botRamanCoolFreq));
-		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE2:FSKey:SOURce External");
-		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE2:VOLT:UNIT DBM");
-
-		if (botRamanPow < -2)
-		{
-			this->gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE2:VOLT " + std::to_string(botRamanPow));
-		}
-		else
-		{
-			errBox( "AO power set too high!" );
-		}
-		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "SOURCE2:VOLT:OFFS 0");
-		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "OUTput2:STATe ON");
+		gpibSend(info.machineAddress, "OUTput1:STATe ON");
 	}
 	else
 	{
-		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "OUTPut1:STATe OFF");
-		gpibSend( TEKTRONICS_AFG_1_ADDRESS, "OUTPut2:STATe OFF");
+		gpibSend(info.machineAddress, "OUTput1:STATe OFF");
 	}
-
-	//-------------------------------------------------------------------------------------
-	/// Programming AFG3102, Gpib 24, used for generating Axial and EO Raman beam RF tones:
-
-	if (true)
+	/// second channel
+	if (info.channels.second.on)
 	{
-		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE1:FUNC SIN");
-		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE1:FREQuency:MODE CW");
-		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE1:FREQ " + std::to_string(EOramanFreq));
-		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE1:VOLT:UNIT DBM");
-		if (EOramanPow < -2)
-		{
-			gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE1:VOLT " + std::to_string(EOramanPow));
-		}
-		else
-		{
-			thrower( "Raman EO RF power too high!" );
-		}
-		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE1:VOLT:OFFS 0");
-		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "OUTput1:STATe ON");
+		gpibSend(info.machineAddress, "SOURCE2:FREQ " + std::to_string(info.channels.second.mainFreqVal));
+		gpibSend(info.machineAddress, "SOURCE2:VOLT:UNIT DBM");
+		gpibSend(info.machineAddress, "SOURCE2:VOLT " + std::to_string(info.channels.second.powerVal));
+		gpibSend(info.machineAddress, "SOURCE2:VOLT:OFFS 0");
 
-		//-------Source 2----------------
-		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE2:FREQ " + std::to_string(specFreqs));
-		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE2:FSKey:STATe On");
-		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE2:FSKey:FREQ " + std::to_string(axialRamanCoolFreq));
-		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE2:FSKey:SOURce External");
-		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE2:VOLT:UNIT DBM");
-		if (axialRamanPow < -2)
+		if (info.channels.second.fsk)
 		{
-			//
-			gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE2:VOLT " + std::to_string(axialRamanPow));
+			gpibSend(info.machineAddress, "SOURCE2:FSKey:STATe On");
+			gpibSend(info.machineAddress, "SOURCE2:FSKey:FREQ " + std::to_string(info.channels.second.fskFreqVal));
+			gpibSend(info.machineAddress, "SOURCE2:FSKey:SOURce External");
 		}
 		else
 		{
-			errBox( "Axial Raman power too high!" );
+			gpibSend(info.machineAddress, "SOURCE2:FSKey:STATe Off");
 		}
-		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "SOURCE2:VOLT:OFFS 0");
-		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "OUTput2:STATe ON");
+		gpibSend(info.machineAddress, "OUTput2:STATe ON");
 	}
 	else
 	{
-		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "OUTPut1:STATe OFF");
-		gpibSend( TEKTRONICS_AFG_2_ADDRESS, "OUTPut2:STATe OFF");
+		gpibSend(info.machineAddress, "OUTput2:STATe OFF");
 	}
-	//	t = t + 0.01 ????????????????????????????????
-	return;
 }
 
 

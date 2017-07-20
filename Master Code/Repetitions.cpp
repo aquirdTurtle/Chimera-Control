@@ -9,37 +9,39 @@ void Repetitions::rearrange(UINT width, UINT height, fontMap fonts)
 {
 	repetitionEdit.rearrange(width, height, fonts);
 	repetitionDisp.rearrange(width, height, fonts);
-	setRepetitionButton.rearrange(width, height, fonts);
+	repetitionText.rearrange(width, height, fonts);
 }
 
+void Repetitions::updateNumber(long repNumber)
+{
+	repetitionDisp.SetWindowText(cstr(repNumber));
+}
 
+/*
 void Repetitions::handleButtonPush()
 {
 	CString text;
-	this->repetitionEdit.GetWindowTextA(text);
+	repetitionEdit.GetWindowTextA(text);
 	try
 	{
 		unsigned int repetitionNumber = std::stoi(text.GetBuffer());
-		this->setRepetitions(repetitionNumber);
+		setRepetitions(repetitionNumber);
 	}
 	catch (std::invalid_argument& exception)
 	{
 		thrower(std::string("ERROR: repetition number text did not convert to int! Text was") + text.GetBuffer());
 	}
 }
-
+*/
 
 void Repetitions::initialize(POINT& pos, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id)
 {
 	// title
-	setRepetitionButton.sPos = { pos.x, pos.y, pos.x + 180, pos.y + 20 };
-	setRepetitionButton.ID = id++;
-	if ( setRepetitionButton.ID != SET_REPETITION_ID )
-	{
-		throw;
-	}
-	setRepetitionButton.Create("Set Repetition #", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 
-								setRepetitionButton.sPos, master, setRepetitionButton.ID);
+	repetitionText.sPos = { pos.x, pos.y, pos.x + 180, pos.y + 20 };
+	repetitionText.ID = id++;
+	repetitionText.Create("Repetition #", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, repetitionText.sPos, master, 
+						  repetitionText.ID);
+
 	repetitionEdit.sPos = { pos.x + 180, pos.y, pos.x + 330, pos.y + 20 };
 	repetitionEdit.ID = id++;
 	repetitionEdit.Create(WS_CHILD | WS_VISIBLE | SS_SUNKEN, repetitionEdit.sPos, master, repetitionEdit.ID);
@@ -51,20 +53,32 @@ void Repetitions::initialize(POINT& pos, std::vector<CToolTipCtrl*>& toolTips, M
 	// initialize the number to match the display.
 	repetitionNumber = 100;
 	pos.y += 20;
-	return;
 }
 
 void Repetitions::setRepetitions(unsigned int number)
 {
 	// check number for reasonable-ness?
-	this->repetitionNumber = number;
-	this->repetitionDisp.SetWindowText(std::to_string(number).c_str());
+	repetitionNumber = number;
+	repetitionEdit.SetWindowTextA(std::to_string(number).c_str());
+	repetitionDisp.SetWindowTextA("---");
 }
+
 
 unsigned int Repetitions::getRepetitionNumber()
 {
-	return this->repetitionNumber;
+	CString text;
+	repetitionEdit.GetWindowText(text);
+	try
+	{
+		repetitionNumber = std::stoi(std::string(text));
+	}
+	catch (std::invalid_argument& err)
+	{
+		thrower("ERROR: Failed to convert repetition number text to an integer!");
+	}
+	return repetitionNumber;
 }
+
 
 INT_PTR Repetitions::handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, std::unordered_map<std::string, HBRUSH> brushes)
 {

@@ -7,6 +7,38 @@
 #include <unordered_map>
 #include "MasterWindow.h"
 
+void NoteSystem::setActiveControls(std::string level)
+{
+	if (level == "configuration")
+	{
+		configurationNotes.EnableWindow();
+		categoryNotes.EnableWindow();
+		experimentNotes.EnableWindow();
+	}
+	else if (level == "category")
+	{
+		configurationNotes.EnableWindow(false);
+		categoryNotes.EnableWindow();
+		experimentNotes.EnableWindow();
+	}
+	else if (level == "experiment")
+	{
+		configurationNotes.EnableWindow(false);
+		categoryNotes.EnableWindow(false);
+		experimentNotes.EnableWindow();
+	}
+	else if (level == "none")
+	{
+		configurationNotes.EnableWindow(false);
+		categoryNotes.EnableWindow(false);
+		experimentNotes.EnableWindow(false);
+	}
+	else
+	{
+		thrower("Bad level in setActiveControls call!");
+	}
+}
+
 
 void NoteSystem::initialize( POINT& pos, MasterWindow* master, int& id )
 {

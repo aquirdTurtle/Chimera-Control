@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "DAC_System.h"
+#include "DacSystem.h"
 #include "constants.h"
 // for other ni stuff
 #include "nidaqmx2.h"
@@ -15,7 +15,7 @@ std::array<double, 24> DacSystem::getDacStatus()
 
 void DacSystem::abort()
 {
-	// TODO!
+	// TODO...?
 }
 
 std::string DacSystem::getDacSequenceMessage()
@@ -51,7 +51,7 @@ void DacSystem::daqCreateTask( const char* taskName, TaskHandle& handle )
 		if ( result )
 		{
 			thrower( "daqCreateTask Failed! (" + std::to_string( result) + "): " 
-					 + this->getErrorMessage( result ) );
+					 + getErrorMessage( result ) );
 		}
 	}
 }
@@ -68,7 +68,7 @@ void DacSystem::daqCreateAOVoltageChan( TaskHandle taskHandle, const char physic
 		if ( result )
 		{
 			thrower( "daqCreateAOVoltageChan Failed! (" + std::to_string( result ) + "): "
-					 + this->getErrorMessage( result ) );
+					 + getErrorMessage( result ) );
 		}
 	}
 }
@@ -83,7 +83,7 @@ void DacSystem::daqCreateDIChan( TaskHandle taskHandle, const char lines[], cons
 		if ( result )
 		{
 			thrower( "daqCreateDIChan Failed! (" + std::to_string( result ) + "): "
-					 + this->getErrorMessage( result ) );
+					 + getErrorMessage( result ) );
 		}
 	}
 	return;
@@ -99,7 +99,7 @@ void DacSystem::daqStopTask( TaskHandle handle )
 		if ( result )
 		{
 			//thrower( "daqStopTask Failed! (" + std::to_string( result ) + "): "
-			//		 + this->getErrorMessage( result ) );
+			//		 + getErrorMessage( result ) );
 			
 		}
 	}
@@ -115,7 +115,7 @@ void DacSystem::daqConfigSampleClkTiming( TaskHandle taskHandle, const char sour
 		if ( result )
 		{
 			thrower( "daqConfigSampleClkTiming Failed! (" + std::to_string( result ) + "): "
-					 + this->getErrorMessage( result ) );
+					 + getErrorMessage( result ) );
 		}
 	}
 }
@@ -132,7 +132,7 @@ void DacSystem::daqWriteAnalogF64( TaskHandle handle, int32 numSampsPerChan, boo
 		if ( result )
 		{
 			thrower( "daqWriteAnalogF64 Failed! (" + std::to_string( result ) + "): "
-					 + this->getErrorMessage( result ) );
+					 + getErrorMessage( result ) );
 		}
 	}
 }
@@ -146,19 +146,15 @@ void DacSystem::daqStartTask( TaskHandle handle )
 		if ( result )
 		{
 			thrower( "daqStartTask Failed! (" + std::to_string( result ) + "): "
-					 + this->getErrorMessage( result ) );
+					 + getErrorMessage( result ) );
 		}
 	}
 }
 
 
-
-
 /// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// 
 /// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 
 
 DacSystem::DacSystem()
@@ -170,8 +166,8 @@ DacSystem::DacSystem()
 	dacTriggerLines[1] = { 3, 15 };
 	dacTriggerLines[2] = { 3, 13 };
 	// paraphrasing adam...
-	// "in 100 ns, i.e. 10 = 1 us. Dacs sample at 1 MHz, so 0.5 us is appropriate." .. no longer acurate...
-
+	// Dacs sample at 1 MHz, so 0.5 us is appropriate.
+	// in ms.
 	dacTriggerTime = 0.0005;
 	try
 	{
@@ -183,19 +179,19 @@ DacSystem::DacSystem()
 		// assume 3 boards, 8 channels per board. AMK 11/2010, modified for three from 2
 		// task names are defined as public variables of type Long in TheMainProgram Declarations
 		//This creates the task to output from DAC 2
-		daqCreateTask( "Board 3 Dacs 16-23", this->staticDac2 );
+		daqCreateTask( "Board 3 Dacs 16-23", staticDac2 );
 		//This creates the task to output from DAC 1
-		daqCreateTask( "Board 2 Dacs 8-15", this->staticDac1 );
+		daqCreateTask( "Board 2 Dacs 8-15", staticDac1 );
 		//This creates the task to output from DAC 0
-		daqCreateTask( "Board 1 Dacs 0-7", this->staticDac0 );
+		daqCreateTask( "Board 1 Dacs 0-7", staticDac0 );
 		/// INPUTS
 		//This creates a task to read in a digital input from DAC 0 on port 0 line 0
-		daqCreateTask( "", this->digitalDAC_0_00 );
+		daqCreateTask( "", digitalDAC_0_00 );
 		// currently unused 11/08 (<-date copied from VB6. what is the actual full date though T.T)
-		daqCreateTask( "", this->digitalDAC_0_01 );
+		daqCreateTask( "", digitalDAC_0_01 );
 		// Configure the output
 		daqCreateAOVoltageChan( staticDac2, "PXI1Slot5/ao0:7", "StaticDAC_2", -10, 10, DAQmx_Val_Volts, "" );	
-		//'Not sure why Tara and Debbie chose to switch the labels (for staticDac_0 -> StaticDac_1) here, but I'll stick with it to be consistent everywhere else in the program.AMK, 11 / 2010
+		//'Not sure why Tara and Debbie chose to switch the numberLabels (for staticDac_0 -> StaticDac_1) here, but I'll stick with it to be consistent everywhere else in the program.AMK, 11 / 2010
 		daqCreateAOVoltageChan( staticDac0, "PXI1Slot3/ao0:7", "StaticDAC_1", -10, 10, DAQmx_Val_Volts, "" );
 		daqCreateAOVoltageChan( staticDac1, "PXI1Slot4/ao0:7", "StaticDAC_0", -10, 10, DAQmx_Val_Volts, "" );
 		daqCreateDIChan( digitalDAC_0_00, "PXI1Slot3/port0/line0", "DIDAC_0", DAQmx_Val_ChanPerLine );
@@ -207,7 +203,6 @@ DacSystem::DacSystem()
 	{
 		errBox( exception.what() );
 	}
-	return;
 }
 
 std::string DacSystem::getDacSystemInfo()
@@ -370,20 +365,27 @@ void DacSystem::initialize(POINT& pos, std::vector<CToolTipCtrl*>& toolTips, Mas
 void DacSystem::handleButtonPress(TtlSystem* ttls)
 {
 	dacComplexEventsList.clear();
-
+	std::array<double, 24> vals;
 	for (int dacInc = 0; dacInc < dacLabels.size(); dacInc++)
 	{
 		CString text;
 		breakoutBoardEdits[dacInc].GetWindowTextA(text);
 		try
 		{
-			double tempDac = _tstof(text);
-			prepareDacForceChange(dacInc, tempDac, ttls);
+			vals[dacInc] = std::stod(std::string(text));
+			prepareDacForceChange(dacInc, vals[dacInc], ttls);
 		}
-		catch (std::exception& exc)
+		catch (std::invalid_argument& err)
 		{
 			thrower("ERROR: value entered in DAC #" + std::to_string(dacInc) + " (" + text.GetString() + ") failed to convert to a double!");
 		}
+	}
+	// wait until after all this to actually do this to make sure things get through okay.
+	dacValues = vals;
+	for (int dacInc = 0; dacInc < dacLabels.size(); dacInc++)
+	{
+		breakoutBoardEdits[dacInc].colorState = 0;
+		breakoutBoardEdits[dacInc].RedrawWindow();
 	}
 }
 
@@ -424,7 +426,7 @@ void DacSystem::analyzeDAC_Commands()
 	while (timeOrganizer.size() != 0)
 	{
 		// find the lowest value time
-		int lowestTime = MAXINT32;
+		double lowestTime = DBL_MAX;
 		unsigned int index;
 		for (int commandInc = 0; commandInc < timeOrganizer.size(); commandInc++)
 		{
@@ -465,7 +467,7 @@ void DacSystem::analyzeDAC_Commands()
 	for (int commandInc = 0; commandInc < orderedOrganizer.size(); commandInc++)
 	{
 		// first copy the last set so that things that weren't changed remain unchanged.
-		dacSnapshots.push_back(this->dacSnapshots.back());
+		dacSnapshots.push_back(dacSnapshots.back());
 		dacSnapshots.back().time = orderedOrganizer[commandInc].first;
 		for (int zeroInc = 0; zeroInc < orderedOrganizer[commandInc].second.size(); zeroInc++)
 		{
@@ -477,7 +479,14 @@ void DacSystem::analyzeDAC_Commands()
 }
 std::array<double, 24> DacSystem::getFinalSnapshot()
 {
-	return dacSnapshots.back().dacValues;
+	if (dacSnapshots.size() != 0)
+	{
+		return dacSnapshots.back().dacValues;
+	}
+	else
+	{
+		thrower("No DAC Events");
+	}
 }
 
 std::array<std::string, 24> DacSystem::getAllNames()
@@ -498,7 +507,9 @@ void DacSystem::setDacStatusNoForceOut(std::array<double, 24> status)
 	// change the edits
 	for (int dacInc = 0; dacInc < dacLabels.size(); dacInc++)
 	{
-		breakoutBoardEdits[dacInc].SetWindowTextA(cstr(dacValues[dacInc]));
+		std::string volt = std::to_string(dacValues[dacInc]);
+		volt.erase(volt.find_last_not_of('0') + 1, std::string::npos);
+		breakoutBoardEdits[dacInc].SetWindowText(volt.c_str());
 	}
 }
 
@@ -506,25 +517,18 @@ void DacSystem::setDacStatusNoForceOut(std::array<double, 24> status)
 std::string DacSystem::getErrorMessage(int errorCode)
 {
 	char errorChars[2048];
-	//'Get the actual error message. This is much surperior to getErrorString function below, much more info.
+	// Get the actual error message. This is much surperior to getErrorString function.
 	DAQmxGetExtendedErrorInfo( errorChars, 2048 );
-
-	//'Find out the error message length.
-	//bufferSize = DAQmxGetErrorString(errorCode, 0, 0);
-	//'Allocate enough space in the string.
-	//errorChars = new char[bufferSize];
-	//'Get the actual error message.
-	//status = DAQmxGetErrorString(errorCode, errorChars, bufferSize);
 	std::string errorString(errorChars);
 	return errorString;
 }
 
 
-
-void DacSystem::interpretKey(key variationKey, unsigned int variationNumber, std::vector<variable> vars)
+void DacSystem::interpretKey( key variationKey, unsigned int variationNumber, std::vector<variable>& vars, 
+							  std::string& warnings )
 {
 	dacIndividualEvents.clear();
-	for (int eventInc = 0; eventInc < this->dacComplexEventsList.size(); eventInc++)
+	for (int eventInc = 0; eventInc < dacComplexEventsList.size(); eventInc++)
 	{
 		double value, time;
 		DAC_IndividualEvent tempEvent;
@@ -542,151 +546,52 @@ void DacSystem::interpretKey(key variationKey, unsigned int variationNumber, std
 			double varTime = 0;
 			for (auto variableTimeString : dacComplexEventsList[eventInc].time.first)
 			{
-				bool isVar = false;
-				for (int varInc = 0; varInc < vars.size(); varInc++)
-				{
-
-						if (variableTimeString == vars[varInc].name)
-						{
-							isVar = true;
-							break;
-						}
-				}
-				if (!isVar)
-				{
-					thrower( "ERROR: the time string " + variableTimeString + " is not a variable!" );
-				}
-				varTime += variationKey[variableTimeString].first[variationNumber];
+				varTime += reduce(variableTimeString, variationKey, variationNumber, vars);
+				//varTime += variationKey[variableTimeString].first[variationNumber];
 			}			
 			tempEvent.time = varTime + dacComplexEventsList[eventInc].time.second;
 		}
 		// interpret ramp time command. I need to know whether it's ramping or not.
-		double rampTime;
-		try
-		{
-			rampTime = std::stod( dacComplexEventsList[eventInc].rampTime );
-		}
-		catch (std::invalid_argument&)
-		{
-			for (int varInc = 0; varInc < vars.size(); varInc++)
-			{
-				if (vars[varInc].name == dacComplexEventsList[eventInc].rampTime)
-				{
-					rampTime = variationKey[dacComplexEventsList[eventInc].rampTime].first[variationNumber];
-				}
-			}
-		}
-
+		double rampTime = reduce(dacComplexEventsList[eventInc].rampTime, variationKey, variationNumber, vars);
 		if (rampTime == 0)
 		{
 			/// single point.
-
 			////////////////
 			// deal with value
-			try
-			{
-				tempEvent.value = std::stod(dacComplexEventsList[eventInc].finalVal);
-			}
-			catch (std::invalid_argument&)
-			{
-				bool isVar = false;
-				for (int varInc = 0; varInc < vars.size(); varInc++)
-				{
-					if (dacComplexEventsList[eventInc].finalVal == vars[varInc].name)
-					{
-						tempEvent.value = variationKey[dacComplexEventsList[eventInc].finalVal].first[variationNumber];
-						isVar = true;
-						break;
-					}
-				}
-				if (!isVar)
-				{
-					thrower("ERROR: the dac value " + dacComplexEventsList[eventInc].finalVal + " is not a variable or a double!");
-				}
-			}
-
+			tempEvent.value = reduce(dacComplexEventsList[eventInc].finalVal, variationKey, variationNumber, vars);
 			dacIndividualEvents.push_back(tempEvent);
-
 		}
 		else
 		{
 			/// many points to be made.
 			// convert initValue and finalValue to doubles to be used 
 			double initValue, finalValue, rampInc;
-			try
-			{
-				initValue = std::stod(dacComplexEventsList[eventInc].initVal);
-			}
-			catch (std::invalid_argument&)
-			{
-				bool isVar = false;
-				for (int varInc = 0; varInc < vars.size(); varInc++)
-				{
-					if (dacComplexEventsList[eventInc].initVal == vars[varInc].name)
-					{
-						initValue = variationKey[dacComplexEventsList[eventInc].initVal].first[variationNumber];
-						isVar = true;
-						break;
-					}
-				}
-				if (!isVar)
-				{
-					thrower("ERROR: the dac initial value " + dacComplexEventsList[eventInc].initVal 
-							+ " is not a variable or a double!");
-				}
-			}
+			initValue = reduce(dacComplexEventsList[eventInc].initVal, variationKey, variationNumber, vars);
 			// deal with final value;
-			try
-			{
-				finalValue = std::stod( dacComplexEventsList[eventInc].finalVal );
-			}
-			catch ( std::invalid_argument& )
-			{
-				bool isVar = false;
-				for ( int varInc = 0; varInc < vars.size(); varInc++ )
-				{
-					if ( dacComplexEventsList[eventInc].finalVal == vars[varInc].name )
-					{
-						finalValue = variationKey[dacComplexEventsList[eventInc].finalVal].first[variationNumber];
-						isVar = true;
-						break;
-					}
-				}
-				if ( !isVar )
-				{
-					thrower( "ERROR: the dac final value " + dacComplexEventsList[eventInc].finalVal + 
-							" is not a variable or a double!" );
-				}
-			}
+			finalValue = reduce(dacComplexEventsList[eventInc].finalVal, variationKey, variationNumber, vars);
 			// deal with ramp inc
-			try
-			{
-				rampInc = std::stod( dacComplexEventsList[eventInc].rampInc );
-			}
-			catch ( std::invalid_argument )
-			{
-				bool isVar = false;
-				for ( int varInc = 0; varInc < vars.size(); varInc++ )
-				{
-					if ( dacComplexEventsList[eventInc].rampInc == vars[varInc].name )
-					{
-						rampInc = variationKey[dacComplexEventsList[eventInc].rampInc].first[variationNumber];
-						isVar = true;
-						break;
-					}
-				}
-				if ( !isVar )
-				{
-					thrower( "ERROR: the dac ramp increment value " + dacComplexEventsList[eventInc].rampInc + " is not a variable or a double!" );
-				}
-			}
+			rampInc = reduce(dacComplexEventsList[eventInc].finalVal, variationKey, variationNumber, vars);
 			// This might be the first not i++ usage of a for loop I've ever done... XD
 			// calculate the time increment:
-			double timeInc = rampTime / int( fabs(finalValue - initValue) / rampInc );
+			int steps = int(fabs(finalValue - initValue) / rampInc + 0.5);
+			double stepsFloat = fabs(finalValue - initValue) / rampInc;
+			double diff = fabs(steps - fabs(finalValue - initValue) / rampInc);
+			if (diff > 100*DBL_EPSILON)
+			{
+				warnings += "Warning: Ideally your spacings for a dacramp would result in a non-integer number of steps."
+					    " The code will attempt to compensate by making a last step to the final value which is not the"
+					   " same increment in voltage or time as the other steps to take the dac to the final value at the"
+					   " right time.\r\n";
+			}
+			double timeInc = rampTime / steps;
+			// 0.017543859649122806
+			// 0.017241379310344827
+			double initTime = tempEvent.time;
 			double currentTime = tempEvent.time;
+			// handle the two directions seperately.
 			if (initValue < finalValue)
 			{
-				for (double dacValue = initValue; dacValue < finalValue; dacValue += rampInc)
+				for (double dacValue = initValue; (dacValue- finalValue) < -steps*2*DBL_EPSILON; dacValue += rampInc)
 				{
 					tempEvent.value = dacValue;
 					tempEvent.time = currentTime;
@@ -696,7 +601,7 @@ void DacSystem::interpretKey(key variationKey, unsigned int variationNumber, std
 			}
 			else
 			{
-				for (double dacValue = initValue; dacValue > finalValue; dacValue -= rampInc)
+				for (double dacValue = initValue; dacValue - finalValue > 100*DBL_EPSILON; dacValue -= rampInc)
 				{
 					tempEvent.value = dacValue;
 					tempEvent.time = currentTime;
@@ -706,11 +611,51 @@ void DacSystem::interpretKey(key variationKey, unsigned int variationNumber, std
 			}
 			// and get the final value.
 			tempEvent.value = finalValue;
-			tempEvent.time = currentTime;
+			tempEvent.time = initTime + rampTime;
 			dacIndividualEvents.push_back( tempEvent );
 		}
 	}
 }
+
+
+unsigned int DacSystem::getNumberSnapshots()
+{
+	return dacSnapshots.size();
+}
+
+void DacSystem::checkTimingsWork()
+{
+	std::vector<double> times;
+	// grab all the times.
+	for (auto snapshot : dacSnapshots)
+	{
+		times.push_back(snapshot.time);
+	}
+
+	int count = 0;
+	for (auto time : times)
+	{
+		int countInner = 0;
+		for (auto secondTime : times)
+		{
+			// don't check against itself.
+			if (count == countInner)
+			{
+				countInner++;
+				continue;
+			}
+			// can't trigger faster than micro-second.
+			if (fabs(time - secondTime) < 1e-6)
+			{
+				thrower("ERROR: timings are such that the dac system would have to get triggered too fast to follow the"
+						" programming! ");
+			}
+			countInner++;
+		}
+		count++;
+	}
+}
+
 
 // note that this is not directly tied to changing any "current" parameters in the DacSystem object (it of course changes a list parameter). The 
 // DacSystem object "current" parameters aren't updated to reflect an experiment, so if this is called for a force out, it should be called in conjuction
@@ -759,17 +704,38 @@ void DacSystem::prepareDacForceChange(int line, double voltage, TtlSystem* ttls)
 	std::string volt = std::to_string(voltage);
 	volt.erase(volt.find_last_not_of('0') + 1, std::string::npos);
 	breakoutBoardEdits[line].SetWindowText(volt.c_str());
-	breakoutBoardEdits[line].colorState = 0;
-	breakoutBoardEdits[line].RedrawWindow();
-	dacValues[line] = voltage;
 	// I'm not sure it's necessary to go through the procedure of doing this and using the DIO to trigger the dacs for a foce out. I'm guessing it's 
 	// possible to tell the DAC to just immediately change without waiting for a trigger.
 	setForceDacEvent( line, voltage, ttls );
 }
 
 
+void DacSystem::checkValuesAgainstLimits()
+{
+	for (int line = 0; line < dacNames.size(); line++)
+	{
+		for (auto snapshot : dacSnapshots)
+		{
+			if (snapshot.dacValues[line] > dacMaxVals[line] || snapshot.dacValues[line] < dacMinVals[line])
+			{
+				thrower("ERROR: Attempted to set Dac" + str(line) + " value outside min/max range for this line. The "
+						"value was " + str(snapshot.dacValues[line]) + ", while the minimum accepted value is " +
+						str(dacMinVals[line]) + " and the maximum value is " + str(dacMaxVals[line]) + ". "
+						"Change the min/max if you actually need to set this value.\r\n");
+			}
+		}
+	}
+}
+
 void DacSystem::setForceDacEvent( int line, double val, TtlSystem* ttls )
 {
+	if (val > dacMaxVals[line] || val < dacMinVals[line])
+	{
+		thrower("ERROR: Attempted to set Dac" + str(line) + " value outside min/max range for this line. The "
+				"value was " + str(val) + ", while the minimum accepted value is " +
+				str(dacMinVals[line]) + " and the maximum value is " + str(dacMaxVals[line]) + ". "
+				"Change the min/max if you actually need to set this value.\r\n");
+	}
 	DAC_IndividualEvent eventInfo;
 	eventInfo.line = line;
 	eventInfo.time = 0;	
@@ -809,8 +775,6 @@ void DacSystem::stopDacs()
 }
 
 
-
-
 void DacSystem::configureClocks()
 {	
 	long sampleNumber = dacSnapshots.size();
@@ -837,7 +801,6 @@ void DacSystem::writeDacs()
 	bool32 nothing = NULL;
 	int32 samplesWritten;
 	int output;
-
 	//
 	daqWriteAnalogF64( staticDac0, dacSnapshots.size(), false, 0.0001, DAQmx_Val_GroupByScanNumber, 
 					  &finalFormattedData[0].front(), &samplesWritten );
@@ -863,7 +826,7 @@ void DacSystem::makeFinalDataFormat()
 	finalFormattedData[1].clear();
 	finalFormattedData[2].clear();
 	
-	for (DAC_Snapshot snapshot : this->dacSnapshots)
+	for (DAC_Snapshot snapshot : dacSnapshots)
 	{
 		for (int dacInc = 0; dacInc < 8; dacInc++)
 		{
@@ -881,10 +844,10 @@ void DacSystem::makeFinalDataFormat()
 }
 
 
-void DacSystem::handleDAC_ScriptCommand(timeType time, std::string name, std::string initVal, 
+void DacSystem::handleDacScriptCommand( timeType time, std::string name, std::string initVal, 
 										 std::string finalVal, std::string rampTime, std::string rampInc, 
-										 std::vector<unsigned int>& dacShadeLocations, std::vector<variable> vars, 
-										 TtlSystem* ttls)
+										 std::vector<unsigned int>& dacShadeLocations, std::vector<variable>& vars, 
+										 TtlSystem* ttls )
 {
 	double value;
 	if (!isValidDACName(name))
@@ -903,6 +866,7 @@ void DacSystem::handleDAC_ScriptCommand(timeType time, std::string name, std::st
 		{
 			if (vars[varInc].name == finalVal)
 			{
+				vars[varInc].active = true;
 				isVar = true;
 				break;
 			}
@@ -963,6 +927,7 @@ void DacSystem::handleDAC_ScriptCommand(timeType time, std::string name, std::st
 				return;
 			}
 		}
+
 		// work with rampInc
 		try
 		{
@@ -1018,6 +983,27 @@ int DacSystem::getDAC_Identifier(std::string name)
 	return -1;
 }
 
+void DacSystem::setMinMax(int dacNumber, double min, double max)
+{
+	if (!(min <= max))
+	{
+		thrower("ERROR: Min dac value must be less than max dac value.");
+	}
+	if (min < -10 || min > 10 || max < -10 || max > 10)
+	{
+		thrower("ERROR: Min and max dac values must be withing [-10,10].");
+	}
+	dacMinVals[dacNumber] = min;
+	dacMaxVals[dacNumber] = max;
+}
+
+
+std::pair<double, double> DacSystem::getDacRange(int dacNumber)
+{
+	return { dacMinVals[dacNumber], dacMaxVals[dacNumber] };
+}
+
+
 void DacSystem::setName(int dacNumber, std::string name, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master)
 {
 	if (name == "")
@@ -1026,14 +1012,13 @@ void DacSystem::setName(int dacNumber, std::string name, std::vector<CToolTipCtr
 		return; 
 	}
 	std::transform( name.begin(), name.end(), name.begin(), ::tolower );
-	this->dacNames[dacNumber] = name;
-	this->breakoutBoardEdits[dacNumber].setToolTip(name, toolTips, master);
-	return;
+	dacNames[dacNumber] = name;
+	breakoutBoardEdits[dacNumber].setToolTip(name, toolTips, master);
 }
 
 std::string DacSystem::getName(int dacNumber)
 {
-	return this->dacNames[dacNumber];
+	return dacNames[dacNumber];
 }
 
 HBRUSH DacSystem::handleColorMessage(CWnd* window, std::unordered_map<std::string, HBRUSH> brushes, 
@@ -1111,18 +1096,23 @@ void DacSystem::shadeDacs(std::vector<unsigned int>& dacShadeLocations)
 		breakoutBoardEdits[dacShadeLocations[shadeInc]].SetReadOnly(true);
 		breakoutBoardEdits[dacShadeLocations[shadeInc]].RedrawWindow();
 	}
+	for (auto& ctrl : breakoutBoardEdits)
+	{
+		ctrl.EnableWindow(0);
+	}
 }
 
 
 void DacSystem::unshadeDacs()
 {
-	for (int shadeInc = 0; shadeInc < this->breakoutBoardEdits.size(); shadeInc++)
+	for (int shadeInc = 0; shadeInc < breakoutBoardEdits.size(); shadeInc++)
 	{
+		breakoutBoardEdits[shadeInc].EnableWindow();
 		if (breakoutBoardEdits[shadeInc].colorState == -1)
 		{
 			breakoutBoardEdits[shadeInc].colorState = 0;
 			breakoutBoardEdits[shadeInc].SetReadOnly(false);
 			breakoutBoardEdits[shadeInc].RedrawWindow();
-		}
+		}		
 	}
 }

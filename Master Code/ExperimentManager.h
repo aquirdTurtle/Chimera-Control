@@ -4,8 +4,8 @@
 
 #include "nidaqmx2.h"
 #include <sstream>
-#include "TTL_System.h"
-#include "DAC_System.h"
+#include "TtlSystem.h"
+#include "DacSystem.h"
 #include <vector>
 #include "VariableSystem.h"
 #include "RichEditControl.h"
@@ -19,12 +19,17 @@
 #include "Agilent.h"
 #include "commonTypes.h"
 #include "StatusControl.h"
+#include "Repetitions.h"
+#include "TektronicsControl.h"
+
 
 struct ExperimentThreadInput
 {
-	TtlSystem* ttls;
+	bool quiet;
+	TtlSystem* ttls;											
 	DacSystem* dacs;
-	unsigned int repetitions;
+	unsigned int repetitionNumber;
+	Repetitions* repControl;
 	std::vector<variable> vars;
 	ExperimentManager* thisObj;
 	
@@ -34,12 +39,13 @@ struct ExperimentThreadInput
 	bool connectToNIAWG;
 	SocketWrapper* niawgSocket;
 	std::string masterScriptAddress;
-	Gpib* gpibHandler;
+	Gpib* gpib;
 	RhodeSchwarz* rsg;
 	debuggingOptions debugOptions;
 	std::vector<Agilent*> agilents;
-	// first = top, second = bottom, third = axial.
-	std::array<std::string, 3> ramanFreqs;
+	tektronicsInfo tektronics1;
+	tektronicsInfo tektronics2;
+	VariableSystem* globalControl;
 };
 
 
@@ -55,15 +61,15 @@ class ExperimentManager
 		std::string getErrorMessage(int errorCode);
 		void loadMasterScript(std::string scriptAddress);
 
-		void analyzeCurrentMasterScript( TtlSystem* ttls, DacSystem* dacs, 
+		void analyzeMasterScript( TtlSystem* ttls, DacSystem* dacs, 
 										 std::vector<std::pair<unsigned int, unsigned int>>& ttlShades,
-										 std::vector<unsigned int>& dacShades, RhodeSchwarz* rsg, 
-										 std::array<std::string, 3>& ramanFreqs );
+										 std::vector<unsigned int>& dacShades, RhodeSchwarz* rsg);
 
 		// this function needs the mastewindow in order to gather the relevant parameters for the experiment.
 		void startExperimentThread(MasterWindow* master);
 		void loadMotSettings(MasterWindow* master);
 		static UINT __cdecl experimentThreadProcedure(LPVOID input);
+		static void expUpdate(std::string text, StatusControl* status, bool quiet = false);
 		void loadVariables(std::vector<variable> newVariables);
 		bool runningStatus();
 		bool isValidWord(std::string word);
@@ -77,10 +83,10 @@ class ExperimentManager
 		std::vector<variable> variables;
 		ScriptStream currentMasterScript;
 		std::string functionsFolderLocation;
-		// called by analyzeCurrentMasterScript functions only.
+		// called by analyzeMasterScript functions only.
 		void analyzeFunction( std::string function, std::vector<std::string> args, TtlSystem* ttls, DacSystem* dacs,
-							  std::vector<std::pair<unsigned int, unsigned int>>& ttlShades, std::vector<unsigned int>& dacShades, RhodeSchwarz* rsg,
-							  std::array<std::string, 3>& ramanFreqs );
+							  std::vector<std::pair<unsigned int, unsigned int>>& ttlShades, std::vector<unsigned int>& dacShades, 
+							 RhodeSchwarz* rsg);
 		// 
 		timeType operationTime;
 		bool experimentIsRunning;

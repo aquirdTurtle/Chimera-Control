@@ -15,6 +15,7 @@ class NoteSystem
 		std::string getConfigurationNotes();
 		void rearrange(UINT width, UINT height, fontMap fonts);
 		INT_PTR NoteSystem::handleColorMessage(WPARAM wParam, LPARAM lParam, brushMap brushes);
+		void setActiveControls(std::string level);
 	private:
 		Control<CEdit> experimentNotes;
 		Control<CStatic> experimentNotesHeader;

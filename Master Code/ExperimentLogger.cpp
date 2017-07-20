@@ -117,7 +117,7 @@ void ExperimentLogger::generateLog(MasterWindow* master)
 	// log the literal master script
 	logText << "\n\nMaster Script:\n";
 	logText << master->masterScript.getScriptText();
-	// log the repetitions
+	// log the repetitionNumber
 	logText << "\n\nRepetitions: " << master->repetitionControl.getRepetitionNumber();
 	logText << "\n\nVariables: ";
 	std::vector<variable> varCopy = master->configVariables.getEverything();

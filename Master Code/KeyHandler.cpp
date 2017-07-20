@@ -6,16 +6,29 @@
 #include <fstream>
 #include <iomanip>
 
+
 key KeyHandler::getKey()
 {
-	return this->keyValues;
+	return keyValues;
 }
+
+
+void KeyHandler::initialize(POINT loc, CWnd* parent, int& id)
+{
+	randomizeVariablesButton.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
+	randomizeVariablesButton.ID = id++;
+	randomizeVariablesButton.Create( "Randomize Variations", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, 
+									 randomizeVariablesButton.sPos, parent, randomizeVariablesButton.ID );
+	randomizeVariablesButton.SetCheck(true);
+}
+
 
 
 void KeyHandler::loadVariables(std::vector<variable> newVariables)
 {
-	this->variables = newVariables;
+	variables = newVariables;
 }
+
 
 void KeyHandler::generateKey()
 {
@@ -23,7 +36,6 @@ void KeyHandler::generateKey()
 	keyValues.clear();
 	// each element of the vector refers to the number of variations within a given variation range.
 	std::vector<int> variations;
-	//variations.push_back(1);
 	std::vector<int> variableIndexes;
 	for (int varInc = 0; varInc < variables.size(); varInc++)
 	{
@@ -59,7 +71,7 @@ void KeyHandler::generateKey()
 			}
 		}
 	}
-
+	// create a key which will be randomized and then used to randomize other things the same way.
 	std::vector<int> randomizerKey;
 	int counter = 0;
 	for (int rangeInc = 0; rangeInc < variations.size(); rangeInc++)
@@ -70,11 +82,16 @@ void KeyHandler::generateKey()
 			counter++;
 		}
 	}
-	std::random_device rng;
-	std::mt19937 urng(rng());
-	std::shuffle(randomizerKey.begin(), randomizerKey.end(), urng);
-	// we now have a random key for the shuffling which every variable will follow
-	// initialize this to one so that constants always get at least one value.
+	if (randomizeVariablesButton.GetCheck())
+	{
+		// initialize rng
+		std::random_device rng;
+		std::mt19937 urng(rng());
+		// and shuffle.
+		std::shuffle(randomizerKey.begin(), randomizerKey.end(), urng);
+		// we now have a random key for the shuffling which every variable will follow
+		// initialize this to one so that constants always get at least one value.
+	}
 	int totalSize = 1;
 	for (int variableInc = 0; variableInc < variableIndexes.size(); variableInc++)
 	{
@@ -83,11 +100,34 @@ void KeyHandler::generateKey()
 		std::vector<double> tempKey, tempKeyRandomized;
 		for (int rangeInc = 0; rangeInc < variations.size(); rangeInc++)
 		{
+			double range = (variables[varIndex].ranges[rangeInc].finalValue - variables[varIndex].ranges[rangeInc].initialValue);
+			int spacings;
+
+			if (variables[varIndex].ranges[rangeInc].leftInclusive && variables[varIndex].ranges[rangeInc].rightInclusive)
+			{
+				spacings = variations[rangeInc] - 1;
+			}
+			else if (variables[varIndex].ranges[rangeInc].leftInclusive && variables[varIndex].ranges[rangeInc].rightInclusive)
+			{
+				spacings = variations[rangeInc] + 1;
+			}
+			else
+			{
+				spacings = variations[rangeInc];
+			}
+			double initVal;
+			if (variables[varIndex].ranges[rangeInc].leftInclusive)
+			{
+				initVal = variables[varIndex].ranges[rangeInc].initialValue;
+			}
+			else
+			{
+				initVal = variables[varIndex].ranges[rangeInc].initialValue + range / spacings;
+			}
+
 			for (int variationInc = 0; variationInc < variations[rangeInc]; variationInc++)
 			{
-				double value = (variables[varIndex].ranges[rangeInc].finalValue - variables[varIndex].ranges[rangeInc].initialValue) * ((variationInc + 1)/ double(variations[rangeInc])) 
-					+ variables[varIndex].ranges[rangeInc].initialValue;
-				tempKey.push_back(value);
+				tempKey.push_back(range * variationInc / spacings + initVal);
 			}
 		}
 		// now shuffle these values
@@ -120,6 +160,8 @@ void KeyHandler::generateKey()
 }
 
 
+
+
 void KeyHandler::exportKey()
 {
 	// TODO
@@ -135,7 +177,7 @@ void KeyHandler::exportKey()
 			keyFile << std::setw(15) << variables[variableInc].name + ":";
 			for (int keyInc = 0; keyInc < keyValues[variables[variableInc].name].first.size(); keyInc++)
 			{
-				keyFile << std::setprecision(12) << std::setw(15) << this->keyValues[variables[variableInc].name].first[keyInc];
+				keyFile << std::setprecision(12) << std::setw(15) << keyValues[variables[variableInc].name].first[keyInc];
 			}
 			keyFile << "\n";
 		}
@@ -143,3 +185,8 @@ void KeyHandler::exportKey()
 	keyFile.close();
 }
 
+
+void KeyHandler::rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts)
+{
+	randomizeVariablesButton.rearrange(width, height, fonts);
+}

@@ -44,6 +44,8 @@
 #include <vector>
 
 #include "Control.h"
+#include "KeyHandler.h"
+#include "VariableSystem.h"
 
 // need to remind myself how this works...
 typedef std::pair<std::vector<std::string>, double> timeType;
@@ -130,9 +132,6 @@ std::vector<IntType> range( IntType stop )
 void appendText(std::string newText, CEdit& edit);
 void appendText(std::string newText, Control<CRichEditCtrl>& edit);
 
-
-#define cstr(input) str(input).c_str()
-
 std::string str(std::string string)
 {
 	return string;
@@ -153,5 +152,10 @@ template <typename type> std::string str(type quantity)
 	return std::to_string(quantity);
 }
 
+#define cstr(input) str(input).c_str()
+
 std::string doubleToString(double number, long precision);
+
+double reduce(std::string expression, key variationKey = {}, UINT variation = -1, 
+			  std::vector<variable>& vars = std::vector<variable>());
 

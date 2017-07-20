@@ -5,6 +5,7 @@
 #include <array>
 #include <vector>
 #include "KeyHandler.h"
+#include "TektronicsControl.h"
 
 class Gpib
 {
@@ -19,8 +20,9 @@ class Gpib
 		void gpibSend( int address, std::string message );
 		
 		// as of now the raman stuff isn't complicated enough to warrant it's own control. might change in the future.
-		void programRamanFGs(double topFreq, double bottomFreq, double axialFreq);
-		std::array<double, 3> interpretKeyForRaman( std::array<std::string, 3> raman,  key variationKey, unsigned int variableNumber );
+		void programTektronixs(tektronicsInfo info);
+		void interpretKeyForTektronics( tektronicsInfo& raman,  key variationKey, UINT variableNumber, 
+									    std::vector<variable>& vars);
 
 		std::string getErrMessage( long errCode );
 };

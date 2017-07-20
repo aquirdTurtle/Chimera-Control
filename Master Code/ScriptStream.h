@@ -14,7 +14,7 @@ class ScriptStream : public std::stringstream
 		ScriptStream::ScriptStream() : std::stringstream() {}
 		
 		/* 
-		 The main purpose of this class is really to simplify my repeated use of >> 
+		 The main purpose of this class is really to reduce my repeated use of >> 
 		 using the following overload.
 		 */
 		ScriptStream & operator>>( std::string& outputString );

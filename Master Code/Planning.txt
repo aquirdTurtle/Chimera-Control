@@ -1,86 +1,97 @@
 ### MASTER TODO: ###
 
 Main Features
-- Test Output Functionality
-  - Run MOT Experiments
-    - MOT Temperature Measurement
-    - PGC Temperature Measurement
-  - Create / Run / Test Atoms Experiments
-	- Load Atoms & Image
+ - Create / Run / Test Atoms Experiments
     - Trap Frequency Measurement
       - Axial
       - Radial
     - Trap Depth Measurement
 	- Pushout
-    - etc....
-- Scripting for the Agilent controls
-- Option to see the startup message after startup
-- Convert input in edit to actual dac value based on discretization
+!- Implement Scripting for the Agilent controls
+ - Convert input in edit to actual dac value based on discretization
+ - things associated with pre-calculating every variation
+	- 1st Step: Make it calculate all sets of commands before running anything.
+	- make randomize the repetition between variations an option.
+	- fix "total experiment time" calculation to be accurate when a time is varying between variations.
+ - handle 0 variations for variables better. If more than one range, you should be able to set a number for a range
+	to be zero, but there always needs to be at least one variable. I might need to write special handling in the key
+	for zero variations in one range as well.
+ - implement the nice throw handler.
+
+Bugs
+- If experiment doesn't exist in correct location, and cancel, code crashes.
+	- Can't repeat on laptop. Only happened once.
+- Saving adds boxes to experiment notes... Perhaps related to line endings.
+	- Can't repeat on laptop??? Might be related to xp.
 - Be able to manually set limits on dac values in the code.
-- make randomizing the variation order an option
-- make randomize the repetition between variations an option.
-- Grey out controls when experiment/category/config has yet to be selected.
-	- Controls that should be sensitive:
-		- Comments (all levels)
-		- higher level combos (e.g. config should be grey if category hasn't been set)
-		- Config variables
-- Be able to have a scroll-bar when window shrinks instead of re-sizing everything.
-- change repetitions to just be a label and an edit.
-- Handle repetition updates better... perhaps just a seperate control.
-- More options for programming textronics generators.
-- make the color coding better.
+- fix opening message. queries just aren't working in general.
+- prompt to save at end doesn't recognize if parent script is selected or not?
+- DAC behavior is inconsistent... T.T
+- not catching variable usage on dac events...
+- Script is getting set as unsaved when still saved.
+- Sequence not updating... not sure if this is even active in any sense but if not I should de-activate it.
+- fix repetitions setting
+- fix the extra DAC triggers being set
+- system doesn't unshade ttls on errors...
+
+Other Changes
+- Update TTL dialog procedure to MFC
+
+################################
+### Finished ###
+################################
+
+Features
+- created rudimentary default script.
+- check save before exit
+- When setting parameter for variable, the variable name appears in the dialog so that the user can be sure that 
+	they are setting the right thing.
+- "New function" script menu option allows writing a new function without losing a parent script.
+- keeps track of the function call stack throughout functions.
+- always triggers oscilloscope at end of experiment. this also takes care of the issue where times added at the end 
+	didn't do anything because there weren't any ttl events associated with the new time.
+- Now greys out certain controls when experiment/category/config has yet to be selected.
+- repetitions is now just a label and an edit.
+- Handling repetition updates better as a seperate control.
+- Real PGC Cooling has now been tested.
+- hotkey for pause.
 - Make "active" and "inactive" global variables
 	- make it possible to run through the analysis routine without running experiment to see what variables are active.
 	- Add custom colorings for different states
 	https://www.codeproject.com/Articles/79/Neat-Stuff-to-Do-in-List-Controls-Using-Custom-Dra	
-- When setting parameter for variable, the variable name should appear in the dialog so that the user can be sure that 
-	they are setting the right thing.
-- check save before exit
+- outputs debug info to text file.
+- Now makes use of the "Solarized" Syntax coloring scheme.
+- Loading Atoms & Imaging them has been tested
+- MOT field scans & MOT Fill time scans now tested
+- Dac Dialog has been updated to MFC
+- "Quiet" mode which outputs less to the main status.
+- t is now white (color coding)
+- randomizing the variation order is now an option
+- Better warning handling, especially for the dacramp warnings.
+- Now supports math in scripts
+	- math with variables
+	- update color coding
+ - Catches negative times.
+ - Be able to set whether boundaries on variable ranges are inclusive or exclusive.
 
 Bugs
-- Header text size too large / boxes too small on master comp
-- On New script, the combo should automatically switch to parent? or something. Should not stay.
-- If the last command is a time command, the code doesn't realize it needs to wait extra long or anything.
-- get the default master script uploaded
-- hanlde 0 variations for variables better. If more than one range, you should be able to set a number for a range
-	to be zero, but there always needs to be at least one variable. I might need to write special handling in the key
-	for zero variations in one range as well.
-- fix "total experiment time" calculation to be accurate when a time is varying between variations.
-- after new script & saving function, script name appears to be lost. is probably
-  lost at "new script", so I should probably have something like a "new function" 
-  option that preserves the parent script so that it's easy to go back?
-- Tektronix generators should be turned off by default. Right now if you run a config without them they turn on.
-- make sure local variables can over-write globals if you need to scan a global variable.
-- After "Rename config", the config name is set to blank.
-- Enter shouldn't crash program
-- If experiment doesn't exist in correct location, and cancel, code crashes.
+- Enter doesn't crash program
 - After prompt to save script before starting, selecting "cancel" doesn't cancel.
-- Saving adds boxes to experiment notes... Perhaps related to line endings.
-- Bug where code doesn't appear to be doing anything after 2-deep function call???
-- don't let the user save a function as a .mscript.
-
-### Finished ###
-Features
-- Code throws a warning if it sees zero variations for a variable.
-- Checked the following experiments:
-	- Mot fill
-	- Mot Temperature
-	- PGC Temperature
-Bugs
-- Fix issues with notes: 
-	- Config notes dds the square character on the end
-	- experiment notes eats the first character on saving
-	- category notes seem to dissapear entirely.
-- Dac0 goes red correctly now.
-- more info for function args not matching in # error.
-- adjusted "suspicious variable number" limit to be set off by >1000.
-- Fixed bug where function args got filled with empty strings
-- Fixed bug in function analysis which caused it to pull things from the main script instead of the function for
-	dacramp and a couple rare commands.
-- show all dacs and show all ttls are no longerheader style
-- fixed key save location
-- Fix Key Output, Constants aren't outputted now
-- Removed extra children bar, which was originally for subroutines
-
-Other Changes
-- change variable text from "From Master" to "Variable" and "Singleton" to "Constant".
+- After "Rename config", the config name is set to blank.
+- make sure local variables can over-write globals if you need to scan a global variable.
+- warning if the user save a function as a .mscript.
+- On New script, the combo automatically switches to parent.
+- fixed bug where crashed if no dac events because trying to set final dac values.
+- Fixed crashing on F1 due to not setting repControl during turnonmot calling procedure.
+- filename text for script changed to normal text from heading.
+- Fixed dacramp rounding & final data point issues
+- Fixed Configs needing re-saving after just opening program and closing.
+- Eating zeros better in dac controls.
+- fixed showing "repetition..." after unpause.
+- Fixed fractional time bug
+- found temporary solution to dac timing issue: more dense dac ramps.
+- New Tektronics generators control, allows more freedom in setting tektronics stuffs.
+- With new controls, tek generators are off by default as they should be.
+- eat zeros in variable values
+- fixed repetition setting bug
+- All ttls and dacs are now disabled during experiment

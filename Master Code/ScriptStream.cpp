@@ -10,16 +10,31 @@ ScriptStream & ScriptStream::operator>>( std::string& outputString )
 	// directly. I was having trouble calling the parent class version, not
 	// really sure why.
 	std::string text = str();
-	std::stringstream temp( text );
+	std::stringstream tempStream( text );
 	// make sure they are at the same place...
 	int pos = tellg();
-	temp.seekg( pos );
+	tempStream.seekg( pos );
 	// get the word.
-	temp >> outputString;
+	tempStream >> outputString;
 	// convert to lower-case
 	std::transform( outputString.begin(), outputString.end(), outputString.begin(), ::tolower );
-	// replace any keywords
-	for (auto repl : this->replacements)
+	if (outputString.find("(") != std::string::npos)
+	{
+		// continue getting characters until the ) is found. 
+		while (outputString.find(")") == std::string::npos)
+		{
+			if (tempStream && tempStream.peek() == EOF)
+			{
+				thrower("ERROR: Unmatched left parenthesis \"(\"");
+			}
+			std::string tempStr;
+			tempStream >> tempStr;
+			outputString.append(tempStr);
+		}
+	}
+	// replace any keywords. This doesn't catch it when the keywords are in (), only when they are isolated. Need to 
+	// check if this is an issue with using constants with expressions or not.
+	for (auto repl : replacements)
 	{
 		if (outputString == repl.first)
 		{
@@ -27,7 +42,18 @@ ScriptStream & ScriptStream::operator>>( std::string& outputString )
 			outputString = repl.second;
 		}
 	}
-	this->seekg( temp.tellg() );
+	try
+	{
+		outputString = std::to_string(reduce(outputString));
+	}
+	catch (Error& err)
+	{
+		// failed to reduce, that's fine, will try again later.
+		// this can happen if it's not a reducable quantity (i.e. not enclosed in (), or if there are variables in the
+		// string, for example.
+	}
+	// update the actual stream with the position that the temporary stream ended at.
+	seekg( tempStream.tellg() );
 	return *this;
 }
 
@@ -107,10 +133,10 @@ void ScriptStream::eatComments()
 {
 	// Grab the first character
 	std::string comment;
-	char currentChar = this->get();
+	char currentChar = get();
 	// including the !file.eof() to avoid grabbing the null character at the end. 
-	while ((currentChar == ' ' && !this->eof()) || (currentChar == '\n' && !this->eof()) || (currentChar == '\r' && !this->eof())
-			|| (currentChar == '\t' && !this->eof()) || currentChar == '%' || (currentChar == ';' && !this->eof()))
+	while ((currentChar == ' ' && !eof()) || (currentChar == '\n' && !eof()) || (currentChar == '\r' && !eof())
+			|| (currentChar == '\t' && !eof()) || currentChar == '%' || (currentChar == ';' && !eof()))
 	{
 		// remove entire comments from the input
 		if (currentChar == '%')
@@ -118,7 +144,7 @@ void ScriptStream::eatComments()
 			std::getline( *this, comment , '\n' );
 		}
 		// get the next char
-		currentChar = this->get();
+		currentChar = get();
 	}
 	char next = peek();
 	if (next == EOF)
@@ -127,8 +153,9 @@ void ScriptStream::eatComments()
 		{
 			clear();
 			seekg( -1, SEEK_CUR );
-			if (this->eof())
+			if (eof())
 			{
+				// shouldn't happen.
 				errBox( "!" );
 			}
 		}

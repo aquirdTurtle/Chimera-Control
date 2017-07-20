@@ -1,8 +1,8 @@
-An experiment ran at (y-m-d h:m:s)2017-7-3, 3:35:45 with the following parameters:
+An experiment ran at (y-m-d h:m:s)2017-7-18, 23:49:48 with the following parameters:
 ==========================================================================================
 TTL Settings:
 **VALUES**         0         1         2         3         4         5         6         7         8         9        10        11        12        13        14        15
-        A:       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF
+        A:        ON       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF
         B:       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF
         C:       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF
         D:       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF
@@ -24,303 +24,23 @@ NAMES
 17:dac16     18:dac17     19:dac18     20:dac19     21:dac20     22:dac21     23:dac22     24:dac23     
 
 Master Script:
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
 t = 1
-t += 500
-dac: dac1 1
-t += waitTime
-dac: dac2 0
-call func1()
-dacramp: dac0 0 1 0.1 0.1
+%
+t += (2*variable-5000)
+on: A0
+dac: Dac11 10
 
-Repetitions: 100
 
-Variables: 
+Repetitions: 1
+
+Variables: variable  Constant  Not Timelike   Value:6000.000000variables Constant  Not Timelike   Value:0.000000 
 
 Error Status:
-
-******************************
-Handling Configuration Selection Change Failed: c:\users\mark\documents\quantum-gas-assembly-control\master code\configurationfilesystem.cpp, Line 354: ERROR: unknown variable type option. Check the formatting of the configuration file. Default to constant.
 
 
 General Status:
-............................
-Checking if Ready...
-Starting Experiment Thread...
-An experiment ran at (y-m-d h:m:s)2017-7-3, 3:35:55 with the following parameters:
-==========================================================================================
-TTL Settings:
-**VALUES**0         1         2         3         4         5         6         7         8         9         10        11        12        13        14        15        
-A:        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
-B:        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
-C:        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
-D:        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
-**NAMES** 0         1         2         3         4         5         6         7         8         9         10        11        12        13        14        15        
-A:        a0        a1        a2        a3        a4        a5        a6        a7        a8        a9        a10       a11       a12       a13       a14       a15       
-         B:        b0        b1        b2        b3        b4        b5        b6        b7        b8        b9        b10       b11       b12       b13       b14       b15       
-         C:        c0        c1        c2        c3        c4        c5        c6        c7        c8        c9        c10       c11       c12       c13       c14       c15       
-         D:        d0        d1        d2        d3        d4        d5        d6        d7        d8        d9        d10       d11       d12       d13       d14       d15       
-         
-
-DAC Settings:
-VALUES    
-1: 0.000000  2: 0.000000  3: 0.000000  4: 0.000000  5: 0.000000  6: 0.000000  7: 0.000000  8: 0.000000  
-9: 0.000000  10:0.000000  11:0.000000  12:0.000000  13:0.000000  14:0.000000  15:0.000000  16:0.000000  
-17:0.000000  18:0.000000  19:0.000000  20:0.000000  21:0.000000  22:0.000000  23:0.000000  24:0.000000  
-NAMES    
-1: dac0      2: dac1      3: dac2      4: dac3      5: dac4      6: dac5      7: dac6      8: dac7      
-9: dac8      10:dac9      11:dac10     12:dac11     13:dac12     14:dac13     15:dac14     16:dac15     
-17:dac16     18:dac17     19:dac18     20:dac19     21:dac20     22:dac21     23:dac22     24:dac23     
-
-Master Script:
-t = 1
-t += 500
-dac: dac1 1
-dac: dac2 0
-call func1()
-dacramp: dac0 0 1 0.1 0.1
-
-Repetitions: 100
-
-Variables: 
-
-Error Status:
-
-******************************
-Handling Configuration Selection Change Failed: c:\users\mark\documents\quantum-gas-assembly-control\master code\configurationfilesystem.cpp, Line 354: ERROR: unknown variable type option. Check the formatting of the configuration file. Default to constant.
-c:\users\mark\documents\quantum-gas-assembly-control\master code\experimentmanager.cpp, Line 1053: ERROR: tried and failed to convert waittime to an integer for a time += command.
-
-General Status:
-............................
-Checking if Ready...
-Starting Experiment Thread...
-Loading Key...Done.
-Exporting Key...Done.
-NOT Connecting to NIAWG.
-Loading Agilent Info...Analyzing Master Script...Bad Exit!
-............................
-Checking if Ready...
-Starting Experiment Thread...
-An experiment ran at (y-m-d h:m:s)2017-7-3, 3:36:9 with the following parameters:
-==========================================================================================
-TTL Settings:
-**VALUES**0         1         2         3         4         5         6         7         8         9         10        11        12        13        14        15        
-A:        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
-B:        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
-C:        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
-D:        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
-**NAMES** 0         1         2         3         4         5         6         7         8         9         10        11        12        13        14        15        
-A:        a0        a1        a2        a3        a4        a5        a6        a7        a8        a9        a10       a11       a12       a13       a14       a15       
-         B:        b0        b1        b2        b3        b4        b5        b6        b7        b8        b9        b10       b11       b12       b13       b14       b15       
-         C:        c0        c1        c2        c3        c4        c5        c6        c7        c8        c9        c10       c11       c12       c13       c14       c15       
-         D:        d0        d1        d2        d3        d4        d5        d6        d7        d8        d9        d10       d11       d12       d13       d14       d15       
-         
-
-DAC Settings:
-VALUES    
-1: 0.000000  2: 0.000000  3: 0.000000  4: 0.000000  5: 0.000000  6: 0.000000  7: 0.000000  8: 0.000000  
-9: 0.000000  10:0.000000  11:0.000000  12:0.000000  13:0.000000  14:0.000000  15:0.000000  16:0.000000  
-17:0.000000  18:0.000000  19:0.000000  20:0.000000  21:0.000000  22:0.000000  23:0.000000  24:0.000000  
-NAMES    
-1: dac0      2: dac1      3: dac2      4: dac3      5: dac4      6: dac5      7: dac6      8: dac7      
-9: dac8      10:dac9      11:dac10     12:dac11     13:dac12     14:dac13     15:dac14     16:dac15     
-17:dac16     18:dac17     19:dac18     20:dac19     21:dac20     22:dac21     23:dac22     24:dac23     
-
-Master Script:
-t = 1
-t += 500
-dac: dac1 1
-dac: dac2 0
-call func()
-dacramp: dac0 0 1 0.1 0.1
-
-Repetitions: 100
-
-Variables: 
-
-Error Status:
-
-******************************
-Handling Configuration Selection Change Failed: c:\users\mark\documents\quantum-gas-assembly-control\master code\configurationfilesystem.cpp, Line 354: ERROR: unknown variable type option. Check the formatting of the configuration file. Default to constant.
-c:\users\mark\documents\quantum-gas-assembly-control\master code\experimentmanager.cpp, Line 1053: ERROR: tried and failed to convert waittime to an integer for a time += command.c:\users\mark\documents\quantum-gas-assembly-control\master code\experimentmanager.cpp, Line 508: ERROR: Function func1 does not exist!
-
-General Status:
-............................
-Checking if Ready...
-Starting Experiment Thread...
-Loading Key...Done.
-Exporting Key...Done.
-NOT Connecting to NIAWG.
-Loading Agilent Info...Analyzing Master Script...Bad Exit!
-............................
-Checking if Ready...
-Starting Experiment Thread...
-Loading Key...Done.
-Exporting Key...Done.
-NOT Connecting to NIAWG.
-Loading Agilent Info...Analyzing Master Script...Bad Exit!
-............................
-Checking if Ready...
-Starting Experiment Thread...
-An experiment ran at (y-m-d h:m:s)2017-7-3, 3:37:6 with the following parameters:
-==========================================================================================
-TTL Settings:
-**VALUES**0         1         2         3         4         5         6         7         8         9         10        11        12        13        14        15        
-A:        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
-B:        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
-C:        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
-D:        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
-**NAMES** 0         1         2         3         4         5         6         7         8         9         10        11        12        13        14        15        
-A:        a0        a1        a2        a3        a4        a5        a6        a7        a8        a9        a10       a11       a12       a13       a14       a15       
-         B:        b0        b1        b2        b3        b4        b5        b6        b7        b8        b9        b10       b11       b12       b13       b14       b15       
-         C:        c0        c1        c2        c3        c4        c5        c6        c7        c8        c9        c10       c11       c12       c13       c14       c15       
-         D:        d0        d1        d2        d3        d4        d5        d6        d7        d8        d9        d10       d11       d12       d13       d14       d15       
-         
-
-DAC Settings:
-VALUES    
-1: 0.000000  2: 0.000000  3: 0.000000  4: 0.000000  5: 0.000000  6: 0.000000  7: 0.000000  8: 0.000000  
-9: 0.000000  10:0.000000  11:0.000000  12:0.000000  13:0.000000  14:0.000000  15:0.000000  16:0.000000  
-17:0.000000  18:0.000000  19:0.000000  20:0.000000  21:0.000000  22:0.000000  23:0.000000  24:0.000000  
-NAMES    
-1: dac0      2: dac1      3: dac2      4: dac3      5: dac4      6: dac5      7: dac6      8: dac7      
-9: dac8      10:dac9      11:dac10     12:dac11     13:dac12     14:dac13     15:dac14     16:dac15     
-17:dac16     18:dac17     19:dac18     20:dac19     21:dac20     22:dac21     23:dac22     24:dac23     
-
-Master Script:
-t = 1
-t += 500
-dac: dac1 1
-dac: dac2 0
-call func()
-dacramp: dac0 0 1 0.1 0.1
-
-
-Repetitions: 100
-
-Variables: 
-
-Error Status:
-
-******************************
-
-
-General Status:
-
-******************************
-............................
-Checking if Ready...
-Starting Experiment Thread...
-An experiment ran at (y-m-d h:m:s)2017-7-3, 3:38:52 with the following parameters:
-==========================================================================================
-TTL Settings:
-**VALUES**0         1         2         3         4         5         6         7         8         9         10        11        12        13        14        15        
-A:        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
-B:        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
-C:        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
-D:        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
-**NAMES** 0         1         2         3         4         5         6         7         8         9         10        11        12        13        14        15        
-A:        a0        a1        a2        a3        a4        a5        a6        a7        a8        a9        a10       a11       a12       a13       a14       a15       
-         B:        b0        b1        b2        b3        b4        b5        b6        b7        b8        b9        b10       b11       b12       b13       b14       b15       
-         C:        c0        c1        c2        c3        c4        c5        c6        c7        c8        c9        c10       c11       c12       c13       c14       c15       
-         D:        d0        d1        d2        d3        d4        d5        d6        d7        d8        d9        d10       d11       d12       d13       d14       d15       
-         
-
-DAC Settings:
-VALUES    
-1: 0.000000  2: 0.000000  3: 0.000000  4: 0.000000  5: 0.000000  6: 0.000000  7: 0.000000  8: 0.000000  
-9: 0.000000  10:0.000000  11:0.000000  12:0.000000  13:0.000000  14:0.000000  15:0.000000  16:0.000000  
-17:0.000000  18:0.000000  19:0.000000  20:0.000000  21:0.000000  22:0.000000  23:0.000000  24:0.000000  
-NAMES    
-1: dac0      2: dac1      3: dac2      4: dac3      5: dac4      6: dac5      7: dac6      8: dac7      
-9: dac8      10:dac9      11:dac10     12:dac11     13:dac12     14:dac13     15:dac14     16:dac15     
-17:dac16     18:dac17     19:dac18     20:dac19     21:dac20     22:dac21     23:dac22     24:dac23     
-
-Master Script:
-t = 1
-t += 500
-dac: dac1 1
-dac: dac2 0
-call func()
-dacramp: dac10 0 1 0.1 0.1
-
-
-Repetitions: 100
-
-Variables: 
-
-Error Status:
-
-******************************
-
-
-General Status:
-
-******************************
-Can't pause, experiment was not running.
-............................
-Checking if Ready...
-Starting Experiment Thread...
-An experiment ran at (y-m-d h:m:s)2017-7-3, 3:41:27 with the following parameters:
-==========================================================================================
-TTL Settings:
-**VALUES**0         1         2         3         4         5         6         7         8         9         10        11        12        13        14        15        
-A:        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
-B:        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
-C:        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
-D:        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
-**NAMES** 0         1         2         3         4         5         6         7         8         9         10        11        12        13        14        15        
-A:        a0        a1        a2        a3        a4        a5        a6        a7        a8        a9        a10       a11       a12       a13       a14       a15       
-         B:        b0        b1        b2        b3        b4        b5        b6        b7        b8        b9        b10       b11       b12       b13       b14       b15       
-         C:        c0        c1        c2        c3        c4        c5        c6        c7        c8        c9        c10       c11       c12       c13       c14       c15       
-         D:        d0        d1        d2        d3        d4        d5        d6        d7        d8        d9        d10       d11       d12       d13       d14       d15       
-         
-
-DAC Settings:
-VALUES    
-1: 0.000000  2: 0.000000  3: 0.000000  4: 0.000000  5: 0.000000  6: 0.000000  7: 0.000000  8: 0.000000  
-9: 0.000000  10:0.000000  11:0.000000  12:0.000000  13:0.000000  14:0.000000  15:0.000000  16:0.000000  
-17:0.000000  18:0.000000  19:0.000000  20:0.000000  21:0.000000  22:0.000000  23:0.000000  24:0.000000  
-NAMES    
-1: dac0      2: dac1      3: dac2      4: dac3      5: dac4      6: dac5      7: dac6      8: dac7      
-9: dac8      10:dac9      11:dac10     12:dac11     13:dac12     14:dac13     15:dac14     16:dac15     
-17:dac16     18:dac17     19:dac18     20:dac19     21:dac20     22:dac21     23:dac22     24:dac23     
-
-Master Script:
-t = 1
-t += 500
-dac: dac1 1
-dac: dac2 0
-call func()
-dacramp: dac10 0 1 0.1 0.1
-
-
-Repetitions: 100
-
-Variables: 
-
-Error Status:
-
-******************************
-
-
-General Status:
-
-******************************
-Can't pause, experiment was not running.
-............................
-Checking if Ready...
-Starting Experiment Thread...
-Loading Key...Done.
-Exporting Key...Done.
-NOT Connecting to NIAWG.
-Loading Agilent Info...Analyzing Master Script...Done.
-Variation #1
-Loading Key & Analyzing Script Data...
-Programming Hardware...
-Total Repetition time: 502.110400
-Total Experiment time: 50211.040000
-Repetition...8
-ABORTED!
 ............................
 Checking if Ready...
 Starting Experiment Thread...
