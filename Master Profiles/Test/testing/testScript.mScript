@@ -1,0 +1,9 @@
+t = 1
+t += 500
+dac: dac1 1
+dac: dac2 0
+call func()
+dacramp: dac10 0 1 0.1 0.1
+on: A0
+t += variable
+off: A0

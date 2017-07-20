@@ -36,62 +36,8 @@ Bugs
 
 Other Changes
 - Update TTL dialog procedure to MFC
+- update other dialog procedures to MFC
 
 ################################
 ### Finished ###
 ################################
-
-Features
-- created rudimentary default script.
-- check save before exit
-- When setting parameter for variable, the variable name appears in the dialog so that the user can be sure that 
-	they are setting the right thing.
-- "New function" script menu option allows writing a new function without losing a parent script.
-- keeps track of the function call stack throughout functions.
-- always triggers oscilloscope at end of experiment. this also takes care of the issue where times added at the end 
-	didn't do anything because there weren't any ttl events associated with the new time.
-- Now greys out certain controls when experiment/category/config has yet to be selected.
-- repetitions is now just a label and an edit.
-- Handling repetition updates better as a seperate control.
-- Real PGC Cooling has now been tested.
-- hotkey for pause.
-- Make "active" and "inactive" global variables
-	- make it possible to run through the analysis routine without running experiment to see what variables are active.
-	- Add custom colorings for different states
-	https://www.codeproject.com/Articles/79/Neat-Stuff-to-Do-in-List-Controls-Using-Custom-Dra	
-- outputs debug info to text file.
-- Now makes use of the "Solarized" Syntax coloring scheme.
-- Loading Atoms & Imaging them has been tested
-- MOT field scans & MOT Fill time scans now tested
-- Dac Dialog has been updated to MFC
-- "Quiet" mode which outputs less to the main status.
-- t is now white (color coding)
-- randomizing the variation order is now an option
-- Better warning handling, especially for the dacramp warnings.
-- Now supports math in scripts
-	- math with variables
-	- update color coding
- - Catches negative times.
- - Be able to set whether boundaries on variable ranges are inclusive or exclusive.
-
-Bugs
-- Enter doesn't crash program
-- After prompt to save script before starting, selecting "cancel" doesn't cancel.
-- After "Rename config", the config name is set to blank.
-- make sure local variables can over-write globals if you need to scan a global variable.
-- warning if the user save a function as a .mscript.
-- On New script, the combo automatically switches to parent.
-- fixed bug where crashed if no dac events because trying to set final dac values.
-- Fixed crashing on F1 due to not setting repControl during turnonmot calling procedure.
-- filename text for script changed to normal text from heading.
-- Fixed dacramp rounding & final data point issues
-- Fixed Configs needing re-saving after just opening program and closing.
-- Eating zeros better in dac controls.
-- fixed showing "repetition..." after unpause.
-- Fixed fractional time bug
-- found temporary solution to dac timing issue: more dense dac ramps.
-- New Tektronics generators control, allows more freedom in setting tektronics stuffs.
-- With new controls, tek generators are off by default as they should be.
-- eat zeros in variable values
-- fixed repetition setting bug
-- All ttls and dacs are now disabled during experiment
