@@ -4,7 +4,7 @@
 #include "viewAndChangeTTL_NamesProcedure.h"
 #include "Control.h"
 #include <array>
-#include "TTL_System.h"
+#include "TtlSystem.h"
 
 INT_PTR CALLBACK viewAndChangeTTL_NamesProcedure(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {

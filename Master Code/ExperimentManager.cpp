@@ -2,8 +2,8 @@
 #include "ExperimentManager.h"
 #include "nidaqmx2.h"
 #include <fstream>
-#include "TTL_System.h"
-#include "DAC_System.h"
+#include "TtlSystem.h"
+#include "DacSystem.h"
 #include "constants.h"
 #include "MasterWindow.h"
 
@@ -15,55 +15,51 @@ ExperimentManager::ExperimentManager()
 
 UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 {
-	
 	// convert it to the correct structure.
 	ExperimentThreadInput* input = (ExperimentThreadInput*)rawInput;
 	input->thisObj->experimentIsRunning = true;
 	SocketWrapper socket;
+	std::string warnings;
 	try
 	{
-		input->status->addStatusText( "Loading Key...", 0 );
+		expUpdate("Handling Key", input->status, input->quiet);
 		// load the variables.
 		input->key->loadVariables( input->vars );
-		// create the key
+		// create the key. Happens only once.
 		input->key->generateKey();
-		input->status->addStatusText( "Done.\r\n", 0 );
-		input->status->addStatusText( "Exporting Key...", 0 );
 		input->key->exportKey();
-		input->status->addStatusText( "Done.\r\n", 0 );
+		expUpdate("Done.\r\n", input->status, input->quiet);
 		// connect to the niawg program.
 		if ( input->connectToNIAWG )
 		{
 			// must initialize socket inside the thread.
-			input->status->addStatusText( "Initializing Socket...", 0 );
+			expUpdate("Initializing Socket...", input->status, input->quiet);
 			socket.initialize();
-			input->status->addStatusText( "Done.!\r\n", 0 );
-
-			input->status->addStatusText( "Connecting to NIAWG...", 0 );
+			expUpdate("Done.\r\n", input->status, input->quiet);
+			expUpdate("Connecting to NIAWG...", input->status, input->quiet);
 			socket.connect();
-			input->status->addStatusText( "Done.!\r\n", 0 );
+			expUpdate("Done.", input->status, input->quiet);
 		}
 		else
 		{
-			input->status->addStatusText( "NOT Connecting to NIAWG.\r\n", 0 );
+			expUpdate("NOT Connecting to NIAWG.\r\n", input->status, input->quiet);
 		}
-
-		input->status->addStatusText( "Loading Agilent Info...", 0 );
+		expUpdate("Loading Agilent Info...", input->status, input->quiet);
 		for (auto agilent : input->agilents)
 		{
 			agilent->handleInput();
 		}
-		input->status->addStatusText( "Analyzing Master Script...", 0 );
+		expUpdate("Analyzing Master Script...", input->status, input->quiet);
 		// analyze the master script.
 		std::vector<std::pair<unsigned int, unsigned int>> ttlShadeLocations;
 		std::vector<unsigned int> dacShadeLocations;
-		std::array<std::string, 3> ramanFrequencies;
+		//tektronicsInfo tektronicsSettings;
 		input->dacs->resetDACEvents();
 		input->ttls->resetTTLEvents();
 		input->rsg->clearFrequencies();
 		input->thisObj->loadVariables( input->vars );
-		input->thisObj->analyzeCurrentMasterScript( input->ttls, input->dacs, ttlShadeLocations, dacShadeLocations, input->rsg, ramanFrequencies );
-		input->status->addStatusText( "Done.\r\n", 0 );
+		input->thisObj->analyzeMasterScript( input->ttls, input->dacs, ttlShadeLocations, dacShadeLocations, input->rsg);
+		expUpdate("Done.\r\n", input->status, input->quiet);
 		// update ttl and dac looks & interaction based on which ones are used in the experiment.
 		input->ttls->shadeTTLs( ttlShadeLocations );
 		input->dacs->shadeDacs( dacShadeLocations );
@@ -86,7 +82,7 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 		// go ahead and check if abort was pressed real fast...
 		if ( input->thisObj->isAborting )
 		{
-			input->status->addStatusText( "\r\nABORTED!\r\n", 0 );
+			expUpdate("\r\nABORTED!\r\n", input->status, input->quiet);
 			return 0;
 		}
 
@@ -105,7 +101,7 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 		// loop for variations
 		for (int varInc = 0; varInc < variations; varInc++)
 		{
-			input->status->addStatusText( "Variation #" + std::to_string( varInc + 1 ) + "\r\n", 0 );
+			expUpdate("Variation #" + std::to_string(varInc + 1) + "\r\n", input->status, input->quiet);
 			for (auto var : input->key->getKey())
 			{
 				// if varies...
@@ -115,26 +111,37 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 					{
 						thrower("ERROR: Variable " + var.first + " varies, but has no values assigned to it!");
 					}
-					input->status->addStatusText( var.first + ": " + std::to_string( var.second.first[varInc] ) + "\r\n", 0 );
+					expUpdate(var.first + ": " + std::to_string(var.second.first[varInc]) + "\r\n", input->status, 
+							  input->quiet);
 				}
 			}
 			// update things based on the new key value.
-			input->status->addStatusText( "Loading Key & Analyzing Script Data...\r\n", 0 );
-			input->dacs->interpretKey( input->key->getKey(), varInc, input->vars );
+			expUpdate("Loading Key & Analyzing Script Data...\r\n", input->status, input->quiet);
+			input->dacs->interpretKey( input->key->getKey(), varInc, input->thisObj->variables, warnings);
 			input->dacs->analyzeDAC_Commands();
 
 			// must interpret key before setting the trigger events.
-			input->ttls->interpretKey( input->key->getKey(), varInc );
+			input->ttls->interpretKey( input->key->getKey(), varInc, input->thisObj->variables);
 			input->dacs->setDacTtlTriggerEvents(input->ttls);
-			input->rsg->interpretKey( input->key->getKey(), varInc );
-			std::array<double, 3> freqs = input->gpibHandler->interpretKeyForRaman( ramanFrequencies, input->key->getKey(), varInc );
+			input->rsg->interpretKey( input->key->getKey(), varInc, input->thisObj->variables);
+			input->gpib->interpretKeyForTektronics(input->tektronics1, input->key->getKey(), varInc, 
+												   input->thisObj->variables);
+			input->gpib->interpretKeyForTektronics(input->tektronics2, input->key->getKey(), varInc, 
+												   input->thisObj->variables);
 			// prepare dac and ttls. data to final forms.
 			input->dacs->makeFinalDataFormat();
 			input->ttls->analyzeCommandList();
 			input->ttls->convertToFinalFormat();
-
+			if (input->ttls->countDacTriggers() != input->dacs->getNumberSnapshots())
+			{
+				thrower("ERROR: number of dac triggers from the ttl system does not match the number of dac snapshots!"
+						" Number of dac triggers was " + str(input->ttls->countDacTriggers()) + " while number of dac "
+						"snapshots was " + str(input->dacs->getNumberSnapshots()));
+			}
+			// no quiet on warnings.
+			expUpdate(warnings, input->status);
 			// program devices
-			input->status->addStatusText( "Programming Hardware...\r\n", 0 );
+			expUpdate( "Programming Hardware...\r\n", input->status, input->quiet );
 			for (auto& agilent : input->agilents)
 			{
 				if (!agilent->connected())
@@ -172,26 +179,57 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 					}
 				}
 			}
-
-			input->gpibHandler->programRamanFGs( freqs[0], freqs[1], freqs[2] );
+			input->gpib->programTektronixs(input->tektronics1);
+			input->gpib->programTektronixs(input->tektronics2);
 			input->rsg->orderEvents();
-			input->rsg->programRSG( input->gpibHandler );
+			input->rsg->programRSG( input->gpib );
 			input->rsg->setInfoDisp();
+
+			// some last cosmetic things
+			input->globalControl->setUsages(input->thisObj->variables);
 
 			if ( input->debugOptions.showTtls )
 			{
-				input->status->addStatusText(input->ttls->getTtlSequenceMessage(), 0);
+				// output to status
+				input->status->addStatusText(input->ttls->getTtlSequenceMessage());
+				// output to debug file
+				std::ofstream debugFile((DEBUG_OUTPUT_LOCATION + std::string("TTL-Sequence.txt")).c_str(), 
+										std::ios_base::app);
+				if (debugFile.is_open())
+				{
+					debugFile << input->ttls->getTtlSequenceMessage();
+					debugFile.close();
+				}
+				else
+				{
+					expUpdate( "ERROR: Debug text file failed to open! Continuing...\r\n", input->status, 
+							   input->quiet );
+				}
 			}
 			if ( input->debugOptions.showDacs )
 			{
-				input->status->addStatusText( input->dacs->getDacSequenceMessage(), 0);
+				// output to status
+				input->status->addStatusText( input->dacs->getDacSequenceMessage());
+				// output to debug file.
+				std::ofstream  debugFile((DEBUG_OUTPUT_LOCATION + std::string("DAC-Sequence.txt")).c_str(),
+									   std::ios_base::app);
+				if (debugFile.is_open())
+				{
+					debugFile << input->dacs->getDacSequenceMessage();
+					debugFile.close();
+				}
+				else
+				{
+					input->error->addStatusText("ERROR: Debug text file failed to open! Continuing...\r\n");
+				}
 			}
-
-			input->status->addStatusText( "Total Repetition time: " + std::to_string( input->ttls->getTotalTime() ) + "\r\n", 0 );
-			input->status->addStatusText( "Total Experiment time: " + std::to_string( input->ttls->getTotalTime() * input->repetitions * variations ) + "\r\n", 0 );
-			// loop for repetitions
-			input->status->addStatusText( "Repetition...", 0 );
-			for ( int repInc = 0; repInc < input->repetitions; repInc++ )
+			expUpdate("Total Repetition time: " + std::to_string(input->ttls->getTotalTime()) + "\r\n", input->status,
+					  input->quiet);
+			expUpdate("Total Experiment time: " + std::to_string(input->ttls->getTotalTime() * input->repetitionNumber 
+					  * variations) + "\r\n", input->status, input->quiet);
+			// loop for repetitionNumber
+			input->repControl->updateNumber(0);
+			for ( int repInc = 0; repInc < input->repetitionNumber; repInc++ )
 			{
 				// reading these variables should be safe.
 				if ( input->thisObj->isAborting )
@@ -200,20 +238,16 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 				}
 				else if ( input->thisObj->isPaused )
 				{
-					input->status->addStatusText( "\r\nPaused!\r\n...", 0 );
+					expUpdate("\r\nPaused!\r\n...", input->status, input->quiet);
 					// wait...
 					while ( input->thisObj->isPaused )
 					{
 						// this could be changed to be a bit smarter I think.
 						Sleep( 100 );
 					}
-					input->status->addStatusText( "\r\nUn-Paused!\r\nRepetition.....", 0 );
+					expUpdate("\r\nUn-Paused!\r\n", input->status, input->quiet);
 				}
-				if ( repInc != 0 )
-				{
-					input->status->deleteChars( std::to_string( repInc ).size() );
-				}
-				input->status->addStatusText( std::to_string(repInc + 1), 0 );
+				input->repControl->updateNumber(repInc + 1);
 				// this apparently needs to be re-written each time from looking at the VB6 code.
 				input->dacs->stopDacs();
 				input->dacs->configureClocks();
@@ -224,16 +258,24 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 				// wait until finished.
 				input->ttls->waitTillFinished();
 			}
-			input->status->addStatusText( "\r\n", 0 );
+			expUpdate("\r\n", input->status, input->quiet);
 		}
 		// do experiment stuff...
-		input->status->addStatusText( "\r\nExperiment Finished Normally.\r\n", 0 );
+		expUpdate("\r\nExperiment Finished Normally.\r\n", input->status, input->quiet);
 		// this is necessary. If not, the dac system will still be "running" and won't allow updates through normal 
 		// means.
 		input->dacs->stopDacs();
 		input->dacs->unshadeDacs();
 		// make sure the display accurately displays the state that the experiment finished at.
-		input->dacs->setDacStatusNoForceOut(input->dacs->getFinalSnapshot());
+		try
+		{
+			// it's possible to run experiments without dacs.
+			input->dacs->setDacStatusNoForceOut(input->dacs->getFinalSnapshot());
+		}
+		catch (Error& err)
+		{
+			// this gets thrown if no dac events. just continue.
+		}
 
 		input->ttls->unshadeTTLs();
 		input->ttls->setTtlStatusNoForceOut(input->ttls->getFinalSnapshot());
@@ -242,10 +284,11 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 	{
 		if ( input->thisObj->isAborting )
 		{
-			input->status->addStatusText( "\r\nABORTED!\r\n", 0 );
+			expUpdate("\r\nABORTED!\r\n", input->status, input->quiet);
 		}
 		else
 		{
+			// No quiet option for a bad exit.
 			input->status->addStatusText( "Bad Exit!\r\n", 0 );
 			input->error->addStatusText( exception.what(), 0 );
 		}
@@ -276,22 +319,27 @@ void ExperimentManager::loadMotSettings(MasterWindow* master)
 		thrower( "Experiment is Running! Please abort the current run before setting the MOT settings." );
 	}
 	ExperimentThreadInput* input = new ExperimentThreadInput;
+	input->quiet = true;
 	input->ttls = &master->ttlBoard;
 	input->dacs = &master->dacBoards;
+	input->globalControl = &master->globalVariables;
 	// don't get configuration variables. The MOT shouldn't depend on config variables.
 	input->vars = master->globalVariables.getEverything();
 	// Only set it once, clearly.
-	input->repetitions = 1;
+	input->repetitionNumber = 1;
+	input->repControl = &master->repetitionControl;
 	input->thisObj = this;
 	input->status = &master->generalStatus;
 	input->error = &master->errorStatus;
 	input->key = &master->masterKey;
 	input->masterScriptAddress = MOT_ROUTINE_ADDRESS;
 	input->rsg = &master->RhodeSchwarzGenerator;
-	input->gpibHandler = &master->gpibHandler;
+	input->gpib = &master->gpib;
 	input->debugOptions = master->debugControl.getOptions();
 	input->agilents.push_back( &master->topBottomAgilent );
 	input->agilents.push_back( &master->uWaveAxialAgilent );
+	input->tektronics1 = master->tektronics1.getSettings();
+	input->tektronics2 = master->tektronics2.getSettings();
 
 	// don't load, leave whatever the user is working with on the screen.
 	// no logging needed for simple mot load.
@@ -305,39 +353,66 @@ void ExperimentManager::loadMotSettings(MasterWindow* master)
 	runningThread = AfxBeginThread(experimentThreadProcedure, input);	
 }
 
+
 void ExperimentManager::startExperimentThread(MasterWindow* master)
 {
 	if ( experimentIsRunning )
 	{
-		thrower( "Experiment is already Running!  You can only run one experiment at a time!" );
+		thrower( "Experiment is already Running!  You can only run one experiment at a time! Please abort before "
+				"running again." );
 	}
 	ExperimentThreadInput* input = new ExperimentThreadInput;
+	input->quiet = false;
 	input->ttls = &master->ttlBoard;
 	input->dacs = &master->dacBoards;
-	input->vars = master->configVariables.getEverything();
+	input->globalControl = &master->globalVariables;
+	// load the variables. This little loop is for letting configuration variables overwrite the globals.
+	std::vector<variable> configVars = master->configVariables.getEverything();
 	std::vector<variable> globals = master->globalVariables.getEverything();
+	std::vector<variable> experimentVars = configVars;
+	for (auto& globalVar : globals)
+	{
+		globalVar.overwritten = false;
+		bool nameExists = false;
+		for (auto& configVar : experimentVars)
+		{
+			if (configVar.name == globalVar.name)
+			{
+				globalVar.overwritten = true;
+				configVar.overwritten = true;
+			}
+		}
+		if (!globalVar.overwritten)
+		{
+			experimentVars.push_back(globalVar);			
+		}
+	}
+	input->vars = experimentVars;
+	master->globalVariables.setUsages(globals);
 	// it's only necessary to add the two sets of variables together at this 
 	// point. They are not treated differently by the analysis.
-	input->vars.insert( input->vars.end(), globals.begin(), globals.end());
-	input->repetitions = master->repetitionControl.getRepetitionNumber();
+	//input->vars.insert( input->vars.end(), globals.begin(), globals.end());
+	input->repetitionNumber = master->repetitionControl.getRepetitionNumber();
+	input->repControl = &master->repetitionControl;
 	input->thisObj = this;
 	input->status = &master->generalStatus;
 	input->error = &master->errorStatus;
 	input->key = &master->masterKey;
 	input->masterScriptAddress = master->profile.getMasterAddressFromConfig();
 	input->rsg = &master->RhodeSchwarzGenerator;
-	input->gpibHandler = &master->gpibHandler;
+	input->gpib = &master->gpib;
 	input->debugOptions = master->debugControl.getOptions();
 	input->agilents.push_back( &master->topBottomAgilent );
 	input->agilents.push_back( &master->uWaveAxialAgilent );
+	input->tektronics1 = master->tektronics1.getSettings();
+	input->tektronics2 = master->tektronics2.getSettings();
 
 	loadMasterScript(master->profile.getMasterAddressFromConfig());
 	master->logger.generateLog(master);
 	master->logger.exportLog();
-	// TODO: Make a control for this.
+	// TODO: Make a control for this?
 	input->connectToNIAWG = false;
 	input->niawgSocket = &master->niawgSocket;
-	// gather parameters.
 	// start thread.
 	runningThread = AfxBeginThread(experimentThreadProcedure, input);
 }
@@ -392,23 +467,25 @@ void ExperimentManager::loadMasterScript(std::string scriptAddress)
 	// dump the file into the stringstream.
 	std::stringstream buf( std::ios_base::app | std::ios_base::out | std::ios_base::in );
 	buf << scriptFile.rdbuf();
+	// IMPORTANT!
+	// always pulses the oscilloscope trigger at the end!
+	buf << "\r\n t += 0.1 \r\n pulseon: " + std::string(OSCILLOSCOPE_TRIGGER) + " 0.5";
 	// this is used to more easily deal some of the analysis of the script.
 	buf << "\r\n\r\n__END__";
 	// for whatever reason, after loading rdbuf into a stringstream, the stream seems to not 
 	// want to >> into a string. tried resetting too using seekg, but whatever, this works.
 	currentMasterScript.str("");
-	//this->currentMasterScript = std::stringstream(buf.str());
+	//currentMasterScript = std::stringstream(buf.str());
 	currentMasterScript.str( buf.str());
 	currentMasterScript.clear();
 	currentMasterScript.seekg(0);
-	//std::string str(this->currentMasterScript.str());
+	//std::string str(currentMasterScript.str());
 	scriptFile.close();
 }
 
 void ExperimentManager::loadVariables(std::vector<variable> newVariables)
 {
-	this->variables = newVariables;
-	return;
+	variables = newVariables;
 }
 
 // makes sure formatting is correct, returns the arguments and the function name from reading the firs real line of a function file.
@@ -494,13 +571,11 @@ void ExperimentManager::analyzeFunctionDefinition(std::string defLine, std::stri
 
 void ExperimentManager::analyzeFunction(std::string function, std::vector<std::string> args, TtlSystem* ttls, DacSystem* dacs, 
 										std::vector<std::pair<unsigned int, unsigned int>>& ttlShades, 
-										std::vector<unsigned int>& dacShades, RhodeSchwarz* rsg, 
-										std::array<std::string, 3>& ramanFreqs)
+										std::vector<unsigned int>& dacShades, RhodeSchwarz* rsg)
 {
 	/// load the file
 	std::fstream functionFile;
 	// check if file address is good.
-
 	FILE *file;
 	fopen_s( &file, (FUNCTIONS_FOLDER_LOCATION + function + FUNCTION_EXTENSION).c_str(), "r" );
 	if ( !file )
@@ -575,26 +650,12 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 				functionStream >> time;
 				try
 				{
-					operationTime.second += std::stoi(time);
+					operationTime.second += reduce(time);
 				}
 				catch (std::invalid_argument &exception)
 				{
-					// check if it's a variable.
-					bool isVar = false;
-					for (int varInc = 0; varInc < variables.size(); varInc++)
-					{
-						if (variables[varInc].name == time)
-						{
-							isVar = true;
-							operationTime.first.push_back( time );
-							break;
-						}
-					}
-					if (!isVar)
-					{
-						thrower("ERROR: tried and failed to convert " + time + " to an integer for a time += command.");
-						return;
-					}
+					// Assume it's an expression with variables, to be evaluated later.
+					operationTime.first.push_back(time);
 				}
 			}
 			else if (command == "=")
@@ -602,33 +663,29 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 				functionStream >> time;
 				try
 				{
-					operationTime.second = std::stoi(time);
+					operationTime.second = reduce(time);
 				}
 				catch (std::invalid_argument &exception)
 				{
+					operationTime.first.push_back(time);
+
 					// check if it's a variable.
 					bool isVar = false;
 					for (int varInc = 0; varInc < variables.size(); varInc++)
 					{
-						if (variables[varInc].name == time)
-						{
-							isVar = true;
-							operationTime.first.push_back(time);
-							// because it's an equals. There shouldn't be anything added on to this value. 
-							// This should reset all times after this one to be relative to the = variable.
-							operationTime.second = 0;
-							break;
-						}
+						// assume it's an expression with a variable to be evaluated later
+						
 					}
 					if (!isVar)
 					{
-						thrower("ERROR: tried and failed to convert " + time + " to an integer for a time += command.");
+						thrower("ERROR: tried and failed to convert " + time + " to an integer for a time += command.\r\n");
 					}
 				}
 			}
 			else
 			{
-				thrower("ERROR: unrecognized time operator: " + command + ". Expected operators are \"++\", \"+=\", and \"=\"");
+				thrower("ERROR: unrecognized time operator: " + command + ". Expected operators are \"++\", \"+=\", "
+						"and \"=\"\r\n");
 			}
 		}
 		else if (word == "t++")
@@ -652,6 +709,7 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 					if (variables[varInc].name == time)
 					{
 						isVar = true;
+						variables[varInc].active = true;
 						operationTime.first.push_back(time);
 						break;
 					}
@@ -679,6 +737,7 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 					if (variables[varInc].name == time)
 					{
 						isVar = true;
+						variables[varInc].active = true;
 						operationTime.first.push_back(time);
 						// because it's equals. There shouldn't be any extra terms added to this now.
 						operationTime.second = 0;
@@ -702,7 +761,7 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 		{
 			std::string name;
 			functionStream >> name;
-			ttls->handleTTL_ScriptCommand( word, operationTime, name, ttlShades );
+			ttls->handleTtlScriptCommand( word, operationTime, name, ttlShades );
 		}
 		else if (word == "pulseon:" || word == "pulseoff:")
 		{
@@ -711,30 +770,8 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 			std::string pulseLength;
 			functionStream >> name;
 			functionStream >> pulseLength;
-			bool isVar = false;
-			try
-			{
-				double test = std::stod( pulseLength );
-			}
-			catch(std::invalid_argument&)
-			{
-				for (int varInc = 0; varInc < variables.size(); varInc++)
-				{
-					if (variables[varInc].name == pulseLength)
-					{
-						isVar = true;
-						// then it will parse okay.
-						break;
-					}
-				}
-				if (!isVar)
-				{
-					thrower( "ERROR: tried and failed to convert " + pulseLength + " to an integer for a pulse command." );
-					return;
-				}
-			}
 			// should be good to go.
-			ttls->handleTTL_ScriptCommand( word, operationTime, name, pulseLength, ttlShades );
+			ttls->handleTtlScriptCommand( word, operationTime, name, pulseLength, ttlShades );
 		}
 
 		/// deal with dac commands
@@ -746,7 +783,7 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 			functionStream >> value;
 			try
 			{
-				dacs->handleDAC_ScriptCommand(operationTime, name, "__NONE__", value, "0", "__NONE__", dacShades, variables, ttls);
+				dacs->handleDacScriptCommand(operationTime, name, "__NONE__", value, "0", "__NONE__", dacShades, variables, ttls);
 			}
 			catch (Error& err)
 			{
@@ -769,7 +806,7 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 			//
 			try
 			{
-				dacs->handleDAC_ScriptCommand(operationTime, name, initVal, finalVal, rampTime, rampInc, dacShades, variables, ttls);
+				dacs->handleDacScriptCommand(operationTime, name, initVal, finalVal, rampTime, rampInc, dacShades, variables, ttls);
 			}
 			catch (Error& err)
 			{
@@ -783,132 +820,10 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 			functionStream >> info.frequency;
 			functionStream >> info.power;
 			// test frequency
-			try
-			{
-				double test = std::stod( info.frequency );
-			}
-			catch (std::invalid_argument&)
-			{
-				bool isVar = false;
-				for (int varInc = 0; varInc < variables.size(); varInc++)
-				{
-					if (variables[varInc].name == info.frequency)
-					{
-						isVar = true;
-						break;
-					}
-				}
-				if (!isVar)
-				{
-					thrower("ERROR: Argument " + info.frequency + " is not a double or a variable name. Can't program the RSG "
-							 "using this.");
-				}
-			}
-			// test power
-			try
-			{
-				double test = std::stod( info.power );
-			}
-			catch (std::invalid_argument&)
-			{
-				bool isVar = false;
-				for (int varInc = 0; varInc < variables.size(); varInc++)
-				{
-					if (variables[varInc].name == info.power)
-					{
-						isVar = true;
-						break;
-					}
-				}
-				if (!isVar)
-				{
-					thrower( "ERROR: Argument " + info.power + " is not a double or a variable name. Can't program the RSG "
-							 "using this." );
-				}
-			}
 			info.time = operationTime;
 			rsg->addFrequency( info );
 			// set up a trigger for this event.
-			ttls->handleTTL_ScriptCommand( "pulseon:", operationTime, rsg->getRsgTtl(), std::to_string(rsg->getTriggerTime()), ttlShades );
-		}
-		/// deal with raman calls (setting cooling frequencies)
-		else if (word == "raman:")
-		{
-			if (ramanFreqs[0] != "")
-			{
-				thrower("ERROR: you tried to set raman frequencies twice!");
-			}
-			std::string top, bottom, axial;
-			functionStream >> top;
-			functionStream >> bottom;
-			functionStream >> axial;
-			// deal with top frequency.
-			try
-			{
-				double topFreq = std::stod(top);
-			}
-			catch (std::invalid_argument&)
-			{
-				bool isVar = false;
-				for (int varInc = 0; varInc < variables.size(); varInc++)
-				{
-					if (variables[varInc].name == top)
-					{
-						isVar = true;
-						break;
-					}
-				}
-				if (!isVar)
-				{
-					thrower("ERROR: the string " + top + " is neither a double nor a variable!");
-				}
-			}
-			ramanFreqs[0] = top;
-
-			// deal with bottom frequency.
-			try
-			{
-				double bottomFreq = std::stod(bottom);
-			}
-			catch (std::invalid_argument&)
-			{
-				bool isVar = false;
-				for (int varInc = 0; varInc < variables.size(); varInc++)
-				{
-					if (variables[varInc].name == bottom)
-					{
-						isVar = true;
-						break;
-					}
-				}
-				if (!isVar)
-				{
-					thrower("ERROR: the string " + bottom + " is neither a double nor a variable!");
-				}
-			}
-			ramanFreqs[1] = bottom;
-			// deal with axial frequency.
-			try
-			{
-				double axialFreq = std::stod(axial);
-			}
-			catch (std::invalid_argument&)
-			{
-				bool isVar = false;
-				for (int varInc = 0; varInc < variables.size(); varInc++)
-				{
-					if (variables[varInc].name == axial)
-					{
-						isVar = true;
-						break;
-					}
-				}
-				if (!isVar)
-				{
-					thrower("ERROR: the string " + axial + " is neither a double nor a variable!");
-				}
-			}
-			ramanFreqs[2] = axial;
+			ttls->handleTtlScriptCommand( "pulseon:", operationTime, rsg->getRsgTtl(), std::to_string(rsg->getTriggerTime()), ttlShades );
 		}
 		/// deal with function calls.
 		else if (word == "call")
@@ -947,7 +862,16 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 			{
 				thrower( "ERROR: Recursive function call detected! " + function + " called itself! This is not allowed." );
 			}
-			analyzeFunction(functionName, newArgs, ttls, dacs, ttlShades, dacShades, rsg, ramanFreqs);
+			try
+			{
+				analyzeFunction(functionName, newArgs, ttls, dacs, ttlShades, dacShades, rsg);
+			}
+			catch (Error& err)
+			{
+				// the fact that each function call will re-throw with this will end up putting the whole function call
+				// stack onto the error message.
+				thrower(err.whatStr() + "... In function call to function " + functionName);
+			}
 		}
 		else if ( word == "repeat:" )
 		{
@@ -994,13 +918,14 @@ void ExperimentManager::analyzeFunction(std::string function, std::vector<std::s
 }
 
 
-void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* dacs, std::vector<std::pair<unsigned int, unsigned int>>& ttlShades, 
-												   std::vector<unsigned int>& dacShades, RhodeSchwarz* rsg, std::array<std::string, 3>& ramanFreqs)
+void ExperimentManager::analyzeMasterScript(TtlSystem* ttls, DacSystem* dacs, 
+											std::vector<std::pair<unsigned int, unsigned int>>& ttlShades, 
+											std::vector<unsigned int>& dacShades, RhodeSchwarz* rsg)
 {
 	// reset this.
 	currentMasterScriptText = currentMasterScript.str();
-
-	operationTime.second = 1;
+	// starts at 0.1 if not initialized by the user.
+	operationTime.second = 0.1;
 	operationTime.first.clear();
 	if (currentMasterScript.str() == "")
 	{
@@ -1011,6 +936,7 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 	std::vector<unsigned int > totalRepeatNum;
 	std::vector<unsigned int > currentRepeatNum;
 	std::vector<unsigned int > repeatPos;
+	// the analysis loop.
 	while (!(currentMasterScript.peek() == EOF) || word != "__end__")
 	{
 		std::stringstream individualCommandStream;
@@ -1033,25 +959,11 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 			currentMasterScript >> time;
 			try
 			{
-				operationTime.second += std::stoi(time);
+				operationTime.second += reduce(time);
 			}
-			catch (std::invalid_argument &exception)
+			catch (Error& exception)
 			{
-				// check if it's a variable.
-				bool isVar = false;
-				for (int varInc = 0; varInc < variables.size(); varInc++)
-				{
-					if (variables[varInc].name == time)
-					{
-						isVar = true;
-						operationTime.first.push_back(time);
-						break;
-					}
-				}
-				if (!isVar)
-				{
-					thrower("ERROR: tried and failed to convert " + time + " to an integer for a time += command.");
-				}
+				operationTime.first.push_back(time);
 			}
 		}
 		else if (word == "t=")
@@ -1060,32 +972,19 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 			currentMasterScript >> time;
 			try
 			{
-				operationTime.second = std::stoi(time);
-				if (operationTime.second < 1)
+				operationTime.second = reduce(time);
+				if (operationTime.second < 0.1)
 				{
 					thrower("ERROR: you attempted to set commands before the first 1 ms of the experiment. This time is"
 							"reserved by the code for initializing the dac state. Please start at 1ms.");
 				}
 			}
-			catch (std::invalid_argument &exception)
+			catch (Error& exception)
 			{
-				// check if it's a variable.
-				bool isVar = false;
-				for (int varInc = 0; varInc < variables.size(); varInc++)
-				{
-					if (variables[varInc].name == time)
-					{
-						isVar = true;
-						operationTime.first.push_back(time);
-						// because it's equals. There shouldn't be any extra terms added to this now.
-						operationTime.second = 0;
-						break;
-					}
-				}
-				if (!isVar)
-				{
-					thrower("ERROR: tried and failed to convert " + time + " to an integer for a time += command.");
-				}
+				// should I clear this?
+				operationTime.first.push_back(time);
+				// because it's equals. There shouldn't be any extra terms added to this now.
+				operationTime.second = 0;
 			}
 		}
 		/// callcppcode function
@@ -1099,7 +998,7 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 		{
 			std::string name;
 			currentMasterScript >> name;
-			ttls->handleTTL_ScriptCommand( word, operationTime, name, ttlShades );
+			ttls->handleTtlScriptCommand( word, operationTime, name, ttlShades );
 		}
 		else if (word == "pulseon:" || word == "pulseoff:")
 		{
@@ -1113,13 +1012,14 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 			{
 				double test = std::stod( pulseLength );
 			}
-			catch (std::invalid_argument&)
+			catch (Error&)
 			{
 				for (int varInc = 0; varInc < variables.size(); varInc++)
 				{
 					if (variables[varInc].name == pulseLength)
 					{
 						isVar = true;
+						variables[varInc].active = true;
 						// then it will parse okay.
 						break;
 					}
@@ -1130,7 +1030,7 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 				}
 			}
 			// should be good to go.
-			ttls->handleTTL_ScriptCommand( word, operationTime, name, pulseLength, ttlShades );
+			ttls->handleTtlScriptCommand( word, operationTime, name, pulseLength, ttlShades );
 		}
 
 		/// deal with dac commands
@@ -1141,7 +1041,8 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 			currentMasterScript >> dacVoltageValue;
 			try
 			{
-				dacs->handleDAC_ScriptCommand(operationTime, dacName, "__NONE__", dacVoltageValue, "0", "__NONE__", dacShades, variables, ttls);
+				dacs->handleDacScriptCommand(operationTime, dacName, "__NONE__", dacVoltageValue, "0", "__NONE__", 
+											  dacShades, variables, ttls);
 			}
 			catch (Error& err)
 			{
@@ -1163,7 +1064,7 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 			currentMasterScript >> rampInc;
 			try
 			{
-				dacs->handleDAC_ScriptCommand( operationTime, name, initVal, finalVal, rampTime, rampInc, dacShades, 
+				dacs->handleDacScriptCommand( operationTime, name, initVal, finalVal, rampTime, rampInc, dacShades, 
 											  variables, ttls );
 			}
 			catch (Error& err)
@@ -1182,7 +1083,7 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 			{
 				double test = std::stod( info.frequency );
 			}
-			catch (std::invalid_argument&)
+			catch (Error&)
 			{
 				bool isVar = false;
 				for (int varInc = 0; varInc < variables.size(); varInc++)
@@ -1190,6 +1091,7 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 					if (variables[varInc].name == info.frequency )
 					{
 						isVar = true;
+						variables[varInc].active = true;
 						break;
 					}
 				}
@@ -1204,7 +1106,7 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 			{
 				double test = std::stod( info.power );
 			}
-			catch (std::invalid_argument&)
+			catch (Error&)
 			{
 				bool isVar = false;
 				for (int varInc = 0; varInc < variables.size(); varInc++)
@@ -1212,6 +1114,7 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 					if (variables[varInc].name == info.power )
 					{
 						isVar = true;
+						variables[varInc].active = true;
 						break;
 					}
 				}
@@ -1224,87 +1127,9 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 			info.time = operationTime;
 
 			rsg->addFrequency( info );
-			ttls->handleTTL_ScriptCommand( "pulseon:", operationTime, rsg->getRsgTtl(), std::to_string( rsg->getTriggerTime() ), ttlShades );
+			ttls->handleTtlScriptCommand( "pulseon:", operationTime, rsg->getRsgTtl(), std::to_string( rsg->getTriggerTime() ), ttlShades );
 		}
 		/// deal with raman beam calls (setting raman frequency).
-		else if (word == "raman:")
-		{
-			if (ramanFreqs[0] != "")
-			{
-				thrower("ERROR: you tried to set raman frequencies twice!");
-			}
-			std::string top, bottom, axial;
-			this->currentMasterScript >> top;
-			this->currentMasterScript >> bottom;
-			this->currentMasterScript >> axial;
-			// deal with top frequency.
-			try
-			{
-				double topFreq = std::stod(top);
-			}
-			catch (std::invalid_argument&)
-			{
-				bool isVar = false;
-				for (int varInc = 0; varInc < variables.size(); varInc++)
-				{
-					if (variables[varInc].name == top)
-					{
-						isVar = true;
-						break;
-					}
-				}
-				if (!isVar)
-				{
-					thrower("ERROR: the string " + top + " is neither a double nor a variable!");
-				}
-			}
-			ramanFreqs[0] = top;
-
-			// deal with bottom frequency.
-			try
-			{
-				double bottomFreq = std::stod(bottom);
-			}
-			catch (std::invalid_argument&)
-			{
-				bool isVar = false;
-				for (int varInc = 0; varInc < variables.size(); varInc++)
-				{
-					if (variables[varInc].name == bottom)
-					{
-						isVar = true;
-						break;
-					}
-				}
-				if (!isVar)
-				{
-					thrower("ERROR: the string " + bottom + " is neither a double nor a variable!");
-				}
-			}
-			ramanFreqs[1] = bottom;
-			// deal with axial frequency.
-			try
-			{
-				double axialFreq = std::stod(axial);
-			}
-			catch (std::invalid_argument&)
-			{
-				bool isVar = false;
-				for (int varInc = 0; varInc < variables.size(); varInc++)
-				{
-					if (variables[varInc].name == axial)
-					{
-						isVar = true;
-						break;
-					}
-				}
-				if (!isVar)
-				{
-					thrower("ERROR: the string " + axial + " is neither a double nor a variable!");
-				}
-			}
-			ramanFreqs[2] = axial;
-		}
 		/// deal with function calls.
 		else if (word == "call")
 		{
@@ -1336,7 +1161,14 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 				// cut oinputut that argument off the string.
 				functionArgs = functionArgs.substr(pos + 1, functionArgs.size());
 			}
-			analyzeFunction(functionName, args, ttls, dacs, ttlShades, dacShades, rsg, ramanFreqs);
+			try
+			{
+				analyzeFunction(functionName, args, ttls, dacs, ttlShades, dacShades, rsg);
+			}
+			catch (Error& err)
+			{
+				thrower(err.whatStr() + "... In Function call to function " + functionName);
+			}
 		}
 		else if (word == "repeat:")
 		{
@@ -1344,14 +1176,14 @@ void ExperimentManager::analyzeCurrentMasterScript(TtlSystem* ttls, DacSystem* d
 			currentMasterScript >> repeatStr;
 			try
 			{
-				totalRepeatNum.push_back( std::stoi( repeatStr ) );
+				totalRepeatNum.push_back( reduce( repeatStr ) );
 			}
-			catch (std::invalid_argument&)
+			catch (Error&)
 			{
 				thrower("ERROR: the repeat number failed to convert to an integer! Note that the repeat number can not"
 						 " currently be a variable.");
 			}
-			repeatPos.push_back( this->currentMasterScript.tellg() );
+			repeatPos.push_back( currentMasterScript.tellg() );
 
 			currentRepeatNum.push_back(1);
 		}
@@ -1389,28 +1221,24 @@ std::string ExperimentManager::getErrorMessage(int errorCode)
 	char* errorChars;
 	long bufferSize;
 	long status;
-
-	//'Find out the error message length.
+	//Find out the error message length.
 	bufferSize = DAQmxGetErrorString(errorCode, 0, 0);
-	//'Allocate enough space in the string.
+	//Allocate enough space in the string.
 	errorChars = new char[bufferSize];
-	//'Get the actual error message.
+	//Get the actual error message.
 	status = DAQmxGetErrorString(errorCode, errorChars, bufferSize);
 	std::string errorString(errorChars);
+	delete errorChars;
 	return errorString;
 }
 
-
-
-
-
 /*
-this function can be called directly from scripts. Insert things inside the function to make it do something
-custom that's not possible inside the scripting language.
+	this function can be called directly from scripts. Insert things inside the function to make it do something
+	custom that's not possible inside the scripting language.
 */
 void ExperimentManager::callCppCodeFunction()
 {
-	operationTime.second += 5000;
+		
 }
 
 
@@ -1423,4 +1251,13 @@ bool ExperimentManager::isValidWord( std::string word )
 		return true;
 	}
 	return false;
+}
+
+// just a simple wrapper so that I don't have if (!quiet){ everywhere in the main thread.
+void ExperimentManager::expUpdate(std::string text, StatusControl* status, bool quiet)
+{
+	if (!quiet)
+	{
+		status->addStatusText(text, 0);
+	}
 }

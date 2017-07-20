@@ -19,7 +19,7 @@
 class MasterWindow;
 
 // this struct keeps variable names.
-struct TTL_CommandForm
+struct TtlCommandForm
 {
 	// the hardware location of this line
 	std::pair<unsigned int, unsigned int> line;
@@ -30,7 +30,7 @@ struct TTL_CommandForm
 };
 
 // no variables in this version. It's calculated each variation based on corresponding ComandForm structs.
-struct TTL_Command
+struct TtlCommand
 {
 	// the hardware location of this line
 	std::pair<unsigned int, unsigned int> line;
@@ -41,14 +41,13 @@ struct TTL_Command
 };
 
 // an object constructed for having all info the ttls for a single time
-struct TTL_Snapshot
+struct TtlSnapshot
 {
 	// the time of the snapshot
 	double time;
 	// all values at this time.
 	std::array< std::array<bool, 16>, 4 > ttlStatus;
 };
-
 
 typedef struct _DIO64STAT 
 {
@@ -94,6 +93,8 @@ class TtlSystem
 		std::array< std::array<bool, 16>, 4 > getFinalSnapshot();
 		void setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > status);
 
+		unsigned long countDacTriggers();
+
 		void rearrange(UINT width, UINT height, fontMap fonts);
 
 		void ttlOn(unsigned int row, unsigned int column, timeType time);
@@ -110,12 +111,12 @@ class TtlSystem
 		int TtlSystem::getNameIdentifier(std::string name, unsigned int& row, unsigned int& number);
 		bool getTTL_Status(int row, int number);
 		std::string getErrorMessage(int errorCode);
-		void handleTTL_ScriptCommand( std::string command, timeType time, std::string name,
+		void handleTtlScriptCommand( std::string command, timeType time, std::string name,
 									  std::vector<std::pair<unsigned int, unsigned int>>& ttlShadeLocations );
-		void handleTTL_ScriptCommand( std::string command, timeType time, std::string name,
+		void handleTtlScriptCommand( std::string command, timeType time, std::string name,
 									  std::string pulseLength,
 									  std::vector<std::pair<unsigned int, unsigned int>>& ttlShadeLocations );
-		void interpretKey(key variationKey, unsigned int variationNum);
+		void interpretKey(key variationKey, unsigned int variationNum, std::vector<variable>& vars);
 		void analyzeCommandList();
 		void convertToFinalFormat();
 		void writeData();
@@ -144,7 +145,7 @@ class TtlSystem
 		 * ttl class.
 		 * ***********************************************************************************************************
 		 */
-		
+		void handleInvert();
 		/// The following section holds the dio functions that I actually use!
 		void dioOpen( WORD board, WORD baseio );
 		void dioMode( WORD board, WORD mode );
@@ -176,14 +177,15 @@ class TtlSystem
 		std::array< std::array< Control<CButton>, 16 >, 4 > ttlPushControls;
 		std::array< Control<CStatic>, 16 > ttlNumberLabels;
 		std::array< Control<CStatic>, 4 > ttlRowLabels;
+		Control<CButton> newButton;
 		std::array< std::array<bool, 16>, 4 > ttlStatus;
 		std::array< std::array<bool, 16>, 4 > ttlShadeStatus;
 		std::array< std::array<bool, 16>, 4 > ttlHoldStatus;
 		std::array< std::array<std::string, 16 >, 4> ttlNames;
 		bool holdStatus;
-		std::vector<TTL_CommandForm> ttlCommandFormList;
-		std::vector<TTL_Command> individualTTL_CommandList;
-		std::vector<TTL_Snapshot> ttlSnapshots;
+		std::vector<TtlCommandForm> ttlCommandFormList;
+		std::vector<TtlCommand> individualTTL_CommandList;
+		std::vector<TtlSnapshot> ttlSnapshots;
 		std::vector<std::array<WORD, 6>> finalFormattedCommandForDIO;
 
 		/// The following functions (all of the ones that start with "raw") ARE NOT MEANT TO BE DIRECTLY USED (at least

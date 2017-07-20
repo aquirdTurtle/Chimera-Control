@@ -42,10 +42,16 @@ class CMyWinApp : CWinApp
 				}
 				if (pMsg->wParam == VK_F5)
 				{
-					this->TheMasterWindow.StartExperiment();
+					TheMasterWindow.StartExperiment();
 					// do not process further.
 					return TRUE;
 				} 
+				if (pMsg->wParam == VK_F2)
+				{
+					TheMasterWindow.HandlePause();
+					// do not process further.
+					return TRUE;
+				}
 			}
 			return CWinApp::PreTranslateMessage( pMsg );
 		}

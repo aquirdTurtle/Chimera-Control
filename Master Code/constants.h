@@ -15,6 +15,7 @@
 	#define LOGGING_FILE_ADDRESS "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\Master Log.txt"
 	#define KEY_ADDRESS "\\\\Callisto\\Shared\\key.txt"
 	#define MOT_ROUTINE_ADDRESS "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\Master Profiles\\Hotkey Experiments\\MOT\\turnOnMot.mScript"
+	#define DEBUG_OUTPUT_LOCATION "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\Debug-Output\\"
 #endif
 
 
@@ -44,6 +45,7 @@
 	#define LOGGING_FILE_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Master Log.txt"
 	#define KEY_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\key.txt"
 	#define MOT_ROUTINE_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Master Profiles\\Hotkey Experiments\\MOT\\turnOnMot.mScript"
+	#define DEBUG_OUTPUT_LOCATION "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Debug-Output\\"
 #endif
 
 #define MASTER_SCRIPT_EXTENSION ".mScript"
@@ -56,6 +58,7 @@
 #define SEQUENCE_EXTENSION ".sConfig"
 #define FUNCTION_EXTENSION ".func"
 
+#define OSCILLOSCOPE_TRIGGER "C11"
 #define HORIZONTAL_ORIENTATION "Horizontal"
 #define VERTICAL_ORIENTATION "Vertical"
 
@@ -91,25 +94,36 @@
 #define ID_DAC_SET_BUTTON 1109
 #define IDC_ZERO_DACS 1110
 #define ID_DAC_FIRST_EDIT 1111
-#define ID_STATUS_CLEAR 1160
-#define ID_ERROR_CLEAR 1163
-#define EXPERIMENT_NOTES_ID 1166
-#define CATEGORY_NOTES_ID 1168
-#define CONFIGURATION_NOTES_ID 1170
-#define IDC_SHOW_TTLS 1174
-#define IDC_SHOW_DACS 1175
-#define IDC_TOP_BOTTOM_CHANNEL1_BUTTON 1178
-#define IDC_TOP_BOTTOM_CHANNEL2_BUTTON 1179
-#define IDC_TOP_BOTTOM_SYNC_BUTTON 1180
-#define IDC_TOP_BOTTOM_AGILENT_COMBO 1181
-#define IDC_AXIAL_UWAVE_CHANNEL1_BUTTON 1186
-#define IDC_AXIAL_UWAVE_CHANNEL2_BUTTON 1187
-#define IDC_AXIAL_UWAVE_SYNC_BUTTON 1188
-#define IDC_AXIAL_UWAVE_AGILENT_COMBO 1189
-#define IDC_FLASHING_CHANNEL1_BUTTON 1194
-#define IDC_FLASHING_CHANNEL2_BUTTON 1195
-#define IDC_FLASHING_SYNC_BUTTON 1196
-#define IDC_FLASHING_AGILENT_COMBO 1197
+#define ID_STATUS_CLEAR 1161
+#define ID_ERROR_CLEAR 1164
+#define EXPERIMENT_NOTES_ID 1203
+#define CATEGORY_NOTES_ID 1205
+#define CONFIGURATION_NOTES_ID 1207
+#define IDC_SHOW_TTLS 1211
+#define IDC_SHOW_DACS 1212
+#define IDC_TOP_BOTTOM_CHANNEL1_BUTTON 1223
+#define IDC_TOP_BOTTOM_CHANNEL2_BUTTON 1224
+#define IDC_TOP_BOTTOM_SYNC_BUTTON 1225
+#define IDC_TOP_BOTTOM_AGILENT_COMBO 1226
+#define IDC_AXIAL_UWAVE_CHANNEL1_BUTTON 1215
+#define IDC_AXIAL_UWAVE_CHANNEL2_BUTTON 1216
+#define IDC_AXIAL_UWAVE_SYNC_BUTTON 1217
+#define IDC_AXIAL_UWAVE_AGILENT_COMBO 1218
+#define IDC_FLASHING_CHANNEL1_BUTTON 1231
+#define IDC_FLASHING_CHANNEL2_BUTTON 1232
+#define IDC_FLASHING_SYNC_BUTTON 1233
+#define IDC_FLASHING_AGILENT_COMBO 1234
 
-#define FUNCTION_COMBO_ID 1204
-#define MASTER_RICH_EDIT 1205
+#define FUNCTION_COMBO_ID 1241
+#define MASTER_RICH_EDIT 1242
+
+#define AXIAL_ON_OFF 1192
+#define BOTTOM_ON_OFF 1174
+#define TOP_ON_OFF 1168
+#define EO_ON_OFF 1186
+
+#define AXIAL_FSK 1193
+#define BOTTOM_FSK 1175
+#define TOP_FSK 1169
+#define EO_FSK 1187
+

@@ -44,13 +44,14 @@ class Script
 		void renameScript(MasterWindow* Master);
 		void deleteScript(MasterWindow* Master);
 		void newScript(MasterWindow* Master);
-		
+		void newFunction(MasterWindow* Master);
+
 		std::string getScriptPathAndName();
 		std::string getScriptPath();
 		std::string getScriptName();
 		std::string getExtension();
 
-		void loadFile(std::string pathToFile);
+		void loadFile(std::string pathToFile, MasterWindow* Master);
 		void openParentScript(std::string parentScriptName, MasterWindow* Master);
 		void considerCurrentLocation(MasterWindow* Master);
 		void checkSave(MasterWindow* Master);
@@ -58,7 +59,7 @@ class Script
 		bool coloringIsNeeded();
 		void updateScriptNameText(std::string path);
 
-		void reset();
+		void reset(MasterWindow* master);
 		bool savedStatus();
 
 		INT_PTR handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, std::unordered_map<std::string, HBRUSH> brushes);
@@ -75,8 +76,6 @@ class Script
 		Control<CComboBox> availableFunctionsCombo;
 		Control<CEdit> help;
 
-		std::vector<std::string> functionDeclarations;
-
 		std::string scriptName;
 		std::string scriptPath;
 		std::string scriptFullAddress;
@@ -86,8 +85,6 @@ class Script
 		std::string extension;
 		bool isLocalReference;
 		bool isSaved;
-		// no locations for children, they must all be local. 
-		std::vector<std::string> childrenNames;
 
 		unsigned long editChangeBegin;
 		unsigned long editChangeEnd;

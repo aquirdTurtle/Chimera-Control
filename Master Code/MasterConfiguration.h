@@ -1,8 +1,8 @@
 #pragma once
 #include <string>
 #include <array>
-#include "TTL_System.h"
-#include "DAC_System.h"
+#include "TtlSystem.h"
+#include "DacSystem.h"
 
 // This configuration system is different in style from the other configuration file system. This is designed to do more auto-saving and 
 // auto-load at the beginning of the experiment. There is only supposed to be one such configuration file

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Control.h"
 #include <vector>
 #include "VariableSystem.h"
 
@@ -14,7 +15,11 @@ class KeyHandler
 		void loadVariables(std::vector<variable> variables);
 		void generateKey();
 		void exportKey();
+		void initialize(POINT loc, CWnd* parent, int& id);
+		void rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts);
+		
 	private:	
+		Control<CButton> randomizeVariablesButton;
 		std::vector<variable> variables;
 		key keyValues;
 		unsigned int runningKeyValue;

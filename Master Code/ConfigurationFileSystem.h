@@ -89,6 +89,7 @@ class ConfigurationFileSystem
 		void categorySettingsReadyCheck(MasterWindow* Master);
 		void checkCategorySave(std::string prompt, MasterWindow* Master);
 		void categoryChangeHandler(MasterWindow* Master);
+		
 		std::string getCurrentPathIncludingCategory();
 
 		std::vector<std::string> searchForFiles(std::string locationToSearch, std::string extensions);

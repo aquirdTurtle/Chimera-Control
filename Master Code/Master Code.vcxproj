@@ -202,7 +202,7 @@
     <ClInclude Include="RunInfo.h" />
     <ClInclude Include="Master Code.h" />
     <ClInclude Include="MasterWindow.h" />
-    <ClInclude Include="DAC_System.h" />
+    <ClInclude Include="DacSystem.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Script.h" />
     <ClInclude Include="ScriptStream.h" />
@@ -211,10 +211,11 @@
     <ClInclude Include="StatusControl.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TektronicsControl.h" />
     <ClInclude Include="textPromptDialogProcedure.h" />
-    <ClInclude Include="TTL_System.h" />
+    <ClInclude Include="TtlSystem.h" />
     <ClInclude Include="VariableSystem.h" />
-    <ClInclude Include="viewAndChangeDAC_NamesProcedure.h" />
+    <ClInclude Include="DacSettingsDialog.h" />
     <ClInclude Include="viewAndChangeTTL_NamesProcedure.h" />
   </ItemGroup>
   <ItemGroup>
@@ -233,7 +234,7 @@
     <ClCompile Include="Master Code.cpp" />
     <ClCompile Include="MasterConfiguration.cpp" />
     <ClCompile Include="MasterWindow.cpp" />
-    <ClCompile Include="DAC_System.cpp" />
+    <ClCompile Include="DacSystem.cpp" />
     <ClCompile Include="myNIAWG.cpp" />
     <ClCompile Include="NoteSystem.cpp" />
     <ClCompile Include="Repetitions.cpp" />
@@ -249,10 +250,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TektronicsControl.cpp" />
     <ClCompile Include="textPromptDialogProcedure.cpp" />
-    <ClCompile Include="TTL_System.cpp" />
+    <ClCompile Include="TtlSystem.cpp" />
     <ClCompile Include="VariableSystem.cpp" />
-    <ClCompile Include="viewAndChangeDAC_NamesProcedure.cpp" />
+    <ClCompile Include="DacSettingsDialog.cpp" />
     <ClCompile Include="viewAndChangeTTL_NamesProcedure.cpp" />
   </ItemGroup>
   <ItemGroup>

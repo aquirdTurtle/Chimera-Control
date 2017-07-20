@@ -122,7 +122,7 @@ void StatusControl::clear()
 {
 	this->edit.SetWindowTextA("");
 	setColor(RGB(255, 255, 255));
-	addStatusText("\r\n******************************\r\n", true);
+	addStatusText("******************************\r\n", true);
 }
 
 

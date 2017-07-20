@@ -1,6 +1,6 @@
 #pragma once
-#include "TTL_System.h"
-#include "DAC_System.h"
+#include "TtlSystem.h"
+#include "DacSystem.h"
 #include "VariableSystem.h"
 #include "Script.h"
 #include "NoteSystem.h"
@@ -30,7 +30,7 @@ class MasterWindow : public CDialog
 	DECLARE_DYNAMIC(MasterWindow);
 	public:
 		//static MasterWindow* InitializeWindowInfo(HINSTANCE hInstance);
-		MasterWindow(UINT IDD) : CDialog(IDD)
+		MasterWindow(UINT IDD) : CDialog(IDD), tektronics1(TEKTRONICS_AFG_1_ADDRESS), tektronics2(TEKTRONICS_AFG_2_ADDRESS)
 		{
 			masterRGBs["Dark Grey"] = (RGB(15, 15, 15));
 			masterRGBs["Medium Grey"] = (RGB(30, 30, 30));
@@ -51,7 +51,19 @@ class MasterWindow : public CDialog
 			masterRGBs["Orange"] = RGB(255, 165, 0);
 			masterRGBs["Brown"] = RGB(139, 69, 19);
 			masterRGBs["Black"] = RGB(0, 0, 0);
-			masterRGBs["Light Green"] = RGB( 50, 205, 50 );
+			masterRGBs["Light Green"] = RGB( 163, 190, 140 );
+			masterRGBs["Slate Grey"] = RGB(101, 115, 126);
+			masterRGBs["Pale Pink"] = RGB(180, 142, 173);
+			masterRGBs["Musky Red"] = RGB(191, 97, 106);
+			masterRGBs["Solarized Red"] = RGB(220,  50,  47);
+			masterRGBs["Solarized Violet"] = RGB(108, 113, 196);
+			masterRGBs["Solarized Cyan"] = RGB(42, 161, 152);
+			masterRGBs["Solarized Green"] = RGB(133, 153,   0);
+			masterRGBs["Solarized Blue"] = RGB(38, 139, 210);
+			masterRGBs["Solarized Magenta"] = RGB(211,  54, 130);
+			masterRGBs["Solarized Orange"] = RGB(203,  75,  22);
+			masterRGBs["Solarized Yellow"] = RGB(181, 137, 0);
+			masterRGBs["Slate Green"] = RGB(23, 84, 81);
 			// there are less brushes because these are only used for backgrounds.
 			masterBrushes["Dark Grey"] = CreateSolidBrush(masterRGBs["Dark Grey"]);
 			masterBrushes["Medium Grey"] = CreateSolidBrush(masterRGBs["Medium Grey"]);
@@ -166,10 +178,12 @@ class MasterWindow : public CDialog
 		void GlobalVarDblClick( NMHDR * pNotifyStruct, LRESULT * result );
 		void GlobalVarRClick( NMHDR * pNotifyStruct, LRESULT * result );
 		void GlobalVarClick( NMHDR * pNotifyStruct, LRESULT * result );
-		
+		void drawGlobals(NMHDR* pNMHDR, LRESULT* pResultf);
+		void handleEnter();
 		void SaveMasterScript();
 		void SaveMasterScriptAs();
 		void NewMasterScript();
+		void NewMasterFunction();
 		void OpenMasterScript();
 		void SaveMasterFunction();
 		void DeleteConfiguration();
@@ -197,7 +211,7 @@ class MasterWindow : public CDialog
 		void OnConfigurationChanged();
 		void OnSequenceChanged();
 		void OnOrientationChanged();
-		void SetRepetitionNumber();
+		//void SetRepetitionNumber();
 		void ClearError();
 		void ClearGeneral();
 		void DAC_EditChange(UINT id);
@@ -227,6 +241,7 @@ class MasterWindow : public CDialog
 
 		void onStatusTextMessage();
 		void onErrorTextMessage();
+		void handleTektronicsButtons(UINT id);
 
 	private:
 		DECLARE_MESSAGE_MAP();
@@ -245,7 +260,7 @@ class MasterWindow : public CDialog
 		RunInfo systemRunningInfo;
 		SocketWrapper niawgSocket;
 		RhodeSchwarz RhodeSchwarzGenerator;
-		Gpib gpibHandler;
+		Gpib gpib;
 		KeyHandler masterKey;
 		Debugger debugControl;
 		Agilent topBottomAgilent;
@@ -262,6 +277,8 @@ class MasterWindow : public CDialog
  		DacSystem dacBoards;
  		Repetitions repetitionControl;
  		MasterConfiguration masterConfig{ MASTER_CONFIGURATION_FILE_ADDRESS };
+		TektronicsControl tektronics1;
+		TektronicsControl tektronics2;
 
 		HINSTANCE programInstance;
 
@@ -298,6 +315,7 @@ class MasterWindow : public CDialog
 		friend void ConfigurationFileSystem::renameSequence(MasterWindow* Master);
 		friend void ConfigurationFileSystem::newSequence(MasterWindow* Master);
 		friend void ConfigurationFileSystem::openSequence(std::string sequenceName, MasterWindow* Master);
+		friend void ConfigurationFileSystem::configurationChangeHandler(MasterWindow* Master);
 		// friend bool ConfigurationFileSystem::initialize(POINT& topLeftPosition, MasterWindow& Master);
 		// script friends
 		friend COLORREF Script::getSyntaxColor(std::string word, std::string editType, std::vector<variable> variables, 
