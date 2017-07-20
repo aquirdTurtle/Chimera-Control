@@ -1,0 +1,4 @@
+
+def func():
+	on: A0
+	call func2()
