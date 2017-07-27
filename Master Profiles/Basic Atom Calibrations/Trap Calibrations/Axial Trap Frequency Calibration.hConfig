@@ -1,0 +1,149 @@
+Master Version: 1.400000
+MASTER SCRIPT:
+NONLOCAL C:\Users\Mark\Documents\Quantum-Gas-Assembly-Control\Master Profiles\Basic Atom Calibrations\Trap Calibrations\stff.mScript
+VARIABLES:
+2
+loadmottime Not_Timelike Variable 1 0 200 8 0 1 
+modpower Not_Timelike Variable 1 0 0 0 0 1 
+TTLS:
+1
+1
+0
+0
+0
+1
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+0
+0
+1
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+DACS:
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+REPETITIONS:
+1
+AGILENTVERSION 1.0
+0
+CHANNEL 1
+-2, , , , , , , , 
+CHANNEL 2
+-2, , , , , , , , 
+AGILENTVERSION 1.0
+0
+CHANNEL 1
+-2, , , , , , , , 
+CHANNEL 2
+-2, , , , , , , , 
+AGILENTVERSION 1.0
+0
+CHANNEL 1
+-2, , , , , , , , 
+CHANNEL 2
+-2, , , , , , , , 
+NOTES:
+
+
+END CONFIGURATION NOTES
+TEKTRONICS1:
+CHANNEL1:
+0
+0
+
+
+
+CHANNEL2:
+0
+0
+
+
+
+END TEKTRONICS1
+TEKTRONICS2:
+CHANNEL1:
+1
+0
+modpower
+modfreq
+
+CHANNEL2:
+0
+0
+
+
+
+END TEKTRONICS2

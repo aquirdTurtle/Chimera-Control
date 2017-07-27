@@ -1,4 +1,5 @@
 #pragma once
+
 #include "TtlSystem.h"
 #include "DacSystem.h"
 #include "VariableSystem.h"
@@ -30,7 +31,8 @@ class MasterWindow : public CDialog
 	DECLARE_DYNAMIC(MasterWindow);
 	public:
 		//static MasterWindow* InitializeWindowInfo(HINSTANCE hInstance);
-		MasterWindow(UINT IDD) : CDialog(IDD), tektronics1(TEKTRONICS_AFG_1_ADDRESS), tektronics2(TEKTRONICS_AFG_2_ADDRESS)
+		MasterWindow(UINT IDD) : CDialog(IDD), tektronics1(TEKTRONICS_AFG_1_ADDRESS), 
+			tektronics2(TEKTRONICS_AFG_2_ADDRESS)
 		{
 			masterRGBs["Dark Grey"] = (RGB(15, 15, 15));
 			masterRGBs["Medium Grey"] = (RGB(30, 30, 30));
@@ -178,7 +180,7 @@ class MasterWindow : public CDialog
 		void GlobalVarDblClick( NMHDR * pNotifyStruct, LRESULT * result );
 		void GlobalVarRClick( NMHDR * pNotifyStruct, LRESULT * result );
 		void GlobalVarClick( NMHDR * pNotifyStruct, LRESULT * result );
-		void drawGlobals(NMHDR* pNMHDR, LRESULT* pResultf);
+		void drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResultf);
 		void handleEnter();
 		void SaveMasterScript();
 		void SaveMasterScriptAs();
@@ -263,9 +265,7 @@ class MasterWindow : public CDialog
 		Gpib gpib;
 		KeyHandler masterKey;
 		Debugger debugControl;
-		Agilent topBottomAgilent;
-		Agilent uWaveAxialAgilent;
-		Agilent flashingAgilent;
+		Agilent topBottomAgilent, uWaveAxialAgilent, flashingAgilent;
 
 		Script masterScript{ FUNCTIONS_FOLDER_LOCATION, "Master" };
 		ConfigurationFileSystem profile{ PROFILES_PATH };
@@ -277,8 +277,7 @@ class MasterWindow : public CDialog
  		DacSystem dacBoards;
  		Repetitions repetitionControl;
  		MasterConfiguration masterConfig{ MASTER_CONFIGURATION_FILE_ADDRESS };
-		TektronicsControl tektronics1;
-		TektronicsControl tektronics2;
+		TektronicsControl tektronics1, tektronics2;
 
 		HINSTANCE programInstance;
 

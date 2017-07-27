@@ -15,11 +15,17 @@ key KeyHandler::getKey()
 
 void KeyHandler::initialize(POINT loc, CWnd* parent, int& id)
 {
-	randomizeVariablesButton.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
+	randomizeVariablesButton.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
 	randomizeVariablesButton.ID = id++;
 	randomizeVariablesButton.Create( "Randomize Variations", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, 
 									 randomizeVariablesButton.sPos, parent, randomizeVariablesButton.ID );
 	randomizeVariablesButton.SetCheck(true);
+
+	randomizeRepetitionsButton.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
+	randomizeRepetitionsButton.ID = id++;
+	randomizeRepetitionsButton.Create( "Randomize Repetitions", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
+									   randomizeVariablesButton.sPos, parent, randomizeVariablesButton.ID);
+
 }
 
 
@@ -160,11 +166,9 @@ void KeyHandler::generateKey()
 }
 
 
-
-
+// creates the key file.
 void KeyHandler::exportKey()
 {
-	// TODO
 	std::fstream keyFile(KEY_ADDRESS, std::ios::out);
 	if (!keyFile.is_open())
 	{
@@ -178,6 +182,7 @@ void KeyHandler::exportKey()
 			for (int keyInc = 0; keyInc < keyValues[variables[variableInc].name].first.size(); keyInc++)
 			{
 				keyFile << std::setprecision(12) << std::setw(15) << keyValues[variables[variableInc].name].first[keyInc];
+				keyFile << " ";
 			}
 			keyFile << "\n";
 		}
@@ -189,4 +194,5 @@ void KeyHandler::exportKey()
 void KeyHandler::rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts)
 {
 	randomizeVariablesButton.rearrange(width, height, fonts);
+	randomizeRepetitionsButton.rearrange(width, height, fonts);
 }

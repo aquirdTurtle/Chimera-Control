@@ -38,16 +38,17 @@
 #include <tchar.h>
 #include <sstream>
 #include <stdexcept>
-//#include "Windows.h"
 #include "resource.h"
 #include <string>
 #include <vector>
-
 #include "Control.h"
 #include "KeyHandler.h"
 #include "VariableSystem.h"
 
-// need to remind myself how this works...
+
+// first part of pair is the variable component of the time, second part is the "raw" or constant part of the time.
+// this structure will be evaluated to determine the real time (given a variation # and variable values) that an 
+// operation will take place at.
 typedef std::pair<std::vector<std::string>, double> timeType;
 
 /// MY MACROS
@@ -159,3 +160,10 @@ std::string doubleToString(double number, long precision);
 double reduce(std::string expression, key variationKey = {}, UINT variation = -1, 
 			  std::vector<variable>& vars = std::vector<variable>());
 
+#define idVerify(idSet, idDefined)	if (idSet != idDefined)	\
+			{ \
+				errBox( "ERROR: these two IDs should match: " + str(idSet) + " and " + str(idDefined) + ". Please " \
+						"change the second ID in order to make them match. Throwing to show the location of this " \
+						"error..."); \
+				throw; \
+			}

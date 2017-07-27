@@ -12,6 +12,24 @@ void Repetitions::rearrange(UINT width, UINT height, fontMap fonts)
 	repetitionText.rearrange(width, height, fonts);
 }
 
+
+HBRUSH Repetitions::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC)
+{
+	DWORD controlID = window->GetDlgCtrlID();
+	if (controlID == repetitionDisp.ID || controlID == repetitionEdit.ID)
+	{
+		cDC->SetBkColor(rGBs["Medium Grey"]);
+		cDC->SetTextColor(rGBs["White"]);
+		return brushes["Medium Grey"];
+	}
+	else
+	{
+		return NULL;
+	}
+
+}
+
+
 void Repetitions::updateNumber(long repNumber)
 {
 	repetitionDisp.SetWindowText(cstr(repNumber));
@@ -79,25 +97,3 @@ unsigned int Repetitions::getRepetitionNumber()
 	return repetitionNumber;
 }
 
-
-INT_PTR Repetitions::handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, std::unordered_map<std::string, HBRUSH> brushes)
-{
-	DWORD controlID = GetDlgCtrlID((HWND)lParam);
-	HDC hdcStatic = (HDC)wParam;
-	if (controlID == this->repetitionDisp.ID)
-	{
-		SetTextColor(hdcStatic, RGB(218, 165, 32));
-		SetBkColor(hdcStatic, RGB(30, 30, 30));
-		return (LRESULT)brushes["Medium Grey"];
-	}
-	else if (controlID == this->repetitionEdit.ID)
-	{
-		SetTextColor(hdcStatic, RGB(255, 255, 255));
-		SetBkColor(hdcStatic, RGB(15, 15, 15));
-		return (LRESULT)brushes["Dark Grey"];
-	}
-	else
-	{
-		return NULL;
-	}
-}

@@ -84,9 +84,6 @@
     <ClInclude Include="ExperimentManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="viewAndChangeTTL_NamesProcedure.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MasterConfiguration.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -148,6 +145,9 @@
     <ClInclude Include="TektronicsControl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TtlSettingsDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Master Code.cpp">
@@ -201,9 +201,6 @@
     <ClCompile Include="Control.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="viewAndChangeTTL_NamesProcedure.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MasterConfiguration.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -244,6 +241,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TektronicsControl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TtlSettingsDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

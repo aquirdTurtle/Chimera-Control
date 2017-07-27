@@ -47,14 +47,18 @@ double reduce(std::string expression, key variationKey, UINT variation, std::vec
 	try
 	{
 		// try the simple thing.
-		resultOfReduction = std::stod(expression);
+		size_t num;
+		resultOfReduction = std::stod(expression, &num);
+		if (num != expression.size())
+		{
+			thrower("started with number");
+		}
 		return resultOfReduction;
 	}
-	catch (std::invalid_argument& err)
-	{
-		// that's fine, just means it needs actual reducing.
-	}
+	catch (std::invalid_argument& err){	/* that's fine, just means it needs actual reducing.*/ }
+	catch (Error& err) { /* Same. */ }
 	std::string workingExp = expression;
+	workingExp = "(" + workingExp + ")";
 	std::vector<std::string> terms;	
 	// separate terms out.
 	// specify only the kept separators
@@ -313,7 +317,13 @@ double reduce(std::string expression, key variationKey, UINT variation, std::vec
 	}
 	catch (std::invalid_argument& err)
 	{
-		thrower("ERROR: Math evaluation failed! Final result failed to reduce to double!");
+		std::string msg("ERROR: Math evaluation failed! Final result failed to reduce to double! Original Expression was " 
+						+ expression + ". Result of reduction string was \""+terms[0]+"\" \r\nVariables: \r\n");
+		for (auto var : vars)
+		{
+			msg += ", " + var.name;
+		}
+		thrower(msg);
 	}
 	return resultOfReduction;
 }

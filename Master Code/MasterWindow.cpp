@@ -3,7 +3,7 @@
 #include "Control.h"
 //#include "newVariableDialogProcedure.h"
 #include "constants.h"
-#include "viewAndChangeTTL_NamesProcedure.h"
+#include "TtlSettingsDialog.h"
 #include "DacSettingsDialog.h"
 #include "textPromptDialogProcedure.h"
 #include "TtlSystem.h"
@@ -100,13 +100,15 @@ BEGIN_MESSAGE_MAP( MasterWindow, CDialog )
 
 	ON_NOTIFY( NM_DBLCLK, IDC_GLOBAL_VARS_LISTVIEW, &MasterWindow::GlobalVarDblClick )
 	ON_NOTIFY( NM_RCLICK, IDC_GLOBAL_VARS_LISTVIEW, &MasterWindow::GlobalVarRClick )
-	ON_NOTIFY( NM_CUSTOMDRAW, IDC_GLOBAL_VARS_LISTVIEW, &MasterWindow::drawGlobals)
+	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_GLOBAL_VARS_LISTVIEW, IDC_GLOBAL_VARS_LISTVIEW, &MasterWindow::drawVariables)
+	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_CONFIG_VARS_LISTVIEW, IDC_CONFIG_VARS_LISTVIEW, &MasterWindow::drawVariables)
 
 END_MESSAGE_MAP()
 
 
 void MasterWindow::handleTektronicsButtons(UINT id)
 {
+	profile.updateConfigurationSavedStatus(false);
 	if (id >= TOP_ON_OFF && id <= BOTTOM_FSK)
 	{
 		tektronics1.handleButtons(id - TOP_ON_OFF);
@@ -118,9 +120,16 @@ void MasterWindow::handleTektronicsButtons(UINT id)
 }
 
 
-void MasterWindow::drawGlobals(NMHDR* pNMHDR, LRESULT* pResult)
+void MasterWindow::drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 {
-	globalVariables.handleDraw(pNMHDR, pResult);
+	if (id == IDC_GLOBAL_VARS_LISTVIEW)
+	{
+		globalVariables.handleDraw(pNMHDR, pResult);
+	}
+	else
+	{
+		configVariables.handleDraw(pNMHDR, pResult);
+	}
 }
 
 void MasterWindow::NewMasterFunction()
@@ -149,6 +158,7 @@ void MasterWindow::OnSize(UINT nType, int cx, int cy)
 {
 	tektronics1.rearrange(cx, cy, getFonts());
 	tektronics2.rearrange(cx, cy, getFonts());
+	niawgSocket.rearrange(cx, cy, getFonts());
 
 	topBottomAgilent.rearrange(cx, cy, getFonts());
 	uWaveAxialAgilent.rearrange(cx, cy, getFonts());
@@ -172,18 +182,8 @@ void MasterWindow::OnSize(UINT nType, int cx, int cy)
 	repetitionControl.rearrange(cx, cy, getFonts());
 	debugControl.rearrange(cx, cy, getFonts());
 	masterKey.rearrange(cx, cy, getFonts());
-
-	/*
-	ExperimentLogger logger;
-	ExperimentManager manager;
-	RunInfo systemRunningInfo;
-	SocketWrapper niawgSocket;
-	Gpib gpib;
-	KeyHandler masterKey;
-	Debugger debugControl;
-	MasterConfiguration masterConfig{ MASTER_CONFIGURATION_FILE_ADDRESS };
-	*/
 }
+
 
 void MasterWindow::handleAgilentOptions( UINT id )
 {
@@ -280,7 +280,6 @@ void MasterWindow::GlobalVarRClick( NMHDR * pNotifyStruct, LRESULT * result )
 void MasterWindow::handleOptionsPress( UINT id )
 {
 	debugControl.handlePress( id );
-	return;
 }
 
 
@@ -288,23 +287,23 @@ void MasterWindow::zeroDacs()
 {
 	try
 	{
-		dacBoards.resetDACEvents();
-		ttlBoard.resetTTLEvents();
+		dacBoards.resetDacEvents();
+		ttlBoard.resetTtlEvents();
 		for (int dacInc = 0; dacInc < 24; dacInc++)
 		{
 			dacBoards.prepareDacForceChange( dacInc, 0, &ttlBoard );
 		}
-		dacBoards.analyzeDAC_Commands();
-		dacBoards.makeFinalDataFormat();
+		dacBoards.analyzeDacCommands(0);
+		dacBoards.makeFinalDataFormat(0);
 		dacBoards.stopDacs(); 
-		dacBoards.configureClocks();
-		dacBoards.writeDacs();
+		dacBoards.configureClocks(0);
+		dacBoards.writeDacs(0);
 		dacBoards.startDacs();
-		ttlBoard.analyzeCommandList();
-		ttlBoard.convertToFinalFormat();
-		ttlBoard.writeData();
+		ttlBoard.analyzeCommandList(0);
+		ttlBoard.convertToFinalFormat(0);
+		ttlBoard.writeData(0);
 		ttlBoard.startBoard();
-		ttlBoard.waitTillFinished();
+		ttlBoard.waitTillFinished(0);
 		generalStatus.addStatusText( "Zero'd DACs.\r\n", 0 );
 	}
 	catch (Error& exception)
@@ -336,7 +335,7 @@ void MasterWindow::HandleAbort()
 	if ( manager.runningStatus() )
 	{
 		manager.abort();
-		ttlBoard.unshadeTTLs();
+		ttlBoard.unshadeTtls();
 		dacBoards.unshadeDacs();
 	}
 	else
@@ -435,7 +434,7 @@ void MasterWindow::loadMotSettings()
 	// start the boards which actually sets the dac values.
 	try
 	{
-		dacBoards.analyzeDAC_Commands();
+		dacBoards.analyzeDacCommands();
 		dacBoards.makeFinalDataFormat();
 		dacBoards.configureClocks();
 		dacBoards.stopDacs();
@@ -476,7 +475,14 @@ void MasterWindow::OnCancel()
 
 void MasterWindow::HandleFunctionChange()
 {
-	masterScript.functionChangeHandler(this);
+	try
+	{
+		masterScript.functionChangeHandler(this);
+	}
+	catch (Error& err)
+	{
+		errBox(err.what());
+	}
 }
 
 void MasterWindow::StartExperiment()
@@ -541,33 +547,24 @@ void MasterWindow::SetDacs()
 	// have the dac values change
 	try
 	{
-		dacBoards.resetDACEvents();
-		ttlBoard.resetTTLEvents();
-		generalStatus.addStatusText( "Starting Setting Dacs...\r\n", 0 );
+		generalStatus.addStatusText("----------------------\r\n", 1);
+		dacBoards.resetDacEvents();
+		ttlBoard.resetTtlEvents();
+		generalStatus.addStatusText( "Setting Dacs...\r\n", 0 );
 		dacBoards.handleButtonPress( &ttlBoard );
-		generalStatus.addStatusText( "Analyzing Dac Info...\r\n", 0 );
-		dacBoards.analyzeDAC_Commands();
-		generalStatus.addStatusText( "Finalizing Dacs Info...\r\n", 0 );
-		dacBoards.makeFinalDataFormat();
+		dacBoards.analyzeDacCommands(0);
+		dacBoards.makeFinalDataFormat(0);
 		// start the boards which actually sets the dac values.
-		generalStatus.addStatusText( "Stopping Dacs (if running)...\r\n", 0 );
 		dacBoards.stopDacs();
-		generalStatus.addStatusText( "Configuring Clocks...\r\n", 0 );
-		dacBoards.configureClocks();
+		dacBoards.configureClocks(0);
 		generalStatus.addStatusText( "Writing New Dac Settings...\r\n", 0 );
-		dacBoards.writeDacs();
-		generalStatus.addStatusText( "Arming Dacs...\r\n", 0 );
+		dacBoards.writeDacs(0);
 		dacBoards.startDacs();
-		generalStatus.addStatusText( "Analyzing DAC TTL Triggers...\r\n", 0 );
-		ttlBoard.analyzeCommandList();
-		generalStatus.addStatusText( "Finalizing DAC TTL Triggers...\r\n", 0 );
-		ttlBoard.convertToFinalFormat();
-		generalStatus.addStatusText( "Writing DAC TTL Triggers...\r\n", 0 );
-		ttlBoard.writeData();
-		generalStatus.addStatusText( "Starting DAC TTL Triggers...\r\n", 0 );
+		ttlBoard.analyzeCommandList(0);
+		ttlBoard.convertToFinalFormat(0);
+		ttlBoard.writeData(0);
 		ttlBoard.startBoard();
-		generalStatus.addStatusText( "Waiting until TTLs are finished...\r\n", 0 );
-		ttlBoard.waitTillFinished();
+		ttlBoard.waitTillFinished(0);
 		generalStatus.addStatusText( "Finished Setting Dacs.\r\n", 0 );
 	}
 	catch (Error& exception)
@@ -908,7 +905,7 @@ void MasterWindow::DeleteSequence()
 
 void MasterWindow::ResetSequence()
 {
-	//this->profile.???
+	//profile.???
 }
 
 
@@ -991,10 +988,10 @@ void MasterWindow::NewMasterScript()
 
 void MasterWindow::OpenMasterScript()
 {
-	// ???
 	std::string address = explorerOpen(this, "*.mScript\0All\0 * .*", profile.getCurrentPathIncludingCategory());
 	if (address == "")
 	{
+		// user canceled.
 		return;
 	}
 	try
@@ -1111,7 +1108,8 @@ void MasterWindow::ViewOrChangeTTLNames()
 	ttlInputStruct input;
 	input.ttls = &ttlBoard;
 	input.toolTips = toolTips;
-	DialogBoxParam(programInstance, MAKEINTRESOURCE(IDD_VIEW_AND_CHANGE_TTL_NAMES), 0, (DLGPROC)viewAndChangeTTL_NamesProcedure, (LPARAM)&input);
+	TtlSettingsDialog dialog(&input, IDD_VIEW_AND_CHANGE_TTL_NAMES);
+	dialog.DoModal();
 }
 
 
@@ -1122,8 +1120,6 @@ void MasterWindow::ViewOrChangeDACNames()
 	input.toolTips = toolTips;
 	DacSettingsDialog dialog(&input, IDD_VIEW_AND_CHANGE_DAC_NAMES);
 	dialog.DoModal();
-
-	//DialogBoxParam(programInstance, MAKEINTRESOURCE(IDD_VIEW_AND_CHANGE_DAC_NAMES), 0, (DLGPROC)viewAndChangeDAC_NamesProcedure, (LPARAM)&input);
 }
 
 void MasterWindow::SaveMasterConfig()
@@ -1164,6 +1160,43 @@ HBRUSH MasterWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	{
 		return result;
 	}
+	result = debugControl.handleColorMessage(pWnd, masterBrushes, masterRGBs, pDC);
+	if (result != NULL)
+	{
+		return result;
+	}
+	result = flashingAgilent.handleColorMessage(pWnd, masterBrushes, masterRGBs, pDC);
+	if (result != NULL)
+	{
+		return result;
+	}
+	result = uWaveAxialAgilent.handleColorMessage(pWnd, masterBrushes, masterRGBs, pDC);
+	if (result != NULL)
+	{
+		return result;
+	}
+	result = topBottomAgilent.handleColorMessage(pWnd, masterBrushes, masterRGBs, pDC);
+	if (result != NULL)
+	{
+		return result;
+	}
+	result = tektronics1.handleColorMessage(pWnd, masterBrushes, masterRGBs, pDC);
+	if (result != NULL)
+	{
+		return result;
+	}
+	result = tektronics2.handleColorMessage(pWnd, masterBrushes, masterRGBs, pDC);
+	if (result != NULL)
+	{
+		return result;
+	}
+	result = repetitionControl.handleColorMessage(pWnd, masterBrushes, masterRGBs, pDC);
+	if (result != NULL)
+	{
+		return result;
+	}
+
+	// default colors
 	switch (nCtlColor)
 	{
 
@@ -1231,7 +1264,8 @@ BOOL MasterWindow::OnInitDialog()
 						   getFonts(), toolTips);
 	statusLoc = { 960, 600 };
 	tektronics1.initialize(statusLoc, this, id, "Top / Bottom", "Top", "Bottom", 360);
-	tektronics2.initialize(statusLoc, this, id, "u-Wave / Axial", "u-Wave", "Axial", 360);
+	tektronics2.initialize(statusLoc, this, id, "EO / Axial", "EO", "Axial", 360);
+	niawgSocket.initialize(statusLoc, this, id);
 	controlLocation = POINT{ 480, 90 };
 	notes.initialize( controlLocation, this, id );
 	notes.setActiveControls("none");

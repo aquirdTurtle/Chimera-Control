@@ -1,0 +1,120 @@
+Master Version: 1.3
+MASTER SCRIPT:
+NONLOCAL C:\Users\Mark\Documents\Quantum-Gas-Assembly-Control\Master Profiles\Basic Atom Calibrations\Atom Loading and Imaging\simpleAtomLoad.mScript
+VARIABLES:
+1
+loadmottime Not_Timelike Variable 1 0 200 8 0 1 
+TTLS:
+1
+1
+0
+0
+0
+1
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+0
+0
+1
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+DACS:
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+REPETITIONS:
+1
+AGILENTVERSION 1.0
+0
+CHANNEL 1
+-2, , , , , , , , 
+CHANNEL 2
+-2, , , , , , , , 
+AGILENTVERSION 1.0
+0
+CHANNEL 1
+-2, , , , , , , , 
+CHANNEL 2
+-2, , , , , , , , 
+AGILENTVERSION 1.0
+0
+CHANNEL 1
+-2, , , , , , , , 
+CHANNEL 2
+-2, , , , , , , , 
+NOTES:
+
+
+END CONFIGURATION NOTES

@@ -1,5 +1,4 @@
 #include "stdafx.h"
-
 #include "ConfigurationFileSystem.h"
 #include "Windows.h"
 #include <fstream>
@@ -33,7 +32,7 @@ void ConfigurationFileSystem::rearrange(int width, int height, fontMap fonts)
 }
 
 
-ConfigurationFileSystem::ConfigurationFileSystem( std::string fileSystemPath )
+ConfigurationFileSystem::ConfigurationFileSystem( std::string fileSystemPath ) : version(1.4)
 {
 	FILE_SYSTEM_PATH = fileSystemPath;
 }
@@ -258,48 +257,51 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 	currentProfileSettings.configuration = configurationNameToOpen;
 	
 	// not currenlty used because version 1.0.
-	std::string version;
-	std::getline(configurationFile, version);
-	/// Get Variables
-	// early version didn't have variable type indicators.
-	if (version != "Master Version: 1.0" && version != "Master Version: 1.1" )
+	std::string versionStr;
+	double version;
+	// eat the first two words, "Master" and "Version:".
+	configurationFile >> versionStr;
+	configurationFile >> versionStr;
+	configurationFile >> versionStr;
+	try
 	{
-		if (version == "")
+		version = std::stod(versionStr);
+	}
+	catch (std::invalid_argument& version)
+	{
+		if (versionStr == "")
 		{
-			// nothing
 			return;
 		}
-		else
-		{
-			thrower( "ERROR: Unrecognized configuration version! Ask Mark about bugs." );
-		}
+		thrower("ERROR: Unrecognized configuration version! Ask Mark about bugs.");
 	}
-	std::string masterText;
-	std::getline(configurationFile, masterText);
+	std::string masterScriptFile;
+	configurationFile.get();
+	std::getline(configurationFile, masterScriptFile);
 
-	if (masterText != "MASTER SCRIPT:")
+	if (masterScriptFile != "MASTER SCRIPT:")
 	{
-		thrower("ERRORL Expected \"MASTER SCRIPT:\" in configuration file, but instead found " + masterText);
+		thrower("ERRORL Expected \"MASTER SCRIPT:\" in configuration file, but instead found " + masterScriptFile);
 	}
-	configurationFile >> masterText;
-	if (masterText == "LOCAL")
+	configurationFile >> masterScriptFile;
+	// figure out if the master script file was saved locally or in a specific location.
+	if (masterScriptFile == "LOCAL")
 	{
 		configurationFile.get();
-		getline( configurationFile, masterText );
-		std::string newPath = getCurrentPathIncludingCategory() + masterText + MASTER_SCRIPT_EXTENSION;
+		getline( configurationFile, masterScriptFile );
+		std::string newPath = getCurrentPathIncludingCategory() + masterScriptFile + MASTER_SCRIPT_EXTENSION;
 		Master->masterScript.openParentScript(newPath, Master);
 	}
-	else if (masterText == "NONLOCAL")
+	else if (masterScriptFile == "NONLOCAL")
 	{
 		std::string newPath;
 		configurationFile.get();
 		getline(configurationFile, newPath);
-		//configurationFile >> newPath;
 		Master->masterScript.openParentScript(newPath, Master);
 	}
 	else
 	{
-		thrower("ERROR: Expected either \"LOCAL\" or \"NONLOCAL\" in configuration file, but instead found " + masterText);
+		thrower("ERROR: Expected either \"LOCAL\" or \"NONLOCAL\" in configuration file, but instead found " + masterScriptFile);
 	}
 	std::string line;
 	configurationFile >> line;
@@ -361,12 +363,13 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 		}
 		int rangeNumber;
 		configurationFile >> rangeNumber;
-		if (rangeNumber < 1)
+		// I think it's unlikely to ever need more than 2 or 3 ranges.
+		if (rangeNumber < 1 || rangeNumber > 1000)
 		{
-			thrower("ERROR: Bad range number! setting it to 1, but found " + std::to_string(rangeNumber) + " in the file.");
+			errBox("ERROR: Bad range number! setting it to 1, but found " + std::to_string(rangeNumber) + " in the file.");
 			rangeNumber = 1;
 		}
-		Master->configVariables.setVariationRangeNumber(rangeNumber);
+		Master->configVariables.setVariationRangeNumber(rangeNumber, 0);
 		// check if the range is actually too small.
 		for (int rangeInc = 0; rangeInc < rangeNumber; rangeInc++)
 		{
@@ -376,7 +379,7 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 			configurationFile >> initValue;
 			configurationFile >> finValue;
 			configurationFile >> variations;
-			if (version == "Master Version: 1.2")
+			if (version >= 1.2)
 			{
 				configurationFile >> leftInclusive;
 				configurationFile >> rightInclusive;
@@ -426,7 +429,7 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 	{
 		thrower("ERROR: Expected \"DACS:\" in configuration file but instead found " + dacText);
 	}
-	for (int dacInc = 0; dacInc < Master->dacBoards.getNumberOfDACs(); dacInc++)
+	for (int dacInc = 0; dacInc < Master->dacBoards.getNumberOfDacs(); dacInc++)
 	{
 		std::string dacString;
 		configurationFile >> dacString;
@@ -502,13 +505,91 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 	// actually set this now
 	//SetWindowText(eConfigurationDisplayInScripting, (currentProfileSettings.category + "->" + currentProfileSettings.configuration).c_str());
 	// close.
-	configurationFile.close();
 	if (currentProfileSettings.sequence == NULL_SEQUENCE)
 	{
 		// reload it.
 		loadNullSequence(Master);
 	}
+	if (version >= 1.4)
+	{
+		std::getline(configurationFile, tempNote);
+		if (tempNote != "TEKTRONICS1:")
+		{
+			thrower("ERROR: Expected \"TEKTRONICS1:\" in configuration file but instead found " + tempNote + "!");
+		}
+		std::getline(configurationFile, tempNote);
+		if (tempNote != "CHANNEL1:")
+		{
+			thrower("ERROR: Expected \"CHANNEL1:\" in configuration file but instead found " + tempNote + "!");
+		}
+		tektronicsInfo tekInfo;
+		configurationFile >> tekInfo.channels.first.on;
+		configurationFile >> tekInfo.channels.first.fsk;
+		configurationFile.get();
+		std::getline(configurationFile, tekInfo.channels.first.power);
+		std::getline(configurationFile, tekInfo.channels.first.mainFreq);
+		std::getline(configurationFile, tekInfo.channels.first.fskFreq);
+		std::getline(configurationFile, tempNote);
+		if (tempNote != "CHANNEL2:")
+		{
+			thrower("ERROR: Expected \"CHANNEL2:\" in configuration file but instead found " + tempNote + "!");
+		}
+		configurationFile >> tekInfo.channels.second.on;
+		configurationFile >> tekInfo.channels.second.fsk;
+		configurationFile.get();
+		std::getline(configurationFile, tekInfo.channels.second.power);
+		std::getline(configurationFile, tekInfo.channels.second.mainFreq);
+		std::getline(configurationFile, tekInfo.channels.second.fskFreq);
+		std::getline(configurationFile, tempNote);
+		if (tempNote != "END TEKTRONICS1")
+		{
+			thrower("ERROR: Expected \"TEKTRONICS1\" in configuration file but instead found " + tempNote + "!");
+		}
+		Master->tektronics1.setSettings(tekInfo);
+
+		std::getline(configurationFile, tempNote);
+		if (tempNote != "TEKTRONICS2:")
+		{
+			thrower("ERROR: Expected \"TEKTRONICS2:\" in configuration file but instead found " + tempNote + "!");
+		}
+		std::getline(configurationFile, tempNote);
+		if (tempNote != "CHANNEL1:")
+		{
+			thrower("ERROR: Expected \"CHANNEL1:\" in configuration file but instead found " + tempNote + "!");
+		}
+		configurationFile >> tekInfo.channels.first.on;
+		configurationFile >> tekInfo.channels.first.fsk;
+		configurationFile.get();
+		std::getline(configurationFile, tekInfo.channels.first.power);
+		std::getline(configurationFile, tekInfo.channels.first.mainFreq);
+		std::getline(configurationFile, tekInfo.channels.first.fskFreq);
+		std::getline(configurationFile, tempNote);
+		if (tempNote != "CHANNEL2:")
+		{
+			thrower("ERROR: Expected \"CHANNEL2:\" in configuration file but instead found " + tempNote + "!");
+		}
+		configurationFile >> tekInfo.channels.second.on;
+		configurationFile >> tekInfo.channels.second.fsk;
+		configurationFile.get();
+		std::getline(configurationFile, tekInfo.channels.second.power);
+		std::getline(configurationFile, tekInfo.channels.second.mainFreq);
+		std::getline(configurationFile, tekInfo.channels.second.fskFreq);
+		std::getline(configurationFile, tempNote);
+		if (tempNote != "END TEKTRONICS2")
+		{
+			thrower("ERROR: Expected \"TEKTRONICS1\" in configuration file but instead found " + tempNote + "!");
+		}
+		Master->tektronics2.setSettings(tekInfo);
+	}
+	else
+	{
+		tektronicsInfo tekInfo;
+		tekInfo.channels.first = tekInfo.channels.second = { 0,0,"","","" };
+		Master->tektronics1.setSettings(tekInfo);
+		Master->tektronics2.setSettings(tekInfo);
+	}
 	updateConfigurationSavedStatus( true );
+	configurationFile.close();
 }
 
 /*
@@ -611,7 +692,7 @@ void ConfigurationFileSystem::saveConfiguration( MasterWindow* Master )
 	}
 	// That's the last prompt the user gets, so the save is final now.
 	currentProfileSettings.configuration = configurationNameToSave;
-	configurationSaveFile << "Master Version: 1.2\n";
+	configurationSaveFile << "Master Version: " + str(version) + "\n";
 	/// master script
 	configurationSaveFile << "MASTER SCRIPT:\n";
 	// keep track of whether the script is saved locally or not. This should make renaming things easier. 
@@ -669,9 +750,9 @@ void ConfigurationFileSystem::saveConfiguration( MasterWindow* Master )
 	}
 	/// dac settings
 	configurationSaveFile << "DACS:\n";
-	for (int dacInc = 0; dacInc < Master->dacBoards.getNumberOfDACs(); dacInc++)
+	for (int dacInc = 0; dacInc < Master->dacBoards.getNumberOfDacs(); dacInc++)
 	{
-		configurationSaveFile << Master->dacBoards.getDAC_Value( dacInc ) << "\n";
+		configurationSaveFile << Master->dacBoards.getDacValue( dacInc ) << "\n";
 	}
 	/// repetitionNumber
 	configurationSaveFile << "REPETITIONS:\n";
@@ -685,6 +766,31 @@ void ConfigurationFileSystem::saveConfiguration( MasterWindow* Master )
 	std::string notes = Master->notes.getConfigurationNotes();
 	configurationSaveFile << notes + "\n";
 	configurationSaveFile << "END CONFIGURATION NOTES" << "\n";
+
+	configurationSaveFile << "TEKTRONICS1:\n";
+	configurationSaveFile << "CHANNEL1:\n";
+	tektronicsInfo tekInfo = Master->tektronics1.getSettings();
+	configurationSaveFile << tekInfo.channels.first.on << "\n" << tekInfo.channels.first.fsk << "\n"
+		<< tekInfo.channels.first.power << "\n" << tekInfo.channels.first.mainFreq << "\n"
+		<< tekInfo.channels.first.fskFreq << "\n";
+	configurationSaveFile << "CHANNEL2:\n";
+	configurationSaveFile << tekInfo.channels.second.on << "\n" << tekInfo.channels.second.fsk << "\n"
+		<< tekInfo.channels.second.power << "\n" << tekInfo.channels.second.mainFreq << "\n"
+		<< tekInfo.channels.second.fskFreq << "\n";
+	configurationSaveFile << "END TEKTRONICS1" << "\n";
+
+	configurationSaveFile << "TEKTRONICS2:\n";
+	configurationSaveFile << "CHANNEL1:\n";
+	tekInfo = Master->tektronics2.getSettings();
+	configurationSaveFile << tekInfo.channels.first.on << "\n" << tekInfo.channels.first.fsk << "\n"
+		<< tekInfo.channels.first.power << "\n" << tekInfo.channels.first.mainFreq << "\n"
+		<< tekInfo.channels.first.fskFreq << "\n";
+	configurationSaveFile << "CHANNEL2:\n";
+	configurationSaveFile << tekInfo.channels.second.on << "\n" << tekInfo.channels.second.fsk << "\n"
+		<< tekInfo.channels.second.power << "\n" << tekInfo.channels.second.mainFreq << "\n"
+		<< tekInfo.channels.second.fskFreq << "\n";
+	configurationSaveFile << "END TEKTRONICS2" << "\n";
+	
 	configurationSaveFile.close();
 	updateConfigurationSavedStatus( true );
 }
@@ -853,9 +959,9 @@ void ConfigurationFileSystem::saveConfigurationAs(MasterWindow* Master)
 	}
 	/// dac settings
 	configurationSaveFile << "DACS:\n";
-	for (int dacInc = 0; dacInc < Master->dacBoards.getNumberOfDACs(); dacInc++)
+	for (int dacInc = 0; dacInc < Master->dacBoards.getNumberOfDacs(); dacInc++)
 	{
-		configurationSaveFile << Master->dacBoards.getDAC_Value(dacInc) << "\n";
+		configurationSaveFile << Master->dacBoards.getDacValue(dacInc) << "\n";
 	}
 	/// repetitionNumber
 	configurationSaveFile << "REPETITIONS:\n";
@@ -869,6 +975,31 @@ void ConfigurationFileSystem::saveConfigurationAs(MasterWindow* Master)
 	configurationSaveFile.close();
 	reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, "*" + extension, currentProfileSettings.configuration);
 	updateConfigurationSavedStatus(true);
+
+	configurationSaveFile << "TEKTRONICS1:\n";
+	configurationSaveFile << "CHANNEL1:\n";
+	tektronicsInfo tekInfo = Master->tektronics1.getSettings();
+	configurationSaveFile << tekInfo.channels.first.on << " " << tekInfo.channels.first.fsk << " " 
+		<< tekInfo.channels.first.power << " " << tekInfo.channels.first.mainFreq << " " 
+		<< tekInfo.channels.first.fskFreq << "\n";
+	configurationSaveFile << "CHANNEL2:\n";
+	configurationSaveFile << tekInfo.channels.second.on << " " << tekInfo.channels.second.fsk << " "
+		<< tekInfo.channels.second.power << " " << tekInfo.channels.second.mainFreq << " "
+		<< tekInfo.channels.second.fskFreq << "\n";
+	configurationSaveFile << "END TEKTRONICS1" << "\n";
+
+	configurationSaveFile << "TEKTRONICS2:\n";
+	configurationSaveFile << "CHANNEL1:\n";
+	tekInfo = Master->tektronics2.getSettings();
+	configurationSaveFile << tekInfo.channels.first.on << " " << tekInfo.channels.first.fsk << " "
+		<< tekInfo.channels.first.power << " " << tekInfo.channels.first.mainFreq << " "
+		<< tekInfo.channels.first.fskFreq << "\n";
+	configurationSaveFile << "CHANNEL2:\n";
+	configurationSaveFile << tekInfo.channels.second.on << " " << tekInfo.channels.second.fsk << " "
+		<< tekInfo.channels.second.power << " " << tekInfo.channels.second.mainFreq << " "
+		<< tekInfo.channels.second.fskFreq << "\n";
+	configurationSaveFile << "END TEKTRONICS2" << "\n";
+
 }
 
 
@@ -2071,20 +2202,15 @@ void ConfigurationFileSystem::initialize(POINT& topLeftPosition, std::vector<CTo
 	// Experiment Combo
 	experimentCombo.sPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 800 };
 	experimentCombo.ID = id++;
-	if ( experimentCombo.ID != EXPERIMENT_COMBO_ID )
-	{
-		throw;
-	}
+	idVerify(experimentCombo.ID, EXPERIMENT_COMBO_ID);
 	experimentCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, experimentCombo.sPos, master, experimentCombo.ID );
 	experimentCombo.fontType = Normal;
 	reloadCombo(experimentCombo.GetSafeHwnd(), PROFILES_PATH, std::string("*"), "__NONE__");
 	// Category Combo
 	categoryCombo.sPos = { topLeftPosition.x + 480, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 800 };
 	categoryCombo.ID = id++;
-	if ( categoryCombo.ID != CATEGORY_COMBO_ID )
-	{
-		throw;
-	}
+	
+	idVerify(categoryCombo.ID, CATEGORY_COMBO_ID);
 	categoryCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, categoryCombo.sPos, master, categoryCombo.ID );
 	categoryCombo.fontType = Normal;
 	topLeftPosition.y += 25;
@@ -2112,10 +2238,7 @@ void ConfigurationFileSystem::initialize(POINT& topLeftPosition, std::vector<CTo
 	orientationNames.push_back("Vertical");
 	orientationCombo.sPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 120, topLeftPosition.y + 800 };
 	orientationCombo.ID = id++;
-	if ( orientationCombo.ID != ORIENTATION_COMBO_ID )
-	{
-		throw;
-	}
+	idVerify(orientationCombo.ID, ORIENTATION_COMBO_ID);
 	orientationCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, orientationCombo.sPos, master, orientationCombo.ID );
 	orientationCombo.fontType = Normal;
 	for (int comboInc = 0; comboInc < orientationNames.size(); comboInc++)
@@ -2126,10 +2249,7 @@ void ConfigurationFileSystem::initialize(POINT& topLeftPosition, std::vector<CTo
 	// configuration combo
 	configCombo.sPos = { topLeftPosition.x + 120, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 800 };
 	configCombo.ID = id++;
-	if ( configCombo.ID != CONFIGURATION_COMBO_ID )
-	{
-		throw;
-	}
+	idVerify(configCombo.ID, CONFIGURATION_COMBO_ID);
 	configCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, configCombo.sPos, master, configCombo.ID );
 	configCombo.fontType = Normal;
 	topLeftPosition.y += 25;
@@ -2149,10 +2269,7 @@ void ConfigurationFileSystem::initialize(POINT& topLeftPosition, std::vector<CTo
 	// combo
 	sequenceCombo.sPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 800 };
 	sequenceCombo.ID = id++;
-	if ( sequenceCombo.ID != SEQUENCE_COMBO_ID )
-	{
-		throw;
-	}
+	idVerify(sequenceCombo.ID, SEQUENCE_COMBO_ID);
 	sequenceCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, 
 						  sequenceCombo.sPos, master, sequenceCombo.ID );
 	sequenceCombo.SetCurSel( 0 );
@@ -2174,7 +2291,6 @@ void ConfigurationFileSystem::initialize(POINT& topLeftPosition, std::vector<CTo
 
 void ConfigurationFileSystem::reorganizeControls(RECT parentRectangle, std::string mode)
 {
-	return;
 }
 
 

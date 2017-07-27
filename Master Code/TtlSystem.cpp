@@ -7,15 +7,15 @@
 #include "ExperimentManager.h"
 #include <unordered_map>
 #include <bitset>
-// don't use this because I manually import dll functions.
-//#include "Dio64.h"
+// I don't use this because I manually import dll functions.
+// #include "Dio64.h"
 
-unsigned long TtlSystem::countDacTriggers()
+unsigned long TtlSystem::countDacTriggers(UINT var)
 {
 	unsigned long triggerCount = 0;
 	// D14
-	std::pair<unsigned int, unsigned int> dacLine = { 3,13 };
-	for (auto command : individualTTL_CommandList)
+	std::pair<unsigned short, unsigned short> dacLine = { 3,15 };
+	for (auto command : individualTTL_CommandList[var])
 	{
 		// count each rising edge.
 		if (command.line == dacLine && command.value == true)
@@ -35,7 +35,7 @@ void TtlSystem::abort()
 
 std::array< std::array<bool, 16>, 4 > TtlSystem::getFinalSnapshot()
 {
-	return ttlSnapshots.back().ttlStatus;
+	return ttlSnapshots.back().back().ttlStatus;
 }
 
 
@@ -106,7 +106,7 @@ TtlSystem::TtlSystem()
 	raw_DIO64_Out_Stop = (DIO64_Out_Stop)GetProcAddress(dio, "DIO64_Out_Stop");
 	raw_DIO64_Out_Write = (DIO64_Out_Write)GetProcAddress(dio, "DIO64_Out_Write");
 
-	//Open and Load DIO64
+	// Open and Load DIO64
 	if (!DIO_SAFEMODE)
 	{
 		try
@@ -253,7 +253,7 @@ void TtlSystem::shadeTTLs(std::vector<std::pair<unsigned int, unsigned int>> sha
 }
 
 
-void TtlSystem::unshadeTTLs()
+void TtlSystem::unshadeTtls()
 {
 	for (int rowInc = 0; rowInc < getNumberOfTTLRows(); rowInc++)
 	{
@@ -334,10 +334,7 @@ void TtlSystem::initialize( POINT& loc, std::unordered_map<HWND, std::string>& t
 	loc.y += 25;
 	ttlHold.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 20 };
 	ttlHold.ID = id++;
-	if (ttlHold.ID != TTL_HOLD)
-	{
-		throw;
-	}
+	idVerify(ttlHold.ID, TTL_HOLD);
 	ttlHold.Create( "Hold Current Values", WS_TABSTOP | WS_VISIBLE | BS_AUTOCHECKBOX | WS_CHILD | BS_PUSHLIKE,
 					ttlHold.sPos, master, ttlHold.ID );
 	if (!ttlHold.setToolTip( "Press this button to change multiple TTLs simultaneously. Press the button, then change the ttls, then press the button again "
@@ -348,10 +345,7 @@ void TtlSystem::initialize( POINT& loc, std::unordered_map<HWND, std::string>& t
 
 	zeroTtls.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y + 20 };
 	zeroTtls.ID = id++;
-	if (zeroTtls.ID != IDC_ZERO_TTLS)
-	{
-		throw;
-	}
+	idVerify(zeroTtls.ID, IDC_ZERO_TTLS);
 	zeroTtls.Create( "Zero TTLs", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, zeroTtls.sPos, master, zeroTtls.ID );
 	zeroTtls.setToolTip( "Pres this button to set all ttls to their zero (false) state.", toolTips, master );
 	loc.y += 20;
@@ -390,10 +384,7 @@ void TtlSystem::initialize( POINT& loc, std::unordered_map<HWND, std::string>& t
 		ttlRowLabels[row].Create( rowName.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
 								  ttlRowLabels[row].sPos, master, ttlRowLabels[row].ID );
 	}
-	if (id != TTL_ID_BEGIN)
-	{
-		throw;
-	}
+	idVerify(id, TTL_ID_BEGIN);
 	// all push buttons
 	for (int row = 0; row < ttlPushControls.size(); row++)
 	{
@@ -430,10 +421,7 @@ void TtlSystem::initialize( POINT& loc, std::unordered_map<HWND, std::string>& t
 			}
 		}
 	}
-	if (id != TTL_ID_END)
-	{
-		throw;
-	}
+	idVerify(id, TTL_ID_END);
 	loc.y += 28 * 4;
 }
 
@@ -536,7 +524,7 @@ void TtlSystem::handleTTLPress(UINT id)
 			if (ttlHoldStatus[row][number])
 			{
 				ttlHoldStatus[row][number] = false;
-					ttlPushControls[row][number].colorState = -1;
+				ttlPushControls[row][number].colorState = -1;
 				ttlPushControls[row][number].RedrawWindow();
 			}
 			else
@@ -586,12 +574,22 @@ void TtlSystem::handleHoldPress()
 	}
 }
 
-void TtlSystem::resetTTLEvents()
+
+// prepares some structures for a simple force event. 
+void TtlSystem::prepareForce()
+{
+	ttlSnapshots.resize(1);
+	individualTTL_CommandList.resize(1);
+	finalFormattedCommandForDio.resize(1);
+}
+
+
+void TtlSystem::resetTtlEvents()
 {
 	ttlCommandFormList.clear();
 	ttlSnapshots.clear();
 	individualTTL_CommandList.clear();
-	finalFormattedCommandForDIO.clear();
+	finalFormattedCommandForDio.clear();
 }
 
 HBRUSH TtlSystem::handleColorMessage(CWnd* window, std::unordered_map<std::string, HBRUSH> brushes, std::unordered_map<std::string, COLORREF> rGBs, CDC* cDC)
@@ -634,13 +632,13 @@ HBRUSH TtlSystem::handleColorMessage(CWnd* window, std::unordered_map<std::strin
 	else if (controlID >= ttlRowLabels.front().ID && controlID <= ttlRowLabels.back().ID)
 	{
 		cDC->SetBkColor(rGBs["Medium Grey"]);
-		cDC->SetTextColor(rGBs["Gold"]);
+		cDC->SetTextColor(rGBs["White"]);
 		return brushes["Medium Grey"];
 	}
 	else if (controlID >= ttlNumberLabels.front().ID && controlID <= ttlNumberLabels.back().ID)
 	{
 		cDC->SetBkColor(rGBs["Medium Grey"]);
-		cDC->SetTextColor(rGBs["Gold"]);
+		cDC->SetTextColor(rGBs["White"]);
 		return brushes["Medium Grey"];
 	}
 	else
@@ -693,30 +691,29 @@ void TtlSystem::ttlOff(unsigned int row, unsigned int column, timeType time)
 }
 
 
-void TtlSystem::ttlOnDirect( unsigned int row, unsigned int column, double time )
+void TtlSystem::ttlOnDirect( unsigned int row, unsigned int column, double time, UINT var )
 {
 	TtlCommand command;
 	command.line = { row, column };
 	command.time = time;
 	command.value = true;
-	individualTTL_CommandList.push_back( command );
+	individualTTL_CommandList[var].push_back( command );
 }
 
 
-void TtlSystem::ttlOffDirect( unsigned int row, unsigned int column, double time )
+void TtlSystem::ttlOffDirect( unsigned int row, unsigned int column, double time, UINT var)
 {
 	TtlCommand command;
 	command.line = { row, column };
 	command.time = time;
 	command.value = false;
-	individualTTL_CommandList.push_back( command );
+	individualTTL_CommandList[var].push_back( command );
 }
 
 
 void TtlSystem::stopBoard()
 {
 	dioOutStop( 0 );
-	return;
 }
 
 double TtlSystem::getClockStatus()
@@ -741,7 +738,6 @@ double TtlSystem::getClockStatus()
 		return GetTickCount();
 	}
 	double timeInSeconds = stat.time[0] + stat.time[1] * 65535;
-	//double totalTime = (finalFormattedCommandForDIO.back()[0] + 65535 * finalFormattedCommandForDIO.back()[1]) / 10000.0 + 1;
 	return timeInSeconds / 10000.0;
 	// assuming the clock runs at 10 MHz, return in ms.
 }
@@ -780,16 +776,12 @@ void TtlSystem::forceTtl(int row, int number, int state)
 			}
 		}
 	}
-
 	std::array<unsigned short, 4> tempCommand;
 	tempCommand[0] = static_cast <unsigned short>(ttlBits[0].to_ulong());
 	tempCommand[1] = static_cast <unsigned short>(ttlBits[1].to_ulong());
 	tempCommand[2] = static_cast <unsigned short>(ttlBits[2].to_ulong());
 	tempCommand[3] = static_cast <unsigned short>(ttlBits[3].to_ulong());
-
 	dioForceOutput( 0, tempCommand.data(), 15 );
-
-	return;
 }
 
 
@@ -843,12 +835,12 @@ int TtlSystem::getNameIdentifier(std::string name, unsigned int& row, unsigned i
 }
 
 
-void TtlSystem::writeData()
+void TtlSystem::writeData(UINT var)
 {
 	WORD temp[4] = { -1, -1, -1, -1 };
 	double scan = 10000000;
 	DWORD availableScans = 0;
-	std::vector<WORD> arrayOfAllData( finalFormattedCommandForDIO.size() * 6 );
+	std::vector<WORD> arrayOfAllData( finalFormattedCommandForDio[var].size() * 6 );
 	DIO64STAT status;
 	status.AIControl = 0;
 
@@ -867,18 +859,23 @@ void TtlSystem::writeData()
 	for (auto& element : arrayOfAllData)
 	{
 		// concatenate all the data at once.
-		element = finalFormattedCommandForDIO[count / 6][count % 6];
+		element = finalFormattedCommandForDio[var][count / 6][count % 6];
 		count++;
 	}
 	// now arrayOfAllData contains all the experiment data.
-	dioOutWrite( 0, arrayOfAllData.data(), finalFormattedCommandForDIO.size(), status );
-	return;
+	dioOutWrite( 0, arrayOfAllData.data(), finalFormattedCommandForDio[var].size(), status );
 }
 
 
 std::string TtlSystem::getName(unsigned int row, unsigned int number)
 {
 	return ttlNames[row][number];
+}
+
+
+ULONG TtlSystem::getNumberEvents(UINT var)
+{
+	return ttlSnapshots[var].size();
 }
 
 
@@ -907,146 +904,135 @@ void TtlSystem::wait(double time)
 	double finTime = getClockStatus();
 }
 
+
 // uses the last time of the ttl trigger to wait until the experiment is finished.
-void TtlSystem::waitTillFinished()
+void TtlSystem::waitTillFinished(UINT var)
 {
-	double totalTime = (finalFormattedCommandForDIO.back()[0] + 65535 * finalFormattedCommandForDIO.back()[1]) / 10000.0 + 1;
+	double totalTime = (finalFormattedCommandForDio[var].back()[0] + 65535 * finalFormattedCommandForDio[var].back()[1]) / 10000.0 + 1;
 	wait(totalTime);
 	stopBoard();
 }
 
 
-double TtlSystem::getTotalTime()
+double TtlSystem::getTotalTime(UINT var)
 {
-	return (finalFormattedCommandForDIO.back()[0] + 65535 * finalFormattedCommandForDIO.back()[1]) / 10000.0 + 1;
+	return (finalFormattedCommandForDio[var].back()[0] + 65535 * finalFormattedCommandForDio[var].back()[1]) / 10000.0 + 1;
 }
 
 
-void TtlSystem::interpretKey(key variationKey, unsigned int variationNum, std::vector<variable>& vars)
+void TtlSystem::interpretKey(key variationKey, std::vector<variable>& vars)
 {
-	individualTTL_CommandList.clear();
-
-	for (int commandInc = 0; commandInc < ttlCommandFormList.size(); commandInc++)
+	UINT variations;
+	if (vars.size() == 0)
 	{
-		TtlCommand tempCommand;
-		tempCommand.line = ttlCommandFormList[commandInc].line;
-		tempCommand.value = ttlCommandFormList[commandInc].value;
-		double variableTime = 0;
-		// add together current values for all variable times.
-		if (ttlCommandFormList[commandInc].time.first.size() != 0)
+		variations = 1; 
+	}
+	else
+	{
+		variations = variationKey[vars[0].name].first.size();
+	}
+	/// imporantly, this sizes the relevant structures.
+	individualTTL_CommandList.clear();
+	individualTTL_CommandList.resize(variations);
+	ttlSnapshots.clear();
+	ttlSnapshots.resize(variations);
+	finalFormattedCommandForDio.clear();
+	finalFormattedCommandForDio.resize(variations);
+	// and interpret for each variation.
+	for (UINT variationNum = 0; variationNum < variations; variationNum++)
+	{
+		for (int commandInc = 0; commandInc < ttlCommandFormList.size(); commandInc++)
 		{
-			for (auto varTime : ttlCommandFormList[commandInc].time.first)
+			TtlCommand tempCommand;
+			tempCommand.line = ttlCommandFormList[commandInc].line;
+			tempCommand.value = ttlCommandFormList[commandInc].value;
+			double variableTime = 0;
+			// add together current values for all variable times.
+			if (ttlCommandFormList[commandInc].time.first.size() != 0)
 			{
-				variableTime += reduce(varTime, variationKey, variationNum, vars);
-				// this assumed no expressions.
-				//variableTime += variationKey[varTime].first[variationNum];
+				for (auto varTime : ttlCommandFormList[commandInc].time.first)
+				{
+					variableTime += reduce(varTime, variationKey, variationNum, vars);
+					// this assumed no expressions.
+					//variableTime += variationKey[varTime].first[variationNum];
+				}
 			}
+			tempCommand.time = variableTime + ttlCommandFormList[commandInc].time.second;
+			individualTTL_CommandList[variationNum].push_back(tempCommand);
 		}
-		tempCommand.time = variableTime + ttlCommandFormList[commandInc].time.second;
-		individualTTL_CommandList.push_back(tempCommand);
 	}
 }
 
 
-void TtlSystem::analyzeCommandList()
+void TtlSystem::analyzeCommandList(UINT var)
 {
 	// each element of this is a different time (the double), and associated with each time is a vector which locates 
 	// which commands were on at this time, for ease of retrieving all of the values in a moment.
-	std::vector<std::pair<double, std::vector<unsigned int>>> timeOrganizer;
+	std::vector<std::pair<double, std::vector<unsigned short>>> timeOrganizer;
+	std::vector<TtlCommand> orderedList(individualTTL_CommandList[var]);
+	std::sort(orderedList.begin(), orderedList.end(), [](TtlCommand a, TtlCommand b) {return a.time < b.time; });
 	/// organize all of the commands.
-	for (int commandInc = 0; commandInc < individualTTL_CommandList.size(); commandInc++)
+	for (USHORT commandInc = 0; commandInc < individualTTL_CommandList[var].size(); commandInc++)
 	{
-		// if it stays -1 after the following, it's a new time.
-		int timeIndex = -1;
-		for (int timeInc = 0; timeInc < timeOrganizer.size(); timeInc++)
+		// because the events are sorted by time, the time organizer will already be sorted by time, and therefore I 
+		// just need to check the back value's time.
+		if (commandInc == 0 || fabs(orderedList[commandInc].time - timeOrganizer.back().first) > 2 * DBL_EPSILON)
 		{
-			// if this time is already in the time-organizer,
-			if (individualTTL_CommandList[commandInc].time == timeOrganizer[timeInc].first)
-			{
-				// grab the index
-				timeIndex = timeInc;
-				break;
-			}
-		}
-		if (timeIndex == -1)
-		{
-			// It didn't find the time in the organizer, so it's a new time.
-			std::vector<unsigned int> tempCorrespondingCommands;
-			tempCorrespondingCommands.push_back( commandInc );
-			timeOrganizer.push_back({ individualTTL_CommandList[commandInc].time, tempCorrespondingCommands });
+			// new time
+			timeOrganizer.push_back({ orderedList[commandInc].time, std::vector<USHORT>({ commandInc }) });
 		}
 		else
 		{
-			timeOrganizer[timeIndex].second.push_back(commandInc);
+			// old time
+			timeOrganizer.back().second.push_back(commandInc);
 		}
 	}
-
-	// this one will have all of the times ordered in sequence, in case the other doesn't.
-	std::vector<std::pair<double, std::vector<unsigned int>>> orderedOrganizer;
-	/// order the commands.
-	while (timeOrganizer.size() != 0)
-	{
-		// find the lowest value time
-		double lowestTime = DBL_MAX;
-		unsigned int index;
-		for (int commandInc = 0; commandInc < timeOrganizer.size(); commandInc++)
-		{
-			if (timeOrganizer[commandInc].first < lowestTime)
-			{
-				lowestTime = timeOrganizer[commandInc].first;
-				index = commandInc;
-			}
-		}
-		orderedOrganizer.push_back(timeOrganizer[index]);
-		timeOrganizer.erase(timeOrganizer.begin() + index);
-	}
-
 	/// now figure out the state of the system at each time.
-	if (orderedOrganizer.size() == 0)
+	if (timeOrganizer.size() == 0)
 	{
 		thrower("ERROR: No ttl commands! The Ttl system is the master behind everything in a repetition, and so it "
 				 "must contain something.\r\n");
 	}
 
-	ttlSnapshots.clear();
+	ttlSnapshots[var].clear();
 	// start with the initial status.
-	ttlSnapshots.push_back({ 0, ttlStatus });
-	if (orderedOrganizer[0].first != 0)
+	ttlSnapshots[var].push_back({ 0, ttlStatus });
+	if (timeOrganizer[0].first != 0)
 	{
 		// then there were no commands at time 0, so just set the initial state to be exactly the original state before
 		// the experiment started. I don't need to modify the first snapshot in this case, it's already set. Add a snapshot
 		// here so that the thing modified is the second snapshot.
-		ttlSnapshots.push_back({ 0, ttlStatus });
+		ttlSnapshots[var].push_back({ 0, ttlStatus });
 	}
 
 	// handle the zero case specially. This may or may not be the literal first snapshot.
-	ttlSnapshots.back().time = orderedOrganizer[0].first;
-	for (int zeroInc = 0; zeroInc < orderedOrganizer[0].second.size(); zeroInc++)
+	ttlSnapshots[var].back().time = timeOrganizer[0].first;
+	for (int zeroInc = 0; zeroInc < timeOrganizer[0].second.size(); zeroInc++)
 	{
 		// make sure to address he correct ttl. the ttl location is located in individuaTTL_CommandList but you need 
 		// to make sure you access the correct command.
-		unsigned int row =		individualTTL_CommandList[orderedOrganizer[0].second[zeroInc]].line.first;
-		unsigned int column =	individualTTL_CommandList[orderedOrganizer[0].second[zeroInc]].line.second;		
-		ttlSnapshots.back().ttlStatus[row][column]	= individualTTL_CommandList[orderedOrganizer[0].second[zeroInc]].value;
+		unsigned int row =		individualTTL_CommandList[var][timeOrganizer[0].second[zeroInc]].line.first;
+		unsigned int column =	individualTTL_CommandList[var][timeOrganizer[0].second[zeroInc]].line.second;
+		ttlSnapshots[var].back().ttlStatus[row][column]	= individualTTL_CommandList[var][timeOrganizer[0].second[zeroInc]].value;
 	}
 	
 	// already handled the first case.
-	for (int commandInc = 1; commandInc < orderedOrganizer.size(); commandInc++)
+	for (int commandInc = 1; commandInc < timeOrganizer.size(); commandInc++)
 	{
 		// first copy the last set so that things that weren't changed remain unchanged.
-		ttlSnapshots.push_back(ttlSnapshots.back());
+		ttlSnapshots[var].push_back(ttlSnapshots[var].back());
 		//
-		ttlSnapshots.back().time = orderedOrganizer[commandInc].first;
-		for (int zeroInc = 0; zeroInc < orderedOrganizer[commandInc].second.size(); zeroInc++)
+		ttlSnapshots[var].back().time = timeOrganizer[commandInc].first;
+		for (int zeroInc = 0; zeroInc < timeOrganizer[commandInc].second.size(); zeroInc++)
 		{
 			// see description of this command above... update everything that changed at this time.
-			unsigned int row = individualTTL_CommandList[orderedOrganizer[commandInc].second[zeroInc]].line.first;
-			unsigned int column = individualTTL_CommandList[orderedOrganizer[commandInc].second[zeroInc]].line.second;
-			ttlSnapshots.back().ttlStatus[row][column] = individualTTL_CommandList[orderedOrganizer[commandInc].second[zeroInc]].value;
+			unsigned int row = individualTTL_CommandList[var][timeOrganizer[commandInc].second[zeroInc]].line.first;
+			unsigned int column = individualTTL_CommandList[var][timeOrganizer[commandInc].second[zeroInc]].line.second;
+				ttlSnapshots[var].back().ttlStatus[row][column] = individualTTL_CommandList[var][timeOrganizer[commandInc].second[zeroInc]].value;
 		}
 	}
 	// phew. Check for good input by user:
-	for (auto snapshot : ttlSnapshots)
+	for (auto snapshot : ttlSnapshots[var])
 	{
 		if (snapshot.time < 0)
 		{
@@ -1056,29 +1042,25 @@ void TtlSystem::analyzeCommandList()
 	}
 }
 
-void TtlSystem::convertToFinalFormat()
+void TtlSystem::convertToFinalFormat(UINT var)
 {
-	finalFormattedCommandForDIO.clear();
+	finalFormattedCommandForDio[var].clear();
 	// do bit arithmetic.
-	for (int timeInc = 0; timeInc < ttlSnapshots.size(); timeInc++)
+	for (int timeInc = 0; timeInc < ttlSnapshots[var].size(); timeInc++)
 	{
 		WORD lowordTime;
 		WORD hiwordTime;
 		// convert to system clock ticks. Assume that the crate is running on a 10 MHz signal, so multiply by 10,000,000, but then my time is in milliseconds, so divide that
 		// by 1,000, ending with multiply by 10,000
-		lowordTime = long(ttlSnapshots[timeInc].time * 10000) % 65535;
-		hiwordTime = long(ttlSnapshots[timeInc].time * 10000) / 65535;
-		//errBox( "timeInc = " + std::to_string( timeInc ) );
-		//errBox( "ttlSnapshots[timeInc].time = " + std::to_string( ttlSnapshots[timeInc].time ) );
-		//errBox( "lowordTime = " + std::to_string( lowordTime ) );
-		//errBox( "hiwordTime = " + std::to_string( hiwordTime ) );
+		lowordTime = long(ttlSnapshots[var][timeInc].time * 10000) % 65535;
+		hiwordTime = long(ttlSnapshots[var][timeInc].time * 10000) / 65535;
 		// each major index is a row (A, B, C, D), each minor index is a ttl state (0, 1) in that row.
 		std::array<std::bitset<16>, 4> ttlBits;
 		for (int rowInc = 0; rowInc < 4; rowInc++)
 		{
 			for (int numberInc = 0; numberInc < 16; numberInc++)
 			{
-				if (ttlSnapshots[timeInc].ttlStatus[rowInc][numberInc])
+				if (ttlSnapshots[var][timeInc].ttlStatus[rowInc][numberInc])
 				{
 					// flip bit to 1.
 					ttlBits[rowInc].set(numberInc, true);
@@ -1099,7 +1081,7 @@ void TtlSystem::convertToFinalFormat()
 		tempCommand[3] = static_cast <unsigned short>(ttlBits[1].to_ulong());
 		tempCommand[4] = static_cast <unsigned short>(ttlBits[2].to_ulong());
 		tempCommand[5] = static_cast <unsigned short>(ttlBits[3].to_ulong());
-		finalFormattedCommandForDIO.push_back(tempCommand);
+		finalFormattedCommandForDio[var].push_back(tempCommand);
 	}
 }
 
@@ -1163,10 +1145,10 @@ void TtlSystem::zeroBoard()
 
 
 /// DIO64 Wrapper functions that I actually use
-std::string TtlSystem::getTtlSequenceMessage()
+std::string TtlSystem::getTtlSequenceMessage(UINT var)
 {
 	std::string message;
-	for (auto snap : ttlSnapshots)
+	for (auto snap : ttlSnapshots[var])
 	{
 		message += std::to_string(snap.time) + ":\n";
 		int rowInc = 0;
@@ -1369,7 +1351,7 @@ void TtlSystem::dioOutStatus(WORD board, DWORD& scansAvail, DIO64STAT& status)
 		int result = raw_DIO64_Out_Status(board, &scansAvail, &status);
 		if (result)
 		{
-			thrower("dioOutStatus failed! : (" + std::to_string(result) + "): " + getErrorMessage(result));
+			thrower("dioOutStatus failed! : (" + std::to_string(result) + "): " + getErrorMessage(result) + "\r\n");
 		}
 	}
 }

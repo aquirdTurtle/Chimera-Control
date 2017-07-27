@@ -1,0 +1,14 @@
+% pushout(). Takes 10 + pushoutTime ms, typically around 11ms.
+def pushout():
+  % insert commands here...
+	dacramp: 795Freq -1.1 pushoutDepth 5 0.02
+	dac: motFreq 0.45
+	dac: sideMotPower 0.125
+	% mostly for the power ramp. also, lets the mot frequency settle.
+	t += 5
+	on: A5
+	t += pushoutTime
+	off: A5
+	dac: sideMotPower 0
+	dacramp: 795Freq pushoutDepth -1.1 5 0.02
+	t += 5

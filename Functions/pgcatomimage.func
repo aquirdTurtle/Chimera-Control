@@ -1,0 +1,25 @@
+% Master-Script See the "?" for info on commands.
+def pgcAtomImage():
+	% give the shutter some time to open.
+	on: andorShutter
+	off: diagMotRf
+	dac: diagMotPower 0
+	dac: MotFreq imagingDetuning
+	dac: SideMotPower imagingPower
+	dac: RepumpPower 0.02
+	t += 3
+	% turn the repump on a tiny bit early 
+	% to pump to the F=2 manifold.
+	on: RepumpRf
+	t += 1
+	on: SideMotRf
+	on: andorTrig
+	t += andorImageTime
+	off: andorTrig
+	off: andorshutter
+	off: SideMotRf
+	off: repumpRf
+	dac: MotFreq -0.1
+	% note that the camera needs some time before it can take
+	% another image. Typically we need to wait like 5ms.
+	

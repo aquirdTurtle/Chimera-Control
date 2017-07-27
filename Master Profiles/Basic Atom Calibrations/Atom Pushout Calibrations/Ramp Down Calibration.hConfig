@@ -1,0 +1,120 @@
+Master Version: 1.1
+MASTER SCRIPT:
+LOCAL Basic Pushout
+VARIABLES:
+2
+pushouttime Not_Timelike Constant 1 1 0 1 
+pushoutdepth Not_Timelike Constant 1 -0.5 0 1 
+TTLS:
+1
+1
+0
+0
+0
+1
+1
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+0
+0
+1
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+DACS:
+0.915
+-0.755
+-1.02
+1.475
+-0.15
+-0.0897
+7
+0
+0
+0.35
+0
+0.1
+0
+0
+0
+0
+0
+-1.1
+0
+0
+-0.07
+0
+0.3
+0
+REPETITIONS:
+500
+AGILENTVERSION 1.0
+0
+CHANNEL 1
+-2, , , , , , , , 
+CHANNEL 2
+-2, , , , , , , , 
+AGILENTVERSION 1.0
+0
+CHANNEL 1
+-2, , , , , , , , 
+CHANNEL 2
+-2, , , , , , , , 
+AGILENTVERSION 1.0
+0
+CHANNEL 1
+-2, , , , , , , , 
+CHANNEL 2
+-2, , , , , , , , 
+NOTES:
+Calibrating the depth to which the atoms are ramped during pushout.
+END CONFIGURATION NOTES

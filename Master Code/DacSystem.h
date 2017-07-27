@@ -8,9 +8,9 @@
 #include "TtlSystem.h"
 #include "KeyHandler.h"
 
-struct DAC_ComplexEvent
+struct DacComplexEvent
 {
-	unsigned int line;
+	unsigned short line;
 	timeType time;
 	std::string initVal;
 	std::string finalVal;
@@ -18,14 +18,14 @@ struct DAC_ComplexEvent
 	std::string rampInc;
 };
 
-struct DAC_IndividualEvent
+struct DacIndividualEvent
 {
-	unsigned int line;
+	unsigned short line;
 	double time;
 	double value;
 };
 
-struct DAC_Snapshot
+struct DacSnapshot
 {
 	double time;
 	std::array<double, 24> dacValues;
@@ -43,29 +43,28 @@ class DacSystem
 		DacSystem::DacSystem();
 		void abort();
 		void initialize( POINT& pos, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id );
-		std::string getDacSequenceMessage();
+		std::string getDacSequenceMessage(UINT var);
 		void handleButtonPress(TtlSystem* ttls);
 		void setDacComplexEvent(int line, timeType time, std::string initVal, std::string finalVal, std::string rampTime, std::string rampInc);
-		void setForceDacEvent( int line, double val, TtlSystem* ttls );
+		void setForceDacEvent( int line, double val, TtlSystem* ttls, UINT var );
 
 		void setDacStatusNoForceOut(std::array<double, 24> status);
 		void prepareDacForceChange(int line, double voltage, TtlSystem* ttls);
 		void stopDacs();
-		void configureClocks();
-		void setDacTtlTriggerEvents( TtlSystem* ttls );
-		void interpretKey(key variationKey, unsigned int variationNumber, std::vector<variable>& vars, 
-						  std::string& warnings);
-		void analyzeDAC_Commands();
-		void makeFinalDataFormat();
-		void writeDacs();
+		void configureClocks(UINT var);
+		void setDacTriggerEvents( TtlSystem* ttls, UINT var );
+		void interpretKey(key variationKey, std::vector<variable>& vars, std::string& warnings);
+		void analyzeDacCommands(UINT var);
+		void makeFinalDataFormat(UINT var);
+		void writeDacs(UINT var);
 		void startDacs();
-		unsigned int getNumberSnapshots();
-		void checkTimingsWork();
+		unsigned int getNumberSnapshots(UINT var);
+		void checkTimingsWork(UINT var);
 		void setName(int dacNumber, std::string name, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master);
 		std::string getName(int dacNumber);
 		std::array<std::string, 24> getAllNames();
 		std::string getErrorMessage(int errorCode);
-		
+		ULONG getNumberEvents(UINT var);
 		void handleDacScriptCommand( timeType time, std::string name, std::string initVal, std::string finalVal,
 									  std::string rampTime, std::string rampInc, std::vector<unsigned int>& dacShadeLocations, 
 									  std::vector<variable>& vars, TtlSystem* ttls);
@@ -73,9 +72,9 @@ class DacSystem
 		std::string getDacSystemInfo();
 
 		void handleEditChange(unsigned int dacNumber);
-		int getDAC_Identifier(std::string name);
-		double getDAC_Value(int dacNumber);
-		unsigned int getNumberOfDACs();
+		int getDacIdentifier(std::string name);
+		double getDacValue(int dacNumber);
+		unsigned int getNumberOfDacs();
 		std::pair<double, double> getDacRange(int dacNumber);
 		void setMinMax(int dacNumber, double min, double max);
 
@@ -88,14 +87,12 @@ class DacSystem
 		bool isValidDACName(std::string name);
 
 		HBRUSH handleColorMessage(CWnd* hwnd, std::unordered_map<std::string, HBRUSH> brushes, std::unordered_map<std::string, COLORREF> rgbs, CDC* cDC);
-		void resetDACEvents();
+		void resetDacEvents();
 		std::array<double, 24> getDacStatus();
 		std::array<double, 24> getFinalSnapshot();
-
-		void checkValuesAgainstLimits();
-
-
-
+		void checkValuesAgainstLimits(UINT var);
+		void prepareForce();
+		double roundToDacResolution(double);
 	private:
 		Control<CStatic> dacTitle;
 		Control<CButton> dacSetButton;
@@ -106,13 +103,15 @@ class DacSystem
 		std::array<std::string, 24> dacNames;
 		std::array<double, 24> dacMinVals;
 		std::array<double, 24> dacMaxVals;
+		const double dacResolution;
+		std::vector<DacComplexEvent> dacComplexEventsList;
+		// the first vector is for each variation.
+		std::vector<std::vector<DacIndividualEvent>> dacIndividualEvents;
+		std::vector<std::vector<DacSnapshot>> dacSnapshots;
+		std::vector<std::array<std::vector<double>, 3>> finalFormattedData;
 
-		std::vector<DAC_ComplexEvent> dacComplexEventsList;
-		std::vector<DAC_IndividualEvent> dacIndividualEvents;
-		std::vector<DAC_Snapshot> dacSnapshots;
-		std::array<std::vector<double>, 3> finalFormattedData;
+		std::pair<USHORT, USHORT> dacTriggerLine;
 
-		std::array<std::pair<unsigned int, unsigned int>, 3> dacTriggerLines;
 		double dacTriggerTime;
 
 		// task for DACboard0 (tasks are a national instruments DAQmx thing)
@@ -121,12 +120,12 @@ class DacSystem
 		TaskHandle staticDac1 = 0;
 		// task for DACboard2
 		TaskHandle staticDac2 = 0;
-		/// I'm confused about the following two lines. I don't think our hardware even supports digital inputs, the cards
-		/// pretty clearly just say analog out.
+		/// I'm confused about the following two lines. I don't think our hardware even supports digital inputs, the 
+		/// cards pretty clearly just say analog out.
 		// another task for DACboard0 (reads in a digital line)
-		TaskHandle digitalDAC_0_00 = 0;
+		TaskHandle digitalDac_0_00 = 0;
 		// another task for DACboard0 (reads in a digital line)
-		TaskHandle digitalDAC_0_01 = 0;
+		TaskHandle digitalDac_0_01 = 0;
 		
 		/// My wrappers for all of the daqmx functions that I use currently. If I needed to use another function, I'd 
 		/// create another wrapper!

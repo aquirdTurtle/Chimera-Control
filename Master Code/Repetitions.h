@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "Control.h"%
+#include "Control.h"
 #include <Windows.h>
 #include <unordered_map>
 
@@ -11,7 +11,7 @@ class Repetitions
 		void initialize(POINT& pos, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id);
 		void setRepetitions(unsigned int number);
 		unsigned int getRepetitionNumber();
-		INT_PTR handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, std::unordered_map<std::string, HBRUSH> brushes);
+		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
 		//void handleButtonPush();
 		void rearrange(UINT width, UINT height, fontMap fonts);
 		void updateNumber(long repNumber);

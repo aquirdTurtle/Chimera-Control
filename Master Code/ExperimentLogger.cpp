@@ -9,7 +9,7 @@
 
 void ExperimentLogger::generateLog(MasterWindow* master)
 {
-	this->logText.clear();
+	logText.clear();
 	// brief description.
 	time_t timeObj = time(0);   // get time now
 	struct tm currentTime;
@@ -18,8 +18,8 @@ void ExperimentLogger::generateLog(MasterWindow* master)
 	timeString += "-" + std::to_string(currentTime.tm_mon + 1) + "-";
 	timeString += std::to_string(currentTime.tm_mday) + ", " + std::to_string(currentTime.tm_hour);
 	timeString += ":" + std::to_string(currentTime.tm_min) + ":" + std::to_string(currentTime.tm_sec);
-	this->logText << "An experiment ran at (y-m-d h:m:s)" + timeString + " with the following parameters:\n";
-	this->logText << "==========================================================================================\n";
+	logText << "An experiment ran at (y-m-d h:m:s)" + timeString + " with the following parameters:\n";
+	logText << "==========================================================================================\n";
 	// log ttls
 	// set width for table entries.
 	logText << std::setw(10);
@@ -97,16 +97,16 @@ void ExperimentLogger::generateLog(MasterWindow* master)
 	// log dacs
 	logText << "\n\nDAC Settings:\n";
 	logText << std::setw(10) << "VALUES";
-	for (int dacInc = 0; dacInc < master->dacBoards.getNumberOfDACs(); dacInc++)
+	for (int dacInc = 0; dacInc < master->dacBoards.getNumberOfDacs(); dacInc++)
 	{
 		if (dacInc % 8 == 0)
 		{
 			logText << "\n";
 		}
-		logText << std::setw(3) << std::to_string(dacInc+1) + ":" << std::setw(10) << std::setprecision(8) << std::left << std::to_string(master->dacBoards.getDAC_Value(dacInc));
+		logText << std::setw(3) << std::to_string(dacInc+1) + ":" << std::setw(10) << std::setprecision(8) << std::left << std::to_string(master->dacBoards.getDacValue(dacInc));
 	}
 	logText << std::setw(10) << "\nNAMES";
-	for (int dacInc = 0; dacInc < master->dacBoards.getNumberOfDACs(); dacInc++)
+	for (int dacInc = 0; dacInc < master->dacBoards.getNumberOfDacs(); dacInc++)
 	{
 		if (dacInc % 8 == 0)
 		{
@@ -163,7 +163,6 @@ void ExperimentLogger::generateLog(MasterWindow* master)
 	logText << "\n\nError Status:\n" << master->errorStatus.getText();
 	// log the general status
 	logText << "\n\nGeneral Status:\n" << master->generalStatus.getText();
-	return;
 }
 
 void ExperimentLogger::exportLog()
@@ -174,14 +173,13 @@ void ExperimentLogger::exportLog()
 	if (!exportFile.is_open())
 	{
 		thrower( "ERROR: logging file failed to open!" );
-		return;
 	}
 	// export...
-	exportFile << this->logText.str();
+	exportFile << logText.str();
 	exportFile.close();
 }
 
 std::string ExperimentLogger::getLog()
 {
-	return this->logText.str();
+	return logText.str();
 }

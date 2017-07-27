@@ -314,7 +314,7 @@ void Script::handleEditChange(MasterWindow* master)
 			editChangeEnd = charRange.cpMax;
 		}
 		master->SetTimer(SYNTAX_TIMER_ID, SYNTAX_TIMER_LENGTH, NULL);
-		//this->syntaxTimer.SetTimer(SYNTAX_TIMER_ID, SYNTAX_TIMER_LENGTH, NULL);
+		//syntaxTimer.SetTimer(SYNTAX_TIMER_ID, SYNTAX_TIMER_LENGTH, NULL);
 		syntaxColoringIsCurrent = false;
 		updateSavedStatus(false);
 }
@@ -564,10 +564,7 @@ void Script::initialize(int width, int height, POINT& startingLocation, std::vec
 	// available functions combo
 	availableFunctionsCombo.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 800 };
 	availableFunctionsCombo.ID = id++;
-	if ( availableFunctionsCombo.ID != FUNCTION_COMBO_ID )
-	{
-		throw;
-	}
+	idVerify(availableFunctionsCombo.ID, FUNCTION_COMBO_ID);
 	availableFunctionsCombo.Create(CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, availableFunctionsCombo.sPos, master, availableFunctionsCombo.ID);
 	availableFunctionsCombo.fontType = Normal;
 	availableFunctionsCombo.AddString("Available Functions List:");
@@ -578,10 +575,7 @@ void Script::initialize(int width, int height, POINT& startingLocation, std::vec
 	// Edit
 	edit.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, height};
 	edit.ID = id++;
-	if ( edit.ID != MASTER_RICH_EDIT )
-	{
-		throw;
-	}
+	idVerify(edit.ID, MASTER_RICH_EDIT);
 	edit.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | WS_HSCROLL | ES_WANTRETURN | WS_BORDER,
 				 edit.sPos, master, edit.ID);
 	edit.fontType = Code;
@@ -617,6 +611,8 @@ void Script::changeView(std::string viewName, MasterWindow* Master, bool isFunct
 		loadFile(Master->profile.getCurrentPathIncludingCategory() + viewName, Master);
 	}
 	colorEntireScript(Master);
+	// the view is fresh from a file, so it's saved.
+	updateSavedStatus(true);
 }
 
 //
@@ -704,8 +700,7 @@ void Script::saveScriptAs(std::string location, MasterWindow* Master)
 	std::fstream saveFile(location, std::fstream::out);
 	if (!saveFile.is_open())
 	{
-		MessageBox(0, ("ERROR: Failed to open script file: " + location).c_str(), 0, 0);
-		return;
+		thrower("ERROR: Failed to open script file: " + location);
 	}
 	saveFile << text;
 	char fileChars[_MAX_FNAME];
@@ -729,12 +724,19 @@ void Script::checkSave(MasterWindow* Master)
 		// don't need to do anything
 		return;
 	}
-	if (scriptName == "")
+	// test first non-commented word of text to see if this looks like a function or not.
+	CString text;
+	edit.GetWindowTextA(text);
+	ScriptStream tempStream;
+	tempStream << text;
+	std::string word;
+	tempStream >> word;
+	if (word == "def")
 	{
-		int answer = MessageBox(0, ("Current " + deviceType + " script file is unsaved and unnamed. Save it with a with new name?").c_str(), 0, MB_YESNOCANCEL);
+		int answer = MessageBox(0, ("Current " + deviceType + " function file is unsaved. Save it?").c_str(), 0, MB_YESNOCANCEL);
 		if (answer == IDCANCEL)
 		{
-			return;
+			thrower("Cancel!");
 		}
 		else if (answer == IDNO)
 		{
@@ -742,7 +744,26 @@ void Script::checkSave(MasterWindow* Master)
 		}
 		else if (answer == IDYES)
 		{
-			std::string newName = (const char*)DialogBoxParam(Master->programInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure,
+			saveAsFunction();
+			return;
+		}
+	}
+	// else it's a normal script file.
+	if (scriptName == "")
+	{
+		int answer = MessageBox(0, ("Current " + deviceType + " script file is unsaved and unnamed. Save it with a with new name?").c_str(), 0, MB_YESNOCANCEL);
+		if (answer == IDCANCEL)
+		{
+			thrower("Cancel!");
+		}
+		else if (answer == IDNO)
+		{
+			return;
+		}
+		else if (answer == IDYES)
+		{
+			std::string newName = (const char*)DialogBoxParam(Master->programInstance, 
+															  MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure,
 				(LPARAM)("Please enter new name for the script " + scriptName + ".").c_str());
 			std::string path = Master->profile.getCurrentPathIncludingCategory() + newName + extension;
 			saveScriptAs(path, Master);
@@ -1023,7 +1044,7 @@ void Script::considerCurrentLocation(MasterWindow* Master)
 				" particular configuration are reserved to that configuration folder. Copy script to current configuration folder?", 0, MB_YESNO);
 			if (answer == IDYES)
 			{
-				std::string scriptName = scriptFullAddress.substr(sPos, this->scriptFullAddress.size());
+				std::string scriptName = scriptFullAddress.substr(sPos, scriptFullAddress.size());
 				scriptFullAddress = Master->profile.getCurrentPathIncludingCategory() + scriptName;
 				scriptPath = Master->profile.getCurrentPathIncludingCategory();
 				saveScriptAs(scriptFullAddress, Master);
@@ -1049,7 +1070,7 @@ void Script::updateScriptNameText(std::string path)
 		sPos = categoryPath.find_last_of('\\');
 		std::string category = categoryPath.substr(sPos + 1, categoryPath.size());
 		std::string text = category + "->" + name;
-		this->fileNameText.SetWindowTextA(text.c_str());
+		fileNameText.SetWindowTextA(text.c_str());
 	}
 	else
 	{
@@ -1062,9 +1083,8 @@ void Script::updateScriptNameText(std::string path)
 		{
 			text += scriptName;
 		}
-		this->fileNameText.SetWindowTextA(text.c_str());
+		fileNameText.SetWindowTextA(text.c_str());
 	}
-	return;
 }
 
 INT_PTR Script::handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, std::unordered_map<std::string, HBRUSH> brushes)
@@ -1090,11 +1110,12 @@ INT_PTR Script::handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lP
 	}
 }
 
+
 void Script::saveAsFunction()
 {
 	// check to make sure that the current script is defined like a function
 	CString text;
-	this->edit.GetWindowTextA(text);
+	edit.GetWindowTextA(text);
 	ScriptStream stream;
 	stream << text.GetBuffer();
 	std::string word;
@@ -1102,7 +1123,6 @@ void Script::saveAsFunction()
 	if (word != "def")
 	{
 		thrower("ERROR: Function declarations must begin with \"def\".");
-		return;
 	}
 	std::string line;
 	line = stream.getline( '\r' );
@@ -1110,14 +1130,12 @@ void Script::saveAsFunction()
 	if (pos == std::string::npos)
 	{
 		thrower("No \"(\" found in function name. If there are no arguments, use empty parenthesis \"()\"");
-		return;
 	}
 	int initNamePos = line.find_first_not_of(" \t");
 	std::string functionName = line.substr(initNamePos, line.find_first_of("("));
 	if (functionName.find_first_of(" ") != std::string::npos)
 	{
 		thrower("ERROR: Function name included a space! Name was" + functionName);
-		return;
 	}
 	std::string path = FUNCTIONS_FOLDER_LOCATION + functionName + FUNCTION_EXTENSION;
 	FILE *file;
@@ -1152,7 +1170,7 @@ void Script::loadFunctions()
 	// scan the function home for functions.
 	// Re-add the entries back in and figure out which one is the current one.
 	std::vector<std::string> names;
-	std::string search_path = this->functionLocation + "\\*.func";
+	std::string search_path = functionLocation + "\\*.func";
 	WIN32_FIND_DATA fd;
 	HANDLE hFind;
 	hFind = FindFirstFile(search_path.c_str(), &fd);
@@ -1177,7 +1195,7 @@ void Script::loadFunctions()
 		{
 			functionFile.close();
 		}
-		functionFile.open(this->functionLocation + "\\" + names[functionInc], std::ios::in);
+		functionFile.open(functionLocation + "\\" + names[functionInc], std::ios::in);
 		if (!functionFile.is_open())
 		{
 			MessageBox(0, ("ERROR: Failed to open function file: " + names[functionInc]).c_str(), 0, 0);

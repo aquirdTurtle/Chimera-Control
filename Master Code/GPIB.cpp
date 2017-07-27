@@ -10,7 +10,7 @@ void Gpib::gpibWrite( int deviceID, std::string msg )
 	int result = ibwrt(deviceID, (void*)msg.c_str(), size);
 	if ( result == ERR )
 	{
-		thrower( "gpib write failed! " + this->getErrMessage(iberr ));
+		thrower( "gpib write failed! " + getErrMessage(iberr ));
 	}
 }
 
@@ -21,7 +21,7 @@ std::string Gpib::gpibRead( int deviceID )
 	int code = ibrd( deviceID, result, 256 );
 	if ( code == ERR )
 	{
-		thrower( "gpib read failed!" + this->getErrMessage( iberr ) );
+		thrower( "gpib read failed!" + getErrMessage( iberr ) );
 	}
 	return std::string( result );
 }
@@ -57,33 +57,6 @@ Gpib::Gpib()
 }
 
 
-void Gpib::interpretKeyForTektronics(tektronicsInfo& info, key variationKey, UINT variableNumber, std::vector<variable>& vars)
-{
-	/// deal with first channel.
-	if (info.channels.first.on)
-	{
-		info.channels.first.mainFreqVal = reduce(info.channels.first.mainFreq, variationKey, variableNumber, vars);
-		info.channels.first.powerVal = reduce(info.channels.first.power, variationKey, variableNumber, vars);
-		// handle FSK options
-		if (info.channels.first.fsk)
-		{
-			info.channels.first.fskFreqVal = reduce(info.channels.first.fskFreq, variationKey, variableNumber, vars);
-		}
-	}
-	// if off don't worry about trying to convert anything, user can not-enter things and it can be fine.
-	/// handle second channel.
-	if (info.channels.second.on)
-	{
-		info.channels.second.mainFreqVal = reduce(info.channels.second.mainFreq, variationKey, variableNumber, vars);
-		info.channels.second.powerVal = reduce(info.channels.second.power, variationKey, variableNumber, vars);
-		// handle FSK options
-		if (info.channels.second.fsk)
-		{
-			info.channels.second.fskFreqVal = reduce(info.channels.second.fskFreq, variationKey, variableNumber, vars);
-		}
-	}
-}
-
 // send message to address.
 void Gpib::gpibSend(int address, std::string message)
 {
@@ -93,14 +66,13 @@ void Gpib::gpibSend(int address, std::string message)
 		Send( 0, address, (void*) message.c_str(), message.size(), NLend );
 		if ( ibsta == ERR )
 		{
-			thrower( "GPIB ERROR: " + this->getErrMessage( iberr ) );
+			thrower( "GPIB ERROR: " + getErrMessage( iberr ) );
 		}
 		else
 		{
 			// errBox( "success??" );
 		}
 	}
-	return;
 }
 
 
@@ -150,59 +122,6 @@ std::string Gpib::queryIdentity( int deviceAddress )
 		}
 	}
 }
-
-
-void Gpib::programTektronixs(tektronicsInfo info)
-{
-	if (info.channels.first.on)
-	{
-		gpibSend(info.machineAddress, "SOURCE1:FREQ " + std::to_string(info.channels.first.mainFreqVal));
-		gpibSend(info.machineAddress, "SOURCE1:VOLT:UNIT DBM");
-		gpibSend(info.machineAddress, "SOURCE1:VOLT " + std::to_string(info.channels.first.powerVal));
-		gpibSend(info.machineAddress, "SOURCE1:VOLT:OFFS 0");
-		
-		if (info.channels.first.fsk)
-		{
-			gpibSend(info.machineAddress, "SOURCE1:FSKey:STATe On");
-			gpibSend(info.machineAddress, "SOURCE1:FSKey:FREQ " + std::to_string(info.channels.first.fskFreqVal));
-			gpibSend(info.machineAddress, "SOURCE1:FSKey:SOURce External");
-		}
-		else
-		{
-			gpibSend(info.machineAddress, "SOURCE1:FSKey:STATe Off");
-		}
-		gpibSend(info.machineAddress, "OUTput1:STATe ON");
-	}
-	else
-	{
-		gpibSend(info.machineAddress, "OUTput1:STATe OFF");
-	}
-	/// second channel
-	if (info.channels.second.on)
-	{
-		gpibSend(info.machineAddress, "SOURCE2:FREQ " + std::to_string(info.channels.second.mainFreqVal));
-		gpibSend(info.machineAddress, "SOURCE2:VOLT:UNIT DBM");
-		gpibSend(info.machineAddress, "SOURCE2:VOLT " + std::to_string(info.channels.second.powerVal));
-		gpibSend(info.machineAddress, "SOURCE2:VOLT:OFFS 0");
-
-		if (info.channels.second.fsk)
-		{
-			gpibSend(info.machineAddress, "SOURCE2:FSKey:STATe On");
-			gpibSend(info.machineAddress, "SOURCE2:FSKey:FREQ " + std::to_string(info.channels.second.fskFreqVal));
-			gpibSend(info.machineAddress, "SOURCE2:FSKey:SOURce External");
-		}
-		else
-		{
-			gpibSend(info.machineAddress, "SOURCE2:FSKey:STATe Off");
-		}
-		gpibSend(info.machineAddress, "OUTput2:STATe ON");
-	}
-	else
-	{
-		gpibSend(info.machineAddress, "OUTput2:STATe OFF");
-	}
-}
-
 
 
 std::string Gpib::getErrMessage( long errCode )

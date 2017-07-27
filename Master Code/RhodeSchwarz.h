@@ -27,19 +27,20 @@ class RhodeSchwarz
 	public:
 		// RhodeSchwarz();
 		void initialize( POINT& pos, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id );
-		void programRSG(Gpib* gpib);
+		void programRSG(Gpib* gpib, UINT var);
 		void addFrequency( rsgEventStructuralInfo eventInfo );
 		void clearFrequencies();
 		std::vector<rsgEventStructuralInfo> getFrequencyForms();
-		void interpretKey(key variationKey, unsigned int variationNum, std::vector<variable>& vars);
-		void orderEvents();
-		void setInfoDisp();
+		void interpretKey(key variationKey, std::vector<variable>& vars);	
+		void orderEvents(UINT var);
+		void setInfoDisp(UINT var);
 		std::string getRsgTtl();
 		double getTriggerTime();
 		void rearrange(UINT width, UINT height, fontMap fonts);
 	private:
 		std::vector<rsgEventStructuralInfo> eventStructures;
-		std::vector<rsgEventInfoFinal> events;
+		// outer vector is over each variation.
+		std::vector<std::vector<rsgEventInfoFinal>> events;
 		
 		double triggerTime;
 		std::string rsgTtl;
