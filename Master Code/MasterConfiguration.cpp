@@ -74,7 +74,7 @@ void MasterConfiguration::save(TtlSystem* ttls, DacSystem* dacs, VariableSystem*
 		}
 	}
 	// DAC Names
-	for (int dacInc = 0; dacInc < dacs->getNumberOfDACs(); dacInc++)
+	for (int dacInc = 0; dacInc < dacs->getNumberOfDacs(); dacInc++)
 	{
 		std::string name = dacs->getName( dacInc );
 		std::pair<double, double> minMax = dacs->getDacRange(dacInc);
@@ -122,13 +122,27 @@ void MasterConfiguration::load(TtlSystem* ttls, DacSystem& dacs, std::vector<CTo
 	{
 		thrower("ERROR: Master Configuration File Failed to Open! No Default names for TTLs, DACs, or default values.");
 	}
+	// okay things going well. Initialize ttl and dac structures.
+	ttls->resetTtlEvents();
+	ttls->prepareForce();
+	dacs.resetDacEvents();
+	dacs.prepareForce();
 	std::stringstream configStream;
 	configStream << configFile.rdbuf();
 	// output version
-	std::string version;
+	std::string versionStr;
+	double version;
 	// actually want to do this twice just to eat first word, which is "version".
-	configStream >> version;
-	configStream >> version;
+	configStream >> versionStr;
+	configStream >> versionStr;
+	try
+	{
+		version = std::stod(versionStr);
+	}
+	catch (std::invalid_argument& err)
+	{
+		thrower("Bad Version String from master config file! String was " + versionStr);
+	}
 	// save info
 	for (int ttlRowInc = 0; ttlRowInc < defaultTTLs.size(); ttlRowInc++)
 	{
@@ -154,8 +168,8 @@ void MasterConfiguration::load(TtlSystem* ttls, DacSystem& dacs, std::vector<CTo
 			defaultTTLs[ttlRowInc][ttlNumberInc] = status;
 		}
 	}
-
-	for (int dacInc = 0; dacInc < dacs.getNumberOfDACs(); dacInc++)
+	// getting dacs.
+	for (int dacInc = 0; dacInc < dacs.getNumberOfDacs(); dacInc++)
 	{
 		std::string name;
 		std::string defaultValueString;
@@ -165,7 +179,7 @@ void MasterConfiguration::load(TtlSystem* ttls, DacSystem& dacs, std::vector<CTo
 		double min;
 		double max;
 		configStream >> name;
-		if (version == "1.2")
+		if (version >= 1.2)
 		{
 			configStream >> minString;
 			std::string trash;
@@ -180,7 +194,7 @@ void MasterConfiguration::load(TtlSystem* ttls, DacSystem& dacs, std::vector<CTo
 		try
 		{
 			defaultValue = std::stod(defaultValueString);
-			if (version == "1.2")
+			if (version >= 1.2)
 			{
 				min = std::stod(minString);
 				max = std::stod(maxString);
@@ -201,13 +215,14 @@ void MasterConfiguration::load(TtlSystem* ttls, DacSystem& dacs, std::vector<CTo
 		defaultDACs[dacInc] = defaultValue;
 	}
 
-	if (version == "1.1" || version == "1.2")
+	if (version >= 1.1)
 	{
 		int varNum;
 		configStream >> varNum;
 		if (varNum < 0 || varNum > 1000)
 		{
-			int answer = MessageBox( 0, ("ERROR: variable number retrieved from file appears suspicious. The number is " + std::to_string( varNum ) + ". Is this accurate?").c_str(), 0, MB_YESNO );
+			int answer = MessageBox( 0, ("ERROR: variable number retrieved from file appears suspicious. The number is " 
+									+ std::to_string( varNum ) + ". Is this accurate?").c_str(), 0, MB_YESNO );
 			if (answer == IDNO)
 			{
 				// don't try to load anything.
@@ -242,7 +257,7 @@ void MasterConfiguration::updateDefaultDacs(DacSystem dacs)
 {
 	for (int dacInc = 0; dacInc < defaultDACs.size(); dacInc++)
 	{
-		defaultDACs[dacInc] = dacs.getDAC_Value(dacInc);
+		defaultDACs[dacInc] = dacs.getDacValue(dacInc);
 	}
 }
 

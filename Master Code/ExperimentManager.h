@@ -43,8 +43,8 @@ struct ExperimentThreadInput
 	RhodeSchwarz* rsg;
 	debuggingOptions debugOptions;
 	std::vector<Agilent*> agilents;
-	tektronicsInfo tektronics1;
-	tektronicsInfo tektronics2;
+	TektronicsControl* tektronics1;
+	TektronicsControl* tektronics2;
 	VariableSystem* globalControl;
 };
 
@@ -62,8 +62,9 @@ class ExperimentManager
 		void loadMasterScript(std::string scriptAddress);
 
 		void analyzeMasterScript( TtlSystem* ttls, DacSystem* dacs, 
-										 std::vector<std::pair<unsigned int, unsigned int>>& ttlShades,
-										 std::vector<unsigned int>& dacShades, RhodeSchwarz* rsg);
+								  std::vector<std::pair<unsigned int, unsigned int>>& ttlShades,
+								  std::vector<unsigned int>& dacShades, RhodeSchwarz* rsg, 
+								  std::vector<variable>& vars);
 
 		// this function needs the mastewindow in order to gather the relevant parameters for the experiment.
 		void startExperimentThread(MasterWindow* master);
@@ -80,13 +81,13 @@ class ExperimentManager
 		// the master script file contents get dumped into this.
 		std::string currentFunctionText;
 		std::string currentMasterScriptText;
-		std::vector<variable> variables;
+		//std::vector<variable> variables;
 		ScriptStream currentMasterScript;
 		std::string functionsFolderLocation;
 		// called by analyzeMasterScript functions only.
 		void analyzeFunction( std::string function, std::vector<std::string> args, TtlSystem* ttls, DacSystem* dacs,
 							  std::vector<std::pair<unsigned int, unsigned int>>& ttlShades, std::vector<unsigned int>& dacShades, 
-							 RhodeSchwarz* rsg);
+							  RhodeSchwarz* rsg, std::vector<variable>& vars);
 		// 
 		timeType operationTime;
 		bool experimentIsRunning;

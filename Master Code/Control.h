@@ -227,7 +227,7 @@ template <class ControlType> void Control<ControlType>::rearrange(std::string ca
 template <class Parent> bool Control<Parent>::setToolTip(std::string text, std::vector<CToolTipCtrl*>& toolTips, 
 														 MasterWindow* master)
 {
-	if (!this->toolTipIsSet)
+	if (!toolTipIsSet)
 	{
 		toolTipID = toolTips.size();
 		toolTips.push_back(new CToolTipCtrl);

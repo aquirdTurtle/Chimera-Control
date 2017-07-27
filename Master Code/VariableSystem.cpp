@@ -9,8 +9,8 @@
 #include <unordered_map>
 #include "afxcmn.h"
 #include "TtlSystem.h"
-
 #include "MasterWindow.h"
+
 
 void VariableSystem::rearrange(UINT width, UINT height, fontMap fonts)
 {
@@ -19,16 +19,117 @@ void VariableSystem::rearrange(UINT width, UINT height, fontMap fonts)
 }
 
 
-void VariableSystem::setVariationRangeNumber(int num)
+void VariableSystem::addVariableDimension()
 {
-	int currentRanges = (variablesListview.GetHeaderCtrl()->GetItemCount() - 3) / 3;
-	if (variableRangeSets != currentRanges)
+	// then add empty variable slot
+	// Make First Blank row.
+	LVITEM listViewDefaultItem;
+	memset(&listViewDefaultItem, 0, sizeof(listViewDefaultItem));
+	// Text Style
+	listViewDefaultItem.mask = LVIF_TEXT; 
+	// Max size of test
+	listViewDefaultItem.cchTextMax = 256; 
+	listViewDefaultItem.pszText = "Symbol";
+	// at end of items.
+	listViewDefaultItem.iItem = variablesListview.GetItemCount();
+	// initialize each column.
+	listViewDefaultItem.iSubItem = 0;
+	variablesListview.InsertItem(&listViewDefaultItem);
+	listViewDefaultItem.iSubItem = 1;
+	listViewDefaultItem.pszText = "Type";
+	variablesListview.SetItem(&listViewDefaultItem);
+	listViewDefaultItem.iSubItem = 2;
+	listViewDefaultItem.pszText = "Timelike?";
+	variablesListview.SetItem(&listViewDefaultItem);
+	// 
+	listViewDefaultItem.iSubItem = 3;
+	listViewDefaultItem.pszText = "1. (";
+	variablesListview.SetItem(&listViewDefaultItem);
+
+	listViewDefaultItem.iSubItem = 4;
+	listViewDefaultItem.pszText = "]";
+	variablesListview.SetItem(&listViewDefaultItem);
+	
+	listViewDefaultItem.iSubItem = 5;
+	listViewDefaultItem.pszText = "#";
+	variablesListview.SetItem(&listViewDefaultItem);
+
+	listViewDefaultItem.iSubItem = 6;
+	listViewDefaultItem.pszText = "+(]";
+	variablesListview.SetItem(&listViewDefaultItem);
+	listViewDefaultItem.iSubItem = 7;
+	listViewDefaultItem.pszText = "-(]";
+	variablesListview.SetItem(&listViewDefaultItem);
+	listViewDefaultItem.iSubItem = variablesListview.GetHeaderCtrl()->GetItemCount() - 1;
+	std::string tempStr("Dim " + str(scanDimensions+1));
+	listViewDefaultItem.pszText = (LPSTR)tempStr.c_str();
+	variablesListview.SetItem(&listViewDefaultItem);
+	/// add the blank line.
+	listViewDefaultItem.pszText = "___";
+	// at end of items.
+	listViewDefaultItem.iItem = variablesListview.GetItemCount();
+	// initialize each column.
+	listViewDefaultItem.iSubItem = 0;
+	variablesListview.InsertItem(&listViewDefaultItem);
+	for (UINT colInc = 1; colInc < variablesListview.GetHeaderCtrl()->GetItemCount(); colInc++)
+	{
+		listViewDefaultItem.iSubItem = colInc;
+		variablesListview.SetItem(&listViewDefaultItem);
+	}
+	variablesListview.RedrawWindow();
+	scanDimensions++;
+}
+
+
+void VariableSystem::removeVariableDimension()
+{
+	if (scanDimensions == 1)
+	{
+		thrower("ERROR: Can't delete last variable scan dimension.");
+	}
+	// change all variables in the last dimension to be in the second-to-last dimension.
+	// TODO: I'm gonna have to check variation numbers here or change them to be compatible.
+	for (auto& var : currentVariables)
+	{
+		if (var.scanDimension == scanDimensions)
+		{
+			var.scanDimension--;
+		}
+	}
+	// find the last such dimension border item.
+	UINT itemNumber = variablesListview.GetItemCount();
+	for (UINT item = itemNumber; item >= 0; item--)
+	{
+		CString text;
+		text = variablesListview.GetItemText(item, 0);
+		if (text == "Symbol")
+		{
+			// delete "new" for this border range
+			variablesListview.DeleteItem(variablesListview.GetItemCount()-1);
+			variablesListview.DeleteItem(item);
+			break;
+		}
+	}
+	scanDimensions--;
+}
+
+
+void VariableSystem::setVariationRangeNumber(int num, USHORT dimNumber)
+{
+	// if you add more currentRanges to the control, you need to change the 5 here to reflect the number of auxiliary 
+	// columns.
+	while (variableRanges.size() < dimNumber + 1)
+	{
+		variableRanges.push_back(1);
+	}
+	int currentRanges = (variablesListview.GetHeaderCtrl()->GetItemCount() - 5) / 3;
+	if (variableRanges[dimNumber] != currentRanges)
 	{
 		errBox("ERROR: somehow, the number of ranges the VariableSystem object thinks there are and the actual number "
-				"are off! The numbes are " + std::to_string(variableRangeSets) + " and " 
+				"are off! The numbes are " + std::to_string(variableRanges[dimNumber]) + " and "
 				+ std::to_string(currentRanges) + " respectively. The program will attempt to fix this, but " 
 				"data may be lost.");
-		variableRangeSets = currentRanges;
+		variableRanges[dimNumber] = currentRanges;
 		for (int variableInc = 0; variableInc < currentVariables.size(); variableInc++)
 		{
 			currentVariables[variableInc].ranges.resize(currentRanges);
@@ -45,7 +146,7 @@ void VariableSystem::setVariationRangeNumber(int num)
 			// Type of mask
 			listViewDefaultCollumn.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
 			// width between each coloum
-			CString varnum((std::to_string(variableRangeSets + 1) + ":(").c_str());
+			CString varnum((std::to_string(variableRanges[dimNumber] + 1) + ":(").c_str());
 			listViewDefaultCollumn.pszText = varnum.GetBuffer();
 			listViewDefaultCollumn.cx = 0x20;
 			variablesListview.InsertColumn(3 + 3 * currentRanges, &listViewDefaultCollumn);
@@ -78,14 +179,14 @@ void VariableSystem::setVariationRangeNumber(int num)
 				listViewItem.iSubItem = 5 + 3 * currentRanges;
 				variablesListview.SetItem(&listViewItem);
 			}
-			int newRangeNum = (variablesListview.GetHeaderCtrl()->GetItemCount() - 3) / 3;
+			int newRangeNum = (variablesListview.GetHeaderCtrl()->GetItemCount() - 5) / 3;
 			// make sure this makes sense.
 			if (currentRanges != newRangeNum - 1)
 			{
-				errBox("Error!");
+				errBox("Error! Range numbers after new range don't make sense!");
 			}
 			currentRanges = newRangeNum;
-			variableRangeSets = currentRanges;
+			variableRanges[dimNumber] = currentRanges;
 		}
 	}
 	else if (currentRanges > num)
@@ -93,7 +194,7 @@ void VariableSystem::setVariationRangeNumber(int num)
 		while (currentRanges > num)
 		{
 			// delete a range.
-			if (variableRangeSets == 1)
+			if (variableRanges[dimNumber] == 1)
 			{
 				// can't delete last set...
 				return;
@@ -115,7 +216,7 @@ void VariableSystem::setVariationRangeNumber(int num)
 			}
 			// continue...
 			currentRanges = newRangeNum;
-			variableRangeSets = currentRanges;
+			variableRanges[dimNumber] = currentRanges;
 		}
 	}
 	// if equal, nothing needs to be done.
@@ -131,15 +232,25 @@ void VariableSystem::handleColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
 	memset(&myItemInfo, 0, sizeof(LVHITTESTINFO));
 	myItemInfo.pt = cursorPos;
 	variablesListview.SubItemHitTest(&myItemInfo);
-	if (myItemInfo.iSubItem == 3 + 3 * variableRangeSets)
+	if (myItemInfo.iSubItem == 3 + 3 * variableRanges[0])
 	{
 		// add a range.
-		setVariationRangeNumber(variableRangeSets + 1);
+		setVariationRangeNumber(variableRanges[0] + 1, 0);
 	}
-	else if (myItemInfo.iSubItem == 4 + 3 * variableRangeSets)
-	{	
+	else if (myItemInfo.iSubItem == 4 + 3 * variableRanges[0])
+	{
 		// delete a range.
-		setVariationRangeNumber(variableRangeSets - 1);
+		setVariationRangeNumber(variableRanges[0] - 1, 0);
+	}
+	else if (myItemInfo.iSubItem == 5 + 3 * variableRanges[0])
+	{
+		// add a variable scan dimension
+		addVariableDimension();
+	}
+	else if (myItemInfo.iSubItem == 6 + 3 * variableRanges[0])
+	{
+		// remove a variable scan dimension
+		removeVariableDimension();
 	}
 	else if (myItemInfo.iSubItem > 2 && myItemInfo.iSubItem % 3 == 0)
 	{
@@ -167,7 +278,6 @@ void VariableSystem::handleColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
 				variablesListview.SetColumn(myItemInfo.iSubItem, &colInfo);
 			}
 		}
-
 	}
 	else if (myItemInfo.iSubItem > 2 && myItemInfo.iSubItem % 3 == 1)
 	{
@@ -213,37 +323,55 @@ void VariableSystem::handleDraw(NMHDR* pNMHDR, LRESULT* pResult)
 	else if (CDDS_ITEMPREPAINT == pLVCD->nmcd.dwDrawStage)
 	{
 		int item = pLVCD->nmcd.dwItemSpec;
-		if (item < 0 || item > currentVariables.size())
+		if (item < 0)
 		{
 			return;
 		}
-		if (item == currentVariables.size())
+
+		if (isGlobal)
 		{
-			pLVCD->clrText = RGB(255, 255, 255);
-			pLVCD->clrTextBk = RGB(0, 0, 0);
+			if (item == currentVariables.size())
+			{
+				pLVCD->clrText = RGB(255, 255, 255);
+				pLVCD->clrTextBk = RGB(0, 0, 0);
+			}
+			else if (currentVariables[item].active && currentVariables[item].overwritten)
+			{
+				// the return value will tell Windows to draw the
+				// item itself, but it will use the new color we set here.
+				// Store the color back in the NMLVCUSTOMDRAW struct.
+				pLVCD->clrText = RGB(255, 255, 255);
+				pLVCD->clrTextBk = RGB(0, 0, 75);
+			}
+			else if (currentVariables[item].active && !currentVariables[item].overwritten)
+			{
+				pLVCD->clrText = RGB(255, 255, 255);
+				pLVCD->clrTextBk = RGB(0, 75, 0);
+			}
+			else if (!currentVariables[item].active && currentVariables[item].overwritten)
+			{
+				pLVCD->clrText = RGB(100, 100, 100);
+				pLVCD->clrTextBk = RGB(225, 225, 255);
+			}
+			else if (!currentVariables[item].active && !currentVariables[item].overwritten)
+			{
+				pLVCD->clrText = RGB(100, 100, 100);
+				pLVCD->clrTextBk = RGB(225, 255, 225);
+			}
 		}
-		else if (currentVariables[item].active && currentVariables[item].overwritten)
+		else
 		{
-			// the return value will tell Windows to draw the
-			// item itself, but it will use the new color we set here.
-			// Store the color back in the NMLVCUSTOMDRAW struct.
-			pLVCD->clrText = RGB(255, 255, 255);
-			pLVCD->clrTextBk = RGB(0, 0, 75);
-		}
-		else if (currentVariables[item].active && !currentVariables[item].overwritten)
-		{
-			pLVCD->clrText = RGB(255, 255, 255);
-			pLVCD->clrTextBk = RGB(0, 75, 0);
-		}
-		else if (!currentVariables[item].active && currentVariables[item].overwritten)
-		{
-			pLVCD->clrText = RGB(100, 100, 100);
-			pLVCD->clrTextBk = RGB(225, 225, 255);
-		}
-		else if (!currentVariables[item].active && !currentVariables[item].overwritten)
-		{
-			pLVCD->clrText = RGB(100, 100, 100);
-			pLVCD->clrTextBk = RGB(225, 255, 225);
+			//LVITEM itemInfo;
+			//itemInfo.iItem = item;
+			CString text;
+			text = variablesListview.GetItemText(item, 0);
+			//variablesListview.GetItemText(&itemInfo);
+			if (text == "Symbol")
+			{
+				// then its a range divider.
+				pLVCD->clrText = RGB(0, 0, 0);
+				pLVCD->clrTextBk = RGB(255, 255, 255);
+			}
 		}
 		// Tell Windows to paint the control itself.
 		*pResult = CDRF_DODEFAULT;
@@ -265,6 +393,16 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MasterWind
 	int itemIndicator;
 	variablesListview.SubItemHitTest(&myItemInfo);
 	itemIndicator = myItemInfo.iItem;
+	UINT borderCount = 0;
+	for (UINT rowCount = 0; rowCount < itemIndicator; rowCount++)
+	{
+		if (variablesListview.GetItemText(rowCount, 0) == "___" ||variablesListview.GetItemText(rowCount, 0) == "Symbol"  )
+		{
+			borderCount++;
+		}
+	}
+	UINT scanDim = (borderCount + 1) / 2;
+	UINT varNumber = itemIndicator - borderCount;
 	subitemIndicator = myItemInfo.iSubItem;
 	if (itemIndicator == -1)
 	{
@@ -278,7 +416,8 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MasterWind
 	// choose item
 	/// check if adding new variable
 	listViewItem.iItem = itemIndicator;
-	if (itemIndicator == currentVariables.size())
+	CString text = variablesListview.GetItemText(itemIndicator, 0);
+	if (text == "___")
 	{
 		// add a variable
 		currentVariables.resize(currentVariables.size() + 1);
@@ -288,11 +427,14 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MasterWind
 		currentVariables.back().active = false;
 		currentVariables.back().overwritten = false;
 		currentVariables.back().ranges.push_back({0,0,1, false, true});
-		for (int rangeInc = 1; rangeInc < variableRangeSets; rangeInc++)
+		// it's 1-indexed.
+		
+		currentVariables.back().scanDimension = scanDim;
+		for (int rangeInc = 1; rangeInc < variableRanges[scanDim]; rangeInc++)
 		{
 			currentVariables.back().ranges.push_back({ 0,0,0, false, true });
 		}
-		// add an item to the control
+		// make a new "new" row.
 		// choose item
 		listViewItem.iItem = itemIndicator;
 		// initialize this row.
@@ -313,7 +455,7 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MasterWind
 			listViewItem.iSubItem = 2;
 			listViewItem.pszText = "No";
 			variablesListview.SetItem( &listViewItem );
-			for (int rangeInc = 0; rangeInc < variableRangeSets; rangeInc++)
+			for (int rangeInc = 0; rangeInc < variableRanges[0]; rangeInc++)
 			{
 				listViewItem.iSubItem = 3 + 3 * rangeInc;
 				if (rangeInc == 0)
@@ -341,7 +483,7 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MasterWind
 		{
 			/// person name
 			// prompt for a name
-			std::string newName = (const char*)DialogBoxParam(programInstance, 
+			std::string newName = (const char*)DialogBoxParam(NULL, 
 															   MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, 
 															   (DLGPROC)textPromptDialogProcedure, 
 															   (LPARAM)"Please enter a name for the variable:");
@@ -360,7 +502,7 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MasterWind
 				}
 			}
 			// update the info inside
-			currentVariables[itemIndicator].name = newName;
+			currentVariables[varNumber].name = newName;
 			// update the screen
 			listViewItem.iItem = itemIndicator;
 			listViewItem.iSubItem = subitemIndicator;
@@ -379,11 +521,11 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MasterWind
 			{
 				listViewItem.iItem = itemIndicator;
 				listViewItem.iSubItem = subitemIndicator;
-				std::string newValue = (const char*)DialogBoxParam( programInstance,
+				std::string newValue = (const char*)DialogBoxParam( NULL,
 																	MAKEINTRESOURCE( IDD_TEXT_PROMPT_DIALOG ), 0,
 																	(DLGPROC)textPromptDialogProcedure,
 																	(LPARAM)std::string("Please enter a value for the global variable "
-																   + currentVariables[itemIndicator].name + ". Value will be formatted as a double.").c_str() );
+																   + currentVariables[varNumber].name + ". Value will be formatted as a double.").c_str() );
 				if (newValue == "")
 				{
 					// probably canceled.
@@ -392,8 +534,8 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MasterWind
 				// else there's something there.
 				try
 				{
-					currentVariables[itemIndicator].ranges.front().initialValue =
-						currentVariables[itemIndicator].ranges.front().finalValue = std::stod( newValue );
+					currentVariables[varNumber].ranges.front().initialValue =
+						currentVariables[varNumber].ranges.front().finalValue = std::stod( newValue );
 				}
 				catch (std::invalid_argument &exception)
 				{
@@ -404,7 +546,7 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MasterWind
 				listViewItem.iItem = itemIndicator;
 				listViewItem.iSubItem = subitemIndicator;
 				std::ostringstream out;
-				out << std::setprecision( 12 ) << currentVariables[itemIndicator].ranges.front().initialValue;
+				out << std::setprecision( 12 ) << currentVariables[varNumber].ranges.front().initialValue;
 				std::string tempstr = out.str();
 				listViewItem.pszText = (LPSTR)tempstr.c_str();
 				variablesListview.SetItem( &listViewItem );
@@ -416,18 +558,18 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MasterWind
 				listViewItem.iItem = itemIndicator;
 				listViewItem.iSubItem = subitemIndicator;
 				// this is just a binary switch.
-				if (currentVariables[itemIndicator].constant)
+				if (currentVariables[varNumber].constant)
 				{
 					// switch to variable.
-					currentVariables[itemIndicator].constant = false;
+					currentVariables[varNumber].constant = false;
 					listViewItem.iSubItem = subitemIndicator;
 					listViewItem.pszText = "Variable";
 					variablesListview.SetItem( &listViewItem );
-					for (int rangeInc = 0; rangeInc < currentVariables[itemIndicator].ranges.size(); rangeInc++)
+					for (int rangeInc = 0; rangeInc < currentVariables[varNumber].ranges.size(); rangeInc++)
 					{
 						std::ostringstream out;
 						// set lower end of range
-						out << std::setprecision( 12 ) << currentVariables[itemIndicator].ranges[(subitemIndicator - 3) / 3].initialValue;
+						out << std::setprecision( 12 ) << currentVariables[varNumber].ranges[(subitemIndicator - 3) / 3].initialValue;
 						std::string tempstr = out.str();
 						out.clear();
 						out.str( "" );
@@ -435,7 +577,7 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MasterWind
 						listViewItem.iSubItem = 3 + rangeInc * 3;
 						variablesListview.SetItem( &listViewItem );
 						// set higher end of range
-						out << std::setprecision( 12 ) << currentVariables[itemIndicator].ranges[(subitemIndicator - 3) / 3].finalValue;
+						out << std::setprecision( 12 ) << currentVariables[varNumber].ranges[(subitemIndicator - 3) / 3].finalValue;
 						tempstr = out.str();
 						out.clear();
 						out.str( "" );
@@ -444,9 +586,14 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MasterWind
 						variablesListview.SetItem( &listViewItem );
 						// set number of variations in this range
 						out << currentVariations;
-						currentVariables[itemIndicator].ranges[(subitemIndicator - 3) / 3].variations = currentVariations;
+						currentVariables[varNumber].ranges[(subitemIndicator - 3) / 3].variations = currentVariations;
 						// TODO: Handle this better. 
-						if (currentVariables[itemIndicator].ranges[(subitemIndicator - 3) / 3].variations == 0)
+						UINT totalVariations = 0;
+						for (auto range : currentVariables[varNumber].ranges)
+						{
+							totalVariations += range.variations;
+						}
+						if (totalVariations == 0)
 						{
 							errBox("WARNING: variable has zero variations in a certain range! "
 								   "There needs to be at least one.");
@@ -462,13 +609,13 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MasterWind
 				else
 				{
 					/// switch to constant.
-					currentVariables[itemIndicator].constant = true;
-					for (int rangeInc = 0; rangeInc < variableRangeSets; rangeInc++)
+					currentVariables[varNumber].constant = true;
+					for (int rangeInc = 0; rangeInc < variableRanges[scanDim]; rangeInc++)
 					{
 						if (rangeInc == 0)
 						{
 							std::ostringstream out;
-							out << std::setprecision( 12 ) << currentVariables[itemIndicator].ranges[0].initialValue;
+							out << std::setprecision( 12 ) << currentVariables[varNumber].ranges[0].initialValue;
 							std::string tempStr = out.str();
 							listViewItem.pszText = (LPSTR)tempStr.c_str();
 							listViewItem.iSubItem = 3 + rangeInc * 3;
@@ -501,14 +648,14 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MasterWind
 			listViewItem.iItem = itemIndicator;
 			listViewItem.iSubItem = subitemIndicator;
 			// this is just a binary switch.
-			if (currentVariables[itemIndicator].timelike)
+			if (currentVariables[varNumber].timelike)
 			{
-				currentVariables[itemIndicator].timelike = false;
+				currentVariables[varNumber].timelike = false;
 				listViewItem.pszText = "No";
 			}
 			else
 			{
-				currentVariables[itemIndicator].timelike = true;
+				currentVariables[varNumber].timelike = true;
 				listViewItem.pszText = "Yes";
 			}
 			variablesListview.SetItem(&listViewItem);
@@ -519,17 +666,17 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MasterWind
 			if ((subitemIndicator - 3) % 3 == 0)
 			{
 				// if it's a constant, you can only set the first range initial value.
-				if (currentVariables[itemIndicator].constant && (subitemIndicator - 3) != 0)
+				if (currentVariables[varNumber].constant && (subitemIndicator - 3) != 0)
 				{
 					// then no final value to be set.
 					break;
 				}
 
-				std::string newValue = (const char*)DialogBoxParam( programInstance,
+				std::string newValue = (const char*)DialogBoxParam( NULL,
 																    MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0,
 																    (DLGPROC)textPromptDialogProcedure,
 																    (LPARAM)std::string("Please enter an initial value for the "
-																    "variable " + currentVariables[itemIndicator].name
+																    "variable " + currentVariables[varNumber].name
 																    + ". Value will be formatted as a double.").c_str());
 				if (newValue == "")
 				{
@@ -539,7 +686,7 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MasterWind
 				// else there's something there.
 				try 
 				{
-					currentVariables[itemIndicator].ranges[(subitemIndicator - 3) / 3].initialValue = std::stod(newValue);
+					currentVariables[varNumber].ranges[(subitemIndicator - 3) / 3].initialValue = std::stod(newValue);
 				}
 				catch (std::invalid_argument &exception)
 				{
@@ -550,7 +697,7 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MasterWind
 				listViewItem.iItem = itemIndicator;
 				listViewItem.iSubItem = subitemIndicator;
 				std::ostringstream out;
-				out << std::setprecision(12) << currentVariables[itemIndicator].ranges[(subitemIndicator - 3) / 3].initialValue;
+				out << std::setprecision(12) << currentVariables[varNumber].ranges[(subitemIndicator - 3) / 3].initialValue;
 				std::string tempstr = out.str();
 				listViewItem.pszText = (LPSTR)tempstr.c_str();
 				variablesListview.SetItem(&listViewItem);
@@ -558,17 +705,17 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MasterWind
 			}
 			else if ((subitemIndicator - 3) % 3 == 1)
 			{
-				if (currentVariables[itemIndicator].constant)
+				if (currentVariables[varNumber].constant)
 				{
 					// then no final value to be set.
 					break;
 				}
 				// else constant.
-				std::string newValue = (const char*)DialogBoxParam(programInstance,
+				std::string newValue = (const char*)DialogBoxParam(NULL,
 																   MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0,
 																   (DLGPROC)textPromptDialogProcedure,
 																   (LPARAM)std::string("Please enter a final value for the "
-																   "variable " + currentVariables[itemIndicator].name
+																   "variable " + currentVariables[varNumber].name
 																   + ". Value will be formatted as a double.").c_str());
 				if (newValue == "")
 				{
@@ -578,7 +725,7 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MasterWind
 				// else there's something there.
 				try
 				{
-					currentVariables[itemIndicator].ranges[(subitemIndicator - 3) / 3].finalValue = std::stod(newValue);
+					currentVariables[varNumber].ranges[(subitemIndicator - 3) / 3].finalValue = std::stod(newValue);
 				}
 				catch (std::invalid_argument &exception)
 				{
@@ -590,7 +737,7 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MasterWind
 				listViewItem.iItem = itemIndicator;
 				listViewItem.iSubItem = subitemIndicator;
 				std::ostringstream out;
-				out << std::setprecision(12) << currentVariables[itemIndicator].ranges[(subitemIndicator - 3) / 3].finalValue;
+				out << std::setprecision(12) << currentVariables[varNumber].ranges[(subitemIndicator - 3) / 3].finalValue;
 				std::string tempstr = out.str();
 				listViewItem.pszText = (LPSTR)tempstr.c_str();
 				variablesListview.SetItem(&listViewItem);
@@ -598,13 +745,13 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MasterWind
 			}
 			else if((subitemIndicator - 3) % 3 == 2)
 			{
-				if (currentVariables[itemIndicator].constant)
+				if (currentVariables[varNumber].constant)
 				{
 					// then must be 1.
 					break;
 				}
 				// else constant.
-				std::string newValue = (const char*)DialogBoxParam(programInstance, 
+				std::string newValue = (const char*)DialogBoxParam(NULL, 
 																	MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, 
 																	(DLGPROC)textPromptDialogProcedure,
 																	(LPARAM)std::string("Please enter the number of variations of "
@@ -624,10 +771,14 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MasterWind
 						{
 							// make sure all variables have the same number of variations.
 							currentVariables[varInc].ranges[(subitemIndicator - 3) / 3].variations = std::stoi(newValue);
-							if (currentVariables[varInc].ranges[(subitemIndicator - 3) / 3].variations == 0)
+							UINT totalVariations = 0;
+							for (auto range : currentVariables[varInc].ranges)
 							{
-								errBox("WARNING: there needs to be at least one variation for a variable. I'm not sure"
-									   " how my code would handle zero in only one range, though.");
+								totalVariations += range.variations;
+							}
+							if (totalVariations == 0)
+							{
+								errBox("WARNING: there needs to be at least one variation for a variable.");
 							}
 						}
 					}
@@ -642,7 +793,7 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MasterWind
 				
 				listViewItem.iSubItem = subitemIndicator;
 				std::ostringstream out;
-				out << std::setprecision(12) << currentVariables[itemIndicator].ranges[(subitemIndicator - 3) / 3].variations;
+				out << std::setprecision(12) << currentVariables[varNumber].ranges[(subitemIndicator - 3) / 3].variations;
 				std::string tempstr = out.str();
 				listViewItem.pszText = (LPSTR)tempstr.c_str();
 				for (int varInc = 0; varInc < currentVariables.size(); varInc++)
@@ -796,6 +947,16 @@ void VariableSystem::addGlobalVariable( variable var, int item )
 {
 	// convert name to lower case.
 	std::transform( var.name.begin(), var.name.end(), var.name.begin(), ::tolower );
+	if (isdigit(var.name[0]))
+	{
+		thrower("ERROR: " + std::string(var.name) + " is an invalid name; names cannot start with numbers.");
+	}
+
+	if (var.name.find_first_of(" \t\r\n()*+/-%") != std::string::npos)
+	{
+		thrower("ERROR: Forbidden character in variable name! you cannot use spaces, tabs, newlines, or any of "
+				"\"()*+/-%\" in a variable name.");
+	}
 
 	if (var.name == "")
 	{
@@ -839,29 +1000,40 @@ void VariableSystem::addGlobalVariable( variable var, int item )
 	/// add the entry to the listview.
 	LVITEM listViewItem;
 	memset( &listViewItem, 0, sizeof( listViewItem ) );
-	listViewItem.mask = LVIF_TEXT;   // Text Style
-	listViewItem.cchTextMax = 256; // Max size of test
-								   // choose item  
-								   // initialize this row.
+	// Text Style
+	listViewItem.mask = LVIF_TEXT;   
+	// Max size of test
+	listViewItem.cchTextMax = 256; 
+	// choose item  
+	// initialize this row.
 	listViewItem.iItem = item;
 	listViewItem.pszText = (LPSTR)var.name.c_str();
 	// Put in first column
-	listViewItem.iSubItem = 0;
-	variablesListview.InsertItem( &listViewItem );
-	listViewItem.iSubItem = 1;
-	
-	std::string text = std::to_string(var.ranges.front().initialValue);
-	text.erase(text.find_last_not_of('0') + 1, std::string::npos);
-	listViewItem.pszText = (LPSTR)text.c_str();
-	variablesListview.SetItem( &listViewItem );
+listViewItem.iSubItem = 0;
+variablesListview.InsertItem(&listViewItem);
+listViewItem.iSubItem = 1;
+
+std::string text = std::to_string(var.ranges.front().initialValue);
+text.erase(text.find_last_not_of('0') + 1, std::string::npos);
+listViewItem.pszText = (LPSTR)text.c_str();
+variablesListview.SetItem(&listViewItem);
 }
 
 
 void VariableSystem::addConfigVariable(variable var, int item)
 {
 	// make name lower case.
-	std::transform( var.name.begin(), var.name.end(), var.name.begin(), ::tolower );
-
+	std::transform(var.name.begin(), var.name.end(), var.name.begin(), ::tolower);
+	if (isdigit(var.name[0]))
+	{
+		thrower("ERROR: " + std::string(var.name) + " is an invalid name; names cannot start with numbers.");
+	}
+	// check for forbidden (math) characters
+	if (var.name.find_first_of(" \t\r\n()*+/-%") != std::string::npos)
+	{
+		thrower("ERROR: Forbidden character in variable name! you cannot use spaces, tabs, newlines, or any of "
+				"\"()*+/-%\" in a variable name.");
+	}
 	if (var.name == "")
 	{
 		// then add empty variable slot
@@ -874,15 +1046,15 @@ void VariableSystem::addConfigVariable(variable var, int item)
 		if (item == -1)
 		{
 			// at end.
-			listViewDefaultItem.iItem = variablesListview.GetItemCount();          
+			listViewDefaultItem.iItem = variablesListview.GetItemCount();
 		}
 		else
 		{
 			// choose item  
-			listViewDefaultItem.iItem = item;          
+			listViewDefaultItem.iItem = item;
 		}
 		// Put in first collumn
-		listViewDefaultItem.iSubItem = 0;       
+		listViewDefaultItem.iSubItem = 0;
 		// initialize as a constant.
 		variablesListview.InsertItem(&listViewDefaultItem);
 		for (int itemInc = 1; itemInc < 6; itemInc++) // Add SubItems in a loop
@@ -895,24 +1067,26 @@ void VariableSystem::addConfigVariable(variable var, int item)
 	}
 
 	/// else...
+	// check if varible already exists.
 	for (auto currentVar : currentVariables)
 	{
 		if (currentVar.name == var.name)
 		{
-			thrower( "ERROR: A variable with the name " + var.name + " already exists!" );
+			thrower("ERROR: A variable with the name " + var.name + " already exists!");
 		}
 	}
-
-	/// add it to the internal structure that keeps track of variables
+	// add it to the internal structure that keeps track of variables
 	currentVariables.push_back(var);
-	/// add the entry to the listview.
+	// add the entry to the listview.
 	LVITEM listViewItem;
 	memset(&listViewItem, 0, sizeof(listViewItem));
-	listViewItem.mask = LVIF_TEXT;   // Text Style
-	listViewItem.cchTextMax = 256; // Max size of test
+	// Text Style
+	listViewItem.mask = LVIF_TEXT;
+	// Max size of test
+	listViewItem.cchTextMax = 256;
 	// choose item  
 	// initialize this row.
-	listViewItem.iItem = item;          
+	listViewItem.iItem = item;
 	listViewItem.pszText = (LPSTR)var.name.c_str();
 	// Put in first column
 	listViewItem.iSubItem = 0;
@@ -927,9 +1101,26 @@ void VariableSystem::addConfigVariable(variable var, int item)
 		listViewItem.pszText = "Variable";
 	}
 	variablesListview.SetItem(&listViewItem);
-	// make sure there are enough collumns.
-	int collumns = variablesListview.GetItemCount();
-	for (int rangeAddInc = 0; rangeAddInc < int(var.ranges.size()) - collumns; rangeAddInc++)
+
+	UINT borderCount = 0;
+	for (UINT rowCount = 0; rowCount < item; rowCount++)
+	{
+		if (variablesListview.GetItemText(rowCount, 0) == "___" || variablesListview.GetItemText(rowCount, 0) == "Symbol")
+		{
+			borderCount++;
+		}
+	}
+	UINT scanDim = (borderCount + 1) / 2;
+	while(variableRanges.size() < scanDim+1)
+	{
+		variableRanges.push_back(1);
+	}
+	UINT varNumber = item - borderCount;
+
+	// make sure there are enough currentRanges.
+	UINT columns = variablesListview.GetHeaderCtrl()->GetItemCount();
+	UINT currentRanges = (columns - 7) / 3;
+	for (UINT rangeAddInc = 0; rangeAddInc < var.ranges.size() - currentRanges; rangeAddInc++)
 	{
 		// add a range.
 		LV_COLUMN listViewDefaultCollumn;
@@ -938,14 +1129,14 @@ void VariableSystem::addConfigVariable(variable var, int item)
 		// Type of mask
 		listViewDefaultCollumn.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
 		// width between each coloum
-		CString varnum((std::to_string(variableRangeSets + 1) + ":(").c_str());
+		CString varnum((str(variableRanges[scanDim] + 1) + ":(").c_str());
 		listViewDefaultCollumn.pszText = varnum.GetBuffer();
 		listViewDefaultCollumn.cx = 0x20;
-		variablesListview.InsertColumn(3 + 3 * variableRangeSets, &listViewDefaultCollumn);
+		variablesListview.InsertColumn(3 + 3 * variableRanges[scanDim], &listViewDefaultCollumn);
 		listViewDefaultCollumn.pszText = "]";
-		variablesListview.InsertColumn(4 + 3 * variableRangeSets, &listViewDefaultCollumn);
+		variablesListview.InsertColumn(4 + 3 * variableRanges[scanDim], &listViewDefaultCollumn);
 		listViewDefaultCollumn.pszText = "#";
-		variablesListview.InsertColumn(5 + 3 * variableRangeSets, &listViewDefaultCollumn);
+		variablesListview.InsertColumn(5 + 3 * variableRanges[scanDim], &listViewDefaultCollumn);
 		// edit all variables
 		LVITEM listViewItem;
 		memset(&listViewItem, 0, sizeof(listViewItem));
@@ -953,6 +1144,7 @@ void VariableSystem::addConfigVariable(variable var, int item)
 		listViewItem.mask = LVIF_TEXT;   
 		// Max size of test
 		listViewItem.cchTextMax = 256; 
+		// make sure all variables have some text for the new columns.
 		for (int varInc = 0; varInc < currentVariables.size(); varInc++)
 		{
 			currentVariables[varInc].ranges.push_back({0,0,0, false, true});
@@ -965,14 +1157,14 @@ void VariableSystem::addConfigVariable(variable var, int item)
 				listViewItem.pszText = "0";
 			}
 			listViewItem.iItem = varInc;
-			listViewItem.iSubItem = 3 + 3 * variableRangeSets;
+			listViewItem.iSubItem = 3 + 3 * variableRanges[scanDim];
 			variablesListview.SetItem(&listViewItem);
-			listViewItem.iSubItem = 4 + 3 * variableRangeSets;
+			listViewItem.iSubItem = 4 + 3 * variableRanges[scanDim];
 			variablesListview.SetItem(&listViewItem);
-			listViewItem.iSubItem = 5 + 3 * variableRangeSets;
+			listViewItem.iSubItem = 5 + 3 * variableRanges[scanDim];
 			variablesListview.SetItem(&listViewItem);
 		}
-		variableRangeSets++;
+		variableRanges[scanDim]++;
 	}
 
 
@@ -986,13 +1178,20 @@ void VariableSystem::addConfigVariable(variable var, int item)
 			std::string tempstr = out.str();
 			out.clear();
 			out.str("");
-			tempstr.erase(tempstr.find_last_not_of('0') + 1, std::string::npos);
+			// if it's a decimal number, eat extra zeros at the end.
+			if (tempstr.find(".") != std::string::npos)
+			{
+				tempstr.erase(tempstr.find_last_not_of('0') + 1, std::string::npos);
+			}
 			listViewItem.pszText = (LPSTR)tempstr.c_str();			
 			listViewItem.iSubItem = 3 + rangeInc * 3;
 			variablesListview.SetItem(&listViewItem);
 			out << std::setprecision(12) << currentVariables[item].ranges[rangeInc].finalValue;
 			tempstr = out.str();
-			tempstr.erase(tempstr.find_last_not_of('0') + 1, std::string::npos);
+			if (tempstr.find(".") != std::string::npos)
+			{
+				tempstr.erase(tempstr.find_last_not_of('0') + 1, std::string::npos);
+			}
 			out.clear();
 			out.str("");
 			listViewItem.pszText = (LPSTR)tempstr.c_str();
@@ -1000,7 +1199,10 @@ void VariableSystem::addConfigVariable(variable var, int item)
 			variablesListview.SetItem(&listViewItem);
 			out << currentVariables[item].ranges[rangeInc].variations;
 			tempstr = out.str();
-			tempstr.erase(tempstr.find_last_not_of('0') + 1, std::string::npos);
+			if (tempstr.find(".") != std::string::npos)
+			{
+				tempstr.erase(tempstr.find_last_not_of('0') + 1, std::string::npos);
+			}
 			out.clear();
 			out.str("");
 			listViewItem.pszText = (LPSTR)tempstr.c_str();
@@ -1064,8 +1266,10 @@ void VariableSystem::initialize( POINT& pos, std::vector<CToolTipCtrl*>& toolTip
 	{
 		isGlobal = false;
 	}
-	// initialize this number to reflect the initial status of the window.
-	variableRangeSets = 1;
+	// initialize these numbers to reflect the initial status of the window.
+	scanDimensions = 1;
+	variableRanges.resize(1);
+	variableRanges[0] = 1;
 	// controls
 	variablesHeader.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 25 };
 	variablesHeader.ID = id++;
@@ -1091,14 +1295,11 @@ void VariableSystem::initialize( POINT& pos, std::vector<CToolTipCtrl*>& toolTip
 	// Zero Members
 	memset(&listViewDefaultCollumn, 0, sizeof(listViewDefaultCollumn));
 	listViewDefaultCollumn.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
-
-
 	listViewDefaultCollumn.pszText = "Symbol";
 	if (isGlobal)
 	{
 		listViewDefaultCollumn.cx = 200;
 		variablesListview.InsertColumn( 0, &listViewDefaultCollumn );
-
 		listViewDefaultCollumn.pszText = "Value";
 		listViewDefaultCollumn.cx = 200;
 		variablesListview.InsertColumn( 1, &listViewDefaultCollumn );
@@ -1119,23 +1320,27 @@ void VariableSystem::initialize( POINT& pos, std::vector<CToolTipCtrl*>& toolTip
 		listViewDefaultCollumn.cx = 50;
 		variablesListview.InsertColumn( 0, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "Type";
-		listViewDefaultCollumn.cx = 0x30;
+		listViewDefaultCollumn.cx = 0x40;
 		variablesListview.InsertColumn( 1, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "Timelike?";
-		listViewDefaultCollumn.cx = 0x42;
+		listViewDefaultCollumn.cx = 0x52;
 		variablesListview.InsertColumn( 2, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "1:(";
-		listViewDefaultCollumn.cx = 0x20;
+		listViewDefaultCollumn.cx = 0x35;
 		variablesListview.InsertColumn( 3, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "]";
 		variablesListview.InsertColumn( 4, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "#";
 		variablesListview.InsertColumn( 5, &listViewDefaultCollumn );
-		listViewDefaultCollumn.pszText = "+";
-		listViewDefaultCollumn.cx = 0x16;
+		listViewDefaultCollumn.pszText = "+()";
+		listViewDefaultCollumn.cx = 0x30;
 		variablesListview.InsertColumn( 6, &listViewDefaultCollumn );
-		listViewDefaultCollumn.pszText = "-";
+		listViewDefaultCollumn.pszText = "-()";
 		variablesListview.InsertColumn( 7, &listViewDefaultCollumn );
+		listViewDefaultCollumn.pszText = "+ Dim";
+		variablesListview.InsertColumn(8, &listViewDefaultCollumn);
+		listViewDefaultCollumn.pszText = "- Dim";
+		variablesListview.InsertColumn(9, &listViewDefaultCollumn);
 		// Make First Blank row.
 		LVITEM listViewDefaultItem;
 		memset( &listViewDefaultItem, 0, sizeof( listViewDefaultItem ) );
@@ -1153,7 +1358,6 @@ void VariableSystem::initialize( POINT& pos, std::vector<CToolTipCtrl*>& toolTip
 
 	}
 	pos.y += 125;
-	return;
 }
 
 INT_PTR VariableSystem::handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, 

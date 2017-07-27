@@ -19,10 +19,7 @@ void Debugger::initialize(POINT& pos, MasterWindow* master, std::vector<CToolTip
 	pos.y += 20;
 
 	showTtlsButton.ID = id++;
-	if ( showTtlsButton.ID != IDC_SHOW_TTLS )
-	{
-		throw;
-	}
+	idVerify(showTtlsButton.ID, IDC_SHOW_TTLS);
 	showTtlsButton.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 20 };
 	showTtlsButton.Create( "Show All TTL Events", WS_CHILD | WS_VISIBLE | SS_CENTER | BS_CHECKBOX,
 						   showTtlsButton.sPos, master, showTtlsButton.ID );
@@ -30,10 +27,7 @@ void Debugger::initialize(POINT& pos, MasterWindow* master, std::vector<CToolTip
 	pos.y += 20;
 
 	showDacsButton.ID = id++;
-	if ( showDacsButton.ID != IDC_SHOW_DACS )
-	{
-		throw;
-	}
+	idVerify(showDacsButton.ID, IDC_SHOW_DACS);
 	showDacsButton.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 20 };
 	showDacsButton.Create( "Show All Dac Events", WS_CHILD | WS_VISIBLE | SS_CENTER | BS_CHECKBOX,
 						   showDacsButton.sPos, master, showDacsButton.ID );
@@ -43,12 +37,12 @@ void Debugger::initialize(POINT& pos, MasterWindow* master, std::vector<CToolTip
 
 debuggingOptions Debugger::getOptions()
 {
-	return this->currentOptions;
+	return currentOptions;
 }
 
 void Debugger::handlePress(UINT id)
 {
-	if ( id == this->showTtlsButton.ID )
+	if ( id == showTtlsButton.ID )
 	{
 		if ( showTtlsButton.GetCheck() )
 		{
@@ -59,7 +53,7 @@ void Debugger::handlePress(UINT id)
 			currentOptions.showTtls = false;
 		}
 	}
-	else if ( id == this->showDacsButton.ID )
+	else if ( id == showDacsButton.ID )
 	{
 		if ( showDacsButton.GetCheck() )
 		{
@@ -70,5 +64,21 @@ void Debugger::handlePress(UINT id)
 			currentOptions.showDacs = false;
 		}
 	}
-	return;
+}
+
+
+
+HBRUSH Debugger::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rgbs, CDC* cDC)
+{
+	DWORD controlID = window->GetDlgCtrlID();
+	if (controlID == showDacsButton.ID || controlID == showTtlsButton.ID)
+	{
+		cDC->SetBkColor(rgbs["Medium Grey"]);
+		cDC->SetTextColor(rgbs["White"]);
+		return brushes["Medium Grey"];
+	}
+	else
+	{
+		return NULL;
+	}
 }

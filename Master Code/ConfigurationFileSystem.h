@@ -110,6 +110,8 @@ class ConfigurationFileSystem
 	private:
 		profileSettings currentProfileSettings;
 		std::string FILE_SYSTEM_PATH;
+		
+		const double version;
 
 		bool configurationIsSaved;
 		bool categoryIsSaved;

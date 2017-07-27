@@ -14,8 +14,8 @@ void RhodeSchwarz::initialize( POINT& pos, std::vector<CToolTipCtrl*>& toolTips,
 							   int& id )
 {
 	// These are currently just hard-coded.
-	this->triggerTime = 0.01;
-	this->rsgTtl = "a1";
+	triggerTime = 0.01;
+	rsgTtl = "a1";
 
 	// controls
 	header.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 25 };
@@ -48,7 +48,6 @@ void RhodeSchwarz::initialize( POINT& pos, std::vector<CToolTipCtrl*>& toolTips,
 	listViewDefaultCollumn.cx = 200;
 	infoControl.InsertColumn( 2, &listViewDefaultCollumn );
 	pos.y += 100;
-	return;
 }
 
 void RhodeSchwarz::rearrange(UINT width, UINT height, fontMap fonts)
@@ -61,10 +60,10 @@ void RhodeSchwarz::rearrange(UINT width, UINT height, fontMap fonts)
  * The following function takes the existing list of events (already evaluated for a particular variation) and
  * orders them in time. 
  */
-void RhodeSchwarz::orderEvents()
+void RhodeSchwarz::orderEvents(UINT var)
 {
 	std::vector<rsgEventInfoFinal> newOrder;
-	for (auto event : events)
+	for (auto event : events[var])
 	{
 		bool set = false;
 		int count = 0;
@@ -90,15 +89,15 @@ void RhodeSchwarz::orderEvents()
 			newOrder.push_back( event );
 		}
 	}
-	events = newOrder;
+	events[var] = newOrder;
 }
 
 
-void RhodeSchwarz::setInfoDisp()
+void RhodeSchwarz::setInfoDisp(UINT var)
 {
 	infoControl.DeleteAllItems();
 	int count = 0;
-	for (auto event : events)
+	for (auto event : events[var])
 	{
 		LVITEM listViewDefaultItem;
 		memset( &listViewDefaultItem, 0, sizeof( listViewDefaultItem ) );
@@ -121,31 +120,47 @@ void RhodeSchwarz::setInfoDisp()
 	}
 }
 
-void RhodeSchwarz::interpretKey(key variationKey, unsigned int variationNum, std::vector<variable>& vars)
+void RhodeSchwarz::interpretKey(key variationKey, std::vector<variable>& vars)
 {
-	for (int freqInc = 0; freqInc < eventStructures.size(); freqInc++)
+	UINT variations;
+	if (vars.size() == 0)
 	{
-		rsgEventInfoFinal event;
-		// convert freq
-		event.frequency = reduce(eventStructures[freqInc].frequency, variationKey, variationNum, vars);
-		// convert power
-		event.power = reduce(eventStructures[freqInc].power, variationKey, variationNum, vars);
-		/// deal with time!
-		if (eventStructures[freqInc].time.first.size() == 0)
+		variations = 1;
+	}
+	else
+	{
+		variations = variationKey[vars[0].name].first.size();
+	}
+	/// imporantly, this sizes the relevant structures.
+	events.clear();
+	events.resize(variations);
+	for (UINT var = 0; var < variations; var++)
+	{
+		for (int freqInc = 0; freqInc < eventStructures.size(); freqInc++)
 		{
-			event.time = eventStructures[freqInc].time.second;
-		}
-		else
-		{
-			for (auto timeStr : eventStructures[freqInc].time.first)
+			rsgEventInfoFinal event;
+			// convert freq
+			event.frequency = reduce(eventStructures[freqInc].frequency, variationKey, var, vars);
+			// convert power
+			event.power = reduce(eventStructures[freqInc].power, variationKey, var, vars);
+			/// deal with time!
+			if (eventStructures[freqInc].time.first.size() == 0)
 			{
-				event.time += reduce(timeStr, variationKey, variationNum, vars);
+				event.time = eventStructures[freqInc].time.second;
 			}
-			event.time += eventStructures[freqInc].time.second;
-		}
-		events.push_back( event );
+			else
+			{
+				for (auto timeStr : eventStructures[freqInc].time.first)
+				{
+					event.time += reduce(timeStr, variationKey, var, vars);
+				}
+				event.time += eventStructures[freqInc].time.second;
+			}
+			events[var].push_back(event);
+		}	
 	}
 }
+
 
 // Essentially gets called by a script command.
 void RhodeSchwarz::addFrequency(rsgEventStructuralInfo info)
@@ -154,33 +169,33 @@ void RhodeSchwarz::addFrequency(rsgEventStructuralInfo info)
 }
 
 
-void RhodeSchwarz::programRSG( Gpib* gpib )
+void RhodeSchwarz::programRSG( Gpib* gpib, UINT var )
 {
-	if (events.size() == 0)
+	if (events[var].size() == 0)
 	{
 		// nothing to do.
 		return;
 	}
-	else if (events.size() == 1)
+	else if (events[var].size() == 1)
 	{
 		gpib->gpibSend( RSG_ADDRESS, "OUTPUT ON" );
 		gpib->gpibSend( RSG_ADDRESS, "SOURce:FREQuency:MODE CW" );
-		gpib->gpibSend( RSG_ADDRESS, "FREQ " + std::to_string( events[0].frequency ) + " GHz" );
-		gpib->gpibSend( RSG_ADDRESS, "POW " + std::to_string( events[0].power ) + " dBm" );
+		gpib->gpibSend( RSG_ADDRESS, "FREQ " + std::to_string( events[var][0].frequency ) + " GHz" );
+		gpib->gpibSend( RSG_ADDRESS, "POW " + std::to_string( events[var][0].power ) + " dBm" );
 		gpib->gpibSend( RSG_ADDRESS, "OUTP ON" );
 	}
 	else
 	{
 		gpib->gpibSend( RSG_ADDRESS, "OUTP ON" );
 		gpib->gpibSend( RSG_ADDRESS, "SOURce:LIST:SEL 'freqList" + std::to_string( events.size() ) + "'" );
-		std::string frequencyList = "SOURce:LIST:FREQ " + std::to_string( events[0].frequency );
-		std::string powerList = "SOURce:LIST:POW " + std::to_string( events[0].power ) + "dBm";
-		for (int eventInc = 1; eventInc < events.size(); eventInc++)
+		std::string frequencyList = "SOURce:LIST:FREQ " + std::to_string( events[var][0].frequency );
+		std::string powerList = "SOURce:LIST:POW " + std::to_string( events[var][0].power ) + "dBm";
+		for (int eventInc = 1; eventInc < events[var].size(); eventInc++)
 		{
 			frequencyList += ", ";
-			frequencyList += std::to_string( events[eventInc].frequency ) + " GHz";
+			frequencyList += std::to_string( events[var][eventInc].frequency ) + " GHz";
 			powerList += ", ";
-			powerList += std::to_string( events[eventInc].power ) + "dBm";
+			powerList += std::to_string( events[var][eventInc].power ) + "dBm";
 		}
 		gpib->gpibSend( RSG_ADDRESS, frequencyList.c_str() );
 		gpib->gpibSend( RSG_ADDRESS, powerList.c_str() );
@@ -203,11 +218,11 @@ std::vector<rsgEventStructuralInfo> RhodeSchwarz::getFrequencyForms()
 
 std::string RhodeSchwarz::getRsgTtl()
 {
-	return this->rsgTtl;
+	return rsgTtl;
 }
 
 double RhodeSchwarz::getTriggerTime()
 {
-	return this->triggerTime;
+	return triggerTime;
 }
 

@@ -1,0 +1,18 @@
+% simple load experiment
+t = 1
+
+call turnonmot()
+
+t += loadMotTime
+
+call triggerScout()
+%
+%% 
+t += 1
+
+dac: MotGradientCurrent 0
+
+t += 100
+
+call turnonmot()
+

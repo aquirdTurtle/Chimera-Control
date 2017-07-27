@@ -1,3 +1,10 @@
 %% Very simple.
+
+%t = 0
+%on: d14
+%t += 5
+%off: d14
+%t += 5
+t = 1
 call turnOnMot()
-% end
+% end

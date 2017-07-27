@@ -17,7 +17,7 @@ void RichEditControl::rearrange(UINT width, UINT height, fontMap fonts)
 std::string RichEditControl::getText()
 {
 	CString text;
-	this->richEdit.GetWindowText(text);
+	richEdit.GetWindowText(text);
 	return text.GetBuffer();
 }
 
@@ -67,7 +67,7 @@ bool RichEditControl::appendText(std::string text, int color)
 		richEdit.SetSelectionCharFormat(myCharFormat);
 		// replace the selection
 		richEdit.ReplaceSel(text.c_str());
-		myCharFormat.crTextColor = this->defaultTextColor;
+		myCharFormat.crTextColor = defaultTextColor;
 		richEdit.SetSelectionCharFormat(myCharFormat);
 	}
 	return true;
@@ -84,7 +84,7 @@ bool RichEditControl::clear()
 bool RichEditControl::initialize(RECT editSize, std::string titleText, COLORREF defaultColor, MasterWindow* master, 
 								  int& id)
 {
-	this->defaultTextColor = defaultColor;
+	defaultTextColor = defaultColor;
 	AfxInitRichEdit();
 	InitCommonControls();
 	LoadLibrary(TEXT("Msftedit.dll"));
@@ -123,7 +123,7 @@ INT_PTR RichEditControl::handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, 
 {
 	DWORD controlID = GetDlgCtrlID((HWND)lParam);
 	HDC hdcStatic = (HDC)wParam;
-	if (controlID == this->title.ID)
+	if (controlID == title.ID)
 	{
 		SetTextColor(hdcStatic, RGB(218, 165, 32));
 		SetBkColor(hdcStatic, RGB(30, 30, 30));

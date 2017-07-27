@@ -1,0 +1,121 @@
+Master Version: 1.1
+MASTER SCRIPT:
+LOCAL MotTemperature
+VARIABLES:
+3
+motfilltime Timelike Constant 1 500 0 1 
+motdroptime Timelike Variable 1 0 10 10 
+imagetime Timelike Constant 1 1 0 1 
+TTLS:
+1
+1
+0
+0
+0
+1
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+0
+0
+1
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+DACS:
+0.915
+-0.755
+-1.02
+1.475
+-0.15
+-0.0897
+7
+0
+0
+0.35
+0
+0.1
+0
+0
+0
+0
+0
+-1.1
+0
+0
+-0.07
+0
+0.3
+0
+REPETITIONS:
+100
+AGILENTVERSION 1.0
+0
+CHANNEL 1
+-2, , , , , , , , 
+CHANNEL 2
+-2, , , , , , , , 
+AGILENTVERSION 1.0
+0
+CHANNEL 1
+-2, , , , , , , , 
+CHANNEL 2
+-2, , , , , , , , 
+AGILENTVERSION 1.0
+0
+CHANNEL 1
+-2, , , , , , , , 
+CHANNEL 2
+-2, , , , , , , , 
+NOTES:
+This should look very similar to the Free-Space PGC temperature calibration, except that there's no pgc (of course).
+END CONFIGURATION NOTES

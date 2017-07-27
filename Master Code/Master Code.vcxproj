@@ -216,7 +216,7 @@
     <ClInclude Include="TtlSystem.h" />
     <ClInclude Include="VariableSystem.h" />
     <ClInclude Include="DacSettingsDialog.h" />
-    <ClInclude Include="viewAndChangeTTL_NamesProcedure.h" />
+    <ClInclude Include="TtlSettingsDialog.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Agilent.cpp" />
@@ -255,7 +255,7 @@
     <ClCompile Include="TtlSystem.cpp" />
     <ClCompile Include="VariableSystem.cpp" />
     <ClCompile Include="DacSettingsDialog.cpp" />
-    <ClCompile Include="viewAndChangeTTL_NamesProcedure.cpp" />
+    <ClCompile Include="TtlSettingsDialog.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Master Code.rc" />

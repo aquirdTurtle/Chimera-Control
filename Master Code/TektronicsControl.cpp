@@ -47,6 +47,67 @@ void TektronicsChannelControl::initialize(POINT loc, CWnd* parent, int& id, std:
 	fskFreq.EnableWindow(0);
 }
 
+
+void TektronicsControl::interpretKey(key variationKey, std::vector<variable>& vars)
+{
+	UINT variations;
+	if (vars.size() == 0)
+	{
+		variations = 1;
+	}
+	else
+	{
+		variations = variationKey[vars[0].name].first.size();
+	}
+	/// imporantly, this sizes the relevant structures.
+	currentNums.clear();
+	currentNums.resize(variations);
+	for (UINT var = 0; var < variations; var++)
+	{
+		/// deal with first channel.
+		if (currentInfo.channels.first.on)
+		{
+			currentNums[var].channels.first.mainFreqVal = reduce(currentInfo.channels.first.mainFreq, variationKey, var, vars);
+			currentNums[var].channels.first.powerVal = reduce(currentInfo.channels.first.power, variationKey, var, vars);
+			// handle FSK options
+			if (currentInfo.channels.first.fsk)
+			{
+				currentNums[var].channels.first.fskFreqVal = reduce(currentInfo.channels.first.fskFreq, variationKey, var, vars);
+			}
+		}
+		// if off don't worry about trying to convert anything, user can not-enter things and it can be fine.
+		/// handle second channel.
+		if (currentInfo.channels.second.on)
+		{
+			currentNums[var].channels.second.mainFreqVal = reduce(currentInfo.channels.second.mainFreq, variationKey, var, vars);
+			currentNums[var].channels.second.powerVal = reduce(currentInfo.channels.second.power, variationKey, var, vars);
+			// handle FSK options
+			if (currentInfo.channels.second.fsk)
+			{
+				currentNums[var].channels.second.fskFreqVal = reduce(currentInfo.channels.second.fskFreq, variationKey, var, vars);
+			}
+		}
+	}
+}
+
+
+HBRUSH TektronicsControl::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC)
+{
+	DWORD controlID = window->GetDlgCtrlID();
+	if (controlID == onOffLabel.ID || controlID == fskLabel.ID || controlID == mainPowerLabel.ID
+		|| controlID == mainFreqLabel.ID || controlID == fskFreqLabel.ID )
+	{
+		cDC->SetBkColor(rGBs["Medium Grey"]);
+		cDC->SetTextColor(rGBs["White"]);
+		return brushes["Medium Grey"];
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+
 void TektronicsChannelControl::handleOnPress()
 {
 	if (onOffButton.GetCheck())
@@ -94,16 +155,22 @@ tektronicsChannelInfo TektronicsChannelControl::getSettings()
 	currentInfo.fsk = fskButton.GetCheck();
 
 	CString text;
+	std::string textStr(text);
 
 	power.GetWindowTextA(text);
-	currentInfo.power = std::string(text);
+	textStr = std::string(text);
+	std::transform(textStr.begin(), textStr.end(), textStr.begin(), ::tolower);
+	currentInfo.power = std::string(textStr);
 
 	mainFreq.GetWindowTextA(text);
-	currentInfo.mainFreq = std::string(text);
+	textStr = std::string(text);
+	std::transform(textStr.begin(), textStr.end(), textStr.begin(), ::tolower);
+	currentInfo.mainFreq = std::string(textStr);
 
 	fskFreq.GetWindowTextA(text);
-	currentInfo.fskFreq = std::string(text);
-
+	textStr = std::string(text);
+	std::transform(textStr.begin(), textStr.end(), textStr.begin(), ::tolower);
+	currentInfo.fskFreq = std::string(textStr);
 	return currentInfo;
 }
 
@@ -118,7 +185,55 @@ void TektronicsChannelControl::setSettings(tektronicsChannelInfo info)
 	fskFreq.SetWindowTextA(currentInfo.fskFreq.c_str());
 }
 
+void TektronicsControl::programMachine(Gpib* gpib, UINT var)
+{
+	if (currentInfo.channels.first.on)
+	{
+		gpib->gpibSend(currentInfo.machineAddress, "SOURCE1:FREQ " + str(currentNums[var].channels.first.mainFreqVal));
+		gpib->gpibSend(currentInfo.machineAddress, "SOURCE1:VOLT:UNIT DBM");
+		gpib->gpibSend(currentInfo.machineAddress, "SOURCE1:VOLT " + str(currentNums[var].channels.first.powerVal));
+		gpib->gpibSend(currentInfo.machineAddress, "SOURCE1:VOLT:OFFS 0");
 
+		if (currentInfo.channels.first.fsk)
+		{
+			gpib->gpibSend(currentInfo.machineAddress, "SOURCE1:FSKey:STATe On");
+			gpib->gpibSend(currentInfo.machineAddress, "SOURCE1:FSKey:FREQ " + str(currentNums[var].channels.first.fskFreqVal));
+			gpib->gpibSend(currentInfo.machineAddress, "SOURCE1:FSKey:SOURce External");
+		}
+		else
+		{
+			gpib->gpibSend(currentInfo.machineAddress, "SOURCE1:FSKey:STATe Off");
+		}
+		gpib->gpibSend(currentInfo.machineAddress, "OUTput1:STATe ON");
+	}
+	else
+	{
+		gpib->gpibSend(currentInfo.machineAddress, "OUTput1:STATe OFF");
+	}
+	/// second channel
+	if (currentInfo.channels.second.on)
+	{
+		gpib->gpibSend(currentInfo.machineAddress, "SOURCE2:FREQ " + str(currentNums[var].channels.second.mainFreqVal));
+		gpib->gpibSend(currentInfo.machineAddress, "SOURCE2:VOLT:UNIT DBM");
+		gpib->gpibSend(currentInfo.machineAddress, "SOURCE2:VOLT " + str(currentNums[var].channels.second.powerVal));
+		gpib->gpibSend(currentInfo.machineAddress, "SOURCE2:VOLT:OFFS 0");
+		if (currentInfo.channels.second.fsk)
+		{
+			gpib->gpibSend(currentInfo.machineAddress, "SOURCE2:FSKey:STATe On");
+			gpib->gpibSend(currentInfo.machineAddress, "SOURCE2:FSKey:FREQ " + str(currentNums[var].channels.second.fskFreqVal));
+			gpib->gpibSend(currentInfo.machineAddress, "SOURCE2:FSKey:SOURce External");
+		}
+		else
+		{
+			gpib->gpibSend(currentInfo.machineAddress, "SOURCE2:FSKey:STATe Off");
+		}
+		gpib->gpibSend(currentInfo.machineAddress, "OUTput2:STATe ON");
+	}
+	else
+	{
+		gpib->gpibSend(currentInfo.machineAddress, "OUTput2:STATe OFF");
+	}
+}
 /// 
 
 // initialize the control by designating the GPIB address of the machine.
@@ -190,16 +305,21 @@ void TektronicsControl::rearrange(int width, int height, std::unordered_map<std:
 tektronicsInfo TektronicsControl::getSettings()
 {
 	currentInfo.channels.first = channel1.getSettings();
-	currentInfo.channels.second = channel1.getSettings();
+	currentInfo.channels.second = channel2.getSettings();
 	return currentInfo;
 }
 
-
+// does not set the address, that's permanent.
 void TektronicsControl::setSettings(tektronicsInfo info)
 {
 	currentInfo.channels = info.channels;
 	channel1.setSettings(currentInfo.channels.first);
 	channel2.setSettings(currentInfo.channels.second);
+	// update the controls to reflect what is now selected.
+	channel1.handleOnPress();
+	channel1.handleFskPress();
+	channel2.handleOnPress();
+	channel2.handleFskPress();
 }
 
 

@@ -53,10 +53,7 @@ void NoteSystem::initialize( POINT& pos, MasterWindow* master, int& id )
 	// Configuration Notes edit
 	experimentNotes.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 100 };
 	experimentNotes.ID = id++;
-	if (experimentNotes.ID != EXPERIMENT_NOTES_ID)
-	{
-		throw;
-	}
+	idVerify(experimentNotes.ID, EXPERIMENT_NOTES_ID);
 	experimentNotes.Create( WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | WS_BORDER,
 							experimentNotes.sPos, master, experimentNotes.ID );
 	experimentNotes.fontType = Normal;
@@ -70,10 +67,7 @@ void NoteSystem::initialize( POINT& pos, MasterWindow* master, int& id )
 	// Category Notes edit
 	categoryNotes.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 100 };
 	categoryNotes.ID = id++;
-	if (categoryNotes.ID != CATEGORY_NOTES_ID)
-	{
-		throw;
-	}
+	idVerify(experimentNotes.ID, EXPERIMENT_NOTES_ID);
 	categoryNotes.Create( WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | WS_BORDER,
 						  categoryNotes.sPos, master, categoryNotes.ID );
 	categoryNotes.fontType = Normal;
@@ -87,10 +81,7 @@ void NoteSystem::initialize( POINT& pos, MasterWindow* master, int& id )
 	//  Configuration Notes edit
 	configurationNotes.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 100 };
 	configurationNotes.ID = id++;
-	if (configurationNotes.ID != CONFIGURATION_NOTES_ID)
-	{
-		throw;
-	}
+	idVerify(configurationNotes.ID, CONFIGURATION_NOTES_ID);
 	configurationNotes.Create( WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | WS_BORDER,
 							   configurationNotes.sPos, master, configurationNotes.ID );
 	configurationNotes.fontType = Normal;
@@ -152,13 +143,14 @@ INT_PTR NoteSystem::handleColorMessage(WPARAM wParam, LPARAM lParam, brushMap br
 {
 	DWORD ctrlID = GetDlgCtrlID((HWND)lParam); // Window Control ID
 	HDC hdcStatic = (HDC)wParam;
-	if (ctrlID == this->categoryNotes.ID || ctrlID == this->experimentNotes.ID || ctrlID == this->configurationNotes.ID)
+	if (ctrlID == categoryNotes.ID || ctrlID == experimentNotes.ID || ctrlID == configurationNotes.ID)
 	{
 		SetTextColor(hdcStatic, RGB(255, 255, 255));
 		SetBkColor(hdcStatic, RGB(15, 15, 15));
 		return (INT_PTR)brushes["Dark Grey"];
 	}
-	else if (ctrlID == this->categoryNotesHeader.ID || ctrlID == this->experimentNotesHeader.ID || ctrlID == this->configurationNotesHeader.ID)
+	else if (ctrlID == categoryNotesHeader.ID || ctrlID == experimentNotesHeader.ID
+			 || ctrlID == configurationNotesHeader.ID)
 	{
 		SetTextColor(hdcStatic, RGB(218, 165, 32));
 		SetBkColor(hdcStatic, RGB(30, 30, 30));

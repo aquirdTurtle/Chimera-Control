@@ -2,7 +2,7 @@
 
 #include "Control.h"
 #include "KeyHandler.h"
-
+#include "GPIB.h"
 
 struct tektronicsChannelInfo
 {
@@ -12,7 +12,10 @@ struct tektronicsChannelInfo
 	std::string power;
 	std::string mainFreq;
 	std::string fskFreq;
-	
+};
+
+struct tektronicsChannelNums
+{
 	// eventually these double values take on the actual values being programmed, like so:
 	// info.channels.first.mainFreqVal = std::stod(info.channels.first.mainFreq);
 	// then if failing checking a key for variable values.
@@ -29,6 +32,13 @@ struct tektronicsInfo
 	std::pair<tektronicsChannelInfo, tektronicsChannelInfo> channels;
 	int machineAddress;
 };
+
+
+struct tektronicsNums
+{
+	std::pair<tektronicsChannelNums, tektronicsChannelNums> channels;
+};
+
 
 class TektronicsChannelControl
 {
@@ -60,7 +70,9 @@ class TektronicsControl
 		void setSettings(tektronicsInfo info);
 		void rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts);
 		void handleButtons(UINT indicator);
-
+		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
+		void interpretKey(key variationKey, std::vector<variable>& vars);
+		void programMachine(Gpib* gpibControl, UINT var);
 	private:
 		Control<CStatic> header;
 		Control<CStatic> onOffLabel;
@@ -73,5 +85,6 @@ class TektronicsControl
 		TektronicsChannelControl channel2;
 
 		tektronicsInfo currentInfo;
+		std::vector<tektronicsNums> currentNums;
 };
 

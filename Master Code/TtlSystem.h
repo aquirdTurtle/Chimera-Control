@@ -22,7 +22,7 @@ class MasterWindow;
 struct TtlCommandForm
 {
 	// the hardware location of this line
-	std::pair<unsigned int, unsigned int> line;
+	std::pair<unsigned short, unsigned short> line;
 	// the time to make the change
 	timeType time;
 	// the value to set it to. 
@@ -33,7 +33,7 @@ struct TtlCommandForm
 struct TtlCommand
 {
 	// the hardware location of this line
-	std::pair<unsigned int, unsigned int> line;
+	std::pair<unsigned short, unsigned short> line;
 	// the time to make the change
 	double time;
 	// the value to set it to. 
@@ -81,26 +81,27 @@ class TtlSystem
 		TtlSystem();
 		~TtlSystem();
 		void initialize(POINT& startLocation, std::unordered_map<HWND, std::string>& masterText, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id);
-		double getTotalTime();
+		double getTotalTime(UINT var);
 		int getNumberOfTTLRows();
 		int getNumberOfTTLsPerRow();
-		std::string getTtlSequenceMessage();
+		std::string getTtlSequenceMessage(UINT var);
 		void zeroBoard();
 		void handleTTLPress(UINT id);
 		void handleHoldPress();
-		HBRUSH TtlSystem::handleColorMessage(CWnd* window, std::unordered_map<std::string, HBRUSH> brushes, std::unordered_map<std::string, COLORREF> rGBs, CDC* cDC);
+		HBRUSH handleColorMessage(CWnd* window, std::unordered_map<std::string, HBRUSH> brushes, std::unordered_map<std::string, COLORREF> rGBs, CDC* cDC);
 		std::string getSystemInfo();
 		std::array< std::array<bool, 16>, 4 > getFinalSnapshot();
 		void setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > status);
 
-		unsigned long countDacTriggers();
+		ULONG countDacTriggers(UINT var);
+		ULONG getNumberEvents(UINT var);
 
 		void rearrange(UINT width, UINT height, fontMap fonts);
 
 		void ttlOn(unsigned int row, unsigned int column, timeType time);
-		void ttlOnDirect( unsigned int row, unsigned int column, double time );
+		void ttlOnDirect( unsigned int row, unsigned int column, double time, UINT var);
 		void ttlOff(unsigned int row, unsigned int column, timeType time);
-		void ttlOffDirect( unsigned int row, unsigned int column, double time );
+		void ttlOffDirect( unsigned int row, unsigned int column, double time, UINT var);
 		void forceTtl(int row, int number, int state);
 
 		void abort();
@@ -116,23 +117,45 @@ class TtlSystem
 		void handleTtlScriptCommand( std::string command, timeType time, std::string name,
 									  std::string pulseLength,
 									  std::vector<std::pair<unsigned int, unsigned int>>& ttlShadeLocations );
-		void interpretKey(key variationKey, unsigned int variationNum, std::vector<variable>& vars);
-		void analyzeCommandList();
-		void convertToFinalFormat();
-		void writeData();
+		void interpretKey(key variationKey, std::vector<variable>& vars);
+		void analyzeCommandList(UINT var);
+		void convertToFinalFormat(UINT var);
+		void writeData(UINT var);
 		void startBoard();
 		void stopBoard();
 		double getClockStatus();
 		void wait(double time);
-		void waitTillFinished();
+		void waitTillFinished(UINT var);
 
 		//int TtlSystem::getNameIdentifier(std::string name, unsigned int& row, unsigned int& number);
 		void shadeTTLs(std::vector<std::pair<unsigned int, unsigned int>>);
-		void unshadeTTLs();
+		void unshadeTtls();
 		bool isValidTTLName(std::string name);
-		void resetTTLEvents();
-
+		void resetTtlEvents();
+		void prepareForce();
 	private:
+
+		// one control for each TTL
+		Control<CStatic> ttlTitle;
+		Control<CButton> ttlHold;
+		Control<CButton> zeroTtls;
+		std::array< std::array< Control<CButton>, 16 >, 4 > ttlPushControls;
+		std::array< Control<CStatic>, 16 > ttlNumberLabels;
+		std::array< Control<CStatic>, 4 > ttlRowLabels;
+		Control<CButton> newButton;
+		std::array< std::array<bool, 16>, 4 > ttlStatus;
+		std::array< std::array<bool, 16>, 4 > ttlShadeStatus;
+		std::array< std::array<bool, 16>, 4 > ttlHoldStatus;
+		std::array< std::array<std::string, 16 >, 4> ttlNames;
+		// tells whether the hold button is down or not.
+		bool holdStatus;
+		std::vector<TtlCommandForm> ttlCommandFormList;
+		// Each element of first vector is for each variation.
+		std::vector<std::vector<TtlCommand>> individualTTL_CommandList;
+		// Each element of first vector is for each variation.
+		std::vector<std::vector<TtlSnapshot>> ttlSnapshots;
+		// Each element of first vector is for each variation.
+		std::vector<std::vector<std::array<WORD, 6>>> finalFormattedCommandForDio;
 
 		/* ***********************************************************************************************************
 		 * All of the functions (and a bit of redundancy here) might be a bit confusing. In short, there are 3 
@@ -169,24 +192,6 @@ class TtlSystem
 		void dioOutStop( WORD board );
 		void dioSetAttr( WORD board, DWORD attrID, DWORD value );
 		void dioGetAttr( WORD board, DWORD attrID, DWORD& value );
-
-		// one control for each TTL
-		Control<CStatic> ttlTitle;
-		Control<CButton> ttlHold;
-		Control<CButton> zeroTtls;
-		std::array< std::array< Control<CButton>, 16 >, 4 > ttlPushControls;
-		std::array< Control<CStatic>, 16 > ttlNumberLabels;
-		std::array< Control<CStatic>, 4 > ttlRowLabels;
-		Control<CButton> newButton;
-		std::array< std::array<bool, 16>, 4 > ttlStatus;
-		std::array< std::array<bool, 16>, 4 > ttlShadeStatus;
-		std::array< std::array<bool, 16>, 4 > ttlHoldStatus;
-		std::array< std::array<std::string, 16 >, 4> ttlNames;
-		bool holdStatus;
-		std::vector<TtlCommandForm> ttlCommandFormList;
-		std::vector<TtlCommand> individualTTL_CommandList;
-		std::vector<TtlSnapshot> ttlSnapshots;
-		std::vector<std::array<WORD, 6>> finalFormattedCommandForDIO;
 
 		/// The following functions (all of the ones that start with "raw") ARE NOT MEANT TO BE DIRECTLY USED (at least
 		/// in my code. They are the raw functions I'm importing from viewpoints libraries without any bells or whistles.)

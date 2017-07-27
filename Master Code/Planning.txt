@@ -1,42 +1,23 @@
+####################
 ### MASTER TODO: ###
+####################
 
 Main Features
- - Create / Run / Test Atoms Experiments
-    - Trap Frequency Measurement
-      - Axial
-      - Radial
-    - Trap Depth Measurement
-	- Pushout
-!- Implement Scripting for the Agilent controls
- - Convert input in edit to actual dac value based on discretization
+ - Test sideband cooling?
+	- cooling?
  - things associated with pre-calculating every variation
-	- 1st Step: Make it calculate all sets of commands before running anything.
 	- make randomize the repetition between variations an option.
-	- fix "total experiment time" calculation to be accurate when a time is varying between variations.
- - handle 0 variations for variables better. If more than one range, you should be able to set a number for a range
-	to be zero, but there always needs to be at least one variable. I might need to write special handling in the key
-	for zero variations in one range as well.
- - implement the nice throw handler.
+	- option to extend repetition number mid-experiment.
+!- Multi-dimensional variable scans.
+- option to pause between variations
+- make rounding to dac discretization an option.
 
 Bugs
-- If experiment doesn't exist in correct location, and cancel, code crashes.
-	- Can't repeat on laptop. Only happened once.
-- Saving adds boxes to experiment notes... Perhaps related to line endings.
-	- Can't repeat on laptop??? Might be related to xp.
-- Be able to manually set limits on dac values in the code.
-- fix opening message. queries just aren't working in general.
-- prompt to save at end doesn't recognize if parent script is selected or not?
 - DAC behavior is inconsistent... T.T
-- not catching variable usage on dac events...
-- Script is getting set as unsaved when still saved.
 - Sequence not updating... not sure if this is even active in any sense but if not I should de-activate it.
-- fix repetitions setting
-- fix the extra DAC triggers being set
-- system doesn't unshade ttls on errors...
+- TTL buffer overflow???
+- fix rounding issue
 
-Other Changes
-- Update TTL dialog procedure to MFC
-- update other dialog procedures to MFC
 
 ################################
 ### Finished ###

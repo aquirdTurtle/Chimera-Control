@@ -1,0 +1,7 @@
+%% the trigger is a 1 ms trigger at the moment.
+def triggerScout():
+	on: scoutTrig
+	t += 1
+	off: scoutTrig
+
+	t += -1

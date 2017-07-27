@@ -17,6 +17,11 @@ void DacSettingsDialog::handleOk()
 		/// MAKE SURE that there are 16 numbers per row.
 		CString text;
 		nameEdits[dacInc].GetWindowTextA(text);
+		if (isdigit(text[0]))
+		{
+			errBox("ERROR: " + std::string(text) + " is an invalid name; names cannot start with numbers.");
+			return;
+		}
 		input->dacs->setName(dacInc, std::string(text), input->toolTips, input->master);
 		double min, max;
 		try
@@ -27,9 +32,10 @@ void DacSettingsDialog::handleOk()
 			max = std::stod(std::string(text));
 			input->dacs->setMinMax(dacInc, min, max);
 		}
-		catch (Error& err)
+		catch (std::invalid_argument& err)
 		{
 			errBox(err.what());
+			return;
 		}
 	}
 	EndDialog(0);

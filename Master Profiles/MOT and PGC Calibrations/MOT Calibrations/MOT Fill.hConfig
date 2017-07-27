@@ -1,0 +1,120 @@
+Master Version: 1.1
+MASTER SCRIPT:
+NONLOCAL C:\Documents and Settings\Regal Lab\My Documents\Quantum Gas Assembly Control\Master Profiles\MOT and PGC Calibrations\MOT Calibrations\motFill.mScript
+VARIABLES:
+2
+picturetimespacing Not_Timelike Constant 1 50 0 1 
+droptime Not_Timelike Constant 1 100 0 1 
+TTLS:
+1
+1
+0
+1
+1
+1
+1
+1
+1
+0
+0
+0
+0
+0
+0
+0
+0
+1
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+1
+0
+0
+1
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+DACS:
+0.915
+-0.755
+-1.02
+1.475
+-0.15
+-0.0897
+7
+0
+0
+0.35
+0
+0.1
+0
+0.3
+0
+0
+0
+-0.9
+0
+0
+0.1
+0
+0.3
+0
+REPETITIONS:
+100
+AGILENTVERSION 1.0
+0
+CHANNEL 1
+-2, , , , , , , , 
+CHANNEL 2
+-2, , , , , , , , 
+AGILENTVERSION 1.0
+0
+CHANNEL 1
+-2, , , , , , , , 
+CHANNEL 2
+-2, , , , , , , , 
+AGILENTVERSION 1.0
+0
+CHANNEL 1
+-2, , , , , , , , 
+CHANNEL 2
+-2, , , , , , , , 
+NOTES:
+
+END CONFIGURATION NOTES

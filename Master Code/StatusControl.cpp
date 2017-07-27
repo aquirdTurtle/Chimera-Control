@@ -45,7 +45,7 @@ void StatusControl::initialize(POINT &loc, CWnd* parent, int& id, long width, lo
 	header.ID = id++;
 	header.sPos = { loc.x, loc.y, loc.x + width-100, loc.y + 20 };
 	header.Create(headerText.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, parent, header.ID);
-	header.SetFont(fonts["Heading Font"]);
+	header.fontType = Heading;
 	//
 	clearButton.ID = id++;
 	if (clearButton.ID != ID_ERROR_CLEAR && clearButton.ID != ID_STATUS_CLEAR)
@@ -54,13 +54,13 @@ void StatusControl::initialize(POINT &loc, CWnd* parent, int& id, long width, lo
 	}
 	clearButton.sPos = { loc.x + width-100, loc.y, loc.x + width, loc.y + 20 };
 	clearButton.Create("Clear", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, clearButton.sPos, parent, clearButton.ID);
-	clearButton.SetFont(fonts["Normal Font"]);
+	clearButton.fontType = Normal;
 	loc.y += 20;
 	//
 	edit.ID = id++;
 	edit.sPos = { loc.x, loc.y, loc.x + width, loc.y + height - 20 };
 	edit.Create(WS_CHILD | WS_VISIBLE | ES_READONLY | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | WS_BORDER, edit.sPos, parent, edit.ID);
-	edit.SetFont(fonts["Code Font"]);
+	edit.fontType = Code;
 	edit.SetBackgroundColor(0, RGB(50,50,50));
 	setDefaultColor(textColor);
 	loc.y += height - 20;
@@ -69,10 +69,10 @@ void StatusControl::initialize(POINT &loc, CWnd* parent, int& id, long width, lo
 //
 void StatusControl::setDefaultColor(COLORREF color)
 {
-	this->defaultColor = color;
-	this->setColor();
+	defaultColor = color;
+	setColor();
 	CHARFORMAT myCharFormat;
-	this->edit.GetDefaultCharFormat(myCharFormat);
+	edit.GetDefaultCharFormat(myCharFormat);
 	myCharFormat.cbSize = sizeof(CHARFORMAT);
 	myCharFormat.dwMask = CFM_COLOR;
 	myCharFormat.crTextColor = defaultColor;
@@ -94,14 +94,14 @@ void StatusControl::addStatusText(std::string text, bool noColor)
 	{
 		setColor(RGB(255, 255, 255));
 	}
-	appendText(text, this->edit);
+	appendText(text, edit);
 }
 
 void StatusControl::setColor(COLORREF color)
 {
 	CHARFORMAT myCharFormat, t2;
 	memset(&myCharFormat, 0, sizeof(CHARFORMAT));
-	//this->edit.GetDefaultCharFormat(myCharFormat);
+	//edit.GetDefaultCharFormat(myCharFormat);
 	myCharFormat.cbSize = sizeof(CHARFORMAT);
 	myCharFormat.dwMask = CFM_COLOR;
 	myCharFormat.crTextColor = color;
@@ -114,13 +114,13 @@ void StatusControl::setColor(COLORREF color)
 
 void StatusControl::setColor()
 {
-	setColor(this->defaultColor);
+	setColor(defaultColor);
 }
 
 
 void StatusControl::clear()
 {
-	this->edit.SetWindowTextA("");
+	edit.SetWindowTextA("");
 	setColor(RGB(255, 255, 255));
 	addStatusText("******************************\r\n", true);
 }

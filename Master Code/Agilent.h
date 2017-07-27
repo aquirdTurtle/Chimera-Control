@@ -185,6 +185,7 @@ class Agilent
 		bool connected();
 		void analyzeAgilentScript( ScriptStream& intensityFile, ScriptedAgilentWaveform* intensityWaveformData, 
 								   int& currentSegmentNumber, profileSettings profileInfo );
+		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
 		std::string getConfigurationString();
 		std::string getDeviceIdentity();
 		void readConfigurationFile( std::ifstream& file );

@@ -20,6 +20,7 @@ class KeyHandler
 		
 	private:	
 		Control<CButton> randomizeVariablesButton;
+		Control<CButton> randomizeRepetitionsButton;
 		std::vector<variable> variables;
 		key keyValues;
 		unsigned int runningKeyValue;

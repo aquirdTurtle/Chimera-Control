@@ -1,16 +1,16 @@
-An experiment ran at (y-m-d h:m:s)2017-7-18, 23:49:48 with the following parameters:
+An experiment ran at (y-m-d h:m:s)2017-7-27, 14:54:15 with the following parameters:
 ==========================================================================================
 TTL Settings:
 **VALUES**         0         1         2         3         4         5         6         7         8         9        10        11        12        13        14        15
-        A:        ON       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF
-        B:       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF
-        C:       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF
-        D:       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF
+        A:        ON        ON       OFF       OFF       OFF        ON        ON       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF
+        B:       OFF        ON       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF
+        C:       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF        ON       OFF       OFF
+        D:        ON       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF
  **NAMES**         0         1         2         3         4         5         6         7         8         9        10        11        12        13        14        15
-        A:        a0        a1        a2        a3        a4        a5        a6        a7        a8        a9       a10       a11       a12       a13       a14       a15         
-        B:        b0        b1        b2        b3        b4        b5        b6        b7        b8        b9       b10       b11       b12       b13       b14       b15         
-        C:        c0        c1        c2        c3        c4        c5        c6        c7        c8        c9       c10       c11       c12       c13       c14       c15         
-        D:        d0        d1        d2        d3        d4        d5        d6        d7        d8        d9       d10       d11       d12       d13       d14       d15         
+        A: diagmotrf  repumprfbotramanrfsigmarepumprf sigmaoprf sidemotrf tweezerrf        a7 eoramanrf        a9topramanrfaxialramanrf       a12radialgaussianpulsetrigoscilloscopetrig       a15         
+        B: scouttrigrepumpshuttermotshutter lsshutter        b4        b5tweezerintensitytrig        b7        b8depumptrig795shutter       b11       b12       b13 niawgtrigafgsweeptrig         
+        C:  eoswitch eoswitch2 andortrig    rstrigramanshuttertweezerflashrf      lsrftweezerflashrf2        c8depumpingrf     795rfoscilloscopetrigprobeshuttersidemotshutter       c14   acetrig         
+        D:diagmotshutter        d1andorshutteraxialmicropulsetrigtopfsktrigbotfsktrigaxialfsktrig        d7        d8        d9       d10       d11       d12       d13dacboardtrig       d15         
 
 
 DAC Settings:
@@ -19,28 +19,236 @@ DAC Settings:
 9: 0.000000  10:0.000000  11:0.000000  12:0.000000  13:0.000000  14:0.000000  15:0.000000  16:0.000000  
 17:0.000000  18:0.000000  19:0.000000  20:0.000000  21:0.000000  22:0.000000  23:0.000000  24:0.000000  
 NAMES    
-1: dac0      2: dac1      3: dac2      4: dac3      5: dac4      6: dac5      7: dac6      8: dac7      
-9: dac8      10:dac9      11:dac10     12:dac11     13:dac12     14:dac13     15:dac14     16:dac15     
-17:dac16     18:dac17     19:dac18     20:dac19     21:dac20     22:dac21     23:dac22     24:dac23     
+1: rightcoilcurrent2: leftcoilcurrent3: frontcoilcurrent4: backcoilcurrent5: bottomcoilcurrent6: topcoilcurrent7: motgradientcurrent8: dac7      
+9: depumppower10:diagmotpower11:depumpfreq12:repumppower13:sigmaopfreq14:sigmaoppower15:sigmarepumpfreq16:sigmarepumppower
+17:lspower   18:795freq   19:795power  20:dac19     21:motfreq   22:repumpfreq23:sidemotpower24:piezomirror
 
 Master Script:
 % Master-Script See the "?" for info on commands.
 % Time starts at 1 ms.
 t = 1
 %
-t += (2*variable-5000)
+call turnonmot()
+
+t += loadMotTime
+
+call pgcLoading()
+
+t += 5 
+
+call pgcAtomImage()
+
+t += 5
+call turnOnMot()
+
+t += -100
+
 on: A0
-dac: Dac11 10
+t += 20
+off: A1
+dacramp: dac1 0 10 1 0.01
 
 
-Repetitions: 1
+Repetitions: 500
 
-Variables: variable  Constant  Not Timelike   Value:6000.000000variables Constant  Not Timelike   Value:0.000000 
+Variables: loadmotrightfieldVariable  Not Timelike   (init:fin:#)   0       :0       :5       	
+
 
 Error Status:
 
 
 General Status:
+............................
+Checking if Ready...
+: c:\users\mark\documents\quantum-gas-assembly-control\master code\configurationfilesystem.cpp, Line 120: ERROR: Please set a configuration.
+............................
+Checking if Ready...
+Starting Experiment Thread...
+An experiment ran at (y-m-d h:m:s)2017-7-27, 14:54:24 with the following parameters:
+==========================================================================================
+TTL Settings:
+**VALUES**0         1         2         3         4         5         6         7         8         9         10        11        12        13        14        15        
+A:        ON        ON        OFF       OFF       OFF       ON        ON        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
+B:        OFF       ON        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
+C:        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       ON        OFF       OFF       
+D:        ON        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
+**NAMES** 0         1         2         3         4         5         6         7         8         9         10        11        12        13        14        15        
+A:        diagmotrf repumprf  botramanrfsigmarepumprfsigmaoprf sidemotrf tweezerrf a7        eoramanrf a9        topramanrfaxialramanrfa12       radialgaussianpulsetrigoscilloscopetriga15       
+         B:        scouttrig repumpshuttermotshutterlsshutter b4        b5        tweezerintensitytrigb7        b8        depumptrig795shutterb11       b12       b13       niawgtrig afgsweeptrig
+         C:        eoswitch  eoswitch2 andortrig rstrig    ramanshuttertweezerflashrflsrf      tweezerflashrf2c8        depumpingrf795rf     oscilloscopetrigprobeshuttersidemotshutterc14       acetrig   
+         D:        diagmotshutterd1        andorshutteraxialmicropulsetrigtopfsktrigbotfsktrigaxialfsktrigd7        d8        d9        d10       d11       d12       d13       dacboardtrigd15       
+         
+
+DAC Settings:
+VALUES    
+1: 0.000000  2: 0.000000  3: 0.000000  4: 0.000000  5: 0.000000  6: 0.000000  7: 0.000000  8: 0.000000  
+9: 0.000000  10:0.000000  11:0.000000  12:0.000000  13:0.000000  14:0.000000  15:0.000000  16:0.000000  
+17:0.000000  18:0.000000  19:0.000000  20:0.000000  21:0.000000  22:0.000000  23:0.000000  24:0.000000  
+NAMES    
+1: rightcoilcurrent2: leftcoilcurrent3: frontcoilcurrent4: backcoilcurrent5: bottomcoilcurrent6: topcoilcurrent7: motgradientcurrent8: dac7      
+9: depumppower10:diagmotpower11:depumpfreq12:repumppower13:sigmaopfreq14:sigmaoppower15:sigmarepumpfreq16:sigmarepumppower
+17:lspower   18:795freq   19:795power  20:dac19     21:motfreq   22:repumpfreq23:sidemotpower24:piezomirror
+
+Master Script:
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+t = 1
+%
+call turnonmot()
+
+t += loadMotTime
+
+call pgcLoading()
+
+t += 5 
+
+call pgcAtomImage()
+
+t += 5
+call turnOnMot()
+
+t += -100
+
+on: A0
+t += 20
+off: A1
+dacramp: dac1 0 10 1 0.01
+
+
+Repetitions: 500
+
+Variables: loadmotrightfieldVariable  Not Timelike   (init:fin:#)   0       :0       :5       	
+
+
+Error Status:
+
+
+General Status:
+............................
+Checking if Ready...
+: c:\users\mark\documents\quantum-gas-assembly-control\master code\configurationfilesystem.cpp, Line 120: ERROR: Please set a configuration.
+............................
+Checking if Ready...
+Starting Experiment Thread...
+Handling Key... Done.
+Loading Agilent Info...Analyzing Master Script...Done.
+Programming All Variation Data...
+Programming Variation #1 Data...
+Programming Variation #2 Data...
+Programming Variation #3 Data...
+Programming Variation #4 Data...
+Programming Variation #5 Data...
+Programming took 1.953000 seconds.
+Programmed time per repetition: 186.000400
+Programmed Total Experiment time: 465000
+Number of TTL Events in experiment: 2201
+Number of DAC Events in experiment: 1098
+Variation #1
+loadmotrightfield: 0.000000
+Programming Hardware...
+Running Experiment.
+
+ABORTED!
+............................
+Checking if Ready...
+Starting Experiment Thread...
+An experiment ran at (y-m-d h:m:s)2017-7-27, 14:54:39 with the following parameters:
+==========================================================================================
+TTL Settings:
+**VALUES**0         1         2         3         4         5         6         7         8         9         10        11        12        13        14        15        
+A:        ON        ON        OFF       OFF       OFF       ON        ON        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
+B:        OFF       ON        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
+C:        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       ON        OFF       OFF       
+D:        ON        OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       OFF       
+**NAMES** 0         1         2         3         4         5         6         7         8         9         10        11        12        13        14        15        
+A:        diagmotrf repumprf  botramanrfsigmarepumprfsigmaoprf sidemotrf tweezerrf a7        eoramanrf a9        topramanrfaxialramanrfa12       radialgaussianpulsetrigoscilloscopetriga15       
+         B:        scouttrig repumpshuttermotshutterlsshutter b4        b5        tweezerintensitytrigb7        b8        depumptrig795shutterb11       b12       b13       niawgtrig afgsweeptrig
+         C:        eoswitch  eoswitch2 andortrig rstrig    ramanshuttertweezerflashrflsrf      tweezerflashrf2c8        depumpingrf795rf     oscilloscopetrigprobeshuttersidemotshutterc14       acetrig   
+         D:        diagmotshutterd1        andorshutteraxialmicropulsetrigtopfsktrigbotfsktrigaxialfsktrigd7        d8        d9        d10       d11       d12       d13       dacboardtrigd15       
+         
+
+DAC Settings:
+VALUES    
+1: 0.000000  2: 0.000000  3: 0.000000  4: 0.000000  5: 0.000000  6: 0.000000  7: 0.000000  8: 0.000000  
+9: 0.000000  10:0.000000  11:0.000000  12:0.000000  13:0.000000  14:0.000000  15:0.000000  16:0.000000  
+17:0.000000  18:0.000000  19:0.000000  20:0.000000  21:0.000000  22:0.000000  23:0.000000  24:0.000000  
+NAMES    
+1: rightcoilcurrent2: leftcoilcurrent3: frontcoilcurrent4: backcoilcurrent5: bottomcoilcurrent6: topcoilcurrent7: motgradientcurrent8: dac7      
+9: depumppower10:diagmotpower11:depumpfreq12:repumppower13:sigmaopfreq14:sigmaoppower15:sigmarepumpfreq16:sigmarepumppower
+17:lspower   18:795freq   19:795power  20:dac19     21:motfreq   22:repumpfreq23:sidemotpower24:piezomirror
+
+Master Script:
+% Master-Script See the "?" for info on commands.
+% Time starts at 1 ms.
+t = 1
+%
+call turnonmot()
+
+t += loadMotTime
+
+call pgcLoading()
+
+t += 5 
+
+call pgcAtomImage()
+
+t += 5
+call turnOnMot()
+
+t += -100
+
+on: A0
+t += 20
+off: A1
+dacramp: dac1 0 10 1 0.01
+
+
+Repetitions: 500
+
+Variables: loadmotrightfieldVariable  Not Timelike   (init:fin:#)   0       :0       :5       	
+
+
+Error Status:
+c:\users\mark\documents\quantum-gas-assembly-control\master code\socketwrapper.cpp, Line 32: Socket Accept error! Code: 10035
+
+General Status:
+............................
+Checking if Ready...
+: c:\users\mark\documents\quantum-gas-assembly-control\master code\configurationfilesystem.cpp, Line 120: ERROR: Please set a configuration.
+............................
+Checking if Ready...
+Starting Experiment Thread...
+Handling Key... Done.
+Loading Agilent Info...Analyzing Master Script...Done.
+Programming All Variation Data...
+Programming Variation #1 Data...
+Programming Variation #2 Data...
+Programming Variation #3 Data...
+Programming Variation #4 Data...
+Programming Variation #5 Data...
+Programming took 1.953000 seconds.
+Programmed time per repetition: 186.000400
+Programmed Total Experiment time: 465000
+Number of TTL Events in experiment: 2201
+Number of DAC Events in experiment: 1098
+Variation #1
+loadmotrightfield: 0.000000
+Programming Hardware...
+Running Experiment.
+
+ABORTED!
+............................
+Checking if Ready...
+Starting Experiment Thread...
+Handling Key... Done.
+Loading Agilent Info...Analyzing Master Script...Done.
+Programming All Variation Data...
+Programming Variation #1 Data...
+Programming Variation #2 Data...
+Programming Variation #3 Data...
+Programming Variation #4 Data...
+Programming Variation #5 Data...
+Bad Exit!
 ............................
 Checking if Ready...
 Starting Experiment Thread...

@@ -277,8 +277,6 @@ void ScriptedAgilentWaveform::compileSequenceString(int totalSegNum, int sequenc
 			default:
 				// ERROR!
 				thrower("ERROR: entered location in code that shouldn't be entered. Check for logic mistakes in code.");
-				return;
-				break;
 		}
 		tempSegmentInfoString += "highAtStart,4,";
 	}
@@ -305,14 +303,11 @@ void ScriptedAgilentWaveform::compileSequenceString(int totalSegNum, int sequenc
 		default:
 			// ERROR!
 			thrower("ERROR: entered location in code that shouldn't be entered. Check for logic mistakes in code.");
-			return;
-			break;
 	}
 	tempSegmentInfoString += "highAtStart,4";
 	//
 	totalSequence = tempSequenceString + std::to_string( (std::to_string( tempSegmentInfoString.size() )).size() )
 					+ std::to_string( tempSegmentInfoString.size() ) + tempSegmentInfoString;
-	return;
 }
 
 
@@ -396,7 +391,6 @@ void ScriptedAgilentWaveform::convertPowersToVoltages()
 			waveformSegments[segmentInc].assignDataVal( dataConvertInc, newValue );
 		}
 	}
-	return;
 }
 
 
@@ -425,7 +419,6 @@ void ScriptedAgilentWaveform::calcMinMax()
 	// TODO: Test if these are really necessary.
 	maxVolt += 1e-6;
 	minVolt -= 1e-6;
-	return;
 }
 
 
@@ -445,7 +438,6 @@ void ScriptedAgilentWaveform::normalizeVoltages()
 			waveformSegments[normSegInc].assignDataVal(normDataInc, normVal);
 		}
 	}
-	return;
 }
 
 
@@ -540,7 +532,6 @@ void Segment::calcData()
 		// Bad Time Warning
 		thrower("ERROR: Bad time entered for the time of an intensity sequence segment. This resulted in a non-integer number of samples. Time cannot be"
 						"defined with precision below the microsecond level for normal sample rates.");
-		return;
 	}
 	// Convert to integer
 	int numDataPoints = (int)round(numDataPointsf);
@@ -559,7 +550,6 @@ void Segment::calcData()
 	{
 		// Error: Ramp Type has not been set!
 		thrower("ERROR: Data points tried to be written when the ramp type hadn't been set!");
-		return;
 	}
 	else 
 	{
@@ -567,10 +557,10 @@ void Segment::calcData()
 		std::string errMsg;
 		errMsg = "ERROR: Invalid Ramp Type in intensity sequence! Type entered was: " + finalSettings.rampType + ".";
 		thrower(errMsg);
-		return;
 	}
-	return;
 }
+
+
 /*
 	* return boost::numeric_cast<long>(dataArray.size());
 	*/
@@ -638,7 +628,6 @@ void Agilent::analyzeAgilentScript( ScriptStream& intensityFile, ScriptedAgilent
 		if (leaveTest < 0)
 		{
 			thrower( "ERROR: IntensityWaveform.readIntoSegment threw an error! Error occurred in segment #" + std::to_string( currentSegmentNumber ) + "." );
-			return;
 		}
 		if (leaveTest == 1)
 		{
@@ -792,7 +781,6 @@ void Agilent::selectIntensityProfile(int varNum)
 		// and leave...
 		visaClose();
 	}
-	return;
 }
 
 
@@ -837,7 +825,8 @@ void Agilent::initialize( POINT& loc, std::vector<CToolTipCtrl*>& toolTips, Mast
 
 	channel1Button.sPos = { loc.x, loc.y, loc.x += 160, loc.y + 20 };
 	channel1Button.ID = id++;
-	if (channel1Button.ID != IDC_TOP_BOTTOM_CHANNEL1_BUTTON && channel1Button.ID != IDC_AXIAL_UWAVE_CHANNEL1_BUTTON && channel1Button.ID != IDC_FLASHING_CHANNEL1_BUTTON)
+	if (channel1Button.ID != IDC_TOP_BOTTOM_CHANNEL1_BUTTON && channel1Button.ID != IDC_AXIAL_UWAVE_CHANNEL1_BUTTON 
+		&& channel1Button.ID != IDC_FLASHING_CHANNEL1_BUTTON)
 	{
 		throw;
 	}
@@ -846,7 +835,8 @@ void Agilent::initialize( POINT& loc, std::vector<CToolTipCtrl*>& toolTips, Mast
 
 	channel2Button.sPos = { loc.x, loc.y, loc.x += 160, loc.y + 20 };
 	channel2Button.ID = id++;
-	if (channel2Button.ID != IDC_TOP_BOTTOM_CHANNEL2_BUTTON && channel2Button.ID != IDC_AXIAL_UWAVE_CHANNEL2_BUTTON && channel2Button.ID != IDC_FLASHING_CHANNEL2_BUTTON)
+	if (channel2Button.ID != IDC_TOP_BOTTOM_CHANNEL2_BUTTON && channel2Button.ID != IDC_AXIAL_UWAVE_CHANNEL2_BUTTON 
+		&& channel2Button.ID != IDC_FLASHING_CHANNEL2_BUTTON)
 	{
 		throw;
 	}
@@ -854,7 +844,8 @@ void Agilent::initialize( POINT& loc, std::vector<CToolTipCtrl*>& toolTips, Mast
 
 	syncedButton.sPos = { loc.x, loc.y, loc.x += 160, loc.y += 20 };
 	syncedButton.ID = id++;
-	if (syncedButton.ID != IDC_TOP_BOTTOM_SYNC_BUTTON && syncedButton.ID != IDC_AXIAL_UWAVE_SYNC_BUTTON && syncedButton.ID != IDC_FLASHING_SYNC_BUTTON)
+	if (syncedButton.ID != IDC_TOP_BOTTOM_SYNC_BUTTON && syncedButton.ID != IDC_AXIAL_UWAVE_SYNC_BUTTON 
+		&& syncedButton.ID != IDC_FLASHING_SYNC_BUTTON)
 	{
 		throw;
 	}
@@ -869,7 +860,8 @@ void Agilent::initialize( POINT& loc, std::vector<CToolTipCtrl*>& toolTips, Mast
 	{
 		throw;
 	}
-	settingCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, settingCombo.sPos, master, settingCombo.ID );
+	settingCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, 
+						settingCombo.sPos, master, settingCombo.ID );
 	settingCombo.AddString( "No Control" );
 	settingCombo.AddString( "Output Off" );
 	settingCombo.AddString( "DC Output" );
@@ -892,6 +884,24 @@ void Agilent::initialize( POINT& loc, std::vector<CToolTipCtrl*>& toolTips, Mast
 	settings.channel[0].option = -2;
 	settings.channel[1].option = -2;
 	currentChannel = 1;
+}
+
+
+HBRUSH Agilent::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC)
+{
+	DWORD controlID = window->GetDlgCtrlID();
+	if (controlID == deviceInfoDisplay.ID || controlID == channel1Button.ID || controlID == channel2Button.ID
+		|| controlID == syncedButton.ID || controlID == settingCombo.ID || controlID == optionsFormat.ID
+		|| controlID == optionsEdit.ID)
+	{
+		cDC->SetBkColor(rGBs["Medium Grey"]);
+		cDC->SetTextColor(rGBs["White"]);
+		return brushes["Medium Grey"];
+	}
+	else
+	{
+		return NULL;
+	}
 }
 
 
@@ -932,7 +942,6 @@ void Agilent::handleInput(int chan)
 		case 4:
 			thrower( "ERROR: attempted to use a scripted agilent sequence. This feature has"
 						" yet to be implemented on this code." );
-			break;
 		default:
 			thrower( "ERROR: unknown agilent option" );
 	}
@@ -1000,7 +1009,6 @@ void Agilent::updateEdit(int chan)
 		channel2Button.SetCheck( true );
 	}
 	optionsEdit.SetWindowTextA( str.c_str() );
-
 }
 
 
@@ -1272,7 +1280,6 @@ void Agilent::readConfigurationFile( std::ifstream& file )
 	settings.channel[1].preloadedArb.address = input.substr( 0, input.size() - 1 );
 	// default to first channel.
 	updateEdit( 1 );
-	return;
 }
 
 
@@ -1500,7 +1507,6 @@ void Agilent::errCheck( long status )
 	{
 		// Error detected.
 		thrower( "ERROR: Communication error with agilent. Error Code: " + std::to_string( status ) + "\r\n" );
-		return;
 	}
 	// Query the agilent for errors.
 	std::string errMessage;
@@ -1510,15 +1516,12 @@ void Agilent::errCheck( long status )
 	{
 		// Agilent error
 		thrower( "ERROR: agilent returned error message: " + std::to_string( errorCode ) + ":" + errMessage );
-		return;
 	}
-	return;
 }
 
 
 void Agilent::visaPrintf( std::string msg )
 {
-
 	if (!AGILENT_SAFEMODE)
 	{
 		errCheck( viPrintf( instrument, (ViString)msg.c_str() ) );
