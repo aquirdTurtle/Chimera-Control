@@ -74,14 +74,13 @@ bool RichEditControl::appendText(std::string text, int color)
 }
 
 
-bool RichEditControl::clear()
+void RichEditControl::clear()
 {
 	// clear the edit
 	richEdit.SetWindowTextA("");
-	return true;
 }
 
-bool RichEditControl::initialize(RECT editSize, std::string titleText, COLORREF defaultColor, MasterWindow* master, 
+void RichEditControl::initialize( RECT editSize, std::string titleText, COLORREF defaultColor, MasterWindow* master, 
 								  int& id)
 {
 	defaultTextColor = defaultColor;
@@ -95,35 +94,31 @@ bool RichEditControl::initialize(RECT editSize, std::string titleText, COLORREF 
 	myCharFormat.crTextColor = defaultTextColor;
 	// title
 	title.sPos = { editSize.left, editSize.top, editSize.right - 80, editSize.top + 20 };
-	title.ID = id++;
-	title.Create(titleText.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER | ES_READONLY, title.sPos, 
-				  master, title.ID);
+	title.Create( titleText.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER | ES_READONLY, title.sPos, 
+				  master, id++);
 	// Clear Button
 	clearButton.sPos = { editSize.right - 80, editSize.top, editSize.right, editSize.top + 20 };
-	clearButton.ID = id++;
-	if ( clearButton.ID != ID_ERROR_CLEAR && clearButton.ID != ID_STATUS_CLEAR )
+	if ( clearButton.GetDlgCtrlID() != ID_ERROR_CLEAR && clearButton.GetDlgCtrlID() != ID_STATUS_CLEAR )
 	{
 		throw;
 	}
-	clearButton.Create("Clear", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, clearButton.sPos, master, 
-						clearButton.ID);
+	clearButton.Create( "Clear", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, clearButton.sPos, master, 
+						id++ );
 	// Edit
 	richEdit.sPos = { editSize.left, editSize.top + 20, editSize.right, editSize.bottom };
-	richEdit.ID = id++;
 	richEdit.Create( WS_CHILD | WS_VISIBLE | ES_READONLY | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | WS_BORDER, 
-					 richEdit.sPos, master, richEdit.ID);
+					 richEdit.sPos, master, id++);
 	
 	richEdit.SetBackgroundColor(0, RGB(15,15,15));
 	richEdit.SetEventMask(ENM_CHANGE);
 	richEdit.SetDefaultCharFormat(myCharFormat);
-	return true;
 }
 
-INT_PTR RichEditControl::handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, std::unordered_map<std::string, HBRUSH> brushes)
+INT_PTR RichEditControl::handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, brushMap brushes)
 {
 	DWORD controlID = GetDlgCtrlID((HWND)lParam);
 	HDC hdcStatic = (HDC)wParam;
-	if (controlID == title.ID)
+	if (controlID == title.GetDlgCtrlID())
 	{
 		SetTextColor(hdcStatic, RGB(218, 165, 32));
 		SetBkColor(hdcStatic, RGB(30, 30, 30));

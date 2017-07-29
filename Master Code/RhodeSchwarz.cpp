@@ -10,8 +10,7 @@
  * (by design) provide an interface for which the user to change the programming of the RSG directly. The
  * user is to do this by using the "rsg:" command in a script.
  */
-void RhodeSchwarz::initialize( POINT& pos, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master,
-							   int& id )
+void RhodeSchwarz::initialize( POINT& pos, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id )
 {
 	// These are currently just hard-coded.
 	triggerTime = 0.01;
@@ -19,17 +18,15 @@ void RhodeSchwarz::initialize( POINT& pos, std::vector<CToolTipCtrl*>& toolTips,
 
 	// controls
 	header.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 25 };
-	header.ID = id++;
-	header.Create( "RHODE-SHWARTZ GENERATOR INFO (READ-ONLY)", WS_BORDER | WS_CHILD | WS_VISIBLE 
-				   | ES_CENTER | ES_READONLY, header.sPos, master, header.ID );
-	header.fontType = Heading;
+	header.Create( "RHODE-SHWARTZ GENERATOR INFO (READ-ONLY)", WS_BORDER | WS_CHILD | WS_VISIBLE | ES_CENTER 
+				  | ES_READONLY, header.sPos, master, id++ );
+	header.fontType = HeadingFont;
 	pos.y += 25;
 
 	infoControl.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 100 };
-	infoControl.ID = id++;
-	infoControl.Create( WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS | WS_BORDER,
-						infoControl.sPos, master, infoControl.ID );
-	infoControl.fontType = Small;
+	infoControl.Create( WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS | WS_BORDER, infoControl.sPos, master, 
+					   id++ );
+	infoControl.fontType = SmallFont;
 	infoControl.SetBkColor( RGB( 15, 15, 15 ) );
 	infoControl.SetTextBkColor( RGB( 15, 15, 15 ) );
 	infoControl.SetTextColor( RGB( 255, 255, 255 ) );
@@ -103,17 +100,17 @@ void RhodeSchwarz::setInfoDisp(UINT var)
 		memset( &listViewDefaultItem, 0, sizeof( listViewDefaultItem ) );
 		listViewDefaultItem.mask = LVIF_TEXT;   // Text Style
 		listViewDefaultItem.cchTextMax = 256; // Max size of test
-		std::string text = std::to_string( count + 1 );
+		std::string text = str( count + 1 );
 		listViewDefaultItem.pszText = (LPSTR)text.c_str();
 		listViewDefaultItem.iItem = count;          // choose item  
 		listViewDefaultItem.iSubItem = 0;       // Put in first coluom
 		infoControl.InsertItem( &listViewDefaultItem );
 		listViewDefaultItem.iSubItem = 1;
-		text = std::to_string( event.frequency );
+		text = str( event.frequency );
 		listViewDefaultItem.pszText = (LPSTR)text.c_str();
 		infoControl.SetItem( &listViewDefaultItem );
 		listViewDefaultItem.iSubItem = 2;
-		text = std::to_string( event.power );
+		text = str( event.power );
 		listViewDefaultItem.pszText = (LPSTR)text.c_str();
 		infoControl.SetItem( &listViewDefaultItem );
 		count++;
@@ -180,22 +177,22 @@ void RhodeSchwarz::programRSG( Gpib* gpib, UINT var )
 	{
 		gpib->gpibSend( RSG_ADDRESS, "OUTPUT ON" );
 		gpib->gpibSend( RSG_ADDRESS, "SOURce:FREQuency:MODE CW" );
-		gpib->gpibSend( RSG_ADDRESS, "FREQ " + std::to_string( events[var][0].frequency ) + " GHz" );
-		gpib->gpibSend( RSG_ADDRESS, "POW " + std::to_string( events[var][0].power ) + " dBm" );
+		gpib->gpibSend( RSG_ADDRESS, "FREQ " + str( events[var][0].frequency ) + " GHz" );
+		gpib->gpibSend( RSG_ADDRESS, "POW " + str( events[var][0].power ) + " dBm" );
 		gpib->gpibSend( RSG_ADDRESS, "OUTP ON" );
 	}
 	else
 	{
 		gpib->gpibSend( RSG_ADDRESS, "OUTP ON" );
-		gpib->gpibSend( RSG_ADDRESS, "SOURce:LIST:SEL 'freqList" + std::to_string( events.size() ) + "'" );
-		std::string frequencyList = "SOURce:LIST:FREQ " + std::to_string( events[var][0].frequency );
-		std::string powerList = "SOURce:LIST:POW " + std::to_string( events[var][0].power ) + "dBm";
+		gpib->gpibSend( RSG_ADDRESS, "SOURce:LIST:SEL 'freqList" + str( events.size() ) + "'" );
+		std::string frequencyList = "SOURce:LIST:FREQ " + str( events[var][0].frequency );
+		std::string powerList = "SOURce:LIST:POW " + str( events[var][0].power ) + "dBm";
 		for (int eventInc = 1; eventInc < events[var].size(); eventInc++)
 		{
 			frequencyList += ", ";
-			frequencyList += std::to_string( events[var][eventInc].frequency ) + " GHz";
+			frequencyList += str( events[var][eventInc].frequency ) + " GHz";
 			powerList += ", ";
-			powerList += std::to_string( events[var][eventInc].power ) + "dBm";
+			powerList += str( events[var][eventInc].power ) + "dBm";
 		}
 		gpib->gpibSend( RSG_ADDRESS, frequencyList.c_str() );
 		gpib->gpibSend( RSG_ADDRESS, powerList.c_str() );

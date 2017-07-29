@@ -23,7 +23,7 @@ std::string Gpib::gpibRead( int deviceID )
 	{
 		thrower( "gpib read failed!" + getErrMessage( iberr ) );
 	}
-	return std::string( result );
+	return str( result );
 }
 
 
@@ -161,6 +161,6 @@ std::string Gpib::getErrMessage( long errCode )
 		case ETAB:
 			return "Code 20: Table Problem";
 		default:
-			return "Unrecognized Error Code! Code was " + std::to_string( errCode );
+			return "Unrecognized Error Code! Code was " + str( errCode );
 	}
 }

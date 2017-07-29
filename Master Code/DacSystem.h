@@ -47,7 +47,7 @@ class DacSystem
 		void handleButtonPress(TtlSystem* ttls);
 		void setDacComplexEvent(int line, timeType time, std::string initVal, std::string finalVal, std::string rampTime, std::string rampInc);
 		void setForceDacEvent( int line, double val, TtlSystem* ttls, UINT var );
-
+		void handleRoundToDac(CMenu& menu);
 		void setDacStatusNoForceOut(std::array<double, 24> status);
 		void prepareDacForceChange(int line, double voltage, TtlSystem* ttls);
 		void stopDacs();
@@ -86,7 +86,7 @@ class DacSystem
 
 		bool isValidDACName(std::string name);
 
-		HBRUSH handleColorMessage(CWnd* hwnd, std::unordered_map<std::string, HBRUSH> brushes, std::unordered_map<std::string, COLORREF> rgbs, CDC* cDC);
+		HBRUSH handleColorMessage(CWnd* hwnd, brushMap brushes, rgbMap rgbs, CDC* cDC);
 		void resetDacEvents();
 		std::array<double, 24> getDacStatus();
 		std::array<double, 24> getFinalSnapshot();
@@ -113,6 +113,7 @@ class DacSystem
 		std::pair<USHORT, USHORT> dacTriggerLine;
 
 		double dacTriggerTime;
+		bool roundToDacPrecision;
 
 		// task for DACboard0 (tasks are a national instruments DAQmx thing)
 		TaskHandle staticDac0 = 0;

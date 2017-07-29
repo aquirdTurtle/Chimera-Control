@@ -16,7 +16,7 @@ class KeyHandler
 		void generateKey();
 		void exportKey();
 		void initialize(POINT loc, CWnd* parent, int& id);
-		void rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts);
+		void rearrange(int width, int height, fontMap fonts);
 		
 	private:	
 		Control<CButton> randomizeVariablesButton;

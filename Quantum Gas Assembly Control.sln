@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26014.0
+VisualStudioVersion = 15.0.26430.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Camerawg", "Camerawg\Camerawg.vcxproj", "{BDB7E898-2F81-4410-90C7-0BD4D3212AF8}"
 EndProject
@@ -14,6 +14,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "win32ToMFC", "win32ToMFC\win32ToMFC.vcxproj", "{460130A7-88E3-493C-A93C-24214EA0D281}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConsoleApplication1", "ConsoleApplication1\ConsoleApplication1.vcxproj", "{70993E60-B2D9-4A2E-9F31-56F1B35F46B8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConsoleApplication2", "ConsoleApplication2\ConsoleApplication2.vcxproj", "{167ED69E-0CF7-450C-A602-882A49228694}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -73,6 +75,14 @@ Global
 		{70993E60-B2D9-4A2E-9F31-56F1B35F46B8}.Release|Win32.Build.0 = Release|Win32
 		{70993E60-B2D9-4A2E-9F31-56F1B35F46B8}.Release|x64.ActiveCfg = Release|x64
 		{70993E60-B2D9-4A2E-9F31-56F1B35F46B8}.Release|x64.Build.0 = Release|x64
+		{167ED69E-0CF7-450C-A602-882A49228694}.Debug|Win32.ActiveCfg = Debug|Win32
+		{167ED69E-0CF7-450C-A602-882A49228694}.Debug|Win32.Build.0 = Debug|Win32
+		{167ED69E-0CF7-450C-A602-882A49228694}.Debug|x64.ActiveCfg = Debug|x64
+		{167ED69E-0CF7-450C-A602-882A49228694}.Debug|x64.Build.0 = Debug|x64
+		{167ED69E-0CF7-450C-A602-882A49228694}.Release|Win32.ActiveCfg = Release|Win32
+		{167ED69E-0CF7-450C-A602-882A49228694}.Release|Win32.Build.0 = Release|Win32
+		{167ED69E-0CF7-450C-A602-882A49228694}.Release|x64.ActiveCfg = Release|x64
+		{167ED69E-0CF7-450C-A602-882A49228694}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

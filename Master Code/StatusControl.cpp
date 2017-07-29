@@ -3,7 +3,7 @@
 #include "constants.h"
 #include "appendText.h"
 
-void StatusControl::rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts)
+void StatusControl::rearrange(int width, int height, fontMap fonts)
 {
 	header.rearrange("", "", width, height, fonts);
 	edit.rearrange("", "", width, height, fonts);
@@ -42,25 +42,22 @@ void StatusControl::initialize(POINT &loc, CWnd* parent, int& id, long width, lo
 							   COLORREF textColor, fontMap fonts, std::vector<CToolTipCtrl*>& tooltips)
 {
 	// set formatting for these scripts
-	header.ID = id++;
 	header.sPos = { loc.x, loc.y, loc.x + width-100, loc.y + 20 };
-	header.Create(headerText.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, parent, header.ID);
-	header.fontType = Heading;
+	header.Create(headerText.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, parent, id++);
+	header.fontType = HeadingFont;
 	//
-	clearButton.ID = id++;
-	if (clearButton.ID != ID_ERROR_CLEAR && clearButton.ID != ID_STATUS_CLEAR)
+	clearButton.sPos = { loc.x + width-100, loc.y, loc.x + width, loc.y + 20 };
+	clearButton.Create("Clear", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, clearButton.sPos, parent, id++);
+	if (clearButton.GetDlgCtrlID() != ID_ERROR_CLEAR && clearButton.GetDlgCtrlID() != ID_STATUS_CLEAR)
 	{
 		throw;
 	}
-	clearButton.sPos = { loc.x + width-100, loc.y, loc.x + width, loc.y + 20 };
-	clearButton.Create("Clear", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, clearButton.sPos, parent, clearButton.ID);
-	clearButton.fontType = Normal;
 	loc.y += 20;
 	//
-	edit.ID = id++;
 	edit.sPos = { loc.x, loc.y, loc.x + width, loc.y + height - 20 };
-	edit.Create(WS_CHILD | WS_VISIBLE | ES_READONLY | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | WS_BORDER, edit.sPos, parent, edit.ID);
-	edit.fontType = Code;
+	edit.Create(WS_CHILD | WS_VISIBLE | ES_READONLY | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | WS_BORDER, edit.sPos,
+				parent, id++);
+	edit.fontType = CodeFont;
 	edit.SetBackgroundColor(0, RGB(50,50,50));
 	setDefaultColor(textColor);
 	loc.y += height - 20;
@@ -109,7 +106,7 @@ void StatusControl::setColor(COLORREF color)
 	//edit.SetDefaultCharFormat(myCharFormat);
 	edit.SetSelectionCharFormat(myCharFormat);
 	edit.GetDefaultCharFormat(t2);
-	//errBox(std::to_string(t2.bCharSet));
+	//errBox(str(t2.bCharSet));
 }
 
 void StatusControl::setColor()
@@ -131,9 +128,9 @@ void StatusControl::appendTimebar()
 	time_t time_obj = time(0);   // get time now
 	struct tm currentTime;
 	localtime_s(&currentTime, &time_obj);
-	std::string timeStr = "(" + std::to_string(currentTime.tm_year + 1900) + ":" + std::to_string(currentTime.tm_mon + 1) + ":"
-		+ std::to_string(currentTime.tm_mday) + ")" + std::to_string(currentTime.tm_hour) + ":"
-		+ std::to_string(currentTime.tm_min) + ":" + std::to_string(currentTime.tm_sec);
+	std::string timeStr = "(" + str(currentTime.tm_year + 1900) + ":" + str(currentTime.tm_mon + 1) + ":"
+		+ str(currentTime.tm_mday) + ")" + str(currentTime.tm_hour) + ":"
+		+ str(currentTime.tm_min) + ":" + str(currentTime.tm_sec);
 	setColor(RGB(255, 255, 255));
 	addStatusText("\r\n**********" + timeStr + "**********\r\n", true);
 }

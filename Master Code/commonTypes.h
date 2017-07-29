@@ -9,7 +9,7 @@ typedef std::unordered_map<std::string, COLORREF> rgbMap;
 typedef std::unordered_map<HWND, std::string> toolTipTextMap;
 
 typedef std::unordered_map<std::string, CFont*> fontMap;
-enum fontTypes { Normal, Heading, Code, Small, Large };
+enum fontType { NormalFont, HeadingFont, CodeFont, SmallFont, LargeFont };
 
 class MasterWindow;
 class Agilent;

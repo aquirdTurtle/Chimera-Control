@@ -1,6 +1,6 @@
 Master Version: 1.400000
 MASTER SCRIPT:
-LOCAL simpleAtomLoad
+NONLOCAL C:\Users\Mark\Documents\Quantum-Gas-Assembly-Control\Master Profiles\Basic Atom Calibrations\Atom Loading and Imaging\simpleAtomLoad.mScript
 VARIABLES:
 1
 loadmotrightfield Not_Timelike Variable 1 0 0 5 0 1 
@@ -95,7 +95,7 @@ DACS:
 0
 0
 REPETITIONS:
-500
+50
 AGILENTVERSION 1.0
 0
 CHANNEL 1
@@ -115,7 +115,7 @@ CHANNEL 1
 CHANNEL 2
 -2, , , , , , , , 
 NOTES:
-
+
 
 END CONFIGURATION NOTES
 TEKTRONICS1:

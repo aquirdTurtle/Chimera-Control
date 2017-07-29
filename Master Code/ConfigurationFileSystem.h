@@ -102,8 +102,7 @@ class ConfigurationFileSystem
 		void initialize( POINT& topLeftPosition, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id );
 		void reorganizeControls(RECT parentRectangle, std::string mode);
 		
-		INT_PTR ConfigurationFileSystem::handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, 
-															 std::unordered_map<std::string, HBRUSH> brushes);
+		INT_PTR handleColorMessage( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, brushMap brushes);
 
 		std::string getMasterAddressFromConfig();
 

@@ -3,8 +3,8 @@ MASTER SCRIPT:
 NONLOCAL C:\Users\Mark\Documents\Quantum-Gas-Assembly-Control\Master Profiles\Basic Atom Calibrations\Trap Calibrations\stff.mScript
 VARIABLES:
 2
-loadmottime Not_Timelike Variable 1 0 200 8 0 1 
-modpower Not_Timelike Variable 1 0 0 0 0 1 
+loadmottime Not_Timelike Variable 1 0 200 4 0 1 
+modpower Not_Timelike Variable 1 0 0 4 0 1 
 TTLS:
 1
 1
@@ -116,7 +116,7 @@ CHANNEL 1
 CHANNEL 2
 -2, , , , , , , , 
 NOTES:
-
+
 
 END CONFIGURATION NOTES
 TEKTRONICS1:

@@ -54,7 +54,7 @@ class VariableSystem
 		std::vector<variable> getEverything();
 		unsigned int getCurrentNumberOfVariables();
 		void clearVariables();
-		INT_PTR handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, std::unordered_map<std::string, HBRUSH> brushes);
+		INT_PTR handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, brushMap brushes);
 		void setVariationRangeNumber(int num, USHORT dimNumber);
 		void rearrange(UINT width, UINT height, fontMap fonts);
 		void setActive(bool active);

@@ -23,13 +23,13 @@ std::string DacSystem::getDacSequenceMessage(UINT var)
 	std::string message;
 	for ( auto snap : dacSnapshots[var] )
 	{
-		std::string time = std::to_string( snap.time );
+		std::string time = str( snap.time );
 		time.erase( time.find_last_not_of( '0' ) + 1, std::string::npos );
 		message += time + ":\r\n";
 		int dacCount = 0;
 		for ( auto val : snap.dacValues )
 		{
-			std::string volt = std::to_string( val );
+			std::string volt = str( val );
 			volt.erase( volt.find_last_not_of( '0' ) + 1, std::string::npos );
 			message += volt + ", ";
 			dacCount++;
@@ -50,7 +50,7 @@ void DacSystem::daqCreateTask( const char* taskName, TaskHandle& handle )
 		int result = DAQmxCreateTask( taskName, &handle );
 		if ( result )
 		{
-			thrower( "daqCreateTask Failed! (" + std::to_string( result) + "): " 
+			thrower( "daqCreateTask Failed! (" + str( result) + "): " 
 					 + getErrorMessage( result ) );
 		}
 	}
@@ -67,7 +67,7 @@ void DacSystem::daqCreateAOVoltageChan( TaskHandle taskHandle, const char physic
 											   units, customScaleName );
 		if ( result )
 		{
-			thrower( "daqCreateAOVoltageChan Failed! (" + std::to_string( result ) + "): "
+			thrower( "daqCreateAOVoltageChan Failed! (" + str( result ) + "): "
 					 + getErrorMessage( result ) );
 		}
 	}
@@ -82,7 +82,7 @@ void DacSystem::daqCreateDIChan( TaskHandle taskHandle, const char lines[], cons
 		int result = DAQmxCreateDIChan( taskHandle, lines, nameToAssignToLines, lineGrouping );
 		if ( result )
 		{
-			thrower( "daqCreateDIChan Failed! (" + std::to_string( result ) + "): "
+			thrower( "daqCreateDIChan Failed! (" + str( result ) + "): "
 					 + getErrorMessage( result ) );
 		}
 	}
@@ -97,7 +97,7 @@ void DacSystem::daqStopTask( TaskHandle handle )
 		// this function is currently meant to be silent.
 		if ( result )
 		{
-			//thrower( "daqStopTask Failed! (" + std::to_string( result ) + "): "
+			//thrower( "daqStopTask Failed! (" + str( result ) + "): "
 			//		 + getErrorMessage( result ) );
 			
 		}
@@ -113,7 +113,7 @@ void DacSystem::daqConfigSampleClkTiming( TaskHandle taskHandle, const char sour
 		int result = DAQmxCfgSampClkTiming( taskHandle, source, rate, activeEdge, sampleMode, sampsPerChan );
 		if ( result )
 		{
-			thrower( "daqConfigSampleClkTiming Failed! (" + std::to_string( result ) + "): "
+			thrower( "daqConfigSampleClkTiming Failed! (" + str( result ) + "): "
 					 + getErrorMessage( result ) );
 		}
 	}
@@ -130,7 +130,7 @@ void DacSystem::daqWriteAnalogF64( TaskHandle handle, int32 numSampsPerChan, boo
 										  sampsPerChanWritten, NULL);
 		if ( result )
 		{
-			thrower( "daqWriteAnalogF64 Failed! (" + std::to_string( result ) + "): "
+			thrower( "daqWriteAnalogF64 Failed! (" + str( result ) + "): "
 					 + getErrorMessage( result ) );
 		}
 	}
@@ -144,7 +144,7 @@ void DacSystem::daqStartTask( TaskHandle handle )
 		int result = DAQmxStartTask(handle);
 		if ( result )
 		{
-			thrower( "daqStartTask Failed! (" + std::to_string( result ) + "): "
+			thrower( "daqStartTask Failed! (" + str( result ) + "): "
 					 + getErrorMessage( result ) );
 		}
 	}
@@ -220,11 +220,11 @@ std::string DacSystem::getDacSystemInfo()
 	}
 	else if (answer == -1)
 	{
-		return "Dac System: no response... " + std::to_string(answer);
+		return "Dac System: no response... " + str(answer);
 	}
 	else
 	{
-		return "Dac System: Connected... result = " + std::to_string( answer );
+		return "Dac System: Connected... result = " + str( answer );
 	}
 }
 
@@ -237,8 +237,28 @@ void DacSystem::handleEditChange(unsigned int dacNumber)
 	}
 	CString text;
 	breakoutBoardEdits[dacNumber].GetWindowTextA(text);
-	std::string current = std::to_string( dacValues[dacNumber] );
-	if ( fabs( atof( current.c_str() ) - atof( text ) ) < 1e-8)
+	bool matches = false;
+	std::string textStr(text);
+	try
+	{
+		if (roundToDacPrecision)
+		{
+			double roundNum = roundToDacResolution(dacValues[dacNumber]);
+			if (fabs(roundToDacResolution(dacValues[dacNumber]) - std::stod(textStr)) < 1e-8)
+			{
+				matches = true;
+			}
+		}
+		else
+		{
+			if (fabs(dacValues[dacNumber] - std::stod(str(text))) < 1e-8)
+			{
+				matches = true;
+			}
+		}
+	}
+	catch (std::invalid_argument&){ /* failed to convert to double. Effectively, doesn't match. */ }
+	if ( matches )
 	{
 		// mark this to change color.
 		breakoutBoardEdits[dacNumber].colorState = 0;
@@ -256,7 +276,7 @@ bool DacSystem::isValidDACName(std::string name)
 {
 	for (int dacInc = 0; dacInc < getNumberOfDacs(); dacInc++)
 	{
-		if (name == "dac" + std::to_string(dacInc))
+		if (name == "dac" + str(dacInc))
 		{
 			return true;
 		}
@@ -287,43 +307,47 @@ void DacSystem::rearrange(UINT width, UINT height, fontMap fonts)
 void DacSystem::initialize(POINT& pos, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id)
 {
 	// title
-	dacTitle.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 25 };
-	dacTitle.ID = id++;
-	dacTitle.Create("DACS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, dacTitle.sPos, master, dacTitle.ID);
-	dacTitle.fontType = Heading;
-	pos.y += 25;
+	dacTitle.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
+	dacTitle.Create("DACS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, dacTitle.sPos, master, id++);
+	dacTitle.fontType = HeadingFont;
 	// 
 	dacSetButton.sPos = { pos.x, pos.y, pos.x + 240, pos.y + 25};
-	dacSetButton.ID = id++;
-	idVerify(dacSetButton.ID, ID_DAC_SET_BUTTON);
-	dacSetButton.Create("Set New DAC Values", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 
-						 dacSetButton.sPos, master, dacSetButton.ID);
+	dacSetButton.Create( "Set New DAC Values", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 
+						 dacSetButton.sPos, master, id++ );
+	idVerify(dacSetButton, ID_DAC_SET_BUTTON);
 	dacSetButton.setToolTip("Press this button to attempt force all DAC values to the values currently recorded in the"
 							 " edits below.", toolTips, master);
 	//
-	zeroDacs.sPos = { pos.x + 240, pos.y, pos.x + 480, pos.y + 25 };
-	zeroDacs.ID = id++;
-	idVerify(zeroDacs.ID, IDC_ZERO_DACS)
-	zeroDacs.Create( "Zero Dacs", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, zeroDacs.sPos, master, 
-					 zeroDacs.ID );
+	zeroDacs.sPos = { pos.x + 240, pos.y, pos.x + 480, pos.y += 25 };
+	zeroDacs.Create( "Zero Dacs", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, zeroDacs.sPos, master, id++ );
+	idVerify(zeroDacs, IDC_ZERO_DACS);
 	zeroDacs.setToolTip( "Press this button to set all dac values to zero.", toolTips, master );
-
-	pos.y += 25;
 	int collumnInc = 0;
 	
 	// there's a single label first, hence the +1.
-	idVerify(id, ID_DAC_FIRST_EDIT);
-	for ( auto& edit : breakoutBoardEdits )
+	for (int dacInc = 0; dacInc < breakoutBoardEdits.size(); dacInc++)
 	{
-		edit.ID = id++;
+		if (dacInc == breakoutBoardEdits.size() / 3 || dacInc == 2 * breakoutBoardEdits.size() / 3)
+		{
+			collumnInc++;
+			// go to second or third collumn
+			pos.y -= 25 * breakoutBoardEdits.size() / 3;
+		}
+
+		breakoutBoardEdits[dacInc].sPos = { pos.x + 20 + collumnInc * 160, pos.y, pos.x + 160 + collumnInc * 160,
+												pos.y += 25 };
+		breakoutBoardEdits[dacInc].colorState = 0;
+		breakoutBoardEdits[dacInc].Create( WS_CHILD | WS_VISIBLE | WS_BORDER, breakoutBoardEdits[dacInc].sPos,
+										   master, id++ );
+		breakoutBoardEdits[dacInc].SetWindowText("0");
+		breakoutBoardEdits[dacInc].setToolTip(dacNames[dacInc], toolTips, master);
 	}
-	for ( auto& label : dacLabels )
-	{
-		label.ID = id++;
-	}
+
+	collumnInc = 0;
+	pos.y -= 25 * breakoutBoardEdits.size() / 3;
+
 	for (int dacInc = 0; dacInc < dacLabels.size(); dacInc++)
 	{
-
 		if (dacInc == dacLabels.size() / 3 || dacInc == 2 * dacLabels.size() / 3)
 		{
 			collumnInc++;
@@ -331,19 +355,27 @@ void DacSystem::initialize(POINT& pos, std::vector<CToolTipCtrl*>& toolTips, Mas
 			pos.y -= 25 * dacLabels.size() / 3;
 		}
 		// create label
-		dacLabels[dacInc].sPos = { pos.x + collumnInc * 160, pos.y, pos.x + 20 + collumnInc * 160, pos.y + 25 };
-		dacLabels[dacInc].Create( std::to_string( dacInc ).c_str(), WS_CHILD | WS_VISIBLE | SS_CENTER,
-								  dacLabels[dacInc].sPos, master, dacLabels[dacInc].ID );
-		dacLabels[dacInc].setToolTip( dacNames[dacInc], toolTips, master );
-		dacLabels[dacInc].fontType = Normal;
-		breakoutBoardEdits[dacInc].sPos = { pos.x + 20 + collumnInc * 160, pos.y, pos.x + 160 + collumnInc * 160,
-												pos.y + 25 };
-		breakoutBoardEdits[dacInc].colorState = 0;
-		breakoutBoardEdits[dacInc].Create( WS_CHILD | WS_VISIBLE | WS_BORDER, breakoutBoardEdits[dacInc].sPos,
-										   master, breakoutBoardEdits[dacInc].ID );
-		breakoutBoardEdits[dacInc].setToolTip(dacNames[dacInc], toolTips, master);
+		dacLabels[dacInc].sPos = { pos.x + collumnInc * 160, pos.y, pos.x + 20 + collumnInc * 160, pos.y += 25 };
+		dacLabels[dacInc].Create(str(dacInc).c_str(), WS_CHILD | WS_VISIBLE | SS_CENTER,
+								 dacLabels[dacInc].sPos, master, id++);
+		dacLabels[dacInc].setToolTip(dacNames[dacInc], toolTips, master);
+	}
 
-		pos.y += 25;
+	idVerify(breakoutBoardEdits.front(), ID_DAC_FIRST_EDIT);
+}
+
+
+void DacSystem::handleRoundToDac(CMenu& menu)
+{
+	if (roundToDacPrecision)
+	{
+		roundToDacPrecision = false;
+		menu.CheckMenuItem(ID_DACS_ROUNDTODAC, MF_UNCHECKED);
+	}
+	else
+	{
+		roundToDacPrecision = true;
+		menu.CheckMenuItem(ID_DACS_ROUNDTODAC, MF_CHECKED);
 	}
 }
 
@@ -363,15 +395,22 @@ void DacSystem::handleButtonPress(TtlSystem* ttls)
 		breakoutBoardEdits[dacInc].GetWindowTextA(text);
 		try
 		{
-			vals[dacInc] = std::stod(std::string(text));
-			std::string valStr = str(roundToDacResolution(vals[dacInc]));
-			valStr.erase(valStr.find_last_not_of('0') + 1, std::string::npos);
+			vals[dacInc] = std::stod(str(text));
+			std::string valStr;
+			if (roundToDacPrecision)
+			{
+				valStr = str(roundToDacResolution(vals[dacInc]), 12, true);
+			}
+			else
+			{
+				valStr = str(vals[dacInc]);
+			}
 			breakoutBoardEdits[dacInc].SetWindowTextA(valStr.c_str());
 			prepareDacForceChange(dacInc, vals[dacInc], ttls);
 		}
 		catch (std::invalid_argument& err)
 		{
-			thrower("ERROR: value entered in DAC #" + std::to_string(dacInc) + " (" + text.GetString() + ") failed to convert to a double!");
+			thrower("ERROR: value entered in DAC #" + str(dacInc) + " (" + text.GetString() + ") failed to convert to a double!");
 		}
 	}
 	// wait until after all this to actually do this to make sure things get through okay.
@@ -394,7 +433,7 @@ void DacSystem::analyzeDacCommands(UINT var)
 	// sort the events by time. using a lambda
 	std::sort( tempEvents.begin(), tempEvents.end(), 
 			   [](DacIndividualEvent a, DacIndividualEvent b){return a.time < b.time; });
-	for (int commandInc = 0; commandInc < dacIndividualEvents[var].size(); commandInc++)
+	for (int commandInc = 0; commandInc < tempEvents.size(); commandInc++)
 	{
 		// because the events are sorted by time, the time organizer will already be sorted by time, and therefore I 
 		// just need to check the back value's time.
@@ -472,9 +511,17 @@ void DacSystem::setDacStatusNoForceOut(std::array<double, 24> status)
 	// change the edits
 	for (int dacInc = 0; dacInc < dacLabels.size(); dacInc++)
 	{
-		std::string volt = std::to_string(roundToDacResolution(dacValues[dacInc]));
-		volt.erase(volt.find_last_not_of('0') + 1, std::string::npos);
-		breakoutBoardEdits[dacInc].SetWindowText(volt.c_str());
+		std::string valStr;
+		if (roundToDacPrecision)
+		{
+			double val = roundToDacResolution(dacValues[dacInc]);
+			valStr = str(val, 12, true);
+		}
+		else
+		{
+			valStr = str(dacValues[dacInc], 12, true);
+		}
+		breakoutBoardEdits[dacInc].SetWindowText(valStr.c_str());
 		breakoutBoardEdits[dacInc].colorState = 0;
 	}
 }
@@ -691,12 +738,8 @@ void DacSystem::setDacTriggerEvents(TtlSystem* ttls, UINT var)
 	for ( auto snapshot : dacSnapshots[var])
 	{
 		// turn them on...
-		timeType triggerOnTime;
-		triggerOnTime.second = snapshot.time;
 		ttls->ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, snapshot.time, var);
 		// turn them off...
-		timeType triggerOffTime;
-		triggerOffTime.second = snapshot.time + dacTriggerTime;
 		ttls->ttlOffDirect( dacTriggerLine.first, dacTriggerLine.second, snapshot.time + dacTriggerTime, var);
 	}
 }
@@ -706,9 +749,22 @@ void DacSystem::setDacTriggerEvents(TtlSystem* ttls, UINT var)
 void DacSystem::prepareDacForceChange(int line, double voltage, TtlSystem* ttls)
 {
 	// change parameters in the DacSystem object so that the object knows what the current settings are.
-	std::string volt = std::to_string(roundToDacResolution(voltage));
-	volt.erase(volt.find_last_not_of('0') + 1, std::string::npos);
-	breakoutBoardEdits[line].SetWindowText(volt.c_str());
+	//std::string volt = str(roundToDacResolution(voltage));
+	std::string valStr;
+	if (roundToDacPrecision)
+	{
+		valStr = str(roundToDacResolution(voltage), 12);
+	}
+	else
+	{
+		valStr = str(voltage, 12);
+	}
+	if (valStr.find(".") != std::string::npos)
+	{
+		// then it's a double. kill extra zeros on the end.
+		valStr.erase(valStr.find_last_not_of('0') + 1, std::string::npos);
+	}
+	breakoutBoardEdits[line].SetWindowText(valStr.c_str());
 	// I'm not sure it's necessary to go through the procedure of doing this and using the DIO to trigger the dacs for a foce out. I'm guessing it's 
 	// possible to tell the DAC to just immediately change without waiting for a trigger.
 	setForceDacEvent( line, voltage, ttls, 0 );
@@ -969,7 +1025,7 @@ int DacSystem::getDacIdentifier(std::string name)
 			return dacInc;
 		}
 		// check standard names which are always acceptable.
-		if (name == "dac" + std::to_string(dacInc))
+		if (name == "dac" + str(dacInc))
 		{
 			return dacInc;
 		}
@@ -1011,29 +1067,25 @@ void DacSystem::setName(int dacNumber, std::string name, std::vector<CToolTipCtr
 	breakoutBoardEdits[dacNumber].setToolTip(name, toolTips, master);
 }
 
+
 std::string DacSystem::getName(int dacNumber)
 {
 	return dacNames[dacNumber];
 }
 
 
-HBRUSH DacSystem::handleColorMessage(CWnd* window, std::unordered_map<std::string, HBRUSH> brushes, 
-									  std::unordered_map<std::string, COLORREF> rgbs, CDC* cDC)
+HBRUSH DacSystem::handleColorMessage( CWnd* window, brushMap brushes, rgbMap rgbs, CDC* cDC)
 {
 	DWORD controlID = GetDlgCtrlID(*window);
-	if (controlID >= dacLabels[0].ID && controlID <= dacLabels.back().ID)
+	if (controlID >= dacLabels[0].GetDlgCtrlID() && controlID <= dacLabels.back().GetDlgCtrlID() )
 	{
 		cDC->SetBkColor(rgbs["Medium Grey"]);
 		cDC->SetTextColor(rgbs["White"]);
 		return brushes["Medium Grey"];
 	}
-	else if (controlID >= breakoutBoardEdits[0].ID && controlID <= breakoutBoardEdits.back().ID)
+	else if (controlID >= breakoutBoardEdits[0].GetDlgCtrlID() && controlID <= breakoutBoardEdits.back().GetDlgCtrlID())
 	{
-		int editNum = (controlID - breakoutBoardEdits[0].ID);
-		if (controlID == breakoutBoardEdits[0].ID)
-		{
-			Sleep(1);
-		}
+		int editNum = (controlID - breakoutBoardEdits[0].GetDlgCtrlID());
 		if (breakoutBoardEdits[editNum].colorState == 0)
 		{
 			// default.
@@ -1044,9 +1096,6 @@ HBRUSH DacSystem::handleColorMessage(CWnd* window, std::unordered_map<std::strin
 		else if (breakoutBoardEdits[editNum].colorState == 1)
 		{
 			// in this case, the actuall setting hasn't been changed despite the edit being updated.
-			//CString text;
-			//breakoutBoardEdits[editNum].GetWindowTextA(text);
-			//errBox( std::string(text ));
 			cDC->SetTextColor(rgbs["White"]);
 			cDC->SetBkColor(rgbs["Red"]);
 			return brushes["Red"];
@@ -1059,7 +1108,7 @@ HBRUSH DacSystem::handleColorMessage(CWnd* window, std::unordered_map<std::strin
 			return brushes["White"];
 		}
 	}
-	else if (controlID == dacTitle.ID)
+	else if (controlID == dacTitle.GetDlgCtrlID())
 	{
 		cDC->SetTextColor(rgbs["Gold"]);
 		cDC->SetBkColor(rgbs["Medium Grey"]);

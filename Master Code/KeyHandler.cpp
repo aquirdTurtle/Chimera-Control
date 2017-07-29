@@ -16,15 +16,13 @@ key KeyHandler::getKey()
 void KeyHandler::initialize(POINT loc, CWnd* parent, int& id)
 {
 	randomizeVariablesButton.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
-	randomizeVariablesButton.ID = id++;
 	randomizeVariablesButton.Create( "Randomize Variations", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, 
-									 randomizeVariablesButton.sPos, parent, randomizeVariablesButton.ID );
+									 randomizeVariablesButton.sPos, parent, id++ );
 	randomizeVariablesButton.SetCheck(true);
 
 	randomizeRepetitionsButton.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
-	randomizeRepetitionsButton.ID = id++;
 	randomizeRepetitionsButton.Create( "Randomize Repetitions", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
-									   randomizeVariablesButton.sPos, parent, randomizeVariablesButton.ID);
+									   randomizeVariablesButton.sPos, parent, id++ );
 
 }
 
@@ -178,7 +176,7 @@ void KeyHandler::exportKey()
 	{
 		if (!variables[variableInc].constant)
 		{
-			keyFile << std::setw(15) << variables[variableInc].name + ":";
+			keyFile << std::setw(15) << variables[variableInc].name;
 			for (int keyInc = 0; keyInc < keyValues[variables[variableInc].name].first.size(); keyInc++)
 			{
 				keyFile << std::setprecision(12) << std::setw(15) << keyValues[variables[variableInc].name].first[keyInc];
@@ -191,7 +189,7 @@ void KeyHandler::exportKey()
 }
 
 
-void KeyHandler::rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts)
+void KeyHandler::rearrange(int width, int height, fontMap fonts)
 {
 	randomizeVariablesButton.rearrange(width, height, fonts);
 	randomizeRepetitionsButton.rearrange(width, height, fonts);

@@ -86,8 +86,8 @@ std::string Script::getScriptText()
 }
 
 
-COLORREF Script::getSyntaxColor(std::string word, std::string editType, std::vector<variable> variables, 
-								 std::unordered_map<std::string, COLORREF> rgbs, bool& colorLine, 
+COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::vector<variable> variables, 
+								 rgbMap rgbs, bool& colorLine, 
 								 std::array<std::array<std::string, 16>, 4> ttlNames, 
 								 std::array<std::string, 24> dacNames)
 {
@@ -212,7 +212,7 @@ COLORREF Script::getSyntaxColor(std::string word, std::string editType, std::vec
 				{
 					return rgbs["Solarized Magenta"];
 				}
-				if (word == row + std::to_string(numberInc))
+				if (word == row + str(numberInc))
 				{
 					return rgbs["Solarized Magenta"];
 				}
@@ -224,7 +224,7 @@ COLORREF Script::getSyntaxColor(std::string word, std::string editType, std::vec
 			{
 				return rgbs["Solarized Orange"];
 			}
-			if (word == "dac" + std::to_string(dacInc))
+			if (word == "dac" + str(dacInc))
 			{
 				return rgbs["Solarized Orange"];
 			}
@@ -302,21 +302,26 @@ void Script::handleTimerCall(MasterWindow* Master)
 
 void Script::handleEditChange(MasterWindow* master)
 {
-		DWORD begin, end;
-		CHARRANGE charRange;
-		edit.GetSel(charRange);
-		if (charRange.cpMin < editChangeBegin)
-		{
-			editChangeBegin = charRange.cpMin;
-		}
-		if (charRange.cpMax > editChangeEnd)
-		{
-			editChangeEnd = charRange.cpMax;
-		}
-		master->SetTimer(SYNTAX_TIMER_ID, SYNTAX_TIMER_LENGTH, NULL);
-		//syntaxTimer.SetTimer(SYNTAX_TIMER_ID, SYNTAX_TIMER_LENGTH, NULL);
-		syntaxColoringIsCurrent = false;
-		updateSavedStatus(false);
+	// make sure the edit has been initialized.
+	if (!edit)
+	{
+		return;
+	}
+	DWORD begin, end;
+	CHARRANGE charRange;
+	edit.GetSel(charRange);
+	if (charRange.cpMin < editChangeBegin)
+	{
+		editChangeBegin = charRange.cpMin;
+	}
+	if (charRange.cpMax > editChangeEnd)
+	{
+		editChangeEnd = charRange.cpMax;
+	}
+	master->SetTimer(SYNTAX_TIMER_ID, SYNTAX_TIMER_LENGTH, NULL);
+	//syntaxTimer.SetTimer(SYNTAX_TIMER_ID, SYNTAX_TIMER_LENGTH, NULL);
+	syntaxColoringIsCurrent = false;
+	updateSavedStatus(false);
 }
 
 void Script::colorEntireScript(MasterWindow* Master)
@@ -452,27 +457,27 @@ INT_PTR Script::colorControl(LPARAM lParam, WPARAM wParam)
 {
 	int controlID = GetDlgCtrlID((HWND)lParam);
 	HDC hdcStatic = (HDC)wParam;
-	if (controlID == edit.ID)
+	if (controlID == edit.GetDlgCtrlID())
 	{
 		SetTextColor(hdcStatic, RGB(255, 255, 255));
 		SetBkColor(hdcStatic, RGB(50, 45, 45));
 		//return (INT_PTR)eGreyRedBrush;
 	}
-	else if (controlID == title.ID)
+	else if (controlID == title.GetDlgCtrlID())
 	{
 		SetTextColor(hdcStatic, RGB(255, 255, 255));
 		SetBkMode(hdcStatic, TRANSPARENT);
 		SetBkColor(hdcStatic, RGB(75, 0, 0));
 		//return (INT_PTR)eDarkRedBrush;
 	}
-	else if (controlID == savedIndicator.ID)
+	else if (controlID == savedIndicator.GetDlgCtrlID())
 	{
 		SetTextColor(hdcStatic, RGB(255, 255, 255));
 		SetBkMode(hdcStatic, TRANSPARENT);
 		SetBkColor(hdcStatic, RGB(50, 45, 45));
 		//return (INT_PTR)eGreyRedBrush;
 	}
-	else if (controlID == fileNameText.ID)
+	else if (controlID == fileNameText.GetDlgCtrlID())
 	{
 		SetTextColor(hdcStatic, RGB(255, 255, 255));
 		SetBkMode(hdcStatic, TRANSPARENT);
@@ -517,26 +522,20 @@ void Script::initialize(int width, int height, POINT& startingLocation, std::vec
 	}
 	// title
 	title.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
-	title.ID = id++;
-	title.Create( titleText.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, title.sPos, master, title.ID );
-	title.fontType = Heading;
+	title.Create( cstr(titleText), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, title.sPos, master, id++ );
+	title.fontType = HeadingFont;
 	startingLocation.y += 20;
 	// saved indicator
 	savedIndicator.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + 80, startingLocation.y + 20 };
-	savedIndicator.ID = id++;
-	savedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, savedIndicator.sPos, master, savedIndicator.ID );
-	savedIndicator.fontType = Normal;
+	savedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, savedIndicator.sPos, master, id++ );
 	savedIndicator.SetCheck( true );	
 	// filename
 	fileNameText.sPos = { startingLocation.x + 80, startingLocation.y, startingLocation.x + width - 20, startingLocation.y + 20 };
-	fileNameText.ID = id++;
-	fileNameText.Create(WS_CHILD | WS_VISIBLE | SS_ENDELLIPSIS | ES_READONLY, fileNameText.sPos, master, fileNameText.ID);
-	fileNameText.fontType = Normal;
+	fileNameText.Create(WS_CHILD | WS_VISIBLE | SS_ENDELLIPSIS | ES_READONLY, fileNameText.sPos, master, id++ );
 	isSaved = true;
 	// help
 	help.sPos = { startingLocation.x + width - 20, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
-	help.ID = id++;
-	help.Create(WS_CHILD | WS_VISIBLE | ES_READONLY, help.sPos, master, help.ID);
+	help.Create(WS_CHILD | WS_VISIBLE | ES_READONLY, help.sPos, master, id++);
 	help.SetWindowTextA("?");
 	help.setToolTip("This is a script for programming master timing for TTLs, DACs, the RSG, and the raman outputs.\n"
 					"Acceptable Commands:\n"
@@ -563,10 +562,9 @@ void Script::initialize(int width, int height, POINT& startingLocation, std::vec
 	startingLocation.y += 20;
 	// available functions combo
 	availableFunctionsCombo.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 800 };
-	availableFunctionsCombo.ID = id++;
-	idVerify(availableFunctionsCombo.ID, FUNCTION_COMBO_ID);
-	availableFunctionsCombo.Create(CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, availableFunctionsCombo.sPos, master, availableFunctionsCombo.ID);
-	availableFunctionsCombo.fontType = Normal;
+	availableFunctionsCombo.Create(CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, 
+								   availableFunctionsCombo.sPos, master, id++);
+	idVerify(availableFunctionsCombo, FUNCTION_COMBO_ID);
 	availableFunctionsCombo.AddString("Available Functions List:");
 	availableFunctionsCombo.SetCurSel(0);
 	loadFunctions();
@@ -574,11 +572,10 @@ void Script::initialize(int width, int height, POINT& startingLocation, std::vec
 	startingLocation.y += 25;
 	// Edit
 	edit.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, height};
-	edit.ID = id++;
-	idVerify(edit.ID, MASTER_RICH_EDIT);
-	edit.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | WS_HSCROLL | ES_WANTRETURN | WS_BORDER,
-				 edit.sPos, master, edit.ID);
-	edit.fontType = Code;
+	edit.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | WS_HSCROLL
+				| ES_WANTRETURN | WS_BORDER, edit.sPos, master, id++);
+	idVerify(edit, MASTER_RICH_EDIT);
+	edit.fontType = CodeFont;
 	edit.SetBackgroundColor(FALSE, RGB(0,  43,  54));
 	edit.SetEventMask(ENM_CHANGE);
 	edit.SetDefaultCharFormat(myCharFormat);
@@ -632,9 +629,9 @@ void Script::saveScript(MasterWindow* Master)
 	availableFunctionsCombo.GetLBText(sel, text);
 	if (text != "Parent Script")
 	{
-		int answer = MessageBox(0, std::string("WARNING: The current view is not the parent view. This will save the "
+		int answer = MessageBox(0, cstr("WARNING: The current view is not the parent view. This will save the "
 								"current text in the edit under the name \"" + scriptName 
-								+ "\". Are you sure you wish to proceed?").c_str(), "WARNING!", MB_OKCANCEL);
+								+ "\". Are you sure you wish to proceed?"), "WARNING!", MB_OKCANCEL);
 		if (answer == IDCANCEL)
 		{
 			return;
@@ -644,7 +641,7 @@ void Script::saveScript(MasterWindow* Master)
 	{
 		std::string newName = (const char*)DialogBoxParam(Master->programInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 
 														  0, (DLGPROC)textPromptDialogProcedure,
-					(LPARAM)("The " + deviceType + " script is unnamed Please enter new name for the script:").c_str());
+					(LPARAM)cstr("The " + deviceType + " script is unnamed Please enter new name for the script:"));
 		if (newName == "")
 		{
 			// canceled
@@ -706,9 +703,9 @@ void Script::saveScriptAs(std::string location, MasterWindow* Master)
 	char fileChars[_MAX_FNAME];
 	char dirChars[_MAX_FNAME];
 	char pathChars[_MAX_FNAME];
-	int myError = _splitpath_s(location.c_str(), dirChars, _MAX_FNAME, pathChars, _MAX_FNAME, fileChars, _MAX_FNAME, NULL, 0);
-	scriptName = std::string(fileChars);
-	scriptPath = std::string(fileChars) + std::string(pathChars);
+	int myError = _splitpath_s(cstr(location), dirChars, _MAX_FNAME, pathChars, _MAX_FNAME, fileChars, _MAX_FNAME, NULL, 0);
+	scriptName = str(fileChars);
+	scriptPath = str(fileChars) + str(pathChars);
 	saveFile.close();
 	scriptFullAddress = location;
 	updateScriptNameText(location);
@@ -733,7 +730,7 @@ void Script::checkSave(MasterWindow* Master)
 	tempStream >> word;
 	if (word == "def")
 	{
-		int answer = MessageBox(0, ("Current " + deviceType + " function file is unsaved. Save it?").c_str(), 0, MB_YESNOCANCEL);
+		int answer = MessageBox(0, cstr("Current " + deviceType + " function file is unsaved. Save it?"), 0, MB_YESNOCANCEL);
 		if (answer == IDCANCEL)
 		{
 			thrower("Cancel!");
@@ -751,7 +748,7 @@ void Script::checkSave(MasterWindow* Master)
 	// else it's a normal script file.
 	if (scriptName == "")
 	{
-		int answer = MessageBox(0, ("Current " + deviceType + " script file is unsaved and unnamed. Save it with a with new name?").c_str(), 0, MB_YESNOCANCEL);
+		int answer = MessageBox(0, cstr("Current " + deviceType + " script file is unsaved and unnamed. Save it with a with new name?"), 0, MB_YESNOCANCEL);
 		if (answer == IDCANCEL)
 		{
 			thrower("Cancel!");
@@ -764,7 +761,7 @@ void Script::checkSave(MasterWindow* Master)
 		{
 			std::string newName = (const char*)DialogBoxParam(Master->programInstance, 
 															  MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, (DLGPROC)textPromptDialogProcedure,
-				(LPARAM)("Please enter new name for the script " + scriptName + ".").c_str());
+															  (LPARAM)cstr("Please enter new name for the script " + scriptName + "."));
 			std::string path = Master->profile.getCurrentPathIncludingCategory() + newName + extension;
 			saveScriptAs(path, Master);
 			return;
@@ -772,7 +769,7 @@ void Script::checkSave(MasterWindow* Master)
 	}
 	else
 	{
-		int answer = MessageBox(0, ("The " + deviceType + " script file is unsaved. Save it as " + scriptName + extension + "?").c_str(), 0, MB_YESNOCANCEL);
+		int answer = MessageBox(0, cstr("The " + deviceType + " script file is unsaved. Save it as " + scriptName + extension + "?"), 0, MB_YESNOCANCEL);
 		if (answer == IDCANCEL)
 		{
 			thrower("Cancel!");
@@ -799,15 +796,15 @@ void Script::renameScript(MasterWindow* Master)
 	}
 	std::string newName = (const char*)DialogBoxParam(Master->programInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 
 													  0, (DLGPROC)textPromptDialogProcedure,
-													  (LPARAM)("Please enter new name for the script " 
-													  + scriptName + ".").c_str());
+													  (LPARAM)cstr("Please enter new name for the script " 
+													  + scriptName + "."));
 	if (newName == "")
 	{
 		// canceled
 		return;
 	}
-	int result = MoveFile((Master->profile.getCurrentPathIncludingCategory() + scriptName + extension).c_str(),
-		(Master->profile.getCurrentPathIncludingCategory() + newName + extension).c_str());
+	int result = MoveFile(cstr(Master->profile.getCurrentPathIncludingCategory() + scriptName + extension),
+						  cstr(Master->profile.getCurrentPathIncludingCategory() + newName + extension));
 
 	if (result == 0)
 	{
@@ -826,12 +823,12 @@ void Script::deleteScript(MasterWindow* Master)
 		return;
 	}
 	// check to make sure:
-	int answer = MessageBox(0, ("Are you sure you want to delete the script file " + scriptName + "?").c_str(), 0, MB_YESNO);
+	int answer = MessageBox(0, cstr("Are you sure you want to delete the script file " + scriptName + "?"), 0, MB_YESNO);
 	if (answer == IDNO)
 	{
 		return;
 	}
-	int result = DeleteFile((Master->profile.getCurrentPathIncludingCategory() + scriptName + extension).c_str());
+	int result = DeleteFile(cstr(Master->profile.getCurrentPathIncludingCategory() + scriptName + extension));
 	if (result == 0)
 	{
 		thrower("ERROR: Deleting script file failed!");
@@ -925,7 +922,7 @@ void Script::openParentScript(std::string parentScriptFileAndPath, MasterWindow*
 	char extChars[_MAX_EXT];
 	char dirChars[_MAX_FNAME];
 	char pathChars[_MAX_FNAME];
-	int myError = _splitpath_s(parentScriptFileAndPath.c_str(), dirChars, _MAX_FNAME, pathChars, _MAX_FNAME, fileChars, _MAX_FNAME, extChars, _MAX_EXT);
+	int myError = _splitpath_s(cstr(parentScriptFileAndPath), dirChars, _MAX_FNAME, pathChars, _MAX_FNAME, fileChars, _MAX_FNAME, extChars, _MAX_EXT);
 	std::string extStr(extChars);
 	if (deviceType == "Horizontal NIAWG" || deviceType == "Vertical NIAWG")
 	{
@@ -953,7 +950,7 @@ void Script::openParentScript(std::string parentScriptFileAndPath, MasterWindow*
 		thrower("ERROR: Unrecognized device type inside script control! Ask Mark about Bugs.");
 	}
 	loadFile( parentScriptFileAndPath, Master );
-	scriptName = std::string(fileChars);
+	scriptName = str(fileChars);
 	scriptFullAddress = parentScriptFileAndPath;
 	updateSavedStatus(true);
 	// Check location of vertical script.
@@ -984,7 +981,7 @@ void Script::openParentScript(std::string parentScriptFileAndPath, MasterWindow*
 void Script::loadFile(std::string pathToFile, MasterWindow* Master)
 {
 	std::fstream openFile;
-	openFile.open(pathToFile.c_str(), std::ios::in);
+	openFile.open(pathToFile, std::ios::in);
 	if (!openFile.is_open())
 	{
 		reset(Master);
@@ -997,10 +994,10 @@ void Script::loadFile(std::string pathToFile, MasterWindow* Master)
 		cleanString(tempLine);
 
 		fileText += tempLine;
-		// Append the line to the edit control here (use c_str() ).
+		// Append the line to the edit control here.
 	}
 	// put the default into the new control.
-	edit.SetWindowTextA(fileText.c_str());
+	edit.SetWindowTextA(cstr(fileText));
 	openFile.close();
 }
 
@@ -1070,7 +1067,7 @@ void Script::updateScriptNameText(std::string path)
 		sPos = categoryPath.find_last_of('\\');
 		std::string category = categoryPath.substr(sPos + 1, categoryPath.size());
 		std::string text = category + "->" + name;
-		fileNameText.SetWindowTextA(text.c_str());
+		fileNameText.SetWindowTextA(cstr(text));
 	}
 	else
 	{
@@ -1083,22 +1080,22 @@ void Script::updateScriptNameText(std::string path)
 		{
 			text += scriptName;
 		}
-		fileNameText.SetWindowTextA(text.c_str());
+		fileNameText.SetWindowTextA(cstr(text));
 	}
 }
 
-INT_PTR Script::handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, std::unordered_map<std::string, HBRUSH> brushes)
+INT_PTR Script::handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, brushMap brushes)
 {
 	DWORD controlID = GetDlgCtrlID((HWND)lParam);
 	HDC hdcStatic = (HDC)wParam;
-	if (controlID == edit.ID)
+	if (controlID == edit.GetDlgCtrlID())
 	{
 		SetTextColor(hdcStatic, RGB(255, 255, 255));
 		SetBkColor(hdcStatic, RGB(15, 15, 15));
 		return (LRESULT)brushes["Dark Grey"];
 	}
-	else if (controlID == title.ID || controlID == savedIndicator.ID || controlID == fileNameText.ID 
-			 || controlID == availableFunctionsCombo.ID)
+	else if (controlID == title.GetDlgCtrlID() || controlID == savedIndicator.GetDlgCtrlID() 
+			 || controlID == fileNameText.GetDlgCtrlID() || controlID == availableFunctionsCombo.GetDlgCtrlID())
 	{
 		SetTextColor(hdcStatic, RGB(218, 165, 32));
 		SetBkColor(hdcStatic, RGB(25, 25, 25));
@@ -1139,7 +1136,7 @@ void Script::saveAsFunction()
 	}
 	std::string path = FUNCTIONS_FOLDER_LOCATION + functionName + FUNCTION_EXTENSION;
 	FILE *file;
-	fopen_s( &file, path.c_str(), "r" );
+	fopen_s( &file, cstr(path), "r" );
 	if ( !file )
 	{
 		//
@@ -1147,7 +1144,7 @@ void Script::saveAsFunction()
 	else
 	{
 		fclose( file );
-		int answer = MessageBox( 0, ("The function \"" + functionName + "\" already exists! Overwrite it?").c_str(), 0, MB_YESNO );
+		int answer = MessageBox( 0, cstr("The function \"" + functionName + "\" already exists! Overwrite it?"), 0, MB_YESNO );
 		if ( answer == IDNO )
 		{
 			return;
@@ -1173,7 +1170,7 @@ void Script::loadFunctions()
 	std::string search_path = functionLocation + "\\*.func";
 	WIN32_FIND_DATA fd;
 	HANDLE hFind;
-	hFind = FindFirstFile(search_path.c_str(), &fd);
+	hFind = FindFirstFile(cstr(search_path), &fd);
 	if (hFind != INVALID_HANDLE_VALUE)
 	{
 		do
@@ -1198,7 +1195,7 @@ void Script::loadFunctions()
 		functionFile.open(functionLocation + "\\" + names[functionInc], std::ios::in);
 		if (!functionFile.is_open())
 		{
-			MessageBox(0, ("ERROR: Failed to open function file: " + names[functionInc]).c_str(), 0, 0);
+			MessageBox(0, cstr("ERROR: Failed to open function file: " + names[functionInc]), 0, 0);
 			continue;
 		}
 		ScriptStream functionStream;
@@ -1229,6 +1226,6 @@ void Script::loadFunctions()
 	availableFunctionsCombo.AddString("Parent Script");
 	for (int nameInc = 0; nameInc < finalNames.size(); nameInc++)
 	{
-		availableFunctionsCombo.AddString(finalNames[nameInc].c_str());
+		availableFunctionsCombo.AddString(cstr(finalNames[nameInc]));
 	}
 }

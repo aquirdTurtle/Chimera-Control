@@ -23,11 +23,10 @@ template <class ControlType> class Control : public ControlType
 		RECT amPos;
 		// video Mode Position
 		RECT videoPos;
-
-		fontTypes fontType;
+		fontType fontType = NormalFont;
 		int triggerModeSensitive;
 		//
-		int ID;
+		//int ID;
 		int colorState = 0;
 		void rearrange(int width, int height, fontMap fonts);
 		void rearrange(std::string cameraMode, std::string trigMode, int width, int height, fontMap fonts);
@@ -125,7 +124,7 @@ template <class ControlType> void Control<ControlType>::rearrange(std::string ca
 		}
 	}
 	/// Set Fonts
-	if (fontType == Normal)
+	if (fontType == NormalFont)
 	{
 		if (widthScale * heightScale > 2)
 		{
@@ -144,7 +143,7 @@ template <class ControlType> void Control<ControlType>::rearrange(std::string ca
 			SetFont(fonts["Normal Font Small"]);
 		}
 	}
-	else if (fontType == Code)
+	else if (fontType == CodeFont)
 	{
 		if (widthScale * heightScale > 2)
 		{
@@ -163,7 +162,7 @@ template <class ControlType> void Control<ControlType>::rearrange(std::string ca
 			SetFont(fonts["Code Font Small"]);
 		}
 	}
-	else if (fontType == Heading)
+	else if (fontType == HeadingFont)
 	{
 		if (widthScale * heightScale > 2)
 		{
@@ -182,7 +181,7 @@ template <class ControlType> void Control<ControlType>::rearrange(std::string ca
 			SetFont(fonts["Heading Font Small"]);
 		}
 	}
-	else if (fontType == Large)
+	else if (fontType == LargeFont)
 	{
 		if (widthScale * heightScale > 2)
 		{
@@ -201,7 +200,7 @@ template <class ControlType> void Control<ControlType>::rearrange(std::string ca
 			SetFont(fonts["Larger Font Small"]);
 		}
 	}
-	else if (fontType == Small)
+	else if (fontType == SmallFont)
 	{
 		if (widthScale * heightScale > 2)
 		{

@@ -6,6 +6,7 @@ struct debuggingOptions
 {
 	bool showTtls;
 	bool showDacs;
+	ULONG sleepTime;
 };
 
 
@@ -22,4 +23,6 @@ class Debugger
 		Control<CStatic> heading;
 		Control<CButton> showTtlsButton;
 		Control<CButton> showDacsButton;
+		Control<CStatic> pauseText;
+		Control<CEdit> pauseEdit;
 };

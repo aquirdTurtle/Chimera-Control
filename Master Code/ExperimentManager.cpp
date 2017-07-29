@@ -122,18 +122,27 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 			input->rsg->orderEvents(varInc);
 			input->dacs->checkTimingsWork(varInc);
 		}
-		input->niawgSocket->connect();
+
+		if (input->niawgSocket->connectSelected())
+		{
+			expUpdate("Connecting to new master...", input->status, input->quiet);
+			input->niawgSocket->initializeWinsock();
+			input->niawgSocket->connect();
+			input->niawgSocket->send("Repetitions: " + str(input->repetitionNumber));
+			input->niawgSocket->sendVars(input->vars, input->key->getKey());
+			expUpdate("success.\r\n", input->status, input->quiet);
+		}
 		ULONGLONG varProgramEndTime = GetTickCount();
 		expUpdate("Programming took " + str((varProgramEndTime - varProgramStartTime) / 1000.0) + " seconds.\r\n", 
 				  input->status, input->quiet);
-		expUpdate("Programmed time per repetition: " + std::to_string(input->ttls->getTotalTime(0)) + "\r\n",
+		expUpdate("Programmed time per repetition: " + str(input->ttls->getTotalTime(0)) + "\r\n",
 				  input->status, input->quiet);
 		ULONGLONG totalTime = 0;
 		for (USHORT var = 0; var < variations; var++)
 		{
 			totalTime += input->ttls->getTotalTime(var) * input->repetitionNumber;
 		}
-		expUpdate("Programmed Total Experiment time: " + std::to_string(totalTime) + "\r\n", input->status, input->quiet);
+		expUpdate("Programmed Total Experiment time: " + str(totalTime) + "\r\n", input->status, input->quiet);
 		expUpdate("Number of TTL Events in experiment: " + str(input->ttls->getNumberEvents(0)) + "\r\n", input->status, 
 				  input->quiet);
 		expUpdate("Number of DAC Events in experiment: " + str(input->dacs->getNumberEvents(0)) + "\r\n", input->status, 
@@ -144,8 +153,7 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 			// output to status
 			input->status->addStatusText(input->ttls->getTtlSequenceMessage(0));
 			// output to debug file
-			std::ofstream debugFile((DEBUG_OUTPUT_LOCATION + std::string("TTL-Sequence.txt")).c_str(),
-									std::ios_base::app);
+			std::ofstream debugFile((DEBUG_OUTPUT_LOCATION + str("TTL-Sequence.txt")).c_str(), std::ios_base::app);
 			if (debugFile.is_open())
 			{
 				debugFile << input->ttls->getTtlSequenceMessage(0);
@@ -162,7 +170,7 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 			// output to status
 			input->status->addStatusText(input->dacs->getDacSequenceMessage(0));
 			// output to debug file.
-			std::ofstream  debugFile((DEBUG_OUTPUT_LOCATION + std::string("DAC-Sequence.txt")).c_str(),
+			std::ofstream  debugFile((DEBUG_OUTPUT_LOCATION + str("DAC-Sequence.txt")).c_str(),
 									 std::ios_base::app);
 			if (debugFile.is_open())
 			{
@@ -185,7 +193,8 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 		// TODO: If ! randomizing repetitions
 		for (int varInc = 0; varInc < variations; varInc++)
 		{
-			expUpdate("Variation #" + std::to_string(varInc + 1) + "\r\n", input->status, input->quiet);
+			expUpdate("Variation #" + str(varInc + 1) + "\r\n", input->status, input->quiet);
+			Sleep(input->debugOptions.sleepTime);
 			for (auto var : input->key->getKey())
 			{
 				// if varies...
@@ -195,7 +204,7 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 					{
 						thrower("ERROR: Variable " + var.first + " varies, but has no values assigned to it!");
 					}
-					expUpdate(var.first + ": " + std::to_string(var.second.first[varInc]) + "\r\n", input->status, 
+					expUpdate(var.first + ": " + str(var.second.first[varInc]) + "\r\n", input->status, 
 							  input->quiet);
 				}
 			}
@@ -236,7 +245,7 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 						case 4:
 							// TODO
 						default:
-							thrower( "ERROR: unrecognized channel 1 setting: " + std::to_string( info.channel[chan].option ) );
+							thrower( "ERROR: unrecognized channel 1 setting: " + str( info.channel[chan].option ) );
 					}
 				}
 			}
@@ -244,6 +253,15 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 			input->tektronics2->programMachine(input->gpib, varInc);			
 			// loop for repetitionNumber
 			input->repControl->updateNumber(0);
+			if (input->niawgSocket->connectSelected())
+			{
+				std::string msg = input->niawgSocket->recieve();
+				if (msg != "go")
+				{
+					thrower("ERROR: Recieved message from new master that wasn't go! Message was: \"" + msg + "\"");
+				}
+				expUpdate("Recieved \"go\" flag from new master.\r\n", input->status, input->quiet);
+			}
 			expUpdate("Running Experiment.\r\n", input->status, input->quiet);
 			for ( int repInc = 0; repInc < input->repetitionNumber; repInc++ )
 			{
@@ -306,6 +324,7 @@ UINT __cdecl ExperimentManager::experimentThreadProcedure(LPVOID rawInput)
 		{
 			// No quiet option for a bad exit.
 			input->status->addStatusText( "Bad Exit!\r\n", 0 );
+			std::string exceptionTxt = exception.what();
 			input->error->addStatusText( exception.what(), 0 );
 		}
 		input->thisObj->experimentIsRunning = false;
@@ -491,7 +510,7 @@ void ExperimentManager::loadMasterScript(std::string scriptAddress)
 	buf << scriptFile.rdbuf();
 	// IMPORTANT!
 	// always pulses the oscilloscope trigger at the end!
-	buf << "\r\n t += 0.1 \r\n pulseon: " + std::string(OSCILLOSCOPE_TRIGGER) + " 0.5";
+	buf << "\r\n t += 0.1 \r\n pulseon: " + str(OSCILLOSCOPE_TRIGGER) + " 0.5";
 	// this is used to more easily deal some of the analysis of the script.
 	buf << "\r\n\r\n__END__";
 	// for whatever reason, after loading rdbuf into a stringstream, the stream seems to not 
@@ -641,7 +660,7 @@ void ExperimentManager::analyzeFunction( std::string function, std::vector<std::
 			functionArgsString += elem + ",";
 		}
 		thrower("ERROR: incorrect number of arguments in the call for function " + function + ". Number in call was: "
-				 + std::to_string(args.size()) + ", number expected was " + std::to_string(functionArgs.size()) + ". "
+				 + str(args.size()) + ", number expected was " + str(functionArgs.size()) + ". "
 				"Function arguments were:" + functionArgsString + ".");
 	}
 	std::vector<std::pair<std::string, std::string>> replacements;
@@ -840,7 +859,7 @@ void ExperimentManager::analyzeFunction( std::string function, std::vector<std::
 			info.time = operationTime;
 			rsg->addFrequency( info );
 			// set up a trigger for this event.
-			ttls->handleTtlScriptCommand( "pulseon:", operationTime, rsg->getRsgTtl(), std::to_string(rsg->getTriggerTime()), ttlShades );
+			ttls->handleTtlScriptCommand( "pulseon:", operationTime, rsg->getRsgTtl(), str(rsg->getTriggerTime()), ttlShades );
 		}
 		/// deal with function calls.
 		else if (word == "call")
@@ -1145,7 +1164,7 @@ void ExperimentManager::analyzeMasterScript(TtlSystem* ttls, DacSystem* dacs,
 			info.time = operationTime;
 
 			rsg->addFrequency( info );
-			ttls->handleTtlScriptCommand( "pulseon:", operationTime, rsg->getRsgTtl(), std::to_string( rsg->getTriggerTime() ), ttlShades );
+			ttls->handleTtlScriptCommand( "pulseon:", operationTime, rsg->getRsgTtl(), str( rsg->getTriggerTime() ), ttlShades );
 		}
 		/// deal with raman beam calls (setting raman frequency).
 		/// deal with function calls.
