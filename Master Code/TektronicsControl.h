@@ -46,7 +46,7 @@ class TektronicsChannelControl
 		void initialize(POINT loc, CWnd* parent, int& id, std::string channel1Text, LONG width);
 		tektronicsChannelInfo getSettings();
 		void setSettings(tektronicsChannelInfo info);
-		void rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts);
+		void rearrange(int width, int height, fontMap fonts);
 		void handleOnPress();
 		void handleFskPress();
 	private:
@@ -68,7 +68,7 @@ class TektronicsControl
 						std::string channel2Text, LONG width);
 		tektronicsInfo getSettings();
 		void setSettings(tektronicsInfo info);
-		void rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts);
+		void rearrange(int width, int height, fontMap fonts);
 		void handleButtons(UINT indicator);
 		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
 		void interpretKey(key variationKey, std::vector<variable>& vars);

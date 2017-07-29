@@ -19,17 +19,17 @@ void DacSettingsDialog::handleOk()
 		nameEdits[dacInc].GetWindowTextA(text);
 		if (isdigit(text[0]))
 		{
-			errBox("ERROR: " + std::string(text) + " is an invalid name; names cannot start with numbers.");
+			errBox("ERROR: " + str(text) + " is an invalid name; names cannot start with numbers.");
 			return;
 		}
-		input->dacs->setName(dacInc, std::string(text), input->toolTips, input->master);
+		input->dacs->setName(dacInc, str(text), input->toolTips, input->master);
 		double min, max;
 		try
 		{
 			minValEdits[dacInc].GetWindowTextA(text);
-			min = std::stod(std::string(text));
+			min = std::stod(str(text));
 			maxValEdits[dacInc].GetWindowTextA(text);
-			max = std::stod(std::string(text));
+			max = std::stod(str(text));
 			input->dacs->setMinMax(dacInc, min, max);
 		}
 		catch (std::invalid_argument& err)
@@ -85,23 +85,19 @@ BOOL DacSettingsDialog::OnInitDialog()
 		}
 		// create label
 		numberLabels[dacInc].sPos = { loc.x, loc.y, loc.x += 20, loc.y + 20 };
-		numberLabels[dacInc].Create(std::to_string(dacInc).c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, 
+		numberLabels[dacInc].Create(str(dacInc).c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, 
 							  numberLabels[dacInc].sPos, this);
+
 		nameEdits[dacInc].sPos = { loc.x, loc.y, loc.x += 120, loc.y + 20 };
-		nameEdits[dacInc].ID = startID++;
-		nameEdits[dacInc].Create( WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_BORDER, nameEdits[dacInc].sPos, this,
-								  nameEdits[dacInc].ID);
+		nameEdits[dacInc].Create( WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_BORDER, nameEdits[dacInc].sPos, this, id++);
 		nameEdits[dacInc].SetWindowTextA(input->dacs->getName(dacInc).c_str());
+
 		minValEdits[dacInc].sPos = { loc.x, loc.y, loc.x += 120, loc.y + 20 };
-		minValEdits[dacInc].ID = startID++;
-		minValEdits[dacInc].Create( WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_BORDER, minValEdits[dacInc].sPos, this,
-								   minValEdits[dacInc].ID);
+		minValEdits[dacInc].Create( WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_BORDER, minValEdits[dacInc].sPos, this, id++);
 		minValEdits[dacInc].SetWindowTextA(cstr(input->dacs->getDacRange(dacInc).first));
 
 		maxValEdits[dacInc].sPos = { loc.x, loc.y, loc.x += 120, loc.y + 20 };
-		maxValEdits[dacInc].ID = startID++;
-		maxValEdits[dacInc].Create(WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_BORDER, maxValEdits[dacInc].sPos, this,
-								   maxValEdits[dacInc].ID);
+		maxValEdits[dacInc].Create(WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_BORDER, maxValEdits[dacInc].sPos, this, id++);
 		maxValEdits[dacInc].SetWindowTextA(cstr(input->dacs->getDacRange(dacInc).second));
 
 		loc.y += 25;
@@ -138,7 +134,7 @@ INT_PTR CALLBACK viewAndChangeDAC_NamesProcedure(HWND hDlg, UINT message, WPARAM
 					location.bottom -= 25 * nameEdits.size() / 3;
 				}
 				// create label
-				CreateWindowEx(0, "STATIC", std::to_string(dacInc).c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
+				CreateWindowEx(0, "STATIC", str(dacInc).c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
 					location.left, location.top, location.right - location.left, location.bottom - location.top,
 					hDlg, (HMENU)-1, GetModuleHandle(NULL), NULL);
 				location.left += 20;

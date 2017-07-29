@@ -4,21 +4,30 @@
 
 Main Features
  - Test sideband cooling?
-	- cooling?
  - things associated with pre-calculating every variation
 	- make randomize the repetition between variations an option.
 	- option to extend repetition number mid-experiment.
-!- Multi-dimensional variable scans.
-- option to pause between variations
-- make rounding to dac discretization an option.
+ - Multi-dimensional variable scans.
+ - accept a text file as key instead of generating it yourself.
 
 Bugs
-- DAC behavior is inconsistent... T.T
 - Sequence not updating... not sure if this is even active in any sense but if not I should de-activate it.
 - TTL buffer overflow???
-- fix rounding issue
-
 
 ################################
 ### Finished ###
 ################################
+
+Features
+- make rounding to dac discretization an option.
+- option to pause between variations
+
+Bugs
+-  I think I've fixed DAC behavior is inconsistent issue, was an issue with dac events being sent too fast becausee of 
+	some ramps?
+- Fixed Str() bug not working with std::string arguments.
+- fixed rounding issue
+
+Other
+- Removed id member of Control<> template class, realizing that I could just use built in GetDlgCtrlId();
+- Str() can now set precision, set to lowercase, and eati zeros as well.

@@ -99,7 +99,7 @@ bool ScriptedAgilentWaveform::readIntoSegment(int segNum, ScriptStream& script, 
 	if (delimiter != "#")
 	{
 		// input number mismatch.
-		thrower( "ERROR: The delimeter is missing in the Intensity script file for Segment #" + std::to_string( segNum + 1 )
+		thrower( "ERROR: The delimeter is missing in the Intensity script file for Segment #" + str( segNum + 1 )
 				 + ". The value placed in the delimeter location was " + delimiter + " while it should have been '#'.This"
 				 " indicates that either the code is not interpreting the user input incorrectly or that the user has inputted too many parameters for this type"
 				 " of Segment. Use of \"Repeat\" without the number of repeats following will also trigger this error." );
@@ -128,7 +128,7 @@ bool ScriptedAgilentWaveform::readIntoSegment(int segNum, ScriptStream& script, 
 	else
 	{
 		// string not recognized
-		thrower( "ERROR: Invalid Continuation Option on intensity segment #" + std::to_string( segNum + 1 ) + ". The string entered was " + tempContinuationType
+		thrower( "ERROR: Invalid Continuation Option on intensity segment #" + str( segNum + 1 ) + ". The string entered was " + tempContinuationType
 				 + ". Please enter \"Repeat #\", \"RepeatUntilTrigger\", \"OnceWaitTrig\", or \"Once\". Code should not be case-sensititve." );
 	}
 	// Make Everything Permanent
@@ -217,14 +217,14 @@ std::string ScriptedAgilentWaveform::compileAndReturnDataSendString(int segNum, 
 {
 	// must get called after data conversion
 	std::string tempSendString;
-	tempSendString = "DATA:ARB seg" + std::to_string(segNum + totalSegNum * varNum) + ",";
+	tempSendString = "DATA:ARB seg" + str(segNum + totalSegNum * varNum) + ",";
 	// need to handle last one separately so that I can /not/ put a comma after it.
 	for (int sendDataInc = 0; sendDataInc < waveformSegments[segNum].returnDataSize() - 1; sendDataInc++)
 	{
-		tempSendString += std::to_string(waveformSegments[segNum].returnDataVal(sendDataInc));
+		tempSendString += str(waveformSegments[segNum].returnDataVal(sendDataInc));
 		tempSendString += ", ";
 	}
-	tempSendString += std::to_string(waveformSegments[segNum].returnDataVal(waveformSegments[segNum].returnDataSize() - 1));
+	tempSendString += str(waveformSegments[segNum].returnDataVal(waveformSegments[segNum].returnDataSize() - 1));
 	return tempSendString;
 }
 
@@ -247,7 +247,7 @@ void ScriptedAgilentWaveform::compileSequenceString(int totalSegNum, int sequenc
 	// Total format is  #<n><n digits><sequence name>,<arb name1>,<repeat count1>,<play control1>,<marker mode1>,<marker point1>,<arb name2>,<repeat count2>,
 	// <play control2>, <marker mode2>, <marker point2>, and so on.
 	tempSequenceString = "DATA:SEQ #";
-	tempSegmentInfoString = "seq" + std::to_string(sequenceNum) + ",";
+	tempSegmentInfoString = "seq" + str(sequenceNum) + ",";
 	if ( totalSegNum == 0 )
 	{
 		return;
@@ -255,8 +255,8 @@ void ScriptedAgilentWaveform::compileSequenceString(int totalSegNum, int sequenc
 	for (int segNumInc = 0; segNumInc < totalSegNum - 1; segNumInc++)
 	{
 		// Format is 
-		tempSegmentInfoString += "seg" + std::to_string(segNumInc + totalSegNum * sequenceNum) + ",";
-		tempSegmentInfoString += std::to_string(waveformSegments[segNumInc].getFinalSettings().repeatNum) + ",";
+		tempSegmentInfoString += "seg" + str(segNumInc + totalSegNum * sequenceNum) + ",";
+		tempSegmentInfoString += str(waveformSegments[segNumInc].getFinalSettings().repeatNum) + ",";
 		switch (waveformSegments[segNumInc].getFinalSettings().continuationType)
 		{
 			case 0:
@@ -281,8 +281,8 @@ void ScriptedAgilentWaveform::compileSequenceString(int totalSegNum, int sequenc
 		tempSegmentInfoString += "highAtStart,4,";
 	}
 		
-	tempSegmentInfoString += "seg" + std::to_string((totalSegNum - 1) + totalSegNum * sequenceNum) + ",";
-	tempSegmentInfoString += std::to_string(waveformSegments[totalSegNum - 1].getFinalSettings().repeatNum) + ",";
+	tempSegmentInfoString += "seg" + str((totalSegNum - 1) + totalSegNum * sequenceNum) + ",";
+	tempSegmentInfoString += str(waveformSegments[totalSegNum - 1].getFinalSettings().repeatNum) + ",";
 	switch (waveformSegments[totalSegNum - 1].getFinalSettings().continuationType)
 	{
 		case 0:
@@ -306,8 +306,8 @@ void ScriptedAgilentWaveform::compileSequenceString(int totalSegNum, int sequenc
 	}
 	tempSegmentInfoString += "highAtStart,4";
 	//
-	totalSequence = tempSequenceString + std::to_string( (std::to_string( tempSegmentInfoString.size() )).size() )
-					+ std::to_string( tempSegmentInfoString.size() ) + tempSegmentInfoString;
+	totalSequence = tempSequenceString + str( (str( tempSegmentInfoString.size() )).size() )
+					+ str( tempSegmentInfoString.size() ) + tempSegmentInfoString;
 }
 
 
@@ -608,7 +608,7 @@ void Agilent::agilentDefault( int channel )
 	visaOpenDefaultRM();
 	visaOpen( usbAddress );
 	// turn it to the default voltage...
-	visaWrite( std::string( "APPLy:DC DEF, DEF, " ) + AGILENT_DEFAULT_DC );
+	visaWrite( str( "APPLy:DC DEF, DEF, " ) + AGILENT_DEFAULT_DC );
 	// and leave...
 	visaClose();
 	// update current values
@@ -617,8 +617,8 @@ void Agilent::agilentDefault( int channel )
 }
 
 
-void Agilent::analyzeAgilentScript( ScriptStream& intensityFile, ScriptedAgilentWaveform* intensityWaveformData, int& currentSegmentNumber, 
-									  profileSettings profileInfo )
+void Agilent::analyzeAgilentScript( ScriptStream& intensityFile, ScriptedAgilentWaveform* intensityWaveformData, 
+								   int& currentSegmentNumber, profileSettings profileInfo )
 {
 	while (!intensityFile.eof())
 	{
@@ -627,7 +627,8 @@ void Agilent::analyzeAgilentScript( ScriptStream& intensityFile, ScriptedAgilent
 
 		if (leaveTest < 0)
 		{
-			thrower( "ERROR: IntensityWaveform.readIntoSegment threw an error! Error occurred in segment #" + std::to_string( currentSegmentNumber ) + "." );
+			thrower( "ERROR: IntensityWaveform.readIntoSegment threw an error! Error occurred in segment #" 
+					+ str( currentSegmentNumber ) + "." );
 		}
 		if (leaveTest == 1)
 		{
@@ -653,9 +654,9 @@ void Agilent::programScript( int varNum, key variableKey, std::vector<ScriptStre
 	// looks like I'm setting the timeout value here... to be 40 s?
 	visaSetAttribute( VI_ATTR_TMO_VALUE, 40000 );
 	// Set sample rate
-	visaWrite( "SOURCE1:FUNC:ARB:SRATE " + std::to_string( AGILENT_SAMPLE_RATE ) );
+	visaWrite( "SOURCE1:FUNC:ARB:SRATE " + str( AGILENT_SAMPLE_RATE ) );
 	// Set filtering state
-	visaWrite( std::string( "SOURCE1:FUNC:ARB:FILTER " ) + AGILENT_FILTER_STATE );
+	visaWrite( str( "SOURCE1:FUNC:ARB:FILTER " ) + AGILENT_FILTER_STATE );
 	// Set Trigger Parameters
 	visaWrite( "TRIGGER1:SOURCE EXTERNAL" );
 	//
@@ -692,9 +693,9 @@ void Agilent::programScript( int varNum, key variableKey, std::vector<ScriptStre
 				// send to the agilent.
 				visaWrite( intensityWaveformSequence.compileAndReturnDataSendString( segNumInc, variation, totalSegmentNumber ) );
 				// Select the segment
-				visaWrite( "SOURCE1:FUNC:ARB seg" + std::to_string( segNumInc + totalSegmentNumber * variation ) );
+				visaWrite( "SOURCE1:FUNC:ARB seg" + str( segNumInc + totalSegmentNumber * variation ) );
 				// Save the segment
-				visaWrite( "MMEM:STORE:DATA \"INT:\\seg" + std::to_string( segNumInc + totalSegmentNumber * variation ) + ".arb\"" );
+				visaWrite( "MMEM:STORE:DATA \"INT:\\seg" + str( segNumInc + totalSegmentNumber * variation ) + ".arb\"" );
 				// increment for the next.
 				visaWrite( "TRIGGER1:SLOPE POSITIVE" );
 			}
@@ -703,8 +704,8 @@ void Agilent::programScript( int varNum, key variableKey, std::vector<ScriptStre
 			// submit the sequence
 			visaWrite( intensityWaveformSequence.returnSequenceString() );
 			// Save the sequence
-			visaWrite( "SOURCE1:FUNC:ARB seq" + std::to_string( variation ) );
-			visaWrite( "MMEM:STORE:DATA \"INT:\\seq" + std::to_string( variation ) + ".seq\"" );
+			visaWrite( "SOURCE1:FUNC:ARB seq" + str( variation ) );
+			visaWrite( "MMEM:STORE:DATA \"INT:\\seq" + str( variation ) + ".seq\"" );
 			// clear temporary memory.
 			visaWrite( "SOURCE1:DATA:VOL:CLEAR" );
 		}
@@ -729,16 +730,16 @@ void Agilent::programScript( int varNum, key variableKey, std::vector<ScriptStre
 		for (int segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
 		{
 			// Set output impedance...
-			visaWrite( std::string( "OUTPUT1:LOAD " ) + AGILENT_LOAD );
+			visaWrite( str( "OUTPUT1:LOAD " ) + AGILENT_LOAD );
 			// set range of voltages...
-			visaWrite( std::string( "SOURCE1:VOLT:LOW " ) + std::to_string( ranges[0].min ) + " V" );
-			visaWrite( std::string( "SOURCE1:VOLT:HIGH " ) + std::to_string( ranges[0].max ) + " V" );
+			visaWrite( str( "SOURCE1:VOLT:LOW " ) + str( ranges[0].min ) + " V" );
+			visaWrite( str( "SOURCE1:VOLT:HIGH " ) + str( ranges[0].max ) + " V" );
 			// send to the agilent.
 			visaWrite( intensityWaveformSequence.compileAndReturnDataSendString( segNumInc, 0, totalSegmentNumber ) );
 			// Select the segment
-			visaWrite( "SOURCE1:FUNC:ARB seg" + std::to_string( segNumInc ) );
+			visaWrite( "SOURCE1:FUNC:ARB seg" + str( segNumInc ) );
 			// Save the segment
-			visaWrite( "MMEM:STORE:DATA \"INT:\\seg" + std::to_string( segNumInc ) + ".arb\"" );
+			visaWrite( "MMEM:STORE:DATA \"INT:\\seg" + str( segNumInc ) + ".arb\"" );
 			// increment for the next.
 		}
 
@@ -748,8 +749,8 @@ void Agilent::programScript( int varNum, key variableKey, std::vector<ScriptStre
 		// submit the sequence
 		visaWrite( intensityWaveformSequence.returnSequenceString() );
 		// Save the sequence
-		visaWrite( "SOURCE1:FUNC:ARB seq" + std::to_string( 0 ) );
-		visaWrite( "MMEM:STORE:DATA \"INT:\\seq" + std::to_string( 0 ) + ".seq\"" );
+		visaWrite( "SOURCE1:FUNC:ARB seq" + str( 0 ) );
+		visaWrite( "MMEM:STORE:DATA \"INT:\\seq" + str( 0 ) + ".seq\"" );
 		// clear temporary memory.
 		visaWrite( "SOURCE1:DATA:VOL:CLEAR" );
 	}
@@ -770,13 +771,13 @@ void Agilent::selectIntensityProfile(int varNum)
 		visaOpenDefaultRM();
 		visaOpen( usbAddress );
 		// Load sequence that was previously loaded.
-		visaWrite("MMEM:LOAD:DATA \"INT:\\seq" + std::to_string(varNum) + ".seq\"");
+		visaWrite("MMEM:LOAD:DATA \"INT:\\seq" + str(varNum) + ".seq\"");
 		visaWrite( "SOURCE1:FUNC ARB");
-		visaWrite( "SOURCE1:FUNC:ARB \"INT:\\seq" + std::to_string(varNum) + ".seq\"");
+		visaWrite( "SOURCE1:FUNC:ARB \"INT:\\seq" + str(varNum) + ".seq\"");
 		// Set output impedance...
-		visaWrite( std::string("OUTPUT1:LOAD ") + AGILENT_LOAD);
-		visaWrite( std::string("SOURCE1:VOLT:LOW ") + std::to_string(ranges[varNum].min) + " V");
-		visaWrite( std::string("SOURCE1:VOLT:HIGH ") + std::to_string(ranges[varNum].max) + " V");
+		visaWrite( str("OUTPUT1:LOAD ") + AGILENT_LOAD);
+		visaWrite( str("SOURCE1:VOLT:LOW ") + str(ranges[varNum].min) + " V");
+		visaWrite( str("SOURCE1:VOLT:HIGH ") + str(ranges[varNum].max) + " V");
 		visaWrite( "OUTPUT1 ON" );
 		// and leave...
 		visaClose();
@@ -813,55 +814,51 @@ void Agilent::initialize( POINT& loc, std::vector<CToolTipCtrl*>& toolTips, Mast
 	}
 	
 	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
-	header.ID = id++;
-	header.Create( headerText.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, master, header.ID );
-	header.fontType = Heading;
+	header.Create( headerText.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, master, id++ );
+	header.fontType = HeadingFont;
 
 	deviceInfoDisplay.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
-	deviceInfoDisplay.ID = id++;
 	deviceInfoDisplay.Create(deviceInfo.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, deviceInfoDisplay.sPos, 
-							 master, deviceInfoDisplay.ID );
-	deviceInfoDisplay.fontType = Small;
+							 master, id++ );
+	deviceInfoDisplay.fontType = SmallFont;
 
 	channel1Button.sPos = { loc.x, loc.y, loc.x += 160, loc.y + 20 };
-	channel1Button.ID = id++;
-	if (channel1Button.ID != IDC_TOP_BOTTOM_CHANNEL1_BUTTON && channel1Button.ID != IDC_AXIAL_UWAVE_CHANNEL1_BUTTON 
-		&& channel1Button.ID != IDC_FLASHING_CHANNEL1_BUTTON)
+	channel1Button.Create( "Channel 1", BS_AUTORADIOBUTTON | WS_GROUP | WS_VISIBLE | WS_CHILD, channel1Button.sPos, master, id++ );
+	if (channel1Button.GetDlgCtrlID() != IDC_TOP_BOTTOM_CHANNEL1_BUTTON
+		&& channel1Button.GetDlgCtrlID() != IDC_AXIAL_UWAVE_CHANNEL1_BUTTON
+		&& channel1Button.GetDlgCtrlID() != IDC_FLASHING_CHANNEL1_BUTTON)
 	{
 		throw;
 	}
-	channel1Button.Create( "Channel 1", BS_AUTORADIOBUTTON | WS_GROUP | WS_VISIBLE | WS_CHILD, channel1Button.sPos, master, channel1Button.ID );
 	channel1Button.SetCheck( true );
 
 	channel2Button.sPos = { loc.x, loc.y, loc.x += 160, loc.y + 20 };
-	channel2Button.ID = id++;
-	if (channel2Button.ID != IDC_TOP_BOTTOM_CHANNEL2_BUTTON && channel2Button.ID != IDC_AXIAL_UWAVE_CHANNEL2_BUTTON 
-		&& channel2Button.ID != IDC_FLASHING_CHANNEL2_BUTTON)
+	channel2Button.Create( "Channel 2", BS_AUTORADIOBUTTON | WS_VISIBLE | WS_CHILD, channel2Button.sPos, master, id++ );
+	if (channel2Button.GetDlgCtrlID() != IDC_TOP_BOTTOM_CHANNEL2_BUTTON && channel2Button.GetDlgCtrlID() != IDC_AXIAL_UWAVE_CHANNEL2_BUTTON
+		&& channel2Button.GetDlgCtrlID() != IDC_FLASHING_CHANNEL2_BUTTON)
 	{
 		throw;
 	}
-	channel2Button.Create( "Channel 2", BS_AUTORADIOBUTTON | WS_VISIBLE | WS_CHILD, channel2Button.sPos, master, channel2Button.ID );
 
 	syncedButton.sPos = { loc.x, loc.y, loc.x += 160, loc.y += 20 };
-	syncedButton.ID = id++;
-	if (syncedButton.ID != IDC_TOP_BOTTOM_SYNC_BUTTON && syncedButton.ID != IDC_AXIAL_UWAVE_SYNC_BUTTON 
-		&& syncedButton.ID != IDC_FLASHING_SYNC_BUTTON)
+	syncedButton.Create( "Synced?", BS_AUTOCHECKBOX | WS_VISIBLE | WS_CHILD, syncedButton.sPos, master, id++ );
+	if (syncedButton.GetDlgCtrlID() != IDC_TOP_BOTTOM_SYNC_BUTTON && syncedButton.GetDlgCtrlID() != IDC_AXIAL_UWAVE_SYNC_BUTTON
+		&& syncedButton.GetDlgCtrlID() != IDC_FLASHING_SYNC_BUTTON)
 	{
 		throw;
 	}
-	syncedButton.Create( "Synced?", BS_AUTOCHECKBOX | WS_VISIBLE | WS_CHILD, syncedButton.sPos, master, syncedButton.ID );
-	
+
 	loc.x -= 480;
 
 	settingCombo.sPos = { loc.x, loc.y, loc.x += 240, loc.y + 200 };
-	settingCombo.ID = id++;	
-	if (settingCombo.ID != IDC_TOP_BOTTOM_AGILENT_COMBO && settingCombo.ID != IDC_AXIAL_UWAVE_AGILENT_COMBO
-      		 && settingCombo.ID != IDC_FLASHING_AGILENT_COMBO)
+	settingCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, 
+						settingCombo.sPos, master, id++ );
+	if (settingCombo.GetDlgCtrlID() != IDC_TOP_BOTTOM_AGILENT_COMBO
+		&& settingCombo.GetDlgCtrlID() != IDC_AXIAL_UWAVE_AGILENT_COMBO
+		&& settingCombo.GetDlgCtrlID() != IDC_FLASHING_AGILENT_COMBO)
 	{
 		throw;
 	}
-	settingCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, 
-						settingCombo.sPos, master, settingCombo.ID );
 	settingCombo.AddString( "No Control" );
 	settingCombo.AddString( "Output Off" );
 	settingCombo.AddString( "DC Output" );
@@ -872,14 +869,11 @@ void Agilent::initialize( POINT& loc, std::vector<CToolTipCtrl*>& toolTips, Mast
 	settingCombo.SetCurSel( 0 );
 
 	optionsFormat.sPos = { loc.x, loc.y, loc.x += 240, loc.y += 25 };
-	optionsFormat.ID = id++;
-	optionsFormat.Create( "---", WS_CHILD | WS_VISIBLE | SS_SUNKEN, optionsFormat.sPos, 
-						  master, optionsFormat.ID );
+	optionsFormat.Create( "---", WS_CHILD | WS_VISIBLE | SS_SUNKEN, optionsFormat.sPos, master, id++ );
 	loc.x -= 480;
 
 	optionsEdit.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
-	optionsEdit.ID = id++;
-	optionsEdit.Create( WS_CHILD | WS_VISIBLE | SS_SUNKEN, optionsEdit.sPos, master, optionsEdit.ID );
+	optionsEdit.Create( WS_CHILD | WS_VISIBLE | SS_SUNKEN, optionsEdit.sPos, master, id++ );
 	
 	settings.channel[0].option = -2;
 	settings.channel[1].option = -2;
@@ -890,9 +884,10 @@ void Agilent::initialize( POINT& loc, std::vector<CToolTipCtrl*>& toolTips, Mast
 HBRUSH Agilent::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC)
 {
 	DWORD controlID = window->GetDlgCtrlID();
-	if (controlID == deviceInfoDisplay.ID || controlID == channel1Button.ID || controlID == channel2Button.ID
-		|| controlID == syncedButton.ID || controlID == settingCombo.ID || controlID == optionsFormat.ID
-		|| controlID == optionsEdit.ID)
+	if (controlID == deviceInfoDisplay.GetDlgCtrlID() || controlID == channel1Button.GetDlgCtrlID() 
+		|| controlID == channel2Button.GetDlgCtrlID() || controlID == syncedButton.GetDlgCtrlID() 
+		|| controlID == settingCombo.GetDlgCtrlID() || controlID == optionsFormat.GetDlgCtrlID()
+		|| controlID == optionsEdit.GetDlgCtrlID())
 	{
 		cDC->SetBkColor(rGBs["Medium Grey"]);
 		cDC->SetTextColor(rGBs["White"]);
@@ -958,36 +953,36 @@ void Agilent::handleInput()
 void Agilent::updateEdit(int chan)
 {
 	chan -= 1;
-	std::string str;
+	std::string tempStr;
 	switch ( settings.channel[chan].option )
 	{
 		case -2:
-			str = "";
+			tempStr = "";
 			settingCombo.SetCurSel( 0 );
 			break;
 		case -1:
-			str = "";
+			tempStr = "";
 			settingCombo.SetCurSel( 1 );
 			break;
 		case 0:
 			// dc
-			str = settings.channel[chan].dc.dcLevelInput;
+			tempStr = settings.channel[chan].dc.dcLevelInput;
 			settingCombo.SetCurSel( 2 );
 			break;
 		case 1:
 			// sine
-			str = settings.channel[chan].sine.frequencyInput + " " + settings.channel[chan].sine.amplitudeInput;
+			tempStr = settings.channel[chan].sine.frequencyInput + " " + settings.channel[chan].sine.amplitudeInput;
 			settingCombo.SetCurSel( 3 );
 			break;
 		case 2:
 			// square
-			str = settings.channel[chan].square.frequencyInput + " " + settings.channel[chan].square.amplitudeInput
+			tempStr = settings.channel[chan].square.frequencyInput + " " + settings.channel[chan].square.amplitudeInput
 				+ " " + settings.channel[chan].square.offsetInput;
 			settingCombo.SetCurSel( 4 );
 			break;
 		case 3:
 			// preprogrammed
-			str = settings.channel[chan].preloadedArb.address;
+			tempStr = settings.channel[chan].preloadedArb.address;
 			settingCombo.SetCurSel( 5 );
 			break;
 		case 4:
@@ -996,7 +991,7 @@ void Agilent::updateEdit(int chan)
 			settingCombo.SetCurSel( 6 );
 			break;
 		default:
-			thrower( "ERROR: unrecognized agilent setting: " + std::to_string( settings.channel[chan].option ) );
+			thrower( "ERROR: unrecognized agilent setting: " + settings.channel[chan].option);
 	}
 	if ( chan == 0 )
 	{
@@ -1008,7 +1003,7 @@ void Agilent::updateEdit(int chan)
 		channel1Button.SetCheck( false );
 		channel2Button.SetCheck( true );
 	}
-	optionsEdit.SetWindowTextA( str.c_str() );
+	optionsEdit.SetWindowTextA( tempStr.c_str() );
 }
 
 
@@ -1151,7 +1146,7 @@ void Agilent::convertInputToFinalSettings( key variableKey, unsigned int variati
 					// Scripted Arb Output
 					break;
 				default:
-					thrower( "Unrecognized Agilent Setting: " + std::to_string( settings.channel[chan].option ) );
+					thrower( "Unrecognized Agilent Setting: " + str( settings.channel[chan].option ) );
 			}
 		}
 	}
@@ -1172,9 +1167,9 @@ std::string Agilent::getConfigurationString()
 	// start outputting.
 	std::stringstream info;
 	info << "AGILENTVERSION 1.0\n";
-	info << std::to_string(settings.synced); 
+	info << str(settings.synced); 
 	info << "\nCHANNEL 1\n";
-	info << std::to_string(settings.channel[0].option) + ", ";
+	info << str(settings.channel[0].option) + ", ";
 	info << settings.channel[0].dc.dcLevelInput + ", ";
 	info << settings.channel[0].sine.amplitudeInput + ", ";
 	info << settings.channel[0].sine.frequencyInput + ", ";
@@ -1183,7 +1178,7 @@ std::string Agilent::getConfigurationString()
 	info << settings.channel[0].square.offsetInput + ", ";
 	info << settings.channel[0].preloadedArb.address + ", ";
 	info << "\nCHANNEL 2\n";
-	info << std::to_string( settings.channel[1].option ) + ", ";
+	info << str( settings.channel[1].option ) + ", ";
 	info << settings.channel[1].dc.dcLevelInput + ", ";
 	info << settings.channel[1].sine.amplitudeInput + ", ";
 	info << settings.channel[1].sine.frequencyInput + ", ";
@@ -1287,7 +1282,7 @@ void Agilent::outputOff( int channel )
 {
 	channel++;
 	visaOpenDefaultRM();
-	visaOpen( std::string( usbAddress ) );
+	visaOpen( str( usbAddress ) );
 	if (channel == 1)
 	{
 		visaWrite( "OUTPUT1 OFF" );
@@ -1298,7 +1293,7 @@ void Agilent::outputOff( int channel )
 	}
 	else
 	{
-		thrower( "ERROR: Attempted to turn off channel " + std::to_string( channel ) + " which does not exist! Use channel 1 or 2." );
+		thrower( "ERROR: Attempted to turn off channel " + str( channel ) + " which does not exist! Use channel 1 or 2." );
 	}
 	visaClose();
 }
@@ -1314,20 +1309,20 @@ void Agilent::setDC( int channel, dcInfo info )
 {
 	channel++;
 	visaOpenDefaultRM();
-	visaOpen( std::string( usbAddress ) );
+	visaOpen( str( usbAddress ) );
 	if (channel == 1)
 	{
-		visaWrite( "SOURce1:APPLy:DC DEF, DEF, " + std::to_string( info.dcLevel ) + " V" );
+		visaWrite( "SOURce1:APPLy:DC DEF, DEF, " + str( info.dcLevel ) + " V" );
 		chan1Range.min = chan1Range.max = info.dcLevel;
 	}
 	else if (channel == 2)
 	{
-		visaWrite( "SOURce2:APPLy:DC DEF, DEF, " + std::to_string( info.dcLevel ) + " V" );
+		visaWrite( "SOURce2:APPLy:DC DEF, DEF, " + str( info.dcLevel ) + " V" );
 		chan2Range.min = chan2Range.max = info.dcLevel;
 	}
 	else
 	{
-		thrower( "tried to set DC level for \"channel\" " + std::to_string( channel ) + ", which is not supported! "
+		thrower( "tried to set DC level for \"channel\" " + str( channel ) + ", which is not supported! "
 				 "Channel should be either 1 or 2" );
 	}
 	// and leave...
@@ -1349,7 +1344,7 @@ void Agilent::setExistingWaveform( int channel, preloadedArbInfo info )
 		// tell it what arb it's outputting.
 		visaWrite( "SOURCE1:FUNC:ARB \"" + info.address + "\"" );
 		// Set output impedance...
-		visaWrite( std::string( "OUTPUT1:LOAD " ) + AGILENT_LOAD );
+		visaWrite( str( "OUTPUT1:LOAD " ) + AGILENT_LOAD );
 		// not really bursting... but this allows us to reapeat on triggers. Might be another way to do this.
 		visaWrite( "SOURCE1:BURST::MODE TRIGGERED" );
 		visaWrite( "SOURCE1:BURST::NCYCLES 1" );
@@ -1372,13 +1367,13 @@ void Agilent::setExistingWaveform( int channel, preloadedArbInfo info )
 		visaWrite( "SOURCE2:BURST::PHASE 0" );
 		visaWrite( "SOURCE2:BURST::STATE ON" );
 		// Set output impedance...
-		visaWrite( std::string( "OUTPUT2:LOAD " ) + AGILENT_LOAD );
+		visaWrite( str( "OUTPUT2:LOAD " ) + AGILENT_LOAD );
 		visaWrite( "OUTPUT2 ON" );
 
 	}
 	else
 	{
-		thrower( "tried to set arbitrary function for \"channel\" " + std::to_string( channel ) + ", which is not supported! "
+		thrower( "tried to set arbitrary function for \"channel\" " + str( channel ) + ", which is not supported! "
 				 "Channel should be either 1 or 2" );
 	}
 	visaClose();
@@ -1391,17 +1386,17 @@ void Agilent::setSquare( int channel, squareInfo info )
 	visaOpen( usbAddress );
 	if (channel == 1)
 	{
-		visaWrite( "SOURCE1:APPLY:SQUARE " + std::to_string(info.frequency) + " KHZ, " 
-				   + std::to_string(info.amplitude) + " VPP, " + std::to_string(info.offset) + " V" );
+		visaWrite( "SOURCE1:APPLY:SQUARE " + str(info.frequency) + " KHZ, " 
+				   + str(info.amplitude) + " VPP, " + str(info.offset) + " V" );
 	}
 	else if (channel == 2)
 	{
-		visaWrite( "SOURCE2:APPLY:SQUARE " + std::to_string( info.frequency ) + " KHZ, "
-				   + std::to_string( info.amplitude ) + " VPP, " + std::to_string( info.offset ) + " V" );
+		visaWrite( "SOURCE2:APPLY:SQUARE " + str( info.frequency ) + " KHZ, "
+				   + str( info.amplitude ) + " VPP, " + str( info.offset ) + " V" );
 	}
 	else
 	{
-		thrower( "tried to set square function for \"channel\" " + std::to_string( channel ) + ", which is not supported! "
+		thrower( "tried to set square function for \"channel\" " + str( channel ) + ", which is not supported! "
 				 "Channel should be either 1 or 2" );
 	}
 	visaClose();
@@ -1493,7 +1488,7 @@ void Agilent::visaErrQuery( std::string& errMsg, long& errCode )
 	{
 		return;
 	}
-	errMsg = std::string( buf );
+	errMsg = str( buf );
 }
 
 /*
@@ -1506,7 +1501,7 @@ void Agilent::errCheck( long status )
 	if (status < 0)
 	{
 		// Error detected.
-		thrower( "ERROR: Communication error with agilent. Error Code: " + std::to_string( status ) + "\r\n" );
+		thrower( "ERROR: Communication error with agilent. Error Code: " + str( status ) + "\r\n" );
 	}
 	// Query the agilent for errors.
 	std::string errMessage;
@@ -1515,7 +1510,7 @@ void Agilent::errCheck( long status )
 	if (errorCode != 0)
 	{
 		// Agilent error
-		thrower( "ERROR: agilent returned error message: " + std::to_string( errorCode ) + ":" + errMessage );
+		thrower( "ERROR: agilent returned error message: " + str( errorCode ) + ":" + errMessage );
 	}
 }
 

@@ -5,45 +5,37 @@
 
 void TektronicsChannelControl::initialize(POINT loc, CWnd* parent, int& id, std::string channelText, LONG width)
 {
-	channelLabel.ID = id++;;
 	channelLabel.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
 	channelLabel.Create( channelText.c_str(), WS_CHILD | WS_VISIBLE | WS_BORDER, channelLabel.sPos, parent,
-						 channelLabel.ID );
+						 id++ );
 
-	onOffButton.ID = id++;
-	if (onOffButton.ID != AXIAL_ON_OFF && onOffButton.ID != EO_ON_OFF && onOffButton.ID != TOP_ON_OFF
-		&& onOffButton.ID != BOTTOM_ON_OFF)
-	{
-		throw;
-	}
+
 	onOffButton.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	onOffButton.Create( "", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX, onOffButton.sPos, parent, 
-					    onOffButton.ID );
-	
-	fskButton.ID = id++;
-	if (fskButton.ID != AXIAL_FSK && fskButton.ID != EO_FSK && fskButton.ID != TOP_FSK
-		&& fskButton.ID != BOTTOM_FSK)
+	onOffButton.Create( "", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX, onOffButton.sPos, parent, id++ );
+	if (onOffButton.GetDlgCtrlID() != AXIAL_ON_OFF && onOffButton.GetDlgCtrlID() != EO_ON_OFF && 
+		onOffButton.GetDlgCtrlID() != TOP_ON_OFF && onOffButton.GetDlgCtrlID() != BOTTOM_ON_OFF)
 	{
 		throw;
 	}
 
 	fskButton.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	fskButton.Create("", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX, fskButton.sPos, parent,
-					 fskButton.ID);
+	fskButton.Create("", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX, fskButton.sPos, parent, id++);
+	if (fskButton.GetDlgCtrlID() != AXIAL_FSK && fskButton.GetDlgCtrlID() != EO_FSK
+		&& fskButton.GetDlgCtrlID() != TOP_FSK && fskButton.GetDlgCtrlID() != BOTTOM_FSK)
+	{
+		throw;
+	}
 
-	power.ID = id++;;
 	power.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	power.Create(WS_CHILD | WS_VISIBLE, power.sPos, parent, power.ID);
+	power.Create(WS_CHILD | WS_VISIBLE, power.sPos, parent, id++);
 	power.EnableWindow(0);
 
-	mainFreq.ID = id++;;
 	mainFreq.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	mainFreq.Create(WS_CHILD | WS_VISIBLE, mainFreq.sPos, parent, mainFreq.ID);
+	mainFreq.Create(WS_CHILD | WS_VISIBLE, mainFreq.sPos, parent, id++);
 	mainFreq.EnableWindow(0);
 
-	fskFreq.ID = id++;;
 	fskFreq.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	fskFreq.Create(WS_CHILD | WS_VISIBLE, fskFreq.sPos, parent, fskFreq.ID);
+	fskFreq.Create(WS_CHILD | WS_VISIBLE, fskFreq.sPos, parent, id++);
 	fskFreq.EnableWindow(0);
 }
 
@@ -94,8 +86,9 @@ void TektronicsControl::interpretKey(key variationKey, std::vector<variable>& va
 HBRUSH TektronicsControl::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC)
 {
 	DWORD controlID = window->GetDlgCtrlID();
-	if (controlID == onOffLabel.ID || controlID == fskLabel.ID || controlID == mainPowerLabel.ID
-		|| controlID == mainFreqLabel.ID || controlID == fskFreqLabel.ID )
+	if (controlID == onOffLabel.GetDlgCtrlID() || controlID == fskLabel.GetDlgCtrlID() 
+		|| controlID == mainPowerLabel.GetDlgCtrlID() || controlID == mainFreqLabel.GetDlgCtrlID() 
+		|| controlID == fskFreqLabel.GetDlgCtrlID())
 	{
 		cDC->SetBkColor(rGBs["Medium Grey"]);
 		cDC->SetTextColor(rGBs["White"]);
@@ -155,22 +148,15 @@ tektronicsChannelInfo TektronicsChannelControl::getSettings()
 	currentInfo.fsk = fskButton.GetCheck();
 
 	CString text;
-	std::string textStr(text);
-
 	power.GetWindowTextA(text);
-	textStr = std::string(text);
-	std::transform(textStr.begin(), textStr.end(), textStr.begin(), ::tolower);
-	currentInfo.power = std::string(textStr);
+	currentInfo.power = str(text, 12, false, true);
 
 	mainFreq.GetWindowTextA(text);
-	textStr = std::string(text);
-	std::transform(textStr.begin(), textStr.end(), textStr.begin(), ::tolower);
-	currentInfo.mainFreq = std::string(textStr);
+	currentInfo.mainFreq = str(text, 12, false, true);
 
 	fskFreq.GetWindowTextA(text);
-	textStr = std::string(text);
-	std::transform(textStr.begin(), textStr.end(), textStr.begin(), ::tolower);
-	currentInfo.fskFreq = std::string(textStr);
+	currentInfo.fskFreq = str(text, 12, false, true);
+
 	return currentInfo;
 }
 
@@ -246,40 +232,33 @@ TektronicsControl::TektronicsControl(int address) : machineAddress(address)
 void TektronicsControl::initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
 								    std::string channel2Text, LONG width )
 {
-	header.ID = id++;
 	header.sPos = { loc.x, loc.y, loc.x + width, loc.y += 25 };
-	header.Create( ("Tektronics " + headerText).c_str(), WS_CHILD | WS_VISIBLE | WS_BORDER, header.sPos, parent, 
-				    header.ID );
-	header.fontType = Heading;
+	header.Create( ("Tektronics " + headerText).c_str(), WS_CHILD | WS_VISIBLE | WS_BORDER, header.sPos, parent, id++ );
+	header.fontType = HeadingFont;
 
 	channel1.initialize({ loc.x + width/3, loc.y }, parent, id, channel1Text, width / 3);
 	channel2.initialize({ loc.x + 2*width/3, loc.y }, parent, id, channel2Text, width / 3);
 
 	loc.y += 20;
 	
-	onOffLabel.ID = id++;
 	onOffLabel.sPos = { loc.x, loc.y, loc.x + width/3, loc.y += 20 };
-	onOffLabel.Create("On:", WS_CHILD | WS_VISIBLE | WS_BORDER, onOffLabel.sPos, parent, onOffLabel.ID);
+	onOffLabel.Create("On:", WS_CHILD | WS_VISIBLE | WS_BORDER, onOffLabel.sPos, parent, id++);
 
-	fskLabel.ID = id++;
 	fskLabel.sPos = { loc.x, loc.y, loc.x + width / 3, loc.y += 20 };
-	fskLabel.Create("FSK:", WS_CHILD | WS_VISIBLE | WS_BORDER, fskLabel.sPos, parent, fskLabel.ID);
+	fskLabel.Create("FSK:", WS_CHILD | WS_VISIBLE | WS_BORDER, fskLabel.sPos, parent, id++);
 
-	mainPowerLabel.ID = id++;
 	mainPowerLabel.sPos = { loc.x, loc.y, loc.x + width / 3, loc.y += 20 };
-	mainPowerLabel.Create("Power", WS_CHILD | WS_VISIBLE | WS_BORDER, mainPowerLabel.sPos, parent, mainPowerLabel.ID);
+	mainPowerLabel.Create("Power", WS_CHILD | WS_VISIBLE | WS_BORDER, mainPowerLabel.sPos, parent, id++);
 
-	mainFreqLabel.ID = id++;;
 	mainFreqLabel.sPos = { loc.x, loc.y, loc.x + width / 3, loc.y += 20 };
-	mainFreqLabel.Create("Main Freq.", WS_CHILD | WS_VISIBLE | WS_BORDER, mainFreqLabel.sPos, parent, mainFreqLabel.ID);
+	mainFreqLabel.Create("Main Freq.", WS_CHILD | WS_VISIBLE | WS_BORDER, mainFreqLabel.sPos, parent, id++);
 
-	fskFreqLabel.ID = id++;;
 	fskFreqLabel.sPos = { loc.x, loc.y, loc.x + width / 3, loc.y += 20 };
-	fskFreqLabel.Create("FSK Freq.", WS_CHILD | WS_VISIBLE | WS_BORDER, fskFreqLabel.sPos, parent, fskFreqLabel.ID);
+	fskFreqLabel.Create("FSK Freq.", WS_CHILD | WS_VISIBLE | WS_BORDER, fskFreqLabel.sPos, parent, id++);
 }
 
 
-void TektronicsChannelControl::rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts)
+void TektronicsChannelControl::rearrange(int width, int height, fontMap fonts)
 {
 	channelLabel.rearrange("", "", width, height, fonts);
 	onOffButton.rearrange("", "", width, height, fonts);
@@ -290,7 +269,7 @@ void TektronicsChannelControl::rearrange(int width, int height, std::unordered_m
 }
 
 
-void TektronicsControl::rearrange(int width, int height, std::unordered_map<std::string, CFont*> fonts)
+void TektronicsControl::rearrange(int width, int height, fontMap fonts)
 {
 	header.rearrange("", "", width, height, fonts);
 	onOffLabel.rearrange("", "", width, height, fonts);

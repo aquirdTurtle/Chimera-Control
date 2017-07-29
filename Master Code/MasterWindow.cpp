@@ -57,7 +57,8 @@ BEGIN_MESSAGE_MAP( MasterWindow, CDialog )
 	ON_COMMAND( ID_PROFILE_SAVE_PROFILE, &MasterWindow::SaveEntireProfile )
 	ON_COMMAND( IDC_ZERO_TTLS, &MasterWindow::zeroTtls )
 	ON_COMMAND( IDC_ZERO_DACS, &MasterWindow::zeroDacs )
-	ON_COMMAND(IDOK, &MasterWindow::handleEnter)
+	ON_COMMAND( IDOK, &MasterWindow::handleEnter)
+	ON_COMMAND( ID_DACS_ROUNDTODAC, &MasterWindow::passRoundToDac )
 
 	ON_COMMAND_RANGE( IDC_SHOW_TTLS, IDC_SHOW_TTLS, &MasterWindow::handleOptionsPress )
 	ON_COMMAND_RANGE( IDC_SHOW_DACS, IDC_SHOW_DACS, &MasterWindow::handleOptionsPress )
@@ -104,6 +105,12 @@ BEGIN_MESSAGE_MAP( MasterWindow, CDialog )
 	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_CONFIG_VARS_LISTVIEW, IDC_CONFIG_VARS_LISTVIEW, &MasterWindow::drawVariables)
 
 END_MESSAGE_MAP()
+
+
+void MasterWindow::passRoundToDac()
+{
+	dacBoards.handleRoundToDac(menu);
+}
 
 
 void MasterWindow::handleTektronicsButtons(UINT id)
@@ -1248,34 +1255,34 @@ BOOL MasterWindow::OnInitDialog()
 	masterKey.initialize( controlLocation, this, id );
 	try
 	{
-		masterConfig.load( &ttlBoard, dacBoards, toolTips, this, &globalVariables );
+		masterConfig.load(&ttlBoard, dacBoards, toolTips, this, &globalVariables);
+
+		RECT controlArea = { 960, 0, 1320, 540 };
+		POINT statusLoc = { 960, 0 };
+		generalStatus.initialize(statusLoc, this, id, 360, 300, "General Status", masterRGBs["Light Blue"],
+								 getFonts(), toolTips);
+		statusLoc = { 960, 300 };
+		errorStatus.initialize(statusLoc, this, id, 360, 300, "Error Status", masterRGBs["Light Red"],
+							   getFonts(), toolTips);
+		statusLoc = { 960, 600 };
+		tektronics1.initialize(statusLoc, this, id, "Top / Bottom", "Top", "Bottom", 360);
+		tektronics2.initialize(statusLoc, this, id, "EO / Axial", "EO", "Axial", 360);
+		niawgSocket.initialize(statusLoc, this, id);
+		controlLocation = POINT{ 480, 90 };
+		notes.initialize(controlLocation, this, id);
+		notes.setActiveControls("none");
+		RhodeSchwarzGenerator.initialize(controlLocation, toolTips, this, id);
+		debugControl.initialize(controlLocation, this, toolTips, id);
+		topBottomAgilent.initialize(controlLocation, toolTips, this, id, "USB0::2391::11271::MY52801397::0::INSTR", "Top/Bottom Agilent");
+		uWaveAxialAgilent.initialize(controlLocation, toolTips, this, id, "STUFF...", "U-Wave / Axial Agilent");
+		flashingAgilent.initialize(controlLocation, toolTips, this, id, "STUFF...", "Flashing Agilent");
+		controlLocation = POINT{ 1320, 0 };
+		masterScript.initialize(600, 1080, controlLocation, toolTips, this, id);
 	}
 	catch (Error& exeption)
 	{
-		errBox( exeption.what() );
+		errBox(exeption.what());
 	}
-
-	RECT controlArea = { 960, 0, 1320, 540 };
-	POINT statusLoc = { 960, 0 };
-	generalStatus.initialize(statusLoc, this, id, 360, 300, "General Status", masterRGBs["Light Blue"],
-							 getFonts(), toolTips);
-	statusLoc = { 960, 300 };
-	errorStatus.initialize(statusLoc, this, id, 360, 300, "Error Status", masterRGBs["Light Red"],
-						   getFonts(), toolTips);
-	statusLoc = { 960, 600 };
-	tektronics1.initialize(statusLoc, this, id, "Top / Bottom", "Top", "Bottom", 360);
-	tektronics2.initialize(statusLoc, this, id, "EO / Axial", "EO", "Axial", 360);
-	niawgSocket.initialize(statusLoc, this, id);
-	controlLocation = POINT{ 480, 90 };
-	notes.initialize( controlLocation, this, id );
-	notes.setActiveControls("none");
-	RhodeSchwarzGenerator.initialize( controlLocation, toolTips, this, id );
-	debugControl.initialize( controlLocation, this, toolTips, id );
-	topBottomAgilent.initialize( controlLocation, toolTips, this, id, "USB0::2391::11271::MY52801397::0::INSTR", "Top/Bottom Agilent" );
-	uWaveAxialAgilent.initialize( controlLocation, toolTips, this, id, "STUFF...", "U-Wave / Axial Agilent" );
-	flashingAgilent.initialize( controlLocation, toolTips, this, id, "STUFF...", "Flashing Agilent" );
-	controlLocation = POINT{ 1320, 0 };
-	masterScript.initialize( 600, 1080, controlLocation, toolTips, this, id );
 
 	// controls are done. Report the initialization status...
 	std::string msg;

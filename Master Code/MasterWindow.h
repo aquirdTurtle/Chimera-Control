@@ -172,6 +172,7 @@ class MasterWindow : public CDialog
 		void Exit();
 		void EditChange();
 		void OnTimer(UINT TimerVal);
+		void passRoundToDac();
 
 		void ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result);
@@ -318,7 +319,7 @@ class MasterWindow : public CDialog
 		// friend bool ConfigurationFileSystem::initialize(POINT& topLeftPosition, MasterWindow& Master);
 		// script friends
 		friend COLORREF Script::getSyntaxColor(std::string word, std::string editType, std::vector<variable> variables, 
-											   std::unordered_map<std::string, COLORREF> rgbs, bool& colorLine, 
+											   rgbMap rgbs, bool& colorLine, 
 											   std::array<std::array<std::string, 16>, 4> ttlNames, 
 											   std::array<std::string, 24> dacNames);
 		friend void Script::changeView(std::string viewName, MasterWindow* Master, bool isFunction);

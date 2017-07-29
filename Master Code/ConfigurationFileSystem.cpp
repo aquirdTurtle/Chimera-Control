@@ -155,16 +155,18 @@ void ConfigurationFileSystem::orientationChangeHandler(MasterWindow* Master)
 	CString orientation;
 	orientationCombo.GetLBText( ItemIndex, orientation );
 	// reset some things.
-	currentProfileSettings.orientation = std::string(orientation);
+	currentProfileSettings.orientation = str(orientation);
 	if (currentProfileSettings.category != "")
 	{
 		if (currentProfileSettings.orientation == HORIZONTAL_ORIENTATION)
 		{
-			reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, std::string("*") + HORIZONTAL_EXTENSION, "__NONE__");
+			reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, str("*") 
+						+ HORIZONTAL_EXTENSION, "__NONE__");
 		}
 		else if (currentProfileSettings.orientation == VERTICAL_ORIENTATION)
 		{
-			reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, std::string("*") + VERTICAL_EXTENSION, "__NONE__");
+			reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, str("*") 
+						+ VERTICAL_EXTENSION, "__NONE__");
 		}
 	}
 	Master->notes.setConfigurationNotes("");
@@ -220,11 +222,11 @@ void ConfigurationFileSystem::newConfiguration(MasterWindow* Master)
 	}
 	if (currentProfileSettings.orientation == HORIZONTAL_ORIENTATION)
 	{
-		reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, std::string("*") + HORIZONTAL_EXTENSION, currentProfileSettings.configuration.c_str());
+		reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, str("*") + HORIZONTAL_EXTENSION, currentProfileSettings.configuration.c_str());
 	}
 	else if (currentProfileSettings.orientation == VERTICAL_ORIENTATION)
 	{
-		reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, std::string("*") + VERTICAL_EXTENSION, currentProfileSettings.configuration.c_str());
+		reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, str("*") + VERTICAL_EXTENSION, currentProfileSettings.configuration.c_str());
 	}
 	else
 	{
@@ -313,7 +315,8 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 	configurationFile >> varNum;
 	if (varNum < 0 || varNum > 1000)
 	{
-		int answer = MessageBox(0, ("ERROR: variable number retrieved from file appears suspicious. The number is " + std::to_string(varNum) + ". Is this accurate?").c_str(), 0, MB_YESNO);
+		int answer = MessageBox(0, ("ERROR: variable number retrieved from file appears suspicious. The number is " 
+								+ str(varNum) + ". Is this accurate?").c_str(), 0, MB_YESNO);
 		if (answer == IDNO)
 		{
 			// don't try to load anything.
@@ -366,7 +369,7 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 		// I think it's unlikely to ever need more than 2 or 3 ranges.
 		if (rangeNumber < 1 || rangeNumber > 1000)
 		{
-			errBox("ERROR: Bad range number! setting it to 1, but found " + std::to_string(rangeNumber) + " in the file.");
+			errBox("ERROR: Bad range number! setting it to 1, but found " + str(rangeNumber) + " in the file.");
 			rangeNumber = 1;
 		}
 		Master->configVariables.setVariationRangeNumber(rangeNumber, 0);
@@ -1059,11 +1062,11 @@ void ConfigurationFileSystem::renameConfiguration(MasterWindow* Master)
 	currentProfileSettings.configuration = newConfigurationName;
 	if (currentProfileSettings.orientation == HORIZONTAL_ORIENTATION)
 	{
-		reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, std::string("*") + HORIZONTAL_EXTENSION, newConfigurationName);
+		reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, str("*") + HORIZONTAL_EXTENSION, newConfigurationName);
 	}
 	else if (currentProfileSettings.orientation == VERTICAL_ORIENTATION)
 	{
-		reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, std::string("*") + VERTICAL_EXTENSION, newConfigurationName);
+		reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, str("*") + VERTICAL_EXTENSION, newConfigurationName);
 	}
 	else
 	{
@@ -1084,17 +1087,19 @@ void ConfigurationFileSystem::deleteConfiguration()
 			// check if the experiment has also not been set.
 			if (currentProfileSettings.experiment == "")
 			{
-				thrower( "The Experiment and category have not yet been selected! Please select a category or create a new one before trying to save this "
-						 "configuration." );
+				thrower( "The Experiment and category have not yet been selected! Please select a category or create a"
+						" new one before trying to save this configuration." );
 			}
 			else
 			{
-				thrower( "The category has not yet been selected! Please select a category or create a new one before trying to save this configuration." );
+				thrower( "The category has not yet been selected! Please select a category or create a new one before"
+						" trying to save this configuration." );
 			}
 		}
 		else
 		{
-			thrower( "The Configuration has not yet been selected! Please select a category or create a new one before trying to rename it.", 0, 0);
+			thrower( "The Configuration has not yet been selected! Please select a category or create a new one before"
+					" trying to rename it.", 0, 0);
 		}
 	}
 	int answer = MessageBox(0, ("Are you sure you want to delete the current configuration: " + currentProfileSettings.configuration).c_str(), 0, MB_YESNO);
@@ -1127,11 +1132,13 @@ void ConfigurationFileSystem::deleteConfiguration()
 	// reset combo since the files have now changed after delete
 	if (currentProfileSettings.orientation == HORIZONTAL_ORIENTATION)
 	{
-		reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, std::string("*") + HORIZONTAL_EXTENSION, "__NONE__");
+		reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, str("*") 
+					+ HORIZONTAL_EXTENSION, "__NONE__");
 	}
 	else if (currentProfileSettings.orientation == VERTICAL_ORIENTATION)
 	{
-		reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, std::string("*") + VERTICAL_EXTENSION, "__NONE__");
+		reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, str("*") 
+					+ VERTICAL_EXTENSION, "__NONE__");
 	}
 	else
 	{
@@ -1503,17 +1510,19 @@ void ConfigurationFileSystem::categoryChangeHandler(MasterWindow* Master)
 	TCHAR categoryConfigToOpen[256];
 	// Send CB_GETLBTEXT message to get the item.
 	categoryCombo.GetLBText( itemIndex, categoryConfigToOpen );
-	openCategory( std::string( categoryConfigToOpen ), Master );
+	openCategory( str( categoryConfigToOpen ), Master );
 	// it'd be confusing if these notes stayed here.
 	Master->notes.setConfigurationNotes("");
 	Master->notes.setActiveControls("category");
 	if (currentProfileSettings.orientation == HORIZONTAL_ORIENTATION)
 	{
-		reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, std::string("*") + HORIZONTAL_EXTENSION, "__NONE__");
+		reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, str("*") 
+					+ HORIZONTAL_EXTENSION, "__NONE__");
 	}
 	else if (currentProfileSettings.orientation == VERTICAL_ORIENTATION)
 	{
-		reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, std::string("*") + VERTICAL_EXTENSION, "__NONE__");
+		reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, str("*") 
+					+ VERTICAL_EXTENSION, "__NONE__");
 	}
 	currentProfileSettings.configuration = "";
 	reloadSequence(NULL_SEQUENCE, Master);
@@ -1535,8 +1544,8 @@ void ConfigurationFileSystem::saveExperiment(MasterWindow* Master)
 	// check if file already exists
 	if (!ConfigurationFileSystem::fileOrFolderExists(FILE_SYSTEM_PATH + experimentNameToSave + "\\" + experimentNameToSave + EXPERIMENT_EXTENSION))
 	{
-		int answer = MessageBox(0, ("This experiment file appears to not exist in the expected location: " + FILE_SYSTEM_PATH + "   \r\n."
-			"Continue by making a new experiment file?").c_str(), 0, MB_OKCANCEL);
+		int answer = MessageBox(0, ("This experiment file appears to not exist in the expected location: " 
+								+ FILE_SYSTEM_PATH + "   \r\n.Continue by making a new experiment file?").c_str(), 0, MB_OKCANCEL);
 		if (answer == IDCANCEL)
 		{
 			return;
@@ -1813,7 +1822,7 @@ void ConfigurationFileSystem::experimentChangeHandler(MasterWindow* Master)
 	TCHAR experimentConfigToOpen[256];
 	// Send CB_GETLBTEXT message to get the item.
 	experimentCombo.GetLBText( itemIndex, experimentConfigToOpen );
-	openExperiment( std::string( experimentConfigToOpen ), Master );
+	openExperiment( str( experimentConfigToOpen ), Master );
 	reloadCombo(categoryCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingExperiment, "*", "__NONE__");
 	// it'd be confusing if this category-specific text remained after the category get set to blank.
 	Master->notes.setCategoryNotes("");
@@ -1875,7 +1884,7 @@ void ConfigurationFileSystem::addToSequence(MasterWindow* Master)
 		sequenceConfigurationNames.push_back(currentProfileSettings.configuration + VERTICAL_EXTENSION);
 	}
 	// add text to display.
-	appendText(std::to_string(sequenceConfigurationNames.size()) + ". " + sequenceConfigurationNames.back() + "\r\n",
+	appendText(str(sequenceConfigurationNames.size()) + ". " + sequenceConfigurationNames.back() + "\r\n",
 			   sequenceInfoDisplay);
 	updateSequenceSavedStatus(false);
 }
@@ -1893,7 +1902,7 @@ void ConfigurationFileSystem::sequenceChangeHandler(MasterWindow* Master)
 		// is blank. just break out, this is fine.
 		return;
 	}
-	if (std::string(sequenceName) == NULL_SEQUENCE)
+	if (str(sequenceName) == NULL_SEQUENCE)
 	{
 		loadNullSequence(Master);
 		return;
@@ -1910,7 +1919,8 @@ void ConfigurationFileSystem::sequenceChangeHandler(MasterWindow* Master)
 
 void ConfigurationFileSystem::reloadSequence(std::string sequenceToReload, MasterWindow* Master)
 {
-	reloadCombo(sequenceCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, std::string("*") + SEQUENCE_EXTENSION, sequenceToReload);
+	reloadCombo(sequenceCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, str("*") 
+				+ SEQUENCE_EXTENSION, sequenceToReload);
 	sequenceCombo.AddString( NULL_SEQUENCE );
 	if (sequenceToReload == NULL_SEQUENCE)
 	{
@@ -1942,7 +1952,7 @@ void ConfigurationFileSystem::saveSequence(MasterWindow* Master)
 	{
 		TCHAR* result = NULL;
 		result = (TCHAR*)DialogBoxParam(Master->programInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, textPromptDialogProcedure, (LPARAM)"Please enter a name for this sequence: ");
-		if (std::string(result) == "")
+		if (str(result) == "")
 		{
 			return;
 		}
@@ -1967,25 +1977,26 @@ void ConfigurationFileSystem::saveSequenceAs(MasterWindow* Master)
 {
 	// prompt for name
 	TCHAR* result = NULL;
-	result = (TCHAR*)DialogBoxParam(Master->programInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, textPromptDialogProcedure, (LPARAM)"Please Enter a new Sequence Name:");
+	result = (TCHAR*)DialogBoxParam(Master->programInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, 
+									textPromptDialogProcedure, (LPARAM)"Please Enter a new Sequence Name:");
 	//
-	if (result == NULL || std::string(result) == "")
+	if (result == NULL || str(result) == "")
 	{
 		// user canceled or entered nothing
 		return;
 	}
-	if (std::string(result) == NULL_SEQUENCE)
+	if (str(result) == NULL_SEQUENCE)
 	{
 		// nothing to save;
 		return;
 	}
 	// if not saved...
-	std::fstream sequenceSaveFile( currentProfileSettings.pathIncludingCategory + "\\" + std::string(result) + SEQUENCE_EXTENSION, std::fstream::out);
+	std::fstream sequenceSaveFile( currentProfileSettings.pathIncludingCategory + "\\" + str(result) + SEQUENCE_EXTENSION, std::fstream::out);
 	if (!sequenceSaveFile.is_open())
 	{
 		thrower( "ERROR: Couldn't open sequence file for saving!" );
 	}
-	currentProfileSettings.sequence = std::string(result);
+	currentProfileSettings.sequence = str(result);
 	sequenceSaveFile << "Version: 1.0\n";
 	for (int sequenceInc = 0; sequenceInc < sequenceConfigurationNames.size(); sequenceInc++)
 	{
@@ -2054,7 +2065,7 @@ void ConfigurationFileSystem::newSequence(MasterWindow* Master)
 	TCHAR* result = NULL;
 	result = (TCHAR*)DialogBoxParam(Master->programInstance, MAKEINTRESOURCE(IDD_TEXT_PROMPT_DIALOG), 0, textPromptDialogProcedure, (LPARAM)"Please Enter a new Sequence Name:");
 	//
-	if (result == NULL || std::string(result) == "")
+	if (result == NULL || str(result) == "")
 	{
 		// user canceled or entered nothing
 		return;
@@ -2065,7 +2076,7 @@ void ConfigurationFileSystem::newSequence(MasterWindow* Master)
 	{
 		thrower( "Couldn't create a file with this sequence name! Make sure there are no forbidden characters in your name." );
 	}
-	std::string newSequenceName = std::string(result);
+	std::string newSequenceName = str(result);
 	sequenceFile << newSequenceName + "\n";
 	// output current configuration
 	//eSequenceFileNames.clear();
@@ -2087,7 +2098,7 @@ void ConfigurationFileSystem::openSequence(std::string sequenceName, MasterWindo
 		thrower( "ERROR: sequence file failed to open! Make sure the sequence with address ..." + currentProfileSettings.pathIncludingCategory
 				 + sequenceName + SEQUENCE_EXTENSION + " exists." );
 	}
-	currentProfileSettings.sequence = std::string(sequenceName);
+	currentProfileSettings.sequence = str(sequenceName);
 	// read the file
 	std::string version;
 	std::getline(sequenceFile, version);
@@ -2104,7 +2115,7 @@ void ConfigurationFileSystem::openSequence(std::string sequenceName, MasterWindo
 	sequenceInfoDisplay.SetWindowTextA( "Configuration Sequence:\r\n" );
 	for (int sequenceInc = 0; sequenceInc < sequenceConfigurationNames.size(); sequenceInc++)
 	{
-		appendText(std::to_string(sequenceInc + 1) + ". " + sequenceConfigurationNames[sequenceInc] + "\r\n",
+		appendText(str(sequenceInc + 1) + ". " + sequenceConfigurationNames[sequenceInc] + "\r\n",
 				   sequenceInfoDisplay);
 	}
 	updateSequenceSavedStatus(true);
@@ -2161,126 +2172,111 @@ std::string ConfigurationFileSystem::getSequenceNamesString()
 		namesString += "Sequence:\r\n";
 		for (int sequenceInc = 0; sequenceInc < sequenceConfigurationNames.size(); sequenceInc++)
 		{
-			namesString += "\t" + std::to_string(sequenceInc) + ": " + sequenceConfigurationNames[sequenceInc] + "\r\n";
+			namesString += "\t" + str(sequenceInc) + ": " + sequenceConfigurationNames[sequenceInc] + "\r\n";
 		}
 	}
 	return namesString;
 }
 
 
-void ConfigurationFileSystem::initialize(POINT& topLeftPosition, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id)
+void ConfigurationFileSystem::initialize( POINT& pos, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, 
+										 int& id)
 {
 	// initialize this.	
 	currentProfileSettings.orientation = HORIZONTAL_ORIENTATION;
 
 	// Experiment Type
-	experimentLabel.sPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 20 };
-	experimentLabel.ID = id++;
-	experimentLabel.Create( "EXPERIMENT", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, experimentLabel.sPos, master, experimentLabel.ID );
-	experimentLabel.fontType = Heading;
+	experimentLabel.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 20 };
+	experimentLabel.Create( "EXPERIMENT", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, experimentLabel.sPos, master, id++ );
+	experimentLabel.fontType = HeadingFont;
 	// Experiment Saved Indicator
-	experimentSavedIndicator.sPos = { topLeftPosition.x + 360, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 20 };
-	experimentSavedIndicator.ID = id++;
+	experimentSavedIndicator.sPos = { pos.x + 360, pos.y, pos.x + 480, pos.y + 20 };
 	experimentSavedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, 
-									 experimentSavedIndicator.sPos, master, experimentSavedIndicator.ID );
-	experimentSavedIndicator.fontType = Normal;
+									 experimentSavedIndicator.sPos, master, id++ );
 	experimentSavedIndicator.SetCheck( true );
 	updateExperimentSavedStatus(true);
 	// Category Title
-	categoryLabel.sPos = { topLeftPosition.x + 480, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20 };
-	categoryLabel.ID = id++;
-	categoryLabel.Create( "CATEGORY", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, categoryLabel.sPos, master, categoryLabel.ID );
-	categoryLabel.fontType = Heading;
+	categoryLabel.sPos = { pos.x + 480, pos.y, pos.x + 960, pos.y + 20 };
+	categoryLabel.Create( "CATEGORY", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, categoryLabel.sPos, master, id++ );
+	categoryLabel.fontType = HeadingFont;
 	//
-	categorySavedIndicator.sPos = { topLeftPosition.x + 480 + 380, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20};
-	categorySavedIndicator.ID = id++;
-	categorySavedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, categorySavedIndicator.sPos, master, categorySavedIndicator.ID );
-	categorySavedIndicator.fontType = Normal;
+	categorySavedIndicator.sPos = { pos.x + 480 + 380, pos.y, pos.x + 960, pos.y + 20};
+	categorySavedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, categorySavedIndicator.sPos, master, id++ );
 	categorySavedIndicator.SetCheck( true );
 	updateCategorySavedStatus(true);
-	topLeftPosition.y += 20;
+	pos.y += 20;
 	// Experiment Combo
-	experimentCombo.sPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 800 };
-	experimentCombo.ID = id++;
-	idVerify(experimentCombo.ID, EXPERIMENT_COMBO_ID);
-	experimentCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, experimentCombo.sPos, master, experimentCombo.ID );
-	experimentCombo.fontType = Normal;
-	reloadCombo(experimentCombo.GetSafeHwnd(), PROFILES_PATH, std::string("*"), "__NONE__");
+	experimentCombo.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 800 };
+	experimentCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, 
+						   experimentCombo.sPos, master, id++);
+	idVerify(experimentCombo, EXPERIMENT_COMBO_ID);
+	reloadCombo(experimentCombo.GetSafeHwnd(), PROFILES_PATH, str("*"), "__NONE__");
 	// Category Combo
-	categoryCombo.sPos = { topLeftPosition.x + 480, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 800 };
-	categoryCombo.ID = id++;
-	
-	idVerify(categoryCombo.ID, CATEGORY_COMBO_ID);
-	categoryCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, categoryCombo.sPos, master, categoryCombo.ID );
-	categoryCombo.fontType = Normal;
-	topLeftPosition.y += 25;
+	categoryCombo.sPos = { pos.x + 480, pos.y, pos.x + 960, pos.y + 800 };
+	categoryCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, 
+						 categoryCombo.sPos, master, id++ );
+	idVerify(categoryCombo, CATEGORY_COMBO_ID);
+	pos.y += 25;
 	// Orientation Title
-	orientationLabel.sPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 120, topLeftPosition.y + 20 };
-	orientationLabel.ID = id++;
-	orientationLabel.Create( "ORIENTATION", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, orientationLabel.sPos, master, orientationLabel.ID );
-	orientationLabel.fontType = Heading;
+	orientationLabel.sPos = { pos.x, pos.y, pos.x + 120, pos.y + 20 };
+	orientationLabel.Create( "ORIENTATION", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, orientationLabel.sPos, 
+							master, id++);
+	orientationLabel.fontType = HeadingFont;
 	// Configuration Title
-	configLabel.sPos = { topLeftPosition.x + 120, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20 };
-	configLabel.ID = id++;
-	configLabel.Create( "CONFIGURATION", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, configLabel.sPos, master, configLabel.ID );
-	configLabel.fontType = Heading;
+	configLabel.sPos = { pos.x + 120, pos.y, pos.x + 960, pos.y + 20 };
+	configLabel.Create( "CONFIGURATION", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, configLabel.sPos, master, id++);
+	configLabel.fontType = HeadingFont;
 	// Configuration Saved Indicator
-	configurationSavedIndicator.sPos = { topLeftPosition.x + 860, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20 };
-	configurationSavedIndicator.ID = id++;
-	configurationSavedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, configurationSavedIndicator.sPos, master, configurationSavedIndicator.ID );
-	configurationSavedIndicator.fontType = Normal; 
+	configurationSavedIndicator.sPos = { pos.x + 860, pos.y, pos.x + 960, pos.y + 20 };
+	configurationSavedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, 
+									   configurationSavedIndicator.sPos, master, id++ );
 	configurationSavedIndicator.SetCheck( true );
 	updateConfigurationSavedStatus(true);
-	topLeftPosition.y += 20;
+	pos.y += 20;
 	// orientation combo
 	std::vector<std::string> orientationNames;
 	orientationNames.push_back("Horizontal");
 	orientationNames.push_back("Vertical");
-	orientationCombo.sPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 120, topLeftPosition.y + 800 };
-	orientationCombo.ID = id++;
-	idVerify(orientationCombo.ID, ORIENTATION_COMBO_ID);
-	orientationCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, orientationCombo.sPos, master, orientationCombo.ID );
-	orientationCombo.fontType = Normal;
+	orientationCombo.sPos = { pos.x, pos.y, pos.x + 120, pos.y + 800 };
+	orientationCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, 
+							orientationCombo.sPos, master, id++ );
+	idVerify(orientationCombo, ORIENTATION_COMBO_ID);
 	for (int comboInc = 0; comboInc < orientationNames.size(); comboInc++)
 	{
 		orientationCombo.AddString( orientationNames[comboInc].c_str() );
 	}
 	orientationCombo.SetCurSel(0);
 	// configuration combo
-	configCombo.sPos = { topLeftPosition.x + 120, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 800 };
-	configCombo.ID = id++;
-	idVerify(configCombo.ID, CONFIGURATION_COMBO_ID);
-	configCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, configCombo.sPos, master, configCombo.ID );
-	configCombo.fontType = Normal;
-	topLeftPosition.y += 25;
+	configCombo.sPos = { pos.x + 120, pos.y, pos.x + 960, pos.y + 800 };	
+	configCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, configCombo.sPos, 
+					   master, id++ );
+	idVerify(configCombo, CONFIGURATION_COMBO_ID);
+	pos.y += 25;
 	/// SEQUENCE
-	sequenceLabel.sPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 20 };
-	sequenceLabel.ID = id++;
-	sequenceLabel.Create( "SEQUENCE", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, sequenceLabel.sPos, master, sequenceLabel.ID );
-	sequenceLabel.fontType = Heading;
+	sequenceLabel.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 20 };
+	sequenceLabel.Create( "SEQUENCE", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, sequenceLabel.sPos, master, 
+						  id++ );
+	sequenceLabel.fontType = HeadingFont;
 	
-	sequenceSavedIndicator.sPos = { topLeftPosition.x + 860, topLeftPosition.y, topLeftPosition.x + 960, topLeftPosition.y + 20 };
-	sequenceSavedIndicator.ID = id++;
-	sequenceSavedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, sequenceSavedIndicator.sPos, master, sequenceSavedIndicator.ID );
-	sequenceSavedIndicator.fontType = Normal;
+	sequenceSavedIndicator.sPos = { pos.x + 360, pos.y, pos.x + 480, pos.y += 20 };
+	sequenceSavedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, 
+								  sequenceSavedIndicator.sPos, master, id++ );
 	sequenceSavedIndicator.SetCheck( true );
 	updateSequenceSavedStatus( true );
 
 	// combo
-	sequenceCombo.sPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 800 };
-	sequenceCombo.ID = id++;
-	idVerify(sequenceCombo.ID, SEQUENCE_COMBO_ID);
+	sequenceCombo.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 800 };
 	sequenceCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, 
-						  sequenceCombo.sPos, master, sequenceCombo.ID );
+						  sequenceCombo.sPos, master, id++ );
+	idVerify(sequenceCombo, SEQUENCE_COMBO_ID); 
 	sequenceCombo.SetCurSel( 0 );
 	sequenceCombo.AddString( NULL_SEQUENCE );
-	topLeftPosition.y += 25;
+	pos.y += 25;
 	// display
-	sequenceInfoDisplay.sPos = { topLeftPosition.x, topLeftPosition.y, topLeftPosition.x + 480, topLeftPosition.y + 100 };
+	sequenceInfoDisplay.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 50 };
 	sequenceInfoDisplay.Create( ES_READONLY | WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL,
-								sequenceInfoDisplay.sPos, master, sequenceInfoDisplay.ID );
+								sequenceInfoDisplay.sPos, master, id++ );
 	sequenceInfoDisplay.SetWindowTextA( "Sequence of Configurations to Run:\r\n" );
-	topLeftPosition.y += 100;
 	
 	configCombo.EnableWindow(false);
 	categoryCombo.EnableWindow(false);
@@ -2318,7 +2314,7 @@ std::vector<std::string> ConfigurationFileSystem::searchForFiles(std::string loc
 			{
 				if ((fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY)
 				{
-					if (std::string(fd.cFileName) != "." && std::string(fd.cFileName) != "..")
+					if (str(fd.cFileName) != "." && str(fd.cFileName) != "..")
 					{
 						names.push_back(fd.cFileName);
 					}
@@ -2338,9 +2334,9 @@ std::vector<std::string> ConfigurationFileSystem::searchForFiles(std::string loc
 	// Remove suffix from file names and...
 	for (int configListInc = 0; configListInc < names.size(); configListInc++)
 	{
-		if (extensions == "*" || extensions == "*.*" || extensions == std::string("*") + HORIZONTAL_EXTENSION 
-			|| extensions == std::string("*") + VERTICAL_EXTENSION || extensions == std::string("*") + SEQUENCE_EXTENSION
-			|| extensions == std::string("*") + CATEGORY_EXTENSION || extensions == std::string("*") + EXPERIMENT_EXTENSION)
+		if (extensions == "*" || extensions == "*.*" || extensions == str("*") + HORIZONTAL_EXTENSION 
+			|| extensions == str("*") + VERTICAL_EXTENSION || extensions == str("*") + SEQUENCE_EXTENSION
+			|| extensions == str("*") + CATEGORY_EXTENSION || extensions == str("*") + EXPERIMENT_EXTENSION)
 		{
 			names[configListInc] = names[configListInc].substr(0, names[configListInc].size() - (extensions.size() - 1));
 		}
@@ -2436,21 +2432,23 @@ void ConfigurationFileSystem::fullyDeleteFolder(std::string folderToDelete)
 }
 
 
-INT_PTR ConfigurationFileSystem::handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, std::unordered_map<std::string, HBRUSH> brushes)
+INT_PTR ConfigurationFileSystem::handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, brushMap brushes)
 {
 	DWORD controlID = GetDlgCtrlID((HWND)lParam);
 	HDC hdcStatic = (HDC)wParam;
-	if (controlID == categoryCombo.ID || controlID == experimentCombo.ID || controlID == configCombo.ID 
-		|| controlID == orientationCombo.ID || controlID == sequenceCombo.ID)
+	if (controlID == categoryCombo.GetDlgCtrlID() || controlID == experimentCombo.GetDlgCtrlID() 
+		|| controlID == configCombo.GetDlgCtrlID() || controlID == orientationCombo.GetDlgCtrlID() 
+		|| controlID == sequenceCombo.GetDlgCtrlID())
 	{
 		SetTextColor(hdcStatic, RGB(255, 255, 255));
 		SetBkColor(hdcStatic, RGB(15, 15, 15));
 		return (LRESULT)brushes["Dark Grey"];
 	}
-	else if (controlID == categoryLabel.ID || controlID == experimentLabel.ID || controlID == configLabel.ID 
-		|| controlID == orientationLabel.ID || controlID == sequenceInfoDisplay.ID || controlID == sequenceLabel.ID 
-		|| controlID == experimentSavedIndicator.ID || controlID == configurationSavedIndicator.ID 
-			 || controlID == categorySavedIndicator.ID)
+	else if (controlID == categoryLabel.GetDlgCtrlID() || controlID == experimentLabel.GetDlgCtrlID() 
+			 || controlID == configLabel.GetDlgCtrlID() || controlID == orientationLabel.GetDlgCtrlID() 
+			 || controlID == sequenceInfoDisplay.GetDlgCtrlID() || controlID == sequenceLabel.GetDlgCtrlID()
+		|| controlID == experimentSavedIndicator.GetDlgCtrlID() || controlID == configurationSavedIndicator.GetDlgCtrlID()
+			 || controlID == categorySavedIndicator.GetDlgCtrlID())
 	{
 		SetTextColor(hdcStatic, RGB(218, 165, 32));
 		SetBkColor(hdcStatic, RGB(30, 30, 30));

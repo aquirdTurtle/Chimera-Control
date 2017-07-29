@@ -30,13 +30,6 @@ void appendText(std::string newText, Control<CRichEditCtrl>& edit)
 	edit.ReplaceSel(newText.c_str());
 }
 
-std::string doubleToString(double number, long precision)
-{
-	std::stringstream stream;
-	stream << std::fixed << std::setprecision(precision) << number;
-	return stream.str();
-}
-
 
 // goals of my math
 // handle parenthesis
@@ -83,7 +76,7 @@ double reduce(std::string expression, key variationKey, UINT variation, std::vec
 			{
 				if (term == var.first)
 				{
-					term = std::to_string(var.second.first[variation]);
+					term = str(var.second.first[variation]);
 					// find the variable 
 					bool foundVariable = false;
 					for (auto& variable : vars)
@@ -204,11 +197,11 @@ double reduce(std::string expression, key variationKey, UINT variation, std::vec
 				// caliculate the result
 				if (rightmostParenthesisTerms[count] == "/")
 				{
-					individualResult = std::to_string(leftTerm / rightTerm);
+					individualResult = str(leftTerm / rightTerm);
 				}
 				else
 				{
-					individualResult = std::to_string(leftTerm * rightTerm);
+					individualResult = str(leftTerm * rightTerm);
 				}
 				// replace the * expression with the result.
 				rightmostParenthesisTerms.erase(rightmostParenthesisTerms.begin() + (count - 1),
@@ -263,11 +256,11 @@ double reduce(std::string expression, key variationKey, UINT variation, std::vec
 				// caliculate the result
 				if (rightmostParenthesisTerms[count] == "+")
 				{
-					individualResult = std::to_string(leftTerm + rightTerm);
+					individualResult = str(leftTerm + rightTerm);
 				}
 				else
 				{
-					individualResult = std::to_string(leftTerm - rightTerm);
+					individualResult = str(leftTerm - rightTerm);
 				}
 				// replace the expression with the result.
 				rightmostParenthesisTerms.erase(rightmostParenthesisTerms.begin() + (count - 1),

@@ -40,7 +40,7 @@ class DacSettingsDialog : public CDialog
 		int startx = 30, starty = 40;
 		int width = 63;
 		int height = 28;
-		int startID = 445;
+		int id = 445;
 		dacInputStruct* input;
 };
 

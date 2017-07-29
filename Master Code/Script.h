@@ -25,7 +25,7 @@ class Script
 		void colorEntireScript(MasterWindow* Master);
 		void colorScriptSection(DWORD beginingOfChange, DWORD endOfChange, MasterWindow* Master);
 		COLORREF getSyntaxColor(std::string word, std::string editType, std::vector<variable> variables, 
-										 std::unordered_map<std::string, COLORREF> rgbs, bool& colorLine, 
+										 rgbMap rgbs, bool& colorLine, 
 										 std::array<std::array<std::string, 16>, 4> ttlNames, 
 										 std::array<std::string, 24> dacNames);
 
@@ -62,7 +62,7 @@ class Script
 		void reset(MasterWindow* master);
 		bool savedStatus();
 
-		INT_PTR handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, std::unordered_map<std::string, HBRUSH> brushes);
+		INT_PTR handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, brushMap brushes);
 
 		void saveAsFunction();
 		void loadFunctions();

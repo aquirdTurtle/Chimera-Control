@@ -200,11 +200,7 @@ piezomirror
 -10 - 10
 0
 18
-loadmotrightfield 1.12
-loadmotleftfield -0.755
-loadmottopfield -0.1
 loadmotbottomfield -0.15
-loadmotfrontfield -0.8
 loadmotbackfield 1.475
 loadmottime 125
 pgctime 18
@@ -218,3 +214,7 @@ pgcbackfield 0.545
 andorimagetime 25
 imagingpower 0.15
 imagingdetuning 0.6
+loadmotrightfield 0
+loadmotleftfield 0
+loadmotfrontfield 0
+loadmottopfield 0

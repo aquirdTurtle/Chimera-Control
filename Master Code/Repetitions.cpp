@@ -16,7 +16,7 @@ void Repetitions::rearrange(UINT width, UINT height, fontMap fonts)
 HBRUSH Repetitions::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC)
 {
 	DWORD controlID = window->GetDlgCtrlID();
-	if (controlID == repetitionDisp.ID || controlID == repetitionEdit.ID)
+	if (controlID == repetitionDisp.GetDlgCtrlID() || controlID == repetitionEdit.GetDlgCtrlID())
 	{
 		cDC->SetBkColor(rGBs["Medium Grey"]);
 		cDC->SetTextColor(rGBs["White"]);
@@ -47,7 +47,7 @@ void Repetitions::handleButtonPush()
 	}
 	catch (std::invalid_argument& exception)
 	{
-		thrower(std::string("ERROR: repetition number text did not convert to int! Text was") + text.GetBuffer());
+		thrower(str("ERROR: repetition number text did not convert to int! Text was") + text.GetBuffer());
 	}
 }
 */
@@ -56,17 +56,13 @@ void Repetitions::initialize(POINT& pos, std::vector<CToolTipCtrl*>& toolTips, M
 {
 	// title
 	repetitionText.sPos = { pos.x, pos.y, pos.x + 180, pos.y + 20 };
-	repetitionText.ID = id++;
-	repetitionText.Create("Repetition #", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, repetitionText.sPos, master, 
-						  repetitionText.ID);
+	repetitionText.Create("Repetition #", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, repetitionText.sPos, master, id++);
 
 	repetitionEdit.sPos = { pos.x + 180, pos.y, pos.x + 330, pos.y + 20 };
-	repetitionEdit.ID = id++;
-	repetitionEdit.Create(WS_CHILD | WS_VISIBLE | SS_SUNKEN, repetitionEdit.sPos, master, repetitionEdit.ID);
+	repetitionEdit.Create(WS_CHILD | WS_VISIBLE | SS_SUNKEN, repetitionEdit.sPos, master, id++);
 	repetitionDisp.sPos = { pos.x + 330, pos.y, pos.x + 480, pos.y + 20 };
-	repetitionDisp.ID = id++;
-	repetitionDisp.Create(WS_CHILD | WS_VISIBLE | SS_SUNKEN | ES_CENTER | ES_READONLY | WS_BORDER, 
-						   repetitionDisp.sPos, master, repetitionDisp.ID);
+	repetitionDisp.Create(WS_CHILD | WS_VISIBLE | SS_SUNKEN | ES_CENTER | ES_READONLY | WS_BORDER, repetitionDisp.sPos,
+						  master, id++);
 	repetitionDisp.SetWindowTextA("100");
 	// initialize the number to match the display.
 	repetitionNumber = 100;
@@ -77,7 +73,7 @@ void Repetitions::setRepetitions(unsigned int number)
 {
 	// check number for reasonable-ness?
 	repetitionNumber = number;
-	repetitionEdit.SetWindowTextA(std::to_string(number).c_str());
+	repetitionEdit.SetWindowTextA(str(number).c_str());
 	repetitionDisp.SetWindowTextA("---");
 }
 
@@ -88,7 +84,7 @@ unsigned int Repetitions::getRepetitionNumber()
 	repetitionEdit.GetWindowText(text);
 	try
 	{
-		repetitionNumber = std::stoi(std::string(text));
+		repetitionNumber = std::stoi(str(text));
 	}
 	catch (std::invalid_argument& err)
 	{

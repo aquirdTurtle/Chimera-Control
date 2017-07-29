@@ -3,30 +3,20 @@
 
 
 #include "stdafx.h"
-#include "boost/algorithm/string/replace.hpp"
-#include <boost/algorithm/string.hpp>
+//#include "boost/algorithm/string/replace.hpp"
+//#include <boost/algorithm/string.hpp>
 #include <vector>
 #include <iostream>
-#include <boost/tokenizer.hpp>
+#include <afxsock.h>
 
 int main()
 {
-	size_t num;
-	std::string text = "1Freq";
-	std::cout << std::stod(text, &num);
-	std::cout << " " << num << "\n";
-	if (num == text.size())
-	{
-		std::cout << "y\n";
-	}
-	text = "12345";
-	std::cout << std::stoi(text, &num);
-	if (num == text.size())
-	{
-		std::cout << "y\n";
-	}
-	std::cout << " " << num << "\n";
-
+	AfxSocketInit();
+	CSocket test;
+	int result;
+	result = test.Create();
+	int a = GetLastError();
+	std::cout << result << "\t" << a;
 	std::cin.get();
 	return -1;
 }

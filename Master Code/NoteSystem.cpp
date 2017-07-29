@@ -45,46 +45,38 @@ void NoteSystem::initialize( POINT& pos, MasterWindow* master, int& id )
 	/// EXPERIMENT LEVEL
 	// Configuration Notes Title
 	experimentNotesHeader.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
-	experimentNotesHeader.ID = id++;
 	experimentNotesHeader.Create( "EXPERIMENT NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
-								  experimentNotesHeader.sPos, master, experimentNotesHeader.ID );
-	experimentNotesHeader.fontType = Heading;
+								  experimentNotesHeader.sPos, master, id++ );
+	experimentNotesHeader.fontType = HeadingFont;
 	
 	// Configuration Notes edit
 	experimentNotes.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 100 };
-	experimentNotes.ID = id++;
-	idVerify(experimentNotes.ID, EXPERIMENT_NOTES_ID);
 	experimentNotes.Create( WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | WS_BORDER,
-							experimentNotes.sPos, master, experimentNotes.ID );
-	experimentNotes.fontType = Normal;
+							experimentNotes.sPos, master, id++ );
+	idVerify(experimentNotes, EXPERIMENT_NOTES_ID);
 	/// CATEGORY LEVEL
 	// Category Notes Title
 	categoryNotesHeader.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
-	categoryNotesHeader.ID = id++;
-	categoryNotesHeader.Create( "CATEGORY NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, categoryNotesHeader.sPos, master,
-								categoryNotesHeader.ID );
-	categoryNotesHeader.fontType = Heading;
+	categoryNotesHeader.Create( "CATEGORY NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, 
+							   categoryNotesHeader.sPos, master, id++ );
+	categoryNotesHeader.fontType = HeadingFont;
 	// Category Notes edit
 	categoryNotes.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 100 };
-	categoryNotes.ID = id++;
-	idVerify(experimentNotes.ID, EXPERIMENT_NOTES_ID);
+	
 	categoryNotes.Create( WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | WS_BORDER,
-						  categoryNotes.sPos, master, categoryNotes.ID );
-	categoryNotes.fontType = Normal;
+						  categoryNotes.sPos, master, id++ );
+	idVerify(categoryNotes, CATEGORY_NOTES_ID);
 	/// CONFIGURAITON LEVEL
 	// Configuration Notes Title
 	configurationNotesHeader.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
-	configurationNotesHeader.ID = id++;
 	configurationNotesHeader.Create( "CONFIGURATION NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
-									 configurationNotesHeader.sPos, master, configurationNotesHeader.ID );
-	configurationNotesHeader.fontType = Heading;
+									 configurationNotesHeader.sPos, master, id++ );
+	configurationNotesHeader.fontType = HeadingFont;
 	//  Configuration Notes edit
 	configurationNotes.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 100 };
-	configurationNotes.ID = id++;
-	idVerify(configurationNotes.ID, CONFIGURATION_NOTES_ID);
 	configurationNotes.Create( WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | WS_BORDER,
-							   configurationNotes.sPos, master, configurationNotes.ID );
-	configurationNotes.fontType = Normal;
+							   configurationNotes.sPos, master, id++);
+	idVerify(configurationNotes, CONFIGURATION_NOTES_ID);
 }
 
 void NoteSystem::rearrange(UINT width, UINT height, fontMap fonts)
@@ -143,14 +135,15 @@ INT_PTR NoteSystem::handleColorMessage(WPARAM wParam, LPARAM lParam, brushMap br
 {
 	DWORD ctrlID = GetDlgCtrlID((HWND)lParam); // Window Control ID
 	HDC hdcStatic = (HDC)wParam;
-	if (ctrlID == categoryNotes.ID || ctrlID == experimentNotes.ID || ctrlID == configurationNotes.ID)
+	if (ctrlID == categoryNotes.GetDlgCtrlID() || ctrlID == experimentNotes.GetDlgCtrlID() || 
+		ctrlID == configurationNotes.GetDlgCtrlID())
 	{
 		SetTextColor(hdcStatic, RGB(255, 255, 255));
 		SetBkColor(hdcStatic, RGB(15, 15, 15));
 		return (INT_PTR)brushes["Dark Grey"];
 	}
-	else if (ctrlID == categoryNotesHeader.ID || ctrlID == experimentNotesHeader.ID
-			 || ctrlID == configurationNotesHeader.ID)
+	else if (ctrlID == categoryNotesHeader.GetDlgCtrlID() || ctrlID == experimentNotesHeader.GetDlgCtrlID()
+			 || ctrlID == configurationNotesHeader.GetDlgCtrlID())
 	{
 		SetTextColor(hdcStatic, RGB(218, 165, 32));
 		SetBkColor(hdcStatic, RGB(30, 30, 30));

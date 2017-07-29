@@ -80,7 +80,8 @@ class TtlSystem
 	public:
 		TtlSystem();
 		~TtlSystem();
-		void initialize(POINT& startLocation, std::unordered_map<HWND, std::string>& masterText, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id);
+		void initialize(POINT& startLocation, toolTipTextMap& masterText,
+						std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id);
 		double getTotalTime(UINT var);
 		int getNumberOfTTLRows();
 		int getNumberOfTTLsPerRow();
@@ -88,7 +89,7 @@ class TtlSystem
 		void zeroBoard();
 		void handleTTLPress(UINT id);
 		void handleHoldPress();
-		HBRUSH handleColorMessage(CWnd* window, std::unordered_map<std::string, HBRUSH> brushes, std::unordered_map<std::string, COLORREF> rGBs, CDC* cDC);
+		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
 		std::string getSystemInfo();
 		std::array< std::array<bool, 16>, 4 > getFinalSnapshot();
 		void setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > status);
@@ -142,7 +143,6 @@ class TtlSystem
 		std::array< std::array< Control<CButton>, 16 >, 4 > ttlPushControls;
 		std::array< Control<CStatic>, 16 > ttlNumberLabels;
 		std::array< Control<CStatic>, 4 > ttlRowLabels;
-		Control<CButton> newButton;
 		std::array< std::array<bool, 16>, 4 > ttlStatus;
 		std::array< std::array<bool, 16>, 4 > ttlShadeStatus;
 		std::array< std::array<bool, 16>, 4 > ttlHoldStatus;
@@ -151,7 +151,7 @@ class TtlSystem
 		bool holdStatus;
 		std::vector<TtlCommandForm> ttlCommandFormList;
 		// Each element of first vector is for each variation.
-		std::vector<std::vector<TtlCommand>> individualTTL_CommandList;
+		std::vector<std::vector<TtlCommand>> individualTtlCommandList;
 		// Each element of first vector is for each variation.
 		std::vector<std::vector<TtlSnapshot>> ttlSnapshots;
 		// Each element of first vector is for each variation.
