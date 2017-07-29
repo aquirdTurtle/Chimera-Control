@@ -18,16 +18,3 @@ Bugs
 ### Finished ###
 ################################
 
-Features
-- make rounding to dac discretization an option.
-- option to pause between variations
-
-Bugs
--  I think I've fixed DAC behavior is inconsistent issue, was an issue with dac events being sent too fast becausee of 
-	some ramps?
-- Fixed Str() bug not working with std::string arguments.
-- fixed rounding issue
-
-Other
-- Removed id member of Control<> template class, realizing that I could just use built in GetDlgCtrlId();
-- Str() can now set precision, set to lowercase, and eati zeros as well.
