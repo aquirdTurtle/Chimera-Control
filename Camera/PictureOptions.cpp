@@ -299,10 +299,10 @@ bool PictureOptions::enablePictureControls(int pic)
 }
 
 
-INT_PTR PictureOptions::colorControls(HWND window, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR PictureOptions::colorControls( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
 {
-	DWORD controlID = GetDlgCtrlID((HWND)lParam);
-	HDC hdcStatic = (HDC)wParam;
+	int controlID = GetDlgCtrlID( hWnd );
+	HDC hdcStatic = GetDC( hWnd );
 	/// Exposures
 	if (controlID >= exposureEdits.front().ID && controlID <= exposureEdits.back().ID)
 	{

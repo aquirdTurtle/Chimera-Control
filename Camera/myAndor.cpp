@@ -89,7 +89,7 @@ namespace myAndor
 			}
 			if (myAndor::setScanNumber() != 0)
 			{
-				eSystemIsRunning = false;
+				eExperimentIsRunning = false;
 				return -1;
 			}
 			// set this to 1.
@@ -529,7 +529,7 @@ namespace myAndor
 				memcpy(pbmi->bmiColors, argbq, sizeof(WORD) * NUM_PALETTE_COLORS);
 
 				DataArray = (BYTE*)malloc(dataWidth * dataHeight * sizeof(BYTE));
-				memset(DataArray, 255, dataWidth * dataHeight);
+				memset(DataArray, 255, dataWidth * dataHeight * sizeof( BYTE ) );
 				for (i = 0; i < tempParam.height; i++)
 				{
 					for (j = 0; j < tempParam.width; j++)
@@ -570,8 +570,7 @@ namespace myAndor
 					{
 						pbmi->bmiHeader.biWidth = dataWidth;
 						StretchDIBits(hDC, eImageDrawAreas[imageLocation].left, eImageDrawAreas[imageLocation].top, pixelsAreaWidth, pixelsAreaHeight, 0, 0, dataWidth,
-							dataHeight, DataArray, (BITMAPINFO FAR*)pbmi, DIB_PAL_COLORS,
-							SRCCOPY);
+							dataHeight, DataArray, (BITMAPINFO FAR*)pbmi, DIB_PAL_COLORS, SRCCOPY);
 						break;
 					}
 					case 2:
@@ -710,6 +709,7 @@ namespace myAndor
 
 		return 0;
 	}
+
 	int setTemperature(void)
 	{
 		// Get the current temperature

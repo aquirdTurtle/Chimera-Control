@@ -163,23 +163,27 @@ void ExperimentLogger::generateLog(MasterWindow* master)
 	logText << "\n\nError Status:\n" << master->errorStatus.getText();
 	// log the general status
 	logText << "\n\nGeneral Status:\n" << master->generalStatus.getText();
+	return true;
 }
 
-void ExperimentLogger::exportLog()
+bool ExperimentLogger::exportLog()
 {
 	// put this on the andor.
 	std::fstream exportFile;
 	exportFile.open(LOGGING_FILE_ADDRESS, std::ios::out);
 	if (!exportFile.is_open())
 	{
-		thrower( "ERROR: logging file failed to open!" );
+		errBox("ERROR: logging file failed to open!");
+		return false;
 	}
 	// export...
-	exportFile << logText.str();
+	exportFile << this->logText.str();
+
 	exportFile.close();
+	return true;
 }
 
 std::string ExperimentLogger::getLog()
 {
-	return logText.str();
+	return this->logText.str();
 }

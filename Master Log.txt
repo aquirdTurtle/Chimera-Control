@@ -24,29 +24,52 @@ NAMES
 17:lspower   18:795freq   19:795power  20:dac19     21:motfreq   22:repumpfreq23:sidemotpower24:piezomirror
 
 Master Script:
-% Master-Script See the "?" for info on commands.
-% Time starts at 1 ms.
-t = 1
-%
-call turnonmot()
-
-t += loadMotTime
-
-call pgcLoading()
-
-t += 5 
-
-call pgcAtomImage()
-
-t += 5
-call turnOnMot()
-
-t += -100
-
-on: A0
-t += 20
-off: A1
-dacramp: dac1 0 10 1 0.01
+% Master-Script See the "?" for info on commands.
+
+% Time starts at 1 ms.
+
+t = 1
+
+%
+
+call turnonmot()
+
+
+
+t += loadMotTime
+
+
+
+call pgcLoading()
+
+
+
+t += 5 
+
+
+
+call pgcAtomImage()
+
+
+
+t += 5
+
+call turnOnMot()
+
+
+
+t += -100
+
+
+
+on: A0
+
+t += 20
+
+off: A1
+
+dacramp: dac1 0 10 1 0.01
+
 
 
 Repetitions: 500
@@ -58,9 +81,12 @@ Error Status:
 
 
 General Status:
-............................
-Checking if Ready...
-Starting Experiment Thread...
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
 An experiment ran at (y-m-d h:m:s)2017-7-29, 0:48:40 with the following parameters:
 ==========================================================================================
 TTL Settings:
@@ -87,27 +113,48 @@ NAMES
 17:lspower   18:795freq   19:795power  20:dac19     21:motfreq   22:repumpfreq23:sidemotpower24:piezomirror
 
 Master Script:
-% Master-Script See the "?" for info on commands.
-% Time starts at 1 ms.
-t = 1
-%
-call turnonmot()
-
-t += loadMotTime
-
-call pgcLoading()
-
-t += 5 
-
-call pgcAtomImage()
-
-t += waitTime
-
-call pgcAtomImage()
-
-t += 1
-
-call turnOnMot()
+% Master-Script See the "?" for info on commands.
+
+% Time starts at 1 ms.
+
+t = 1
+
+%
+
+call turnonmot()
+
+
+
+t += loadMotTime
+
+
+
+call pgcLoading()
+
+
+
+t += 5 
+
+
+
+call pgcAtomImage()
+
+
+
+t += waitTime
+
+
+
+call pgcAtomImage()
+
+
+
+t += 1
+
+
+
+call turnOnMot()
+
 
 
 Repetitions: 50
@@ -119,27 +166,48 @@ Error Status:
 
 
 General Status:
-............................
-Checking if Ready...
-Starting Experiment Thread...
-Handling Key... Done.
-Loading Agilent Info...Analyzing Master Script...Done.
-Programming All Variation Data...
-Programming Variation #1 Data...
-Programming took 0.406000 seconds.
-Programmed time per repetition: 186.000400
-Programmed Total Experiment time: 93000
-Number of TTL Events in experiment: 2201
-Number of DAC Events in experiment: 1098
-Variation #1
-loadmotrightfield: 0.000000
-Programming Hardware...
-Running Experiment.
-
-ABORTED!
-............................
-Checking if Ready...
-Starting Experiment Thread...
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+Handling Key... Done.
+
+Loading Agilent Info...Analyzing Master Script...Done.
+
+Programming All Variation Data...
+
+Programming Variation #1 Data...
+
+Programming took 0.406000 seconds.
+
+Programmed time per repetition: 186.000400
+
+Programmed Total Experiment time: 93000
+
+Number of TTL Events in experiment: 2201
+
+Number of DAC Events in experiment: 1098
+
+Variation #1
+
+loadmotrightfield: 0.000000
+
+Programming Hardware...
+
+Running Experiment.
+
+
+
+ABORTED!
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
 An experiment ran at (y-m-d h:m:s)2017-7-29, 0:48:55 with the following parameters:
 ==========================================================================================
 TTL Settings:
@@ -166,27 +234,48 @@ NAMES
 17:lspower   18:795freq   19:795power  20:dac19     21:motfreq   22:repumpfreq23:sidemotpower24:piezomirror
 
 Master Script:
-% Master-Script See the "?" for info on commands.
-% Time starts at 1 ms.
-t = 1
-%
-call turnonmot()
-
-t += loadMotTime
-
-call pgcLoading()
-
-t += 5 
-
-call pgcAtomImage()
-
-t += waitTime
-
-call pgcAtomImage()
-
-t += 1
-
-call turnOnMot()
+% Master-Script See the "?" for info on commands.
+
+% Time starts at 1 ms.
+
+t = 1
+
+%
+
+call turnonmot()
+
+
+
+t += loadMotTime
+
+
+
+call pgcLoading()
+
+
+
+t += 5 
+
+
+
+call pgcAtomImage()
+
+
+
+t += waitTime
+
+
+
+call pgcAtomImage()
+
+
+
+t += 1
+
+
+
+call turnOnMot()
+
 
 
 Repetitions: 50
@@ -198,54 +287,102 @@ Error Status:
 
 
 General Status:
-............................
-Checking if Ready...
-Starting Experiment Thread...
-Handling Key... Done.
-Loading Agilent Info...Analyzing Master Script...Done.
-Programming All Variation Data...
-Programming Variation #1 Data...
-Programming took 0.406000 seconds.
-Programmed time per repetition: 186.000400
-Programmed Total Experiment time: 93000
-Number of TTL Events in experiment: 2201
-Number of DAC Events in experiment: 1098
-Variation #1
-loadmotrightfield: 0.000000
-Programming Hardware...
-Running Experiment.
-
-ABORTED!
-............................
-Checking if Ready...
-Starting Experiment Thread...
-Handling Key... Done.
-Loading Agilent Info...Analyzing Master Script...Done.
-Programming All Variation Data...
-Programming Variation #1 Data...
-Programming Variation #2 Data...
-Programming Variation #3 Data...
-Programming Variation #4 Data...
-Programming Variation #5 Data...
-Programming Variation #6 Data...
-Programming took 0.125000 seconds.
-Programmed time per repetition: 3211.600000
-Programmed Total Experiment time: 1113480
-Number of TTL Events in experiment: 204
-Number of DAC Events in experiment: 99
-Variation #1
-waittime: 3000.000000
-Programming Hardware...
-Running Experiment.
-............................
-Checking if Ready...
-Starting Experiment Thread...
-: c:\users\mark\documents\quantum-gas-assembly-control\master code\experimentmanager.cpp, Line 401: Experiment is already Running!  You can only run one experiment at a time! Please abort before running again.
-
-ABORTED!
-............................
-Checking if Ready...
-Starting Experiment Thread...
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+Handling Key... Done.
+
+Loading Agilent Info...Analyzing Master Script...Done.
+
+Programming All Variation Data...
+
+Programming Variation #1 Data...
+
+Programming took 0.406000 seconds.
+
+Programmed time per repetition: 186.000400
+
+Programmed Total Experiment time: 93000
+
+Number of TTL Events in experiment: 2201
+
+Number of DAC Events in experiment: 1098
+
+Variation #1
+
+loadmotrightfield: 0.000000
+
+Programming Hardware...
+
+Running Experiment.
+
+
+
+ABORTED!
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+Handling Key... Done.
+
+Loading Agilent Info...Analyzing Master Script...Done.
+
+Programming All Variation Data...
+
+Programming Variation #1 Data...
+
+Programming Variation #2 Data...
+
+Programming Variation #3 Data...
+
+Programming Variation #4 Data...
+
+Programming Variation #5 Data...
+
+Programming Variation #6 Data...
+
+Programming took 0.125000 seconds.
+
+Programmed time per repetition: 3211.600000
+
+Programmed Total Experiment time: 1113480
+
+Number of TTL Events in experiment: 204
+
+Number of DAC Events in experiment: 99
+
+Variation #1
+
+waittime: 3000.000000
+
+Programming Hardware...
+
+Running Experiment.
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+: c:\users\mark\documents\quantum-gas-assembly-control\master code\experimentmanager.cpp, Line 401: Experiment is already Running!  You can only run one experiment at a time! Please abort before running again.
+
+
+
+ABORTED!
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
 An experiment ran at (y-m-d h:m:s)2017-7-29, 0:53:29 with the following parameters:
 ==========================================================================================
 TTL Settings:
@@ -272,27 +409,48 @@ NAMES
 17:lspower   18:795freq   19:795power  20:dac19     21:motfreq   22:repumpfreq23:sidemotpower24:piezomirror
 
 Master Script:
-% Master-Script See the "?" for info on commands.
-% Time starts at 1 ms.
-t = 1
-%
-call turnonmot()
-
-t += loadMotTime
-
-call pgcLoading()
-
-t += 5 
-
-call pgcAtomImage()
-
-t += waitTime
-
-call pgcAtomImage()
-
-t += 1
-
-call turnOnMot()
+% Master-Script See the "?" for info on commands.
+
+% Time starts at 1 ms.
+
+t = 1
+
+%
+
+call turnonmot()
+
+
+
+t += loadMotTime
+
+
+
+call pgcLoading()
+
+
+
+t += 5 
+
+
+
+call pgcAtomImage()
+
+
+
+t += waitTime
+
+
+
+call pgcAtomImage()
+
+
+
+t += 1
+
+
+
+call turnOnMot()
+
 
 
 Repetitions: 50
@@ -304,89 +462,172 @@ Error Status:
 
 
 General Status:
-............................
-Checking if Ready...
-Starting Experiment Thread...
-Handling Key... Done.
-Loading Agilent Info...Analyzing Master Script...Done.
-Programming All Variation Data...
-Programming Variation #1 Data...
-Programming took 0.406000 seconds.
-Programmed time per repetition: 186.000400
-Programmed Total Experiment time: 93000
-Number of TTL Events in experiment: 2201
-Number of DAC Events in experiment: 1098
-Variation #1
-loadmotrightfield: 0.000000
-Programming Hardware...
-Running Experiment.
-
-ABORTED!
-............................
-Checking if Ready...
-Starting Experiment Thread...
-Handling Key... Done.
-Loading Agilent Info...Analyzing Master Script...Done.
-Programming All Variation Data...
-Programming Variation #1 Data...
-Programming Variation #2 Data...
-Programming Variation #3 Data...
-Programming Variation #4 Data...
-Programming Variation #5 Data...
-Programming Variation #6 Data...
-Programming took 0.125000 seconds.
-Programmed time per repetition: 3211.600000
-Programmed Total Experiment time: 1113480
-Number of TTL Events in experiment: 204
-Number of DAC Events in experiment: 99
-Variation #1
-waittime: 3000.000000
-Programming Hardware...
-Running Experiment.
-............................
-Checking if Ready...
-Starting Experiment Thread...
-: c:\users\mark\documents\quantum-gas-assembly-control\master code\experimentmanager.cpp, Line 401: Experiment is already Running!  You can only run one experiment at a time! Please abort before running again.
-
-ABORTED!
-............................
-Checking if Ready...
-Starting Experiment Thread...
-Handling Key... Done.
-Loading Agilent Info...Analyzing Master Script...Done.
-Programming All Variation Data...
-Programming Variation #1 Data...
-Programming Variation #2 Data...
-Programming Variation #3 Data...
-Programming Variation #4 Data...
-Programming Variation #5 Data...
-Programming Variation #6 Data...
-Programming took 0.125000 seconds.
-Programmed time per repetition: 4211.600000
-Programmed Total Experiment time: 1113480
-Number of TTL Events in experiment: 204
-Number of DAC Events in experiment: 99
-Variation #1
-waittime: 4000.000000
-Programming Hardware...
-Running Experiment.
-
-Variation #2
-waittime: 3000.000000
-Programming Hardware...
-Running Experiment.
-............................
-Checking if Ready...
-Starting Experiment Thread...
-: c:\users\mark\documents\quantum-gas-assembly-control\master code\experimentmanager.cpp, Line 401: Experiment is already Running!  You can only run one experiment at a time! Please abort before running again.
-
-ABORTED!
-Can't abort, experiment was not running.
-Can't abort, experiment was not running.
-Can't abort, experiment was not running.
-............................
-Checking if Ready...
-Starting Experiment Thread...
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+Handling Key... Done.
+
+Loading Agilent Info...Analyzing Master Script...Done.
+
+Programming All Variation Data...
+
+Programming Variation #1 Data...
+
+Programming took 0.406000 seconds.
+
+Programmed time per repetition: 186.000400
+
+Programmed Total Experiment time: 93000
+
+Number of TTL Events in experiment: 2201
+
+Number of DAC Events in experiment: 1098
+
+Variation #1
+
+loadmotrightfield: 0.000000
+
+Programming Hardware...
+
+Running Experiment.
+
+
+
+ABORTED!
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+Handling Key... Done.
+
+Loading Agilent Info...Analyzing Master Script...Done.
+
+Programming All Variation Data...
+
+Programming Variation #1 Data...
+
+Programming Variation #2 Data...
+
+Programming Variation #3 Data...
+
+Programming Variation #4 Data...
+
+Programming Variation #5 Data...
+
+Programming Variation #6 Data...
+
+Programming took 0.125000 seconds.
+
+Programmed time per repetition: 3211.600000
+
+Programmed Total Experiment time: 1113480
+
+Number of TTL Events in experiment: 204
+
+Number of DAC Events in experiment: 99
+
+Variation #1
+
+waittime: 3000.000000
+
+Programming Hardware...
+
+Running Experiment.
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+: c:\users\mark\documents\quantum-gas-assembly-control\master code\experimentmanager.cpp, Line 401: Experiment is already Running!  You can only run one experiment at a time! Please abort before running again.
+
+
+
+ABORTED!
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+Handling Key... Done.
+
+Loading Agilent Info...Analyzing Master Script...Done.
+
+Programming All Variation Data...
+
+Programming Variation #1 Data...
+
+Programming Variation #2 Data...
+
+Programming Variation #3 Data...
+
+Programming Variation #4 Data...
+
+Programming Variation #5 Data...
+
+Programming Variation #6 Data...
+
+Programming took 0.125000 seconds.
+
+Programmed time per repetition: 4211.600000
+
+Programmed Total Experiment time: 1113480
+
+Number of TTL Events in experiment: 204
+
+Number of DAC Events in experiment: 99
+
+Variation #1
+
+waittime: 4000.000000
+
+Programming Hardware...
+
+Running Experiment.
+
+
+
+Variation #2
+
+waittime: 3000.000000
+
+Programming Hardware...
+
+Running Experiment.
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+: c:\users\mark\documents\quantum-gas-assembly-control\master code\experimentmanager.cpp, Line 401: Experiment is already Running!  You can only run one experiment at a time! Please abort before running again.
+
+
+
+ABORTED!
+
+Can't abort, experiment was not running.
+
+Can't abort, experiment was not running.
+
+Can't abort, experiment was not running.
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
 An experiment ran at (y-m-d h:m:s)2017-7-29, 0:53:56 with the following parameters:
 ==========================================================================================
 TTL Settings:
@@ -413,29 +654,52 @@ NAMES
 17:lspower   18:795freq   19:795power  20:dac19     21:motfreq   22:repumpfreq23:sidemotpower24:piezomirror
 
 Master Script:
-% Master-Script See the "?" for info on commands.
-% Time starts at 1 ms.
-t = 1
-%
-call turnonmot()
-
-t += loadMotTime
-
-call pgcLoading()
-
-t += 5 
-
-call pgcAtomImage()
-
-t += 5
-call turnOnMot()
-
-t += -100
-
-on: A0
-t += 20
-off: A1
-dacramp: dac1 0 10 1 0.01
+% Master-Script See the "?" for info on commands.
+
+% Time starts at 1 ms.
+
+t = 1
+
+%
+
+call turnonmot()
+
+
+
+t += loadMotTime
+
+
+
+call pgcLoading()
+
+
+
+t += 5 
+
+
+
+call pgcAtomImage()
+
+
+
+t += 5
+
+call turnOnMot()
+
+
+
+t += -100
+
+
+
+on: A0
+
+t += 20
+
+off: A1
+
+dacramp: dac1 0 10 1 0.01
+
 
 
 Repetitions: 500
@@ -447,112 +711,218 @@ Error Status:
 
 
 General Status:
-............................
-Checking if Ready...
-Starting Experiment Thread...
-Handling Key... Done.
-Loading Agilent Info...Analyzing Master Script...Done.
-Programming All Variation Data...
-Programming Variation #1 Data...
-Programming took 0.406000 seconds.
-Programmed time per repetition: 186.000400
-Programmed Total Experiment time: 93000
-Number of TTL Events in experiment: 2201
-Number of DAC Events in experiment: 1098
-Variation #1
-loadmotrightfield: 0.000000
-Programming Hardware...
-Running Experiment.
-
-ABORTED!
-............................
-Checking if Ready...
-Starting Experiment Thread...
-Handling Key... Done.
-Loading Agilent Info...Analyzing Master Script...Done.
-Programming All Variation Data...
-Programming Variation #1 Data...
-Programming Variation #2 Data...
-Programming Variation #3 Data...
-Programming Variation #4 Data...
-Programming Variation #5 Data...
-Programming Variation #6 Data...
-Programming took 0.125000 seconds.
-Programmed time per repetition: 3211.600000
-Programmed Total Experiment time: 1113480
-Number of TTL Events in experiment: 204
-Number of DAC Events in experiment: 99
-Variation #1
-waittime: 3000.000000
-Programming Hardware...
-Running Experiment.
-............................
-Checking if Ready...
-Starting Experiment Thread...
-: c:\users\mark\documents\quantum-gas-assembly-control\master code\experimentmanager.cpp, Line 401: Experiment is already Running!  You can only run one experiment at a time! Please abort before running again.
-
-ABORTED!
-............................
-Checking if Ready...
-Starting Experiment Thread...
-Handling Key... Done.
-Loading Agilent Info...Analyzing Master Script...Done.
-Programming All Variation Data...
-Programming Variation #1 Data...
-Programming Variation #2 Data...
-Programming Variation #3 Data...
-Programming Variation #4 Data...
-Programming Variation #5 Data...
-Programming Variation #6 Data...
-Programming took 0.125000 seconds.
-Programmed time per repetition: 4211.600000
-Programmed Total Experiment time: 1113480
-Number of TTL Events in experiment: 204
-Number of DAC Events in experiment: 99
-Variation #1
-waittime: 4000.000000
-Programming Hardware...
-Running Experiment.
-
-Variation #2
-waittime: 3000.000000
-Programming Hardware...
-Running Experiment.
-............................
-Checking if Ready...
-Starting Experiment Thread...
-: c:\users\mark\documents\quantum-gas-assembly-control\master code\experimentmanager.cpp, Line 401: Experiment is already Running!  You can only run one experiment at a time! Please abort before running again.
-
-ABORTED!
-Can't abort, experiment was not running.
-Can't abort, experiment was not running.
-Can't abort, experiment was not running.
-............................
-Checking if Ready...
-Starting Experiment Thread...
-Handling Key... Done.
-Loading Agilent Info...Analyzing Master Script...Done.
-Programming All Variation Data...
-Programming Variation #1 Data...
-Programming Variation #2 Data...
-Programming Variation #3 Data...
-Programming Variation #4 Data...
-Programming Variation #5 Data...
-Programming Variation #6 Data...
-Programming took 0.219000 seconds.
-Programmed time per repetition: 3211.600000
-Programmed Total Experiment time: 1113480
-Number of TTL Events in experiment: 204
-Number of DAC Events in experiment: 99
-Variation #1
-waittime: 3000.000000
-Programming Hardware...
-Running Experiment.
-
-ABORTED!
-............................
-Checking if Ready...
-Starting Experiment Thread...
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+Handling Key... Done.
+
+Loading Agilent Info...Analyzing Master Script...Done.
+
+Programming All Variation Data...
+
+Programming Variation #1 Data...
+
+Programming took 0.406000 seconds.
+
+Programmed time per repetition: 186.000400
+
+Programmed Total Experiment time: 93000
+
+Number of TTL Events in experiment: 2201
+
+Number of DAC Events in experiment: 1098
+
+Variation #1
+
+loadmotrightfield: 0.000000
+
+Programming Hardware...
+
+Running Experiment.
+
+
+
+ABORTED!
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+Handling Key... Done.
+
+Loading Agilent Info...Analyzing Master Script...Done.
+
+Programming All Variation Data...
+
+Programming Variation #1 Data...
+
+Programming Variation #2 Data...
+
+Programming Variation #3 Data...
+
+Programming Variation #4 Data...
+
+Programming Variation #5 Data...
+
+Programming Variation #6 Data...
+
+Programming took 0.125000 seconds.
+
+Programmed time per repetition: 3211.600000
+
+Programmed Total Experiment time: 1113480
+
+Number of TTL Events in experiment: 204
+
+Number of DAC Events in experiment: 99
+
+Variation #1
+
+waittime: 3000.000000
+
+Programming Hardware...
+
+Running Experiment.
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+: c:\users\mark\documents\quantum-gas-assembly-control\master code\experimentmanager.cpp, Line 401: Experiment is already Running!  You can only run one experiment at a time! Please abort before running again.
+
+
+
+ABORTED!
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+Handling Key... Done.
+
+Loading Agilent Info...Analyzing Master Script...Done.
+
+Programming All Variation Data...
+
+Programming Variation #1 Data...
+
+Programming Variation #2 Data...
+
+Programming Variation #3 Data...
+
+Programming Variation #4 Data...
+
+Programming Variation #5 Data...
+
+Programming Variation #6 Data...
+
+Programming took 0.125000 seconds.
+
+Programmed time per repetition: 4211.600000
+
+Programmed Total Experiment time: 1113480
+
+Number of TTL Events in experiment: 204
+
+Number of DAC Events in experiment: 99
+
+Variation #1
+
+waittime: 4000.000000
+
+Programming Hardware...
+
+Running Experiment.
+
+
+
+Variation #2
+
+waittime: 3000.000000
+
+Programming Hardware...
+
+Running Experiment.
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+: c:\users\mark\documents\quantum-gas-assembly-control\master code\experimentmanager.cpp, Line 401: Experiment is already Running!  You can only run one experiment at a time! Please abort before running again.
+
+
+
+ABORTED!
+
+Can't abort, experiment was not running.
+
+Can't abort, experiment was not running.
+
+Can't abort, experiment was not running.
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+Handling Key... Done.
+
+Loading Agilent Info...Analyzing Master Script...Done.
+
+Programming All Variation Data...
+
+Programming Variation #1 Data...
+
+Programming Variation #2 Data...
+
+Programming Variation #3 Data...
+
+Programming Variation #4 Data...
+
+Programming Variation #5 Data...
+
+Programming Variation #6 Data...
+
+Programming took 0.219000 seconds.
+
+Programmed time per repetition: 3211.600000
+
+Programmed Total Experiment time: 1113480
+
+Number of TTL Events in experiment: 204
+
+Number of DAC Events in experiment: 99
+
+Variation #1
+
+waittime: 3000.000000
+
+Programming Hardware...
+
+Running Experiment.
+
+
+
+ABORTED!
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
 An experiment ran at (y-m-d h:m:s)2017-7-29, 0:54:12 with the following parameters:
 ==========================================================================================
 TTL Settings:
@@ -579,29 +949,52 @@ NAMES
 17:lspower   18:795freq   19:795power  20:dac19     21:motfreq   22:repumpfreq23:sidemotpower24:piezomirror
 
 Master Script:
-% Master-Script See the "?" for info on commands.
-% Time starts at 1 ms.
-t = 1
-%
-call turnonmot()
-
-t += loadMotTime
-
-call pgcLoading()
-
-t += 5 
-
-call pgcAtomImage()
-
-t += 5
-call turnOnMot()
-
-t += -100
-
-on: A0
-t += 20
-off: A1
-dacramp: dac1 0 10 1 0.01
+% Master-Script See the "?" for info on commands.
+
+% Time starts at 1 ms.
+
+t = 1
+
+%
+
+call turnonmot()
+
+
+
+t += loadMotTime
+
+
+
+call pgcLoading()
+
+
+
+t += 5 
+
+
+
+call pgcAtomImage()
+
+
+
+t += 5
+
+call turnOnMot()
+
+
+
+t += -100
+
+
+
+on: A0
+
+t += 20
+
+off: A1
+
+dacramp: dac1 0 10 1 0.01
+
 
 
 Repetitions: 50
@@ -613,130 +1006,254 @@ Error Status:
 
 
 General Status:
-............................
-Checking if Ready...
-Starting Experiment Thread...
-Handling Key... Done.
-Loading Agilent Info...Analyzing Master Script...Done.
-Programming All Variation Data...
-Programming Variation #1 Data...
-Programming took 0.406000 seconds.
-Programmed time per repetition: 186.000400
-Programmed Total Experiment time: 93000
-Number of TTL Events in experiment: 2201
-Number of DAC Events in experiment: 1098
-Variation #1
-loadmotrightfield: 0.000000
-Programming Hardware...
-Running Experiment.
-
-ABORTED!
-............................
-Checking if Ready...
-Starting Experiment Thread...
-Handling Key... Done.
-Loading Agilent Info...Analyzing Master Script...Done.
-Programming All Variation Data...
-Programming Variation #1 Data...
-Programming Variation #2 Data...
-Programming Variation #3 Data...
-Programming Variation #4 Data...
-Programming Variation #5 Data...
-Programming Variation #6 Data...
-Programming took 0.125000 seconds.
-Programmed time per repetition: 3211.600000
-Programmed Total Experiment time: 1113480
-Number of TTL Events in experiment: 204
-Number of DAC Events in experiment: 99
-Variation #1
-waittime: 3000.000000
-Programming Hardware...
-Running Experiment.
-............................
-Checking if Ready...
-Starting Experiment Thread...
-: c:\users\mark\documents\quantum-gas-assembly-control\master code\experimentmanager.cpp, Line 401: Experiment is already Running!  You can only run one experiment at a time! Please abort before running again.
-
-ABORTED!
-............................
-Checking if Ready...
-Starting Experiment Thread...
-Handling Key... Done.
-Loading Agilent Info...Analyzing Master Script...Done.
-Programming All Variation Data...
-Programming Variation #1 Data...
-Programming Variation #2 Data...
-Programming Variation #3 Data...
-Programming Variation #4 Data...
-Programming Variation #5 Data...
-Programming Variation #6 Data...
-Programming took 0.125000 seconds.
-Programmed time per repetition: 4211.600000
-Programmed Total Experiment time: 1113480
-Number of TTL Events in experiment: 204
-Number of DAC Events in experiment: 99
-Variation #1
-waittime: 4000.000000
-Programming Hardware...
-Running Experiment.
-
-Variation #2
-waittime: 3000.000000
-Programming Hardware...
-Running Experiment.
-............................
-Checking if Ready...
-Starting Experiment Thread...
-: c:\users\mark\documents\quantum-gas-assembly-control\master code\experimentmanager.cpp, Line 401: Experiment is already Running!  You can only run one experiment at a time! Please abort before running again.
-
-ABORTED!
-Can't abort, experiment was not running.
-Can't abort, experiment was not running.
-Can't abort, experiment was not running.
-............................
-Checking if Ready...
-Starting Experiment Thread...
-Handling Key... Done.
-Loading Agilent Info...Analyzing Master Script...Done.
-Programming All Variation Data...
-Programming Variation #1 Data...
-Programming Variation #2 Data...
-Programming Variation #3 Data...
-Programming Variation #4 Data...
-Programming Variation #5 Data...
-Programming Variation #6 Data...
-Programming took 0.219000 seconds.
-Programmed time per repetition: 3211.600000
-Programmed Total Experiment time: 1113480
-Number of TTL Events in experiment: 204
-Number of DAC Events in experiment: 99
-Variation #1
-waittime: 3000.000000
-Programming Hardware...
-Running Experiment.
-
-ABORTED!
-............................
-Checking if Ready...
-Starting Experiment Thread...
-Handling Key... Done.
-Loading Agilent Info...Analyzing Master Script...Done.
-Programming All Variation Data...
-Programming Variation #1 Data...
-Programming took 0.422000 seconds.
-Programmed time per repetition: 186.000400
-Programmed Total Experiment time: 93000
-Number of TTL Events in experiment: 2201
-Number of DAC Events in experiment: 1098
-Variation #1
-loadmotrightfield: 0.000000
-Programming Hardware...
-Running Experiment.
-
-ABORTED!
-............................
-Checking if Ready...
-Starting Experiment Thread...
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+Handling Key... Done.
+
+Loading Agilent Info...Analyzing Master Script...Done.
+
+Programming All Variation Data...
+
+Programming Variation #1 Data...
+
+Programming took 0.406000 seconds.
+
+Programmed time per repetition: 186.000400
+
+Programmed Total Experiment time: 93000
+
+Number of TTL Events in experiment: 2201
+
+Number of DAC Events in experiment: 1098
+
+Variation #1
+
+loadmotrightfield: 0.000000
+
+Programming Hardware...
+
+Running Experiment.
+
+
+
+ABORTED!
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+Handling Key... Done.
+
+Loading Agilent Info...Analyzing Master Script...Done.
+
+Programming All Variation Data...
+
+Programming Variation #1 Data...
+
+Programming Variation #2 Data...
+
+Programming Variation #3 Data...
+
+Programming Variation #4 Data...
+
+Programming Variation #5 Data...
+
+Programming Variation #6 Data...
+
+Programming took 0.125000 seconds.
+
+Programmed time per repetition: 3211.600000
+
+Programmed Total Experiment time: 1113480
+
+Number of TTL Events in experiment: 204
+
+Number of DAC Events in experiment: 99
+
+Variation #1
+
+waittime: 3000.000000
+
+Programming Hardware...
+
+Running Experiment.
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+: c:\users\mark\documents\quantum-gas-assembly-control\master code\experimentmanager.cpp, Line 401: Experiment is already Running!  You can only run one experiment at a time! Please abort before running again.
+
+
+
+ABORTED!
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+Handling Key... Done.
+
+Loading Agilent Info...Analyzing Master Script...Done.
+
+Programming All Variation Data...
+
+Programming Variation #1 Data...
+
+Programming Variation #2 Data...
+
+Programming Variation #3 Data...
+
+Programming Variation #4 Data...
+
+Programming Variation #5 Data...
+
+Programming Variation #6 Data...
+
+Programming took 0.125000 seconds.
+
+Programmed time per repetition: 4211.600000
+
+Programmed Total Experiment time: 1113480
+
+Number of TTL Events in experiment: 204
+
+Number of DAC Events in experiment: 99
+
+Variation #1
+
+waittime: 4000.000000
+
+Programming Hardware...
+
+Running Experiment.
+
+
+
+Variation #2
+
+waittime: 3000.000000
+
+Programming Hardware...
+
+Running Experiment.
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+: c:\users\mark\documents\quantum-gas-assembly-control\master code\experimentmanager.cpp, Line 401: Experiment is already Running!  You can only run one experiment at a time! Please abort before running again.
+
+
+
+ABORTED!
+
+Can't abort, experiment was not running.
+
+Can't abort, experiment was not running.
+
+Can't abort, experiment was not running.
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+Handling Key... Done.
+
+Loading Agilent Info...Analyzing Master Script...Done.
+
+Programming All Variation Data...
+
+Programming Variation #1 Data...
+
+Programming Variation #2 Data...
+
+Programming Variation #3 Data...
+
+Programming Variation #4 Data...
+
+Programming Variation #5 Data...
+
+Programming Variation #6 Data...
+
+Programming took 0.219000 seconds.
+
+Programmed time per repetition: 3211.600000
+
+Programmed Total Experiment time: 1113480
+
+Number of TTL Events in experiment: 204
+
+Number of DAC Events in experiment: 99
+
+Variation #1
+
+waittime: 3000.000000
+
+Programming Hardware...
+
+Running Experiment.
+
+
+
+ABORTED!
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+Handling Key... Done.
+
+Loading Agilent Info...Analyzing Master Script...Done.
+
+Programming All Variation Data...
+
+Programming Variation #1 Data...
+
+Programming took 0.422000 seconds.
+
+Programmed time per repetition: 186.000400
+
+Programmed Total Experiment time: 93000
+
+Number of TTL Events in experiment: 2201
+
+Number of DAC Events in experiment: 1098
+
+Variation #1
+
+loadmotrightfield: 0.000000
+
+Programming Hardware...
+
+Running Experiment.
+
+
+
+ABORTED!
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
 An experiment ran at (y-m-d h:m:s)2017-7-29, 0:55:18 with the following parameters:
 ==========================================================================================
 TTL Settings:
@@ -763,29 +1280,52 @@ NAMES
 17:lspower   18:795freq   19:795power  20:dac19     21:motfreq   22:repumpfreq23:sidemotpower24:piezomirror
 
 Master Script:
-% Master-Script See the "?" for info on commands.
-% Time starts at 1 ms.
-t = 1
-%
-call turnonmot()
-
-t += loadMotTime
-
-call pgcLoading()
-
-t += 5 
-
-call pgcAtomImage()
-
-t += 5
-call turnOnMot()
-
-t += -100
-
-on: A0
-t += 20
-off: A1
-dacramp: dac1 0 10 1 0.01
+% Master-Script See the "?" for info on commands.
+
+% Time starts at 1 ms.
+
+t = 1
+
+%
+
+call turnonmot()
+
+
+
+t += loadMotTime
+
+
+
+call pgcLoading()
+
+
+
+t += 5 
+
+
+
+call pgcAtomImage()
+
+
+
+t += 5
+
+call turnOnMot()
+
+
+
+t += -100
+
+
+
+on: A0
+
+t += 20
+
+off: A1
+
+dacramp: dac1 0 10 1 0.01
+
 
 
 Repetitions: 50
@@ -797,199 +1337,395 @@ Error Status:
 
 
 General Status:
-............................
-Checking if Ready...
-Starting Experiment Thread...
-Handling Key... Done.
-Loading Agilent Info...Analyzing Master Script...Done.
-Programming All Variation Data...
-Programming Variation #1 Data...
-Programming took 0.406000 seconds.
-Programmed time per repetition: 186.000400
-Programmed Total Experiment time: 93000
-Number of TTL Events in experiment: 2201
-Number of DAC Events in experiment: 1098
-Variation #1
-loadmotrightfield: 0.000000
-Programming Hardware...
-Running Experiment.
-
-ABORTED!
-............................
-Checking if Ready...
-Starting Experiment Thread...
-Handling Key... Done.
-Loading Agilent Info...Analyzing Master Script...Done.
-Programming All Variation Data...
-Programming Variation #1 Data...
-Programming Variation #2 Data...
-Programming Variation #3 Data...
-Programming Variation #4 Data...
-Programming Variation #5 Data...
-Programming Variation #6 Data...
-Programming took 0.125000 seconds.
-Programmed time per repetition: 3211.600000
-Programmed Total Experiment time: 1113480
-Number of TTL Events in experiment: 204
-Number of DAC Events in experiment: 99
-Variation #1
-waittime: 3000.000000
-Programming Hardware...
-Running Experiment.
-............................
-Checking if Ready...
-Starting Experiment Thread...
-: c:\users\mark\documents\quantum-gas-assembly-control\master code\experimentmanager.cpp, Line 401: Experiment is already Running!  You can only run one experiment at a time! Please abort before running again.
-
-ABORTED!
-............................
-Checking if Ready...
-Starting Experiment Thread...
-Handling Key... Done.
-Loading Agilent Info...Analyzing Master Script...Done.
-Programming All Variation Data...
-Programming Variation #1 Data...
-Programming Variation #2 Data...
-Programming Variation #3 Data...
-Programming Variation #4 Data...
-Programming Variation #5 Data...
-Programming Variation #6 Data...
-Programming took 0.125000 seconds.
-Programmed time per repetition: 4211.600000
-Programmed Total Experiment time: 1113480
-Number of TTL Events in experiment: 204
-Number of DAC Events in experiment: 99
-Variation #1
-waittime: 4000.000000
-Programming Hardware...
-Running Experiment.
-
-Variation #2
-waittime: 3000.000000
-Programming Hardware...
-Running Experiment.
-............................
-Checking if Ready...
-Starting Experiment Thread...
-: c:\users\mark\documents\quantum-gas-assembly-control\master code\experimentmanager.cpp, Line 401: Experiment is already Running!  You can only run one experiment at a time! Please abort before running again.
-
-ABORTED!
-Can't abort, experiment was not running.
-Can't abort, experiment was not running.
-Can't abort, experiment was not running.
-............................
-Checking if Ready...
-Starting Experiment Thread...
-Handling Key... Done.
-Loading Agilent Info...Analyzing Master Script...Done.
-Programming All Variation Data...
-Programming Variation #1 Data...
-Programming Variation #2 Data...
-Programming Variation #3 Data...
-Programming Variation #4 Data...
-Programming Variation #5 Data...
-Programming Variation #6 Data...
-Programming took 0.219000 seconds.
-Programmed time per repetition: 3211.600000
-Programmed Total Experiment time: 1113480
-Number of TTL Events in experiment: 204
-Number of DAC Events in experiment: 99
-Variation #1
-waittime: 3000.000000
-Programming Hardware...
-Running Experiment.
-
-ABORTED!
-............................
-Checking if Ready...
-Starting Experiment Thread...
-Handling Key... Done.
-Loading Agilent Info...Analyzing Master Script...Done.
-Programming All Variation Data...
-Programming Variation #1 Data...
-Programming took 0.422000 seconds.
-Programmed time per repetition: 186.000400
-Programmed Total Experiment time: 93000
-Number of TTL Events in experiment: 2201
-Number of DAC Events in experiment: 1098
-Variation #1
-loadmotrightfield: 0.000000
-Programming Hardware...
-Running Experiment.
-
-ABORTED!
-............................
-Checking if Ready...
-Starting Experiment Thread...
-Handling Key... Done.
-Loading Agilent Info...Analyzing Master Script...Done.
-Programming All Variation Data...
-Programming Variation #1 Data...
-Programming Variation #2 Data...
-Programming Variation #3 Data...
-Programming Variation #4 Data...
-Programming Variation #5 Data...
-Programming Variation #6 Data...
-Programming Variation #7 Data...
-Programming Variation #8 Data...
-Programming Variation #9 Data...
-Programming Variation #10 Data...
-Programming Variation #11 Data...
-Programming Variation #12 Data...
-Programming Variation #13 Data...
-Programming Variation #14 Data...
-Programming Variation #15 Data...
-Programming Variation #16 Data...
-Programming Variation #17 Data...
-Programming Variation #18 Data...
-Programming Variation #19 Data...
-Programming Variation #20 Data...
-Programming Variation #21 Data...
-Programming Variation #22 Data...
-Programming Variation #23 Data...
-Programming Variation #24 Data...
-Programming Variation #25 Data...
-Programming Variation #26 Data...
-Programming Variation #27 Data...
-Programming Variation #28 Data...
-Programming Variation #29 Data...
-Programming Variation #30 Data...
-Programming Variation #31 Data...
-Programming Variation #32 Data...
-Programming Variation #33 Data...
-Programming Variation #34 Data...
-Programming Variation #35 Data...
-Programming Variation #36 Data...
-Programming Variation #37 Data...
-Programming Variation #38 Data...
-Programming Variation #39 Data...
-Programming Variation #40 Data...
-Programming Variation #41 Data...
-Programming Variation #42 Data...
-Programming Variation #43 Data...
-Programming Variation #44 Data...
-Programming Variation #45 Data...
-Programming Variation #46 Data...
-Programming Variation #47 Data...
-Programming Variation #48 Data...
-Programming Variation #49 Data...
-Programming Variation #50 Data...
-Programming took 20.312000 seconds.
-Programmed time per repetition: 186.000400
-Programmed Total Experiment time: 465000
-Number of TTL Events in experiment: 2201
-Number of DAC Events in experiment: 1098
-Variation #1
-loadmotrightfield: 0.000000
-Programming Hardware...
-Running Experiment.
-
-Variation #2
-loadmotrightfield: 0.000000
-Programming Hardware...
-Running Experiment.
-
-ABORTED!
-............................
-Checking if Ready...
-Starting Experiment Thread...
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+Handling Key... Done.
+
+Loading Agilent Info...Analyzing Master Script...Done.
+
+Programming All Variation Data...
+
+Programming Variation #1 Data...
+
+Programming took 0.406000 seconds.
+
+Programmed time per repetition: 186.000400
+
+Programmed Total Experiment time: 93000
+
+Number of TTL Events in experiment: 2201
+
+Number of DAC Events in experiment: 1098
+
+Variation #1
+
+loadmotrightfield: 0.000000
+
+Programming Hardware...
+
+Running Experiment.
+
+
+
+ABORTED!
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+Handling Key... Done.
+
+Loading Agilent Info...Analyzing Master Script...Done.
+
+Programming All Variation Data...
+
+Programming Variation #1 Data...
+
+Programming Variation #2 Data...
+
+Programming Variation #3 Data...
+
+Programming Variation #4 Data...
+
+Programming Variation #5 Data...
+
+Programming Variation #6 Data...
+
+Programming took 0.125000 seconds.
+
+Programmed time per repetition: 3211.600000
+
+Programmed Total Experiment time: 1113480
+
+Number of TTL Events in experiment: 204
+
+Number of DAC Events in experiment: 99
+
+Variation #1
+
+waittime: 3000.000000
+
+Programming Hardware...
+
+Running Experiment.
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+: c:\users\mark\documents\quantum-gas-assembly-control\master code\experimentmanager.cpp, Line 401: Experiment is already Running!  You can only run one experiment at a time! Please abort before running again.
+
+
+
+ABORTED!
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+Handling Key... Done.
+
+Loading Agilent Info...Analyzing Master Script...Done.
+
+Programming All Variation Data...
+
+Programming Variation #1 Data...
+
+Programming Variation #2 Data...
+
+Programming Variation #3 Data...
+
+Programming Variation #4 Data...
+
+Programming Variation #5 Data...
+
+Programming Variation #6 Data...
+
+Programming took 0.125000 seconds.
+
+Programmed time per repetition: 4211.600000
+
+Programmed Total Experiment time: 1113480
+
+Number of TTL Events in experiment: 204
+
+Number of DAC Events in experiment: 99
+
+Variation #1
+
+waittime: 4000.000000
+
+Programming Hardware...
+
+Running Experiment.
+
+
+
+Variation #2
+
+waittime: 3000.000000
+
+Programming Hardware...
+
+Running Experiment.
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+: c:\users\mark\documents\quantum-gas-assembly-control\master code\experimentmanager.cpp, Line 401: Experiment is already Running!  You can only run one experiment at a time! Please abort before running again.
+
+
+
+ABORTED!
+
+Can't abort, experiment was not running.
+
+Can't abort, experiment was not running.
+
+Can't abort, experiment was not running.
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+Handling Key... Done.
+
+Loading Agilent Info...Analyzing Master Script...Done.
+
+Programming All Variation Data...
+
+Programming Variation #1 Data...
+
+Programming Variation #2 Data...
+
+Programming Variation #3 Data...
+
+Programming Variation #4 Data...
+
+Programming Variation #5 Data...
+
+Programming Variation #6 Data...
+
+Programming took 0.219000 seconds.
+
+Programmed time per repetition: 3211.600000
+
+Programmed Total Experiment time: 1113480
+
+Number of TTL Events in experiment: 204
+
+Number of DAC Events in experiment: 99
+
+Variation #1
+
+waittime: 3000.000000
+
+Programming Hardware...
+
+Running Experiment.
+
+
+
+ABORTED!
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+Handling Key... Done.
+
+Loading Agilent Info...Analyzing Master Script...Done.
+
+Programming All Variation Data...
+
+Programming Variation #1 Data...
+
+Programming took 0.422000 seconds.
+
+Programmed time per repetition: 186.000400
+
+Programmed Total Experiment time: 93000
+
+Number of TTL Events in experiment: 2201
+
+Number of DAC Events in experiment: 1098
+
+Variation #1
+
+loadmotrightfield: 0.000000
+
+Programming Hardware...
+
+Running Experiment.
+
+
+
+ABORTED!
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+
+Handling Key... Done.
+
+Loading Agilent Info...Analyzing Master Script...Done.
+
+Programming All Variation Data...
+
+Programming Variation #1 Data...
+
+Programming Variation #2 Data...
+
+Programming Variation #3 Data...
+
+Programming Variation #4 Data...
+
+Programming Variation #5 Data...
+
+Programming Variation #6 Data...
+
+Programming Variation #7 Data...
+
+Programming Variation #8 Data...
+
+Programming Variation #9 Data...
+
+Programming Variation #10 Data...
+
+Programming Variation #11 Data...
+
+Programming Variation #12 Data...
+
+Programming Variation #13 Data...
+
+Programming Variation #14 Data...
+
+Programming Variation #15 Data...
+
+Programming Variation #16 Data...
+
+Programming Variation #17 Data...
+
+Programming Variation #18 Data...
+
+Programming Variation #19 Data...
+
+Programming Variation #20 Data...
+
+Programming Variation #21 Data...
+
+Programming Variation #22 Data...
+
+Programming Variation #23 Data...
+
+Programming Variation #24 Data...
+
+Programming Variation #25 Data...
+
+Programming Variation #26 Data...
+
+Programming Variation #27 Data...
+
+Programming Variation #28 Data...
+
+Programming Variation #29 Data...
+
+Programming Variation #30 Data...
+
+Programming Variation #31 Data...
+
+Programming Variation #32 Data...
+
+Programming Variation #33 Data...
+
+Programming Variation #34 Data...
+
+Programming Variation #35 Data...
+
+Programming Variation #36 Data...
+
+Programming Variation #37 Data...
+
+Programming Variation #38 Data...
+
+Programming Variation #39 Data...
+
+Programming Variation #40 Data...
+
+Programming Variation #41 Data...
+
+Programming Variation #42 Data...
+
+Programming Variation #43 Data...
+
+Programming Variation #44 Data...
+
+Programming Variation #45 Data...
+
+Programming Variation #46 Data...
+
+Programming Variation #47 Data...
+
+Programming Variation #48 Data...
+
+Programming Variation #49 Data...
+
+Programming Variation #50 Data...
+
+Programming took 20.312000 seconds.
+
+Programmed time per repetition: 186.000400
+
+Programmed Total Experiment time: 465000
+
+Number of TTL Events in experiment: 2201
+
+Number of DAC Events in experiment: 1098
+
+Variation #1
+
+loadmotrightfield: 0.000000
+
+Programming Hardware...
+
+Running Experiment.
+
+
+
+Variation #2
+
+loadmotrightfield: 0.000000
+
+Programming Hardware...
+
+Running Experiment.
+
+
+
+ABORTED!
+
+............................
+
+Checking if Ready...
+
+Starting Experiment Thread...
+

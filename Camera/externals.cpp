@@ -22,7 +22,7 @@ ExperimentTimer eCameraWindowExperimentTimer;
 DataFileSystem eExperimentData(SAVE_BASE_ADDRESS);
 SMSTextingControl eTextingHandler;
 DataAnalysisHandler eAutoAnalysisHandler;
-CameraImage eImageControl;
+CameraImageParametersControl eImageControl;
 AlertSystem eAlerts(8000);
 EmbeddedPythonHandler Python;
 PictureStats ePicStats;
@@ -64,7 +64,7 @@ int eNumberOfRunsToAverage = 0;
 bool eIncDataFileNamesOption;
 
 int ePicturesPerRepetition = 1;
-bool eSystemIsRunning = false;
+bool eExperimentIsRunning = false;
 
 double eAccumulationTime;
 double eAccumulationModeAccumulationNumber;

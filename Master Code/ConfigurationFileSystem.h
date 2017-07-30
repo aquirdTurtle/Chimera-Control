@@ -1,12 +1,13 @@
 #pragma once
+
 #include <vector>
 #include <string>
 #include "Control.h"
 #include <unordered_map>
 
 /*
-]- This is a structure used for containing a set of parameters that define a profile.
-]- It's used heavily by the configuration file system, but not exclusively by it.
+ * This is a structure used for containing a set of parameters that define a profile.
+ * It's used heavily by the configuration file system, but not exclusively by it.
 */
 struct profileSettings
 {

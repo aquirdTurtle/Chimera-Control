@@ -30,7 +30,7 @@ extern SMSTextingControl eTextingHandler;
 extern ConfigurationSystem eCameraFileSystem;
 extern ExperimentTimer eCameraWindowExperimentTimer;
 extern DataAnalysisHandler eAutoAnalysisHandler;
-extern CameraImage eImageControl;
+extern CameraImageParametersControl eImageControl;
 extern AlertSystem eAlerts;
 extern EmbeddedPythonHandler Python;
 extern PictureStats ePicStats;
@@ -64,7 +64,7 @@ extern int eNumberOfRunsToAverage;
 extern std::vector<std::string> eCurrentPlotNames;
 
 extern int ePicturesPerRepetition;
-extern bool eSystemIsRunning;
+extern bool eExperimentIsRunning;
 
 extern std::string eCurrentlySelectedCameraMode;
 extern std::string eCurrentlyRunningCameraMode;

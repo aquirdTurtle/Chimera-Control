@@ -10,6 +10,7 @@
 #include "Commctrl.h"
 #include "Uxtheme.h"
 #include "reorganizeWindow.h"
+#include <process.h>
 
 bool initializeCameraWindow(HWND cameraWindow)
 {
@@ -167,7 +168,6 @@ bool initializeCameraWindow(HWND cameraWindow)
 
 	/// TRIGGER
 	// Trigger Text
-
 	eTriggerTextDisplayHandle.kineticSeriesModePos = { 0, collumnPosKin.y, 240, collumnPosKin.y + 25 };
 	eTriggerTextDisplayHandle.continuousSingleScansModePos = { 0, collumnPosCont.y, 240, collumnPosCont.y + 25 };
 	eTriggerTextDisplayHandle.accumulateModePos = { 0, collumnPosAccum.y, 240, collumnPosAccum.y + 25 };
@@ -436,7 +436,6 @@ bool initializeCameraWindow(HWND cameraWindow)
 	collumnPosAccum.y += 25;
 	collumnPosCont.y += 25;
 
-	
 	/// IMAGE CONTRAST CONTROL #1
 	// "min" text
 	eMinSliderText1.accumulateModePos = eMinSliderText1.continuousSingleScansModePos = eMinSliderText1.kineticSeriesModePos = { 1236, 0, 1286, 30 };
@@ -727,6 +726,7 @@ bool initializeCameraWindow(HWND cameraWindow)
 
 	DWORD cameraThreadID;
 	eCameraThreadHandle = CreateThread(NULL, 0, cameraThread, NULL, 0, &cameraThreadID);
+	
 	// hard coded positions...
 	reorganizeWindow("Kinetic Series Mode", cameraWindow);
 	eImageDrawAreas = eImageBackgroundAreas;
