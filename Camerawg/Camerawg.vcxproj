@@ -310,9 +310,6 @@
   <ItemGroup>
     <ResourceCompile Include="Camerawg.rc" />
   </ItemGroup>
-  <ItemGroup>
-    <Text Include="Planning.txt" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

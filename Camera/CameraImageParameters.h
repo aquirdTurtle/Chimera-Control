@@ -14,10 +14,10 @@ struct imageParameters
 	int height;
 };
 
-class CameraImage
+class CameraImageParametersControl
 {
 	public:
-		CameraImage();
+		CameraImageParametersControl();
 		bool initiateControls(POINT& topLeftPositionKinetic, POINT& topLeftPositionAccumulate, POINT& topLeftPositionContinuous,
 							  HWND parentWindow, bool isTriggerModeSensitive);
 		bool setImageParameters();

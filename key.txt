@@ -1,0 +1,3 @@
+globalvariabletest:          10000
+         time1:           1000
+         time2:              1

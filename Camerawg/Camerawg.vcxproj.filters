@@ -389,7 +389,4 @@
   <ItemGroup>
     <ResourceCompile Include="Camerawg.rc" />
   </ItemGroup>
-  <ItemGroup>
-    <Text Include="Planning.txt" />
-  </ItemGroup>
 </Project>

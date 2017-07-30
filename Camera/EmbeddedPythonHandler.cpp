@@ -26,15 +26,26 @@ EmbeddedPythonHandler::EmbeddedPythonHandler()
 	//get our catchOutErr object (of type CatchOutErr) created above
 	this->errorCatcher = PyObject_GetAttrString(mainModule, "catchOutErr"); 
 	// start using the run function.
+<<<<<<< HEAD
+=======
+	ERR_POP(run("import stuffs"));
+>>>>>>> camerawg
 	ERR_POP(run("from astropy.io import fits"));
 	ERR_POP(run("import smtplib"));
 	ERR_POP(run("from email.mime.text import MIMEText"));
 	
 	// not sure if these things are needed...
+<<<<<<< HEAD
 	// ERR_POP(run("numpy.set_printoptions(threshold = numpy.nan)"));
 	// ERR_POP(run("from matplotlib.pyplot import figure, hist, plot, title, xlabel, ylabel, subplots, errorbar, show, draw"));
 	// ERR_POP(run("from matplotlib.cm import get_cmap"));
 	// ERR_POP(run("from dataAnalysisFunctions import normalizeData, binData, guessGaussianPeaks, doubleGaussian, fitDoubleGaussian,"
+=======
+	//ERR_POP(run("numpy.set_printoptions(threshold = numpy.nan)"));
+	//ERR_POP(run("from matplotlib.pyplot import figure, hist, plot, title, xlabel, ylabel, subplots, errorbar, show, draw"));
+	//ERR_POP(run("from matplotlib.cm import get_cmap"));
+	//ERR_POP(run("from dataAnalysisFunctions import normalizeData, binData, guessGaussianPeaks, doubleGaussian, fitDoubleGaussian,"
+>>>>>>> camerawg
 	//	"calculateAtomThreshold, getAnalyzedSurvivalData"));
 
 	// Make sure that python can find my module.

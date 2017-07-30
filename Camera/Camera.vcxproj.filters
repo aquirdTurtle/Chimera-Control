@@ -147,10 +147,13 @@
     <ClInclude Include="doubleToString.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PictureOptions.h">
+    <ClInclude Include="plotterProcedure.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="plotterProcedure.h">
+    <ClInclude Include="CameraSettingsControl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PictureOptions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -192,9 +195,6 @@
       <Filter>Constants, Externals, etc.</Filter>
     </ClCompile>
     <ClCompile Include="myAndor.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
-    <ClCompile Include="cameraWndProc.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="reorganizeWindow.cpp">
@@ -248,10 +248,13 @@
     <ClCompile Include="doubleToString.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
+    <ClCompile Include="plotterProcedure.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
     <ClCompile Include="PictureOptions.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="plotterProcedure.cpp">
+    <ClCompile Include="cameraWndProc.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
   </ItemGroup>

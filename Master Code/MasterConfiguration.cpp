@@ -272,4 +272,3 @@ void MasterConfiguration::updateDefaultTTLs(TtlSystem ttls)
 		}
 	}
 }
-

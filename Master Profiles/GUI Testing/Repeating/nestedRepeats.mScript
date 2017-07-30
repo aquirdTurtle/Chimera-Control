@@ -1,0 +1,14 @@
+% Default Master Script. Hover your mouse over the "?"
+% in the top right corner of this control for help.
+
+repeat: 100
+	on: A1
+	repeat: 10
+		dac: dac1 1
+		t += 10
+		dac: dac1 0
+	end
+	t += 10
+	off: A1
+	t += 1
+end

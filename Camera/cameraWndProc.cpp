@@ -1124,7 +1124,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 				{
 					if (HIWORD(wParam) == CBN_SELCHANGE)
 					{
-						if (eSystemIsRunning)
+						if (eExperimentIsRunning)
 						{
 							appendText("Warning: System will not change camera mode until the acquisition is restarted.\r\n", IDC_ERROR_EDIT);
 						}
@@ -1255,7 +1255,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 				case IDA_F5:
 				case ID_FILE_START:
 				{
-					if (eSystemIsRunning)
+					if (eExperimentIsRunning)
 					{
 						appendText("System is already running! Please Abort to restart.\r\n", IDC_ERROR_EDIT);
 						break;
@@ -1417,7 +1417,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					}
 					// Set the running version to whatever is selected at the beginning of this function.
 					eCurrentlyRunningCameraMode = eCurrentlySelectedCameraMode;
-					eSystemIsRunning = true;
+					eExperimentIsRunning = true;
 					time_t time_obj = time(0);   // get time now
 					struct tm currentTime;
 					localtime_s(&currentTime, &time_obj);
@@ -1429,7 +1429,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					// Set hardware and start acquisition
 					if (myAndor::setSystem() != 0)
 					{
-						eSystemIsRunning = false;
+						eExperimentIsRunning = false;
 						eCameraWindowExperimentTimer.setColorID(ID_RED);
 						eCameraWindowExperimentTimer.setTimerDisplay("ERROR");
 						// stop the plotting thread if it started.
@@ -1439,7 +1439,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 						WaitForSingleObject(ePlottingThreadHandle, INFINITE);
 						if (ANDOR_SAFEMODE)
 						{
-							eSystemIsRunning = false;
+							eExperimentIsRunning = false;
 						}
 						appendText("Failed to start camera aquisition.\r\n", IDC_STATUS_EDIT);
 					}
@@ -1448,7 +1448,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 				case IDA_ESC:
 				case ID_FILE_ABORTACQUISITION:
 				{
-					if (!eSystemIsRunning)
+					if (!eExperimentIsRunning)
 					{
 						appendText("ERROR: System was not running.\r\n", IDC_ERROR_EDIT);
 						break;
@@ -1475,7 +1475,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 					}
 					if (status == DRV_ACQUIRING) 
 					{
-						eSystemIsRunning = false;
+						eExperimentIsRunning = false;
 						if (!ANDOR_SAFEMODE)
 						{
 							errMsg = myAndor::andorErrorChecker(AbortAcquisition());
@@ -1500,7 +1500,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 							WaitForSingleObject(ePlottingThreadHandle, INFINITE);
 							if (ANDOR_SAFEMODE)
 							{
-								eSystemIsRunning = false;
+								eExperimentIsRunning = false;
 							}
 							std::string errorMessage;
 							if (eExperimentData.closeFits(errorMessage))
@@ -1610,7 +1610,6 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 				{
 					myAndor::setTemperature();
 					eCameraFileSystem.updateSaveStatus(false);
-					
 					break;
 				}
 				case IDC_SET_IMAGE_PARAMS_BUTTON: 
@@ -2055,7 +2054,7 @@ LRESULT CALLBACK cameraWindowProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 				ePlotThreadExitIndicator = false;
 				// Wait until plotting thread is complete.
 				WaitForSingleObject(ePlottingThreadHandle, INFINITE);
-				eSystemIsRunning = false;
+				eExperimentIsRunning = false;
 				std::string errorMessage;
 				if (eExperimentData.closeFits(errorMessage))
 				{

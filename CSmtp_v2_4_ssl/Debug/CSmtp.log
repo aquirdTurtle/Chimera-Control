@@ -1,9 +1,0 @@
-﻿base64.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/SAFESEH' specification
-libeay32.lib(cryptlib.obj) : error LNK2019: unresolved external symbol __vsnprintf referenced in function _OPENSSL_showfatal
-libeay32.lib(cryptlib.obj) : error LNK2019: unresolved external symbol _vfprintf referenced in function _OPENSSL_showfatal
-libeay32.lib(cryptlib.obj) : error LNK2019: unresolved external symbol ___iob_func referenced in function _OPENSSL_showfatal
-libeay32.lib(rsa_sign.obj) : error LNK2001: unresolved external symbol ___iob_func
-libeay32.lib(pem_lib.obj) : error LNK2001: unresolved external symbol ___iob_func
-libeay32.lib(ui_openssl.obj) : error LNK2001: unresolved external symbol ___iob_func
-libeay32.lib(v3_utl.obj) : error LNK2019: unresolved external symbol _sscanf referenced in function _ipv4_from_asc
-.\Debug/CSmtp.exe : fatal error LNK1120: 4 unresolved externals

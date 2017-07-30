@@ -16,7 +16,7 @@ class PictureOptions
 		std::array<int, 4> getPictureColors();
 		std::vector<float> getUsedExposureTimes();
 		std::array<int, 4> getThresholds();
-		INT_PTR colorControls(HWND window, UINT message, WPARAM wParam, LPARAM lParam);
+		INT_PTR colorControls( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
 		void confirmAcquisitionTimings();
 		void setPicturesPerExperiment(unsigned int pics);
 		void setThresholds(std::array<int, 4> thresholds);
