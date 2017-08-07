@@ -1,0 +1,250 @@
+#include "stdafx.h"
+#include "fonts.h"
+#include "DebuggingOptionsControl.h"
+
+
+void DebuggingOptionsControl::rearrange(int width, int height, fontMap fonts)
+{
+	header.rearrange(width, height, fonts);
+	readProgress.rearrange(width, height, fonts);
+	writeProgress.rearrange(width, height, fonts);
+	correctionTimes.rearrange(width, height, fonts);
+	niawgScript.rearrange(width, height, fonts);
+	outputAgilentScript.rearrange(width, height, fonts);
+	niawgMachineScript.rearrange(width, height, fonts);
+	excessInfo.rearrange(width, height, fonts);
+	showTtlsButton.rearrange(width, height, fonts);
+	showDacsButton.rearrange(width, height, fonts);
+	pauseText.rearrange(width, height, fonts);
+	pauseEdit.rearrange(width, height, fonts);
+}
+
+
+void DebuggingOptionsControl::initialize(int& id, POINT& loc, CWnd* parent, fontMap fonts,  
+										 std::vector<CToolTipCtrl*>& tooltips)
+{
+	// Debugging Options Title
+	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
+	header.Create("DEBUGGING OPTIONS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, parent, id++);	
+	header.SetFont(fonts["Heading Font"]);
+	///
+	niawgMachineScript.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
+	niawgMachineScript.Create("Output Machine NIAWG Script?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT,
+							  niawgMachineScript.sPos, parent, id++);
+	niawgMachineScript.SetFont(fonts["Normal Font"]);
+	niawgMachineScript.SetCheck(BST_CHECKED);
+	idVerify(niawgMachineScript, IDC_DEBUG_OPTIONS_RANGE_BEGIN);
+	
+	currentOptions.outputNiawgMachineScript = true;
+	///
+	outputAgilentScript.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
+	outputAgilentScript.Create("Output Agilent Script?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, 
+							   outputAgilentScript.sPos, parent, id++);
+	outputAgilentScript.SetFont(fonts["Normal Font"]);
+	outputAgilentScript.SetCheck(BST_CHECKED);
+	currentOptions.outputAgilentScript = true;
+	///
+	niawgScript.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
+	niawgScript.Create("Output Human NIAWG Script?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, niawgScript.sPos, 
+					   parent, id++ );
+	niawgScript.SetFont(fonts["Normal Font"]);
+	niawgScript.SetCheck(BST_CHECKED);
+	currentOptions.outputNiawgHumanScript = true;
+
+	///
+	readProgress.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
+	readProgress.Create("Output Waveform Read Progress?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, 
+						readProgress.sPos, parent, id++);
+	readProgress.SetFont(fonts["Normal Font"]);
+	readProgress.SetCheck(BST_CHECKED);
+	currentOptions.showReadProgress = true;
+	///
+	writeProgress.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
+	writeProgress.Create("Output Waveform Write Progress?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, 
+						 writeProgress.sPos, parent, id++);
+	writeProgress.SetFont(fonts["Normal Font"]);
+	writeProgress.SetCheck(BST_CHECKED);
+	currentOptions.showWriteProgress = true;
+	///
+	correctionTimes.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
+	correctionTimes.Create("Output Phase Correction Waveform Times?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, 
+						   correctionTimes.sPos, parent, id++);
+	correctionTimes.SetFont(fonts["Normal Font"]);
+	correctionTimes.SetCheck(BST_CHECKED);
+	currentOptions.showCorrectionTimes= true;
+	///
+	excessInfo.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
+	excessInfo.Create( "Output Excess Run Info?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, correctionTimes.sPos, 
+					   parent, id++ );
+	excessInfo.SetFont(fonts["Normal Font"]);
+	excessInfo.SetCheck(BST_CHECKED);
+	currentOptions.outputExcessInfo = true;	
+	idVerify(excessInfo, IDC_DEBUG_OPTIONS_RANGE_END);
+
+	showTtlsButton.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
+	showTtlsButton.Create( "Show All TTL Events", WS_CHILD | WS_VISIBLE | SS_CENTER | BS_CHECKBOX | BS_RIGHT,
+						   showTtlsButton.sPos, parent, id++);
+	idVerify(showTtlsButton, IDC_SHOW_TTLS);
+
+	showDacsButton.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
+	showDacsButton.Create("Show All Dac Events", WS_CHILD | WS_VISIBLE | SS_CENTER | BS_CHECKBOX | BS_RIGHT,
+						  showDacsButton.sPos, parent, id++);
+	idVerify(showDacsButton, IDC_SHOW_DACS);
+
+	pauseText.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y + 20 };
+	pauseText.Create("Pause Between Variations", WS_CHILD | WS_VISIBLE | ES_RIGHT, pauseText.sPos, parent, id++);
+
+	pauseEdit.sPos = { loc.x, loc.y, loc.x + 240, loc.y += 20 };
+	pauseEdit.Create(WS_CHILD | WS_VISIBLE , pauseEdit.sPos, parent, id++);
+	pauseEdit.SetWindowTextA("0");
+}
+
+void DebuggingOptionsControl::handleEvent(UINT id, MainWindow* comm)
+{
+	if (id == niawgMachineScript.GetDlgCtrlID())
+	{
+		BOOL checked = niawgMachineScript.GetCheck();
+		if (checked) 
+		{
+			niawgMachineScript.SetCheck(0);
+			currentOptions.outputNiawgMachineScript = false;
+		}
+		else 
+		{
+			niawgMachineScript.SetCheck(1);
+			currentOptions.outputNiawgMachineScript = true;
+		}
+		comm->updateConfigurationSavedStatus(false);
+	}
+	else if (id == niawgScript.GetDlgCtrlID())
+	{
+		BOOL checked = niawgScript.GetCheck();
+		if (checked)
+		{
+			niawgScript.SetCheck(0);
+			currentOptions.outputNiawgHumanScript = false;
+		}
+		else
+		{
+			niawgScript.SetCheck(1);
+			currentOptions.outputNiawgHumanScript = true;
+		}
+		comm->updateConfigurationSavedStatus(false);
+	}
+	else if (id == outputAgilentScript.GetDlgCtrlID())
+	{
+		BOOL checked = outputAgilentScript.GetCheck();
+		if (checked)
+		{
+			outputAgilentScript.SetCheck(0);
+			currentOptions.outputAgilentScript = false;
+		}
+		else
+		{
+			outputAgilentScript.SetCheck(1);
+			currentOptions.outputAgilentScript = true;
+		}
+		comm->updateConfigurationSavedStatus(false);
+	}
+	else if (id == readProgress.GetDlgCtrlID())
+	{
+		BOOL checked = readProgress.GetCheck();
+		if (checked)
+		{
+			readProgress.SetCheck(0);
+			currentOptions.showReadProgress= false;
+		}
+		else
+		{
+			readProgress.SetCheck(1);
+			currentOptions.showReadProgress= true;
+		}
+		comm->updateConfigurationSavedStatus(false);
+	}
+	else if (id == writeProgress.GetDlgCtrlID())
+	{
+		BOOL checked = writeProgress.GetCheck();
+		if (checked)
+		{
+			writeProgress.SetCheck(0);
+			currentOptions.showWriteProgress= false;
+		}
+		else
+		{
+			writeProgress.SetCheck(1);
+			currentOptions.showWriteProgress = true;
+		}
+		comm->updateConfigurationSavedStatus(false);
+	}
+	else if (id == correctionTimes.GetDlgCtrlID())
+	{
+		BOOL checked = correctionTimes.GetCheck();
+		if (checked)
+		{
+			correctionTimes.SetCheck(0);
+			currentOptions.showCorrectionTimes= false;
+		}
+		else
+		{
+			correctionTimes.SetCheck(1);
+			currentOptions.showCorrectionTimes = true;
+		}
+		comm->updateConfigurationSavedStatus(false);
+	}
+	else if (id == showTtlsButton.GetDlgCtrlID())
+	{
+		BOOL checked = showTtlsButton.GetCheck();
+		if (checked)
+		{
+			showTtlsButton.SetCheck(0);
+			currentOptions.showTtls = false;
+		}
+		else
+		{
+			showTtlsButton.SetCheck(1);
+			currentOptions.showTtls = true;
+		}
+		comm->updateConfigurationSavedStatus(false);
+	}
+	else if (id == showDacsButton.GetDlgCtrlID())
+	{
+		BOOL checked = showDacsButton.GetCheck();
+		if (checked)
+		{
+			showDacsButton.SetCheck(0);
+			currentOptions.showDacs = false;
+		}
+		else
+		{
+			showDacsButton.SetCheck(1);
+			currentOptions.showDacs = true;
+		}
+		comm->updateConfigurationSavedStatus(false);
+	}
+	else if (id == pauseEdit.GetDlgCtrlID())
+	{
+		comm->updateConfigurationSavedStatus(false);
+	}
+}
+
+
+debugInfo DebuggingOptionsControl::getOptions()
+{
+	currentOptions.outputNiawgMachineScript = niawgMachineScript.GetCheck();
+	currentOptions.outputNiawgHumanScript = niawgScript.GetCheck();
+	currentOptions.outputAgilentScript = outputAgilentScript.GetCheck();
+	currentOptions.showReadProgress = readProgress.GetCheck();
+	currentOptions.showWriteProgress = writeProgress.GetCheck();
+	currentOptions.showCorrectionTimes = correctionTimes.GetCheck();
+	currentOptions.showTtls = showTtlsButton.GetCheck();
+	currentOptions.showDacs = showDacsButton.GetCheck();
+	CString text;
+	pauseEdit.GetWindowTextA(text);
+	currentOptions.sleepTime = std::stod(str(text));
+	return currentOptions;
+}
+
+void DebuggingOptionsControl::setOptions(debugInfo options)
+{
+	currentOptions = options;
+}

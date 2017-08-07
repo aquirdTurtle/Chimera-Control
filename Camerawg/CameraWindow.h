@@ -74,8 +74,8 @@ class CameraWindow : public CDialog
 		void handleSpecialGreaterThanMaxSelection();
 		void handleSpecialLessThanMinSelection();
 		void abortCameraRun();
-		friend bool commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, ScriptingWindow* scriptWin, 
-														  CameraWindow* camWin );
+		friend bool handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, ScriptingWindow* scriptWin,
+										 CameraWindow* camWin, DeviceWindow* masterWin);
 		void handleAutoscaleSelection();
 		void assertOff();
 

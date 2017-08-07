@@ -1,0 +1,472 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="getFileName.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="myAgilent.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="myMath.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="saveTextFileFromEdit.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptWritingInstructionsDialog.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="externals.cpp">
+      <Filter>Constants, Externals, Etc.</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Things I Don%27t Mess With %28Often%29</Filter>
+    </ClCompile>
+    <ClCompile Include="beginningSettingsDialogProc.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="selectInCombo.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationFileSystem.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="textPromptDialogProcedure.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="errBox.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NoteSystem.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MainWindow.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptingWindow.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DebuggingOptionsControl.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ColorBox.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProfileIndicator.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MainOptionsControl.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StatusControl.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StatusIndicator.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Communicator.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraWindow.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Andor.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="reorganizeControl.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PictureSettingsControl.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraSettingsControl.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EmbeddedPythonHandler.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SMSTextingControl.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PictureStats.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PictureControl.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PictureManager.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AlertSystem.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="miscellaneousCommonFunctions.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NiawgController.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ExperimentTimer.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DataAnalysisHandler.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PlottingInfo.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DataSet.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="commonFunctions.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraImageDimensions.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraConfigurationSystem.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SocketWrapper.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NiawgWaiter.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ExperimentLogger.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptStream.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ExperimentManager.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Rearranger.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Control.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DataLogger.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Chimera.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Script.cpp" />
+    <ClCompile Include="cleanString.cpp" />
+    <ClCompile Include="Agilent.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DacSettingsDialog.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DacSystem.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DeviceWindow.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Repetitions.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GPIB.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="KeyHandler.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MasterConfiguration.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RhodeSchwarz.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TektronicsControl.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TtlSettingsDialog.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TtlSystem.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VariableSystem.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MasterManager.cpp" />
+    <ClCompile Include="MasterConfigurationFileSystem.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="targetver.h">
+      <Filter>Things I Don%27t Mess With %28Often%29</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Things I Don%27t Mess With %28Often%29</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptWritingInstructionsDialog.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="scriptWriteHelpProc.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="saveTextFileFromEdit.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Constants, Externals, Etc.</Filter>
+    </ClInclude>
+    <ClInclude Include="getFileName.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="myAgilent.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="myMath.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="fonts.h">
+      <Filter>Constants, Externals, Etc.</Filter>
+    </ClInclude>
+    <ClInclude Include="colorScript.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="constants.h">
+      <Filter>Constants, Externals, Etc.</Filter>
+    </ClInclude>
+    <ClInclude Include="beginningSettingsDialogProc.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Control.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="selectInCombo.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationFileSystem.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="textPromptDialogProcedure.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="NoteSystem.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="MainWindow.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptingWindow.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="DebuggingOptionsControl.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorBox.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ProfileIndicator.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="MainOptionsControl.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="StatusControl.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="StatusIndicator.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="myApplicationApp.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Communicator.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraWindow.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Andor.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ATMCD32D.H">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="reorganizeControl.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="PictureSettingsControl.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraSettingsControl.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="EmbeddedPythonHandler.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="SMSTextingControl.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="PictureStats.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="PictureManager.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="PictureControl.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="AlertSystem.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="miscellaneousCommonFunctions.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="NiawgController.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ExperimentTimer.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="DataAnalysisHandler.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="PlottingInfo.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="DataSet.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="commonFunctions.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="externals.h">
+      <Filter>Constants, Externals, Etc.</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraImageDimensions.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptStream.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ExperimentLogger.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="NiawgWaiter.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="SocketWrapper.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraConfigurationSystem.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ExperimentManager.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="errBox.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Rearranger.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="commonTypes.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="DataLogger.h">
+      <Filter>Code Files</Filter>
+    </ClInclude>
+    <ClInclude Include="longnam.h">
+      <Filter>Code Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Script.h" />
+    <ClInclude Include="cleanString.h" />
+    <ClInclude Include="GPIB.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Agilent.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="DacSettingsDialog.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="DacSystem.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="DeviceWindow.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyHandler.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="MasterConfiguration.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Repetitions.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="RhodeSchwarz.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="TektronicsControl.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="TtlSettingsDialog.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="TtlSystem.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="VariableSystem.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="MasterManager.h" />
+    <ClInclude Include="MasterConfigurationFileSystem.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Icon2.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="icon1.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="bitmap1.bmp">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="C:\Users\Regal Lab\Pictures\boseeinstein.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="Cold_Atoms_Icon.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="Atom.ico">
+      <Filter>Resources</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Code Files">
+      <UniqueIdentifier>{10c2770a-f33b-4bcd-afac-789eca0dc95d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{3bf5973f-9a02-41d7-8021-3f560be2970c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Function Headers">
+      <UniqueIdentifier>{aad9001f-cef8-4ad4-9d90-7749893370b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Constants, Externals, Etc.">
+      <UniqueIdentifier>{5e5bece6-54c9-453d-b801-9590bec99797}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Things I Don%27t Mess With %28Often%29">
+      <UniqueIdentifier>{63ce4980-10d4-45df-be5b-aa662831172a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Chimera.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="gpib-32.obj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Planning.txt" />
+  </ItemGroup>
+</Project>

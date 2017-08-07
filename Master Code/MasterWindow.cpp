@@ -13,7 +13,6 @@ IMPLEMENT_DYNAMIC( MasterWindow, CDialog )
 
 BEGIN_MESSAGE_MAP( MasterWindow, CDialog )
 	ON_WM_CTLCOLOR()
-	ON_WM_TIMER()
 	ON_WM_SIZE()
 	ON_COMMAND_RANGE( TTL_ID_BEGIN, TTL_ID_END, &MasterWindow::handleTTLPush )
 	ON_COMMAND( TTL_HOLD, &MasterWindow::handlTTLHoldPush )
@@ -1349,7 +1348,7 @@ BOOL MasterWindow::OnInitDialog()
 	msg += "Tektronics 1: " + gpib.queryIdentity( TEKTRONICS_AFG_1_ADDRESS ) + "\n";
 	msg += "Tektronics 2: " + gpib.queryIdentity( TEKTRONICS_AFG_2_ADDRESS ) + "\n";
 	msg += "RSG: " + gpib.queryIdentity( RSG_ADDRESS ) + "\n";
-	errBox( msg );
+	MessageBox(cstr(msg), "Startup");
 	
 	menu.LoadMenu(IDC_MASTERCODE);
 	SetMenu(&menu);

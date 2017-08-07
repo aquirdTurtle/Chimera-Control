@@ -176,7 +176,6 @@ double reduce(std::string expression, key variationKey = {}, UINT variation = -1
 
 #define idVerify(idSet, idDefined)	verifyIdsMatch(idSet, idDefined, __FILE__, __LINE__)
 
-
 template <typename ControlType> void verifyIdsMatch(Control<ControlType>& control, UINT idDefined, const char *file, int line)
 {
 	if (control.GetDlgCtrlID() != idDefined)

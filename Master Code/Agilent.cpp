@@ -11,12 +11,14 @@
 #include "ConfigurationFileSystem.h"
 #include "MasterWindow.h"
 
+
 ScriptedAgilentWaveform::ScriptedAgilentWaveform()
 {
 	segmentNum = 0;
 	totalSequence = "";
 	isVaried = false;
 };
+
 
 /*	* This function reads out a segment of script file and loads it into a segment to be calculated and manipulated.
 	* segNum: This tells the function what the next segment # is.

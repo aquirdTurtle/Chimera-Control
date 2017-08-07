@@ -1,0 +1,1238 @@
+#include "stdafx.h"
+#include "Script.h"
+#include "constants.h"
+#include "fonts.h"
+#include <sstream>
+#include <algorithm>
+#include "boost/lexical_cast.hpp"
+#include "cleanString.h"
+#include "textPromptDialogProcedure.h"
+#include "Windows.h"
+#include "Richedit.h"
+#include "VariableSystem.h"
+#include "ConfigurationFileSystem.h"
+#include <iostream>
+#include <fstream>
+#include <string>
+#include "DeviceWindow.h"
+#include <unordered_map>
+#include "ExperimentManager.h"
+#include "TtlSystem.h"
+#include "VariableSystem.h"
+#include <algorithm>
+#include "RunInfo.h"
+
+
+void Script::rearrange(UINT width, UINT height, fontMap fonts)
+{
+	edit.rearrange("", "", width, height, fonts);
+	title.rearrange("", "", width, height, fonts);
+	savedIndicator.rearrange("", "", width, height, fonts);
+	fileNameText.rearrange("", "", width, height, fonts);
+	availableFunctionsCombo.rearrange("", "", width, height, fonts);
+	help.rearrange("", "", width, height, fonts);
+}
+
+
+void Script::functionChangeHandler(std::string categoryPath)
+{
+	int selection = availableFunctionsCombo.GetCurSel();
+	if (selection != -1)
+	{
+		CString text;
+		availableFunctionsCombo.GetLBText(selection, text);
+		std::string textStr(text.GetBuffer());
+		textStr = textStr.substr(0, textStr.find_first_of('('));
+		changeView(textStr, true, categoryPath);
+	}
+}
+
+
+Script::Script()
+{
+	isSaved = true;
+	editChangeEnd = 0;
+	editChangeBegin = ULONG_MAX;
+}
+
+Script::~Script(){}
+
+std::string Script::getScriptPath()
+{
+	return scriptPath;
+}
+
+std::string Script::getScriptText()
+{
+	CString text;
+	edit.GetWindowText(text);
+	return text;
+}
+
+
+COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::vector<variable> variables, 
+								 rgbMap rgbs, bool& colorLine, 
+								 std::array<std::array<std::string, 16>, 4> ttlNames, 
+								 std::array<std::string, 24> dacNames)
+{
+	// convert word to lower case.
+	std::transform( word.begin(), word.end(), word.begin(), ::tolower );
+
+	// check special cases
+	if (word.size() == 0)
+	{
+		return rgbs["Solarized Red"];
+	}
+	else if (word[0] == '%')
+	{
+		colorLine = true;
+		if (word.size() > 1)
+		{
+			if (word[1] == '%')
+			{
+				return rgbs["Slate Green"];
+			}
+		}
+		return rgbs["Slate Grey"];
+	}
+
+	// Check NIAWG-specific commands
+	if (editType == "Horizontal NIAWG" || editType == "Vertical NIAWG")
+	{
+		if (word == "gen" || word == "1," || word == "2," || word == "3," || word == "4," || word == "5," || word == "freq" || word == "amp" || word == "const"
+			|| word == "&" || word == "ramp")
+		{
+			return rgbs["Dark Lavendar"];
+		}
+		// check logic
+		if (word == "repeat" || word == "until" || word == "trigger" || word == "end" || word == "forever")
+		{
+			return rgbs["Teal"];
+		}
+		// check options
+		if (word == "lin" || word == "nr" || word == "tanh")
+		{
+			return rgbs["Tan"];
+		}
+		// check variable
+		if (word == "predefined" || word == "script")
+		{
+			return rgbs["Purple"];
+		}
+		if (word.size() > 8)
+		{
+			if (word.substr(word.size() - 8, 8) == ".nScript")
+			{
+				return rgbs["Purple"];
+			}
+		}
+	}
+	// check Agilent-specific commands
+	else if (editType == "Agilent")
+	{
+		std::transform(word.begin(), word.end(), word.begin(), ::tolower);
+		if (word == "agilent" || word == "ramp" || word == "hold" || word == "predefined" || word == "script")
+		{
+			return rgbs["Dark Lavender"];
+		}
+		if (word == "once" || word == "oncewaittrig" || word == "lin" || word == "tanh" || word == "repeatuntiltrig")
+		{
+			return rgbs["Tan"];
+		}
+		if (word.size() > 8)
+		{
+			if (word.substr(word.size() - 8, 8) == ".aScript")
+			{
+				return rgbs["Purple"];
+			}
+		}
+	}
+	else if (editType == "Master")
+	{
+		if (word == "on:" || word == "off:" || word == "pulseon:" || word == "pulseoff:")
+		{
+			return rgbs["Solarized Violet"];
+		}
+		if (word == "dac:" || word == "dacramp:" )
+		{
+			return rgbs["Solarized Yellow"];
+		}
+		else if (word == "call")
+		{
+			colorLine = true;
+			return rgbs["Solarized Blue"];
+		}
+		else if (word == "+" || word == "=" || word=="(" || word==")" || word=="*" || word == "-" || word=="/")
+		{
+			return rgbs["Solarized Cyan"];
+		}
+		else if (word == "def")
+		{
+			colorLine = true;
+			return rgbs["Solarized Blue"];
+		}
+		else if ( word == "rsg:" || word == "repeat:" || word == "end" || word == "callcppcode")
+		{
+			return rgbs["Solarized Green"];
+		}
+		else if (word == "t")
+		{
+			return rgbs["White"];
+		}
+		for (int rowInc = 0; rowInc < ttlNames.size(); rowInc++)
+		{
+			std::string row;
+			switch (rowInc)
+			{
+				case 0: row = "a"; break;
+				case 1: row = "b"; break;
+				case 2: row = "c"; break;
+				case 3: row = "d"; break;
+			}
+			for (int numberInc = 0; numberInc < ttlNames[rowInc].size(); numberInc++)
+			{
+				
+				if (word == ttlNames[rowInc][numberInc])
+				{
+					return rgbs["Solarized Magenta"];
+				}
+				if (word == row + str(numberInc))
+				{
+					return rgbs["Solarized Magenta"];
+				}
+			}
+		}
+		for (int dacInc = 0; dacInc < dacNames.size(); dacInc++)
+		{
+			if (word == dacNames[dacInc])
+			{
+				return rgbs["Solarized Orange"];
+			}
+			if (word == "dac" + str(dacInc))
+			{
+				return rgbs["Solarized Orange"];
+			}
+		}
+	}
+	for (int varInc = 0; varInc < variables.size(); varInc++)
+	{
+		if (word == variables[varInc].name)
+		{
+			return rgbs["Solarized Blue"];
+		}
+	}
+	// check delimiter
+	if (word == "#")
+	{
+		return rgbs["Light Grey"];
+	}
+	// see if it's a double.
+	try
+	{
+		boost::lexical_cast<double>(word);
+		return rgbs["White"];
+	}
+	catch (boost::bad_lexical_cast &)
+	{
+		return rgbs["Solarized Red"];
+	}
+}
+
+void Script::updateSavedStatus(bool scriptIsSaved)
+{
+	isSaved = scriptIsSaved;
+	if (scriptIsSaved)
+	{
+		savedIndicator.SetCheck( true );
+	}
+	else
+	{
+		savedIndicator.SetCheck( false );
+	}
+}
+
+bool Script::coloringIsNeeded()
+{
+	return !syntaxColoringIsCurrent;
+}
+
+void Script::handleTimerCall(std::vector<variable> vars,
+							 rgbMap rgbs, std::array<std::array<std::string, 16>, 4> ttlNames,
+							 std::array<std::string, 24> dacNames)
+{
+	if (!edit)
+	{
+		return;
+	}
+	if (!syntaxColoringIsCurrent)
+	{
+		// preserve saved state
+		bool tempSaved = false;
+		if (isSaved == true)
+		{
+			tempSaved = true;
+		}
+		DWORD x1 = 1, x2 = 1;
+		int initScrollPos, finScrollPos;
+		CHARRANGE charRange;
+		edit.GetSel(charRange);
+		initScrollPos = edit.GetScrollPos(SB_VERT);
+		// color syntax
+		colorScriptSection(editChangeBegin, editChangeEnd, vars, rgbs, ttlNames, dacNames);
+		editChangeEnd = 0;
+		editChangeBegin = ULONG_MAX;
+		syntaxColoringIsCurrent = true;
+		edit.SetSel(charRange);
+		finScrollPos = edit.GetScrollPos(SB_VERT);
+		edit.LineScroll(-(finScrollPos - initScrollPos));
+		//SendMessage(edit.hwnd, EM_LINESCROLL, 0, -(finScrollPos - initScrollPos));
+		updateSavedStatus(tempSaved);
+	}
+}
+
+void Script::handleEditChange()
+{
+	// make sure the edit has been initialized.
+	if (!edit)
+	{
+		return;
+	}
+	DWORD begin, end;
+	CHARRANGE charRange;
+	edit.GetSel(charRange);
+	if (charRange.cpMin < editChangeBegin)
+	{
+		editChangeBegin = charRange.cpMin;
+	}
+	if (charRange.cpMax > editChangeEnd)
+	{
+		editChangeEnd = charRange.cpMax;
+	}
+	syntaxColoringIsCurrent = false;
+	updateSavedStatus(false);
+}
+
+
+void Script::colorEntireScript(std::vector<variable> vars, rgbMap rgbs, std::array<std::array<std::string, 16>, 4> ttlNames,
+							   std::array<std::string, 24> dacNames)
+{
+	colorScriptSection(0, ULONG_MAX, vars, rgbs, ttlNames, dacNames );
+}
+
+
+void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std::vector<variable> vars, 
+								 rgbMap rgbs, std::array<std::array<std::string, 16>, 4> ttlNames, 
+								 std::array<std::string, 24> dacNames )
+{
+	bool tempSaveStatus = false;
+	if ( isSaved )
+	{
+		tempSaveStatus = true;
+	}
+	long long beginingSigned = beginingOfChange;
+	long long endSigned = endOfChange;
+	CString text;
+	edit.GetWindowTextA(text);
+	std::string script(text);
+	std::vector<std::string> predefinedScripts;
+	COLORREF coloring;
+	std::string word;
+	std::stringstream fileTextStream(script);
+	std::string line;
+	std::string currentTextToAdd;
+	std::string tempColor;
+	COLORREF syntaxColor;
+	CHARFORMAT syntaxFormat;
+	memset(&syntaxFormat, 0, sizeof(CHARFORMAT));
+	syntaxFormat.cbSize = sizeof(CHARFORMAT);
+	syntaxFormat.dwMask = CFM_COLOR;
+	//int relevantID = GetDlgCtrlID(edit.hwnd);
+	DWORD start = 0, end = 0;
+	std::size_t prev, pos;
+
+	while (std::getline(fileTextStream, line))
+	{
+		DWORD lineStartCoordingate = start;
+		int endTest = end + line.size();
+		if (endTest < beginingSigned - 5 || start > endSigned)
+		{
+			// then skip to next line.
+			end = endTest;
+			start = end;
+			continue;
+		}
+		prev = 0;
+		coloring = 0;
+		bool colorLine = false;
+		while ((pos = line.find_first_of(" \t\r\n+=()-*/", prev)) != std::string::npos)
+		{
+			if (pos == prev)
+			{
+				// then there was one of " \t\r\n+=" at the begging of the next string. check it.
+				pos++;
+			}
+			end = lineStartCoordingate + pos;
+			word = line.substr(prev, pos - prev);
+			if (word == " " || word == "\t" || word == "\r" || word == "\n")
+			{
+				start = end;
+				prev = pos;
+				continue;
+			}
+			// if comment is found, the rest of the line is green.
+			if (!colorLine)
+			{
+				// get all the variables
+				// get 
+				syntaxColor = getSyntaxColor(word, deviceType, vars, rgbs, colorLine, ttlNames, dacNames);
+				if (syntaxColor != coloring)
+				{
+					coloring = syntaxColor;
+					syntaxFormat.crTextColor = coloring;
+					CHARRANGE charRange;
+					charRange.cpMin = start;
+					charRange.cpMax = end;
+					edit.SetSel(charRange);
+					edit.SetSelectionCharFormat(syntaxFormat);
+					start = end;
+				}
+			}
+			CHARRANGE charRange;
+			charRange.cpMin = start;
+			charRange.cpMax = end;
+			edit.SetSel(charRange);
+			edit.SetSelectionCharFormat(syntaxFormat);
+			start = end;
+			prev = pos;
+		}
+		// handle the end. above doesn't catch the end. There's probably a better way to do this.
+		if (prev < std::string::npos)
+		{
+			bool colorLine = false;
+			word = line.substr(prev, std::string::npos);
+			end = lineStartCoordingate + line.length();
+			// get all the variables together
+			syntaxColor = getSyntaxColor( word, deviceType, vars, rgbs, colorLine, ttlNames, dacNames);
+			if (!colorLine)
+			{
+				coloring = syntaxColor;
+				syntaxFormat.crTextColor = coloring;
+				CHARRANGE charRange;
+				charRange.cpMin = start;
+				charRange.cpMax = end;
+				edit.SetSel(charRange);
+				edit.SetSelectionCharFormat(syntaxFormat);
+				start = end;
+			}
+			CHARRANGE charRange;
+			charRange.cpMin = start;
+			charRange.cpMax = end;
+			edit.SetSel(charRange);
+			edit.SetSelectionCharFormat(syntaxFormat);
+			start = end;
+		}
+	}
+	updateSavedStatus( tempSaveStatus );
+}
+
+
+
+INT_PTR Script::colorControl(LPARAM lParam, WPARAM wParam)
+{
+	int controlID = GetDlgCtrlID((HWND)lParam);
+	HDC hdcStatic = (HDC)wParam;
+	if (controlID == edit.GetDlgCtrlID())
+	{
+		SetTextColor(hdcStatic, RGB(255, 255, 255));
+		SetBkColor(hdcStatic, RGB(50, 45, 45));
+		//return (INT_PTR)eGreyRedBrush;
+	}
+	else if (controlID == title.GetDlgCtrlID())
+	{
+		SetTextColor(hdcStatic, RGB(255, 255, 255));
+		SetBkMode(hdcStatic, TRANSPARENT);
+		SetBkColor(hdcStatic, RGB(75, 0, 0));
+		//return (INT_PTR)eDarkRedBrush;
+	}
+	else if (controlID == savedIndicator.GetDlgCtrlID())
+	{
+		SetTextColor(hdcStatic, RGB(255, 255, 255));
+		SetBkMode(hdcStatic, TRANSPARENT);
+		SetBkColor(hdcStatic, RGB(50, 45, 45));
+		//return (INT_PTR)eGreyRedBrush;
+	}
+	else if (controlID == fileNameText.GetDlgCtrlID())
+	{
+		SetTextColor(hdcStatic, RGB(255, 255, 255));
+		SetBkMode(hdcStatic, TRANSPARENT);
+		SetBkColor(hdcStatic, RGB(25, 0, 0));
+		//return (INT_PTR)eDullRedBrush;
+	}
+	else
+	{
+		return false;
+	}
+	return true;
+}
+
+
+void Script::initialize( int width, int height, POINT& startingLocation, std::vector<CToolTipCtrl*>& toolTips, 
+						 ScriptingWindow* scriptWin, int& id, std::string deviceTypeInput)
+{
+	AfxInitRichEdit();
+	InitCommonControls();
+	LoadLibrary(TEXT("Msftedit.dll"));
+
+	deviceType = deviceTypeInput;
+	if (deviceTypeInput == "Horizontal NIAWG" || deviceTypeInput == "Vertical NIAWG")
+	{
+		extension = NIAWG_SCRIPT_EXTENSION;
+	}
+	else if (deviceTypeInput == "Agilent")
+	{
+		extension = AGILENT_SCRIPT_EXTENSION;
+	}
+	else if (deviceTypeInput == "Master")
+	{
+		extension = MASTER_SCRIPT_EXTENSION;
+	}
+	else
+	{
+		thrower("ERROR: Device input type not recognized during construction of script control.");
+	}
+	CHARFORMAT myCharFormat;
+	memset(&myCharFormat, 0, sizeof(CHARFORMAT));
+	myCharFormat.cbSize = sizeof(CHARFORMAT);
+	myCharFormat.dwMask = CFM_COLOR;
+	myCharFormat.crTextColor = RGB(255, 255, 255);
+	std::string titleText;
+	if (deviceType == "Horizontal NIAWG")
+	{
+		titleText = "HORIZONTAL NIAWG SCRIPT";
+	}
+	else if (deviceType == "Vertical NIAWG")
+	{
+		titleText = "VERTICAL NIAWG SCRIPT";
+	}
+	else if (deviceType == "Agilent")
+	{
+		titleText = "AGILENT INTENSITY SCRIPT";
+	}
+	else if (deviceType == "Master")
+	{
+		titleText = "MASTER SCRIPT";
+	}
+	// title
+	title.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
+	title.Create( cstr(titleText), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, title.sPos, scriptWin, id++ );
+	title.fontType = HeadingFont;
+	startingLocation.y += 20;
+	// saved indicator
+	savedIndicator.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + 80, startingLocation.y + 20 };
+	savedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, savedIndicator.sPos, scriptWin, id++ );
+	savedIndicator.SetCheck( true );	
+	// filename
+	fileNameText.sPos = { startingLocation.x + 80, startingLocation.y, startingLocation.x + width - 20, startingLocation.y + 20 };
+	fileNameText.Create(WS_CHILD | WS_VISIBLE | SS_ENDELLIPSIS | ES_READONLY, fileNameText.sPos, scriptWin, id++ );
+	isSaved = true;
+	// help
+	help.sPos = { startingLocation.x + width - 20, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
+	help.Create(WS_CHILD | WS_VISIBLE | ES_READONLY, help.sPos, scriptWin, id++);
+	help.SetWindowTextA("?");
+	help.setToolTip("This is a script for programming master timing for TTLs, DACs, the RSG, and the raman outputs.\n"
+					"Acceptable Commands:\n"
+					"-      t++\n"
+					"-      t+= [number] (space between = and number required)\n"
+					"-      t= [number] (space between = and number required)\n"
+					"-      on: [ttlName]\n"
+					"-      off: [ttlName]\n"
+					"-      pulseon: [ttlName] [pulseLength]\n"
+					"-      pulseoff: [ttlName] [pulseLength]\n"
+					"-      dac: [dacName] [voltage]\n"
+					"-      dacramp: [dacName] [initValue] [finalValue] [rampTime] [rampInc]\n"
+					"-      rsg: [frequency to add]\n"
+					"-      raman: [topFreq] [bottomFreq] [axialFreq]\n"
+					"-      def [functionName]([functionArguments]):\n"
+					"-      call [functionName(argument1, argument2, etc...)]\n"
+					"-      repeat: [numberOfTimesToRepeat]\n"
+					"-           %Commands...\n"
+					"-      end % (of repeat)\n"
+					"-      callcppcode\n"
+					"-      % marks a line as a comment. %% does the same and gives you a different color.\n"
+					"-      extra white-space is generally fine and doesn't screw up analysis of the script. Format as you like.", 
+					toolTips, scriptWin);
+	startingLocation.y += 20;
+	// available functions combo
+	availableFunctionsCombo.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 800 };
+	availableFunctionsCombo.Create(CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, 
+								   availableFunctionsCombo.sPos, scriptWin, id++);
+	idVerify(availableFunctionsCombo, IDC_VERTICAL_NIAWG_FUNCTION_COMBO, IDC_HORIZONTAL_NIAWG_FUNCTION_COMBO, IDC_INTENSITY_FUNCTION_COMBO, IDC_MASTER_FUNCTION_COMBO);
+	availableFunctionsCombo.AddString("Available Functions List:");
+	availableFunctionsCombo.SetCurSel(0);
+	loadFunctions();
+	
+	startingLocation.y += 25;
+	// Edit
+	edit.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, height};
+	edit.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | WS_HSCROLL
+				| ES_WANTRETURN | WS_BORDER, edit.sPos, scriptWin, id++);
+	idVerify(edit, IDC_VERTICAL_NIAWG_EDIT, IDC_HORIZONTAL_NIAWG_EDIT, IDC_INTENSITY_EDIT, IDC_MASTER_EDIT);
+	edit.fontType = CodeFont;
+	edit.SetBackgroundColor(FALSE, RGB(0,  21,  27
+	));
+	edit.SetEventMask(ENM_CHANGE);
+	edit.SetDefaultCharFormat(myCharFormat);
+
+	// timer
+	syntaxTimer.Create(0, NULL, 0, { 0,0,0,0 }, scriptWin, 0);
+}
+
+void Script::reorganizeControls()
+{
+	//...
+}
+
+
+void Script::changeView(std::string viewName, bool isFunction, std::string categoryPath)
+{
+
+	if (viewName == "Parent Script")
+	{
+		// load parent
+		loadFile(categoryPath + scriptName + extension);
+	}
+	else if (isFunction)
+	{
+		loadFile(FUNCTIONS_FOLDER_LOCATION + viewName + FUNCTION_EXTENSION);
+	}
+	else
+	{
+		// load child
+		loadFile(categoryPath + viewName);
+	}
+
+	// colorEntireScript(vars, rgbs, ttlNames, dacNames);
+	// the view is fresh from a file, so it's saved.
+	updateSavedStatus(true);
+}
+
+//
+void Script::saveScript(std::string categoryPath, RunInfo info)
+{
+	if (categoryPath == "")
+	{
+		thrower("ERROR: Please select a category before trying to save a script!");
+	}
+	if (isSaved && scriptName != "")
+	{
+		// shoudln't need to do anything
+		return;
+	}
+	int sel = availableFunctionsCombo.GetCurSel();
+	CString text;
+	availableFunctionsCombo.GetLBText(sel, text);
+	if (text != "Parent Script")
+	{
+		int answer = MessageBox(0, cstr("WARNING: The current view is not the parent view. This will save the "
+								"current text in the edit under the name \"" + scriptName 
+								+ "\". Are you sure you wish to proceed?"), "WARNING!", MB_OKCANCEL);
+		if (answer == IDCANCEL)
+		{
+			return;
+		}
+	}
+	if (scriptName == "")
+	{
+		std::string newName;
+		TextPromptDialog dialog(&newName, "Please enter new name for the script " + scriptName + ".");
+		dialog.DoModal();
+		if (newName == "")
+		{
+			// canceled
+			return;
+		}
+		std::string path = categoryPath + newName + extension;
+		saveScriptAs(path, info);
+	}
+	if (info.running)
+	{
+		for (int scriptInc = 0; scriptInc < info.currentlyRunningScripts.size(); scriptInc++)
+		{
+			if (scriptName == info.currentlyRunningScripts[scriptInc])
+			{
+				thrower("ERROR: System is currently running. You can't save over any files in use by the system while it runs, which includes the "
+					"horizontal and vertical AOM scripts and the intensity script.");
+			}
+		}
+	}
+	edit.GetWindowTextA(text);
+	std::fstream saveFile(categoryPath + scriptName + extension, std::fstream::out);
+	if (!saveFile.is_open())
+	{
+		thrower("ERROR: Failed to open script file: " + categoryPath + scriptName 
+				+ extension);
+	}
+	saveFile << text;
+	saveFile.close();
+	scriptFullAddress = categoryPath + scriptName + extension;
+	scriptPath = categoryPath;
+	updateSavedStatus(true);
+}
+
+
+//
+void Script::saveScriptAs(std::string location, RunInfo info)
+{
+	if (location == "")
+	{
+		return;
+	}
+	if (info.running)
+	{
+		for (int scriptInc = 0; scriptInc < info.currentlyRunningScripts.size(); scriptInc++)
+		{
+			if (scriptName == info.currentlyRunningScripts[scriptInc])
+			{
+				thrower("ERROR: System is currently running. You can't save over any files in use by the system while it runs, which includes the "
+					"horizontal and vertical AOM scripts and the intensity script.");
+			}
+		}
+	}
+	CString text;
+	edit.GetWindowTextA(text);
+	std::fstream saveFile(location, std::fstream::out);
+	if (!saveFile.is_open())
+	{
+		thrower("ERROR: Failed to open script file: " + location);
+	}
+	saveFile << text;
+	char fileChars[_MAX_FNAME];
+	char dirChars[_MAX_FNAME];
+	char pathChars[_MAX_FNAME];
+	int myError = _splitpath_s(cstr(location), dirChars, _MAX_FNAME, pathChars, _MAX_FNAME, fileChars, _MAX_FNAME, NULL, 0);
+	scriptName = str(fileChars);
+	scriptPath = str(fileChars) + str(pathChars);
+	saveFile.close();
+	scriptFullAddress = location;
+	updateScriptNameText(location);
+	updateSavedStatus(true);
+}
+
+
+//
+void Script::checkSave(std::string categoryPath, RunInfo info)
+{
+	if (isSaved)
+	{
+		// don't need to do anything
+		return;
+	}
+	// test first non-commented word of text to see if this looks like a function or not.
+	CString text;
+	edit.GetWindowTextA(text);
+	ScriptStream tempStream;
+	tempStream << text;
+	std::string word;
+	tempStream >> word;
+	if (word == "def")
+	{
+		int answer = MessageBox(0, cstr("Current " + deviceType + " function file is unsaved. Save it?"), 0, MB_YESNOCANCEL);
+		if (answer == IDCANCEL)
+		{
+			thrower("Cancel!");
+		}
+		else if (answer == IDNO)
+		{
+			return;
+		}
+		else if (answer == IDYES)
+		{
+			saveAsFunction();
+			return;
+		}
+	}
+	// else it's a normal script file.
+	if (scriptName == "")
+	{
+		int answer = MessageBox(0, cstr("Current " + deviceType + " script file is unsaved and unnamed. Save it with a with new name?"), 0, MB_YESNOCANCEL);
+		if (answer == IDCANCEL)
+		{
+			thrower("Cancel!");
+		}
+		else if (answer == IDNO)
+		{
+			return;
+		}
+		else if (answer == IDYES)
+		{
+			std::string newName;
+			TextPromptDialog dialog(&newName, "Please enter new name for the script " + scriptName + ".");
+			dialog.DoModal();
+			std::string path = categoryPath + newName + extension;
+			saveScriptAs(path, info);
+			return;
+		}
+	}
+	else
+	{
+		int answer = MessageBox(0, cstr("The " + deviceType + " script file is unsaved. Save it as " + scriptName 
+								+ extension + "?"), 0, MB_YESNOCANCEL);
+		if (answer == IDCANCEL)
+		{
+			thrower("Cancel!");
+		}
+		else if (answer == IDNO)
+		{
+		}
+		else if (answer == IDYES)
+		{
+			saveScript(categoryPath, info);
+		}
+	}
+}
+
+
+//
+void Script::renameScript(std::string categoryPath)
+{
+	if (scriptName == "")
+	{
+		// ??? don't know why I need this here.
+		return;
+	}
+	std::string newName;
+	TextPromptDialog dialog(&newName, "Please enter new name for the script " + scriptName + ".");
+	dialog.DoModal();
+	if (newName == "")
+	{
+		// canceled
+		return;
+	}
+	int result = MoveFile(cstr(categoryPath + scriptName + extension),
+						  cstr(categoryPath + newName + extension));
+
+	if (result == 0)
+	{
+		thrower("ERROR: Failed to move file.");
+	}
+	scriptFullAddress = categoryPath + scriptName + extension;
+	scriptPath = categoryPath;
+}
+
+
+//
+void Script::deleteScript(std::string categoryPath)
+{
+	if (scriptName == "")
+	{
+		return;
+	}
+	// check to make sure:
+	int answer = MessageBox(0, cstr("Are you sure you want to delete the script file " + scriptName + "?"), 0, MB_YESNO);
+	if (answer == IDNO)
+	{
+		return;
+	}
+	int result = DeleteFile(cstr(categoryPath + scriptName + extension));
+	if (result == 0)
+	{
+		thrower("ERROR: Deleting script file failed!");
+	}
+	else
+	{
+		scriptName = "";
+		scriptPath = "";
+		scriptFullAddress = "";
+	}
+}
+
+
+// the differences between this and new script are that this opens the default function instead of the default script
+// and that this does not reset the script name, etc. 
+void Script::newFunction()
+{
+	std::string tempName;
+	tempName = DEFAULT_SCRIPT_FOLDER_PATH;
+	if (deviceType == "Master")
+	{
+		tempName += "DEFAULT_FUNCTION.func";
+	}
+	else
+	{
+		thrower("ERROR: tried to load new function with non-master script???");
+	}
+	loadFile(tempName);
+	//	colorEntireScript(mainWin);
+}
+
+
+//
+void Script::newScript(std::string orientation)
+{
+	std::string tempName;
+	tempName = DEFAULT_SCRIPT_FOLDER_PATH;
+	if (deviceType == "Horizontal NIAWG")
+	{
+		if (orientation == HORIZONTAL_ORIENTATION)
+		{
+			tempName += "DEFAULT_HCONFIG_HORIZONTAL_SCRIPT.nScript";
+			//"DEFAULT_HORIZONTAL_SCRIPT.script"
+		}
+		else if (orientation == VERTICAL_ORIENTATION)
+		{
+			tempName += "DEFAULT_VCONFIG_HORIZONTAL_SCRIPT.nScript";
+		}
+		else
+		{
+			thrower("ERROR: Unrecognized orientation!");
+		}
+	}
+	else if (deviceType == "Vertical NIAWG")
+	{
+		if (orientation == HORIZONTAL_ORIENTATION)
+		{
+			tempName += "DEFAULT_HCONFIG_VERTICAL_SCRIPT.nScript";
+			//"DEFAULT_HORIZONTAL_SCRIPT.script"
+		}
+		else if (orientation == VERTICAL_ORIENTATION)
+		{
+			tempName += "DEFAULT_VCONFIG_VERTICAL_SCRIPT.nScript";
+		}
+		else
+		{
+			thrower("ERROR: Unrecognized orientation!");
+		}
+	}
+	else if (deviceType == "Agilent")
+	{
+		tempName += "DEFAULT_INTENSITY_SCRIPT.aScript";
+	}
+	else if (deviceType == "Master")
+	{
+		tempName += "DEFAULT_MASTER_SCRIPT.mScript";
+	}	
+	reset();
+	loadFile(tempName);
+	// colorEntireScript(mainWin);
+}
+
+
+//
+void Script::openParentScript(std::string parentScriptFileAndPath, std::string categoryPath, RunInfo info)
+{
+	if (parentScriptFileAndPath == "")
+	{
+		return;
+	}
+	char fileChars[_MAX_FNAME];
+	char extChars[_MAX_EXT];
+	char dirChars[_MAX_FNAME];
+	char pathChars[_MAX_FNAME];
+	int myError = _splitpath_s(cstr(parentScriptFileAndPath), dirChars, _MAX_FNAME, pathChars, _MAX_FNAME, fileChars, _MAX_FNAME, extChars, _MAX_EXT);
+	std::string extStr(extChars);
+	if (deviceType == "Horizontal NIAWG" || deviceType == "Vertical NIAWG")
+	{
+		if (extStr != NIAWG_SCRIPT_EXTENSION)
+		{
+			thrower("ERROR: Attempted to open non-NIAWG script inside NIAWG script control.");
+		}
+	}
+	else if (deviceType == "Agilent")
+	{
+		if (extStr != AGILENT_SCRIPT_EXTENSION)
+		{
+			thrower("ERROR: Attempted to open non-agilent script from agilent script control.");
+		}
+	}
+	else if (deviceType == "Master")
+	{
+		if (extStr != MASTER_SCRIPT_EXTENSION)
+		{
+			thrower("ERROR: Attempted to open non-master script from master script control!");
+		}
+	}
+	else
+	{
+		thrower("ERROR: Unrecognized device type inside script control! Ask Mark about Bugs.");
+	}
+	loadFile( parentScriptFileAndPath );
+	scriptName = str(fileChars);
+	scriptFullAddress = parentScriptFileAndPath;
+	updateSavedStatus(true);
+	// Check location of vertical script.
+	int sPos = parentScriptFileAndPath.find_last_of('\\');
+	std::string scriptLocation = parentScriptFileAndPath.substr(0, sPos);
+	if (scriptLocation + "\\" != categoryPath && categoryPath != "")
+	{
+		int answer = MessageBox(0, "The requested script is not currently located in the current configuration folder. This is recommended so that scripts "
+			"related to a particular configuration are reserved to that configuration folder. Copy script to current configuration folder?", 0, MB_YESNO);
+		if (answer == IDYES)
+		{
+			std::string scriptName = parentScriptFileAndPath.substr(sPos, parentScriptFileAndPath.size());
+			std::string path = categoryPath + scriptName;
+			saveScriptAs(path, info);
+			//fileManage::saveScript(relevantEdit, filePathway, savedInd, savedVar);
+		}
+	}
+	updateScriptNameText(parentScriptFileAndPath);
+	availableFunctionsCombo.SelectString(0, "Parent Script");
+	//colorEntireScript(mainWin);
+}
+
+
+/*
+]---	This function only puts the given file on the edit for this class, it doesn't change current settings parameters. It's used bare when just changing the
+]-		view of the edit, while it's used with some surrounding changes for loading a new parent.
+ */
+void Script::loadFile(std::string pathToFile)
+{
+	std::fstream openFile;
+	openFile.open(pathToFile, std::ios::in);
+	if (!openFile.is_open())
+	{
+		reset();
+		thrower("ERROR: Failed to open script file: " + pathToFile + ".");
+	}
+	std::string tempLine;
+	std::string fileText;
+	while (std::getline(openFile, tempLine))
+	{
+		cleanString(tempLine);
+
+		fileText += tempLine;
+		// Append the line to the edit control here.
+	}
+	// put the default into the new control.
+	edit.SetWindowTextA(cstr(fileText));
+	openFile.close();
+}
+
+
+void Script::reset()
+{
+	availableFunctionsCombo.SelectString(0,"Parent Script");
+	scriptName = "";
+	scriptPath = "";
+	scriptFullAddress = "";
+	updateSavedStatus(false);
+	fileNameText.SetWindowTextA("");
+	edit.SetWindowTextA("");
+}
+
+
+bool Script::savedStatus()
+{
+	return isSaved;
+}
+
+std::string Script::getScriptPathAndName()
+{
+	return scriptFullAddress;
+}
+
+std::string Script::getScriptName()
+{
+	return scriptName;
+}
+
+void Script::considerCurrentLocation(std::string categoryPath, RunInfo info)
+{
+	if (scriptFullAddress.size() > 0)
+	{
+		// Check location of vertical script.
+		int sPos = scriptFullAddress.find_last_of('\\');
+		std::string scriptLocation = scriptFullAddress.substr(0, sPos);
+		if (scriptLocation + "\\" != categoryPath)
+		{
+			int answer = MessageBox(0, "The requested vertical script is not currently located in the current configuration folder. This is recommended so that scripts related to a"
+				" particular configuration are reserved to that configuration folder. Copy script to current configuration folder?", 0, MB_YESNO);
+			if (answer == IDYES)
+			{
+				std::string scriptName = scriptFullAddress.substr(sPos, scriptFullAddress.size());
+				scriptFullAddress = categoryPath + scriptName;
+				scriptPath = categoryPath;
+				saveScriptAs(scriptFullAddress, info);
+			}
+		}
+		// else nothing
+	}
+}
+
+std::string Script::getExtension()
+{
+	return extension;
+}
+
+void Script::updateScriptNameText(std::string path)
+{
+	//std::string categoryPath = eProfile.getCurrentPathIncludingCategory();
+	int sPos = path.find_last_of('\\');
+	if (sPos != -1)
+	{
+		std::string categoryPath = path.substr(0, sPos);
+		std::string name = path.substr(sPos + 1, path.size());
+		sPos = categoryPath.find_last_of('\\');
+		std::string category = categoryPath.substr(sPos + 1, categoryPath.size());
+		std::string text = category + "->" + name;
+		fileNameText.SetWindowTextA(cstr(text));
+	}
+	else
+	{
+		std::string text = "??? -> ";
+		if (scriptName == "")
+		{
+			text += "???";
+		}
+		else
+		{
+			text += scriptName;
+		}
+		fileNameText.SetWindowTextA(cstr(text));
+	}
+}
+
+INT_PTR Script::handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, brushMap brushes)
+{
+	DWORD controlID = GetDlgCtrlID((HWND)lParam);
+	HDC hdcStatic = (HDC)wParam;
+	if (controlID == edit.GetDlgCtrlID())
+	{
+		SetTextColor(hdcStatic, RGB(255, 255, 255));
+		SetBkColor(hdcStatic, RGB(15, 15, 15));
+		return (LRESULT)brushes["Dark Grey"];
+	}
+	else if (controlID == title.GetDlgCtrlID() || controlID == savedIndicator.GetDlgCtrlID() 
+			 || controlID == fileNameText.GetDlgCtrlID() || controlID == availableFunctionsCombo.GetDlgCtrlID())
+	{
+		SetTextColor(hdcStatic, RGB(218, 165, 32));
+		SetBkColor(hdcStatic, RGB(25, 25, 25));
+		return (LRESULT)brushes["Medium Grey"];
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+
+void Script::saveAsFunction()
+{
+	// check to make sure that the current script is defined like a function
+	CString text;
+	edit.GetWindowTextA(text);
+	ScriptStream stream;
+	stream << text.GetBuffer();
+	std::string word;
+	stream >> word;
+	if (word != "def")
+	{
+		thrower("ERROR: Function declarations must begin with \"def\".");
+	}
+	std::string line;
+	line = stream.getline( '\r' );
+	int pos = line.find_first_of("(");
+	if (pos == std::string::npos)
+	{
+		thrower("No \"(\" found in function name. If there are no arguments, use empty parenthesis \"()\"");
+	}
+	int initNamePos = line.find_first_not_of(" \t");
+	std::string functionName = line.substr(initNamePos, line.find_first_of("("));
+	if (functionName.find_first_of(" ") != std::string::npos)
+	{
+		thrower("ERROR: Function name included a space! Name was" + functionName);
+	}
+	std::string path = FUNCTIONS_FOLDER_LOCATION + functionName + FUNCTION_EXTENSION;
+	FILE *file;
+	fopen_s( &file, cstr(path), "r" );
+	if ( !file )
+	{
+		//
+	}
+	else
+	{
+		fclose( file );
+		int answer = MessageBox( 0, cstr("The function \"" + functionName + "\" already exists! Overwrite it?"), 0, MB_YESNO );
+		if ( answer == IDNO )
+		{
+			return;
+		}
+	}
+	std::fstream functionFile(path, std::ios::out);
+	if (!functionFile.is_open())
+	{
+		thrower("ERROR: the function file failed to open!");
+	}
+	functionFile << text.GetBuffer();
+	functionFile.close();
+	// refresh this.
+	loadFunctions();
+	// test if script exists in nearby folder.
+}
+
+void Script::loadFunctions()
+{
+	// scan the function home for functions.
+	// Re-add the entries back in and figure out which one is the current one.
+	std::vector<std::string> names;
+	std::string search_path = functionLocation + "\\*.func";
+	WIN32_FIND_DATA fd;
+	HANDLE hFind;
+	hFind = FindFirstFile(cstr(search_path), &fd);
+	if (hFind != INVALID_HANDLE_VALUE)
+	{
+		do
+		{
+			if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+			{
+				names.push_back(fd.cFileName);
+			}
+		} while (FindNextFile(hFind, &fd));
+		FindClose(hFind);
+	}
+
+	// open each file and get it's function argument.
+	std::fstream functionFile;
+	std::vector<std::string> finalNames;
+	for (int functionInc = 0; functionInc < names.size(); functionInc++)
+	{
+		if (functionFile.is_open())
+		{
+			functionFile.close();
+		}
+		functionFile.open(functionLocation + "\\" + names[functionInc], std::ios::in);
+		if (!functionFile.is_open())
+		{
+			MessageBox(0, cstr("ERROR: Failed to open function file: " + names[functionInc]), 0, 0);
+			continue;
+		}
+		ScriptStream functionStream;
+		functionStream << functionFile.rdbuf();
+		functionStream.clear();
+		functionStream.seekg( 0, std::ios::beg );
+		std::string functionDeclaration;
+		functionDeclaration = functionStream.getline( ':' );
+		std::string name; 
+		std::vector<std::string> args;
+		//ExperimentManager::analyzeFunctionDefinition( functionDeclaration, name, args );
+		// make the name for the combo.
+		name += "(";
+		if (args.size() != 0)
+		{
+			name += args[0];
+		}
+		for (int argInc = 1; argInc < args.size(); argInc++)
+		{
+			name += ", " + args[argInc];
+		}
+		name += ")";
+		finalNames.push_back(name);
+	}
+	// clear the box.
+	availableFunctionsCombo.ResetContent();
+	// 
+	availableFunctionsCombo.AddString("Parent Script");
+	for (int nameInc = 0; nameInc < finalNames.size(); nameInc++)
+	{
+		availableFunctionsCombo.AddString(cstr(finalNames[nameInc]));
+	}
+}
