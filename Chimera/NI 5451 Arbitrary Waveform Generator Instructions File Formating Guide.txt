@@ -1,0 +1,106 @@
+/***********************************************************************\
+ NI 5451 ARBITRARY WAVEFORM GENERATOR INSTRUCTIONS FILE FORMATTING GUIDE
+\***********************************************************************/
+
+
+The instructions file consists of two parts. The first part is a series of settings to use when generating 
+the waveform. The second part is a series of commands for the waveform, and includes commands like generating 
+waveforms, generating ramping waveforms, simple logic statements, repeat statements, triggers, and markers.
+
+In each case, if a command requires input (for example, the frequency and amplitude of a waveform), the input
+format is referenced below using angled brackets <...>. Place the input on the line below the command in the 
+format specified. 
+
+Semicolons are optional.
+
+You can use the waveform commands with or without (if you are already familiar with the format) including the 
+bracketed formatting instructions as well (e.g. "gen 1 const" instead of "gen 1 const <freq> <amp> | <time>").
+
+The ramping type options are currently "Linear" and "NoRamp".
+
+The numbers indicated (e.g. gen /3/ consts) refer to the number of different frequencies that command can take 
+as input. The other command specifies (e.g. "freq ramp") refer to the ramping options that the command is capable
+of taking as input. If you want to generate 3 frequencies, and do an amplitude ramp on only one of them, then 
+use "gen 3 amp ramps" command, then say "Linear" on the frequency that you want to ramp, and "NoRamp" on the
+others.
+
+The associated c++ code has been designed to be flexible when it comes to trailing white-spaces at the ends of 
+lines and in between commands, so use whatever such formatting pleases your eyes. Do not, however, include extra
+characters anywhere. Make sure that the command text is copied exactly, or the program will throw an error, tell
+you that it doesn't recognize the inputed character, and exit without running the waveform.
+
+*****************************************************
+Settings (display, in order, at the top of the file):
+*****************************************************
+
+any of the following:
+"NO VARIABLES"
+"1 VARIABLE <variable name> <file.txt for variable values>" or 
+"2 VARIABLES <variable #1 name> <file.txt for variable #1 values>; <variable #2 name> <file.txt for variable #2 values>"
+
+and
+"NUMBER OF REFERENCED WAVEFORMS: <# of waveforms>"
+
+**********************************
+Commands (display below settings):
+**********************************
+(a) Wait Commands
+"wait until trigger"
+"wait set # <# of samples to wait>"
+
+(b) Repeat Commands
+"repeat set # <# of times to repeat>"
+"repeat until trigger"
+"repeat forever"
+"end repeat"
+  
+(c) Logic Commands
+"if trigger"
+"else"
+"end if"
+
+(d) Constant Waveforms
+"gen 1, const <freq> <amp> <phase (rad)>; <time> <t manage>"
+"gen 2, const <freq1> <amp1> <phase1 (rad)>; <sim for 2nd>; <time> <t manage>"
+"gen 3, const <freq1> <amp1> <phase1 (rad)>; <sim for 2nd, 3rd>; <time> <t manage>"
+"gen 4, const <freq1> <amp1> <phase1 (rad)>; <sim for 2nd, 3rd, 4th>; <time> <t manage>"
+"gen 5, const <freq1> <amp1> <phase1 (rad)>; <sim for 2nd, 3rd, 4th, 5th>; <time> <t manage>"
+
+(e) Amplitude Ramps
+"gen 1, amp ramp <freq> <amp ramp type> <initial amp> <final amp> <phase (rad)>; <time> <t manage>"
+"gen 2, amp ramp <freq1> <amp1 ramp type> <initial amp1> <final amp1> <phase1 (rad)>; <sim for 2nd>; <time> <t manage>"
+"gen 3, amp ramp <freq1> <amp1 ramp type> <initial amp1> <final amp1> <phase1 (rad)>; <sim for 2nd, 3rd>; <time> <t manage>"
+"gen 4, amp ramp <freq1> <amp1 ramp type> <initial amp1> <final amp1> <phase1 (rad)>; <sim for 2nd, 3rd, 4th>; <time> <t manage>"
+"gen 5, amp ramp <freq1> <amp1 ramp type> <initial amp1> <final amp1> <phase1 (rad)>; <sim for 2nd, 3rd, 4th, 5th>; <time> <t manage>"
+
+(f) frequency Ramps
+"gen 1, freq ramp <freq ramp type> <initial freq> <final freq> <amp> <phase (rad)>; <time> <t manage>"
+"gen 2, freq ramp <freq1 ramp type> <initial freq1> <final freq1> <amp1> <phase1 (rad)>; <sim for 2nd>; <time> <t manage>"
+"gen 3, freq ramp <freq1 ramp type> <initial freq1> <final freq1> <amp1> <phase1 (rad)>; <sim for 2nd, 3rd>; <time> <t manage>"
+"gen 4, freq ramp <freq1 ramp type> <initial freq1> <final freq1> <amp1> <phase1 (rad)>; <sim for 2nd, 3rd, 4th>; <time> <t manage>"
+"gen 5, freq ramp <freq1 ramp type> <initial freq1> <final freq1> <amp1> <phase1 (rad)>; <sim for 2nd, 3rd, 4th, 5th>; <time> <t manage>"
+
+(g) Amplitude and Frequency Ramps
+"gen 1, freq & amp ramp <freq ramp type> <initial freq> <final freq> <amp ramp type> <initial amp> <final amp> <phase (rad)>; <time> <t manage>"
+"gen 2, freq & amp ramp <freq1 ramp type> <initial freq1> <final freq1> <amp ramp1 type> <initial ramp1> <final ramp1> <phase1 (rad)>; <sim for 2nd>; <time> <t manage>"
+"gen 3, freq & amp ramp <freq1 ramp type> <initial freq1> <final freq1> <amp ramp1 type> <initial ramp1> <final ramp1> <phase1 (rad)>; <sim for 2nd, 3rd>; <time> <t manage>"
+"gen 4, freq & amp ramp <freq1 ramp type> <initial freq1> <final freq1> <amp ramp1 type> <initial ramp1> <final ramp1> <phase1 (rad)>; <sim for 2nd, 3rd, 4th>; <time> <t manage>"
+"gen 5, freq & amp ramp <freq1 ramp type> <initial freq1> <final freq1> <amp ramp1 type> <initial ramp1> <final ramp1> <phase1 (rad)>; <sim for 2nd, 3rd, 4th, 5th>; <time> <t manage>"
+
+(h) Predefined Waveform
+"predefined waveform <x filename.txt> <y filename.txt> <waveform type ('command' or 'raw')>"
+
+(i) Predefined Script
+"predefined script <filename.txt>"
+
+(j) Create marker event after last waveform
+"create marker event <samples after previous waveform to wait>"
+
+**********
+EXAMPLE 1:
+**********
+
+**********
+EXAMPLE 2:
+**********
+

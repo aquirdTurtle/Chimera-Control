@@ -21,7 +21,8 @@ namespace commonFunctions
 {
 	// this function handles messages that all windows can recieve, e.g. accelerator keys and menu messages. It redirects
 	// everything to all of the other functions below, for the most part.
-	bool handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, ScriptingWindow* scriptWin, CameraWindow* camWin )
+	bool handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, ScriptingWindow* scriptWin, 
+							  CameraWindow* camWin, DeviceWindow* masterWin )
 	{
 		switch (msgID)
 		{

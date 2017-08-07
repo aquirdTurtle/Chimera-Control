@@ -9,6 +9,7 @@
 #include "commonTypes.h"
 
 
+
 struct minMaxDoublet
 {
 	double min;

@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{BDB7E898-2F81-4410-90C7-0BD4D3212AF8}</ProjectGuid>
+    <ProjectGuid>{CC63A954-1602-4D03-B9F8-0A7E38F5B36D}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>NIPXIe5451ArbWvFmGen20</RootNamespace>
     <ProjectName>Camerawg</ProjectName>

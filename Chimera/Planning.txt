@@ -1,0 +1,32 @@
+===================
+TODO
+===================
+
+Core Requirements:
+- Combine Profile systems
+- Get Master Experiment thread working
+
+Features:
+- could clean up textpromptdialog handling, should be possible with one line.
+- Consider thread organization with master run thread & Niawg run Thread
+- change / remove "orientation" handling.
+- plotting / autoanalysis
+- Display Actual kinetic Cycle Time
+- Display minimum kinetic cycle time
+- Improve frame rate?
+	- should be able to get 3.12 frames / sec or so at full array size
+- Agilent Safemode / combine agilent w/ master agilent.
+- Watch cursor location
+
+
+Bugs:                                                                           
+- Agilent not connecting
+- restart niawg freezes program (can't reproduce in test)
+- fix up the many different windows that pop up on startup.
+
+=================
+Finished
+=================
+- a lot of stuff in combining the programs that I didn't log
+- Camera border settings now included in the master config.
+

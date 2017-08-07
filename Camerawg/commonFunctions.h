@@ -3,11 +3,13 @@
 
 class MainWindow;
 class CameraWindow;
+class DeviceWindow;
 
 namespace commonFunctions
 {
 	/// Call to direct message to appropriate function in this namespace
-	bool handleCommonMessage( int msgID, CWnd* parent, MainWindow* comm, ScriptingWindow* scriptWin, CameraWindow* camWin );
+	bool handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, ScriptingWindow* scriptWin, 
+							  CameraWindow* camWin, DeviceWindow* masterWin );
 	/// Run Menu
 	void startNiawg( int msgID, ScriptingWindow* scriptWindow, MainWindow* mainWin, CameraWindow* camWin );
 	void startCamera( ScriptingWindow* scriptWindow, MainWindow* mainWin, CameraWindow* camWin );

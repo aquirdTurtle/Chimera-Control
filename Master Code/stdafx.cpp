@@ -31,9 +31,6 @@ void appendText(std::string newText, Control<CRichEditCtrl>& edit)
 }
 
 
-// goals of my math
-// handle parenthesis
-// handle addition, mult, div, subtraction w/ variables.
 double reduce(std::string expression, key variationKey, UINT variation, std::vector<variable>& vars)
 {
 	double resultOfReduction = 0;
