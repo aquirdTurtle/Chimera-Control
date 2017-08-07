@@ -504,6 +504,7 @@ void ConfigurationFileSystem::openConfiguration( std::string configurationNameTo
 	///
 	configFile >> tempSettings.emGainModeIsOn;
 	configFile >> tempSettings.emGainLevel;
+
 	/*
 	if (eEMGainMode == false || eEMGainLevel < 0)
 	{
