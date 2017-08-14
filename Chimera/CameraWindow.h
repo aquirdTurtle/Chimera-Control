@@ -7,11 +7,12 @@
 #include "DataAnalysisHandler.h"
 #include "ExperimentTimer.h"
 #include "DataLogger.h"
-
+#include "gnuplotter.h"
+#include "commonFunctions.h"
 
 class MainWindow;
 class ScriptingWindow;
-
+class DeviceWindow;
 
 struct cameraPositions
 {
@@ -22,16 +23,63 @@ struct cameraPositions
 };
 
 
+struct plotThreadInput
+{
+	std::vector<tinyPlotInfo> plotInfo;
+	std::vector<std::pair<int, int>> analysisLocations;
+	std::atomic<bool>* active;
+	std::vector<std::vector<long>>* imageQueue;
+	std::vector<std::vector<bool>>* atomQueue;
+	imageParameters imageShape;
+	UINT picsPerVariation;
+	UINT picsPerRep;
+	UINT variations;
+
+	UINT alertThreshold;
+	bool wantAlerts;
+	Communicator* comm;
+	std::mutex* plotLock;
+
+	UINT plottingFrequency;
+	UINT numberOfRunsToAverage;
+	std::vector<double>* key;
+	Gnuplotter* plotter;
+
+	bool needsCounts;
+};
+
+
+struct atomCruncherInput
+{
+	// what the thread watches...
+	std::atomic<bool>* cruncherThreadActive;
+	std::vector<std::vector<long>>* imageQueue;
+	// options
+	bool plotterActive;
+	bool plotterNeedsImages;
+	bool rearrangerActive;
+	UINT picsPerRep;
+	// locks
+	std::mutex* imageLock;
+	std::mutex* plotLock;
+	std::mutex* rearrangerLock;
+	// what the thread fills.
+	std::vector<std::vector<long>>* plotterImageQueue;
+	std::vector<std::vector<bool>>* plotterAtomQueue;
+	std::vector<std::vector<bool>>* rearrangerAtomQueue;
+	std::array<int, 4> thresholds;
+};
+
+
 class CameraWindow : public CDialog
 {
-	
 	using CDialog::CDialog;
 	
 	DECLARE_DYNAMIC( CameraWindow )
 
 	public:
 		/// overrides
-		CameraWindow::CameraWindow();
+		CameraWindow();
 		HBRUSH OnCtlColor( CDC* pDC, CWnd* pWnd, UINT nCtlColor );
 		BOOL OnInitDialog() override;
 		BOOL PreTranslateMessage( MSG* pMsg );
@@ -39,20 +87,15 @@ class CameraWindow : public CDialog
 		void OnSize( UINT nType, int cx, int cy );
 		void OnVScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar );
 		void OnTimer( UINT_PTR id );
-		void getFriends(MainWindow* mainWin, ScriptingWindow* scriptWin, DeviceWindow* masterWin);
-		/// 
-		void handleMasterConfigSave(std::stringstream& configStream);
-		void handleMasterConfigOpen(std::stringstream& configStream, double version);
-		void catchEnter();
-		void handlePictureEditChange(UINT id);
-		void redrawPictures( bool andGrid );
-		void changeBoxColor( systemInfo<char> colors );
-		std::vector<CToolTipCtrl*> getToolTips();
-		bool getCameraStatus();
-		void setTimerText( std::string timerText );
-		void prepareCamera();
-		void startCamera();
-		std::string getStartMessage();
+		void OnLButtonUp( UINT stuff, CPoint loc );
+		void OnRButtonUp( UINT stuff, CPoint loc );
+		/// directly called by the message map or 1 simple step removed.
+		LRESULT onCameraFinish( WPARAM wParam, LPARAM lParam );
+		LRESULT onCameraProgress( WPARAM wParam, LPARAM lParam );
+		void handleDblClick( NMHDR* info, LRESULT* lResult );
+		void listViewRClick( NMHDR* info, LRESULT* lResult );
+		void handleSpecialGreaterThanMaxSelection();
+		void handleSpecialLessThanMinSelection();
 		void readImageParameters();
 		void passCommonCommand( UINT id );
 		void passTrigger();
@@ -63,23 +106,34 @@ class CameraWindow : public CDialog
 		void passVariationNumberPress();
 		void passAlwaysShowGrid();
 		void passSetAnalysisLocations();
+		void catchEnter();
+
+		/// auxiliary functions.
+		void getFriends(MainWindow* mainWin, ScriptingWindow* scriptWin, DeviceWindow* masterWin);
+		void handleSaveConfig(std::ofstream& saveFile);
+		void handleMasterConfigSave(std::stringstream& configStream);
+		void handleMasterConfigOpen(std::stringstream& configStream, double version);
+		void handlePictureEditChange(UINT id);
+		void handleOpeningConfig(std::ifstream& configFile, double version);
+		void redrawPictures( bool andGrid );
+		void changeBoxColor( systemInfo<char> colors );
+		cToolTips getToolTips();
+		bool getCameraStatus();
+		void setTimerText( std::string timerText );
+		void prepareCamera();
+		void startCamera();
+		std::string getStartMessage();
 		void setEmGain();
 		void handlePictureSettings( UINT id );
 		bool cameraIsRunning();
-		LRESULT onCameraFinish( WPARAM wParam, LPARAM lParam );
-		LRESULT onCameraProgress( WPARAM wParam, LPARAM lParam );
-		void handleDblClick( NMHDR* info, LRESULT* lResult );
-		void listViewLClick( NMHDR* info, LRESULT* lResult );
-		
-		void OnLButtonUp(UINT stuff, CPoint loc);
-		void OnRButtonUp( UINT stuff, CPoint loc );
-		void handleSpecialGreaterThanMaxSelection();
-		void handleSpecialLessThanMinSelection();
 		void abortCameraRun();
-		friend bool commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, ScriptingWindow* scriptWin, 
-														  CameraWindow* camWin, DeviceWindow* masterWin );
 		void handleAutoscaleSelection();
 		void assertOff();
+
+		static UINT __stdcall atomCruncherProcedure(void* input);
+
+		friend void commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, ScriptingWindow* scriptWin,
+														  CameraWindow* camWin, DeviceWindow* masterWin );
 
 	private:
 		DECLARE_MESSAGE_MAP();
@@ -97,9 +151,9 @@ class CameraWindow : public CDialog
 
 		MainWindow* mainWindowFriend;
 		ScriptingWindow* scriptingWindowFriend;
-		DeviceWindow* masterWindowFriend;
+		DeviceWindow* deviceWindowFriend;
 
-		std::vector<CToolTipCtrl*> tooltips;
+		cToolTips tooltips;
 
 		std::pair<int, int> selectedPixel = { 0,0 };
 		CMenu menu;
@@ -109,5 +163,24 @@ class CameraWindow : public CDialog
 		bool specialLessThanMin;
 		bool specialGreaterThanMax;
 		bool realTimePic;
+
+		// plotting stuff;
+		HANDLE plotThreadHandle;
+		std::vector<std::vector<long> > imageQueue;
+		std::mutex imageLock;
+		// the following two queues and locks aren't directly used by the camera window, but the camera window
+		// distributes them to the threads that do use them.
+		std::vector<std::vector<bool>> plotterAtomQueue;
+		// only used sometimes.
+		std::vector<std::vector<long>> plotterPictureQueue;
+		std::vector<std::vector<bool>> rearrangerAtomQueue;
+		std::mutex plotLock;
+		std::mutex rearrangerLock;
+		HANDLE atomCruncherThreadHandle;
+		std::atomic<bool> atomCrunchThreadActive;
+		// 
+		std::atomic<bool> plotThreadActive;
+		std::vector<double> plotterKey;
+		Gnuplotter plotter;
 };
 

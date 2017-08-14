@@ -15,7 +15,7 @@ INT_PTR CALLBACK beginningSettingsDialogProc(HWND hDlg, UINT message, WPARAM wPa
 												  0, 0, 572, 400, hDlg, (HMENU)IDC_BEGINNING_DIALOG_RICH_EDIT, GetModuleHandle(NULL), NULL);
 			SendMessage(eBeginDialogRichEdit, WM_SETFONT, WPARAM(sCodeFont), TRUE);
 			std::string text((const char*)lParam);
-			SetWindowText(eBeginDialogRichEdit, text.c_str());
+			SetWindowText(eBeginDialogRichEdit, cstr(text));
 			std::stringstream streamObj(text);
 			std::string line;
 			DWORD start = 0, end = 0;

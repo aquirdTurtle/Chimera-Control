@@ -27,7 +27,7 @@ EmbeddedPythonHandler::EmbeddedPythonHandler()
 	//create main module
 	mainModule = PyImport_AddModule("__main__"); 
 	//invoke code to redirect
-	PyRun_SimpleString(stdOutErr.c_str()); 
+	PyRun_SimpleString(cstr(stdOutErr)); 
 	//get our catchOutErr object (of type CatchOutErr) created above
 	errorCatcher = PyObject_GetAttrString(mainModule, "catchOutErr"); 
 	// start using the run function.
@@ -109,7 +109,7 @@ void EmbeddedPythonHandler::runDataAnalysis(std::string date, long runNumber, lo
 		thrower("ERROR: creating tuple for python function arguments failed!?!?!?!? Auto-Analysis will terminate.");
 	}
 	// pythonFunctionArguments, pythonDate
-	PyObject* pythonDate = Py_BuildValue("s", date.c_str());
+	PyObject* pythonDate = Py_BuildValue("s", cstr(date));
 	// check success
 	if (pythonDate == NULL)
 	{
@@ -227,7 +227,7 @@ std::string EmbeddedPythonHandler::run(std::string cmd, bool flush /*=true*/)
 	{
 		return "";
 	}
-	PyRun_SimpleString(cmd.c_str());
+	PyRun_SimpleString(cstr(cmd));
 	// get the stdout and stderr from our catchOutErr object
 	PyObject *output = PyObject_GetAttrString(errorCatcher, "value");
 	return PyBytes_AS_STRING(PyUnicode_AsEncodedString(output, "ASCII", "strict"));

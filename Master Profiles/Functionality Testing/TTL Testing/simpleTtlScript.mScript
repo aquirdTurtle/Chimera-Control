@@ -1,6 +1,0 @@
-
-t = 10
-
-dacramp: dac1 -10 10 1 0.1
-t = 2
-dacramp: dac1 -10 10 1 .1

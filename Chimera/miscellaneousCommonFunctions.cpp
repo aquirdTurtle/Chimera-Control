@@ -13,7 +13,7 @@ void appendText(std::string newText, CEdit& edit)
 	// put the selection at the end of text
 	edit.SetSel(nLength, nLength);
 	// replace the selection
-	edit.ReplaceSel(newText.c_str());
+	edit.ReplaceSel(cstr(newText));
 	edit.LineScroll(INT_MAX);
 }
 
@@ -25,7 +25,7 @@ void appendText(std::string newText, Control<CRichEditCtrl>& edit)
 	// put the selection at the end of text
 	edit.SetSel(nLength, nLength);
 	// replace the selection
-	edit.ReplaceSel(newText.c_str());
+	edit.ReplaceSel(cstr(newText));
 	edit.SetFocus();
 	nLength = edit.GetWindowTextLength();
 	// put the selection at the end of text
@@ -118,7 +118,7 @@ double reduce(std::string expression, key variationKey, UINT variation, std::vec
 		std::vector<std::string> rightmostParenthesisTerms;
 		bool leftExists = false;
 		// find innermost parenthesis		
-		unsigned long long count = 0, leftPos = 0, rightPos = 0;
+		ULONGLONG count = 0, leftPos = 0, rightPos = 0;
 		for (auto& elem : terms)
 		{
 			if (elem == "(")

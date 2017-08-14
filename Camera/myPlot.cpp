@@ -79,36 +79,6 @@ namespace myPlot
 
 	int savePostSelectionConditions(HWND dialogHandle, bool clear)
 	{
-		// make sure that the condition number, pictures and pixels are selected.
-		if (eCurrentPostSelectionPictureNumber >= 0 && eCurrentPostSelectionPixelNumber >= 0 && eCurrentPostSelectionConditionNumber >= 0
-			&& eCurrentDataSetSelectionNumber >= 0)
-		{
-			BOOL atomChecked = IsDlgButtonChecked(dialogHandle, IDC_PLOT_CREATOR_POST_SELECTION_ATOM_PRESENT_CHECK);
-			BOOL noAtomChecked = IsDlgButtonChecked(dialogHandle, IDC_PLOT_CREATOR_POST_SELECTION_NO_ATOM_CHECK);
-			if (atomChecked)
-			{
-				// 1 is atom present condition
-				eCurrentPlottingInfo.setPostSelectionCondition(eCurrentDataSetSelectionNumber, eCurrentPostSelectionConditionNumber,
-					eCurrentPostSelectionPixelNumber, eCurrentPostSelectionPictureNumber, 1);
-			}
-			else if (noAtomChecked)
-			{
-				// -1 is no atom present condition
-				eCurrentPlottingInfo.setPostSelectionCondition(eCurrentDataSetSelectionNumber, eCurrentPostSelectionConditionNumber,
-					eCurrentPostSelectionPixelNumber, eCurrentPostSelectionPictureNumber, -1);
-			}
-			else
-			{
-				// no condition.
-				eCurrentPlottingInfo.setPostSelectionCondition(eCurrentDataSetSelectionNumber, eCurrentPostSelectionConditionNumber,
-					eCurrentPostSelectionPixelNumber, eCurrentPostSelectionPictureNumber, 0);
-			}
-		}
-		if (clear)
-		{
-			CheckDlgButton(dialogHandle, IDC_PLOT_CREATOR_POST_SELECTION_ATOM_PRESENT_CHECK, BST_UNCHECKED);
-			CheckDlgButton(dialogHandle, IDC_PLOT_CREATOR_POST_SELECTION_NO_ATOM_CHECK, BST_UNCHECKED);
-		}
 		return 0;
 	}
 

@@ -34,7 +34,7 @@ struct AndorRunSettings
 	std::string cameraMode;
 	bool showPicsInRealTime;
 	//
-	float kinetiCycleTime;
+	float kineticCycleTime;
 	float accumulationTime;
 	int accumulationNumber;
 	std::vector<float> exposureTimes;
@@ -70,9 +70,7 @@ class AndorCamera
 		// the versions that take parameters. Note that my wrapper names don't always match the andor SDK names. If 
 		// looking for  specific sdk functions, search in the cpp file.
 		void abortAcquisition();
-
 		void checkForNewImages();
-
 		void getAcquisitionProgress( long& seriesNumber );
 		void getAcquisitionProgress( long& accumulationNumber, long& seriesNumber );
 		void getAcquisitionTimes(float& exposure, float& accumulation, float& kinetic);
@@ -143,7 +141,7 @@ class AndorCamera
 		void setBaselineOffset(int offset);
 		void setDMAParameters(int maxImagesPerDMA, float secondsPerDMA);
 
-		static unsigned int __stdcall cameraThread( void* voidPtr );
+		static UINT __stdcall cameraThread( void* voidPtr );
 		
 		void initializeClass(Communicator* comm);
 
@@ -171,7 +169,7 @@ class AndorCamera
 		//
 		std::vector<std::vector<long> > imagesOfExperiment;
 		std::vector<std::vector<long> > imageVecQueue;
-		unsigned int cameraThreadID = 0;
+		UINT cameraThreadID = 0;
 
 		cameraThreadInput threadInput;
 

@@ -60,10 +60,7 @@ UINT eNormalFinishMessageID = RegisterWindowMessage( "ID_THREAD_NORMAL_FINISH_ME
 UINT eColoredEditMessageID = RegisterWindowMessage( "ID_VARIABLE_VALUES_MESSAGE" );
 UINT eCameraFinishMessageID = RegisterWindowMessage( "ID_CAMERA_FINISH_MESSAGE" );
 UINT eCameraProgressMessageID = RegisterWindowMessage( "ID_CAMERA_PROGRESS_MESSAGE" );
-
-
-// A variable which records what script is currently being executed by the NIAWG.
-std::string eCurrentScript;
+UINT eRepProgressMessageID = RegisterWindowMessage("ID_REPETITION_PROGRESS_MESSAGE");
 
 // Colors
 HBRUSH eDullRedBrush = CreateSolidBrush(RGB(25, 0, 0));

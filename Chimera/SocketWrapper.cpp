@@ -50,9 +50,9 @@ int SocketWrapper::getRepetitions(int scalingFactor)
 		send( "Recieved Accumulations." );
 		if (num % scalingFactor != 0)
 		{
-			thrower( "ERROR: Number of accumulations received from master: " + std::to_string( num )
+			thrower( "ERROR: Number of accumulations received from master: " + str( num )
 					 + ", is not an integer multiple of the number of configurations in the sequence: "
-					 + std::to_string( scalingFactor ) + ". It must be." );
+					 + str( scalingFactor ) + ". It must be." );
 		}
 	}
 	else
@@ -79,7 +79,7 @@ void SocketWrapper::send(std::string message)
 {
 	if (!SOCKET_SAFEMODE)
 	{
-		if (client.Send( message.c_str(), message.size() ) == SOCKET_ERROR)
+		if (client.Send( cstr(message), message.size() ) == SOCKET_ERROR)
 		{
 			thrower( "ERROR: socket send error" );
 		}

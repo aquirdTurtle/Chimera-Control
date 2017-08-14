@@ -10,12 +10,12 @@ void StatusControl::rearrange(int width, int height, fontMap fonts)
 }
 
 //
-void StatusControl::initialize(POINT &loc, CWnd* parent, int& id, unsigned int size, std::string headerText, 
-							   COLORREF textColor, fontMap fonts, std::vector<CToolTipCtrl*>& tooltips)
+void StatusControl::initialize(POINT &loc, CWnd* parent, int& id, UINT size, std::string headerText, 
+							   COLORREF textColor, fontMap fonts, cToolTips& tooltips)
 {
 	// set formatting for these scripts
 	header.sPos = { loc.x, loc.y, loc.x + 380, loc.y + 20 };
-	header.Create(headerText.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, parent, id++);
+	header.Create(cstr(headerText), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, parent, id++);
 	header.SetFont(fonts["Heading Font"]);
 	//
 	clearButton.sPos = { loc.x + 380, loc.y, loc.x + 480, loc.y + 20 };
@@ -92,9 +92,9 @@ void StatusControl::appendTimebar()
 	time_t time_obj = time(0);   // get time now
 	struct tm currentTime;
 	localtime_s(&currentTime, &time_obj);
-	std::string timeStr = "(" + std::to_string(currentTime.tm_year + 1900) + ":" + std::to_string(currentTime.tm_mon + 1) + ":"
-		+ std::to_string(currentTime.tm_mday) + ")" + std::to_string(currentTime.tm_hour) + ":"
-		+ std::to_string(currentTime.tm_min) + ":" + std::to_string(currentTime.tm_sec);
+	std::string timeStr = "(" + str(currentTime.tm_year + 1900) + ":" + str(currentTime.tm_mon + 1) + ":"
+		+ str(currentTime.tm_mday) + ")" + str(currentTime.tm_hour) + ":"
+		+ str(currentTime.tm_min) + ":" + str(currentTime.tm_sec);
 	setColor(RGB(255, 255, 255));
 	addStatusText("\r\n**********" + timeStr + "**********\r\n", true);
 }

@@ -1,15 +1,16 @@
 #pragma once
+#include <chrono>
+#include <thread>
+
 #include "windows.h"
-#include "ExperimentManager.h"
 #include "niFgen.h"
 #include "externals.h"
 #include "time.h"
-#include <chrono>
-#include <thread>
 #include "constants.h"
 
 
-struct experimentThreadInput;
+struct niawgIntensityThreadInput;
+struct MasterThreadInput;
 struct waitThreadInput
 {
 	NiawgController* niawg;
@@ -26,7 +27,8 @@ class NiawgWaiter
 	public:
 		void initialize();
 		static unsigned __stdcall niawgWaitThread( void* inputParam );
-		void startWait( experimentThreadInput* input);
+		void startWaitThread( MasterThreadInput* input);
+		//void startWaitThread( niawgMIntensityThreadInput* input );
 		void wait( Communicator* comm );
 		void systemAbortCheck( Communicator* comm );
 };

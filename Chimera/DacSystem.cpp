@@ -1,15 +1,50 @@
 #include "stdafx.h"
 #include "DacSystem.h"
-#include "constants.h"
+#include "DeviceWindow.h"
 // for other ni stuff
 #include "nidaqmx2.h"
-#include "ExperimentManager.h"
-#include "DeviceWindow.h"
 
 std::array<double, 24> DacSystem::getDacStatus()
 {
 	return dacValues;
 }
+
+
+void DacSystem::handleOpenConfig(std::ifstream& openFile, double version, TtlSystem* ttls)
+{
+	ProfileSystem::checkDelimiterLine(openFile, "DACS");
+
+	std::vector<double> dacValues(getNumberOfDacs());
+	UINT dacInc = 0;
+	for (auto& dac : dacValues)
+	{
+		std::string dacString;
+		openFile >> dacString;
+		try
+		{
+			double dacValue = std::stod(dacString);
+			prepareDacForceChange(dacInc, dacValue, ttls);
+		}
+		catch (std::invalid_argument& exception)
+		{
+			thrower("ERROR: failed to convert dac value to voltage. string was " + dacString);
+		}
+		dacInc++;
+	}
+	ProfileSystem::checkDelimiterLine(openFile, "END_DACS");
+}
+
+
+void DacSystem::handleSaveConfig(std::ofstream& saveFile)
+{
+	saveFile << "DACS\n";
+	for (int dacInc = 0; dacInc < getNumberOfDacs(); dacInc++)
+	{
+		saveFile << getDacValue(dacInc) << "\n";
+	}
+	saveFile << "END_DACS\n";
+}
+
 
 void DacSystem::abort()
 {
@@ -227,7 +262,7 @@ std::string DacSystem::getDacSystemInfo()
 }
 
 
-void DacSystem::handleEditChange(unsigned int dacNumber)
+void DacSystem::handleEditChange(UINT dacNumber)
 {
 	if (dacNumber >= breakoutBoardEdits.size())
 	{
@@ -315,7 +350,7 @@ double DacSystem::getDefaultValue(UINT dacNum)
 
 
 // this function returns the end location of the set of controls. This can be used for the location for the next control beneath it.
-void DacSystem::initialize(POINT& pos, std::vector<CToolTipCtrl*>& toolTips, DeviceWindow* master, int& id)
+void DacSystem::initialize(POINT& pos, cToolTips& toolTips, DeviceWindow* master, int& id)
 {
 	// title
 	dacTitle.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
@@ -367,7 +402,7 @@ void DacSystem::initialize(POINT& pos, std::vector<CToolTipCtrl*>& toolTips, Dev
 		}
 		// create label
 		dacLabels[dacInc].sPos = { pos.x + collumnInc * 160, pos.y, pos.x + 20 + collumnInc * 160, pos.y += 25 };
-		dacLabels[dacInc].Create(str(dacInc).c_str(), WS_CHILD | WS_VISIBLE | SS_CENTER,
+		dacLabels[dacInc].Create(cstr(dacInc), WS_CHILD | WS_VISIBLE | SS_CENTER,
 								 dacLabels[dacInc].sPos, master, id++);
 		dacLabels[dacInc].setToolTip(dacNames[dacInc], toolTips, master);
 	}
@@ -416,7 +451,7 @@ void DacSystem::handleButtonPress(TtlSystem* ttls)
 			{
 				valStr = str(vals[dacInc]);
 			}
-			breakoutBoardEdits[dacInc].SetWindowTextA(valStr.c_str());
+			breakoutBoardEdits[dacInc].SetWindowTextA(cstr(valStr));
 			prepareDacForceChange(dacInc, vals[dacInc], ttls);
 		}
 		catch (std::invalid_argument& err)
@@ -532,7 +567,7 @@ void DacSystem::setDacStatusNoForceOut(std::array<double, 24> status)
 		{
 			valStr = str(dacValues[dacInc], 12, true);
 		}
-		breakoutBoardEdits[dacInc].SetWindowText(valStr.c_str());
+		breakoutBoardEdits[dacInc].SetWindowText(cstr(valStr));
 		breakoutBoardEdits[dacInc].colorState = 0;
 	}
 }
@@ -680,7 +715,7 @@ void DacSystem::interpretKey( key variationKey, std::vector<variable>& vars, std
 }
 
 
-unsigned int DacSystem::getNumberSnapshots(UINT var)
+UINT DacSystem::getNumberSnapshots(UINT var)
 {
 	return dacSnapshots[var].size();
 }
@@ -775,7 +810,7 @@ void DacSystem::prepareDacForceChange(int line, double voltage, TtlSystem* ttls)
 		// then it's a double. kill extra zeros on the end.
 		valStr.erase(valStr.find_last_not_of('0') + 1, std::string::npos);
 	}
-	breakoutBoardEdits[line].SetWindowText(valStr.c_str());
+	breakoutBoardEdits[line].SetWindowText(cstr(valStr));
 	// I'm not sure it's necessary to go through the procedure of doing this and using the DIO to trigger the dacs for a foce out. I'm guessing it's 
 	// possible to tell the DAC to just immediately change without waiting for a trigger.
 	setForceDacEvent( line, voltage, ttls, 0 );
@@ -909,7 +944,7 @@ void DacSystem::makeFinalDataFormat(UINT var)
 
 void DacSystem::handleDacScriptCommand( timeType time, std::string name, std::string initVal, 
 										 std::string finalVal, std::string rampTime, std::string rampInc, 
-										 std::vector<unsigned int>& dacShadeLocations, std::vector<variable>& vars, 
+										 std::vector<UINT>& dacShadeLocations, std::vector<variable>& vars, 
 										 TtlSystem* ttls )
 {
 	double value;
@@ -1066,7 +1101,7 @@ std::pair<double, double> DacSystem::getDacRange(int dacNumber)
 }
 
 
-void DacSystem::setName(int dacNumber, std::string name, std::vector<CToolTipCtrl*>& toolTips, DeviceWindow* master)
+void DacSystem::setName(int dacNumber, std::string name, cToolTips& toolTips, DeviceWindow* master)
 {
 	if (name == "")
 	{
@@ -1132,7 +1167,7 @@ HBRUSH DacSystem::handleColorMessage( CWnd* window, brushMap brushes, rgbMap rgb
 }
 
 
-unsigned int DacSystem::getNumberOfDacs()
+UINT DacSystem::getNumberOfDacs()
 {
 	return dacValues.size();
 }
@@ -1144,7 +1179,7 @@ double DacSystem::getDacValue(int dacNumber)
 }
 
 
-void DacSystem::shadeDacs(std::vector<unsigned int>& dacShadeLocations)
+void DacSystem::shadeDacs(std::vector<UINT>& dacShadeLocations)
 {
 	for (int shadeInc = 0; shadeInc < dacShadeLocations.size(); shadeInc++)
 	{

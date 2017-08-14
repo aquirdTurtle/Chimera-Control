@@ -2,15 +2,58 @@
 #include "stdafx.h"
 #include "PictureSettingsControl.h"
 #include "Commctrl.h"
-#include "reorganizeControl.h"
 #include "Andor.h"
 #include "CameraSettingsControl.h"
 #include "CameraWindow.h"
+
 
 void PictureSettingsControl::cameraIsOn( bool state )
 {
 	setPictureOptionsButton.EnableWindow( !state );
 }
+
+
+void PictureSettingsControl::handleSaveConfig(std::ofstream& saveFile)
+{
+	saveFile << "PICTURE_SETTINGS\n";
+	for (auto color : colors)
+	{
+		saveFile << color << " ";
+	}
+	saveFile << "\n";
+	for (auto exposure : exposureTimesUnofficial)
+	{
+		saveFile << exposure << " ";
+	}
+	saveFile << "\n";
+	for (auto threshold : thresholds)
+	{
+		saveFile << threshold << " ";
+	}
+	saveFile << "\n";
+	saveFile << "END_PICTURE_SETTINGS\n";
+}
+
+
+void PictureSettingsControl::handleOpenConfig(std::ifstream& openFile, double version, AndorCamera* andor)
+{
+	ProfileSystem::checkDelimiterLine(openFile, "PICTURE_SETTINGS");
+	for (auto& color : colors)
+	{
+		openFile >> color;
+	}
+	for (auto& exposure : exposureTimesUnofficial)
+	{
+		openFile >> exposure;
+	}
+	for (auto& threshold : thresholds)
+	{
+		openFile >> threshold;
+	}
+	setExposureTimes(andor);
+	ProfileSystem::checkDelimiterLine(openFile, "END_PICTURE_SETTINGS");
+}
+
 
 void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int& id )
 {
@@ -240,7 +283,7 @@ CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer, brushMap bru
 		double exposure;
 		try
 		{
-			exposure = std::stof(std::string(text));// / 1000.0f;
+			exposure = std::stof(str(text));// / 1000.0f;
 			double dif = std::fabs(exposure/1000.0 - exposureTimesUnofficial[picNum]);
 			if (dif < 0.000000001)
 			{
@@ -282,7 +325,7 @@ CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer, brushMap bru
 		int threshold;
 		try
 		{
-			threshold = std::stoi(std::string(text));
+			threshold = std::stoi(str(text));
 			double dif = std::fabs(threshold - thresholds[picNum]);
 			if (dif < 0.000000001)
 			{
@@ -354,12 +397,12 @@ void PictureSettingsControl::handleOptionChange(UINT id, AndorCamera* andorObj)
 			int threshold;
 			try
 			{
-				threshold = std::stoi(std::string(textEdit));
+				threshold = std::stoi(str(textEdit));
 				thresholds[thresholdInc] = threshold;
 			}
 			catch (std::invalid_argument)
 			{
-				errBox("ERROR: failed to convert threshold number " + std::to_string(thresholdInc + 1) + " to an integer.");
+				errBox("ERROR: failed to convert threshold number " + str(thresholdInc + 1) + " to an integer.");
 			}
 			thresholdEdits[thresholdInc].RedrawWindow();
 		}
@@ -371,12 +414,12 @@ void PictureSettingsControl::handleOptionChange(UINT id, AndorCamera* andorObj)
 			double exposure;
 			try
 			{
-				exposure = std::stof(std::string(textEdit));
+				exposure = std::stof(str(textEdit));
 				exposureTimesUnofficial[exposureInc] = exposure / 1000.0f;
 			}
 			catch (std::invalid_argument)
 			{
-				errBox("ERROR: failed to convert exposure number " + std::to_string(exposureInc + 1) + " to an integer.");
+				errBox("ERROR: failed to convert exposure number " + str(exposureInc + 1) + " to an integer.");
 			}
 			// refresh for new color
 			exposureEdits[exposureInc].RedrawWindow();
@@ -393,10 +436,12 @@ void PictureSettingsControl::handleOptionChange(UINT id, AndorCamera* andorObj)
 	}
 }
 
+
 void PictureSettingsControl::setExposureTimes(AndorCamera* andorObj)
 {
-	setExposureTimes( this->exposureTimesUnofficial, andorObj );
+	setExposureTimes( exposureTimesUnofficial, andorObj );
 }
+
 
 void PictureSettingsControl::setExposureTimes(std::vector<float> times, AndorCamera* andorObj)
 {
@@ -426,15 +471,8 @@ void PictureSettingsControl::setExposureTimes(std::vector<float> times, AndorCam
 	// now output things.
 	for (int exposureInc = 0; exposureInc < 4; exposureInc++)
 	{
-		exposureEdits[exposureInc].SetWindowTextA(std::to_string(this->exposureTimesUnofficial[exposureInc] * 1000).c_str());
+		exposureEdits[exposureInc].SetWindowTextA(cstr(this->exposureTimesUnofficial[exposureInc] * 1000));
 	}
-	/*
-	SendMessage(eKineticCycleTimeDispHandle.hwnd, WM_SETTEXT, 0, 
-		(LPARAM)std::to_string(eKineticCycleTime * 1000).c_str());
-	SendMessage(eAccumulationTimeDisp.hwnd, WM_SETTEXT, 0, 
-		(LPARAM)std::to_string(eAccumulationTime * 1000).c_str());
-	eCameraFileSystem.updateSaveStatus(false);
-	*/
 }
 
 std::vector<float> PictureSettingsControl::getUsedExposureTimes()
@@ -480,12 +518,12 @@ void PictureSettingsControl::setThresholds(std::array<int, 4> newThresholds)
 	this->thresholds = newThresholds;
 	for (int thresholdInc = 0; thresholdInc < thresholds.size(); thresholdInc++)
 	{
-		thresholdEdits[thresholdInc].SetWindowTextA(std::to_string(thresholds[thresholdInc]).c_str());
+		thresholdEdits[thresholdInc].SetWindowTextA(cstr(thresholds[thresholdInc]));
 	}
 	return;
 }
 
-void PictureSettingsControl::setPicturesPerExperiment(unsigned int pics, AndorCamera* andorObj)
+void PictureSettingsControl::setPicturesPerExperiment(UINT pics, AndorCamera* andorObj)
 {
 	if (pics > 4)
 	{

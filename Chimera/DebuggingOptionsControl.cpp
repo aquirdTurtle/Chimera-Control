@@ -20,8 +20,51 @@ void DebuggingOptionsControl::rearrange(int width, int height, fontMap fonts)
 }
 
 
-void DebuggingOptionsControl::initialize(int& id, POINT& loc, CWnd* parent, fontMap fonts,  
-										 std::vector<CToolTipCtrl*>& tooltips)
+void DebuggingOptionsControl::handleSaveConfig(std::ofstream& saveFile)
+{
+	saveFile << "DEBUGGING_OPTIONS\n";
+	saveFile << currentOptions.outputAgilentScript << "\n";
+	saveFile << currentOptions.outputExcessInfo << "\n";
+	saveFile << currentOptions.outputNiawgHumanScript << "\n";
+	saveFile << currentOptions.outputNiawgMachineScript << "\n";
+	saveFile << currentOptions.showCorrectionTimes << "\n";
+	saveFile << currentOptions.showDacs << "\n";
+	saveFile << currentOptions.showTtls << "\n";
+	saveFile << currentOptions.showReadProgress << "\n";
+	saveFile << currentOptions.showWriteProgress << "\n";
+	saveFile << currentOptions.sleepTime << "\n";
+	saveFile << "END_DEBUGGING_OPTIONS\n";
+}
+
+
+void DebuggingOptionsControl::handleOpenConfig(std::ifstream& openFile, double version)
+{
+	ProfileSystem::checkDelimiterLine(openFile, "DEBUGGING_OPTIONS");
+	openFile >> currentOptions.outputAgilentScript;
+	openFile >> currentOptions.outputExcessInfo;
+	openFile >> currentOptions.outputNiawgHumanScript;
+	openFile >> currentOptions.outputNiawgMachineScript;
+	openFile >> currentOptions.showCorrectionTimes;
+	openFile >> currentOptions.showDacs;
+	openFile >> currentOptions.showTtls;
+	openFile >> currentOptions.showReadProgress;
+	openFile >> currentOptions.showWriteProgress;
+	std::string sleep;
+	openFile >> sleep;
+	try
+	{
+		currentOptions.sleepTime = std::stol(sleep);
+	}
+	catch (std::invalid_argument& err)
+	{
+		currentOptions.sleepTime = 0;
+	}
+	ProfileSystem::checkDelimiterLine(openFile, "END_DEBUGGING_OPTIONS");
+
+}
+
+
+void DebuggingOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, fontMap fonts, cToolTips& tooltips)
 {
 	// Debugging Options Title
 	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
@@ -92,7 +135,7 @@ void DebuggingOptionsControl::initialize(int& id, POINT& loc, CWnd* parent, font
 	idVerify(showDacsButton, IDC_SHOW_DACS);
 
 	pauseText.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y + 20 };
-	pauseText.Create("Pause Between Variations", WS_CHILD | WS_VISIBLE | ES_RIGHT, pauseText.sPos, parent, id++);
+	pauseText.Create("Pause Between Variations (ms)", WS_CHILD | WS_VISIBLE | ES_RIGHT, pauseText.sPos, parent, id++);
 
 	pauseEdit.sPos = { loc.x, loc.y, loc.x + 240, loc.y += 20 };
 	pauseEdit.Create(WS_CHILD | WS_VISIBLE , pauseEdit.sPos, parent, id++);

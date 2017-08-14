@@ -4,13 +4,14 @@
 #include <array>
 #include "constants.h"
 
+
 void Gpib::gpibWrite( int deviceID, std::string msg )
 {
 	int size = msg.size();
 	int result = ibwrt(deviceID, (void*)msg.c_str(), size);
 	if ( result == ERR )
 	{
-		thrower( "gpib write failed! " + getErrMessage(iberr ));
+		thrower( "gpib write failed! " + getErrMessage( iberr ));
 	}
 }
 
@@ -37,7 +38,7 @@ std::string Gpib::gpibQuery( int deviceID, std::string query )
 Gpib::Gpib()
 {
 	int hpone, agilentTwo, srsTwo, srsThree, pulseGen, pulseGen2, microHP, powerHP, agilent;
-	// I think that a lot of these aren't actually doing anything...
+	// I think that a lot of these aren't actually doing anything... but not sure.
 	try
 	{
 		hpone = gpibIbdev(17);
@@ -62,15 +63,10 @@ void Gpib::gpibSend(int address, std::string message)
 {
 	if ( !GPIB_SAFEMODE )
 	{
-		//errBox( "attempting to send message: " + message );
 		Send( 0, address, (void*) message.c_str(), message.size(), NLend );
 		if ( ibsta == ERR )
 		{
 			thrower( "GPIB ERROR: " + getErrMessage( iberr ) );
-		}
-		else
-		{
-			// errBox( "success??" );
 		}
 	}
 }

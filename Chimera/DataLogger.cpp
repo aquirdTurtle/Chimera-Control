@@ -24,26 +24,26 @@ void DataLogger::deleteFitsAndKey(Communicator* comm)
 		thrower("ERROR: Can't delete current fits file, the fits file is open!");
 	}
 	std::string fitsAddress = dataFilesBaseLocation + currentSaveFolder + "\\Raw Data\\data_"
-		+ std::to_string(currentDataFileNumber) + ".fits";
-	int success = DeleteFile(fitsAddress.c_str());
+		+ str(currentDataFileNumber) + ".fits";
+	int success = DeleteFile(cstr(fitsAddress));
 	if (success == false)
 	{
-		thrower("Failed to delete fits file! Error code: " + std::to_string(GetLastError()) + ".\r\n");
+		thrower("Failed to delete fits file! Error code: " + str(GetLastError()) + ".\r\n");
 	}
 	else
 	{
 		comm->sendStatus("Deleted Fits file located at \"" + fitsAddress + "\"\r\n");
 	}
-	success = DeleteFile((dataFilesBaseLocation + currentSaveFolder + "\\Raw Data\\key_"
-						 + std::to_string(currentDataFileNumber) + ".txt").c_str());
+	success = DeleteFile(cstr(dataFilesBaseLocation + currentSaveFolder + "\\Raw Data\\key_"
+						 + str(currentDataFileNumber) + ".txt"));
 	if (success == false)
 	{
-		thrower("Failed to delete key file! Error code: " + std::to_string(GetLastError()) + ".\r\n");
+		thrower("Failed to delete key file! Error code: " + str(GetLastError()) + ".\r\n");
 	}
 	else
 	{
 		comm->sendStatus("Deleted Key file located at \"" + dataFilesBaseLocation + currentSaveFolder + "\\Raw Data\\key_"
-						 + std::to_string(currentDataFileNumber) + ".txt\"\r\n");
+						 + str(currentDataFileNumber) + ".txt\"\r\n");
 	}
 }
 
@@ -51,17 +51,18 @@ void DataLogger::deleteFitsAndKey(Communicator* comm)
 void DataLogger::loadAndMoveKeyFile()
 {
 	int result = 0;
-	result = CopyFile((KEY_ORIGINAL_SAVE_LOCATION + "key.txt").c_str(), (dataFilesBaseLocation + currentSaveFolder
-					  + "\\Raw Data\\key_" + std::to_string(currentDataFileNumber) + ".txt").c_str(), FALSE);
+	std::string keyLoc = dataFilesBaseLocation + "key_" + str(currentDataFileNumber) + ".txt";
+	result = CopyFile(cstr(KEY_ORIGINAL_SAVE_LOCATION), cstr(keyLoc), FALSE);
+	//result = CopyFile(cstr(KEY_ORIGINAL_SAVE_LOCATION + "key.txt"), cstr(dataFilesBaseLocation + currentSaveFolder
+	//				  + "\\Raw Data\\key_" + str(currentDataFileNumber) + ".txt"), FALSE);
 	if (result == 0)
 	{
 		// failed
-		thrower("Failed to create copy of key file! Error Code: " + std::to_string(GetLastError()) + "\r\n");
+		thrower("Failed to create copy of key file! Error Code: " + str(GetLastError()) + "\r\n");
 	}
 
 	std::ifstream keyFile;
-	keyFile.open(dataFilesBaseLocation + currentSaveFolder + "\\Raw Data\\key_" + std::to_string(currentDataFileNumber)
-				 + ".txt");
+	keyFile.open(keyLoc);
 	if (!keyFile.is_open())
 	{
 		thrower("Couldn't open key file!? Does a key file exist???\r\n");
@@ -110,7 +111,7 @@ void DataLogger::initializeDataFiles(DataAnalysisControl* autoAnalysisHandler, i
 	time_t timeInt = time(0);
 	struct tm timeStruct;
 	localtime_s(&timeStruct, &timeInt);
-	std::string tempStr = std::to_string(timeStruct.tm_year + 1900);
+	std::string tempStr = str(timeStruct.tm_year + 1900);
 	// Create the string of the date.
 	std::string finalSaveFolder;
 	finalSaveFolder += tempStr + "\\";
@@ -160,9 +161,9 @@ void DataLogger::initializeDataFiles(DataAnalysisControl* autoAnalysisHandler, i
 	// right now the save folder IS the date...
 	currentSaveFolder = finalSaveFolder;
 	// create date's folder.
-	int result = CreateDirectory((dataFilesBaseLocation + currentSaveFolder).c_str(), 0);
+	int result = CreateDirectory(cstr(dataFilesBaseLocation + currentSaveFolder), 0);
 	finalSaveFolder += "\\Raw Data";
-	int result2 = CreateDirectory((dataFilesBaseLocation + currentSaveFolder).c_str(), 0);
+	int result2 = CreateDirectory(cstr(dataFilesBaseLocation + currentSaveFolder), 0);
 	finalSaveFolder += "\\";
 	/// Get a filename appropriate for the data
 	std::string finalSaveFileName;
@@ -172,13 +173,13 @@ void DataLogger::initializeDataFiles(DataAnalysisControl* autoAnalysisHandler, i
 	// The while condition here check if file exists. No idea how this actually works.
 	struct stat statBuffer;
 	// figure out the next file number
-	while ((stat((dataFilesBaseLocation + finalSaveFolder + "\\data_" + std::to_string(fileNum) + ".fits").c_str(),
+	while ((stat(cstr(dataFilesBaseLocation + finalSaveFolder + "\\data_" + str(fileNum) + ".fits"),
 		   &statBuffer) == 0))
 	{
 		fileNum++;
 	}
 	// at this point a valid filename has been found.
-	finalSaveFileName = "data_" + std::to_string(fileNum) + ".fits";
+	finalSaveFileName = "data_" + str(fileNum) + ".fits";
 	// update this, which is used later to move the key file.
 	currentDataFileNumber = fileNum;
 
@@ -188,7 +189,7 @@ void DataLogger::initializeDataFiles(DataAnalysisControl* autoAnalysisHandler, i
 	/// save the file
 	int fitsStatus = 0;
 
-	fits_create_file(&myFitsFile, (dataFilesBaseLocation + finalSaveFolder + finalSaveFileName).c_str(), &fitsStatus);
+	fits_create_file(&myFitsFile, cstr(dataFilesBaseLocation + finalSaveFolder + finalSaveFileName), &fitsStatus);
 	checkFitsError(fitsStatus);
 	//immediately change this.
 	fitsIsOpen = true;
@@ -237,7 +238,7 @@ void DataLogger::checkFitsError(int fitsStatusIndicator)
 		std::vector<char> fitsErrorMsg;
 		fitsErrorMsg.resize(80);
 		fits_get_errstatus(fitsStatusIndicator, fitsErrorMsg.data());
-		thrower("CFITS ERROR: " + std::string(fitsErrorMsg.data()) + "\r\n");
+		thrower("CFITS ERROR: " + str(fitsErrorMsg.data()) + "\r\n");
 	}
 }
 

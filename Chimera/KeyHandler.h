@@ -23,5 +23,5 @@ class KeyHandler
 		Control<CButton> randomizeRepetitionsButton;
 		std::vector<variable> variables;
 		key keyValues;
-		unsigned int runningKeyValue;
+		UINT runningKeyValue;
 };

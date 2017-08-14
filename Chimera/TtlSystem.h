@@ -81,8 +81,9 @@ class TtlSystem
 	public:
 		TtlSystem();
 		~TtlSystem();
-		void initialize(POINT& startLocation, toolTipTextMap& masterText,
-						std::vector<CToolTipCtrl*>& toolTips, DeviceWindow* master, int& id);
+		void handleSaveConfig(std::ofstream& saveFile);
+		void handleOpenConfig(std::ifstream& openFile, double version);
+		void initialize(POINT& startLocation, cToolTips& toolTips, DeviceWindow* master, int& id);
 		double getTotalTime(UINT var);
 		int getNumberOfTTLRows();
 		int getNumberOfTTLsPerRow();
@@ -109,7 +110,7 @@ class TtlSystem
 		std::pair<UINT, UINT> getTtlBoardSize();
 
 		void abort();
-		void setName(unsigned int row, unsigned int number, std::string name, std::vector<CToolTipCtrl*>& toolTips, DeviceWindow* master);
+		void setName(unsigned int row, unsigned int number, std::string name, cToolTips& toolTips, DeviceWindow* master);
 		std::string getName(unsigned int row, unsigned int number);
 		std::array<std::array<std::string, 16>, 4> TtlSystem::getAllNames();
 		// returns -1 if not a name.get

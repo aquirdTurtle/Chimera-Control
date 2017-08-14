@@ -1,88 +1,97 @@
 #pragma once
 #include <vector>
 #include <string>
-#include "DataAnalysisHandler.h"
+//#include "DataAnalysisHandler.h"
 #include "DataSet.h"
 
 class PlottingInfo
 {
 	public:
-		PlottingInfo();
+		PlottingInfo(UINT picNumber);
+		PlottingInfo(std::string fileName);
 		~PlottingInfo();
-		int changeTitle(std::string newTitle);
+		void changeTitle(std::string newTitle);
 		std::string getTitle();
 
-		int changeYLabel(std::string newYLabel);
+		void changeYLabel(std::string newYLabel);
 		std::string getYLabel();
 
-		int changeFileName(std::string newFileName);
+		void changeFileName(std::string newFileName);
 		std::string getFileName();
 
-		int changeGeneralPlotType(std::string newPlotType);
+		void changeGeneralPlotType(std::string newPlotType);
 		std::string getPlotType();
 
-		int changeXAxis(std::string newXAxis);
+		void changeXAxis(std::string newXAxis);
 		std::string getXAxis();
 		
-		int changeLegendText(int dataSet, std::string newLegend);
+		void changeLegendText(int dataSet, std::string newLegend);
 		std::string getLegendText(int dataSet);
 
-		int addGroup();
-		int removeAnalysisSet();
-		int resetNumberOfAnalysisGroups(int groupNumber);
-		bool setGroups(std::vector<std::pair<int, int>> locations);
+		void addGroup();
+		void removeAnalysisSet();
+		void resetNumberOfAnalysisGroups(int groupNumber);
+		void setGroups(std::vector<std::pair<int, int>> locations);
 		
-		int addPixel();
-		int removePixel();
-		int resetPixelNumber(int pixelNumber);
+		void addPixel();
+		void removePixel();
+		void resetPixelNumber(int pixelNumber);
 		int getPixelNumber();
-		int setPixelIndex(int pixel, int group, int index);
+		void setPixelIndex(int pixel, int group, int index);
 		int getPixelIndex(int pixel, int group);
 
-		int setGroupLocation(int pixel, int analysisSet, int row, int collumn);
-		int getPixelLocation(int pixel, int analysisSet, int& row, int& collumn);
+		void setGroupLocation(int pixel, int analysisSet, int row, int collumn);
+		void getPixelLocation(int pixel, int analysisSet, int& row, int& collumn);
 		std::vector<std::pair<int, int>> getAllPixelLocations();
 
-		int addPicture();
-		int removePicture();
-		int resetPictureNumber(int pictureNumber);
-		int getPictureNumber();
+		void addPicture();
+		void removePicture();
+		void resetPictureNumber(int pictureNumber);
+		int getPicNumber();
 
-		int addDataSet();
-		int removeDataSet();
-		int resetDataSetNumber(int dataSetNumber);
+		void addDataSet();
+		void removeDataSet();
+		void resetDataSetNumber(int dataSetNumber);
 
-		int setPostSelectionCondition(int dataSetNumber, int conditionNumber, int pixel, int picture, int trueConditionValue);
+		void setPostSelectionCondition(int dataSetNumber, int conditionNumber, int pixel, int picture, int trueConditionValue);
 		int getPostSelectionCondition(int dataSetNumber, int conditionNumber, int pixel, int picture);
-		int addPostSelectionCondition();
-		int removePostSelectionCondition();
-		int resetConditionNumber(int conditionNumber);
+		void addPostSelectionCondition();
+		void removePostSelectionCondition();
+		void resetConditionNumber(int conditionNumber);
 		int getConditionNumber();
 
-		int setTruthCondition(int dataSetNumber, int pixel, int picture, int trueConditionValue);
-		int getTruthCondition(int dataSetNumber, int pixel, int picture);
+		void setResultCondition(int dataSetNumber, int pixel, int picture, int trueConditionValue);
+		int getResultCondition(int dataSetNumber, int pixel, int picture);
 
-		int setDataCountsLocation(int dataSet, int pixel, int picture);
-		int getDataCountsLocation(int dataSet, int& pixel, int& picture);
+		void setDataCountsLocation(int dataSet, int pixel, int picture);
+		void getDataCountsLocation(int dataSet, int& pixel, int& picture);
 
-		int setPlotData(int dataSet, bool plotData);
+		void setPlotData(int dataSet, bool plotData);
 		bool getPlotThisDataValue(int dataSet);
 
-		std::string returnAllInfo();
-		int savePlotInfo();
+		std::string getAllSettingsString();
+		void savePlotInfo();
+		
+		void loadPlottingInfoFromFile(std::string fileLocation);
+		
+		
 
-		int loadPlottingInfoFromFile(std::string fileLocation);
+		void clear();
 
-		int clear();
-
-		size_t getPixelGroupNumber();
-		size_t getDataSetNumber();
+		UINT getPixelGroupNumber();
+		UINT getDataSetNumber();
 
 		int getFitOption(int dataSet);
-		int setFitOption(int dataSet, int fitType);
+		void setFitOption(int dataSet, int fitType);
 
-		int getWhenToFit(int dataSet);
-		int setWhenToFit(int dataSet, int whenToFit);
+		int whenToFit(int dataSet);
+		void setWhenToFit(int dataSet, int whenToFit);
+
+		std::string getPrcSettingsString();
+		std::string getPscSettingsString();
+
+		static UINT getPicNumberFromFile(std::string fileAddress);
+		static std::string getAllSettingsStringFromFile(std::string fileAddress);
 
 
 	private:

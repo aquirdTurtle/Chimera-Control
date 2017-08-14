@@ -28,7 +28,7 @@ void MasterConfiguration::save(MainWindow* mainWin, DeviceWindow* deviceWin, Cam
 	*/
 	// make sure that file exists
 	FILE *file;
-	fopen_s( &file, configurationFileAddress.c_str(), "r" );
+	fopen_s( &file, cstr(configurationFileAddress), "r" );
 	if ( !file )
 	{
 		errBox( "WARNING: Master Configuration File Not Found! Saving this file should normally mean over-writing the previous one." );
@@ -39,7 +39,7 @@ void MasterConfiguration::save(MainWindow* mainWin, DeviceWindow* deviceWin, Cam
 	}
 	// open file
 	std::fstream configFile;
-	configFile.open(configurationFileAddress.c_str(), std::ios::out);
+	configFile.open(cstr(configurationFileAddress), std::ios::out);
 	if (!configFile.is_open())
 	{
 		thrower( "ERROR: Master Configuration File Failed to Open! Changes cannot be saved. Attempted to open file in"
@@ -55,12 +55,11 @@ void MasterConfiguration::save(MainWindow* mainWin, DeviceWindow* deviceWin, Cam
 }
 
 
-//void MasterConfiguration::load(TtlSystem* ttls, DacSystem& dacs, std::vector<CToolTipCtrl*>& toolTips, DeviceWindow* master, VariableSystem* globalVars)
 void MasterConfiguration::load(MainWindow* mainWin, DeviceWindow* deviceWin, CameraWindow* camWin)
 {
 	// make sure that file exists	
 	FILE *file;
-	fopen_s( &file, configurationFileAddress.c_str(), "r" );
+	fopen_s( &file, cstr(configurationFileAddress), "r" );
 	if ( !file )
 	{
 		errBox("WARNING: Master Configuration File Not Found! Cannot load Master Configuration File. No Default names for TTLs, DACs, or default values.");
@@ -71,7 +70,7 @@ void MasterConfiguration::load(MainWindow* mainWin, DeviceWindow* deviceWin, Cam
 	}
 	// open file
 	std::fstream configFile;
-	configFile.open(configurationFileAddress.c_str(), std::ios::in);
+	configFile.open(cstr(configurationFileAddress), std::ios::in);
 	if (!configFile.is_open())
 	{
 		thrower("ERROR: Master Configuration File Failed to Open! No Default names for TTLs, DACs, or default values.");

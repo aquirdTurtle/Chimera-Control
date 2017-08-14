@@ -1,55 +1,44 @@
 #include "stdafx.h"
 #include "ExperimentManager.h"
 
-
-void ExperimentManager::startThread( experimentThreadInput* inputParam )
+void NiawgAndIntensityManager::startThread( niawgIntensityThreadInput* inputParam )
 {
 	eAbortNiawgFlag = false;
-	eExperimentThreadHandle = (HANDLE)_beginthreadex( 0, 0, &ExperimentManager::experimentProgrammingThread, (LPVOID *)inputParam, 0, NULL );
+	eExperimentThreadHandle = (HANDLE)_beginthreadex( 0, 0, &NiawgAndIntensityManager::niawgIntensityProgrammingThread,
+		(LPVOID *)inputParam, 0, NULL );
 }
 
 
 /*
- * This runs the experiment. It calls analyzeNiawgScripts and then procedurally goes through all variable values. It also communicates with
- * the other computer throughout the process. inputParam is the list of all of the relevant parameters to be used during this run of the 
- * experiment.
+ * This runs the niawg and intensity systems. It calls analyzeNiawgScripts and then procedurally goes through all 
+ * variable values. It also communicates with the other computer throughout the process. inputParam is the list of all
+ * of the relevant parameters to be used during this run of the experiment.
  */
-unsigned __stdcall ExperimentManager::experimentProgrammingThread(LPVOID inputParam)
+unsigned __stdcall NiawgAndIntensityManager::niawgIntensityProgrammingThread(LPVOID inputParam)
 {
-	///	Initializing and Checking Options /////////////////////////////////////////////////////////////////////////////////////////////////
+	///	Initializing and Checking Options ////////////////////////////////////////////////////////////////////////////
 	// must be deleted by end of thread.
-	experimentThreadInput* input = (experimentThreadInput*)inputParam;
+	niawgIntensityThreadInput* input = (niawgIntensityThreadInput*)inputParam;
 	AfxSocketInit();
-	unsigned int repetitions = 0;
-	SocketWrapper masterSocket;
+	UINT repetitions = 0;
 	NiawgWaiter waiter;
 	std::vector<std::vector<double> > varValues;
 	niawgPair<std::vector<std::fstream>> scriptFiles;
 	std::vector<std::fstream> intensityScriptFiles;
+	std::string userScriptNameString = "experimentScript";
 	std::vector<ViChar> userScriptSubmit;
 	bool intIsVaried;
-	std::vector<long int> variedMixedSize;
-	std::vector<myMath::minMaxDoublet> intensityRanges;
-	std::string userScriptNameString = "experimentScript";
+	std::vector<long> variedMixedSize;
+	std::vector<myMath::minMax> intensityRanges;
+	
 	std::vector<variable> singletons, variables;
-	outputInfo output;
+	NiawgOutputInfo output;
 	output.isDefault = false;
 	try
 	{ 
-		ConfigurationFileSystem::getConfigInfo( scriptFiles, intensityScriptFiles, input->profile, singletons, variables, input->settings.programIntensity );
-		if (input->settings.connectToMaster)
-		{
-			masterSocket.initialize();
-			input->comm->sendStatus( "Attempting to connect......" );
-			masterSocket.connect();
-			input->comm->sendStatus( "Established Connection!\r\nWaiting for Repetition # from master..." );
-			repetitions = masterSocket.getRepetitions( input->profile.sequenceConfigNames.size() );
-			input->comm->sendStatus( "Recieved!\r\n" );
-		}
-		else
-		{
-			repetitions = 0;
-		}
+		ProfileSystem::getConfigInfo( scriptFiles, intensityScriptFiles, input->profile, singletons, variables, 
+									  input->settings.programIntensity );
+		repetitions = 0;
 		input->comm->sendStatus( "Repetition # after sequence normalization: " + str( repetitions ) + "\r\n" );
 		input->comm->sendStatus( "Beginning Waveform Read, Calculate, and Write Procedure...\r\n" );
 		waiter.systemAbortCheck( input->comm );
@@ -58,16 +47,17 @@ unsigned __stdcall ExperimentManager::experimentProgrammingThread(LPVOID inputPa
 		output.waveCount = 2;
 		output.predefinedWaveCount = 0;
 		output.waves.resize( 2 );
+		// analyze each script in sequence.
 		for (int sequenceInc = 0; sequenceInc < workingUserScripts.size(); sequenceInc++)
 		{
-			niawgPair<ScriptStream> scripts; 
+			niawgPair<ScriptStream> scripts;
 			output.niawgLanguageScript = "";
 			input->comm->sendStatus("Working with configuraiton # " + str(sequenceInc + 1) + " in Sequence...\r\n");
-			/// Create Script and Write Waveforms ////////////////////////////////////////////////////////////////////////////////////////
+			/// Create Script and Write Waveforms ////////////////////////////////////////////////////////////////////
 			scripts[Vertical] << scriptFiles[Vertical][sequenceInc].rdbuf();
 			scripts[Horizontal] << scriptFiles[Horizontal][sequenceInc].rdbuf();
 			std::string warnings;
-			input->niawg->analyzeNiawgScripts( scripts, output, input->profile, singletons, input->debugInfo, warnings );
+			input->niawg->analyzeNiawgScripts( scripts, output, input->profile, input->debugInfo, warnings );
 			if (warnings != "")
 			{
 				input->comm->sendError(warnings);
@@ -77,7 +67,6 @@ unsigned __stdcall ExperimentManager::experimentProgrammingThread(LPVOID inputPa
 				input->comm->sendDebug(input->debugInfo.message);
 			}
 			workingUserScripts[sequenceInc] = output.niawgLanguageScript;
-			// 
 			waiter.systemAbortCheck( input->comm );
 		}
 		input->comm->sendStatus("Constant Waveform Preparation Completed...\r\n");
@@ -88,28 +77,7 @@ unsigned __stdcall ExperimentManager::experimentProgrammingThread(LPVOID inputPa
 															 + std::string(userScriptSubmit.begin(), userScriptSubmit.end())
 															 + "end Script\n\n", "\n", "\r\n" ) );
 		}
-		if (input->settings.getVariables)
-		{
-			input->comm->sendStatus( "Getting Variables from Master..." );
-			input->niawg->getVariables(masterSocket, varValues, variables);
-			input->comm->sendStatus( "Complete!\r\n" );
-		}
 		ExperimentLogger::generateNiawgLog( input, scriptFiles, intensityScriptFiles, repetitions );
-		if (input->settings.programIntensity)
-		{
-			input->comm->sendStatus("Programing Intensity Profile(s)...");
-			input->comm->sendColorBox( { /*niawg*/'-', /*camera*/'-', /*intensity*/'Y' } );
-			myAgilent::programIntensity( boost::numeric_cast<int>(variables.size()), variables, varValues, intIsVaried, intensityRanges, 
-										 intensityScriptFiles, singletons, input->profile );
-			input->comm->sendStatus("Complete!\r\n");
-			myAgilent::setIntensity( 0, intIsVaried, intensityRanges );
-			input->comm->sendStatus("Intensity Profile Selected.\r\n");
-		}
-		else
-		{
-			input->comm->sendStatus("Intensity Profile NOT being programed.\r\n");
-		}
-
 		// If there are any varible files, enter big variable loop.
 		if (variables.size() > 0)
 		{
@@ -119,18 +87,14 @@ unsigned __stdcall ExperimentManager::experimentProgrammingThread(LPVOID inputPa
 			for (std::size_t variation = 0; variation < varValues[0].size(); variation++)
 			{
 				std::string warnings;
-				input->niawg->handleVariations( output, variables, varValues, variation, variedMixedSize, warnings, input->debugInfo);
-				if (warnings != "")
-				{
-					input->comm->sendError( warnings );
-				}
-				if (input->debugInfo.message != "")
-				{
-					input->comm->sendDebug( input->debugInfo.message );
-				}
-				input->niawg->checkThatWaveformsAreSensible( input->comm, output );
-				std::string message = ("Outputting Series #" + str( variation ) + ". Waiting to Initialize Script from series #" 
-										+ str( variation + 1 ) + ".\r\n");
+				input->niawg->handleVariations( output, variables, varValues, variation, variedMixedSize, warnings, 
+											   input->debugInfo);
+				/*
+				if (input->debugInfo.message != "") { input->comm->sendDebug( input->debugInfo.message ); }
+				if (warnings != "") { input->comm->sendError(warnings); }
+
+				std::string message = ("Outputting Series #" + str( variation ) + ". Waiting to Initialize Script from"
+									   " series #" + str( variation + 1 ) + ".\r\n");
 				for (int varInc = 0; varInc < variables.size(); varInc++)
 				{
 					if (variation != 0)
@@ -138,106 +102,72 @@ unsigned __stdcall ExperimentManager::experimentProgrammingThread(LPVOID inputPa
 						message += variables[varInc].name + " = " + str(varValues[varInc][variation - 1]) + "; ";
 					}
 				}
-				input->comm->sendColorBox( { /*niawg*/'G', /*camera*/'-', /*intensity*/'-' } );
+				input->comm->sendColorBox( Niawg, 'G');
 				input->comm->sendStatus( message );
-				// If running the default script, stop the default script so that a moment later, when the program checks if the output is 
-				// done, the output will be done.
-				if (input->currentScript == "DefaultScript" && !input->dontActuallyGenerate )
+				*/
+
+				// If running the default script, stop the default script so that a moment later, when the program 
+				// checks if the output is done, the output will be done.
+				if (  (input->niawg->getCurrentScript() == "Default" + AXES_NAMES[Horizontal]	+ "ConfigScript" 
+					|| input->niawg->getCurrentScript() == "Default" + AXES_NAMES[Vertical]		+ "ConfigScript") 
+					&& !input->dontActuallyGenerate )
 				{
-					input->niawg->configureOutputEnabled( VI_FALSE );
-					input->niawg->abortGeneration();
+					input->niawg->turnOff();
 				}
+				// wait until the niawg has finished outputting previous variation.
 				waiter.wait( input->comm );
-				if (input->settings.programIntensity && variation != 0)
-				{
-					input->comm->sendColorBox( { /*niawg*/'-', /*camera*/'-', /*intensity*/'Y' } );
-					myAgilent::setIntensity( boost::numeric_cast<int>(variation), intIsVaried, intensityRanges );
-					if (intIsVaried)
-					{
-						input->comm->sendStatus("Intensity Profile Selected.\r\n");
-					}
-					input->comm->sendColorBox( { /*niawg*/'-', /*camera*/'-', /*intensity*/'G' } );
-				}
 				// Tell the master to begin the experiment
-				std::string varBaseString = ("Variation #" + str( variation + 1 ) + "/" + str( varValues[0].size() ) 
-											  + ". Variable values are:\r\n");
+				std::string varMessage = ("Variation #" + str( variation + 1 ) + "/" + str( varValues[0].size() )
+										   + ". Variable values are:\r\n");
 				for (int varNumInc = 0; varNumInc < variables.size(); varNumInc++)
 				{
-					varBaseString += "\t" + variables[varNumInc].name + " = " + str(varValues[varNumInc][variation]) + "\r\n";
+					varMessage += "\t" + variables[varNumInc].name + " = " + str(varValues[varNumInc][variation]) 
+						+ "\r\n";
 				}
-				input->comm->sendStatus(varBaseString);
+				input->comm->sendStatus(varMessage);
+				
+				if (input->dontActuallyGenerate) { continue; }
 				// Restart Waveform
-				if (!input->dontActuallyGenerate )
+				input->niawg->turnOff();
+				input->niawg->programVariations(variation, variedMixedSize, output);
+				input->niawg->writeScript(userScriptSubmit);
+				input->niawg->setViStringAttribute(NIFGEN_ATTR_SCRIPT_TO_GENERATE, "experimentScript");
+				// initiate generation before telling the master. this is because scripts are supposed to be designed to sit on an 
+				// initial waveform until the master sends it a trigger.
+				input->niawg->turnOn();
+				
+				waiter.startWaitThread( input );					
+				for (int waveInc = 2; waveInc < output.waveCount; waveInc++)
 				{
-					input->niawg->configureOutputEnabled(VI_FALSE);
-					input->niawg->abortGeneration();
-					int mixedWriteCount = 0;
-					// skip defaults so start at 2.
-					for (int waveInc = 2; waveInc < output.waveCount; waveInc++)
-					{
-						std::string variedWaveformName = "Waveform" + str( waveInc );
-						if (output.waves[waveInc].varies)
-						{
-							if (variation != 0)
-							{
-								input->niawg->deleteWaveform(variedWaveformName.c_str());
-							}
-							// And write the new one.
-							input->niawg->allocateNamedWaveform(variedWaveformName.c_str(), variedMixedSize[mixedWriteCount] / 2);
-							input->niawg->writeNamedWaveform(variedWaveformName.c_str(), variedMixedSize[mixedWriteCount],
-															  output.waves[waveInc].waveVals.data());
-							mixedWriteCount++;
-						}
-					}
-					input->niawg->writeScript(userScriptSubmit);
-					input->niawg->setViStringAttribute(NIFGEN_ATTR_SCRIPT_TO_GENERATE, "experimentScript");
-					input->currentScript = "UserScript";
-					input->niawg->configureOutputEnabled(VI_TRUE);
-					// initiate generation before telling the master. this is because scripts are supposed to be designed to sit on an 
-					// initial waveform until the master sends it a trigger.
-					input->niawg->initiateGeneration();
-					if (input->settings.connectToMaster)
-					{
-						masterSocket.send( "go" );
-					}
-
-					waiter.startWait( input );
-					
-					for (int waveInc = 2; waveInc < output.waveCount; waveInc++)
-					{
-						output.waves[waveInc].waveVals.clear();
-						output.waves[waveInc].waveVals.shrink_to_fit();
-					}
-					variedMixedSize.clear();
+					output.waves[waveInc].waveVals.clear();
+					output.waves[waveInc].waveVals.shrink_to_fit();
 				}
+				variedMixedSize.clear();
 			}
 		}
 		else
 		{
 			///					If no Variables					///
 			input->comm->sendStatus("NO Variable looping this run.\r\n");
-			input->niawg->checkThatWaveformsAreSensible( input->comm, output );
+
+			std::string warnings;
+			input->niawg->checkThatWaveformsAreSensible( warnings, output );
+			if (warnings != "") { input->comm->sendError(warnings); }
+
 			if (!input->dontActuallyGenerate)
 			{
-				input->niawg->configureOutputEnabled(VI_FALSE);
-				input->niawg->abortGeneration();
+				input->niawg->turnOff();
 				// Should be just ready to go
 				input->niawg->writeScript(userScriptSubmit);
 				input->niawg->setViStringAttribute(NIFGEN_ATTR_SCRIPT_TO_GENERATE, "experimentScript");
-				input->currentScript = "UserScript";
-				input->niawg->configureOutputEnabled(VI_TRUE);
-				input->niawg->initiateGeneration();
-				if (input->settings.connectToMaster)
-				{
-					masterSocket.send( "go" );
-				}
-				waiter.startWait( input );
+				input->niawg->turnOn();
+				waiter.startWaitThread( input );
 			}
 		}
 
 		if ( repetitions == 0 || (variables.size() == 0 && NIAWG_SAFEMODE))
 		{
-			input->comm->sendColorBox( { /*niawg*/'G', /*camera*/'-', /*intensity*/'-' } );
+			input->comm->sendColorBox( Niawg, 'G' );
 			input->comm->sendStatus( "Scripts Loaded into NIAWG. This waveform sequence will run until aborted by the user.\r\n" );
 		}
 		else
@@ -255,7 +185,7 @@ unsigned __stdcall ExperimentManager::experimentProgrammingThread(LPVOID inputPa
 			{
 				message += variables[varInc].name + " = " + str( varValues[varInc].back() ) + "; ";
 			}
-			input->comm->sendColorBox( { /*niawg*/'G', /*camera*/'-', /*intensity*/'-' } );
+			input->comm->sendColorBox( Niawg, 'G' );
 			input->comm->sendStatus( "Completed Sending Scripts. Waiting for last script to finish.\r\nmessage\r\n" );
 		}
 		///					Cleanup (after all generate code)
@@ -269,10 +199,6 @@ unsigned __stdcall ExperimentManager::experimentProgrammingThread(LPVOID inputPa
 					scriptFiles[axis][sequenceInc].close();
 				}
 			}
-			if (intensityScriptFiles[sequenceInc].is_open())
-			{
-				intensityScriptFiles[sequenceInc].close();
-			}
 		}	
 
 		waiter.wait( input->comm );
@@ -282,15 +208,11 @@ unsigned __stdcall ExperimentManager::experimentProgrammingThread(LPVOID inputPa
 		for (int waveformInc = 2; waveformInc < output.waveCount; waveformInc++)
 		{
 			std::string waveformToDelete = "Waveform" + str( waveformInc );
-			input->niawg->deleteWaveform( waveformToDelete.c_str() );
+			input->niawg->deleteWaveform( cstr(waveformToDelete) );
 		}
 		if (!input->dontActuallyGenerate)
 		{
 			input->niawg->deleteScript("experimentScript");
-		}
-		if (masterSocket.isConnected())
-		{
-			masterSocket.close();
 		}
 		for (auto& wave : output.waves)
 		{
@@ -300,16 +222,6 @@ unsigned __stdcall ExperimentManager::experimentProgrammingThread(LPVOID inputPa
 	}
 	catch (Error& exception)
 	{
-		if ( !input->dontActuallyGenerate )
-		{
-			// a check later checks the value and handles it specially in this case.
-			eCurrentScript = "continue";
-		}
-		// close socket.
-		if (masterSocket.isConnected())
-		{
-			masterSocket.close();
-		}
 		// turn the agilent to the default setting.
 		myAgilent::agilentDefault();
 		// close files.

@@ -5,6 +5,7 @@
 #include <array>
 #include <vector>
 
+
 class Gpib
 {
 	public:
@@ -19,3 +20,4 @@ class Gpib
 		
 		std::string getErrMessage( long errCode );
 };
+

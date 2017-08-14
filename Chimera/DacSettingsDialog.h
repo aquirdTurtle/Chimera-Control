@@ -7,7 +7,7 @@
 struct dacInputStruct
 {
 	DacSystem* dacs;
-	std::vector<CToolTipCtrl*> toolTips;
+	cToolTips toolTips;
 	DeviceWindow* master;
 };
 

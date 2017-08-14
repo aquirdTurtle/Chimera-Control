@@ -1,4 +1,5 @@
 #pragma once
+
 #include <vector>
 #include <array>
 #include "Windows.h"
@@ -7,6 +8,7 @@
 #include "ScriptStream.h"
 #include "visa.h"
 #include "commonTypes.h"
+#include "KeyHandler.h"
 
 class Agilent;
 
@@ -123,8 +125,8 @@ class Segment
 		void storeInput( segmentInfoInput input );
 		segmentInfoInput getInput();
 		segmentInfoFinal getFinalSettings();
-		void convertInputToFinal( key variableKey, unsigned int variation );
-		long returnDataSize();
+		void convertInputToFinal( key variableKey, UINT variation );
+		UINT returnDataSize();
 		void assignDataVal( int dataNum, double val );
 		double returnDataVal( long dataNum );
 		void calcData();
@@ -146,12 +148,13 @@ class ScriptedAgilentWaveform
 	public:
 		ScriptedAgilentWaveform();
 		bool readIntoSegment( int segNum, ScriptStream& script, profileSettings profileInfo, Agilent* parent );
+		bool readIntoSegment( int segNum, ScriptStream& script, Agilent* parent );
 		void writeData( int SegNum );
 		std::string compileAndReturnDataSendString( int segNum, int varNum, int totalSegNum );
 		void compileSequenceString( int totalSegNum, int sequenceNum );
 		std::string returnSequenceString();
 		bool returnIsVaried();
-		void replaceVarValues( key variableKey, unsigned int variation );
+		void replaceVarValues( key variableKey, UINT variation );
 		void convertPowersToVoltages();
 		void normalizeVoltages();
 		void calcMinMax();
@@ -166,11 +169,13 @@ class ScriptedAgilentWaveform
 		bool isVaried;
 };
 
-
+// A class for programming agilent machines.
+// in essense this includes a wrapper around agilent's implementation of the VISA protocol. This could be pretty easily
+// abstracted away from the agilent class if new systems wanted to use this functionality.
 class Agilent
 {
 	public:
-		void initialize( POINT& loc, std::vector<CToolTipCtrl*>& toolTips, DeviceWindow* master, int& id, 
+		void initialize( POINT& loc, cToolTips& toolTips, DeviceWindow* master, int& id, 
 						 std::string address, std::string header );		
 		void handleChannelPress( int channel );
 		void handleCombo();
@@ -187,16 +192,31 @@ class Agilent
 		void analyzeAgilentScript( ScriptStream& intensityFile, ScriptedAgilentWaveform* intensityWaveformData, 
 								   int& currentSegmentNumber, profileSettings profileInfo );
 		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
-		std::string getConfigurationString();
+		void handleSavingConfig(std::ofstream& saveFile);
 		std::string getDeviceIdentity();
 		void readConfigurationFile( std::ifstream& file );
 		void programScript( int varNum, key variableKey, std::vector<ScriptStream>& intensityFiles, profileSettings profileInfo );
 		void selectIntensityProfile( int varNum );
-		void convertInputToFinalSettings( key variableKey, unsigned int variation );
-		void selectScriptProfile( int channel, int varNum );
+		void convertInputToFinalSettings( key variableKey, UINT variation );;
 		void updateEdit(int chan);
 		deviceOutputInfo getOutputInfo();
 		void rearrange(UINT width, UINT height, fontMap fonts);
+		void setAgilent( key varKey, UINT variation );
+
+		// pilfered from myAgilent Namespace.
+		static void analyzeIntensityScript( ScriptStream& intensityFile, 
+											myAgilent::IntensityWaveform* intensityWaveformData, 
+											int& currentSegmentNumber);
+		static void agilentDefault();
+		static void agilentErrorCheck(long status, ULONG vi);
+		static void setIntensity(UINT varNum, bool intensityIsVaried, std::vector<std::pair<double, double>> intensityMinMax);
+		static void programIntensity( key varKey, bool& intensityVaried, std::vector<std::pair<double, double>>& minsAndMaxes, 
+									 std::vector<std::fstream>& intensityFiles, UINT variations);
+
+		static void visaWrite(ULONG instrumentInput, std::string message);
+
+		static void errCheck(ULONG instrumnetInput, long status);
+		static void visaErrQuery(ULONG instrument, std::string& errMsg, long& errCode);
 	private:
 		// usb address...
 		std::string usbAddress;
@@ -204,16 +224,16 @@ class Agilent
 		minMaxDoublet chan1Range;
 		minMaxDoublet chan2Range;
 		ViSession session;
-		unsigned long instrument;
-		unsigned long defaultResourceManager;
-		double currentAgilentHigh;
-		double currentAgilentLow;
-		// since currently all visa communication is done to communicate with agilent machines, my visa wrappers exist in this class.
+		ULONG instrument, defaultResourceManager;
+		double currentAgilentHigh, currentAgilentLow;
+		// since currently all visa communication is done to communicate with agilent machines, my visa wrappers exist
+		// in this class.
 		void visaWrite( std::string message );
+		
 		void visaClose();
 		void visaOpenDefaultRM();
 		void visaOpen( std::string address );
-		void errCheck( long status );
+		void errCheck(long status);
 		void visaSetAttribute( ViAttr attributeName, ViAttrState value );
 		void visaPrintf( std::string msg );
 		void visaErrQuery(std::string& errMsg, long& errCode);

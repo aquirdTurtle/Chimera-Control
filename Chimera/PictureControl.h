@@ -18,9 +18,11 @@ class PictureControl
 		void setSliderLocations(CWnd* parent);
 		void drawPicture(CDC* deviceContext, std::vector<long> picData, 
 						 std::tuple<bool, int/*min*/, int/*max*/> autoScaleInfo, bool specialMin, bool specialMax);
+		void setSliderPositions(UINT min, UINT max);
 		void drawBackground(CDC* easel);
 		void drawGrid(CDC* easel, CBrush* brush);
 		void drawCircle(CDC* dc, std::pair<int, int> selectedLocation );
+		void drawAnalysisMarkers(CDC* dc, std::vector<std::pair<int, int>> analysisLocs);
 		void rearrange( std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts );
 		void handleScroll( int id, UINT nPos );
 		void handleEditChange( int id );
@@ -28,7 +30,9 @@ class PictureControl
 		void redrawImage(CDC* easel);
 		void setActive( bool activeState );
 		bool isActive();
+		std::pair<UINT, UINT> getSliderLocations();
 		std::pair<int, int> checkClickLocation( CPoint clickLocation );
+		void resetStorage();
 	private:
 		std::tuple<bool, int, int> mostRecentAutoscaleInfo;
 		bool mostRecentSpecialMinSetting;

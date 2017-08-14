@@ -19,7 +19,7 @@ class ColorBox
 {
 	public:
 		void initialize(POINT& pos, int& id, CWnd* parent, int length, fontMap fonts, 
-			std::vector<CToolTipCtrl*>& tooltips);
+			cToolTips& tooltips);
 		void changeColor(systemInfo<char> color);
 		CBrush* handleColoring( int id, CDC* pDC, brushMap brushes, rgbMap rgbs );
 		void rearrange(std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts);

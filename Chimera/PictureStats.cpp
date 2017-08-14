@@ -1,11 +1,13 @@
 #include "stdafx.h"
-#include "PictureStats.h"
-#include "reorganizeControl.h"
+
 #include <algorithm>
 #include <numeric>
 
+#include "PictureStats.h"
+
+
 // as of right now, the position of this control is not affected by the mode or the trigger mode.
-bool PictureStats::initialize( POINT& pos, CWnd* parent, int& id, fontMap fonts, std::vector<CToolTipCtrl*>& tooltips )
+void PictureStats::initialize( POINT& pos, CWnd* parent, int& id, fontMap fonts, cToolTips& tooltips )
 {
 	pictureStatsHeader.sPos = { pos.x, pos.y, pos.x + 272, pos.y + 25 };
 	pictureStatsHeader.Create( "Raw Counts", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY | ES_CENTER,
@@ -32,7 +34,7 @@ bool PictureStats::initialize( POINT& pos, CWnd* parent, int& id, fontMap fonts,
 	{
 		inc++;
 		control.sPos = { pos.x, pos.y, pos.x + 54, pos.y + 25 };
-		control.Create( ("#" + str( inc ) + ":").c_str(), WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, control.sPos, 
+		control.Create( cstr("#" + str( inc ) + ":"), WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, control.sPos, 
 					    parent, id++);
 		control.fontType = SmallFont;
 		pos.y += 25;
@@ -97,15 +99,13 @@ bool PictureStats::initialize( POINT& pos, CWnd* parent, int& id, fontMap fonts,
 	// #1
 	for (auto& control : selCounts)
 	{
-		control.sPos = { pos.x + 216, pos.y, pos.x + 272, pos.y + 25 };
+		control.sPos = { pos.x + 216, pos.y, pos.x + 272, pos.y += 25 };
 		control.Create( "-", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, control.sPos, parent, id++ );
 		control.fontType = SmallFont;
-		pos.y += 25;
 	}
-	return true;
 }
 
-bool PictureStats::rearrange(std::string cameraMode, std::string trigMode, int width, int height, fontMap fonts)
+void PictureStats::rearrange(std::string cameraMode, std::string trigMode, int width, int height, fontMap fonts)
 {
 	pictureStatsHeader.rearrange(cameraMode, trigMode, width, height, fonts);
 	repetitionIndicator.rearrange(cameraMode, trigMode, width, height, fonts);
@@ -133,11 +133,10 @@ bool PictureStats::rearrange(std::string cameraMode, std::string trigMode, int w
 	{
 		control.rearrange(cameraMode, trigMode, width, height, fonts);
 	}
-	return true;
 }
 
 
-bool PictureStats::reset()
+void PictureStats::reset()
 {
 	for (auto& control : maxCounts)
 	{
@@ -156,21 +155,20 @@ bool PictureStats::reset()
 		control.SetWindowText("-");
 	}
 	repetitionIndicator.SetWindowTextA( "Repetition ---/---" );
-	return true;
 }
 
 void PictureStats::updateType(std::string typeText)
 {
-	pictureStatsHeader.SetWindowText(typeText.c_str());
+	pictureStatsHeader.SetWindowText(cstr(typeText));
 }
 
 /**/
-std::pair<int, int> PictureStats::update( std::vector<long> image, unsigned int imageNumber, 
+std::pair<int, int> PictureStats::update( std::vector<long> image, UINT imageNumber, 
 										  std::pair<int, int> selectedPixel, int pictureWidth, int pictureHeight, 
 										  int currentRepetitionNumber, int totalRepetitionCount )
 {
-	repetitionIndicator.SetWindowTextA( ("Repetition " + str( currentRepetitionNumber ) + "/" 
-									   + str( totalRepetitionCount )).c_str() );
+	repetitionIndicator.SetWindowTextA( cstr("Repetition " + str( currentRepetitionNumber ) + "/" 
+									   + str( totalRepetitionCount )) );
 	long currentSelectedCount = image[selectedPixel.first + (pictureHeight - 1 - selectedPixel.second) * pictureWidth];
 
 	long currentMaxCount = 1;
@@ -203,10 +201,10 @@ std::pair<int, int> PictureStats::update( std::vector<long> image, unsigned int 
 
 	if (displayDataType == RAW_COUNTS)
 	{
-		maxCounts[imageNumber].SetWindowTextA(str(currentMaxCount).c_str());
-		minCounts[imageNumber].SetWindowTextA(str(currentMinCount).c_str());
-		selCounts[imageNumber].SetWindowTextA(str(currentSelectedCount).c_str());
-		avgCounts[imageNumber].SetWindowTextA(str( currentAvgCount, 1).c_str());
+		maxCounts[imageNumber].SetWindowTextA(cstr(currentMaxCount));
+		minCounts[imageNumber].SetWindowTextA(cstr(currentMinCount));
+		selCounts[imageNumber].SetWindowTextA(cstr(currentSelectedCount));
+		avgCounts[imageNumber].SetWindowTextA(cstr( currentAvgCount, 1));
 	}
 	else if (displayDataType == CAMERA_PHOTONS)
 	{
@@ -226,10 +224,10 @@ std::pair<int, int> PictureStats::update( std::vector<long> image, unsigned int 
 			minPhotons = (currentMinCount - convs.conventionalBackgroundCount) * convs.countToCameraPhoton;
 			avgPhotons = (currentAvgCount - convs.conventionalBackgroundCount) * convs.countToCameraPhoton;
 		}
-		maxCounts[imageNumber].SetWindowTextA(str(maxPhotons, 1).c_str());
-		minCounts[imageNumber].SetWindowTextA(str(minPhotons, 1).c_str());
-		selCounts[imageNumber].SetWindowTextA(str(selPhotons, 1).c_str());
-		avgCounts[imageNumber].SetWindowTextA(str(avgPhotons, 1).c_str());
+		maxCounts[imageNumber].SetWindowTextA(cstr(maxPhotons, 1));
+		minCounts[imageNumber].SetWindowTextA(cstr(minPhotons, 1));
+		selCounts[imageNumber].SetWindowTextA(cstr(selPhotons, 1));
+		avgCounts[imageNumber].SetWindowTextA(cstr(avgPhotons, 1));
 	}
 	else if (displayDataType == ATOM_PHOTONS)
 	{
@@ -249,10 +247,10 @@ std::pair<int, int> PictureStats::update( std::vector<long> image, unsigned int 
 			minPhotons = (currentMinCount - convs.conventionalBackgroundCount) * convs.countToScatteredPhoton;
 			avgPhotons = (currentAvgCount - convs.conventionalBackgroundCount) * convs.countToScatteredPhoton;
 		}
-		maxCounts[imageNumber].SetWindowTextA(str(maxPhotons, 1).c_str());
-		minCounts[imageNumber].SetWindowTextA(str(minPhotons, 1).c_str());
-		selCounts[imageNumber].SetWindowTextA(str(selPhotons, 1).c_str());
-		avgCounts[imageNumber].SetWindowTextA(str(avgPhotons, 1).c_str());
+		maxCounts[imageNumber].SetWindowTextA(cstr(maxPhotons, 1));
+		minCounts[imageNumber].SetWindowTextA(cstr(minPhotons, 1));
+		selCounts[imageNumber].SetWindowTextA(cstr(selPhotons, 1));
+		avgCounts[imageNumber].SetWindowTextA(cstr(avgPhotons, 1));
 	}
 	return { currentMinCount, currentMaxCount };
 }

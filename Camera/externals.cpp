@@ -46,7 +46,7 @@ bool eAutoscalePictures = false;
 bool eEMGainMode = false;
 int eEMGainLevel = 0;
 
-std::vector<std::string> eCurrentPlotNames;
+//std::vector<std::string> eCurrentPlotNames;
 unsigned int ePlottingIsSlowMessage, ePlottingCaughtUpMessage;
 // binning things & default values
 int eVerticalBinning = 1, eHorizontalBinning = 1, eLeftImageBorder = 1, eRightImageBorder = 512, eTopImageBorder = 1, eBottomImageBorder = 512,

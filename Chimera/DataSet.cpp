@@ -4,11 +4,11 @@
 /// All DataSet() class public functions.
 DataSet::DataSet()
 {
-	trueConditions.clear();
+	resultConditions.clear();
 	// Start with one picture
-	trueConditions.resize(1);
+	resultConditions.resize(1);
 	// start pictures loaded into experiment
-	//trueConditions[0].resize(ePicturesPerRepetition);
+	//resultConditions[0].resize(ePicturesPerRepetition);
 
 	postSelectionConditions.clear();
 	// start with one condition
@@ -26,11 +26,11 @@ DataSet::DataSet()
 
 void DataSet::initialize(int conditionNumber, int pixelNumber, int pictureNumber)
 {
-	trueConditions.resize(pixelNumber);
+	resultConditions.resize(pixelNumber);
 	dataCountsLocation.resize(pixelNumber);
 	for (int pixelInc = 0; pixelInc < pixelNumber; pixelInc++)
 	{
-		trueConditions[pixelInc].resize(pictureNumber);
+		resultConditions[pixelInc].resize(pictureNumber);
 		dataCountsLocation[pixelInc].resize(pictureNumber);
 	}
 	
@@ -56,12 +56,12 @@ void DataSet::addPicture()
 {
 	// all data structures have access to the same number of pictures. Currently there is no to have one data structure work on 2 picture increments and one on
 	// 3, for example.
-	int currentPixelNum = trueConditions.size();
+	int currentPixelNum = resultConditions.size();
 	// this should always be at least one large.
-	int currentPictureNum = trueConditions[0].size();
+	int currentPictureNum = resultConditions[0].size();
 	for (int pixelInc = 0; pixelInc < currentPixelNum; pixelInc++)
 	{
-		trueConditions[pixelInc].resize(currentPictureNum + 1);
+		resultConditions[pixelInc].resize(currentPictureNum + 1);
 		dataCountsLocation[pixelInc].resize(currentPictureNum + 1);
 		for (int postSelectionConditionInc = 0; postSelectionConditionInc < postSelectionConditions.size(); postSelectionConditionInc++)
 		{
@@ -75,10 +75,10 @@ void DataSet::addPicture()
 void DataSet::addPixel(int pictureNumber)
 {
 	// get the current pixel number. This should be uniform across thes data structures.
-	int currentPixelNum = trueConditions.size();
-	// all data sets have access to the same pixels, whether they actually use them for true values or post selection or not.
-	trueConditions.resize(currentPixelNum + 1);
-	trueConditions[currentPixelNum].resize(pictureNumber);
+	int currentPixelNum = resultConditions.size();
+	// all data sets have access to the same pixels, whether they actually use them for result values or post selection or not.
+	resultConditions.resize(currentPixelNum + 1);
+	resultConditions[currentPixelNum].resize(pictureNumber);
 	dataCountsLocation.resize(currentPixelNum + 1);
 	dataCountsLocation[currentPixelNum].resize(pictureNumber);
 
@@ -90,43 +90,43 @@ void DataSet::addPixel(int pictureNumber)
 }
 
 
-void DataSet::setTruthCondition(int pixel, int picture, int trueCondition)
+void DataSet::setResultCondition(int pixel, int picture, int resultCondition)
 {
-	if (trueCondition != -1 && trueCondition != 0 && trueCondition != 1)
+	if (resultCondition != -1 && resultCondition != 0 && resultCondition != 1)
 	{
-		thrower("ERROR: something attempted to set a true condition to value " + std::to_string(trueCondition));
+		thrower("ERROR: something attempted to set a result condition to bad value: " + str(resultCondition));
 	}
-	if (pixel > trueConditions.size() - 1)
+	if (pixel >= resultConditions.size())
 	{
-		thrower("ERROR: tried to set the true condition of a pixel that isn't loaded into the condition vector. Pixel number: " 
-					   + std::to_string(pixel));
+		thrower("ERROR: tried to set the result condition of a pixel that isn't loaded into the condition vector. "
+				"Pixel number: " + str(pixel));
 	}
-	if (picture > trueConditions[pixel].size() - 1)
+	if (picture >= resultConditions[pixel].size())
 	{
-		thrower("ERROR: tried to set the true condition of a picture that isn't loaded into the condition vector for the given pixel. "
-				 "Picture number: "	+ std::to_string(picture));
+		thrower("ERROR: tried to set the result condition of a picture that isn't loaded into the condition vector for"
+				" the given pixel. Picture number: " + str(picture));
 	}
-	trueConditions[pixel][picture] = trueCondition;
+	resultConditions[pixel][picture] = resultCondition;
 }
 
 void DataSet::setPostSelectionCondition(int conditionNumber, int pixel, int picture, int postSelectionCondition)
 {
 
-	if (conditionNumber > postSelectionConditions.size() - 1)
+	if (conditionNumber >= postSelectionConditions.size())
 	{
 		thrower("ERROR: tried to set the post selection condition of a condition number that isn't loaded into the condition vector. "
-				 "Condition number: " + std::to_string(conditionNumber));
+				 "Condition number: " + str(conditionNumber));
 
 	}
-	if (pixel > postSelectionConditions[conditionNumber].size() - 1)
+	if (pixel >= postSelectionConditions[conditionNumber].size())
 	{
 		thrower("ERROR: tried to set the post selection condition of a pixel that isn't loaded into the condition vector. Pixel "
-						"number: " + std::to_string(pixel));
+						"number: " + str(pixel));
 	}
-	if (picture > postSelectionConditions[conditionNumber][pixel].size() - 1)
+	if (picture >= postSelectionConditions[conditionNumber][pixel].size())
 	{
-		thrower("ERROR: tried to set the post selection condition of a picture that isn't loaded into the condition vector for the given pixel. Picture number: "
-			+ std::to_string(picture));
+		thrower("ERROR: tried to set the post selection condition of a picture that isn't loaded into the condition "
+				"vector for the given pixel. Picture number: " + str(picture));
 	}
 	postSelectionConditions[conditionNumber][pixel][picture] = postSelectionCondition;
 }
@@ -134,12 +134,12 @@ void DataSet::setPostSelectionCondition(int conditionNumber, int pixel, int pict
 void DataSet::removePixel()
 {
 	// make sure there is a pixel to remove.
-	size_t currentPixelNum = trueConditions.size();
+	size_t currentPixelNum = resultConditions.size();
 	if (currentPixelNum < 2)
 	{
 		thrower("ERROR: Something tried to remove the last pixel!");
 	}
-	trueConditions.resize(currentPixelNum - 1);
+	resultConditions.resize(currentPixelNum - 1);
 	for (int postSelectionConditionInc = 0; postSelectionConditionInc < postSelectionConditions.size(); postSelectionConditionInc++)
 	{
 		postSelectionConditions[postSelectionConditionInc].resize(currentPixelNum - 1);
@@ -152,9 +152,9 @@ void DataSet::removePicture()
 	// make sure there is a picture to remove.
 	// all data structures have access to the same number of pictures. Currently there is no to have one data structure work on 2 picture increments and one on
 	// 3, for example.
-	size_t currentPixelNum = trueConditions.size();
+	size_t currentPixelNum = resultConditions.size();
 	// this should always be at least one large.
-	size_t currentPictureNum = trueConditions[0].size();
+	size_t currentPictureNum = resultConditions[0].size();
 	
 	if (currentPictureNum < 2)
 	{
@@ -162,7 +162,7 @@ void DataSet::removePicture()
 	}
 	for (int pixelInc = 0; pixelInc < currentPixelNum; pixelInc++)
 	{
-		trueConditions[pixelInc].resize(currentPictureNum - 1);
+		resultConditions[pixelInc].resize(currentPictureNum - 1);
 		for (int postSelectionConditionInc = 0; postSelectionConditionInc < postSelectionConditions.size(); postSelectionConditionInc++)
 		{
 			postSelectionConditions[postSelectionConditionInc][pixelInc].resize(currentPictureNum - 1);
@@ -173,34 +173,35 @@ void DataSet::removePicture()
 
 int DataSet::getTruthCondition(int pixel, int picture)
 {
-	if (pixel >= trueConditions.size())
+	if (pixel >= resultConditions.size())
 	{
-		thrower("ERROR: tried to retrieve true condition from pixel that hasn't been allocated. Pixel: " + std::to_string(pixel));
+		thrower("ERROR: tried to retrieve result condition from pixel that hasn't been allocated. Pixel: " + str(pixel));
 	}
-	if (picture >= trueConditions[pixel].size())
+	if (picture >= resultConditions[pixel].size())
 	{
-		thrower("ERROR: tried to retrieve true condition from picture that hasn't been allocated. Picture: " + std::to_string(picture));
+		thrower("ERROR: tried to retrieve result condition from picture that hasn't been allocated. Picture: " 
+				+ str(picture));
 	}
-	return trueConditions[pixel][picture];
+	return resultConditions[pixel][picture];
 }
 
 
 int DataSet::getPostSelectionCondition(int conditionNumber, int pixel, int picture)
 {
-	if (conditionNumber > postSelectionConditions.size())
+	if (conditionNumber >= postSelectionConditions.size())
 	{
 		thrower("ERROR: tried to retrieve post selection condition from condition that hasn't been allocated. condition: " 
-			+ std::to_string(conditionNumber));
+			+ str(conditionNumber));
 	}
 	if (pixel >= postSelectionConditions[conditionNumber].size())
 	{
-		thrower("ERROR: tried to retrieve post selection condition from pixel that hasn't been allocated. Pixel: " 
-				 + std::to_string(pixel));
+		thrower("ERROR: tried to retrieve post selection condition from a pixel that hasn't been allocated. Pixel: " 
+				 + str(pixel));
 	}
 	if (picture >= postSelectionConditions[conditionNumber][pixel].size())
 	{
 		thrower("ERROR: tried to retrieve post selection condition from picture that hasn't been allocated. Picture: " 
-				 + std::to_string(picture));
+				 + str(picture));
 	}
 	return postSelectionConditions[conditionNumber][pixel][picture];
 }
@@ -276,11 +277,11 @@ std::string DataSet::getLegendText()
 
 void DataSet::resetPictureNumber(int pictureNumber)
 {
-	// trueConditions[Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)
-	for (int pixelInc = 0; pixelInc < trueConditions.size(); pixelInc++)
+	// resultConditions[Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)
+	for (int pixelInc = 0; pixelInc < resultConditions.size(); pixelInc++)
 	{
-		trueConditions[pixelInc].clear();
-		trueConditions[pixelInc].resize(pictureNumber);
+		resultConditions[pixelInc].clear();
+		resultConditions[pixelInc].resize(pictureNumber);
 	}
 	// postSelectionConditions[Condition#][Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)
 	for (int conditionInc = 0; conditionInc < postSelectionConditions.size(); conditionInc++)
@@ -309,18 +310,17 @@ void DataSet::resetPostSelectionConditionNumber(int conditionNumber)
 
 void DataSet::resetPixelNumber(int pixelNumber)
 {
-	// trueConditions[Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)
-	trueConditions.clear();
-	trueConditions.resize(pixelNumber);
-	// resize the true conditions.
+	// resultConditions[Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)
+	resultConditions.clear();
+	resultConditions.resize(pixelNumber);
+	// resize the result conditions.
 	for (int pixelInc = 0; pixelInc < pixelNumber; pixelInc++)
 	{
-		trueConditions[pixelInc].resize(pixelNumber);
+		resultConditions[pixelInc].resize(pixelNumber);
 	}
 	// postSelectionConditions[Condition#][Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)
 	for (int conditionInc = 0; conditionInc < postSelectionConditions.size(); conditionInc++)
 	{
-		
 		postSelectionConditions[conditionInc].clear();
 		postSelectionConditions[conditionInc].resize(pixelNumber);
 	}
@@ -333,8 +333,8 @@ void DataSet::resetPixelNumber(int pixelNumber)
 
 void DataSet::clear()
 {
-	// trueConditions[Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)
-	trueConditions.clear();
+	// resultConditions[Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)
+	resultConditions.clear();
 	// postSelectionConditions[Condition#][Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)
 	postSelectionConditions.clear();
 	dataCountsLocation.clear();

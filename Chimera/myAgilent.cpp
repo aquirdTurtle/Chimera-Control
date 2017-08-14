@@ -26,7 +26,7 @@ namespace myAgilent
 	 * segNum: This tells the function what the next segment # is.
 	 * script: this is the file object to be read from.
 	 */
-	int IntensityWaveform::readIntoSegment(int segNum, ScriptStream& script, std::vector<variable> singletons, profileSettings profile)
+	int IntensityWaveform::readIntoSegment(int segNum, ScriptStream& script)
 	{
 		std::string intensityCommand;
 		std::vector<std::string> tempVarNames;
@@ -49,37 +49,13 @@ namespace myAgilent
 			waveformSegments.resize(segNum + 1);
 			waveformSegments[segNum].assignSegType(1);
 		}
-		else if (intensityCommand == "predefined script")
-		{
-			std::string nestedFileName;
-			// remove \n at the end of last line.
-			script.get();
-			nestedFileName = script.getline( '\r' );
-			std::string path = profile.categoryPath + nestedFileName + AGILENT_SCRIPT_EXTENSION;
-			std::fstream nestedFile(path.c_str(), std::ios::in);
-			if (!nestedFile.is_open())
-			{
-				MessageBox(0, ("ERROR: tried to open a nested intensity file, but failed! The file was " + profile.categoryPath
-					+ nestedFileName + AGILENT_SCRIPT_EXTENSION).c_str(), 0, 0);
-				return -1;
-			}
-			ScriptStream nestedStream;
-			nestedStream << nestedFile.rdbuf();
-			if (myAgilent::analyzeIntensityScript(nestedStream, this, segNum, singletons, profile))
-			{
-				return -1;
-			}
-			return 0;
-		}
 		else 
 		{
-			std::string errMsg = "ERROR: Intensity command not recognized. The command was \"" + intensityCommand + "\"";
-			MessageBox(NULL, errMsg.c_str(), NULL, MB_OK);
-			return -1;
+			thrower("ERROR: Intensity command not recognized. The command was \"" + intensityCommand + "\"");
 		}
 
 		double tempTimeInMilliSeconds, tempIntensityInit, tempIntensityFin;
-		unsigned int tempRepeatNum = 0;
+		UINT tempRepeatNum = 0;
 		std::string delimiter, tempContinuationType, tempRampType;	 
 		// List of data types for variables for the different arguments:
 		// initial intensity = 1
@@ -89,16 +65,16 @@ namespace myAgilent
 		{
 			// this segment type means ramping.
 			script >> tempRampType;
-			NiawgController::loadParam( tempIntensityInit, script, tempVarNum, tempVarNames, tempVarLocations, { 1 }, singletons );
-			NiawgController::loadParam( tempIntensityFin, script, tempVarNum, tempVarNames, tempVarLocations, { 2 }, singletons );
+			NiawgController::loadParam( tempIntensityInit, script, tempVarNum, tempVarNames, tempVarLocations, { 1 } );
+			NiawgController::loadParam( tempIntensityFin, script, tempVarNum, tempVarNames, tempVarLocations, { 2 } );
 		}
 		else
 		{
 			tempRampType = "nr";
-			NiawgController::loadParam( tempIntensityInit, script, tempVarNum, tempVarNames, tempVarLocations, { 1, 2 }, singletons );
+			NiawgController::loadParam( tempIntensityInit, script, tempVarNum, tempVarNames, tempVarLocations, { 1, 2 } );
 			tempIntensityFin = tempIntensityInit;
 		}
-		NiawgController::loadParam( tempTimeInMilliSeconds, script, tempVarNum, tempVarNames, tempVarLocations, { 3 }, singletons );
+		NiawgController::loadParam( tempTimeInMilliSeconds, script, tempVarNum, tempVarNames, tempVarLocations, { 3 });
 		script >> tempContinuationType;
 		std::transform(tempContinuationType.begin(), tempContinuationType.end(), tempContinuationType.begin(), ::tolower);
 		if (tempContinuationType == "repeat")
@@ -124,11 +100,11 @@ namespace myAgilent
 		{
 			// input number mismatch.
 			std::string errorMsg;
-			errorMsg = "ERROR: The delimeter is missing in the Intensity script file for Segment #" + std::to_string(segNum + 1)
+			errorMsg = "ERROR: The delimeter is missing in the Intensity script file for Segment #" + str(segNum + 1)
 						+ ". The value placed in the delimeter location was " + delimiter + " while it should have been '#'.This"
 						+ " indicates that either the code is not interpreting the user input incorrectly or that the user has inputted too many parameters for this type"
 						+ " of Segment. Use of \"Repeat\" without the number of repeats following will also trigger this error.";
-			MessageBox(NULL, errorMsg.c_str(), "ERROR", MB_OK | MB_ICONERROR);
+			MessageBox(NULL, cstr(errorMsg), "ERROR", MB_OK | MB_ICONERROR);
 			return -1;
 		}
 
@@ -148,9 +124,9 @@ namespace myAgilent
 			{
 				// Invalid time
 				std::string errMsg;
-				errMsg = "ERROR: Invalid time entered in the intensity script file for Segment #" + std::to_string(segNum) + ". the value entered was " 
-						 + std::to_string(tempTimeInMilliSeconds) + ".";
-				MessageBox(NULL, errMsg.c_str(), "ERROR", MB_OK | MB_ICONERROR);
+				errMsg = "ERROR: Invalid time entered in the intensity script file for Segment #" + str(segNum) + ". the value entered was " 
+						 + str(tempTimeInMilliSeconds) + ".";
+				MessageBox(NULL, cstr(errMsg), "ERROR", MB_OK | MB_ICONERROR);
 				return -1;
 			}
 		}
@@ -169,9 +145,9 @@ namespace myAgilent
 			{
 				// Invalid intensity
 				std::string errMsg;
-				errMsg = "ERROR: Invalid Initial intensity entered in the intensity script file for Segment #" + std::to_string(segNum) 
-						 + ". the value entered was " + std::to_string(tempIntensityInit) + ".";
-				MessageBox(NULL, errMsg.c_str(), "ERROR", MB_OK | MB_ICONERROR);
+				errMsg = "ERROR: Invalid Initial intensity entered in the intensity script file for Segment #" + str(segNum) 
+						 + ". the value entered was " + str(tempIntensityInit) + ".";
+				MessageBox(NULL, cstr(errMsg), "ERROR", MB_OK | MB_ICONERROR);
 				return -1;
 			}
 		}
@@ -189,9 +165,9 @@ namespace myAgilent
 			if (varCheck )
 			{
 				std::string errMsg;
-				errMsg = "ERROR: Invalid Initial intensity entered in the intensity script file for Segment #" + std::to_string(segNum)	
-						 + ". the value entered was " + std::to_string(tempIntensityInit) + ".";
-				MessageBox(NULL, errMsg.c_str(), "ERROR", MB_OK | MB_ICONERROR);
+				errMsg = "ERROR: Invalid Initial intensity entered in the intensity script file for Segment #" + str(segNum)	
+						 + ". the value entered was " + str(tempIntensityInit) + ".";
+				MessageBox(NULL, cstr(errMsg), "ERROR", MB_OK | MB_ICONERROR);
 				return -1;
 			}
 		}
@@ -201,9 +177,9 @@ namespace myAgilent
 			if (tempRepeatNum < 0)
 			{
 				std::string errMsg;
-				errMsg = "ERROR: Invalid intensity entered in the intensity script file for Segment #" + std::to_string(segNum) + ". the value entered was " 
-						 + std::to_string(tempIntensityInit) + ".";
-				MessageBox(NULL, errMsg.c_str(), "ERROR", MB_OK | MB_ICONERROR);
+				errMsg = "ERROR: Invalid intensity entered in the intensity script file for Segment #" + str(segNum) + ". the value entered was " 
+						 + str(tempIntensityInit) + ".";
+				MessageBox(NULL, cstr(errMsg), "ERROR", MB_OK | MB_ICONERROR);
 				return -1;
 			}
 		}
@@ -227,9 +203,9 @@ namespace myAgilent
 		{
 			// string not recognized
 			std::string errMsg;
-			errMsg = "ERROR: Invalid Continuation Option on intensity segment #" + std::to_string(segNum + 1) + ". The string entered was " + tempContinuationType
+			errMsg = "ERROR: Invalid Continuation Option on intensity segment #" + str(segNum + 1) + ". The string entered was " + tempContinuationType
 					 + ". Please enter \"Repeat #\", \"RepeatUntilTrigger\", \"OnceWaitTrig\", or \"Once\". Code should not be case-sensititve.";
-			MessageBox(NULL, errMsg.c_str(), NULL, MB_OK);
+			MessageBox(NULL, cstr(errMsg), NULL, MB_OK);
 		}
 		// Make Everything Permanent
 		waveformSegments[segNum].assignRepeatNum(tempRepeatNum);
@@ -260,14 +236,14 @@ namespace myAgilent
 	{
 		// must get called after data conversion
 		std::string tempSendString;
-		tempSendString = "DATA:ARB seg" + std::to_string(segNum + totalSegNum * varNum) + ",";
+		tempSendString = "DATA:ARB seg" + str(segNum + totalSegNum * varNum) + ",";
 		// need to handle last one separately so that I can /not/ put a comma after it.
 		for (int sendDataInc = 0; sendDataInc < waveformSegments[segNum].returnDataSize() - 1; sendDataInc++)
 		{
-			tempSendString += std::to_string(waveformSegments[segNum].returnDataVal(sendDataInc));
+			tempSendString += str(waveformSegments[segNum].returnDataVal(sendDataInc));
 			tempSendString += ", ";
 		}
-		tempSendString += std::to_string(waveformSegments[segNum].returnDataVal(waveformSegments[segNum].returnDataSize() - 1));
+		tempSendString += str(waveformSegments[segNum].returnDataVal(waveformSegments[segNum].returnDataSize() - 1));
 		return tempSendString;
 	}
 	/*
@@ -290,7 +266,7 @@ namespace myAgilent
 		// Total format is  #<n><n digits><sequence name>,<arb name1>,<repeat count1>,<play control1>,<marker mode1>,<marker point1>,<arb name2>,<repeat count2>,
 		// <play control2>, <marker mode2>, <marker point2>, and so on.
 		tempSequenceString = "DATA:SEQ #";
-		tempSegmentInfoString = "seq" + std::to_string(sequenceNum) + ",";
+		tempSegmentInfoString = "seq" + str(sequenceNum) + ",";
 		if ( totalSegNum == 0 )
 		{
 			return;
@@ -298,8 +274,8 @@ namespace myAgilent
 		for (int segNumInc = 0; segNumInc < totalSegNum - 1; segNumInc++)
 		{
 			// Format is 
-			tempSegmentInfoString += "seg" + std::to_string(segNumInc + totalSegNum * sequenceNum) + ",";
-			tempSegmentInfoString += std::to_string(waveformSegments[segNumInc].returnRepeatNum()) + ",";
+			tempSegmentInfoString += "seg" + str(segNumInc + totalSegNum * sequenceNum) + ",";
+			tempSegmentInfoString += str(waveformSegments[segNumInc].returnRepeatNum()) + ",";
 			switch (waveformSegments[segNumInc].returnContinuationType())
 			{
 				case 0:
@@ -326,8 +302,8 @@ namespace myAgilent
 			tempSegmentInfoString += "highAtStart,4,";
 		}
 		
-		tempSegmentInfoString += "seg" + std::to_string((totalSegNum - 1) + totalSegNum * sequenceNum) + ",";
-		tempSegmentInfoString += std::to_string(waveformSegments[totalSegNum - 1].returnRepeatNum()) + ",";
+		tempSegmentInfoString += "seg" + str((totalSegNum - 1) + totalSegNum * sequenceNum) + ",";
+		tempSegmentInfoString += str(waveformSegments[totalSegNum - 1].returnRepeatNum()) + ",";
 		switch (waveformSegments[totalSegNum - 1].returnContinuationType())
 		{
 			case 0:
@@ -353,8 +329,8 @@ namespace myAgilent
 		}
 		tempSegmentInfoString += "highAtStart,4";
 
-		tempSequenceString = tempSequenceString + std::to_string((std::to_string(tempSegmentInfoString.size())).size())
-			+ std::to_string(tempSegmentInfoString.size()) + tempSegmentInfoString;
+		tempSequenceString = tempSequenceString + str((str(tempSegmentInfoString.size())).size())
+			+ str(tempSegmentInfoString.size()) + tempSegmentInfoString;
 
 		//
 		totalSequence = tempSequenceString;
@@ -374,6 +350,8 @@ namespace myAgilent
 	{
 		return varies;
 	}
+
+
 	/*
 	 * This waveform loops through all of the segments to find places where a variable value needs to be changed, and changes it.
 	 */
@@ -649,13 +627,13 @@ namespace myAgilent
 			for (int dataInc = 0; dataInc < numDataPoints; dataInc++)
 			{
 				// constant waveform. Every data point is the same.
-				dataArray.push_back(initValue + myMath::rampCalc(numDataPoints, dataInc, initValue, finValue, rampType));
+				dataArray.push_back(initValue + NiawgController::rampCalc(numDataPoints, dataInc, initValue, finValue, rampType));
 			}
 		}
 		else if (rampType == "")
 		{
 			// Error: Ramp Type has not been set!
-			MessageBox(0, "ERROR: Data points tried to be written when the ramp type hadn't been set!", 0, MB_OK);
+			errBox("ERROR: Data points tried to be written when the ramp type hadn't been set!");
 			return -1;
 		}
 		else 
@@ -663,7 +641,7 @@ namespace myAgilent
 			// invalid ramp Type!
 			std::string errMsg;
 			errMsg = "ERROR: Invalid Ramp Type in intensity sequence! Type entered was: " + rampType + ".";
-			MessageBox(0, errMsg.c_str(), 0, MB_OK);
+			MessageBox(0, cstr(errMsg), 0, MB_OK);
 			return -1;
 		}
 
@@ -762,18 +740,18 @@ namespace myAgilent
 	/*
 	 * This function tells the agilent to put out the DC default waveform.
 	 */
-	int agilentDefault()
+	void agilentDefault()
 	{
-		unsigned long viDefaultRM, Instrument;
-		unsigned long actual;
+		ULONG viDefaultRM, Instrument;
+		ULONG actual;
 		std::string SCPIcmd;
 		if (!NIAWG_SAFEMODE)
 		{
 			viOpenDefaultRM(&viDefaultRM);
 			int val = viOpen(viDefaultRM, (char *)AGILENT_ADDRESS, VI_NULL, VI_NULL, &Instrument);
 			// turn it to the default voltage...
-			SCPIcmd = std::string("APPLy:DC DEF, DEF, ") + AGILENT_DEFAULT_DC;
-			agilentErrorCheck(viWrite(Instrument, (unsigned char*)(SCPIcmd).c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+			SCPIcmd = str("APPLy:DC DEF, DEF, ") + AGILENT_DEFAULT_DC;
+			agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
 			// and leave...
 			viClose(Instrument);
 			viClose(viDefaultRM);
@@ -782,25 +760,16 @@ namespace myAgilent
 		// update current values
 		eCurrentAgilentLow = std::stod(AGILENT_DEFAULT_DC);
 		eCurrentAgilentHigh = std::stod(AGILENT_DEFAULT_DC);
-
-		return 0;
 	}
 
 
-	bool analyzeIntensityScript(ScriptStream& intensityFile, myAgilent::IntensityWaveform* intensityWaveformData, int& currentSegmentNumber, std::vector<variable> singletons, profileSettings profile)
+	bool analyzeIntensityScript( ScriptStream& intensityFile, myAgilent::IntensityWaveform* intensityWaveformData, 
+								 int& currentSegmentNumber)
 	{
 		while (!intensityFile.eof())
 		{
 			// Procedurally read lines into segment informations.
-			int leaveTest = intensityWaveformData->readIntoSegment(currentSegmentNumber, intensityFile, singletons, profile);
-			if (leaveTest < 0)
-			{
-				// Error
-				std::string errMsg;
-				errMsg = "ERROR: IntensityWaveform.readIntoSegment threw an error! Error occurred in segment #" + std::to_string(currentSegmentNumber) + ".";
-				MessageBox(NULL, errMsg.c_str(), NULL, MB_OK);
-				return true;
-			}
+			int leaveTest = intensityWaveformData->readIntoSegment(currentSegmentNumber, intensityFile);
 			if (leaveTest == 1)
 			{
 				// read function is telling this function to stop reading the file because it's at its end.
@@ -815,9 +784,9 @@ namespace myAgilent
 	 * programIntensity opens the intensity file, reads the contents, loads them into an appropriate data structure, then from this data structure writes
 	 * segment and sequence information to the function generator.
 	 */
-	void programIntensity(int varNum, std::vector<variable> variables, std::vector<std::vector<double> > varValues, bool& intensityVaried, 
-						 std::vector<myMath::minMaxDoublet>& minsAndMaxes, std::vector<std::fstream>& intensityFiles, 
-						   std::vector<variable> singletons, profileSettings profile)
+	void programIntensity(UINT varNum, std::vector<variable> variables, std::vector<std::vector<double> > varValues, bool& intensityVaried, 
+						  std::vector<std::pair<double, double>>& minsAndMaxes, std::vector<std::fstream>& intensityFiles,
+						  std::vector<variable> singletons, profileSettings profile)
 	{
 		// Initialize stuff
 		myAgilent::IntensityWaveform intensityWaveformSequence;
@@ -825,8 +794,8 @@ namespace myAgilent
 		int currentSegmentNumber = 0;
 
 		// connect to the agilent. I refuse to use the stupid typecasts. The way you often see these variables defined is using stupid things like ViRsc, ViUInt32, etc.
-		unsigned long viDefaultRM = 0, Instrument = 0;
-		unsigned long actual;
+		ULONG viDefaultRM = 0, Instrument = 0;
+		ULONG actual;
 		std::string SCPIcmd;
 		if (!NIAWG_SAFEMODE)
 		{
@@ -835,23 +804,23 @@ namespace myAgilent
 			// ???
 			agilentErrorCheck(viSetAttribute(Instrument, VI_ATTR_TMO_VALUE, 40000), Instrument);
 			// Set sample rate
-			SCPIcmd = "SOURCE1:FUNC:ARB:SRATE " + std::to_string(AGILENT_SAMPLE_RATE);
-			agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+			SCPIcmd = "SOURCE1:FUNC:ARB:SRATE " + str(AGILENT_SAMPLE_RATE);
+			agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
 			// Set filtering state
-			SCPIcmd = std::string("SOURCE1:FUNC:ARB:FILTER ") + AGILENT_FILTER_STATE;
-			agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+			SCPIcmd = str("SOURCE1:FUNC:ARB:FILTER ") + AGILENT_FILTER_STATE;
+			agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
 			// Set Trigger Parameters
-			SCPIcmd = std::string("TRIGGER1:SOURCE EXTERNAL");
-			agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+			SCPIcmd = str("TRIGGER1:SOURCE EXTERNAL");
+			agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
 			//
-			SCPIcmd = std::string("TRIGGER1:SLOPE POSITIVE");
-			agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+			SCPIcmd = str("TRIGGER1:SLOPE POSITIVE");
+			agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
 		}
 		for (int sequenceInc = 0; sequenceInc < intensityFiles.size(); sequenceInc++)
 		{
 			ScriptStream intensityScript;
 			intensityScript << intensityFiles[sequenceInc].rdbuf();
-			if (analyzeIntensityScript(intensityScript, &intensityWaveformSequence, currentSegmentNumber, singletons, profile))
+			if (analyzeIntensityScript(intensityScript, &intensityWaveformSequence, currentSegmentNumber))
 			{
 				thrower( "analyzeIntensityScript threw an error!" );
 			}
@@ -877,15 +846,15 @@ namespace myAgilent
 					if (intensityWaveformSequence.writeData(segNumInc) < 0)
 					{
 						thrower("ERROR: IntensityWaveform.writeData threw an error! Error occurred in segment #" 
-								 + std::to_string(totalSegmentNumber) + ".");
+								 + str(totalSegmentNumber) + ".");
 					}
 				}
 				// loop through again and calc/normalize/write values.
 				intensityWaveformSequence.convertPowersToVoltages();
 				intensityWaveformSequence.calcMinMax();
 				minsAndMaxes.resize(varValueCount + 1);
-				minsAndMaxes[varValueCount].max = intensityWaveformSequence.returnMaxVolt();
-				minsAndMaxes[varValueCount].min = intensityWaveformSequence.returnMinVolt();
+				minsAndMaxes[varValueCount].second = intensityWaveformSequence.returnMaxVolt();
+				minsAndMaxes[varValueCount].first = intensityWaveformSequence.returnMinVolt();
 				intensityWaveformSequence.normalizeVoltages();
 
 				for (int segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
@@ -894,16 +863,16 @@ namespace myAgilent
 					{
 						SCPIcmd = intensityWaveformSequence.compileAndReturnDataSendString(segNumInc, varValueCount, totalSegmentNumber);
 						// send to the agilent.
-						agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+						agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
 						// Select the segment
-						SCPIcmd = "SOURCE1:FUNC:ARB seg" + std::to_string(segNumInc + totalSegmentNumber * varValueCount);
-						agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+						SCPIcmd = "SOURCE1:FUNC:ARB seg" + str(segNumInc + totalSegmentNumber * varValueCount);
+						agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
 						// Save the segment
-						SCPIcmd = "MMEM:STORE:DATA \"INT:\\seg" + std::to_string(segNumInc + totalSegmentNumber * varValueCount) + ".arb\"";
-						agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+						SCPIcmd = "MMEM:STORE:DATA \"INT:\\seg" + str(segNumInc + totalSegmentNumber * varValueCount) + ".arb\"";
+						agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
 						// increment for the next.
-						SCPIcmd = std::string("TRIGGER1:SLOPE POSITIVE");
-						agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+						SCPIcmd = str("TRIGGER1:SLOPE POSITIVE");
+						agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
 					}
 				}
 
@@ -913,16 +882,16 @@ namespace myAgilent
 				{
 					// submit the sequence
 					SCPIcmd = intensityWaveformSequence.returnSequenceString();
-					agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+					agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
 					// Save the sequence
-					SCPIcmd = "SOURCE1:FUNC:ARB seq" + std::to_string(varValueCount);
-					agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+					SCPIcmd = "SOURCE1:FUNC:ARB seq" + str(varValueCount);
+					agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
 
-					SCPIcmd = "MMEM:STORE:DATA \"INT:\\seq" + std::to_string(varValueCount) + ".seq\"";
-					agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+					SCPIcmd = "MMEM:STORE:DATA \"INT:\\seq" + str(varValueCount) + ".seq\"";
+					agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
 					// clear temporary memory.
 					SCPIcmd = "SOURCE1:DATA:VOL:CLEAR";
-					agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+					agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
 				}
 			}
 		}
@@ -936,15 +905,15 @@ namespace myAgilent
 				if (intensityWaveformSequence.writeData(segNumInc) < 0)
 				{
 					thrower("ERROR: IntensityWaveform.writeData threw an error! Error occurred in segment #" 
-							 + std::to_string(totalSegmentNumber) + ".");
+							 + str(totalSegmentNumber) + ".");
 				}
 			}
 			// no reassignment nessesary, no variables
 			intensityWaveformSequence.convertPowersToVoltages();
 			intensityWaveformSequence.calcMinMax();
 			minsAndMaxes.resize(1);
-			minsAndMaxes[0].max = intensityWaveformSequence.returnMaxVolt();
-			minsAndMaxes[0].min = intensityWaveformSequence.returnMinVolt();
+			minsAndMaxes[0].second = intensityWaveformSequence.returnMaxVolt();
+			minsAndMaxes[0].first = intensityWaveformSequence.returnMinVolt();
 			intensityWaveformSequence.normalizeVoltages();
 
 			for (int segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
@@ -952,24 +921,24 @@ namespace myAgilent
 				if (!NIAWG_SAFEMODE)
 				{
 					// Set output impedance...
-					SCPIcmd = std::string("OUTPUT1:LOAD ") + AGILENT_LOAD;
+					SCPIcmd = str("OUTPUT1:LOAD ") + AGILENT_LOAD;
 					// set range of voltages...
-					agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-					SCPIcmd = std::string("SOURCE1:VOLT:LOW ") + std::to_string(minsAndMaxes[0].min) + " V";
-					agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-					SCPIcmd = std::string("SOURCE1:VOLT:HIGH ") + std::to_string(minsAndMaxes[0].max) + " V";
-					agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+					agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+					SCPIcmd = str("SOURCE1:VOLT:LOW ") + str(minsAndMaxes[0].first) + " V";
+					agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+					SCPIcmd = str("SOURCE1:VOLT:HIGH ") + str(minsAndMaxes[0].second) + " V";
+					agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
 					// get the send string
 					SCPIcmd = intensityWaveformSequence.compileAndReturnDataSendString(segNumInc, 0, totalSegmentNumber);
 					// send to the agilent.
-					agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+					agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
 
 					// Select the segment
-					SCPIcmd = "SOURCE1:FUNC:ARB seg" + std::to_string(segNumInc);
-					agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+					SCPIcmd = "SOURCE1:FUNC:ARB seg" + str(segNumInc);
+					agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
 					// Save the segment
-					SCPIcmd = "MMEM:STORE:DATA \"INT:\\seg" + std::to_string(segNumInc) + ".arb\"";
-					agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+					SCPIcmd = "MMEM:STORE:DATA \"INT:\\seg" + str(segNumInc) + ".arb\"";
+					agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
 					// increment for the next.
 				}
 			}
@@ -982,17 +951,17 @@ namespace myAgilent
 			{
 				// submit the sequence
 				SCPIcmd = intensityWaveformSequence.returnSequenceString();
-				agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+				agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
 				// Save the sequence
-				SCPIcmd = "SOURCE1:FUNC:ARB seq" + std::to_string(0);
-				viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual);
+				SCPIcmd = "SOURCE1:FUNC:ARB seq" + str(0);
+				viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual);
 				//		agilentErrorCheck(, Instrument);
-				SCPIcmd = "MMEM:STORE:DATA \"INT:\\seq" + std::to_string(0) + ".seq\"";
-				viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual);
+				SCPIcmd = "MMEM:STORE:DATA \"INT:\\seq" + str(0) + ".seq\"";
+				viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual);
 				//		agilentErrorCheck(, Instrument);
 				// clear temporary memory.
 				SCPIcmd = "SOURCE1:DATA:VOL:CLEAR";
-				agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+				agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
 			}
 		}
 		viClose(Instrument);
@@ -1002,7 +971,7 @@ namespace myAgilent
 	/*
 	 * This function checks if the agilent throws an error or if there is an error communicating with the agilent. it returns -1 if error, 0 otherwise.
 	 */
-	int agilentErrorCheck(long status, unsigned long vi)
+	int agilentErrorCheck(long status, ULONG vi)
 	{
 		long errorCode = 0;
 		char buf[256] = { 0 };
@@ -1011,8 +980,8 @@ namespace myAgilent
 		{
 			// Error detected.
 			std::string commErrMsg;
-			commErrMsg = "ERROR: Communication error with agilent. Error Code: " + std::to_string(status);
-			MessageBox(0, commErrMsg.c_str(), 0, MB_OK);
+			commErrMsg = "ERROR: Communication error with agilent. Error Code: " + str(status);
+			errBox(commErrMsg);
 			return -1;
 		}
 		if (!NIAWG_SAFEMODE)
@@ -1024,8 +993,8 @@ namespace myAgilent
 		{
 			// Agilent error
 			std::string agErrMsg;
-			agErrMsg = "ERROR: agilent returned error message: " + std::to_string(errorCode) + ":" + buf;
-			MessageBox(0, agErrMsg.c_str(), 0, MB_OK);
+			agErrMsg = "ERROR: agilent returned error message: " + str(errorCode) + ":" + buf;
+			errBox(agErrMsg);
 			return -1;
 		}
 		return 0;
@@ -1034,12 +1003,12 @@ namespace myAgilent
 	/*
 	 * This function tells the agilent to use sequence # (varNum) and sets settings correspondingly.
 	 */
-	void setIntensity(int varNum, bool intensityIsVaried, std::vector<myMath::minMaxDoublet> intensityMinMax)
+	void setIntensity(UINT varNum, bool intensityIsVaried, std::vector<std::pair<double, double>> intensityMinMax)
 	{
 		if (intensityIsVaried || varNum == 0)
 		{
-			unsigned long viDefaultRM, Instrument;
-			unsigned long actual;
+			ULONG viDefaultRM, Instrument;
+			ULONG actual;
 			if (!NIAWG_SAFEMODE)
 			{
 				viOpenDefaultRM(&viDefaultRM);
@@ -1049,26 +1018,26 @@ namespace myAgilent
 			if (!NIAWG_SAFEMODE)
 			{
 				// Load sequence that was previously loaded.
-				SCPIcmd = "MMEM:LOAD:DATA \"INT:\\seq" + std::to_string(varNum) + ".seq\"";
-				agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+				SCPIcmd = "MMEM:LOAD:DATA \"INT:\\seq" + str(varNum) + ".seq\"";
+				agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
 
 				SCPIcmd = "SOURCE1:FUNC ARB";
-				agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+				agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
 
-				SCPIcmd = "SOURCE1:FUNC:ARB \"INT:\\seq" + std::to_string(varNum) + ".seq\"";
-				agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+				SCPIcmd = "SOURCE1:FUNC:ARB \"INT:\\seq" + str(varNum) + ".seq\"";
+				agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
 
 				// Set output impedance...
-				SCPIcmd = std::string("OUTPUT1:LOAD ") + AGILENT_LOAD;
+				SCPIcmd = str("OUTPUT1:LOAD ") + AGILENT_LOAD;
 
-				agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-				SCPIcmd = std::string("SOURCE1:VOLT:LOW ") + std::to_string(intensityMinMax[varNum].min) + " V";
-				agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
-				SCPIcmd = std::string("SOURCE1:VOLT:HIGH ") + std::to_string(intensityMinMax[varNum].max) + " V";
-				agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+				agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+				SCPIcmd = str("SOURCE1:VOLT:LOW ") + str(intensityMinMax[varNum].first) + " V";
+				agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+				SCPIcmd = str("SOURCE1:VOLT:HIGH ") + str(intensityMinMax[varNum].second) + " V";
+				agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
 
 				SCPIcmd = "OUTPUT1 ON";
-				agilentErrorCheck(viWrite(Instrument, (unsigned char*)SCPIcmd.c_str(), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+				agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
 				// and leave...
 				viClose(Instrument);
 				viClose(viDefaultRM);

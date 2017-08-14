@@ -28,7 +28,7 @@ void PictureManager::setAlwaysShowGrid(bool showOption, CDC* easel)
 }
 
 
-void PictureManager::redrawPictures(CDC* easel, std::pair<int, int> selectedLocation )
+void PictureManager::redrawPictures(CDC* easel, std::pair<int, int> selectedLocation, std::vector<std::pair<int, int>> analysisLocs)
 {
 	if (!pictures[1].isActive())
 	{
@@ -37,7 +37,7 @@ void PictureManager::redrawPictures(CDC* easel, std::pair<int, int> selectedLoca
 		{
 			pictures[0].drawGrid(easel, gridBrush);
 		}
-		drawDongles(easel, selectedLocation );
+		drawDongles(easel, selectedLocation, analysisLocs);
 		return;
 	}
 	for (auto& pic : pictures)
@@ -48,19 +48,19 @@ void PictureManager::redrawPictures(CDC* easel, std::pair<int, int> selectedLoca
 			pic.drawGrid(easel, gridBrush);
 		}
 	}
-	drawDongles(easel, selectedLocation);
+	drawDongles(easel, selectedLocation, analysisLocs);
 }
 
 
 /*
  *  
  */
-void PictureManager::drawDongles(CDC* dc, std::pair<int, int> selectedLocation)
+void PictureManager::drawDongles(CDC* dc, std::pair<int, int> selectedLocation, std::vector<std::pair<int, int>> analysisLocs)
 {
 	for (auto& pic : pictures)
 	{
 		pic.drawCircle(dc, selectedLocation);
-		//pic.drawRectangles();
+		pic.drawAnalysisMarkers(dc, analysisLocs);
 	}
 }
 
@@ -86,6 +86,48 @@ void PictureManager::handleEditChange( UINT id )
 void PictureManager::setAutoScalePicturesOption(bool autoScaleOption)
 {
 	autoScalePictures = autoScaleOption;
+}
+
+
+void PictureManager::handleSaveConfig(std::ofstream& saveFile)
+{
+	saveFile << "PICTURE_MANAGER\n";
+
+	for (auto& pic : pictures)
+	{
+		std::pair<UINT, UINT> sliderLoc = pic.getSliderLocations();
+		saveFile << sliderLoc.first << " " << sliderLoc.second << "\n";
+	}
+	saveFile << autoScalePictures << " ";
+	saveFile << specialGreaterThanMax << " ";
+	saveFile << specialLessThanMin << " ";
+	saveFile << alwaysShowGrid << " ";
+
+	saveFile << "END_PICTURE_MANAGER\n";
+}
+
+
+void PictureManager::handleOpenConfig(std::ifstream& configFile, double version)
+{
+	ProfileSystem::checkDelimiterLine(configFile, "PICTURE_MANAGER");
+	std::array<int, 4> maxes, mins;
+	for (int sliderInc = 0; sliderInc < 4; sliderInc++)
+	{
+		configFile >> mins[sliderInc];
+		configFile >> maxes[sliderInc];
+	}
+	configFile >> autoScalePictures;
+	configFile >> specialGreaterThanMax;
+	configFile >> specialLessThanMin;
+	configFile >> alwaysShowGrid;
+	UINT count = 0;
+	for (auto& pic : pictures)
+	{
+		pic.setSliderPositions(mins[count], maxes[count]);
+		count++;
+	}
+	configFile.get();
+	ProfileSystem::checkDelimiterLine(configFile, "END_PICTURE_MANAGER");
 }
 
 
@@ -135,12 +177,13 @@ std::pair<int, int> PictureManager::handleRClick( CPoint clickLocation )
 		{
 			return location;
 		}
+		// else continue looking.
 	}
 	return location;
 }
 
 
-void PictureManager::setSinglePicture( CWnd* parent, std::pair<int, int> selectedLocation, imageParameters imageParams )
+void PictureManager::setSinglePicture( CWnd* parent, std::pair<int, int> selectedLocation, imageParameters imageParams, std::vector<std::pair<int, int>> analysisLocs)
 {
 	for (int picNum = 0; picNum < 4; picNum++)
 	{
@@ -186,8 +229,17 @@ void PictureManager::setPallete(UINT palleteID)
 }
 */
 
+void PictureManager::resetPictureStorage()
+{
+	for (auto& pic : pictures)
+	{
+		pic.resetStorage();
+	}
+}
+
 void PictureManager::setMultiplePictures( CWnd* parent, std::pair<int, int> selectedLocation, 
-										 imageParameters imageParams, int numberActivePics )
+										 imageParameters imageParams, int numberActivePics, 
+										 std::vector<std::pair<int, int>> analysisLocs)
 {
 	for (int picNum = 0; picNum < 4; picNum++)
 	{
@@ -232,7 +284,7 @@ void PictureManager::drawBackgrounds(CDC* easel)
 	}
 }
 
-void PictureManager::initialize( POINT& loc, CWnd* parent, int& id, fontMap fonts, std::vector<CToolTipCtrl*>& tooltips, 
+void PictureManager::initialize( POINT& loc, CWnd* parent, int& id, fontMap fonts, cToolTips& tooltips,
 								 CBrush* defaultBrush)
 {
 	picturesLocation = loc;

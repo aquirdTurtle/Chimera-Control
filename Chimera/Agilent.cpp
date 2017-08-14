@@ -1,11 +1,12 @@
 #include "stdafx.h"
-#include "Agilent.h"
-#include "constants.h"
 #include "boost/cast.hpp"
 #include <algorithm>
 #include <numeric>
 #include <fstream>
+
 #include "C:\PROGRAM FILES (X86)\IVI FOUNDATION\VISA\WINNT\INCLUDE\VISA.H"
+
+#include "Agilent.h"
 #include "VariableSystem.h"
 #include "ScriptStream.h"
 #include "ConfigurationFileSystem.h"
@@ -22,7 +23,7 @@ ScriptedAgilentWaveform::ScriptedAgilentWaveform()
 	* segNum: This tells the function what the next segment # is.
 	* script: this is the object to be read from.
 	*/
-bool ScriptedAgilentWaveform::readIntoSegment(int segNum, ScriptStream& script, profileSettings profileInfo, Agilent* parent)
+bool ScriptedAgilentWaveform::readIntoSegment(int segNum, ScriptStream& script, Agilent* parent)
 {
 	segmentInfoInput workingInput;
 	std::string intensityCommand;
@@ -42,22 +43,6 @@ bool ScriptedAgilentWaveform::readIntoSegment(int segNum, ScriptStream& script, 
 	{
 		waveformSegments.resize(segNum + 1);
 		workingInput.segmentType = 1;
-	}
-	else if (intensityCommand == "predefined script")
-	{
-		std::string nestedFileName;
-		nestedFileName = script.getline( '\r' );
-		std::string path = profileInfo.categoryPath + nestedFileName + AGILENT_SCRIPT_EXTENSION;
-		std::fstream nestedFile(path.c_str(), std::ios::in);
-		if (!nestedFile.is_open())
-		{
-			thrower( "ERROR: tried to open a nested intensity file, but failed! The file was " + profileInfo.categoryPath
-					 + nestedFileName + AGILENT_SCRIPT_EXTENSION );
-			return false;
-		}
-		ScriptStream subStream;
-		subStream << nestedFile.rdbuf();
-		parent->analyzeAgilentScript( subStream, this, segNum, profileInfo);
 	}
 	else 
 	{
@@ -136,7 +121,7 @@ bool ScriptedAgilentWaveform::readIntoSegment(int segNum, ScriptStream& script, 
 	return false;
 }
 
-void Segment::convertInputToFinal( key variableKey, unsigned int variation)
+void Segment::convertInputToFinal( key variableKey, UINT variation)
 {
 	// first transfer things that can't be varied.
 	finalSettings.segmentType = input.segmentType;
@@ -332,7 +317,7 @@ bool ScriptedAgilentWaveform::returnIsVaried()
 /*
 	* This waveform loops through all of the segments to find places where a variable value needs to be changed, and changes it.
 	*/
-void ScriptedAgilentWaveform::replaceVarValues( key variableKey, unsigned int variation )
+void ScriptedAgilentWaveform::replaceVarValues( key variableKey, UINT variation )
 {
 	for (int segNumInc = 0; segNumInc < waveformSegments.size(); segNumInc++)
 	{
@@ -562,11 +547,11 @@ void Segment::calcData()
 
 
 /*
-	* return boost::numeric_cast<long>(dataArray.size());
-	*/
-long Segment::returnDataSize()
+ * return boost::numeric_cast<long>(dataArray.size());
+ */
+UINT Segment::returnDataSize()
 {
-	return boost::numeric_cast<long>(dataArray.size());
+	return dataArray.size();
 }
 
 /*
@@ -623,7 +608,7 @@ void Agilent::analyzeAgilentScript( ScriptStream& intensityFile, ScriptedAgilent
 	while (!intensityFile.eof())
 	{
 		// Procedurally read lines into segment informations.
-		int leaveTest = intensityWaveformData->readIntoSegment(currentSegmentNumber, intensityFile, profileInfo, this);
+		int leaveTest = intensityWaveformData->readIntoSegment(currentSegmentNumber, intensityFile, this);
 
 		if (leaveTest < 0)
 		{
@@ -795,7 +780,7 @@ std::string Agilent::getDeviceIdentity()
 	return msg;
 }
 
-void Agilent::initialize( POINT& loc, std::vector<CToolTipCtrl*>& toolTips, DeviceWindow* master, int& id,
+void Agilent::initialize( POINT& loc, cToolTips& toolTips, DeviceWindow* master, int& id,
 						  std::string address, std::string headerText )
 {
 	usbAddress = address;
@@ -814,11 +799,11 @@ void Agilent::initialize( POINT& loc, std::vector<CToolTipCtrl*>& toolTips, Devi
 	}
 	
 	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
-	header.Create( headerText.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, master, id++ );
+	header.Create( cstr(headerText), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, master, id++ );
 	header.fontType = HeadingFont;
 
 	deviceInfoDisplay.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
-	deviceInfoDisplay.Create(deviceInfo.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, deviceInfoDisplay.sPos, 
+	deviceInfoDisplay.Create( cstr(deviceInfo), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, deviceInfoDisplay.sPos, 
 							 master, id++ );
 	deviceInfoDisplay.fontType = SmallFont;
 
@@ -988,7 +973,7 @@ void Agilent::updateEdit(int chan)
 		channel1Button.SetCheck( false );
 		channel2Button.SetCheck( true );
 	}
-	optionsEdit.SetWindowTextA( tempStr.c_str() );
+	optionsEdit.SetWindowTextA( cstr(tempStr));
 }
 
 
@@ -1054,7 +1039,7 @@ deviceOutputInfo Agilent::getOutputInfo()
 }
 
 
-void Agilent::convertInputToFinalSettings( key variableKey, unsigned int variation )
+void Agilent::convertInputToFinalSettings( key variableKey, UINT variation )
 {
 	// iterate between 0 and 1...
 	try
@@ -1145,33 +1130,32 @@ void Agilent::convertInputToFinalSettings( key variableKey, unsigned int variati
 /*
 This function outputs a string that contains all of the information that is set by the user for a given configuration. 
 */
-std::string Agilent::getConfigurationString()
+void Agilent::handleSavingConfig(std::ofstream& saveFile)
 {
 	// make sure data is up to date.
 	handleInput();
 	// start outputting.
-	std::stringstream info;
-	info << "AGILENTVERSION 1.0\n";
-	info << str(settings.synced); 
-	info << "\nCHANNEL 1\n";
-	info << str(settings.channel[0].option) + ", ";
-	info << settings.channel[0].dc.dcLevelInput + ", ";
-	info << settings.channel[0].sine.amplitudeInput + ", ";
-	info << settings.channel[0].sine.frequencyInput + ", ";
-	info << settings.channel[0].square.amplitudeInput + ", ";
-	info << settings.channel[0].square.frequencyInput + ", ";
-	info << settings.channel[0].square.offsetInput + ", ";
-	info << settings.channel[0].preloadedArb.address + ", ";
-	info << "\nCHANNEL 2\n";
-	info << str( settings.channel[1].option ) + ", ";
-	info << settings.channel[1].dc.dcLevelInput + ", ";
-	info << settings.channel[1].sine.amplitudeInput + ", ";
-	info << settings.channel[1].sine.frequencyInput + ", ";
-	info << settings.channel[1].square.amplitudeInput + ", ";
-	info << settings.channel[1].square.frequencyInput + ", ";
-	info << settings.channel[1].square.offsetInput + ", ";
-	info << settings.channel[1].preloadedArb.address + ", \n";
-	return info.str();
+	saveFile << "AGILENT\n";
+	saveFile << str(settings.synced) << "\n";
+	saveFile << "CHANNEL_1\n";
+	saveFile << str(settings.channel[0].option) + "\n";
+	saveFile << settings.channel[0].dc.dcLevelInput + "\n";
+	saveFile << settings.channel[0].sine.amplitudeInput + "\n";
+	saveFile << settings.channel[0].sine.frequencyInput + "\n";
+	saveFile << settings.channel[0].square.amplitudeInput + "\n";
+	saveFile << settings.channel[0].square.frequencyInput + "\n";
+	saveFile << settings.channel[0].square.offsetInput + "\n";
+	saveFile << settings.channel[0].preloadedArb.address + " \n";
+	saveFile << "CHANNEL_2\n";
+	saveFile << str( settings.channel[1].option ) + "\n";
+	saveFile << settings.channel[1].dc.dcLevelInput + "\n";
+	saveFile << settings.channel[1].sine.amplitudeInput + "\n";
+	saveFile << settings.channel[1].sine.frequencyInput + "\n";
+	saveFile << settings.channel[1].square.amplitudeInput + "\n";
+	saveFile << settings.channel[1].square.frequencyInput + "\n";
+	saveFile << settings.channel[1].square.offsetInput + "\n";
+	saveFile << settings.channel[1].preloadedArb.address + "\n";
+	saveFile << "END_AGILENT\n";
 }
 
 
@@ -1185,79 +1169,45 @@ void Agilent::zeroSettings()
 
 void Agilent::readConfigurationFile( std::ifstream& file )
 {
-	std::string input;
-	int pos = file.tellg();
-	file >> input;
-	if ( input != "AGILENTVERSION" )
-	{
-		// assume old version of file which did not include agilent info.
-		// return to the original position and return silently.
-		file.seekg( pos );
-		zeroSettings();
-		updateEdit( 1 );
-		return;
-	}
-	
-	file >> input;
-
-	if ( input != "1.0" )
-	{
-		thrower( "ERROR: Unexpected version for agilent info in config file!" );
-	}
+	ProfileSystem::checkDelimiterLine(file, "AGILENT");
 	file >> settings.synced;
-	file.get();
-	std::getline( file, input );
-	if ( input != "CHANNEL 1" )
-	{
-		thrower( "ERROR: Expected \"CHANNEL 1\" but instead found " + input + " inside configuration file." );
-	}
+	ProfileSystem::checkDelimiterLine(file, "CHANNEL_1");
 	// the extra step in all of the following is to remove the , at the end of each input.
+	std::string input;
 	file >> input;
 	try
 	{
-		settings.channel[0].option = std::stoi( input.substr( 0, input.size() - 1 ) );
+		settings.channel[0].option = std::stoi( input );
 	}
 	catch (std::invalid_argument&)
 	{
 		thrower( "ERROR: Bad channel 1 option!" );
 	}
+	std::getline( file, settings.channel[0].dc.dcLevelInput);
+	std::getline( file, settings.channel[0].sine.amplitudeInput );
+	std::getline( file, settings.channel[0].sine.frequencyInput);
+	std::getline( file, settings.channel[0].square.amplitudeInput);
+	std::getline( file, settings.channel[0].square.frequencyInput);
+	std::getline( file, settings.channel[0].square.offsetInput);
+	std::getline( file, settings.channel[0].preloadedArb.address);
+	ProfileSystem::checkDelimiterLine(file, "CHANNEL_2"); 
 	file >> input;
-	settings.channel[0].dc.dcLevelInput = input.substr( 0, input.size() - 1 );
-	file >> input;
-	settings.channel[0].sine.amplitudeInput = input.substr( 0, input.size() - 1 );
-	file >> input;
-	settings.channel[0].sine.frequencyInput = input.substr( 0, input.size() - 1 );
-	file >> input;
-	settings.channel[0].square.amplitudeInput = input.substr( 0, input.size() - 1 );
-	file >> input;
-	settings.channel[0].square.frequencyInput = input.substr( 0, input.size() - 1 );
-	file >> input;
-	settings.channel[0].square.offsetInput = input.substr( 0, input.size() - 1 );
-	file >> input;
-	settings.channel[0].preloadedArb.address = input.substr( 0, input.size() - 1 );
-	file.get(); 
-	file.get();
-	std::getline( file, input );
-	if ( input != "CHANNEL 2" )
+	try
 	{
-		thrower( "ERROR: Expected \"CHANNEL 2\" but instead found " + input + " inside configuration file." );
+		settings.channel[1].option = std::stoi(input);
 	}
-	file >> input;
-	settings.channel[1].option = std::stoi( input.substr( 0, input.size() - 1 ) );
-	file >> input;
-	settings.channel[1].dc.dcLevelInput = input.substr( 0, input.size() - 1 );
-	file >> input;
-	settings.channel[1].sine.amplitudeInput = input.substr( 0, input.size() - 1 );
-	file >> input;
-	settings.channel[1].sine.frequencyInput = input.substr( 0, input.size() - 1 );
-	file >> input;
-	settings.channel[1].square.amplitudeInput = input.substr( 0, input.size() - 1 );
-	file >> input;
-	settings.channel[1].square.frequencyInput = input.substr( 0, input.size() - 1 );
-	file >> input;
-	settings.channel[1].square.offsetInput = input.substr( 0, input.size() - 1 );
-	file >> input;
-	settings.channel[1].preloadedArb.address = input.substr( 0, input.size() - 1 );
+	catch (std::invalid_argument&)
+	{
+		thrower("ERROR: Bad channel 1 option!");
+	}
+	std::getline( file, settings.channel[1].dc.dcLevelInput);
+	std::getline( file, settings.channel[1].sine.amplitudeInput);
+	std::getline( file, settings.channel[1].sine.frequencyInput);
+	std::getline( file, settings.channel[1].square.amplitudeInput);
+	std::getline( file, settings.channel[1].square.frequencyInput);
+	std::getline( file, settings.channel[1].square.offsetInput);
+	std::getline( file, settings.channel[1].preloadedArb.address);
+	ProfileSystem::checkDelimiterLine(file, "END_AGILENT");
 	// default to first channel.
 	updateEdit( 1 );
 }
@@ -1399,12 +1349,57 @@ void Agilent::setSingleFreq( int channel, sineInfo info )
 void Agilent::visaWrite( std::string message )
 {
 	// not sure what this is for.
-	unsigned long actual;
+	ULONG actual;
 	if (!AGILENT_SAFEMODE)
 	{
-		errCheck( viWrite( instrument, (unsigned char*)message.c_str(), (ViUInt32)message.size(), &actual ) );
+		errCheck( viWrite( instrument, (unsigned char*)cstr(message), (ViUInt32)message.size(), &actual ) );
 	}
 }
+
+void Agilent::visaWrite(ULONG instrumentInput, std::string message)
+{
+	// not sure what this is for.
+	ULONG actual;
+	if (!AGILENT_SAFEMODE)
+	{
+		errCheck(instrumentInput, viWrite(instrumentInput, (unsigned char*)cstr(message), (ViUInt32)message.size(), &actual));
+	}
+}
+
+void Agilent::errCheck(ULONG instrumentInput, long status)
+{
+	long errorCode = 0;
+	// Check comm status
+	if (status < 0)
+	{
+		// Error detected.
+		thrower("ERROR: Communication error with agilent. Error Code: " + str(status) + "\r\n");
+	}
+	// Query the agilent for errors.
+	std::string errMessage;
+	visaErrQuery(instrumentInput, errMessage, errorCode);
+	if (errorCode != 0)
+	{
+		// Agilent error
+		thrower("ERROR: agilent returned error message: " + str(errorCode) + ":" + errMessage);
+	}
+}
+
+void Agilent::visaErrQuery(ULONG instrument, std::string& errMsg, long& errCode)
+{
+	char buf[256] = { 0 };
+	if (!AGILENT_SAFEMODE)
+	{
+		viQueryf(instrument, (ViString)"SYST:ERR?\n", "%ld,%t", &errCode, buf);
+	}
+	else
+	{
+		return;
+	}
+	errMsg = str(buf);
+}
+
+
 
 void Agilent::visaClose()
 {
@@ -1433,12 +1428,12 @@ void Agilent::visaOpen( std::string address )
 {
 	if (!AGILENT_SAFEMODE)
 	{
-		errCheck( viOpen( defaultResourceManager, (char *)address.c_str(), VI_NULL, VI_NULL, &instrument ) );
+		errCheck( viOpen( defaultResourceManager, (char *)cstr(address), VI_NULL, VI_NULL, &instrument ) );
 	}
 }
 
 
-void Agilent::visaSetAttribute( unsigned long attributeName, unsigned long value )
+void Agilent::visaSetAttribute( ULONG attributeName, ULONG value )
 {
 	if (!AGILENT_SAFEMODE)
 	{
@@ -1491,7 +1486,6 @@ void Agilent::errCheck( long status )
 	// Query the agilent for errors.
 	std::string errMessage;
 	visaErrQuery( errMessage, errorCode );
-	//viQueryf( instrument, "SYST:ERR?\n", "%ld,%t", &errorCode, buf );
 	if (errorCode != 0)
 	{
 		// Agilent error
@@ -1500,11 +1494,359 @@ void Agilent::errCheck( long status )
 }
 
 
+
 void Agilent::visaPrintf( std::string msg )
 {
 	if (!AGILENT_SAFEMODE)
 	{
-		errCheck( viPrintf( instrument, (ViString)msg.c_str() ) );
+		errCheck( viPrintf( instrument, (ViString)cstr(msg)) );
 	}
 }
 
+
+/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// pilfered from myAgilent.
+/// ......................................
+
+
+/*
+* This function tells the agilent to put out the DC default waveform.
+*/
+void Agilent::agilentDefault()
+{
+	ULONG viDefaultRM, Instrument, actual;
+	if (!AGILENT_SAFEMODE)
+	{
+		viOpenDefaultRM(&viDefaultRM);
+		int val = viOpen(viDefaultRM, (char *)AGILENT_ADDRESS, VI_NULL, VI_NULL, &Instrument);
+		// turn it to the default voltage...
+		visaWrite(Instrument, str("APPLy:DC DEF, DEF, ") + AGILENT_DEFAULT_DC);
+		// and leave...
+		viClose(Instrument);
+		viClose(viDefaultRM);
+	}
+
+	// update current values
+	eCurrentAgilentLow = std::stod(AGILENT_DEFAULT_DC);
+	eCurrentAgilentHigh = std::stod(AGILENT_DEFAULT_DC);
+}
+
+
+void Agilent::analyzeIntensityScript( ScriptStream& intensityFile, myAgilent::IntensityWaveform* intensityWaveformData,
+									  int& currentSegmentNumber )
+{
+	while (!intensityFile.eof())
+	{
+		// Procedurally read lines into segment informations.
+		int leaveTest = intensityWaveformData->readIntoSegment( currentSegmentNumber, intensityFile );
+		if (leaveTest < 0)
+		{
+			// Error
+			// should I be throwing here?
+			errBox( "ERROR: IntensityWaveform.readIntoSegment threw an error! Error occurred in segment #" 
+					+ str( currentSegmentNumber ) + "." );
+		}
+		if (leaveTest == 1)
+		{
+			// read function is telling this function to stop reading the file because it's at its end.
+			break;
+		}
+		currentSegmentNumber++;
+	}
+}
+
+
+/*
+* programIntensity opens the intensity file, reads the contents, loads them into an appropriate data structure, then from this data structure writes
+* segment and sequence information to the function generator.
+*/
+void Agilent::programIntensity( key varKey, bool& intensityVaried, std::vector<std::pair<double, double>>& minsAndMaxes,
+								std::vector<std::fstream>& intensityFiles, UINT variations )
+{
+	// Initialize stuff
+	myAgilent::IntensityWaveform intensityWaveformSeq;
+	int currentSegmentNumber = 0;
+	ULONG viDefaultRM = 0, Instrument = 0;
+	ULONG actual;
+	if (!AGILENT_SAFEMODE)
+	{
+		viOpenDefaultRM( &viDefaultRM );
+		viOpen( viDefaultRM, (char *)AGILENT_ADDRESS, VI_NULL, VI_NULL, &Instrument );
+		// ???
+		agilentErrorCheck( viSetAttribute( Instrument, VI_ATTR_TMO_VALUE, 40000 ), Instrument );
+	}
+	// Set sample rate
+	visaWrite( Instrument, "SOURCE1:FUNC:ARB:SRATE " + str( AGILENT_SAMPLE_RATE ) );
+	// Set filtering state
+	visaWrite( Instrument, str( "SOURCE1:FUNC:ARB:FILTER " ) + AGILENT_FILTER_STATE );
+	// Set Trigger Parameters
+	visaWrite( Instrument, "TRIGGER1:SOURCE EXTERNAL" );
+	//
+	visaWrite( Instrument, "TRIGGER1:SLOPE POSITIVE" );
+
+	for (int sequenceInc = 0; sequenceInc < intensityFiles.size(); sequenceInc++)
+	{
+		ScriptStream intensityScript;
+		intensityScript << intensityFiles[sequenceInc].rdbuf();
+		analyzeIntensityScript( intensityScript, &intensityWaveformSeq, currentSegmentNumber );
+	}
+	int totalSegmentNumber = currentSegmentNumber;
+	intensityVaried = intensityWaveformSeq.returnIsVaried();
+	// if varied
+	if (intensityWaveformSeq.returnIsVaried())
+	{
+		for (auto variation : range( variations ))
+		{
+			key;
+			for (auto const& variable : varKey)
+			{
+				// replace variable values where found
+				intensityWaveformSeq.replaceVarValues( variable.first, variable.second.first[variation] );
+			}
+			// Loop through all segments
+			for (int segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
+			{
+				// Use that information to write the data.
+				if (intensityWaveformSeq.writeData( segNumInc ) < 0)
+				{
+					thrower( "ERROR: IntensityWaveform.writeData threw an error! Error occurred in segment #"
+							 + str( totalSegmentNumber ) + "." );
+				}
+			}
+			// loop through again and calc/normalize/write values.
+			intensityWaveformSeq.convertPowersToVoltages();
+			intensityWaveformSeq.calcMinMax();
+			minsAndMaxes.resize( variation + 1 );
+			minsAndMaxes[variation].second = intensityWaveformSeq.returnMaxVolt();
+			minsAndMaxes[variation].first = intensityWaveformSeq.returnMinVolt();
+			intensityWaveformSeq.normalizeVoltages();
+
+			for (int segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
+			{
+				visaWrite( Instrument, intensityWaveformSeq.compileAndReturnDataSendString( segNumInc, variation,
+																							totalSegmentNumber ) );
+																				  // Select the segment
+				visaWrite( Instrument, "SOURCE1:FUNC:ARB seg" + str( segNumInc + totalSegmentNumber * variation ) );
+				// Save the segment
+				visaWrite( Instrument, "MMEM:STORE:DATA \"INT:\\seg"
+						   + str( segNumInc + totalSegmentNumber * variation ) + ".arb\"" );
+				 // increment for the next.
+				visaWrite( Instrument, "TRIGGER1:SLOPE POSITIVE" );
+			}
+			// Now handle seqeunce creation / writing.
+			intensityWaveformSeq.compileSequenceString( totalSegmentNumber, variation );
+			// submit the sequence
+			visaWrite( Instrument, intensityWaveformSeq.returnSequenceString() );
+			// Save the sequence
+			visaWrite( Instrument, "SOURCE1:FUNC:ARB seq" + str( variation ) );
+			visaWrite( Instrument, "MMEM:STORE:DATA \"INT:\\seq" + str( variation ) + ".seq\"" );
+			// clear temporary memory.
+			visaWrite( Instrument, "SOURCE1:DATA:VOL:CLEAR" );
+
+		}
+		// loop through # of variable values
+		for (UINT variation : range( variations ))
+		{
+			for (auto const& variable : varKey)
+			{
+				intensityWaveformSeq.replaceVarValues( variable.first, variable.second.first[variation] );
+			}
+
+			// Loop through all segments
+			for (UINT segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
+			{
+				// Use that information to write the data.
+				if (intensityWaveformSeq.writeData( segNumInc ) < 0)
+				{
+					thrower( "ERROR: IntensityWaveform.writeData threw an error! Error occurred in segment #"
+							 + str( totalSegmentNumber ) + "." );
+				}
+			}
+			// loop through again and calc/normalize/write values.
+			intensityWaveformSeq.convertPowersToVoltages();
+			intensityWaveformSeq.calcMinMax();
+			minsAndMaxes.resize( variation + 1 );
+			minsAndMaxes[variation].second = intensityWaveformSeq.returnMaxVolt();
+			minsAndMaxes[variation].first = intensityWaveformSeq.returnMinVolt();
+			intensityWaveformSeq.normalizeVoltages();
+
+			for (int segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
+			{
+				visaWrite( Instrument, intensityWaveformSeq.compileAndReturnDataSendString( segNumInc, variation,
+																							totalSegmentNumber ) );
+																				  // Select the segment
+				visaWrite( Instrument, "SOURCE1:FUNC:ARB seg" + str( segNumInc + totalSegmentNumber * variation ) );
+				// Save the segment
+				visaWrite( Instrument, "MMEM:STORE:DATA \"INT:\\seg" + str( segNumInc + totalSegmentNumber * variation )
+						   + ".arb\"" );
+				 // increment for the next.
+				visaWrite( Instrument, "TRIGGER1:SLOPE POSITIVE" );
+			}
+			// Now handle seqeunce creation / writing.
+			intensityWaveformSeq.compileSequenceString( totalSegmentNumber, variation );
+			// submit the sequence
+			visaWrite( Instrument, intensityWaveformSeq.returnSequenceString() );
+			// Save the sequence
+			visaWrite( Instrument, "SOURCE1:FUNC:ARB seq" + str( variation ) );
+			visaWrite( Instrument, "MMEM:STORE:DATA \"INT:\\seq" + str( variation ) + ".seq\"" );
+			// clear temporary memory.
+			visaWrite( Instrument, "SOURCE1:DATA:VOL:CLEAR" );
+		}
+	}
+	else
+	{
+		// else not varying. Loop through all segments
+		for (int segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
+		{
+			// Use that information to write the data.
+			if (intensityWaveformSeq.writeData( segNumInc ) < 0)
+			{
+				thrower( "ERROR: IntensityWaveform.writeData threw an error! Error occurred in segment #"
+						 + str( totalSegmentNumber ) + "." );
+			}
+		}
+		// no reassignment nessesary, no variables
+		intensityWaveformSeq.convertPowersToVoltages();
+		intensityWaveformSeq.calcMinMax();
+		minsAndMaxes.resize( 1 );
+		minsAndMaxes[0].second = intensityWaveformSeq.returnMaxVolt();
+		minsAndMaxes[0].first = intensityWaveformSeq.returnMinVolt();
+		intensityWaveformSeq.normalizeVoltages();
+		for (int segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
+		{
+			// Set output impedance...
+			visaWrite( Instrument, str( "OUTPUT1:LOAD " ) + AGILENT_LOAD );
+			// set range of voltages...
+			visaWrite( Instrument, str( "SOURCE1:VOLT:LOW " ) + str( minsAndMaxes[0].first ) + " V" );
+			visaWrite( Instrument, str( "SOURCE1:VOLT:HIGH " ) + str( minsAndMaxes[0].second ) + " V" );
+			// get the send string
+			visaWrite( Instrument, intensityWaveformSeq.compileAndReturnDataSendString( segNumInc, 0,
+																						totalSegmentNumber ) );
+			 // Select the segment
+			visaWrite( Instrument, "SOURCE1:FUNC:ARB seg" + str( segNumInc ) );
+			// Save the segment
+			visaWrite( Instrument, "MMEM:STORE:DATA \"INT:\\seg" + str( segNumInc ) + ".arb\"" );
+		}
+
+		// Now handle seqeunce creation / writing.
+		intensityWaveformSeq.compileSequenceString( totalSegmentNumber, 0 );
+		// submit the sequence
+		visaWrite( Instrument, intensityWaveformSeq.returnSequenceString() );
+		// Save the sequence
+		visaWrite( Instrument, "SOURCE1:FUNC:ARB seq" + str( 0 ) );
+		visaWrite( Instrument, "MMEM:STORE:DATA \"INT:\\seq" + str( 0 ) + ".seq\"" );
+		// clear temporary memory.
+		visaWrite( Instrument, "SOURCE1:DATA:VOL:CLEAR" );
+	}
+	viClose( Instrument );
+	viClose( viDefaultRM );
+}
+
+
+/*
+* This function checks if the agilent throws an error or if there is an error communicating with the agilent. it returns -1 if error, 0 otherwise.
+*/
+void Agilent::agilentErrorCheck(long status, ULONG vi)
+{
+	long errorCode = 0;
+	char buf[256] = { 0 };
+	// Check comm status
+	if (status < 0)
+	{
+		// Error detected.
+		thrower("ERROR: Communication error with agilent. Error Code: " + str(status));
+	}
+	if (!ANDOR_SAFEMODE)
+	{
+		// Query the agilent for errors.
+		viQueryf(vi, "SYST:ERR?\n", "%ld,%t", &errorCode, buf);
+	}
+	if (errorCode != 0)
+	{
+		// Agilent error
+		thrower("ERROR: agilent returned error message: " + str(errorCode) + ":" + buf);
+	}
+}
+
+/*
+* This function tells the agilent to use sequence # (varNum) and sets settings correspondingly.
+*/
+void Agilent::setIntensity(UINT varNum, bool intensityIsVaried, std::vector<std::pair<double, double>> intensityMinMax)
+{
+	if (intensityIsVaried || varNum == 0)
+	{
+		ULONG viDefaultRM, Instrument, actual;
+		if (!NIAWG_SAFEMODE)
+		{
+			viOpenDefaultRM(&viDefaultRM);
+			viOpen(viDefaultRM, (char *)AGILENT_ADDRESS, VI_NULL, VI_NULL, &Instrument);
+		}
+		std::string SCPIcmd;
+		if (!NIAWG_SAFEMODE)
+		{
+			// Load sequence that was previously loaded.
+			SCPIcmd = "MMEM:LOAD:DATA \"INT:\\seq" + str(varNum) + ".seq\"";
+			agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+
+			SCPIcmd = "SOURCE1:FUNC ARB";
+			agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+
+			SCPIcmd = "SOURCE1:FUNC:ARB \"INT:\\seq" + str(varNum) + ".seq\"";
+			agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+
+			// Set output impedance...
+			SCPIcmd = str("OUTPUT1:LOAD ") + AGILENT_LOAD;
+
+			agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+			SCPIcmd = str("SOURCE1:VOLT:LOW ") + str(intensityMinMax[varNum].first) + " V";
+			agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+			SCPIcmd = str("SOURCE1:VOLT:HIGH ") + str(intensityMinMax[varNum].second) + " V";
+			agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+
+			SCPIcmd = "OUTPUT1 ON";
+			agilentErrorCheck(viWrite(Instrument, (unsigned char*)cstr(SCPIcmd), (ViUInt32)SCPIcmd.size(), &actual), Instrument);
+			// and leave...
+			viClose(Instrument);
+			viClose(viDefaultRM);
+		}
+	}
+}
+
+
+void Agilent::setAgilent(key varKey, UINT variation)
+{
+	if (!connected())
+	{
+		return;
+	}
+	convertInputToFinalSettings( varKey, variation);
+	deviceOutputInfo info = getOutputInfo();
+	for (auto chan : range( 2 ))
+	{
+		switch (info.channel[chan].option)
+		{
+			case -2:
+				// don't do anything.
+				break;
+			case -1:
+				outputOff( chan );
+				break;
+			case 0:
+				setDC( chan, info.channel[chan].dc );
+				break;
+			case 1:
+				setSingleFreq( chan, info.channel[chan].sine );
+				break;
+			case 2:
+				setSquare( chan, info.channel[chan].square );
+				break;
+			case 3:
+				setExistingWaveform( chan, info.channel[chan].preloadedArb );
+				break;
+			case 4:
+				// TODO
+			default:
+				thrower( "ERROR: unrecognized channel 1 setting: " + str( info.channel[chan].option ) );
+		}
+	}
+}

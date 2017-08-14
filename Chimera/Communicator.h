@@ -5,7 +5,15 @@
 class MainWindow;
 class ScriptingWindow;
 class CameraWindow;
+class DeviceWindow;
 
+enum System
+{
+	Niawg,
+	Intensity,
+	Master,
+	Camera
+};
 
 /*
 	* This class was desiged to hold a pointer to the main window that can only be used for communicating messages to said 
@@ -21,15 +29,17 @@ class Communicator
 		void sendStatus( std::string statusMsg );
 		void sendDebug( std::string statusMsg );
 		void sendTimer( std::string timerMsg );
+		void sendColorBox( System sys, char code ); 
 		void sendColorBox( systemInfo<char> colors );
 		void sendCameraFin();
 		void sendCameraProgress( long prog );
+		void sendRepProgress(ULONG rep);
 	private:
 		MainWindow* mainWin;
 		ScriptingWindow* scriptWin;
 		CameraWindow* camWin;
-		DeviceWindow* masterWin;
-		void postMyString( CWnd* window, unsigned int messageTypeID, std::string message );
+		DeviceWindow* deviceWin;
+		void postMyString( CWnd* window, UINT messageTypeID, std::string message );
 };
 
 // macros to include file and line info in error messages. Use these, not the associated functions directly.

@@ -5,6 +5,7 @@
 #include <array>
 #include <vector>
 
+// this fairly simplistic class could easily just be a namespace instead.
 class Gpib
 {
 	public:

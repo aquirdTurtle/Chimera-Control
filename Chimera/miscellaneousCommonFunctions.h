@@ -10,6 +10,8 @@
 #include "Control.h"
 #include "KeyHandler.h"
 
+//template <class ControlType> class Control;
+
 /*
  * A nice custom class and #define that makes my custom throws have file & code line information. Very nice.
  * stolen From http://stackoverflow.com/questions/348833/how-to-know-the-exact-line-of-code-where-where-an-exception-has-been-caused
@@ -90,23 +92,30 @@ template <typename IntType> std::vector<IntType> range( IntType stop )
 	return range( IntType( 0 ), stop, IntType( 1 ) );
 }
 
-/// a set of functions that take more arbitrary things to strings that std::to_string (which is also rather wordy for such a simple 
+/// a set of functions that take more arbitrary things to strings that str (which is also rather wordy for such a simple 
 /// function...
 
 #define cstr(input) str(input).c_str()
 
-
+// this function takes any argument, converts it to a string, and displays it on the screen. It can be useful for debuging.
 template <typename T> void errBox(T msg)
 {
 	MessageBox(0, cstr(msg), "ERROR!", MB_ICONERROR);
 }
+
+// this function takes any argument, converts it to a string, and displays it on the screen. It can be useful for debuging.
+template <typename T> void infoBox(T msg)
+{
+	MessageBox(0, cstr(msg), "Info", MB_ICONWARNING);
+}
+
 
 
 double reduce(std::string expression, key variationKey = {}, UINT variation = -1, 
 			  std::vector<variable>& vars = std::vector<variable>());
 
 
-// this can replace std::string() and std::to_string(), as well as providing functionality to set the precision of
+// this can replace str() and str(), as well as providing functionality to set the precision of
 // to_string() conversions.
 template <typename T> std::string str(T input, const int precision = 6, bool eatZeros = false, bool toLower = false)
 {

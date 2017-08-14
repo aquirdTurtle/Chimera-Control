@@ -1,25 +1,22 @@
 #include "stdafx.h"
-#include "Script.h"
-#include "constants.h"
-#include "fonts.h"
+
+#include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <unordered_map>
 #include "boost/lexical_cast.hpp"
+
+#include "Script.h"
+#include "fonts.h"
+
 #include "cleanString.h"
-#include "textPromptDialogProcedure.h"
-#include "Windows.h"
+#include "TextPromptDialog.h"
 #include "Richedit.h"
 #include "VariableSystem.h"
 #include "ConfigurationFileSystem.h"
-#include <iostream>
-#include <fstream>
-#include <string>
 #include "DeviceWindow.h"
-#include <unordered_map>
-#include "ExperimentManager.h"
 #include "TtlSystem.h"
 #include "VariableSystem.h"
-#include <algorithm>
 #include "RunInfo.h"
 
 
@@ -99,31 +96,31 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 	// Check NIAWG-specific commands
 	if (editType == "Horizontal NIAWG" || editType == "Vertical NIAWG")
 	{
-		if (word == "gen" || word == "1," || word == "2," || word == "3," || word == "4," || word == "5," || word == "freq" || word == "amp" || word == "const"
-			|| word == "&" || word == "ramp")
+		if ( word == "gen" || word == "1," || word == "2," || word == "3," || word == "4," || word == "5," 
+			|| word == "freq" || word == "amp" || word == "const"			 || word == "&" || word == "ramp")
 		{
-			return rgbs["Dark Lavendar"];
+			return rgbs["Solarized Violet"];
 		}
 		// check logic
 		if (word == "repeat" || word == "until" || word == "trigger" || word == "end" || word == "forever")
 		{
-			return rgbs["Teal"];
+			return rgbs["Solarized Blue"];
 		}
 		// check options
 		if (word == "lin" || word == "nr" || word == "tanh")
 		{
-			return rgbs["Tan"];
+			return rgbs["Solarized Green"];
 		}
 		// check variable
 		if (word == "predefined" || word == "script")
 		{
-			return rgbs["Purple"];
+			return rgbs["Solarized Yellow"];
 		}
 		if (word.size() > 8)
 		{
 			if (word.substr(word.size() - 8, 8) == ".nScript")
 			{
-				return rgbs["Purple"];
+				return rgbs["Solarized Yellow"];
 			}
 		}
 	}
@@ -476,7 +473,7 @@ INT_PTR Script::colorControl(LPARAM lParam, WPARAM wParam)
 }
 
 
-void Script::initialize( int width, int height, POINT& startingLocation, std::vector<CToolTipCtrl*>& toolTips, 
+void Script::initialize( int width, int height, POINT& startingLocation, cToolTips& toolTips, 
 						 ScriptingWindow* scriptWin, int& id, std::string deviceTypeInput)
 {
 	AfxInitRichEdit();
@@ -644,7 +641,7 @@ void Script::saveScript(std::string categoryPath, RunInfo info)
 	if (scriptName == "")
 	{
 		std::string newName;
-		TextPromptDialog dialog(&newName, "Please enter new name for the script " + scriptName + ".");
+		TextPromptDialog dialog(&newName, "Please enter new name for the " + deviceType + " script " + scriptName + ".");
 		dialog.DoModal();
 		if (newName == "")
 		{
@@ -766,7 +763,7 @@ void Script::checkSave(std::string categoryPath, RunInfo info)
 		else if (answer == IDYES)
 		{
 			std::string newName;
-			TextPromptDialog dialog(&newName, "Please enter new name for the script " + scriptName + ".");
+			TextPromptDialog dialog(&newName, "Please enter new name for the " + deviceType + " script " + scriptName + ".");
 			dialog.DoModal();
 			std::string path = categoryPath + newName + extension;
 			saveScriptAs(path, info);
@@ -801,7 +798,7 @@ void Script::renameScript(std::string categoryPath)
 		return;
 	}
 	std::string newName;
-	TextPromptDialog dialog(&newName, "Please enter new name for the script " + scriptName + ".");
+	TextPromptDialog dialog(&newName, "Please enter new name for the " + deviceType + " script " + scriptName + ".");
 	dialog.DoModal();
 	if (newName == "")
 	{
@@ -848,7 +845,7 @@ void Script::deleteScript(std::string categoryPath)
 
 
 // the differences between this and new script are that this opens the default function instead of the default script
-// and that this does not reset the script name, etc. 
+// and that this does not reset the script category, etc. 
 void Script::newFunction()
 {
 	std::string tempName;
@@ -1066,14 +1063,16 @@ std::string Script::getExtension()
 void Script::updateScriptNameText(std::string path)
 {
 	//std::string categoryPath = eProfile.getCurrentPathIncludingCategory();
+	// there are some \\ on the end of the path by default.
+	path = path.substr(0, path.size() - 1);
 	int sPos = path.find_last_of('\\');
 	if (sPos != -1)
 	{
 		std::string categoryPath = path.substr(0, sPos);
-		std::string name = path.substr(sPos + 1, path.size());
+		std::string category = path.substr(sPos + 1, path.size());
 		sPos = categoryPath.find_last_of('\\');
-		std::string category = categoryPath.substr(sPos + 1, categoryPath.size());
-		std::string text = category + "->" + name;
+		std::string experiment = categoryPath.substr(sPos + 1, categoryPath.size());
+		std::string text = experiment + "->" + category + "->" + scriptName;
 		fileNameText.SetWindowTextA(cstr(text));
 	}
 	else
@@ -1213,8 +1212,8 @@ void Script::loadFunctions()
 		functionDeclaration = functionStream.getline( ':' );
 		std::string name; 
 		std::vector<std::string> args;
-		//ExperimentManager::analyzeFunctionDefinition( functionDeclaration, name, args );
-		// make the name for the combo.
+
+		// make the category for the combo.
 		name += "(";
 		if (args.size() != 0)
 		{

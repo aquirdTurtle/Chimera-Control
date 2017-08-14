@@ -2,13 +2,10 @@
 #include "TektronicsControl.h"
 
 
-
 void TektronicsChannelControl::initialize(POINT loc, CWnd* parent, int& id, std::string channelText, LONG width)
 {
 	channelLabel.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	channelLabel.Create( channelText.c_str(), WS_CHILD | WS_VISIBLE | WS_BORDER, channelLabel.sPos, parent,
-						 id++ );
-
+	channelLabel.Create( cstr(channelText), WS_CHILD | WS_VISIBLE | WS_BORDER, channelLabel.sPos, parent, id++ );
 
 	onOffButton.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
 	onOffButton.Create( "", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX, onOffButton.sPos, parent, id++ );
@@ -158,10 +155,51 @@ void TektronicsChannelControl::setSettings(tektronicsChannelInfo info)
 	currentInfo = info;
 	onOffButton.SetCheck(currentInfo.on);
 	fskButton.SetCheck(currentInfo.fsk);
-	power.SetWindowTextA(currentInfo.power.c_str());
-	mainFreq.SetWindowTextA(currentInfo.mainFreq.c_str());
-	fskFreq.SetWindowTextA(currentInfo.fskFreq.c_str());
+	power.SetWindowTextA(cstr(currentInfo.power));
+	mainFreq.SetWindowTextA(cstr(currentInfo.mainFreq));
+	fskFreq.SetWindowTextA(cstr(currentInfo.fskFreq));
 }
+
+
+void TektronicsControl::handleSaveConfig(std::ofstream& saveFile)
+{
+	saveFile << "TEKTRONICS\n";
+	saveFile << "CHANNEL_1\n";
+	tektronicsInfo tekInfo = getSettings();
+	saveFile << tekInfo.channels.first.on << "\n" << tekInfo.channels.first.fsk << "\n"
+		<< tekInfo.channels.first.power << "\n" << tekInfo.channels.first.mainFreq << "\n"
+		<< tekInfo.channels.first.fskFreq << "\n";
+	saveFile << "CHANNEL_2\n";
+	saveFile << tekInfo.channels.second.on << "\n" << tekInfo.channels.second.fsk << "\n"
+		<< tekInfo.channels.second.power << "\n" << tekInfo.channels.second.mainFreq << "\n"
+		<< tekInfo.channels.second.fskFreq << "\n";
+	saveFile << "END_TEKTRONICS" << "\n";
+}
+
+
+void TektronicsControl::handleOpeningConfig(std::ifstream& configFile, double version)
+{
+	ProfileSystem::checkDelimiterLine(configFile, "TEKTRONICS");
+	ProfileSystem::checkDelimiterLine(configFile, "CHANNEL_1");
+	tektronicsInfo tekInfo;
+	configFile >> tekInfo.channels.first.on;
+	configFile >> tekInfo.channels.first.fsk;
+	configFile.get();
+	std::getline(configFile, tekInfo.channels.first.power);
+	std::getline(configFile, tekInfo.channels.first.mainFreq);
+	std::getline(configFile, tekInfo.channels.first.fskFreq);
+	ProfileSystem::checkDelimiterLine(configFile, "CHANNEL_2");
+	configFile >> tekInfo.channels.second.on;
+	configFile >> tekInfo.channels.second.fsk;
+	configFile.get();
+	std::getline(configFile, tekInfo.channels.second.power);
+	std::getline(configFile, tekInfo.channels.second.mainFreq);
+	std::getline(configFile, tekInfo.channels.second.fskFreq);
+	ProfileSystem::checkDelimiterLine(configFile, "END_TEKTRONICS");
+	setSettings(tekInfo);
+}
+
+
 
 void TektronicsControl::programMachine(Gpib* gpib, UINT var)
 {
@@ -225,7 +263,7 @@ void TektronicsControl::initialize( POINT& loc, CWnd* parent, int& id, std::stri
 								    std::string channel2Text, LONG width )
 {
 	header.sPos = { loc.x, loc.y, loc.x + width, loc.y += 25 };
-	header.Create( ("Tektronics " + headerText).c_str(), WS_CHILD | WS_VISIBLE | WS_BORDER, header.sPos, parent, id++ );
+	header.Create( cstr("Tektronics " + headerText), WS_CHILD | WS_VISIBLE | WS_BORDER, header.sPos, parent, id++ );
 	header.fontType = HeadingFont;
 
 	channel1.initialize({ loc.x + width/3, loc.y }, parent, id, channel1Text, width / 3);

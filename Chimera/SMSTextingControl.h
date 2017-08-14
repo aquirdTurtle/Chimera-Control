@@ -14,13 +14,12 @@ struct personInfo
 	bool textIfLoadingStops;
 };
 
-class SMSTextingControl
+class SmsTextingControl
 {
 	public:
 		void promptForEmailAddressAndPassword();
-		void initializeControls(POINT& pos, CWnd* parent, bool isTriggerModeSensitive, int& id, fontMap fonts,
-								std::vector<CToolTipCtrl*>& tooltips);
-		void rearrange(RECT parentRectangle, std::string mode);
+		void initialize(POINT& pos, CWnd* parent, bool isTriggerModeSensitive, int& id, fontMap fonts,
+								cToolTips& tooltips);
 		void sendMessage(std::string message, EmbeddedPythonHandler* pyHandler, std::string msgType);
 		void updatePersonInfo();
 		void deletePersonInfo();

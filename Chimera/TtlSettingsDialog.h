@@ -6,7 +6,7 @@
 struct ttlInputStruct
 {
 	TtlSystem* ttls;
-	std::vector<CToolTipCtrl*> toolTips;
+	cToolTips toolTips;
 	DeviceWindow* master;
 };
 

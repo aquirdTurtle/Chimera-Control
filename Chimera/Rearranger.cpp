@@ -35,7 +35,7 @@ void Rearranger::calculateRearrangingMoves(std::vector<std::vector<bool>> initAr
 }
 
 
-unsigned int __stdcall Rearranger::rearrangerThreadFunction( LPVOID input )
+UINT __stdcall Rearranger::rearrangerThreadFunction( LPVOID input )
 {
 	// wait for data
 

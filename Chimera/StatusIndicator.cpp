@@ -7,7 +7,7 @@ void StatusIndicator::rearrange(int width, int height, fontMap fonts)
 }
 
 
-void StatusIndicator::initialize(POINT &loc, CWnd* parent, int& id, fontMap fonts, std::vector<CToolTipCtrl*>& tooltips)
+void StatusIndicator::initialize(POINT &loc, CWnd* parent, int& id, fontMap fonts, cToolTips& tooltips)
 {
 	status.sPos = { loc.x, loc.y, loc.x + 960, loc.y + 100 };
 	status.Create("Passively Outputing Default Waveform", WS_CHILD | WS_VISIBLE | SS_CENTER, status.sPos, parent, id++);
@@ -17,7 +17,7 @@ void StatusIndicator::initialize(POINT &loc, CWnd* parent, int& id, fontMap font
 
 void StatusIndicator::setText(std::string text)
 {
-	status.SetWindowText(text.c_str());
+	status.SetWindowText(cstr(text));
 }
 
 

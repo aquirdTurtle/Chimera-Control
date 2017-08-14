@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "AlertSystem.h"
-#include "reorganizeControl.h"
 #include <Mmsystem.h>
 #include <mciapi.h>
 #pragma comment(lib, "Winmm.lib")
@@ -8,7 +7,7 @@
 #include "miscellaneousCommonFunctions.h"
 
 
-unsigned int AlertSystem::getAlertThreshold()
+UINT AlertSystem::getAlertThreshold()
 {
 	return alertThreshold;
 }
@@ -20,7 +19,7 @@ void AlertSystem::setAlertThreshold()
 	alertThresholdEdit.GetWindowTextA( text );
 	try
 	{
-		alertThreshold = std::stoi( std::string( text ) );
+		alertThreshold = std::stoi( str( text ) );
 	}
 	catch (std::invalid_argument& )
 	{
@@ -30,7 +29,7 @@ void AlertSystem::setAlertThreshold()
 
 
 void AlertSystem::initialize(cameraPositions& pos, CWnd* parent, bool isTriggerModeSensitive, int& id, 
-							  fontMap fonts, std::vector<CToolTipCtrl*>& tooltips)
+							  fontMap fonts, cToolTips& tooltips)
 {
 	alertMessageID = RegisterWindowMessage("ID_NOT_LOADING_ATOMS");
 	/// Title
@@ -134,7 +133,7 @@ void AlertSystem::handleCheckBoxPress()
 }
 
 
-unsigned int AlertSystem::getAlertMessageID()
+UINT AlertSystem::getAlertMessageID()
 {
 	return alertMessageID;
 }

@@ -19,7 +19,7 @@ class DataSet
 		void removePixel();
 		void resetPixelNumber(int pixelNumber);
 
-		void setTruthCondition(int picture, int pixel, int trueConditionValue);
+		void setResultCondition(int picture, int pixel, int trueConditionValue);
 		int getTruthCondition(int pixel, int picture);
 		void setDataCountsLocation(int maxPixel, int maxPicture, int pixel, int picture);
 		
@@ -41,8 +41,8 @@ class DataSet
 		void setWhenToFit(int newWhenToFit);
 
 	private:
-		// trueConditions[Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)
-		std::vector<std::vector<int> > trueConditions;
+		// resultConditions[Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)
+		std::vector<std::vector<int> > resultConditions;
 		// postSelectionConditions[Condition#][Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)
 		std::vector<std::vector<std::vector<int> > > postSelectionConditions;
 		// dataCountsLocation[pixel#][picture#] = this pixel is used or not.

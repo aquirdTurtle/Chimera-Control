@@ -1,5 +1,4 @@
-#ifndef waveformData_h
-#define waveformData_h
+#pragma once
 
 #include "stdafx.h"
 
@@ -7,6 +6,3 @@
 
 #include <string>
 #include <vector>
-
-
-#endif

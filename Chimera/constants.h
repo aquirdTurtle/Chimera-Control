@@ -17,7 +17,7 @@
 	#define ANDOR_SAFEMODE true
 	#define SOCKET_SAFEMODE true
 	#define CONNECT_TO_ANDOR_SAFEMODE true
-	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Plotting\\";
+	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Plotting";
 	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
 	const std::string LIB_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\NIAWG Wavefunction Library"
 								 "\\";
@@ -36,7 +36,7 @@
 	#define SOCKET_SAFEMODE true
 	#define CONNECT_TO_ANDOR_SAFEMODE true
 	#define PYTHON_SAFEMODE true
-	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Plotting\\";
+	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Plotting";
 	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
 	const std::string LIB_PATH = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Waveforms Library\\";
 	const std::string DEFAULT_SCRIPT_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Default Scripts\\";
@@ -46,7 +46,7 @@
 	const std::string ACTUAL_CODE_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Cold Atoms Control Application\\";
 	const std::string PROFILES_PATH = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Profiles\\";
 	const std::string DATA_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Data\\";
-	const std::string KEY_ORIGINAL_SAVE_LOCATION = "C:\\Shared\\";
+	const std::string KEY_ORIGINAL_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\key.txt";
 	const std::string MUSIC_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Camerawg\\Final Fantasy VII - Victory Fanfare [HQ].mp3";
 	//
 	#define DIO_SAFEMODE true
@@ -58,7 +58,7 @@
 	#define MASTER_CONFIGURATION_FILE_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Master-Configuration.txt"
 	#define DEFAULT_SCRIPT_FOLDER_PATH "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Default Scripts\\"
 	#define LOGGING_FILE_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Master Log.txt"
-	#define KEY_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\key.txt"
+	#define KEY_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Data\\key.txt"
 	#define MOT_ROUTINE_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Master Profiles\\Hotkey Experiments\\MOT\\turnOnMot.mScript"
 	#define DEBUG_OUTPUT_LOCATION "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Debug-Output\\"
 #endif
@@ -69,7 +69,7 @@
 	#define ANDOR_SAFEMODE false
 	#define CONNECT_TO_ANDOR_SAFEMODE false
 	#define PYTHON_HOME L"C:\\Anaconda3\\"
-	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Regal Lab\\Documents\\Quantum-Gas-Assembly-Control\\Plotting\\";
+	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Regal Lab\\Documents\\Quantum-Gas-Assembly-Control\\Plotting";
 	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
 	const std::string LIB_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum-Gas-Assembly-Control\\Waveforms Library\\WaveLibrary 350 MSpS\\";
 	const std::string DEFAULT_SCRIPT_FOLDER_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum-Gas-Assembly-Control\\Default Scripts\\";
@@ -193,12 +193,12 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_CONFIGURATION_COMBO 1019
 #define IDC_SEQUENCE_COMBO 1021
 #define IDC_MAIN_OPTIONS_RANGE_BEGIN 1034
-#define IDC_MAIN_OPTIONS_RANGE_END 1036
-#define IDC_DEBUG_OPTIONS_RANGE_BEGIN 1038
-#define IDC_DEBUG_OPTIONS_RANGE_END 1044
-#define IDC_SHOW_TTLS 1045
-#define IDC_SHOW_DACS 1046
-#define IDC_SMS_TEXTING_LISTVIEW 1050
+#define IDC_MAIN_OPTIONS_RANGE_END 1034
+#define IDC_DEBUG_OPTIONS_RANGE_BEGIN 1036
+#define IDC_DEBUG_OPTIONS_RANGE_END 1042
+#define IDC_SHOW_TTLS 1043
+#define IDC_SHOW_DACS 1044
+#define IDC_SMS_TEXTING_LISTVIEW 1048
 // Scripting Window
 #define SYNTAX_TIMER_ID 1999
 #define IDC_VERTICAL_NIAWG_FUNCTION_COMBO 2004
@@ -211,11 +211,9 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_MASTER_EDIT 2023
 
 // Camera Window
-
 #define IDC_ALERTS_BOX 3005
 #define IDC_SET_ANALYSIS_LOCATIONS 3012
 #define IDC_PLOTTING_LISTVIEW 3016
-
 #define IDC_CAMERA_MODE_COMBO 3018
 #define IDC_SET_EM_GAIN_BUTTON 3019
 #define IDC_TRIGGER_COMBO 3022
@@ -240,12 +238,13 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 
 #define SYNTAX_TIMER_ID 500
 #define SYNTAX_TIMER_LENGTH 1000
-/// control numbers I need for message maps
-#define EXPERIMENT_COMBO_ID 4004
-#define CATEGORY_COMBO_ID 4005
-#define ORIENTATION_COMBO_ID 4009
-#define CONFIGURATION_COMBO_ID 4010
-#define SEQUENCE_COMBO_ID 4013
+
+/// Device Window
+//#define EXPERIMENT_COMBO_ID 4004
+//#define CATEGORY_COMBO_ID 4005
+//#define ORIENTATION_COMBO_ID 4009
+//#define CONFIGURATION_COMBO_ID 4010
+//#define SEQUENCE_COMBO_ID 4013
 
 #define SET_REPETITION_ID 4019
 #define TTL_HOLD 4005
@@ -276,7 +275,6 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_FLASHING_AGILENT_COMBO 4203
 #define IDC_GLOBAL_VARS_LISTVIEW 4207
 #define IDC_CONFIG_VARS_LISTVIEW 4209
-
 #define TOP_ON_OFF 4146
 #define TOP_FSK 4147
 #define BOTTOM_ON_OFF 4152
@@ -285,6 +283,35 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define EO_FSK 4165
 #define AXIAL_ON_OFF 4170
 #define AXIAL_FSK 4171
+
+#define IDC_GENERAL_PLOT_TYPE 5008
+
+#define IDC_PLOT_CREATOR_DATASET_COMBO 5010
+#define IDC_PRC_PICTURE_NUMBER 5014
+#define IDC_PRC_PIXEL_NUMBER 5016
+#define IDC_PRC_ATOM 5017
+#define IDC_PRC_NOATOM 5018
+#define IDC_PRC_SHOW_ALL 5019
+
+#define IDC_PIXELS_PER_ANALYSIS_GROUP 5029
+
+#define IDC_PSC_CONDITION_NUMBER 5038
+#define IDC_PSC_PICTURE_NUMBER 5040
+#define IDC_PSC_PIXEL_NUMBER 5042
+#define IDC_PSC_ATOM 5043
+#define IDC_PSC_NOATOM 5044
+#define IDC_PSC_SHOW_ALL 5045
+#define IDC_PLOT_CREATOR_SAVE 5046
+#define IDC_PLOT_CREATOR_CANCEL 5047
+
+
+
+#define NO_FIT 12002
+#define REAL_TIME_FIT 12003
+#define FIT_AT_END 12004
+#define GAUSSIAN_FIT 12005
+#define LORENTZIAN_FIT 12006
+#define SINE_FIT 12007
 
 #define MASTER_SCRIPT_EXTENSION ".mScript"
 #define NIAWG_SCRIPT_EXTENSION ".nScript"
@@ -295,6 +322,7 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define CATEGORY_EXTENSION ".catConfig"
 #define SEQUENCE_EXTENSION ".sConfig"
 #define FUNCTION_EXTENSION ".func"
+#define PLOTTING_EXTENSION ".plot"
 
 #define OSCILLOSCOPE_TRIGGER "C11"
 #define HORIZONTAL_ORIENTATION "Horizontal"
@@ -312,6 +340,8 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define RSG_POWER 10
 #define TEKTRONICS_AFG_1_ADDRESS 25
 #define TEKTRONICS_AFG_2_ADDRESS 24
+
+
 
 
 
@@ -400,3 +430,34 @@ const char SCRIPT_INFO_TEXT[] =
 "\"create marker event <samples after previous waveform to wait>\"\r\n"
 "\r\n";
 
+const std::vector<std::string> GNUPLOT_COLORS{ "lt rgb \"white\"",
+												"lt rgb \"cyan\"",
+												"lt rgb \"green\"",
+												"lt rgb \"#DC143C\"",  // crimson
+												"lt rgb \"#B8860B\"",  // dark goldenrod
+												"lt rgb \"#4B0082\"",  // indigo
+												"lt rgb \"blue\"",
+												"lt rgb \"#FF8C00\"",  // dark orange	
+												"lt rgb \"#708090\"" }; // slate grey
+
+const std::vector<std::string> GNUPLOT_MARKERS{ "pt 5",
+												"pt 7",
+												"pt 9",
+												"pt 11",
+												"pt 13",
+												"pt 15",
+												"pt 1",
+												"pt 3",
+												"pt 6"};
+
+const std::vector<std::string> GNUPLOT_LINETYPES{ "dt 1",
+													"dt 2",
+													"dt 3",
+													"dt 4",
+													"dt 1",
+													"dt 2",
+													"dt 3",
+													"dt 4",
+													"dt 1"};
+
+const std::string GNUPLOT_LOCATION = "\"C:\\Program Files (x86)\\gnuplot\\bin\\gnuplot.exe\"";

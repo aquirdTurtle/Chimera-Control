@@ -1,18 +1,68 @@
 #include "stdafx.h"
+
+#include <sstream>
+#include <unordered_map>
+#include <bitset>
+#include "nidaqmx2.h"
+
 #include "TtlSystem.h"
 #include "constants.h"
 #include "DeviceWindow.h"
-#include "nidaqmx2.h"
-#include <sstream>
-#include "ExperimentManager.h"
-#include <unordered_map>
-#include <bitset>
 // I don't use this because I manually import dll functions.
 // #include "Dio64.h"
 
-unsigned long TtlSystem::countDacTriggers(UINT var)
+
+void TtlSystem::handleSaveConfig(std::ofstream& saveFile)
 {
-	unsigned long triggerCount = 0;
+	/// ttl settings
+	saveFile << "TTLS\n";
+	for (int ttlRowInc = 0; ttlRowInc < getNumberOfTTLRows(); ttlRowInc++)
+	{
+		for (int ttlNumberInc = 0; ttlNumberInc < getNumberOfTTLsPerRow(); ttlNumberInc++)
+		{
+			saveFile << getTtlStatus(ttlRowInc, ttlNumberInc) << "\n";
+		}
+	}
+	saveFile << "END_TTLS\n";
+}
+
+
+void TtlSystem::handleOpenConfig(std::ifstream& openFile, double version)
+{
+	ProfileSystem::checkDelimiterLine(openFile, "TTLS");
+
+	std::vector<std::vector<bool>> ttlStates;
+	ttlStates.resize(getTtlBoardSize().first);
+
+	UINT rowInc = 0;
+	for (auto& row : ttlStates)
+	{
+		UINT colInc = 0;
+		row.resize(getTtlBoardSize().second);
+		for (auto& ttl : row)
+		{
+			std::string ttlString;
+			openFile >> ttlString;
+			try
+			{
+				ttl = std::stoi(ttlString);
+				forceTtl(rowInc, colInc, ttl);
+			}
+			catch (std::invalid_argument& exception)
+			{
+				thrower("ERROR: the ttl status of \"" + ttlString + "\"failed to convert to a bool!");
+			}
+			colInc++;
+		}
+		rowInc++;
+	}
+	ProfileSystem::checkDelimiterLine(openFile, "END_TTLS");
+}
+
+
+ULONG TtlSystem::countDacTriggers(UINT var)
+{
+	ULONG triggerCount = 0;
 	// D14
 	std::pair<unsigned short, unsigned short> dacLine = { 3,15 };
 	for (auto command : individualTtlCommandList[var])
@@ -232,7 +282,7 @@ void TtlSystem::startBoard()
 }
 
 
-void TtlSystem::shadeTTLs(std::vector<std::pair<unsigned int, unsigned int>> shadeList)
+void TtlSystem::shadeTTLs(std::vector<std::pair<UINT, UINT>> shadeList)
 {
 	for (int shadeInc = 0; shadeInc < shadeList.size(); shadeInc++)
 	{
@@ -343,8 +393,7 @@ std::pair<UINT, UINT> TtlSystem::getTtlBoardSize()
 }
 
 
-void TtlSystem::initialize( POINT& loc, toolTipTextMap& toolTipText,
-							std::vector<CToolTipCtrl*>& toolTips, DeviceWindow* master, int& id )
+void TtlSystem::initialize( POINT& loc, cToolTips& toolTips, DeviceWindow* master, int& id )
 {
 	// title
 	ttlTitle.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 25 };
@@ -369,7 +418,7 @@ void TtlSystem::initialize( POINT& loc, toolTipTextMap& toolTipText,
 	{
 		ttlNumberLabels[ttlNumberInc].sPos = { loc.x + 32 + ttlNumberInc * 28, loc.y,
 			loc.x + 32 + (ttlNumberInc + 1) * 28, loc.y + 20 };
-		ttlNumberLabels[ttlNumberInc].Create( str( ttlNumberInc ).c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN,
+		ttlNumberLabels[ttlNumberInc].Create( cstr( ttlNumberInc ), WS_CHILD | WS_VISIBLE | SS_SUNKEN,
 											  ttlNumberLabels[ttlNumberInc].sPos, master, id++ );
 	}
 	loc.y += 20;
@@ -394,7 +443,7 @@ void TtlSystem::initialize( POINT& loc, toolTipTextMap& toolTipText,
 				rowName = "D";
 				break;
 		}
-		ttlRowLabels[row].Create( rowName.c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
+		ttlRowLabels[row].Create( cstr(rowName), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
 								  ttlRowLabels[row].sPos, master, id++ );
 	}
 	// all push buttons
@@ -437,21 +486,21 @@ void TtlSystem::initialize( POINT& loc, toolTipTextMap& toolTipText,
 
 
 void TtlSystem::handleTtlScriptCommand( std::string command, timeType time, std::string name,
-										 std::vector<std::pair<unsigned int, unsigned int>>& ttlShadeLocations )
+										 std::vector<std::pair<UINT, UINT>>& ttlShadeLocations )
 {
 	handleTtlScriptCommand( command, time, name, "-.-", ttlShadeLocations );
 }
 
 
 void TtlSystem::handleTtlScriptCommand(std::string command, timeType time, std::string name, std::string pulseLength, 
-									   std::vector<std::pair<unsigned int, unsigned int>>& ttlShadeLocations)
+									   std::vector<std::pair<UINT, UINT>>& ttlShadeLocations)
 {
 	if (!isValidTTLName(name))
 	{
 		thrower("ERROR: the name " + name + " is not the name of a ttl!");
 	}
 	timeType pulseEndTime = time;
-	unsigned int row, collumn;
+	UINT row, collumn;
 	int ttlLine = getNameIdentifier(name, row, collumn);
 	ttlShadeLocations.push_back({ row, collumn });
 	if (command == "on:")
@@ -673,7 +722,7 @@ bool TtlSystem::isValidTTLName( std::string name )
 		for (int numberInc = 0; numberInc < getNumberOfTTLsPerRow(); numberInc++)
 		{
 			// check default names
-			unsigned int row, number;
+			UINT row, number;
 			if (name == rowStr + str( numberInc))
 			{
 				return true;
@@ -688,21 +737,21 @@ bool TtlSystem::isValidTTLName( std::string name )
 }
 
 
-void TtlSystem::ttlOn(unsigned int row, unsigned int column, timeType time)
+void TtlSystem::ttlOn(UINT row, UINT column, timeType time)
 {
 	// make sure it's either a variable or a number that can be used.
 	ttlCommandFormList.push_back({ {row, column}, time, true });
 }
 
 
-void TtlSystem::ttlOff(unsigned int row, unsigned int column, timeType time)
+void TtlSystem::ttlOff(UINT row, UINT column, timeType time)
 {
 	// check to make sure either variable or actual value.
 	ttlCommandFormList.push_back({ {row, column}, time, false });
 }
 
 
-void TtlSystem::ttlOnDirect( unsigned int row, unsigned int column, double time, UINT var )
+void TtlSystem::ttlOnDirect( UINT row, UINT column, double time, UINT var )
 {
 	TtlCommand command;
 	command.line = { row, column };
@@ -712,7 +761,7 @@ void TtlSystem::ttlOnDirect( unsigned int row, unsigned int column, double time,
 }
 
 
-void TtlSystem::ttlOffDirect( unsigned int row, unsigned int column, double time, UINT var)
+void TtlSystem::ttlOffDirect( UINT row, UINT column, double time, UINT var)
 {
 	TtlCommand command;
 	command.line = { row, column };
@@ -736,12 +785,13 @@ double TtlSystem::getClockStatus()
 	try
 	{
 		dioOutStatus( 0, availableScans, stat );
+
 		if ( DIO_SAFEMODE )
 		{
 			thrower( "!" );
 		}
 	}
-	catch ( Error& )
+	catch ( ... )
 	{
 		// get current time in ms...
 		// ***NOT SURE*** if this is what I want. The vb6 code used...
@@ -796,7 +846,7 @@ void TtlSystem::forceTtl(int row, int number, int state)
 }
 
 
-void TtlSystem::setName(unsigned int row, unsigned int number, std::string name, std::vector<CToolTipCtrl*>& toolTips, DeviceWindow* master)
+void TtlSystem::setName(UINT row, UINT number, std::string name, cToolTips& toolTips, DeviceWindow* master)
 {
 	if (name == "")
 	{
@@ -807,7 +857,7 @@ void TtlSystem::setName(unsigned int row, unsigned int number, std::string name,
 	ttlPushControls[row][number].setToolTip(name, toolTips, master);
 }
 
-int TtlSystem::getNameIdentifier(std::string name, unsigned int& row, unsigned int& number)
+int TtlSystem::getNameIdentifier(std::string name, UINT& row, UINT& number)
 {
 	
 	for (int rowInc = 0; rowInc < ttlNames.size(); rowInc++)
@@ -820,7 +870,7 @@ int TtlSystem::getNameIdentifier(std::string name, unsigned int& row, unsigned i
 			case 2: rowName = "c"; break;
 			case 3: rowName = "d"; break;
 		}
-		for (unsigned int numberInc = 0; numberInc < ttlNames[rowInc].size(); numberInc++)
+		for (UINT numberInc = 0; numberInc < ttlNames[rowInc].size(); numberInc++)
 		{
 			// check the names array.
 			std::transform( ttlNames[rowInc][numberInc].begin(), ttlNames[rowInc][numberInc].end(),
@@ -877,7 +927,7 @@ void TtlSystem::writeData(UINT var)
 }
 
 
-std::string TtlSystem::getName(unsigned int row, unsigned int number)
+std::string TtlSystem::getName(UINT row, UINT number)
 {
 	return ttlNames[row][number];
 }
@@ -1021,8 +1071,8 @@ void TtlSystem::analyzeCommandList(UINT var)
 	{
 		// make sure to address he correct ttl. the ttl location is located in individuaTTL_CommandList but you need 
 		// to make sure you access the correct command.
-		unsigned int row = orderedList[timeOrganizer[0].second[zeroInc]].line.first;
-		unsigned int column = orderedList[timeOrganizer[0].second[zeroInc]].line.second;
+		UINT row = orderedList[timeOrganizer[0].second[zeroInc]].line.first;
+		UINT column = orderedList[timeOrganizer[0].second[zeroInc]].line.second;
 		ttlSnapshots[var].back().ttlStatus[row][column]	= orderedList[timeOrganizer[0].second[zeroInc]].value;
 	}
 	
@@ -1036,8 +1086,8 @@ void TtlSystem::analyzeCommandList(UINT var)
 		for (int zeroInc = 0; zeroInc < timeOrganizer[commandInc].second.size(); zeroInc++)
 		{
 			// see description of this command above... update everything that changed at this time.
-			unsigned int row = orderedList[timeOrganizer[commandInc].second[zeroInc]].line.first;
-			unsigned int column = orderedList[timeOrganizer[commandInc].second[zeroInc]].line.second;
+			UINT row = orderedList[timeOrganizer[commandInc].second[zeroInc]].line.first;
+			UINT column = orderedList[timeOrganizer[commandInc].second[zeroInc]].line.second;
 			ttlSnapshots[var].back().ttlStatus[row][column] = orderedList[timeOrganizer[commandInc].second[zeroInc]].value;
 		}
 	}

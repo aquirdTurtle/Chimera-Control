@@ -2,8 +2,7 @@
 #include "ColorBox.h"
 #include <tuple>
 
-void ColorBox::initialize(POINT& pos, int& id, CWnd* parent, int length, fontMap fonts,
-						  std::vector<CToolTipCtrl*>& tooltips)
+void ColorBox::initialize(POINT& pos, int& id, CWnd* parent, int length, fontMap fonts, cToolTips& tooltips)
 {
 	//
 	boxes.niawg.sPos = { pos.x, pos.y, long(pos.x + length/4.0), pos.y + 20 };
@@ -22,8 +21,8 @@ void ColorBox::initialize(POINT& pos, int& id, CWnd* parent, int length, fontMap
 	boxes.intensity.fontType = CodeFont;
 
 	boxes.master.sPos = { long(pos.x + 3 * length / 4.0), pos.y, pos.x + length, pos.y + 20 };
-	boxes.master.Create("MASTER", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | SS_CENTER | WS_BORDER,
-						   boxes.master.sPos, parent, id++);
+	boxes.master.Create( "MASTER", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | SS_CENTER | WS_BORDER,
+						 boxes.master.sPos, parent, id++ );
 	boxes.master.fontType = CodeFont;
 	pos.y += 20;
 }
@@ -39,107 +38,61 @@ void ColorBox::rearrange(std::string cameraMode, std::string triggerMode, int wi
 
 CBrush* ColorBox::handleColoring( int id, CDC* pDC, brushMap brushes, rgbMap rgbs)
 {
+	char code;
 	if (id == boxes.niawg.GetDlgCtrlID())
 	{
-		if (colors.niawg == 'G')
-		{
-			// Color Green. This is the "Ready to give next waveform" color. During this color you can also press esc to exit.
-			pDC->SetTextColor(rgbs["White"]);
-			pDC->SetBkColor(rgbs["Green"]);
-			return brushes["Green"];
-		}
-		else if (colors.niawg == 'Y')
-		{
-			// Color Yellow. This is the "Working" Color.
-			pDC->SetTextColor(rgbs["White"]);
-			pDC->SetBkColor(rgbs["Gold"]);
-			return brushes["Gold"];
-		}
-		else if (colors.niawg == 'R')
-		{
-			// Color Red. This is a big visual signifier for when the program exited with error.
-			pDC->SetTextColor(rgbs["White"]);
-			pDC->SetBkColor(rgbs["Red"]);
-			return brushes["Red"];
-		}
-		else
-		{
-			// color Blue. This is the default, ready for user input color.
-			pDC->SetTextColor( rgbs["White"] );
-			pDC->SetBkColor( rgbs["Dark Grey"] );
-			return brushes["Dark Grey"];
-		}
+		code = colors.niawg;
 	}
-	else if ( id == boxes.camera.GetDlgCtrlID())
+	else if (id == boxes.intensity.GetDlgCtrlID())
 	{
-		if ( colors.camera == 'G' )
-		{
-			// Color Green. This is the "Ready to give next waveform" color. During this color you can also press esc to exit.
-			pDC->SetTextColor( rgbs["White"] );
-			pDC->SetBkColor( rgbs["Green"] );
-			return brushes["Green"];
-		}
-		else if ( colors.camera == 'Y' )
-		{
-			// Color Yellow. This is the "Working" Color.
-			pDC->SetTextColor( rgbs["White"] );
-			pDC->SetBkColor( rgbs["Gold"] );
-			return brushes["Gold"];
-		}
-		else if ( colors.camera == 'R' )
-		{
-			// Color Red. This is a big visual signifier for when the program exited with error.
-			pDC->SetTextColor( rgbs["White"] );
-			pDC->SetBkColor( rgbs["Red"] );
-			return brushes["Red"];
-		}
-		else
-		{
-			// color Blue. This is the default, ready for user input color.
-			pDC->SetTextColor( rgbs["White"] );
-			pDC->SetBkColor( rgbs["Dark Grey"] );
-			return brushes["Dark Grey"];
-		}
+		code = colors.intensity;
 	}
-	else if ( id == boxes.intensity.GetDlgCtrlID())
+	else if (id == boxes.camera.GetDlgCtrlID())
 	{
-		if ( colors.intensity == 'G' )
-		{
-			// Color Green. This is the "Ready to give next waveform" color. During this color you can also press esc to exit.
-			pDC->SetTextColor( rgbs["White"] );
-			pDC->SetBkColor( rgbs["Green"] );
-			return brushes["Green"];
-		}
-		else if ( colors.intensity == 'Y' )
-		{
-			// Color Yellow. This is the "Working" Color.
-			pDC->SetTextColor( rgbs["White"] );
-			pDC->SetBkColor( rgbs["Gold"] );
-			return brushes["Gold"];
-		}
-		else if ( colors.intensity == 'R' )
-		{
-			// Color Red. This is a big visual signifier for when the program exited with error.
-			pDC->SetTextColor( rgbs["White"] );
-			pDC->SetBkColor( rgbs["Red"] );
-			return brushes["Red"];
-		}
-		else
-		{
-			// color Blue. This is the default, ready for user input color.
-			pDC->SetTextColor( rgbs["White"] );
-			pDC->SetBkColor( rgbs["Dark Grey"] );
-			return brushes["Dark Grey"];
-		}
+		code = colors.camera;
+	}
+	else if (id == boxes.master.GetDlgCtrlID())
+	{
+		code = colors.master;
 	}
 	else
 	{
 		return NULL;
 	}
+
+	if (code == 'G')
+	{
+		// Color Green. This is the "Ready to give next waveform" color. During this color you can also press esc to exit.
+		pDC->SetTextColor(rgbs["White"]);
+		pDC->SetBkColor(rgbs["Green"]);
+		return brushes["Green"];
+	}
+	else if (code == 'Y')
+	{
+		// Color Yellow. This is the "Working" Color.
+		pDC->SetTextColor(rgbs["White"]);
+		pDC->SetBkColor(rgbs["Gold"]);
+		return brushes["Gold"];
+	}
+	else if (code == 'R')
+	{
+		// Color Red. This is a big visual signifier for when the program exited with error.
+		pDC->SetTextColor(rgbs["White"]);
+		pDC->SetBkColor(rgbs["Red"]);
+		return brushes["Red"];
+	}
+	else
+	{
+		// color Blue. This is the default, ready for user input color.
+		pDC->SetTextColor( rgbs["White"] );
+		pDC->SetBkColor( rgbs["Dark Grey"] );
+		return brushes["Dark Grey"];
+	}
 }
 
+
 /*
- * color should be a three-character long 
+ * color should be a four-character long 
  */
 void ColorBox::changeColor( systemInfo<char> newColors )
 {
@@ -157,5 +110,10 @@ void ColorBox::changeColor( systemInfo<char> newColors )
 	{
 		colors.intensity = newColors.intensity;
 		boxes.intensity.RedrawWindow();
+	}
+	if (newColors.master != '-')
+	{
+		colors.master = newColors.master;
+		boxes.master.RedrawWindow();
 	}
 }

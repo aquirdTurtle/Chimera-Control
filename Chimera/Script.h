@@ -32,7 +32,7 @@ class Script
 										 std::array<std::array<std::string, 16>, 4> ttlNames, 
 										 std::array<std::string, 24> dacNames);
 
-		void initialize( int width, int height, POINT& startingLocation, std::vector<CToolTipCtrl*>& toolTips,
+		void initialize( int width, int height, POINT& startingLocation, cToolTips& toolTips,
 						 ScriptingWindow* scriptWin, int& id, std::string deviceTypeInput );
 		void reorganizeControls();
 		INT_PTR colorControl(LPARAM lParam, WPARAM wParam);
@@ -90,7 +90,7 @@ class Script
 		bool isLocalReference;
 		bool isSaved;
 
-		unsigned long editChangeBegin;
-		unsigned long editChangeEnd;
+		ULONG editChangeBegin;
+		ULONG editChangeEnd;
 		bool syntaxColoringIsCurrent;
 };

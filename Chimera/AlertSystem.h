@@ -12,20 +12,20 @@ class AlertSystem
 		AlertSystem() : alertMessageID{ 0 } 
 		{
 			// load the music!
-			mciSendString((std::string("open \"") + MUSIC_LOCATION + "\" type mpegvideo alias mp3").c_str(), NULL, 0, NULL);
+			mciSendString(cstr(str("open \"") + MUSIC_LOCATION + "\" type mpegvideo alias mp3"), NULL, 0, NULL);
 		}
 		~AlertSystem()
 		{
 			mciSendString( "close mp3", NULL, 0, NULL );
 		}
 		void initialize(cameraPositions& positions, CWnd* parent, bool isTriggerModeSensitive, int& id, fontMap fonts, 
-						std::vector<CToolTipCtrl*>& tooltips);
+						cToolTips& tooltips);
 		void alertMainThread(int level);
 		void soundAlert();
 		void rearrange(std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts);
 		void handleCheckBoxPress();
-		unsigned int getAlertThreshold();
-		unsigned int getAlertMessageID();
+		UINT getAlertThreshold();
+		UINT getAlertMessageID();
 		void setAlertThreshold();
 		bool alertsAreToBeUsed();
 		bool soundIsToBePlayed();
@@ -39,5 +39,5 @@ class AlertSystem
 		Control<CButton> soundAtFinshCheckBox;
 		int alertThreshold;
 		bool useAlerts;
-		unsigned int alertMessageID = 0;
+		UINT alertMessageID = 0;
 };

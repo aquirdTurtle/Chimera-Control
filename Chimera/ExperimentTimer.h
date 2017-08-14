@@ -9,7 +9,7 @@ class ExperimentTimer
 {
 	public:
 		void initialize( cameraPositions& inputLoc, CWnd* parent, bool isTriggerModeSensitive, int& id, fontMap fonts, 
-						 std::vector<CToolTipCtrl*> toolTips );
+						 cToolTips& toolTips );
 		void update( int currentRepNumber, int repsPerVariation, int numberOfVariations, int picsPerRep );
 		void rearrange( std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts );
 		void setTimerDisplay( std::string newText );

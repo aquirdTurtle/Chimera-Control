@@ -44,6 +44,7 @@
 	const std::string CAMERA_CONFIGURATION_FILES_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Camera Configuration Files\\";
 	const std::string GNUPLOT_LOCATION = "\"C:\\Program Files (x86)\\gnuplot\\bin\\gnuplot.exe\"";
 #endif
+
 //
 const std::vector<std::string> GNUPLOT_COLORS{"lt rgb \"black\"",
 											 "lt rgb \"blue\"",
