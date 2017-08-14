@@ -25,8 +25,7 @@ struct rsgEventInfoFinal
 class RhodeSchwarz
 {
 	public:
-		// RhodeSchwarz();
-		void initialize( POINT& pos, std::vector<CToolTipCtrl*>& toolTips, DeviceWindow* master, int& id );
+		void initialize( POINT& pos, cToolTips& toolTips, DeviceWindow* master, int& id );
 		void programRSG(Gpib* gpib, UINT var);
 		void addFrequency( rsgEventStructuralInfo eventInfo );
 		void clearFrequencies();
@@ -41,10 +40,10 @@ class RhodeSchwarz
 		std::vector<rsgEventStructuralInfo> eventStructures;
 		// outer vector is over each variation.
 		std::vector<std::vector<rsgEventInfoFinal>> events;
-		
 		double triggerTime;
 		std::string rsgTtl;
-
+		//
 		Control<CStatic> header;
+		// this is a read-only control that shows the user how the RSG actually gets programmed in the end.
 		Control<CListCtrl> infoControl;
 };

@@ -16,7 +16,7 @@ std::string saveTextFileFromEdit(HWND hwndOwner, std::string extension, profileS
 	szSaveFileName[0] = '\0';
 	ZeroMemory(&saveFileDialogInfoObj, sizeof(saveFileDialogInfoObj));
 	
-	saveFileDialogInfoObj.lpstrInitialDir = (LPTSTR)(location.categoryPath).c_str();
+	saveFileDialogInfoObj.lpstrInitialDir = (LPTSTR)cstr(location.categoryPath);
 	saveFileDialogInfoObj.lStructSize = sizeof(saveFileDialogInfoObj);
 	saveFileDialogInfoObj.hwndOwner = hwndOwner;
 	saveFileDialogInfoObj.lpstrFilter = NULL;
@@ -24,7 +24,7 @@ std::string saveTextFileFromEdit(HWND hwndOwner, std::string extension, profileS
 	saveFileDialogInfoObj.nMaxFile = MAX_PATH;
 	saveFileDialogInfoObj.Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
 
-	saveFileDialogInfoObj.lpstrDefExt = extension.c_str();
+	saveFileDialogInfoObj.lpstrDefExt = cstr(extension);
 	if (GetSaveFileName(&saveFileDialogInfoObj) == 0)
 	{
 		MessageBox(NULL, "No save file name selected", NULL, MB_OK);

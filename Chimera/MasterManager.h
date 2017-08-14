@@ -26,19 +26,14 @@ class MasterManager;
 
 struct MasterThreadInput
 {
-	bool quiet;
+
+	profileSettings profile;
 	TtlSystem* ttls;											
 	DacSystem* dacs;
-	unsigned int repetitionNumber;
-	//Repetitions* repControl;
+	UINT repetitionNumber;
 	std::vector<variable> vars;
 	MasterManager* thisObj;
-	
-	//StatusControl* status;
-	//StatusControl* error;
 	KeyHandler* key;
-	//bool connectToNIAWG;
-	//SocketWrapper* niawgSocket;
 	std::string masterScriptAddress;
 	Communicator* comm;
 	Gpib* gpib;
@@ -48,9 +43,18 @@ struct MasterThreadInput
 	TektronicsControl* tektronics1;
 	TektronicsControl* tektronics2;
 	VariableSystem* globalControl;
+	NiawgController* niawg;
+	bool dontActuallyGenerate;
+	bool quiet;
+	bool programIntensity;
+	bool runNiawg;
+	bool runMaster;
 };
 
+struct niawgCalcInput
+{
 
+};
 
 class MasterManager
 {
@@ -64,9 +68,8 @@ class MasterManager
 		void loadMasterScript(std::string scriptAddress);
 
 		void analyzeMasterScript( TtlSystem* ttls, DacSystem* dacs, 
-								  std::vector<std::pair<unsigned int, unsigned int>>& ttlShades,
-								  std::vector<unsigned int>& dacShades, RhodeSchwarz* rsg, 
-								  std::vector<variable>& vars);
+								  std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades, 
+								  RhodeSchwarz* rsg, std::vector<variable>& vars);
 
 		// this function needs the mastewindow in order to gather the relevant parameters for the experiment.
 		void startExperimentThread(MasterThreadInput* input);
@@ -74,28 +77,34 @@ class MasterManager
 		void loadVariables(std::vector<variable> newVariables);
 		bool runningStatus();
 		bool isValidWord(std::string word);
+		
+		bool getAbortStatus();
 
-		static UINT __cdecl experimentThreadProcedure(LPVOID input);
+		static UINT __cdecl experimentThreadProcedure(void* voidInput);
 		static void expUpdate(std::string text, Communicator* comm, bool quiet = false);
 		static void analyzeFunctionDefinition(std::string defLine, std::string& functionName, std::vector<std::string>& args);
+
+		static UINT __cdecl niawgCalcThread(void* voidInput);
+
+		static UINT determineVariationNumber(std::vector<variable> vars, key tempKey);
 
 	private:
 		void callCppCodeFunction();
 		// the master script file contents get dumped into this.
 		std::string currentFunctionText;
 		std::string currentMasterScriptText;
-		//std::vector<variable> variables;
 		ScriptStream currentMasterScript;
 		std::string functionsFolderLocation;
 		// called by analyzeMasterScript functions only.
 		void analyzeFunction( std::string function, std::vector<std::string> args, TtlSystem* ttls, DacSystem* dacs,
-							  std::vector<std::pair<unsigned int, unsigned int>>& ttlShades, std::vector<unsigned int>& dacShades, 
+							  std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades, 
 							  RhodeSchwarz* rsg, std::vector<variable>& vars);
 		// 
 		timeType operationTime;
 		bool experimentIsRunning;
 		/// task handles
 		CWinThread* runningThread;
+
 		// Important, these should only be written to by the pause and aborting functions...
 		std::mutex pauseLock;
 		bool isPaused;

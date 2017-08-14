@@ -85,12 +85,12 @@ BOOL DacSettingsDialog::OnInitDialog()
 		}
 		// create label
 		numberLabels[dacInc].sPos = { loc.x, loc.y, loc.x += 20, loc.y + 20 };
-		numberLabels[dacInc].Create(str(dacInc).c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, 
-							  numberLabels[dacInc].sPos, this);
+		numberLabels[dacInc].Create(cstr(dacInc), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, 
+									numberLabels[dacInc].sPos, this);
 
 		nameEdits[dacInc].sPos = { loc.x, loc.y, loc.x += 120, loc.y + 20 };
 		nameEdits[dacInc].Create( WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_BORDER, nameEdits[dacInc].sPos, this, id++);
-		nameEdits[dacInc].SetWindowTextA(input->dacs->getName(dacInc).c_str());
+		nameEdits[dacInc].SetWindowTextA(cstr(input->dacs->getName(dacInc)));
 
 		minValEdits[dacInc].sPos = { loc.x, loc.y, loc.x += 120, loc.y + 20 };
 		minValEdits[dacInc].Create( WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_BORDER, minValEdits[dacInc].sPos, this, id++);
@@ -122,32 +122,32 @@ INT_PTR CALLBACK viewAndChangeDAC_NamesProcedure(HWND hDlg, UINT message, WPARAM
 		case WM_INITDIALOG:
 		{
 			input = *(dacInputStruct*)lParam;
-			RECT location = { 0, 0, 20, 20 };
+			RECT loc = { 0, 0, 20, 20 };
 			for (int dacInc = 0; dacInc < nameEdits.size(); dacInc++)
 			{
 				if (dacInc == nameEdits.size() / 3 || dacInc == 2 * nameEdits.size() / 3)
 				{
 					// go to second or third collumn
-					location.left += 160;
-					location.right += 160;
-					location.top -= 25 * nameEdits.size() / 3;
-					location.bottom -= 25 * nameEdits.size() / 3;
+					loc.left += 160;
+					loc.right += 160;
+					loc.top -= 25 * nameEdits.size() / 3;
+					loc.bottom -= 25 * nameEdits.size() / 3;
 				}
 				// create label
-				CreateWindowEx(0, "STATIC", str(dacInc).c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
-					location.left, location.top, location.right - location.left, location.bottom - location.top,
+				CreateWindowEx(0, "STATIC", cstr(dacInc), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
+					loc.left, loc.top, loc.right - loc.left, loc.bottom - loc.top,
 					hDlg, (HMENU)-1, GetModuleHandle(NULL), NULL);
-				location.left += 20;
-				location.right += 140;
+				loc.left += 20;
+				loc.right += 140;
 
-				nameEdits[dacInc] = CreateWindowEx(0, "EDIT", input.dacs->getName(dacInc).c_str(), WS_CHILD | WS_VISIBLE | WS_TABSTOP,
-					location.left, location.top, location.right - location.left, location.bottom - location.top,
+				nameEdits[dacInc] = CreateWindowEx(0, "EDIT", cstr(input.dacs->getName(dacInc)), WS_CHILD | WS_VISIBLE 
+												   | WS_TABSTOP, loc.left, loc.top, loc.right - loc.left, loc.bottom - loc.top,
 					hDlg, (HMENU)startID + dacInc, GetModuleHandle(NULL), NULL);
 
-				location.left -= 20;
-				location.right -= 140;
-				location.top += 25;
-				location.bottom += 25;
+				loc.left -= 20;
+				loc.right -= 140;
+				loc.top += 25;
+				loc.bottom += 25;
 			}
 			break;
 		}

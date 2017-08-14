@@ -69,7 +69,6 @@ AndorRunSettings CameraConfigurationSystem::openConfiguration(std::string config
 
 	configurationOpenFile.get();
 	std::getline(configurationOpenFile, settings.triggerMode );
-	//SendMessage(eTriggerComboHandle.hwnd, CB_SELECTSTRING, 0, (LPARAM)eCurrentTriggerMode.c_str());
 	imageParameters tempParam;
 	configurationOpenFile >> tempParam.leftBorder;
 	configurationOpenFile >> tempParam.rightBorder;
@@ -91,8 +90,8 @@ AndorRunSettings CameraConfigurationSystem::openConfiguration(std::string config
 	}
 	else
 	{
-		SendMessage(eEMGainDisplay.hwnd, WM_SETTEXT, 0, (LPARAM)("X" + std::to_string(eEMGainLevel)).c_str());
-		SendMessage(eEMGainEdit.hwnd, WM_SETTEXT, 0, (LPARAM)(std::to_string(eEMGainLevel)).c_str());
+		SendMessage(eEMGainDisplay.hwnd, WM_SETTEXT, 0, (LPARAM)("X" + str(eEMGainLevel)).c_str());
+		SendMessage(eEMGainEdit.hwnd, WM_SETTEXT, 0, (LPARAM)(str(eEMGainLevel)).c_str());
 	}
 	myAndor::setGainMode();
 	*/
@@ -128,15 +127,15 @@ AndorRunSettings CameraConfigurationSystem::openConfiguration(std::string config
 	}
 	*/
 	/// 
-	//SendMessage(eKineticCycleTimeDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eKineticCycleTime * 1000).c_str());
-	//SendMessage(eAccumulationTimeDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eAccumulationTime * 1000).c_str());
+	//SendMessage(eKineticCycleTimeDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)str(eKineticCycleTime * 1000).c_str());
+	//SendMessage(eAccumulationTimeDisp.hwnd, WM_SETTEXT, 0, (LPARAM)str(eAccumulationTime * 1000).c_str());
 	configurationOpenFile >> settings.repetitionsPerVariation;
 	settings.totalPicsInVariation = settings.picsPerRepetition * settings.repetitionsPerVariation;
-	//SendMessage(eRepetitionsPerVariationDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eRepetitionsPerVariation).c_str());
-	//SendMessage(eRepetitionsPerVariationEdit.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eRepetitionsPerVariation).c_str());
+	//SendMessage(eRepetitionsPerVariationDisp.hwnd, WM_SETTEXT, 0, (LPARAM)str(eRepetitionsPerVariation).c_str());
+	//SendMessage(eRepetitionsPerVariationEdit.hwnd, WM_SETTEXT, 0, (LPARAM)str(eRepetitionsPerVariation).c_str());
 	configurationOpenFile >> settings.totalVariations;
-	//SendMessage(eVariationNumberDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eCurrentTotalVariationNumber).c_str());
-	//SendMessage(eVariationNumberEdit.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eCurrentTotalVariationNumber).c_str());
+	//SendMessage(eVariationNumberDisp.hwnd, WM_SETTEXT, 0, (LPARAM)str(eCurrentTotalVariationNumber).c_str());
+	//SendMessage(eVariationNumberEdit.hwnd, WM_SETTEXT, 0, (LPARAM)str(eCurrentTotalVariationNumber).c_str());
 	settings.totalPicsInExperiment = settings.totalVariations * settings.totalPicsInVariation;
 	// get \n at end of previous line
 	configurationOpenFile.get();
@@ -152,7 +151,7 @@ AndorRunSettings CameraConfigurationSystem::openConfiguration(std::string config
 		}
 		*/
 		settings.totalPicsInVariation = INT_MAX;
-		//SendMessage(.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerVariation).c_str());
+		//SendMessage(.hwnd, WM_SETTEXT, 0, (LPARAM)str(ePicturesPerVariation).c_str());
 	}
 	else if (settings.cameraMode == "Kinetic Series Mode")
 	{
@@ -168,17 +167,17 @@ AndorRunSettings CameraConfigurationSystem::openConfiguration(std::string config
 		}
 		*/
 		settings.totalPicsInVariation = INT_MAX;
-		//SendMessage(ePicturesPerRepetitionDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePicturesPerVariation).c_str());
+		//SendMessage(ePicturesPerRepetitionDisp.hwnd, WM_SETTEXT, 0, (LPARAM)str(ePicturesPerVariation).c_str());
 	}
-	configurationOpenFile >> settings.kinetiCycleTime;
-	//SendMessage(eKineticCycleTimeDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eKineticCycleTime * 1000).c_str());
-	//SendMessage(eKineticCycleTimeEditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eKineticCycleTime * 1000).c_str());
+	configurationOpenFile >> settings.kineticCycleTime;
+	//SendMessage(eKineticCycleTimeDispHandle.hwnd, WM_SETTEXT, 0, (LPARAM)str(eKineticCycleTime * 1000).c_str());
+	//SendMessage(eKineticCycleTimeEditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)str(eKineticCycleTime * 1000).c_str());
 	configurationOpenFile >> settings.accumulationTime;
-	//SendMessage(eAccumulationTimeDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eAccumulationTime * 1000).c_str());
-	//SendMessage(eAccumulationTimeEdit.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eAccumulationTime * 1000).c_str());
+	//SendMessage(eAccumulationTimeDisp.hwnd, WM_SETTEXT, 0, (LPARAM)str(eAccumulationTime * 1000).c_str());
+	//SendMessage(eAccumulationTimeEdit.hwnd, WM_SETTEXT, 0, (LPARAM)str(eAccumulationTime * 1000).c_str());
 	configurationOpenFile >> settings.accumulationNumber;
-	//SendMessage(eSetAccumulationNumberDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eCurrentAccumulationModeTotalAccumulationNumber * 1000).c_str());
-	//SendMessage(eAccumulationNumberEdit.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(eCurrentAccumulationModeTotalAccumulationNumber * 1000).c_str());
+	//SendMessage(eSetAccumulationNumberDisp.hwnd, WM_SETTEXT, 0, (LPARAM)str(eCurrentAccumulationModeTotalAccumulationNumber * 1000).c_str());
+	//SendMessage(eAccumulationNumberEdit.hwnd, WM_SETTEXT, 0, (LPARAM)str(eCurrentAccumulationModeTotalAccumulationNumber * 1000).c_str());
 	// I don't remember what this was...
 	if (version == "")
 	{
@@ -186,8 +185,8 @@ AndorRunSettings CameraConfigurationSystem::openConfiguration(std::string config
 		configurationOpenFile >> trash;
 	}
 	//configurationOpenFile >> ePlottingFrequency;
-	//SendMessage(ePlottingFrequencyDisp.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePlottingFrequency).c_str());
-	//SendMessage(ePlottingFrequencyEdit.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(ePlottingFrequency).c_str());
+	//SendMessage(ePlottingFrequencyDisp.hwnd, WM_SETTEXT, 0, (LPARAM)str(ePlottingFrequency).c_str());
+	//SendMessage(ePlottingFrequencyEdit.hwnd, WM_SETTEXT, 0, (LPARAM)str(ePlottingFrequency).c_str());
 	std::array<int, 4> thresholds;
 	if (version == "v1.1")
 	{
@@ -206,7 +205,7 @@ AndorRunSettings CameraConfigurationSystem::openConfiguration(std::string config
 	}
 	//ePictureOptionsControl.setThresholds(thresholds);
 	configurationOpenFile >> settings.temperatureSetting;
-	//SendMessage(eTempEditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)std::to_string(temperature).c_str());
+	//SendMessage(eTempEditHandle.hwnd, WM_SETTEXT, 0, (LPARAM)str(temperature).c_str());
 	// slider positions
 	/*
 	for (int sliderInc = 0; sliderInc < eCurrentMaximumPictureCount.size(); sliderInc++)
@@ -226,14 +225,14 @@ AndorRunSettings CameraConfigurationSystem::openConfiguration(std::string config
 	SendMessage(eMaximumPictureSlider4.hwnd, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)eCurrentMaximumPictureCount[3]);
 	SendMessage(eMinimumPictureSlider4.hwnd, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)eCurrentMinimumPictureCount[3]);
 	// update edits
-	SendMessage(eMaxSliderNumberEdit1.hwnd, WM_SETTEXT, (WPARAM)0, (LPARAM)std::to_string(eCurrentMaximumPictureCount[0]).c_str());
-	SendMessage(eMinSliderNumberEdit1.hwnd, WM_SETTEXT, (WPARAM)0, (LPARAM)std::to_string(eCurrentMinimumPictureCount[0]).c_str());
-	SendMessage(eMaxSliderNumberEdit2.hwnd, WM_SETTEXT, (WPARAM)0, (LPARAM)std::to_string(eCurrentMaximumPictureCount[1]).c_str());
-	SendMessage(eMinSliderNumberEdit2.hwnd, WM_SETTEXT, (WPARAM)0, (LPARAM)std::to_string(eCurrentMinimumPictureCount[1]).c_str());
-	SendMessage(eMaxSliderNumberEdit3.hwnd, WM_SETTEXT, (WPARAM)0, (LPARAM)std::to_string(eCurrentMaximumPictureCount[2]).c_str());
-	SendMessage(eMinSliderNumberEdit3.hwnd, WM_SETTEXT, (WPARAM)0, (LPARAM)std::to_string(eCurrentMinimumPictureCount[2]).c_str());
-	SendMessage(eMaxSliderNumberEdit4.hwnd, WM_SETTEXT, (WPARAM)0, (LPARAM)std::to_string(eCurrentMaximumPictureCount[3]).c_str());
-	SendMessage(eMinSliderNumberEdit4.hwnd, WM_SETTEXT, (WPARAM)0, (LPARAM)std::to_string(eCurrentMinimumPictureCount[3]).c_str());
+	SendMessage(eMaxSliderNumberEdit1.hwnd, WM_SETTEXT, (WPARAM)0, (LPARAM)str(eCurrentMaximumPictureCount[0]).c_str());
+	SendMessage(eMinSliderNumberEdit1.hwnd, WM_SETTEXT, (WPARAM)0, (LPARAM)str(eCurrentMinimumPictureCount[0]).c_str());
+	SendMessage(eMaxSliderNumberEdit2.hwnd, WM_SETTEXT, (WPARAM)0, (LPARAM)str(eCurrentMaximumPictureCount[1]).c_str());
+	SendMessage(eMinSliderNumberEdit2.hwnd, WM_SETTEXT, (WPARAM)0, (LPARAM)str(eCurrentMinimumPictureCount[1]).c_str());
+	SendMessage(eMaxSliderNumberEdit3.hwnd, WM_SETTEXT, (WPARAM)0, (LPARAM)str(eCurrentMaximumPictureCount[2]).c_str());
+	SendMessage(eMinSliderNumberEdit3.hwnd, WM_SETTEXT, (WPARAM)0, (LPARAM)str(eCurrentMinimumPictureCount[2]).c_str());
+	SendMessage(eMaxSliderNumberEdit4.hwnd, WM_SETTEXT, (WPARAM)0, (LPARAM)str(eCurrentMaximumPictureCount[3]).c_str());
+	SendMessage(eMinSliderNumberEdit4.hwnd, WM_SETTEXT, (WPARAM)0, (LPARAM)str(eCurrentMinimumPictureCount[3]).c_str());
 	*/
 	/// 
 	int plotNumber;
@@ -275,56 +274,56 @@ void CameraConfigurationSystem::saveConfiguration(bool isFromSaveAs, AndorRunSet
 	// version
 	configurationSaveFile << "v1.1\n";
 	// # of exposure times
-	configurationSaveFile << std::to_string( settings.exposureTimes.size()) + "\n";
+	configurationSaveFile << str( settings.exposureTimes.size()) + "\n";
 	// each expousure time
 	for (int exposureTimesInc = 0; exposureTimesInc < settings.exposureTimes.size(); exposureTimesInc++)
 	{
-		configurationSaveFile << std::to_string( settings.exposureTimes[exposureTimesInc]) + "\n";
+		configurationSaveFile << str( settings.exposureTimes[exposureTimesInc]) + "\n";
 	}
 	configurationSaveFile << settings.triggerMode + "\n";
 	imageParameters tempParam = settings.imageSettings;
 	// Image Parameters
-	configurationSaveFile << std::to_string(tempParam.leftBorder) + "\n";
-	configurationSaveFile << std::to_string(tempParam.rightBorder) + "\n";
-	configurationSaveFile << std::to_string(tempParam.horizontalBinning) + "\n";
-	configurationSaveFile << std::to_string(tempParam.topBorder) + "\n";
-	configurationSaveFile << std::to_string(tempParam.bottomBorder) + "\n";
-	configurationSaveFile << std::to_string(tempParam.verticalBinning) + "\n";
+	configurationSaveFile << str(tempParam.leftBorder) + "\n";
+	configurationSaveFile << str(tempParam.rightBorder) + "\n";
+	configurationSaveFile << str(tempParam.horizontalBinning) + "\n";
+	configurationSaveFile << str(tempParam.topBorder) + "\n";
+	configurationSaveFile << str(tempParam.bottomBorder) + "\n";
+	configurationSaveFile << str(tempParam.verticalBinning) + "\n";
 	// gain settings
-	configurationSaveFile << std::to_string( settings.emGainModeIsOn) + "\n";
-	configurationSaveFile << std::to_string( settings.emGainLevel) + "\n";
+	configurationSaveFile << str( settings.emGainModeIsOn) + "\n";
+	configurationSaveFile << str( settings.emGainLevel) + "\n";
 	// pictures per experiment
-	configurationSaveFile << std::to_string( settings.picsPerRepetition) + "\n";
+	configurationSaveFile << str( settings.picsPerRepetition) + "\n";
 	// experiment # per stack
-	configurationSaveFile << std::to_string( settings.repetitionsPerVariation) + "\n";
+	configurationSaveFile << str( settings.repetitionsPerVariation) + "\n";
 	// stack #
-	configurationSaveFile << std::to_string( settings.totalVariations) + "\n";
+	configurationSaveFile << str( settings.totalVariations) + "\n";
 	// camera mode
 	configurationSaveFile << settings.cameraMode + "\n";
 	// Kinetic Cycle Time
-	configurationSaveFile << std::to_string( settings.kinetiCycleTime ) + "\n";
+	configurationSaveFile << str( settings.kineticCycleTime ) + "\n";
 	// accumulation cycle time
-	configurationSaveFile << std::to_string( settings.accumulationTime ) + "\n";
+	configurationSaveFile << str( settings.accumulationTime ) + "\n";
 	// accumulation #
-	configurationSaveFile << std::to_string( settings.accumulationNumber) + "\n";
+	configurationSaveFile << str( settings.accumulationNumber) + "\n";
 	// plotting frequency
-	///configurationSaveFile << std::to_string(ePlottingFrequency) + "\n";
+	///configurationSaveFile << str(ePlottingFrequency) + "\n";
 	// atom threshold
 	///for (int thresholdInc = 0; thresholdInc < ePictureOptionsControl.getThresholds().size(); thresholdInc++)
 	///{
-	///	configurationSaveFile << std::to_string(ePictureOptionsControl.getThresholds()[thresholdInc]) + "\n";
+	///	configurationSaveFile << str(ePictureOptionsControl.getThresholds()[thresholdInc]) + "\n";
 	///}
 	// temperature
-	configurationSaveFile << std::to_string( settings.temperatureSetting ) + "\n";
+	configurationSaveFile << str( settings.temperatureSetting ) + "\n";
 	// slider positions
 	///for (int sliderInc = 0; sliderInc < eCurrentMaximumPictureCount.size(); sliderInc++)
 	///{
-	///	configurationSaveFile << std::to_string(eCurrentMaximumPictureCount[sliderInc]) + "\n";
-	///	configurationSaveFile << std::to_string(eCurrentMinimumPictureCount[sliderInc]) + "\n";
+	///	configurationSaveFile << str(eCurrentMaximumPictureCount[sliderInc]) + "\n";
+	///	configurationSaveFile << str(eCurrentMinimumPictureCount[sliderInc]) + "\n";
 	///}
 
 	///int count = SendMessage(eCurrentPlotsCombo.hwnd, CB_GETCOUNT, 0, 0);
-	///configurationSaveFile << std::to_string(count) + "\n";
+	///configurationSaveFile << str(count) + "\n";
 	///for (int plotInc = 0; plotInc < count; plotInc++)
 	///{
 	///	TCHAR text[256];
@@ -374,7 +373,7 @@ void CameraConfigurationSystem::deleteConfiguration()
 		int result = DeleteFile( (FILE_SYSTEM_PATH + configurationName + ".cConfig").c_str() );
 		if (!result)
 		{
-			thrower( "ERROR: Couldn't delete configuration File. Error code: " + std::to_string( GetLastError() ) + ". Talk to Mark or try to delete it "
+			thrower( "ERROR: Couldn't delete configuration File. Error code: " + str( GetLastError() ) + ". Talk to Mark or try to delete it "
 					 "yourself from the appropriate folder in explorer." );
 		}
 		configurationName = "";
@@ -442,11 +441,11 @@ std::vector<std::string> CameraConfigurationSystem::searchForFiles( std::string 
 	HANDLE hFind;
 	if (extensions == "*")
 	{
-		hFind = FindFirstFileEx( search_path.c_str(), FindExInfoStandard, &fd, FindExSearchLimitToDirectories, NULL, 0 );
+		hFind = FindFirstFileEx( cstr(search_path), FindExInfoStandard, &fd, FindExSearchLimitToDirectories, NULL, 0 );
 	}
 	else
 	{
-		hFind = FindFirstFile( search_path.c_str(), &fd );
+		hFind = FindFirstFile( cstr(search_path), &fd );
 	}
 	if (hFind != INVALID_HANDLE_VALUE)
 	{

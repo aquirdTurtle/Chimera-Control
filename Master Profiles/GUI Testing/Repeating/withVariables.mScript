@@ -1,9 +1,0 @@
-t = 0
-repeat: globalVariableTest
-    t += 1000
-    on: A1
-    t += 10
-    off: A1
-    dac: Dac1 1
-end
-

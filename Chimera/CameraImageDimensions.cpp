@@ -2,9 +2,6 @@
 
 #include "stdafx.h"
 #include "CameraImageDimensions.h"
-#include "externals.h"
-#include "constants.h"
-#include "reorganizeControl.h"
 #include "CameraWindow.h"
 #include "CameraSettingsControl.h"
 
@@ -155,7 +152,7 @@ imageParameters CameraImageDimensionsControl::readImageParameters( CameraWindow*
 	leftEdit.GetWindowTextA( tempStr );
 	try
 	{
-		currentImageParameters.leftBorder = std::stoi( std::string( tempStr ) );
+		currentImageParameters.leftBorder = std::stoi( str( tempStr ) );
 	}
 	catch (std::invalid_argument&)
 	{
@@ -166,7 +163,7 @@ imageParameters CameraImageDimensionsControl::readImageParameters( CameraWindow*
 	rightEdit.GetWindowTextA( tempStr );
 	try
 	{
-		currentImageParameters.rightBorder = std::stoi( std::string( tempStr ) );
+		currentImageParameters.rightBorder = std::stoi( str( tempStr ) );
 	}
 	catch (std::invalid_argument&)
 	{
@@ -178,7 +175,7 @@ imageParameters CameraImageDimensionsControl::readImageParameters( CameraWindow*
 	topEdit.GetWindowTextA( tempStr );
 	try
 	{
-		currentImageParameters.topBorder = std::stoi( std::string( tempStr ) );
+		currentImageParameters.topBorder = std::stoi( str( tempStr ) );
 	}
 	catch (std::invalid_argument&)
 	{
@@ -190,7 +187,7 @@ imageParameters CameraImageDimensionsControl::readImageParameters( CameraWindow*
 	bottomEdit.GetWindowTextA( tempStr );
 	try
 	{
-		currentImageParameters.bottomBorder = std::stoi( std::string( tempStr ) );
+		currentImageParameters.bottomBorder = std::stoi( str( tempStr ) );
 	}
 	catch (std::invalid_argument&)
 	{
@@ -201,7 +198,7 @@ imageParameters CameraImageDimensionsControl::readImageParameters( CameraWindow*
 	horizontalBinningEdit.GetWindowTextA( tempStr );
 	try
 	{
-		currentImageParameters.horizontalBinning = std::stoi( std::string( tempStr ) );
+		currentImageParameters.horizontalBinning = std::stoi( str( tempStr ) );
 	}
 	catch (std::invalid_argument&)
 	{
@@ -212,7 +209,7 @@ imageParameters CameraImageDimensionsControl::readImageParameters( CameraWindow*
 	verticalBinningEdit.GetWindowTextA( tempStr );
 	try
 	{
-		currentImageParameters.verticalBinning = std::stoi( std::string( tempStr ) );
+		currentImageParameters.verticalBinning = std::stoi( str( tempStr ) );
 	}
 	catch (std::invalid_argument&)
 	{
@@ -330,17 +327,17 @@ void CameraImageDimensionsControl::setImageParametersFromInput( imageParameters 
 	//eDataExists = false;
 	// set all of the image parameters
 	currentImageParameters.leftBorder = param.leftBorder;
-	leftEdit.SetWindowText( std::to_string( currentImageParameters.leftBorder ).c_str() );
+	leftEdit.SetWindowText( cstr( currentImageParameters.leftBorder ) );
 	currentImageParameters.rightBorder = param.rightBorder;
-	rightEdit.SetWindowText( std::to_string( currentImageParameters.rightBorder ).c_str() );
+	rightEdit.SetWindowText( cstr( currentImageParameters.rightBorder ) );
 	currentImageParameters.topBorder = param.topBorder;
-	topEdit.SetWindowText( std::to_string( currentImageParameters.topBorder ).c_str() );
+	topEdit.SetWindowText( cstr( currentImageParameters.topBorder ) );
 	currentImageParameters.bottomBorder = param.bottomBorder;
-	bottomEdit.SetWindowText( std::to_string( currentImageParameters.bottomBorder ).c_str() );
+	bottomEdit.SetWindowText( cstr( currentImageParameters.bottomBorder ) );
 	currentImageParameters.horizontalBinning = param.horizontalBinning;
-	horizontalBinningEdit.SetWindowText( std::to_string( currentImageParameters.horizontalBinning ).c_str() );
+	horizontalBinningEdit.SetWindowText( cstr( currentImageParameters.horizontalBinning ) );
 	currentImageParameters.verticalBinning = param.verticalBinning;
-	verticalBinningEdit.SetWindowText( std::to_string( currentImageParameters.verticalBinning ).c_str() );
+	verticalBinningEdit.SetWindowText( cstr( currentImageParameters.verticalBinning ) );
 	// reset this. There must be at least one pixel...
 	/*
 	eCurrentlySelectedPixel.first = 0;
@@ -482,7 +479,7 @@ HBRUSH CameraImageDimensionsControl::colorEdits( HWND window, UINT message, WPAR
 		int bottom;
 		try
 		{
-			bottom = std::stoi( std::string( textEdit ) );
+			bottom = std::stoi( str( textEdit ) );
 			if (bottom == currentImageParameters.bottomBorder)
 			{
 				// good.
@@ -520,7 +517,7 @@ HBRUSH CameraImageDimensionsControl::colorEdits( HWND window, UINT message, WPAR
 		int top;
 		try
 		{
-			top = std::stoi( std::string( textEdit ) );
+			top = std::stoi( str( textEdit ) );
 			if (top == currentImageParameters.topBorder)
 			{
 				// good.
@@ -558,7 +555,7 @@ HBRUSH CameraImageDimensionsControl::colorEdits( HWND window, UINT message, WPAR
 		int verticalBin;
 		try
 		{
-			verticalBin = std::stoi( std::string( textEdit ) );
+			verticalBin = std::stoi( str( textEdit ) );
 			if (verticalBin == currentImageParameters.verticalBinning)
 			{
 				// good.
@@ -596,7 +593,7 @@ HBRUSH CameraImageDimensionsControl::colorEdits( HWND window, UINT message, WPAR
 		int leftSide;
 		try
 		{
-			leftSide = std::stoi( std::string( textEdit ) );
+			leftSide = std::stoi( str( textEdit ) );
 			if (leftSide == currentImageParameters.leftBorder)
 			{
 				// good.
@@ -612,7 +609,7 @@ HBRUSH CameraImageDimensionsControl::colorEdits( HWND window, UINT message, WPAR
 			}
 			else
 			{
-				//appendText(std::to_string(leftSide) + ", " + std::to_string(currentImageParameters.leftBorder), IDC_ERROR_EDIT);
+				//appendText(str(leftSide) + ", " + str(currentImageParameters.leftBorder), IDC_ERROR_EDIT);
 			}
 		}
 		catch (std::exception&)
@@ -638,7 +635,7 @@ HBRUSH CameraImageDimensionsControl::colorEdits( HWND window, UINT message, WPAR
 		int rightSide;
 		try
 		{
-			rightSide = std::stoi( std::string( textEdit ) );
+			rightSide = std::stoi( str( textEdit ) );
 			if (rightSide == currentImageParameters.rightBorder)
 			{
 				// good.
@@ -676,7 +673,7 @@ HBRUSH CameraImageDimensionsControl::colorEdits( HWND window, UINT message, WPAR
 		int horizontalBin;
 		try
 		{
-			horizontalBin = std::stoi( std::string( textEdit ) );
+			horizontalBin = std::stoi( str( textEdit ) );
 			if (horizontalBin == currentImageParameters.horizontalBinning)
 			{
 				// good.

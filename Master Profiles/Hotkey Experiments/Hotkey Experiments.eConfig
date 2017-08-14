@@ -1,4 +1,0 @@
-Version: 1.0
-These experiments are special! The code knows exactly where various configurations are in this experiment folder, and knows to run those specific configurations when hotkeys are pressed (e.g. F1 for MOT). Don't change names of anything here unless you know how to change it in the code! (which isn't that hard, but still).
-
-END EXPERIMENT NOTES

@@ -1,4 +1,75 @@
 #include "stdafx.h"
+#include <boost/algorithm/string/replace.hpp>
+
+#include "NiawgController.h"
+#include "MasterManager.h"
+#include "NiawgWaiter.h"
+
+void NiawgController::programNiawg(MasterThreadInput* input, NiawgOutputInfo& output, NiawgWaiter& waiter, 
+									std::string& warnings, UINT variation, UINT totalVariations, 
+									std::vector<long>& variedMixedSize, std::vector<ViChar>& userScriptSubmit)
+{
+	input->niawg->handleVariations( output, input->key->getKey(), variation, variedMixedSize, warnings,
+									input->debugOptions, totalVariations );
+	// If running the default script, stop the default script so that a moment later, when the program 
+	// checks if the output is done, the output will be done.
+	if ((input->niawg->getCurrentScript() == "Default" + AXES_NAMES[Horizontal] + "ConfigScript"
+		  || input->niawg->getCurrentScript() == "Default" + AXES_NAMES[Vertical] + "ConfigScript")
+		 && !input->dontActuallyGenerate)
+	{
+		input->niawg->turnOff();
+	}
+	// wait until the niawg has finished outputting previous variation.
+	waiter.wait( input->comm );
+
+	if (input->dontActuallyGenerate) { return; }
+	// Restart Waveform
+	input->niawg->turnOff();
+	input->niawg->programVariations( variation, variedMixedSize, output );
+	input->niawg->writeScript( userScriptSubmit );
+	input->niawg->setViStringAttribute( NIFGEN_ATTR_SCRIPT_TO_GENERATE, "experimentScript" );
+	// initiate generation before telling the master. this is because scripts are supposed to be designed to sit on an 
+	// initial waveform until the master sends it a trigger.
+	input->niawg->turnOn();
+	waiter.startWaitThread( input );
+	for (int waveInc = 2; waveInc < output.waveCount; waveInc++)
+	{
+		output.waves[waveInc].waveVals.clear();
+		output.waves[waveInc].waveVals.shrink_to_fit();
+	}
+	variedMixedSize.clear();
+
+}
+
+// analyzes all niawg scripts and prepares the output structure.
+void NiawgController::prepareNiawg(MasterThreadInput* input, NiawgOutputInfo& output, niawgPair<std::vector<std::fstream>>& niawgFiles,
+				   std::string& warnings, std::vector<ViChar>& userScriptSubmit )
+{
+	std::vector<std::string> workingUserScripts( input->profile.sequenceConfigNames.size() );
+	// analyze each script in sequence.s
+	for (int sequenceInc = 0; sequenceInc < workingUserScripts.size(); sequenceInc++)
+	{
+		niawgPair<ScriptStream> scripts;
+		output.niawgLanguageScript = "";
+		input->comm->sendStatus( "Working with configuraiton # " + str( sequenceInc + 1 ) + " in Sequence...\r\n" );
+		/// Create Script and Write Waveforms ////////////////////////////////////////////////////////////////////
+		scripts[Vertical] << niawgFiles[Vertical][sequenceInc].rdbuf();
+		scripts[Horizontal] << niawgFiles[Horizontal][sequenceInc].rdbuf();
+		input->niawg->analyzeNiawgScripts( scripts, output, input->profile, input->debugOptions, warnings );
+		workingUserScripts[sequenceInc] = output.niawgLanguageScript;
+
+		if (input->thisObj->getAbortStatus()) { thrower( "\r\nABORTED!\r\n" ); }
+	}
+	input->comm->sendStatus( "Constant Waveform Preparation Completed...\r\n" );
+	input->niawg->finalizeScript( input->repetitionNumber, "experimentScript", workingUserScripts, userScriptSubmit );
+	if (input->debugOptions.outputNiawgMachineScript)
+	{
+		input->comm->sendDebug( boost::replace_all_copy( "NIAWG Machine Script:\n"
+														 + std::string( userScriptSubmit.begin(), userScriptSubmit.end() )
+														 + "end Script\n\n", "\n", "\r\n" ) );
+	}
+}
+
 
 bool NiawgController::isRunning()
 {
@@ -10,6 +81,13 @@ void NiawgController::setRunningState( bool newRunningState )
 {
 	runningState = newRunningState;
 }
+
+
+std::string NiawgController::getCurrentScript()
+{
+	return currentScriptName;
+}
+
 
 void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 {
@@ -23,16 +101,18 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 	defaultMixedWaveforms[Horizontal].shrink_to_fit();
 	// counts the number of predefined waveforms that have been handled or defined.
 	int predWaveformCount = 0;
-	// Socket object for communicating with the other computer.
-	CSocket* socket = mainWin->getSocket();
 	// A vector which stores the number of values that a given variable will take through an experiment.
 	std::vector<std::size_t> length;
 	// first level is for different configurations, second is for horizontal or vertical file within a configuration.
 	niawgPair<niawgPair<std::vector<std::fstream>>> configFiles;
-	configFiles[Horizontal][Horizontal].push_back( std::fstream( str(DEFAULT_SCRIPT_FOLDER_PATH) + "DEFAULT_HCONFIG_HORIZONTAL_SCRIPT.nScript" ) );
-	configFiles[Horizontal][Vertical].push_back( std::fstream( str(DEFAULT_SCRIPT_FOLDER_PATH) + "DEFAULT_HCONFIG_VERTICAL_SCRIPT.nScript" ) );
-	configFiles[Vertical][Horizontal].push_back( std::fstream( str(DEFAULT_SCRIPT_FOLDER_PATH) + "DEFAULT_VCONFIG_HORIZONTAL_SCRIPT.nScript" ) );
-	configFiles[Vertical][Vertical].push_back( std::fstream( str(DEFAULT_SCRIPT_FOLDER_PATH) + "DEFAULT_VCONFIG_VERTICAL_SCRIPT.nScript" ) );
+	configFiles[Horizontal][Horizontal].push_back( std::fstream( str(DEFAULT_SCRIPT_FOLDER_PATH) 
+																 + "DEFAULT_HCONFIG_HORIZONTAL_SCRIPT.nScript" ) );
+	configFiles[Horizontal][Vertical].push_back( std::fstream( str(DEFAULT_SCRIPT_FOLDER_PATH) 
+															   + "DEFAULT_HCONFIG_VERTICAL_SCRIPT.nScript" ) );
+	configFiles[Vertical][Horizontal].push_back( std::fstream( str(DEFAULT_SCRIPT_FOLDER_PATH) 
+															   + "DEFAULT_VCONFIG_HORIZONTAL_SCRIPT.nScript" ) );
+	configFiles[Vertical][Vertical].push_back( std::fstream( str(DEFAULT_SCRIPT_FOLDER_PATH) 
+															 + "DEFAULT_VCONFIG_VERTICAL_SCRIPT.nScript" ) );
 	// check errors
 	for (auto configAxis : AXES)
 	{
@@ -44,14 +124,13 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 			}
 		}
 	}
-	outputInfo output;
+	NiawgOutputInfo output;
 	output.waveCount = 0;
 	output.predefinedWaveCount = 0;
 	output.isDefault = true;
 	///					Load Default Waveforms
 	debugInfo debug;
 	debug.outputAgilentScript = false;
-	std::vector<variable> noSingletons;
 	std::string warnings;
 	profileSettings profile;
 	try
@@ -64,7 +143,7 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 			scripts[Vertical] << configFiles[configAxis][Vertical].back().rdbuf();
 			profile.orientation = ORIENTATION[configAxis];
 			mainWin->setOrientation( ORIENTATION[configAxis] );
-			analyzeNiawgScripts( scripts, output, profile, noSingletons, debug, warnings );
+			analyzeNiawgScripts( scripts, output, profile, debug, warnings );
 			// the script file must end with "end script".
 			output.niawgLanguageScript += "end Script";
 			// Convert script string to ViConstString. +1 for a null character on the end.
@@ -150,20 +229,44 @@ void NiawgController::restartDefault()
 		{
 			if (defaultOrientation == ORIENTATION[axis])
 			{
-				allocateNamedWaveform( defaultWaveNames[axis].c_str(), defaultMixedWaveforms[axis].size() / 2 );
-				writeNamedWaveform( defaultWaveNames[axis].c_str(), defaultMixedWaveforms[axis].size(), defaultMixedWaveforms[axis].data() );
+				allocateNamedWaveform( cstr(defaultWaveNames[axis]), defaultMixedWaveforms[axis].size() / 2 );
+				writeNamedWaveform( cstr(defaultWaveNames[axis]), defaultMixedWaveforms[axis].size(), 
+								   defaultMixedWaveforms[axis].data() );
 				writeScript(defaultScripts[axis]);
-				eCurrentScript = "Default" + AXES_NAMES[axis] + "ConfigScript";
+				currentScriptName = "Default" + AXES_NAMES[axis] + "ConfigScript";
 			}
 		}
 		configureOutputEnabled( VI_TRUE );
-		setAttributeViString( NIFGEN_ATTR_SCRIPT_TO_GENERATE, ViString(eCurrentScript.c_str()) );
+		setAttributeViString( NIFGEN_ATTR_SCRIPT_TO_GENERATE, ViString(cstr(currentScriptName)) );
 		initiateGeneration();
 	}
 	catch (Error& except)
 	{
 		thrower( "WARNING! The NIAWG encountered an error and was not able to restart smoothly. It is (probably) not outputting anything. You may "
 				 "consider restarting the code. Inside the restart area, NIAWG function returned " + except.whatStr() );
+	}
+}
+
+
+void NiawgController::programVariations(UINT variation, std::vector<long>& variedMixedSize, NiawgOutputInfo& output)
+{
+	int mixedWriteCount = 0;
+	// skip defaults so start at 2.
+	for (int waveInc = 2; waveInc < output.waveCount; waveInc++)
+	{
+		std::string variedWaveformName = "Waveform" + str(waveInc);
+		if (output.waves[waveInc].varies)
+		{
+			if (variation != 0)
+			{
+				deleteWaveform(cstr(variedWaveformName));
+			}
+			// And write the new one.
+			allocateNamedWaveform(cstr(variedWaveformName), variedMixedSize[mixedWriteCount] / 2);
+			writeNamedWaveform(cstr(variedWaveformName), variedMixedSize[mixedWriteCount], 
+							   output.waves[waveInc].waveVals.data());
+			mixedWriteCount++;
+		}
 	}
 }
 
@@ -179,8 +282,8 @@ void NiawgController::setDefaultOrientation( std::string orientation )
   * them, write the script as it goes, and eventually combine the x and y-waveforms into their final form for being sent to the waveform 
   * generator.
   */
-void NiawgController::analyzeNiawgScripts( niawgPair<ScriptStream>& scripts, outputInfo& output, profileSettings profile, 
-										   std::vector<variable> singletons, debugInfo& options, std::string& warnings )
+void NiawgController::analyzeNiawgScripts( niawgPair<ScriptStream>& scripts, NiawgOutputInfo& output, profileSettings profile, 
+										   debugInfo& options, std::string& warnings )
 {
 	/// Preparation
 	for (auto& axis : AXES)
@@ -214,15 +317,15 @@ void NiawgController::analyzeNiawgScripts( niawgPair<ScriptStream>& scripts, out
 		}
 		else if (isSpecialCommand( command[Horizontal] ) && isSpecialCommand( command[Vertical] ))
 		{
-			handleSpecial( scripts, output, command, profile, singletons, options, warnings );
+			handleSpecial( scripts, output, command, profile, options, warnings );
 		}
 		else if (isStandardWaveform( command[Horizontal] ) && isStandardWaveform( command[Vertical] ))
 		{
-			handleStandardWaveform( output, profile, command, scripts, singletons, options );
+			handleStandardWaveform( output, profile, command, scripts, options );
 		}
 		else if (isSpecialWaveform( command[Horizontal] ) && isSpecialWaveform( command[Vertical] ))
 		{
-			handleSpecialWaveform( output, profile, command, scripts, singletons, options );
+			handleSpecialWaveform( output, profile, command, scripts, options );
 		}
 		else
 		{
@@ -249,21 +352,23 @@ void NiawgController::analyzeNiawgScripts( niawgPair<ScriptStream>& scripts, out
 
 
 /**/
-void NiawgController::handleVariations( outputInfo& output, std::vector<variable>& variables, std::vector<std::vector<double>> varValues,
-										size_t variation, std::vector<long> mixedWaveSizes, std::string& warnings, debugInfo& debugOptions )
+void NiawgController::handleVariations( NiawgOutputInfo& output, std::vector<variable>& variables, 
+									    std::vector<std::vector<double>> varValues, size_t variation, 
+									    std::vector<long> mixedWaveSizes, std::string& warnings, 
+									    debugInfo& debugOptions)
 {
 	int mixedCount = 0;
-	// I think waveInc = 0 & 1 are always the default.. should I be handling that at all??? shouldn't make a difference I don't think. 
+	// I think waveInc = 0 & 1 are always the default.. should I be handling that at all? shouldn't make a difference I don't think. 
 	for (int waveInc = 0; waveInc < output.waveCount; waveInc++)
 	{
 		if (output.waves[waveInc].varies)
 		{
-			for (std::size_t variableInc = 0; variableInc < variables.size(); variableInc++)
+			for (UINT variableInc = 0; variableInc < variables.size(); variableInc++)
 			{
 				if (output.waves[waveInc].isFlashing)
 				{
 					std::string currentVar = variables[variableInc].name, warnings;
-					for (unsigned int flashInc = 0; flashInc < output.waves[waveInc].flash.flashNumber; flashInc++)
+					for (UINT flashInc = 0; flashInc < output.waves[waveInc].flash.flashNumber; flashInc++)
 					{
 						for (auto axis : AXES)
 						{
@@ -305,7 +410,74 @@ void NiawgController::handleVariations( outputInfo& output, std::vector<variable
 			mixedCount++;
 		} // end if varies
 	}
+	checkThatWaveformsAreSensible(warnings, output);
 }
+
+
+/**/
+void NiawgController::handleVariations( NiawgOutputInfo& output, key varKey, const UINT variation, 
+										std::vector<long> mixedWaveSizes, std::string& warnings, 
+										debugInfo& debugOptions, UINT totalVariations )
+{
+	int mixedCount = 0;
+	// I think waveInc = 0 & 1 are always the default.. should I be handling that at all? shouldn't make a difference I don't think. 
+	for (int waveInc = 0; waveInc < output.waveCount; waveInc++)
+	{
+		if (output.waves[waveInc].varies)
+		{
+			// loop through variables
+			for (auto const& variable : varKey)
+			{
+				if (output.waves[waveInc].isFlashing)
+				{
+					std::string currentVar = variable.first, warnings;
+					for (
+						int flashInc = 0; flashInc < output.waves[waveInc].flash.flashNumber; flashInc++)
+					{
+						for (auto axis : AXES)
+						{
+							/// Loop for varibles in given Waveform
+							for (int varNumber = 0; varNumber < output.waves[waveInc].flash.flashWaves[flashInc].chan[axis].varNum; varNumber++)
+							{
+								if (output.waves[waveInc].chan[axis].varNames[varNumber] == currentVar)
+								{
+									waveInfo& currentWave = output.waves[waveInc].flash.flashWaves[flashInc];
+									// always.The flashing waves shouldn't really "know" anything about each other. I think that this is
+									// the most symmetric way to do this.
+									waveInfo& previousWave = output.waves[waveInc - 1];
+									varyParam( currentWave, previousWave, axis, currentWave.chan[axis].varTypes[varNumber],
+											   variable.second.first[variation], warnings );
+								}
+							}
+						}
+					}
+				}
+				else
+				{
+					std::string currentVar = variable.first, warnings;
+					for (auto axis : AXES)
+					{
+						/// Loop for varibles in given Waveform
+						for (int varNumber = 0; varNumber < output.waves[waveInc].chan[axis].varNum; varNumber++)
+						{
+							if (output.waves[waveInc].chan[axis].varNames[varNumber] == currentVar)
+							{
+								varyParam( output.waves[waveInc], output.waves[waveInc - 1], axis, 
+										   output.waves[waveInc].chan[axis].varTypes[varNumber],
+										   variable.second.first[variation], warnings );
+							}
+						}
+					}
+				}
+			}
+			finalizeStandardWave( output.waves[waveInc], debugOptions );
+			mixedWaveSizes.push_back( 2 * output.waves[waveInc].sampleNum );
+			mixedCount++;
+		} // end if varies
+	}
+	checkThatWaveformsAreSensible( warnings, output );
+}
+
 
 
 void NiawgController::getVariables( SocketWrapper& socket, std::vector<std::vector<double>>& varValues, std::vector<variable> variables )
@@ -394,7 +566,7 @@ void NiawgController::getVariables( SocketWrapper& socket, std::vector<std::vect
 	}
 
 	// check that variable files are the same length.
-	for (std::size_t varNameInc = 0; varNameInc + 1 < varValues.size(); varNameInc++)
+	for (UINT varNameInc = 0; varNameInc + 1 < varValues.size(); varNameInc++)
 	{
 		if (varValues[varNameInc].size() != varValues[varNameInc + 1].size())
 		{
@@ -539,13 +711,10 @@ void NiawgController::getStandardInputType( std::string inputType, channelWave &
 }
 
 
-/* * * *
+/**
  * loads the relevant parameters from the file into the wave information structure for a single channel. just loads them, more
  * analysis & checks done later.
- * */
-
-
-// load all values for waveLibrary.
+ */
 void NiawgController::openWaveformFiles()
 {
 	std::string tempStr;
@@ -554,23 +723,23 @@ void NiawgController::openWaveformFiles()
 	{
 		std::string folderPath = LIB_PATH + WAVEFORM_TYPE_FOLDERS[folderInc];
 		folderPath.resize( folderPath.size() - 1 );
-		DWORD ftyp = GetFileAttributesA( folderPath.c_str() );
+		DWORD ftyp = GetFileAttributesA( cstr(folderPath) );
 		if (ftyp == INVALID_FILE_ATTRIBUTES || !(ftyp & FILE_ATTRIBUTE_DIRECTORY))
 		{
 			// create directory
-			if (!CreateDirectory( (folderPath).c_str(), NULL ))
+			if (!CreateDirectory( cstr(folderPath), NULL ))
 			{
 				thrower( "ERROR: Error Creating directory for waveform library system. Error was windows error " + str( GetLastError()) + ", Path was " + folderPath);
 			}
 		}
 		// open the file. It's written in binary.
 		std::string libNameFilePath = LIB_PATH + WAVEFORM_TYPE_FOLDERS[folderInc] + WAVEFORM_NAME_FILES[folderInc];
-		libNameFile.open( libNameFilePath.c_str(), std::ios::binary | std::ios::in );
+		libNameFile.open( libNameFilePath, std::ios::binary | std::ios::in );
 		// Make sure that the file opened correctly.
 		if (!libNameFile.is_open())
 		{
 			// try creating a new file.
-			libNameFile.open( libNameFilePath.c_str(), std::ios::binary | std::ios::out );
+			libNameFile.open( libNameFilePath, std::ios::binary | std::ios::out );
 			if (!libNameFile.is_open())
 			{
 				thrower( "ERROR: waveform library file did not open correctly. Name was " + libNameFilePath );
@@ -599,16 +768,18 @@ void NiawgController::openWaveformFiles()
 
 
 /**
-* This important function takes in the input parameters and from those creates the waveform data array. It is inside this function that the waveform
-* "library" functionality is realized. The function checks a list of strings to see if the waveform has previously been generated, and if it has, it reads
-* the waveform data from a binary file. If it hasn't been created before, it writes a file containing all of the waveform data.
-* Appended to the end of the waveform data files is the final phase of each of the signals involved in the file. This must be stripped off of the voltage
-* data that populates the rest of the file as it's being read, and must be appended to the voltage data before it is written to a new file.
+* This important function takes in the input parameters and from those creates the waveform data array. It is inside 
+* this function that the waveform "library" functionality is realized. The function checks a list of strings to see if
+* the waveform has previously been generated, and if it has, it reads the waveform data from a binary file. If it 
+* hasn't been created before, it writes a file containing all of the waveform data. Appended to the end of the 
+* waveform data files is the final phase of each of the signals involved in the file. This must be stripped off of the 
+* voltage data that populates the rest of the file as it's being read, and must be appended to the voltage data before
+* it is written to a new file.
 */
 void NiawgController::generateWaveform( channelWave & waveInfo, debugInfo& options, long int sampleNum, double time)
 {
 	waveInfo.wave.resize( sampleNum );
-	unsigned long long time1, time2;
+	ULONGLONG time1, time2;
 	// the number of seconds
 	std::string waveformFileSpecs, waveformFileName;
 	std::ifstream waveformFileRead;
@@ -627,7 +798,7 @@ void NiawgController::generateWaveform( channelWave & waveInfo, debugInfo& optio
 	// Start timer
 	time1 = GetTickCount64();
 	/// Loop over all previously recorded files (these should have been filled by a previous call to openWaveformFiles()).
-	for ( unsigned int fileInc = 0; fileInc < waveLibrary[waveInfo.initType].size(); fileInc++ )
+	for ( UINT fileInc = 0; fileInc < waveLibrary[waveInfo.initType].size(); fileInc++ )
 	{
 		// if you find this waveform to have already been written...
 		if ( waveLibrary[waveInfo.initType][fileInc] == waveformFileSpecs )
@@ -661,7 +832,8 @@ void NiawgController::generateWaveform( channelWave & waveInfo, debugInfo& optio
 		}
 	}
 
-	/// if the code reaches this point, it could not find a file to read, and so will now create the data from scratch and write it. 
+	// if the code reaches this point, it could not find a file to read, and so will now create the data from scratch 
+	// and write it. 
 	waveformFileName = (LIB_PATH + WAVEFORM_TYPE_FOLDERS[waveInfo.initType] + str( waveInfo.initType ) + "_"
 						 + str( waveLibrary[waveInfo.initType].size() ) + ".txt");
 	// open file for writing.
@@ -676,11 +848,9 @@ void NiawgController::generateWaveform( channelWave & waveInfo, debugInfo& optio
 	else
 	{
 		// start timer.
-		unsigned long long time1 = GetTickCount64();
+		ULONGLONG time1 = GetTickCount64();
 		// calculate all voltage values and final phases and store them in the readData variable.
 		std::vector<ViReal64> readData( sampleNum + waveInfo.signals.size() );
-		// TODO: Remove
-		//ViReal64* readData = new ViReal64[sampleNum + singleChannelWave.signals.size()];
 		calcWaveData( waveInfo, readData, sampleNum, time );
 		// Write the data, with phases, to the write file.
 		waveformFileWrite.write( (const char *) readData.data(), (sampleNum + waveInfo.signals.size()) * sizeof( ViReal64 ) );
@@ -699,10 +869,10 @@ void NiawgController::generateWaveform( channelWave & waveInfo, debugInfo& optio
 			thrower("ERROR! waveform name file not opening correctly.\n");
 		}
 		// add the waveform name to the current list of strings. do it BEFORE adding the newline T.T
-		waveLibrary[waveInfo.initType].push_back( waveformFileSpecs.c_str() );
+		waveLibrary[waveInfo.initType].push_back( cstr(waveformFileSpecs));
 		// put a newline in front of the name so that all of the names don't get put on the same line.
 		waveformFileSpecs = "\n" + waveformFileSpecs;
-		libNameFile.write( (waveformFileSpecs).c_str(), waveformFileSpecs.size() );
+		libNameFile.write( cstr(waveformFileSpecs), waveformFileSpecs.size() );
 		libNameFile.close();
 		if ( options.showWriteProgress )
 		{
@@ -732,12 +902,12 @@ void NiawgController::handleLogic( niawgPair<ScriptStream>& scripts, niawgPair<s
 	if (input == "wait until trigger")
 	{
 		// Append command to script holder
-		scriptString += "wait until " + std::string( EXTERNAL_TRIGGER_NAME ) + "\n";
+		scriptString += "wait until " + str( EXTERNAL_TRIGGER_NAME ) + "\n";
 	}
 	else if (input == "wait until software trigger")
 	{
 		// Append command to script holder
-		scriptString += "wait until " + std::string( SOFTWARE_TRIGGER_NAME ) + "\n";
+		scriptString += "wait until " + str( SOFTWARE_TRIGGER_NAME ) + "\n";
 	}
 	else if (input == "wait set #")
 	{
@@ -790,11 +960,11 @@ void NiawgController::handleLogic( niawgPair<ScriptStream>& scripts, niawgPair<s
 	}
 	else if (input == "repeat until trigger")
 	{
-		scriptString += "repeat until " + std::string( EXTERNAL_TRIGGER_NAME ) + "\n";
+		scriptString += "repeat until " + str( EXTERNAL_TRIGGER_NAME ) + "\n";
 	}
 	else if (input == "repeat until software trigger")
 	{
-		scriptString += "repeat until " + std::string( SOFTWARE_TRIGGER_NAME ) + "\n";
+		scriptString += "repeat until " + str( SOFTWARE_TRIGGER_NAME ) + "\n";
 	}
 	else if (input == "repeat forever")
 	{
@@ -807,11 +977,11 @@ void NiawgController::handleLogic( niawgPair<ScriptStream>& scripts, niawgPair<s
 	// if-else Commands //
 	else if (input == "if trigger")
 	{
-		scriptString += "if " + std::string( EXTERNAL_TRIGGER_NAME ) + "\n";
+		scriptString += "if " + str( EXTERNAL_TRIGGER_NAME ) + "\n";
 	}
 	else if (input == "if software trigger")
 	{
-		scriptString += "if " + std::string( SOFTWARE_TRIGGER_NAME ) + "\n";
+		scriptString += "if " + str( SOFTWARE_TRIGGER_NAME ) + "\n";
 	}
 	else if (input == "else")
 	{
@@ -827,8 +997,8 @@ void NiawgController::handleLogic( niawgPair<ScriptStream>& scripts, niawgPair<s
 /**
 * This function handles the weird case commands, like ones that reference other waveforms or scripts. They are the special cases.
 */
-void NiawgController::handleSpecial( niawgPair<ScriptStream>& scripts, outputInfo& output, niawgPair<std::string> inputTypes, 
-									 profileSettings profile, std::vector<variable> singletons, debugInfo& options, std::string& warnings )
+void NiawgController::handleSpecial( niawgPair<ScriptStream>& scripts, NiawgOutputInfo& output, niawgPair<std::string> inputTypes, 
+									 profileSettings profile, debugInfo& options, std::string& warnings )
 {
 	// declare some variables
 	// first level is file the name was found in, second level is the name inside that file.
@@ -877,7 +1047,7 @@ void NiawgController::handleSpecial( niawgPair<ScriptStream>& scripts, outputInf
 			externalScripts[axis] << externalScriptFiles[axis].rdbuf();
 		}
 
-		analyzeNiawgScripts( externalScripts, output, profile, singletons, options, warnings );
+		analyzeNiawgScripts( externalScripts, output, profile, options, warnings );
 	}
 	// work with marker events
 	else if (inputTypes[Vertical] == "create marker event")
@@ -952,7 +1122,7 @@ void NiawgController::handleSpecial( niawgPair<ScriptStream>& scripts, outputInf
 		}
 		// analyzeNiawgScripts here works in the same way as it does for longer scripts. The effect here is simply to read the one waveform into the same script 
 		// file.
-		analyzeNiawgScripts( externalWaveformStreams, output, profile, singletons, options, warnings );
+		analyzeNiawgScripts( externalWaveformStreams, output, profile, options, warnings );
 	}
 	else
 	{
@@ -979,8 +1149,7 @@ void NiawgController::calcWaveData(channelWave& inputData, std::vector<ViReal64>
 {
 	// Declarations
 	std::vector<double> powerPos, freqRampPos, phasePos(inputData.signals.size() );
-	std::vector<double*> powerRampFileData;
-	std::vector<double*> freqRampFileData;
+	std::vector<double*> powerRampFileData, freqRampFileData;
 	std::fstream powerRampFile, freqRampFile;
 	std::string tempStr;
 
@@ -1010,7 +1179,6 @@ void NiawgController::calcWaveData(channelWave& inputData, std::vector<ViReal64>
 				// error message for bad size (powerRampFile.eof() reached too early or too late).
 				if (powerValNumber != sampleNum + 1)
 				{
-					
 					thrower( "ERROR: file not the correct size?\nSize of upload is " + str( powerValNumber ) 
 							 + "; size of file is " + str( sampleNum ));
 				}
@@ -1019,8 +1187,8 @@ void NiawgController::calcWaveData(channelWave& inputData, std::vector<ViReal64>
 			}
 			else
 			{
-				thrower("ERROR: ramp type " + std::string(inputData.signals[signal].powerRampType)
-						+ " is unrecognized. If this is a file name, make sure the file exists and is in the project folder. ");
+				thrower("ERROR: ramp type " + str(inputData.signals[signal].powerRampType) + " is unrecognized. If "
+						"this is a file name, make sure the file exists and is in the project folder. ");
 			}
 		}
 		// If the ramp type isn't a standard command...
@@ -1121,8 +1289,9 @@ void NiawgController::calcWaveData(channelWave& inputData, std::vector<ViReal64>
 			else
 			{
 				// use the ramp calc function to find the current power.
-				powerPos[signal] = myMath::rampCalc( sampleNum, sample, inputData.signals[signal].initPower, inputData.signals[signal].finPower,
-													 inputData.signals[signal].powerRampType );
+				powerPos[signal] = NiawgController::rampCalc( sampleNum, sample, inputData.signals[signal].initPower,
+															  inputData.signals[signal].finPower, 
+															  inputData.signals[signal].powerRampType );
 			}
 		}
 
@@ -1243,8 +1412,8 @@ bool NiawgController::isLogic(std::string command)
 /*
  * loads data from file, does various checks on it, interprets input for variations.
  */
-void NiawgController::loadWaveformParameters( outputInfo& output, profileSettings profile, niawgPair<std::string> command, debugInfo& debug, 
-											  niawgPair<ScriptStream>& scripts, std::vector<variable> singletons)
+void NiawgController::loadWaveformParameters( NiawgOutputInfo& output, profileSettings profile, niawgPair<std::string> command, debugInfo& debug,
+											  niawgPair<ScriptStream>& scripts )
 {
 	waveInfo wave;
 	// not sure why I have this limitation built in.
@@ -1259,55 +1428,50 @@ void NiawgController::loadWaveformParameters( outputInfo& output, profileSetting
 	{
 		// Get a number corresponding directly to the given input type.
 		getStandardInputType( command[axis], wave.chan[axis] );
-		// Gather the parameters the user inputted for the waveforms and sort them into the appropriate data structures.
-		//getWaveRawParameters( scripts[axis], waveParams.channel[axis], singletons, time[axis]);
-
-		///
-
 		// Initialize the variable counter inside the wave struct to zero:
 		wave.chan[axis].varNum = 0;
 		// infer the number of signals from the type assigned.
 		if (wave.chan[axis].initType % MAX_NIAWG_SIGNALS == 0)
 		{
-			wave.chan[axis].signals.resize(MAX_NIAWG_SIGNALS);
+			wave.chan[axis].signals.resize( MAX_NIAWG_SIGNALS );
 		}
 		else
 		{
-			wave.chan[axis].signals.resize(wave.chan[axis].initType % MAX_NIAWG_SIGNALS);
+			wave.chan[axis].signals.resize( wave.chan[axis].initType % MAX_NIAWG_SIGNALS );
 		}
 
 		for (int signal = 0; signal < wave.chan[axis].signals.size(); signal++)
 		{
-			switch ((wave.chan[axis].initType-1) / MAX_NIAWG_SIGNALS)
+			switch ((wave.chan[axis].initType - 1) / MAX_NIAWG_SIGNALS)
 			{
 				/// the case for "gen ?, const"
 				case 0:
 				{
 					// set the initial and final values to be equal, and to not use a ramp, unless variable present.
-					loadParam<double>( wave.chan[axis].signals[signal].freqInit, scripts[axis], wave.chan[axis].varNum, wave.chan[axis].varNames, 
-							   wave.chan[axis].varTypes, { 5 * signal + 1, 5 * signal + 2 }, singletons );
-					// Scale the frequencies to be in hertz. (input is MHz)
+					loadParam<double>( wave.chan[axis].signals[signal].freqInit, scripts[axis], wave.chan[axis].varNum,
+									   wave.chan[axis].varNames, wave.chan[axis].varTypes, { 5 * signal + 1, 5 * signal + 2 } );
+							// Scale the frequencies to be in hertz. (input is MHz)
 					wave.chan[axis].signals[signal].freqInit *= 1000000.;
 					wave.chan[axis].signals[signal].freqFin = wave.chan[axis].signals[signal].freqInit;
 					// Can't be varied for this case type
 					wave.chan[axis].signals[signal].freqRampType = "nr";
 					// set the initial and final values to be equal, and to not use a ramp, unless variable present.
-					loadParam<double>( wave.chan[axis].signals[signal].initPower, scripts[axis], wave.chan[axis].varNum, wave.chan[axis].varNames,
-							   wave.chan[axis].varTypes, { 5 * signal + 3, 5 * signal + 4 }, singletons );
+					loadParam<double>( wave.chan[axis].signals[signal].initPower, scripts[axis], wave.chan[axis].varNum, 
+									   wave.chan[axis].varNames, wave.chan[axis].varTypes, { 5 * signal + 3, 5 * signal + 4 } );
 					wave.chan[axis].signals[signal].finPower = wave.chan[axis].signals[signal].initPower;
 					// Can't be varied
 					wave.chan[axis].signals[signal].powerRampType = "nr";
 					// Get phase, unless varied.
-					loadParam<double>( wave.chan[axis].signals[signal].initPhase, scripts[axis], wave.chan[axis].varNum, wave.chan[axis].varNames,
-							   wave.chan[axis].varTypes, { 5 * signal + 5 }, singletons );
+					loadParam<double>( wave.chan[axis].signals[signal].initPhase, scripts[axis], wave.chan[axis].varNum,
+									   wave.chan[axis].varNames, wave.chan[axis].varTypes, { 5 * signal + 5 } );
 					break;
 				}
 				/// The case for "gen ?, amp ramp"
 				case 1:
 				{
 					// set the initial and final values to be equal, and to not use a ramp.
-					loadParam<double>( wave.chan[axis].signals[signal].freqInit, scripts[axis], wave.chan[axis].varNum, wave.chan[axis].varNames,
-							   wave.chan[axis].varTypes, { 5 * signal + 1, 5 * signal + 2 }, singletons );
+					loadParam<double>( wave.chan[axis].signals[signal].freqInit, scripts[axis], wave.chan[axis].varNum, 
+									   wave.chan[axis].varNames, wave.chan[axis].varTypes, { 5 * signal + 1, 5 * signal + 2 } );
 					// Scale the frequencies to be in hertz.(input is MHz)
 					wave.chan[axis].signals[signal].freqInit *= 1000000.;
 					wave.chan[axis].signals[signal].freqFin = wave.chan[axis].signals[signal].freqInit;
@@ -1316,12 +1480,12 @@ void NiawgController::loadWaveformParameters( outputInfo& output, profileSetting
 					std::string tempStr;
 					scripts[axis] >> tempStr;
 					wave.chan[axis].signals[signal].powerRampType = tempStr;
-					loadParam<double>( wave.chan[axis].signals[signal].initPower, scripts[axis], wave.chan[axis].varNum, wave.chan[axis].varNames,
-							   wave.chan[axis].varTypes, { 5 * signal + 3 }, singletons );
-					loadParam<double>( wave.chan[axis].signals[signal].finPower, scripts[axis], wave.chan[axis].varNum, wave.chan[axis].varNames,
-							   wave.chan[axis].varTypes, { 5 * signal + 4 }, singletons );
-					loadParam<double>( wave.chan[axis].signals[signal].initPhase, scripts[axis], wave.chan[axis].varNum, wave.chan[axis].varNames,
-							   wave.chan[axis].varTypes, { 5 * signal + 5 }, singletons );
+					loadParam<double>( wave.chan[axis].signals[signal].initPower, scripts[axis], wave.chan[axis].varNum,
+									   wave.chan[axis].varNames, wave.chan[axis].varTypes, { 5 * signal + 3 } );
+					loadParam<double>( wave.chan[axis].signals[signal].finPower, scripts[axis], wave.chan[axis].varNum, 
+									   wave.chan[axis].varNames, wave.chan[axis].varTypes, { 5 * signal + 4 } );
+					loadParam<double>( wave.chan[axis].signals[signal].initPhase, scripts[axis], wave.chan[axis].varNum, 
+									   wave.chan[axis].varNames, wave.chan[axis].varTypes, { 5 * signal + 5 } );
 					break;
 				}
 				/// The case for "gen ?, freq ramp"
@@ -1332,20 +1496,20 @@ void NiawgController::loadWaveformParameters( outputInfo& output, profileSetting
 					scripts[axis] >> tempStr;
 					std::transform( tempStr.begin(), tempStr.end(), tempStr.begin(), tolower );
 					wave.chan[axis].signals[signal].freqRampType = tempStr;
-					loadParam<double>( wave.chan[axis].signals[signal].freqInit, scripts[axis], wave.chan[axis].varNum, wave.chan[axis].varNames,
-							   wave.chan[axis].varTypes, { 5 * signal + 1 }, singletons );
-					loadParam<double>( wave.chan[axis].signals[signal].freqFin, scripts[axis], wave.chan[axis].varNum, wave.chan[axis].varNames,
-							   wave.chan[axis].varTypes, { 5 * signal + 2 }, singletons );
-					// Scale the frequencies to be in hertz.(input is MHz)
+					loadParam<double>( wave.chan[axis].signals[signal].freqInit, scripts[axis], wave.chan[axis].varNum, 
+									   wave.chan[axis].varNames, wave.chan[axis].varTypes, { 5 * signal + 1 } );
+					loadParam<double>( wave.chan[axis].signals[signal].freqFin, scripts[axis], wave.chan[axis].varNum,
+									   wave.chan[axis].varNames, wave.chan[axis].varTypes, { 5 * signal + 2 } );
+							// Scale the frequencies to be in hertz.(input is MHz)
 					wave.chan[axis].signals[signal].freqInit *= 1000000.;
 					wave.chan[axis].signals[signal].freqFin *= 1000000.;
 					// set the initial and final values to be equal, and to not use a ramp.
-					loadParam<double>( wave.chan[axis].signals[signal].initPower, scripts[axis], wave.chan[axis].varNum, wave.chan[axis].varNames,
-							   wave.chan[axis].varTypes, { 5 * signal + 3, 5 * signal + 4 }, singletons );
+					loadParam<double>( wave.chan[axis].signals[signal].initPower, scripts[axis], wave.chan[axis].varNum, 
+									   wave.chan[axis].varNames, wave.chan[axis].varTypes, { 5 * signal + 3, 5 * signal + 4 });
 					wave.chan[axis].signals[signal].finPower = wave.chan[axis].signals[signal].initPower;
 					wave.chan[axis].signals[signal].powerRampType = "nr";
-					loadParam<double>( wave.chan[axis].signals[signal].initPhase, scripts[axis], wave.chan[axis].varNum, wave.chan[axis].varNames,
-							   wave.chan[axis].varTypes, { 5 * signal + 5 }, singletons );
+					loadParam<double>( wave.chan[axis].signals[signal].initPhase, scripts[axis], wave.chan[axis].varNum, 
+									   wave.chan[axis].varNames, wave.chan[axis].varTypes, { 5 * signal + 5 } );
 					break;
 				}
 				/// The case for "gen ?, freq & amp ramp"
@@ -1355,11 +1519,11 @@ void NiawgController::loadWaveformParameters( outputInfo& output, profileSetting
 					std::string tempStr;
 					scripts[axis] >> tempStr;
 					wave.chan[axis].signals[signal].freqRampType = tempStr;
-					loadParam<double>( wave.chan[axis].signals[signal].freqInit, scripts[axis], wave.chan[axis].varNum, wave.chan[axis].varNames,
-							   wave.chan[axis].varTypes, { 5 * signal + 1 }, singletons );
-					loadParam<double>( wave.chan[axis].signals[signal].freqFin, scripts[axis], wave.chan[axis].varNum, wave.chan[axis].varNames,
-							   wave.chan[axis].varTypes, { 5 * signal + 2 }, singletons );
-					// Scale the frequencies to be in hertz.(input is MHz)
+					loadParam<double>( wave.chan[axis].signals[signal].freqInit, scripts[axis], wave.chan[axis].varNum,
+									   wave.chan[axis].varNames, wave.chan[axis].varTypes, { 5 * signal + 1 } );
+					loadParam<double>( wave.chan[axis].signals[signal].freqFin, scripts[axis], wave.chan[axis].varNum,
+									   wave.chan[axis].varNames, wave.chan[axis].varTypes, { 5 * signal + 2 } );
+							// Scale the frequencies to be in hertz.(input is MHz)
 					wave.chan[axis].signals[signal].freqInit *= 1000000.;
 					wave.chan[axis].signals[signal].freqFin *= 1000000.;
 
@@ -1367,23 +1531,23 @@ void NiawgController::loadWaveformParameters( outputInfo& output, profileSetting
 					scripts[axis] >> tempStr;
 					std::transform( tempStr.begin(), tempStr.end(), tempStr.begin(), ::tolower );
 					wave.chan[axis].signals[signal].powerRampType = tempStr;
-					loadParam<double>( wave.chan[axis].signals[signal].initPower, scripts[axis], wave.chan[axis].varNum, wave.chan[axis].varNames,
-							   wave.chan[axis].varTypes, { 5 * signal + 3 }, singletons );
-					loadParam<double>( wave.chan[axis].signals[signal].finPower, scripts[axis], wave.chan[axis].varNum, wave.chan[axis].varNames,
-							   wave.chan[axis].varTypes, { 5 * signal + 4 }, singletons );
-					loadParam<double>( wave.chan[axis].signals[signal].initPhase, scripts[axis], wave.chan[axis].varNum, wave.chan[axis].varNames,
-							   wave.chan[axis].varTypes, { 5 * signal + 5 }, singletons );
+					loadParam<double>( wave.chan[axis].signals[signal].initPower, scripts[axis], wave.chan[axis].varNum,
+									   wave.chan[axis].varNames, wave.chan[axis].varTypes, { 5 * signal + 3 } );
+					loadParam<double>( wave.chan[axis].signals[signal].finPower, scripts[axis], wave.chan[axis].varNum, 
+									   wave.chan[axis].varNames, wave.chan[axis].varTypes, { 5 * signal + 4 } );
+					loadParam<double>( wave.chan[axis].signals[signal].initPhase, scripts[axis], wave.chan[axis].varNum,
+									   wave.chan[axis].varNames, wave.chan[axis].varTypes, { 5 * signal + 5 } );
 				}
 				break;
 			}
 		}
 		// get the common things.
-		loadParam<double>( time[axis], scripts[axis], wave.chan[axis].varNum, wave.chan[axis].varNames, wave.chan[axis].varTypes,
-		{ MAX_NIAWG_SIGNALS * 5 + 1 }, singletons );
+		loadParam<double>( time[axis], scripts[axis], wave.chan[axis].varNum, wave.chan[axis].varNames, 
+						   wave.chan[axis].varTypes, { MAX_NIAWG_SIGNALS * 5 + 1 } );
 		// Scale the time to be in seconds. (input is ms)
 		time[axis] *= 0.001;
-		loadParam<int>( wave.chan[axis].phaseOption, scripts[axis], wave.chan[axis].varNum, wave.chan[axis].varNames, wave.chan[axis].varTypes,
-				   { MAX_NIAWG_SIGNALS * 5 + 2 }, singletons );
+		loadParam<int>( wave.chan[axis].phaseOption, scripts[axis], wave.chan[axis].varNum, wave.chan[axis].varNames, 
+						wave.chan[axis].varTypes, { MAX_NIAWG_SIGNALS * 5 + 2 } );
 		scripts[axis] >> wave.chan[axis].delim;
 		///
 
@@ -1458,19 +1622,20 @@ void NiawgController::loadWaveformParameters( outputInfo& output, profileSetting
 
 
 // handles constant & ramping waveforms.
-void NiawgController::handleStandardWaveform( outputInfo& output, profileSettings profile, niawgPair<std::string> command,
-											  niawgPair<ScriptStream>& scripts, std::vector<variable> singletons, debugInfo& options )
+void NiawgController::handleStandardWaveform( NiawgOutputInfo& output, profileSettings profile, niawgPair<std::string> command,
+											  niawgPair<ScriptStream>& scripts, debugInfo& options )
 {
-	loadWaveformParameters( output, profile, command, options, scripts, singletons );
+	loadWaveformParameters( output, profile, command, options, scripts );
 	output.waves.back().name = "Waveform" + str( output.waveCount );
 	if (!output.waves.back().varies)
 	{
 		// prepare the waveforms/
 		finalizeStandardWave( output.waves.back(), options );
 		// allocate waveform into the device memory
-		allocateNamedWaveform( output.waves.back().name.c_str(), output.waves.back().waveVals.size() / 2 );
+		allocateNamedWaveform( cstr(output.waves.back().name), output.waves.back().waveVals.size() / 2 );
 		// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
-		writeNamedWaveform( output.waves.back().name.c_str(), output.waves.back().waveVals.size(), output.waves.back().waveVals.data() );
+		writeNamedWaveform( cstr(output.waves.back().name), output.waves.back().waveVals.size(), 
+						   output.waves.back().waveVals.data() );
 		// avoid memory leaks, but only if not default...
 		if (output.isDefault)
 		{
@@ -1498,7 +1663,7 @@ void NiawgController::handleStandardWaveform( outputInfo& output, profileSetting
 }
 
 
-void NiawgController::finalizeScript( unsigned long long repetitions, std::string name, std::vector<std::string> workingUserScripts, 
+void NiawgController::finalizeScript( ULONGLONG repetitions, std::string name, std::vector<std::string> workingUserScripts, 
 									  std::vector<ViChar>& userScriptSubmit )
 {
 	// format the script to send to the 5451 according to the accumulation number and based on the number of sequences.
@@ -1515,7 +1680,7 @@ void NiawgController::finalizeScript( unsigned long long repetitions, std::strin
 	else
 	{
 		// repeat the script once for every accumulation.
-		for (unsigned int accumCount = 0; accumCount < repetitions; accumCount++)
+		for (UINT accumCount = 0; accumCount < repetitions; accumCount++)
 		{
 			for (int sequenceInc = 0; sequenceInc < workingUserScripts.size(); sequenceInc++)
 			{
@@ -1533,8 +1698,8 @@ void NiawgController::finalizeScript( unsigned long long repetitions, std::strin
 
 // handle flashing and streaming. Future: handle rearranging. Perhaps in the future, handle phase-managed waveforms here too, but those
 // might go better in standard waveform handling, not sure.
-void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings profile, niawgPair<std::string> commands,
-											 niawgPair<ScriptStream>& scripts, std::vector<variable> singletons, debugInfo& options )
+void NiawgController::handleSpecialWaveform( NiawgOutputInfo& output, profileSettings profile, niawgPair<std::string> commands,
+											 niawgPair<ScriptStream>& scripts, debugInfo& options )
 {
 	if (commands[Horizontal] != commands[Vertical])
 	{
@@ -1619,7 +1784,7 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 		}
 
 		/// get waveforms to flash.
-		outputInfo flashingOutputInfo = output;
+		NiawgOutputInfo flashingOutputInfo = output;
 
 		for (size_t waveCount = 0; waveCount < flashingWave.flash.flashNumber; waveCount++)
 		{
@@ -1648,7 +1813,7 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 				thrower( "ERROR: detected command in flashing section that does not denote a standard waveform (e.g. a logic command or a "
 						 "pre-written system). This is not allowed!" );
 			}
-			loadWaveformParameters( flashingOutputInfo, profile, flashingWaveCommands, options, scripts, singletons );
+			loadWaveformParameters( flashingOutputInfo, profile, flashingWaveCommands, options, scripts );
 			// add the new wave in flashingOutputInfo to flashingInfo structure
 			flashingWave.flash.flashWaves.push_back( flashingOutputInfo.waves.back() );
 			// immediately kill the original waveforms here so as to reduce memory usage.
@@ -1696,9 +1861,9 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 			flashingWave.name = "Waveform" + str(output.waveCount);
 			output.waves.push_back(flashingWave);
 			// allocate waveform into the device memory
-			allocateNamedWaveform(output.waves.back().name.c_str(), long(output.waves.back().waveVals.size() / 2) );
+			allocateNamedWaveform(cstr(output.waves.back().name), long(output.waves.back().waveVals.size() / 2) );
 			// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
-			writeNamedWaveform(output.waves.back().name.c_str(), long(output.waves.back().waveVals.size()), output.waves.back().waveVals.data() );
+			writeNamedWaveform(cstr(output.waves.back().name), long(output.waves.back().waveVals.size()), output.waves.back().waveVals.data() );
 			// append script with the relevant command. This needs to be done even if variable waveforms are used, because I don't want to
 			// have to rewrite the script to insert the new waveform name into it.
 			output.niawgLanguageScript += "generate " + output.waves.back().name + "\n";
@@ -1726,7 +1891,7 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 		}
 
 		/// get waveforms to flash.
-		outputInfo streamInfo = output;
+		NiawgOutputInfo streamInfo = output;
 		waveInfo info;
 		info.isStreamed = true;
 		niawgPair<std::string> streamCommand;
@@ -1754,7 +1919,7 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 						"pre-written system). This is not allowed!" );
 		}
 
-		loadWaveformParameters( streamInfo, profile, streamCommand, options, scripts, singletons );
+		loadWaveformParameters( streamInfo, profile, streamCommand, options, scripts );
 		
 		/// bracket
 		for (auto axis : AXES)
@@ -1777,7 +1942,7 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 		//configureOutputEnabled( VI_FALSE );
 		//abortGeneration();
 		streamWaveformName = "streamedWaveform";
-		allocateNamedWaveform( streamWaveformName.c_str(), streamWaveformVals.size() );
+		allocateNamedWaveform( cstr(streamWaveformName), streamWaveformVals.size() );
 		//streamWaveHandle = allocateUnNamedWaveform( streamWaveformVals.size() );
 		
 		// output must be off in order to set the streaming waveform handle. I will need a better way of handling this.
@@ -1810,7 +1975,6 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 			}
 		}
 		// get the waiting waveform
-
 
 		// get picture the user wants arranged
 
@@ -1845,7 +2009,7 @@ void NiawgController::handleSpecialWaveform( outputInfo& output, profileSettings
 
 void NiawgController::streamWaveform()
 {
-	writeNamedWaveform( streamWaveformName.c_str() , streamWaveformVals.size(), streamWaveformVals.data());
+	writeNamedWaveform( cstr(streamWaveformName) , streamWaveformVals.size(), streamWaveformVals.data());
 	//writeUnNamedWaveform( streamWaveHandle, streamWaveformVals.size(), streamWaveformVals.data());
 }
 
@@ -1875,7 +2039,7 @@ void NiawgController::createFlashingWave( waveInfo& wave, debugInfo options )
 		thrower( "ERROR: tried to create flashing wave data for a waveform that wasn't flashing!" );
 	}
 	// create each wave individually
-	for (unsigned int waveInc = 0; waveInc < wave.flash.flashNumber; waveInc++)
+	for (UINT waveInc = 0; waveInc < wave.flash.flashNumber; waveInc++)
 	{
 		finalizeStandardWave( wave.flash.flashWaves[waveInc], options );
 	}
@@ -1955,10 +2119,21 @@ bool NiawgController::isSpecialCommand(std::string command)
 	{
 		return true;
 	}
-	else 
-	{
-		return false;
-	}
+	return false;
+}
+
+//
+void NiawgController::turnOff()
+{
+	configureOutputEnabled(VI_FALSE);
+	abortGeneration();
+}
+
+// simple wrapper
+void NiawgController::turnOn()
+{
+	configureOutputEnabled(VI_TRUE);
+	initiateGeneration();
 }
 
 
@@ -1970,7 +2145,7 @@ bool NiawgController::isSpecialCommand(std::string command)
  * - Sensible Ramping Options (initial and final freq/amp values reflect choice of ramp or no ramp).
  * - Sensible Phase Correction Options
  * */
-void NiawgController::checkThatWaveformsAreSensible(Communicator* comm, outputInfo& output)
+void NiawgController::checkThatWaveformsAreSensible(std::string& warnings, NiawgOutputInfo& output)
 {
 	for (auto axis : AXES)
 	{
@@ -1986,50 +2161,50 @@ void NiawgController::checkThatWaveformsAreSensible(Communicator* comm, outputIn
 					waveSignal& previousSignal = output.waves[waveInc - 1].chan[axis].signals[signalNum];
 					if (currentSignal.initPower != previousSignal.finPower)
 					{
-						comm->sendError( "Warning: Amplitude jump at waveform #" + str( waveInc ) + " in " + AXES_NAMES[axis] 
-										 + " component detected!\r\n" );
+						warnings += "Warning: Amplitude jump at waveform #" + str( waveInc ) + " in " + AXES_NAMES[axis]
+										 + " component detected!\r\n";
 					}
 					if (currentSignal.freqInit != previousSignal.freqFin)
 					{
-						comm->sendError( "Warning: Frequency jump at waveform #" + str( waveInc ) + " in " + AXES_NAMES[axis] 
-										 + " component detected!\r\n" );
+						warnings += "Warning: Frequency jump at waveform #" + str( waveInc ) + " in " + AXES_NAMES[axis]
+										 + " component detected!\r\n";
 					}
 					if (currentSignal.initPhase - previousSignal.finPhase > CORRECTION_WAVEFORM_ERROR_THRESHOLD)
 					{
-						comm->sendError( "Warning: Phase jump (greater than what's wanted for correction waveforms) at waveform #" 
-										 + str( waveInc ) + " in " + AXES_NAMES[axis] + " component detected!\r\n" );
+						warnings += "Warning: Phase jump (greater than what's wanted for correction waveforms) at waveform #"
+										 + str( waveInc ) + " in " + AXES_NAMES[axis] + " component detected!\r\n";
 					}
 					// if there signal is ramping but the beginning and end amplitudes are the same, that's weird. It's not actually ramping.
 					if (currentSignal.powerRampType != "nr" && (currentSignal.initPower == currentSignal.finPower))
 					{
-						comm->sendError( "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + "is set to amplitude ramp, but "
-										 "the initial and final amplitudes are the same. This is not a ramp.\r\n" );
+						warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + "is set to amplitude ramp, but "
+										 "the initial and final amplitudes are the same. This is not a ramp.\r\n";
 					}
 					// if there signal is ramping but the beginning and end frequencies are the same, that's weird. It's not actually ramping.
 					if (currentSignal.freqRampType != "nr" && (currentSignal.freqInit == currentSignal.freqFin))
 					{
-						comm->sendError( "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + "is set to frequency ramp, but "
-										 "the initial and final frequencies are the same. This is not a ramp.\r\n" );
+						warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + "is set to frequency ramp, but "
+										 "the initial and final frequencies are the same. This is not a ramp.\r\n";
 					}
 					// if there signal is not ramping but the beginning and end amplitudes are different, that's weird. It's not actually 
 					// ramping.
 					if (currentSignal.powerRampType == "nr" && (currentSignal.initPower != currentSignal.finPower))
 					{
-						comm->sendError( "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + "is set to no amplitude ramp, "
+						warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + "is set to no amplitude ramp, "
 										 "but the initial and final amplitudes are the different. This is not a ramp, the initial value "
-										 "will be used.\r\n" );
+										 "will be used.\r\n";
 					}
 					// if there signal is not ramping but the beginning and end frequencies are different, that's weird. It's not actually ramping.
 					if (currentSignal.freqRampType == "nr" && (currentSignal.freqInit != currentSignal.freqInit))
 					{
-						comm->sendError( "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + "is set to no frequency ramp, "
+						warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + "is set to no frequency ramp, "
 										 "but the initial and final frequencies are different. This is not a ramp, the initial value will "
-										 "be used throughout.\r\n" );
+										 "be used throughout.\r\n";
 					}
 					if (output.waves[waveInc].chan[axis].phaseOption != 0)
 					{
-						comm->sendError( "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + " has a non-zero phase correction"
-										 " option, but phase correction has been discontinued! This option being set won't do anything..." );
+						warnings += "Warning: " + AXES_NAMES[axis] + " waveform #" + str( waveInc ) + " has a non-zero phase correction"
+										 " option, but phase correction has been discontinued! This option being set won't do anything...";
 					}
 				}
 			}
@@ -2038,11 +2213,11 @@ void NiawgController::checkThatWaveformsAreSensible(Communicator* comm, outputIn
 }
 
 
-/// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///																NI Fgen wrappers
-/// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 std::string NiawgController::getErrorMsg()
@@ -2152,7 +2327,7 @@ void NiawgController::writeNamedWaveform( ViConstString waveformName, ViInt32 mi
 void NiawgController::writeScript( std::vector<ViChar> script )
 {
 	std::string temp(script.begin(), script.end());
-	ViConstString constScript = temp.c_str();
+	ViConstString constScript = cstr(temp);
 	if (!NIAWG_SAFEMODE)
 	{
 		errChecker( niFgen_WriteScript( sessionHandle, outputChannels, constScript) );
@@ -2218,6 +2393,9 @@ void NiawgController::clearMemory()
 
 void NiawgController::setViStringAttribute( ViAttr atributeID, ViConstString attributeValue )
 {
+	// I keep track of this.
+	currentScriptName = attributeValue;
+
 	if (!NIAWG_SAFEMODE)
 	{
 		errChecker( niFgen_SetAttributeViString( sessionHandle, outputChannels, atributeID, attributeValue ) );
@@ -2346,7 +2524,7 @@ std::string NiawgController::getViStringAttribute( ViAttr attribute )
 	{
 		errChecker( niFgen_GetAttributeViString( sessionHandle, outputChannels, attribute, 256, value ) );
 	}
-	return std::string(value);
+	return str(value);
 }
 
 
@@ -2377,5 +2555,195 @@ void NiawgController::configureOutputMode()
 	if (!NIAWG_SAFEMODE)
 	{
 		errChecker( niFgen_ConfigureOutputMode( sessionHandle, OUTPUT_MODE ) );
+	}
+}
+
+
+/**
+* This function is designed to replace getVartime in function. It uses a numerical, rather than mostly analytical, algorithm for finding a good time for a
+* correction waveform. The algorithm increments through all possible sample numbers for a waveform (multiples of 4 and between the min and max values) and
+* checks whether the phases of the waveforms are near zero to some tolerance.
+* The algorithm:
+* Take input data, create array of frequencies and array of phases.
+* For all possible data points...
+*	For all signals...
+*	  Calculate phases at this point
+*	For all signals...
+*	  Check if phases are all near zero
+*	  Throw flags if bad or terrible matching
+*	If bad flag not thrown, break, a good time has been found.
+*	Else, check if terrible flag thrown
+*	If not, check if this is the best time so far, and if so, set best.
+* If bad flag not thrown, continue happily. Exited well.
+* Else if terrible flag not thrown, report best time and throw warning.
+* Else throw error.
+* Return phase mismatch.
+*/
+double NiawgController::calculateCorrectionTime( channelWave& wvData1, channelWave& wvData2, 
+												 std::vector<double> startPhases, std::string order, double time, 
+												 long sampleNum )
+{
+	std::vector<double> freqList;
+	for (int signalInc = 0; signalInc < wvData1.signals.size(); signalInc++)
+	{
+		freqList.push_back( wvData1.signals[signalInc].freqInit );
+	}
+	for (int signalInc = 0; signalInc < wvData2.signals.size(); signalInc++)
+	{
+		freqList.push_back( wvData2.signals[signalInc].freqInit );
+	}
+	int testSampleNum;
+	if (order == "before")
+	{
+		testSampleNum = 2;
+	}
+	else
+	{
+		testSampleNum = 0;
+	}
+	bool matchIsGood = true;
+	bool matchIsOkay = true;
+	bool foundOkayMatch = false;
+	double bestTime = DBL_MAX;
+	int bestSampleNum;
+	double totalPhaseMismatch = PI;
+	for (; (double)testSampleNum / SAMPLE_RATE < MAX_CORRECTION_WAVEFORM_TIME; testSampleNum += 4)
+	{
+		if ((double)testSampleNum / SAMPLE_RATE < MIN_CORRECTION_WAVEFORM_TIME)
+		{
+			continue;
+		}
+		std::vector<double> currentPhases;
+		// calculate phases...
+		for (int signalInc = 0; signalInc < freqList.size(); signalInc++)
+		{
+			// sin{omega*t+phi} = sin{2*PI*frequency*t+phi} = sin{2*PI*frequency*(currentSample / SampleRate) + phi}
+			// need to modulate for 2*PI.
+			double phase, phaseDif;
+			phase = fmod( 2 * PI * freqList[signalInc] * ((double)testSampleNum / SAMPLE_RATE) + startPhases[signalInc], 2 * PI );
+			if (phase > PI)
+			{
+				if (phase > 2 * PI)
+				{
+					// ERROR
+					thrower( "ERROR! Bad location in calculateCorrectionTime." );
+				}
+				phaseDif = 2 * PI - phase;
+			}
+			else
+			{
+				phaseDif = phase;
+			}
+			currentPhases.push_back( phaseDif );
+		}
+		matchIsGood = true;
+		matchIsOkay = true;
+		for (int signalInc = 0; signalInc < freqList.size(); signalInc++)
+		{
+			if (currentPhases[signalInc] > CORRECTION_WAVEFORM_GOAL)
+			{
+				matchIsGood = false;
+				if (currentPhases[signalInc] > CORRECTION_WAVEFORM_ERROR_THRESHOLD)
+				{
+					matchIsOkay = false;
+				}
+			}
+		}
+		if (matchIsGood)
+		{
+			bestTime = (double)testSampleNum / SAMPLE_RATE;
+			bestSampleNum = testSampleNum;
+			break;
+		}
+		else if (matchIsOkay)
+		{
+			double testTotalPhaseMismatch = 0;
+			for (int signalInc = 0; signalInc < currentPhases.size(); signalInc++)
+			{
+				testTotalPhaseMismatch += currentPhases[signalInc];
+			}
+			if ((double)testTotalPhaseMismatch < totalPhaseMismatch)
+			{
+				foundOkayMatch = true;
+				bestTime = testSampleNum / SAMPLE_RATE;
+				bestSampleNum = testSampleNum;
+				totalPhaseMismatch = testTotalPhaseMismatch;
+			}
+		}
+	}
+	if (!matchIsGood)
+	{
+		if (!foundOkayMatch)
+		{
+			// throw error
+			return -1;
+		}
+		else
+		{
+			// set values
+			if (order == "before")
+			{
+				time = (bestSampleNum - 2) / SAMPLE_RATE;
+				sampleNum = bestSampleNum;
+			}
+			else
+			{
+				time = bestSampleNum / SAMPLE_RATE;
+				sampleNum = bestSampleNum;
+			}
+			// throw warning!
+			return totalPhaseMismatch;
+		}
+	}
+	// set values
+	if (order == "before")
+	{
+		time = (bestSampleNum - 2) / SAMPLE_RATE;
+		sampleNum = bestSampleNum;
+	}
+	else
+	{
+		time = bestSampleNum / SAMPLE_RATE;
+		sampleNum = bestSampleNum;
+	}
+	// if here, a good time must have been found.
+	return 0;
+}
+
+/**
+* This function takes ramp-related information as an input and returns the "position" in the ramp (i.e. the amount to add to the initial value due to ramping)
+* that the waveform should be at.
+*
+* @return double is the ramp position.
+*
+* @param size is the total size of the waveform, in numbers of samples
+* @param iteration is the sample number that the waveform is currently at.
+* @param initPos is the initial frequency or amplitude of the waveform.
+* @param finPos is the final frequency or amplitude of the waveform.
+* @param rampType is the type of ramp being executed, as specified by the reader.
+*/
+double NiawgController::rampCalc( int size, int iteration, double initPos, double finPos, std::string rampType )
+{
+	// for linear ramps
+	if (rampType == "lin")
+	{
+		return iteration * (finPos - initPos) / size;
+	}
+	// for no ramp
+	else if (rampType == "nr")
+	{
+		return 0;
+	}
+	// for hyperbolic tangent ramps
+	else if (rampType == "tanh")
+	{
+		return (finPos - initPos) * (tanh( -4 + 8 * (double)iteration / size ) + 1) / 2;
+	}
+	// error message. I've already checked (outside this function) whether the ramp-type is a filename.
+	else
+	{
+		std::string errMsg = "ERROR: ramp type " + rampType + " is unrecognized. If this is a file name, make sure the file exists and is in the project folder.\r\n";
+		MessageBox( NULL, cstr( errMsg ), NULL, MB_OK );
+		return 0;
 	}
 }

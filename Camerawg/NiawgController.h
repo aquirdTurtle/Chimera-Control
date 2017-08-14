@@ -261,7 +261,7 @@ template <typename WAVE_DATA_TYPE> long NiawgController::waveformSizeCalc(WAVE_D
 
 template <typename type> static void NiawgController::loadParam( type& dataToAssign, ScriptStream& file, int& varCount,
 																 std::vector<std::string>& varNames, std::vector<int> &varParamTypes,
-																 std::vector<int> dataTypes, std::vector<variable> singletons )
+																 std::vector<int> dataTypes )
 {
 	std::string tempInput;
 	file >> tempInput;

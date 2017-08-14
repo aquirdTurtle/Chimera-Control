@@ -15,8 +15,45 @@ void NoteSystem::rearrange(int width, int height, fontMap fonts)
 	configurationNotesHeader.rearrange("", "", width, height, fonts);
 }
 
-void NoteSystem::initializeControls(POINT& topLeftPos, CWnd* parentWindow, int& id, fontMap fonts, 
-									std::vector<CToolTipCtrl*>& tooltips)
+
+void NoteSystem::handleSaveConfig(std::ofstream& saveFile)
+{
+	saveFile << "CONFIGURATION_NOTES\n";
+	saveFile << getConfigurationNotes();
+	saveFile << "END_CONFIGURATION_NOTES\n";
+}
+
+
+void NoteSystem::handleOpenConfig(std::ifstream& openFile, double version)
+{
+	ProfileSystem::checkDelimiterLine(openFile, "CONFIGURATION_NOTES");
+	/// handle notes
+	std::string notes;
+	std::string tempNote;
+	// no need to get a newline since this should be he first thing in the file.
+	openFile.get();
+	std::getline(openFile, tempNote);
+	if (tempNote != "END_CONFIGURATION_NOTES")
+	{
+		while (openFile && tempNote != "END_CONFIGURATION_NOTES")
+		{
+			notes += tempNote + "\r\n";
+			std::getline(openFile, tempNote);
+		}
+		if (notes.size() > 2)
+		{
+			notes = notes.substr(0, notes.size() - 2);
+		}
+		setConfigurationNotes(notes);
+	}
+	else
+	{
+		setConfigurationNotes("");
+	}
+}
+
+
+void NoteSystem::initialize(POINT& topLeftPos, CWnd* parentWindow, int& id, fontMap fonts, cToolTips& tooltips)
 {
 	/// EXPERIMENT LEVEL
 	experimentNotesHeader.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 20};
@@ -60,17 +97,17 @@ void NoteSystem::initializeControls(POINT& topLeftPos, CWnd* parentWindow, int& 
 
 void NoteSystem::setExperimentNotes(std::string notes)
 {
-	experimentNotes.SetWindowTextA(notes.c_str());
+	experimentNotes.SetWindowTextA(cstr(notes));
 }
 
 void NoteSystem::setCategoryNotes(std::string notes)
 {
-	categoryNotes.SetWindowTextA(notes.c_str());
+	categoryNotes.SetWindowTextA(cstr(notes));
 }
 
 void NoteSystem::setConfigurationNotes(std::string notes)
 {
-	categoryNotes.SetWindowTextA(notes.c_str());
+	categoryNotes.SetWindowTextA(cstr(notes));
 }
 
 std::string NoteSystem::getExperimentNotes()

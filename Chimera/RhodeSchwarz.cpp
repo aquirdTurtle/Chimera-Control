@@ -10,7 +10,7 @@
  * (by design) provide an interface for which the user to change the programming of the RSG directly. The
  * user is to do this by using the "rsg:" command in a script.
  */
-void RhodeSchwarz::initialize( POINT& pos, std::vector<CToolTipCtrl*>& toolTips, DeviceWindow* master, int& id )
+void RhodeSchwarz::initialize( POINT& pos, cToolTips& toolTips, DeviceWindow* master, int& id )
 {
 	// These are currently just hard-coded.
 	triggerTime = 0.01;
@@ -101,17 +101,17 @@ void RhodeSchwarz::setInfoDisp(UINT var)
 		listViewDefaultItem.mask = LVIF_TEXT;   // Text Style
 		listViewDefaultItem.cchTextMax = 256; // Max size of test
 		std::string text = str( count + 1 );
-		listViewDefaultItem.pszText = (LPSTR)text.c_str();
+		listViewDefaultItem.pszText = (LPSTR)cstr(text);
 		listViewDefaultItem.iItem = count;          // choose item  
 		listViewDefaultItem.iSubItem = 0;       // Put in first coluom
 		infoControl.InsertItem( &listViewDefaultItem );
 		listViewDefaultItem.iSubItem = 1;
 		text = str( event.frequency );
-		listViewDefaultItem.pszText = (LPSTR)text.c_str();
+		listViewDefaultItem.pszText = (LPSTR)cstr(text);
 		infoControl.SetItem( &listViewDefaultItem );
 		listViewDefaultItem.iSubItem = 2;
 		text = str( event.power );
-		listViewDefaultItem.pszText = (LPSTR)text.c_str();
+		listViewDefaultItem.pszText = (LPSTR)cstr(text);
 		infoControl.SetItem( &listViewDefaultItem );
 		count++;
 	}
@@ -194,8 +194,8 @@ void RhodeSchwarz::programRSG( Gpib* gpib, UINT var )
 			powerList += ", ";
 			powerList += str( events[var][eventInc].power ) + "dBm";
 		}
-		gpib->gpibSend( RSG_ADDRESS, frequencyList.c_str() );
-		gpib->gpibSend( RSG_ADDRESS, powerList.c_str() );
+		gpib->gpibSend( RSG_ADDRESS, cstr(frequencyList) );
+		gpib->gpibSend( RSG_ADDRESS, cstr(powerList));
 		gpib->gpibSend( RSG_ADDRESS, "SOURce:LIST:MODE STEP" );
 		gpib->gpibSend( RSG_ADDRESS, "SOURce:LIST:TRIG:SOURce EXT" );
 		gpib->gpibSend( RSG_ADDRESS, "SOURce:FREQ:MODE LIST" );

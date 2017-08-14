@@ -9,7 +9,7 @@
 #include "fonts.h"
 #include <boost/filesystem.hpp>
 #include "myNIAWG.h"
-#include "MasterWindow.h"
+#include "DeviceWindow.h"
 
 
 void ConfigurationFileSystem::rearrange(int width, int height, fontMap fonts)
@@ -115,7 +115,7 @@ void ConfigurationFileSystem::checkSaveEntireProfile(MasterWindow* Master)
 
 void ConfigurationFileSystem::allSettingsReadyCheck(MasterWindow* Master)
 {
-	if (currentProfileSettings.configuration == "")
+	if (currentProfile.configuration == "")
 	{
 		thrower("ERROR: Please set a configuration.");
 	}
@@ -137,7 +137,7 @@ void ConfigurationFileSystem::reloadAllCombos()
 
 std::string ConfigurationFileSystem::getOrientation()
 {
-	return currentProfileSettings.orientation;
+	return currentProfile.orientation;
 }
 
 void ConfigurationFileSystem::setOrientation(std::string orientation)
@@ -146,7 +146,7 @@ void ConfigurationFileSystem::setOrientation(std::string orientation)
 	{
 		thrower("ERROR: Tried to set non-standard orientation! Ask Mark about bugs.");
 	}
-	currentProfileSettings.orientation = orientation;
+	currentProfile.orientation = orientation;
 }
 
 void ConfigurationFileSystem::orientationChangeHandler(MasterWindow* Master)
@@ -155,22 +155,22 @@ void ConfigurationFileSystem::orientationChangeHandler(MasterWindow* Master)
 	CString orientation;
 	orientationCombo.GetLBText( ItemIndex, orientation );
 	// reset some things.
-	currentProfileSettings.orientation = str(orientation);
-	if (currentProfileSettings.category != "")
+	currentProfile.orientation = str(orientation);
+	if (currentProfile.category != "")
 	{
-		if (currentProfileSettings.orientation == HORIZONTAL_ORIENTATION)
+		if (currentProfile.orientation == HORIZONTAL_ORIENTATION)
 		{
-			reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, str("*") 
+			reloadCombo(configCombo.GetSafeHwnd(), currentProfile.pathIncludingCategory, str("*") 
 						+ HORIZONTAL_EXTENSION, "__NONE__");
 		}
-		else if (currentProfileSettings.orientation == VERTICAL_ORIENTATION)
+		else if (currentProfile.orientation == VERTICAL_ORIENTATION)
 		{
-			reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, str("*") 
+			reloadCombo(configCombo.GetSafeHwnd(), currentProfile.pathIncludingCategory, str("*") 
 						+ VERTICAL_EXTENSION, "__NONE__");
 		}
 	}
 	Master->notes.setConfigurationNotes("");
-	currentProfileSettings.configuration = "";
+	currentProfile.configuration = "";
 	/// Load the relevant NIAWG script.
 	myNIAWG::loadDefault();
 }
@@ -180,10 +180,10 @@ void ConfigurationFileSystem::orientationChangeHandler(MasterWindow* Master)
 void ConfigurationFileSystem::newConfiguration(MasterWindow* Master)
 {
 	// check if category has been set yet.
-	if (currentProfileSettings.category == "")
+	if (currentProfile.category == "")
 	{
 		// check if the experiment has also not been set.
-		if (currentProfileSettings.experiment == "")
+		if (currentProfile.experiment == "")
 		{
 			thrower( "The Experiment and category have not yet been selected! Please select a category or create a new one before trying to save this "
 					 "configuration." );
@@ -201,13 +201,13 @@ void ConfigurationFileSystem::newConfiguration(MasterWindow* Master)
 		// canceled
 		return;
 	}
-	std::string newConfigurationPath = currentProfileSettings.pathIncludingCategory + configurationNameToSave;
+	std::string newConfigurationPath = currentProfile.pathIncludingCategory + configurationNameToSave;
 
-	if (currentProfileSettings.orientation == HORIZONTAL_ORIENTATION)
+	if (currentProfile.orientation == HORIZONTAL_ORIENTATION)
 	{
 		newConfigurationPath += HORIZONTAL_EXTENSION;
 	}
-	else if (currentProfileSettings.orientation == VERTICAL_ORIENTATION)
+	else if (currentProfile.orientation == VERTICAL_ORIENTATION)
 	{
 		newConfigurationPath += VERTICAL_EXTENSION;
 	}
@@ -220,13 +220,13 @@ void ConfigurationFileSystem::newConfiguration(MasterWindow* Master)
 	{
 		thrower( "ERROR: Failed to create new configuration file. Ask Mark about bugs.");
 	}
-	if (currentProfileSettings.orientation == HORIZONTAL_ORIENTATION)
+	if (currentProfile.orientation == HORIZONTAL_ORIENTATION)
 	{
-		reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, str("*") + HORIZONTAL_EXTENSION, currentProfileSettings.configuration.c_str());
+		reloadCombo(configCombo.GetSafeHwnd(), currentProfile.pathIncludingCategory, str("*") + HORIZONTAL_EXTENSION, currentProfile.configuration.c_str());
 	}
-	else if (currentProfileSettings.orientation == VERTICAL_ORIENTATION)
+	else if (currentProfile.orientation == VERTICAL_ORIENTATION)
 	{
-		reloadCombo(configCombo.GetSafeHwnd(), currentProfileSettings.pathIncludingCategory, str("*") + VERTICAL_EXTENSION, currentProfileSettings.configuration.c_str());
+		reloadCombo(configCombo.GetSafeHwnd(), currentProfile.pathIncludingCategory, str("*") + VERTICAL_EXTENSION, currentProfile.configuration.c_str());
 	}
 	else
 	{
@@ -241,8 +241,8 @@ void ConfigurationFileSystem::newConfiguration(MasterWindow* Master)
 void ConfigurationFileSystem::openConfiguration(std::string configurationNameToOpen, MasterWindow* Master)
 {
 	// no folder associated with configuraitons. They share the category folder.
-	std::string path = currentProfileSettings.pathIncludingCategory + configurationNameToOpen;
-	if (currentProfileSettings.orientation == HORIZONTAL_ORIENTATION)
+	std::string path = currentProfile.pathIncludingCategory + configurationNameToOpen;
+	if (currentProfile.orientation == HORIZONTAL_ORIENTATION)
 	{
 		path += HORIZONTAL_EXTENSION;
 	}
@@ -256,7 +256,7 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 	{
 		thrower( "Opening of Configuration File Failed!" );
 	}
-	currentProfileSettings.configuration = configurationNameToOpen;
+	currentProfile.configuration = configurationNameToOpen;
 	
 	// not currenlty used because version 1.0.
 	std::string versionStr;
@@ -471,7 +471,7 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 	tempVar.ranges.push_back({ 0,0,0, false, true });
 	Master->configVariables.addConfigVariable(tempVar, varNum);
 	updateConfigurationSavedStatus(true);
-	currentProfileSettings.configuration = configurationNameToOpen;
+	currentProfile.configuration = configurationNameToOpen;
 
 	Master->topBottomAgilent.readConfigurationFile( configurationFile );
 	Master->uWaveAxialAgilent.readConfigurationFile( configurationFile );
@@ -506,9 +506,9 @@ void ConfigurationFileSystem::openConfiguration(std::string configurationNameToO
 		Master->notes.setConfigurationNotes("");
 	}
 	// actually set this now
-	//SetWindowText(eConfigurationDisplayInScripting, (currentProfileSettings.category + "->" + currentProfileSettings.configuration).c_str());
+	//SetWindowText(eConfigurationDisplayInScripting, (currentProfile.category + "->" + currentProfile.configuration).c_str());
 	// close.
-	if (currentProfileSettings.sequence == NULL_SEQUENCE)
+	if (currentProfile.sequence == NULL_SEQUENCE)
 	{
 		// reload it.
 		loadNullSequence(Master);
@@ -1192,7 +1192,7 @@ void ConfigurationFileSystem::configurationChangeHandler(MasterWindow* Master)
 	{
 		//?
 		checkConfigurationSave( "The current configuration is unsaved. Save current configuration before changing?", Master );
-		// configCombo.SelectString( 0, currentProfileSettings.configuration.c_str() );
+		// configCombo.SelectString( 0, currentProfile.configuration.c_str() );
 	}
 	// get current item.
 	long long itemIndex = configCombo.GetCurSel();
@@ -1497,7 +1497,7 @@ void ConfigurationFileSystem::categoryChangeHandler(MasterWindow* Master)
 	{
 		//???
 		checkCategorySave( "The current category is unsaved. Save current category before changing?", Master );
-		//		categoryCombo.SelectString( 0, currentProfileSettings.category.c_str() );
+		//		categoryCombo.SelectString( 0, currentProfile.category.c_str() );
 	}
 	// get current item.
 	long long itemIndex = categoryCombo.GetCurSel();
@@ -1663,8 +1663,8 @@ void ConfigurationFileSystem::renameExperiment()
 		}
 	}
 	std::string newExperimentConfigLocation = FILE_SYSTEM_PATH + experimentNameToSave + "\\" + experimentNameToSave + EXPERIMENT_EXTENSION;
-	std::string currentExperimentConfigLocation = FILE_SYSTEM_PATH + experimentNameToSave + "\\" + currentProfileSettings.experiment + EXPERIMENT_EXTENSION;
-	int result = MoveFile((FILE_SYSTEM_PATH + currentProfileSettings.experiment).c_str(), (FILE_SYSTEM_PATH + experimentNameToSave).c_str());
+	std::string currentExperimentConfigLocation = FILE_SYSTEM_PATH + experimentNameToSave + "\\" + currentProfile.experiment + EXPERIMENT_EXTENSION;
+	int result = MoveFile((FILE_SYSTEM_PATH + currentProfile.experiment).c_str(), (FILE_SYSTEM_PATH + experimentNameToSave).c_str());
 	if (result == 0)
 	{
 		MessageBox(0, "Moving the experiment folder failed!", 0, 0);
@@ -1678,8 +1678,8 @@ void ConfigurationFileSystem::renameExperiment()
 	}
 	// TODO: program the code to go through all of the category and configuration file names and change addresses, or change format of how these are referenced 
 	// in configuraiton file.
-	currentProfileSettings.experiment = experimentNameToSave;
-	reloadCombo(experimentCombo.GetSafeHwnd(), FILE_SYSTEM_PATH, "*", currentProfileSettings.experiment);
+	currentProfile.experiment = experimentNameToSave;
+	reloadCombo(experimentCombo.GetSafeHwnd(), FILE_SYSTEM_PATH, "*", currentProfile.experiment);
 	return false;
 	*/
 }

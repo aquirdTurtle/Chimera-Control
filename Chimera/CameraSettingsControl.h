@@ -17,27 +17,11 @@ struct cameraPositions;
 class CameraSettingsControl
 {
 	public:
-		CameraSettingsControl::CameraSettingsControl(AndorCamera* friendInitializer) : picSettingsObj(this)
-		{ 
-			andorFriend = friendInitializer; 
-			// initialize settings. Most of these have been picked to match initial settings set in the "initialize" 
-			// function.
-			runSettings.exposureTimes = { 0.026f };
-			runSettings.picsPerRepetition = 1;
-			runSettings.kinetiCycleTime = 0.1f;
-			runSettings.repetitionsPerVariation = 10;
-			runSettings.totalVariations = 3;
-			runSettings.totalPicsInExperiment = 30;
-			runSettings.totalPicsInVariation = 10;
-			// the read mode never gets changed currently. we always want images.
-			runSettings.readMode = 4;
-			runSettings.acquisitionMode = 3;
-			runSettings.emGainModeIsOn = false;
-			runSettings.showPicsInRealTime = false;
-			runSettings.triggerMode = "External Trigger";
-		}
+		CameraSettingsControl(AndorCamera* friendInitializer);
+		void setVariationNumber(UINT varNumber);
+		void setRepsPerVariation(UINT repsPerVar);
 		CBrush* handleColor(int idNumber, CDC* colorer, brushMap brushes, rgbMap rgbs);
-		void initialize(cameraPositions& pos, int& id, CWnd* parent, fontMap fonts, std::vector<CToolTipCtrl*>& tooltips);
+		void initialize(cameraPositions& pos, int& id, CWnd* parent, fontMap fonts, cToolTips& tooltips);
 		void checkTimings(std::vector<float> exposureTimes);
 		void checkTimings(float kineticCycleTime, float accumulationTime, std::vector<float> exposureTimes);
 		imageParameters readImageParameters(CameraWindow* camWin);
@@ -52,12 +36,15 @@ class CameraSettingsControl
 		void checkIfReady();
 		void cameraIsOn( bool state );
 		void handleModeChange( CameraWindow* cameraWindow );
-		//void handleSetVarNum();
-		//void handleSetRepsPerVar();
 		AndorRunSettings getSettings();
 		void setImageParameters(imageParameters newSettings, CameraWindow* camWin);
 		std::array<int, 4> getThresholds();
 		void updatePassivelySetSettings();
+		void setRunSettings(AndorRunSettings inputSettings);
+
+		void handleOpenConfig(std::ifstream& configFile, double version);
+		void handleSaveConfig(std::ofstream& configFile);
+
 	private:
 		AndorCamera* andorFriend;
 

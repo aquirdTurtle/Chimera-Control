@@ -1,8 +1,0 @@
-% Default Master Script. Hover your mouse over the "?"
-% in the top right corner of this control for help.
-
-repeat: 10
-
-	call funcWithArgs(dac1)
-
-end

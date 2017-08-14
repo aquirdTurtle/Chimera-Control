@@ -7,9 +7,6 @@
     <ClCompile Include="myAgilent.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="myMath.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
     <ClCompile Include="saveTextFileFromEdit.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
@@ -25,13 +22,7 @@
     <ClCompile Include="beginningSettingsDialogProc.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="selectInCombo.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
     <ClCompile Include="ConfigurationFileSystem.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
-    <ClCompile Include="textPromptDialogProcedure.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="errBox.cpp">
@@ -73,9 +64,6 @@
     <ClCompile Include="Andor.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="reorganizeControl.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
     <ClCompile Include="PictureSettingsControl.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
@@ -83,9 +71,6 @@
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="EmbeddedPythonHandler.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SMSTextingControl.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="PictureStats.cpp">
@@ -124,9 +109,6 @@
     <ClCompile Include="CameraImageDimensions.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
-    <ClCompile Include="CameraConfigurationSystem.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
     <ClCompile Include="SocketWrapper.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
@@ -137,9 +119,6 @@
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="ScriptStream.cpp">
-      <Filter>Code Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ExperimentManager.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="Rearranger.cpp">
@@ -196,7 +175,18 @@
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="MasterManager.cpp" />
-    <ClCompile Include="MasterConfigurationFileSystem.cpp" />
+    <ClCompile Include="Gnuplotter.cpp">
+      <Filter>Function Headers</Filter>
+    </ClCompile>
+    <ClCompile Include="TextPromptDialog.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SmsTextingControl.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PlotDesignerDialog.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -223,9 +213,6 @@
     <ClInclude Include="myAgilent.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
-    <ClInclude Include="myMath.h">
-      <Filter>Function Headers</Filter>
-    </ClInclude>
     <ClInclude Include="fonts.h">
       <Filter>Constants, Externals, Etc.</Filter>
     </ClInclude>
@@ -241,13 +228,7 @@
     <ClInclude Include="Control.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
-    <ClInclude Include="selectInCombo.h">
-      <Filter>Function Headers</Filter>
-    </ClInclude>
     <ClInclude Include="ConfigurationFileSystem.h">
-      <Filter>Function Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="textPromptDialogProcedure.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="NoteSystem.h">
@@ -292,9 +273,6 @@
     <ClInclude Include="ATMCD32D.H">
       <Filter>Function Headers</Filter>
     </ClInclude>
-    <ClInclude Include="reorganizeControl.h">
-      <Filter>Function Headers</Filter>
-    </ClInclude>
     <ClInclude Include="PictureSettingsControl.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
@@ -302,9 +280,6 @@
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="EmbeddedPythonHandler.h">
-      <Filter>Function Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="SMSTextingControl.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="PictureStats.h">
@@ -358,32 +333,17 @@
     <ClInclude Include="SocketWrapper.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
-    <ClInclude Include="CameraConfigurationSystem.h">
-      <Filter>Function Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="ExperimentManager.h">
-      <Filter>Function Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="errBox.h">
-      <Filter>Function Headers</Filter>
-    </ClInclude>
     <ClInclude Include="Rearranger.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="commonTypes.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
-    <ClInclude Include="DataLogger.h">
-      <Filter>Code Files</Filter>
-    </ClInclude>
     <ClInclude Include="longnam.h">
       <Filter>Code Files</Filter>
     </ClInclude>
     <ClInclude Include="Script.h" />
     <ClInclude Include="cleanString.h" />
-    <ClInclude Include="GPIB.h">
-      <Filter>Function Headers</Filter>
-    </ClInclude>
     <ClInclude Include="Agilent.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
@@ -421,7 +381,28 @@
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="MasterManager.h" />
-    <ClInclude Include="MasterConfigurationFileSystem.h" />
+    <ClInclude Include="gnuplot-iostream.h" />
+    <ClInclude Include="gnuplotter.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="TextPromptDialog.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="SmsTextingControl.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="PlotDesignerDialog.h">
+      <Filter>Code Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Gpib.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="NiawgRealTimeProgrammer.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="DataLogger.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

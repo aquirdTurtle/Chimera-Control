@@ -7,6 +7,14 @@ bool PictureControl::isActive()
 	return active;
 }
 
+
+void PictureControl::setSliderPositions(UINT min, UINT max)
+{
+	sliderMax.SetPos(max);
+	sliderMin.SetPos(min);
+}
+
+
 /*
  * Used during initialization & when used when transitioning between 1 and >1 pictures per repetition. 
  * Sets the unscaled background area and the scaled area.
@@ -127,11 +135,11 @@ void PictureControl::handleEditChange( int id )
 	if (id == editMax.GetDlgCtrlID())
 	{
 		int max;
-		CString str;
-		editMax.GetWindowTextA( str );
+		CString tempStr;
+		editMax.GetWindowTextA(tempStr);
 		try
 		{
-			max = std::stoi( std::string(str) );
+			max = std::stoi( str(tempStr) );
 		}
 		catch (std::invalid_argument&)
 		{
@@ -143,11 +151,11 @@ void PictureControl::handleEditChange( int id )
 	if (id == editMin.GetDlgCtrlID())
 	{
 		int min;
-		CString str;
-		editMin.GetWindowTextA( str );
+		CString tempStr;
+		editMin.GetWindowTextA(tempStr);
 		try
 		{
-			min = std::stoi( std::string( str ) );
+			min = std::stoi( str(tempStr) );
 		}
 		catch (std::invalid_argument&)
 		{
@@ -159,6 +167,12 @@ void PictureControl::handleEditChange( int id )
 }
 
 
+std::pair<UINT, UINT> PictureControl::getSliderLocations()
+{
+	return { sliderMin.GetPos(), sliderMax.GetPos() };
+}
+
+
 /*
  * called when the user drags the scroll bar.
  */
@@ -167,13 +181,13 @@ void PictureControl::handleScroll(int id, UINT nPos)
 	if (id == sliderMax.GetDlgCtrlID())
 	{
 		sliderMax.SetPos(nPos);
-		editMax.SetWindowTextA(std::to_string(nPos).c_str());
+		editMax.SetWindowTextA(cstr(nPos));
 		maxSliderPosition = nPos;
 	}
 	else if (id == sliderMin.GetDlgCtrlID())
 	{
 		sliderMin.SetPos(nPos);
-		editMin.SetWindowTextA(std::to_string(nPos).c_str());
+		editMin.SetWindowTextA(cstr(nPos));
 		minSliderPosition = nPos;
 	}
 }
@@ -330,7 +344,10 @@ void PictureControl::redrawImage( CDC* easel)
 	// drawGrid(parent, brush);
 }
 
-
+void PictureControl::resetStorage()
+{
+	mostRecentImage = std::vector<long>{};
+}
 /*
  * draw the picture that the camera took. The camera's data is inputted as a 1D vector of long here. The control needs
  * the camera window context since there's no direct control associated with the picture itself. Could probably change 
@@ -374,8 +391,6 @@ void PictureControl::drawPicture(CDC* deviceContext, std::vector<long> picData,
 	// Rotated
 	SelectPalette( deviceContext->GetSafeHdc(), (HPALETTE)this->imagePalette, true );
 	RealizePalette( deviceContext->GetSafeHdc() );
-	//deviceContext->SelectPalette( this->imagePalette, true );
-	//deviceContext->RealizePalette();
 
 	pixelsAreaWidth = pictureArea.right - pictureArea.left + 1;
 	pixelsAreaHeight = pictureArea.bottom - pictureArea.top + 1;
@@ -414,7 +429,7 @@ void PictureControl::drawPicture(CDC* deviceContext, std::vector<long> picData,
 	pbmi->bmiHeader.biHeight = dataHeight;
 	memcpy(pbmi->bmiColors, argbq, sizeof(WORD) * PICTURE_PALETTE_SIZE);
 
-	//errBox( std::to_string( sizeof( DataArray ) / sizeof( DataArray[0] ) ) );
+	//errBox( str( sizeof( DataArray ) / sizeof( DataArray[0] ) ) );
 	//DataArray = (BYTE*)malloc(dataWidth * dataHeight * sizeof(BYTE));
 	//memset(DataArray, 0, dataWidth * dataHeight);
 
@@ -620,6 +635,45 @@ void PictureControl::drawCircle(CDC* dc, std::pair<int, int> selectedLocation)
 		dc->SetDCBrushColor( RGB( 0, 255, 0 ) );
 	}
 	dc->Ellipse( smallRect.left, smallRect.top, smallRect.right, smallRect.bottom );
+}
+
+void PictureControl::drawAnalysisMarkers(CDC* dc, std::vector<std::pair<int, int>> analysisLocs)
+{
+	if (active)
+	{
+		// draw and set.
+		HPEN crossPen;
+		crossPen = CreatePen(0, 1, RGB(255, 0, 0));
+		
+		dc->SelectObject(crossPen);
+
+		RECT smallRect;
+		RECT relevantRect;
+		UINT count = 1;
+		for (auto loc : analysisLocs)
+		{
+			relevantRect = grid[loc.first][loc.second];
+			smallRect.left = relevantRect.left + 7.0 * (relevantRect.right - relevantRect.left) / 16.0;
+			smallRect.right = relevantRect.left + 9.0 * (relevantRect.right - relevantRect.left) / 16.0;
+			smallRect.top = relevantRect.top + 7.0 * (relevantRect.bottom - relevantRect.top) / 16.0;
+			smallRect.bottom = relevantRect.top + 9.0 * (relevantRect.bottom - relevantRect.top) / 16.0;
+
+			dc->MoveTo({ relevantRect.left, relevantRect.top });
+
+			dc->SetBkMode(TRANSPARENT);
+			dc->SetTextColor(RGB(200, 200, 200));
+
+			dc->LineTo(relevantRect.right, relevantRect.top);
+			dc->LineTo(relevantRect.right, relevantRect.bottom);
+			dc->LineTo(relevantRect.left, relevantRect.bottom);
+			dc->LineTo(relevantRect.left, relevantRect.top);
+
+			dc->DrawTextEx( const_cast<char *>(cstr(count)), str(count).size(), &relevantRect, DT_CENTER |
+							DT_SINGLELINE | DT_VCENTER, NULL );
+			count++;
+		}
+		DeleteObject(crossPen);
+	}
 }
 
 

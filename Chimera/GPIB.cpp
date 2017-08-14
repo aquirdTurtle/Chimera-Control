@@ -7,7 +7,7 @@
 void Gpib::gpibWrite( int deviceID, std::string msg )
 {
 	int size = msg.size();
-	int result = ibwrt(deviceID, (void*)msg.c_str(), size);
+	int result = ibwrt(deviceID, (void*)cstr(msg), size);
 	if ( result == ERR )
 	{
 		thrower( "gpib write failed! " + getErrMessage(iberr ));
@@ -63,7 +63,7 @@ void Gpib::gpibSend(int address, std::string message)
 	if ( !GPIB_SAFEMODE )
 	{
 		//errBox( "attempting to send message: " + message );
-		Send( 0, address, (void*) message.c_str(), message.size(), NLend );
+		Send( 0, address, (void*) cstr(message), message.size(), NLend );
 		if ( ibsta == ERR )
 		{
 			thrower( "GPIB ERROR: " + getErrMessage( iberr ) );

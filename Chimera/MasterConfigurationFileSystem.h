@@ -21,10 +21,10 @@ struct profileSettings
 };
 
 /*
-]--- This constant class manages the entire "profile" system, where "profiles" are my term for the entirety of the settings in the code (strange word choice I
-]- know). It consists of the relevant controls, some saved indicators that can be checked to determine if the user should be prompted to save at a given point,
-]- and all of the functions for saving, renaming, deleting, and creating new levels within the code. 
-*/
+ * This constant class manages the entire "profile" system, where "profiles" are my term for the entirety of the settings in the code (strange word choice I
+ * know). It consists of the relevant controls, some saved indicators that can be checked to determine if the user should be prompted to save at a given point,
+ * and all of the functions for saving, renaming, deleting, and creating new levels within the code.
+ */f
 class MasterWindow;
 class ConfigurationFileSystem
 {
@@ -77,7 +77,7 @@ class ConfigurationFileSystem
 		void configurationSettingsReadyCheck(MasterWindow* Master);
 		void checkConfigurationSave(std::string prompt, MasterWindow* Master);
 		void configurationChangeHandler(MasterWindow* Master);
-		
+
 		void rearrange(int width, int height, fontMap fonts);
 
 		void saveCategory(MasterWindow* Master);
@@ -90,7 +90,7 @@ class ConfigurationFileSystem
 		void categorySettingsReadyCheck(MasterWindow* Master);
 		void checkCategorySave(std::string prompt, MasterWindow* Master);
 		void categoryChangeHandler(MasterWindow* Master);
-		
+
 		std::string getCurrentPathIncludingCategory();
 
 		std::vector<std::string> searchForFiles(std::string locationToSearch, std::string extensions);
@@ -102,22 +102,22 @@ class ConfigurationFileSystem
 
 		void initialize( POINT& topLeftPosition, std::vector<CToolTipCtrl*>& toolTips, MasterWindow* master, int& id );
 		void reorganizeControls(RECT parentRectangle, std::string mode);
-		
+
 		INT_PTR handleColorMessage( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, brushMap brushes);
 
 		std::string getMasterAddressFromConfig();
 
 	private:
-		profileSettings currentProfileSettings;
+		profileSettings currentProfile;
 		std::string FILE_SYSTEM_PATH;
-		
+
 		const double version;
 
 		bool configurationIsSaved;
 		bool categoryIsSaved;
 		bool experimentIsSaved;
 		bool sequenceIsSaved;
-		
+
 		Control<CStatic> configLabel;
 		Control<CComboBox> configCombo;
 		Control<CStatic> experimentLabel;

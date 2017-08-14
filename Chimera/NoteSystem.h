@@ -6,11 +6,13 @@
 class NoteSystem
 {
 	public:
+		void handleSaveConfig(std::ofstream& saveFile);
+		void handleOpenConfig(std::ifstream& openFile, double version);
 		void setExperimentNotes(std::string notes);
 		void setCategoryNotes(std::string notes);
 		void setConfigurationNotes(std::string notes);
-		void initializeControls(POINT& topLeftPosition, CWnd* parentWindow, int& id, fontMap fonts, 
-								std::vector<CToolTipCtrl*>& tooltips);
+		void initialize(POINT& topLeftPosition, CWnd* parentWindow, int& id, fontMap fonts, 
+								cToolTips& tooltips);
 		std::string getExperimentNotes();
 		std::string getCategoryNotes();
 		std::string getConfigurationNotes();

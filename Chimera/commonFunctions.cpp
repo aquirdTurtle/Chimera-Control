@@ -1,17 +1,16 @@
 #include "stdafx.h"
 #include <array>
+
 #include "commonFunctions.h"
-#include "Windows.h"
-#include "textPromptDialogProcedure.h"
+#include "TextPromptDialog.h"
 #include "myAgilent.h"
 #include "NiawgController.h"
 #include "experimentThreadInputStructure.h"
-#include "ExperimentManager.h"
 #include "scriptWriteHelpProc.h"
 #include "beginningSettingsDialogProc.h"
-#include "selectInCombo.h"
 #include "getFileName.h"
 #include "saveTextFileFromEdit.h"
+
 #include "MainWindow.h"
 #include "CameraWindow.h"
 #include "DeviceWindow.h"
@@ -21,8 +20,8 @@ namespace commonFunctions
 {
 	// this function handles messages that all windows can recieve, e.g. accelerator keys and menu messages. It 
 	// redirects everything to all of the other functions below, for the most part.
-	bool handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, ScriptingWindow* scriptWin, 
-							 CameraWindow* camWin, DeviceWindow* deviceWin )
+	void handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, ScriptingWindow* scriptWin, 
+							  CameraWindow* camWin, DeviceWindow* deviceWin )
 	{
 		switch (msgID)
 		{
@@ -40,24 +39,36 @@ namespace commonFunctions
 					if (err.whatBare() == "CANCEL")
 					{
 						mainWin->getComm()->sendStatus("Canceled camera initialization.\r\n");
-						mainWin->getComm()->sendColorBox({ /*niawg*/'B', /*camera*/'B', /*intensity*/'-' });
+						mainWin->getComm()->sendColorBox( Niawg, 'B' );
 						break;
 					}
 					mainWin->getComm()->sendError("EXITED WITH ERROR! " + err.whatStr());
-					mainWin->getComm()->sendColorBox({ /*niawg*/'-', /*camera*/'R', /*intensity*/'-' });
+					mainWin->getComm()->sendColorBox( Camera, 'R' );
 					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 					mainWin->getComm()->sendTimer("ERROR!");
+					camWin->assertOff();
 					break;
 				}
 				try
 				{
-					commonFunctions::startNiawg(msgID, scriptWin, mainWin, camWin, deviceWin);
+					//commonFunctions::startNiawg(msgID, scriptWin, mainWin, camWin, deviceWin);
 				}
 				catch (Error& err)
 				{
 					mainWin->getComm()->sendError("EXITED WITH ERROR! " + err.whatStr());
-					mainWin->getComm()->sendColorBox({ /*niawg*/'R', /*camera*/'R', /*intensity*/'-' });
+					mainWin->getComm()->sendColorBox( Niawg, 'R' );
 					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
+					mainWin->getComm()->sendTimer("ERROR!");
+				}
+				try
+				{
+					commonFunctions::startMasterOnly(mainWin, deviceWin, scriptWin);
+				}
+				catch (Error& err)
+				{
+					mainWin->getComm()->sendError("EXITED WITH ERROR! " + err.whatStr());
+					mainWin->getComm()->sendColorBox( Master, 'R' );
+					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\n");
 					mainWin->getComm()->sendTimer("ERROR!");
 				}
 				break;
@@ -69,25 +80,31 @@ namespace commonFunctions
 				std::string status;
 				try
 				{
-					bool niawgAborted = false, andorAborted=false;
+					bool niawgAborted = false, andorAborted = false, masterAborted = false;
 					if (mainWin->niawg.isRunning())
 					{
 						status = "NIAWG";
 						commonFunctions::abortNiawg(scriptWin, mainWin);
 						niawgAborted = true;
 					}
-					mainWin->getComm()->sendColorBox({ /*niawg*/'B', /*camera*/'-', /*intensity*/'-' });
+					mainWin->getComm()->sendColorBox( Niawg, 'B' );
 					if (camWin->Andor.isRunning())
 					{
 						status = "ANDOR";
 						commonFunctions::abortCamera(camWin, mainWin);
 						andorAborted = true;
 					}
-					mainWin->getComm()->sendColorBox({ /*niawg*/'-', /*camera*/'B', /*intensity*/'-' });
+					if (mainWin->masterThreadManager.runningStatus())
+					{
+						status = "MASTER";
+						commonFunctions::abortMaster(mainWin, deviceWin);
+						masterAborted = true;
+					}
+					mainWin->getComm()->sendColorBox( Camera, 'B' );
 					camWin->assertOff();
 					// todo... intensity
 
-					if (!niawgAborted && !andorAborted)
+					if (!niawgAborted && !andorAborted && !masterAborted)
 					{					
 						mainWin->getComm()->sendError("Neither Camera nor NIAWG was not running. Can't Abort.\r\n");
 					}
@@ -97,11 +114,11 @@ namespace commonFunctions
 					mainWin->getComm()->sendError("EXITED WITH ERROR! " + except.whatStr());
 					if (status == "NIAWG")
 					{
-						mainWin->getComm()->sendColorBox({ /*niawg*/'R', /*camera*/'-', /*intensity*/'-' });
+						mainWin->getComm()->sendColorBox( Niawg, 'R' );
 					}
 					else if (status == "ANDOR")
 					{
-						mainWin->getComm()->sendColorBox({ /*niawg*/'-', /*camera*/'R', /*intensity*/'-' });
+						mainWin->getComm()->sendColorBox( Camera, 'R' );
 					}
 					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 					mainWin->getComm()->sendTimer("ERROR!");
@@ -110,26 +127,27 @@ namespace commonFunctions
 			}
 			case ID_RUNMENU_RUNCAMERA:
 			{
-				mainWin->getComm()->sendColorBox({ /*niawg*/'-', /*camera*/'Y', /*intensity*/'-' });
+				mainWin->getComm()->sendColorBox( Camera, 'Y' );
 				mainWin->getComm()->sendStatus("Starting Camera...\r\n");
 				try
 				{
 					commonFunctions::startCamera(scriptWin, mainWin, camWin);
-					mainWin->getComm()->sendColorBox({ /*niawg*/'-', /*camera*/'G', /*intensity*/'-' });
+					mainWin->getComm()->sendColorBox( Camera, 'G' );
 					mainWin->getComm()->sendStatus("Camera is Running.\r\n");
 				}
 				catch (Error& exception)
 				{
 					if (exception.whatBare() == "CANCEL")
 					{
-						mainWin->getComm()->sendColorBox({ /*niawg*/'-', /*camera*/'B', /*intensity*/'-' });
+						mainWin->getComm()->sendColorBox( Camera, 'B' );
 						mainWin->getComm()->sendStatus("Camera is Not Running, User Canceled.\r\n");
 						break;
 					}
-					mainWin->getComm()->sendColorBox({ /*niawg*/'-', /*camera*/'R', /*intensity*/'-' });
+					mainWin->getComm()->sendColorBox( Camera, 'R' );
 					mainWin->getComm()->sendError("EXITED WITH ERROR! " + exception.whatStr());
 					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 					mainWin->getComm()->sendTimer("ERROR!");
+					camWin->assertOff();
 					break;
 				}
 				break;
@@ -138,15 +156,33 @@ namespace commonFunctions
 			{
 				try
 				{
-					commonFunctions::startNiawg(msgID, scriptWin, mainWin, camWin, deviceWin);
+					commonFunctions::startNiawgOnly(msgID, scriptWin, mainWin, camWin, deviceWin);
 				}
 				catch (Error& except)
 				{
-					mainWin->getComm()->sendColorBox({ /*niawg*/'R', /*camera*/'-', /*intensity*/'-' });
+					mainWin->getComm()->sendColorBox( Niawg, 'R' );
 					mainWin->getComm()->sendError("EXITED WITH ERROR! " + except.whatStr());
 					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
-					return true;
 				}
+				break;
+			}
+			case ID_RUNMENU_RUNMASTER:
+			{
+				try
+				{
+					commonFunctions::startMasterOnly( mainWin, deviceWin, scriptWin );
+				}
+				catch (Error& err)
+				{
+					mainWin->getComm()->sendColorBox( Master, 'R' );
+					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + err.whatStr() );
+					mainWin->getComm()->sendStatus( "EXITED WITH ERROR!\r\n" );
+				}
+				break;
+			}
+			case ID_RUNMENU_ABORTMASTER:
+			{
+				commonFunctions::abortMaster(mainWin, deviceWin);
 				break;
 			}
 			/// File Management 
@@ -155,12 +191,12 @@ namespace commonFunctions
 				scriptWin->saveHorizontalScript();
 				scriptWin->saveVerticalScript();
 				scriptWin->saveIntensityScript();
-				mainWin->profile.saveEntireProfile(scriptWin, mainWin, deviceWin );
+				mainWin->profile.saveEntireProfile(scriptWin, mainWin, deviceWin, camWin);
 				break;
 			}
 			case ID_PROFILE_SAVE_PROFILE:
 			{
-				mainWin->profile.saveEntireProfile(scriptWin, mainWin, deviceWin);
+				mainWin->profile.saveEntireProfile(scriptWin, mainWin, deviceWin, camWin);
 				break;
 			}
 			case ID_FILE_MY_EXIT:
@@ -175,7 +211,7 @@ namespace commonFunctions
 			}
 			case ID_FILE_MY_INTENSITY_OPEN:
 			{
-				scriptWin->openIntensityScript(parent->GetSafeHwnd());
+				scriptWin->openIntensityScript(parent);
 				break;
 			}
 			case ID_FILE_MY_INTENSITY_SAVE:
@@ -185,7 +221,7 @@ namespace commonFunctions
 			}
 			case ID_FILE_MY_INTENSITY_SAVEAS:
 			{
-				scriptWin->saveIntensityScriptAs(parent->GetSafeHwnd());
+				scriptWin->saveIntensityScriptAs(parent);
 				break;
 			}
 			case ID_FILE_MY_VERTICAL_NEW:
@@ -195,7 +231,7 @@ namespace commonFunctions
 			}
 			case ID_FILE_MY_VERTICAL_OPEN:
 			{
-				scriptWin->openVerticalScript(parent->GetSafeHwnd());
+				scriptWin->openVerticalScript(parent);
 				break;
 			}
 			case ID_FILE_MY_VERTICAL_SAVE:
@@ -205,7 +241,7 @@ namespace commonFunctions
 			}
 			case ID_FILE_MY_VERTICAL_SAVEAS:
 			{
-				scriptWin->saveVerticalScriptAs(parent->GetSafeHwnd());
+				scriptWin->saveVerticalScriptAs(parent);
 				break;
 			}
 			case ID_FILE_MY_HORIZONTAL_NEW:
@@ -215,7 +251,7 @@ namespace commonFunctions
 			}
 			case ID_FILE_MY_HORIZONTAL_OPEN:
 			{
-				scriptWin->openHorizontalScript(parent->GetSafeHwnd());
+				scriptWin->openHorizontalScript(parent);
 				break;
 			}
 			case ID_FILE_MY_HORIZONTAL_SAVE:
@@ -225,9 +261,40 @@ namespace commonFunctions
 			}
 			case ID_FILE_MY_HORIZONTAL_SAVEAS:
 			{
-				scriptWin->saveHorizontalScriptAs(parent->GetSafeHwnd());
+				scriptWin->saveHorizontalScriptAs(parent);
 				break;
 			}
+			case ID_MASTERSCRIPT_NEW:
+			{
+				scriptWin->newMasterScript();
+				break;
+			}
+			case ID_MASTERSCRIPT_SAVE:
+			{
+				scriptWin->saveMasterScript();
+				break;
+			}
+			case ID_MASTERSCRIPT_SAVEAS:
+			{
+				scriptWin->saveMasterScriptAs(parent);
+				break;
+			}
+			case ID_MASTERSCRIPT_NEWFUNCTION:
+			{
+				scriptWin->newMasterFunction();
+				break;
+			}
+			case ID_MASTERSCRIPT_SAVEFUNCTION:
+			{
+				scriptWin->saveMasterFunction();
+				break;
+			}
+
+			/*			
+			ID_MASTERSCRIPT_RENAME
+			ID_MASTERSCRIPT_DELETEFUNCTION	
+			*/
+
 			case ID_SEQUENCE_RENAMESEQUENCE:
 			{
 				mainWin->profile.renameSequence();
@@ -345,7 +412,7 @@ namespace commonFunctions
 			}
 			case ID_CONFIGURATION_SAVECONFIGURATIONSETTINGS:
 			{
-				mainWin->profile.saveConfigurationOnly(scriptWin, mainWin, deviceWin);
+				mainWin->profile.saveConfigurationOnly(scriptWin, mainWin, deviceWin, camWin);
 				break;
 			}
 			case ID_NIAWG_SENDSOFTWARETRIGGER:
@@ -395,13 +462,13 @@ namespace commonFunctions
 					{
 						mainWin->getComm()->sendError("Camera was not running. Can't Abort.\r\n");
 					}
-					mainWin->getComm()->sendColorBox({ /*niawg*/'-', /*camera*/'B', /*intensity*/'-' });
+					mainWin->getComm()->sendColorBox( Camera, 'B' );
 					camWin->assertOff();
 				}
 				catch (Error& except)
 				{
 					mainWin->getComm()->sendError("EXITED WITH ERROR! " + except.whatStr());
-					mainWin->getComm()->sendColorBox({ /*niawg*/'-', /*camera*/'R', /*intensity*/'-' });
+					mainWin->getComm()->sendColorBox( Camera, 'R' );
 					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 					mainWin->getComm()->sendTimer("ERROR!");
 				}
@@ -419,12 +486,12 @@ namespace commonFunctions
 					{
 						mainWin->getComm()->sendError("NIAWG was not running. Can't Abort.\r\n");
 					}
-					mainWin->getComm()->sendColorBox({ /*niawg*/'B', /*camera*/'-', /*intensity*/'-' });
+					mainWin->getComm()->sendColorBox( Niawg, 'B' );
 				}
 				catch (Error& except)
 				{
 					mainWin->getComm()->sendError("EXITED WITH ERROR! " + except.whatStr());
-					mainWin->getComm()->sendColorBox({ /*niawg*/'R', /*camera*/'-', /*intensity*/'-' });
+					mainWin->getComm()->sendColorBox( Niawg, 'R' );
 					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 					mainWin->getComm()->sendTimer("ERROR!");
 				}
@@ -441,10 +508,31 @@ namespace commonFunctions
 				mainWin->masterConfig.load(mainWin, deviceWin, camWin);
 				break;
 			}
+			case ID_MASTER_VIEWORCHANGEINDIVIDUALDACSETTINGS:
+			{
+				deviceWin->ViewOrChangeDACNames();
+				break;
+			}
+			case ID_MASTER_VIEWORCHANGETTLNAMES:
+			{
+				deviceWin->ViewOrChangeTTLNames();
+				break;
+			}
+			case ID_ACCELERATOR_F2:
+			case ID_RUNMENU_PAUSE:
+			{
+				mainWin->handlePause();
+				break;
+			}
+			case ID_ACCELERATOR_F1:
+			{
+				deviceWin->loadMotSettings();
+				break;
+			}
+
 			default:
 				errBox("ERROR: Common message passed but not handled!");
 		}
-		return false;
 	}
 
 	void startCamera( ScriptingWindow* scriptWindow, MainWindow* mainWin, CameraWindow* camWin )
@@ -454,7 +542,7 @@ namespace commonFunctions
 		camWin->prepareCamera();
 
 		std::string msg = camWin->getStartMessage();
-		int answer = MessageBox( 0, msg.c_str(), "Start Info", MB_OKCANCEL );
+		int answer = MessageBox( 0, cstr(msg), "Start Info", MB_OKCANCEL );
 		if (answer == IDCANCEL)
 		{
 			// user doesn't want to start the camera.
@@ -468,9 +556,9 @@ namespace commonFunctions
 		time_t time_obj = time(0);   // get time now
 		struct tm currentTime;
 		localtime_s(&currentTime, &time_obj);
-		std::string timeStr = "(" + std::to_string(currentTime.tm_year + 1900) + ":" + std::to_string(currentTime.tm_mon + 1) + ":"
-			+ std::to_string(currentTime.tm_mday) + ")" + std::to_string(currentTime.tm_hour) + ":"
-			+ std::to_string(currentTime.tm_min) + ":" + std::to_string(currentTime.tm_sec);
+		std::string timeStr = "(" + str(currentTime.tm_year + 1900) + ":" + str(currentTime.tm_mon + 1) + ":"
+			+ str(currentTime.tm_mday) + ")" + str(currentTime.tm_hour) + ":"
+			+ str(currentTime.tm_min) + ":" + str(currentTime.tm_sec);
 		appendText("\r\n**********" + timeStr + "**********\r\nSystem is Running.\r\n", IDC_STATUS_EDIT);
 		appendText("\r\n******" + timeStr + "******\r\n", IDC_ERROR_EDIT);
 		*/
@@ -494,10 +582,10 @@ namespace commonFunctions
 	}
 
 	/*
-	 *  Can throw myException.
+	 * 
 	 */
-	void startNiawg( int msgID, ScriptingWindow* scriptWin, MainWindow* mainWin, CameraWindow* camWin,
-					 DeviceWindow* deviceWin )
+	void startNiawgOnly( int msgID, ScriptingWindow* scriptWin, MainWindow* mainWin, CameraWindow* camWin,
+						 DeviceWindow* deviceWin )
 	{
 		Communicator* comm = mainWin->getComm();
 		profileSettings profile = mainWin->getCurrentProfileSettings();
@@ -513,10 +601,10 @@ namespace commonFunctions
 				result = WaitForSingleObject( eExperimentThreadHandle, INFINITE );
 				eAbortNiawgFlag = false;
 				// abort the generation on the NIAWG.
-				myAgilent::agilentDefault();
+				Agilent::agilentDefault();
 				std::string msgString = "Passively Outputting Default Waveform";
 				mainWin->getComm()->sendStatus( msgString );
-				mainWin->getComm()->sendColorBox( { /*niawg*/'B', /*camera*/'-', /*intensity*/'-' } );
+				mainWin->getComm()->sendColorBox( Niawg, 'B' );
 
 				try
 				{
@@ -524,7 +612,7 @@ namespace commonFunctions
 				}
 				catch (Error& except)
 				{
-					mainWin->getComm()->sendColorBox( { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' } );
+					mainWin->getComm()->sendColorBox( Niawg, 'R' );
 					mainWin->getComm()->sendFatalError( "Failed to restart the NIAWG default during the script restart procedure! Error "
 														"reported is" + except.whatStr() );
 					mainWin->setNiawgRunningState( false );
@@ -538,7 +626,7 @@ namespace commonFunctions
 		}
 		if (profile.sequenceConfigNames.size() == 0)
 		{
-			mainWin->getComm()->sendColorBox( { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' } );
+			mainWin->getComm()->sendColorBox( Niawg, 'R' );
 			mainWin->getComm()->sendError( "ERROR: No configurations in current sequence! Please set some configurations to run in this "
 										   "sequence or set the null sequence.\r\n" );
 			return;
@@ -555,7 +643,7 @@ namespace commonFunctions
 		std::string verticalNameString( scriptNames.verticalNIAWG );
 		std::string intensityNameString( scriptNames.intensityAgilent );
 		std::string beginInfo = "Current Settings:\r\n=============================\r\n\r\n";
-		std::string sequenceInfo = "";//eProfile.getSequenceNamesString();
+		std::string sequenceInfo = "";
 		if (sequenceInfo != "")
 		{
 			beginInfo += sequenceInfo;
@@ -563,7 +651,7 @@ namespace commonFunctions
 		else
 		{
 			scriptInfo<bool> scriptSavedStatus = scriptWin->getScriptSavedStatuses();
-			beginInfo += "Vertical Script Name:........ " + std::string( verticalNameString );
+			beginInfo += "Vertical Script Name:........ " + str( verticalNameString );
 			if (scriptSavedStatus.verticalNIAWG)
 			{
 				beginInfo += " SAVED\r\n";
@@ -572,7 +660,7 @@ namespace commonFunctions
 			{
 				beginInfo += " NOT SAVED\r\n";
 			}
-			beginInfo += "Horizontal Script Name:...... " + std::string( horizontalNameString );
+			beginInfo += "Horizontal Script Name:...... " + str( horizontalNameString );
 			if (scriptSavedStatus.horizontalNIAWG)
 			{
 				beginInfo += " SAVED\r\n";
@@ -581,7 +669,7 @@ namespace commonFunctions
 			{
 				beginInfo += " NOT SAVED\r\n";
 			}
-			beginInfo += "Intensity Script Name:....... " + std::string( intensityNameString );
+			beginInfo += "Intensity Script Name:....... " + str( intensityNameString );
 			if (scriptSavedStatus.intensityAgilent)
 			{
 				beginInfo += " SAVED\r\n";
@@ -607,26 +695,6 @@ namespace commonFunctions
 			beginInfo += "\r\n";
 		}
 		mainOptions settings = mainWin->getMainOptions();
-		if (settings.connectToMaster)
-		{
-			beginInfo += "Connecting To Master.............. TRUE\r\n";
-			if (settings.getVariables)
-			{
-				beginInfo += "Getting Variables from Master:.... TRUE\r\n";
-			}
-			else
-			{
-				beginInfo += "Getting Variables from Master:.... FALSE\r\n";
-			}
-		}
-		else
-		{
-			beginInfo += "Connecting To Master:........ FALSE\r\n";
-			if (settings.getVariables)
-			{
-				beginInfo += "Getting Variables from Master:.... TRUE ??????\r\n";
-			}
-		}
 		if (settings.programIntensity)
 		{
 			beginInfo += "Programming Intensity:....... TRUE\r\n";
@@ -637,16 +705,17 @@ namespace commonFunctions
 		}
 		beginInfo += "\r\n";
 		std::string beginQuestion = "\r\n\r\nBegin Waveform Generation with these Settings?";
-		INT_PTR areYouSure = DialogBoxParam( NULL, MAKEINTRESOURCE( IDD_BEGINNING_SETTINGS ), 0, beginningSettingsDialogProc, (LPARAM)(beginInfo + beginQuestion).c_str() );
+		INT_PTR areYouSure = DialogBoxParam( NULL, MAKEINTRESOURCE( IDD_BEGINNING_SETTINGS ), 0, 
+											 beginningSettingsDialogProc, (LPARAM)cstr(beginInfo + beginQuestion));
 		if (areYouSure == 0)
 		{
 			mainWin->getComm()->sendStatus( "Performing Initial Analysis and Writing and Loading Non-Varying Waveforms...\r\n" );
-			mainWin->getComm()->sendColorBox( { /*niawg*/'Y', /*camera*/'-', /*intensity*/'-' } );
+			mainWin->getComm()->sendColorBox( Niawg, 'Y' );
 			// Set the thread structure.
-			experimentThreadInput* inputParams = new experimentThreadInput();
+			MasterThreadInput* inputParams = new MasterThreadInput();
 			// force accumulations to zero. This shouldn't affect anything, this should always get set by the master or be infinite.
-			inputParams->settings = settings;
-			inputParams->currentScript = eCurrentScript;
+
+			//inputParams->settings = settings;
 			if (msgID == ID_FILE_MY_WRITE_WAVEFORMS)
 			{
 				inputParams->dontActuallyGenerate = true;
@@ -655,16 +724,21 @@ namespace commonFunctions
 			{
 				inputParams->dontActuallyGenerate = false;
 			}
-			inputParams->debugInfo = mainWin->getDebuggingOptions();
+			inputParams->debugOptions = mainWin->getDebuggingOptions();
 			inputParams->comm = mainWin->getComm();
 			inputParams->profile = profile;
 			scriptInfo<std::string> addresses = scriptWin->getScriptAddresses();
 			eMostRecentVerticalScriptNames = addresses.verticalNIAWG;
 			eMostRecentHorizontalScriptNames = addresses.horizontalNIAWG;
 			eMostRecentIntensityScriptNames = addresses.intensityAgilent;
-			// Start the programming thread.
-			mainWin->startExperiment( inputParams );
 
+			inputParams->runNiawg = true;
+			inputParams->runMaster = false;
+
+			// Start the programming thread.
+			deviceWin->fillMasterThreadInput( inputParams );
+			mainWin->fillMasterThreadInput( inputParams );
+			mainWin->startMaster( inputParams );
 			mainWin->setNiawgRunningState( true );
 			mainWin->addTimebar( "main" );
 			mainWin->addTimebar( "error" );
@@ -677,7 +751,7 @@ namespace commonFunctions
 	{
 		if (!camWin->cameraIsRunning())
 		{
-			mainWin->getComm()->sendColorBox( { /*niawg*/'B', /*camera*/'-', /*intensity*/'-' } );
+			mainWin->getComm()->sendColorBox( Niawg, 'B' );
 			mainWin->getComm()->sendError( "System was not running. Can't Abort.\r\n" );
 			return;
 		}
@@ -686,8 +760,7 @@ namespace commonFunctions
 		// abort acquisition if in progress
 		camWin->abortCameraRun();
 		mainWin->getComm()->sendStatus( "Aborted Camera Operation.\r\n" );
-		// todo: here handle data closing as well.
-
+		// todo: here handle data closing as well....? 
 	}
 
 
@@ -699,7 +772,7 @@ namespace commonFunctions
 		if (!mainWin->niawgIsRunning())
 		{
 			std::string msgString = "Passively Outputting Default Waveform.";
-			comm->sendColorBox( { /*niawg*/'B', /*camera*/'-', /*intensity*/'-' } );
+			comm->sendColorBox( Niawg, 'B' );
 			comm->sendError( "System was not running. Can't Abort.\r\n" );
 			return;
 		}
@@ -709,13 +782,14 @@ namespace commonFunctions
 		result = WaitForSingleObject( eNIAWGWaitThreadHandle, 0 );
 		if (result == WAIT_TIMEOUT)
 		{
+			// try again. Hopefully gives the main thread to handle other messages first if this happens.
 			mainWin->PostMessageA( WM_COMMAND, MAKEWPARAM( ID_FILE_ABORT_GENERATION, 0 ) );
 			return;
 		}
 		result = WaitForSingleObject( eExperimentThreadHandle, 0 );
 		if (result == WAIT_TIMEOUT)
 		{
-			// try again. this will put this message at the back of the message queue so waiting messages will get handled first.
+			// try again. Hopefully gives the main thread to handle other messages first if this happens.
 			mainWin->PostMessageA( WM_COMMAND, MAKEWPARAM( ID_FILE_ABORT_GENERATION, 0 ) );
 			return;
 		}
@@ -723,7 +797,7 @@ namespace commonFunctions
 		// abort the generation on the NIAWG.
 		myAgilent::agilentDefault();
 		comm->sendStatus( "Aborted NIAWG Operation. Passively Outputting Default Waveform.\r\n" );
-		comm->sendColorBox( { /*niawg*/'B', /*camera*/'-', /*intensity*/'B' } );
+		comm->sendColorBox( Niawg, 'B' );
 		mainWin->restartNiawgDefaults();
 		mainWin->setNiawgRunningState( false );
 	}
@@ -733,11 +807,18 @@ namespace commonFunctions
 	{
 		if (mainWin->niawgIsRunning())
 		{
-			thrower( "The NIAWG is Currently Running. Please stop the system before exiting so that devices devices can stop normally." );
+			thrower( "The NIAWG is Currently Running. Please stop the system before exiting so that devices devices "
+					 "can stop normally." );
 		}
 		if (camWin->cameraIsRunning())
 		{
-			thrower( "The Camera is Currently Running. Please stop the system before exiting so that devices devices can stop normally." );
+			thrower( "The Camera is Currently Running. Please stop the system before exiting so that devices devices "
+					 "can stop normally." );
+		}
+		if (mainWin->masterIsRunning())
+		{
+			thrower( "The Master system (ttls & dacs) is currently running. Please stop the system before exiting so "
+					 "that devices can stop normally." );
 		}
 		if (scriptWindow->checkScriptSaves())
 		{
@@ -745,7 +826,7 @@ namespace commonFunctions
 		}
 		mainWin->checkProfileSave();
 		std::string exitQuestion = "Are you sure you want to exit?\n\nThis will stop all output of the arbitrary waveform generator.";
-		int areYouSure = MessageBox( NULL, exitQuestion.c_str(), "Exit", MB_OKCANCEL | MB_ICONWARNING );
+		int areYouSure = MessageBox( NULL, cstr(exitQuestion), "Exit", MB_OKCANCEL | MB_ICONWARNING );
 		if (areYouSure == IDOK)
 		{
 			/// Exiting
@@ -807,4 +888,58 @@ namespace commonFunctions
 		}
 		mainWin->getComm()->sendStatus( "Reloaded Default Waveforms.\r\nInitialized Default Waveform.\r\n" );
 	}
+
+	void commonFunctions::setMot(MainWindow* mainWin)
+	{
+		MasterThreadInput* input = new MasterThreadInput;
+		input->quiet = true;
+		
+	}
+
+
+	void commonFunctions::startMasterOnly(MainWindow* mainWin, DeviceWindow* deviceWin, ScriptingWindow* scriptWin)
+	{
+		Communicator* comm = mainWin->getComm();
+		comm->sendStatus("............................\r\n");
+		comm->sendStatus("Checking if Ready...\n");
+		// profile.allSettingsReadyCheck( this );
+		// masterScript.checkSave( this );
+		comm->sendStatus("Starting Experiment Thread...\r\n");
+		comm->sendColorBox( Master, 'Y' );
+		MasterThreadInput* input = new MasterThreadInput;
+		input->quiet = false;
+		input->runNiawg = false;
+		input->runMaster = true;
+		scriptWin->checkMasterSave();
+		deviceWin->fillMasterThreadInput(input);
+		mainWin->fillMasterThreadInput(input);
+		mainWin->startMaster(input);
+	}
+
+	void startFullMasterThread( MainWindow* mainWin, DeviceWindow* deviceWin, ScriptingWindow* scriptWin )
+	{
+		Communicator* comm = mainWin->getComm();
+		comm->sendStatus( "............................\r\n" );
+		comm->sendStatus( "Checking if Ready...\n" );
+		// profile.allSettingsReadyCheck( this );
+		// masterScript.checkSave( this );
+		comm->sendStatus( "Starting Experiment Thread...\r\n" );
+		comm->sendColorBox( Master, 'Y' );
+		MasterThreadInput* input = new MasterThreadInput;
+		input->quiet = false;
+		scriptWin->checkMasterSave();
+		input->runNiawg = true;
+		input->runMaster = true;
+		deviceWin->fillMasterThreadInput( input );
+		mainWin->fillMasterThreadInput( input );
+		mainWin->startMaster( input );
+	}
+
+	void commonFunctions::abortMaster(MainWindow* mainWin, DeviceWindow* deviceWin)
+	{
+		mainWin->abortMasterThread();
+		deviceWin->handleAbort();
+	}
 };
+
+

@@ -1,14 +1,142 @@
 #include "stdafx.h"
+#include <iomanip>
+#include <unordered_map>
+
 #include "VariableSystem.h"
 #include "fonts.h"
-#include "textPromptDialogProcedure.h"
-#include <iomanip>
 #include "Script.h"
-#include "constants.h"
-#include <unordered_map>
 #include "afxcmn.h"
 #include "TtlSystem.h"
 #include "DeviceWindow.h"
+#include "TextPromptDialog.h"
+
+UINT VariableSystem::getTotalVariationNumber()
+{
+	return currentVariations;
+}
+
+void VariableSystem::handleOpenConfig(std::ifstream& configFile, double version)
+{
+	ProfileSystem::checkDelimiterLine(configFile, "VARIABLES");
+	// handle variables
+	clearVariables();
+	// Number of Variables
+	int varNum;
+	configFile >> varNum;
+	if (varNum < 0 || varNum > 10)
+	{
+		int answer = MessageBox(0, cstr("ERROR: variable number retrieved from file appears suspicious. The number is "
+								+ str(varNum) + ". Is this accurate?"), 0, MB_YESNO);
+		if (answer == IDNO)
+		{
+			// don't try to load anything.
+			varNum = 0;
+		}
+	}
+
+	for (int varInc = 0; varInc < varNum; varInc++)
+	{
+		std::string varName, timelikeText, typeText, valueString;
+		bool timelike;
+		bool singleton;
+		double value;
+		configFile >> varName;
+		std::transform(varName.begin(), varName.end(), varName.begin(), ::tolower);
+		configFile >> timelikeText;
+		configFile >> typeText;
+		configFile >> valueString;
+		if (timelikeText == "Timelike")
+		{
+			timelike = true;
+		}
+		else if (timelikeText == "Not_Timelike")
+		{
+			timelike = false;
+		}
+		else
+		{
+			thrower("ERROR: unknown timelike option. Check the formatting of the configuration file.");
+		}
+		if (typeText == "Singleton")
+		{
+			singleton = true;
+		}
+		else if (typeText == "From_Master")
+		{
+			singleton = false;
+		}
+		else
+		{
+			thrower("ERROR: unknown variable type option. Check the formatting of the configuration file.");
+		}
+		try
+		{
+			value = std::stod(valueString);
+		}
+		catch (std::invalid_argument&)
+		{
+			thrower("ERROR: Failed to convert value in configuration file for variable's double value. Value was: " + valueString);
+		}
+		variable var;
+		var.name = varName;
+		var.timelike = timelike;
+		var.constant = singleton;
+		var.ranges.push_back({ value, 0, 1, false, true });
+		addConfigVariable(var, varInc);
+	}
+
+	// add a blank line
+	variable var;
+	var.name = "";
+	var.timelike = false;
+	var.constant = false;
+	var.ranges.push_back({ 0, 0, 1, false, true });
+	addConfigVariable(var, varNum);
+
+	ProfileSystem::checkDelimiterLine(configFile, "END_VARIABLES");
+}
+
+
+void VariableSystem::handleSaveConfig(std::ofstream& saveFile)
+{
+	/// master script
+	saveFile << "VARIABLES\n";
+	// Number of Variables
+	saveFile << getCurrentNumberOfVariables() << "\n";
+	/// Variable Names
+	for (int varInc = 0; varInc < getCurrentNumberOfVariables(); varInc++)
+	{
+		variable info = getVariableInfo(varInc);
+		saveFile << info.name << " ";
+		if (info.timelike)
+		{
+			saveFile << "Timelike ";
+		}
+		else
+		{
+			saveFile << "Not_Timelike ";
+		}
+		if (info.constant)
+		{
+			saveFile << "Constant ";
+		}
+		else
+		{
+			saveFile << "Variable ";
+		}
+		saveFile << info.ranges.size() << " ";
+		for (int rangeInc = 0; rangeInc < info.ranges.size(); rangeInc++)
+		{
+			saveFile << info.ranges[rangeInc].initialValue << " ";
+			saveFile << info.ranges[rangeInc].finalValue << " ";
+			saveFile << info.ranges[rangeInc].variations << " ";
+			saveFile << info.ranges[rangeInc].leftInclusive << " ";
+			saveFile << info.ranges[rangeInc].rightInclusive << " ";
+		}
+		saveFile << "\n";
+	}
+	saveFile << "END_VARIABLES\n";
+}
 
 
 void VariableSystem::rearrange(UINT width, UINT height, fontMap fonts)
@@ -825,7 +953,7 @@ void VariableSystem::deleteVariable()
 	int answer;
 	if (itemIndicator < currentVariables.size())
 	{
-		answer = MessageBox(0, ("Delete variable " + currentVariables[itemIndicator].name + "?").c_str(), 0, MB_YESNO);
+		answer = MessageBox(0, cstr("Delete variable " + currentVariables[itemIndicator].name + "?"), 0, MB_YESNO);
 		if (answer == IDYES)
 		{
 			variablesListview.DeleteItem(itemIndicator);
@@ -851,7 +979,7 @@ variable VariableSystem::getVariableInfo(int varNumber)
 }
 
 
-unsigned int VariableSystem::getCurrentNumberOfVariables()
+UINT VariableSystem::getCurrentNumberOfVariables()
 {
 	return currentVariables.size();
 }
@@ -1212,8 +1340,7 @@ void VariableSystem::addConfigVariable(variable var, int item)
 }
 
 
-void VariableSystem::initialize( POINT& pos, std::vector<CToolTipCtrl*>& toolTips, DeviceWindow* master, int& id, 
-								 std::string title )
+void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, DeviceWindow* master, int& id, std::string title )
 {
 	if (title == "GLOBAL VARIABLES")
 	{

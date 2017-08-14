@@ -1,17 +1,14 @@
 #include "stdafx.h"
 #include "ExperimentTimer.h"
-#include "externals.h"
-#include "constants.h"
 #include "Commctrl.h"
 #include "Uxtheme.h"
 #include <vector>
-#include "reorganizeControl.h"
 #include "fonts.h"
 #include "CameraWindow.h"
 
 
 void ExperimentTimer::initialize( cameraPositions& inputLoc, CWnd* parent, bool isTriggerModeSensitive, int& id,
-								  fontMap fonts, std::vector<CToolTipCtrl*> toolTips )
+								  fontMap fonts, cToolTips& toolTips )
 {
 	timeDisplay.sPos = { inputLoc.sPos.x, inputLoc.sPos.y, inputLoc.sPos.x + 168, inputLoc.sPos.y + 40 };
 	timeDisplay.Create("", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, timeDisplay.sPos, parent, id++ );
@@ -72,27 +69,27 @@ void ExperimentTimer::update(int currentRepNumber, int repsPerVariation, int num
 			int minutes = (timeLeft % 3600) / 60;
 			int seconds = (timeLeft % 3600) % 60;
 			std::string timeString = "";
-			timeString += std::to_string(hours) + ":";
+			timeString += str(hours) + ":";
 			if (minutes < 10)
 			{
-				timeString += "0" + std::to_string(minutes);
+				timeString += "0" + str(minutes);
 			}
 			else
 			{
-				timeString += std::to_string(minutes);
+				timeString += str(minutes);
 			}
 			if (hours == 0 && minutes < 5)
 			{
 				if (seconds < 10)
 				{
-					timeString += ":0" + std::to_string(seconds);
+					timeString += ":0" + str(seconds);
 				}
 				else
 				{
-					timeString += ":" + std::to_string(seconds);
+					timeString += ":" + str(seconds);
 				}
 			}
-			timeDisplay.SetWindowTextA( timeString.c_str() );
+			timeDisplay.SetWindowTextA( cstr(timeString) );
 		}
 	}
 	else
@@ -113,5 +110,5 @@ void ExperimentTimer::rearrange( std::string cameraMode, std::string triggerMode
 
 void ExperimentTimer::setTimerDisplay(std::string newText)
 {
-	timeDisplay.SetWindowTextA( newText.c_str() );
+	timeDisplay.SetWindowTextA( cstr(newText) );
 }

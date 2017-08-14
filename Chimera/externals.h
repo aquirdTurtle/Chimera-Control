@@ -38,18 +38,14 @@ extern double eCurrentAgilentLow;
 extern double eCurrentAgilentHigh;
 
 // These Describe the scripts
-
 extern std::string eMostRecentVerticalScriptNames;
 extern std::string eMostRecentHorizontalScriptNames;
 extern std::string eMostRecentIntensityScriptNames;
+
 /// Global Options Variables
-
-// A variable which records what script is currently being executed by the NIAWG.
-extern std::string eCurrentScript;
-
 extern UINT eGreenMessageID, eStatusTextMessageID, eErrorTextMessageID, eFatalErrorMessageID, eVariableStatusMessageID,
 			eNormalFinishMessageID, eColoredEditMessageID, eDebugMessageID, eCameraFinishMessageID, 
-			eCameraProgressMessageID;
+			eCameraProgressMessageID, eRepProgressMessageID;
 
 extern bool eAbortNiawgFlag;
 

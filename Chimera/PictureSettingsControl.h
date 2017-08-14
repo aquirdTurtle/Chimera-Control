@@ -16,8 +16,9 @@ class PictureSettingsControl
 {
 	public:
 		// must have parent. Enforced partially because both are singletons.
-		PictureSettingsControl::PictureSettingsControl(CameraSettingsControl* parentObj) { parentSettingsControl = parentObj; }
-
+		PictureSettingsControl(CameraSettingsControl* parentObj) { parentSettingsControl = parentObj; }
+		void handleSaveConfig(std::ofstream& saveFile);
+		void handleOpenConfig(std::ifstream& openFile, double version, AndorCamera* andor);
 		void initialize( cameraPositions& pos, CWnd* parent, int& id);
 		void handleOptionChange(UINT id, AndorCamera* andorObj);
 		void disablePictureControls(int pic);

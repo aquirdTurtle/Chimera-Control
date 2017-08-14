@@ -1,23 +1,22 @@
 #include "stdafx.h"
-#include "Andor.h"
 #include <process.h>
 #include <algorithm>
 #include <numeric>
+
 #include "atmcd32d.h"
+
+#include "Andor.h"
 #include "CameraWindow.h"
 
 
 AndorCamera::AndorCamera()
 {
-
 	runSettings.emGainModeIsOn = false;
-
 	std::string errorMessage;
 	if (ANDOR_SAFEMODE)
 	{
 		errorMessage = "Andor Camera is in SAFEMODE: Initialization Not attempted.";
 	}
-
 	// Initialize driver in current directory
 	try
 	{
@@ -115,7 +114,7 @@ AndorCamera::AndorCamera()
 					  eInitializeDialogBoxHandle);
 	//initializationUpdate(errorMessage, defaultCharFormat, redCharFormat, greenCharFormat);
 	
-	if (!ePlotter.is_open())
+	if (!(*input->plotter).is_open())
 	{
 		errorMessage = "GNUPLOT didn't open correctly.";
 	}
@@ -225,7 +224,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 		else
 		{
 			// simulate an actual wait.
-			Sleep( input->Andor->runSettings.kinetiCycleTime * 1000 );
+			Sleep( input->Andor->runSettings.kineticCycleTime * 1000 );
 			if ( input->Andor->cameraIsRunning && safeModeCount < input->Andor->runSettings.totalPicsInExperiment)
 			{
 				if ( input->Andor->runSettings.cameraMode == "Kinetic Series Mode" 
@@ -312,7 +311,7 @@ void AndorCamera::armCamera(CameraWindow* camWin)
 		setAccumulationCycleTime();
 		setNumberAccumulations(false);
 	}
-	confirmAcquisitionTimings(runSettings.kinetiCycleTime, runSettings.accumulationTime, runSettings.exposureTimes);
+	confirmAcquisitionTimings(runSettings.kineticCycleTime, runSettings.accumulationTime, runSettings.exposureTimes);
 	setGainMode();
 	setCameraTriggerMode();
 	// Set trigger mode.
@@ -362,7 +361,7 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 		}
 		else
 		{
-			// pass it up.
+			// it's an actual error, pass it up.
 			throw;
 		}
 	}
@@ -378,8 +377,10 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 	}
 	else
 	{
-		experimentPictureNumber = (((currentPictureNumber - 1) % runSettings.totalPicsInVariation) % runSettings.picsPerRepetition);
+		experimentPictureNumber = (((currentPictureNumber - 1) % runSettings.totalPicsInVariation) 
+								   % runSettings.picsPerRepetition);
 	}
+
 	if (experimentPictureNumber == 0)
 	{
 		WaitForSingleObject(imagesMutex, INFINITE);
@@ -417,35 +418,42 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 	else
 	{
 		// generate a fake image.
+		std::vector<bool> atomSpots = { 0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
+										0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,
+										0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
+										0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,
+										0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
+										0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,
+										0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
+										0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,
+										0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
+										0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,
+										0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
+										0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,
+										0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
+										0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,	1,	0,
+										0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0
+									  };
+
 		for (int imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 		{
-			if (experimentPictureNumber == 0 && imageVecInc == 0)
+			tempImage[imageVecInc] = rand() % 30 + 95;
+			if (!(imageVecInc >= atomSpots.size()))
 			{
-				tempImage[imageVecInc] = 400;
-			}
-			else if (experimentPictureNumber != 0 && imageVecInc == 0)
-			{
-				if (rand() % 2)
+				if (imageVecInc == 0)
 				{
-					tempImage[imageVecInc] = 400;
+					tempImage[imageVecInc] = 3;
+					continue;
 				}
-				else
+				if (atomSpots[imageVecInc])
 				{
-					tempImage[imageVecInc] = rand() % 200 + 95;
+					// can have an atom here.
+					if (rand() % 300 > imageVecInc + 50)
+					{
+						tempImage[imageVecInc] += 400;
+					}
 				}
 			}
-			else if (imageVecInc == 1)
-			{
-				tempImage[imageVecInc] = 300;
-			}
-			else if (imageVecInc == 2)
-			{
-				tempImage[imageVecInc] = 200;
-			}
-			else
-			{
-				tempImage[imageVecInc] = rand() % 30 + 95;
-			}	
 		}
 		WaitForSingleObject(imagesMutex, INFINITE);
 		for (int imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
@@ -511,7 +519,7 @@ void AndorCamera::setExposures()
 	}
 	else
 	{
-		thrower("ERROR: Invalid size for vector of exposure times, value of " + std::to_string(runSettings.exposureTimes.size()) + ".");
+		thrower("ERROR: Invalid size for vector of exposure times, value of " + str(runSettings.exposureTimes.size()) + ".");
 	}
 }
 
@@ -526,7 +534,7 @@ void AndorCamera::setImageParametersToCamera()
 
 void AndorCamera::setKineticCycleTime()
 {
-	setKineticCycleTime(runSettings.kinetiCycleTime);
+	setKineticCycleTime(runSettings.kineticCycleTime);
 }
 
 
@@ -1371,7 +1379,7 @@ void AndorCamera::getStatus()
 	if (status != DRV_IDLE)
 	{
 		thrower("ERROR: You tried to start the camera, but the camera was not idle! Camera was in state corresponding to "
-				+ std::to_string(status) + "\r\n");
+				+ str(status) + "\r\n");
 	}
 }
 

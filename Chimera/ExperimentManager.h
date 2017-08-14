@@ -18,9 +18,8 @@
 #include "ExperimentLogger.h"
 
 
-struct experimentThreadInput
+struct niawgIntensityThreadInput
 {
-	std::string currentScript;
 	bool dontActuallyGenerate;
 	debugInfo debugInfo;
 	mainOptions settings;
@@ -35,16 +34,27 @@ struct experimentThreadInput
  * throughout the process.
  * inputParam is the list of all of the relevant parameters to be used during this run of the experiment.
  */
-class ExperimentManager
+class NiawgAndIntensityManager
 {
 	public:
-		void startThread(experimentThreadInput* inputParam);
+		void startThread(niawgIntensityThreadInput* inputParam);
 		bool isRunning();
 		void waitUntilDone();
 		void pauseExperiment();
 		void unpauseExperiment();
 
 	private:
-		static unsigned __stdcall experimentProgrammingThread( LPVOID inputParam );
+		static unsigned __stdcall niawgIntensityProgrammingThread( LPVOID inputParam );
 		bool threadRunningStatus;
 };
+
+/*
+// extra thread that programs niawg waveforms, started and watched by main experiment thread.
+
+// variation loop
+// wait until prev niawg finished
+// start programming next niawg
+// start variation
+// finish variation
+
+*/

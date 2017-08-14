@@ -1,12 +1,138 @@
 #include "stdafx.h"
-#include "MainWindow.h"
-#include "initializeMainWindow.h"
 #include "commonFunctions.h"
 #include "myAgilent.h"
-#include "NiawgController.h"
+#include "MainWindow.h"
 #include "CameraWindow.h"
-#include "myErrorHandler.h"
 #include "DeviceWindow.h"
+
+MainWindow::MainWindow(UINT id) : CDialog(id), profile(PROFILES_PATH), masterConfig(MASTER_CONFIGURATION_FILE_ADDRESS)
+{
+	mainRGBs["Light Green"] = RGB(163, 190, 140);
+	mainRGBs["Slate Grey"] = RGB(101, 115, 126);
+	mainRGBs["Pale Pink"] = RGB(180, 142, 173);
+	mainRGBs["Musky Red"] = RGB(191, 97, 106);
+	mainRGBs["Solarized Red"] = RGB(220, 50, 47);
+	mainRGBs["Solarized Violet"] = RGB(108, 113, 196);
+	mainRGBs["Solarized Cyan"] = RGB(42, 161, 152);
+	mainRGBs["Solarized Green"] = RGB(133, 153, 0);
+	mainRGBs["Solarized Blue"] = RGB(38, 139, 210);
+	mainRGBs["Solarized Magenta"] = RGB(211, 54, 130);
+	mainRGBs["Solarized Orange"] = RGB(203, 75, 22);
+	mainRGBs["Solarized Yellow"] = RGB(181, 137, 0);
+	mainRGBs["Slate Green"] = RGB(23, 84, 81);
+	mainRGBs["Dark Grey"] = RGB(15, 15, 15);
+	mainRGBs["Dark Grey Red"] = RGB(20, 12, 12);
+	mainRGBs["Medium Grey"] = RGB(30, 30, 30);
+	mainRGBs["Light Grey"] = RGB(60, 60, 60);
+	mainRGBs["Green"] = RGB(50, 200, 50);
+	mainRGBs["Red"] = RGB(200, 50, 50);
+	mainRGBs["Blue"] = RGB(50, 50, 200);
+	mainRGBs["Gold"] = RGB(218, 165, 32);
+	mainRGBs["White"] = RGB(255, 255, 255);
+	mainRGBs["Light Red"] = RGB(255, 100, 100);
+	mainRGBs["Dark Red"] = RGB(150, 0, 0);
+	mainRGBs["Light Blue"] = RGB(100, 100, 255);
+	mainRGBs["Forest Green"] = RGB(34, 139, 34);
+	mainRGBs["Dark Green"] = RGB(0, 50, 0);
+	mainRGBs["Dull Red"] = RGB(107, 35, 35);
+	mainRGBs["Dark Lavender"] = RGB(100, 100, 205);
+	mainRGBs["Teal"] = RGB(0, 255, 255);
+	mainRGBs["Tan"] = RGB(210, 180, 140);
+	mainRGBs["Purple"] = RGB(147, 112, 219);
+	mainRGBs["Orange"] = RGB(255, 165, 0);
+	mainRGBs["Brown"] = RGB(139, 69, 19);
+	mainRGBs["Black"] = RGB(0, 0, 0);
+	mainRGBs["Dark Blue"] = RGB(0, 0, 75);
+	// there are less brushes because these are only used for backgrounds.
+	mainBrushes["Dark Red"] = new CBrush;
+	mainBrushes["Dark Red"]->CreateSolidBrush(mainRGBs["Dark Red"]);
+	mainBrushes["Gold"] = new CBrush;
+	mainBrushes["Gold"]->CreateSolidBrush(mainRGBs["Gold"]);
+	mainBrushes["Dark Grey"] = new CBrush;
+	mainBrushes["Dark Grey"]->CreateSolidBrush(mainRGBs["Dark Grey"]);
+	mainBrushes["Dark Grey Red"] = new CBrush;
+	mainBrushes["Dark Grey Red"]->CreateSolidBrush(mainRGBs["Dark Grey Red"]);
+	mainBrushes["Medium Grey"] = new CBrush;
+	mainBrushes["Medium Grey"]->CreateSolidBrush(mainRGBs["Medium Grey"]);
+	mainBrushes["Light Grey"] = new CBrush;
+	mainBrushes["Light Grey"]->CreateSolidBrush(mainRGBs["Light Grey"]);
+	mainBrushes["Green"] = new CBrush;
+	mainBrushes["Green"]->CreateSolidBrush(mainRGBs["Green"]);
+	mainBrushes["Red"] = new CBrush;
+	mainBrushes["Red"]->CreateSolidBrush(mainRGBs["Red"]);
+	mainBrushes["White"] = new CBrush;
+	mainBrushes["White"]->CreateSolidBrush(mainRGBs["White"]);
+	mainBrushes["Dull Red"] = new CBrush;
+	mainBrushes["Dull Red"]->CreateSolidBrush(mainRGBs["Dull Red"]);
+	mainBrushes["Dark Blue"] = new CBrush;
+	mainBrushes["Dark Blue"]->CreateSolidBrush(mainRGBs["Dark Blue"]);
+	mainBrushes["Dark Green"] = new CBrush;
+	mainBrushes["Dark Green"]->CreateSolidBrush(mainRGBs["Dark Green"]);
+	/// the following are all equivalent to:
+	// mainFonts["Font name"] = new CFont;
+	// mainFonts["Font name"].CreateFontA(...);
+	(mainFonts["Smaller Font Max"] = new CFont)
+		->CreateFontA(27, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+	(mainFonts["Normal Font Max"] = new CFont)
+		->CreateFontA(34, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+	(mainFonts["Heading Font Max"] = new CFont)
+		->CreateFontA(42, 0, 0, 0, FW_DONTCARE, TRUE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Old Sans Black"));
+	(mainFonts["Code Font Max"] = new CFont)
+		->CreateFontA(32, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Consolas"));
+	(mainFonts["Larger Font Max"] = new CFont)
+		->CreateFontA(40, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+	(mainFonts["Smaller Font Large"] = new CFont)
+		->CreateFontA(14, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+	(mainFonts["Normal Font Large"] = new CFont)
+		->CreateFontA(20, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+	(mainFonts["Heading Font Large"] = new CFont)
+		->CreateFontA(28, 0, 0, 0, FW_DONTCARE, TRUE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Old Sans Black"));
+	(mainFonts["Code Font Large"] = new CFont)
+		->CreateFontA(16, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Consolas"));
+	(mainFonts["Larger Font Large"] = new CFont)
+		->CreateFontA(40, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+	(mainFonts["Smaller Font Med"] = new CFont)
+		->CreateFontA(8, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+	(mainFonts["Normal Font Med"] = new CFont)
+		->CreateFontA(12, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+	(mainFonts["Heading Font Med"] = new CFont)
+		->CreateFontA(16, 0, 0, 0, FW_DONTCARE, TRUE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Old Sans Black"));
+	(mainFonts["Code Font Med"] = new CFont)
+		->CreateFontA(10, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Consolas"));
+	(mainFonts["Larger Font Med"] = new CFont)
+		->CreateFontA(22, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+	(mainFonts["Smaller Font Small"] = new CFont)
+		->CreateFontA(6, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+	(mainFonts["Normal Font Small"] = new CFont)
+		->CreateFontA(8, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+	(mainFonts["Heading Font Small"] = new CFont)
+		->CreateFontA(12, 0, 0, 0, FW_DONTCARE, TRUE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Old Sans Black"));
+	(mainFonts["Code Font Small"] = new CFont)
+		->CreateFontA(7, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Consolas"));
+	(mainFonts["Larger Font Small"] = new CFont)
+		->CreateFontA(16, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+}
+
 
 IMPLEMENT_DYNAMIC(MainWindow, CDialog)
 
@@ -15,11 +141,11 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_WM_SIZE()
 	ON_COMMAND_RANGE( ID_ACCELERATOR_ESC, ID_ACCELERATOR_ESC, &MainWindow::passCommonCommand )
 	ON_COMMAND_RANGE( ID_ACCELERATOR_F5, ID_ACCELERATOR_F5, &MainWindow::passCommonCommand )
+	ON_COMMAND_RANGE(ID_ACCELERATOR_F2, ID_ACCELERATOR_F2, &MainWindow::passCommonCommand )
+	ON_COMMAND_RANGE( ID_ACCELERATOR_F1, ID_ACCELERATOR_F1, &MainWindow::passCommonCommand )
 	ON_COMMAND_RANGE( MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &MainWindow::passCommonCommand )
 	ON_COMMAND_RANGE( IDC_DEBUG_OPTIONS_RANGE_BEGIN, IDC_DEBUG_OPTIONS_RANGE_END, &MainWindow::passDebugPress )
 	ON_COMMAND_RANGE( IDC_MAIN_OPTIONS_RANGE_BEGIN, IDC_MAIN_OPTIONS_RANGE_END, &MainWindow::passMainOptionsPress )
-	// 
-	
 	//
 	ON_CBN_SELENDOK( IDC_EXPERIMENT_COMBO, &MainWindow::handleExperimentCombo )
 	ON_CBN_SELENDOK( IDC_CATEGORY_COMBO, &MainWindow::handleCategoryCombo )
@@ -27,22 +153,72 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_CBN_SELENDOK( IDC_SEQUENCE_COMBO, &MainWindow::handleSequenceCombo )
 	ON_CBN_SELENDOK( IDC_ORIENTATION_COMBO, &MainWindow::handleOrientationCombo )
 	// 
-	//ON_NOTIFY( NM_DBLCLK, IDC_VARIABLES_LISTVIEW, &MainWindow::handleDblClick )
-	//ON_NOTIFY( NM_RCLICK, IDC_VARIABLES_LISTVIEW, &MainWindow::handleRClick )
 	ON_NOTIFY(NM_DBLCLK, IDC_SMS_TEXTING_LISTVIEW, &MainWindow::handleDblClick)
 	ON_NOTIFY(NM_RCLICK, IDC_SMS_TEXTING_LISTVIEW, &MainWindow::handleRClick)
 
+	ON_REGISTERED_MESSAGE( eRepProgressMessageID, &MainWindow::onRepProgress )
 	ON_REGISTERED_MESSAGE( eStatusTextMessageID, &MainWindow::onStatusTextMessage )
 	ON_REGISTERED_MESSAGE( eErrorTextMessageID, &MainWindow::onErrorMessage )
 	ON_REGISTERED_MESSAGE( eFatalErrorMessageID, &MainWindow::onFatalErrorMessage )
-	//ON_REGISTERED_MESSAGE( eNormalFinishMessageID, &MainWindow::onNormalFinishMessage )
 	ON_REGISTERED_MESSAGE( eColoredEditMessageID, &MainWindow::onColoredEditMessage )
 	ON_REGISTERED_MESSAGE( eDebugMessageID, &MainWindow::onDebugMessage )
 
 	ON_COMMAND_RANGE( IDC_MAIN_STATUS_BUTTON, IDC_MAIN_STATUS_BUTTON, &MainWindow::passClear )
 	ON_COMMAND_RANGE( IDC_ERROR_STATUS_BUTTON, IDC_ERROR_STATUS_BUTTON, &MainWindow::passClear )
 	ON_COMMAND_RANGE( IDC_DEBUG_STATUS_BUTTON, IDC_DEBUG_STATUS_BUTTON, &MainWindow::passClear )
+
 END_MESSAGE_MAP()
+
+
+void MainWindow::handlePause()
+{
+	if (masterThreadManager.runningStatus())
+	{
+		if (masterThreadManager.getIsPaused())
+		{
+			// then it's currently paused, so unpause it.
+			menu.CheckMenuItem(ID_RUNMENU_PAUSE, MF_UNCHECKED);
+			masterThreadManager.unPause();
+			comm.sendColorBox( Master, 'G' );
+		}
+		else
+		{
+			// then not paused so pause it.
+			menu.CheckMenuItem(ID_RUNMENU_PAUSE, MF_CHECKED);
+			comm.sendColorBox( Master, 'Y' );
+			masterThreadManager.pause();
+		}
+	}
+	else
+	{
+		comm.sendStatus("Can't pause, experiment was not running.\r\n");
+	}
+}
+
+
+LRESULT MainWindow::onRepProgress(WPARAM wParam, LPARAM lParam)
+{
+	repetitionControl.updateNumber(lParam);
+	return NULL;
+}
+
+
+void MainWindow::handleSaveConfig(std::ofstream& saveFile)
+{
+	notes.handleSaveConfig(saveFile);
+	settings.handleSaveConfig(saveFile);
+	debugger.handleSaveConfig(saveFile);
+	repetitionControl.handleSaveConfig(saveFile);
+}
+
+
+void MainWindow::handleOpeningConfig(std::ifstream& configFile, double version)
+{
+	notes.handleOpenConfig( configFile,  version );
+	settings.handleOpenConfig( configFile, version );
+	debugger.handleOpenConfig( configFile, version );
+	repetitionControl.handleOpenConfig(configFile, version);
+}
 
 
 void MainWindow::OnSize(UINT nType, int cx, int cy)
@@ -150,9 +326,9 @@ BOOL MainWindow::OnInitDialog()
 	time_t dateStart = time(0);
 	struct tm datePointerStart;
 	localtime_s(&datePointerStart, &dateStart);
-	std::string logFolderNameStart = "Date " + std::to_string(datePointerStart.tm_year + 1900) + "-" + std::to_string(datePointerStart.tm_mon + 1) + "-"
-		+ std::to_string(datePointerStart.tm_mday) + " Time " + std::to_string(datePointerStart.tm_hour) + "-" + std::to_string(datePointerStart.tm_min) + "-"
-		+ std::to_string(datePointerStart.tm_sec);
+	std::string logFolderNameStart = "Date " + str(datePointerStart.tm_year + 1900) + "-" + str(datePointerStart.tm_mon + 1) + "-"
+		+ str(datePointerStart.tm_mday) + " Time " + str(datePointerStart.tm_hour) + "-" + str(datePointerStart.tm_min) + "-"
+		+ str(datePointerStart.tm_sec);
 	// initialize default file names and open the files.
 	std::vector<std::fstream> default_hConfigVerticalScriptFile, default_hConfigHorizontalScriptFile, default_vConfigVerticalScriptFile,
 		default_vConfigHorizontalScriptFile;
@@ -220,10 +396,10 @@ BOOL MainWindow::OnInitDialog()
 		return -1;
 	}
 
-	MessageBox(NULL, (LPCSTR)std::to_string(maximumNumberofWaveforms).c_str(), NULL, MB_OK);
-	MessageBox(NULL, (LPCSTR)std::to_string(waveformQuantum).c_str(), NULL, MB_OK);
-	MessageBox(NULL, (LPCSTR)std::to_string(minimumWaveformSize).c_str(), NULL, MB_OK);
-	MessageBox(NULL, (LPCSTR)std::to_string(maximumWaveformSize).c_str(), NULL, MB_OK);
+	MessageBox(NULL, (LPCSTR)str(maximumNumberofWaveforms).c_str(), NULL, MB_OK);
+	MessageBox(NULL, (LPCSTR)str(waveformQuantum).c_str(), NULL, MB_OK);
+	MessageBox(NULL, (LPCSTR)str(minimumWaveformSize).c_str(), NULL, MB_OK);
+	MessageBox(NULL, (LPCSTR)str(maximumWaveformSize).c_str(), NULL, MB_OK);
 	*/
 	try
 	{
@@ -236,13 +412,11 @@ BOOL MainWindow::OnInitDialog()
 	{
 		errBox("ERROR: failed to start niawg default waveforms! Niawg gave the following error message: " + exception.whatStr());
 	}
-	eCurrentScript = "DefaultScript";
 	// not done with the script, it will not stay on the NIAWG, so I need to keep track of it so thatI can reload it onto the NIAWG when necessary.	
 	/// Initialize Windows
 	TheScriptingWindow = new ScriptingWindow;
 	TheCameraWindow = new CameraWindow;
 	TheDeviceWindow = new DeviceWindow;
-	//TheCameraWindow = new CameraWindow(this, TheScriptingWindow);	
 	TheScriptingWindow->getFriends(this, TheCameraWindow, TheDeviceWindow);
 	TheCameraWindow->getFriends(this, TheScriptingWindow, TheDeviceWindow);
 	TheDeviceWindow->getFriends(this, TheScriptingWindow, TheCameraWindow);
@@ -250,13 +424,11 @@ BOOL MainWindow::OnInitDialog()
 	try
 	{
 		TheScriptingWindow->Create(IDD_LARGE_TEMPLATE, 0);
-		TheScriptingWindow->ShowWindow(SW_SHOW);
-		// initialize the camera window	
+		//TheScriptingWindow->ShowWindow(SW_SHOW);
 		TheCameraWindow->Create(IDD_LARGE_TEMPLATE1, 0);
-		TheCameraWindow->ShowWindow(SW_SHOW);
-
+		//TheCameraWindow->ShowWindow(SW_SHOW);
 		TheDeviceWindow->Create(IDD_LARGE_TEMPLATE, 0);
-		TheDeviceWindow->ShowWindow(SW_SHOW);
+		//TheDeviceWindow->ShowWindow(SW_SHOW);
 	}
 	catch (Error& err)
 	{
@@ -265,28 +437,25 @@ BOOL MainWindow::OnInitDialog()
 	// initialize the COMM.
 	comm.initialize( this, TheScriptingWindow, TheCameraWindow, TheDeviceWindow );
 	int id = 1000;
-	POINT statusPos = { 0,0 };
-	mainStatus.initialize( statusPos, this, id, 975, "EXPERIMENT STATUS", RGB( 50, 50, 250 ), mainFonts, tooltips );
-	statusPos = { 480, 0 };
-	errorStatus.initialize( statusPos, this, id, 480, "ERROR STATUS", RGB( 200, 0, 0 ), mainFonts, tooltips );
-	debugStatus.initialize( statusPos, this, id, 480, "DEBUG STATUS", RGB( 13, 152, 186 ), mainFonts, tooltips );
-	POINT configStart = { 960, 0 };
-	profile.initializeControls( configStart, this, id, mainFonts, tooltips );
-	POINT notesStart = { 960, 235 };
-	notes.initializeControls( notesStart, this, id, mainFonts, tooltips );
-	POINT controlLocation = { 1440, 95 };
+	POINT controlLocation = { 0,0 };
+	mainStatus.initialize( controlLocation, this, id, 975, "EXPERIMENT STATUS", RGB( 50, 50, 250 ), mainFonts, tooltips );
+	controlLocation = { 480, 0 };
+	errorStatus.initialize( controlLocation, this, id, 480, "ERROR STATUS", RGB( 200, 0, 0 ), mainFonts, tooltips );
+	debugStatus.initialize( controlLocation, this, id, 480, "DEBUG STATUS", RGB( 13, 152, 186 ), mainFonts, tooltips );
+	controlLocation = { 960, 0 };
+	profile.initialize( controlLocation, this, id, mainFonts, tooltips );
+	controlLocation = { 960, 235 };
+	notes.initialize( controlLocation, this, id, mainFonts, tooltips );
+	controlLocation = { 1440, 95 };
 	repetitionControl.initialize(controlLocation, tooltips, this, id);
 	settings.initialize( id, controlLocation, this, mainFonts, tooltips );
 	debugger.initialize( id, controlLocation, this, mainFonts, tooltips );
-	texter.initializeControls( controlLocation, this, false, id, mainFonts, tooltips );
-	texter.promptForEmailAddressAndPassword();
-	POINT statusLocations = { 960, 910 };
-	boxes.initialize( statusLocations, id, this, 960, mainFonts, tooltips );
-	shortStatus.initialize( statusLocations, this, id, mainFonts, tooltips );
-	CMenu menu;
+	texter.initialize( controlLocation, this, false, id, mainFonts, tooltips );
+	controlLocation = { 960, 910 };
+	boxes.initialize( controlLocation, id, this, 960, mainFonts, tooltips );
+	shortStatus.initialize( controlLocation, this, id, mainFonts, tooltips );
 	menu.LoadMenu(IDR_MAIN_MENU);
-	SetMenu(&menu);
-	ShowWindow(SW_MAXIMIZE);
+	SetMenu(&menu);	
 	// just initializes the rectangles.
 	TheCameraWindow->redrawPictures( true );
 	try
@@ -297,7 +466,21 @@ BOOL MainWindow::OnInitDialog()
 	{
 		errBox(err.what());
 	}
+	std::string initializationString;
+	initializationString += TheDeviceWindow->getSystemStatusMsg();
+	errBox(initializationString);	
+	ShowWindow(SW_MAXIMIZE);
+	TheCameraWindow->ShowWindow( SW_MAXIMIZE );
+	TheScriptingWindow->ShowWindow( SW_MAXIMIZE );
+	TheDeviceWindow->ShowWindow( SW_MAXIMIZE );
+
 	return TRUE;
+}
+
+
+bool MainWindow::masterIsRunning()
+{
+	return masterThreadManager.runningStatus();
 }
 
 
@@ -310,13 +493,6 @@ RunInfo MainWindow::getRunInfo()
 void MainWindow::restartNiawgDefaults()
 {
 	niawg.restartDefault();
-}
-
-
-void MainWindow::startExperiment( experimentThreadInput* input )
-{
-	input->niawg = &niawg;
-	manager.startThread( input );
 }
 
 HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
@@ -378,6 +554,24 @@ void MainWindow::passCommonCommand(UINT id)
 }
 
 
+void MainWindow::startMaster(MasterThreadInput* input)
+{
+	masterThreadManager.startExperimentThread(input);
+}
+
+
+void MainWindow::fillMasterThreadInput(MasterThreadInput* input)
+{
+	input->masterScriptAddress = profile.getMasterAddressFromConfig();
+	input->programIntensity = settings.getOptions().programIntensity;
+	input->repetitionNumber = getRepNumber();
+	input->debugOptions = debugger.getOptions();
+	input->profile = profile.getCurrentProfileSettings();
+	input->niawg = &niawg;
+	input->comm = &comm;
+}
+
+
 profileSettings MainWindow::getCurrentProfileSettings()
 {
 	return profile.getCurrentProfileSettings();
@@ -386,13 +580,13 @@ profileSettings MainWindow::getCurrentProfileSettings()
 
 void MainWindow::checkProfileReady()
 {
-	profile.allSettingsReadyCheck( TheScriptingWindow, this, TheDeviceWindow );
+	profile.allSettingsReadyCheck( TheScriptingWindow, this, TheDeviceWindow, TheCameraWindow );
 }
 
 
 void MainWindow::checkProfileSave()
 {
-	profile.checkSaveEntireProfile( TheScriptingWindow, this, TheDeviceWindow);
+	profile.checkSaveEntireProfile( TheScriptingWindow, this, TheDeviceWindow, TheCameraWindow );
 }
 
 
@@ -564,25 +758,56 @@ void MainWindow::handleRClick(NMHDR * pNotifyStruct, LRESULT * result)
 
 void MainWindow::handleExperimentCombo()
 {
-	profile.experimentChangeHandler(TheScriptingWindow, this);
+	try
+	{
+		profile.experimentChangeHandler(TheScriptingWindow, this);
+		TheDeviceWindow->setConfigActive(false);
+	}
+	catch (Error& err)
+	{
+		getComm()->sendError(err.what());
+	}
 }
 
 
 void MainWindow::handleCategoryCombo()
 {
-	profile.categoryChangeHandler(TheScriptingWindow, this);
+	try
+	{
+		profile.categoryChangeHandler(TheScriptingWindow, this);
+		TheDeviceWindow->setConfigActive(false);
+	}
+	catch (Error& err)
+	{
+		getComm()->sendError(err.what());
+	}
 }
 
 
 void MainWindow::handleConfigurationCombo()
 {
-	profile.configurationChangeHandler(TheScriptingWindow, this, TheDeviceWindow );
+	try
+	{
+		profile.configurationChangeHandler(TheScriptingWindow, this, TheDeviceWindow, TheCameraWindow);
+		TheDeviceWindow->setConfigActive(true);
+	}
+	catch (Error& err)
+	{
+		getComm()->sendError(err.what());
+	}
 }
 
 
 void MainWindow::handleSequenceCombo()
 {
-	profile.sequenceChangeHandler();
+	try
+	{
+		profile.sequenceChangeHandler();
+	}
+	catch (Error& err)
+	{
+		getComm()->sendError(err.what());
+	}
 }
 
 
@@ -591,10 +816,11 @@ void MainWindow::handleOrientationCombo()
 	try
 	{
 		profile.orientationChangeHandler(this);
+		TheDeviceWindow->setConfigActive(false);
 	}
 	catch (Error& except)
 	{
-		comm.sendColorBox( { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' } );
+		comm.sendColorBox( Niawg, 'R' );
 		comm.sendError("ERROR: failed to change orientation: " + except.whatStr());
 	}
 }
@@ -625,6 +851,22 @@ void MainWindow::setMainOptions(mainOptions options)
 {
 	settings.setOptions(options);
 }
+
+
+void MainWindow::abortMasterThread()
+{
+	/// needs implementation...
+	if (masterThreadManager.runningStatus())
+	{
+		masterThreadManager.abort();
+	}
+	else
+	{
+		thrower("Can't abort, experiment was not running.\r\n");
+	}
+}
+
+
 
 
 LRESULT MainWindow::onStatusTextMessage(WPARAM wParam, LPARAM lParam)
@@ -658,19 +900,19 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 	myAgilent::agilentDefault();
 	std::string msgText = "Exited with Error!\r\nPassively Outputting Default Waveform.";
 	changeShortStatusColor("R");
-	comm.sendColorBox( { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' } );
+	comm.sendColorBox( Niawg, 'R' );
 	std::string orientation = getCurrentProfileSettings().orientation;
 	try
 	{
 		niawg.restartDefault();
 		comm.sendError("EXITED WITH ERROR!");
-		comm.sendColorBox( { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' } );
+		comm.sendColorBox( Niawg, 'R' );
 		comm.sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 	}
 	catch (Error& except)
 	{
 		comm.sendError("EXITED WITH ERROR! " + except.whatStr());
-		comm.sendColorBox( { /*niawg*/'R', /*camera*/'-', /*intensity*/'-' } );
+		comm.sendColorBox( Niawg, 'R' );
 		comm.sendStatus("EXITED WITH ERROR!\r\nNIAWG RESTART FAILED!\r\n");
 	}
 	setNiawgRunningState( false );
@@ -684,7 +926,7 @@ LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
 	std::string msgText = "Passively Outputting Default Waveform";
 	setShortStatus(msgText);
 	changeShortStatusColor("B");
-	comm.sendColorBox( { /*niawg*/'B', /*camera*/'-', /*intensity*/'-' } );
+	comm.sendColorBox( Niawg, 'B' );
 	std::string orientation = getCurrentProfileSettings().orientation;
 	try
 	{
@@ -694,7 +936,7 @@ LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
 	{
 		comm.sendError("ERROR! The niawg finished normally, but upon restarting the default waveform, threw the "
 			"following error: " + except.whatStr());
-		comm.sendColorBox( { /*niawg*/'B', /*camera*/'-', /*intensity*/'-' } );
+		comm.sendColorBox( Niawg, 'B' );
 		comm.sendStatus("ERROR!\r\n");
 		return -3;
 	}
@@ -713,17 +955,17 @@ void MainWindow::handleFinish()
 	{
 		message += "0";
 	}
-	message += std::to_string(now.tm_hour) + ":";
+	message += str(now.tm_hour) + ":";
 	if (now.tm_min < 10)
 	{
 		message += "0";
 	}
-	message += std::to_string(now.tm_min) + ":";
+	message += str(now.tm_min) + ":";
 	if (now.tm_sec < 10)
 	{
 		message += "0";
 	}
-	message += std::to_string(now.tm_sec);
+	message += str(now.tm_sec);
 
 	try
 	{
@@ -770,10 +1012,4 @@ brushMap MainWindow::getBrushes()
 rgbMap MainWindow::getRgbs()
 {
 	return mainRGBs;
-}
-
-
-CSocket* MainWindow::getSocket()
-{
-	return &masterSocket;
 }

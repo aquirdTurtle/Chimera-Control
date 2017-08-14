@@ -31,14 +31,15 @@ class PictureStats
 	public:
 		PictureStats::PictureStats()
 		{
-			this->displayDataType = RAW_COUNTS;
+			displayDataType = RAW_COUNTS;
 		}
-		bool initialize( POINT& pos, CWnd* parent, int& id, fontMap fonts, std::vector<CToolTipCtrl*>& tooltips );
-		bool rearrange( std::string cameraMode, std::string trigMode, int width, int height, fontMap fonts );
+		void initialize( POINT& pos, CWnd* parent, int& id, fontMap fonts, cToolTips& tooltips );
+		void rearrange( std::string cameraMode, std::string trigMode, int width, int height, fontMap fonts );
 		std::pair<int, int> update( std::vector<long> image, unsigned int imageNumber, std::pair<int, int> selectedPixel,
 					 int pictureWidth, int pictureHeight, int currentRepetitionNumbar, int totalRepetitionCount );
-		bool reset();
+		void reset();
 		void updateType( std::string typeText );
+
 	private:
 		std::string displayDataType;
 		conversions convs;
@@ -53,6 +54,6 @@ class PictureStats
 		std::array<Control<CStatic>, 4> selCounts;
 
 }
-
+;
 
 

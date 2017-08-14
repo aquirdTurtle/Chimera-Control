@@ -4,15 +4,19 @@
 
 // All PlottingInfo() class public functions.
 
-PlottingInfo::PlottingInfo()
+PlottingInfo::PlottingInfo(UINT picNumber)
 {
 	// initialize things.
+	generalPlotType = "Atoms";
 	title = "";
 	yLabel = "";
 	fileName = "";
 	dataSets.clear();
 	// one line to plot.
 	dataSets.resize(1);
+	// todo: initialize with real picture number.
+	dataSets[0].resetPictureNumber(picNumber);
+	dataSets[0].resetPixelNumber(1);
 	//
 	//analysisGroups.clear();
 	// one pixel
@@ -22,10 +26,13 @@ PlottingInfo::PlottingInfo()
 	//
 	currentPixelNumber = 1;
 	currentConditionNumber = 1;
-	// this should get set again after the user presses "okay"
-	//numberOfPictures = ePicturesPerRepetition;
+	numberOfPictures = picNumber;
 	xAxis = "";
-	generalPlotType = "";
+}
+
+PlottingInfo::PlottingInfo(std::string fileName)
+{
+	loadPlottingInfoFromFile(fileName);
 }
 
 PlottingInfo::~PlottingInfo()
@@ -33,64 +40,133 @@ PlottingInfo::~PlottingInfo()
 	// no fancy deconstrutor needed
 }
 
-int PlottingInfo::changeTitle(std::string newTitle)
+void PlottingInfo::changeTitle(std::string newTitle)
 {
 	title = newTitle;
-	return 0;
 }
-int PlottingInfo::changeYLabel(std::string newYLabel)
+
+std::string PlottingInfo::getPrcSettingsString()
+{
+	std::string allConditionsString = "All Result Conditions:\r\n=========================\r\n\r\n";
+	for (int dataSetInc = 0; dataSetInc < getDataSetNumber(); dataSetInc++)
+	{
+		allConditionsString += "Data Set #" + str(dataSetInc + 1) + ":\r\n=====\r\n";
+		for (int pictureInc = 0; pictureInc < getPicNumber(); pictureInc++)
+		{
+			allConditionsString += "Picture #" + str(pictureInc + 1) + ":\r\n";
+			for (int pixelInc = 0; pixelInc < getPixelNumber(); pixelInc++)
+			{
+				allConditionsString += "Pixel #" + str(pixelInc + 1) + ":";
+				int currentValue = getResultCondition(dataSetInc, pixelInc, pictureInc);
+				if (currentValue == 1)
+				{
+					allConditionsString += " Atom Present";
+				}
+				else if (currentValue == -1)
+				{
+					allConditionsString += " Atom Not Present";
+				}
+				else
+				{
+					allConditionsString += " No Condition";
+				}
+				allConditionsString += "\r\n";
+			}
+		}
+		allConditionsString += "=====\r\n";
+	}
+	return allConditionsString;
+}
+
+
+std::string PlottingInfo::getPscSettingsString()
+{
+	std::string allConditionsString = "All Current Post-Selection Conditions:\r\n=========================\r\n\r\n";
+	for (int conditionInc = 0; conditionInc < getConditionNumber(); conditionInc++)
+	{
+		allConditionsString += "*****Condition #" + str(conditionInc + 1) + "*****\r\n";
+		for (int dataSetInc = 0; dataSetInc < getDataSetNumber(); dataSetInc++)
+		{
+			allConditionsString += "Data Set #" + str(dataSetInc + 1) + ":\r\n=====\r\n";
+			for (int pictureInc = 0; pictureInc < getPicNumber(); pictureInc++)
+			{
+				allConditionsString += "Picture #" + str(pictureInc + 1) + ":\r\n";
+				for (int pixelInc = 0; pixelInc < getPixelNumber(); pixelInc++)
+				{
+					allConditionsString += "Pixel #" + str(pixelInc + 1) + ":";
+					int currentValue = getPostSelectionCondition(dataSetInc, conditionInc, pixelInc, pictureInc);
+					if (currentValue == 1)
+					{
+						allConditionsString += " Atom Present";
+					}
+					else if (currentValue == -1)
+					{
+						allConditionsString += " Atom Not Present";
+					}
+					else
+					{
+						allConditionsString += " No Condition";
+					}
+					allConditionsString += "\r\n";
+				}
+			}
+			allConditionsString += "=====\r\n";
+		}
+	}
+	return allConditionsString;
+}
+
+
+void PlottingInfo::changeYLabel(std::string newYLabel)
 {
 	yLabel = newYLabel;
-	return 0;
 }
 
-int PlottingInfo::changeFileName(std::string newFileName) 
+
+void PlottingInfo::changeFileName(std::string newFileName) 
 {
 	fileName = newFileName;
-	return 0;
 }
 
-int PlottingInfo::changeGeneralPlotType(std::string newPlotType)
+
+void PlottingInfo::changeGeneralPlotType(std::string newPlotType)
 {
 	generalPlotType = newPlotType;
-	return 0;
 }
 
-int PlottingInfo::changeXAxis(std::string newXAxis)
+
+void PlottingInfo::changeXAxis(std::string newXAxis)
 {
 	xAxis = newXAxis;
-	return 0;
 }
 
-int PlottingInfo::addGroup()
+
+void PlottingInfo::addGroup()
 {
 	for (int pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
 	{
 		analysisGroups[pixelInc].resize(analysisGroups[pixelInc].size() + 1);
 	}
-	return 0;
 }
 
-int PlottingInfo::setGroupLocation(int pixel, int analysisSet, int row, int collumn)
+
+void PlottingInfo::setGroupLocation(int pixel, int analysisSet, int row, int collumn)
 {
 	if (pixel >= currentPixelNumber)
 	{
-		MessageBox(0, ("ERROR: something tried to set the position of a pixel that hasn't been allocated yet. Pixel #: " + std::to_string(pixel)).c_str(), 0, 
-				   0);
-		return -1;
+		thrower("ERROR: something tried to set the position of a pixel that hasn't been allocated yet. Pixel #: " 
+				+ str(pixel));
 	}
 	if (analysisSet >= analysisGroups[pixel].size())
 	{
-		MessageBox(0, ("ERROR: something tried to set the position of an analysis set that hasn't been allocated yet. Analysis Set #: " 
-				   + std::to_string(pixel)).c_str(), 0, 0);
-		return -1;
+		thrower("ERROR: something tried to set the position of an analysis set that hasn't been allocated yet. Analysis Set #: " 
+				    + str(pixel));
 	}
 	analysisGroups[pixel][analysisSet][0] = row;
 	analysisGroups[pixel][analysisSet][1] = collumn;
-	return 0;
 }
 
-int PlottingInfo::addPixel()
+void PlottingInfo::addPixel()
 {
 	// change all the data set structures.
 	currentPixelNumber++;
@@ -100,16 +176,14 @@ int PlottingInfo::addPixel()
 	{
 		dataSets[dataSetInc].addPixel(numberOfPictures);
 	}
-	return 0;
 }
 
-int PlottingInfo::removePixel()
+void PlottingInfo::removePixel()
 {
 	// make sure there is a pixel to remove.
 	if (currentPixelNumber < 2)
 	{
-		MessageBox(0, "ERROR: Something tried to remove the last pixel!", 0, 0);
-		return -1;
+		thrower("ERROR: Something tried to remove the last pixel!");
 	}
 	// change all the data set structures.
 	currentPixelNumber--;
@@ -117,80 +191,74 @@ int PlottingInfo::removePixel()
 	{
 		dataSets[dataSetInc].removePixel();
 	}
-	return 0;
 }
 
 
 
 // Change all structures that depend on the number of data sets.
-int PlottingInfo::addDataSet()
-{
-	
+void PlottingInfo::addDataSet()
+{	
 	// initialize new data set with 1 condition and the right number of pixels and pictures.
 	dataSets.resize(dataSets.size() + 1);
 	dataSets[dataSets.size() - 1].initialize(currentConditionNumber, currentPixelNumber, numberOfPictures);
-	return 0;
 }
 
-int PlottingInfo::removeDataSet()
+
+void PlottingInfo::removeDataSet()
 {
 	// make sure there is a data set to remove.
 	if (dataSets.size() < 2)
 	{
-		MessageBox(0, "ERROR: Something tried to remove the last data set", 0, 0);
-		return -1;
+		thrower("ERROR: Something tried to remove the last data set");
 	}
 	
 	dataSets.resize(dataSets.size() - 1);
-	return 0;
 }
 
 // change all structures that depend on the number of pictures. 
-int PlottingInfo::addPicture()
+void PlottingInfo::addPicture()
 {
 	numberOfPictures++;
 	for (int dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
 	{
 		dataSets[dataSetInc].addPicture();
 	}
-	return 0;
 }
 
-int PlottingInfo::removePicture()
+
+void PlottingInfo::removePicture()
 {
 	if (numberOfPictures < 2)
 	{
-		MessageBox(0, "ERROR: Something tried to remove the last picture!", 0, 0);
-		return -1;
+		thrower("ERROR: Something tried to remove the last picture!");
 	}
 	numberOfPictures--;
 	for (int dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
 	{
 		dataSets[dataSetInc].removePicture();
 	}
-	return 0;
 }
 
-int PlottingInfo::setPostSelectionCondition(int dataSetNumber, int conditionNumber, int pixel, int picture, int postSelectionCondition)
+
+void PlottingInfo::setPostSelectionCondition(int dataSetNumber, int conditionNumber, int pixel, int picture,
+											 int postSelectionCondition)
 {
 	dataSets[dataSetNumber].setPostSelectionCondition(conditionNumber, pixel, picture, postSelectionCondition);
-	return 0;
 }
 
-int PlottingInfo::setTruthCondition(int dataSetNumber, int pixel, int picture, int trueConditionValue)
+void PlottingInfo::setResultCondition(int dataSetNumber, int pixel, int picture, int trueConditionValue)
 {
-	dataSets[dataSetNumber].setTruthCondition(pixel, picture, trueConditionValue);
-	return 0;
+	dataSets[dataSetNumber].setResultCondition(pixel, picture, trueConditionValue);
 }
 
-int PlottingInfo::getPixelLocation(int pixel, int analysisSet, int& row, int& collumn)
+// stores the info in the row and column arguments
+void PlottingInfo::getPixelLocation(int pixel, int analysisSet, int& row, int& column)
 {
 	row = analysisGroups[pixel][analysisSet][0];
-	collumn = analysisGroups[pixel][analysisSet][1];
-	return 0;
+	column = analysisGroups[pixel][analysisSet][1];
 }
 
-int PlottingInfo::removeAnalysisSet()
+void PlottingInfo::removeAnalysisSet()
 {
 	// always at least one pixel...
 
@@ -199,15 +267,21 @@ int PlottingInfo::removeAnalysisSet()
 	{
 		if (this->analysisGroups[pixelInc].size() < 2)
 		{
-			MessageBox(0, "ERROR: Something tried to remove the last analysis group!", 0, 0);
-			return -1;
+			thrower("ERROR: Something tried to remove the last analysis group!");
 		}
 		analysisGroups[pixelInc].resize(analysisGroups[pixelInc].size() - 1);
 	}
-	return 0;
 }
 
-int PlottingInfo::getTruthCondition(int dataSetNumber, int pixel, int picture)
+UINT PlottingInfo::getPicNumberFromFile(std::string fileAddress)
+{
+	// load the file completely then read the picture number.
+	PlottingInfo temp(fileAddress);
+	return temp.getPicNumber();
+}
+
+
+int PlottingInfo::getResultCondition(int dataSetNumber, int pixel, int picture)
 {
 	return dataSets[dataSetNumber].getTruthCondition(pixel, picture);
 }
@@ -217,7 +291,7 @@ int PlottingInfo::getPostSelectionCondition(int dataSetNumber, int conditionNumb
 	return dataSets[dataSetNumber].getPostSelectionCondition(conditionNumber, pixel, picture);
 }
 
-int PlottingInfo::addPostSelectionCondition()
+void PlottingInfo::addPostSelectionCondition()
 {
 	
 	for (int dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
@@ -226,10 +300,10 @@ int PlottingInfo::addPostSelectionCondition()
 		dataSets[dataSetInc].addPostSelectionCondition(currentPixelNumber, numberOfPictures);
 	}
 	currentConditionNumber++;
-	return 0;
 }
 
-int PlottingInfo::removePostSelectionCondition()
+
+void PlottingInfo::removePostSelectionCondition()
 {
 	
 	for (int dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
@@ -237,8 +311,8 @@ int PlottingInfo::removePostSelectionCondition()
 		dataSets[dataSetInc].removePostSelectionCondition();
 	}
 	currentConditionNumber--;
-	return 0;
 }
+
 
 std::string PlottingInfo::getPlotType()
 {
@@ -250,7 +324,7 @@ std::string PlottingInfo::getXAxis()
 	return xAxis;
 }
 
-int PlottingInfo::setDataCountsLocation(int dataSet, int pixel, int picture)
+void PlottingInfo::setDataCountsLocation(int dataSet, int pixel, int picture)
 {
 	if (dataSet < dataSets.size() && !(dataSet < 0))
 	{
@@ -258,21 +332,20 @@ int PlottingInfo::setDataCountsLocation(int dataSet, int pixel, int picture)
 	}
 	else
 	{
-		MessageBox(0, ("ERROR: tried to set data counts location for data set that hasn't been assigned yet. dataSet = " + std::to_string(dataSet)).c_str(), 0, 0);
-		return -1;
+		thrower("ERROR: tried to set data counts location for data set that hasn't been assigned yet. dataSet = " 
+				+ str(dataSet));
 	}
-	return 0;
 }
-int PlottingInfo::setPlotData(int dataSet, bool plotData)
+
+
+void PlottingInfo::setPlotData(int dataSet, bool plotData)
 {
 	if (dataSet >= dataSets.size() || dataSet < 0)
 	{
-		MessageBox(0, ("ERROR: tried to set \"Plot this data\" value for data set that hasn't been assigned. dataSet = " + std::to_string(dataSet)).c_str(), 0, 
-				   0);
-		return -1;
+		thrower( "ERROR: tried to set \"Plot this data\" value for data set that hasn't been assigned. dataSet = "
+			     + str(dataSet));
 	}
 	dataSets[dataSet].setPlotThisData(plotData);
-	return 0;
 }
 
 
@@ -280,125 +353,69 @@ bool PlottingInfo::getPlotThisDataValue(int dataSet)
 {
 	if (dataSet >= dataSets.size() || dataSet < 0)
 	{
-		thrower("ERROR: tried to get \"Plot this data\" value for data set that hasn't been assigned. dataSet = " + std::to_string(dataSet));
-		return true;
+		thrower("ERROR: tried to get \"Plot this data\" value for data set that hasn't been assigned. dataSet = "
+				+ str(dataSet));
 	}
 	return dataSets[dataSet].getPlotThisDataValue();
 }
 
 
-int PlottingInfo::getDataCountsLocation(int dataSet, int& pixel, int& picture)
+void PlottingInfo::getDataCountsLocation(int dataSet, int& pixel, int& picture)
 {
-	if (dataSets[dataSet].getDataCountsLocation(pixel, picture) == -1)
-	{
-		// didn't find it.
-		return -1;
-	}
-	return 0;
+	dataSets[dataSet].getDataCountsLocation(pixel, picture);
 }
 
-int PlottingInfo::changeLegendText(int dataSet, std::string newLegend)
+
+void PlottingInfo::changeLegendText(int dataSet, std::string newLegend)
 {
 	if (dataSet >= dataSets.size() || dataSet < 0)
 	{
-		MessageBox(0, ("ERROR: attempted to set dataset legend for data set that hadn't been allocated. dataset = " + std::to_string(dataSet)).c_str(), 0, 0);
-		return -1;
+		thrower( "ERROR: attempted to set dataset legend for data set that hadn't been allocated. dataset = " 
+			     + str(dataSet));
 	}
 	dataSets[dataSet].changeLegendText(newLegend);
-	return 0;
 }
+
 
 std::string PlottingInfo::getLegendText(int dataSet)
 {
 	if (dataSet >= dataSets.size() || dataSet < 0)
 	{
-		MessageBox(0, ("ERROR: attempted to get dataset legend for data set that hadn't been allocated. dataset = " + std::to_string(dataSet)).c_str(), 0, 0);
-		return "";
+		thrower( "ERROR: attempted to get dataset legend for data set that hadn't been allocated. dataset = " 
+			     + str(dataSet));
 	}
 	return dataSets[dataSet].getLegendText();
 }
 
-std::string PlottingInfo::returnAllInfo()
+std::string PlottingInfo::getAllSettingsString()
 {
-	std::string message = "All Plotting Parameters\r\n=======================================\r\n";
+	std::string message = "All Plotting Parameters (" + fileName + ")\r\n=======================================\r\n";
 	message += "Plot Title: " + title + "\r\n";
 	message += "Plot Type: " + generalPlotType + "\r\n";
 	message += "y Label: " + yLabel + "\r\n";
 	message += "x axis: " + xAxis + "\r\n";
 	message += "file name: " + fileName + "\r\n";
-
 	message += "\r\nAll Current Truth Conditions:\r\n=========================\r\n\r\n";
-	for (int dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
-	{
-		message += "Data Set #" + std::to_string(dataSetInc + 1) + ":\r\n=====\r\n";
-		for (int pictureInc = 0; pictureInc < numberOfPictures; pictureInc++)
-		{
-			message += "Picture #" + std::to_string(pictureInc + 1) + ":\r\n";
-			for (int pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
-			{
-				message += "Pixel #" + std::to_string(pixelInc + 1) + ":";
-				int currentValue = dataSets[dataSetInc].getTruthCondition(pixelInc, pictureInc);
-				if (currentValue == 1)
-				{
-					message += " Atom Present";
-				}
-				else if (currentValue == -1)
-				{
-					message += " Atom Not Present";
-				}
-				else
-				{
-					message += " No Condition";
-				}
-				message += "\r\n";
-			}
-		}
-		message += "=====\r\n";
-	}
-
+	message += getPrcSettingsString();
 	message += "All Current Post-Selection Conditions:\r\n=========================\r\n\r\n";
-	for (int conditionInc = 0; conditionInc < currentConditionNumber; conditionInc++)
-	{
-		message += "*****Condition #" + std::to_string(conditionInc + 1) + "*****\r\n";
-		for (int dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
-		{
-			message += "Data Set #" + std::to_string(dataSetInc + 1) + ":\r\n=====\r\n";
-			for (int pictureInc = 0; pictureInc < numberOfPictures; pictureInc++)
-			{
-				message += "Picture #" + std::to_string(pictureInc + 1) + ":\r\n";
-				for (int pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
-				{
-					message += "Pixel #" + std::to_string(pixelInc + 1) + ":";
-					int currentValue = dataSets[dataSetInc].getPostSelectionCondition(conditionInc, pixelInc, pictureInc);;
-					if (currentValue == 1)
-					{
-						message += " Atom Present";
-					}
-					else if (currentValue == -1)
-					{
-						message += " Atom Not Present";
-					}
-					else
-					{
-						message += " No Condition";
-					}
-					message += "\r\n";
-				}
-			}
-			message += "=====\r\n";
-		}
-	}
+	message += getPscSettingsString();
 	return message;
 }
 
-int PlottingInfo::savePlotInfo()
+
+std::string PlottingInfo::getAllSettingsStringFromFile(std::string fileAddress)
 {
-	std::string completeAddress = PLOT_FILES_SAVE_LOCATION + fileName + ".plot";
-	std::fstream saveFile(completeAddress.c_str(), std::fstream::out);
+	PlottingInfo temp(fileAddress);
+	return temp.getAllSettingsString();
+}
+
+void PlottingInfo::savePlotInfo()
+{
+	std::string completeAddress = PLOT_FILES_SAVE_LOCATION + "\\" + fileName + ".plot";
+	std::fstream saveFile(completeAddress, std::fstream::out);
 	if (!saveFile.is_open())
 	{
-		MessageBox(0, ("Couldn't open file at + " + PLOT_FILES_SAVE_LOCATION + fileName + ".plot!").c_str(), 0, 0);
-		return -1;
+		thrower("Couldn't open file at + " + PLOT_FILES_SAVE_LOCATION + fileName + ".plot!");
 	}
 	std::string message;
 	message += title + "\n";
@@ -407,10 +424,10 @@ int PlottingInfo::savePlotInfo()
 	message += xAxis + "\n";
 	message += fileName + "\n";
 
-	message += std::to_string(dataSets.size()) + "\n";
-	message += std::to_string(currentConditionNumber) + "\n";
-	message += std::to_string(currentPixelNumber) + "\n";
-	message += std::to_string(numberOfPictures) + "\n";
+	message += str(dataSets.size()) + "\n";
+	message += str(currentConditionNumber) + "\n";
+	message += str(currentPixelNumber) + "\n";
+	message += str(numberOfPictures) + "\n";
 
 	message += "TRUTH BEGIN\n";
 	for (int dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
@@ -421,7 +438,7 @@ int PlottingInfo::savePlotInfo()
 			message += "PICTURE BEGIN\n";
 			for (int pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
 			{
-				message += std::to_string(dataSets[dataSetInc].getTruthCondition(pixelInc, pictureInc)) + "\n";
+				message += str(dataSets[dataSetInc].getTruthCondition(pixelInc, pictureInc)) + "\n";
 			}
 			message += "PICTURE END\n";
 		}
@@ -440,7 +457,7 @@ int PlottingInfo::savePlotInfo()
 				message += "PICTURE BEGIN\n";
 				for (int pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
 				{
-					message += std::to_string(dataSets[dataSetInc].getPostSelectionCondition(conditionInc, pixelInc, pictureInc)) + "\n";
+					message += str(dataSets[dataSetInc].getPostSelectionCondition(conditionInc, pixelInc, pictureInc)) + "\n";
 				}
 				message += "PICTURE END\n";
 			}
@@ -464,41 +481,26 @@ int PlottingInfo::savePlotInfo()
 	for (int dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
 	{
 		int pixel, picture;
-		
-		if (getDataCountsLocation(dataSetInc, pixel, picture) == 0)
-		{
-			// if things are going well, shouldn't have failed. 
-			if (failedOnce)
-			{
-				MessageBox(0, "ERROR: The getDataCountsLocation function isn't consistently finding locations!", 0, 0);
-				return -1;
-			}
-			message += std::to_string(pixel) + " " + std::to_string(picture) + "\n";
-		}
-		else
-		{
-			failedOnce = true;
-		}
+		getDataCountsLocation(dataSetInc, pixel, picture);
 	}
 	message += "PLOT COUNTS LOCATIONS END\n";
 	
 	message += "FITTING OPTIONS BEGIN\n";
 	for (int dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
 	{
-		message += std::to_string(dataSets[dataSetInc].getFitType()) + " " + std::to_string(dataSets[dataSetInc].getWhenToFit()) + "\n";
+		message += str(dataSets[dataSetInc].getFitType()) + " " + str(dataSets[dataSetInc].getWhenToFit()) + "\n";
 	}
 	message += "FITTING OPTIONS END\n";
 	saveFile << message;
-	return 0;
 }
 
-int PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
+
+void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 {
-	std::fstream loadingFile(fileLocation.c_str());
+	std::fstream loadingFile(fileLocation);
 	if (!loadingFile.is_open())
 	{
-		MessageBox(0, "ERROR: Couldn't open plot file!", 0, 0);
-		return -1;
+		thrower("ERROR: Couldn't open plot file!");
 	}
 	// this string will hold headers in this file temporarily and check to make sure they are correct.
 	std::string testString;
@@ -512,7 +514,6 @@ int PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	// check filename???
 	// 
 
-
 	/// Data Set Number
 	getline(loadingFile, testString);
 	try
@@ -522,8 +523,7 @@ int PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	}
 	catch (std::invalid_argument&)
 	{
-		MessageBox(0, ("ERROR: Couldn't read data set number from file. The data set string was " + testString).c_str(), 0, 0);
-		return -1;
+		thrower("ERROR: Couldn't read data set number from file. The data set string was " + testString);
 	}
 	/// Condition Number
 	getline(loadingFile, testString);
@@ -534,11 +534,22 @@ int PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	}
 	catch (std::invalid_argument&)
 	{
-		MessageBox(0, ("ERROR: Couldn't read post-selection number from file. The post-selection string was " + testString).c_str(), 0, 0);
-		return -1;
+		thrower("ERROR: Couldn't read post-selection number from file. The post-selection string was " + testString);
 	}
 	/// Pixel Number
 	getline(loadingFile, testString);
+	/// Picture Number
+	std::string testString2;
+	getline(loadingFile, testString2);
+	try
+	{
+		numberOfPictures = std::stoi(testString2);
+		resetPictureNumber(numberOfPictures);
+	}
+	catch (std::invalid_argument&)
+	{
+		thrower("ERROR: Couldn't read Picture number from file. The picture string was " + testString);
+	}
 	try
 	{
 		currentPixelNumber = std::stoi(testString);
@@ -546,28 +557,14 @@ int PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	}
 	catch (std::invalid_argument&)
 	{
-		MessageBox(0, ("ERROR: Couldn't read pixel number from file. The pixel string was " + testString).c_str(), 0, 0);
-		return -1;
-	}
-	/// Picture Number
-	getline(loadingFile, testString);
-	try
-	{
-		numberOfPictures = std::stoi(testString);
-		resetPictureNumber(numberOfPictures);
-	}
-	catch (std::invalid_argument&)
-	{
-		MessageBox(0, ("ERROR: Couldn't read Picture number from file. The picture string was " + testString).c_str(), 0, 0);
-		return -1;
+		thrower("ERROR: Couldn't read pixel number from file. The pixel string was " + testString);
 	}
 
 	/// Analys pixels
 	getline(loadingFile, testString);
 	if (testString != "TRUTH BEGIN")
 	{
-		MessageBox(0, ("File Corrupted or malformatted! Expected \"TRUTH BEGIN\", but saw instead\"" + testString + "\"").c_str(), 0, 0);
-		return -1;
+		thrower("File Corrupted or malformatted! Expected \"TRUTH BEGIN\", but saw instead\"" + testString + "\"");
 	}
 	int dataSetCount = 0;
 	// data set loop
@@ -580,8 +577,7 @@ int PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 			{
 				break;
 			}
-			MessageBox(0, ("File Corrupted or malformatted! Expected \"DATA SET BEGIN\", but saw instead\"" + testString + "\"").c_str(), 0, 0);
-			return -1;
+			thrower("File Corrupted or malformatted! Expected \"DATA SET BEGIN\", but saw instead\"" + testString + "\"");
 		}
 		// picture loop
 		int pictureCount = 0;
@@ -596,8 +592,7 @@ int PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 				}
 				else
 				{
-					MessageBox(0, ("File Corrupted or malformatted! Expected \"PICTURE BEGIN\", but saw instead\"" + testString + "\"").c_str(), 0, 0);
-					return -1;
+					thrower("File Corrupted or malformatted! Expected \"PICTURE BEGIN\", but saw instead\"" + testString + "\"");
 				}
 			}
 			// pixel loop
@@ -616,43 +611,41 @@ int PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 				}
 				catch (std::invalid_argument&)
 				{
-					MessageBox(0, ("ERROR: truth condition failed to evaluate to an integer. The truth condition string was" + testString).c_str(), 0, 0);
-					return -1;
+					thrower("ERROR: truth condition failed to evaluate to an integer. The truth condition string was" 
+							+ testString);
 				}
 				if (tempTruthCondition != -1 && tempTruthCondition != 0 && tempTruthCondition != 1)
 				{
-					MessageBox(0, ("ERROR: truth condition was not one of the valid options: -1, 0, or 1. The truth condition was" 
-									+ std::to_string(tempTruthCondition)).c_str(), 0, 0);
-					return -1;
+					thrower("ERROR: truth condition was not one of the valid options: -1, 0, or 1. The truth condition was" 
+									+ str(tempTruthCondition));
 				}
-				setTruthCondition(dataSetCount, pixelCount, pictureCount, tempTruthCondition);
+				setResultCondition(dataSetCount, pixelCount, pictureCount, tempTruthCondition);
 				//(int dataSetNumber, int pixel, int picture, int trueConditionValue)
 				pixelCount++;
 			}
 			if (pixelCount != currentPixelNumber)
 			{
-				MessageBox(0, "ERROR: number of pixels the truth condition was set for doesn't match the number of pixels reported earlier in the file.", 0, 0);
-				return -1;
+				thrower(0, "ERROR: number of pixels the truth condition was set for doesn't match the number of pixels"
+						" reported earlier in the file.", 0, 0);
 			}
 			pictureCount++;
 		}
 		if (pictureCount != numberOfPictures)
 		{
-			MessageBox(0, "ERROR: number of pictures the truth condition was set for doesn't match the number of pictures reported earlier in the file.", 0, 0);
-			return -1;
+			thrower("ERROR: number of pictures the truth condition was set for doesn't match the number of"
+					   " pictures reported earlier in the file.");
 		}
 		dataSetCount++;
 	}
 	if (dataSetCount != dataSets.size())
 	{
-		MessageBox(0, "ERROR: number of data sets the truth condition was set for doesn't match the number of data sets reported earlier in the file.", 0, 0);
-		return -1;
+		thrower( "ERROR: number of data sets the truth condition was set for doesn't match the number of data sets "
+			     "reported earlier in the file.");
 	}
 	getline(loadingFile, testString);
 	if (testString != "POST SELECTION BEGIN")
 	{
-		MessageBox(0, ("ERROR: Expected text \"POST SELECTION BEGIN\" but instead saw " + testString).c_str(), 0, 0);
-		return -1;
+		thrower("ERROR: Expected text \"POST SELECTION BEGIN\" but instead saw " + testString);
 	}
 	
 	// condition loop
@@ -666,8 +659,8 @@ int PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 			{
 				break;
 			}
-			MessageBox(0, ("File Corrupted or malformatted! Expected \"CONDITION BEGIN\", but saw instead\"" + testString + "\"").c_str(), 0, 0);
-			return -1;
+			thrower("File Corrupted or malformatted! Expected \"CONDITION BEGIN\", but saw instead\"" + testString 
+				   + "\"");
 		}
 		// data set loop
 		int dataSetCount = 0;
@@ -680,8 +673,8 @@ int PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 				{
 					break;
 				}
-				MessageBox(0, ("File Corrupted or malformatted! Expected \"DATA SET BEGIN\", but saw instead\"" + testString + "\"").c_str(), 0, 0);
-				return -1;
+				thrower( "File Corrupted or malformatted! Expected \"DATA SET BEGIN\", but saw instead\"" + testString 
+					     + "\"");
 			}
 			// picture loop
 			int pictureCount = 0;
@@ -696,8 +689,8 @@ int PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 					}
 					else
 					{
-						MessageBox(0, ("File Corrupted or malformatted! Expected \"PICTURE BEGIN\", but saw instead\"" + testString + "\"").c_str(), 0, 0);
-						return -1;
+						thrower( "File Corrupted or malformatted! Expected \"PICTURE BEGIN\", but saw instead\"" 
+							     + testString + "\"");
 					}
 				}
 				// pixel loop
@@ -717,51 +710,48 @@ int PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 					}
 					catch (std::invalid_argument&)
 					{
-						MessageBox(0, ("ERROR: truth condition failed to evaluate to an integer. The truth condition string was" + testString).c_str(), 0, 0);
-						return -1;
+						thrower("ERROR: truth condition failed to evaluate to an integer. The truth condition string was" + testString);
 					}
 					if (tempPostSelectionCondition != -1 && tempPostSelectionCondition != 0 && tempPostSelectionCondition != 1)
 					{
-						MessageBox(0, ("ERROR: truth condition was not one of the valid options: -1, 0, or 1. The truth condition was"
-							+ std::to_string(tempPostSelectionCondition)).c_str(), 0, 0);
-						return -1;
+						thrower("ERROR: truth condition was not one of the valid options: -1, 0, or 1. The truth condition was"
+								+ str(tempPostSelectionCondition));
 					}
 					setPostSelectionCondition(dataSetCount, conditionCount, pixelCount, pictureCount, tempPostSelectionCondition);
 					pixelCount++;
 				}
 				if (pixelCount != currentPixelNumber)
 				{
-					MessageBox(0, "ERROR: number of pixels the truth condition was set for doesn't match the number of pixels reported earlier in the file.", 0, 0);
-					return -1;
+					thrower( "ERROR: number of pixels the truth condition was set for doesn't match the number of pixels"
+						     " reported earlier in the file.");
 				}
 				pictureCount++;
 			}
 			if (pictureCount != numberOfPictures)
 			{
-				MessageBox(0, "ERROR: number of pictures the truth condition was set for doesn't match the number of pictures reported earlier in the file.", 0, 0);
-				return -1;
+				thrower( "ERROR: number of pictures the truth condition was set for doesn't match the number of pictures"
+					     " reported earlier in the file.");
 			}
 			dataSetCount++;
 		}
 		if (dataSetCount != dataSets.size())
 		{
-			MessageBox(0, "ERROR: number of data sets the truth condition was set for doesn't match the number of data sets reported earlier in the file.", 0, 0);
-			return -1;
+			thrower( "ERROR: number of data sets the truth condition was set for doesn't match the number of data sets "
+				     "reported earlier in the file.");
 		}
 		conditionCount++;
 	}
 	if (conditionCount != currentConditionNumber)
 	{
-		MessageBox(0, "ERROR: number of post selection conditions that were set doesn't match the number of conditions reported earlier in the file.", 0, 0);
-		return -1;
+		thrower( "ERROR: number of post selection conditions that were set doesn't match the number of conditions "
+			     "reported earlier in the file.");
 	}
 	
 	// get legends
 	getline(loadingFile, testString);
 	if (testString != "LEGENDS BEGIN")
 	{
-		MessageBox(0, ("ERROR: Expected text \"LEGENDS BEGIN\" but got text" + testString).c_str(), 0, 0);
-		return -1;
+		thrower("ERROR: Expected text \"LEGENDS BEGIN\" but got text" + testString);
 	}
 	dataSetCount = 0;
 	while (true)
@@ -776,15 +766,14 @@ int PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	}
 	if (dataSetCount != dataSets.size())
 	{
-		MessageBox(0, "ERROR: the number of data sets that legends were read for doesn't match the number of data sets reported earlier in the file.", 0, 0);
-		return -1;
+		thrower("ERROR: the number of data sets that legends were read for doesn't match the number of data sets "
+			   "reported earlier in the file.");
 	}
 	// get counts locations
 	getline(loadingFile, testString);
 	if (testString != "PLOT COUNTS LOCATIONS BEGIN")
 	{
-		MessageBox(0, ("ERROR: Expected text \"PLOT COUNTS LOCATIONS BEGIN\" but got text" + testString).c_str(), 0, 0);
-		return -1;
+		thrower("ERROR: Expected text \"PLOT COUNTS LOCATIONS BEGIN\" but got text" + testString);
 	}
 	dataSetCount = 0;
 	while (true)
@@ -805,8 +794,7 @@ int PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 		}
 		catch (std::invalid_argument&)
 		{
-			MessageBox(0, ("ERROR: pixel listed in file did not convert to integer correctly. pixel string was" + pixelStr).c_str(), 0, 0);
-			return -1;
+			thrower("ERROR: pixel listed in file did not convert to integer correctly. pixel string was" + pixelStr);
 		}
 
 		tempStream >> pictureStr;
@@ -816,8 +804,7 @@ int PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 		}
 		catch (std::invalid_argument&)
 		{
-			MessageBox(0, ("ERROR: picture listed in file did not convert to integer correctly. picture string was" + pictureStr).c_str(), 0, 0);
-			return -1;
+			thrower("ERROR: picture listed in file did not convert to integer correctly. picture string was" + pictureStr);
 		}
 		this->setDataCountsLocation(dataSetCount, pixel, picture);
 		dataSetCount++;
@@ -827,24 +814,23 @@ int PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	{
 		if (dataSetCount != dataSets.size())
 		{
-			MessageBox(0, "ERROR: the number of data sets that counts locations were read for doesn't match the number of data sets reported earlier in the file.", 0, 0);
-			return -1;
+			thrower("ERROR: the number of data sets that counts locations were read for doesn't match the number of "
+				   "data sets reported earlier in the file.");
 		}
 	}
 	else
 	{
 		if (dataSetCount > 0)
 		{
-			MessageBox(0, "ERROR: There were counts plotting locations listed in the file despite the plot type not being pixel count histograms or pixel counts.", 0, 0);
-			return -1;
+			thrower("ERROR: There were counts plotting locations listed in the file despite the plot type not being"
+					" pixel count histograms or pixel counts.");
 		}
 	}
 
 	getline(loadingFile, testString);
 	if (testString != "FITTING OPTIONS BEGIN")
 	{
-		MessageBox(0, ("ERROR: Expected text \"FITTING OPTIONS BEGIN\" but got text" + testString).c_str(), 0, 0);
-		return -1;
+		thrower("ERROR: Expected text \"FITTING OPTIONS BEGIN\" but got text" + testString);
 	}
 	dataSetCount = 0;
 	while (true)
@@ -865,8 +851,7 @@ int PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 		}
 		catch (std::invalid_argument&)
 		{
-			MessageBox(0, ("ERROR: fit option listed in file did not convert to integer correctly. fit option string was" + fitOptionStr).c_str(), 0, 0);
-			return -1;
+			thrower("ERROR: fit option listed in file did not convert to integer correctly. fit option string was" + fitOptionStr);
 		}
 
 		tempStream >> whenToFitStr;
@@ -876,8 +861,8 @@ int PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 		}
 		catch (std::invalid_argument&)
 		{
-			MessageBox(0, ("ERROR: When to Fit option listed in file did not convert to integer correctly. when to fit string was" + whenToFitStr).c_str(), 0, 0);
-			return -1;
+			thrower("ERROR: When to Fit option listed in file did not convert to integer correctly. when to fit string "
+				   "was" + whenToFitStr);
 		}
 		dataSets[dataSetCount].setFitType(fitOption);
 		dataSets[dataSetCount].setWhenToFit(whenToFit);
@@ -885,70 +870,64 @@ int PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	}
 	if (dataSetCount > dataSets.size())
 	{
-		MessageBox(0, "ERROR: more fit options than data sets!", 0, 0);
-		return -1;
+		thrower("ERROR: more fit options than data sets!");
 	}
-
-	return 0;
 }
 
-int PlottingInfo::resetNumberOfAnalysisGroups(int setNumber)
+void PlottingInfo::resetNumberOfAnalysisGroups(int setNumber)
 {
 	for (int pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
 	{
 		analysisGroups[pixelInc].clear();
 		analysisGroups[pixelInc].resize(setNumber);
 	}
-	return 0;
 }
 
-int PlottingInfo::resetPixelNumber(int pixelNumber)
+void PlottingInfo::resetPixelNumber(int pixelNumber)
 {
 	currentPixelNumber = pixelNumber;
 	analysisGroups.resize(pixelNumber);
 	for (int dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
 	{
 		dataSets[dataSetInc].resetPixelNumber(pixelNumber);
-		dataSets[dataSetInc].resetPictureNumber(this->numberOfPictures);
+		dataSets[dataSetInc].resetPictureNumber(numberOfPictures);
 	}
-	return 0;
 }
 
-int PlottingInfo::resetPictureNumber(int pictureNumber)
+void PlottingInfo::resetPictureNumber(int pictureNumber)
 {
 	numberOfPictures = pictureNumber;
 	for (int dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
 	{
 		dataSets[dataSetInc].resetPictureNumber(pictureNumber);
 	}
-	return 0;
 }
 
-int PlottingInfo::resetConditionNumber(int conditionNumber)
+void PlottingInfo::resetConditionNumber(int conditionNumber)
 {
 	currentConditionNumber = conditionNumber;
 	for (int dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
 	{
 		dataSets[dataSetInc].resetPostSelectionConditionNumber(conditionNumber);
 	}
-	return 0;
 }
 
-int PlottingInfo::resetDataSetNumber(int dataSetNumber)
+
+void PlottingInfo::resetDataSetNumber(int dataSetNumber)
 {
 	dataSets.clear();
 	dataSets.resize(dataSetNumber);
-	return 0;
 }
 
-int PlottingInfo::clear()
+
+void PlottingInfo::clear()
 {
 	// arbitrary
 	title = "";
 	// arbitrary
 	yLabel = "";
 	// analysisGroups[pixel #][pixel set].first = row
-	// analysisGroups[pixel #][pixel set].second = collumn
+	// analysisGroups[pixel #][pixel set].second = column
 	analysisGroups.clear();
 	// Contains information for each set of data to be plotted.
 	dataSets.clear();
@@ -962,7 +941,6 @@ int PlottingInfo::clear()
 	xAxis = "";
 	// three options here.
 	generalPlotType = "";
-	return 0;
 }
 
 std::string PlottingInfo::getTitle()
@@ -985,7 +963,7 @@ int PlottingInfo::getPixelNumber()
 	return currentPixelNumber;
 }
 
-int PlottingInfo::getPictureNumber()
+int PlottingInfo::getPicNumber()
 {
 	return numberOfPictures;
 }
@@ -1000,6 +978,7 @@ size_t PlottingInfo::getPixelGroupNumber()
 {
 	if (analysisGroups.size() == 0)
 	{
+		// perhaps I should throw here?
 		return -1;
 	}
 	return analysisGroups[0].size();
@@ -1012,10 +991,9 @@ size_t PlottingInfo::getDataSetNumber()
 }
 
 
-int PlottingInfo::setPixelIndex(int pixel, int group, int index)
+void PlottingInfo::setPixelIndex(int pixel, int group, int index)
 {
 	analysisGroups[pixel][group][2] = index;
-	return 0;
 }
 
 
@@ -1025,17 +1003,15 @@ int PlottingInfo::getPixelIndex(int pixel, int group)
 }
 
 
-int PlottingInfo::setFitOption(int dataSet, int fitType)
+void PlottingInfo::setFitOption(int dataSet, int fitType)
 {
 	dataSets[dataSet].setFitType(fitType);
-	return 0;
 }
 
 
-int PlottingInfo::setWhenToFit(int dataSet, int whenToFit)
+void PlottingInfo::setWhenToFit(int dataSet, int whenToFit)
 {
 	dataSets[dataSet].setWhenToFit(whenToFit);
-	return 0;
 }
 
 
@@ -1045,7 +1021,7 @@ int PlottingInfo::getFitOption(int dataSet)
 }
 
 
-int PlottingInfo::getWhenToFit(int dataSet)
+int PlottingInfo::whenToFit(int dataSet)
 {
 	return dataSets[dataSet].getWhenToFit();
 }
@@ -1079,24 +1055,22 @@ std::vector<std::pair<int, int>> PlottingInfo::getAllPixelLocations()
 }
 
 
-bool PlottingInfo::setGroups(std::vector<std::pair<int, int>> locations)
+void PlottingInfo::setGroups(std::vector<std::pair<int, int>> locations)
 {
 	if (locations.size() % this->currentPixelNumber != 0)
 	{
-		errBox("ERROR: One of your real-time plots was expecting a multiple of " + std::to_string(this->currentPixelNumber) + " pixels to analyze, but you "
-			"selected " + std::to_string(locations.size()) + " pixels.");
-		return false;
+		thrower( "ERROR: One of your real-time plots was expecting a multiple of " + str(this->currentPixelNumber) + " pixels to analyze, but you "
+			     "selected " + str(locations.size()) + " pixels.");
 	}
 	int locationInc = 0;
 	for (int groupInc = 0; groupInc < locations.size() / this->currentPixelNumber; groupInc++)
 	{
-		this->addGroup();
+		addGroup();
 		for (int pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
 		{
-			this->setGroupLocation(pixelInc, groupInc, locations[locationInc].first+1, locations[locationInc].second+1);
+			setGroupLocation(pixelInc, groupInc, locations[locationInc].second+1, locations[locationInc].first+1);
 			locationInc++;
 		}
 	}
-	return true;
 }
 

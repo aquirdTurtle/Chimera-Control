@@ -5,6 +5,7 @@
 #include <string>
 #include <type_traits>
 #include "commonTypes.h"
+//#include "miscellaneousCommonFunctions.h"
 
 static HFONT toolTipFont = CreateFont(30, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
 									  DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
@@ -40,7 +41,7 @@ template <class ControlType> class Control : public ControlType
 		int colorState = 0;
 		void rearrange(int width, int height, fontMap fonts);
 		void rearrange(std::string cameraMode, std::string trigMode, int width, int height, fontMap fonts);
-		void setToolTip( std::string text, std::vector<CToolTipCtrl*>& tooltips, CWnd* master );
+		void setToolTip( std::string text, cToolTips& tooltips, CWnd* master );
 
 	private:
 		int toolTipID;
@@ -234,7 +235,7 @@ template <class ControlType> void Control<ControlType>::rearrange( std::string c
 
 /// template function for the class control system
 template <class ControlType> void Control<ControlType>::setToolTip(std::string text, 
-																   std::vector<CToolTipCtrl*>& tooltips, 
+																   cToolTips& tooltips, 
 																   CWnd* parent)
 {
 	if (!toolTipIsSet)

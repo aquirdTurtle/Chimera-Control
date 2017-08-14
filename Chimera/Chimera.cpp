@@ -1,18 +1,12 @@
 /****************************************
 *										*
-* NI-PXIe-5451 AWG Control.cpp			*
+* Chimera-Control.cpp					*
 *										*
 *****************************************
 
-* This program takes as input the x and y instructions files, which are to be written by the user to define the sequence of waveforms and triggers
-* for the arbitrary waveform generator to generate, being dependent on which particular experiment is being run. And so much more.
-*/
 /**PROJECT ORGANIZATION****************************************\
-3 Threads:
-- Main Window Message Handling thread
-- Calculations Thread for the experiment
-- NIAWG wait thread
-\*************************************************************/
+
+\**************************************************************/
 
 // a file visual c++ uses for efficiency in compiling headers.
 #include "stdafx.h"
@@ -21,8 +15,6 @@
 #include "externals.h"
 // an namespace for agilent functions.
 #include "myAgilent.h"
-//
-#include "myErrorHandler.h"
 
 // Contains functions and types used by the NIAWG.
 #include "niFgen.h"
@@ -122,45 +114,6 @@ BOOL myApplicationApp::InitInstance()
 									   + str( datePointerStart.tm_mday ) + " Time " + str( datePointerStart.tm_hour ) + "-" 
 									   + str( datePointerStart.tm_min ) + "-" + str( datePointerStart.tm_sec ));
 	bool andorConnectedForFolder = false;
-
-	if (!CONNECT_TO_ANDOR_SAFEMODE)
-	{
-		boost::filesystem::path dir( CODE_LOGGING_FILES_PATH + logFolderNameStart );
-		do
-		{
-			try
-			{
-				boost::filesystem::create_directory(dir);
-				andorConnectedForFolder = true;
-			}
-			catch (boost::filesystem::filesystem_error&)
-			{
-				// For some reason this doesn't seem to get called when the connection breaks.
-				int andorDisconnectedOption = MessageBox( NULL, "This computer can't currently open logging files on the andor.\nAbort "
-														  "will quit the program (no output has started).\nRetry will re-attempt to "
-														  "connect to the Andor.\nIgnore will continue without saving the current file.",  
-														  "Andor Disconnected", MB_ABORTRETRYIGNORE );
-				switch (andorDisconnectedOption)
-				{
-					case IDABORT:
-					{
-						return -2;
-						break;
-					}
-					case IDRETRY:
-					{
-						break;
-					}
-					case IDIGNORE:
-					{
-						// break out without writing file.
-						andorConnectedForFolder = true;
-						break;
-					}
-				}
-			}
-		} while (andorConnectedForFolder == false);
-	}
 	logFolderNameStart += "\\";
 
 	WIN32_FIND_DATA find_cpp_Data;
@@ -171,7 +124,7 @@ BOOL myApplicationApp::InitInstance()
 	std::string hFindString = ACTUAL_CODE_FOLDER_PATH + "*.h";
 	if (!NIAWG_SAFEMODE)
 	{
-		cpp_Find_Handle = FindFirstFile( (LPSTR)cppFindString.c_str(), &find_cpp_Data );
+		cpp_Find_Handle = FindFirstFile( (LPSTR)cstr(cppFindString), &find_cpp_Data );
 		if (cpp_Find_Handle != INVALID_HANDLE_VALUE)
 		{
 			do
@@ -225,7 +178,7 @@ BOOL myApplicationApp::InitInstance()
 			errBox( "Failed to find any .cpp files in folder!" );
 		}
 
-		h_Find_Handle = FindFirstFile( (LPSTR)hFindString.c_str(), &find_cpp_Data );
+		h_Find_Handle = FindFirstFile( (LPSTR)cstr(hFindString), &find_cpp_Data );
 		if (h_Find_Handle != INVALID_HANDLE_VALUE)
 		{
 			do
@@ -241,24 +194,25 @@ BOOL myApplicationApp::InitInstance()
 		}
 	}
 
-	m_haccel = LoadAccelerators( AfxGetInstanceHandle(), MAKEINTRESOURCE( IDR_ACCELERATOR1 ) );
+ 	m_haccel = LoadAccelerators( AfxGetInstanceHandle(), MAKEINTRESOURCE( IDR_ACCELERATOR1 ) );
 
 	/// Initialize Socket stuffs
 	// Communication object used to open up the windows socket applications (WSA) DLL. 
-	//WSADATA wsaData;
+	// WSADATA wsaData;
 	// object that contains error information.
 	int iResult = 0;
+
 	// the socket object used to connect to the other computer. Starts invalid because it isn't active yet.
 
 	// Initialize Winsock
-	//iResult = WSAStartup( MAKEWORD( 2, 2 ), &wsaData );
+	// iResult = WSAStartup( MAKEWORD( 2, 2 ), &wsaData );
 	// check for errors initializing winsock
 	if (iResult != 0)
 	{
 		errBox( "WSAStartup failed: " + str( iResult ) );
 		return 1;
 	}
-	myAgilent::agilentDefault();
+	Agilent::agilentDefault();
 	INT_PTR returnVal = theMainApplicationWindow.DoModal();
 	// end of program.
 	return int(returnVal);

@@ -1,12 +1,11 @@
 #pragma once
 
 #include "waveformData.h"
-
 #include "niFgen.h"
-
 #include <string>
 #include <vector>
 #include <fstream>
+
 
 namespace myNIAWG
 {

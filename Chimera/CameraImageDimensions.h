@@ -3,6 +3,8 @@
 #include "Control.h"
 
 struct cameraPositions;
+class CameraWindow;
+class MainWindow;
 
 struct imageParameters
 {

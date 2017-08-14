@@ -5,7 +5,7 @@
 #include "getFileName.h"
 #include "saveTextFileFromEdit.h"
 #include "commonFunctions.h"
-#include "textPromptDialogProcedure.h"
+#include "textPromptDialog.h"
 #include "DeviceWindow.h"
 
 IMPLEMENT_DYNAMIC(ScriptingWindow, CDialog)
@@ -17,6 +17,7 @@ BEGIN_MESSAGE_MAP(ScriptingWindow, CDialog)
 	ON_EN_CHANGE(IDC_HORIZONTAL_NIAWG_EDIT, &ScriptingWindow::horizontalEditChange)
 	ON_EN_CHANGE(IDC_VERTICAL_NIAWG_EDIT, &ScriptingWindow::verticalEditChange)
 	ON_EN_CHANGE(IDC_INTENSITY_EDIT, &ScriptingWindow::agilentEditChange)
+	ON_EN_CHANGE(IDC_MASTER_EDIT, &ScriptingWindow::masterEditChange)
 
 	ON_COMMAND(IDOK, &ScriptingWindow::catchEnter)
 
@@ -26,8 +27,28 @@ BEGIN_MESSAGE_MAP(ScriptingWindow, CDialog)
 	ON_CBN_SELENDOK(IDC_VERTICAL_NIAWG_FUNCTION_COMBO, &ScriptingWindow::handleVerticalScriptComboChange)
 	ON_CBN_SELENDOK(IDC_HORIZONTAL_NIAWG_FUNCTION_COMBO, &ScriptingWindow::handleHorizontalScriptComboChange)
 	ON_CBN_SELENDOK(IDC_INTENSITY_FUNCTION_COMBO, &ScriptingWindow::handleAgilentScriptComboChange)
+	//ON_CBN_SELENDOK(IDC_MASTER_FUNCTION_COMBO, &ScriptingWindow::handleMasterScriptComboChange)
 END_MESSAGE_MAP()
 
+
+void ScriptingWindow::masterEditChange()
+{
+	try
+	{
+		masterScript.handleEditChange();
+		SetTimer(SYNTAX_TIMER_ID, SYNTAX_TIMER_LENGTH, NULL);
+	}
+	catch (Error& err)
+	{
+		comm()->sendError(err.what());
+	}
+}
+
+
+Communicator* ScriptingWindow::comm()
+{
+	return mainWindowFriend->getComm();
+}
 
 void ScriptingWindow::catchEnter()
 {
@@ -50,6 +71,8 @@ void ScriptingWindow::OnSize(UINT nType, int cx, int cy)
 											deviceWindowFriend->getTtlNames(), deviceWindowFriend->getDacNames());
 	intensityAgilentScript.colorEntireScript(deviceWindowFriend->getAllVariables(), mainWindowFriend->getRgbs(),
 											 deviceWindowFriend->getTtlNames(), deviceWindowFriend->getDacNames());
+	masterScript.colorEntireScript(deviceWindowFriend->getAllVariables(), mainWindowFriend->getRgbs(),
+								   deviceWindowFriend->getTtlNames(), deviceWindowFriend->getDacNames());
 }
 
 BOOL ScriptingWindow::PreTranslateMessage(MSG* pMsg)
@@ -106,7 +129,7 @@ BOOL ScriptingWindow::OnInitDialog()
 	CMenu menu;
 	menu.LoadMenu(IDR_MAIN_MENU);
 	SetMenu(&menu);
-	ShowWindow(SW_MAXIMIZE);
+	//ShowWindow(SW_MAXIMIZE);
 	return TRUE;
 }
 
@@ -118,6 +141,8 @@ void ScriptingWindow::OnTimer(UINT_PTR eventID)
 										   deviceWindowFriend->getTtlNames(), deviceWindowFriend->getDacNames());
 	verticalNiawgScript.handleTimerCall(deviceWindowFriend->getAllVariables(), mainWindowFriend->getRgbs(),
 										deviceWindowFriend->getTtlNames(), deviceWindowFriend->getDacNames());
+	masterScript.handleTimerCall(deviceWindowFriend->getAllVariables(), mainWindowFriend->getRgbs(),
+								 deviceWindowFriend->getTtlNames(), deviceWindowFriend->getDacNames());
 }
 
 
@@ -169,10 +194,10 @@ scriptInfo<bool> ScriptingWindow::getScriptSavedStatuses()
 scriptInfo<std::string> ScriptingWindow::getScriptAddresses()
 {
 	scriptInfo<std::string> addresses;
-	addresses.horizontalNIAWG = horizontalNiawgScript.getScriptPath();
-	addresses.verticalNIAWG = verticalNiawgScript.getScriptPath();
-	addresses.intensityAgilent = intensityAgilentScript.getScriptPath();
-	addresses.master = masterScript.getScriptPath();
+	addresses.horizontalNIAWG = horizontalNiawgScript.getScriptPathAndName();
+	addresses.verticalNIAWG = verticalNiawgScript.getScriptPathAndName();
+	addresses.intensityAgilent = intensityAgilentScript.getScriptPathAndName();
+	addresses.master = masterScript.getScriptPathAndName();
 	return addresses;
 }
 
@@ -250,13 +275,15 @@ void ScriptingWindow::newIntensityScript()
 	intensityAgilentScript.newScript(getProfile().orientation);
 	updateConfigurationSavedStatus(false);
 	intensityAgilentScript.updateScriptNameText(mainWindowFriend->getCurrentProfileSettings().categoryPath);
+	intensityAgilentScript.colorEntireScript(deviceWindowFriend->getAllVariables(), mainWindowFriend->getRgbs(),
+											 deviceWindowFriend->getTtlNames(), deviceWindowFriend->getDacNames());
 }
 
 
-void ScriptingWindow::openIntensityScript(HWND parentWindow)
+void ScriptingWindow::openIntensityScript(CWnd* parent)
 {
 	intensityAgilentScript.checkSave(getProfile().categoryPath, mainWindowFriend->getRunInfo());
-	std::string intensityOpenName = getFileNameDialog(parentWindow);
+	std::string intensityOpenName = getFileNameDialog(parent->GetSafeHwnd());
 	intensityAgilentScript.openParentScript(intensityOpenName, getProfile().categoryPath, mainWindowFriend->getRunInfo());
 	updateConfigurationSavedStatus(false);
 	intensityAgilentScript.updateScriptNameText(getProfile().categoryPath);
@@ -270,7 +297,7 @@ void ScriptingWindow::saveIntensityScript()
 }
 
 
-void ScriptingWindow::saveIntensityScriptAs(HWND parentWindow)
+void ScriptingWindow::saveIntensityScriptAs(CWnd* parent)
 {
 	std::string extensionNoPeriod = intensityAgilentScript.getExtension();
 	if (extensionNoPeriod.size() == 0)
@@ -278,7 +305,7 @@ void ScriptingWindow::saveIntensityScriptAs(HWND parentWindow)
 		return;
 	}
 	extensionNoPeriod = extensionNoPeriod.substr(1, extensionNoPeriod.size());
-	std::string newScriptAddress = saveTextFileFromEdit(parentWindow, extensionNoPeriod, getCurrentProfileSettings());
+	std::string newScriptAddress = saveTextFileFromEdit(parent->GetSafeHwnd(), extensionNoPeriod, getCurrentProfileSettings());
 	intensityAgilentScript.saveScriptAs(newScriptAddress, mainWindowFriend->getRunInfo() );
 	updateConfigurationSavedStatus(false);
 	intensityAgilentScript.updateScriptNameText(getProfile().categoryPath);
@@ -291,6 +318,8 @@ void ScriptingWindow::newVerticalScript()
 	verticalNiawgScript.newScript(getProfile().orientation);
 	updateConfigurationSavedStatus(false);
 	verticalNiawgScript.updateScriptNameText(getProfile().categoryPath);
+	verticalNiawgScript.colorEntireScript(deviceWindowFriend->getAllVariables(), mainWindowFriend->getRgbs(),
+											deviceWindowFriend->getTtlNames(), deviceWindowFriend->getDacNames());
 }
 
 
@@ -301,10 +330,10 @@ profileSettings ScriptingWindow::getProfile()
 }
 
 
-void ScriptingWindow::openVerticalScript(HWND parentWindow)
+void ScriptingWindow::openVerticalScript(CWnd* parent)
 {
 	verticalNiawgScript.checkSave(getProfile().categoryPath, mainWindowFriend->getRunInfo());
-	std::string intensityOpenName = getFileNameDialog(parentWindow);
+	std::string intensityOpenName = getFileNameDialog(parent->GetSafeHwnd());
 	verticalNiawgScript.openParentScript(intensityOpenName, getProfile().categoryPath,
 										 mainWindowFriend->getRunInfo());
 	updateConfigurationSavedStatus(false);
@@ -319,7 +348,7 @@ void ScriptingWindow::saveVerticalScript()
 }
 
 
-void ScriptingWindow::saveVerticalScriptAs(HWND parentWindow)
+void ScriptingWindow::saveVerticalScriptAs(CWnd* parent)
 {
 	std::string extensionNoPeriod = verticalNiawgScript.getExtension();
 	if (extensionNoPeriod.size() == 0)
@@ -327,7 +356,7 @@ void ScriptingWindow::saveVerticalScriptAs(HWND parentWindow)
 		return;
 	}
 	extensionNoPeriod = extensionNoPeriod.substr(1, extensionNoPeriod.size());
-	std::string newScriptAddress = saveTextFileFromEdit(parentWindow, extensionNoPeriod, getCurrentProfileSettings());
+	std::string newScriptAddress = saveTextFileFromEdit(parent->GetSafeHwnd(), extensionNoPeriod, getCurrentProfileSettings());
 	verticalNiawgScript.saveScriptAs(newScriptAddress, mainWindowFriend->getRunInfo() );
 	updateConfigurationSavedStatus(false);
 	verticalNiawgScript.updateScriptNameText(getProfile().categoryPath);
@@ -340,13 +369,15 @@ void ScriptingWindow::newHorizontalScript()
 	horizontalNiawgScript.newScript( getProfile().orientation );
 	updateConfigurationSavedStatus(false);
 	horizontalNiawgScript.updateScriptNameText(getProfile().categoryPath);
+	horizontalNiawgScript.colorEntireScript(deviceWindowFriend->getAllVariables(), mainWindowFriend->getRgbs(),
+											deviceWindowFriend->getTtlNames(), deviceWindowFriend->getDacNames());
 }
 
 
-void ScriptingWindow::openHorizontalScript(HWND parentWindow)
+void ScriptingWindow::openHorizontalScript(CWnd* parent)
 {
 	horizontalNiawgScript.checkSave(getProfile().categoryPath, mainWindowFriend->getRunInfo());
-	std::string horizontalOpenName = getFileNameDialog(parentWindow);
+	std::string horizontalOpenName = getFileNameDialog(parent->GetSafeHwnd());
 	horizontalNiawgScript.openParentScript(horizontalOpenName, getProfile().categoryPath, mainWindowFriend->getRunInfo());
 	updateConfigurationSavedStatus(false);
 	horizontalNiawgScript.updateScriptNameText(getProfile().categoryPath);
@@ -360,7 +391,7 @@ void ScriptingWindow::saveHorizontalScript()
 }
 
 
-void ScriptingWindow::saveHorizontalScriptAs(HWND parentWindow)
+void ScriptingWindow::saveHorizontalScriptAs(CWnd* parent)
 {
 	std::string extensionNoPeriod = horizontalNiawgScript.getExtension();
 	if (extensionNoPeriod.size() == 0)
@@ -368,7 +399,8 @@ void ScriptingWindow::saveHorizontalScriptAs(HWND parentWindow)
 		return;
 	}
 	extensionNoPeriod = extensionNoPeriod.substr(1, extensionNoPeriod.size());
-	std::string newScriptAddress = saveTextFileFromEdit(parentWindow, extensionNoPeriod, getCurrentProfileSettings());
+	std::string newScriptAddress = saveTextFileFromEdit(parent->GetSafeHwnd(), extensionNoPeriod, 
+														getCurrentProfileSettings());
 	horizontalNiawgScript.saveScriptAs(newScriptAddress, mainWindowFriend->getRunInfo() );
 	updateConfigurationSavedStatus(false);
 	horizontalNiawgScript.updateScriptNameText(getProfile().categoryPath);
@@ -391,12 +423,137 @@ void ScriptingWindow::recolorScripts()
 											deviceWindowFriend->getTtlNames(), deviceWindowFriend->getDacNames());
 	intensityAgilentScript.colorEntireScript(deviceWindowFriend->getAllVariables(), mainWindowFriend->getRgbs(),
 											 deviceWindowFriend->getTtlNames(), deviceWindowFriend->getDacNames());
+	masterScript.colorEntireScript(deviceWindowFriend->getAllVariables(), mainWindowFriend->getRgbs(),
+								   deviceWindowFriend->getTtlNames(), deviceWindowFriend->getDacNames());
 }
 
 
 void ScriptingWindow::openIntensityScript(std::string name)
 {
 	intensityAgilentScript.openParentScript(name, getProfile().categoryPath, mainWindowFriend->getRunInfo());
+}
+
+
+void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, double version)
+{
+	ProfileSystem::checkDelimiterLine(configFile, "SCRIPTS");
+	// the reading for the scripts is simple enough at the moment that I just read everything here.
+	configFile.get();
+	std::string vertName, horName, intensityName, masterName;
+	getline(configFile, vertName);
+	getline(configFile, horName);
+	getline(configFile, intensityName);
+	getline(configFile, masterName);
+
+	openVerticalScript(vertName);
+	openHorizontalScript(horName);
+	openIntensityScript(intensityName);
+	openMasterScript(masterName);
+	considerScriptLocations();
+	recolorScripts();
+
+	ProfileSystem::checkDelimiterLine(configFile, "END_SCRIPTS");
+}
+
+
+void ScriptingWindow::newMasterScript()
+{
+	masterScript.checkSave(getProfile().categoryPath, mainWindowFriend->getRunInfo());
+	masterScript.newScript(getProfile().orientation);
+	updateConfigurationSavedStatus(false);
+	masterScript.updateScriptNameText(getProfile().categoryPath);
+	masterScript.colorEntireScript(deviceWindowFriend->getAllVariables(), mainWindowFriend->getRgbs(),
+											deviceWindowFriend->getTtlNames(), deviceWindowFriend->getDacNames());
+}
+
+void ScriptingWindow::openMasterScript(CWnd* parent)
+{
+	masterScript.checkSave(getProfile().categoryPath, mainWindowFriend->getRunInfo());
+	std::string horizontalOpenName = getFileNameDialog(parent->GetSafeHwnd());
+	masterScript.openParentScript(horizontalOpenName, getProfile().categoryPath, mainWindowFriend->getRunInfo());
+	updateConfigurationSavedStatus(false);
+	masterScript.updateScriptNameText(getProfile().categoryPath);
+}
+
+
+void ScriptingWindow::saveMasterScript()
+{
+	masterScript.saveScript(getProfile().categoryPath, mainWindowFriend->getRunInfo());
+	masterScript.updateScriptNameText(getProfile().categoryPath);
+}
+
+
+void ScriptingWindow::saveMasterScriptAs(CWnd* parent)
+{
+	std::string extensionNoPeriod = masterScript.getExtension();
+	if (extensionNoPeriod.size() == 0)
+	{
+		return;
+	}
+	extensionNoPeriod = extensionNoPeriod.substr(1, extensionNoPeriod.size());
+	std::string newScriptAddress = saveTextFileFromEdit(parent->GetSafeHwnd(), extensionNoPeriod,
+														getCurrentProfileSettings());
+	masterScript.saveScriptAs(newScriptAddress, mainWindowFriend->getRunInfo());
+	updateConfigurationSavedStatus(false);
+	masterScript.updateScriptNameText(getProfile().categoryPath);
+}
+
+
+void ScriptingWindow::newMasterFunction()
+{
+	try
+	{
+		masterScript.newFunction();
+	}
+	catch (Error& exception)
+	{
+		comm()->sendError("New Master function Failed: " + exception.whatStr() + "\r\n");
+	}
+}
+
+
+void ScriptingWindow::saveMasterFunction()
+{
+	try
+	{
+		masterScript.saveAsFunction();
+	}
+	catch (Error& exception)
+	{
+		comm()->sendError("Save Master Script Function Failed: " + exception.whatStr() + "\r\n");
+	}
+
+}
+
+
+void ScriptingWindow::deleteMasterFunction()
+{
+	// todo. Right now you can just delete the file itself...
+}
+
+
+void ScriptingWindow::handleSavingConfig(std::ofstream& saveFile)
+{
+	scriptInfo<std::string> addresses = getScriptAddresses();
+	// order matters!
+	saveFile << "SCRIPTS\n";
+	saveFile << addresses.verticalNIAWG << "\n";
+	saveFile << addresses.horizontalNIAWG << "\n";
+	saveFile << addresses.intensityAgilent << "\n";	
+	saveFile << addresses.master << "\n";
+	saveFile << "END_SCRIPTS\n";
+}
+
+
+void ScriptingWindow::checkMasterSave()
+{
+	masterScript.checkSave(getProfile().categoryPath, mainWindowFriend->getRunInfo());
+}
+
+
+void ScriptingWindow::openMasterScript(std::string name)
+{
+	masterScript.openParentScript(name, getProfile().categoryPath, mainWindowFriend->getRunInfo());
 }
 
 
@@ -408,7 +565,7 @@ void ScriptingWindow::openVerticalScript(std::string name)
 	}
 	catch(Error& err)
 	{
-		mainWindowFriend->getComm()->sendError(err.what());
+		comm()->sendError(err.what());
 	}
 }
 
@@ -421,7 +578,7 @@ void ScriptingWindow::openHorizontalScript(std::string name)
 	}
 	catch (Error& err)
 	{
-		mainWindowFriend->getComm()->sendError(err.what());
+		comm()->sendError(err.what());
 	}
 }
 

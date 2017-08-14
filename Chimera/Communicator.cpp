@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "Communicator.h"
 #include "CameraWindow.h"
+#include "DeviceWindow.h"
 
 // pass all the windows so that the object can (in principle) send messages to any window.
 void Communicator::initialize(MainWindow* mainWinParent, ScriptingWindow* scriptingWin, CameraWindow* cameraWin, 
@@ -10,7 +11,7 @@ void Communicator::initialize(MainWindow* mainWinParent, ScriptingWindow* script
 	mainWin = mainWinParent;
 	scriptWin = scriptingWin;
 	camWin = cameraWin;
-	masterWin = masterWindow;
+	deviceWin = masterWindow;
 }
 
 /*
@@ -27,6 +28,11 @@ void Communicator::sendCameraFin()
 void Communicator::sendCameraProgress(long progress)
 {
 	PostMessage( camWin->GetSafeHwnd(), eCameraProgressMessageID, 0, (LPARAM)progress );
+}
+
+void Communicator::sendRepProgress(ULONG rep)
+{
+	mainWin->PostMessageA(eRepProgressMessageID, 0, LPARAM(rep));
 }
 
 void Communicator::sendTimer( std::string timerMsg )
@@ -53,11 +59,35 @@ void Communicator::sendFatalErrorEx( std::string statusMsg, const char *file, in
 	postMyString( mainWin, eFatalErrorMessageID, statusMsg );
 }
 
+
+void Communicator::sendColorBox( System sys, char code )
+{
+	systemInfo<char> colors;
+	switch (sys)
+	{
+		case Niawg:
+			colors = { code, '-', '-','-' };
+			break;
+		case Camera:
+			colors = { '-', code, '-', '-' };
+			break;
+		case Intensity:
+			colors = { '-', '-', code, '-' };
+			break;
+		case Master:
+			colors = { '-', '-', '-', code };
+			break;
+	}
+	sendColorBox( colors );
+}
+
+
 void Communicator::sendColorBox( systemInfo<char> colors )
 {
 	mainWin->changeBoxColor( colors );
 	scriptWin->changeBoxColor( colors );
 	camWin->changeBoxColor( colors );
+	deviceWin->changeBoxColor( colors );
 }
 
 void Communicator::sendStatus(std::string statusMsg)
@@ -75,10 +105,10 @@ void Communicator::sendDebug(std::string statusMsg)
 }
 
 
-void Communicator::postMyString( CWnd* window, unsigned int messageTypeID, std::string message )
+void Communicator::postMyString( CWnd* window, UINT messageTypeID, std::string message )
 {
 	// The window recieving this message is responsible for deleting this pointer.
 	char* messageChars = new char[message.size() + 1];
-	sprintf_s( messageChars, message.size() + 1, "%s", message.c_str() );
+	sprintf_s( messageChars, message.size() + 1, "%s", cstr(message));
 	window->PostMessageA( messageTypeID, 0, (LPARAM)messageChars );
 }

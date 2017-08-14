@@ -7,8 +7,8 @@
 #include "VariableSystem.h"
 #include <boost/algorithm/string/replace.hpp>
 
-void ExperimentLogger::generateNiawgLog( experimentThreadInput* input, niawgPair<std::vector<std::fstream>>& niawgScripts,
-										 std::vector<std::fstream > &intensityScripts, unsigned int repetitions )
+void ExperimentLogger::generateNiawgLog( MasterThreadInput* input, niawgPair<std::vector<std::fstream>>& niawgScripts,
+										 std::vector<std::fstream > &intensityScripts, UINT repetitions )
 {
 	///					Logging
 	// This report goes to a folder I create on the Andor. NEW: Always log.
@@ -74,7 +74,7 @@ void ExperimentLogger::generateNiawgLog( experimentThreadInput* input, niawgPair
 			{
 				niawgScriptLogs[axis] << scriptText;
 			}
-			if (input->debugInfo.outputNiawgHumanScript)
+			if (input->debugOptions.outputNiawgHumanScript)
 			{
 				input->comm->sendDebug( scriptText );
 			}
@@ -134,7 +134,7 @@ void ExperimentLogger::generateNiawgLog( experimentThreadInput* input, niawgPair
 		{
 			intensityScriptLog << intensityScriptText;
 		}
-		if (input->debugInfo.outputAgilentScript)
+		if (input->debugOptions.outputAgilentScript)
 		{
 			input->comm->sendDebug( intensityScriptText );
 		}
@@ -174,15 +174,15 @@ void ExperimentLogger::generateNiawgLog( experimentThreadInput* input, niawgPair
 		{
 			andorConnected = true;
 			// prepare the parameters list for the log
-			std::string paramtersString = "\nDont Actually Generate = " + std::to_string( input->dontActuallyGenerate )
-				+ "\nConnect To Master = " + std::to_string( input->settings.connectToMaster )
-				+ "\nGet Variable Files From Master = " + std::to_string( input->settings.getVariables )
-				+ "\nRepetitions = " + std::to_string( repetitions )
-				+ "\nDon't Actually Generate = " + std::to_string( input->dontActuallyGenerate )
-				+ "\nProgramming Intensity = " + std::to_string( input->settings.programIntensity )
+			std::string paramtersString = "\nDont Actually Generate = " + str( input->dontActuallyGenerate )
+//				+ "\nConnect To Master = " + str( input->settings.connectToMaster )
+//				+ "\nGet Variable Files From Master = " + str( input->settings.getVariables )
+				+ "\nRepetitions = " + str( repetitions )
+				+ "\nDon't Actually Generate = " + str( input->dontActuallyGenerate )
+				+ "\nProgramming Intensity = " + str( input->programIntensity )
 				+ "\nSequence File Names = \n";
 
-			for (unsigned int seqInc = 0; seqInc < input->profile.sequenceConfigNames.size(); seqInc++)
+			for (UINT seqInc = 0; seqInc < input->profile.sequenceConfigNames.size(); seqInc++)
 			{
 				paramtersString += "\t" + input->profile.sequenceConfigNames[seqInc] + "\n";
 			}

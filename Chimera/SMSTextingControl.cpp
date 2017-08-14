@@ -1,33 +1,30 @@
 #include "stdafx.h"
-#include "SMSTextingControl.h"
-#include "externals.h"
-#include "commctrl.h"
-#include "constants.h"
-//#include "dialogProcedures.h"
 #include <algorithm>
-#include "reorganizeControl.h"
-#include <Algorithm>
-#include "textPromptDialogProcedure.h"
 
-void SMSTextingControl::promptForEmailAddressAndPassword()
+#include "SMSTextingControl.h"
+
+#include "commctrl.h"
+#include "TextPromptDialog.h"
+
+
+void SmsTextingControl::promptForEmailAddressAndPassword()
 {
-	/// TODO
-	TextPromptDialog dialog(&emailAddress, "Please enter an email address:");
+	TextPromptDialog dialog(&emailAddress, "Please enter an email address for the texting system to use:");
 	dialog.DoModal();	
-	TextPromptDialog dialog2(&password, "Please enter a password:");
+	TextPromptDialog dialog2(&password, "Please enter a password for that email address:");
 	dialog2.DoModal();
 }
 
 
-void SMSTextingControl::rearrange(int width, int height, fontMap fonts)
+void SmsTextingControl::rearrange(int width, int height, fontMap fonts)
 {
 	title.rearrange("", "", width, height, fonts);
 	peopleListView.rearrange("", "", width, height, fonts);	
 }
 
 
-void SMSTextingControl::initializeControls(POINT& pos, CWnd* parent, bool isTriggerModeSensitive, int& id, 
-										   fontMap fonts, std::vector<CToolTipCtrl*>& tooltips)
+void SmsTextingControl::initialize(POINT& pos, CWnd* parent, bool isTriggerModeSensitive, int& id, 
+										   fontMap fonts, cToolTips& tooltips)
 {
 	title.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 25 };
 	title.Create("TEXT ME", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY | WS_BORDER, title.sPos, parent, id++ );
@@ -80,7 +77,7 @@ void SMSTextingControl::initializeControls(POINT& pos, CWnd* parent, bool isTrig
 }
 
 
-void SMSTextingControl::updatePersonInfo()
+void SmsTextingControl::updatePersonInfo()
 {
 	/// get the item and subitem
 	POINT cursorPos;
@@ -145,7 +142,7 @@ void SMSTextingControl::updatePersonInfo()
 			peopleToText[itemIndicator].name = newName;
 			listViewItem.iItem = itemIndicator;
 			listViewItem.iSubItem = subitemIndicator;
-			listViewItem.pszText = (LPSTR)newName.c_str();
+			listViewItem.pszText = (LPSTR)cstr(newName);
 			peopleListView.SetItem(&listViewItem);
 			break;
 		}
@@ -173,7 +170,7 @@ void SMSTextingControl::updatePersonInfo()
 			peopleToText[itemIndicator].number = phoneNumber;
 			listViewItem.iItem = itemIndicator;
 			listViewItem.iSubItem = subitemIndicator;
-			listViewItem.pszText = (LPSTR)phoneNumber.c_str();
+			listViewItem.pszText = (LPSTR)cstr(phoneNumber);
 			peopleListView.SetItem(&listViewItem);
 			break;
 		}
@@ -195,7 +192,7 @@ void SMSTextingControl::updatePersonInfo()
 			peopleToText[itemIndicator].provider = newProvider;
 			listViewItem.iItem = itemIndicator;
 			listViewItem.iSubItem = subitemIndicator;
-			listViewItem.pszText = (LPSTR)newProvider.c_str();
+			listViewItem.pszText = (LPSTR)cstr(newProvider);
 			peopleListView.SetItem(&listViewItem);
 			break;
 		}
@@ -241,7 +238,7 @@ void SMSTextingControl::updatePersonInfo()
 }
 
 
-void SMSTextingControl::deletePersonInfo()
+void SmsTextingControl::deletePersonInfo()
 {
 	/// get the item and subitem
 	POINT cursorPos;
@@ -259,7 +256,7 @@ void SMSTextingControl::deletePersonInfo()
 		// user didn't click in a deletable item.
 		return;
 	}
-	int answer = MessageBox(0, ("Delete info for " + peopleToText[itemIndicator].name + "?").c_str(), 0, MB_YESNO);
+	int answer = MessageBox(0, cstr("Delete info for " + peopleToText[itemIndicator].name + "?"), 0, MB_YESNO);
 	if (answer == IDYES)
 	{
 		peopleListView.DeleteItem(itemIndicator);
@@ -268,7 +265,7 @@ void SMSTextingControl::deletePersonInfo()
 }
 
 
-void SMSTextingControl::sendMessage(std::string message, EmbeddedPythonHandler* pyHandler, std::string msgType)
+void SmsTextingControl::sendMessage(std::string message, EmbeddedPythonHandler* pyHandler, std::string msgType)
 {
 	if (msgType == "Loading")
 	{
@@ -296,12 +293,5 @@ void SMSTextingControl::sendMessage(std::string message, EmbeddedPythonHandler* 
 	{
 		thrower("ERROR: unrecognized text message type: " + msgType);
 	}
-}
-
-
-void SMSTextingControl::rearrange(RECT parentRectangle, std::string mode)
-{
-	//reorganizeControl(title, mode, parentRectangle);
-	//reorganizeControl(peopleListView, mode, parentRectangle);
 }
 

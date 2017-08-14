@@ -12,7 +12,7 @@ class MasterConfiguration
 		MasterConfiguration(std::string address);
 		//void save(TtlSystem* ttls, DacSystem* dacs, VariableSystem* gloablVars );
 		void save(MainWindow* mainWin, DeviceWindow* deviceWin, CameraWindow* camWin);
-		//void load(TtlSystem* ttls, DacSystem& dacs, std::vector<CToolTipCtrl*>& toolTips,
+		//void load(TtlSystem* ttls, DacSystem& dacs, cToolTips& toolTips,
 		//		  DeviceWindow* master, VariableSystem* globalVars);
 		void load(MainWindow* mainWin, DeviceWindow* deviceWin, CameraWindow* camWin);
 		void updateDefaultTTLs(TtlSystem ttls);

@@ -28,9 +28,8 @@ BOOL TtlSettingsDialog::OnInitDialog()
 	for (int numberInc = 0; numberInc < edits.front().size(); numberInc++)
 	{
 		numberlabels[numberInc].sPos = { pos.x, pos.y, pos.x += 65, pos.y + 30 };
-		numberlabels[numberInc].Create( str(numberInc + 1).c_str(), WS_CHILD | WS_VISIBLE | SS_SUNKEN 
-									    | WS_BORDER | ES_AUTOHSCROLL | WS_TABSTOP, numberlabels[numberInc].sPos, this,
-									    id++);
+		numberlabels[numberInc].Create( cstr(numberInc + 1), WS_CHILD | WS_VISIBLE | SS_SUNKEN | WS_BORDER | 
+									   ES_AUTOHSCROLL | WS_TABSTOP, numberlabels[numberInc].sPos, this, id++);
 	}
 	
 	for (int rowInc = 0; rowInc < edits.size(); rowInc++)
@@ -46,13 +45,13 @@ BOOL TtlSettingsDialog::OnInitDialog()
 			case 2: text = "C"; break;
 			case 3: text = "D"; break;
 		}
-		rowLabels[rowInc].Create(text.c_str(), WS_CHILD | WS_VISIBLE, rowLabels[rowInc].sPos, this, id++);
+		rowLabels[rowInc].Create(cstr(text), WS_CHILD | WS_VISIBLE, rowLabels[rowInc].sPos, this, id++);
 		for (int numberInc = 0; numberInc < edits[rowInc].size(); numberInc++)
 		{
 			edits[rowInc][numberInc].sPos = { pos.x, pos.y, pos.x += 65, pos.y + 30 };
 			edits[rowInc][numberInc].Create( WS_CHILD | WS_VISIBLE | SS_SUNKEN | WS_BORDER | ES_AUTOHSCROLL | WS_TABSTOP,
 											 edits[rowInc][numberInc].sPos, this, id++);
-			edits[rowInc][numberInc].SetWindowTextA(input->ttls->getName(rowInc, numberInc).c_str());
+			edits[rowInc][numberInc].SetWindowTextA(cstr(input->ttls->getName(rowInc, numberInc)));
 		}
 	}
 	return FALSE;

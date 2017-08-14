@@ -41,10 +41,13 @@ class DeviceWindow;
 class VariableSystem
 {
 	public:
+		UINT getTotalVariationNumber();
+		void handleSaveConfig(std::ofstream& saveFile);
+		void handleOpenConfig(std::ifstream& openFile, double version);
 		void handleDraw(NMHDR* pNMHDR, LRESULT* pResult);
 		void updateVariableInfo(std::vector<Script*> scripts, MainWindow* mainWin, DeviceWindow* deviceWin );
 		void deleteVariable();
-		void initialize(POINT& pos, std::vector<CToolTipCtrl*>& toolTips, DeviceWindow* master, int& id, std::string title);
+		void initialize(POINT& pos, cToolTips& toolTips, DeviceWindow* master, int& id, std::string title);
 		void addConfigVariable(variable var, int item);
 		void addGlobalVariable( variable var, int item );
 		void handleColumnClick(NMHDR * pNotifyStruct, LRESULT * result);

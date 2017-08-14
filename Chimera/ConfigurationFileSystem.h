@@ -34,20 +34,23 @@ struct profileSettings
 ]- know). It consists of the relevant controls, some saved indicators that can be checked to determine if the user should be prompted to save at a given point,
 ]- and all of the functions for saving, renaming, deleting, and creating new levels within the code. 
 */
-class ConfigurationFileSystem
+class ProfileSystem
 {
 	public:
-		ConfigurationFileSystem(std::string fileSystemPath);
+		ProfileSystem(std::string fileSystemPath);
 
-		void saveEntireProfile(ScriptingWindow* scriptWindow, MainWindow* comm, DeviceWindow* deviceWin);
-		void checkSaveEntireProfile(ScriptingWindow* scriptWindow, MainWindow* comm, DeviceWindow* deviceWin);
-		void allSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* comm, DeviceWindow* deviceWin);
+		void saveEntireProfile( ScriptingWindow* scriptWindow, MainWindow* mainWin, DeviceWindow* deviceWin,
+							    CameraWindow* camWin );
+		void checkSaveEntireProfile( ScriptingWindow* scriptWindow, MainWindow* mainWin, DeviceWindow* deviceWin, 
+									 CameraWindow* camWin);
+		void allSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* mainWin, DeviceWindow* deviceWin, 
+								   CameraWindow* camWin);
 		void reloadAllCombos();
 
-		void orientationChangeHandler(MainWindow* comm);
+		void orientationChangeHandler(MainWindow* mainWin);
 		std::string getOrientation();
 		void setOrientation(std::string);
-
+		std::string getMasterAddressFromConfig();
 		void saveSequence();
 		void saveSequenceAs();
 		void renameSequence();
@@ -76,47 +79,51 @@ class ConfigurationFileSystem
 		void experimentChangeHandler(ScriptingWindow* scriptWindow, MainWindow* mainWin);
 		std::string getCurrentExperiment();
 
-		void saveConfigurationOnly(ScriptingWindow* scriptWindow, MainWindow* mainWin, DeviceWindow* deviceWin);
-		void newConfiguration(MainWindow* comm);
+		void saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWindow* mainWin, DeviceWindow* deviceWin, 
+								    CameraWindow* camWin );
+		void newConfiguration(MainWindow* mainWin);
 		void saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindow* mainWin, DeviceWindow* deviceWin);
 		void renameConfiguration();
 		void deleteConfiguration();
 		void openConfiguration( std::string configurationNameToOpen, ScriptingWindow* scriptWindow, MainWindow* mainWin, 
 							    CameraWindow* camWin, DeviceWindow* deviceWin );
-		static void getConfigInfo ( niawgPair<std::vector<std::fstream>>& scriptFiles, std::vector<std::fstream>& intensityScriptFiles,
-									profileSettings profile, std::vector<variable> singletons, std::vector<variable> variables, 
-									bool programInt );
-		void updateConfigurationSavedStatus(bool isSaved);
-		bool configurationSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* mainWin, DeviceWindow* deviceWin);
-		bool checkConfigurationSave(std::string prompt, ScriptingWindow* scriptWindow, MainWindow* mainWin, DeviceWindow* deviceWin);
-		void configurationChangeHandler(ScriptingWindow* scriptWindow, MainWindow* mainWin, DeviceWindow* deviceWin);
 
-		void saveCategoryOnly(MainWindow* comm);
+		static void getConfigInfo( niawgPair<std::vector<std::fstream>>& scriptFiles,
+								   std::vector<std::fstream>& intensityScriptFiles, profileSettings profile,
+								   bool programIntensity, bool programNiawg );
+		void updateConfigurationSavedStatus(bool isSaved);
+		bool configurationSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* mainWin, 
+											 DeviceWindow* deviceWin, CameraWindow* camWin);
+		bool checkConfigurationSave(std::string prompt, ScriptingWindow* scriptWindow, MainWindow* mainWin, 
+									DeviceWindow* deviceWin, CameraWindow* camWin);
+		void configurationChangeHandler( ScriptingWindow* scriptWindow, MainWindow* mainWin, DeviceWindow* deviceWin,
+										 CameraWindow* camWin);
+		
+		void saveCategoryOnly(MainWindow* mainWin);
 		void renameCategory();
 		void newCategory();
 		void deleteCategory();
-		void saveCategoryAs(MainWindow* comm);
-		void openCategory(std::string categoryToOpen, ScriptingWindow* scriptWindow, MainWindow* comm);
+		void saveCategoryAs(MainWindow* mainWin);
+		void openCategory(std::string categoryToOpen, ScriptingWindow* scriptWindow, MainWindow* mainWin);
 		void updateCategorySavedStatus(bool isSaved);
 		bool categorySettinsReadyCheck();
-		bool checkCategorySave(std::string prompt, MainWindow* comm);
-		void categoryChangeHandler(ScriptingWindow* scriptWindow, MainWindow* comm);
+		bool checkCategorySave(std::string prompt, MainWindow* mainWin);
+		void categoryChangeHandler(ScriptingWindow* scriptWindow, MainWindow* mainWin);
 		std::string getCurrentCategory();
 		std::string getCurrentPathIncludingCategory();
 		profileSettings getCurrentProfileSettings();
 
-		std::vector<std::string> searchForFiles(std::string locationToSearch, std::string extensions);
-		void reloadCombo(HWND comboToReload, std::string locationToLook, std::string extension, std::string nameToLoad);
+		static std::vector<std::string> searchForFiles(std::string locationToSearch, std::string extensions);
+		static void reloadCombo(HWND comboToReload, std::string locationToLook, std::string extension, std::string nameToLoad);
 		std::string getComboText();
-		bool fileOrFolderExists(std::string filePathway);
-		void updateSaveStatus(bool savedStatus);
+		bool fileOrFolderExists( std::string filePathway );
+		//void updateSaveStatus(bool savedStatus);
 		void fullyDeleteFolder(std::string folderToDelete);
-
-		void initializeControls( POINT& topLeftPosition, CWnd* parent, int& id, fontMap fonts, 
-								std::vector<CToolTipCtrl*>& tooltips );
-		void rearrange(int width, int height, fontMap fonts);		
+		void initialize( POINT& topLeftPosition, CWnd* parent, int& id, fontMap fonts, cToolTips& tooltips );
+		void rearrange(int width, int height, fontMap fonts);
+		static void checkDelimiterLine(std::ifstream& openFile, std::string keyword);
 	private:
-		profileSettings currentProfileSettings;
+		profileSettings currentProfile;
 		std::string FILE_SYSTEM_PATH;
 		bool configurationIsSaved;
 		bool categoryIsSaved;

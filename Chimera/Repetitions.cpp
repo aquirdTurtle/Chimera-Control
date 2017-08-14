@@ -13,6 +13,24 @@ void Repetitions::rearrange(UINT width, UINT height, fontMap fonts)
 }
 
 
+void Repetitions::handleOpenConfig(std::ifstream& openFile, double version)
+{
+	ProfileSystem::checkDelimiterLine(openFile, "REPETITIONS");
+	UINT repNum;
+	openFile >> repNum;
+	ProfileSystem::checkDelimiterLine(openFile, "END_REPETITIONS");
+	setRepetitions(repNum);
+}
+
+
+void Repetitions::handleSaveConfig(std::ofstream& saveFile)
+{
+	saveFile << "REPETITIONS\n";
+	saveFile << getRepetitionNumber() << "\n";
+	saveFile << "END_REPETITIONS\n";
+}
+
+
 HBRUSH Repetitions::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC)
 {
 	DWORD controlID = window->GetDlgCtrlID();
@@ -35,24 +53,8 @@ void Repetitions::updateNumber(long repNumber)
 	repetitionDisp.SetWindowText(cstr(repNumber));
 }
 
-/*
-void Repetitions::handleButtonPush()
-{
-	CString text;
-	repetitionEdit.GetWindowTextA(text);
-	try
-	{
-		unsigned int repetitionNumber = std::stoi(text.GetBuffer());
-		setRepetitions(repetitionNumber);
-	}
-	catch (std::invalid_argument& exception)
-	{
-		thrower(str("ERROR: repetition number text did not convert to int! Text was") + text.GetBuffer());
-	}
-}
-*/
 
-void Repetitions::initialize(POINT& pos, std::vector<CToolTipCtrl*>& toolTips, MainWindow* mainWin, int& id)
+void Repetitions::initialize(POINT& pos, cToolTips& toolTips, MainWindow* mainWin, int& id)
 {
 	// title
 	repetitionText.sPos = { pos.x, pos.y, pos.x + 180, pos.y + 20 };
@@ -60,25 +62,28 @@ void Repetitions::initialize(POINT& pos, std::vector<CToolTipCtrl*>& toolTips, M
 
 	repetitionEdit.sPos = { pos.x + 180, pos.y, pos.x + 330, pos.y + 20 };
 	repetitionEdit.Create(WS_CHILD | WS_VISIBLE | SS_SUNKEN, repetitionEdit.sPos, mainWin, id++);
+	repetitionEdit.SetWindowText("100");
+
 	repetitionDisp.sPos = { pos.x + 330, pos.y, pos.x + 480, pos.y + 20 };
 	repetitionDisp.Create(WS_CHILD | WS_VISIBLE | SS_SUNKEN | ES_CENTER | ES_READONLY | WS_BORDER, repetitionDisp.sPos,
 						  mainWin, id++);
-	repetitionDisp.SetWindowTextA("100");
+	repetitionDisp.SetWindowText("-");
 	// initialize the number to match the display.
 	repetitionNumber = 100;
 	pos.y += 20;
 }
 
-void Repetitions::setRepetitions(unsigned int number)
+
+void Repetitions::setRepetitions(UINT number)
 {
 	// check number for reasonable-ness?
 	repetitionNumber = number;
-	repetitionEdit.SetWindowTextA(str(number).c_str());
+	repetitionEdit.SetWindowTextA(cstr(number));
 	repetitionDisp.SetWindowTextA("---");
 }
 
 
-unsigned int Repetitions::getRepetitionNumber()
+UINT Repetitions::getRepetitionNumber()
 {
 	CString text;
 	repetitionEdit.GetWindowText(text);

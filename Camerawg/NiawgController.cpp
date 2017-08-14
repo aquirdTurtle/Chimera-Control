@@ -305,6 +305,7 @@ void NiawgController::handleVariations( outputInfo& output, std::vector<variable
 			mixedCount++;
 		} // end if varies
 	}
+	checkThatWaveformsAreSensible(warnings, output);
 }
 
 
