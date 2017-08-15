@@ -4,6 +4,7 @@
 #include "Communicator.h"
 #include <process.h>
 #include <mutex>
+#include "ATMCD32D.h"
 
 /// /////////////////////////////////////////////////////
 /// 
@@ -68,7 +69,7 @@ class AndorCamera
 
 		/// Andor Wrappers, in alphabetical order. Versions that take no parameters just insert current settings into 
 		// the versions that take parameters. Note that my wrapper names don't always match the andor SDK names. If 
-		// looking for  specific sdk functions, search in the cpp file.
+		// looking for specific sdk functions, search in the cpp file.
 		void abortAcquisition();
 		void checkForNewImages();
 		void getAcquisitionProgress( long& seriesNumber );
@@ -111,6 +112,11 @@ class AndorCamera
 		void temperatureControlOff();
 
 		void waitForAcquisition();
+
+		void getCapabilities( AndorCapabilities& caps );
+		void getSerialNumber( int& num );
+		std::string getHeadModel();
+
 		/// End Andor sdk wrappers.
 
 		// all of the following do something more interesting.
@@ -144,6 +150,7 @@ class AndorCamera
 		static UINT __stdcall cameraThread( void* voidPtr );
 		
 		void initializeClass(Communicator* comm);
+		std::string getSystemInfo();
 
 	private:
 		/// These are official settings and are the final say on what the camera does. Some unofficial 

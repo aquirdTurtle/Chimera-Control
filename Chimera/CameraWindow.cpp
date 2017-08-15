@@ -53,11 +53,27 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 END_MESSAGE_MAP()
 
 
+std::string CameraWindow::getSystemStatusString()
+{
+	std::string statusStr; 
+	statusStr = "\n\n>>> Andor Camera <<<\n";
+	if (!ANDOR_SAFEMODE)
+	{
+		statusStr += "Code System is Active!\n";
+		statusStr += Andor.getSystemInfo();
+	}
+	else
+	{
+		statusStr += "Code System is disabled! Enable in \"constants.h\"\n";
+	}
+	return statusStr;
+}
+
 void CameraWindow::handleSaveConfig(std::ofstream& saveFile)
 {
 	CameraSettings.handleSaveConfig(saveFile);
 	pics.handleSaveConfig(saveFile);
-	// plotter?
+	// TODO: plotter
 }
 
 

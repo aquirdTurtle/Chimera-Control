@@ -386,21 +386,6 @@ BOOL MainWindow::OnInitDialog()
 		return -1;
 	}
 
-	// Use this section of code to output some characteristics of the 5451. If you want.
-	/*
-	ViInt32 maximumNumberofWaveforms, waveformQuantum, minimumWaveformSize, maximumWaveformSize;
-
-	if (myNIAWG::NIAWG_CheckWindowsError(niFgen_QueryArbWfmCapabilities(eSessionHandle, &maximumNumberofWaveforms, &waveformQuantum, 
-		&minimumWaveformSize, &maximumWaveformSize)))
-	{
-		return -1;
-	}
-
-	MessageBox(NULL, (LPCSTR)str(maximumNumberofWaveforms).c_str(), NULL, MB_OK);
-	MessageBox(NULL, (LPCSTR)str(waveformQuantum).c_str(), NULL, MB_OK);
-	MessageBox(NULL, (LPCSTR)str(minimumWaveformSize).c_str(), NULL, MB_OK);
-	MessageBox(NULL, (LPCSTR)str(maximumWaveformSize).c_str(), NULL, MB_OK);
-	*/
 	try
 	{
 		niawg.setDefaultWaveforms( this );
@@ -424,11 +409,8 @@ BOOL MainWindow::OnInitDialog()
 	try
 	{
 		TheScriptingWindow->Create(IDD_LARGE_TEMPLATE, 0);
-		//TheScriptingWindow->ShowWindow(SW_SHOW);
 		TheCameraWindow->Create(IDD_LARGE_TEMPLATE1, 0);
-		//TheCameraWindow->ShowWindow(SW_SHOW);
 		TheDeviceWindow->Create(IDD_LARGE_TEMPLATE, 0);
-		//TheDeviceWindow->ShowWindow(SW_SHOW);
 	}
 	catch (Error& err)
 	{
@@ -467,14 +449,50 @@ BOOL MainWindow::OnInitDialog()
 		errBox(err.what());
 	}
 	std::string initializationString;
+	
+	initializationString += getSystemStatusString();
 	initializationString += TheDeviceWindow->getSystemStatusMsg();
+	initializationString += TheCameraWindow->getSystemStatusString();
 	errBox(initializationString);	
 	ShowWindow(SW_MAXIMIZE);
 	TheCameraWindow->ShowWindow( SW_MAXIMIZE );
 	TheScriptingWindow->ShowWindow( SW_MAXIMIZE );
 	TheDeviceWindow->ShowWindow( SW_MAXIMIZE );
-
+	try
+	{
+		Agilent::agilentDefault();
+	}
+	catch (Error& err)
+	{
+		errBox( "Failed to set default intensity!" );
+	}
 	return TRUE;
+}
+
+std::string MainWindow::getSystemStatusString()
+{
+	std::string status;
+	status = ">>> NIAWG <<<\n";
+	if (!NIAWG_SAFEMODE)
+	{
+		status += "Code System is Active!\n";
+		status += niawg.getDeviceInfo();
+	}
+	else
+	{
+		status += "Code System is disabled! Enable in \"constants.h\"\n";
+	}
+	status += "\n\n>>> Intensity Agilent <<<\n";
+	if (!AGILENT_SAFEMODE)
+	{
+		status += "Code System is Active!\n";
+		//status += getDeviceInfo();
+	}
+	else
+	{
+		status += "Code System is disabled! Enable in \"constants.h\"\n\n";
+	}
+	return status;
 }
 
 
@@ -743,7 +761,6 @@ void MainWindow::passMainOptionsPress(UINT id)
 void MainWindow::handleDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	texter.updatePersonInfo();
-	//variables.updateVariableInfo(this, TheScriptingWindow);
 	profile.updateConfigurationSavedStatus(false);
 }
 
@@ -751,7 +768,6 @@ void MainWindow::handleDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 void MainWindow::handleRClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	texter.deletePersonInfo();
-	//variables.deleteVariable();
 	profile.updateConfigurationSavedStatus(false);
 }
 

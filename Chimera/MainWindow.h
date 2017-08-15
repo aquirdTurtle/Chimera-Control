@@ -88,6 +88,7 @@ class MainWindow : public CDialog
 		void handleOpeningConfig(std::ifstream& configFile, double version);
 		void abortMasterThread();
 		Communicator* getComm();
+		std::string getSystemStatusString();
 
 		bool niawgIsRunning();
 		bool masterIsRunning();

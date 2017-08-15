@@ -2,11 +2,22 @@
 #include <process.h>
 #include <algorithm>
 #include <numeric>
-
-#include "atmcd32d.h"
-
+#include "ATMCD32D.h"
 #include "Andor.h"
 #include "CameraWindow.h"
+
+std::string AndorCamera::getSystemInfo()
+{
+	std::string info;
+	// can potentially get more info from this.
+	//AndorCapabilities capabilities;
+	//getCapabilities( capabilities );
+	info += "Camera Model: " + getHeadModel() + "\n";
+	int num; 
+	getSerialNumber(num);
+	info += "Camera Serial Number: " + str(num) + "\n";
+	return info;
+}
 
 
 AndorCamera::AndorCamera()
@@ -1515,3 +1526,36 @@ void AndorCamera::getAcquisitionProgress(long& accumulationNumber, long& seriesN
 		andorErrorChecker(GetAcquisitionProgress(&accumulationNumber, &seriesNumber));
 	}
 }
+
+
+void AndorCamera::getCapabilities(AndorCapabilities& caps)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker( GetCapabilities( &caps ) );
+	}
+}
+
+void AndorCamera::getSerialNumber(int& num)
+{
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker( GetCameraSerialNumber( &num ) );
+	}
+}
+
+std::string AndorCamera::getHeadModel()
+{
+	char nameChars[1024];
+	if (!ANDOR_SAFEMODE)
+	{
+		andorErrorChecker(GetHeadModel( nameChars ));
+	}
+	else
+	{
+		return "safemode";
+	}
+	return str(nameChars);
+}
+
+
