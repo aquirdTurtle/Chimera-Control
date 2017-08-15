@@ -29,15 +29,15 @@ std::string Gpib::gpibRead( int deviceID )
 
 std::string Gpib::gpibQuery( int deviceID, std::string query )
 {
-	gpibWrite( deviceID, query );
-	return gpibRead( deviceID );
+	gpibSend( deviceID, query );
+	return gpibReceive( deviceID );
 }
 
 
 Gpib::Gpib()
 {
 	int hpone, agilentTwo, srsTwo, srsThree, pulseGen, pulseGen2, microHP, powerHP, agilent;
-	// I think that a lot of these aren't actually doing anything...
+	// I think that a lot of these aren't actually doing anything... I think these are supposed to open devices.
 	try
 	{
 		hpone = gpibIbdev(17);
@@ -62,19 +62,31 @@ void Gpib::gpibSend(int address, std::string message)
 {
 	if ( !GPIB_SAFEMODE )
 	{
-		//errBox( "attempting to send message: " + message );
 		Send( 0, address, (void*) cstr(message), message.size(), NLend );
 		if ( ibsta == ERR )
 		{
 			thrower( "GPIB ERROR: " + getErrMessage( iberr ) );
 		}
-		else
-		{
-			// errBox( "success??" );
-		}
 	}
 }
 
+
+std::string Gpib::gpibReceive(int address)
+{
+	//char msg[256] = "";
+	char msg[256];
+	if (!GPIB_SAFEMODE)
+	{
+		Receive( 0, address, (void*)msg, 256, STOPend );
+		// this error handling doesn't seem to work with send / receive... prob this only works with 488, not 488.2
+		if (ibcntl == 0)
+		{
+			thrower( "GPIB ERROR: " + getErrMessage( iberr ) );
+		}
+	}
+	std::string msgStr( msg );
+	return msgStr.substr(0, ibcntl);
+}
 
 
 // gets the device descriptor ud. Input the device address.
@@ -108,18 +120,20 @@ std::string Gpib::queryIdentity( int deviceAddress )
 {
 	try
 	{
-		return gpibQuery( deviceAddress, "*IDN?" );
-	}
-	catch ( Error& exception )
-	{
-		if ( exception.whatBare() == "gpib write failed! Code 0: System Error" )
+		std::string result = gpibQuery( deviceAddress, "*IDN?" );
+		if (result != "")
 		{
-			return "Disconnected...";
+			return result;
 		}
 		else
 		{
-			return exception.what();
+			return "Disconnected...";
 		}
+
+	}
+	catch ( Error& exception )
+	{
+		return exception.what();
 	}
 }
 

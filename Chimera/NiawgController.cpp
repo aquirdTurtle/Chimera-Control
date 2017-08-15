@@ -207,7 +207,7 @@ void NiawgController::initialize()
 	// uncomment for high resolution mode
 	configureClockMode(NIFGEN_VAL_HIGH_RESOLUTION);
 	// uncomment for default onboard clock
-	//myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureSampleClockSource(eSessionHandle, "OnboardClock")
+	// myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureSampleClockSource(eSessionHandle, "OnboardClock")
 	// Unccoment for using an external clock as a "sample clock"
 	// myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureSampleClockSource(eSessionHandle, "ClkIn")
 	// Uncomment for using an external clock as a reference clock
@@ -215,6 +215,23 @@ void NiawgController::initialize()
 	//									theMainApplicationWindow.getComm())
 }
 
+
+std::string NiawgController::getDeviceInfo()
+{
+	// Use this section of code to output some characteristics of the 5451. If you want.
+	
+	ViInt32 maximumNumberofWaveforms, waveformQuantum, minimumWaveformSize, maximumWaveformSize;
+
+	if (!NIAWG_SAFEMODE)
+	{
+		errChecker( niFgen_QueryArbWfmCapabilities( sessionHandle, &maximumNumberofWaveforms, &waveformQuantum,
+													&minimumWaveformSize, &maximumWaveformSize ) );
+	}
+	return "Max # Of Waveforms: " + str( maximumNumberofWaveforms ) + "\n"
+		"Waveform Quantum: " + str( waveformQuantum ) + "\n"
+		"Minimum Waveform Size: " + str( minimumWaveformSize ) + "\n"
+		"Maximum Waveform Size: " + str( maximumWaveformSize ) + "\n";	   
+}
 
 void NiawgController::restartDefault()
 {
@@ -2327,7 +2344,7 @@ void NiawgController::writeNamedWaveform( ViConstString waveformName, ViInt32 mi
 void NiawgController::writeScript( std::vector<ViChar> script )
 {
 	std::string temp(script.begin(), script.end());
-	ViConstString constScript = cstr(temp);
+	ViConstString constScript = temp.c_str();
 	if (!NIAWG_SAFEMODE)
 	{
 		errChecker( niFgen_WriteScript( sessionHandle, outputChannels, constScript) );

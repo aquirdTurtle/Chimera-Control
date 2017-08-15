@@ -52,8 +52,6 @@ Script::Script()
 	editChangeBegin = ULONG_MAX;
 }
 
-Script::~Script(){}
-
 std::string Script::getScriptPath()
 {
 	return scriptPath;
@@ -235,6 +233,7 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 	}
 }
 
+
 void Script::updateSavedStatus(bool scriptIsSaved)
 {
 	isSaved = scriptIsSaved;
@@ -248,10 +247,12 @@ void Script::updateSavedStatus(bool scriptIsSaved)
 	}
 }
 
+
 bool Script::coloringIsNeeded()
 {
 	return !syntaxColoringIsCurrent;
 }
+
 
 void Script::handleTimerCall(std::vector<variable> vars,
 							 rgbMap rgbs, std::array<std::array<std::string, 16>, 4> ttlNames,
@@ -584,11 +585,6 @@ void Script::initialize( int width, int height, POINT& startingLocation, cToolTi
 	syntaxTimer.Create(0, NULL, 0, { 0,0,0,0 }, scriptWin, 0);
 }
 
-void Script::reorganizeControls()
-{
-	//...
-}
-
 
 void Script::changeView(std::string viewName, bool isFunction, std::string categoryPath)
 {
@@ -859,7 +855,6 @@ void Script::newFunction()
 		thrower("ERROR: tried to load new function with non-master script???");
 	}
 	loadFile(tempName);
-	//	colorEntireScript(mainWin);
 }
 
 
@@ -873,7 +868,6 @@ void Script::newScript(std::string orientation)
 		if (orientation == HORIZONTAL_ORIENTATION)
 		{
 			tempName += "DEFAULT_HCONFIG_HORIZONTAL_SCRIPT.nScript";
-			//"DEFAULT_HORIZONTAL_SCRIPT.script"
 		}
 		else if (orientation == VERTICAL_ORIENTATION)
 		{
@@ -910,7 +904,6 @@ void Script::newScript(std::string orientation)
 	}	
 	reset();
 	loadFile(tempName);
-	// colorEntireScript(mainWin);
 }
 
 
@@ -968,12 +961,10 @@ void Script::openParentScript(std::string parentScriptFileAndPath, std::string c
 			std::string scriptName = parentScriptFileAndPath.substr(sPos, parentScriptFileAndPath.size());
 			std::string path = categoryPath + scriptName;
 			saveScriptAs(path, info);
-			//fileManage::saveScript(relevantEdit, filePathway, savedInd, savedVar);
 		}
 	}
 	updateScriptNameText(parentScriptFileAndPath);
 	availableFunctionsCombo.SelectString(0, "Parent Script");
-	//colorEntireScript(mainWin);
 }
 
 
@@ -995,7 +986,6 @@ void Script::loadFile(std::string pathToFile)
 	while (std::getline(openFile, tempLine))
 	{
 		cleanString(tempLine);
-
 		fileText += tempLine;
 		// Append the line to the edit control here.
 	}
@@ -1167,6 +1157,7 @@ void Script::saveAsFunction()
 	loadFunctions();
 	// test if script exists in nearby folder.
 }
+
 
 void Script::loadFunctions()
 {

@@ -914,62 +914,54 @@ std::string DeviceWindow::getSystemStatusMsg()
 {
 	// controls are done. Report the initialization status...
 	std::string msg;
-	msg += "<<Code Safemode Settings>>\n";
-	msg += "TTL System... ";
+	msg += " >>> TTL System <<<\n";
 	if (!DIO_SAFEMODE)
 	{
-		msg += "ACTIVE!\n";
-	}
-	else
-	{
-		msg += "DISABLED!\n";
-	}
-	msg += "DAC System... ";
-	if (!DAQMX_SAFEMODE)
-	{
-		msg += "ACTIVE!\n";
-	}
-	else
-	{
-		msg += "DISABLED!\n";
-	}
-	msg += "GPIB System... ";
-	if (!GPIB_SAFEMODE)
-	{
-		msg += "ACTIVE!\n";
-	}
-	else
-	{
-		msg += "DISABLED!\n";
-	}
-	msg += "Agilent System... ";
-	if (!AGILENT_SAFEMODE)
-	{
-		msg += "ACTIVE!\n";
-	}
-	else
-	{
-		msg += "DISABLED!\n";
-	}
-	// 
-	msg += "\n<<Device Connectivity>>\n";
-
-	msg += "TTL Board: ";
-	try
-	{
+		msg += "Code System is active!\n";
 		msg += ttlBoard.getSystemInfo() + "\n";
 	}
-	catch (Error& err)
+	else
 	{
-		msg += "Failed! " + err.whatStr() + "\n";
+		msg += "Code System is disabled! Enable in \"constants.h\"\n";
 	}
 
-	msg += dacBoards.getDacSystemInfo() + "\n";
-	msg += "Top / Bottom Agilent: " + topBottomAgilent.getDeviceIdentity();
-	msg += "U Wave / Axial Agilent: " + uWaveAxialAgilent.getDeviceIdentity();
-	msg += "Flashing Agilent: " + flashingAgilent.getDeviceIdentity();
-	msg += "Tektronics 1: " + gpib.queryIdentity(TEKTRONICS_AFG_1_ADDRESS) + "\n";
-	msg += "Tektronics 2: " + gpib.queryIdentity(TEKTRONICS_AFG_2_ADDRESS) + "\n";
-	msg += "RSG: " + gpib.queryIdentity(RSG_ADDRESS) + "\n";
+
+	msg += "\n>>> DAC System <<<\n";
+	if (!DAQMX_SAFEMODE)
+	{
+		msg += "Code System is Active!\n";
+		msg += dacBoards.getDacSystemInfo() + "\n";
+	}
+	else
+	{
+		msg += "Code System is disabled! Enable in \"constants.h\"\n";
+	}
+
+	msg += "\n>>> GPIB System <<<\n";
+	if (!GPIB_SAFEMODE)
+	{
+		msg += "Code System is Active!\n";
+		msg += "Tektronics 1: " + gpib.queryIdentity( TEKTRONICS_AFG_1_ADDRESS ) + "\n";
+		msg += "Tektronics 2: " + gpib.queryIdentity( TEKTRONICS_AFG_2_ADDRESS ) + "\n";
+		msg += "RSG: " + gpib.queryIdentity( RSG_ADDRESS ) + "\n";
+	}
+	else
+	{
+		msg += "Code System is disabled! Enable in \"constants.h\"\n";
+	}
+
+	msg += "\n\n>>> Agilents <<<\n";
+	if (!AGILENT_SAFEMODE)
+	{
+		msg += "Code System is Active!\n";
+		msg += "Top / Bottom Agilent: " + topBottomAgilent.getDeviceIdentity();
+		msg += "U Wave / Axial Agilent: " + uWaveAxialAgilent.getDeviceIdentity();
+		msg += "Flashing Agilent: " + flashingAgilent.getDeviceIdentity();
+	}
+	else
+	{
+		msg += "Code System is disabled! Enable in \"constants.h\"\n";
+	}
+	// 
 	return msg;
 }

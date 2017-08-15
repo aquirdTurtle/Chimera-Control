@@ -168,6 +168,8 @@ class NiawgController
 		void turnOff();
 		void turnOn();
 
+		std::string getDeviceInfo();
+
 		std::string getCurrentScript();
 		void programVariations(UINT variation, std::vector<long>& variedMixedSize, NiawgOutputInfo& output);
 		void prepareNiawg( MasterThreadInput* input, NiawgOutputInfo& output, 

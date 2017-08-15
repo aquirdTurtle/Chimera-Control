@@ -17,6 +17,7 @@ class Gpib
 
 		int gpibIbdev( int pad );
 		void gpibSend( int address, std::string message );
-		
+		std::string Gpib::gpibReceive( int address );
+
 		std::string getErrMessage( long errCode );
 };

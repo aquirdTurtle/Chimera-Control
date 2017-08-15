@@ -6,8 +6,8 @@
 
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to build and debug other 
 // aspects of the program.
-//#define MASTER_COMPUTER
-#define SPECTRE_LAPTOP
+#define MASTER_COMPUTER
+//#define SPECTRE_LAPTOP
 // #define DESKTOP_COMPUTER
 /// File Locations
 // Files for Desktop
@@ -68,31 +68,31 @@
 	#define NIAWG_SAFEMODE false
 	#define ANDOR_SAFEMODE false
 	#define CONNECT_TO_ANDOR_SAFEMODE false
-	#define PYTHON_HOME L"C:\\Anaconda3\\"
-	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Regal Lab\\Documents\\Quantum-Gas-Assembly-Control\\Plotting";
-	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
-	const std::string LIB_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum-Gas-Assembly-Control\\Waveforms Library\\WaveLibrary 350 MSpS\\";
-	const std::string DEFAULT_SCRIPT_FOLDER_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum-Gas-Assembly-Control\\Default Scripts\\";
-	const std::string EXPERIMENT_LOGGING_FILES_PATH = "D:\\NIAWG Logging Files\\Individual Experiments\\";
-	const std::string CODE_LOGGING_FILES_PATH = "D:\\Code Versions\\";
-	const std::string ACTUAL_CODE_FOLDER_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum-Gas-Assembly-Control\\Camerawg\\";
-	const std::string PROFILES_PATH = "C:\\Users\\Regal Lab\\Documents\\Quantum-Gas-Assembly-Control\\Profiles\\";
-	const std::string DATA_SAVE_LOCATION = "J:\\Data Repository\\New Data Repository\\";
-	const std::string KEY_ORIGINAL_SAVE_LOCATION = "C:\\Shared\\";
-	const std::string MUSIC_LOCATION = "C:\\Users\\Regal Lab\\Documents\\Quantum-Gas-Assembly-Control\\Camerawg\\Final Fantasy VII - Victory Fanfare [HQ].mp3";
-	//
-	#define DIO_SAFEMODE false
+	#define PYTHON_HOME L"C:\\Program Files (x86)\Anaconda3\\"
+	#define PYTHON_SAFEMODE true
+	#define DIO_SAFEMODE true
 	#define DAQMX_SAFEMODE false
 	#define GPIB_SAFEMODE false
 	#define AGILENT_SAFEMODE false
-	#define PROFILES_PATH "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\Master Profiles\\"
-	#define FUNCTIONS_FOLDER_LOCATION "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\Functions\\"
-	#define MASTER_CONFIGURATION_FILE_ADDRESS "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\Master Configuration"
-	#define DEFAULT_SCRIPT_FOLDER_PATH "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\Default Scripts\\"
-	#define LOGGING_FILE_ADDRESS "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\Master Log.txt"
-	#define KEY_ADDRESS "\\\\Callisto\\Shared\\key.txt"
-	#define MOT_ROUTINE_ADDRESS "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\Master Profiles\\Hotkey Experiments\\MOT\\turnOnMot.mScript"
-	#define DEBUG_OUTPUT_LOCATION "C:\\Documents and Settings\\Regal Lab\\My Documents\\Quantum Gas Assembly Control\\Debug-Output\\"
+
+	const std::string CODE_ROOT = "C:\\Users\\Regal Lab\\Documents\\Chimera-Control\\Quantum-Gas-Assembly-Control";
+	const std::string PLOT_FILES_SAVE_LOCATION = CODE_ROOT + "\\Plotting";
+	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
+	const std::string LIB_PATH = CODE_ROOT + "\\Waveforms Library\\WaveLibrary 350 MSpS\\";
+	const std::string DEFAULT_SCRIPT_FOLDER_PATH = CODE_ROOT + "\\Default Scripts\\";
+	const std::string EXPERIMENT_LOGGING_FILES_PATH = "D:\\NIAWG Logging Files\\Individual Experiments\\";
+	const std::string CODE_LOGGING_FILES_PATH = "D:\\Code Versions\\";
+	const std::string ACTUAL_CODE_FOLDER_PATH = CODE_ROOT + "\\Chimera\\";
+	const std::string PROFILES_PATH = CODE_ROOT + "\\Profiles\\";
+	const std::string DATA_SAVE_LOCATION = "J:\\Data Repository\\New Data Repository\\";
+	const std::string KEY_ORIGINAL_SAVE_LOCATION = "C:\\Shared\\";
+	const std::string MUSIC_LOCATION = CODE_ROOT + "\\Final Fantasy VII - Victory Fanfare [HQ].mp3";
+	const std::string FUNCTIONS_FOLDER_LOCATION = CODE_ROOT + "\\Functions\\";
+	const std::string MASTER_CONFIGURATION_FILE_ADDRESS = CODE_ROOT + "\\Master-Configuration.txt";
+	const std::string LOGGING_FILE_ADDRESS = CODE_ROOT + "\\Master-Log.txt";
+	const std::string KEY_ADDRESS = "\\\\Callisto\\Shared\\key.txt";
+	const std::string MOT_ROUTINE_ADDRESS = CODE_ROOT + "\\Master Profiles\\Hotkey Experiments\\MOT\\turnOnMot.mScript";
+	const std::string DEBUG_OUTPUT_LOCATION = CODE_ROOT + "\\Debug-Output\\";
 
 #endif
 

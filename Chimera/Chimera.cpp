@@ -105,7 +105,7 @@ BOOL myApplicationApp::InitInstance()
 		return -10000;
 	}
 
-	///				Outputting the code version to the Andor Computer 
+	///	Outputting the code version to the \D: Drive for logging.
 	// get time now
 	time_t dateStart = time( 0 );
 	struct tm datePointerStart;
@@ -122,55 +122,25 @@ BOOL myApplicationApp::InitInstance()
 	HANDLE h_Find_Handle;
 	std::string cppFindString = ACTUAL_CODE_FOLDER_PATH + "*.cpp";
 	std::string hFindString = ACTUAL_CODE_FOLDER_PATH + "*.h";
-	if (!NIAWG_SAFEMODE)
+	int result = MessageBox( 0, "Would you like to copy the code files in their current state for logging?", "Prompt", MB_YESNO );
+	if (result == IDYES)
 	{
-		cpp_Find_Handle = FindFirstFile( (LPSTR)cstr(cppFindString), &find_cpp_Data );
+		cpp_Find_Handle = FindFirstFile( (LPSTR)cstr( cppFindString ), &find_cpp_Data );
 		if (cpp_Find_Handle != INVALID_HANDLE_VALUE)
 		{
+			CreateDirectory( cstr( CODE_LOGGING_FILES_PATH + logFolderNameStart ), NULL );
 			do
 			{
-				std::ifstream originalCodeFile( ACTUAL_CODE_FOLDER_PATH + find_cpp_Data.cFileName );
-				if (originalCodeFile.is_open() == false)
+				int result = CopyFile( cstr( ACTUAL_CODE_FOLDER_PATH + find_cpp_Data.cFileName ),
+									   cstr( CODE_LOGGING_FILES_PATH + logFolderNameStart + find_cpp_Data.cFileName ), true );
+				if (!result)
 				{
-					thrower( "Error encountered when trying to use FindFirstFile or FindNextFile. The functions returned names to files "
-							 "that don't exist." );
+					int result = MessageBox( 0, cstr("Failed to copy cpp file for logging! Error: " + str(GetLastError()) + " Continue?"), "ERROR", MB_YESNO );
+					if (result == IDNO)
+					{
+						break;
+					}
 				}
-				bool andorConnected = false;
-				do
-				{
-					std::ofstream andorCodeFileCopy( CODE_LOGGING_FILES_PATH + logFolderNameStart + find_cpp_Data.cFileName );
-					if (andorCodeFileCopy.is_open() == false)
-					{
-						int andorDisconnectedOption = MessageBox( NULL, "This computer can't currently open logging files on the andor."
-																  "\nAbort will quit the program (no output has started).\nRetry will "
-																  "re-attempt to connect to the Andor.\nIgnore will continue "
-																  "without saving the current file.", "Andor Disconnected",
-																  MB_ABORTRETRYIGNORE );
-						switch (andorDisconnectedOption)
-						{
-							case IDABORT:
-							{
-								return -2;
-								break;
-							}
-							case IDRETRY:
-							{
-								break;
-							}
-							case IDIGNORE:
-							{
-								// break out without writing file.
-								andorConnected = true;
-								break;
-							}
-						}
-					}
-					else
-					{
-						andorConnected = true;
-						andorCodeFileCopy << originalCodeFile.rdbuf();
-					}
-				} while (andorConnected == false);
 			} while (FindNextFile( (LPSTR)cpp_Find_Handle, &find_cpp_Data ));
 		}
 		else
@@ -178,14 +148,21 @@ BOOL myApplicationApp::InitInstance()
 			errBox( "Failed to find any .cpp files in folder!" );
 		}
 
-		h_Find_Handle = FindFirstFile( (LPSTR)cstr(hFindString), &find_cpp_Data );
+		h_Find_Handle = FindFirstFile( (LPSTR)cstr( hFindString ), &find_h_Data );
 		if (h_Find_Handle != INVALID_HANDLE_VALUE)
 		{
 			do
 			{
-				std::ifstream originalCodeFile( ACTUAL_CODE_FOLDER_PATH + find_h_Data.cFileName );
-				std::ofstream andorCodeFileCopy( CODE_LOGGING_FILES_PATH + logFolderNameStart + find_h_Data.cFileName );
-				andorCodeFileCopy << originalCodeFile.rdbuf();
+				int result = CopyFile( cstr( ACTUAL_CODE_FOLDER_PATH + find_h_Data.cFileName ),
+									   cstr( CODE_LOGGING_FILES_PATH + logFolderNameStart + find_h_Data.cFileName ), true );
+				if (!result)
+				{
+					int result = MessageBox( 0, cstr( "Failed to copy header file for logging! Error: " + str( GetLastError() ) + " Continue?" ), "ERROR", MB_YESNO );
+					if (result == IDNO)
+					{
+						break;
+					}
+				}
 			} while (FindNextFile( (LPSTR)h_Find_Handle, &find_h_Data ));
 		}
 		else
@@ -193,7 +170,6 @@ BOOL myApplicationApp::InitInstance()
 			errBox( "Failed to find any .h files in folder!" );
 		}
 	}
-
  	m_haccel = LoadAccelerators( AfxGetInstanceHandle(), MAKEINTRESOURCE( IDR_ACCELERATOR1 ) );
 
 	/// Initialize Socket stuffs
@@ -212,7 +188,6 @@ BOOL myApplicationApp::InitInstance()
 		errBox( "WSAStartup failed: " + str( iResult ) );
 		return 1;
 	}
-	Agilent::agilentDefault();
 	INT_PTR returnVal = theMainApplicationWindow.DoModal();
 	// end of program.
 	return int(returnVal);

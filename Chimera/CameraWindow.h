@@ -108,7 +108,9 @@ class CameraWindow : public CDialog
 		void passSetAnalysisLocations();
 		void catchEnter();
 
+
 		/// auxiliary functions.
+		std::string getSystemStatusString();
 		void getFriends(MainWindow* mainWin, ScriptingWindow* scriptWin, DeviceWindow* masterWin);
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleMasterConfigSave(std::stringstream& configStream);

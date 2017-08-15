@@ -32,12 +32,14 @@ void ProfileSystem::getConfigInfo( niawgPair<std::vector<std::fstream>>& scriptF
 	for (int sequenceInc = 0; sequenceInc < profile.sequenceConfigNames.size(); sequenceInc++)
 	{
 		// open configuration file
-		std::fstream configFile( profile.categoryPath + "\\" + profile.sequenceConfigNames[sequenceInc] );
+		std::ifstream configFile( profile.categoryPath + "\\" + profile.sequenceConfigNames[sequenceInc] );
 		std::string intensityScriptAddress, version;
 		niawgPair<std::string> niawgScriptAddresses;
 		// first get version info:
 		std::getline( configFile, version );
 		/// load files
+		checkDelimiterLine( configFile, "SCRIPTS" );
+		configFile.get();
 		for (auto axis : AXES)
 		{
 			getline( configFile, niawgScriptAddresses[axis] );

@@ -15,7 +15,6 @@ class Script
 {
 	public:
 		Script();
-		~Script();
 
 		std::string getScriptText();
 		void functionChangeHandler(std::string categoryPath);
@@ -34,7 +33,6 @@ class Script
 
 		void initialize( int width, int height, POINT& startingLocation, cToolTips& toolTips,
 						 ScriptingWindow* scriptWin, int& id, std::string deviceTypeInput );
-		void reorganizeControls();
 		INT_PTR colorControl(LPARAM lParam, WPARAM wParam);
 		void handleEditChange();
 

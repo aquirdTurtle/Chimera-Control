@@ -208,25 +208,19 @@ DacSystem::DacSystem() : dacResolution(10.0 / pow(2,16))
 		// Create a task for each board
 		// assume 3 boards, 8 channels per board. AMK 11/2010, modified for three from 2
 		// task names are defined as public variables of type Long in TheMainProgram Declarations
-		//This creates the task to output from DAC 2
 		daqCreateTask( "Board 3 Dacs 16-23", staticDac2 );
-		//This creates the task to output from DAC 1
 		daqCreateTask( "Board 2 Dacs 8-15", staticDac1 );
-		//This creates the task to output from DAC 0
 		daqCreateTask( "Board 1 Dacs 0-7", staticDac0 );
-		/// INPUTS
-		//This creates a task to read in a digital input from DAC 0 on port 0 line 0
+		daqCreateAOVoltageChan( staticDac2, "dev3/ao0:7", "StaticDAC_2", -10, 10, DAQmx_Val_Volts, "" );	
+		daqCreateAOVoltageChan( staticDac0, "dev2/ao0:7", "StaticDAC_1", -10, 10, DAQmx_Val_Volts, "" );
+		daqCreateAOVoltageChan( staticDac1, "dev4/ao0:7", "StaticDAC_0", -10, 10, DAQmx_Val_Volts, "" );
+
+		// This creates a task to read in a digital input from DAC 0 on port 0 line 0
 		daqCreateTask( "", digitalDac_0_00 );
-		// currently unused 11/08 (<-date copied from VB6. what is the actual full date though T.T)
 		daqCreateTask( "", digitalDac_0_01 );
-		// Configure the output
-		daqCreateAOVoltageChan( staticDac2, "PXI1Slot5/ao0:7", "StaticDAC_2", -10, 10, DAQmx_Val_Volts, "" );	
-		//
-		daqCreateAOVoltageChan( staticDac0, "PXI1Slot3/ao0:7", "StaticDAC_1", -10, 10, DAQmx_Val_Volts, "" );
-		daqCreateAOVoltageChan( staticDac1, "PXI1Slot4/ao0:7", "StaticDAC_0", -10, 10, DAQmx_Val_Volts, "" );
-		daqCreateDIChan( digitalDac_0_00, "PXI1Slot3/port0/line0", "DIDAC_0", DAQmx_Val_ChanPerLine );
-		// currently unused 11/08 (<-date copied from VB6. what is the actual full date though T.T)
-		daqCreateDIChan( digitalDac_0_01, "PXI1Slot3/port0/line1", "DIDAC_0", DAQmx_Val_ChanPerLine );
+		// unused at the moment.
+		daqCreateDIChan( digitalDac_0_00, "dev2/port0/line0", "DIDAC_0", DAQmx_Val_ChanPerLine );
+		daqCreateDIChan( digitalDac_0_01, "dev2/port0/line1", "DIDAC_0", DAQmx_Val_ChanPerLine );
 	}
 	// I catch here because it's the constructor, and catching elsewhere is weird.
 	catch (Error& exception)
@@ -238,26 +232,30 @@ DacSystem::DacSystem() : dacResolution(10.0 / pow(2,16))
 
 std::string DacSystem::getDacSystemInfo()
 {
-	int32 answer = -1;
-	int32 errCode = DAQmxGetDevProductCategory( "Board 1 Dacs 0-7", &answer );
-	
-	// TODO: interpret the number which is the answer to the query.
+	std::array<long, 3> answers;
+	int32 errCode = DAQmxGetDevProductCategory( "dev2", &answers[0] );
+	if (errCode != 0)
+	{
+		std::string err = getErrorMessage( 0 );
+		return "DAC System: Error! " + err;
+	}
+	errCode = DAQmxGetDevProductCategory( "dev3", &answers[1] );
+	if (errCode != 0)
+	{
+		std::string err = getErrorMessage( 0 );
+		return "DAC System: Error! " + err;
+	}
+	errCode = DAQmxGetDevProductCategory( "dev4", &answers[02] );
 	if (errCode != 0)
 	{
 		std::string err = getErrorMessage(0);
 		return "DAC System: Error! " + err;
 	}
-	else if ( answer == 12588 )
-	{
-		return "Dac System: Unknown Category?";
-	}
-	else if (answer == -1)
-	{
-		return "Dac System: no response... " + str(answer);
-	}
 	else
 	{
-		return "Dac System: Connected... result = " + str( answer );
+		std::string answerStr = "Dac System: Connected... device categories = " + str( answers[0] ) + ", " + str( answers[1] ) + ", " 
+			+ str( answers[2] ) + ". Typical value 14647 = AO Series.\n";
+		return answerStr;
 	}
 }
 

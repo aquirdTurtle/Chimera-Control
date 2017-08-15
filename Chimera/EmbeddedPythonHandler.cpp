@@ -14,6 +14,10 @@
 // constructor is important.
 EmbeddedPythonHandler::EmbeddedPythonHandler()
 {
+	if (PYTHON_SAFEMODE)
+	{
+		return;
+	}
 	Py_SetPythonHome(PYTHON_HOME);
 	Py_Initialize();
 	std::string stdOutErr = "import sys\n"

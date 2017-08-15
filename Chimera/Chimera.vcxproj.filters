@@ -175,9 +175,6 @@
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="MasterManager.cpp" />
-    <ClCompile Include="Gnuplotter.cpp">
-      <Filter>Function Headers</Filter>
-    </ClCompile>
     <ClCompile Include="TextPromptDialog.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
@@ -185,6 +182,10 @@
       <Filter>Code Files</Filter>
     </ClCompile>
     <ClCompile Include="PlotDesignerDialog.cpp">
+      <Filter>Code Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Rearrangement.cpp" />
+    <ClCompile Include="Gnuplotter.cpp">
       <Filter>Code Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -339,9 +340,6 @@
     <ClInclude Include="commonTypes.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
-    <ClInclude Include="longnam.h">
-      <Filter>Code Files</Filter>
-    </ClInclude>
     <ClInclude Include="Script.h" />
     <ClInclude Include="cleanString.h" />
     <ClInclude Include="Agilent.h">
@@ -381,7 +379,6 @@
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="MasterManager.h" />
-    <ClInclude Include="gnuplot-iostream.h" />
     <ClInclude Include="gnuplotter.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
@@ -391,9 +388,6 @@
     <ClInclude Include="SmsTextingControl.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
-    <ClInclude Include="PlotDesignerDialog.h">
-      <Filter>Code Files</Filter>
-    </ClInclude>
     <ClInclude Include="Gpib.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
@@ -401,6 +395,16 @@
       <Filter>Function Headers</Filter>
     </ClInclude>
     <ClInclude Include="DataLogger.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Rearrangement.h" />
+    <ClInclude Include="PlotDesignerDialog.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="longnam.h">
+      <Filter>Function Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="gnuplot-iostream.h">
       <Filter>Function Headers</Filter>
     </ClInclude>
   </ItemGroup>
