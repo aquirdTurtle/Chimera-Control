@@ -369,7 +369,7 @@ extern int __stdcall iblock   (int ud);
 extern int __stdcall ibunlock (int ud);
 
 /**************************************************************************/
-/*  Functions to access Thread-Specific copies of the GPIB global vars */
+/*  Functions to access Thread-Specific copies of the GPIB global variables */
 
 extern int  __stdcall ThreadIbsta (void);
 extern int  __stdcall ThreadIberr (void);

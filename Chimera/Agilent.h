@@ -3,171 +3,15 @@
 #include <vector>
 #include <array>
 #include "Windows.h"
-#include "ConfigurationFileSystem.h"
+#include "ProfileSystem.h"
 #include "KeyHandler.h"
 #include "ScriptStream.h"
-#include "visa.h"
+#include "VisaFlume.h"
 #include "commonTypes.h"
 #include "KeyHandler.h"
-
-class Agilent;
-
-struct minMaxDoublet
-{
-	double min;
-	double max;
-};
+#include "agilentStructures.h"
 
 
-struct generalAgilentOutputInfo
-{
-	std::string load;
-	double sampleRate;
-	bool synced;
-};
-
-
-struct dcInfo : public generalAgilentOutputInfo
-{
-	std::string dcLevelInput;
-	double dcLevel;
-};
-
-
-struct scriptedArbInfo : public generalAgilentOutputInfo
-{
-		// ??
-};
-
-
-struct squareInfo : public generalAgilentOutputInfo
-{
-	std::string frequencyInput;
-	double frequency;
-	std::string amplitudeInput;
-	double amplitude;
-	std::string offsetInput;
-	double offset;
-};
-
-
-struct sineInfo : public generalAgilentOutputInfo
-{
-	std::string frequencyInput;
-	double frequency;
-	std::string amplitudeInput;
-	double amplitude;
-};
-
-
-struct preloadedArbInfo : public generalAgilentOutputInfo
-{
-	std::string address;
-	// could add burst settings options, impedance options, etc.
-};
-
-
-struct channelInfo
-{
-	int option;
-	dcInfo dc;
-	sineInfo sine;
-	squareInfo square;
-	preloadedArbInfo preloadedArb;
-	scriptedArbInfo scriptedArb;
-};
-
-
-struct deviceOutputInfo
-{
-	// first ([0]) is channel 1, second ([1]) is channel 2.
-	std::array<channelInfo, 2> channel;
-	bool synced;
-};
-
-
-struct segmentInfoInput
-{
-	int segmentType;
-	std::string rampType;
-	std::string repeatNum;
-	std::string initValue;
-	std::string finValue;
-	// in ms
-	std::string time;
-	// values such as repeat, repeat until trigger, no repeat, etc.
-	int continuationType;
-};
-
-
-struct segmentInfoFinal
-{
-	int segmentType;
-	std::string rampType;
-	int repeatNum;
-	double initValue;
-	double finValue;
-	// in ms
-	double time;
-	// values such as repeat, repeat until trigger, no repeat, etc.
-	int continuationType;
-};
-
-
-/*
-	* The Segment class contains all of the information and handling for a single segment of the waveform to be programmed to the Agilent. The class includes
-	* the following functions and variables
-	*/
-class Segment
-{
-	public:
-		Segment();
-		void storeInput( segmentInfoInput input );
-		segmentInfoInput getInput();
-		segmentInfoFinal getFinalSettings();
-		void convertInputToFinal( key variableKey, UINT variation );
-		UINT returnDataSize();
-		void assignDataVal( int dataNum, double val );
-		double returnDataVal( long dataNum );
-		void calcData();
-		double rampCalc( int size, int iteration, double initPos, double finPos, std::string rampType );
-		
-	private:
-		segmentInfoInput input;
-		segmentInfoFinal finalSettings;
-		std::vector<double> dataArray;
-};
-
-
-/*
-	* The class ScriptedAgilentWaveform contains all of the information and handling relevant for the entire intensity waveform that gets programmed to the Andor.
-	* This includes a vector of segments which contain segment-specific information. The functions and variabels relevant for this class are:
-	*/
-class ScriptedAgilentWaveform
-{
-	public:
-		ScriptedAgilentWaveform();
-		bool readIntoSegment( int segNum, ScriptStream& script, profileSettings profileInfo, Agilent* parent );
-		bool readIntoSegment( int segNum, ScriptStream& script, Agilent* parent );
-		void writeData( int SegNum );
-		std::string compileAndReturnDataSendString( int segNum, int varNum, int totalSegNum );
-		void compileSequenceString( int totalSegNum, int sequenceNum );
-		std::string returnSequenceString();
-		bool returnIsVaried();
-		void replaceVarValues( key variableKey, UINT variation );
-		void convertPowersToVoltages();
-		void normalizeVoltages();
-		void calcMinMax();
-		double returnMaxVolt();
-		double returnMinVolt();
-	private:
-		std::vector<Segment> waveformSegments;
-		double maxVolt;
-		double minVolt;
-		int segmentNum;
-		std::string totalSequence;
-		bool isVaried;
-};
 
 // A class for programming agilent machines.
 // in essense this includes a wrapper around agilent's implementation of the VISA protocol. This could be pretty easily
@@ -175,76 +19,56 @@ class ScriptedAgilentWaveform
 class Agilent
 {
 	public:
-		void initialize( POINT& loc, cToolTips& toolTips, DeviceWindow* master, int& id, 
-						 std::string address, std::string header );		
-		void handleChannelPress( int channel );
+		void initialize( POINT& loc, cToolTips& toolTips, CWnd* master, int& id, 
+						 std::string address, std::string header, UINT editHeight, std::array<UINT, 7> ids );		
+		void handleChannelPress( int chan, std::string currentCategoryPath, RunInfo currentRunInfo );
 		void handleCombo();
 		void setDC( int channel, dcInfo info );
 		void setExistingWaveform( int channel, preloadedArbInfo info );
 		void setSquare( int channel, squareInfo info );
 		void setSingleFreq( int channel, sineInfo info );
 		void outputOff(int channel);
+		void handleProgramNow();
 		void handleInput();
-		void handleInput(int chan);
-		void agilentDefault( int channel );
-		void zeroSettings();
+		void handleInput( int chan );
+		void setDefualt( int channel );
+		void prepAgilentSettings();
 		bool connected();
-		void analyzeAgilentScript( ScriptStream& intensityFile, ScriptedAgilentWaveform* intensityWaveformData, 
-								   int& currentSegmentNumber, profileSettings profileInfo );
+		void analyzeAgilentScript( scriptedArbInfo& infoObj );
 		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
 		void handleSavingConfig(std::ofstream& saveFile);
 		std::string getDeviceIdentity();
+		std::string getName();
 		void readConfigurationFile( std::ifstream& file );
-		void programScript( int varNum, key variableKey, std::vector<ScriptStream>& intensityFiles, profileSettings profileInfo );
+		//void setScript( int varNum, key variableKey, scriptedArbInfo& scriptInfo );
 		void selectIntensityProfile( int varNum );
-		void convertInputToFinalSettings( key variableKey, UINT variation );;
-		void updateEdit(int chan);
+		void convertInputToFinalSettings( key variableKey, UINT variation );
+		void convertInputToFinalSettings();
+		void updateEdit( int chan, std::string currentCategoryPath, RunInfo currentRunInfo );
+		void updateEdit( std::string currentCategoryPath, RunInfo currentRunInfo );
 		deviceOutputInfo getOutputInfo();
 		void rearrange(UINT width, UINT height, fontMap fonts);
 		void setAgilent( key varKey, UINT variation );
+		void setAgilent();
+		void handleScriptVariation( key varKey, UINT variation, scriptedArbInfo& scriptInfo );
+		void handleNoVariations( scriptedArbInfo& scriptInfo );
+		void setScriptOutput(UINT varNum, scriptedArbInfo scriptInfo );
+		Script agilentScript;
 
-		// pilfered from myAgilent Namespace.
-		static void analyzeIntensityScript( ScriptStream& intensityFile, 
-											myAgilent::IntensityWaveform* intensityWaveformData, 
-											int& currentSegmentNumber);
-		static void agilentDefault();
-		static void agilentErrorCheck(long status, ULONG vi);
-		static void setIntensity(UINT varNum, bool intensityIsVaried, std::vector<std::pair<double, double>> intensityMinMax);
-		static void programIntensity( key varKey, bool& intensityVaried, std::vector<std::pair<double, double>>& minsAndMaxes, 
-									 std::vector<std::fstream>& intensityFiles, UINT variations);
-
-		static void visaWrite(ULONG instrumentInput, std::string message);
-
-		static void errCheck(ULONG instrumnetInput, long status);
-		static void visaErrQuery(ULONG instrument, std::string& errMsg, long& errCode);
 	private:
-		// usb address...
-		std::string usbAddress;
-		std::string deviceName;
+		std::string name;
 		minMaxDoublet chan1Range;
 		minMaxDoublet chan2Range;
-		ViSession session;
-		ULONG instrument, defaultResourceManager;
 		double currentAgilentHigh, currentAgilentLow;
-		// since currently all visa communication is done to communicate with agilent machines, my visa wrappers exist
+		VisaFlume visaFlume;
+		// since currently all visaFlume communication is done to communicate with agilent machines, my visaFlume wrappers exist
 		// in this class.
-		void visaWrite( std::string message );
-		
-		void visaClose();
-		void visaOpenDefaultRM();
-		void visaOpen( std::string address );
-		void errCheck(long status);
-		void visaSetAttribute( ViAttr attributeName, ViAttrState value );
-		void visaPrintf( std::string msg );
-		void visaErrQuery(std::string& errMsg, long& errCode);
-		std::string visaIdentityQuery();
-		bool isVaried;
+		bool varies;
 		bool isConnected;
 		int currentChannel;
 		std::string deviceInfo;
 		std::vector<minMaxDoublet> ranges;		
 		deviceOutputInfo settings;
-
 		// GUI ELEMENTS
 		Control<CStatic> header;
 		Control<CStatic> deviceInfoDisplay;
@@ -253,5 +77,5 @@ class Agilent
 		Control<CButton> syncedButton;
 		Control<CComboBox> settingCombo;
 		Control<CStatic> optionsFormat;
-		Control<CEdit> optionsEdit;
+		Control<CButton> programNow;
 };

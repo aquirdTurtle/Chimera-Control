@@ -55,7 +55,7 @@ template<class ControlType> Control<ControlType>::Control()
 	// assert that the template class is derived from CWnd. This doesn't actually do anything in run-time. It's also
 	// probably redundant because of all the functionality designed around CWnd in this class, like the below function.
 	ControlType obj;
-	assert((CWnd const*)&obj);
+	//assert((CWnd const*)&obj);
 }
 
 template <class ControlType> void Control<ControlType>::rearrange(int width, int height, fontMap fonts)
@@ -234,16 +234,16 @@ template <class ControlType> void Control<ControlType>::rearrange( std::string c
 
 
 /// template function for the class control system
-template <class ControlType> void Control<ControlType>::setToolTip(std::string text, 
-																   cToolTips& tooltips, 
-																   CWnd* parent)
+// This sets a tooltip text to the inputted text. note that parent is the parent window, e.g. the MainWindow, not the 
+// control handle which is accessed incide this function via this.
+template <class ControlType> void Control<ControlType>::setToolTip(std::string text, cToolTips& tooltips, CWnd* parent)
 {
 	if (!toolTipIsSet)
 	{
 		toolTipID = tooltips.size();
 		tooltips.push_back(new CToolTipCtrl);
 		tooltips.back()->Create(parent, WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP | TTS_BALLOON);
-		tooltips.back()->SetMaxTipWidth(500);
+		tooltips.back()->SetMaxTipWidth(1200);
 		tooltips.back()->SetTipBkColor(0x000000);
 		tooltips.back()->SetTipTextColor(0xe0e0d0);
 		tooltips.back()->SetDlgCtrlID(parent->GetDlgCtrlID());

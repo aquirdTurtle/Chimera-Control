@@ -8,7 +8,7 @@
 #include "constants.h"
 
 class MainWindow;
-class DeviceWindow;
+class AuxiliaryWindow;
 
 struct variationRangeInfo
 {
@@ -35,7 +35,7 @@ struct variable
 
 
 class Script;
-class DeviceWindow;
+class AuxiliaryWindow;
 
 
 class VariableSystem
@@ -45,9 +45,10 @@ class VariableSystem
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, double version);
 		void handleDraw(NMHDR* pNMHDR, LRESULT* pResult);
-		void updateVariableInfo(std::vector<Script*> scripts, MainWindow* mainWin, DeviceWindow* deviceWin );
+		void updateVariableInfo(std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin );
 		void deleteVariable();
-		void initialize(POINT& pos, cToolTips& toolTips, DeviceWindow* master, int& id, std::string title);
+		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id, std::string title,
+						 rgbMap rgbs, UINT listviewId );
 		void addConfigVariable(variable var, int item);
 		void addGlobalVariable( variable var, int item );
 		void handleColumnClick(NMHDR * pNotifyStruct, LRESULT * result);

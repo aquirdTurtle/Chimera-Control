@@ -6,116 +6,107 @@
 #include "CameraSettingsControl.h"
 
 
-void CameraImageDimensionsControl::cameraIsOn( bool state )
+void CameraImageDimsControl::cameraIsOn( bool state )
 {
-	setImageDimensionsButton.EnableWindow( !state );
+	setImageDimsButton.EnableWindow( !state );
 }
 
 
-CameraImageDimensionsControl::CameraImageDimensionsControl()
+CameraImageDimsControl::CameraImageDimsControl()
 {
 	isReady = false;
 }
 
 
-void CameraImageDimensionsControl::initialize( cameraPositions& pos, CWnd* parent, bool isTriggerModeSensitive, int& id )
+void CameraImageDimsControl::initialize( cameraPositions& pos, CWnd* parent, bool isTriggerModeSensitive, int& id )
 {
-	setImageDimensionsButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
-	setImageDimensionsButton.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
-	setImageDimensionsButton.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
-	setImageDimensionsButton.Create( "Set Image Dimensions", WS_TABSTOP | WS_CHILD | WS_VISIBLE,
-									 setImageDimensionsButton.seriesPos, parent, id++);
-	idVerify(setImageDimensionsButton, IDC_SET_IMAGE_PARAMETERS_BUTTON);
-
-	setImageDimensionsButton.fontType = NormalFont;
+	setImageDimsButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
+	setImageDimsButton.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
+	setImageDimsButton.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
+	setImageDimsButton.Create( "Set Image Dimensions", WS_TABSTOP | WS_CHILD | WS_VISIBLE,
+							   setImageDimsButton.seriesPos, parent, IDC_SET_IMAGE_PARAMETERS_BUTTON );
 	//
 	leftText.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 25 };
 	leftText.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 25 };
 	leftText.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 160, pos.videoPos.y + 25 };
-	leftText.Create( "Left", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, leftText.seriesPos, parent, id++);
-	leftText.fontType = NormalFont;
+	leftText.Create( "Left", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY | WS_BORDER, leftText.seriesPos, parent, 
+					 id++);
 	//
 	rightText.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 25 };
 	rightText.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 25 };
 	rightText.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
-	rightText.Create( "Right", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, rightText.seriesPos, parent, id++ );
-	rightText.fontType = NormalFont;
+	rightText.Create( "Right", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY | WS_BORDER, rightText.seriesPos, 
+					  parent, id++ );
 	//
-	horizontalBinningText.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
-	horizontalBinningText.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
-	horizontalBinningText.videoPos = { pos.videoPos.x + 320, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
-	horizontalBinningText.Create( "H. Bin", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, horizontalBinningText.seriesPos, parent, 
+	horBinningText.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
+	horBinningText.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
+	horBinningText.videoPos = { pos.videoPos.x + 320, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
+	horBinningText.Create( "H. Bin", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY | WS_BORDER, 
+								  horBinningText.seriesPos, parent,
 								 id++);
-	horizontalBinningText.fontType = NormalFont;
 	//
 	leftEdit.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 25 };
 	leftEdit.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 25 };
 	leftEdit.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 160, pos.videoPos.y + 25 };
-	leftEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, leftEdit.seriesPos, parent, id++);
-	leftEdit.fontType = NormalFont;
+	leftEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER | WS_BORDER, leftEdit.seriesPos, 
+					 parent, id++);
 	leftEdit.SetWindowTextA( "1" );
 	//
 	rightEdit.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 25 };
 	rightEdit.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 25 };
 	rightEdit.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
-	rightEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, rightEdit.seriesPos, parent, id++);
-	rightEdit.fontType = NormalFont;
+	rightEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER | WS_BORDER, rightEdit.seriesPos, parent, id++);
 	rightEdit.SetWindowTextA( "50" );
 	//
-	horizontalBinningEdit.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
-	horizontalBinningEdit.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
-	horizontalBinningEdit.videoPos = { pos.videoPos.x + 320, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
-	horizontalBinningEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, horizontalBinningEdit.seriesPos, parent, 
+	horBinningEdit.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
+	horBinningEdit.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
+	horBinningEdit.videoPos = { pos.videoPos.x + 320, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
+	horBinningEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER | WS_BORDER, 
+								  horBinningEdit.seriesPos, parent,
 								  id++ );
-	horizontalBinningEdit.fontType = NormalFont;
-	horizontalBinningEdit.SetWindowTextA( "1" );
+	horBinningEdit.SetWindowTextA( "1" );
 	//
 	topText.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 25 };
 	topText.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 25 };
 	topText.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 160, pos.videoPos.y + 25 };
-	topText.Create( "Top", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, topText.seriesPos, parent, id++);
-	topText.fontType = NormalFont;
+	topText.Create( "Top", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY | WS_BORDER, topText.seriesPos, parent, id++);
 
 	//
 	bottomText.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 25 };
 	bottomText.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 25 };
 	bottomText.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
-	bottomText.Create( "Bottom", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, bottomText.seriesPos, parent, 
-					   id++);
-	bottomText.fontType = NormalFont;
+	bottomText.Create( "Bottom", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY | WS_BORDER, bottomText.seriesPos, 
+					   parent, id++);
 	//
-	verticalBinningText.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
-	verticalBinningText.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
-	verticalBinningText.videoPos = { pos.videoPos.x + 320, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
-	verticalBinningText.Create( "V. Bin", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, verticalBinningText.seriesPos,
+	vertBinningText.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
+	vertBinningText.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
+	vertBinningText.videoPos = { pos.videoPos.x + 320, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
+	vertBinningText.Create( "V. Bin", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY | WS_BORDER, 
+								vertBinningText.seriesPos,
 							    parent, id++);
-	verticalBinningText.fontType = NormalFont;
 	//
 	topEdit.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 25 };
 	topEdit.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 25 };
 	topEdit.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 160, pos.videoPos.y + 25 };
-	topEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, topEdit.seriesPos, parent, id++);
-	topEdit.fontType = NormalFont;
+	topEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER | WS_BORDER, topEdit.seriesPos, parent, id++);
 	topEdit.SetWindowTextA( "1" );
 	//
 	bottomEdit.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 25 };
 	bottomEdit.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 25 };
 	bottomEdit.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
-	bottomEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, bottomEdit.seriesPos, parent, id++);
-	bottomEdit.fontType = NormalFont;
+	bottomEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER | WS_BORDER, bottomEdit.seriesPos, parent, id++);
 	bottomEdit.SetWindowTextA( "50" );
 	//
-	verticalBinningEdit.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
-	verticalBinningEdit.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
-	verticalBinningEdit.videoPos = { pos.videoPos.x + 320, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
-	verticalBinningEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER, verticalBinningEdit.seriesPos, parent, 
-							    id++ );
-	verticalBinningEdit.fontType = NormalFont;
-	verticalBinningEdit.SetWindowTextA( "1" );
+	vertBinningEdit.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
+	vertBinningEdit.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
+	vertBinningEdit.videoPos = { pos.videoPos.x + 320, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
+	vertBinningEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER | WS_BORDER, vertBinningEdit.seriesPos, parent,
+							id++ );
+	vertBinningEdit.SetWindowTextA( "1" );
 }
 
 
-void CameraImageDimensionsControl::drawBackgrounds( CameraWindow* camWin )
+void CameraImageDimsControl::drawBackgrounds( CameraWindow* camWin )
 {
 	// recolor the box, clearing last run
 	CDC* hDC = camWin->GetDC();
@@ -126,18 +117,11 @@ void CameraImageDimensionsControl::drawBackgrounds( CameraWindow* camWin )
 	// Set the Pen to White
 	SetDCPenColor( *hDC, RGB( 255, 255, 255 ) );
 	// Drawing a rectangle with the current Device Context
-	/*
-	for (int imageInc = 0; imageInc < eImageBackgroundAreas.size(); imageInc++)
-	{
-		// slightly larger than the image zone.
-		Rectangle(*hDC, eImageBackgroundAreas[imageInc].left - 5, eImageBackgroundAreas[imageInc].top - 5, eImageBackgroundAreas[imageInc].right + 5, eImageBackgroundAreas[imageInc].bottom + 5);
-	}
-	*/
 	camWin->ReleaseDC( hDC );
 }
 
 
-imageParameters CameraImageDimensionsControl::readImageParameters( CameraWindow* camWin )
+imageParameters CameraImageDimsControl::readImageParameters( CameraWindow* camWin )
 {
 	// in case called before initialized
 	if (!leftEdit)
@@ -195,7 +179,7 @@ imageParameters CameraImageDimensionsControl::readImageParameters( CameraWindow*
 		thrower( "Bottom border argument not an integer!\r\n" );
 	}
 	bottomEdit.RedrawWindow();
-	horizontalBinningEdit.GetWindowTextA( tempStr );
+	horBinningEdit.GetWindowTextA( tempStr );
 	try
 	{
 		currentImageParameters.horizontalBinning = std::stoi( str( tempStr ) );
@@ -205,8 +189,8 @@ imageParameters CameraImageDimensionsControl::readImageParameters( CameraWindow*
 		isReady = false;
 		thrower( "Horizontal binning argument not an integer!\r\n" );
 	}
-	horizontalBinningEdit.RedrawWindow();
-	verticalBinningEdit.GetWindowTextA( tempStr );
+	horBinningEdit.RedrawWindow();
+	vertBinningEdit.GetWindowTextA( tempStr );
 	try
 	{
 		currentImageParameters.verticalBinning = std::stoi( str( tempStr ) );
@@ -216,7 +200,7 @@ imageParameters CameraImageDimensionsControl::readImageParameters( CameraWindow*
 		isReady = false;
 		thrower( "Vertical binning argument not an integer!\r\n" );
 	}
-	verticalBinningEdit.RedrawWindow();
+	vertBinningEdit.RedrawWindow();
 	// reset this. There must be at least one pixel...
 	/// TODO
 	/*
@@ -321,7 +305,7 @@ imageParameters CameraImageDimensionsControl::readImageParameters( CameraWindow*
 /*
  * I forget why I needed a second function for this.
  */
-void CameraImageDimensionsControl::setImageParametersFromInput( imageParameters param, CameraWindow* camWin )
+void CameraImageDimsControl::setImageParametersFromInput( imageParameters param, CameraWindow* camWin )
 {
 	drawBackgrounds( camWin );
 	//eDataExists = false;
@@ -335,9 +319,9 @@ void CameraImageDimensionsControl::setImageParametersFromInput( imageParameters 
 	currentImageParameters.bottomBorder = param.bottomBorder;
 	bottomEdit.SetWindowText( cstr( currentImageParameters.bottomBorder ) );
 	currentImageParameters.horizontalBinning = param.horizontalBinning;
-	horizontalBinningEdit.SetWindowText( cstr( currentImageParameters.horizontalBinning ) );
+	horBinningEdit.SetWindowText( cstr( currentImageParameters.horizontalBinning ) );
 	currentImageParameters.verticalBinning = param.verticalBinning;
-	verticalBinningEdit.SetWindowText( cstr( currentImageParameters.verticalBinning ) );
+	vertBinningEdit.SetWindowText( cstr( currentImageParameters.verticalBinning ) );
 	// reset this. There must be at least one pixel...
 	/*
 	eCurrentlySelectedPixel.first = 0;
@@ -442,7 +426,7 @@ void CameraImageDimensionsControl::setImageParametersFromInput( imageParameters 
 }
 
 
-bool CameraImageDimensionsControl::checkReady()
+bool CameraImageDimsControl::checkReady()
 {
 	if (isReady)
 	{
@@ -455,13 +439,13 @@ bool CameraImageDimensionsControl::checkReady()
 }
 
 
-imageParameters CameraImageDimensionsControl::getImageParameters()
+imageParameters CameraImageDimsControl::getImageParameters()
 {
 	return currentImageParameters;
 }
 
 
-HBRUSH CameraImageDimensionsControl::colorEdits( HWND window, UINT message, WPARAM wParam, LPARAM lParam, MainWindow* mainWin )
+HBRUSH CameraImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, LPARAM lParam, MainWindow* mainWin )
 {
 	brushMap brushes = mainWin->getBrushes();
 
@@ -546,12 +530,12 @@ HBRUSH CameraImageDimensionsControl::colorEdits( HWND window, UINT message, WPAR
 		}
 		return *brushes["Grey Red"];
 	}
-	else if (controlID == verticalBinningEdit.GetDlgCtrlID())
+	else if (controlID == vertBinningEdit.GetDlgCtrlID())
 	{
 		//imageParameters currentImageParameters = eImageControl.getImageParameters();
 		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
 		CString textEdit;
-		verticalBinningEdit.GetWindowTextA( textEdit );
+		vertBinningEdit.GetWindowTextA( textEdit );
 		int verticalBin;
 		try
 		{
@@ -562,10 +546,10 @@ HBRUSH CameraImageDimensionsControl::colorEdits( HWND window, UINT message, WPAR
 				SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
 				SetBkColor( hdcStatic, RGB( 100, 110, 100 ) );
 				// catch change of color and redraw window.
-				if (verticalBinningEdit.colorState != 0)
+				if (vertBinningEdit.colorState != 0)
 				{
-					verticalBinningEdit.colorState = 0;
-					verticalBinningEdit.RedrawWindow();
+					vertBinningEdit.colorState = 0;
+					vertBinningEdit.RedrawWindow();
 				}
 				return *brushes["Grey Green"];
 			}
@@ -577,10 +561,10 @@ HBRUSH CameraImageDimensionsControl::colorEdits( HWND window, UINT message, WPAR
 		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
 		SetBkColor( hdcStatic, RGB( 150, 100, 100 ) );
 		// catch change of color and redraw window.
-		if (verticalBinningEdit.colorState != 1)
+		if (vertBinningEdit.colorState != 1)
 		{
-			verticalBinningEdit.colorState = 1;
-			verticalBinningEdit.RedrawWindow();
+			vertBinningEdit.colorState = 1;
+			vertBinningEdit.RedrawWindow();
 		}
 		return *brushes["Grey Red"];
 	}
@@ -664,12 +648,12 @@ HBRUSH CameraImageDimensionsControl::colorEdits( HWND window, UINT message, WPAR
 		}
 		return *brushes["Grey Red"];
 	}
-	else if (controlID == horizontalBinningEdit.GetDlgCtrlID())
+	else if (controlID == horBinningEdit.GetDlgCtrlID())
 	{
 		//imageParameters currentImageParameters = eImageControl.getImageParameters();
 		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
 		CString textEdit;
-		horizontalBinningEdit.GetWindowTextA( textEdit );
+		horBinningEdit.GetWindowTextA( textEdit );
 		int horizontalBin;
 		try
 		{
@@ -680,10 +664,10 @@ HBRUSH CameraImageDimensionsControl::colorEdits( HWND window, UINT message, WPAR
 				SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
 				SetBkColor( hdcStatic, RGB( 100, 110, 100 ) );
 				// catch change of color and redraw window.
-				if (horizontalBinningEdit.colorState != 0)
+				if (horBinningEdit.colorState != 0)
 				{
-					horizontalBinningEdit.colorState = 0;
-					horizontalBinningEdit.RedrawWindow();
+					horBinningEdit.colorState = 0;
+					horBinningEdit.RedrawWindow();
 				}
 				return *brushes["Grey Green"];
 			}
@@ -695,10 +679,10 @@ HBRUSH CameraImageDimensionsControl::colorEdits( HWND window, UINT message, WPAR
 		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
 		SetBkColor( hdcStatic, RGB( 150, 100, 100 ) );
 		// catch change of color and redraw window.
-		if (horizontalBinningEdit.colorState != 1)
+		if (horBinningEdit.colorState != 1)
 		{
-			horizontalBinningEdit.colorState = 1;
-			horizontalBinningEdit.RedrawWindow();
+			horBinningEdit.colorState = 1;
+			horBinningEdit.RedrawWindow();
 		}
 		return *brushes["Grey Red"];
 	}
@@ -706,21 +690,21 @@ HBRUSH CameraImageDimensionsControl::colorEdits( HWND window, UINT message, WPAR
 }
 
 
-void CameraImageDimensionsControl::rearrange( std::string cameraMode, std::string triggerMode, int width, int height, 
+void CameraImageDimsControl::rearrange( std::string cameraMode, std::string triggerMode, int width, int height, 
 											  fontMap fonts )
 {
 	leftText.rearrange( cameraMode, triggerMode, width, height, fonts );
 	rightText.rearrange( cameraMode, triggerMode, width, height, fonts );
-	horizontalBinningText.rearrange( cameraMode, triggerMode, width, height, fonts );
+	horBinningText.rearrange( cameraMode, triggerMode, width, height, fonts );
 	topText.rearrange( cameraMode, triggerMode, width, height, fonts );
 	bottomText.rearrange( cameraMode, triggerMode, width, height, fonts );
-	verticalBinningText.rearrange( cameraMode, triggerMode, width, height, fonts );
+	vertBinningText.rearrange( cameraMode, triggerMode, width, height, fonts );
 	leftEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
 	rightEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
-	horizontalBinningEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
+	horBinningEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
 	topEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
 	bottomEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
-	verticalBinningEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
-	setImageDimensionsButton.rearrange( cameraMode, triggerMode, width, height, fonts );
+	vertBinningEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
+	setImageDimsButton.rearrange( cameraMode, triggerMode, width, height, fonts );
 }
 

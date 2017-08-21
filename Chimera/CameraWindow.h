@@ -9,21 +9,14 @@
 #include "DataLogger.h"
 #include "gnuplotter.h"
 #include "commonFunctions.h"
+#include "atomCruncherInput.h"
+#include "cameraPositions.h"
 
 class MainWindow;
 class ScriptingWindow;
-class DeviceWindow;
+class AuxiliaryWindow;
 
-struct cameraPositions
-{
-	POINT seriesPos;
-	POINT amPos;
-	POINT videoPos;
-	POINT sPos;
-};
-
-
-struct plotThreadInput
+struct realTimePlotterInput
 {
 	std::vector<tinyPlotInfo> plotInfo;
 	std::vector<std::pair<int, int>> analysisLocations;
@@ -49,26 +42,6 @@ struct plotThreadInput
 };
 
 
-struct atomCruncherInput
-{
-	// what the thread watches...
-	std::atomic<bool>* cruncherThreadActive;
-	std::vector<std::vector<long>>* imageQueue;
-	// options
-	bool plotterActive;
-	bool plotterNeedsImages;
-	bool rearrangerActive;
-	UINT picsPerRep;
-	// locks
-	std::mutex* imageLock;
-	std::mutex* plotLock;
-	std::mutex* rearrangerLock;
-	// what the thread fills.
-	std::vector<std::vector<long>>* plotterImageQueue;
-	std::vector<std::vector<bool>>* plotterAtomQueue;
-	std::vector<std::vector<bool>>* rearrangerAtomQueue;
-	std::array<int, 4> thresholds;
-};
 
 
 class CameraWindow : public CDialog
@@ -108,10 +81,12 @@ class CameraWindow : public CDialog
 		void passSetAnalysisLocations();
 		void catchEnter();
 
-
+		
 		/// auxiliary functions.
+		void fillMasterThreadInput( MasterThreadInput* input );
+		DataLogger* getLogger();
 		std::string getSystemStatusString();
-		void getFriends(MainWindow* mainWin, ScriptingWindow* scriptWin, DeviceWindow* masterWin);
+		void loadFriends(MainWindow* mainWin, ScriptingWindow* scriptWin, AuxiliaryWindow* masterWin);
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleMasterConfigSave(std::stringstream& configStream);
 		void handleMasterConfigOpen(std::stringstream& configStream, double version);
@@ -122,7 +97,7 @@ class CameraWindow : public CDialog
 		cToolTips getToolTips();
 		bool getCameraStatus();
 		void setTimerText( std::string timerText );
-		void prepareCamera();
+		void prepareCamera( ExperimentInput& input );
 		void startCamera();
 		std::string getStartMessage();
 		void setEmGain();
@@ -131,11 +106,15 @@ class CameraWindow : public CDialog
 		void abortCameraRun();
 		void handleAutoscaleSelection();
 		void assertOff();
-
+		AndorRunSettings getRunSettings();
+		void prepareAtomCruncher( ExperimentInput& input );
+		void preparePlotter( ExperimentInput& input );
 		static UINT __stdcall atomCruncherProcedure(void* input);
 
 		friend void commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, ScriptingWindow* scriptWin,
-														  CameraWindow* camWin, DeviceWindow* masterWin );
+														  CameraWindow* camWin, AuxiliaryWindow* masterWin );
+		void startAtomCruncher(ExperimentInput& input);
+		void startPlotterThread( ExperimentInput& input );
 
 	private:
 		DECLARE_MESSAGE_MAP();
@@ -153,7 +132,7 @@ class CameraWindow : public CDialog
 
 		MainWindow* mainWindowFriend;
 		ScriptingWindow* scriptingWindowFriend;
-		DeviceWindow* deviceWindowFriend;
+		AuxiliaryWindow* auxWindowFriend;
 
 		cToolTips tooltips;
 
@@ -165,7 +144,6 @@ class CameraWindow : public CDialog
 		bool specialLessThanMin;
 		bool specialGreaterThanMax;
 		bool realTimePic;
-
 		// plotting stuff;
 		HANDLE plotThreadHandle;
 		std::vector<std::vector<long> > imageQueue;

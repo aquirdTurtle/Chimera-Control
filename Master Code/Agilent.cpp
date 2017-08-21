@@ -645,7 +645,7 @@ void Agilent::analyzeAgilentScript( ScriptStream& intensityFile, ScriptedAgilent
 	* programScript opens the intensity file, reads the contents, loads them into an appropriate data structure, then from this data structure writes
 	* segment and sequence information to the function generator.
 	*/
-void Agilent::programScript( int varNum, key variableKey, std::vector<ScriptStream>& intensityFiles, profileSettings profileInfo )
+void Agilent::programScript( int varNum, key variableKey, std::vector<ScriptStream>& intensityFiles )
 {
 	// Initialize stuff
 	ScriptedAgilentWaveform intensityWaveformSequence;

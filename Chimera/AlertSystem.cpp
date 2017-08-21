@@ -28,8 +28,8 @@ void AlertSystem::setAlertThreshold()
 }
 
 
-void AlertSystem::initialize(cameraPositions& pos, CWnd* parent, bool isTriggerModeSensitive, int& id, 
-							  fontMap fonts, cToolTips& tooltips)
+void AlertSystem::initialize( cameraPositions& pos, CWnd* parent, bool isTriggerModeSensitive, int& id, 
+							  cToolTips& tooltips )
 {
 	alertMessageID = RegisterWindowMessage("ID_NOT_LOADING_ATOMS");
 	/// Title
@@ -46,9 +46,8 @@ void AlertSystem::initialize(cameraPositions& pos, CWnd* parent, bool isTriggerM
 	alertsActiveCheckBox.videoPos = { -1,-1,-1,-1 };
 	alertsActiveCheckBox.triggerModeSensitive = isTriggerModeSensitive;
 	alertsActiveCheckBox.Create( "Use?", WS_CHILD | WS_VISIBLE | ES_LEFT | ES_READONLY | BS_CHECKBOX, 
-								 alertsActiveCheckBox.seriesPos, parent, id++);
-	idVerify(alertsActiveCheckBox, IDC_ALERTS_BOX);
-	alertsActiveCheckBox.fontType = NormalFont;
+								 alertsActiveCheckBox.seriesPos, parent, IDC_ALERTS_BOX );
+
 	/// Alert threshold text
 	alertThresholdText.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 20 };
 	alertThresholdText.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 20 };
@@ -56,7 +55,6 @@ void AlertSystem::initialize(cameraPositions& pos, CWnd* parent, bool isTriggerM
 	alertThresholdText.triggerModeSensitive = isTriggerModeSensitive;
 	alertThresholdText.Create( "Alert Threshold:", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, 
 							   alertThresholdText.seriesPos, parent, id++);
-	alertThresholdText.fontType = NormalFont;
 	/// Alert threshold edit
 	alertThresholdEdit.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 20 };
 	alertThresholdEdit.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 20 };
@@ -64,7 +62,6 @@ void AlertSystem::initialize(cameraPositions& pos, CWnd* parent, bool isTriggerM
 	alertThresholdEdit.triggerModeSensitive = isTriggerModeSensitive;
 	alertThresholdEdit.Create(WS_CHILD | WS_VISIBLE | ES_CENTER, alertThresholdEdit.seriesPos, parent, id++);
 	alertThresholdEdit.SetWindowTextA("10");
-	alertThresholdEdit.fontType = NormalFont;
 	pos.seriesPos.y += 20;
 	pos.amPos.y += 20;
 	/// Sound checkbox
@@ -75,10 +72,10 @@ void AlertSystem::initialize(cameraPositions& pos, CWnd* parent, bool isTriggerM
 	soundAtFinshCheckBox.triggerModeSensitive = isTriggerModeSensitive;
 	soundAtFinshCheckBox.Create( "Play Sound at Finish?", WS_CHILD | WS_VISIBLE | ES_LEFT | ES_READONLY 
 								| BS_AUTOCHECKBOX, soundAtFinshCheckBox.seriesPos, parent, id++);
-	soundAtFinshCheckBox.fontType = NormalFont;
 	pos.seriesPos.y += 20;
 	pos.amPos.y += 20;
 }
+
 
 void AlertSystem::alertMainThread(int runsWithoutAtoms)
 {

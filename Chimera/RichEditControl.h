@@ -9,7 +9,7 @@ class RichEditControl
 		bool appendText(std::string text, int color);
 		void deleteChars( int num );
 		void clear();
-		void initialize(RECT editSize, std::string titleText, COLORREF defaultTextColor, DeviceWindow* master, 
+		void initialize(RECT editSize, std::string titleText, COLORREF defaultTextColor, AuxiliaryWindow* master, 
 						 int& id);
 		INT_PTR handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, brushMap brushes);
 		std::string getText();

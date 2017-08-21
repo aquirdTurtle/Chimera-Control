@@ -1,9 +1,6 @@
 #pragma once
 #include "stdafx.h"
-
-#include <afxsock.h>
-
-#include "ConfigurationFileSystem.h"
+#include "ProfileSystem.h"
 #include "DebuggingOptionsControl.h"
 #include "MainOptionsControl.h"
 #include "StatusControl.h"
@@ -16,10 +13,11 @@
 #include "Repetitions.h"
 #include "MasterManager.h"
 #include "commonFunctions.h"
+#include "DataLogger.h"
 
 class ScriptingWindow;
 class CameraWindow;
-class DeviceWindow;
+class AuxiliaryWindow;
 
 class MainWindow : public CDialog
 {
@@ -27,14 +25,13 @@ class MainWindow : public CDialog
 	DECLARE_DYNAMIC(MainWindow);
 	public:
 	    // overrides
-		MainWindow(UINT id);
+		MainWindow(UINT id, CDialog*);
 		BOOL OnInitDialog() override;
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 		BOOL PreTranslateMessage(MSG* pMsg); 
 		void OnSize(UINT nType, int cx, int cy);
 		void OnClose();
 		void OnCancel() override;
-
 		// stuff directly called (or 1 simple step removed) by message map.
 		LRESULT onRepProgress(WPARAM wParam, LPARAM lParam);
 		LRESULT onStatusTextMessage(WPARAM wParam, LPARAM lParam);
@@ -43,7 +40,7 @@ class MainWindow : public CDialog
 		LRESULT onNormalFinishMessage(WPARAM wParam, LPARAM lParam);
 		LRESULT onColoredEditMessage(WPARAM wParam, LPARAM lParam);
 		LRESULT onDebugMessage(WPARAM wParam, LPARAM lParam);		
-
+		//
 		void passCommonCommand( UINT id );
 		void handlePause();
 		void passDebugPress( UINT id );
@@ -60,13 +57,13 @@ class MainWindow : public CDialog
 		// auxiliary functions used by the window.
 		void setNotes(std::string whichLevel, std::string notes);
 		void setNiawgDefaults();
-		void fillMasterThreadInput(MasterThreadInput* input);
-		void startMaster(MasterThreadInput* input);
+		void fillMasterThreadInput( MasterThreadInput* input );
+		void startMaster( MasterThreadInput* input );
 		std::string getNotes(std::string whichLevel);
 		brushMap getBrushes();
 		rgbMap getRgbs();
 		fontMap getFonts();
-		profileSettings getCurrentProfileSettings();
+		profileSettings getProfileSettings();
 		debugInfo getDebuggingOptions();
 		mainOptions getMainOptions();
 
@@ -76,7 +73,6 @@ class MainWindow : public CDialog
 		void updateConfigurationSavedStatus(bool status);
 
 		void setDebuggingOptions(debugInfo options);
-		void setMainOptions(mainOptions options);
 		void updateStatusText(std::string whichStatus, std::string text);
 		void addTimebar(std::string whichStatus);
 		void setShortStatus(std::string text);
@@ -96,12 +92,13 @@ class MainWindow : public CDialog
 		RunInfo getRunInfo();
 		void handleFinish();
 		UINT getRepNumber();
+		void logParams( DataLogger* logger, MasterThreadInput* input );
 
 	private:		
 		DECLARE_MESSAGE_MAP();
 		ScriptingWindow* TheScriptingWindow;
 		CameraWindow* TheCameraWindow;
-		DeviceWindow* TheDeviceWindow;
+		AuxiliaryWindow* TheAuxiliaryWindow;
 		// members that have gui elements
 		ProfileSystem profile;
 		MasterConfiguration masterConfig;
@@ -129,6 +126,7 @@ class MainWindow : public CDialog
 		// friends (try to minimize these)
 		friend void commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin,
 														  ScriptingWindow* scriptWin, CameraWindow* camWin,
-														  DeviceWindow* masterWin );
+														  AuxiliaryWindow* masterWin );
+		CDialog* appSplash;
 };
 

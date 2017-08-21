@@ -3,8 +3,6 @@ TODO
 ===================
 
 Core Requirements:
-- Combine Profile systems
-- Get Master Experiment thread working
 
 Features:
 - could clean up textpromptdialog handling, should be possible with one line.
@@ -27,6 +25,3 @@ Bugs:
 =================
 Finished
 =================
-- a lot of stuff in combining the programs that I didn't log
-- Camera border settings now included in the master config.
-

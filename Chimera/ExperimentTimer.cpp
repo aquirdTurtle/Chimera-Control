@@ -1,18 +1,16 @@
 #include "stdafx.h"
-#include "ExperimentTimer.h"
 #include "Commctrl.h"
 #include "Uxtheme.h"
+#include "ExperimentTimer.h"
 #include <vector>
-#include "fonts.h"
 #include "CameraWindow.h"
 
 
 void ExperimentTimer::initialize( cameraPositions& inputLoc, CWnd* parent, bool isTriggerModeSensitive, int& id,
-								  fontMap fonts, cToolTips& toolTips )
+								  cToolTips& toolTips )
 {
 	timeDisplay.sPos = { inputLoc.sPos.x, inputLoc.sPos.y, inputLoc.sPos.x + 168, inputLoc.sPos.y + 40 };
 	timeDisplay.Create("", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, timeDisplay.sPos, parent, id++ );
-	timeDisplay.fontType = NormalFont;
 	/// PROGRESS BARS
 	// subseries progress bar
 	variationProgress.sPos = { inputLoc.sPos.x + 168, inputLoc.sPos.y, inputLoc.sPos.x + 1168, inputLoc.sPos.y + 15 };

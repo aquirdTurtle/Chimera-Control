@@ -2,27 +2,26 @@
 #include "Control.h"
 #include <Mmsystem.h>
 #include <mciapi.h>
+#include "cameraPositions.h"
 #pragma comment(lib, "Winmm.lib")
-
-struct cameraPositions;
 
 class AlertSystem
 {
 	public:
-		AlertSystem() : alertMessageID{ 0 } 
+		AlertSystem() : alertMessageID{ 0 }
 		{
 			// load the music!
-			mciSendString(cstr(str("open \"") + MUSIC_LOCATION + "\" type mpegvideo alias mp3"), NULL, 0, NULL);
+			mciSendString( cstr( str( "open \"" ) + MUSIC_LOCATION + "\" type mpegvideo alias mp3" ), NULL, 0, NULL );
 		}
 		~AlertSystem()
 		{
 			mciSendString( "close mp3", NULL, 0, NULL );
 		}
-		void initialize(cameraPositions& positions, CWnd* parent, bool isTriggerModeSensitive, int& id, fontMap fonts, 
-						cToolTips& tooltips);
-		void alertMainThread(int level);
+		void initialize( cameraPositions& positions, CWnd* parent, bool isTriggerModeSensitive, int& id,
+						 cToolTips& tooltips );
+		void alertMainThread( int level );
 		void soundAlert();
-		void rearrange(std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts);
+		void rearrange( std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts );
 		void handleCheckBoxPress();
 		UINT getAlertThreshold();
 		UINT getAlertMessageID();

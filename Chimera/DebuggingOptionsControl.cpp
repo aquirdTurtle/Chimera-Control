@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "fonts.h"
 #include "DebuggingOptionsControl.h"
 
 
@@ -55,7 +54,7 @@ void DebuggingOptionsControl::handleOpenConfig(std::ifstream& openFile, double v
 	{
 		currentOptions.sleepTime = std::stol(sleep);
 	}
-	catch (std::invalid_argument& err)
+	catch (std::invalid_argument&)
 	{
 		currentOptions.sleepTime = 0;
 	}
@@ -64,81 +63,72 @@ void DebuggingOptionsControl::handleOpenConfig(std::ifstream& openFile, double v
 }
 
 
-void DebuggingOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, fontMap fonts, cToolTips& tooltips)
+void DebuggingOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips)
 {
 	// Debugging Options Title
 	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
 	header.Create("DEBUGGING OPTIONS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, parent, id++);	
-	header.SetFont(fonts["Heading Font"]);
+	header.fontType = HeadingFont;
 	///
+	UINT runningCount = 0;
 	niawgMachineScript.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
 	niawgMachineScript.Create("Output Machine NIAWG Script?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT,
-							  niawgMachineScript.sPos, parent, id++);
-	niawgMachineScript.SetFont(fonts["Normal Font"]);
+							  niawgMachineScript.sPos, parent, IDC_DEBUG_OPTIONS_RANGE_BEGIN + runningCount++ );
 	niawgMachineScript.SetCheck(BST_CHECKED);
-	idVerify(niawgMachineScript, IDC_DEBUG_OPTIONS_RANGE_BEGIN);
-	
+
+
 	currentOptions.outputNiawgMachineScript = true;
 	///
 	outputAgilentScript.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
 	outputAgilentScript.Create("Output Agilent Script?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, 
-							   outputAgilentScript.sPos, parent, id++);
-	outputAgilentScript.SetFont(fonts["Normal Font"]);
+							   outputAgilentScript.sPos, parent, IDC_DEBUG_OPTIONS_RANGE_BEGIN + runningCount++ );
 	outputAgilentScript.SetCheck(BST_CHECKED);
 	currentOptions.outputAgilentScript = true;
 	///
 	niawgScript.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
 	niawgScript.Create("Output Human NIAWG Script?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, niawgScript.sPos, 
-					   parent, id++ );
-	niawgScript.SetFont(fonts["Normal Font"]);
+					   parent, IDC_DEBUG_OPTIONS_RANGE_BEGIN + runningCount++ );
 	niawgScript.SetCheck(BST_CHECKED);
 	currentOptions.outputNiawgHumanScript = true;
 
 	///
 	readProgress.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
 	readProgress.Create("Output Waveform Read Progress?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, 
-						readProgress.sPos, parent, id++);
-	readProgress.SetFont(fonts["Normal Font"]);
+						readProgress.sPos, parent, IDC_DEBUG_OPTIONS_RANGE_BEGIN + runningCount++ );
 	readProgress.SetCheck(BST_CHECKED);
 	currentOptions.showReadProgress = true;
 	///
 	writeProgress.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
 	writeProgress.Create("Output Waveform Write Progress?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, 
-						 writeProgress.sPos, parent, id++);
-	writeProgress.SetFont(fonts["Normal Font"]);
+						 writeProgress.sPos, parent, IDC_DEBUG_OPTIONS_RANGE_BEGIN + runningCount++ );
 	writeProgress.SetCheck(BST_CHECKED);
 	currentOptions.showWriteProgress = true;
 	///
 	correctionTimes.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
 	correctionTimes.Create("Output Phase Correction Waveform Times?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, 
-						   correctionTimes.sPos, parent, id++);
-	correctionTimes.SetFont(fonts["Normal Font"]);
+						   correctionTimes.sPos, parent, IDC_DEBUG_OPTIONS_RANGE_BEGIN + runningCount++ );
 	correctionTimes.SetCheck(BST_CHECKED);
 	currentOptions.showCorrectionTimes= true;
 	///
 	excessInfo.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
 	excessInfo.Create( "Output Excess Run Info?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, correctionTimes.sPos, 
-					   parent, id++ );
-	excessInfo.SetFont(fonts["Normal Font"]);
+					   parent, IDC_DEBUG_OPTIONS_RANGE_BEGIN + runningCount++ );
 	excessInfo.SetCheck(BST_CHECKED);
 	currentOptions.outputExcessInfo = true;	
-	idVerify(excessInfo, IDC_DEBUG_OPTIONS_RANGE_END);
 
 	showTtlsButton.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
 	showTtlsButton.Create( "Show All TTL Events", WS_CHILD | WS_VISIBLE | SS_CENTER | BS_CHECKBOX | BS_RIGHT,
-						   showTtlsButton.sPos, parent, id++);
-	idVerify(showTtlsButton, IDC_SHOW_TTLS);
+						   showTtlsButton.sPos, parent, IDC_SHOW_TTLS );
 
 	showDacsButton.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
 	showDacsButton.Create("Show All Dac Events", WS_CHILD | WS_VISIBLE | SS_CENTER | BS_CHECKBOX | BS_RIGHT,
-						  showDacsButton.sPos, parent, id++);
-	idVerify(showDacsButton, IDC_SHOW_DACS);
+						  showDacsButton.sPos, parent, IDC_SHOW_DACS );
 
 	pauseText.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y + 20 };
 	pauseText.Create("Pause Between Variations (ms)", WS_CHILD | WS_VISIBLE | ES_RIGHT, pauseText.sPos, parent, id++);
 
 	pauseEdit.sPos = { loc.x, loc.y, loc.x + 240, loc.y += 20 };
-	pauseEdit.Create(WS_CHILD | WS_VISIBLE , pauseEdit.sPos, parent, id++);
+	pauseEdit.Create(WS_CHILD | WS_VISIBLE , pauseEdit.sPos, parent, id++ );
 	pauseEdit.SetWindowTextA("0");
 }
 
@@ -283,7 +273,7 @@ debugInfo DebuggingOptionsControl::getOptions()
 	currentOptions.showDacs = showDacsButton.GetCheck();
 	CString text;
 	pauseEdit.GetWindowTextA(text);
-	currentOptions.sleepTime = std::stod(str(text));
+	currentOptions.sleepTime = std::stol(str(text));
 	return currentOptions;
 }
 

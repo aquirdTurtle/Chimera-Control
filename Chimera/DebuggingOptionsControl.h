@@ -23,7 +23,7 @@ class DebuggingOptionsControl
 	public:
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, double version);
-		void initialize(int& idStart, POINT& loc, CWnd* parent, fontMap fonts, cToolTips& tooltips);
+		void initialize(int& idStart, POINT& loc, CWnd* parent, cToolTips& tooltips);
 		void handleEvent(UINT id, MainWindow* comm);
 		debugInfo getOptions();
 		void setOptions(debugInfo options);

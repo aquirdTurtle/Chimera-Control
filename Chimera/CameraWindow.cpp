@@ -3,11 +3,11 @@
 #include "CameraSettingsControl.h"
 #include "PlottingInfo.h"
 #include "ATMCD32D.H"
-#include "DeviceWindow.h"
+#include "AuxiliaryWindow.h"
 #include "CameraWindow.h"
 
-CameraWindow::CameraWindow() : CDialog(), CameraSettings(&Andor), dataHandler(DATA_SAVE_LOCATION), plotter(GNUPLOT_LOCATION){};
-
+CameraWindow::CameraWindow() : CDialog(), CameraSettings(&Andor), dataHandler(DATA_SAVE_LOCATION), 
+                               plotter(GNUPLOT_LOCATION){};
 
 IMPLEMENT_DYNAMIC(CameraWindow, CDialog)
 
@@ -95,11 +95,11 @@ void CameraWindow::handleOpeningConfig(std::ifstream& configFile, double version
 }
 
 
-void CameraWindow::getFriends(MainWindow* mainWin, ScriptingWindow* scriptWin, DeviceWindow* masterWin)
+void CameraWindow::loadFriends(MainWindow* mainWin, ScriptingWindow* scriptWin, AuxiliaryWindow* masterWin)
 {
 	mainWindowFriend = mainWin;
 	scriptingWindowFriend = scriptWin;
-	deviceWindowFriend = masterWin;
+	auxWindowFriend = masterWin;
 }
 
 
@@ -144,7 +144,7 @@ void CameraWindow::passCameraMode()
 void CameraWindow::abortCameraRun()
 {
 	int status;
-	Andor.getStatus(status);
+	Andor.queryIdentity(status);
 	
 	if (ANDOR_SAFEMODE)
 	{
@@ -164,7 +164,7 @@ void CameraWindow::abortCameraRun()
 		// camera is no longer running.
 		try
 		{
-			dataHandler.closeFits();
+			dataHandler.closeFile();
 		}
 		catch (Error& err)
 		{
@@ -174,13 +174,13 @@ void CameraWindow::abortCameraRun()
 		if (Andor.getSettings().cameraMode != "Continuous Single Scans Mode")
 		{
 			
-			int answer = MessageBoxA("Acquisition Aborted. Delete Data (fits_#) and (key_#) files for this run?", "Acquisition Aborted.", 
+			int answer = MessageBoxA("Acquisition Aborted. Delete Data file (data_#.h5) for this run?", "Acquisition Aborted.", 
 									 MB_YESNO );
 			if (answer == IDYES)
 			{
 				try
 				{
-					dataHandler.deleteFitsAndKey(mainWindowFriend->getComm());
+					dataHandler.deleteFile(mainWindowFriend->getComm());
 				}
 				catch (Error& err)
 				{
@@ -216,7 +216,7 @@ void CameraWindow::handlePictureEditChange( UINT id )
 }
 
 
-LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam)
+LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 {
 	ULONGLONG pictureNumber = lParam;
 	if (lParam == 0)
@@ -227,11 +227,11 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam)
 	std::vector<std::vector<long>> picData;
 	try
 	{
-		 picData = Andor.acquireImageData();
+		picData = Andor.acquireImageData();
 	}
 	catch (Error& err)
 	{
-		mainWindowFriend->getComm()->sendError(err.what());
+		mainWindowFriend->getComm()->sendError( err.what() );
 		return NULL;
 	}
 
@@ -239,12 +239,12 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam)
 	{
 		try
 		{
-			dataHandler.loadAndMoveKeyFile();
-			plotterKey = dataHandler.getKey();
+			//dataHandler.loadAndMoveKeyFile();
+			//plotterKey = dataHandler.getKey();
 		}
 		catch (Error& err)
 		{
-			mainWindowFriend->getComm()->sendError(err.what());
+			mainWindowFriend->getComm()->sendError( err.what() );
 		}
 	}
 
@@ -256,13 +256,13 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam)
 		{
 			std::pair<int, int> minMax;
 			// draw the most recent pic.
-			minMax = stats.update(picData.back(), pictureNumber % currentSettings.picsPerRepetition, selectedPixel,
-								  currentSettings.imageSettings.width, currentSettings.imageSettings.height,
-								  pictureNumber / currentSettings.picsPerRepetition,
-								  currentSettings.totalPicsInExperiment / currentSettings.picsPerRepetition);
-			pics.drawPicture(drawer, pictureNumber % currentSettings.picsPerRepetition, picData.back(), minMax);
-			timer.update(pictureNumber / currentSettings.picsPerRepetition, currentSettings.repetitionsPerVariation,
-						 currentSettings.totalVariations, currentSettings.picsPerRepetition);
+			minMax = stats.update( picData.back(), pictureNumber % currentSettings.picsPerRepetition, selectedPixel,
+								   currentSettings.imageSettings.width, currentSettings.imageSettings.height,
+								   pictureNumber / currentSettings.picsPerRepetition,
+								   currentSettings.totalPicsInExperiment / currentSettings.picsPerRepetition );
+			pics.drawPicture( drawer, pictureNumber % currentSettings.picsPerRepetition, picData.back(), minMax );
+			timer.update( pictureNumber / currentSettings.picsPerRepetition, currentSettings.repetitionsPerVariation,
+						  currentSettings.totalVariations, currentSettings.picsPerRepetition );
 		}
 		else if (pictureNumber % currentSettings.picsPerRepetition == 0)
 		{
@@ -271,41 +271,42 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam)
 			for (auto data : picData)
 			{
 				std::pair<int, int> minMax;
-				minMax = stats.update(data, counter, selectedPixel, currentSettings.imageSettings.width,
-									  currentSettings.imageSettings.height, pictureNumber / currentSettings.picsPerRepetition,
-									  currentSettings.totalPicsInExperiment / currentSettings.picsPerRepetition);
+				minMax = stats.update( data, counter, selectedPixel, currentSettings.imageSettings.width,
+									   currentSettings.imageSettings.height, pictureNumber / currentSettings.picsPerRepetition,
+									   currentSettings.totalPicsInExperiment / currentSettings.picsPerRepetition );
 
-				pics.drawPicture(drawer, counter, data, minMax);
-				pics.drawDongles(drawer, selectedPixel, analysisHandler.getAnalysisLocations());
+				pics.drawPicture( drawer, counter, data, minMax );
+				pics.drawDongles( drawer, selectedPixel, analysisHandler.getAnalysisLocs() );
 				counter++;
 			}
-			timer.update(pictureNumber / currentSettings.picsPerRepetition, currentSettings.repetitionsPerVariation,
-						 currentSettings.totalVariations, currentSettings.picsPerRepetition);
+			timer.update( pictureNumber / currentSettings.picsPerRepetition, currentSettings.repetitionsPerVariation,
+						  currentSettings.totalVariations, currentSettings.picsPerRepetition );
 		}
 
 	}
 	catch (Error& err)
 	{
-		mainWindowFriend->getComm()->sendError(err.what());
+		mainWindowFriend->getComm()->sendError( err.what() );
 	}
 
-	ReleaseDC(drawer);
-		
+	ReleaseDC( drawer );
+
 	//
-	std::lock_guard<std::mutex> locker(plotLock);
+	std::lock_guard<std::mutex> locker( plotLock );
 	// add check to check if this is needed.
-	imageQueue.push_back(picData[(pictureNumber -1 ) % currentSettings.picsPerRepetition]);
-	
+	imageQueue.push_back( picData[(pictureNumber - 1) % currentSettings.picsPerRepetition] );
+
 	// write the data to the file.
 	if (currentSettings.cameraMode != "Continuous Single Scans Mode")
 	{
 		try
 		{
-			dataHandler.writeFits(pictureNumber, picData[(pictureNumber-1) % currentSettings.picsPerRepetition]);
+			dataHandler.writePic( pictureNumber, picData[(pictureNumber - 1) % currentSettings.picsPerRepetition],
+								  currentSettings.imageSettings );
 		}
 		catch (Error& err)
 		{
-			mainWindowFriend->getComm()->sendError(err.what());
+			mainWindowFriend->getComm()->sendError( err.what() );
 		}
 	}
 	return 0;
@@ -366,7 +367,7 @@ LRESULT CameraWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 	{
 		alerts.playSound();
 	}
-	dataHandler.forceFitsClosed();
+	dataHandler.closeFile();
 	mainWindowFriend->getComm()->sendColorBox( Camera, 'B' );
 	mainWindowFriend->getComm()->sendStatus( "Camera has finished taking pictures and is no longer running.\r\n" );
 	CameraSettings.cameraIsOn( false );
@@ -385,22 +386,11 @@ void CameraWindow::startCamera()
 	pics.refreshBackgrounds( dc );
 	ReleaseDC(dc);
 	stats.reset();
+	// I used to initialize the data logger here.
+	analysisHandler.updateDataSetNumberEdit( dataHandler.getNextFileNumber() );
 	Andor.armCamera( this );
-	/// setup fits files
-	if (Andor.getSettings().cameraMode != "Video Mode")
-	{
-		/// TODO: also, change to HDF5
-		try
-		{
-			dataHandler.initializeDataFiles(&analysisHandler, Andor.getSettings().imageSettings,
-											Andor.getSettings().totalPicsInExperiment);
-		}
-		catch (Error& err)
-		{
-			mainWindowFriend->getComm()->sendError(err.what());
-		}
-	}
 }
+
 
 bool CameraWindow::getCameraStatus()
 {
@@ -435,7 +425,7 @@ void CameraWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 			if (loc.first != -1)
 			{
 				analysisHandler.setAtomLocation(loc);
-				pics.redrawPictures(dc, selectedPixel, analysisHandler.getAnalysisLocations());
+				pics.redrawPictures(dc, selectedPixel, analysisHandler.getAnalysisLocs());
 			}
 		}
 		else
@@ -444,7 +434,7 @@ void CameraWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 			if (box.first != -1)
 			{
 				selectedPixel = box;
-				pics.redrawPictures(dc, selectedPixel, analysisHandler.getAnalysisLocations());
+				pics.redrawPictures(dc, selectedPixel, analysisHandler.getAnalysisLocs());
 			}
 		}
 	}
@@ -503,12 +493,12 @@ void CameraWindow::handlePictureSettings(UINT id)
 	if (CameraSettings.getSettings().picsPerRepetition == 1)
 	{
 		pics.setSinglePicture( this, selectedPixel, CameraSettings.readImageParameters( this ), 
-							  analysisHandler.getAnalysisLocations());
+							  analysisHandler.getAnalysisLocs());
 	}
 	else
 	{
 		pics.setMultiplePictures( this, selectedPixel, CameraSettings.readImageParameters( this ), 
-								  CameraSettings.getSettings().picsPerRepetition, analysisHandler.getAnalysisLocations());
+								  CameraSettings.getSettings().picsPerRepetition, analysisHandler.getAnalysisLocs());
 	}
 	pics.resetPictureStorage();
 	std::array<int, 4> nums = CameraSettings.getPaletteNumbers();
@@ -522,7 +512,7 @@ void CameraWindow::handlePictureSettings(UINT id)
 
 BOOL CameraWindow::PreTranslateMessage(MSG* pMsg)
 {
-	for (int toolTipInc = 0; toolTipInc < tooltips.size(); toolTipInc++)
+	for (UINT toolTipInc = 0; toolTipInc < tooltips.size(); toolTipInc++)
 	{
 		tooltips[toolTipInc]->RelayEvent(pMsg);
 	}
@@ -541,16 +531,16 @@ void CameraWindow::OnSize( UINT nType, int cx, int cy )
 	AndorRunSettings settings = CameraSettings.getSettings();
 	stats.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts() );
 	CameraSettings.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts() );
-	box.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts() );
+	box.rearrange( cx, cy, mainWindowFriend->getFonts() );
 	pics.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts() );
 	alerts.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts() );
 	analysisHandler.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts() );
 	pics.setParameters( CameraSettings.readImageParameters( this ) );
-	RedrawWindow();
+	//RedrawWindow();
 	CDC* dc = GetDC();
 	try
 	{
-		pics.redrawPictures(dc, selectedPixel, analysisHandler.getAnalysisLocations());
+		pics.redrawPictures(dc, selectedPixel, analysisHandler.getAnalysisLocs());
 	}
 	catch (Error& err)
 	{
@@ -608,26 +598,32 @@ void CameraWindow::handleMasterConfigOpen(std::stringstream& configStream, doubl
 		pics.setParameters(settings);
 		redrawPictures(true);
 	}
-	catch (std::invalid_argument& err)
+	catch (std::invalid_argument&)
 	{
 		thrower("ERROR: Bad value seen in master configueration file while attempting to load camera settings!");
 	}
 }
 
 
-void CameraWindow::prepareCamera()
+DataLogger* CameraWindow::getLogger()
+{
+	return &dataHandler;
+}
+
+void CameraWindow::prepareCamera( ExperimentInput& input )
 {
 	if ( Andor.isRunning() )
 	{
-		thrower( "System is already running! Please Abort to restart.\r\n" );
+		thrower( "Camera is already running! Please Abort to restart.\r\n" );
 	}
 	if ( analysisHandler.getLocationSettingStatus() )
 	{
-		thrower( "Please finish selecting analysis points!" );
+		thrower( "Please finish selecting analysis points before starting the camera!" );
 	}
+	// make sure it's idle.
 	try
 	{
-		Andor.getStatus();
+		Andor.queryIdentity();
 		if ( ANDOR_SAFEMODE )
 		{
 			thrower( "DRV_IDLE" );
@@ -651,7 +647,7 @@ void CameraWindow::prepareCamera()
 	// this is a bit awkward at the moment.
 	
 	CameraSettings.setRepsPerVariation(mainWindowFriend->getRepNumber());
-	UINT varNumber = deviceWindowFriend->getTotalVariationNumber();
+	UINT varNumber = auxWindowFriend->getTotalVariationNumber();
 	if (varNumber == 0)
 	{
 		// this means that the user isn't varying anything, so effectively this should be 1.
@@ -661,59 +657,85 @@ void CameraWindow::prepareCamera()
 	
 	// biggest check here, camera settings includes a lot of things.
 	CameraSettings.checkIfReady();
+	input.camSettings = CameraSettings.getSettings();
+	/// start the camera.
+	Andor.setSettings( input.camSettings );
+}
+
+void CameraWindow::prepareAtomCruncher( ExperimentInput& input )
+{
+	input.cruncherInput = new atomCruncherInput;
+	input.cruncherInput->plotterActive = plotThreadActive;
+	atomCrunchThreadActive = true;
+	input.cruncherInput->plotterNeedsImages = input.plotterInput->needsCounts;
+	input.cruncherInput->cruncherThreadActive = &atomCrunchThreadActive;
+	input.cruncherInput->imageQueue = &imageQueue;
+	// options
+	input.cruncherInput->rearrangerActive = false;
+	// locks
+	input.cruncherInput->imageLock = &imageLock;
+	input.cruncherInput->plotLock = &plotLock;
+	input.cruncherInput->rearrangerLock = &rearrangerLock;
+	// what the thread fills.
+	input.cruncherInput->plotterImageQueue = &plotterPictureQueue;
+	input.cruncherInput->plotterAtomQueue = &plotterAtomQueue;
+	input.cruncherInput->rearrangerAtomQueue = &rearrangerAtomQueue;
+	input.cruncherInput->thresholds = CameraSettings.getThresholds();
+	input.cruncherInput->picsPerRep = CameraSettings.getSettings().picsPerRepetition;
+}
+
+void CameraWindow::startAtomCruncher(ExperimentInput& input)
+{
+	UINT atomCruncherID;
+	atomCruncherThreadHandle = (HANDLE)_beginthreadex( 0, 0, CameraWindow::atomCruncherProcedure, (void*)input.cruncherInput,
+													   0, &atomCruncherID );
+}
+
+void CameraWindow::preparePlotter( ExperimentInput& input )
+{
 	/// start the plotting thread.
 	plotThreadActive = true;
-	UINT * plottingThreadID = NULL;
 	imageQueue.clear();
 	plotterAtomQueue.clear();
-	plotThreadInput* input = new plotThreadInput;
-	input->active = &plotThreadActive;
-	input->imageQueue = &this->plotterPictureQueue;
-	input->imageShape = CameraSettings.getSettings().imageSettings;
-	input->picsPerVariation = mainWindowFriend->getRepNumber() * CameraSettings.getSettings().picsPerRepetition;
-	input->variations = varNumber;
-	input->picsPerRep = CameraSettings.getSettings().picsPerRepetition;
-	input->alertThreshold = alerts.getAlertThreshold();
-	input->wantAlerts = alerts.alertsAreToBeUsed();
-	input->comm = mainWindowFriend->getComm();
-	input->plotLock = &plotLock;
-	input->numberOfRunsToAverage = 5;
-	input->key = &plotterKey;
-	input->plotter = &plotter;
-	input->atomQueue = &plotterAtomQueue;
-	analysisHandler.fillPlotThreadInput(input);
-	atomCruncherInput* atomCrunchInput = new atomCruncherInput;
-	if (input->analysisLocations.size() == 0 || input->plotInfo.size() == 0)
+	input.plotterInput = new realTimePlotterInput;
+	input.plotterInput->active = &plotThreadActive;
+	input.plotterInput->imageQueue = &this->plotterPictureQueue;
+	input.plotterInput->imageShape = CameraSettings.getSettings().imageSettings;
+	input.plotterInput->picsPerVariation = mainWindowFriend->getRepNumber() * CameraSettings.getSettings().picsPerRepetition;
+	input.plotterInput->variations = auxWindowFriend->getTotalVariationNumber();
+	input.plotterInput->picsPerRep = CameraSettings.getSettings().picsPerRepetition;
+	input.plotterInput->alertThreshold = alerts.getAlertThreshold();
+	input.plotterInput->wantAlerts = alerts.alertsAreToBeUsed();
+	input.plotterInput->comm = mainWindowFriend->getComm();
+	input.plotterInput->plotLock = &plotLock;
+	input.plotterInput->numberOfRunsToAverage = 5;
+	input.plotterInput->key = &plotterKey;
+	input.plotterInput->plotter = &plotter;
+	input.plotterInput->atomQueue = &plotterAtomQueue;
+	analysisHandler.fillPlotThreadInput( input.plotterInput );
+}
+
+
+void CameraWindow::startPlotterThread( ExperimentInput& input )
+{
+	UINT plottingThreadID;
+	if (input.plotterInput->analysisLocations.size() == 0 || input.plotterInput->plotInfo.size() == 0)
 	{
-		atomCrunchInput->plotterActive = false;
+		plotThreadActive = false;
 	}
 	else
 	{
 		// start the plotting thread
-		atomCrunchInput->plotterActive = true;
-		plotThreadHandle = (HANDLE)_beginthreadex(0, 0, DataAnalysisControl::plotterProcedure, (void*)input, 0, plottingThreadID);
+		plotThreadActive = true;
+		plotThreadHandle = (HANDLE)_beginthreadex( 0, 0, DataAnalysisControl::plotterProcedure, (void*)input.plotterInput,
+												   0, &plottingThreadID );
 	}
-	UINT atomCruncherID;
-	atomCrunchThreadActive = true;
-	atomCrunchInput->plotterNeedsImages = input->needsCounts;
-	atomCrunchInput->cruncherThreadActive = &atomCrunchThreadActive;
-	atomCrunchInput->imageQueue = &imageQueue;
-	// options
-	atomCrunchInput->rearrangerActive = false;
-	// locks
-	atomCrunchInput->imageLock = &imageLock;
-	atomCrunchInput->plotLock = &plotLock;
-	atomCrunchInput->rearrangerLock = &rearrangerLock;
-	// what the thread fills.
-	atomCrunchInput->plotterImageQueue = &plotterPictureQueue;
-	atomCrunchInput->plotterAtomQueue = &plotterAtomQueue;
-	atomCrunchInput->rearrangerAtomQueue = &rearrangerAtomQueue;
-	atomCrunchInput->thresholds = CameraSettings.getThresholds();
-	atomCrunchInput->picsPerRep = CameraSettings.getSettings().picsPerRepetition;
-	atomCruncherThreadHandle = (HANDLE)_beginthreadex(0, 0, CameraWindow::atomCruncherProcedure, (void*)atomCrunchInput, 
-													  0, &atomCruncherID);
-	/// start the camera.
-	Andor.setSettings( CameraSettings.getSettings() );
+}
+
+
+AndorRunSettings CameraWindow::getRunSettings()
+{
+	return Andor.getSettings();
 }
 
 
@@ -771,7 +793,7 @@ std::string CameraWindow::getStartMessage()
 	std::vector<std::string> plots = analysisHandler.getActivePlotList();
 	imageParameters currentImageParameters = CameraSettings.readImageParameters( this );
 	bool errCheck = false;
-	for (int plotInc = 0; plotInc < plots.size(); plotInc++)
+	for (UINT plotInc = 0; plotInc < plots.size(); plotInc++)
 	{
 		PlottingInfo tempInfoCheck(PLOT_FILES_SAVE_LOCATION + "\\" + plots[plotInc] + ".plot");
 		if (tempInfoCheck.getPicNumber() != CameraSettings.getSettings().picsPerRepetition)
@@ -780,7 +802,7 @@ std::string CameraWindow::getStartMessage()
 					 "selected number of pictures per experiment. Please revise either the current setting or the plot"
 					 " file." );
 		}
-		tempInfoCheck.setGroups( analysisHandler.getAnalysisLocations() );
+		tempInfoCheck.setGroups( analysisHandler.getAnalysisLocs() );
 		std::vector<std::pair<int, int>> plotLocations = tempInfoCheck.getAllPixelLocations();
 	}
 	std::string dialogMsg;
@@ -788,7 +810,7 @@ std::string CameraWindow::getStartMessage()
 	dialogMsg += "Current Camera Temperature Setting: " + str(
 		CameraSettings.getSettings().temperatureSetting ) + "\r\n";
 	dialogMsg += "Exposure Times: ";
-	for (int exposureInc = 0; exposureInc < this->CameraSettings.getSettings().exposureTimes.size(); exposureInc++)
+	for (UINT exposureInc = 0; exposureInc < this->CameraSettings.getSettings().exposureTimes.size(); exposureInc++)
 	{
 		dialogMsg += str( CameraSettings.getSettings().exposureTimes[exposureInc] * 1000 ) + ", ";
 	}
@@ -803,7 +825,7 @@ std::string CameraWindow::getStartMessage()
 	dialogMsg += "Total Pictures per Experiment: " + str( CameraSettings.getSettings().totalPicsInExperiment ) + "\r\n";
 	dialogMsg += "Real-Time Atom Detection Thresholds: ";
 
-	for (int exposureInc = 0; exposureInc < CameraSettings.getThresholds().size(); exposureInc++)
+	for (UINT exposureInc = 0; exposureInc < CameraSettings.getThresholds().size(); exposureInc++)
 	{
 		dialogMsg += str( CameraSettings.getThresholds()[exposureInc] ) + ", ";
 	}
@@ -811,13 +833,20 @@ std::string CameraWindow::getStartMessage()
 	dialogMsg += "\r\n";
 	dialogMsg += "Current Plotting Options: \r\n";
 
-	for (int plotInc = 0; plotInc < plots.size(); plotInc++)
+	for (UINT plotInc = 0; plotInc < plots.size(); plotInc++)
 	{
 		dialogMsg += "\t" + plots[plotInc] + "\r\n";
 	}
 
 	return dialogMsg;
 }
+
+
+void CameraWindow::fillMasterThreadInput( MasterThreadInput* input )
+{
+	input->atomQueueForRearrangement = &rearrangerAtomQueue;
+}
+
 
 void CameraWindow::setTimerText( std::string timerText )
 {
@@ -846,25 +875,26 @@ cToolTips CameraWindow::getToolTips()
 
 BOOL CameraWindow::OnInitDialog()
 {
-	Andor.initializeClass(mainWindowFriend->getComm());
+	Andor.initializeClass( mainWindowFriend->getComm() );
 	cameraPositions positions;
 	// all of the initialization functions increment and use the id, so by the end it will be 3000 + # of controls.
 	int id = 3000;
 	positions.sPos = { 0, 0 };
-	box.initialize( positions.sPos, id, this, 480, mainWindowFriend->getFonts(), tooltips );
+	box.initialize( positions.sPos, id, this, 480, tooltips );
 	positions.videoPos = positions.amPos = positions.seriesPos = positions.sPos;
-	alerts.initialize( positions, this, false, id, mainWindowFriend->getFonts(), tooltips );
-	analysisHandler.initialize( positions, id, this, mainWindowFriend->getFonts(), tooltips, false );
-	CameraSettings.initialize( positions, id, this, mainWindowFriend->getFonts(), tooltips );
+	alerts.initialize( positions, this, false, id, tooltips );
+	analysisHandler.initialize( positions, id, this, tooltips, false, mainWindowFriend->getRgbs() );
+	CameraSettings.initialize( positions, id, this, tooltips );
 	POINT position = { 480, 0 };
-	stats.initialize( position, this, id, mainWindowFriend->getFonts(), tooltips );
+	stats.initialize( position, this, id, tooltips );
 	positions.sPos = { 757, 0 };
-	timer.initialize( positions, this, false, id, mainWindowFriend->getFonts(), tooltips );
+	timer.initialize( positions, this, false, id, tooltips );
 	position = { 757, 40 };
-	pics.initialize( position, this, id, mainWindowFriend->getFonts(), tooltips, mainWindowFriend->getBrushes()["Dark Green"] );
-	pics.setSinglePicture( this, { 0,0 }, CameraSettings.readImageParameters( this ), analysisHandler.getAnalysisLocations());
-	
-	Andor.setSettings(CameraSettings.getSettings());
+	pics.initialize( position, this, id, tooltips, mainWindowFriend->getBrushes()["Dark Green"] );
+	//
+	pics.setSinglePicture( this, { 0,0 }, CameraSettings.readImageParameters( this ),
+						   analysisHandler.getAnalysisLocs() );
+	Andor.setSettings( CameraSettings.getSettings() );
 
 	// load the menu
 	menu.LoadMenu( IDR_MAIN_MENU );
@@ -886,17 +916,17 @@ void CameraWindow::redrawPictures( bool andGrid )
 	CDC* dc = GetDC();
 	try
 	{
-		pics.refreshBackgrounds(dc);
+		pics.refreshBackgrounds( dc );
 		if (andGrid)
 		{
-			pics.drawGrids(dc);
+			pics.drawGrids( dc );
 		}
-		ReleaseDC(dc);
+		ReleaseDC( dc );
 	}
 	catch (Error& err)
 	{
-		ReleaseDC(dc);
-		mainWindowFriend->getComm()->sendError(err.what());
+		ReleaseDC( dc );
+		mainWindowFriend->getComm()->sendError( err.what() );
 	}
 	// currently don't attempt to redraw previous picture data.
 }
@@ -930,9 +960,9 @@ HBRUSH CameraWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		}
 		case CTLCOLOR_EDIT:
 		{
-			pDC->SetTextColor(rgbs["White"]);
-			pDC->SetBkColor(rgbs["Dark Green"]);
-			return *brushes["Dark Green"];
+			pDC->SetTextColor(rgbs["Solarized Green"]);
+			pDC->SetBkColor(rgbs["Solarized Base02"]);
+			return *brushes["Solarized Base02"];
 		}
 		case CTLCOLOR_LISTBOX:
 		{
@@ -942,7 +972,7 @@ HBRUSH CameraWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		}
 		default:
 		{
-			return *brushes["Light Grey"];
+			return *brushes["Solarized Base03"];
 		}
 	}
 }
@@ -953,7 +983,7 @@ void CameraWindow::passCommonCommand(UINT id)
 	try
 	{
 		commonFunctions::handleCommonMessage( id, this, mainWindowFriend, scriptingWindowFriend, this, 
-											 deviceWindowFriend );
+											 auxWindowFriend );
 	}
 	catch (Error& err)
 	{

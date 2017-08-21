@@ -1,27 +1,17 @@
 #pragma once
 
 #include "Control.h"
+#include "imageParameters.h"
 
 struct cameraPositions;
 class CameraWindow;
 class MainWindow;
 
-struct imageParameters
-{
-	int leftBorder;
-	int rightBorder;
-	int topBorder;
-	int bottomBorder;
-	int horizontalBinning;
-	int verticalBinning;
-	int width;
-	int height;
-};
 
-class CameraImageDimensionsControl
+class CameraImageDimsControl
 {
 	public:
-		CameraImageDimensionsControl();
+		CameraImageDimsControl();
 		void initialize( cameraPositions& pos, CWnd* parentWindow, bool isTriggerModeSensitive, int& id );
 		imageParameters readImageParameters( CameraWindow* camWin );
 		void setImageParametersFromInput( imageParameters param, CameraWindow* camWin );
@@ -38,17 +28,17 @@ class CameraImageDimensionsControl
 	private:
 		Control<CStatic> leftText;
 		Control<CStatic>  rightText;
-		Control<CStatic>  horizontalBinningText;
+		Control<CStatic>  horBinningText;
 		Control<CStatic>  topText;
 		Control<CStatic>  bottomText;
-		Control<CStatic>  verticalBinningText;
+		Control<CStatic>  vertBinningText;
 		Control<CEdit>  leftEdit;
 		Control<CEdit> rightEdit;
-		Control<CEdit> horizontalBinningEdit;
+		Control<CEdit> horBinningEdit;
 		Control<CEdit> topEdit;
 		Control<CEdit> bottomEdit;
-		Control<CEdit> verticalBinningEdit;
-		Control<CButton> setImageDimensionsButton;
+		Control<CEdit> vertBinningEdit;
+		Control<CButton> setImageDimsButton;
 		bool isReady;
 		imageParameters currentImageParameters;
 };

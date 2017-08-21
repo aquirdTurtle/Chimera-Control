@@ -8,8 +8,7 @@ class PictureManager
 	public:
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& configFile, double version);
-		void initialize( POINT& loc, CWnd* parent, int& id, fontMap fonts, cToolTips& tooltips, 
-						 CBrush* defaultGridBrush );
+		void initialize( POINT& loc, CWnd* parent, int& id, cToolTips& tooltips, CBrush* defaultGridBrush );
 		void refreshBackgrounds(CDC* easel);
 		void drawGrids(CDC* easel);
 		void setParameters( imageParameters parameters );

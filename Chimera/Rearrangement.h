@@ -6,13 +6,7 @@
 #include <vector>
 #include <string>
 
-struct parallelMovesContainer 
-{
-	std::string rowOrColumn;
-	int which_rowOrColumn;
-	int upOrDown;
-	std::vector<int> whichAtoms;
-};
+
 
 class Rearrangement
 {

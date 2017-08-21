@@ -413,7 +413,6 @@ void CameraWindow::startCamera()
 	pics.refreshBackgrounds( dc );
 	ReleaseDC(dc);
 	stats.reset();
-	Andor.armCamera( this );
 	/// setup fits files
 	if (Andor.getSettings().cameraMode != "Video Mode")
 	{
@@ -428,6 +427,7 @@ void CameraWindow::startCamera()
 			mainWindowFriend->getComm()->sendError(err.what());
 		}
 	}
+	Andor.armCamera( this );
 }
 
 bool CameraWindow::getCameraStatus()

@@ -92,24 +92,6 @@ template <typename IntType> std::vector<IntType> range( IntType stop )
 	return range( IntType( 0 ), stop, IntType( 1 ) );
 }
 
-/// a set of functions that take more arbitrary things to strings that str (which is also rather wordy for such a simple 
-/// function...
-
-#define cstr(input) str(input).c_str()
-
-// this function takes any argument, converts it to a string, and displays it on the screen. It can be useful for debuging.
-template <typename T> void errBox(T msg)
-{
-	MessageBox(0, cstr(msg), "ERROR!", MB_ICONERROR);
-}
-
-// this function takes any argument, converts it to a string, and displays it on the screen. It can be useful for debuging.
-template <typename T> void infoBox(T msg)
-{
-	MessageBox(0, cstr(msg), "Info", MB_ICONWARNING);
-}
-
-
 
 double reduce(std::string expression, key variationKey = {}, UINT variation = -1, 
 			  std::vector<variable>& vars = std::vector<variable>());
@@ -152,8 +134,20 @@ template <typename T> std::string str(T input, const int precision = 6, bool eat
 
 #define idVerify(idSet, ...)	verifyIdsMatch(idSet, {__VA_ARGS__}, __FILE__, __LINE__)
 
-//#define LIST(...) __VA_ARGS__
+/// a set of functions that take more arbitrary things to strings that str (which is also rather wordy for such a simple 
+/// function...
 
+// this function takes any argument, converts it to a string, and displays it on the screen. It can be useful for debuging.
+template <typename T> void errBox( T msg )
+{
+	MessageBox( 0, cstr( msg ), "ERROR!", MB_ICONERROR );
+}
+
+// this function takes any argument, converts it to a string, and displays it on the screen. It can be useful for debuging.
+template <typename T> void infoBox( T msg )
+{
+	MessageBox( 0, cstr( msg ), "Info", MB_ICONWARNING );
+}
 
 template <typename ControlType> void verifyIdsMatch(Control<ControlType>& control, std::vector<UINT> ids, const char *file, int line)
 {

@@ -5,7 +5,7 @@
 #include "DacSystem.h"
 #include <fstream>
 #include <sys/stat.h>
-#include "DeviceWindow.h"
+#include "AuxiliaryWindow.h"
 #include "CameraWindow.h"
 
 MasterConfiguration::MasterConfiguration(std::string address) : configurationFileAddress{address}, version{"2.0"}
@@ -14,7 +14,7 @@ MasterConfiguration::MasterConfiguration(std::string address) : configurationFil
 }
 
 
-void MasterConfiguration::save(MainWindow* mainWin, DeviceWindow* deviceWin, CameraWindow* camWin) 
+void MasterConfiguration::save(MainWindow* mainWin, AuxiliaryWindow* auxWin, CameraWindow* camWin) 
 {
 	/*
 		information to save:
@@ -48,14 +48,14 @@ void MasterConfiguration::save(MainWindow* mainWin, DeviceWindow* deviceWin, Cam
 	std::stringstream configStream;
 	// output version
 	configStream << "Version " + version + "\n";
-	deviceWin->handleMasterConfigSave(configStream);
+	auxWin->handleMasterConfigSave(configStream);
 	camWin->handleMasterConfigSave(configStream);
 	configFile << configStream.str();
 	configFile.close();
 }
 
 
-void MasterConfiguration::load(MainWindow* mainWin, DeviceWindow* deviceWin, CameraWindow* camWin)
+void MasterConfiguration::load(MainWindow* mainWin, AuxiliaryWindow* auxWin, CameraWindow* camWin)
 {
 	// make sure that file exists	
 	FILE *file;
@@ -87,12 +87,12 @@ void MasterConfiguration::load(MainWindow* mainWin, DeviceWindow* deviceWin, Cam
 	{
 		version = std::stod(versionStr);
 	}
-	catch (std::invalid_argument& err)
+	catch (std::invalid_argument&)
 	{
 		thrower("Bad Version String from master config file! String was " + versionStr);
 	}
 	// okay things going well. Initialize ttl and dac structures.
-	deviceWin->handleMasterConfigOpen( configStream, version );
+	auxWin->handleMasterConfigOpen( configStream, version );
 	// mainWin->handleMasterConfigOpen(configStream, version);
 	camWin->handleMasterConfigOpen( configStream, version );
 

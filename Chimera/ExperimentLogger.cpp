@@ -53,7 +53,7 @@ void ExperimentLogger::generateNiawgLog( MasterThreadInput* input, niawgPair<std
 				}
 			}
 
-			for (int sequenceInc = 0; sequenceInc < input->profile.sequenceConfigNames.size(); sequenceInc++)
+			for (UINT sequenceInc = 0; sequenceInc < input->profile.sequenceConfigNames.size(); sequenceInc++)
 			{
 				niawgScripts[axis][sequenceInc].clear();
 				niawgScripts[axis][sequenceInc].seekg( 0, std::ios::beg );
@@ -115,7 +115,7 @@ void ExperimentLogger::generateNiawgLog( MasterThreadInput* input, niawgPair<std
 		}
 
 
-		for (int sequenceInc = 0; sequenceInc < input->profile.sequenceConfigNames.size(); sequenceInc++)
+		for (UINT sequenceInc = 0; sequenceInc < input->profile.sequenceConfigNames.size(); sequenceInc++)
 		{
 			intensityScripts[sequenceInc].clear();
 			intensityScripts[sequenceInc].seekg( 0, std::ios::beg );
@@ -175,8 +175,6 @@ void ExperimentLogger::generateNiawgLog( MasterThreadInput* input, niawgPair<std
 			andorConnected = true;
 			// prepare the parameters list for the log
 			std::string paramtersString = "\nDont Actually Generate = " + str( input->dontActuallyGenerate )
-//				+ "\nConnect To Master = " + str( input->settings.connectToMaster )
-//				+ "\nGet Variable Files From Master = " + str( input->settings.getVariables )
 				+ "\nRepetitions = " + str( repetitions )
 				+ "\nDon't Actually Generate = " + str( input->dontActuallyGenerate )
 				+ "\nProgramming Intensity = " + str( input->programIntensity )

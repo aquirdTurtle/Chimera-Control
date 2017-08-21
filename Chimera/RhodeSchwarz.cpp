@@ -2,7 +2,7 @@
 #include "RhodeSchwarz.h"
 #include "GPIB.h"
 #include "constants.h"
-#include "DeviceWindow.h"
+#include "AuxiliaryWindow.h"
 
 
 /*
@@ -10,7 +10,7 @@
  * (by design) provide an interface for which the user to change the programming of the RSG directly. The
  * user is to do this by using the "rsg:" command in a script.
  */
-void RhodeSchwarz::initialize( POINT& pos, cToolTips& toolTips, DeviceWindow* master, int& id )
+void RhodeSchwarz::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id )
 {
 	// These are currently just hard-coded.
 	triggerTime = 0.01;
@@ -49,8 +49,8 @@ void RhodeSchwarz::initialize( POINT& pos, cToolTips& toolTips, DeviceWindow* ma
 
 void RhodeSchwarz::rearrange(UINT width, UINT height, fontMap fonts)
 {
-	header.rearrange("", "", width, height, fonts);
-	infoControl.rearrange("", "", width, height, fonts);
+	header.rearrange( width, height, fonts);
+	infoControl.rearrange( width, height, fonts);
 }
 
 /*
@@ -133,7 +133,7 @@ void RhodeSchwarz::interpretKey(key variationKey, std::vector<variable>& vars)
 	events.resize(variations);
 	for (UINT var = 0; var < variations; var++)
 	{
-		for (int freqInc = 0; freqInc < eventStructures.size(); freqInc++)
+		for (UINT freqInc = 0; freqInc < eventStructures.size(); freqInc++)
 		{
 			rsgEventInfoFinal event;
 			// convert freq
@@ -187,7 +187,7 @@ void RhodeSchwarz::programRSG( Gpib* gpib, UINT var )
 		gpib->gpibSend( RSG_ADDRESS, "SOURce:LIST:SEL 'freqList" + str( events.size() ) + "'" );
 		std::string frequencyList = "SOURce:LIST:FREQ " + str( events[var][0].frequency );
 		std::string powerList = "SOURce:LIST:POW " + str( events[var][0].power ) + "dBm";
-		for (int eventInc = 1; eventInc < events[var].size(); eventInc++)
+		for (UINT eventInc = 1; eventInc < events[var].size(); eventInc++)
 		{
 			frequencyList += ", ";
 			frequencyList += str( events[var][eventInc].frequency ) + " GHz";

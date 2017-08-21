@@ -1,73 +1,78 @@
 #include "stdafx.h"
 #include "commonFunctions.h"
-#include "myAgilent.h"
 #include "MainWindow.h"
 #include "CameraWindow.h"
-#include "DeviceWindow.h"
+#include "AuxiliaryWindow.h"
 
-MainWindow::MainWindow(UINT id) : CDialog(id), profile(PROFILES_PATH), masterConfig(MASTER_CONFIGURATION_FILE_ADDRESS)
+MainWindow::MainWindow(UINT id, CDialog* splash) : CDialog(id), profile(PROFILES_PATH), 
+    masterConfig( MASTER_CONFIGURATION_FILE_ADDRESS ), 
+	appSplash( splash )
 {
-	mainRGBs["Light Green"] = RGB(163, 190, 140);
-	mainRGBs["Slate Grey"] = RGB(101, 115, 126);
-	mainRGBs["Pale Pink"] = RGB(180, 142, 173);
-	mainRGBs["Musky Red"] = RGB(191, 97, 106);
-	mainRGBs["Solarized Red"] = RGB(220, 50, 47);
-	mainRGBs["Solarized Violet"] = RGB(108, 113, 196);
-	mainRGBs["Solarized Cyan"] = RGB(42, 161, 152);
-	mainRGBs["Solarized Green"] = RGB(133, 153, 0);
-	mainRGBs["Solarized Blue"] = RGB(38, 139, 210);
-	mainRGBs["Solarized Magenta"] = RGB(211, 54, 130);
-	mainRGBs["Solarized Orange"] = RGB(203, 75, 22);
-	mainRGBs["Solarized Yellow"] = RGB(181, 137, 0);
-	mainRGBs["Slate Green"] = RGB(23, 84, 81);
-	mainRGBs["Dark Grey"] = RGB(15, 15, 15);
-	mainRGBs["Dark Grey Red"] = RGB(20, 12, 12);
-	mainRGBs["Medium Grey"] = RGB(30, 30, 30);
-	mainRGBs["Light Grey"] = RGB(60, 60, 60);
-	mainRGBs["Green"] = RGB(50, 200, 50);
-	mainRGBs["Red"] = RGB(200, 50, 50);
-	mainRGBs["Blue"] = RGB(50, 50, 200);
-	mainRGBs["Gold"] = RGB(218, 165, 32);
-	mainRGBs["White"] = RGB(255, 255, 255);
-	mainRGBs["Light Red"] = RGB(255, 100, 100);
-	mainRGBs["Dark Red"] = RGB(150, 0, 0);
-	mainRGBs["Light Blue"] = RGB(100, 100, 255);
-	mainRGBs["Forest Green"] = RGB(34, 139, 34);
-	mainRGBs["Dark Green"] = RGB(0, 50, 0);
-	mainRGBs["Dull Red"] = RGB(107, 35, 35);
-	mainRGBs["Dark Lavender"] = RGB(100, 100, 205);
-	mainRGBs["Teal"] = RGB(0, 255, 255);
-	mainRGBs["Tan"] = RGB(210, 180, 140);
-	mainRGBs["Purple"] = RGB(147, 112, 219);
-	mainRGBs["Orange"] = RGB(255, 165, 0);
-	mainRGBs["Brown"] = RGB(139, 69, 19);
-	mainRGBs["Black"] = RGB(0, 0, 0);
-	mainRGBs["Dark Blue"] = RGB(0, 0, 75);
+	mainRGBs["Light Green"]			= RGB( 163,	190, 140);
+	mainRGBs["Slate Grey"]			= RGB( 101,	115, 126);
+	mainRGBs["Pale Pink"]			= RGB( 180,	142, 173);
+	mainRGBs["Musky Red"]			= RGB( 191,	97,	 106);
+	mainRGBs["Solarized Base03"]	= RGB( 0,	43,  54 );
+	mainRGBs["Solarized Base02"]	= RGB( 7,	54,  66 );
+	mainRGBs["Solarized Base01"]	= RGB( 88,	110, 117 );
+	mainRGBs["Solarized Base00"]	= RGB( 101, 123, 131 );
+	mainRGBs["Solarized Base0"]		= RGB( 131, 148, 150 );
+	mainRGBs["Solarized Base1"]		= RGB( 101, 123, 131 );
+	mainRGBs["Solarized Base2"]		= RGB( 238, 232, 213 );
+	mainRGBs["Solarized Base3"]		= RGB( 253, 246, 227 );
+	mainRGBs["Solarized Red"]		= RGB( 220, 50,  47);
+	mainRGBs["Solarized Violet"]	= RGB( 108, 113, 196);
+	mainRGBs["Solarized Cyan"]		= RGB( 42,	161, 152);
+	mainRGBs["Solarized Green"]		= RGB( 133, 153, 0);
+	mainRGBs["Solarized Blue"]		= RGB( 38,	139, 210);
+	mainRGBs["Solarized Magenta"]	= RGB( 211, 54,  130);
+	mainRGBs["Solarized Orange"]	= RGB( 203, 75,  22);
+	mainRGBs["Solarized Yellow"]	= RGB( 181, 137, 0);
+	mainRGBs["Slate Green"]			= RGB( 23,	84,  81);
+	mainRGBs["Dark Grey"]			= RGB( 15,	15,  15);
+	mainRGBs["Dark Grey Red"]		= RGB( 20,	12,  12);
+	mainRGBs["Medium Grey"]			= RGB( 30,	30,  30);
+	mainRGBs["Light Grey"]			= RGB( 60,	60,  60);
+	mainRGBs["Green"]				= RGB( 50,	200, 50);
+	mainRGBs["Red"]					= RGB( 200,	50,  50);
+	mainRGBs["Blue"]				= RGB( 50,	50,  200);
+	mainRGBs["Gold"]				= RGB( 218,	165, 32);
+	mainRGBs["White"]				= RGB( 255, 255, 255);
+	mainRGBs["Light Red"]			= RGB( 255, 100, 100);
+	mainRGBs["Dark Red"]			= RGB( 150, 0,   0);
+	mainRGBs["Light Blue"]			= RGB( 100, 100, 255);
+	mainRGBs["Forest Green"]		= RGB( 34,	139, 34);
+	mainRGBs["Dark Green"]			= RGB( 0,	50,  0);
+	mainRGBs["Dull Red"]			= RGB( 107, 35,  35);
+	mainRGBs["Dark Lavender"]		= RGB( 100, 100, 205);
+	mainRGBs["Teal"]				= RGB( 0,	255, 255);
+	mainRGBs["Tan"]					= RGB( 210, 180, 140);
+	mainRGBs["Purple"]				= RGB( 147, 112, 219);
+	mainRGBs["Orange"]				= RGB( 255, 165, 0);
+	mainRGBs["Brown"]				= RGB( 139, 69,  19);
+	mainRGBs["Black"]				= RGB( 0,	0,   0);
+	mainRGBs["Dark Blue"]			= RGB( 0,	0,   75);
 	// there are less brushes because these are only used for backgrounds.
-	mainBrushes["Dark Red"] = new CBrush;
-	mainBrushes["Dark Red"]->CreateSolidBrush(mainRGBs["Dark Red"]);
-	mainBrushes["Gold"] = new CBrush;
-	mainBrushes["Gold"]->CreateSolidBrush(mainRGBs["Gold"]);
-	mainBrushes["Dark Grey"] = new CBrush;
-	mainBrushes["Dark Grey"]->CreateSolidBrush(mainRGBs["Dark Grey"]);
-	mainBrushes["Dark Grey Red"] = new CBrush;
-	mainBrushes["Dark Grey Red"]->CreateSolidBrush(mainRGBs["Dark Grey Red"]);
-	mainBrushes["Medium Grey"] = new CBrush;
-	mainBrushes["Medium Grey"]->CreateSolidBrush(mainRGBs["Medium Grey"]);
-	mainBrushes["Light Grey"] = new CBrush;
-	mainBrushes["Light Grey"]->CreateSolidBrush(mainRGBs["Light Grey"]);
-	mainBrushes["Green"] = new CBrush;
-	mainBrushes["Green"]->CreateSolidBrush(mainRGBs["Green"]);
-	mainBrushes["Red"] = new CBrush;
-	mainBrushes["Red"]->CreateSolidBrush(mainRGBs["Red"]);
-	mainBrushes["White"] = new CBrush;
-	mainBrushes["White"]->CreateSolidBrush(mainRGBs["White"]);
-	mainBrushes["Dull Red"] = new CBrush;
-	mainBrushes["Dull Red"]->CreateSolidBrush(mainRGBs["Dull Red"]);
-	mainBrushes["Dark Blue"] = new CBrush;
-	mainBrushes["Dark Blue"]->CreateSolidBrush(mainRGBs["Dark Blue"]);
-	mainBrushes["Dark Green"] = new CBrush;
-	mainBrushes["Dark Green"]->CreateSolidBrush(mainRGBs["Dark Green"]);
+	// the following single-line statements are all equivalent to these two statements:
+	// mainBrushes["Name"] = new CBrush;
+	// mainBrushes["Name"]->CreateSolidBrush(...);
+	(mainBrushes["Dark Red"]			= new CBrush)->CreateSolidBrush(mainRGBs["Dark Red"]);
+	(mainBrushes["Gold"]				= new CBrush)->CreateSolidBrush(mainRGBs["Gold"]);
+	(mainBrushes["Dark Grey"]			= new CBrush)->CreateSolidBrush(mainRGBs["Dark Grey"]);
+	(mainBrushes["Dark Grey Red"]		= new CBrush)->CreateSolidBrush(mainRGBs["Dark Grey Red"]);
+	(mainBrushes["Medium Grey"]			= new CBrush)->CreateSolidBrush(mainRGBs["Medium Grey"]);
+	(mainBrushes["Light Grey"]			= new CBrush)->CreateSolidBrush(mainRGBs["Light Grey"]);
+	(mainBrushes["Green"]				= new CBrush)->CreateSolidBrush(mainRGBs["Green"]);
+	(mainBrushes["Red"]					= new CBrush)->CreateSolidBrush(mainRGBs["Red"]);
+	(mainBrushes["White"]				= new CBrush)->CreateSolidBrush(mainRGBs["White"]);
+	(mainBrushes["Dull Red"]			= new CBrush)->CreateSolidBrush(mainRGBs["Dull Red"]);
+	(mainBrushes["Dark Blue"]			= new CBrush)->CreateSolidBrush(mainRGBs["Dark Blue"]);
+	(mainBrushes["Dark Green"]			= new CBrush)->CreateSolidBrush(mainRGBs["Dark Green"]);
+	(mainBrushes["Solarized Blue"]		= new CBrush)->CreateSolidBrush( mainRGBs["Solarized Blue"] );
+	(mainBrushes["Solarized Base03"]	= new CBrush)->CreateSolidBrush( mainRGBs["Solarized Base03"] );
+	(mainBrushes["Solarized Base02"]	= new CBrush)->CreateSolidBrush( mainRGBs["Solarized Base02"] );
+	(mainBrushes["Solarized Base01"]	= new CBrush)->CreateSolidBrush( mainRGBs["Solarized Base01"] );
+
 	/// the following are all equivalent to:
 	// mainFonts["Font name"] = new CFont;
 	// mainFonts["Font name"].CreateFontA(...);
@@ -170,6 +175,160 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 END_MESSAGE_MAP()
 
 
+BOOL MainWindow::OnInitDialog()
+{
+	/// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	///
+	///				Initialize NIAWG
+	///
+	// get time now
+	time_t dateStart = time( 0 );
+	struct tm datePointerStart;
+	localtime_s( &datePointerStart, &dateStart );
+	std::string logFolderNameStart = "Date " + str( datePointerStart.tm_year + 1900 ) + "-" + str( datePointerStart.tm_mon + 1 ) + "-"
+		+ str( datePointerStart.tm_mday ) + " Time " + str( datePointerStart.tm_hour ) + "-" + str( datePointerStart.tm_min ) + "-"
+		+ str( datePointerStart.tm_sec );
+	// initialize default file names and open the files.
+	std::vector<std::fstream> default_hConfigVerticalScriptFile, default_hConfigHorizontalScriptFile, default_vConfigVerticalScriptFile,
+		default_vConfigHorizontalScriptFile;
+	default_hConfigVerticalScriptFile.push_back( std::fstream( DEFAULT_SCRIPT_FOLDER_PATH + str( "DEFAULT_HCONFIG_VERTICAL_SCRIPT.nScript" ) ) );
+	default_hConfigHorizontalScriptFile.push_back( std::fstream( DEFAULT_SCRIPT_FOLDER_PATH + str( "DEFAULT_HCONFIG_HORIZONTAL_SCRIPT.nScript" ) ) );
+	default_vConfigVerticalScriptFile.push_back( std::fstream( DEFAULT_SCRIPT_FOLDER_PATH + str( "DEFAULT_VCONFIG_VERTICAL_SCRIPT.nScript" ) ) );
+	default_vConfigHorizontalScriptFile.push_back( std::fstream( DEFAULT_SCRIPT_FOLDER_PATH + str( "DEFAULT_VCONFIG_HORIZONTAL_SCRIPT.nScript" ) ) );
+
+	// check errors
+	if (!default_hConfigVerticalScriptFile[0].is_open())
+	{
+		errBox( str( "FATAL ERROR: Couldn't open default file. Was looking for file " ) + DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_HCONFIG_VERTICAL_SCRIPT.nScript" );
+		return 0;
+	}
+	if (!default_hConfigHorizontalScriptFile[0].is_open())
+	{
+		errBox( str( "FATAL ERROR: Couldn't open default file. Was looking for file " ) + DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_HCONFIG_HORIZONTAL_SCRIPT.nScript" );
+		return 0;
+	}
+	if (!default_vConfigVerticalScriptFile[0].is_open())
+	{
+		errBox( str( "FATAL ERROR: Couldn't open default file. Was looking for file " ) + DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_VCONFIG_VERTICAL_SCRIPT.nScript" );
+		return 0;
+	}
+	if (!default_vConfigHorizontalScriptFile[0].is_open())
+	{
+		errBox( str( "FATAL ERROR: Couldn't open default file. Was looking for file " ) + DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_VCONFIG_HORIZONTAL_SCRIPT.nScript" );
+		return 0;
+	}
+
+	// parameters for variables used by the default file. (there shouldn't be any, these are essentially just placeholders so that I can use the same functions.
+	std::vector<char> defXVarNames, defYVarNames;
+	// parameters for variables used by the default file. (there shouldn't be any, these are essentially just placeholders so that I can use the same functions.
+	std::vector<std::string> defXVarFileNames, defYVarFileNames;
+	// parameters for variables used by the default file. (there shouldn't be any, these are essentially just placeholders so that I can use the same functions.
+	std::vector<std::fstream> defXVarFiles;
+	if (!NIAWG_SAFEMODE)
+	{
+		std::ofstream hConfigVerticalDefaultScriptLog( EXPERIMENT_LOGGING_FILES_PATH + logFolderNameStart + "\\Default hConfig Vertical Script.script" );
+		std::ofstream hConfigHorizontalDefaultScriptLog( EXPERIMENT_LOGGING_FILES_PATH + logFolderNameStart + "\\Default hConfig Horizontal Script.script" );
+		std::ofstream vConfigVerticalDefaultScriptLog( EXPERIMENT_LOGGING_FILES_PATH + logFolderNameStart + "\\Default vConfig Vertical Script.script" );
+		std::ofstream vConfigHorizontalDefaultScriptLog( EXPERIMENT_LOGGING_FILES_PATH + logFolderNameStart + "\\Default vConfig Horizontal Script.script" );
+		hConfigVerticalDefaultScriptLog << default_hConfigVerticalScriptFile[0].rdbuf();
+		hConfigHorizontalDefaultScriptLog << default_hConfigHorizontalScriptFile[0].rdbuf();
+		vConfigVerticalDefaultScriptLog << default_vConfigVerticalScriptFile[0].rdbuf();
+		vConfigHorizontalDefaultScriptLog << default_vConfigHorizontalScriptFile[0].rdbuf();
+	}
+	try
+	{
+		niawg.initialize();
+	}
+	catch (Error& except)
+	{
+		errBox( "ERROR: NIAWG Did not start smoothly: " + except.whatStr() );
+		return -1;
+	}
+
+	try
+	{
+		niawg.setDefaultWaveforms( this );
+		// but the default starts in the horizontal configuration, so switch back and start in this config.
+		setOrientation( HORIZONTAL_ORIENTATION );
+		restartNiawgDefaults();
+	}
+	catch (Error& exception)
+	{
+		errBox( "ERROR: failed to start niawg default waveforms! Niawg gave the following error message: " + exception.whatStr() );
+	}
+	// not done with the script, it will not stay on the NIAWG, so I need to keep track of it so thatI can reload it onto the NIAWG when necessary.	
+	/// Initialize Windows
+	TheScriptingWindow = new ScriptingWindow;
+	TheCameraWindow = new CameraWindow;
+	TheAuxiliaryWindow = new AuxiliaryWindow;
+	TheScriptingWindow->loadFriends( this, TheCameraWindow, TheAuxiliaryWindow );
+	TheCameraWindow->loadFriends( this, TheScriptingWindow, TheAuxiliaryWindow );
+	TheAuxiliaryWindow->loadFriends( this, TheScriptingWindow, TheCameraWindow );
+
+	try
+	{
+		TheScriptingWindow->Create( IDD_LARGE_TEMPLATE, 0 );
+		TheCameraWindow->Create( IDD_LARGE_TEMPLATE, 0 );
+		TheAuxiliaryWindow->Create( IDD_LARGE_TEMPLATE, 0 );
+	}
+	catch (Error& err)
+	{
+		errBox( err.what() );
+	}
+	// initialize the COMM.
+	comm.initialize( this, TheScriptingWindow, TheCameraWindow, TheAuxiliaryWindow );
+	int id = 1000;
+	POINT controlLocation = { 0,0 };
+	mainStatus.initialize( controlLocation, this, id, 975, "EXPERIMENT STATUS", RGB( 50, 50, 250 ), tooltips, IDC_MAIN_STATUS_BUTTON );
+	controlLocation = { 480, 0 };
+	errorStatus.initialize( controlLocation, this, id, 480, "ERROR STATUS", RGB( 200, 0, 0 ), tooltips, IDC_ERROR_STATUS_BUTTON );
+	debugStatus.initialize( controlLocation, this, id, 480, "DEBUG STATUS", RGB( 13, 152, 186 ), tooltips, IDC_DEBUG_STATUS_BUTTON );
+	controlLocation = { 960, 0 };
+	profile.initialize( controlLocation, this, id, tooltips );
+	controlLocation = { 960, 235 };
+	notes.initialize( controlLocation, this, id, tooltips );
+	controlLocation = { 1440, 95 };
+	repetitionControl.initialize( controlLocation, tooltips, this, id );
+	settings.initialize( id, controlLocation, this, tooltips );
+	debugger.initialize( id, controlLocation, this, tooltips );
+	texter.initialize( controlLocation, this, false, id, tooltips, mainRGBs );
+	controlLocation = { 960, 910 };
+	boxes.initialize( controlLocation, id, this, 960, tooltips );
+	shortStatus.initialize( controlLocation, this, id, tooltips );
+	menu.LoadMenu( IDR_MAIN_MENU );
+	SetMenu( &menu );
+	// just initializes the rectangles.
+	TheCameraWindow->redrawPictures( true );
+	try
+	{
+		masterConfig.load( this, TheAuxiliaryWindow, TheCameraWindow );
+	}
+	catch (Error& err)
+	{
+		errBox( err.what() );
+	}
+
+	std::string initializationString;
+	initializationString += getSystemStatusString();
+	initializationString += TheAuxiliaryWindow->getSystemStatusMsg();
+	initializationString += TheCameraWindow->getSystemStatusString();
+	initializationString += TheScriptingWindow->getSystemStatusString();
+
+	ShowWindow( SW_MAXIMIZE );
+	TheCameraWindow->ShowWindow( SW_MAXIMIZE );
+	TheScriptingWindow->ShowWindow( SW_MAXIMIZE );
+	TheAuxiliaryWindow->ShowWindow( SW_MAXIMIZE );
+	SetWindowPos( &this->wndBottom, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
+	TheCameraWindow->SetWindowPos( &TheCameraWindow->wndBottom, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
+	TheScriptingWindow->SetWindowPos( &TheScriptingWindow->wndBottom, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
+	TheAuxiliaryWindow->SetWindowPos( &TheAuxiliaryWindow->wndBottom, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
+	appSplash->ShowWindow( SW_HIDE );
+	infoBox( initializationString );
+	return TRUE;
+}
+
+
+
 void MainWindow::handlePause()
 {
 	if (masterThreadManager.runningStatus())
@@ -232,9 +391,9 @@ void MainWindow::OnSize(UINT nType, int cx, int cy)
 	errorStatus.rearrange(cx, cy, getFonts());
 	texter.rearrange(cx, cy, getFonts());
 	shortStatus.rearrange(cx, cy, getFonts());
-	boxes.rearrange("", "", cx, cy, getFonts());
+	boxes.rearrange( cx, cy, getFonts());
 	repetitionControl.rearrange(cx, cy, getFonts());
-	RedrawWindow();
+	//RedrawWindow();
 }
 
 
@@ -246,14 +405,14 @@ void MainWindow::setNiawgRunningState( bool newRunningState )
 
 bool MainWindow::niawgIsRunning()
 {
-	return niawg.isRunning();
+	return niawg.niawgIsRunning();
 }
 
 
 
 BOOL MainWindow::PreTranslateMessage(MSG* pMsg)
 {
-	for (int toolTipInc = 0; toolTipInc < tooltips.size(); toolTipInc++)
+	for (UINT toolTipInc = 0; toolTipInc < tooltips.size(); toolTipInc++)
 	{
 		tooltips[toolTipInc]->RelayEvent(pMsg);
 	}
@@ -304,8 +463,7 @@ void MainWindow::OnClose()
 
 void MainWindow::stopNiawg()
 {
-	niawg.configureOutputEnabled(VI_FALSE);
-	niawg.abortGeneration();
+	niawg.turnOff();
 }
 
 
@@ -315,159 +473,6 @@ UINT MainWindow::getRepNumber()
 }
 
 
-BOOL MainWindow::OnInitDialog()
-{
-	/// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///
-	///				Initialize NIAWG
-	///
-
-	// get time now
-	time_t dateStart = time(0);
-	struct tm datePointerStart;
-	localtime_s(&datePointerStart, &dateStart);
-	std::string logFolderNameStart = "Date " + str(datePointerStart.tm_year + 1900) + "-" + str(datePointerStart.tm_mon + 1) + "-"
-		+ str(datePointerStart.tm_mday) + " Time " + str(datePointerStart.tm_hour) + "-" + str(datePointerStart.tm_min) + "-"
-		+ str(datePointerStart.tm_sec);
-	// initialize default file names and open the files.
-	std::vector<std::fstream> default_hConfigVerticalScriptFile, default_hConfigHorizontalScriptFile, default_vConfigVerticalScriptFile,
-		default_vConfigHorizontalScriptFile;
-	default_hConfigVerticalScriptFile.push_back(std::fstream(DEFAULT_SCRIPT_FOLDER_PATH + str("DEFAULT_HCONFIG_VERTICAL_SCRIPT.nScript")));
-	default_hConfigHorizontalScriptFile.push_back(std::fstream(DEFAULT_SCRIPT_FOLDER_PATH + str("DEFAULT_HCONFIG_HORIZONTAL_SCRIPT.nScript")));
-	default_vConfigVerticalScriptFile.push_back(std::fstream(DEFAULT_SCRIPT_FOLDER_PATH + str("DEFAULT_VCONFIG_VERTICAL_SCRIPT.nScript")));
-	default_vConfigHorizontalScriptFile.push_back(std::fstream(DEFAULT_SCRIPT_FOLDER_PATH + str("DEFAULT_VCONFIG_HORIZONTAL_SCRIPT.nScript")));
-
-	// check errors
-	if (!default_hConfigVerticalScriptFile[0].is_open())
-	{
-		errBox(str("FATAL ERROR: Couldn't open default file. Was looking for file ") + DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_HCONFIG_VERTICAL_SCRIPT.nScript");
-		return 0;
-	}
-	if (!default_hConfigHorizontalScriptFile[0].is_open())
-	{
-		errBox(str("FATAL ERROR: Couldn't open default file. Was looking for file ") + DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_HCONFIG_HORIZONTAL_SCRIPT.nScript");
-		return 0;
-	}
-	if (!default_vConfigVerticalScriptFile[0].is_open())
-	{
-		errBox(str("FATAL ERROR: Couldn't open default file. Was looking for file ") + DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_VCONFIG_VERTICAL_SCRIPT.nScript");
-		return 0;
-	}
-	if (!default_vConfigHorizontalScriptFile[0].is_open())
-	{
-		errBox(str("FATAL ERROR: Couldn't open default file. Was looking for file ") + DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_VCONFIG_HORIZONTAL_SCRIPT.nScript");
-		return 0;
-	}
-
-	// parameters for variables used by the default file. (there shouldn't be any, these are essentially just placeholders so that I can use the same functions.
-	std::vector<char> defXVarNames, defYVarNames;
-	// parameters for variables used by the default file. (there shouldn't be any, these are essentially just placeholders so that I can use the same functions.
-	std::vector<std::string> defXVarFileNames, defYVarFileNames;
-	// parameters for variables used by the default file. (there shouldn't be any, these are essentially just placeholders so that I can use the same functions.
-	std::vector<std::fstream> defXVarFiles;
-	if (!NIAWG_SAFEMODE)
-	{
-		std::ofstream hConfigVerticalDefaultScriptLog(EXPERIMENT_LOGGING_FILES_PATH + logFolderNameStart + "\\Default hConfig Vertical Script.script");
-		std::ofstream hConfigHorizontalDefaultScriptLog(EXPERIMENT_LOGGING_FILES_PATH + logFolderNameStart + "\\Default hConfig Horizontal Script.script");
-		std::ofstream vConfigVerticalDefaultScriptLog(EXPERIMENT_LOGGING_FILES_PATH + logFolderNameStart + "\\Default vConfig Vertical Script.script");
-		std::ofstream vConfigHorizontalDefaultScriptLog(EXPERIMENT_LOGGING_FILES_PATH + logFolderNameStart + "\\Default vConfig Horizontal Script.script");
-		hConfigVerticalDefaultScriptLog << default_hConfigVerticalScriptFile[0].rdbuf();
-		hConfigHorizontalDefaultScriptLog << default_hConfigHorizontalScriptFile[0].rdbuf();
-		vConfigVerticalDefaultScriptLog << default_vConfigVerticalScriptFile[0].rdbuf();
-		vConfigHorizontalDefaultScriptLog << default_vConfigHorizontalScriptFile[0].rdbuf();
-	}
-	try
-	{
-		niawg.initialize();
-	}
-	catch (Error& except)
-	{
-		errBox("ERROR: NIAWG Did not start smoothly: " + except.whatStr());
-		return -1;
-	}
-
-	try
-	{
-		niawg.setDefaultWaveforms( this );
-		// but the default starts in the horizontal configuration, so switch back and start in this config.
-		setOrientation( HORIZONTAL_ORIENTATION );
-		restartNiawgDefaults();
-	}
-	catch (Error& exception)
-	{
-		errBox("ERROR: failed to start niawg default waveforms! Niawg gave the following error message: " + exception.whatStr());
-	}
-	// not done with the script, it will not stay on the NIAWG, so I need to keep track of it so thatI can reload it onto the NIAWG when necessary.	
-	/// Initialize Windows
-	TheScriptingWindow = new ScriptingWindow;
-	TheCameraWindow = new CameraWindow;
-	TheDeviceWindow = new DeviceWindow;
-	TheScriptingWindow->getFriends(this, TheCameraWindow, TheDeviceWindow);
-	TheCameraWindow->getFriends(this, TheScriptingWindow, TheDeviceWindow);
-	TheDeviceWindow->getFriends(this, TheScriptingWindow, TheCameraWindow);
-
-	try
-	{
-		TheScriptingWindow->Create(IDD_LARGE_TEMPLATE, 0);
-		TheCameraWindow->Create(IDD_LARGE_TEMPLATE1, 0);
-		TheDeviceWindow->Create(IDD_LARGE_TEMPLATE, 0);
-	}
-	catch (Error& err)
-	{
-		errBox(err.what());
-	}
-	// initialize the COMM.
-	comm.initialize( this, TheScriptingWindow, TheCameraWindow, TheDeviceWindow );
-	int id = 1000;
-	POINT controlLocation = { 0,0 };
-	mainStatus.initialize( controlLocation, this, id, 975, "EXPERIMENT STATUS", RGB( 50, 50, 250 ), mainFonts, tooltips );
-	controlLocation = { 480, 0 };
-	errorStatus.initialize( controlLocation, this, id, 480, "ERROR STATUS", RGB( 200, 0, 0 ), mainFonts, tooltips );
-	debugStatus.initialize( controlLocation, this, id, 480, "DEBUG STATUS", RGB( 13, 152, 186 ), mainFonts, tooltips );
-	controlLocation = { 960, 0 };
-	profile.initialize( controlLocation, this, id, mainFonts, tooltips );
-	controlLocation = { 960, 235 };
-	notes.initialize( controlLocation, this, id, mainFonts, tooltips );
-	controlLocation = { 1440, 95 };
-	repetitionControl.initialize(controlLocation, tooltips, this, id);
-	settings.initialize( id, controlLocation, this, mainFonts, tooltips );
-	debugger.initialize( id, controlLocation, this, mainFonts, tooltips );
-	texter.initialize( controlLocation, this, false, id, mainFonts, tooltips );
-	controlLocation = { 960, 910 };
-	boxes.initialize( controlLocation, id, this, 960, mainFonts, tooltips );
-	shortStatus.initialize( controlLocation, this, id, mainFonts, tooltips );
-	menu.LoadMenu(IDR_MAIN_MENU);
-	SetMenu(&menu);	
-	// just initializes the rectangles.
-	TheCameraWindow->redrawPictures( true );
-	try
-	{
-		masterConfig.load(this, TheDeviceWindow, TheCameraWindow);
-	}
-	catch (Error& err)
-	{
-		errBox(err.what());
-	}
-	std::string initializationString;
-	
-	initializationString += getSystemStatusString();
-	initializationString += TheDeviceWindow->getSystemStatusMsg();
-	initializationString += TheCameraWindow->getSystemStatusString();
-	errBox(initializationString);	
-	ShowWindow(SW_MAXIMIZE);
-	TheCameraWindow->ShowWindow( SW_MAXIMIZE );
-	TheScriptingWindow->ShowWindow( SW_MAXIMIZE );
-	TheDeviceWindow->ShowWindow( SW_MAXIMIZE );
-	try
-	{
-		Agilent::agilentDefault();
-	}
-	catch (Error& err)
-	{
-		errBox( "Failed to set default intensity!" );
-	}
-	return TRUE;
-}
 
 std::string MainWindow::getSystemStatusString()
 {
@@ -476,21 +481,11 @@ std::string MainWindow::getSystemStatusString()
 	if (!NIAWG_SAFEMODE)
 	{
 		status += "Code System is Active!\n";
-		status += niawg.getDeviceInfo();
+		status += niawg.fgenConduit.getDeviceInfo();
 	}
 	else
 	{
 		status += "Code System is disabled! Enable in \"constants.h\"\n";
-	}
-	status += "\n\n>>> Intensity Agilent <<<\n";
-	if (!AGILENT_SAFEMODE)
-	{
-		status += "Code System is Active!\n";
-		//status += getDeviceInfo();
-	}
-	else
-	{
-		status += "Code System is disabled! Enable in \"constants.h\"\n\n";
 	}
 	return status;
 }
@@ -539,19 +534,19 @@ HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		}
 		case CTLCOLOR_EDIT:
 		{
-			pDC->SetTextColor(mainRGBs["White"]);
-			pDC->SetBkColor(mainRGBs["Dark Blue"]);
-			return *mainBrushes["Dark Blue"];
+			pDC->SetTextColor(mainRGBs["Solarized Blue"]);
+			pDC->SetBkColor(mainRGBs["Solarized Base03"]);
+			return *mainBrushes["Solarized Base03"];
 		}
 		case CTLCOLOR_LISTBOX:
 		{
-			pDC->SetTextColor(mainRGBs["White"]);
-			pDC->SetBkColor(mainRGBs["Dark Grey"]);
-			return *mainBrushes["Dark Grey"];
+			pDC->SetTextColor(mainRGBs["Solarized Base2"]);
+			pDC->SetBkColor(mainRGBs["Solarized Base02"]);
+			return *mainBrushes["Solarized Base02"];
 		}
 		default:
 		{
-			return *mainBrushes["Light Grey"];
+			return *mainBrushes["Solarized Base03"];
 		}
 	}
 	return NULL;
@@ -563,7 +558,7 @@ void MainWindow::passCommonCommand(UINT id)
 	// pass the command id to the common function, filling in the pointers to the windows which own objects needed.
 	try
 	{
-		commonFunctions::handleCommonMessage ( id, this, this, TheScriptingWindow, TheCameraWindow, TheDeviceWindow );
+		commonFunctions::handleCommonMessage ( id, this, this, TheScriptingWindow, TheCameraWindow, TheAuxiliaryWindow );
 	}
 	catch (Error& exception)
 	{
@@ -572,8 +567,12 @@ void MainWindow::passCommonCommand(UINT id)
 }
 
 
-void MainWindow::startMaster(MasterThreadInput* input)
+void MainWindow::startMaster( MasterThreadInput* input )
 {
+	// Load Variable & Key Info
+	input->key->loadVariables( input->variables );
+	input->key->generateKey();
+	input->key->exportKey();
 	masterThreadManager.startExperimentThread(input);
 }
 
@@ -582,29 +581,36 @@ void MainWindow::fillMasterThreadInput(MasterThreadInput* input)
 {
 	input->masterScriptAddress = profile.getMasterAddressFromConfig();
 	input->programIntensity = settings.getOptions().programIntensity;
+	input->rearrangingAtoms = settings.getOptions().rearrange;
 	input->repetitionNumber = getRepNumber();
 	input->debugOptions = debugger.getOptions();
-	input->profile = profile.getCurrentProfileSettings();
+	input->profile = profile.getProfileSettings();
 	input->niawg = &niawg;
 	input->comm = &comm;
 }
 
 
-profileSettings MainWindow::getCurrentProfileSettings()
+void MainWindow::logParams(DataLogger* logger, MasterThreadInput* input)
 {
-	return profile.getCurrentProfileSettings();
+	logger->logMasterParameters(input);
+}
+
+
+profileSettings MainWindow::getProfileSettings()
+{
+	return profile.getProfileSettings();
 }
 
 
 void MainWindow::checkProfileReady()
 {
-	profile.allSettingsReadyCheck( TheScriptingWindow, this, TheDeviceWindow, TheCameraWindow );
+	profile.allSettingsReadyCheck( TheScriptingWindow, this, TheAuxiliaryWindow, TheCameraWindow );
 }
 
 
 void MainWindow::checkProfileSave()
 {
-	profile.checkSaveEntireProfile( TheScriptingWindow, this, TheDeviceWindow, TheCameraWindow );
+	profile.checkSaveEntireProfile( TheScriptingWindow, this, TheAuxiliaryWindow, TheCameraWindow );
 }
 
 
@@ -777,7 +783,7 @@ void MainWindow::handleExperimentCombo()
 	try
 	{
 		profile.experimentChangeHandler(TheScriptingWindow, this);
-		TheDeviceWindow->setConfigActive(false);
+		TheAuxiliaryWindow->setConfigActive(false);
 	}
 	catch (Error& err)
 	{
@@ -791,7 +797,7 @@ void MainWindow::handleCategoryCombo()
 	try
 	{
 		profile.categoryChangeHandler(TheScriptingWindow, this);
-		TheDeviceWindow->setConfigActive(false);
+		TheAuxiliaryWindow->setConfigActive(false);
 	}
 	catch (Error& err)
 	{
@@ -804,8 +810,8 @@ void MainWindow::handleConfigurationCombo()
 {
 	try
 	{
-		profile.configurationChangeHandler(TheScriptingWindow, this, TheDeviceWindow, TheCameraWindow);
-		TheDeviceWindow->setConfigActive(true);
+		profile.configurationChangeHandler(TheScriptingWindow, this, TheAuxiliaryWindow, TheCameraWindow);
+		TheAuxiliaryWindow->setConfigActive(true);
 	}
 	catch (Error& err)
 	{
@@ -832,7 +838,7 @@ void MainWindow::handleOrientationCombo()
 	try
 	{
 		profile.orientationChangeHandler(this);
-		TheDeviceWindow->setConfigActive(false);
+		TheAuxiliaryWindow->setConfigActive(false);
 	}
 	catch (Error& except)
 	{
@@ -860,12 +866,6 @@ void MainWindow::changeBoxColor( systemInfo<char> colors )
 	{
 		changeShortStatusColor("B");
 	}
-}
-
-
-void MainWindow::setMainOptions(mainOptions options)
-{
-	settings.setOptions(options);
 }
 
 
@@ -913,11 +913,11 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 	delete[] pointerToMessage;
 	errorStatus.addStatusText(statusMessage);
 	//
-	myAgilent::agilentDefault();
+	TheScriptingWindow->setIntensityDefault();
 	std::string msgText = "Exited with Error!\r\nPassively Outputting Default Waveform.";
 	changeShortStatusColor("R");
 	comm.sendColorBox( Niawg, 'R' );
-	std::string orientation = getCurrentProfileSettings().orientation;
+	std::string orientation = getProfileSettings().orientation;
 	try
 	{
 		niawg.restartDefault();
@@ -938,12 +938,12 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 // I think I can delete this...
 LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
 {
-	myAgilent::agilentDefault();
+	TheScriptingWindow->setIntensityDefault();
 	std::string msgText = "Passively Outputting Default Waveform";
 	setShortStatus(msgText);
 	changeShortStatusColor("B");
 	comm.sendColorBox( Niawg, 'B' );
-	std::string orientation = getCurrentProfileSettings().orientation;
+	std::string orientation = getProfileSettings().orientation;
 	try
 	{
 		niawg.restartDefault();

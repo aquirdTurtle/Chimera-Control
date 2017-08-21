@@ -17,7 +17,7 @@
  *
  *
  */
-class DeviceWindow;
+class AuxiliaryWindow;
 
 // this struct keeps variable names.
 struct TtlCommandForm
@@ -79,11 +79,10 @@ typedef struct _DIO64STAT
 class TtlSystem
 {
 	public:
-		TtlSystem();
-		~TtlSystem();
+	    TtlSystem();
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, double version);
-		void initialize(POINT& startLocation, cToolTips& toolTips, DeviceWindow* master, int& id);
+		void initialize(POINT& startLocation, cToolTips& toolTips, AuxiliaryWindow* master, int& id);
 		double getTotalTime(UINT var);
 		int getNumberOfTTLRows();
 		int getNumberOfTTLsPerRow();
@@ -110,7 +109,7 @@ class TtlSystem
 		std::pair<UINT, UINT> getTtlBoardSize();
 
 		void abort();
-		void setName(unsigned int row, unsigned int number, std::string name, cToolTips& toolTips, DeviceWindow* master);
+		void setName(unsigned int row, unsigned int number, std::string name, cToolTips& toolTips, AuxiliaryWindow* master);
 		std::string getName(unsigned int row, unsigned int number);
 		std::array<std::array<std::string, 16>, 4> TtlSystem::getAllNames();
 		// returns -1 if not a name.get
@@ -248,8 +247,7 @@ class TtlSystem
 		DIO64_SetAttr raw_DIO64_SetAttr;
 		typedef int(CALLBACK* DIO64_GetAttr)(WORD board, DWORD *attrID, DWORD *value);
 		DIO64_GetAttr raw_DIO64_GetAttr;
+
 		/// END NOT SUGGESTED FOR DIRECT USE AREA! ////////////////////////////////////////////////////////////////////
-
-
 };
 

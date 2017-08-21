@@ -4,30 +4,28 @@
 
 void StatusControl::rearrange(int width, int height, fontMap fonts)
 {
-	header.rearrange("", "", width, height, fonts);
-	edit.rearrange("", "", width, height, fonts);
-	clearButton.rearrange("", "", width, height, fonts);
+	header.rearrange( width, height, fonts);
+	edit.rearrange( width, height, fonts);
+	clearButton.rearrange( width, height, fonts);
 }
 
 //
 void StatusControl::initialize(POINT &loc, CWnd* parent, int& id, UINT size, std::string headerText, 
-							   COLORREF textColor, fontMap fonts, cToolTips& tooltips)
+							   COLORREF textColor, cToolTips& tooltips, UINT clearId)
 {
 	// set formatting for these scripts
 	header.sPos = { loc.x, loc.y, loc.x + 380, loc.y + 20 };
 	header.Create(cstr(headerText), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, parent, id++);
-	header.SetFont(fonts["Heading Font"]);
+	header.fontType = HeadingFont;
 	//
 	clearButton.sPos = { loc.x + 380, loc.y, loc.x + 480, loc.y + 20 };
-	clearButton.Create("Clear", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, clearButton.sPos, parent, id++);
-	idVerify(clearButton, IDC_MAIN_STATUS_BUTTON, IDC_ERROR_STATUS_BUTTON, IDC_DEBUG_STATUS_BUTTON);
-	clearButton.SetFont(fonts["Normal Font"]);
+	clearButton.Create("Clear", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, clearButton.sPos, parent, clearId );
 	loc.y += 20;
 	//
 	edit.sPos = { loc.x, loc.y, loc.x + 480, loc.y + long(size)};
 	edit.Create( WS_CHILD | WS_VISIBLE | ES_READONLY | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | WS_BORDER, 
 				 edit.sPos, parent, id++ );
-	edit.SetFont(fonts["Code Font"]);
+	edit.fontType = CodeFont;
 	edit.SetBackgroundColor(0, RGB(15, 15, 20));
 	setDefaultColor(textColor);
 	loc.y += size;

@@ -34,7 +34,7 @@ AndorCamera::AndorCamera()
 		initialize();
 		setBaselineClamp(1);
 		setBaselineOffset(0);
-		setDMAParameters(1, 0.0001);
+		setDMAParameters(1, 0.0001f);
 	}
 	catch (Error& err)
 	{
@@ -150,7 +150,7 @@ void AndorCamera::initializeClass(Communicator* comm)
 	_beginthreadex(NULL, 0, &AndorCamera::cameraThread, &threadInput, 0, &cameraThreadID);
 }
 
-void AndorCamera::updatePictureNumber( int newNumber )
+void AndorCamera::updatePictureNumber( ULONGLONG newNumber )
 {
 	currentPictureNumber = newNumber;
 }
@@ -205,7 +205,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 			{
 				// alternative to directly using events.
 				int status;
-				input->Andor->getStatus(status);
+				input->Andor->queryIdentity(status);
 				if (status == DRV_IDLE && armed)
 				{
 					// signal the end to the main thread.
@@ -227,7 +227,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 					input->comm->sendCameraProgress(pictureNumber);
 				}
 			}
-			catch (Error& exception )
+			catch (Error&)
 			{
 				//...
 			}
@@ -333,7 +333,7 @@ void AndorCamera::armCamera(CameraWindow* camWin)
 	// Initialize the thread accumulation number.
 	// this->??? = 1;
 	// //////////////////////////////
-	getStatus();
+	queryIdentity();
 
 	/// Do some plotting stuffs
 	//eAlerts.setAlertThreshold();
@@ -418,7 +418,7 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 		getOldestImage(tempImage);
 		// immediately rotate
 		WaitForSingleObject(imagesMutex, INFINITE);
-		for (int imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
+		for (UINT imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 		{
 			imagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc 
 				% runSettings.imageSettings.width) + 1) * runSettings.imageSettings.height 
@@ -446,7 +446,7 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 										0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0
 									  };
 
-		for (int imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
+		for (UINT imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 		{
 			tempImage[imageVecInc] = rand() % 30 + 95;
 			if (!(imageVecInc >= atomSpots.size()))
@@ -467,7 +467,7 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 			}
 		}
 		WaitForSingleObject(imagesMutex, INFINITE);
-		for (int imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
+		for (UINT imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 		{
 			imagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc % runSettings.imageSettings.width)
 				+ 1) * runSettings.imageSettings.height - imageVecInc / runSettings.imageSettings.width - 1];
@@ -613,7 +613,7 @@ void AndorCamera::checkAcquisitionTimings(float& kinetic, float& accumulation, s
 	}
 	else 
 	{
-		for (int exposureInc = 0; exposureInc < exposures.size(); exposureInc++)
+		for (UINT exposureInc = 0; exposureInc < exposures.size(); exposureInc++)
 		{
 			timesArray[exposureInc] = exposures[exposureInc];
 		}
@@ -621,7 +621,7 @@ void AndorCamera::checkAcquisitionTimings(float& kinetic, float& accumulation, s
 	// success. Set times
 	if (exposures.size() > 0)
 	{
-		for (int exposureInc = 0; exposureInc < exposures.size(); exposureInc++)
+		for (UINT exposureInc = 0; exposureInc < exposures.size(); exposureInc++)
 		{
 			exposures[exposureInc] = timesArray[exposureInc];
 		}
@@ -1379,10 +1379,10 @@ void AndorCamera::getAcquisitionTimes(float& exposure, float& accumulation, floa
 
 /*
 */
-void AndorCamera::getStatus()
+void AndorCamera::queryIdentity()
 {
 	int status;
-	getStatus(status);
+	queryIdentity(status);
 	if (ANDOR_SAFEMODE)
 	{
 		status = DRV_IDLE;
@@ -1399,7 +1399,7 @@ void AndorCamera::setIsRunningState(bool state)
 	cameraIsRunning = state;
 }
 
-void AndorCamera::getStatus(int& status)
+void AndorCamera::queryIdentity(int& status)
 {
 	if (!ANDOR_SAFEMODE)
 	{

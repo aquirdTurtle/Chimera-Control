@@ -2,19 +2,18 @@
 #include "TektronicsControl.h"
 
 
-void TektronicsChannelControl::initialize(POINT loc, CWnd* parent, int& id, std::string channelText, LONG width)
+void TektronicsChannelControl::initialize(POINT loc, CWnd* parent, int& id, std::string channelText, LONG width, 
+										   std::array<UINT, 2> ids)
 {
 	channelLabel.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
 	channelLabel.Create( cstr(channelText), WS_CHILD | WS_VISIBLE | WS_BORDER, channelLabel.sPos, parent, id++ );
 
 	onOffButton.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	onOffButton.Create( "", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX, onOffButton.sPos, parent, id++ );
-	idVerify(onOffButton, AXIAL_ON_OFF, EO_ON_OFF, TOP_ON_OFF, BOTTOM_ON_OFF);
+	onOffButton.Create( "", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX, onOffButton.sPos, parent, ids[0] );
 
 	fskButton.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	fskButton.Create("", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX, fskButton.sPos, parent, id++);
-	idVerify(fskButton, AXIAL_FSK, EO_FSK, TOP_FSK, BOTTOM_FSK);
-
+	fskButton.Create("", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX, fskButton.sPos, parent, ids[1]);
+	
 	power.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
 	power.Create(WS_CHILD | WS_VISIBLE, power.sPos, parent, id++);
 	power.EnableWindow(0);
@@ -80,7 +79,7 @@ HBRUSH TektronicsControl::handleColorMessage(CWnd* window, brushMap brushes, rgb
 		|| controlID == fskFreqLabel.GetDlgCtrlID())
 	{
 		cDC->SetBkColor(rGBs["Medium Grey"]);
-		cDC->SetTextColor(rGBs["White"]);
+		cDC->SetTextColor(rGBs["Solarized Base2"]);
 		return *brushes["Medium Grey"];
 	}
 	else
@@ -201,73 +200,107 @@ void TektronicsControl::handleOpeningConfig(std::ifstream& configFile, double ve
 
 
 
-void TektronicsControl::programMachine(Gpib* gpib, UINT var)
+void TektronicsControl::programMachine(UINT var)
 {
+	visaFlume.open();
 	if (currentInfo.channels.first.on)
 	{
-		gpib->gpibSend(currentInfo.machineAddress, "SOURCE1:FREQ " + str(currentNums[var].channels.first.mainFreqVal));
-		gpib->gpibSend(currentInfo.machineAddress, "SOURCE1:VOLT:UNIT DBM");
-		gpib->gpibSend(currentInfo.machineAddress, "SOURCE1:VOLT " + str(currentNums[var].channels.first.powerVal));
-		gpib->gpibSend(currentInfo.machineAddress, "SOURCE1:VOLT:OFFS 0");
+		visaFlume.write("SOURCE1:FREQ " + str(currentNums[var].channels.first.mainFreqVal));
+		visaFlume.write("SOURCE1:VOLT:UNIT DBM");
+		visaFlume.write( "SOURCE1:VOLT " + str(currentNums[var].channels.first.powerVal));
+		visaFlume.write( "SOURCE1:VOLT:OFFS 0");
 
 		if (currentInfo.channels.first.fsk)
 		{
-			gpib->gpibSend(currentInfo.machineAddress, "SOURCE1:FSKey:STATe On");
-			gpib->gpibSend(currentInfo.machineAddress, "SOURCE1:FSKey:FREQ " + str(currentNums[var].channels.first.fskFreqVal));
-			gpib->gpibSend(currentInfo.machineAddress, "SOURCE1:FSKey:SOURce External");
+			visaFlume.write( "SOURCE1:FSKey:STATe On");
+			visaFlume.write( "SOURCE1:FSKey:FREQ " + str(currentNums[var].channels.first.fskFreqVal));
+			visaFlume.write( "SOURCE1:FSKey:SOURce External");
 		}
 		else
 		{
-			gpib->gpibSend(currentInfo.machineAddress, "SOURCE1:FSKey:STATe Off");
+			visaFlume.write( "SOURCE1:FSKey:STATe Off");
 		}
-		gpib->gpibSend(currentInfo.machineAddress, "OUTput1:STATe ON");
+		visaFlume.write( "OUTput1:STATe ON");
 	}
 	else
 	{
-		gpib->gpibSend(currentInfo.machineAddress, "OUTput1:STATe OFF");
+		visaFlume.write( "OUTput1:STATe OFF");
 	}
 	/// second channel
 	if (currentInfo.channels.second.on)
 	{
-		gpib->gpibSend(currentInfo.machineAddress, "SOURCE2:FREQ " + str(currentNums[var].channels.second.mainFreqVal));
-		gpib->gpibSend(currentInfo.machineAddress, "SOURCE2:VOLT:UNIT DBM");
-		gpib->gpibSend(currentInfo.machineAddress, "SOURCE2:VOLT " + str(currentNums[var].channels.second.powerVal));
-		gpib->gpibSend(currentInfo.machineAddress, "SOURCE2:VOLT:OFFS 0");
+		visaFlume.write( "SOURCE2:FREQ " + str(currentNums[var].channels.second.mainFreqVal));
+		visaFlume.write( "SOURCE2:VOLT:UNIT DBM");
+		visaFlume.write( "SOURCE2:VOLT " + str(currentNums[var].channels.second.powerVal));
+		visaFlume.write( "SOURCE2:VOLT:OFFS 0");
 		if (currentInfo.channels.second.fsk)
 		{
-			gpib->gpibSend(currentInfo.machineAddress, "SOURCE2:FSKey:STATe On");
-			gpib->gpibSend(currentInfo.machineAddress, "SOURCE2:FSKey:FREQ " + str(currentNums[var].channels.second.fskFreqVal));
-			gpib->gpibSend(currentInfo.machineAddress, "SOURCE2:FSKey:SOURce External");
+			visaFlume.write( "SOURCE2:FSKey:STATe On");
+			visaFlume.write( "SOURCE2:FSKey:FREQ " + str(currentNums[var].channels.second.fskFreqVal));
+			visaFlume.write( "SOURCE2:FSKey:SOURce External");
 		}
 		else
 		{
-			gpib->gpibSend(currentInfo.machineAddress, "SOURCE2:FSKey:STATe Off");
+			visaFlume.write( "SOURCE2:FSKey:STATe Off");
 		}
-		gpib->gpibSend(currentInfo.machineAddress, "OUTput2:STATe ON");
+		visaFlume.write( "OUTput2:STATe ON");
 	}
 	else
 	{
-		gpib->gpibSend(currentInfo.machineAddress, "OUTput2:STATe OFF");
+		visaFlume.write( "OUTput2:STATe OFF");
 	}
+	visaFlume.close();
 }
-/// 
 
-// initialize the control by designating the GPIB address of the machine.
-TektronicsControl::TektronicsControl(int address) : machineAddress(address)
+void TektronicsControl::handleProgram()
 {
-	currentInfo.machineAddress = address;
+	// this makes sure that what's in the current edits is stored in the currentInfo object.
+	getSettings();
+	// similar to the handling in interpret key except no key or variations, just try to reduce any raw math that the 
+	// user enters into the edits.
+	currentNums.clear();
+	currentNums.resize( 1 );
+	/// deal with first channel.
+	if (currentInfo.channels.first.on)
+	{
+		currentNums[0].channels.first.mainFreqVal = reduce( currentInfo.channels.first.mainFreq );
+		currentNums[0].channels.first.powerVal = reduce( currentInfo.channels.first.power );
+		// handle FSK options
+		if (currentInfo.channels.first.fsk)
+		{
+			currentNums[0].channels.first.fskFreqVal = reduce( currentInfo.channels.first.fskFreq );
+		}
+	}
+	/// handle second channel.
+	if (currentInfo.channels.second.on)
+	{
+		currentNums[0].channels.second.mainFreqVal = reduce( currentInfo.channels.second.mainFreq );
+		currentNums[0].channels.second.powerVal = reduce( currentInfo.channels.second.power );
+		// handle FSK options
+		if (currentInfo.channels.second.fsk)
+		{
+			currentNums[0].channels.second.fskFreqVal = reduce( currentInfo.channels.second.fskFreq );
+		}
+	}
+	// and program just these settings.
+	programMachine( 0 );
 }
 
 
 void TektronicsControl::initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
-								    std::string channel2Text, LONG width )
+								    std::string channel2Text, LONG width, std::string usbAddress,
+									std::array<UINT, 5> ids )
 {
+	visaFlume.init( usbAddress );
 	header.sPos = { loc.x, loc.y, loc.x + width, loc.y += 25 };
 	header.Create( cstr("Tektronics " + headerText), WS_CHILD | WS_VISIBLE | WS_BORDER, header.sPos, parent, id++ );
 	header.fontType = HeadingFont;
+	
+	programNow.sPos = { loc.x, loc.y, loc.x + width / 3, loc.y + 20 };
+	programNow.Create( "Program Now", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, programNow.sPos, parent, ids[0] );
 
-	channel1.initialize({ loc.x + width/3, loc.y }, parent, id, channel1Text, width / 3);
-	channel2.initialize({ loc.x + 2*width/3, loc.y }, parent, id, channel2Text, width / 3);
+	channel1.initialize( { loc.x + width / 3, loc.y }, parent, id, channel1Text, width / 3, { ids[1], ids[2] } );
+	channel2.initialize( { loc.x + 2 * width / 3, loc.y }, parent, id, channel2Text, width / 3, { ids[3], ids[4] } );
 
 	loc.y += 20;
 	
@@ -290,25 +323,38 @@ void TektronicsControl::initialize( POINT& loc, CWnd* parent, int& id, std::stri
 
 void TektronicsChannelControl::rearrange(int width, int height, fontMap fonts)
 {
-	channelLabel.rearrange("", "", width, height, fonts);
-	onOffButton.rearrange("", "", width, height, fonts);
-	fskButton.rearrange("", "", width, height, fonts);
-	mainFreq.rearrange("", "", width, height, fonts);
-	power.rearrange("", "", width, height, fonts);
-	fskFreq.rearrange("", "", width, height, fonts);
+	channelLabel.rearrange(width, height, fonts);
+	onOffButton.rearrange(width, height, fonts);
+	fskButton.rearrange(width, height, fonts);
+	mainFreq.rearrange(width, height, fonts);
+	power.rearrange(width, height, fonts);
+	fskFreq.rearrange(width, height, fonts);
 }
 
 
+std::string TektronicsControl::queryIdentity()
+{
+	try
+	{
+		return visaFlume.identityQuery();
+	}
+	catch (Error& err)
+	{
+		return err.what();
+	}
+}
+
 void TektronicsControl::rearrange(int width, int height, fontMap fonts)
 {
-	header.rearrange("", "", width, height, fonts);
-	onOffLabel.rearrange("", "", width, height, fonts);
-	fskLabel.rearrange("", "", width, height, fonts);
-	mainPowerLabel.rearrange("", "", width, height, fonts);
-	mainFreqLabel.rearrange("", "", width, height, fonts);
-	fskFreqLabel.rearrange("", "", width, height, fonts);
+	header.rearrange( width, height, fonts);
+	onOffLabel.rearrange( width, height, fonts);
+	fskLabel.rearrange( width, height, fonts);
+	mainPowerLabel.rearrange( width, height, fonts);
+	mainFreqLabel.rearrange( width, height, fonts);
+	fskFreqLabel.rearrange(width, height, fonts);
 	channel1.rearrange(width, height, fonts);
 	channel2.rearrange(width, height, fonts);
+	programNow.rearrange( width, height, fonts );
 }
 
 tektronicsInfo TektronicsControl::getSettings()
@@ -342,10 +388,10 @@ void TektronicsControl::handleButtons(UINT indicator)
 		case 1:
 			channel1.handleFskPress();
 			break;
-		case 6:
+		case 2:
 			channel2.handleOnPress();
 			break;
-		case 7:
+		case 3:
 			channel2.handleFskPress();
 			break;
 	}

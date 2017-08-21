@@ -1,13 +1,12 @@
 #include "stdafx.h"
 #include <iomanip>
 #include <unordered_map>
+#include "afxcmn.h"
 
 #include "VariableSystem.h"
-#include "fonts.h"
 #include "Script.h"
-#include "afxcmn.h"
 #include "TtlSystem.h"
-#include "DeviceWindow.h"
+#include "AuxiliaryWindow.h"
 #include "TextPromptDialog.h"
 
 UINT VariableSystem::getTotalVariationNumber()
@@ -36,53 +35,73 @@ void VariableSystem::handleOpenConfig(std::ifstream& configFile, double version)
 
 	for (int varInc = 0; varInc < varNum; varInc++)
 	{
+		variable tempVar;
 		std::string varName, timelikeText, typeText, valueString;
 		bool timelike;
-		bool singleton;
+		bool constant;
 		double value;
 		configFile >> varName;
 		std::transform(varName.begin(), varName.end(), varName.begin(), ::tolower);
+		tempVar.name = varName;
 		configFile >> timelikeText;
 		configFile >> typeText;
-		configFile >> valueString;
 		if (timelikeText == "Timelike")
 		{
 			timelike = true;
+			tempVar.timelike = true;
 		}
 		else if (timelikeText == "Not_Timelike")
 		{
 			timelike = false;
+			tempVar.timelike = false;
 		}
 		else
 		{
 			thrower("ERROR: unknown timelike option. Check the formatting of the configuration file.");
 		}
-		if (typeText == "Singleton")
+		if (typeText == "Constant")
 		{
-			singleton = true;
+			constant = true;
+			tempVar.constant = true;
 		}
-		else if (typeText == "From_Master")
+		else if (typeText == "Variable")
 		{
-			singleton = false;
+			constant = false;
+			tempVar.constant = false;
 		}
 		else
 		{
-			thrower("ERROR: unknown variable type option. Check the formatting of the configuration file.");
+			thrower("ERROR: unknown variable type option: " + typeText + ". Check the formatting of the configuration file.");
 		}
-		try
+		int rangeNumber;
+		configFile >> rangeNumber;
+		// I think it's unlikely to ever need more than 2 or 3 ranges.
+		if (rangeNumber < 1 || rangeNumber > 1000)
 		{
-			value = std::stod(valueString);
+			errBox("ERROR: Bad range number! setting it to 1, but found " + str(rangeNumber) + " in the file.");
+			rangeNumber = 1;
 		}
-		catch (std::invalid_argument&)
+		setVariationRangeNumber(rangeNumber, 0);
+		// check if the range is actually too small.
+		for (int rangeInc = 0; rangeInc < rangeNumber; rangeInc++)
 		{
-			thrower("ERROR: Failed to convert value in configuration file for variable's double value. Value was: " + valueString);
+			double initValue=0, finValue=0;
+			unsigned int variations=0;
+			bool leftInclusive=0, rightInclusive=0;
+			configFile >> initValue;
+			configFile >> finValue;
+			configFile >> variations;
+			configFile >> leftInclusive;
+			configFile >> rightInclusive;
+			tempVar.ranges.push_back({ initValue, finValue, variations, leftInclusive, rightInclusive });
 		}
-		variable var;
-		var.name = varName;
-		var.timelike = timelike;
-		var.constant = singleton;
-		var.ranges.push_back({ value, 0, 1, false, true });
-		addConfigVariable(var, varInc);
+		// shouldn't be because of 1 forcing earlier.
+		if (tempVar.ranges.size() == 0)
+		{
+			// make sure it has at least one entry.
+			tempVar.ranges.push_back({ 0,0,1, false, true });
+		}
+		addConfigVariable(tempVar, varInc);
 	}
 
 	// add a blank line
@@ -104,7 +123,7 @@ void VariableSystem::handleSaveConfig(std::ofstream& saveFile)
 	// Number of Variables
 	saveFile << getCurrentNumberOfVariables() << "\n";
 	/// Variable Names
-	for (int varInc = 0; varInc < getCurrentNumberOfVariables(); varInc++)
+	for (UINT varInc = 0; varInc < getCurrentNumberOfVariables(); varInc++)
 	{
 		variable info = getVariableInfo(varInc);
 		saveFile << info.name << " ";
@@ -124,14 +143,14 @@ void VariableSystem::handleSaveConfig(std::ofstream& saveFile)
 		{
 			saveFile << "Variable ";
 		}
-		saveFile << info.ranges.size() << " ";
-		for (int rangeInc = 0; rangeInc < info.ranges.size(); rangeInc++)
+		saveFile << info.ranges.size() << "\n";
+		for (UINT rangeInc = 0; rangeInc < info.ranges.size(); rangeInc++)
 		{
-			saveFile << info.ranges[rangeInc].initialValue << " ";
-			saveFile << info.ranges[rangeInc].finalValue << " ";
-			saveFile << info.ranges[rangeInc].variations << " ";
-			saveFile << info.ranges[rangeInc].leftInclusive << " ";
-			saveFile << info.ranges[rangeInc].rightInclusive << " ";
+			saveFile << info.ranges[rangeInc].initialValue << "\n";
+			saveFile << info.ranges[rangeInc].finalValue << "\n";
+			saveFile << info.ranges[rangeInc].variations << "\n";
+			saveFile << info.ranges[rangeInc].leftInclusive << "\n";
+			saveFile << info.ranges[rangeInc].rightInclusive << "\n";
 		}
 		saveFile << "\n";
 	}
@@ -141,8 +160,8 @@ void VariableSystem::handleSaveConfig(std::ofstream& saveFile)
 
 void VariableSystem::rearrange(UINT width, UINT height, fontMap fonts)
 {
-	variablesHeader.rearrange("", "", width, height, fonts);
-	variablesListview.rearrange("", "", width, height, fonts);
+	variablesHeader.rearrange( width, height, fonts);
+	variablesListview.rearrange( width, height, fonts);
 }
 
 
@@ -257,7 +276,7 @@ void VariableSystem::setVariationRangeNumber(int num, USHORT dimNumber)
 				+ str(currentRanges) + " respectively. The program will attempt to fix this, but " 
 				"data may be lost.");
 		variableRanges[dimNumber] = currentRanges;
-		for (int variableInc = 0; variableInc < currentVariables.size(); variableInc++)
+		for (UINT variableInc = 0; variableInc < currentVariables.size(); variableInc++)
 		{
 			currentVariables[variableInc].ranges.resize(currentRanges);
 		}
@@ -286,7 +305,7 @@ void VariableSystem::setVariationRangeNumber(int num, USHORT dimNumber)
 			memset(&listViewItem, 0, sizeof(listViewItem));
 			listViewItem.mask = LVIF_TEXT; 
 			listViewItem.cchTextMax = 256; 
-			for (int varInc = 0; varInc < currentVariables.size(); varInc++)
+			for (UINT varInc = 0; varInc < currentVariables.size(); varInc++)
 			{
 				variationRangeInfo tempInfo{ 0,0,0, false, true };
 				currentVariables[varInc].ranges.push_back( tempInfo );
@@ -331,7 +350,7 @@ void VariableSystem::setVariationRangeNumber(int num, USHORT dimNumber)
 			variablesListview.DeleteColumn(3 + 3 * (currentRanges - 1));
 			variablesListview.DeleteColumn(3 + 3 * (currentRanges - 1));
 			// edit all variables
-			for (int varInc = 0; varInc < currentVariables.size(); varInc++)
+			for (UINT varInc = 0; varInc < currentVariables.size(); varInc++)
 			{
 				currentVariables[varInc].ranges.pop_back();
 			}
@@ -506,7 +525,7 @@ void VariableSystem::handleDraw(NMHDR* pNMHDR, LRESULT* pResult)
 }
 
 
-void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MainWindow* mainWin, DeviceWindow* deviceWin)
+void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin)
 {
 	/// get the item and subitem
 	POINT cursorPos;
@@ -639,7 +658,7 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MainWindow
 			listViewItem.pszText = &newName[0];
 			variablesListview.SetItem(&listViewItem);
 			// recolor to catch any new variable names needing to change color.
-			for (int scriptInc = 0; scriptInc < scripts.size(); scriptInc++)
+			for (UINT scriptInc = 0; scriptInc < scripts.size(); scriptInc++)
 			{
 				//scripts[scriptInc]->colorEntireScript();
 			}
@@ -1336,11 +1355,11 @@ void VariableSystem::addConfigVariable(variable var, int item)
 	listViewItem.iSubItem = 2;
 	variablesListview.SetItem(&listViewItem);
 	variablesListview.RedrawWindow();
-	
 }
 
 
-void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, DeviceWindow* master, int& id, std::string title )
+void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id, std::string title, 
+								 rgbMap rgbs, UINT listviewId )
 {
 	if (title == "GLOBAL VARIABLES")
 	{
@@ -1373,8 +1392,7 @@ void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, DeviceWindow* 
 
 	variablesListview.sPos = { pos.x, pos.y, pos.x + 480, pos.y + listViewSize };
 	variablesListview.Create( WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS | WS_BORDER, 
-							  variablesListview.sPos, master, id++ );
-	idVerify(variablesListview, IDC_CONFIG_VARS_LISTVIEW, IDC_GLOBAL_VARS_LISTVIEW);
+							  variablesListview.sPos, master, listviewId );
 
 	variablesListview.fontType = SmallFont;
 	variablesListview.SetBkColor(RGB(15, 15, 15));
@@ -1444,8 +1462,9 @@ void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, DeviceWindow* 
 			listViewDefaultItem.iSubItem = itemInc;
 			variablesListview.SetItem( &listViewDefaultItem );
 		}
-
 	}
+	variablesListview.SetBkColor( rgbs["Solarized Base02"] );
+
 	pos.y += listViewSize;
 }
 

@@ -199,5 +199,7 @@ dac22
 dac23
 -10 - 10
 0
-0
+2
+testglobal 4
+motstuff 1000
 1 15 1 1 15 1

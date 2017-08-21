@@ -2,7 +2,6 @@
 
 #include "Control.h"
 #include "KeyHandler.h"
-#include "GPIB.h"
 
 struct tektronicsChannelInfo
 {
@@ -43,7 +42,7 @@ struct tektronicsNums
 class TektronicsChannelControl
 {
 	public:
-		void initialize(POINT loc, CWnd* parent, int& id, std::string channel1Text, LONG width);
+		void initialize(POINT loc, CWnd* parent, int& id, std::string channel1Text, LONG width, std::array<UINT, 2> ids );
 		tektronicsChannelInfo getSettings();
 		void setSettings(tektronicsChannelInfo info);
 		void rearrange(int width, int height, fontMap fonts);
@@ -62,26 +61,28 @@ class TektronicsChannelControl
 class TektronicsControl
 {
 	public:
-		TektronicsControl(int address); 
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpeningConfig(std::ifstream& configFile, double version);
-		void initialize(POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
-						std::string channel2Text, LONG width);
+		void initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
+						 std::string channel2Text, LONG width, std::string usbAddress, std::array<UINT, 5> ids );
+		std::string queryIdentity();
 		tektronicsInfo getSettings();
 		void setSettings(tektronicsInfo info);
 		void rearrange(int width, int height, fontMap fonts);
 		void handleButtons(UINT indicator);
 		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
 		void interpretKey(key variationKey, std::vector<variable>& vars);
-		void programMachine(Gpib* gpibControl, UINT var);
+		void programMachine(UINT var);
+		void handleProgram();
 	private:
 		Control<CStatic> header;
+		Control<CButton> programNow;
 		Control<CStatic> onOffLabel;
 		Control<CStatic> fskLabel;
 		Control<CStatic> mainPowerLabel;
 		Control<CStatic> mainFreqLabel;
 		Control<CStatic> fskFreqLabel;
-		const int machineAddress;
+		VisaFlume visaFlume;
 		TektronicsChannelControl channel1;
 		TektronicsChannelControl channel2;
 

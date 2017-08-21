@@ -2,7 +2,7 @@
 #include "Repetitions.h"
 #include <unordered_map>
 #include "constants.h"
-#include "DeviceWindow.h"
+#include "AuxiliaryWindow.h"
 
 
 void Repetitions::rearrange(UINT width, UINT height, fontMap fonts)

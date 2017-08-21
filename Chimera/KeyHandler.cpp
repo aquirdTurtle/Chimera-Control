@@ -41,7 +41,7 @@ void KeyHandler::generateKey()
 	// each element of the vector refers to the number of variations within a given variation range.
 	std::vector<int> variations;
 	std::vector<int> variableIndexes;
-	for (int varInc = 0; varInc < variables.size(); varInc++)
+	for (UINT varInc = 0; varInc < variables.size(); varInc++)
 	{
 		// find a varying parameter.
 		if (!variables[varInc].constant)
@@ -61,7 +61,7 @@ void KeyHandler::generateKey()
 			}
 
 			// make sure the variations number is consistent between 
-			for (int rangeInc = 0; rangeInc < variations.size(); rangeInc++)
+			for (UINT rangeInc = 0; rangeInc < variations.size(); rangeInc++)
 			{
 				// avoid the case of zero as this just hasn't been set yet.
 				if (variations[rangeInc] != 0)
@@ -78,7 +78,7 @@ void KeyHandler::generateKey()
 	// create a key which will be randomized and then used to randomize other things the same way.
 	std::vector<int> randomizerKey;
 	int counter = 0;
-	for (int rangeInc = 0; rangeInc < variations.size(); rangeInc++)
+	for (UINT rangeInc = 0; rangeInc < variations.size(); rangeInc++)
 	{
 		for (int variationInc = 0; variationInc < variations[rangeInc]; variationInc++)
 		{
@@ -97,12 +97,12 @@ void KeyHandler::generateKey()
 		// initialize this to one so that constants always get at least one value.
 	}
 	int totalSize = 1;
-	for (int variableInc = 0; variableInc < variableIndexes.size(); variableInc++)
+	for (UINT variableInc = 0; variableInc < variableIndexes.size(); variableInc++)
 	{
 		int varIndex = variableIndexes[variableInc];
 		// calculate all values for a given variable
 		std::vector<double> tempKey, tempKeyRandomized;
-		for (int rangeInc = 0; rangeInc < variations.size(); rangeInc++)
+		for (UINT rangeInc = 0; rangeInc < variations.size(); rangeInc++)
 		{
 			double range = (variables[varIndex].ranges[rangeInc].finalValue - variables[varIndex].ranges[rangeInc].initialValue);
 			int spacings;
@@ -135,7 +135,7 @@ void KeyHandler::generateKey()
 			}
 		}
 		// now shuffle these values
-		for (int randomizerInc = 0; randomizerInc < randomizerKey.size(); randomizerInc++)
+		for (UINT randomizerInc = 0; randomizerInc < randomizerKey.size(); randomizerInc++)
 		{
 			tempKeyRandomized.push_back(tempKey[randomizerKey[randomizerInc]]);
 		}
@@ -172,12 +172,12 @@ void KeyHandler::exportKey()
 	{
 		thrower("ERROR: Exporting Key File Failed to open!");
 	}
-	for (int variableInc = 0; variableInc < variables.size(); variableInc++)
+	for (UINT variableInc = 0; variableInc < variables.size(); variableInc++)
 	{
 		if (!variables[variableInc].constant)
 		{
 			keyFile << std::setw(15) << variables[variableInc].name;
-			for (int keyInc = 0; keyInc < keyValues[variables[variableInc].name].first.size(); keyInc++)
+			for (UINT keyInc = 0; keyInc < keyValues[variables[variableInc].name].first.size(); keyInc++)
 			{
 				keyFile << std::setprecision(12) << std::setw(15) << keyValues[variables[variableInc].name].first[keyInc];
 				keyFile << " ";

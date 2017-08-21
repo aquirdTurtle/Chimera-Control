@@ -2,61 +2,56 @@
 #include "stdafx.h"
 #include "MainOptionsControl.h"
 
-void MainOptionsControl::rearrange(int width, int height, fontMap fonts)
+void MainOptionsControl::rearrange( int width, int height, fontMap fonts )
 {
-	header.rearrange("", "", width, height, fonts);
-	controlIntensity.rearrange("", "", width, height, fonts);
+	header.rearrange( width, height, fonts );
+	controlIntensity.rearrange( width, height, fonts );
+	rearrangeButton.rearrange( width, height, fonts );
 }
 
 
 void MainOptionsControl::handleSaveConfig(std::ofstream& saveFile)
 {
 	saveFile << "MAIN_OPTIONS\n";
-	saveFile << currentOptions.programIntensity << "\n";
+	saveFile << controlIntensity.GetCheck() << "\n";
+	saveFile << rearrangeButton.GetCheck() << "\n";
 	saveFile << "END_MAIN_OPTIONS\n";
 }
 
 
 void MainOptionsControl::handleOpenConfig(std::ifstream& openFile, double version)
 {
-	ProfileSystem::checkDelimiterLine(openFile, "MAIN_OPTIONS");
+ 	ProfileSystem::checkDelimiterLine(openFile, "MAIN_OPTIONS");
 	openFile >> currentOptions.programIntensity;
-	ProfileSystem::checkDelimiterLine(openFile, "END_MAIN_OPTIONS");
+	controlIntensity.SetCheck( currentOptions.programIntensity );
+	openFile >> currentOptions.rearrange;
+	rearrangeButton.SetCheck( currentOptions.rearrange );
+ 	ProfileSystem::checkDelimiterLine(openFile, "END_MAIN_OPTIONS");
 }
 
 
-void MainOptionsControl::initialize(int& id, POINT& loc, CWnd* parent, fontMap fonts, cToolTips& tooltips)
+void MainOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips )
 {
-	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
-	header.Create("MAIN OPTIONS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, parent, id++ );
-	header.SetFont(fonts["Heading Font"]);
-	loc.y += 20;
-
+	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
+	header.Create( "MAIN OPTIONS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, parent, id++ );
+	header.fontType = HeadingFont;
 	//
-	controlIntensity.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 20 };
-	controlIntensity.Create("Program Intensity?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT, controlIntensity.sPos, 
-							parent, id++);
-	controlIntensity.SetFont(fonts["Normal Font"]);
+	controlIntensity.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
+	controlIntensity.Create( "Program Intensity?", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | BS_RIGHT, controlIntensity.sPos,
+							 parent, IDC_MAIN_OPTIONS_RANGE_BEGIN );
+
+	rearrangeButton.sPos = { loc.x, loc.y, loc.x + 480 , loc.y += 25 };
+	rearrangeButton.Create( "Includes Rearrangement Procedure?", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | BS_RIGHT,
+							rearrangeButton.sPos, parent, IDC_MAIN_OPTIONS_RANGE_END );
+	//
 	currentOptions.programIntensity = false;
-	loc.y += 20;	
-	idVerify(controlIntensity, IDC_MAIN_OPTIONS_RANGE_END);
+	currentOptions.rearrange = false;	
 }
 
 bool MainOptionsControl::handleEvent(UINT id, MainWindow* comm)
 {
-	if (id == controlIntensity.GetDlgCtrlID())
+	if (id == controlIntensity.GetDlgCtrlID() || id == rearrangeButton.GetDlgCtrlID())
 	{
-		BOOL checked = controlIntensity.GetCheck();
-		if (checked)
-		{
-			controlIntensity.SetCheck(0);
-			currentOptions.programIntensity = false;
-		}
-		else
-		{
-			controlIntensity.SetCheck(1);
-			currentOptions.programIntensity = true;
-		}
 		comm->updateConfigurationSavedStatus(false);
 	}
 	return TRUE;
@@ -64,10 +59,8 @@ bool MainOptionsControl::handleEvent(UINT id, MainWindow* comm)
 
 mainOptions MainOptionsControl::getOptions()
 {
+	currentOptions.programIntensity = controlIntensity.GetCheck();
+	currentOptions.rearrange = rearrangeButton.GetCheck();
 	return currentOptions;
 }
 
-void MainOptionsControl::setOptions(mainOptions options)
-{
-	// todo
-}

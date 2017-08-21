@@ -8,7 +8,7 @@ struct dacInputStruct
 {
 	DacSystem* dacs;
 	cToolTips toolTips;
-	DeviceWindow* master;
+	AuxiliaryWindow* master;
 };
 
 

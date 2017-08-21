@@ -6,11 +6,12 @@
 #include "DataAnalysisHandler.h"
 #include "Control.h"
 #include "CameraWindow.h"
-#include "ConfigurationFileSystem.h"
+#include "ProfileSystem.h"
 #include "PlotDesignerDialog.h"
 
-void DataAnalysisControl::initialize(cameraPositions& pos, int& id, CWnd* parent, fontMap fonts, cToolTips& tooltips, 
-									  int isTriggerModeSensitive)
+
+void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips, 
+									  int isTriggerModeSensitive, rgbMap rgbs )
 {
 	header.seriesPos = { pos.seriesPos.x,  pos.seriesPos.y,  pos.seriesPos.x + 480, pos.seriesPos.y + 25 };
 	header.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y + 25 };
@@ -32,7 +33,6 @@ void DataAnalysisControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	currentDataSetNumberText.triggerModeSensitive = isTriggerModeSensitive;
 	currentDataSetNumberText.Create("Most Recent Data Set #:", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY,
 									currentDataSetNumberText.seriesPos, parent, id++);
-	currentDataSetNumberText.fontType = NormalFont;
 	//
 	currentDataSetNumberEdit.seriesPos = { pos.seriesPos.x + 400, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 25 };
 	currentDataSetNumberEdit.amPos = { pos.amPos.x + 400, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 25 };
@@ -40,7 +40,6 @@ void DataAnalysisControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	currentDataSetNumberEdit.triggerModeSensitive = isTriggerModeSensitive;
 	currentDataSetNumberEdit.Create("?", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY,
 									currentDataSetNumberEdit.seriesPos, parent, id++);
-	currentDataSetNumberEdit.fontType = NormalFont;
 	pos.seriesPos.y += 25;
 	pos.amPos.y += 25;
 
@@ -52,9 +51,7 @@ void DataAnalysisControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	setAnalysisLocationsButton.videoPos = { -1,-1,-1,-1 };
 	setAnalysisLocationsButton.triggerModeSensitive = isTriggerModeSensitive;
 	setAnalysisLocationsButton.Create("Set AutoAnalysis Points", WS_CHILD | WS_VISIBLE | BS_PUSHLIKE | BS_CHECKBOX,
-									  setAnalysisLocationsButton.seriesPos, parent, id++);
-	idVerify(setAnalysisLocationsButton, IDC_SET_ANALYSIS_LOCATIONS);
-	setAnalysisLocationsButton.fontType = NormalFont;
+									  setAnalysisLocationsButton.seriesPos, parent, IDC_SET_ANALYSIS_LOCATIONS );
 	pos.seriesPos.y += 25;
 	pos.amPos.y += 25;
 
@@ -67,15 +64,12 @@ void DataAnalysisControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 
 	updateFrequencyLabel1.Create("Update plots every (", WS_CHILD | WS_VISIBLE | WS_BORDER,
 								 updateFrequencyLabel1.seriesPos, parent, id++);
-	updateFrequencyLabel1.fontType = NormalFont;
 	// Plotting Frequency Edit
 	updateFrequencyEdit.seriesPos = { pos.seriesPos.x + 150, pos.seriesPos.y,pos.seriesPos.x + 200, pos.seriesPos.y + 25 };
 	updateFrequencyEdit.videoPos = { pos.videoPos.x + 150, pos.videoPos.y, pos.videoPos.x + 200, pos.videoPos.y + 25 };
 	updateFrequencyEdit.amPos = { pos.amPos.x + 150, pos.amPos.y, pos.amPos.x + 200, pos.amPos.y + 25 };
 	updateFrequencyEdit.triggerModeSensitive = isTriggerModeSensitive;
-	updateFrequencyEdit.Create( WS_CHILD | WS_VISIBLE | WS_BORDER, updateFrequencyEdit.seriesPos, parent,
-							    id++);
-	updateFrequencyEdit.fontType = NormalFont;
+	updateFrequencyEdit.Create( WS_CHILD | WS_VISIBLE | WS_BORDER, updateFrequencyEdit.seriesPos, parent, id++);
 	updateFrequency = 5;
 	updateFrequencyEdit.SetWindowTextA("5");
 	// end of that statement
@@ -85,15 +79,13 @@ void DataAnalysisControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	updateFrequencyLabel2.triggerModeSensitive = isTriggerModeSensitive;
 	updateFrequencyLabel2.Create(") repetitions.", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON,
 								 updateFrequencyLabel2.seriesPos, parent, id++);
-	updateFrequencyLabel2.fontType = NormalFont;
 	/// the listview
 	plotListview.seriesPos = { pos.seriesPos.x,   pos.seriesPos.y,  pos.seriesPos.x + 480,  pos.seriesPos.y += 250 };
 	plotListview.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 250 };
 	plotListview.amPos = { pos.amPos.x,     pos.amPos.y,   pos.amPos.x + 480,   pos.amPos.y += 250 };
 	plotListview.triggerModeSensitive = isTriggerModeSensitive;
-	plotListview.Create(WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS, plotListview.seriesPos, parent, id++);
-	idVerify(plotListview, IDC_PLOTTING_LISTVIEW);
-	plotListview.fontType == NormalFont;
+	plotListview.Create(WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS | WS_BORDER, plotListview.seriesPos, parent, 
+						 IDC_PLOTTING_LISTVIEW );
 	// initialize the listview
 	LV_COLUMN listViewDefaultCollumn;
 	// Zero Members
@@ -110,6 +102,10 @@ void DataAnalysisControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 	plotListview.InsertColumn(1, &listViewDefaultCollumn);
 	listViewDefaultCollumn.pszText = "Edit?";
 	plotListview.InsertColumn(1, &listViewDefaultCollumn);
+
+	plotListview.SetBkColor( rgbs["Solarized Base02"]);
+	plotListview.SetTextBkColor( rgbs["Solarized Base02"] );
+	plotListview.SetTextColor( rgbs["Solarized Green"] );
 	//
 	reloadListView();
 }
@@ -117,7 +113,7 @@ void DataAnalysisControl::initialize(cameraPositions& pos, int& id, CWnd* parent
 
 unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 {
-	plotThreadInput* input = (plotThreadInput*)voidInput;
+	realTimePlotterInput* input = (realTimePlotterInput*)voidInput;
 	// Register any windows messages for the main window
 	//ePlottingIsSlowMessage = RegisterWindowMessage("ID_PLOTTING_IS_SLOW");
 	//ePlottingCaughtUpMessage = RegisterWindowMessage("ID_PLOTTING_CAUGHT_UP");
@@ -125,7 +121,7 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 	
 	std::vector<PlottingInfo> allPlots;
 	/// open files
-	for (int plotInc = 0; plotInc < input->plotInfo.size(); plotInc++)
+	for (UINT plotInc = 0; plotInc < input->plotInfo.size(); plotInc++)
 	{
 		std::string tempFileName = PLOT_FILES_SAVE_LOCATION + "\\" + input->plotInfo[plotInc].name + PLOTTING_EXTENSION;
 		allPlots.push_back(PlottingInfo::PlottingInfo(tempFileName));
@@ -139,7 +135,7 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 		return 0;
 	}
 	/// check pictures per experiment
-	for (int plotInc = 0; plotInc < allPlots.size(); plotInc++)
+	for (UINT plotInc = 0; plotInc < allPlots.size(); plotInc++)
 	{
 		if (allPlots[0].getPicNumber() != allPlots[plotInc].getPicNumber())
 		{
@@ -154,11 +150,11 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 	int numberOfLossDataPixels = 0;
 	
 	/// figure out which pixels need any data
-	for (int plotInc = 0; plotInc < allPlots.size(); plotInc++)
+	for (UINT plotInc = 0; plotInc < allPlots.size(); plotInc++)
 	{
-		for (int pixelInc = 0; pixelInc < allPlots[plotInc].getPixelNumber(); pixelInc++)
+		for (UINT pixelInc = 0; pixelInc < allPlots[plotInc].getPixelNumber(); pixelInc++)
 		{
-			for (int groupInc = 0; groupInc < allPlots[plotInc].getPixelGroupNumber(); groupInc++)
+			for (UINT groupInc = 0; groupInc < allPlots[plotInc].getPixelGroupNumber(); groupInc++)
 			{
 				int row, collumn;
 				bool alreadyExists = false;
@@ -240,21 +236,21 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 	finalXVals.resize(allPlots.size());
 	newData.resize(allPlots.size());
 	// much sizing...
-	for (int plotInc = 0; plotInc < allPlots.size(); plotInc++)
+	for (UINT plotInc = 0; plotInc < allPlots.size(); plotInc++)
 	{
 		finalData[plotInc].resize(allPlots[plotInc].getDataSetNumber());
 		finalAvgs[plotInc].resize(allPlots[plotInc].getDataSetNumber());
 		finalErrorBars[plotInc].resize(allPlots[plotInc].getDataSetNumber());
 		finalXVals[plotInc].resize(allPlots[plotInc].getDataSetNumber());
 		newData[plotInc].resize(allPlots[plotInc].getDataSetNumber());
-		for (int dataSetInc = 0; dataSetInc < allPlots[plotInc].getDataSetNumber(); dataSetInc++)
+		for (UINT dataSetInc = 0; dataSetInc < allPlots[plotInc].getDataSetNumber(); dataSetInc++)
 		{
 			finalData[plotInc][dataSetInc].resize(allPlots[plotInc].getPixelGroupNumber());
 			finalAvgs[plotInc][dataSetInc].resize(allPlots[plotInc].getPixelGroupNumber());
 			finalErrorBars[plotInc][dataSetInc].resize(allPlots[plotInc].getPixelGroupNumber());
 			finalXVals[plotInc][dataSetInc].resize(allPlots[plotInc].getPixelGroupNumber());
 			newData[plotInc][dataSetInc].resize(allPlots[plotInc].getPixelGroupNumber());
-			for (int groupInc = 0; groupInc < allPlots[plotInc].getPixelGroupNumber(); groupInc++)
+			for (UINT groupInc = 0; groupInc < allPlots[plotInc].getPixelGroupNumber(); groupInc++)
 			{
 				newData[plotInc][dataSetInc][groupInc] = true;
 			}
@@ -377,15 +373,15 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 			}
 
 			// check if actually true. there's got to be a better way to iterate through these guys...
-			for (int dataSetI = 0; dataSetI < allPlots[plotI].getDataSetNumber(); dataSetI++)
+			for (UINT dataSetI = 0; dataSetI < allPlots[plotI].getDataSetNumber(); dataSetI++)
 			{
-			  for (int groupI = 0; groupI < allPlots[plotI].getPixelGroupNumber(); groupI++)
+			  for (UINT groupI = 0; groupI < allPlots[plotI].getPixelGroupNumber(); groupI++)
 			  {
-				for (int conditionI = 0; conditionI < allPlots[plotI].getConditionNumber(); conditionI++)
+				for (UINT conditionI = 0; conditionI < allPlots[plotI].getConditionNumber(); conditionI++)
 				{
-				  for (int pixelI = 0; pixelI < allPlots[plotI].getPixelNumber(); pixelI++)
+				  for (UINT pixelI = 0; pixelI < allPlots[plotI].getPixelNumber(); pixelI++)
 				  {
-					for (int picI = 0; picI < allPlots[plotI].getPicNumber(); picI++)
+					for (UINT picI = 0; picI < allPlots[plotI].getPicNumber(); picI++)
 					{
 					  // test if condition exists
 					  int condition = allPlots[plotI].getPostSelectionCondition(dataSetI, conditionI, pixelI, picI);
@@ -442,7 +438,7 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 }
 
 
-void DataAnalysisControl::handlePlotAtomsOrCounts(plotThreadInput* input, PlottingInfo plotInfo, UINT repNum,
+void DataAnalysisControl::handlePlotAtomsOrCounts(realTimePlotterInput* input, PlottingInfo plotInfo, UINT repNum,
 												  std::vector<std::vector<std::vector<long> > >& finData,
 												  std::vector<std::vector<std::vector<double> > >& finAvgs,
 												  std::vector<std::vector<std::vector<double> > >& finErrs,
@@ -467,9 +463,9 @@ void DataAnalysisControl::handlePlotAtomsOrCounts(plotThreadInput* input, Plotti
 	/// Check Data Conditions
 	if (plotInfo.getPlotType() == "Atoms")
 	{
-		for (int dataSetI = 0; dataSetI < plotInfo.getDataSetNumber(); dataSetI++)
+		for (UINT dataSetI = 0; dataSetI < plotInfo.getDataSetNumber(); dataSetI++)
 		{
-			for (int groupI = 0; groupI < plotInfo.getPixelGroupNumber(); groupI++)
+			for (UINT groupI = 0; groupI < plotInfo.getPixelGroupNumber(); groupI++)
 			{
 				if (pscSatisfied[dataSetI][groupI] == false)
 				{
@@ -806,7 +802,7 @@ void DataAnalysisControl::handlePlotAtomsOrCounts(plotThreadInput* input, Plotti
 
 
 
-void DataAnalysisControl::handlePlotHist(plotThreadInput* input, PlottingInfo plotInfo, UINT plotNumber, 
+void DataAnalysisControl::handlePlotHist(realTimePlotterInput* input, PlottingInfo plotInfo, UINT plotNumber, 
 										 std::vector<std::vector<long>> countData, 
 										 std::vector<std::vector<std::vector<long>>>& finData,
 										 std::vector<std::vector<bool>>pscSatisfied)
@@ -869,7 +865,7 @@ void DataAnalysisControl::handlePlotHist(plotThreadInput* input, PlottingInfo pl
 
 ///
 
-void DataAnalysisControl::fillPlotThreadInput(plotThreadInput* input)
+void DataAnalysisControl::fillPlotThreadInput(realTimePlotterInput* input)
 {
 	std::vector<tinyPlotInfo> usedPlots;
 	input->plotInfo.clear();
@@ -882,7 +878,7 @@ void DataAnalysisControl::fillPlotThreadInput(plotThreadInput* input)
 		}
 	}
 
-	input->analysisLocations = getAnalysisLocations();
+	input->analysisLocations = getAnalysisLocs();
 	input->plottingFrequency = updateFrequency;
 
 	// as I fill the input, also check this, which is necessary info for plotting.
@@ -1006,7 +1002,7 @@ void DataAnalysisControl::setAtomLocation( std::pair<int, int> location )
 }
 
 
-std::vector<std::pair<int, int>> DataAnalysisControl::getAnalysisLocations()
+std::vector<std::pair<int, int>> DataAnalysisControl::getAnalysisLocs()
 {
 	return atomLocations;
 }

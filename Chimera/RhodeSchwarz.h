@@ -25,7 +25,7 @@ struct rsgEventInfoFinal
 class RhodeSchwarz
 {
 	public:
-		void initialize( POINT& pos, cToolTips& toolTips, DeviceWindow* master, int& id );
+		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id );
 		void programRSG(Gpib* gpib, UINT var);
 		void addFrequency( rsgEventStructuralInfo eventInfo );
 		void clearFrequencies();

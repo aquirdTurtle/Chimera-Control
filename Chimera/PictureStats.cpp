@@ -7,19 +7,17 @@
 
 
 // as of right now, the position of this control is not affected by the mode or the trigger mode.
-void PictureStats::initialize( POINT& pos, CWnd* parent, int& id, fontMap fonts, cToolTips& tooltips )
+void PictureStats::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& tooltips )
 {
 	pictureStatsHeader.sPos = { pos.x, pos.y, pos.x + 272, pos.y + 25 };
 	pictureStatsHeader.Create( "Raw Counts", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY | ES_CENTER,
 							   pictureStatsHeader.sPos, parent, id++ );
-	pictureStatsHeader.fontType = HeadingFont;
 	pos.y += 25;
 	/// CURRENT IMAGE DATA
 	// Current Accumulation Number Display
 	repetitionIndicator.sPos = { pos.x, pos.y, pos.x + 272, pos.y + 25 };
 	repetitionIndicator.Create( "Repetition ?/?", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY | ES_CENTER, 
 							   repetitionIndicator.sPos, parent, id++ );
-	repetitionIndicator.fontType = NormalFont;
 	pos.y += 25;
 	/// Picture labels ////////////////////////////////////////////////////////////
 

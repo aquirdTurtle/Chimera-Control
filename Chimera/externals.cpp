@@ -6,12 +6,10 @@
 #include <vector>
 #include "Windows.h"
 #include "constants.h"
-#include "ConfigurationFileSystem.h"
+#include "ProfileSystem.h"
 #include "VariableSystem.h"
 #include "DebuggingOptionsControl.h"
 
-int scriptIDs = 110000;
-int debugID = 111000;
 std::vector<std::string> WAVEFORM_NAME_FILES = std::vector<std::string>(4 * MAX_NIAWG_SIGNALS);
 std::vector<std::string> WAVEFORM_TYPE_FOLDERS = std::vector<std::string>(4 * MAX_NIAWG_SIGNALS);
 
@@ -33,7 +31,6 @@ DWORD eHorizontalMinChange = ULONG_MAX, eHorizontalMaxChange = 0;
 DWORD eVerticalMinChange = ULONG_MAX, eVerticalMaxChange = 0;
 //
 
-std::string eExperimentConfigPathString;
 std::string eVerticalParentScriptPathString;
 std::string eVerticalViewScriptPathString;
 std::string eHorizontalParentScriptPathString;
@@ -43,8 +40,6 @@ std::string eIntensityViewScriptPathString;
 std::string eMostRecentVerticalScriptNames;
 std::string eMostRecentHorizontalScriptNames;
 std::string eMostRecentIntensityScriptNames;
-std::vector<std::string> eSequenceFileNames;
-
 
 bool eAbortNiawgFlag = false;
 
@@ -61,11 +56,6 @@ UINT eColoredEditMessageID = RegisterWindowMessage( "ID_VARIABLE_VALUES_MESSAGE"
 UINT eCameraFinishMessageID = RegisterWindowMessage( "ID_CAMERA_FINISH_MESSAGE" );
 UINT eCameraProgressMessageID = RegisterWindowMessage( "ID_CAMERA_PROGRESS_MESSAGE" );
 UINT eRepProgressMessageID = RegisterWindowMessage("ID_REPETITION_PROGRESS_MESSAGE");
-
-// Colors
-HBRUSH eDullRedBrush = CreateSolidBrush(RGB(25, 0, 0));
-HBRUSH eDarkRedBrush = CreateSolidBrush(RGB(75, 0, 0));
-HBRUSH eGreyRedBrush = CreateSolidBrush(RGB(50, 45, 45));
 
 HANDLE eWaitingForNIAWGEvent;
 HANDLE eExperimentThreadHandle;
