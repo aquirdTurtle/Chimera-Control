@@ -33,10 +33,11 @@ class PictureStats
 		{
 			displayDataType = RAW_COUNTS;
 		}
-		void initialize( POINT& pos, CWnd* parent, int& id, fontMap fonts, cToolTips& tooltips );
+		void initialize( POINT& pos, CWnd* parent, int& id, cToolTips& tooltips );
 		void rearrange( std::string cameraMode, std::string trigMode, int width, int height, fontMap fonts );
-		std::pair<int, int> update( std::vector<long> image, unsigned int imageNumber, std::pair<int, int> selectedPixel,
-					 int pictureWidth, int pictureHeight, int currentRepetitionNumbar, int totalRepetitionCount );
+		std::pair<int, int> update( std::vector<long> image, UINT imageNumber, std::pair<int, int> selectedPixel,
+									int pictureWidth, int pictureHeight, int currentRepetitionNumbar,
+									int totalRepetitionCount );
 		void reset();
 		void updateType( std::string typeText );
 

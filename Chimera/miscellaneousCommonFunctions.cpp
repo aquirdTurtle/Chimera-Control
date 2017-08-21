@@ -105,8 +105,6 @@ double reduce(std::string expression, key variationKey, UINT variation, std::vec
 
 	// do math.
 	bool parenthesisExists = true;
-	bool multExists;
-	bool addExists;
 	bool atLeastOneTerm = false;
 	/// parenthesis
 	while (parenthesisExists)
@@ -187,19 +185,19 @@ double reduce(std::string expression, key variationKey, UINT variation, std::vec
 					}
 					leftTerm = std::stod(rightmostParenthesisTerms[count - 1]);
 				}
-				catch (std::invalid_argument& err)
+				catch (std::invalid_argument&)
 				{
-					thrower("ERROR: Tried and failed to convert string " + rightmostParenthesisTerms[count - 1]
-							+ " to a double for multiplication/division!");
+					thrower("ERROR: Tried and failed to evaluate string " + rightmostParenthesisTerms[count - 1]
+							+ " to a double (error in for multiplication / division section)!");
 				}
 				try
 				{
 					rightTerm = std::stod(rightmostParenthesisTerms[count + 1]);
 				}
-				catch (std::invalid_argument& err)
+				catch (std::invalid_argument&)
 				{
 					thrower("ERROR: Tried and failed to convert string " + rightmostParenthesisTerms[count + 1]
-							+ " to a double for multiplication/division!");
+							+ " to a double (error in for multiplication / division section)!");
 				}
 				// caliculate the result
 				if (rightmostParenthesisTerms[count] == "/")
@@ -246,19 +244,19 @@ double reduce(std::string expression, key variationKey, UINT variation, std::vec
 						leftTerm = std::stod(rightmostParenthesisTerms[count - 1]);
 					}
 				}
-				catch (std::invalid_argument& err)
+				catch (std::invalid_argument&)
 				{
-					thrower("ERROR: Tried and failed to convert string " + rightmostParenthesisTerms[count - 1]
-							+ " to a double for addition/subtraction!");
+					thrower("ERROR: Tried and failed to evaluate string " + rightmostParenthesisTerms[count - 1]
+							+ " to a double (error in for addition/subtraction section)!");
 				}
 				try
 				{
 					rightTerm = std::stod(rightmostParenthesisTerms[count + 1]);
 				}
-				catch (std::invalid_argument& err)
+				catch (std::invalid_argument&)
 				{
-					thrower("ERROR: Tried and failed to convert string " + rightmostParenthesisTerms[count + 1]
-							+ " to a double for addition/subtraction!");
+					thrower("ERROR: Tried and failed to evaluate string " + rightmostParenthesisTerms[count + 1]
+							+ " to a double (error in for addition/subtraction section)!");
 				}
 				// caliculate the result
 				if (rightmostParenthesisTerms[count] == "+")
@@ -315,7 +313,7 @@ double reduce(std::string expression, key variationKey, UINT variation, std::vec
 	{
 		resultOfReduction = std::stod(terms[0]);
 	}
-	catch (std::invalid_argument& err)
+	catch (std::invalid_argument&)
 	{
 		std::string msg("ERROR: Math evaluation failed! Final result failed to reduce to double! Original Expression was "
 						+ expression + ". Result of reduction string was \"" + terms[0] + "\" \r\nVariables: \r\n");

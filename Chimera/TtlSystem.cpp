@@ -7,7 +7,7 @@
 
 #include "TtlSystem.h"
 #include "constants.h"
-#include "DeviceWindow.h"
+#include "AuxiliaryWindow.h"
 // I don't use this because I manually import dll functions.
 // #include "Dio64.h"
 
@@ -330,23 +330,23 @@ void TtlSystem::unshadeTtls()
 
 void TtlSystem::rearrange(UINT width, UINT height, fontMap fonts)
 {
-	ttlTitle.rearrange("", "", width, height, fonts);
-	ttlHold.rearrange("", "", width, height, fonts);
-	zeroTtls.rearrange("", "", width, height, fonts);
+	ttlTitle.rearrange( width, height, fonts);
+	ttlHold.rearrange( width, height, fonts);
+	zeroTtls.rearrange( width, height, fonts);
 	for (auto& row : ttlPushControls)
 	{
 		for (auto& control : row)
 		{
-			control.rearrange("", "", width, height, fonts);
+			control.rearrange( width, height, fonts);
 		}
 	}
 	for (auto& control : ttlNumberLabels)
 	{
-		control.rearrange("", "", width, height, fonts);
+		control.rearrange( width, height, fonts);
 	}
 	for (auto& control : ttlRowLabels)
 	{
-		control.rearrange("", "", width, height, fonts);
+		control.rearrange( width, height, fonts);
 	}
 }
 
@@ -393,7 +393,7 @@ std::pair<UINT, UINT> TtlSystem::getTtlBoardSize()
 }
 
 
-void TtlSystem::initialize( POINT& loc, cToolTips& toolTips, DeviceWindow* master, int& id )
+void TtlSystem::initialize( POINT& loc, cToolTips& toolTips, AuxiliaryWindow* master, int& id )
 {
 	// title
 	ttlTitle.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 25 };
@@ -403,14 +403,13 @@ void TtlSystem::initialize( POINT& loc, cToolTips& toolTips, DeviceWindow* maste
 	loc.y += 25;
 	ttlHold.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 20 };
 	ttlHold.Create( "Hold Current Values", WS_TABSTOP | WS_VISIBLE | BS_AUTOCHECKBOX | WS_CHILD | BS_PUSHLIKE,
-					ttlHold.sPos, master, id++ );
-	idVerify(ttlHold, TTL_HOLD);
+					ttlHold.sPos, master, TTL_HOLD );
 	ttlHold.setToolTip("Press this button to change multiple TTLs simultaneously. Press the button, then change the "
 					   "ttls, then press the button again to release it. Upon releasing the button, the TTLs will "
 					   "change.", toolTips, master);
 	zeroTtls.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y + 20 };
-	zeroTtls.Create( "Zero TTLs", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, zeroTtls.sPos, master, id++ );
-	idVerify(zeroTtls, IDC_ZERO_TTLS);
+	zeroTtls.Create( "Zero TTLs", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, zeroTtls.sPos, master, 
+					 IDC_ZERO_TTLS );
 	zeroTtls.setToolTip( "Pres this button to set all ttls to their zero (false) state.", toolTips, master );
 	loc.y += 20;
 
@@ -447,6 +446,7 @@ void TtlSystem::initialize( POINT& loc, cToolTips& toolTips, DeviceWindow* maste
 								  ttlRowLabels[row].sPos, master, id++ );
 	}
 	// all push buttons
+	UINT runningCount = 0;
 	for (int row = 0; row < ttlPushControls.size(); row++)
 	{
 		for (int number = 0; number < ttlPushControls[row].size(); number++)
@@ -473,14 +473,11 @@ void TtlSystem::initialize( POINT& loc, cToolTips& toolTips, DeviceWindow* maste
 			ttlPushControls[row][number].sPos = { loc.x + 32 + number * 28, loc.y + row * 28,
 				loc.x + 32 + (number + 1) * 28, loc.y + (row + 1) * 28 };
 			ttlPushControls[row][number].Create( "", WS_CHILD | WS_VISIBLE | BS_RIGHT | BS_3STATE,
-												 ttlPushControls[row][number].sPos, master, id++ );
+												 ttlPushControls[row][number].sPos, master, 
+												 TTL_ID_BEGIN + runningCount++ );
 			ttlPushControls[row][number].setToolTip(ttlNames[row][number], toolTips, master);
 		}
 	}
-
-	idVerify(ttlPushControls.front().front(), TTL_ID_BEGIN );
-	idVerify(ttlPushControls.back().back(), TTL_ID_END );
-
 	loc.y += 28 * 4;
 }
 
@@ -552,8 +549,6 @@ int TtlSystem::getNumberOfTTLsPerRow()
 		return -1;
 	}
 }
-
-TtlSystem::~TtlSystem(){}
 
 void TtlSystem::handleTTLPress(UINT id)
 {
@@ -683,22 +678,16 @@ HBRUSH TtlSystem::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs
 			return *brushes["Medium Grey"];
 		}
 	}
-	else if (controlID == ttlTitle.GetDlgCtrlID())
-	{
-		cDC->SetBkColor(rGBs["Medium Grey"]);
-		cDC->SetTextColor(rGBs["Gold"]);
-		return *brushes["Medium Grey"];
-	}
 	else if (controlID >= ttlRowLabels.front().GetDlgCtrlID() && controlID <= ttlRowLabels.back().GetDlgCtrlID())
 	{
 		cDC->SetBkColor(rGBs["Medium Grey"]);
-		cDC->SetTextColor(rGBs["White"]);
+		cDC->SetTextColor(rGBs["Solarized Base1"]);
 		return *brushes["Medium Grey"];
 	}
 	else if (controlID >= ttlNumberLabels.front().GetDlgCtrlID() && controlID <= ttlNumberLabels.back().GetDlgCtrlID())
 	{
 		cDC->SetBkColor(rGBs["Medium Grey"]);
-		cDC->SetTextColor(rGBs["White"]);
+		cDC->SetTextColor(rGBs["Solarized Base1"]);
 		return *brushes["Medium Grey"];
 	}
 	else
@@ -846,7 +835,7 @@ void TtlSystem::forceTtl(int row, int number, int state)
 }
 
 
-void TtlSystem::setName(UINT row, UINT number, std::string name, cToolTips& toolTips, DeviceWindow* master)
+void TtlSystem::setName(UINT row, UINT number, std::string name, cToolTips& toolTips, AuxiliaryWindow* master)
 {
 	if (name == "")
 	{
@@ -1110,8 +1099,8 @@ void TtlSystem::convertToFinalFormat(UINT var)
 	{
 		WORD lowordTime;
 		WORD hiwordTime;
-		// convert to system clock ticks. Assume that the crate is running on a 10 MHz signal, so multiply by 10,000,000, but then my time is in milliseconds, so divide that
-		// by 1,000, ending with multiply by 10,000
+		// convert to system clock ticks. Assume that the crate is running on a 10 MHz signal, so multiply by
+		// 10,000,000, but then my time is in milliseconds, so divide that by 1,000, ending with multiply by 10,000
 		lowordTime = long(ttlSnapshots[var][timeInc].time * 10000) % 65535;
 		hiwordTime = long(ttlSnapshots[var][timeInc].time * 10000) / 65535;
 		// each major index is a row (A, B, C, D), each minor index is a ttl state (0, 1) in that row.
@@ -1132,8 +1121,8 @@ void TtlSystem::convertToFinalFormat(UINT var)
 				}
 			}
 		}
-		// I need to put it as an int (just because I'm not actually sure how the bitset gets stored... it'd probably work just passing the address of the 
-		// bitsets, but I'm sure this will work so whatever.)
+		// I need to put it as an int (just because I'm not actually sure how the bitset gets stored... it'd probably 
+		// work just passing the address of the bitsets, but I'm sure this will work so whatever.)
 		std::array<unsigned short, 6> tempCommand;
 		tempCommand[0] = lowordTime;
 		tempCommand[1] = hiwordTime;

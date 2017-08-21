@@ -101,10 +101,10 @@ void CameraSettingsControl::handleSetTemperaturePress()
 	//runSettings = andorFriend->getSettings();
 	CString text;
 	temperatureEdit.GetWindowTextA(text);
-	double temp;
+	int temp;
 	try
 	{
-		temp = std::stof(str(text));
+		temp = std::stoi(str(text));
 	}
 	catch (std::invalid_argument&)
 	{
@@ -175,7 +175,7 @@ void CameraSettingsControl::setEmGain(AndorCamera* andorObj)
 	{
 		thrower("ERROR: Couldn't convert EM Gain text to integer.");
 	}
-	// < 0 corresponds to NOT USING EM GAIN (using conventional gain).
+	// < 0 corresponds to NOT USING EM NIAWG_GAIN (using conventional gain).
 	if (emGain < 0)
 	{
 		runSettings.emGainModeIsOn = false;
@@ -312,7 +312,7 @@ void CameraSettingsControl::updatePassivelySetSettings()
 		runSettings.kineticCycleTime = std::stof(str(text));
 		kineticCycleTimeEdit.SetWindowTextA(cstr(runSettings.kineticCycleTime));
 	}
-	catch (std::invalid_argument& err)
+	catch (std::invalid_argument&)
 	{
 		runSettings.kineticCycleTime = 0.1f;
 		kineticCycleTimeEdit.SetWindowTextA(cstr(runSettings.kineticCycleTime));
@@ -325,7 +325,7 @@ void CameraSettingsControl::updatePassivelySetSettings()
 		runSettings.accumulationTime = std::stof(str(text));
 		accumulationCycleTimeEdit.SetWindowTextA(cstr(runSettings.accumulationTime));
 	}
-	catch (std::invalid_argument& err)
+	catch (std::invalid_argument&)
 	{
 		runSettings.accumulationTime = 0.1f;
 		accumulationCycleTimeEdit.SetWindowTextA(cstr(runSettings.accumulationTime));
@@ -335,23 +335,25 @@ void CameraSettingsControl::updatePassivelySetSettings()
 	accumulationNumberEdit.GetWindowTextA(text);
 	try
 	{
-		runSettings.accumulationNumber= std::stof(str(text));
+		runSettings.accumulationNumber = std::stol(str(text));
 		accumulationNumberEdit.SetWindowTextA(cstr(runSettings.accumulationNumber));
 	}
-	catch (std::invalid_argument& err)
+	catch (std::invalid_argument&)
 	{
-		runSettings.accumulationNumber = 0.1f;
+		runSettings.accumulationNumber = 1;
 		accumulationNumberEdit.SetWindowTextA(cstr(runSettings.accumulationNumber));
 		thrower("Please enter a valid float for the Accumulation number.");
 	}
 }
+
 
 std::array<int, 4> CameraSettingsControl::getPaletteNumbers()
 {
 	return picSettingsObj.getPictureColors();
 }
 
-void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* parent, fontMap fonts, cToolTips& tooltips)
+
+void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips)
 {
 	/// Header
 	header.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
@@ -366,9 +368,8 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	cameraModeCombo.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 100 };
 	cameraModeCombo.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y + 100 };
 	
-	cameraModeCombo.Create(WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, cameraModeCombo.seriesPos, parent, id++);
-	idVerify(cameraModeCombo, IDC_CAMERA_MODE_COMBO);
-	cameraModeCombo.fontType = NormalFont;
+	cameraModeCombo.Create( WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, cameraModeCombo.seriesPos, parent, 
+							IDC_CAMERA_MODE_COMBO );
 	cameraModeCombo.AddString("Kinetic Series Mode");
 	cameraModeCombo.AddString("Accumulation Mode");
 	cameraModeCombo.AddString("Video Mode");
@@ -381,9 +382,8 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	emGainButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 120, pos.seriesPos.y + 20 };
 	emGainButton.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 120, pos.videoPos.y + 20 };
 	emGainButton.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 120, pos.amPos.y + 20 };
-	emGainButton.Create("Set EM Gain", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, emGainButton.seriesPos, parent, id++);
-	idVerify(emGainButton, IDC_SET_EM_GAIN_BUTTON);
-	emGainButton.fontType = NormalFont;
+	emGainButton.Create("Set EM Gain", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, emGainButton.seriesPos, parent, 
+						 IDC_SET_EM_GAIN_BUTTON );
 	emGainButton.setToolTip( "Set the state & gain of the EM gain of the camera. Enter a negative number to turn EM Gain"
 							 " mode off. The program will immediately change the state of the camera after pressing this button.", tooltips,
 							 parent );
@@ -392,14 +392,12 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	emGainEdit.amPos = { pos.amPos.x + 120, pos.amPos.y, pos.amPos.x + 300, pos.amPos.y + 20 };
 	emGainEdit.videoPos = { pos.videoPos.x + 120, pos.videoPos.y, pos.videoPos.x + 300, pos.videoPos.y + 20 };
 	emGainEdit.Create(WS_CHILD | WS_VISIBLE | BS_RIGHT, emGainEdit.seriesPos, parent, id++);
-	emGainEdit.fontType = NormalFont;
 	//
 	emGainDisplay.seriesPos = { pos.seriesPos.x + 300, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 20 };
 	emGainDisplay.videoPos = { pos.videoPos.x + 300, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y + 20 };
 	emGainDisplay.amPos = { pos.amPos.x + 300, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 20 };
 	emGainDisplay.Create( "OFF", WS_CHILD | WS_VISIBLE | BS_RIGHT | ES_READONLY | ES_CENTER, emGainDisplay.seriesPos, 
 						  parent, id++);
-	emGainDisplay.fontType = NormalFont;
 	// initialize settings.
 	runSettings.emGainLevel = 0;
 	runSettings.emGainModeIsOn = false;
@@ -412,10 +410,8 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	triggerCombo.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 800 };
 	triggerCombo.videoPos = { pos.videoPos.x, pos.videoPos.y,pos.videoPos.x + 480, pos.videoPos.y + 800 };
 	triggerCombo.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 800 };
-	triggerCombo.Create(WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, triggerCombo.seriesPos, parent, id++ );
-	idVerify(triggerCombo, IDC_TRIGGER_COMBO);
+	triggerCombo.Create(WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST, triggerCombo.seriesPos, parent, IDC_TRIGGER_COMBO );
 	// set options for the combo
-	triggerCombo.fontType = NormalFont;
 	triggerCombo.AddString("Internal Trigger");
 	triggerCombo.AddString("External Trigger");
 	triggerCombo.AddString("Start On Trigger");
@@ -430,28 +426,23 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	setTemperatureButton.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 270, pos.videoPos.y + 25 };
 	setTemperatureButton.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 270, pos.amPos.y + 25 };
 	setTemperatureButton.Create("Set Camera Temperature (C)", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON, setTemperatureButton.seriesPos,
-								parent, id++);
-	setTemperatureButton.fontType = NormalFont;
-	idVerify(setTemperatureButton, IDC_SET_TEMPERATURE_BUTTON);
+								parent, IDC_SET_TEMPERATURE_BUTTON );
 	// Temperature Edit
 	temperatureEdit.seriesPos = { pos.seriesPos.x + 270, pos.seriesPos.y, pos.seriesPos.x + 350, pos.seriesPos.y + 25 };
 	temperatureEdit.videoPos = { pos.videoPos.x + 270, pos.videoPos.y, pos.videoPos.x + 350, pos.videoPos.y + 25 };
 	temperatureEdit.amPos = { pos.amPos.x + 270, pos.amPos.y, pos.amPos.x + 350, pos.amPos.y + 25 };
 	temperatureEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT, temperatureEdit.seriesPos, parent, id++);
 	temperatureEdit.SetWindowTextA("0");
-	temperatureEdit.fontType = NormalFont;
 	// Temperature Setting Display
 	temperatureDisplay.seriesPos = { pos.seriesPos.x + 350, pos.seriesPos.y, pos.seriesPos.x + 430, pos.seriesPos.y + 25 };
 	temperatureDisplay.videoPos = { pos.videoPos.x + 350, pos.videoPos.y, pos.videoPos.x + 430, pos.videoPos.y + 25 };
 	temperatureDisplay.amPos = { pos.amPos.x + 350, pos.amPos.y, pos.amPos.x + 430, pos.amPos.y + 25 };
 	temperatureDisplay.Create("", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_LEFT | ES_READONLY, temperatureDisplay.seriesPos, parent, id++);
-	temperatureDisplay.fontType = NormalFont;
 	// Temperature Control Off Button
 	temperatureOffButton.seriesPos = { pos.seriesPos.x + 430, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 25 };
 	temperatureOffButton.videoPos = { pos.videoPos.x + 430, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y + 25 };
 	temperatureOffButton.amPos = { pos.amPos.x + 430, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 25 };
 	temperatureOffButton.Create("OFF", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON, temperatureOffButton.seriesPos, parent, id++);
-	temperatureOffButton.fontType = NormalFont;
 	pos.seriesPos.y += 25;
 	pos.amPos.y += 25;
 	pos.videoPos.y += 25;
@@ -461,7 +452,6 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	temperatureMessage.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 50 };	
 	temperatureMessage.Create( "Temperature control is disabled", WS_CHILD | WS_VISIBLE | SS_LEFT, 
 							  temperatureMessage.seriesPos, parent, id++);
-	temperatureMessage.fontType = NormalFont;
 	pos.seriesPos.y += 50;
 	pos.amPos.y += 50;
 	pos.videoPos.y += 50;
@@ -507,7 +497,6 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	kineticCycleTimeLabel.triggerModeSensitive = -1;
 	kineticCycleTimeLabel.Create( "Kinetic Cycle Time", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, kineticCycleTimeLabel.seriesPos,
 								  parent, id++ );
-	kineticCycleTimeLabel.fontType = NormalFont;
 
 	// Kinetic Cycle Time Edit
 	kineticCycleTimeEdit.seriesPos = { pos.seriesPos.x + 240, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
@@ -516,7 +505,6 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	kineticCycleTimeEdit.triggerModeSensitive = -1;
 	kineticCycleTimeEdit.Create(WS_CHILD | WS_VISIBLE | WS_BORDER, kineticCycleTimeEdit.seriesPos, parent, id++);
 	kineticCycleTimeEdit.SetWindowTextA("0.1");
-	kineticCycleTimeEdit.fontType = NormalFont;
 }
 
 

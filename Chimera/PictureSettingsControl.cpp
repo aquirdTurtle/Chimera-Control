@@ -7,6 +7,7 @@
 #include "CameraWindow.h"
 
 
+
 void PictureSettingsControl::cameraIsOn( bool state )
 {
 	setPictureOptionsButton.EnableWindow( !state );
@@ -64,13 +65,12 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	setPictureOptionsButton.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
 	setPictureOptionsButton.Create( "Set Picture Options", WS_CHILD | WS_VISIBLE, setPictureOptionsButton.seriesPos, parent, 
 									id++ );
-	idVerify(setPictureOptionsButton, PICTURE_SETTINGS_ID_START);
-	setPictureOptionsButton.fontType = NormalFont;
 	/// Picture Numbers
 	pictureLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y + 20 };
 	pictureLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100,	pos.amPos.y + 20 };
 	pictureLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100,	pos.videoPos.y + 20 };
 	pictureLabel.Create( "Picture #:", WS_CHILD | WS_VISIBLE, pictureLabel.seriesPos, parent, id++ );
+	UINT runningCount = 0;
 	for (int picInc = 0; picInc < 4; picInc++)
 	{
 		pictureNumbers[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y, 
@@ -80,7 +80,7 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 		pictureNumbers[picInc].videoPos = { pos.videoPos.x + 100 + 95 * picInc, pos.videoPos.y, 
 											pos.videoPos.x + 100 + 95 * (picInc + 1), pos.videoPos.y + 20 };
 		pictureNumbers[picInc].Create( cstr( picInc + 1 ), WS_CHILD | WS_VISIBLE | SS_CENTER, 
-									  pictureNumbers[picInc].seriesPos, parent, id++ );
+									   pictureNumbers[picInc].seriesPos, parent, PICTURE_SETTINGS_ID_START+runningCount++);
 	}
 	pos.seriesPos.y += 20;
 	pos.amPos.y += 20;
@@ -90,7 +90,7 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	totalPicNumberLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y + 20 };
 	totalPicNumberLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y + 20 };
 	totalPicNumberLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y + 20 };
-	totalPicNumberLabel.Create( "Total Picture #", WS_CHILD | WS_VISIBLE, totalPicNumberLabel.seriesPos, parent, id++ );
+	totalPicNumberLabel.Create( "Total Picture #", WS_CHILD | WS_VISIBLE, totalPicNumberLabel.seriesPos, parent, PICTURE_SETTINGS_ID_START + runningCount++ );
 	for (int picInc = 0; picInc < 4; picInc++)
 	{
 		totalNumberChoice[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y, 
@@ -103,14 +103,14 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 		{
 			// first of group
 			totalNumberChoice[picInc].Create( "", WS_CHILD | WS_VISIBLE | BS_CENTER | WS_GROUP | BS_AUTORADIOBUTTON,
-											  totalNumberChoice[picInc].seriesPos, parent, id++);
+											  totalNumberChoice[picInc].seriesPos, parent, PICTURE_SETTINGS_ID_START + runningCount++ );
 			totalNumberChoice[picInc].SetCheck( 1 );
 		}
 		else
 		{
 			// members of group.
 			totalNumberChoice[picInc].Create( "", WS_CHILD | WS_VISIBLE | BS_CENTER | BS_AUTORADIOBUTTON,
-											  totalNumberChoice[picInc].seriesPos, parent, id++ );
+											  totalNumberChoice[picInc].seriesPos, parent, PICTURE_SETTINGS_ID_START + runningCount++ );
 		}
 	}
 	pos.seriesPos.y += 20;
@@ -121,7 +121,8 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	exposureLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y + 20 };
 	exposureLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y + 20 };
 	exposureLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y + 20 };
-	exposureLabel.Create( "Exposure (ms):", WS_CHILD | WS_VISIBLE, exposureLabel.seriesPos, parent, id++);
+	exposureLabel.Create( "Exposure (ms):", WS_CHILD | WS_VISIBLE, exposureLabel.seriesPos, parent, 
+						  PICTURE_SETTINGS_ID_START + runningCount++ );
 	exposureTimesUnofficial.resize( 4 );
 
 	for (int picInc = 0; picInc < 4; picInc++)
@@ -133,9 +134,10 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 		exposureEdits[picInc].videoPos = { pos.videoPos.x + 100 + 95 * picInc, pos.videoPos.y,
 										   pos.videoPos.x + 100 + 95 * (picInc + 1), pos.videoPos.y + 20 };
 		// first of group
-		exposureEdits[picInc].Create( WS_CHILD | WS_VISIBLE | WS_BORDER, exposureEdits[picInc].seriesPos, parent, id++ );
+		exposureEdits[picInc].Create( WS_CHILD | WS_VISIBLE | WS_BORDER, exposureEdits[picInc].seriesPos, parent, 
+									  PICTURE_SETTINGS_ID_START + runningCount++ );
 		exposureEdits[picInc].SetWindowTextA( "26.0" );
-		exposureTimesUnofficial[picInc] = 26 / 1000.0;
+		exposureTimesUnofficial[picInc] = 26 / 1000.0f;
 	}
 	pos.seriesPos.y += 20;
 	pos.amPos.y += 20;
@@ -145,7 +147,8 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	thresholdLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y + 20 };
 	thresholdLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y + 20 };
 	thresholdLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y + 20 };
-	thresholdLabel.Create( "Threshold (cts)", WS_CHILD | WS_VISIBLE, thresholdLabel.seriesPos, parent, id++);
+	thresholdLabel.Create( "Threshold (cts)", WS_CHILD | WS_VISIBLE, thresholdLabel.seriesPos, parent, 
+						   PICTURE_SETTINGS_ID_START + runningCount++ );
 	for (int picInc = 0; picInc < 4; picInc++)
 	{
 		thresholdEdits[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y,
@@ -156,7 +159,7 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 			pos.videoPos.x + 100 + 95 * (picInc + 1), pos.videoPos.y + 20 };
 		// first of group
 		thresholdEdits[picInc].Create( WS_CHILD | WS_VISIBLE | WS_BORDER, thresholdEdits[picInc].seriesPos, parent, 
-									   id++);
+									   PICTURE_SETTINGS_ID_START + runningCount++ );
 		thresholdEdits[picInc].SetWindowTextA( "100" );
 		thresholds[picInc] = 100;
 	}
@@ -168,19 +171,23 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	viridaLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y += 20 };
 	viridaLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y += 20 };
 	viridaLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y += 20 };
-	viridaLabel.Create( "Virida", WS_CHILD | WS_VISIBLE, viridaLabel.seriesPos, parent, id++);
+	viridaLabel.Create( "Virida", WS_CHILD | WS_VISIBLE, viridaLabel.seriesPos, parent,
+						PICTURE_SETTINGS_ID_START + runningCount++ );
 
 	/// Red --> Blue color
 	infernoLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y += 20 };
 	infernoLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y += 20 };
 	infernoLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y += 20 };
-	infernoLabel.Create( "Inferno", WS_CHILD | WS_VISIBLE, infernoLabel.seriesPos, parent, id++);
+	infernoLabel.Create( "Inferno", WS_CHILD | WS_VISIBLE, infernoLabel.seriesPos, parent, 
+						 PICTURE_SETTINGS_ID_START + runningCount++ );
+
 
 	/// Black --> White color
 	blackWhiteLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y += 20 };
 	blackWhiteLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y += 20 };
 	blackWhiteLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y += 20 };
-	blackWhiteLabel.Create( "Greyscale", WS_CHILD | WS_VISIBLE, blackWhiteLabel.seriesPos, parent, id++ );
+	blackWhiteLabel.Create( "Greyscale", WS_CHILD | WS_VISIBLE, blackWhiteLabel.seriesPos, parent, 
+							PICTURE_SETTINGS_ID_START + runningCount++ );
 
 	/// The radio buttons
 	for (int picInc = 0; picInc < 4; picInc++)
@@ -195,7 +202,8 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 		veridaRadios[picInc].videoPos = { pos.videoPos.x + 100 + 95 * picInc, pos.videoPos.y,
 			pos.videoPos.x + 100 + 95 * (picInc + 1), pos.videoPos.y + 20 };
 		veridaRadios[picInc].Create( "", BS_CENTER | WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON | WS_GROUP,
-										 veridaRadios[picInc].seriesPos, parent, id++);
+										 veridaRadios[picInc].seriesPos, parent, 
+									 PICTURE_SETTINGS_ID_START + runningCount++ );
 		pos.seriesPos.y += 20;
 		pos.amPos.y += 20;
 		pos.videoPos.y += 20;
@@ -206,7 +214,8 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 		infernoRadios[picInc].videoPos = { pos.videoPos.x + 100 + 95 * picInc, pos.videoPos.y,
 			pos.videoPos.x + 100 + 95 * (picInc + 1), pos.videoPos.y + 20 };
 		infernoRadios[picInc].Create( "", BS_CENTER | WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
-									  infernoRadios[picInc].seriesPos, parent, id++);
+									  infernoRadios[picInc].seriesPos, parent, 
+									  PICTURE_SETTINGS_ID_START + runningCount++ );
 		pos.seriesPos.y += 20;
 		pos.amPos.y += 20;
 		pos.videoPos.y += 20;
@@ -218,7 +227,8 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 			pos.videoPos.x + 100 + 95 * (picInc + 1), pos.videoPos.y + 20 };
 		// first of group
 		blackWhiteRadios[picInc].Create( "", BS_CENTER | WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
-										 blackWhiteRadios[picInc].seriesPos, parent, id++);
+										 blackWhiteRadios[picInc].seriesPos, parent, 
+										 PICTURE_SETTINGS_ID_START + runningCount++ );
 		blackWhiteRadios[picInc].SetCheck( 1 );
 		colors[picInc] = 2;
 		pos.seriesPos.y += 20;
@@ -233,8 +243,6 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	disablePictureControls( 3 );
 	// should move up
 	picsPerRepetitionUnofficial = 1;
-	
-	idVerify(blackWhiteRadios.back(), PICTURE_SETTINGS_ID_END);
 }
 
 
@@ -288,14 +296,14 @@ CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer, brushMap bru
 			if (dif < 0.000000001)
 			{
 				// good.
-				colorer->SetBkColor(rgbs["Dark Green"]);
+				colorer->SetBkColor(rgbs["Solarized Green"]);
 				// catch change of color and redraw window.
 				if (exposureEdits[picNum].colorState != 0)
 				{
 					exposureEdits[picNum].colorState = 0;
 					exposureEdits[picNum].RedrawWindow();
 				}
-				return brushes["Dark Green"];
+				return brushes["Solarized Green"];
 			}
 		}
 		catch (std::exception&)
@@ -330,14 +338,14 @@ CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer, brushMap bru
 			if (dif < 0.000000001)
 			{
 				// good.
-				colorer->SetBkColor(rgbs["Dark Green"]);
+				colorer->SetBkColor(rgbs["Solarized Green"]);
 				// catch change of color and redraw window.
 				if (thresholdEdits[picNum].colorState != 0)
 				{
 					thresholdEdits[picNum].colorState = 0;
 					thresholdEdits[picNum].RedrawWindow();
 				}
-				return brushes["Dark Green"];
+				return brushes["Solarized Green"];
 			}
 		}
 		catch (std::exception&)
@@ -364,7 +372,7 @@ int PictureSettingsControl::getPicsPerRepetition()
 	return picsPerRepetitionUnofficial;
 }
 
-void PictureSettingsControl::handleOptionChange(UINT id, AndorCamera* andorObj)
+void PictureSettingsControl::handleOptionChange(int id, AndorCamera* andorObj)
 {
 	if (id >= totalNumberChoice.front().GetDlgCtrlID() && id <= totalNumberChoice.back().GetDlgCtrlID())
 	{
@@ -457,7 +465,7 @@ void PictureSettingsControl::setExposureTimes(std::vector<float> times, AndorCam
 	try { parentSettingsControl->checkTimings(exposuresToSet); }
 	catch (std::runtime_error&) { throw; }
 
-	for (int exposureInc = 0; exposureInc < exposuresToSet.size(); exposureInc++)
+	for (UINT exposureInc = 0; exposureInc < exposuresToSet.size(); exposureInc++)
 	{
 		exposureTimesUnofficial[exposureInc] = exposuresToSet[exposureInc];
 	}

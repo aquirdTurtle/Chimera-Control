@@ -21,7 +21,7 @@ class CameraSettingsControl
 		void setVariationNumber(UINT varNumber);
 		void setRepsPerVariation(UINT repsPerVar);
 		CBrush* handleColor(int idNumber, CDC* colorer, brushMap brushes, rgbMap rgbs);
-		void initialize(cameraPositions& pos, int& id, CWnd* parent, fontMap fonts, cToolTips& tooltips);
+		void initialize(cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips);
 		void checkTimings(std::vector<float> exposureTimes);
 		void checkTimings(float kineticCycleTime, float accumulationTime, std::vector<float> exposureTimes);
 		imageParameters readImageParameters(CameraWindow* camWin);
@@ -78,7 +78,7 @@ class CameraSettingsControl
 
 		std::string currentControlColor;
 		// two subclassed groups.
-		CameraImageDimensionsControl imageDimensionsObj;
+		CameraImageDimsControl imageDimensionsObj;
 		PictureSettingsControl picSettingsObj;
 		// the currently selected settings, not necessarily those being used to run the current
 		// experiment.

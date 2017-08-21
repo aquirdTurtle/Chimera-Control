@@ -59,11 +59,11 @@ void DataSet::addPicture()
 	int currentPixelNum = resultConditions.size();
 	// this should always be at least one large.
 	int currentPictureNum = resultConditions[0].size();
-	for (int pixelInc = 0; pixelInc < currentPixelNum; pixelInc++)
+	for (UINT pixelInc = 0; pixelInc < currentPixelNum; pixelInc++)
 	{
 		resultConditions[pixelInc].resize(currentPictureNum + 1);
 		dataCountsLocation[pixelInc].resize(currentPictureNum + 1);
-		for (int postSelectionConditionInc = 0; postSelectionConditionInc < postSelectionConditions.size(); postSelectionConditionInc++)
+		for (UINT postSelectionConditionInc = 0; postSelectionConditionInc < postSelectionConditions.size(); postSelectionConditionInc++)
 		{
 			postSelectionConditions[postSelectionConditionInc][pixelInc].resize(currentPictureNum + 1);
 		}
@@ -163,7 +163,7 @@ void DataSet::removePicture()
 	for (int pixelInc = 0; pixelInc < currentPixelNum; pixelInc++)
 	{
 		resultConditions[pixelInc].resize(currentPictureNum - 1);
-		for (int postSelectionConditionInc = 0; postSelectionConditionInc < postSelectionConditions.size(); postSelectionConditionInc++)
+		for (UINT postSelectionConditionInc = 0; postSelectionConditionInc < postSelectionConditions.size(); postSelectionConditionInc++)
 		{
 			postSelectionConditions[postSelectionConditionInc][pixelInc].resize(currentPictureNum - 1);
 		}
@@ -278,15 +278,15 @@ std::string DataSet::getLegendText()
 void DataSet::resetPictureNumber(int pictureNumber)
 {
 	// resultConditions[Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)
-	for (int pixelInc = 0; pixelInc < resultConditions.size(); pixelInc++)
+	for (UINT pixelInc = 0; pixelInc < resultConditions.size(); pixelInc++)
 	{
 		resultConditions[pixelInc].clear();
 		resultConditions[pixelInc].resize(pictureNumber);
 	}
 	// postSelectionConditions[Condition#][Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)
-	for (int conditionInc = 0; conditionInc < postSelectionConditions.size(); conditionInc++)
+	for (UINT conditionInc = 0; conditionInc < postSelectionConditions.size(); conditionInc++)
 	{
-		for (int pixelInc = 0; pixelInc < postSelectionConditions[conditionInc].size(); pixelInc++)
+		for (UINT pixelInc = 0; pixelInc < postSelectionConditions[conditionInc].size(); pixelInc++)
 		{
 			postSelectionConditions[conditionInc][pixelInc].clear();
 			postSelectionConditions[conditionInc][pixelInc].resize(pictureNumber);
@@ -294,7 +294,7 @@ void DataSet::resetPictureNumber(int pictureNumber)
 	}
 
 	// dataCountsLocation[pixel#][picture#] = this pixel is used or not.
-	for (int pixelInc = 0; pixelInc < dataCountsLocation.size(); pixelInc++)
+	for (UINT pixelInc = 0; pixelInc < dataCountsLocation.size(); pixelInc++)
 	{
 		dataCountsLocation[pixelInc].clear();
 		dataCountsLocation[pixelInc].resize(pictureNumber);
@@ -314,12 +314,12 @@ void DataSet::resetPixelNumber(int pixelNumber)
 	resultConditions.clear();
 	resultConditions.resize(pixelNumber);
 	// resize the result conditions.
-	for (int pixelInc = 0; pixelInc < pixelNumber; pixelInc++)
+	for (UINT pixelInc = 0; pixelInc < pixelNumber; pixelInc++)
 	{
 		resultConditions[pixelInc].resize(pixelNumber);
 	}
 	// postSelectionConditions[Condition#][Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)
-	for (int conditionInc = 0; conditionInc < postSelectionConditions.size(); conditionInc++)
+	for (UINT conditionInc = 0; conditionInc < postSelectionConditions.size(); conditionInc++)
 	{
 		postSelectionConditions[conditionInc].clear();
 		postSelectionConditions[conditionInc].resize(pixelNumber);

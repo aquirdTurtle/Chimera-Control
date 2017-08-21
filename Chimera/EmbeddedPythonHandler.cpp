@@ -137,7 +137,7 @@ void EmbeddedPythonHandler::runDataAnalysis(std::string date, long runNumber, lo
 	// 1a, 1b, 2a, 2b, etc. formatting.
 	// pythonFunctionArguments, pythonAtomLocationsArray
 	PyObject* pythonAtomLocationsArray = PyTuple_New(atomLocations.size() * 2);
-	for (int atomInc = 0; atomInc < atomLocations.size(); atomInc++)
+	for (UINT atomInc = 0; atomInc < atomLocations.size(); atomInc++)
 	{
 		// order is flipped. Dunno why...
 		// PyTuple immediately steals the reference from PyLong_FromLong, so I don't need to handle any of these. 

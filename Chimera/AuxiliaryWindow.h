@@ -24,13 +24,13 @@
 
 // The Device window houses most of the controls for seeting individual devices, other than the camera which gets its 
 // own control. It also houses a couple auxiliary things like variables and the SMS texting control.
-class DeviceWindow : public CDialog
+class AuxiliaryWindow : public CDialog
 {
-	DECLARE_DYNAMIC(DeviceWindow);
+	DECLARE_DYNAMIC(AuxiliaryWindow);
 
 	public:
-		DeviceWindow() : CDialog(), tektronics1(TEKTRONICS_AFG_1_ADDRESS), tektronics2(TEKTRONICS_AFG_2_ADDRESS) { }
-		virtual BOOL OnInitDialog();
+		AuxiliaryWindow() : CDialog(){ }
+		BOOL OnInitDialog();
 		void handleOpeningConfig(std::ifstream& configFile, double version);
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 		void OnCancel();
@@ -42,13 +42,20 @@ class DeviceWindow : public CDialog
 		cToolTips toolTips;
 		BOOL PreTranslateMessage(MSG* pMsg);
 		/// Message Map Functions
+		void handleTopBottomEditChange();
+		void handleAxialUwaveEditChange();
+		void handleFlashingEditChange();
+		void OnTimer( UINT_PTR eventID );
 		void handleTtlPush(UINT id);
+		void passToFlashingProgram();
+		void passToTopBottomAgilentProgram();
+		void passToAxialUwaveAgilentProgram();
 		void handlTtlHoldPush();
 		void ViewOrChangeTTLNames();
 		void ViewOrChangeDACNames();
 		void Exit();
 		void passRoundToDac();
-		void getFriends(MainWindow* mainWin, ScriptingWindow* scriptWin, CameraWindow* camWin);
+		void loadFriends(MainWindow* mainWin, ScriptingWindow* scriptWin, CameraWindow* camWin);
 		std::string getSystemStatusMsg();
 		std::array<std::array<std::string, 16>, 4> getTtlNames();
 		std::array<std::string, 24> getDacNames();
@@ -60,7 +67,6 @@ class DeviceWindow : public CDialog
 		void DacEditChange(UINT id);
 		void SetDacs();
 		void LogSettings();
-		void StartExperiment();
 		
 		fontMap getFonts();
 
@@ -85,7 +91,7 @@ class DeviceWindow : public CDialog
 		void GlobalVarRClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void ConfigVarsColumnClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void clearVariables();
-		void addVariable(std::string name, bool timelike, bool singleton, double value, int item);
+		void addVariable(std::string name, bool timelike, bool constant, double value, int item);
 		void ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result);
 
@@ -94,6 +100,8 @@ class DeviceWindow : public CDialog
 		std::pair<UINT, UINT> getTtlBoardSize();
 		UINT getNumberOfDacs();
 		void setConfigActive(bool active);
+		void passTopBottomTekProgram();
+		void passEoAxialTekProgram();
 
 	private:
 		DECLARE_MESSAGE_MAP();		
@@ -110,7 +118,6 @@ class DeviceWindow : public CDialog
 		/// control system classes
 		ExperimentLogger logger;
 		MasterManager manager;
-		SocketWrapper niawgSocket;
 		RhodeSchwarz RhodeSchwarzGenerator;
 		Gpib gpib;
 		KeyHandler masterKey;
@@ -118,7 +125,9 @@ class DeviceWindow : public CDialog
  		TtlSystem ttlBoard;
  		DacSystem dacBoards;
  		MasterConfiguration masterConfig{ MASTER_CONFIGURATION_FILE_ADDRESS };
-		TektronicsControl tektronics1, tektronics2;
+		TektronicsControl topBottomTek, eoAxialTek;
+
+
 		ColorBox boxes;
 		VariableSystem configVariables;
 		VariableSystem globalVariables;

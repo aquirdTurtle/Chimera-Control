@@ -7,7 +7,7 @@
 class StatusIndicator
 {
 	public:
-		void initialize(POINT &loc, CWnd* parent, int& id, fontMap fonts, cToolTips& tooltips);
+		void initialize(POINT &loc, CWnd* parent, int& id, cToolTips& tooltips);
 		void setText(std::string text);
 		void setColor(std::string color);
 		CBrush* handleColor(CWnd* window, CDC* pDC, rgbMap rgbs, brushMap brushes);

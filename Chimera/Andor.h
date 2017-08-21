@@ -5,6 +5,7 @@
 #include <process.h>
 #include <mutex>
 #include "ATMCD32D.h"
+#include "AndorRunSettings.h"
 
 /// /////////////////////////////////////////////////////
 /// 
@@ -18,35 +19,6 @@
 struct AndorBaseSettings
 {
 
-};
-
-// this structure contains all of the main options which are necessary to set when starting a camera acquisition. All
-// of these settings should be possibly modified by the user of the UI.
-struct AndorRunSettings
-{
-	imageParameters imageSettings;
-		//
-	bool emGainModeIsOn;
-	int emGainLevel;
-	int readMode;
-	int acquisitionMode;
-	int frameTransferMode;
-	std::string triggerMode;
-	std::string cameraMode;
-	bool showPicsInRealTime;
-	//
-	float kineticCycleTime;
-	float accumulationTime;
-	int accumulationNumber;
-	std::vector<float> exposureTimes;
-	//
-	int picsPerRepetition;
-	int repetitionsPerVariation;
-	int totalVariations;
-	int totalPicsInExperiment;
-	int totalPicsInVariation;
-	// 
-	int temperatureSetting;
 };
 
 class AndorCamera;
@@ -79,8 +51,8 @@ class AndorCamera
 		void getNumberOfPreAmpGains(int& number);
 		void getOldestImage(std::vector<long>& dataArray);
 		void getPreAmpGain(int index, float& gain);
-		void getStatus();
-		void getStatus(int& status);
+		void queryIdentity();
+		void queryIdentity(int& status);
 		void getTemperatureRange(int& min, int& max);
 		void getTemperature(int& temp);
 
@@ -137,7 +109,7 @@ class AndorCamera
 		void onFinish();
 		bool isRunning();
 		void setIsRunningState( bool state );
-		void updatePictureNumber( int newNumber );
+		void updatePictureNumber( ULONGLONG newNumber );
 		void setGainMode();
 		void changeTemperatureSetting(bool temperatureControlOff);
 		void andorErrorChecker(int errorCode);
@@ -167,8 +139,8 @@ class AndorCamera
 		bool plotThreadExitIndicator;
 		bool cameraThreadExitIndicator = false;
 
-		int currentPictureNumber;
-		int currentRepetitionNumber;
+		ULONGLONG currentPictureNumber;
+		ULONGLONG currentRepetitionNumber;
 
 		HANDLE plottingMutex;
 		// ???

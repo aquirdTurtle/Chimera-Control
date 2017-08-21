@@ -18,29 +18,28 @@ void SmsTextingControl::promptForEmailAddressAndPassword()
 
 void SmsTextingControl::rearrange(int width, int height, fontMap fonts)
 {
-	title.rearrange("", "", width, height, fonts);
-	peopleListView.rearrange("", "", width, height, fonts);	
+	title.rearrange( width, height, fonts);
+	peopleListView.rearrange( width, height, fonts);	
 }
 
 
-void SmsTextingControl::initialize(POINT& pos, CWnd* parent, bool isTriggerModeSensitive, int& id, 
-										   fontMap fonts, cToolTips& tooltips)
+void SmsTextingControl::initialize(POINT& pos, CWnd* parent, bool isTriggerModeSensitive, int& id, cToolTips& tooltips, 
+									rgbMap rgbs)
 {
 	title.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 25 };
 	title.Create("TEXT ME", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY | WS_BORDER, title.sPos, parent, id++ );
 	title.fontType = HeadingFont;
-	title.SetFont(fonts["Normal Font"]);
 
 	peopleListView.sPos = { pos.x, pos.y + 25, pos.x + 480, pos.y + 120 };
-	peopleListView.Create(WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS, peopleListView.sPos, parent, id++ );
-	idVerify(peopleListView, IDC_SMS_TEXTING_LISTVIEW);
+	peopleListView.Create(WS_VISIBLE | WS_CHILD | WS_BORDER | LVS_REPORT | LVS_EDITLABELS, peopleListView.sPos, parent,
+						   IDC_SMS_TEXTING_LISTVIEW );
 	peopleListView.fontType = SmallFont;
 	LV_COLUMN listViewDefaultCollumn;
 	// Zero Members
 	memset(&listViewDefaultCollumn, 0, sizeof(listViewDefaultCollumn));
 	// Type of mask
 	listViewDefaultCollumn.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
-	// width between each coloum
+	// width between each column
 	listViewDefaultCollumn.cx = 0x42;
 	listViewDefaultCollumn.pszText = "Person";
 	// Inserting Couloms as much as we want
@@ -73,6 +72,11 @@ void SmsTextingControl::initialize(POINT& pos, CWnd* parent, bool isTriggerModeS
 	peopleListView.SetItem(&listViewDefaultItem);
 	listViewDefaultItem.iSubItem = 4;
 	peopleListView.SetItem(&listViewDefaultItem);
+
+	peopleListView.SetBkColor( rgbs["Solarized Base02"] );
+	peopleListView.SetTextBkColor( rgbs["Solarized Base02"] );
+	peopleListView.SetTextColor( rgbs["Solarized Base2"] );
+
 	pos.y += 120;
 }
 

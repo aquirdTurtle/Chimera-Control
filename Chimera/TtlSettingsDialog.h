@@ -7,7 +7,7 @@ struct ttlInputStruct
 {
 	TtlSystem* ttls;
 	cToolTips toolTips;
-	DeviceWindow* master;
+	AuxiliaryWindow* master;
 };
 
 class TtlSettingsDialog : public CDialog

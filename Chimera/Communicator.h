@@ -5,7 +5,7 @@
 class MainWindow;
 class ScriptingWindow;
 class CameraWindow;
-class DeviceWindow;
+class AuxiliaryWindow;
 
 enum System
 {
@@ -23,7 +23,7 @@ class Communicator
 {
 	public:
 		void initialize( MainWindow* mainWinParent, ScriptingWindow* scriptingWin, CameraWindow* cameraWin,
-						 DeviceWindow* masterWindow);
+						 AuxiliaryWindow* masterWindow);
 		void sendErrorEx( std::string statusMsg, const char *file, int line );
 		void sendFatalErrorEx( std::string statusMsg, const char *file, int line );
 		void sendStatus( std::string statusMsg );
@@ -38,7 +38,7 @@ class Communicator
 		MainWindow* mainWin;
 		ScriptingWindow* scriptWin;
 		CameraWindow* camWin;
-		DeviceWindow* deviceWin;
+		AuxiliaryWindow* auxWin;
 		void postMyString( CWnd* window, UINT messageTypeID, std::string message );
 };
 

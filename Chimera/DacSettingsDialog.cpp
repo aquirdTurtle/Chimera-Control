@@ -12,7 +12,7 @@ END_MESSAGE_MAP()
 
 void DacSettingsDialog::handleOk()
 {
-	for (int dacInc = 0; dacInc < nameEdits.size(); dacInc++)
+	for (UINT dacInc = 0; dacInc < nameEdits.size(); dacInc++)
 	{
 		/// MAKE SURE that there are 16 numbers per row.
 		CString text;
@@ -75,7 +75,7 @@ BOOL DacSettingsDialog::OnInitDialog()
 	loc.y += 25;
 	loc.x -= 380 * 3;
 
-	for (int dacInc = 0; dacInc < nameEdits.size(); dacInc++)
+	for (UINT dacInc = 0; dacInc < nameEdits.size(); dacInc++)
 	{
 		if (dacInc == nameEdits.size() / 3 || dacInc == 2 * nameEdits.size() / 3)
 		{
@@ -123,7 +123,7 @@ INT_PTR CALLBACK viewAndChangeDAC_NamesProcedure(HWND hDlg, UINT message, WPARAM
 		{
 			input = *(dacInputStruct*)lParam;
 			RECT loc = { 0, 0, 20, 20 };
-			for (int dacInc = 0; dacInc < nameEdits.size(); dacInc++)
+			for (UINT dacInc = 0; dacInc < nameEdits.size(); dacInc++)
 			{
 				if (dacInc == nameEdits.size() / 3 || dacInc == 2 * nameEdits.size() / 3)
 				{
@@ -162,7 +162,7 @@ INT_PTR CALLBACK viewAndChangeDAC_NamesProcedure(HWND hDlg, UINT message, WPARAM
 				}
 				case IDOK:
 				{
-					for (int dacInc = 0; dacInc < nameEdits.size(); dacInc++)
+					for (UINT dacInc = 0; dacInc < nameEdits.size(); dacInc++)
 					{
 						TCHAR name[256];
 						/// MAKE SURE that there are 16 numbers per row.

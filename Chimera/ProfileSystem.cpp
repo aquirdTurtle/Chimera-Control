@@ -4,11 +4,10 @@
 #include "Commctrl.h"
 #include <boost/filesystem.hpp>
 
-#include "ConfigurationFileSystem.h"
+#include "ProfileSystem.h"
 #include "TextPromptDialog.h"
-#include "fonts.h"
 #include "NiawgController.h"
-#include "DeviceWindow.h"
+#include "AuxiliaryWindow.h"
 #include "Andor.h"
 #include "CameraWindow.h"
 
@@ -29,7 +28,7 @@ void ProfileSystem::getConfigInfo( niawgPair<std::vector<std::fstream>>& scriptF
 	scriptFiles[Horizontal].resize( profile.sequenceConfigNames.size() );
 	intensityScriptFiles.resize( profile.sequenceConfigNames.size() );
 	/// gather information from every configuration in the sequence. /////////////////////////////////////////////////////////////////////
-	for (int sequenceInc = 0; sequenceInc < profile.sequenceConfigNames.size(); sequenceInc++)
+	for (UINT sequenceInc = 0; sequenceInc < profile.sequenceConfigNames.size(); sequenceInc++)
 	{
 		// open configuration file
 		std::ifstream configFile( profile.categoryPath + "\\" + profile.sequenceConfigNames[sequenceInc] );
@@ -69,32 +68,32 @@ void ProfileSystem::getConfigInfo( niawgPair<std::vector<std::fstream>>& scriptF
 
 
 void ProfileSystem::saveEntireProfile( ScriptingWindow* scriptWindow, MainWindow* mainWin, 
-												 DeviceWindow* deviceWin, CameraWindow* camWin)
+												 AuxiliaryWindow* auxWindow, CameraWindow* camWin)
 {
 	saveExperimentOnly( mainWin );
 	saveCategoryOnly( mainWin );
-	saveConfigurationOnly( scriptWindow, mainWin, deviceWin, camWin);
+	saveConfigurationOnly( scriptWindow, mainWin, auxWindow, camWin);
 	saveSequence();		
 }
 
 
 void ProfileSystem::checkSaveEntireProfile(ScriptingWindow* scriptWindow, MainWindow* mainWin, 
-													 DeviceWindow* deviceWin, CameraWindow* camWin)
+													 AuxiliaryWindow* auxWin, CameraWindow* camWin)
 {
 	checkExperimentSave( "Save Experiment Settings?", mainWin);
 	checkCategorySave( "Save Category Settings?", mainWin );
-	checkConfigurationSave( "Save Configuration Settings?", scriptWindow, mainWin, deviceWin, camWin);
+	checkConfigurationSave( "Save Configuration Settings?", scriptWindow, mainWin, auxWin, camWin);
 	checkSequenceSave( "Save Sequence Settings?" );
 }
 
 
 void ProfileSystem::allSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* mainWin, 
-													DeviceWindow* deviceWin, CameraWindow* camWin)
+													AuxiliaryWindow* auxWin, CameraWindow* camWin)
 {
 	// check all components of this class.
 	experimentSettingsReadyCheck(mainWin);
 	categorySettinsReadyCheck();
-	configurationSettingsReadyCheck( scriptWindow, mainWin, deviceWin, camWin);
+	configurationSettingsReadyCheck( scriptWindow, mainWin, auxWin, camWin);
 	sequenceSettingsReadyCheck();
 	// passed all checks.
 }
@@ -120,7 +119,7 @@ void ProfileSystem::setOrientation(std::string orientation)
 
 void ProfileSystem::orientationChangeHandler(MainWindow* mainWin)
 {
-	profileSettings profile = mainWin->getCurrentProfileSettings();
+	profileSettings profile = mainWin->getProfileSettings();
 	long long itemIndex = orientationCombo.GetCurSel();
 	TCHAR orientation[256];
 	orientationCombo.GetLBText(int(itemIndex), orientation);
@@ -214,7 +213,7 @@ void ProfileSystem::newConfiguration(MainWindow* mainWin)
 ]--- This function opens a given configuration file, sets all of the relevant parameters, and loads the associated scripts. 
 */
 void ProfileSystem::openConfiguration( std::string configurationNameToOpen, ScriptingWindow* scriptWin, 
-												 MainWindow* mainWin, CameraWindow* camWin, DeviceWindow* deviceWin )
+												 MainWindow* mainWin, CameraWindow* camWin, AuxiliaryWindow* auxWin )
 {
 	// no folder associated with configuraitons. They share the category folder.
 	std::string path = currentProfile.categoryPath + configurationNameToOpen;
@@ -256,7 +255,7 @@ void ProfileSystem::openConfiguration( std::string configurationNameToOpen, Scri
 	camWin->handleOpeningConfig(configFile, version);
 
 	/// give to device window
-	deviceWin->handleOpeningConfig(configFile, version);
+	auxWin->handleOpeningConfig(configFile, version);
 
 	/// give to main window
 	mainWin->handleOpeningConfig(configFile, version);
@@ -294,7 +293,7 @@ void ProfileSystem::checkDelimiterLine(std::ifstream& openFile, std::string deli
 ]- false if the configuration got saved, true if something prevented the configuration from being saved.
 */
 void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWindow* mainWin, 
-													 DeviceWindow* deviceWin, CameraWindow* camWin )
+													 AuxiliaryWindow* auxWin, CameraWindow* camWin )
 {
 	std::string configNameToSave = currentProfile.configuration;
 	// check if category has been set yet.
@@ -400,7 +399,7 @@ void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWi
 	// give it to each window, allowing each window to save its relevant contents to the config file. Order matters.
 	scriptWindow->handleSavingConfig(configSaveFile);
 	camWin->handleSaveConfig(configSaveFile);
-	deviceWin->handleSaveConfig(configSaveFile);
+	auxWin->handleSaveConfig(configSaveFile);
 	mainWin->handleSaveConfig(configSaveFile);
 
 	configSaveFile.close();
@@ -410,7 +409,7 @@ void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWi
 /*
 ]--- Identical to saveConfigurationOnly except that it prompts the user for a name with a dialog box instead of taking one.
 */
-void ProfileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindow* mainWin, DeviceWindow* deviceWin)
+void ProfileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin)
 {
 	// check if category has been set yet.
 	if (currentProfile.category == "")
@@ -526,11 +525,11 @@ void ProfileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindo
 	// Intensity Script File Address
 	configurationSaveFile << addresses.intensityAgilent << "\n";
 	// Number of Variables
-	std::vector<variable> vars = deviceWin->getAllVariables();
+	std::vector<variable> vars = auxWin->getAllVariables();
 	configurationSaveFile << vars.size() << "\n";
 	// Variable Names
 	// This part changed in version 1.1.
-	for (int varInc = 0; varInc < vars.size(); varInc++)
+	for (UINT varInc = 0; varInc < vars.size(); varInc++)
 	{
 		variable info = vars[varInc];
 		configurationSaveFile << info.name << " ";
@@ -721,11 +720,11 @@ void ProfileSystem::updateConfigurationSavedStatus(bool isSaved)
 
 
 bool ProfileSystem::configurationSettingsReadyCheck( ScriptingWindow* scriptWindow, MainWindow* mainWin, 
-															   DeviceWindow* deviceWin, CameraWindow* camWin )
+															   AuxiliaryWindow* auxWin, CameraWindow* camWin )
 {
 	// prompt for save.
 	if (checkConfigurationSave( "There are unsaved configuration settings. Would you like to save the current "
-								"configuration before starting?", scriptWindow, mainWin, deviceWin, camWin))
+								"configuration before starting?", scriptWindow, mainWin, auxWin, camWin))
 	{
 		// canceled
 		return true;
@@ -734,14 +733,14 @@ bool ProfileSystem::configurationSettingsReadyCheck( ScriptingWindow* scriptWind
 }
 
 bool ProfileSystem::checkConfigurationSave(std::string prompt, ScriptingWindow* scriptWindow, 
-													 MainWindow* mainWin, DeviceWindow* deviceWin, CameraWindow* camWin)
+													 MainWindow* mainWin, AuxiliaryWindow* auxWin, CameraWindow* camWin)
 {
 	if (!configurationIsSaved)
 	{
 		int answer = MessageBox(0, cstr(prompt), 0, MB_YESNOCANCEL);
 		if (answer == IDYES)
 		{
-			saveConfigurationOnly(scriptWindow, mainWin, deviceWin, camWin);
+			saveConfigurationOnly(scriptWindow, mainWin, auxWin, camWin);
 		}
 		else if (answer == IDCANCEL)
 		{
@@ -753,12 +752,12 @@ bool ProfileSystem::checkConfigurationSave(std::string prompt, ScriptingWindow* 
 
 
 void ProfileSystem::configurationChangeHandler( ScriptingWindow* scriptWindow, MainWindow* mainWin, 
-														  DeviceWindow* deviceWin, CameraWindow* camWin )
+														  AuxiliaryWindow* auxWin, CameraWindow* camWin )
 {
 	if (!configurationIsSaved)
 	{
 		if (checkConfigurationSave( "The current configuration is unsaved. Save current configuration before changing?",
-									scriptWindow, mainWin, deviceWin, camWin))
+									scriptWindow, mainWin, auxWin, camWin))
 		{
 			configCombo.SelectString(0, cstr(currentProfile.configuration));
 			return;
@@ -775,7 +774,7 @@ void ProfileSystem::configurationChangeHandler( ScriptingWindow* scriptWindow, M
 	TCHAR configurationToOpen[256];
 	// Send CB_GETLBTEXT message to get the item.
 	configCombo.GetLBText(int(itemIndex), configurationToOpen);
-	openConfiguration( configurationToOpen, scriptWindow, mainWin, camWin, deviceWin );
+	openConfiguration( configurationToOpen, scriptWindow, mainWin, camWin, auxWin );
 	// it'd be confusing if these notes stayed here.
 }
 
@@ -1136,14 +1135,16 @@ void ProfileSystem::saveExperimentOnly(MainWindow* mainWin)
 	// check that the experiment name is not empty.
 	if (experimentNameToSave == "")
 	{
-		thrower( "ERROR: Please properly select the experiment or create a new one (\'new experiment\') before trying to save it!" );
+		thrower( "ERROR: Please properly select the experiment or create a new one (\'new experiment\') before trying"
+				 " to save it!" );
 	}
 	// check if file already exists
-	if (!ProfileSystem::fileOrFolderExists(FILE_SYSTEM_PATH + experimentNameToSave + "\\" + experimentNameToSave 
-													  + EXPERIMENT_EXTENSION))
+	if (!ProfileSystem::fileOrFolderExists( FILE_SYSTEM_PATH + experimentNameToSave + "\\" + experimentNameToSave 
+											+ EXPERIMENT_EXTENSION))
 	{
-		int answer = MessageBox(0, cstr("This experiment file appears to not exist in the expected location: " + FILE_SYSTEM_PATH + "   \r\n."
-									 "Continue by making a new experiment file?"), 0, MB_OKCANCEL);
+		int answer = MessageBox(0, cstr("This experiment file appears to not exist in the expected location: " 
+										 + FILE_SYSTEM_PATH + "   \r\n.Continue by making a new experiment file?"), 
+								 0, MB_OKCANCEL);
 		if (answer == IDCANCEL)
 		{
 			return;
@@ -1156,27 +1157,7 @@ void ProfileSystem::saveExperimentOnly(MainWindow* mainWin)
 	}
 	// That's the last prompt the user gets, so the save is final now.
 	currentProfile.experiment = experimentNameToSave;
-
-	debugInfo options = mainWin->getDebuggingOptions();
-	mainOptions settings = mainWin->getMainOptions();
 	/// Start Outputting information
-	/// THIS IS EXPERIMENT SAVED STUFF. T>T
-	// this can be checked by reading functions to see what format to expect. From now on, a version will always be outputted at the beginning of the file.
-	// (05/29/2016)
-	experimentSaveFile << "Version: 1.2\n";
-	// NOTE: Dummy variables used to be outputted here. 
-	// NOTE: accumulations used to be outputted here.
-	// output waveform read progress option
-	experimentSaveFile << options.showReadProgress << "\n";
-	// output waveform write progress option
-	experimentSaveFile << options.showWriteProgress << "\n";
-	// output correction waveform time option
-	experimentSaveFile << options.showCorrectionTimes << "\n";
-	// Output intensity programming option.
-	experimentSaveFile << settings.programIntensity << "\n";
-	// Output more run info option.
-	experimentSaveFile << options.outputExcessInfo << "\n";
-	// notes.
 
 	std::string notes = mainWin->getNotes("experiment");
 	experimentSaveFile << notes << "\n";
@@ -1237,20 +1218,6 @@ void ProfileSystem::saveExperimentAs(MainWindow* mainWin)
 	debugInfo options = mainWin->getDebuggingOptions();
 	mainOptions settings = mainWin->getMainOptions();
 	/// Start Outputting information
-	/// THIS IS EXPERIMENT SAVED STUFF. T>T
-	// this can be checked by reading functions to see what format to expect. From now on, a version will always be outputted at the beginning of the file.
-	// (05/29/2016)
-	experimentSaveFile << "Version: 1.1\n";
-	// output waveform read progress option
-	experimentSaveFile << options.showReadProgress << "\n";
-	// output waveform write progress option
-	experimentSaveFile << options.showWriteProgress << "\n";
-	// output correction waveform time option
-	experimentSaveFile << options.showCorrectionTimes << "\n";
-	// Output intensity programming option.
-	experimentSaveFile << settings.programIntensity << "\n";
-	// Output more run info option.
-	experimentSaveFile << options.outputExcessInfo << "\n";
 	// notes.
 	std::string notes = mainWin->getNotes("experiment");
 	experimentSaveFile << notes << "\n";
@@ -1379,34 +1346,10 @@ void ProfileSystem::openExperiment(std::string experimentToOpen, ScriptingWindow
 	/// Set the Configuration combobox.
 	// Get all files in the relevant directory.
 	std::vector<std::string> configurationNames;
-	//this->reloadCombo(experimentCombo.hwnd, experimentPath, CATEGORY_EXTENSION, "__NONE__");
+	// reloadCombo(experimentCombo.hwnd, experimentPath, CATEGORY_EXTENSION, "__NONE__");
 	std::string version;
-	std::getline(experimentConfigOpenFile, version);/// Load Values from the experiment config file.
-	// Accumulations Number
-	if (version == "Version: 1.0" || version == "Version: 1.1")
-	{
-		std::string trash;
-		experimentConfigOpenFile >> trash;
-	}
-	mainOptions settings = mainWin->getMainOptions();
-	debugInfo options = mainWin->getDebuggingOptions();
-	// output waveform read progress option
-	experimentConfigOpenFile >> options.showReadProgress;
-	// output waveform write progress option
-	experimentConfigOpenFile >> options.showWriteProgress;
-	if (version == "Version: 1.0")
-	{
-		// log current script option
-		std::string garbage;
-		experimentConfigOpenFile >> garbage;
-	}
-	// output correction waveform time option
-	experimentConfigOpenFile >> options.showCorrectionTimes;
-	// program the agilent intensity functino generator option
-	experimentConfigOpenFile >> settings.programIntensity;
-	experimentConfigOpenFile >> options.outputExcessInfo;
-	mainWin->setMainOptions(settings);
-	mainWin->setDebuggingOptions(options);
+	std::getline(experimentConfigOpenFile, version);
+	/// Load Values from the experiment config file.
 	std::string notes;
 	std::string tempNote;
 	// get the trailing newline after the >> operation.
@@ -1634,7 +1577,7 @@ void ProfileSystem::saveSequence()
 		thrower( "ERROR: Couldn't open sequence file for saving!" );
 	}
 	sequenceSaveFile << "Version: 1.0\n";
-	for (int sequenceInc = 0; sequenceInc < this->currentProfile.sequenceConfigNames.size(); sequenceInc++)
+	for (UINT sequenceInc = 0; sequenceInc < this->currentProfile.sequenceConfigNames.size(); sequenceInc++)
 	{
 		sequenceSaveFile << this->currentProfile.sequenceConfigNames[sequenceInc] + "\n";
 	}
@@ -1669,7 +1612,7 @@ void ProfileSystem::saveSequenceAs()
 	}
 	currentProfile.sequence = str(result);
 	sequenceSaveFile << "Version: 1.0\n";
-	for (int sequenceInc = 0; sequenceInc < this->currentProfile.sequenceConfigNames.size(); sequenceInc++)
+	for (UINT sequenceInc = 0; sequenceInc < this->currentProfile.sequenceConfigNames.size(); sequenceInc++)
 	{
 		sequenceSaveFile << this->currentProfile.sequenceConfigNames[sequenceInc] + "\n";
 	}
@@ -1754,7 +1697,6 @@ void ProfileSystem::newSequence(CWnd* parent)
 	std::string newSequenceName = str(result);
 	sequenceFile << newSequenceName + "\n";
 	// output current configuration
-	//eSequenceFileNames.clear();
 	if (newSequenceName == "")
 	{
 		return;
@@ -1788,7 +1730,7 @@ void ProfileSystem::openSequence(std::string sequenceName)
 	}
 	// update the edit
 	sequenceInfoDisplay.SetWindowTextA("Configuration Sequence:\r\n");
-	for (int sequenceInc = 0; sequenceInc < currentProfile.sequenceConfigNames.size(); sequenceInc++)
+	for (UINT sequenceInc = 0; sequenceInc < currentProfile.sequenceConfigNames.size(); sequenceInc++)
 	{
 		appendText( str( sequenceInc + 1 ) + ". " + currentProfile.sequenceConfigNames[sequenceInc] + "\r\n",
 					sequenceInfoDisplay );
@@ -1855,9 +1797,9 @@ std::string ProfileSystem::getSequenceNamesString()
 	if (currentProfile.sequence != "NO SEQUENCE")
 	{
 		namesString += "Sequence:\r\n";
-		for (int sequenceInc = 0; sequenceInc < this->currentProfile.sequenceConfigNames.size(); sequenceInc++)
+		for (UINT sequenceInc = 0; sequenceInc < currentProfile.sequenceConfigNames.size(); sequenceInc++)
 		{
-			namesString += "\t" + str(sequenceInc) + ": " + this->currentProfile.sequenceConfigNames[sequenceInc] + "\r\n";
+			namesString += "\t" + str(sequenceInc) + ": " + currentProfile.sequenceConfigNames[sequenceInc] + "\r\n";
 		}
 	}
 	return namesString;
@@ -1898,60 +1840,53 @@ std::string ProfileSystem::getMasterAddressFromConfig()
 }
 
 
-void ProfileSystem::initialize( POINT& pos, CWnd* parent, int& id, fontMap fonts, cToolTips& tooltips )
+void ProfileSystem::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& tooltips )
 {
 	// Experiment Type
 	experimentLabel.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 20 };
 	experimentLabel.Create( "EXPERIMENT", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, experimentLabel.sPos,
 							parent, id++ );
-	experimentLabel.SetFont( fonts["Heading Font"] );
+	experimentLabel.fontType = HeadingFont;
 	// Experiment Saved Indicator
 	experimentSavedIndicator.sPos = { pos.x + 360, pos.y, pos.x + 480, pos.y + 20 };
 	experimentSavedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT,
 									 experimentSavedIndicator.sPos, parent, id++ );
-	experimentSavedIndicator.SetFont( fonts["Normal Font"] );
 	experimentSavedIndicator.SetCheck( BST_CHECKED );
 	updateExperimentSavedStatus( true );
 	// Category Title
 	categoryLabel.sPos = { pos.x + 480, pos.y, pos.x + 960, pos.y + 20 };
 	categoryLabel.Create( "CATEGORY", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, categoryLabel.sPos, parent, id++);
-	categoryLabel.SetFont( fonts["Heading Font"] );
+	categoryLabel.fontType = HeadingFont;
 	//
 	categorySavedIndicator.sPos = { pos.x + 480 + 380, pos.y, pos.x + 960, pos.y + 20 };
 	categorySavedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT,
 								   categorySavedIndicator.sPos, parent, id++ );
-	categorySavedIndicator.SetFont( fonts["Normal Font"] );
 	categorySavedIndicator.SetCheck( BST_CHECKED );
 	updateCategorySavedStatus( true );
 	pos.y += 20;
 	// Experiment Combo
 	experimentCombo.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 800 };
 	experimentCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE | WS_TABSTOP,
-							experimentCombo.sPos, parent, id++ );
-	idVerify(experimentCombo, IDC_EXPERIMENT_COMBO);
-	experimentCombo.SetFont( fonts["Normal Font"] );
+							experimentCombo.sPos, parent, IDC_EXPERIMENT_COMBO );
 	reloadCombo( experimentCombo.GetSafeHwnd(), PROFILES_PATH, str( "*" ), "__NONE__" );
 	// Category Combo
 	categoryCombo.sPos = { pos.x + 480, pos.y, pos.x + 960, pos.y + 800 };
 	categoryCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE | WS_TABSTOP,
-						  categoryCombo.sPos, parent, id++);
-	idVerify(categoryCombo, IDC_CATEGORY_COMBO);
-	categoryCombo.SetFont( fonts["Normal Font"] );
+						  categoryCombo.sPos, parent, IDC_CATEGORY_COMBO );
 	pos.y += 25;
 	// Orientation Title
 	orientationLabel.sPos = { pos.x, pos.y, pos.x + 120, pos.y + 20 };
 	orientationLabel.Create( "ORIENTATION", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, orientationLabel.sPos,
 							 parent, id++);
-	orientationLabel.SetFont( fonts["Heading Font"] );
+	orientationLabel.fontType = HeadingFont;
 	// Configuration Title
 	configLabel.sPos = { pos.x + 120, pos.y, pos.x + 960, pos.y + 20 };
 	configLabel.Create( "CONFIGURATION", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, configLabel.sPos, parent, id++);
-	configLabel.SetFont( fonts["Heading Font"] );
+	configLabel.fontType = HeadingFont;
 	// Configuration Saved Indicator
 	configurationSavedIndicator.sPos = { pos.x + 860, pos.y, pos.x + 960, pos.y + 20 };
 	configurationSavedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT,
 										configurationSavedIndicator.sPos, parent, id++);
-	configurationSavedIndicator.SetFont( fonts["Normal Font"] );
 	configurationSavedIndicator.SetCheck( BST_CHECKED );
 	updateConfigurationSavedStatus( true );
 	pos.y += 20;
@@ -1962,10 +1897,8 @@ void ProfileSystem::initialize( POINT& pos, CWnd* parent, int& id, fontMap fonts
 	orientationNames.push_back( "Vertical" );
 	orientationCombo.sPos = { pos.x, pos.y, pos.x + 120, pos.y + 800 };
 	orientationCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE | WS_TABSTOP,
-							 orientationCombo.sPos, parent, id++);
-	idVerify(orientationCombo, IDC_ORIENTATION_COMBO);
-	orientationCombo.SetFont( fonts["Normal Font"] );
-	for (int comboInc = 0; comboInc < orientationNames.size(); comboInc++)
+							 orientationCombo.sPos, parent, IDC_ORIENTATION_COMBO );
+	for (UINT comboInc = 0; comboInc < orientationNames.size(); comboInc++)
 	{
 		orientationCombo.AddString( cstr(orientationNames[comboInc]) );
 	}
@@ -1973,21 +1906,17 @@ void ProfileSystem::initialize( POINT& pos, CWnd* parent, int& id, fontMap fonts
 	// configuration combo
 	configCombo.sPos = { pos.x + 120, pos.y, pos.x + 960, pos.y + 800 };
 	configCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE | WS_TABSTOP, 
-					    configCombo.sPos, parent, id++ );
-	idVerify(configCombo, IDC_CONFIGURATION_COMBO);
-	configCombo.SetFont( fonts["Normal Font"] );
+					    configCombo.sPos, parent, IDC_CONFIGURATION_COMBO );
 	pos.y += 25;
 	/// SEQUENCE
 	sequenceLabel.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 20 };
 	sequenceLabel.Create( "SEQUENCE", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, sequenceLabel.sPos, parent, id++);
-	sequenceLabel.SetFont( fonts["Heading Font"] );
+	sequenceLabel.fontType = HeadingFont;
 	pos.y += 20;
 	// combo
 	sequenceCombo.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 800 };
 	sequenceCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
-						  sequenceCombo.sPos, parent, id++);
-	idVerify(sequenceCombo, IDC_SEQUENCE_COMBO);
-	sequenceCombo.SetFont( fonts["Normal Font"] );
+						  sequenceCombo.sPos, parent, IDC_SEQUENCE_COMBO );
 	sequenceCombo.AddString( "NULL SEQUENCE" );
 	sequenceCombo.SetCurSel( 0 );
 	sequenceCombo.SetItemHeight(0, 50);
@@ -2001,7 +1930,6 @@ void ProfileSystem::initialize( POINT& pos, CWnd* parent, int& id, fontMap fonts
 	// saved indicator
 	sequenceSavedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT,
 								   sequenceSavedIndicator.sPos, parent, id++);
-	sequenceSavedIndicator.SetFont( fonts["Normal Font"] );
 	sequenceSavedIndicator.SetCheck( BST_CHECKED );
 	updateSequenceSavedStatus( true );
 }
@@ -2009,21 +1937,21 @@ void ProfileSystem::initialize( POINT& pos, CWnd* parent, int& id, fontMap fonts
 
 void ProfileSystem::rearrange(int width, int height, fontMap fonts)
 {
-	configLabel.rearrange("", "", width, height, fonts);
-	configCombo.rearrange("", "", width, height, fonts);
-	experimentLabel.rearrange("", "", width, height, fonts);
-	experimentCombo.rearrange("", "", width, height, fonts);
-	categoryLabel.rearrange("", "", width, height, fonts);
-	categoryCombo.rearrange("", "", width, height, fonts);
-	sequenceLabel.rearrange("", "", width, height, fonts);
-	sequenceCombo.rearrange("", "", width, height, fonts);
-	sequenceInfoDisplay.rearrange("", "", width, height, fonts);
-	sequenceSavedIndicator.rearrange("", "", width, height, fonts);
-	orientationLabel.rearrange("", "", width, height, fonts);
-	orientationCombo.rearrange("", "", width, height, fonts);
-	categorySavedIndicator.rearrange("", "", width, height, fonts);
-	configurationSavedIndicator.rearrange("", "", width, height, fonts);
-	experimentSavedIndicator.rearrange("", "", width, height, fonts);
+	configLabel.rearrange( width, height, fonts);
+	configCombo.rearrange( width, height, fonts);
+	experimentLabel.rearrange( width, height, fonts);
+	experimentCombo.rearrange( width, height, fonts);
+	categoryLabel.rearrange( width, height, fonts);
+	categoryCombo.rearrange( width, height, fonts);
+	sequenceLabel.rearrange( width, height, fonts);
+	sequenceCombo.rearrange( width, height, fonts);
+	sequenceInfoDisplay.rearrange( width, height, fonts);
+	sequenceSavedIndicator.rearrange( width, height, fonts);
+	orientationLabel.rearrange( width, height, fonts);
+	orientationCombo.rearrange( width, height, fonts);
+	categorySavedIndicator.rearrange( width, height, fonts);
+	configurationSavedIndicator.rearrange( width, height, fonts);
+	experimentSavedIndicator.rearrange( width, height, fonts);
 }
 
 
@@ -2069,7 +1997,7 @@ std::vector<std::string> ProfileSystem::searchForFiles( std::string locationToSe
 	}
 
 	// Remove suffix from file names and...
-	for (int configListInc = 0; configListInc < names.size(); configListInc++)
+	for (UINT configListInc = 0; configListInc < names.size(); configListInc++)
 	{
 		if (extensions == "*" || extensions == "*.*" || extensions == str( "*" ) + HORIZONTAL_EXTENSION
 			 || extensions == str( "*" ) + VERTICAL_EXTENSION || extensions == str( "*" ) + SEQUENCE_EXTENSION
@@ -2108,7 +2036,7 @@ void ProfileSystem::reloadCombo( HWND comboToReload, std::string locationToLook,
 	/// Reset stuffs
 	SendMessage( comboToReload, CB_RESETCONTENT, 0, 0 );
 	// Send list to object
-	for (int comboInc = 0; comboInc < names.size(); comboInc++)
+	for (UINT comboInc = 0; comboInc < names.size(); comboInc++)
 	{
 		if (nameToLoad == names[comboInc])
 		{
@@ -2164,7 +2092,7 @@ std::string ProfileSystem::getCurrentExperiment()
 	return currentProfile.experiment;
 }
 
-profileSettings ProfileSystem::getCurrentProfileSettings()
+profileSettings ProfileSystem::getProfileSettings()
 {
 	return currentProfile;
 }

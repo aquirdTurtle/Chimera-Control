@@ -40,7 +40,7 @@ void PlotDesignerDialog::handlePixelEditChange()
 	{
 		pixelNum = std::stol( str( txt ) );
 	}
-	catch (std::invalid_argument& err)
+	catch (std::invalid_argument&)
 	{
 		errBox( "ERROR: pixels per analysis group text failed to convert to an integer!" );
 	}
@@ -120,22 +120,20 @@ BOOL PlotDesignerDialog::OnInitDialog()
 	generalPlotTypeText.Create( "Plot Type", WS_CHILD | WS_VISIBLE, { pos.x, pos.y, pos.x + 480, pos.y += 25 }, this,
 								id++ );
 	generalPlotTypeCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, { pos.x, \
-								 pos.y, pos.x + 480, pos.y + 200 }, this, id++ );;
+								 pos.y, pos.x + 480, pos.y + 200 }, this, IDC_GENERAL_PLOT_TYPE );
 	generalPlotTypeCombo.AddString( "Pixel Count Histograms" );
 	generalPlotTypeCombo.AddString( "Pixel Counts" );
 	generalPlotTypeCombo.AddString( "Atoms" );
 	generalPlotTypeCombo.SelectString( 0, cstr( currentPlotInfo.getPlotType() ) );
-	idVerify( generalPlotTypeCombo, IDC_GENERAL_PLOT_TYPE );
 	pos.y += 25;
 
 	dataSetNumberText.Create( "Data Set #", WS_CHILD | WS_VISIBLE | WS_BORDER, { pos.x, pos.y, pos.x + 240, pos.y + 25 },
 							  this, id++ );
 	dataSetNumberCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, { pos.x + 240,
-							   pos.y, pos.x + 480, pos.y + 200 }, this, id++ );;
+							   pos.y, pos.x + 480, pos.y + 200 }, this, IDC_PLOT_CREATOR_DATASET_COMBO );
 	dataSetNumberCombo.AddString( "Data Set #1" );
 	dataSetNumberCombo.AddString( "Add New Data Set" );
 	dataSetNumberCombo.AddString( "Remove Data Set" );
-	idVerify( dataSetNumberCombo, IDC_PLOT_CREATOR_DATASET_COMBO );
 	pos.y += 25;
 
 	plotThisDataBox.Create( "Plot This Data", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, { pos.x + 240, pos.y, pos.x + 480,
@@ -151,32 +149,27 @@ BOOL PlotDesignerDialog::OnInitDialog()
 								 pos.y + 25 }, this, id++ );
 	prcPictureNumberCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, { pos.x
 								  + 240, pos.y, pos.x + 480,
-								  pos.y + 200 }, this, id++ );
+								  pos.y + 200 }, this, IDC_PRC_PICTURE_NUMBER );
 	for (auto num : range( picNumber ))
 	{
 		prcPictureNumberCombo.AddString( cstr( "Picture #" + str( num + 1 ) ) );
 	}
-	idVerify( prcPictureNumberCombo, IDC_PRC_PICTURE_NUMBER );
 
 	pos.y += 25;
 
 	prcPixelNumberText.Create( "Pixel Number", WS_CHILD | WS_VISIBLE | WS_BORDER, { pos.x, pos.y, pos.x + 240,
 							   pos.y + 25 }, this, id++ );
 	prcPixelNumberCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, { pos.x + 240,
-								pos.y, pos.x + 480, pos.y + 200 }, this, id++ );
+								pos.y, pos.x + 480, pos.y + 200 }, this, IDC_PRC_PIXEL_NUMBER );
 	prcPixelNumberCombo.AddString( "Pixel #1" );
 
-	idVerify( prcPixelNumberCombo, IDC_PRC_PIXEL_NUMBER );
 	pos.y += 25;
 	prcAtomBox.Create( "Atom", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, { pos.x, pos.y, pos.x + 240, pos.y + 25 }, this,
-					   id++ );
-	idVerify( prcAtomBox, IDC_PRC_ATOM );
+					   IDC_PRC_ATOM );
 	prcNoAtomBox.Create( "No Atom", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, { pos.x + 240, pos.y, pos.x + 480,
-						 pos.y += 25 }, this, id++ );
-	idVerify( prcNoAtomBox, IDC_PRC_NOATOM );
+						 pos.y += 25 }, this, IDC_PRC_NOATOM );
 	prcShowAllButton.Create( "Show All", WS_CHILD | WS_VISIBLE, { pos.x + 240, pos.y, pos.x + 480, pos.y += 25 },
-							 this, id++ );
-	idVerify( prcShowAllButton, IDC_PRC_SHOW_ALL );
+							 this, IDC_PRC_SHOW_ALL );
 	pos.y += 10;
 	fitsText.Create( "Fits", WS_CHILD | WS_VISIBLE, { pos.x, pos.y, pos.x + 240, pos.y += 25 }, this, id++ );
 	fitsText.SetFont( (*dlgFonts)["Heading Font Large"] );
@@ -208,10 +201,9 @@ BOOL PlotDesignerDialog::OnInitDialog()
 									   pos.x + 240, pos.y + 25 }, this, id++ );
 
 	pixelsPerAnalysisGroupEdit.Create( WS_CHILD | WS_VISIBLE, { pos.x + 240, pos.y, pos.x + 480, pos.y += 25 }, this,
-									   id++ );
+									   IDC_PIXELS_PER_ANALYSIS_GROUP );
 
 	pixelsPerAnalysisGroupEdit.SetWindowText( "1" );
-	idVerify( pixelsPerAnalysisGroupEdit, IDC_PIXELS_PER_ANALYSIS_GROUP );
 
 	xAxisText.Create( "X-Axis", WS_CHILD | WS_VISIBLE, { pos.x, pos.y, pos.x + 480, pos.y += 25 }, this, id++ );
 	xAxisText.SetFont( (*dlgFonts)["Heading Font Large"] );
@@ -237,53 +229,44 @@ BOOL PlotDesignerDialog::OnInitDialog()
 	pscConditionNumberText.Create( "Condition Number", WS_CHILD | WS_VISIBLE, { pos.x, pos.y, pos.x + 240,
 								   pos.y + 25 }, this, id++ );
 	pscConditionNumberCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, { pos.x
-									+ 240, pos.y, pos.x + 480,
-									pos.y + 200 }, this, id++ );
+									+ 240, pos.y, pos.x + 480, pos.y + 200 }, this, IDC_PSC_CONDITION_NUMBER );
 	pscConditionNumberCombo.AddString( "Condition #1" );
 	pscConditionNumberCombo.AddString( "Add New Condition" );
 	pscConditionNumberCombo.AddString( "Remove Condition" );
 
-	idVerify( pscConditionNumberCombo, IDC_PSC_CONDITION_NUMBER );
 	pos.y += 25;
 
 	pscPictureNumberText.Create( "Picture Number", WS_CHILD | WS_VISIBLE, { pos.x, pos.y, pos.x + 240,
 								 pos.y + 25 }, this, id++ );
 	pscPictureNumberCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, { pos.x
 								  + 240, pos.y, pos.x + 480,
-								  pos.y + 200 }, this, id++ );
+								  pos.y + 200 }, this, IDC_PSC_PICTURE_NUMBER );
 	for (auto num : range( picNumber ))
 	{
 		pscPictureNumberCombo.AddString( cstr( "Picture #" + str( num + 1 ) ) );
 	}
-	idVerify( pscPictureNumberCombo, IDC_PSC_PICTURE_NUMBER );
 	pos.y += 25;
 
 	pscPixelNumberText.Create( "Pixel Number", WS_CHILD | WS_VISIBLE, { pos.x, pos.y, pos.x + 240, pos.y + 25 }, this,
 							   id++ );
 	pscPixelNumberCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, { pos.x + 240,
-								pos.y, pos.x + 480, pos.y + 200 }, this, id++ );
+								pos.y, pos.x + 480, pos.y + 200 }, this, IDC_PSC_PIXEL_NUMBER );
 	pscPixelNumberCombo.AddString( "Pixel #1" );
-	idVerify( pscPixelNumberCombo, IDC_PSC_PIXEL_NUMBER );
 	pos.y += 25;
 	pscAtomBox.Create( "Atom", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, { pos.x, pos.y, pos.x + 240, pos.y + 25 }, this,
-					   id++ );
-	idVerify( pscAtomBox, IDC_PSC_ATOM );
+					   IDC_PSC_ATOM );
 	pscNoAtomBox.Create( "No Atom", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, { pos.x + 240, pos.y, pos.x + 480,
-						 pos.y += 25 }, this, id++ );
-	idVerify( pscNoAtomBox, IDC_PSC_NOATOM );
+						 pos.y += 25 }, this, IDC_PSC_NOATOM );
 	pscShowAllButton.Create( "Show All", WS_CHILD | WS_VISIBLE, { pos.x + 240, pos.y, pos.x + 480, pos.y += 25 },
-							 this, id++ );
-	idVerify( pscShowAllButton, IDC_PSC_SHOW_ALL );
+							 this, IDC_PSC_SHOW_ALL );
 	pos.y += 10;
 	saveButton.Create( "SAVE", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, { pos.x, pos.y, pos.x + 240,
-					   pos.y + 25 }, this, id++ );
+					   pos.y + 25 }, this, IDC_PLOT_CREATOR_SAVE );
 	saveButton.SetFont( (*dlgFonts)["Heading Font Large"] );
-	idVerify( saveButton, IDC_PLOT_CREATOR_SAVE );
 
 	cancelButton.Create( "CANCEL", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, { pos.x + 240, pos.y, pos.x + 480,
-						 pos.y + 25 }, this, id++ );
+						 pos.y + 25 }, this, IDC_PLOT_CREATOR_CANCEL );
 	cancelButton.SetFont( (*dlgFonts)["Heading Font Large"] );
-	idVerify( cancelButton, IDC_PLOT_CREATOR_CANCEL );
 
 	enableAndDisable();
 
@@ -546,7 +529,7 @@ void PlotDesignerDialog::handleDataSetComboChange()
 				prcPictureNumberCombo.SetCurSel( picture + 1 );
 				prcPixelNumberCombo.SetCurSel( pixel );
 			}
-			catch (Error& err)
+			catch (Error&)
 			{
 				prcPictureNumberCombo.SetCurSel( -1 );
 				prcPixelNumberCombo.SetCurSel( -1 );

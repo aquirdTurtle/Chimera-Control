@@ -4,12 +4,12 @@
 #include <sstream>
 
 struct niawgIntensityThreadInput;
-class DeviceWindow;
+class AuxiliaryWindow;
 
 class ExperimentLogger
 {
 	public:
-		//void generateLog(DeviceWindow* master);
+		//void generateLog(AuxiliaryWindow* master);
 	static void generateNiawgLog( MasterThreadInput* input, niawgPair<std::vector<std::fstream>>& niawgScripts,
 								  std::vector<std::fstream > &intensityScripts, UINT repetitions );
 		void exportLog();

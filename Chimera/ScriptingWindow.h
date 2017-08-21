@@ -7,7 +7,7 @@
 
 class MainWindow;
 class CameraWindow;
-class DeviceWindow;
+class AuxiliaryWindow;
 
 
 // a convenient structure for containing one object for each script. For example, the address of each script.
@@ -35,12 +35,14 @@ class ScriptingWindow : public CDialog
 		void passCommonCommand(UINT id);
 
 		bool checkScriptSaves();
-		void getFriends(MainWindow* mainWin, CameraWindow* camWin, DeviceWindow* masterWin);
+		void loadFriends(MainWindow* mainWin, CameraWindow* camWin, AuxiliaryWindow* masterWin);
 		void fillMasterThreadInput(MasterThreadInput* input);
+		BOOL OnToolTipText( UINT, NMHDR* pNMHDR, LRESULT* pResult );
 		scriptInfo<std::string> getScriptNames();
 		scriptInfo<bool> getScriptSavedStatuses();
 		scriptInfo<std::string> getScriptAddresses();
-		profileSettings getCurrentProfileSettings();
+		profileSettings getProfileSettings();
+		std::string getSystemStatusString();
 		BOOL PreTranslateMessage(MSG* pMsg);
 
 		void checkMasterSave();
@@ -90,22 +92,27 @@ class ScriptingWindow : public CDialog
 		void OnCancel() override;
 		void OnSize(UINT nType, int cx, int cy);
 
+		void handleIntensityButtons( UINT id );
 		void handleHorizontalScriptComboChange();
 		void handleVerticalScriptComboChange();
 		void handleAgilentScriptComboChange();
+		void handleIntensityCombo();
 		void handleOpenConfig(std::ifstream& configFile, double version);
 		void catchEnter();
 		profileSettings getProfile();
+		void setIntensityDefault();
 	private:
 		DECLARE_MESSAGE_MAP();
 		
 		MainWindow* mainWindowFriend;
 		CameraWindow* cameraWindowFriend;
-		DeviceWindow* deviceWindowFriend;
+		AuxiliaryWindow* auxWindowFriend;
 		//
 		cToolTips tooltips;
 
-		Script verticalNiawgScript, horizontalNiawgScript, intensityAgilentScript, masterScript;
+		Script verticalNiawgScript, horizontalNiawgScript, masterScript;
 		ColorBox statusBox;
 		ProfileIndicator profileDisplay;
+
+		Agilent intensityAgilent;
 };

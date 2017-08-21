@@ -47,7 +47,7 @@ class DacSystem
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, double version, TtlSystem* ttls);
 		void abort();
-		void initialize( POINT& pos, cToolTips& toolTips, DeviceWindow* master, int& id );
+		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id );
 		std::string getDacSequenceMessage(UINT var);
 		void handleButtonPress(TtlSystem* ttls);
 		void setDacComplexEvent(int line, timeType time, std::string initVal, std::string finalVal, std::string rampTime, std::string rampInc);
@@ -69,7 +69,7 @@ class DacSystem
 
 		unsigned int getNumberSnapshots(UINT var);
 		void checkTimingsWork(UINT var);
-		void setName(int dacNumber, std::string name, cToolTips& toolTips, DeviceWindow* master);
+		void setName(int dacNumber, std::string name, cToolTips& toolTips, AuxiliaryWindow* master);
 		std::string getName(int dacNumber);
 		std::array<std::string, 24> getAllNames();
 		std::string getErrorMessage(int errorCode);

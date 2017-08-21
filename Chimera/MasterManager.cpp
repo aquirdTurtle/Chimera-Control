@@ -5,7 +5,7 @@
 #include "TtlSystem.h"
 #include "DacSystem.h"
 #include "constants.h"
-#include "DeviceWindow.h"
+#include "AuxiliaryWindow.h"
 #include "NiawgWaiter.h"
 
 MasterManager::MasterManager()
@@ -18,14 +18,6 @@ bool MasterManager::getAbortStatus()
 {
 	return isAborting;
 }
-
-// calcualtes niawg waveforms.
-UINT __cdecl MasterManager::niawgCalcThread(void* voidInput)
-{
-	niawgCalcInput* input = (niawgCalcInput*)voidInput;
-	return 0;
-}
-
 
 /*
  * The workhorse of actually running experiments. This thread procedure analyzes all of the GUI settings and current 
@@ -45,7 +37,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 	std::string warnings;
 	ULONGLONG startTime = GetTickCount();
 	std::vector<long> variedMixedSize;
-	bool intIsVaried;
+	bool intIsVaried = false;
 	std::vector<std::pair<double, double>> intensityRanges;
 	std::vector<std::fstream> intensityScriptFiles;
 	niawgPair<std::vector<std::fstream>> niawgFiles;
@@ -64,29 +56,26 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 	//
 	try
 	{
-		// Load Variable & Key Info
-		expUpdate( "Handling Key... ", input->comm, input->quiet );		
-		input->key->loadVariables( input->vars );
-		input->key->generateKey();
-		input->key->exportKey();
-		UINT variations = determineVariationNumber( input->vars, input->key->getKey() );
+		UINT variations = determineVariationNumber( input->variables, input->key->getKey() );
 		expUpdate( "Done.\r\n", input->comm, input->quiet );
 		// Prep agilents
 		expUpdate( "Loading Agilent Info...", input->comm, input->quiet );
 		for (auto agilent : input->agilents)
 		{
-			agilent->handleInput();
+			std::vector<std::ofstream> dummyFiles;
+			agilent->handleInput( 0 );
+			agilent->handleInput( 1 );
 		}
 		//
 		expUpdate( "Analyzing Master Script...", input->comm, input->quiet );
 		input->dacs->resetDacEvents();
 		input->ttls->resetTtlEvents();
 		input->rsg->clearFrequencies();
-		input->thisObj->loadVariables( input->vars );
+		input->thisObj->loadVariables( input->variables );
 		if (input->runMaster)
 		{
 			input->thisObj->analyzeMasterScript( input->ttls, input->dacs, ttlShadeLocs, dacShadeLocs, input->rsg,
-												 input->vars );
+												 input->variables );
 		}
 		/// 
 		// a relic from the niawg thread. I Should re-organize how I get the niawg files and intensity script files to
@@ -100,9 +89,10 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		{
 			input->comm->sendStatus( "Programing Intensity Profile(s)..." );
 			input->comm->sendColorBox( Intensity, 'Y' );
-
-			Agilent::programIntensity( input->key->getKey(), intIsVaried, intensityRanges, intensityScriptFiles,
-									   variations );
+			/*
+			input->intensityAgilent->programIntensity( input->key->getKey(), intIsVaried, intensityRanges, 
+													   intensityScriptFiles, variations );
+			*/
 			expUpdate( "Done.\r\n", input->comm, input->quiet );
 			input->comm->sendColorBox( Intensity, 'G' );
 			input->comm->sendStatus( "Intensity Profile Selected.\r\n" );
@@ -111,6 +101,30 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		{
 			input->comm->sendColorBox( Niawg, 'Y' );
 			input->niawg->prepareNiawg( input, output, niawgFiles, warnings, userScriptSubmit );
+			// check if any waveforms are rearrangement instructions.
+			bool foundRearrangement = false;
+			for (auto& wave : output.waves)
+			{
+				if (wave.isRearrangement)
+				{
+					// if already found one...
+					if (foundRearrangement)
+					{
+						thrower( "ERROR: Multiple rearrangement waveforms not allowed!" );
+					}
+					foundRearrangement = true;
+					// start rearrangement thread. Give the thread the queue.
+					input->niawg->startRearrangementThread( input->atomQueueForRearrangement, wave );
+				}
+			}
+			if (input->rearrangingAtoms && !foundRearrangement )
+			{
+				thrower( "ERROR: system is primed for rearranging atoms, but no rearrangement waveform was found!" );
+			}
+			else if (!input->rearrangingAtoms && foundRearrangement)
+			{
+				thrower( "ERROR: System was not primed for rearrangign atoms, but a rearrangement waveform was found!" );
+			}
 		}
 		// update ttl and dac looks & interaction based on which ones are used in the experiment.
 		if (input->runMaster)
@@ -126,15 +140,15 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		// must interpret key before setting the trigger events.
 		if (input->runMaster)
 		{
-			input->ttls->interpretKey( input->key->getKey(), input->vars );
-			input->dacs->interpretKey( input->key->getKey(), input->vars, warnings );
+			input->ttls->interpretKey( input->key->getKey(), input->variables );
+			input->dacs->interpretKey( input->key->getKey(), input->variables, warnings );
 		}
-		input->rsg->interpretKey( input->key->getKey(), input->vars );
-		input->tektronics1->interpretKey( input->key->getKey(), input->vars );
-		input->tektronics2->interpretKey( input->key->getKey(), input->vars );
+		input->rsg->interpretKey( input->key->getKey(), input->variables );
+		input->topBottomTek->interpretKey( input->key->getKey(), input->variables );
+		input->eoAxialTek->interpretKey( input->key->getKey(), input->variables );
 		ULONGLONG varProgramStartTime = GetTickCount();
 		expUpdate( "Programming All Variation Data...\r\n", input->comm, input->quiet );
-		for (int varInc = 0; varInc < variations; varInc++)
+		for (UINT varInc = 0; varInc < variations; varInc++)
 		{
 			// reading these variables should be safe.
 			if (input->thisObj->isAborting)
@@ -214,7 +228,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			}
 		}
 
-		input->globalControl->setUsages( input->vars );
+		input->globalControl->setUsages( input->variables );
 		// no quiet on warnings.
 		expUpdate( warnings, input->comm );
 		input->comm->sendDebug( input->debugOptions.message );
@@ -260,7 +274,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			if (input->programIntensity)
 			{
 				input->comm->sendColorBox( Intensity, 'Y' );
-				Agilent::setIntensity( varInc, intIsVaried, intensityRanges );
+				//input->intensityAgilent->setScriptOutput( varInc, intensityRanges );
 				if (intIsVaried)
 				{
 					input->comm->sendStatus( "Intensity Profile Selected.\r\n" );
@@ -275,17 +289,17 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 				input->comm->sendColorBox( Niawg, 'G' );
 			}
 
-			input->tektronics1->programMachine( input->gpib, varInc );
-			input->tektronics2->programMachine( input->gpib, varInc );
+			input->topBottomTek->programMachine( varInc );
+			input->eoAxialTek->programMachine( varInc );
 			//
 			input->comm->sendRepProgress( 0 );
 			expUpdate( "Running Experiment.\r\n", input->comm, input->quiet );
-			for (int repInc = 0; repInc < input->repetitionNumber; repInc++)
+			for (UINT repInc = 0; repInc < input->repetitionNumber; repInc++)
 			{
 				// reading these variables should be safe.
 				if (input->thisObj->isAborting)
 				{
-					thrower( "\r\nABORTED!\r\n", 0 );
+					thrower( "\r\nABORTED!\r\n" );
 				}
 				else if (input->thisObj->isPaused)
 				{
@@ -329,7 +343,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		{
 			input->dacs->setDacStatusNoForceOut( input->dacs->getFinalSnapshot() );
 		}
-		catch (Error& err) { /* this gets thrown if no dac events. just continue.*/ }
+		catch (Error&) { /* this gets thrown if no dac events. just continue.*/ }
 		if (input->runMaster)
 		{
 			input->ttls->unshadeTtls();
@@ -341,40 +355,40 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 
 		///	Cleanup NIAWG stuff (after all generate code)
 		// close things
-		for (const auto& sequenceInc : range(input->profile.sequenceConfigNames.size()))
-		{
-			for (const auto& axis : AXES)
-			{
-				if (niawgFiles[axis][sequenceInc].is_open())
-				{
-					niawgFiles[axis][sequenceInc].close();
-				}
-			}
-		}
-
 		if (input->runNiawg)
 		{
+			for (const auto& sequenceInc : range( input->profile.sequenceConfigNames.size() ))
+			{
+				for (const auto& axis : AXES)
+				{
+					if (niawgFiles[axis][sequenceInc].is_open())
+					{
+						niawgFiles[axis][sequenceInc].close();
+					}
+				}
+			}
+
 			waiter.wait( input->comm );
 			// Clear waveforms off of NIAWG (not working??? memory appears to still run out...)
 			for (int waveformInc = 2; waveformInc < output.waveCount; waveformInc++)
 			{
 				std::string waveformToDelete = "Waveform" + str( waveformInc );
-				input->niawg->deleteWaveform( cstr( waveformToDelete ) );
+				input->niawg->fgenConduit.deleteWaveform( cstr( waveformToDelete ) );
 			}
 			if (!input->dontActuallyGenerate)
 			{
-				input->niawg->deleteScript( "experimentScript" );
+				input->niawg->fgenConduit.deleteScript( "experimentScript" );
 			}
 			for (auto& wave : output.waves)
 			{
-				wave.waveVals.clear();
-				wave.waveVals.shrink_to_fit();
+				wave.core.waveVals.clear();
+				wave.core.waveVals.shrink_to_fit();
 			}
 		}
 	}
 	catch (Error& exception)
 	{
-		Agilent::agilentDefault();
+		input->intensityAgilent->setDefualt(0);
 
 		if (input->runNiawg)
 		{
@@ -392,8 +406,8 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			// clear out some niawg stuff
 			for (auto& wave : output.waves)
 			{
-				wave.waveVals.clear();
-				wave.waveVals.shrink_to_fit();
+				wave.core.waveVals.clear();
+				wave.core.waveVals.shrink_to_fit();
 			}
 		}
 
@@ -676,7 +690,7 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 				"Function arguments were:" + functionArgsString + ".");
 	}
 	std::vector<std::pair<std::string, std::string>> replacements;
-	for (int replacementInc =0; replacementInc < args.size(); replacementInc++)
+	for (UINT replacementInc =0; replacementInc < args.size(); replacementInc++)
 	{
 		replacements.push_back( { functionArgs[replacementInc], args[replacementInc] } );
 	}
@@ -701,7 +715,7 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 				{
 					operationTime.second += reduce(time);
 				}
-				catch (Error& exception)
+				catch (Error&)
 				{
 					// Assume it's an expression with variables, to be evaluated later.
 					operationTime.first.push_back(time);
@@ -714,12 +728,12 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 				{
 					operationTime.second = reduce(time);
 				}
-				catch (Error& exception)
+				catch (Error&)
 				{
 					operationTime.first.push_back(time);
 					// check if it's a variable.
 					bool isVar = false;
-					for (int varInc = 0; varInc < vars.size(); varInc++)
+					for (UINT varInc = 0; varInc < vars.size(); varInc++)
 					{
 						// assume it's an expression with a variable to be evaluated later
 						
@@ -748,11 +762,11 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 			{
 				operationTime.second += std::stoi(time);
 			}
-			catch (std::invalid_argument &exception)
+			catch (std::invalid_argument&)
 			{
 				// check if it's a variable.
 				bool isVar = false;
-				for (int varInc = 0; varInc < vars.size(); varInc++)
+				for (UINT varInc = 0; varInc < vars.size(); varInc++)
 				{
 					if (vars[varInc].name == time)
 					{
@@ -776,11 +790,11 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 			{
 				operationTime.second = std::stoi(time);
 			}
-			catch (std::invalid_argument &exception)
+			catch (std::invalid_argument &)
 			{
 				// check if it's a variable.
 				bool isVar = false;
-				for (int varInc = 0; varInc < vars.size(); varInc++)
+				for (UINT varInc = 0; varInc < vars.size(); varInc++)
 				{
 					if (vars[varInc].name == time)
 					{
@@ -1007,7 +1021,7 @@ void MasterManager::analyzeMasterScript( TtlSystem* ttls, DacSystem* dacs,
 			{
 				operationTime.second += reduce(time);
 			}
-			catch (Error& exception)
+			catch (Error&)
 			{
 				operationTime.first.push_back(time);
 			}
@@ -1025,7 +1039,7 @@ void MasterManager::analyzeMasterScript( TtlSystem* ttls, DacSystem* dacs,
 							"reserved by the code for initializing the dac state. Please start at 1ms.");
 				}
 			}
-			catch (Error& exception)
+			catch (Error&)
 			{
 				// should I clear this?
 				operationTime.first.push_back(time);
@@ -1060,7 +1074,7 @@ void MasterManager::analyzeMasterScript( TtlSystem* ttls, DacSystem* dacs,
 			}
 			catch (Error&)
 			{
-				for (int varInc = 0; varInc < vars.size(); varInc++)
+				for (UINT varInc = 0; varInc < vars.size(); varInc++)
 				{
 					if (vars[varInc].name == pulseLength)
 					{
@@ -1133,7 +1147,7 @@ void MasterManager::analyzeMasterScript( TtlSystem* ttls, DacSystem* dacs,
 			catch (Error&)
 			{
 				bool isVar = false;
-				for (int varInc = 0; varInc < vars.size(); varInc++)
+				for (UINT varInc = 0; varInc < vars.size(); varInc++)
 				{
 					if (vars[varInc].name == info.frequency )
 					{
@@ -1156,7 +1170,7 @@ void MasterManager::analyzeMasterScript( TtlSystem* ttls, DacSystem* dacs,
 			catch (Error&)
 			{
 				bool isVar = false;
-				for (int varInc = 0; varInc < vars.size(); varInc++)
+				for (UINT varInc = 0; varInc < vars.size(); varInc++)
 				{
 					if (vars[varInc].name == info.power )
 					{

@@ -3,10 +3,11 @@
 #include "Control.h"
 #include <array>
 #include <vector>
-
-struct cameraPositions;
+#include "cameraPositions.h"
+;
 class AndorCamera;
 class CameraSettingsControl;
+
 
 /*
  * This class handles all of the gui objects for assigning camera settings. It works closely with the Andor class
@@ -20,7 +21,7 @@ class PictureSettingsControl
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, double version, AndorCamera* andor);
 		void initialize( cameraPositions& pos, CWnd* parent, int& id);
-		void handleOptionChange(UINT id, AndorCamera* andorObj);
+		void handleOptionChange(int id, AndorCamera* andorObj);
 		void disablePictureControls(int pic);
 		void enablePictureControls(int pic);
 		void setExposureTimes(std::vector<float> times, AndorCamera* andorObj);

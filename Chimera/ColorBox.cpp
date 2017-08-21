@@ -2,7 +2,7 @@
 #include "ColorBox.h"
 #include <tuple>
 
-void ColorBox::initialize(POINT& pos, int& id, CWnd* parent, int length, fontMap fonts, cToolTips& tooltips)
+void ColorBox::initialize(POINT& pos, int& id, CWnd* parent, int length, cToolTips& tooltips)
 {
 	//
 	boxes.niawg.sPos = { pos.x, pos.y, long(pos.x + length/4.0), pos.y + 20 };
@@ -28,12 +28,12 @@ void ColorBox::initialize(POINT& pos, int& id, CWnd* parent, int length, fontMap
 }
 
 
-void ColorBox::rearrange(std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts)
+void ColorBox::rearrange( int width, int height, fontMap fonts )
 {
-	boxes.niawg.rearrange(cameraMode, triggerMode, width, height, fonts);
-	boxes.camera.rearrange( cameraMode, triggerMode, width, height, fonts );
-	boxes.intensity.rearrange( cameraMode, triggerMode, width, height, fonts );
-	boxes.master.rearrange(cameraMode, triggerMode, width, height, fonts);
+	boxes.niawg.rearrange( width, height, fonts );
+	boxes.camera.rearrange( width, height, fonts );
+	boxes.intensity.rearrange( width, height, fonts );
+	boxes.master.rearrange( width, height, fonts );
 }
 
 CBrush* ColorBox::handleColoring( int id, CDC* pDC, brushMap brushes, rgbMap rgbs)

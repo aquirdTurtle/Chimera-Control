@@ -24,7 +24,7 @@ unsigned __stdcall NiawgWaiter::niawgWaitThread(void* inputParam)
 	{
 		try
 		{
-			isDone = input->niawg->isDone();
+			isDone = input->niawg->fgenConduit.isDone();
 		}
 		catch (Error&)
 		{
@@ -50,11 +50,11 @@ unsigned __stdcall NiawgWaiter::niawgWaitThread(void* inputParam)
 			if (input->profile.orientation == HORIZONTAL_ORIENTATION)
 			{
 				// start generic waveform to maintain power output to AOM.
-				input->niawg->setViStringAttribute(NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript");
+				input->niawg->setDefaultWaveformScript( Horizontal );
 			}
 			else if (input->profile.orientation == VERTICAL_ORIENTATION)
 			{				
-				input->niawg->setViStringAttribute(NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultVConfigScript");
+				input->niawg->setDefaultWaveformScript( Vertical );
 			}
 			input->niawg->turnOn();
 		}

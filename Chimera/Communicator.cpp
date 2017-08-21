@@ -2,17 +2,19 @@
 #include "stdafx.h"
 #include "Communicator.h"
 #include "CameraWindow.h"
-#include "DeviceWindow.h"
+#include "AuxiliaryWindow.h"
+
 
 // pass all the windows so that the object can (in principle) send messages to any window.
 void Communicator::initialize(MainWindow* mainWinParent, ScriptingWindow* scriptingWin, CameraWindow* cameraWin, 
-							  DeviceWindow* masterWindow)
+							  AuxiliaryWindow* auxWindow )
 {
 	mainWin = mainWinParent;
 	scriptWin = scriptingWin;
 	camWin = cameraWin;
-	deviceWin = masterWindow;
+	auxWin = auxWindow;
 }
+
 
 /*
 	Note that in all of the following, using "" as the input means that the communicaotr does not send any message to the
@@ -87,7 +89,7 @@ void Communicator::sendColorBox( systemInfo<char> colors )
 	mainWin->changeBoxColor( colors );
 	scriptWin->changeBoxColor( colors );
 	camWin->changeBoxColor( colors );
-	deviceWin->changeBoxColor( colors );
+	auxWin->changeBoxColor( colors );
 }
 
 void Communicator::sendStatus(std::string statusMsg)

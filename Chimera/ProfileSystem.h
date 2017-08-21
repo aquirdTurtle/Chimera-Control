@@ -2,32 +2,13 @@
 #include <vector>
 #include <string>
 #include "Control.h"
-#include "ConfigurationFileSystem.h"
+#include "ProfileSystem.h"
 #include "NiawgController.h"
 #include "commonTypes.h"
+#include "profileSettings.h"
 
 class MainWindow;
 class ScriptingWindow;
-
-/*
-]- This is a structure used for containing a set of parameters that define a profile.
-]- It's used heavily by the configuration file system, but not exclusively by it.
-*/
-struct profileSettings
-{
-	std::string configuration;
-	std::string experiment;
-	std::string category;
-	std::string sequence;
-	std::string orientation;
-	// Note: The experiment (category) path include the expriment (category) name in the string.
-	std::string experimentPath;
-	// Note: The experiment (category) path include the expriment (category) name in the string.
-	std::string categoryPath;
-	// needs some work.
-	std::vector<std::string> sequenceConfigNames;
-};
-
 
 /*
 ]--- This singleton class manages the entire "profile" system, where "profiles" are my term for the entirety of the settings in the code (strange word choice I
@@ -39,13 +20,12 @@ class ProfileSystem
 	public:
 		ProfileSystem(std::string fileSystemPath);
 
-		void saveEntireProfile( ScriptingWindow* scriptWindow, MainWindow* mainWin, DeviceWindow* deviceWin,
+		void saveEntireProfile( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin,
 							    CameraWindow* camWin );
-		void checkSaveEntireProfile( ScriptingWindow* scriptWindow, MainWindow* mainWin, DeviceWindow* deviceWin, 
+		void checkSaveEntireProfile( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin, 
 									 CameraWindow* camWin);
-		void allSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* mainWin, DeviceWindow* deviceWin, 
+		void allSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin, 
 								   CameraWindow* camWin);
-		void reloadAllCombos();
 
 		void orientationChangeHandler(MainWindow* mainWin);
 		std::string getOrientation();
@@ -79,24 +59,24 @@ class ProfileSystem
 		void experimentChangeHandler(ScriptingWindow* scriptWindow, MainWindow* mainWin);
 		std::string getCurrentExperiment();
 
-		void saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWindow* mainWin, DeviceWindow* deviceWin, 
+		void saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin, 
 								    CameraWindow* camWin );
 		void newConfiguration(MainWindow* mainWin);
-		void saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindow* mainWin, DeviceWindow* deviceWin);
+		void saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin);
 		void renameConfiguration();
 		void deleteConfiguration();
 		void openConfiguration( std::string configurationNameToOpen, ScriptingWindow* scriptWindow, MainWindow* mainWin, 
-							    CameraWindow* camWin, DeviceWindow* deviceWin );
+							    CameraWindow* camWin, AuxiliaryWindow* auxWin );
 
 		static void getConfigInfo( niawgPair<std::vector<std::fstream>>& scriptFiles,
 								   std::vector<std::fstream>& intensityScriptFiles, profileSettings profile,
 								   bool programIntensity, bool programNiawg );
 		void updateConfigurationSavedStatus(bool isSaved);
 		bool configurationSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* mainWin, 
-											 DeviceWindow* deviceWin, CameraWindow* camWin);
+											 AuxiliaryWindow* auxWin, CameraWindow* camWin);
 		bool checkConfigurationSave(std::string prompt, ScriptingWindow* scriptWindow, MainWindow* mainWin, 
-									DeviceWindow* deviceWin, CameraWindow* camWin);
-		void configurationChangeHandler( ScriptingWindow* scriptWindow, MainWindow* mainWin, DeviceWindow* deviceWin,
+									AuxiliaryWindow* auxWin, CameraWindow* camWin);
+		void configurationChangeHandler( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin,
 										 CameraWindow* camWin);
 		
 		void saveCategoryOnly(MainWindow* mainWin);
@@ -111,7 +91,7 @@ class ProfileSystem
 		void categoryChangeHandler(ScriptingWindow* scriptWindow, MainWindow* mainWin);
 		std::string getCurrentCategory();
 		std::string getCurrentPathIncludingCategory();
-		profileSettings getCurrentProfileSettings();
+		profileSettings getProfileSettings();
 
 		static std::vector<std::string> searchForFiles(std::string locationToSearch, std::string extensions);
 		static void reloadCombo(HWND comboToReload, std::string locationToLook, std::string extension, std::string nameToLoad);
@@ -119,7 +99,7 @@ class ProfileSystem
 		bool fileOrFolderExists( std::string filePathway );
 		//void updateSaveStatus(bool savedStatus);
 		void fullyDeleteFolder(std::string folderToDelete);
-		void initialize( POINT& topLeftPosition, CWnd* parent, int& id, fontMap fonts, cToolTips& tooltips );
+		void initialize( POINT& topLeftPosition, CWnd* parent, int& id, cToolTips& tooltips );
 		void rearrange(int width, int height, fontMap fonts);
 		static void checkDelimiterLine(std::ifstream& openFile, std::string keyword);
 	private:

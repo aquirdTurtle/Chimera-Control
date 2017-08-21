@@ -7,27 +7,107 @@
 #include "boost/lexical_cast.hpp"
 
 #include "Script.h"
-#include "fonts.h"
 
 #include "cleanString.h"
 #include "TextPromptDialog.h"
 #include "Richedit.h"
 #include "VariableSystem.h"
-#include "ConfigurationFileSystem.h"
-#include "DeviceWindow.h"
+#include "ProfileSystem.h"
+#include "AuxiliaryWindow.h"
 #include "TtlSystem.h"
 #include "VariableSystem.h"
 #include "RunInfo.h"
 
 
+void Script::initialize( int width, int height, POINT& startingLocation, cToolTips& toolTips, CWnd* parent, 
+						 int& id, std::string deviceTypeInput, std::string scriptHeader,
+						 std::array<UINT, 2> ids )
+{
+	AfxInitRichEdit();
+	InitCommonControls();
+	LoadLibrary( TEXT( "Msftedit.dll" ) );
+	deviceType = deviceTypeInput;
+	if (deviceTypeInput == "Horizontal NIAWG" || deviceTypeInput == "Vertical NIAWG")
+	{
+		extension = NIAWG_SCRIPT_EXTENSION;
+	}
+	else if (deviceTypeInput == "Agilent")
+	{
+		extension = AGILENT_SCRIPT_EXTENSION;
+	}
+	else if (deviceTypeInput == "Master")
+	{
+		extension = MASTER_SCRIPT_EXTENSION;
+	}
+	else
+	{
+		thrower( "ERROR: Device input type not recognized during construction of script control." );
+	}
+	CHARFORMAT myCharFormat;
+	memset( &myCharFormat, 0, sizeof( CHARFORMAT ) );
+	myCharFormat.cbSize = sizeof( CHARFORMAT );
+	myCharFormat.dwMask = CFM_COLOR;
+	myCharFormat.crTextColor = RGB( 255, 255, 255 );
+	// title
+	if (scriptHeader != "")
+	{
+		// user has option to not have a header if scriptheader is "".
+		title.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
+		title.Create( cstr( scriptHeader ), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, title.sPos, parent, id++ );
+		title.fontType = HeadingFont;
+		startingLocation.y += 20;
+	}
+	// saved indicator
+	savedIndicator.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + 80, startingLocation.y + 20 };
+	savedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, savedIndicator.sPos, parent, id++ );
+	savedIndicator.SetCheck( true );
+	// filename
+	fileNameText.sPos = { startingLocation.x + 80, startingLocation.y, startingLocation.x + width - 20, startingLocation.y + 20 };
+	fileNameText.Create( WS_CHILD | WS_VISIBLE | SS_ENDELLIPSIS | ES_READONLY, fileNameText.sPos, parent, id++ );
+	isSaved = true;
+	// help
+	help.sPos = { startingLocation.x + width - 20, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
+	help.Create( WS_CHILD | WS_VISIBLE | ES_READONLY, help.sPos, parent, id++ );
+	help.SetWindowTextA( "?" );
+	// don't want this for the scripting window, hence the extra check.
+	if (deviceType == "Agilent" && ids[0] != IDC_INTENSITY_FUNCTION_COMBO)
+	{
+		help.setToolTip( AGILENT_INFO_TEXT, toolTips, parent );
+	}
+	//help.setToolTip( "", toolTips, parent );
+	startingLocation.y += 20;
+	// available functions combo
+	availableFunctionsCombo.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 800 };
+	availableFunctionsCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
+									availableFunctionsCombo.sPos, parent, ids[0] );
+	availableFunctionsCombo.AddString( "Available Functions List:" );
+	loadFunctions();
+	// select "parent script".
+	availableFunctionsCombo.SetCurSel( 0 );
+
+	startingLocation.y += 25;
+	// Edit
+	edit.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y += height };
+	edit.Create( WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | WS_HSCROLL
+				 | ES_WANTRETURN | WS_BORDER, edit.sPos, parent, ids[1] );
+	edit.fontType = CodeFont;
+	edit.SetBackgroundColor( FALSE, RGB( 0, 21, 27 ) );
+	edit.SetEventMask( ENM_CHANGE );
+	edit.SetDefaultCharFormat( myCharFormat );
+
+	// timer
+	syntaxTimer.Create( 0, NULL, 0, { 0,0,0,0 }, parent, 0 );
+}
+
+
 void Script::rearrange(UINT width, UINT height, fontMap fonts)
 {
-	edit.rearrange("", "", width, height, fonts);
-	title.rearrange("", "", width, height, fonts);
-	savedIndicator.rearrange("", "", width, height, fonts);
-	fileNameText.rearrange("", "", width, height, fonts);
-	availableFunctionsCombo.rearrange("", "", width, height, fonts);
-	help.rearrange("", "", width, height, fonts);
+	edit.rearrange( width, height, fonts);
+	title.rearrange( width, height, fonts);
+	savedIndicator.rearrange( width, height, fonts);
+	fileNameText.rearrange( width, height, fonts);
+	availableFunctionsCombo.rearrange( width, height, fonts);
+	help.rearrange( width, height, fonts);
 }
 
 
@@ -61,7 +141,7 @@ std::string Script::getScriptText()
 {
 	CString text;
 	edit.GetWindowText(text);
-	return text;
+	return str(text);
 }
 
 
@@ -174,7 +254,7 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 		{
 			return rgbs["White"];
 		}
-		for (int rowInc = 0; rowInc < ttlNames.size(); rowInc++)
+		for (UINT rowInc = 0; rowInc < ttlNames.size(); rowInc++)
 		{
 			std::string row;
 			switch (rowInc)
@@ -184,7 +264,7 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 				case 2: row = "c"; break;
 				case 3: row = "d"; break;
 			}
-			for (int numberInc = 0; numberInc < ttlNames[rowInc].size(); numberInc++)
+			for (UINT numberInc = 0; numberInc < ttlNames[rowInc].size(); numberInc++)
 			{
 				
 				if (word == ttlNames[rowInc][numberInc])
@@ -197,7 +277,7 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 				}
 			}
 		}
-		for (int dacInc = 0; dacInc < dacNames.size(); dacInc++)
+		for (UINT dacInc = 0; dacInc < dacNames.size(); dacInc++)
 		{
 			if (word == dacNames[dacInc])
 			{
@@ -209,7 +289,7 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 			}
 		}
 	}
-	for (int varInc = 0; varInc < variables.size(); varInc++)
+	for (UINT varInc = 0; varInc < variables.size(); varInc++)
 	{
 		if (word == variables[varInc].name)
 		{
@@ -283,7 +363,6 @@ void Script::handleTimerCall(std::vector<variable> vars,
 		edit.SetSel(charRange);
 		finScrollPos = edit.GetScrollPos(SB_VERT);
 		edit.LineScroll(-(finScrollPos - initScrollPos));
-		//SendMessage(edit.hwnd, EM_LINESCROLL, 0, -(finScrollPos - initScrollPos));
 		updateSavedStatus(tempSaved);
 	}
 }
@@ -295,7 +374,6 @@ void Script::handleEditChange()
 	{
 		return;
 	}
-	DWORD begin, end;
 	CHARRANGE charRange;
 	edit.GetSel(charRange);
 	if (charRange.cpMin < editChangeBegin)
@@ -322,6 +400,10 @@ void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std:
 								 rgbMap rgbs, std::array<std::array<std::string, 16>, 4> ttlNames, 
 								 std::array<std::string, 24> dacNames )
 {
+	if (!edit)
+	{
+		return;
+	}
 	bool tempSaveStatus = false;
 	if ( isSaved )
 	{
@@ -434,6 +516,44 @@ void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std:
 }
 
 
+void Script::handleToolTip( NMHDR * pNMHDR, LRESULT * pResult )
+{
+	TOOLTIPTEXT *pTTT = (TOOLTIPTEXT *)pNMHDR;
+	UINT nID = pNMHDR->idFrom;
+	if (pTTT->uFlags & TTF_IDISHWND)
+	{
+		nID = ::GetDlgCtrlID( (HWND)nID );
+	}
+
+	if (nID == help.GetDlgCtrlID())
+	{
+		// it's this window.
+		// note that I don't think this is the hwnd of the help box, but rather the tooltip itself.
+		::SendMessageA( pNMHDR->hwndFrom, TTM_SETMAXTIPWIDTH, 0, 2500 );
+		if (deviceType == "Master")
+		{
+			pTTT->lpszText = (LPSTR)MASTER_HELP;
+		}
+		else if( deviceType == "Horizontal NIAWG" || deviceType == "Vertical NIAWG" )
+		{
+			pTTT->lpszText = (LPSTR)SCRIPT_INFO_TEXT;
+		}
+		else if (deviceType == "Agilent")
+		{
+			pTTT->lpszText = (LPSTR)AGILENT_INFO_TEXT;
+		}
+		else
+		{
+			pTTT->lpszText = "No Help available";
+		}
+		//pTTT->lpszText = ;
+		//_tcsncpy_s( , _T(  ), _TRUNCATE );
+		*pResult = 0;
+		thrower( "Worked." );
+	}
+	// else it's another window, just return and let them try.
+}
+
 
 INT_PTR Script::colorControl(LPARAM lParam, WPARAM wParam)
 {
@@ -443,28 +563,24 @@ INT_PTR Script::colorControl(LPARAM lParam, WPARAM wParam)
 	{
 		SetTextColor(hdcStatic, RGB(255, 255, 255));
 		SetBkColor(hdcStatic, RGB(50, 45, 45));
-		//return (INT_PTR)eGreyRedBrush;
 	}
 	else if (controlID == title.GetDlgCtrlID())
 	{
 		SetTextColor(hdcStatic, RGB(255, 255, 255));
 		SetBkMode(hdcStatic, TRANSPARENT);
 		SetBkColor(hdcStatic, RGB(75, 0, 0));
-		//return (INT_PTR)eDarkRedBrush;
 	}
 	else if (controlID == savedIndicator.GetDlgCtrlID())
 	{
 		SetTextColor(hdcStatic, RGB(255, 255, 255));
 		SetBkMode(hdcStatic, TRANSPARENT);
 		SetBkColor(hdcStatic, RGB(50, 45, 45));
-		//return (INT_PTR)eGreyRedBrush;
 	}
 	else if (controlID == fileNameText.GetDlgCtrlID())
 	{
 		SetTextColor(hdcStatic, RGB(255, 255, 255));
 		SetBkMode(hdcStatic, TRANSPARENT);
 		SetBkColor(hdcStatic, RGB(25, 0, 0));
-		//return (INT_PTR)eDullRedBrush;
 	}
 	else
 	{
@@ -473,117 +589,6 @@ INT_PTR Script::colorControl(LPARAM lParam, WPARAM wParam)
 	return true;
 }
 
-
-void Script::initialize( int width, int height, POINT& startingLocation, cToolTips& toolTips, 
-						 ScriptingWindow* scriptWin, int& id, std::string deviceTypeInput)
-{
-	AfxInitRichEdit();
-	InitCommonControls();
-	LoadLibrary(TEXT("Msftedit.dll"));
-
-	deviceType = deviceTypeInput;
-	if (deviceTypeInput == "Horizontal NIAWG" || deviceTypeInput == "Vertical NIAWG")
-	{
-		extension = NIAWG_SCRIPT_EXTENSION;
-	}
-	else if (deviceTypeInput == "Agilent")
-	{
-		extension = AGILENT_SCRIPT_EXTENSION;
-	}
-	else if (deviceTypeInput == "Master")
-	{
-		extension = MASTER_SCRIPT_EXTENSION;
-	}
-	else
-	{
-		thrower("ERROR: Device input type not recognized during construction of script control.");
-	}
-	CHARFORMAT myCharFormat;
-	memset(&myCharFormat, 0, sizeof(CHARFORMAT));
-	myCharFormat.cbSize = sizeof(CHARFORMAT);
-	myCharFormat.dwMask = CFM_COLOR;
-	myCharFormat.crTextColor = RGB(255, 255, 255);
-	std::string titleText;
-	if (deviceType == "Horizontal NIAWG")
-	{
-		titleText = "HORIZONTAL NIAWG SCRIPT";
-	}
-	else if (deviceType == "Vertical NIAWG")
-	{
-		titleText = "VERTICAL NIAWG SCRIPT";
-	}
-	else if (deviceType == "Agilent")
-	{
-		titleText = "AGILENT INTENSITY SCRIPT";
-	}
-	else if (deviceType == "Master")
-	{
-		titleText = "MASTER SCRIPT";
-	}
-	// title
-	title.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
-	title.Create( cstr(titleText), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, title.sPos, scriptWin, id++ );
-	title.fontType = HeadingFont;
-	startingLocation.y += 20;
-	// saved indicator
-	savedIndicator.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + 80, startingLocation.y + 20 };
-	savedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT, savedIndicator.sPos, scriptWin, id++ );
-	savedIndicator.SetCheck( true );	
-	// filename
-	fileNameText.sPos = { startingLocation.x + 80, startingLocation.y, startingLocation.x + width - 20, startingLocation.y + 20 };
-	fileNameText.Create(WS_CHILD | WS_VISIBLE | SS_ENDELLIPSIS | ES_READONLY, fileNameText.sPos, scriptWin, id++ );
-	isSaved = true;
-	// help
-	help.sPos = { startingLocation.x + width - 20, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
-	help.Create(WS_CHILD | WS_VISIBLE | ES_READONLY, help.sPos, scriptWin, id++);
-	help.SetWindowTextA("?");
-	help.setToolTip("This is a script for programming master timing for TTLs, DACs, the RSG, and the raman outputs.\n"
-					"Acceptable Commands:\n"
-					"-      t++\n"
-					"-      t+= [number] (space between = and number required)\n"
-					"-      t= [number] (space between = and number required)\n"
-					"-      on: [ttlName]\n"
-					"-      off: [ttlName]\n"
-					"-      pulseon: [ttlName] [pulseLength]\n"
-					"-      pulseoff: [ttlName] [pulseLength]\n"
-					"-      dac: [dacName] [voltage]\n"
-					"-      dacramp: [dacName] [initValue] [finalValue] [rampTime] [rampInc]\n"
-					"-      rsg: [frequency to add]\n"
-					"-      raman: [topFreq] [bottomFreq] [axialFreq]\n"
-					"-      def [functionName]([functionArguments]):\n"
-					"-      call [functionName(argument1, argument2, etc...)]\n"
-					"-      repeat: [numberOfTimesToRepeat]\n"
-					"-           %Commands...\n"
-					"-      end % (of repeat)\n"
-					"-      callcppcode\n"
-					"-      % marks a line as a comment. %% does the same and gives you a different color.\n"
-					"-      extra white-space is generally fine and doesn't screw up analysis of the script. Format as you like.", 
-					toolTips, scriptWin);
-	startingLocation.y += 20;
-	// available functions combo
-	availableFunctionsCombo.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 800 };
-	availableFunctionsCombo.Create(CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, 
-								   availableFunctionsCombo.sPos, scriptWin, id++);
-	idVerify(availableFunctionsCombo, IDC_VERTICAL_NIAWG_FUNCTION_COMBO, IDC_HORIZONTAL_NIAWG_FUNCTION_COMBO, IDC_INTENSITY_FUNCTION_COMBO, IDC_MASTER_FUNCTION_COMBO);
-	availableFunctionsCombo.AddString("Available Functions List:");
-	availableFunctionsCombo.SetCurSel(0);
-	loadFunctions();
-	
-	startingLocation.y += 25;
-	// Edit
-	edit.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, height};
-	edit.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | WS_HSCROLL
-				| ES_WANTRETURN | WS_BORDER, edit.sPos, scriptWin, id++);
-	idVerify(edit, IDC_VERTICAL_NIAWG_EDIT, IDC_HORIZONTAL_NIAWG_EDIT, IDC_INTENSITY_EDIT, IDC_MASTER_EDIT);
-	edit.fontType = CodeFont;
-	edit.SetBackgroundColor(FALSE, RGB(0,  21,  27
-	));
-	edit.SetEventMask(ENM_CHANGE);
-	edit.SetDefaultCharFormat(myCharFormat);
-
-	// timer
-	syntaxTimer.Create(0, NULL, 0, { 0,0,0,0 }, scriptWin, 0);
-}
 
 
 void Script::changeView(std::string viewName, bool isFunction, std::string categoryPath)
@@ -604,7 +609,7 @@ void Script::changeView(std::string viewName, bool isFunction, std::string categ
 		loadFile(categoryPath + viewName);
 	}
 
-	// colorEntireScript(vars, rgbs, ttlNames, dacNames);
+	// colorEntireScript(variables, rgbs, ttlNames, dacNames);
 	// the view is fresh from a file, so it's saved.
 	updateSavedStatus(true);
 }
@@ -614,7 +619,7 @@ void Script::saveScript(std::string categoryPath, RunInfo info)
 {
 	if (categoryPath == "")
 	{
-		thrower("ERROR: Please select a category before trying to save a script!");
+		thrower("ERROR: Please select a category before trying to save a script!\r\n");
 	}
 	if (isSaved && scriptName != "")
 	{
@@ -623,7 +628,14 @@ void Script::saveScript(std::string categoryPath, RunInfo info)
 	}
 	int sel = availableFunctionsCombo.GetCurSel();
 	CString text;
-	availableFunctionsCombo.GetLBText(sel, text);
+	if (sel != -1)
+	{
+		availableFunctionsCombo.GetLBText( sel, text );
+	}
+	else
+	{
+		text = "";
+	}
 	if (text != "Parent Script")
 	{
 		int answer = MessageBox(0, cstr("WARNING: The current view is not the parent view. This will save the "
@@ -649,7 +661,7 @@ void Script::saveScript(std::string categoryPath, RunInfo info)
 	}
 	if (info.running)
 	{
-		for (int scriptInc = 0; scriptInc < info.currentlyRunningScripts.size(); scriptInc++)
+		for (UINT scriptInc = 0; scriptInc < info.currentlyRunningScripts.size(); scriptInc++)
 		{
 			if (scriptName == info.currentlyRunningScripts[scriptInc])
 			{
@@ -682,7 +694,7 @@ void Script::saveScriptAs(std::string location, RunInfo info)
 	}
 	if (info.running)
 	{
-		for (int scriptInc = 0; scriptInc < info.currentlyRunningScripts.size(); scriptInc++)
+		for (UINT scriptInc = 0; scriptInc < info.currentlyRunningScripts.size(); scriptInc++)
 		{
 			if (scriptName == info.currentlyRunningScripts[scriptInc])
 			{
@@ -918,7 +930,8 @@ void Script::openParentScript(std::string parentScriptFileAndPath, std::string c
 	char extChars[_MAX_EXT];
 	char dirChars[_MAX_FNAME];
 	char pathChars[_MAX_FNAME];
-	int myError = _splitpath_s(cstr(parentScriptFileAndPath), dirChars, _MAX_FNAME, pathChars, _MAX_FNAME, fileChars, _MAX_FNAME, extChars, _MAX_EXT);
+	int myError = _splitpath_s(cstr(parentScriptFileAndPath), dirChars, _MAX_FNAME, pathChars, _MAX_FNAME, fileChars, 
+								_MAX_FNAME, extChars, _MAX_EXT);
 	std::string extStr(extChars);
 	if (deviceType == "Horizontal NIAWG" || deviceType == "Vertical NIAWG")
 	{
@@ -1080,6 +1093,13 @@ void Script::updateScriptNameText(std::string path)
 	}
 }
 
+
+
+void Script::setScriptText(std::string text)
+{
+	edit.SetWindowText( cstr( text ) );
+}
+
 INT_PTR Script::handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, brushMap brushes)
 {
 	DWORD controlID = GetDlgCtrlID((HWND)lParam);
@@ -1183,7 +1203,7 @@ void Script::loadFunctions()
 	// open each file and get it's function argument.
 	std::fstream functionFile;
 	std::vector<std::string> finalNames;
-	for (int functionInc = 0; functionInc < names.size(); functionInc++)
+	for (UINT functionInc = 0; functionInc < names.size(); functionInc++)
 	{
 		if (functionFile.is_open())
 		{
@@ -1210,7 +1230,7 @@ void Script::loadFunctions()
 		{
 			name += args[0];
 		}
-		for (int argInc = 1; argInc < args.size(); argInc++)
+		for (UINT argInc = 1; argInc < args.size(); argInc++)
 		{
 			name += ", " + args[argInc];
 		}
@@ -1221,7 +1241,7 @@ void Script::loadFunctions()
 	availableFunctionsCombo.ResetContent();
 	// 
 	availableFunctionsCombo.AddString("Parent Script");
-	for (int nameInc = 0; nameInc < finalNames.size(); nameInc++)
+	for (UINT nameInc = 0; nameInc < finalNames.size(); nameInc++)
 	{
 		availableFunctionsCombo.AddString(cstr(finalNames[nameInc]));
 	}

@@ -3,15 +3,15 @@
 
 void StatusIndicator::rearrange(int width, int height, fontMap fonts)
 {
-	status.rearrange("", "", width, height, fonts);
+	status.rearrange( width, height, fonts);
 }
 
 
-void StatusIndicator::initialize(POINT &loc, CWnd* parent, int& id, fontMap fonts, cToolTips& tooltips)
+void StatusIndicator::initialize(POINT &loc, CWnd* parent, int& id, cToolTips& tooltips)
 {
 	status.sPos = { loc.x, loc.y, loc.x + 960, loc.y + 100 };
 	status.Create("Passively Outputing Default Waveform", WS_CHILD | WS_VISIBLE | SS_CENTER, status.sPos, parent, id++);
-	status.SetFont(fonts["Large Heading Font"]);
+	status.fontType = LargeFont;
 }
 
 

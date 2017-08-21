@@ -446,16 +446,16 @@ void PlottingInfo::savePlotInfo()
 	}
 	message += "TRUTH END\n";
 	message += "POST SELECTION BEGIN\n";
-	for (int conditionInc = 0; conditionInc < currentConditionNumber; conditionInc++)
+	for (UINT conditionInc = 0; conditionInc < currentConditionNumber; conditionInc++)
 	{
 		message += "CONDITION BEGIN\n";
-		for (int dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
+		for (UINT dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
 		{
 			message += "DATA SET BEGIN\n";
-			for (int pictureInc = 0; pictureInc < numberOfPictures; pictureInc++)
+			for (UINT pictureInc = 0; pictureInc < numberOfPictures; pictureInc++)
 			{
 				message += "PICTURE BEGIN\n";
-				for (int pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
+				for (UINT pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
 				{
 					message += str(dataSets[dataSetInc].getPostSelectionCondition(conditionInc, pixelInc, pictureInc)) + "\n";
 				}
@@ -469,7 +469,7 @@ void PlottingInfo::savePlotInfo()
 
 	// legends
 	message += "LEGENDS BEGIN\n";
-	for (int dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
+	for (UINT dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
 	{
 		message += getLegendText(dataSetInc) + "\n";
 	}
@@ -478,7 +478,7 @@ void PlottingInfo::savePlotInfo()
 	// data count locations
 	message += "PLOT COUNTS LOCATIONS BEGIN\n";
 	bool failedOnce = false;
-	for (int dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
+	for (UINT dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
 	{
 		int pixel, picture;
 		getDataCountsLocation(dataSetInc, pixel, picture);
@@ -486,7 +486,7 @@ void PlottingInfo::savePlotInfo()
 	message += "PLOT COUNTS LOCATIONS END\n";
 	
 	message += "FITTING OPTIONS BEGIN\n";
-	for (int dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
+	for (UINT dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
 	{
 		message += str(dataSets[dataSetInc].getFitType()) + " " + str(dataSets[dataSetInc].getWhenToFit()) + "\n";
 	}
@@ -1030,13 +1030,13 @@ int PlottingInfo::whenToFit(int dataSet)
 std::vector<std::pair<int, int>> PlottingInfo::getAllPixelLocations()
 {
 	std::vector<std::pair<int, int>> allUniqueLocations;
-	for (int pixelInc = 0; pixelInc < this->analysisGroups.size(); pixelInc++)
+	for (UINT pixelInc = 0; pixelInc < analysisGroups.size(); pixelInc++)
 	{
-		for (int groupInc = 0; groupInc < this->analysisGroups[pixelInc].size(); groupInc++)
+		for (UINT groupInc = 0; groupInc < analysisGroups[pixelInc].size(); groupInc++)
 		{
 			std::pair<int, int> tempLocation;
-			tempLocation.first = this->analysisGroups[pixelInc][groupInc][0];
-			tempLocation.second = this->analysisGroups[pixelInc][groupInc][1];
+			tempLocation.first = analysisGroups[pixelInc][groupInc][0];
+			tempLocation.second = analysisGroups[pixelInc][groupInc][1];
 			bool alreadyExists = false;
 			for (int uniqueLocationInc = 0; uniqueLocationInc < allUniqueLocations.size(); uniqueLocationInc++)
 			{
@@ -1057,16 +1057,16 @@ std::vector<std::pair<int, int>> PlottingInfo::getAllPixelLocations()
 
 void PlottingInfo::setGroups(std::vector<std::pair<int, int>> locations)
 {
-	if (locations.size() % this->currentPixelNumber != 0)
+	if (locations.size() % currentPixelNumber != 0)
 	{
-		thrower( "ERROR: One of your real-time plots was expecting a multiple of " + str(this->currentPixelNumber) + " pixels to analyze, but you "
+		thrower( "ERROR: One of your real-time plots was expecting a multiple of " + str(currentPixelNumber) + " pixels to analyze, but you "
 			     "selected " + str(locations.size()) + " pixels.");
 	}
 	int locationInc = 0;
-	for (int groupInc = 0; groupInc < locations.size() / this->currentPixelNumber; groupInc++)
+	for (UINT groupInc = 0; groupInc < locations.size() / currentPixelNumber; groupInc++)
 	{
 		addGroup();
-		for (int pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
+		for (UINT pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
 		{
 			setGroupLocation(pixelInc, groupInc, locations[locationInc].second+1, locations[locationInc].first+1);
 			locationInc++;

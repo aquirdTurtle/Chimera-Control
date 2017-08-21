@@ -1,12 +1,12 @@
 #pragma once
 
 #include <string>
-
-#include "nidaqmx2.h"
+#include <vector>
 #include <sstream>
+#include <mutex>
+#include "nidaqmx2.h"
 #include "TtlSystem.h"
 #include "DacSystem.h"
-#include <vector>
 #include "VariableSystem.h"
 #include "RichEditControl.h"
 #include "KeyHandler.h"
@@ -14,24 +14,26 @@
 #include "RhodeSchwarz.h"
 #include "GPIB.h"
 #include "DebuggingOptionsControl.h"
-#include <mutex>
 #include "ScriptStream.h"
 #include "Agilent.h"
 #include "commonTypes.h"
 #include "StatusControl.h"
 #include "Repetitions.h"
 #include "TektronicsControl.h"
+#include "DataLogger.h"
+#include "atomCruncherInput.h"
+
 
 class MasterManager;
 
 struct MasterThreadInput
 {
-
+	DataLogger* logger;
 	profileSettings profile;
 	TtlSystem* ttls;											
 	DacSystem* dacs;
 	UINT repetitionNumber;
-	std::vector<variable> vars;
+	std::vector<variable> variables;
 	MasterManager* thisObj;
 	KeyHandler* key;
 	std::string masterScriptAddress;
@@ -40,21 +42,34 @@ struct MasterThreadInput
 	RhodeSchwarz* rsg;
 	debugInfo debugOptions;
 	std::vector<Agilent*> agilents;
-	TektronicsControl* tektronics1;
-	TektronicsControl* tektronics2;
+	TektronicsControl* topBottomTek;
+	TektronicsControl* eoAxialTek;
 	VariableSystem* globalControl;
 	NiawgController* niawg;
+	Agilent* intensityAgilent;
+	// only for rearrangement.
+	std::vector<std::vector<bool>>* atomQueueForRearrangement;
+	// 
 	bool dontActuallyGenerate;
 	bool quiet;
 	bool programIntensity;
+	bool rearrangingAtoms;
 	bool runNiawg;
 	bool runMaster;
 };
 
-struct niawgCalcInput
-{
 
+struct ExperimentInput
+{
+	ExperimentInput::ExperimentInput() : includesCameraRun(false), masterInput(NULL), plotterInput(NULL),
+		cruncherInput(NULL){ }
+	MasterThreadInput* masterInput;
+	realTimePlotterInput* plotterInput;
+	atomCruncherInput* cruncherInput;
+	AndorRunSettings camSettings;
+	bool includesCameraRun;
 };
+
 
 class MasterManager
 {
@@ -77,15 +92,11 @@ class MasterManager
 		void loadVariables(std::vector<variable> newVariables);
 		bool runningStatus();
 		bool isValidWord(std::string word);
-		
 		bool getAbortStatus();
 
 		static UINT __cdecl experimentThreadProcedure(void* voidInput);
 		static void expUpdate(std::string text, Communicator* comm, bool quiet = false);
 		static void analyzeFunctionDefinition(std::string defLine, std::string& functionName, std::vector<std::string>& args);
-
-		static UINT __cdecl niawgCalcThread(void* voidInput);
-
 		static UINT determineVariationNumber(std::vector<variable> vars, key tempKey);
 
 	private:

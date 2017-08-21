@@ -284,7 +284,7 @@ void PictureManager::drawBackgrounds(CDC* easel)
 	}
 }
 
-void PictureManager::initialize( POINT& loc, CWnd* parent, int& id, fontMap fonts, cToolTips& tooltips,
+void PictureManager::initialize( POINT& loc, CWnd* parent, int& id, cToolTips& tooltips,
 								 CBrush* defaultBrush)
 {
 	picturesLocation = loc;
@@ -292,14 +292,14 @@ void PictureManager::initialize( POINT& loc, CWnd* parent, int& id, fontMap font
 	picturesHeight = 460 * 2 + 5;
 	gridBrush = defaultBrush;
 	//
-	pictures[0].initialize(loc, parent, id, 570, 460);
+	pictures[0].initialize( loc, parent, id, 570, 460, { IDC_PICTURE_1_MIN_EDIT, IDC_PICTURE_1_MAX_EDIT } );
 	loc.x += 570;
-	pictures[1].initialize(loc, parent, id, 570, 460);
+	pictures[1].initialize(loc, parent, id, 570, 460, { IDC_PICTURE_2_MIN_EDIT, IDC_PICTURE_2_MAX_EDIT } );
 	loc.x -= 570;
 	loc.y += 465;
-	pictures[2].initialize(loc, parent, id, 570, 460);
+	pictures[2].initialize(loc, parent, id, 570, 460, { IDC_PICTURE_3_MIN_EDIT, IDC_PICTURE_3_MAX_EDIT } );
 	loc.x += 570;
-	pictures[3].initialize(loc, parent, id, 570, 460);
+	pictures[3].initialize(loc, parent, id, 570, 460, { IDC_PICTURE_4_MIN_EDIT, IDC_PICTURE_4_MAX_EDIT } );
 	loc.y += 460;
 	loc.x -= 570;
 	createPalettes( parent->GetDC() );

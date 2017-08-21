@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "DeviceWindow.h"
+#include "AuxiliaryWindow.h"
 #include "Control.h"
 #include "TtlSettingsDialog.h"
 #include "DacSettingsDialog.h"
@@ -8,47 +8,185 @@
 #include "explorerOpen.h"
 #include "commonFunctions.h"
 
-IMPLEMENT_DYNAMIC( DeviceWindow, CDialog )
+IMPLEMENT_DYNAMIC( AuxiliaryWindow, CDialog )
 
-BEGIN_MESSAGE_MAP( DeviceWindow, CDialog )
+BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	
+	ON_WM_TIMER()
+
 	ON_WM_CTLCOLOR()
 	ON_WM_SIZE()
 	
-	ON_COMMAND_RANGE( MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &DeviceWindow::passCommonCommand)
-	ON_COMMAND_RANGE( TTL_ID_BEGIN, TTL_ID_END, &DeviceWindow::handleTtlPush )
+	ON_COMMAND_RANGE( MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &AuxiliaryWindow::passCommonCommand)
+	ON_COMMAND_RANGE( TTL_ID_BEGIN, TTL_ID_END, &AuxiliaryWindow::handleTtlPush )
 
-	ON_COMMAND( TTL_HOLD, &DeviceWindow::handlTtlHoldPush )
-	ON_COMMAND( ID_DAC_SET_BUTTON, &DeviceWindow::SetDacs )
-	ON_COMMAND( IDC_ZERO_TTLS, &DeviceWindow::zeroTtls )
-	ON_COMMAND( IDC_ZERO_DACS, &DeviceWindow::zeroDacs )
-	ON_COMMAND( IDOK, &DeviceWindow::handleEnter)
+	ON_COMMAND( TTL_HOLD, &handlTtlHoldPush )
+	ON_COMMAND( ID_DAC_SET_BUTTON, &SetDacs )
+	ON_COMMAND( IDC_ZERO_TTLS, &zeroTtls )
+	ON_COMMAND( IDC_ZERO_DACS, &zeroDacs )
+	ON_COMMAND( IDOK, &handleEnter)
+	ON_COMMAND( TOP_BOTTOM_PROGRAM, &passTopBottomTekProgram )
+	ON_COMMAND( EO_AXIAL_PROGRAM, &passEoAxialTekProgram )
+
+//	ON_COMMAND( IDC_TOP_BOTTOM_PROGRAM, &passToTopBottomAgilentProgram )
+//	ON_COMMAND( IDC_AXIAL_UWAVE_PROGRAM, &passToAxialUwaveAgilentProgram )
+//	ON_COMMAND( IDC_FLASHING_PROGRAM, &passToFlashingProgram )
 	
-	ON_COMMAND_RANGE(IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_FLASHING_AGILENT_COMBO, &DeviceWindow::handleAgilentOptions)
-	ON_COMMAND_RANGE(TOP_ON_OFF, AXIAL_FSK, &DeviceWindow::handleTektronicsButtons)	
-	ON_CBN_SELENDOK( IDC_TOP_BOTTOM_AGILENT_COMBO, &DeviceWindow::handleTopBottomAgilentCombo )
-	ON_CBN_SELENDOK( IDC_AXIAL_UWAVE_AGILENT_COMBO, &DeviceWindow::handleAxialUWaveAgilentCombo )
-	ON_CBN_SELENDOK( IDC_FLASHING_AGILENT_COMBO, &DeviceWindow::handleFlashingAgilentCombo )	
+	ON_COMMAND_RANGE( IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_FLASHING_PROGRAM, &AuxiliaryWindow::handleAgilentOptions )
+	ON_COMMAND_RANGE( TOP_ON_OFF, AXIAL_FSK, &AuxiliaryWindow::handleTektronicsButtons )	
+	ON_CBN_SELENDOK( IDC_TOP_BOTTOM_AGILENT_COMBO, &AuxiliaryWindow::handleTopBottomAgilentCombo )
+ 	ON_CBN_SELENDOK( IDC_AXIAL_UWAVE_AGILENT_COMBO, &AuxiliaryWindow::handleAxialUWaveAgilentCombo )
+ 	ON_CBN_SELENDOK( IDC_FLASHING_AGILENT_COMBO, &AuxiliaryWindow::handleFlashingAgilentCombo )	
 
-	ON_CONTROL_RANGE( EN_CHANGE, ID_DAC_FIRST_EDIT, (ID_DAC_FIRST_EDIT + 23), &DeviceWindow::DacEditChange )
-	ON_NOTIFY( LVN_COLUMNCLICK, IDC_CONFIG_VARS_LISTVIEW, &DeviceWindow::ConfigVarsColumnClick )
-	ON_NOTIFY( NM_DBLCLK, IDC_CONFIG_VARS_LISTVIEW, &DeviceWindow::ConfigVarsDblClick )
-	ON_NOTIFY( NM_RCLICK, IDC_CONFIG_VARS_LISTVIEW, &DeviceWindow::ConfigVarsRClick )
+	ON_CONTROL_RANGE( EN_CHANGE, ID_DAC_FIRST_EDIT, (ID_DAC_FIRST_EDIT + 23), &AuxiliaryWindow::DacEditChange )
+	ON_NOTIFY( LVN_COLUMNCLICK, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::ConfigVarsColumnClick )
+	ON_NOTIFY( NM_DBLCLK, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::ConfigVarsDblClick )
+	ON_NOTIFY( NM_RCLICK, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::ConfigVarsRClick )
 
-	ON_NOTIFY( NM_DBLCLK, IDC_GLOBAL_VARS_LISTVIEW, &DeviceWindow::GlobalVarDblClick )
-	ON_NOTIFY( NM_RCLICK, IDC_GLOBAL_VARS_LISTVIEW, &DeviceWindow::GlobalVarRClick )
-	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_GLOBAL_VARS_LISTVIEW, IDC_GLOBAL_VARS_LISTVIEW, &DeviceWindow::drawVariables)
-	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_CONFIG_VARS_LISTVIEW, IDC_CONFIG_VARS_LISTVIEW, &DeviceWindow::drawVariables)
+	ON_NOTIFY( NM_DBLCLK, IDC_GLOBAL_VARS_LISTVIEW, &AuxiliaryWindow::GlobalVarDblClick )
+	ON_NOTIFY( NM_RCLICK, IDC_GLOBAL_VARS_LISTVIEW, &AuxiliaryWindow::GlobalVarRClick )
+	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_GLOBAL_VARS_LISTVIEW, IDC_GLOBAL_VARS_LISTVIEW, &AuxiliaryWindow::drawVariables )
+	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_CONFIG_VARS_LISTVIEW, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::drawVariables )
+
+	ON_EN_CHANGE( IDC_TOP_BOTTOM_EDIT, &AuxiliaryWindow::handleTopBottomEditChange )
+	ON_EN_CHANGE( IDC_FLASHING_EDIT, &AuxiliaryWindow::handleFlashingEditChange )
+	ON_EN_CHANGE( IDC_AXIAL_UWAVE_EDIT, &AuxiliaryWindow::handleAxialUwaveEditChange )
+
 END_MESSAGE_MAP()
 
 
-std::pair<UINT, UINT> DeviceWindow::getTtlBoardSize()
+void AuxiliaryWindow::passToFlashingProgram()
+{
+	try
+	{
+		flashingAgilent.handleProgramNow();
+		sendStat( "Programmed Flashing Agilent.\r\n" );
+	}
+	catch (Error& err)
+	{
+		sendErr( "Error while programming Agilent: " + err.whatStr() );
+	}
+}
+
+
+void AuxiliaryWindow::passToTopBottomAgilentProgram()
+{
+	try
+	{
+		topBottomAgilent.handleProgramNow();
+		sendStat( "Programmed Top/Bottom Agilent.\r\n" );
+	}
+	catch (Error& err)
+	{
+		sendErr( "Error while programming Agilent: " + err.whatStr() );
+	}
+
+}
+
+
+void AuxiliaryWindow::passToAxialUwaveAgilentProgram()
+{
+	try
+	{
+		uWaveAxialAgilent.handleProgramNow();
+		sendStat( "Programmed Axial/Microwave Agilent.\r\n" );
+	}
+	catch (Error& err)
+	{
+		sendErr( "Error while programming Agilent: " + err.whatStr() );
+	}
+
+}
+
+void AuxiliaryWindow::OnTimer( UINT_PTR eventID )
+{
+	uWaveAxialAgilent.agilentScript.handleTimerCall( getAllVariables(), mainWindowFriend->getRgbs(),
+													 getTtlNames(), getDacNames() );
+	flashingAgilent.agilentScript.handleTimerCall( getAllVariables(), mainWindowFriend->getRgbs(),
+												   getTtlNames(), getDacNames() );
+	topBottomAgilent.agilentScript.handleTimerCall( getAllVariables(), mainWindowFriend->getRgbs(),
+													getTtlNames(), getDacNames() );
+}
+
+
+void AuxiliaryWindow::handleTopBottomEditChange()
+{
+	try
+	{
+		topBottomAgilent.agilentScript.handleEditChange();
+		SetTimer( SYNTAX_TIMER_ID, SYNTAX_TIMER_LENGTH, NULL );
+	}
+	catch (Error& err)
+	{
+		sendErr( err.what() );
+	}
+}
+
+
+void AuxiliaryWindow::handleAxialUwaveEditChange()
+{
+	try
+	{
+		uWaveAxialAgilent.agilentScript.handleEditChange();
+		SetTimer( SYNTAX_TIMER_ID, SYNTAX_TIMER_LENGTH, NULL );
+	}
+	catch (Error& err)
+	{
+		sendErr( err.what() );
+	}
+}
+
+
+void AuxiliaryWindow::handleFlashingEditChange()
+{
+	try
+	{
+		flashingAgilent.agilentScript.handleEditChange();
+		SetTimer( SYNTAX_TIMER_ID, SYNTAX_TIMER_LENGTH, NULL );
+	}
+	catch (Error& err)
+	{
+		sendErr( err.what() );
+	}
+}
+
+
+
+void AuxiliaryWindow::passTopBottomTekProgram()
+{
+	try
+	{
+		topBottomTek.handleProgram();
+		sendStat( "Programmed Top/Bottom Tektronics Generator.\r\n" );
+	}
+	catch (Error& exception)
+	{
+		sendErr( "Error while programing top/Bottom Tektronics generator: " + exception.whatStr() + "\r\n" );
+	}
+}
+
+
+void AuxiliaryWindow::passEoAxialTekProgram()
+{
+	try
+	{
+		eoAxialTek.handleProgram();
+		sendStat( "Programmed E.O.M / Axial Tektronics Generator.\r\n" );
+	}
+	catch (Error& exception)
+	{
+		sendErr( "Error while programing E.O.M. / Axial Tektronics generator: " + exception.whatStr() + "\r\n" );
+	}
+}
+
+
+std::pair<UINT, UINT> AuxiliaryWindow::getTtlBoardSize()
 {
 	return ttlBoard.getTtlBoardSize();
 }
 
 
-void DeviceWindow::handleSaveConfig(std::ofstream& saveFile)
+void AuxiliaryWindow::handleSaveConfig(std::ofstream& saveFile)
 {
 	// order matters.
 	configVariables.handleSaveConfig(saveFile);
@@ -57,12 +195,12 @@ void DeviceWindow::handleSaveConfig(std::ofstream& saveFile)
 	topBottomAgilent.handleSavingConfig(saveFile);
 	uWaveAxialAgilent.handleSavingConfig(saveFile);
 	flashingAgilent.handleSavingConfig(saveFile);
-	tektronics1.handleSaveConfig(saveFile);
-	tektronics2.handleSaveConfig(saveFile);
+	topBottomTek.handleSaveConfig(saveFile);
+	eoAxialTek.handleSaveConfig(saveFile);
 }
 
 
-void DeviceWindow::handleOpeningConfig(std::ifstream& configFile, double version)
+void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, double version)
 {
 	configVariables.handleOpenConfig(configFile, version);
 
@@ -70,33 +208,36 @@ void DeviceWindow::handleOpeningConfig(std::ifstream& configFile, double version
 	dacBoards.handleOpenConfig(configFile, version, &ttlBoard);
 
 	topBottomAgilent.readConfigurationFile(configFile);
+	topBottomAgilent.updateEdit( 1, mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
 	uWaveAxialAgilent.readConfigurationFile(configFile);
+	uWaveAxialAgilent.updateEdit( 1, mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
 	flashingAgilent.readConfigurationFile(configFile);
+	flashingAgilent.updateEdit( 1, mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
 
-	tektronics1.handleOpeningConfig(configFile, version);
-	tektronics2.handleOpeningConfig(configFile, version);
+	topBottomTek.handleOpeningConfig(configFile, version);
+	eoAxialTek.handleOpeningConfig(configFile, version);
 }
 
 
-UINT DeviceWindow::getNumberOfDacs()
+UINT AuxiliaryWindow::getNumberOfDacs()
 {
 	return dacBoards.getNumberOfDacs();
 }
 
 
-std::array<std::array<std::string, 16>, 4> DeviceWindow::getTtlNames()
+std::array<std::array<std::string, 16>, 4> AuxiliaryWindow::getTtlNames()
 {
 	return ttlBoard.getAllNames();
 }
 
 
-std::array<std::string, 24> DeviceWindow::getDacNames()
+std::array<std::string, 24> AuxiliaryWindow::getDacNames()
 {
 	return dacBoards.getAllNames();
 }
 
 
-void DeviceWindow::drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
+void AuxiliaryWindow::drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 {
 	if (id == IDC_GLOBAL_VARS_LISTVIEW)
 	{
@@ -109,7 +250,7 @@ void DeviceWindow::drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 }
 
 
-void DeviceWindow::ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result)
+void AuxiliaryWindow::ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	std::vector<Script*> scriptList;
 	try
@@ -124,7 +265,7 @@ void DeviceWindow::ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 }
 
 
-void DeviceWindow::ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result)
+void AuxiliaryWindow::ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	try
 	{
@@ -137,7 +278,7 @@ void DeviceWindow::ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result)
 	mainWindowFriend->updateConfigurationSavedStatus(false);
 }
 
-std::vector<variable> DeviceWindow::getAllVariables()
+std::vector<variable> AuxiliaryWindow::getAllVariables()
 {
 	std::vector<variable> vars = configVariables.getEverything();
 	std::vector<variable> vars2 = globalVariables.getEverything();
@@ -146,7 +287,7 @@ std::vector<variable> DeviceWindow::getAllVariables()
 }
 
 
-void DeviceWindow::GlobalVarDblClick(NMHDR * pNotifyStruct, LRESULT * result)
+void AuxiliaryWindow::GlobalVarDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	std::vector<Script*> scriptList;
 	try
@@ -160,7 +301,7 @@ void DeviceWindow::GlobalVarDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 }
 
 
-void DeviceWindow::GlobalVarRClick(NMHDR * pNotifyStruct, LRESULT * result)
+void AuxiliaryWindow::GlobalVarRClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	try
 	{
@@ -175,7 +316,7 @@ void DeviceWindow::GlobalVarRClick(NMHDR * pNotifyStruct, LRESULT * result)
 
 
 
-void DeviceWindow::ConfigVarsColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
+void AuxiliaryWindow::ConfigVarsColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	try
 	{
@@ -189,24 +330,24 @@ void DeviceWindow::ConfigVarsColumnClick(NMHDR * pNotifyStruct, LRESULT * result
 }
 
 
-void DeviceWindow::clearVariables()
+void AuxiliaryWindow::clearVariables()
 {
 	configVariables.clearVariables();
 }
 
 
-void DeviceWindow::addVariable(std::string name, bool timelike, bool singleton, double value, int item)
+void AuxiliaryWindow::addVariable(std::string name, bool timelike, bool constant, double value, int item)
 {
 	variable var;
 	var.name = name;
 	var.timelike = timelike;
-	var.constant = singleton;
+	var.constant = constant;
 	var.ranges.push_back({ value, 0, 1, false, true });
 	configVariables.addConfigVariable(var, item);
 }
 
 
-void DeviceWindow::passCommonCommand(UINT id)
+void AuxiliaryWindow::passCommonCommand(UINT id)
 {
 	try
 	{
@@ -219,7 +360,7 @@ void DeviceWindow::passCommonCommand(UINT id)
 	}
 }
 
-void DeviceWindow::getFriends(MainWindow* mainWin, ScriptingWindow* scriptWin, CameraWindow* camWin)
+void AuxiliaryWindow::loadFriends(MainWindow* mainWin, ScriptingWindow* scriptWin, CameraWindow* camWin)
 {
 	mainWindowFriend = mainWin;
 	scriptingWindowFriend = scriptWin;
@@ -227,48 +368,48 @@ void DeviceWindow::getFriends(MainWindow* mainWin, ScriptingWindow* scriptWin, C
 }
 
 
-void DeviceWindow::passRoundToDac()
+void AuxiliaryWindow::passRoundToDac()
 {
 	dacBoards.handleRoundToDac(menu);
 }
 
 
-void DeviceWindow::handleTektronicsButtons(UINT id)
+void AuxiliaryWindow::handleTektronicsButtons(UINT id)
 {
 	if (id >= TOP_ON_OFF && id <= BOTTOM_FSK)
 	{
-		tektronics1.handleButtons(id - TOP_ON_OFF);
+		topBottomTek.handleButtons(id - TOP_ON_OFF);
 	}
 	if (id >= EO_ON_OFF && id <= AXIAL_FSK)
 	{
-		tektronics2.handleButtons(id - EO_ON_OFF);
+		eoAxialTek.handleButtons(id - EO_ON_OFF);
 	}
 	mainWindowFriend->updateConfigurationSavedStatus(false);
 }
 
 
-void DeviceWindow::handleEnter()
+void AuxiliaryWindow::handleEnter()
 {
 	errBox("Hello, there!");
 }
 
 
-void DeviceWindow::setConfigActive(bool active)
+void AuxiliaryWindow::setConfigActive(bool active)
 {
 	configVariables.setActive(active);
 }
 
 
-UINT DeviceWindow::getTotalVariationNumber()
+UINT AuxiliaryWindow::getTotalVariationNumber()
 {
 	return configVariables.getTotalVariationNumber();
 }
 
 
-void DeviceWindow::OnSize(UINT nType, int cx, int cy)
+void AuxiliaryWindow::OnSize(UINT nType, int cx, int cy)
 {
-	tektronics1.rearrange(cx, cy, getFonts());
-	tektronics2.rearrange(cx, cy, getFonts());
+	topBottomTek.rearrange(cx, cy, getFonts());
+	eoAxialTek.rearrange(cx, cy, getFonts());
 
 	topBottomAgilent.rearrange(cx, cy, getFonts());
 	uWaveAxialAgilent.rearrange(cx, cy, getFonts());
@@ -284,21 +425,21 @@ void DeviceWindow::OnSize(UINT nType, int cx, int cy)
 	configVariables.rearrange(cx, cy, getFonts());
 	globalVariables.rearrange(cx, cy, getFonts());
 
-	statusBox.rearrange("", "", cx, cy, getFonts());
+	statusBox.rearrange( cx, cy, getFonts());
 }
 
 
-fontMap DeviceWindow::getFonts()
+fontMap AuxiliaryWindow::getFonts()
 {
 	return mainWindowFriend->getFonts();
 }
 
 
-void DeviceWindow::handleAgilentOptions( UINT id )
+void AuxiliaryWindow::handleAgilentOptions( UINT id )
 {
 	// zero the id.
 	id -= IDC_TOP_BOTTOM_CHANNEL1_BUTTON;
-	int agilentNum = id / 8;
+	int agilentNum = id / 10;
 	// figure out which box it was.
 	Agilent* agilent = NULL;
 	if (agilentNum == 0)
@@ -319,57 +460,77 @@ void DeviceWindow::handleAgilentOptions( UINT id )
 		return;
 	}
 	// call the correct function.
-	if (id % 8 == 0)
+	if (id % 7 == 0)
 	{
 		// channel 1
-		agilent->handleChannelPress( 1 );
+		agilent->handleChannelPress( 1, mainWindowFriend->getProfileSettings().categoryPath, 
+									 mainWindowFriend->getRunInfo() );
 	}
-	else if (id % 8 == 1)
+	else if (id % 7 == 1)
 	{
 		// channel 2
-		agilent->handleChannelPress( 2 );
+		agilent->handleChannelPress( 2, mainWindowFriend->getProfileSettings().categoryPath, 
+									 mainWindowFriend->getRunInfo() );
 	}
-	else if (id % 8 == 3)
+	else if (id % 7 == 3)
 	{
-		// TODO
-		// sync 
+		// TODO:
+		// handle sync 
 		//agilent->handleSync();
 	}
-	// else it's a boring combo that I don't care about at the moment.
+	else if (id % 7 == 6)
+	{
+		try
+		{
+			agilent->handleProgramNow();
+			sendStat( "Programmed Agilent " + agilent->getName() + ".\r\n" );
+		}
+		catch (Error& err)
+		{
+			sendErr( "Error while programming agilent " + agilent->getName() + ": " + err.what() + "\r\n" );
+		}
+	}
+	// else it's a combo or edit that must be handled separately, not in an ON_COMMAND handling.
 }
 
 
-void DeviceWindow::handleTopBottomAgilentCombo()
+void AuxiliaryWindow::handleTopBottomAgilentCombo()
 {
+	topBottomAgilent.handleInput();
 	topBottomAgilent.handleCombo();
+	topBottomAgilent.updateEdit( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
 }
 
 
-void DeviceWindow::handleAxialUWaveAgilentCombo()
+void AuxiliaryWindow::handleAxialUWaveAgilentCombo()
 {
+	uWaveAxialAgilent.handleInput();
 	uWaveAxialAgilent.handleCombo();
+	uWaveAxialAgilent.updateEdit( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
 }
 
 
-void DeviceWindow::handleFlashingAgilentCombo()
+void AuxiliaryWindow::handleFlashingAgilentCombo()
 {
+	flashingAgilent.handleInput();
 	flashingAgilent.handleCombo();
+	flashingAgilent.updateEdit( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
 }
 
 
-void DeviceWindow::sendErr(std::string msg)
+void AuxiliaryWindow::sendErr(std::string msg)
 {
 	mainWindowFriend->getComm()->sendError(msg);
 }
 
 
-void DeviceWindow::sendStat(std::string msg)
+void AuxiliaryWindow::sendStat(std::string msg)
 {
 	mainWindowFriend->getComm()->sendStatus(msg);
 }
 
 
-void DeviceWindow::zeroDacs()
+void AuxiliaryWindow::zeroDacs()
 {
 	try
 	{
@@ -400,7 +561,7 @@ void DeviceWindow::zeroDacs()
 }
 
 
-void DeviceWindow::zeroTtls()
+void AuxiliaryWindow::zeroTtls()
 {
 	try
 	{
@@ -414,7 +575,7 @@ void DeviceWindow::zeroTtls()
 	}
 }
 
-void DeviceWindow::loadMotSettings()
+void AuxiliaryWindow::loadMotSettings()
 {
 	try
 	{
@@ -426,7 +587,7 @@ void DeviceWindow::loadMotSettings()
 		input->dacs = &dacBoards;
 		input->globalControl = &globalVariables;
 		// don't get configuration variables. The MOT shouldn't depend on config variables.
-		input->vars = globalVariables.getEverything();
+		input->variables = globalVariables.getEverything();
 		// Only set it once, clearly.
 		input->repetitionNumber = 1;
 		input->key = &masterKey;
@@ -435,8 +596,8 @@ void DeviceWindow::loadMotSettings()
 		input->gpib = &gpib;
 		input->agilents.push_back( &topBottomAgilent );
 		input->agilents.push_back( &uWaveAxialAgilent );
-		input->tektronics1 = &tektronics1;
-		input->tektronics2 = &tektronics2;
+		input->topBottomTek = &topBottomTek;
+		input->eoAxialTek = &eoAxialTek;
 
 		manager.loadMotSettings(input);
 	}
@@ -448,13 +609,13 @@ void DeviceWindow::loadMotSettings()
 
 
 // Gets called after alt-f4 or X button is pressed.
-void DeviceWindow::OnCancel()
+void AuxiliaryWindow::OnCancel()
 {
 	passCommonCommand(ID_FILE_MY_EXIT);
 }
 
 
-void DeviceWindow::fillMasterThreadInput(MasterThreadInput* input)
+void AuxiliaryWindow::fillMasterThreadInput(MasterThreadInput* input)
 {
 	input->ttls = &ttlBoard;
 	input->dacs = &dacBoards;
@@ -482,40 +643,40 @@ void DeviceWindow::fillMasterThreadInput(MasterThreadInput* input)
 			experimentVars.push_back(globalVar);
 		}
 	}
-	input->vars = experimentVars;
+	input->variables = experimentVars;
 	globalVariables.setUsages(globals);
 	input->key = &masterKey;
 	input->rsg = &RhodeSchwarzGenerator;
 	input->gpib = &gpib;
 	input->agilents.push_back(&topBottomAgilent);
 	input->agilents.push_back(&uWaveAxialAgilent);
-	tektronics1.getSettings();
-	tektronics2.getSettings();
-	input->tektronics1 = &tektronics1;
-	input->tektronics2 = &tektronics2;
+	topBottomTek.getSettings();
+	eoAxialTek.getSettings();
+	input->topBottomTek = &topBottomTek;
+	input->eoAxialTek = &eoAxialTek;
 }
 
 
-void DeviceWindow::changeBoxColor(systemInfo<char> colors)
+void AuxiliaryWindow::changeBoxColor(systemInfo<char> colors)
 {
 	statusBox.changeColor(colors);
 }
 
 
-void DeviceWindow::handleAbort()
+void AuxiliaryWindow::handleAbort()
 {
 	ttlBoard.unshadeTtls();
 	dacBoards.unshadeDacs();
 }
 
 
-void DeviceWindow::handleMasterConfigSave(std::stringstream& configStream)
+void AuxiliaryWindow::handleMasterConfigSave(std::stringstream& configStream)
 {
 	// save info
 	/// ttls
-	for (int ttlRowInc = 0; ttlRowInc < ttlBoard.getTtlBoardSize().first; ttlRowInc++)
+	for (UINT ttlRowInc = 0; ttlRowInc < ttlBoard.getTtlBoardSize().first; ttlRowInc++)
 	{
-		for (int ttlNumberInc = 0; ttlNumberInc < ttlBoard.getTtlBoardSize().second; ttlNumberInc++)
+		for (UINT ttlNumberInc = 0; ttlNumberInc < ttlBoard.getTtlBoardSize().second; ttlNumberInc++)
 		{
 			std::string name = ttlBoard.getName(ttlRowInc, ttlNumberInc);
 			if (name == "")
@@ -544,7 +705,7 @@ void DeviceWindow::handleMasterConfigSave(std::stringstream& configStream)
 		}
 	}
 	// DAC Names
-	for (int dacInc = 0; dacInc < dacBoards.getNumberOfDacs(); dacInc++)
+	for (UINT dacInc = 0; dacInc < dacBoards.getNumberOfDacs(); dacInc++)
 	{
 		std::string name = dacBoards.getName(dacInc);
 		std::pair<double, double> minMax = dacBoards.getDacRange(dacInc);
@@ -562,7 +723,7 @@ void DeviceWindow::handleMasterConfigSave(std::stringstream& configStream)
 	configStream << globalVariables.getCurrentNumberOfVariables() << "\n";
 	/// Variables
 
-	for (int varInc = 0; varInc < globalVariables.getCurrentNumberOfVariables(); varInc++)
+	for (UINT varInc = 0; varInc < globalVariables.getCurrentNumberOfVariables(); varInc++)
 	{
 		variable info = globalVariables.getVariableInfo(varInc);
 		configStream << info.name << " ";
@@ -573,16 +734,16 @@ void DeviceWindow::handleMasterConfigSave(std::stringstream& configStream)
 }
 
 
-void DeviceWindow::handleMasterConfigOpen(std::stringstream& configStream, double version)
+void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, double version)
 {
 	ttlBoard.resetTtlEvents();
 	ttlBoard.prepareForce();
 	dacBoards.resetDacEvents();
 	dacBoards.prepareForce();
 	// save info
-	for (int ttlRowInc = 0; ttlRowInc < ttlBoard.getTtlBoardSize().first; ttlRowInc++)
+	for (UINT ttlRowInc = 0; ttlRowInc < ttlBoard.getTtlBoardSize().first; ttlRowInc++)
 	{
-		for (int ttlNumberInc = 0; ttlNumberInc < ttlBoard.getTtlBoardSize().second; ttlNumberInc++)
+		for (UINT ttlNumberInc = 0; ttlNumberInc < ttlBoard.getTtlBoardSize().second; ttlNumberInc++)
 		{
 			std::string name;
 			std::string statusString;
@@ -594,7 +755,7 @@ void DeviceWindow::handleMasterConfigOpen(std::stringstream& configStream, doubl
 				// should actually be zero or one, but just just convert to bool
 				status = std::stoi(statusString);
 			}
-			catch (std::invalid_argument& exception)
+			catch (std::invalid_argument&)
 			{
 				thrower("ERROR: Failed to load one of the default ttl values!");
 			}
@@ -605,7 +766,7 @@ void DeviceWindow::handleMasterConfigOpen(std::stringstream& configStream, doubl
 		}
 	}
 	// getting dacs.
-	for (int dacInc = 0; dacInc < dacBoards.getNumberOfDacs(); dacInc++)
+	for (UINT dacInc = 0; dacInc < dacBoards.getNumberOfDacs(); dacInc++)
 	{
 		std::string name;
 		std::string defaultValueString;
@@ -641,7 +802,7 @@ void DeviceWindow::handleMasterConfigOpen(std::stringstream& configStream, doubl
 				max = 10;
 			}
 		}
-		catch (std::invalid_argument& exception)
+		catch (std::invalid_argument&)
 		{
 			thrower("ERROR: Failed to load one of the default DAC values!");
 		}
@@ -687,14 +848,14 @@ void DeviceWindow::handleMasterConfigOpen(std::stringstream& configStream, doubl
 }
 
 
-void DeviceWindow::LogSettings()
+void AuxiliaryWindow::LogSettings()
 {
 	//logger.generateLog(this);
 	logger.exportLog();
 }
 
 
-void DeviceWindow::SetDacs()
+void AuxiliaryWindow::SetDacs()
 {
 	// have the dac values change
 	try
@@ -729,7 +890,7 @@ void DeviceWindow::SetDacs()
 }
 
 
-void DeviceWindow::DacEditChange(UINT id)
+void AuxiliaryWindow::DacEditChange(UINT id)
 {
 	try
 	{
@@ -742,7 +903,7 @@ void DeviceWindow::DacEditChange(UINT id)
 }
 
 
-void DeviceWindow::handleTtlPush(UINT id)
+void AuxiliaryWindow::handleTtlPush(UINT id)
 {
 	try
 	{
@@ -756,7 +917,7 @@ void DeviceWindow::handleTtlPush(UINT id)
 }
 
 
-void DeviceWindow::handlTtlHoldPush()
+void AuxiliaryWindow::handlTtlHoldPush()
 {
 	try
 	{
@@ -770,7 +931,7 @@ void DeviceWindow::handlTtlHoldPush()
 }
 
 
-void DeviceWindow::ViewOrChangeTTLNames()
+void AuxiliaryWindow::ViewOrChangeTTLNames()
 {
 	ttlInputStruct input;
 	input.ttls = &ttlBoard;
@@ -780,7 +941,7 @@ void DeviceWindow::ViewOrChangeTTLNames()
 }
 
 
-void DeviceWindow::ViewOrChangeDACNames()
+void AuxiliaryWindow::ViewOrChangeDACNames()
 {
 	dacInputStruct input;
 	input.dacs = &dacBoards;
@@ -789,17 +950,33 @@ void DeviceWindow::ViewOrChangeDACNames()
 	dialog.DoModal();
 }
 
-void DeviceWindow::Exit()
+
+void AuxiliaryWindow::Exit()
 {
 	EndDialog(0);
 }
 
 
-HBRUSH DeviceWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+HBRUSH AuxiliaryWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
 	brushMap brushes = mainWindowFriend->getBrushes();
 	rgbMap rgbs = mainWindowFriend->getRgbs();
-	HBRUSH result = ttlBoard.handleColorMessage(pWnd, brushes, rgbs, pDC);
+	HBRUSH result = flashingAgilent.handleColorMessage( pWnd, brushes, rgbs, pDC );
+	if (result != NULL)
+	{
+		return result;
+	}
+	result = uWaveAxialAgilent.handleColorMessage( pWnd, brushes, rgbs, pDC );
+	if (result != NULL)
+	{
+		return result;
+	}
+	result = topBottomAgilent.handleColorMessage( pWnd, brushes, rgbs, pDC );
+	if (result != NULL)
+	{
+		return result;
+	}
+	result = ttlBoard.handleColorMessage(pWnd, brushes, rgbs, pDC);
 	if (result != NULL)
 	{
 		return result;
@@ -809,27 +986,12 @@ HBRUSH DeviceWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	{
 		return result;
 	}
-	result = flashingAgilent.handleColorMessage(pWnd, brushes, rgbs, pDC);
+	result = topBottomTek.handleColorMessage(pWnd, brushes, rgbs, pDC);
 	if (result != NULL)
 	{
 		return result;
 	}
-	result = uWaveAxialAgilent.handleColorMessage(pWnd, brushes, rgbs, pDC);
-	if (result != NULL)
-	{
-		return result;
-	}
-	result = topBottomAgilent.handleColorMessage(pWnd, brushes, rgbs, pDC);
-	if (result != NULL)
-	{
-		return result;
-	}
-	result = tektronics1.handleColorMessage(pWnd, brushes, rgbs, pDC);
-	if (result != NULL)
-	{
-		return result;
-	}
-	result = tektronics2.handleColorMessage(pWnd, brushes, rgbs, pDC);
+	result = eoAxialTek.handleColorMessage(pWnd, brushes, rgbs, pDC);
 	if (result != NULL)
 	{
 		return result;
@@ -840,7 +1002,7 @@ HBRUSH DeviceWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	{
 		case CTLCOLOR_STATIC:
 		{
-			pDC->SetTextColor(rgbs["Gold"]);
+			pDC->SetTextColor(rgbs["Solarized Yellow"]);
 			pDC->SetBkColor(rgbs["Medium Grey"]);
 			return *brushes["Medium Grey"];
 		}
@@ -857,14 +1019,14 @@ HBRUSH DeviceWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 			return *brushes["Dark Grey"];
 		}
 		default:
-			return *brushes["Light Grey"];
+			return *brushes["Solarized Base03"];
 	}
 }
 
 
-BOOL DeviceWindow::PreTranslateMessage(MSG* pMsg)
+BOOL AuxiliaryWindow::PreTranslateMessage(MSG* pMsg)
 {
-	for (int toolTipInc = 0; toolTipInc < toolTips.size(); toolTipInc++)
+	for (UINT toolTipInc = 0; toolTipInc < toolTips.size(); toolTipInc++)
 	{
 		toolTips[toolTipInc]->RelayEvent(pMsg);
 	}
@@ -872,45 +1034,59 @@ BOOL DeviceWindow::PreTranslateMessage(MSG* pMsg)
 }
 
 
-BOOL DeviceWindow::OnInitDialog()
+BOOL AuxiliaryWindow::OnInitDialog()
 {
 	int id = 4000;
 	POINT controlLocation{ 0, 0 };
-
-	statusBox.initialize(controlLocation, id, this, 480, mainWindowFriend->getFonts(), toolTips);
-	ttlBoard.initialize( controlLocation, toolTips, this, id );
-	dacBoards.initialize( controlLocation, toolTips, this, id );
-	masterKey.initialize( controlLocation, this, id );
-
 	try
 	{
-		// masterConfig.load(&ttlBoard, dacBoards, toolTips, this, &globalVariables);
+		statusBox.initialize( controlLocation, id, this, 480, toolTips );
+		ttlBoard.initialize( controlLocation, toolTips, this, id );
+		dacBoards.initialize( controlLocation, toolTips, this, id );
+		masterKey.initialize( controlLocation, this, id );
+
 		POINT statusLoc = { 960, 0 };
-		tektronics1.initialize(statusLoc, this, id, "Top / Bottom", "Top", "Bottom", 480);
-		tektronics2.initialize(statusLoc, this, id, "EO / Axial", "EO", "Axial", 480);
-		RhodeSchwarzGenerator.initialize(controlLocation, toolTips, this, id);
+		topBottomTek.initialize( statusLoc, this, id, "Top / Bottom", "Top", "Bottom", 480,
+								 "USB0::0x0699::0x0343::C021681::0::INSTR", {TOP_BOTTOM_PROGRAM, 
+								 TOP_ON_OFF, TOP_FSK, BOTTOM_ON_OFF, BOTTOM_FSK} );
+		eoAxialTek.initialize( statusLoc, this, id, "EO / Axial", "EO", "Axial", 480, "????", { EO_AXIAL_PROGRAM,
+							   EO_ON_OFF, EO_FSK, AXIAL_ON_OFF, AXIAL_FSK } );
+		RhodeSchwarzGenerator.initialize( controlLocation, toolTips, this, id );
 		controlLocation = POINT{ 480, 0 };
-		topBottomAgilent.initialize(controlLocation, toolTips, this, id, "USB0::2391::11271::MY52801397::0::INSTR", "Top/Bottom Agilent");
-		uWaveAxialAgilent.initialize(controlLocation, toolTips, this, id, "STUFF...", "U-Wave / Axial Agilent");
-		flashingAgilent.initialize(controlLocation, toolTips, this, id, "STUFF...", "Flashing Agilent");
+		topBottomAgilent.initialize( controlLocation, toolTips, this, id, "USB0::2391::11271::MY52801397::0::INSTR",
+									 "Top/Bottom Agilent", 120, { IDC_TOP_BOTTOM_CHANNEL1_BUTTON
+									 , IDC_TOP_BOTTOM_CHANNEL2_BUTTON, IDC_TOP_BOTTOM_SYNC_BUTTON, 
+									 IDC_TOP_BOTTOM_PROGRAM, IDC_TOP_BOTTOM_AGILENT_COMBO, 
+									 IDC_TOP_BOTTOM_FUNCTION_COMBO, IDC_TOP_BOTTOM_EDIT} );
+		uWaveAxialAgilent.initialize( controlLocation, toolTips, this, id, "STUFF...", "Microwave / Axial Agilent",
+									  120, { IDC_AXIAL_UWAVE_CHANNEL1_BUTTON, IDC_AXIAL_UWAVE_CHANNEL2_BUTTON,
+									  IDC_AXIAL_UWAVE_SYNC_BUTTON, IDC_AXIAL_UWAVE_PROGRAM, 
+									  IDC_AXIAL_UWAVE_AGILENT_COMBO, IDC_AXIAL_UWAVE_FUNCTION_COMBO, 
+									  IDC_AXIAL_UWAVE_EDIT } );
+		flashingAgilent.initialize( controlLocation, toolTips, this, id, "STUFF...", "Flashing Agilent", 
+									120, {IDC_FLASHING_CHANNEL1_BUTTON, IDC_FLASHING_CHANNEL2_BUTTON, 
+									IDC_FLASHING_SYNC_BUTTON, IDC_FLASHING_PROGRAM, IDC_FLASHING_AGILENT_COMBO, 
+									IDC_FLASHING_FUNCTION_COMBO, IDC_FLASHING_EDIT} );
 		controlLocation = POINT{ 1440, 0 };
-		globalVariables.initialize(controlLocation, toolTips, this, id, "GLOBAL VARIABLES");
-		configVariables.initialize(controlLocation, toolTips, this, id, "CONFIGURATION VARIABLES");
-		configVariables.setActive(false);
+		globalVariables.initialize( controlLocation, toolTips, this, id, "GLOBAL VARIABLES",
+									mainWindowFriend->getRgbs(), IDC_GLOBAL_VARS_LISTVIEW );
+		configVariables.initialize( controlLocation, toolTips, this, id, "CONFIGURATION VARIABLES",
+									mainWindowFriend->getRgbs(), IDC_CONFIG_VARS_LISTVIEW);
+		configVariables.setActive( false );
 
 	}
 	catch (Error& exeption)
 	{
-		errBox(exeption.what());
+		errBox( exeption.what() );
 	}
-	
-	menu.LoadMenu(IDR_MAIN_MENU);
-	SetMenu(&menu);
+
+	menu.LoadMenu( IDR_MAIN_MENU );
+	SetMenu( &menu );
 	return TRUE;
 }
 
 
-std::string DeviceWindow::getSystemStatusMsg()
+std::string AuxiliaryWindow::getSystemStatusMsg()
 {
 	// controls are done. Report the initialization status...
 	std::string msg;
@@ -937,31 +1113,19 @@ std::string DeviceWindow::getSystemStatusMsg()
 		msg += "Code System is disabled! Enable in \"constants.h\"\n";
 	}
 
-	msg += "\n>>> GPIB System <<<\n";
-	if (!GPIB_SAFEMODE)
-	{
-		msg += "Code System is Active!\n";
-		msg += "Tektronics 1: " + gpib.queryIdentity( TEKTRONICS_AFG_1_ADDRESS ) + "\n";
-		msg += "Tektronics 2: " + gpib.queryIdentity( TEKTRONICS_AFG_2_ADDRESS ) + "\n";
-		msg += "RSG: " + gpib.queryIdentity( RSG_ADDRESS ) + "\n";
-	}
-	else
-	{
-		msg += "Code System is disabled! Enable in \"constants.h\"\n";
-	}
-
+	msg += ">>>>>> VISA Devices <<<<<<<\n\n";
+	msg += "Tektronics 1: " + topBottomTek.queryIdentity() + "\n";
+	msg += "Tektronics 2: " + eoAxialTek.queryIdentity() + "\n";
 	msg += "\n\n>>> Agilents <<<\n";
-	if (!AGILENT_SAFEMODE)
-	{
-		msg += "Code System is Active!\n";
-		msg += "Top / Bottom Agilent: " + topBottomAgilent.getDeviceIdentity();
-		msg += "U Wave / Axial Agilent: " + uWaveAxialAgilent.getDeviceIdentity();
-		msg += "Flashing Agilent: " + flashingAgilent.getDeviceIdentity();
-	}
-	else
-	{
-		msg += "Code System is disabled! Enable in \"constants.h\"\n";
-	}
+	msg += "Code System is Active!\n";
+	msg += "Top / Bottom Agilent: " + topBottomAgilent.getDeviceIdentity();
+	msg += "U Wave / Axial Agilent: " + uWaveAxialAgilent.getDeviceIdentity();
+	msg += "Flashing Agilent: " + flashingAgilent.getDeviceIdentity();
+
+	msg += "\n>>> GPIB System <<<\n";
+	msg += "Code System is Active!\n";
+	msg += "RSG: " + gpib.queryIdentity( RSG_ADDRESS ) + "\n";
+
 	// 
 	return msg;
 }

@@ -95,9 +95,9 @@ void PictureControl::setSliderLocations(CWnd* parent)
 std::pair<int, int> PictureControl::checkClickLocation( CPoint clickLocation )
 {
 	CPoint test;
-	for (int horizontalInc = 0; horizontalInc < grid.size(); horizontalInc++)
+	for (UINT horizontalInc = 0; horizontalInc < grid.size(); horizontalInc++)
 	{
-		for (int verticalInc = 0; verticalInc < grid[horizontalInc].size(); verticalInc++)
+		for (UINT verticalInc = 0; verticalInc < grid[horizontalInc].size(); verticalInc++)
 		{
 			RECT relevantRect = grid[horizontalInc][verticalInc];
 			// check if inside box
@@ -195,7 +195,7 @@ void PictureControl::handleScroll(int id, UINT nPos)
 /*
  * initialize all controls associated with single picture.
  */
-void PictureControl::initialize(POINT& loc, CWnd* parent, int& id, int width, int height)
+void PictureControl::initialize(POINT& loc, CWnd* parent, int& id, int width, int height, std::array<UINT, 2> minMaxIds)
 {
 	if (width < 100)
 	{
@@ -214,30 +214,24 @@ void PictureControl::initialize(POINT& loc, CWnd* parent, int& id, int width, in
 	// "min" text
 	labelMin.sPos = { loc.x, loc.y, loc.x + 50, loc.y + 30 };
 	labelMin.Create("MIN", WS_CHILD | WS_VISIBLE | SS_CENTER, labelMin.sPos, parent, id++ );
-	labelMin.fontType = NormalFont;
 	// minimum number text
 	editMin.sPos = { loc.x, loc.y + 30, loc.x + 50, loc.y + 60 };
-	editMin.Create(WS_CHILD | WS_VISIBLE | SS_LEFT | ES_AUTOHSCROLL, editMin.sPos, parent, id++ );
-	idVerify(editMin, IDC_PICTURE_1_MIN_EDIT, IDC_PICTURE_2_MIN_EDIT, IDC_PICTURE_3_MIN_EDIT, IDC_PICTURE_4_MIN_EDIT);
-	editMin.fontType = NormalFont;
+	editMin.Create(WS_CHILD | WS_VISIBLE | SS_LEFT | ES_AUTOHSCROLL, editMin.sPos, parent, minMaxIds[0] );
 	// minimum slider
 	sliderMin.sPos = { loc.x, loc.y + 60, loc.x + 50, loc.y + unscaledBackgroundArea.bottom - unscaledBackgroundArea.top};
 	sliderMin.Create(WS_CHILD | WS_VISIBLE | TBS_AUTOTICKS | TBS_VERT, sliderMin.sPos, parent, id++ );
-	sliderMin.SetRange(0, 20000);
+	sliderMin.SetRange(0, 2000);
 	sliderMin.SetPageSize((minSliderPosition - minSliderPosition)/10.0);
 	// "max" text
 	labelMax.sPos = { loc.x + 50, loc.y, loc.x + 100, loc.y + 30 };
 	labelMax.Create("MAX", WS_CHILD | WS_VISIBLE | SS_CENTER, labelMax.sPos, parent, id++ );
-	labelMax.fontType = NormalFont;
 	// maximum number text
 	editMax.sPos = { loc.x + 50, loc.y + 30, loc.x + 100, loc.y + 60 };
-	editMax.Create(WS_CHILD | WS_VISIBLE | SS_LEFT | ES_AUTOHSCROLL, editMax.sPos, parent, id++ );
-	idVerify(editMax, IDC_PICTURE_1_MAX_EDIT, IDC_PICTURE_2_MAX_EDIT, IDC_PICTURE_3_MAX_EDIT, IDC_PICTURE_4_MAX_EDIT);
-	editMax.fontType = NormalFont;
+	editMax.Create(WS_CHILD | WS_VISIBLE | SS_LEFT | ES_AUTOHSCROLL, editMax.sPos, parent, minMaxIds[1] );
 	// maximum slider
 	sliderMax.sPos = { loc.x + 50, loc.y + 60, loc.x + 100, loc.y + unscaledBackgroundArea.bottom - unscaledBackgroundArea.top};
 	sliderMax.Create(WS_CHILD | WS_VISIBLE | TBS_AUTOTICKS | TBS_VERT, sliderMax.sPos, parent, id++ );
-	sliderMax.SetRange(0, 20000);
+	sliderMax.SetRange(0, 2000);
 	sliderMax.SetPageSize((minSliderPosition - minSliderPosition) / 10.0);
 	// reset this.
 	loc.x -= unscaledBackgroundArea.right - unscaledBackgroundArea.left;
@@ -280,10 +274,10 @@ void PictureControl::recalculateGrid(imageParameters newParameters)
 	//
 
 	grid.resize(newParameters.width);
-	for (int widthInc = 0; widthInc < grid.size(); widthInc++)
+	for (UINT widthInc = 0; widthInc < grid.size(); widthInc++)
 	{
 		grid[widthInc].resize(newParameters.height);
-		for (int heightInc = 0; heightInc < grid[widthInc].size(); heightInc++)
+		for (UINT heightInc = 0; heightInc < grid[widthInc].size(); heightInc++)
 		{
 			// for all 4 pictures...
 			grid[widthInc][heightInc].left = (int)(pictureArea.left
@@ -384,7 +378,6 @@ void PictureControl::drawPicture(CDC* deviceContext, std::vector<long> picData,
 	int pixelsAreaHeight;
 	int dataWidth, dataHeight;
 	int iTemp;
-	HANDLE hloc;
 	PBITMAPINFO pbmi;
 	WORD argbq[PICTURE_PALETTE_SIZE];
 	BYTE *DataArray;
@@ -580,9 +573,9 @@ void PictureControl::drawGrid(CDC* easel, CBrush* brush)
 	easel->SelectObject(GetStockObject(DC_BRUSH));
 	easel->SetDCBrushColor(RGB(255, 255, 255));
 	// draw rectangles indicating where the pixels are.
-	for (int widthInc = 0; widthInc < grid.size(); widthInc++)
+	for (UINT widthInc = 0; widthInc < grid.size(); widthInc++)
 	{
-		for (int heightInc = 0; heightInc < grid[widthInc].size(); heightInc++)
+		for (UINT heightInc = 0; heightInc < grid[widthInc].size(); heightInc++)
 		{
 			easel->FrameRect(&grid[widthInc][heightInc], brush);
 		}

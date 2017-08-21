@@ -18,12 +18,12 @@ class SmsTextingControl
 {
 	public:
 		void promptForEmailAddressAndPassword();
-		void initialize(POINT& pos, CWnd* parent, bool isTriggerModeSensitive, int& id, fontMap fonts,
-								cToolTips& tooltips);
-		void sendMessage(std::string message, EmbeddedPythonHandler* pyHandler, std::string msgType);
+		void initialize( POINT& pos, CWnd* parent, bool isTriggerModeSensitive, int& id, cToolTips& tooltips, 
+						 rgbMap rgbs );
+		void sendMessage( std::string message, EmbeddedPythonHandler* pyHandler, std::string msgType );
 		void updatePersonInfo();
 		void deletePersonInfo();
-		void rearrange(int width, int height, fontMap fonts);
+		void rearrange( int width, int height, fontMap fonts );
 	private:
 		std::string emailAddress;
 		std::string password;
