@@ -103,7 +103,7 @@ void VisaFlume::errCheck( long status )
 	if (errorCode != 0)
 	{
 		// Agilent error
-		thrower( "ERROR: agilent returned error message: " + str( errorCode ) + ":" + errMessage );
+		thrower( "ERROR: visa returned error message: " + str( errorCode ) + ":" + errMessage );
 	}
 }
 

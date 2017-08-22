@@ -201,7 +201,7 @@ BOOL ScriptingWindow::OnInitDialog()
 									  "Horizontal NIAWG Script", { IDC_HORIZONTAL_NIAWG_FUNCTION_COMBO, 
 									  IDC_HORIZONTAL_NIAWG_EDIT } );
 	startLocation = { 960, 28 };
-	intensityAgilent.initialize( startLocation, tooltips, this, id, "USB0::0x0957::0x2C07::MY52801397::0::INSTR", 
+	intensityAgilent.initialize( startLocation, tooltips, this, id, INTENSITY_AGILENT_USB_ADDRESS, 
 								 "Intensity Agilent", 1000, { IDC_INTENSITY_CHANNEL1_BUTTON, 
 								 IDC_INTENSITY_CHANNEL2_BUTTON, IDC_INTENSITY_SYNC_BUTTON, IDC_INTENSITY_PROGRAM, 
 								 IDC_INTENSITY_AGILENT_COMBO, IDC_INTENSITY_FUNCTION_COMBO, IDC_INTENSITY_EDIT }  );
