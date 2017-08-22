@@ -171,11 +171,11 @@ void CameraWindow::abortCameraRun()
 			mainWindowFriend->getComm()->sendError(err.what());
 		}
 		
+
 		if (Andor.getSettings().cameraMode != "Continuous Single Scans Mode")
 		{
-			
-			int answer = MessageBoxA("Acquisition Aborted. Delete Data file (data_#.h5) for this run?", "Acquisition Aborted.", 
-									 MB_YESNO );
+			int answer = promptBox("Acquisition Aborted. Delete Data file (data_" + str(dataHandler.getDataFileNumber())
+									  + ".h5) for this run?",MB_YESNO );
 			if (answer == IDYES)
 			{
 				try
@@ -528,6 +528,7 @@ void CameraWindow::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar)
 
 void CameraWindow::OnSize( UINT nType, int cx, int cy )
 {
+	SetRedraw( false );
 	AndorRunSettings settings = CameraSettings.getSettings();
 	stats.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts() );
 	CameraSettings.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts() );
@@ -548,6 +549,8 @@ void CameraWindow::OnSize( UINT nType, int cx, int cy )
 	}
 	ReleaseDC(dc);
 	timer.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts());
+	SetRedraw();
+	RedrawWindow();
 }
 
 
@@ -875,6 +878,8 @@ cToolTips CameraWindow::getToolTips()
 
 BOOL CameraWindow::OnInitDialog()
 {
+	// don't redraw until the first OnSize.
+	SetRedraw( false );
 	Andor.initializeClass( mainWindowFriend->getComm() );
 	cameraPositions positions;
 	// all of the initialization functions increment and use the id, so by the end it will be 3000 + # of controls.
@@ -972,7 +977,7 @@ HBRUSH CameraWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		}
 		default:
 		{
-			return *brushes["Solarized Base03"];
+			return *brushes["Solarized Base04"];
 		}
 	}
 }

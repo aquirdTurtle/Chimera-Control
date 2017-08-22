@@ -148,9 +148,6 @@
     <ClCompile Include="ColorBox.cpp">
       <Filter>General Files</Filter>
     </ClCompile>
-    <ClCompile Include="Chimera.cpp">
-      <Filter>General Files</Filter>
-    </ClCompile>
     <ClCompile Include="CameraWindow.cpp">
       <Filter>Camera Window</Filter>
     </ClCompile>
@@ -198,6 +195,9 @@
     </ClCompile>
     <ClCompile Include="Segment.cpp">
       <Filter>Auxiliary Window</Filter>
+    </ClCompile>
+    <ClCompile Include="ChimeraApp.cpp">
+      <Filter>General Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -408,9 +408,6 @@
     <ClInclude Include="imageParameters.h">
       <Filter>Camera Window</Filter>
     </ClInclude>
-    <ClInclude Include="myApplicationApp.h">
-      <Filter>General Files</Filter>
-    </ClInclude>
     <ClInclude Include="cleanString.h">
       <Filter>General Files</Filter>
     </ClInclude>
@@ -450,6 +447,9 @@
     </ClInclude>
     <ClInclude Include="Segment.h">
       <Filter>Main Window</Filter>
+    </ClInclude>
+    <ClInclude Include="ChimeraApp.h">
+      <Filter>General Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

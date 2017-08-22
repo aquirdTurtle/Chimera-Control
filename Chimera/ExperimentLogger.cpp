@@ -30,27 +30,7 @@ void ExperimentLogger::generateNiawgLog( MasterThreadInput* input, niawgPair<std
 			std::string scriptText = "\n\n====================\n" + AXES_NAMES[axis] + " Script Being Used:\n====================\n";
 			if (!niawgScriptLogs[axis].is_open() )
 			{
-				int andorDisconnectedOption = MessageBox( NULL, "This computer can't currently open logging files on the andor.\nAbort will quit the "
-														  "current script output sequence and will keep the default waveform running."
-														  " (no output has started).\nRetry will re-attempt to connect to the Andor.\nIgnore will continue "
-														  "without saving the current file.", "Andor Disconnected", MB_ABORTRETRYIGNORE );
-				switch (andorDisconnectedOption)
-				{
-					case IDABORT:
-					{
-						thrower( "ERROR: Andor is disconected and the user aborted.\r\n" );
-					}
-					case IDRETRY:
-					{
-						break;
-					}
-					case IDIGNORE:
-					{
-						// break out without writing file.
-						andorConnected = true;
-						break;
-					}
-				}
+				thrower( "ERROR: Failed to open niawg log files." );
 			}
 
 			for (UINT sequenceInc = 0; sequenceInc < input->profile.sequenceConfigNames.size(); sequenceInc++)
@@ -91,10 +71,10 @@ void ExperimentLogger::generateNiawgLog( MasterThreadInput* input, niawgPair<std
 		std::string intensityScriptText = "\n\n====================\nIntensity Script Being Used:\n====================\n";
 		if (!intensityScriptLog.is_open())
 		{
-			int andorDisconnectedOption = MessageBox( NULL, "This computer can't currently open logging files on the andor.\nAbort will quit the "
+			int andorDisconnectedOption = promptBox("This computer can't currently open logging files on the andor.\nAbort will quit the "
 													  "current script output sequence and will keep the default waveform running."
 													  " (no output has started).\nRetry will re-attempt to connect to the Andor.\nIgnore will continue "
-													  "without saving the current file.", "Andor Disconnected", MB_ABORTRETRYIGNORE );
+													  "without saving the current file.", MB_ABORTRETRYIGNORE );
 			switch (andorDisconnectedOption)
 			{
 				case IDABORT:
@@ -148,10 +128,10 @@ void ExperimentLogger::generateNiawgLog( MasterThreadInput* input, niawgPair<std
 		std::ofstream parametersFileLog( parametersFileLogPath );
 		if (!parametersFileLog.is_open())
 		{
-			int disconnectOption = MessageBox( NULL, "This computer can't currently open logging files on the andor.\nAbort will quit the "
+			int disconnectOption = promptBox( "This computer can't currently open logging files on the andor.\nAbort will quit the "
 											   "current script output sequence and will keep the default waveform running."
 											   " (no output has started).\nRetry will re-attempt to connect to the Andor.\nIgnore will continue "
-											   "without saving the current file.", "Andor Disconnected", MB_ABORTRETRYIGNORE );
+											   "without saving the current file.", MB_ABORTRETRYIGNORE );
 			switch (disconnectOption)
 			{
 				case IDABORT:

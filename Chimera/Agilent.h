@@ -10,7 +10,7 @@
 #include "commonTypes.h"
 #include "KeyHandler.h"
 #include "agilentStructures.h"
-
+#include "Script.h"
 
 
 // A class for programming agilent machines.
@@ -20,8 +20,8 @@ class Agilent
 {
 	public:
 		Agilent( bool safemode );
-		void initialize( POINT& loc, cToolTips& toolTips, CWnd* master, int& id, 
-						 std::string address, std::string header, UINT editHeight, std::array<UINT, 7> ids );		
+		void initialize( POINT& loc, cToolTips& toolTips, CWnd* master, int& id,  std::string address, 
+						 std::string header, UINT editHeight, std::array<UINT, 7> ids, COLORREF color );
 		void handleChannelPress( int chan, std::string currentCategoryPath, RunInfo currentRunInfo );
 		void handleCombo();
 		void setDC( int channel, dcInfo info );
@@ -53,6 +53,7 @@ class Agilent
 		void handleScriptVariation( key varKey, UINT variation, scriptedArbInfo& scriptInfo );
 		void handleNoVariations( scriptedArbInfo& scriptInfo );
 		void setScriptOutput(UINT varNum, scriptedArbInfo scriptInfo );
+		// making the script public greatly simplifies opening, saving, etc. files from this script.
 		Script agilentScript;
 
 	private:

@@ -26,7 +26,7 @@ void StatusControl::initialize(POINT &loc, CWnd* parent, int& id, UINT size, std
 	edit.Create( WS_CHILD | WS_VISIBLE | ES_READONLY | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | WS_BORDER, 
 				 edit.sPos, parent, id++ );
 	edit.fontType = CodeFont;
-	edit.SetBackgroundColor(0, RGB(15, 15, 20));
+	edit.SetBackgroundColor(0, RGB(0, 15, 20));
 	setDefaultColor(textColor);
 	loc.y += size;
 }

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "stdafx.h"
+#include "resource.h"
+#include "MainWindow.h"
 
 // making it derived from CWinAppEx gives extra functionality over CWinApp, like extra tooltip functionality :D
 class ChimeraApp : CWinAppEx

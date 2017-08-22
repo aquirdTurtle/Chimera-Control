@@ -2380,7 +2380,7 @@ double NiawgController::rampCalc( int size, int iteration, double initPos, doubl
 	else
 	{
 		std::string errMsg = "ERROR: ramp type " + rampType + " is unrecognized. If this is a file name, make sure the file exists and is in the project folder.\r\n";
-		MessageBox( NULL, cstr( errMsg ), NULL, MB_OK );
+		errBox( errMsg );
 		return 0;
 	}
 }

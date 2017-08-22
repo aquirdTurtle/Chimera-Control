@@ -705,7 +705,7 @@ void DataAnalysisControl::handlePlotAtomsOrCounts(realTimePlotterInput* input, P
 						}
 						default:
 						{
-							MessageBox(0, "Coding Error: Bad Fit option!", 0, 0);
+							errBox("Coding Error: Bad Fit option!");
 						}
 					}
 					input->plotter->send(plotString);
@@ -1186,7 +1186,7 @@ void DataAnalysisControl::handleRClick()
 		// user didn't click in a deletable item.
 		return;
 	}
-	int answer = MessageBox(0, cstr("Delete Plot " + allPlots[itemIndicator].name + "?"), 0, MB_YESNO);
+	int answer = promptBox("Delete Plot " + allPlots[itemIndicator].name + "?", MB_YESNO);
 	if (answer == IDYES)
 	{
 		int result = DeleteFile(cstr(PLOT_FILES_SAVE_LOCATION + "\\" + allPlots[itemIndicator].name + PLOTTING_EXTENSION));

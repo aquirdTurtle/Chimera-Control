@@ -21,7 +21,7 @@
 
 void Script::initialize( int width, int height, POINT& startingLocation, cToolTips& toolTips, CWnd* parent, 
 						 int& id, std::string deviceTypeInput, std::string scriptHeader,
-						 std::array<UINT, 2> ids )
+						 std::array<UINT, 2> ids, COLORREF backgroundColor)
 {
 	AfxInitRichEdit();
 	InitCommonControls();
@@ -91,7 +91,7 @@ void Script::initialize( int width, int height, POINT& startingLocation, cToolTi
 	edit.Create( WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | WS_HSCROLL
 				 | ES_WANTRETURN | WS_BORDER, edit.sPos, parent, ids[1] );
 	edit.fontType = CodeFont;
-	edit.SetBackgroundColor( FALSE, RGB( 0, 21, 27 ) );
+	edit.SetBackgroundColor( FALSE, backgroundColor );
 	edit.SetEventMask( ENM_CHANGE );
 	edit.SetDefaultCharFormat( myCharFormat );
 
@@ -206,20 +206,22 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 	else if (editType == "Agilent")
 	{
 		std::transform(word.begin(), word.end(), word.begin(), ::tolower);
-		if (word == "agilent" || word == "ramp" || word == "hold" || word == "predefined" || word == "script")
+		if (word == "ramp" || word == "hold")
 		{
-			return rgbs["Dark Lavender"];
+			return rgbs["Solarized Violet"];
 		}
-		if (word == "once" || word == "oncewaittrig" || word == "lin" || word == "tanh" || word == "repeatuntiltrig")
+		else if (word == "once" || word == "oncewaittrig" || word == "lin" || word == "tanh" || word == "repeatuntiltrig")
 		{
-			return rgbs["Tan"];
+			return rgbs["Solarized Yellow"];
 		}
-		if (word.size() > 8)
+		else if (word == "+" || word == "=" || word == "(" || word == ")" || word == "*" || word == "-" || word == "/")
 		{
-			if (word.substr(word.size() - 8, 8) == ".aScript")
-			{
-				return rgbs["Purple"];
-			}
+			return rgbs["Solarized Cyan"];
+		}
+		else if (word == "def")
+		{
+			colorLine = true;
+			return rgbs["Solarized Blue"];
 		}
 	}
 	else if (editType == "Master")
@@ -336,7 +338,7 @@ bool Script::coloringIsNeeded()
 
 void Script::handleTimerCall(std::vector<variable> vars,
 							 rgbMap rgbs, std::array<std::array<std::string, 16>, 4> ttlNames,
-							 std::array<std::string, 24> dacNames)
+							 std::array<std::string, 24> dacNames )
 {
 	if (!edit)
 	{
@@ -390,20 +392,22 @@ void Script::handleEditChange()
 
 
 void Script::colorEntireScript(std::vector<variable> vars, rgbMap rgbs, std::array<std::array<std::string, 16>, 4> ttlNames,
-							   std::array<std::string, 24> dacNames)
+							   std::array<std::string, 24> dacNames )
 {
-	colorScriptSection(0, ULONG_MAX, vars, rgbs, ttlNames, dacNames );
+	colorScriptSection(0, ULONG_MAX, vars, rgbs, ttlNames, dacNames);
 }
 
 
 void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std::vector<variable> vars, 
 								 rgbMap rgbs, std::array<std::array<std::string, 16>, 4> ttlNames, 
-								 std::array<std::string, 24> dacNames )
+								 std::array<std::string, 24> dacNames)
 {
 	if (!edit)
 	{
 		return;
 	}
+	//parent->SetRedraw( false );
+	edit.SetRedraw( false );
 	bool tempSaveStatus = false;
 	if ( isSaved )
 	{
@@ -512,6 +516,8 @@ void Script::colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std:
 			start = end;
 		}
 	}
+	edit.SetRedraw( true );
+	edit.RedrawWindow();
 	updateSavedStatus( tempSaveStatus );
 }
 
@@ -638,9 +644,9 @@ void Script::saveScript(std::string categoryPath, RunInfo info)
 	}
 	if (text != "Parent Script")
 	{
-		int answer = MessageBox(0, cstr("WARNING: The current view is not the parent view. This will save the "
+		int answer = promptBox("WARNING: The current view is not the parent view. This will save the "
 								"current text in the edit under the name \"" + scriptName 
-								+ "\". Are you sure you wish to proceed?"), "WARNING!", MB_OKCANCEL);
+								+ "\". Are you sure you wish to proceed?", MB_OKCANCEL );
 		if (answer == IDCANCEL)
 		{
 			return;
@@ -741,7 +747,7 @@ void Script::checkSave(std::string categoryPath, RunInfo info)
 	tempStream >> word;
 	if (word == "def")
 	{
-		int answer = MessageBox(0, cstr("Current " + deviceType + " function file is unsaved. Save it?"), 0, MB_YESNOCANCEL);
+		int answer = promptBox("Current " + deviceType + " function file is unsaved. Save it?", MB_YESNOCANCEL );
 		if (answer == IDCANCEL)
 		{
 			thrower("Cancel!");
@@ -759,7 +765,7 @@ void Script::checkSave(std::string categoryPath, RunInfo info)
 	// else it's a normal script file.
 	if (scriptName == "")
 	{
-		int answer = MessageBox(0, cstr("Current " + deviceType + " script file is unsaved and unnamed. Save it with a with new name?"), 0, MB_YESNOCANCEL);
+		int answer = promptBox("Current " + deviceType + " script file is unsaved and unnamed. Save it with a with new name?", MB_YESNOCANCEL);
 		if (answer == IDCANCEL)
 		{
 			thrower("Cancel!");
@@ -780,8 +786,8 @@ void Script::checkSave(std::string categoryPath, RunInfo info)
 	}
 	else
 	{
-		int answer = MessageBox(0, cstr("The " + deviceType + " script file is unsaved. Save it as " + scriptName 
-								+ extension + "?"), 0, MB_YESNOCANCEL);
+		int answer = promptBox("The " + deviceType + " script file is unsaved. Save it as " + scriptName 
+								+ extension + "?", MB_YESNOCANCEL );
 		if (answer == IDCANCEL)
 		{
 			thrower("Cancel!");
@@ -833,7 +839,7 @@ void Script::deleteScript(std::string categoryPath)
 		return;
 	}
 	// check to make sure:
-	int answer = MessageBox(0, cstr("Are you sure you want to delete the script file " + scriptName + "?"), 0, MB_YESNO);
+	int answer = promptBox("Are you sure you want to delete the script file " + scriptName + "?", MB_YESNO);
 	if (answer == IDNO)
 	{
 		return;
@@ -967,8 +973,10 @@ void Script::openParentScript(std::string parentScriptFileAndPath, std::string c
 	std::string scriptLocation = parentScriptFileAndPath.substr(0, sPos);
 	if (scriptLocation + "\\" != categoryPath && categoryPath != "")
 	{
-		int answer = MessageBox(0, "The requested script is not currently located in the current configuration folder. This is recommended so that scripts "
-			"related to a particular configuration are reserved to that configuration folder. Copy script to current configuration folder?", 0, MB_YESNO);
+		int answer = promptBox("The requested script is not currently located in the current configuration folder. "
+								"This is recommended so that scripts related to a particular configuration are "
+								"reserved to that configuration folder. Copy script to current configuration folder?", 
+								MB_YESNO);
 		if (answer == IDYES)
 		{
 			std::string scriptName = parentScriptFileAndPath.substr(sPos, parentScriptFileAndPath.size());
@@ -1044,8 +1052,8 @@ void Script::considerCurrentLocation(std::string categoryPath, RunInfo info)
 		std::string scriptLocation = scriptFullAddress.substr(0, sPos);
 		if (scriptLocation + "\\" != categoryPath)
 		{
-			int answer = MessageBox(0, "The requested vertical script is not currently located in the current configuration folder. This is recommended so that scripts related to a"
-				" particular configuration are reserved to that configuration folder. Copy script to current configuration folder?", 0, MB_YESNO);
+			int answer = promptBox("The requested vertical script is not currently located in the current configuration folder. This is recommended so that scripts related to a"
+				" particular configuration are reserved to that configuration folder. Copy script to current configuration folder?", MB_YESNO);
 			if (answer == IDYES)
 			{
 				std::string scriptName = scriptFullAddress.substr(sPos, scriptFullAddress.size());
@@ -1160,7 +1168,7 @@ void Script::saveAsFunction()
 	else
 	{
 		fclose( file );
-		int answer = MessageBox( 0, cstr("The function \"" + functionName + "\" already exists! Overwrite it?"), 0, MB_YESNO );
+		int answer = promptBox("The function \"" + functionName + "\" already exists! Overwrite it?", MB_YESNO );
 		if ( answer == IDNO )
 		{
 			return;
@@ -1212,7 +1220,7 @@ void Script::loadFunctions()
 		functionFile.open(functionLocation + "\\" + names[functionInc], std::ios::in);
 		if (!functionFile.is_open())
 		{
-			MessageBox(0, cstr("ERROR: Failed to open function file: " + names[functionInc]), 0, 0);
+			errBox("ERROR: Failed to open function file: " + names[functionInc]);
 			continue;
 		}
 		ScriptStream functionStream;

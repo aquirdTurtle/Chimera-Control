@@ -46,7 +46,7 @@
 #include "boost/math/common_factor.hpp"
 // contains stuff I use for file IO.
 #include <boost/filesystem.hpp>
-#include "myApplicationApp.h"
+#include "ChimeraApp.h"
 #include "commonFunctions.h"
 // This is used to tell the compiler that this specific library is needed.
 #pragma comment(lib, "Ws2_32.lib")
@@ -123,7 +123,7 @@ BOOL ChimeraApp::InitInstance()
 		HANDLE h_Find_Handle;
 		std::string cppFindString = ACTUAL_CODE_FOLDER_PATH + "*.cpp";
 		std::string hFindString = ACTUAL_CODE_FOLDER_PATH + "*.h";
-		int result = MessageBox( 0, "Would you like to copy the code files in their current state for logging?", "Prompt", MB_YESNO );
+		int result = promptBox("Would you like to copy the code files in their current state for logging?", MB_YESNO );
 		if (result == IDYES)
 		{
 			cpp_Find_Handle = FindFirstFile( (LPSTR)cstr( cppFindString ), &find_cpp_Data );
@@ -136,7 +136,7 @@ BOOL ChimeraApp::InitInstance()
 										   cstr( CODE_LOGGING_FILES_PATH + logFolderNameStart + find_cpp_Data.cFileName ), true );
 					if (!result)
 					{
-						int result = MessageBox( 0, cstr( "Failed to copy cpp file for logging! Error: " + str( GetLastError() ) + " Continue?" ), "ERROR", MB_YESNO );
+						int result = promptBox( "Failed to copy cpp file for logging! Error: " + str( GetLastError() ) + " Continue?", MB_YESNO);
 						if (result == IDNO)
 						{
 							break;
@@ -158,7 +158,7 @@ BOOL ChimeraApp::InitInstance()
 										   cstr( CODE_LOGGING_FILES_PATH + logFolderNameStart + find_h_Data.cFileName ), true );
 					if (!result)
 					{
-						int result = MessageBox( 0, cstr( "Failed to copy header file for logging! Error: " + str( GetLastError() ) + " Continue?" ), "ERROR", MB_YESNO );
+						int result = promptBox( "Failed to copy header file for logging! Error: " + str( GetLastError() ) + " Continue?", MB_YESNO );
 						if (result == IDNO)
 						{
 							break;

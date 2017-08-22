@@ -504,8 +504,8 @@ void AndorCamera::setTemperature()
 	// Get the current temperature
 	if (runSettings.temperatureSetting < -60 || runSettings.temperatureSetting > 25)
 	{
-		int answer = MessageBox( 0, "Warning: The selected temperature is outside the normal temperature range of the camera (-60 through "
-								 "25 C). Proceed anyways?", 0, MB_OKCANCEL );
+		int answer = promptBox( "Warning: The selected temperature is outside the normal temperature range of the "
+								"camera (-60 through 25 C). Proceed anyways?", MB_OKCANCEL );
 		if (answer == IDCANCEL)
 		{
 			return;

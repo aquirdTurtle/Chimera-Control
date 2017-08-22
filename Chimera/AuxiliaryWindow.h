@@ -57,6 +57,21 @@ class AuxiliaryWindow : public CDialog
 		std::array<std::array<std::string, 16>, 4> getTtlNames();
 		std::array<std::string, 24> getDacNames();
 
+		void newTopBottomAgilentScript();
+		void openTopBottomAgilentScript( CWnd* parent );
+		void saveTopBottomAgilentScript();
+		void saveTopBottomAgilentScriptAs( CWnd* parent );
+
+		void newAxialUwaveAgilentScript();
+		void openAxialUwaveAgilentScript( CWnd* parent );
+		void saveAxialUwaveAgilentScript();
+		void saveAxialUwaveAgilentScriptAs( CWnd* parent );
+
+		void newFlashingAgilentScript();
+		void openFlashingAgilentScript( CWnd* parent );
+		void saveFlashingAgilentScript();
+		void saveFlashingAgilentScriptAs( CWnd* parent );
+
 		void drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResultf);
 		void handleEnter();
 		void fillMasterThreadInput(MasterThreadInput* input);
@@ -122,7 +137,6 @@ class AuxiliaryWindow : public CDialog
  		DacSystem dacBoards;
  		MasterConfiguration masterConfig{ MASTER_CONFIGURATION_FILE_ADDRESS };
 		TektronicsControl topBottomTek, eoAxialTek;
-
 
 		ColorBox boxes;
 		VariableSystem configVariables;

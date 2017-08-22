@@ -23,7 +23,7 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>NIPXIe5451ArbWvFmGen20</RootNamespace>
     <ProjectName>Chimera</ProjectName>
-    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -217,7 +217,7 @@
     <ClInclude Include="AuxiliaryWindow.h" />
     <ClInclude Include="MasterManager.h" />
     <ClInclude Include="miscellaneousCommonFunctions.h" />
-    <ClInclude Include="myApplicationApp.h" />
+    <ClInclude Include="ChimeraApp.h" />
     <ClInclude Include="NiawgStructures.h" />
     <ClInclude Include="PictureControl.h" />
     <ClInclude Include="PictureManager.h" />
@@ -322,7 +322,7 @@
     <ClCompile Include="getFileName.cpp" />
     <ClCompile Include="commonFunctions.cpp" />
     <ClCompile Include="NiawgController.cpp" />
-    <ClCompile Include="Chimera.cpp" />
+    <ClCompile Include="ChimeraApp.cpp" />
     <ClCompile Include="NiawgWaiter.cpp" />
     <ClCompile Include="saveTextFileFromEdit.cpp" />
     <ClCompile Include="miscellaneousCommonFunctions.cpp" />

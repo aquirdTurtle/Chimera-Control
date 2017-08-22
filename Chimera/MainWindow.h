@@ -7,13 +7,15 @@
 #include "StatusIndicator.h"
 #include "Communicator.h"
 #include "SMSTextingControl.h"
-#include "NiawgController.h"
 #include "EmbeddedPythonHandler.h"
 #include "MasterConfiguration.h"
 #include "Repetitions.h"
 #include "MasterManager.h"
 #include "commonFunctions.h"
 #include "DataLogger.h"
+#include "NoteSystem.h"
+#include "profileSettings.h"
+#include "NiawgController.h"
 
 class ScriptingWindow;
 class CameraWindow;

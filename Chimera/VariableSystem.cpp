@@ -24,8 +24,8 @@ void VariableSystem::handleOpenConfig(std::ifstream& configFile, double version)
 	configFile >> varNum;
 	if (varNum < 0 || varNum > 10)
 	{
-		int answer = MessageBox(0, cstr("ERROR: variable number retrieved from file appears suspicious. The number is "
-								+ str(varNum) + ". Is this accurate?"), 0, MB_YESNO);
+		int answer = promptBox("ERROR: variable number retrieved from file appears suspicious. The number is "
+								+ str(varNum) + ". Is this accurate?", MB_YESNO);
 		if (answer == IDNO)
 		{
 			// don't try to load anything.
@@ -972,7 +972,7 @@ void VariableSystem::deleteVariable()
 	int answer;
 	if (itemIndicator < currentVariables.size())
 	{
-		answer = MessageBox(0, cstr("Delete variable " + currentVariables[itemIndicator].name + "?"), 0, MB_YESNO);
+		answer = promptBox("Delete variable " + currentVariables[itemIndicator].name + "?", MB_YESNO);
 		if (answer == IDYES)
 		{
 			variablesListview.DeleteItem(itemIndicator);
@@ -982,8 +982,8 @@ void VariableSystem::deleteVariable()
 	}
 	else if (itemIndicator > currentVariables.size())
 	{
-		answer = MessageBox(0, "You appear to have found a bug with the listview control... there are too many lines "
-							 "in this control. Clear this line?", 0, MB_YESNO);
+		answer = promptBox("You appear to have found a bug with the listview control... there are too many lines "
+							 "in this control. Clear this line?", MB_YESNO);
 		if (answer == IDYES)
 		{
 			variablesListview.DeleteItem(itemIndicator);
