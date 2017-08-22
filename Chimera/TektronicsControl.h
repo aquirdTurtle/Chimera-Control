@@ -8,7 +8,6 @@ struct tektronicsChannelInfo
 {
 	bool on;
 	bool fsk;
-
 	std::string power;
 	std::string mainFreq;
 	std::string fskFreq;
@@ -20,7 +19,6 @@ struct tektronicsChannelNums
 	// eventually these double values take on the actual values being programmed, like so:
 	// info.channels.first.mainFreqVal = std::stod(info.channels.first.mainFreq);
 	// then if failing checking a key for variable values.
-
 	double powerVal;
 	double mainFreqVal;
 	double fskFreqVal;

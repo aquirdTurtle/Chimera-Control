@@ -41,7 +41,7 @@ void Agilent::setDefualt( int channel )
 {
 	visaFlume.open();
 	// turn it to the default voltage...
-	visaFlume.write( str( "APPLy:DC DEF, DEF, " ) + AGILENT_DEFAULT_DC );
+	//visaFlume.write( str( "APPLy:DC DEF, DEF, " ) + AGILENT_DEFAULT_DC );
 	// and leave...
 	visaFlume.close();
 }

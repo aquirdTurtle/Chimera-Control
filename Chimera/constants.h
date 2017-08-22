@@ -6,8 +6,8 @@
 
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to build and debug other 
 // aspects of the program.
-// #define MASTER_COMPUTER
-#define SPECTRE_LAPTOP
+#define MASTER_COMPUTER
+//#define SPECTRE_LAPTOP
 // #define DESKTOP_COMPUTER
 /// File Locations
 // Files for Desktop
@@ -44,8 +44,6 @@
 	#define UWAVE_AXIAL_AGILENT_SAFEMODE true
 	#define INTENSITY_SAFEMODE false
 	#define FLASHING_SAFEMODE true
-	#define TEKTRONICS_SAFEMODE true
-	#define AGILENT_SAFEMODE true
 
 	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Plotting";
 	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
@@ -71,16 +69,29 @@
 #endif
 
 #ifdef MASTER_COMPUTER
-	#define SOCKET_SAFEMODE true
-	#define NIAWG_SAFEMODE false
-	#define ANDOR_SAFEMODE false
-	#define CONNECT_TO_ANDOR_SAFEMODE false
-	#define PYTHON_HOME L"C:\\Program Files (x86)\Anaconda3\\"
+
+	#define NIAWG_SAFEMODE true
+	#define ANDOR_SAFEMODE true
 	#define PYTHON_SAFEMODE true
 	#define DIO_SAFEMODE true
-	#define DAQMX_SAFEMODE false
-	#define GPIB_SAFEMODE false
-	#define AGILENT_SAFEMODE false
+	#define DAQMX_SAFEMODE true
+	#define RSG_SAFEMODE false
+	// rsg_id...
+	#define TOP_BOTTOM_TEK_SAFEMODE false
+	#define TOP_BOTTOM_TEK_USB_ADDRESS "USB0::0x0699::0x0343::C021681::0::INSTR"
+	#define EO_AXIAL_TEK_SAFEMODE false
+	#define EO_AXIAL_TEK_USB_ADDRESS "USB0::0x0699::0x034C::C010386::0::INSTR"
+	#define TOP_BOTTOM_AGILENT_SAFEMODE false
+	#define TOP_BOTTOM_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50002574::0::INSTR"
+	#define UWAVE_AXIAL_AGILENT_SAFEMODE false
+	#define UWAVE_AXIAL_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52810615::0::INSTR"
+	#define INTENSITY_SAFEMODE false
+	#define INTENSITY_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50004500::0::INSTR"
+	#define FLASHING_SAFEMODE false
+	#define FLASHING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50003003::0::INSTR"
+
+
+	#define PYTHON_HOME L"C:\\Program Files (x86)\Anaconda3\\"
 
 	const std::string CODE_ROOT = "C:\\Users\\Regal Lab\\Documents\\Chimera-Control\\Quantum-Gas-Assembly-Control";
 	const std::string PLOT_FILES_SAVE_LOCATION = CODE_ROOT + "\\Plotting";

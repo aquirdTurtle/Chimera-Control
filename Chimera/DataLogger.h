@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 
-#include "H5cpp.h"
+#include "H5Cpp.h"
 
 #include "DataAnalysisHandler.h"					  
 #include "CameraImageDimensions.h"

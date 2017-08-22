@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "visa.h"
 // this is my wrapper around the visa protocol. There are two types of visa on my system, "NI"-Visa and "Agilent"-Visa.
 // These in principle are to be used for different, but I believe that this is all low level stuff under the hood. 
 class VisaFlume
