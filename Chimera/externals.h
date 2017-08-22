@@ -33,10 +33,6 @@ extern DWORD eIntensityMinChange, eIntensityMaxChange;
 extern DWORD eHorizontalMinChange, eHorizontalMaxChange;
 extern DWORD eVerticalMinChange, eVerticalMaxChange;
 
-// Agilent things
-extern double eCurrentAgilentLow;
-extern double eCurrentAgilentHigh;
-
 // These Describe the scripts
 extern std::string eMostRecentVerticalScriptNames;
 extern std::string eMostRecentHorizontalScriptNames;

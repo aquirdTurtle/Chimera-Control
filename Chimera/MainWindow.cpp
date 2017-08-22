@@ -935,6 +935,7 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
+
 // I think I can delete this...
 LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
 {
@@ -992,6 +993,7 @@ void MainWindow::handleFinish()
 		comm.sendError(err.what());
 	}
 }
+
 
 Communicator* MainWindow::getComm()
 {

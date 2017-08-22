@@ -11,10 +11,11 @@
 #include "ProfileSystem.h"
 #include "AuxiliaryWindow.h"
 
+Agilent::Agilent(bool safemode) : visaFlume(safemode) {}
+
 
 void Agilent::rearrange(UINT width, UINT height, fontMap fonts)
 {
-	// GUI ELEMENTS
 	header.rearrange(width, height, fonts);
 	deviceInfoDisplay.rearrange(width, height, fonts);
 	channel1Button.rearrange(width, height, fonts);
@@ -43,9 +44,6 @@ void Agilent::setDefualt( int channel )
 	visaFlume.write( str( "APPLy:DC DEF, DEF, " ) + AGILENT_DEFAULT_DC );
 	// and leave...
 	visaFlume.close();
-	// update current values
-	currentAgilentLow = std::stod(AGILENT_DEFAULT_DC);
-	currentAgilentHigh = std::stod(AGILENT_DEFAULT_DC);
 }
 
 
@@ -209,14 +207,7 @@ HBRUSH Agilent::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, 
 }
 
 
-void Agilent::handleProgramNow()
-{
-	handleInput();
-	setAgilent();
-}
-
-
-void Agilent::handleInput(int chan)
+void Agilent::handleInput(int chan, std::string categoryPath, RunInfo info)
 {
 	if (chan != 1 && chan != 2)
 	{
@@ -256,8 +247,8 @@ void Agilent::handleInput(int chan)
 			stream >> settings.channel[chan].preloadedArb.address;
 			break;
 		case 4:
+			agilentScript.checkSave( categoryPath, info );
 			settings.channel[chan].scriptedArb.fileAddress = agilentScript.getScriptPathAndName();
-			analyzeAgilentScript( settings.channel[chan].scriptedArb );
 			break;
 		default:
 			thrower( "ERROR: unknown agilent option" );
@@ -266,11 +257,11 @@ void Agilent::handleInput(int chan)
 
 
 // overload for handling whichever channel is currently selected.
-void Agilent::handleInput()
+void Agilent::handleInput( std::string categoryPath, RunInfo info )
 {
 	// true -> 0 + 1 = 1
 	// false -> 1 + 1 = 2
-	handleInput( (!channel1Button.GetCheck()) + 1);
+	handleInput( (!channel1Button.GetCheck()) + 1, categoryPath, info );
 }
 
 
@@ -342,7 +333,7 @@ void Agilent::updateEdit(int chan, std::string currentCategoryPath, RunInfo curr
 void Agilent::handleChannelPress( int chan, std::string currentCategoryPath, RunInfo currentRunInfo )
 {
 	// convert from channel 1/2 to 0/1 to access the right array entr
-	handleInput( currentChannel );
+	handleInput( currentChannel, currentCategoryPath, currentRunInfo );
 	updateEdit( chan, currentCategoryPath, currentRunInfo );
 	if (channel1Button.GetCheck())
 	{
@@ -648,49 +639,29 @@ void Agilent::setDC( int channel, dcInfo info )
 
 void Agilent::setExistingWaveform( int channel, preloadedArbInfo info )
 {
+	// undo zero-indexing... blegh
 	channel++;
+	if (channel != 1 && channel != 2)
+	{
+		thrower( "ERROR: Bad value for channel in setExistingWaveform!" );
+	}
 	visaFlume.open();
-	if (channel == 1)
-	{
-		// Load sequence that was previously loaded.
-		visaFlume.write( "MMEM:LOAD:DATA \"" + info.address + "\"" );
-		// tell it that it's outputting something arbitrary (not sure if necessary)
-		visaFlume.write( "SOURCE1:FUNC ARB" );
-		// tell it what arb it's outputting.
-		visaFlume.write( "SOURCE1:FUNC:ARB \"" + info.address + "\"" );
-		// Set output impedance...
-		visaFlume.write( str( "OUTPUT1:LOAD " ) + AGILENT_LOAD );
-		// not really bursting... but this allows us to reapeat on triggers. Might be another way to do this.
-		visaFlume.write( "SOURCE1:BURST::MODE TRIGGERED" );
-		visaFlume.write( "SOURCE1:BURST::NCYCLES 1" );
-		visaFlume.write( "SOURCE1:BURST::PHASE 0" );
-		// 
-		visaFlume.write( "SOURCE1:BURST::STATE ON" );
-		visaFlume.write( "OUTPUT1 ON" );
-	}
-	else if (channel == 2)
-	{
-		// Load sequence that was previously loaded onto the agilent's non-volitile memory.
-		visaFlume.write( "MMEM:LOAD:DATA \"" + info.address + "\"" );
-		// tell it that it's outputting something arbitrary (not sure if necessary)
-		visaFlume.write( "SOURCE2:FUNC ARB" );
-		// tell it what arb it's outputting.
-		visaFlume.write( "SOURCE2:FUNC:ARB \"" + info.address + "\"" );
-		// not really bursting... but this allows us to reapeat on triggers. Probably another way to do this.
-		visaFlume.write( "SOURCE2:BURST::MODE TRIGGERED" );
-		visaFlume.write( "SOURCE2:BURST::NCYCLES 1" );
-		visaFlume.write( "SOURCE2:BURST::PHASE 0" );
-		visaFlume.write( "SOURCE2:BURST::STATE ON" );
-		// Set output impedance...
-		visaFlume.write( str( "OUTPUT2:LOAD " ) + AGILENT_LOAD );
-		visaFlume.write( "OUTPUT2 ON" );
-
-	}
-	else
-	{
-		thrower( "tried to set arbitrary function for \"channel\" " + str( channel ) + ", which is not supported! "
-				 "Channel should be either 1 or 2" );
-	}
+	visaFlume.write( "SOURCE" + str(channel) + ":DATA:VOL:CLEAR" );
+	// Load sequence that was previously loaded.
+	visaFlume.write( "MMEM:LOAD:DATA \"" + info.address + "\"" );
+	// tell it that it's outputting something arbitrary (not sure if necessary)
+	visaFlume.write( "SOURCE" + str( channel ) + ":FUNC ARB" );
+	// tell it what arb it's outputting.
+	visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB \"INT:\\" + info.address + "\"" );
+	// Set output impedance...
+	visaFlume.write( str( "OUTPUT" + str( channel ) + ":LOAD " ) + AGILENT_LOAD );
+	// not really bursting... but this allows us to reapeat on triggers. Might be another way to do this.
+	visaFlume.write( "SOURCE" + str( channel ) + ":BURST::MODE TRIGGERED" );
+	visaFlume.write( "SOURCE" + str( channel ) + ":BURST::NCYCLES 1" );
+	visaFlume.write( "SOURCE" + str( channel ) + ":BURST::PHASE 0" );
+	// 
+	visaFlume.write( "SOURCE" + str( channel ) + ":BURST::STATE ON" );
+	visaFlume.write( "OUTPUT" + str( channel ) + " ON" );
 	visaFlume.close();
 }
 
@@ -1010,6 +981,7 @@ void Agilent::setAgilent( key varKey, UINT variation )
 				setExistingWaveform( chan, info.channel[chan].preloadedArb );
 				break;
 			case 4:
+				analyzeAgilentScript( info.channel[chan].scriptedArb );
 				setScriptOutput( variation, info.channel[chan].scriptedArb );
 				break;
 			default:
@@ -1050,6 +1022,7 @@ void Agilent::setAgilent()
 				setExistingWaveform( chan, info.channel[chan].preloadedArb );
 				break;
 			case 4:
+				analyzeAgilentScript( info.channel[chan].scriptedArb );
 				setScriptOutput( 0, info.channel[chan].scriptedArb );
 				break;
 			default:

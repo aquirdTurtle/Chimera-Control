@@ -20,10 +20,6 @@ const std::array<int, 2> ALT_AXES = { Horizontal, Vertical };
 const std::array<std::string, 2> AXES_NAMES = { "Vertical", "Horizontal" };
 const niawgPair<std::string> ORIENTATION = { VERTICAL_ORIENTATION, HORIZONTAL_ORIENTATION };
 
-// Agilent Stuff
-double eCurrentAgilentLow = std::stod(AGILENT_DEFAULT_DC);
-double eCurrentAgilentHigh = std::stod(AGILENT_DEFAULT_DC);
-
 bool eWaitError = false;
 
 DWORD eIntensityMinChange = ULONG_MAX, eIntensityMaxChange = 0;

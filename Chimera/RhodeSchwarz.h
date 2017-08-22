@@ -25,18 +25,21 @@ struct rsgEventInfoFinal
 class RhodeSchwarz
 {
 	public:
+		RhodeSchwarz::RhodeSchwarz();
 		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id );
-		void programRSG(Gpib* gpib, UINT var);
+		void programRSG(UINT var);
 		void addFrequency( rsgEventStructuralInfo eventInfo );
 		void clearFrequencies();
 		std::vector<rsgEventStructuralInfo> getFrequencyForms();
 		void interpretKey(key variationKey, std::vector<variable>& vars);	
 		void orderEvents(UINT var);
 		void setInfoDisp(UINT var);
+		std::string getIdentity();
 		std::string getRsgTtl();
 		double getTriggerTime();
 		void rearrange(UINT width, UINT height, fontMap fonts);
 	private:
+		Gpib gpibFlume;
 		std::vector<rsgEventStructuralInfo> eventStructures;
 		// outer vector is over each variation.
 		std::vector<std::vector<rsgEventInfoFinal>> events;

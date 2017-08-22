@@ -2,6 +2,9 @@
 #include "TektronicsControl.h"
 
 
+TektronicsControl::TektronicsControl(bool safemode) : visaFlume(safemode) {}
+
+
 void TektronicsChannelControl::initialize(POINT loc, CWnd* parent, int& id, std::string channelText, LONG width, 
 										   std::array<UINT, 2> ids)
 {

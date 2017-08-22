@@ -3,6 +3,7 @@
 #include "Control.h"
 #include "KeyHandler.h"
 
+
 struct tektronicsChannelInfo
 {
 	bool on;
@@ -12,6 +13,7 @@ struct tektronicsChannelInfo
 	std::string mainFreq;
 	std::string fskFreq;
 };
+
 
 struct tektronicsChannelNums
 {
@@ -58,9 +60,11 @@ class TektronicsChannelControl
 		tektronicsChannelInfo currentInfo;
 };
 
+
 class TektronicsControl
 {
 	public:
+		TektronicsControl(bool safemode);
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpeningConfig(std::ifstream& configFile, double version);
 		void initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,

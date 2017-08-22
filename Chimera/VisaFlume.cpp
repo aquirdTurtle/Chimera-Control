@@ -1,13 +1,12 @@
 #include "stdafx.h"
 #include "VisaFlume.h"
 
-VisaFlume::VisaFlume() : deviceSafemode(false){}
+VisaFlume::VisaFlume(bool safemode) : deviceSafemode(safemode){}
 
 /// 
 void VisaFlume::init( std::string address )
 {
 	usbAddress = address;
-	deviceSafemode = false;
 }
 /// 
 

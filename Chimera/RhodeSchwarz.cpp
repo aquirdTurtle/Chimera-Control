@@ -5,6 +5,15 @@
 #include "AuxiliaryWindow.h"
 
 
+RhodeSchwarz::RhodeSchwarz() : gpibFlume(RSG_ADDRESS, RSG_SAFEMODE){}
+
+
+std::string RhodeSchwarz::getIdentity()
+{
+	return gpibFlume.queryIdentity();
+}
+
+
 /*
  * The controls in this class only display information about what get's programmed to the RSG. They do not
  * (by design) provide an interface for which the user to change the programming of the RSG directly. The
@@ -166,7 +175,7 @@ void RhodeSchwarz::addFrequency(rsgEventStructuralInfo info)
 }
 
 
-void RhodeSchwarz::programRSG( Gpib* gpib, UINT var )
+void RhodeSchwarz::programRSG( UINT var )
 {
 	if (events[var].size() == 0)
 	{
@@ -175,16 +184,16 @@ void RhodeSchwarz::programRSG( Gpib* gpib, UINT var )
 	}
 	else if (events[var].size() == 1)
 	{
-		gpib->gpibSend( RSG_ADDRESS, "OUTPUT ON" );
-		gpib->gpibSend( RSG_ADDRESS, "SOURce:FREQuency:MODE CW" );
-		gpib->gpibSend( RSG_ADDRESS, "FREQ " + str( events[var][0].frequency ) + " GHz" );
-		gpib->gpibSend( RSG_ADDRESS, "POW " + str( events[var][0].power ) + " dBm" );
-		gpib->gpibSend( RSG_ADDRESS, "OUTP ON" );
+		gpibFlume.send( "OUTPUT ON" );
+		gpibFlume.send( "SOURce:FREQuency:MODE CW" );
+		gpibFlume.send( "FREQ " + str( events[var][0].frequency ) + " GHz" );
+		gpibFlume.send( "POW " + str( events[var][0].power ) + " dBm" );
+		gpibFlume.send( "OUTP ON" );
 	}
 	else
 	{
-		gpib->gpibSend( RSG_ADDRESS, "OUTP ON" );
-		gpib->gpibSend( RSG_ADDRESS, "SOURce:LIST:SEL 'freqList" + str( events.size() ) + "'" );
+		gpibFlume.send( "OUTP ON" );
+		gpibFlume.send( "SOURce:LIST:SEL 'freqList" + str( events.size() ) + "'" );
 		std::string frequencyList = "SOURce:LIST:FREQ " + str( events[var][0].frequency );
 		std::string powerList = "SOURce:LIST:POW " + str( events[var][0].power ) + "dBm";
 		for (UINT eventInc = 1; eventInc < events[var].size(); eventInc++)
@@ -194,11 +203,11 @@ void RhodeSchwarz::programRSG( Gpib* gpib, UINT var )
 			powerList += ", ";
 			powerList += str( events[var][eventInc].power ) + "dBm";
 		}
-		gpib->gpibSend( RSG_ADDRESS, cstr(frequencyList) );
-		gpib->gpibSend( RSG_ADDRESS, cstr(powerList));
-		gpib->gpibSend( RSG_ADDRESS, "SOURce:LIST:MODE STEP" );
-		gpib->gpibSend( RSG_ADDRESS, "SOURce:LIST:TRIG:SOURce EXT" );
-		gpib->gpibSend( RSG_ADDRESS, "SOURce:FREQ:MODE LIST" );
+		gpibFlume.send( cstr(frequencyList) );
+		gpibFlume.send( cstr(powerList));
+		gpibFlume.send( "SOURce:LIST:MODE STEP" );
+		gpibFlume.send( "SOURce:LIST:TRIG:SOURce EXT" );
+		gpibFlume.send( "SOURce:FREQ:MODE LIST" );
 	}
 }
 

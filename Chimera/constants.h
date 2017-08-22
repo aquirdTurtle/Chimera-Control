@@ -34,8 +34,19 @@
 	#define NIAWG_SAFEMODE true
 	#define ANDOR_SAFEMODE true
 	#define SOCKET_SAFEMODE true
-	#define CONNECT_TO_ANDOR_SAFEMODE true
 	#define PYTHON_SAFEMODE true
+	#define DIO_SAFEMODE true
+	#define DAQMX_SAFEMODE true
+	#define RSG_SAFEMODE true
+	#define TOP_BOTTOM_TEK_SAFEMODE true
+	#define EO_AXIAL_TEK_SAFEMODE true
+	#define TOP_BOTTOM_AGILENT_SAFEMODE true
+	#define UWAVE_AXIAL_AGILENT_SAFEMODE true
+	#define INTENSITY_SAFEMODE false
+	#define FLASHING_SAFEMODE true
+	#define TEKTRONICS_SAFEMODE true
+	#define AGILENT_SAFEMODE true
+
 	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Plotting";
 	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
 	const std::string LIB_PATH = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Waveforms Library\\";
@@ -49,11 +60,6 @@
 	const std::string KEY_ORIGINAL_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\key.txt";
 	const std::string MUSIC_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Camerawg\\Final Fantasy VII - Victory Fanfare [HQ].mp3";
 	//
-	#define DIO_SAFEMODE true
-	#define DAQMX_SAFEMODE true
-	#define GPIB_SAFEMODE true
-	#define TEKTRONICS_SAFEMODE true
-	#define AGILENT_SAFEMODE true
 	#define PROFILES_PATH "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Master Profiles\\"
 	#define FUNCTIONS_FOLDER_LOCATION "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Functions\\"
 	#define MASTER_CONFIGURATION_FILE_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Master-Configuration.txt"

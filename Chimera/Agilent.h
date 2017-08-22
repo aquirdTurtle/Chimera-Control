@@ -19,6 +19,7 @@
 class Agilent
 {
 	public:
+		Agilent( bool safemode );
 		void initialize( POINT& loc, cToolTips& toolTips, CWnd* master, int& id, 
 						 std::string address, std::string header, UINT editHeight, std::array<UINT, 7> ids );		
 		void handleChannelPress( int chan, std::string currentCategoryPath, RunInfo currentRunInfo );
@@ -28,9 +29,8 @@ class Agilent
 		void setSquare( int channel, squareInfo info );
 		void setSingleFreq( int channel, sineInfo info );
 		void outputOff(int channel);
-		void handleProgramNow();
-		void handleInput();
-		void handleInput( int chan );
+		void handleInput( std::string categoryPath, RunInfo info );
+		void handleInput( int chan, std::string categoryPath, RunInfo info );
 		void setDefualt( int channel );
 		void prepAgilentSettings();
 		bool connected();
@@ -59,7 +59,6 @@ class Agilent
 		std::string name;
 		minMaxDoublet chan1Range;
 		minMaxDoublet chan2Range;
-		double currentAgilentHigh, currentAgilentLow;
 		VisaFlume visaFlume;
 		// since currently all visaFlume communication is done to communicate with agilent machines, my visaFlume wrappers exist
 		// in this class.

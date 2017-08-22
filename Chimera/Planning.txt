@@ -16,12 +16,10 @@ Features:
 - Agilent Safemode / combine agilent w/ master agilent.
 - Watch cursor location
 
-
 Bugs:                                                                           
-- Agilent not connecting
 - restart niawg freezes program (can't reproduce in test)
-- fix up the many different windows that pop up on startup.
 
 =================
 Finished
 =================
+
