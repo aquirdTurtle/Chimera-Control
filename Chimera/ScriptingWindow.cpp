@@ -8,6 +8,9 @@
 #include "textPromptDialog.h"
 #include "AuxiliaryWindow.h"
 
+
+ScriptingWindow::ScriptingWindow() : CDialog(), intensityAgilent(INTENSITY_SAFEMODE){}
+
 IMPLEMENT_DYNAMIC(ScriptingWindow, CDialog)
 
 BEGIN_MESSAGE_MAP(ScriptingWindow, CDialog)
@@ -39,7 +42,7 @@ END_MESSAGE_MAP()
 
 void ScriptingWindow::handleIntensityCombo()
 {
-	intensityAgilent.handleInput();
+	intensityAgilent.handleInput( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
 	intensityAgilent.handleCombo();
 	intensityAgilent.updateEdit(mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo());
 }
@@ -70,7 +73,8 @@ void ScriptingWindow::handleIntensityButtons( UINT id )
 	{
 		try
 		{
-			intensityAgilent.handleProgramNow();
+			intensityAgilent.handleInput(mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo());
+			intensityAgilent.setAgilent();
 			mainWindowFriend->getComm()->sendStatus( "Programmed Agilent " + intensityAgilent.getName() + ".\r\n" );
 		}
 		catch (Error& err)

@@ -5,7 +5,7 @@
 class VisaFlume
 {
 	public:
-	    VisaFlume();
+	    VisaFlume(bool safemode);
 		void init(std::string address);
 		void write( std::string message );		
 		void close();
@@ -16,7 +16,7 @@ class VisaFlume
 		void errQuery( std::string& errMsg, long& errCode );
 		std::string identityQuery();
 	private:
-	    bool deviceSafemode;
+	    const bool deviceSafemode;
 		std::string usbAddress;
 		std::string deviceName;
 		ULONG instrument, defaultResourceManager;

@@ -4,51 +4,31 @@
 #include <array>
 #include "constants.h"
 
-void Gpib::gpibWrite( int deviceID, std::string msg )
+
+std::string Gpib::query( std::string query )
 {
-	int size = msg.size();
-	int result = ibwrt(deviceID, (void*)cstr(msg), size);
-	if ( result == ERR )
-	{
-		thrower( "gpib write failed! " + getErrMessage(iberr ));
-	}
+	send( query );
+	return receive();
 }
 
 
-std::string Gpib::gpibRead( int deviceID )
+Gpib::Gpib(short device, bool safemode)
 {
-	char result[256];
-	int code = ibrd( deviceID, result, 256 );
-	if ( code == ERR )
-	{
-		thrower( "gpib read failed!" + getErrMessage( iberr ) );
-	}
-	return str( result );
-}
-
-
-std::string Gpib::gpibQuery( int deviceID, std::string query )
-{
-	gpibSend( deviceID, query );
-	return gpibReceive( deviceID );
-}
-
-
-Gpib::Gpib()
-{
+	deviceSafemode = safemode;
+	deviceID = device;
 	int hpone, agilentTwo, srsTwo, srsThree, pulseGen, pulseGen2, microHP, powerHP, agilent;
 	// I think that a lot of these aren't actually doing anything... I think these are supposed to open devices.
 	try
 	{
-		hpone = gpibIbdev(17);
-		agilentTwo = gpibIbdev(12);
-		srsTwo = gpibIbdev(6);
-		srsThree = gpibIbdev(19);
-		pulseGen = gpibIbdev(7);
-		pulseGen2 = gpibIbdev(4);
-		microHP = gpibIbdev(10);
-		powerHP = gpibIbdev(5);
-		agilent = gpibIbdev(11);
+		hpone = ibdev(17);
+		agilentTwo = ibdev(12);
+		srsTwo = ibdev(6);
+		srsThree = ibdev(19);
+		pulseGen = ibdev(7);
+		pulseGen2 = ibdev(4);
+		microHP = ibdev(10);
+		powerHP = ibdev(5);
+		agilent = ibdev(11);
 	}
 	catch (Error& err)
 	{
@@ -58,11 +38,11 @@ Gpib::Gpib()
 
 
 // send message to address.
-void Gpib::gpibSend(int address, std::string message)
+void Gpib::send( std::string message)
 {
-	if ( !GPIB_SAFEMODE )
+	if ( !deviceSafemode)
 	{
-		Send( 0, address, (void*) cstr(message), message.size(), NLend );
+		Send( 0, deviceID, (void*) cstr(message), message.size(), NLend );
 		if ( ibsta == ERR )
 		{
 			thrower( "GPIB ERROR: " + getErrMessage( iberr ) );
@@ -71,13 +51,13 @@ void Gpib::gpibSend(int address, std::string message)
 }
 
 
-std::string Gpib::gpibReceive(int address)
+std::string Gpib::receive()
 {
 	//char msg[256] = "";
 	char msg[256];
-	if (!GPIB_SAFEMODE)
+	if (!deviceSafemode)
 	{
-		Receive( 0, address, (void*)msg, 256, STOPend );
+		Receive( 0, deviceID, (void*)msg, 256, STOPend );
 		// this error handling doesn't seem to work with send / receive... prob this only works with 488, not 488.2
 		if (ibcntl == 0)
 		{
@@ -89,8 +69,8 @@ std::string Gpib::gpibReceive(int address)
 }
 
 
-// gets the device descriptor ud. Input the device address.
-int Gpib::gpibIbdev(int pad)
+// "gets the device descriptor ud."
+int Gpib::ibdev(int pad)
 {
 	// board address
 	int bdindx = 0;   
@@ -99,9 +79,9 @@ int Gpib::gpibIbdev(int pad)
 	int tmo = 13;
 	int eot = 1;
 	int eos = 0;
-	if (!GPIB_SAFEMODE)
+	if (!deviceSafemode)
 	{
-		int id = ibdev(bdindx, pad, sad, tmo, eot, eos);
+		int id = ::ibdev(bdindx, pad, sad, tmo, eot, eos);
 		if (id == -1)
 		{
 			thrower("ibdev failed!");
@@ -116,11 +96,11 @@ int Gpib::gpibIbdev(int pad)
 
 
 
-std::string Gpib::queryIdentity( int deviceAddress )
+std::string Gpib::queryIdentity()
 {
 	try
 	{
-		std::string result = gpibQuery( deviceAddress, "*IDN?" );
+		std::string result = query( "*IDN?" );
 		if (result != "")
 		{
 			return result;

@@ -62,9 +62,10 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		expUpdate( "Loading Agilent Info...", input->comm, input->quiet );
 		for (auto agilent : input->agilents)
 		{
-			std::vector<std::ofstream> dummyFiles;
-			agilent->handleInput( 0 );
-			agilent->handleInput( 1 );
+			// I'm thinking this should be done before loading.
+			RunInfo dum;
+			agilent->handleInput( 0, input->profile.categoryPath, dum );
+			agilent->handleInput( 1, input->profile.categoryPath, dum );
 		}
 		//
 		expUpdate( "Analyzing Master Script...", input->comm, input->quiet );
@@ -260,7 +261,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 				}
 			}
 			expUpdate( "Programming Hardware...\r\n", input->comm, input->quiet );
-			input->rsg->programRSG( input->gpib, varInc );
+			input->rsg->programRSG( varInc );
 			input->rsg->setInfoDisp( varInc );
 			// program devices
 			for (auto& agilent : input->agilents)

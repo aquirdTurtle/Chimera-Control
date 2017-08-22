@@ -3,7 +3,7 @@
 #include <string>
 
 #include "constants.h"
-#include "MasterManager.h"
+#include "MasterManager.h" 
 #include "TtlSystem.h"
 #include "DacSystem.h"
 #include "VariableSystem.h"
@@ -29,7 +29,7 @@ class AuxiliaryWindow : public CDialog
 	DECLARE_DYNAMIC(AuxiliaryWindow);
 
 	public:
-		AuxiliaryWindow() : CDialog(){ }
+		AuxiliaryWindow();
 		BOOL OnInitDialog();
 		void handleOpeningConfig(std::ifstream& configFile, double version);
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
@@ -47,9 +47,6 @@ class AuxiliaryWindow : public CDialog
 		void handleFlashingEditChange();
 		void OnTimer( UINT_PTR eventID );
 		void handleTtlPush(UINT id);
-		void passToFlashingProgram();
-		void passToTopBottomAgilentProgram();
-		void passToAxialUwaveAgilentProgram();
 		void handlTtlHoldPush();
 		void ViewOrChangeTTLNames();
 		void ViewOrChangeDACNames();
@@ -119,7 +116,6 @@ class AuxiliaryWindow : public CDialog
 		ExperimentLogger logger;
 		MasterManager manager;
 		RhodeSchwarz RhodeSchwarzGenerator;
-		Gpib gpib;
 		KeyHandler masterKey;
 		Agilent topBottomAgilent, uWaveAxialAgilent, flashingAgilent;
  		TtlSystem ttlBoard;

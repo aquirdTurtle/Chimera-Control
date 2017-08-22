@@ -38,7 +38,6 @@ struct MasterThreadInput
 	KeyHandler* key;
 	std::string masterScriptAddress;
 	Communicator* comm;
-	Gpib* gpib;
 	RhodeSchwarz* rsg;
 	debugInfo debugOptions;
 	std::vector<Agilent*> agilents;

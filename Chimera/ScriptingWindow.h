@@ -25,7 +25,7 @@ class ScriptingWindow : public CDialog
 	DECLARE_DYNAMIC(ScriptingWindow);
 
 	public:
-		ScriptingWindow() : CDialog() {}
+		ScriptingWindow();
 
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 		

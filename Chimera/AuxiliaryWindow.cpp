@@ -8,6 +8,12 @@
 #include "explorerOpen.h"
 #include "commonFunctions.h"
 
+AuxiliaryWindow::AuxiliaryWindow() : CDialog(), topBottomAgilent(TOP_BOTTOM_AGILENT_SAFEMODE),
+									uWaveAxialAgilent(UWAVE_AXIAL_AGILENT_SAFEMODE), flashingAgilent(FLASHING_SAFEMODE), 
+									topBottomTek(TOP_BOTTOM_TEK_SAFEMODE), eoAxialTek(EO_AXIAL_TEK_SAFEMODE)
+{ 
+}
+
 IMPLEMENT_DYNAMIC( AuxiliaryWindow, CDialog )
 
 BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
@@ -54,12 +60,13 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 
 END_MESSAGE_MAP()
 
-
+/*
 void AuxiliaryWindow::passToFlashingProgram()
 {
 	try
 	{
-		flashingAgilent.handleProgramNow();
+		flashingAgilent.handleInput( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
+		flashingAgilent.setAgilent();
 		sendStat( "Programmed Flashing Agilent.\r\n" );
 	}
 	catch (Error& err)
@@ -73,7 +80,8 @@ void AuxiliaryWindow::passToTopBottomAgilentProgram()
 {
 	try
 	{
-		topBottomAgilent.handleProgramNow();
+		topBottomAgilent.handleInput( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
+		topBottomAgilent.setAgilent();
 		sendStat( "Programmed Top/Bottom Agilent.\r\n" );
 	}
 	catch (Error& err)
@@ -88,15 +96,17 @@ void AuxiliaryWindow::passToAxialUwaveAgilentProgram()
 {
 	try
 	{
-		uWaveAxialAgilent.handleProgramNow();
+		uWaveAxialAgilent.handleInput( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
+		uWaveAxialAgilent.setAgilent();
 		sendStat( "Programmed Axial/Microwave Agilent.\r\n" );
 	}
 	catch (Error& err)
 	{
 		sendErr( "Error while programming Agilent: " + err.whatStr() );
 	}
-
 }
+*/
+
 
 void AuxiliaryWindow::OnTimer( UINT_PTR eventID )
 {
@@ -482,7 +492,8 @@ void AuxiliaryWindow::handleAgilentOptions( UINT id )
 	{
 		try
 		{
-			agilent->handleProgramNow();
+			agilent->handleInput( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
+			agilent->setAgilent();
 			sendStat( "Programmed Agilent " + agilent->getName() + ".\r\n" );
 		}
 		catch (Error& err)
@@ -496,25 +507,46 @@ void AuxiliaryWindow::handleAgilentOptions( UINT id )
 
 void AuxiliaryWindow::handleTopBottomAgilentCombo()
 {
-	topBottomAgilent.handleInput();
-	topBottomAgilent.handleCombo();
-	topBottomAgilent.updateEdit( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
+	try
+	{
+		topBottomAgilent.handleInput( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
+		topBottomAgilent.handleCombo();
+		topBottomAgilent.updateEdit( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
+	}
+	catch (Error& err)
+	{
+		sendErr( "ERROR: error while handling agilent combo change: " + err.whatStr() );
+	}
 }
 
 
 void AuxiliaryWindow::handleAxialUWaveAgilentCombo()
 {
-	uWaveAxialAgilent.handleInput();
-	uWaveAxialAgilent.handleCombo();
-	uWaveAxialAgilent.updateEdit( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
+	try
+	{
+		uWaveAxialAgilent.handleInput( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
+		uWaveAxialAgilent.handleCombo();
+		uWaveAxialAgilent.updateEdit( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
+	}
+	catch (Error& err)
+	{
+		sendErr( "ERROR: error while handling agilent combo change: " + err.whatStr() );
+	}
 }
 
 
 void AuxiliaryWindow::handleFlashingAgilentCombo()
 {
-	flashingAgilent.handleInput();
-	flashingAgilent.handleCombo();
-	flashingAgilent.updateEdit( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
+	try
+	{
+		flashingAgilent.handleInput( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
+		flashingAgilent.handleCombo();
+		flashingAgilent.updateEdit( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
+	}
+	catch (Error& err)
+	{
+		sendErr( "ERROR: error while handling agilent combo change: " + err.whatStr() );
+	}
 }
 
 
@@ -593,7 +625,6 @@ void AuxiliaryWindow::loadMotSettings()
 		input->key = &masterKey;
 		input->masterScriptAddress = MOT_ROUTINE_ADDRESS;
 		input->rsg = &RhodeSchwarzGenerator;
-		input->gpib = &gpib;
 		input->agilents.push_back( &topBottomAgilent );
 		input->agilents.push_back( &uWaveAxialAgilent );
 		input->topBottomTek = &topBottomTek;
@@ -647,7 +678,6 @@ void AuxiliaryWindow::fillMasterThreadInput(MasterThreadInput* input)
 	globalVariables.setUsages(globals);
 	input->key = &masterKey;
 	input->rsg = &RhodeSchwarzGenerator;
-	input->gpib = &gpib;
 	input->agilents.push_back(&topBottomAgilent);
 	input->agilents.push_back(&uWaveAxialAgilent);
 	topBottomTek.getSettings();
@@ -1124,7 +1154,7 @@ std::string AuxiliaryWindow::getSystemStatusMsg()
 
 	msg += "\n>>> GPIB System <<<\n";
 	msg += "Code System is Active!\n";
-	msg += "RSG: " + gpib.queryIdentity( RSG_ADDRESS ) + "\n";
+	msg += "RSG: " + RhodeSchwarzGenerator.getIdentity() + "\n";
 
 	// 
 	return msg;

@@ -9,15 +9,14 @@
 class Gpib
 {
 	public:
-		Gpib::Gpib();
-		void gpibWrite( int deviceID, std::string msg );
-		std::string gpibRead( int deviceID );
-		std::string gpibQuery( int deviceID, std::string query );
-		std::string queryIdentity( int deviceAddress );
-
-		int gpibIbdev( int pad );
-		void gpibSend( int address, std::string message );
-		std::string Gpib::gpibReceive( int address );
-
+		Gpib::Gpib(short deviceID, bool safemode);
+		std::string query( std::string query );
+		std::string queryIdentity();
+		int ibdev( int pad );
+		void send( std::string message );
+		std::string receive();
 		std::string getErrMessage( long errCode );
+	private:
+		short deviceID;
+		bool deviceSafemode;
 };
