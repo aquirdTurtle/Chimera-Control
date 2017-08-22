@@ -319,13 +319,13 @@ void PlotDesignerDialog::handleSave()
 	/// get the (current) analysis pixel locations
 	saveDataSet( false );
 
-	int result = MessageBox( cstr( currentPlotInfo.getAllSettingsString() ), "Finished?", MB_OKCANCEL );
+	int result = promptBox( currentPlotInfo.getAllSettingsString() , MB_OKCANCEL );
 	if (result == IDOK)
 	{
 		// save.
 		currentPlotInfo.savePlotInfo();
 		//fileManage::reloadCombo(eAllPlotsCombo.hwnd, PLOT_FILES_SAVE_LOCATION, "*.plot", "__NONE__");
-		result = MessageBox( "Close plot creator?", 0, MB_YESNO );
+		result = promptBox( "Close plot creator?", MB_YESNO );
 		if (result == IDYES)
 		{
 			EndDialog( 0 );

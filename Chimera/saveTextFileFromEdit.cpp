@@ -8,7 +8,7 @@
  * extension is the text of the default extension for saving this time.
  * returns the name that was selected. If no name is selected, this returns "".
  */
-std::string saveTextFileFromEdit(HWND hwndOwner, std::string extension, profileSettings location)
+std::string saveWithExplorer(CWnd* owner, std::string extension, profileSettings location)
 {
 	//Save Dialog
 	OPENFILENAME saveFileDialogInfoObj;
@@ -18,7 +18,7 @@ std::string saveTextFileFromEdit(HWND hwndOwner, std::string extension, profileS
 	
 	saveFileDialogInfoObj.lpstrInitialDir = (LPTSTR)cstr(location.categoryPath);
 	saveFileDialogInfoObj.lStructSize = sizeof(saveFileDialogInfoObj);
-	saveFileDialogInfoObj.hwndOwner = hwndOwner;
+	saveFileDialogInfoObj.hwndOwner = owner->GetSafeHwnd();
 	saveFileDialogInfoObj.lpstrFilter = NULL;
 	saveFileDialogInfoObj.lpstrFile = szSaveFileName;
 	saveFileDialogInfoObj.nMaxFile = MAX_PATH;
@@ -27,7 +27,7 @@ std::string saveTextFileFromEdit(HWND hwndOwner, std::string extension, profileS
 	saveFileDialogInfoObj.lpstrDefExt = cstr(extension);
 	if (GetSaveFileName(&saveFileDialogInfoObj) == 0)
 	{
-		MessageBox(NULL, "No save file name selected", NULL, MB_OK);
+		errBox("No save file name selected");
 		return "";
 	}
 	return szSaveFileName;

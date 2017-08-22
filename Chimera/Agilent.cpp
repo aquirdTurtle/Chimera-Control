@@ -123,7 +123,7 @@ std::string Agilent::getDeviceIdentity()
 
 
 void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id, std::string address, 
-						  std::string headerText, UINT editHeight, std::array<UINT, 7> ids )
+						  std::string headerText, UINT editHeight, std::array<UINT, 7> ids, COLORREF color )
 {
 	visaFlume.init( address );
 	name = headerText;
@@ -181,7 +181,7 @@ void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id
 	optionsFormat.Create( "---", WS_CHILD | WS_VISIBLE | SS_SUNKEN, optionsFormat.sPos, parent, id++ );
 	loc.x -= 480;
 
-	agilentScript.initialize( 480, editHeight, loc, toolTips, parent, id, "Agilent", "", { ids[5], ids[6] } );
+	agilentScript.initialize( 480, editHeight, loc, toolTips, parent, id, "Agilent", "", { ids[5], ids[6] }, color );
 	
 	settings.channel[0].option = -2;
 	settings.channel[1].option = -2;

@@ -7,7 +7,7 @@
  * This function gets the name of a file to open, using the fancy windows dialog box.
  * It returns the chosen filename if successful, it returns "" if the user canceled.
  */
-std::string getFileNameDialog(HWND parentWindow)
+std::string openWithExplorer(CWnd* parent)
 {
 	OPENFILENAME dialogInfo;
 	// buffer for file name
@@ -15,7 +15,7 @@ std::string getFileNameDialog(HWND parentWindow)
 	// Initialize OPENFILENAME
 	ZeroMemory(&dialogInfo, sizeof(dialogInfo));
 	dialogInfo.lStructSize = sizeof(dialogInfo);
-	dialogInfo.hwndOwner = parentWindow;
+	dialogInfo.hwndOwner = parent->GetSafeHwnd();
 	dialogInfo.lpstrFile = fileName;
 	// Set lpstrFile[0] to '\0' so that GetOpenFileName does not 
 	// use the contents of szFile to initialize itself.

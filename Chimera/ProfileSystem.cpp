@@ -335,9 +335,9 @@ void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWi
 
 	if (!ProfileSystem::fileOrFolderExists(currentProfile.categoryPath + configNameToSave + extension))  
 	{
-		int answer = MessageBox(0, cstr("This configuration file appears to not exist in the expected location: " 
+		int answer = promptBox("This configuration file appears to not exist in the expected location: " 
 									 + currentProfile.categoryPath + configNameToSave 
-									 + extension + ". Continue by making a new configuration file?"), 0, MB_OKCANCEL);
+									 + extension + ". Continue by making a new configuration file?", MB_OKCANCEL );
 		if (answer == IDCANCEL)
 		{
 			return;
@@ -346,8 +346,8 @@ void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWi
 	
 	if (!experimentIsSaved)
 	{
-		int answer = MessageBox(0, "The Experiment settings have not yet been saved. Save them before the "
-								 "configuration? (Optional)", 0, MB_YESNOCANCEL);
+		int answer = promptBox( "The Experiment settings have not yet been saved. Save them before the "
+								 "configuration? (Optional)", MB_YESNOCANCEL );
 		if (answer == IDCANCEL)
 		{
 			return;
@@ -360,8 +360,8 @@ void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWi
 	}
 	if (!categoryIsSaved)
 	{
-		int answer = MessageBox(0, "The Category settings have not yet been saved. Save them before the configuration?"
-								 " (Optional)", 0, MB_YESNOCANCEL);
+		int answer = promptBox("The Category settings have not yet been saved. Save them before the configuration?"
+								 " (Optional)", MB_YESNOCANCEL );
 		if (answer == IDCANCEL)
 		{
 			return;
@@ -457,7 +457,7 @@ void ProfileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindo
 	// check if file already exists
 	if (ProfileSystem::fileOrFolderExists(currentProfile.categoryPath + configurationNameToSave + extension))
 	{
-		int answer = MessageBox(0, "This configuration file name already exists! Overwrite it?", 0, MB_OKCANCEL);
+		int answer = promptBox("This configuration file name already exists! Overwrite it?", MB_OKCANCEL);
 		if (answer == IDCANCEL)
 		{
 			return;
@@ -466,8 +466,8 @@ void ProfileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindo
 
 	if (!experimentIsSaved)
 	{
-		int answer = MessageBox(0, "The Experiment settings have not yet been saved. Save them before the configuration? (Optional)", 0, 
-								 MB_YESNOCANCEL);
+		int answer = promptBox("The Experiment settings have not yet been saved. Save them before the configuration? "
+								 "(Optional)", MB_YESNOCANCEL);
 		if (answer == IDCANCEL)
 		{
 			return;
@@ -480,7 +480,7 @@ void ProfileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindo
 	}
 	if (!categoryIsSaved)
 	{
-		int answer = MessageBox(0, "The Category settings have not yet been saved. Save them before the configuration? (Optional)", 0, 
+		int answer = promptBox("The Category settings have not yet been saved. Save them before the configuration? (Optional)",
 								 MB_YESNOCANCEL);
 		if (answer == IDCANCEL)
 		{
@@ -659,8 +659,8 @@ void ProfileSystem::deleteConfiguration()
 			thrower( "The Configuration has not yet been selected! Please select a category or create a new one before trying to rename it." );
 		}
 	}
-	int answer = MessageBox(0, cstr("Are you sure you want to delete the current configuration: " 
-								 + currentProfile.configuration), 0, MB_YESNO);
+	int answer = promptBox("Are you sure you want to delete the current configuration: " 
+								 + currentProfile.configuration, MB_YESNO);
 	if (answer == IDNO)
 	{
 		return;
@@ -737,7 +737,7 @@ bool ProfileSystem::checkConfigurationSave(std::string prompt, ScriptingWindow* 
 {
 	if (!configurationIsSaved)
 	{
-		int answer = MessageBox(0, cstr(prompt), 0, MB_YESNOCANCEL);
+		int answer = promptBox(prompt, MB_YESNOCANCEL);
 		if (answer == IDYES)
 		{
 			saveConfigurationOnly(scriptWindow, mainWin, auxWin, camWin);
@@ -803,9 +803,9 @@ void ProfileSystem::saveCategoryOnly(MainWindow* mainWin)
 	// check if file already exists. No extension, looking for a folder here. 
 	if (!ProfileSystem::fileOrFolderExists(currentProfile.categoryPath + categoryNameToSave + CATEGORY_EXTENSION))
 	{
-		int answer = MessageBox( 0, cstr("This category file appears to not exist in the expected location: " 
+		int answer = promptBox("This category file appears to not exist in the expected location: " 
 									  + currentProfile.categoryPath + categoryNameToSave
-									  + CATEGORY_EXTENSION + ".  Continue by making a new category file?"), 0, MB_OKCANCEL );
+									  + CATEGORY_EXTENSION + ".  Continue by making a new category file?", MB_OKCANCEL );
 		if (answer == IDCANCEL)
 		{
 			return;
@@ -814,7 +814,7 @@ void ProfileSystem::saveCategoryOnly(MainWindow* mainWin)
 
 	if (!experimentIsSaved)
 	{
-		int answer = MessageBox(0, "The Experiment settings have not yet been saved. Save them before the category? (Optional)", 0, 
+		int answer = promptBox("The Experiment settings have not yet been saved. Save them before the category? (Optional)", 
 								 MB_YESNOCANCEL);
 		if (answer == IDCANCEL)
 		{
@@ -870,9 +870,9 @@ void ProfileSystem::saveCategoryAs( MainWindow* mainWin )
 	// check if file already exists. No extension, looking for a folder here. 
 	if (!ProfileSystem::fileOrFolderExists( currentProfile.categoryPath + categoryNameToSave + CATEGORY_EXTENSION ))
 	{
-		int answer = MessageBox( 0, cstr("This category file appears to not exist in the expected location: " 
+		int answer = promptBox("This category file appears to not exist in the expected location: " 
 									  + currentProfile.categoryPath + categoryNameToSave
-									  + CATEGORY_EXTENSION + ".  Continue by making a new category file?"), 0, MB_OKCANCEL );
+									  + CATEGORY_EXTENSION + ".  Continue by making a new category file?", MB_OKCANCEL );
 		if (answer == IDCANCEL)
 		{
 			return;
@@ -881,7 +881,7 @@ void ProfileSystem::saveCategoryAs( MainWindow* mainWin )
 
 	if (!experimentIsSaved)
 	{
-		int answer = MessageBox( 0, "The Experiment settings have not yet been saved. Save them before the category? (Optional)", 0, 
+		int answer = promptBox("The Experiment settings have not yet been saved. Save them before the category? (Optional)", 
 								 MB_YESNOCANCEL );
 		if (answer == IDCANCEL)
 		{
@@ -944,13 +944,13 @@ void ProfileSystem::deleteCategory()
 					 "category." );
 		}
 	}
-	int answer = MessageBox(0, cstr("Are you sure you want to delete the current Category and all configurations within? The current category "
-								 "is: " + currentProfile.category), 0, MB_YESNO);
+	int answer = promptBox("Are you sure you want to delete the current Category and all configurations within? The current category "
+								 "is: " + currentProfile.category, MB_YESNO);
 	if (answer == IDNO)
 	{
 		return;
 	}
-	answer = MessageBox(0, cstr("Are you really sure? The current category is: " + currentProfile.category), 0, MB_YESNO);
+	answer = promptBox("Are you really sure? The current category is: " + currentProfile.category, MB_YESNO);
 	if (answer == IDNO)
 	{
 		return;
@@ -1075,7 +1075,7 @@ bool ProfileSystem::checkCategorySave(std::string prompt, MainWindow* mainWin)
 {
 	if (!categoryIsSaved)
 	{
-		int answer = MessageBox(0, cstr(prompt), 0, MB_YESNOCANCEL);
+		int answer = promptBox(prompt, MB_YESNOCANCEL);
 		if (answer == IDYES)
 		{
 			this->saveCategoryOnly(mainWin);
@@ -1142,9 +1142,9 @@ void ProfileSystem::saveExperimentOnly(MainWindow* mainWin)
 	if (!ProfileSystem::fileOrFolderExists( FILE_SYSTEM_PATH + experimentNameToSave + "\\" + experimentNameToSave 
 											+ EXPERIMENT_EXTENSION))
 	{
-		int answer = MessageBox(0, cstr("This experiment file appears to not exist in the expected location: " 
-										 + FILE_SYSTEM_PATH + "   \r\n.Continue by making a new experiment file?"), 
-								 0, MB_OKCANCEL);
+		int answer = promptBox("This experiment file appears to not exist in the expected location: " 
+								+ FILE_SYSTEM_PATH + "   \r\n.Continue by making a new experiment file?", 
+								MB_OKCANCEL);
 		if (answer == IDCANCEL)
 		{
 			return;
@@ -1193,8 +1193,8 @@ void ProfileSystem::saveExperimentAs(MainWindow* mainWin)
 	// check if file already exists
 	if (ProfileSystem::fileOrFolderExists( FILE_SYSTEM_PATH + experimentNameToSave + ".eConfig" ))
 	{
-		int answer = MessageBox( 0, cstr("This experiment name appears to already exist in the expected location: " + FILE_SYSTEM_PATH + "."
-									  "Overwrite this file?"), 0, MB_OKCANCEL );
+		int answer = promptBox("This experiment name appears to already exist in the expected location: " + FILE_SYSTEM_PATH + "."
+									  "Overwrite this file?", MB_OKCANCEL );
 		if (answer == IDCANCEL)
 		{
 			return;
@@ -1250,7 +1250,7 @@ void ProfileSystem::renameExperiment(MainWindow* mainWin)
 	// check if file already exists. No extension, looking for a folder here. 
 	if (ProfileSystem::fileOrFolderExists(FILE_SYSTEM_PATH + experimentNameToSave))
 	{
-		int answer = MessageBox(0, "This experiment name already exists!", 0, MB_OKCANCEL);
+		int answer = promptBox("This experiment name already exists!", MB_OKCANCEL);
 		if (answer == IDCANCEL)
 		{
 			return;
@@ -1281,13 +1281,13 @@ void ProfileSystem::deleteExperiment()
 		thrower( "No experiment has been set!" );
 		return;
 	}
-	int answer = MessageBox( 0, cstr("Are you sure that you'd like to delete the current experiment and all categories and configurations "
-								  "within? Current Experiment: " + currentProfile.experiment), 0, MB_YESNO );
+	int answer = promptBox("Are you sure that you'd like to delete the current experiment and all categories and configurations "
+								  "within? Current Experiment: " + currentProfile.experiment, MB_YESNO );
 	if (answer == IDNO)
 	{
 		return;
 	}
-	answer = MessageBox( 0, cstr("Are you really really sure? Current Experiment: " + currentProfile.experiment), 0, MB_YESNO );
+	answer = promptBox("Are you really really sure? Current Experiment: " + currentProfile.experiment, MB_YESNO );
 	if (answer == IDNO)
 	{
 		return;
@@ -1407,7 +1407,7 @@ bool ProfileSystem::checkExperimentSave(std::string prompt, MainWindow* mainWin)
 {
 	if (!this->experimentIsSaved)
 	{
-		int answer = MessageBox(0, cstr(prompt), 0, MB_YESNOCANCEL);
+		int answer = promptBox(prompt, MB_YESNOCANCEL);
 		if (answer == IDYES)
 		{
 			saveExperimentOnly(mainWin);
@@ -1655,7 +1655,7 @@ void ProfileSystem::deleteSequence()
 	{
 		thrower("Please select a sequence for deleting.");
 	}
-	int answer = MessageBox(0, cstr("Are you sure you want to delete the current sequence: " + currentProfile.sequence), 0, 
+	int answer = promptBox("Are you sure you want to delete the current sequence: " + currentProfile.sequence, 
 							 MB_YESNO);
 	if (answer == IDNO)
 	{
@@ -1771,7 +1771,7 @@ bool ProfileSystem::checkSequenceSave(std::string prompt)
 {
 	if (!sequenceIsSaved)
 	{
-		int answer = MessageBox(0, cstr(prompt), 0, MB_YESNOCANCEL);
+		int answer = promptBox(prompt, MB_YESNOCANCEL);
 		if (answer == IDYES)
 		{
 			saveSequence();

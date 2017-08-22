@@ -1,7 +1,6 @@
 #pragma once
-#include "stdafx.h"
-
 #include <string>
+#include "windows.h"
 
-std::string saveTextFileFromEdit(HWND hEdit, std::string extension, profileSettings location);
+std::string saveWithExplorer(CWnd* owner, std::string extension, profileSettings location);
 

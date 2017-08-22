@@ -8,10 +8,13 @@ MainWindow::MainWindow(UINT id, CDialog* splash) : CDialog(id), profile(PROFILES
     masterConfig( MASTER_CONFIGURATION_FILE_ADDRESS ), 
 	appSplash( splash )
 {
+	// create all the main rgbs and brushes. I want to make sure this happens before other windows are created.
 	mainRGBs["Light Green"]			= RGB( 163,	190, 140);
 	mainRGBs["Slate Grey"]			= RGB( 101,	115, 126);
 	mainRGBs["Pale Pink"]			= RGB( 180,	142, 173);
 	mainRGBs["Musky Red"]			= RGB( 191,	97,	 106);
+	// used by the visual studio solarized for edit area.
+	mainRGBs["Solarized Base04"]	= RGB( 0,	30,  38 );
 	mainRGBs["Solarized Base03"]	= RGB( 0,	43,  54 );
 	mainRGBs["Solarized Base02"]	= RGB( 7,	54,  66 );
 	mainRGBs["Solarized Base01"]	= RGB( 88,	110, 117 );
@@ -72,7 +75,7 @@ MainWindow::MainWindow(UINT id, CDialog* splash) : CDialog(id), profile(PROFILES
 	(mainBrushes["Solarized Base03"]	= new CBrush)->CreateSolidBrush( mainRGBs["Solarized Base03"] );
 	(mainBrushes["Solarized Base02"]	= new CBrush)->CreateSolidBrush( mainRGBs["Solarized Base02"] );
 	(mainBrushes["Solarized Base01"]	= new CBrush)->CreateSolidBrush( mainRGBs["Solarized Base01"] );
-
+	(mainBrushes["Solarized Base04"]	= new CBrush)->CreateSolidBrush( mainRGBs["Solarized Base04"] );
 	/// the following are all equivalent to:
 	// mainFonts["Font name"] = new CFont;
 	// mainFonts["Font name"].CreateFontA(...);
@@ -139,14 +142,14 @@ MainWindow::MainWindow(UINT id, CDialog* splash) : CDialog(id), profile(PROFILES
 }
 
 
-IMPLEMENT_DYNAMIC(MainWindow, CDialog)
+IMPLEMENT_DYNAMIC( MainWindow, CDialog )
 
 BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_WM_CTLCOLOR()
 	ON_WM_SIZE()
 	ON_COMMAND_RANGE( ID_ACCELERATOR_ESC, ID_ACCELERATOR_ESC, &MainWindow::passCommonCommand )
 	ON_COMMAND_RANGE( ID_ACCELERATOR_F5, ID_ACCELERATOR_F5, &MainWindow::passCommonCommand )
-	ON_COMMAND_RANGE(ID_ACCELERATOR_F2, ID_ACCELERATOR_F2, &MainWindow::passCommonCommand )
+	ON_COMMAND_RANGE( ID_ACCELERATOR_F2, ID_ACCELERATOR_F2, &MainWindow::passCommonCommand )
 	ON_COMMAND_RANGE( ID_ACCELERATOR_F1, ID_ACCELERATOR_F1, &MainWindow::passCommonCommand )
 	ON_COMMAND_RANGE( MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &MainWindow::passCommonCommand )
 	ON_COMMAND_RANGE( IDC_DEBUG_OPTIONS_RANGE_BEGIN, IDC_DEBUG_OPTIONS_RANGE_END, &MainWindow::passDebugPress )
@@ -158,8 +161,8 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_CBN_SELENDOK( IDC_SEQUENCE_COMBO, &MainWindow::handleSequenceCombo )
 	ON_CBN_SELENDOK( IDC_ORIENTATION_COMBO, &MainWindow::handleOrientationCombo )
 	// 
-	ON_NOTIFY(NM_DBLCLK, IDC_SMS_TEXTING_LISTVIEW, &MainWindow::handleDblClick)
-	ON_NOTIFY(NM_RCLICK, IDC_SMS_TEXTING_LISTVIEW, &MainWindow::handleRClick)
+	ON_NOTIFY( NM_DBLCLK, IDC_SMS_TEXTING_LISTVIEW, &MainWindow::handleDblClick )
+	ON_NOTIFY( NM_RCLICK, IDC_SMS_TEXTING_LISTVIEW, &MainWindow::handleRClick )
 
 	ON_REGISTERED_MESSAGE( eRepProgressMessageID, &MainWindow::onRepProgress )
 	ON_REGISTERED_MESSAGE( eStatusTextMessageID, &MainWindow::onStatusTextMessage )
@@ -177,71 +180,18 @@ END_MESSAGE_MAP()
 
 BOOL MainWindow::OnInitDialog()
 {
-	/// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///
-	///				Initialize NIAWG
-	///
-	// get time now
-	time_t dateStart = time( 0 );
-	struct tm datePointerStart;
-	localtime_s( &datePointerStart, &dateStart );
-	std::string logFolderNameStart = "Date " + str( datePointerStart.tm_year + 1900 ) + "-" + str( datePointerStart.tm_mon + 1 ) + "-"
-		+ str( datePointerStart.tm_mday ) + " Time " + str( datePointerStart.tm_hour ) + "-" + str( datePointerStart.tm_min ) + "-"
-		+ str( datePointerStart.tm_sec );
-	// initialize default file names and open the files.
-	std::vector<std::fstream> default_hConfigVerticalScriptFile, default_hConfigHorizontalScriptFile, default_vConfigVerticalScriptFile,
-		default_vConfigHorizontalScriptFile;
-	default_hConfigVerticalScriptFile.push_back( std::fstream( DEFAULT_SCRIPT_FOLDER_PATH + str( "DEFAULT_HCONFIG_VERTICAL_SCRIPT.nScript" ) ) );
-	default_hConfigHorizontalScriptFile.push_back( std::fstream( DEFAULT_SCRIPT_FOLDER_PATH + str( "DEFAULT_HCONFIG_HORIZONTAL_SCRIPT.nScript" ) ) );
-	default_vConfigVerticalScriptFile.push_back( std::fstream( DEFAULT_SCRIPT_FOLDER_PATH + str( "DEFAULT_VCONFIG_VERTICAL_SCRIPT.nScript" ) ) );
-	default_vConfigHorizontalScriptFile.push_back( std::fstream( DEFAULT_SCRIPT_FOLDER_PATH + str( "DEFAULT_VCONFIG_HORIZONTAL_SCRIPT.nScript" ) ) );
+	eMainWindowHwnd = GetSafeHwnd();
+	// don't redraw until the first OnSize.
+	SetRedraw( false );
 
-	// check errors
-	if (!default_hConfigVerticalScriptFile[0].is_open())
-	{
-		errBox( str( "FATAL ERROR: Couldn't open default file. Was looking for file " ) + DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_HCONFIG_VERTICAL_SCRIPT.nScript" );
-		return 0;
-	}
-	if (!default_hConfigHorizontalScriptFile[0].is_open())
-	{
-		errBox( str( "FATAL ERROR: Couldn't open default file. Was looking for file " ) + DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_HCONFIG_HORIZONTAL_SCRIPT.nScript" );
-		return 0;
-	}
-	if (!default_vConfigVerticalScriptFile[0].is_open())
-	{
-		errBox( str( "FATAL ERROR: Couldn't open default file. Was looking for file " ) + DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_VCONFIG_VERTICAL_SCRIPT.nScript" );
-		return 0;
-	}
-	if (!default_vConfigHorizontalScriptFile[0].is_open())
-	{
-		errBox( str( "FATAL ERROR: Couldn't open default file. Was looking for file " ) + DEFAULT_SCRIPT_FOLDER_PATH + "DEFAULT_VCONFIG_HORIZONTAL_SCRIPT.nScript" );
-		return 0;
-	}
-
-	// parameters for variables used by the default file. (there shouldn't be any, these are essentially just placeholders so that I can use the same functions.
-	std::vector<char> defXVarNames, defYVarNames;
-	// parameters for variables used by the default file. (there shouldn't be any, these are essentially just placeholders so that I can use the same functions.
-	std::vector<std::string> defXVarFileNames, defYVarFileNames;
-	// parameters for variables used by the default file. (there shouldn't be any, these are essentially just placeholders so that I can use the same functions.
-	std::vector<std::fstream> defXVarFiles;
-	if (!NIAWG_SAFEMODE)
-	{
-		std::ofstream hConfigVerticalDefaultScriptLog( EXPERIMENT_LOGGING_FILES_PATH + logFolderNameStart + "\\Default hConfig Vertical Script.script" );
-		std::ofstream hConfigHorizontalDefaultScriptLog( EXPERIMENT_LOGGING_FILES_PATH + logFolderNameStart + "\\Default hConfig Horizontal Script.script" );
-		std::ofstream vConfigVerticalDefaultScriptLog( EXPERIMENT_LOGGING_FILES_PATH + logFolderNameStart + "\\Default vConfig Vertical Script.script" );
-		std::ofstream vConfigHorizontalDefaultScriptLog( EXPERIMENT_LOGGING_FILES_PATH + logFolderNameStart + "\\Default vConfig Horizontal Script.script" );
-		hConfigVerticalDefaultScriptLog << default_hConfigVerticalScriptFile[0].rdbuf();
-		hConfigHorizontalDefaultScriptLog << default_hConfigHorizontalScriptFile[0].rdbuf();
-		vConfigVerticalDefaultScriptLog << default_vConfigVerticalScriptFile[0].rdbuf();
-		vConfigHorizontalDefaultScriptLog << default_vConfigHorizontalScriptFile[0].rdbuf();
-	}
+	/// initialize niawg.
 	try
 	{
 		niawg.initialize();
 	}
 	catch (Error& except)
 	{
-		errBox( "ERROR: NIAWG Did not start smoothly: " + except.whatStr() );
+		errBox( "ERROR: NIAWG failed to start! Error: " + except.whatStr() );
 		return -1;
 	}
 
@@ -264,9 +214,9 @@ BOOL MainWindow::OnInitDialog()
 	TheScriptingWindow->loadFriends( this, TheCameraWindow, TheAuxiliaryWindow );
 	TheCameraWindow->loadFriends( this, TheScriptingWindow, TheAuxiliaryWindow );
 	TheAuxiliaryWindow->loadFriends( this, TheScriptingWindow, TheCameraWindow );
-
 	try
 	{
+		// these each call oninitdialog after the create call. Hence the try / catch.
 		TheScriptingWindow->Create( IDD_LARGE_TEMPLATE, 0 );
 		TheCameraWindow->Create( IDD_LARGE_TEMPLATE, 0 );
 		TheAuxiliaryWindow->Create( IDD_LARGE_TEMPLATE, 0 );
@@ -275,7 +225,8 @@ BOOL MainWindow::OnInitDialog()
 	{
 		errBox( err.what() );
 	}
-	// initialize the COMM.
+
+	/// initialize main window controls.
 	comm.initialize( this, TheScriptingWindow, TheCameraWindow, TheAuxiliaryWindow );
 	int id = 1000;
 	POINT controlLocation = { 0,0 };
@@ -308,21 +259,25 @@ BOOL MainWindow::OnInitDialog()
 		errBox( err.what() );
 	}
 
-	std::string initializationString;
-	initializationString += getSystemStatusString();
-	initializationString += TheAuxiliaryWindow->getSystemStatusMsg();
-	initializationString += TheCameraWindow->getSystemStatusString();
-	initializationString += TheScriptingWindow->getSystemStatusString();
 
 	ShowWindow( SW_MAXIMIZE );
 	TheCameraWindow->ShowWindow( SW_MAXIMIZE );
 	TheScriptingWindow->ShowWindow( SW_MAXIMIZE );
 	TheAuxiliaryWindow->ShowWindow( SW_MAXIMIZE );
 	SetWindowPos( &this->wndBottom, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
+	// make sure the ordering is right. This can get messed up by the splash.
 	TheCameraWindow->SetWindowPos( &TheCameraWindow->wndBottom, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
 	TheScriptingWindow->SetWindowPos( &TheScriptingWindow->wndBottom, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
 	TheAuxiliaryWindow->SetWindowPos( &TheAuxiliaryWindow->wndBottom, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
-	appSplash->ShowWindow( SW_HIDE );
+	// hide the splash just before the first window requiring input pops up.
+	appSplash->ShowWindow( SW_HIDE );	
+
+	/// summarize system status.
+	std::string initializationString;
+	initializationString += getSystemStatusString();
+	initializationString += TheAuxiliaryWindow->getSystemStatusMsg();
+	initializationString += TheCameraWindow->getSystemStatusString();
+	initializationString += TheScriptingWindow->getSystemStatusString();
 	infoBox( initializationString );
 	return TRUE;
 }
@@ -382,6 +337,7 @@ void MainWindow::handleOpeningConfig(std::ifstream& configFile, double version)
 
 void MainWindow::OnSize(UINT nType, int cx, int cy)
 {
+	SetRedraw( false );
 	profile.rearrange(cx, cy, getFonts());
 	notes.rearrange(cx, cy, getFonts());
 	debugger.rearrange(cx, cy, getFonts());
@@ -393,7 +349,8 @@ void MainWindow::OnSize(UINT nType, int cx, int cy)
 	shortStatus.rearrange(cx, cy, getFonts());
 	boxes.rearrange( cx, cy, getFonts());
 	repetitionControl.rearrange(cx, cy, getFonts());
-	//RedrawWindow();
+	SetRedraw();
+	RedrawWindow();
 }
 
 
@@ -546,7 +503,7 @@ HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		}
 		default:
 		{
-			return *mainBrushes["Solarized Base03"];
+			return *mainBrushes["Solarized Base04"];
 		}
 	}
 	return NULL;

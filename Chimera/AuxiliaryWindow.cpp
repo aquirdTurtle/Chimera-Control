@@ -7,6 +7,8 @@
 #include "TtlSystem.h"
 #include "explorerOpen.h"
 #include "commonFunctions.h"
+#include "getFileName.h"
+#include "saveTextFileFromEdit.h"
 
 AuxiliaryWindow::AuxiliaryWindow() : CDialog(), topBottomAgilent(TOP_BOTTOM_AGILENT_SAFEMODE),
 									uWaveAxialAgilent(UWAVE_AXIAL_AGILENT_SAFEMODE), flashingAgilent(FLASHING_SAFEMODE), 
@@ -60,60 +62,243 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 
 END_MESSAGE_MAP()
 
-/*
-void AuxiliaryWindow::passToFlashingProgram()
+
+void AuxiliaryWindow::newTopBottomAgilentScript()
 {
 	try
 	{
-		flashingAgilent.handleInput( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
-		flashingAgilent.setAgilent();
-		sendStat( "Programmed Flashing Agilent.\r\n" );
+		topBottomAgilent.agilentScript.checkSave( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
+		topBottomAgilent.agilentScript.newScript( mainWindowFriend->getProfileSettings().orientation );
+		mainWindowFriend->updateConfigurationSavedStatus( false );
+		topBottomAgilent.agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings().categoryPath );
+		topBottomAgilent.agilentScript.colorEntireScript( getAllVariables(), mainWindowFriend->getRgbs(),
+														  getTtlNames(), getDacNames() );
 	}
 	catch (Error& err)
 	{
-		sendErr( "Error while programming Agilent: " + err.whatStr() );
+		sendErr( err.what() );
 	}
 }
 
 
-void AuxiliaryWindow::passToTopBottomAgilentProgram()
+void AuxiliaryWindow::openTopBottomAgilentScript( CWnd* parent )
 {
 	try
 	{
-		topBottomAgilent.handleInput( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
-		topBottomAgilent.setAgilent();
-		sendStat( "Programmed Top/Bottom Agilent.\r\n" );
+		topBottomAgilent.agilentScript.checkSave( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
+		std::string openFileName = openWithExplorer( parent);
+		topBottomAgilent.agilentScript.openParentScript( openFileName, 
+														 mainWindowFriend->getProfileSettings().categoryPath, 
+														 mainWindowFriend->getRunInfo() );
+		mainWindowFriend->updateConfigurationSavedStatus( false );
+		topBottomAgilent.agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings().categoryPath );
 	}
 	catch (Error& err)
 	{
-		sendErr( "Error while programming Agilent: " + err.whatStr() );
+		sendErr( err.what() );
 	}
-
 }
 
 
-void AuxiliaryWindow::passToAxialUwaveAgilentProgram()
+void AuxiliaryWindow::saveTopBottomAgilentScript()
 {
 	try
 	{
-		uWaveAxialAgilent.handleInput( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
-		uWaveAxialAgilent.setAgilent();
-		sendStat( "Programmed Axial/Microwave Agilent.\r\n" );
+		topBottomAgilent.agilentScript.saveScript( mainWindowFriend->getProfileSettings().categoryPath, 
+												   mainWindowFriend->getRunInfo() );
+		topBottomAgilent.agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings().categoryPath );
 	}
 	catch (Error& err)
 	{
-		sendErr( "Error while programming Agilent: " + err.whatStr() );
+		sendErr( err.what() );
 	}
 }
-*/
+
+
+void AuxiliaryWindow::saveTopBottomAgilentScriptAs( CWnd* parent )
+{
+	try
+	{
+		std::string extensionNoPeriod = topBottomAgilent.agilentScript.getExtension();
+		if (extensionNoPeriod.size() == 0)
+		{
+			return;
+		}
+		extensionNoPeriod = extensionNoPeriod.substr( 1, extensionNoPeriod.size() );
+		std::string newScriptAddress = saveWithExplorer( parent, extensionNoPeriod, 
+															 mainWindowFriend->getProfileSettings() );
+		topBottomAgilent.agilentScript.saveScriptAs( newScriptAddress, mainWindowFriend->getRunInfo() );
+		mainWindowFriend->updateConfigurationSavedStatus( false );
+		topBottomAgilent.agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings().categoryPath );
+	}
+	catch (Error& err)
+	{
+		sendErr( err.what() );
+	}
+}
+
+void AuxiliaryWindow::newAxialUwaveAgilentScript()
+{
+	try
+	{
+		uWaveAxialAgilent.agilentScript.checkSave( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
+		uWaveAxialAgilent.agilentScript.newScript( mainWindowFriend->getProfileSettings().orientation );
+		mainWindowFriend->updateConfigurationSavedStatus( false );
+		uWaveAxialAgilent.agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings().categoryPath );
+		uWaveAxialAgilent.agilentScript.colorEntireScript( getAllVariables(), mainWindowFriend->getRgbs(),
+														  getTtlNames(), getDacNames() );
+
+	}
+	catch (Error& err)
+	{
+		sendErr( err.what() );
+	}
+}
+
+
+void AuxiliaryWindow::openAxialUwaveAgilentScript( CWnd* parent )
+{
+	try
+	{
+		uWaveAxialAgilent.agilentScript.checkSave( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
+		std::string openFileName = openWithExplorer( parent );
+		uWaveAxialAgilent.agilentScript.openParentScript( openFileName,
+														 mainWindowFriend->getProfileSettings().categoryPath,
+														 mainWindowFriend->getRunInfo() );
+		mainWindowFriend->updateConfigurationSavedStatus( false );
+		uWaveAxialAgilent.agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings().categoryPath );
+
+	}
+	catch (Error& err)
+	{
+		sendErr( err.what() );
+	}
+}
+
+
+void AuxiliaryWindow::saveAxialUwaveAgilentScript()
+{
+	try
+	{
+		uWaveAxialAgilent.agilentScript.saveScript( mainWindowFriend->getProfileSettings().categoryPath,
+												   mainWindowFriend->getRunInfo() );
+		uWaveAxialAgilent.agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings().categoryPath );
+
+	}
+	catch (Error& err)
+	{
+		sendErr( err.what() );
+	}
+}
+
+
+void AuxiliaryWindow::saveAxialUwaveAgilentScriptAs( CWnd* parent )
+{
+	try
+	{
+		std::string extensionNoPeriod = topBottomAgilent.agilentScript.getExtension();
+		if (extensionNoPeriod.size() == 0)
+		{
+			return;
+		}
+		extensionNoPeriod = extensionNoPeriod.substr( 1, extensionNoPeriod.size() );
+		std::string newScriptAddress = saveWithExplorer( parent, extensionNoPeriod,
+															 mainWindowFriend->getProfileSettings() );
+		topBottomAgilent.agilentScript.saveScriptAs( newScriptAddress, mainWindowFriend->getRunInfo() );
+		mainWindowFriend->updateConfigurationSavedStatus( false );
+		topBottomAgilent.agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings().categoryPath );
+	}
+	catch (Error& err)
+	{
+		sendErr( err.what() );
+	}
+}
+
+
+void AuxiliaryWindow::newFlashingAgilentScript()
+{
+	try
+	{
+		flashingAgilent.agilentScript.checkSave( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
+		flashingAgilent.agilentScript.newScript( mainWindowFriend->getProfileSettings().orientation );
+		mainWindowFriend->updateConfigurationSavedStatus( false );
+		flashingAgilent.agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings().categoryPath );
+		flashingAgilent.agilentScript.colorEntireScript( getAllVariables(), mainWindowFriend->getRgbs(),
+														 getTtlNames(), getDacNames() );
+	}
+	catch (Error& err)
+	{
+		sendErr( err.what() );
+	}
+}
+
+
+void AuxiliaryWindow::openFlashingAgilentScript( CWnd* parent )
+{
+	try
+	{
+		flashingAgilent.agilentScript.checkSave( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
+		std::string openFileName = openWithExplorer( parent );
+		flashingAgilent.agilentScript.openParentScript( openFileName,
+														  mainWindowFriend->getProfileSettings().categoryPath,
+														  mainWindowFriend->getRunInfo() );
+		mainWindowFriend->updateConfigurationSavedStatus( false );
+		flashingAgilent.agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings().categoryPath );
+
+
+	}
+	catch (Error& err)
+	{
+		sendErr( err.what() );
+	}
+}
+
+
+void AuxiliaryWindow::saveFlashingAgilentScript()
+{
+	try
+	{
+		flashingAgilent.agilentScript.saveScript( mainWindowFriend->getProfileSettings().categoryPath,
+												   mainWindowFriend->getRunInfo() );
+		flashingAgilent.agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings().categoryPath );
+	}
+	catch (Error& err)
+	{
+		sendErr( err.what() );
+	}
+}
+
+
+void AuxiliaryWindow::saveFlashingAgilentScriptAs( CWnd* parent )
+{
+	try
+	{
+		std::string extensionNoPeriod = flashingAgilent.agilentScript.getExtension();
+		if (extensionNoPeriod.size() == 0)
+		{
+			return;
+		}
+		extensionNoPeriod = extensionNoPeriod.substr( 1, extensionNoPeriod.size() );
+		std::string newScriptAddress = saveWithExplorer( parent, extensionNoPeriod,
+															 mainWindowFriend->getProfileSettings() );
+		flashingAgilent.agilentScript.saveScriptAs( newScriptAddress, mainWindowFriend->getRunInfo() );
+		mainWindowFriend->updateConfigurationSavedStatus( false );
+		flashingAgilent.agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings().categoryPath );
+	}
+	catch (Error& err)
+	{
+		sendErr( err.what() );
+	}
+}
+
 
 
 void AuxiliaryWindow::OnTimer( UINT_PTR eventID )
 {
 	uWaveAxialAgilent.agilentScript.handleTimerCall( getAllVariables(), mainWindowFriend->getRgbs(),
-													 getTtlNames(), getDacNames() );
+													 getTtlNames(), getDacNames());
 	flashingAgilent.agilentScript.handleTimerCall( getAllVariables(), mainWindowFriend->getRgbs(),
-												   getTtlNames(), getDacNames() );
+												   getTtlNames(), getDacNames());
 	topBottomAgilent.agilentScript.handleTimerCall( getAllVariables(), mainWindowFriend->getRgbs(),
 													getTtlNames(), getDacNames() );
 }
@@ -418,6 +603,7 @@ UINT AuxiliaryWindow::getTotalVariationNumber()
 
 void AuxiliaryWindow::OnSize(UINT nType, int cx, int cy)
 {
+	SetRedraw( false );
 	topBottomTek.rearrange(cx, cy, getFonts());
 	eoAxialTek.rearrange(cx, cy, getFonts());
 
@@ -436,6 +622,8 @@ void AuxiliaryWindow::OnSize(UINT nType, int cx, int cy)
 	globalVariables.rearrange(cx, cy, getFonts());
 
 	statusBox.rearrange( cx, cy, getFonts());
+	SetRedraw();
+	RedrawWindow();
 }
 
 
@@ -848,8 +1036,8 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, do
 		configStream >> varNum;
 		if (varNum < 0 || varNum > 1000)
 		{
-			int answer = MessageBox(cstr("ERROR: variable number retrieved from file appears suspicious. The number is "
-									+ str(varNum) + ". Is this accurate?"), "ERROR", MB_YESNO);
+			int answer = promptBox("ERROR: variable number retrieved from file appears suspicious. The number is "
+									+ str(varNum) + ". Is this accurate?", MB_YESNO);
 			if (answer == IDNO)
 			{
 				// don't try to load anything.
@@ -1049,7 +1237,7 @@ HBRUSH AuxiliaryWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 			return *brushes["Dark Grey"];
 		}
 		default:
-			return *brushes["Solarized Base03"];
+			return *brushes["Solarized Base04"];
 	}
 }
 
@@ -1066,6 +1254,9 @@ BOOL AuxiliaryWindow::PreTranslateMessage(MSG* pMsg)
 
 BOOL AuxiliaryWindow::OnInitDialog()
 {
+	// don't redraw until the first OnSize.
+	SetRedraw( false );
+
 	int id = 4000;
 	POINT controlLocation{ 0, 0 };
 	try
@@ -1087,16 +1278,19 @@ BOOL AuxiliaryWindow::OnInitDialog()
 									 "Top/Bottom Agilent", 120, { IDC_TOP_BOTTOM_CHANNEL1_BUTTON
 									 , IDC_TOP_BOTTOM_CHANNEL2_BUTTON, IDC_TOP_BOTTOM_SYNC_BUTTON, 
 									 IDC_TOP_BOTTOM_PROGRAM, IDC_TOP_BOTTOM_AGILENT_COMBO, 
-									 IDC_TOP_BOTTOM_FUNCTION_COMBO, IDC_TOP_BOTTOM_EDIT} );
+									 IDC_TOP_BOTTOM_FUNCTION_COMBO, IDC_TOP_BOTTOM_EDIT},
+									 mainWindowFriend->getRgbs()["Solarized Base03"] );
 		uWaveAxialAgilent.initialize( controlLocation, toolTips, this, id, UWAVE_AXIAL_AGILENT_USB_ADDRESS, 
 									  "Microwave / Axial Agilent",   120, { IDC_AXIAL_UWAVE_CHANNEL1_BUTTON, 
 									  IDC_AXIAL_UWAVE_CHANNEL2_BUTTON, IDC_AXIAL_UWAVE_SYNC_BUTTON, 
 									  IDC_AXIAL_UWAVE_PROGRAM, IDC_AXIAL_UWAVE_AGILENT_COMBO, 
-									  IDC_AXIAL_UWAVE_FUNCTION_COMBO, IDC_AXIAL_UWAVE_EDIT } );
+									  IDC_AXIAL_UWAVE_FUNCTION_COMBO, IDC_AXIAL_UWAVE_EDIT },
+									  mainWindowFriend->getRgbs()["Solarized Base03"] );
 		flashingAgilent.initialize( controlLocation, toolTips, this, id, FLASHING_AGILENT_USB_ADDRESS, 
 									"Flashing Agilent",  120, {IDC_FLASHING_CHANNEL1_BUTTON, 
 									IDC_FLASHING_CHANNEL2_BUTTON, IDC_FLASHING_SYNC_BUTTON, IDC_FLASHING_PROGRAM, 
-									IDC_FLASHING_AGILENT_COMBO, IDC_FLASHING_FUNCTION_COMBO, IDC_FLASHING_EDIT} );
+									IDC_FLASHING_AGILENT_COMBO, IDC_FLASHING_FUNCTION_COMBO, IDC_FLASHING_EDIT}, 
+									mainWindowFriend->getRgbs()["Solarized Base03"] );
 		controlLocation = POINT{ 1440, 0 };
 		globalVariables.initialize( controlLocation, toolTips, this, id, "GLOBAL VARIABLES",
 									mainWindowFriend->getRgbs(), IDC_GLOBAL_VARS_LISTVIEW );

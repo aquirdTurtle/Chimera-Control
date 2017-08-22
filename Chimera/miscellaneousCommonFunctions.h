@@ -9,6 +9,7 @@
 #include "afxwin.h"
 #include "Control.h"
 #include "KeyHandler.h"
+//#include "myApplicationApp.h"
 
 //template <class ControlType> class Control;
 
@@ -117,6 +118,10 @@ template <typename T> std::string str(T input, const int precision = 6, bool eat
 	}
 	return outStr;
 }
+// first part of pair is the variable component of the time, second part is the "raw" or constant part of the time.
+// this structure will be evaluated to determine the real time (given a variation # and variable values) that an 
+// operation will take place at.
+typedef std::pair<std::vector<std::string>, double> timeType;
 
 
 // overloaded defines are tricky in c++. This is effectively just an overloaded define for 
@@ -140,13 +145,19 @@ template <typename T> std::string str(T input, const int precision = 6, bool eat
 // this function takes any argument, converts it to a string, and displays it on the screen. It can be useful for debuging.
 template <typename T> void errBox( T msg )
 {
-	MessageBox( 0, cstr( msg ), "ERROR!", MB_ICONERROR );
+	MessageBox( eMainWindowHwnd, cstr( msg ), "ERROR!", MB_ICONERROR | MB_SYSTEMMODAL );
 }
+
 
 // this function takes any argument, converts it to a string, and displays it on the screen. It can be useful for debuging.
 template <typename T> void infoBox( T msg )
 {
-	MessageBox( 0, cstr( msg ), "Info", MB_ICONWARNING );
+	MessageBox( eMainWindowHwnd, cstr( msg ), "Info", MB_ICONWARNING );
+}
+
+template <typename T> int promptBox( T msg, UINT promptStyle )
+{
+	return MessageBox( eMainWindowHwnd, cstr( msg ), "Prompt", promptStyle | MB_SYSTEMMODAL );
 }
 
 template <typename ControlType> void verifyIdsMatch(Control<ControlType>& control, std::vector<UINT> ids, const char *file, int line)
@@ -168,7 +179,3 @@ template <typename ControlType> void verifyIdsMatch(Control<ControlType>& contro
 }
 
 
-// first part of pair is the variable component of the time, second part is the "raw" or constant part of the time.
-// this structure will be evaluated to determine the real time (given a variation # and variable values) that an 
-// operation will take place at.
-typedef std::pair<std::vector<std::string>, double> timeType;

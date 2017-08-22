@@ -255,6 +255,66 @@ namespace commonFunctions
 				scriptWin->saveIntensityScriptAs(parent);
 				break;
 			}
+			case ID_TOP_BOTTOM_NEW_SCRIPT:
+			{
+				auxWin->newTopBottomAgilentScript();
+				break;
+			}
+			case ID_TOP_BOTTOM_OPEN_SCRIPT:
+			{
+				auxWin->openTopBottomAgilentScript( parent );
+				break;
+			}
+			case ID_TOP_BOTTOM_SAVE_SCRIPT:
+			{
+				auxWin->saveTopBottomAgilentScript();
+				break;
+			}
+			case ID_TOP_BOTTOM_SAVE_SCRIPT_AS:
+			{
+				auxWin->saveTopBottomAgilentScriptAs( parent );
+				break;
+			}
+			case ID_AXIAL_UWAVE_NEW_SCRIPT:
+			{
+				auxWin->newAxialUwaveAgilentScript();
+				break;
+			}
+			case ID_AXIAL_UWAVE_OPEN_SCRIPT:
+			{
+				auxWin->openAxialUwaveAgilentScript( parent );
+				break;
+			}
+			case ID_AXIAL_UWAVE_SAVE_SCRIPT:
+			{
+				auxWin->saveAxialUwaveAgilentScript();
+				break;
+			}
+			case ID_AXIAL_UWAVE_SAVE_SCRIPT_AS:
+			{
+				auxWin->saveAxialUwaveAgilentScriptAs( parent );
+				break;
+			}
+			case ID_FLASHING_NEW_SCRIPT:
+			{
+				auxWin->newFlashingAgilentScript();
+				break;
+			}
+			case ID_FLASHING_OPEN_SCRIPT:
+			{
+				auxWin->openFlashingAgilentScript( parent );
+				break;
+			}
+			case ID_FLASHING_SAVE_SCRIPT:
+			{
+				auxWin->saveFlashingAgilentScript();
+				break;
+			}
+			case ID_FLASHING_SAVE_SCRIPT_AS:
+			{
+				auxWin->saveFlashingAgilentScriptAs( parent );
+				break;
+			}
 			case ID_FILE_MY_VERTICAL_NEW:
 			{
 				scriptWin->newVerticalScript();
@@ -567,7 +627,7 @@ namespace commonFunctions
 		mainWin->getComm()->sendTimer( "Starting..." );
 		camWin->prepareCamera( input );
 		std::string msg = camWin->getStartMessage();
-		int answer = MessageBox( 0, cstr( msg ), "Start Info", MB_OKCANCEL );
+		int answer = promptBox( msg, MB_OKCANCEL );
 		if (answer == IDCANCEL)
 		{
 			// user doesn't want to start the camera.
@@ -584,7 +644,7 @@ namespace commonFunctions
 		if (mainWin->niawgIsRunning() && runNiawg)
 		{
 			// then need to restart.
-			int restart = MessageBox( 0, "Restart Generation?", 0, MB_OKCANCEL );
+			int restart = promptBox("Restart Generation?", MB_OKCANCEL);
 			if (restart == IDOK)
 			{
 				// reset flag
@@ -835,7 +895,7 @@ namespace commonFunctions
 		}
 		mainWin->checkProfileSave();
 		std::string exitQuestion = "Are you sure you want to exit?\n\nThis will stop all output of the arbitrary waveform generator.";
-		int areYouSure = MessageBox( NULL, cstr(exitQuestion), "Exit", MB_OKCANCEL | MB_ICONWARNING );
+		int areYouSure = promptBox(exitQuestion, MB_OKCANCEL);
 		if (areYouSure == IDOK)
 		{
 			/// Exiting
@@ -864,8 +924,8 @@ namespace commonFunctions
 			thrower( "The system is currently running. You cannot reload the default waveforms while the system is running. Please restart "
 					 "the system before attempting to reload default waveforms." );
 		}
-		int choice = MessageBox( 0, "Reload the default waveforms from (presumably) updated files? Please make sure that the updated files are "
-								 "syntactically correct, or else the program will crash.", 0, MB_OKCANCEL );
+		int choice = promptBox("Reload the default waveforms from (presumably) updated files? Please make sure that the updated files are "
+								 "syntactically correct, or else the program will crash.", MB_OKCANCEL );
 		if (choice == IDCANCEL)
 		{
 			return;

@@ -190,7 +190,7 @@ void SmsTextingControl::updatePersonInfo()
 			std::transform(newProvider.begin(), newProvider.end(), newProvider.begin(), ::tolower);
 			if (newProvider != "verizon" && newProvider != "tmobile" && newProvider != "at&t" && newProvider != "googlefi")
 			{
-				MessageBox(0, "Please enter either \"verizon\", \"tmobile\", \"at&t\", or \"googlefi\" (not case sensitive)", 0, 0);
+				errBox("Please enter either \"verizon\", \"tmobile\", \"at&t\", or \"googlefi\" (not case sensitive)");
 				break;
 			}
 			peopleToText[itemIndicator].provider = newProvider;
@@ -260,7 +260,7 @@ void SmsTextingControl::deletePersonInfo()
 		// user didn't click in a deletable item.
 		return;
 	}
-	int answer = MessageBox(0, cstr("Delete info for " + peopleToText[itemIndicator].name + "?"), 0, MB_YESNO);
+	int answer = promptBox("Delete info for " + peopleToText[itemIndicator].name + "?", MB_YESNO);
 	if (answer == IDYES)
 	{
 		peopleListView.DeleteItem(itemIndicator);
