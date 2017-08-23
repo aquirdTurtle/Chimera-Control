@@ -13,7 +13,8 @@ MainWindow::MainWindow(UINT id, CDialog* splash) : CDialog(id), profile(PROFILES
 	mainRGBs["Slate Grey"]			= RGB( 101,	115, 126);
 	mainRGBs["Pale Pink"]			= RGB( 180,	142, 173);
 	mainRGBs["Musky Red"]			= RGB( 191,	97,	 106);
-	// used by the visual studio solarized for edit area.
+	// Using 
+	// this "base04", while not listed on the solarized web site, is used by the visual studio solarized for edit area.
 	mainRGBs["Solarized Base04"]	= RGB( 0,	30,  38 );
 	mainRGBs["Solarized Base03"]	= RGB( 0,	43,  54 );
 	mainRGBs["Solarized Base02"]	= RGB( 7,	54,  66 );
@@ -230,7 +231,7 @@ BOOL MainWindow::OnInitDialog()
 	comm.initialize( this, TheScriptingWindow, TheCameraWindow, TheAuxiliaryWindow );
 	int id = 1000;
 	POINT controlLocation = { 0,0 };
-	mainStatus.initialize( controlLocation, this, id, 975, "EXPERIMENT STATUS", RGB( 50, 50, 250 ), tooltips, IDC_MAIN_STATUS_BUTTON );
+	mainStatus.initialize( controlLocation, this, id, 975, "EXPERIMENT STATUS", RGB( 100, 100, 250 ), tooltips, IDC_MAIN_STATUS_BUTTON );
 	controlLocation = { 480, 0 };
 	errorStatus.initialize( controlLocation, this, id, 480, "ERROR STATUS", RGB( 200, 0, 0 ), tooltips, IDC_ERROR_STATUS_BUTTON );
 	debugStatus.initialize( controlLocation, this, id, 480, "DEBUG STATUS", RGB( 13, 152, 186 ), tooltips, IDC_DEBUG_STATUS_BUTTON );
@@ -528,7 +529,7 @@ void MainWindow::startMaster( MasterThreadInput* input )
 {
 	// Load Variable & Key Info
 	input->key->loadVariables( input->variables );
-	input->key->generateKey();
+	input->key->generateKey( input->settings.randomizeVariations );
 	input->key->exportKey();
 	masterThreadManager.startExperimentThread(input);
 }
@@ -537,8 +538,7 @@ void MainWindow::startMaster( MasterThreadInput* input )
 void MainWindow::fillMasterThreadInput(MasterThreadInput* input)
 {
 	input->masterScriptAddress = profile.getMasterAddressFromConfig();
-	input->programIntensity = settings.getOptions().programIntensity;
-	input->rearrangingAtoms = settings.getOptions().rearrange;
+	input->settings = settings.getOptions();
 	input->repetitionNumber = getRepNumber();
 	input->debugOptions = debugger.getOptions();
 	input->profile = profile.getProfileSettings();

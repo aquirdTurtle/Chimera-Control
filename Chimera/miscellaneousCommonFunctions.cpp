@@ -170,7 +170,7 @@ double reduce(std::string expression, key variationKey, UINT variation, std::vec
 		/// find mult do mult
 		// this can be done as just a scan from left to right.
 		count = 0;
-		for (int count = 0; count < rightmostParenthesisTerms.size(); count++)
+		for (UINT count = 0; count < rightmostParenthesisTerms.size(); count++)
 		{
 			if (rightmostParenthesisTerms[count] == "*" || rightmostParenthesisTerms[count] == "/")
 			{
@@ -219,7 +219,7 @@ double reduce(std::string expression, key variationKey, UINT variation, std::vec
 		}
 
 		/// find add do add
-		for (int count = 0; count < rightmostParenthesisTerms.size(); count++)
+		for (UINT count = 0; count < rightmostParenthesisTerms.size(); count++)
 		{
 			if (rightmostParenthesisTerms[count] == "+" || rightmostParenthesisTerms[count] == "-")
 			{

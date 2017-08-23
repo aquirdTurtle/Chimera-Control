@@ -973,17 +973,8 @@ void DataAnalysisControl::onButtonPushed()
 		setAnalysisLocationsButton.SetWindowTextA( "Right-Click Relevant Points and Reclick" );
 		currentlySettingAnalysisLocations = true;
 	}
-	int experimentPictureNumber;
-	//if ( eRealTimePictures )
-	if ( true )
-	{
-		experimentPictureNumber = 0;
-	}
-	else
-	{
-		//experimentPictureNumber = (((eCurrentAccumulationNumber - 1) % ePicturesPerVariation) % ePicturesPerRepetition);
-	}
 }
+
 
 void DataAnalysisControl::setAtomLocation( std::pair<int, int> location )
 {

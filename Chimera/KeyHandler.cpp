@@ -13,28 +13,13 @@ key KeyHandler::getKey()
 }
 
 
-void KeyHandler::initialize(POINT loc, CWnd* parent, int& id)
-{
-	randomizeVariablesButton.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
-	randomizeVariablesButton.Create( "Randomize Variations", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX, 
-									 randomizeVariablesButton.sPos, parent, id++ );
-	randomizeVariablesButton.SetCheck(true);
-
-	randomizeRepetitionsButton.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
-	randomizeRepetitionsButton.Create( "Randomize Repetitions", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
-									   randomizeVariablesButton.sPos, parent, id++ );
-
-}
-
-
-
 void KeyHandler::loadVariables(std::vector<variable> newVariables)
 {
 	variables = newVariables;
 }
 
 
-void KeyHandler::generateKey()
+void KeyHandler::generateKey(bool randomizeVariablesOption)
 {
 	// get information from variables.
 	keyValues.clear();
@@ -86,7 +71,7 @@ void KeyHandler::generateKey()
 			counter++;
 		}
 	}
-	if (randomizeVariablesButton.GetCheck())
+	if (randomizeVariablesOption)
 	{
 		// initialize rng
 		std::random_device rng;
@@ -188,9 +173,3 @@ void KeyHandler::exportKey()
 	keyFile.close();
 }
 
-
-void KeyHandler::rearrange(int width, int height, fontMap fonts)
-{
-	randomizeVariablesButton.rearrange(width, height, fonts);
-	randomizeRepetitionsButton.rearrange(width, height, fonts);
-}

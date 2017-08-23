@@ -680,9 +680,8 @@ namespace commonFunctions
 		if (profile.sequenceConfigNames.size() == 0)
 		{
 			mainWin->getComm()->sendColorBox( Niawg, 'R' );
-			mainWin->getComm()->sendError( "ERROR: No configurations in current sequence! Please set some configurations to run in this "
-										   "sequence or set the null sequence.\r\n" );
-			return;
+			thrower( "ERROR: No configurations in current sequence! Please set some configurations to run in this "
+					 "sequence or set the null sequence.\r\n" );
 		}
 		// check config settings
 		mainWin->checkProfileReady();
@@ -777,11 +776,11 @@ namespace commonFunctions
 			// force accumulations to zero. This shouldn't affect anything, this should always get set by the master or be infinite.
 			if (msgID == ID_FILE_MY_WRITE_WAVEFORMS)
 			{
-				input.masterInput->dontActuallyGenerate = true;
+				input.masterInput->settings.dontActuallyGenerate = true;
 			}
 			else
 			{
-				input.masterInput->dontActuallyGenerate = false;
+				input.masterInput->settings.dontActuallyGenerate = false;
 			}
 			input.masterInput->debugOptions = mainWin->getDebuggingOptions();
 			input.masterInput->comm = mainWin->getComm();
