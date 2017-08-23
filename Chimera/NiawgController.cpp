@@ -61,14 +61,14 @@ void NiawgController::programNiawg( MasterThreadInput* input, NiawgOutputInfo& o
 	// checks if the output is done, the output will be done.
 	if ((input->niawg->getCurrentScript() == "Default" + AXES_NAMES[Horizontal] + "ConfigScript"
 		  || input->niawg->getCurrentScript() == "Default" + AXES_NAMES[Vertical] + "ConfigScript")
-		 && !input->dontActuallyGenerate)
+		 && !input->settings.dontActuallyGenerate)
 	{
 		input->niawg->turnOff();
 	}
 	// wait until the niawg has finished outputting previous variation.
 	waiter.wait( input->comm );
 
-	if (input->dontActuallyGenerate) { return; }
+	if (input->settings.dontActuallyGenerate) { return; }
 	// Restart Waveform
 	input->niawg->turnOff();
 	input->niawg->programVariations( variation, variedMixedSize, output );

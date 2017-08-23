@@ -616,8 +616,6 @@ void AuxiliaryWindow::OnSize(UINT nType, int cx, int cy)
 	ttlBoard.rearrange(cx, cy, getFonts());
 	dacBoards.rearrange(cx, cy, getFonts());
 
-	masterKey.rearrange(cx, cy, getFonts());
-
 	configVariables.rearrange(cx, cy, getFonts());
 	globalVariables.rearrange(cx, cy, getFonts());
 
@@ -1264,7 +1262,6 @@ BOOL AuxiliaryWindow::OnInitDialog()
 		statusBox.initialize( controlLocation, id, this, 480, toolTips );
 		ttlBoard.initialize( controlLocation, toolTips, this, id );
 		dacBoards.initialize( controlLocation, toolTips, this, id );
-		masterKey.initialize( controlLocation, this, id );
 
 		POINT statusLoc = { 960, 0 };
 		topBottomTek.initialize( statusLoc, this, id, "Top / Bottom", "Top", "Bottom", 480,

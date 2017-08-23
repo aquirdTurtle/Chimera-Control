@@ -13,14 +13,9 @@ class KeyHandler
 	public:
 		key getKey();
 		void loadVariables(std::vector<variable> variables);
-		void generateKey();
+		void generateKey( bool randomizeVariablesOption );
 		void exportKey();
-		void initialize(POINT loc, CWnd* parent, int& id);
-		void rearrange(int width, int height, fontMap fonts);
-		
 	private:	
-		Control<CButton> randomizeVariablesButton;
-		Control<CButton> randomizeRepetitionsButton;
 		std::vector<variable> variables;
 		key keyValues;
 		UINT runningKeyValue;

@@ -8,6 +8,8 @@ struct mainOptions
 	bool dontActuallyGenerate;
 	bool programIntensity;
 	bool rearrange;
+	bool randomizeVariations;
+	bool randomizeRepetitions;
 };
 
 // this got whittled down recently, but keeping so that I can put more stuff in later.
@@ -24,5 +26,7 @@ class MainOptionsControl
 		Control<CStatic> header;
 		Control<CButton> controlIntensity;
 		Control<CButton> rearrangeButton;
+		Control<CButton> randomizeVariablesButton;
+		Control<CButton> randomizeRepetitionsButton;
 		mainOptions currentOptions;
 };

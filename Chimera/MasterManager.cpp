@@ -81,12 +81,12 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		/// 
 		// a relic from the niawg thread. I Should re-organize how I get the niawg files and intensity script files to
 		// be consistent with the master script file.
-		if (input->programIntensity || input->runNiawg)
+		if (input->settings.programIntensity || input->runNiawg)
 		{
-			ProfileSystem::getConfigInfo( niawgFiles, intensityScriptFiles, input->profile, input->programIntensity,
-										  input->runNiawg );
+			ProfileSystem::getConfigInfo( niawgFiles, intensityScriptFiles, input->profile, 
+										  input->settings.programIntensity, input->runNiawg );
 		}
-		if (input->programIntensity)
+		if (input->settings.programIntensity)
 		{
 			input->comm->sendStatus( "Programing Intensity Profile(s)..." );
 			input->comm->sendColorBox( Intensity, 'Y' );
@@ -118,11 +118,11 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 					input->niawg->startRearrangementThread( input->atomQueueForRearrangement, wave );
 				}
 			}
-			if (input->rearrangingAtoms && !foundRearrangement )
+			if (input->settings.rearrange && !foundRearrangement )
 			{
 				thrower( "ERROR: system is primed for rearranging atoms, but no rearrangement waveform was found!" );
 			}
-			else if (!input->rearrangingAtoms && foundRearrangement)
+			else if (!input->settings.rearrange && foundRearrangement)
 			{
 				thrower( "ERROR: System was not primed for rearrangign atoms, but a rearrangement waveform was found!" );
 			}
@@ -272,7 +272,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			// program the intensity agilent. Right now this is a little different than the above because I haven't 
 			// implemented scripting in the generic agilent control, and this is left-over from the intensity control
 			// in the Niawg-Only program.
-			if (input->programIntensity)
+			if (input->settings.programIntensity)
 			{
 				input->comm->sendColorBox( Intensity, 'Y' );
 				//input->intensityAgilent->setScriptOutput( varInc, intensityRanges );
@@ -376,7 +376,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 				std::string waveformToDelete = "Waveform" + str( waveformInc );
 				input->niawg->fgenConduit.deleteWaveform( cstr( waveformToDelete ) );
 			}
-			if (!input->dontActuallyGenerate)
+			if (!input->settings.dontActuallyGenerate)
 			{
 				input->niawg->fgenConduit.deleteScript( "experimentScript" );
 			}

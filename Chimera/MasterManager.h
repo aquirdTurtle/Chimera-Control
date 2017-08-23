@@ -49,10 +49,11 @@ struct MasterThreadInput
 	// only for rearrangement.
 	std::vector<std::vector<bool>>* atomQueueForRearrangement;
 	// 
-	bool dontActuallyGenerate;
+	//bool dontActuallyGenerate;
 	bool quiet;
-	bool programIntensity;
-	bool rearrangingAtoms;
+	//bool programIntensity;
+	//bool rearrangingAtoms;
+	mainOptions settings;
 	bool runNiawg;
 	bool runMaster;
 };

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "PictureManager.h"
 
+
 void PictureManager::setPalletes(std::array<int, 4> palleteIds)
 {
 	for (int picInc = 0; picInc < 4; picInc++)
@@ -201,33 +202,6 @@ void PictureManager::setSinglePicture( CWnd* parent, std::pair<int, int> selecte
 	setParameters( imageParams );	
 }
 
-/*
-void PictureManager::setPallete(UINT palleteID)
-{
-	int id;
-	if (palleteID == ID_PICTURECOLORMAP_BLACKWHITE)
-	{
-		id = 0;
-	}
-	else if (palleteID == ID_PICTURECOLORMAP_VERIDA)
-	{
-		id = 1;
-	}
-	else if(palleteID == ID_PICTURECOLORMAP_INFERNO)
-	{
-		id = 2;
-	}
-	else
-	{
-		thrower("ERROR: pallete id not found?!?!?!");
-	}
-
-	for (auto& pic : pictures)
-	{
-		pic.updatePalette(palettes[id]);
-	}
-}
-*/
 
 void PictureManager::resetPictureStorage()
 {
@@ -236,6 +210,7 @@ void PictureManager::resetPictureStorage()
 		pic.resetStorage();
 	}
 }
+
 
 void PictureManager::setMultiplePictures( CWnd* parent, std::pair<int, int> selectedLocation, 
 										 imageParameters imageParams, int numberActivePics, 
@@ -268,6 +243,7 @@ void PictureManager::setMultiplePictures( CWnd* parent, std::pair<int, int> sele
 	setPictureSliders( parent );
 }
 
+
 void PictureManager::setPictureSliders(CWnd* parent)
 {
 	for (auto& pic : pictures)
@@ -276,6 +252,7 @@ void PictureManager::setPictureSliders(CWnd* parent)
 	}
 }
 
+
 void PictureManager::drawBackgrounds(CDC* easel)
 {
 	for (auto& pic : pictures)
@@ -283,6 +260,7 @@ void PictureManager::drawBackgrounds(CDC* easel)
 		pic.drawBackground(easel);
 	}
 }
+
 
 void PictureManager::initialize( POINT& loc, CWnd* parent, int& id, cToolTips& tooltips,
 								 CBrush* defaultBrush)
@@ -310,6 +288,7 @@ void PictureManager::initialize( POINT& loc, CWnd* parent, int& id, cToolTips& t
 	// initialize to one. this matches the camera settings initialization.
 	setNumberPicturesActive( 1 );
 }
+
 
 void PictureManager::refreshBackgrounds(CDC* easel)
 {

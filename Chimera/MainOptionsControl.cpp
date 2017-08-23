@@ -7,6 +7,8 @@ void MainOptionsControl::rearrange( int width, int height, fontMap fonts )
 	header.rearrange( width, height, fonts );
 	controlIntensity.rearrange( width, height, fonts );
 	rearrangeButton.rearrange( width, height, fonts );
+	randomizeRepetitionsButton.rearrange( width, height, fonts );
+	randomizeVariablesButton.rearrange( width, height, fonts );
 }
 
 
@@ -38,11 +40,19 @@ void MainOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTip
 	//
 	controlIntensity.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
 	controlIntensity.Create( "Program Intensity?", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | BS_RIGHT, controlIntensity.sPos,
-							 parent, IDC_MAIN_OPTIONS_RANGE_BEGIN );
+							 parent, id++ );
 
 	rearrangeButton.sPos = { loc.x, loc.y, loc.x + 480 , loc.y += 25 };
 	rearrangeButton.Create( "Includes Rearrangement Procedure?", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | BS_RIGHT,
-							rearrangeButton.sPos, parent, IDC_MAIN_OPTIONS_RANGE_END );
+							rearrangeButton.sPos, parent, id++ );
+	randomizeRepetitionsButton.sPos = { loc.x, loc.y, loc.x + 480 , loc.y += 25 };
+	randomizeRepetitionsButton.Create( "Randomize Repetitions?", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | BS_RIGHT,
+									   randomizeRepetitionsButton.sPos, parent, id++ );
+	randomizeRepetitionsButton.EnableWindow( false );
+
+	randomizeVariablesButton.sPos = { loc.x, loc.y, loc.x + 480 , loc.y += 25 };
+	randomizeVariablesButton.Create( "Randomize Variations?", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | BS_RIGHT,
+									 randomizeVariablesButton.sPos, parent, id++ );
 	//
 	currentOptions.programIntensity = false;
 	currentOptions.rearrange = false;	

@@ -97,7 +97,6 @@ template <typename IntType> std::vector<IntType> range( IntType stop )
 double reduce(std::string expression, key variationKey = {}, UINT variation = -1, 
 			  std::vector<variable>& vars = std::vector<variable>());
 
-
 // this can replace str() and str(), as well as providing functionality to set the precision of
 // to_string() conversions.
 template <typename T> std::string str(T input, const int precision = 6, bool eatZeros = false, bool toLower = false)

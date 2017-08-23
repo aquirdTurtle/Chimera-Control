@@ -154,10 +154,10 @@ void ExperimentLogger::generateNiawgLog( MasterThreadInput* input, niawgPair<std
 		{
 			andorConnected = true;
 			// prepare the parameters list for the log
-			std::string paramtersString = "\nDont Actually Generate = " + str( input->dontActuallyGenerate )
+			std::string paramtersString = "\nDont Actually Generate = " + str( input->settings.dontActuallyGenerate )
 				+ "\nRepetitions = " + str( repetitions )
-				+ "\nDon't Actually Generate = " + str( input->dontActuallyGenerate )
-				+ "\nProgramming Intensity = " + str( input->programIntensity )
+				+ "\nDon't Actually Generate = " + str( input->settings.dontActuallyGenerate )
+				+ "\nProgramming Intensity = " + str( input->settings.programIntensity )
 				+ "\nSequence File Names = \n";
 
 			for (UINT seqInc = 0; seqInc < input->profile.sequenceConfigNames.size(); seqInc++)
