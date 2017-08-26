@@ -355,6 +355,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="Planning.txt" />
+    <Text Include="ReadMe.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
