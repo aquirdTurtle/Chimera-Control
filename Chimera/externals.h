@@ -35,10 +35,6 @@ extern DWORD eIntensityMinChange, eIntensityMaxChange;
 extern DWORD eHorizontalMinChange, eHorizontalMaxChange;
 extern DWORD eVerticalMinChange, eVerticalMaxChange;
 
-// These Describe the scripts
-extern std::string eMostRecentVerticalScriptNames;
-extern std::string eMostRecentHorizontalScriptNames;
-extern std::string eMostRecentIntensityScriptNames;
 
 /// Global Options Variables
 extern UINT eGreenMessageID, eStatusTextMessageID, eErrorTextMessageID, eFatalErrorMessageID, eVariableStatusMessageID,

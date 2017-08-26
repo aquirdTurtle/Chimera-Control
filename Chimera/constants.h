@@ -181,8 +181,8 @@ const char * const INTENSITY_AGILENT_ADDRESS = "USB0::2391::8967::MY50004500::0:
 // Parameters that the user might want to change:
 const bool CONST_POWER_OUTPUT = true;
 
-// for floating point error... 0.2 was picked because this is the maximum power that can be outputted with 5 signals given the voltage 
-// restrictions.
+// for floating point error... 0.2 was picked because this is the maximum power that can be outputted with 5 signals 
+// given the voltage restrictions.
 // TEMP: need to change back to 0.2
 const double TOTAL_POWER = 0.2 - 1e-10;
 

@@ -27,12 +27,12 @@ class Agilent
 		void setDC( int channel, dcInfo info );
 		void setExistingWaveform( int channel, preloadedArbInfo info );
 		void setSquare( int channel, squareInfo info );
-		void setSingleFreq( int channel, sineInfo info );
+		void setSine( int channel, sineInfo info );
 		void outputOff(int channel);
 		void handleInput( std::string categoryPath, RunInfo info );
 		void handleInput( int chan, std::string categoryPath, RunInfo info );
 		void setDefualt( int channel );
-		void prepAgilentSettings();
+		void prepAgilentSettings(UINT channel);
 		bool connected();
 		void analyzeAgilentScript( scriptedArbInfo& infoObj );
 		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
@@ -41,7 +41,7 @@ class Agilent
 		std::string getName();
 		void readConfigurationFile( std::ifstream& file );
 		//void setScript( int varNum, key variableKey, scriptedArbInfo& scriptInfo );
-		void selectIntensityProfile( int varNum );
+		void selectIntensityProfile( UINT channel, int varNum );
 		void convertInputToFinalSettings( key variableKey, UINT variation );
 		void convertInputToFinalSettings();
 		void updateEdit( int chan, std::string currentCategoryPath, RunInfo currentRunInfo );
@@ -50,15 +50,14 @@ class Agilent
 		void rearrange(UINT width, UINT height, fontMap fonts);
 		void setAgilent( key varKey, UINT variation );
 		void setAgilent();
-		void handleScriptVariation( key varKey, UINT variation, scriptedArbInfo& scriptInfo );
-		void handleNoVariations( scriptedArbInfo& scriptInfo );
-		void setScriptOutput(UINT varNum, scriptedArbInfo scriptInfo );
+		void handleScriptVariation( key varKey, UINT variation, scriptedArbInfo& scriptInfo, UINT channel );
+		void handleNoVariations( scriptedArbInfo& scriptInfo, UINT channel );
+		void setScriptOutput(UINT varNum, scriptedArbInfo scriptInfo, UINT channel );
 		// making the script public greatly simplifies opening, saving, etc. files from this script.
 		Script agilentScript;
 
 	private:
 		std::string name;
-		minMaxDoublet chan1Range;
 		minMaxDoublet chan2Range;
 		VisaFlume visaFlume;
 		// since currently all visaFlume communication is done to communicate with agilent machines, my visaFlume wrappers exist

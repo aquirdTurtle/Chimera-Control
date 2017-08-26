@@ -64,8 +64,8 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		{
 			// I'm thinking this should be done before loading.
 			RunInfo dum;
-			agilent->handleInput( 0, input->profile.categoryPath, dum );
 			agilent->handleInput( 1, input->profile.categoryPath, dum );
+			agilent->handleInput( 2, input->profile.categoryPath, dum );
 		}
 		//
 		expUpdate( "Analyzing Master Script...", input->comm, input->quiet );
@@ -81,23 +81,6 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		/// 
 		// a relic from the niawg thread. I Should re-organize how I get the niawg files and intensity script files to
 		// be consistent with the master script file.
-		if (input->settings.programIntensity || input->runNiawg)
-		{
-			ProfileSystem::getConfigInfo( niawgFiles, intensityScriptFiles, input->profile, 
-										  input->settings.programIntensity, input->runNiawg );
-		}
-		if (input->settings.programIntensity)
-		{
-			input->comm->sendStatus( "Programing Intensity Profile(s)..." );
-			input->comm->sendColorBox( Intensity, 'Y' );
-			/*
-			input->intensityAgilent->programIntensity( input->key->getKey(), intIsVaried, intensityRanges, 
-													   intensityScriptFiles, variations );
-			*/
-			expUpdate( "Done.\r\n", input->comm, input->quiet );
-			input->comm->sendColorBox( Intensity, 'G' );
-			input->comm->sendStatus( "Intensity Profile Selected.\r\n" );
-		}
 		if (input->runNiawg)
 		{
 			input->comm->sendColorBox( Niawg, 'Y' );
@@ -272,16 +255,6 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			// program the intensity agilent. Right now this is a little different than the above because I haven't 
 			// implemented scripting in the generic agilent control, and this is left-over from the intensity control
 			// in the Niawg-Only program.
-			if (input->settings.programIntensity)
-			{
-				input->comm->sendColorBox( Intensity, 'Y' );
-				//input->intensityAgilent->setScriptOutput( varInc, intensityRanges );
-				if (intIsVaried)
-				{
-					input->comm->sendStatus( "Intensity Profile Selected.\r\n" );
-				}
-				input->comm->sendColorBox( Intensity, 'G' );
-			}
 			if (input->runNiawg)
 			{
 				input->comm->sendColorBox( Niawg, 'Y' );
@@ -389,7 +362,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 	}
 	catch (Error& exception)
 	{
-		input->intensityAgilent->setDefualt(0);
+		input->agilents[input->intensityAgilentNumber]->setDefualt(0);
 
 		if (input->runNiawg)
 		{
@@ -397,9 +370,12 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			{
 				for (const auto& axis : AXES)
 				{
-					if (niawgFiles[axis][sequenceInc].is_open())
+					if (niawgFiles[axis].size() != 0)
 					{
-						niawgFiles[axis][sequenceInc].close();
+						if (niawgFiles[axis][sequenceInc].is_open())
+						{
+							niawgFiles[axis][sequenceInc].close();
+						}
 					}
 				}
 			}

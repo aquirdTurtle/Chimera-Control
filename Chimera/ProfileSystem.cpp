@@ -21,12 +21,10 @@ ProfileSystem::ProfileSystem(std::string fileSystemPath)
 
 // just looks at the info in a file and loads it into references, doesn't change anything in the gui or main settings.
 void ProfileSystem::getConfigInfo( niawgPair<std::vector<std::fstream>>& scriptFiles, 
-								   std::vector<std::fstream>& intensityScriptFiles, profileSettings profile, 
-								   bool programIntensity, bool programNiawg )
+								   profileSettings profile, bool programNiawg )
 {
 	scriptFiles[Vertical].resize( profile.sequenceConfigNames.size() );
 	scriptFiles[Horizontal].resize( profile.sequenceConfigNames.size() );
-	intensityScriptFiles.resize( profile.sequenceConfigNames.size() );
 	/// gather information from every configuration in the sequence. /////////////////////////////////////////////////////////////////////
 	for (UINT sequenceInc = 0; sequenceInc < profile.sequenceConfigNames.size(); sequenceInc++)
 	{
@@ -50,17 +48,6 @@ void ProfileSystem::getConfigInfo( niawgPair<std::vector<std::fstream>>& scriptF
 					thrower( "ERROR: Failed to open vertical script file named: " + niawgScriptAddresses[axis]
 							 + " found in configuration: " + profile.sequenceConfigNames[sequenceInc] + "\r\n" );
 				}
-			}
-		}
-		/// load intensity file
-		getline(configFile, intensityScriptAddress);
-		if (programIntensity)
-		{
-			intensityScriptFiles[sequenceInc].open(intensityScriptAddress);
-			if (!intensityScriptFiles[sequenceInc].is_open())
-			{
-				thrower("ERROR: Failed to open intensity script file named: " + intensityScriptAddress + " found in configuration: "
-					+ profile.sequenceConfigNames[sequenceInc] + "\r\n");
 			}
 		}
 	}

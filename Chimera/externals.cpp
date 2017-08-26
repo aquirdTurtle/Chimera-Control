@@ -35,9 +35,7 @@ std::string eHorizontalParentScriptPathString;
 std::string eHorizontalViewScriptPathString;
 std::string eIntensityParentScriptPathString;
 std::string eIntensityViewScriptPathString;
-std::string eMostRecentVerticalScriptNames;
-std::string eMostRecentHorizontalScriptNames;
-std::string eMostRecentIntensityScriptNames;
+
 
 bool eAbortNiawgFlag = false;
 

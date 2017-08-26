@@ -68,10 +68,9 @@ class ProfileSystem
 		void openConfiguration( std::string configurationNameToOpen, ScriptingWindow* scriptWindow, MainWindow* mainWin, 
 							    CameraWindow* camWin, AuxiliaryWindow* auxWin );
 
-		static void getConfigInfo( niawgPair<std::vector<std::fstream>>& scriptFiles,
-								   std::vector<std::fstream>& intensityScriptFiles, profileSettings profile,
-								   bool programIntensity, bool programNiawg );
-		void updateConfigurationSavedStatus(bool isSaved);
+		static void getConfigInfo( niawgPair<std::vector<std::fstream>>& scriptFiles, profileSettings profile, 
+								   bool programNiawg );
+		void updateConfigurationSavedStatus( bool isSaved );
 		bool configurationSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* mainWin, 
 											 AuxiliaryWindow* auxWin, CameraWindow* camWin);
 		bool checkConfigurationSave(std::string prompt, ScriptingWindow* scriptWindow, MainWindow* mainWin, 
