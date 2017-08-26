@@ -866,6 +866,7 @@ void AuxiliaryWindow::fillMasterThreadInput(MasterThreadInput* input)
 	input->rsg = &RhodeSchwarzGenerator;
 	input->agilents.push_back(&topBottomAgilent);
 	input->agilents.push_back(&uWaveAxialAgilent);
+	input->agilents.push_back( &flashingAgilent );
 	topBottomTek.getSettings();
 	eoAxialTek.getSettings();
 	input->topBottomTek = &topBottomTek;

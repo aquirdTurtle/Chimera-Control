@@ -636,6 +636,7 @@ namespace commonFunctions
 		input.includesCameraRun = true;
 	}
 
+
 	void prepareMasterThread( int msgID, ScriptingWindow* scriptWin, MainWindow* mainWin, CameraWindow* camWin,
 											   AuxiliaryWindow* auxWin, ExperimentInput& input, bool runNiawg, bool runTtls )
 	{
@@ -789,15 +790,13 @@ namespace commonFunctions
 			if (runNiawg)
 			{
 				scriptInfo<std::string> addresses = scriptWin->getScriptAddresses();
-				eMostRecentVerticalScriptNames = addresses.verticalNIAWG;
-				eMostRecentHorizontalScriptNames = addresses.horizontalNIAWG;
-				eMostRecentIntensityScriptNames = addresses.intensityAgilent;
 				mainWin->setNiawgRunningState( true );
 			}
 			// Start the programming thread.
 			auxWin->fillMasterThreadInput( input.masterInput );
 			mainWin->fillMasterThreadInput( input.masterInput );
 			camWin->fillMasterThreadInput( input.masterInput );
+			scriptWin->fillMasterThreadInput( input.masterInput );
 			mainWin->updateStatusText( "debug", beginInfo );
 		}
 	}

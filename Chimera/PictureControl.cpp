@@ -101,8 +101,8 @@ std::pair<int, int> PictureControl::checkClickLocation( CPoint clickLocation )
 		{
 			RECT relevantRect = grid[horizontalInc][verticalInc];
 			// check if inside box
-			if (clickLocation.x < relevantRect.right && clickLocation.x > relevantRect.left
-				 && clickLocation.y < relevantRect.bottom && clickLocation.y > relevantRect.top)
+			if (clickLocation.x <= relevantRect.right && clickLocation.x >= relevantRect.left
+				 && clickLocation.y <= relevantRect.bottom && clickLocation.y >= relevantRect.top)
 			{
 				return { horizontalInc , verticalInc };
 				// then click was inside a box so this should do something.

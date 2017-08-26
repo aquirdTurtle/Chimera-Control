@@ -232,6 +232,14 @@ BOOL ScriptingWindow::OnInitDialog()
 	return TRUE;
 }
 
+
+void ScriptingWindow::fillMasterThreadInput( MasterThreadInput* input )
+{
+	input->agilents.push_back( &intensityAgilent );
+	input->intensityAgilentNumber = input->agilents.size() - 1;
+}
+
+
 void ScriptingWindow::OnTimer(UINT_PTR eventID)
 {
 	horizontalNiawgScript.handleTimerCall( auxWindowFriend->getAllVariables(), mainWindowFriend->getRgbs(), 

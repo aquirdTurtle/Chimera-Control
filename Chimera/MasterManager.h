@@ -45,14 +45,10 @@ struct MasterThreadInput
 	TektronicsControl* eoAxialTek;
 	VariableSystem* globalControl;
 	NiawgController* niawg;
-	Agilent* intensityAgilent;
+	UINT intensityAgilentNumber;
 	// only for rearrangement.
 	std::vector<std::vector<bool>>* atomQueueForRearrangement;
-	// 
-	//bool dontActuallyGenerate;
 	bool quiet;
-	//bool programIntensity;
-	//bool rearrangingAtoms;
 	mainOptions settings;
 	bool runNiawg;
 	bool runMaster;

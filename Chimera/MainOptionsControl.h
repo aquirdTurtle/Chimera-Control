@@ -6,7 +6,6 @@
 struct mainOptions
 {
 	bool dontActuallyGenerate;
-	bool programIntensity;
 	bool rearrange;
 	bool randomizeVariations;
 	bool randomizeRepetitions;
@@ -24,9 +23,8 @@ class MainOptionsControl
 		void rearrange(int width, int height, fontMap fonts);
 	private:
 		Control<CStatic> header;
-		Control<CButton> controlIntensity;
 		Control<CButton> rearrangeButton;
-		Control<CButton> randomizeVariablesButton;
+		Control<CButton> randomizeVariationsButton;
 		Control<CButton> randomizeRepetitionsButton;
 		mainOptions currentOptions;
 };
