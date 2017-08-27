@@ -3,6 +3,7 @@
 #include "Control.h"
 #include "commonTypes.h"
 
+
 struct mainOptions
 {
 	bool dontActuallyGenerate;

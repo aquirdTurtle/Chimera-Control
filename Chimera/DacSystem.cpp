@@ -1166,7 +1166,7 @@ double DacSystem::getDacValue(int dacNumber)
 
 void DacSystem::shadeDacs(std::vector<UINT>& dacShadeLocations)
 {
-	for (int shadeInc = 0; shadeInc < dacShadeLocations.size(); shadeInc++)
+	for (UINT shadeInc = 0; shadeInc < dacShadeLocations.size(); shadeInc++)
 	{
 		breakoutBoardEdits[dacShadeLocations[shadeInc]].colorState = -1;
 		breakoutBoardEdits[dacShadeLocations[shadeInc]].SetReadOnly(true);

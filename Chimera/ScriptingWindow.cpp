@@ -143,7 +143,7 @@ BOOL ScriptingWindow::OnToolTipText( UINT id, NMHDR * pNMHDR, LRESULT * pResult 
 		intensityAgilent.agilentScript.handleToolTip( pNMHDR, pResult );
 		masterScript.handleToolTip( pNMHDR, pResult );
 	}
-	catch(Error& err)
+	catch(Error&)
 	{
 		// worked.
 		return TRUE;

@@ -1,9 +1,0 @@
-
-Dont Actually Generate = 0
-Connect To Master = 0
-Get Variable Files From Master = 0
-Repetitions = 0
-Don't Actually Generate = 0
-Programming Intensity = 0
-Sequence File Names = 
-	Single Waveforms.hConfig

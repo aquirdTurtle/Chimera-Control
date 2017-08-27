@@ -69,3 +69,14 @@ Experiment Scripts/Old Scripts (Format No Longer Supported)/
 *.idb
 *.sdf
 *.db
+
+Chimera/Packages/32-Bit-Libs/Debug/Andor/*
+Chimera/Packages/64-Bit-Libs/Debug/Andor/*
+Chimera/Packages/32-Bit-Libs/Release/Andor/*
+Chimera/Packages/64-Bit-Libs/Release/Andor/*
+Chimera/Packages/32-Bit-Libs/Debug/Andor/*
+Chimera/Packages/boost_1_64_0/*
+Chimera/Packages/32-Bit-Libs/Debug/HDF5-1.10.1-win32/*
+Chimera/Packages/64-Bit-Libs/Debug/HDF5-1.10.1-win64/*
+Chimera/Packages/32-Bit-Libs/Release/HDF5-1.10.1-win32/*
+Chimera/Packages/64-Bit-Libs/Release/HDF5-1.10.1-win64/*
