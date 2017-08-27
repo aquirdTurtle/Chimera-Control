@@ -335,8 +335,8 @@ void DataLogger::logMasterParameters( MasterThreadInput* input )
 	{
 		niawgPair<std::vector<std::fstream>> niawgFiles;
 		std::vector<std::fstream> intensityScriptFiles;
-		ProfileSystem::getConfigInfo( niawgFiles, intensityScriptFiles, input->profile, input->settings.programIntensity,
-									  input->runNiawg );
+		//ProfileSystem::getConfigInfo( niawgFiles, intensityScriptFiles, input->profile, input->settings.programIntensity,
+		//							  input->runNiawg );
 		// Hor Script
 		std::stringstream stream;
 		stream << niawgFiles[Horizontal][0].rdbuf();

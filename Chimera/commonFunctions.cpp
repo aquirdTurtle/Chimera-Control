@@ -752,15 +752,6 @@ namespace commonFunctions
 			beginInfo += "\r\n";
 		}
 		mainOptions settings = mainWin->getMainOptions();
-		if (settings.programIntensity)
-		{
-			beginInfo += "Programming Intensity:....... TRUE\r\n";
-		}
-		else
-		{
-			beginInfo += "Programming Intensity:....... FALSE\r\n";
-		}
-		beginInfo += "\r\n";
 		std::string beginQuestion = "\r\n\r\nBegin Waveform Generation with these Settings?";
 		INT_PTR areYouSure = DialogBoxParam( NULL, MAKEINTRESOURCE( IDD_BEGINNING_SETTINGS ), 0,
 											 beginningSettingsDialogProc, (LPARAM)cstr( beginInfo + beginQuestion ) );

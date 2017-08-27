@@ -2512,11 +2512,11 @@ int NiawgController::sign( int x )
 	{
 		return 1;
 	}
-	if (x < 0)
+	else if (x < 0)
 	{
 		return -1;
 	}
-	if (x == 0)
+	else
 	{
 		return 0;
 	}

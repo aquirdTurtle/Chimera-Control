@@ -114,22 +114,26 @@ void TtlSystem::setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > sta
 
 TtlSystem::TtlSystem()
 {
+	if (DIO_SAFEMODE)
+	{
+		// don't try to load.
+		return;
+	}
 	/// load modules
 	// this first module is required for the second module which I actually load functions from.
-	//HMODULE dioNT2 = LoadLibrary( "Dio64_NT.dll" );
-	HMODULE dioNT = LoadLibrary( "dio64_nt.dll" );
+	HMODULE dioNT = LoadLibrary( ".\\Packages\\32-Bit-Libs\\DIO64\\dio64_nt.dll" );
 	//HMODULE dioNT = LoadLibrary("C:/Windows/SysWOW64/dio64_nt.dll");
 	if (!dioNT)
 	{
 		int err = GetLastError();
-		errBox( str(err) );
+		errBox( "Failed to load dio64_nt.dll! Error code: " + str(err) );
 	}
-	HMODULE dio = LoadLibrary( "dio64_32.dll" );
+	HMODULE dio = LoadLibrary( ".\\Packages\\32-Bit-Libs\\DIO64\\dio64_32.dll" );
 	//HMODULE dio = LoadLibrary("C:/Windows/SysWOW64/dio64_32.dll");
 	if (!dio)
 	{
 		int err = GetLastError();
-		errBox( str( err ) );
+		errBox( "Failed to load dio64_32.dll!" + str( err ) );
 	}
 	
 	// initialize function pointers. This only requires the DLLs to be loaded (which requires them to be present on the machine...) 
@@ -157,24 +161,21 @@ TtlSystem::TtlSystem()
 	raw_DIO64_Out_Write = (DIO64_Out_Write)GetProcAddress(dio, "DIO64_Out_Write");
 
 	// Open and Load DIO64
-	if (!DIO_SAFEMODE)
+	try
 	{
-		try
-		{
-			int result;
-			char* filename = "";
-			WORD temp[4] = { -1, -1, -1, -1 };
-			double tempd = 10000000;
+		int result;
+		char* filename = "";
+		WORD temp[4] = { -1, -1, -1, -1 };
+		double tempd = 10000000;
 			
-			dioOpen( 0, 0 );
-			dioLoad( 0, filename, 0, 4 );
-			dioOutConfig( 0, 0, temp, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, tempd );
-			// done initializing.
-		}
-		catch (Error& exception)
-		{
-			errBox( exception.what() );
-		}
+		dioOpen( 0, 0 );
+		dioLoad( 0, filename, 0, 4 );
+		dioOutConfig( 0, 0, temp, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, tempd );
+		// done initializing.
+	}
+	catch (Error& exception)
+	{
+		errBox( exception.what() );
 	}
 }
 

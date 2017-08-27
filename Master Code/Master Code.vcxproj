@@ -171,9 +171,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Agilent.h" />
     <ClInclude Include="Combo.h" />
     <ClInclude Include="commonTypes.h" />

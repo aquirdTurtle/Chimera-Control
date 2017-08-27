@@ -9,9 +9,6 @@
 #include "afxwin.h"
 #include "Control.h"
 #include "KeyHandler.h"
-//#include "myApplicationApp.h"
-
-//template <class ControlType> class Control;
 
 /*
  * A nice custom class and #define that makes my custom throws have file & code line information. Very nice.

@@ -503,7 +503,6 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="Planning.txt" />
-    <Text Include="ReadMe.md" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Chimera.rc">
