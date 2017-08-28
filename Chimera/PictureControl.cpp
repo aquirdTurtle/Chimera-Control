@@ -43,16 +43,14 @@ void PictureControl::setPictureArea( POINT loc, int width, int height )
 		heightPicScale = 1;
 		widthPicScale = double(unofficialImageParameters.width) / unofficialImageParameters.height;
 	}
-	long picWidth = (scaledBackgroundArea.right - scaledBackgroundArea.left)*widthPicScale;
-	long picHeight = scaledBackgroundArea.bottom - scaledBackgroundArea.top;
+	ULONG picWidth = ULONG( (scaledBackgroundArea.right - scaledBackgroundArea.left)*widthPicScale );
+	ULONG picHeight = scaledBackgroundArea.bottom - scaledBackgroundArea.top;
 	POINT mid = { (scaledBackgroundArea.left + scaledBackgroundArea.right) / 2,
-		(scaledBackgroundArea.top + scaledBackgroundArea.bottom) / 2 };
+				  (scaledBackgroundArea.top + scaledBackgroundArea.bottom) / 2 };
 	pictureArea.left = mid.x - picWidth / 2;
 	pictureArea.right = mid.x + picWidth / 2;
 	pictureArea.top = mid.y - picHeight / 2;
 	pictureArea.bottom = mid.y + picHeight / 2;
-
-
 }
 
 
@@ -221,7 +219,7 @@ void PictureControl::initialize(POINT& loc, CWnd* parent, int& id, int width, in
 	sliderMin.sPos = { loc.x, loc.y + 60, loc.x + 50, loc.y + unscaledBackgroundArea.bottom - unscaledBackgroundArea.top};
 	sliderMin.Create(WS_CHILD | WS_VISIBLE | TBS_AUTOTICKS | TBS_VERT, sliderMin.sPos, parent, id++ );
 	sliderMin.SetRange(0, 2000);
-	sliderMin.SetPageSize((minSliderPosition - minSliderPosition)/10.0);
+	sliderMin.SetPageSize(UINT((minSliderPosition - minSliderPosition)/10.0));
 	// "max" text
 	labelMax.sPos = { loc.x + 50, loc.y, loc.x + 100, loc.y + 30 };
 	labelMax.Create("MAX", WS_CHILD | WS_VISIBLE | SS_CENTER, labelMax.sPos, parent, id++ );
@@ -232,7 +230,7 @@ void PictureControl::initialize(POINT& loc, CWnd* parent, int& id, int width, in
 	sliderMax.sPos = { loc.x + 50, loc.y + 60, loc.x + 100, loc.y + unscaledBackgroundArea.bottom - unscaledBackgroundArea.top};
 	sliderMax.Create(WS_CHILD | WS_VISIBLE | TBS_AUTOTICKS | TBS_VERT, sliderMax.sPos, parent, id++ );
 	sliderMax.SetRange(0, 2000);
-	sliderMax.SetPageSize((minSliderPosition - minSliderPosition) / 10.0);
+	sliderMax.SetPageSize( int((minSliderPosition - minSliderPosition) / 10.0));
 	// reset this.
 	loc.x -= unscaledBackgroundArea.right - unscaledBackgroundArea.left;
 	// manually scroll the objects to initial positions.
@@ -263,8 +261,8 @@ void PictureControl::recalculateGrid(imageParameters newParameters)
 		heightPicScale = 1;
 		widthPicScale = double(unofficialImageParameters.width) / unofficialImageParameters.height;
 	}
-	long width = (scaledBackgroundArea.right - scaledBackgroundArea.left)*widthPicScale;
-	long height = (scaledBackgroundArea.bottom - scaledBackgroundArea.top)*heightPicScale;
+	long width = long((scaledBackgroundArea.right - scaledBackgroundArea.left)*widthPicScale);
+	long height = long((scaledBackgroundArea.bottom - scaledBackgroundArea.top)*heightPicScale);
 	POINT mid = { (scaledBackgroundArea.left + scaledBackgroundArea.right) / 2,
 				  (scaledBackgroundArea.top + scaledBackgroundArea.bottom) / 2 };
 	pictureArea.left = mid.x - width / 2;
@@ -601,10 +599,10 @@ void PictureControl::drawCircle(CDC* dc, std::pair<int, int> selectedLocation)
 
 	RECT smallRect;
 	RECT relevantRect = grid[selectedLocation.first][selectedLocation.second];
-	smallRect.left = relevantRect.left + 7.0 * (relevantRect.right - relevantRect.left) / 16.0;
-	smallRect.right = relevantRect.left + 9.0 * (relevantRect.right - relevantRect.left) / 16.0;
-	smallRect.top = relevantRect.top + 7.0 * (relevantRect.bottom - relevantRect.top) / 16.0;
-	smallRect.bottom = relevantRect.top + 9.0 * (relevantRect.bottom - relevantRect.top) / 16.0;
+	smallRect.left = relevantRect.left + long(7.0 * (relevantRect.right - relevantRect.left) / 16.0);
+	smallRect.right = relevantRect.left + long( 9.0 * (relevantRect.right - relevantRect.left) / 16.0);
+	smallRect.top = relevantRect.top + long( 7.0 * (relevantRect.bottom - relevantRect.top) / 16.0);
+	smallRect.bottom = relevantRect.top + long( 9.0 * (relevantRect.bottom - relevantRect.top) / 16.0);
 	// get appropriate brush and pen
 	if (dc == NULL)
 	{
@@ -630,7 +628,7 @@ void PictureControl::drawCircle(CDC* dc, std::pair<int, int> selectedLocation)
 	dc->Ellipse( smallRect.left, smallRect.top, smallRect.right, smallRect.bottom );
 }
 
-void PictureControl::drawAnalysisMarkers(CDC* dc, std::vector<std::pair<int, int>> analysisLocs)
+void PictureControl::drawAnalysisMarkers(CDC* dc, std::vector<std::pair<UINT, UINT>> analysisLocs)
 {
 	if (active)
 	{
@@ -646,10 +644,10 @@ void PictureControl::drawAnalysisMarkers(CDC* dc, std::vector<std::pair<int, int
 		for (auto loc : analysisLocs)
 		{
 			relevantRect = grid[loc.first][loc.second];
-			smallRect.left = relevantRect.left + 7.0 * (relevantRect.right - relevantRect.left) / 16.0;
-			smallRect.right = relevantRect.left + 9.0 * (relevantRect.right - relevantRect.left) / 16.0;
-			smallRect.top = relevantRect.top + 7.0 * (relevantRect.bottom - relevantRect.top) / 16.0;
-			smallRect.bottom = relevantRect.top + 9.0 * (relevantRect.bottom - relevantRect.top) / 16.0;
+			smallRect.left = relevantRect.left + long( 7.0 * (relevantRect.right - relevantRect.left) / 16.0);
+			smallRect.right = relevantRect.left + long( 9.0 * (relevantRect.right - relevantRect.left) / 16.0);
+			smallRect.top = relevantRect.top + long( 7.0 * (relevantRect.bottom - relevantRect.top) / 16.0);
+			smallRect.bottom = relevantRect.top + long( 9.0 * (relevantRect.bottom - relevantRect.top) / 16.0);
 
 			dc->MoveTo({ relevantRect.left, relevantRect.top });
 
@@ -700,7 +698,8 @@ void PictureControl::rearrange(std::string cameraMode, std::string triggerMode, 
 			heightPicScale = 1;
 			widthPicScale = double(unofficialImageParameters.width) / unofficialImageParameters.height;
 		}
-		long width = (scaledBackgroundArea.right - scaledBackgroundArea.left)*widthPicScale;
+		long width = long((scaledBackgroundArea.right - scaledBackgroundArea.left)*widthPicScale);
+		// why isn't this scaled???
 		long height = scaledBackgroundArea.bottom - scaledBackgroundArea.top;
 		POINT mid = { (scaledBackgroundArea.left + scaledBackgroundArea.right) / 2,
 			(scaledBackgroundArea.top + scaledBackgroundArea.bottom) / 2 };

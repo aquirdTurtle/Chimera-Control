@@ -169,7 +169,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		ULONGLONG totalTime = 0;
 		for (USHORT var = 0; var < variations; var++)
 		{
-			totalTime += input->ttls->getTotalTime( var ) * input->repetitionNumber;
+			totalTime += ULONGLONG(input->ttls->getTotalTime( var ) * input->repetitionNumber);
 		}
 		expUpdate( "Programmed Total Experiment time: " + str( totalTime ) + "\r\n", input->comm, input->quiet );
 		expUpdate( "Number of TTL Events in experiment: " + str( input->ttls->getNumberEvents( 0 ) ) + "\r\n", input->comm,
@@ -648,7 +648,8 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 	}
 	std::string word;
 	// the following are used for repeat: functionality
-	std::vector<UINT> totalRepeatNum, currentRepeatNum, repeatPos;
+	std::vector<ULONG> totalRepeatNum, currentRepeatNum;
+	std::vector<std::streamoff> repeatPos;
 	/// get the function arguments.
 	std::string defLine;
 	defLine = functionStream.getline( ':' );
@@ -972,7 +973,8 @@ void MasterManager::analyzeMasterScript( TtlSystem* ttls, DacSystem* dacs,
 	}
 	std::string word;
 	currentMasterScript >> word;
-	std::vector<UINT> totalRepeatNum, currentRepeatNum, repeatPos;
+	std::vector<UINT> totalRepeatNum, currentRepeatNum;
+	std::vector<std::streamoff> repeatPos;
 	// the analysis loop.
 	while (!(currentMasterScript.peek() == EOF) || word != "__end__")
 	{
@@ -1214,7 +1216,7 @@ void MasterManager::analyzeMasterScript( TtlSystem* ttls, DacSystem* dacs,
 			currentMasterScript >> repeatStr;
 			try
 			{
-				totalRepeatNum.push_back( reduce( repeatStr ) );
+				totalRepeatNum.push_back( UINT(reduce( repeatStr )) );
 			}
 			catch (Error&)
 			{

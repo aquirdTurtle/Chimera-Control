@@ -23,11 +23,12 @@ struct AndorRunSettings
 	int accumulationNumber;
 	std::vector<float> exposureTimes;
 	//
-	int picsPerRepetition;
-	int repetitionsPerVariation;
-	int totalVariations;
+	UINT picsPerRepetition;
+	ULONGLONG repetitionsPerVariation;
+	ULONGLONG totalVariations;
+	ULONGLONG totalPicsInVariation;
+	// this is an int to reflect that the final number that's programmed to the camera is an int
 	int totalPicsInExperiment;
-	int totalPicsInVariation;
 	// 
 	int temperatureSetting;
 };

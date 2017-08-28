@@ -235,7 +235,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 		else
 		{
 			// simulate an actual wait.
-			Sleep( input->Andor->runSettings.kineticCycleTime * 1000 );
+			Sleep( ULONG(input->Andor->runSettings.kineticCycleTime * 1000) );
 			if ( input->Andor->cameraIsRunning && safeModeCount < input->Andor->runSettings.totalPicsInExperiment)
 			{
 				if ( input->Andor->runSettings.cameraMode == "Kinetic Series Mode" 
@@ -459,7 +459,7 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 				if (atomSpots[imageVecInc])
 				{
 					// can have an atom here.
-					if (rand() % 300 > imageVecInc + 50)
+					if (UINT(rand()) % 300 > imageVecInc + 50)
 					{
 						tempImage[imageVecInc] += 400;
 					}
@@ -561,7 +561,7 @@ void AndorCamera::setScanNumber()
 	}
 	else
 	{
-		setNumberKinetics(runSettings.totalPicsInExperiment);
+		setNumberKinetics(int(runSettings.totalPicsInExperiment));
 	}
 }
 
@@ -1229,6 +1229,7 @@ void AndorCamera::setNumberKinetics(int number)
 	}
 
 }
+
 
 // Andor Wrappers
 void AndorCamera::getTemperatureRange(int& min, int& max)

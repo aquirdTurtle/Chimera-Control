@@ -19,7 +19,7 @@ class AuxiliaryWindow;
 struct realTimePlotterInput
 {
 	std::vector<tinyPlotInfo> plotInfo;
-	std::vector<std::pair<int, int>> analysisLocations;
+	std::vector<std::pair<UINT, UINT>> analysisLocations;
 	std::atomic<bool>* active;
 	std::vector<std::vector<long>>* imageQueue;
 	std::vector<std::vector<bool>>* atomQueue;
@@ -136,7 +136,7 @@ class CameraWindow : public CDialog
 
 		cToolTips tooltips;
 
-		std::pair<int, int> selectedPixel = { 0,0 };
+		std::pair<UINT, UINT> selectedPixel = { 0,0 };
 		CMenu menu;
 		// some picture menu options
 		bool autoScalePictureData;

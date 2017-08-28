@@ -382,7 +382,11 @@ void PictureSettingsControl::handleOptionChange(int id, AndorCamera* andorObj)
 		AndorRunSettings settings = andorObj->getSettings();
 		settings.picsPerRepetition = picsPerRepetitionUnofficial;
 		settings.totalPicsInVariation = settings.picsPerRepetition  * settings.repetitionsPerVariation;
-		settings.totalPicsInExperiment = settings.totalVariations * settings.totalPicsInVariation;
+		if (settings.totalVariations * settings.totalPicsInVariation > INT_MAX)
+		{
+			thrower( "ERROR: too many pictures to take! Maximum number of pictures possible is " + str( INT_MAX ) );
+		}
+		settings.totalPicsInExperiment = int(settings.totalVariations * settings.totalPicsInVariation);
 		for (int picInc = 0; picInc < 4; picInc++)
 		{
 			if (picInc <= picNum)
@@ -419,7 +423,7 @@ void PictureSettingsControl::handleOptionChange(int id, AndorCamera* andorObj)
 		{
 			CString textEdit;
 			exposureEdits[exposureInc].GetWindowTextA(textEdit);
-			double exposure;
+			float exposure;
 			try
 			{
 				exposure = std::stof(str(textEdit));
@@ -497,8 +501,8 @@ std::vector<float> PictureSettingsControl::getUsedExposureTimes()
 void PictureSettingsControl::confirmAcquisitionTimings()
 {
 	std::vector<float> usedExposures;
-	usedExposures = this->exposureTimesUnofficial;
-	usedExposures.resize(this->picsPerRepetitionUnofficial);
+	usedExposures = exposureTimesUnofficial;
+	usedExposures.resize(picsPerRepetitionUnofficial);
 	try
 	{
 		parentSettingsControl->checkTimings(usedExposures);
@@ -507,12 +511,10 @@ void PictureSettingsControl::confirmAcquisitionTimings()
 	{
 		throw;
 	}
-	for (int exposureInc = 0; exposureInc < usedExposures.size(); exposureInc++)
+	for (UINT exposureInc = 0; exposureInc < usedExposures.size(); exposureInc++)
 	{
-		this->exposureTimesUnofficial[exposureInc] = usedExposures[exposureInc];
+		exposureTimesUnofficial[exposureInc] = usedExposures[exposureInc];
 	}
-	
-	return;
 }
 
 /**/
@@ -523,12 +525,11 @@ std::array<int, 4> PictureSettingsControl::getThresholds()
 
 void PictureSettingsControl::setThresholds(std::array<int, 4> newThresholds)
 {
-	this->thresholds = newThresholds;
-	for (int thresholdInc = 0; thresholdInc < thresholds.size(); thresholdInc++)
+	thresholds = newThresholds;
+	for (UINT thresholdInc = 0; thresholdInc < thresholds.size(); thresholdInc++)
 	{
 		thresholdEdits[thresholdInc].SetWindowTextA(cstr(thresholds[thresholdInc]));
 	}
-	return;
 }
 
 void PictureSettingsControl::setPicturesPerExperiment(UINT pics, AndorCamera* andorObj)
@@ -537,12 +538,16 @@ void PictureSettingsControl::setPicturesPerExperiment(UINT pics, AndorCamera* an
 	{
 		return;
 	}
-	this->picsPerRepetitionUnofficial = pics;
+	picsPerRepetitionUnofficial = pics;
 	AndorRunSettings settings = andorObj->getSettings();
 	settings.picsPerRepetition = this->picsPerRepetitionUnofficial;
 	settings.totalPicsInVariation = settings.picsPerRepetition  * settings.repetitionsPerVariation;
-	settings.totalPicsInExperiment = settings.totalVariations * settings.totalPicsInVariation;
-	for (int picInc = 0; picInc < 4; picInc++)
+	if (settings.totalVariations * settings.totalPicsInVariation > INT_MAX)
+	{
+		thrower( "ERROR: Trying to take too many pictures! Maximum picture number is " + str( INT_MAX ) );
+	}
+	settings.totalPicsInExperiment = int(settings.totalVariations * settings.totalPicsInVariation);
+	for (UINT picInc = 0; picInc < 4; picInc++)
 	{
 		if (picInc == pics - 1)
 		{
@@ -555,15 +560,13 @@ void PictureSettingsControl::setPicturesPerExperiment(UINT pics, AndorCamera* an
 
 		if (picInc < picsPerRepetitionUnofficial)
 		{
-			this->enablePictureControls(picInc);
+			enablePictureControls(picInc);
 		}
 		else
 		{
-			this->disablePictureControls(picInc);
+			disablePictureControls(picInc);
 		}
 	}
-
-	return;
 }
 
 /*

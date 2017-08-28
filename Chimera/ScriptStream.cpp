@@ -12,7 +12,7 @@ ScriptStream & ScriptStream::operator>>( std::string& outputString )
 	std::string text = str();
 	std::stringstream temp( text );
 	// make sure they are at the same place...
-	int pos = tellg();
+	long long pos = tellg();
 	temp.seekg( pos );
 	// get the word.
 	temp >> outputString;

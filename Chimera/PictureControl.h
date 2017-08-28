@@ -22,7 +22,7 @@ class PictureControl
 		void drawBackground(CDC* easel);
 		void drawGrid(CDC* easel, CBrush* brush);
 		void drawCircle(CDC* dc, std::pair<int, int> selectedLocation );
-		void drawAnalysisMarkers(CDC* dc, std::vector<std::pair<int, int>> analysisLocs);
+		void drawAnalysisMarkers(CDC* dc, std::vector<std::pair<UINT, UINT>> analysisLocs);
 		void rearrange( std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts );
 		void handleScroll( int id, UINT nPos );
 		void handleEditChange( int id );

@@ -49,8 +49,8 @@ class VariableSystem
 		void deleteVariable();
 		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id, std::string title,
 						 rgbMap rgbs, UINT listviewId );
-		void addConfigVariable(variable var, int item);
-		void addGlobalVariable( variable var, int item );
+		void addConfigVariable(variable var, UINT item);
+		void addGlobalVariable( variable var, UINT item );
 		void handleColumnClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void addVariableDimension();
 		void removeVariableDimension();

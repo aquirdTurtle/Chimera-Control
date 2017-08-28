@@ -48,7 +48,7 @@ void TtlSystem::handleOpenConfig(std::ifstream& openFile, double version)
 				ttl = std::stoi(ttlString);
 				forceTtl(rowInc, colInc, ttl);
 			}
-			catch (std::invalid_argument& exception)
+			catch (std::invalid_argument&)
 			{
 				thrower("ERROR: the ttl status of \"" + ttlString + "\"failed to convert to a bool!");
 			}
@@ -93,9 +93,9 @@ void TtlSystem::setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > sta
 {
 	ttlStatus = status;
 
-	for (int rowInc = 0; rowInc < ttlStatus.size(); rowInc++)
+	for (UINT rowInc = 0; rowInc < ttlStatus.size(); rowInc++)
 	{
-		for (int numberInc = 0; numberInc < ttlStatus[0].size(); numberInc++)
+		for (UINT numberInc = 0; numberInc < ttlStatus[0].size(); numberInc++)
 		{
 			if (ttlStatus[rowInc][numberInc])
 			{
@@ -163,9 +163,8 @@ TtlSystem::TtlSystem()
 	// Open and Load DIO64
 	try
 	{
-		int result;
 		char* filename = "";
-		WORD temp[4] = { -1, -1, -1, -1 };
+		WORD temp[4] = { WORD_MAX, WORD_MAX, WORD_MAX, WORD_MAX };
 		double tempd = 10000000;
 			
 		dioOpen( 0, 0 );
@@ -274,7 +273,6 @@ std::array<std::array<std::string, 16>, 4> TtlSystem::getAllNames()
 
 void TtlSystem::startBoard()
 {
-	int result;
 	DIO64STAT status;
 	DWORD scansAvailable;
 	dioOutStatus( 0, scansAvailable, status );
@@ -285,7 +283,7 @@ void TtlSystem::startBoard()
 
 void TtlSystem::shadeTTLs(std::vector<std::pair<UINT, UINT>> shadeList)
 {
-	for (int shadeInc = 0; shadeInc < shadeList.size(); shadeInc++)
+	for (UINT shadeInc = 0; shadeInc < shadeList.size(); shadeInc++)
 	{
 		// shade it.
 		ttlPushControls[shadeList[shadeInc].first][shadeList[shadeInc].second].SetCheck(BST_INDETERMINATE);
@@ -354,9 +352,9 @@ void TtlSystem::rearrange(UINT width, UINT height, fontMap fonts)
 
 void TtlSystem::handleInvert()
 {
-	for (int row = 0; row < ttlStatus.size(); row++)
+	for (UINT row = 0; row < ttlStatus.size(); row++)
 	{
-		for (int number = 0; number < ttlStatus[row].size(); number++)
+		for (UINT number = 0; number < ttlStatus[row].size(); number++)
 		{
 			if (ttlStatus[row][number])
 			{
@@ -414,7 +412,7 @@ void TtlSystem::initialize( POINT& loc, cToolTips& toolTips, AuxiliaryWindow* ma
 	zeroTtls.setToolTip( "Pres this button to set all ttls to their zero (false) state.", toolTips, master );
 	loc.y += 20;
 
-	for (int ttlNumberInc = 0; ttlNumberInc < ttlNumberLabels.size(); ttlNumberInc++)
+	for (long ttlNumberInc = 0; ttlNumberInc < long(ttlNumberLabels.size()); ttlNumberInc++)
 	{
 		ttlNumberLabels[ttlNumberInc].sPos = { loc.x + 32 + ttlNumberInc * 28, loc.y,
 			loc.x + 32 + (ttlNumberInc + 1) * 28, loc.y + 20 };
@@ -423,7 +421,7 @@ void TtlSystem::initialize( POINT& loc, cToolTips& toolTips, AuxiliaryWindow* ma
 	}
 	loc.y += 20;
 	// all row numberLabels
-	for (int row = 0; row < ttlPushControls.size(); row++)
+	for (long row = 0; row < long(ttlPushControls.size()); row++)
 	{
 		ttlRowLabels[row].sPos = { loc.x, loc.y + row * 28, loc.x + 32, loc.y + (row + 1) * 28 };
 
@@ -448,9 +446,9 @@ void TtlSystem::initialize( POINT& loc, cToolTips& toolTips, AuxiliaryWindow* ma
 	}
 	// all push buttons
 	UINT runningCount = 0;
-	for (int row = 0; row < ttlPushControls.size(); row++)
+	for (UINT row = 0; row < ttlPushControls.size(); row++)
 	{
-		for (int number = 0; number < ttlPushControls[row].size(); number++)
+		for (UINT number = 0; number < ttlPushControls[row].size(); number++)
 		{
 			std::string name;
 			switch (row)
@@ -471,8 +469,8 @@ void TtlSystem::initialize( POINT& loc, cToolTips& toolTips, AuxiliaryWindow* ma
 			name += str( number );
 
 			//ttlNames[row][number] = name;
-			ttlPushControls[row][number].sPos = { loc.x + 32 + number * 28, loc.y + row * 28,
-				loc.x + 32 + (number + 1) * 28, loc.y + (row + 1) * 28 };
+			ttlPushControls[row][number].sPos = { long( loc.x + 32 + number * 28 ), long( loc.y + row * 28 ),
+											long( loc.x + 32 + (number + 1) * 28 ), long( loc.y + (row + 1) * 28 ) };
 			ttlPushControls[row][number].Create( "", WS_CHILD | WS_VISIBLE | BS_RIGHT | BS_3STATE,
 												 ttlPushControls[row][number].sPos, master, 
 												 TTL_ID_BEGIN + runningCount++ );
@@ -551,7 +549,7 @@ int TtlSystem::getNumberOfTTLsPerRow()
 	}
 }
 
-void TtlSystem::handleTTLPress(UINT id)
+void TtlSystem::handleTTLPress(int id)
 {
 	if (id >= ttlPushControls.front().front().GetDlgCtrlID() && id <= ttlPushControls.back().back().GetDlgCtrlID())
 	{
@@ -600,9 +598,9 @@ void TtlSystem::handleHoldPress()
 	{
 		holdStatus = false;
 		// make changes
-		for (int rowInc = 0; rowInc < ttlHoldStatus.size(); rowInc++)
+		for (UINT rowInc = 0; rowInc < ttlHoldStatus.size(); rowInc++)
 		{
-			for (int numberInc = 0; numberInc < ttlHoldStatus[0].size(); numberInc++)
+			for (UINT numberInc = 0; numberInc < ttlHoldStatus[0].size(); numberInc++)
 			{
 				if (ttlHoldStatus[rowInc][numberInc])
 				{
@@ -651,7 +649,7 @@ void TtlSystem::resetTtlEvents()
 HBRUSH TtlSystem::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC)
 {
 	
-	DWORD controlID = window->GetDlgCtrlID();
+	int controlID = window->GetDlgCtrlID();
 	if (controlID >= ttlPushControls.front().front().GetDlgCtrlID() && controlID <= ttlPushControls.back().back().GetDlgCtrlID())
 	{
 		// figure out row #
@@ -850,7 +848,7 @@ void TtlSystem::setName(UINT row, UINT number, std::string name, cToolTips& tool
 int TtlSystem::getNameIdentifier(std::string name, UINT& row, UINT& number)
 {
 	
-	for (int rowInc = 0; rowInc < ttlNames.size(); rowInc++)
+	for (UINT rowInc = 0; rowInc < ttlNames.size(); rowInc++)
 	{
 		std::string rowName;
 		switch (rowInc)
@@ -887,7 +885,7 @@ int TtlSystem::getNameIdentifier(std::string name, UINT& row, UINT& number)
 
 void TtlSystem::writeData(UINT var)
 {
-	WORD temp[4] = { -1, -1, -1, -1 };
+	WORD temp[4] = { WORD_MAX, WORD_MAX, WORD_MAX, WORD_MAX };
 	double scan = 10000000;
 	DWORD availableScans = 0;
 	std::vector<WORD> arrayOfAllData( finalFormattedCommandForDio[var].size() * 6 );
@@ -991,7 +989,7 @@ void TtlSystem::interpretKey(key variationKey, std::vector<variable>& vars)
 	// and interpret for each variation.
 	for (UINT variationNum = 0; variationNum < variations; variationNum++)
 	{
-		for (int commandInc = 0; commandInc < ttlCommandFormList.size(); commandInc++)
+		for (UINT commandInc = 0; commandInc < ttlCommandFormList.size(); commandInc++)
 		{
 			TtlCommand tempCommand;
 			tempCommand.line = ttlCommandFormList[commandInc].line;
@@ -1057,7 +1055,7 @@ void TtlSystem::analyzeCommandList(UINT var)
 
 	// handle the zero case specially. This may or may not be the literal first snapshot.
 	ttlSnapshots[var].back().time = timeOrganizer[0].first;
-	for (int zeroInc = 0; zeroInc < timeOrganizer[0].second.size(); zeroInc++)
+	for (UINT zeroInc = 0; zeroInc < timeOrganizer[0].second.size(); zeroInc++)
 	{
 		// make sure to address he correct ttl. the ttl location is located in individuaTTL_CommandList but you need 
 		// to make sure you access the correct command.
@@ -1067,13 +1065,13 @@ void TtlSystem::analyzeCommandList(UINT var)
 	}
 	
 	// already handled the first case.
-	for (int commandInc = 1; commandInc < timeOrganizer.size(); commandInc++)
+	for (UINT commandInc = 1; commandInc < timeOrganizer.size(); commandInc++)
 	{
 		// first copy the last set so that things that weren't changed remain unchanged.
 		ttlSnapshots[var].push_back(ttlSnapshots[var].back());
 		//
 		ttlSnapshots[var].back().time = timeOrganizer[commandInc].first;
-		for (int zeroInc = 0; zeroInc < timeOrganizer[commandInc].second.size(); zeroInc++)
+		for (UINT zeroInc = 0; zeroInc < timeOrganizer[commandInc].second.size(); zeroInc++)
 		{
 			// see description of this command above... update everything that changed at this time.
 			UINT row = orderedList[timeOrganizer[commandInc].second[zeroInc]].line.first;
@@ -1096,19 +1094,19 @@ void TtlSystem::convertToFinalFormat(UINT var)
 {
 	finalFormattedCommandForDio[var].clear();
 	// do bit arithmetic.
-	for (int timeInc = 0; timeInc < ttlSnapshots[var].size(); timeInc++)
+	for (UINT timeInc = 0; timeInc < ttlSnapshots[var].size(); timeInc++)
 	{
-		WORD lowordTime;
-		WORD hiwordTime;
+		USHORT lowordTime;
+		USHORT hiwordTime;
 		// convert to system clock ticks. Assume that the crate is running on a 10 MHz signal, so multiply by
 		// 10,000,000, but then my time is in milliseconds, so divide that by 1,000, ending with multiply by 10,000
-		lowordTime = long(ttlSnapshots[var][timeInc].time * 10000) % 65535;
-		hiwordTime = long(ttlSnapshots[var][timeInc].time * 10000) / 65535;
+		lowordTime = USHORT(ttlSnapshots[var][timeInc].time * 10000) % 65535;
+		hiwordTime = USHORT(ttlSnapshots[var][timeInc].time * 10000) / 65535;
 		// each major index is a row (A, B, C, D), each minor index is a ttl state (0, 1) in that row.
 		std::array<std::bitset<16>, 4> ttlBits;
-		for (int rowInc = 0; rowInc < 4; rowInc++)
+		for (UINT rowInc = 0; rowInc < 4; rowInc++)
 		{
-			for (int numberInc = 0; numberInc < 16; numberInc++)
+			for (UINT numberInc = 0; numberInc < 16; numberInc++)
 			{
 				if (ttlSnapshots[var][timeInc].ttlStatus[rowInc][numberInc])
 				{
@@ -1124,7 +1122,7 @@ void TtlSystem::convertToFinalFormat(UINT var)
 		}
 		// I need to put it as an int (just because I'm not actually sure how the bitset gets stored... it'd probably 
 		// work just passing the address of the bitsets, but I'm sure this will work so whatever.)
-		std::array<unsigned short, 6> tempCommand;
+		std::array<USHORT, 6> tempCommand;
 		tempCommand[0] = lowordTime;
 		tempCommand[1] = hiwordTime;
 		tempCommand[2] = static_cast <unsigned short>(ttlBits[0].to_ulong());
@@ -1184,9 +1182,9 @@ std::string TtlSystem::getErrorMessage(int errorCode)
 
 void TtlSystem::zeroBoard()
 {
-	for (int row = 0; row < ttlStatus.size(); row++)
+	for (UINT row = 0; row < ttlStatus.size(); row++)
 	{
-		for (int number = 0; number < ttlStatus[row].size(); number++)
+		for (UINT number = 0; number < ttlStatus[row].size(); number++)
 		{
 			forceTtl( row, number, 0 );
 		}
