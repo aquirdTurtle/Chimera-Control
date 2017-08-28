@@ -18,18 +18,19 @@ class PictureManager
 		void setPalletes(std::array<int, 4> palleteIds);
 		// draw pictures...
 		void drawPicture( CDC* deviceContext, int pictureNumber, std::vector<long> picData, 
-						 std::pair<int, int> minMaxPair );
-		void drawDongles(CDC* dc, std::pair<int, int> selectedLocation, std::vector<std::pair<int, int>> analysisLocs );
+						 std::pair<UINT, UINT> minMaxPair );
+		void drawDongles(CDC* dc, std::pair<UINT, UINT> selectedLocation, std::vector<std::pair<UINT, UINT>> analysisLocs );
 		void createPalettes( CDC* dc );
 		void handleEditChange( UINT id );
 		void setAlwaysShowGrid(bool showOption, CDC* easel);
-		void redrawPictures(CDC* easel, std::pair<int, int> selectedLocation, std::vector<std::pair<int, int>> analysisLocs);
+		void redrawPictures(CDC* easel, std::pair<UINT, UINT> selectedLocation, std::vector<std::pair<UINT, UINT>> analysisLocs);
 		void setPictureSliders(CWnd* parent);
 		void setNumberPicturesActive( int numberActive );
-		std::pair<int, int> handleRClick(CPoint clickLocation);
-		void setSinglePicture( CWnd* parent, std::pair<int, int> selectedLocation, imageParameters imageParams, std::vector<std::pair<int, int>> analysisLocs);
-		void setMultiplePictures( CWnd* parent, std::pair<int, int> selectedLocation, imageParameters imageParams, 
-								  int numberActivePics, std::vector<std::pair<int, int>> analysisLocs);
+		std::pair<UINT, UINT> handleRClick(CPoint clickLocation);
+		void setSinglePicture( CWnd* parent, std::pair<UINT, UINT> selectedLocation, imageParameters imageParams, 
+							   std::vector<std::pair<UINT, UINT>> analysisLocs);
+		void setMultiplePictures( CWnd* parent, std::pair<UINT, UINT> selectedLocation, imageParameters imageParams,
+								  UINT numberActivePics, std::vector<std::pair<UINT, UINT>> analysisLocs);
 		void setAutoScalePicturesOption(bool autoScaleOption);
 		void setSpecialLessThanMin(bool option);
 		void setSpecialGreaterThanMax(bool option);

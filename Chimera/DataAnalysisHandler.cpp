@@ -145,7 +145,7 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 	}
 	// create vector size of image being taken
 	// first entry is row, second is collumn, third is data type (0 = pixel counts only, 1 = atom presense)
-	std::vector<std::array<int, 3> > pixelDataType;
+	std::vector<std::array<UINT, 3> > pixelDataType;
 	int totalNumberOfPixels = 0;
 	int numberOfLossDataPixels = 0;
 	
@@ -156,15 +156,15 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 		{
 			for (UINT groupInc = 0; groupInc < allPlots[plotInc].getPixelGroupNumber(); groupInc++)
 			{
-				int row, collumn;
+				UINT row, collumn;
 				bool alreadyExists = false;
 				allPlots[plotInc].getPixelLocation(pixelInc, groupInc, row, collumn);
-				for (int savedPixelInc = 0; savedPixelInc < pixelDataType.size(); savedPixelInc++)
+				for (UINT savedPixelInc = 0; savedPixelInc < pixelDataType.size(); savedPixelInc++)
 				{
 					// figure out if it already exists
 					if (allPlots[plotInc].getPlotType() == "Atoms")
 					{
-						std::array<int, 3> testArray = { { row, collumn, 1 } };
+						std::array<UINT, 3> testArray = { { row, collumn, 1 } };
 						if (pixelDataType[savedPixelInc] == testArray)
 						{
 							alreadyExists = true;
@@ -173,7 +173,7 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 					}
 					else
 					{
-						std::array<int, 3> testArray1 = { { row, collumn, 1 } }, testArray2 = { { row, collumn, 0 } };
+						std::array<UINT, 3> testArray1 = { { row, collumn, 1 } }, testArray2 = { { row, collumn, 0 } };
 						if (pixelDataType[savedPixelInc] == testArray1 || pixelDataType[savedPixelInc] == testArray2)
 						{
 							alreadyExists = true;
@@ -257,11 +257,11 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 		}
 	}
 
-	int noAtomsCounter = 0;
+	UINT noAtomsCounter = 0;
 	// this is used to keep track of the first time you start loosing atoms
-	int atomCounterTotal = 0;
+	UINT atomCounterTotal = 0;
 	UINT currentThreadRepNum = 1;
-	int plotNumberCount = 0;
+	UINT plotNumberCount = 0;
 	// this effectively just keeps track of whether a "slow" message has been sent to the main window yet or not. Only want to send once.
 	bool plotIsSlowStatus = false;
 
@@ -353,7 +353,7 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 		// used to tell if time to plot given frequency.
 		plotNumberCount++;
 		// for every plot...
-		for (int plotI = 0; plotI < allPlots.size(); plotI++)
+		for (UINT plotI = 0; plotI < allPlots.size(); plotI++)
 		{
 			/// DATA ANALYSIS
 			/// Data Set Loop - need to kill.
@@ -451,7 +451,7 @@ void DataAnalysisControl::handlePlotAtomsOrCounts(realTimePlotterInput* input, P
 	if (repNum % input->picsPerVariation == plotInfo.getPicNumber())
 	{
 		// first pic of new variation, so need to update x vals.
-		for (int dataSetI = 0; dataSetI < plotInfo.getDataSetNumber(); dataSetI++)
+		for (UINT dataSetI = 0; dataSetI < plotInfo.getDataSetNumber(); dataSetI++)
 		{
 			// TODO: if x axis = average over experiments... else...
 			finData[dataSetI].clear();
@@ -473,9 +473,9 @@ void DataAnalysisControl::handlePlotAtomsOrCounts(realTimePlotterInput* input, P
 					return;
 				}
 				bool dataVal = true;
-				for (int pixelI = 0; pixelI < plotInfo.getPixelNumber(); pixelI++)
+				for (UINT pixelI = 0; pixelI < plotInfo.getPixelNumber(); pixelI++)
 				{
-					for (int picI = 0; picI < plotInfo.getPicNumber(); picI++)
+					for (UINT picI = 0; picI < plotInfo.getPicNumber(); picI++)
 					{
 						// check if there is a condition at all
 						int truthCondition = plotInfo.getResultCondition(dataSetI, pixelI, picI);
@@ -505,15 +505,15 @@ void DataAnalysisControl::handlePlotAtomsOrCounts(realTimePlotterInput* input, P
 	}
 	else if (plotInfo.getPlotType() == "Pixel Counts")
 	{
-		for (int dataSetI = 0; dataSetI < plotInfo.getDataSetNumber(); dataSetI++)
+		for (UINT dataSetI = 0; dataSetI < plotInfo.getDataSetNumber(); dataSetI++)
 		{
-			for (int groupI = 0; groupI < plotInfo.getPixelGroupNumber(); groupI++)
+			for (UINT groupI = 0; groupI < plotInfo.getPixelGroupNumber(); groupI++)
 			{
 				if (pscSatisfied[dataSetI][groupI] == false)
 				{
 					continue;
 				}
-				int pixel, picture;
+				UINT pixel, picture;
 				// passing pixel and picture by reference.
 				plotInfo.getDataCountsLocation(dataSetI, pixel, picture);
 				// for a given group, figure out which picture
@@ -527,17 +527,15 @@ void DataAnalysisControl::handlePlotAtomsOrCounts(realTimePlotterInput* input, P
 	{
 		return;
 	}
-	for (int dataSetI = 0; dataSetI < plotInfo.getDataSetNumber(); dataSetI++)
+	for (UINT dataSetI = 0; dataSetI < plotInfo.getDataSetNumber(); dataSetI++)
 	{
-		for (int groupI = 0; groupI < plotInfo.getPixelGroupNumber(); groupI++)
+		for (UINT groupI = 0; groupI < plotInfo.getPixelGroupNumber(); groupI++)
 		{
 			// check if first picture of set
 			if (repNum % input->plottingFrequency != 0)
 			{
 				continue;
 			}
-			// position for new data point.
-			double position;
 			if (needNewData[dataSetI][groupI] == true)
 			{
 				finAvgs[dataSetI][groupI].resize(finAvgs[dataSetI][groupI].size() + 1);
@@ -547,17 +545,16 @@ void DataAnalysisControl::handlePlotAtomsOrCounts(realTimePlotterInput* input, P
 					finX[dataSetI][groupI].resize(finX[dataSetI][groupI].size() + 1);
 					if (!(finData[dataSetI][groupI].size() >= input->numberOfRunsToAverage))
 					{
-						position = (std::accumulate(finX[dataSetI][groupI].begin(), finX[dataSetI][groupI].end(), 0.0)
-									+ finData[dataSetI][groupI].size()) / finData[dataSetI][groupI].size();
-						finX[dataSetI][groupI].back() = position;
+						finX[dataSetI][groupI].back() = (std::accumulate( finX[dataSetI][groupI].begin(), 
+																		  finX[dataSetI][groupI].end(), 0.0 )
+														  + finData[dataSetI][groupI].size()) 
+															/ finData[dataSetI][groupI].size();
 					}
 				}
 				else
 				{
 					finErrs[dataSetI][groupI].resize(finErrs[dataSetI][groupI].size() + 1);
-					position = (repNum - 1) / input->picsPerVariation + 1;
-
-					finX[dataSetI][groupI].push_back((*input->key)[position - 1]);
+					finX[dataSetI][groupI].push_back((*input->key)[(repNum - 1) / input->picsPerVariation]);
 				}
 				// set the flag to not do this again before this array gets reset at beginning of the next accumulation stack.
 				needNewData[dataSetI][groupI] = false;
@@ -570,9 +567,10 @@ void DataAnalysisControl::handlePlotAtomsOrCounts(realTimePlotterInput* input, P
 					double sum = std::accumulate(finData[dataSetI][groupI].end() - input->numberOfRunsToAverage, finData[dataSetI][groupI].end(), 0.0);
 					double mean = sum / input->numberOfRunsToAverage;
 					finAvgs[dataSetI][groupI].back() = mean;
-					position = (std::accumulate(finX[dataSetI][groupI].end() - input->numberOfRunsToAverage + 1,
-								finX[dataSetI][groupI].end(), 0.0) + finData[dataSetI][groupI].size()) / input->numberOfRunsToAverage;
-					finX[dataSetI][groupI].back() = position;
+					finX[dataSetI][groupI].back() = (std::accumulate( finX[dataSetI][groupI].end() 
+																	  - input->numberOfRunsToAverage + 1,
+																	  finX[dataSetI][groupI].end(), 0.0 )
+													  + finData[dataSetI][groupI].size()) / input->numberOfRunsToAverage;
 					input->plotter->send("set xrange [" + str(finX[dataSetI][groupI][0] - 1) + ":"	
 										 + str(finX[dataSetI][groupI].back() + 1) + "]");
 				}
@@ -617,12 +615,12 @@ void DataAnalysisControl::handlePlotAtomsOrCounts(realTimePlotterInput* input, P
 	input->plotter->send("set border lc rgb 'white'");
 	input->plotter->send("set key tc rgb 'white'");
 	/// FITTING
-	for (int dataSetI = 0; dataSetI < plotInfo.getDataSetNumber(); dataSetI++)
+	for (UINT dataSetI = 0; dataSetI < plotInfo.getDataSetNumber(); dataSetI++)
 	{
 		if (plotInfo.whenToFit(dataSetI) == REAL_TIME_FIT 
 			|| (plotInfo.whenToFit(dataSetI) == FIT_AT_END && repNum == input->picsPerVariation))
 		{
-			for (int groupInc = 0; groupInc < plotInfo.getPixelGroupNumber(); groupInc++)
+			for (UINT groupInc = 0; groupInc < plotInfo.getPixelGroupNumber(); groupInc++)
 			{
 				std::string fitNum = str(plotInfo.getPixelGroupNumber() * dataSetI + groupInc);
 				// in this case, fitting.
@@ -812,13 +810,13 @@ void DataAnalysisControl::handlePlotHist(realTimePlotterInput* input, PlottingIn
 	// load pixel counts into data array pixelData
 	for (UINT dataSetI = 0; dataSetI < plotInfo.getDataSetNumber(); dataSetI++)
 	{
-		for (int groupI = 0; groupI < plotInfo.getPixelGroupNumber(); groupI++)
+		for (UINT groupI = 0; groupI < plotInfo.getPixelGroupNumber(); groupI++)
 		{
 			if (pscSatisfied[dataSetI][groupI] == false)
 			{
 				continue;
 			}
-			int pixel, pic;
+			UINT pixel, pic;
 			// passing by reference.
 			plotInfo.getDataCountsLocation(dataSetI, pixel, pic);
 			// for a given group, figure out which picture
@@ -946,7 +944,7 @@ void DataAnalysisControl::analyze( std::string date, long runNumber, long accumu
 {
 	// Note: python is initialized in the constructor for the data handler object. 
 	// Get information to send to the python script from inputParam
-	pyHandler->runDataAnalysis( date, runNumber, accumulations, this->atomLocations );
+	pyHandler->runDataAnalysis( date, runNumber, accumulations, atomLocations );
 }
 
 bool DataAnalysisControl::buttonClicked()
@@ -976,10 +974,10 @@ void DataAnalysisControl::onButtonPushed()
 }
 
 
-void DataAnalysisControl::setAtomLocation( std::pair<int, int> location )
+void DataAnalysisControl::setAtomLocation( std::pair<UINT, UINT> location )
 {
 	bool exists = false;
-	for ( int locInc = 0; locInc < atomLocations.size(); locInc++ )
+	for (UINT locInc = 0; locInc < atomLocations.size(); locInc++ )
 	{
 		if ( location == atomLocations[locInc] )
 		{
@@ -993,7 +991,7 @@ void DataAnalysisControl::setAtomLocation( std::pair<int, int> location )
 }
 
 
-std::vector<std::pair<int, int>> DataAnalysisControl::getAnalysisLocs()
+std::vector<std::pair<UINT, UINT>> DataAnalysisControl::getAnalysisLocs()
 {
 	return atomLocations;
 }

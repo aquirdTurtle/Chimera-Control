@@ -25,49 +25,49 @@ class PlottingInfo
 		void changeXAxis(std::string newXAxis);
 		std::string getXAxis();
 		
-		void changeLegendText(int dataSet, std::string newLegend);
-		std::string getLegendText(int dataSet);
+		void changeLegendText( UINT dataSet, std::string newLegend);
+		std::string getLegendText( UINT dataSet);
 
 		void addGroup();
 		void removeAnalysisSet();
-		void resetNumberOfAnalysisGroups(int groupNumber);
-		void setGroups(std::vector<std::pair<int, int>> locations);
+		void resetNumberOfAnalysisGroups( UINT groupNumber);
+		void setGroups(std::vector<std::pair<UINT, UINT>> locations);
 		
 		void addPixel();
 		void removePixel();
-		void resetPixelNumber(int pixelNumber);
-		int getPixelNumber();
-		void setPixelIndex(int pixel, int group, int index);
-		int getPixelIndex(int pixel, int group);
+		void resetPixelNumber( UINT pixelNumber);
+		UINT getPixelNumber();
+		void setPixelIndex( UINT pixel, UINT group, UINT index);
+		UINT getPixelIndex( UINT pixel, UINT group);
 
-		void setGroupLocation(int pixel, int analysisSet, int row, int collumn);
-		void getPixelLocation(int pixel, int analysisSet, int& row, int& collumn);
-		std::vector<std::pair<int, int>> getAllPixelLocations();
+		void setGroupLocation( UINT pixel, UINT analysisSet, UINT row, UINT collumn);
+		void getPixelLocation( UINT pixel, UINT analysisSet, UINT& row, UINT& collumn);
+		std::vector<std::pair<UINT, UINT>> getAllPixelLocations();
 
 		void addPicture();
 		void removePicture();
-		void resetPictureNumber(int pictureNumber);
-		int getPicNumber();
+		void resetPictureNumber( UINT pictureNumber);
+		UINT getPicNumber();
 
 		void addDataSet();
 		void removeDataSet();
-		void resetDataSetNumber(int dataSetNumber);
+		void resetDataSetNumber( UINT dataSetNumber);
 
-		void setPostSelectionCondition(int dataSetNumber, int conditionNumber, int pixel, int picture, int trueConditionValue);
-		int getPostSelectionCondition(int dataSetNumber, int conditionNumber, int pixel, int picture);
+		void setPostSelectionCondition( UINT dataSetNumber, UINT conditionNumber, UINT pixel, UINT picture, UINT trueConditionValue);
+		UINT getPostSelectionCondition( UINT dataSetNumber, UINT conditionNumber, UINT pixel, UINT picture);
 		void addPostSelectionCondition();
 		void removePostSelectionCondition();
-		void resetConditionNumber(int conditionNumber);
-		int getConditionNumber();
+		void resetConditionNumber( UINT conditionNumber);
+		UINT getConditionNumber();
 
-		void setResultCondition(int dataSetNumber, int pixel, int picture, int trueConditionValue);
-		int getResultCondition(int dataSetNumber, int pixel, int picture);
+		void setResultCondition( UINT dataSetNumber, UINT pixel, UINT picture, UINT trueConditionValue);
+		UINT getResultCondition( UINT dataSetNumber, UINT pixel, UINT picture);
 
-		void setDataCountsLocation(int dataSet, int pixel, int picture);
-		void getDataCountsLocation(int dataSet, int& pixel, int& picture);
+		void setDataCountsLocation( UINT dataSet, UINT pixel, UINT picture);
+		void getDataCountsLocation( UINT dataSet, UINT& pixel, UINT& picture);
 
-		void setPlotData(int dataSet, bool plotData);
-		bool getPlotThisDataValue(int dataSet);
+		void setPlotData( UINT dataSet, bool plotData);
+		bool getPlotThisDataValue( UINT dataSet);
 
 		std::string getAllSettingsString();
 		void savePlotInfo();
@@ -81,11 +81,11 @@ class PlottingInfo
 		UINT getPixelGroupNumber();
 		UINT getDataSetNumber();
 
-		int getFitOption(int dataSet);
-		void setFitOption(int dataSet, int fitType);
+		UINT getFitOption( UINT dataSet);
+		void setFitOption( UINT dataSet, UINT fitType);
 
-		int whenToFit(int dataSet);
-		void setWhenToFit(int dataSet, int whenToFit);
+		UINT whenToFit( UINT dataSet);
+		void setWhenToFit( UINT dataSet, UINT whenToFit);
 
 		std::string getPrcSettingsString();
 		std::string getPscSettingsString();
@@ -109,10 +109,9 @@ class PlottingInfo
 		// arbitrary. Always goes to the same folder.
 		std::string fileName;
 		// grabbed from main code at "OK" Press.
-		int numberOfPictures;
-		int currentPixelNumber;
-		int currentConditionNumber;
-		//int pixelNumber;
+		UINT numberOfPictures;
+		UINT currentPixelNumber;
+		UINT currentConditionNumber;
 		// two options here.
 		std::string xAxis;
 		// three options here.

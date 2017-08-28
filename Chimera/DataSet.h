@@ -7,38 +7,38 @@ class DataSet
 {
 	public:
 		DataSet();
-		void initialize(int conditionNumber, int pixelNumber, int pictureNumber);
+		void initialize(UINT conditionNumber, UINT pixelNumber, UINT pictureNumber);
 		void changeLegendText(std::string newLegendText);
 		std::string getLegendText();
 
 		void addPicture();
 		void removePicture();
-		void resetPictureNumber(int pictureNumber);
+		void resetPictureNumber( UINT pictureNumber);
 
-		void addPixel(int pictureNumber);
+		void addPixel( UINT pictureNumber);
 		void removePixel();
-		void resetPixelNumber(int pixelNumber);
+		void resetPixelNumber(UINT pixelNumber);
 
-		void setResultCondition(int picture, int pixel, int trueConditionValue);
-		int getTruthCondition(int pixel, int picture);
-		void setDataCountsLocation(int maxPixel, int maxPicture, int pixel, int picture);
+		void setResultCondition(UINT picture, UINT pixel, UINT trueConditionValue);
+		int getTruthCondition(UINT pixel, UINT picture);
+		void setDataCountsLocation(UINT maxPixel, UINT maxPicture, UINT pixel, UINT picture);
 		
-		void addPostSelectionCondition(int pixelNum, int pictureNum);
+		void addPostSelectionCondition(UINT pixelNum, UINT pictureNum);
 		void removePostSelectionCondition();
-		void setPostSelectionCondition(int conditionNumber, int picture, int pixel, int postSelectionCondition);
-		int getPostSelectionCondition(int conditionNumber, int pixel, int picture);
-		void resetPostSelectionConditionNumber(int conditionNumber);
+		void setPostSelectionCondition(UINT conditionNumber, UINT picture, UINT pixel, UINT postSelectionCondition);
+		int getPostSelectionCondition(UINT conditionNumber, UINT pixel, UINT picture);
+		void resetPostSelectionConditionNumber(UINT conditionNumber);
 
-		int getDataCountsLocation(int& pixel, int& picture);
+		int getDataCountsLocation(UINT& pixel, UINT& picture);
 		void setPlotThisData(bool plotThisDataInput);
 		bool getPlotThisDataValue();
 		void clear();
 		
 		int getFitType();
-		void setFitType(int newFitType); 
+		void setFitType(UINT newFitType); 
 		
 		int getWhenToFit();
-		void setWhenToFit(int newWhenToFit);
+		void setWhenToFit(UINT newWhenToFit);
 
 	private:
 		// resultConditions[Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)

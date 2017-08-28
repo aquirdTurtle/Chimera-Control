@@ -88,7 +88,7 @@ class TtlSystem
 		int getNumberOfTTLsPerRow();
 		std::string getTtlSequenceMessage(UINT var);
 		void zeroBoard();
-		void handleTTLPress(UINT id);
+		void handleTTLPress(int id);
 		void handleHoldPress();
 		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
 		std::string getSystemInfo();

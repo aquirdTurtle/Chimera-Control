@@ -91,7 +91,7 @@ UINT Repetitions::getRepetitionNumber()
 	{
 		repetitionNumber = std::stoi(str(text));
 	}
-	catch (std::invalid_argument& err)
+	catch (std::invalid_argument&)
 	{
 		thrower("ERROR: Failed to convert repetition number text to an integer!");
 	}

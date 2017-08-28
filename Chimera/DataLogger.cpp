@@ -186,7 +186,7 @@ void DataLogger::logAndorSettings( AndorRunSettings settings, bool on)
 	H5::Group andorGroup( file.createGroup( "/Andor" ) );
 	hsize_t rank1[] = { 1 };
 	// pictures. These are permanent members of the class for speed during the writing process.	
-	hsize_t setDims[] = { settings.totalPicsInExperiment, settings.imageSettings.width, settings.imageSettings.height };
+	hsize_t setDims[] = { ULONGLONG(settings.totalPicsInExperiment), settings.imageSettings.width, settings.imageSettings.height };
 	hsize_t picDims[] = { 1, settings.imageSettings.width, settings.imageSettings.height };
 	picureSetDataSpace = H5::DataSpace( 3, setDims );
 	picDataSpace = H5::DataSpace( 3, picDims );
@@ -369,7 +369,7 @@ void DataLogger::logMasterParameters( MasterThreadInput* input )
 }
 
 
-void DataLogger::writePic(int currentPictureNumber, std::vector<long> image, imageParameters dims)
+void DataLogger::writePic(UINT currentPictureNumber, std::vector<long> image, imageParameters dims)
 {
 	if (fileIsOpen == false)
 	{

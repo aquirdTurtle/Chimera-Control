@@ -80,7 +80,7 @@ void RhodeSchwarz::orderEvents(UINT var)
 			continue;
 		}
 
-		for (int eventInc = 0; eventInc < newOrder.size(); eventInc++)
+		for (UINT eventInc = 0; eventInc < newOrder.size(); eventInc++)
 		{
 			if (newOrder[eventInc].time > event.time)
 			{

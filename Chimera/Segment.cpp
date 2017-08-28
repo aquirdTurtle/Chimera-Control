@@ -24,7 +24,7 @@ void Segment::convertInputToFinal( key variableKey, UINT variation )
 	// (0 here corresponds to "repeat", in which case you need a number of times to repeat.);
 	if (finalSettings.continuationType == 0)
 	{
-		finalSettings.repeatNum = reduce( input.repeatNum, variableKey, variation );
+		finalSettings.repeatNum = UINT(reduce( input.repeatNum, variableKey, variation ));
 	}
 }
 
@@ -51,7 +51,7 @@ void Segment::convertInputToFinal()
 	// (0 here corresponds to "repeat");
 	if (finalSettings.continuationType == 0)
 	{
-		finalSettings.repeatNum = reduce( input.repeatNum );
+		finalSettings.repeatNum = UINT(reduce( input.repeatNum ));
 	}
 }
 

@@ -29,7 +29,8 @@ void PictureManager::setAlwaysShowGrid(bool showOption, CDC* easel)
 }
 
 
-void PictureManager::redrawPictures(CDC* easel, std::pair<int, int> selectedLocation, std::vector<std::pair<int, int>> analysisLocs)
+void PictureManager::redrawPictures(CDC* easel, std::pair<UINT, UINT> selectedLocation, 
+									 std::vector<std::pair<UINT, UINT>> analysisLocs)
 {
 	if (!pictures[1].isActive())
 	{
@@ -56,7 +57,8 @@ void PictureManager::redrawPictures(CDC* easel, std::pair<int, int> selectedLoca
 /*
  *  
  */
-void PictureManager::drawDongles(CDC* dc, std::pair<int, int> selectedLocation, std::vector<std::pair<int, int>> analysisLocs)
+void PictureManager::drawDongles(CDC* dc, std::pair<UINT, UINT> selectedLocation, 
+								  std::vector<std::pair<UINT, UINT>> analysisLocs)
 {
 	for (auto& pic : pictures)
 	{
@@ -145,7 +147,7 @@ void PictureManager::setSpecialGreaterThanMax(bool option)
 
 
 void PictureManager::drawPicture( CDC* deviceContext, int pictureNumber, std::vector<long> picData, 
-								 std::pair<int, int> minMaxPair )
+								 std::pair<UINT, UINT> minMaxPair )
 {
 	std::tuple<bool, int, int> autoScaleInfo = std::make_tuple(autoScalePictures, minMaxPair.first, minMaxPair.second);
 	pictures[pictureNumber].drawPicture( deviceContext, picData, autoScaleInfo, specialLessThanMin, 
@@ -168,7 +170,7 @@ void PictureManager::handleScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar
 	}
 }
 
-std::pair<int, int> PictureManager::handleRClick( CPoint clickLocation )
+std::pair<UINT, UINT> PictureManager::handleRClick( CPoint clickLocation )
 {
 	std::pair<int, int> location;
 	for (auto& pic : pictures)
@@ -184,9 +186,10 @@ std::pair<int, int> PictureManager::handleRClick( CPoint clickLocation )
 }
 
 
-void PictureManager::setSinglePicture( CWnd* parent, std::pair<int, int> selectedLocation, imageParameters imageParams, std::vector<std::pair<int, int>> analysisLocs)
+void PictureManager::setSinglePicture( CWnd* parent, std::pair<UINT, UINT> selectedLocation, imageParameters imageParams, 
+									   std::vector<std::pair<UINT, UINT>> analysisLocs)
 {
-	for (int picNum = 0; picNum < 4; picNum++)
+	for (UINT picNum = 0; picNum < 4; picNum++)
 	{
 		if (picNum < 1)
 		{
@@ -212,11 +215,11 @@ void PictureManager::resetPictureStorage()
 }
 
 
-void PictureManager::setMultiplePictures( CWnd* parent, std::pair<int, int> selectedLocation, 
-										 imageParameters imageParams, int numberActivePics, 
-										 std::vector<std::pair<int, int>> analysisLocs)
+void PictureManager::setMultiplePictures( CWnd* parent, std::pair<UINT, UINT> selectedLocation,
+										 imageParameters imageParams, UINT numberActivePics,
+										 std::vector<std::pair<UINT, UINT>> analysisLocs)
 {
-	for (int picNum = 0; picNum < 4; picNum++)
+	for (UINT picNum = 0; picNum < 4; picNum++)
 	{
 		if (picNum < numberActivePics)
 		{
@@ -606,13 +609,13 @@ void PictureManager::createPalettes( CDC* dc )
 		//
 	};
 
-	int r, g, b;
-	for (int paletteInc = 0; paletteInc < PICTURE_PALETTE_SIZE; paletteInc++)
+	UCHAR r, g, b;
+	for (UINT paletteInc = 0; paletteInc < PICTURE_PALETTE_SIZE; paletteInc++)
 	{
 		// scaling it to make it a bit darker near the bottom.
-		r = virida[paletteInc][0] * (255.0-1) * (1.0/4 + 3.0*paletteInc / (4*255.0));
-		g = virida[paletteInc][1] * (255.0 - 1) * (1.0 / 4 + 3.0*paletteInc / (4 * 255.0));;
-		b = virida[paletteInc][2] * (255.0 - 1) * (1.0 / 4 + 3.0*paletteInc / (4 * 255.0));;
+		r = UCHAR(virida[paletteInc][0] * (255.0-1) * (1.0/4 + 3.0*paletteInc / (4*255.0)));
+		g = UCHAR(virida[paletteInc][1] * (255.0 - 1) * (1.0 / 4 + 3.0*paletteInc / (4 * 255.0)));
+		b = UCHAR(virida[paletteInc][2] * (255.0 - 1) * (1.0 / 4 + 3.0*paletteInc / (4 * 255.0)));
 		Palette.aEntries[paletteInc].peRed = LOBYTE( r );
 		Palette.aEntries[paletteInc].peGreen = LOBYTE( g );
 		Palette.aEntries[paletteInc].peBlue = LOBYTE( b );

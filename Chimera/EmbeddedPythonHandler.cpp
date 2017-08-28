@@ -84,7 +84,7 @@ void EmbeddedPythonHandler::flush()
 
 // for full data analysis set.
 void EmbeddedPythonHandler::runDataAnalysis(std::string date, long runNumber, long accumulations, 
-											std::vector<std::pair<int, int>> atomLocations)
+											std::vector<std::pair<UINT, UINT>> atomLocations)
 {
 	flush();
 	if (this->autoAnalysisModule == NULL)

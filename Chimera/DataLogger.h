@@ -17,7 +17,7 @@ class DataLogger
 		DataLogger(std::string systemLocation);
 
 		void initializeDataFiles();
-		void writePic( int currentPictureNumber, std::vector<long> image, imageParameters dims );
+		void writePic( UINT currentPictureNumber, std::vector<long> image, imageParameters dims );
 		void logMasterParameters( MasterThreadInput* input);
 		void logMiscellaneous();
 		void logAndorSettings( AndorRunSettings settings, bool on );

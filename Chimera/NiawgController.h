@@ -40,7 +40,8 @@ class NiawgController
 		void finalizeScript( ULONGLONG repetitions, std::string name, std::vector<std::string> workingUserScripts,
 							 std::vector<ViChar>& userScriptSubmit );
 		void setDefaultWaveforms( MainWindow* mainWin );
-		void varyParam( simpleWave& wave, waveInfo previousWave, int axis, int &paramNum, double paramVal, std::string& warnings );
+		void varyParam( simpleWave& wave, waveInfo previousWave, int axis, int paramNum, double paramVal, 
+						std::string& warnings );
 		void checkThatWaveformsAreSensible( std::string& warnings, NiawgOutputInfo& output );
 		void prepareNiawg( MasterThreadInput* input, NiawgOutputInfo& output,
 						   niawgPair<std::vector<std::fstream>>& niawgFiles, std::string& warnings,
@@ -50,9 +51,9 @@ class NiawgController
 		void mixFlashingWaves( waveInfo& wave );
 		long waveformSizeCalc( double time );
 		static double rampCalc( int size, int iteration, double initPos, double finPos, std::string rampType );
-		template <typename type> static void loadParam( type& dataToAssign, ScriptStream& scriptName, int& varCount,
-														std::vector<std::string>& varNames, std::vector<int> &varParamTypes,
-														std::vector<int> dataTypes );
+		template <typename type> static void loadParam( type& dataToAssign, ScriptStream& scriptName, UINT& varCount,
+														std::vector<std::string>& varNames, std::vector<long> &varParamTypes,
+														std::vector<long> dataTypes );
 		// programming the device
 		void restartDefault();
 		void programVariations( UINT variation, std::vector<long>& variedMixedSize, NiawgOutputInfo& output );
@@ -145,9 +146,9 @@ class NiawgController
 };
 
 
-template <typename type> static void NiawgController::loadParam( type& dataToAssign, ScriptStream& file, int& varCount,
-																 std::vector<std::string>& varNames, std::vector<int> &varParamTypes,
-																 std::vector<int> dataTypes )
+template <typename type> static void NiawgController::loadParam( type& dataToAssign, ScriptStream& file, UINT& varCount,
+																 std::vector<std::string>& varNames, std::vector<long> &varParamTypes,
+																 std::vector<long> dataTypes )
 {
 	std::string tempInput;
 	file >> tempInput;

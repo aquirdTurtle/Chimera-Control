@@ -342,12 +342,12 @@ void PlotDesignerDialog::handleCancel()
 
 void PlotDesignerDialog::setFitRadios()
 {
-	long long itemIndex = dataSetNumberCombo.GetCurSel();
-	if (itemIndex == -1)
+	int itemIndex = dataSetNumberCombo.GetCurSel();
+	if (itemIndex == -1 || itemIndex == 0)
 	{
 		return;
 	}
-	int fitCase = currentPlotInfo.getFitOption( itemIndex - 1 );
+	int fitCase = currentPlotInfo.getFitOption( UINT(itemIndex - 1) );
 	switch (fitCase)
 	{
 		case GAUSSIAN_FIT:
@@ -468,7 +468,7 @@ void PlotDesignerDialog::loadPostSelectionConditions()
 void PlotDesignerDialog::handleDataSetComboChange()
 {
 	CString txt;
-	long long itemIndex = dataSetNumberCombo.GetCurSel();
+	int itemIndex = dataSetNumberCombo.GetCurSel();
 	if (itemIndex == -1)
 	{
 		// user didn't select anything.
@@ -505,7 +505,7 @@ void PlotDesignerDialog::handleDataSetComboChange()
 		// reload things...
 		// get the plot conditions.
 		// if plotting...
-		if (currentPlotInfo.getPlotThisDataValue( itemIndex ))
+		if (currentPlotInfo.getPlotThisDataValue( UINT(itemIndex) ))
 		{
 			// check it.
 			plotThisDataBox.SetCheck( 1 );
@@ -522,7 +522,7 @@ void PlotDesignerDialog::handleDataSetComboChange()
 		}
 		else
 		{
-			int pixel, picture;
+			UINT pixel, picture;
 			try
 			{
 				currentPlotInfo.getDataCountsLocation( getCurrentDataSetNumber(), pixel, picture );
@@ -713,7 +713,7 @@ void PlotDesignerDialog::handlePscShowAll()
 void PlotDesignerDialog::handleGeneralPlotTypeChange()
 {
 	// get the text.		
-	long long itemIndex = generalPlotTypeCombo.GetCurSel();
+	int itemIndex = generalPlotTypeCombo.GetCurSel();
 	if (itemIndex == -1)
 	{
 		// user didn't select anything.

@@ -1145,10 +1145,7 @@ HBRUSH DacSystem::handleColorMessage( CWnd* window, brushMap brushes, rgbMap rgb
 			return *brushes["White"];
 		}
 	}
-	else
-	{
-		return NULL;
-	}
+	return NULL;
 }
 
 

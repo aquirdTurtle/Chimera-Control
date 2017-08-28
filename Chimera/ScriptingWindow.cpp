@@ -198,14 +198,15 @@ BOOL ScriptingWindow::OnInitDialog()
 	POINT startLocation = { 0, 28 };
 	verticalNiawgScript.initialize( 480, 1000, startLocation, tooltips, this, id, "Vertical NIAWG", 
 									"Vertical NIAWG Script",
-									{ IDC_VERTICAL_NIAWG_FUNCTION_COMBO, IDC_VERTICAL_NIAWG_EDIT }, mainWindowFriend->getRgbs()["Solarized Base04"] );
+									{ IDC_VERTICAL_NIAWG_FUNCTION_COMBO, IDC_VERTICAL_NIAWG_EDIT }, 
+									mainWindowFriend->getRgbs()["Solarized Base04"] );
 
 	startLocation = { 480, 28 };
 	horizontalNiawgScript.initialize( 480, 1000, startLocation, tooltips, this,  id, "Horizontal NIAWG", 
 									  "Horizontal NIAWG Script", { IDC_HORIZONTAL_NIAWG_FUNCTION_COMBO, 
 									  IDC_HORIZONTAL_NIAWG_EDIT }, mainWindowFriend->getRgbs()["Solarized Base03"]);
 	startLocation = { 960, 28 };
-	intensityAgilent.initialize( startLocation, tooltips, this, id, INTENSITY_AGILENT_USB_ADDRESS, 
+	intensityAgilent.initialize( startLocation, tooltips, this, id, TESTING_AGILENT_USB_ADDRESS,
 								 "Intensity Agilent", 1000, { IDC_INTENSITY_CHANNEL1_BUTTON, 
 								 IDC_INTENSITY_CHANNEL2_BUTTON, IDC_INTENSITY_SYNC_BUTTON, IDC_INTENSITY_PROGRAM, 
 								 IDC_INTENSITY_AGILENT_COMBO, IDC_INTENSITY_FUNCTION_COMBO, IDC_INTENSITY_EDIT }, 

@@ -705,7 +705,7 @@ void Agilent::handleScriptVariation( key varKey, UINT variation, scriptedArbInfo
 		// replace variable values where found
 		scriptInfo.wave.replaceVarValues( varKey, variation );
 		// Loop through all segments
-		for (int segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
+		for (UINT segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
 		{
 			// Use that information to write the data.
 			try
@@ -727,7 +727,7 @@ void Agilent::handleScriptVariation( key varKey, UINT variation, scriptedArbInfo
 		scriptInfo.wave.normalizeVoltages();
 		
 
-		for (int segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
+		for (UINT segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
 		{
 			visaFlume.write( scriptInfo.wave.compileAndReturnDataSendString( segNumInc, variation,
 																					totalSegmentNumber ) );

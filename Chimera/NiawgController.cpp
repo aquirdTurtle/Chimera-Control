@@ -94,7 +94,7 @@ void NiawgController::prepareNiawg(MasterThreadInput* input, NiawgOutputInfo& ou
 {
 	std::vector<std::string> workingUserScripts( input->profile.sequenceConfigNames.size() );
 	// analyze each script in sequence.s
-	for (int sequenceInc = 0; sequenceInc < workingUserScripts.size(); sequenceInc++)
+	for (UINT sequenceInc = 0; sequenceInc < workingUserScripts.size(); sequenceInc++)
 	{
 		niawgPair<ScriptStream> scripts;
 		output.niawgLanguageScript = "";
@@ -412,7 +412,8 @@ void NiawgController::handleVariations( NiawgOutputInfo& output, key varKey, con
 * dealing with correction waveforms and all of their glory.
 * waveType can be waveInfo or simpleWave.
 * */
-void NiawgController::varyParam( simpleWave& wave, waveInfo previousWave, int axis, int &paramNum, double paramVal, std::string& warnings )
+void NiawgController::varyParam( simpleWave& wave, waveInfo previousWave, int axis, int paramNum, double paramVal, 
+								 std::string& warnings )
 {
 	// change parameters, depending on the case. This was set during input reading.
 	std::vector<double> initPhases;
@@ -1052,7 +1053,7 @@ void NiawgController::calcWaveData(channelWave& inputData, std::vector<ViReal64>
 	/// calculate frequency differences for every signal. This is used for frequency ramps.
 	std::vector<double> deltaOmega;
 	double deltaTanh = std::tanh(4) - std::tanh(-4);
-	for (int signal = 0; signal < inputData.signals.size(); signal++)
+	for (UINT signal = 0; signal < inputData.signals.size(); signal++)
 	{
 		deltaOmega.push_back(2 * PI * (inputData.signals[signal].freqFin - inputData.signals[signal].freqInit));
 	}
@@ -1269,7 +1270,7 @@ void NiawgController::loadWaveformParameters( NiawgOutputInfo& output, profileSe
 			wave.chan[axis].signals.resize( wave.chan[axis].initType % MAX_NIAWG_SIGNALS );
 		}
 
-		for (int signal = 0; signal < wave.chan[axis].signals.size(); signal++)
+		for (int signal = 0; signal < int(wave.chan[axis].signals.size()); signal++)
 		{
 			switch ((wave.chan[axis].initType - 1) / MAX_NIAWG_SIGNALS)
 			{
@@ -1409,7 +1410,7 @@ void NiawgController::loadWaveformParameters( NiawgOutputInfo& output, profileSe
 	//	Handle -1 Phase (start with the phase that the previous waveform ended with)
 	for (auto axis : AXES)
 	{
-		int count = 0;
+		UINT count = 0;
 		// loop through all signals in a the current waveform for a given axis.
 		for (auto signal : wave.chan[axis].signals)
 		{
@@ -1502,7 +1503,7 @@ void NiawgController::finalizeScript( ULONGLONG repetitions, std::string name, s
 	if (repetitions == 0)
 	{
 		finalUserScriptString += "repeat forever\n";
-		for (int sequenceInc = 0; sequenceInc < workingUserScripts.size(); sequenceInc++)
+		for (UINT sequenceInc = 0; sequenceInc < workingUserScripts.size(); sequenceInc++)
 		{
 			finalUserScriptString += workingUserScripts[sequenceInc];
 		}
@@ -1513,7 +1514,7 @@ void NiawgController::finalizeScript( ULONGLONG repetitions, std::string name, s
 		// repeat the script once for every accumulation.
 		for (UINT accumCount = 0; accumCount < repetitions; accumCount++)
 		{
-			for (int sequenceInc = 0; sequenceInc < workingUserScripts.size(); sequenceInc++)
+			for (UINT sequenceInc = 0; sequenceInc < workingUserScripts.size(); sequenceInc++)
 			{
 				finalUserScriptString += workingUserScripts[sequenceInc];
 			}
@@ -1893,7 +1894,7 @@ void NiawgController::handleSpecialWaveform( NiawgOutputInfo& output, profileSet
 					{
 						targetTemp[axis][rowInc][colInc] = bool( std::stoi( singlePixelStatus ) );
 					}
-					catch (std::invalid_argument& err)
+					catch (std::invalid_argument&)
 					{
 						thrower( "ERROR: Failed to load the user's input for a rearrangement target picture! Loading failed"
 								 " on this line: " + line );
@@ -1925,8 +1926,8 @@ void NiawgController::handleSpecialWaveform( NiawgOutputInfo& output, profileSet
 		}
 		// get the upper limit of the nuumber of moves that this could involve.
 		rearrangeWave.rearrange.moveLimit = getMaxMoves( rearrangeWave.rearrange.target);
-		fgenConduit.allocateNamedWaveform( cstr( rearrangeWaveName ), rearrangeWave.rearrange.moveLimit
-							   * rearrangeWave.rearrange.timePerStep * NIAWG_SAMPLE_RATE * 2 );
+		fgenConduit.allocateNamedWaveform( cstr( rearrangeWaveName ), long( rearrangeWave.rearrange.moveLimit
+										   * rearrangeWave.rearrange.timePerStep * NIAWG_SAMPLE_RATE * 2) );
 		output.niawgLanguageScript += "generate " + rearrangeWaveName + "\n";
 	}
 	else
@@ -2115,13 +2116,13 @@ void NiawgController::checkThatWaveformsAreSensible(std::string& warnings, Niawg
 {
 	for (auto axis : AXES)
 	{
-		for (int waveInc = 2; waveInc < output.waves.size(); waveInc++)
+		for (UINT waveInc = 2; waveInc < output.waves.size(); waveInc++)
 		{
 			// if two waveforms have the same number of parameters... (elsewise its non-trivial to assume anything about what the user 
 			// is doing)
 			if (output.waves[waveInc].core.chan[axis].signals.size() == output.waves[waveInc-1].core.chan[axis].signals.size())
 			{
-				for (int signalNum = 0; signalNum < output.waves[waveInc].core.chan[axis].signals.size(); signalNum++)
+				for (UINT signalNum = 0; signalNum < output.waves[waveInc].core.chan[axis].signals.size(); signalNum++)
 				{
 					waveSignal& currentSignal = output.waves[waveInc].core.chan[axis].signals[signalNum];
 					waveSignal& previousSignal = output.waves[waveInc - 1].core.chan[axis].signals[signalNum];
@@ -2221,11 +2222,11 @@ double NiawgController::calculateCorrectionTime( channelWave& wvData1, channelWa
 												 long sampleNum )
 {
 	std::vector<double> freqList;
-	for (int signalInc = 0; signalInc < wvData1.signals.size(); signalInc++)
+	for (UINT signalInc = 0; signalInc < wvData1.signals.size(); signalInc++)
 	{
 		freqList.push_back( wvData1.signals[signalInc].freqInit );
 	}
-	for (int signalInc = 0; signalInc < wvData2.signals.size(); signalInc++)
+	for (UINT signalInc = 0; signalInc < wvData2.signals.size(); signalInc++)
 	{
 		freqList.push_back( wvData2.signals[signalInc].freqInit );
 	}
@@ -2252,7 +2253,7 @@ double NiawgController::calculateCorrectionTime( channelWave& wvData1, channelWa
 		}
 		std::vector<double> currentPhases;
 		// calculate phases...
-		for (int signalInc = 0; signalInc < freqList.size(); signalInc++)
+		for (UINT signalInc = 0; signalInc < freqList.size(); signalInc++)
 		{
 			// sin{omega*t+phi} = sin{2*PI*frequency*t+phi} = sin{2*PI*frequency*(currentSample / SampleRate) + phi}
 			// need to modulate for 2*PI.
@@ -2275,7 +2276,7 @@ double NiawgController::calculateCorrectionTime( channelWave& wvData1, channelWa
 		}
 		matchIsGood = true;
 		matchIsOkay = true;
-		for (int signalInc = 0; signalInc < freqList.size(); signalInc++)
+		for (UINT signalInc = 0; signalInc < freqList.size(); signalInc++)
 		{
 			if (currentPhases[signalInc] > CORRECTION_WAVEFORM_GOAL)
 			{
@@ -2295,7 +2296,7 @@ double NiawgController::calculateCorrectionTime( channelWave& wvData1, channelWa
 		else if (matchIsOkay)
 		{
 			double testTotalPhaseMismatch = 0;
-			for (int signalInc = 0; signalInc < currentPhases.size(); signalInc++)
+			for (UINT signalInc = 0; signalInc < currentPhases.size(); signalInc++)
 			{
 				testTotalPhaseMismatch += currentPhases[signalInc];
 			}
@@ -2680,9 +2681,9 @@ double NiawgController::rearrangement( const std::vector<std::vector<bool>> & so
 	// I also included it here
 	int numberTargets = 0;
 	int numberSources = 0;
-	for (int rowInc = 0; rowInc < sourceMatrix.size(); rowInc++)
+	for (UINT rowInc = 0; rowInc < sourceMatrix.size(); rowInc++)
 	{
-		for (int colInc = 0; colInc < sourceMatrix.size(); colInc++)
+		for (UINT colInc = 0; colInc < sourceMatrix.size(); colInc++)
 		{
 			if (targetMatrix[rowInc][colInc] == 1)
 			{
@@ -2713,9 +2714,9 @@ double NiawgController::rearrangement( const std::vector<std::vector<bool>> & so
 	//Find out the indice
 	int sourcecounter = 0;
 	int targetcounter = 0;
-	for (int i = 0; i < sourceMatrix.size(); i++)
+	for (UINT i = 0; i < sourceMatrix.size(); i++)
 	{
-		for (int j = 0; j < sourceMatrix.size(); j++)
+		for (UINT j = 0; j < sourceMatrix.size(); j++)
 		{
 			if (sourceMatrix[i][j] == 1)
 			{
@@ -2833,13 +2834,13 @@ double NiawgController::parallelMoves( std::vector<std::vector<int>> operationsM
 		for (int row = 0; row < matrixSize; row++)
 		{
 			move = false;
-			for (int i = 0; i < operationsMatrix.size(); i++)
+			for (UINT i = 0; i < operationsMatrix.size(); i++)
 			{
 				if (operationsMatrix[i][0] == row && operationsMatrix[i][2] == row + 1)
 				{
 					check = true;
 					//erase duplicates
-					for (int k = 0; k != selecteditems.size(); k++)
+					for (UINT k = 0; k != selecteditems.size(); k++)
 					{
 						if (selecteditems[k] == operationsMatrix[i])
 						{
@@ -2907,13 +2908,13 @@ double NiawgController::parallelMoves( std::vector<std::vector<int>> operationsM
 		for (unsigned row = matrixSize; row-- > 0;)
 		{
 			move = false;
-			for (int i = 0; i < operationsMatrix.size(); i++)
+			for (UINT i = 0; i < operationsMatrix.size(); i++)
 			{
 				if (operationsMatrix[i][0] == row && operationsMatrix[i][2] == row - 1)
 				{
 					check = true;
 					//erase duplicates
-					for (int k = 0; k != selecteditems.size(); k++)
+					for (UINT k = 0; k != selecteditems.size(); k++)
 					{
 						if (selecteditems[k] == operationsMatrix[i])
 						{
@@ -2976,7 +2977,7 @@ double NiawgController::parallelMoves( std::vector<std::vector<int>> operationsM
 		for (int col = 0; col < matrixSize; col++)
 		{
 			move = false;
-			for (int i = 0; i < operationsMatrix.size(); i++)
+			for (UINT i = 0; i < operationsMatrix.size(); i++)
 			{
 				if (operationsMatrix[i][1] == col && operationsMatrix[i][3] == col + 1)
 				{
@@ -3049,12 +3050,12 @@ double NiawgController::parallelMoves( std::vector<std::vector<int>> operationsM
 			//get all elements in this row that move to row-1
 			opM_ix.clear();
 			selecteditems.clear();
-			for (int i = 0; i < operationsMatrix.size(); i++)
+			for (UINT i = 0; i < operationsMatrix.size(); i++)
 			{
 				if (operationsMatrix[i][1] == col && operationsMatrix[i][3] == col - 1) {
 					check = true;
 					//erase duplicates
-					for (int k = 0; k != selecteditems.size(); k++)
+					for (UINT k = 0; k != selecteditems.size(); k++)
 					{
 						if (selecteditems[k] == operationsMatrix[i])
 						{
@@ -3134,9 +3135,9 @@ UINT NiawgController::getMaxMoves( const std::vector<std::vector<bool>> targetma
 
 	std::vector<std::vector<int> >targetIndice( targetNumber, std::vector<int>( 2, 0 ) );
 	UINT targetcounter = 0;
-	for (int i = 0; i < targetmatrix.size(); i++)
+	for (UINT i = 0; i < targetmatrix.size(); i++)
 	{
-		for (int j = 0; j < targetmatrix[0].size(); j++)
+		for (UINT j = 0; j < targetmatrix[0].size(); j++)
 		{
 			if (targetmatrix[i][j] == 1)
 			{
@@ -3147,13 +3148,13 @@ UINT NiawgController::getMaxMoves( const std::vector<std::vector<bool>> targetma
 		}
 	}
 	UINT maxlength = 0, sumlength = 0, length = 0;
-	for (int k = 0; k < targetcounter; k++)
+	for (UINT k = 0; k < targetcounter; k++)
 	{
-		for (int i = 0; i < targetmatrix.size(); i++)
+		for (UINT i = 0; i < targetmatrix.size(); i++)
 		{
-			for (int j = 0; j < targetmatrix[0].size(); j++)
+			for (UINT j = 0; j < targetmatrix[0].size(); j++)
 			{
-				length = abs( i - targetIndice[k][0] ) + abs( j - targetIndice[k][1] );
+				length = abs( int(i) - targetIndice[k][0] ) + abs( int(j) - targetIndice[k][1] );
 				if (length > maxlength)
 				{
 					maxlength = length;

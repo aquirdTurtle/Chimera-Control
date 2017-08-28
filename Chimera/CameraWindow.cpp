@@ -218,7 +218,7 @@ void CameraWindow::handlePictureEditChange( UINT id )
 
 LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 {
-	ULONGLONG pictureNumber = lParam;
+	UINT pictureNumber = lParam;
 	if (lParam == 0)
 	{
 		return NULL;
@@ -806,7 +806,7 @@ std::string CameraWindow::getStartMessage()
 					 " file." );
 		}
 		tempInfoCheck.setGroups( analysisHandler.getAnalysisLocs() );
-		std::vector<std::pair<int, int>> plotLocations = tempInfoCheck.getAllPixelLocations();
+		std::vector<std::pair<UINT, UINT>> plotLocations = tempInfoCheck.getAllPixelLocations();
 	}
 	std::string dialogMsg;
 	dialogMsg = "Starting Parameters:\r\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\r\n";

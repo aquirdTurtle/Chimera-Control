@@ -27,8 +27,8 @@ class DataAnalysisControl
 		void analyze( std::string date, long runNumber, long accumulations, EmbeddedPythonHandler* pyHandler,
 					  Communicator* comm );
 		void onButtonPushed();
-		void setAtomLocation( std::pair<int, int> location );
-		std::vector<std::pair<int, int>> getAnalysisLocs();
+		void setAtomLocation( std::pair<UINT, UINT> location );
+		std::vector<std::pair<UINT, UINT>> getAnalysisLocs();
 		void clearAtomLocations();
 		bool getLocationSettingStatus();
 		std::vector<std::string> getActivePlotList();
@@ -70,6 +70,6 @@ class DataAnalysisControl
 		//Control<CButton> autoAnalyzeCheckBox;
 		Control<CButton> setAnalysisLocationsButton;
 		//Control<CButton> analyzeMostRecentButton;
-		std::vector<std::pair<int, int>> atomLocations;
+		std::vector<std::pair<UINT, UINT>> atomLocations;
 		bool threadNeedsCounts;
 };

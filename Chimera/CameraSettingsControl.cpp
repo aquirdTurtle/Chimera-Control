@@ -121,7 +121,7 @@ void CameraSettingsControl::handleSetTemperaturePress()
 void CameraSettingsControl::handleTriggerControl(CameraWindow* cameraWindow)
 {
 	CString triggerMode;
-	long long itemIndex = triggerCombo.GetCurSel();
+	int itemIndex = triggerCombo.GetCurSel();
 	if (itemIndex == -1)
 	{
 		return;
@@ -202,7 +202,11 @@ void CameraSettingsControl::setEmGain(AndorCamera* andorObj)
 void CameraSettingsControl::setVariationNumber(UINT varNumber)
 {
 	runSettings.totalVariations = varNumber;
-	runSettings.totalPicsInExperiment = runSettings.totalVariations * runSettings.totalPicsInVariation;
+	if (runSettings.totalVariations * runSettings.totalPicsInVariation > INT_MAX)
+	{
+		thrower( "ERROR: Trying to take too many pictures! Maximum picture number is " + str( INT_MAX ) );
+	}
+	runSettings.totalPicsInExperiment = int(runSettings.totalVariations * runSettings.totalPicsInVariation);
 }
 
 
@@ -210,7 +214,11 @@ void CameraSettingsControl::setRepsPerVariation(UINT repsPerVar)
 {
 	runSettings.repetitionsPerVariation = repsPerVar;
 	runSettings.totalPicsInVariation = runSettings.repetitionsPerVariation * runSettings.picsPerRepetition;
-	runSettings.totalPicsInExperiment = runSettings.totalVariations * runSettings.totalPicsInVariation;
+	if (runSettings.totalVariations * runSettings.totalPicsInVariation > INT_MAX)
+	{
+		thrower( "ERROR: Trying to take too many pictures! Maximum picture number is " + str( INT_MAX ) );
+	}
+	runSettings.totalPicsInExperiment = int(runSettings.totalVariations * runSettings.totalPicsInVariation);
 }
 
 
@@ -296,7 +304,11 @@ void CameraSettingsControl::handlePictureSettings(UINT id, AndorCamera* andorObj
 	runSettings.exposureTimes = picSettingsObj.getUsedExposureTimes();
 	runSettings.picsPerRepetition = picSettingsObj.getPicsPerRepetition();
 	runSettings.totalPicsInVariation = runSettings.picsPerRepetition * runSettings.repetitionsPerVariation;
-	runSettings.totalPicsInExperiment = runSettings.picsPerRepetition  * runSettings.repetitionsPerVariation * runSettings.totalVariations;
+	if (runSettings.totalVariations * runSettings.totalPicsInVariation > INT_MAX)
+	{
+		thrower( "ERROR: Trying to take too many pictures! Maximum picture number is " + str( INT_MAX ) );
+	}
+	runSettings.totalPicsInExperiment = runSettings.totalVariations * runSettings.totalPicsInVariation;
 }
 
 

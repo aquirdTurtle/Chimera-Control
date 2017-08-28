@@ -65,7 +65,7 @@ unsigned __stdcall NiawgWaiter::niawgWaitThread(void* inputParam)
 		}
 	}
 	/// now wait until programming is finished and main thread is ready.
-	WaitForSingleObject(eWaitingForNIAWGEvent, INFINITY);
+	WaitForSingleObject(eWaitingForNIAWGEvent, ULONG(INFINITY));
 	/// stop the default.
 	// now it's ready. stop the default.
 	try

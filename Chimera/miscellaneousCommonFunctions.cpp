@@ -55,8 +55,8 @@ double reduce(std::string expression, key variationKey, UINT variation, std::vec
 		}
 		return resultOfReduction;
 	}
-	catch (std::invalid_argument& err) {	/* that's fine, just means it needs actual reducing.*/ }
-	catch (Error& err) { /* Same. */ }
+	catch (std::invalid_argument&) {	/* that's fine, just means it needs actual reducing.*/ }
+	catch (Error&) { /* Same. */ }
 	std::string workingExp = expression;
 	workingExp = "(" + workingExp + ")";
 	std::vector<std::string> terms;
@@ -116,7 +116,8 @@ double reduce(std::string expression, key variationKey, UINT variation, std::vec
 		std::vector<std::string> rightmostParenthesisTerms;
 		bool leftExists = false;
 		// find innermost parenthesis		
-		ULONGLONG count = 0, leftPos = 0, rightPos = 0;
+		UINT count = 0;
+		int leftPos = 0, rightPos = 0;
 		for (auto& elem : terms)
 		{
 			if (elem == "(")

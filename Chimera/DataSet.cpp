@@ -24,21 +24,21 @@ DataSet::DataSet()
 }
 
 
-void DataSet::initialize(int conditionNumber, int pixelNumber, int pictureNumber)
+void DataSet::initialize(UINT conditionNumber, UINT pixelNumber, UINT pictureNumber)
 {
 	resultConditions.resize(pixelNumber);
 	dataCountsLocation.resize(pixelNumber);
-	for (int pixelInc = 0; pixelInc < pixelNumber; pixelInc++)
+	for (UINT pixelInc = 0; pixelInc < pixelNumber; pixelInc++)
 	{
 		resultConditions[pixelInc].resize(pictureNumber);
 		dataCountsLocation[pixelInc].resize(pictureNumber);
 	}
 	
 	postSelectionConditions.resize(conditionNumber);
-	for (int conditionInc = 0; conditionInc < conditionNumber; conditionInc++)
+	for (UINT conditionInc = 0; conditionInc < conditionNumber; conditionInc++)
 	{
 		postSelectionConditions[conditionInc].resize(pixelNumber);
-		for (int pixelInc = 0; pixelInc < pixelNumber; pixelInc++)
+		for (UINT pixelInc = 0; pixelInc < pixelNumber; pixelInc++)
 		{
 			postSelectionConditions[conditionInc][pixelInc].resize(pictureNumber);
 		}
@@ -56,9 +56,9 @@ void DataSet::addPicture()
 {
 	// all data structures have access to the same number of pictures. Currently there is no to have one data structure work on 2 picture increments and one on
 	// 3, for example.
-	int currentPixelNum = resultConditions.size();
+	UINT currentPixelNum = resultConditions.size();
 	// this should always be at least one large.
-	int currentPictureNum = resultConditions[0].size();
+	UINT currentPictureNum = resultConditions[0].size();
 	for (UINT pixelInc = 0; pixelInc < currentPixelNum; pixelInc++)
 	{
 		resultConditions[pixelInc].resize(currentPictureNum + 1);
@@ -72,7 +72,7 @@ void DataSet::addPicture()
 }
 
 // picture number is used to initialize the new pixel to the correct size.
-void DataSet::addPixel(int pictureNumber)
+void DataSet::addPixel( UINT pictureNumber)
 {
 	// get the current pixel number. This should be uniform across thes data structures.
 	int currentPixelNum = resultConditions.size();
@@ -82,7 +82,7 @@ void DataSet::addPixel(int pictureNumber)
 	dataCountsLocation.resize(currentPixelNum + 1);
 	dataCountsLocation[currentPixelNum].resize(pictureNumber);
 
-	for (int postSelectionConditionInc = 0; postSelectionConditionInc < postSelectionConditions.size(); postSelectionConditionInc++)
+	for (UINT postSelectionConditionInc = 0; postSelectionConditionInc < postSelectionConditions.size(); postSelectionConditionInc++)
 	{
 		postSelectionConditions[postSelectionConditionInc].resize(currentPixelNum + 1);
 		postSelectionConditions[postSelectionConditionInc][currentPixelNum].resize(pictureNumber); ///
@@ -90,7 +90,7 @@ void DataSet::addPixel(int pictureNumber)
 }
 
 
-void DataSet::setResultCondition(int pixel, int picture, int resultCondition)
+void DataSet::setResultCondition(UINT pixel, UINT picture, UINT resultCondition)
 {
 	if (resultCondition != -1 && resultCondition != 0 && resultCondition != 1)
 	{
@@ -109,7 +109,7 @@ void DataSet::setResultCondition(int pixel, int picture, int resultCondition)
 	resultConditions[pixel][picture] = resultCondition;
 }
 
-void DataSet::setPostSelectionCondition(int conditionNumber, int pixel, int picture, int postSelectionCondition)
+void DataSet::setPostSelectionCondition(UINT conditionNumber, UINT pixel, UINT picture, UINT postSelectionCondition)
 {
 
 	if (conditionNumber >= postSelectionConditions.size())
@@ -140,7 +140,7 @@ void DataSet::removePixel()
 		thrower("ERROR: Something tried to remove the last pixel!");
 	}
 	resultConditions.resize(currentPixelNum - 1);
-	for (int postSelectionConditionInc = 0; postSelectionConditionInc < postSelectionConditions.size(); postSelectionConditionInc++)
+	for (UINT postSelectionConditionInc = 0; postSelectionConditionInc < postSelectionConditions.size(); postSelectionConditionInc++)
 	{
 		postSelectionConditions[postSelectionConditionInc].resize(currentPixelNum - 1);
 	}
@@ -160,7 +160,7 @@ void DataSet::removePicture()
 	{
 		thrower("ERROR: Something tried to remove the last picture!");
 	}
-	for (int pixelInc = 0; pixelInc < currentPixelNum; pixelInc++)
+	for (UINT pixelInc = 0; pixelInc < currentPixelNum; pixelInc++)
 	{
 		resultConditions[pixelInc].resize(currentPictureNum - 1);
 		for (UINT postSelectionConditionInc = 0; postSelectionConditionInc < postSelectionConditions.size(); postSelectionConditionInc++)
@@ -171,7 +171,7 @@ void DataSet::removePicture()
 }
 
 
-int DataSet::getTruthCondition(int pixel, int picture)
+int DataSet::getTruthCondition(UINT pixel, UINT picture)
 {
 	if (pixel >= resultConditions.size())
 	{
@@ -186,7 +186,7 @@ int DataSet::getTruthCondition(int pixel, int picture)
 }
 
 
-int DataSet::getPostSelectionCondition(int conditionNumber, int pixel, int picture)
+int DataSet::getPostSelectionCondition(UINT conditionNumber, UINT pixel, UINT picture)
 {
 	if (conditionNumber >= postSelectionConditions.size())
 	{
@@ -207,17 +207,18 @@ int DataSet::getPostSelectionCondition(int conditionNumber, int pixel, int pictu
 }
 
 
-void DataSet::addPostSelectionCondition(int pixelNum, int pictureNum)
+void DataSet::addPostSelectionCondition(UINT pixelNum, UINT pictureNum)
 {
 	// add condition, pixels, pictures
 	postSelectionConditions.resize(postSelectionConditions.size() + 1);
 	size_t back = postSelectionConditions.size() - 1;
 	postSelectionConditions[back].resize(pixelNum);
-	for (int pixelInc = 0; pixelInc < pixelNum; pixelInc++)
+	for (UINT pixelInc = 0; pixelInc < pixelNum; pixelInc++)
 	{
 		postSelectionConditions[back][pixelInc].resize(pictureNum);
 	}
 }
+
 
 void DataSet::removePostSelectionCondition()
 {
@@ -228,16 +229,18 @@ void DataSet::removePostSelectionCondition()
 	postSelectionConditions.resize(postSelectionConditions.size() - 1);
 }
 
-void DataSet::setDataCountsLocation(int maxPixel, int maxPicture, int pixel, int picture)
+
+void DataSet::setDataCountsLocation( UINT maxPixel, UINT maxPicture, UINT pixel, UINT picture)
 {
 	dataCountsLocation.clear();
 	dataCountsLocation.resize(maxPixel);
-	for (int pixelCount = 0; pixelCount < maxPixel; pixelCount++)
+	for (UINT pixelCount = 0; pixelCount < maxPixel; pixelCount++)
 	{
 		dataCountsLocation[pixelCount].resize(maxPicture);
 	}
 	dataCountsLocation[pixel][picture] = true;
 }
+
 
 void DataSet::setPlotThisData(bool plotThisDataInput)
 {
@@ -251,11 +254,11 @@ bool DataSet::getPlotThisDataValue()
 }
 
 
-int DataSet::getDataCountsLocation(int& pixel, int& picture)
+int DataSet::getDataCountsLocation( UINT& pixel, UINT& picture)
 {
-	for (int pixelInc = 0; pixelInc < dataCountsLocation.size(); pixelInc++)
+	for (UINT pixelInc = 0; pixelInc < dataCountsLocation.size(); pixelInc++)
 	{
-		for (int pictureInc = 0; pictureInc < dataCountsLocation[pixelInc].size(); pictureInc++)
+		for (UINT pictureInc = 0; pictureInc < dataCountsLocation[pixelInc].size(); pictureInc++)
 		{
 			if (dataCountsLocation[pixelInc][pictureInc] )
 			{
@@ -270,12 +273,14 @@ int DataSet::getDataCountsLocation(int& pixel, int& picture)
 	return -1;
 }
 
+
 std::string DataSet::getLegendText()
 {
 	return legendText;
 }
 
-void DataSet::resetPictureNumber(int pictureNumber)
+
+void DataSet::resetPictureNumber( UINT pictureNumber)
 {
 	// resultConditions[Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)
 	for (UINT pixelInc = 0; pixelInc < resultConditions.size(); pixelInc++)
@@ -301,14 +306,14 @@ void DataSet::resetPictureNumber(int pictureNumber)
 	}
 }
 
-void DataSet::resetPostSelectionConditionNumber(int conditionNumber)
+void DataSet::resetPostSelectionConditionNumber( UINT conditionNumber)
 {
 	// postSelectionConditions[Condition#][Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)
 	postSelectionConditions.clear();
 	postSelectionConditions.resize(conditionNumber);
 }
 
-void DataSet::resetPixelNumber(int pixelNumber)
+void DataSet::resetPixelNumber( UINT pixelNumber)
 {
 	// resultConditions[Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)
 	resultConditions.clear();
@@ -355,11 +360,11 @@ int DataSet::getWhenToFit()
 	return whenToFit;
 }
 
-void DataSet::setFitType(int newFitType)
+void DataSet::setFitType( UINT newFitType)
 {
 	fitType = newFitType;
 }
-void DataSet::setWhenToFit(int newWhenToFit)
+void DataSet::setWhenToFit( UINT newWhenToFit)
 {
 	whenToFit = newWhenToFit;
 }

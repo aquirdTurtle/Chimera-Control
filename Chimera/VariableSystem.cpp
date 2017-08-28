@@ -20,9 +20,9 @@ void VariableSystem::handleOpenConfig(std::ifstream& configFile, double version)
 	// handle variables
 	clearVariables();
 	// Number of Variables
-	int varNum;
+	UINT varNum;
 	configFile >> varNum;
-	if (varNum < 0 || varNum > 10)
+	if (varNum > 10)
 	{
 		int answer = promptBox("ERROR: variable number retrieved from file appears suspicious. The number is "
 								+ str(varNum) + ". Is this accurate?", MB_YESNO);
@@ -33,13 +33,12 @@ void VariableSystem::handleOpenConfig(std::ifstream& configFile, double version)
 		}
 	}
 
-	for (int varInc = 0; varInc < varNum; varInc++)
+	for (UINT varInc = 0; varInc < varNum; varInc++)
 	{
 		variable tempVar;
 		std::string varName, timelikeText, typeText, valueString;
 		bool timelike;
 		bool constant;
-		double value;
 		configFile >> varName;
 		std::transform(varName.begin(), varName.end(), varName.begin(), ::tolower);
 		tempVar.name = varName;
@@ -217,7 +216,7 @@ void VariableSystem::addVariableDimension()
 	// initialize each column.
 	listViewDefaultItem.iSubItem = 0;
 	variablesListview.InsertItem(&listViewDefaultItem);
-	for (UINT colInc = 1; colInc < variablesListview.GetHeaderCtrl()->GetItemCount(); colInc++)
+	for (int colInc = 1; colInc < variablesListview.GetHeaderCtrl()->GetItemCount(); colInc++)
 	{
 		listViewDefaultItem.iSubItem = colInc;
 		variablesListview.SetItem(&listViewDefaultItem);
@@ -264,7 +263,7 @@ void VariableSystem::setVariationRangeNumber(int num, USHORT dimNumber)
 {
 	// if you add more currentRanges to the control, you need to change the 5 here to reflect the number of auxiliary 
 	// columns.
-	while (variableRanges.size() < dimNumber + 1)
+	while (variableRanges.size() < USHORT(dimNumber + 1))
 	{
 		variableRanges.push_back(1);
 	}
@@ -544,7 +543,7 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MainWindow
 		return;
 	}
 	UINT borderCount = 0;
-	for (UINT rowCount = 0; rowCount < itemIndicator; rowCount++)
+	for (UINT rowCount = 0; rowCount < UINT(itemIndicator); rowCount++)
 	{
 		if (variablesListview.GetItemText(rowCount, 0) == "___" ||variablesListview.GetItemText(rowCount, 0) == "Symbol"  )
 		{
@@ -686,7 +685,7 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MainWindow
 					currentVariables[varNumber].ranges.front().initialValue =
 						currentVariables[varNumber].ranges.front().finalValue = std::stod( newValue );
 				}
-				catch (std::invalid_argument &exception)
+				catch (std::invalid_argument&)
 				{
 					thrower( "ERROR: the value entered, " + newValue + ", failed to convert to a double! "
 							"Check for invalid characters." );
@@ -712,7 +711,7 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MainWindow
 					listViewItem.iSubItem = subitem;
 					listViewItem.pszText = "Variable";
 					variablesListview.SetItem( &listViewItem );
-					for (int rangeInc = 0; rangeInc < currentVariables[varNumber].ranges.size(); rangeInc++)
+					for (UINT rangeInc = 0; rangeInc < currentVariables[varNumber].ranges.size(); rangeInc++)
 					{
 						// set lower end of range
 						std::string temp(str(currentVariables[varNumber].ranges[(subitem - 3) / 3].initialValue, 12));
@@ -824,7 +823,7 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MainWindow
 				{
 					currentVariables[varNumber].ranges[(subitem - 3) / 3].initialValue = std::stod(newValue);
 				}
-				catch (std::invalid_argument &exception)
+				catch (std::invalid_argument&)
 				{
 					thrower("ERROR: the value entered, " + newValue + ", failed to convert to a double! "
 									"Check for invalid characters.");
@@ -860,7 +859,7 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MainWindow
 				{
 					currentVariables[varNumber].ranges[(subitem - 3) / 3].finalValue = std::stod(newValue);
 				}
-				catch (std::invalid_argument &exception)
+				catch (std::invalid_argument&)
 				{
 					errBox("ERROR: the value entered, " + newValue + ", failed to convert to a double! Check "
 									"for invalid characters.");
@@ -896,7 +895,7 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MainWindow
 				// else there's something there.
 				try
 				{
-					for (int varInc = 0; varInc < currentVariables.size(); varInc++)
+					for (UINT varInc = 0; varInc < currentVariables.size(); varInc++)
 					{
 						if (!currentVariables[varInc].constant)
 						{
@@ -915,7 +914,7 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MainWindow
 					}
 					currentVariations = std::stoi(newValue);
 				}
-				catch (std::invalid_argument &exception)
+				catch (std::invalid_argument&)
 				{
 					thrower("ERROR: the value entered, " + newValue + ", failed to convert to a double! Check "
 									"for invalid characters.");
@@ -925,7 +924,7 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MainWindow
 				listViewItem.iSubItem = subitem;
 				std::string tempStr(str(currentVariables[varNumber].ranges[(subitem - 3) / 3].variations));
 				listViewItem.pszText = &tempStr[0];
-				for (int varInc = 0; varInc < currentVariables.size(); varInc++)
+				for (UINT varInc = 0; varInc < currentVariables.size(); varInc++)
 				{
 					if (!currentVariables[varInc].constant)
 					{
@@ -970,7 +969,7 @@ void VariableSystem::deleteVariable()
 		return;
 	}
 	int answer;
-	if (itemIndicator < currentVariables.size())
+	if (UINT(itemIndicator) < currentVariables.size())
 	{
 		answer = promptBox("Delete variable " + currentVariables[itemIndicator].name + "?", MB_YESNO);
 		if (answer == IDYES)
@@ -980,7 +979,7 @@ void VariableSystem::deleteVariable()
 		}
 
 	}
-	else if (itemIndicator > currentVariables.size())
+	else if (UINT(itemIndicator) > currentVariables.size())
 	{
 		answer = promptBox("You appear to have found a bug with the listview control... there are too many lines "
 							 "in this control. Clear this line?", MB_YESNO);
@@ -1046,7 +1045,7 @@ std::vector<variable> VariableSystem::getEverything()
 std::vector<variable> VariableSystem::getAllConstants()
 {
 	std::vector<variable> constants;
-	for (int varInc = 0; varInc < currentVariables.size(); varInc++)
+	for (UINT varInc = 0; varInc < currentVariables.size(); varInc++)
 	{
 		if (currentVariables[varInc].constant)
 		{
@@ -1060,7 +1059,7 @@ std::vector<variable> VariableSystem::getAllConstants()
 std::vector<variable> VariableSystem::getAllVariables()
 {
 	std::vector<variable> varyingParameters;
-	for (int varInc = 0; varInc < currentVariables.size(); varInc++)
+	for (UINT varInc = 0; varInc < currentVariables.size(); varInc++)
 	{
 		// opposite of get constants.
 		if (!currentVariables[varInc].constant)
@@ -1072,7 +1071,7 @@ std::vector<variable> VariableSystem::getAllVariables()
 }
 
 
-void VariableSystem::addGlobalVariable( variable var, int item )
+void VariableSystem::addGlobalVariable( variable var, UINT item )
 {
 	// convert name to lower case.
 	std::transform( var.name.begin(), var.name.end(), var.name.begin(), ::tolower );
@@ -1148,7 +1147,7 @@ void VariableSystem::addGlobalVariable( variable var, int item )
 }
 
 
-void VariableSystem::addConfigVariable(variable var, int item)
+void VariableSystem::addConfigVariable(variable var, UINT item)
 {
 	// make name lower case.
 	std::transform(var.name.begin(), var.name.end(), var.name.begin(), ::tolower);
@@ -1274,7 +1273,7 @@ void VariableSystem::addConfigVariable(variable var, int item)
 		// Max size of test
 		listViewItem.cchTextMax = 256; 
 		// make sure all variables have some text for the new columns.
-		for (int varInc = 0; varInc < currentVariables.size(); varInc++)
+		for (UINT varInc = 0; varInc < currentVariables.size(); varInc++)
 		{
 			currentVariables[varInc].ranges.push_back({0,0,0, false, true});
 			if (currentVariables[varInc].constant)
@@ -1297,7 +1296,7 @@ void VariableSystem::addConfigVariable(variable var, int item)
 	}
 
 
-	for (int rangeInc = 0; rangeInc < var.ranges.size(); rangeInc++)
+	for (UINT rangeInc = 0; rangeInc < var.ranges.size(); rangeInc++)
 	{
 		if (!var.constant)
 		{

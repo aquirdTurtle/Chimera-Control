@@ -173,7 +173,7 @@ std::pair<int, int> PictureStats::update( std::vector<long> image, UINT imageNum
 	long currentMinCount = 65536;
 	double currentAvgCount;
 	// for all pixels... find the max and min of the picture.
-	for (int pixelInc = 0; pixelInc < image.size(); pixelInc++)
+	for (UINT pixelInc = 0; pixelInc < image.size(); pixelInc++)
 	{
 		try
 		{
