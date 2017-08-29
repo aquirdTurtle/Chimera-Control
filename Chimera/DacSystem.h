@@ -10,54 +10,31 @@
 #include "miscellaneousCommonFunctions.h"
 
 #include "nidaqmx2.h"
+#include "DacStructures.h"
 
-struct DacComplexEvent
-{
-	unsigned short line;
-	timeType time;
-	std::string initVal;
-	std::string finalVal;
-	std::string rampTime;
-	std::string rampInc;
-};
-
-struct DacIndividualEvent
-{
-	unsigned short line;
-	double time;
-	double value;
-};
-
-struct DacSnapshot
-{
-	double time;
-	std::array<double, 24> dacValues;
-};
-
-
-/*
-]- The DacSystem is meant to be a constant class but it currently doesn't actually prevent the user from making multiple copies of the object.
-]- This class is based off of the DAC.bas module in the original VB6 code, of course adapted for this gui in controlling the relevant controls
-]- and handling changes more directly.
-*/
+/**
+ * The DacSystem is meant to be a constant class but it currently doesn't actually prevent the user from making 
+ * multiple copies of the object. This class is based off of the DAC.bas module in the original VB6 code, of course 
+ * adapted for this gui in controlling the relevant controls and handling changes more directly.
+ */
 class DacSystem
 {
 	public:
 		DacSystem();
 		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(std::ifstream& openFile, double version, TtlSystem* ttls);
+		void handleOpenConfig(std::ifstream& openFile, double version, DioSystem* ttls);
 		void abort();
 		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id );
 		std::string getDacSequenceMessage(UINT var);
-		void handleButtonPress(TtlSystem* ttls);
+		void handleButtonPress(DioSystem* ttls);
 		void setDacComplexEvent(int line, timeType time, std::string initVal, std::string finalVal, std::string rampTime, std::string rampInc);
-		void setForceDacEvent( int line, double val, TtlSystem* ttls, UINT var );
+		void setForceDacEvent( int line, double val, DioSystem* ttls, UINT var );
 		void handleRoundToDac(CMenu& menu);
 		void setDacStatusNoForceOut(std::array<double, 24> status);
-		void prepareDacForceChange(int line, double voltage, TtlSystem* ttls);
+		void prepareDacForceChange(int line, double voltage, DioSystem* ttls);
 		void stopDacs();
 		void configureClocks(UINT var);
-		void setDacTriggerEvents( TtlSystem* ttls, UINT var );
+		void setDacTriggerEvents( DioSystem* ttls, UINT var );
 		void interpretKey(key variationKey, std::vector<variable>& vars, std::string& warnings);
 		void analyzeDacCommands(UINT var);
 		void makeFinalDataFormat(UINT var);
@@ -76,7 +53,7 @@ class DacSystem
 		ULONG getNumberEvents(UINT var);
 		void handleDacScriptCommand( timeType time, std::string name, std::string initVal, std::string finalVal,
 									  std::string rampTime, std::string rampInc, std::vector<unsigned int>& dacShadeLocations, 
-									  std::vector<variable>& vars, TtlSystem* ttls);
+									  std::vector<variable>& vars, DioSystem* ttls);
 
 		std::string getDacSystemInfo();
 
@@ -115,11 +92,11 @@ class DacSystem
 		std::array<double, 24> dacMaxVals;
 		std::array<double, 24> defaultVals;
 		const double dacResolution;
-		std::vector<DacComplexEvent> dacComplexEventsList;
+		std::vector<DacCommandForm> dacCommandFormList;
 		// the first vector is for each variation.
-		std::vector<std::vector<DacIndividualEvent>> dacIndividualEvents;
+		std::vector<std::vector<DacCommand>> dacCommandList;
 		std::vector<std::vector<DacSnapshot>> dacSnapshots;
-		std::vector<std::array<std::vector<double>, 3>> finalFormattedData;
+		std::vector<std::array<std::vector<double>, 3>> finalFormatDacData;
 
 		std::pair<USHORT, USHORT> dacTriggerLine;
 
@@ -132,16 +109,12 @@ class DacSystem
 		TaskHandle staticDac1 = 0;
 		// task for DACboard2
 		TaskHandle staticDac2 = 0;
-		/// I'm confused about the following two lines. I don't think our hardware even supports digital inputs, the 
-		/// cards pretty clearly just say analog out.
-		// another task for DACboard0 (reads in a digital line)
+		/// digital in lines not used at the moment.
 		TaskHandle digitalDac_0_00 = 0;
-		// another task for DACboard0 (reads in a digital line)
 		TaskHandle digitalDac_0_01 = 0;
 		
 		/// My wrappers for all of the daqmx functions that I use currently. If I needed to use another function, I'd 
-		/// create another wrapper!
-
+		/// create another wrapper.
 		// note that DAQ stands for Data Aquisition (software). It's not a typo!
 		void daqCreateTask( const char* taskName, TaskHandle& handle );
 		void daqCreateAOVoltageChan( TaskHandle taskHandle, const char physicalChannel[], 

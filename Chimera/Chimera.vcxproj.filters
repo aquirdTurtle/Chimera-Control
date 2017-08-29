@@ -451,6 +451,7 @@
     <ClInclude Include="ChimeraApp.h">
       <Filter>General Files</Filter>
     </ClInclude>
+    <ClInclude Include="DacStructures.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
@@ -514,5 +515,8 @@
     <Object Include="gpib-32.obj">
       <Filter>Things I Don%27t Mess With %28Often%29</Filter>
     </Object>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DioStructures.h" />
   </ItemGroup>
 </Project>

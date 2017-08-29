@@ -1074,13 +1074,6 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, do
 }
 
 
-void AuxiliaryWindow::LogSettings()
-{
-	//logger.generateLog(this);
-	logger.exportLog();
-}
-
-
 void AuxiliaryWindow::SetDacs()
 {
 	// have the dac values change
