@@ -91,9 +91,9 @@ void MasterConfiguration::load(MainWindow* mainWin, AuxiliaryWindow* auxWin, Cam
 	{
 		thrower("Bad Version String from master config file! String was " + versionStr);
 	}
-	// okay things going well. Initialize ttl and dac structures.
+	// Initialize ttl and dac structures.
 	auxWin->handleMasterConfigOpen( configStream, version );
-	// mainWin->handleMasterConfigOpen(configStream, version);
+	// initialize camera window
 	camWin->handleMasterConfigOpen( configStream, version );
 
 	configFile.close();

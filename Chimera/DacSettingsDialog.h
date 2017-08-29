@@ -43,5 +43,3 @@ class DacSettingsDialog : public CDialog
 		int id = 445;
 		dacInputStruct* input;
 };
-
-INT_PTR CALLBACK viewAndChangeDAC_NamesProcedure(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);

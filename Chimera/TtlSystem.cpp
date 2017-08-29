@@ -76,12 +76,6 @@ ULONG TtlSystem::countDacTriggers(UINT var)
 	return triggerCount;
 }
 
-void TtlSystem::abort()
-{
-	// TODO
-	// ???
-}
-
 
 std::array< std::array<bool, 16>, 4 > TtlSystem::getFinalSnapshot()
 {
@@ -121,24 +115,16 @@ TtlSystem::TtlSystem()
 	}
 	/// load modules
 	// this first module is required for the second module which I actually load functions from.
-	HMODULE dioNT = LoadLibrary( ".\\Packages\\32-Bit-Libs\\DIO64\\dio64_nt.dll" );
-	//HMODULE dioNT = LoadLibrary("C:/Windows/SysWOW64/dio64_nt.dll");
-	if (!dioNT)
-	{
-		int err = GetLastError();
-		errBox( "Failed to load dio64_nt.dll! Error code: " + str(err) );
-	}
-	HMODULE dio = LoadLibrary( ".\\Packages\\32-Bit-Libs\\DIO64\\dio64_32.dll" );
-	//HMODULE dio = LoadLibrary("C:/Windows/SysWOW64/dio64_32.dll");
+	HMODULE dio = LoadLibrary( "DIO64_Visa32.dll" );
 	if (!dio)
 	{
 		int err = GetLastError();
-		errBox( "Failed to load dio64_32.dll!" + str( err ) );
+		errBox( "Failed to load dio64_32.dll! Windows Error Code: " + str( err ) );
 	}
 	
 	// initialize function pointers. This only requires the DLLs to be loaded (which requires them to be present on the machine...) 
 	// so it's not in a safemode block.
-
+	raw_DIO64_OpenResource = (DIO64_OpenResource)GetProcAddress(dio, "DIO64_OpenResource");
 	raw_DIO64_Open = (DIO64_Open)GetProcAddress(dio, "DIO64_Open");
 	raw_DIO64_Load = (DIO64_Load)GetProcAddress(dio, "DIO64_Load");
 	raw_DIO64_Close = (DIO64_Close)GetProcAddress(dio, "DIO64_Close");
@@ -158,18 +144,21 @@ TtlSystem::TtlSystem()
 	raw_DIO64_Out_Start = (DIO64_Out_Start)GetProcAddress(dio, "DIO64_Out_Start");
 	raw_DIO64_Out_Status = (DIO64_Out_Status)GetProcAddress(dio, "DIO64_Out_Status");
 	raw_DIO64_Out_Stop = (DIO64_Out_Stop)GetProcAddress(dio, "DIO64_Out_Stop");
+
 	raw_DIO64_Out_Write = (DIO64_Out_Write)GetProcAddress(dio, "DIO64_Out_Write");
 
 	// Open and Load DIO64
 	try
 	{
-		char* filename = "";
-		WORD temp[4] = { WORD_MAX, WORD_MAX, WORD_MAX, WORD_MAX };
+		int result;
+		char* filename = "C:\\DIO64Visa\\DIO64Visa_Release Beta 2\\DIO64.CAT";
+		char* resourceName = "PXI18::11::INSTR";
+		WORD temp[4] = { -1, -1, -1, -1 };
 		double tempd = 10000000;
-			
-		dioOpen( 0, 0 );
-		dioLoad( 0, filename, 0, 4 );
-		dioOutConfig( 0, 0, temp, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, tempd );
+		dioOpenResource(resourceName, 0, 0);
+		//dioOpen( 0, 0 );
+		dioLoad(0, filename, 0, 4);
+		dioOutConfig(0, 0, temp, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, tempd);
 		// done initializing.
 	}
 	catch (Error& exception)
@@ -182,7 +171,7 @@ std::string TtlSystem::getSystemInfo()
 {
 	DWORD answer = 1000;
 	std::string info = "TTL System Info:\nInput Mode: ";
-	dioGetAttr( 1, 0, answer);
+	dioGetAttr( 0, 0, answer);
 	switch ( answer )
 	{
 		case 1100:
@@ -205,7 +194,7 @@ std::string TtlSystem::getSystemInfo()
 		default:
 			info += "UNKNOWN!\n";
 	}
-	dioGetAttr( 1, 1, answer );
+	dioGetAttr( 0, 1, answer );
 	info += "Output Mode: ";
 	switch ( answer )
 	{
@@ -227,19 +216,19 @@ std::string TtlSystem::getSystemInfo()
 		default:
 			info += "UNKNOWN!\n";
 	}
-	dioGetAttr( 1, 2, answer );
+	dioGetAttr( 0, 2, answer );
 	if (answer == 1000)
 	{
 		info += "Input Buffer Size: no answer?\n";
 	}
 	info += "Input Buffer Size: " + str( answer ) + "\n";
-	dioGetAttr( 1, 3, answer );
+	dioGetAttr( 0, 3, answer );
 	if (answer == 1000)
 	{
 		info += "Output Buffer Size: no answer?\n";
 	}
 	info += "Output Buffer Size: " + str( answer ) + "\n";
-	dioGetAttr( 1, 4, answer );
+	dioGetAttr( 0, 4, answer );
 	info += "Major Clock Source: ";
 	switch ( answer )
 	{
@@ -889,9 +878,9 @@ void TtlSystem::writeData(UINT var)
 	double scan = 10000000;
 	DWORD availableScans = 0;
 	std::vector<WORD> arrayOfAllData( finalFormattedCommandForDio[var].size() * 6 );
+
 	DIO64STAT status;
 	status.AIControl = 0;
-
 	// Write to DIO board
 	try
 	{
@@ -910,6 +899,7 @@ void TtlSystem::writeData(UINT var)
 		element = finalFormattedCommandForDio[var][count / 6][count % 6];
 		count++;
 	}
+
 	// now arrayOfAllData contains all the experiment data.
 	dioOutWrite( 0, arrayOfAllData.data(), finalFormattedCommandForDio[var].size(), status );
 }
@@ -937,7 +927,7 @@ bool TtlSystem::getTtlStatus(int row, int number)
 void TtlSystem::wait(double time)
 {
 	double startTime;
-	//'clockstatus function reads the DIO clock, units are ms
+	//clockstatus function reads the DIO clock, units are ms
 	startTime = getClockStatus();
 	//errBox( "start time = " + str( startTime ) );
 	while (time - abs(getClockStatus() - startTime) > 110 /*&& getClockStatus() - startTime*/ != 0)
@@ -971,13 +961,10 @@ double TtlSystem::getTotalTime(UINT var)
 void TtlSystem::interpretKey(key variationKey, std::vector<variable>& vars)
 {
 	UINT variations;
-	if (vars.size() == 0)
+	variations = variationKey[vars[0].name].first.size();
+	if (variations == 0)
 	{
 		variations = 1; 
-	}
-	else
-	{
-		variations = variationKey[vars[0].name].first.size();
 	}
 	/// imporantly, this sizes the relevant structures.
 	individualTtlCommandList.clear();
@@ -1100,8 +1087,9 @@ void TtlSystem::convertToFinalFormat(UINT var)
 		USHORT hiwordTime;
 		// convert to system clock ticks. Assume that the crate is running on a 10 MHz signal, so multiply by
 		// 10,000,000, but then my time is in milliseconds, so divide that by 1,000, ending with multiply by 10,000
-		lowordTime = USHORT(ttlSnapshots[var][timeInc].time * 10000) % 65535;
-		hiwordTime = USHORT(ttlSnapshots[var][timeInc].time * 10000) / 65535;
+		lowordTime = ULONGLONG(ttlSnapshots[var][timeInc].time * 10000) % 65535;
+		USHORT temp = ttlSnapshots[var][timeInc].time * 10000;
+		hiwordTime = ULONGLONG(ttlSnapshots[var][timeInc].time * 10000) / 65535;
 		// each major index is a row (A, B, C, D), each minor index is a ttl state (0, 1) in that row.
 		std::array<std::bitset<16>, 4> ttlBits;
 		for (UINT rowInc = 0; rowInc < 4; rowInc++)
@@ -1129,6 +1117,8 @@ void TtlSystem::convertToFinalFormat(UINT var)
 		tempCommand[3] = static_cast <unsigned short>(ttlBits[1].to_ulong());
 		tempCommand[4] = static_cast <unsigned short>(ttlBits[2].to_ulong());
 		tempCommand[5] = static_cast <unsigned short>(ttlBits[3].to_ulong());
+
+
 		finalFormattedCommandForDio[var].push_back(tempCommand);
 	}
 }
@@ -1448,10 +1438,24 @@ void TtlSystem::dioGetAttr(WORD board, DWORD attrID, DWORD& value)
 {
 	if (!DIO_SAFEMODE)
 	{
-		int result = raw_DIO64_GetAttr(board, &attrID, &value);
+		int result = raw_DIO64_GetAttr(board, attrID, &value);
 		if (result)
 		{
 			thrower("dioGetAttr failed! : (" + str(result) + "): " + getErrorMessage(result));
 		}
 	}
 }
+
+
+void TtlSystem::dioOpenResource(char* resourceName, WORD board, WORD baseio)
+{
+	if (!DIO_SAFEMODE)
+	{
+		int result = raw_DIO64_OpenResource(resourceName, board, baseio);
+		if (result)
+		{
+			thrower("dioOpenResource failed! : (" + str(result) + "): " + getErrorMessage(result));
+		}
+	}
+}
+

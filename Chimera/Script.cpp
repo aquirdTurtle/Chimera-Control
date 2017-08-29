@@ -52,10 +52,10 @@ void Script::initialize( int width, int height, POINT& startingLocation, cToolTi
 	if (scriptHeader != "")
 	{
 		// user has option to not have a header if scriptheader is "".
-		title.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
+		title.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 25 };
 		title.Create( cstr( scriptHeader ), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, title.sPos, parent, id++ );
 		title.fontType = HeadingFont;
-		startingLocation.y += 20;
+		startingLocation.y += 25;
 	}
 	// saved indicator
 	savedIndicator.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + 80, startingLocation.y + 20 };

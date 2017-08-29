@@ -6,17 +6,7 @@
 #include "KeyHandler.h"
 #include "miscellaneousCommonFunctions.h"
 
-/*
- * Parts of changing ttls:
- *  Ways to change TTLs:
- * In Script:
- * - Set array, then chnge
- * In main Window:
- * - Force TTL
- *		- 
- *
- *
- */
+/**/
 class AuxiliaryWindow;
 
 // this struct keeps variable names.
@@ -100,27 +90,25 @@ class TtlSystem
 
 		void rearrange(UINT width, UINT height, fontMap fonts);
 
-		void ttlOn(unsigned int row, unsigned int column, timeType time);
-		void ttlOnDirect( unsigned int row, unsigned int column, double time, UINT var);
-		void ttlOff(unsigned int row, unsigned int column, timeType time);
-		void ttlOffDirect( unsigned int row, unsigned int column, double time, UINT var);
+		void ttlOn(UINT row, UINT column, timeType time);
+		void ttlOnDirect( UINT row, UINT column, double time, UINT var);
+		void ttlOff(UINT row, UINT column, timeType time);
+		void ttlOffDirect( UINT row, UINT column, double time, UINT var);
 		void forceTtl(int row, int number, int state);
 
 		std::pair<UINT, UINT> getTtlBoardSize();
 
-		void abort();
-		void setName(unsigned int row, unsigned int number, std::string name, cToolTips& toolTips, AuxiliaryWindow* master);
-		std::string getName(unsigned int row, unsigned int number);
+		void setName(UINT row, UINT number, std::string name, cToolTips& toolTips, AuxiliaryWindow* master);
+		std::string getName(UINT row, UINT number);
 		std::array<std::array<std::string, 16>, 4> TtlSystem::getAllNames();
 		// returns -1 if not a name.get
-		int TtlSystem::getNameIdentifier(std::string name, unsigned int& row, unsigned int& number);
+		int TtlSystem::getNameIdentifier(std::string name, UINT& row, UINT& number);
 		bool getTtlStatus(int row, int number);
 		std::string getErrorMessage(int errorCode);
 		void handleTtlScriptCommand( std::string command, timeType time, std::string name,
-									  std::vector<std::pair<unsigned int, unsigned int>>& ttlShadeLocations );
+									  std::vector<std::pair<UINT, UINT>>& ttlShadeLocations );
 		void handleTtlScriptCommand( std::string command, timeType time, std::string name,
-									  std::string pulseLength,
-									  std::vector<std::pair<unsigned int, unsigned int>>& ttlShadeLocations );
+									  std::string pulseLength, std::vector<std::pair<UINT, UINT>>& ttlShadeLocations );
 		void interpretKey(key variationKey, std::vector<variable>& vars);
 		void analyzeCommandList(UINT var);
 		void convertToFinalFormat(UINT var);
@@ -132,7 +120,7 @@ class TtlSystem
 		void waitTillFinished(UINT var);
 
 		//int TtlSystem::getNameIdentifier(std::string name, unsigned int& row, unsigned int& number);
-		void shadeTTLs(std::vector<std::pair<unsigned int, unsigned int>>);
+		void shadeTTLs(std::vector<std::pair<UINT, UINT>>);
 		void unshadeTtls();
 		bool isValidTTLName(std::string name);
 		void resetTtlEvents();
@@ -156,6 +144,9 @@ class TtlSystem
 		std::array< std::array<std::string, 16 >, 4> ttlNames;
 		// tells whether the hold button is down or not.
 		bool holdStatus;
+
+
+
 		std::vector<TtlCommandForm> ttlCommandFormList;
 		// Each element of first vector is for each variation.
 		std::vector<std::vector<TtlCommand>> individualTtlCommandList;
@@ -180,6 +171,7 @@ class TtlSystem
 		 */
 		void handleInvert();
 		/// The following section holds the dio functions that I actually use!
+		void dioOpenResource(char* resourceName, WORD board, WORD baseio);
 		void dioOpen( WORD board, WORD baseio );
 		void dioMode( WORD board, WORD mode );
 
@@ -209,43 +201,51 @@ class TtlSystem
 		/// & standardized & built in error handling.
 
 		/// NOT SUGGESTED FOR DIRECT USE! //////////////////////////////////////////////////////////////////////////
-		typedef int(CALLBACK* DIO64_Open)(WORD board, WORD baseio);
+		typedef int(__cdecl* DIO64_OpenResource)(char resourceName[], uint16_t board, uint16_t baseio);
+		DIO64_OpenResource raw_DIO64_OpenResource;
+		// before win7+, used to use dio64_open instead of dio64_openresource
+		typedef int(__cdecl* DIO64_Open)(WORD board, WORD baseio);
 		DIO64_Open raw_DIO64_Open;
-		typedef int(CALLBACK* DIO64_Mode)(WORD board, WORD mode);
+		typedef int(__cdecl* DIO64_Mode)(WORD board, WORD mode);
 		DIO64_Mode raw_DIO64_Mode;
-		typedef int(CALLBACK* DIO64_Load)(WORD board, char *rbfFile, int intputHint, int outputHint );
+		typedef int(__cdecl* DIO64_Load)(WORD board, char *rbfFile, int intputHint, int outputHint );
 		DIO64_Load raw_DIO64_Load;
-		typedef int(CALLBACK* DIO64_Close)(WORD board);
+		typedef int(__cdecl* DIO64_Close)(WORD board);
 		DIO64_Close raw_DIO64_Close;
-		typedef int(CALLBACK* DIO64_In_Start)(WORD board, DWORD ticks, WORD *mask, WORD maskLength, WORD flags,
+		typedef int(__cdecl* DIO64_In_Start)(WORD board, DWORD ticks, WORD *mask, WORD maskLength, WORD flags,
 											   WORD clkControl, WORD startType, WORD startSource, WORD stopType,
 											   WORD stopSource, DWORD AIControl, double *scanRate);
 		DIO64_In_Start raw_DIO64_In_Start;
-		typedef int(CALLBACK* DIO64_In_Status)(WORD board, DWORD *scansAvail, DIO64STAT *status);
+		typedef int(__cdecl* DIO64_In_Status)(WORD board, DWORD *scansAvail, DIO64STAT *status);
 		DIO64_In_Status raw_DIO64_In_Status;
-		typedef int(CALLBACK* DIO64_In_Read)(WORD board, WORD *buffer, DWORD scansToRead, DIO64STAT *status);
+		typedef int(__cdecl* DIO64_In_Read)(WORD board, WORD *buffer, DWORD scansToRead, DIO64STAT *status);
 		DIO64_In_Read raw_DIO64_In_Read;
-		typedef int(CALLBACK* DIO64_In_Stop)(WORD board);
+		typedef int(__cdecl* DIO64_In_Stop)(WORD board);
 		DIO64_In_Stop raw_DIO64_In_Stop;
-		typedef int(CALLBACK* DIO64_Out_ForceOutput)( WORD board, WORD *buffer, DWORD mask );
+		typedef int(__cdecl* DIO64_Out_ForceOutput)( WORD board, WORD *buffer, DWORD mask );
 		DIO64_Out_ForceOutput raw_DIO64_Out_ForceOutput;
-		typedef int(CALLBACK* DIO64_Out_GetInput)( WORD board, WORD *buffer );
+		typedef int(__cdecl* DIO64_Out_GetInput)( WORD board, WORD *buffer );
 		DIO64_Out_GetInput raw_DIO64_Out_GetInput;
-		typedef int(CALLBACK* DIO64_Out_Config)(WORD board, DWORD ticks, WORD *mask, WORD maskLength, WORD flags, 
+		typedef int(__cdecl* DIO64_Out_Config)(WORD board, DWORD ticks, WORD *mask, WORD maskLength, WORD flags,
 												 WORD clkControl, WORD startType, WORD startSource, WORD stopType, 
 												 WORD stopSource, DWORD AIControl, DWORD reps, WORD ntrans, double *scanRate);
 		DIO64_Out_Config raw_DIO64_Out_Config;
-		typedef int(CALLBACK* DIO64_Out_Start)( WORD board );
+		typedef int(__cdecl* DIO64_Out_Start)( WORD board );
 		DIO64_Out_Start raw_DIO64_Out_Start;
-		typedef int(CALLBACK* DIO64_Out_Status)(WORD board,	DWORD *scansAvail, DIO64STAT *status);
+		typedef int(__cdecl* DIO64_Out_Status)(WORD board,	DWORD *scansAvail, DIO64STAT *status);
 		DIO64_Out_Status raw_DIO64_Out_Status;
-		typedef int(CALLBACK* DIO64_Out_Write)(WORD board, WORD *buffer, DWORD bufsize, DIO64STAT *status);
+
+
+		typedef int(__cdecl* DIO64_Out_Write)(WORD board, WORD *buffer, DWORD bufsize, DIO64STAT *status);
+
 		DIO64_Out_Write raw_DIO64_Out_Write;
-		typedef int(CALLBACK* DIO64_Out_Stop)(WORD board);
+
+
+		typedef int(__cdecl* DIO64_Out_Stop)(WORD board);
 		DIO64_Out_Stop raw_DIO64_Out_Stop;
-		typedef int(CALLBACK* DIO64_SetAttr)(WORD board, DWORD attrID, DWORD value);
+		typedef int(__cdecl* DIO64_SetAttr)(WORD board, DWORD attrID, DWORD value);
 		DIO64_SetAttr raw_DIO64_SetAttr;
-		typedef int(CALLBACK* DIO64_GetAttr)(WORD board, DWORD *attrID, DWORD *value);
+		typedef int(__cdecl* DIO64_GetAttr)(WORD board, DWORD attrID, DWORD *value);
 		DIO64_GetAttr raw_DIO64_GetAttr;
 
 		/// END NOT SUGGESTED FOR DIRECT USE AREA! ////////////////////////////////////////////////////////////////////

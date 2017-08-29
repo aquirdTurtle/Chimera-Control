@@ -4,6 +4,48 @@
 // for other ni stuff
 #include "nidaqmx2.h"
 
+
+DacSystem::DacSystem() : dacResolution(10.0 / pow(2, 16))
+{
+	/// set some constants...
+	// Both are 0-INDEXED. D16
+	dacTriggerLine = { 3, 15 };
+	// paraphrasing adam...
+	// Dacs sample at 1 MHz, so 0.5 us is appropriate.
+	// in ms.
+	// ?? I thought it was 10 MHz...
+	dacTriggerTime = 0.0005;
+	try
+	{
+		// initialize tasks and chanells on the DACs
+		long output = 0;
+
+		// Create a task for each board
+		// assume 3 boards, 8 channels per board. AMK 11/2010, modified for three from 2
+		// task names are defined as public variables of type Long in TheMainProgram Declarations
+		daqCreateTask("Board 3 Dacs 16-23", staticDac2);
+		daqCreateTask("Board 2 Dacs 8-15", staticDac1);
+		daqCreateTask("Board 1 Dacs 0-7", staticDac0);
+		daqCreateAOVoltageChan(staticDac0, "dev2/ao0:7", "StaticDAC_1", -10, 10, DAQmx_Val_Volts, "");
+		daqCreateAOVoltageChan(staticDac1, "dev3/ao0:7", "StaticDAC_0", -10, 10, DAQmx_Val_Volts, "");
+		daqCreateAOVoltageChan(staticDac2, "dev4/ao0:7", "StaticDAC_2", -10, 10, DAQmx_Val_Volts, "");
+
+
+		// This creates a task to read in a digital input from DAC 0 on port 0 line 0
+		daqCreateTask("", digitalDac_0_00);
+		daqCreateTask("", digitalDac_0_01);
+		// unused at the moment.
+		daqCreateDIChan(digitalDac_0_00, "dev2/port0/line0", "DIDAC_0", DAQmx_Val_ChanPerLine);
+		daqCreateDIChan(digitalDac_0_01, "dev2/port0/line1", "DIDAC_0", DAQmx_Val_ChanPerLine);
+	}
+	// I catch here because it's the constructor, and catching elsewhere is weird.
+	catch (Error& exception)
+	{
+		errBox(exception.what());
+	}
+}
+
+
 std::array<double, 24> DacSystem::getDacStatus()
 {
 	return dacValues;
@@ -14,9 +56,9 @@ void DacSystem::handleOpenConfig(std::ifstream& openFile, double version, TtlSys
 {
 	ProfileSystem::checkDelimiterLine(openFile, "DACS");
 
-	std::vector<double> dacValues(getNumberOfDacs());
+	std::vector<double> values(getNumberOfDacs());
 	UINT dacInc = 0;
-	for (auto& dac : dacValues)
+	for (auto& dac : values)
 	{
 		std::string dacString;
 		openFile >> dacString;
@@ -188,45 +230,6 @@ void DacSystem::daqStartTask( TaskHandle handle )
 /// 
 /// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-DacSystem::DacSystem() : dacResolution(10.0 / pow(2,16))
-{
-	/// set some constants...
-	// Both are 0-INDEXED. D16
-	dacTriggerLine = { 3, 15 };
-	// paraphrasing adam...
-	// Dacs sample at 1 MHz, so 0.5 us is appropriate.
-	// in ms.
-	// ?? I thought it was 10 MHz...
-	dacTriggerTime = 0.0005;
-	try
-	{
-		// initialize tasks and chanells on the DACs
-		long output = 0;
-
-		// Create a task for each board
-		// assume 3 boards, 8 channels per board. AMK 11/2010, modified for three from 2
-		// task names are defined as public variables of type Long in TheMainProgram Declarations
-		daqCreateTask( "Board 3 Dacs 16-23", staticDac2 );
-		daqCreateTask( "Board 2 Dacs 8-15", staticDac1 );
-		daqCreateTask( "Board 1 Dacs 0-7", staticDac0 );
-		daqCreateAOVoltageChan( staticDac2, "dev3/ao0:7", "StaticDAC_2", -10, 10, DAQmx_Val_Volts, "" );	
-		daqCreateAOVoltageChan( staticDac0, "dev2/ao0:7", "StaticDAC_1", -10, 10, DAQmx_Val_Volts, "" );
-		daqCreateAOVoltageChan( staticDac1, "dev4/ao0:7", "StaticDAC_0", -10, 10, DAQmx_Val_Volts, "" );
-
-		// This creates a task to read in a digital input from DAC 0 on port 0 line 0
-		daqCreateTask( "", digitalDac_0_00 );
-		daqCreateTask( "", digitalDac_0_01 );
-		// unused at the moment.
-		daqCreateDIChan( digitalDac_0_00, "dev2/port0/line0", "DIDAC_0", DAQmx_Val_ChanPerLine );
-		daqCreateDIChan( digitalDac_0_01, "dev2/port0/line1", "DIDAC_0", DAQmx_Val_ChanPerLine );
-	}
-	// I catch here because it's the constructor, and catching elsewhere is weird.
-	catch (Error& exception)
-	{
-		errBox( exception.what() );
-	}
-}
 
 
 std::string DacSystem::getDacSystemInfo()
@@ -593,13 +596,10 @@ void DacSystem::prepareForce()
 void DacSystem::interpretKey( key variationKey, std::vector<variable>& vars, std::string& warnings )
 {
 	UINT variations;
-	if (vars.size() == 0)
+	variations = variationKey[vars[0].name].first.size();
+	if (variations == 0)
 	{
 		variations = 1;
-	}
-	else
-	{
-		variations = variationKey[vars[0].name].first.size();
 	}
 	/// imporantly, this sizes the relevant structures.
 	dacIndividualEvents.clear();
@@ -803,6 +803,7 @@ void DacSystem::prepareDacForceChange(int line, double voltage, TtlSystem* ttls)
 		valStr.erase(valStr.find_last_not_of('0') + 1, std::string::npos);
 	}
 	breakoutBoardEdits[line].SetWindowText(cstr(valStr));
+	dacValues[line] = voltage;
 	// I'm not sure it's necessary to go through the procedure of doing this and using the DIO to trigger the dacs for a foce out. I'm guessing it's 
 	// possible to tell the DAC to just immediately change without waiting for a trigger.
 	setForceDacEvent( line, voltage, ttls, 0 );
@@ -838,7 +839,7 @@ void DacSystem::setForceDacEvent( int line, double val, TtlSystem* ttls, UINT va
 	}
 	DacIndividualEvent eventInfo;
 	eventInfo.line = line;
-	eventInfo.time = 0;	
+	eventInfo.time = 1;	
 	eventInfo.value = val;
 	dacIndividualEvents[var].push_back( eventInfo );
 	// important! need at least 2 states to run the dac board. can't just give it one value. This is how this was done in the VB code,
@@ -846,8 +847,8 @@ void DacSystem::setForceDacEvent( int line, double val, TtlSystem* ttls, UINT va
 	eventInfo.time = 10;
 	dacIndividualEvents[var].push_back( eventInfo );
 	// you need to set up a corresponding pulse trigger to tell the dacs to change the output at the correct time.
-	ttls->ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, 0, 0 );
-	ttls->ttlOffDirect( dacTriggerLine.first, dacTriggerLine.second, dacTriggerTime, 0 );
+	ttls->ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, 1, 0 );
+	ttls->ttlOffDirect( dacTriggerLine.first, dacTriggerLine.second, 1 + dacTriggerTime, 0 );
 }
 
 
@@ -870,9 +871,9 @@ void DacSystem::stopDacs()
 void DacSystem::configureClocks(UINT var)
 {	
 	long sampleNumber = dacSnapshots[var].size();
-	daqConfigSampleClkTiming( staticDac0, "/PXI1Slot3/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
-	daqConfigSampleClkTiming( staticDac1, "/PXI1Slot4/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
-	daqConfigSampleClkTiming( staticDac2, "/PXI1Slot5/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
+	daqConfigSampleClkTiming( staticDac0, "/Dev2/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
+	daqConfigSampleClkTiming( staticDac1, "/Dev3/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
+	daqConfigSampleClkTiming( staticDac2, "/Dev4/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
 }
 
 
@@ -892,11 +893,11 @@ void DacSystem::writeDacs(UINT var)
 
 	int32 samplesWritten;
 	//
-	daqWriteAnalogF64( staticDac0, dacSnapshots[var].size(), false, 0.0001, DAQmx_Val_GroupByScanNumber, 
+	daqWriteAnalogF64( staticDac0, dacSnapshots[var].size(), false, 0.01, DAQmx_Val_GroupByScanNumber, 
 					  &finalFormattedData[var][0].front(), &samplesWritten );
-	daqWriteAnalogF64( staticDac1, dacSnapshots[var].size(), false, 0.0001, DAQmx_Val_GroupByScanNumber,
+	daqWriteAnalogF64( staticDac1, dacSnapshots[var].size(), false, 0.01, DAQmx_Val_GroupByScanNumber,
 					  &finalFormattedData[var][1].front(), &samplesWritten );
-	daqWriteAnalogF64( staticDac2, dacSnapshots[var].size(), false, 0.0001, DAQmx_Val_GroupByScanNumber,
+	daqWriteAnalogF64( staticDac2, dacSnapshots[var].size(), false, 0.01, DAQmx_Val_GroupByScanNumber,
 					  &finalFormattedData[var][2].front(), &samplesWritten );	
 }
 

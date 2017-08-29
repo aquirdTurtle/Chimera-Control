@@ -66,7 +66,7 @@ void DebuggingOptionsControl::handleOpenConfig(std::ifstream& openFile, double v
 void DebuggingOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips)
 {
 	// Debugging Options Title
-	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
+	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
 	header.Create("DEBUGGING OPTIONS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, parent, id++);	
 	header.fontType = HeadingFont;
 	///

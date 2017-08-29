@@ -102,7 +102,7 @@ MainWindow::MainWindow(UINT id, CDialog* splash) : CDialog(id), profile(PROFILES
 		->CreateFontA(20, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
 	(mainFonts["Heading Font Large"] = new CFont)
-		->CreateFontA(28, 0, 0, 0, FW_DONTCARE, TRUE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+		->CreateFontA(24, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Old Sans Black"));
 	(mainFonts["Code Font Large"] = new CFont)
 		->CreateFontA(16, 0, 0, 0, 700, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
@@ -212,9 +212,11 @@ BOOL MainWindow::OnInitDialog()
 	TheScriptingWindow = new ScriptingWindow;
 	TheCameraWindow = new CameraWindow;
 	TheAuxiliaryWindow = new AuxiliaryWindow;
+
 	TheScriptingWindow->loadFriends( this, TheCameraWindow, TheAuxiliaryWindow );
 	TheCameraWindow->loadFriends( this, TheScriptingWindow, TheAuxiliaryWindow );
 	TheAuxiliaryWindow->loadFriends( this, TheScriptingWindow, TheCameraWindow );
+
 	try
 	{
 		// these each call oninitdialog after the create call. Hence the try / catch.
@@ -237,9 +239,9 @@ BOOL MainWindow::OnInitDialog()
 	debugStatus.initialize( controlLocation, this, id, 480, "DEBUG STATUS", RGB( 13, 152, 186 ), tooltips, IDC_DEBUG_STATUS_BUTTON );
 	controlLocation = { 960, 0 };
 	profile.initialize( controlLocation, this, id, tooltips );
-	controlLocation = { 960, 235 };
+	controlLocation = { 960, 250 };
 	notes.initialize( controlLocation, this, id, tooltips );
-	controlLocation = { 1440, 95 };
+	controlLocation = { 1440, 105 };
 	repetitionControl.initialize( controlLocation, tooltips, this, id );
 	settings.initialize( id, controlLocation, this, tooltips );
 	debugger.initialize( id, controlLocation, this, tooltips );
@@ -275,11 +277,18 @@ BOOL MainWindow::OnInitDialog()
 
 	/// summarize system status.
 	std::string initializationString;
-	initializationString += getSystemStatusString();
-	initializationString += TheAuxiliaryWindow->getSystemStatusMsg();
-	initializationString += TheCameraWindow->getSystemStatusString();
-	initializationString += TheScriptingWindow->getSystemStatusString();
-	infoBox( initializationString );
+	try
+	{
+		initializationString += getSystemStatusString();
+		initializationString += TheAuxiliaryWindow->getSystemStatusMsg();
+		initializationString += TheCameraWindow->getSystemStatusString();
+		initializationString += TheScriptingWindow->getSystemStatusString();
+		infoBox(initializationString);
+	}
+	catch (Error& err)
+	{
+		errBox(err.what());
+	}
 	return TRUE;
 }
 
@@ -525,12 +534,11 @@ void MainWindow::passCommonCommand(UINT id)
 }
 
 
-void MainWindow::startMaster( MasterThreadInput* input )
+void MainWindow::startMaster( MasterThreadInput* input, bool isTurnOnMot )
 {
 	// Load Variable & Key Info
 	input->key->loadVariables( input->variables );
 	input->key->generateKey( input->settings.randomizeVariations );
-	input->key->exportKey();
 	masterThreadManager.startExperimentThread(input);
 }
 

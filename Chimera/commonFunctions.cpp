@@ -92,8 +92,8 @@ namespace commonFunctions
 					// todo... intensity
 
 					if (!niawgAborted && !andorAborted && !masterAborted)
-					{					
-						mainWin->getComm()->sendError("Neither Camera nor NIAWG was not running. Can't Abort.\r\n");
+					{
+						mainWin->getComm()->sendError("Camera, NIAWG and Master were not running. Can't Abort.\r\n");
 					}
 				}
 				catch (Error& except)
@@ -370,6 +370,11 @@ namespace commonFunctions
 				scriptWin->saveMasterScriptAs(parent);
 				break;
 			}
+			case ID_MASTERSCRIPT_OPENSCRIPT:
+			{
+				scriptWin->openMasterScript(parent);
+				break;
+			}
 			case ID_MASTERSCRIPT_NEWFUNCTION:
 			{
 				scriptWin->newMasterFunction();
@@ -612,7 +617,9 @@ namespace commonFunctions
 			}
 			case ID_ACCELERATOR_F1:
 			{
-				auxWin->loadMotSettings();
+				MasterThreadInput* input = new MasterThreadInput;
+				auxWin->loadMotSettings(input);
+				mainWin->startMaster(input, true);
 				break;
 			}
 			default:
@@ -797,7 +804,7 @@ namespace commonFunctions
 		mainWin->addTimebar( "main" );
 		mainWin->addTimebar( "error" );
 		mainWin->addTimebar( "debug" );
-		mainWin->startMaster( input.masterInput );
+		mainWin->startMaster( input.masterInput, false );
 	}
 
 	void abortCamera( CameraWindow* camWin, MainWindow* mainWin )

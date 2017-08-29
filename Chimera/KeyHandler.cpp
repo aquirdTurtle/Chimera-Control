@@ -148,28 +148,3 @@ void KeyHandler::generateKey(bool randomizeVariablesOption)
 	}
 }
 
-
-// creates the key file.
-void KeyHandler::exportKey()
-{
-	std::fstream keyFile(KEY_ADDRESS, std::ios::out);
-	if (!keyFile.is_open())
-	{
-		thrower("ERROR: Exporting Key File Failed to open!");
-	}
-	for (UINT variableInc = 0; variableInc < variables.size(); variableInc++)
-	{
-		if (!variables[variableInc].constant)
-		{
-			keyFile << std::setw(15) << variables[variableInc].name;
-			for (UINT keyInc = 0; keyInc < keyValues[variables[variableInc].name].first.size(); keyInc++)
-			{
-				keyFile << std::setprecision(12) << std::setw(15) << keyValues[variables[variableInc].name].first[keyInc];
-				keyFile << " ";
-			}
-			keyFile << "\n";
-		}
-	}
-	keyFile.close();
-}
-

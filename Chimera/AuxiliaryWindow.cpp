@@ -754,6 +754,8 @@ void AuxiliaryWindow::zeroDacs()
 	{
 		dacBoards.resetDacEvents();
 		ttlBoard.resetTtlEvents();
+		dacBoards.prepareForce();
+		ttlBoard.prepareForce();
 		for (int dacInc = 0; dacInc < 24; dacInc++)
 		{
 			dacBoards.prepareDacForceChange( dacInc, 0, &ttlBoard );
@@ -793,17 +795,20 @@ void AuxiliaryWindow::zeroTtls()
 	}
 }
 
-void AuxiliaryWindow::loadMotSettings()
+
+void AuxiliaryWindow::loadMotSettings(MasterThreadInput* input)
 {
 	try
 	{
 		sendStat("Loading MOT Configuration...\r\n" );
 		//
-		MasterThreadInput* input = new MasterThreadInput;
 		input->quiet = true;
 		input->ttls = &ttlBoard;
 		input->dacs = &dacBoards;
 		input->globalControl = &globalVariables;
+		input->comm = mainWindowFriend->getComm();
+		input->settings = { 0,0,0,0 };
+		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
 		// don't get configuration variables. The MOT shouldn't depend on config variables.
 		input->variables = globalVariables.getEverything();
 		// Only set it once, clearly.
@@ -813,10 +818,14 @@ void AuxiliaryWindow::loadMotSettings()
 		input->rsg = &RhodeSchwarzGenerator;
 		input->agilents.push_back( &topBottomAgilent );
 		input->agilents.push_back( &uWaveAxialAgilent );
+		input->agilents.push_back( &flashingAgilent );
+		input->intensityAgilentNumber = -1;
 		input->topBottomTek = &topBottomTek;
 		input->eoAxialTek = &eoAxialTek;
-
-		manager.loadMotSettings(input);
+		input->runMaster = true;
+		input->runNiawg = false;
+		//mainWindowFriend->
+		//manager.loadMotSettings(input);
 	}
 	catch (Error& exception)
 	{
@@ -1096,6 +1105,20 @@ void AuxiliaryWindow::SetDacs()
 		ttlBoard.startBoard();
 		ttlBoard.waitTillFinished(0);
 		sendStat( "Finished Setting Dacs.\r\n" );
+		/*
+		dacBoards.analyzeDacCommands(0);
+		dacBoards.makeFinalDataFormat(0);
+		dacBoards.stopDacs();
+		dacBoards.configureClocks(0);
+		dacBoards.writeDacs(0);
+		dacBoards.startDacs();
+		ttlBoard.analyzeCommandList(0);
+		ttlBoard.convertToFinalFormat(0);
+		ttlBoard.writeData(0);
+		ttlBoard.startBoard();
+		ttlBoard.waitTillFinished(0);
+		sendStat( "Zero'd DACs.\r\n");
+		*/
 	}
 	catch (Error& exception)
 	{

@@ -85,7 +85,7 @@ class Script
 		bool isLocalReference;
 		bool isSaved;
 
-		long editChangeBegin;
-		long editChangeEnd;
+		ULONG editChangeBegin;
+		ULONG editChangeEnd;
 		bool syntaxColoringIsCurrent;
 };
