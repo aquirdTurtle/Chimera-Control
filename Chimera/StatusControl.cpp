@@ -14,13 +14,12 @@ void StatusControl::initialize(POINT &loc, CWnd* parent, int& id, UINT size, std
 							   COLORREF textColor, cToolTips& tooltips, UINT clearId)
 {
 	// set formatting for these scripts
-	header.sPos = { loc.x, loc.y, loc.x + 380, loc.y + 20 };
+	header.sPos = { loc.x, loc.y, loc.x + 380, loc.y + 25 };
 	header.Create(cstr(headerText), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, parent, id++);
 	header.fontType = HeadingFont;
 	//
-	clearButton.sPos = { loc.x + 380, loc.y, loc.x + 480, loc.y + 20 };
+	clearButton.sPos = { loc.x + 380, loc.y, loc.x + 480, loc.y += 25 };
 	clearButton.Create("Clear", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, clearButton.sPos, parent, clearId );
-	loc.y += 20;
 	//
 	edit.sPos = { loc.x, loc.y, loc.x + 480, loc.y + long(size)};
 	edit.Create( WS_CHILD | WS_VISIBLE | ES_READONLY | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | WS_BORDER, 

@@ -3,11 +3,12 @@
 #include "stdafx.h"
 #include "niFgen.h"
 #include <string>
+#include "miscellaneousCommonFunctions.h"
 
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to build and debug other 
 // aspects of the program.
-//#define MASTER_COMPUTER
-#define SPECTRE_LAPTOP
+#define MASTER_COMPUTER
+//#define SPECTRE_LAPTOP
 // #define DESKTOP_COMPUTER
 /// File Locations
 // Files for Desktop
@@ -78,11 +79,11 @@
 
 #ifdef MASTER_COMPUTER
 
-	#define NIAWG_SAFEMODE true
-	#define ANDOR_SAFEMODE true
+	#define NIAWG_SAFEMODE false
+	#define ANDOR_SAFEMODE false
 	#define PYTHON_SAFEMODE true
-	#define DIO_SAFEMODE true
-	#define DAQMX_SAFEMODE true
+	#define DIO_SAFEMODE false
+	#define DAQMX_SAFEMODE false
 	#define RSG_SAFEMODE false
 	#define TOP_BOTTOM_TEK_SAFEMODE false
 	#define TOP_BOTTOM_TEK_USB_ADDRESS "USB0::0x0699::0x0343::C021681::0::INSTR"
@@ -97,27 +98,26 @@
 	#define FLASHING_SAFEMODE false
 	#define FLASHING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50003003::0::INSTR"
 
-
 	#define PYTHON_HOME L"C:\\Program Files (x86)\Anaconda3\\"
 
-	const std::string CODE_ROOT = "C:\\Users\\Regal Lab\\Documents\\Chimera-Control\\Quantum-Gas-Assembly-Control";
-	const std::string PLOT_FILES_SAVE_LOCATION = CODE_ROOT + "\\Plotting";
+	#define CODE_ROOT "C:\\Users\\Regal-Lab\\Documents\\Chimera-Control"
+	const std::string PLOT_FILES_SAVE_LOCATION = str(CODE_ROOT) + "\\Plotting";
 	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
-	const std::string LIB_PATH = CODE_ROOT + "\\Waveforms Library\\WaveLibrary 350 MSpS\\";
-	const std::string DEFAULT_SCRIPT_FOLDER_PATH = CODE_ROOT + "\\Default Scripts\\";
+	const std::string LIB_PATH = str(CODE_ROOT) + "\\Waveforms-Library\\WaveLibrary 350 MSpS\\";
+	const std::string DEFAULT_SCRIPT_FOLDER_PATH = str(CODE_ROOT) + "\\Default Scripts\\";
 	const std::string EXPERIMENT_LOGGING_FILES_PATH = "D:\\NIAWG Logging Files\\Individual Experiments\\";
 	const std::string CODE_LOGGING_FILES_PATH = "D:\\Code Versions\\";
-	const std::string ACTUAL_CODE_FOLDER_PATH = CODE_ROOT + "\\Chimera\\";
-	const std::string PROFILES_PATH = CODE_ROOT + "\\Profiles\\";
+	const std::string ACTUAL_CODE_FOLDER_PATH = str(CODE_ROOT) + "\\Chimera\\";
+	const std::string PROFILES_PATH = str(CODE_ROOT) + "\\Profiles\\";
 	const std::string DATA_SAVE_LOCATION = "J:\\Data Repository\\New Data Repository\\";
 	const std::string KEY_ORIGINAL_SAVE_LOCATION = "C:\\Shared\\";
-	const std::string MUSIC_LOCATION = CODE_ROOT + "\\Final Fantasy VII - Victory Fanfare [HQ].mp3";
-	const std::string FUNCTIONS_FOLDER_LOCATION = CODE_ROOT + "\\Functions\\";
-	const std::string MASTER_CONFIGURATION_FILE_ADDRESS = CODE_ROOT + "\\Master-Configuration.txt";
-	const std::string LOGGING_FILE_ADDRESS = CODE_ROOT + "\\Master-Log.txt";
+	const std::string MUSIC_LOCATION = str(CODE_ROOT) + "\\Final Fantasy VII - Victory Fanfare [HQ].mp3";
+	const std::string FUNCTIONS_FOLDER_LOCATION = str(CODE_ROOT) + "\\Functions\\";
+	const std::string MASTER_CONFIGURATION_FILE_ADDRESS(str(CODE_ROOT) + "\\Master-Configuration.txt");
+	const std::string LOGGING_FILE_ADDRESS = str(CODE_ROOT) + "\\Master-Log.txt";
 	const std::string KEY_ADDRESS = "\\\\Callisto\\Shared\\key.txt";
-	const std::string MOT_ROUTINE_ADDRESS = CODE_ROOT + "\\Master Profiles\\Hotkey Experiments\\MOT\\turnOnMot.mScript";
-	const std::string DEBUG_OUTPUT_LOCATION = CODE_ROOT + "\\Debug-Output\\";
+	const std::string MOT_ROUTINE_ADDRESS = PROFILES_PATH + "Hotkey Experiments\\MOT\\turnOnMot.mScript";
+	const std::string DEBUG_OUTPUT_LOCATION = str(CODE_ROOT) + "\\Debug-Output\\";
 
 #endif
 

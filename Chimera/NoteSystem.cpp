@@ -55,11 +55,11 @@ void NoteSystem::handleOpenConfig(std::ifstream& openFile, double version)
 void NoteSystem::initialize(POINT& topLeftPos, CWnd* parentWindow, int& id, cToolTips& tooltips)
 {
 	/// EXPERIMENT LEVEL
-	experimentNotesHeader.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 20};
-	experimentNotesHeader.Create("EXPERIMENT NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, 
-								 experimentNotesHeader.sPos, parentWindow, id++ );
+	experimentNotesHeader.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 25};
+	experimentNotesHeader.Create( "EXPERIMENT NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, 
+								  experimentNotesHeader.sPos, parentWindow, id++ );
 	experimentNotesHeader.fontType = HeadingFont;
-	topLeftPos.y += 20;
+	topLeftPos.y += 25;
 	//
 	experimentNotes.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 200 };
 	experimentNotes.Create( WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | ES_WANTRETURN, experimentNotes.sPos,
@@ -67,11 +67,11 @@ void NoteSystem::initialize(POINT& topLeftPos, CWnd* parentWindow, int& id, cToo
 	topLeftPos.y += 200;
 	/// CATEGORY LEVEL
 	// Category Notes Title
-	categoryNotesHeader.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 20 };
-	categoryNotesHeader.Create("CATEGORY NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, categoryNotesHeader.sPos, 
-							   parentWindow, id++ );
+	categoryNotesHeader.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 25 };
+	categoryNotesHeader.Create( "CATEGORY NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, categoryNotesHeader.sPos, 
+							    parentWindow, id++ );
 	categoryNotesHeader.fontType = HeadingFont;
-	topLeftPos.y += 20;
+	topLeftPos.y += 25;
 	//  Category Notes edit
 	categoryNotes.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 200 };
 	categoryNotes.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | ES_WANTRETURN, categoryNotes.sPos,
@@ -79,16 +79,16 @@ void NoteSystem::initialize(POINT& topLeftPos, CWnd* parentWindow, int& id, cToo
 	topLeftPos.y += 200;
 	/// CONFIGURAITON LEVEL
 	// Configuration Notes Title
-	configurationNotesHeader.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 20 };
-	configurationNotesHeader.Create("CONFIGURAITON NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, 
-									configurationNotesHeader.sPos, parentWindow, id++);
+	configurationNotesHeader.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 25 };
+	configurationNotesHeader.Create( "CONFIGURAITON NOTES", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, 
+									 configurationNotesHeader.sPos, parentWindow, id++);
 	configurationNotesHeader.fontType = HeadingFont;
-	topLeftPos.y += 20;
+	topLeftPos.y += 25;
 	//  Configuration Notes edit
-	configurationNotes.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 215 };
-	configurationNotes.Create(WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | ES_WANTRETURN,
-							  configurationNotes.sPos, parentWindow, id++ );
-	topLeftPos.y += 215;
+	configurationNotes.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 195 };
+	configurationNotes.Create( WS_CHILD | WS_VISIBLE | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL | ES_WANTRETURN,
+							   configurationNotes.sPos, parentWindow, id++ );
+	topLeftPos.y += 195;
 }
 
 void NoteSystem::setExperimentNotes(std::string notes)

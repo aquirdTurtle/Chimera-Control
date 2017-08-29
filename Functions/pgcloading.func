@@ -27,7 +27,7 @@ def PgcLoading():
 	off: sideMotRf
 	off: diagMotRf
     
-	dacramp: MotFreq pgcDetuning -0.1 1 0.02
+	dacramp: MotFreq pgcDetuning 0.3 1 0.02
 
 	dac: repumpPower 0
 	dac: diagMotPower 0

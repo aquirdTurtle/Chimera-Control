@@ -1830,27 +1830,27 @@ std::string ProfileSystem::getMasterAddressFromConfig()
 void ProfileSystem::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& tooltips )
 {
 	// Experiment Type
-	experimentLabel.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 20 };
+	experimentLabel.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 25 };
 	experimentLabel.Create( "EXPERIMENT", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, experimentLabel.sPos,
 							parent, id++ );
 	experimentLabel.fontType = HeadingFont;
 	// Experiment Saved Indicator
-	experimentSavedIndicator.sPos = { pos.x + 360, pos.y, pos.x + 480, pos.y + 20 };
+	experimentSavedIndicator.sPos = { pos.x + 360, pos.y, pos.x + 480, pos.y + 25 };
 	experimentSavedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT,
 									 experimentSavedIndicator.sPos, parent, id++ );
 	experimentSavedIndicator.SetCheck( BST_CHECKED );
 	updateExperimentSavedStatus( true );
 	// Category Title
-	categoryLabel.sPos = { pos.x + 480, pos.y, pos.x + 960, pos.y + 20 };
+	categoryLabel.sPos = { pos.x + 480, pos.y, pos.x + 960, pos.y + 25 };
 	categoryLabel.Create( "CATEGORY", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, categoryLabel.sPos, parent, id++);
 	categoryLabel.fontType = HeadingFont;
 	//
-	categorySavedIndicator.sPos = { pos.x + 480 + 380, pos.y, pos.x + 960, pos.y + 20 };
+	categorySavedIndicator.sPos = { pos.x + 480 + 380, pos.y, pos.x + 960, pos.y + 25 };
 	categorySavedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT,
 								   categorySavedIndicator.sPos, parent, id++ );
 	categorySavedIndicator.SetCheck( BST_CHECKED );
 	updateCategorySavedStatus( true );
-	pos.y += 20;
+	pos.y += 25;
 	// Experiment Combo
 	experimentCombo.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 800 };
 	experimentCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE | WS_TABSTOP,
@@ -1862,21 +1862,21 @@ void ProfileSystem::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& to
 						  categoryCombo.sPos, parent, IDC_CATEGORY_COMBO );
 	pos.y += 25;
 	// Orientation Title
-	orientationLabel.sPos = { pos.x, pos.y, pos.x + 120, pos.y + 20 };
+	orientationLabel.sPos = { pos.x, pos.y, pos.x + 120, pos.y + 25 };
 	orientationLabel.Create( "ORIENTATION", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, orientationLabel.sPos,
 							 parent, id++);
 	orientationLabel.fontType = HeadingFont;
 	// Configuration Title
-	configLabel.sPos = { pos.x + 120, pos.y, pos.x + 960, pos.y + 20 };
+	configLabel.sPos = { pos.x + 120, pos.y, pos.x + 960, pos.y + 25 };
 	configLabel.Create( "CONFIGURATION", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, configLabel.sPos, parent, id++);
 	configLabel.fontType = HeadingFont;
 	// Configuration Saved Indicator
-	configurationSavedIndicator.sPos = { pos.x + 860, pos.y, pos.x + 960, pos.y + 20 };
+	configurationSavedIndicator.sPos = { pos.x + 860, pos.y, pos.x + 960, pos.y + 25 };
 	configurationSavedIndicator.Create( "Saved?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_LEFTTEXT,
 										configurationSavedIndicator.sPos, parent, id++);
 	configurationSavedIndicator.SetCheck( BST_CHECKED );
 	updateConfigurationSavedStatus( true );
-	pos.y += 20;
+	pos.y += 25;
 	//eConfigurationSaved = true;
 	// orientation combo
 	std::vector<std::string> orientationNames;
@@ -1896,10 +1896,10 @@ void ProfileSystem::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& to
 					    configCombo.sPos, parent, IDC_CONFIGURATION_COMBO );
 	pos.y += 25;
 	/// SEQUENCE
-	sequenceLabel.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 20 };
+	sequenceLabel.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 25 };
 	sequenceLabel.Create( "SEQUENCE", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, sequenceLabel.sPos, parent, id++);
 	sequenceLabel.fontType = HeadingFont;
-	pos.y += 20;
+	pos.y += 25;
 	// combo
 	sequenceCombo.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 800 };
 	sequenceCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,

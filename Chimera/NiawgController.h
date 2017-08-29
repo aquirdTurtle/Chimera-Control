@@ -95,7 +95,7 @@ class NiawgController
 
 		/// member variables
 		// Important. This can change if you change computers.
-		const ViRsrc NI_5451_LOCATION = "Dev1";
+		const ViRsrc NI_5451_LOCATION = "Dev6";
 		std::string defaultOrientation;
 		niawgPair<std::string> currentScripts;
 		bool runningState;

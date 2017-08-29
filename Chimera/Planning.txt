@@ -8,16 +8,18 @@ Features:
 - could clean up textpromptdialog handling, should be possible with one line.
 - Consider thread organization with master run thread & Niawg run Thread
 - change / remove "orientation" handling.
-- plotting / autoanalysis
 - Display Actual kinetic Cycle Time
 - Display minimum kinetic cycle time
 - Improve frame rate?
 	- should be able to get 3.12 frames / sec or so at full array size
+- NIAWG scripting in single script instead of Hor/Vert scripts.
 - Agilent Safemode / combine agilent w/ master agilent.
 - Watch cursor location
+- update colors for variables
 
 Bugs:                                                                           
-- restart niawg freezes program (can't reproduce in test)
+- restart niawg freezes program
+- Zero-Dacs doesn't work
 
 =================
 Finished

@@ -91,7 +91,7 @@ class AuxiliaryWindow : public CDialog
 		void handleAxialUWaveAgilentCombo();
 		void handleFlashingAgilentCombo();
 
-		void loadMotSettings();
+		void loadMotSettings(MasterThreadInput* input);
 		void handleTektronicsButtons(UINT id);
 
 		void sendErr(std::string msg);
@@ -129,7 +129,6 @@ class AuxiliaryWindow : public CDialog
 
 		/// control system classes
 		ExperimentLogger logger;
-		MasterManager manager;
 		RhodeSchwarz RhodeSchwarzGenerator;
 		KeyHandler masterKey;
 		Agilent topBottomAgilent, uWaveAxialAgilent, flashingAgilent;

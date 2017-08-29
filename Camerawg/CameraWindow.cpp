@@ -60,6 +60,7 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 	ON_NOTIFY(NM_DBLCLK, IDC_PLOTTING_LISTVIEW, &CameraWindow::handleDblClick)
 
 	ON_COMMAND(IDC_ALERTS_BOX, &CameraWindow::passAlertPress)
+	ON_NOTIFY(NM_THEMECHANGED, IDOK, &CameraWindow::OnNMThemeChangedOk)
 END_MESSAGE_MAP()
 
 

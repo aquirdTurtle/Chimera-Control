@@ -3,55 +3,55 @@ diagmotrf
 0
 repumprf
 0
-a2
+botramanrf
 0
-a3
+sigmarepumprf
 0
-a4
+sigmaoprf
 0
-a5
+sidemotrf
 0
-a6
+tweezerrf
 0
 a7
 0
-a8
+eoramanrf
 0
 a9
 0
-a10
+topramanrf
 0
-a11
+axialramanrf
 0
 a12
 0
-a13
+radialgaussianpulsetrig
 0
-a14
+oscilloscopetrig
 0
 a15
 0
-b0
+scouttrig
 0
-b1
+repumpshutter
 0
-b2
+motshutter
 0
-b3
+lsshutter
 0
 b4
 0
 b5
 0
-b6
+tweezerintensitytrig
 0
 b7
 0
 b8
 0
-b9
+depumptrig
 0
-b10
+795shutter
 0
 b11
 0
@@ -59,55 +59,55 @@ b12
 0
 b13
 0
-b14
+niawgtrig
 0
-b15
+afgsweeptrig
 0
-c0
+eoswitch
 0
-c1
+eoswitch2
 0
-c2
+andortrig
 0
-c3
+rstrig
 0
-c4
+ramanshutter
 0
-c5
+tweezerflashrf
 0
-c6
+lsrf
 0
-c7
+tweezerflashrf2
 0
 c8
 0
-c9
+depumpingrf
 0
-c10
+795rf
 0
-c11
+oscilloscopetrig
 0
-c12
+probeshutter
 0
-c13
+sidemotshutter
 0
 c14
 0
-c15
+acetrig
 0
-d0
+diagmotshutter
 0
 d1
 0
-d2
+andorshutter
 0
-d3
+axialmicropulsetrig
 0
-d4
+topfsktrig
 0
-d5
+botfsktrig
 0
-d6
+axialfsktrig
 0
 d7
 0
@@ -115,91 +115,109 @@ d8
 0
 d9
 0
-d10
+acetrig
 0
 d11
 0
-hello
+d12
 0
 d13
 0
-d14
+dacboardtrig
 0
 d15
 0
-dac0
+rightcoilcurrent
 -10 - 10
 0
-dac1
+leftcoilcurrent
 -10 - 10
 0
-dac2
+frontcoilcurrent
 -10 - 10
 0
-dac3
+backcoilcurrent
 -10 - 10
 0
-dac4
+bottomcoilcurrent
 -10 - 10
 0
-dac5
+topcoilcurrent
 -10 - 10
 0
-dac6
+motgradientcurrent
 -10 - 10
 0
 dac7
 -10 - 10
 0
-dac8
+depumppower
 -10 - 10
 0
-dac9
+diagmotpower
 -10 - 10
 0
-dac10
+depumpfreq
 -10 - 10
 0
-dac11
+repumppower
 -10 - 10
 0
-dac12
+sigmaopfreq
 -10 - 10
 0
-dac13
+sigmaoppower
 -10 - 10
 0
-dac14
+sigmarepumpfreq
 -10 - 10
 0
-dac15
+sigmarepumppower
 -10 - 10
 0
-dac16
+lspower
 -10 - 10
 0
-dac17
+795freq
 -10 - 10
 0
-dac18
+795power
 -10 - 10
 0
 dac19
 -10 - 10
 0
-dac20
+motfreq
 -10 - 10
 0
-dac21
+repumpfreq
 -10 - 10
 0
-dac22
+sidemotpower
 -10 - 10
 0
-dac23
+piezomirror
 -10 - 10
 0
-2
-testglobal 4
-motstuff 1000
-1 15 1 1 15 1
+20
+loadmotrightfield 1.12
+loadmotleftfield -0.755
+loadmottopfield -0.1
+loadmotbottomfield -0.15
+loadmotfrontfield -0.8
+loadmotbackfield 1.47507
+loadmottime 150
+pgctime 18
+pgcdetuning -1
+pgcleftfield -0.465
+pgcrightfield 0.465
+pgctopfield 2.009
+pgcbottomfield -2.009
+pgcfrontfield -0.545
+pgcbackfield 0.545
+andorimagetime 25
+imagingpower 0.14
+imagingdetuning 0.35
+pushoutdepth -0.05
+pushoutfreq 0.45
+1 512 1 1 512 1

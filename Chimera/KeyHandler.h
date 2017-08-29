@@ -14,7 +14,6 @@ class KeyHandler
 		key getKey();
 		void loadVariables(std::vector<variable> variables);
 		void generateKey( bool randomizeVariablesOption );
-		void exportKey();
 	private:	
 		std::vector<variable> variables;
 		key keyValues;

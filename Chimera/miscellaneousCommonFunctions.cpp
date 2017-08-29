@@ -33,6 +33,7 @@ void appendText(std::string newText, Control<CRichEditCtrl>& edit)
 	//	edit.LineScroll(INT_MAX);
 }
 
+
 std::string doubleToString( double number, long precision )
 {
 	std::stringstream stream;

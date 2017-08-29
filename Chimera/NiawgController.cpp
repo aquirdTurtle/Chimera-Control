@@ -132,7 +132,7 @@ void NiawgController::setRunningState( bool newRunningState )
 
 std::string NiawgController::getCurrentScript()
 {
-	return fgenConduit.getCurrentScript();;
+	return fgenConduit.getCurrentScript();
 }
 
 
@@ -1966,21 +1966,10 @@ void NiawgController::finalizeStandardWave( simpleWave& wave, debugInfo options 
 	wave.chan[Horizontal].wave.shrink_to_fit();
 }
 
-
+// which should be Horizontal or Vertical.
 void NiawgController::setDefaultWaveformScript( UINT which )
 {
-	if (which == Horizontal)
-	{
-		fgenConduit.setViStringAttribute( NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultHConfigScript" );
-	}
-	else if (which == Vertical)
-	{
-		fgenConduit.setViStringAttribute( NIFGEN_ATTR_SCRIPT_TO_GENERATE, "DefaultVConfigScript" );
-	}
-	else
-	{
-		thrower( "ERROR: Tried to set default waveform with bad input!" );
-	}
+	fgenConduit.setViStringAttribute(NIFGEN_ATTR_SCRIPT_TO_GENERATE, cstr("Default" + AXES_NAMES[which] + "ConfigScript"));
 }
 
 

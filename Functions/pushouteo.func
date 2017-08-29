@@ -1,9 +1,9 @@
 % pushout(). Takes 10 + pushoutTime ms, typically around 11ms.
-def pushout():
+def pushoutEO():
   	% insert commands here... 
 	dacramp: dac17 -0.128 pushoutDepth 5 0.005 % initial depth -1.1, ramp step 0.02
 	dac: motFreq pushoutFreq
-	dac: sideMotPower 0.3 %0.01
+	dac: sideMotPower 0.2 %0.01
 	% mostly for the power ramp. also, lets the mot frequency settle.
 	t += 5
 	on: A5

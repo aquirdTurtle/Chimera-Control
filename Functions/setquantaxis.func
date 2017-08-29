@@ -1,0 +1,11 @@
+% Master-Script See the "?" for info on commands.
+def setQuantAxis():
+ % turning on magnetic field to 3G pointing to getter 
+ %for the quantization axis 
+        dac: frontcoilcurrent -0.5932
+        dac: backcoilcurrent 0.2614
+        dac: rightcoilcurrent -2.7361
+        dac: leftcoilcurrent 3.6461
+        dac: bottomcoilcurrent -2.0423
+        dac: topcoilcurrent 2.0223
+        t += 0.01

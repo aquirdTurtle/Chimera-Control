@@ -206,7 +206,7 @@ BOOL ScriptingWindow::OnInitDialog()
 									  "Horizontal NIAWG Script", { IDC_HORIZONTAL_NIAWG_FUNCTION_COMBO, 
 									  IDC_HORIZONTAL_NIAWG_EDIT }, mainWindowFriend->getRgbs()["Solarized Base03"]);
 	startLocation = { 960, 28 };
-	intensityAgilent.initialize( startLocation, tooltips, this, id, TESTING_AGILENT_USB_ADDRESS,
+	intensityAgilent.initialize( startLocation, tooltips, this, id, INTENSITY_AGILENT_USB_ADDRESS,
 								 "Intensity Agilent", 1000, { IDC_INTENSITY_CHANNEL1_BUTTON, 
 								 IDC_INTENSITY_CHANNEL2_BUTTON, IDC_INTENSITY_SYNC_BUTTON, IDC_INTENSITY_PROGRAM, 
 								 IDC_INTENSITY_AGILENT_COMBO, IDC_INTENSITY_FUNCTION_COMBO, IDC_INTENSITY_EDIT }, 
@@ -409,6 +409,8 @@ void ScriptingWindow::openIntensityScript( CWnd* parent )
 		intensityAgilent.agilentScript.openParentScript( intensityOpenName, getProfile().categoryPath, mainWindowFriend->getRunInfo() );
 		updateConfigurationSavedStatus( false );
 		intensityAgilent.agilentScript.updateScriptNameText( getProfile().categoryPath );
+		intensityAgilent.agilentScript.colorEntireScript(auxWindowFriend->getAllVariables(), mainWindowFriend->getRgbs(),
+			auxWindowFriend->getTtlNames(), auxWindowFriend->getDacNames());
 	}
 	catch (Error& err)
 	{
@@ -485,10 +487,12 @@ void ScriptingWindow::openVerticalScript(CWnd* parent)
 	{
 		verticalNiawgScript.checkSave( getProfile().categoryPath, mainWindowFriend->getRunInfo() );
 		std::string intensityOpenName = openWithExplorer( parent );
-		verticalNiawgScript.openParentScript( intensityOpenName, getProfile().categoryPath,
+		verticalNiawgScript.openParentScript( intensityOpenName, getProfile().categoryPath, 
 											  mainWindowFriend->getRunInfo() );
 		updateConfigurationSavedStatus( false );
 		verticalNiawgScript.updateScriptNameText( getProfile().categoryPath );
+		verticalNiawgScript.colorEntireScript(auxWindowFriend->getAllVariables(), mainWindowFriend->getRgbs(),
+			auxWindowFriend->getTtlNames(), auxWindowFriend->getDacNames());
 	}
 	catch (Error& err)
 	{
@@ -564,6 +568,8 @@ void ScriptingWindow::openHorizontalScript(CWnd* parent)
 		horizontalNiawgScript.openParentScript( horizontalOpenName, getProfile().categoryPath, mainWindowFriend->getRunInfo() );
 		updateConfigurationSavedStatus( false );
 		horizontalNiawgScript.updateScriptNameText( getProfile().categoryPath );
+		horizontalNiawgScript.colorEntireScript(auxWindowFriend->getAllVariables(), mainWindowFriend->getRgbs(),
+			auxWindowFriend->getTtlNames(), auxWindowFriend->getDacNames());
 	}
 	catch (Error& err)
 	{
@@ -669,6 +675,8 @@ void ScriptingWindow::openMasterScript(CWnd* parent)
 	masterScript.openParentScript(horizontalOpenName, getProfile().categoryPath, mainWindowFriend->getRunInfo());
 	updateConfigurationSavedStatus(false);
 	masterScript.updateScriptNameText(getProfile().categoryPath);
+	masterScript.colorEntireScript(auxWindowFriend->getAllVariables(), mainWindowFriend->getRgbs(),
+		auxWindowFriend->getTtlNames(), auxWindowFriend->getDacNames());
 }
 
 

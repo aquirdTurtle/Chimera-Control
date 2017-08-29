@@ -21,6 +21,7 @@ class ScriptingWindow;
 class CameraWindow;
 class AuxiliaryWindow;
 
+
 class MainWindow : public CDialog
 {
 	using CDialog::CDialog;
@@ -60,7 +61,7 @@ class MainWindow : public CDialog
 		void setNotes(std::string whichLevel, std::string notes);
 		void setNiawgDefaults();
 		void fillMasterThreadInput( MasterThreadInput* input );
-		void startMaster( MasterThreadInput* input );
+		void startMaster( MasterThreadInput* input, bool isTurnOnMot );
 		std::string getNotes(std::string whichLevel);
 		brushMap getBrushes();
 		rgbMap getRgbs();
@@ -113,7 +114,9 @@ class MainWindow : public CDialog
 		StatusControl errorStatus;
 		SmsTextingControl texter;
 		StatusIndicator shortStatus;
+		
 		NiawgController niawg;
+
 		ColorBox boxes;
 		// auxiliary members
 		Communicator comm;

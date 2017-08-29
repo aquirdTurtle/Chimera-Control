@@ -1,0 +1,36 @@
+% Master-Script See the "?" for info on commands.
+def pump2stretch():
+  % insert commands here...
+        %printnow "Populating F=|22>"
+                 
+        %Setting the pumping beam frequencies:
+        dacramp: dac21 0 -1.65 10 0.1 
+        %Ramp of DAC 21, F1 offset lock to 2.32 for 2.2 mK trap and -.5V on dac14 AO, -1.5 for 1.1 mK
+        dac: sigmarepumpfreq -0.12 %ROP AO, -.5 for 2mK, trap, 0 for 1.1 mK 141217,AMK, -0.12 for 7.15mW two traps, YL 10262016
+        dac: motfreq 0.735  %F2 light 1.1 for 2.1 mK and adjusted AO, .75 for 1.1mK
+        
+        %Setting OP frequency based on trap depth:
+        dac: sigmaopfreq 1.16 %frequency for 1.1mK trap depth (may need recalibration) ' calibrated at 11032016
+        
+        call setQuantAxis()
+
+        t += 17.99  %to let field settle and lasers settle
+         
+        %Setting the pumping beam powers:
+        dac: sigmaoppower 0.3 % sigma+ OP beam power
+        dac: sigmarepumppower 0.3 %sigma+ Repump beam power
+         
+        %Performing OP pulse:
+        on: sigmaoprf  %OP light on ***** '+++
+        on: sigmarepumprf %Sigma+ repump beam *****
+        
+        t += 10 %1.5 % adding extra 1 ms for better pumping 20161011
+        
+        off: sigmaoprf
+        off: sigmarepumprf 
+         
+        dac: sigmaoppower 0
+        dac: sigmarepumppower 0
+
+
+        t += 0.01

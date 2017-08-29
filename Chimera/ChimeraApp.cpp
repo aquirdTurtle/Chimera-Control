@@ -179,4 +179,5 @@ BOOL ChimeraApp::InitInstance()
 	return int(returnVal);
 }
 
+// 
 ChimeraApp app;

@@ -166,16 +166,16 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		{
 			expUpdate( "Programmed time per repetition: " + str( input->ttls->getTotalTime( 0 ) ) + "\r\n",
 					   input->comm, input->quiet );
-		ULONGLONG totalTime = 0;
-		for (USHORT var = 0; var < variations; var++)
-		{
-			totalTime += ULONGLONG(input->ttls->getTotalTime( var ) * input->repetitionNumber);
-		}
-		expUpdate( "Programmed Total Experiment time: " + str( totalTime ) + "\r\n", input->comm, input->quiet );
-		expUpdate( "Number of TTL Events in experiment: " + str( input->ttls->getNumberEvents( 0 ) ) + "\r\n", input->comm,
-				   input->quiet );
-		expUpdate( "Number of DAC Events in experiment: " + str( input->dacs->getNumberEvents( 0 ) ) + "\r\n", input->comm,
-				   input->quiet );
+			ULONGLONG totalTime = 0;
+			for (USHORT var = 0; var < variations; var++)
+			{
+				totalTime += ULONGLONG(input->ttls->getTotalTime( var ) * input->repetitionNumber);
+			}
+			expUpdate( "Programmed Total Experiment time: " + str( totalTime ) + "\r\n", input->comm, input->quiet );
+			expUpdate( "Number of TTL Events in experiment: " + str( input->ttls->getNumberEvents( 0 ) ) + "\r\n", input->comm,
+					   input->quiet );
+			expUpdate( "Number of DAC Events in experiment: " + str( input->dacs->getNumberEvents( 0 ) ) + "\r\n", input->comm,
+					   input->quiet );
 		}
 
 		if (input->debugOptions.showTtls)
@@ -362,7 +362,10 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 	}
 	catch (Error& exception)
 	{
-		input->agilents[input->intensityAgilentNumber]->setDefualt(0);
+		if (input->intensityAgilentNumber != -1)
+		{
+			input->agilents[input->intensityAgilentNumber]->setDefualt(0);
+		}
 
 		if (input->runNiawg)
 		{
@@ -439,6 +442,9 @@ void MasterManager::loadMotSettings(MasterThreadInput* input)
 	}
 
 	loadMasterScript(input->masterScriptAddress);
+	input->thisObj = this;
+	input->key->loadVariables(input->variables);
+	input->key->generateKey(false);
 	// start thread.
 	runningThread = AfxBeginThread(experimentThreadProcedure, input);	
 }
