@@ -197,6 +197,7 @@
     <ClInclude Include="ColorBox.h" />
     <ClInclude Include="commonTypes.h" />
     <ClInclude Include="Communicator.h" />
+    <ClInclude Include="DacStructures.h" />
     <ClInclude Include="profileSettings.h" />
     <ClInclude Include="ProfileSystem.h" />
     <ClInclude Include="DacSettingsDialog.h" />
@@ -357,6 +358,9 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="Planning.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DioStructures.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

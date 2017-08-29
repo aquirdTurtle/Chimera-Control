@@ -109,7 +109,7 @@ void MasterConfiguration::updateDefaultDacs(DacSystem dacs)
 }
 
 
-void MasterConfiguration::updateDefaultTTLs(TtlSystem ttls)
+void MasterConfiguration::updateDefaultTTLs(DioSystem ttls)
 {
 	for (int ttlRowInc = 0; ttlRowInc < ttls.getNumberOfTTLRows(); ttlRowInc++)
 	{

@@ -115,11 +115,6 @@ template <typename T> std::string str(T input, const int precision = 6, bool eat
 	return outStr;
 }
 
-// first part of pair is the variable component of the time, second part is the "raw" or constant part of the time.
-// this structure will be evaluated to determine the real time (given a variation # and variable values) that an 
-// operation will take place at.
-typedef std::pair<std::vector<std::string>, double> timeType;
-
 
 // overloaded defines are tricky in c++. This is effectively just an overloaded define for 
 //#define cstr(input) str(input).c_str()

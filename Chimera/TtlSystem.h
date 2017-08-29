@@ -5,71 +5,21 @@
 #include <unordered_map>
 #include "KeyHandler.h"
 #include "miscellaneousCommonFunctions.h"
+#include "DioStructures.h"
 
 /**/
 class AuxiliaryWindow;
 
-// this struct keeps variable names.
-struct TtlCommandForm
-{
-	// the hardware location of this line
-	std::pair<unsigned short, unsigned short> line;
-	// the time to make the change
-	timeType time;
-	// the value to set it to. 
-	bool value;
-};
-
-// no variables in this version. It's calculated each variation based on corresponding ComandForm structs.
-struct TtlCommand
-{
-	// the hardware location of this line
-	std::pair<unsigned short, unsigned short> line;
-	// the time to make the change
-	double time;
-	// the value to set it to. 
-	bool value;
-};
-
-// an object constructed for having all info the ttls for a single time
-struct TtlSnapshot
-{
-	// the time of the snapshot
-	double time;
-	// all values at this time.
-	std::array< std::array<bool, 16>, 4 > ttlStatus;
-};
-
-typedef struct _DIO64STAT 
-{
-	USHORT pktsize;
-	USHORT portCount;
-	USHORT writePtr;
-	USHORT readPtr;
-	USHORT time[2];
-	ULONG fifoSize;
-	USHORT fifo0;
-	ULONG  ticks;
-	USHORT flags;
-	USHORT clkControl;
-	USHORT startControl;
-	USHORT stopControl;
-	ULONG AIControl;
-	USHORT AICurrent;
-	USHORT startTime[2];
-	USHORT stopTime[2];
-	USHORT user[4];
-} DIO64STAT;
 
 /*
-]- The TtlSystem class is based on the DIO64.bas module in the original VB6 code. It does use the dio64_32.dll system, but we always refer to these 
+]- The DioSystem class is based on the DIO64.bas module in the original VB6 code. It does use the dio64_32.dll system, but we always refer to these 
 ]- controls as the TTLs, so I call it that.
 ]- This should be converted to a constant class at some point.
 */
-class TtlSystem
+class DioSystem
 {
 	public:
-	    TtlSystem();
+	    DioSystem();
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, double version);
 		void initialize(POINT& startLocation, cToolTips& toolTips, AuxiliaryWindow* master, int& id);
@@ -100,9 +50,9 @@ class TtlSystem
 
 		void setName(UINT row, UINT number, std::string name, cToolTips& toolTips, AuxiliaryWindow* master);
 		std::string getName(UINT row, UINT number);
-		std::array<std::array<std::string, 16>, 4> TtlSystem::getAllNames();
+		std::array<std::array<std::string, 16>, 4> DioSystem::getAllNames();
 		// returns -1 if not a name.get
-		int TtlSystem::getNameIdentifier(std::string name, UINT& row, UINT& number);
+		int DioSystem::getNameIdentifier(std::string name, UINT& row, UINT& number);
 		bool getTtlStatus(int row, int number);
 		std::string getErrorMessage(int errorCode);
 		void handleTtlScriptCommand( std::string command, timeType time, std::string name,
@@ -119,7 +69,7 @@ class TtlSystem
 		void wait(double time);
 		void waitTillFinished(UINT var);
 
-		//int TtlSystem::getNameIdentifier(std::string name, unsigned int& row, unsigned int& number);
+		//int DioSystem::getNameIdentifier(std::string name, unsigned int& row, unsigned int& number);
 		void shadeTTLs(std::vector<std::pair<UINT, UINT>>);
 		void unshadeTtls();
 		bool isValidTTLName(std::string name);
@@ -147,13 +97,13 @@ class TtlSystem
 
 
 
-		std::vector<TtlCommandForm> ttlCommandFormList;
+		std::vector<DioCommandForm> ttlCommandFormList;
 		// Each element of first vector is for each variation.
-		std::vector<std::vector<TtlCommand>> individualTtlCommandList;
+		std::vector<std::vector<DioCommand>> ttlCommandList;
 		// Each element of first vector is for each variation.
-		std::vector<std::vector<TtlSnapshot>> ttlSnapshots;
+		std::vector<std::vector<DioSnapshot>> ttlSnapshots;
 		// Each element of first vector is for each variation.
-		std::vector<std::vector<std::array<WORD, 6>>> finalFormattedCommandForDio;
+		std::vector<std::vector<std::array<WORD, 6>>> finalFormatDioData;
 
 		std::array<std::array<bool, 16>, 4> defaultTtlState;
 

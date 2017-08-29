@@ -10,12 +10,12 @@ class MasterConfiguration
 {
 	public:
 		MasterConfiguration(std::string address);
-		//void save(TtlSystem* ttls, DacSystem* dacs, VariableSystem* gloablVars );
+		//void save(DioSystem* ttls, DacSystem* dacs, VariableSystem* gloablVars );
 		void save(MainWindow* mainWin, AuxiliaryWindow* auxWin, CameraWindow* camWin);
-		//void load(TtlSystem* ttls, DacSystem& dacs, cToolTips& toolTips,
+		//void load(DioSystem* ttls, DacSystem& dacs, cToolTips& toolTips,
 		//		  AuxiliaryWindow* master, VariableSystem* globalVars);
 		void load(MainWindow* mainWin, AuxiliaryWindow* auxWin, CameraWindow* camWin);
-		void updateDefaultTTLs(TtlSystem ttls);
+		void updateDefaultTTLs(DioSystem ttls);
 		void updateDefaultDacs(DacSystem dacs);
 	private:
 		//std::array<std::array<bool, 16>, 4> defaultTtls;
