@@ -617,7 +617,7 @@ void MasterManager::analyzeFunctionDefinition(std::string defLine, std::string& 
 }
 
 
-void MasterManager::analyzeFunction( std::string function, std::vector<std::string> args, TtlSystem* ttls,
+void MasterManager::analyzeFunction( std::string function, std::vector<std::string> args, DioSystem* ttls,
 										 DacSystem* dacs, std::vector<std::pair<UINT, UINT>>& ttlShades,
 										 std::vector<UINT>& dacShades, RhodeSchwarz* rsg, std::vector<variable>& vars)
 {
@@ -964,7 +964,7 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 }
 
 
-void MasterManager::analyzeMasterScript( TtlSystem* ttls, DacSystem* dacs,
+void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs,
 										 std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades, 
 										 RhodeSchwarz* rsg, std::vector<variable>& vars)
 {
