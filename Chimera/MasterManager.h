@@ -30,7 +30,7 @@ struct MasterThreadInput
 {
 	DataLogger* logger;
 	profileSettings profile;
-	TtlSystem* ttls;											
+	DioSystem* ttls;											
 	DacSystem* dacs;
 	UINT repetitionNumber;
 	std::vector<variable> variables;
@@ -78,7 +78,7 @@ class MasterManager
 		std::string getErrorMessage(int errorCode);
 		void loadMasterScript(std::string scriptAddress);
 
-		void analyzeMasterScript( TtlSystem* ttls, DacSystem* dacs, 
+		void analyzeMasterScript( DioSystem* ttls, DacSystem* dacs, 
 								  std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades, 
 								  RhodeSchwarz* rsg, std::vector<variable>& vars);
 
@@ -103,7 +103,7 @@ class MasterManager
 		ScriptStream currentMasterScript;
 		std::string functionsFolderLocation;
 		// called by analyzeMasterScript functions only.
-		void analyzeFunction( std::string function, std::vector<std::string> args, TtlSystem* ttls, DacSystem* dacs,
+		void analyzeFunction( std::string function, std::vector<std::string> args, DioSystem* ttls, DacSystem* dacs,
 							  std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades, 
 							  RhodeSchwarz* rsg, std::vector<variable>& vars);
 		// 

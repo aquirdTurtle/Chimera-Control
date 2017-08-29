@@ -78,7 +78,6 @@ class AuxiliaryWindow : public CDialog
 		void changeBoxColor(systemInfo<char> colors);
 		void DacEditChange(UINT id);
 		void SetDacs();
-		void LogSettings();
 		
 		fontMap getFonts();
 
@@ -128,11 +127,10 @@ class AuxiliaryWindow : public CDialog
 		toolTipTextMap toolTipText;
 
 		/// control system classes
-		ExperimentLogger logger;
 		RhodeSchwarz RhodeSchwarzGenerator;
 		KeyHandler masterKey;
 		Agilent topBottomAgilent, uWaveAxialAgilent, flashingAgilent;
- 		TtlSystem ttlBoard;
+ 		DioSystem ttlBoard;
  		DacSystem dacBoards;
  		MasterConfiguration masterConfig{ MASTER_CONFIGURATION_FILE_ADDRESS };
 		TektronicsControl topBottomTek, eoAxialTek;

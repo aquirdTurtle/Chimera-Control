@@ -23,27 +23,10 @@ const std::array<std::string, 2> AXES_NAMES = { "Vertical", "Horizontal" };
 const niawgPair<std::string> ORIENTATION = { VERTICAL_ORIENTATION, HORIZONTAL_ORIENTATION };
 
 bool eWaitError = false;
-
-DWORD eIntensityMinChange = ULONG_MAX, eIntensityMaxChange = 0;
-DWORD eHorizontalMinChange = ULONG_MAX, eHorizontalMaxChange = 0;
-DWORD eVerticalMinChange = ULONG_MAX, eVerticalMaxChange = 0;
-//
-
-std::string eVerticalParentScriptPathString;
-std::string eVerticalViewScriptPathString;
-std::string eHorizontalParentScriptPathString;
-std::string eHorizontalViewScriptPathString;
-std::string eIntensityParentScriptPathString;
-std::string eIntensityViewScriptPathString;
-
-
 bool eAbortNiawgFlag = false;
 
 // thread messages
 // register messages for main window.
-UINT eVariableStatusMessageID = RegisterWindowMessage( "ID_THREAD_VARIABLE_STATUS" );
-UINT eGreenMessageID = RegisterWindowMessage( "ID_THREAD_GUI_GREEN" );
-UINT eStatusTextMessageID = RegisterWindowMessage( "ID_THREAD_STATUS_MESSAGE" );
 UINT eDebugMessageID = RegisterWindowMessage( "ID_THREAD_DEBUG_MESSAGE" );
 UINT eErrorTextMessageID = RegisterWindowMessage( "ID_THREAD_ERROR_MESSAGE" );
 UINT eFatalErrorMessageID = RegisterWindowMessage( "ID_THREAD_FATAL_ERROR_MESSAGE" );
@@ -54,7 +37,6 @@ UINT eCameraProgressMessageID = RegisterWindowMessage( "ID_CAMERA_PROGRESS_MESSA
 UINT eRepProgressMessageID = RegisterWindowMessage("ID_REPETITION_PROGRESS_MESSAGE");
 
 HANDLE eWaitingForNIAWGEvent;
-HANDLE eExperimentThreadHandle;
 HANDLE eNIAWGWaitThreadHandle;
 
 /// Beginning Settings Dialog

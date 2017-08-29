@@ -12,7 +12,7 @@
 // #include "Dio64.h"
 
 
-void TtlSystem::handleSaveConfig(std::ofstream& saveFile)
+void DioSystem::handleSaveConfig(std::ofstream& saveFile)
 {
 	/// ttl settings
 	saveFile << "TTLS\n";
@@ -27,7 +27,7 @@ void TtlSystem::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void TtlSystem::handleOpenConfig(std::ifstream& openFile, double version)
+void DioSystem::handleOpenConfig(std::ifstream& openFile, double version)
 {
 	ProfileSystem::checkDelimiterLine(openFile, "TTLS");
 
@@ -60,12 +60,12 @@ void TtlSystem::handleOpenConfig(std::ifstream& openFile, double version)
 }
 
 
-ULONG TtlSystem::countDacTriggers(UINT var)
+ULONG DioSystem::countDacTriggers(UINT var)
 {
 	ULONG triggerCount = 0;
 	// D14
 	std::pair<unsigned short, unsigned short> dacLine = { 3,15 };
-	for (auto command : individualTtlCommandList[var])
+	for (auto command : ttlCommandList[var])
 	{
 		// count each rising edge.
 		if (command.line == dacLine && command.value == true)
@@ -77,13 +77,13 @@ ULONG TtlSystem::countDacTriggers(UINT var)
 }
 
 
-std::array< std::array<bool, 16>, 4 > TtlSystem::getFinalSnapshot()
+std::array< std::array<bool, 16>, 4 > DioSystem::getFinalSnapshot()
 {
 	return ttlSnapshots.back().back().ttlStatus;
 }
 
 
-void TtlSystem::setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > status)
+void DioSystem::setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > status)
 {
 	ttlStatus = status;
 
@@ -106,7 +106,7 @@ void TtlSystem::setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > sta
 }
 
 
-TtlSystem::TtlSystem()
+DioSystem::DioSystem()
 {
 	if (DIO_SAFEMODE)
 	{
@@ -167,7 +167,7 @@ TtlSystem::TtlSystem()
 	}
 }
 
-std::string TtlSystem::getSystemInfo()
+std::string DioSystem::getSystemInfo()
 {
 	DWORD answer = 1000;
 	std::string info = "TTL System Info:\nInput Mode: ";
@@ -254,13 +254,13 @@ std::string TtlSystem::getSystemInfo()
 	return info;
 }
 
-std::array<std::array<std::string, 16>, 4> TtlSystem::getAllNames()
+std::array<std::array<std::string, 16>, 4> DioSystem::getAllNames()
 {
 	return ttlNames;
 }
 
 
-void TtlSystem::startBoard()
+void DioSystem::startBoard()
 {
 	DIO64STAT status;
 	DWORD scansAvailable;
@@ -270,7 +270,7 @@ void TtlSystem::startBoard()
 }
 
 
-void TtlSystem::shadeTTLs(std::vector<std::pair<UINT, UINT>> shadeList)
+void DioSystem::shadeTTLs(std::vector<std::pair<UINT, UINT>> shadeList)
 {
 	for (UINT shadeInc = 0; shadeInc < shadeList.size(); shadeInc++)
 	{
@@ -291,7 +291,7 @@ void TtlSystem::shadeTTLs(std::vector<std::pair<UINT, UINT>> shadeList)
 }
 
 
-void TtlSystem::unshadeTtls()
+void DioSystem::unshadeTtls()
 {
 	for (int rowInc = 0; rowInc < getNumberOfTTLRows(); rowInc++)
 	{
@@ -316,7 +316,7 @@ void TtlSystem::unshadeTtls()
 	}
 }
 
-void TtlSystem::rearrange(UINT width, UINT height, fontMap fonts)
+void DioSystem::rearrange(UINT width, UINT height, fontMap fonts)
 {
 	ttlTitle.rearrange( width, height, fonts);
 	ttlHold.rearrange( width, height, fonts);
@@ -339,7 +339,7 @@ void TtlSystem::rearrange(UINT width, UINT height, fontMap fonts)
 }
 
 
-void TtlSystem::handleInvert()
+void DioSystem::handleInvert()
 {
 	for (UINT row = 0; row < ttlStatus.size(); row++)
 	{
@@ -359,19 +359,19 @@ void TtlSystem::handleInvert()
 }
 
 
-void TtlSystem::updateDefaultTtl(UINT row, UINT column, bool state)
+void DioSystem::updateDefaultTtl(UINT row, UINT column, bool state)
 {
 	defaultTtlState[row][column] = state;
 }
 
 
-bool TtlSystem::getDefaultTtl(UINT row, UINT column)
+bool DioSystem::getDefaultTtl(UINT row, UINT column)
 {
 	return defaultTtlState[row][column];
 }
 
 
-std::pair<UINT, UINT> TtlSystem::getTtlBoardSize()
+std::pair<UINT, UINT> DioSystem::getTtlBoardSize()
 {
 	if (ttlPushControls.size() == 0)
 	{
@@ -381,7 +381,7 @@ std::pair<UINT, UINT> TtlSystem::getTtlBoardSize()
 }
 
 
-void TtlSystem::initialize( POINT& loc, cToolTips& toolTips, AuxiliaryWindow* master, int& id )
+void DioSystem::initialize( POINT& loc, cToolTips& toolTips, AuxiliaryWindow* master, int& id )
 {
 	// title
 	ttlTitle.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 25 };
@@ -470,14 +470,14 @@ void TtlSystem::initialize( POINT& loc, cToolTips& toolTips, AuxiliaryWindow* ma
 }
 
 
-void TtlSystem::handleTtlScriptCommand( std::string command, timeType time, std::string name,
+void DioSystem::handleTtlScriptCommand( std::string command, timeType time, std::string name,
 										 std::vector<std::pair<UINT, UINT>>& ttlShadeLocations )
 {
 	handleTtlScriptCommand( command, time, name, "-.-", ttlShadeLocations );
 }
 
 
-void TtlSystem::handleTtlScriptCommand(std::string command, timeType time, std::string name, std::string pulseLength, 
+void DioSystem::handleTtlScriptCommand(std::string command, timeType time, std::string name, std::string pulseLength, 
 									   std::vector<std::pair<UINT, UINT>>& ttlShadeLocations)
 {
 	if (!isValidTTLName(name))
@@ -520,12 +520,12 @@ void TtlSystem::handleTtlScriptCommand(std::string command, timeType time, std::
 }
 
 // simple...
-int TtlSystem::getNumberOfTTLRows()
+int DioSystem::getNumberOfTTLRows()
 {
 	return ttlPushControls.size();
 }
 
-int TtlSystem::getNumberOfTTLsPerRow()
+int DioSystem::getNumberOfTTLsPerRow()
 {
 	if (ttlPushControls.size() > 0)
 	{
@@ -538,7 +538,7 @@ int TtlSystem::getNumberOfTTLsPerRow()
 	}
 }
 
-void TtlSystem::handleTTLPress(int id)
+void DioSystem::handleTTLPress(int id)
 {
 	if (id >= ttlPushControls.front().front().GetDlgCtrlID() && id <= ttlPushControls.back().back().GetDlgCtrlID())
 	{
@@ -581,7 +581,7 @@ void TtlSystem::handleTTLPress(int id)
 }
 
 // this function handles when the hold button is pressed.
-void TtlSystem::handleHoldPress()
+void DioSystem::handleHoldPress()
 {
 	if (holdStatus == true)
 	{
@@ -619,23 +619,23 @@ void TtlSystem::handleHoldPress()
 
 
 // prepares some structures for a simple force event. 
-void TtlSystem::prepareForce()
+void DioSystem::prepareForce()
 {
 	ttlSnapshots.resize(1);
-	individualTtlCommandList.resize(1);
-	finalFormattedCommandForDio.resize(1);
+	ttlCommandList.resize(1);
+	finalFormatDioData.resize(1);
 }
 
 
-void TtlSystem::resetTtlEvents()
+void DioSystem::resetTtlEvents()
 {
 	ttlCommandFormList.clear();
 	ttlSnapshots.clear();
-	individualTtlCommandList.clear();
-	finalFormattedCommandForDio.clear();
+	ttlCommandList.clear();
+	finalFormatDioData.clear();
 }
 
-HBRUSH TtlSystem::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC)
+HBRUSH DioSystem::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC)
 {
 	
 	int controlID = window->GetDlgCtrlID();
@@ -684,7 +684,7 @@ HBRUSH TtlSystem::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs
 	}
 }
 
-bool TtlSystem::isValidTTLName( std::string name )
+bool DioSystem::isValidTTLName( std::string name )
 {
 	for (int rowInc = 0; rowInc < getNumberOfTTLRows(); rowInc++)
 	{
@@ -714,46 +714,46 @@ bool TtlSystem::isValidTTLName( std::string name )
 }
 
 
-void TtlSystem::ttlOn(UINT row, UINT column, timeType time)
+void DioSystem::ttlOn(UINT row, UINT column, timeType time)
 {
 	// make sure it's either a variable or a number that can be used.
 	ttlCommandFormList.push_back({ {row, column}, time, true });
 }
 
 
-void TtlSystem::ttlOff(UINT row, UINT column, timeType time)
+void DioSystem::ttlOff(UINT row, UINT column, timeType time)
 {
 	// check to make sure either variable or actual value.
 	ttlCommandFormList.push_back({ {row, column}, time, false });
 }
 
 
-void TtlSystem::ttlOnDirect( UINT row, UINT column, double time, UINT var )
+void DioSystem::ttlOnDirect( UINT row, UINT column, double time, UINT var )
 {
-	TtlCommand command;
+	DioCommand command;
 	command.line = { row, column };
 	command.time = time;
 	command.value = true;
-	individualTtlCommandList[var].push_back( command );
+	ttlCommandList[var].push_back( command );
 }
 
 
-void TtlSystem::ttlOffDirect( UINT row, UINT column, double time, UINT var)
+void DioSystem::ttlOffDirect( UINT row, UINT column, double time, UINT var)
 {
-	TtlCommand command;
+	DioCommand command;
 	command.line = { row, column };
 	command.time = time;
 	command.value = false;
-	individualTtlCommandList[var].push_back( command );
+	ttlCommandList[var].push_back( command );
 }
 
 
-void TtlSystem::stopBoard()
+void DioSystem::stopBoard()
 {
 	dioOutStop( 0 );
 }
 
-double TtlSystem::getClockStatus()
+double DioSystem::getClockStatus()
 {
 	// initialize to zero so that in safemode goes directly to getting tick count.
 	int result = 0;
@@ -781,7 +781,7 @@ double TtlSystem::getClockStatus()
 }
 
 // forceTtl forces the actual ttl to a given value and changes the checkbox status to reflect that.
-void TtlSystem::forceTtl(int row, int number, int state)
+void DioSystem::forceTtl(int row, int number, int state)
 {
 	// change the ttl checkbox.
 	if (state == 0)
@@ -823,7 +823,7 @@ void TtlSystem::forceTtl(int row, int number, int state)
 }
 
 
-void TtlSystem::setName(UINT row, UINT number, std::string name, cToolTips& toolTips, AuxiliaryWindow* master)
+void DioSystem::setName(UINT row, UINT number, std::string name, cToolTips& toolTips, AuxiliaryWindow* master)
 {
 	if (name == "")
 	{
@@ -834,7 +834,7 @@ void TtlSystem::setName(UINT row, UINT number, std::string name, cToolTips& tool
 	ttlPushControls[row][number].setToolTip(name, toolTips, master);
 }
 
-int TtlSystem::getNameIdentifier(std::string name, UINT& row, UINT& number)
+int DioSystem::getNameIdentifier(std::string name, UINT& row, UINT& number)
 {
 	
 	for (UINT rowInc = 0; rowInc < ttlNames.size(); rowInc++)
@@ -872,12 +872,12 @@ int TtlSystem::getNameIdentifier(std::string name, UINT& row, UINT& number)
 }
 
 
-void TtlSystem::writeData(UINT var)
+void DioSystem::writeData(UINT var)
 {
 	WORD temp[4] = { WORD_MAX, WORD_MAX, WORD_MAX, WORD_MAX };
 	double scan = 10000000;
 	DWORD availableScans = 0;
-	std::vector<WORD> arrayOfAllData( finalFormattedCommandForDio[var].size() * 6 );
+	std::vector<WORD> arrayOfAllData( finalFormatDioData[var].size() * 6 );
 
 	DIO64STAT status;
 	status.AIControl = 0;
@@ -896,35 +896,35 @@ void TtlSystem::writeData(UINT var)
 	for (auto& element : arrayOfAllData)
 	{
 		// concatenate all the data at once.
-		element = finalFormattedCommandForDio[var][count / 6][count % 6];
+		element = finalFormatDioData[var][count / 6][count % 6];
 		count++;
 	}
 
 	// now arrayOfAllData contains all the experiment data.
-	dioOutWrite( 0, arrayOfAllData.data(), finalFormattedCommandForDio[var].size(), status );
+	dioOutWrite( 0, arrayOfAllData.data(), finalFormatDioData[var].size(), status );
 }
 
 
-std::string TtlSystem::getName(UINT row, UINT number)
+std::string DioSystem::getName(UINT row, UINT number)
 {
 	return ttlNames[row][number];
 }
 
 
-ULONG TtlSystem::getNumberEvents(UINT var)
+ULONG DioSystem::getNumberEvents(UINT var)
 {
 	return ttlSnapshots[var].size();
 }
 
 
-bool TtlSystem::getTtlStatus(int row, int number)
+bool DioSystem::getTtlStatus(int row, int number)
 {
 	return ttlStatus[row][number];
 }
 
 
 // waits a time in ms, using the DIO clock
-void TtlSystem::wait(double time)
+void DioSystem::wait(double time)
 {
 	double startTime;
 	//clockstatus function reads the DIO clock, units are ms
@@ -944,21 +944,21 @@ void TtlSystem::wait(double time)
 
 
 // uses the last time of the ttl trigger to wait until the experiment is finished.
-void TtlSystem::waitTillFinished(UINT var)
+void DioSystem::waitTillFinished(UINT var)
 {
-	double totalTime = (finalFormattedCommandForDio[var].back()[0] + 65535 * finalFormattedCommandForDio[var].back()[1]) / 10000.0 + 1;
+	double totalTime = (finalFormatDioData[var].back()[0] + 65535 * finalFormatDioData[var].back()[1]) / 10000.0 + 1;
 	wait(totalTime);
 	stopBoard();
 }
 
 
-double TtlSystem::getTotalTime(UINT var)
+double DioSystem::getTotalTime(UINT var)
 {
-	return (finalFormattedCommandForDio[var].back()[0] + 65535 * finalFormattedCommandForDio[var].back()[1]) / 10000.0 + 1;
+	return (finalFormatDioData[var].back()[0] + 65535 * finalFormatDioData[var].back()[1]) / 10000.0 + 1;
 }
 
 
-void TtlSystem::interpretKey(key variationKey, std::vector<variable>& vars)
+void DioSystem::interpretKey(key variationKey, std::vector<variable>& vars)
 {
 	UINT variations;
 	variations = variationKey[vars[0].name].first.size();
@@ -967,18 +967,18 @@ void TtlSystem::interpretKey(key variationKey, std::vector<variable>& vars)
 		variations = 1; 
 	}
 	/// imporantly, this sizes the relevant structures.
-	individualTtlCommandList.clear();
-	individualTtlCommandList.resize(variations);
+	ttlCommandList.clear();
+	ttlCommandList.resize(variations);
 	ttlSnapshots.clear();
 	ttlSnapshots.resize(variations);
-	finalFormattedCommandForDio.clear();
-	finalFormattedCommandForDio.resize(variations);
+	finalFormatDioData.clear();
+	finalFormatDioData.resize(variations);
 	// and interpret for each variation.
 	for (UINT variationNum = 0; variationNum < variations; variationNum++)
 	{
 		for (UINT commandInc = 0; commandInc < ttlCommandFormList.size(); commandInc++)
 		{
-			TtlCommand tempCommand;
+			DioCommand tempCommand;
 			tempCommand.line = ttlCommandFormList[commandInc].line;
 			tempCommand.value = ttlCommandFormList[commandInc].value;
 			double variableTime = 0;
@@ -993,21 +993,21 @@ void TtlSystem::interpretKey(key variationKey, std::vector<variable>& vars)
 				}
 			}
 			tempCommand.time = variableTime + ttlCommandFormList[commandInc].time.second;
-			individualTtlCommandList[variationNum].push_back(tempCommand);
+			ttlCommandList[variationNum].push_back(tempCommand);
 		}
 	}
 }
 
 
-void TtlSystem::analyzeCommandList(UINT var)
+void DioSystem::analyzeCommandList(UINT var)
 {
 	// each element of this is a different time (the double), and associated with each time is a vector which locates 
 	// which commands were on at this time, for ease of retrieving all of the values in a moment.
 	std::vector<std::pair<double, std::vector<unsigned short>>> timeOrganizer;
-	std::vector<TtlCommand> orderedList(individualTtlCommandList[var]);
-	std::sort(orderedList.begin(), orderedList.end(), [](TtlCommand a, TtlCommand b) {return a.time < b.time; });
+	std::vector<DioCommand> orderedList(ttlCommandList[var]);
+	std::sort(orderedList.begin(), orderedList.end(), [](DioCommand a, DioCommand b) {return a.time < b.time; });
 	/// organize all of the commands.
-	for (USHORT commandInc = 0; commandInc < individualTtlCommandList[var].size(); commandInc++)
+	for (USHORT commandInc = 0; commandInc < ttlCommandList[var].size(); commandInc++)
 	{
 		// because the events are sorted by time, the time organizer will already be sorted by time, and therefore I 
 		// just need to check the back value's time.
@@ -1077,9 +1077,9 @@ void TtlSystem::analyzeCommandList(UINT var)
 	}
 }
 
-void TtlSystem::convertToFinalFormat(UINT var)
+void DioSystem::convertToFinalFormat(UINT var)
 {
-	finalFormattedCommandForDio[var].clear();
+	finalFormatDioData[var].clear();
 	// do bit arithmetic.
 	for (UINT timeInc = 0; timeInc < ttlSnapshots[var].size(); timeInc++)
 	{
@@ -1119,12 +1119,12 @@ void TtlSystem::convertToFinalFormat(UINT var)
 		tempCommand[5] = static_cast <unsigned short>(ttlBits[3].to_ulong());
 
 
-		finalFormattedCommandForDio[var].push_back(tempCommand);
+		finalFormatDioData[var].push_back(tempCommand);
 	}
 }
 
 
-std::string TtlSystem::getErrorMessage(int errorCode)
+std::string DioSystem::getErrorMessage(int errorCode)
 {
 	switch (errorCode)
 	{
@@ -1170,7 +1170,7 @@ std::string TtlSystem::getErrorMessage(int errorCode)
 }
 
 
-void TtlSystem::zeroBoard()
+void DioSystem::zeroBoard()
 {
 	for (UINT row = 0; row < ttlStatus.size(); row++)
 	{
@@ -1183,7 +1183,7 @@ void TtlSystem::zeroBoard()
 
 
 /// DIO64 Wrapper functions that I actually use
-std::string TtlSystem::getTtlSequenceMessage(UINT var)
+std::string DioSystem::getTtlSequenceMessage(UINT var)
 {
 	std::string message;
 	for (auto snap : ttlSnapshots[var])
@@ -1219,7 +1219,7 @@ std::string TtlSystem::getTtlSequenceMessage(UINT var)
 	return message;
 }
 
-void TtlSystem::dioOpen(WORD board, WORD baseio)
+void DioSystem::dioOpen(WORD board, WORD baseio)
 {
 	if (!DIO_SAFEMODE)
 	{
@@ -1232,7 +1232,7 @@ void TtlSystem::dioOpen(WORD board, WORD baseio)
 }
 
 
-void TtlSystem::dioMode(WORD board, WORD mode)
+void DioSystem::dioMode(WORD board, WORD mode)
 {
 	if (!DIO_SAFEMODE)
 	{
@@ -1245,7 +1245,7 @@ void TtlSystem::dioMode(WORD board, WORD mode)
 }
 
 
-void TtlSystem::dioLoad(WORD board, char *rbfFile, int inputHint, int outputHint)
+void DioSystem::dioLoad(WORD board, char *rbfFile, int inputHint, int outputHint)
 {
 	if (!DIO_SAFEMODE)
 	{
@@ -1258,7 +1258,7 @@ void TtlSystem::dioLoad(WORD board, char *rbfFile, int inputHint, int outputHint
 }
 
 
-void TtlSystem::dioClose(WORD board)
+void DioSystem::dioClose(WORD board)
 {
 	if (!DIO_SAFEMODE)
 	{
@@ -1271,7 +1271,7 @@ void TtlSystem::dioClose(WORD board)
 }
 
 
-void TtlSystem::dioInStart(WORD board, DWORD ticks, WORD& mask, WORD maskLength, WORD flags, WORD clkControl,
+void DioSystem::dioInStart(WORD board, DWORD ticks, WORD& mask, WORD maskLength, WORD flags, WORD clkControl,
 						   WORD startType, WORD startSource, WORD stopType, WORD stopSource, DWORD AIControl,
 						   double& scanRate)
 {
@@ -1287,7 +1287,7 @@ void TtlSystem::dioInStart(WORD board, DWORD ticks, WORD& mask, WORD maskLength,
 }
 
 
-void TtlSystem::dioInStatus(WORD board, DWORD& scansAvail, DIO64STAT& status)
+void DioSystem::dioInStatus(WORD board, DWORD& scansAvail, DIO64STAT& status)
 {
 	if (!DIO_SAFEMODE)
 	{
@@ -1300,7 +1300,7 @@ void TtlSystem::dioInStatus(WORD board, DWORD& scansAvail, DIO64STAT& status)
 }
 
 
-void TtlSystem::dioInRead(WORD board, WORD& buffer, DWORD scansToRead, DIO64STAT& status)
+void DioSystem::dioInRead(WORD board, WORD& buffer, DWORD scansToRead, DIO64STAT& status)
 {
 	if (!DIO_SAFEMODE)
 	{
@@ -1313,7 +1313,7 @@ void TtlSystem::dioInRead(WORD board, WORD& buffer, DWORD scansToRead, DIO64STAT
 }
 
 
-void TtlSystem::dioInStop(WORD board)
+void DioSystem::dioInStop(WORD board)
 {
 	if (!DIO_SAFEMODE)
 	{
@@ -1326,7 +1326,7 @@ void TtlSystem::dioInStop(WORD board)
 }
 
 
-void TtlSystem::dioForceOutput(WORD board, WORD* buffer, DWORD mask)
+void DioSystem::dioForceOutput(WORD board, WORD* buffer, DWORD mask)
 {
 	if (!DIO_SAFEMODE)
 	{
@@ -1339,7 +1339,7 @@ void TtlSystem::dioForceOutput(WORD board, WORD* buffer, DWORD mask)
 }
 
 
-void TtlSystem::dioOutGetInput(WORD board, WORD& buffer)
+void DioSystem::dioOutGetInput(WORD board, WORD& buffer)
 {
 	if (!DIO_SAFEMODE)
 	{
@@ -1352,7 +1352,7 @@ void TtlSystem::dioOutGetInput(WORD board, WORD& buffer)
 }
 
 
-void TtlSystem::dioOutConfig(WORD board, DWORD ticks, WORD* mask, WORD maskLength, WORD flags, WORD clkControl,
+void DioSystem::dioOutConfig(WORD board, DWORD ticks, WORD* mask, WORD maskLength, WORD flags, WORD clkControl,
 							 WORD startType, WORD startSource, WORD stopType, WORD stopSource, DWORD AIControl,
 							 DWORD reps, WORD ntrans, double& scanRate)
 {
@@ -1369,7 +1369,7 @@ void TtlSystem::dioOutConfig(WORD board, DWORD ticks, WORD* mask, WORD maskLengt
 }
 
 
-void TtlSystem::dioOutStart(WORD board)
+void DioSystem::dioOutStart(WORD board)
 {
 	if (!DIO_SAFEMODE)
 	{
@@ -1382,7 +1382,7 @@ void TtlSystem::dioOutStart(WORD board)
 }
 
 
-void TtlSystem::dioOutStatus(WORD board, DWORD& scansAvail, DIO64STAT& status)
+void DioSystem::dioOutStatus(WORD board, DWORD& scansAvail, DIO64STAT& status)
 {
 	if (!DIO_SAFEMODE)
 	{
@@ -1395,7 +1395,7 @@ void TtlSystem::dioOutStatus(WORD board, DWORD& scansAvail, DIO64STAT& status)
 }
 
 
-void TtlSystem::dioOutWrite(WORD board, WORD* buffer, DWORD bufsize, DIO64STAT& status)
+void DioSystem::dioOutWrite(WORD board, WORD* buffer, DWORD bufsize, DIO64STAT& status)
 {
 	if (!DIO_SAFEMODE)
 	{
@@ -1408,7 +1408,7 @@ void TtlSystem::dioOutWrite(WORD board, WORD* buffer, DWORD bufsize, DIO64STAT& 
 }
 
 
-void TtlSystem::dioOutStop(WORD board)
+void DioSystem::dioOutStop(WORD board)
 {
 	if (!DIO_SAFEMODE)
 	{
@@ -1421,7 +1421,7 @@ void TtlSystem::dioOutStop(WORD board)
 }
 
 
-void TtlSystem::dioSetAttr(WORD board, DWORD attrID, DWORD value)
+void DioSystem::dioSetAttr(WORD board, DWORD attrID, DWORD value)
 {
 	if (!DIO_SAFEMODE)
 	{
@@ -1434,7 +1434,7 @@ void TtlSystem::dioSetAttr(WORD board, DWORD attrID, DWORD value)
 }
 
 
-void TtlSystem::dioGetAttr(WORD board, DWORD attrID, DWORD& value)
+void DioSystem::dioGetAttr(WORD board, DWORD attrID, DWORD& value)
 {
 	if (!DIO_SAFEMODE)
 	{
@@ -1447,7 +1447,7 @@ void TtlSystem::dioGetAttr(WORD board, DWORD attrID, DWORD& value)
 }
 
 
-void TtlSystem::dioOpenResource(char* resourceName, WORD board, WORD baseio)
+void DioSystem::dioOpenResource(char* resourceName, WORD board, WORD baseio)
 {
 	if (!DIO_SAFEMODE)
 	{

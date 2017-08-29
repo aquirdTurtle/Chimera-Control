@@ -31,14 +31,10 @@ extern const niawgPair<std::string> ORIENTATION;
 extern bool eWaitError;
 
 // stuff for syntax coloring
-extern DWORD eIntensityMinChange, eIntensityMaxChange;
-extern DWORD eHorizontalMinChange, eHorizontalMaxChange;
-extern DWORD eVerticalMinChange, eVerticalMaxChange;
-
 
 /// Global Options Variables
-extern UINT eGreenMessageID, eStatusTextMessageID, eErrorTextMessageID, eFatalErrorMessageID, eVariableStatusMessageID,
-			eNormalFinishMessageID, eColoredEditMessageID, eDebugMessageID, eCameraFinishMessageID, 
+extern UINT eStatusTextMessageID, eErrorTextMessageID, eFatalErrorMessageID, eNormalFinishMessageID, 
+eColoredEditMessageID, eDebugMessageID, eCameraFinishMessageID, 
 			eCameraProgressMessageID, eRepProgressMessageID;
 
 extern bool eAbortNiawgFlag;
