@@ -18,6 +18,21 @@ void KeyHandler::loadVariables(std::vector<variable> newVariables)
 	variables = newVariables;
 }
 
+// return all the values that the first variable that varies takes.
+std::vector<double> KeyHandler::getKeyValueArray()
+{
+	for (auto& variable : keyValues)
+	{
+		if (variable.second.second)
+		{
+			return variable.second.first;
+		}
+	}
+	// else nothing varies
+	std::vector<double> zero;
+	zero.push_back(0);
+	return zero;
+}
 
 void KeyHandler::generateKey(bool randomizeVariablesOption)
 {

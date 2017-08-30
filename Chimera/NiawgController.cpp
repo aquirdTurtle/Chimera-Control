@@ -57,6 +57,7 @@ void NiawgController::programNiawg( MasterThreadInput* input, NiawgOutputInfo& o
 {
 	input->niawg->handleVariations( output, input->key->getKey(), variation, variedMixedSize, warnings,
 									input->debugOptions, totalVariations );
+
 	// If running the default script, stop the default script so that a moment later, when the program 
 	// checks if the output is done, the output will be done.
 	if ((input->niawg->getCurrentScript() == "Default" + AXES_NAMES[Horizontal] + "ConfigScript"
@@ -344,12 +345,13 @@ void NiawgController::analyzeNiawgScripts( niawgPair<ScriptStream>& scripts, Nia
 
 /**/
 void NiawgController::handleVariations( NiawgOutputInfo& output, key varKey, const UINT variation, 
-										std::vector<long> mixedWaveSizes, std::string& warnings, 
+										std::vector<long>& mixedWaveSizes, std::string& warnings, 
 										debugInfo& debugOptions, UINT totalVariations )
 {
 	int mixedCount = 0;
+
 	// I think waveInc = 0 & 1 are always the default.. should I be handling that at all? shouldn't make a difference 
-	// I don't think. 
+	// I don't think.
 	for (int waveInc = 0; waveInc < output.waveCount; waveInc++)
 	{
 		if (output.waves[waveInc].core.varies)
@@ -475,7 +477,7 @@ void NiawgController::varyParam( simpleWave& wave, waveInfo previousWave, int ax
 				thrower( "ERROR: Attempted to set negative waveform parameter. Don't do that. Value was"
 						 + str( paramVal ) );
 			}
-			switch (paramNum % 5 + 1)
+			switch (paramNum % 5)
 			{
 				case 1:
 					wave.chan[axis].signals[signalNum].freqInit = paramVal;

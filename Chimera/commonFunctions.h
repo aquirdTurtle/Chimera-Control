@@ -17,7 +17,7 @@ namespace commonFunctions
 	void runChecks( ExperimentInput& input );
 	void startMaster(MainWindow* mainWin, ExperimentInput& input);
 
-	void logParameters( ExperimentInput& input, CameraWindow* camWin );
+	void logParameters( ExperimentInput& input, CameraWindow* camWin, bool takeAndorPictures );
 	//void startFullMasterThread( MainWindow* mainWin, AuxiliaryWindow* auxWin, ScriptingWindow* scriptWin, 
 	//							ExperimentInput& input, CameraWindow* camWin );
 	void setMot(MainWindow* mainWin);

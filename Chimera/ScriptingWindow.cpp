@@ -2,7 +2,7 @@
 #include "ScriptingWindow.h"
 #include "afxwin.h"
 #include "MainWindow.h"
-#include "getFileName.h"
+#include "openWithExplorer.h"
 #include "saveTextFileFromEdit.h"
 #include "commonFunctions.h"
 #include "textPromptDialog.h"

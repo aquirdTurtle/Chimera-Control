@@ -536,9 +536,6 @@ void MainWindow::passCommonCommand(UINT id)
 
 void MainWindow::startMaster( MasterThreadInput* input, bool isTurnOnMot )
 {
-	// Load Variable & Key Info
-	input->key->loadVariables( input->variables );
-	input->key->generateKey( input->settings.randomizeVariations );
 	masterThreadManager.startExperimentThread(input);
 }
 
@@ -552,6 +549,8 @@ void MainWindow::fillMasterThreadInput(MasterThreadInput* input)
 	input->profile = profile.getProfileSettings();
 	input->niawg = &niawg;
 	input->comm = &comm;
+	input->key->loadVariables(input->variables);
+	input->key->generateKey(input->settings.randomizeVariations);
 }
 
 

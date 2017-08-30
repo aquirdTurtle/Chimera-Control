@@ -262,7 +262,7 @@ void Fgen::configureSoftwareTrigger()
 signed short Fgen::isDone()
 {
 	ViBoolean isDone = 0;
-	if (NIAWG_SAFEMODE)
+	if (!NIAWG_SAFEMODE)
 	{
 		errChecker( niFgen_IsDone( sessionHandle, &isDone ) );
 	}

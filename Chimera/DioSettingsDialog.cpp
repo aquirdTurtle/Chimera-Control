@@ -1,10 +1,10 @@
 #pragma once
 
 #include "stdafx.h"
-#include "TtlSettingsDialog.h"
+#include "DioSettingsDialog.h"
 #include "Control.h"
 #include <array>
-#include "TtlSystem.h"
+#include "DioSystem.h"
 
 
 BEGIN_MESSAGE_MAP(TtlSettingsDialog, CDialog)

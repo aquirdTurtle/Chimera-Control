@@ -380,6 +380,7 @@ LRESULT CameraWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 
 void CameraWindow::startCamera()
 {
+	mainWindowFriend->getComm()->sendColorBox(Camera, 'Y');
 	// turn some buttons off.
 	CameraSettings.cameraIsOn( true );
 	CDC* dc = GetDC();
@@ -389,6 +390,7 @@ void CameraWindow::startCamera()
 	// I used to initialize the data logger here.
 	analysisHandler.updateDataSetNumberEdit( dataHandler.getNextFileNumber() );
 	Andor.armCamera( this );
+	mainWindowFriend->getComm()->sendColorBox(Camera, 'G');
 }
 
 
@@ -702,7 +704,7 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 	plotterAtomQueue.clear();
 	input.plotterInput = new realTimePlotterInput;
 	input.plotterInput->active = &plotThreadActive;
-	input.plotterInput->imageQueue = &this->plotterPictureQueue;
+	input.plotterInput->imageQueue = &plotterPictureQueue;
 	input.plotterInput->imageShape = CameraSettings.getSettings().imageSettings;
 	input.plotterInput->picsPerVariation = mainWindowFriend->getRepNumber() * CameraSettings.getSettings().picsPerRepetition;
 	input.plotterInput->variations = auxWindowFriend->getTotalVariationNumber();
@@ -712,7 +714,7 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 	input.plotterInput->comm = mainWindowFriend->getComm();
 	input.plotterInput->plotLock = &plotLock;
 	input.plotterInput->numberOfRunsToAverage = 5;
-	input.plotterInput->key = &plotterKey;
+	input.plotterInput->key = input.masterInput->key->getKeyValueArray();
 	input.plotterInput->plotter = &plotter;
 	input.plotterInput->atomQueue = &plotterAtomQueue;
 	analysisHandler.fillPlotThreadInput( input.plotterInput );

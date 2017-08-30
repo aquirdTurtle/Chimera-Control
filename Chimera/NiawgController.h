@@ -31,7 +31,7 @@ class NiawgController
 		std::string getCurrentScript();
 		bool niawgIsRunning();
 		// analysis & numerics
-		void handleVariations( NiawgOutputInfo& output, key varKey, const UINT variation, std::vector<long> mixedWaveSizes,
+		void handleVariations( NiawgOutputInfo& output, key varKey, const UINT variation, std::vector<long>& mixedWaveSizes,
 							   std::string& warnings, debugInfo& debugOptions, UINT totalVariations );
 		void analyzeNiawgScripts( niawgPair<ScriptStream>& scripts, NiawgOutputInfo& output, profileSettings profile,
 								  debugInfo& options, std::string& warnings );

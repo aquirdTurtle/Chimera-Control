@@ -20,8 +20,8 @@ ProfileSystem::ProfileSystem(std::string fileSystemPath)
 
 
 // just looks at the info in a file and loads it into references, doesn't change anything in the gui or main settings.
-void ProfileSystem::getConfigInfo( niawgPair<std::vector<std::fstream>>& scriptFiles, 
-								   profileSettings profile, bool programNiawg )
+void ProfileSystem::openNiawgFiles( niawgPair<std::vector<std::fstream>>& scriptFiles, profileSettings profile, 
+	bool programNiawg )
 {
 	scriptFiles[Vertical].resize( profile.sequenceConfigNames.size() );
 	scriptFiles[Horizontal].resize( profile.sequenceConfigNames.size() );
@@ -221,7 +221,7 @@ void ProfileSystem::openConfiguration( std::string configurationNameToOpen, Scri
 	currentProfile.configuration = configurationNameToOpen;
 	
 	std::string versionStr;
-	// Version is saved in format "Version: x.x"
+	// Version is saved in format "Master Version: x.x"
 	// eat the "version" word"
 	configFile >> versionStr;
 	configFile >> versionStr;

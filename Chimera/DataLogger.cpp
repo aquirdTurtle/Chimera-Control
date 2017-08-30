@@ -335,8 +335,7 @@ void DataLogger::logMasterParameters( MasterThreadInput* input )
 	{
 		niawgPair<std::vector<std::fstream>> niawgFiles;
 		std::vector<std::fstream> intensityScriptFiles;
-		//ProfileSystem::getConfigInfo( niawgFiles, intensityScriptFiles, input->profile, input->settings.programIntensity,
-		//							  input->runNiawg );
+		ProfileSystem::openNiawgFiles( niawgFiles, input->profile, input->runNiawg );
 		// Hor Script
 		std::stringstream stream;
 		stream << niawgFiles[Horizontal][0].rdbuf();
@@ -387,7 +386,7 @@ void DataLogger::writePic(UINT currentPictureNumber, std::vector<long> image, im
 	}
 	catch (H5::Exception& err)
 	{
-		thrower( "Failed to write data to HDF5 file! Error: " + str( err.getDetailMsg() ) );
+		thrower("Failed to write data to HDF5 file! Error: " + str(err.getDetailMsg()) + "\n");
 	}
 }
 

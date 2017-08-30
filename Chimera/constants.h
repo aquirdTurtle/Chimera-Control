@@ -103,7 +103,7 @@
 	#define CODE_ROOT "C:\\Users\\Regal-Lab\\Documents\\Chimera-Control"
 	const std::string PLOT_FILES_SAVE_LOCATION = str(CODE_ROOT) + "\\Plotting";
 	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
-	const std::string LIB_PATH = str(CODE_ROOT) + "\\Waveforms-Library\\WaveLibrary 350 MSpS\\";
+	const std::string LIB_PATH = str(CODE_ROOT) + "\\Waveforms-Library\\WaveLibrary 320 MSpS\\";
 	const std::string DEFAULT_SCRIPT_FOLDER_PATH = str(CODE_ROOT) + "\\Default Scripts\\";
 	const std::string EXPERIMENT_LOGGING_FILES_PATH = "D:\\NIAWG Logging Files\\Individual Experiments\\";
 	const std::string CODE_LOGGING_FILES_PATH = "D:\\Code Versions\\";
@@ -190,7 +190,7 @@ const double TOTAL_POWER = 0.2 - 1e-10;
 
 // Currently bugs with the 5451 for sample rates significantly above this sample rate (350 MS/s). <---- very much T.T T.T T.T
 /// IF CHANGE MAKE SURE TO CHANGE LIBRARY FILE ADDRESS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-const UINT NIAWG_SAMPLE_RATE = 350000000; /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+const UINT NIAWG_SAMPLE_RATE = 320000000; /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 /// This is important. If you don't change the libary file, you will be running waveforms that were compiled with a different sample rate. 
 /// This would probably cause the code to throw weird errors since the number of samples in the file wouldn't match what was needed at the 
@@ -251,18 +251,18 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_TRIGGER_COMBO 13006
 #define IDC_SET_TEMPERATURE_BUTTON 13007
 #define PICTURE_SETTINGS_ID_START 13008
-#define PICTURE_SETTINGS_ID_END 13009
-#define IDC_SET_IMAGE_PARAMETERS_BUTTON 13010
-#define IDC_SET_REPETITONS_PER_VARIATION_BUTTON 13011
-#define IDC_SET_VARIATION_NUMBER 13012
-#define IDC_PICTURE_1_MIN_EDIT 13013
-#define IDC_PICTURE_1_MAX_EDIT 13014
-#define IDC_PICTURE_2_MIN_EDIT 13015
-#define IDC_PICTURE_2_MAX_EDIT 13016
-#define IDC_PICTURE_3_MIN_EDIT 13017
-#define IDC_PICTURE_3_MAX_EDIT 13018
-#define IDC_PICTURE_4_MIN_EDIT 13019
-#define IDC_PICTURE_4_MAX_EDIT 13020
+#define PICTURE_SETTINGS_ID_END 13033
+#define IDC_SET_IMAGE_PARAMETERS_BUTTON 13034
+#define IDC_SET_REPETITONS_PER_VARIATION_BUTTON 13035
+#define IDC_SET_VARIATION_NUMBER 13036
+#define IDC_PICTURE_1_MIN_EDIT 13037
+#define IDC_PICTURE_1_MAX_EDIT 13038
+#define IDC_PICTURE_2_MIN_EDIT 13039
+#define IDC_PICTURE_2_MAX_EDIT 13040
+#define IDC_PICTURE_3_MIN_EDIT 13041
+#define IDC_PICTURE_3_MAX_EDIT 13042
+#define IDC_PICTURE_4_MIN_EDIT 13043
+#define IDC_PICTURE_4_MAX_EDIT 13044
 
 //
 #define IDC_BEGINNING_DIALOG_RICH_EDIT 100

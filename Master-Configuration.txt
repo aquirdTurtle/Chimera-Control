@@ -220,4 +220,4 @@ imagingpower 0.14
 imagingdetuning 0.35
 pushoutdepth -0.05
 pushoutfreq 0.45
-1 512 1 1 512 1
+259 268 2 252 261 2

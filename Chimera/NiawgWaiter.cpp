@@ -15,26 +15,30 @@ unsigned __stdcall NiawgWaiter::niawgWaitThread(void* inputParam)
 	ViBoolean isDone = FALSE;
 	if (NIAWG_SAFEMODE)
 	{
-		// basically just pass through with a little wait.
+		// basically just pass through with a little wait, as if the niawg ran for 2 seconds then finished.
 		isDone = TRUE;
 		Sleep(2000);
 	}
 
 	while (!isDone)
 	{
-		try
-		{
-			isDone = input->niawg->fgenConduit.isDone();
-		}
-		catch (Error&)
-		{
-			eWaitError = true;
-			return -1;
-		}
 		if (eAbortNiawgFlag)
 		{
 			// aborting
 			return -2;
+		}
+		else
+		{
+			try
+			{
+				isDone = input->niawg->fgenConduit.isDone();
+			}
+			catch (Error&)
+			{
+				eWaitError = true;
+				delete input;
+				return -1;
+			}
 		}
 	}
 	if (eAbortNiawgFlag)
@@ -61,6 +65,7 @@ unsigned __stdcall NiawgWaiter::niawgWaitThread(void* inputParam)
 		catch (Error&)
 		{
 			eWaitError = true;
+			delete input;
 			return -1;
 		}
 	}
@@ -75,8 +80,10 @@ unsigned __stdcall NiawgWaiter::niawgWaitThread(void* inputParam)
 	catch (Error&)
 	{
 		eWaitError = true;
+		delete input;
 		return -1;
 	}
+	delete input;
 	return 0;
 }
 
@@ -87,25 +94,12 @@ void NiawgWaiter::startWaitThread( MasterThreadInput* input )
 {
 	eWaitError = false;
 	// create the waiting thread.
-	waitThreadInput waitInput;
-	waitInput.niawg = input->niawg;
-	waitInput.profile = input->profile;
+	waitThreadInput* waitInput = new waitThreadInput;
+	waitInput->niawg = input->niawg;
+	waitInput->profile = input->profile;
 	UINT NIAWGThreadID;
-	eNIAWGWaitThreadHandle = (HANDLE)_beginthreadex( 0, 0, &NiawgWaiter::niawgWaitThread, &waitInput, 0, &NIAWGThreadID );
+	eNIAWGWaitThreadHandle = (HANDLE)_beginthreadex( 0, 0, &NiawgWaiter::niawgWaitThread, waitInput, 0, &NIAWGThreadID );
 }
-
-/*
-void NiawgWaiter::startWaitThread( niawgIntensityThreadInput* input )
-{
-	eWaitError = false;
-	// create the waiting thread.
-	waitThreadInput waitInput;
-	waitInput.niawg = input->niawg;
-	waitInput.profile = input->profile;
-	UINT NIAWGThreadID;
-	eNIAWGWaitThreadHandle = (HANDLE)_beginthreadex( 0, 0, &NiawgWaiter::niawgWaitThread, &waitInput, 0, &NIAWGThreadID );
-}
-*/
 
 
 void NiawgWaiter::initialize()

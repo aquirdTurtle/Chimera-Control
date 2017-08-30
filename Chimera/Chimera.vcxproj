@@ -252,7 +252,6 @@
     <ClInclude Include="StatusIndicator.h" />
     <ClInclude Include="TektronicsControl.h" />
     <ClInclude Include="TextPromptDialog.h" />
-    <ClInclude Include="getFileName.h" />
     <ClInclude Include="fonts.h" />
     <ClInclude Include="commonFunctions.h" />
     <ClInclude Include="NiawgController.h" />
@@ -263,8 +262,8 @@
     <ClInclude Include="ScriptWritingInstructionsDialog.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="TtlSettingsDialog.h" />
-    <ClInclude Include="TtlSystem.h" />
+    <ClInclude Include="DioSettingsDialog.h" />
+    <ClInclude Include="DioSystem.h" />
     <ClInclude Include="VariableSystem.h" />
     <ClInclude Include="VisaFlume.h" />
   </ItemGroup>
@@ -278,6 +277,7 @@
     <ClCompile Include="cleanString.cpp" />
     <ClCompile Include="ColorBox.cpp" />
     <ClCompile Include="Communicator.cpp" />
+    <ClCompile Include="openWithExplorer.cpp" />
     <ClCompile Include="ProfileSystem.cpp" />
     <ClCompile Include="Control.cpp" />
     <ClCompile Include="DacSettingsDialog.cpp" />
@@ -322,7 +322,6 @@
     <ClCompile Include="StatusIndicator.cpp" />
     <ClCompile Include="TektronicsControl.cpp" />
     <ClCompile Include="TextPromptDialog.cpp" />
-    <ClCompile Include="getFileName.cpp" />
     <ClCompile Include="commonFunctions.cpp" />
     <ClCompile Include="NiawgController.cpp" />
     <ClCompile Include="ChimeraApp.cpp" />
@@ -330,8 +329,8 @@
     <ClCompile Include="saveTextFileFromEdit.cpp" />
     <ClCompile Include="miscellaneousCommonFunctions.cpp" />
     <ClCompile Include="ScriptWritingInstructionsDialog.cpp" />
-    <ClCompile Include="TtlSettingsDialog.cpp" />
-    <ClCompile Include="TtlSystem.cpp" />
+    <ClCompile Include="DioSettingsDialog.cpp" />
+    <ClCompile Include="DioSystem.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

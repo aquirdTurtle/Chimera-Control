@@ -13,15 +13,29 @@ Features:
 - Improve frame rate?
 	- should be able to get 3.12 frames / sec or so at full array size
 - NIAWG scripting in single script instead of Hor/Vert scripts.
-- Agilent Safemode / combine agilent w/ master agilent.
 - Watch cursor location
 - update colors for variables
+- restore the Niawg functionality where it calculates next varying waveform during the run of the previous waveform.
+- calibrate agilent with lin pd
+- option to allow agilent waveforms to function with or without calibration
 
 Bugs:                                                                           
 - restart niawg freezes program
-- Zero-Dacs doesn't work
+- close one window should close all
+- exit running niawg w/ master more gracefully.
+- fix colors on camera control
+- fix gnuplot
+- put in gnuplot test at beginning of program
+- fix variations beign zero at new variations
+- abort should clear the master box color to grey
+- aux window colorboxes not updating.
+- number of camera pictures not getting set by config.
+- make the big text better.
+- dacramp spacing warning should only appear once, and should appear in error status?
 
 =================
 Finished
 =================
+- fixed zero-dacs
+
 
