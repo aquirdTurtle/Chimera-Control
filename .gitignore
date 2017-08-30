@@ -6,7 +6,7 @@ Data/
 *.pch
 *.log
 *.pdb
-Waveforms Library/
+Waveforms-Library/
 x64/
 ipch/
 MFCApplication2/

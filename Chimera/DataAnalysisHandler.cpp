@@ -554,7 +554,7 @@ void DataAnalysisControl::handlePlotAtomsOrCounts(realTimePlotterInput* input, P
 				else
 				{
 					finErrs[dataSetI][groupI].resize(finErrs[dataSetI][groupI].size() + 1);
-					finX[dataSetI][groupI].push_back((*input->key)[(repNum - 1) / input->picsPerVariation]);
+					finX[dataSetI][groupI].push_back(input->key[(repNum - 1) / input->picsPerVariation]);
 				}
 				// set the flag to not do this again before this array gets reset at beginning of the next accumulation stack.
 				needNewData[dataSetI][groupI] = false;
@@ -595,11 +595,11 @@ void DataAnalysisControl::handlePlotAtomsOrCounts(realTimePlotterInput* input, P
 	if (plotInfo.getPlotType() == "Atoms")
 	{
 		// set x range.
-		double xRangeMin = *std::min_element(input->key->begin(), input->key->end());
-		double xRangeMax = *std::max_element(input->key->begin(), input->key->end());
+		double xRangeMin = *std::min_element(input->key.begin(), input->key.end());
+		double xRangeMax = *std::max_element(input->key.begin(), input->key.end());
 		double range = xRangeMax - xRangeMin;
-		xRangeMin -= range / input->key->size();
-		xRangeMax += range / input->key->size();
+		xRangeMin -= range / input->key.size();
+		xRangeMax += range / input->key.size();
 		input->plotter->send("set xrange [" + str(xRangeMin) + ":" + str(xRangeMax) + "]");
 		input->plotter->send("set grid ytics lc rgb \"#bbbbbb\" lw 1 lt 0");
 		input->plotter->send("set grid xtics lc rgb \"#bbbbbb\" lw 1 lt 0");

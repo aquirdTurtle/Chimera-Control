@@ -6,7 +6,7 @@
 #include "experimentThreadInputStructure.h"
 //#include "scriptWriteHelpProc.h"
 #include "beginningSettingsDialogProc.h"
-#include "getFileName.h"
+#include "openWithExplorer.h"
 #include "saveTextFileFromEdit.h"
 
 #include "MainWindow.h"
@@ -32,11 +32,11 @@ namespace commonFunctions
 				try
 				{
 					prepareCamera( mainWin, camWin, input );
-					camWin->preparePlotter( input ); 
-					camWin->prepareAtomCruncher( input );
 					prepareMasterThread( msgID, scriptWin, mainWin, camWin, auxWin, input, true, true );
+					camWin->preparePlotter(input);
+					camWin->prepareAtomCruncher(input);
 
-					logParameters( input, camWin );
+					logParameters( input, camWin, true );
 
 					camWin->startAtomCruncher(input);
 					camWin->startPlotterThread(input);
@@ -123,7 +123,7 @@ namespace commonFunctions
 					camWin->preparePlotter( input );
 					camWin->prepareAtomCruncher( input );
 					//
-					commonFunctions::logParameters( input, camWin );
+					commonFunctions::logParameters( input, camWin, true);
 					//
 					camWin->startAtomCruncher( input );
 					camWin->startPlotterThread( input );
@@ -148,7 +148,7 @@ namespace commonFunctions
 				}
 				try
 				{
-					commonFunctions::logParameters( input, camWin );
+					commonFunctions::logParameters( input, camWin, true);
 				}
 				catch (Error& err)
 				{
@@ -165,7 +165,7 @@ namespace commonFunctions
 					commonFunctions::prepareMasterThread( ID_RUNMENU_RUNMASTER, scriptWin, mainWin, camWin, auxWin,
 														  input, true, false );
 					//
-					commonFunctions::logParameters( input, camWin );
+					commonFunctions::logParameters( input, camWin, false );
 					//
 					commonFunctions::startMaster( mainWin, input );
 				}
@@ -202,7 +202,7 @@ namespace commonFunctions
 				}
 				try
 				{
-					commonFunctions::logParameters( input, camWin );
+					commonFunctions::logParameters( input, camWin, false );
 				}
 				catch (Error& err)
 				{
@@ -659,7 +659,6 @@ namespace commonFunctions
 				eAbortNiawgFlag = true;
 				// wait for reset to occur
 				int result = WaitForSingleObject( eNIAWGWaitThreadHandle, INFINITE );
-				result = WaitForSingleObject( eExperimentThreadHandle, INFINITE );
 				eAbortNiawgFlag = false;
 				// abort the generation on the NIAWG.
 				scriptWin->setIntensityDefault();
@@ -796,6 +795,7 @@ namespace commonFunctions
 			camWin->fillMasterThreadInput( input.masterInput );
 			scriptWin->fillMasterThreadInput( input.masterInput );
 			mainWin->updateStatusText( "debug", beginInfo );
+			// Load Variable & Key Info
 		}
 	}
 
@@ -839,13 +839,6 @@ namespace commonFunctions
 		// wait for reset to occur
 		int result = 1;
 		result = WaitForSingleObject( eNIAWGWaitThreadHandle, 0 );
-		if (result == WAIT_TIMEOUT)
-		{
-			// try again. Hopefully gives the main thread to handle other messages first if this happens.
-			mainWin->PostMessageA( WM_COMMAND, MAKEWPARAM( ID_FILE_ABORT_GENERATION, 0 ) );
-			return;
-		}
-		result = WaitForSingleObject( eExperimentThreadHandle, 0 );
 		if (result == WAIT_TIMEOUT)
 		{
 			// try again. Hopefully gives the main thread to handle other messages first if this happens.
@@ -946,11 +939,11 @@ namespace commonFunctions
 		
 	}
 
-	void logParameters( ExperimentInput& input, CameraWindow* camWin )
+	void logParameters( ExperimentInput& input, CameraWindow* camWin, bool takeAndorPictures )
 	{
 		DataLogger* logger = camWin->getLogger();
 		logger->initializeDataFiles();
-		logger->logAndorSettings( input.camSettings, camWin->cameraIsRunning() );
+		logger->logAndorSettings( input.camSettings, takeAndorPictures );
 		logger->logMasterParameters( input.masterInput );
 		logger->logMiscellaneous();
 	}

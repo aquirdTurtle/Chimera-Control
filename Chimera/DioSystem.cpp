@@ -5,7 +5,7 @@
 #include <bitset>
 #include "nidaqmx2.h"
 
-#include "TtlSystem.h"
+#include "DioSystem.h"
 #include "constants.h"
 #include "AuxiliaryWindow.h"
 // I don't use this because I manually import dll functions.
@@ -1089,7 +1089,7 @@ void DioSystem::convertToFinalFormat(UINT var)
 		// 10,000,000, but then my time is in milliseconds, so divide that by 1,000, ending with multiply by 10,000
 		lowordTime = ULONGLONG(ttlSnapshots[var][timeInc].time * 10000) % 65535;
 		USHORT temp = ttlSnapshots[var][timeInc].time * 10000;
-		hiwordTime = USHORT(ttlSnapshots[var][timeInc].time * 10000) / 65535;
+		hiwordTime = ULONGLONG(ttlSnapshots[var][timeInc].time * 10000) / 65535;
 		// each major index is a row (A, B, C, D), each minor index is a ttl state (0, 1) in that row.
 		std::array<std::bitset<16>, 4> ttlBits;
 		for (UINT rowInc = 0; rowInc < 4; rowInc++)

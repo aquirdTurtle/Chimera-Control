@@ -35,7 +35,7 @@ struct realTimePlotterInput
 
 	UINT plottingFrequency;
 	UINT numberOfRunsToAverage;
-	std::vector<double>* key;
+	std::vector<double> key;
 	Gnuplotter* plotter;
 
 	bool needsCounts;

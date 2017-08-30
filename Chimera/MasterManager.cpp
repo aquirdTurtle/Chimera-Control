@@ -2,7 +2,7 @@
 #include "MasterManager.h"
 #include "nidaqmx2.h"
 #include <fstream>
-#include "TtlSystem.h"
+#include "DioSystem.h"
 #include "DacSystem.h"
 #include "constants.h"
 #include "AuxiliaryWindow.h"
@@ -84,6 +84,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		if (input->runNiawg)
 		{
 			input->comm->sendColorBox( Niawg, 'Y' );
+			ProfileSystem::openNiawgFiles(niawgFiles, input->profile, input->runNiawg);
 			input->niawg->prepareNiawg( input, output, niawgFiles, warnings, userScriptSubmit );
 			// check if any waveforms are rearrangement instructions.
 			bool foundRearrangement = false;
@@ -341,8 +342,15 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 					}
 				}
 			}
-
-			waiter.wait( input->comm );
+			if (!input->runMaster)
+			{
+				waiter.wait(input->comm);
+			}
+			else
+			{
+				eAbortNiawgFlag = true;
+				waiter.wait(input->comm);
+			}
 			// Clear waveforms off of NIAWG (not working??? memory appears to still run out...)
 			for (int waveformInc = 2; waveformInc < output.waveCount; waveformInc++)
 			{

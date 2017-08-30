@@ -13,12 +13,6 @@
     <ClCompile Include="MasterManager.cpp">
       <Filter>Main Window</Filter>
     </ClCompile>
-    <ClCompile Include="TtlSettingsDialog.cpp">
-      <Filter>Auxiliary Window</Filter>
-    </ClCompile>
-    <ClCompile Include="TtlSystem.cpp">
-      <Filter>Auxiliary Window</Filter>
-    </ClCompile>
     <ClCompile Include="VariableSystem.cpp">
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
@@ -102,9 +96,6 @@
     </ClCompile>
     <ClCompile Include="Gnuplotter.cpp">
       <Filter>Camera Window</Filter>
-    </ClCompile>
-    <ClCompile Include="getFileName.cpp">
-      <Filter>General Files</Filter>
     </ClCompile>
     <ClCompile Include="ExperimentTimer.cpp">
       <Filter>Camera Window</Filter>
@@ -199,6 +190,13 @@
     <ClCompile Include="ChimeraApp.cpp">
       <Filter>General Files</Filter>
     </ClCompile>
+    <ClCompile Include="DioSystem.cpp">
+      <Filter>Auxiliary Window</Filter>
+    </ClCompile>
+    <ClCompile Include="DioSettingsDialog.cpp">
+      <Filter>Auxiliary Window</Filter>
+    </ClCompile>
+    <ClCompile Include="openWithExplorer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -220,12 +218,6 @@
       <Filter>Constants, Externals, Etc.</Filter>
     </ClInclude>
     <ClInclude Include="VariableSystem.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
-    <ClInclude Include="TtlSystem.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
-    <ClInclude Include="TtlSettingsDialog.h">
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
     <ClInclude Include="TektronicsControl.h">
@@ -320,9 +312,6 @@
     </ClInclude>
     <ClInclude Include="gnuplot-iostream.h">
       <Filter>Camera Window</Filter>
-    </ClInclude>
-    <ClInclude Include="getFileName.h">
-      <Filter>General Files</Filter>
     </ClInclude>
     <ClInclude Include="ExperimentTimer.h">
       <Filter>Camera Window</Filter>
@@ -452,6 +441,12 @@
       <Filter>General Files</Filter>
     </ClInclude>
     <ClInclude Include="DacStructures.h" />
+    <ClInclude Include="DioSystem.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
+    <ClInclude Include="DioSettingsDialog.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

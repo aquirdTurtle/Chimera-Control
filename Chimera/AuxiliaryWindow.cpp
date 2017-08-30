@@ -1,13 +1,13 @@
 #include "stdafx.h"
 #include "AuxiliaryWindow.h"
 #include "Control.h"
-#include "TtlSettingsDialog.h"
+#include "DioSettingsDialog.h"
 #include "DacSettingsDialog.h"
 #include "TextPromptDialog.h"
-#include "TtlSystem.h"
+#include "DioSystem.h"
 #include "explorerOpen.h"
 #include "commonFunctions.h"
-#include "getFileName.h"
+#include "openWithExplorer.h"
 #include "saveTextFileFromEdit.h"
 
 AuxiliaryWindow::AuxiliaryWindow() : CDialog(), topBottomAgilent(TOP_BOTTOM_AGILENT_SAFEMODE),

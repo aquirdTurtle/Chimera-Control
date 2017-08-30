@@ -5,7 +5,7 @@
 
 #include "VariableSystem.h"
 #include "Script.h"
-#include "TtlSystem.h"
+#include "DioSystem.h"
 #include "AuxiliaryWindow.h"
 #include "TextPromptDialog.h"
 
@@ -82,6 +82,7 @@ void VariableSystem::handleOpenConfig(std::ifstream& configFile, double version)
 		}
 		setVariationRangeNumber(rangeNumber, 0);
 		// check if the range is actually too small.
+		UINT totalVariations = 0;
 		for (int rangeInc = 0; rangeInc < rangeNumber; rangeInc++)
 		{
 			double initValue=0, finValue=0;
@@ -90,10 +91,12 @@ void VariableSystem::handleOpenConfig(std::ifstream& configFile, double version)
 			configFile >> initValue;
 			configFile >> finValue;
 			configFile >> variations;
+			totalVariations += variations;
 			configFile >> leftInclusive;
 			configFile >> rightInclusive;
 			tempVar.ranges.push_back({ initValue, finValue, variations, leftInclusive, rightInclusive });
 		}
+		currentVariations = totalVariations;
 		// shouldn't be because of 1 forcing earlier.
 		if (tempVar.ranges.size() == 0)
 		{

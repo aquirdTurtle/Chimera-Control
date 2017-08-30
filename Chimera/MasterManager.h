@@ -5,7 +5,7 @@
 #include <sstream>
 #include <mutex>
 #include "nidaqmx2.h"
-#include "TtlSystem.h"
+#include "DioSystem.h"
 #include "DacSystem.h"
 #include "VariableSystem.h"
 #include "RichEditControl.h"
