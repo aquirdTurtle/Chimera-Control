@@ -75,22 +75,24 @@ namespace commonFunctions
 						niawgAborted = true;
 					}
 					mainWin->getComm()->sendColorBox( Niawg, 'B' );
+					//
 					if (camWin->Andor.isRunning())
 					{
 						status = "ANDOR";
 						commonFunctions::abortCamera(camWin, mainWin);
 						andorAborted = true;
 					}
+					mainWin->getComm()->sendColorBox(Camera, 'B');
+					//
 					if (mainWin->masterThreadManager.runningStatus())
 					{
 						status = "MASTER";
 						commonFunctions::abortMaster(mainWin, auxWin);
 						masterAborted = true;
 					}
-					mainWin->getComm()->sendColorBox( Camera, 'B' );
+					mainWin->getComm()->sendColorBox( Master, 'B' );
 					camWin->assertOff();
-					// todo... intensity
-
+					// todo... intensity...
 					if (!niawgAborted && !andorAborted && !masterAborted)
 					{
 						mainWin->getComm()->sendError("Camera, NIAWG and Master were not running. Can't Abort.\r\n");

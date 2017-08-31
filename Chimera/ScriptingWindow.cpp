@@ -9,7 +9,7 @@
 #include "AuxiliaryWindow.h"
 
 
-ScriptingWindow::ScriptingWindow() : CDialog(), intensityAgilent(INTENSITY_SAFEMODE){}
+ScriptingWindow::ScriptingWindow() : CDialog(), intensityAgilent(INTENSITY_SAFEMODE, INTENSITY_AGILENT_USB_ADDRESS){}
 
 IMPLEMENT_DYNAMIC(ScriptingWindow, CDialog)
 
@@ -196,23 +196,23 @@ BOOL ScriptingWindow::OnInitDialog()
 	int id = 2000;
 
 	POINT startLocation = { 0, 28 };
-	verticalNiawgScript.initialize( 480, 1000, startLocation, tooltips, this, id, "Vertical NIAWG", 
+	verticalNiawgScript.initialize( 480, 900, startLocation, tooltips, this, id, "Vertical NIAWG", 
 									"Vertical NIAWG Script",
 									{ IDC_VERTICAL_NIAWG_FUNCTION_COMBO, IDC_VERTICAL_NIAWG_EDIT }, 
 									mainWindowFriend->getRgbs()["Solarized Base04"] );
 
 	startLocation = { 480, 28 };
-	horizontalNiawgScript.initialize( 480, 1000, startLocation, tooltips, this,  id, "Horizontal NIAWG", 
+	horizontalNiawgScript.initialize( 480, 900, startLocation, tooltips, this,  id, "Horizontal NIAWG",
 									  "Horizontal NIAWG Script", { IDC_HORIZONTAL_NIAWG_FUNCTION_COMBO, 
 									  IDC_HORIZONTAL_NIAWG_EDIT }, mainWindowFriend->getRgbs()["Solarized Base03"]);
 	startLocation = { 960, 28 };
-	intensityAgilent.initialize( startLocation, tooltips, this, id, INTENSITY_AGILENT_USB_ADDRESS,
-								 "Intensity Agilent", 1000, { IDC_INTENSITY_CHANNEL1_BUTTON, 
+	intensityAgilent.initialize( startLocation, tooltips, this, id, 
+								 "Intensity Agilent", 865, { IDC_INTENSITY_CHANNEL1_BUTTON,
 								 IDC_INTENSITY_CHANNEL2_BUTTON, IDC_INTENSITY_SYNC_BUTTON, IDC_INTENSITY_PROGRAM, 
 								 IDC_INTENSITY_AGILENT_COMBO, IDC_INTENSITY_FUNCTION_COMBO, IDC_INTENSITY_EDIT }, 
 								 mainWindowFriend->getRgbs()["Solarized Base03"] );
 	startLocation = { 1440, 28 };
-	masterScript.initialize( 480, 1000, startLocation, tooltips, this, id, "Master", "Master Script", 
+	masterScript.initialize( 480, 900, startLocation, tooltips, this, id, "Master", "Master Script",
 	                         { IDC_MASTER_FUNCTION_COMBO, IDC_MASTER_EDIT }, mainWindowFriend->getRgbs()["Solarized Base04"] );
 	startLocation = { 1700, 3 };
 	statusBox.initialize(startLocation, id, this, 300, tooltips);
@@ -223,7 +223,8 @@ BOOL ScriptingWindow::OnInitDialog()
 	SetMenu(&menu);
 	try
 	{
-		intensityAgilent.setDefualt( 0 );
+		// I only do this for the intensity agilent at the moment.
+		intensityAgilent.setDefault( 1 );
 	}
 	catch (Error& err)
 	{
@@ -352,10 +353,12 @@ HBRUSH ScriptingWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	}
 }
 
+
 void ScriptingWindow::setIntensityDefault()
 {
-	intensityAgilent.setDefualt(0);
+	intensityAgilent.setDefault(1);
 }
+
 
 void ScriptingWindow::horizontalEditChange()
 {
@@ -641,20 +644,20 @@ void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, double version
 	ProfileSystem::checkDelimiterLine(configFile, "SCRIPTS");
 	// the reading for the scripts is simple enough at the moment that I just read everything here.
 	configFile.get();
-	std::string vertName, horName, intensityName, masterName;
+	std::string vertName, horName, masterName;
 	getline(configFile, vertName);
 	getline(configFile, horName);
-	getline(configFile, intensityName);
 	getline(configFile, masterName);
+	ProfileSystem::checkDelimiterLine(configFile, "END_SCRIPTS");
 
+	intensityAgilent.readConfigurationFile(configFile);
+	intensityAgilent.updateEdit(1, mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo());
 	openVerticalScript(vertName);
 	openHorizontalScript(horName);
-	openIntensityScript(intensityName);
 	openMasterScript(masterName);
 	considerScriptLocations();
 	recolorScripts();
 
-	ProfileSystem::checkDelimiterLine(configFile, "END_SCRIPTS");
 }
 
 
@@ -665,7 +668,7 @@ void ScriptingWindow::newMasterScript()
 	updateConfigurationSavedStatus(false);
 	masterScript.updateScriptNameText(getProfile().categoryPath);
 	masterScript.colorEntireScript(auxWindowFriend->getAllVariables(), mainWindowFriend->getRgbs(),
-											auxWindowFriend->getTtlNames(), auxWindowFriend->getDacNames());
+								   auxWindowFriend->getTtlNames(), auxWindowFriend->getDacNames());
 }
 
 void ScriptingWindow::openMasterScript(CWnd* parent)
@@ -742,9 +745,9 @@ void ScriptingWindow::handleSavingConfig(std::ofstream& saveFile)
 	saveFile << "SCRIPTS\n";
 	saveFile << addresses.verticalNIAWG << "\n";
 	saveFile << addresses.horizontalNIAWG << "\n";
-	saveFile << addresses.intensityAgilent << "\n";	
 	saveFile << addresses.master << "\n";
 	saveFile << "END_SCRIPTS\n";
+	intensityAgilent.handleSavingConfig(saveFile);
 }
 
 

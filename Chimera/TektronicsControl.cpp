@@ -2,7 +2,7 @@
 #include "TektronicsControl.h"
 
 
-TektronicsControl::TektronicsControl(bool safemode) : visaFlume(safemode) {}
+TektronicsControl::TektronicsControl(bool safemode, std::string address) : visaFlume(safemode, address) {}
 
 
 void TektronicsChannelControl::initialize( POINT loc, CWnd* parent, int& id, std::string channelText, LONG width, 
@@ -291,10 +291,8 @@ void TektronicsControl::handleProgram()
 
 
 void TektronicsControl::initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
-								    std::string channel2Text, LONG width, std::string usbAddress,
-									std::array<UINT, 5> ids )
+								    std::string channel2Text, LONG width, std::array<UINT, 5> ids )
 {
-	visaFlume.init( usbAddress );
 	header.sPos = { loc.x, loc.y, loc.x + width, loc.y += 25 };
 	header.Create( cstr("Tektronics " + headerText), WS_CHILD | WS_VISIBLE | WS_BORDER, header.sPos, parent, id++ );
 	header.fontType = HeadingFont;

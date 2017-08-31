@@ -107,6 +107,19 @@ bool ScriptedAgilentWaveform::readIntoSegment( int segNum, ScriptStream& script 
 		thrower( "ERROR: Invalid Continuation Option on intensity segment #" + str( segNum + 1 ) + ". The string entered was " + tempContinuationType
 				 + ". Please enter \"Repeat #\", \"RepeatUntilTrigger\", \"OnceWaitTrig\", or \"Once\". Code should not be case-sensititve." );
 	}
+	// see if it varies.
+	try
+	{
+		double test;
+		test = reduce(workingInput.repeatNum);
+		test = reduce(workingInput.finValue);
+		test = reduce(workingInput.repeatNum);
+	}
+	catch (Error&)
+	{
+		varies = true;
+	}
+
 	// Make Everything Permanent
 	waveformSegments[segNum].storeInput( workingInput );
 	return false;
@@ -251,13 +264,14 @@ void ScriptedAgilentWaveform::replaceVarValues()
 /*
 * This waveform loops through all of the segments to find places where a variable value needs to be changed, and changes it.
 */
-void ScriptedAgilentWaveform::replaceVarValues( key variableKey, UINT variation )
+void ScriptedAgilentWaveform::replaceVarValues( key variableKey, UINT variation, std::vector<variable>& variables )
 {
 	for (UINT segNumInc = 0; segNumInc < waveformSegments.size(); segNumInc++)
 	{
-		waveformSegments[segNumInc].convertInputToFinal( variableKey, variation );
+		waveformSegments[segNumInc].convertInputToFinal( variableKey, variation, variables );
 	}
 }
+
 
 
 /*
@@ -267,34 +281,7 @@ void ScriptedAgilentWaveform::replaceVarValues( key variableKey, UINT variation 
 */
 void ScriptedAgilentWaveform::convertPowersToVoltages()
 {
-	/// NOTES
-	// TODO:make a structure and a front panel option. 
-	// need to implement using calibrations, which haven't been done yet.
-	// HARD CODED right now.
-	// Expecting a calibration in terms of /MICROWATTS/!
-	/// PAST CALIBRATIONs
-	/// double newValue = -a * log(y * b);
-	// (February 1st, 2016 calibrations)
-	// double a = 0.245453772102427, b = 1910.3567515711145;
-	// (February 2st, 2016 calibrations)
-	// double a = 0.2454742248, b = 1684.849955;
-	// double a = 0.2454742248, b = 1684.849955;
-	// (April 14th, 2016 calibrations);
-	// double a = 0.24182, b = 1943.25;
-	// (June 16th, 2016 calibrations (NE10 filter in front of log pd)
-	//double a = 0.247895, b = 218.559;
-	// June 18th, 2016 calibrations (NE20 filter in front of log pd)
-	// double a = 0.262771, b = 11.2122;
-	// June 22nd AM, 2016 calibrations (No filter in front of log pd)
-	//double a = 0.246853, b = 1330.08;
-	// June 22nd PM, 2016 calibrations (NE10 filter in front of log pd, after tweaking servo parameters)
-	//double a = 0.246862, b = 227.363;
 
-	/// CLIBRATIOND WITH DIGITAL LOCK BOX
-	/// newValue = a +  b * log(y - info); // here info is treated as a background light level, and the voltage output should be positive
-
-	// July 14 2016, NE10 filter in front of log pd
-	double a = 0.479262, b = 0.215003, c = 0.018189;
 	// for each part of the waveform returnDataSize
 	for (UINT segmentInc = 0; segmentInc < waveformSegments.size(); segmentInc++)
 	{
@@ -303,11 +290,11 @@ void ScriptedAgilentWaveform::convertPowersToVoltages()
 		{
 			// convert the user power, which is entered in mW, to uW. That's the units this calibration was done in.
 			// y is the desired power in microwatts.
-			double y = waveformSegments[segmentInc].returnDataVal( dataConvertInc ) * 1000.0;
-
+			double power = waveformSegments[segmentInc].returnDataVal( dataConvertInc );
+			// setPoint = a * power + b
 			//double newValue = -a * log(y * b);
-			double newValue = a + b * log( y - c );
-			waveformSegments[segmentInc].assignDataVal( dataConvertInc, newValue );
+			double setPointinVolts = Agilent::convertPowerToSetPoint(power);
+			waveformSegments[segmentInc].assignDataVal( dataConvertInc, setPointinVolts);
 		}
 	}
 }

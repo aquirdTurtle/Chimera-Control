@@ -394,6 +394,6 @@ void Fgen::errChecker( int err )
 {
 	if (err < 0)
 	{
-		thrower( "NIAWG Error: " + getErrorMsg() );
+		thrower( "NIAWG Error: " + getErrorMsg() + "\r\n");
 	}
 }

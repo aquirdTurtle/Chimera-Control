@@ -7,7 +7,12 @@
 #include "CameraWindow.h"
 
 CameraWindow::CameraWindow() : CDialog(), CameraSettings(&Andor), dataHandler(DATA_SAVE_LOCATION), 
-                               plotter(GNUPLOT_LOCATION){};
+                               plotter(GNUPLOT_LOCATION)
+{
+	// test the plotter quickly
+	plotter.send("plot '-'");
+	plotter.sendData(std::vector<long>({1}));
+};
 
 IMPLEMENT_DYNAMIC(CameraWindow, CDialog)
 
@@ -388,7 +393,7 @@ void CameraWindow::startCamera()
 	ReleaseDC(dc);
 	stats.reset();
 	// I used to initialize the data logger here.
-	analysisHandler.updateDataSetNumberEdit( dataHandler.getNextFileNumber() );
+	analysisHandler.updateDataSetNumberEdit( dataHandler.getNextFileNumber() - 1 );
 	Andor.armCamera( this );
 	mainWindowFriend->getComm()->sendColorBox(Camera, 'G');
 }
@@ -1000,6 +1005,7 @@ void CameraWindow::passCommonCommand(UINT id)
 }
 
 
+// this is typically a little redundant to call, but can use to make sure things are set to off.
 void CameraWindow::assertOff()
 {
 	CameraSettings.cameraIsOn(false);

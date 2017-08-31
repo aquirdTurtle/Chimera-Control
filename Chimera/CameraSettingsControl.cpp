@@ -592,34 +592,17 @@ void CameraSettingsControl::handleModeChange( CameraWindow* cameraWindow )
 	if (runSettings.cameraMode == "Video Mode")
 	{
 		runSettings.acquisitionMode = 5;
-		/*
-		if (ePicturesPerVariation != INT_MAX)
-		{
-			ePreviousPicturesPerSubSeries = ePicturesPerVariation;
-		}
-		*/
 		runSettings.totalPicsInVariation = INT_MAX;
 		runSettings.repetitionsPerVariation = runSettings.totalPicsInVariation / runSettings.picsPerRepetition;
-		//repsPerVarDisp.SetWindowTextA(cstr(runSettings.repetitionsPerVariation));
 
 	}
 	else if (runSettings.cameraMode == "Kinetic Series Mode")
 	{
 		runSettings.acquisitionMode = 3;
-		//ePicturesPerVariation = ePreviousPicturesPerSubSeries;
-		//repsPerVarDisp.SetWindowTextA(cstr(runSettings.repetitionsPerVariation));
 	}
 	else if (runSettings.cameraMode == "Accumulate Mode")
 	{
 		runSettings.acquisitionMode = 2;
-		/*
-		if (ePicturesPerVariation != INT_MAX)
-		{
-			ePreviousPicturesPerSubSeries = ePicturesPerVariation;
-		}
-		*/		
-		//ePicturesPerVariation = INT_MAX;
-
 	}
 
 

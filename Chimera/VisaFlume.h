@@ -6,8 +6,7 @@
 class VisaFlume
 {
 	public:
-	    VisaFlume(bool safemode);
-		void init(std::string address);
+	    VisaFlume(bool safemode, std::string address);
 		void write( std::string message );		
 		void close();
 		void open();

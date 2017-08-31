@@ -19,8 +19,9 @@
 class Agilent
 {
 	public:
-		Agilent( bool safemode );
-		void initialize( POINT& loc, cToolTips& toolTips, CWnd* master, int& id,  std::string address, 
+		Agilent( bool safemode, std::string address );
+		~Agilent();
+		void initialize( POINT& loc, cToolTips& toolTips, CWnd* master, int& id,   
 						 std::string header, UINT editHeight, std::array<UINT, 7> ids, COLORREF color );
 		void handleChannelPress( int chan, std::string currentCategoryPath, RunInfo currentRunInfo );
 		void handleCombo();
@@ -31,7 +32,7 @@ class Agilent
 		void outputOff(int channel);
 		void handleInput( std::string categoryPath, RunInfo info );
 		void handleInput( int chan, std::string categoryPath, RunInfo info );
-		void setDefualt( int channel );
+		void setDefault( int channel );
 		void prepAgilentSettings(UINT channel);
 		bool connected();
 		void analyzeAgilentScript( scriptedArbInfo& infoObj );
@@ -42,19 +43,21 @@ class Agilent
 		void readConfigurationFile( std::ifstream& file );
 		//void setScript( int varNum, key variableKey, scriptedArbInfo& scriptInfo );
 		void selectIntensityProfile( UINT channel, int varNum );
-		void convertInputToFinalSettings( key variableKey, UINT variation );
-		void convertInputToFinalSettings();
+		void convertInputToFinalSettings(UINT chan, key variableKey, UINT variation, std::vector<variable>& variables);
+		void convertInputToFinalSettings(UINT chan);
 		void updateEdit( int chan, std::string currentCategoryPath, RunInfo currentRunInfo );
 		void updateEdit( std::string currentCategoryPath, RunInfo currentRunInfo );
 		deviceOutputInfo getOutputInfo();
 		void rearrange(UINT width, UINT height, fontMap fonts);
-		void setAgilent( key varKey, UINT variation );
+		void setAgilent( key varKey, UINT variation, std::vector<variable>& variables);
 		void setAgilent();
-		void handleScriptVariation( key varKey, UINT variation, scriptedArbInfo& scriptInfo, UINT channel );
+		void handleScriptVariation( key varKey, UINT variation, scriptedArbInfo& scriptInfo, UINT channel, 
+			std::vector<variable>& variables);
 		void handleNoVariations( scriptedArbInfo& scriptInfo, UINT channel );
 		void setScriptOutput(UINT varNum, scriptedArbInfo scriptInfo, UINT channel );
 		// making the script public greatly simplifies opening, saving, etc. files from this script.
 		Script agilentScript;
+		static double convertPowerToSetPoint(double power);
 
 	private:
 		std::string name;

@@ -41,7 +41,7 @@ class Segment
 	segmentInfoInput getInput();
 	segmentInfoFinal getFinalSettings();
 	void convertInputToFinal();
-	void convertInputToFinal( key variableKey, UINT variation );
+	void convertInputToFinal( key variableKey, UINT variation, std::vector<variable>& vars);
 	UINT returnDataSize();
 	void assignDataVal( int dataNum, double val );
 	double returnDataVal( long dataNum );

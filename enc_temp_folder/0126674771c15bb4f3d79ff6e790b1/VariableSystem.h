@@ -44,7 +44,7 @@ class VariableSystem
 		UINT getTotalVariationNumber();
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, double version);
-		void handleDraw(NMHDR* pNMHDR, LRESULT* pResult, rgbMap rgbs);
+		void handleDraw(NMHDR* pNMHDR, LRESULT* pResult);
 		void updateVariableInfo(std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin );
 		void deleteVariable();
 		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id, std::string title,

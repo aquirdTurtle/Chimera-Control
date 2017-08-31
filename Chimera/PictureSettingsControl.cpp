@@ -17,6 +17,7 @@ void PictureSettingsControl::cameraIsOn( bool state )
 void PictureSettingsControl::handleSaveConfig(std::ofstream& saveFile)
 {
 	saveFile << "PICTURE_SETTINGS\n";
+	saveFile << picsPerRepetitionUnofficial << "\n";
 	for (auto color : colors)
 	{
 		saveFile << color << " ";
@@ -39,6 +40,8 @@ void PictureSettingsControl::handleSaveConfig(std::ofstream& saveFile)
 void PictureSettingsControl::handleOpenConfig(std::ifstream& openFile, double version, AndorCamera* andor)
 {
 	ProfileSystem::checkDelimiterLine(openFile, "PICTURE_SETTINGS");
+	openFile >> picsPerRepetitionUnofficial;
+	//setPicturesPerExperiment(picsPerRepetitionUnofficial)
 	for (auto& color : colors)
 	{
 		openFile >> color;
@@ -575,7 +578,7 @@ void PictureSettingsControl::setPicturesPerExperiment(UINT pics, AndorCamera* an
 */
 std::array<int, 4> PictureSettingsControl::getPictureColors()
 {
-	return this->colors;
+	return colors;
 }
 
 /*

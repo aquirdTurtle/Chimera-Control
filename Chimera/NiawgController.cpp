@@ -67,6 +67,7 @@ void NiawgController::programNiawg( MasterThreadInput* input, NiawgOutputInfo& o
 		input->niawg->turnOff();
 	}
 	// wait until the niawg has finished outputting previous variation.
+	input->niawg->turnOff();
 	waiter.wait( input->comm );
 
 	if (input->settings.dontActuallyGenerate) { return; }
@@ -87,6 +88,19 @@ void NiawgController::programNiawg( MasterThreadInput* input, NiawgOutputInfo& o
 	variedMixedSize.clear();
 }
 
+
+bool NiawgController::outputVaries(NiawgOutputInfo output)
+{
+	for (auto wave : output.waves)
+	{
+		if (wave.core.varies)
+		{
+			// if any wave varies...
+			return true;
+		}
+	}
+	return false;
+}
 
 // analyzes all niawg scripts and prepares the output structure.
 void NiawgController::prepareNiawg(MasterThreadInput* input, NiawgOutputInfo& output, 
@@ -109,7 +123,8 @@ void NiawgController::prepareNiawg(MasterThreadInput* input, NiawgOutputInfo& ou
 		if (input->thisObj->getAbortStatus()) { thrower( "\r\nABORTED!\r\n" ); }
 	}
 	input->comm->sendStatus( "Constant Waveform Preparation Completed...\r\n" );
-	input->niawg->finalizeScript( input->repetitionNumber, "experimentScript", workingUserScripts, userScriptSubmit );
+	input->niawg->finalizeScript( input->repetitionNumber, "experimentScript", workingUserScripts, userScriptSubmit, 
+		!input->niawg->outputVaries(output) );
 	if (input->debugOptions.outputNiawgMachineScript)
 	{
 		input->comm->sendDebug( boost::replace_all_copy( "NIAWG Machine Script:\n"
@@ -1498,11 +1513,11 @@ void NiawgController::handleStandardWaveform( NiawgOutputInfo& output, profileSe
 
 
 void NiawgController::finalizeScript( ULONGLONG repetitions, std::string name, std::vector<std::string> workingUserScripts, 
-									  std::vector<ViChar>& userScriptSubmit )
+									  std::vector<ViChar>& userScriptSubmit, bool repeatForever )
 {
 	// format the script to send to the 5451 according to the accumulation number and based on the number of sequences.
 	std::string finalUserScriptString = "script " + name + "\n";
-	if (repetitions == 0)
+	if (repeatForever)
 	{
 		finalUserScriptString += "repeat forever\n";
 		for (UINT sequenceInc = 0; sequenceInc < workingUserScripts.size(); sequenceInc++)

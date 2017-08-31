@@ -455,7 +455,7 @@ void VariableSystem::handleColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
 }
 
 
-void VariableSystem::handleDraw(NMHDR* pNMHDR, LRESULT* pResult, rgbMap rgbs)
+void VariableSystem::handleDraw(NMHDR* pNMHDR, LRESULT* pResult)
 {
 	NMLVCUSTOMDRAW* pLVCD = reinterpret_cast<NMLVCUSTOMDRAW*>(pNMHDR);
 	// Take the default processing unless we 
@@ -481,7 +481,7 @@ void VariableSystem::handleDraw(NMHDR* pNMHDR, LRESULT* pResult, rgbMap rgbs)
 			if (item == currentVariables.size())
 			{
 				pLVCD->clrText = RGB(255, 255, 255);
-				pLVCD->clrTextBk = rgbs["Solarized Base02"];
+				pLVCD->clrTextBk = RGB(0, 0, 0);
 			}
 			else if (currentVariables[item].active && currentVariables[item].overwritten)
 			{

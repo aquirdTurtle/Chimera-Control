@@ -10,9 +10,12 @@
 #include "openWithExplorer.h"
 #include "saveTextFileFromEdit.h"
 
-AuxiliaryWindow::AuxiliaryWindow() : CDialog(), topBottomAgilent(TOP_BOTTOM_AGILENT_SAFEMODE),
-									uWaveAxialAgilent(UWAVE_AXIAL_AGILENT_SAFEMODE), flashingAgilent(FLASHING_SAFEMODE), 
-									topBottomTek(TOP_BOTTOM_TEK_SAFEMODE), eoAxialTek(EO_AXIAL_TEK_SAFEMODE)
+AuxiliaryWindow::AuxiliaryWindow() : CDialog(), 
+									 topBottomAgilent(TOP_BOTTOM_AGILENT_SAFEMODE, TOP_BOTTOM_AGILENT_USB_ADDRESS),								
+									 uWaveAxialAgilent(UWAVE_AXIAL_AGILENT_SAFEMODE, UWAVE_AXIAL_AGILENT_USB_ADDRESS), 
+									 flashingAgilent(FLASHING_SAFEMODE, FLASHING_AGILENT_USB_ADDRESS), 
+									 topBottomTek(TOP_BOTTOM_TEK_SAFEMODE, TOP_BOTTOM_TEK_USB_ADDRESS), 
+									 eoAxialTek(EO_AXIAL_TEK_SAFEMODE, EO_AXIAL_TEK_USB_ADDRESS)
 { 
 }
 
@@ -814,6 +817,8 @@ void AuxiliaryWindow::loadMotSettings(MasterThreadInput* input)
 		// Only set it once, clearly.
 		input->repetitionNumber = 1;
 		input->key = &masterKey;
+		input->key->loadVariables(input->variables);
+		input->key->generateKey(input->settings.randomizeVariations);
 		input->masterScriptAddress = MOT_ROUTINE_ADDRESS;
 		input->rsg = &RhodeSchwarzGenerator;
 		input->agilents.push_back( &topBottomAgilent );
@@ -1229,6 +1234,11 @@ HBRUSH AuxiliaryWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	{
 		return result;
 	}
+	result = *statusBox.handleColoring(pWnd->GetDlgCtrlID(), pDC, brushes, rgbs);
+	if (result != NULL)
+	{
+		return result;
+	}
 
 	// default colors
 	switch (nCtlColor)
@@ -1282,25 +1292,23 @@ BOOL AuxiliaryWindow::OnInitDialog()
 
 		POINT statusLoc = { 960, 0 };
 		topBottomTek.initialize( statusLoc, this, id, "Top / Bottom", "Top", "Bottom", 480,
-								 TOP_BOTTOM_TEK_USB_ADDRESS, {TOP_BOTTOM_PROGRAM, 
-								 TOP_ON_OFF, TOP_FSK, BOTTOM_ON_OFF, BOTTOM_FSK} );
-		eoAxialTek.initialize( statusLoc, this, id, "EO / Axial", "EO", "Axial", 480, EO_AXIAL_TEK_USB_ADDRESS, { EO_AXIAL_PROGRAM,
+								 {TOP_BOTTOM_PROGRAM, TOP_ON_OFF, TOP_FSK, BOTTOM_ON_OFF, BOTTOM_FSK} );
+		eoAxialTek.initialize( statusLoc, this, id, "EO / Axial", "EO", "Axial", 480, { EO_AXIAL_PROGRAM,
 							   EO_ON_OFF, EO_FSK, AXIAL_ON_OFF, AXIAL_FSK } );
 		RhodeSchwarzGenerator.initialize( controlLocation, toolTips, this, id );
 		controlLocation = POINT{ 480, 0 };
-		topBottomAgilent.initialize( controlLocation, toolTips, this, id, TOP_BOTTOM_AGILENT_USB_ADDRESS,
-									 "Top/Bottom Agilent", 120, { IDC_TOP_BOTTOM_CHANNEL1_BUTTON
-									 , IDC_TOP_BOTTOM_CHANNEL2_BUTTON, IDC_TOP_BOTTOM_SYNC_BUTTON, 
-									 IDC_TOP_BOTTOM_PROGRAM, IDC_TOP_BOTTOM_AGILENT_COMBO, 
+		topBottomAgilent.initialize( controlLocation, toolTips, this, id, "Top/Bottom Agilent", 120, 
+									{ IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_TOP_BOTTOM_CHANNEL2_BUTTON, 
+									  IDC_TOP_BOTTOM_SYNC_BUTTON, IDC_TOP_BOTTOM_PROGRAM, IDC_TOP_BOTTOM_AGILENT_COMBO, 
 									 IDC_TOP_BOTTOM_FUNCTION_COMBO, IDC_TOP_BOTTOM_EDIT},
 									 mainWindowFriend->getRgbs()["Solarized Base03"] );
-		uWaveAxialAgilent.initialize( controlLocation, toolTips, this, id, UWAVE_AXIAL_AGILENT_USB_ADDRESS, 
+		uWaveAxialAgilent.initialize( controlLocation, toolTips, this, id, 
 									  "Microwave / Axial Agilent",   120, { IDC_AXIAL_UWAVE_CHANNEL1_BUTTON, 
 									  IDC_AXIAL_UWAVE_CHANNEL2_BUTTON, IDC_AXIAL_UWAVE_SYNC_BUTTON, 
 									  IDC_AXIAL_UWAVE_PROGRAM, IDC_AXIAL_UWAVE_AGILENT_COMBO, 
 									  IDC_AXIAL_UWAVE_FUNCTION_COMBO, IDC_AXIAL_UWAVE_EDIT },
 									  mainWindowFriend->getRgbs()["Solarized Base03"] );
-		flashingAgilent.initialize( controlLocation, toolTips, this, id, FLASHING_AGILENT_USB_ADDRESS, 
+		flashingAgilent.initialize( controlLocation, toolTips, this, id, 
 									"Flashing Agilent",  120, {IDC_FLASHING_CHANNEL1_BUTTON, 
 									IDC_FLASHING_CHANNEL2_BUTTON, IDC_FLASHING_SYNC_BUTTON, IDC_FLASHING_PROGRAM, 
 									IDC_FLASHING_AGILENT_COMBO, IDC_FLASHING_FUNCTION_COMBO, IDC_FLASHING_EDIT}, 
