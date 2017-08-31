@@ -38,7 +38,7 @@ class NiawgController
 		void loadWaveformParameters( NiawgOutputInfo& output, profileSettings profile, niawgPair<std::string> command,
 									 debugInfo& debug, niawgPair<ScriptStream>& scripts );
 		void finalizeScript( ULONGLONG repetitions, std::string name, std::vector<std::string> workingUserScripts,
-							 std::vector<ViChar>& userScriptSubmit );
+							 std::vector<ViChar>& userScriptSubmit, bool repeatForever );
 		void setDefaultWaveforms( MainWindow* mainWin );
 		void varyParam( simpleWave& wave, waveInfo previousWave, int axis, int paramNum, double paramVal, 
 						std::string& warnings );
@@ -70,6 +70,7 @@ class NiawgController
 		void setRunningState( bool newRunningState );
 		void startRearrangementThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave );
 		Fgen fgenConduit;
+		static bool outputVaries(NiawgOutputInfo output);
 
 	private:
 		void mixWaveforms( simpleWave& waveCore );

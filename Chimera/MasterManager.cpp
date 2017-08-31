@@ -250,7 +250,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			// program devices
 			for (auto& agilent : input->agilents)
 			{
-				agilent->setAgilent( input->key->getKey(), varInc );
+				agilent->setAgilent( input->key->getKey(), varInc, input->variables );
 			}
 
 			// program the intensity agilent. Right now this is a little different than the above because I haven't 
@@ -372,7 +372,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 	{
 		if (input->intensityAgilentNumber != -1)
 		{
-			input->agilents[input->intensityAgilentNumber]->setDefualt(0);
+			input->agilents[input->intensityAgilentNumber]->setDefault(1);
 		}
 
 		if (input->runNiawg)

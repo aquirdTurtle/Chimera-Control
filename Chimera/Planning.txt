@@ -16,26 +16,35 @@ Features:
 - Watch cursor location
 - update colors for variables
 - restore the Niawg functionality where it calculates next varying waveform during the run of the previous waveform.
-- calibrate agilent with lin pd
 - option to allow agilent waveforms to function with or without calibration
-
-Bugs:                                                                           
-- restart niawg freezes program
-- close one window should close all
+- make a structure and a front panel option for agilent calibrations
+- functions for niawg and agilent scripts
+- if fails to open script file give user opportunity to find it themselves.
+- default script for agilent with command guide?
+- refactor variables & variable key so that they aren't two separate objects. Consider if reasonable to also include 
+	variation number.
+- gnuplot safemode?
+- handle niawg waiting more elegantly
+- make the big text short status better.
+- be able to program agilents with or without power->volt conversion. Think I just want a combo.
+- indicate setting (no, off, dc, sine, square, pre, script) next to agilent channel text
+- make agilent smart about trying to program a sequence that's only one voltage. Can prob just add one check
+Bugs:
+- restart niawg freezes program 
+- close one window should close all 
 - exit running niawg w/ master more gracefully.
-- fix colors on camera control
-- fix gnuplot
-- put in gnuplot test at beginning of program
-- fix variations beign zero at new variations
-- abort should clear the master box color to grey
-- aux window colorboxes not updating.
+- fix plotting
+- fix variations begin zero at new variations
 - number of camera pictures not getting set by config.
-- make the big text better.
 - dacramp spacing warning should only appear once, and should appear in error status?
+- make functions combos work for master script again
+- paths for scripts are too long to fit in the display
+- key getting initialized in weird places
+- doesn't abort fully upon an error.
+- after abort should stop fully before prompting to delete files.
+- some cancels break things on starting the experiment
+- config setting agilent doesn't set output type correctly, just stays at prev value (e.g. no-control)
 
 =================
 Finished
 =================
-- fixed zero-dacs
-
-

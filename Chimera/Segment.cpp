@@ -2,29 +2,29 @@
 #include "Segment.h"
 
 
-void Segment::convertInputToFinal( key variableKey, UINT variation )
+void Segment::convertInputToFinal( key variableKey, UINT variation, std::vector<variable>& vars )
 {	
 	// first transfer things that can't be varied.
 	finalSettings.segmentType = input.segmentType;
 	finalSettings.continuationType = input.continuationType;
 	finalSettings.rampType = input.rampType;
 	// handle more complicated things.
-	finalSettings.initValue = reduce( input.initValue, variableKey, variation );
+	finalSettings.initValue = reduce( input.initValue, variableKey, variation, vars );
 	if (finalSettings.rampType == "nr")
 	{
 		finalSettings.finValue = finalSettings.initValue;
 	}
 	else
 	{
-		finalSettings.finValue = reduce( input.finValue, variableKey, variation );
+		finalSettings.finValue = reduce( input.finValue, variableKey, variation, vars );
 	}
 	// time
-	finalSettings.time = reduce( input.time, variableKey, variation ) / 1000.0;
+	finalSettings.time = reduce( input.time, variableKey, variation, vars ) / 1000.0;
 	// repeat number
 	// (0 here corresponds to "repeat", in which case you need a number of times to repeat.);
 	if (finalSettings.continuationType == 0)
 	{
-		finalSettings.repeatNum = UINT(reduce( input.repeatNum, variableKey, variation ));
+		finalSettings.repeatNum = UINT(reduce( input.repeatNum, variableKey, variation, vars ));
 	}
 }
 

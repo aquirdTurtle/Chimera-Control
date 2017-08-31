@@ -1819,10 +1819,8 @@ std::string ProfileSystem::getMasterAddressFromConfig()
 	std::getline(configFile, line);
 	std::getline(configFile, line);
 	std::getline(configFile, line);
-	std::getline(configFile, line);
 	std::string newPath;
 	getline(configFile, newPath);
-	//configurationFile >> newPath;
 	return newPath;
 }
 

@@ -84,6 +84,10 @@ double reduce(std::string expression, key variationKey, UINT variation, std::vec
 			{
 				if (term == var.first)
 				{
+					if (var.second.first.size() == 0)
+					{
+						thrower("ERROR: Attmepting to use key that hasn't been generated yet!");
+					}
 					term = str(var.second.first[variation]);
 					// find the variable 
 					bool foundVariable = false;

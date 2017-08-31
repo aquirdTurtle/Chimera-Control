@@ -3,14 +3,11 @@
 
 #include "stdafx.h"
 #include <iostream>
-#include "Windows.h"
+#include "gnuplot-iostream.h"
 
 int main()
 {
-	std::cout << "begin...\n";
-	HMODULE dio = LoadLibrary( L"DIO64_Visa32.dll" );
-	std::cout << dio << std::endl;
-	std::cout << "fin\n";
+	Gnuplot* plotter("loc.exe");
 	std::cin.get();
 	return 0;
 }

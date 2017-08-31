@@ -904,8 +904,6 @@ void DataAnalysisControl::rearrange(std::string cameraMode, std::string trigMode
 	currentDataSetNumberEdit.rearrange( cameraMode, trigMode, width, height, fonts );
 	currentDataSetNumberText.rearrange( cameraMode, trigMode, width, height, fonts );
 	setAnalysisLocationsButton.rearrange( cameraMode, trigMode, width, height, fonts );
-	// analyzeMostRecentButton.rearrange( cameraMode, trigMode, width, height, fonts );
-	// autoAnalyzeCheckBox.rearrange( cameraMode, trigMode, width, height, fonts );
 }
 
 std::vector<std::string> DataAnalysisControl::getActivePlotList()

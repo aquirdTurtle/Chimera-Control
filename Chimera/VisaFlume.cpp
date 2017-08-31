@@ -1,11 +1,8 @@
 #include "stdafx.h"
 #include "VisaFlume.h"
 
-VisaFlume::VisaFlume(bool safemode) : deviceSafemode(safemode) { }
-
-/// 
-void VisaFlume::init( std::string address )
-{
+VisaFlume::VisaFlume(bool safemode, std::string address) : deviceSafemode(safemode) 
+{ 
 	usbAddress = address;
 }
 
@@ -59,9 +56,9 @@ std::string VisaFlume::identityQuery()
 	char buf[256] = { 0 };
 	if (!deviceSafemode)
 	{
-		open();
+		//open();
 		viQueryf( instrument, (ViString)"*IDN?\n", "%t", buf );
-		close();
+		//close();
 	}
 	else
 	{
