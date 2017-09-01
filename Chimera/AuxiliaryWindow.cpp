@@ -439,11 +439,11 @@ void AuxiliaryWindow::drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 {
 	if (id == IDC_GLOBAL_VARS_LISTVIEW)
 	{
-		globalVariables.handleDraw(pNMHDR, pResult);
+		globalVariables.handleDraw(pNMHDR, pResult, mainWindowFriend->getRgbs());
 	}
 	else
 	{
-		configVariables.handleDraw(pNMHDR, pResult);
+		configVariables.handleDraw(pNMHDR, pResult, mainWindowFriend->getRgbs());
 	}
 }
 

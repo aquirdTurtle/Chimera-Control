@@ -46,8 +46,6 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 	std::vector<ViChar> userScriptSubmit;
 	output.isDefault = false;
 	// initialize to 2 because of default waveforms...
-	output.waveCount = 2;
-	output.predefinedWaveCount = 0;
 	output.waves.resize( 2 );
 
 	std::vector<std::pair<UINT, UINT>> ttlShadeLocs;
@@ -348,11 +346,18 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			}
 			else
 			{
-				eAbortNiawgFlag = true;
-				waiter.wait(input->comm);
+				try
+				{
+					eAbortNiawgFlag = true;
+					waiter.wait(input->comm);
+				}
+				catch (Error& err)
+				{
+					errBox(err.what());
+				}
 			}
 			// Clear waveforms off of NIAWG (not working??? memory appears to still run out...)
-			for (int waveformInc = 2; waveformInc < output.waveCount; waveformInc++)
+			for (int waveformInc = 2; waveformInc < output.waves.size(); waveformInc++)
 			{
 				std::string waveformToDelete = "Waveform" + str( waveformInc );
 				input->niawg->fgenConduit.deleteWaveform( cstr( waveformToDelete ) );
@@ -372,7 +377,14 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 	{
 		if (input->intensityAgilentNumber != -1)
 		{
-			input->agilents[input->intensityAgilentNumber]->setDefault(1);
+			try
+			{
+				//input->agilents[input->intensityAgilentNumber]->setDefault(1);
+			}
+			catch (Error& err)
+			{
+				//... not much to do.
+			}
 		}
 
 		if (input->runNiawg)

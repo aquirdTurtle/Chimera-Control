@@ -32,7 +32,8 @@ void VariableSystem::handleOpenConfig(std::ifstream& configFile, double version)
 			varNum = 0;
 		}
 	}
-
+	// if no variables to get incremented over here, it will stay at 1.
+	currentVariations = 1;
 	for (UINT varInc = 0; varInc < varNum; varInc++)
 	{
 		variable tempVar;
@@ -96,7 +97,10 @@ void VariableSystem::handleOpenConfig(std::ifstream& configFile, double version)
 			configFile >> rightInclusive;
 			tempVar.ranges.push_back({ initValue, finValue, variations, leftInclusive, rightInclusive });
 		}
-		currentVariations = totalVariations;
+		if (!constant)
+		{
+			currentVariations = totalVariations;
+		}
 		// shouldn't be because of 1 forcing earlier.
 		if (tempVar.ranges.size() == 0)
 		{

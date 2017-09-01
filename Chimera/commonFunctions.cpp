@@ -234,7 +234,14 @@ namespace commonFunctions
 			}
 			case ID_FILE_MY_EXIT:
 			{
-				commonFunctions::exitProgram(scriptWin, mainWin, camWin);
+				try
+				{
+					commonFunctions::exitProgram(scriptWin, mainWin, camWin);
+				}
+				catch (Error& err)
+				{
+					mainWin->getComm()->sendError("ERROR! " + err.whatStr());
+				}
 				break;
 			}
 			case ID_FILE_MY_INTENSITY_NEW:

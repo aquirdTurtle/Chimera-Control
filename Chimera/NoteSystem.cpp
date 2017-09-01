@@ -19,7 +19,7 @@ void NoteSystem::handleSaveConfig(std::ofstream& saveFile)
 {
 	saveFile << "CONFIGURATION_NOTES\n";
 	saveFile << getConfigurationNotes();
-	saveFile << "END_CONFIGURATION_NOTES\n";
+	saveFile << "\nEND_CONFIGURATION_NOTES\n";
 }
 
 
@@ -103,7 +103,7 @@ void NoteSystem::setCategoryNotes(std::string notes)
 
 void NoteSystem::setConfigurationNotes(std::string notes)
 {
-	categoryNotes.SetWindowTextA(cstr(notes));
+	configurationNotes.SetWindowTextA(cstr(notes));
 }
 
 std::string NoteSystem::getExperimentNotes()

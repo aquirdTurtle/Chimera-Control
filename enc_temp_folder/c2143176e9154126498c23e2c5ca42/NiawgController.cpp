@@ -531,15 +531,15 @@ void NiawgController::loadStandardInputType( std::string inputType, channelWave 
 		{
 			wvInfo.initType = number;
 		}
-		else if (inputType == "gen " + str( number ) + ", amp ramp")
+		else if (inputType == "gen " + str( number ) + ", amp ramp ")
 		{
 			wvInfo.initType = number + MAX_NIAWG_SIGNALS;
 		}
-		else if (inputType == "gen " + str( number ) + ", freq ramp")
+		else if (inputType == "gen " + str( number ) + ", freq ramp ")
 		{
 			wvInfo.initType = number + 2 * MAX_NIAWG_SIGNALS;
 		}
-		else if (inputType == "gen " + str( number ) + ", freq & amp ramp")
+		else if (inputType == "gen " + str( number ) + ", freq & amp ramp ")
 		{
 			wvInfo.initType = number + 3 * MAX_NIAWG_SIGNALS;
 		}
@@ -2008,8 +2008,8 @@ bool NiawgController::isStandardWaveform(std::string inputType)
 {
 	for ( auto number : range( MAX_NIAWG_SIGNALS ) )
 	{
-		if ( inputType == "gen " + str( number+1 ) + ", const" || inputType == "gen " + str(number + 1) + ", amp ramp"
-			 || inputType == "gen " + str(number + 1) + ", freq ramp" || inputType == "gen " + str(number + 1) + ", freq & amp ramp")
+		if ( inputType == "gen " + str( number+1 ) + ", const" || inputType == "gen " + str(number + 1) + ", amp ramp "
+			 || inputType == "gen " + str(number + 1) + ", freq ramp " || inputType == "gen " + str(number + 1) + ", freq & amp ramp ")
 		{
 			return true;
 		}

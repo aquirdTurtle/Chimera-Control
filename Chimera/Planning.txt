@@ -29,6 +29,9 @@ Features:
 - be able to program agilents with or without power->volt conversion. Think I just want a combo.
 - indicate setting (no, off, dc, sine, square, pre, script) next to agilent channel text
 - make agilent smart about trying to program a sequence that's only one voltage. Can prob just add one check
+- math in niawg and intensity scripts
+- if aborts or crashes in the middle of run, code should close HDF5 file and make it usable.
+
 Bugs:
 - restart niawg freezes program 
 - close one window should close all 
@@ -44,6 +47,12 @@ Bugs:
 - after abort should stop fully before prompting to delete files.
 - some cancels break things on starting the experiment
 - config setting agilent doesn't set output type correctly, just stays at prev value (e.g. no-control)
+- start niawg is starting master too
+- debugging options not selectable / active
+- handle config not opening better
+- scripts not always getting saved with proper extension
+- eats brackets in niawg scripts, I think it's cleanString
+- coloring of special commands in niawg needs update
 
 =================
 Finished
