@@ -209,9 +209,21 @@ BOOL MainWindow::OnInitDialog()
 	}
 	// not done with the script, it will not stay on the NIAWG, so I need to keep track of it so thatI can reload it onto the NIAWG when necessary.	
 	/// Initialize Windows
-	TheScriptingWindow = new ScriptingWindow;
-	TheCameraWindow = new CameraWindow;
-	TheAuxiliaryWindow = new AuxiliaryWindow;
+	std::string which = "";
+	try
+	{
+		which = "Scripting";
+		TheScriptingWindow = new ScriptingWindow;
+		which = "Camera";
+		TheCameraWindow = new CameraWindow;
+		which = "Auxiliary";
+		TheAuxiliaryWindow = new AuxiliaryWindow;
+	}
+	catch (Error& err)
+	{
+		errBox("FATAL ERROR: " + which + " Window constructor failed! Error: " + err.what());
+		return -1;
+	}
 
 	TheScriptingWindow->loadFriends( this, TheCameraWindow, TheAuxiliaryWindow );
 	TheCameraWindow->loadFriends( this, TheScriptingWindow, TheAuxiliaryWindow );

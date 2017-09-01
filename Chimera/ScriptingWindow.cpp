@@ -9,7 +9,10 @@
 #include "AuxiliaryWindow.h"
 
 
-ScriptingWindow::ScriptingWindow() : CDialog(), intensityAgilent(INTENSITY_SAFEMODE, INTENSITY_AGILENT_USB_ADDRESS){}
+ScriptingWindow::ScriptingWindow() : CDialog(), intensityAgilent(INTENSITY_SAFEMODE, INTENSITY_AGILENT_USB_ADDRESS)
+{
+
+}
 
 IMPLEMENT_DYNAMIC(ScriptingWindow, CDialog)
 

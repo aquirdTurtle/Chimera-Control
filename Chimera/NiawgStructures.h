@@ -108,7 +108,7 @@ struct waveInfo
 	rearrangeInfo rearrange;
 	bool isStreamed;
 	bool isFlashing;
-	bool isRearrangement;
+	bool isRearrangement = false;
 };
 
 
@@ -119,8 +119,8 @@ struct waveInfo
 struct NiawgOutputInfo
 {
 	// wave <-> waveform
-	int waveCount;
-	int predefinedWaveCount;
+	//int waveCount;
+	//int predefinedWaveCount;
 	std::vector<int> predefinedWaveLocs;
 	bool isDefault;
 	std::string niawgLanguageScript;
