@@ -198,6 +198,10 @@ namespace commonFunctions
 				}
 				catch (Error& err)
 				{
+					if (err.whatBare() == "Canceled!")
+					{
+						break;
+					}
 					mainWin->getComm()->sendColorBox( Master, 'R' );
 					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + err.whatStr() );
 					mainWin->getComm()->sendStatus( "EXITED WITH ERROR!\r\n" );
@@ -221,10 +225,17 @@ namespace commonFunctions
 			/// File Management 
 			case ID_FILE_SAVEALL:
 			{
-				scriptWin->saveHorizontalScript();
-				scriptWin->saveVerticalScript();
-				scriptWin->saveIntensityScript();
-				mainWin->profile.saveEntireProfile(scriptWin, mainWin, auxWin, camWin);
+				try
+				{
+					scriptWin->saveHorizontalScript( );
+					scriptWin->saveVerticalScript( );
+					scriptWin->saveIntensityScript( );
+					mainWin->profile.saveEntireProfile( scriptWin, mainWin, auxWin, camWin );
+				}
+				catch ( Error& err )
+				{
+					mainWin->getComm( )->sendError( err.what( ) );
+				}
 				break;
 			}
 			case ID_PROFILE_SAVE_PROFILE:
@@ -628,6 +639,7 @@ namespace commonFunctions
 			{
 				MasterThreadInput* input = new MasterThreadInput;
 				auxWin->loadMotSettings(input);
+				mainWin->fillMotInput( input );
 				mainWin->startMaster(input, true);
 				break;
 			}
@@ -804,6 +816,10 @@ namespace commonFunctions
 			camWin->fillMasterThreadInput( input.masterInput );
 			scriptWin->fillMasterThreadInput( input.masterInput );
 			mainWin->updateStatusText( "debug", beginInfo );
+		}
+		else
+		{
+			thrower("Canceled!");
 		}
 	}
 

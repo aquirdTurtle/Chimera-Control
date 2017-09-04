@@ -723,14 +723,24 @@ void CameraWindow::prepareAtomCruncher( ExperimentInput& input )
 	input.cruncherInput->cruncherThreadActive = &atomCrunchThreadActive;
 	input.cruncherInput->imageQueue = &imageQueue;
 	// options
-	input.cruncherInput->rearrangerActive = false;
+	if ( input.masterInput )
+	{
+		input.cruncherInput->rearrangerActive = input.masterInput->settings.rearrange;
+	}
+	else
+	{
+		input.cruncherInput->rearrangerActive = false;
+	}
 	// locks
 	input.cruncherInput->imageLock = &imageLock;
 	input.cruncherInput->plotLock = &plotLock;
 	input.cruncherInput->rearrangerLock = &rearrangerLock;
 	// what the thread fills.
+	plotterPictureQueue.clear( );
 	input.cruncherInput->plotterImageQueue = &plotterPictureQueue;
+	plotterAtomQueue.clear( );
 	input.cruncherInput->plotterAtomQueue = &plotterAtomQueue;
+	rearrangerAtomQueue.clear( );
 	input.cruncherInput->rearrangerAtomQueue = &rearrangerAtomQueue;
 	input.cruncherInput->thresholds = CameraSettings.getThresholds();
 	input.cruncherInput->picsPerRep = CameraSettings.getSettings().picsPerRepetition;

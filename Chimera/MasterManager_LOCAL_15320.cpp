@@ -97,7 +97,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 					}
 					foundRearrangement = true;
 					// start rearrangement thread. Give the thread the queue.
-					input->niawg->startRearrangementThread( input->atomQueueForRearrangement, wave, input->comm );
+					input->niawg->startRearrangementThread( input->atomQueueForRearrangement, wave );
 				}
 			}
 			if (input->settings.rearrange && !foundRearrangement )
@@ -238,7 +238,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 					{
 						thrower( "ERROR: Variable " + var.first + " varies, but has no values assigned to it!" );
 					}
-					expUpdate( var.first + ": " + str( var.second.first[varInc], 12) + "\r\n", input->comm,
+					expUpdate( var.first + ": " + str( var.second.first[varInc] ) + "\r\n", input->comm,
 							   input->quiet );
 				}
 			}
@@ -348,16 +348,15 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			{
 				try
 				{
-					input->niawg->turnOff( );
+					eAbortNiawgFlag = true;
 					waiter.wait(input->comm);
 				}
 				catch (Error& err)
 				{
-					//errBox(err.what());
+					errBox(err.what());
 				}
 			}
-			// Clear waveforms off of NIAWG (not working??? memory appears to still run out... (that's a very old note, 
-			// haven't tested in a long time but has never been an issue.))
+			// Clear waveforms off of NIAWG (not working??? memory appears to still run out...)
 			for (int waveformInc = 2; waveformInc < output.waves.size(); waveformInc++)
 			{
 				std::string waveformToDelete = "Waveform" + str( waveformInc );
@@ -373,7 +372,6 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 				wave.core.waveVals.shrink_to_fit();
 			}
 		}
-		input->comm->sendNormalFinish( );
 	}
 	catch (Error& exception)
 	{
@@ -383,7 +381,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			{
 				//input->agilents[input->intensityAgilentNumber]->setDefault(1);
 			}
-			catch (Error&)
+			catch (Error& err)
 			{
 				//... not much to do.
 			}
@@ -436,13 +434,13 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			input->ttls->unshadeTtls();
 			input->dacs->unshadeDacs();
 		}
-		input->comm->sendFatalError( "Exited main experiment thread abnormally." );
+		delete input;
+		return false;
 	}
 	ULONGLONG endTime = GetTickCount();
 	expUpdate( "Experiment took " + str( (endTime - startTime) / 1000.0 ) + " seconds.\r\n", input->comm, input->quiet );
 	input->thisObj->experimentIsRunning = false;
-	delete input;
-	return false;
+	return true;
 }
 
 
@@ -516,7 +514,6 @@ void MasterManager::abort()
 {
 	std::lock_guard<std::mutex> locker( abortLock );
 	isAborting = true;
-	//experimentIsRunning = false;
 }
 
 
@@ -883,7 +880,7 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 			}
 		}
 		/// Handle RSG calls.
-		else if (word == "rsg:")
+		else if (word == "rsg:") //RSG
 		{
 			rsgEventStructuralInfo info;
 			functionStream >> info.frequency;
@@ -1315,7 +1312,7 @@ void MasterManager::callCppCodeFunction()
 bool MasterManager::isValidWord( std::string word )
 {
 	if (word == "t" || word == "t++" || word == "t+=" || word == "t=" || word == "on:" || word == "off:"
-		 || word == "dac:" || word == "dacramp:" || word == "rsg:" || word == "raman:" || word == "call"
+		 || word == "dac:" || word == "dacramp:" || word == "rsg:" || word == "raman:" || word == "call" //"RSG:"
 		 || word == "repeat:" || word == "end" || word == "pulseon:" || word == "pulseoff:" || word == "callcppcode")
 	{
 		return true;

@@ -55,6 +55,7 @@ class NiawgController
 														std::vector<long> dataTypes );
 		// programming the device
 		void restartDefault();
+		void turnOffRearranger( );
 		void programVariations( UINT variation, std::vector<long>& variedMixedSize, NiawgOutputInfo& output );
 		
 		void programNiawg( MasterThreadInput* input, NiawgOutputInfo& output, NiawgWaiter& waiter, std::string& warnings,
@@ -67,7 +68,7 @@ class NiawgController
 		void turnOn();
 		// Other
 		void setRunningState( bool newRunningState );
-		void startRearrangementThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave );
+		void startRearrangementThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave, Communicator* comm );
 		Fgen fgenConduit;
 		static bool outputVaries(NiawgOutputInfo output);
 
@@ -117,7 +118,8 @@ class NiawgController
 		double calculateCorrectionTime( channelWave& wvData1, channelWave& wvData2, std::vector<double> startPhases, 
 										std::string order, double time, long sampleNum);
 		/// Rearrangement stuff
-		static unsigned int __stdcall rearrangerThreadFunction( LPVOID input );
+		HANDLE rearrangerThreadHandle;
+		static UINT __stdcall rearrangerThreadProcedure( LPVOID input );
 		void calculateRearrangingMoves( std::vector<std::vector<bool>> initArrangement );
 		// true = active;
 		std::atomic<bool> threadStateSignal;
@@ -131,7 +133,7 @@ class NiawgController
 		// returns cost, which is total travel distance. Algorithm from: 
 		// http://cs.stanford.edu/group/acm/SLPC/notebook.pdf
 		// You have to give it the cost matrix, and to empty vectors, in which it will write
-		static double MinCostMatching( const std::vector<std::vector<double>> & cost, std::vector<int> & Lmate,
+		static double minCostMatching( const std::vector<std::vector<double>> & cost, std::vector<int> & Lmate,
 									   std::vector<int> & Rmate );
 		// returns a list of single elementary (left,right,up,down) moves. Size is 4 x n_moves: Initialx,Initialy,Finalx,Finaly
 		static double rearrangement( const std::vector<std::vector<bool>> &sourceMatrix,

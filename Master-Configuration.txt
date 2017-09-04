@@ -200,9 +200,9 @@ piezomirror
 -10 - 10
 0
 20
-loadmotrightfield 1
+loadmotrightfield 1.2
 loadmotleftfield -0.755
-loadmottopfield 0.3
+loadmottopfield 0.05
 loadmotbottomfield -0.15
 loadmotfrontfield -0.8
 loadmotbackfield 1.47507
@@ -220,4 +220,4 @@ imagingpower 0.14
 imagingdetuning 0.35
 pushoutdepth 1.36
 pushoutfreq 0.45
-261 276 2 253 262 2
+263 272 2 262 267 2

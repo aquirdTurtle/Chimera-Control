@@ -13,7 +13,7 @@ def PgcLoading():
 	t += 1 
 
  	dac: repumpPower 0.1   
-	dac: diagMotPower 0.35
+	dac: diagMotPower 0.35
 	dac: sideMotPower 0.04
 	dac: repumpFreq -0.5
 	

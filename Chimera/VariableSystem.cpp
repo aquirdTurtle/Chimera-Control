@@ -364,27 +364,27 @@ void VariableSystem::handleColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
 	memset(&myItemInfo, 0, sizeof(LVHITTESTINFO));
 	myItemInfo.pt = cursorPos;
 	variablesListview.SubItemHitTest(&myItemInfo);
-	if (myItemInfo.iSubItem == 3 + 3 * variableRanges[0])
+	if (myItemInfo.iSubItem == 2 + 3 * variableRanges[0])
 	{
 		// add a range.
 		setVariationRangeNumber(variableRanges[0] + 1, 0);
 	}
-	else if (myItemInfo.iSubItem == 4 + 3 * variableRanges[0])
+	else if (myItemInfo.iSubItem == 3 + 3 * variableRanges[0])
 	{
 		// delete a range.
 		setVariationRangeNumber(variableRanges[0] - 1, 0);
 	}
-	else if (myItemInfo.iSubItem == 5 + 3 * variableRanges[0])
+	else if (myItemInfo.iSubItem == 4 + 3 * variableRanges[0])
 	{
 		// add a variable scan dimension
 		addVariableDimension();
 	}
-	else if (myItemInfo.iSubItem == 6 + 3 * variableRanges[0])
+	else if (myItemInfo.iSubItem == 5 + 3 * variableRanges[0])
 	{
 		// remove a variable scan dimension
 		removeVariableDimension();
 	}
-	else if (myItemInfo.iSubItem > 2 && myItemInfo.iSubItem % 3 == 0)
+	else if (myItemInfo.iSubItem > 1 && myItemInfo.iSubItem % 3 == 0)
 	{
 		// switch between [ and (
 		for (auto& var : currentVariables)
@@ -411,7 +411,7 @@ void VariableSystem::handleColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
 			}
 		}
 	}
-	else if (myItemInfo.iSubItem > 2 && myItemInfo.iSubItem % 3 == 1)
+	else if (myItemInfo.iSubItem > 1 && myItemInfo.iSubItem % 3 == 1)
 	{
 		// switch between ] and )
 		for (auto& var : currentVariables)
@@ -581,12 +581,9 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MainWindow
 			listViewItem.iSubItem = 1;
 			listViewItem.pszText = "Constant";
 			variablesListview.SetItem( &listViewItem );
-			listViewItem.iSubItem = 2;
-			listViewItem.pszText = "No";
-			variablesListview.SetItem( &listViewItem );
 			for (int rangeInc = 0; rangeInc < variableRanges[0]; rangeInc++)
 			{
-				listViewItem.iSubItem = 3 + 3 * rangeInc;
+				listViewItem.iSubItem = 2 + 3 * rangeInc;
 				if (rangeInc == 0)
 				{
 					listViewItem.pszText = "0";
@@ -596,10 +593,10 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MainWindow
 					listViewItem.pszText = "---";
 				}
 				variablesListview.SetItem( &listViewItem );
-				listViewItem.iSubItem = 4 + 3 * rangeInc;
+				listViewItem.iSubItem = 3 + 3 * rangeInc;
 				listViewItem.pszText = "---";
 				variablesListview.SetItem( &listViewItem );
-				listViewItem.iSubItem = 5 + 3 * rangeInc;
+				listViewItem.iSubItem = 4 + 3 * rangeInc;
 				listViewItem.pszText = "---";
 				variablesListview.SetItem( &listViewItem );
 			}
@@ -696,12 +693,12 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MainWindow
 						// set lower end of range
 						std::string temp(str(currentVariables[varNumber].ranges[(subitem - 3) / 3].initialValue, 12));
 						listViewItem.pszText = &temp[0];
-						listViewItem.iSubItem = 3 + rangeInc * 3;
+						listViewItem.iSubItem = 2 + rangeInc * 3;
 						variablesListview.SetItem( &listViewItem );
 						// set higher end of range
 						temp = str(currentVariables[varNumber].ranges[(subitem - 3) / 3].finalValue, 12);
 						listViewItem.pszText = &temp[0];
-						listViewItem.iSubItem = 4 + rangeInc * 3;
+						listViewItem.iSubItem = 3 + rangeInc * 3;
 						variablesListview.SetItem( &listViewItem );
 						// set number of variations in this range
 						temp = str(currentVariations);
@@ -719,7 +716,7 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MainWindow
 								   "There needs to be at least one.");
 						}
 						
-						listViewItem.iSubItem = 5 + rangeInc * 3;
+						listViewItem.iSubItem = 4 + rangeInc * 3;
 						variablesListview.SetItem( &listViewItem );
 					}
 				}
@@ -733,21 +730,21 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MainWindow
 						{
 							std::string temp(str(currentVariables[varNumber].ranges[0].initialValue, 12, true));
 							listViewItem.pszText = &temp[0];
-							listViewItem.iSubItem = 3 + rangeInc * 3;
+							listViewItem.iSubItem = 2 + rangeInc * 3;
 							variablesListview.SetItem( &listViewItem );
 						}
 						else
 						{
 							listViewItem.pszText = "---";
-							listViewItem.iSubItem = 3 + rangeInc * 3;
+							listViewItem.iSubItem = 2 + rangeInc * 3;
 							variablesListview.SetItem( &listViewItem );
 						}
 						// set the value to be dashes on the screen. no value for "Variable".
 						listViewItem.pszText = "---";
-						listViewItem.iSubItem = 4 + rangeInc * 3;
+						listViewItem.iSubItem = 3 + rangeInc * 3;
 						variablesListview.SetItem( &listViewItem );
 						listViewItem.pszText = "---";
-						listViewItem.iSubItem = 5 + rangeInc * 3;
+						listViewItem.iSubItem = 4 + rangeInc * 3;
 						variablesListview.SetItem( &listViewItem );
 					}
 					listViewItem.iSubItem = subitem;
@@ -1221,11 +1218,11 @@ void VariableSystem::addConfigVariable(variable var, UINT item)
 		std::string tempStr(str(variableRanges[scanDim] + 1) + ":(");
 		listViewDefaultCollumn.pszText = &tempStr[0];
 		listViewDefaultCollumn.cx = 0x20;
-		variablesListview.InsertColumn(3 + 3 * variableRanges[scanDim], &listViewDefaultCollumn);
+		variablesListview.InsertColumn(2 + 3 * variableRanges[scanDim], &listViewDefaultCollumn);
 		listViewDefaultCollumn.pszText = "]";
-		variablesListview.InsertColumn(4 + 3 * variableRanges[scanDim], &listViewDefaultCollumn);
+		variablesListview.InsertColumn(3 + 3 * variableRanges[scanDim], &listViewDefaultCollumn);
 		listViewDefaultCollumn.pszText = "#";
-		variablesListview.InsertColumn(5 + 3 * variableRanges[scanDim], &listViewDefaultCollumn);
+		variablesListview.InsertColumn(4 + 3 * variableRanges[scanDim], &listViewDefaultCollumn);
 		// edit all variables
 		LVITEM listViewItem;
 		memset(&listViewItem, 0, sizeof(listViewItem));
@@ -1246,11 +1243,11 @@ void VariableSystem::addConfigVariable(variable var, UINT item)
 				listViewItem.pszText = "0";
 			}
 			listViewItem.iItem = varInc;
+			listViewItem.iSubItem = 2 + 3 * variableRanges[scanDim];
+			variablesListview.SetItem(&listViewItem);
 			listViewItem.iSubItem = 3 + 3 * variableRanges[scanDim];
 			variablesListview.SetItem(&listViewItem);
 			listViewItem.iSubItem = 4 + 3 * variableRanges[scanDim];
-			variablesListview.SetItem(&listViewItem);
-			listViewItem.iSubItem = 5 + 3 * variableRanges[scanDim];
 			variablesListview.SetItem(&listViewItem);
 		}
 		variableRanges[scanDim]++;

@@ -21,7 +21,9 @@ void ExperimentTimer::initialize( cameraPositions& inputLoc, CWnd* parent, bool 
 	overallProgress.sPos = { inputLoc.sPos.x + 168, inputLoc.sPos.y + 15, inputLoc.sPos.x + 1168, inputLoc.sPos.y + 40 };
 	overallProgress.Create(WS_CHILD | WS_VISIBLE, overallProgress.sPos, parent, id++ );
 	overallProgress.SetBkColor(RGB(100, 110, 100));
-	overallProgress.SetBarColor(RGB(255, 255, 255));	
+	overallProgress.SetBarColor(RGB(255, 255, 255));
+	overallProgress.SetRange( 0, 1000 );
+	//overallProgress.Set
 	inputLoc.seriesPos.y += 40;
 	inputLoc.amPos.y += 40;
 	inputLoc.videoPos.y += 40;
@@ -31,8 +33,8 @@ void ExperimentTimer::update(ULONGLONG currentRepNumber, ULONGLONG repsPerVariat
 {
 	int totalRepetitions = repsPerVariation * numberOfVariations;
 	int minAverageNumber = 10;
-	int variationPosition = int((currentRepNumber % repsPerVariation) * 100.0 / repsPerVariation);
-	int overallPosition = int(currentRepNumber / (double)totalRepetitions * 100);
+	int variationPosition = int((currentRepNumber % repsPerVariation) * 1000.0 / repsPerVariation);
+	int overallPosition = int(currentRepNumber / (double)totalRepetitions * 1000);
 	variationProgress.SetPos ( variationPosition );
 	overallProgress.SetPos( overallPosition );
 	if (currentRepNumber == 1)

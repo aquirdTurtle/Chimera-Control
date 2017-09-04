@@ -817,7 +817,6 @@ void AuxiliaryWindow::loadMotSettings(MasterThreadInput* input)
 	try
 	{
 		sendStat("Loading MOT Configuration...\r\n" );
-		//
 		input->quiet = true;
 		input->ttls = &ttlBoard;
 		input->dacs = &dacBoards;
@@ -839,8 +838,6 @@ void AuxiliaryWindow::loadMotSettings(MasterThreadInput* input)
 		input->eoAxialTek = &eoAxialTek;
 		input->runMaster = true;
 		input->runNiawg = false;
-		//mainWindowFriend->
-		//manager.loadMotSettings(input);
 	}
 	catch (Error& exception)
 	{

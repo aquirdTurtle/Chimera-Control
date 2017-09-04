@@ -14,4 +14,5 @@ struct rearrangementThreadInput
 	//UINT waveNumber;
 	waveInfo rearrangementWave;
 	NiawgController* niawg;
+	Communicator* comm;
 };
