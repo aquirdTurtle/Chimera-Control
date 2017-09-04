@@ -34,6 +34,7 @@ class Communicator
 		void sendCameraFin();
 		void sendCameraProgress( long prog );
 		void sendRepProgress(ULONG rep);
+		void sendNormalFinish( );
 	private:
 		MainWindow* mainWin;
 		ScriptingWindow* scriptWin;

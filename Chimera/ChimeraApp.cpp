@@ -110,6 +110,7 @@ BOOL ChimeraApp::InitInstance()
 	if (false)
 	{
 		// get time now
+		/*
 		time_t dateStart = time( 0 );
 		struct tm datePointerStart;
 		localtime_s( &datePointerStart, &dateStart );
@@ -127,7 +128,7 @@ BOOL ChimeraApp::InitInstance()
 		if (result == IDYES)
 		{
 			cpp_Find_Handle = FindFirstFile( (LPSTR)cstr( cppFindString ), &find_cpp_Data );
-			if (cpp_Find_Handle != INVALID_HANDLE_VALUE)
+			if (cpp_Find_Handle != INVALID_HANDLE_VALUE)%
 			{
 				CreateDirectory( cstr( CODE_LOGGING_FILES_PATH + logFolderNameStart ), NULL );
 				do
@@ -171,6 +172,7 @@ BOOL ChimeraApp::InitInstance()
 				errBox( "Failed to find any .h files in folder!" );
 			}
 		}
+		*/
 	}
  	m_haccel = LoadAccelerators( AfxGetInstanceHandle(), MAKEINTRESOURCE( IDR_ACCELERATOR1 ) );
 

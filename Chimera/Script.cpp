@@ -80,8 +80,9 @@ void Script::initialize( int width, int height, POINT& startingLocation, cToolTi
 	availableFunctionsCombo.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 800 };
 	availableFunctionsCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
 									availableFunctionsCombo.sPos, parent, ids[0] );
-	availableFunctionsCombo.AddString( "Available Functions List:" );
-	loadFunctions();
+	
+	loadFunctions( ); 
+	availableFunctionsCombo.InsertString(0, "Parent Script" );
 	// select "parent script".
 	availableFunctionsCombo.SetCurSel( 0 );
 
@@ -111,16 +112,16 @@ void Script::rearrange(UINT width, UINT height, fontMap fonts)
 }
 
 
-void Script::functionChangeHandler(std::string categoryPath)
+void Script::functionChangeHandler()
 {
-	int selection = availableFunctionsCombo.GetCurSel();
-	if (selection != -1)
+	int selection = availableFunctionsCombo.GetCurSel( );
+	if ( selection != -1 )
 	{
 		CString text;
-		availableFunctionsCombo.GetLBText(selection, text);
-		std::string textStr(text.GetBuffer());
-		textStr = textStr.substr(0, textStr.find_first_of('('));
-		changeView(textStr, true, categoryPath);
+		availableFunctionsCombo.GetLBText( selection, text );
+		std::string textStr( text.GetBuffer( ) );
+		textStr = textStr.substr( 0, textStr.find_first_of( '(' ) );
+		changeView( textStr, true, "");
 	}
 }
 
@@ -180,7 +181,7 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 			return rgbs["Solarized Violet"];
 		}
 		// check logic
-		if (word == "repeat" || word == "until" || word == "trigger" || word == "end" || word == "forever")
+		if (word == "repeat" || word == "until" || word == "trigger" || word == "end" || word == "forever" || word == "flash")
 		{
 			return rgbs["Solarized Blue"];
 		}
@@ -190,9 +191,9 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 			return rgbs["Solarized Green"];
 		}
 		// check variable
-		if (word == "predefined" || word == "script")
+		else if (word == "{" || word == "}")
 		{
-			return rgbs["Solarized Yellow"];
+			return rgbs["Solarized Cyan"];
 		}
 		if (word.size() > 8)
 		{
@@ -599,7 +600,6 @@ INT_PTR Script::colorControl(LPARAM lParam, WPARAM wParam)
 
 void Script::changeView(std::string viewName, bool isFunction, std::string categoryPath)
 {
-
 	if (viewName == "Parent Script")
 	{
 		// load parent
@@ -877,40 +877,17 @@ void Script::newFunction()
 
 
 //
-void Script::newScript(std::string orientation)
+void Script::newScript()
 {
 	std::string tempName;
 	tempName = DEFAULT_SCRIPT_FOLDER_PATH;
 	if (deviceType == "Horizontal NIAWG")
 	{
-		if (orientation == HORIZONTAL_ORIENTATION)
-		{
-			tempName += "DEFAULT_HCONFIG_HORIZONTAL_SCRIPT.nScript";
-		}
-		else if (orientation == VERTICAL_ORIENTATION)
-		{
-			tempName += "DEFAULT_VCONFIG_HORIZONTAL_SCRIPT.nScript";
-		}
-		else
-		{
-			thrower("ERROR: Unrecognized orientation!");
-		}
+		tempName += "DEFAULT_HORIZONTAL_SCRIPT.nScript";
 	}
 	else if (deviceType == "Vertical NIAWG")
 	{
-		if (orientation == HORIZONTAL_ORIENTATION)
-		{
-			tempName += "DEFAULT_HCONFIG_VERTICAL_SCRIPT.nScript";
-			//"DEFAULT_HORIZONTAL_SCRIPT.script"
-		}
-		else if (orientation == VERTICAL_ORIENTATION)
-		{
-			tempName += "DEFAULT_VCONFIG_VERTICAL_SCRIPT.nScript";
-		}
-		else
-		{
-			thrower("ERROR: Unrecognized orientation!");
-		}
+		tempName += "DEFAULT_VERTICAL_SCRIPT.nScript";
 	}
 	else if (deviceType == "Agilent")
 	{
@@ -924,11 +901,10 @@ void Script::newScript(std::string orientation)
 	loadFile(tempName);
 }
 
-
 //
 void Script::openParentScript(std::string parentScriptFileAndPath, std::string categoryPath, RunInfo info)
 {
-	if (parentScriptFileAndPath == "")
+	if (parentScriptFileAndPath == "" || parentScriptFileAndPath == "NONE")
 	{
 		return;
 	}
@@ -1082,8 +1058,7 @@ void Script::updateScriptNameText(std::string path)
 		std::string categoryPath = path.substr(0, sPos);
 		std::string category = path.substr(sPos + 1, path.size());
 		sPos = categoryPath.find_last_of('\\');
-		std::string experiment = categoryPath.substr(sPos + 1, categoryPath.size());
-		std::string text = experiment + "->" + category + "->" + scriptName;
+		std::string text = category + "->" + scriptName;
 		fileNameText.SetWindowTextA(cstr(text));
 	}
 	else
@@ -1189,68 +1164,6 @@ void Script::saveAsFunction()
 
 void Script::loadFunctions()
 {
-	// scan the function home for functions.
-	// Re-add the entries back in and figure out which one is the current one.
-	std::vector<std::string> names;
-	std::string search_path = functionLocation + "\\*.func";
-	WIN32_FIND_DATA fd;
-	HANDLE hFind;
-	hFind = FindFirstFile(cstr(search_path), &fd);
-	if (hFind != INVALID_HANDLE_VALUE)
-	{
-		do
-		{
-			if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-			{
-				names.push_back(fd.cFileName);
-			}
-		} while (FindNextFile(hFind, &fd));
-		FindClose(hFind);
-	}
-
-	// open each file and get it's function argument.
-	std::fstream functionFile;
-	std::vector<std::string> finalNames;
-	for (UINT functionInc = 0; functionInc < names.size(); functionInc++)
-	{
-		if (functionFile.is_open())
-		{
-			functionFile.close();
-		}
-		functionFile.open(functionLocation + "\\" + names[functionInc], std::ios::in);
-		if (!functionFile.is_open())
-		{
-			errBox("ERROR: Failed to open function file: " + names[functionInc]);
-			continue;
-		}
-		ScriptStream functionStream;
-		functionStream << functionFile.rdbuf();
-		functionStream.clear();
-		functionStream.seekg( 0, std::ios::beg );
-		std::string functionDeclaration;
-		functionDeclaration = functionStream.getline( ':' );
-		std::string name; 
-		std::vector<std::string> args;
-
-		// make the category for the combo.
-		name += "(";
-		if (args.size() != 0)
-		{
-			name += args[0];
-		}
-		for (UINT argInc = 1; argInc < args.size(); argInc++)
-		{
-			name += ", " + args[argInc];
-		}
-		name += ")";
-		finalNames.push_back(name);
-	}
-	// clear the box.
-	availableFunctionsCombo.ResetContent();
-	// 
-	availableFunctionsCombo.AddString("Parent Script");
-	for (UINT nameInc = 0; nameInc < finalNames.size(); nameInc++)
-	{
-		availableFunctionsCombo.AddString(cstr(finalNames[nameInc]));
-	}
+	ProfileSystem::reloadCombo( availableFunctionsCombo.GetSafeHwnd( ), functionLocation, str("*") + FUNCTION_EXTENSION,
+								"__NONE__" );
 }

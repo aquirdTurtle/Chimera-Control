@@ -2,7 +2,7 @@
 #include "DebuggingOptionsControl.h"
 
 
-void DebuggingOptionsControl::rearrange(int width, int height, fontMap fonts)
+void DebugOptionsControl::rearrange(int width, int height, fontMap fonts)
 {
 	header.rearrange(width, height, fonts);
 	readProgress.rearrange(width, height, fonts);
@@ -19,7 +19,24 @@ void DebuggingOptionsControl::rearrange(int width, int height, fontMap fonts)
 }
 
 
-void DebuggingOptionsControl::handleSaveConfig(std::ofstream& saveFile)
+void DebugOptionsControl::handleNewConfig( std::ofstream& newFile )
+{
+	newFile << "DEBUGGING_OPTIONS\n";
+	newFile << 0 << "\n";
+	newFile << 0 << "\n";
+	newFile << 0 << "\n";
+	newFile << 0 << "\n";
+	newFile << 0 << "\n";
+	newFile << 1 << "\n";
+	newFile << 1 << "\n";
+	newFile << 0 << "\n";
+	newFile << 0 << "\n";
+	newFile << 0 << "\n";
+	newFile << "END_DEBUGGING_OPTIONS\n";
+}
+
+
+void DebugOptionsControl::handleSaveConfig(std::ofstream& saveFile)
 {
 	saveFile << "DEBUGGING_OPTIONS\n";
 	saveFile << currentOptions.outputAgilentScript << "\n";
@@ -36,7 +53,7 @@ void DebuggingOptionsControl::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void DebuggingOptionsControl::handleOpenConfig(std::ifstream& openFile, double version)
+void DebugOptionsControl::handleOpenConfig(std::ifstream& openFile, double version)
 {
 	ProfileSystem::checkDelimiterLine(openFile, "DEBUGGING_OPTIONS");
 	openFile >> currentOptions.outputAgilentScript;
@@ -63,7 +80,7 @@ void DebuggingOptionsControl::handleOpenConfig(std::ifstream& openFile, double v
 }
 
 
-void DebuggingOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips)
+void DebugOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips)
 {
 	// Debugging Options Title
 	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
@@ -75,7 +92,6 @@ void DebuggingOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cTo
 	niawgMachineScript.Create("Output Machine NIAWG Script?", WS_CHILD | WS_VISIBLE | BS_CHECKBOX | BS_RIGHT,
 							  niawgMachineScript.sPos, parent, IDC_DEBUG_OPTIONS_RANGE_BEGIN + runningCount++ );
 	niawgMachineScript.SetCheck(BST_CHECKED);
-
 
 	currentOptions.outputNiawgMachineScript = true;
 	///
@@ -132,7 +148,7 @@ void DebuggingOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cTo
 	pauseEdit.SetWindowTextA("0");
 }
 
-void DebuggingOptionsControl::handleEvent(UINT id, MainWindow* comm)
+void DebugOptionsControl::handleEvent(UINT id, MainWindow* comm)
 {
 	if (id == niawgMachineScript.GetDlgCtrlID())
 	{
@@ -261,7 +277,7 @@ void DebuggingOptionsControl::handleEvent(UINT id, MainWindow* comm)
 }
 
 
-debugInfo DebuggingOptionsControl::getOptions()
+debugInfo DebugOptionsControl::getOptions()
 {
 	currentOptions.outputNiawgMachineScript = niawgMachineScript.GetCheck();
 	currentOptions.outputNiawgHumanScript = niawgScript.GetCheck();
@@ -277,7 +293,7 @@ debugInfo DebuggingOptionsControl::getOptions()
 	return currentOptions;
 }
 
-void DebuggingOptionsControl::setOptions(debugInfo options)
+void DebugOptionsControl::setOptions(debugInfo options)
 {
 	currentOptions = options;
 }

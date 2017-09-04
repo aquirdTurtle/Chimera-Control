@@ -37,6 +37,7 @@ class Agilent
 		bool connected();
 		void analyzeAgilentScript( scriptedArbInfo& infoObj );
 		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
+		void handleNewConfig( std::ofstream& saveFile );
 		void handleSavingConfig(std::ofstream& saveFile);
 		std::string getDeviceIdentity();
 		std::string getName();

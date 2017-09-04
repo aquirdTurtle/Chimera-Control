@@ -92,6 +92,23 @@ void PictureManager::setAutoScalePicturesOption(bool autoScaleOption)
 }
 
 
+void PictureManager::handleNewConfig( std::ofstream& newFile )
+{
+	newFile << "PICTURE_MANAGER\n";
+
+	for ( auto& pic : pictures )
+	{
+		std::pair<UINT, UINT> sliderLoc = { 0, 1000 };
+		newFile << sliderLoc.first << " " << sliderLoc.second << "\n";
+	}
+	newFile << 0 << " ";
+	newFile << 0 << " ";
+	newFile << 0 << " ";
+	newFile << 0 << " ";
+	newFile << "END_PICTURE_MANAGER\n";
+}
+
+
 void PictureManager::handleSaveConfig(std::ofstream& saveFile)
 {
 	saveFile << "PICTURE_MANAGER\n";

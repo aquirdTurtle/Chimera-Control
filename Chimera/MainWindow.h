@@ -54,7 +54,6 @@ class MainWindow : public CDialog
 		void handleCategoryCombo();
 		void handleConfigurationCombo();
 		void handleSequenceCombo();
-		void handleOrientationCombo();
 		void passClear( UINT id );
 
 		// auxiliary functions used by the window.
@@ -72,7 +71,6 @@ class MainWindow : public CDialog
 
 		void checkProfileReady();
 		void checkProfileSave();
-		void setOrientation(std::string orientation);
 		void updateConfigurationSavedStatus(bool status);
 
 		void setDebuggingOptions(debugInfo options);
@@ -83,6 +81,7 @@ class MainWindow : public CDialog
 		void restartNiawgDefaults();
 		void stopNiawg();
 		void changeBoxColor(systemInfo<char> colors);
+		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpeningConfig(std::ifstream& configFile, double version);
 		void abortMasterThread();
@@ -106,7 +105,7 @@ class MainWindow : public CDialog
 		ProfileSystem profile;
 		MasterConfiguration masterConfig;
 		NoteSystem notes;
-		DebuggingOptionsControl debugger;
+		DebugOptionsControl debugger;
 		Repetitions repetitionControl;
 		MainOptionsControl settings;
 		StatusControl mainStatus;
@@ -128,6 +127,7 @@ class MainWindow : public CDialog
 		RunInfo systemRunningInfo;
 		cToolTips tooltips;
 		EmbeddedPythonHandler python;
+		KeyHandler masterKey;
 		// friends (try to minimize these)
 		friend void commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin,
 														  ScriptingWindow* scriptWin, CameraWindow* camWin,

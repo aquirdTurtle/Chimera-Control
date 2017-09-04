@@ -37,28 +37,12 @@ void VariableSystem::handleOpenConfig(std::ifstream& configFile, double version)
 	for (UINT varInc = 0; varInc < varNum; varInc++)
 	{
 		variable tempVar;
-		std::string varName, timelikeText, typeText, valueString;
-		bool timelike;
+		std::string varName, typeText, valueString;
 		bool constant;
 		configFile >> varName;
 		std::transform(varName.begin(), varName.end(), varName.begin(), ::tolower);
 		tempVar.name = varName;
-		configFile >> timelikeText;
 		configFile >> typeText;
-		if (timelikeText == "Timelike")
-		{
-			timelike = true;
-			tempVar.timelike = true;
-		}
-		else if (timelikeText == "Not_Timelike")
-		{
-			timelike = false;
-			tempVar.timelike = false;
-		}
-		else
-		{
-			thrower("ERROR: unknown timelike option. Check the formatting of the configuration file.");
-		}
 		if (typeText == "Constant")
 		{
 			constant = true;
@@ -113,7 +97,6 @@ void VariableSystem::handleOpenConfig(std::ifstream& configFile, double version)
 	// add a blank line
 	variable var;
 	var.name = "";
-	var.timelike = false;
 	var.constant = false;
 	var.ranges.push_back({ 0, 0, 1, false, true });
 	addConfigVariable(var, varNum);
@@ -122,9 +105,17 @@ void VariableSystem::handleOpenConfig(std::ifstream& configFile, double version)
 }
 
 
+void VariableSystem::handleNewConfig( std::ofstream& newFile )
+{
+	newFile << "VARIABLES\n";
+	// Number of Variables
+	newFile << 0 << "\n";
+	newFile << "END_VARIABLES\n";
+}
+
+
 void VariableSystem::handleSaveConfig(std::ofstream& saveFile)
 {
-	/// master script
 	saveFile << "VARIABLES\n";
 	// Number of Variables
 	saveFile << getCurrentNumberOfVariables() << "\n";
@@ -133,14 +124,6 @@ void VariableSystem::handleSaveConfig(std::ofstream& saveFile)
 	{
 		variable info = getVariableInfo(varInc);
 		saveFile << info.name << " ";
-		if (info.timelike)
-		{
-			saveFile << "Timelike ";
-		}
-		else
-		{
-			saveFile << "Not_Timelike ";
-		}
 		if (info.constant)
 		{
 			saveFile << "Constant ";
@@ -190,26 +173,23 @@ void VariableSystem::addVariableDimension()
 	listViewDefaultItem.iSubItem = 1;
 	listViewDefaultItem.pszText = "Type";
 	variablesListview.SetItem(&listViewDefaultItem);
-	listViewDefaultItem.iSubItem = 2;
-	listViewDefaultItem.pszText = "Timelike?";
-	variablesListview.SetItem(&listViewDefaultItem);
 	// 
-	listViewDefaultItem.iSubItem = 3;
+	listViewDefaultItem.iSubItem = 2;
 	listViewDefaultItem.pszText = "1. (";
 	variablesListview.SetItem(&listViewDefaultItem);
 
-	listViewDefaultItem.iSubItem = 4;
+	listViewDefaultItem.iSubItem = 3;
 	listViewDefaultItem.pszText = "]";
 	variablesListview.SetItem(&listViewDefaultItem);
 	
-	listViewDefaultItem.iSubItem = 5;
+	listViewDefaultItem.iSubItem = 4;
 	listViewDefaultItem.pszText = "#";
 	variablesListview.SetItem(&listViewDefaultItem);
 
-	listViewDefaultItem.iSubItem = 6;
+	listViewDefaultItem.iSubItem = 5;
 	listViewDefaultItem.pszText = "+(]";
 	variablesListview.SetItem(&listViewDefaultItem);
-	listViewDefaultItem.iSubItem = 7;
+	listViewDefaultItem.iSubItem = 6;
 	listViewDefaultItem.pszText = "-(]";
 	variablesListview.SetItem(&listViewDefaultItem);
 	listViewDefaultItem.iSubItem = variablesListview.GetHeaderCtrl()->GetItemCount() - 1;
@@ -487,37 +467,31 @@ void VariableSystem::handleDraw(NMHDR* pNMHDR, LRESULT* pResult, rgbMap rgbs)
 				pLVCD->clrText = RGB(255, 255, 255);
 				pLVCD->clrTextBk = rgbs["Solarized Base02"];
 			}
-			else if (currentVariables[item].active && currentVariables[item].overwritten)
+			else
 			{
-				// the return value will tell Windows to draw the
-				// item itself, but it will use the new color we set here.
-				// Store the color back in the NMLVCUSTOMDRAW struct.
-				pLVCD->clrText = RGB(255, 255, 255);
-				pLVCD->clrTextBk = RGB(0, 0, 75);
-			}
-			else if (currentVariables[item].active && !currentVariables[item].overwritten)
-			{
-				pLVCD->clrText = RGB(255, 255, 255);
-				pLVCD->clrTextBk = RGB(0, 75, 0);
-			}
-			else if (!currentVariables[item].active && currentVariables[item].overwritten)
-			{
-				pLVCD->clrText = RGB(100, 100, 100);
-				pLVCD->clrTextBk = RGB(225, 225, 255);
-			}
-			else if (!currentVariables[item].active && !currentVariables[item].overwritten)
-			{
-				pLVCD->clrText = RGB(100, 100, 100);
-				pLVCD->clrTextBk = RGB(225, 255, 225);
+				if (currentVariables[item].active)
+				{
+					pLVCD->clrTextBk = rgbs["Solarized Blue"];
+				}
+				else
+				{
+					pLVCD->clrTextBk = rgbs["Solarized Base04"];
+				}
+
+				if (currentVariables[item].overwritten)
+				{
+					pLVCD->clrText = rgbs["Solarized Red"];
+				}
+				else
+				{
+					pLVCD->clrText = rgbs["Solarized Base2"];
+				}
 			}
 		}
 		else
 		{
-			//LVITEM itemInfo;
-			//itemInfo.iItem = item;
 			CString text;
 			text = variablesListview.GetItemText(item, 0);
-			//variablesListview.GetItemText(&itemInfo);
 			if (text == "Symbol")
 			{
 				// then its a range divider.
@@ -578,7 +552,6 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MainWindow
 		// add a variable
 		currentVariables.resize(currentVariables.size() + 1);
 		currentVariables.back().name = "";
-		currentVariables.back().timelike = false;
 		currentVariables.back().constant = true;
 		currentVariables.back().active = false;
 		currentVariables.back().overwritten = false;
@@ -784,28 +757,9 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MainWindow
 			}
 			break;
 		}
-		case 2:
-		{
-			/// timelike?
-			listViewItem.iItem = itemIndicator;
-			listViewItem.iSubItem = subitem;
-			// this is just a binary switch.
-			if (currentVariables[varNumber].timelike)
-			{
-				currentVariables[varNumber].timelike = false;
-				listViewItem.pszText = "No";
-			}
-			else
-			{
-				currentVariables[varNumber].timelike = true;
-				listViewItem.pszText = "Yes";
-			}
-			variablesListview.SetItem(&listViewItem);
-			break;
-		}
 		default:
 		{
-			if ((subitem - 3) % 3 == 0)
+			if ((subitem - 2) % 3 == 0)
 			{
 				// if it's a constant, you can only set the first range initial value.
 				if (currentVariables[varNumber].constant && (subitem - 3) != 0)
@@ -843,7 +797,7 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MainWindow
 				variablesListview.SetItem(&listViewItem);
 				break;
 			}
-			else if ((subitem - 3) % 3 == 1)
+			else if ((subitem - 2) % 3 == 1)
 			{
 				if (currentVariables[varNumber].constant)
 				{
@@ -880,7 +834,7 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MainWindow
 				variablesListview.SetItem(&listViewItem);
 				break;
 			}
-			else if((subitem - 3) % 3 == 2)
+			else if((subitem - 2) % 3 == 2)
 			{
 				if (currentVariables[varNumber].constant)
 				{
@@ -1254,7 +1208,7 @@ void VariableSystem::addConfigVariable(variable var, UINT item)
 
 	// make sure there are enough currentRanges.
 	UINT columns = variablesListview.GetHeaderCtrl()->GetItemCount();
-	UINT currentRanges = (columns - 7) / 3;
+	UINT currentRanges = (columns - 6) / 3;
 	for (UINT rangeAddInc = 0; rangeAddInc < var.ranges.size() - currentRanges; rangeAddInc++)
 	{
 		// add a range.
@@ -1348,18 +1302,6 @@ void VariableSystem::addConfigVariable(variable var, UINT item)
 			variablesListview.SetItem(&listViewItem);
 		}
 	}
-	if (var.timelike)
-	{
-		listViewItem.pszText = "Yes";
-	}
-	else
-	{
-		listViewItem.pszText = "No";
-	}
-
-	// Enter text to SubItems
-	listViewItem.iSubItem = 2;
-	variablesListview.SetItem(&listViewItem);
 	variablesListview.RedrawWindow();
 }
 
@@ -1435,25 +1377,22 @@ void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindo
 		listViewDefaultCollumn.pszText = "Type";
 		listViewDefaultCollumn.cx = 0x40;
 		variablesListview.InsertColumn( 1, &listViewDefaultCollumn );
-		listViewDefaultCollumn.pszText = "Timelike?";
-		listViewDefaultCollumn.cx = 0x52;
-		variablesListview.InsertColumn( 2, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "1:(";
 		listViewDefaultCollumn.cx = 0x35;
-		variablesListview.InsertColumn( 3, &listViewDefaultCollumn );
+		variablesListview.InsertColumn( 2, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "]";
-		variablesListview.InsertColumn( 4, &listViewDefaultCollumn );
+		variablesListview.InsertColumn( 3, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "#";
-		variablesListview.InsertColumn( 5, &listViewDefaultCollumn );
+		variablesListview.InsertColumn( 4, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "+()";
 		listViewDefaultCollumn.cx = 0x30;
-		variablesListview.InsertColumn( 6, &listViewDefaultCollumn );
+		variablesListview.InsertColumn( 5, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "-()";
-		variablesListview.InsertColumn( 7, &listViewDefaultCollumn );
+		variablesListview.InsertColumn( 6, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "+ Dim";
-		variablesListview.InsertColumn(8, &listViewDefaultCollumn);
+		variablesListview.InsertColumn(7, &listViewDefaultCollumn);
 		listViewDefaultCollumn.pszText = "- Dim";
-		variablesListview.InsertColumn(9, &listViewDefaultCollumn);
+		variablesListview.InsertColumn(8, &listViewDefaultCollumn);
 		// Make First Blank row.
 		LVITEM listViewDefaultItem;
 		memset( &listViewDefaultItem, 0, sizeof( listViewDefaultItem ) );
@@ -1473,6 +1412,9 @@ void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindo
 
 	pos.y += listViewSize;
 }
+
+
+
 
 INT_PTR VariableSystem::handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, 
 											brushMap brushes)

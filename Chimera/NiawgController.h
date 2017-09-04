@@ -24,7 +24,6 @@ class NiawgWaiter;
 class NiawgController
 {
 	public:
-	    NiawgController();
 		void initialize();
 		// get info
 		bool rearrangementThreadIsActive();
@@ -63,7 +62,7 @@ class NiawgController
 						   std::vector<ViChar>& userScriptSubmit );
 		void streamWaveform();
 		void streamRearrangement();
-		void setDefaultWaveformScript( UINT which );
+		void setDefaultWaveformScript( );
 		void turnOff();
 		void turnOn();
 		// Other
@@ -97,7 +96,6 @@ class NiawgController
 		/// member variables
 		// Important. This can change if you change computers.
 		const ViRsrc NI_5451_LOCATION = "Dev6";
-		std::string defaultOrientation;
 		niawgPair<std::string> currentScripts;
 		bool runningState;
 		// don't take the word "library" too seriously... it's just a listing of all of the waveforms that have been 
@@ -110,9 +108,9 @@ class NiawgController
 		std::vector<double> streamWaveformVals;
 		std::vector<double> rearrangeWaveVals;
 		// pair is of horizontal and vertical configurations.
-		niawgPair<std::vector<ViReal64>> defaultMixedWaveforms;
-		niawgPair<std::string> defaultWaveNames;
-		niawgPair<std::vector<ViChar>> defaultScripts;
+		std::vector<ViReal64> defaultMixedWaveform;
+		std::string defaultWaveName;
+		std::vector<ViChar> defaultScript;
 		ViSession sessionHandle;
 
 		// not used at the moment		

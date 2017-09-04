@@ -16,6 +16,7 @@ struct mainOptions
 class MainOptionsControl
 {
 	public:
+		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, double version);
 		void initialize(int& idStart, POINT& loc, CWnd* parent, cToolTips& tooltips);

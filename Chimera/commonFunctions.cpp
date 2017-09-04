@@ -236,7 +236,7 @@ namespace commonFunctions
 			{
 				try
 				{
-					commonFunctions::exitProgram(scriptWin, mainWin, camWin);
+					commonFunctions::exitProgram(scriptWin, mainWin, camWin, auxWin);
 				}
 				catch (Error& err)
 				{
@@ -492,7 +492,7 @@ namespace commonFunctions
 			}
 			case ID_CONFIGURATION_NEW_CONFIGURATION:
 			{
-				mainWin->profile.newConfiguration(mainWin);
+				mainWin->profile.newConfiguration(mainWin, auxWin, camWin, scriptWin);
 				break;
 			}
 			case ID_CONFIGURATION_RENAME_CURRENT_CONFIGURATION:
@@ -804,7 +804,6 @@ namespace commonFunctions
 			camWin->fillMasterThreadInput( input.masterInput );
 			scriptWin->fillMasterThreadInput( input.masterInput );
 			mainWin->updateStatusText( "debug", beginInfo );
-			// Load Variable & Key Info
 		}
 	}
 
@@ -844,7 +843,6 @@ namespace commonFunctions
 			comm->sendError( "System was not running. Can't Abort.\r\n" );
 			return;
 		}
-		std::string orientation = scriptWin->getProfileSettings().orientation;
 		// wait for reset to occur
 		int result = 1;
 		result = WaitForSingleObject( eNIAWGWaitThreadHandle, 0 );
@@ -870,7 +868,7 @@ namespace commonFunctions
 	}
 
 
-	void exitProgram( ScriptingWindow* scriptWindow, MainWindow* mainWin, CameraWindow* camWin )
+	void exitProgram( ScriptingWindow* scriptWindow, MainWindow* mainWin, CameraWindow* camWin, AuxiliaryWindow* auxWin )
 	{
 		if (mainWin->niawgIsRunning())
 		{
@@ -898,17 +896,18 @@ namespace commonFunctions
 		{
 			/// Exiting
 			// Close the NIAWG normally.
-			if (!NIAWG_SAFEMODE)
+			try
 			{
-				try
-				{
-					mainWin->stopNiawg();
-				}
-				catch (Error& except)
-				{
-					errBox( "ERROR: The NIAWG did not exit smoothly. : " + except.whatStr() );
-				}
+				mainWin->stopNiawg( );
 			}
+			catch ( Error& except )
+			{
+				errBox( "ERROR: The NIAWG did not exit smoothly. : " + except.whatStr( ) );
+			}			
+			auxWin->EndDialog( 0 );
+			camWin->EndDialog( 0 );
+			scriptWindow->EndDialog( 0 );
+			mainWin->EndDialog( 0 );
 			PostQuitMessage( 1 );
 		}
 	}

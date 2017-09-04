@@ -22,6 +22,12 @@ void Repetitions::handleOpenConfig(std::ifstream& openFile, double version)
 	setRepetitions(repNum);
 }
 
+void Repetitions::handleNewConfig( std::ofstream& newFile )
+{
+	newFile << "REPETITIONS\n";
+	newFile << 100 << "\n";
+	newFile << "END_REPETITIONS\n";
+}
 
 void Repetitions::handleSaveConfig(std::ofstream& saveFile)
 {
