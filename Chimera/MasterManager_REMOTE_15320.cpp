@@ -441,6 +441,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 	ULONGLONG endTime = GetTickCount();
 	expUpdate( "Experiment took " + str( (endTime - startTime) / 1000.0 ) + " seconds.\r\n", input->comm, input->quiet );
 	input->thisObj->experimentIsRunning = false;
+	//input->niawg->restartDefault( );
 	delete input;
 	return false;
 }
@@ -516,7 +517,6 @@ void MasterManager::abort()
 {
 	std::lock_guard<std::mutex> locker( abortLock );
 	isAborting = true;
-	//experimentIsRunning = false;
 }
 
 

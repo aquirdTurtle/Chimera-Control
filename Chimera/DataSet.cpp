@@ -94,17 +94,17 @@ void DataSet::setResultCondition(UINT pixel, UINT picture, UINT resultCondition)
 {
 	if (resultCondition != -1 && resultCondition != 0 && resultCondition != 1)
 	{
-		thrower("ERROR: something attempted to set a result condition to bad value: " + str(resultCondition));
+		thrower("ERROR: something attempted to set a result condition to bad value: " + str(resultCondition+1));
 	}
 	if (pixel >= resultConditions.size())
 	{
 		thrower("ERROR: tried to set the result condition of a pixel that isn't loaded into the condition vector. "
-				"Pixel number: " + str(pixel));
+				"Pixel number: " + str(pixel+1));
 	}
 	if (picture >= resultConditions[pixel].size())
 	{
 		thrower("ERROR: tried to set the result condition of a picture that isn't loaded into the condition vector for"
-				" the given pixel. Picture number: " + str(picture));
+				" the given pixel. Picture number: " + str(picture+1));
 	}
 	resultConditions[pixel][picture] = resultCondition;
 }
@@ -115,18 +115,18 @@ void DataSet::setPostSelectionCondition(UINT conditionNumber, UINT pixel, UINT p
 	if (conditionNumber >= postSelectionConditions.size())
 	{
 		thrower("ERROR: tried to set the post selection condition of a condition number that isn't loaded into the condition vector. "
-				 "Condition number: " + str(conditionNumber));
+				 "Condition number: " + str(conditionNumber+1));
 
 	}
 	if (pixel >= postSelectionConditions[conditionNumber].size())
 	{
 		thrower("ERROR: tried to set the post selection condition of a pixel that isn't loaded into the condition vector. Pixel "
-						"number: " + str(pixel));
+						"number: " + str(pixel+1));
 	}
 	if (picture >= postSelectionConditions[conditionNumber][pixel].size())
 	{
 		thrower("ERROR: tried to set the post selection condition of a picture that isn't loaded into the condition "
-				"vector for the given pixel. Picture number: " + str(picture));
+				"vector for the given pixel. Picture number: " + str(picture+1));
 	}
 	postSelectionConditions[conditionNumber][pixel][picture] = postSelectionCondition;
 }
@@ -175,12 +175,13 @@ int DataSet::getTruthCondition(UINT pixel, UINT picture)
 {
 	if (pixel >= resultConditions.size())
 	{
-		thrower("ERROR: tried to retrieve result condition from pixel that hasn't been allocated. Pixel: " + str(pixel));
+		thrower("ERROR: tried to retrieve result condition from pixel that hasn't been allocated. Pixel: "
+				 + str(pixel+1));
 	}
 	if (picture >= resultConditions[pixel].size())
 	{
 		thrower("ERROR: tried to retrieve result condition from picture that hasn't been allocated. Picture: " 
-				+ str(picture));
+				+ str(picture+1));
 	}
 	return resultConditions[pixel][picture];
 }

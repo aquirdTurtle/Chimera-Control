@@ -15,8 +15,9 @@ PlottingInfo::PlottingInfo(UINT picNumber)
 	// one line to plot.
 	dataSets.resize(1);
 	// todo: initialize with real picture number.
+	dataSets[0].resetPixelNumber( 1 ); 
 	dataSets[0].resetPictureNumber(picNumber);
-	dataSets[0].resetPixelNumber(1);
+	
 	//
 	//analysisGroups.clear();
 	// one pixel

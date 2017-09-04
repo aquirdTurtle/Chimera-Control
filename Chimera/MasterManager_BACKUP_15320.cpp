@@ -441,6 +441,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 	ULONGLONG endTime = GetTickCount();
 	expUpdate( "Experiment took " + str( (endTime - startTime) / 1000.0 ) + " seconds.\r\n", input->comm, input->quiet );
 	input->thisObj->experimentIsRunning = false;
+	//input->niawg->restartDefault( );
 	delete input;
 	return false;
 }
@@ -516,7 +517,6 @@ void MasterManager::abort()
 {
 	std::lock_guard<std::mutex> locker( abortLock );
 	isAborting = true;
-	//experimentIsRunning = false;
 }
 
 
@@ -883,7 +883,11 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 			}
 		}
 		/// Handle RSG calls.
+<<<<<<< HEAD
+		else if (word == "rsg:") //RSG
+=======
 		else if (word == "rsg:")
+>>>>>>> 2ca475e58d2c251eae6dc0c64875391e8578680f
 		{
 			rsgEventStructuralInfo info;
 			functionStream >> info.frequency;
@@ -1315,7 +1319,11 @@ void MasterManager::callCppCodeFunction()
 bool MasterManager::isValidWord( std::string word )
 {
 	if (word == "t" || word == "t++" || word == "t+=" || word == "t=" || word == "on:" || word == "off:"
+<<<<<<< HEAD
+		 || word == "dac:" || word == "dacramp:" || word == "rsg:" || word == "raman:" || word == "call" //"RSG:"
+=======
 		 || word == "dac:" || word == "dacramp:" || word == "rsg:" || word == "raman:" || word == "call"
+>>>>>>> 2ca475e58d2c251eae6dc0c64875391e8578680f
 		 || word == "repeat:" || word == "end" || word == "pulseon:" || word == "pulseoff:" || word == "callcppcode")
 	{
 		return true;

@@ -33,10 +33,13 @@ Features:
 - handle config not opening better
 	- option to find config file?
 	- option to create new default config file with that name?
+- Be able to set different analysis locations for different plots
+- Add camera region "Center" and save offsets of the borders from the center to config files.
 
 Refactoring / Other:
 - refactor variables & variable key so that they aren't two separate objects. Consider if reasonable to also include 
 	variation number.
+- change niawg commands to be one word
 
 Bugs:
 - restart niawg freezes program? // should not be an issue after dealing with clean exiting of master thread.
@@ -44,48 +47,24 @@ Bugs:
 - dacramp spacing warning should only appear once, and should appear in error status?
 - after abort should stop fully before prompting to delete files.
 - scripts not always getting saved with proper extension? Not sure how to repeat yet.
+- handle aborting when paused
+- Add new data set not working in plot designer
+- Editing and re-saving plot files doesn't delete the old file if the filename changed.
+- Weird trouble with 2-picture plotting
+- Titles for scripts aren't correct
+- machnie script gets outputted with extra "end script"
+- Thresholds not getting set properly
+- Fix top / bottom name mismatch
+- commands with spaces after them get eaten wrong. probably a result of using getline, but if I'm using scriptstream, 
+	scriptstream should probably be able to eat whitespace on the end of the line.
+- dacs occaisonally breaking on config load.
+- parentscript not working?
+- something going wrong with exiting the niawg normally. Might be on delete waveforms, might be related to change from 
+	having orientations
 
 =================
 Finished
 =================
 
-Features:
-- proper newConfiguration working with default settings for all controls.
-- Scripts handle no scritp more elegantly with "None" as script address.
-- Agilents handle opening parent scripts better, clearing script before opening in case the open fails.
-
-Bugs:
-- coloring of special commands in niawg updated for flashing stuffs
-- brackets in niawg scripts no longer eaten
-- paths for scripts are no longer too long to fit in the display
-- Fixed closing of program.
-- fixed debugging options controls not being selectable and stuff.
-- fixed key bug when starting only camera
-- better message when save fails.
-- function combo works for master script again
-- fix re-coloring of script after view load.
-- fixed rsg coloring bug
-- fixed rsg not working in function bug
-- fixed rsg help being wrong
-- fixed writing of rsg status to rsg info box
-- fixed plotting
-- fixed an issue with multi-picture plotting.
-- now aborts fully upon an error, not requiring pressing esc
-- Now exiting running niawg w/ master more gracefully.
-
-Refactoring / Other:
-- update colors for variables
-- removed timelike option which wasn't used for anything at this time.
-- removed "orientation" handling.
-- refactored key location to main window. Not sure I actually need a key object like this that belongs to the windows.
-- Cleaned up solution files in this branch.
-- Renamed consoleApplication1 to TestConsoleApp
-
-BEFORE BETA:
-- Fix obvious serious bugs
-	- new config
-	- camera picture number
-	- obvious stability issues
-- review documentation of key parts of code
-	- mainWindow
-	- MainExperimentThread
+BUGS
+- Fixed data set issue with post-selection conditions for plot designer?

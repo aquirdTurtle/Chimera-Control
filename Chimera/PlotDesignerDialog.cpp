@@ -798,24 +798,24 @@ int PlotDesignerDialog::getPscPixelNumber()
 void PlotDesignerDialog::savePostSelectionConditions( bool clear )
 {
 	// prob need to change this
-	if (currentDataSet >= 0 && currentPscCondition >= 0 && currentPscPixel >= 0 && currentPscPicture >= 0)
+	if (getCurrentDataSetNumber() >= 0 && currentPscCondition >= 0 && currentPscPixel >= 0 && currentPscPicture >= 0)
 	{
 		if (pscAtomBox.GetCheck())
 		{
 			// 1 is atom present condition
-			currentPlotInfo.setPostSelectionCondition( currentDataSet, currentPscCondition, currentPscPixel,
+			currentPlotInfo.setPostSelectionCondition( getCurrentDataSetNumber( ), currentPscCondition, currentPscPixel,
 													   currentPscPicture, 1 );
 		}
 		else if (pscNoAtomBox.GetCheck())
 		{
 			// -1 is no atom present condition
-			currentPlotInfo.setPostSelectionCondition( currentDataSet, currentPscCondition, currentPscPixel,
+			currentPlotInfo.setPostSelectionCondition( getCurrentDataSetNumber( ), currentPscCondition, currentPscPixel,
 													   currentPscPicture, -1 );
 		}
 		else
 		{
 			// no condition.
-			currentPlotInfo.setPostSelectionCondition( currentDataSet, currentPscCondition, currentPscPixel,
+			currentPlotInfo.setPostSelectionCondition( getCurrentDataSetNumber( ), currentPscCondition, currentPscPixel,
 													   currentPscPicture, 0 );
 		}
 	}
