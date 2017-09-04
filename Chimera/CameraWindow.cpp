@@ -9,10 +9,19 @@
 CameraWindow::CameraWindow() : CDialog(), CameraSettings(&Andor), dataHandler(DATA_SAVE_LOCATION), 
                                plotter(GNUPLOT_LOCATION)
 {
-	// test the plotter quickly
+	/// test the plotter quickly
+	plotter.send( "set title \"Gnuplot is Working\"" );
 	plotter.send("plot '-'");
-	plotter.sendData(std::vector<long>({1}));
+	std::vector<double> data(100);
+	int count = 0;
+	for ( auto& dat : data )
+	{
+		dat = -(count - 50)*(count - 50);
+		count++;
+	}
+	plotter.sendData(data);
 };
+
 
 IMPLEMENT_DYNAMIC(CameraWindow, CDialog)
 
@@ -24,9 +33,9 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 	ON_WM_VSCROLL()
 
 	ON_COMMAND_RANGE(MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &CameraWindow::passCommonCommand)
-	ON_COMMAND_RANGE(PICTURE_SETTINGS_ID_START, PICTURE_SETTINGS_ID_END, &CameraWindow::handlePictureSettings)
+	ON_COMMAND_RANGE(PICTURE_SETTINGS_ID_START, PICTURE_SETTINGS_ID_END, &CameraWindow::temp)
 	// these ids all go to the same function.
-	ON_CONTROL_RANGE(EN_CHANGE, IDC_PICTURE_1_MIN_EDIT, IDC_PICTURE_1_MIN_EDIT, &CameraWindow::handlePictureEditChange)
+	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_1_MIN_EDIT, IDC_PICTURE_1_MIN_EDIT, &CameraWindow::handlePictureEditChange)
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_1_MAX_EDIT, IDC_PICTURE_1_MAX_EDIT, &CameraWindow::handlePictureEditChange )
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_2_MIN_EDIT, IDC_PICTURE_2_MIN_EDIT, &CameraWindow::handlePictureEditChange )
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_2_MAX_EDIT, IDC_PICTURE_2_MAX_EDIT, &CameraWindow::handlePictureEditChange )
@@ -74,6 +83,15 @@ std::string CameraWindow::getSystemStatusString()
 	return statusStr;
 }
 
+
+void CameraWindow::handleNewConfig( std::ofstream& newFile )
+{
+	CameraSettings.handleNewConfig( newFile );
+	pics.handleNewConfig( newFile );
+	// todo: include plotter info
+}
+
+
 void CameraWindow::handleSaveConfig(std::ofstream& saveFile)
 {
 	CameraSettings.handleSaveConfig(saveFile);
@@ -85,8 +103,27 @@ void CameraWindow::handleSaveConfig(std::ofstream& saveFile)
 void CameraWindow::handleOpeningConfig(std::ifstream& configFile, double version)
 {
 	// I could and perhaps should further subdivide this up.
+
 	CameraSettings.handleOpenConfig(configFile, version);
 	pics.handleOpenConfig(configFile, version);
+	if ( CameraSettings.getSettings( ).picsPerRepetition == 1 )
+	{
+		pics.setSinglePicture( this, selectedPixel, CameraSettings.readImageParameters( this ),
+							   analysisHandler.getAnalysisLocs( ) );
+	}
+	else
+	{
+		pics.setMultiplePictures( this, selectedPixel, CameraSettings.readImageParameters( this ),
+								  CameraSettings.getSettings( ).picsPerRepetition, analysisHandler.getAnalysisLocs( ) );
+	}
+	pics.resetPictureStorage( );
+	std::array<int, 4> nums = CameraSettings.getPaletteNumbers( );
+	pics.setPalletes( nums );
+
+	CRect rect;
+	GetWindowRect( &rect );
+	OnSize( 0, rect.right - rect.left, rect.bottom - rect.top );
+
 	/*
 	int plotNumber;
 	configFile >> plotNumber;
@@ -492,6 +529,11 @@ void CameraWindow::passTrigger()
 	CameraSettings.handleTriggerControl(this);
 }
 
+void CameraWindow::temp( UINT id )
+{
+	handlePictureSettings( id );
+}
+
 
 void CameraWindow::handlePictureSettings(UINT id)
 {
@@ -628,7 +670,7 @@ void CameraWindow::prepareCamera( ExperimentInput& input )
 	}
 	if ( analysisHandler.getLocationSettingStatus() )
 	{
-		thrower( "Please finish selecting analysis points before starting the camera!" );
+		thrower( "Please finish selecting analysis points before starting the camera!\r\n" );
 	}
 	// make sure it's idle.
 	try
@@ -719,7 +761,14 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 	input.plotterInput->comm = mainWindowFriend->getComm();
 	input.plotterInput->plotLock = &plotLock;
 	input.plotterInput->numberOfRunsToAverage = 5;
-	input.plotterInput->key = input.masterInput->key->getKeyValueArray();
+	if ( input.masterInput )
+	{
+		input.plotterInput->key = input.masterInput->key->getKeyValueArray( );
+	}
+	else
+	{
+		input.plotterInput->key = { 0 };
+	}
 	input.plotterInput->plotter = &plotter;
 	input.plotterInput->atomQueue = &plotterAtomQueue;
 	analysisHandler.fillPlotThreadInput( input.plotterInput );

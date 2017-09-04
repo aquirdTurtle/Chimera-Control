@@ -12,6 +12,20 @@
 // #include "Dio64.h"
 
 
+void DioSystem::handleNewConfig( std::ofstream& newFile )
+{
+	newFile << "TTLS\n";
+	for ( int ttlRowInc = 0; ttlRowInc < getNumberOfTTLRows( ); ttlRowInc++ )
+	{
+		for ( int ttlNumberInc = 0; ttlNumberInc < getNumberOfTTLsPerRow( ); ttlNumberInc++ )
+		{
+			newFile << 0 << " ";
+		}
+		newFile << "\n";
+	}
+	newFile << "END_TTLS\n";
+}
+
 void DioSystem::handleSaveConfig(std::ofstream& saveFile)
 {
 	/// ttl settings
@@ -20,8 +34,9 @@ void DioSystem::handleSaveConfig(std::ofstream& saveFile)
 	{
 		for (int ttlNumberInc = 0; ttlNumberInc < getNumberOfTTLsPerRow(); ttlNumberInc++)
 		{
-			saveFile << getTtlStatus(ttlRowInc, ttlNumberInc) << "\n";
+			saveFile << getTtlStatus(ttlRowInc, ttlNumberInc) << " ";
 		}
+		saveFile << "\n";
 	}
 	saveFile << "END_TTLS\n";
 }

@@ -71,7 +71,7 @@ void AuxiliaryWindow::newTopBottomAgilentScript()
 	try
 	{
 		topBottomAgilent.agilentScript.checkSave( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
-		topBottomAgilent.agilentScript.newScript( mainWindowFriend->getProfileSettings().orientation );
+		topBottomAgilent.agilentScript.newScript( );
 		mainWindowFriend->updateConfigurationSavedStatus( false );
 		topBottomAgilent.agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings().categoryPath );
 		topBottomAgilent.agilentScript.colorEntireScript( getAllVariables(), mainWindowFriend->getRgbs(),
@@ -145,7 +145,7 @@ void AuxiliaryWindow::newAxialUwaveAgilentScript()
 	try
 	{
 		uWaveAxialAgilent.agilentScript.checkSave( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
-		uWaveAxialAgilent.agilentScript.newScript( mainWindowFriend->getProfileSettings().orientation );
+		uWaveAxialAgilent.agilentScript.newScript( );
 		mainWindowFriend->updateConfigurationSavedStatus( false );
 		uWaveAxialAgilent.agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings().categoryPath );
 		uWaveAxialAgilent.agilentScript.colorEntireScript( getAllVariables(), mainWindowFriend->getRgbs(),
@@ -223,7 +223,7 @@ void AuxiliaryWindow::newFlashingAgilentScript()
 	try
 	{
 		flashingAgilent.agilentScript.checkSave( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
-		flashingAgilent.agilentScript.newScript( mainWindowFriend->getProfileSettings().orientation );
+		flashingAgilent.agilentScript.newScript( );
 		mainWindowFriend->updateConfigurationSavedStatus( false );
 		flashingAgilent.agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings().categoryPath );
 		flashingAgilent.agilentScript.colorEntireScript( getAllVariables(), mainWindowFriend->getRgbs(),
@@ -384,6 +384,20 @@ std::pair<UINT, UINT> AuxiliaryWindow::getTtlBoardSize()
 }
 
 
+void AuxiliaryWindow::handleNewConfig( std::ofstream& newFile )
+{
+	// order matters.
+	configVariables.handleNewConfig( newFile );
+	ttlBoard.handleNewConfig( newFile );
+	dacBoards.handleNewConfig( newFile );
+	topBottomAgilent.handleNewConfig( newFile );
+	uWaveAxialAgilent.handleNewConfig( newFile );
+	flashingAgilent.handleNewConfig( newFile );
+	topBottomTek.handleNewConfig( newFile );
+	eoAxialTek.handleNewConfig( newFile );
+}
+
+
 void AuxiliaryWindow::handleSaveConfig(std::ofstream& saveFile)
 {
 	// order matters.
@@ -534,11 +548,10 @@ void AuxiliaryWindow::clearVariables()
 }
 
 
-void AuxiliaryWindow::addVariable(std::string name, bool timelike, bool constant, double value, int item)
+void AuxiliaryWindow::addVariable(std::string name, bool constant, double value, int item)
 {
 	variable var;
 	var.name = name;
-	var.timelike = timelike;
 	var.constant = constant;
 	var.ranges.push_back({ value, 0, 1, false, true });
 	configVariables.addConfigVariable(var, item);
@@ -816,9 +829,6 @@ void AuxiliaryWindow::loadMotSettings(MasterThreadInput* input)
 		input->variables = globalVariables.getEverything();
 		// Only set it once, clearly.
 		input->repetitionNumber = 1;
-		input->key = &masterKey;
-		input->key->loadVariables(input->variables);
-		input->key->generateKey(input->settings.randomizeVariations);
 		input->masterScriptAddress = MOT_ROUTINE_ADDRESS;
 		input->rsg = &RhodeSchwarzGenerator;
 		input->agilents.push_back( &topBottomAgilent );
@@ -876,7 +886,6 @@ void AuxiliaryWindow::fillMasterThreadInput(MasterThreadInput* input)
 	}
 	input->variables = experimentVars;
 	globalVariables.setUsages(globals);
-	input->key = &masterKey;
 	input->rsg = &RhodeSchwarzGenerator;
 	input->agilents.push_back(&topBottomAgilent);
 	input->agilents.push_back(&uWaveAxialAgilent);

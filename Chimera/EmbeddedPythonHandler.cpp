@@ -46,7 +46,7 @@ EmbeddedPythonHandler::EmbeddedPythonHandler()
 	//	"calculateAtomThreshold, getAnalyzedSurvivalData"));
 	// Make sure that python can find my module.
 	ERR_POP(run("import sys"));
-	ERR_POP(run("sys.path.append(\"" + ANALYSIS_CODE_LOCATION + "\")"));
+	//ERR_POP(run("sys.path.append(\"" + ANALYSIS_CODE_LOCATION + "\")"));
 	/*
 	ERR_POP(run("import AutoanalysisFunctions"));
 	PyObject* pythonModuleName = PyUnicode_DecodeFSDefault("AutoanalysisFunctions");

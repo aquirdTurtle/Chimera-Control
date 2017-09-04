@@ -34,7 +34,8 @@ void cleanString(std::string &str)
 	do 
 	{
 		erasingFlag = false;
-		if (!isalpha(str[0]) && !isdigit(str[0]) && str[0] != ' ' && str[0] != '\t' && !iscntrl(str[0]) && str[0] != '%')
+		if (!isalpha(str[0]) && !isdigit(str[0]) && str[0] != ' ' && str[0] != '\t' && !iscntrl(str[0]) && str[0] != '%' 
+			&& str[0] != '{' && str[0] != '}')
 		{
 			// kill it!
 			str.erase(0);

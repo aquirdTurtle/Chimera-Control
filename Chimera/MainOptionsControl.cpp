@@ -11,6 +11,17 @@ void MainOptionsControl::rearrange( int width, int height, fontMap fonts )
 }
 
 
+void MainOptionsControl::handleNewConfig( std::ofstream& newFile )
+{
+	newFile << "MAIN_OPTIONS\n";
+	newFile << 0 << "\n";
+	newFile << 0 << "\n";
+	// default is to randomize variations.
+	newFile << 1 << "\n"; 
+	newFile << "END_MAIN_OPTIONS\n";
+}
+
+
 void MainOptionsControl::handleSaveConfig(std::ofstream& saveFile)
 {
 	saveFile << "MAIN_OPTIONS\n";
@@ -43,6 +54,7 @@ void MainOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTip
 	rearrangeButton.sPos = { loc.x, loc.y, loc.x + 480 , loc.y += 25 };
 	rearrangeButton.Create( "Includes Rearrangement Procedure?", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | BS_RIGHT,
 							rearrangeButton.sPos, parent, id++ );
+
 	randomizeRepetitionsButton.sPos = { loc.x, loc.y, loc.x + 480 , loc.y += 25 };
 	randomizeRepetitionsButton.Create( "Randomize Repetitions?", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | BS_RIGHT,
 									   randomizeRepetitionsButton.sPos, parent, id++ );

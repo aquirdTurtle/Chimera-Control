@@ -163,6 +163,17 @@ void TektronicsChannelControl::setSettings(tektronicsChannelInfo info)
 }
 
 
+void TektronicsControl::handleNewConfig( std::ofstream& newFile )
+{
+	newFile << "TEKTRONICS\n";
+	newFile << "CHANNEL_1\n";
+	newFile << 0 << "\n" << 0 << "\n" << -30 << "\n" << 1 << "\n" << 1 << "\n";
+	newFile << "CHANNEL_2\n";
+	newFile << 0 << "\n" << 0 << "\n" << -30 << "\n" << 1 << "\n" << 1 << "\n";
+	newFile << "END_TEKTRONICS" << "\n";
+}
+
+
 void TektronicsControl::handleSaveConfig(std::ofstream& saveFile)
 {
 	saveFile << "TEKTRONICS\n";

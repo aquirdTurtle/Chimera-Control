@@ -305,7 +305,9 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 		{
 			int secondIndex = (input->imageShape.height - pixelDataType[pixelInc][0]) * input->imageShape.width
 				+ pixelDataType[pixelInc][1] - 1;
-			if ((*input->atomQueue)[0][secondIndex]/*countData[pixelInc].back() > threshold*/)
+			bool val = input->atomQueue->at( 0 )[0];
+			//errBox( val );
+			if (input->atomQueue->at(0)[secondIndex]/*countData[pixelInc].back() > threshold*/)
 			{
 				// atom detected
 				isAtLeastOneAtom = true;
@@ -339,15 +341,23 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 		/// check if have enough data to plot
 		if (currentThreadRepNum % allPlots[0].getPicNumber() != 0)
 		{
-			// finally, if so, remove the data from the queue.
+			// In this case, not enough data to plot a point yet, but I've just analyzed a pic, so remove that pic.
 			std::lock_guard<std::mutex> locker(*input->plotLock);
-			if (input->imageQueue->size() > 0)
+			if ( input->needsCounts )
 			{
-				// delete the first entry of the Queue which has just been handled.
-				input->imageQueue->erase(input->imageQueue->begin());
-				// increment the thread's accumulation Number.
-				currentThreadRepNum++;
+				if ( input->imageQueue->size( ) > 0 )
+				{
+					// delete the first entry of the Queue which has just been handled.
+					input->imageQueue->erase( input->imageQueue->begin( ) );
+
+				}
 			}
+			if ( input->atomQueue->size( ) > 0 )
+			{
+				input->atomQueue->erase( input->atomQueue->begin( ) );
+			}
+			// increment the thread's accumulation Number.
+			currentThreadRepNum++;
 			continue;
 		}
 		// used to tell if time to plot given frequency.
@@ -598,6 +608,10 @@ void DataAnalysisControl::handlePlotAtomsOrCounts(realTimePlotterInput* input, P
 		double xRangeMin = *std::min_element(input->key.begin(), input->key.end());
 		double xRangeMax = *std::max_element(input->key.begin(), input->key.end());
 		double range = xRangeMax - xRangeMin;
+		if ( range == 0 )
+		{
+			range++;
+		}
 		xRangeMin -= range / input->key.size();
 		xRangeMax += range / input->key.size();
 		input->plotter->send("set xrange [" + str(xRangeMin) + ":" + str(xRangeMax) + "]");
@@ -659,8 +673,8 @@ void DataAnalysisControl::handlePlotAtomsOrCounts(realTimePlotterInput* input, P
 					{
 						errBox("Coding Error: Bad Fit option!");
 					}
+					input->plotter->sendData(finX[dataSetI][groupInc], finAvgs[dataSetI][groupInc]);
 				}
-				input->plotter->sendData(finX[dataSetI][groupInc], finAvgs[dataSetI][groupInc]);
 			}
 		}
 	}

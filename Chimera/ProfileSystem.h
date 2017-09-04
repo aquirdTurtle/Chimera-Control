@@ -26,10 +26,6 @@ class ProfileSystem
 									 CameraWindow* camWin);
 		void allSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin, 
 								   CameraWindow* camWin);
-
-		void orientationChangeHandler(MainWindow* mainWin);
-		std::string getOrientation();
-		void setOrientation(std::string);
 		std::string getMasterAddressFromConfig();
 		void saveSequence();
 		void saveSequenceAs();
@@ -61,12 +57,13 @@ class ProfileSystem
 
 		void saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin, 
 								    CameraWindow* camWin );
-		void newConfiguration(MainWindow* mainWin);
+		void newConfiguration( MainWindow* mainWin, AuxiliaryWindow* auxWin, CameraWindow* camWin,
+							   ScriptingWindow* scriptWin );
 		void saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin);
 		void renameConfiguration();
 		void deleteConfiguration();
-		void openConfiguration( std::string configurationNameToOpen, ScriptingWindow* scriptWindow, MainWindow* mainWin, 
-							    CameraWindow* camWin, AuxiliaryWindow* auxWin );
+		void openConfig( std::string configurationNameToOpen, ScriptingWindow* scriptWindow, MainWindow* mainWin, 
+						 CameraWindow* camWin, AuxiliaryWindow* auxWin );
 
 		static void openNiawgFiles( niawgPair<std::vector<std::fstream>>& scriptFiles, profileSettings profile, 
 								   bool programNiawg );

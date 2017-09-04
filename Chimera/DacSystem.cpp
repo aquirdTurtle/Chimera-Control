@@ -77,14 +77,25 @@ void DacSystem::handleOpenConfig(std::ifstream& openFile, double version, DioSys
 }
 
 
+void DacSystem::handleNewConfig( std::ofstream& newFile )
+{
+	newFile << "DACS\n";
+	for ( UINT dacInc = 0; dacInc < getNumberOfDacs( ); dacInc++ )
+	{
+		newFile << 0 << " ";
+	}
+	newFile << "\nEND_DACS\n";
+}
+
+
 void DacSystem::handleSaveConfig(std::ofstream& saveFile)
 {
 	saveFile << "DACS\n";
 	for (UINT dacInc = 0; dacInc < getNumberOfDacs(); dacInc++)
 	{
-		saveFile << getDacValue(dacInc) << "\n";
+		saveFile << getDacValue(dacInc) << " ";
 	}
-	saveFile << "END_DACS\n";
+	saveFile << "\nEND_DACS\n";
 }
 
 
