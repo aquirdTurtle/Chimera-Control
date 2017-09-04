@@ -60,6 +60,7 @@ class MainWindow : public CDialog
 		void setNotes(std::string whichLevel, std::string notes);
 		void setNiawgDefaults();
 		void fillMasterThreadInput( MasterThreadInput* input );
+		void fillMotInput( MasterThreadInput* input);
 		void startMaster( MasterThreadInput* input, bool isTurnOnMot );
 		std::string getNotes(std::string whichLevel);
 		brushMap getBrushes();

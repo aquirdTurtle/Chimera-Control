@@ -173,15 +173,19 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 	}
 
 	// Check NIAWG-specific commands
-	if (editType == "Horizontal NIAWG" || editType == "Vertical NIAWG")
+	if ( editType == "Horizontal NIAWG" || editType == "Vertical NIAWG" )
 	{
-		if ( word == "gen" || word == "1," || word == "2," || word == "3," || word == "4," || word == "5," 
-			|| word == "freq" || word == "amp" || word == "const"			 || word == "&" || word == "ramp")
+		for ( auto num : range( 10 ) )
 		{
-			return rgbs["Solarized Violet"];
+			if ( word == "gen" + str( num + 1 ) + "const" || word == "gen" + str( num + 1 ) + "ampramp"
+				|| word == "gen" + str( num + 1 ) + "freqramp" || word == "gen" + str( num + 1 ) + "freq&ampramp"
+				 || word == "flash" || word == "rearrange")
+			{
+				return rgbs["Solarized Violet"];
+			}
 		}
 		// check logic
-		if (word == "repeat" || word == "until" || word == "trigger" || word == "end" || word == "forever" || word == "flash")
+		if (word == "repeattiltrig" || word == "repeatSet#" || word == "repeattilsoftwaretrig" || word == "endrepeat")
 		{
 			return rgbs["Solarized Blue"];
 		}
