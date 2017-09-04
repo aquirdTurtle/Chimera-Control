@@ -14,6 +14,29 @@ void PictureSettingsControl::cameraIsOn( bool state )
 }
 
 
+void PictureSettingsControl::handleNewConfig( std::ofstream& newFile )
+{
+	newFile << "PICTURE_SETTINGS\n";
+	newFile << 1 << "\n";
+	for ( auto color : colors )
+	{
+		newFile << 0 << " ";
+	}
+	newFile << "\n";
+	for ( auto exposure : exposureTimesUnofficial )
+	{
+		newFile << 25 << " ";
+	}
+	newFile << "\n";
+	for ( auto threshold : thresholds )
+	{
+		newFile << 100 << " ";
+	}
+	newFile << "\n";
+	newFile << "END_PICTURE_SETTINGS\n";
+}
+
+
 void PictureSettingsControl::handleSaveConfig(std::ofstream& saveFile)
 {
 	saveFile << "PICTURE_SETTINGS\n";
@@ -40,7 +63,9 @@ void PictureSettingsControl::handleSaveConfig(std::ofstream& saveFile)
 void PictureSettingsControl::handleOpenConfig(std::ifstream& openFile, double version, AndorCamera* andor)
 {
 	ProfileSystem::checkDelimiterLine(openFile, "PICTURE_SETTINGS");
-	openFile >> picsPerRepetitionUnofficial;
+	UINT picsPerRep;
+	openFile >> picsPerRep;
+	setUnofficialPicsPerRep( picsPerRep, andor );
 	//setPicturesPerExperiment(picsPerRepetitionUnofficial)
 	for (auto& color : colors)
 	{
@@ -73,7 +98,8 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	pictureLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y + 20 };
 	pictureLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100,	pos.amPos.y + 20 };
 	pictureLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100,	pos.videoPos.y + 20 };
-	pictureLabel.Create( "Picture #:", WS_CHILD | WS_VISIBLE, pictureLabel.seriesPos, parent, PICTURE_SETTINGS_ID_START + runningCount++);
+	pictureLabel.Create( "Picture #:", WS_CHILD | WS_VISIBLE, pictureLabel.seriesPos, parent, 
+						 PICTURE_SETTINGS_ID_START + runningCount++);
 	
 	for (int picInc = 0; picInc < 4; picInc++)
 	{
@@ -94,7 +120,8 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	totalPicNumberLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y + 20 };
 	totalPicNumberLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100, pos.amPos.y + 20 };
 	totalPicNumberLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 100, pos.videoPos.y + 20 };
-	totalPicNumberLabel.Create( "Total Picture #", WS_CHILD | WS_VISIBLE, totalPicNumberLabel.seriesPos, parent, PICTURE_SETTINGS_ID_START + runningCount++ );
+	totalPicNumberLabel.Create( "Total Picture #", WS_CHILD | WS_VISIBLE, totalPicNumberLabel.seriesPos, parent, 
+								PICTURE_SETTINGS_ID_START + runningCount++ );
 	for (int picInc = 0; picInc < 4; picInc++)
 	{
 		totalNumberChoice[picInc].seriesPos = { pos.seriesPos.x + 100 + 95 * picInc, pos.seriesPos.y, 
@@ -107,14 +134,16 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 		{
 			// first of group
 			totalNumberChoice[picInc].Create( "", WS_CHILD | WS_VISIBLE | BS_CENTER | WS_GROUP | BS_AUTORADIOBUTTON,
-											  totalNumberChoice[picInc].seriesPos, parent, PICTURE_SETTINGS_ID_START + runningCount++ );
+											  totalNumberChoice[picInc].seriesPos, parent, 
+											  PICTURE_SETTINGS_ID_START + runningCount++ );
 			totalNumberChoice[picInc].SetCheck( 1 );
 		}
 		else
 		{
 			// members of group.
 			totalNumberChoice[picInc].Create( "", WS_CHILD | WS_VISIBLE | BS_CENTER | BS_AUTORADIOBUTTON,
-											  totalNumberChoice[picInc].seriesPos, parent, PICTURE_SETTINGS_ID_START + runningCount++ );
+											  totalNumberChoice[picInc].seriesPos, parent, 
+											  PICTURE_SETTINGS_ID_START + runningCount++ );
 		}
 	}
 	pos.seriesPos.y += 20;
@@ -371,36 +400,58 @@ CBrush* PictureSettingsControl::colorControls(int id, CDC* colorer, brushMap bru
 	}
 }
 
-int PictureSettingsControl::getPicsPerRepetition()
+
+UINT PictureSettingsControl::getPicsPerRepetition()
 {
 	return picsPerRepetitionUnofficial;
 }
+
+
+void PictureSettingsControl::setUnofficialPicsPerRep( UINT picNum, AndorCamera* andorObj )
+{
+	picsPerRepetitionUnofficial = picNum;
+	// not all settings are changed here, and some are used to recalculate totals.
+	AndorRunSettings settings = andorObj->getSettings( );
+	settings.picsPerRepetition = picsPerRepetitionUnofficial;
+	settings.totalPicsInVariation = settings.picsPerRepetition  * settings.repetitionsPerVariation;
+	if ( settings.totalVariations * settings.totalPicsInVariation > INT_MAX )
+	{
+		thrower( "ERROR: too many pictures to take! Maximum number of pictures possible is " + str( INT_MAX ) );
+	}
+	settings.totalPicsInExperiment = int( settings.totalVariations * settings.totalPicsInVariation );
+	andorObj->setSettings( settings );
+	for ( int picInc = 0; picInc < 4; picInc++ )
+	{
+		if ( picInc < picNum )
+		{
+			enablePictureControls( picInc );
+		}
+		else
+		{
+			disablePictureControls( picInc );
+		}
+		if ( picInc == picNum-1 )
+		{
+			totalNumberChoice[picInc].SetCheck( 1 );
+		}
+		else
+		{
+			totalNumberChoice[picInc].SetCheck( 0 );
+		}
+	}
+}
+
 
 void PictureSettingsControl::handleOptionChange(int id, AndorCamera* andorObj)
 {
 	if (id >= totalNumberChoice.front().GetDlgCtrlID() && id <= totalNumberChoice.back().GetDlgCtrlID())
 	{
 		int picNum = id - totalNumberChoice.front().GetDlgCtrlID();
-		picsPerRepetitionUnofficial = picNum + 1;
-		// not all settings are changed here, and some are used to recalculate totals.
-		AndorRunSettings settings = andorObj->getSettings();
-		settings.picsPerRepetition = picsPerRepetitionUnofficial;
-		settings.totalPicsInVariation = settings.picsPerRepetition  * settings.repetitionsPerVariation;
-		if (settings.totalVariations * settings.totalPicsInVariation > INT_MAX)
+		// this message can weirdly get set after a configuration opens as well, it only means to set the number if the 
+		// relevant button is now checked.
+		if ( totalNumberChoice[picNum].GetCheck( ) )
 		{
-			thrower( "ERROR: too many pictures to take! Maximum number of pictures possible is " + str( INT_MAX ) );
-		}
-		settings.totalPicsInExperiment = int(settings.totalVariations * settings.totalPicsInVariation);
-		for (int picInc = 0; picInc < 4; picInc++)
-		{
-			if (picInc <= picNum)
-			{
-				enablePictureControls(picInc);
-			}
-			else
-			{
-				disablePictureControls(picInc);
-			}
+			setUnofficialPicsPerRep( picNum + 1, andorObj );
 		}
 	}
 	else if (id == setPictureOptionsButton.GetDlgCtrlID())
@@ -544,7 +595,7 @@ void PictureSettingsControl::setPicturesPerExperiment(UINT pics, AndorCamera* an
 	}
 	picsPerRepetitionUnofficial = pics;
 	AndorRunSettings settings = andorObj->getSettings();
-	settings.picsPerRepetition = this->picsPerRepetitionUnofficial;
+	settings.picsPerRepetition = picsPerRepetitionUnofficial;
 	settings.totalPicsInVariation = settings.picsPerRepetition  * settings.repetitionsPerVariation;
 	if (settings.totalVariations * settings.totalPicsInVariation > INT_MAX)
 	{
@@ -596,31 +647,31 @@ void PictureSettingsControl::rearrange(std::string cameraMode, std::string trigg
 	infernoLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
 	viridaLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
 
-	for (auto& control : this->pictureNumbers)
+	for (auto& control : pictureNumbers)
 	{
 		control.rearrange(cameraMode, triggerMode, width, height, fonts);
 	}
-	for (auto& control : this->totalNumberChoice)
+	for (auto& control : totalNumberChoice)
 	{
 		control.rearrange(cameraMode, triggerMode, width, height, fonts);
 	}
-	for (auto& control : this->exposureEdits)
+	for (auto& control : exposureEdits)
 	{
 		control.rearrange(cameraMode, triggerMode, width, height, fonts);
 	}
-	for (auto& control : this->thresholdEdits)
+	for (auto& control : thresholdEdits)
 	{
 		control.rearrange(cameraMode, triggerMode, width, height, fonts);
 	}
-	for (auto& control : this->infernoRadios)
+	for (auto& control : infernoRadios)
 	{
 		control.rearrange(cameraMode, triggerMode, width, height, fonts);
 	}
-	for (auto& control : this->veridaRadios)
+	for (auto& control : veridaRadios)
 	{
 		control.rearrange(cameraMode, triggerMode, width, height, fonts);
 	}
-	for (auto& control : this->blackWhiteRadios)
+	for (auto& control : blackWhiteRadios)
 	{
 		control.rearrange(cameraMode, triggerMode, width, height, fonts);
 	}

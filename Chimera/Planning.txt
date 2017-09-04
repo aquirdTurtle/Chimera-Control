@@ -2,58 +2,90 @@
 TODO
 ===================
 
-Core Requirements:
-
 Features:
-- could clean up textpromptdialog handling, should be possible with one line.
-- Consider thread organization with master run thread & Niawg run Thread
-- change / remove "orientation" handling.
 - Display Actual kinetic Cycle Time
-- Display minimum kinetic cycle time
+- Display Minimum kinetic cycle time
+- finish implementing 2D scans
+- Implement Chris's Plots of ttls and dacs
+
+- could clean up textpromptdialog handling, should be possible with one line.
 - Improve frame rate?
 	- should be able to get 3.12 frames / sec or so at full array size
-- NIAWG scripting in single script instead of Hor/Vert scripts.
-- Watch cursor location
-- update colors for variables
-- restore the Niawg functionality where it calculates next varying waveform during the run of the previous waveform.
+- NIAWG scripting in single script instead of separate Hor/Vert scripts.
+- Watch cursor location, sim to basler program
+- restore the Niawg functionality where it calculates next varying waveform duringx the run of the previous waveform.
 - option to allow agilent waveforms to function with or without calibration
 - make a structure and a front panel option for agilent calibrations
 - functions for niawg and agilent scripts
 - if fails to open script file give user opportunity to find it themselves.
 - default script for agilent with command guide?
-- refactor variables & variable key so that they aren't two separate objects. Consider if reasonable to also include 
-	variation number.
-- gnuplot safemode?
+- gnuplot safemode? (not sure needed at all).
 - handle niawg waiting more elegantly
-- make the big text short status better.
+- make the big text short status messages better.
 - be able to program agilents with or without power->volt conversion. Think I just want a combo.
 - indicate setting (no, off, dc, sine, square, pre, script) next to agilent channel text
 - make agilent smart about trying to program a sequence that's only one voltage. Can prob just add one check
-- math in niawg and intensity scripts
-- if aborts or crashes in the middle of run, code should close HDF5 file and make it usable.
+- support math in niawg and intensity scripts
+- if aborts or crashes in the middle of run, code should close HDF5 file and make it usable, somehow.
+- Be able to turn off / on NIAWG without stopping program
+- finish implementing randomizing repetitions.
+- Finish implementing agilent channel sync.
+- handle config not opening better
+	- option to find config file?
+	- option to create new default config file with that name?
+
+Refactoring / Other:
+- refactor variables & variable key so that they aren't two separate objects. Consider if reasonable to also include 
+	variation number.
 
 Bugs:
-- restart niawg freezes program 
-- close one window should close all 
-- exit running niawg w/ master more gracefully.
-- fix plotting
-- fix variations begin zero at new variations
+- restart niawg freezes program? // should not be an issue after dealing with clean exiting of master thread.
 - number of camera pictures not getting set by config.
 - dacramp spacing warning should only appear once, and should appear in error status?
-- make functions combos work for master script again
-- paths for scripts are too long to fit in the display
-- key getting initialized in weird places
-- doesn't abort fully upon an error.
 - after abort should stop fully before prompting to delete files.
-- some cancels break things on starting the experiment
-- config setting agilent doesn't set output type correctly, just stays at prev value (e.g. no-control)
-- start niawg is starting master too
-- debugging options not selectable / active
-- handle config not opening better
-- scripts not always getting saved with proper extension
-- eats brackets in niawg scripts, I think it's cleanString
-- coloring of special commands in niawg needs update
+- scripts not always getting saved with proper extension? Not sure how to repeat yet.
 
 =================
 Finished
 =================
+
+Features:
+- proper newConfiguration working with default settings for all controls.
+- Scripts handle no scritp more elegantly with "None" as script address.
+- Agilents handle opening parent scripts better, clearing script before opening in case the open fails.
+
+Bugs:
+- coloring of special commands in niawg updated for flashing stuffs
+- brackets in niawg scripts no longer eaten
+- paths for scripts are no longer too long to fit in the display
+- Fixed closing of program.
+- fixed debugging options controls not being selectable and stuff.
+- fixed key bug when starting only camera
+- better message when save fails.
+- function combo works for master script again
+- fix re-coloring of script after view load.
+- fixed rsg coloring bug
+- fixed rsg not working in function bug
+- fixed rsg help being wrong
+- fixed writing of rsg status to rsg info box
+- fixed plotting
+- fixed an issue with multi-picture plotting.
+- now aborts fully upon an error, not requiring pressing esc
+- Now exiting running niawg w/ master more gracefully.
+
+Refactoring / Other:
+- update colors for variables
+- removed timelike option which wasn't used for anything at this time.
+- removed "orientation" handling.
+- refactored key location to main window. Not sure I actually need a key object like this that belongs to the windows.
+- Cleaned up solution files in this branch.
+- Renamed consoleApplication1 to TestConsoleApp
+
+BEFORE BETA:
+- Fix obvious serious bugs
+	- new config
+	- camera picture number
+	- obvious stability issues
+- review documentation of key parts of code
+	- mainWindow
+	- MainExperimentThread

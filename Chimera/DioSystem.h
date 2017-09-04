@@ -20,6 +20,7 @@ class DioSystem
 {
 	public:
 	    DioSystem();
+		void handleNewConfig( std::ofstream& saveFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, double version);
 		void initialize(POINT& startLocation, cToolTips& toolTips, AuxiliaryWindow* master, int& id);

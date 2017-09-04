@@ -215,6 +215,8 @@ void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id
 
 	syncedButton.sPos = { loc.x, loc.y, loc.x += 120, loc.y + 20 };
 	syncedButton.Create( "Synced?", BS_AUTOCHECKBOX | WS_VISIBLE | WS_CHILD, syncedButton.sPos, parent, ids[2]);
+	// not supported (yet)
+	syncedButton.EnableWindow( 0 );
 
 	programNow.sPos = { loc.x, loc.y, loc.x += 120, loc.y += 20 };
 	programNow.Create( "Program Now", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, programNow.sPos, parent, ids[3] );
@@ -367,6 +369,8 @@ void Agilent::updateEdit(int chan, std::string currentCategoryPath, RunInfo curr
 		case 4:
 			// scripted
 			settingCombo.SetCurSel( 6 );
+			// clear it in case the file fails to open.
+			agilentScript.setScriptText( "" );
 			agilentScript.openParentScript( settings.channel[chan].scriptedArb.fileAddress, currentCategoryPath, 
 											currentRunInfo );
 			break;
@@ -550,6 +554,36 @@ void Agilent::convertInputToFinalSettings(UINT chan)
 }
 
 
+void Agilent::handleNewConfig( std::ofstream& newFile )
+{
+	// make sure data is up to date.
+	//handleInput();
+	// start outputting.
+	newFile << "AGILENT\n";
+	newFile << "0\n";
+	newFile << "CHANNEL_1\n";
+	newFile << "-2\n";
+	newFile << "0\n";
+	newFile << "0\n";
+	newFile << "1\n";
+	newFile << "0\n";
+	newFile << "1\n";
+	newFile << "0\n";
+	newFile << "NONE\n";
+	newFile << "NONE\n";
+	newFile << "CHANNEL_2\n";
+	newFile << "-2\n";
+	newFile << "0\n";
+	newFile << "0\n";
+	newFile << "1\n";
+	newFile << "0\n";
+	newFile << "1\n";
+	newFile << "0\n";
+	newFile << "NONE\n";
+	newFile << "NONE\n";
+	newFile << "END_AGILENT\n";
+}
+
 
 /*
 This function outputs a string that contains all of the information that is set by the user for a given configuration. 
@@ -612,6 +646,7 @@ void Agilent::readConfigurationFile( std::ifstream& file )
 	std::getline( file, settings.channel[0].scriptedArb.fileAddress );
 	ProfileSystem::checkDelimiterLine(file, "CHANNEL_2"); 
 	file >> input;
+	file.get( );
 	try
 	{
 		settings.channel[1].option = std::stoi(input);

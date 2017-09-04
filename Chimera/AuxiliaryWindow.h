@@ -102,11 +102,12 @@ class AuxiliaryWindow : public CDialog
 		void GlobalVarRClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void ConfigVarsColumnClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void clearVariables();
-		void addVariable(std::string name, bool timelike, bool constant, double value, int item);
+		void addVariable(std::string name, bool constant, double value, int item);
 		void ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result);
 
 		UINT getTotalVariationNumber();
+		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		std::pair<UINT, UINT> getTtlBoardSize();
 		UINT getNumberOfDacs();
@@ -128,7 +129,7 @@ class AuxiliaryWindow : public CDialog
 
 		/// control system classes
 		RhodeSchwarz RhodeSchwarzGenerator;
-		KeyHandler masterKey;
+		//
 		Agilent topBottomAgilent, uWaveAxialAgilent, flashingAgilent;
  		DioSystem ttlBoard;
  		DacSystem dacBoards;

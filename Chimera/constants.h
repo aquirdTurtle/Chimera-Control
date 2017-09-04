@@ -7,8 +7,8 @@
 
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to build and debug other 
 // aspects of the program.
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP
 // #define DESKTOP_COMPUTER
 /// File Locations
 // Files for Desktop
@@ -53,28 +53,27 @@
 
 	#define TESTING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
 
-
-	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Plotting";
-	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
-	const std::string LIB_PATH = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Waveforms Library\\";
-	const std::string DEFAULT_SCRIPT_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Default Scripts\\";
-	const std::string EXPERIMENT_LOGGING_FILES_PATH = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\NIAWG Logging Files\\"
-														"Individual Experiments\\";
-	const std::string CODE_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Code Versions\\";
-	const std::string ACTUAL_CODE_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Cold Atoms Control Application\\";
-	const std::string PROFILES_PATH = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Profiles\\";
-	const std::string DATA_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Data\\";
-	const std::string KEY_ORIGINAL_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\key.txt";
-	const std::string MUSIC_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Camerawg\\Final Fantasy VII - Victory Fanfare [HQ].mp3";
+	const std::string PROJECT_LOCATION = "C:\\Users\\Mark-Brown\\Chimera-Control\\";
+	const std::string PLOT_FILES_SAVE_LOCATION = PROJECT_LOCATION + "Plotting";
+	//const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
+	const std::string LIB_PATH = PROJECT_LOCATION + "Waveforms-Library\\dummyLib\\";
+	const std::string DEFAULT_SCRIPT_FOLDER_PATH = PROJECT_LOCATION + "Default Scripts\\";
+	const std::string EXPERIMENT_LOGGING_FILES_PATH = PROJECT_LOCATION + "NIAWG Logging Files\\Individual Experiments\\";
+	//const std::string CODE_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Code Versions\\";
+	//const std::string ACTUAL_CODE_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Cold Atoms Control Application\\";
+	const std::string PROFILES_PATH = PROJECT_LOCATION + "Profiles\\";
+	const std::string DATA_SAVE_LOCATION = PROJECT_LOCATION + "Data\\";
+	//const std::string KEY_ORIGINAL_SAVE_LOCATION = PROJECT_LOCATION + "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\key.txt";
+	const std::string MUSIC_LOCATION = PROJECT_LOCATION + "Camerawg\\Final Fantasy VII - Victory Fanfare [HQ].mp3";
 	//
-	#define PROFILES_PATH "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Master Profiles\\"
-	#define FUNCTIONS_FOLDER_LOCATION "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Functions\\"
-	#define MASTER_CONFIGURATION_FILE_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Master-Configuration.txt"
-	#define DEFAULT_SCRIPT_FOLDER_PATH "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Default Scripts\\"
-	#define LOGGING_FILE_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Master Log.txt"
-	#define KEY_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Data\\key.txt"
-	#define MOT_ROUTINE_ADDRESS "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Master Profiles\\Hotkey Experiments\\MOT\\turnOnMot.mScript"
-	#define DEBUG_OUTPUT_LOCATION "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Debug-Output\\"
+	//const std::string PROFILES_PATH = PROJECT_LOCATION + "Master Profiles\\";
+	const std::string  FUNCTIONS_FOLDER_LOCATION = PROJECT_LOCATION + "Functions\\";
+	const std::string MASTER_CONFIGURATION_FILE_ADDRESS = PROJECT_LOCATION + "Master-Configuration.txt";
+	//const std::string DEFAULT_SCRIPT_FOLDER_PATH = PROJECT_LOCATION + "Default Scripts\\";
+	//const std::string LOGGING_FILE_ADDRESS = PROJECT_LOCATION + "Master Log.txt";
+	//const std::string KEY_ADDRESS = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Data\\key.txt";
+	const std::string MOT_ROUTINE_ADDRESS = PROJECT_LOCATION + "Master Profiles\\Hotkey Experiments\\MOT\\turnOnMot.mScript";
+	const std::string DEBUG_OUTPUT_LOCATION = PROJECT_LOCATION + "Debug-Output\\";
 #endif
 
 #ifdef MASTER_COMPUTER
@@ -143,11 +142,9 @@
 // in hertz
 #define NIAWG_FILTER_FREQENCY 80000000
 
-#define HORIZONTAL_ORIENTATION "Horizontal"
-#define VERTICAL_ORIENTATION "Vertical"
-
-#define HORIZONTAL_EXTENSION ".hConfig"
-#define VERTICAL_EXTENSION ".vConfig"
+#define CONFIG_EXTENSION ".Config"
+//#define HORIZONTAL_EXTENSION ".hConfig"
+//#define VERTICAL_EXTENSION ".vConfig"
 #define EXPERIMENT_EXTENSION ".eConfig"
 #define CATEGORY_EXTENSION ".catConfig"
 #define SEQUENCE_EXTENSION ".sConfig"
@@ -214,16 +211,15 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_DEBUG_STATUS_BUTTON 11003
 #define IDC_EXPERIMENT_COMBO 11004
 #define IDC_CATEGORY_COMBO 11005
-#define IDC_ORIENTATION_COMBO 11006
-#define IDC_CONFIGURATION_COMBO 11007
-#define IDC_SEQUENCE_COMBO 11008
-#define IDC_MAIN_OPTIONS_RANGE_BEGIN 11009
-#define IDC_MAIN_OPTIONS_RANGE_END 11010
-#define IDC_DEBUG_OPTIONS_RANGE_BEGIN 11011
-#define IDC_DEBUG_OPTIONS_RANGE_END 11012
-#define IDC_SHOW_TTLS 11013
-#define IDC_SHOW_DACS 11014
-#define IDC_SMS_TEXTING_LISTVIEW 10015
+#define IDC_CONFIGURATION_COMBO 11006
+#define IDC_SEQUENCE_COMBO 11007
+#define IDC_MAIN_OPTIONS_RANGE_BEGIN 11008
+#define IDC_MAIN_OPTIONS_RANGE_END 11009
+#define IDC_DEBUG_OPTIONS_RANGE_BEGIN 11010
+#define IDC_DEBUG_OPTIONS_RANGE_END 11017
+#define IDC_SHOW_TTLS 11018
+#define IDC_SHOW_DACS 11019
+#define IDC_SMS_TEXTING_LISTVIEW 10020
 // Scripting Window
 #define IDC_VERTICAL_NIAWG_FUNCTION_COMBO 12001
 #define IDC_VERTICAL_NIAWG_EDIT 12002
@@ -242,26 +238,26 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_MASTER_EDIT 12013
 
 // Camera Window
-#define IDC_ALERTS_BOX 13001
-#define IDC_SET_ANALYSIS_LOCATIONS 13002
-#define IDC_PLOTTING_LISTVIEW 13003
-#define IDC_CAMERA_MODE_COMBO 13004
-#define IDC_SET_EM_GAIN_BUTTON 13005
-#define IDC_TRIGGER_COMBO 13006
-#define IDC_SET_TEMPERATURE_BUTTON 13007
-#define PICTURE_SETTINGS_ID_START 13008
-#define PICTURE_SETTINGS_ID_END 13043
-#define IDC_SET_IMAGE_PARAMETERS_BUTTON 13044
-#define IDC_SET_REPETITONS_PER_VARIATION_BUTTON 13045
-#define IDC_SET_VARIATION_NUMBER 13046
-#define IDC_PICTURE_1_MIN_EDIT 13047
-#define IDC_PICTURE_1_MAX_EDIT 13048
-#define IDC_PICTURE_2_MIN_EDIT 13049
-#define IDC_PICTURE_2_MAX_EDIT 13050
-#define IDC_PICTURE_3_MIN_EDIT 13051
-#define IDC_PICTURE_3_MAX_EDIT 13052
-#define IDC_PICTURE_4_MIN_EDIT 13053
-#define IDC_PICTURE_4_MAX_EDIT 13054
+#define IDC_ALERTS_BOX 23001
+#define IDC_SET_ANALYSIS_LOCATIONS 23002
+#define IDC_PLOTTING_LISTVIEW 23003
+#define IDC_CAMERA_MODE_COMBO 23004
+#define IDC_SET_EM_GAIN_BUTTON 23005
+#define IDC_TRIGGER_COMBO 23006
+#define IDC_SET_TEMPERATURE_BUTTON 23007
+#define PICTURE_SETTINGS_ID_START 23008
+#define PICTURE_SETTINGS_ID_END 23043
+#define IDC_SET_IMAGE_PARAMETERS_BUTTON 23044
+#define IDC_SET_REPETITONS_PER_VARIATION_BUTTON 23045
+#define IDC_SET_VARIATION_NUMBER 23046
+#define IDC_PICTURE_1_MIN_EDIT 23047
+#define IDC_PICTURE_1_MAX_EDIT 23048
+#define IDC_PICTURE_2_MIN_EDIT 23049
+#define IDC_PICTURE_2_MAX_EDIT 23050
+#define IDC_PICTURE_3_MIN_EDIT 23051
+#define IDC_PICTURE_3_MAX_EDIT 23052
+#define IDC_PICTURE_4_MIN_EDIT 23053
+#define IDC_PICTURE_4_MAX_EDIT 23054
 
 //
 #define IDC_BEGINNING_DIALOG_RICH_EDIT 100
@@ -354,8 +350,6 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define PLOTTING_EXTENSION ".plot"
 
 #define OSCILLOSCOPE_TRIGGER "C11"
-#define HORIZONTAL_ORIENTATION "Horizontal"
-#define VERTICAL_ORIENTATION "Vertical"
 
 #define NULL_SEQUENCE "NULL_SEQUENCE"
 
@@ -438,7 +432,7 @@ const char MASTER_HELP[] = "This is a script for programming master timing for T
 "-      pulseoff: [ttlName] [pulseLength]\n"
 "-      dac: [dacName] [voltage]\n"
 "-      dacramp: [dacName] [initValue] [finalValue] [rampTime] [rampInc]\n"
-"-      rsg: [frequency to add]\n"
+"-      rsg: [frequency to add] [Power at that frequency (dBm)]\n"
 "-      def [functionName]([functionArguments]):\n"
 "-      call [functionName(argument1, argument2, etc...)]\n"
 "-      repeat: [numberOfTimesToRepeat]\n"

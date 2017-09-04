@@ -21,6 +21,7 @@ class DacSystem
 {
 	public:
 		DacSystem();
+		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, double version, DioSystem* ttls);
 		void abort();

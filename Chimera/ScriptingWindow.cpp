@@ -37,10 +37,28 @@ BEGIN_MESSAGE_MAP(ScriptingWindow, CDialog)
 	ON_CBN_SELENDOK(IDC_VERTICAL_NIAWG_FUNCTION_COMBO, &ScriptingWindow::handleVerticalScriptComboChange)
 	ON_CBN_SELENDOK(IDC_HORIZONTAL_NIAWG_FUNCTION_COMBO, &ScriptingWindow::handleHorizontalScriptComboChange)
 	ON_CBN_SELENDOK(IDC_INTENSITY_FUNCTION_COMBO, &ScriptingWindow::handleAgilentScriptComboChange)
+	
+	ON_CBN_SELENDOK( IDC_MASTER_FUNCTION_COMBO, &ScriptingWindow::handleMasterFunctionChange )
+
 	//ON_CBN_SELENDOK(IDC_MASTER_FUNCTION_COMBO, &ScriptingWindow::handleAgilentScriptComboChange)
 
 	ON_NOTIFY_EX_RANGE( TTN_NEEDTEXTA, 0, 0xFFFF, ScriptingWindow::OnToolTipText )
 END_MESSAGE_MAP()
+
+
+void ScriptingWindow::handleMasterFunctionChange( )
+{
+	try
+	{
+		masterScript.functionChangeHandler();
+		masterScript.colorEntireScript( auxWindowFriend->getAllVariables( ), mainWindowFriend->getRgbs( ),
+										auxWindowFriend->getTtlNames( ), auxWindowFriend->getDacNames( ) );
+	}
+	catch ( Error& err )
+	{
+		errBox( err.what( ) );
+	}
+}
 
 
 void ScriptingWindow::handleIntensityCombo()
@@ -393,7 +411,7 @@ void ScriptingWindow::newIntensityScript()
 	try
 	{
 		intensityAgilent.agilentScript.checkSave( getProfile().categoryPath, mainWindowFriend->getRunInfo() );
-		intensityAgilent.agilentScript.newScript( getProfile().orientation );
+		intensityAgilent.agilentScript.newScript( );
 		updateConfigurationSavedStatus( false );
 		intensityAgilent.agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings().categoryPath );
 		intensityAgilent.agilentScript.colorEntireScript( auxWindowFriend->getAllVariables(), mainWindowFriend->getRgbs(),
@@ -466,7 +484,7 @@ void ScriptingWindow::newVerticalScript()
 	try
 	{
 		verticalNiawgScript.checkSave( getProfile().categoryPath, mainWindowFriend->getRunInfo() );
-		verticalNiawgScript.newScript( getProfile().orientation );
+		verticalNiawgScript.newScript( );
 		updateConfigurationSavedStatus( false );
 		verticalNiawgScript.updateScriptNameText( getProfile().categoryPath );
 		verticalNiawgScript.colorEntireScript( auxWindowFriend->getAllVariables(), mainWindowFriend->getRgbs(),
@@ -551,7 +569,7 @@ void ScriptingWindow::newHorizontalScript()
 	try
 	{
 		horizontalNiawgScript.checkSave( getProfile().categoryPath, mainWindowFriend->getRunInfo() );
-		horizontalNiawgScript.newScript( getProfile().orientation );
+		horizontalNiawgScript.newScript( );
 		updateConfigurationSavedStatus( false );
 		horizontalNiawgScript.updateScriptNameText( getProfile().categoryPath );
 		horizontalNiawgScript.colorEntireScript( auxWindowFriend->getAllVariables(), mainWindowFriend->getRgbs(),
@@ -667,7 +685,7 @@ void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, double version
 void ScriptingWindow::newMasterScript()
 {
 	masterScript.checkSave(getProfile().categoryPath, mainWindowFriend->getRunInfo());
-	masterScript.newScript(getProfile().orientation);
+	masterScript.newScript( );
 	updateConfigurationSavedStatus(false);
 	masterScript.updateScriptNameText(getProfile().categoryPath);
 	masterScript.colorEntireScript(auxWindowFriend->getAllVariables(), mainWindowFriend->getRgbs(),
@@ -738,6 +756,17 @@ void ScriptingWindow::saveMasterFunction()
 void ScriptingWindow::deleteMasterFunction()
 {
 	// todo. Right now you can just delete the file itself...
+}
+
+
+void ScriptingWindow::handleNewConfig( std::ofstream& saveFile )
+{
+	saveFile << "SCRIPTS\n";
+	saveFile << "NONE" << "\n";
+	saveFile << "NONE" << "\n";
+	saveFile << "NONE" << "\n";
+	saveFile << "END_SCRIPTS\n";
+	intensityAgilent.handleNewConfig( saveFile );
 }
 
 

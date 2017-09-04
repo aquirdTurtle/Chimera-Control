@@ -51,15 +51,7 @@ unsigned __stdcall NiawgWaiter::niawgWaitThread(void* inputParam)
 		/// then it's not ready. start the default generic waveform to maintain power output to AOM.
 		try
 		{
-			if (input->profile.orientation == HORIZONTAL_ORIENTATION)
-			{
-				// start generic waveform to maintain power output to AOM.
-				input->niawg->setDefaultWaveformScript( Horizontal );
-			}
-			else if (input->profile.orientation == VERTICAL_ORIENTATION)
-			{				
-				input->niawg->setDefaultWaveformScript( Vertical );
-			}
+			input->niawg->setDefaultWaveformScript( );
 			input->niawg->turnOn();
 		}
 		catch (Error&)

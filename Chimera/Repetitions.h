@@ -14,6 +14,7 @@ class Repetitions
 		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
 		void rearrange(UINT width, UINT height, fontMap fonts);
 		void updateNumber(long repNumber);
+		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, double version);
 

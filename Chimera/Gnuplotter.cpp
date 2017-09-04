@@ -6,7 +6,7 @@ Gnuplotter::Gnuplotter(std::string exeLoc) : plotter(exeLoc) {}
 
 void Gnuplotter::send(std::string cmd)
 {
-	plotter << cstr(cmd + "\n");
+	plotter << (cmd + "\n").c_str();
 }
 
 

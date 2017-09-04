@@ -63,6 +63,7 @@ class TektronicsControl
 {
 	public:
 		TektronicsControl(bool safemode, std::string address);
+		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpeningConfig(std::ifstream& configFile, double version);
 		void initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,

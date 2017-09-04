@@ -6,6 +6,7 @@
 class NoteSystem
 {
 	public:
+		void handleNewConfig( std::ofstream& saveFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, double version);
 		void setExperimentNotes(std::string notes);
