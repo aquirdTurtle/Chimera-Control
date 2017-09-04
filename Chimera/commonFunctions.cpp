@@ -198,6 +198,10 @@ namespace commonFunctions
 				}
 				catch (Error& err)
 				{
+					if (err.whatBare() == "Canceled!")
+					{
+						break;
+					}
 					mainWin->getComm()->sendColorBox( Master, 'R' );
 					mainWin->getComm()->sendError( "EXITED WITH ERROR! " + err.whatStr() );
 					mainWin->getComm()->sendStatus( "EXITED WITH ERROR!\r\n" );
@@ -805,6 +809,10 @@ namespace commonFunctions
 			scriptWin->fillMasterThreadInput( input.masterInput );
 			mainWin->updateStatusText( "debug", beginInfo );
 			// Load Variable & Key Info
+		}
+		else
+		{
+			thrower("Canceled!");
 		}
 	}
 

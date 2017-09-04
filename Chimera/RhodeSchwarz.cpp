@@ -156,6 +156,8 @@ void RhodeSchwarz::interpretKey(key variationKey, std::vector<variable>& vars)
 			}
 			else
 			{
+				event.time = 0;
+
 				for (auto timeStr : eventStructures[freqInc].time.first)
 				{
 					event.time += reduce(timeStr, variationKey, var, vars);

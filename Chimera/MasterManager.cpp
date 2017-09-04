@@ -880,7 +880,7 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 			}
 		}
 		/// Handle RSG calls.
-		else if (word == "RSG:")
+		else if (word == "rsg:") //RSG
 		{
 			rsgEventStructuralInfo info;
 			functionStream >> info.frequency;
@@ -1312,7 +1312,7 @@ void MasterManager::callCppCodeFunction()
 bool MasterManager::isValidWord( std::string word )
 {
 	if (word == "t" || word == "t++" || word == "t+=" || word == "t=" || word == "on:" || word == "off:"
-		 || word == "dac:" || word == "dacramp:" || word == "RSG:" || word == "raman:" || word == "call"
+		 || word == "dac:" || word == "dacramp:" || word == "rsg:" || word == "raman:" || word == "call" //"RSG:"
 		 || word == "repeat:" || word == "end" || word == "pulseon:" || word == "pulseoff:" || word == "callcppcode")
 	{
 		return true;
