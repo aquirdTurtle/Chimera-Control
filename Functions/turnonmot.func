@@ -1,29 +1,37 @@
-% this all happens at a isngle time.
-
-def turnOnMot():
-	%% %%%%%%%%%%%%%%%%%%%%%%%%%%5
-	%% % TTLs
-	on: DiagMotRf
-	on: RepumpRf
-	on: SideMotRf
-	on: RepumpShutter
-	on: DiagMotShutter
-	on: SideMotShutter
-	off: ProbeShutter
-	% Make sure raman shutter is closed initially
-	off: RamanShutter
-	%% %%%%%%%%%%%%%%%%%%%%%%%%%%%
-	%% % DACS
-	dac: DiagMotPower 0.35
-	dac: RepumpPower 0.1
-	dac: MotFreq -0.07	
-	dac: RepumpFreq 0
-	dac: SideMotPower 0.3
-	%% Magnetic Field Control
-	dac: MotGradientCurrent 7
-	dac: RightCoilCurrent loadMotRightField
-	dac: LeftCoilCurrent loadMotLeftField
-	dac: FrontCoilCurrent loadMotFrontField
-	dac: BackCoilCurrent loadMotBackField
-	dac: BottomCoilCurrent loadMotBottomField
-	dac: TopCoilCurrent loadMotTopField
+% NET TIME INCREMENT: t += 0.01
+% This m
+def TurnOnMOT():
+    % Turn on the MOT Coils (anti-helmholtz)
+    dac: dac6 7
+    % Turn on all of the field coils (helmholtz)
+    dac: dac0 0.58
+    dac: dac1 -0.58
+    dac: dac2 -1.06
+    dac: dac3 1.06
+    dac: dac4 -1.31
+    dac: dac5 1.31
+    % Detune the MOT light by ~10 MHz
+    dac: dac20 -0.1
+    % Set the Side MOT beam power
+    dac: dac22 0.064
+    % Set MOT power
+    dac: dac9 0.2
+    % Set Repump power (Detuning is always 0)
+    dac: dac11 0.32
+   
+    % Repump Light RF Switch
+    on: A1
+    % Open Repump Shutter
+    on: B1
+    % F=2 Light shutter (is this connected?!?)
+    on: C13
+    % MOT Light RF Switch
+    on: A0
+    % Side MOT RF Switch
+    on: A5
+    % MOT Shutter
+    on: D0
+    % Probe shutter closed\
+    off: C12
+    % Offset to prevent simultaneous commands
+    t += 0.01

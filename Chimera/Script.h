@@ -21,7 +21,7 @@ class Script
 		void handleToolTip( NMHDR * pNMHDR, LRESULT * pResult );
 		std::string getScriptText();
 		void setScriptText( std::string text );
-		void functionChangeHandler( std::string categoryPath );
+		void functionChangeHandler( );
 		void rearrange( UINT width, UINT height, fontMap fonts );
 		void colorEntireScript( std::vector<variable> vars, rgbMap rgbs,
 								std::array<std::array<std::string, 16>, 4> ttlNames, std::array<std::string, 24> dacNames);
@@ -42,7 +42,7 @@ class Script
 		void saveScriptAs( std::string location, RunInfo info );
 		void renameScript( std::string categoryPath );
 		void deleteScript( std::string categoryPath );
-		void newScript( std::string orientation );
+		void newScript( );
 		void newFunction();
 
 		std::string getScriptPathAndName();
@@ -79,7 +79,7 @@ class Script
 		std::string scriptPath;
 		std::string scriptFullAddress;
 		std::string scriptCategory;
-		std::string functionLocation;
+		std::string functionLocation = FUNCTIONS_FOLDER_LOCATION;
 		std::string deviceType;
 		std::string extension;
 		bool isLocalReference;

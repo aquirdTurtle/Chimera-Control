@@ -47,6 +47,7 @@ class ScriptingWindow : public CDialog
 
 		void checkMasterSave();
 
+		void handleNewConfig( std::ofstream& saveFile );
 		void handleSavingConfig(std::ofstream& saveFile);
 
 		void updateScriptNamesOnScreen();
@@ -96,6 +97,7 @@ class ScriptingWindow : public CDialog
 		void handleHorizontalScriptComboChange();
 		void handleVerticalScriptComboChange();
 		void handleAgilentScriptComboChange();
+		void handleMasterFunctionChange( );
 		void handleIntensityCombo();
 		void handleOpenConfig(std::ifstream& configFile, double version);
 		void catchEnter();

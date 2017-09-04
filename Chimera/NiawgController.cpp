@@ -5,11 +5,6 @@
 #include "NiawgWaiter.h"
 #include "Rearranger.h"
 
-NiawgController::NiawgController()
-{
-	defaultOrientation = HORIZONTAL_ORIENTATION;
-}
-
 
 void NiawgController::initialize()
 {
@@ -154,37 +149,24 @@ std::string NiawgController::getCurrentScript()
 
 void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 {
-	defaultScripts[Vertical].clear();
-	defaultScripts[Vertical].shrink_to_fit();
-	defaultScripts[Horizontal].clear();
-	defaultScripts[Horizontal].shrink_to_fit();
-	defaultMixedWaveforms[Vertical].clear();
-	defaultMixedWaveforms[Vertical].shrink_to_fit();
-	defaultMixedWaveforms[Horizontal].clear();
-	defaultMixedWaveforms[Horizontal].shrink_to_fit();
+	defaultScript.clear();
+	defaultScript.shrink_to_fit();
+	defaultMixedWaveform.clear();
+	defaultMixedWaveform.shrink_to_fit();
 	// counts the number of predefined waveforms that have been handled or defined.
 	int predWaveformCount = 0;
 	// A vector which stores the number of values that a given variable will take through an experiment.
 	std::vector<std::size_t> length;
 	// first level is for different configurations, second is for horizontal or vertical file within a configuration.
-	niawgPair<niawgPair<std::vector<std::fstream>>> configFiles;
-	configFiles[Horizontal][Horizontal].push_back( std::fstream( str(DEFAULT_SCRIPT_FOLDER_PATH) 
-																 + "DEFAULT_HCONFIG_HORIZONTAL_SCRIPT.nScript" ) );
-	configFiles[Horizontal][Vertical].push_back( std::fstream( str(DEFAULT_SCRIPT_FOLDER_PATH) 
-															   + "DEFAULT_HCONFIG_VERTICAL_SCRIPT.nScript" ) );
-	configFiles[Vertical][Horizontal].push_back( std::fstream( str(DEFAULT_SCRIPT_FOLDER_PATH) 
-															   + "DEFAULT_VCONFIG_HORIZONTAL_SCRIPT.nScript" ) );
-	configFiles[Vertical][Vertical].push_back( std::fstream( str(DEFAULT_SCRIPT_FOLDER_PATH) 
-															 + "DEFAULT_VCONFIG_VERTICAL_SCRIPT.nScript" ) );
+	niawgPair<std::vector<std::fstream>> configFiles;
+	configFiles[Horizontal].push_back( std::fstream( str(DEFAULT_SCRIPT_FOLDER_PATH) + "DEFAULT_HORIZONTAL_SCRIPT.nScript" ) );
+	configFiles[Vertical].push_back( std::fstream( str(DEFAULT_SCRIPT_FOLDER_PATH) + "DEFAULT_VERTICAL_SCRIPT.nScript" ) );
 	// check errors
-	for (auto configAxis : AXES)
+	for ( auto fileAxis : AXES )
 	{
-		for (auto fileAxis : AXES)
+		if ( !configFiles[fileAxis].back( ).is_open( ) )
 		{
-			if (!configFiles[configAxis][fileAxis].back().is_open())
-			{
-				thrower( "FATAL ERROR: Couldn't open " + AXES_NAMES[configAxis] + " configuration " + AXES_NAMES[fileAxis] + " default file." );
-			}
+			thrower( "FATAL ERROR: Couldn't open default configuration " + AXES_NAMES[fileAxis] + " default file." );
 		}
 	}
 	NiawgOutputInfo output;
@@ -196,20 +178,15 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 	profileSettings profile;
 	try
 	{
-		for (auto configAxis : AXES)
-		{
-			output.niawgLanguageScript = "script Default" + AXES_NAMES[configAxis] + "ConfigScript\n";
-			niawgPair<ScriptStream> scripts;
-			scripts[Horizontal] << configFiles[configAxis][Horizontal].back().rdbuf();
-			scripts[Vertical] << configFiles[configAxis][Vertical].back().rdbuf();
-			profile.orientation = ORIENTATION[configAxis];
-			mainWin->setOrientation( ORIENTATION[configAxis] );
-			analyzeNiawgScripts( scripts, output, profile, debug, warnings );
-			// the script file must end with "end script".
-			output.niawgLanguageScript += "end Script";
-			// Convert script string to ViConstString. +1 for a null character on the end.
-			defaultScripts[configAxis] = std::vector<ViChar>( output.niawgLanguageScript.begin(), output.niawgLanguageScript.end());
-		}
+		output.niawgLanguageScript = "script DefaultConfigScript\n";
+		niawgPair<ScriptStream> scripts;
+		scripts[Horizontal] << configFiles[Horizontal].back( ).rdbuf( );
+		scripts[Vertical] << configFiles[Vertical].back( ).rdbuf( );
+		analyzeNiawgScripts( scripts, output, profile, debug, warnings );
+		// the script file must end with "end script".
+		output.niawgLanguageScript += "end Script";
+		// Convert script string to ViConstString. +1 for a null character on the end.
+		defaultScript = std::vector<ViChar>( output.niawgLanguageScript.begin( ), output.niawgLanguageScript.end( ) );
 	}
 	catch (Error& except)
 	{
@@ -224,8 +201,6 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 	{
 		errBox( "Debug messages detected during initial default waveform script analysis: " + debug.message );
 	}
-	// but the default starts in the horizontal configuration, so switch back and start in this config.
-	mainWin->setOrientation( defaultOrientation );
 }
 
 
@@ -238,17 +213,11 @@ void NiawgController::restartDefault()
 	{
 		turnOff();
 		fgenConduit.clearMemory();
-		for (auto axis : AXES)
-		{
-			if (defaultOrientation == ORIENTATION[axis])
-			{
-				fgenConduit.allocateNamedWaveform( cstr( defaultWaveNames[axis] ), defaultMixedWaveforms[axis].size() / 2 );
-				fgenConduit.writeNamedWaveform( cstr( defaultWaveNames[axis] ), defaultMixedWaveforms[axis].size(),
-									defaultMixedWaveforms[axis].data() );
-				fgenConduit.writeScript( defaultScripts[axis] );
-				setDefaultWaveformScript( axis );
-			}
-		}
+		fgenConduit.allocateNamedWaveform( cstr( defaultWaveName ), defaultMixedWaveform.size( ) / 2 );
+		fgenConduit.writeNamedWaveform( cstr( defaultWaveName ), defaultMixedWaveform.size( ),
+										defaultMixedWaveform.data( ) );
+		fgenConduit.writeScript( defaultScript );
+		setDefaultWaveformScript( );
 		turnOn();
 	}
 	catch (Error& except)
@@ -1209,11 +1178,10 @@ void NiawgController::loadWaveformParameters( NiawgOutputInfo& output, profileSe
 {
 	simpleWave wave;
 	// not sure why I have this limitation built in.
-	if (output.isDefault && ((output.waves.size() == 1 && profile.orientation == ORIENTATION[Vertical])
-							  || (output.waves.size() == 2 && profile.orientation == ORIENTATION[Horizontal])))
+	if (output.isDefault && output.waves.size() == 1)
 	{
-		thrower( "ERROR: The default waveform files contain sequences of waveforms. Right now, the default waveforms must be a "
-				 "single waveform, not a sequence.\r\n" );
+		thrower( "ERROR: The default waveform files contain sequences of waveforms. Right now, the default waveforms must "
+				 "be a single waveform, not a sequence.\r\n" );
 	}
 	niawgPair<double> time;
 	for (auto axis : AXES)
@@ -1433,14 +1401,8 @@ void NiawgController::handleStandardWaveform( NiawgOutputInfo& output, profileSe
 		// avoid memory leaks, but only if not default...
 		if (output.isDefault)
 		{
-			for (auto axis : AXES)
-			{
-				if (profile.orientation == ORIENTATION[axis])
-				{
-					defaultMixedWaveforms[axis] = output.waves.back().core.waveVals;
-					defaultWaveNames[axis] = output.waves.back().core.name;
-				}
-			}
+			defaultMixedWaveform = output.waves.back( ).core.waveVals;
+			defaultWaveName = output.waves.back( ).core.name;
 		}
 		else
 		{
@@ -1930,9 +1892,9 @@ void NiawgController::finalizeStandardWave( simpleWave& wave, debugInfo options 
 }
 
 // which should be Horizontal or Vertical.
-void NiawgController::setDefaultWaveformScript( UINT which )
+void NiawgController::setDefaultWaveformScript( )
 {
-	fgenConduit.setViStringAttribute(NIFGEN_ATTR_SCRIPT_TO_GENERATE, cstr("Default" + AXES_NAMES[which] + "ConfigScript"));
+	fgenConduit.setViStringAttribute(NIFGEN_ATTR_SCRIPT_TO_GENERATE, cstr("DefaultConfigScript"));
 }
 
 

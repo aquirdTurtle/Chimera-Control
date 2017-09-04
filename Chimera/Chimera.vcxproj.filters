@@ -440,11 +440,13 @@
     <ClInclude Include="ChimeraApp.h">
       <Filter>General Files</Filter>
     </ClInclude>
-    <ClInclude Include="DacStructures.h" />
     <ClInclude Include="DioSystem.h">
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
     <ClInclude Include="DioSettingsDialog.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
+    <ClInclude Include="DacStructures.h">
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
   </ItemGroup>
@@ -512,6 +514,8 @@
     </Object>
   </ItemGroup>
   <ItemGroup>
-    <None Include="DioStructures.h" />
+    <None Include="DioStructures.h">
+      <Filter>Auxiliary Window</Filter>
+    </None>
   </ItemGroup>
 </Project>

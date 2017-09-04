@@ -18,6 +18,7 @@ class PictureSettingsControl
 	public:
 		// must have parent. Enforced partially because both are singletons.
 		PictureSettingsControl(CameraSettingsControl* parentObj) { parentSettingsControl = parentObj; }
+		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, double version, AndorCamera* andor);
 		void initialize( cameraPositions& pos, CWnd* parent, int& id);
@@ -31,11 +32,12 @@ class PictureSettingsControl
 		std::array<int, 4> getThresholds();
 		CBrush* colorControls(int idNumber, CDC* colorer, brushMap brushes, rgbMap rgbs);
 		void confirmAcquisitionTimings();
-		void setPicturesPerExperiment(unsigned int pics, AndorCamera* andorObj);
+		void setPicturesPerExperiment(UINT pics, AndorCamera* andorObj);
 		void setThresholds(std::array<int, 4> thresholds);
 		void rearrange(std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts);
-		int getPicsPerRepetition();
+		UINT getPicsPerRepetition();
 		void cameraIsOn( bool state );
+		void setUnofficialPicsPerRep( UINT picNum, AndorCamera* andorObj );
 	private:
 		CameraSettingsControl* parentSettingsControl;
 		std::array<int, 4> colors;
@@ -43,7 +45,7 @@ class PictureSettingsControl
 		std::array<int, 4> thresholds;
 		// This variable is used by this control and communicated to the andor object, but is not directly accessed
 		// while the main camera control needs to figure out how many pictures per repetition there are.
-		unsigned int picsPerRepetitionUnofficial;
+		UINT picsPerRepetitionUnofficial;
 		/// Grid of PictureOptions
 		Control<CButton> setPictureOptionsButton;		
 		Control<CStatic> totalPicNumberLabel;

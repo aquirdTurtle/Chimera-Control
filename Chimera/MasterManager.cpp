@@ -348,15 +348,16 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			{
 				try
 				{
-					eAbortNiawgFlag = true;
+					input->niawg->turnOff( );
 					waiter.wait(input->comm);
 				}
 				catch (Error& err)
 				{
-					errBox(err.what());
+					//errBox(err.what());
 				}
 			}
-			// Clear waveforms off of NIAWG (not working??? memory appears to still run out...)
+			// Clear waveforms off of NIAWG (not working??? memory appears to still run out... (that's a very old note, 
+			// haven't tested in a long time but has never been an issue.))
 			for (int waveformInc = 2; waveformInc < output.waves.size(); waveformInc++)
 			{
 				std::string waveformToDelete = "Waveform" + str( waveformInc );
@@ -372,6 +373,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 				wave.core.waveVals.shrink_to_fit();
 			}
 		}
+		input->comm->sendNormalFinish( );
 	}
 	catch (Error& exception)
 	{
@@ -381,7 +383,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			{
 				//input->agilents[input->intensityAgilentNumber]->setDefault(1);
 			}
-			catch (Error& err)
+			catch (Error&)
 			{
 				//... not much to do.
 			}
@@ -434,13 +436,14 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			input->ttls->unshadeTtls();
 			input->dacs->unshadeDacs();
 		}
-		delete input;
-		return false;
+		input->comm->sendFatalError( "Exited main experiment thread abnormally." );
 	}
 	ULONGLONG endTime = GetTickCount();
 	expUpdate( "Experiment took " + str( (endTime - startTime) / 1000.0 ) + " seconds.\r\n", input->comm, input->quiet );
 	input->thisObj->experimentIsRunning = false;
-	return true;
+	//input->niawg->restartDefault( );
+	delete input;
+	return false;
 }
 
 
@@ -880,7 +883,7 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 			}
 		}
 		/// Handle RSG calls.
-		else if (word == "RSG:")
+		else if (word == "rsg:")
 		{
 			rsgEventStructuralInfo info;
 			functionStream >> info.frequency;
@@ -1312,7 +1315,7 @@ void MasterManager::callCppCodeFunction()
 bool MasterManager::isValidWord( std::string word )
 {
 	if (word == "t" || word == "t++" || word == "t+=" || word == "t=" || word == "on:" || word == "off:"
-		 || word == "dac:" || word == "dacramp:" || word == "RSG:" || word == "raman:" || word == "call"
+		 || word == "dac:" || word == "dacramp:" || word == "rsg:" || word == "raman:" || word == "call"
 		 || word == "repeat:" || word == "end" || word == "pulseon:" || word == "pulseoff:" || word == "callcppcode")
 	{
 		return true;

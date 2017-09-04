@@ -298,17 +298,23 @@ void CameraSettingsControl::handleTimer()
 }
 
 
-void CameraSettingsControl::handlePictureSettings(UINT id, AndorCamera* andorObj)
+void CameraSettingsControl::updateRunSettingsFromPicSettings( )
 {
-	picSettingsObj.handleOptionChange(id, andorObj);
-	runSettings.exposureTimes = picSettingsObj.getUsedExposureTimes();
-	runSettings.picsPerRepetition = picSettingsObj.getPicsPerRepetition();
+	runSettings.exposureTimes = picSettingsObj.getUsedExposureTimes( );
+	runSettings.picsPerRepetition = picSettingsObj.getPicsPerRepetition( );
 	runSettings.totalPicsInVariation = runSettings.picsPerRepetition * runSettings.repetitionsPerVariation;
-	if (runSettings.totalVariations * runSettings.totalPicsInVariation > INT_MAX)
+	if ( runSettings.totalVariations * runSettings.totalPicsInVariation > INT_MAX )
 	{
 		thrower( "ERROR: Trying to take too many pictures! Maximum picture number is " + str( INT_MAX ) );
 	}
 	runSettings.totalPicsInExperiment = runSettings.totalVariations * runSettings.totalPicsInVariation;
+}
+
+
+void CameraSettingsControl::handlePictureSettings(UINT id, AndorCamera* andorObj)
+{
+	picSettingsObj.handleOptionChange(id, andorObj);
+	updateRunSettingsFromPicSettings( );
 }
 
 
@@ -524,9 +530,8 @@ void CameraSettingsControl::handleOpenConfig(std::ifstream& configFile, double v
 {
 	ProfileSystem::checkDelimiterLine(configFile, "CAMERA_SETTINGS");
 	AndorRunSettings tempSettings;
-	configFile.get();
-	std::getline(configFile, tempSettings.triggerMode);
-	
+	configFile.get( );
+	std::getline(configFile, tempSettings.triggerMode);	
 	configFile >> tempSettings.emGainModeIsOn;
 	configFile >> tempSettings.emGainLevel;
 	configFile.get();
@@ -556,6 +561,23 @@ void CameraSettingsControl::handleOpenConfig(std::ifstream& configFile, double v
  	setRunSettings(tempSettings);
  	ProfileSystem::checkDelimiterLine(configFile, "END_CAMERA_SETTINGS");
 	picSettingsObj.handleOpenConfig(configFile, version, andorFriend);
+	updateRunSettingsFromPicSettings( );
+}
+
+
+void CameraSettingsControl::handleNewConfig( std::ofstream& newFile )
+{
+	newFile << "CAMERA_SETTINGS\n";
+	newFile << "External Trigger" << "\n";
+	newFile << 0 << "\n";
+	newFile << 0 << "\n";
+	newFile << "Kinetic Series Mode" << "\n";
+	newFile << 1000 << "\n";
+	newFile << 1000 << "\n";
+	newFile << 2 << "\n";
+	newFile << 25 << "\n";
+	newFile << "END_CAMERA_SETTINGS\n";
+	picSettingsObj.handleNewConfig( newFile );
 }
 
 

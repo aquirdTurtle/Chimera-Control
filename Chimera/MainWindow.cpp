@@ -158,15 +158,15 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	//
 	ON_CBN_SELENDOK( IDC_EXPERIMENT_COMBO, &MainWindow::handleExperimentCombo )
 	ON_CBN_SELENDOK( IDC_CATEGORY_COMBO, &MainWindow::handleCategoryCombo )
-	ON_CBN_SELENDOK( IDC_CONFIGURATION_COMBO, &MainWindow::handleConfigurationCombo )
 	ON_CBN_SELENDOK( IDC_SEQUENCE_COMBO, &MainWindow::handleSequenceCombo )
-	ON_CBN_SELENDOK( IDC_ORIENTATION_COMBO, &MainWindow::handleOrientationCombo )
+	ON_CBN_SELENDOK( IDC_CONFIGURATION_COMBO, &MainWindow::handleConfigurationCombo )
 	// 
 	ON_NOTIFY( NM_DBLCLK, IDC_SMS_TEXTING_LISTVIEW, &MainWindow::handleDblClick )
 	ON_NOTIFY( NM_RCLICK, IDC_SMS_TEXTING_LISTVIEW, &MainWindow::handleRClick )
 
 	ON_REGISTERED_MESSAGE( eRepProgressMessageID, &MainWindow::onRepProgress )
 	ON_REGISTERED_MESSAGE( eStatusTextMessageID, &MainWindow::onStatusTextMessage )
+	ON_REGISTERED_MESSAGE( eNormalFinishMessageID, &MainWindow::onNormalFinishMessage )
 	ON_REGISTERED_MESSAGE( eErrorTextMessageID, &MainWindow::onErrorMessage )
 	ON_REGISTERED_MESSAGE( eFatalErrorMessageID, &MainWindow::onFatalErrorMessage )
 	ON_REGISTERED_MESSAGE( eColoredEditMessageID, &MainWindow::onColoredEditMessage )
@@ -200,7 +200,6 @@ BOOL MainWindow::OnInitDialog()
 	{
 		niawg.setDefaultWaveforms( this );
 		// but the default starts in the horizontal configuration, so switch back and start in this config.
-		setOrientation( HORIZONTAL_ORIENTATION );
 		restartNiawgDefaults();
 	}
 	catch (Error& exception)
@@ -336,6 +335,15 @@ LRESULT MainWindow::onRepProgress(WPARAM wParam, LPARAM lParam)
 {
 	repetitionControl.updateNumber(lParam);
 	return NULL;
+}
+
+
+void MainWindow::handleNewConfig( std::ofstream& newFile )
+{
+	notes.handleNewConfig( newFile );
+	settings.handleNewConfig( newFile );
+	debugger.handleNewConfig( newFile );
+	repetitionControl.handleNewConfig( newFile );
 }
 
 
@@ -561,8 +569,9 @@ void MainWindow::fillMasterThreadInput(MasterThreadInput* input)
 	input->profile = profile.getProfileSettings();
 	input->niawg = &niawg;
 	input->comm = &comm;
-	input->key->loadVariables(input->variables);
-	input->key->generateKey(input->settings.randomizeVariations);
+	input->key = &masterKey;
+	input->key->loadVariables( input->variables );
+	input->key->generateKey( input->settings.randomizeVariations );
 }
 
 
@@ -587,12 +596,6 @@ void MainWindow::checkProfileReady()
 void MainWindow::checkProfileSave()
 {
 	profile.checkSaveEntireProfile( TheScriptingWindow, this, TheAuxiliaryWindow, TheCameraWindow );
-}
-
-
-void MainWindow::setOrientation(std::string orientation)
-{
-	profile.setOrientation( orientation );
 }
 
 
@@ -809,20 +812,6 @@ void MainWindow::handleSequenceCombo()
 }
 
 
-void MainWindow::handleOrientationCombo()
-{
-	try
-	{
-		profile.orientationChangeHandler(this);
-		TheAuxiliaryWindow->setConfigActive(false);
-	}
-	catch (Error& except)
-	{
-		comm.sendColorBox( Niawg, 'R' );
-		comm.sendError("ERROR: failed to change orientation: " + except.whatStr());
-	}
-}
-
 void MainWindow::changeBoxColor( systemInfo<char> colors )
 {
 	boxes.changeColor( colors );
@@ -893,7 +882,6 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 	std::string msgText = "Exited with Error!\r\nPassively Outputting Default Waveform.";
 	changeShortStatusColor("R");
 	comm.sendColorBox( Niawg, 'R' );
-	std::string orientation = getProfileSettings().orientation;
 	try
 	{
 		niawg.restartDefault();
@@ -920,18 +908,17 @@ LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
 	setShortStatus(msgText);
 	changeShortStatusColor("B");
 	comm.sendColorBox( Niawg, 'B' );
-	std::string orientation = getProfileSettings().orientation;
 	try
 	{
 		niawg.restartDefault();
 	}
-	catch (Error& except)
+	catch ( Error& except )
 	{
-		comm.sendError("ERROR! The niawg finished normally, but upon restarting the default waveform, threw the "
-			"following error: " + except.whatStr());
+		comm.sendError( "ERROR! The niawg finished normally, but upon restarting the default waveform, threw the "
+						"following error: " + except.whatStr( ) );
 		comm.sendColorBox( Niawg, 'B' );
-		comm.sendStatus("ERROR!\r\n");
-		return -3;
+		comm.sendStatus( "ERROR!\r\n" );
+		return 0;
 	}
 	setNiawgRunningState( false );
 	return 0;

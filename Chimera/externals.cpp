@@ -20,7 +20,6 @@ const std::array<int, 2> AXES = { Vertical, Horizontal };
 // the following is used to receive the index of whatever axis is not your current axis.
 const std::array<int, 2> ALT_AXES = { Horizontal, Vertical };
 const std::array<std::string, 2> AXES_NAMES = { "Vertical", "Horizontal" };
-const niawgPair<std::string> ORIENTATION = { VERTICAL_ORIENTATION, HORIZONTAL_ORIENTATION };
 
 bool eWaitError = false;
 bool eAbortNiawgFlag = false;

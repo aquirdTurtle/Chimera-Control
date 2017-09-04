@@ -110,17 +110,17 @@ void RhodeSchwarz::setInfoDisp(UINT var)
 		listViewDefaultItem.mask = LVIF_TEXT;   // Text Style
 		listViewDefaultItem.cchTextMax = 256; // Max size of test
 		std::string text = str( count + 1 );
-		listViewDefaultItem.pszText = (LPSTR)cstr(text);
+		listViewDefaultItem.pszText = (LPSTR)text.c_str();
 		listViewDefaultItem.iItem = count;          // choose item  
 		listViewDefaultItem.iSubItem = 0;       // Put in first coluom
 		infoControl.InsertItem( &listViewDefaultItem );
 		listViewDefaultItem.iSubItem = 1;
 		text = str( event.frequency );
-		listViewDefaultItem.pszText = (LPSTR)cstr(text);
+		listViewDefaultItem.pszText = (LPSTR)text.c_str();
 		infoControl.SetItem( &listViewDefaultItem );
 		listViewDefaultItem.iSubItem = 2;
 		text = str( event.power );
-		listViewDefaultItem.pszText = (LPSTR)cstr(text);
+		listViewDefaultItem.pszText = (LPSTR)text.c_str();
 		infoControl.SetItem( &listViewDefaultItem );
 		count++;
 	}
@@ -156,6 +156,7 @@ void RhodeSchwarz::interpretKey(key variationKey, std::vector<variable>& vars)
 			}
 			else
 			{
+				event.time = 0;
 				for (auto timeStr : eventStructures[freqInc].time.first)
 				{
 					event.time += reduce(timeStr, variationKey, var, vars);

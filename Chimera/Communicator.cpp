@@ -27,6 +27,11 @@ void Communicator::sendCameraFin()
 	PostMessage( camWin->GetSafeHwnd(), eCameraFinishMessageID, 0, 0 );
 }
 
+void Communicator::sendNormalFinish( )
+{
+	mainWin->PostMessageA( eNormalFinishMessageID );
+}
+
 void Communicator::sendCameraProgress(long progress)
 {
 	PostMessage( camWin->GetSafeHwnd(), eCameraProgressMessageID, 0, (LPARAM)progress );

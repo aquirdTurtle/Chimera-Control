@@ -15,7 +15,6 @@
 ProfileSystem::ProfileSystem(std::string fileSystemPath)
 {
 	FILE_SYSTEM_PATH = fileSystemPath;
-	currentProfile.orientation = HORIZONTAL_ORIENTATION;
 }
 
 
@@ -85,55 +84,10 @@ void ProfileSystem::allSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWin
 	// passed all checks.
 }
 
-
-/// ORIENTATION HANDLING
-
-std::string ProfileSystem::getOrientation()
-{
-	return currentProfile.orientation;
-}
-
-
-void ProfileSystem::setOrientation(std::string orientation)
-{
-	if (orientation != HORIZONTAL_ORIENTATION && orientation != VERTICAL_ORIENTATION)
-	{
-		thrower("ERROR: Tried to set non-standard orientation! Ask Mark about bugs.");
-	}
-	currentProfile.orientation = orientation;
-}
-
-
-void ProfileSystem::orientationChangeHandler(MainWindow* mainWin)
-{
-	profileSettings profile = mainWin->getProfileSettings();
-	long long itemIndex = orientationCombo.GetCurSel();
-	TCHAR orientation[256];
-	orientationCombo.GetLBText(int(itemIndex), orientation);
-	// reset some things.
-	currentProfile.orientation = str(orientation);
-	if (currentProfile.category != "")
-	{
-		if (currentProfile.orientation == HORIZONTAL_ORIENTATION)
-		{
-			reloadCombo(configCombo.GetSafeHwnd(), currentProfile.categoryPath, 
-						 str("*") + HORIZONTAL_EXTENSION, "__NONE__");
-		}
-		else if (currentProfile.orientation == VERTICAL_ORIENTATION)
-		{
-			reloadCombo(configCombo.GetSafeHwnd(), currentProfile.categoryPath, 
-						 str("*") + VERTICAL_EXTENSION, "__NONE__");
-		}
-	}
-	mainWin->setNotes("configuration", "");
-	currentProfile.configuration = "";
-	/// Load the relevant NIAWG script.
-	mainWin->restartNiawgDefaults();
-}
-
 /// CONFIGURATION LEVEL HANDLING
 
-void ProfileSystem::newConfiguration(MainWindow* mainWin)
+void ProfileSystem::newConfiguration( MainWindow* mainWin, AuxiliaryWindow* auxWin, CameraWindow* camWin, 
+									  ScriptingWindow* scriptWin )
 {
 	// check if category has been set yet.
 	if (currentProfile.category == "")
@@ -160,58 +114,34 @@ void ProfileSystem::newConfiguration(MainWindow* mainWin)
 		// canceled
 		return;
 	}
-	std::string newConfigPath = currentProfile.categoryPath + configNameToSave;
+	std::string newConfigPath = currentProfile.categoryPath + configNameToSave + CONFIG_EXTENSION;
 
-	if (currentProfile.orientation == HORIZONTAL_ORIENTATION)
-	{
-		newConfigPath += HORIZONTAL_EXTENSION;
-	}
-	else if (currentProfile.orientation == VERTICAL_ORIENTATION)
-	{
-		newConfigPath += VERTICAL_EXTENSION;
-	}
-	else
-	{
-		thrower( "ERROR: Unrecognized orientation! Ask Mark about bugs." );
-	}
 	std::ofstream newConfigFile(cstr(newConfigPath));
 	if (!newConfigFile.is_open())
 	{
 		thrower( "ERROR: Failed to create new configuration file. Ask Mark about bugs." );
 	}
-	if (currentProfile.orientation == HORIZONTAL_ORIENTATION)
-	{
-		reloadCombo(configCombo.GetSafeHwnd(), currentProfile.categoryPath, str("*") + HORIZONTAL_EXTENSION, 
-					cstr(currentProfile.configuration));
-	}
-	else if (currentProfile.orientation == VERTICAL_ORIENTATION)
-	{
-		reloadCombo(configCombo.GetSafeHwnd(), currentProfile.categoryPath, str("*") + VERTICAL_EXTENSION,
-					cstr(currentProfile.configuration));
-	}
-	else
-	{
-		thrower( "ERROR: Unrecognized orientation! Ask Mark about bugs." );
-	}
+	newConfigFile << "Version: 2.0\n";
+	// give it to each window, allowing each window to save its relevant contents to the config file. Order matters.
+	scriptWin->handleNewConfig( newConfigFile );
+	camWin->handleNewConfig( newConfigFile );
+	auxWin->handleNewConfig( newConfigFile );
+	mainWin->handleNewConfig( newConfigFile );
+	newConfigFile.close( );
+	reloadCombo(configCombo.GetSafeHwnd(), currentProfile.categoryPath, str("*") + CONFIG_EXTENSION,
+		cstr(currentProfile.configuration));
 }
 
 
 /*
 ]--- This function opens a given configuration file, sets all of the relevant parameters, and loads the associated scripts. 
 */
-void ProfileSystem::openConfiguration( std::string configurationNameToOpen, ScriptingWindow* scriptWin, 
-												 MainWindow* mainWin, CameraWindow* camWin, AuxiliaryWindow* auxWin )
+void ProfileSystem::openConfig( std::string configurationNameToOpen, ScriptingWindow* scriptWin, MainWindow* mainWin, 
+								CameraWindow* camWin, AuxiliaryWindow* auxWin )
 {
 	// no folder associated with configuraitons. They share the category folder.
-	std::string path = currentProfile.categoryPath + configurationNameToOpen;
-	if (currentProfile.orientation == HORIZONTAL_ORIENTATION)
-	{
-		path += HORIZONTAL_EXTENSION;
-	}
-	else
-	{
-		path += VERTICAL_EXTENSION;
-	}
+	std::string path = currentProfile.categoryPath + configurationNameToOpen + CONFIG_EXTENSION;
+	currentProfile.configuration = configurationNameToOpen;
 	std::ifstream configFile(path);
 	// check if opened correctly.
 	if (!configFile.is_open())
@@ -301,30 +231,17 @@ void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWi
 	// check to make sure that this is a name.
 	if (configNameToSave == "")
 	{
-		thrower( "ERROR: The program requested the saving of the configuration file to an empty name! This shouldn't happen, ask Mark "
+		thrower( "ERROR: The program requested saving the configuration file to an empty name! This shouldn't happen, ask Mark "
 				 "about bugs." );
 	}
 
 	// check if file already exists
-	std::string extension;
-	if (currentProfile.orientation == HORIZONTAL_ORIENTATION)
-	{
-		extension = HORIZONTAL_EXTENSION;
-	}
-	else if (currentProfile.orientation == VERTICAL_ORIENTATION)
-	{
-		extension = VERTICAL_EXTENSION;
-	}
-	else
-	{
-		thrower( "ERROR: unrecognized orientation! Ask Mark about bugs." );
-	}
 
-	if (!ProfileSystem::fileOrFolderExists(currentProfile.categoryPath + configNameToSave + extension))  
+	if (!ProfileSystem::fileOrFolderExists(currentProfile.categoryPath + configNameToSave + CONFIG_EXTENSION))  
 	{
 		int answer = promptBox("This configuration file appears to not exist in the expected location: " 
 									 + currentProfile.categoryPath + configNameToSave 
-									 + extension + ". Continue by making a new configuration file?", MB_OKCANCEL );
+									 + CONFIG_EXTENSION + ". Continue by making a new configuration file?", MB_OKCANCEL );
 		if (answer == IDCANCEL)
 		{
 			return;
@@ -360,23 +277,11 @@ void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWi
 		}
 	}
 	
-	// else open it.
-	if (currentProfile.orientation == HORIZONTAL_ORIENTATION)
-	{
-		extension = HORIZONTAL_EXTENSION;
-	}
-	else if (currentProfile.orientation == VERTICAL_ORIENTATION)
-	{
-		extension = VERTICAL_EXTENSION;
-	}
-	else
-	{
-		thrower( "ERROR: Unrecognized orientation! Ask Mark about bugs." );
-	}
-	std::ofstream configSaveFile(currentProfile.categoryPath + configNameToSave + extension);
+	std::ofstream configSaveFile(currentProfile.categoryPath + configNameToSave + CONFIG_EXTENSION);
 	if (!configSaveFile.is_open())
 	{
-		thrower( "Couldn't save configuration file! Check the name for weird characters, or call Mark about bugs if everything seems right..." );
+		thrower( "Couldn't save configuration file! Check the name for weird characters, or call Mark about bugs if "
+			"everything seems right..." );
 	}
 	// That's the last prompt the user gets, so the save is final now.
 	currentProfile.configuration = configNameToSave;
@@ -388,7 +293,6 @@ void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWi
 	camWin->handleSaveConfig(configSaveFile);
 	auxWin->handleSaveConfig(configSaveFile);
 	mainWin->handleSaveConfig(configSaveFile);
-
 	configSaveFile.close();
 	updateConfigurationSavedStatus(true);
 }
@@ -404,11 +308,13 @@ void ProfileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindo
 		// check if the experiment has also not been set.
 		if (currentProfile.experiment == "")
 		{
-			thrower( "The Experiment and category have not yet been selected! Please select a category or create a new one before trying to save this configuration.");
+			thrower( "The Experiment and category have not yet been selected! Please select a category or create a new one "
+				"before trying to save this configuration.");
 		}
 		else
 		{
-			thrower( "The category has not yet been selected! Please select a category or create a new one before trying to save this configuration.");
+			thrower( "The category has not yet been selected! Please select a category or create a new one before trying to "
+					 "save this configuration." );
 		}
 	}
 	std::string configurationNameToSave;
@@ -427,22 +333,8 @@ void ProfileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindo
 		thrower( "ERROR: The program requested the saving of the configuration file to an empty name! This shouldn't happen, ask Mark about bugs." );
 	}
 	
-	std::string extension;
-	if (currentProfile.orientation == HORIZONTAL_ORIENTATION)
-	{
-		extension = HORIZONTAL_EXTENSION;
-	}
-	else if (currentProfile.orientation == VERTICAL_ORIENTATION)
-	{
-		extension = VERTICAL_EXTENSION;
-	}
-	else
-	{
-		thrower( "ERROR: Unrecognized orientation! Ask Mark about bugs." );
-	}
-
 	// check if file already exists
-	if (ProfileSystem::fileOrFolderExists(currentProfile.categoryPath + configurationNameToSave + extension))
+	if (ProfileSystem::fileOrFolderExists(currentProfile.categoryPath + configurationNameToSave + CONFIG_EXTENSION ))
 	{
 		int answer = promptBox("This configuration file name already exists! Overwrite it?", MB_OKCANCEL);
 		if (answer == IDCANCEL)
@@ -480,20 +372,7 @@ void ProfileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindo
 		}
 	}
 
-	// else open it.
-	if (currentProfile.orientation == HORIZONTAL_ORIENTATION)
-	{
-		extension = HORIZONTAL_EXTENSION;
-	}
-	else if (currentProfile.orientation == VERTICAL_ORIENTATION)
-	{
-		extension = VERTICAL_EXTENSION;
-	}
-	else
-	{
-		thrower( "ERROR: Unrecognized orientation! Ask Mark about bugs." );
-	}
-	std::ofstream configurationSaveFile(currentProfile.categoryPath + configurationNameToSave + extension);
+	std::ofstream configurationSaveFile(currentProfile.categoryPath + configurationNameToSave + CONFIG_EXTENSION );
 	if (!configurationSaveFile.is_open())
 	{
 		thrower( "Couldn't save configuration file! Check the name for weird characters, or call Mark about bugs if everything seems right..." );
@@ -520,14 +399,6 @@ void ProfileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindo
 	{
 		variable info = vars[varInc];
 		configurationSaveFile << info.name << " ";
-		if (info.timelike)
-		{
-			configurationSaveFile << "Timelike ";
-		}
-		else
-		{
-			configurationSaveFile << "Not_Timelike ";
-		}
 		if (info.constant)
 		{
 			configurationSaveFile << "Singleton ";
@@ -542,7 +413,7 @@ void ProfileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindo
 	configurationSaveFile << notes + "\n";
 	configurationSaveFile << "END CONFIGURATION NOTES" << "\n";
 	configurationSaveFile.close();
-	reloadCombo(configCombo.GetSafeHwnd(), currentProfile.categoryPath, "*" + extension, currentProfile.configuration);
+	reloadCombo(configCombo.GetSafeHwnd(), currentProfile.categoryPath, str("*") + CONFIG_EXTENSION, currentProfile.configuration);
 	updateConfigurationSavedStatus(true);
 }
 
@@ -560,17 +431,19 @@ void ProfileSystem::renameConfiguration()
 			// check if the experiment has also not been set.
 			if (currentProfile.experiment == "")
 			{
-				thrower( "The Experiment and category have not yet been selected! Please select a category or create a new one before trying to save this "
-					"configuration.");
+				thrower( "The Experiment and category have not yet been selected! Please select a category or create a new "
+						 "one before trying to save this configuration.");
 			}
 			else
 			{
-				thrower( "The category has not yet been selected! Please select a category or create a new one before trying to save this configuration.");
+				thrower( "The category has not yet been selected! Please select a category or create a new one before trying"
+						 " to save this configuration.");
 			}
 		}
 		else
 		{
-			thrower( "The Configuration has not yet been selected! Please select a category or create a new one before trying to rename it." );
+			thrower( "The Configuration has not yet been selected! Please select a category or create a new one before "
+					 "trying to rename it." );
 		}
 	}
 
@@ -583,40 +456,15 @@ void ProfileSystem::renameConfiguration()
 		// canceled
 		return;
 	}
-	std::string currentConfigurationLocation = currentProfile.categoryPath + currentProfile.configuration;
-	std::string newConfigurationLocation = currentProfile.categoryPath + newConfigurationName;
-	if (currentProfile.orientation == HORIZONTAL_ORIENTATION)
-	{
-		currentConfigurationLocation += HORIZONTAL_EXTENSION;
-		newConfigurationLocation += HORIZONTAL_EXTENSION;
-	}
-	else if (currentProfile.orientation == VERTICAL_ORIENTATION)
-	{
-		currentConfigurationLocation += VERTICAL_EXTENSION;
-		newConfigurationLocation += VERTICAL_EXTENSION;
-	}
-	else
-	{
-		thrower( "ERROR: Orientation Unrecognized! Ask Mark about bugs." );
-	}
+	std::string currentConfigurationLocation = currentProfile.categoryPath + currentProfile.configuration + CONFIG_EXTENSION;
+	std::string newConfigurationLocation = currentProfile.categoryPath + newConfigurationName + CONFIG_EXTENSION;
 	int result = MoveFile(cstr(currentConfigurationLocation), cstr(newConfigurationLocation));
 	if (result == 0)
 	{
 		thrower( "Renaming of the configuration file Failed! Ask Mark about bugs" );
 	}
 	currentProfile.configuration = newConfigurationName;
-	if (currentProfile.orientation == HORIZONTAL_ORIENTATION)
-	{
-		reloadCombo(configCombo.GetSafeHwnd(), currentProfile.categoryPath, str("*") + HORIZONTAL_EXTENSION, "__NONE__");
-	}
-	else if (currentProfile.orientation == VERTICAL_ORIENTATION)
-	{
-		reloadCombo(configCombo.GetSafeHwnd(), currentProfile.categoryPath, str("*") + VERTICAL_EXTENSION, "__NONE__");
-	}
-	else
-	{
-		thrower( "ERROR: Orientation Unrecognized while reloading config combo! Ask Mark about bugs." );
-	}
+	reloadCombo(configCombo.GetSafeHwnd(), currentProfile.categoryPath, str("*") + CONFIG_EXTENSION, "__NONE__");
 }
 
 
@@ -652,19 +500,7 @@ void ProfileSystem::deleteConfiguration()
 	{
 		return;
 	}
-	std::string currentConfigurationLocation = currentProfile.categoryPath + currentProfile.configuration;
-	if (currentProfile.orientation == HORIZONTAL_ORIENTATION)
-	{
-		currentConfigurationLocation += HORIZONTAL_EXTENSION;
-	}
-	else if (currentProfile.orientation == VERTICAL_ORIENTATION)
-	{
-		currentConfigurationLocation += VERTICAL_EXTENSION;
-	}
-	else
-	{
-		thrower( "ERROR: Invalid orientation! Ask Mark about bugs." );
-	}
+	std::string currentConfigurationLocation = currentProfile.categoryPath + currentProfile.configuration + CONFIG_EXTENSION;
 	int result = DeleteFile(cstr(currentConfigurationLocation));
 	if (result == 0)
 	{
@@ -675,18 +511,7 @@ void ProfileSystem::deleteConfiguration()
 	// just deleted the current configuration
 	currentProfile.configuration = "";
 	// reset combo since the files have now changed after delete
-	if (currentProfile.orientation == HORIZONTAL_ORIENTATION)
-	{
-		reloadCombo(configCombo.GetSafeHwnd(), currentProfile.categoryPath, str("*") + HORIZONTAL_EXTENSION, "__NONE__");
-	}
-	else if (currentProfile.orientation == VERTICAL_ORIENTATION)
-	{
-		reloadCombo(configCombo.GetSafeHwnd(), currentProfile.categoryPath, str("*") + VERTICAL_EXTENSION, "__NONE__");
-	}
-	else
-	{
-		thrower( "ERROR: unrecognized orientation while resetting combobox! Ask Mark about bugs." );
-	}
+		reloadCombo(configCombo.GetSafeHwnd(), currentProfile.categoryPath, str("*") + CONFIG_EXTENSION, "__NONE__");
 }
 
 /*
@@ -761,7 +586,7 @@ void ProfileSystem::configurationChangeHandler( ScriptingWindow* scriptWindow, M
 	TCHAR configurationToOpen[256];
 	// Send CB_GETLBTEXT message to get the item.
 	configCombo.GetLBText(int(itemIndex), configurationToOpen);
-	openConfiguration( configurationToOpen, scriptWindow, mainWin, camWin, auxWin );
+	openConfig( configurationToOpen, scriptWindow, mainWin, camWin, auxWin );
 	// it'd be confusing if these notes stayed here.
 }
 
@@ -1100,16 +925,8 @@ void ProfileSystem::categoryChangeHandler(ScriptingWindow* scriptWindow, MainWin
 
 	// it'd be confusing if these notes stayed here.
 	mainWin->setNotes("configuration", "");
-	if (currentProfile.orientation == HORIZONTAL_ORIENTATION)
-	{
-		reloadCombo(configCombo.GetSafeHwnd(), currentProfile.categoryPath, 
-					 str("*") + HORIZONTAL_EXTENSION, "__NONE__");
-	}
-	else if (currentProfile.orientation == VERTICAL_ORIENTATION)
-	{
-		reloadCombo(configCombo.GetSafeHwnd(), currentProfile.categoryPath, 
-					 str("*") + VERTICAL_EXTENSION, "__NONE__");
-	}
+	reloadCombo(configCombo.GetSafeHwnd(), currentProfile.categoryPath, 
+					 str("*") + CONFIG_EXTENSION, "__NONE__");
 	currentProfile.configuration = "";
 	reloadSequence(NULL_SEQUENCE);
 }
@@ -1441,18 +1258,7 @@ void ProfileSystem::loadNullSequence()
 	currentProfile.sequenceConfigNames.clear();
 	if (currentProfile.configuration != "")
 	{
-		if (currentProfile.orientation == HORIZONTAL_ORIENTATION)
-		{
-			currentProfile.sequenceConfigNames.push_back(currentProfile.configuration + HORIZONTAL_EXTENSION);
-		}
-		else if (currentProfile.orientation == VERTICAL_ORIENTATION)
-		{
-			currentProfile.sequenceConfigNames.push_back(currentProfile.configuration + VERTICAL_EXTENSION);
-		}
-		else
-		{
-			thrower( "ERROR: orientation not recognized! Ask Mark about bugs." );
-		}
+		currentProfile.sequenceConfigNames.push_back(currentProfile.configuration + CONFIG_EXTENSION );
 		// change edit
 		sequenceInfoDisplay.SetWindowTextA("Sequence of Configurations to Run:\r\n");
 		appendText(("1. " + this->currentProfile.sequenceConfigNames[0] + "\r\n"), sequenceInfoDisplay);
@@ -1474,14 +1280,7 @@ void ProfileSystem::addToSequence(CWnd* parent)
 		// nothing to add.
 		return;
 	}
-	if (currentProfile.orientation == HORIZONTAL_ORIENTATION)
-	{
-		currentProfile.sequenceConfigNames.push_back(currentProfile.configuration + HORIZONTAL_EXTENSION);
-	}
-	else if (currentProfile.orientation == VERTICAL_ORIENTATION)
-	{
-		currentProfile.sequenceConfigNames.push_back(currentProfile.configuration + VERTICAL_EXTENSION);
-	}
+	currentProfile.sequenceConfigNames.push_back(currentProfile.configuration + CONFIG_EXTENSION );
 	// add text to display.
 	appendText( str( currentProfile.sequenceConfigNames.size() ) + ". "
 				+ currentProfile.sequenceConfigNames.back() + "\r\n", sequenceInfoDisplay );
@@ -1796,18 +1595,7 @@ std::string ProfileSystem::getSequenceNamesString()
 std::string ProfileSystem::getMasterAddressFromConfig()
 {
 	std::string configurationAddress;
-	if (currentProfile.orientation == HORIZONTAL_ORIENTATION)
-	{
-		configurationAddress = currentProfile.categoryPath + currentProfile.configuration + HORIZONTAL_EXTENSION;
-	}
-	else if (currentProfile.orientation == VERTICAL_ORIENTATION)
-	{
-		configurationAddress = currentProfile.categoryPath + currentProfile.configuration + VERTICAL_EXTENSION;
-	}
-	else
-	{
-		thrower("ERROR: Unrecognized orientation: " + currentProfile.orientation);
-	}
+	configurationAddress = currentProfile.categoryPath + currentProfile.configuration + CONFIG_EXTENSION;
 	std::fstream configFile(configurationAddress);
 	if (!configFile.is_open())
 	{
@@ -1859,13 +1647,8 @@ void ProfileSystem::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& to
 	categoryCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE | WS_TABSTOP,
 						  categoryCombo.sPos, parent, IDC_CATEGORY_COMBO );
 	pos.y += 25;
-	// Orientation Title
-	orientationLabel.sPos = { pos.x, pos.y, pos.x + 120, pos.y + 25 };
-	orientationLabel.Create( "ORIENTATION", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, orientationLabel.sPos,
-							 parent, id++);
-	orientationLabel.fontType = HeadingFont;
 	// Configuration Title
-	configLabel.sPos = { pos.x + 120, pos.y, pos.x + 960, pos.y + 25 };
+	configLabel.sPos = { pos.x, pos.y, pos.x + 960, pos.y + 25 };
 	configLabel.Create( "CONFIGURATION", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, configLabel.sPos, parent, id++);
 	configLabel.fontType = HeadingFont;
 	// Configuration Saved Indicator
@@ -1875,21 +1658,8 @@ void ProfileSystem::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& to
 	configurationSavedIndicator.SetCheck( BST_CHECKED );
 	updateConfigurationSavedStatus( true );
 	pos.y += 25;
-	//eConfigurationSaved = true;
-	// orientation combo
-	std::vector<std::string> orientationNames;
-	orientationNames.push_back( "Horizontal" );
-	orientationNames.push_back( "Vertical" );
-	orientationCombo.sPos = { pos.x, pos.y, pos.x + 120, pos.y + 800 };
-	orientationCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE | WS_TABSTOP,
-							 orientationCombo.sPos, parent, IDC_ORIENTATION_COMBO );
-	for (UINT comboInc = 0; comboInc < orientationNames.size(); comboInc++)
-	{
-		orientationCombo.AddString( cstr(orientationNames[comboInc]) );
-	}
-	orientationCombo.SetCurSel( 0 );
 	// configuration combo
-	configCombo.sPos = { pos.x + 120, pos.y, pos.x + 960, pos.y + 800 };
+	configCombo.sPos = { pos.x, pos.y, pos.x + 960, pos.y + 800 };
 	configCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE | WS_TABSTOP, 
 					    configCombo.sPos, parent, IDC_CONFIGURATION_COMBO );
 	pos.y += 25;
@@ -1987,7 +1757,7 @@ std::vector<std::string> ProfileSystem::searchForFiles( std::string locationToSe
 		if (extensions == "*" || extensions == "*.*" || extensions == str( "*" ) + HORIZONTAL_EXTENSION
 			 || extensions == str( "*" ) + VERTICAL_EXTENSION || extensions == str( "*" ) + SEQUENCE_EXTENSION
 			 || extensions == str( "*" ) + CATEGORY_EXTENSION || extensions == str( "*" ) + EXPERIMENT_EXTENSION
-			|| extensions == str("*") + PLOTTING_EXTENSION)
+			|| extensions == str("*") + PLOTTING_EXTENSION || extensions == str( "*" ) + CONFIG_EXTENSION || extensions == str("*") + FUNCTION_EXTENSION )
 		{
 			names[configListInc] = names[configListInc].substr( 0, names[configListInc].size() - (extensions.size() - 1) );
 		}
@@ -2000,8 +1770,9 @@ std::vector<std::string> ProfileSystem::searchForFiles( std::string locationToSe
 	return names;
 }
 
-
-void ProfileSystem::reloadCombo( HWND comboToReload, std::string locationToLook, std::string extension, std::string nameToLoad )
+// I had issues writing an MFC version of this with a Control<CComboBox> argument, so this is still written in Win32.
+void ProfileSystem::reloadCombo( HWND comboToReload, std::string locationToLook, std::string extension,
+								 std::string nameToLoad )
 {
 	std::vector<std::string> names;
 	// search for folders

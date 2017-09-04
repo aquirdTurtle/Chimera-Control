@@ -23,7 +23,6 @@ struct variationRangeInfo
 struct variable
 {
 	std::string name;
-	bool timelike;
 	// whether this variable is constant or varies.
 	bool constant;	
 	bool active = false;
@@ -42,6 +41,7 @@ class VariableSystem
 {
 	public:
 		UINT getTotalVariationNumber();
+		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, double version);
 		void handleDraw(NMHDR* pNMHDR, LRESULT* pResult, rgbMap rgbs);

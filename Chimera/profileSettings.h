@@ -11,7 +11,6 @@ struct profileSettings
 	std::string experiment;
 	std::string category;
 	std::string sequence;
-	std::string orientation;
 	// Note: The experiment (category) path include the expriment (category) name in the string.
 	std::string experimentPath;
 	// Note: The experiment (category) path include the expriment (category) name in the string.

@@ -11,6 +11,7 @@
 #include "commonFunctions.h"
 #include "atomCruncherInput.h"
 #include "cameraPositions.h"
+#include <bitset>
 
 class MainWindow;
 class ScriptingWindow;
@@ -63,6 +64,7 @@ class CameraWindow : public CDialog
 		void OnLButtonUp( UINT stuff, CPoint loc );
 		void OnRButtonUp( UINT stuff, CPoint loc );
 		/// directly called by the message map or 1 simple step removed.
+		void temp( UINT id );
 		LRESULT onCameraFinish( WPARAM wParam, LPARAM lParam );
 		LRESULT onCameraProgress( WPARAM wParam, LPARAM lParam );
 		void handleDblClick( NMHDR* info, LRESULT* lResult );
@@ -87,6 +89,7 @@ class CameraWindow : public CDialog
 		DataLogger* getLogger();
 		std::string getSystemStatusString();
 		void loadFriends(MainWindow* mainWin, ScriptingWindow* scriptWin, AuxiliaryWindow* masterWin);
+		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleMasterConfigSave(std::stringstream& configStream);
 		void handleMasterConfigOpen(std::stringstream& configStream, double version);
