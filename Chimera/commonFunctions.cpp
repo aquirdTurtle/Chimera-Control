@@ -632,6 +632,7 @@ namespace commonFunctions
 			{
 				MasterThreadInput* input = new MasterThreadInput;
 				auxWin->loadMotSettings(input);
+				mainWin->fillMotInput( input );
 				mainWin->startMaster(input, true);
 				break;
 			}

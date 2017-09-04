@@ -560,6 +560,14 @@ void MainWindow::startMaster( MasterThreadInput* input, bool isTurnOnMot )
 }
 
 
+void MainWindow::fillMotInput( MasterThreadInput* input )
+{
+	input->comm = &comm;
+	input->key = &masterKey;
+	input->key->loadVariables( input->variables );
+	input->key->generateKey( input->settings.randomizeVariations );
+}
+
 void MainWindow::fillMasterThreadInput(MasterThreadInput* input)
 {
 	input->masterScriptAddress = profile.getMasterAddressFromConfig();
