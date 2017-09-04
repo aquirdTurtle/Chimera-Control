@@ -106,7 +106,8 @@ void DataLogger::initializeDataFiles()
 	}
 	if (!result)
 	{
-		thrower( "ERROR: Failed to create save location for data! Error: " + str(GetLastError()) + "\r\n" );
+		thrower( "ERROR: Failed to create save location for data! Make sure the computer is connected to the Jilafile."
+			" Error: " + str(GetLastError()) + "\r\n" );
 	}
 	finalSaveFolder += "\\Raw Data";
 	resultStat = stat( cstr( dataFilesBaseLocation + finalSaveFolder ), &info );
