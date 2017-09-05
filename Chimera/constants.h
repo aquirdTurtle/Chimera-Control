@@ -7,8 +7,8 @@
 
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to build and debug other 
 // aspects of the program.
-//#define MASTER_COMPUTER
-#define SPECTRE_LAPTOP
+#define MASTER_COMPUTER
+//#define SPECTRE_LAPTOP
 // #define DESKTOP_COMPUTER
 /// File Locations
 // Files for Desktop
@@ -119,7 +119,7 @@
 	const std::string MOT_ROUTINE_ADDRESS = PROFILES_PATH + "Hotkey Experiments\\MOT\\turnOnMot.mScript";
 	const std::string DEBUG_OUTPUT_LOCATION = str(CODE_ROOT) + "\\Debug-Output\\";
 
-	const std::string JILA_BITMAP_LOCATION = PROJECT_LOCATION + "JILA.bmp";
+	//const std::string JILA_BITMAP_LOCATION = CODE_ROOT + "JILA.bmp";
 
 #endif
 

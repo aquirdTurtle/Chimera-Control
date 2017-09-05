@@ -846,8 +846,11 @@ UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 		}
 		if (input->rearrangerActive)
 		{
-			// copies the array.
-			(*input->rearrangerAtomQueue).push_back(tempAtomArray);
+			// copies the array if first pic of rep.
+			if ( imageCount % input->picsPerRep == 0 )
+			{
+				(*input->rearrangerAtomQueue).push_back( tempAtomArray );
+			}
 		}
 		(*input->imageQueue).erase((*input->imageQueue).begin());
 		imageCount++;

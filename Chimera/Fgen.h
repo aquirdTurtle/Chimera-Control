@@ -44,6 +44,7 @@ class Fgen
 		void allocateNamedWaveform( ViConstString waveformName, ViInt32 unmixedSampleNumber );
 		void setViStringAttribute( ViAttr atributeID, ViConstString attributeValue );
 		void writeNamedWaveform( ViConstString waveformName, ViInt32 mixedSampleNumber, ViReal64* wave );
+		void resetWritePosition( );
 		void writeScript( std::vector<ViChar> script );
 		void deleteScript( ViConstString scriptName );
 		std::string getCurrentScript();

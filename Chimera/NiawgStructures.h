@@ -85,8 +85,8 @@ struct rearrangeInfo
 	// a bit redundant atm.
 	UINT targetRows=0;
 	UINT targetCols=0;
-	double timePerStep = 1e-4;
-	double flashingFreq = 5e5;
+	double timePerMove = 1e-4;
+	double flashingFreq = 1e6;
 	// the maixmum number of moves the rearrangement should take.
 	UINT moveLimit=0;
 	// these are the frequencies that the niawg would need to output to reach the lower left corner (I think?) of 

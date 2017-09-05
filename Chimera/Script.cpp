@@ -185,7 +185,8 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 			}
 		}
 		// check logic
-		if (word == "repeattiltrig" || word == "repeatSet#" || word == "repeattilsoftwaretrig" || word == "endrepeat")
+		if ( word == "repeattiltrig" || word == "repeatSet#" || word == "repeattilsoftwaretrig" || word == "endrepeat" 
+			 || word == "repeatforever" )
 		{
 			return rgbs["Solarized Blue"];
 		}

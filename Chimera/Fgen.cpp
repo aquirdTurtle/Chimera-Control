@@ -118,6 +118,7 @@ void Fgen::writeUnNamedWaveform( ViInt32 waveID, ViInt32 mixedSampleNumber, ViRe
 	}
 }
 
+// niFgen_SetNamedWaveformNextWritePosition
 
 // put waveform into the device memory
 void Fgen::writeNamedWaveform( ViConstString waveformName, ViInt32 mixedSampleNumber, ViReal64* wave )
@@ -139,6 +140,15 @@ void Fgen::writeScript( std::vector<ViChar> script )
 	}
 }
 
+
+void Fgen::resetWritePosition( )
+{
+	if ( !NIAWG_SAFEMODE )
+	{
+		errChecker( niFgen_SetNamedWaveformNextWritePosition(sessionHandle, outputChannels, "rearrangeWaveform", 
+															  NIFGEN_VAL_WAVEFORM_POSITION_START, 0 ));
+	}
+}
 
 void Fgen::deleteWaveform( ViConstString waveformName )
 {

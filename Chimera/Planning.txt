@@ -36,11 +36,11 @@ Features:
 - Be able to set different analysis locations for different plots
 - Add camera region "Center" and save offsets of the borders from the center to config files.
 - Be able to scroll into empty space at bottom of scripts
+- be able to output niawg waveforms to text files
 
 Refactoring / Other:
 - refactor variables & variable key so that they aren't two separate objects. Consider if reasonable to also include 
 	variation number.
-- change niawg commands to be one word
 
 Bugs:
 - restart niawg freezes program? // should not be an issue after dealing with clean exiting of master thread.
@@ -62,7 +62,7 @@ Bugs:
 - parentscript not working?
 - something going wrong with exiting the niawg normally. Might be on delete waveforms, might be related to change from 
 	having orientations
-- variable initial value, final value, not getting set at correct places
+- reading exposure time X 1000 from config file, conversion issue.
 
 =================
 Finished
