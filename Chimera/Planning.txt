@@ -61,6 +61,7 @@ Bugs:
 - parentscript not working?
 - something going wrong with exiting the niawg normally. Might be on delete waveforms, might be related to change from 
 	having orientations
+- variable initial value, final value, not getting set at correct places
 
 =================
 Finished
