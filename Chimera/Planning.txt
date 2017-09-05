@@ -13,10 +13,10 @@ Features:
 	- should be able to get 3.12 frames / sec or so at full array size
 - NIAWG scripting in single script instead of separate Hor/Vert scripts.
 - Watch cursor location, sim to basler program
-- restore the Niawg functionality where it calculates next varying waveform duringx the run of the previous waveform.
+- restore the Niawg functionality where it calculates next varying waveform during the run of the previous waveform.
 - option to allow agilent waveforms to function with or without calibration
 - make a structure and a front panel option for agilent calibrations
-- functions for niawg and agilent scripts
+- support functions for niawg and agilent scripts
 - if fails to open script file give user opportunity to find it themselves.
 - default script for agilent with command guide?
 - gnuplot safemode? (not sure needed at all).
@@ -35,6 +35,7 @@ Features:
 	- option to create new default config file with that name?
 - Be able to set different analysis locations for different plots
 - Add camera region "Center" and save offsets of the borders from the center to config files.
+- Be able to scroll into empty space at bottom of scripts
 
 Refactoring / Other:
 - refactor variables & variable key so that they aren't two separate objects. Consider if reasonable to also include 
@@ -67,5 +68,3 @@ Bugs:
 Finished
 =================
 
-BUGS
-- Fixed data set issue with post-selection conditions for plot designer?

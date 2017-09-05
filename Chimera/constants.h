@@ -7,8 +7,8 @@
 
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to build and debug other 
 // aspects of the program.
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP
 // #define DESKTOP_COMPUTER
 /// File Locations
 // Files for Desktop
@@ -74,6 +74,7 @@
 	//const std::string KEY_ADDRESS = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Data\\key.txt";
 	const std::string MOT_ROUTINE_ADDRESS = PROJECT_LOCATION + "Master Profiles\\Hotkey Experiments\\MOT\\turnOnMot.mScript";
 	const std::string DEBUG_OUTPUT_LOCATION = PROJECT_LOCATION + "Debug-Output\\";
+	#define JILA_BITMAP_LOCATION "C:\\Users\\Mark-Brown\\Chimera-Control\\JILA.bmp"
 #endif
 
 #ifdef MASTER_COMPUTER
@@ -117,6 +118,8 @@
 	const std::string KEY_ADDRESS = "\\\\Callisto\\Shared\\key.txt";
 	const std::string MOT_ROUTINE_ADDRESS = PROFILES_PATH + "Hotkey Experiments\\MOT\\turnOnMot.mScript";
 	const std::string DEBUG_OUTPUT_LOCATION = str(CODE_ROOT) + "\\Debug-Output\\";
+
+	const std::string JILA_BITMAP_LOCATION = PROJECT_LOCATION + "JILA.bmp";
 
 #endif
 
@@ -397,29 +400,29 @@ const char SCRIPT_INFO_TEXT[] =
 " lines and in between commands, so use whatever such formatting pleases your eyes.\n"
 "Accepted Commands:\n"
 "(a)Wait Commands\n"
-"\"wait until trigger\"\n"
-"\"wait set # <# of samples to wait>\"\n"
+"\"waitTilTrig\"\n"
+"\"waitSet# <# of samples to wait>\"\n"
 "(b)Repeat Commands\n"
-"\"repeat set # <# of times to repeat>\"\n"
-"\"repeat until trigger\"\n"
-"\"repeat forever\"\n"
-"\"end repeat\"\n"
+"\"repeatSet# <# of times to repeat>\"\n"
+"\"repeatTilTrig\"\n"
+"\"repeatForever\"\n"
+"\"endRepeat\"\n"
 "(c)Logic Commands\n"
-"\"if trigger\"\n"
+"\"ifTrig\"\n"
 "\"else\"\n"
-"\"end if\"\n"
+"\"endIf\"\n"
 "(d)Constant Waveforms\n"
-"\"gen 2, const <freq1> <amp1> <phase1 (rad)>; <sim for 2nd>; <time> <t manage>\"\n"
+"\"gen2const <freq1> <amp1> <phase1 (rad)>; <sim for 2nd>; <time> <t manage>\"\n"
 "(e)Amplitude Ramps\n"
-"\"gen 2, amp ramp <freq1> <amp1 ramp type> <initial amp1> <final amp1> <phase1 (rad)>; <sim for 2nd>; <time> <t manage>\"\n"
+"\"gen2ampramp <freq1> <amp1 ramp type> <initial amp1> <final amp1> <phase1 (rad)>; <sim for 2nd>; <time> <t manage>\"\n"
 "(f)frequency Ramps\n"
-"\"gen 2, freq ramp <freq1 ramp type> <initial freq1> <final freq1> <amp1> <phase1 (rad)>; <sim for 2nd>; <time> <t manage>\"\n"
+"\"gen2freq ramp <freq1 ramp type> <initial freq1> <final freq1> <amp1> <phase1 (rad)>; <sim for 2nd>; <time> <t manage>\"\n"
 "Etc.\n"
 "(g)Amplitude and Frequency Ramps\n"
-"\"gen 2, freq & amp ramp <freq1 ramp type> <init freq1> <fin freq1> <amp ramp1 type> <init ramp1> <fin ramp1> <phase1 (rad)>;...\n"
+"\"gen2freq&ampramp <freq1 ramp type> <init freq1> <fin freq1> <amp ramp1 type> <init ramp1> <fin ramp1> <phase1 (rad)>;...\n"
 "...<similar for 2nd>; <time> <t manage>\"\n"
 "(j)Create marker event after last waveform\n"
-"\"create marker event <samples after previous waveform to wait>\"\n";
+"\"markerEvent <samples after previous waveform to wait>\"\n";
 
 const char MASTER_HELP[] = "This is a script for programming master timing for TTLs, DACs, the RSG, and the raman outputs.\n"
 "Acceptable Commands:\n"

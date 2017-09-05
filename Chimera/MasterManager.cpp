@@ -97,7 +97,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 					}
 					foundRearrangement = true;
 					// start rearrangement thread. Give the thread the queue.
-					input->niawg->startRearrangementThread( input->atomQueueForRearrangement, wave );
+					input->niawg->startRearrangementThread( input->atomQueueForRearrangement, wave, input->comm );
 				}
 			}
 			if (input->settings.rearrange && !foundRearrangement )
@@ -238,7 +238,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 					{
 						thrower( "ERROR: Variable " + var.first + " varies, but has no values assigned to it!" );
 					}
-					expUpdate( var.first + ": " + str( var.second.first[varInc] ) + "\r\n", input->comm,
+					expUpdate( var.first + ": " + str( var.second.first[varInc], 12) + "\r\n", input->comm,
 							   input->quiet );
 				}
 			}
