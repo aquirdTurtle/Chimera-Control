@@ -619,8 +619,8 @@ void CameraWindow::setEmGain()
 void CameraWindow::handleMasterConfigSave(std::stringstream& configStream)
 {
 	imageParameters settings = CameraSettings.getSettings().imageSettings;
-	configStream << settings.leftBorder << " " << settings.rightBorder << " " << settings.horizontalBinning << " ";
-	configStream << settings.topBorder << " " << settings.bottomBorder << " " << settings.verticalBinning << "\n";
+	configStream << settings.left << " " << settings.right << " " << settings.horizontalBinning << " ";
+	configStream << settings.bottom << " " << settings.top << " " << settings.verticalBinning << "\n";
 }
 
 
@@ -632,19 +632,19 @@ void CameraWindow::handleMasterConfigOpen(std::stringstream& configStream, doubl
 	try
 	{
 		configStream >> tempStr;
-		settings.leftBorder = std::stol(tempStr);
+		settings.left = std::stol(tempStr);
 		configStream >> tempStr;
-		settings.rightBorder = std::stol(tempStr);
+		settings.right = std::stol(tempStr);
 		configStream >> tempStr;
 		settings.horizontalBinning = std::stol(tempStr);
 		configStream >> tempStr;
-		settings.topBorder = std::stol(tempStr);
+		settings.bottom = std::stol(tempStr);
 		configStream >> tempStr;
-		settings.bottomBorder = std::stol(tempStr);
+		settings.top = std::stol(tempStr);
 		configStream >> tempStr;
 		settings.verticalBinning = std::stol(tempStr);
-		settings.width = (settings.rightBorder - settings.leftBorder + 1) / settings.horizontalBinning;
-		settings.height = (settings.bottomBorder - settings.topBorder + 1) / settings.verticalBinning;
+		settings.width = (settings.right - settings.left + 1) / settings.horizontalBinning;
+		settings.height = (settings.top - settings.bottom + 1) / settings.verticalBinning;
 
 		CameraSettings.setImageParameters(settings, this);
 		pics.setParameters(settings);
@@ -887,8 +887,8 @@ std::string CameraWindow::getStartMessage()
 		dialogMsg += str( CameraSettings.getSettings().exposureTimes[exposureInc] * 1000 ) + ", ";
 	}
 	dialogMsg += "\r\n";
-	dialogMsg += "Image Settings: " + str( currentImageParameters.leftBorder ) + " - " + str( currentImageParameters.rightBorder ) + ", "
-		+ str( currentImageParameters.topBorder ) + " - " + str( currentImageParameters.bottomBorder ) + "\r\n";
+	dialogMsg += "Image Settings: " + str( currentImageParameters.left ) + " - " + str( currentImageParameters.right ) + ", "
+		+ str( currentImageParameters.bottom ) + " - " + str( currentImageParameters.top ) + "\r\n";
 	dialogMsg += "\r\n";
 	dialogMsg += "Kintetic Cycle Time: " + str( CameraSettings.getSettings().kineticCycleTime ) + "\r\n";
 	dialogMsg += "Pictures per Repetition: " + str( CameraSettings.getSettings().picsPerRepetition ) + "\r\n";

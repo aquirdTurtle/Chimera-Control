@@ -124,7 +124,7 @@ void NiawgController::prepareNiawg(MasterThreadInput* input, NiawgOutputInfo& ou
 	{
 		input->comm->sendDebug( boost::replace_all_copy( "NIAWG Machine Script:\n"
 														 + std::string( userScriptSubmit.begin(), userScriptSubmit.end() )
-														 + "end Script\n\n", "\n", "\r\n" ) );
+														 + "\n\n", "\n", "\r\n" ) );
 	}
 }
 
@@ -2388,8 +2388,8 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 				}
 				flashMove.flash.flashWaves.push_back( info.staticWave );
 				flashMove.flash.flashWaves.push_back( moveWave );
-				flashMove.flash.flashCycleFreq = info.flashingFreq;
 				flashMove.flash.flashCycleFreqInput = { str( info.flashingFreq ), str( info.flashingFreq ) };
+				flashMove.flash.flashCycleFreq = info.flashingFreq;
 				input->niawg->mixFlashingWaves( flashMove );
 				// now add to main wave.
 				input->niawg->rearrangeWaveVals.insert( input->niawg->rearrangeWaveVals.end( ), flashMove.core.waveVals.begin( ), flashMove.core.waveVals.end( ) );

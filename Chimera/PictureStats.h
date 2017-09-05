@@ -7,7 +7,7 @@
 /*
 const double countToCameraPhoton = 0.697798;
 const double countToScatteredPhoton = 0.697798 / 0.07;
-// for em gain of 200 only! Could add more arbitrary approximation, but I specifically calibrated this value (I
+// for em gain of 200 only! Could add more arbitrary approximation, but I specifically calibrated this value (I				 
 // also calibrated X50, just didn't include that here.
 const double countToCameraPhotonEM200 = 0.018577;
 const double countToScatteredPhotonEM200 = 0.018577 / 0.07;

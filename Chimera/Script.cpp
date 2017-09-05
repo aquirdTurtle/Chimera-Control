@@ -112,7 +112,7 @@ void Script::rearrange(UINT width, UINT height, fontMap fonts)
 }
 
 
-void Script::functionChangeHandler()
+void Script::functionChangeHandler(std::string categoryPath)
 {
 	int selection = availableFunctionsCombo.GetCurSel( );
 	if ( selection != -1 )
@@ -121,7 +121,7 @@ void Script::functionChangeHandler()
 		availableFunctionsCombo.GetLBText( selection, text );
 		std::string textStr( text.GetBuffer( ) );
 		textStr = textStr.substr( 0, textStr.find_first_of( '(' ) );
-		changeView( textStr, true, "");
+		changeView( textStr, true, categoryPath );
 	}
 }
 

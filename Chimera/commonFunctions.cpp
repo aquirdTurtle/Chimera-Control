@@ -67,6 +67,11 @@ namespace commonFunctions
 				std::string status;
 				try
 				{
+					if ( mainWin->experimentIsPaused( ) )
+					{
+						mainWin->getComm( )->sendError( "Experiment is paused. Please unpause before aborting.\r\n" );
+						break;
+					}
 					bool niawgAborted = false, andorAborted = false, masterAborted = false;
 					if (mainWin->niawg.niawgIsRunning())
 					{
@@ -219,6 +224,11 @@ namespace commonFunctions
 			}
 			case ID_RUNMENU_ABORTMASTER:
 			{
+				if ( mainWin->experimentIsPaused( ) )
+				{
+					mainWin->getComm( )->sendError( "Experiment is paused. Please unpause before aborting.\r\n" );
+					break;
+				}
 				commonFunctions::abortMaster(mainWin, auxWin);
 				break;
 			}

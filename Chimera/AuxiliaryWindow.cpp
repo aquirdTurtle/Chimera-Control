@@ -89,7 +89,7 @@ void AuxiliaryWindow::openTopBottomAgilentScript( CWnd* parent )
 	try
 	{
 		topBottomAgilent.agilentScript.checkSave( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
-		std::string openFileName = openWithExplorer( parent);
+		std::string openFileName = openWithExplorer( parent, AGILENT_SCRIPT_EXTENSION);
 		topBottomAgilent.agilentScript.openParentScript( openFileName, 
 														 mainWindowFriend->getProfileSettings().categoryPath, 
 														 mainWindowFriend->getRunInfo() );
@@ -164,7 +164,7 @@ void AuxiliaryWindow::openAxialUwaveAgilentScript( CWnd* parent )
 	try
 	{
 		uWaveAxialAgilent.agilentScript.checkSave( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
-		std::string openFileName = openWithExplorer( parent );
+		std::string openFileName = openWithExplorer( parent, AGILENT_SCRIPT_EXTENSION );
 		uWaveAxialAgilent.agilentScript.openParentScript( openFileName,
 														 mainWindowFriend->getProfileSettings().categoryPath,
 														 mainWindowFriend->getRunInfo() );
@@ -241,7 +241,7 @@ void AuxiliaryWindow::openFlashingAgilentScript( CWnd* parent )
 	try
 	{
 		flashingAgilent.agilentScript.checkSave( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
-		std::string openFileName = openWithExplorer( parent );
+		std::string openFileName = openWithExplorer( parent, AGILENT_SCRIPT_EXTENSION );
 		flashingAgilent.agilentScript.openParentScript( openFileName,
 														  mainWindowFriend->getProfileSettings().categoryPath,
 														  mainWindowFriend->getRunInfo() );

@@ -844,7 +844,6 @@ void MainWindow::changeBoxColor( systemInfo<char> colors )
 
 void MainWindow::abortMasterThread()
 {
-	/// needs implementation...
 	if (masterThreadManager.runningStatus())
 	{
 		masterThreadManager.abort();
@@ -855,6 +854,10 @@ void MainWindow::abortMasterThread()
 	}
 }
 
+bool MainWindow::experimentIsPaused( )
+{
+	return masterThreadManager.getIsPaused( );
+}
 
 
 
