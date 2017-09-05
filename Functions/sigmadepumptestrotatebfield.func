@@ -12,7 +12,7 @@ def sigmadepumptestRotateBfield():
         dac: sigmaopfreq 0.75 %0 for .1V trap
         
         %set beam power:
-        dac: sigmaoppower 0.3
+        dac: sigmaoppower 0.15 % 0.3
         
         t += 3
         
