@@ -29,14 +29,14 @@ class CameraImageDimsControl
 		Control<CStatic> leftText;
 		Control<CStatic>  rightText;
 		Control<CStatic>  horBinningText;
-		Control<CStatic>  topText;
-		Control<CStatic>  bottomText;
+		Control<CStatic>  bottomLabel;
+		Control<CStatic>  topLabel;
 		Control<CStatic>  vertBinningText;
 		Control<CEdit>  leftEdit;
 		Control<CEdit> rightEdit;
 		Control<CEdit> horBinningEdit;
-		Control<CEdit> topEdit;
 		Control<CEdit> bottomEdit;
+		Control<CEdit> topEdit;
 		Control<CEdit> vertBinningEdit;
 		Control<CButton> setImageDimsButton;
 		bool isReady;

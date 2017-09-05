@@ -66,16 +66,16 @@ void CameraImageDimsControl::initialize( cameraPositions& pos, CWnd* parent, boo
 								  id++ );
 	horBinningEdit.SetWindowTextA( "1" );
 	//
-	topText.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 25 };
-	topText.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 25 };
-	topText.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 160, pos.videoPos.y + 25 };
-	topText.Create( "Top", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY | WS_BORDER, topText.seriesPos, parent, id++);
+	bottomLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 25 };
+	bottomLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 25 };
+	bottomLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 160, pos.videoPos.y + 25 };
+	bottomLabel.Create( "Bottom", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY | WS_BORDER, bottomLabel.seriesPos, parent, id++);
 
 	//
-	bottomText.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 25 };
-	bottomText.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 25 };
-	bottomText.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
-	bottomText.Create( "Bottom", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY | WS_BORDER, bottomText.seriesPos, 
+	topLabel.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 25 };
+	topLabel.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 25 };
+	topLabel.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
+	topLabel.Create( "Top", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY | WS_BORDER, topLabel.seriesPos, 
 					   parent, id++);
 	//
 	vertBinningText.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
@@ -85,17 +85,17 @@ void CameraImageDimsControl::initialize( cameraPositions& pos, CWnd* parent, boo
 								vertBinningText.seriesPos,
 							    parent, id++);
 	//
-	topEdit.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 25 };
-	topEdit.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 25 };
-	topEdit.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 160, pos.videoPos.y + 25 };
-	topEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER | WS_BORDER, topEdit.seriesPos, parent, id++);
-	topEdit.SetWindowTextA( "1" );
-	//
-	bottomEdit.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 25 };
-	bottomEdit.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 25 };
-	bottomEdit.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
+	bottomEdit.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 25 };
+	bottomEdit.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 25 };
+	bottomEdit.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 160, pos.videoPos.y + 25 };
 	bottomEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER | WS_BORDER, bottomEdit.seriesPos, parent, id++);
-	bottomEdit.SetWindowTextA( "50" );
+	bottomEdit.SetWindowTextA( "1" );
+	//
+	topEdit.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 25 };
+	topEdit.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 25 };
+	topEdit.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
+	topEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER | WS_BORDER, topEdit.seriesPos, parent, id++);
+	topEdit.SetWindowTextA( "50" );
 	//
 	vertBinningEdit.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
 	vertBinningEdit.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
@@ -136,7 +136,7 @@ imageParameters CameraImageDimsControl::readImageParameters( CameraWindow* camWi
 	leftEdit.GetWindowTextA( tempStr );
 	try
 	{
-		currentImageParameters.leftBorder = std::stoi( str( tempStr ) );
+		currentImageParameters.left = std::stoi( str( tempStr ) );
 	}
 	catch (std::invalid_argument&)
 	{
@@ -147,7 +147,7 @@ imageParameters CameraImageDimsControl::readImageParameters( CameraWindow* camWi
 	rightEdit.GetWindowTextA( tempStr );
 	try
 	{
-		currentImageParameters.rightBorder = std::stoi( str( tempStr ) );
+		currentImageParameters.right = std::stoi( str( tempStr ) );
 	}
 	catch (std::invalid_argument&)
 	{
@@ -156,29 +156,29 @@ imageParameters CameraImageDimsControl::readImageParameters( CameraWindow* camWi
 	}
 	rightEdit.RedrawWindow();
 	//
-	topEdit.GetWindowTextA( tempStr );
+	bottomEdit.GetWindowTextA( tempStr );
 	try
 	{
-		currentImageParameters.topBorder = std::stoi( str( tempStr ) );
+		currentImageParameters.bottom = std::stoi( str( tempStr ) );
 	}
 	catch (std::invalid_argument&)
 	{
 		isReady = false;
 		thrower( "Top border argument not an integer!\r\n" );
 	}
-	topEdit.RedrawWindow();
+	bottomEdit.RedrawWindow();
 	//
-	bottomEdit.GetWindowTextA( tempStr );
+	topEdit.GetWindowTextA( tempStr );
 	try
 	{
-		currentImageParameters.bottomBorder = std::stoi( str( tempStr ) );
+		currentImageParameters.top = std::stoi( str( tempStr ) );
 	}
 	catch (std::invalid_argument&)
 	{
 		isReady = false;
 		thrower( "Bottom border argument not an integer!\r\n" );
 	}
-	bottomEdit.RedrawWindow();
+	topEdit.RedrawWindow();
 	horBinningEdit.GetWindowTextA( tempStr );
 	try
 	{
@@ -208,31 +208,31 @@ imageParameters CameraImageDimsControl::readImageParameters( CameraWindow* camWi
 	eCurrentlySelectedPixel.second = 0;
 	*/
 	// Calculate the number of actual pixels in each dimension.
-	currentImageParameters.width = (currentImageParameters.rightBorder - currentImageParameters.leftBorder + 1) / currentImageParameters.horizontalBinning;
-	currentImageParameters.height = (currentImageParameters.bottomBorder - currentImageParameters.topBorder + 1) / currentImageParameters.verticalBinning;
+	currentImageParameters.width = (currentImageParameters.right - currentImageParameters.left + 1) / currentImageParameters.horizontalBinning;
+	currentImageParameters.height = (currentImageParameters.top - currentImageParameters.bottom + 1) / currentImageParameters.verticalBinning;
 
 	// Check Image parameters
-	if (currentImageParameters.leftBorder > currentImageParameters.rightBorder || currentImageParameters.topBorder > currentImageParameters.bottomBorder)
+	if (currentImageParameters.left > currentImageParameters.right || currentImageParameters.bottom > currentImageParameters.top)
 	{
 		isReady = false;
 		thrower( "ERROR: Image start positions must not be greater than end positions\r\n" );
 	}
-	if (currentImageParameters.leftBorder < 1 || currentImageParameters.rightBorder > 512)
+	if (currentImageParameters.left < 1 || currentImageParameters.right > 512)
 	{
 		isReady = false;
 		thrower( "ERROR: Image horizontal borders must be greater than 0 and less than the detector width\r\n" );
 	}
-	if (currentImageParameters.topBorder < 1 || currentImageParameters.bottomBorder > 512)
+	if (currentImageParameters.bottom < 1 || currentImageParameters.top > 512)
 	{
 		isReady = false;
 		thrower( "ERROR: Image verttical borders must be greater than 0 and less than the detector height\r\n" );
 	}
-	if ((currentImageParameters.rightBorder - currentImageParameters.leftBorder + 1) % currentImageParameters.horizontalBinning != 0)
+	if ((currentImageParameters.right - currentImageParameters.left + 1) % currentImageParameters.horizontalBinning != 0)
 	{
 		isReady = false;
 		thrower( "ERROR: Image width must be a multiple of Horizontal Binning\r\n" );
 	}
-	if ((currentImageParameters.bottomBorder - currentImageParameters.topBorder + 1) % currentImageParameters.verticalBinning != 0)
+	if ((currentImageParameters.top - currentImageParameters.bottom + 1) % currentImageParameters.verticalBinning != 0)
 	{
 		isReady = false;
 		thrower( "ERROR: Image height must be a multiple of Vertical Binning\r\n" );
@@ -310,14 +310,14 @@ void CameraImageDimsControl::setImageParametersFromInput( imageParameters param,
 	drawBackgrounds( camWin );
 	//eDataExists = false;
 	// set all of the image parameters
-	currentImageParameters.leftBorder = param.leftBorder;
-	leftEdit.SetWindowText( cstr( currentImageParameters.leftBorder ) );
-	currentImageParameters.rightBorder = param.rightBorder;
-	rightEdit.SetWindowText( cstr( currentImageParameters.rightBorder ) );
-	currentImageParameters.topBorder = param.topBorder;
-	topEdit.SetWindowText( cstr( currentImageParameters.topBorder ) );
-	currentImageParameters.bottomBorder = param.bottomBorder;
-	bottomEdit.SetWindowText( cstr( currentImageParameters.bottomBorder ) );
+	currentImageParameters.left = param.left;
+	leftEdit.SetWindowText( cstr( currentImageParameters.left ) );
+	currentImageParameters.right = param.right;
+	rightEdit.SetWindowText( cstr( currentImageParameters.right ) );
+	currentImageParameters.bottom = param.bottom;
+	bottomEdit.SetWindowText( cstr( currentImageParameters.bottom ) );
+	currentImageParameters.top = param.top;
+	topEdit.SetWindowText( cstr( currentImageParameters.top ) );
 	currentImageParameters.horizontalBinning = param.horizontalBinning;
 	horBinningEdit.SetWindowText( cstr( currentImageParameters.horizontalBinning ) );
 	currentImageParameters.verticalBinning = param.verticalBinning;
@@ -328,31 +328,31 @@ void CameraImageDimsControl::setImageParametersFromInput( imageParameters param,
 	eCurrentlySelectedPixel.second = 0;
 	*/
 	// Calculate the number of actual pixels in each dimension.
-	currentImageParameters.width = (currentImageParameters.rightBorder - currentImageParameters.leftBorder + 1) / currentImageParameters.horizontalBinning;
-	currentImageParameters.height = (currentImageParameters.bottomBorder - currentImageParameters.topBorder + 1) / currentImageParameters.verticalBinning;
+	currentImageParameters.width = (currentImageParameters.right - currentImageParameters.left + 1) / currentImageParameters.horizontalBinning;
+	currentImageParameters.height = (currentImageParameters.top - currentImageParameters.bottom + 1) / currentImageParameters.verticalBinning;
 
 	// Check Image parameters
-	if (currentImageParameters.leftBorder > currentImageParameters.rightBorder || currentImageParameters.topBorder > currentImageParameters.bottomBorder)
+	if (currentImageParameters.left > currentImageParameters.right || currentImageParameters.bottom > currentImageParameters.top)
 	{
 		isReady = false;
 		thrower( "ERROR: Image start positions must not be greater than end positions\r\n" );
 	}
-	if (currentImageParameters.leftBorder < 1 || currentImageParameters.rightBorder > 512)
+	if (currentImageParameters.left < 1 || currentImageParameters.right > 512)
 	{
 		isReady = false;
 		thrower( "ERROR: Image horizontal borders must be greater than 0 and less than the detector width\r\n" );
 	}
-	if (currentImageParameters.topBorder < 1 || currentImageParameters.bottomBorder > 512)
+	if (currentImageParameters.bottom < 1 || currentImageParameters.top > 512)
 	{
 		isReady = false;
 		thrower( "ERROR: Image verttical borders must be greater than 0 and less than the detector height\r\n" );
 	}
-	if ((currentImageParameters.rightBorder - currentImageParameters.leftBorder + 1) % currentImageParameters.horizontalBinning != 0)
+	if ((currentImageParameters.right - currentImageParameters.left + 1) % currentImageParameters.horizontalBinning != 0)
 	{
 		isReady = false;
 		thrower( "ERROR: Image width must be a multiple of Horizontal Binning\r\n" );
 	}
-	if ((currentImageParameters.bottomBorder - currentImageParameters.topBorder + 1) % currentImageParameters.verticalBinning != 0)
+	if ((currentImageParameters.top - currentImageParameters.bottom + 1) % currentImageParameters.verticalBinning != 0)
 	{
 		isReady = false;
 		thrower( "ERROR: Image height must be a multiple of Vertical Binning\r\n" );
@@ -454,55 +454,17 @@ HBRUSH CameraImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wPa
 	HDC hdcStatic = (HDC)wParam;
 	imageParameters currentImageParameters = { 0,0,0,0,0,0 };
 
-	if (controlID == bottomEdit.GetDlgCtrlID())
-	{
-		//imageParameters currentImageParameters = eImageControl.getImageParameters();
-		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
-		CString textEdit;
-		bottomEdit.GetWindowTextA( textEdit );
-		int bottom;
-		try
-		{
-			bottom = std::stoi( str( textEdit ) );
-			if (bottom == currentImageParameters.bottomBorder)
-			{
-				// good.
-				SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
-				SetBkColor( hdcStatic, RGB( 100, 110, 100 ) );
-				// catch change of color and redraw window.
-				if (bottomEdit.colorState != 0)
-				{
-					bottomEdit.colorState = 0;
-					bottomEdit.RedrawWindow();
-				}
-				return *brushes["Grey Green"];
-			}
-		}
-		catch (std::exception&)
-		{
-			// don't do anything with it.
-		}
-		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
-		SetBkColor( hdcStatic, RGB( 150, 100, 100 ) );
-		// catch change of color and redraw window.
-		if (bottomEdit.colorState != 1)
-		{
-			bottomEdit.colorState = 1;
-			bottomEdit.RedrawWindow();
-		}
-		return *brushes["Grey Red"];
-	}
-	else if (controlID == topEdit.GetDlgCtrlID())
+	if (controlID == topEdit.GetDlgCtrlID())
 	{
 		//imageParameters currentImageParameters = eImageControl.getImageParameters();
 		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
 		CString textEdit;
 		topEdit.GetWindowTextA( textEdit );
-		int top;
+		int bottom;
 		try
 		{
-			top = std::stoi( str( textEdit ) );
-			if (top == currentImageParameters.topBorder)
+			bottom = std::stoi( str( textEdit ) );
+			if (bottom == currentImageParameters.top)
 			{
 				// good.
 				SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
@@ -527,6 +489,44 @@ HBRUSH CameraImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wPa
 		{
 			topEdit.colorState = 1;
 			topEdit.RedrawWindow();
+		}
+		return *brushes["Grey Red"];
+	}
+	else if (controlID == bottomEdit.GetDlgCtrlID())
+	{
+		//imageParameters currentImageParameters = eImageControl.getImageParameters();
+		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
+		CString textEdit;
+		bottomEdit.GetWindowTextA( textEdit );
+		int top;
+		try
+		{
+			top = std::stoi( str( textEdit ) );
+			if (top == currentImageParameters.bottom)
+			{
+				// good.
+				SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
+				SetBkColor( hdcStatic, RGB( 100, 110, 100 ) );
+				// catch change of color and redraw window.
+				if (bottomEdit.colorState != 0)
+				{
+					bottomEdit.colorState = 0;
+					bottomEdit.RedrawWindow();
+				}
+				return *brushes["Grey Green"];
+			}
+		}
+		catch (std::exception&)
+		{
+			// don't do anything with it.
+		}
+		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
+		SetBkColor( hdcStatic, RGB( 150, 100, 100 ) );
+		// catch change of color and redraw window.
+		if (bottomEdit.colorState != 1)
+		{
+			bottomEdit.colorState = 1;
+			bottomEdit.RedrawWindow();
 		}
 		return *brushes["Grey Red"];
 	}
@@ -578,7 +578,7 @@ HBRUSH CameraImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wPa
 		try
 		{
 			leftSide = std::stoi( str( textEdit ) );
-			if (leftSide == currentImageParameters.leftBorder)
+			if (leftSide == currentImageParameters.left)
 			{
 				// good.
 				SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
@@ -620,7 +620,7 @@ HBRUSH CameraImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wPa
 		try
 		{
 			rightSide = std::stoi( str( textEdit ) );
-			if (rightSide == currentImageParameters.rightBorder)
+			if (rightSide == currentImageParameters.right)
 			{
 				// good.
 				SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
@@ -696,14 +696,14 @@ void CameraImageDimsControl::rearrange( std::string cameraMode, std::string trig
 	leftText.rearrange( cameraMode, triggerMode, width, height, fonts );
 	rightText.rearrange( cameraMode, triggerMode, width, height, fonts );
 	horBinningText.rearrange( cameraMode, triggerMode, width, height, fonts );
-	topText.rearrange( cameraMode, triggerMode, width, height, fonts );
-	bottomText.rearrange( cameraMode, triggerMode, width, height, fonts );
+	bottomLabel.rearrange( cameraMode, triggerMode, width, height, fonts );
+	topLabel.rearrange( cameraMode, triggerMode, width, height, fonts );
 	vertBinningText.rearrange( cameraMode, triggerMode, width, height, fonts );
 	leftEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
 	rightEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
 	horBinningEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
-	topEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
 	bottomEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
+	topEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
 	vertBinningEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
 	setImageDimsButton.rearrange( cameraMode, triggerMode, width, height, fonts );
 }

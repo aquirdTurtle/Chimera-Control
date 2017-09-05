@@ -103,9 +103,6 @@
     <ClCompile Include="ExperimentLogger.cpp">
       <Filter>Main Window</Filter>
     </ClCompile>
-    <ClCompile Include="errBox.cpp">
-      <Filter>General Files</Filter>
-    </ClCompile>
     <ClCompile Include="EmbeddedPythonHandler.cpp">
       <Filter>General Files</Filter>
     </ClCompile>

@@ -171,10 +171,10 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 				totalTime += ULONGLONG(input->ttls->getTotalTime( var ) * input->repetitionNumber);
 			}
 			expUpdate( "Programmed Total Experiment time: " + str( totalTime ) + "\r\n", input->comm, input->quiet );
-			expUpdate( "Number of TTL Events in experiment: " + str( input->ttls->getNumberEvents( 0 ) ) + "\r\n", input->comm,
-					   input->quiet );
-			expUpdate( "Number of DAC Events in experiment: " + str( input->dacs->getNumberEvents( 0 ) ) + "\r\n", input->comm,
-					   input->quiet );
+			expUpdate( "Number of TTL Events in experiment: " + str( input->ttls->getNumberEvents( 0 ) ) 
+					   + "\r\n", input->comm, input->quiet );
+			expUpdate( "Number of DAC Events in experiment: " + str( input->dacs->getNumberEvents( 0 ) )
+					   + "\r\n", input->comm, input->quiet );
 		}
 
 		if (input->debugOptions.showTtls)

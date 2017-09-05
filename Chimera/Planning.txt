@@ -37,32 +37,23 @@ Features:
 - Add camera region "Center" and save offsets of the borders from the center to config files.
 - Be able to scroll into empty space at bottom of scripts
 - be able to output niawg waveforms to text files
+- support aborting while paused
 
 Refactoring / Other:
 - refactor variables & variable key so that they aren't two separate objects. Consider if reasonable to also include 
-	variation number.
+	variation number in a class
 
 Bugs:
-- restart niawg freezes program? // should not be an issue after dealing with clean exiting of master thread.
-- number of camera pictures not getting set by config.
 - dacramp spacing warning should only appear once, and should appear in error status?
-- after abort should stop fully before prompting to delete files.
-- scripts not always getting saved with proper extension? Not sure how to repeat yet.
-- handle aborting when paused
+- after abort should stop fully before prompting to delete files. ??? not sure I can repeat
 - Add new data set not working in plot designer
 - Editing and re-saving plot files doesn't delete the old file if the filename changed.
 - Weird trouble with 2-picture plotting
-- Titles for scripts aren't correct
-- machnie script gets outputted with extra "end script"
-- Thresholds not getting set properly
-- Fix top / bottom name mismatch
-- commands with spaces after them get eaten wrong. probably a result of using getline, but if I'm using scriptstream, 
-	scriptstream should probably be able to eat whitespace on the end of the line.
-- dacs occaisonally breaking on config load.
-- parentscript not working?
+- Titles for scripts aren't correct???
+- dacs occaisonally breaking on config load?
 - something going wrong with exiting the niawg normally. Might be on delete waveforms, might be related to change from 
 	having orientations
-- reading exposure time X 1000 from config file, conversion issue.
+- Lots of missed save-status handling overall.
 
 =================
 Finished
