@@ -248,6 +248,7 @@
     <ClInclude Include="ScriptStream.h" />
     <ClInclude Include="Segment.h" />
     <ClInclude Include="SmsTextingControl.h" />
+    <ClInclude Include="splashDialog.h" />
     <ClInclude Include="StatusControl.h" />
     <ClInclude Include="StatusIndicator.h" />
     <ClInclude Include="TektronicsControl.h" />
@@ -318,6 +319,7 @@
     <ClCompile Include="ScriptStream.cpp" />
     <ClCompile Include="Segment.cpp" />
     <ClCompile Include="SmsTextingControl.cpp" />
+    <ClCompile Include="splashDialog.cpp" />
     <ClCompile Include="StatusControl.cpp" />
     <ClCompile Include="StatusIndicator.cpp" />
     <ClCompile Include="TektronicsControl.cpp" />

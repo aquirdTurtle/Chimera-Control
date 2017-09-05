@@ -225,10 +225,17 @@ namespace commonFunctions
 			/// File Management 
 			case ID_FILE_SAVEALL:
 			{
-				scriptWin->saveHorizontalScript();
-				scriptWin->saveVerticalScript();
-				scriptWin->saveIntensityScript();
-				mainWin->profile.saveEntireProfile(scriptWin, mainWin, auxWin, camWin);
+				try
+				{
+					scriptWin->saveHorizontalScript( );
+					scriptWin->saveVerticalScript( );
+					scriptWin->saveIntensityScript( );
+					mainWin->profile.saveEntireProfile( scriptWin, mainWin, auxWin, camWin );
+				}
+				catch ( Error& err )
+				{
+					mainWin->getComm( )->sendError( err.what( ) );
+				}
 				break;
 			}
 			case ID_PROFILE_SAVE_PROFILE:

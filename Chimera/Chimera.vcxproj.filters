@@ -197,6 +197,9 @@
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
     <ClCompile Include="openWithExplorer.cpp" />
+    <ClCompile Include="splashDialog.cpp">
+      <Filter>General Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -448,6 +451,9 @@
     </ClInclude>
     <ClInclude Include="DacStructures.h">
       <Filter>Auxiliary Window</Filter>
+    </ClInclude>
+    <ClInclude Include="splashDialog.h">
+      <Filter>General Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

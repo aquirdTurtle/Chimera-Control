@@ -929,6 +929,7 @@ LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
 		return 0;
 	}
 	setNiawgRunningState( false );
+	niawg.rearrangementThreadIsActive( );
 	return 0;
 }
 

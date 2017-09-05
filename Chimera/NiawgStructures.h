@@ -42,11 +42,11 @@ struct channelWave
 {
 	std::vector<waveSignal> signals;
 	// should be 0 until this option is re-implemented!
-	int phaseOption;
-	int initType;
+	int phaseOption=0;
+	int initType=0;
 	// variables for dealing with varied waveforms. These only get set when a varied waveform is used, and they serve the purpose of 
 	// carrying relevant info to the end of the program, when these varried waveforms are compiled.
-	UINT varNum;
+	UINT varNum=0;
 	std::vector<std::string> varNames;
 	std::vector<long> varTypes;
 	// This should usually just be a single char, but if it's wrong I can use the whole string to debug.
@@ -59,9 +59,9 @@ struct channelWave
 struct simpleWave
 {
 	niawgPair<channelWave> chan;
-	double time;
-	long int sampleNum;
-	bool varies;
+	double time=0;
+	long int sampleNum=0;
+	bool varies=false;
 	std::string name;
 	std::vector<ViReal64> waveVals;
 };
@@ -72,8 +72,8 @@ struct flashInfo
 	niawgPair<std::string> flashCycleFreqInput;
 	niawgPair<std::string> totalTimeInput;
 	std::vector<simpleWave> flashWaves;
-	double flashCycleFreq;
-	UINT flashNumber;
+	double flashCycleFreq=0;
+	UINT flashNumber=0;
 };
 
 
@@ -83,17 +83,17 @@ struct rearrangeInfo
 	// the target picture
 	std::vector<std::vector<bool>> target;
 	// a bit redundant atm.
-	UINT targetRows;
-	UINT targetCols;
-	double timePerStep = 1e-3;
+	UINT targetRows=0;
+	UINT targetCols=0;
+	double timePerStep = 1e-4;
 	double flashingFreq = 5e5;
 	// the maixmum number of moves the rearrangement should take.
-	UINT moveLimit;
+	UINT moveLimit=0;
 	// these are the frequencies that the niawg would need to output to reach the lower left corner (I think?) of 
 	// the picture.
-	niawgPair<double> lowestFreq;
+	niawgPair<double> lowestFreq = { 0,0 };
 	// this is the frequency difference per pixel
-	double freqPerPixel;
+	double freqPerPixel=0;
 	simpleWave staticWave;
 };
 
@@ -106,8 +106,8 @@ struct waveInfo
 	// may or may not be filled... check the "is flashing variable". Don't have a better way of doing this atm...
 	flashInfo flash;
 	rearrangeInfo rearrange;
-	bool isStreamed;
-	bool isFlashing;
+	bool isStreamed=false;
+	bool isFlashing=false;
 	bool isRearrangement = false;
 };
 

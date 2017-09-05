@@ -204,13 +204,21 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 }
 
 
-
+void NiawgController::turnOffRearranger( )
+{
+	// make sure the rearranger thread is off.
+	threadStateSignal = false;
+	WaitForSingleObject( rearrangerThreadHandle, INFINITE );
+}
 
 
 void NiawgController::restartDefault()
 {
 	try
 	{
+		// to be sure.
+		turnOffRearranger( );
+		
 		turnOff();
 		fgenConduit.clearMemory();
 		fgenConduit.allocateNamedWaveform( cstr( defaultWaveName ), defaultMixedWaveform.size( ) / 2 );
@@ -271,15 +279,7 @@ void NiawgController::analyzeNiawgScripts( niawgPair<ScriptStream>& scripts, Nia
 	// get the first input
 	for (auto axis : AXES)
 	{
-		command[axis] = scripts[axis].getline();
-		// handle trailing newline characters
-		if (command[axis].length() != 0)
-		{
-			if (command[axis][command[axis].length() - 1] == '\r')
-			{
-				command[axis].erase( command[axis].length() - 1 );
-			}
-		}
+		scripts[axis] >> command[axis];
 	}
 
 	/// Analyze!
@@ -311,15 +311,7 @@ void NiawgController::analyzeNiawgScripts( niawgPair<ScriptStream>& scripts, Nia
 		// get next input.
 		for (auto axis : AXES)
 		{
-			command[axis] = scripts[axis].getline();
-			// handle trailing newline characters
-			if (command[axis].length() != 0)
-			{
-				if (command[axis][command[axis].length() - 1] == '\r')
-				{
-					command[axis].erase( command[axis].length() - 1 );
-				}
-			}
+			scripts[axis] >> command[axis];
 		}
 	}
 }
@@ -496,19 +488,19 @@ void NiawgController::loadStandardInputType( std::string inputType, channelWave 
 	for (auto number : range( MAX_NIAWG_SIGNALS ))
 	{
 		number += 1;
-		if (inputType == "gen " + str( number ) + ", const")
+		if (inputType == "gen" + str( number ) + "const")
 		{
 			wvInfo.initType = number;
 		}
-		else if (inputType == "gen " + str( number ) + ", amp ramp")
+		else if (inputType == "gen" + str( number ) + "ampramp")
 		{
 			wvInfo.initType = number + MAX_NIAWG_SIGNALS;
 		}
-		else if (inputType == "gen " + str( number ) + ", freq ramp")
+		else if (inputType == "gen" + str( number ) + "freqramp")
 		{
 			wvInfo.initType = number + 2 * MAX_NIAWG_SIGNALS;
 		}
-		else if (inputType == "gen " + str( number ) + ", freq & amp ramp")
+		else if (inputType == "gen" + str( number ) + "freq&ampramp")
 		{
 			wvInfo.initType = number + 3 * MAX_NIAWG_SIGNALS;
 		}
@@ -709,17 +701,17 @@ void NiawgController::handleLogic( niawgPair<ScriptStream>& scripts, niawgPair<s
 		thrower( "ERROR: logical input commands must match, and they don't!\n\n" );
 	}
 	std::string input = inputs[Horizontal];
-	if (input == "wait until trigger")
+	if (input == "waittiltrig")
 	{
 		// Append command to script holder
 		rawNiawgScriptString += "wait until " + fgenConduit.getExternalTriggerName() + "\n";
 	}
-	else if (input == "wait until software trigger")
+	else if (input == "waitTilsoftwaretrig")
 	{
 		// Append command to script holder
 		rawNiawgScriptString += "wait until " + fgenConduit.getSoftwareTriggerName() + "\n";
 	}
-	else if (input == "wait set #")
+	else if (input == "waitset#")
 	{
 		// grab the # of samples the user wants to wait.
 		std::string temp;
@@ -744,7 +736,7 @@ void NiawgController::handleLogic( niawgPair<ScriptStream>& scripts, niawgPair<s
 		rawNiawgScriptString += "wait " + str( (long long)sampleNums[Horizontal] ) + "\n";
 	}
 	// Repeat commands // 
-	else if (input == "repeat set #")
+	else if (input == "repeatset#")
 	{
 		// grab the number of times to repeat the user is going for.
 		std::string temp;
@@ -767,28 +759,28 @@ void NiawgController::handleLogic( niawgPair<ScriptStream>& scripts, niawgPair<s
 		}
 		rawNiawgScriptString += "repeat " + str( (long long)repeatNums[Horizontal] ) + "\n";
 	}
-	else if (input == "repeat until trigger")
+	else if (input == "repeattiltrig")
 	{
 		rawNiawgScriptString += "repeat until " + fgenConduit.getExternalTriggerName() + "\n";
 	}
-	else if (input == "repeat until software trigger")
+	else if (input == "repeattilsoftwaretrig")
 	{
 		rawNiawgScriptString += "repeat until " + fgenConduit.getSoftwareTriggerName() + "\n";
 	}
-	else if (input == "repeat forever")
+	else if (input == "repeatforever")
 	{
 		rawNiawgScriptString += "repeat forever\n";
 	}
-	else if (input == "end repeat")
+	else if (input == "endrepeat")
 	{
 		rawNiawgScriptString += "end repeat\n";
 	}
 	// if-else Commands //
-	else if (input == "if trigger")
+	else if (input == "iftrig")
 	{
 		rawNiawgScriptString += "if " + fgenConduit.getExternalTriggerName() + "\n";
 	}
-	else if (input == "if software trigger")
+	else if (input == "ifsoftwaretrig")
 	{
 		rawNiawgScriptString += "if " + fgenConduit.getSoftwareTriggerName() + "\n";
 	}
@@ -815,51 +807,8 @@ void NiawgController::handleSpecial( niawgPair<ScriptStream>& scripts, NiawgOutp
 	niawgPair<std::string> waitSamples, importTypes;
 	niawgPair<std::fstream> externalWaveformFiles;
 
-	// Interpreting a predefined scripting file.
-	if (inputTypes[Vertical] == "predefined script")
-	{
-		// make sure that both scripts refer to the same predefined scripts
-		if (inputTypes[Horizontal]!= "predefined script")
-		{
-			thrower("ERROR: logical input commands must match, and they don't!\n\n");
-		}
-		// grab the script names from each file
-		for (auto axis : AXES)
-		{
-			// get both the names from a given script.
-			externalScriptNames[axis][Vertical] = scripts[axis].getline( '\r' );
-			externalScriptNames[axis][Horizontal] = scripts[axis].getline( '\r' );
-		}
-		// make sure the names match.
-		if (externalScriptNames[Vertical][Vertical] != externalScriptNames[Horizontal][Vertical]
-			 || externalScriptNames[Vertical][Horizontal] != externalScriptNames[Horizontal][Horizontal])
-		{
-			thrower("ERROR: external script names must match for a predefined script command!\n\n");
-		}
-		// open the scripts
-		niawgPair<std::fstream> externalScriptFiles;
-		for (auto axis : AXES)
-		{
-			externalScriptFiles[axis].open( profile.categoryPath + "\\" + externalScriptNames[Vertical][axis] );
-			if (!externalScriptFiles[axis].is_open())
-			{
-				thrower( "ERROR: external " + AXES_NAMES[axis] + " script file: " + externalScriptNames[Vertical][axis]
-						 + " could not be opened! make sure it exists in the current category folder: " + profile.categoryPath );
-			}
-		}
-		// recursively call the analyzeNiawgScripts function. This will go through the new script files, write all of their commands to the same script, write
-		// waveforms to the AWG, and eventually make it's way back here.
-		// this doesn't need a try/except because it's always inside another analyze call.
-		niawgPair<ScriptStream> externalScripts;
-		for (auto axis : AXES)
-		{
-			externalScripts[axis] << externalScriptFiles[axis].rdbuf();
-		}
-
-		analyzeNiawgScripts( externalScripts, output, profile, options, warnings );
-	}
 	// work with marker events
-	else if (inputTypes[Vertical] == "create marker event")
+	if (inputTypes[Vertical] == "create marker event")
 	{
 		// Make sure the commands match
 		if (inputTypes[Horizontal] != "create marker event")
@@ -1155,10 +1104,10 @@ void NiawgController::mixWaveforms( simpleWave& waveCore )
 */
 bool NiawgController::isLogic(std::string command)
 {
-	if (command == "wait until trigger" || command == "if trigger" || command == "repeat until trigger" 
-		 || command == "wait until software trigger" || command == "if software trigger" || command == "repeat until software trigger"
-		 || command == "wait set #" || command == "repeat set #" || command == "repeat forever" || command == "end repeat" 
-		 || command == "else" || command == "end if")
+	if (command == "waittiltrig" || command == "iftrig" || command == "repeattiltrig" 
+		 || command == "waittilsoftwaretrig" || command == "ifsoftwaretrig" || command == "repeattilsoftwaretrig"
+		 || command == "waitset#" || command == "repeatset#" || command == "repeatforever" || command == "endrepeat" 
+		 || command == "else" || command == "endif")
 	{
 		return true;
 	}
@@ -1538,7 +1487,8 @@ void NiawgController::handleSpecialWaveform( NiawgOutputInfo& output, profileSet
 			scripts[axis] >> bracket;
 			if (bracket != "{")
 			{
-				thrower( "ERROR: Expected \"{\" but found \"" + bracket + "\" in " + AXES_NAMES[axis] + " File during flashing waveform read" );
+				thrower( "ERROR: Expected \"{\" but found \"" + bracket + "\" in " + AXES_NAMES[axis] 
+						 + " File during flashing waveform read" );
 			}
 		}
 
@@ -1550,7 +1500,7 @@ void NiawgController::handleSpecialWaveform( NiawgOutputInfo& output, profileSet
 			// get the first input
 			for (auto axis : AXES)
 			{
-				flashingWaveCommands[axis] = scripts[axis].getline();
+				scripts[axis] >> flashingWaveCommands[axis];
 				// handle trailing newline characters
 				if (flashingWaveCommands[axis].length() != 0)
 				{
@@ -1649,7 +1599,7 @@ void NiawgController::handleSpecialWaveform( NiawgOutputInfo& output, profileSet
 		// get the first input
 		for (auto axis : AXES)
 		{
-			streamCommand[axis] = scripts[axis].getline();
+			scripts[axis] >> streamCommand[axis];
 			// handle trailing newline characters
 			if (streamCommand[axis].length() != 0)
 			{
@@ -1742,7 +1692,7 @@ void NiawgController::handleSpecialWaveform( NiawgOutputInfo& output, profileSet
 			scripts[axis] >> temp;
 			cols[axis] = std::stoi( temp );
 		}
-		// check consistency
+		// check consistency. Should probably verify that this is consistent with actual picture?
 		if (rows[Horizontal] != rows[Vertical] || cols[Horizontal] != cols[Vertical])
 		{
 			thrower( "ERROR: Target Picture size doesn't match between horizontal and vertical scripts!" );
@@ -1779,7 +1729,7 @@ void NiawgController::handleSpecialWaveform( NiawgOutputInfo& output, profileSet
 		// get the first input
 		for (auto axis : AXES)
 		{
-			holdingCommands[axis] = scripts[axis].getline();
+			scripts[axis] >> holdingCommands[axis];
 			// handle trailing newline characters
 			if (holdingCommands[axis].length() != 0)
 			{
@@ -1809,7 +1759,7 @@ void NiawgController::handleSpecialWaveform( NiawgOutputInfo& output, profileSet
 			for (auto rowInc : range( rows[axis] ))
 			{
 				targetTemp[axis][rowInc].resize( cols[axis] );
-				std::string line = scripts[axis].getline( ';' );
+				std::string line = scripts[axis].getline( '\r' );
 				ScriptStream lineScript( line );
 				std::string singlePixelStatus;
 				for (auto colInc : range( cols[axis] ))
@@ -1822,7 +1772,7 @@ void NiawgController::handleSpecialWaveform( NiawgOutputInfo& output, profileSet
 					catch (std::invalid_argument&)
 					{
 						thrower( "ERROR: Failed to load the user's input for a rearrangement target picture! Loading failed"
-								 " on this line: " + line );
+								 " on this line: " + line + "\r\n");
 					}
 				}
 			}
@@ -1851,8 +1801,9 @@ void NiawgController::handleSpecialWaveform( NiawgOutputInfo& output, profileSet
 		}
 		// get the upper limit of the nuumber of moves that this could involve.
 		rearrangeWave.rearrange.moveLimit = getMaxMoves( rearrangeWave.rearrange.target);
-		fgenConduit.allocateNamedWaveform( cstr( rearrangeWaveName ), long( rearrangeWave.rearrange.moveLimit
-										   * rearrangeWave.rearrange.timePerStep * NIAWG_SAMPLE_RATE * 2) );
+		output.waves.push_back( rearrangeWave );
+		fgenConduit.allocateNamedWaveform( cstr( rearrangeWaveName ), long( output.waves.back().rearrange.moveLimit
+										   * output.waves.back().rearrange.timePerStep * NIAWG_SAMPLE_RATE * 2) );
 		output.niawgLanguageScript += "generate " + rearrangeWaveName + "\n";
 	}
 	else
@@ -1970,8 +1921,8 @@ bool NiawgController::isStandardWaveform(std::string inputType)
 {
 	for ( auto number : range( MAX_NIAWG_SIGNALS ) )
 	{
-		if ( inputType == "gen " + str( number+1 ) + ", const" || inputType == "gen " + str(number + 1) + ", amp ramp"
-			 || inputType == "gen " + str(number + 1) + ", freq ramp" || inputType == "gen " + str(number + 1) + ", freq & amp ramp")
+		if ( inputType == "gen" + str( number+1 ) + "const" || inputType == "gen" + str(number + 1) + "ampramp"
+			 || inputType == "gen" + str(number + 1) + "freqramp" || inputType == "gen" + str(number + 1) + "freq&ampramp")
 		{
 			return true;
 		}
@@ -2259,7 +2210,7 @@ double NiawgController::calculateCorrectionTime( channelWave& wvData1, channelWa
 		sampleNum = bestSampleNum;
 	}
 	// if here, a good time must have been found.
-	return 0;
+return 0;
 }
 
 /**
@@ -2277,17 +2228,17 @@ double NiawgController::calculateCorrectionTime( channelWave& wvData1, channelWa
 double NiawgController::rampCalc( int size, int iteration, double initPos, double finPos, std::string rampType )
 {
 	// for linear ramps
-	if (rampType == "lin")
+	if ( rampType == "lin" )
 	{
 		return iteration * (finPos - initPos) / size;
 	}
 	// for no ramp
-	else if (rampType == "nr")
+	else if ( rampType == "nr" )
 	{
 		return 0;
 	}
 	// for hyperbolic tangent ramps
-	else if (rampType == "tanh")
+	else if ( rampType == "tanh" )
 	{
 		return (finPos - initPos) * (tanh( -4 + 8 * (double)iteration / size ) + 1) / 2;
 	}
@@ -2307,24 +2258,29 @@ double NiawgController::rampCalc( int size, int iteration, double initPos, doubl
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void NiawgController::startRearrangementThread(std::vector<std::vector<bool>>* atomQueue, waveInfo wave)
+void NiawgController::startRearrangementThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave, 
+												Communicator* comm )
 {
 	threadStateSignal = true;
 	rearrangementThreadInput* input = new rearrangementThreadInput;
 	input->threadActive = &threadStateSignal;
+	input->comm = comm;
 	input->niawg = this;
 	input->atomsQueue = atomQueue;
 	input->rearrangementWave = wave;
+	UINT rearrangerId;
+	rearrangerThreadHandle = (HANDLE)_beginthreadex( 0, 0, NiawgController::rearrangerThreadProcedure, (void*)input,
+													 0, &rearrangerId );
 }
 
 
-bool NiawgController::rearrangementThreadIsActive()
+bool NiawgController::rearrangementThreadIsActive( )
 {
 	return threadStateSignal;
 }
 
 
-void NiawgController::rearrange()
+void NiawgController::rearrange( )
 {
 	// calc pattern.
 	// convert pattern to waveform data. 
@@ -2339,80 +2295,108 @@ void NiawgController::calculateRearrangingMoves( std::vector<std::vector<bool>> 
 }
 
 
-UINT __stdcall NiawgController::rearrangerThreadFunction( void* voidInput )
+UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 {
 	rearrangementThreadInput* input = (rearrangementThreadInput*)voidInput;
-	// wait for data
-	while (input->threadActive && input->atomsQueue->size() != 0)
+	try
 	{
-		if (input->atomsQueue->size() == 0)
+		// wait for data
+		while ( *input->threadActive || input->atomsQueue->size( ) != 0 )
 		{
-			continue;
-		}
-		rearrangeInfo& info = input->rearrangementWave.rearrange;
-		// right now I need to re-shape the atomqueue matrix. I should probably modify Kai's code to work with a 
-		// flattened source matrix for speed.
-		std::vector<std::vector<bool>> source;
-		source.resize( info.targetRows );
-		UINT count = 0;
-		for (auto& row : source)
-		{
-			row.resize( info.targetCols );
-			for (auto& elem : row)
+			if ( input->atomsQueue->size( ) == 0 )
 			{
-				elem = (*input->atomsQueue)[0][count];
+				continue;
 			}
-		}
-		std::vector<simpleMove> operationsMatrix;
-		rearrangement( source, info.target, operationsMatrix );
-		std::vector<double> rearrangeVals;
-		/// program niawg
-		debugInfo opt;
-		for (auto move : operationsMatrix)
-		{
-			// program this move.
-			double freqPerPixel = info.freqPerPixel;
-			niawgPair<int> initPos = { move.initCol, move.initRow };
-			niawgPair<int> finPos = { move.finCol, move.finRow };
-			simpleWave moveWave;
-			moveWave.varies = false;
-			// not used bc not programmed directly.
-			moveWave.name = "NA";
-			moveWave.time = input->rearrangementWave.rearrange.timePerStep;
-			moveWave.sampleNum = input->niawg->waveformSizeCalc( moveWave.time );
-			for (auto axis : AXES)
+			ULONG start = GetTickCount( );
+			rearrangeInfo& info = input->rearrangementWave.rearrange;
+			// note that this only currently checks for the total number of atoms...f
+			if ( (*input->atomsQueue)[0].size( ) != info.targetRows * info.targetCols)
 			{
-				moveWave.chan[axis].signals.resize( 1 );
-				waveSignal& sig = moveWave.chan[axis].signals[0];
-				sig.initPower = 1;
-				sig.finPower = 1;
-				sig.powerRampType = "none";
-				sig.initPhase = 0;
-				sig.freqRampType = "lin";
-				sig.freqInit = initPos[axis] * freqPerPixel + info.lowestFreq[axis];
-				sig.freqFin = finPos[axis] * freqPerPixel + info.lowestFreq[axis];
+				thrower( "ERROR: source and target dimensions mismatch inside rearrangement routine!" );
 			}
-			input->niawg->finalizeStandardWave( moveWave, opt );
-			// now put together into small temporary flashing wave
-			waveInfo flashMove;
-			flashMove.isFlashing = true;
-			flashMove.flash.flashNumber = 2;
-			flashMove.flash.flashWaves.push_back( info.staticWave );
-			flashMove.flash.flashWaves.push_back( moveWave );
-			flashMove.flash.flashCycleFreq = info.flashingFreq;
-			flashMove.flash.flashCycleFreqInput = { str( info.flashingFreq ), str( info.flashingFreq ) };
-			input->niawg->mixFlashingWaves( flashMove );
-			// now add to main wave.
-			rearrangeVals.insert( rearrangeVals.end(), flashMove.core.waveVals.begin(), flashMove.core.waveVals.end() );
+			// right now I need to re-shape the atomqueue matrix. I should probably modify Kai's code to work with a 
+			// flattened source matrix for speed.
+			std::vector<std::vector<bool>> source;
+			source.resize( info.targetRows );
+			UINT count = 0;
+			for ( auto rowCount : range(info.targetRows))
+			{
+				std::vector<bool> tempRow( info.targetCols );
+				for ( auto& elem : tempRow )
+				{
+					bool atom = (*input->atomsQueue)[0][count++];
+					elem = atom;
+				}
+				source[source.size( ) - 1 - rowCount] = tempRow;
+			}
+			std::vector<simpleMove> operationsMatrix;
+			try
+			{
+				rearrangement( source, info.target, operationsMatrix );
+			}
+			catch ( Error& err )
+			{
+				// as of now, just ignore.
+			}
+
+			std::vector<double> rearrangeVals;
+			/// program niawg
+			debugInfo opt;
+			for ( auto move : operationsMatrix )
+			{
+				// program this move.
+				double freqPerPixel = info.freqPerPixel;
+				niawgPair<int> initPos = { move.initCol, move.initRow };
+				niawgPair<int> finPos = { move.finCol, move.finRow };
+				simpleWave moveWave;
+				moveWave.varies = false;
+				// not used bc not programmed directly.
+				moveWave.name = "NA";
+				moveWave.time = input->rearrangementWave.rearrange.timePerStep;
+				moveWave.sampleNum = input->niawg->waveformSizeCalc( moveWave.time );
+				for ( auto axis : AXES )
+				{
+					moveWave.chan[axis].signals.resize( 1 );
+					waveSignal& sig = moveWave.chan[axis].signals[0];
+					sig.initPower = 1;
+					sig.finPower = 1;
+					sig.powerRampType = "nr";
+					sig.initPhase = 0;
+					sig.freqRampType = "lin";
+					sig.freqInit = initPos[axis] * freqPerPixel + info.lowestFreq[axis];
+					sig.freqFin = finPos[axis] * freqPerPixel + info.lowestFreq[axis];
+				}
+				input->niawg->finalizeStandardWave( moveWave, opt );
+				// now put together into small temporary flashing wave
+				waveInfo flashMove;
+				flashMove.isFlashing = true;
+				flashMove.flash.flashNumber = 2;
+				flashMove.flash.flashWaves.push_back( info.staticWave );
+				flashMove.flash.flashWaves.push_back( moveWave );
+				flashMove.flash.flashCycleFreq = info.flashingFreq;
+				flashMove.flash.flashCycleFreqInput = { str( info.flashingFreq ), str( info.flashingFreq ) };
+				input->niawg->mixFlashingWaves( flashMove );
+				// now add to main wave.
+				rearrangeVals.insert( rearrangeVals.end( ), flashMove.core.waveVals.begin( ), flashMove.core.waveVals.end( ) );
+			}
+			// fill out the rest of the waveform.
+			simpleWave fillerWave = info.staticWave;
+			fillerWave.time = (info.moveLimit - operationsMatrix.size( )) * info.timePerStep;
+			fillerWave.sampleNum = input->niawg->waveformSizeCalc( fillerWave.time );
+			input->niawg->finalizeStandardWave( fillerWave, opt );
+			rearrangeVals.insert( rearrangeVals.end( ), fillerWave.waveVals.begin( ), fillerWave.waveVals.end( ) );
+			input->niawg->streamRearrangement( );
+			input->niawg->fgenConduit.sendSoftwareTrigger( );
+			UINT stop = GetTickCount( );
+			input->comm->sendStatus( "Rearranger time: " + str( stop - start ) + "\r\n" );
+			input->atomsQueue->erase( input->atomsQueue->begin( ) );
 		}
-		// fill out the rest of the waveform.
-		simpleWave fillerWave = info.staticWave;
-		fillerWave.time = info.moveLimit - operationsMatrix.size();
-		fillerWave.sampleNum = input->niawg->waveformSizeCalc( fillerWave.time );
-		input->niawg->finalizeStandardWave( fillerWave, opt );
-		rearrangeVals.insert( rearrangeVals.end(), fillerWave.waveVals.begin(), fillerWave.waveVals.end() );
-		input->niawg->streamRearrangement();
 	}
+	catch ( Error& err )
+	{
+		errBox( "ERROR in rearrangement thread! " + err.whatStr( ) );
+	}
+	delete input;
 	return 0;
 }
 
@@ -2438,13 +2422,14 @@ int NiawgController::sign( int x )
 }
 
 
-double NiawgController::MinCostMatching( const std::vector<std::vector<double>> &cost, std::vector<int> &Lmate,
-									std::vector<int> &Rmate )
+double NiawgController::minCostMatching( const std::vector<std::vector<double>> &cost, std::vector<int> &Lmate,
+										 std::vector<int> &Rmate )
 {
 	int n = int( cost.size() );
 	// construct dual feasible solution
 	std::vector<double> u( n );
 	std::vector<double> v( n );
+
 	for (int i = 0; i < n; i++)
 	{
 		u[i] = cost[i][0];
@@ -2485,7 +2470,7 @@ double NiawgController::MinCostMatching( const std::vector<std::vector<double>> 
 			}
 		}
 	}
-
+	
 	std::vector<double> dist( n );
 	std::vector<int> dad( n ), seen( n );
 
@@ -2588,8 +2573,8 @@ double NiawgController::MinCostMatching( const std::vector<std::vector<double>> 
 
 
 double NiawgController::rearrangement( const std::vector<std::vector<bool>> & sourceMatrix,
-								  const std::vector<std::vector<bool>> & targetMatrix,
-								  std::vector<simpleMove> & operationsMatrix )
+									   const std::vector<std::vector<bool>> & targetMatrix,
+									   std::vector<simpleMove> & operationsMatrix )
 {
 	// I am sure this might be also included directly after evaluating the image, but for safety
 	// I also included it here
@@ -2597,7 +2582,7 @@ double NiawgController::rearrangement( const std::vector<std::vector<bool>> & so
 	int numberSources = 0;
 	for (UINT rowInc = 0; rowInc < sourceMatrix.size(); rowInc++)
 	{
-		for (UINT colInc = 0; colInc < sourceMatrix.size(); colInc++)
+		for (UINT colInc = 0; colInc < sourceMatrix[rowInc].size(); colInc++)
 		{
 			if (targetMatrix[rowInc][colInc] == 1)
 			{
@@ -2628,20 +2613,20 @@ double NiawgController::rearrangement( const std::vector<std::vector<bool>> & so
 	//Find out the indice
 	int sourcecounter = 0;
 	int targetcounter = 0;
-	for (UINT i = 0; i < sourceMatrix.size(); i++)
+	for (UINT rowInc = 0; rowInc < sourceMatrix.size(); rowInc++)
 	{
-		for (UINT j = 0; j < sourceMatrix.size(); j++)
+		for (UINT columnInc = 0; columnInc < sourceMatrix[rowInc].size(); columnInc++)
 		{
-			if (sourceMatrix[i][j] == 1)
+			if (sourceMatrix[rowInc][columnInc] == 1)
 			{
-				SourceIndice[sourcecounter][0] = i;
-				SourceIndice[sourcecounter][1] = j;
+				SourceIndice[sourcecounter][0] = rowInc;
+				SourceIndice[sourcecounter][1] = columnInc;
 				sourcecounter++;
 			}
-			if (targetMatrix[i][j] == 1)
+			if (targetMatrix[rowInc][columnInc] == 1)
 			{
-				TargetIndice[targetcounter][0] = i;
-				TargetIndice[targetcounter][1] = j;
+				TargetIndice[targetcounter][0] = rowInc;
+				TargetIndice[targetcounter][1] = columnInc;
 				targetcounter++;
 			}
 		}
@@ -2667,7 +2652,7 @@ double NiawgController::rearrangement( const std::vector<std::vector<bool>> & so
 	std::vector<int> right;
 
 	//The returned cost is the travelled distance
-	double cost = MinCostMatching( costMatrix, left, right );
+	double cost = minCostMatching( costMatrix, left, right );
 
 	//------------------------------------------------------------------------------
 	//calculate the operationsMatrix
