@@ -14,15 +14,15 @@ void ExperimentTimer::initialize( cameraPositions& inputLoc, CWnd* parent, bool 
 	/// PROGRESS BARS
 	// subseries progress bar
 	variationProgress.sPos = { inputLoc.sPos.x + 168, inputLoc.sPos.y, inputLoc.sPos.x + 1168, inputLoc.sPos.y + 15 };
-	variationProgress.Create(WS_CHILD | WS_VISIBLE, variationProgress.sPos, parent, id++ );
+	variationProgress.Create(WS_CHILD | WS_VISIBLE | PBS_SMOOTH, variationProgress.sPos, parent, id++ );
 	variationProgress.SetBkColor(RGB(100, 110, 100));
 	variationProgress.SetBarColor(RGB(0, 200, 0));
 	// series progress bar display
 	overallProgress.sPos = { inputLoc.sPos.x + 168, inputLoc.sPos.y + 15, inputLoc.sPos.x + 1168, inputLoc.sPos.y + 40 };
-	overallProgress.Create(WS_CHILD | WS_VISIBLE, overallProgress.sPos, parent, id++ );
+	overallProgress.Create(WS_CHILD | WS_VISIBLE | PBS_SMOOTH, overallProgress.sPos, parent, id++ );
 	overallProgress.SetBkColor(RGB(100, 110, 100));
 	overallProgress.SetBarColor(RGB(255, 255, 255));
-	overallProgress.SetRange( 0, 1000 );
+
 	//overallProgress.Set
 	inputLoc.seriesPos.y += 40;
 	inputLoc.amPos.y += 40;

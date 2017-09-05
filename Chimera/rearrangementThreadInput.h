@@ -12,6 +12,7 @@ struct rearrangementThreadInput
 	std::vector<std::vector<bool>>* atomsQueue;
 	//std::vector<std::vector<bool>> targetImage;
 	//UINT waveNumber;
+	//std::vector<double> rearrangeVals;
 	waveInfo rearrangementWave;
 	NiawgController* niawg;
 	Communicator* comm;

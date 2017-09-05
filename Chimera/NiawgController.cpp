@@ -208,7 +208,11 @@ void NiawgController::turnOffRearranger( )
 {
 	// make sure the rearranger thread is off.
 	threadStateSignal = false;
-	WaitForSingleObject( rearrangerThreadHandle, INFINITE );
+	int result = WaitForSingleObject( rearrangerThreadHandle, 2000 );
+	if ( result == WAIT_TIMEOUT )
+	{
+		thrower( "ERROR: waiting for Rearranger thread to finish timed out!?!?!?" );
+	}
 }
 
 
@@ -1747,6 +1751,9 @@ void NiawgController::handleSpecialWaveform( NiawgOutputInfo& output, profileSet
 		// don't want to add directly 
 		NiawgOutputInfo rearrangementOutputInfo = output;
 		loadWaveformParameters( rearrangementOutputInfo, profile, holdingCommands, options, scripts );
+		// this wave only needs to be written once.
+		finalizeStandardWave( rearrangementOutputInfo.waves.back( ).core, options );
+		//finalizeStandardWave( wave.flash.flashWaves[waveInc], options );
 		// add the new wave in flashingOutputInfo to flashingInfo structure
 		rearrangeWave.rearrange.staticWave = rearrangementOutputInfo.waves.back().core;
 
@@ -1802,8 +1809,9 @@ void NiawgController::handleSpecialWaveform( NiawgOutputInfo& output, profileSet
 		// get the upper limit of the nuumber of moves that this could involve.
 		rearrangeWave.rearrange.moveLimit = getMaxMoves( rearrangeWave.rearrange.target);
 		output.waves.push_back( rearrangeWave );
-		fgenConduit.allocateNamedWaveform( cstr( rearrangeWaveName ), long( output.waves.back().rearrange.moveLimit
-										   * output.waves.back().rearrange.timePerStep * NIAWG_SAMPLE_RATE * 2) );
+		long samples = long( output.waves.back( ).rearrange.moveLimit
+							 * output.waves.back( ).rearrange.timePerMove * NIAWG_SAMPLE_RATE );
+		fgenConduit.allocateNamedWaveform( cstr( rearrangeWaveName ), samples );
 		output.niawgLanguageScript += "generate " + rearrangeWaveName + "\n";
 	}
 	else
@@ -1813,13 +1821,13 @@ void NiawgController::handleSpecialWaveform( NiawgOutputInfo& output, profileSet
 	//output.waveCount++;
 }
 
-
+// generic stream.
 void NiawgController::streamWaveform()
 {
 	fgenConduit.writeNamedWaveform( cstr(streamWaveName), streamWaveformVals.size(), streamWaveformVals.data());
 }
 
-
+// expects the rearrangmenet waveform to have already been filled into rearrangeWaveVals.
 void NiawgController::streamRearrangement()
 {
 	fgenConduit.writeNamedWaveform( cstr( rearrangeWaveName ), rearrangeWaveVals.size(), rearrangeWaveVals.data() );
@@ -2268,6 +2276,7 @@ void NiawgController::startRearrangementThread( std::vector<std::vector<bool>>* 
 	input->niawg = this;
 	input->atomsQueue = atomQueue;
 	input->rearrangementWave = wave;
+
 	UINT rearrangerId;
 	rearrangerThreadHandle = (HANDLE)_beginthreadex( 0, 0, NiawgController::rearrangerThreadProcedure, (void*)input,
 													 0, &rearrangerId );
@@ -2310,7 +2319,7 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 			ULONG start = GetTickCount( );
 			rearrangeInfo& info = input->rearrangementWave.rearrange;
 			// note that this only currently checks for the total number of atoms...f
-			if ( (*input->atomsQueue)[0].size( ) != info.targetRows * info.targetCols)
+			if ( (*input->atomsQueue)[0].size( ) != info.targetRows * info.targetCols )
 			{
 				thrower( "ERROR: source and target dimensions mismatch inside rearrangement routine!" );
 			}
@@ -2319,7 +2328,7 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 			std::vector<std::vector<bool>> source;
 			source.resize( info.targetRows );
 			UINT count = 0;
-			for ( auto rowCount : range(info.targetRows))
+			for ( auto rowCount : range( info.targetRows ) )
 			{
 				std::vector<bool> tempRow( info.targetCols );
 				for ( auto& elem : tempRow )
@@ -2338,21 +2347,20 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 			{
 				// as of now, just ignore.
 			}
-
-			std::vector<double> rearrangeVals;
+			input->niawg->rearrangeWaveVals.clear( );
 			/// program niawg
-			debugInfo opt;
+			debugInfo options;
 			for ( auto move : operationsMatrix )
 			{
 				// program this move.
 				double freqPerPixel = info.freqPerPixel;
-				niawgPair<int> initPos = { move.initCol, move.initRow };
-				niawgPair<int> finPos = { move.finCol, move.finRow };
+				niawgPair<int> initPos = { move.initRow, move.initCol };
+				niawgPair<int> finPos = { move.finRow, move.finCol };
 				simpleWave moveWave;
 				moveWave.varies = false;
 				// not used bc not programmed directly.
 				moveWave.name = "NA";
-				moveWave.time = input->rearrangementWave.rearrange.timePerStep;
+				moveWave.time = input->rearrangementWave.rearrange.timePerMove / 2.0;
 				moveWave.sampleNum = input->niawg->waveformSizeCalc( moveWave.time );
 				for ( auto axis : AXES )
 				{
@@ -2363,32 +2371,43 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 					sig.powerRampType = "nr";
 					sig.initPhase = 0;
 					sig.freqRampType = "lin";
-					sig.freqInit = initPos[axis] * freqPerPixel + info.lowestFreq[axis];
-					sig.freqFin = finPos[axis] * freqPerPixel + info.lowestFreq[axis];
+					sig.freqInit = (initPos[axis] * freqPerPixel + info.lowestFreq[axis])*1e6;
+					sig.freqFin = (finPos[axis] * freqPerPixel + info.lowestFreq[axis])*1e6;
 				}
-				input->niawg->finalizeStandardWave( moveWave, opt );
+				input->niawg->finalizeStandardWave( moveWave, options );
 				// now put together into small temporary flashing wave
 				waveInfo flashMove;
+				flashMove.core.time = info.timePerMove;
 				flashMove.isFlashing = true;
 				flashMove.flash.flashNumber = 2;
+				if ( info.staticWave.waveVals.size( ) != moveWave.waveVals.size( ) )
+				{
+					thrower( "ERROR: static wave size doesn't match move wave size! Sizes were "
+							 + str( info.staticWave.waveVals.size( ) ) + " and " + str( moveWave.waveVals.size( ) )
+							 + " respectively.\r\n" );
+				}
 				flashMove.flash.flashWaves.push_back( info.staticWave );
 				flashMove.flash.flashWaves.push_back( moveWave );
 				flashMove.flash.flashCycleFreq = info.flashingFreq;
 				flashMove.flash.flashCycleFreqInput = { str( info.flashingFreq ), str( info.flashingFreq ) };
 				input->niawg->mixFlashingWaves( flashMove );
 				// now add to main wave.
-				rearrangeVals.insert( rearrangeVals.end( ), flashMove.core.waveVals.begin( ), flashMove.core.waveVals.end( ) );
+				input->niawg->rearrangeWaveVals.insert( input->niawg->rearrangeWaveVals.end( ), flashMove.core.waveVals.begin( ), flashMove.core.waveVals.end( ) );
 			}
 			// fill out the rest of the waveform.
 			simpleWave fillerWave = info.staticWave;
-			fillerWave.time = (info.moveLimit - operationsMatrix.size( )) * info.timePerStep;
+			fillerWave.time = (info.moveLimit - operationsMatrix.size( )) * info.timePerMove;
 			fillerWave.sampleNum = input->niawg->waveformSizeCalc( fillerWave.time );
-			input->niawg->finalizeStandardWave( fillerWave, opt );
-			rearrangeVals.insert( rearrangeVals.end( ), fillerWave.waveVals.begin( ), fillerWave.waveVals.end( ) );
+			input->niawg->finalizeStandardWave( fillerWave, options );
+			input->niawg->rearrangeWaveVals.insert( input->niawg->rearrangeWaveVals.end( ), fillerWave.waveVals.begin( ), fillerWave.waveVals.end( ) );
 			input->niawg->streamRearrangement( );
 			input->niawg->fgenConduit.sendSoftwareTrigger( );
+			input->niawg->fgenConduit.resetWritePosition( );
 			UINT stop = GetTickCount( );
-			input->comm->sendStatus( "Rearranger time: " + str( stop - start ) + "\r\n" );
+			if ( operationsMatrix.size( ) )
+			{
+				input->comm->sendStatus( "Rearranger attepted move. Took time: " + str( stop - start ) + "\r\n" );
+			}
 			input->atomsQueue->erase( input->atomsQueue->begin( ) );
 		}
 	}
