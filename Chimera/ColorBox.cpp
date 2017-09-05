@@ -19,11 +19,12 @@ void ColorBox::initialize(POINT& pos, int& id, CWnd* parent, int length, cToolTi
 	boxes.intensity.Create( "INTENSITY", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | SS_CENTER | WS_BORDER,
 						 boxes.intensity.sPos, parent, id++ );
 	boxes.intensity.fontType = CodeFont;
-
+	//
 	boxes.master.sPos = { long(pos.x + 3 * length / 4.0), pos.y, pos.x + length, pos.y + 20 };
 	boxes.master.Create( "MASTER", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | SS_CENTER | WS_BORDER,
 						 boxes.master.sPos, parent, id++ );
 	boxes.master.fontType = CodeFont;
+
 	pos.y += 20;
 }
 

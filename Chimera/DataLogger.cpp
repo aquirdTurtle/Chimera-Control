@@ -221,13 +221,13 @@ void DataLogger::logAndorSettings( AndorRunSettings settings, bool on)
 	// image settings
 	H5::Group imageDims = andorGroup.createGroup( "Image-Dimensions" );
 	H5::DataSet bottomSet = imageDims.createDataSet( "Bottom", H5::PredType::NATIVE_INT, H5::DataSpace( 1, rank1 ));
-	bottomSet.write( &settings.imageSettings.bottomBorder, H5::PredType::NATIVE_INT );
+	bottomSet.write( &settings.imageSettings.top, H5::PredType::NATIVE_INT );
 	H5::DataSet topSet = imageDims.createDataSet( "Top", H5::PredType::NATIVE_INT, H5::DataSpace( 1, rank1 ) );
-	topSet.write( &settings.imageSettings.topBorder, H5::PredType::NATIVE_INT );
+	topSet.write( &settings.imageSettings.bottom, H5::PredType::NATIVE_INT );
 	H5::DataSet leftSet = imageDims.createDataSet( "Left", H5::PredType::NATIVE_INT, H5::DataSpace( 1, rank1 ) );
-	leftSet.write( &settings.imageSettings.leftBorder, H5::PredType::NATIVE_INT );
+	leftSet.write( &settings.imageSettings.left, H5::PredType::NATIVE_INT );
 	H5::DataSet rightSet = imageDims.createDataSet( "Right", H5::PredType::NATIVE_INT, H5::DataSpace( 1, rank1 ) );
-	rightSet.write( &settings.imageSettings.rightBorder, H5::PredType::NATIVE_INT );
+	rightSet.write( &settings.imageSettings.right, H5::PredType::NATIVE_INT );
 	H5::DataSet hBinSet = imageDims.createDataSet( "Horizontal-Binning", H5::PredType::NATIVE_INT, 
 												   H5::DataSpace( 1, rank1 ) );
 	hBinSet.write( &settings.imageSettings.horizontalBinning, H5::PredType::NATIVE_INT );

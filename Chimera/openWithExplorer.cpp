@@ -7,7 +7,7 @@
  * This function gets the name of a file to open, using the fancy windows dialog box.
  * It returns the chosen filename if successful, it returns "" if the user canceled.
  */
-std::string openWithExplorer(CWnd* parent)
+std::string openWithExplorer(CWnd* parent, std::string extension)
 {
 	OPENFILENAME dialogInfo;
 	// buffer for file name
@@ -21,7 +21,36 @@ std::string openWithExplorer(CWnd* parent)
 	// use the contents of szFile to initialize itself.
 	dialogInfo.lpstrFile[0] = '\0';
 	dialogInfo.nMaxFile = sizeof(fileName);
-	dialogInfo.lpstrFilter = NULL;//"All\0*.*\0Text\0*.TXT\0";
+
+	// using string literals because of the embedded \0 character.
+	using namespace std::string_literals;
+	std::string txt;
+	if ( extension == "aScript" )
+	{
+		txt = "Agilent Script\0*.aScript\0\0"s;
+	}
+	else if ( extension == "nScript" )
+	{
+		txt = "Niawg Script\0*.nScript\0\0"s;
+	}
+	else if ( extension == "mScript" )
+	{
+		txt = "Master Script\0*.mScript\0"s;
+	}
+	else if ( extension == "Config" )
+	{
+		txt = "Configuraiton\0*.Config\0"s;
+	}
+	else if ( extension == "catConfig" )
+	{
+		txt = "Category Config File\0*.catConfig\0"s;
+	}
+	else if ( extension == "eConfig" )
+	{
+		txt = "Experiment Config File\0*.eConfig\0"s;
+	}
+
+	dialogInfo.lpstrFilter = txt.c_str( );
 	dialogInfo.nFilterIndex = 1;
 	dialogInfo.lpstrFileTitle = NULL;
 	dialogInfo.nMaxFileTitle = 0;

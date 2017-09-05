@@ -287,7 +287,6 @@
     <ClCompile Include="DataSet.cpp" />
     <ClCompile Include="DebuggingOptionsControl.cpp" />
     <ClCompile Include="EmbeddedPythonHandler.cpp" />
-    <ClCompile Include="errBox.cpp" />
     <ClCompile Include="ExperimentLogger.cpp" />
     <ClCompile Include="ExperimentTimer.cpp" />
     <ClCompile Include="externals.cpp" />

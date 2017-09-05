@@ -2,10 +2,10 @@
 
 struct imageParameters
 {
-	UINT leftBorder;
-	UINT rightBorder;
-	UINT topBorder;
-	UINT bottomBorder;
+	UINT left;
+	UINT right;
+	UINT bottom;
+	UINT top;
 	UINT horizontalBinning;
 	UINT verticalBinning;
 	UINT width;

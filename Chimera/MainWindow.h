@@ -96,7 +96,7 @@ class MainWindow : public CDialog
 		void handleFinish();
 		UINT getRepNumber();
 		void logParams( DataLogger* logger, MasterThreadInput* input );
-
+		bool experimentIsPaused( );
 	private:		
 		DECLARE_MESSAGE_MAP();
 		ScriptingWindow* TheScriptingWindow;
