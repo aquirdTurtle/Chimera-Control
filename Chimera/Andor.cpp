@@ -544,8 +544,8 @@ void AndorCamera::setExposures()
 void AndorCamera::setImageParametersToCamera()
 {
 	setImage(runSettings.imageSettings.verticalBinning, runSettings.imageSettings.horizontalBinning, 
-			 runSettings.imageSettings.topBorder, runSettings.imageSettings.bottomBorder, 
-			 runSettings.imageSettings.leftBorder, runSettings.imageSettings.rightBorder);
+			 runSettings.imageSettings.bottom, runSettings.imageSettings.top, 
+			 runSettings.imageSettings.left, runSettings.imageSettings.right);
 }
 
 

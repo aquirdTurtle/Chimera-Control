@@ -21,7 +21,7 @@ class Script
 		void handleToolTip( NMHDR * pNMHDR, LRESULT * pResult );
 		std::string getScriptText();
 		void setScriptText( std::string text );
-		void functionChangeHandler( );
+		void functionChangeHandler( std::string categoryPath );
 		void rearrange( UINT width, UINT height, fontMap fonts );
 		void colorEntireScript( std::vector<variable> vars, rgbMap rgbs,
 								std::array<std::array<std::string, 16>, 4> ttlNames, std::array<std::string, 24> dacNames);

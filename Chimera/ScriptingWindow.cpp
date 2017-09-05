@@ -50,7 +50,7 @@ void ScriptingWindow::handleMasterFunctionChange( )
 {
 	try
 	{
-		masterScript.functionChangeHandler();
+		masterScript.functionChangeHandler(mainWindowFriend->getProfileSettings().categoryPath);
 		masterScript.colorEntireScript( auxWindowFriend->getAllVariables( ), mainWindowFriend->getRgbs( ),
 										auxWindowFriend->getTtlNames( ), auxWindowFriend->getDacNames( ) );
 	}
@@ -429,7 +429,7 @@ void ScriptingWindow::openIntensityScript( CWnd* parent )
 	try
 	{
 		intensityAgilent.agilentScript.checkSave( getProfile().categoryPath, mainWindowFriend->getRunInfo() );
-		std::string intensityOpenName = openWithExplorer( parent );
+		std::string intensityOpenName = openWithExplorer( parent, AGILENT_SCRIPT_EXTENSION );
 		intensityAgilent.agilentScript.openParentScript( intensityOpenName, getProfile().categoryPath, mainWindowFriend->getRunInfo() );
 		updateConfigurationSavedStatus( false );
 		intensityAgilent.agilentScript.updateScriptNameText( getProfile().categoryPath );
@@ -510,7 +510,7 @@ void ScriptingWindow::openVerticalScript(CWnd* parent)
 	try
 	{
 		verticalNiawgScript.checkSave( getProfile().categoryPath, mainWindowFriend->getRunInfo() );
-		std::string intensityOpenName = openWithExplorer( parent );
+		std::string intensityOpenName = openWithExplorer( parent, NIAWG_SCRIPT_EXTENSION );
 		verticalNiawgScript.openParentScript( intensityOpenName, getProfile().categoryPath, 
 											  mainWindowFriend->getRunInfo() );
 		updateConfigurationSavedStatus( false );
@@ -588,7 +588,7 @@ void ScriptingWindow::openHorizontalScript(CWnd* parent)
 	try
 	{
 		horizontalNiawgScript.checkSave( getProfile().categoryPath, mainWindowFriend->getRunInfo() );
-		std::string horizontalOpenName = openWithExplorer( parent );
+		std::string horizontalOpenName = openWithExplorer( parent, NIAWG_SCRIPT_EXTENSION );
 		horizontalNiawgScript.openParentScript( horizontalOpenName, getProfile().categoryPath, mainWindowFriend->getRunInfo() );
 		updateConfigurationSavedStatus( false );
 		horizontalNiawgScript.updateScriptNameText( getProfile().categoryPath );
@@ -695,7 +695,7 @@ void ScriptingWindow::newMasterScript()
 void ScriptingWindow::openMasterScript(CWnd* parent)
 {
 	masterScript.checkSave(getProfile().categoryPath, mainWindowFriend->getRunInfo());
-	std::string horizontalOpenName = openWithExplorer(parent);
+	std::string horizontalOpenName = openWithExplorer(parent, MASTER_SCRIPT_EXTENSION);
 	masterScript.openParentScript(horizontalOpenName, getProfile().categoryPath, mainWindowFriend->getRunInfo());
 	updateConfigurationSavedStatus(false);
 	masterScript.updateScriptNameText(getProfile().categoryPath);

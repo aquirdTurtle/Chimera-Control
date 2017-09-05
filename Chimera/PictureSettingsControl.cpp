@@ -25,12 +25,13 @@ void PictureSettingsControl::handleNewConfig( std::ofstream& newFile )
 	newFile << "\n";
 	for ( auto exposure : exposureTimesUnofficial )
 	{
-		newFile << 25 << " ";
+		// in seconds
+		newFile << 0.025 << " ";
 	}
 	newFile << "\n";
 	for ( auto threshold : thresholds )
 	{
-		newFile << 100 << " ";
+		newFile << 200 << " ";
 	}
 	newFile << "\n";
 	newFile << "END_PICTURE_SETTINGS\n";
@@ -66,7 +67,7 @@ void PictureSettingsControl::handleOpenConfig(std::ifstream& openFile, double ve
 	UINT picsPerRep;
 	openFile >> picsPerRep;
 	setUnofficialPicsPerRep( picsPerRep, andor );
-	//setPicturesPerExperiment(picsPerRepetitionUnofficial)
+	std::array<int, 4> fileThresholds;
 	for (auto& color : colors)
 	{
 		openFile >> color;
@@ -75,11 +76,12 @@ void PictureSettingsControl::handleOpenConfig(std::ifstream& openFile, double ve
 	{
 		openFile >> exposure;
 	}
-	for (auto& threshold : thresholds)
+	for (auto& threshold : fileThresholds )
 	{
 		openFile >> threshold;
 	}
 	setExposureTimes(andor);
+	setThresholds( fileThresholds );
 	ProfileSystem::checkDelimiterLine(openFile, "END_PICTURE_SETTINGS");
 }
 
