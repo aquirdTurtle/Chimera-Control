@@ -36,7 +36,6 @@ Features:
 - support aborting while paused
 - tabstops in plot designer
 - be able to set binsize for histograms
-- edit gnuplot test message to tell user to close window.
 
 Refactoring / Other:
 - refactor variables & variable key so that they aren't two separate objects. Consider if reasonable to also include 
@@ -51,16 +50,14 @@ Bugs:
 - Add new data set not working in plot designer
 - Editing and re-saving plot files doesn't delete the old file if the filename changed.
 - Weird trouble with 2-picture plotting
-- Titles for scripts aren't correct???
 - dacs occaisonally breaking on config load?
 - something going wrong with exiting the niawg normally. Might be on delete waveforms, might be related to change from 
 	having orientations
 - Lots of missed save-status handling overall.
 - closing window doesn't stop program (release mode only?)
-- fix coloring issue with status
+
 
 =================
 Finished
 =================
-
 

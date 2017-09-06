@@ -35,7 +35,7 @@ class PictureStats
 		}
 		void initialize( POINT& pos, CWnd* parent, int& id, cToolTips& tooltips );
 		void rearrange( std::string cameraMode, std::string trigMode, int width, int height, fontMap fonts );
-		std::pair<int, int> update( std::vector<long> image, UINT imageNumber, std::pair<int, int> selectedPixel,
+		std::pair<int, int> update( std::vector<long> image, UINT imageNumber, coordinate selectedPixel,
 									int pictureWidth, int pictureHeight, int currentRepetitionNumbar,
 									int totalRepetitionCount );
 		void reset();

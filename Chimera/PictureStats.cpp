@@ -162,12 +162,13 @@ void PictureStats::updateType(std::string typeText)
 
 /**/
 std::pair<int, int> PictureStats::update( std::vector<long> image, UINT imageNumber, 
-										  std::pair<int, int> selectedPixel, int pictureWidth, int pictureHeight, 
+										  coordinate selectedPixel, int pictureWidth, int pictureHeight, 
 										  int currentRepetitionNumber, int totalRepetitionCount )
 {
 	repetitionIndicator.SetWindowTextA( cstr("Repetition " + str( currentRepetitionNumber ) + "/" 
 									   + str( totalRepetitionCount )) );
-	long currentSelectedCount = image[selectedPixel.first + (pictureHeight - 1 - selectedPixel.second) * pictureWidth];
+
+	long currentSelectedCount = image[selectedPixel.row + (pictureHeight - 1 - selectedPixel.column) * pictureWidth];
 
 	long currentMaxCount = 1;
 	long currentMinCount = 65536;

@@ -75,7 +75,7 @@ void NiawgController::programNiawg( MasterThreadInput* input, NiawgOutputInfo& o
 	// initial waveform until the master sends it a trigger.
 	input->niawg->turnOn();
 	waiter.startWaitThread( input );
-	for (int waveInc = 2; waveInc < output.waves.size(); waveInc++)
+	for (UINT waveInc = 2; waveInc < output.waves.size(); waveInc++)
 	{
 		output.waves[waveInc].core.waveVals.clear();
 		output.waves[waveInc].core.waveVals.shrink_to_fit();
@@ -244,7 +244,7 @@ void NiawgController::programVariations( UINT variation, std::vector<long>& vari
 {
 	int mixedWriteCount = 0;
 	// skip defaults so start at 2.
-	for (int waveInc = 2; waveInc < output.waves.size(); waveInc++)
+	for (UINT waveInc = 2; waveInc < output.waves.size(); waveInc++)
 	{
 		std::string variedWaveformName = "Waveform" + str( waveInc );
 		if (output.waves[waveInc].core.varies)
@@ -330,7 +330,7 @@ void NiawgController::handleVariations( NiawgOutputInfo& output, key varKey, con
 
 	// I think waveInc = 0 & 1 are always the default.. should I be handling that at all? shouldn't make a difference 
 	// I don't think.
-	for (int waveInc = 0; waveInc < output.waves.size(); waveInc++)
+	for (UINT waveInc = 0; waveInc < output.waves.size(); waveInc++)
 	{
 		if (output.waves[waveInc].core.varies)
 		{
@@ -2267,10 +2267,11 @@ double NiawgController::rampCalc( int size, int iteration, double initPos, doubl
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void NiawgController::startRearrangementThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave,
-												Communicator* comm )
+												Communicator* comm, std::mutex* rearrangerLock )
 {
 	threadStateSignal = true;
 	rearrangementThreadInput* input = new rearrangementThreadInput;
+	input->rearrangerLock = rearrangerLock;
 	input->threadActive = &threadStateSignal;
 	input->comm = comm;
 	input->niawg = this;
@@ -2333,9 +2334,19 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 		// wait for data
 		while ( *input->threadActive || input->atomsQueue->size( ) != 0 )
 		{
-			if ( input->atomsQueue->size( ) == 0 )
+			std::vector<bool> tempAtoms;
 			{
-				continue;
+				std::lock_guard<std::mutex> locker( *input->rearrangerLock );
+				if ( input->atomsQueue->size( ) == 0)
+				{
+					continue;
+				}
+				tempAtoms = (*input->atomsQueue)[0];
+				if ( tempAtoms.size( ) == 0 )
+				{
+					continue;
+				}
+				input->atomsQueue->erase( input->atomsQueue->begin( ) );
 			}
 			ULONG start = GetTickCount( );
 			rearrangeInfo& info = input->rearrangementWave.rearrange;
@@ -2344,12 +2355,13 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 			std::vector<std::vector<bool>> source;
 			source.resize( info.targetRows );
 			UINT count = 0;
+			std::lock_guard<std::mutex> locker( *input->rearrangerLock );
 			for ( auto rowCount : range( info.targetRows ) )
 			{
 				std::vector<bool> tempRow( info.targetCols );
 				for ( auto& elem : tempRow )
-				{
-					bool atom = (*input->atomsQueue)[0][count++];
+				{					
+					bool atom = tempAtoms[count++];
 					elem = atom;
 				}
 				source[source.size( ) - 1 - rowCount] = tempRow;
@@ -2438,7 +2450,7 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 				triedRearranging.push_back( false );
 				timelapse.push_back( GetTickCount( ) - start );
 			}
-			input->atomsQueue->erase( input->atomsQueue->begin( ) );
+			
 		}
 	}
 	catch ( Error& err )

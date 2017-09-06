@@ -29,8 +29,8 @@ void PictureManager::setAlwaysShowGrid(bool showOption, CDC* easel)
 }
 
 
-void PictureManager::redrawPictures(CDC* easel, std::pair<UINT, UINT> selectedLocation, 
-									 std::vector<std::pair<UINT, UINT>> analysisLocs)
+void PictureManager::redrawPictures( CDC* easel, coordinate selectedLocation, std::vector<coordinate> analysisLocs,
+									 atomGrid gridInfo )
 {
 	if (!pictures[1].isActive())
 	{
@@ -39,7 +39,7 @@ void PictureManager::redrawPictures(CDC* easel, std::pair<UINT, UINT> selectedLo
 		{
 			pictures[0].drawGrid(easel, gridBrush);
 		}
-		drawDongles(easel, selectedLocation, analysisLocs);
+		drawDongles(easel, selectedLocation, analysisLocs, gridInfo);
 		return;
 	}
 	for (auto& pic : pictures)
@@ -50,22 +50,23 @@ void PictureManager::redrawPictures(CDC* easel, std::pair<UINT, UINT> selectedLo
 			pic.drawGrid(easel, gridBrush);
 		}
 	}
-	drawDongles(easel, selectedLocation, analysisLocs);
+	drawDongles(easel, selectedLocation, analysisLocs, gridInfo);
 }
 
 
 /*
  *  
  */
-void PictureManager::drawDongles(CDC* dc, std::pair<UINT, UINT> selectedLocation, 
-								  std::vector<std::pair<UINT, UINT>> analysisLocs)
+void PictureManager::drawDongles( CDC* dc, coordinate selectedLocation, std::vector<coordinate> analysisLocs, 
+								  atomGrid gridInfo )
 {
 	for (auto& pic : pictures)
 	{
 		pic.drawCircle(dc, selectedLocation);
-		pic.drawAnalysisMarkers(dc, analysisLocs);
+		pic.drawAnalysisMarkers(dc, analysisLocs, gridInfo);
 	}
 }
+
 
 void PictureManager::setNumberPicturesActive( int numberActive )
 {
@@ -187,24 +188,24 @@ void PictureManager::handleScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar
 	}
 }
 
-std::pair<UINT, UINT> PictureManager::handleRClick( CPoint clickLocation )
+coordinate PictureManager::handleRClick( CPoint clickLocation )
 {
-	std::pair<int, int> location;
+	coordinate location;
 	for (auto& pic : pictures)
 	{
-		location = pic.checkClickLocation( clickLocation );
-		if (location.first != -1)
+		try
 		{
+			location = pic.checkClickLocation( clickLocation );
 			return location;
 		}
-		// else continue looking.
+		catch(Error&){}
+		// checkClickLocation throws if not found. Continue looking.
 	}
-	return location;
+	thrower( "not found" );
 }
 
 
-void PictureManager::setSinglePicture( CWnd* parent, std::pair<UINT, UINT> selectedLocation, imageParameters imageParams, 
-									   std::vector<std::pair<UINT, UINT>> analysisLocs)
+void PictureManager::setSinglePicture( CWnd* parent, imageParameters imageParams)
 {
 	for (UINT picNum = 0; picNum < 4; picNum++)
 	{
@@ -232,9 +233,7 @@ void PictureManager::resetPictureStorage()
 }
 
 
-void PictureManager::setMultiplePictures( CWnd* parent, std::pair<UINT, UINT> selectedLocation,
-										 imageParameters imageParams, UINT numberActivePics,
-										 std::vector<std::pair<UINT, UINT>> analysisLocs)
+void PictureManager::setMultiplePictures( CWnd* parent, imageParameters imageParams, UINT numberActivePics )
 {
 	for (UINT picNum = 0; picNum < 4; picNum++)
 	{

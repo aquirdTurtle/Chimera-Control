@@ -20,18 +20,17 @@ class PictureManager
 		// draw pictures...
 		void drawPicture( CDC* deviceContext, int pictureNumber, std::vector<long> picData, 
 						 std::pair<UINT, UINT> minMaxPair );
-		void drawDongles(CDC* dc, std::pair<UINT, UINT> selectedLocation, std::vector<std::pair<UINT, UINT>> analysisLocs );
+		void drawDongles(CDC* dc, coordinate selectedLocation, std::vector<coordinate> analysisLocs, atomGrid gridInfo );
 		void createPalettes( CDC* dc );
 		void handleEditChange( UINT id );
 		void setAlwaysShowGrid(bool showOption, CDC* easel);
-		void redrawPictures(CDC* easel, std::pair<UINT, UINT> selectedLocation, std::vector<std::pair<UINT, UINT>> analysisLocs);
+		void redrawPictures(CDC* easel, coordinate selectedLocation, std::vector<coordinate> analysisLocs, 
+							 atomGrid gridInfo );
 		void setPictureSliders(CWnd* parent);
 		void setNumberPicturesActive( int numberActive );
-		std::pair<UINT, UINT> handleRClick(CPoint clickLocation);
-		void setSinglePicture( CWnd* parent, std::pair<UINT, UINT> selectedLocation, imageParameters imageParams, 
-							   std::vector<std::pair<UINT, UINT>> analysisLocs);
-		void setMultiplePictures( CWnd* parent, std::pair<UINT, UINT> selectedLocation, imageParameters imageParams,
-								  UINT numberActivePics, std::vector<std::pair<UINT, UINT>> analysisLocs);
+		coordinate handleRClick(CPoint clickLocation);
+		void setSinglePicture( CWnd* parent, imageParameters imageParams );
+		void setMultiplePictures( CWnd* parent, imageParameters imageParams, UINT numberActivePics );
 		void setAutoScalePicturesOption(bool autoScaleOption);
 		void setSpecialLessThanMin(bool option);
 		void setSpecialGreaterThanMax(bool option);
