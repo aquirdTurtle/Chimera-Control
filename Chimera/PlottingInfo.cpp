@@ -483,6 +483,7 @@ void PlottingInfo::savePlotInfo()
 	{
 		UINT pixel, picture;
 		getDataCountsLocation(dataSetInc, pixel, picture);
+		message += str( pixel ) + " " + str( picture ) + "\n";
 	}
 	message += "PLOT COUNTS LOCATIONS END\n";
 	

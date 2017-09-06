@@ -2266,7 +2266,7 @@ double NiawgController::rampCalc( int size, int iteration, double initPos, doubl
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void NiawgController::startRearrangementThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave, 
+void NiawgController::startRearrangementThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave,
 												Communicator* comm )
 {
 	threadStateSignal = true;
@@ -2279,7 +2279,15 @@ void NiawgController::startRearrangementThread( std::vector<std::vector<bool>>* 
 
 	UINT rearrangerId;
 	rearrangerThreadHandle = (HANDLE)_beginthreadex( 0, 0, NiawgController::rearrangerThreadProcedure, (void*)input,
-													 0, &rearrangerId );
+													 STACK_SIZE_PARAM_IS_A_RESERVATION, &rearrangerId );
+	if ( !rearrangerThreadHandle )
+	{
+		errBox( "beginThreadEx error: " + str( GetLastError( ) ) );
+	}
+	if ( !SetThreadPriority( rearrangerThreadHandle, THREAD_PRIORITY_TIME_CRITICAL ) )
+	{
+		errBox( "Set Thread priority error: " + str( GetLastError( ) ) );
+	}
 }
 
 
@@ -2303,10 +2311,23 @@ void NiawgController::calculateRearrangingMoves( std::vector<std::vector<bool>> 
 	//... Kai's work
 }
 
+/// things that might make faster:
+// preprogram all possible fillers
+// 1D rearranging instead of 2D
+// only look at select pixels
+// faster moves
+// preprogram all individual moves
+// don't use vector
 
+// things that might be causeing slowneess
+// - andor grab time
+// - niawg write time
+// - cpu write time
 UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 {
 	rearrangementThreadInput* input = (rearrangementThreadInput*)voidInput;
+	std::vector<bool> triedRearranging;
+	std::vector<long> timelapse;
 	try
 	{
 		// wait for data
@@ -2318,11 +2339,6 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 			}
 			ULONG start = GetTickCount( );
 			rearrangeInfo& info = input->rearrangementWave.rearrange;
-			// note that this only currently checks for the total number of atoms...f
-			if ( (*input->atomsQueue)[0].size( ) != info.targetRows * info.targetCols )
-			{
-				thrower( "ERROR: source and target dimensions mismatch inside rearrangement routine!" );
-			}
 			// right now I need to re-shape the atomqueue matrix. I should probably modify Kai's code to work with a 
 			// flattened source matrix for speed.
 			std::vector<std::vector<bool>> source;
@@ -2347,7 +2363,7 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 			{
 				// as of now, just ignore.
 			}
-			input->niawg->rearrangeWaveVals.clear( );
+			
 			/// program niawg
 			debugInfo options;
 			for ( auto move : operationsMatrix )
@@ -2371,8 +2387,16 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 					sig.powerRampType = "nr";
 					sig.initPhase = 0;
 					sig.freqRampType = "lin";
-					sig.freqInit = (initPos[axis] * freqPerPixel + info.lowestFreq[axis])*1e6;
-					sig.freqFin = (finPos[axis] * freqPerPixel + info.lowestFreq[axis])*1e6;
+					if ( axis == Horizontal )
+					{
+						sig.freqInit = ((info.targetCols - initPos[axis]-1) * freqPerPixel + info.lowestFreq[axis])*1e6;
+						sig.freqFin = ((info.targetCols-finPos[axis]-1) * freqPerPixel + info.lowestFreq[axis])*1e6;
+					}
+					else
+					{
+						sig.freqInit = (initPos[axis] * freqPerPixel + info.lowestFreq[axis])*1e6;
+						sig.freqFin = (finPos[axis] * freqPerPixel + info.lowestFreq[axis])*1e6;
+					}
 				}
 				input->niawg->finalizeStandardWave( moveWave, options );
 				// now put together into small temporary flashing wave
@@ -2403,10 +2427,16 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 			input->niawg->streamRearrangement( );
 			input->niawg->fgenConduit.sendSoftwareTrigger( );
 			input->niawg->fgenConduit.resetWritePosition( );
-			UINT stop = GetTickCount( );
+			input->niawg->rearrangeWaveVals.clear( );
 			if ( operationsMatrix.size( ) )
 			{
-				input->comm->sendStatus( "Rearranger attepted move. Took time: " + str( stop - start ) + "\r\n" );
+				triedRearranging.push_back( true );
+				timelapse.push_back( GetTickCount( ) - start );
+			}
+			else
+			{
+				triedRearranging.push_back( false );
+				timelapse.push_back( GetTickCount( ) - start );
 			}
 			input->atomsQueue->erase( input->atomsQueue->begin( ) );
 		}
@@ -2416,6 +2446,18 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 		errBox( "ERROR in rearrangement thread! " + err.whatStr( ) );
 	}
 	delete input;
+
+	std::ofstream dataFile( "J:\\Data Repository\\New Data Repository\\2017\\September\\September 5\\Raw Data"
+							"\\rearrangementLog.txt" );
+	if ( !dataFile.is_open( ) )
+	{
+		errBox( "ERROR: data file failed to open for rearrangement log!" );
+	}
+	for ( auto count : range( triedRearranging.size( ) ) )
+	{
+		dataFile << triedRearranging[count] << " " << timelapse[count] << "\n";
+	}
+	dataFile.close( );
 	return 0;
 }
 

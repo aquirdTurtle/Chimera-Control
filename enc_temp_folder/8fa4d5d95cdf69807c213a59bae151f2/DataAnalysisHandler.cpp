@@ -306,8 +306,7 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 			for (UINT pixelInc = 0; pixelInc < pixelDataType.size(); pixelInc++)
 			{
 				//int secondIndex = pixelDataType[pixelI][0] - 1 + input->imageShape.width * (pixelDataType[pixelI][1] - 1);
-				int secondIndex = (input->imageShape.height - pixelDataType[pixelInc][0]) * input->imageShape.width 
-									+ pixelDataType[pixelInc][1] - 1;
+				int secondIndex = (input->imageShape.height - pixelDataType[pixelInc][0] - 1) * input->imageShape.width + pixelDataType[pixelInc][1] - 1;
 				// first image, second index identifies the location.
 				double data = tempImage[secondIndex];
 				countData[pixelInc].push_back(data);
