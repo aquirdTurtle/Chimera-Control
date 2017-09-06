@@ -14,7 +14,7 @@ def pump2stretch():
         %Setting OP frequency based on trap depth:
         dac: sigmaopfreq 1.16 %frequency for 1.1mK trap depth (may need recalibration) ' calibrated at 11032016
         off: diagmotshutter
-        call setQuantAxis()
+        call setQuantAxis() % set to 3G field
 
         t += 17.99  %to let field settle and lasers settle
          
