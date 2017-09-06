@@ -6,6 +6,10 @@ void StatusControl::rearrange(int width, int height, fontMap fonts)
 {
 	header.rearrange( width, height, fonts);
 	edit.rearrange( width, height, fonts);
+	CString tempStr;
+	edit.GetWindowTextA( tempStr );
+	edit.SetWindowTextA( "" );
+	addStatusText( str( tempStr ) );
 	clearButton.rearrange( width, height, fonts);
 }
 
@@ -26,6 +30,7 @@ void StatusControl::initialize(POINT &loc, CWnd* parent, int& id, UINT size, std
 				 edit.sPos, parent, id++ );
 	edit.fontType = CodeFont;
 	edit.SetBackgroundColor(0, RGB(0, 15, 20));
+
 	setDefaultColor(textColor);
 	loc.y += size;
 }

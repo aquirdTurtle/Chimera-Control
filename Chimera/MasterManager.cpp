@@ -82,7 +82,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		if (input->runNiawg)
 		{
 			input->comm->sendColorBox( Niawg, 'Y' );
-			ProfileSystem::openNiawgFiles(niawgFiles, input->profile, input->runNiawg);
+			ProfileSystem::openNiawgFiles( niawgFiles, input->profile, input->runNiawg);
 			input->niawg->prepareNiawg( input, output, niawgFiles, warnings, userScriptSubmit );
 			// check if any waveforms are rearrangement instructions.
 			bool foundRearrangement = false;
@@ -97,7 +97,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 					}
 					foundRearrangement = true;
 					// start rearrangement thread. Give the thread the queue.
-					input->niawg->startRearrangementThread( input->atomQueueForRearrangement, wave, input->comm );
+					input->niawg->startRearrangementThread( input->atomQueueForRearrangement, wave, input->comm, input->rearrangerLock );
 				}
 			}
 			if (input->settings.rearrange && !foundRearrangement )
@@ -351,14 +351,14 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 					input->niawg->turnOff( );
 					waiter.wait(input->comm);
 				}
-				catch (Error& err)
+				catch (Error&)
 				{
 					//errBox(err.what());
 				}
 			}
 			// Clear waveforms off of NIAWG (not working??? memory appears to still run out... (that's a very old note, 
 			// haven't tested in a long time but has never been an issue.))
-			for (int waveformInc = 2; waveformInc < output.waves.size(); waveformInc++)
+			for (UINT waveformInc = 2; waveformInc < output.waves.size(); waveformInc++)
 			{
 				std::string waveformToDelete = "Waveform" + str( waveformInc );
 				input->niawg->fgenConduit.deleteWaveform( cstr( waveformToDelete ) );
@@ -474,6 +474,10 @@ void MasterManager::loadMotSettings(MasterThreadInput* input)
 
 void MasterManager::startExperimentThread(MasterThreadInput* input)
 {
+	if ( !input )
+	{
+		thrower( "ERROR: Input to start experiment thread was null?!?!?" );
+	}
 	if ( experimentIsRunning )
 	{
 		delete input;

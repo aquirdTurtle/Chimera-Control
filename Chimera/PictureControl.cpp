@@ -90,25 +90,29 @@ void PictureControl::setSliderLocations(CWnd* parent)
 /*
  * Called in order to see if a right click is above a camera pixel. Returns coordinates of the camera pixel.
  */
-std::pair<int, int> PictureControl::checkClickLocation( CPoint clickLocation )
+coordinate PictureControl::checkClickLocation( CPoint clickLocation )
 {
 	CPoint test;
-	for (UINT horizontalInc = 0; horizontalInc < grid.size(); horizontalInc++)
+	for (UINT colInc = 0; colInc < grid.size(); colInc++)
 	{
-		for (UINT verticalInc = 0; verticalInc < grid[horizontalInc].size(); verticalInc++)
+		for (UINT rowInc = 0; rowInc < grid[colInc].size(); rowInc++)
 		{
-			RECT relevantRect = grid[horizontalInc][verticalInc];
+			RECT relevantRect = grid[colInc][rowInc];
 			// check if inside box
 			if (clickLocation.x <= relevantRect.right && clickLocation.x >= relevantRect.left
 				 && clickLocation.y <= relevantRect.bottom && clickLocation.y >= relevantRect.top)
 			{
-				return { horizontalInc , verticalInc };
+				// returns row x column
+				coordinate location;
+				location.row = rowInc+1;
+				location.column = colInc+1;
+				return location;
 				// then click was inside a box so this should do something.
 			}
 		}
 	}
 	// null result. only first number is checked.
-	return { -1, -1 };
+	thrower( "Not Found" );
 }
 
 
@@ -272,20 +276,21 @@ void PictureControl::recalculateGrid(imageParameters newParameters)
 	//
 
 	grid.resize(newParameters.width);
-	for (UINT widthInc = 0; widthInc < grid.size(); widthInc++)
+	for (UINT colInc = 0; colInc < grid.size(); colInc++)
 	{
-		grid[widthInc].resize(newParameters.height);
-		for (UINT heightInc = 0; heightInc < grid[widthInc].size(); heightInc++)
+		grid[colInc].resize(newParameters.height);
+		for (UINT rowInc = 0; rowInc < grid[colInc].size(); rowInc++)
 		{
 			// for all 4 pictures...
-			grid[widthInc][heightInc].left = (int)(pictureArea.left
-				+ (double)widthInc * (pictureArea.right - pictureArea.left) / (double)grid.size() + 2);
-			grid[widthInc][heightInc].right = (int)(pictureArea.left
-				+ (double)(widthInc + 1) * (pictureArea.right - pictureArea.left) / (double)grid.size() + 2);
-			grid[widthInc][heightInc].top = (int)(pictureArea.top
-				+ (double)(heightInc)* (pictureArea.bottom - pictureArea.top) / (double)grid[widthInc].size());
-			grid[widthInc][heightInc].bottom = (int)(pictureArea.top
-				+ (double)(heightInc + 1)* (pictureArea.bottom - pictureArea.top) / (double)grid[widthInc].size());
+			grid[colInc][rowInc].left = int(pictureArea.left
+											 + (double)colInc * (pictureArea.right - pictureArea.left) 
+											 / (double)grid.size( ) + 2);
+			grid[colInc][rowInc].right = int(pictureArea.left
+				+ (double)(colInc + 1) * (pictureArea.right - pictureArea.left) / (double)grid.size() + 2);
+			grid[colInc][rowInc].top = int(pictureArea.top
+				+ (double)(rowInc)* (pictureArea.bottom - pictureArea.top) / (double)grid[colInc].size());
+			grid[colInc][rowInc].bottom = int(pictureArea.top
+				+ (double)(rowInc + 1)* (pictureArea.bottom - pictureArea.top) / (double)grid[colInc].size());
 		}
 	}
 }
@@ -548,6 +553,7 @@ void PictureControl::drawBackground(CDC* easel)
 	easel->Rectangle(&rectArea);
 }
 
+
 /* 
  * draw the grid which outlines where each pixel is.  Especially needs to be done when selecting pixels and no picture
  * is displayed. 
@@ -570,20 +576,22 @@ void PictureControl::drawGrid(CDC* easel, CBrush* brush)
 	}
 	easel->SelectObject(GetStockObject(DC_BRUSH));
 	easel->SetDCBrushColor(RGB(255, 255, 255));
+
 	// draw rectangles indicating where the pixels are.
-	for (UINT widthInc = 0; widthInc < grid.size(); widthInc++)
+	for (UINT columnInc = 0; columnInc < grid.size(); columnInc++)
 	{
-		for (UINT heightInc = 0; heightInc < grid[widthInc].size(); heightInc++)
+		for (UINT rowInc = 0; rowInc < grid[columnInc].size(); rowInc++)
 		{
-			easel->FrameRect(&grid[widthInc][heightInc], brush);
+			easel->FrameRect(&grid[columnInc][rowInc], brush);
 		}
 	}
 }
 
+
 /*
  * draws the circle which denotes the selected pixel that the user wants to know the counts for. 
  */
-void PictureControl::drawCircle(CDC* dc, std::pair<int, int> selectedLocation)
+void PictureControl::drawCircle(CDC* dc, coordinate selectedLocation)
 {
 	if (grid.size() == 0)
 	{
@@ -597,8 +605,14 @@ void PictureControl::drawCircle(CDC* dc, std::pair<int, int> selectedLocation)
 		return;
 	}
 
+	if ( selectedLocation.row > grid.size( ) || selectedLocation.column > grid[0].size() 
+		 || selectedLocation.row <=0 || selectedLocation.column <= 0 )
+	{
+		// quietly don't try to draw.
+		return;
+	}
 	RECT smallRect;
-	RECT relevantRect = grid[selectedLocation.first][selectedLocation.second];
+	RECT relevantRect = grid[selectedLocation.column-1][selectedLocation.row-1];
 	smallRect.left = relevantRect.left + long(7.0 * (relevantRect.right - relevantRect.left) / 16.0);
 	smallRect.right = relevantRect.left + long( 9.0 * (relevantRect.right - relevantRect.left) / 16.0);
 	smallRect.top = relevantRect.top + long( 7.0 * (relevantRect.bottom - relevantRect.top) / 16.0);
@@ -628,43 +642,76 @@ void PictureControl::drawCircle(CDC* dc, std::pair<int, int> selectedLocation)
 	dc->Ellipse( smallRect.left, smallRect.top, smallRect.right, smallRect.bottom );
 }
 
-void PictureControl::drawAnalysisMarkers(CDC* dc, std::vector<std::pair<UINT, UINT>> analysisLocs)
+void PictureControl::drawAnalysisMarkers(CDC* dc, std::vector<coordinate> analysisLocs, atomGrid gridInfo)
 {
-	if (active)
+	if ( !active )
 	{
-		// draw and set.
-		HPEN crossPen;
-		crossPen = CreatePen(0, 1, RGB(255, 0, 0));
+		return;
+	}
+	// draw and set.
+	HPEN crossPen;
+	crossPen = CreatePen(0, 1, RGB(255, 0, 0));
 		
-		dc->SelectObject(crossPen);
+	dc->SelectObject(crossPen);
 
-		RECT smallRect;
-		RECT relevantRect;
+	if ( gridInfo.topLeftCorner == coordinate( 0, 0 ) )
+	{
+		// atom grid is empty, not to be used.
 		UINT count = 1;
-		for (auto loc : analysisLocs)
+		for ( auto loc : analysisLocs )
 		{
-			relevantRect = grid[loc.first][loc.second];
-			smallRect.left = relevantRect.left + long( 7.0 * (relevantRect.right - relevantRect.left) / 16.0);
-			smallRect.right = relevantRect.left + long( 9.0 * (relevantRect.right - relevantRect.left) / 16.0);
-			smallRect.top = relevantRect.top + long( 7.0 * (relevantRect.bottom - relevantRect.top) / 16.0);
-			smallRect.bottom = relevantRect.top + long( 9.0 * (relevantRect.bottom - relevantRect.top) / 16.0);
+			if ( loc.column >= grid.size( ) || loc.row >= grid[0].size( ) )
+			{
+				// just quietly don't try to draw. Could also have this throw, haven't decided exactly how I 
+				// want to deal with this yet.
+				continue;
+			}
+			drawRectangle( dc, grid[loc.column][loc.row] );
 
-			dc->MoveTo({ relevantRect.left, relevantRect.top });
-
-			dc->SetBkMode(TRANSPARENT);
-			dc->SetTextColor(RGB(200, 200, 200));
-
-			dc->LineTo(relevantRect.right, relevantRect.top);
-			dc->LineTo(relevantRect.right, relevantRect.bottom);
-			dc->LineTo(relevantRect.left, relevantRect.bottom);
-			dc->LineTo(relevantRect.left, relevantRect.top);
-
-			dc->DrawTextEx( const_cast<char *>(cstr(count)), str(count).size(), &relevantRect, DT_CENTER |
-							DT_SINGLELINE | DT_VCENTER, NULL );
+			dc->DrawTextEx( const_cast<char *>(cstr( count )), str( count ).size( ), &grid[loc.column][loc.row], 
+							DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 			count++;
 		}
-		DeleteObject(crossPen);
+		DeleteObject( crossPen );
 	}
+	else
+	{
+		// use the atom grid.
+		UINT count = 1;
+		for ( auto rowInc : range( gridInfo.width ) )
+		{
+			for ( auto columnInc : range( gridInfo.height ) )
+			{
+				UINT pixelRow = gridInfo.topLeftCorner.row-1 + rowInc * gridInfo.pixelSpacing;
+				UINT pixelColumn = gridInfo.topLeftCorner.column-1 + columnInc * gridInfo.pixelSpacing;
+				if ( pixelRow >= grid.size( ) || pixelColumn >= grid[0].size( ) )
+				{
+					// just quietly don't try to draw. Could also have this throw, haven't decided exactly how I 
+					// want to deal with this yet.
+					continue;
+				}
+				drawRectangle( dc, grid[pixelColumn][pixelRow] );
+				dc->DrawTextEx( const_cast<char *>(cstr( count )), str( count ).size( ), &grid[pixelColumn][pixelRow],
+								DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
+				count++;
+			}
+		}
+	}
+	DeleteObject( crossPen );
+}
+
+
+void PictureControl::drawRectangle( CDC* dc, RECT pixelRect )
+{
+	dc->MoveTo( { pixelRect.left, pixelRect.top } );
+
+	dc->SetBkMode( TRANSPARENT );
+	dc->SetTextColor( RGB( 200, 200, 200 ) );
+
+	dc->LineTo( pixelRect.right, pixelRect.top );
+	dc->LineTo( pixelRect.right, pixelRect.bottom );
+	dc->LineTo( pixelRect.left, pixelRect.bottom );
+	dc->LineTo( pixelRect.left, pixelRect.top );
 }
 
 

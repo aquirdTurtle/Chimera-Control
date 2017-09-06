@@ -1,7 +1,5 @@
 #pragma once
-#include <algorithm>
-#include <memory>
-#include <cmath>
+
 #include "externals.h"
 #include "constants.h"
 #include "miscellaneousCommonFunctions.h"
@@ -13,6 +11,10 @@
 #include "rearrangementStructures.h"
 #include "Fgen.h"
 #include "profileSettings.h"
+#include <algorithm>
+#include <memory>
+#include <cmath>
+#include <mutex>
 
 struct MasterThreadInput;
 class NiawgWaiter;
@@ -68,7 +70,8 @@ class NiawgController
 		void turnOn();
 		// Other
 		void setRunningState( bool newRunningState );
-		void startRearrangementThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave, Communicator* comm );
+		void startRearrangementThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave, Communicator* comm,
+									   std::mutex* rearrangerLock );
 		Fgen fgenConduit;
 		static bool outputVaries(NiawgOutputInfo output);
 
