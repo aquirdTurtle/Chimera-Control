@@ -822,21 +822,25 @@ UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 		{
 			continue;
 		}
-		std::lock_guard<std::mutex> locker(*input->imageLock);
-		std::vector<bool> tempAtomArray(input->imageQueue->front().size());
-		// loop through the image and check each slocation.
-		for (UINT pixelCount = 0; pixelCount < input->imageQueue->front().size(); pixelCount++)
+
+		std::vector<bool> tempAtomArray( input->imageQueue->front( ).size( ) );
 		{
-			//
-			if ((*input->imageQueue)[0][pixelCount] >= input->thresholds[imageCount % input->picsPerRep])
+			// lock while writing.
+			std::lock_guard<std::mutex> locker( *input->imageLock );	
+			// loop through the image and check each location.
+			for ( UINT pixelCount = 0; pixelCount < input->imageQueue->front( ).size( ); pixelCount++ )
 			{
-				tempAtomArray[pixelCount] = true;
+				if ( (*input->imageQueue)[0][pixelCount] >= input->thresholds[imageCount % input->picsPerRep] )
+				{
+					tempAtomArray[pixelCount] = true;
+				}
 			}
 		}
 
 		if (input->plotterActive)
 		{
-			// copies the array.
+			// copies the array. Right now I'm assuming that the thread always needs atoms, which is not a good 
+			// assumption.
 			(*input->plotterAtomQueue).push_back(tempAtomArray);
 
 			if (input->plotterNeedsImages)

@@ -8,18 +8,14 @@ Features:
 - finish implementing 2D scans
 - Implement Chris's Plots of ttls and dacs
 
-- could clean up textpromptdialog handling, should be possible with one line.
-- Improve frame rate?
-	- should be able to get 3.12 frames / sec or so at full array size
 - NIAWG scripting in single script instead of separate Hor/Vert scripts.
 - Watch cursor location, sim to basler program
 - restore the Niawg functionality where it calculates next varying waveform during the run of the previous waveform.
 - option to allow agilent waveforms to function with or without calibration
-- make a structure and a front panel option for agilent calibrations
+- make a structure and a front panel option for agilent calibrations, or perhaps edit in dialog
 - support functions for niawg and agilent scripts
 - if fails to open script file give user opportunity to find it themselves.
 - default script for agilent with command guide?
-- gnuplot safemode? (not sure needed at all).
 - handle niawg waiting more elegantly
 - make the big text short status messages better.
 - be able to program agilents with or without power->volt conversion. Think I just want a combo.
@@ -38,10 +34,16 @@ Features:
 - Be able to scroll into empty space at bottom of scripts
 - be able to output niawg waveforms to text files
 - support aborting while paused
+- tabstops in plot designer
+- be able to set binsize for histograms
+- edit gnuplot test message to tell user to close window.
 
 Refactoring / Other:
 - refactor variables & variable key so that they aren't two separate objects. Consider if reasonable to also include 
 	variation number in a class
+- refactor plotting file formatting.
+- change thread that wait on bools to waiting on signalers
+- could clean up textpromptdialog handling, should be possible with one line.
 
 Bugs:
 - dacramp spacing warning should only appear once, and should appear in error status?
@@ -54,8 +56,11 @@ Bugs:
 - something going wrong with exiting the niawg normally. Might be on delete waveforms, might be related to change from 
 	having orientations
 - Lots of missed save-status handling overall.
+- closing window doesn't stop program (release mode only?)
+- fix coloring issue with status
 
 =================
 Finished
 =================
+
 

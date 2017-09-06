@@ -759,7 +759,7 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MainWindow
 			if ((subitem - 2) % 3 == 0)
 			{
 				// if it's a constant, you can only set the first range initial value.
-				if (currentVariables[varNumber].constant && (subitem - 3) != 0)
+				if (currentVariables[varNumber].constant && (subitem - 2) != 0)
 				{
 					// then no final value to be set.
 					break;
