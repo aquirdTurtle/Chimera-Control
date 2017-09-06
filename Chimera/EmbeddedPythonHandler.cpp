@@ -84,7 +84,7 @@ void EmbeddedPythonHandler::flush()
 
 // for full data analysis set.
 void EmbeddedPythonHandler::runDataAnalysis(std::string date, long runNumber, long accumulations, 
-											std::vector<std::pair<UINT, UINT>> atomLocations)
+											std::vector<coordinate> atomLocations)
 {
 	flush();
 	if (this->autoAnalysisModule == NULL)
@@ -141,8 +141,8 @@ void EmbeddedPythonHandler::runDataAnalysis(std::string date, long runNumber, lo
 	{
 		// order is flipped. Dunno why...
 		// PyTuple immediately steals the reference from PyLong_FromLong, so I don't need to handle any of these. 
-		PyTuple_SetItem(pythonAtomLocationsArray, 2 * atomInc, PyLong_FromLong(atomLocations[atomInc].second));
-		PyTuple_SetItem(pythonAtomLocationsArray, 2 * atomInc + 1, PyLong_FromLong(atomLocations[atomInc].first));
+		PyTuple_SetItem(pythonAtomLocationsArray, 2 * atomInc, PyLong_FromLong(atomLocations[atomInc].column));
+		PyTuple_SetItem(pythonAtomLocationsArray, 2 * atomInc + 1, PyLong_FromLong(atomLocations[atomInc].row));
 	}
 	// pythonFunctionArguments
 	PyTuple_SetItem(pythonFunctionArguments, 2, pythonAtomLocationsArray);

@@ -452,6 +452,9 @@
     <ClInclude Include="splashDialog.h">
       <Filter>General Files</Filter>
     </ClInclude>
+    <ClInclude Include="atomGrid.h">
+      <Filter>Camera Window</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
@@ -519,6 +522,9 @@
   <ItemGroup>
     <None Include="DioStructures.h">
       <Filter>Auxiliary Window</Filter>
+    </None>
+    <None Include="coordinate.h">
+      <Filter>Camera Window</Filter>
     </None>
   </ItemGroup>
 </Project>

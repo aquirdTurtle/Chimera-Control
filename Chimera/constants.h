@@ -5,10 +5,11 @@
 #include <string>
 #include "miscellaneousCommonFunctions.h"
 
-// running in safemode means that the program doesn't actually try to connect to various devices. It can be used to build and debug other 
-// aspects of the program.
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP
+// running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
+// build and debug other aspects of the program.
+
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP
 // #define DESKTOP_COMPUTER
 /// File Locations
 // Files for Desktop
@@ -243,25 +244,25 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 // Camera Window
 #define IDC_ALERTS_BOX 23001
 #define IDC_SET_ANALYSIS_LOCATIONS 23002
-#define IDC_PLOTTING_LISTVIEW 23003
-#define IDC_CAMERA_MODE_COMBO 23004
-#define IDC_SET_EM_GAIN_BUTTON 23005
-#define IDC_TRIGGER_COMBO 23006
-#define IDC_SET_TEMPERATURE_BUTTON 23007
-#define PICTURE_SETTINGS_ID_START 23008
-#define PICTURE_SETTINGS_ID_END 23043
-#define IDC_SET_IMAGE_PARAMETERS_BUTTON 23044
-#define IDC_SET_REPETITONS_PER_VARIATION_BUTTON 23045
-#define IDC_SET_VARIATION_NUMBER 23046
-#define IDC_PICTURE_1_MIN_EDIT 23047
-#define IDC_PICTURE_1_MAX_EDIT 23048
-#define IDC_PICTURE_2_MIN_EDIT 23049
-#define IDC_PICTURE_2_MAX_EDIT 23050
-#define IDC_PICTURE_3_MIN_EDIT 23051
-#define IDC_PICTURE_3_MAX_EDIT 23052
-#define IDC_PICTURE_4_MIN_EDIT 23053
-#define IDC_PICTURE_4_MAX_EDIT 23054
-
+#define IDC_SET_GRID_CORNER 23003
+#define IDC_PLOTTING_LISTVIEW 23004
+#define IDC_CAMERA_MODE_COMBO 23005
+#define IDC_SET_EM_GAIN_BUTTON 23006
+#define IDC_TRIGGER_COMBO 23007
+#define IDC_SET_TEMPERATURE_BUTTON 23008
+#define PICTURE_SETTINGS_ID_START 23009
+#define PICTURE_SETTINGS_ID_END 23044
+#define IDC_SET_IMAGE_PARAMETERS_BUTTON 23045
+#define IDC_SET_REPETITONS_PER_VARIATION_BUTTON 23046
+#define IDC_SET_VARIATION_NUMBER 23047
+#define IDC_PICTURE_1_MIN_EDIT 23048
+#define IDC_PICTURE_1_MAX_EDIT 23049
+#define IDC_PICTURE_2_MIN_EDIT 23050
+#define IDC_PICTURE_2_MAX_EDIT 23051
+#define IDC_PICTURE_3_MIN_EDIT 23052
+#define IDC_PICTURE_3_MAX_EDIT 23053
+#define IDC_PICTURE_4_MIN_EDIT 23054
+#define IDC_PICTURE_4_MAX_EDIT 23055
 //
 #define IDC_BEGINNING_DIALOG_RICH_EDIT 100
 //

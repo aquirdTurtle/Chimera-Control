@@ -9,6 +9,7 @@
 #endif
 
 #include <string>
+#include "coordinate.h"
 
 struct personInfo;
 
@@ -18,8 +19,8 @@ class EmbeddedPythonHandler
 		// constructor is important.
 		EmbeddedPythonHandler::EmbeddedPythonHandler();
 		// for full data analysis set.
-		void runDataAnalysis( std::string date, long runNumber, long accumulations,
-							  std::vector<std::pair<UINT, UINT>> atomLocations );
+		void runDataAnalysis( std::string date, long runNumber, long accumulations, 
+							  std::vector<coordinate> atomLocations );
 		// for texting.
 		void sendText( personInfo person, std::string msg, std::string subject, std::string baseEmail,
 					   std::string password );

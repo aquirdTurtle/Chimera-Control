@@ -43,15 +43,67 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	pos.seriesPos.y += 25;
 	pos.amPos.y += 25;
 
+	// Atom Grid Settings
+	gridHeader.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
+	gridHeader.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
+	gridHeader.videoPos = { -1,-1,-1,-1 };
+	gridHeader.triggerModeSensitive = isTriggerModeSensitive;
+	gridHeader.Create( "Atom Grid Settings", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, gridHeader.seriesPos, parent,
+					   id++ );
+	//
+	setGridCorner.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 240, pos.seriesPos.y + 25 };
+	setGridCorner.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 240, pos.amPos.y + 25 };
+	setGridCorner.videoPos = { -1,-1,-1,-1 };
+	setGridCorner.triggerModeSensitive = isTriggerModeSensitive;
+	setGridCorner.Create( "Set Grid Top-Left Corner", WS_CHILD | WS_VISIBLE | BS_PUSHLIKE | BS_CHECKBOX,
+						  setGridCorner.seriesPos, parent, IDC_SET_GRID_CORNER );
+	//
+	gridSpacingText.seriesPos = { pos.seriesPos.x + 240, pos.seriesPos.y, pos.seriesPos.x + 360, pos.seriesPos.y + 25 };
+	gridSpacingText.amPos = { pos.amPos.x + 240, pos.amPos.y, pos.amPos.x + 360, pos.amPos.y + 25 };
+	gridSpacingText.videoPos = { -1,-1,-1,-1 };
+	gridSpacingText.triggerModeSensitive = isTriggerModeSensitive;
+	gridSpacingText.Create("Pixel Spacing", WS_CHILD | WS_VISIBLE, gridSpacingText.seriesPos, parent, id++ );
+
+	gridSpacing.seriesPos = { pos.seriesPos.x + 360, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
+	gridSpacing.amPos = { pos.amPos.x + 360, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
+	gridSpacing.videoPos = { -1,-1,-1,-1 };
+	gridSpacing.triggerModeSensitive = isTriggerModeSensitive;
+	gridSpacing.Create( WS_CHILD | WS_VISIBLE | WS_BORDER, gridSpacing.seriesPos, parent, id++ );
+
+
+	gridWidthText.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 120, pos.seriesPos.y + 25 };
+	gridWidthText.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 120, pos.amPos.y + 25 };
+	gridWidthText.videoPos = { -1,-1,-1,-1 };
+	gridWidthText.triggerModeSensitive = isTriggerModeSensitive;
+	gridWidthText.Create( "Width", WS_CHILD | WS_VISIBLE, gridWidthText.seriesPos, parent, id++ );
+
+	gridWidth.seriesPos = { pos.seriesPos.x + 120, pos.seriesPos.y, pos.seriesPos.x + 240, pos.seriesPos.y + 25 };
+	gridWidth.amPos = { pos.amPos.x + 120, pos.amPos.y, pos.amPos.x + 240, pos.amPos.y + 25 };
+	gridWidth.videoPos = { -1,-1,-1,-1 };
+	gridWidth.triggerModeSensitive = isTriggerModeSensitive;
+	gridWidth.Create( WS_CHILD | WS_VISIBLE | WS_BORDER, gridWidth.seriesPos, parent, id++ );
+
+
+	gridHeightText.seriesPos = { pos.seriesPos.x + 240, pos.seriesPos.y, pos.seriesPos.x + 360, pos.seriesPos.y + 25 };
+	gridHeightText.amPos = { pos.amPos.x + 240, pos.amPos.y, pos.amPos.x + 360, pos.amPos.y + 25 };
+	gridHeightText.videoPos = { -1,-1,-1,-1 };
+	gridHeightText.triggerModeSensitive = isTriggerModeSensitive;
+	gridHeightText.Create( "Width", WS_CHILD | WS_VISIBLE, gridHeightText.seriesPos, parent, id++ );
+
+	gridHeight.seriesPos = { pos.seriesPos.x + 360, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
+	gridHeight.amPos = { pos.amPos.x + 360, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
+	gridHeight.videoPos = { -1,-1,-1,-1 };
+	gridHeight.triggerModeSensitive = isTriggerModeSensitive;
+	gridHeight.Create( WS_CHILD | WS_VISIBLE | WS_BORDER, gridHeight.seriesPos, parent, id++ );
 	// 
-	setAnalysisLocationsButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y,
+	manualSetAnalysisLocationsButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y,
 		pos.seriesPos.x + 480, pos.seriesPos.y + 25 };
-	setAnalysisLocationsButton.amPos = { pos.amPos.x, pos.amPos.y,
+	manualSetAnalysisLocationsButton.amPos = { pos.amPos.x, pos.amPos.y,
 		pos.amPos.x + 480, pos.amPos.y + 25 };
-	setAnalysisLocationsButton.videoPos = { -1,-1,-1,-1 };
-	setAnalysisLocationsButton.triggerModeSensitive = isTriggerModeSensitive;
-	setAnalysisLocationsButton.Create("Set AutoAnalysis Points", WS_CHILD | WS_VISIBLE | BS_PUSHLIKE | BS_CHECKBOX,
-									  setAnalysisLocationsButton.seriesPos, parent, IDC_SET_ANALYSIS_LOCATIONS );
+	manualSetAnalysisLocationsButton.videoPos = { -1,-1,-1,-1 };
+	manualSetAnalysisLocationsButton.triggerModeSensitive = isTriggerModeSensitive;
+	manualSetAnalysisLocationsButton.Create("Manually Set AutoAnalysis Points", WS_CHILD | WS_VISIBLE | BS_PUSHLIKE | BS_CHECKBOX,
+									  manualSetAnalysisLocationsButton.seriesPos, parent, IDC_SET_ANALYSIS_LOCATIONS );
 	pos.seriesPos.y += 25;
 	pos.amPos.y += 25;
 
@@ -80,9 +132,9 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	updateFrequencyLabel2.Create(") repetitions.", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON,
 								 updateFrequencyLabel2.seriesPos, parent, id++);
 	/// the listview
-	plotListview.seriesPos = { pos.seriesPos.x,   pos.seriesPos.y,  pos.seriesPos.x + 480,  pos.seriesPos.y += 250 };
-	plotListview.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 250 };
-	plotListview.amPos = { pos.amPos.x,     pos.amPos.y,   pos.amPos.x + 480,   pos.amPos.y += 250 };
+	plotListview.seriesPos = { pos.seriesPos.x,   pos.seriesPos.y,  pos.seriesPos.x + 480,  pos.seriesPos.y += 200 };
+	plotListview.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 200 };
+	plotListview.amPos = { pos.amPos.x,     pos.amPos.y,   pos.amPos.x + 480,   pos.amPos.y += 200 };
 	plotListview.triggerModeSensitive = isTriggerModeSensitive;
 	plotListview.Create(WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS | WS_BORDER, plotListview.seriesPos, parent, 
 						 IDC_PLOTTING_LISTVIEW );
@@ -114,11 +166,7 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 {
 	realTimePlotterInput* input = (realTimePlotterInput*)voidInput;
-	// Register any windows messages for the main window
-	//ePlottingIsSlowMessage = RegisterWindowMessage("ID_PLOTTING_IS_SLOW");
-	//ePlottingCaughtUpMessage = RegisterWindowMessage("ID_PLOTTING_CAUGHT_UP");
 	// make vector of plot information classes. 
-	
 	std::vector<PlottingInfo> allPlots;
 	/// open files
 	for (UINT plotInc = 0; plotInc < input->plotInfo.size(); plotInc++)
@@ -207,15 +255,16 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 	if (totalNumberOfPixels == 0)
 	{
 		// no locations selected for analysis; quit.
-		return 0;
+		//return 0;
 	}
+	totalNumberOfPixels = input->atomGridInfo.height * input->atomGridInfo.width;
 	// set flag?
 
 	/// Initialize Arrays for data.
 	// thinking about making these experiment-picture sized and resetting after getting the needed data out of them.
 	// pixelData[pixel Indicator][picture number indicator] = pixelCount;
 	std::vector<std::vector<long>> countData;
-	countData.resize(totalNumberOfPixels);
+	countData.resize( totalNumberOfPixels );
 	// atomPresentData[pixelIndicator][picture number] = true if atom present, false if atom not present;
 	std::vector<std::vector<int> > atomPresentData;
 	atomPresentData.resize(totalNumberOfPixels);
@@ -245,12 +294,21 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 		newData[plotInc].resize(allPlots[plotInc].getDataSetNumber());
 		for (UINT dataSetInc = 0; dataSetInc < allPlots[plotInc].getDataSetNumber(); dataSetInc++)
 		{
-			finalData[plotInc][dataSetInc].resize(allPlots[plotInc].getPixelGroupNumber());
+			//for ( auto groupI : range(  ) )
+			/*finalData[plotInc][dataSetInc].resize(allPlots[plotInc].getPixelGroupNumber());
 			finalAvgs[plotInc][dataSetInc].resize(allPlots[plotInc].getPixelGroupNumber());
 			finalErrorBars[plotInc][dataSetInc].resize(allPlots[plotInc].getPixelGroupNumber());
 			finalXVals[plotInc][dataSetInc].resize(allPlots[plotInc].getPixelGroupNumber());
 			newData[plotInc][dataSetInc].resize(allPlots[plotInc].getPixelGroupNumber());
 			for (UINT groupInc = 0; groupInc < allPlots[plotInc].getPixelGroupNumber(); groupInc++)
+				*/
+			finalData[plotInc][dataSetInc].resize( input->atomGridInfo.width * input->atomGridInfo.height );
+			finalAvgs[plotInc][dataSetInc].resize( input->atomGridInfo.width * input->atomGridInfo.height );
+			finalErrorBars[plotInc][dataSetInc].resize( input->atomGridInfo.width * input->atomGridInfo.height );
+			finalXVals[plotInc][dataSetInc].resize( input->atomGridInfo.width * input->atomGridInfo.height );
+			newData[plotInc][dataSetInc].resize( input->atomGridInfo.width * input->atomGridInfo.height );
+			for ( UINT groupInc = 0; groupInc < input->atomGridInfo.width * input->atomGridInfo.height; groupInc++ )
+
 			{
 				newData[plotInc][dataSetInc][groupInc] = true;
 			}
@@ -302,16 +360,26 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 		if (input->needsCounts)
 		{
 			/// for all pixels... gather count information
+			UINT count = 0;
 			std::lock_guard<std::mutex> locker( *input->plotLock );
+			for ( auto row : range( input->atomGridInfo.width ) )
+			{
+				for ( auto column : range( input->atomGridInfo.height ) )
+				{
+					countData[count].push_back( tempImage[count] );
+					count++;
+				}
+			}
+			/*
 			for (UINT pixelInc = 0; pixelInc < pixelDataType.size(); pixelInc++)
 			{
-				//int secondIndex = pixelDataType[pixelI][0] - 1 + input->imageShape.width * (pixelDataType[pixelI][1] - 1);
-				int secondIndex = (input->imageShape.height - pixelDataType[pixelInc][0]) * input->imageShape.width 
-									+ pixelDataType[pixelInc][1] - 1;
+				//int secondIndex = (input->imageShape.height - pixelDataType[pixelInc][0]) * input->imageShape.width 
+				//					+ pixelDataType[pixelInc][1] - 1;
 				// first image, second index identifies the location.
-				double data = tempImage[secondIndex];
-				countData[pixelInc].push_back(data);
+				//double data = tempImage[secondIndex];
+				countData[pixelInc].push_back( tempImage[pixelInc]);
 			}
+			*/
 		}
 
 		/// get all the atom data
@@ -320,11 +388,11 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 		int experimentNumber = ((currentThreadRepNum - 1) % input->picsPerVariation) % input->picsPerRep;
 		for (UINT pixelInc = 0; pixelInc < pixelDataType.size(); pixelInc++)
 		{
-			int secondIndex = (input->imageShape.height - pixelDataType[pixelInc][0]) * input->imageShape.width
-				+ pixelDataType[pixelInc][1] - 1;
-			bool val = input->atomQueue->at( 0 )[0];
+			//int secondIndex = (input->imageShape.height - pixelDataType[pixelInc][0]) * input->imageShape.width
+			//	+ pixelDataType[pixelInc][1] - 1;
+			//bool val = input->atomQueue->at( 0 )[0];
 			//errBox( val );
-			if (input->atomQueue->at(0)[secondIndex]/*countData[pixelInc].back() > threshold*/)
+			if (input->atomQueue->at(0)[pixelInc]/*countData[pixelInc].back() > threshold*/)
 			{
 				// atom detected
 				isAtLeastOneAtom = true;
@@ -392,7 +460,8 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 			statisfiesPsc.resize(allPlots[plotI].getDataSetNumber());
 			for (auto& dataSetStatus : statisfiesPsc)
 			{
-				dataSetStatus.resize(allPlots[plotI].getPixelGroupNumber());
+				dataSetStatus.resize( input->atomGridInfo.width * input->atomGridInfo.height );
+				//dataSetStatus.resize(allPlots[plotI].getPixelGroupNumber());
 				for (auto& groupStatus : dataSetStatus)
 				{
 					groupStatus = true;
@@ -402,7 +471,8 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 			// check if actually true. there's got to be a better way to iterate through these guys...
 			for (UINT dataSetI = 0; dataSetI < allPlots[plotI].getDataSetNumber(); dataSetI++)
 			{
-			  for (UINT groupI = 0; groupI < allPlots[plotI].getPixelGroupNumber(); groupI++)
+			  for ( auto groupI : range( input->atomGridInfo.width * input->atomGridInfo.height ) )
+			  //for (UINT groupI = 0; groupI < allPlots[plotI].getPixelGroupNumber(); groupI++)
 			  {
 				for (UINT conditionI = 0; conditionI < allPlots[plotI].getConditionNumber(); conditionI++)
 				{
@@ -841,7 +911,8 @@ void DataAnalysisControl::handlePlotHist(realTimePlotterInput* input, PlottingIn
 	// load pixel counts into data array pixelData
 	for (UINT dataSetI = 0; dataSetI < plotInfo.getDataSetNumber(); dataSetI++)
 	{
-		for (UINT groupI = 0; groupI < plotInfo.getPixelGroupNumber(); groupI++)
+		for ( auto groupI : range( input->atomGridInfo.width * input->atomGridInfo.height ) )
+		//for (UINT groupI = 0; groupI < plotInfo.getPixelGroupNumber(); groupI++)
 		{
 			if (pscSatisfied[dataSetI][groupI] == false)
 			{
@@ -851,7 +922,8 @@ void DataAnalysisControl::handlePlotHist(realTimePlotterInput* input, PlottingIn
 			// passing by reference.
 			plotInfo.getDataCountsLocation(dataSetI, pixel, pic);
 			// for a given group, figure out which picture
-			finData[dataSetI][groupI].push_back(countData[plotInfo.getPixelIndex(pixel, groupI)][pic]);
+			//finData[dataSetI][groupI].push_back(countData[plotInfo.getPixelIndex(pixel, groupI)][pic]);
+			finData[dataSetI][groupI].push_back( countData[groupI][pic] );
 		}
 	}
 	//
@@ -867,17 +939,22 @@ void DataAnalysisControl::handlePlotHist(realTimePlotterInput* input, PlottingIn
 	input->plotter->send("set xlabel \"Count #\"");
 	input->plotter->send("set ylabel \"Occurrences\"");
 	double spaceFactor = 0.8;
-	double boxWidth = spaceFactor * 5 / (plotInfo.getPixelGroupNumber() * plotInfo.getDataSetNumber());
+	//double boxWidth = spaceFactor * 5 / (plotInfo.getPixelGroupNumber() * plotInfo.getDataSetNumber());
+	double boxWidth = spaceFactor * 5 / (input->atomGridInfo.width * input->atomGridInfo.height * plotInfo.getDataSetNumber( ));
+	
 	input->plotter->send("set boxwidth " + str(boxWidth));
 	input->plotter->send("set style fill solid 1");
 	// leave 0.2 pixels worth of space in between the bins.
 	std::string gnuCommand = "plot";
 	int totalDataSetNum = plotInfo.getDataSetNumber();
-	int totalGroupNum = plotInfo.getPixelGroupNumber();
+	//int totalGroupNum = plotInfo.getPixelGroupNumber();
+	int totalGroupNum = input->atomGridInfo.width * input->atomGridInfo.height;
 	for (UINT dataSetI = 0; dataSetI < plotInfo.getDataSetNumber(); dataSetI++)
 	{
-		for (UINT groupI = 0; groupI < plotInfo.getPixelGroupNumber(); groupI++)
+		for ( auto groupI : range( input->atomGridInfo.width * input->atomGridInfo.height ) )
 		{
+		//for (UINT groupI = 0; groupI < plotInfo.getPixelGroupNumber(); groupI++)
+		//{
 			// long command that makes hist correctly.
 			std::string singleHist = " '-' using (5 * floor(($1)/5) - " + str(boxWidth * (totalGroupNum * dataSetI + groupI)
 																			  - spaceFactor * 0.5 + spaceFactor * 0.5 / (totalGroupNum * totalDataSetNum))
@@ -889,11 +966,39 @@ void DataAnalysisControl::handlePlotHist(realTimePlotterInput* input, PlottingIn
 	input->plotter->send(gnuCommand);
 	for (UINT dataSetI = 0; dataSetI < plotInfo.getDataSetNumber(); dataSetI++)
 	{
-		for (UINT groupI = 0; groupI < plotInfo.getPixelGroupNumber(); groupI++)
+		for ( auto groupI : range( input->atomGridInfo.width * input->atomGridInfo.height ) )
+		//for (UINT groupI = 0; groupI < plotInfo.getPixelGroupNumber(); groupI++)
 		{
 			input->plotter->sendData(finData[dataSetI][groupI]);
 		}
 	}
+}
+
+
+atomGrid DataAnalysisControl::getAtomGrid( )
+{
+	// update the current grid by load stuff from edits before returning.
+	if ( currentGrid.topLeftCorner == coordinate( 0, 0 ) )
+	{
+		// don't try updating, it's not used.
+		return currentGrid;
+	}
+	CString txt;
+	try
+	{
+		gridSpacing.GetWindowTextA( txt );
+		currentGrid.pixelSpacing = std::stol( str( txt ) );
+		gridWidth.GetWindowTextA( txt );
+		currentGrid.width = std::stol( str( txt ) );
+		gridHeight.GetWindowTextA( txt );
+		currentGrid.height = std::stol( str( txt ) );
+	}
+	catch ( std::invalid_argument& )
+	{
+		thrower( "ERROR: Please make sure all atom grid parameters are convertible to integers!" );
+	}
+
+	return currentGrid;
 }
 
 ///
@@ -912,6 +1017,8 @@ void DataAnalysisControl::fillPlotThreadInput(realTimePlotterInput* input)
 	}
 
 	input->analysisLocations = getAnalysisLocs();
+	input->atomGridInfo = getAtomGrid( );
+
 	input->plottingFrequency = updateFrequency;
 
 	// as I fill the input, also check this, which is necessary info for plotting.
@@ -938,7 +1045,17 @@ void DataAnalysisControl::rearrange(std::string cameraMode, std::string trigMode
 	plotListview.rearrange(cameraMode, trigMode, width, height, fonts);
 	currentDataSetNumberEdit.rearrange( cameraMode, trigMode, width, height, fonts );
 	currentDataSetNumberText.rearrange( cameraMode, trigMode, width, height, fonts );
-	setAnalysisLocationsButton.rearrange( cameraMode, trigMode, width, height, fonts );
+	manualSetAnalysisLocationsButton.rearrange( cameraMode, trigMode, width, height, fonts );
+
+	gridHeader.rearrange( cameraMode, trigMode, width, height, fonts );
+	setGridCorner.rearrange( cameraMode, trigMode, width, height, fonts );
+	gridSpacingText.rearrange( cameraMode, trigMode, width, height, fonts );
+	gridSpacing.rearrange( cameraMode, trigMode, width, height, fonts );
+	gridWidthText.rearrange( cameraMode, trigMode, width, height, fonts );
+	gridWidth.rearrange( cameraMode, trigMode, width, height, fonts );
+	gridHeightText.rearrange( cameraMode, trigMode, width, height, fonts );
+	gridHeight.rearrange( cameraMode, trigMode, width, height, fonts );
+
 }
 
 std::vector<std::string> DataAnalysisControl::getActivePlotList()
@@ -953,6 +1070,8 @@ std::vector<std::string> DataAnalysisControl::getActivePlotList()
 	}
 	return list;
 }
+
+
 
 
 bool DataAnalysisControl::getLocationSettingStatus()
@@ -977,54 +1096,89 @@ void DataAnalysisControl::analyze( std::string date, long runNumber, long accumu
 {
 	// Note: python is initialized in the constructor for the data handler object. 
 	// Get information to send to the python script from inputParam
-	pyHandler->runDataAnalysis( date, runNumber, accumulations, atomLocations );
+	//pyHandler->runDataAnalysis( date, runNumber, accumulations, atomLocations );
 }
+
 
 bool DataAnalysisControl::buttonClicked()
 {
-	return setAnalysisLocationsButton.GetCheck();
+	return (manualSetAnalysisLocationsButton.GetCheck() || setGridCorner.GetCheck());
+
 }
+
+
+void DataAnalysisControl::onCornerButtonPushed( )
+{
+	if ( setGridCorner.GetCheck( ) )
+	{
+		// if pressed currently, then upress it.
+		setGridCorner.SetCheck( 0 );
+		setGridCorner.SetWindowTextA( "Set Grid Top-Left Corner" );
+		currentlySettingGridCorner = false;
+	}
+	else
+	{
+		// else press it.
+		atomLocations.clear( );
+		currentGrid.topLeftCorner = { 0,0 };
+		setGridCorner.SetCheck( 1 );
+		setGridCorner.SetWindowTextA( "Right-Click Top-Left Corner of New Grid Location" );
+		currentlySettingGridCorner = true;
+	}
+}
+
 
 // handles the pressing of the analysis points button.
 // TODO: handle different cases where single locations or pairs of locations are being analyzed. 
-void DataAnalysisControl::onButtonPushed()
+void DataAnalysisControl::onManualButtonPushed()
 {	
-	if ( setAnalysisLocationsButton.GetCheck() )
+	if ( manualSetAnalysisLocationsButton.GetCheck() )
 	{
 		// if pressed currently, then upress it.
-		setAnalysisLocationsButton.SetCheck(0);
-		setAnalysisLocationsButton.SetWindowTextA( "Set Analysis Points" );
+		manualSetAnalysisLocationsButton.SetCheck(0);
+		manualSetAnalysisLocationsButton.SetWindowTextA( "Set Analysis Points" );
 		currentlySettingAnalysisLocations = false;
 	}
 	else
 	{
 		// else press it.
 		atomLocations.clear();
-		setAnalysisLocationsButton.SetCheck( 1 );
-		setAnalysisLocationsButton.SetWindowTextA( "Right-Click Relevant Points and Reclick" );
+		currentGrid.topLeftCorner = { 0,0 };
+		manualSetAnalysisLocationsButton.SetCheck( 1 );
+		manualSetAnalysisLocationsButton.SetWindowTextA( "Right-Click Relevant Points and Reclick" );
 		currentlySettingAnalysisLocations = true;
+
 	}
 }
 
 
-void DataAnalysisControl::setAtomLocation( std::pair<UINT, UINT> location )
+void DataAnalysisControl::handlePictureClick( coordinate location )
 {
-	bool exists = false;
-	for (UINT locInc = 0; locInc < atomLocations.size(); locInc++ )
+	if ( setGridCorner.GetCheck( ) )
 	{
-		if ( location == atomLocations[locInc] )
+		currentGrid.topLeftCorner = location;
+		//setGridCorner.SetCheck( false );
+		onCornerButtonPushed( );
+	}
+	else if ( manualSetAnalysisLocationsButton.GetCheck( ) )
+	{
+		bool exists = false;
+		for ( UINT locInc = 0; locInc < atomLocations.size( ); locInc++ )
 		{
-			exists = true;
+			if ( location.row == atomLocations[locInc].row &&  location.column == atomLocations[locInc].column )
+			{
+				exists = true;
+			}
+		}
+		if ( !exists )
+		{
+			atomLocations.push_back( location );
 		}
 	}
-	if ( !exists )
-	{
-		atomLocations.push_back( location );
-	}
 }
 
 
-std::vector<std::pair<UINT, UINT>> DataAnalysisControl::getAnalysisLocs()
+std::vector<coordinate> DataAnalysisControl::getAnalysisLocs()
 {
 	return atomLocations;
 }

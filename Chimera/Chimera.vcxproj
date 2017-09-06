@@ -188,6 +188,7 @@
     <ClInclude Include="AndorRunSettings.h" />
     <ClInclude Include="ATMCD32D.H" />
     <ClInclude Include="atomCruncherInput.h" />
+    <ClInclude Include="atomGrid.h" />
     <ClInclude Include="beginningSettingsDialogProc.h" />
     <ClInclude Include="CameraImageDimensions.h" />
     <ClInclude Include="cameraPositions.h" />
@@ -360,6 +361,7 @@
     <Text Include="Planning.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="coordinate.h" />
     <None Include="DioStructures.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

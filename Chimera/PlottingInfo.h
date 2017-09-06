@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
 #include <string>
-//#include "DataAnalysisHandler.h"
 #include "DataSet.h"
+#include "coordinate.h"
 
 class PlottingInfo
 {
@@ -31,7 +31,7 @@ class PlottingInfo
 		void addGroup();
 		void removeAnalysisSet();
 		void resetNumberOfAnalysisGroups( UINT groupNumber);
-		void setGroups(std::vector<std::pair<UINT, UINT>> locations);
+		void setGroups(std::vector<coordinate> locations);
 		
 		void addPixel();
 		void removePixel();
