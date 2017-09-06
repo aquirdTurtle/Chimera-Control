@@ -46,12 +46,13 @@ struct MasterThreadInput
 	VariableSystem* globalControl;
 	NiawgController* niawg;
 	UINT intensityAgilentNumber;
-	// only for rearrangement.
-	std::vector<std::vector<bool>>* atomQueueForRearrangement;
 	bool quiet;
 	mainOptions settings;
 	bool runNiawg;
 	bool runMaster;
+	// only for rearrangement.
+	std::mutex* rearrangerLock;
+	std::vector<std::vector<bool>>* atomQueueForRearrangement;
 };
 
 

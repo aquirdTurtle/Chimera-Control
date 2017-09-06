@@ -21,8 +21,9 @@ class PictureControl
 		void setSliderPositions(UINT min, UINT max);
 		void drawBackground(CDC* easel);
 		void drawGrid(CDC* easel, CBrush* brush);
-		void drawCircle(CDC* dc, std::pair<int, int> selectedLocation );
-		void drawAnalysisMarkers(CDC* dc, std::vector<std::pair<UINT, UINT>> analysisLocs);
+		void drawCircle(CDC* dc, coordinate selectedLocation );
+		void drawAnalysisMarkers(CDC* dc, std::vector<coordinate> analysisLocs, atomGrid gridInfo );
+		void drawRectangle( CDC* dc, RECT pixelRect );
 		void rearrange( std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts );
 		void handleScroll( int id, UINT nPos );
 		void handleEditChange( int id );
@@ -31,7 +32,7 @@ class PictureControl
 		void setActive( bool activeState );
 		bool isActive();
 		std::pair<UINT, UINT> getSliderLocations();
-		std::pair<int, int> checkClickLocation( CPoint clickLocation );
+		coordinate checkClickLocation( CPoint clickLocation );
 		void resetStorage();
 	private:
 		std::tuple<bool, int, int> mostRecentAutoscaleInfo;

@@ -422,7 +422,7 @@ void PictureSettingsControl::setUnofficialPicsPerRep( UINT picNum, AndorCamera* 
 	}
 	settings.totalPicsInExperiment = int( settings.totalVariations * settings.totalPicsInVariation );
 	andorObj->setSettings( settings );
-	for ( int picInc = 0; picInc < 4; picInc++ )
+	for ( UINT picInc = 0; picInc < 4; picInc++ )
 	{
 		if ( picInc < picNum )
 		{

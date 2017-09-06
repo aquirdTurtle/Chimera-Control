@@ -4,9 +4,13 @@
 #include <mutex>
 #include "Windows.h"
 #include <array>
+#include "atomGrid.h"
+#include "imageParameters.h"
 
 struct atomCruncherInput
 {
+	//
+	atomGrid gridInfo;
 	// what the thread watches...
 	std::atomic<bool>* cruncherThreadActive;
 	std::vector<std::vector<long>>* imageQueue;
@@ -24,4 +28,5 @@ struct atomCruncherInput
 	std::vector<std::vector<bool>>* plotterAtomQueue;
 	std::vector<std::vector<bool>>* rearrangerAtomQueue;
 	std::array<int, 4> thresholds;
+	imageParameters imageDims;
 };

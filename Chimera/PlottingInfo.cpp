@@ -980,7 +980,7 @@ UINT PlottingInfo::getPixelGroupNumber()
 {
 	if (analysisGroups.size() == 0)
 	{
-		thrower( "ERROR: tried to get group number when no groups!" );
+		thrower( "ERROR: tried to get group number when no data sets!" );
 	}
 	return analysisGroups[0].size();
 }
@@ -1056,7 +1056,7 @@ std::vector<std::pair<UINT, UINT>> PlottingInfo::getAllPixelLocations()
 }
 
 
-void PlottingInfo::setGroups(std::vector<std::pair<UINT, UINT>> locations)
+void PlottingInfo::setGroups(std::vector<coordinate> locations)
 {
 	if (locations.size() % currentPixelNumber != 0)
 	{
@@ -1069,7 +1069,7 @@ void PlottingInfo::setGroups(std::vector<std::pair<UINT, UINT>> locations)
 		addGroup();
 		for (UINT pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
 		{
-			setGroupLocation(pixelInc, groupInc, locations[locationInc].second+1, locations[locationInc].first+1);
+			setGroupLocation(pixelInc, groupInc, locations[locationInc].column+1, locations[locationInc].row+1);
 			locationInc++;
 		}
 	}

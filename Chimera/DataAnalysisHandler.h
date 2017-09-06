@@ -2,6 +2,7 @@
 
 #include "Control.h"
 #include "PlottingInfo.h"
+#include "atomGrid.h"
 
 struct realTimePlotterInput;
 struct cameraPositions;
@@ -15,28 +16,30 @@ struct tinyPlotInfo
 
 
 class DataAnalysisControl
-{	
+{
 	public:
 		void initialize( cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips,
 						 int isTriggerModeSensitive, rgbMap rgbs );
 		void handleDoubleClick( fontMap* fonts, UINT currentPicsPerRepetition );
 		void handleRClick( );
-		void rearrange(std::string cameraMode, std::string trigMode, int width, int height, fontMap fonts);
+		void rearrange( std::string cameraMode, std::string trigMode, int width, int height, fontMap fonts );
 		//
 		void updateDataSetNumberEdit( int number );
 		void analyze( std::string date, long runNumber, long accumulations, EmbeddedPythonHandler* pyHandler,
 					  Communicator* comm );
-		void onButtonPushed();
-		void setAtomLocation( std::pair<UINT, UINT> location );
-		std::vector<std::pair<UINT, UINT>> getAnalysisLocs();
-		void clearAtomLocations();
-		bool getLocationSettingStatus();
-		std::vector<std::string> getActivePlotList();
-		void reloadListView();
-		bool buttonClicked();
+		void onManualButtonPushed( );
+		void onCornerButtonPushed( );
+		void handlePictureClick( coordinate location );
+		std::vector<coordinate> getAnalysisLocs( );
+		atomGrid getAtomGrid( );
+		void clearAtomLocations( );
+		bool getLocationSettingStatus( );
+		std::vector<std::string> getActivePlotList( );
+		void reloadListView( );
+		bool buttonClicked( );
 
-		void fillPlotThreadInput(realTimePlotterInput* input);
-		static unsigned __stdcall plotterProcedure(void* voidInput);
+		void fillPlotThreadInput( realTimePlotterInput* input );
+		static unsigned __stdcall plotterProcedure( void* voidInput );
 		// subroutine for handling atom & count plots
 		static void handlePlotAtomsOrCounts( realTimePlotterInput* input, PlottingInfo plotInfo, UINT repNum,
 											 std::vector<std::vector<std::vector<long> > >& finData,
@@ -48,10 +51,10 @@ class DataAnalysisControl
 											 std::vector<std::vector<long>>& countData, int plotNumberCount,
 											 std::vector<std::vector<int> > atomPresent );
 
-		static void handlePlotHist(realTimePlotterInput* input, PlottingInfo plotInfo, UINT plotNumber,
+		static void handlePlotHist( realTimePlotterInput* input, PlottingInfo plotInfo, UINT plotNumber,
 									std::vector<std::vector<long>> countData,
 									std::vector<std::vector<std::vector<long>>>& finData,
-									std::vector<std::vector<bool>>pscSatisfied);
+									std::vector<std::vector<bool>>pscSatisfied );
 
 	private:
 		// real time plotting
@@ -62,14 +65,22 @@ class DataAnalysisControl
 		Control<CStatic> header;
 		Control<CListCtrl> plotListview;
 		std::vector<tinyPlotInfo> allPlots;
-		//CDialog plotDesigner;
 		// other data analysis
+		bool currentlySettingGridCorner;
 		bool currentlySettingAnalysisLocations;
 		Control<CStatic> currentDataSetNumberText;
 		Control<CStatic> currentDataSetNumberEdit;
-		//Control<CButton> autoAnalyzeCheckBox;
-		Control<CButton> setAnalysisLocationsButton;
-		//Control<CButton> analyzeMostRecentButton;
-		std::vector<std::pair<UINT, UINT>> atomLocations;
+		Control<CButton> manualSetAnalysisLocationsButton;
+
+		Control<CStatic> gridHeader;
+		Control<CButton> setGridCorner;
+		Control<CStatic> gridSpacingText;
+		Control<CEdit> gridSpacing;
+		Control<CStatic> gridWidthText;
+		Control<CEdit> gridWidth;
+		Control<CStatic> gridHeightText;
+		Control<CEdit> gridHeight;
+		atomGrid currentGrid;
+		std::vector<coordinate> atomLocations;
 		bool threadNeedsCounts;
 };
