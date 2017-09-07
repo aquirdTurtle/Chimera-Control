@@ -168,7 +168,7 @@ std::pair<int, int> PictureStats::update( std::vector<long> image, UINT imageNum
 	repetitionIndicator.SetWindowTextA( cstr("Repetition " + str( currentRepetitionNumber ) + "/" 
 									   + str( totalRepetitionCount )) );
 
-	long currentSelectedCount = image[selectedPixel.row + (pictureHeight - 1 - selectedPixel.column) * pictureWidth];
+	long currentSelectedCount = image[selectedPixel.column-1 + (pictureHeight - selectedPixel.row) * pictureWidth];
 
 	long currentMaxCount = 1;
 	long currentMinCount = 65536;

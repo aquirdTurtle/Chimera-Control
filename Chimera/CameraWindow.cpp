@@ -283,22 +283,18 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 		mainWindowFriend->getComm()->sendError( err.what() );
 		return NULL;
 	}
-
-	if (pictureNumber == 1)
+	if ( pictureNumber % 2 == 1 )
 	{
-		try
-		{
-			//dataHandler.loadAndMoveKeyFile();
-			//plotterKey = dataHandler.getKey();
-		}
-		catch (Error& err)
-		{
-			mainWindowFriend->getComm()->sendError( err.what() );
-		}
+		imageGrabTimes.push_back( std::chrono::high_resolution_clock::now( ) );
 	}
-
-	CDC* drawer = GetDC();
 	AndorRunSettings currentSettings = Andor.getSettings();
+	//
+	std::lock_guard<std::mutex> locker( plotLock );
+	// add check to check if this is needed.
+	imageQueue.push_back( picData[(pictureNumber - 1) % currentSettings.picsPerRepetition] );
+
+	CDC* drawer = GetDC( );
+
 	try
 	{
 		if (realTimePic)
@@ -340,10 +336,6 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 
 	ReleaseDC( drawer );
 
-	//
-	std::lock_guard<std::mutex> locker( plotLock );
-	// add check to check if this is needed.
-	imageQueue.push_back( picData[(pictureNumber - 1) % currentSettings.picsPerRepetition] );
 
 	// write the data to the file.
 	if (currentSettings.cameraMode != "Continuous Single Scans Mode")
@@ -906,6 +898,7 @@ UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 			{
 				tempAtomArray[count] = true;
 			}
+			count++;
 		}
 		if (input->plotterActive)
 		{
@@ -995,6 +988,8 @@ void CameraWindow::fillMasterThreadInput( MasterThreadInput* input )
 {
 	input->atomQueueForRearrangement = &rearrangerAtomQueue;
 	input->rearrangerLock = &rearrangerLock;
+	input->andorsImageTimesForRearrangingThread = &imageTimes;
+	input->grabTimes = &imageGrabTimes;
 }
 
 
@@ -1027,7 +1022,7 @@ BOOL CameraWindow::OnInitDialog()
 {
 	// don't redraw until the first OnSize.
 	SetRedraw( false );
-	Andor.initializeClass( mainWindowFriend->getComm() );
+	Andor.initializeClass( mainWindowFriend->getComm(), &imageTimes );
 	cameraPositions positions;
 	// all of the initialization functions increment and use the id, so by the end it will be 3000 + # of controls.
 	int id = 3000;

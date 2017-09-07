@@ -28,6 +28,8 @@ class MasterManager;
 
 struct MasterThreadInput
 {
+	std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>>* andorsImageTimesForRearrangingThread;
+	std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>>* grabTimes;
 	DataLogger* logger;
 	profileSettings profile;
 	DioSystem* ttls;											

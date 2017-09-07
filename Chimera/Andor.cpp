@@ -1,10 +1,11 @@
 #include "stdafx.h"
-#include <process.h>
-#include <algorithm>
-#include <numeric>
 #include "ATMCD32D.h"
 #include "Andor.h"
 #include "CameraWindow.h"
+#include <chrono>
+#include <process.h>
+#include <algorithm>
+#include <numeric>
 
 std::string AndorCamera::getSystemInfo()
 {
@@ -141,9 +142,11 @@ AndorCamera::AndorCamera()
 
 }
 
-void AndorCamera::initializeClass(Communicator* comm)
+void AndorCamera::initializeClass(Communicator* comm, 
+								   std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>>* imageTimes)
 {
 	threadInput.comm = comm;
+	threadInput.imageTimes = imageTimes;
 	threadInput.Andor = this;
 	threadInput.spuriousWakeupHandler = false;
 	// begin the camera wait thread.
@@ -179,13 +182,12 @@ void AndorCamera::onFinish()
  */
 unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 {
-
 	cameraThreadInput* input = (cameraThreadInput*) voidPtr;
+	//... I'm not sure what this lock is doing here...
 	std::unique_lock<std::mutex> lock( input->runMutex );
 	int safeModeCount = 0;
-	long pictureNumber;
+	long pictureNumber = 0;
 	bool armed = false;
-
 	while ( !input->Andor->cameraThreadExitIndicator )
 	{
 		/* 
@@ -203,7 +205,6 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 		{
 			try
 			{
-				// alternative to directly using events.
 				int status;
 				input->Andor->queryIdentity(status);
 				if (status == DRV_IDLE && armed)
@@ -215,6 +216,10 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 				else
 				{
 					input->Andor->waitForAcquisition();
+					if ( pictureNumber % 2 == 0 )
+					{
+						(*input->imageTimes).push_back( std::chrono::high_resolution_clock::now( ) );
+					}
 					armed = true;
 					try
 					{
@@ -224,12 +229,13 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 					{
 						input->comm->sendError(exception.what());
 					}
+
 					input->comm->sendCameraProgress(pictureNumber);
 				}
 			}
 			catch (Error&)
 			{
-				//...
+				//...? When does this happen? not sure why this is here...
 			}
 		}
 		else
@@ -413,12 +419,10 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 	tempImage.resize(size);
 	WaitForSingleObject(imagesMutex, INFINITE);
 	imagesOfExperiment[experimentPictureNumber].resize(size);
-	ReleaseMutex(imagesMutex);
  	if (!ANDOR_SAFEMODE)
 	{
 		getOldestImage(tempImage);
 		// immediately rotate
-		WaitForSingleObject(imagesMutex, INFINITE);
 		for (UINT imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 		{
 			imagesOfExperiment[experimentPictureNumber][imageVecInc] = tempImage[((imageVecInc 

@@ -166,6 +166,8 @@ class CameraWindow : public CDialog
 		// 
 		std::atomic<bool> plotThreadActive;
 		std::vector<double> plotterKey;
+		std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>> imageTimes;
+		std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>> imageGrabTimes;
 		Gnuplotter plotter;
 };
 

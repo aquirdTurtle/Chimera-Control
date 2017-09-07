@@ -97,7 +97,10 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 					}
 					foundRearrangement = true;
 					// start rearrangement thread. Give the thread the queue.
-					input->niawg->startRearrangementThread( input->atomQueueForRearrangement, wave, input->comm, input->rearrangerLock );
+					input->niawg->startRearrangementThread( input->atomQueueForRearrangement, wave, input->comm, 
+															input->rearrangerLock, 
+															input->andorsImageTimesForRearrangingThread, 
+															input->grabTimes);
 				}
 			}
 			if (input->settings.rearrange && !foundRearrangement )
@@ -342,6 +345,8 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			}
 			if (!input->runMaster)
 			{
+				// this has got to be overkill...
+				waiter.startWaitThread( input );
 				waiter.wait(input->comm);
 			}
 			else
@@ -349,7 +354,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 				try
 				{
 					input->niawg->turnOff( );
-					waiter.wait(input->comm);
+					//waiter.wait(input->comm);
 				}
 				catch (Error&)
 				{
