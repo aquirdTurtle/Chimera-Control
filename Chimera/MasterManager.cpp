@@ -99,7 +99,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 					// start rearrangement thread. Give the thread the queue.
 					input->niawg->startRearrangementThread( input->atomQueueForRearrangement, wave, input->comm, 
 															input->rearrangerLock, 
-															input->andorsImageTimesForRearrangingThread, 
+															input->andorsImageTimes, 
 															input->grabTimes);
 				}
 			}
@@ -855,40 +855,56 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 		/// deal with dac commands
 		else if (word == "dac:")
 		{
+			DacCommandForm command;
 			std::string name;
 			functionStream >> name;
 			std::string value;
-			functionStream >> value;
+			functionStream >> command.finalVal;
+			command.time = operationTime;
+			command.commandName = "dac:";
+			command.initVal = "__NONE__";
+			command.numPoints = "__NONE__";
+			command.rampInc = "__NONE__";
+			command.rampTime = "__NONE__";
 			try
 			{
-				dacs->handleDacScriptCommand(operationTime, name, "__NONE__", value, "0", "__NONE__", dacShades, vars, ttls);
+				dacs->handleDacScriptCommand(command,  name, dacShades, vars, ttls);
 			}
 			catch (Error& err)
 			{
 				thrower(err.whatStr() + "... in \"dac:\" command inside function " + function);
 			}
 		}
-		else if (word == "dacramp:")
+		else if ( word == "dacspace:" )
 		{
-			std::string name, initVal, finalVal, rampTime, rampInc;
+
+		}
+		else if (word == "dacarange:")
+		{
+			DacCommandForm command;
+			std::string name;
 			// get dac name
 			functionStream >> name;
 			// get ramp initial value
-			functionStream >> initVal;
+			functionStream >> command.initVal;
 			// get ramp final value
-			functionStream >> finalVal;
+			functionStream >> command.finalVal;
 			// get total ramp time;
-			functionStream >> rampTime;
+			functionStream >> command.rampTime;
 			// get ramp point increment.
-			functionStream >> rampInc;
+			functionStream >> command.rampInc;
+			command.time = operationTime;
+			command.commandName = "dacarange:";
+			// not used here.
+			command.numPoints = "__NONE__";
 			//
 			try
 			{
-				dacs->handleDacScriptCommand(operationTime, name, initVal, finalVal, rampTime, rampInc, dacShades, vars, ttls);
+				dacs->handleDacScriptCommand(command, name, dacShades, vars, ttls);
 			}
 			catch (Error& err)
 			{
-				thrower(err.whatStr() + "... in \"dacramp:\" command inside function " + function);
+				thrower(err.whatStr() + "... in \"dacArange:\" command inside function " + function);
 			}
 		}
 		/// Handle RSG calls.
@@ -1113,40 +1129,58 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs,
 		/// deal with dac commands
 		else if (word == "dac:")
 		{
-			std::string dacName, dacVoltageValue;
-			currentMasterScript >> dacName;
-			currentMasterScript >> dacVoltageValue;
+			DacCommandForm command;
+			std::string name;
+			currentMasterScript >> name;
+			std::string value;
+			currentMasterScript >> command.finalVal;
+			command.time = operationTime;
+			command.commandName = "dac:";
+			command.initVal = "__NONE__";
+			command.numPoints = "__NONE__";
+			command.rampInc = "__NONE__";
+			command.rampTime = "__NONE__";
 			try
 			{
-				dacs->handleDacScriptCommand(operationTime, dacName, "__NONE__", dacVoltageValue, "0", "__NONE__", 
-											  dacShades, vars, ttls);
+				dacs->handleDacScriptCommand(command, name, dacShades, vars, ttls);
 			}
 			catch (Error& err)
 			{
-				thrower(err.whatStr() + "... in \"dac:\" command inside main script");
+				thrower(err.whatStr() + "... in \"dacArange:\" command inside main script");
 			}
 		}
-		else if (word == "dacramp:")
+		else if ( word == "dacspace:" )
 		{
-			std::string name, initVal, finalVal, rampTime, rampInc;
+			thrower( "TODO!" );
+		}
+		else if (word == "dacarange:")
+		{
+			DacCommandForm command;
+			std::string name;
 			// get dac name
 			currentMasterScript >> name;
 			// get ramp initial value
-			currentMasterScript >> initVal;
+			currentMasterScript >> command.initVal;
 			// get ramp final value
-			currentMasterScript >> finalVal;
+			currentMasterScript >> command.finalVal;
 			// get total ramp time;
-			currentMasterScript >> rampTime;
-			// ge ramp point increment.
-			currentMasterScript >> rampInc;
+			currentMasterScript >> command.rampTime;
+			// get ramp point increment.
+			currentMasterScript >> command.rampInc;
+			command.time = operationTime;
+			command.commandName = "dacarange:";
+			// not used here.
+			command.numPoints = "__NONE__";
+			//
+
 			try
 			{
-				dacs->handleDacScriptCommand( operationTime, name, initVal, finalVal, rampTime, rampInc, dacShades, 
+				dacs->handleDacScriptCommand( command, name, dacShades, 
 											 vars, ttls );
 			}
 			catch (Error& err)
 			{
-				thrower(err.whatStr() + "... in \"dacramp:\" command inside main script");
+				thrower(err.whatStr() + "... in \"dacArange:\" command inside main script");
 			}
 		}
 		/// Deal with RSG calls
@@ -1324,7 +1358,7 @@ void MasterManager::callCppCodeFunction()
 bool MasterManager::isValidWord( std::string word )
 {
 	if (word == "t" || word == "t++" || word == "t+=" || word == "t=" || word == "on:" || word == "off:"
-		 || word == "dac:" || word == "dacramp:" || word == "rsg:" || word == "raman:" || word == "call"
+		 || word == "dac:" || word == "dacarange:" || word == "dacspace:" || word == "rsg:" || word == "call" 
 		 || word == "repeat:" || word == "end" || word == "pulseon:" || word == "pulseoff:" || word == "callcppcode")
 	{
 		return true;

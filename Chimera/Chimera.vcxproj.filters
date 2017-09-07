@@ -455,6 +455,8 @@
     <ClInclude Include="atomGrid.h">
       <Filter>Camera Window</Filter>
     </ClInclude>
+    <ClInclude Include="realTimePlotterInput.h" />
+    <ClInclude Include="tinyPlotInfo.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

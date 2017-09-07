@@ -644,9 +644,8 @@ void DacSystem::interpretKey( key variationKey, std::vector<variable>& vars, std
 				}
 				tempEvent.time = varTime + dacCommandFormList[eventInc].time.second;
 			}
-			// interpret ramp time command. I need to know whether it's ramping or not.
-			double rampTime = reduce(dacCommandFormList[eventInc].rampTime, variationKey, var, vars);
-			if (rampTime == 0)
+
+			if ( dacCommandFormList[eventInc].commandName == "dac:")
 			{
 				/// single point.
 				////////////////
@@ -654,8 +653,10 @@ void DacSystem::interpretKey( key variationKey, std::vector<variable>& vars, std
 				tempEvent.value = reduce(dacCommandFormList[eventInc].finalVal, variationKey, var, vars);
 				dacCommandList[var].push_back(tempEvent);
 			}
-			else
+			else if ( dacCommandFormList[eventInc].commandName == "dacarange:")
 			{
+				// interpret ramp time command. I need to know whether it's ramping or not.
+				double rampTime = reduce( dacCommandFormList[eventInc].rampTime, variationKey, var, vars );
 				/// many points to be made.
 				// convert initValue and finalValue to doubles to be used 
 				double initValue, finalValue, rampInc;
@@ -677,7 +678,7 @@ void DacSystem::interpretKey( key variationKey, std::vector<variable>& vars, std
 				double diff = fabs(steps - fabs(finalValue - initValue) / rampInc);
 				if (diff > 100 * DBL_EPSILON)
 				{
-					warnings += "Warning: Ideally your spacings for a dacramp would result in a non-integer number of steps."
+					warnings += "Warning: Ideally your spacings for a dacArange would result in a non-integer number of steps."
 						" The code will attempt to compensate by making a last step to the final value which is not the"
 						" same increment in voltage or time as the other steps to take the dac to the final value at the"
 						" right time.\r\n";
@@ -712,6 +713,14 @@ void DacSystem::interpretKey( key variationKey, std::vector<variable>& vars, std
 				tempEvent.value = finalValue;
 				tempEvent.time = initTime + rampTime;
 				dacCommandList[var].push_back(tempEvent);
+			}
+			else if ( dacCommandFormList[eventInc].commandName == "dacspace:" )
+			{
+				// TODO!
+			}
+			else
+			{
+				thrower( "ERROR: Unrecognized dac command name: " + dacCommandFormList[eventInc].commandName );
 			}
 		}
 	}
@@ -765,17 +774,9 @@ ULONG DacSystem::getNumberEvents(UINT var)
 // note that this is not directly tied to changing any "current" parameters in the DacSystem object (it of course changes a list parameter). The 
 // DacSystem object "current" parameters aren't updated to reflect an experiment, so if this is called for a force out, it should be called in conjuction
 // with changing "currnet" parameters in the DacSystem object.
-void DacSystem::setDacComplexEvent( int line, timeType time, std::string initVal, std::string finalVal, std::string rampTime, std::string rampInc )
+void DacSystem::setDacCommandForm( DacCommandForm command )
 {
-	DacCommandForm eventInfo;
-	eventInfo.line = line;
-	eventInfo.initVal = initVal;
-	eventInfo.finalVal = finalVal;
-
-	eventInfo.rampTime = rampTime;
-	eventInfo.time = time;
-	eventInfo.rampInc = rampInc;
-	dacCommandFormList.push_back( eventInfo );
+	dacCommandFormList.push_back( command );
 	// you need to set up a corresponding trigger to tell the dacs to change the output at the correct time. 
 	// This is done later on interpretation of ramps etc.
 }
@@ -945,120 +946,44 @@ void DacSystem::makeFinalDataFormat(UINT var)
 }
 
 
-void DacSystem::handleDacScriptCommand( timeType time, std::string name, std::string initVal, 
-										 std::string finalVal, std::string rampTime, std::string rampInc, 
-										 std::vector<UINT>& dacShadeLocations, std::vector<variable>& vars, 
-										 DioSystem* ttls )
+void DacSystem::handleDacScriptCommand( DacCommandForm command, std::string name,
+										/*std::string commandName, timeType time, std::string name, std::string initVal,
+										std::string finalVal, std::string rampTime, std::string rampInc,
+										std::string numPoints,*/ std::vector<UINT>& dacShadeLocations,
+										std::vector<variable>& vars, DioSystem* ttls )
 {
-	double value;
-	if (!isValidDACName(name))
+	if ( command.commandName != "dac:" && command.commandName != "dacarange:" && command.commandName != "dacspacce" )
+	{
+		thrower( "ERROR: dac commandName not recognized!" );
+	}
+	if (!isValidDACName( name))
 	{
 		thrower("ERROR: the name " + name + " is not the name of a dac!");
 	}
-	/// final value.
-	try
-	{
-		value = std::stod( finalVal );
-	}
-	catch (std::invalid_argument&)
-	{
-		bool isVar = false;
-		for (UINT varInc = 0; varInc < vars.size(); varInc++)
-		{
-			if (vars[varInc].name == finalVal)
-			{
-				vars[varInc].active = true;
-				isVar = true;
-				break;
-			}
-		}
-		if (!isVar)
-		{
-			thrower( "ERROR: tried and failed to convert " + finalVal + " to a double for a dac final voltage value. "
-					 "It's also not a variable." );
-		}
-	}
-	if (rampTime != "0")
+	// final value is always used.
+	VariableSystem::assertUsable( command.finalVal, vars );
+	if ( command.commandName == "dacarange:" && command.commandName == "dacspace:" )
 	{
 		// It's a ramp.
-		// work with initVal;
-		try
-		{
-			value = std::stod( initVal );
-		}
-		catch (std::invalid_argument&)
-		{
-			bool isVar = false;
-			for (UINT varInc = 0; varInc < vars.size(); varInc++)
-			{
-				if (vars[varInc].name == initVal)
-				{
-					isVar = true;
-					break;
-				}
-			}
-			if (!isVar)
-			{
-				thrower( "ERROR: tried and failed to convert value of \"" + initVal + "\" to a double for a dac "
-						 "initial voltage value. It's also not a variable." );
-			}
-		}
-
-		// work with finVal
-		// work with the ramp time
-		try
-		{
-			value = std::stod( rampTime );
-		}
-		catch (std::invalid_argument&)
-		{
-			bool isVar = false;
-			for (UINT varInc = 0; varInc < vars.size(); varInc++)
-			{
-				if (vars[varInc].name == rampTime)
-				{
-					isVar = true;
-					break;
-				}
-			}
-			if (!isVar)
-			{
-				thrower( "ERROR: tried and failed to convert " + rampTime + " to a double for a dac time value. It's "
-						 "also not a variable." );
-			}
-		}
-
-		// work with rampInc
-		try
-		{
-			value = std::stod( rampInc );
-		}
-		catch (std::invalid_argument&)
-		{
-			bool isVar = false;
-			for (UINT varInc = 0; varInc < vars.size(); varInc++)
-			{
-				if (vars[varInc].name == rampInc)
-				{
-					isVar = true;
-					break;
-				}
-			}
-			if (!isVar)
-			{
-				thrower( "ERROR: tried and failed to convert " + rampInc + " to a double for a dac ramp increment "
-						 "value. It's also not a variable." );
-			}
-		}
+		VariableSystem::assertUsable( command.initVal, vars );
+		VariableSystem::assertUsable( command.rampTime, vars );
+	}
+	if ( command.commandName == "dacarange:" )
+	{
+		VariableSystem::assertUsable( command.rampInc, vars );
+	}
+	if ( command.commandName == "dacspace:" )
+	{
+		VariableSystem::assertUsable( command.numPoints, vars );
 	}
 	// convert name to corresponding dac line.
-	int line = getDacIdentifier(name);
-	if (line == -1)
+	command.line = getDacIdentifier(name);
+	if ( command.line == -1)
 	{
 		thrower("ERROR: the name " + name + " is not the name of a dac!");
 	}
-	dacShadeLocations.push_back(line);
-	setDacComplexEvent(line, time, initVal, finalVal, rampTime, rampInc);
+	dacShadeLocations.push_back( command.line );
+	setDacCommandForm( command );
 }
 
 

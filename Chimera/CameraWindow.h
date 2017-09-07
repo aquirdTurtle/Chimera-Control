@@ -11,40 +11,12 @@
 #include "commonFunctions.h"
 #include "atomCruncherInput.h"
 #include "cameraPositions.h"
+#include "commonTypes.h"
 #include <bitset>
 
 class MainWindow;
 class ScriptingWindow;
 class AuxiliaryWindow;
-
-struct realTimePlotterInput
-{
-	std::vector<tinyPlotInfo> plotInfo;
-	std::vector<coordinate> analysisLocations;
-	atomGrid atomGridInfo;
-	std::atomic<bool>* active;
-	std::vector<std::vector<long>>* imageQueue;
-	std::vector<std::vector<bool>>* atomQueue;
-	imageParameters imageShape;
-	UINT picsPerVariation;
-	UINT picsPerRep;
-	UINT variations;
-
-	UINT alertThreshold;
-	bool wantAlerts;
-	Communicator* comm;
-	std::mutex* plotLock;
-
-	UINT plottingFrequency;
-	UINT numberOfRunsToAverage;
-	std::vector<double> key;
-	Gnuplotter* plotter;
-
-	bool needsCounts;
-};
-
-
-
 
 class CameraWindow : public CDialog
 {
@@ -138,9 +110,7 @@ class CameraWindow : public CDialog
 		MainWindow* mainWindowFriend;
 		ScriptingWindow* scriptingWindowFriend;
 		AuxiliaryWindow* auxWindowFriend;
-
 		cToolTips tooltips;
-
 		coordinate selectedPixel = { 0,0 };
 		CMenu menu;
 		// some picture menu options
@@ -166,8 +136,8 @@ class CameraWindow : public CDialog
 		// 
 		std::atomic<bool> plotThreadActive;
 		std::vector<double> plotterKey;
-		std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>> imageTimes;
-		std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>> imageGrabTimes;
+		clockTimes imageTimes;
+		clockTimes imageGrabTimes;
 		Gnuplotter plotter;
 };
 

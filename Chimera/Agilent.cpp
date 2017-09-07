@@ -1,15 +1,18 @@
 #include "stdafx.h"
+
+#include "Agilent.h"
+#include "VariableSystem.h"
+#include "ScriptStream.h"
+#include "ProfileSystem.h"
+#include "AuxiliaryWindow.h"
+
 #include "boost/cast.hpp"
 #include <algorithm>
 #include <numeric>
 #include <fstream>
 // NI's visa file. Also gets indirectly included via #include "nifgen.h".
 #include "visa.h"
-#include "Agilent.h"
-#include "VariableSystem.h"
-#include "ScriptStream.h"
-#include "ProfileSystem.h"
-#include "AuxiliaryWindow.h"
+
 
 Agilent::Agilent(bool safemode, std::string address) : visaFlume(safemode, address)
 { 
@@ -588,10 +591,10 @@ void Agilent::handleNewConfig( std::ofstream& newFile )
 /*
 This function outputs a string that contains all of the information that is set by the user for a given configuration. 
 */
-void Agilent::handleSavingConfig(std::ofstream& saveFile)
-{
+void Agilent::handleSavingConfig(std::ofstream& saveFile, std::string categoryPath, RunInfo info)
+{	
 	// make sure data is up to date.
-	//handleInput();
+	handleInput( currentChannel, categoryPath, info);
 	// start outputting.
 	saveFile << "AGILENT\n";
 	saveFile << str(settings.synced) << "\n";

@@ -113,6 +113,34 @@ void VariableSystem::handleNewConfig( std::ofstream& newFile )
 	newFile << "END_VARIABLES\n";
 }
 
+// this function checks whether the string "item" is usable as a double, either by direct reduction to double without
+// variables, or if it is a variable.
+void VariableSystem::assertUsable( std::string item, std::vector<variable>& vars )
+{
+	double value;
+	try
+	{
+		value = reduce( item );
+	}
+	catch ( std::invalid_argument& )
+	{
+		bool isVar = false;
+		for ( UINT varInc = 0; varInc < vars.size( ); varInc++ )
+		{
+			if ( vars[varInc].name == item )
+			{
+				vars[varInc].active = true;
+				isVar = true;
+				break;
+			}
+		}
+		if ( !isVar )
+		{
+			thrower( "ERROR: tried and failed to convert " + item + " to a double. It's also not a variable." );
+		}
+	}
+}
+
 
 void VariableSystem::handleSaveConfig(std::ofstream& saveFile)
 {

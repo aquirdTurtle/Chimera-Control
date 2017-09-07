@@ -2268,8 +2268,7 @@ double NiawgController::rampCalc( int size, int iteration, double initPos, doubl
 
 void NiawgController::startRearrangementThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave,
 												Communicator* comm, std::mutex* rearrangerLock,
-												std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>>* andorImageTimes,
-												std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>>* grabTimes )
+												clockTimes* andorImageTimes, clockTimes* grabTimes )
 {
 	threadStateSignal = true;
 	rearrangementThreadInput* input = new rearrangementThreadInput;
@@ -2333,8 +2332,7 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 	rearrangementThreadInput* input = (rearrangementThreadInput*)voidInput;
 	std::vector<bool> triedRearranging;
 	std::vector<double> calcTime, streamTime, triggerTime, resetPositionTime, picHandlingTime, picGrabTime;
-	std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>> startCalc, stopCalc, stopReset,
-																			 stopStream, stopTrigger;
+	clockTimes startCalc, stopCalc, stopReset, stopStream, stopTrigger;
 	try
 	{
 		// wait for data
@@ -2463,36 +2461,37 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 			}
 			input->niawg->rearrangeWaveVals.clear( );
 		}
+		Sleep( 1000 );
+		for ( auto inc : range( startCalc.size( ) ) )
+		{
+			streamTime.push_back( std::chrono::duration<double>( stopStream[inc] - stopCalc[inc] ).count( ) );
+			triggerTime.push_back( std::chrono::duration<double>( stopTrigger[inc] - stopStream[inc] ).count( ) );
+			calcTime.push_back( std::chrono::duration<double>( stopCalc[inc] - startCalc[inc] ).count( ) );
+			resetPositionTime.push_back( std::chrono::duration<double>( stopReset[inc] - stopTrigger[inc] ).count( ) );
+			picHandlingTime.push_back( std::chrono::duration<double>( startCalc[inc] - (*input->grabTimes)[inc] ).count() );
+			picGrabTime.push_back( std::chrono::duration<double>( (*input->grabTimes)[inc] - (*input->pictureTimes)[inc]).count( ) );
+		}
+		(*input->pictureTimes).clear( );
+		(*input->grabTimes).clear( );
+
+		std::ofstream dataFile( TIMING_OUTPUT_LOCATION  + "rearrangementLog.txt" );
+
+		if ( !dataFile.is_open( ) )
+		{
+			errBox( "ERROR: data file failed to open for rearrangement log!" );
+		}
+		for ( auto count : range( triedRearranging.size( ) ) )
+		{
+			dataFile << triedRearranging[count] << " " << picHandlingTime [count] << " " << picGrabTime[count] << " " 
+					 << calcTime[count] << " " << resetPositionTime[count] << " " << streamTime[count] << " " 
+					 << triggerTime[count] <<  "\n";
+ 		}
+		dataFile.close( );
 	}
 	catch ( Error& err )
 	{
 		errBox( "ERROR in rearrangement thread! " + err.whatStr( ) );
 	}
-	Sleep( 1000 );
-	for ( auto inc : range( startCalc.size( ) ) )
-	{
-		streamTime.push_back( std::chrono::duration<double>( stopStream[inc] - stopCalc[inc] ).count( ) );
-		triggerTime.push_back( std::chrono::duration<double>( stopTrigger[inc] - stopStream[inc] ).count( ) );
-		calcTime.push_back( std::chrono::duration<double>( stopCalc[inc] - startCalc[inc] ).count( ) );
-		resetPositionTime.push_back( std::chrono::duration<double>( stopReset[inc] - stopTrigger[inc] ).count( ) );
-		picHandlingTime.push_back( std::chrono::duration<double>( startCalc[inc] - (*input->grabTimes)[inc] ).count() );
-		picGrabTime.push_back( std::chrono::duration<double>( (*input->grabTimes)[inc] - (*input->pictureTimes)[inc]).count( ) );
-	}
-	(*input->pictureTimes).clear( );
-	(*input->grabTimes).clear( );
-	std::ofstream dataFile( "J:\\Data Repository\\New Data Repository\\2017\\September\\September 6\\Raw Data"
-							"\\rearrangementLog.txt" );
-	if ( !dataFile.is_open( ) )
-	{
-		errBox( "ERROR: data file failed to open for rearrangement log!" );
-	}
-	for ( auto count : range( triedRearranging.size( ) ) )
-	{
-		dataFile << triedRearranging[count] << " " << picHandlingTime [count] << " " << picGrabTime[count] << " " 
-				 << calcTime[count] << " " << resetPositionTime[count] << " " << streamTime[count] << " " 
-				 << triggerTime[count] <<  "\n";
- 	}
-	dataFile.close( );
 	delete input;
 	return 0;
 }
@@ -2500,7 +2499,7 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 
 /// everything below here is primarily Kai-Niklas Schymik's work, with minor modifications. Some modifications are
 /// minor to improve style consistency with my code, some are renaming variables so that I can make sense of what's 
-/// going on.
+/// going on. I also had to change it to make it compatible with non-square input.
 
 int NiawgController::sign( int x )
 {

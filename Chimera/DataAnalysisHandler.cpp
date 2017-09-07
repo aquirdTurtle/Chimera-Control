@@ -8,7 +8,7 @@
 #include "CameraWindow.h"
 #include "ProfileSystem.h"
 #include "PlotDesignerDialog.h"
-
+#include "realTimePlotterInput.h"
 
 void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips, 
 									  int isTriggerModeSensitive, rgbMap rgbs )
@@ -88,7 +88,7 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	gridHeightText.amPos = { pos.amPos.x + 240, pos.amPos.y, pos.amPos.x + 360, pos.amPos.y + 25 };
 	gridHeightText.videoPos = { -1,-1,-1,-1 };
 	gridHeightText.triggerModeSensitive = isTriggerModeSensitive;
-	gridHeightText.Create( "Width", WS_CHILD | WS_VISIBLE, gridHeightText.seriesPos, parent, id++ );
+	gridHeightText.Create( "Height", WS_CHILD | WS_VISIBLE, gridHeightText.seriesPos, parent, id++ );
 
 	gridHeight.seriesPos = { pos.seriesPos.x + 360, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
 	gridHeight.amPos = { pos.amPos.x + 360, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
@@ -162,6 +162,32 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	reloadListView();
 }
 
+void DataAnalysisControl::handleOpenConfig( std::ifstream& file, double version )
+{
+	ProfileSystem::checkDelimiterLine( file, "BEGIN_DATA_ANALYSIS" );
+	file >> currentGrid.topLeftCorner.row;
+	file >> currentGrid.topLeftCorner.column;
+	file >> currentGrid.width;
+	gridWidth.SetWindowTextA( cstr(currentGrid.width) );
+	file >> currentGrid.height;
+	gridHeight.SetWindowTextA( cstr( currentGrid.height ) );
+	file >> currentGrid.pixelSpacing;
+	gridSpacing.SetWindowTextA( cstr( currentGrid.pixelSpacing ) );
+	ProfileSystem::checkDelimiterLine( file, "END_DATA_ANALYSIS" );
+}
+
+
+void DataAnalysisControl::handleSaveConfig( std::ofstream& file )
+{
+	file << "BEGIN_DATA_ANALYSIS\n";
+	file << currentGrid.topLeftCorner.row << " " << currentGrid.topLeftCorner.column << "\n";
+	file << currentGrid.width << " " << currentGrid.height << " " << currentGrid.pixelSpacing << "\n";
+	// todo: plots
+
+	file << "END_DATA_ANALYSIS\n";
+
+
+}
 
 unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 {

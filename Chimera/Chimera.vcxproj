@@ -236,6 +236,7 @@
     <ClInclude Include="DebuggingOptionsControl.h" />
     <ClInclude Include="externals.h" />
     <ClInclude Include="MainWindow.h" />
+    <ClInclude Include="realTimePlotterInput.h" />
     <ClInclude Include="rearrangementStructures.h" />
     <ClInclude Include="rearrangementThreadInput.h" />
     <ClInclude Include="Rearranger.h" />
@@ -266,6 +267,7 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="DioSettingsDialog.h" />
     <ClInclude Include="DioSystem.h" />
+    <ClInclude Include="tinyPlotInfo.h" />
     <ClInclude Include="VariableSystem.h" />
     <ClInclude Include="VisaFlume.h" />
   </ItemGroup>
