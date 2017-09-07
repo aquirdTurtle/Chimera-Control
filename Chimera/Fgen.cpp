@@ -150,6 +150,7 @@ void Fgen::resetWritePosition( )
 	}
 }
 
+
 void Fgen::deleteWaveform( ViConstString waveformName )
 {
 	if (!NIAWG_SAFEMODE)

@@ -436,7 +436,10 @@ void PictureControl::drawPicture(CDC* deviceContext, std::vector<long> picData,
 		for (int widthInc = 0; widthInc < dataWidth; widthInc++)
 		{
 			// get temporary value for color of the pixel.
-
+			if ( widthInc + heightInc * dataWidth > picData.size())
+			{
+				return;
+			}
 			dTemp = ceil(yscale * (picData[widthInc + heightInc * dataWidth] - minColor));
 
 			// interpret the value depending on the range of values it can take.
@@ -605,7 +608,7 @@ void PictureControl::drawCircle(CDC* dc, coordinate selectedLocation)
 		return;
 	}
 
-	if ( selectedLocation.row > grid.size( ) || selectedLocation.column > grid[0].size() 
+	if ( selectedLocation.column > grid.size( ) || selectedLocation.row > grid[0].size() 
 		 || selectedLocation.row <=0 || selectedLocation.column <= 0 )
 	{
 		// quietly don't try to draw.
@@ -684,7 +687,7 @@ void PictureControl::drawAnalysisMarkers(CDC* dc, std::vector<coordinate> analys
 			{
 				UINT pixelRow = gridInfo.topLeftCorner.row-1 + rowInc * gridInfo.pixelSpacing;
 				UINT pixelColumn = gridInfo.topLeftCorner.column-1 + columnInc * gridInfo.pixelSpacing;
-				if ( pixelRow >= grid.size( ) || pixelColumn >= grid[0].size( ) )
+				if ( pixelColumn >= grid.size( ) || pixelRow >= grid[0].size( ) )
 				{
 					// just quietly don't try to draw. Could also have this throw, haven't decided exactly how I 
 					// want to deal with this yet.

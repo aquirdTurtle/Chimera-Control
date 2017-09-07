@@ -4,7 +4,7 @@
 #include "MasterManager.h"
 #include "NiawgWaiter.h"
 #include "Rearranger.h"
-
+#include <chrono>
 
 void NiawgController::initialize()
 {
@@ -61,9 +61,9 @@ void NiawgController::programNiawg( MasterThreadInput* input, NiawgOutputInfo& o
 	{
 		input->niawg->turnOff();
 	}
-	// wait until the niawg has finished outputting previous variation.
+	
 	input->niawg->turnOff();
-	waiter.wait( input->comm );
+	//waiter.wait( input->comm );
 
 	if (input->settings.dontActuallyGenerate) { return; }
 	// Restart Waveform
@@ -74,7 +74,7 @@ void NiawgController::programNiawg( MasterThreadInput* input, NiawgOutputInfo& o
 	// initiate generation before telling the master. this is because scripts are supposed to be designed to sit on an 
 	// initial waveform until the master sends it a trigger.
 	input->niawg->turnOn();
-	waiter.startWaitThread( input );
+	//waiter.startWaitThread( input );
 	for (UINT waveInc = 2; waveInc < output.waves.size(); waveInc++)
 	{
 		output.waves[waveInc].core.waveVals.clear();
@@ -2267,10 +2267,14 @@ double NiawgController::rampCalc( int size, int iteration, double initPos, doubl
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void NiawgController::startRearrangementThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave,
-												Communicator* comm, std::mutex* rearrangerLock )
+												Communicator* comm, std::mutex* rearrangerLock,
+												std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>>* andorImageTimes,
+												std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>>* grabTimes )
 {
 	threadStateSignal = true;
 	rearrangementThreadInput* input = new rearrangementThreadInput;
+	input->pictureTimes = andorImageTimes;
+	input->grabTimes = grabTimes;
 	input->rearrangerLock = rearrangerLock;
 	input->threadActive = &threadStateSignal;
 	input->comm = comm;
@@ -2328,7 +2332,9 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 {
 	rearrangementThreadInput* input = (rearrangementThreadInput*)voidInput;
 	std::vector<bool> triedRearranging;
-	std::vector<long> timelapse;
+	std::vector<double> calcTime, streamTime, triggerTime, resetPositionTime, picHandlingTime, picGrabTime;
+	std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>> startCalc, stopCalc, stopReset,
+																			 stopStream, stopTrigger;
 	try
 	{
 		// wait for data
@@ -2348,7 +2354,10 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 				}
 				input->atomsQueue->erase( input->atomsQueue->begin( ) );
 			}
-			ULONG start = GetTickCount( );
+
+			startCalc.push_back(std::chrono::high_resolution_clock::now( ));
+			
+			//ULONG start = GetTickCount( );
 			rearrangeInfo& info = input->rearrangementWave.rearrange;
 			// right now I need to re-shape the atomqueue matrix. I should probably modify Kai's code to work with a 
 			// flattened source matrix for speed.
@@ -2371,7 +2380,7 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 			{
 				rearrangement( source, info.target, operationsMatrix );
 			}
-			catch ( Error& err )
+			catch ( Error& )
 			{
 				// as of now, just ignore.
 			}
@@ -2435,31 +2444,43 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 			fillerWave.time = (info.moveLimit - operationsMatrix.size( )) * info.timePerMove;
 			fillerWave.sampleNum = input->niawg->waveformSizeCalc( fillerWave.time );
 			input->niawg->finalizeStandardWave( fillerWave, options );
-			input->niawg->rearrangeWaveVals.insert( input->niawg->rearrangeWaveVals.end( ), fillerWave.waveVals.begin( ), fillerWave.waveVals.end( ) );
+			input->niawg->rearrangeWaveVals.insert( input->niawg->rearrangeWaveVals.end( ), 
+													fillerWave.waveVals.begin( ), fillerWave.waveVals.end( ) );
+			stopCalc.push_back(std::chrono::high_resolution_clock::now( ));
 			input->niawg->streamRearrangement( );
+			stopStream.push_back( std::chrono::high_resolution_clock::now( ) );
 			input->niawg->fgenConduit.sendSoftwareTrigger( );
+			stopTrigger.push_back(std::chrono::high_resolution_clock::now( ));
 			input->niawg->fgenConduit.resetWritePosition( );
-			input->niawg->rearrangeWaveVals.clear( );
+			stopReset.push_back(std::chrono::high_resolution_clock::now( ));
 			if ( operationsMatrix.size( ) )
 			{
 				triedRearranging.push_back( true );
-				timelapse.push_back( GetTickCount( ) - start );
 			}
 			else
 			{
 				triedRearranging.push_back( false );
-				timelapse.push_back( GetTickCount( ) - start );
 			}
-			
+			input->niawg->rearrangeWaveVals.clear( );
 		}
 	}
 	catch ( Error& err )
 	{
 		errBox( "ERROR in rearrangement thread! " + err.whatStr( ) );
 	}
-	delete input;
-
-	std::ofstream dataFile( "J:\\Data Repository\\New Data Repository\\2017\\September\\September 5\\Raw Data"
+	Sleep( 1000 );
+	for ( auto inc : range( startCalc.size( ) ) )
+	{
+		streamTime.push_back( std::chrono::duration<double>( stopStream[inc] - stopCalc[inc] ).count( ) );
+		triggerTime.push_back( std::chrono::duration<double>( stopTrigger[inc] - stopStream[inc] ).count( ) );
+		calcTime.push_back( std::chrono::duration<double>( stopCalc[inc] - startCalc[inc] ).count( ) );
+		resetPositionTime.push_back( std::chrono::duration<double>( stopReset[inc] - stopTrigger[inc] ).count( ) );
+		picHandlingTime.push_back( std::chrono::duration<double>( startCalc[inc] - (*input->grabTimes)[inc] ).count() );
+		picGrabTime.push_back( std::chrono::duration<double>( (*input->grabTimes)[inc] - (*input->pictureTimes)[inc]).count( ) );
+	}
+	(*input->pictureTimes).clear( );
+	(*input->grabTimes).clear( );
+	std::ofstream dataFile( "J:\\Data Repository\\New Data Repository\\2017\\September\\September 6\\Raw Data"
 							"\\rearrangementLog.txt" );
 	if ( !dataFile.is_open( ) )
 	{
@@ -2467,9 +2488,12 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 	}
 	for ( auto count : range( triedRearranging.size( ) ) )
 	{
-		dataFile << triedRearranging[count] << " " << timelapse[count] << "\n";
-	}
+		dataFile << triedRearranging[count] << " " << picHandlingTime [count] << " " << picGrabTime[count] << " " 
+				 << calcTime[count] << " " << resetPositionTime[count] << " " << streamTime[count] << " " 
+				 << triggerTime[count] <<  "\n";
+ 	}
 	dataFile.close( );
+	delete input;
 	return 0;
 }
 

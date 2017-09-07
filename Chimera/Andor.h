@@ -31,6 +31,7 @@ struct cameraThreadInput
 	Communicator* comm;
 	// Andor is set to this in the constructor of the andor camera.
 	AndorCamera* Andor;
+	std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>>* imageTimes;
 };
 
 /// the all-important camera class.
@@ -121,7 +122,8 @@ class AndorCamera
 
 		static UINT __stdcall cameraThread( void* voidPtr );
 		
-		void initializeClass(Communicator* comm);
+		void initializeClass( Communicator* comm,
+										   std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>>* imageTimes );
 		std::string getSystemInfo();
 
 	private:

@@ -940,7 +940,7 @@ void DataAnalysisControl::handlePlotHist(realTimePlotterInput* input, PlottingIn
 	input->plotter->send("set ylabel \"Occurrences\"");
 	double spaceFactor = 0.8;
 	//double boxWidth = spaceFactor * 5 / (plotInfo.getPixelGroupNumber() * plotInfo.getDataSetNumber());
-	double boxWidth = spaceFactor * 5 / (input->atomGridInfo.width * input->atomGridInfo.height * plotInfo.getDataSetNumber( ));
+	double boxWidth = spaceFactor * 10 / (input->atomGridInfo.width * input->atomGridInfo.height * plotInfo.getDataSetNumber( ));
 	
 	input->plotter->send("set boxwidth " + str(boxWidth));
 	input->plotter->send("set style fill solid 1");
@@ -956,7 +956,7 @@ void DataAnalysisControl::handlePlotHist(realTimePlotterInput* input, PlottingIn
 		//for (UINT groupI = 0; groupI < plotInfo.getPixelGroupNumber(); groupI++)
 		//{
 			// long command that makes hist correctly.
-			std::string singleHist = " '-' using (5 * floor(($1)/5) - " + str(boxWidth * (totalGroupNum * dataSetI + groupI)
+			std::string singleHist = " '-' using (10 * floor(($1)/10) - " + str(boxWidth * (totalGroupNum * dataSetI + groupI)
 																			  - spaceFactor * 0.5 + spaceFactor * 0.5 / (totalGroupNum * totalDataSetNum))
 				+ ") : (1.0) smooth freq with boxes title \"G " + str(groupI + 1) + " "
 				+ plotInfo.getLegendText(dataSetI) + "\" " + GNUPLOT_COLORS[groupI] + " " + GNUPLOT_MARKERS[dataSetI] + ",";

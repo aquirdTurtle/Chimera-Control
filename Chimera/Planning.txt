@@ -55,7 +55,10 @@ Bugs:
 	having orientations
 - Lots of missed save-status handling overall.
 - closing window doesn't stop program (release mode only?)
-
+- text of picture color scale doesn't match bar position after load config
+- histogram not using the plot update frequency value, updating every time.
+- scripts becoming unsaved after move, should preserve saved status
+- intensity script not saving / loading properly.
 
 =================
 Finished
