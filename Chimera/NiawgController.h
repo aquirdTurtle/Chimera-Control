@@ -72,9 +72,7 @@ class NiawgController
 		// Other
 		void setRunningState( bool newRunningState );
 		void startRearrangementThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave, Communicator* comm,
-									   std::mutex* rearrangerLock,
-									   std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>>* andorImageTimes,
-									   std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>>* grabTimes );
+									   std::mutex* rearrangerLock, clockTimes* andorImageTimes, clockTimes* grabTimes );
 		Fgen fgenConduit;
 		static bool outputVaries(NiawgOutputInfo output);
 

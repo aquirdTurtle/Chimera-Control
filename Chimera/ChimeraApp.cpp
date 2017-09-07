@@ -174,6 +174,7 @@ BOOL ChimeraApp::InitInstance()
 		}
 		*/
 	}
+
  	m_haccel = LoadAccelerators( AfxGetInstanceHandle(), MAKEINTRESOURCE( IDR_ACCELERATOR1 ) );
 	INT_PTR returnVal = theMainApplicationWindow.DoModal();
 	// end of program.
@@ -182,3 +183,4 @@ BOOL ChimeraApp::InitInstance()
 
 // 
 ChimeraApp app;
+

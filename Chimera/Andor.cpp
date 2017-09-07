@@ -142,8 +142,7 @@ AndorCamera::AndorCamera()
 
 }
 
-void AndorCamera::initializeClass(Communicator* comm, 
-								   std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>>* imageTimes)
+void AndorCamera::initializeClass(Communicator* comm, clockTimes* imageTimes)
 {
 	threadInput.comm = comm;
 	threadInput.imageTimes = imageTimes;
@@ -243,6 +242,10 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 			// simulate an actual wait.
 			//Sleep( ULONG(input->Andor->runSettings.kineticCycleTime * 1000) );
 			Sleep( 500 );
+			if ( pictureNumber % 2 == 0 )
+			{
+				(*input->imageTimes).push_back( std::chrono::high_resolution_clock::now( ) );
+			}
 			if ( input->Andor->cameraIsRunning && safeModeCount < input->Andor->runSettings.totalPicsInExperiment)
 			{
 				if ( input->Andor->runSettings.cameraMode == "Kinetic Series Mode" 

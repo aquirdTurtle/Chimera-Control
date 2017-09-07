@@ -2,6 +2,7 @@
 
 #include <unordered_map>
 #include <afxwin.h>
+#include <chrono>
 
 // these get passed around a lot, so I typedef'd them for convenience.
 typedef std::unordered_map<std::string, CBrush*> brushMap;
@@ -16,4 +17,6 @@ enum fontTypes { NormalFont, HeadingFont, CodeFont, SmallFont, LargeFont };
 // this structure will be evaluated to determine the real time (given a variation # and variable values) that an 
 // operation will take place at.
 typedef std::pair<std::vector<std::string>, double> timeType;
+typedef std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>> clockTimes;
+
 

@@ -1,9 +1,5 @@
 #pragma once
 
-#include <string>
-#include <vector>
-#include <sstream>
-#include <mutex>
 #include "nidaqmx2.h"
 #include "DioSystem.h"
 #include "DacSystem.h"
@@ -22,14 +18,17 @@
 #include "TektronicsControl.h"
 #include "DataLogger.h"
 #include "atomCruncherInput.h"
-
+#include "commonTypes.h"
+#include <string>
+#include <vector>
+#include <sstream>
+#include <mutex>
+#include "realTimePlotterInput.h"
 
 class MasterManager;
 
 struct MasterThreadInput
 {
-	std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>>* andorsImageTimesForRearrangingThread;
-	std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>>* grabTimes;
 	DataLogger* logger;
 	profileSettings profile;
 	DioSystem* ttls;											
@@ -55,13 +54,15 @@ struct MasterThreadInput
 	// only for rearrangement.
 	std::mutex* rearrangerLock;
 	std::vector<std::vector<bool>>* atomQueueForRearrangement;
+	clockTimes* andorsImageTimes;
+	clockTimes* grabTimes;
 };
 
 
 struct ExperimentInput
 {
-	ExperimentInput::ExperimentInput() : includesCameraRun(false), masterInput(NULL), plotterInput(NULL),
-		cruncherInput(NULL){ }
+	ExperimentInput::ExperimentInput() : 
+		includesCameraRun(false), masterInput(NULL), plotterInput(NULL), cruncherInput(NULL){ }
 	MasterThreadInput* masterInput;
 	realTimePlotterInput* plotterInput;
 	atomCruncherInput* cruncherInput;

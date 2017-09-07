@@ -779,7 +779,8 @@ void ScriptingWindow::handleSavingConfig(std::ofstream& saveFile)
 	saveFile << addresses.horizontalNIAWG << "\n";
 	saveFile << addresses.master << "\n";
 	saveFile << "END_SCRIPTS\n";
-	intensityAgilent.handleSavingConfig(saveFile);
+	intensityAgilent.handleSavingConfig(saveFile, mainWindowFriend->getProfileSettings().categoryPath, 
+										 mainWindowFriend->getRunInfo());
 }
 
 

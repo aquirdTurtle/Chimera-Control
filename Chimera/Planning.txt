@@ -36,6 +36,7 @@ Features:
 - support aborting while paused
 - tabstops in plot designer
 - be able to set binsize for histograms
+- handle sine and cosine functions in the reduce function
 
 Refactoring / Other:
 - refactor variables & variable key so that they aren't two separate objects. Consider if reasonable to also include 
@@ -58,9 +59,10 @@ Bugs:
 - text of picture color scale doesn't match bar position after load config
 - histogram not using the plot update frequency value, updating every time.
 - scripts becoming unsaved after move, should preserve saved status
-- intensity script not saving / loading properly.
+- update agilent default script
+- fix math
+
 
 =================
 Finished
 =================
-

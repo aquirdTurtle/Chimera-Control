@@ -28,7 +28,7 @@ class DacSystem
 		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id );
 		std::string getDacSequenceMessage(UINT var);
 		void handleButtonPress(DioSystem* ttls);
-		void setDacComplexEvent(int line, timeType time, std::string initVal, std::string finalVal, std::string rampTime, std::string rampInc);
+		void setDacCommandForm( DacCommandForm command );
 		void setForceDacEvent( int line, double val, DioSystem* ttls, UINT var );
 		void handleRoundToDac(CMenu& menu);
 		void setDacStatusNoForceOut(std::array<double, 24> status);
@@ -52,9 +52,12 @@ class DacSystem
 		std::array<std::string, 24> getAllNames();
 		std::string getErrorMessage(int errorCode);
 		ULONG getNumberEvents(UINT var);
-		void handleDacScriptCommand( timeType time, std::string name, std::string initVal, std::string finalVal,
-									  std::string rampTime, std::string rampInc, std::vector<unsigned int>& dacShadeLocations, 
-									  std::vector<variable>& vars, DioSystem* ttls);
+		void DacSystem::handleDacScriptCommand( DacCommandForm command, std::string name,
+												/*std::string commandName, timeType time, std::string name, std::string initVal,
+												std::string finalVal, std::string rampTime, std::string rampInc,
+												std::string numPoints,*/ std::vector<UINT>& dacShadeLocations,
+												std::vector<variable>& vars, DioSystem* ttls );
+
 
 		std::string getDacSystemInfo();
 

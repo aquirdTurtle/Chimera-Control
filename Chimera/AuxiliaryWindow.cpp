@@ -404,9 +404,12 @@ void AuxiliaryWindow::handleSaveConfig(std::ofstream& saveFile)
 	configVariables.handleSaveConfig(saveFile);
 	ttlBoard.handleSaveConfig(saveFile);
 	dacBoards.handleSaveConfig(saveFile);
-	topBottomAgilent.handleSavingConfig(saveFile);
-	uWaveAxialAgilent.handleSavingConfig(saveFile);
-	flashingAgilent.handleSavingConfig(saveFile);
+	topBottomAgilent.handleSavingConfig(saveFile, mainWindowFriend->getProfileSettings().categoryPath, 
+										 mainWindowFriend->getRunInfo());
+	uWaveAxialAgilent.handleSavingConfig(saveFile, mainWindowFriend->getProfileSettings( ).categoryPath,
+										  mainWindowFriend->getRunInfo( ) );
+	flashingAgilent.handleSavingConfig(saveFile, mainWindowFriend->getProfileSettings( ).categoryPath,
+										mainWindowFriend->getRunInfo( ) );
 	topBottomTek.handleSaveConfig(saveFile);
 	eoAxialTek.handleSaveConfig(saveFile);
 }

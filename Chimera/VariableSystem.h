@@ -66,6 +66,8 @@ class VariableSystem
 		void setActive(bool active);
 		void setUsages(std::vector<variable> vars);
 
+		static void assertUsable( std::string item, std::vector<variable>& vars );
+
 	private:
 		// Only 2 gui elements.
 		Control<CStatic> variablesHeader;

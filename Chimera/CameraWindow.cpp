@@ -5,6 +5,7 @@
 #include "ATMCD32D.H"
 #include "AuxiliaryWindow.h"
 #include "CameraWindow.h"
+#include "realTimePlotterInput.h"
 
 CameraWindow::CameraWindow() : CDialog(), CameraSettings(&Andor), dataHandler(DATA_SAVE_LOCATION), 
                                plotter(GNUPLOT_LOCATION)
@@ -97,6 +98,7 @@ void CameraWindow::handleSaveConfig(std::ofstream& saveFile)
 {
 	CameraSettings.handleSaveConfig(saveFile);
 	pics.handleSaveConfig(saveFile);
+	analysisHandler.handleSaveConfig( saveFile );
 	// TODO: plotter
 }
 
@@ -107,6 +109,7 @@ void CameraWindow::handleOpeningConfig(std::ifstream& configFile, double version
 
 	CameraSettings.handleOpenConfig(configFile, version);
 	pics.handleOpenConfig(configFile, version);
+	analysisHandler.handleOpenConfig( configFile, version );
 	if ( CameraSettings.getSettings( ).picsPerRepetition == 1 )
 	{
 		pics.setSinglePicture( this, CameraSettings.readImageParameters( this )  );
@@ -988,7 +991,7 @@ void CameraWindow::fillMasterThreadInput( MasterThreadInput* input )
 {
 	input->atomQueueForRearrangement = &rearrangerAtomQueue;
 	input->rearrangerLock = &rearrangerLock;
-	input->andorsImageTimesForRearrangingThread = &imageTimes;
+	input->andorsImageTimes = &imageTimes;
 	input->grabTimes = &imageGrabTimes;
 }
 

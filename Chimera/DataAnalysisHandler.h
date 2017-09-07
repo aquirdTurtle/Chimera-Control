@@ -3,23 +3,18 @@
 #include "Control.h"
 #include "PlottingInfo.h"
 #include "atomGrid.h"
+#include "tinyPlotInfo.h"
 
 struct realTimePlotterInput;
 struct cameraPositions;
-
-// "Tiny" because it only contains a little info right now.
-struct tinyPlotInfo
-{
-	bool isActive;
-	std::string name;
-};
-
 
 class DataAnalysisControl
 {
 	public:
 		void initialize( cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips,
 						 int isTriggerModeSensitive, rgbMap rgbs );
+		void handleOpenConfig( std::ifstream& file, double version );
+		void handleSaveConfig(std::ofstream& file );
 		void handleDoubleClick( fontMap* fonts, UINT currentPicsPerRepetition );
 		void handleRClick( );
 		void rearrange( std::string cameraMode, std::string trigMode, int width, int height, fontMap fonts );

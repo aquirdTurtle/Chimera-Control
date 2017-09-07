@@ -8,8 +8,8 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program.
 
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP
 // #define DESKTOP_COMPUTER
 /// File Locations
 // Files for Desktop
@@ -75,7 +75,7 @@
 	//const std::string KEY_ADDRESS = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Data\\key.txt";
 	const std::string MOT_ROUTINE_ADDRESS = PROJECT_LOCATION + "Master Profiles\\Hotkey Experiments\\MOT\\turnOnMot.mScript";
 	const std::string DEBUG_OUTPUT_LOCATION = PROJECT_LOCATION + "Debug-Output\\";
-	#define JILA_BITMAP_LOCATION "C:\\Users\\Mark-Brown\\Chimera-Control\\JILA.bmp"
+	const std::string TIMING_OUTPUT_LOCATION = PROJECT_LOCATION + "\\Data\\";
 #endif
 
 #ifdef MASTER_COMPUTER
@@ -435,7 +435,8 @@ const char MASTER_HELP[] = "This is a script for programming master timing for T
 "-      pulseon: [ttlName] [pulseLength]\n"
 "-      pulseoff: [ttlName] [pulseLength]\n"
 "-      dac: [dacName] [voltage]\n"
-"-      dacramp: [dacName] [initValue] [finalValue] [rampTime] [rampInc]\n"
+"-      dacarange: [dacName] [initValue] [finalValue] [rampTime] [rampInc]\n"
+"-      dacspace: [dacName] [initValue] [finalValue] [rampTime] [numberOfPoints]\n"
 "-      rsg: [frequency to add] [Power at that frequency (dBm)]\n"
 "-      def [functionName]([functionArguments]):\n"
 "-      call [functionName(argument1, argument2, etc...)]\n"
