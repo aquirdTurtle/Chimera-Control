@@ -5,7 +5,7 @@
 
 struct DacCommandForm
 {
-	// can either be "dac", "dacarange", or "dacspace"
+	// can either be "dac", "dacarange", or "daclinspace"
 	std::string commandName;
 
 	unsigned short line;
@@ -14,7 +14,7 @@ struct DacCommandForm
 	std::string finalVal;
 	std::string rampTime;
 	std::string rampInc;
-	std::string numPoints;
+	std::string numSteps;
 };
 
 struct DacCommand

@@ -176,8 +176,16 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_COMMAND_RANGE( IDC_ERROR_STATUS_BUTTON, IDC_ERROR_STATUS_BUTTON, &MainWindow::passClear )
 	ON_COMMAND_RANGE( IDC_DEBUG_STATUS_BUTTON, IDC_DEBUG_STATUS_BUTTON, &MainWindow::passClear )
 
+	ON_COMMAND(IDOK,  &MainWindow::catchEnter)
+
 END_MESSAGE_MAP()
 
+
+void MainWindow::catchEnter( )
+{
+	// the default handling is to close the window, so I need to catch it.
+	errBox( "Stop poking me!" );
+}
 
 BOOL MainWindow::OnInitDialog()
 {

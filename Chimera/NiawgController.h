@@ -29,6 +29,7 @@ class NiawgController
 	public:
 		void initialize();
 		// get info
+		void writeToFile( UINT fileNum, std::vector<double> waveVals );
 		bool rearrangementThreadIsActive();
 		std::string getCurrentScript();
 		bool niawgIsRunning();
@@ -72,7 +73,8 @@ class NiawgController
 		// Other
 		void setRunningState( bool newRunningState );
 		void startRearrangementThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave, Communicator* comm,
-									   std::mutex* rearrangerLock, clockTimes* andorImageTimes, clockTimes* grabTimes );
+									   std::mutex* rearrangerLock, chronoTimes* andorImageTimes, chronoTimes* grabTimes,
+									   std::condition_variable* rearrangerConditionWatcher );
 		Fgen fgenConduit;
 		static bool outputVaries(NiawgOutputInfo output);
 

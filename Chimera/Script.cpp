@@ -236,7 +236,7 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 		{
 			return rgbs["Solarized Violet"];
 		}
-		if (word == "dac:" || word == "dacarange:" || word == "dacspace:")
+		if (word == "dac:" || word == "dacarange:" || word == "daclinspace:")
 		{
 			return rgbs["Solarized Yellow"];
 		}

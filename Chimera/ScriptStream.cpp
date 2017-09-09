@@ -15,18 +15,35 @@ ScriptStream & ScriptStream::operator>>( std::string& outputString )
 	long long pos = tellg();
 	temp.seekg( pos );
 	// get the word.
-	temp >> outputString;
-	// convert to lower-case
-	std::transform( outputString.begin(), outputString.end(), outputString.begin(), ::tolower );
-	// replace any keywords
-	for (auto repl : replacements)
+	std::string tempStr;
+	
+	bool isExpression = false;
+	outputString = "";
+	do
 	{
-		if (outputString == repl.first)
+		temp >> tempStr;
+		if ( tempStr == "" )
 		{
-			// auto-replace before the user even needs to deal with this.
-			outputString = repl.second;
+			break;
 		}
-	}
+		if ( tempStr[0] == '(' )
+		{
+			isExpression = true;
+		}
+		// convert to lower-case
+		std::transform( tempStr.begin(), tempStr.end(), tempStr.begin(), ::tolower );
+		// replace any keywords
+		for (auto repl : replacements)
+		{
+			if ( tempStr == repl.first)
+			{
+				// auto-replace before the user even needs to deal with this.
+				tempStr = repl.second;
+			}
+		}
+		outputString += tempStr;
+	} while ( tempStr.back() != ')' && isExpression );
+
 	seekg( temp.tellg() );
 	return *this;
 }

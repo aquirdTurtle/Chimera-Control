@@ -142,7 +142,7 @@ AndorCamera::AndorCamera()
 
 }
 
-void AndorCamera::initializeClass(Communicator* comm, clockTimes* imageTimes)
+void AndorCamera::initializeClass(Communicator* comm, chronoTimes* imageTimes)
 {
 	threadInput.comm = comm;
 	threadInput.imageTimes = imageTimes;
@@ -165,6 +165,7 @@ void AndorCamera::pauseThread()
 	// andor should not be taking images anymore at this point.
 	threadInput.spuriousWakeupHandler = false;
 }
+
 
 /*
  * this should get called when the camera finishes running. right now this is very simple.

@@ -123,6 +123,7 @@ class CameraWindow : public CDialog
 		HANDLE plotThreadHandle;
 		std::vector<std::vector<long> > imageQueue;
 		std::mutex imageLock;
+		std::condition_variable rearrangerConditionVariable;
 		// the following two queues and locks aren't directly used by the camera window, but the camera window
 		// distributes them to the threads that do use them.
 		std::vector<std::vector<bool>> plotterAtomQueue;
@@ -136,8 +137,8 @@ class CameraWindow : public CDialog
 		// 
 		std::atomic<bool> plotThreadActive;
 		std::vector<double> plotterKey;
-		clockTimes imageTimes;
-		clockTimes imageGrabTimes;
+		chronoTimes imageTimes, imageGrabTimes, mainThreadStartTimes, crunchSeesTimes, crunchFinTimes;
 		Gnuplotter plotter;
+		
 };
 

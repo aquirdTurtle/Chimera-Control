@@ -47,21 +47,20 @@ Refactoring / Other:
 
 Bugs:
 - dacramp spacing warning should only appear once, and should appear in error status?
-- after abort should stop fully before prompting to delete files. ??? not sure I can repeat
+- after abort should stop fully before prompting to delete files. ??? not sure I can repeat...
 - Add new data set not working in plot designer
-- Editing and re-saving plot files doesn't delete the old file if the filename changed.
 - Weird trouble with 2-picture plotting
-- dacs occaisonally breaking on config load?
-- something going wrong with exiting the niawg normally. Might be on delete waveforms, might be related to change from 
-	having orientations
 - Lots of missed save-status handling overall.
 - closing window doesn't stop program (release mode only?)
 - text of picture color scale doesn't match bar position after load config
 - histogram not using the plot update frequency value, updating every time.
 - scripts becoming unsaved after move, should preserve saved status
-- update agilent default script
 - fix math
-
+- "Parent script" disappears after loading function? (or saving)
+- add dataAnalysis to handle new config 
+- something going wrong with exiting the niawg normally. Might be on delete waveforms, might be related to change from 
+	having orientations. Investigate size of niawg output waves, seems like there is 1 extra???
+- investigate save on change config
 
 =================
 Finished

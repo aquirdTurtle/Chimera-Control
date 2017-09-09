@@ -42,6 +42,30 @@ std::string doubleToString( double number, long precision )
 }
 
 
+/*
+Split the input into all math objects and variables. The separated such objects are stored and returned in a vector of
+strings.
+*/
+std::vector<std::string> splitString(std::string workingString )
+{
+	workingString = "(" + workingString + ")";
+	std::vector<std::string> terms;
+	// separate terms out.
+	// specify only the kept separators
+	boost::char_separator<char> sep( "", " \t+-*/()" );
+	boost::tokenizer<boost::char_separator<char>> tokens( workingString, sep );
+	for ( std::string t : tokens )
+	{
+		if ( t != " " && t != "\t" )
+		{
+			// don't include whitespace.
+			terms.push_back( t );
+		}
+	}
+	return terms;
+}
+
+
 double reduce(std::string expression, key variationKey, UINT variation, std::vector<variable>& vars)
 {
 	double resultOfReduction = 0;
@@ -58,21 +82,8 @@ double reduce(std::string expression, key variationKey, UINT variation, std::vec
 	}
 	catch (std::invalid_argument&) {	/* that's fine, just means it needs actual reducing.*/ }
 	catch (Error&) { /* Same. */ }
-	std::string workingExp = expression;
-	workingExp = "(" + workingExp + ")";
-	std::vector<std::string> terms;
-	// separate terms out.
-	// specify only the kept separators
-	boost::char_separator<char> sep("", " \t+-*/()");
-	boost::tokenizer<boost::char_separator<char>> tokens(workingExp, sep);
-	for (std::string t : tokens)
-	{
-		if (t != " " && t != "\t")
-		{
-			// don't include whitespace.
-			terms.push_back(t);
-		}
-	}
+
+	std::vector<std::string> terms = splitString( expression );
 
 	// if not the default value,
 	if (variation != -1)
@@ -88,7 +99,7 @@ double reduce(std::string expression, key variationKey, UINT variation, std::vec
 					{
 						thrower("ERROR: Attmepting to use key that hasn't been generated yet!");
 					}
-					term = str(var.second.first[variation]);
+					term = str(var.second.first[variation], 12);
 					// find the variable 
 					bool foundVariable = false;
 					for (auto& variable : vars)

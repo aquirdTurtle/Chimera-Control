@@ -268,6 +268,7 @@
     <ClInclude Include="DioSettingsDialog.h" />
     <ClInclude Include="DioSystem.h" />
     <ClInclude Include="tinyPlotInfo.h" />
+    <ClInclude Include="VariableStructures.h" />
     <ClInclude Include="VariableSystem.h" />
     <ClInclude Include="VisaFlume.h" />
   </ItemGroup>

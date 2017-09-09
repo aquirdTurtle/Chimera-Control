@@ -10,6 +10,8 @@
 struct atomCruncherInput
 {
 	//
+	chronoTimes* catchPicTime;
+	chronoTimes* finTime;
 	atomGrid gridInfo;
 	// what the thread watches...
 	std::atomic<bool>* cruncherThreadActive;
@@ -23,6 +25,7 @@ struct atomCruncherInput
 	std::mutex* imageLock;
 	std::mutex* plotLock;
 	std::mutex* rearrangerLock;
+	std::condition_variable* rearrangerConditionWatcher;
 	// what the thread fills.
 	std::vector<std::vector<long>>* plotterImageQueue;
 	std::vector<std::vector<bool>>* plotterAtomQueue;

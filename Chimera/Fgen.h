@@ -7,16 +7,9 @@
 class Fgen
 {
 	public:
-	    void initialize();
 		std::string getErrorMsg();
 		/// wrappers around niFgen functions.
-		ViInt32 getInt32Attribute( ViAttr attribute );
-		ViInt64 getInt64Attribute( ViAttr attribute );
-		ViReal64 getReal64Attribute( ViAttr attribute );
-		std::string getViStringAttribute( ViAttr attribute );
-		ViBoolean getViBoolAttribute( ViAttr attribute );
-		ViSession getViSessionAttribute( ViAttr attribute );
-		void setAttributeViString( ViAttr attribute, ViString string );
+
 		void createWaveform( long size, ViReal64* wave );
 		void writeUnNamedWaveform( ViInt32 waveID, ViInt32 mixedSampleNumber, ViReal64* wave );
 		ViInt32 allocateUnNamedWaveform( ViInt32 unmixedSampleNumber );
@@ -33,8 +26,7 @@ class Fgen
 		void configureSampleRate( ViReal64 sampleRate );
 		void enableAnalogFilter( ViReal64 filterFrequency );
 		void init( ViRsrc location, ViBoolean idQuery, ViBoolean resetDevice );
-		void setViInt32Attribute( ViAttr attributeID, ViInt32 value );
-		void setViBooleanAttribute( ViAttr attribute, bool state );
+
 		void abortGeneration();
 		void initiateGeneration();
 		void configureOutputEnabled( int state );
@@ -42,7 +34,8 @@ class Fgen
 		void sendSoftwareTrigger();
 		void deleteWaveform( ViConstString waveformName );
 		void allocateNamedWaveform( ViConstString waveformName, ViInt32 unmixedSampleNumber );
-		void setViStringAttribute( ViAttr atributeID, ViConstString attributeValue );
+
+
 		void writeNamedWaveform( ViConstString waveformName, ViInt32 mixedSampleNumber, ViReal64* wave );
 		void resetWritePosition( );
 		void writeScript( std::vector<ViChar> script );
@@ -50,6 +43,19 @@ class Fgen
 		std::string getCurrentScript();
 		std::string getSoftwareTriggerName();
 		std::string getExternalTriggerName();
+
+		void setViInt32Attribute( ViAttr attributeID, ViInt32 value );
+		void setViBooleanAttribute( ViAttr attribute, bool state );
+		void setViStringAttribute( ViAttr atributeID, ViConstString attributeValue );
+		void setAttributeViString( ViAttr attribute, ViString string );
+		void setViReal64Attribute( ViAttr attribute, ViReal64 attributeVal, ViConstString channels = "" );
+		ViInt32 getInt32Attribute( ViAttr attribute );
+		ViInt64 getInt64Attribute( ViAttr attribute );
+		ViReal64 getReal64Attribute( ViAttr attribute );
+		std::string getViStringAttribute( ViAttr attribute );
+		ViBoolean getViBoolAttribute( ViAttr attribute );
+		ViSession getViSessionAttribute( ViAttr attribute );
+
 	private:
 		const ViConstString EXTERNAL_TRIGGER_NAME = "ScriptTrigger0";
 		const ViConstString SOFTWARE_TRIGGER_NAME = "ScriptTrigger1";
