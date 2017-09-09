@@ -43,6 +43,7 @@ void NiawgController::initialize()
 	// Uncomment for using an external clock as a reference clock
 	// myNIAWG::NIAWG_CheckWindowsError(niFgen_ConfigureReferenceClock(eSessionHandle, "ClkIn", 10000000), HORIZONTAL_ORIENTATION, 
 	//									theMainApplicationWindow.getComm())
+	//fgenConduit.setViReal64Attribute( NIFGEN_ATTR_CHANNEL_DELAY, 0.000000250, "0" );
 }
 
 
@@ -1572,15 +1573,17 @@ void NiawgController::handleSpecialWaveform( NiawgOutputInfo& output, profileSet
 			createFlashingWave( flashingWave, options );
 			flashingWave.core.name = "Waveform" + str(output.waves.size()+1);			
 			output.waves.push_back(flashingWave);
-			// allocate waveform into the device memory
-			fgenConduit.allocateNamedWaveform(cstr(output.waves.back().core.name), long(output.waves.back().core.waveVals.size() / 2) );
-			// write named waveform. on the device. Now the device knows what "waveform0" refers to when it sees it in the script. 
-			fgenConduit.writeNamedWaveform(cstr(output.waves.back().core.name), long(output.waves.back().core.waveVals.size()), output.waves.back().core.waveVals.data() );
+			fgenConduit.allocateNamedWaveform(cstr(output.waves.back().core.name), 
+											   long(output.waves.back().core.waveVals.size() / 2) );
+			// write named waveform on the device. Now the device knows what "waveform0" refers to when it sees it in 
+			// the script. 
+			fgenConduit.writeNamedWaveform(cstr(output.waves.back().core.name),
+											long(output.waves.back().core.waveVals.size()),
+											output.waves.back().core.waveVals.data() );
+			writeToFile( 0, output.waves.back( ).core.waveVals );
 			// append script with the relevant command. This needs to be done even if variable waveforms are used, because I don't want to
 			// have to rewrite the script to insert the new waveform name into it.
 			output.niawgLanguageScript += "generate " + output.waves.back().core.name + "\n";
-			// increment waveform count.
-			//output.waveCount++;
 		}
  	}
 	else if (command == "stream")
@@ -2258,17 +2261,19 @@ double NiawgController::rampCalc( int size, int iteration, double initPos, doubl
 		return 0;
 	}
 }
+ 
 
+/// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///								Rearrangement stuffs
+/// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///																Rearrangement stuffs
-/// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void NiawgController::startRearrangementThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave,
 												Communicator* comm, std::mutex* rearrangerLock,
-												clockTimes* andorImageTimes, clockTimes* grabTimes )
+												chronoTimes* andorImageTimes, chronoTimes* grabTimes,
+												std::condition_variable* rearrangerConditionWatcher)
 {
 	threadStateSignal = true;
 	rearrangementThreadInput* input = new rearrangementThreadInput;
@@ -2280,6 +2285,7 @@ void NiawgController::startRearrangementThread( std::vector<std::vector<bool>>* 
 	input->niawg = this;
 	input->atomsQueue = atomQueue;
 	input->rearrangementWave = wave;
+	input->rearrangerConditionWatcher = rearrangerConditionWatcher;
 
 	UINT rearrangerId;
 	rearrangerThreadHandle = (HANDLE)_beginthreadex( 0, 0, NiawgController::rearrangerThreadProcedure, (void*)input,
@@ -2322,32 +2328,34 @@ void NiawgController::calculateRearrangingMoves( std::vector<std::vector<bool>> 
 // faster moves
 // preprogram all individual moves
 // don't use vector
-
-// things that might be causeing slowneess
-// - andor grab time
-// - niawg write time
-// - cpu write time
 UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 {
 	rearrangementThreadInput* input = (rearrangementThreadInput*)voidInput;
 	std::vector<bool> triedRearranging;
 	std::vector<double> calcTime, streamTime, triggerTime, resetPositionTime, picHandlingTime, picGrabTime;
-	clockTimes startCalc, stopCalc, stopReset, stopStream, stopTrigger;
+	chronoTimes startCalc, stopCalc, stopReset, stopStream, stopTrigger;
 	try
 	{
 		// wait for data
 		while ( *input->threadActive || input->atomsQueue->size( ) != 0 )
 		{
 			std::vector<bool> tempAtoms;
+			if ( input->atomsQueue->size( ) == 0 )
 			{
-				std::lock_guard<std::mutex> locker( *input->rearrangerLock );
+				// wait for the next image using a condition_variable.
+				std::unique_lock<std::mutex> locker( *input->rearrangerLock );
+				input->rearrangerConditionWatcher->wait( locker );
+
 				if ( input->atomsQueue->size( ) == 0)
 				{
+					// spurious wake-up?
 					continue;
 				}
 				tempAtoms = (*input->atomsQueue)[0];
 				if ( tempAtoms.size( ) == 0 )
 				{
+					// spurious wake-up? This one probably never happens now that I've implemented the 
+					// condition_variable.
 					continue;
 				}
 				input->atomsQueue->erase( input->atomsQueue->begin( ) );
@@ -2475,16 +2483,26 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 		(*input->grabTimes).clear( );
 
 		std::ofstream dataFile( TIMING_OUTPUT_LOCATION  + "rearrangementLog.txt" );
-
+		dataFile 
+				<< "PicHandlingTime "
+				<< "PicGrabTime "
+				<< "CalcTime "
+				<< "ResetPositionTime "
+				<< "StreamTime "
+				<< "TriggerTime\n";
 		if ( !dataFile.is_open( ) )
 		{
 			errBox( "ERROR: data file failed to open for rearrangement log!" );
 		}
 		for ( auto count : range( triedRearranging.size( ) ) )
 		{
-			dataFile << triedRearranging[count] << " " << picHandlingTime [count] << " " << picGrabTime[count] << " " 
-					 << calcTime[count] << " " << resetPositionTime[count] << " " << streamTime[count] << " " 
-					 << triggerTime[count] <<  "\n";
+			dataFile 
+					<< picHandlingTime [count] << " " 
+					<< picGrabTime[count] << " " 
+					<< calcTime[count] << " "
+					<< resetPositionTime[count] << " " 
+					<< streamTime[count] << " " 
+					<< triggerTime[count] << "\n";
  		}
 		dataFile.close( );
 	}
@@ -2796,7 +2814,23 @@ double NiawgController::rearrangement( const std::vector<std::vector<bool>> & so
 			counter++;
 		}
 	}
-	return cost; //travelled distance
+	// travelled distance
+	return cost; 
+}
+
+
+void NiawgController::writeToFile( UINT fileNum, std::vector<double> waveVals )
+{
+	std::ofstream file( NIAWG_WAVEFORM_OUTPUT_LOCATION + "Wave_" + str( fileNum ) + ".txt" );
+	if ( !file.is_open( ) )
+	{
+		thrower( "ERROR: Niawg wave file failed to open!" );
+	}
+	for ( auto val : waveVals )
+	{
+		file << val << " ";
+	}
+	file.close( );
 }
 
 

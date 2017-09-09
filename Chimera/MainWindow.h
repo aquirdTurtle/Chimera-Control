@@ -34,6 +34,7 @@ class MainWindow : public CDialog
 		BOOL PreTranslateMessage(MSG* pMsg); 
 		void OnSize(UINT nType, int cx, int cy);
 		void OnClose();
+		void catchEnter( );
 		void OnCancel() override;
 		// stuff directly called (or 1 simple step removed) by message map.
 		LRESULT onRepProgress(WPARAM wParam, LPARAM lParam);

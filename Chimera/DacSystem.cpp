@@ -55,7 +55,7 @@ std::array<double, 24> DacSystem::getDacStatus()
 void DacSystem::handleOpenConfig(std::ifstream& openFile, double version, DioSystem* ttls)
 {
 	ProfileSystem::checkDelimiterLine(openFile, "DACS");
-
+	prepareForce( );
 	std::vector<double> values(getNumberOfDacs());
 	UINT dacInc = 0;
 	for (auto& dac : values)
@@ -452,7 +452,7 @@ void DacSystem::handleButtonPress(DioSystem* ttls)
 			std::string valStr;
 			if (roundToDacPrecision)
 			{
-				valStr = str(roundToDacResolution(vals[dacInc]), 12, true);
+				valStr = str(roundToDacResolution(vals[dacInc]), 13, true);
 			}
 			else
 			{
@@ -568,11 +568,11 @@ void DacSystem::setDacStatusNoForceOut(std::array<double, 24> status)
 		if (roundToDacPrecision)
 		{
 			double val = roundToDacResolution(dacValues[dacInc]);
-			valStr = str(val, 12, true);
+			valStr = str(val, 13, true);
 		}
 		else
 		{
-			valStr = str(dacValues[dacInc], 12, true);
+			valStr = str(dacValues[dacInc], 13, true);
 		}
 		breakoutBoardEdits[dacInc].SetWindowText(cstr(valStr));
 		breakoutBoardEdits[dacInc].colorState = 0;
@@ -667,9 +667,9 @@ void DacSystem::interpretKey( key variationKey, std::vector<variable>& vars, std
 				rampInc = reduce(dacCommandFormList[eventInc].rampInc, variationKey, var, vars);
 				if (rampInc < 10.0 / pow(2, 16))
 				{
-					warnings += "Warning: ramp increment of " + str(rampInc) + " is below the resolution of the dacs (which"
-								" is 10/2^16 = " + str(10.0 / pow(2, 16)) + "). It's likely taxing the system to calculate the ramp "
-								"unnecessarily.\r\n";
+					warnings += "Warning: ramp increment of " + str(rampInc) + " is below the resolution of the dacs "
+						"(which is 10/2^16 = " + str(10.0 / pow(2, 16)) + "). It's likely taxing the system to "
+						"calculate the ramp unnecessarily.\r\n";
 				}
 				// This might be the first not i++ usage of a for loop I've ever done... XD
 				// calculate the time increment:
@@ -678,10 +678,10 @@ void DacSystem::interpretKey( key variationKey, std::vector<variable>& vars, std
 				double diff = fabs(steps - fabs(finalValue - initValue) / rampInc);
 				if (diff > 100 * DBL_EPSILON)
 				{
-					warnings += "Warning: Ideally your spacings for a dacArange would result in a non-integer number of steps."
-						" The code will attempt to compensate by making a last step to the final value which is not the"
-						" same increment in voltage or time as the other steps to take the dac to the final value at the"
-						" right time.\r\n";
+					warnings += "Warning: Ideally your spacings for a dacArange would result in a non-integer number "
+						"of steps. The code will attempt to compensate by making a last step to the final value which"
+						" is not the same increment in voltage or time as the other steps to take the dac to the final"
+						" value at the right time.\r\n";
 				}
 				double timeInc = rampTime / steps;
 				// 0.017543859649122806
@@ -714,9 +714,45 @@ void DacSystem::interpretKey( key variationKey, std::vector<variable>& vars, std
 				tempEvent.time = initTime + rampTime;
 				dacCommandList[var].push_back(tempEvent);
 			}
-			else if ( dacCommandFormList[eventInc].commandName == "dacspace:" )
+			else if ( dacCommandFormList[eventInc].commandName == "daclinspace:" )
 			{
-				// TODO!
+				// interpret ramp time command. I need to know whether it's ramping or not.
+				double rampTime = reduce( dacCommandFormList[eventInc].rampTime, variationKey, var, vars );
+				/// many points to be made.
+				// convert initValue and finalValue to doubles to be used 
+				double initValue, finalValue, numSteps;
+				initValue = reduce( dacCommandFormList[eventInc].initVal, variationKey, var, vars );
+				// deal with final value;
+				finalValue = reduce( dacCommandFormList[eventInc].finalVal, variationKey, var, vars );
+				// deal with numPoints
+				numSteps = reduce( dacCommandFormList[eventInc].numSteps, variationKey, var, vars );
+				double rampInc = (finalValue - initValue) / numSteps;
+				if ( rampInc < 10.0 / pow( 2, 16 ) )
+				{
+					warnings += "Warning: numPoints of " + str(numSteps) + " results in a ramp increment of " 
+						+ str( rampInc ) + " is below the resolution of the dacs (which is 10/2^16 = " 
+						+ str( 10.0 / pow( 2, 16 ) ) + "). It's likely taxing the system to "
+						"calculate the ramp unnecessarily.\r\n";
+				}
+				// This might be the first not i++ usage of a for loop I've ever done... XD
+				// calculate the time increment:
+				double timeInc = rampTime / numSteps;
+				double initTime = tempEvent.time;
+				double currentTime = tempEvent.time;
+				double val = initValue;
+				// handle the two directions seperately.
+				for ( auto stepNum : range( numSteps ) )
+				{
+					tempEvent.value = val;
+					tempEvent.time = currentTime;
+					dacCommandList[var].push_back( tempEvent );
+					currentTime += timeInc;
+					val += rampInc;
+				}
+				// and get the final value. Just use the nums explicitly to avoid rounding error I guess.
+				tempEvent.value = finalValue;
+				tempEvent.time = initTime + rampTime;
+				dacCommandList[var].push_back( tempEvent );
 			}
 			else
 			{
@@ -803,11 +839,11 @@ void DacSystem::prepareDacForceChange(int line, double voltage, DioSystem* ttls)
 	std::string valStr;
 	if (roundToDacPrecision)
 	{
-		valStr = str(roundToDacResolution(voltage), 12);
+		valStr = str(roundToDacResolution(voltage), 13);
 	}
 	else
 	{
-		valStr = str(voltage, 12);
+		valStr = str(voltage, 13);
 	}
 	if (valStr.find(".") != std::string::npos)
 	{
@@ -946,13 +982,10 @@ void DacSystem::makeFinalDataFormat(UINT var)
 }
 
 
-void DacSystem::handleDacScriptCommand( DacCommandForm command, std::string name,
-										/*std::string commandName, timeType time, std::string name, std::string initVal,
-										std::string finalVal, std::string rampTime, std::string rampInc,
-										std::string numPoints,*/ std::vector<UINT>& dacShadeLocations,
+void DacSystem::handleDacScriptCommand( DacCommandForm command, std::string name, std::vector<UINT>& dacShadeLocations,
 										std::vector<variable>& vars, DioSystem* ttls )
 {
-	if ( command.commandName != "dac:" && command.commandName != "dacarange:" && command.commandName != "dacspacce" )
+	if ( command.commandName != "dac:" && command.commandName != "dacarange:" && command.commandName != "daclinspace:" )
 	{
 		thrower( "ERROR: dac commandName not recognized!" );
 	}
@@ -962,7 +995,7 @@ void DacSystem::handleDacScriptCommand( DacCommandForm command, std::string name
 	}
 	// final value is always used.
 	VariableSystem::assertUsable( command.finalVal, vars );
-	if ( command.commandName == "dacarange:" && command.commandName == "dacspace:" )
+	if ( command.commandName == "dacarange:" && command.commandName == "daclinspace:" )
 	{
 		// It's a ramp.
 		VariableSystem::assertUsable( command.initVal, vars );
@@ -972,9 +1005,9 @@ void DacSystem::handleDacScriptCommand( DacCommandForm command, std::string name
 	{
 		VariableSystem::assertUsable( command.rampInc, vars );
 	}
-	if ( command.commandName == "dacspace:" )
+	if ( command.commandName == "daclinspace:" )
 	{
-		VariableSystem::assertUsable( command.numPoints, vars );
+		VariableSystem::assertUsable( command.numSteps, vars );
 	}
 	// convert name to corresponding dac line.
 	command.line = getDacIdentifier(name);

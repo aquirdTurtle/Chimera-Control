@@ -187,22 +187,22 @@ void RhodeSchwarz::programRSG( UINT var )
 	{
 		gpibFlume.send( "OUTPUT ON" );
 		gpibFlume.send( "SOURce:FREQuency:MODE CW" );
-		gpibFlume.send( "FREQ " + str( events[var][0].frequency, 12 ) + " GHz" );
-		gpibFlume.send( "POW " + str( events[var][0].power, 12 ) + " dBm" );
+		gpibFlume.send( "FREQ " + str( events[var][0].frequency, 13 ) + " GHz" );
+		gpibFlume.send( "POW " + str( events[var][0].power, 13 ) + " dBm" );
 		gpibFlume.send( "OUTP ON" );
 	}
 	else
 	{
 		gpibFlume.send( "OUTP ON" );
 		gpibFlume.send( "SOURce:LIST:SEL 'freqList" + str( events.size() ) + "'" );
-		std::string frequencyList = "SOURce:LIST:FREQ " + str( events[var][0].frequency, 12 );
-		std::string powerList = "SOURce:LIST:POW " + str( events[var][0].power, 12 ) + "dBm";
+		std::string frequencyList = "SOURce:LIST:FREQ " + str( events[var][0].frequency, 13 );
+		std::string powerList = "SOURce:LIST:POW " + str( events[var][0].power, 13 ) + "dBm";
 		for (UINT eventInc = 1; eventInc < events[var].size(); eventInc++)
 		{
 			frequencyList += ", ";
-			frequencyList += str( events[var][eventInc].frequency, 12 ) + " GHz";
+			frequencyList += str( events[var][eventInc].frequency, 13 ) + " GHz";
 			powerList += ", ";
-			powerList += str( events[var][eventInc].power, 12 ) + "dBm";
+			powerList += str( events[var][eventInc].power, 13 ) + "dBm";
 		}
 		gpibFlume.send( cstr(frequencyList) );
 		gpibFlume.send( cstr(powerList));
@@ -219,10 +219,12 @@ void RhodeSchwarz::clearFrequencies()
 	events.clear();
 }
 
+
 std::vector<rsgEventStructuralInfo> RhodeSchwarz::getFrequencyForms()
 {
 	return eventStructures;
 }
+
 
 std::string RhodeSchwarz::getRsgTtl()
 {

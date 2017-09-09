@@ -6,7 +6,7 @@ def pump2stretch():
 
                  
         %Setting the pumping beam frequencies:
-        dacramp: dac21 0 -1.65 10 0.1 %-1.65
+        dacarange: dac21 0 -1.65 10 0.1 %-1.65
         %Ramp of DAC 21, F1 offset lock to 2.32 for 2.2 mK trap and -.5V on dac14 AO, -1.5 for 1.1 mK
         dac: sigmarepumpfreq -0.12 %ROP AO, -.5 for 2mK, trap, 0 for 1.1 mK 141217,AMK, -0.12 for 7.15mW two traps, YL 10262016
         dac: motfreq 0.735  %F2 light 1.1 for 2.1 mK and adjusted AO, .75 for 1.1mK

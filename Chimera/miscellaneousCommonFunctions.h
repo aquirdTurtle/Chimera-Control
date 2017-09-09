@@ -90,6 +90,7 @@ template <typename IntType> std::vector<IntType> range( IntType stop )
 	return range( IntType( 0 ), stop, IntType( 1 ) );
 }
 
+std::vector<std::string> splitString( std::string workingString );
 
 double reduce(std::string expression, key variationKey = {}, UINT variation = -1, 
 			  std::vector<variable>& vars = std::vector<variable>());

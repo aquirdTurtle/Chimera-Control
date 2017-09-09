@@ -45,12 +45,12 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_4_MIN_EDIT, IDC_PICTURE_4_MIN_EDIT, &CameraWindow::handlePictureEditChange )
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_4_MAX_EDIT, IDC_PICTURE_4_MAX_EDIT, &CameraWindow::handlePictureEditChange )
 	// 
-	ON_COMMAND(IDC_SET_IMAGE_PARAMETERS_BUTTON, &CameraWindow::readImageParameters)
-	ON_COMMAND(IDC_SET_EM_GAIN_BUTTON, &CameraWindow::setEmGain)
-	ON_COMMAND(IDC_ALERTS_BOX, &CameraWindow::passAlertPress)
-	ON_COMMAND(IDC_SET_TEMPERATURE_BUTTON, &CameraWindow::passSetTemperaturePress)
-	ON_COMMAND(IDOK, &CameraWindow::catchEnter)
-	ON_COMMAND(IDC_SET_ANALYSIS_LOCATIONS, &CameraWindow::passManualSetAnalysisLocations)
+	ON_COMMAND( IDC_SET_IMAGE_PARAMETERS_BUTTON, &CameraWindow::readImageParameters)
+	ON_COMMAND( IDC_SET_EM_GAIN_BUTTON, &CameraWindow::setEmGain)
+	ON_COMMAND( IDC_ALERTS_BOX, &CameraWindow::passAlertPress)
+	ON_COMMAND( IDC_SET_TEMPERATURE_BUTTON, &CameraWindow::passSetTemperaturePress)
+	ON_COMMAND( IDOK, &CameraWindow::catchEnter)
+	ON_COMMAND( IDC_SET_ANALYSIS_LOCATIONS, &CameraWindow::passManualSetAnalysisLocations)
 	ON_COMMAND( IDC_SET_GRID_CORNER, &CameraWindow::passSetGridCorner)
 
 	ON_CBN_SELENDOK(IDC_TRIGGER_COMBO, &CameraWindow::passTrigger)
@@ -271,6 +271,10 @@ void CameraWindow::handlePictureEditChange( UINT id )
 LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 {
 	UINT pictureNumber = lParam;
+	if ( pictureNumber % 2 == 1 )
+	{
+		mainThreadStartTimes.push_back( std::chrono::high_resolution_clock::now( ) );
+	}
 	if (lParam == 0)
 	{
 		return NULL;
@@ -286,18 +290,20 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 		mainWindowFriend->getComm()->sendError( err.what() );
 		return NULL;
 	}
+	
 	if ( pictureNumber % 2 == 1 )
 	{
 		imageGrabTimes.push_back( std::chrono::high_resolution_clock::now( ) );
 	}
 	AndorRunSettings currentSettings = Andor.getSettings();
 	//
-	std::lock_guard<std::mutex> locker( plotLock );
-	// add check to check if this is needed.
-	imageQueue.push_back( picData[(pictureNumber - 1) % currentSettings.picsPerRepetition] );
+	{
+		std::lock_guard<std::mutex> locker( plotLock );
+		// add check to check if this is needed.
+		imageQueue.push_back( picData[(pictureNumber - 1) % currentSettings.picsPerRepetition] );
+	}
 
 	CDC* drawer = GetDC( );
-
 	try
 	{
 		if (realTimePic)
@@ -339,7 +345,6 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 
 	ReleaseDC( drawer );
 
-
 	// write the data to the file.
 	if (currentSettings.cameraMode != "Continuous Single Scans Mode")
 	{
@@ -370,6 +375,7 @@ void CameraWindow::handleSpecialLessThanMinSelection()
 	}
 	pics.setSpecialLessThanMin(specialLessThanMin);
 }
+
 
 void CameraWindow::handleSpecialGreaterThanMaxSelection()
 {
@@ -402,6 +408,7 @@ void CameraWindow::handleAutoscaleSelection()
 	pics.setAutoScalePicturesOption(autoScalePictureData);
 }
 
+
 LRESULT CameraWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 {
 	// notify the andor object that it is done.
@@ -418,6 +425,48 @@ LRESULT CameraWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 	mainWindowFriend->handleFinish();
 	plotThreadActive = false;
 	atomCrunchThreadActive = false;
+	/*
+	std::vector<double> imageToMainTime, mainToGrabTime, grabToCrunchTime, crunchCrunchingTime;
+	for ( auto inc : range( imageTimes.size( ) ) )
+	{
+		imageToMainTime.push_back( std::chrono::duration<double>( mainThreadStartTimes[inc] 
+																  - imageTimes[inc] ).count( ) );
+		mainToGrabTime.push_back( std::chrono::duration<double>( imageGrabTimes[inc] 
+																 - mainThreadStartTimes[inc] ).count( ) );
+		grabToCrunchTime.push_back( std::chrono::duration<double>( crunchSeesTimes[inc] 
+																   - imageGrabTimes[inc] ).count( ) );
+		crunchCrunchingTime.push_back( std::chrono::duration<double>( crunchFinTimes[inc] 
+																	  - crunchSeesTimes[inc] ).count( ) );
+	}
+	*/
+	// rearranger thread handles these right now.
+	//imageTimes.clear();
+	//imageGrabTimes.clear();
+	mainThreadStartTimes.clear();
+	crunchFinTimes.clear( );
+	crunchSeesTimes.clear( );
+	/*
+	std::ofstream dataFile( TIMING_OUTPUT_LOCATION + "CamTimeLog.txt" );
+
+	if ( !dataFile.is_open( ) )
+	{
+		errBox( "ERROR: data file failed to open for rearrangement log!" );
+	}
+	dataFile << "imageToCamera "
+		<< "grabTime "
+		<< "grabToCrunch "
+		<< "crunchingTime\n";
+	for ( auto count : range( imageToMainTime.size( ) ) )
+	{
+		dataFile << imageToMainTime[count] << " " 
+			<< mainToGrabTime[count] << " " 
+			<< grabToCrunchTime[count] << " " 
+			<< crunchCrunchingTime[count] << "\n";
+	}
+	dataFile.close( );
+	*/
+	Sleep( 5000 );
+	rearrangerConditionVariable.notify_all( );
 	return 0;
 }
 
@@ -443,20 +492,24 @@ bool CameraWindow::getCameraStatus()
 	return Andor.isRunning();
 }
 
+
 void CameraWindow::handleDblClick(NMHDR* info, LRESULT* lResult)
 {
 	analysisHandler.handleDoubleClick(&mainWindowFriend->getFonts(), CameraSettings.getSettings().picsPerRepetition );
 }
+
 
 void CameraWindow::listViewRClick( NMHDR* info, LRESULT* lResult )
 {
 	analysisHandler.handleRClick();
 }
 
+
 void CameraWindow::OnLButtonUp(UINT stuff, CPoint loc)
 {
 	alerts.stopSound();
 }
+
 
 // pics looks up the location itself.
 void CameraWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
@@ -496,6 +549,7 @@ void CameraWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 	ReleaseDC(dc);
 }
 
+
 /*
  *
  */
@@ -510,6 +564,7 @@ void CameraWindow::passSetTemperaturePress()
 		mainWindowFriend->getComm()->sendError(err.what());
 	}
 }
+
 
 /*
  *
@@ -535,6 +590,7 @@ void CameraWindow::passTrigger()
 {
 	CameraSettings.handleTriggerControl(this);
 }
+
 
 void CameraWindow::temp( UINT id )
 {
@@ -752,6 +808,9 @@ void CameraWindow::prepareAtomCruncher( ExperimentInput& input )
 	input.cruncherInput->thresholds = CameraSettings.getThresholds();
 	input.cruncherInput->picsPerRep = CameraSettings.getSettings().picsPerRepetition;
 	input.cruncherInput->gridInfo = analysisHandler.getAtomGrid( );
+	input.cruncherInput->catchPicTime = &crunchSeesTimes;
+	input.cruncherInput->finTime = &crunchFinTimes;
+	input.cruncherInput->rearrangerConditionWatcher = &rearrangerConditionVariable;
 }
 
 
@@ -880,6 +939,10 @@ UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 		{
 			continue;
 		}
+		if ( imageCount % 2 == 0 )
+		{
+			input->catchPicTime->push_back( std::chrono::high_resolution_clock::now( ) );
+		}
 		// only contains the counts for the pixels being monitored.
 		std::vector<long> tempImagePixels( monitoredPixelIndecies.size( ) );
 		// only contains the boolean true/false of whether an atom passed a threshold or not. 
@@ -903,6 +966,20 @@ UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 			}
 			count++;
 		}
+		if ( input->rearrangerActive )
+		{
+			// copies the array if first pic of rep. Only looks at first picture because its rearranging. Could change
+			// if we need to do funny experiments, just need to change rearranger handling.
+			if ( imageCount % input->picsPerRep == 0 )
+			{
+				{
+					std::lock_guard<std::mutex> locker( *input->rearrangerLock );
+					(*input->rearrangerAtomQueue).push_back( tempAtomArray );
+					input->rearrangerConditionWatcher->notify_all( );
+				}
+				input->finTime->push_back( std::chrono::high_resolution_clock::now( ) );
+			}
+		}
 		if (input->plotterActive)
 		{
 			// copies the array. Right now I'm assuming that the thread always needs atoms, which is not a good 
@@ -912,16 +989,6 @@ UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 			if (input->plotterNeedsImages)
 			{
 				(*input->plotterImageQueue).push_back(tempImagePixels);
-			}
-		}
-		if (input->rearrangerActive)
-		{
-			// copies the array if first pic of rep. Only looks at first picture because its rearranging. Could change
-			// if we need to do funny experiments, just need to change rearranger handling.
-			if ( imageCount % input->picsPerRep == 0 )
-			{
-				std::lock_guard<std::mutex> locker( *input->rearrangerLock );
-				(*input->rearrangerAtomQueue).push_back( tempAtomArray );
 			}
 		}
 		imageCount++;
@@ -993,6 +1060,7 @@ void CameraWindow::fillMasterThreadInput( MasterThreadInput* input )
 	input->rearrangerLock = &rearrangerLock;
 	input->andorsImageTimes = &imageTimes;
 	input->grabTimes = &imageGrabTimes;
+	input->conditionVariableForRearrangement = &rearrangerConditionVariable;
 }
 
 

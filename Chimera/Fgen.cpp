@@ -215,10 +215,23 @@ void Fgen::setViStringAttribute( ViAttr atributeID, ViConstString attributeValue
 {
 	// I keep track of this.
 	currentScriptName = attributeValue;
-
 	if (!NIAWG_SAFEMODE)
 	{
 		errChecker( niFgen_SetAttributeViString( sessionHandle, outputChannels, atributeID, attributeValue ) );
+	}
+}
+
+void Fgen::setViReal64Attribute( ViAttr attribute, ViReal64 attributeVal, ViConstString channels)
+{
+	// handle default value
+	if ( channels = "" )
+	{
+		channels = outputChannels;
+	}
+
+	if ( !NIAWG_SAFEMODE )
+	{
+		errChecker( niFgen_SetAttributeViReal64( sessionHandle, channels, attribute, attributeVal ) );
 	}
 }
 

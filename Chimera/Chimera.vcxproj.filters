@@ -457,6 +457,7 @@
     </ClInclude>
     <ClInclude Include="realTimePlotterInput.h" />
     <ClInclude Include="tinyPlotInfo.h" />
+    <ClInclude Include="VariableStructures.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

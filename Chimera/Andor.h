@@ -12,14 +12,10 @@
 ///			The Andor Class
 ///
 /// /////////////////////////////////////////////////////
+
 // This class is designed to facilitate interaction with the andor camera and
 // is based around the andor SDK. I did not write the Andor SDK, this was obtained from andor. I did write everything
 // else in this class.
-
-struct AndorBaseSettings
-{
-
-};
 
 class AndorCamera;
 
@@ -130,7 +126,7 @@ class AndorCamera
 		/// These are official settings and are the final say on what the camera does. Some unofficial 
 		/// settings are stored in smaller classes.
 		// If the experiment is running, these settings hold the options that the experiment is using.
-		AndorBaseSettings baseSettings;
+		//AndorBaseSettings baseSettings;
 		AndorRunSettings runSettings;
 		// ??? 
 		imageParameters readImageParameters;

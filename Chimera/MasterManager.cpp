@@ -98,9 +98,8 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 					foundRearrangement = true;
 					// start rearrangement thread. Give the thread the queue.
 					input->niawg->startRearrangementThread( input->atomQueueForRearrangement, wave, input->comm, 
-															input->rearrangerLock, 
-															input->andorsImageTimes, 
-															input->grabTimes);
+															input->rearrangerLock, input->andorsImageTimes, 
+															input->grabTimes, input->conditionVariableForRearrangement);
 				}
 			}
 			if (input->settings.rearrange && !foundRearrangement )
@@ -363,7 +362,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			}
 			// Clear waveforms off of NIAWG (not working??? memory appears to still run out... (that's a very old note, 
 			// haven't tested in a long time but has never been an issue.))
-			for (UINT waveformInc = 2; waveformInc < output.waves.size(); waveformInc++)
+			for (UINT waveformInc = 1; waveformInc < output.waves.size()-1; waveformInc++)
 			{
 				std::string waveformToDelete = "Waveform" + str( waveformInc );
 				input->niawg->fgenConduit.deleteWaveform( cstr( waveformToDelete ) );
@@ -863,7 +862,7 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 			command.time = operationTime;
 			command.commandName = "dac:";
 			command.initVal = "__NONE__";
-			command.numPoints = "__NONE__";
+			command.numSteps = "__NONE__";
 			command.rampInc = "__NONE__";
 			command.rampTime = "__NONE__";
 			try
@@ -875,9 +874,33 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 				thrower(err.whatStr() + "... in \"dac:\" command inside function " + function);
 			}
 		}
-		else if ( word == "dacspace:" )
+		else if ( word == "daclinspace:" )
 		{
-
+			DacCommandForm command;
+			std::string name;
+			// get dac name
+			functionStream >> name;
+			// get ramp initial value
+			functionStream >> command.initVal;
+			// get ramp final value
+			functionStream >> command.finalVal;
+			// get total ramp time;
+			functionStream >> command.rampTime;
+			// get ramp point increment.
+			functionStream >> command.numSteps;
+			command.time = operationTime;
+			command.commandName = "daclinspace:";
+			// not used here.
+			command.rampInc = "__NONE__";
+			//
+			try
+			{
+				dacs->handleDacScriptCommand( command, name, dacShades, vars, ttls );
+			}
+			catch ( Error& err )
+			{
+				thrower( err.whatStr( ) + "... in \"dacLinSpace:\" command inside function " + function );
+			}
 		}
 		else if (word == "dacarange:")
 		{
@@ -896,7 +919,7 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 			command.time = operationTime;
 			command.commandName = "dacarange:";
 			// not used here.
-			command.numPoints = "__NONE__";
+			command.numSteps = "__NONE__";
 			//
 			try
 			{
@@ -964,7 +987,7 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 			{
 				// the fact that each function call will re-throw with this will end up putting the whole function call
 				// stack onto the error message.
-				thrower(err.whatStr() + "... In function call to function " + functionName);
+				thrower(err.whatStr() + "... In function call to function " + functionName + "\r\n");
 			}
 		}
 		else if ( word == "repeat:" )
@@ -1137,7 +1160,7 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs,
 			command.time = operationTime;
 			command.commandName = "dac:";
 			command.initVal = "__NONE__";
-			command.numPoints = "__NONE__";
+			command.numSteps = "__NONE__";
 			command.rampInc = "__NONE__";
 			command.rampTime = "__NONE__";
 			try
@@ -1149,9 +1172,33 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs,
 				thrower(err.whatStr() + "... in \"dacArange:\" command inside main script");
 			}
 		}
-		else if ( word == "dacspace:" )
+		else if ( word == "daclinspace:" )
 		{
-			thrower( "TODO!" );
+			DacCommandForm command;
+			std::string name;
+			// get dac name
+			currentMasterScript >> name;
+			// get ramp initial value
+			currentMasterScript >> command.initVal;
+			// get ramp final value
+			currentMasterScript >> command.finalVal;
+			// get total ramp time;
+			currentMasterScript >> command.rampTime;
+			// get ramp point increment.
+			currentMasterScript >> command.numSteps;
+			command.time = operationTime;
+			command.commandName = "daclinspace:";
+			// not used here.
+			command.rampInc = "__NONE__";
+			//
+			try
+			{
+				dacs->handleDacScriptCommand( command, name, dacShades, vars, ttls );
+			}
+			catch ( Error& err )
+			{
+				thrower( err.whatStr( ) + "... in \"dacLinSpace:\" command inside main script.\r\n" );
+			}
 		}
 		else if (word == "dacarange:")
 		{
@@ -1170,7 +1217,7 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs,
 			command.time = operationTime;
 			command.commandName = "dacarange:";
 			// not used here.
-			command.numPoints = "__NONE__";
+			command.numSteps = "__NONE__";
 			//
 
 			try
@@ -1189,55 +1236,9 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs,
 			rsgEventStructuralInfo info;
 			currentMasterScript >> info.frequency;
 			currentMasterScript >> info.power;
-			// test frequency
-			try
-			{
-				double test = reduce( info.frequency );
-
-			}
-			catch (Error&)
-			{
-				bool isVar = false;
-				for (UINT varInc = 0; varInc < vars.size(); varInc++)
-				{
-					if (vars[varInc].name == info.frequency )
-					{
-						isVar = true;
-						vars[varInc].active = true;
-						break;
-					}
-				}
-				if (!isVar)
-				{
-					thrower( "ERROR: Argument " + info.frequency + " is not a double or a variable name. Can't program the RSG "
-							 "using this." );
-				}
-			}
-			// test power
-			try
-			{
-				double test = reduce( info.power );
-			}
-			catch (Error&)
-			{
-				bool isVar = false;
-				for (UINT varInc = 0; varInc < vars.size(); varInc++)
-				{
-					if (vars[varInc].name == info.power )
-					{
-						isVar = true;
-						vars[varInc].active = true;
-						break;
-					}
-				}
-				if (!isVar)
-				{
-					thrower( "ERROR: Argument " + info.power + " is not a double or a variable name. Can't program the RSG "
-							 "using this." );
-				}
-			}
+			VariableSystem::assertUsable( info.frequency, vars );
+			VariableSystem::assertUsable( info.power, vars );
 			info.time = operationTime;
-
 			rsg->addFrequency( info );
 			ttls->handleTtlScriptCommand( "pulseon:", operationTime, rsg->getRsgTtl(), str( rsg->getTriggerTime() ), ttlShades );
 		}
@@ -1358,7 +1359,7 @@ void MasterManager::callCppCodeFunction()
 bool MasterManager::isValidWord( std::string word )
 {
 	if (word == "t" || word == "t++" || word == "t+=" || word == "t=" || word == "on:" || word == "off:"
-		 || word == "dac:" || word == "dacarange:" || word == "dacspace:" || word == "rsg:" || word == "call" 
+		 || word == "dac:" || word == "dacarange:" || word == "daclinspace:" || word == "rsg:" || word == "call" 
 		 || word == "repeat:" || word == "end" || word == "pulseon:" || word == "pulseoff:" || word == "callcppcode")
 	{
 		return true;

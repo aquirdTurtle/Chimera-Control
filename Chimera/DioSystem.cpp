@@ -1201,6 +1201,11 @@ void DioSystem::zeroBoard()
 std::string DioSystem::getTtlSequenceMessage(UINT var)
 {
 	std::string message;
+	if ( ttlSnapshots.size( ) <= var )
+	{
+		thrower( "ERROR: Attemted to retrieve ttl sequence message from snapshot " + str( var ) + ", which does not "
+				 "exist!" );
+	}
 	for (auto snap : ttlSnapshots[var])
 	{
 		message += str(snap.time) + ":\n";

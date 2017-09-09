@@ -140,13 +140,13 @@ tektronicsChannelInfo TektronicsChannelControl::getSettings()
 
 	CString text;
 	power.GetWindowTextA(text);
-	currentInfo.power = str(text, 12, false, true);
+	currentInfo.power = str(text, 13, false, true);
 
 	mainFreq.GetWindowTextA(text);
-	currentInfo.mainFreq = str(text, 12, false, true);
+	currentInfo.mainFreq = str(text, 13, false, true);
 
 	fskFreq.GetWindowTextA(text);
-	currentInfo.fskFreq = str(text, 12, false, true);
+	currentInfo.fskFreq = str(text, 13, false, true);
 
 	return currentInfo;
 }

@@ -6,36 +6,12 @@
 #include <unordered_map>
 #include "afxcview.h"
 #include "constants.h"
+#include "VariableStructures.h"
 
 class MainWindow;
 class AuxiliaryWindow;
-
-struct variationRangeInfo
-{
-	double initialValue;
-	double finalValue;
-	unsigned int variations;
-	bool leftInclusive;
-	bool rightInclusive;
-};
-
-
-struct variable
-{
-	std::string name;
-	// whether this variable is constant or varies.
-	bool constant;	
-	bool active = false;
-	bool overwritten = false;
-	// records which scan dimension the variable is in.
-	USHORT scanDimension;
-	std::vector<variationRangeInfo> ranges;
-};
-
-
 class Script;
 class AuxiliaryWindow;
-
 
 class VariableSystem
 {
@@ -65,7 +41,7 @@ class VariableSystem
 		void rearrange(UINT width, UINT height, fontMap fonts);
 		void setActive(bool active);
 		void setUsages(std::vector<variable> vars);
-
+		void updateVariationNumber( );
 		static void assertUsable( std::string item, std::vector<variable>& vars );
 
 	private:
@@ -76,8 +52,6 @@ class VariableSystem
 		// for each scan dimension, like so?
 		//std::vector<std::vector<variable>> currentVariables;
 		std::vector<variable> currentVariables;
-		// Number of variables in the control.
-		UINT totalVariableNumber;
 		// number of variations that the variables will go through.
 		UINT currentVariations;
 		// holds the number of variable ranges. Not sure why this is necessary, could probablty get this info from 

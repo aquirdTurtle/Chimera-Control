@@ -54,8 +54,9 @@ struct MasterThreadInput
 	// only for rearrangement.
 	std::mutex* rearrangerLock;
 	std::vector<std::vector<bool>>* atomQueueForRearrangement;
-	clockTimes* andorsImageTimes;
-	clockTimes* grabTimes;
+	chronoTimes* andorsImageTimes;
+	chronoTimes* grabTimes;
+	std::condition_variable* conditionVariableForRearrangement;
 };
 
 

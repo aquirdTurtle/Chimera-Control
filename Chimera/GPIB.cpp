@@ -42,7 +42,7 @@ void Gpib::send( std::string message)
 {
 	if ( !deviceSafemode)
 	{
-		Send( 0, deviceID, (void*) cstr(message), message.size(), NLend );
+		Send( 0, deviceID, (void*) cstr(message, 13), message.size(), NLend );
 		if ( ibsta == ERR )
 		{
 			thrower( "GPIB ERROR: " + getErrMessage( iberr ) );
