@@ -209,10 +209,10 @@ loadmotbackfield 1.47507
 loadmottime 150
 pgctime 18
 pgcdetuning -1
-pgcleftfield -0.465
-pgcrightfield 0.465
-pgctopfield 2.009
-pgcbottomfield -2.009
+pgcleftfield -0.4856
+pgcrightfield 0.4856
+pgctopfield 1.994
+pgcbottomfield -1.994
 pgcfrontfield -0.545
 pgcbackfield 0.545
 andorimagetime 25
