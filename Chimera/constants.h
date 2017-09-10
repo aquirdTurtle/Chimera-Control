@@ -8,8 +8,8 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program.
 
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP
 // #define DESKTOP_COMPUTER
 /// File Locations
 // Files for Desktop
@@ -76,6 +76,7 @@
 	const std::string MOT_ROUTINE_ADDRESS = PROJECT_LOCATION + "Master Profiles\\Hotkey Experiments\\MOT\\turnOnMot.mScript";
 	const std::string DEBUG_OUTPUT_LOCATION = PROJECT_LOCATION + "Debug-Output\\";
 	const std::string TIMING_OUTPUT_LOCATION = PROJECT_LOCATION + "\\Data\\";
+	const std::string NIAWG_WAVEFORM_OUTPUT_LOCATION = TIMING_OUTPUT_LOCATION;
 #endif
 
 #ifdef MASTER_COMPUTER
@@ -451,15 +452,29 @@ const char MASTER_HELP[] = "This is a script for programming master timing for T
 "-      Simple Math (+-/*) is supported in the scripts as well. To insert a mathematical expresion, just \n"
 "-      add parenthesis () around the full expression";
 
-const std::vector<std::string> GNUPLOT_COLORS{ "lt rgb \"white\"",
-												"lt rgb \"cyan\"",
-												"lt rgb \"green\"",
-												"lt rgb \"#DC143C\"",  // crimson
-												"lt rgb \"#B8860B\"",  // dark goldenrod
-												"lt rgb \"#4B0082\"",  // indigo
-												"lt rgb \"blue\"",
-												"lt rgb \"#FF8C00\"",  // dark orange	
-												"lt rgb \"#708090\"" }; // slate grey
+
+const std::vector<std::string> GNUPLOT_COLORS{ "lt rgb \"#FFFFFF\"", // white
+											   "lt rgb \"#00FFFF\"", // cyan
+											   "lt rgb \"#008000\"", // green
+											   "lt rgb \"#DC143C\"",  // crimson
+											   "lt rgb \"#B8860B\"",  // dark goldenrod
+											   "lt rgb \"#4B0082\"",  // indigo
+											   "lt rgb \"#000080\"", // blue
+											   "lt rgb \"#FF8C00\"",  // dark orange	
+											   "lt rgb \"#708090\"" }; // slate grey
+
+
+
+// Special Colors for the histogram which have extra alpha part at the beginning of the hex code.
+const std::vector<std::string> GNUPLOT_HISTOGRAM_COLORS{ "lt rgb \"#AAFFFFFF\"", // white
+												"lt rgb \"#AA00FFFF\"", // cyan
+												"lt rgb \"#AA008000\"", // green
+												"lt rgb \"#AADC143C\"",  // crimson
+												"lt rgb \"#AAB8860B\"",  // dark goldenrod
+												"lt rgb \"#AA4B0082\"",  // indigo
+												"lt rgb \"#AA000080\"", // blue
+												"lt rgb \"#AAFF8C00\"",  // dark orange	
+												"lt rgb \"#AA708090\"" }; // slate grey
 
 const std::vector<std::string> GNUPLOT_MARKERS{ "pt 5",
 												"pt 7",

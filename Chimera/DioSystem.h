@@ -1,15 +1,14 @@
 #pragma once
-#include <array>
 #include "Control.h"
-#include <sstream>
-#include <unordered_map>
 #include "KeyHandler.h"
 #include "miscellaneousCommonFunctions.h"
 #include "DioStructures.h"
-
+#include "Expression.h"
+#include <array>
+#include <sstream>
+#include <unordered_map>
 /**/
 class AuxiliaryWindow;
-
 
 /*
 ]- The DioSystem class is based on the DIO64.bas module in the original VB6 code. It does use the dio64_32.dll system, but we always refer to these 
@@ -57,9 +56,11 @@ class DioSystem
 		bool getTtlStatus(int row, int number);
 		std::string getErrorMessage(int errorCode);
 		void handleTtlScriptCommand( std::string command, timeType time, std::string name,
-									  std::vector<std::pair<UINT, UINT>>& ttlShadeLocations );
+									 std::vector<std::pair<UINT, UINT>>& ttlShadeLocations, 
+									 std::vector<variable>& vars );
 		void handleTtlScriptCommand( std::string command, timeType time, std::string name,
-									  std::string pulseLength, std::vector<std::pair<UINT, UINT>>& ttlShadeLocations );
+									 Expression pulseLength, std::vector<std::pair<UINT, UINT>>& ttlShadeLocations,
+									 std::vector<variable>& vars );
 		void interpretKey(key variationKey, std::vector<variable>& vars);
 		void analyzeCommandList(UINT var);
 		void convertToFinalFormat(UINT var);

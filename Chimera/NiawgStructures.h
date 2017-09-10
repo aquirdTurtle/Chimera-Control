@@ -1,7 +1,10 @@
 #pragma once
+
+#include "nifgen.h"
+#include "Windows.h"
 #include <string>
 #include <vector>
-#include "nifgen.h"
+#include <array>
 
 // order here matches the literal channel number on the 5451. Vertical is actually channel0 and Horizontal is actually channel1.
 enum AXES { Vertical = 0, Horizontal = 1 };

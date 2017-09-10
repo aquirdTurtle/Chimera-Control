@@ -203,6 +203,24 @@ void ProfileSystem::checkDelimiterLine(std::ifstream& openFile, std::string deli
 	}
 }
 
+// version with break condition. If returns true, calling function should break out of the loop which is checking the
+// line.
+bool ProfileSystem::checkDelimiterLine( std::ifstream& openFile, std::string delimiter, std::string breakCondition )
+{
+	std::string checkStr;
+	openFile >> checkStr;
+	if ( checkStr != delimiter )
+	{
+		if ( checkStr == breakCondition )
+		{
+			return true;
+		}
+		thrower( "ERROR: Expected \"" + delimiter + "\" in configuration file, but instead found \"" + checkStr + "\"" );
+	}
+	return false;
+}
+
+
 
 /*
 ]--- This function attempts to save the configuration given the configuration name in the argument. It throws errors and warnings if this 

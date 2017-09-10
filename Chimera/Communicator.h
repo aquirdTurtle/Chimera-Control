@@ -1,7 +1,6 @@
 #pragma once
 #include "ColorBox.h"
 
-
 class MainWindow;
 class ScriptingWindow;
 class CameraWindow;

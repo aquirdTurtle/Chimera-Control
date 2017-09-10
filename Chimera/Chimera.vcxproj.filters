@@ -197,6 +197,7 @@
     <ClCompile Include="splashDialog.cpp">
       <Filter>General Files</Filter>
     </ClCompile>
+    <ClCompile Include="Expression.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -458,6 +459,7 @@
     <ClInclude Include="realTimePlotterInput.h" />
     <ClInclude Include="tinyPlotInfo.h" />
     <ClInclude Include="VariableStructures.h" />
+    <ClInclude Include="Expression.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

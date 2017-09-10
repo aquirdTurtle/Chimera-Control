@@ -102,11 +102,13 @@ BOOL ChimeraApp::InitInstance()
 	// Check to make sure that the gain hasn't been defined to be too high.
 	if (NIAWG_GAIN > MAX_GAIN)
 	{
-		errBox( "FATAL ERROR: NIAWG_GAIN SET TOO HIGH. Driving too much power into the AOMs could severaly damage the experiment!\r\n" );
+		errBox( "FATAL ERROR: NIAWG_GAIN SET TOO HIGH. Driving too much power into the AOMs could severaly damage the "
+				"experiment!\r\n" );
 		return -10000;
 	}
 
-	///	Outputting the code version to the \D: Drive for logging.
+	// Outputting the code version to the \D: Drive for logging. I've commented this out for now, but could be easily
+	// revived if wanted. Git does a great job in versioning though.
 	if (false)
 	{
 		// get time now
@@ -174,13 +176,16 @@ BOOL ChimeraApp::InitInstance()
 		}
 		*/
 	}
-
  	m_haccel = LoadAccelerators( AfxGetInstanceHandle(), MAKEINTRESOURCE( IDR_ACCELERATOR1 ) );
 	INT_PTR returnVal = theMainApplicationWindow.DoModal();
 	// end of program.
 	return int(returnVal);
 }
 
-// 
+
+// Upon starting the program, the program finds and uses the following global object based on it being the one object 
+// derived from CWinApp. 
+// see this page for a nice explanation:
+// https://www.codeproject.com/Articles/1672/MFC-under-the-hood
 ChimeraApp app;
 

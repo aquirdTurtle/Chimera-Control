@@ -881,6 +881,7 @@ LRESULT MainWindow::onStatusTextMessage(WPARAM wParam, LPARAM lParam)
 
 LRESULT MainWindow::onErrorMessage(WPARAM wParam, LPARAM lParam)
 {
+	// for simple warnings, it just posts the message.
 	char* pointerToMessage = (char*)lParam;
 	std::string statusMessage(pointerToMessage);
 	delete[] pointerToMessage;
@@ -896,7 +897,7 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 	std::string statusMessage(pointerToMessage);
 	delete[] pointerToMessage;
 	errorStatus.addStatusText(statusMessage);
-	//
+	// resseting things.
 	TheScriptingWindow->setIntensityDefault();
 	std::string msgText = "Exited with Error!\r\nPassively Outputting Default Waveform.";
 	changeShortStatusColor("R");

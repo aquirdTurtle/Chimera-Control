@@ -273,11 +273,6 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 }
 
 
-void AndorCamera::confirmAcquisitionTimings(float& kinetic, float& accumulation, std::vector<float>& exposures)
-{
-	// not sure if this function is necessary...
-}
-
 /*
  * Get whatever settings the camera is currently using in it's operation, assuming it's operating.
  */
@@ -299,7 +294,7 @@ void AndorCamera::setAcquisitionMode()
 /* 
 	* Large function which initializes a given camera image run.
 	*/
-void AndorCamera::armCamera(CameraWindow* camWin)
+void AndorCamera::armCamera(CameraWindow* camWin, double& minKineticCycleTime)
 {
 	/// Set a bunch of parameters.
 	// Set to 1 MHz readout rate in both cases
@@ -333,7 +328,6 @@ void AndorCamera::armCamera(CameraWindow* camWin)
 		setAccumulationCycleTime();
 		setNumberAccumulations(false);
 	}
-	confirmAcquisitionTimings(runSettings.kineticCycleTime, runSettings.accumulationTime, runSettings.exposureTimes);
 	setGainMode();
 	setCameraTriggerMode();
 	// Set trigger mode.
@@ -354,6 +348,9 @@ void AndorCamera::armCamera(CameraWindow* camWin)
 	// the start acquisition call
 	//std::lock_guard<std::mutex> lock( threadInput.runMutex );
 	
+	// get the min time after setting everything else.
+	minKineticCycleTime = getMinKineticCycleTime( );
+
 	cameraIsRunning = true;
 	// remove the spurious wakeup check.
 	threadInput.spuriousWakeupHandler = true;
@@ -632,7 +629,7 @@ void AndorCamera::checkAcquisitionTimings(float& kinetic, float& accumulation, s
 			timesArray[exposureInc] = exposures[exposureInc];
 		}
 	}
-	// success. Set times
+	// Set times
 	if (exposures.size() > 0)
 	{
 		for (UINT exposureInc = 0; exposureInc < exposures.size(); exposureInc++)
@@ -1381,6 +1378,17 @@ void AndorCamera::setFrameTransferMode(int mode)
 	{
 		andorErrorChecker(SetFrameTransferMode(mode));
 	}
+}
+
+double AndorCamera::getMinKineticCycleTime( )
+{
+	// get the currently set kinetic cycle time.
+	float minKineticCycleTime, dummy1, dummy2;	
+	setKineticCycleTime( 0 );
+	getAcquisitionTimes( dummy1, dummy2, minKineticCycleTime );
+	// re-set whatever's currently in the settings.
+	setKineticCycleTime( );
+	return minKineticCycleTime;
 }
 
 

@@ -38,10 +38,6 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_COMMAND( IDOK, &handleEnter)
 	ON_COMMAND( TOP_BOTTOM_PROGRAM, &passTopBottomTekProgram )
 	ON_COMMAND( EO_AXIAL_PROGRAM, &passEoAxialTekProgram )
-
-//	ON_COMMAND( IDC_TOP_BOTTOM_PROGRAM, &passToTopBottomAgilentProgram )
-//	ON_COMMAND( IDC_AXIAL_UWAVE_PROGRAM, &passToAxialUwaveAgilentProgram )
-//	ON_COMMAND( IDC_FLASHING_PROGRAM, &passToFlashingProgram )
 	
 	ON_COMMAND_RANGE( IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_FLASHING_PROGRAM, &AuxiliaryWindow::handleAgilentOptions )
 	ON_COMMAND_RANGE( TOP_ON_OFF, AXIAL_FSK, &AuxiliaryWindow::handleTektronicsButtons )	
@@ -139,6 +135,7 @@ void AuxiliaryWindow::saveTopBottomAgilentScriptAs( CWnd* parent )
 		sendErr( err.what() );
 	}
 }
+
 
 void AuxiliaryWindow::newAxialUwaveAgilentScript()
 {
@@ -470,7 +467,7 @@ void AuxiliaryWindow::ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result
 	std::vector<Script*> scriptList;
 	try
 	{
-		configVariables.updateVariableInfo(scriptList, mainWindowFriend, this);
+		configVariables.updateVariableInfo(scriptList, mainWindowFriend, this, &ttlBoard, &dacBoards);
 	}
 	catch (Error& exception)
 	{
@@ -507,7 +504,7 @@ void AuxiliaryWindow::GlobalVarDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 	std::vector<Script*> scriptList;
 	try
 	{
-		globalVariables.updateVariableInfo(scriptList, mainWindowFriend, this);
+		globalVariables.updateVariableInfo(scriptList, mainWindowFriend, this, &ttlBoard, &dacBoards);
 	}
 	catch (Error& exception)
 	{

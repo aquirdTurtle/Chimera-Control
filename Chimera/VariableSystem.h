@@ -12,6 +12,8 @@ class MainWindow;
 class AuxiliaryWindow;
 class Script;
 class AuxiliaryWindow;
+class DacSystem;
+class DioSystem;
 
 class VariableSystem
 {
@@ -21,7 +23,8 @@ class VariableSystem
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, double version);
 		void handleDraw(NMHDR* pNMHDR, LRESULT* pResult, rgbMap rgbs);
-		void updateVariableInfo(std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin );
+		void updateVariableInfo( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
+								 DioSystem* ttls, DacSystem* dacs );
 		void deleteVariable();
 		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id, std::string title,
 						 rgbMap rgbs, UINT listviewId );
@@ -42,7 +45,7 @@ class VariableSystem
 		void setActive(bool active);
 		void setUsages(std::vector<variable> vars);
 		void updateVariationNumber( );
-		static void assertUsable( std::string item, std::vector<variable>& vars );
+		
 
 	private:
 		// Only 2 gui elements.

@@ -23,9 +23,10 @@ class CameraSettingsControl
 		void updateRunSettingsFromPicSettings( );
 		CBrush* handleColor(int idNumber, CDC* colorer, brushMap brushes, rgbMap rgbs);
 		void initialize(cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips);
-		void checkTimings(std::vector<float> exposureTimes);
-		void checkTimings(float kineticCycleTime, float accumulationTime, std::vector<float> exposureTimes);
+		void checkTimings(std::vector<float>& exposureTimes);
+		void checkTimings(float& kineticCycleTime, float& accumulationTime, std::vector<float>& exposureTimes);
 		imageParameters readImageParameters(CameraWindow* camWin);
+		void updateMinKineticCycleTime( double time );
 		void setEmGain(AndorCamera* andorObj);
 		void rearrange(std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts);
 		void handlePictureSettings(UINT id, AndorCamera* andorObj);
@@ -77,6 +78,9 @@ class CameraSettingsControl
 		// Kinetic Cycle Time
 		Control<CEdit> kineticCycleTimeEdit;
 		Control<CStatic> kineticCycleTimeLabel;
+		Control<CEdit> minKineticCycleTimeEdit;
+		Control<CStatic> minKineticCycleTimeLabel;
+
 
 		std::string currentControlColor;
 		// two subclassed groups.

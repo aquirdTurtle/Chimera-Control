@@ -349,19 +349,20 @@ void Agilent::updateEdit(int chan, std::string currentCategoryPath, RunInfo curr
 			break;
 		case 0:
 			// dc
-			agilentScript.setScriptText(settings.channel[chan].dc.dcLevelInput);
+			agilentScript.setScriptText(settings.channel[chan].dc.dcLevelInput.expressionStr);
 			settingCombo.SetCurSel( 2 );
 			break;
 		case 1:
 			// sine
-			agilentScript.setScriptText(settings.channel[chan].sine.frequencyInput + " " 
-				+ settings.channel[chan].sine.amplitudeInput);
+			agilentScript.setScriptText(settings.channel[chan].sine.frequencyInput.expressionStr + " " 
+										 + settings.channel[chan].sine.amplitudeInput.expressionStr);
 			settingCombo.SetCurSel( 3 );
 			break;
 		case 2:
 			// square
-			agilentScript.setScriptText(settings.channel[chan].square.frequencyInput + " " 
-				+ settings.channel[chan].square.amplitudeInput + " " + settings.channel[chan].square.offsetInput);
+			agilentScript.setScriptText( settings.channel[chan].square.frequencyInput.expressionStr + " " 
+										 + settings.channel[chan].square.amplitudeInput.expressionStr + " " 
+										 + settings.channel[chan].square.offsetInput.expressionStr );
 			settingCombo.SetCurSel( 4 );
 			break;
 		case 3:
@@ -458,9 +459,10 @@ deviceOutputInfo Agilent::getOutputInfo()
 void Agilent::convertInputToFinalSettings( UINT chan, key variableKey, UINT variation, std::vector<variable>& variables)
 {
 	// iterate between 0 and 1...
+	channelInfo& channel( settings.channel[chan] );
 	try
 	{
-		switch (settings.channel[chan].option)
+		switch (channel.option)
 		{
 			case -2:
 				// no control
@@ -470,38 +472,32 @@ void Agilent::convertInputToFinalSettings( UINT chan, key variableKey, UINT vari
 				break;
 			case 0:
 				// DC output
-				settings.channel[chan].dc.dcLevel = reduce( settings.channel[chan].dc.dcLevelInput,
-															variableKey, variation );
+				channel.dc.dcLevel = channel.dc.dcLevelInput.evaluate( variableKey, variation );
 				break;
 			case 1:
 				// single frequency output
 				// frequency
-				settings.channel[chan].sine.frequency = reduce( settings.channel[chan].sine.frequencyInput, 
-																variableKey, variation );
+				channel.sine.frequency = channel.sine.frequencyInput.evaluate( variableKey, variation );
 				// amplitude
-				settings.channel[chan].sine.amplitude = reduce( settings.channel[chan].sine.amplitudeInput, 
-																variableKey, variation );
+				channel.sine.amplitude = channel.sine.amplitudeInput.evaluate( variableKey, variation );
 				break;
 			case 2:
 				// Square Output
 				// frequency
-				settings.channel[chan].square.frequency = reduce( settings.channel[chan].square.frequencyInput, 
-																	variableKey, variation );
+				channel.square.frequency = channel.square.frequencyInput.evaluate( variableKey, variation );
 				// amplitude
-				settings.channel[chan].square.amplitude = reduce( settings.channel[chan].square.amplitudeInput, 
-																	variableKey, variation );
-				settings.channel[chan].square.offset = reduce( settings.channel[chan].square.offsetInput,
-																	variableKey, variation );
+				channel.square.amplitude = channel.square.amplitudeInput.evaluate( variableKey, variation );
+				channel.square.offset = channel.square.offsetInput.evaluate( variableKey, variation );
 				break;
 			case 3:
 				// Preloaded Arb Output... no variations possible...
 				break;
 			case 4:
 				// Scripted Arb Output... 
-				handleScriptVariation( variableKey, variation, settings.channel[chan].scriptedArb, chan+1, variables );
+				handleScriptVariation( variableKey, variation, channel.scriptedArb, chan+1, variables );
 				break;
 			default:
-				thrower( "Unrecognized Agilent Setting: " + str( settings.channel[chan].option ) );
+				thrower( "Unrecognized Agilent Setting: " + str( channel.option ) );
 		}
 	}
 	catch (std::out_of_range&)
@@ -526,18 +522,18 @@ void Agilent::convertInputToFinalSettings(UINT chan)
 				break;
 			case 0:
 				// DC output
-				settings.channel[chan].dc.dcLevel = reduce( settings.channel[chan].dc.dcLevelInput);
+				settings.channel[chan].dc.dcLevel = settings.channel[chan].dc.dcLevelInput.evaluate( );
 				break;
 			case 1:
 				// single frequency output
-				settings.channel[chan].sine.frequency = reduce( settings.channel[chan].sine.frequencyInput);
-				settings.channel[chan].sine.amplitude = reduce( settings.channel[chan].sine.amplitudeInput);
+				settings.channel[chan].sine.frequency = settings.channel[chan].sine.frequencyInput.evaluate();
+				settings.channel[chan].sine.amplitude = settings.channel[chan].sine.amplitudeInput.evaluate();
 				break;
 			case 2:
 				// Square Output
-				settings.channel[chan].square.frequency = reduce( settings.channel[chan].square.frequencyInput );
-				settings.channel[chan].square.amplitude = reduce( settings.channel[chan].square.amplitudeInput );
-				settings.channel[chan].square.offset = reduce( settings.channel[chan].square.offsetInput );
+				settings.channel[chan].square.frequency = settings.channel[chan].square.frequencyInput.evaluate( );
+				settings.channel[chan].square.amplitude = settings.channel[chan].square.amplitudeInput.evaluate( );
+				settings.channel[chan].square.offset = settings.channel[chan].square.offsetInput.evaluate( );
 				break;
 			case 3:
 				// Preloaded Arb Output... no variations possible...
@@ -600,22 +596,22 @@ void Agilent::handleSavingConfig(std::ofstream& saveFile, std::string categoryPa
 	saveFile << str(settings.synced) << "\n";
 	saveFile << "CHANNEL_1\n";
 	saveFile << str(settings.channel[0].option) + "\n";
-	saveFile << settings.channel[0].dc.dcLevelInput + "\n";
-	saveFile << settings.channel[0].sine.amplitudeInput + "\n";
-	saveFile << settings.channel[0].sine.frequencyInput + "\n";
-	saveFile << settings.channel[0].square.amplitudeInput + "\n";
-	saveFile << settings.channel[0].square.frequencyInput + "\n";
-	saveFile << settings.channel[0].square.offsetInput + "\n";
+	saveFile << settings.channel[0].dc.dcLevelInput.expressionStr + "\n";
+	saveFile << settings.channel[0].sine.amplitudeInput.expressionStr + "\n";
+	saveFile << settings.channel[0].sine.frequencyInput.expressionStr + "\n";
+	saveFile << settings.channel[0].square.amplitudeInput.expressionStr + "\n";
+	saveFile << settings.channel[0].square.frequencyInput.expressionStr + "\n";
+	saveFile << settings.channel[0].square.offsetInput.expressionStr + "\n";
 	saveFile << settings.channel[0].preloadedArb.address + "\n";
 	saveFile << settings.channel[0].scriptedArb.fileAddress + "\n";
 	saveFile << "CHANNEL_2\n";
 	saveFile << str( settings.channel[1].option ) + "\n";
-	saveFile << settings.channel[1].dc.dcLevelInput + "\n";
-	saveFile << settings.channel[1].sine.amplitudeInput + "\n";
-	saveFile << settings.channel[1].sine.frequencyInput + "\n";	
-	saveFile << settings.channel[1].square.amplitudeInput + "\n";
-	saveFile << settings.channel[1].square.frequencyInput + "\n";
-	saveFile << settings.channel[1].square.offsetInput + "\n";
+	saveFile << settings.channel[1].dc.dcLevelInput.expressionStr + "\n";
+	saveFile << settings.channel[1].sine.amplitudeInput.expressionStr + "\n";
+	saveFile << settings.channel[1].sine.frequencyInput.expressionStr + "\n";
+	saveFile << settings.channel[1].square.amplitudeInput.expressionStr + "\n";
+	saveFile << settings.channel[1].square.frequencyInput.expressionStr + "\n";
+	saveFile << settings.channel[1].square.offsetInput.expressionStr + "\n";
 	saveFile << settings.channel[1].preloadedArb.address + "\n";
 	saveFile << settings.channel[1].scriptedArb.fileAddress + "\n";
 	saveFile << "END_AGILENT\n";
@@ -639,12 +635,12 @@ void Agilent::readConfigurationFile( std::ifstream& file )
 	{
 		thrower( "ERROR: Bad channel 1 option!" );
 	}
-	std::getline( file, settings.channel[0].dc.dcLevelInput);
-	std::getline( file, settings.channel[0].sine.amplitudeInput );
-	std::getline( file, settings.channel[0].sine.frequencyInput);
-	std::getline( file, settings.channel[0].square.amplitudeInput);
-	std::getline( file, settings.channel[0].square.frequencyInput);
-	std::getline( file, settings.channel[0].square.offsetInput);
+	std::getline( file, settings.channel[0].dc.dcLevelInput.expressionStr );
+	std::getline( file, settings.channel[0].sine.amplitudeInput.expressionStr );
+	std::getline( file, settings.channel[0].sine.frequencyInput.expressionStr );
+	std::getline( file, settings.channel[0].square.amplitudeInput.expressionStr );
+	std::getline( file, settings.channel[0].square.frequencyInput.expressionStr );
+	std::getline( file, settings.channel[0].square.offsetInput.expressionStr );
 	std::getline( file, settings.channel[0].preloadedArb.address);
 	std::getline( file, settings.channel[0].scriptedArb.fileAddress );
 	ProfileSystem::checkDelimiterLine(file, "CHANNEL_2"); 
@@ -658,12 +654,12 @@ void Agilent::readConfigurationFile( std::ifstream& file )
 	{
 		thrower("ERROR: Bad channel 1 option!");
 	}
-	std::getline( file, settings.channel[1].dc.dcLevelInput);
-	std::getline( file, settings.channel[1].sine.amplitudeInput);
-	std::getline( file, settings.channel[1].sine.frequencyInput);
-	std::getline( file, settings.channel[1].square.amplitudeInput);
-	std::getline( file, settings.channel[1].square.frequencyInput);
-	std::getline( file, settings.channel[1].square.offsetInput);
+	std::getline( file, settings.channel[1].dc.dcLevelInput.expressionStr );
+	std::getline( file, settings.channel[1].sine.amplitudeInput.expressionStr );
+	std::getline( file, settings.channel[1].sine.frequencyInput.expressionStr );
+	std::getline( file, settings.channel[1].square.amplitudeInput.expressionStr );
+	std::getline( file, settings.channel[1].square.frequencyInput.expressionStr );
+	std::getline( file, settings.channel[1].square.offsetInput.expressionStr );
 	std::getline( file, settings.channel[1].preloadedArb.address);
 	std::getline( file, settings.channel[1].scriptedArb.fileAddress );
 	ProfileSystem::checkDelimiterLine(file, "END_AGILENT");
