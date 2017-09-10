@@ -128,75 +128,6 @@ void VariableSystem::handleNewConfig( std::ofstream& newFile )
 	newFile << "END_VARIABLES\n";
 }
 
-// this function checks whether the string "item" is usable as a double, either by direct reduction to double without
-// variables, or if it is a variable.
-void VariableSystem::assertUsable( std::string item, std::vector<variable>& vars )
-{
-	double value;
-	try
-	{
-		value = reduce( item );
-	}
-	catch ( Error& )
-	{
-		bool isVar = false;
-		for ( UINT varInc = 0; varInc < vars.size( ); varInc++ )
-		{
-			if ( vars[varInc].name == item )
-			{
-				vars[varInc].active = true;
-				isVar = true;
-				break;
-			}
-		}
-		if ( !isVar )
-		{
-			// check if its a usable math expression. I.e. is composed of numbers, variables, or math symbols.
-			bool failed = false;
-			std::vector<std::string> terms = splitString( item );
-			for ( auto elem : terms )
-			{
-				try
-				{
-					value = reduce( elem );
-					continue;
-				}
-				catch ( Error&)	{/* term is not a double.*/}
-
-				if ( elem == "(" || elem == "+" || elem == "-" || elem == "*" || elem == "/" || elem == ")" )
-				{
-					// it's a valid math symbol.
-					continue;
-				}
-
-				isVar = false;
-				for ( UINT varInc = 0; varInc < vars.size( ); varInc++ )
-				{
-					if ( vars[varInc].name == elem )
-					{
-						vars[varInc].active = true;
-						isVar = true;
-						break;
-					}
-				}
-				if ( isVar )
-				{
-					continue;
-				}
-				// it reached the end, that means the term isn't a variable, isn't a math symbol, and isn't a double.
-				// It's not usable then.
-				failed = true;
-				break;
-			}
-
-			if ( failed )
-			{
-				thrower( "ERROR: tried and failed to convert " + item + " to a double. It's also not a variable or a "
-						 "math expression." );
-			}
-		}
-	}
-}
 
 
 void VariableSystem::handleSaveConfig(std::ofstream& saveFile)
@@ -590,7 +521,8 @@ void VariableSystem::handleDraw(NMHDR* pNMHDR, LRESULT* pResult, rgbMap rgbs)
 }
 
 
-void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin)
+void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
+										 DioSystem* ttls, DacSystem* dacs )
 {
 	/// get the item and subitem
 	POINT cursorPos;
@@ -710,6 +642,14 @@ void VariableSystem::updateVariableInfo(std::vector<Script*> scripts, MainWindow
 				{
 					thrower( "ERROR: A varaible with name " + newName + " already exists!" );
 				}
+			}
+			if ( ttls->isValidTTLName( newName ) )
+			{
+				thrower( "ERROR: the name " + newName + " is already a ttl Name!" );
+			}
+			if ( dacs->isValidDACName( newName ) )
+			{
+				thrower( "ERROR: the name " + newName + " is already a dac name!" );
 			}
 			// update the info inside
 			currentVariables[varNumber].name = newName;

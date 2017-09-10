@@ -8,11 +8,11 @@ struct segmentInfoInput
 {
 	int segmentType;
 	std::string rampType;
-	std::string repeatNum;
-	std::string initValue;
-	std::string finValue;
+	Expression repeatNum;
+	Expression initValue;
+	Expression finValue;
 	// in ms
-	std::string time;
+	Expression time;
 	// values such as repeat, repeat until trigger, no repeat, etc.
 	int continuationType;
 };

@@ -7,6 +7,7 @@
 #include "constants.h"
 #include "AuxiliaryWindow.h"
 #include "NiawgWaiter.h"
+#include "Expression.h"
 
 MasterManager::MasterManager()
 {
@@ -140,7 +141,6 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			{
 				thrower( "\r\nABORTED!\r\n" );
 			}
-			expUpdate( "Programming Variation #" + str( varInc + 1 ) + " Data...\r\n", input->comm, input->quiet );
 			if (input->runMaster)
 			{
 				input->dacs->analyzeDacCommands( varInc );
@@ -215,7 +215,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 
 		input->globalControl->setUsages( input->variables );
 		// no quiet on warnings.
-		expUpdate( warnings, input->comm );
+		input->comm->sendError( warnings );
 		input->comm->sendDebug( input->debugOptions.message );
 
 		/// /////////////////////////////
@@ -715,117 +715,9 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 	functionStream >> word;
 	while (!(functionStream.peek() == EOF) || word != "__end__")
 	{
-		if (word == "t")
+		if ( handleTimeCommands( word, functionStream, vars ))
 		{
-			std::string command, time;
-			functionStream >> command;
-			if (command == "++")
-			{
-				operationTime.second++;
-			}
-			if (command == "+=")
-			{
-				functionStream >> time;
-				try
-				{
-					operationTime.second += reduce(time);
-				}
-				catch (Error&)
-				{
-					// Assume it's an expression with variables, to be evaluated later.
-					operationTime.first.push_back(time);
-				}
-			}
-			else if (command == "=")
-			{
-				functionStream >> time;
-				try
-				{
-					operationTime.second = reduce(time);
-				}
-				catch (Error&)
-				{
-					operationTime.first.push_back(time);
-					// check if it's a variable.
-					bool isVar = false;
-					for (UINT varInc = 0; varInc < vars.size(); varInc++)
-					{
-						// assume it's an expression with a variable to be evaluated later
-						
-					}
-					if (!isVar)
-					{
-						thrower("ERROR: tried and failed to convert " + time + " to an integer for a time += command.\r\n");
-					}
-				}
-			}
-			else
-			{
-				thrower("ERROR: unrecognized time operator: " + command + ". Expected operators are \"++\", \"+=\", "
-						"and \"=\"\r\n");
-			}
-		}
-		else if (word == "t++")
-		{
-			operationTime.second++;
-		}
-		else if (word == "t+=")
-		{
-			std::string time;
-			functionStream >> time;
-			try
-			{
-				operationTime.second += std::stoi(time);
-			}
-			catch (std::invalid_argument&)
-			{
-				// check if it's a variable.
-				bool isVar = false;
-				for (UINT varInc = 0; varInc < vars.size(); varInc++)
-				{
-					if (vars[varInc].name == time)
-					{
-						isVar = true;
-						vars[varInc].active = true;
-						operationTime.first.push_back(time);
-						break;
-					}
-				}
-				if (!isVar)
-				{
-					thrower("ERROR: tried and failed to convert " + time + " to an integer for a time += command.");
-				}
-			}
-		}
-		else if (word == "t=")
-		{
-			std::string time;
-			functionStream >> time;
-			try
-			{
-				operationTime.second = std::stoi(time);
-			}
-			catch (std::invalid_argument &)
-			{
-				// check if it's a variable.
-				bool isVar = false;
-				for (UINT varInc = 0; varInc < vars.size(); varInc++)
-				{
-					if (vars[varInc].name == time)
-					{
-						isVar = true;
-						vars[varInc].active = true;
-						operationTime.first.push_back(time);
-						// because it's equals. There shouldn't be any extra terms added to this now.
-						operationTime.second = 0;
-						break;
-					}
-				}
-				if (!isVar)
-				{
-					thrower("ERROR: tried and failed to convert " + time + " to an integer for a time += command.");
-				}
-			}
+			// got handled
 		}
 		/// callcppcode command
 		else if (word == "callcppcode")
@@ -838,17 +730,17 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 		{
 			std::string name;
 			functionStream >> name;
-			ttls->handleTtlScriptCommand( word, operationTime, name, ttlShades );
+			ttls->handleTtlScriptCommand( word, operationTime, name, ttlShades, vars );
 		}
 		else if (word == "pulseon:" || word == "pulseoff:")
 		{
 			// this requires handling time as it is handled above.
 			std::string name;
-			std::string pulseLength;
+			Expression pulseLength;
 			functionStream >> name;
 			functionStream >> pulseLength;
 			// should be good to go.
-			ttls->handleTtlScriptCommand( word, operationTime, name, pulseLength, ttlShades );
+			ttls->handleTtlScriptCommand( word, operationTime, name, pulseLength, ttlShades, vars );
 		}
 
 		/// deal with dac commands
@@ -857,14 +749,14 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 			DacCommandForm command;
 			std::string name;
 			functionStream >> name;
-			std::string value;
 			functionStream >> command.finalVal;
+			command.finalVal.assertValid( vars );
 			command.time = operationTime;
 			command.commandName = "dac:";
-			command.initVal = "__NONE__";
-			command.numSteps = "__NONE__";
-			command.rampInc = "__NONE__";
-			command.rampTime = "__NONE__";
+			command.initVal.expressionStr = "__NONE__";
+			command.numSteps.expressionStr = "__NONE__";
+			command.rampInc.expressionStr = "__NONE__";
+			command.rampTime.expressionStr = "__NONE__";
 			try
 			{
 				dacs->handleDacScriptCommand(command,  name, dacShades, vars, ttls);
@@ -882,16 +774,20 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 			functionStream >> name;
 			// get ramp initial value
 			functionStream >> command.initVal;
+			command.initVal.assertValid( vars );
 			// get ramp final value
 			functionStream >> command.finalVal;
+			command.finalVal.assertValid( vars );
 			// get total ramp time;
 			functionStream >> command.rampTime;
+			command.rampTime.assertValid( vars );
 			// get ramp point increment.
 			functionStream >> command.numSteps;
+			command.numSteps.assertValid( vars );
 			command.time = operationTime;
 			command.commandName = "daclinspace:";
 			// not used here.
-			command.rampInc = "__NONE__";
+			command.rampInc.expressionStr = "__NONE__";
 			//
 			try
 			{
@@ -910,16 +806,20 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 			functionStream >> name;
 			// get ramp initial value
 			functionStream >> command.initVal;
+			command.initVal.assertValid( vars );
 			// get ramp final value
 			functionStream >> command.finalVal;
+			command.finalVal.assertValid( vars );
 			// get total ramp time;
 			functionStream >> command.rampTime;
+			command.rampTime.assertValid( vars );
 			// get ramp point increment.
 			functionStream >> command.rampInc;
+			command.rampInc.assertValid( vars );
 			command.time = operationTime;
 			command.commandName = "dacarange:";
 			// not used here.
-			command.numSteps = "__NONE__";
+			command.numSteps.expressionStr = "__NONE__";
 			//
 			try
 			{
@@ -933,14 +833,17 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 		/// Handle RSG calls.
 		else if (word == "rsg:")
 		{
-			rsgEventStructuralInfo info;
+			rsgEventForm info;
 			functionStream >> info.frequency;
+			info.frequency.assertValid( vars );
 			functionStream >> info.power;
+			info.power.assertValid( vars );
 			// test frequency
 			info.time = operationTime;
 			rsg->addFrequency( info );
-			// set up a trigger for this event.
-			ttls->handleTtlScriptCommand( "pulseon:", operationTime, rsg->getRsgTtl(), str(rsg->getTriggerTime()), ttlShades );
+			// set up a trigger for this event. 
+			ttls->handleTtlScriptCommand( "pulseon:", operationTime, rsg->getRsgTtl(), 
+										  Expression(str(rsg->getTriggerLength())), ttlShades, vars );
 		}
 		/// deal with function calls.
 		else if (word == "call")
@@ -1034,6 +937,57 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 	}
 }
 
+// if it handled it, returns true, else returns false.
+bool MasterManager::handleTimeCommands( std::string word, ScriptStream& stream, std::vector<variable>& vars )
+{
+	if ( word == "t" )
+	{
+		std::string command;
+		stream >> command;
+		word += command;
+	}
+	//
+	if ( word == "t++" )
+	{
+		operationTime.second++;
+	}
+	else if ( word == "t+=" )
+	{
+		Expression time;
+		stream >> time;
+		try
+		{
+			operationTime.second += time.evaluate( );
+		}
+		catch ( Error& )
+		{
+			time.assertValid( vars );
+			operationTime.first.push_back( time );
+		}
+	}
+	else if ( word == "t=" )
+	{
+		Expression time;
+		stream >> time;
+		try
+		{
+			operationTime.second = time.evaluate( );
+		}
+		catch ( std::invalid_argument & )
+		{
+			time.assertValid( vars );
+			operationTime.first.push_back( time );
+			// because it's equals. There shouldn't be any extra terms added to this now.
+			operationTime.second = 0;
+		}
+	}
+	else
+	{
+		return false;
+	}
+	return true;
+}
+
 
 void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs,
 										 std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades, 
@@ -1055,53 +1009,10 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs,
 	// the analysis loop.
 	while (!(currentMasterScript.peek() == EOF) || word != "__end__")
 	{
-		std::stringstream individualCommandStream;
-		// catch if the user uses a space between t and it's operator.
-		if (word == "t")
+		//std::stringstream individualCommandStream;
+		if (handleTimeCommands(word, currentMasterScript, vars ) )
 		{
-			std::string command;
-			// assume that there's an '=' or '+=' etc. to still get...
-			currentMasterScript >> command;
-			word += command;
-		}
-		/// Handle Time Commands.		
-		if (word == "t++")
-		{
-			operationTime.second++;
-		}
-		else if (word == "t+=")
-		{
-			std::string time;
-			currentMasterScript >> time;
-			try
-			{
-				operationTime.second += reduce(time);
-			}
-			catch (Error&)
-			{
-				operationTime.first.push_back(time);
-			}
-		}
-		else if (word == "t=")
-		{
-			std::string time;
-			currentMasterScript >> time;
-			try
-			{
-				operationTime.second = reduce(time);
-				if (operationTime.second < 0.1)
-				{
-					thrower("ERROR: you attempted to set commands before the first 1 ms of the experiment. This time is"
-							"reserved by the code for initializing the dac state. Please start at 1ms.");
-				}
-			}
-			catch (Error&)
-			{
-				// should I clear this?
-				operationTime.first.push_back(time);
-				// because it's equals. There shouldn't be any extra terms added to this now.
-				operationTime.second = 0;
-			}
+			// got handled.
 		}
 		/// callcppcode function
 		else if (word == "callcppcode")
@@ -1114,39 +1025,19 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs,
 		{
 			std::string name;
 			currentMasterScript >> name;
-			ttls->handleTtlScriptCommand( word, operationTime, name, ttlShades );
+			ttls->handleTtlScriptCommand( word, operationTime, name, ttlShades, vars );
 		}
 		else if (word == "pulseon:" || word == "pulseoff:")
 		{
 			// this requires handling time as it is handled above.
 			std::string name;
-			std::string pulseLength;
+			Expression pulseLength;
 			currentMasterScript >> name;
 			currentMasterScript >> pulseLength;
 			bool isVar = false;
-			try
-			{
-				double test = reduce( pulseLength );
-			}
-			catch (Error&)
-			{
-				for (UINT varInc = 0; varInc < vars.size(); varInc++)
-				{
-					if (vars[varInc].name == pulseLength)
-					{
-						isVar = true;
-						vars[varInc].active = true;
-						// then it will parse okay.
-						break;
-					}
-				}
-				if (!isVar)
-				{
-					thrower( "ERROR: tried and failed to convert " + pulseLength + " to an integer for a pulse command." );
-				}
-			}
+			pulseLength.assertValid( vars );
 			// should be good to go.
-			ttls->handleTtlScriptCommand( word, operationTime, name, pulseLength, ttlShades );
+			ttls->handleTtlScriptCommand( word, operationTime, name, pulseLength, ttlShades, vars );
 		}
 
 		/// deal with dac commands
@@ -1157,12 +1048,13 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs,
 			currentMasterScript >> name;
 			std::string value;
 			currentMasterScript >> command.finalVal;
+			command.finalVal.assertValid( vars );
 			command.time = operationTime;
 			command.commandName = "dac:";
-			command.initVal = "__NONE__";
-			command.numSteps = "__NONE__";
-			command.rampInc = "__NONE__";
-			command.rampTime = "__NONE__";
+			command.initVal.expressionStr = "__NONE__";
+			command.numSteps.expressionStr = "__NONE__";
+			command.rampInc.expressionStr = "__NONE__";
+			command.rampTime.expressionStr = "__NONE__";
 			try
 			{
 				dacs->handleDacScriptCommand(command, name, dacShades, vars, ttls);
@@ -1176,20 +1068,19 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs,
 		{
 			DacCommandForm command;
 			std::string name;
-			// get dac name
 			currentMasterScript >> name;
-			// get ramp initial value
 			currentMasterScript >> command.initVal;
-			// get ramp final value
+			command.initVal.assertValid( vars );
 			currentMasterScript >> command.finalVal;
-			// get total ramp time;
+			command.finalVal.assertValid( vars );
 			currentMasterScript >> command.rampTime;
-			// get ramp point increment.
+			command.rampTime.assertValid( vars );
 			currentMasterScript >> command.numSteps;
+			command.numSteps.assertValid( vars );
 			command.time = operationTime;
 			command.commandName = "daclinspace:";
 			// not used here.
-			command.rampInc = "__NONE__";
+			command.rampInc.expressionStr = "__NONE__";
 			//
 			try
 			{
@@ -1204,26 +1095,22 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs,
 		{
 			DacCommandForm command;
 			std::string name;
-			// get dac name
 			currentMasterScript >> name;
-			// get ramp initial value
 			currentMasterScript >> command.initVal;
-			// get ramp final value
+			command.initVal.assertValid( vars );
 			currentMasterScript >> command.finalVal;
-			// get total ramp time;
+			command.finalVal.assertValid( vars );
 			currentMasterScript >> command.rampTime;
-			// get ramp point increment.
+			command.rampTime.assertValid( vars );
 			currentMasterScript >> command.rampInc;
+			command.rampInc.assertValid( vars );
 			command.time = operationTime;
 			command.commandName = "dacarange:";
 			// not used here.
-			command.numSteps = "__NONE__";
-			//
-
+			command.numSteps.expressionStr = "__NONE__";
 			try
 			{
-				dacs->handleDacScriptCommand( command, name, dacShades, 
-											 vars, ttls );
+				dacs->handleDacScriptCommand( command, name, dacShades, vars, ttls );
 			}
 			catch (Error& err)
 			{
@@ -1233,14 +1120,15 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs,
 		/// Deal with RSG calls
 		else if (word == "rsg:")
 		{
-			rsgEventStructuralInfo info;
+			rsgEventForm info;
 			currentMasterScript >> info.frequency;
+			info.frequency.assertValid( vars );
 			currentMasterScript >> info.power;
-			VariableSystem::assertUsable( info.frequency, vars );
-			VariableSystem::assertUsable( info.power, vars );
+			info.power.assertValid( vars );
 			info.time = operationTime;
 			rsg->addFrequency( info );
-			ttls->handleTtlScriptCommand( "pulseon:", operationTime, rsg->getRsgTtl(), str( rsg->getTriggerTime() ), ttlShades );
+			ttls->handleTtlScriptCommand( "pulseon:", operationTime, rsg->getRsgTtl(), 
+										  Expression(str( rsg->getTriggerLength() )), ttlShades, vars );
 		}
 		/// deal with raman beam calls (setting raman frequency).
 		/// deal with function calls.
@@ -1285,11 +1173,11 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs,
 		}
 		else if (word == "repeat:")
 		{
-			std::string repeatStr;
+			Expression repeatStr;
 			currentMasterScript >> repeatStr;
 			try
 			{
-				totalRepeatNum.push_back( UINT(reduce( repeatStr )) );
+				totalRepeatNum.push_back( repeatStr.evaluate( ) );
 			}
 			catch (Error&)
 			{
@@ -1297,7 +1185,6 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs,
 						 " currently be a variable.");
 			}
 			repeatPos.push_back( currentMasterScript.tellg() );
-
 			currentRepeatNum.push_back(1);
 		}
 		// (look for end of repeat)
@@ -1352,7 +1239,7 @@ std::string MasterManager::getErrorMessage(int errorCode)
 */
 void MasterManager::callCppCodeFunction()
 {
-		
+	
 }
 
 

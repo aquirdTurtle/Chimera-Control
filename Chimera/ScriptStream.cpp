@@ -19,6 +19,7 @@ ScriptStream & ScriptStream::operator>>( std::string& outputString )
 	
 	bool isExpression = false;
 	outputString = "";
+	int unclosedParentheses = 0;
 	do
 	{
 		temp >> tempStr;
@@ -26,26 +27,45 @@ ScriptStream & ScriptStream::operator>>( std::string& outputString )
 		{
 			break;
 		}
-		if ( tempStr[0] == '(' )
+		std::vector<std::string> tempTerms = Expression::splitString( tempStr );
+		for ( auto& term : tempTerms )
 		{
-			isExpression = true;
-		}
-		// convert to lower-case
-		std::transform( tempStr.begin(), tempStr.end(), tempStr.begin(), ::tolower );
-		// replace any keywords
-		for (auto repl : replacements)
-		{
-			if ( tempStr == repl.first)
+			if ( term == "(" )
 			{
-				// auto-replace before the user even needs to deal with this.
-				tempStr = repl.second;
+				unclosedParentheses++;
 			}
+			else if ( term == ")" )
+			{
+				if ( unclosedParentheses == 0 )
+				{
+					thrower( "ERROR: excessive right parenthesis in input! \")\" was seen when there were no \"(\" to "
+							 "close." );
+				}
+				unclosedParentheses--;
+			}
+			// convert to lower-case
+			std::transform( term.begin( ), term.end( ), term.begin( ), ::tolower );
+			// replace any keywords
+			for ( auto repl : replacements )
+			{
+				if ( term == repl.first )
+				{
+					// auto-replace before the user even needs to deal with this.
+					term = repl.second;
+				}
+			}
+			outputString += term;
 		}
-		outputString += tempStr;
-	} while ( tempStr.back() != ')' && isExpression );
+	} while ( unclosedParentheses > 0 );
 
 	seekg( temp.tellg() );
 	return *this;
+}
+
+
+ScriptStream & ScriptStream::operator>>( Expression& expression )
+{
+	return operator>>( expression.expressionStr);
 }
 
 

@@ -486,14 +486,17 @@ void DioSystem::initialize( POINT& loc, cToolTips& toolTips, AuxiliaryWindow* ma
 
 
 void DioSystem::handleTtlScriptCommand( std::string command, timeType time, std::string name,
-										 std::vector<std::pair<UINT, UINT>>& ttlShadeLocations )
+										std::vector<std::pair<UINT, UINT>>& ttlShadeLocations, 
+										std::vector<variable>& vars )
 {
-	handleTtlScriptCommand( command, time, name, "-.-", ttlShadeLocations );
+	// use an empty expression.
+	handleTtlScriptCommand( command, time, name, Expression(), ttlShadeLocations, vars );
 }
 
 
-void DioSystem::handleTtlScriptCommand(std::string command, timeType time, std::string name, std::string pulseLength, 
-									   std::vector<std::pair<UINT, UINT>>& ttlShadeLocations)
+void DioSystem::handleTtlScriptCommand(std::string command, timeType time, std::string name, Expression pulseLength, 
+									   std::vector<std::pair<UINT, UINT>>& ttlShadeLocations, 
+										std::vector<variable>& vars )
 {
 	if (!isValidTTLName(name))
 	{
@@ -515,10 +518,11 @@ void DioSystem::handleTtlScriptCommand(std::string command, timeType time, std::
 	{
 		try
 		{
-			pulseEndTime.second += reduce(pulseLength);;
+			pulseEndTime.second += pulseLength.evaluate();
 		}
 		catch (Error&)
 		{
+			pulseLength.assertValid( vars );
 			pulseEndTime.first.push_back(pulseLength);
 		}
 		if (command == "pulseon:")
@@ -1002,7 +1006,7 @@ void DioSystem::interpretKey(key variationKey, std::vector<variable>& vars)
 			{
 				for (auto varTime : ttlCommandFormList[commandInc].time.first)
 				{
-					variableTime += reduce(varTime, variationKey, variationNum, vars);
+					variableTime += varTime.evaluate(variationKey, variationNum, vars);
 					// this assumed no expressions.
 					//variableTime += variationKey[varTime].first[variationNum];
 				}

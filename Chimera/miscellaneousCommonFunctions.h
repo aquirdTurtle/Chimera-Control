@@ -1,14 +1,14 @@
 #pragma once
+#include "Control.h"
+#include "KeyHandler.h"
+
+#include "afxwin.h"
 
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <iomanip>
-
-#include "afxwin.h"
-#include "Control.h"
-#include "KeyHandler.h"
 
 /*
  * A nice custom class and #define that makes my custom throws have file & code line information. Very nice.
@@ -80,6 +80,7 @@ template <typename IntType> std::vector<IntType> range( IntType start, IntType s
 	return result;
 }
 
+
 template <typename IntType> std::vector<IntType> range( IntType start, IntType stop )
 {
 	return range( start, stop, IntType( 1 ) );
@@ -89,11 +90,6 @@ template <typename IntType> std::vector<IntType> range( IntType stop )
 {
 	return range( IntType( 0 ), stop, IntType( 1 ) );
 }
-
-std::vector<std::string> splitString( std::string workingString );
-
-double reduce(std::string expression, key variationKey = {}, UINT variation = -1, 
-			  std::vector<variable>& vars = std::vector<variable>());
 
 // this can replace str() and str(), as well as providing functionality to set the precision of
 // to_string() conversions.
@@ -153,7 +149,8 @@ template <typename T> int promptBox( T msg, UINT promptStyle )
 	return MessageBox( eMainWindowHwnd, cstr( msg ), "Prompt", promptStyle | MB_SYSTEMMODAL );
 }
 
-template <typename ControlType> void verifyIdsMatch(Control<ControlType>& control, std::vector<UINT> ids, const char *file, int line)
+template <typename ControlType> void verifyIdsMatch(Control<ControlType>& control, std::vector<UINT> ids,
+													 const char *file, int line)
 {
 	std::string idString;
 	for (auto id : ids)
@@ -164,10 +161,12 @@ template <typename ControlType> void verifyIdsMatch(Control<ControlType>& contro
 		}
 		idString += str(id) + ", ";
 	}
+
 	// if it reaches here, it didn't
 	errBox("ERROR: the following ID: " + str(control.GetDlgCtrlID()) + " should match one of \"" + idString + "\". "
 		   "Please change the second ID in order to make them match. This occured at file \"" + str(file) + "\" "
 		   "line " + str(line));
+
 	throw;
 }
 

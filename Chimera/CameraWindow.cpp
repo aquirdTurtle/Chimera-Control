@@ -90,6 +90,7 @@ void CameraWindow::handleNewConfig( std::ofstream& newFile )
 {
 	CameraSettings.handleNewConfig( newFile );
 	pics.handleNewConfig( newFile );
+	analysisHandler.handleNewConfig( newFile );
 	// todo: include plotter info
 }
 
@@ -106,7 +107,6 @@ void CameraWindow::handleSaveConfig(std::ofstream& saveFile)
 void CameraWindow::handleOpeningConfig(std::ifstream& configFile, double version)
 {
 	// I could and perhaps should further subdivide this up.
-
 	CameraSettings.handleOpenConfig(configFile, version);
 	pics.handleOpenConfig(configFile, version);
 	analysisHandler.handleOpenConfig( configFile, version );
@@ -126,7 +126,6 @@ void CameraWindow::handleOpeningConfig(std::ifstream& configFile, double version
 	CRect rect;
 	GetWindowRect( &rect );
 	OnSize( 0, rect.right - rect.left, rect.bottom - rect.top );
-
 	/*
 	int plotNumber;
 	configFile >> plotNumber;
@@ -482,7 +481,9 @@ void CameraWindow::startCamera()
 	stats.reset();
 	// I used to initialize the data logger here.
 	analysisHandler.updateDataSetNumberEdit( dataHandler.getNextFileNumber() - 1 );
-	Andor.armCamera( this );
+	double minKineticTime;
+	Andor.armCamera( this, minKineticTime );
+	CameraSettings.updateMinKineticCycleTime( minKineticTime );
 	mainWindowFriend->getComm()->sendColorBox(Camera, 'G');
 }
 
@@ -845,7 +846,11 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 	}
 	else
 	{
-		input.plotterInput->key = { 0 };
+		std::vector<double> dummyKey;
+		// make a large dummy array to be used. In principle if the users uses a plotter without a master thread for
+		// a long time this could crash... 
+		dummyKey.resize( 1000 );
+		input.plotterInput->key = dummyKey;
 	}
 	input.plotterInput->plotter = &plotter;
 	input.plotterInput->atomQueue = &plotterAtomQueue;
@@ -891,9 +896,9 @@ UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 		return 0;
 	}
 	
-	for ( auto rowInc : range( input->gridInfo.width ) )
+	for ( auto columnInc : range( input->gridInfo.width ) )
 	{
-		for ( auto columnInc : range( input->gridInfo.height ) )
+		for ( auto rowInc : range( input->gridInfo.height ) )
 		{
 			ULONG pixelRow = (input->gridInfo.topLeftCorner.row - 1) + rowInc * input->gridInfo.pixelSpacing;
 			ULONG pixelColumn = (input->gridInfo.topLeftCorner.column - 1) + columnInc * input->gridInfo.pixelSpacing;

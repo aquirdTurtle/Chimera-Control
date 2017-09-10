@@ -681,9 +681,9 @@ void PictureControl::drawAnalysisMarkers(CDC* dc, std::vector<coordinate> analys
 	{
 		// use the atom grid.
 		UINT count = 1;
-		for ( auto rowInc : range( gridInfo.width ) )
+		for ( auto columnInc : range( gridInfo.width ) )
 		{
-			for ( auto columnInc : range( gridInfo.height ) )
+			for ( auto rowInc : range( gridInfo.height ) )
 			{
 				UINT pixelRow = gridInfo.topLeftCorner.row-1 + rowInc * gridInfo.pixelSpacing;
 				UINT pixelColumn = gridInfo.topLeftCorner.column-1 + columnInc * gridInfo.pixelSpacing;

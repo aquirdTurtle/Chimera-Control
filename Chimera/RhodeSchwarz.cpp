@@ -68,7 +68,7 @@ void RhodeSchwarz::rearrange(UINT width, UINT height, fontMap fonts)
  */
 void RhodeSchwarz::orderEvents(UINT var)
 {
-	std::vector<rsgEventInfoFinal> newOrder;
+	std::vector<rsgEvent> newOrder;
 	for (auto event : events[var])
 	{
 		bool set = false;
@@ -144,11 +144,11 @@ void RhodeSchwarz::interpretKey(key variationKey, std::vector<variable>& vars)
 	{
 		for (UINT freqInc = 0; freqInc < eventStructures.size(); freqInc++)
 		{
-			rsgEventInfoFinal event;
+			rsgEvent event;
 			// convert freq
-			event.frequency = reduce(eventStructures[freqInc].frequency, variationKey, var, vars);
+			event.frequency = eventStructures[freqInc].frequency.evaluate( variationKey, var, vars);
 			// convert power
-			event.power = reduce(eventStructures[freqInc].power, variationKey, var, vars);
+			event.power = eventStructures[freqInc].power.evaluate( variationKey, var, vars);
 			/// deal with time!
 			if (eventStructures[freqInc].time.first.size() == 0)
 			{
@@ -159,7 +159,7 @@ void RhodeSchwarz::interpretKey(key variationKey, std::vector<variable>& vars)
 				event.time = 0;
 				for (auto timeStr : eventStructures[freqInc].time.first)
 				{
-					event.time += reduce(timeStr, variationKey, var, vars);
+					event.time += timeStr.evaluate( variationKey, var, vars);
 				}
 				event.time += eventStructures[freqInc].time.second;
 			}
@@ -170,7 +170,7 @@ void RhodeSchwarz::interpretKey(key variationKey, std::vector<variable>& vars)
 
 
 // Essentially gets called by a script command.
-void RhodeSchwarz::addFrequency(rsgEventStructuralInfo info)
+void RhodeSchwarz::addFrequency(rsgEventForm info)
 {
 	eventStructures.push_back( info );
 }
@@ -220,7 +220,7 @@ void RhodeSchwarz::clearFrequencies()
 }
 
 
-std::vector<rsgEventStructuralInfo> RhodeSchwarz::getFrequencyForms()
+std::vector<rsgEventForm> RhodeSchwarz::getFrequencyForms()
 {
 	return eventStructures;
 }
@@ -231,7 +231,7 @@ std::string RhodeSchwarz::getRsgTtl()
 	return rsgTtl;
 }
 
-double RhodeSchwarz::getTriggerTime()
+double RhodeSchwarz::getTriggerLength()
 {
 	return triggerTime;
 }

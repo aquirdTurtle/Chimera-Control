@@ -159,6 +159,8 @@ void CameraSettingsControl::rearrange( std::string cameraMode, std::string trigg
 	accumulationCycleTimeLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
 	accumulationNumberEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
 	accumulationNumberLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
+	minKineticCycleTimeLabel.rearrange( cameraMode, triggerMode, width, height, fonts );
+	minKineticCycleTimeEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
 }
 
 
@@ -507,6 +509,21 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	accumulationNumberEdit.Create( WS_CHILD | WS_VISIBLE | WS_BORDER , accumulationNumberEdit.seriesPos, 
 								   parent, id++ );
 	accumulationNumberEdit.SetWindowTextA("1");
+
+	// minimum kinetic cycle time (determined by camera)
+	minKineticCycleTimeLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 240, pos.seriesPos.y + 25 };
+	minKineticCycleTimeLabel.videoPos = { -1,-1,-1,-1 };
+	minKineticCycleTimeLabel.amPos = { -1,-1,-1,-1 };
+	minKineticCycleTimeLabel.Create( "Minimum Kinetic Cycle Time", WS_CHILD | WS_VISIBLE | WS_BORDER, 
+									 minKineticCycleTimeLabel.seriesPos, parent, id++ );
+	
+	minKineticCycleTimeEdit.seriesPos = { pos.seriesPos.x + 240, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
+	minKineticCycleTimeEdit.videoPos = { -1,-1,-1,-1 };
+	minKineticCycleTimeEdit.amPos = { -1,-1,-1,-1 };
+	minKineticCycleTimeEdit.Create( WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, minKineticCycleTimeEdit.seriesPos,
+									parent, id++ );
+	minKineticCycleTimeEdit.SetWindowTextA( "" );
+
 	/// Kinetic Cycle Time
 	// Kinetic Cycle Time Label
 	kineticCycleTimeLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 240, pos.seriesPos.y + 25 };
@@ -633,15 +650,24 @@ void CameraSettingsControl::handleModeChange( CameraWindow* cameraWindow )
 	cameraWindow->OnSize( 0, rect.right - rect.left, rect.bottom - rect.top );
 }
 
-void CameraSettingsControl::checkTimings(std::vector<float> exposureTimes)
+
+void CameraSettingsControl::checkTimings(std::vector<float>& exposureTimes)
 {
 	checkTimings(runSettings.kineticCycleTime, runSettings.accumulationTime, exposureTimes);
 }
 
-void CameraSettingsControl::checkTimings(float kineticCycleTime, float accumulationTime, std::vector<float> exposureTimes)
+
+void CameraSettingsControl::checkTimings(float& kineticCycleTime, float& accumulationTime, std::vector<float>& exposureTimes)
 {
 	andorFriend->checkAcquisitionTimings(kineticCycleTime, accumulationTime, exposureTimes);
 }
+
+
+void CameraSettingsControl::updateMinKineticCycleTime( double time )
+{
+	minKineticCycleTimeEdit.SetWindowTextA( cstr( time ) );
+}
+
 
 imageParameters CameraSettingsControl::readImageParameters(CameraWindow* camWin)
 {
