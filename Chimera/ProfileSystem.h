@@ -98,6 +98,7 @@ class ProfileSystem
 		void initialize( POINT& topLeftPosition, CWnd* parent, int& id, cToolTips& tooltips );
 		void rearrange(int width, int height, fontMap fonts);
 		static void checkDelimiterLine(std::ifstream& openFile, std::string keyword);
+		static bool checkDelimiterLine( std::ifstream& openFile, std::string delimiter, std::string breakCondition );
 	private:
 		profileSettings currentProfile;
 		std::string FILE_SYSTEM_PATH;

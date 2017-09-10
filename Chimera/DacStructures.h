@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "Expression.h"
 #include "commonTypes.h"
 #include <array>
 
@@ -10,11 +11,12 @@ struct DacCommandForm
 
 	unsigned short line;
 	timeType time;
-	std::string initVal;
-	std::string finalVal;
-	std::string rampTime;
-	std::string rampInc;
-	std::string numSteps;
+
+	Expression initVal;
+	Expression finalVal;
+	Expression rampTime;
+	Expression rampInc;
+	Expression numSteps;
 };
 
 struct DacCommand

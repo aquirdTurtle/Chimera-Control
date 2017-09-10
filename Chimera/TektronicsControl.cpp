@@ -50,24 +50,30 @@ void TektronicsControl::interpretKey(key variationKey, std::vector<variable>& va
 		/// deal with first channel.
 		if (currentInfo.channels.first.on)
 		{
-			currentNums[var].channels.first.mainFreqVal = reduce(currentInfo.channels.first.mainFreq, variationKey, var, vars);
-			currentNums[var].channels.first.powerVal = reduce(currentInfo.channels.first.power, variationKey, var, vars);
+			currentNums[var].channels.first.mainFreqVal = currentInfo.channels.first.mainFreq.evaluate( variationKey,
+																										var, vars);
+			currentNums[var].channels.first.powerVal = currentInfo.channels.first.power.evaluate( variationKey, var, 
+																								  vars);
 			// handle FSK options
 			if (currentInfo.channels.first.fsk)
 			{
-				currentNums[var].channels.first.fskFreqVal = reduce(currentInfo.channels.first.fskFreq, variationKey, var, vars);
+				currentNums[var].channels.first.fskFreqVal = currentInfo.channels.first.fskFreq.evaluate( variationKey,
+																										  var, vars);
 			}
 		}
 		// if off don't worry about trying to convert anything, user can not-enter things and it can be fine.
 		/// handle second channel.
 		if (currentInfo.channels.second.on)
 		{
-			currentNums[var].channels.second.mainFreqVal = reduce(currentInfo.channels.second.mainFreq, variationKey, var, vars);
-			currentNums[var].channels.second.powerVal = reduce(currentInfo.channels.second.power, variationKey, var, vars);
+			currentNums[var].channels.second.mainFreqVal = currentInfo.channels.second.mainFreq.evaluate( variationKey,
+																										  var, vars);
+			currentNums[var].channels.second.powerVal = currentInfo.channels.second.power.evaluate( variationKey, var,
+																									vars);
 			// handle FSK options
 			if (currentInfo.channels.second.fsk)
 			{
-				currentNums[var].channels.second.fskFreqVal = reduce(currentInfo.channels.second.fskFreq, variationKey, var, vars);
+				currentNums[var].channels.second.fskFreqVal = currentInfo.channels.second.fskFreq.evaluate( variationKey, 
+																											var, vars);
 			}
 		}
 	}
@@ -133,7 +139,7 @@ void TektronicsChannelControl::handleFskPress()
 
 
 // TODO: Gonna need to add a check if what gets returned is a double or a variable.
-tektronicsChannelInfo TektronicsChannelControl::getSettings()
+tektronicsChannelOutputForm TektronicsChannelControl::getSettings()
 {
 	currentInfo.on = onOffButton.GetCheck();
 	currentInfo.fsk = fskButton.GetCheck();
@@ -152,14 +158,14 @@ tektronicsChannelInfo TektronicsChannelControl::getSettings()
 }
 
 
-void TektronicsChannelControl::setSettings(tektronicsChannelInfo info)
+void TektronicsChannelControl::setSettings(tektronicsChannelOutputForm info)
 {
 	currentInfo = info;
 	onOffButton.SetCheck(currentInfo.on);
 	fskButton.SetCheck(currentInfo.fsk);
-	power.SetWindowTextA(cstr(currentInfo.power));
-	mainFreq.SetWindowTextA(cstr(currentInfo.mainFreq));
-	fskFreq.SetWindowTextA(cstr(currentInfo.fskFreq));
+	power.SetWindowTextA(cstr(currentInfo.power.expressionStr));
+	mainFreq.SetWindowTextA(cstr(currentInfo.mainFreq.expressionStr ));
+	fskFreq.SetWindowTextA(cstr(currentInfo.fskFreq.expressionStr ));
 }
 
 
@@ -180,12 +186,14 @@ void TektronicsControl::handleSaveConfig(std::ofstream& saveFile)
 	saveFile << "CHANNEL_1\n";
 	tektronicsInfo tekInfo = getSettings();
 	saveFile << tekInfo.channels.first.on << "\n" << tekInfo.channels.first.fsk << "\n"
-		<< tekInfo.channels.first.power << "\n" << tekInfo.channels.first.mainFreq << "\n"
-		<< tekInfo.channels.first.fskFreq << "\n";
+		<< tekInfo.channels.first.power.expressionStr << "\n"
+		<< tekInfo.channels.first.mainFreq.expressionStr << "\n"
+		<< tekInfo.channels.first.fskFreq.expressionStr << "\n";
 	saveFile << "CHANNEL_2\n";
 	saveFile << tekInfo.channels.second.on << "\n" << tekInfo.channels.second.fsk << "\n"
-		<< tekInfo.channels.second.power << "\n" << tekInfo.channels.second.mainFreq << "\n"
-		<< tekInfo.channels.second.fskFreq << "\n";
+		<< tekInfo.channels.second.power.expressionStr << "\n"
+		<< tekInfo.channels.second.mainFreq.expressionStr << "\n"
+		<< tekInfo.channels.second.fskFreq.expressionStr << "\n";
 	saveFile << "END_TEKTRONICS" << "\n";
 }
 
@@ -198,16 +206,18 @@ void TektronicsControl::handleOpeningConfig(std::ifstream& configFile, double ve
 	configFile >> tekInfo.channels.first.on;
 	configFile >> tekInfo.channels.first.fsk;
 	configFile.get();
-	std::getline(configFile, tekInfo.channels.first.power);
-	std::getline(configFile, tekInfo.channels.first.mainFreq);
-	std::getline(configFile, tekInfo.channels.first.fskFreq);
+	std::string tempStr;
+
+	std::getline(configFile, tekInfo.channels.first.power.expressionStr );
+	std::getline(configFile, tekInfo.channels.first.mainFreq.expressionStr );
+	std::getline(configFile, tekInfo.channels.first.fskFreq.expressionStr );
 	ProfileSystem::checkDelimiterLine(configFile, "CHANNEL_2");
 	configFile >> tekInfo.channels.second.on;
 	configFile >> tekInfo.channels.second.fsk;
 	configFile.get();
-	std::getline(configFile, tekInfo.channels.second.power);
-	std::getline(configFile, tekInfo.channels.second.mainFreq);
-	std::getline(configFile, tekInfo.channels.second.fskFreq);
+	std::getline(configFile, tekInfo.channels.second.power.expressionStr );
+	std::getline(configFile, tekInfo.channels.second.mainFreq.expressionStr );
+	std::getline(configFile, tekInfo.channels.second.fskFreq.expressionStr );
 	ProfileSystem::checkDelimiterLine(configFile, "END_TEKTRONICS");
 	setSettings(tekInfo);
 }
@@ -277,23 +287,23 @@ void TektronicsControl::handleProgram()
 	/// deal with first channel.
 	if (currentInfo.channels.first.on)
 	{
-		currentNums[0].channels.first.mainFreqVal = reduce( currentInfo.channels.first.mainFreq );
-		currentNums[0].channels.first.powerVal = reduce( currentInfo.channels.first.power );
+		currentNums[0].channels.first.mainFreqVal = currentInfo.channels.first.mainFreq.evaluate();
+		currentNums[0].channels.first.powerVal = currentInfo.channels.first.power.evaluate();
 		// handle FSK options
 		if (currentInfo.channels.first.fsk)
 		{
-			currentNums[0].channels.first.fskFreqVal = reduce( currentInfo.channels.first.fskFreq );
+			currentNums[0].channels.first.fskFreqVal = currentInfo.channels.first.fskFreq.evaluate();
 		}
 	}
 	/// handle second channel.
 	if (currentInfo.channels.second.on)
 	{
-		currentNums[0].channels.second.mainFreqVal = reduce( currentInfo.channels.second.mainFreq );
-		currentNums[0].channels.second.powerVal = reduce( currentInfo.channels.second.power );
+		currentNums[0].channels.second.mainFreqVal = currentInfo.channels.second.mainFreq.evaluate(  );
+		currentNums[0].channels.second.powerVal = currentInfo.channels.second.power.evaluate();
 		// handle FSK options
 		if (currentInfo.channels.second.fsk)
 		{
-			currentNums[0].channels.second.fskFreqVal = reduce( currentInfo.channels.second.fskFreq );
+			currentNums[0].channels.second.fskFreqVal = currentInfo.channels.second.fskFreq.evaluate();
 		}
 	}
 	// and program just these settings.

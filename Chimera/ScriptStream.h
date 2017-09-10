@@ -1,8 +1,8 @@
 #pragma once
+#include "VariableSystem.h"
+#include "Expression.h"
 #include <sstream>
 #include <vector>
-#include "VariableSystem.h"
-
 
 /*
  This class is designed to hold the text for a script that the code reads from.
@@ -18,6 +18,7 @@ class ScriptStream : public std::stringstream
 		 using the following overload.
 		 */
 		ScriptStream & operator>>( std::string& outputString );
+		ScriptStream & operator>>( Expression& expression );
 
 		void loadReplacements( std::vector<std::pair<std::string, std::string>> args );
 		void clearReplacements();

@@ -4,17 +4,17 @@
 #include "KeyHandler.h"
 
 
-struct tektronicsChannelInfo
+struct tektronicsChannelOutputForm
 {
 	bool on;
 	bool fsk;
-	std::string power;
-	std::string mainFreq;
-	std::string fskFreq;
+	Expression power;
+	Expression mainFreq;
+	Expression fskFreq;
 };
 
 
-struct tektronicsChannelNums
+struct tektronicsChannelOutput
 {
 	// eventually these double values take on the actual values being programmed, like so:
 	// info.channels.first.mainFreqVal = std::stod(info.channels.first.mainFreq);
@@ -28,14 +28,14 @@ struct tektronicsChannelNums
 struct tektronicsInfo
 {
 	// add any other settings for the whole machine here. 
-	std::pair<tektronicsChannelInfo, tektronicsChannelInfo> channels;
+	std::pair<tektronicsChannelOutputForm, tektronicsChannelOutputForm> channels;
 	int machineAddress;
 };
 
 
 struct tektronicsNums
 {
-	std::pair<tektronicsChannelNums, tektronicsChannelNums> channels;
+	std::pair<tektronicsChannelOutput, tektronicsChannelOutput> channels;
 };
 
 
@@ -43,8 +43,8 @@ class TektronicsChannelControl
 {
 	public:
 		void initialize(POINT loc, CWnd* parent, int& id, std::string channel1Text, LONG width, std::array<UINT, 2> ids );
-		tektronicsChannelInfo getSettings();
-		void setSettings(tektronicsChannelInfo info);
+		tektronicsChannelOutputForm getSettings();
+		void setSettings(tektronicsChannelOutputForm info);
 		void rearrange(int width, int height, fontMap fonts);
 		void handleOnPress();
 		void handleFskPress();
@@ -55,7 +55,7 @@ class TektronicsChannelControl
 		Control<CEdit> power;
 		Control<CEdit> mainFreq;
 		Control<CEdit> fskFreq;
-		tektronicsChannelInfo currentInfo;
+		tektronicsChannelOutputForm currentInfo;
 };
 
 

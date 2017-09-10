@@ -1,9 +1,11 @@
 #pragma once
 
+#include "scriptedAgilentWaveform.h"
+#include "Expression.h"
+
 #include <string>
 #include <array>
 #include "Windows.h"
-#include "scriptedAgilentWaveform.h"
 
 class Agilent;
 
@@ -24,7 +26,7 @@ struct generalAgilentOutputInfo
 
 struct dcInfo : public generalAgilentOutputInfo
 {
-	std::string dcLevelInput;
+	Expression dcLevelInput;
 	double dcLevel;
 };
 
@@ -38,20 +40,20 @@ struct scriptedArbInfo : public generalAgilentOutputInfo
 
 struct squareInfo : public generalAgilentOutputInfo
 {
-	std::string frequencyInput;
+	Expression frequencyInput;
 	double frequency;
-	std::string amplitudeInput;
+	Expression amplitudeInput;
 	double amplitude;
-	std::string offsetInput;
+	Expression offsetInput;
 	double offset;
 };
 
 
 struct sineInfo : public generalAgilentOutputInfo
 {
-	std::string frequencyInput;
+	Expression frequencyInput;
 	double frequency;
-	std::string amplitudeInput;
+	Expression amplitudeInput;
 	double amplitude;
 };
 

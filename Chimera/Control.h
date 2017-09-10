@@ -1,10 +1,13 @@
 #pragma once
 
+#include "commonTypes.h"
+
 #include "Windows.h"
+
 #include <unordered_map>
 #include <string>
 #include <type_traits>
-#include "commonTypes.h"
+
 //#include "miscellaneousCommonFunctions.h"
 
 static HFONT toolTipFont = CreateFont(30, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,

@@ -4,7 +4,6 @@ TODO
 
 Features:
 - Display Actual kinetic Cycle Time
-- Display Minimum kinetic cycle time
 - finish implementing 2D scans
 - Implement Chris's Plots of ttls and dacs
 
@@ -36,17 +35,17 @@ Features:
 - support aborting while paused
 - tabstops in plot designer
 - be able to set binsize for histograms
-- handle sine and cosine functions in the reduce function
 
 Refactoring / Other:
 - refactor variables & variable key so that they aren't two separate objects. Consider if reasonable to also include 
 	variation number in a class
-- refactor plotting file formatting.
 - change thread that wait on bools to waiting on signalers
 - could clean up textpromptdialog handling, should be possible with one line.
+- change picture settings & dimensions to not require button press.
+- test running gnuplot
+- test plotting in gnuplot
 
 Bugs:
-- dacramp spacing warning should only appear once, and should appear in error status?
 - after abort should stop fully before prompting to delete files. ??? not sure I can repeat...
 - Add new data set not working in plot designer
 - Weird trouble with 2-picture plotting
@@ -55,9 +54,6 @@ Bugs:
 - text of picture color scale doesn't match bar position after load config
 - histogram not using the plot update frequency value, updating every time.
 - scripts becoming unsaved after move, should preserve saved status
-- fix math
-- "Parent script" disappears after loading function? (or saving)
-- add dataAnalysis to handle new config 
 - something going wrong with exiting the niawg normally. Might be on delete waveforms, might be related to change from 
 	having orientations. Investigate size of niawg output waves, seems like there is 1 extra???
 - investigate save on change config
@@ -65,3 +61,4 @@ Bugs:
 =================
 Finished
 =================
+

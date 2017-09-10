@@ -82,7 +82,6 @@ void Script::initialize( int width, int height, POINT& startingLocation, cToolTi
 									availableFunctionsCombo.sPos, parent, ids[0] );
 	
 	loadFunctions( ); 
-	availableFunctionsCombo.InsertString(0, "Parent Script" );
 	// select "parent script".
 	availableFunctionsCombo.SetCurSel( 0 );
 
@@ -1163,6 +1162,7 @@ void Script::saveAsFunction()
 	functionFile.close();
 	// refresh this.
 	loadFunctions();
+	availableFunctionsCombo.SelectString( 0, cstr(functionName) );
 	// test if script exists in nearby folder.
 }
 
@@ -1171,4 +1171,5 @@ void Script::loadFunctions()
 {
 	ProfileSystem::reloadCombo( availableFunctionsCombo.GetSafeHwnd( ), functionLocation, str("*") + FUNCTION_EXTENSION,
 								"__NONE__" );
+	availableFunctionsCombo.InsertString( 0, "Parent Script" );
 }
