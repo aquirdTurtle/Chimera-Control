@@ -1,8 +1,5 @@
 #pragma once
 
-#include <vector>
-#include <array>
-#include "Windows.h"
 #include "ProfileSystem.h"
 #include "KeyHandler.h"
 #include "ScriptStream.h"
@@ -11,7 +8,10 @@
 #include "KeyHandler.h"
 #include "agilentStructures.h"
 #include "Script.h"
-
+#include "Expression.h"
+#include <vector>
+#include <array>
+#include "Windows.h"
 
 // A class for programming agilent machines.
 // in essense this includes a wrapper around agilent's implementation of the VISA protocol. This could be pretty easily

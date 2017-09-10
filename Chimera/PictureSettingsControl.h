@@ -25,7 +25,7 @@ class PictureSettingsControl
 		void handleOptionChange(int id, AndorCamera* andorObj);
 		void disablePictureControls(int pic);
 		void enablePictureControls(int pic);
-		void setExposureTimes(std::vector<float> times, AndorCamera* andorObj);
+		void setExposureTimes(std::vector<float>& times, AndorCamera* andorObj);
 		void setExposureTimes(AndorCamera* andorObj);
 		std::array<int, 4> getPictureColors();
 		std::vector<float> getUsedExposureTimes();

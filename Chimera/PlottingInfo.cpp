@@ -430,76 +430,78 @@ void PlottingInfo::savePlotInfo()
 	message += str(currentPixelNumber) + "\n";
 	message += str(numberOfPictures) + "\n";
 
-	message += "TRUTH BEGIN\n";
+	message += "POSITIVE_RESULT_BEGIN\n";
 	for (UINT dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
 	{
-		message += "DATA SET BEGIN\n";
+		message += "DATA_SET_BEGIN\n";
 		for (UINT pictureInc = 0; pictureInc < numberOfPictures; pictureInc++)
 		{
-			message += "PICTURE BEGIN\n";
+			message += "PICTURE_BEGIN\n";
 			for (UINT pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
 			{
 				message += str(dataSets[dataSetInc].getTruthCondition(pixelInc, pictureInc)) + "\n";
 			}
-			message += "PICTURE END\n";
+			message += "PICTURE_END\n";
 		}
-		message += "DATA SET END\n";
+		message += "DATA_SET_END\n";
 	}
-	message += "TRUTH END\n";
-	message += "POST SELECTION BEGIN\n";
+	message += "POSITIVE_RESULT_END\n";
+	message += "POST_SELECTION_BEGIN\n";
 	for (UINT conditionInc = 0; conditionInc < currentConditionNumber; conditionInc++)
 	{
-		message += "CONDITION BEGIN\n";
+		message += "CONDITION_BEGIN\n";
 		for (UINT dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
 		{
-			message += "DATA SET BEGIN\n";
+			message += "DATA_SET_BEGIN\n";
 			for (UINT pictureInc = 0; pictureInc < numberOfPictures; pictureInc++)
 			{
-				message += "PICTURE BEGIN\n";
+				message += "PICTURE_BEGIN\n";
 				for (UINT pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
 				{
 					message += str(dataSets[dataSetInc].getPostSelectionCondition(conditionInc, pixelInc, pictureInc)) + "\n";
 				}
-				message += "PICTURE END\n";
+				message += "PICTURE_END\n";
 			}
-			message += "DATA SET END\n";
+			message += "DATA_SET_END\n";
 		}
-		message += "CONDITION END\n";
+		message += "CONDITION_END\n";
 	}
-	message += "POST SELECTION END\n";
+	message += "POST_SELECTION_END\n";
 
 	// legends
-	message += "LEGENDS BEGIN\n";
+	message += "LEGENDS_BEGIN\n";
 	for (UINT dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
 	{
 		message += getLegendText(dataSetInc) + "\n";
 	}
-	message += "LEGENDS END\n";
+	message += "LEGENDS_END\n";
 
 	// data count locations
-	message += "PLOT COUNTS LOCATIONS BEGIN\n";
-	bool failedOnce = false;
-	for (UINT dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
+	message += "PLOT_COUNTS_LOCATIONS_BEGIN\n";
+	if ( getPlotType( ) != "Atoms" )
 	{
-		UINT pixel, picture;
-		getDataCountsLocation(dataSetInc, pixel, picture);
-		message += str( pixel ) + " " + str( picture ) + "\n";
+		for ( UINT dataSetInc = 0; dataSetInc < dataSets.size( ); dataSetInc++ )
+		{
+			UINT pixel, picture;
+			getDataCountsLocation( dataSetInc, pixel, picture );
+			message += str( pixel ) + " " + str( picture ) + "\n";
+		}
 	}
-	message += "PLOT COUNTS LOCATIONS END\n";
+	message += "PLOT_COUNTS_LOCATIONS_END\n";
 	
-	message += "FITTING OPTIONS BEGIN\n";
+	message += "FITTING_OPTIONS_BEGIN\n";
 	for (UINT dataSetInc = 0; dataSetInc < dataSets.size(); dataSetInc++)
 	{
 		message += str(dataSets[dataSetInc].getFitType()) + " " + str(dataSets[dataSetInc].getWhenToFit()) + "\n";
 	}
-	message += "FITTING OPTIONS END\n";
+	message += "FITTING_OPTIONS_END\n";
 	saveFile << message;
 }
 
 
 void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 {
-	std::fstream loadingFile(fileLocation);
+	std::ifstream loadingFile(fileLocation);
 	if (!loadingFile.is_open())
 	{
 		thrower("ERROR: Couldn't open plot file!");
@@ -512,9 +514,6 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	getline(loadingFile, yLabel);
 	getline(loadingFile, xAxis);
 	getline(loadingFile, fileName);
-	// 
-	// check filename???
-	// 
 
 	/// Data Set Number
 	getline(loadingFile, testString);
@@ -563,46 +562,21 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	}
 
 	/// Analys pixels
-	getline(loadingFile, testString);
-	if (testString != "TRUTH BEGIN")
-	{
-		thrower("File Corrupted or malformatted! Expected \"TRUTH BEGIN\", but saw instead\"" + testString + "\"");
-	}
+	ProfileSystem::checkDelimiterLine( loadingFile, "POSITIVE_RESULT_BEGIN" );
 	UINT dataSetCount = 0;
 	// data set loop
-	while (true)
+	while (!ProfileSystem::checkDelimiterLine( loadingFile, "DATA_SET_BEGIN", "POSITIVE_RESULT_END" ) )
 	{
-		getline(loadingFile, testString);
-		if (testString != "DATA SET BEGIN")
-		{
-			if (testString == "TRUTH END")
-			{
-				break;
-			}
-			thrower("File Corrupted or malformatted! Expected \"DATA SET BEGIN\", but saw instead\"" + testString + "\"");
-		}
 		// picture loop
 		int pictureCount = 0;
-		while (true)
-		{
-			getline(loadingFile, testString);
-			if (testString != "PICTURE BEGIN")
-			{
-				if (testString == "DATA SET END")
-				{
-					break;
-				}
-				else
-				{
-					thrower("File Corrupted or malformatted! Expected \"PICTURE BEGIN\", but saw instead\"" + testString + "\"");
-				}
-			}
+		while ( !ProfileSystem::checkDelimiterLine( loadingFile, "PICTURE_BEGIN", "DATA_SET_END" ) )
+		{			
 			// pixel loop
 			int pixelCount = 0;
 			while (true)
 			{
-				getline(loadingFile, testString);
-				if (testString == "PICTURE END")
+				loadingFile >> testString;
+				if (testString == "PICTURE_END")
 				{
 					break;
 				}
@@ -644,63 +618,26 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 		thrower( "ERROR: number of data sets the truth condition was set for doesn't match the number of data sets "
 			     "reported earlier in the file.");
 	}
-	getline(loadingFile, testString);
-	if (testString != "POST SELECTION BEGIN")
-	{
-		thrower("ERROR: Expected text \"POST SELECTION BEGIN\" but instead saw " + testString);
-	}
-	
+
+	ProfileSystem::checkDelimiterLine( loadingFile, "POST_SELECTION_BEGIN" );	
 	// condition loop
 	int conditionCount = 0;
-	while (true)
+	while (!ProfileSystem::checkDelimiterLine( loadingFile, "CONDITION_BEGIN", "POST_SELECTION_END" ) )
 	{
-		getline(loadingFile, testString);
-		if (testString != "CONDITION BEGIN")
-		{
-			if (testString == "POST SELECTION END")
-			{
-				break;
-			}
-			thrower("File Corrupted or malformatted! Expected \"CONDITION BEGIN\", but saw instead\"" + testString 
-				   + "\"");
-		}
 		// data set loop
 		int dataSetCount = 0;
-		while (true)
+		while ( !ProfileSystem::checkDelimiterLine( loadingFile, "DATA_SET_BEGIN", "CONDITION_END" ) )
 		{
-			getline(loadingFile, testString);
-			if (testString != "DATA SET BEGIN")
-			{
-				if (testString == "CONDITION END")
-				{
-					break;
-				}
-				thrower( "File Corrupted or malformatted! Expected \"DATA SET BEGIN\", but saw instead\"" + testString 
-					     + "\"");
-			}
 			// picture loop
 			int pictureCount = 0;
-			while (true)
+			while ( !ProfileSystem::checkDelimiterLine( loadingFile, "PICTURE_BEGIN", "DATA_SET_END" ) )
 			{
-				getline(loadingFile, testString);
-				if (testString != "PICTURE BEGIN")
-				{
-					if (testString == "DATA SET END")
-					{
-						break;
-					}
-					else
-					{
-						thrower( "File Corrupted or malformatted! Expected \"PICTURE BEGIN\", but saw instead\"" 
-							     + testString + "\"");
-					}
-				}
 				// pixel loop
 				int pixelCount = 0;
 				while (true)
 				{
-					getline(loadingFile, testString);
-					if (testString == "PICTURE END")
+					loadingFile >> testString;
+					if (testString == "PICTURE_END")
 					{
 						break;
 					}
@@ -750,16 +687,13 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	}
 	
 	// get legends
-	getline(loadingFile, testString);
-	if (testString != "LEGENDS BEGIN")
-	{
-		thrower("ERROR: Expected text \"LEGENDS BEGIN\" but got text" + testString);
-	}
+	ProfileSystem::checkDelimiterLine( loadingFile, "LEGENDS_BEGIN" );
+	loadingFile.get( );
 	dataSetCount = 0;
 	while (true)
 	{
 		getline(loadingFile, testString);
-		if (testString == "LEGENDS END")
+		if (testString == "LEGENDS_END")
 		{
 			break;
 		}
@@ -772,24 +706,19 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 			   "reported earlier in the file.");
 	}
 	// get counts locations
-	getline(loadingFile, testString);
-	if (testString != "PLOT COUNTS LOCATIONS BEGIN")
-	{
-		thrower("ERROR: Expected text \"PLOT COUNTS LOCATIONS BEGIN\" but got text" + testString);
-	}
+	ProfileSystem::checkDelimiterLine( loadingFile, "PLOT_COUNTS_LOCATIONS_BEGIN" );
+	//loadingFile.get( );
 	dataSetCount = 0;
 	while (true)
 	{
-		getline(loadingFile, testString);
-		if (testString == "PLOT COUNTS LOCATIONS END")
+		std::string pixelStr, pictureStr;
+		int pixel, picture;
+		loadingFile >> pixelStr;
+		if ( pixelStr == "PLOT_COUNTS_LOCATIONS_END" )
 		{
 			break;
 		}
-		std::string pixelStr, pictureStr;
-		int pixel, picture;
-		std::stringstream tempStream;
-		tempStream << testString;
-		tempStream >> pixelStr;
+		loadingFile >> pictureStr;
 		try
 		{
 			pixel = std::stoi(pixelStr);
@@ -798,8 +727,6 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 		{
 			thrower("ERROR: pixel listed in file did not convert to integer correctly. pixel string was" + pixelStr);
 		}
-
-		tempStream >> pictureStr;
 		try
 		{
 			picture = std::stoi(pictureStr);
@@ -808,7 +735,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 		{
 			thrower("ERROR: picture listed in file did not convert to integer correctly. picture string was" + pictureStr);
 		}
-		this->setDataCountsLocation(dataSetCount, pixel, picture);
+		setDataCountsLocation(dataSetCount, pixel, picture);
 		dataSetCount++;
 	}
 
@@ -828,17 +755,13 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 					" pixel count histograms or pixel counts.");
 		}
 	}
-
-	getline(loadingFile, testString);
-	if (testString != "FITTING OPTIONS BEGIN")
-	{
-		thrower("ERROR: Expected text \"FITTING OPTIONS BEGIN\" but got text" + testString);
-	}
+	ProfileSystem::checkDelimiterLine( loadingFile, "FITTING_OPTIONS_BEGIN" );
+	loadingFile.get( );
 	dataSetCount = 0;
 	while (true)
 	{
 		getline(loadingFile, testString);
-		if (testString == "FITTING OPTIONS END")
+		if (testString == "FITTING_OPTIONS_END")
 		{
 			break;
 		}
@@ -876,6 +799,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	}
 }
 
+
 void PlottingInfo::resetNumberOfAnalysisGroups( UINT setNumber)
 {
 	for (UINT pixelInc = 0; pixelInc < currentPixelNumber; pixelInc++)
@@ -884,6 +808,7 @@ void PlottingInfo::resetNumberOfAnalysisGroups( UINT setNumber)
 		analysisGroups[pixelInc].resize(setNumber);
 	}
 }
+
 
 void PlottingInfo::resetPixelNumber( UINT pixelNumber)
 {

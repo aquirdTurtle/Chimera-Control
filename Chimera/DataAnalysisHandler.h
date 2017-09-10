@@ -4,6 +4,7 @@
 #include "PlottingInfo.h"
 #include "atomGrid.h"
 #include "tinyPlotInfo.h"
+#include "Expression.h"
 
 struct realTimePlotterInput;
 struct cameraPositions;
@@ -14,6 +15,7 @@ class DataAnalysisControl
 		void initialize( cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips,
 						 int isTriggerModeSensitive, rgbMap rgbs );
 		void handleOpenConfig( std::ifstream& file, double version );
+		void handleNewConfig( std::ofstream& file );
 		void handleSaveConfig(std::ofstream& file );
 		void handleDoubleClick( fontMap* fonts, UINT currentPicsPerRepetition );
 		void handleRClick( );
@@ -49,7 +51,7 @@ class DataAnalysisControl
 		static void handlePlotHist( realTimePlotterInput* input, PlottingInfo plotInfo, UINT plotNumber,
 									std::vector<std::vector<long>> countData,
 									std::vector<std::vector<std::vector<long>>>& finData,
-									std::vector<std::vector<bool>>pscSatisfied );
+									std::vector<std::vector<bool>>pscSatisfied, int plotNumberCount );
 
 	private:
 		// real time plotting

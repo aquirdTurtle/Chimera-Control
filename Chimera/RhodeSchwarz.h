@@ -6,20 +6,21 @@
 #include "GPIB.h"
 
 
-struct rsgEventStructuralInfo
+struct rsgEventForm
 {
-	std::string frequency;
-	std::string power;
+	Expression frequency;
+	Expression power;
 	timeType time;
 };
 
 
-struct rsgEventInfoFinal
+struct rsgEvent
 {
 	double frequency;
 	double power;
 	double time;
 };
+
 
 /**/
 class RhodeSchwarz
@@ -28,21 +29,21 @@ class RhodeSchwarz
 		RhodeSchwarz::RhodeSchwarz();
 		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id );
 		void programRSG(UINT var);
-		void addFrequency( rsgEventStructuralInfo eventInfo );
+		void addFrequency( rsgEventForm eventInfo );
 		void clearFrequencies();
-		std::vector<rsgEventStructuralInfo> getFrequencyForms();
+		std::vector<rsgEventForm> getFrequencyForms();
 		void interpretKey(key variationKey, std::vector<variable>& vars);	
 		void orderEvents(UINT var);
 		void setInfoDisp(UINT var);
 		std::string getIdentity();
 		std::string getRsgTtl();
-		double getTriggerTime();
+		double getTriggerLength();
 		void rearrange(UINT width, UINT height, fontMap fonts);
 	private:
 		Gpib gpibFlume;
-		std::vector<rsgEventStructuralInfo> eventStructures;
+		std::vector<rsgEventForm> eventStructures;
 		// outer vector is over each variation.
-		std::vector<std::vector<rsgEventInfoFinal>> events;
+		std::vector<std::vector<rsgEvent>> events;
 		double triggerTime;
 		std::string rsgTtl;
 		//

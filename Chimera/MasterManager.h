@@ -94,6 +94,7 @@ class MasterManager
 		bool runningStatus();
 		bool isValidWord(std::string word);
 		bool getAbortStatus();
+		bool handleTimeCommands( std::string word, ScriptStream& stream, std::vector<variable>& vars );
 
 		static UINT __cdecl experimentThreadProcedure(void* voidInput);
 		static void expUpdate(std::string text, Communicator* comm, bool quiet = false);

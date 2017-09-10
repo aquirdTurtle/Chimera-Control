@@ -9,22 +9,22 @@ void Segment::convertInputToFinal( key variableKey, UINT variation, std::vector<
 	finalSettings.continuationType = input.continuationType;
 	finalSettings.rampType = input.rampType;
 	// handle more complicated things.
-	finalSettings.initValue = reduce( input.initValue, variableKey, variation, vars );
+	finalSettings.initValue = input.initValue.evaluate( variableKey, variation, vars );
 	if (finalSettings.rampType == "nr")
 	{
 		finalSettings.finValue = finalSettings.initValue;
 	}
 	else
 	{
-		finalSettings.finValue = reduce( input.finValue, variableKey, variation, vars );
+		finalSettings.finValue = input.finValue.evaluate( variableKey, variation, vars );
 	}
 	// time
-	finalSettings.time = reduce( input.time, variableKey, variation, vars ) / 1000.0;
+	finalSettings.time = input.time.evaluate( variableKey, variation, vars ) / 1000.0;
 	// repeat number
 	// (0 here corresponds to "repeat", in which case you need a number of times to repeat.);
 	if (finalSettings.continuationType == 0)
 	{
-		finalSettings.repeatNum = UINT(reduce( input.repeatNum, variableKey, variation, vars ));
+		finalSettings.repeatNum = UINT( input.repeatNum.evaluate( variableKey, variation, vars ));
 	}
 }
 
@@ -36,22 +36,22 @@ void Segment::convertInputToFinal()
 	finalSettings.continuationType = input.continuationType;
 	finalSettings.rampType = input.rampType;
 	// handle more complicated things.
-	finalSettings.initValue = reduce( input.initValue );
+	finalSettings.initValue = input.initValue.evaluate(  );
 	if (finalSettings.rampType == "nr")
 	{
 		finalSettings.finValue = finalSettings.initValue;
 	}
 	else
 	{
-		finalSettings.finValue = reduce( input.finValue );
+		finalSettings.finValue = input.finValue.evaluate( );
 	}
 	// time
-	finalSettings.time = reduce( input.time ) / 1000.0;
+	finalSettings.time = input.time.evaluate() / 1000.0;
 	// repeat number
 	// (0 here corresponds to "repeat");
 	if (finalSettings.continuationType == 0)
 	{
-		finalSettings.repeatNum = UINT(reduce( input.repeatNum ));
+		finalSettings.repeatNum = UINT( input.repeatNum.evaluate( ));
 	}
 }
 
@@ -82,13 +82,13 @@ segmentInfoFinal Segment::getFinalSettings()
 Segment::Segment()
 {
 	// initialize everything to invalid values.
-	input.initValue = -1;
-	input.finValue = -1;
-	input.time = -1;
+	input.initValue.expressionStr = "";
+	input.finValue.expressionStr = "";
+	input.time.expressionStr = "";
 	input.continuationType = -1;
 	input.segmentType = -1;
-	input.rampType = -1;
-	input.repeatNum = -1;
+	input.rampType = "";
+	input.repeatNum.expressionStr = "";
 };
 
 

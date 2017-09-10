@@ -69,7 +69,7 @@ bool ScriptedAgilentWaveform::readIntoSegment( int segNum, ScriptStream& script 
 	}
 	else
 	{
-		workingInput.repeatNum = "0";
+		workingInput.repeatNum.expressionStr = "0";
 	}
 	script >> delimiter;
 	if (delimiter != "#")
@@ -111,9 +111,9 @@ bool ScriptedAgilentWaveform::readIntoSegment( int segNum, ScriptStream& script 
 	try
 	{
 		double test;
-		test = reduce(workingInput.repeatNum);
-		test = reduce(workingInput.finValue);
-		test = reduce(workingInput.repeatNum);
+		test = workingInput.repeatNum.evaluate();
+		test = workingInput.finValue.evaluate();
+		test = workingInput.repeatNum.evaluate();
 	}
 	catch (Error&)
 	{

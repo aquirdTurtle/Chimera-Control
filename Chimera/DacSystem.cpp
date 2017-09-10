@@ -619,6 +619,8 @@ void DacSystem::interpretKey( key variationKey, std::vector<variable>& vars, std
 	dacSnapshots.resize(variations);
 	finalFormatDacData.clear();
 	finalFormatDacData.resize(variations);
+	bool resolutionWarningPosted = false;
+	bool nonIntegerWarningPosted = false;
 	for (UINT var = 0; var < variations; var++)
 	{
 	//
@@ -639,7 +641,7 @@ void DacSystem::interpretKey( key variationKey, std::vector<variable>& vars, std
 				double varTime = 0;
 				for (auto variableTimeString : dacCommandFormList[eventInc].time.first)
 				{
-					varTime += reduce(variableTimeString, variationKey, var, vars);
+					varTime += variableTimeString.evaluate( variationKey, var, vars);
 					//varTime += variationKey[variableTimeString].first[var];
 				}
 				tempEvent.time = varTime + dacCommandFormList[eventInc].time.second;
@@ -650,23 +652,24 @@ void DacSystem::interpretKey( key variationKey, std::vector<variable>& vars, std
 				/// single point.
 				////////////////
 				// deal with value
-				tempEvent.value = reduce(dacCommandFormList[eventInc].finalVal, variationKey, var, vars);
+				tempEvent.value = dacCommandFormList[eventInc].finalVal.evaluate( variationKey, var, vars);
 				dacCommandList[var].push_back(tempEvent);
 			}
 			else if ( dacCommandFormList[eventInc].commandName == "dacarange:")
 			{
 				// interpret ramp time command. I need to know whether it's ramping or not.
-				double rampTime = reduce( dacCommandFormList[eventInc].rampTime, variationKey, var, vars );
+				double rampTime = dacCommandFormList[eventInc].rampTime.evaluate( variationKey, var, vars );
 				/// many points to be made.
 				// convert initValue and finalValue to doubles to be used 
 				double initValue, finalValue, rampInc;
-				initValue = reduce(dacCommandFormList[eventInc].initVal, variationKey, var, vars);
+				initValue = dacCommandFormList[eventInc].initVal.evaluate( variationKey, var, vars);
 				// deal with final value;
-				finalValue = reduce(dacCommandFormList[eventInc].finalVal, variationKey, var, vars);
+				finalValue = dacCommandFormList[eventInc].finalVal.evaluate( variationKey, var, vars);
 				// deal with ramp inc
-				rampInc = reduce(dacCommandFormList[eventInc].rampInc, variationKey, var, vars);
-				if (rampInc < 10.0 / pow(2, 16))
+				rampInc = dacCommandFormList[eventInc].rampInc.evaluate( variationKey, var, vars);
+				if (rampInc < 10.0 / pow(2, 16) && resolutionWarningPosted )
 				{
+					resolutionWarningPosted = true;
 					warnings += "Warning: ramp increment of " + str(rampInc) + " is below the resolution of the dacs "
 						"(which is 10/2^16 = " + str(10.0 / pow(2, 16)) + "). It's likely taxing the system to "
 						"calculate the ramp unnecessarily.\r\n";
@@ -676,8 +679,9 @@ void DacSystem::interpretKey( key variationKey, std::vector<variable>& vars, std
 				int steps = int(fabs(finalValue - initValue) / rampInc + 0.5);
 				double stepsFloat = fabs(finalValue - initValue) / rampInc;
 				double diff = fabs(steps - fabs(finalValue - initValue) / rampInc);
-				if (diff > 100 * DBL_EPSILON)
+				if (diff > 100 * DBL_EPSILON && nonIntegerWarningPosted )
 				{
+					nonIntegerWarningPosted = true;
 					warnings += "Warning: Ideally your spacings for a dacArange would result in a non-integer number "
 						"of steps. The code will attempt to compensate by making a last step to the final value which"
 						" is not the same increment in voltage or time as the other steps to take the dac to the final"
@@ -717,18 +721,19 @@ void DacSystem::interpretKey( key variationKey, std::vector<variable>& vars, std
 			else if ( dacCommandFormList[eventInc].commandName == "daclinspace:" )
 			{
 				// interpret ramp time command. I need to know whether it's ramping or not.
-				double rampTime = reduce( dacCommandFormList[eventInc].rampTime, variationKey, var, vars );
+				double rampTime = dacCommandFormList[eventInc].rampTime.evaluate( variationKey, var, vars );
 				/// many points to be made.
 				// convert initValue and finalValue to doubles to be used 
 				double initValue, finalValue, numSteps;
-				initValue = reduce( dacCommandFormList[eventInc].initVal, variationKey, var, vars );
+				initValue = dacCommandFormList[eventInc].initVal.evaluate( variationKey, var, vars );
 				// deal with final value;
-				finalValue = reduce( dacCommandFormList[eventInc].finalVal, variationKey, var, vars );
+				finalValue = dacCommandFormList[eventInc].finalVal.evaluate( variationKey, var, vars );
 				// deal with numPoints
-				numSteps = reduce( dacCommandFormList[eventInc].numSteps, variationKey, var, vars );
+				numSteps = dacCommandFormList[eventInc].numSteps.evaluate( variationKey, var, vars );
 				double rampInc = (finalValue - initValue) / numSteps;
-				if ( rampInc < 10.0 / pow( 2, 16 ) )
+				if ( rampInc < 10.0 / pow( 2, 16 ) && !resolutionWarningPosted )
 				{
+					resolutionWarningPosted = true;
 					warnings += "Warning: numPoints of " + str(numSteps) + " results in a ramp increment of " 
 						+ str( rampInc ) + " is below the resolution of the dacs (which is 10/2^16 = " 
 						+ str( 10.0 / pow( 2, 16 ) ) + "). It's likely taxing the system to "
@@ -993,22 +998,6 @@ void DacSystem::handleDacScriptCommand( DacCommandForm command, std::string name
 	{
 		thrower("ERROR: the name " + name + " is not the name of a dac!");
 	}
-	// final value is always used.
-	VariableSystem::assertUsable( command.finalVal, vars );
-	if ( command.commandName == "dacarange:" && command.commandName == "daclinspace:" )
-	{
-		// It's a ramp.
-		VariableSystem::assertUsable( command.initVal, vars );
-		VariableSystem::assertUsable( command.rampTime, vars );
-	}
-	if ( command.commandName == "dacarange:" )
-	{
-		VariableSystem::assertUsable( command.rampInc, vars );
-	}
-	if ( command.commandName == "daclinspace:" )
-	{
-		VariableSystem::assertUsable( command.numSteps, vars );
-	}
 	// convert name to corresponding dac line.
 	command.line = getDacIdentifier(name);
 	if ( command.line == -1)
@@ -1025,8 +1014,7 @@ int DacSystem::getDacIdentifier(std::string name)
 	for (UINT dacInc = 0; dacInc < dacValues.size(); dacInc++)
 	{
 		// check names set by user.
-		std::transform( dacNames[dacInc].begin(), dacNames[dacInc].end(), 
-						dacNames[dacInc].begin(), ::tolower );
+		std::transform( dacNames[dacInc].begin(), dacNames[dacInc].end(), dacNames[dacInc].begin(), ::tolower );
 		if (name == dacNames[dacInc])
 		{
 			return dacInc;

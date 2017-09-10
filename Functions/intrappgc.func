@@ -2,16 +2,16 @@
 def intrappgc():
 	off: diagMotRf
 	dac: diagMotPower 0
-	dac: MotFreq -3
-	dac: SideMotPower 0.28
-	dac: RepumpPower 0.11
+	dac: MotFreq -3
+	dac: SideMotPower 0.28
+	dac: RepumpPower 0.11
 	t += 3
 	% turn the repump on a tiny bit early 
 	% to pump to the F=2 manifold.
 	on: RepumpRf
 	t += 1
 	on: SideMotRf
-	t += 3 % cooling time
+	t += 3 % cooling time
 	off: SideMotRf
 	off: repumpRf
 	dac: MotFreq -0.1

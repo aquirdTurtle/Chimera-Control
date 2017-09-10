@@ -512,7 +512,7 @@ void PictureSettingsControl::setExposureTimes(AndorCamera* andorObj)
 }
 
 
-void PictureSettingsControl::setExposureTimes(std::vector<float> times, AndorCamera* andorObj)
+void PictureSettingsControl::setExposureTimes(std::vector<float>& times, AndorCamera* andorObj)
 {
 	std::vector<float> exposuresToSet;
 	exposuresToSet = times;
@@ -543,6 +543,8 @@ void PictureSettingsControl::setExposureTimes(std::vector<float> times, AndorCam
 		exposureEdits[exposureInc].SetWindowTextA(cstr(this->exposureTimesUnofficial[exposureInc] * 1000));
 	}
 }
+
+
 
 std::vector<float> PictureSettingsControl::getUsedExposureTimes()
 {

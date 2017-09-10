@@ -132,9 +132,9 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	updateFrequencyLabel2.Create(") repetitions.", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_PUSHBUTTON,
 								 updateFrequencyLabel2.seriesPos, parent, id++);
 	/// the listview
-	plotListview.seriesPos = { pos.seriesPos.x,   pos.seriesPos.y,  pos.seriesPos.x + 480,  pos.seriesPos.y += 200 };
-	plotListview.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 200 };
-	plotListview.amPos = { pos.amPos.x,     pos.amPos.y,   pos.amPos.x + 480,   pos.amPos.y += 200 };
+	plotListview.seriesPos = { pos.seriesPos.x,   pos.seriesPos.y,  pos.seriesPos.x + 480,  pos.seriesPos.y += 150 };
+	plotListview.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 150 };
+	plotListview.amPos = { pos.amPos.x,     pos.amPos.y,   pos.amPos.x + 480,   pos.amPos.y += 150 };
 	plotListview.triggerModeSensitive = isTriggerModeSensitive;
 	plotListview.Create(WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS | WS_BORDER, plotListview.seriesPos, parent, 
 						 IDC_PLOTTING_LISTVIEW );
@@ -162,6 +162,7 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	reloadListView();
 }
 
+
 void DataAnalysisControl::handleOpenConfig( std::ifstream& file, double version )
 {
 	ProfileSystem::checkDelimiterLine( file, "BEGIN_DATA_ANALYSIS" );
@@ -174,6 +175,16 @@ void DataAnalysisControl::handleOpenConfig( std::ifstream& file, double version 
 	file >> currentGrid.pixelSpacing;
 	gridSpacing.SetWindowTextA( cstr( currentGrid.pixelSpacing ) );
 	ProfileSystem::checkDelimiterLine( file, "END_DATA_ANALYSIS" );
+}
+
+
+void DataAnalysisControl::handleNewConfig( std::ofstream& file )
+{
+	file << "BEGIN_DATA_ANALYSIS\n";
+	file << 0 << " " << 0 << "\n";
+	file << 0 << " " << 0 << " " << 0 << "\n";
+	// todo: plots
+	file << "END_DATA_ANALYSIS\n";
 }
 
 
@@ -217,9 +228,10 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 			return 0;
 		}
 	}
+	UINT groupNum = input->atomGridInfo.height * input->atomGridInfo.width;
 	// create vector size of image being taken
 	// first entry is row, second is collumn, third is data type (0 = pixel counts only, 1 = atom presense)
-	std::vector<std::array<UINT, 3> > pixelDataType;
+	//std::vector<std::array<UINT, 3> > pixelDataType;
 	int totalNumberOfPixels = 0;
 	int numberOfLossDataPixels = 0;
 	
@@ -228,11 +240,12 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 	{
 		for (UINT pixelInc = 0; pixelInc < allPlots[plotInc].getPixelNumber(); pixelInc++)
 		{
-			for (UINT groupInc = 0; groupInc < allPlots[plotInc].getPixelGroupNumber(); groupInc++)
+			for (UINT groupInc = 0; groupInc < groupNum; groupInc++)
 			{
 				UINT row, collumn;
 				bool alreadyExists = false;
-				allPlots[plotInc].getPixelLocation(pixelInc, groupInc, row, collumn);
+				/*
+				//allPlots[plotInc].getPixelLocation(pixelInc, groupInc, row, collumn);
 				for (UINT savedPixelInc = 0; savedPixelInc < pixelDataType.size(); savedPixelInc++)
 				{
 					// figure out if it already exists
@@ -274,6 +287,7 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 						numberOfLossDataPixels++;
 					}
 				}
+				*/
 			}
 		}
 	}
@@ -328,12 +342,12 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 			newData[plotInc][dataSetInc].resize(allPlots[plotInc].getPixelGroupNumber());
 			for (UINT groupInc = 0; groupInc < allPlots[plotInc].getPixelGroupNumber(); groupInc++)
 				*/
-			finalData[plotInc][dataSetInc].resize( input->atomGridInfo.width * input->atomGridInfo.height );
-			finalAvgs[plotInc][dataSetInc].resize( input->atomGridInfo.width * input->atomGridInfo.height );
-			finalErrorBars[plotInc][dataSetInc].resize( input->atomGridInfo.width * input->atomGridInfo.height );
-			finalXVals[plotInc][dataSetInc].resize( input->atomGridInfo.width * input->atomGridInfo.height );
-			newData[plotInc][dataSetInc].resize( input->atomGridInfo.width * input->atomGridInfo.height );
-			for ( UINT groupInc = 0; groupInc < input->atomGridInfo.width * input->atomGridInfo.height; groupInc++ )
+			finalData[plotInc][dataSetInc].resize( groupNum );
+			finalAvgs[plotInc][dataSetInc].resize( groupNum );
+			finalErrorBars[plotInc][dataSetInc].resize( groupNum );
+			finalXVals[plotInc][dataSetInc].resize( groupNum );
+			newData[plotInc][dataSetInc].resize( groupNum );
+			for ( UINT groupInc = 0; groupInc < groupNum; groupInc++ )
 
 			{
 				newData[plotInc][dataSetInc][groupInc] = true;
@@ -412,7 +426,7 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 		bool isAtLeastOneAtom = false;
 		// figure out what the threshold for current picture is.
 		int experimentNumber = ((currentThreadRepNum - 1) % input->picsPerVariation) % input->picsPerRep;
-		for (UINT pixelInc = 0; pixelInc < pixelDataType.size(); pixelInc++)
+		for (UINT pixelInc = 0; pixelInc < groupNum; pixelInc++)
 		{
 			//int secondIndex = (input->imageShape.height - pixelDataType[pixelInc][0]) * input->imageShape.width
 			//	+ pixelDataType[pixelInc][1] - 1;
@@ -510,11 +524,11 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 					  int condition = allPlots[plotI].getPostSelectionCondition(dataSetI, conditionI, pixelI, picI);
 					  if (condition != 0)
 					  {
-						if (condition == 1 && atomPresentData[allPlots[plotI].getPixelIndex(pixelI, groupI)][picI] != 1)
+						if (condition == 1 && atomPresentData[groupI][picI] != 1)
 						{
 							statisfiesPsc[dataSetI][groupI] = false;
 						}
-						else if (condition == -1 && atomPresentData[allPlots[plotI].getPixelIndex(pixelI, groupI)][picI] != 0)
+						else if (condition == -1 && atomPresentData[groupI][picI] != 0)
 						{
 							statisfiesPsc[dataSetI][groupI] = false;
 						}
@@ -525,6 +539,8 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 			  }
 			}
 
+			// split into one of two big subroutines. The handling here is encapsulated into functions mostly just for 
+			// organization purposes.
 			if (allPlots[plotI].getPlotType() == "Atoms" || allPlots[plotI].getPlotType() == "Pixel Counts")
 			{
 				DataAnalysisControl::handlePlotAtomsOrCounts(input, allPlots[plotI], currentThreadRepNum, finalData[plotI],
@@ -535,7 +551,7 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 			else if (allPlots[plotI].getPlotType() == "Pixel Count Histograms")
 			{
 				DataAnalysisControl::handlePlotHist(input, allPlots[plotI], plotI, countData, finalData[plotI], 
-													statisfiesPsc );
+													statisfiesPsc, plotNumberCount );
 			}
 		}
 		// clear exp data
@@ -571,6 +587,7 @@ void DataAnalysisControl::handlePlotAtomsOrCounts( realTimePlotterInput* input, 
 												   std::vector<std::vector<long>>& countData, int plotNumberCount,
 												   std::vector<std::vector<int> > atomPresent )
 {
+	UINT groupNum = input->atomGridInfo.width * input->atomGridInfo.height;
 	if (repNum % input->picsPerVariation == plotInfo.getPicNumber())
 	{
 		// first pic of new variation, so need to update x vals.
@@ -578,8 +595,8 @@ void DataAnalysisControl::handlePlotAtomsOrCounts( realTimePlotterInput* input, 
 		{
 			// TODO: if x axis = average over experiments... else...
 			finData[dataSetI].clear();
-			finData[dataSetI].resize(plotInfo.getPixelGroupNumber());
-			needNewData[dataSetI].resize(plotInfo.getPixelGroupNumber());
+			finData[dataSetI].resize( groupNum );
+			needNewData[dataSetI].resize( groupNum );
 			std::fill(needNewData[dataSetI].begin(), needNewData[dataSetI].end(), true);
 		}
 	}
@@ -588,7 +605,7 @@ void DataAnalysisControl::handlePlotAtomsOrCounts( realTimePlotterInput* input, 
 	{
 		for (UINT dataSetI = 0; dataSetI < plotInfo.getDataSetNumber(); dataSetI++)
 		{
-			for (UINT groupI = 0; groupI < plotInfo.getPixelGroupNumber(); groupI++)
+			for (UINT groupI = 0; groupI < groupNum; groupI++)
 			{
 				if (pscSatisfied[dataSetI][groupI] == false)
 				{
@@ -606,12 +623,12 @@ void DataAnalysisControl::handlePlotAtomsOrCounts( realTimePlotterInput* input, 
 						{
 							continue;
 						}
-						int pixel = plotInfo.getPixelIndex(pixelI, groupI);
+						int pixel = groupI;
 						if (truthCondition == 1 && atomPresent[pixel][picI] != 1)
 						{
 							dataVal = false;
 						}
-						else if (truthCondition == 0 && atomPresent[plotInfo.getPixelIndex(pixelI, groupI)][picI] != 0)
+						else if (truthCondition == 0 && atomPresent[groupI][picI] != 0)
 						{
 							dataVal = false;
 						}
@@ -630,7 +647,7 @@ void DataAnalysisControl::handlePlotAtomsOrCounts( realTimePlotterInput* input, 
 	{
 		for (UINT dataSetI = 0; dataSetI < plotInfo.getDataSetNumber(); dataSetI++)
 		{
-			for (UINT groupI = 0; groupI < plotInfo.getPixelGroupNumber(); groupI++)
+			for (UINT groupI = 0; groupI < groupNum; groupI++)
 			{
 				if (pscSatisfied[dataSetI][groupI] == false)
 				{
@@ -640,19 +657,19 @@ void DataAnalysisControl::handlePlotAtomsOrCounts( realTimePlotterInput* input, 
 				// passing pixel and picture by reference.
 				plotInfo.getDataCountsLocation(dataSetI, pixel, picture);
 				// for a given group, figure out which picture
-				finData[dataSetI][groupI].push_back(countData[plotInfo.getPixelIndex(pixel, groupI)][picture]);
+				finData[dataSetI][groupI].push_back(countData[groupI][picture]);
 			}
 		}
 	}
-
-	/// Calculate averages and standard devations for Data sets AND groups...
-	if (plotNumberCount % input->plottingFrequency != 0)
+	// Core data structures have been updated. return if not time for an update yet.
+	if ( plotNumberCount % input->plottingFrequency != 0 )
 	{
 		return;
 	}
+	/// Calculate averages and standard devations for Data sets AND groups...
 	for (UINT dataSetI = 0; dataSetI < plotInfo.getDataSetNumber(); dataSetI++)
 	{
-		for (UINT groupI = 0; groupI < plotInfo.getPixelGroupNumber(); groupI++)
+		for (UINT groupI = 0; groupI < groupNum; groupI++)
 		{
 			// check if first picture of set
 			if (repNum % input->plottingFrequency != 0)
@@ -687,7 +704,8 @@ void DataAnalysisControl::handlePlotAtomsOrCounts( realTimePlotterInput* input, 
 			{
 				if (finData[dataSetI][groupI].size() >= input->numberOfRunsToAverage)
 				{
-					double sum = std::accumulate(finData[dataSetI][groupI].end() - input->numberOfRunsToAverage, finData[dataSetI][groupI].end(), 0.0);
+					double sum = std::accumulate(finData[dataSetI][groupI].end() - input->numberOfRunsToAverage,
+												  finData[dataSetI][groupI].end(), 0.0);
 					double mean = sum / input->numberOfRunsToAverage;
 					finAvgs[dataSetI][groupI].back() = mean;
 					finX[dataSetI][groupI].back() = (std::accumulate( finX[dataSetI][groupI].end() 
@@ -747,9 +765,9 @@ void DataAnalysisControl::handlePlotAtomsOrCounts( realTimePlotterInput* input, 
 		if (plotInfo.whenToFit(dataSetI) == REAL_TIME_FIT 
 			|| (plotInfo.whenToFit(dataSetI) == FIT_AT_END && repNum == input->picsPerVariation))
 		{
-			for (UINT groupInc = 0; groupInc < plotInfo.getPixelGroupNumber(); groupInc++)
+			for (UINT groupInc = 0; groupInc < groupNum; groupInc++)
 			{
-				std::string fitNum = str(plotInfo.getPixelGroupNumber() * dataSetI + groupInc);
+				std::string fitNum = str( groupNum * dataSetI + groupInc);
 				// in this case, fitting.
 				switch (plotInfo.getFitOption(dataSetI))
 				{
@@ -798,15 +816,15 @@ void DataAnalysisControl::handlePlotAtomsOrCounts( realTimePlotterInput* input, 
 	{
 		for (UINT dataSetI = 0; dataSetI < plotInfo.getDataSetNumber(); dataSetI++)
 		{
-			for (UINT groupI = 0; groupI < plotInfo.getPixelGroupNumber(); groupI++)
+			for (UINT groupI = 0; groupI < groupNum; groupI++)
 			{
 				gnuplotPlotCmd += " '-' using 1:2 " + GNUPLOT_COLORS[groupI] + " " + GNUPLOT_MARKERS[dataSetI] + " title \"G" + str(groupI + 1) + " " + plotInfo.getLegendText(dataSetI) + "\",";
 				if (plotInfo.whenToFit(dataSetI) == REAL_TIME_FIT
 					|| (plotInfo.whenToFit(dataSetI) == FIT_AT_END
 					&& repNum == input->picsPerVariation))
 				{
-					std::string fitNum = str(plotInfo.getPixelGroupNumber() * dataSetI + groupI);
-					std::string plotString = "fit" + str(plotInfo.getPixelGroupNumber() * dataSetI + groupI) + "= ";
+					std::string fitNum = str( groupNum* dataSetI + groupI);
+					std::string plotString = "fit" + str( groupNum * dataSetI + groupI) + "= ";
 					switch (plotInfo.getFitOption(dataSetI))
 					{
 						case GAUSSIAN_FIT:
@@ -841,7 +859,7 @@ void DataAnalysisControl::handlePlotAtomsOrCounts( realTimePlotterInput* input, 
 		}
 		for (UINT dataSetI = 0; dataSetI < plotInfo.getDataSetNumber(); dataSetI++)
 		{
-			for (UINT groupI = 0; groupI < plotInfo.getPixelGroupNumber(); groupI++)
+			for (UINT groupI = 0; groupI < groupNum; groupI++)
 			{
 				if (finData[dataSetI][groupI].size() >= input->numberOfRunsToAverage)
 				{
@@ -863,7 +881,7 @@ void DataAnalysisControl::handlePlotAtomsOrCounts( realTimePlotterInput* input, 
 				if (plotInfo.whenToFit(dataSetI) == REAL_TIME_FIT
 					|| (plotInfo.whenToFit(dataSetI) == FIT_AT_END && repNum == input->picsPerVariation))
 				{
-					std::string fitNum = str(plotInfo.getPixelGroupNumber() * dataSetI + groupI);
+					std::string fitNum = str( groupNum * dataSetI + groupI);
 					std::string plotString = "fit" + fitNum + "= ";
 					switch (plotInfo.getFitOption(dataSetI))
 					{
@@ -900,11 +918,11 @@ void DataAnalysisControl::handlePlotAtomsOrCounts( realTimePlotterInput* input, 
 	{
 		for (UINT dataSetI = 0; dataSetI < plotInfo.getDataSetNumber(); dataSetI++)
 		{
-			for (UINT groupI = 0; groupI < plotInfo.getPixelGroupNumber(); groupI++)
+			for (UINT groupI = 0; groupI < groupNum; groupI++)
 			{
 				input->plotter->sendData(finAvgs[dataSetI][groupI], finData[dataSetI][groupI]);
 			}
-			for (UINT groupI = 0; groupI < plotInfo.getPixelGroupNumber(); groupI++)
+			for (UINT groupI = 0; groupI < groupNum; groupI++)
 			{
 				if (finData[dataSetI][groupI].size() >= input->numberOfRunsToAverage)
 				{
@@ -927,13 +945,12 @@ void DataAnalysisControl::handlePlotAtomsOrCounts( realTimePlotterInput* input, 
 
 
 
-void DataAnalysisControl::handlePlotHist(realTimePlotterInput* input, PlottingInfo plotInfo, UINT plotNumber, 
-										 std::vector<std::vector<long>> countData, 
-										 std::vector<std::vector<std::vector<long>>>& finData,
-										 std::vector<std::vector<bool>>pscSatisfied)
+void DataAnalysisControl::handlePlotHist( realTimePlotterInput* input, PlottingInfo plotInfo, UINT plotNumber, 
+										  std::vector<std::vector<long>> countData, 
+										  std::vector<std::vector<std::vector<long>>>& finData,
+										  std::vector<std::vector<bool>>pscSatisfied, int plotNumberCount)
 {
 	/// options are fundamentally different for histograms.
-
 	// load pixel counts into data array pixelData
 	for (UINT dataSetI = 0; dataSetI < plotInfo.getDataSetNumber(); dataSetI++)
 	{
@@ -952,40 +969,46 @@ void DataAnalysisControl::handlePlotHist(realTimePlotterInput* input, PlottingIn
 			finData[dataSetI][groupI].push_back( countData[groupI][pic] );
 		}
 	}
-	//
+	// Core data structures have been updated. return if not time for an update yet.
+	if ( plotNumberCount % input->plottingFrequency != 0 )
+	{
+		return;
+	}
+
+	// Feels redundant to re-set these things each re-plot, but I'm not sure there's a better way.
 	input->plotter->send("set terminal wxt " + str(plotNumber) + " title \"" + plotInfo.getTitle() + "\" noraise background rgb 'black'");
-	input->plotter->send( "set title \"" + plotInfo.getTitle( ) + "\" tc rgb 'white'" );
-	input->plotter->send( "set xlabel \"Key Value\" tc rgb 'white'" );
-	input->plotter->send( "set ylabel \"" + plotInfo.getYLabel( ) + "\" tc rgb 'white'" );
-	input->plotter->send( "set border lc rgb 'white'" );
-	input->plotter->send( "set key tc rgb 'white'" );	input->plotter->send("set title \"" + plotInfo.getTitle() + "\"");
+	input->plotter->send( "set title \"" + plotInfo.getTitle( ) + "\" tc rgb '#FFFFFF'" );
+	input->plotter->send( "set xlabel \"Key Value\" tc rgb '#FFFFFF'" );
+	input->plotter->send( "set ylabel \"" + plotInfo.getYLabel( ) + "\" tc rgb '#FFFFFF'" );
+	input->plotter->send( "set border lc rgb '#FFFFFF'" );
+	input->plotter->send( "set key tc rgb '#FFFFFF'" );	input->plotter->send("set title \"" + plotInfo.getTitle() + "\"");
 	input->plotter->send("set format y \"%.1f\"");
 	input->plotter->send("set autoscale x");
 	input->plotter->send("set yrange [0:*]");
 	input->plotter->send("set xlabel \"Count #\"");
 	input->plotter->send("set ylabel \"Occurrences\"");
-	double spaceFactor = 0.8;
-	//double boxWidth = spaceFactor * 5 / (plotInfo.getPixelGroupNumber() * plotInfo.getDataSetNumber());
-	double boxWidth = spaceFactor * 10 / (input->atomGridInfo.width * input->atomGridInfo.height * plotInfo.getDataSetNumber( ));
-	
+	int totalGroupNum = input->atomGridInfo.width * input->atomGridInfo.height;
+
+	double spaceFactor = 1;
+	//double boxWidth = spaceFactor * 10 / (totalGroupNum * plotInfo.getDataSetNumber( ));
+	double boxWidth = spaceFactor * 10;
 	input->plotter->send("set boxwidth " + str(boxWidth));
 	input->plotter->send("set style fill solid 1");
 	// leave 0.2 pixels worth of space in between the bins.
 	std::string gnuCommand = "plot";
 	int totalDataSetNum = plotInfo.getDataSetNumber();
-	//int totalGroupNum = plotInfo.getPixelGroupNumber();
-	int totalGroupNum = input->atomGridInfo.width * input->atomGridInfo.height;
 	for (UINT dataSetI = 0; dataSetI < plotInfo.getDataSetNumber(); dataSetI++)
 	{
-		for ( auto groupI : range( input->atomGridInfo.width * input->atomGridInfo.height ) )
+		for ( auto groupI : range( totalGroupNum ) )
 		{
-		//for (UINT groupI = 0; groupI < plotInfo.getPixelGroupNumber(); groupI++)
-		//{
 			// long command that makes hist correctly.
-			std::string singleHist = " '-' using (10 * floor(($1)/10) - " + str(boxWidth * (totalGroupNum * dataSetI + groupI)
-																			  - spaceFactor * 0.5 + spaceFactor * 0.5 / (totalGroupNum * totalDataSetNum))
+			std::string singleHist = " '-' using (10 * floor(($1)/10) - " 
+				//+ str(boxWidth * (totalGroupNum * dataSetI + groupI) - spaceFactor * 0.5 
+				+ str( boxWidth * - spaceFactor * 0.5
+					   + spaceFactor * 0.5 / (totalGroupNum * totalDataSetNum))
 				+ ") : (1.0) smooth freq with boxes title \"G " + str(groupI + 1) + " "
-				+ plotInfo.getLegendText(dataSetI) + "\" " + GNUPLOT_COLORS[groupI] + " " + GNUPLOT_MARKERS[dataSetI] + ",";
+				+ plotInfo.getLegendText(dataSetI) + "\" " + GNUPLOT_HISTOGRAM_COLORS[groupI] + " "
+				+ GNUPLOT_MARKERS[dataSetI] + ",";
 			gnuCommand += singleHist;
 		}
 	}
