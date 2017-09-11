@@ -305,6 +305,7 @@ void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWi
 	currentProfile.configuration = configNameToSave;
 	// version 2.0 started when the unified coding system (the chimera system) began, and the profile system underwent
 	// dramatic changes in order to 
+	configSaveFile << std::setprecision( 13 );
 	configSaveFile << "Version: 2.0\n";
 	// give it to each window, allowing each window to save its relevant contents to the config file. Order matters.
 	scriptWindow->handleSavingConfig(configSaveFile);
