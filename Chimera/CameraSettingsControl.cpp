@@ -514,7 +514,7 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	minKineticCycleTimeLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 240, pos.seriesPos.y + 25 };
 	minKineticCycleTimeLabel.videoPos = { -1,-1,-1,-1 };
 	minKineticCycleTimeLabel.amPos = { -1,-1,-1,-1 };
-	minKineticCycleTimeLabel.Create( "Minimum Kinetic Cycle Time", WS_CHILD | WS_VISIBLE | WS_BORDER, 
+	minKineticCycleTimeLabel.Create( "Minimum Kinetic Cycle Time (s)", WS_CHILD | WS_VISIBLE | WS_BORDER, 
 									 minKineticCycleTimeLabel.seriesPos, parent, id++ );
 	
 	minKineticCycleTimeEdit.seriesPos = { pos.seriesPos.x + 240, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };

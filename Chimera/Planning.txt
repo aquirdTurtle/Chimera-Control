@@ -35,6 +35,9 @@ Features:
 - support aborting while paused
 - tabstops in plot designer
 - be able to set binsize for histograms
+- change colormap radios to a single combo.
+- load colormaps from file, allowing custom colormaps.
+- make gnuplot alpha values dependent on number of points being watched.
 
 Refactoring / Other:
 - refactor variables & variable key so that they aren't two separate objects. Consider if reasonable to also include 
@@ -43,7 +46,8 @@ Refactoring / Other:
 - could clean up textpromptdialog handling, should be possible with one line.
 - change picture settings & dimensions to not require button press.
 - test running gnuplot
-- test plotting in gnuplot
+- test fitting in gnuplot
+- refactor groups in plotinfo and gnuplot stuffs
 
 Bugs:
 - after abort should stop fully before prompting to delete files. ??? not sure I can repeat...
@@ -61,4 +65,3 @@ Bugs:
 =================
 Finished
 =================
-
