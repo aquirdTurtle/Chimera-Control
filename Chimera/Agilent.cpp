@@ -109,8 +109,11 @@ double Agilent::convertPowerToSetPoint(double powerInMilliWatts)
 
 	/// TERRY'S LINEAR PHOTODIODE CALIBRATIONS
 	// August 30th, 2017
-	double a = -0.040063228;
-	double b = 0.000153625;
+	//double a = -0.040063228;
+	//double b = 0.000153625;
+	// September 12th, 2017
+	double a = -0.04090619;
+	double b = 0.00641603;
 	double setPointInVolts = a * powerInMilliWatts + b;
 	return setPointInVolts;
 }

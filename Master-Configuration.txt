@@ -199,7 +199,7 @@ sidemotpower
 piezomirror
 -10 - 10
 0
-20
+23
 loadmotrightfield 1.2
 loadmotleftfield -0.755
 loadmottopfield 0.05
@@ -213,11 +213,14 @@ pgcleftfield -0.4856
 pgcrightfield 0.4856
 pgctopfield 1.994
 pgcbottomfield -1.994
-pgcfrontfield -0.545
-pgcbackfield 0.545
+pgcfrontfield -0.551
+pgcbackfield 0.551
 andorimagetime 25
 imagingpower 0.14
 imagingdetuning 0.35
 pushoutdepth 0.15
 pushoutfreq 0.6
+fieldtheta 1.5708
+fieldphi 0
+rotatafieldtime 30
 255 276 2 249 258 2
