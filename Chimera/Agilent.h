@@ -13,6 +13,7 @@
 #include <array>
 #include "Windows.h"
 
+
 // A class for programming agilent machines.
 // in essense this includes a wrapper around agilent's implementation of the VISA protocol. This could be pretty easily
 // abstracted away from the agilent class if new systems wanted to use this functionality.
@@ -23,6 +24,7 @@ class Agilent
 		~Agilent();
 		void initialize( POINT& loc, cToolTips& toolTips, CWnd* master, int& id,   
 						 std::string header, UINT editHeight, std::array<UINT, 7> ids, COLORREF color );
+		void checkSave( std::string categoryPath, RunInfo info );
 		void handleChannelPress( int chan, std::string currentCategoryPath, RunInfo currentRunInfo );
 		void handleCombo();
 		void setDC( int channel, dcInfo info );

@@ -26,6 +26,15 @@ Agilent::~Agilent()
 }
 
 
+void Agilent::checkSave( std::string categoryPath, RunInfo info )
+{
+	if ( settings.channel[currentChannel].option == 4 )
+	{
+		agilentScript.checkSave( categoryPath, info );
+	}
+}
+
+
 void Agilent::rearrange(UINT width, UINT height, fontMap fonts)
 {
 	header.rearrange(width, height, fonts);

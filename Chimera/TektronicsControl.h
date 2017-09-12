@@ -6,6 +6,7 @@
 
 struct tektronicsChannelOutputForm
 {
+	bool control;
 	bool on;
 	bool fsk;
 	Expression power;
@@ -50,6 +51,7 @@ class TektronicsChannelControl
 		void handleFskPress();
 	private:
 		Control<CStatic> channelLabel;
+		Control<CButton> controlButton;
 		Control<CButton> onOffButton;
 		Control<CButton> fskButton;
 		Control<CEdit> power;
@@ -81,6 +83,7 @@ class TektronicsControl
 		Control<CStatic> header;
 		Control<CButton> programNow;
 		Control<CStatic> onOffLabel;
+		Control<CStatic> controlLabel;
 		Control<CStatic> fskLabel;
 		Control<CStatic> mainPowerLabel;
 		Control<CStatic> mainFreqLabel;

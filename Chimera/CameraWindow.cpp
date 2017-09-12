@@ -840,6 +840,7 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 	input.plotterInput->comm = mainWindowFriend->getComm();
 	input.plotterInput->plotLock = &plotLock;
 	input.plotterInput->numberOfRunsToAverage = 5;
+	input.plotterInput->plottingFrequency = analysisHandler.getPlotFreq( );
 	if ( input.masterInput )
 	{
 		input.plotterInput->key = input.masterInput->key->getKeyValueArray( );

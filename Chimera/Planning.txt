@@ -3,7 +3,6 @@ TODO
 ===================
 
 Features:
-- Display Actual kinetic Cycle Time
 - finish implementing 2D scans
 - Implement Chris's Plots of ttls and dacs
 
@@ -33,7 +32,6 @@ Features:
 - Be able to scroll into empty space at bottom of scripts
 - be able to output niawg waveforms to text files
 - support aborting while paused
-- tabstops in plot designer
 - be able to set binsize for histograms
 - change colormap radios to a single combo.
 - load colormaps from file, allowing custom colormaps.
@@ -50,17 +48,18 @@ Refactoring / Other:
 - refactor groups in plotinfo and gnuplot stuffs
 
 Bugs:
+- revisit visaFlume connection bugs. Might just be an issue with this tektronics generator.
 - after abort should stop fully before prompting to delete files. ??? not sure I can repeat...
 - Add new data set not working in plot designer
 - Weird trouble with 2-picture plotting
 - Lots of missed save-status handling overall.
 - closing window doesn't stop program (release mode only?)
 - text of picture color scale doesn't match bar position after load config
-- histogram not using the plot update frequency value, updating every time.
 - scripts becoming unsaved after move, should preserve saved status
 - something going wrong with exiting the niawg normally. Might be on delete waveforms, might be related to change from 
 	having orientations. Investigate size of niawg output waves, seems like there is 1 extra???
 - investigate save on change config
+- Agilent saves over script files when script not selected.
 
 =================
 Finished
