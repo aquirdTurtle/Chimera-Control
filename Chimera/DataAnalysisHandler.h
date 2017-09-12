@@ -14,6 +14,7 @@ class DataAnalysisControl
 	public:
 		void initialize( cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips,
 						 int isTriggerModeSensitive, rgbMap rgbs );
+		ULONG getPlotFreq( );
 		void handleOpenConfig( std::ifstream& file, double version );
 		void handleNewConfig( std::ofstream& file );
 		void handleSaveConfig(std::ofstream& file );
@@ -55,7 +56,7 @@ class DataAnalysisControl
 
 	private:
 		// real time plotting
-		int updateFrequency;
+		ULONG updateFrequency;
 		Control<CStatic> updateFrequencyLabel1;
 		Control<CStatic> updateFrequencyLabel2;
 		Control<CEdit> updateFrequencyEdit;

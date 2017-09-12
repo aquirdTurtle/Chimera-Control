@@ -66,7 +66,7 @@ void AuxiliaryWindow::newTopBottomAgilentScript()
 {
 	try
 	{
-		topBottomAgilent.agilentScript.checkSave( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
+		topBottomAgilent.checkSave( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
 		topBottomAgilent.agilentScript.newScript( );
 		mainWindowFriend->updateConfigurationSavedStatus( false );
 		topBottomAgilent.agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings().categoryPath );

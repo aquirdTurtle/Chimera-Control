@@ -141,5 +141,4 @@ class AuxiliaryWindow : public CDialog
 		VariableSystem globalVariables;
 
 		ColorBox statusBox;
-
 };

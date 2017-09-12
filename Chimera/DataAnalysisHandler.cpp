@@ -38,7 +38,7 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	currentDataSetNumberEdit.amPos = { pos.amPos.x + 400, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 25 };
 	currentDataSetNumberEdit.videoPos = { -1,-1,-1,-1 };
 	currentDataSetNumberEdit.triggerModeSensitive = isTriggerModeSensitive;
-	currentDataSetNumberEdit.Create("?", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY,
+	currentDataSetNumberEdit.Create("?", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY | WS_TABSTOP,
 									currentDataSetNumberEdit.seriesPos, parent, id++);
 	pos.seriesPos.y += 25;
 	pos.amPos.y += 25;
@@ -68,8 +68,7 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	gridSpacing.amPos = { pos.amPos.x + 360, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
 	gridSpacing.videoPos = { -1,-1,-1,-1 };
 	gridSpacing.triggerModeSensitive = isTriggerModeSensitive;
-	gridSpacing.Create( WS_CHILD | WS_VISIBLE | WS_BORDER, gridSpacing.seriesPos, parent, id++ );
-
+	gridSpacing.Create( WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, gridSpacing.seriesPos, parent, id++ );
 
 	gridWidthText.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 120, pos.seriesPos.y + 25 };
 	gridWidthText.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 120, pos.amPos.y + 25 };
@@ -81,8 +80,7 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	gridWidth.amPos = { pos.amPos.x + 120, pos.amPos.y, pos.amPos.x + 240, pos.amPos.y + 25 };
 	gridWidth.videoPos = { -1,-1,-1,-1 };
 	gridWidth.triggerModeSensitive = isTriggerModeSensitive;
-	gridWidth.Create( WS_CHILD | WS_VISIBLE | WS_BORDER, gridWidth.seriesPos, parent, id++ );
-
+	gridWidth.Create( WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, gridWidth.seriesPos, parent, id++ );
 
 	gridHeightText.seriesPos = { pos.seriesPos.x + 240, pos.seriesPos.y, pos.seriesPos.x + 360, pos.seriesPos.y + 25 };
 	gridHeightText.amPos = { pos.amPos.x + 240, pos.amPos.y, pos.amPos.x + 360, pos.amPos.y + 25 };
@@ -94,7 +92,7 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	gridHeight.amPos = { pos.amPos.x + 360, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
 	gridHeight.videoPos = { -1,-1,-1,-1 };
 	gridHeight.triggerModeSensitive = isTriggerModeSensitive;
-	gridHeight.Create( WS_CHILD | WS_VISIBLE | WS_BORDER, gridHeight.seriesPos, parent, id++ );
+	gridHeight.Create( WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, gridHeight.seriesPos, parent, id++ );
 	// 
 	manualSetAnalysisLocationsButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y,
 		pos.seriesPos.x + 480, pos.seriesPos.y + 25 };
@@ -104,6 +102,7 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	manualSetAnalysisLocationsButton.triggerModeSensitive = isTriggerModeSensitive;
 	manualSetAnalysisLocationsButton.Create("Manually Set AutoAnalysis Points", WS_CHILD | WS_VISIBLE | BS_PUSHLIKE | BS_CHECKBOX,
 									  manualSetAnalysisLocationsButton.seriesPos, parent, IDC_SET_ANALYSIS_LOCATIONS );
+	manualSetAnalysisLocationsButton.EnableWindow( false );
 	pos.seriesPos.y += 25;
 	pos.amPos.y += 25;
 
@@ -121,7 +120,7 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	updateFrequencyEdit.videoPos = { pos.videoPos.x + 150, pos.videoPos.y, pos.videoPos.x + 200, pos.videoPos.y + 25 };
 	updateFrequencyEdit.amPos = { pos.amPos.x + 150, pos.amPos.y, pos.amPos.x + 200, pos.amPos.y + 25 };
 	updateFrequencyEdit.triggerModeSensitive = isTriggerModeSensitive;
-	updateFrequencyEdit.Create( WS_CHILD | WS_VISIBLE | WS_BORDER, updateFrequencyEdit.seriesPos, parent, id++);
+	updateFrequencyEdit.Create( WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP, updateFrequencyEdit.seriesPos, parent, id++);
 	updateFrequency = 5;
 	updateFrequencyEdit.SetWindowTextA("5");
 	// end of that statement
@@ -136,7 +135,7 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	plotListview.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 150 };
 	plotListview.amPos = { pos.amPos.x,     pos.amPos.y,   pos.amPos.x + 480,   pos.amPos.y += 150 };
 	plotListview.triggerModeSensitive = isTriggerModeSensitive;
-	plotListview.Create(WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS | WS_BORDER, plotListview.seriesPos, parent, 
+	plotListview.Create(WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS | WS_BORDER, plotListview.seriesPos, parent,
 						 IDC_PLOTTING_LISTVIEW );
 	// initialize the listview
 	LV_COLUMN listViewDefaultCollumn;
@@ -160,6 +159,22 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	plotListview.SetTextColor( rgbs["Solarized Green"] );
 	//
 	reloadListView();
+}
+
+
+ULONG DataAnalysisControl::getPlotFreq( )
+{
+	CString txt;
+	updateFrequencyEdit.GetWindowText(txt);
+	try
+	{
+		updateFrequency = std::stol( str( txt ) );
+	}
+	catch ( std::invalid_argument& )
+	{
+		thrower( "ERROR: Failed to convert plotting update frequency to an integer! text was: " + str( txt ) );
+	}
+	return updateFrequency;
 }
 
 

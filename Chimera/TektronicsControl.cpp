@@ -11,6 +11,9 @@ void TektronicsChannelControl::initialize( POINT loc, CWnd* parent, int& id, std
 	channelLabel.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
 	channelLabel.Create( cstr(channelText), WS_CHILD | WS_VISIBLE | WS_BORDER, channelLabel.sPos, parent, id++ );
 
+	controlButton.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
+	controlButton.Create( "", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX, controlButton.sPos, parent, id++ );
+
 	onOffButton.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
 	onOffButton.Create( "", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX, onOffButton.sPos, parent, ids[0] );
 
@@ -141,6 +144,7 @@ void TektronicsChannelControl::handleFskPress()
 // TODO: Gonna need to add a check if what gets returned is a double or a variable.
 tektronicsChannelOutputForm TektronicsChannelControl::getSettings()
 {
+	currentInfo.control = controlButton.GetCheck();
 	currentInfo.on = onOffButton.GetCheck();
 	currentInfo.fsk = fskButton.GetCheck();
 
@@ -226,54 +230,66 @@ void TektronicsControl::handleOpeningConfig(std::ifstream& configFile, double ve
 
 void TektronicsControl::programMachine(UINT var)
 {
-	visaFlume.open();
-	if (currentInfo.channels.first.on)
+	if ( currentInfo.channels.first.control || currentInfo.channels.second.control )
 	{
-		visaFlume.write("SOURCE1:FREQ " + str(currentNums[var].channels.first.mainFreqVal));
-		visaFlume.write("SOURCE1:VOLT:UNIT DBM");
-		visaFlume.write( "SOURCE1:VOLT " + str(currentNums[var].channels.first.powerVal));
-		visaFlume.write( "SOURCE1:VOLT:OFFS 0");
-
-		if (currentInfo.channels.first.fsk)
+		visaFlume.open( );
+	}
+	if ( currentInfo.channels.first.control )
+	{
+		if ( currentInfo.channels.first.on )
 		{
-			visaFlume.write( "SOURCE1:FSKey:STATe On");
-			visaFlume.write( "SOURCE1:FSKey:FREQ " + str(currentNums[var].channels.first.fskFreqVal));
-			visaFlume.write( "SOURCE1:FSKey:SOURce External");
+			visaFlume.write( "SOURCE1:FREQ " + str( currentNums[var].channels.first.mainFreqVal ) );
+			visaFlume.write( "SOURCE1:VOLT:UNIT DBM" );
+			visaFlume.write( "SOURCE1:VOLT " + str( currentNums[var].channels.first.powerVal ) );
+			visaFlume.write( "SOURCE1:VOLT:OFFS 0" );
+
+			if ( currentInfo.channels.first.fsk )
+			{
+				visaFlume.write( "SOURCE1:FSKey:STATe On" );
+				visaFlume.write( "SOURCE1:FSKey:FREQ " + str( currentNums[var].channels.first.fskFreqVal ) );
+				visaFlume.write( "SOURCE1:FSKey:SOURce External" );
+			}
+			else
+			{
+				visaFlume.write( "SOURCE1:FSKey:STATe Off" );
+			}
+			visaFlume.write( "OUTput1:STATe ON" );
 		}
 		else
 		{
-			visaFlume.write( "SOURCE1:FSKey:STATe Off");
+			visaFlume.write( "OUTput1:STATe OFF" );
 		}
-		visaFlume.write( "OUTput1:STATe ON");
-	}
-	else
-	{
-		visaFlume.write( "OUTput1:STATe OFF");
 	}
 	/// second channel
-	if (currentInfo.channels.second.on)
+	if ( currentInfo.channels.second.control )
 	{
-		visaFlume.write( "SOURCE2:FREQ " + str(currentNums[var].channels.second.mainFreqVal));
-		visaFlume.write( "SOURCE2:VOLT:UNIT DBM");
-		visaFlume.write( "SOURCE2:VOLT " + str(currentNums[var].channels.second.powerVal));
-		visaFlume.write( "SOURCE2:VOLT:OFFS 0");
-		if (currentInfo.channels.second.fsk)
+		if ( currentInfo.channels.second.on )
 		{
-			visaFlume.write( "SOURCE2:FSKey:STATe On");
-			visaFlume.write( "SOURCE2:FSKey:FREQ " + str(currentNums[var].channels.second.fskFreqVal));
-			visaFlume.write( "SOURCE2:FSKey:SOURce External");
+			visaFlume.write( "SOURCE2:FREQ " + str( currentNums[var].channels.second.mainFreqVal ) );
+			visaFlume.write( "SOURCE2:VOLT:UNIT DBM" );
+			visaFlume.write( "SOURCE2:VOLT " + str( currentNums[var].channels.second.powerVal ) );
+			visaFlume.write( "SOURCE2:VOLT:OFFS 0" );
+			if ( currentInfo.channels.second.fsk )
+			{
+				visaFlume.write( "SOURCE2:FSKey:STATe On" );
+				visaFlume.write( "SOURCE2:FSKey:FREQ " + str( currentNums[var].channels.second.fskFreqVal ) );
+				visaFlume.write( "SOURCE2:FSKey:SOURce External" );
+			}
+			else
+			{
+				visaFlume.write( "SOURCE2:FSKey:STATe Off" );
+			}
+			visaFlume.write( "OUTput2:STATe ON" );
 		}
 		else
 		{
-			visaFlume.write( "SOURCE2:FSKey:STATe Off");
+			visaFlume.write( "OUTput2:STATe OFF" );
 		}
-		visaFlume.write( "OUTput2:STATe ON");
 	}
-	else
+	if ( currentInfo.channels.first.control || currentInfo.channels.second.control )
 	{
-		visaFlume.write( "OUTput2:STATe OFF");
+		visaFlume.close( );
 	}
-	visaFlume.close();
 }
 
 void TektronicsControl::handleProgram()
@@ -325,7 +341,9 @@ void TektronicsControl::initialize( POINT& loc, CWnd* parent, int& id, std::stri
 	channel2.initialize( { loc.x + 2 * width / 3, loc.y }, parent, id, channel2Text, width / 3, { ids[3], ids[4] } );
 
 	loc.y += 20;
-	
+	controlLabel.sPos = { loc.x, loc.y, loc.x + width / 3, loc.y += 20 };
+	controlLabel.Create( "Control:", WS_CHILD | WS_VISIBLE | WS_BORDER, onOffLabel.sPos, parent, id++ );
+
 	onOffLabel.sPos = { loc.x, loc.y, loc.x + width/3, loc.y += 20 };
 	onOffLabel.Create("On:", WS_CHILD | WS_VISIBLE | WS_BORDER, onOffLabel.sPos, parent, id++);
 
@@ -346,6 +364,7 @@ void TektronicsControl::initialize( POINT& loc, CWnd* parent, int& id, std::stri
 void TektronicsChannelControl::rearrange(int width, int height, fontMap fonts)
 {
 	channelLabel.rearrange(width, height, fonts);
+	controlButton.rearrange( width, height, fonts );
 	onOffButton.rearrange(width, height, fonts);
 	fskButton.rearrange(width, height, fonts);
 	mainFreq.rearrange(width, height, fonts);
@@ -366,9 +385,11 @@ std::string TektronicsControl::queryIdentity()
 	}
 }
 
+
 void TektronicsControl::rearrange(int width, int height, fontMap fonts)
 {
 	header.rearrange( width, height, fonts);
+	controlLabel.rearrange( width, height, fonts );
 	onOffLabel.rearrange( width, height, fonts);
 	fskLabel.rearrange( width, height, fonts);
 	mainPowerLabel.rearrange( width, height, fonts);
@@ -378,6 +399,7 @@ void TektronicsControl::rearrange(int width, int height, fontMap fonts)
 	channel2.rearrange(width, height, fonts);
 	programNow.rearrange( width, height, fonts );
 }
+
 
 tektronicsInfo TektronicsControl::getSettings()
 {

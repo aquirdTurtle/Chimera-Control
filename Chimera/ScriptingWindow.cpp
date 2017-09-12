@@ -280,7 +280,8 @@ bool ScriptingWindow::checkScriptSaves()
 {
 	horizontalNiawgScript.checkSave(getProfile().categoryPath, mainWindowFriend->getRunInfo());
 	verticalNiawgScript.checkSave(getProfile().categoryPath, mainWindowFriend->getRunInfo());
-	intensityAgilent.agilentScript.checkSave(getProfile().categoryPath, mainWindowFriend->getRunInfo());
+	intensityAgilent.checkSave( getProfile( ).categoryPath, mainWindowFriend->getRunInfo( ) );
+
 	return false;
 }
 
@@ -410,7 +411,8 @@ void ScriptingWindow::newIntensityScript()
 {
 	try
 	{
-		intensityAgilent.agilentScript.checkSave( getProfile().categoryPath, mainWindowFriend->getRunInfo() );
+
+		intensityAgilent.checkSave( getProfile().categoryPath, mainWindowFriend->getRunInfo() );
 		intensityAgilent.agilentScript.newScript( );
 		updateConfigurationSavedStatus( false );
 		intensityAgilent.agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings().categoryPath );
@@ -428,7 +430,7 @@ void ScriptingWindow::openIntensityScript( CWnd* parent )
 {
 	try
 	{
-		intensityAgilent.agilentScript.checkSave( getProfile().categoryPath, mainWindowFriend->getRunInfo() );
+		intensityAgilent.checkSave( getProfile().categoryPath, mainWindowFriend->getRunInfo() );
 		std::string intensityOpenName = openWithExplorer( parent, AGILENT_SCRIPT_EXTENSION );
 		intensityAgilent.agilentScript.openParentScript( intensityOpenName, getProfile().categoryPath, mainWindowFriend->getRunInfo() );
 		updateConfigurationSavedStatus( false );

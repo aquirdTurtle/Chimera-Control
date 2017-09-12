@@ -104,22 +104,22 @@ BOOL PlotDesignerDialog::OnInitDialog()
 
 	plotTitleText.Create( "Plot Title", WS_CHILD | WS_VISIBLE | WS_BORDER, { pos.x, pos.y, pos.x + 240, pos.y + 25 },
 						  this, id++ );
-	plotTitleEdit.Create( WS_CHILD | WS_VISIBLE, { pos.x + 240, pos.y, pos.x + 480, pos.y += 25 }, this, id++ );
+	plotTitleEdit.Create( WS_CHILD | WS_VISIBLE | WS_TABSTOP, { pos.x + 240, pos.y, pos.x + 480, pos.y += 25 }, this, id++ );
 	plotTitleEdit.SetWindowText( cstr( currentPlotInfo.getTitle() ) );
 
 	yLabelText.Create( "Y-Axis Label", WS_CHILD | WS_VISIBLE | WS_BORDER, { pos.x, pos.y, pos.x + 240, pos.y + 25 },
 					   this, id++ );
-	yLabelEdit.Create( WS_CHILD | WS_VISIBLE, { pos.x + 240, pos.y, pos.x + 480, pos.y += 25 }, this, id++ );
+	yLabelEdit.Create( WS_CHILD | WS_VISIBLE | WS_TABSTOP, { pos.x + 240, pos.y, pos.x + 480, pos.y += 25 }, this, id++ );
 	yLabelEdit.SetWindowText( cstr( currentPlotInfo.getYLabel() ) );
 
 	plotFilenameText.Create( "Plot Filename", WS_CHILD | WS_VISIBLE, { pos.x, pos.y, pos.x + 240, pos.y + 25 }, this,
 							 id++ );
-	plotFilenameEdit.Create( WS_CHILD | WS_VISIBLE, { pos.x + 240, pos.y, pos.x + 480, pos.y += 25 }, this, id++ );
+	plotFilenameEdit.Create( WS_CHILD | WS_VISIBLE | WS_TABSTOP, { pos.x + 240, pos.y, pos.x + 480, pos.y += 25 }, this, id++ );
 	plotFilenameEdit.SetWindowText( cstr( currentPlotInfo.getFileName() ) );
 
 	generalPlotTypeText.Create( "Plot Type", WS_CHILD | WS_VISIBLE, { pos.x, pos.y, pos.x + 480, pos.y += 25 }, this,
 								id++ );
-	generalPlotTypeCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, { pos.x, \
+	generalPlotTypeCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE | WS_TABSTOP, { pos.x, \
 								 pos.y, pos.x + 480, pos.y + 200 }, this, IDC_GENERAL_PLOT_TYPE );
 	generalPlotTypeCombo.AddString( "Pixel Count Histograms" );
 	generalPlotTypeCombo.AddString( "Pixel Counts" );
@@ -129,7 +129,7 @@ BOOL PlotDesignerDialog::OnInitDialog()
 
 	dataSetNumberText.Create( "Data Set #", WS_CHILD | WS_VISIBLE | WS_BORDER, { pos.x, pos.y, pos.x + 240, pos.y + 25 },
 							  this, id++ );
-	dataSetNumberCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, { pos.x + 240,
+	dataSetNumberCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE | WS_TABSTOP, { pos.x + 240,
 							   pos.y, pos.x + 480, pos.y + 200 }, this, IDC_PLOT_CREATOR_DATASET_COMBO );
 	dataSetNumberCombo.AddString( "Data Set #1" );
 	dataSetNumberCombo.AddString( "Add New Data Set" );
@@ -147,9 +147,8 @@ BOOL PlotDesignerDialog::OnInitDialog()
 
 	prcPictureNumberText.Create( "Picture Number", WS_CHILD | WS_VISIBLE | WS_BORDER, { pos.x, pos.y, pos.x + 240,
 								 pos.y + 25 }, this, id++ );
-	prcPictureNumberCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, { pos.x
-								  + 240, pos.y, pos.x + 480,
-								  pos.y + 200 }, this, IDC_PRC_PICTURE_NUMBER );
+	prcPictureNumberCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE | WS_TABSTOP,
+									{ pos.x	+ 240, pos.y, pos.x + 480, pos.y + 200 }, this, IDC_PRC_PICTURE_NUMBER );
 	for (auto num : range( picNumber ))
 	{
 		prcPictureNumberCombo.AddString( cstr( "Picture #" + str( num + 1 ) ) );
@@ -159,7 +158,7 @@ BOOL PlotDesignerDialog::OnInitDialog()
 
 	prcPixelNumberText.Create( "Pixel Number", WS_CHILD | WS_VISIBLE | WS_BORDER, { pos.x, pos.y, pos.x + 240,
 							   pos.y + 25 }, this, id++ );
-	prcPixelNumberCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, { pos.x + 240,
+	prcPixelNumberCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE | WS_TABSTOP, { pos.x + 240,
 								pos.y, pos.x + 480, pos.y + 200 }, this, IDC_PRC_PIXEL_NUMBER );
 	prcPixelNumberCombo.AddString( "Pixel #1" );
 
@@ -228,7 +227,7 @@ BOOL PlotDesignerDialog::OnInitDialog()
 	postSelectionConditionText.SetFont( (*dlgFonts)["Heading Font Large"] );
 	pscConditionNumberText.Create( "Condition Number", WS_CHILD | WS_VISIBLE, { pos.x, pos.y, pos.x + 240,
 								   pos.y + 25 }, this, id++ );
-	pscConditionNumberCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, { pos.x
+	pscConditionNumberCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE | WS_TABSTOP, { pos.x
 									+ 240, pos.y, pos.x + 480, pos.y + 200 }, this, IDC_PSC_CONDITION_NUMBER );
 	pscConditionNumberCombo.AddString( "Condition #1" );
 	pscConditionNumberCombo.AddString( "Add New Condition" );
@@ -238,7 +237,7 @@ BOOL PlotDesignerDialog::OnInitDialog()
 
 	pscPictureNumberText.Create( "Picture Number", WS_CHILD | WS_VISIBLE, { pos.x, pos.y, pos.x + 240,
 								 pos.y + 25 }, this, id++ );
-	pscPictureNumberCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, { pos.x
+	pscPictureNumberCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE | WS_TABSTOP, { pos.x
 								  + 240, pos.y, pos.x + 480,
 								  pos.y + 200 }, this, IDC_PSC_PICTURE_NUMBER );
 	for (auto num : range( picNumber ))
@@ -249,7 +248,7 @@ BOOL PlotDesignerDialog::OnInitDialog()
 
 	pscPixelNumberText.Create( "Pixel Number", WS_CHILD | WS_VISIBLE, { pos.x, pos.y, pos.x + 240, pos.y + 25 }, this,
 							   id++ );
-	pscPixelNumberCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, { pos.x + 240,
+	pscPixelNumberCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE | WS_TABSTOP, { pos.x + 240,
 								pos.y, pos.x + 480, pos.y + 200 }, this, IDC_PSC_PIXEL_NUMBER );
 	pscPixelNumberCombo.AddString( "Pixel #1" );
 	pos.y += 25;
