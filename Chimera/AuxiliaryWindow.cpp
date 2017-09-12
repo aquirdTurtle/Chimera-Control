@@ -414,6 +414,9 @@ void AuxiliaryWindow::handleSaveConfig(std::ofstream& saveFile)
 
 void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, double version)
 {
+	ttlBoard.prepareForce( );
+	dacBoards.prepareForce( );
+
 	configVariables.handleOpenConfig(configFile, version);
 
 	ttlBoard.handleOpenConfig(configFile, version);
