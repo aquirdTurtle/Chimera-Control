@@ -60,6 +60,7 @@ Bugs:
 	having orientations. Investigate size of niawg output waves, seems like there is 1 extra???
 - investigate save on change config
 - Agilent saves over script files when script not selected.
+- saved not updated for master functions
 
 =================
 Finished

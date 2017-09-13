@@ -157,6 +157,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 							 "snapshots was " + str( input->dacs->getNumberSnapshots( variationInc ) ) );
 				}
 				input->dacs->checkTimingsWork( variationInc );
+				// input->ttls->checkTimingsWork(varInc);
 			}
 			input->rsg->orderEvents( variationInc );
 		}

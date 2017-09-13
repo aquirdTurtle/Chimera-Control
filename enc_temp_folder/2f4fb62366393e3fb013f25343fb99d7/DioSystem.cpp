@@ -787,10 +787,8 @@ double DioSystem::getClockStatus()
 			thrower( "!" );
 		}
 	}
-	catch ( Error& err )
+	catch ( ... )
 	{
-		//std::string msg = err.what( );
-		//errBox( msg );
 		// get current time in ms...
 		// ***NOT SURE*** if this is what I want. The vb6 code used...
 		// return = Now * 24 * 60 * 60 * 1000

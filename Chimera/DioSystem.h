@@ -24,6 +24,7 @@ class DioSystem
 		void handleOpenConfig(std::ifstream& openFile, double version);
 		void initialize(POINT& startLocation, cToolTips& toolTips, AuxiliaryWindow* master, int& id);
 		double getTotalTime(UINT var);
+		void checkFinalFormatTimes( UINT var );
 		int getNumberOfTTLRows();
 		int getNumberOfTTLsPerRow();
 		std::string getTtlSequenceMessage(UINT var);
