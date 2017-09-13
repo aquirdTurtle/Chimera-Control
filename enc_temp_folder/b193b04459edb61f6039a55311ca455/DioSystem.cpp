@@ -787,10 +787,8 @@ double DioSystem::getClockStatus()
 			thrower( "!" );
 		}
 	}
-	catch ( Error& err )
+	catch ( ... )
 	{
-		//std::string msg = err.what( );
-		//errBox( msg );
 		// get current time in ms...
 		// ***NOT SURE*** if this is what I want. The vb6 code used...
 		// return = Now * 24 * 60 * 60 * 1000
@@ -1138,6 +1136,7 @@ void DioSystem::convertToFinalFormat(UINT var)
 		tempCommand[3] = static_cast <unsigned short>(ttlBits[1].to_ulong());
 		tempCommand[4] = static_cast <unsigned short>(ttlBits[2].to_ulong());
 		tempCommand[5] = static_cast <unsigned short>(ttlBits[3].to_ulong());
+
 
 		finalFormatDioData[var].push_back(tempCommand);
 	}
