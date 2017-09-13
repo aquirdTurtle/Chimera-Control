@@ -30,6 +30,7 @@ class DioSystem
 		std::string getTtlSequenceMessage(UINT var);
 		void zeroBoard();
 		void handleTTLPress(int id);
+		void checkNotTooManyTimes( UINT var );
 		void handleHoldPress();
 		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
 		std::string getSystemInfo();

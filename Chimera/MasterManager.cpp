@@ -149,6 +149,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 				input->dacs->makeFinalDataFormat( variationInc );
 				input->ttls->analyzeCommandList( variationInc );
 				input->ttls->convertToFinalFormat( variationInc );
+				input->ttls->checkNotTooManyTimes( variationInc );
 				input->ttls->checkFinalFormatTimes( variationInc );
 				if (input->ttls->countDacTriggers( variationInc ) != input->dacs->getNumberSnapshots( variationInc ))
 				{
