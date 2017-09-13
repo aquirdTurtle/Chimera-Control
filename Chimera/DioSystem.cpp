@@ -1144,6 +1144,17 @@ void DioSystem::convertToFinalFormat(UINT var)
 }
 
 
+void DioSystem::checkNotTooManyTimes( UINT var )
+{
+	if ( finalFormatDioData.size( ) > 512 )
+	{
+		thrower( "ERROR: DIO Data has more than 512 individual timestamps, which is larger than the DIO64 FIFO Buffer"
+				 ". The DIO64 card can only support 512 individual time-stamps. If you need more, you need to configure"
+				 " this code to create a thread to continuously write to the DIO64 card as it outputs." );
+	}
+}
+
+
 void DioSystem::checkFinalFormatTimes( UINT var )
 {
 	for ( int dioEventInc = 0; dioEventInc < finalFormatDioData[var].size( ); dioEventInc++ )

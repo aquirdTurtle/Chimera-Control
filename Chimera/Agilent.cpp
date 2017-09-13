@@ -26,6 +26,76 @@ Agilent::~Agilent()
 }
 
 
+
+void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id, std::string headerText,
+						  UINT editHeight, std::array<UINT, 7> ids, COLORREF color )
+{
+	name = headerText;
+	try
+	{
+		int errCode = 0;
+		deviceInfo = visaFlume.identityQuery( );
+		isConnected = true;
+	}
+	catch ( Error& )
+	{
+		deviceInfo = "Disconnected";
+		isConnected = false;
+	}
+
+	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
+	header.Create( cstr( headerText ), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, parent, id++ );
+	header.fontType = HeadingFont;
+
+	deviceInfoDisplay.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
+	deviceInfoDisplay.Create( cstr( deviceInfo ), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, deviceInfoDisplay.sPos,
+							  parent, id++ );
+	deviceInfoDisplay.fontType = SmallFont;
+
+	channel1Button.sPos = { loc.x, loc.y, loc.x += 120, loc.y + 20 };
+	channel1Button.Create( "Channel 1", BS_AUTORADIOBUTTON | WS_GROUP | WS_VISIBLE | WS_CHILD, channel1Button.sPos,
+						   parent, ids[0] );
+	channel1Button.SetCheck( true );
+
+	channel2Button.sPos = { loc.x, loc.y, loc.x += 120, loc.y + 20 };
+	channel2Button.Create( "Channel 2", BS_AUTORADIOBUTTON | WS_VISIBLE | WS_CHILD, channel2Button.sPos, parent, ids[1] );
+
+	syncedButton.sPos = { loc.x, loc.y, loc.x += 120, loc.y + 20 };
+	syncedButton.Create( "Synced?", BS_AUTOCHECKBOX | WS_VISIBLE | WS_CHILD, syncedButton.sPos, parent, ids[2] );
+	// not supported (yet)
+	syncedButton.EnableWindow( 0 );
+
+	programNow.sPos = { loc.x, loc.y, loc.x += 120, loc.y += 20 };
+	programNow.Create( "Program Now", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, programNow.sPos, parent, ids[3] );
+
+	loc.x -= 480;
+
+	settingCombo.sPos = { loc.x, loc.y, loc.x += 240, loc.y + 200 };
+	settingCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, settingCombo.sPos,
+						 parent, ids[4] );
+	settingCombo.AddString( "No Control" );
+	settingCombo.AddString( "Output Off" );
+	settingCombo.AddString( "DC Output" );
+	settingCombo.AddString( "Single Frequency Output" );
+	settingCombo.AddString( "Square Output" );
+	settingCombo.AddString( "Preloaded Arbitrary Waveform" );
+	settingCombo.AddString( "Scripted Arbitrary Waveform" );
+	settingCombo.SetCurSel( 0 );
+
+	optionsFormat.sPos = { loc.x, loc.y, loc.x += 240, loc.y += 25 };
+	optionsFormat.Create( "---", WS_CHILD | WS_VISIBLE | SS_SUNKEN, optionsFormat.sPos, parent, id++ );
+	loc.x -= 480;
+
+	agilentScript.initialize( 480, editHeight, loc, toolTips, parent, id, "Agilent", "", { ids[5], ids[6] }, color );
+
+	settings.channel[0].option = -2;
+	settings.channel[1].option = -2;
+	currentChannel = 1;
+}
+
+
+
+
 void Agilent::checkSave( std::string categoryPath, RunInfo info )
 {
 	if ( settings.channel[currentChannel].option == 4 )
@@ -193,74 +263,6 @@ std::string Agilent::getDeviceIdentity()
 	}
 	return msg;
 }
-
-
-void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id, std::string headerText, 
-						  UINT editHeight, std::array<UINT, 7> ids, COLORREF color )
-{
-	name = headerText;
-	try
-	{
-		int errCode = 0;
-		deviceInfo = visaFlume.identityQuery();
-		isConnected = true;
-	}
-	catch (Error&)
-	{
-		deviceInfo = "Disconnected";
-		isConnected = false;
-	}
-	
-	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
-	header.Create( cstr(headerText), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, parent, id++ );
-	header.fontType = HeadingFont;
-
-	deviceInfoDisplay.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
-	deviceInfoDisplay.Create( cstr(deviceInfo), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, deviceInfoDisplay.sPos, 
-							 parent, id++ );
-	deviceInfoDisplay.fontType = SmallFont;
-
-	channel1Button.sPos = { loc.x, loc.y, loc.x += 120, loc.y + 20 };
-	channel1Button.Create( "Channel 1", BS_AUTORADIOBUTTON | WS_GROUP | WS_VISIBLE | WS_CHILD, channel1Button.sPos,
-						  parent, ids[0] );
-	channel1Button.SetCheck( true );
-	
-	channel2Button.sPos = { loc.x, loc.y, loc.x += 120, loc.y + 20 };
-	channel2Button.Create( "Channel 2", BS_AUTORADIOBUTTON | WS_VISIBLE | WS_CHILD, channel2Button.sPos, parent, ids[1] );
-
-	syncedButton.sPos = { loc.x, loc.y, loc.x += 120, loc.y + 20 };
-	syncedButton.Create( "Synced?", BS_AUTOCHECKBOX | WS_VISIBLE | WS_CHILD, syncedButton.sPos, parent, ids[2]);
-	// not supported (yet)
-	syncedButton.EnableWindow( 0 );
-
-	programNow.sPos = { loc.x, loc.y, loc.x += 120, loc.y += 20 };
-	programNow.Create( "Program Now", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, programNow.sPos, parent, ids[3] );
-	
-	loc.x -= 480;
-
-	settingCombo.sPos = { loc.x, loc.y, loc.x += 240, loc.y + 200 };
-	settingCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,  settingCombo.sPos, 
-						 parent, ids[4] );
-	settingCombo.AddString( "No Control" );
-	settingCombo.AddString( "Output Off" );
-	settingCombo.AddString( "DC Output" );
-	settingCombo.AddString( "Single Frequency Output" );
-	settingCombo.AddString( "Square Output" );
-	settingCombo.AddString( "Preloaded Arbitrary Waveform" );
-	settingCombo.AddString( "Scripted Arbitrary Waveform" );
-	settingCombo.SetCurSel( 0 );
-
-	optionsFormat.sPos = { loc.x, loc.y, loc.x += 240, loc.y += 25 };
-	optionsFormat.Create( "---", WS_CHILD | WS_VISIBLE | SS_SUNKEN, optionsFormat.sPos, parent, id++ );
-	loc.x -= 480;
-
-	agilentScript.initialize( 480, editHeight, loc, toolTips, parent, id, "Agilent", "", { ids[5], ids[6] }, color );
-	
-	settings.channel[0].option = -2;
-	settings.channel[1].option = -2;
-	currentChannel = 1;
-}
-
 
 HBRUSH Agilent::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC)
 {
@@ -461,6 +463,7 @@ void Agilent::handleCombo()
 			break;
 	}
 }
+
 
 deviceOutputInfo Agilent::getOutputInfo()
 {
@@ -724,7 +727,6 @@ void Agilent::setExistingWaveform( int channel, preloadedArbInfo info )
 	visaFlume.write( "SOURCE" + str( channel ) + ":BURST::MODE TRIGGERED" );
 	visaFlume.write( "SOURCE" + str( channel ) + ":BURST::NCYCLES 1" );
 	visaFlume.write( "SOURCE" + str( channel ) + ":BURST::PHASE 0" );
-	// 
 	visaFlume.write( "SOURCE" + str( channel ) + ":BURST::STATE ON" );
 	visaFlume.write( "OUTPUT" + str( channel ) + " ON" );
 }
@@ -773,115 +775,59 @@ void Agilent::prepAgilentSettings(UINT channel)
 }
 
 
-void Agilent::handleScriptVariation( key varKey, UINT variation, scriptedArbInfo& scriptInfo, UINT channel, std::vector<variable>& variables)
+void Agilent::handleScriptVariation( key variationKey, UINT variation, scriptedArbInfo& scriptInfo, UINT channel, std::vector<variable>& variables)
 {
 	// Initialize stuff
 	prepAgilentSettings( channel );
 	// if varied
-	//if (scriptInfo.wave.isVaried())
-	//{
-		//ScriptedAgilentWaveform scriptWave;
-		UINT totalSegmentNumber = scriptInfo.wave.getSegmentNumber();
+	if ( scriptInfo.wave.isVaried( ) || variation == 0 )
+	{
+		UINT totalSegmentNumber = scriptInfo.wave.getSegmentNumber( );
 		// replace variable values where found
-		scriptInfo.wave.replaceVarValues( varKey, variation, variables );
+		scriptInfo.wave.replaceVarValues( variationKey, variation, variables );
 		// Loop through all segments
-		for (UINT segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
+		for ( UINT segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++ )
 		{
 			// Use that information to write the data.
 			try
 			{
 				scriptInfo.wave.writeData( segNumInc );
 			}
-			catch (Error& err)
+			catch ( Error& err )
 			{
 				thrower( "ERROR: IntensityWaveform.writeData threw an error! Error occurred in segment #"
-							+ str( totalSegmentNumber ) + ": " + err.what() );
+						 + str( totalSegmentNumber ) + ": " + err.what( ) );
 			}
 		}
 		// loop through again and calc/normalize/write values.
-		scriptInfo.wave.convertPowersToVoltages();
-		scriptInfo.wave.calcMinMax();
+		scriptInfo.wave.convertPowersToVoltages( );
+		scriptInfo.wave.calcMinMax( );
 		scriptInfo.wave.minsAndMaxes.resize( variation + 1 );
-		scriptInfo.wave.minsAndMaxes[variation].second = scriptInfo.wave.getMaxVolt();
-		scriptInfo.wave.minsAndMaxes[variation].first = scriptInfo.wave.getMinVolt();
-		scriptInfo.wave.normalizeVoltages();
-		visaFlume.write("SOURCE" + str(channel) + ":DATA:VOL:CLEAR");
+		scriptInfo.wave.minsAndMaxes[variation].second = scriptInfo.wave.getMaxVolt( );
+		scriptInfo.wave.minsAndMaxes[variation].first = scriptInfo.wave.getMinVolt( );
+		scriptInfo.wave.normalizeVoltages( );
+		visaFlume.write( "SOURCE" + str( channel ) + ":DATA:VOL:CLEAR" );
 
-		for (UINT segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
+		for ( UINT segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++ )
 		{
-			visaFlume.write( scriptInfo.wave.compileAndReturnDataSendString( segNumInc, variation,
-																					totalSegmentNumber ) );
-			// Select the segment
-			//visaFlume.write( "SOURCE" + str(channel) + ":FUNC:ARB seg" + str( segNumInc + totalSegmentNumber * variation ) );
+			visaFlume.write( scriptInfo.wave.compileAndReturnDataSendString( segNumInc, variation, 
+																			 totalSegmentNumber ) );
 			// Save the segment
-			visaFlume.write( "MMEM:STORE:DATA \"INT:\\seg"
-								+ str( segNumInc + totalSegmentNumber * variation ) + ".arb\"" );
+			visaFlume.write( "MMEM:STORE:DATA \"INT:\\seg" 
+							 + str( segNumInc + totalSegmentNumber * variation ) + ".arb\"" );
 			// increment for the next.
 			visaFlume.write( "TRIGGER" + str( channel ) + ":SLOPE POSITIVE" );
 		}
 		// Now handle seqeunce creation / writing.
 		scriptInfo.wave.compileSequenceString( totalSegmentNumber, variation );
 		// submit the sequence
-		visaFlume.write( scriptInfo.wave.returnSequenceString() );
+		visaFlume.write( scriptInfo.wave.returnSequenceString( ) );
 		// Save the sequence
 		visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB seq" + str( variation ) );
 		visaFlume.write( "MMEM:STORE:DATA \"INT:\\seq" + str( variation ) + ".seq\"" );
 		// clear temporary memory.
 		visaFlume.write( "SOURCE" + str( channel ) + ":DATA:VOL:CLEAR" );
-		// loop through # of variable values
-		/*
-		// replace variable values where found
-		scriptInfo.wave.replaceVarValues( varKey, variation, variables );
-		// Loop through all segments
-		for (UINT segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
-		{
-			// Use that information to write the data.
-			try
-			{
-				scriptInfo.wave.writeData( segNumInc );
-			}
-			catch (Error& err)
-			{
-				thrower( "ERROR: IntensityWaveform.writeData threw an error! Error occurred in segment #"
-							+ str( totalSegmentNumber ) + ": " + err.what() );
-			}
-		}
-		// loop through again and calc/normalize/write values.
-		scriptInfo.wave.convertPowersToVoltages();
-		scriptInfo.wave.calcMinMax();
-		scriptInfo.wave.minsAndMaxes.resize( variation + 1 );
-		scriptInfo.wave.minsAndMaxes[variation].second = scriptInfo.wave.getMaxVolt();
-		scriptInfo.wave.minsAndMaxes[variation].first = scriptInfo.wave.getMinVolt();
-		scriptInfo.wave.normalizeVoltages();
-
-		for (UINT segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
-		{
-			visaFlume.write( scriptInfo.wave.compileAndReturnDataSendString( segNumInc, variation,
-																					totalSegmentNumber ) );
-			// Select the segment
-			//visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB seg" + str( segNumInc + totalSegmentNumber * variation ) );
-			// Save the segment
-			visaFlume.write( "MMEM:STORE:DATA \"INT:\\seg"
-								+ str( segNumInc + totalSegmentNumber * variation ) + ".arb\"" );
-			// increment for the next.
-			visaFlume.write( "TRIGGER" + str( channel ) + ":SLOPE POSITIVE" );
-		}
-		// Now handle seqeunce creation / writing.
-		scriptInfo.wave.compileSequenceString( totalSegmentNumber, variation );
-		// submit the sequence
-		visaFlume.write( scriptInfo.wave.returnSequenceString() );
-		// Save the sequence
-		//visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB seq" + str( variation ) );
-		visaFlume.write( "MMEM:STORE:DATA \"INT:\\seq" + str( variation ) + ".seq\"" );
-		// clear temporary memory.
-		visaFlume.write( "SOURCE" + str( channel ) + ":DATA:VOL:CLEAR" );
-		*/
-
-	//}
-	//else
-	//{
-	//	handleNoVariations(scriptInfo, channel);
-	//}
+	}
 }
 
 void Agilent::handleNoVariations(scriptedArbInfo& scriptInfo, UINT channel)
@@ -889,7 +835,6 @@ void Agilent::handleNoVariations(scriptedArbInfo& scriptInfo, UINT channel)
 	// Initialize stuff
 	prepAgilentSettings(channel);
 
-	//ScriptedAgilentWaveform scriptWave;
 	UINT totalSegmentNumber = scriptInfo.wave.getSegmentNumber();
 	scriptInfo.wave.replaceVarValues();
 	// else not varying. Loop through all segments once.
@@ -906,7 +851,6 @@ void Agilent::handleNoVariations(scriptedArbInfo& scriptInfo, UINT channel)
 					 + str( totalSegmentNumber ) + "." + err.what() );
 		}
 	}
-
 	// no reassignment nessesary, no variables
 	scriptInfo.wave.convertPowersToVoltages();
 	scriptInfo.wave.calcMinMax();
@@ -924,7 +868,6 @@ void Agilent::handleNoVariations(scriptedArbInfo& scriptInfo, UINT channel)
 		// don't think I need this line.
 		visaFlume.write( "MMEM:STORE:DATA \"INT:\\seg" + str( segNumInc ) + ".arb\"" );
 	}
-
 	// Now handle seqeunce creation / writing.
 	scriptInfo.wave.compileSequenceString( totalSegmentNumber, 0 );
 	// submit the sequence
@@ -936,9 +879,10 @@ void Agilent::handleNoVariations(scriptedArbInfo& scriptInfo, UINT channel)
 	visaFlume.write( "SOURCE" + str( channel ) + ":DATA:VOL:CLEAR" );
 }
 
+
 /*
-* This function tells the agilent to use sequence # (varNum) and sets settings correspondingly.
-*/
+ * This function tells the agilent to use sequence # (varNum) and sets settings correspondingly.
+ */
 void Agilent::setScriptOutput( UINT varNum, scriptedArbInfo scriptInfo, UINT channel )
 {
 	if (scriptInfo.wave.isVaried() || varNum == 0)
@@ -948,8 +892,11 @@ void Agilent::setScriptOutput( UINT varNum, scriptedArbInfo scriptInfo, UINT cha
 		visaFlume.write( "SOURCE" + str(channel) + ":FUNC ARB" );
 		visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB \"INT:\\seq" + str( varNum ) + ".seq\"" );
 		visaFlume.write( "OUTPUT" + str( channel ) + ":LOAD " + AGILENT_LOAD );
-		visaFlume.write( "SOURCE" + str( channel ) + ":VOLT:OFFSET " + str( (scriptInfo.wave.minsAndMaxes[varNum].first 
-																			  + scriptInfo.wave.minsAndMaxes[varNum].second) / 2 ) + " V" );
+		// set the offset and then the low & high. this prevents accidentally setting low higher than high or high 
+		// higher than low, which causes agilent to throw annoying errors.
+		visaFlume.write( "SOURCE" + str( channel ) + ":VOLT:OFFSET " 
+						 + str( (scriptInfo.wave.minsAndMaxes[varNum].first 
+								  + scriptInfo.wave.minsAndMaxes[varNum].second) / 2 ) + " V" );
 		visaFlume.write( "SOURCE" + str( channel ) + ":VOLT:LOW " + str( scriptInfo.wave.minsAndMaxes[varNum].first ) + " V" );
 		visaFlume.write( "SOURCE" + str( channel ) + ":VOLT:HIGH " + str( scriptInfo.wave.minsAndMaxes[varNum].second ) + " V" );
 		visaFlume.write( "OUTPUT" + str( channel ) + " ON" );
