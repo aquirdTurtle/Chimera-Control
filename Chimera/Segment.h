@@ -21,15 +21,15 @@ struct segmentInfoInput
 
 struct segmentInfoFinal
 {
-	int segmentType;
-	std::string rampType;
-	UINT repeatNum;
-	double initValue;
-	double finValue;
+	int segmentType = 0;
+	std::string rampType = "";
+	UINT repeatNum = 0;
+	double initValue = 0;
+	double finValue = 0;
 	// in ms
-	double time;
+	double time = 0;
 	// values such as repeat, repeat until trigger, no repeat, etc.
-	int continuationType;
+	int continuationType = 0;
 };
 
 

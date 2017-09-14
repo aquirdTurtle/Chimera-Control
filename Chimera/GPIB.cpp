@@ -7,7 +7,7 @@
 
 std::string Gpib::query( std::string query )
 {
-	send( query );
+	send( query, false );
 	return receive();
 }
 
@@ -38,14 +38,27 @@ Gpib::Gpib(short device, bool safemode)
 
 
 // send message to address.
-void Gpib::send( std::string message)
+void Gpib::send( std::string message, bool checkError )
 {
 	if ( !deviceSafemode)
 	{
 		Send( 0, deviceID, (void*) cstr(message, 13), message.size(), NLend );
+
 		if ( ibsta == ERR )
 		{
 			thrower( "GPIB ERROR: " + getErrMessage( iberr ) );
+		}
+
+		if ( checkError )
+		{
+			try
+			{
+				queryError( );
+			}
+			catch ( Error& err )
+			{
+				thrower( "ERROR: Error during sending GPIB string \"" + message + "\":" + err.whatBare( ) );
+			}
 		}
 	}
 }
@@ -66,6 +79,19 @@ std::string Gpib::receive()
 	}
 	std::string msgStr( msg );
 	return msgStr.substr(0, ibcntl);
+}
+
+
+void Gpib::queryError( )
+{
+	if ( !deviceSafemode )
+	{
+		std::string errMsg = query( "SYSTem:ERRor:NEXT?" );
+		if ( errMsg != "0,\"No error\"\n" )
+		{
+			thrower( errMsg );
+		}
+	}
 }
 
 
@@ -123,37 +149,37 @@ std::string Gpib::getErrMessage( long errCode )
 	switch ( errCode )
 	{
 		case EDVR:
-			return "Code 0: System Error";
+			return "Code 0: System Error. ";
 		case ECIC:
-			return "Code 1: Function requires GPIB interface to be CIC";
+			return "Code 1: Function requires GPIB interface to be CIC. ";
 		case ENOL:
-			return "Code 2: No listeners on the GPIB";
+			return "Code 2: No listeners on the GPIB. ";
 		case EADR:
-			return "Code 3: GPIB interface not addressed correctly";
+			return "Code 3: GPIB interface not addressed correctly. ";
 		case EARG:
-			return "Code 4: Invalid argument to function call";
+			return "Code 4: Invalid argument to function call. ";
 		case ESAC:
-			return "Code 5: GPIB interface not System controller as required";
+			return "Code 5: GPIB interface not System controller as required. ";
 		case EABO:
-			return "Code 6: I/O operation aborted (timeout)";
+			return "Code 6: I/O operation aborted (timeout). ";
 		case ENEB:
-			return "Code 7: Nonexistent GPIB interface";
+			return "Code 7: Nonexistent GPIB interface. ";
 		case EDMA:
-			return "Code 8: DMA error";
+			return "Code 8: DMA error. ";
 		case EOIP:
-			return "Code 10: Asynchronous I/O in progress";
+			return "Code 10: Asynchronous I/O in progress. ";
 		case ECAP:
-			return "Code 11: No capability for operation";
+			return "Code 11: No capability for operation. ";
 		case EFSO:
-			return "Code 12: File system error";
+			return "Code 12: File system error. ";
 		case EBUS:
-			return "Code 14: GPIB bus error";
+			return "Code 14: GPIB bus error. ";
 		case ESTB:
-			return "Code 15: Serial poll status byte queue overflow";
+			return "Code 15: Serial poll status byte queue overflow. ";
 		case ESRQ:
-			return "Code 16: SRQ stuck in ON position";
+			return "Code 16: SRQ stuck in ON position. ";
 		case ETAB:
-			return "Code 20: Table Problem";
+			return "Code 20: Table Problem. ";
 		default:
 			return "Unrecognized Error Code! Code was " + str( errCode );
 	}

@@ -696,13 +696,20 @@ void ScriptingWindow::newMasterScript()
 
 void ScriptingWindow::openMasterScript(CWnd* parent)
 {
-	masterScript.checkSave(getProfile().categoryPath, mainWindowFriend->getRunInfo());
-	std::string horizontalOpenName = openWithExplorer(parent, MASTER_SCRIPT_EXTENSION);
-	masterScript.openParentScript(horizontalOpenName, getProfile().categoryPath, mainWindowFriend->getRunInfo());
-	updateConfigurationSavedStatus(false);
-	masterScript.updateScriptNameText(getProfile().categoryPath);
-	masterScript.colorEntireScript(auxWindowFriend->getAllVariables(), mainWindowFriend->getRgbs(),
-		auxWindowFriend->getTtlNames(), auxWindowFriend->getDacNames());
+	try
+	{
+		masterScript.checkSave( getProfile( ).categoryPath, mainWindowFriend->getRunInfo( ) );
+		std::string horizontalOpenName = openWithExplorer( parent, MASTER_SCRIPT_EXTENSION );
+		masterScript.openParentScript( horizontalOpenName, getProfile( ).categoryPath, mainWindowFriend->getRunInfo( ) );
+		updateConfigurationSavedStatus( false );
+		masterScript.updateScriptNameText( getProfile( ).categoryPath );
+		masterScript.colorEntireScript( auxWindowFriend->getAllVariables( ), mainWindowFriend->getRgbs( ),
+										auxWindowFriend->getTtlNames( ), auxWindowFriend->getDacNames( ) );
+	}
+	catch ( Error& err )
+	{
+		comm( )->sendError( "New Master function Failed: " + err.whatStr( ) + "\r\n" );
+	}
 }
 
 

@@ -651,8 +651,8 @@ void MasterManager::analyzeFunctionDefinition(std::string defLine, std::string& 
 
 
 void MasterManager::analyzeFunction( std::string function, std::vector<std::string> args, DioSystem* ttls,
-										 DacSystem* dacs, std::vector<std::pair<UINT, UINT>>& ttlShades,
-										 std::vector<UINT>& dacShades, RhodeSchwarz* rsg, std::vector<variable>& vars)
+									 DacSystem* dacs, std::vector<std::pair<UINT, UINT>>& ttlShades,
+									 std::vector<UINT>& dacShades, RhodeSchwarz* rsg, std::vector<variable>& vars)
 {
 	/// load the file
 	std::fstream functionFile;

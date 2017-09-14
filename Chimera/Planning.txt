@@ -36,6 +36,9 @@ Features:
 - change colormap radios to a single combo.
 - load colormaps from file, allowing custom colormaps.
 - make gnuplot alpha values dependent on number of points being watched.
+- initialize windows to certain monitor
+- be able to plot average on gnuplotter
+- change camera coordinates to be config-level
 
 Refactoring / Other:
 - refactor variables & variable key so that they aren't two separate objects. Consider if reasonable to also include 
@@ -68,7 +71,10 @@ Bugs:
 - Delete experiment not working ( failed to delete .eConfig
 - If prompted to move files, saves new location with extra /, causing confusion as to location of file.
 - econfig saved status not updated on notes change (check category & configuration as well)
-- RSG Bug
+- Check behavior of save all on agilent scripts.
+- Release mode agilent not programming correctly
+- agilent not using sample rate constant?
+- resize to large -> right click causes crash
 
 =================
 Finished
