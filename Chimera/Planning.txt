@@ -61,7 +61,6 @@ Bugs:
 - Weird trouble with 2-picture plotting
 - Lots of missed save-status handling overall.
 - closing window doesn't stop program, running in background (release mode only?)
-- text of picture color scale doesn't match bar position after load config (txt is right, pos is wrong)
 - scripts becoming unsaved after move, should preserve saved status
 - something going wrong with exiting the niawg normally. Might be on delete waveforms, might be related to change from 
 	having orientations. Investigate size of niawg output waves, seems like there is 1 extra???

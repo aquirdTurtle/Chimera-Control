@@ -11,7 +11,9 @@ bool PictureControl::isActive()
 void PictureControl::setSliderPositions(UINT min, UINT max)
 {
 	sliderMax.SetPos(max);
+	maxSliderPosition = max;
 	sliderMin.SetPos(min);
+	minSliderPosition = min;
 }
 
 

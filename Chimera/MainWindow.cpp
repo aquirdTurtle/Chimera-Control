@@ -905,10 +905,7 @@ LRESULT MainWindow::onErrorMessage(WPARAM wParam, LPARAM lParam)
 	std::string statusMessage(pointerToMessage);
 	delete[] pointerToMessage;
 	errorStatus.addStatusText(statusMessage);
-	Beep( 750, 300 );
-	Sleep( 150 );
-	Beep( 750, 300 );
-
+	Beep( 750, 100 );
 	return 0;
 }
 
@@ -939,18 +936,13 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 		comm.sendStatus("EXITED WITH ERROR!\r\nNIAWG RESTART FAILED!\r\n");
 	}
 	setNiawgRunningState( false );
-	Beep( 750, 300 );
-	Sleep( 150 );
-	Beep( 750, 300 );
-	Sleep( 150 );
-	Beep( 750, 300 );
-	Sleep( 150 );
-	Beep( 750, 300 );
+	Beep( 850, 50 );
+	Sleep( 50 );
+	Beep( 850, 50 );
 	return 0;
 }
 
 
-// I think I can delete this...
 LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
 {
 	TheScriptingWindow->setIntensityDefault();

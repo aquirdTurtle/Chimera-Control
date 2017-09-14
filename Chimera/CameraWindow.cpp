@@ -36,7 +36,7 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 	ON_COMMAND_RANGE(MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &CameraWindow::passCommonCommand)
 	ON_COMMAND_RANGE(PICTURE_SETTINGS_ID_START, PICTURE_SETTINGS_ID_END, &CameraWindow::temp)
 	// these ids all go to the same function.
-	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_1_MIN_EDIT, IDC_PICTURE_1_MIN_EDIT, &CameraWindow::handlePictureEditChange)
+	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_1_MIN_EDIT, IDC_PICTURE_1_MIN_EDIT, &CameraWindow::handlePictureEditChange )
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_1_MAX_EDIT, IDC_PICTURE_1_MAX_EDIT, &CameraWindow::handlePictureEditChange )
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_2_MIN_EDIT, IDC_PICTURE_2_MIN_EDIT, &CameraWindow::handlePictureEditChange )
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_2_MAX_EDIT, IDC_PICTURE_2_MAX_EDIT, &CameraWindow::handlePictureEditChange )
@@ -464,7 +464,7 @@ LRESULT CameraWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 	}
 	dataFile.close( );
 	*/
-	Sleep( 5000 );
+	//Sleep( 5000 );
 	rearrangerConditionVariable.notify_all( );
 	return 0;
 }
