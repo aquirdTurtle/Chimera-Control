@@ -813,7 +813,7 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 				// update the listview
 				listViewItem.iItem = itemIndicator;
 				listViewItem.iSubItem = subitem;
-				std::string tempStr(str(currentVariables[varNumber].ranges[(subitem - 3) / 3].initialValue, 13));
+				std::string tempStr(str(currentVariables[varNumber].ranges[(subitem - 3) / 3].initialValue));
 				listViewItem.pszText = &tempStr[0];
 				variablesListview.SetItem(&listViewItem);
 				break;
@@ -850,7 +850,7 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 				// update the listview
 				listViewItem.iItem = itemIndicator;
 				listViewItem.iSubItem = subitem;
-				std::string tempStr(str(currentVariables[varNumber].ranges[(subitem - 3) / 3].finalValue, 13));
+				std::string tempStr(str(currentVariables[varNumber].ranges[(subitem - 3) / 3].finalValue));
 				listViewItem.pszText = &tempStr[0];
 				variablesListview.SetItem(&listViewItem);
 				break;
