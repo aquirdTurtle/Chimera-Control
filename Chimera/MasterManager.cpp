@@ -843,9 +843,6 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 			// test frequency
 			info.time = operationTime;
 			rsg->addFrequency( info );
-			// set up a trigger for this event. 
-			ttls->handleTtlScriptCommand( "pulseon:", operationTime, rsg->getRsgTtl(), 
-										  Expression(str(rsg->getTriggerLength())), ttlShades, vars );
 		}
 		/// deal with function calls.
 		else if (word == "call")
@@ -1128,8 +1125,6 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs,
 			info.power.assertValid( vars );
 			info.time = operationTime;
 			rsg->addFrequency( info );
-			ttls->handleTtlScriptCommand( "pulseon:", operationTime, rsg->getRsgTtl(), 
-										  Expression(str( rsg->getTriggerLength() )), ttlShades, vars );
 		}
 		/// deal with raman beam calls (setting raman frequency).
 		/// deal with function calls.

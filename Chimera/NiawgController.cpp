@@ -2469,16 +2469,19 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 			}
 			input->niawg->rearrangeWaveVals.clear( );
 		}
-		Sleep( 1000 );
+		//Sleep( 1000 );
 		for ( auto inc : range( startCalc.size( ) ) )
 		{
+			/*
 			streamTime.push_back( std::chrono::duration<double>( stopStream[inc] - stopCalc[inc] ).count( ) );
 			triggerTime.push_back( std::chrono::duration<double>( stopTrigger[inc] - stopStream[inc] ).count( ) );
 			calcTime.push_back( std::chrono::duration<double>( stopCalc[inc] - startCalc[inc] ).count( ) );
 			resetPositionTime.push_back( std::chrono::duration<double>( stopReset[inc] - stopTrigger[inc] ).count( ) );
 			picHandlingTime.push_back( std::chrono::duration<double>( startCalc[inc] - (*input->grabTimes)[inc] ).count() );
 			picGrabTime.push_back( std::chrono::duration<double>( (*input->grabTimes)[inc] - (*input->pictureTimes)[inc]).count( ) );
+			*/
 		}
+		/*
 		(*input->pictureTimes).clear( );
 		(*input->grabTimes).clear( );
 
@@ -2505,6 +2508,7 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 					<< triggerTime[count] << "\n";
  		}
 		dataFile.close( );
+		*/
 	}
 	catch ( Error& err )
 	{

@@ -8,8 +8,8 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program.
 
-//#define MASTER_COMPUTER
-#define SPECTRE_LAPTOP
+#define MASTER_COMPUTER
+// #define SPECTRE_LAPTOP
 // #define DESKTOP_COMPUTER
 /// File Locations
 // Files for Desktop
@@ -165,7 +165,7 @@
 
 /// Agilent Parameters
 // sample rate is typically 1 MS/s.
-#define AGILENT_SAMPLE_RATE 1000000
+#define AGILENT_SAMPLE_RATE 100000
 #define AGILENT_FILTER_STATE "OFF"
 #define AGILENT_LOAD "INF"
 #define AGILENT_DEFAULT_POWER 3.5

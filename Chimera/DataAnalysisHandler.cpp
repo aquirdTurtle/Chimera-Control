@@ -625,7 +625,7 @@ void DataAnalysisControl::handlePlotAtomsOrCounts( realTimePlotterInput* input, 
 				if (pscSatisfied[dataSetI][groupI] == false)
 				{
 					// no new data.
-					return;
+					continue;
 				}
 				bool dataVal = true;
 				for (UINT pixelI = 0; pixelI < plotInfo.getPixelNumber(); pixelI++)
