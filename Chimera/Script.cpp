@@ -15,7 +15,6 @@
 #include "ProfileSystem.h"
 #include "AuxiliaryWindow.h"
 #include "DioSystem.h"
-#include "VariableSystem.h"
 #include "RunInfo.h"
 
 

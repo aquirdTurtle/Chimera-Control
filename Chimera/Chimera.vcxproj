@@ -354,6 +354,7 @@
     <Image Include="Cold_Atoms_Icon.ico" />
     <Image Include="icon1.ico" />
     <Image Include="Icon2.ico" />
+    <Image Include="JILA.bmp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Chimera.rc" />

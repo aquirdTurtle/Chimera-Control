@@ -138,6 +138,8 @@ void DataLogger::initializeDataFiles()
 	finalSaveFileName = "data_" + str(fileNum) + ".h5";
 	// update this, which is used later to move the key file.
 	currentDataFileNumber = fileNum;
+
+	//??
 	
 	try
 	{
@@ -149,27 +151,21 @@ void DataLogger::initializeDataFiles()
 		H5::Group dacsGroup( file.createGroup( "/DACs" ) );
 		// initial settings
 		// list of commands
+		H5::Group agilentsGroup( file.createGroup( "/Agilents" ) );
+		// agilent settings for each agilent
+		// mode
+		// mode settingss (dc level, script, etc.)
+		H5::Group niawgGroup( file.createGroup( "/NIAWG" ) );
+		// niawg scripts
+		// sample rate
+		// gain
+		// other settings?
 		H5::Group tektronicsGroup( file.createGroup( "/Tektronics" ) );
 		// mode, freq, power
-
 		H5::Group miscellaneousGroup( file.createGroup( "/Miscellaneous" ) );
-
-		time_t t = time( 0 );   // get time now
-		struct tm * now = localtime( &t );
-		std::string dateString = str( now->tm_year + 1900 ) + "-" + str( now->tm_mon + 1 ) + "-" + str( now->tm_mday );
-		hsize_t rank1[] = { 1 };
-		rank1[0] = dateString.size( );
-		H5::DataSet dateSet = miscellaneousGroup.createDataSet( "Run-Date", H5::PredType::C_S1, 
-																H5::DataSpace( 1, rank1 ) );
-		dateSet.write( cstr(dateSet), H5::PredType::NATIVE_FLOAT );
-
-		std::string timeString = str(now->tm_hour) + ":" + str(now->tm_min) + ":" + str(now->tm_sec) + ":";
-		rank1[0] = timeString.size( );
-		H5::DataSet dateSet = miscellaneousGroup.createDataSet( "Time-Of-Logging", H5::PredType::C_S1,
-																H5::DataSpace( 1, rank1 ) );
-		dateSet.write( cstr( timeString ), H5::PredType::NATIVE_FLOAT );
-
-
+		// start time, date
+		// end time, date
+		// immediately change this.
 		fileIsOpen = true;
 	}
 	catch (H5::Exception err)
@@ -269,7 +265,7 @@ void DataLogger::logMasterParameters( MasterThreadInput* input )
 	// to include
 	hsize_t rank1[] = { 1 };
 	// - program master option
-	H5::DataSet programMasterOption( runParametersGroup.createDataSet( "Run-Master", H5::PredType::NATIVE_HBOOL, 
+	H5::DataSet programMasterOption( runParametersGroup.createDataSet("Run-Master", H5::PredType::NATIVE_HBOOL, 
 																	   H5::DataSpace( 1, rank1 )));
 	programMasterOption.write( &input->runMaster, H5::PredType::NATIVE_HBOOL );
 	
@@ -306,7 +302,6 @@ void DataLogger::logMasterParameters( MasterThreadInput* input )
 	repSet.write( &input->repetitionNumber, H5::PredType::NATIVE_LONG );
 	// - debuging options
 
-	/// Variables
 	// - variables / key info
 	H5::Group variableGroup = runParametersGroup.createGroup( "Variables" );
 	for (auto& variable : input->variables)
@@ -324,7 +319,7 @@ void DataLogger::logMasterParameters( MasterThreadInput* input )
 		{
 			rank1[0] = input->key->getKey()[variable.name].first.size();
 			varSet = variableGroup.createDataSet( cstr( variable.name ), H5::PredType::NATIVE_DOUBLE,
-												  H5::DataSpace( 1, rank1 ) );
+															  H5::DataSpace( 1, rank1 ) );
 			// get from the key file
 			varSet.write( input->key->getKey()[variable.name].first.data(), H5::PredType::NATIVE_DOUBLE );
 		}
@@ -334,9 +329,7 @@ void DataLogger::logMasterParameters( MasterThreadInput* input )
 	}
 
 	/// NIAWG
-	H5::Group niawgGroup( file.createGroup( "/NIAWG" ) );
-
-	H5::DataSet runNiawgSet = niawgGroup.createDataSet( "Run-NIAWG", H5::PredType::NATIVE_HBOOL,
+	H5::DataSet runNiawgSet = runParametersGroup.createDataSet( "Run-NIAWG", H5::PredType::NATIVE_HBOOL,
 																  H5::DataSpace( 1, rank1 ) );
 	runNiawgSet.write( &input->runNiawg, H5::PredType::NATIVE_HBOOL );
 
@@ -349,125 +342,30 @@ void DataLogger::logMasterParameters( MasterThreadInput* input )
 		std::stringstream stream;
 		stream << niawgFiles[Horizontal][0].rdbuf();
 		rank1[0] = stream.str().size();
-		H5::DataSet horScriptSet = niawgGroup.createDataSet( "Horizontal-NIAWG-Script", H5::PredType::C_S1,
-															 H5::DataSpace( 1, rank1 ) );
+		H5::DataSet horScriptSet = runParametersGroup.createDataSet( "Horizontal-NIAWG-Script", H5::PredType::C_S1,
+																	H5::DataSpace( 1, rank1 ) );
 		horScriptSet.write( cstr(stream.str()), H5::PredType::C_S1 );
 		// vert script;
 		stream = std::stringstream();
 		stream << niawgFiles[Vertical][0].rdbuf();
 		rank1[0] = stream.str().size();
-		H5::DataSet vertScriptSet = niawgGroup.createDataSet( "Vertical-NIAWG-Script", H5::PredType::C_S1,
-															  H5::DataSpace( 1, rank1 ) );
+		H5::DataSet vertScriptSet = runParametersGroup.createDataSet( "Vertical-NIAWG-Script", H5::PredType::C_S1,
+																	  H5::DataSpace( 1, rank1 ) );
 		vertScriptSet.write( cstr( stream.str() ), H5::PredType::C_S1 );
 		// sample rate
 		rank1[0] = 1;
-		H5::DataSet sampleSet = niawgGroup.createDataSet( "NIAWG-Sample-Rate", H5::PredType::NATIVE_DOUBLE,
-														  H5::DataSpace( 1, rank1 ) );
+		H5::DataSet sampleSet = runParametersGroup.createDataSet( "NIAWG-Sample-Rate", H5::PredType::NATIVE_DOUBLE,
+																  H5::DataSpace( 1, rank1 ) );
 		sampleSet.write( &NIAWG_SAMPLE_RATE, H5::PredType::NATIVE_UINT );
-
-		H5::DataSet gainSet = niawgGroup.createDataSet( "NIAWG-GAIN", H5::PredType::NATIVE_DOUBLE,
-														  H5::DataSpace( 1, rank1 ) );
-		int gain = NIAWG_GAIN;
-		gainSet.write( &gain, H5::PredType::NATIVE_DOUBLE );
 	}
 	else
 	{
-		niawgGroup.createDataSet( "Horizontal-NIAWG-Script:NA", H5::PredType::C_S1, H5::DataSpace( 1, rank1 ) );
-		niawgGroup.createDataSet( "Vertical-NIAWG-Script:NA", H5::PredType::C_S1, H5::DataSpace( 1, rank1 ) );
-		niawgGroup.createDataSet( "NIAWG-Sample-Rate:NA", H5::PredType::NATIVE_DOUBLE, H5::DataSpace( 1, rank1 ) );
-		niawgGroup.createDataSet( "NIAWG-GAIN", H5::PredType::NATIVE_DOUBLE, H5::DataSpace( 1, rank1 ) );
-	}
-
-	/// agilents
-	H5::Group agilentsGroup( file.createGroup( "/Agilents" ) );
-	for ( auto& agilent : input->agilents )
-	{
-		H5::Group singleAgilent( agilentsGroup.createGroup( "/" + agilent->getName( ) ) );
-		// mode
-		deviceOutputInfo info = agilent->getOutputInfo( );
-		UINT channelCount = 1;
-		for ( auto& channel : info.channel )
-		{
-			H5::Group channelGroup( singleAgilent.createGroup( "/Channel-" + str( channelCount ) ) );
-
-			H5::DataSet modeSet = niawgGroup.createDataSet( "Output-Mode", H5::PredType::C_S1,
-																  H5::DataSpace( 1, rank1 ) );
-			std::string outputModeName;
-			switch ( channel.option )
-			{
-				case -2:
-					outputModeName = "No-Control";
-					break;
-				case -1:
-					outputModeName = "Output-Off";
-					break;
-				case 0:
-					outputModeName = "DC";
-					break;
-				case 1:
-					outputModeName = "Sine";
-					break;
-				case 2:
-					outputModeName = "Square";
-					break;
-				case 3:
-					outputModeName = "Preloaded-Arb";
-					break;
-				case 4:
-					outputModeName = "Scripted-Arb";
-					break;			
-			}
-			rank1[0] = outputModeName.size();
-			modeSet.write( cstr( outputModeName ), H5::PredType::C_S1 );
-			// dc
-			H5::Group dcSettings( channelGroup.createGroup( "/DC-Settings" ) );	
-			rank1[0] = channel.dc.dcLevelInput.expressionStr.size();
-			H5::DataSet dcLevelSet = dcSettings.createDataSet( "DC-Level", H5::PredType::C_S1,
-															H5::DataSpace( 1, rank1 ) );
-			dcLevelSet.write( cstr( channel.dc.dcLevelInput ), H5::PredType::C_S1 );
-			// sine 
-			H5::Group sineSettingsGroup( channelGroup.createGroup( "/Sine-Settings" ) );
-			rank1[0] = channel.sine.frequencyInput.expressionStr.size( );
-			H5::DataSet sineFreqSet = sineSettingsGroup.createDataSet( "Frequency", H5::PredType::C_S1,
-															   H5::DataSpace( 1, rank1 ) );
-			sineFreqSet.write( cstr( channel.sine.frequencyInput ), H5::PredType::C_S1 );
-
-			rank1[0] = channel.sine.amplitudeInput.expressionStr.size( );
-			H5::DataSet sineAmpSet = sineSettingsGroup.createDataSet( "Ampiltude", H5::PredType::C_S1,
-																	   H5::DataSpace( 1, rank1 ) );
-			sineAmpSet.write( cstr( channel.sine.amplitudeInput ), H5::PredType::C_S1 );
-
-			//
-			H5::Group squareSettings( channelGroup.createGroup( "/Square-Settings" ) );
-			rank1[0] = channel.square.amplitudeInput.expressionStr.size( );
-			H5::DataSet squareAmpSet = squareSettings.createDataSet( "Ampiltude", H5::PredType::C_S1,
-																	  H5::DataSpace( 1, rank1 ) );
-			squareAmpSet.write( cstr( channel.square.amplitudeInput ), H5::PredType::C_S1 );
-
-			rank1[0] = channel.square.frequencyInput.expressionStr.size( );
-			H5::DataSet squareFreqSet = squareSettings.createDataSet( "Frequency", H5::PredType::C_S1,
+		H5::DataSet horScriptSet = runParametersGroup.createDataSet( "Horizontal-NIAWG-Script:NA", H5::PredType::C_S1,
 																	 H5::DataSpace( 1, rank1 ) );
-			squareFreqSet.write( cstr( channel.square.frequencyInput), H5::PredType::C_S1 );
-
-			rank1[0] = channel.square.offsetInput.expressionStr.size( );
-			H5::DataSet squareoffsetSet = squareSettings.createDataSet( "Offset", H5::PredType::C_S1,
+		H5::DataSet vertScriptSet = runParametersGroup.createDataSet( "Vertical-NIAWG-Script:NA", H5::PredType::C_S1,
 																	  H5::DataSpace( 1, rank1 ) );
-			squareoffsetSet.write( cstr( channel.square.offsetInput ), H5::PredType::C_S1 );
-			//
-			H5::Group preloadedArbSettings( channelGroup.createGroup( "/Preloaded-Arb-Settings" ) );
-			rank1[0] = channel.preloadedArb.address.size( );
-			H5::DataSet preloadedAddress = preloadedArbSettings.createDataSet( "Address", H5::PredType::C_S1,
-																		H5::DataSpace( 1, rank1 ) );
-			preloadedAddress.write( cstr( channel.preloadedArb.address ), H5::PredType::C_S1 );
-			
-			H5::Group scriptedArbSettings( channelGroup.createGroup( "/Scripted-Arb-Settings" ) );
-			rank1[0] = channel.scriptedArb.fileAddress.size( );
-			H5::DataSet scriptAddress = preloadedArbSettings.createDataSet( "File-Address", H5::PredType::C_S1,
-																			   H5::DataSpace( 1, rank1 ) );
-			scriptAddress.write( cstr( channel.scriptedArb.fileAddress ), H5::PredType::C_S1 );
-			// TODO: load file itself
-			channelCount++;
-		}
+		H5::DataSet sampleSet = runParametersGroup.createDataSet( "NIAWG-Sample-Rate:NA", H5::PredType::NATIVE_DOUBLE,
+																  H5::DataSpace( 1, rank1 ) );
 	}
 }
 

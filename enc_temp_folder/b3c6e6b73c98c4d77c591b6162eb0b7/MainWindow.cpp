@@ -939,9 +939,13 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 		comm.sendStatus("EXITED WITH ERROR!\r\nNIAWG RESTART FAILED!\r\n");
 	}
 	setNiawgRunningState( false );
-	Beep( 850, 50 );
-	Sleep( 50 );
-	Beep( 850, 50 );
+	Beep( 750, 300 );
+	Sleep( 150 );
+	Beep( 750, 300 );
+	Sleep( 150 );
+	Beep( 750, 300 );
+	Sleep( 150 );
+	Beep( 750, 300 );
 	return 0;
 }
 
