@@ -905,7 +905,10 @@ LRESULT MainWindow::onErrorMessage(WPARAM wParam, LPARAM lParam)
 	std::string statusMessage(pointerToMessage);
 	delete[] pointerToMessage;
 	errorStatus.addStatusText(statusMessage);
-	Beep( 650, 300 );
+	Beep( 750, 300 );
+	Sleep( 150 );
+	Beep( 750, 300 );
+
 	return 0;
 }
 
@@ -936,13 +939,13 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 		comm.sendStatus("EXITED WITH ERROR!\r\nNIAWG RESTART FAILED!\r\n");
 	}
 	setNiawgRunningState( false );
-	Beep( 750, 200);
-	Sleep( 50 );
-	Beep( 750, 200 );
-	Sleep( 50 );
-	Beep( 750, 200 );
-	Sleep( 50 );
-	Beep( 750, 200 );
+	Beep( 750, 300 );
+	Sleep( 150 );
+	Beep( 750, 300 );
+	Sleep( 150 );
+	Beep( 750, 300 );
+	Sleep( 150 );
+	Beep( 750, 300 );
 	return 0;
 }
 
