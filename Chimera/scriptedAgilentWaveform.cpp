@@ -127,18 +127,19 @@ bool ScriptedAgilentWaveform::readIntoSegment( int segNum, ScriptStream& script 
 
 
 /*
-* This function takes the data points (that have already been converted and normalized) and puts them into a string for the agilent to read.
-* segNum: this is the segment number that this data is for
-* varNum: This is the variation number for this segment (matters for naming the segments)
-* totalSegNum: This is the number of segments in the waveform (also matters for naming)
-*/
+ * This function takes the data points (that have already been converted and normalized) and puts them into a string for the agilent to read.
+ * segNum: this is the segment number that this data is for
+ * varNum: This is the variation number for this segment (matters for naming the segments)
+ * totalSegNum: This is the number of segments in the waveform (also matters for naming)
+ */
 std::string ScriptedAgilentWaveform::compileAndReturnDataSendString( int segNum, int varNum, int totalSegNum )
 {
 	// must get called after data conversion
 	std::string tempSendString;
 	tempSendString = "DATA:ARB seg" + str( segNum + totalSegNum * varNum ) + ",";
 	// need to handle last one separately so that I can /not/ put a comma after it.
-	for (UINT sendDataInc = 0; sendDataInc < waveformSegments[segNum].returnDataSize() - 1; sendDataInc++)
+	UINT numData = waveformSegments[segNum].returnDataSize( ) - 1;
+	for (UINT sendDataInc = 0; sendDataInc < numData; sendDataInc++)
 	{
 		tempSendString += str( waveformSegments[segNum].returnDataVal( sendDataInc ) );
 		tempSendString += ", ";

@@ -195,7 +195,7 @@ void RhodeSchwarz::programRSG( UINT var )
 	{
 		gpibFlume.send( "OUTP ON" );
 		gpibFlume.send( "SOURce:LIST:SEL 'freqList" + str( events.size() ) + "'" );
-		std::string frequencyList = "SOURce:LIST:FREQ " + str( events[var][0].frequency, 13 );
+		std::string frequencyList = "SOURce:LIST:FREQ " + str( events[var][0].frequency, 13 ) + " GHz";
 		std::string powerList = "SOURce:LIST:POW " + str( events[var][0].power, 13 ) + "dBm";
 		for (UINT eventInc = 1; eventInc < events[var].size(); eventInc++)
 		{

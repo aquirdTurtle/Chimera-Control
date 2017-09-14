@@ -864,8 +864,8 @@ void Agilent::handleNoVariations(scriptedArbInfo& scriptInfo, UINT channel)
 		visaFlume.write( str( "OUTPUT" + str( channel ) + ":LOAD " ) + AGILENT_LOAD );
 		visaFlume.write( str( "SOURCE" + str( channel ) + ":VOLT:LOW " ) + str( scriptInfo.wave.minsAndMaxes[0].first ) + " V" );
 		visaFlume.write( str( "SOURCE" + str( channel ) + ":VOLT:HIGH " ) + str( scriptInfo.wave.minsAndMaxes[0].second ) + " V" );
+
 		visaFlume.write( scriptInfo.wave.compileAndReturnDataSendString( segNumInc, 0, totalSegmentNumber ) );
-		// don't think I need this line.
 		visaFlume.write( "MMEM:STORE:DATA \"INT:\\seg" + str( segNumInc ) + ".arb\"" );
 	}
 	// Now handle seqeunce creation / writing.
