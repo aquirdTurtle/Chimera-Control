@@ -34,49 +34,45 @@ void TektronicsChannelControl::initialize( POINT loc, CWnd* parent, int& id, std
 }
 
 
-void TektronicsControl::interpretKey(key variationKey, std::vector<variable>& vars)
+void TektronicsControl::interpretKey(key variationKey, std::vector<variableType>& variables)
 {
 	UINT variations;
-	if (vars.size() == 0)
+	if (variables.size() == 0)
 	{
 		variations = 1;
 	}
 	else
 	{
-		variations = variationKey[vars[0].name].first.size();
+		variations = variationKey[variables[0].name].first.size();
 	}
 	/// imporantly, this sizes the relevant structures.
 	currentNums.clear();
 	currentNums.resize(variations);
-	for (UINT var = 0; var < variations; var++)
+	for (UINT variationInc = 0; variationInc < variations; variationInc++)
 	{
 		/// deal with first channel.
 		if (currentInfo.channels.first.on)
 		{
-			currentNums[var].channels.first.mainFreqVal = currentInfo.channels.first.mainFreq.evaluate( variationKey,
-																										var, vars);
-			currentNums[var].channels.first.powerVal = currentInfo.channels.first.power.evaluate( variationKey, var, 
-																								  vars);
+			tektronicsChannelOutput& channel = currentNums[variationInc].channels.first;
+			channel.mainFreqVal = currentInfo.channels.first.mainFreq.evaluate( variationKey, variationInc, variables);
+			channel.powerVal = currentInfo.channels.first.power.evaluate( variationKey, variationInc, variables);
 			// handle FSK options
 			if (currentInfo.channels.first.fsk)
 			{
-				currentNums[var].channels.first.fskFreqVal = currentInfo.channels.first.fskFreq.evaluate( variationKey,
-																										  var, vars);
+				channel.fskFreqVal = currentInfo.channels.first.fskFreq.evaluate( variationKey, variationInc, variables);
 			}
 		}
 		// if off don't worry about trying to convert anything, user can not-enter things and it can be fine.
 		/// handle second channel.
 		if (currentInfo.channels.second.on)
 		{
-			currentNums[var].channels.second.mainFreqVal = currentInfo.channels.second.mainFreq.evaluate( variationKey,
-																										  var, vars);
-			currentNums[var].channels.second.powerVal = currentInfo.channels.second.power.evaluate( variationKey, var,
-																									vars);
+			tektronicsChannelOutput& channel = currentNums[variationInc].channels.second;
+			channel.mainFreqVal = currentInfo.channels.second.mainFreq.evaluate( variationKey, variationInc, variables);
+			channel.powerVal = currentInfo.channels.second.power.evaluate( variationKey, variationInc, variables);
 			// handle FSK options
 			if (currentInfo.channels.second.fsk)
 			{
-				currentNums[var].channels.second.fskFreqVal = currentInfo.channels.second.fskFreq.evaluate( variationKey, 
-																											var, vars);
+				channel.fskFreqVal = currentInfo.channels.second.fskFreq.evaluate( variationKey, variationInc, variables);
 			}
 		}
 	}
@@ -228,7 +224,7 @@ void TektronicsControl::handleOpeningConfig(std::ifstream& configFile, double ve
 
 
 
-void TektronicsControl::programMachine(UINT var)
+void TektronicsControl::programMachine(UINT variation)
 {
 	if ( currentInfo.channels.first.control || currentInfo.channels.second.control )
 	{
@@ -238,15 +234,15 @@ void TektronicsControl::programMachine(UINT var)
 	{
 		if ( currentInfo.channels.first.on )
 		{
-			visaFlume.write( "SOURCE1:FREQ " + str( currentNums[var].channels.first.mainFreqVal ) );
+			visaFlume.write( "SOURCE1:FREQ " + str( currentNums[variation].channels.first.mainFreqVal ) );
 			visaFlume.write( "SOURCE1:VOLT:UNIT DBM" );
-			visaFlume.write( "SOURCE1:VOLT " + str( currentNums[var].channels.first.powerVal ) );
+			visaFlume.write( "SOURCE1:VOLT " + str( currentNums[variation].channels.first.powerVal ) );
 			visaFlume.write( "SOURCE1:VOLT:OFFS 0" );
 
 			if ( currentInfo.channels.first.fsk )
 			{
 				visaFlume.write( "SOURCE1:FSKey:STATe On" );
-				visaFlume.write( "SOURCE1:FSKey:FREQ " + str( currentNums[var].channels.first.fskFreqVal ) );
+				visaFlume.write( "SOURCE1:FSKey:FREQ " + str( currentNums[variation].channels.first.fskFreqVal ) );
 				visaFlume.write( "SOURCE1:FSKey:SOURce External" );
 			}
 			else
@@ -265,14 +261,14 @@ void TektronicsControl::programMachine(UINT var)
 	{
 		if ( currentInfo.channels.second.on )
 		{
-			visaFlume.write( "SOURCE2:FREQ " + str( currentNums[var].channels.second.mainFreqVal ) );
+			visaFlume.write( "SOURCE2:FREQ " + str( currentNums[variation].channels.second.mainFreqVal ) );
 			visaFlume.write( "SOURCE2:VOLT:UNIT DBM" );
-			visaFlume.write( "SOURCE2:VOLT " + str( currentNums[var].channels.second.powerVal ) );
+			visaFlume.write( "SOURCE2:VOLT " + str( currentNums[variation].channels.second.powerVal ) );
 			visaFlume.write( "SOURCE2:VOLT:OFFS 0" );
 			if ( currentInfo.channels.second.fsk )
 			{
 				visaFlume.write( "SOURCE2:FSKey:STATe On" );
-				visaFlume.write( "SOURCE2:FSKey:FREQ " + str( currentNums[var].channels.second.fskFreqVal ) );
+				visaFlume.write( "SOURCE2:FSKey:FREQ " + str( currentNums[variation].channels.second.fskFreqVal ) );
 				visaFlume.write( "SOURCE2:FSKey:SOURce External" );
 			}
 			else

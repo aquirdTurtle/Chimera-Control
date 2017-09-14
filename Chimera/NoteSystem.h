@@ -12,7 +12,7 @@ class NoteSystem
 		void setExperimentNotes(std::string notes);
 		void setCategoryNotes(std::string notes);
 		void setConfigurationNotes(std::string notes);
-		void initialize(POINT& topLeftPosition, CWnd* parentWindow, int& id, cToolTips& tooltips);
+		void initialize(POINT& topLeftPosition, CWnd* parentWindow, int& id, cToolTips& tooltips, std::array<UINT, 3> ids );
 		std::string getExperimentNotes();
 		std::string getCategoryNotes();
 		std::string getConfigurationNotes();

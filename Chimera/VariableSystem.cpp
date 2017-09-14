@@ -35,7 +35,7 @@ void VariableSystem::handleOpenConfig(std::ifstream& configFile, double version)
 	}
 	for (UINT varInc = 0; varInc < varNum; varInc++)
 	{
-		variable tempVar;
+		variableType tempVar;
 		std::string varName, typeText, valueString;
 		bool constant;
 		configFile >> varName;
@@ -90,7 +90,7 @@ void VariableSystem::handleOpenConfig(std::ifstream& configFile, double version)
 	}
 
 	// add a blank line
-	variable var;
+	variableType var;
 	var.name = "";
 	var.constant = false;
 	var.ranges.push_back({ 0, 0, 1, false, true });
@@ -106,12 +106,12 @@ void VariableSystem::updateVariationNumber( )
 	// if no variables, or all are constants, it will stay at 1. else, it will get set to the # of variations
 	// of the first variable that it finds.
 	currentVariations = 1;
-	for ( auto var : currentVariables )
+	for ( auto tempVariable : currentVariables )
 	{
-		if ( !var.constant )
+		if ( !tempVariable.constant )
 		{
 			currentVariations = 0;
-			for ( auto range : var.ranges )
+			for ( auto range : tempVariable.ranges )
 			{
 				currentVariations += range.variations;
 			}
@@ -138,7 +138,7 @@ void VariableSystem::handleSaveConfig(std::ofstream& saveFile)
 	/// Variable Names
 	for (UINT varInc = 0; varInc < getCurrentNumberOfVariables(); varInc++)
 	{
-		variable info = getVariableInfo(varInc);
+		variableType info = getVariableInfo(varInc);
 		saveFile << info.name << " ";
 		if (info.constant)
 		{
@@ -237,11 +237,11 @@ void VariableSystem::removeVariableDimension()
 	}
 	// change all variables in the last dimension to be in the second-to-last dimension.
 	// TODO: I'm gonna have to check variation numbers here or change them to be compatible.
-	for (auto& var : currentVariables)
+	for (auto& variable : currentVariables)
 	{
-		if (var.scanDimension == scanDimensions)
+		if (variable.scanDimension == scanDimensions)
 		{
-			var.scanDimension--;
+			variable.scanDimension--;
 		}
 	}
 	// find the last such dimension border item.
@@ -403,13 +403,13 @@ void VariableSystem::handleColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
 	else if (myItemInfo.iSubItem > 1 && myItemInfo.iSubItem % 3 == 0)
 	{
 		// switch between [ and (
-		for (auto& var : currentVariables)
+		for (auto& variable : currentVariables)
 		{
 			UINT rangeNum = (myItemInfo.iSubItem - 3) / 3;
 			// toggle
-			if (var.ranges[rangeNum].leftInclusive)
+			if (variable.ranges[rangeNum].leftInclusive)
 			{
-				var.ranges[rangeNum].leftInclusive = false;
+				variable.ranges[rangeNum].leftInclusive = false;
 				LVCOLUMNA colInfo;
 				variablesListview.GetColumn(myItemInfo.iSubItem, &colInfo);
 				std::string text((str(rangeNum+1) + ". ("));
@@ -418,7 +418,7 @@ void VariableSystem::handleColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
 			}
 			else													   
 			{
-				var.ranges[rangeNum].leftInclusive = true;
+				variable.ranges[rangeNum].leftInclusive = true;
 				LVCOLUMNA colInfo;
 				variablesListview.GetColumn(myItemInfo.iSubItem, &colInfo);
 				std::string text((str(rangeNum+1) + ". ["));
@@ -430,13 +430,13 @@ void VariableSystem::handleColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
 	else if (myItemInfo.iSubItem > 1 && myItemInfo.iSubItem % 3 == 1)
 	{
 		// switch between ] and )
-		for (auto& var : currentVariables)
+		for (auto& variable : currentVariables)
 		{
 			UINT rangeNum = (myItemInfo.iSubItem -3) / 3;
 			// toggle
-			if (var.ranges[rangeNum].rightInclusive)
+			if (variable.ranges[rangeNum].rightInclusive)
 			{
-				var.ranges[rangeNum].rightInclusive = false;
+				variable.ranges[rangeNum].rightInclusive = false;
 				LVCOLUMNA colInfo;
 				variablesListview.GetColumn(myItemInfo.iSubItem, &colInfo);
 				colInfo.pszText = ")";
@@ -444,7 +444,7 @@ void VariableSystem::handleColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
 			}
 			else
 			{
-				var.ranges[rangeNum].rightInclusive = true;
+				variable.ranges[rangeNum].rightInclusive = true;
 				LVCOLUMNA colInfo;
 				variablesListview.GetColumn(myItemInfo.iSubItem, &colInfo);
 				colInfo.pszText = "]";
@@ -636,9 +636,9 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 				// probably canceled.
 				break;
 			}
-			for (auto var : currentVariables)
+			for (auto variable : currentVariables)
 			{
-				if (var.name == newName)
+				if (variable.name == newName)
 				{
 					thrower( "ERROR: A varaible with name " + newName + " already exists!" );
 				}
@@ -974,7 +974,7 @@ void VariableSystem::deleteVariable()
 }
 
 
-variable VariableSystem::getVariableInfo(int varNumber)
+variableType VariableSystem::getVariableInfo(int varNumber)
 {
 	return currentVariables[varNumber];
 }
@@ -987,7 +987,7 @@ UINT VariableSystem::getCurrentNumberOfVariables()
 
 // takes as input variables, but just looks at the name and usage stats. When it finds matches between the variables,
 // it takes the usage of the input and saves it as the usage of the real inputVar. 
-void VariableSystem::setUsages(std::vector<variable> vars)
+void VariableSystem::setUsages(std::vector<variableType> vars)
 {
 	for (auto inputVar : vars)
 	{
@@ -1019,15 +1019,15 @@ void VariableSystem::clearVariables()
 }
 
 
-std::vector<variable> VariableSystem::getEverything()
+std::vector<variableType> VariableSystem::getEverything()
 {
 	return currentVariables;
 }
 
 
-std::vector<variable> VariableSystem::getAllConstants()
+std::vector<variableType> VariableSystem::getAllConstants()
 {
-	std::vector<variable> constants;
+	std::vector<variableType> constants;
 	for (UINT varInc = 0; varInc < currentVariables.size(); varInc++)
 	{
 		if (currentVariables[varInc].constant)
@@ -1039,9 +1039,9 @@ std::vector<variable> VariableSystem::getAllConstants()
 }
 
 // this function returns the compliment of the variables that "getAllConstants" returns.
-std::vector<variable> VariableSystem::getAllVariables()
+std::vector<variableType> VariableSystem::getAllVariables()
 {
-	std::vector<variable> varyingParameters;
+	std::vector<variableType> varyingParameters;
 	for (UINT varInc = 0; varInc < currentVariables.size(); varInc++)
 	{
 		// opposite of get constants.
@@ -1054,22 +1054,22 @@ std::vector<variable> VariableSystem::getAllVariables()
 }
 
 
-void VariableSystem::addGlobalVariable( variable var, UINT item )
+void VariableSystem::addGlobalVariable( variableType variable, UINT item )
 {
 	// convert name to lower case.
-	std::transform( var.name.begin(), var.name.end(), var.name.begin(), ::tolower );
-	if (isdigit(var.name[0]))
+	std::transform( variable.name.begin(), variable.name.end(), variable.name.begin(), ::tolower );
+	if (isdigit(variable.name[0]))
 	{
-		thrower("ERROR: " + var.name + " is an invalid name; names cannot start with numbers.");
+		thrower("ERROR: " + variable.name + " is an invalid name; names cannot start with numbers.");
 	}
 
-	if (var.name.find_first_of(" \t\r\n()*+/-%") != std::string::npos)
+	if (variable.name.find_first_of(" \t\r\n()*+/-%") != std::string::npos)
 	{
 		thrower("ERROR: Forbidden character in variable name! you cannot use spaces, tabs, newlines, or any of "
 				"\"()*+/-%\" in a variable name.");
 	}
 
-	if (var.name == "")
+	if (variable.name == "")
 	{
 		// then add empty variable slot
 		// Make First Blank row.
@@ -1095,19 +1095,19 @@ void VariableSystem::addGlobalVariable( variable var, UINT item )
 		return;
 	}
 	/// else...
-	if (var.constant == false)
+	if (variable.constant == false)
 	{
 		thrower( "ERROR: attempted to add a non-constant to the global variable control!" );
 	}
 	for (auto currentVar : currentVariables)
 	{
-		if (currentVar.name == var.name)
+		if (currentVar.name == variable.name)
 		{
-			thrower( "ERROR: A variable with the name " + var.name + " already exists!" );
+			thrower( "ERROR: A variable with the name " + variable.name + " already exists!" );
 		}
 	}
 	// add it to the internal structure that keeps track of variables
-	currentVariables.push_back( var );
+	currentVariables.push_back( variable );
 	/// add the entry to the listview.
 	LVITEM listViewItem;
 	memset( &listViewItem, 0, sizeof( listViewItem ) );
@@ -1118,33 +1118,33 @@ void VariableSystem::addGlobalVariable( variable var, UINT item )
 	// choose item  
 	// initialize this row.
 	listViewItem.iItem = item;
-	std::string tempStr(str(var.name));
+	std::string tempStr(str(variable.name));
 	listViewItem.pszText = &tempStr[0];
 	// Put in first column
 	listViewItem.iSubItem = 0;
 	variablesListview.InsertItem(&listViewItem);
 	listViewItem.iSubItem = 1;
-	tempStr = str(var.ranges.front().initialValue, 13, true);
+	tempStr = str(variable.ranges.front().initialValue, 13, true);
 	listViewItem.pszText = &tempStr[0];
 	variablesListview.SetItem(&listViewItem);
 }
 
 
-void VariableSystem::addConfigVariable(variable var, UINT item)
+void VariableSystem::addConfigVariable(variableType variableToAdd, UINT item)
 {
 	// make name lower case.
-	std::transform(var.name.begin(), var.name.end(), var.name.begin(), ::tolower);
-	if (isdigit(var.name[0]))
+	std::transform(variableToAdd.name.begin(), variableToAdd.name.end(), variableToAdd.name.begin(), ::tolower);
+	if (isdigit(variableToAdd.name[0]))
 	{
-		thrower("ERROR: " + var.name + " is an invalid name; names cannot start with numbers.");
+		thrower("ERROR: " + variableToAdd.name + " is an invalid name; names cannot start with numbers.");
 	}
 	// check for forbidden (math) characters
-	if (var.name.find_first_of(" \t\r\n()*+/-%") != std::string::npos)
+	if (variableToAdd.name.find_first_of(" \t\r\n()*+/-%") != std::string::npos)
 	{
 		thrower("ERROR: Forbidden character in variable name! you cannot use spaces, tabs, newlines, or any of "
 				"\"()*+/-%\" in a variable name.");
 	}
-	if (var.name == "")
+	if (variableToAdd.name == "")
 	{
 		// then add empty variable slot
 		// Make First Blank row.
@@ -1180,13 +1180,13 @@ void VariableSystem::addConfigVariable(variable var, UINT item)
 	// check if varible already exists.
 	for (auto currentVar : currentVariables)
 	{
-		if (currentVar.name == var.name)
+		if (currentVar.name == variableToAdd.name)
 		{
-			thrower("ERROR: A variable with the name " + var.name + " already exists!");
+			thrower("ERROR: A variable with the name " + variableToAdd.name + " already exists!");
 		}
 	}
 	// add it to the internal structure that keeps track of variables
-	currentVariables.push_back(var);
+	currentVariables.push_back(variableToAdd);
 	// add the entry to the listview.
 	LVITEM listViewItem;
 	memset(&listViewItem, 0, sizeof(listViewItem));
@@ -1197,13 +1197,13 @@ void VariableSystem::addConfigVariable(variable var, UINT item)
 	// choose item  
 	// initialize this row.
 	listViewItem.iItem = item;
-	std::string tempStr(str(var.name));
+	std::string tempStr(str(variableToAdd.name));
 	listViewItem.pszText = &tempStr[0];
 	// Put in first column
 	listViewItem.iSubItem = 0;
 	variablesListview.InsertItem(&listViewItem);
 	listViewItem.iSubItem = 1;
-	if (var.constant)
+	if (variableToAdd.constant)
 	{
 		listViewItem.pszText = "Constant";
 	}
@@ -1231,7 +1231,7 @@ void VariableSystem::addConfigVariable(variable var, UINT item)
 	// make sure there are enough currentRanges.
 	UINT columns = variablesListview.GetHeaderCtrl()->GetItemCount();
 	UINT currentRanges = (columns - 6) / 3;
-	for (UINT rangeAddInc = 0; rangeAddInc < var.ranges.size() - currentRanges; rangeAddInc++)
+	for (UINT rangeAddInc = 0; rangeAddInc < variableToAdd.ranges.size() - currentRanges; rangeAddInc++)
 	{
 		// add a range.
 		LV_COLUMN listViewDefaultCollumn;
@@ -1279,9 +1279,9 @@ void VariableSystem::addConfigVariable(variable var, UINT item)
 	}
 
 
-	for (UINT rangeInc = 0; rangeInc < var.ranges.size(); rangeInc++)
+	for (UINT rangeInc = 0; rangeInc < variableToAdd.ranges.size(); rangeInc++)
 	{
-		if (!var.constant)
+		if (!variableToAdd.constant)
 		{
 			// variable case.
 			std::string tempStr(str(currentVariables[item].ranges[rangeInc].initialValue, 13, true));

@@ -23,29 +23,29 @@ class DioSystem
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, double version);
 		void initialize(POINT& startLocation, cToolTips& toolTips, AuxiliaryWindow* master, int& id);
-		double getTotalTime(UINT var);
-		void checkFinalFormatTimes( UINT var );
+		double getTotalTime(UINT variation );
+		void checkFinalFormatTimes( UINT variation );
 		int getNumberOfTTLRows();
 		int getNumberOfTTLsPerRow();
-		std::string getTtlSequenceMessage(UINT var);
+		std::string getTtlSequenceMessage(UINT variation );
 		void zeroBoard();
 		void handleTTLPress(int id);
-		void checkNotTooManyTimes( UINT var );
+		void checkNotTooManyTimes( UINT variation );
 		void handleHoldPress();
 		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
 		std::string getSystemInfo();
 		std::array< std::array<bool, 16>, 4 > getFinalSnapshot();
 		void setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > status);
 
-		ULONG countDacTriggers(UINT var);
-		ULONG getNumberEvents(UINT var);
+		ULONG countDacTriggers(UINT variation );
+		ULONG getNumberEvents(UINT variation );
 
 		void rearrange(UINT width, UINT height, fontMap fonts);
 
 		void ttlOn(UINT row, UINT column, timeType time);
-		void ttlOnDirect( UINT row, UINT column, double time, UINT var);
+		void ttlOnDirect( UINT row, UINT column, double time, UINT variation );
 		void ttlOff(UINT row, UINT column, timeType time);
-		void ttlOffDirect( UINT row, UINT column, double time, UINT var);
+		void ttlOffDirect( UINT row, UINT column, double time, UINT variation );
 		void forceTtl(int row, int number, int state);
 
 		std::pair<UINT, UINT> getTtlBoardSize();
@@ -59,19 +59,19 @@ class DioSystem
 		std::string getErrorMessage(int errorCode);
 		void handleTtlScriptCommand( std::string command, timeType time, std::string name,
 									 std::vector<std::pair<UINT, UINT>>& ttlShadeLocations, 
-									 std::vector<variable>& vars );
+									 std::vector<variableType>& vars );
 		void handleTtlScriptCommand( std::string command, timeType time, std::string name,
 									 Expression pulseLength, std::vector<std::pair<UINT, UINT>>& ttlShadeLocations,
-									 std::vector<variable>& vars );
-		void interpretKey(key variationKey, std::vector<variable>& vars);
-		void analyzeCommandList(UINT var);
-		void convertToFinalFormat(UINT var);
-		void writeData(UINT var);
+									 std::vector<variableType>& vars );
+		void interpretKey(key variationKey, std::vector<variableType>& vars);
+		void analyzeCommandList(UINT variation );
+		void convertToFinalFormat(UINT variation );
+		void writeData(UINT variation );
 		void startBoard();
 		void stopBoard();
 		double getClockStatus();
 		void wait(double time);
-		void waitTillFinished(UINT var);
+		void waitTillFinished(UINT variation );
 
 		//int DioSystem::getNameIdentifier(std::string name, unsigned int& row, unsigned int& number);
 		void shadeTTLs(std::vector<std::pair<UINT, UINT>>);

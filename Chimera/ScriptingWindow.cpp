@@ -10,9 +10,7 @@
 
 
 ScriptingWindow::ScriptingWindow() : CDialog(), intensityAgilent(INTENSITY_SAFEMODE, INTENSITY_AGILENT_USB_ADDRESS)
-{
-
-}
+{}
 
 IMPLEMENT_DYNAMIC(ScriptingWindow, CDialog)
 
@@ -39,8 +37,6 @@ BEGIN_MESSAGE_MAP(ScriptingWindow, CDialog)
 	ON_CBN_SELENDOK(IDC_INTENSITY_FUNCTION_COMBO, &ScriptingWindow::handleAgilentScriptComboChange)
 	
 	ON_CBN_SELENDOK( IDC_MASTER_FUNCTION_COMBO, &ScriptingWindow::handleMasterFunctionChange )
-
-	//ON_CBN_SELENDOK(IDC_MASTER_FUNCTION_COMBO, &ScriptingWindow::handleAgilentScriptComboChange)
 
 	ON_NOTIFY_EX_RANGE( TTN_NEEDTEXTA, 0, 0xFFFF, ScriptingWindow::OnToolTipText )
 END_MESSAGE_MAP()
@@ -106,6 +102,7 @@ void ScriptingWindow::handleIntensityButtons( UINT id )
 	}
 	// else it's a combo or edit that must be handled separately, not in an ON_COMMAND handling.
 }
+
 
 void ScriptingWindow::masterEditChange()
 {
@@ -448,8 +445,12 @@ void ScriptingWindow::saveIntensityScript()
 {
 	try
 	{
-		intensityAgilent.agilentScript.saveScript( getProfile().categoryPath, mainWindowFriend->getRunInfo() );
-		intensityAgilent.agilentScript.updateScriptNameText( getProfile().categoryPath );
+		// channel 0 is the intensity channel, the 4th option is the scripting option.
+		if ( intensityAgilent.getOutputInfo( ).channel[0].option == 4 )
+		{
+			intensityAgilent.agilentScript.saveScript( getProfile( ).categoryPath, mainWindowFriend->getRunInfo( ) );
+			intensityAgilent.agilentScript.updateScriptNameText( getProfile( ).categoryPath );
+		}
 	}
 	catch (Error& err)
 	{

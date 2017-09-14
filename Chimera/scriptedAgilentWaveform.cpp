@@ -265,7 +265,7 @@ void ScriptedAgilentWaveform::replaceVarValues()
 /*
 * This waveform loops through all of the segments to find places where a variable value needs to be changed, and changes it.
 */
-void ScriptedAgilentWaveform::replaceVarValues( key variableKey, UINT variation, std::vector<variable>& variables )
+void ScriptedAgilentWaveform::replaceVarValues( key variableKey, UINT variation, std::vector<variableType>& variables )
 {
 	for (UINT segNumInc = 0; segNumInc < waveformSegments.size(); segNumInc++)
 	{

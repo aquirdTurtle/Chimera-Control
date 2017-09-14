@@ -104,10 +104,10 @@ void DacSystem::abort()
 	// TODO...?
 }
 
-std::string DacSystem::getDacSequenceMessage(UINT var)
+std::string DacSystem::getDacSequenceMessage(UINT variation)
 {
 	std::string message;
-	for ( auto snap : dacSnapshots[var] )
+	for ( auto snap : dacSnapshots[variation] )
 	{
 		std::string time = str( snap.time );
 		time.erase( time.find_last_not_of( '0' ) + 1, std::string::npos );
@@ -476,13 +476,13 @@ void DacSystem::handleButtonPress(DioSystem* ttls)
 }
 
 
-void DacSystem::analyzeDacCommands(UINT var)
+void DacSystem::analyzeDacCommands(UINT variation)
 {
 	// each element of this is a different time (the double), and associated with each time is a vector which locates 
 	// which commands were at this time, for
 	// ease of retrieving all of the values in a moment.
 	std::vector<std::pair<double, std::vector<DacCommand>>> timeOrganizer;
-	std::vector<DacCommand> tempEvents(dacCommandList[var]);
+	std::vector<DacCommand> tempEvents(dacCommandList[variation]);
 	// sort the events by time. using a lambda
 	std::sort( tempEvents.begin(), tempEvents.end(), 
 			   [](DacCommand a, DacCommand b){return a.time < b.time; });
@@ -508,18 +508,18 @@ void DacSystem::analyzeDacCommands(UINT var)
 		//thrower("ERROR: no dac commands...?");
 		return;
 	}
-	dacSnapshots[var].clear();
+	dacSnapshots[variation].clear();
 	// first copy the initial settings so that things that weren't changed remain unchanged.
-	dacSnapshots[var].push_back({ 0, dacValues });
+	dacSnapshots[variation].push_back({ 0, dacValues });
 	for (UINT commandInc = 0; commandInc < timeOrganizer.size(); commandInc++)
 	{
 		// first copy the last set so that things that weren't changed remain unchanged.
-		dacSnapshots[var].push_back(dacSnapshots[var].back());
-		dacSnapshots[var].back().time = timeOrganizer[commandInc].first;
+		dacSnapshots[variation].push_back(dacSnapshots[variation].back());
+		dacSnapshots[variation].back().time = timeOrganizer[commandInc].first;
 		for (UINT zeroInc = 0; zeroInc < timeOrganizer[commandInc].second.size(); zeroInc++)
 		{
 			// see description of this command above... update everything that changed at this time.
-			dacSnapshots[var].back().dacValues[timeOrganizer[commandInc].second[zeroInc].line]
+			dacSnapshots[variation].back().dacValues[timeOrganizer[commandInc].second[zeroInc].line]
 				= timeOrganizer[commandInc].second[zeroInc].value;
 		}
 	}
@@ -604,7 +604,7 @@ void DacSystem::prepareForce()
 }
 
 
-void DacSystem::interpretKey( key variationKey, std::vector<variable>& vars, std::string& warnings )
+void DacSystem::interpretKey( key variationKey, std::vector<variableType>& vars, std::string& warnings )
 {
 	UINT variations;
 	variations = variationKey[vars[0].name].first.size();
@@ -621,7 +621,7 @@ void DacSystem::interpretKey( key variationKey, std::vector<variable>& vars, std
 	finalFormatDacData.resize(variations);
 	bool resolutionWarningPosted = false;
 	bool nonIntegerWarningPosted = false;
-	for (UINT var = 0; var < variations; var++)
+	for (UINT variationInc = 0; variationInc < variations; variationInc++)
 	{
 	//
 		for (UINT eventInc = 0; eventInc < dacCommandFormList.size(); eventInc++)
@@ -641,8 +641,7 @@ void DacSystem::interpretKey( key variationKey, std::vector<variable>& vars, std
 				double varTime = 0;
 				for (auto variableTimeString : dacCommandFormList[eventInc].time.first)
 				{
-					varTime += variableTimeString.evaluate( variationKey, var, vars);
-					//varTime += variationKey[variableTimeString].first[var];
+					varTime += variableTimeString.evaluate( variationKey, variationInc, vars);
 				}
 				tempEvent.time = varTime + dacCommandFormList[eventInc].time.second;
 			}
@@ -652,21 +651,21 @@ void DacSystem::interpretKey( key variationKey, std::vector<variable>& vars, std
 				/// single point.
 				////////////////
 				// deal with value
-				tempEvent.value = dacCommandFormList[eventInc].finalVal.evaluate( variationKey, var, vars);
-				dacCommandList[var].push_back(tempEvent);
+				tempEvent.value = dacCommandFormList[eventInc].finalVal.evaluate( variationKey, variationInc, vars);
+				dacCommandList[variationInc].push_back(tempEvent);
 			}
 			else if ( dacCommandFormList[eventInc].commandName == "dacarange:")
 			{
 				// interpret ramp time command. I need to know whether it's ramping or not.
-				double rampTime = dacCommandFormList[eventInc].rampTime.evaluate( variationKey, var, vars );
+				double rampTime = dacCommandFormList[eventInc].rampTime.evaluate( variationKey, variationInc, vars );
 				/// many points to be made.
 				// convert initValue and finalValue to doubles to be used 
 				double initValue, finalValue, rampInc;
-				initValue = dacCommandFormList[eventInc].initVal.evaluate( variationKey, var, vars);
+				initValue = dacCommandFormList[eventInc].initVal.evaluate( variationKey, variationInc, vars);
 				// deal with final value;
-				finalValue = dacCommandFormList[eventInc].finalVal.evaluate( variationKey, var, vars);
+				finalValue = dacCommandFormList[eventInc].finalVal.evaluate( variationKey, variationInc, vars);
 				// deal with ramp inc
-				rampInc = dacCommandFormList[eventInc].rampInc.evaluate( variationKey, var, vars);
+				rampInc = dacCommandFormList[eventInc].rampInc.evaluate( variationKey, variationInc, vars);
 				if (rampInc < 10.0 / pow(2, 16) && resolutionWarningPosted )
 				{
 					resolutionWarningPosted = true;
@@ -699,7 +698,7 @@ void DacSystem::interpretKey( key variationKey, std::vector<variable>& vars, std
 					{
 						tempEvent.value = dacValue;
 						tempEvent.time = currentTime;
-						dacCommandList[var].push_back(tempEvent);
+						dacCommandList[variationInc].push_back(tempEvent);
 						currentTime += timeInc;
 					}
 				}
@@ -709,27 +708,27 @@ void DacSystem::interpretKey( key variationKey, std::vector<variable>& vars, std
 					{
 						tempEvent.value = dacValue;
 						tempEvent.time = currentTime;
-						dacCommandList[var].push_back(tempEvent);
+						dacCommandList[variationInc].push_back(tempEvent);
 						currentTime += timeInc;
 					}
 				}
 				// and get the final value.
 				tempEvent.value = finalValue;
 				tempEvent.time = initTime + rampTime;
-				dacCommandList[var].push_back(tempEvent);
+				dacCommandList[variationInc].push_back(tempEvent);
 			}
 			else if ( dacCommandFormList[eventInc].commandName == "daclinspace:" )
 			{
 				// interpret ramp time command. I need to know whether it's ramping or not.
-				double rampTime = dacCommandFormList[eventInc].rampTime.evaluate( variationKey, var, vars );
+				double rampTime = dacCommandFormList[eventInc].rampTime.evaluate( variationKey, variationInc, vars );
 				/// many points to be made.
 				// convert initValue and finalValue to doubles to be used 
 				double initValue, finalValue, numSteps;
-				initValue = dacCommandFormList[eventInc].initVal.evaluate( variationKey, var, vars );
+				initValue = dacCommandFormList[eventInc].initVal.evaluate( variationKey, variationInc, vars );
 				// deal with final value;
-				finalValue = dacCommandFormList[eventInc].finalVal.evaluate( variationKey, var, vars );
+				finalValue = dacCommandFormList[eventInc].finalVal.evaluate( variationKey, variationInc, vars );
 				// deal with numPoints
-				numSteps = dacCommandFormList[eventInc].numSteps.evaluate( variationKey, var, vars );
+				numSteps = dacCommandFormList[eventInc].numSteps.evaluate( variationKey, variationInc, vars );
 				double rampInc = (finalValue - initValue) / numSteps;
 				if ( rampInc < 10.0 / pow( 2, 16 ) && !resolutionWarningPosted )
 				{
@@ -750,14 +749,14 @@ void DacSystem::interpretKey( key variationKey, std::vector<variable>& vars, std
 				{
 					tempEvent.value = val;
 					tempEvent.time = currentTime;
-					dacCommandList[var].push_back( tempEvent );
+					dacCommandList[variationInc].push_back( tempEvent );
 					currentTime += timeInc;
 					val += rampInc;
 				}
 				// and get the final value. Just use the nums explicitly to avoid rounding error I guess.
 				tempEvent.value = finalValue;
 				tempEvent.time = initTime + rampTime;
-				dacCommandList[var].push_back( tempEvent );
+				dacCommandList[variationInc].push_back( tempEvent );
 			}
 			else
 			{
@@ -768,16 +767,16 @@ void DacSystem::interpretKey( key variationKey, std::vector<variable>& vars, std
 }
 
 
-UINT DacSystem::getNumberSnapshots(UINT var)
+UINT DacSystem::getNumberSnapshots(UINT variation)
 {
-	return dacSnapshots[var].size();
+	return dacSnapshots[variation].size();
 }
 
-void DacSystem::checkTimingsWork(UINT var)
+void DacSystem::checkTimingsWork(UINT variation)
 {
 	std::vector<double> times;
 	// grab all the times.
-	for (auto snapshot : dacSnapshots[var])
+	for (auto snapshot : dacSnapshots[variation])
 	{
 		times.push_back(snapshot.time);
 	}
@@ -806,9 +805,9 @@ void DacSystem::checkTimingsWork(UINT var)
 	}
 }
 
-ULONG DacSystem::getNumberEvents(UINT var)
+ULONG DacSystem::getNumberEvents(UINT variation)
 {
-	return dacSnapshots[var].size();
+	return dacSnapshots[variation].size();
 }
 
 
@@ -824,14 +823,14 @@ void DacSystem::setDacCommandForm( DacCommandForm command )
 
 
 // add a ttl trigger event for every unique dac snapshot.
-void DacSystem::setDacTriggerEvents(DioSystem* ttls, UINT var)
+void DacSystem::setDacTriggerEvents(DioSystem* ttls, UINT variation)
 {
-	for ( auto snapshot : dacSnapshots[var])
+	for ( auto snapshot : dacSnapshots[variation])
 	{
 		// turn them on...
-		ttls->ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, snapshot.time, var);
+		ttls->ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, snapshot.time, variation);
 		// turn them off...
-		ttls->ttlOffDirect( dacTriggerLine.first, dacTriggerLine.second, snapshot.time + dacTriggerTime, var);
+		ttls->ttlOffDirect( dacTriggerLine.first, dacTriggerLine.second, snapshot.time + dacTriggerTime, variation);
 	}
 }
 
@@ -863,11 +862,11 @@ void DacSystem::prepareDacForceChange(int line, double voltage, DioSystem* ttls)
 }
 
 
-void DacSystem::checkValuesAgainstLimits(UINT var)
+void DacSystem::checkValuesAgainstLimits(UINT variation)
 {
 	for (UINT line = 0; line < dacNames.size(); line++)
 	{
-		for (auto snapshot : dacSnapshots[var])
+		for (auto snapshot : dacSnapshots[variation])
 		{
 			if (snapshot.dacValues[line] > dacMaxVals[line] || snapshot.dacValues[line] < dacMinVals[line])
 			{
@@ -881,7 +880,7 @@ void DacSystem::checkValuesAgainstLimits(UINT var)
 }
 
 
-void DacSystem::setForceDacEvent( int line, double val, DioSystem* ttls, UINT var )
+void DacSystem::setForceDacEvent( int line, double val, DioSystem* ttls, UINT variation )
 {
 	if (val > dacMaxVals[line] || val < dacMinVals[line])
 	{
@@ -894,11 +893,11 @@ void DacSystem::setForceDacEvent( int line, double val, DioSystem* ttls, UINT va
 	eventInfo.line = line;
 	eventInfo.time = 1;	
 	eventInfo.value = val;
-	dacCommandList[var].push_back( eventInfo );
+	dacCommandList[variation].push_back( eventInfo );
 	// important! need at least 2 states to run the dac board. can't just give it one value. This is how this was done in the VB code,
 	// there might be better ways of dealing with this. 
 	eventInfo.time = 10;
-	dacCommandList[var].push_back( eventInfo );
+	dacCommandList[variation].push_back( eventInfo );
 	// you need to set up a corresponding pulse trigger to tell the dacs to change the output at the correct time.
 	ttls->ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, 1, 0 );
 	ttls->ttlOffDirect( dacTriggerLine.first, dacTriggerLine.second, 1 + dacTriggerTime, 0 );
@@ -921,37 +920,37 @@ void DacSystem::stopDacs()
 }
 
 
-void DacSystem::configureClocks(UINT var)
+void DacSystem::configureClocks(UINT variation)
 {	
-	long sampleNumber = dacSnapshots[var].size();
+	long sampleNumber = dacSnapshots[variation].size();
 	daqConfigSampleClkTiming( staticDac0, "/Dev2/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
 	daqConfigSampleClkTiming( staticDac1, "/Dev3/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
 	daqConfigSampleClkTiming( staticDac2, "/Dev4/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
 }
 
 
-void DacSystem::writeDacs(UINT var)
+void DacSystem::writeDacs(UINT variation)
 {
-	if (dacSnapshots[var].size() <= 1)
+	if (dacSnapshots[variation].size() <= 1)
 	{
 		// need at least 2 events to run dacs.
 		return;
 	}
 
-	if (finalFormatDacData[var][0].size() != 8 * dacSnapshots[var].size() || finalFormatDacData[var][1].size() != 8 * dacSnapshots[var].size()
-		 || finalFormatDacData[var][2].size() != 8 * dacSnapshots[var].size())
+	if (finalFormatDacData[variation][0].size() != 8 * dacSnapshots[variation].size() || finalFormatDacData[variation][1].size() != 8 * dacSnapshots[variation].size()
+		 || finalFormatDacData[variation][2].size() != 8 * dacSnapshots[variation].size())
 	{
 		thrower( "Data array size doesn't match the number of time slices in the experiment!" );
 	}
 
 	int32 samplesWritten;
 	//
-	daqWriteAnalogF64( staticDac0, dacSnapshots[var].size(), false, 0.01, DAQmx_Val_GroupByScanNumber, 
-					  &finalFormatDacData[var][0].front(), &samplesWritten );
-	daqWriteAnalogF64( staticDac1, dacSnapshots[var].size(), false, 0.01, DAQmx_Val_GroupByScanNumber,
-					  &finalFormatDacData[var][1].front(), &samplesWritten );
-	daqWriteAnalogF64( staticDac2, dacSnapshots[var].size(), false, 0.01, DAQmx_Val_GroupByScanNumber,
-					  &finalFormatDacData[var][2].front(), &samplesWritten );	
+	daqWriteAnalogF64( staticDac0, dacSnapshots[variation].size(), false, 0.01, DAQmx_Val_GroupByScanNumber, 
+					  &finalFormatDacData[variation][0].front(), &samplesWritten );
+	daqWriteAnalogF64( staticDac1, dacSnapshots[variation].size(), false, 0.01, DAQmx_Val_GroupByScanNumber,
+					  &finalFormatDacData[variation][1].front(), &samplesWritten );
+	daqWriteAnalogF64( staticDac2, dacSnapshots[variation].size(), false, 0.01, DAQmx_Val_GroupByScanNumber,
+					  &finalFormatDacData[variation][2].front(), &samplesWritten );	
 }
 
 
@@ -963,32 +962,32 @@ void DacSystem::startDacs()
 }
 
 
-void DacSystem::makeFinalDataFormat(UINT var)
+void DacSystem::makeFinalDataFormat(UINT variation)
 {
-	finalFormatDacData[var][0].clear();
-	finalFormatDacData[var][1].clear();
-	finalFormatDacData[var][2].clear();
+	finalFormatDacData[variation][0].clear();
+	finalFormatDacData[variation][1].clear();
+	finalFormatDacData[variation][2].clear();
 	
-	for (DacSnapshot snapshot : dacSnapshots[var])
+	for (DacSnapshot snapshot : dacSnapshots[variation])
 	{
 		for (int dacInc = 0; dacInc < 8; dacInc++)
 		{
-			finalFormatDacData[var][0].push_back(snapshot.dacValues[dacInc]);
+			finalFormatDacData[variation][0].push_back(snapshot.dacValues[dacInc]);
 		}
 		for (int dacInc = 8; dacInc < 16; dacInc++)
 		{
-			finalFormatDacData[var][1].push_back(snapshot.dacValues[dacInc]);
+			finalFormatDacData[variation][1].push_back(snapshot.dacValues[dacInc]);
 		}
 		for (int dacInc = 16; dacInc < 24; dacInc++)
 		{
-			finalFormatDacData[var][2].push_back(snapshot.dacValues[dacInc]);
+			finalFormatDacData[variation][2].push_back(snapshot.dacValues[dacInc]);
 		}
 	}
 }
 
 
 void DacSystem::handleDacScriptCommand( DacCommandForm command, std::string name, std::vector<UINT>& dacShadeLocations,
-										std::vector<variable>& vars, DioSystem* ttls )
+										std::vector<variableType>& vars, DioSystem* ttls )
 {
 	if ( command.commandName != "dac:" && command.commandName != "dacarange:" && command.commandName != "daclinspace:" )
 	{

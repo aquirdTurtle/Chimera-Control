@@ -13,7 +13,7 @@ key KeyHandler::getKey()
 }
 
 
-void KeyHandler::loadVariables(std::vector<variable> newVariables)
+void KeyHandler::loadVariables(std::vector<variableType> newVariables)
 {
 	variables = newVariables;
 }
@@ -146,19 +146,19 @@ void KeyHandler::generateKey(bool randomizeVariablesOption)
 		totalSize = tempKeyRandomized.size();
 	}
 	// now add all constant objects.
-	for (variable var : variables)
+	for (variableType variable : variables)
 	{
-		if (var.constant)
+		if (variable.constant)
 		{
 			std::vector<double> tempKey;
 			for (int variationInc = 0; variationInc < totalSize; variationInc++)
 			{
 				// the only constant value is stored as the initial value here.
-				tempKey.push_back(var.ranges[0].initialValue);
+				tempKey.push_back(variable.ranges[0].initialValue);
 			}
-			keyValues[var.name].first = tempKey;
+			keyValues[variable.name].first = tempKey;
 			// does not vary
-			keyValues[var.name].second = false;
+			keyValues[variable.name].second = false;
 		}
 	}
 }

@@ -304,28 +304,28 @@ void DataLogger::logMasterParameters( MasterThreadInput* input )
 
 	// - variables / key info
 	H5::Group variableGroup = runParametersGroup.createGroup( "Variables" );
-	for (auto& var : input->variables)
+	for (auto& variable : input->variables)
 	{
 		H5::DataSet varSet;
-		if (var.constant)
+		if (variable.constant)
 		{
 			rank1[0] = 1;
-			varSet = variableGroup.createDataSet( cstr( var.name ), H5::PredType::NATIVE_DOUBLE,
+			varSet = variableGroup.createDataSet( cstr( variable.name ), H5::PredType::NATIVE_DOUBLE,
 															  H5::DataSpace( 1, rank1 ) );
 			// just grab from variable value
-			varSet.write( &var.ranges.front().initialValue, H5::PredType::NATIVE_DOUBLE );
+			varSet.write( &variable.ranges.front().initialValue, H5::PredType::NATIVE_DOUBLE );
 		}
 		else
 		{
-			rank1[0] = input->key->getKey()[var.name].first.size();
-			varSet = variableGroup.createDataSet( cstr( var.name ), H5::PredType::NATIVE_DOUBLE,
+			rank1[0] = input->key->getKey()[variable.name].first.size();
+			varSet = variableGroup.createDataSet( cstr( variable.name ), H5::PredType::NATIVE_DOUBLE,
 															  H5::DataSpace( 1, rank1 ) );
 			// get from the key file
-			varSet.write( input->key->getKey()[var.name].first.data(), H5::PredType::NATIVE_DOUBLE );
+			varSet.write( input->key->getKey()[variable.name].first.data(), H5::PredType::NATIVE_DOUBLE );
 		}
 		rank1[0] = 1;
 		H5::Attribute attr = varSet.createAttribute("Constant", H5::PredType::NATIVE_HBOOL, H5::DataSpace(1, rank1));
-		attr.write( H5::PredType::NATIVE_HBOOL, &var.constant );
+		attr.write( H5::PredType::NATIVE_HBOOL, &variable.constant );
 	}
 
 	/// NIAWG

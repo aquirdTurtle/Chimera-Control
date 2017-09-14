@@ -493,10 +493,10 @@ void AuxiliaryWindow::ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result)
 	mainWindowFriend->updateConfigurationSavedStatus(false);
 }
 
-std::vector<variable> AuxiliaryWindow::getAllVariables()
+std::vector<variableType> AuxiliaryWindow::getAllVariables()
 {
-	std::vector<variable> vars = configVariables.getEverything();
-	std::vector<variable> vars2 = globalVariables.getEverything();
+	std::vector<variableType> vars = configVariables.getEverything();
+	std::vector<variableType> vars2 = globalVariables.getEverything();
 	vars.insert(vars.end(), vars2.begin(), vars2.end());
 	return vars;
 }
@@ -553,7 +553,7 @@ void AuxiliaryWindow::clearVariables()
 
 void AuxiliaryWindow::addVariable(std::string name, bool constant, double value, int item)
 {
-	variable var;
+	variableType var;
 	var.name = name;
 	var.constant = constant;
 	var.ranges.push_back({ value, 0, 1, false, true });
@@ -863,9 +863,9 @@ void AuxiliaryWindow::fillMasterThreadInput(MasterThreadInput* input)
 	input->globalControl = &globalVariables;
 
 	// load the variables. This little loop is for letting configuration variables overwrite the globals.
-	std::vector<variable> configVars = configVariables.getEverything();
-	std::vector<variable> globals = globalVariables.getEverything();
-	std::vector<variable> experimentVars = configVars;
+	std::vector<variableType> configVars = configVariables.getEverything();
+	std::vector<variableType> globals = globalVariables.getEverything();
+	std::vector<variableType> experimentVars = configVars;
 
 	for (auto& globalVar : globals)
 	{
@@ -965,7 +965,7 @@ void AuxiliaryWindow::handleMasterConfigSave(std::stringstream& configStream)
 
 	for (UINT varInc = 0; varInc < globalVariables.getCurrentNumberOfVariables(); varInc++)
 	{
-		variable info = globalVariables.getVariableInfo(varInc);
+		variableType info = globalVariables.getVariableInfo(varInc);
 		configStream << info.name << " ";
 		configStream << info.ranges.front().initialValue << "\n";
 		// all globals are constants, no need to output anything else.
@@ -1071,7 +1071,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, do
 		globalVariables.clearVariables();
 		for (int varInc = 0; varInc < varNum; varInc++)
 		{
-			variable tempVar;
+			variableType tempVar;
 			tempVar.constant = true;
 			tempVar.overwritten = false;
 			tempVar.active = false;
@@ -1082,7 +1082,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, do
 			globalVariables.addGlobalVariable(tempVar, varInc);
 		}
 	}
-	variable tempVar;
+	variableType tempVar;
 	tempVar.name = "";
 	globalVariables.addGlobalVariable(tempVar, -1);
 }

@@ -1081,7 +1081,7 @@ void ProfileSystem::renameExperiment(MainWindow* mainWin)
 	}
 	std::string newExperimentConfigLocation = FILE_SYSTEM_PATH + experimentNameToSave + "\\" + experimentNameToSave + EXPERIMENT_EXTENSION;
 	std::string currentExperimentConfigLocation = FILE_SYSTEM_PATH + experimentNameToSave + "\\" + currentProfile.experiment + EXPERIMENT_EXTENSION;
-	int result = MoveFileA(cstr(FILE_SYSTEM_PATH + currentProfile.experiment), cstr(FILE_SYSTEM_PATH + experimentNameToSave));
+	int result = MoveFile(cstr(FILE_SYSTEM_PATH + currentProfile.experiment), cstr(FILE_SYSTEM_PATH + experimentNameToSave));
 	if (result == 0)
 	{
 		thrower( "ERROR: Moving the experiment folder failed!" );

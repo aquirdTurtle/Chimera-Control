@@ -23,7 +23,7 @@ void RhodeSchwarz::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow*
 {
 	// These are currently just hard-coded.
 	triggerTime = 0.01;
-	rsgTtl = "c3";
+	rsgTtl = "a1";
 
 	// controls
 	header.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 25 };

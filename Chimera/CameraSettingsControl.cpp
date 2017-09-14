@@ -3,6 +3,7 @@
 #include "CameraWindow.h"
 #include "miscellaneousCommonFunctions.h"
 
+
 CameraSettingsControl::CameraSettingsControl(AndorCamera* friendInitializer) : picSettingsObj(this)
 {
 	andorFriend = friendInitializer;

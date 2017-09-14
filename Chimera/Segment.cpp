@@ -2,7 +2,7 @@
 #include "Segment.h"
 
 
-void Segment::convertInputToFinal( key variableKey, UINT variation, std::vector<variable>& vars )
+void Segment::convertInputToFinal( key variableKey, UINT variation, std::vector<variableType>& vars )
 {	
 	// first transfer things that can't be varied.
 	finalSettings.segmentType = input.segmentType;

@@ -28,22 +28,22 @@ class VariableSystem
 		void deleteVariable();
 		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id, std::string title,
 						 rgbMap rgbs, UINT listviewId );
-		void addConfigVariable(variable var, UINT item);
-		void addGlobalVariable( variable var, UINT item );
+		void addConfigVariable(variableType var, UINT item);
+		void addGlobalVariable( variableType var, UINT item );
 		void handleColumnClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void addVariableDimension();
 		void removeVariableDimension();
-		variable getVariableInfo(int varNumber);
-		std::vector<variable> getAllConstants();
-		std::vector<variable> getAllVariables();
-		std::vector<variable> getEverything();
+		variableType getVariableInfo(int varNumber);
+		std::vector<variableType> getAllConstants();
+		std::vector<variableType> getAllVariables();
+		std::vector<variableType> getEverything();
 		unsigned int getCurrentNumberOfVariables();
 		void clearVariables();
 		INT_PTR handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, brushMap brushes);
 		void setVariationRangeNumber(int num, USHORT dimNumber);
 		void rearrange(UINT width, UINT height, fontMap fonts);
 		void setActive(bool active);
-		void setUsages(std::vector<variable> vars);
+		void setUsages(std::vector<variableType> vars);
 		void updateVariationNumber( );
 		
 
@@ -54,7 +54,7 @@ class VariableSystem
 		// most important member, holds the settings for all current variables. Might change to have an outer vector 
 		// for each scan dimension, like so?
 		//std::vector<std::vector<variable>> currentVariables;
-		std::vector<variable> currentVariables;
+		std::vector<variableType> currentVariables;
 		// number of variations that the variables will go through.
 		UINT currentVariations;
 		// holds the number of variable ranges. Not sure why this is necessary, could probablty get this info from 

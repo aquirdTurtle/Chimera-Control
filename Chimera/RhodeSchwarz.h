@@ -28,13 +28,13 @@ class RhodeSchwarz
 	public:
 		RhodeSchwarz::RhodeSchwarz();
 		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id );
-		void programRSG(UINT var);
+		void programRSG(UINT variation );
 		void addFrequency( rsgEventForm eventInfo );
 		void clearFrequencies();
 		std::vector<rsgEventForm> getFrequencyForms();
-		void interpretKey(key variationKey, std::vector<variable>& vars);	
-		void orderEvents(UINT var);
-		void setInfoDisp(UINT var);
+		void interpretKey(key variationKey, std::vector<variableType>& vars);	
+		void orderEvents(UINT variation );
+		void setInfoDisp(UINT variation );
 		std::string getIdentity();
 		std::string getRsgTtl();
 		double getTriggerLength();

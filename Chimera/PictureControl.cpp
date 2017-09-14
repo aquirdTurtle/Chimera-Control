@@ -436,7 +436,7 @@ void PictureControl::drawPicture(CDC* deviceContext, std::vector<long> picData,
 		for (int widthInc = 0; widthInc < dataWidth; widthInc++)
 		{
 			// get temporary value for color of the pixel.
-			if ( widthInc + heightInc * dataWidth > picData.size())
+			if ( widthInc + heightInc * dataWidth >= picData.size())
 			{
 				return;
 			}

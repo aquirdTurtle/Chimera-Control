@@ -11,9 +11,9 @@ class Expression
 	public:
 		Expression( );
 		Expression( std::string expressionString );
-		void assertValid( std::vector<variable>& vars );
+		void assertValid( std::vector<variableType>& vars );
 		double evaluate( key variationKey = {}, UINT variation = -1, 
-						 std::vector<variable>& vars = std::vector<variable>( ) );
+						 std::vector<variableType>& vars = std::vector<variableType>( ) );
 		static std::vector<std::string> splitString( std::string workingString );
 		std::string expressionStr;
 	private:

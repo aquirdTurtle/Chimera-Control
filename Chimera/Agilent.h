@@ -46,16 +46,16 @@ class Agilent
 		void readConfigurationFile( std::ifstream& file );
 		//void setScript( int varNum, key variableKey, scriptedArbInfo& scriptInfo );
 		void selectIntensityProfile( UINT channel, int varNum );
-		void convertInputToFinalSettings(UINT chan, key variableKey, UINT variation, std::vector<variable>& variables);
+		void convertInputToFinalSettings(UINT chan, key variableKey, UINT variation, std::vector<variableType>& variables);
 		void convertInputToFinalSettings(UINT chan);
 		void updateEdit( int chan, std::string currentCategoryPath, RunInfo currentRunInfo );
 		void updateEdit( std::string currentCategoryPath, RunInfo currentRunInfo );
 		deviceOutputInfo getOutputInfo();
 		void rearrange(UINT width, UINT height, fontMap fonts);
-		void setAgilent( key varKey, UINT variation, std::vector<variable>& variables);
+		void setAgilent( key varKey, UINT variation, std::vector<variableType>& variables);
 		void setAgilent();
 		void handleScriptVariation( key varKey, UINT variation, scriptedArbInfo& scriptInfo, UINT channel, 
-			std::vector<variable>& variables);
+			std::vector<variableType>& variables);
 		void handleNoVariations( scriptedArbInfo& scriptInfo, UINT channel );
 		void setScriptOutput(UINT varNum, scriptedArbInfo scriptInfo, UINT channel );
 		// making the script public greatly simplifies opening, saving, etc. files from this script.

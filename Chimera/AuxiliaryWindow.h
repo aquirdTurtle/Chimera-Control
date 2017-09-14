@@ -96,7 +96,7 @@ class AuxiliaryWindow : public CDialog
 		void sendErr(std::string msg);
 		void sendStat(std::string msg);
 
-		std::vector<variable> getAllVariables();
+		std::vector<variableType> getAllVariables();
 
 		void GlobalVarDblClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void GlobalVarRClick(NMHDR * pNotifyStruct, LRESULT * result);

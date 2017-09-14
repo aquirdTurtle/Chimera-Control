@@ -76,8 +76,8 @@ class TektronicsControl
 		void rearrange(int width, int height, fontMap fonts);
 		void handleButtons(UINT indicator);
 		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
-		void interpretKey(key variationKey, std::vector<variable>& vars);
-		void programMachine(UINT var);
+		void interpretKey(key variationKey, std::vector<variableType>& vars);
+		void programMachine(UINT variation );
 		void handleProgram();
 	private:
 		Control<CStatic> header;

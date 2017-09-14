@@ -959,7 +959,7 @@ void Script::openParentScript(std::string parentScriptFileAndPath, std::string c
 								MB_YESNO);
 		if (answer == IDYES)
 		{
-			std::string scriptName = parentScriptFileAndPath.substr(sPos+1, parentScriptFileAndPath.size());
+			std::string scriptName = parentScriptFileAndPath.substr(sPos, parentScriptFileAndPath.size());
 			std::string path = categoryPath + scriptName;
 			saveScriptAs(path, info);
 		}

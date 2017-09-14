@@ -8,8 +8,8 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program.
 
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP
 // #define DESKTOP_COMPUTER
 /// File Locations
 // Files for Desktop
@@ -149,8 +149,6 @@
 #define NIAWG_FILTER_FREQENCY 80000000
 
 #define CONFIG_EXTENSION ".Config"
-//#define HORIZONTAL_EXTENSION ".hConfig"
-//#define VERTICAL_EXTENSION ".vConfig"
 #define EXPERIMENT_EXTENSION ".eConfig"
 #define CATEGORY_EXTENSION ".catConfig"
 #define SEQUENCE_EXTENSION ".sConfig"
@@ -170,6 +168,8 @@
 #define AGILENT_SAMPLE_RATE 1000000
 #define AGILENT_FILTER_STATE "OFF"
 #define AGILENT_LOAD "INF"
+#define AGILENT_DEFAULT_POWER 3.5
+
 #define NUMBER_OF_LIBRARY_FILES MAX_NIAWG_SIGNALS*4
 
 /// Random other Constants
@@ -177,10 +177,6 @@
 #define PI 3.14159265358979323846264338327950288
 // This is the length of time waited before the code decides to update your syntax coloring after a change is made.
 #define SYNTAX_TIMER_LENGTH 1000
-
-// intensity agilent address
-//const char * const INTENSITY_AGILENT_ADDRESS = "USB0::0x0957::0x2307::MY50004500::0::INSTR";
-const char * const INTENSITY_AGILENT_ADDRESS = "USB0::2391::8967::MY50004500::0::INSTR";
 
 // Parameters that the user might want to change:
 const bool CONST_POWER_OUTPUT = true;
@@ -198,7 +194,7 @@ const UINT NIAWG_SAMPLE_RATE = 320000000; /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 /// This would probably cause the code to throw weird errors since the number of samples in the file wouldn't match what was needed at the 
 /// given sample rate.
 
-/// Communication Parameters for communication with master computer.
+/// Old Communication Parameters for communication with the old master computer.
 #define DEFAULT_PORT "10010"
 const char * const SERVER_ADDRESS = "192.168.236.1";
 
@@ -226,6 +222,10 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_SHOW_TTLS 11018
 #define IDC_SHOW_DACS 11019
 #define IDC_SMS_TEXTING_LISTVIEW 10020
+#define IDC_EXPERIMENT_NOTES 10021
+#define IDC_CATEGORY_NOTES 10022
+#define IDC_CONFIGURATION_NOTES 10023
+
 // Scripting Window
 #define IDC_VERTICAL_NIAWG_FUNCTION_COMBO 12001
 #define IDC_VERTICAL_NIAWG_EDIT 12002
@@ -359,13 +359,7 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 
 #define NULL_SEQUENCE "NULL_SEQUENCE"
 
-#define AGILENT_SAMPLE_RATE 1000000
-#define AGILENT_FILTER_STATE "OFF"
-#define AGILENT_LOAD "INF"
 // in MILIWATTS
-#define AGILENT_DEFAULT_POWER 3.5
-#define INTENSITY_AGILENT_ADDRESS "USB0::0x0957::0x2307::MY50004500::0::INSTR"
-
 #define RSG_ADDRESS 28
 #define RSG_POWER 10
 

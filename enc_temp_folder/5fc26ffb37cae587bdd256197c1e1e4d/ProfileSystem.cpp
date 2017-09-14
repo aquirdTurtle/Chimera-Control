@@ -1081,7 +1081,7 @@ void ProfileSystem::renameExperiment(MainWindow* mainWin)
 	}
 	std::string newExperimentConfigLocation = FILE_SYSTEM_PATH + experimentNameToSave + "\\" + experimentNameToSave + EXPERIMENT_EXTENSION;
 	std::string currentExperimentConfigLocation = FILE_SYSTEM_PATH + experimentNameToSave + "\\" + currentProfile.experiment + EXPERIMENT_EXTENSION;
-	int result = MoveFileA(cstr(FILE_SYSTEM_PATH + currentProfile.experiment), cstr(FILE_SYSTEM_PATH + experimentNameToSave));
+	int result = MoveFile(cstr(FILE_SYSTEM_PATH + currentProfile.experiment), cstr(FILE_SYSTEM_PATH + experimentNameToSave));
 	if (result == 0)
 	{
 		thrower( "ERROR: Moving the experiment folder failed!" );
@@ -1115,7 +1115,12 @@ void ProfileSystem::deleteExperiment()
 	{
 		return;
 	}
-	fullyDeleteFolder( currentProfile.experimentPath);
+	std::string experimentConfigLocation = FILE_SYSTEM_PATH + currentProfile.experiment + "\\" + currentProfile.experiment + EXPERIMENT_EXTENSION;
+	if (DeleteFile( cstr(experimentConfigLocation) ))
+	{
+		thrower( "Deleting .eConfig file failed! Ask Mark about bugs." );
+	}
+	fullyDeleteFolder( currentProfile.experimentPath + currentProfile.experiment );
 	reloadCombo( experimentCombo.GetSafeHwnd(), FILE_SYSTEM_PATH, "*", "__NONE__" );
 	updateExperimentSavedStatus( false );
 	currentProfile.experiment = "";
