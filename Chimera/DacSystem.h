@@ -26,37 +26,37 @@ class DacSystem
 		void handleOpenConfig(std::ifstream& openFile, double version, DioSystem* ttls);
 		void abort();
 		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id );
-		std::string getDacSequenceMessage(UINT var);
+		std::string getDacSequenceMessage(UINT variation );
 		void handleButtonPress(DioSystem* ttls);
 		void setDacCommandForm( DacCommandForm command );
-		void setForceDacEvent( int line, double val, DioSystem* ttls, UINT var );
+		void setForceDacEvent( int line, double val, DioSystem* ttls, UINT variation );
 		void handleRoundToDac(CMenu& menu);
 		void setDacStatusNoForceOut(std::array<double, 24> status);
 		void prepareDacForceChange(int line, double voltage, DioSystem* ttls);
 		void stopDacs();
-		void configureClocks(UINT var);
-		void setDacTriggerEvents( DioSystem* ttls, UINT var );
-		void interpretKey(key variationKey, std::vector<variable>& vars, std::string& warnings);
-		void analyzeDacCommands(UINT var);
-		void makeFinalDataFormat(UINT var);
-		void writeDacs(UINT var);
+		void configureClocks(UINT variation );
+		void setDacTriggerEvents( DioSystem* ttls, UINT variation );
+		void interpretKey(key variationKey, std::vector<variableType>& vars, std::string& warnings);
+		void analyzeDacCommands(UINT variation);
+		void makeFinalDataFormat(UINT variation );
+		void writeDacs(UINT variation );
 		void startDacs();
 
 		void setDefaultValue(UINT dacNum, double val);
 		double getDefaultValue(UINT dacNum);
 
-		unsigned int getNumberSnapshots(UINT var);
-		void checkTimingsWork(UINT var);
+		unsigned int getNumberSnapshots(UINT variation );
+		void checkTimingsWork(UINT variation );
 		void setName(int dacNumber, std::string name, cToolTips& toolTips, AuxiliaryWindow* master);
 		std::string getName(int dacNumber);
 		std::array<std::string, 24> getAllNames();
 		std::string getErrorMessage(int errorCode);
-		ULONG getNumberEvents(UINT var);
+		ULONG getNumberEvents(UINT variation );
 		void DacSystem::handleDacScriptCommand( DacCommandForm command, std::string name,
 												/*std::string commandName, timeType time, std::string name, std::string initVal,
 												std::string finalVal, std::string rampTime, std::string rampInc,
 												std::string numPoints,*/ std::vector<UINT>& dacShadeLocations,
-												std::vector<variable>& vars, DioSystem* ttls );
+												std::vector<variableType>& vars, DioSystem* ttls );
 
 
 		std::string getDacSystemInfo();
@@ -80,7 +80,7 @@ class DacSystem
 		void resetDacEvents();
 		std::array<double, 24> getDacStatus();
 		std::array<double, 24> getFinalSnapshot();
-		void checkValuesAgainstLimits(UINT var);
+		void checkValuesAgainstLimits(UINT variation );
 		void prepareForce();
 		double roundToDacResolution(double);
 

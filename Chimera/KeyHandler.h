@@ -8,11 +8,11 @@ class KeyHandler
 {
 	public:
 		key getKey();
-		void loadVariables(std::vector<variable> variables);
+		void loadVariables(std::vector<variableType> variables);
 		void generateKey( bool randomizeVariablesOption );
 		std::vector<double> getKeyValueArray();
 	private:
-		std::vector<variable> variables;
+		std::vector<variableType> variables;
 		key keyValues;
 		UINT runningKeyValue;
 };

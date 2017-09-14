@@ -98,6 +98,10 @@ class MainWindow : public CDialog
 		UINT getRepNumber();
 		void logParams( DataLogger* logger, MasterThreadInput* input );
 		bool experimentIsPaused( );
+		void handleExperimentNotesChange( );
+		void handleCategoryNotesChange( );
+		void handleConfigurationNotesChange( );
+
 	private:		
 		DECLARE_MESSAGE_MAP();
 		ScriptingWindow* TheScriptingWindow;

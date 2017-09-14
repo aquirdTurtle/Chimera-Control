@@ -34,7 +34,7 @@ struct MasterThreadInput
 	DioSystem* ttls;											
 	DacSystem* dacs;
 	UINT repetitionNumber;
-	std::vector<variable> variables;
+	std::vector<variableType> variables;
 	MasterManager* thisObj;
 	KeyHandler* key;
 	std::string masterScriptAddress;
@@ -85,21 +85,21 @@ class MasterManager
 
 		void analyzeMasterScript( DioSystem* ttls, DacSystem* dacs, 
 								  std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades, 
-								  RhodeSchwarz* rsg, std::vector<variable>& vars);
+								  RhodeSchwarz* rsg, std::vector<variableType>& vars);
 
 		// this function needs the mastewindow in order to gather the relevant parameters for the experiment.
 		void startExperimentThread(MasterThreadInput* input);
 		void loadMotSettings(MasterThreadInput* input);
-		void loadVariables(std::vector<variable> newVariables);
+		void loadVariables(std::vector<variableType> newVariables);
 		bool runningStatus();
 		bool isValidWord(std::string word);
 		bool getAbortStatus();
-		bool handleTimeCommands( std::string word, ScriptStream& stream, std::vector<variable>& vars );
+		bool handleTimeCommands( std::string word, ScriptStream& stream, std::vector<variableType>& vars );
 
 		static UINT __cdecl experimentThreadProcedure(void* voidInput);
 		static void expUpdate(std::string text, Communicator* comm, bool quiet = false);
 		static void analyzeFunctionDefinition(std::string defLine, std::string& functionName, std::vector<std::string>& args);
-		static UINT determineVariationNumber(std::vector<variable> vars, key tempKey);
+		static UINT determineVariationNumber(std::vector<variableType> vars, key tempKey);
 
 	private:
 		void callCppCodeFunction();
@@ -111,7 +111,7 @@ class MasterManager
 		// called by analyzeMasterScript functions only.
 		void analyzeFunction( std::string function, std::vector<std::string> args, DioSystem* ttls, DacSystem* dacs,
 							  std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades, 
-							  RhodeSchwarz* rsg, std::vector<variable>& vars);
+							  RhodeSchwarz* rsg, std::vector<variableType>& vars);
 		// 
 		timeType operationTime;
 		bool experimentIsRunning;

@@ -23,19 +23,19 @@ class Script
 		void setScriptText( std::string text );
 		void functionChangeHandler( std::string categoryPath );
 		void rearrange( UINT width, UINT height, fontMap fonts );
-		void colorEntireScript( std::vector<variable> vars, rgbMap rgbs,
+		void colorEntireScript( std::vector<variableType> vars, rgbMap rgbs,
 								std::array<std::array<std::string, 16>, 4> ttlNames, std::array<std::string, 24> dacNames);
-		void colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std::vector<variable> vars, rgbMap rgbs,
+		void colorScriptSection( DWORD beginingOfChange, DWORD endOfChange, std::vector<variableType> vars, rgbMap rgbs,
 								 std::array<std::array<std::string, 16>, 4> ttlNames,
 								 std::array<std::string, 24> dacNames);
-		COLORREF getSyntaxColor( std::string word, std::string editType, std::vector<variable> variables,
+		COLORREF getSyntaxColor( std::string word, std::string editType, std::vector<variableType> variables,
 								 rgbMap rgbs, bool& colorLine,
 								 std::array<std::array<std::string, 16>, 4> ttlNames,
 								 std::array<std::string, 24> dacNames );
 
 		INT_PTR colorControl( LPARAM lParam, WPARAM wParam );
 		void handleEditChange();
-		void handleTimerCall( std::vector<variable> vars, rgbMap rgbs,
+		void handleTimerCall( std::vector<variableType> vars, rgbMap rgbs,
 							  std::array<std::array<std::string, 16>, 4> ttlNames, std::array<std::string, 24> dacNames);
 		void changeView( std::string viewName, bool isFunction, std::string categoryPath );
 		void saveScript( std::string location, RunInfo info );

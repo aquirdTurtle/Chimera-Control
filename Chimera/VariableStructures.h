@@ -13,7 +13,7 @@ struct variationRangeInfo
 };
 
 
-struct variable
+struct variableType
 {
 	std::string name;
 	// whether this variable is constant or varies.

@@ -20,7 +20,7 @@ class ScriptedAgilentWaveform
 		std::string returnSequenceString();
 		bool isVaried();
 		void replaceVarValues();
-		void replaceVarValues( key variableKey, UINT variation, std::vector<variable>& variables);
+		void replaceVarValues( key variableKey, UINT variation, std::vector<variableType>& variables);
 		void convertPowersToVoltages();
 		void normalizeVoltages();
 		void calcMinMax();

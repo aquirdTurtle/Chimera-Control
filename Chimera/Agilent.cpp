@@ -223,7 +223,7 @@ void Agilent::analyzeAgilentScript( scriptedArbInfo& infoObj)
 /*
 	* This function tells the agilent to use sequence # (varNum) and sets settings correspondingly.
 	*/
-void Agilent::selectIntensityProfile(UINT channel, int varNum)
+void Agilent::selectIntensityProfile(UINT channel, int variationNumber)
 {
 	// channel can stay 1-indexed.
 	if (channel != 1 && channel != 2)
@@ -231,16 +231,16 @@ void Agilent::selectIntensityProfile(UINT channel, int varNum)
 		thrower( "ERROR: Bad channel value inside \"selectIntensityProfile\"" );
 	}
 	
-	if (varies || varNum == 0)
+	if (varies || variationNumber == 0)
 	{
 		// Load sequence that was previously loaded.
-		visaFlume.write("MMEM:LOAD:DATA \"INT:\\seq" + str(varNum) + ".seq\"");
+		visaFlume.write("MMEM:LOAD:DATA \"INT:\\seq" + str(variationNumber) + ".seq\"");
 		visaFlume.write( "SOURCE" + str(channel) + ":FUNC ARB");
-		visaFlume.write( "SOURCE" + str(channel) + ":FUNC:ARB \"INT:\\seq" + str(varNum) + ".seq\"");
+		visaFlume.write( "SOURCE" + str(channel) + ":FUNC:ARB \"INT:\\seq" + str(variationNumber) + ".seq\"");
 		// Set output impedance...
 		visaFlume.write( "OUTPUT" + str( channel ) + ":LOAD " + AGILENT_LOAD);
-		visaFlume.write( "SOURCE" + str( channel ) + ":VOLT:LOW " + str(ranges[varNum].min) + " V");
-		visaFlume.write( "SOURCE" + str( channel ) + ":VOLT:HIGH " + str(ranges[varNum].max) + " V");
+		visaFlume.write( "SOURCE" + str( channel ) + ":VOLT:LOW " + str(ranges[variationNumber].min) + " V");
+		visaFlume.write( "SOURCE" + str( channel ) + ":VOLT:HIGH " + str(ranges[variationNumber].max) + " V");
 		visaFlume.write( "OUTPUT" + str( channel ) + " ON" );
 	}
 }
@@ -471,7 +471,7 @@ deviceOutputInfo Agilent::getOutputInfo()
 }
 
 
-void Agilent::convertInputToFinalSettings( UINT chan, key variableKey, UINT variation, std::vector<variable>& variables)
+void Agilent::convertInputToFinalSettings( UINT chan, key variableKey, UINT variation, std::vector<variableType>& variables)
 {
 	// iterate between 0 and 1...
 	channelInfo& channel( settings.channel[chan] );
@@ -775,7 +775,7 @@ void Agilent::prepAgilentSettings(UINT channel)
 }
 
 
-void Agilent::handleScriptVariation( key variationKey, UINT variation, scriptedArbInfo& scriptInfo, UINT channel, std::vector<variable>& variables)
+void Agilent::handleScriptVariation( key variationKey, UINT variation, scriptedArbInfo& scriptInfo, UINT channel, std::vector<variableType>& variables)
 {
 	// Initialize stuff
 	prepAgilentSettings( channel );
@@ -904,7 +904,7 @@ void Agilent::setScriptOutput( UINT varNum, scriptedArbInfo scriptInfo, UINT cha
 }
 
 
-void Agilent::setAgilent( key varKey, UINT variation, std::vector<variable>& variables)
+void Agilent::setAgilent( key varKey, UINT variation, std::vector<variableType>& variables)
 {
 	if (!connected())
 	{

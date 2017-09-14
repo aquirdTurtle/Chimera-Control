@@ -774,7 +774,7 @@ namespace commonFunctions
 			beginInfo += "\r\n";
 		}
 
-		std::vector<variable> vars = auxWin->getAllVariables();
+		std::vector<variableType> vars = auxWin->getAllVariables();
 		if (vars.size() == 0)
 		{
 			beginInfo += "Variable Names:.............. NO VARIABLES\r\n";

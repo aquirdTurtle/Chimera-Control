@@ -170,9 +170,9 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			expUpdate( "Programmed time per repetition: " + str( input->ttls->getTotalTime( 0 ) ) + "\r\n",
 					   input->comm, input->quiet );
 			ULONGLONG totalTime = 0;
-			for (USHORT var = 0; var < variations; var++)
+			for (USHORT variationNumber = 0; variationNumber < variations; variationNumber++)
 			{
-				totalTime += ULONGLONG(input->ttls->getTotalTime( var ) * input->repetitionNumber);
+				totalTime += ULONGLONG(input->ttls->getTotalTime( variationNumber ) * input->repetitionNumber);
 			}
 			expUpdate( "Programmed Total Experiment time: " + str( totalTime ) + "\r\n", input->comm, input->quiet );
 			expUpdate( "Number of TTL Events in experiment: " + str( input->ttls->getNumberEvents( 0 ) ) 
@@ -229,30 +229,30 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		{
 			input->comm->sendColorBox( Master, 'G' );
 		}
-		for (const UINT& varInc : range( variations ))
+		for (const UINT& variationInc : range( variations ))
 		{
-			expUpdate( "Variation #" + str( varInc + 1 ) + "\r\n", input->comm, input->quiet );
+			expUpdate( "Variation #" + str( variationInc + 1 ) + "\r\n", input->comm, input->quiet );
 			Sleep( input->debugOptions.sleepTime );
-			for (auto var : input->key->getKey())
+			for (auto tempVariable : input->key->getKey())
 			{
 				// if varies...
-				if (var.second.second)
+				if (tempVariable.second.second)
 				{
-					if (var.second.first.size() == 0)
+					if (tempVariable.second.first.size() == 0)
 					{
-						thrower( "ERROR: Variable " + var.first + " varies, but has no values assigned to it!" );
+						thrower( "ERROR: Variable " + tempVariable.first + " varies, but has no values assigned to it!" );
 					}
-					expUpdate( var.first + ": " + str( var.second.first[varInc], 12) + "\r\n", input->comm,
+					expUpdate( tempVariable.first + ": " + str( tempVariable.second.first[variationInc], 12) + "\r\n", input->comm,
 							   input->quiet );
 				}
 			}
 			expUpdate( "Programming Hardware...\r\n", input->comm, input->quiet );
-			input->rsg->programRSG( varInc );
-			input->rsg->setInfoDisp( varInc );
+			input->rsg->programRSG( variationInc );
+			input->rsg->setInfoDisp( variationInc );
 			// program devices
 			for (auto& agilent : input->agilents)
 			{
-				agilent->setAgilent( input->key->getKey(), varInc, input->variables );
+				agilent->setAgilent( input->key->getKey(), variationInc, input->variables );
 			}
 
 			// program the intensity agilent. Right now this is a little different than the above because I haven't 
@@ -261,13 +261,13 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			if (input->runNiawg)
 			{
 				input->comm->sendColorBox( Niawg, 'Y' );
-				input->niawg->programNiawg( input, output, waiter, warnings, varInc, variations, variedMixedSize,
+				input->niawg->programNiawg( input, output, waiter, warnings, variationInc, variations, variedMixedSize,
 											userScriptSubmit );
 				input->comm->sendColorBox( Niawg, 'G' );
 			}
 
-			input->topBottomTek->programMachine( varInc );
-			input->eoAxialTek->programMachine( varInc );
+			input->topBottomTek->programMachine( variationInc );
+			input->eoAxialTek->programMachine( variationInc );
 			//
 			input->comm->sendRepProgress( 0 );
 			expUpdate( "Running Experiment.\r\n", input->comm, input->quiet );
@@ -294,13 +294,13 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 				if (input->runMaster)
 				{
 					input->dacs->stopDacs();
-					input->dacs->configureClocks( varInc );
-					input->dacs->writeDacs( varInc );
+					input->dacs->configureClocks( variationInc );
+					input->dacs->writeDacs( variationInc );
 					input->dacs->startDacs();
-					input->ttls->writeData( varInc );
+					input->ttls->writeData( variationInc );
 					input->ttls->startBoard();
 					// wait until finished.
-					input->ttls->waitTillFinished( varInc );
+					input->ttls->waitTillFinished( variationInc );
 				}
 			}
 			expUpdate( "\r\n", input->comm, input->quiet );
@@ -569,7 +569,7 @@ void MasterManager::loadMasterScript(std::string scriptAddress)
 }
 
 
-void MasterManager::loadVariables(std::vector<variable> newVariables)
+void MasterManager::loadVariables(std::vector<variableType> newVariables)
 {
 	//variables = newVariables;
 }
@@ -652,7 +652,7 @@ void MasterManager::analyzeFunctionDefinition(std::string defLine, std::string& 
 
 void MasterManager::analyzeFunction( std::string function, std::vector<std::string> args, DioSystem* ttls,
 									 DacSystem* dacs, std::vector<std::pair<UINT, UINT>>& ttlShades,
-									 std::vector<UINT>& dacShades, RhodeSchwarz* rsg, std::vector<variable>& vars)
+									 std::vector<UINT>& dacShades, RhodeSchwarz* rsg, std::vector<variableType>& vars)
 {
 	/// load the file
 	std::fstream functionFile;
@@ -940,7 +940,7 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 }
 
 // if it handled it, returns true, else returns false.
-bool MasterManager::handleTimeCommands( std::string word, ScriptStream& stream, std::vector<variable>& vars )
+bool MasterManager::handleTimeCommands( std::string word, ScriptStream& stream, std::vector<variableType>& vars )
 {
 	if ( word == "t" )
 	{
@@ -993,7 +993,7 @@ bool MasterManager::handleTimeCommands( std::string word, ScriptStream& stream, 
 
 void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs,
 										 std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades, 
-										 RhodeSchwarz* rsg, std::vector<variable>& vars)
+										 RhodeSchwarz* rsg, std::vector<variableType>& vars)
 {
 	// reset this.
 	currentMasterScriptText = currentMasterScript.str();
@@ -1036,7 +1036,6 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs,
 			Expression pulseLength;
 			currentMasterScript >> name;
 			currentMasterScript >> pulseLength;
-			bool isVar = false;
 			pulseLength.assertValid( vars );
 			// should be good to go.
 			ttls->handleTtlScriptCommand( word, operationTime, name, pulseLength, ttlShades, vars );
@@ -1265,7 +1264,7 @@ void MasterManager::expUpdate(std::string text, Communicator* comm, bool quiet)
 	}
 }
 
-UINT MasterManager::determineVariationNumber( std::vector<variable> vars, key tempKey )
+UINT MasterManager::determineVariationNumber( std::vector<variableType> vars, key tempKey )
 {
 	int variationNumber;
 	if (vars.size() == 0)
