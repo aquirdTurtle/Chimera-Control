@@ -13,7 +13,6 @@ Features:
 - make a structure and a front panel option for agilent calibrations, or perhaps edit in dialog
 - support functions for niawg and agilent scripts
 - if fails to open script file give user opportunity to find it themselves.
-- default script for agilent with command guide?
 - handle niawg waiting more elegantly
 - make the big text short status messages better.
 - be able to program agilents with or without power->volt conversion. Think I just want a combo.
@@ -28,7 +27,6 @@ Features:
 	- option to find config file?
 	- option to create new default config file with that name?
 - Be able to set different analysis locations for different plots
-- Add camera region "Center" and save offsets of the borders from the center to config files.
 - Be able to scroll into empty space at bottom of scripts
 - be able to output niawg waveforms to text files
 - support aborting while paused
@@ -39,6 +37,9 @@ Features:
 - initialize windows to certain monitor
 - be able to plot average on gnuplotter
 - change camera coordinates to be config-level
+- Remove three-stage config files.
+- make count-down use TTL time
+- check that the picture rate is matching the rep rate
 
 Refactoring / Other:
 - refactor variables & variable key so that they aren't two separate objects. Consider if reasonable to also include 
@@ -49,12 +50,13 @@ Refactoring / Other:
 - test running gnuplot
 - test fitting in gnuplot
 - refactor groups in plotinfo and gnuplot stuffs
-- remove any "var" names.
 - remove redundant agilent commands
+- test texting / python
+- clean up the several differnt mass save options which sound like "save all". 
 
 Bugs:
 - revisit visaFlume connection bugs. Might just be an issue with this tektronics generator.
-- after abort should stop fully before prompting to delete files. ??? not sure I can repeat...
+- after abort should stop fully before prompting to delete files.
 - Add new data set not working in plot designer
 - Weird trouble with 2-picture plotting
 - Lots of missed save-status handling overall.
@@ -68,13 +70,6 @@ Bugs:
 - agilent script programNow with variables, should be able to set 
 - agilent should be able to go smothly from one waveform to another.
 - New Experiment doesn't copy everything
-- Delete experiment not working ( failed to delete .eConfig
-- If prompted to move files, saves new location with extra /, causing confusion as to location of file.
-- econfig saved status not updated on notes change (check category & configuration as well)
-- Check behavior of save all on agilent scripts.
-- Release mode agilent not programming correctly
-- agilent not using sample rate constant?
-- resize to large -> right click causes crash
 
 =================
 Finished
