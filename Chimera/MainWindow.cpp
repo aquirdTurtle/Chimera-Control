@@ -146,8 +146,8 @@ MainWindow::MainWindow(UINT id, CDialog* splash) : CDialog(id), profile(PROFILES
 IMPLEMENT_DYNAMIC( MainWindow, CDialog )
 
 BEGIN_MESSAGE_MAP( MainWindow, CDialog )
-	ON_WM_CTLCOLOR()
-	ON_WM_SIZE()
+	ON_WM_CTLCOLOR( )
+	ON_WM_SIZE( )
 	ON_COMMAND_RANGE( ID_ACCELERATOR_ESC, ID_ACCELERATOR_ESC, &MainWindow::passCommonCommand )
 	ON_COMMAND_RANGE( ID_ACCELERATOR_F5, ID_ACCELERATOR_F5, &MainWindow::passCommonCommand )
 	ON_COMMAND_RANGE( ID_ACCELERATOR_F2, ID_ACCELERATOR_F2, &MainWindow::passCommonCommand )
@@ -165,7 +165,8 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_NOTIFY( NM_RCLICK, IDC_SMS_TEXTING_LISTVIEW, &MainWindow::handleRClick )
 	ON_EN_CHANGE( IDC_EXPERIMENT_NOTES, &MainWindow::handleExperimentNotesChange )
 	ON_EN_CHANGE( IDC_CATEGORY_NOTES, &MainWindow::handleCategoryNotesChange )
-	ON_EN_CHANGE( IDC_CONFIGURATION_NOTES, &MainWindow::handleConfigurationNotesChange )
+	ON_EN_CHANGE( IDC_CONFIGURATION_NOTES, &MainWindow::notifyConfigUpdate )
+	ON_EN_CHANGE( IDC_REPETITION_EDIT, &MainWindow::notifyConfigUpdate )
 
 	ON_REGISTERED_MESSAGE( eRepProgressMessageID, &MainWindow::onRepProgress )
 	ON_REGISTERED_MESSAGE( eStatusTextMessageID, &MainWindow::onStatusTextMessage )
@@ -194,7 +195,9 @@ void MainWindow::handleCategoryNotesChange( )
 	profile.updateCategorySavedStatus( false );
 }
 
-void MainWindow::handleConfigurationNotesChange( )
+
+// just notifies the profile object that the configuration is no longer saved.
+void MainWindow::notifyConfigUpdate( )
 {
 	profile.updateConfigurationSavedStatus( false );
 }

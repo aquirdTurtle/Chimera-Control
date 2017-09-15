@@ -49,6 +49,7 @@ void ScriptingWindow::handleMasterFunctionChange( )
 		masterScript.functionChangeHandler(mainWindowFriend->getProfileSettings().categoryPath);
 		masterScript.colorEntireScript( auxWindowFriend->getAllVariables( ), mainWindowFriend->getRgbs( ),
 										auxWindowFriend->getTtlNames( ), auxWindowFriend->getDacNames( ) );
+		masterScript.updateSavedStatus( true );
 	}
 	catch ( Error& err )
 	{
@@ -273,13 +274,12 @@ void ScriptingWindow::OnTimer(UINT_PTR eventID)
 }
 
 
-bool ScriptingWindow::checkScriptSaves()
+void ScriptingWindow::checkScriptSaves()
 {
 	horizontalNiawgScript.checkSave(getProfile().categoryPath, mainWindowFriend->getRunInfo());
 	verticalNiawgScript.checkSave(getProfile().categoryPath, mainWindowFriend->getRunInfo());
 	intensityAgilent.checkSave( getProfile( ).categoryPath, mainWindowFriend->getRunInfo( ) );
-
-	return false;
+	masterScript.checkSave( getProfile( ).categoryPath, mainWindowFriend->getRunInfo( ) );
 }
 
 
@@ -381,8 +381,8 @@ void ScriptingWindow::setIntensityDefault()
 
 void ScriptingWindow::horizontalEditChange()
 {
-	horizontalNiawgScript.handleEditChange();
-	SetTimer(SYNTAX_TIMER_ID, SYNTAX_TIMER_LENGTH, NULL);
+	horizontalNiawgScript.handleEditChange( );
+	SetTimer( SYNTAX_TIMER_ID, SYNTAX_TIMER_LENGTH, NULL );
 }
 
 void ScriptingWindow::agilentEditChange()
@@ -408,7 +408,6 @@ void ScriptingWindow::newIntensityScript()
 {
 	try
 	{
-
 		intensityAgilent.checkSave( getProfile().categoryPath, mainWindowFriend->getRunInfo() );
 		intensityAgilent.agilentScript.newScript( );
 		updateConfigurationSavedStatus( false );

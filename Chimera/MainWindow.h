@@ -103,7 +103,7 @@ class MainWindow : public CDialog
 		bool experimentIsPaused( );
 		void handleExperimentNotesChange( );
 		void handleCategoryNotesChange( );
-		void handleConfigurationNotesChange( );
+		void notifyConfigUpdate( );
 
 	private:		
 		DECLARE_MESSAGE_MAP();
