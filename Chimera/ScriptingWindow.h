@@ -34,7 +34,7 @@ class ScriptingWindow : public CDialog
 
 		void passCommonCommand(UINT id);
 
-		bool checkScriptSaves();
+		void checkScriptSaves();
 		void loadFriends(MainWindow* mainWin, CameraWindow* camWin, AuxiliaryWindow* masterWin);
 		void fillMasterThreadInput(MasterThreadInput* input);
 		BOOL OnToolTipText( UINT, NMHDR* pNMHDR, LRESULT* pResult );

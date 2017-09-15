@@ -197,7 +197,9 @@
     <ClCompile Include="splashDialog.cpp">
       <Filter>General Files</Filter>
     </ClCompile>
-    <ClCompile Include="Expression.cpp" />
+    <ClCompile Include="Expression.cpp">
+      <Filter>General Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -456,10 +458,18 @@
     <ClInclude Include="atomGrid.h">
       <Filter>Camera Window</Filter>
     </ClInclude>
-    <ClInclude Include="realTimePlotterInput.h" />
-    <ClInclude Include="tinyPlotInfo.h" />
-    <ClInclude Include="VariableStructures.h" />
-    <ClInclude Include="Expression.h" />
+    <ClInclude Include="Expression.h">
+      <Filter>General Files</Filter>
+    </ClInclude>
+    <ClInclude Include="realTimePlotterInput.h">
+      <Filter>Main Window</Filter>
+    </ClInclude>
+    <ClInclude Include="VariableStructures.h">
+      <Filter>Main Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyPlotInfo.h">
+      <Filter>Camera Window</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
@@ -480,6 +490,7 @@
     <Image Include="..\JILA.bmp">
       <Filter>Resources</Filter>
     </Image>
+    <Image Include="JILA.bmp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resources">
