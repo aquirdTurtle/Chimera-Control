@@ -226,7 +226,7 @@ void NiawgController::waitForRearranger( )
 void NiawgController::turnOffRearranger( )
 {
 	// make sure the rearranger thread is off.
-	threadStateSignal = false;
+	// threadStateSignal = false;
 }
 
 

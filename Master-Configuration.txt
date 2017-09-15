@@ -220,7 +220,7 @@ imagingpower 0.14
 imagingdetuning 0.35
 pushoutdepth 0.15
 pushoutfreq 0.6
-fieldtheta 1.5708
+fieldtheta 0
 fieldphi 1.5708
 rotatefieldtime 30
 261 287 3 242 268 3
