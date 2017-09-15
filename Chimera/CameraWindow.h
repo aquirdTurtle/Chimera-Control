@@ -38,6 +38,7 @@ class CameraWindow : public CDialog
 		void OnRButtonUp( UINT stuff, CPoint loc );
 		/// directly called by the message map or 1 simple step removed.
 		void temp( UINT id );
+		void wakeRearranger( );
 		LRESULT onCameraFinish( WPARAM wParam, LPARAM lParam );
 		LRESULT onCameraProgress( WPARAM wParam, LPARAM lParam );
 		void handleDblClick( NMHDR* info, LRESULT* lResult );

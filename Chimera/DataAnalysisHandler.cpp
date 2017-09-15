@@ -582,7 +582,10 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 		if (input->needsCounts)
 		{
 			// delete the first entry of the Queue which has just been handled.
-			input->imageQueue->erase(input->imageQueue->begin());
+			if ( input->imageQueue->size( ) != 0 )
+			{
+				input->imageQueue->erase( input->imageQueue->begin( ) );
+			}
 		}
 		input->atomQueue->erase(input->atomQueue->begin());
 		// increment the thread's accumulation Number.

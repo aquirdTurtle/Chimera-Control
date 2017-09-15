@@ -904,11 +904,11 @@ LRESULT MainWindow::onErrorMessage(WPARAM wParam, LPARAM lParam)
 	char* pointerToMessage = (char*)lParam;
 	std::string statusMessage(pointerToMessage);
 	delete[] pointerToMessage;
-	errorStatus.addStatusText(statusMessage);
-	Beep( 750, 300 );
-	Sleep( 150 );
-	Beep( 750, 300 );
-
+	if ( statusMessage != "" )
+	{
+		errorStatus.addStatusText( statusMessage );
+		Beep( 550, 300 );
+	}
 	return 0;
 }
 
@@ -941,8 +941,18 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 	setNiawgRunningState( false );
 	Beep( 850, 50 );
 	Sleep( 50 );
-	Beep( 850, 50 );
+	Beep( 830, 50 );
 	return 0;
+}
+
+void MainWindow::stopRearranger( )
+{
+	niawg.turnOffRearranger( );
+}
+
+void MainWindow::waitForRearranger( )
+{
+	niawg.waitForRearranger( );
 }
 
 
@@ -953,6 +963,8 @@ LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
 	std::string msgText = "Passively Outputting Default Waveform";
 	setShortStatus(msgText);
 	changeShortStatusColor("B");
+	stopRearranger( );
+	TheCameraWindow->wakeRearranger();
 	comm.sendColorBox( Niawg, 'B' );
 	try
 	{
@@ -967,7 +979,14 @@ LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
 		return 0;
 	}
 	setNiawgRunningState( false );
-	niawg.rearrangementThreadIsActive( );
+	try
+	{
+		waitForRearranger( );
+	}
+	catch ( Error& err )
+	{
+		comm.sendError( err.what( ) );
+	}
 	return 0;
 }
 

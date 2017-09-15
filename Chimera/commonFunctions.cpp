@@ -73,6 +73,20 @@ namespace commonFunctions
 						break;
 					}
 					bool niawgAborted = false, andorAborted = false, masterAborted = false;
+					
+					mainWin->stopRearranger( );
+					camWin->wakeRearranger( );
+
+					if ( camWin->Andor.isRunning( ) )
+					{
+						status = "ANDOR";
+						commonFunctions::abortCamera( camWin, mainWin );
+						andorAborted = true;
+					}
+					mainWin->getComm( )->sendColorBox( Camera, 'B' );
+					//
+					mainWin->waitForRearranger( );
+
 					if (mainWin->niawg.niawgIsRunning())
 					{
 						status = "NIAWG";
@@ -80,14 +94,6 @@ namespace commonFunctions
 						niawgAborted = true;
 					}
 					mainWin->getComm()->sendColorBox( Niawg, 'B' );
-					//
-					if (camWin->Andor.isRunning())
-					{
-						status = "ANDOR";
-						commonFunctions::abortCamera(camWin, mainWin);
-						andorAborted = true;
-					}
-					mainWin->getComm()->sendColorBox(Camera, 'B');
 					//
 					if (mainWin->masterThreadManager.runningStatus())
 					{
@@ -105,7 +111,7 @@ namespace commonFunctions
 				}
 				catch (Error& except)
 				{
-					mainWin->getComm()->sendError("EXITED WITH ERROR! " + except.whatStr());
+					mainWin->getComm()->sendError("EXITED WITH ERROR: " + except.whatStr());
 					if (status == "NIAWG")
 					{
 						mainWin->getComm()->sendColorBox( Niawg, 'R' );
@@ -240,6 +246,7 @@ namespace commonFunctions
 					scriptWin->saveHorizontalScript( );
 					scriptWin->saveVerticalScript( );
 					scriptWin->saveIntensityScript( );
+					scriptWin->saveMasterScript( );
 					mainWin->profile.saveEntireProfile( scriptWin, mainWin, auxWin, camWin );
 				}
 				catch ( Error& err )
@@ -601,6 +608,7 @@ namespace commonFunctions
 				{
 					if (mainWin->niawg.niawgIsRunning())
 					{
+						abortRearrangement( mainWin, camWin );
 						commonFunctions::abortNiawg(scriptWin, mainWin);
 					}
 					else
@@ -944,11 +952,12 @@ namespace commonFunctions
 		profileSettings profile = mainWin->getProfileSettings();
 		if (mainWin->niawgIsRunning())
 		{
-			thrower( "The system is currently running. You cannot reload the default waveforms while the system is running. Please restart "
-					 "the system before attempting to reload default waveforms." );
+			thrower( "The system is currently running. You cannot reload the default waveforms while the system is "
+					 "running. Please restart the system before attempting to reload default waveforms." );
 		}
-		int choice = promptBox("Reload the default waveforms from (presumably) updated files? Please make sure that the updated files are "
-								 "syntactically correct, or else the program will crash.", MB_OKCANCEL );
+		int choice = promptBox("Reload the default waveforms from (presumably) updated files? Please make sure that "
+								"the updated files are syntactically correct, or else the program will crash.",
+								MB_OKCANCEL );
 		if (choice == IDCANCEL)
 		{
 			return;
@@ -982,8 +991,8 @@ namespace commonFunctions
 		logger->logMiscellaneous();
 	}
 
-	void runChecks( ExperimentInput& input )
+	void abortRearrangement( MainWindow* mainWin, CameraWindow* camWin )
 	{
-		
+
 	}
 };

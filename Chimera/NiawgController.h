@@ -45,6 +45,7 @@ class NiawgController
 		void setDefaultWaveforms( MainWindow* mainWin );
 		void varyParam( simpleWave& wave, waveInfo previousWave, int axis, int paramNum, double paramVal, 
 						std::string& warnings );
+		void deleteRearrangementWave( );
 		void checkThatWaveformsAreSensible( std::string& warnings, NiawgOutputInfo& output );
 		void prepareNiawg( MasterThreadInput* input, NiawgOutputInfo& output,
 						   niawgPair<std::vector<std::fstream>>& niawgFiles, std::string& warnings,
@@ -60,6 +61,7 @@ class NiawgController
 		// programming the device
 		void restartDefault();
 		void turnOffRearranger( );
+		void waitForRearranger( );
 		void programVariations( UINT variation, std::vector<long>& variedMixedSize, NiawgOutputInfo& output );
 		
 		void programNiawg( MasterThreadInput* input, NiawgOutputInfo& output, NiawgWaiter& waiter, std::string& warnings,
