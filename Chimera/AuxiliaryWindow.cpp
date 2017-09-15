@@ -59,6 +59,7 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_EN_CHANGE( IDC_FLASHING_EDIT, &AuxiliaryWindow::handleFlashingEditChange )
 	ON_EN_CHANGE( IDC_AXIAL_UWAVE_EDIT, &AuxiliaryWindow::handleAxialUwaveEditChange )
 
+	//ON_COMMAND( ID_ACCELERATOR40121, &AuxiliaryWindow::OnAccelerator40121 )
 END_MESSAGE_MAP()
 
 
@@ -1384,3 +1385,5 @@ std::string AuxiliaryWindow::getSystemStatusMsg()
 	// 
 	return msg;
 }
+
+

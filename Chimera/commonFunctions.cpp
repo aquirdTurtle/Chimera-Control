@@ -65,18 +65,38 @@ namespace commonFunctions
 			case ID_FILE_ABORT_GENERATION:
 			{
 				std::string status;
+				if ( mainWin->experimentIsPaused( ) )
+				{
+					mainWin->getComm( )->sendError( "Experiment is paused. Please unpause before aborting.\r\n" );
+					break;
+				}
+				bool niawgAborted = false, andorAborted = false, masterAborted = false;
+
+				mainWin->stopRearranger( );
+				camWin->wakeRearranger( );
+
 				try
 				{
-					if ( mainWin->experimentIsPaused( ) )
+					//
+					if ( mainWin->masterThreadManager.runningStatus( ) )
 					{
-						mainWin->getComm( )->sendError( "Experiment is paused. Please unpause before aborting.\r\n" );
-						break;
+						status = "MASTER";
+						commonFunctions::abortMaster( mainWin, auxWin );
+						masterAborted = true;
 					}
-					bool niawgAborted = false, andorAborted = false, masterAborted = false;
-					
-					mainWin->stopRearranger( );
-					camWin->wakeRearranger( );
+					mainWin->getComm( )->sendColorBox( Master, 'B' );
+					camWin->assertOff( );
+				}
+				catch ( Error& err )
+				{
+					mainWin->getComm( )->sendError( "Abort Master thread exited with Error! Error Message: " + err.whatStr( ) );
+					mainWin->getComm( )->sendColorBox( Master, 'R' );
+					mainWin->getComm( )->sendStatus( "Abort Master thread exited with Error!\r\n" );
+					mainWin->getComm( )->sendTimer( "ERROR!" );
+				}
 
+				try
+				{
 					if ( camWin->Andor.isRunning( ) )
 					{
 						status = "ANDOR";
@@ -84,44 +104,40 @@ namespace commonFunctions
 						andorAborted = true;
 					}
 					mainWin->getComm( )->sendColorBox( Camera, 'B' );
-					//
-					mainWin->waitForRearranger( );
+				}
+				catch ( Error& err )
+				{
+					mainWin->getComm( )->sendError( "Abort camera threw error! Error: " + err.whatStr( ) );
+					mainWin->getComm( )->sendColorBox( Camera, 'R' );
+					mainWin->getComm( )->sendStatus( "Abort camera threw error\r\n" );
+					mainWin->getComm( )->sendTimer( "ERROR!" );
+				}
+				//
+				mainWin->waitForRearranger( );
 
-					if (mainWin->niawg.niawgIsRunning())
+				try
+				{
+					if ( mainWin->niawg.niawgIsRunning( ) )
 					{
 						status = "NIAWG";
-						abortNiawg(scriptWin, mainWin);
+						abortNiawg( scriptWin, mainWin );
 						niawgAborted = true;
 					}
-					mainWin->getComm()->sendColorBox( Niawg, 'B' );
-					//
-					if (mainWin->masterThreadManager.runningStatus())
-					{
-						status = "MASTER";
-						commonFunctions::abortMaster(mainWin, auxWin);
-						masterAborted = true;
-					}
-					mainWin->getComm()->sendColorBox( Master, 'B' );
-					camWin->assertOff();
-					// todo... intensity...
-					if (!niawgAborted && !andorAborted && !masterAborted)
-					{
-						mainWin->getComm()->sendError("Camera, NIAWG and Master were not running. Can't Abort.\r\n");
-					}
+					mainWin->getComm( )->sendColorBox( Niawg, 'B' );
 				}
-				catch (Error& except)
+				catch ( Error& err )
 				{
-					mainWin->getComm()->sendError("EXITED WITH ERROR: " + except.whatStr());
-					if (status == "NIAWG")
+					mainWin->getComm( )->sendError( "Abor NIAWG exited with Error! Error Message: " + err.whatStr( ) );
+					if ( status == "NIAWG" )
 					{
-						mainWin->getComm()->sendColorBox( Niawg, 'R' );
+						mainWin->getComm( )->sendColorBox( Niawg, 'R' );
 					}
-					else if (status == "ANDOR")
-					{
-						mainWin->getComm()->sendColorBox( Camera, 'R' );
-					}
-					mainWin->getComm()->sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
-					mainWin->getComm()->sendTimer("ERROR!");
+					mainWin->getComm( )->sendStatus( "EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n" );
+					mainWin->getComm( )->sendTimer( "ERROR!" );
+				}
+				if (!niawgAborted && !andorAborted && !masterAborted)
+				{
+					mainWin->getComm()->sendError("Camera, NIAWG and Master were not running. Can't Abort.\r\n");
 				}
 				break;
 			}
@@ -239,6 +255,7 @@ namespace commonFunctions
 				break;
 			}
 			/// File Management 
+			case ID_ACCELERATOR40121:
 			case ID_FILE_SAVEALL:
 			{
 				try
@@ -248,6 +265,7 @@ namespace commonFunctions
 					scriptWin->saveIntensityScript( );
 					scriptWin->saveMasterScript( );
 					mainWin->profile.saveEntireProfile( scriptWin, mainWin, auxWin, camWin );
+					mainWin->masterConfig.save( mainWin, auxWin, camWin );
 				}
 				catch ( Error& err )
 				{
@@ -731,10 +749,7 @@ namespace commonFunctions
 		}
 		// check config settings
 		mainWin->checkProfileReady();
-		if (scriptWin->checkScriptSaves())
-		{
-			return;
-		}
+		scriptWin->checkScriptSaves( );
 		std::string beginInfo = "Current Settings:\r\n=============================\r\n\r\n";
 		if (runNiawg)
 		{
@@ -919,10 +934,7 @@ namespace commonFunctions
 			thrower( "The Master system (ttls & dacs) is currently running. Please stop the system before exiting so "
 					 "that devices can stop normally." );
 		}
-		if (scriptWindow->checkScriptSaves())
-		{
-			return;
-		}
+		scriptWindow->checkScriptSaves( );
 		mainWin->checkProfileSave();
 		std::string exitQuestion = "Are you sure you want to exit?\n\nThis will stop all output of the arbitrary waveform generator.";
 		int areYouSure = promptBox(exitQuestion, MB_OKCANCEL);

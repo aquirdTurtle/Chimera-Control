@@ -8,8 +8,8 @@
 class Repetitions
 {
 	public:
-		void initialize(POINT& pos, cToolTips& toolTips, MainWindow* mainWin, int& id);
-		void setRepetitions(unsigned int number);
+		void initialize(POINT& pos, cToolTips& toolTips, MainWindow* mainWin, int& id );
+		void setRepetitions(UINT number);
 		unsigned int getRepetitionNumber();
 		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
 		void rearrange(UINT width, UINT height, fontMap fonts);
@@ -19,7 +19,7 @@ class Repetitions
 		void handleOpenConfig(std::ifstream& openFile, double version);
 
 	private:
-		unsigned int repetitionNumber;
+		UINT repetitionNumber;
 		Control<CEdit> repetitionEdit;
 		Control<CEdit> repetitionDisp;
 		Control<CStatic> repetitionText;
