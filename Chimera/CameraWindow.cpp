@@ -159,7 +159,6 @@ void CameraWindow::passSetGridCorner( )
 }
 
 
-
 void CameraWindow::catchEnter()
 {
 	// the default handling is to close the window, so I need to catch it.
@@ -360,6 +359,14 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	return 0;
 }
 
+
+void CameraWindow::wakeRearranger( )
+{
+	std::unique_lock<std::mutex> lock( rearrangerLock );
+	rearrangerConditionVariable.notify_all( );
+}
+
+
 void CameraWindow::handleSpecialLessThanMinSelection()
 {
 	if (specialLessThanMin)
@@ -465,7 +472,8 @@ LRESULT CameraWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 	dataFile.close( );
 	*/
 	//Sleep( 5000 );
-	rearrangerConditionVariable.notify_all( );
+	mainWindowFriend->stopRearranger( );
+	wakeRearranger( );
 	return 0;
 }
 

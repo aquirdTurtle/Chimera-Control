@@ -88,7 +88,7 @@ struct rearrangeInfo
 	// a bit redundant atm.
 	UINT targetRows=0;
 	UINT targetCols=0;
-	double timePerMove = 1e-4;
+	double timePerMove = 6e-5;
 	double flashingFreq = 1e6;
 	// the maixmum number of moves the rearrangement should take.
 	UINT moveLimit=0;

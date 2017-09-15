@@ -205,15 +205,28 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 }
 
 
-void NiawgController::turnOffRearranger( )
+void NiawgController::waitForRearranger( )
 {
-	// make sure the rearranger thread is off.
-	threadStateSignal = false;
-	int result = WaitForSingleObject( rearrangerThreadHandle, 2000 );
+	int result = WaitForSingleObject( rearrangerThreadHandle, 500 );
 	if ( result == WAIT_TIMEOUT )
 	{
 		thrower( "ERROR: waiting for Rearranger thread to finish timed out!?!?!?" );
 	}
+	try
+	{
+		deleteRearrangementWave( );
+	}
+	catch ( Error& )
+	{
+
+	}
+}
+
+
+void NiawgController::turnOffRearranger( )
+{
+	// make sure the rearranger thread is off.
+	threadStateSignal = false;
 }
 
 
@@ -223,6 +236,7 @@ void NiawgController::restartDefault()
 	{
 		// to be sure.
 		turnOffRearranger( );
+
 		
 		turnOff();
 		fgenConduit.clearMemory();
@@ -1824,6 +1838,13 @@ void NiawgController::handleSpecialWaveform( NiawgOutputInfo& output, profileSet
 	//output.waveCount++;
 }
 
+
+void NiawgController::deleteRearrangementWave( )
+{
+	fgenConduit.deleteWaveform( cstr(rearrangeWaveName) );
+}
+
+
 // generic stream.
 void NiawgController::streamWaveform()
 {
@@ -2337,7 +2358,7 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 	try
 	{
 		// wait for data
-		while ( *input->threadActive || input->atomsQueue->size( ) != 0 )
+		while ( *input->threadActive )//|| input->atomsQueue->size( ) != 0 )
 		{
 			std::vector<bool> tempAtoms;
 			if ( input->atomsQueue->size( ) == 0 )
@@ -2345,21 +2366,34 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 				// wait for the next image using a condition_variable.
 				std::unique_lock<std::mutex> locker( *input->rearrangerLock );
 				input->rearrangerConditionWatcher->wait( locker );
-
+				if ( !*input->threadActive )
+				{
+					break;
+				}
 				if ( input->atomsQueue->size( ) == 0)
 				{
+					input->comm->sendStatus( "Woke up?" );
+					continue;
+				}
+			}
+
+			{
+				std::unique_lock<std::mutex> locker( *input->rearrangerLock );
+				if ( input->atomsQueue->size( ) == 0 )
+				{
 					// spurious wake-up?
+					input->comm->sendStatus( "Rearrangement Thread woke up???" );
 					continue;
 				}
 				tempAtoms = (*input->atomsQueue)[0];
-				if ( tempAtoms.size( ) == 0 )
-				{
-					// spurious wake-up? This one probably never happens now that I've implemented the 
-					// condition_variable.
-					continue;
-				}
-				input->atomsQueue->erase( input->atomsQueue->begin( ) );
 			}
+			if ( tempAtoms.size( ) == 0 )
+			{
+				// spurious wake-up? This one probably never happens now that I've implemented the 
+				// condition_variable.
+				continue;
+			}
+			input->atomsQueue->erase( input->atomsQueue->begin( ) );
 
 			startCalc.push_back(std::chrono::high_resolution_clock::now( ));
 			
@@ -2369,17 +2403,20 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 			// flattened source matrix for speed.
 			std::vector<std::vector<bool>> source;
 			source.resize( info.targetRows );
-			UINT count = 0;
-			std::lock_guard<std::mutex> locker( *input->rearrangerLock );
-			for ( auto rowCount : range( info.targetRows ) )
+			for ( auto& row : source )
 			{
-				std::vector<bool> tempRow( info.targetCols );
-				for ( auto& elem : tempRow )
-				{					
-					bool atom = tempAtoms[count++];
-					elem = atom;
+				row.resize(info.targetCols);
+			}
+			UINT count = 0;
+			for ( auto colCount : range( info.targetCols ) )
+			{
+				//std::vector<bool> tempRow( info.targetCols );
+				for ( auto rowCount : range( info.targetRows ) )
+				//for ( auto& elem : tempRow )
+				{
+					source[source.size( ) - 1 - rowCount][colCount] = tempAtoms[count++];
 				}
-				source[source.size( ) - 1 - rowCount] = tempRow;
+				//source[source.size( ) - 1 - rowCount] = tempRow;
 			}
 			std::vector<simpleMove> operationsMatrix;
 			try
@@ -2468,8 +2505,13 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 				triedRearranging.push_back( false );
 			}
 			input->niawg->rearrangeWaveVals.clear( );
+			if ( operationsMatrix.size( ) != 0 )
+			{
+				input->comm->sendStatus( "Tried Moving. Calc Time = " 
+										 + str( std::chrono::duration<double>( stopCalc.back() - startCalc.back( ) ).count( ))
+										 + "\r\n");
+			}
 		}
-		//Sleep( 1000 );
 		for ( auto inc : range( startCalc.size( ) ) )
 		{
 			/*
@@ -2514,6 +2556,14 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 	{
 		errBox( "ERROR in rearrangement thread! " + err.whatStr( ) );
 	}
+	try
+	{
+	}
+	catch ( Error& err)
+	{
+		input->comm->sendError( "Failed to delete rearrangement waveform at end of rearranging!: " + err.whatStr( ) );
+	}
+	input->comm->sendStatus( "Exiting rearranging thread.\r\n" );
 	delete input;
 	return 0;
 }

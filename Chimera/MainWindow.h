@@ -44,7 +44,10 @@ class MainWindow : public CDialog
 		LRESULT onNormalFinishMessage(WPARAM wParam, LPARAM lParam);
 		LRESULT onColoredEditMessage(WPARAM wParam, LPARAM lParam);
 		LRESULT onDebugMessage(WPARAM wParam, LPARAM lParam);		
+		
 		//
+		void stopRearranger( );
+		void waitForRearranger( );
 		void passCommonCommand( UINT id );
 		void handlePause();
 		void passDebugPress( UINT id );

@@ -364,10 +364,14 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			}
 			// Clear waveforms off of NIAWG (not working??? memory appears to still run out... (that's a very old note, 
 			// haven't tested in a long time but has never been an issue.))
-			for (UINT waveformInc = 1; waveformInc < output.waves.size()-1; waveformInc++)
+			for (UINT waveformInc = 2; waveformInc < output.waves.size(); waveformInc++)
 			{
-				std::string waveformToDelete = "Waveform" + str( waveformInc );
-				input->niawg->fgenConduit.deleteWaveform( cstr( waveformToDelete ) );
+				// wave name is set by size of waves vector, size is not zero-indexed.
+				// name can be empty for some special cases like re-arrangement waves.
+				if ( output.waves[waveformInc].core.name != "" )
+				{
+					input->niawg->fgenConduit.deleteWaveform( cstr( output.waves[waveformInc].core.name ) );
+				}
 			}
 			if (!input->settings.dontActuallyGenerate)
 			{
@@ -419,19 +423,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			}
 		}
 
-		if (input->thisObj->isAborting)
-		{
-			expUpdate( "\r\nABORTED!\r\n", input->comm, input->quiet );
-			input->comm->sendColorBox( Master, 'B' );
-		}
-		else
-		{
-			// No quiet option for a bad exit.
-			input->comm->sendColorBox( Master, 'R' );
-			input->comm->sendStatus( "Bad Exit!\r\n" );
-			std::string exceptionTxt = exception.what();
-			input->comm->sendError( exception.what() );
-		}
+
 		input->thisObj->experimentIsRunning = false;
 		{
 			std::lock_guard<std::mutex> locker( input->thisObj->abortLock );
@@ -442,8 +434,24 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			input->ttls->unshadeTtls();
 			input->dacs->unshadeDacs();
 		}
-		input->comm->sendFatalError( "Exited main experiment thread abnormally." );
+
+		if ( input->thisObj->isAborting )
+		{
+			expUpdate( "\r\nABORTED!\r\n", input->comm, input->quiet );
+			input->comm->sendColorBox( Master, 'B' );
+		}
+		else
+		{
+			// No quiet option for a bad exit.
+			input->comm->sendColorBox( Master, 'R' );
+			input->comm->sendStatus( "Bad Exit!\r\n" );
+			std::string exceptionTxt = exception.what( );
+			input->comm->sendError( exception.what( ) );
+			input->comm->sendFatalError( "Exited main experiment thread abnormally." );
+		}	
 	}
+	input->niawg->turnOffRearranger( );
+	input->conditionVariableForRearrangement->notify_all( );
 	ULONGLONG endTime = GetTickCount();
 	expUpdate( "Experiment took " + str( (endTime - startTime) / 1000.0 ) + " seconds.\r\n", input->comm, input->quiet );
 	input->thisObj->experimentIsRunning = false;

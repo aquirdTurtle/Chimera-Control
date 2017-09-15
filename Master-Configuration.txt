@@ -223,4 +223,4 @@ pushoutfreq 0.6
 fieldtheta 1.5708
 fieldphi 1.5708
 rotatefieldtime 30
-255 278 3 245 265 3
+261 287 3 242 268 3
