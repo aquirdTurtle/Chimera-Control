@@ -65,9 +65,9 @@ void Repetitions::initialize(POINT& pos, cToolTips& toolTips, MainWindow* mainWi
 	// title
 	repetitionText.sPos = { pos.x, pos.y, pos.x + 180, pos.y + 20 };
 	repetitionText.Create("Repetition #", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, repetitionText.sPos, mainWin, id++);
-
+	
 	repetitionEdit.sPos = { pos.x + 180, pos.y, pos.x + 330, pos.y + 20 };
-	repetitionEdit.Create(WS_CHILD | WS_VISIBLE | SS_SUNKEN, repetitionEdit.sPos, mainWin, id++);
+	repetitionEdit.Create(WS_CHILD | WS_VISIBLE | SS_SUNKEN, repetitionEdit.sPos, mainWin, IDC_REPETITION_EDIT );
 	repetitionEdit.SetWindowText("100");
 
 	repetitionDisp.sPos = { pos.x + 330, pos.y, pos.x + 480, pos.y + 20 };

@@ -37,10 +37,9 @@ Features:
 - initialize windows to certain monitor
 - be able to plot average on gnuplotter
 - change camera coordinates to be config-level
-- Remove three-stage config files.
+- Remove three-stage config file system
 - make count-down use TTL time
 - check that the picture rate is matching the rep rate
-- control s for save all
 
 Refactoring / Other:
 - refactor variables & variable key so that they aren't two separate objects. Consider if reasonable to also include 
@@ -48,30 +47,26 @@ Refactoring / Other:
 - change thread that wait on bools to waiting on signalers
 - could clean up textpromptdialog handling, should be possible with one line.
 - change picture settings & dimensions to not require button press.
-- test running gnuplot
+- test running avg gnuplot
 - test fitting in gnuplot
 - refactor groups in plotinfo and gnuplot stuffs
 - remove redundant agilent commands
 - test texting / python
 - clean up the several differnt mass save options which sound like "save all". 
-- kill the restart optino
+- kill the restart option
 
 Bugs:
 - revisit visaFlume connection bugs. Might just be an issue with this tektronics generator.
-- after abort should stop fully before prompting to delete files.
 - Add new data set not working in plot designer
 - Weird trouble with 2-picture plotting
-- Lots of missed save-status handling overall.
 - closing window doesn't stop program, running in background (release mode only?)
 - scripts becoming unsaved after move, should preserve saved status
 - something going wrong with exiting the niawg normally. Might be on delete waveforms, might be related to change from 
 	having orientations. Investigate size of niawg output waves, seems like there is 1 extra???
 - investigate save on change config
-- saved not updated for master functions
 - agilent script programNow with variables, should be able to set 
 - agilent should be able to go smothly from one waveform to another.
 - New Experiment doesn't copy everything
-- save all should save master config
 
 =================
 Finished
