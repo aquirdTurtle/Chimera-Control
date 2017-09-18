@@ -10,7 +10,7 @@ def PgcLoading():
 	dacArange: MotFreq -0.1 pgcDetuning 1 0.02
       % to let the ramp finish
 
-	t += 1 
+	t += 2 
 
  	dac: repumpPower 0.1   
 	dac: diagMotPower 0.35

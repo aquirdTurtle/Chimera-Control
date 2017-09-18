@@ -1,0 +1,19 @@
+def rotateFieldsBack():
+	% ramping fields back to 3Gauss assuming from pump2stretch values as of 9/11/2017. if seeing funny things would need to check pump2stretch values
+	daclinspace: topCoilCurrent rotateTopField (rotateTopField/2) 10 100
+	daclinspace: bottomCoilCurrent rotateBottomField (rotateBottomField/2) 10 100
+	daclinspace: leftCoilCurrent rotateLeftField (rotateLeftField/2) 10 100
+	daclinspace: rightCoilCurrent rotateRightField (rotateRightField/2) 10 100	 %pgcRightField
+	%daclinspace: frontCoilCurrent rotateFrontField (rotateFrontField/2) 10 100
+	daclinspace: backCoilCurrent rotateBackField (rotateFrontField/2) 10 100
+
+	t += (rotateFieldTime/2)
+
+	daclinspace: topCoilCurrent (rotateTopField/2) 2.0223 10 100
+	daclinspace: bottomCoilCurrent (rotateBottomField/2) -1.7 10 100
+	daclinspace: leftCoilCurrent (rotateLeftField/2) 3.6461 10 100
+	daclinspace: rightCoilCurrent (rotateRightField/2) -2.7361 10 100	 %pgcRightField
+	%daclinspace: frontCoilCurrent (rotateFrontField/2) -0.75 10 100
+	daclinspace: backCoilCurrent (rotateBackField/2) 0.2614 10 100
+
+	t += (rotateFieldTime/2)

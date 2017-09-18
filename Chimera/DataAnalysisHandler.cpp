@@ -621,8 +621,8 @@ void DataAnalysisControl::handlePlotAtomsOrCounts( realTimePlotterInput* input, 
 												   std::vector<std::vector<double> > & avgAvgs,
 												   std::vector<std::vector<double> >& avgErrs,
 												   std::vector<std::vector<double> >& avgX,
-												   std::vector<std::vector<bool> >& needNewData, 
-												   std::vector<std::vector<bool>>& pscSatisfied, bool plotNumber,
+												   std::vector<std::vector<bool> >& needNewData,
+												   std::vector<std::vector<bool>>& pscSatisfied, int plotNumber,
 												   std::vector<std::vector<long>>& countData, int plotNumberCount,
 												   std::vector<std::vector<int> > atomPresent )
 {
