@@ -836,7 +836,7 @@ void DataAnalysisControl::handlePlotAtomsOrCounts( realTimePlotterInput* input, 
 	input->plotter->send("set xlabel \"Key Value\" tc rgb 'white'");
 	input->plotter->send("set ylabel \"" + plotInfo.getYLabel() + "\" tc rgb 'white'");
 	input->plotter->send("set border lc rgb 'white'");
-	input->plotter->send("set key tc rgb 'white'");
+	input->plotter->send("set key tc rgb 'white' outside");
 	/// FITTING
 	for (UINT dataSetI = 0; dataSetI < plotInfo.getDataSetNumber(); dataSetI++)
 	{
@@ -896,7 +896,11 @@ break;
 		{
 			for ( UINT groupI = 0; groupI < groupNum; groupI++ )
 			{
-				gnuplotPlotCmd += " '-' using 1:2 " + GNUPLOT_COLORS[groupI] + " " + GNUPLOT_MARKERS[dataSetI] + " title \"G" + str( groupI + 1 ) + " " + plotInfo.getLegendText( dataSetI ) + "\",";
+				UINT markerNumber = dataSetI % GNUPLOT_MARKERS.size( );
+				UINT colorSpacing = 256 / finAvgs[dataSetI].size( );
+				std::string colorText = "\" lt rgb \"#" + GIST_RAINBOW[colorSpacing * groupI] + "\"";
+				gnuplotPlotCmd += " '-' using 1:2 " + colorText + " " + GNUPLOT_MARKERS[markerNumber] + " title \"G"
+								  + str( groupI + 1 ) + " " + plotInfo.getLegendText( dataSetI ) + "\",";
 				if ( plotInfo.whenToFit( dataSetI ) == REAL_TIME_FIT
 					 || (plotInfo.whenToFit( dataSetI ) == FIT_AT_END
 						  && repNum == input->picsPerVariation) )
@@ -905,33 +909,36 @@ break;
 					std::string plotString = "fit" + str( groupNum * dataSetI + groupI ) + "= ";
 					switch ( plotInfo.getFitOption( dataSetI ) )
 					{
-					case GAUSSIAN_FIT:
-					{
-						plotString += "sprintf(\"%.3f * exp{/Symbol \\\\173}-(x - %.3f)^2 / (2 * %.3f){/Symbol \\\\175}\", A" + fitNum + ", B" + fitNum + ", C"
-							+ fitNum + ")\n";
-						break;
-					}
-					case LORENTZIAN_FIT:
-					{
+						case GAUSSIAN_FIT:
+						{
+							plotString += "sprintf(\"%.3f * exp{/Symbol \\\\173}-(x - %.3f)^2 / (2 * %.3f){/Symbol \\\\175}\", A" + fitNum + ", B" + fitNum + ", C"
+								+ fitNum + ")\n";
+							break;
+						}
+						case LORENTZIAN_FIT:
+						{
 
-						plotString += "sprintf(\"(%.3f / (2 * Pi)) / ((x - %.3f)^2 + ( %.3f / 2)^2)\", A" + fitNum + ", B" + fitNum
-							+ ", A" + fitNum + ")\n";
-						break;
-					}
-					case SINE_FIT:
-					{
-						plotString += "sprintf(\"%.3f * sin{/Symbol \\\\173}%.3f * x + %.3f{/Symbol \\\\175} * exp{/Symbol \\\\173} - %.3f * x {/Symbol \\\\175}\", A" + fitNum + ", B" + fitNum
-							+ ", C" + fitNum + ", D" + fitNum + ")\n";
-						break;
-					}
-					default:
-					{
-						errBox( "Coding Error: Bad Fit option!" );
-					}
+							plotString += "sprintf(\"(%.3f / (2 * Pi)) / ((x - %.3f)^2 + ( %.3f / 2)^2)\", A" + fitNum + ", B" + fitNum
+								+ ", A" + fitNum + ")\n";
+							break;
+						}
+						case SINE_FIT:
+						{
+							plotString += "sprintf(\"%.3f * sin{/Symbol \\\\173}%.3f * x + %.3f{/Symbol \\\\175} * exp{/Symbol \\\\173} - %.3f * x {/Symbol \\\\175}\", A" + fitNum + ", B" + fitNum
+								+ ", C" + fitNum + ", D" + fitNum + ")\n";
+							break;
+						}
+						default:
+						{
+							errBox( "Coding Error: Bad Fit option!" );
+						}
 					}
 					input->plotter->send( plotString );
-					gnuplotPlotCmd += " f" + fitNum + "(x) title fit" + str( groupI ) + " " + GNUPLOT_COLORS[groupI]
-						+ " " + GNUPLOT_LINETYPES[dataSetI] + ",";
+					UINT lineTypeNumber = dataSetI % GNUPLOT_LINETYPES.size();
+					UINT colorSpacing = 256 / finAvgs[dataSetI].size( );
+					std::string colorText = "\" lt rgb \"#" + GIST_RAINBOW[colorSpacing * groupI] + "\"";
+					gnuplotPlotCmd += " f" + fitNum + "(x) title fit" + str( groupI ) + " " + colorText
+									  + " " + GNUPLOT_LINETYPES[lineTypeNumber] + ",";
 				}
 			}
 		}
@@ -941,7 +948,9 @@ break;
 			{
 				if ( finData[dataSetI][groupI].size( ) >= input->numberOfRunsToAverage )
 				{
-					gnuplotPlotCmd += " '-' using 1:2 " + GNUPLOT_COLORS[groupI] + " with lines title \"G"
+					UINT colorSpacing = 256 / finAvgs[dataSetI].size( );
+					std::string colorText = "\" lt rgb \"#" + GIST_RAINBOW[colorSpacing * groupI] + "\"";
+					gnuplotPlotCmd += " '-' using 1:2 " + colorText + " with lines title \"G"
 						+ str( groupI + 1 ) + " " + plotInfo.getLegendText( dataSetI ) + "\",";
 				}
 			}
@@ -967,12 +976,12 @@ break;
 					alpha = alpha.substr( alpha.size( ) - 2 );
 				}
 				UINT colorSpacing = 256 / finAvgs[dataSetI].size( );
-
-
-
+				UINT markerNumber = dataSetI % GNUPLOT_MARKERS.size( );
+				std::string colorText = "\" lt rgb \"#" + alpha + GIST_RAINBOW[colorSpacing * groupI] + "\"";
 				gnuplotPlotCmd += " '-' using 1:2:3 with yerrorbars title \"G" + str(groupI + 1) + " "
-					+ plotInfo.getLegendText(dataSetI) + "\" lt rgb \"#" + alpha + GIST_RAINBOW[colorSpacing * groupI] + "\" "
-					+ GNUPLOT_MARKERS[dataSetI] + " pointsize 0.5,";
+									+ plotInfo.getLegendText(dataSetI) + colorText + " " 
+									+ GNUPLOT_MARKERS[markerNumber] + " pointsize 0.5,";
+
 				if (plotInfo.whenToFit(dataSetI) == REAL_TIME_FIT
 					|| (plotInfo.whenToFit(dataSetI) == FIT_AT_END && repNum == input->picsPerVariation))
 				{
@@ -1001,7 +1010,11 @@ break;
 						}
 					}
 					input->plotter->send(plotString);
-					gnuplotPlotCmd += " f" + fitNum + "(x) title fit" + fitNum + " " + GNUPLOT_COLORS[groupI] + " " + GNUPLOT_LINETYPES[dataSetI] + ",";
+					UINT lineTypeNumber = dataSetI % GNUPLOT_LINETYPES.size( );
+					UINT colorSpacing = 256 / finAvgs[dataSetI].size( );
+					std::string colorText = "\" lt rgb \"#" + GIST_RAINBOW[colorSpacing * groupI] + "\"";
+					gnuplotPlotCmd += " f" + fitNum + "(x) title fit" + fitNum + " " + colorText + " " 
+									  + GNUPLOT_LINETYPES[dataSetI] + ",";
 				}
 			}
 			// add the average line
@@ -1044,25 +1057,25 @@ break;
 
 
 
-void DataAnalysisControl::handlePlotHist( realTimePlotterInput* input, PlottingInfo plotInfo, UINT plotNumber, 
-										  std::vector<std::vector<long>> countData, 
+void DataAnalysisControl::handlePlotHist( realTimePlotterInput* input, PlottingInfo plotInfo, UINT plotNumber,
+										  std::vector<std::vector<long>> countData,
 										  std::vector<std::vector<std::vector<long>>>& finData,
-										  std::vector<std::vector<bool>>pscSatisfied, int plotNumberCount)
+										  std::vector<std::vector<bool>>pscSatisfied, int plotNumberCount )
 {
 	/// options are fundamentally different for histograms.
 	// load pixel counts into data array pixelData
-	for (UINT dataSetI = 0; dataSetI < plotInfo.getDataSetNumber(); dataSetI++)
+	for ( UINT dataSetI = 0; dataSetI < plotInfo.getDataSetNumber( ); dataSetI++ )
 	{
 		for ( auto groupI : range( input->atomGridInfo.width * input->atomGridInfo.height ) )
 		//for (UINT groupI = 0; groupI < plotInfo.getPixelGroupNumber(); groupI++)
 		{
-			if (pscSatisfied[dataSetI][groupI] == false)
+			if ( pscSatisfied[dataSetI][groupI] == false )
 			{
 				continue;
 			}
 			UINT pixel, pic;
 			// passing by reference.
-			plotInfo.getDataCountsLocation(dataSetI, pixel, pic);
+			plotInfo.getDataCountsLocation( dataSetI, pixel, pic );
 			// for a given group, figure out which picture
 			//finData[dataSetI][groupI].push_back(countData[plotInfo.getPixelIndex(pixel, groupI)][pic]);
 			finData[dataSetI][groupI].push_back( countData[groupI][pic] );
@@ -1075,49 +1088,65 @@ void DataAnalysisControl::handlePlotHist( realTimePlotterInput* input, PlottingI
 	}
 
 	// Feels redundant to re-set these things each re-plot, but I'm not sure there's a better way.
-	input->plotter->send("set terminal wxt " + str(plotNumber) + " title \"" + plotInfo.getTitle() + "\" noraise background rgb 'black'");
+	input->plotter->send( "set terminal wxt " + str( plotNumber ) + " title \"" + plotInfo.getTitle( ) + "\" noraise background rgb 'black'" );
 	input->plotter->send( "set title \"" + plotInfo.getTitle( ) + "\" tc rgb '#FFFFFF'" );
 	input->plotter->send( "set xlabel \"Key Value\" tc rgb '#FFFFFF'" );
 	input->plotter->send( "set ylabel \"" + plotInfo.getYLabel( ) + "\" tc rgb '#FFFFFF'" );
 	input->plotter->send( "set border lc rgb '#FFFFFF'" );
-	input->plotter->send( "set key tc rgb '#FFFFFF'" );	input->plotter->send("set title \"" + plotInfo.getTitle() + "\"");
-	input->plotter->send("set format y \"%.1f\"");
-	input->plotter->send("set autoscale x");
-	input->plotter->send("set yrange [0:*]");
-	input->plotter->send("set xlabel \"Count #\"");
-	input->plotter->send("set ylabel \"Occurrences\"");
+	input->plotter->send( "set key tc rgb '#FFFFFF' outside" );
+	input->plotter->send( "set title \"" + plotInfo.getTitle( ) + "\"" );
+	input->plotter->send( "set format y \"%.1f\"" );
+	input->plotter->send( "set autoscale x" );
+	input->plotter->send( "set yrange [0:*]" );
+	input->plotter->send( "set xlabel \"Count #\"" );
+	input->plotter->send( "set ylabel \"Occurrences\"" );
 	int totalGroupNum = input->atomGridInfo.width * input->atomGridInfo.height;
 
 	double spaceFactor = 1;
 	//double boxWidth = spaceFactor * 10 / (totalGroupNum * plotInfo.getDataSetNumber( ));
 	double boxWidth = spaceFactor * 10;
-	input->plotter->send("set boxwidth " + str(boxWidth));
-	input->plotter->send("set style fill solid 1");
+	input->plotter->send( "set boxwidth " + str( boxWidth ) );
+	input->plotter->send( "set style fill solid 1" );
 	// leave 0.2 pixels worth of space in between the bins.
 	std::string gnuCommand = "plot";
-	int totalDataSetNum = plotInfo.getDataSetNumber();
-	for (UINT dataSetI = 0; dataSetI < plotInfo.getDataSetNumber(); dataSetI++)
+	int totalDataSetNum = plotInfo.getDataSetNumber( );
+	for ( UINT dataSetI = 0; dataSetI < plotInfo.getDataSetNumber( ); dataSetI++ )
 	{
 		for ( auto groupI : range( totalGroupNum ) )
 		{
+			std::stringstream hexStream;
+			hexStream << std::hex << int( (1 - 1.0 / sqrt( finData[dataSetI].size( ) )) * 255 );
+			std::string alpha = hexStream.str( );
+			if ( alpha.size( ) < 2 )
+			{
+				// This shouldn't happen...
+				alpha = "00";
+			}
+			else
+			{
+				alpha = alpha.substr( alpha.size( ) - 2 );
+			}
+
+			UINT markerNumber = dataSetI % GNUPLOT_MARKERS.size( );
 			// long command that makes hist correctly.
-			std::string singleHist = " '-' using (10 * floor(($1)/10) - " 
-				//+ str(boxWidth * (totalGroupNum * dataSetI + groupI) - spaceFactor * 0.5 
-				+ str( boxWidth * - spaceFactor * 0.5
-					   + spaceFactor * 0.5 / (totalGroupNum * totalDataSetNum))
-				+ ") : (1.0) smooth freq with boxes title \"G " + str(groupI + 1) + " "
-				+ plotInfo.getLegendText(dataSetI) + "\" " + GNUPLOT_HISTOGRAM_COLORS[groupI] + " "
-				+ GNUPLOT_MARKERS[dataSetI] + ",";
+			UINT colorSpacing = 256 / finData[dataSetI].size( );
+			std::string colorText = "\" lt rgb \"#" + alpha + GIST_RAINBOW[colorSpacing * groupI] + "\"";
+			std::string singleHist = (" '-' using (10 * floor(($1)/10) - " 
+									   + str( boxWidth * -spaceFactor * 0.5 
+											  + spaceFactor * 0.5 / (totalGroupNum * totalDataSetNum) )
+									   + ") : (1.0) smooth freq with boxes title \"G " + str( groupI + 1 ) + " "
+									   + plotInfo.getLegendText( dataSetI ) + " " + colorText + " "
+									   + GNUPLOT_MARKERS[markerNumber] + ",");
 			gnuCommand += singleHist;
 		}
 	}
-	input->plotter->send(gnuCommand);
-	for (UINT dataSetI = 0; dataSetI < plotInfo.getDataSetNumber(); dataSetI++)
+	input->plotter->send( gnuCommand );
+	for ( UINT dataSetI = 0; dataSetI < plotInfo.getDataSetNumber( ); dataSetI++ )
 	{
 		for ( auto groupI : range( input->atomGridInfo.width * input->atomGridInfo.height ) )
 		//for (UINT groupI = 0; groupI < plotInfo.getPixelGroupNumber(); groupI++)
 		{
-			input->plotter->sendData(finData[dataSetI][groupI]);
+			input->plotter->sendData( finData[dataSetI][groupI] );
 		}
 	}
 }

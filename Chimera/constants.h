@@ -706,7 +706,7 @@ const std::vector<std::string> GIST_RAINBOW{
 	"ff00c4",
 	"ff00bf"
 };
-
+/*
 const std::vector<std::string> GNUPLOT_COLORS{ "lt rgb \"#FFFFFF\"", // white
 											   "lt rgb \"#00FFFF\"", // cyan
 											   "lt rgb \"#008000\"", // green
@@ -729,6 +729,7 @@ const std::vector<std::string> GNUPLOT_HISTOGRAM_COLORS{ "lt rgb \"#AAFFFFFF\"",
 												"lt rgb \"#AA000080\"", // blue
 												"lt rgb \"#AAFF8C00\"",  // dark orange	
 												"lt rgb \"#AA708090\"" }; // slate grey
+*/
 
 const std::vector<std::string> GNUPLOT_MARKERS{ "pt 5",
 												"pt 7",
@@ -741,13 +742,8 @@ const std::vector<std::string> GNUPLOT_MARKERS{ "pt 5",
 												"pt 6"};
 
 const std::vector<std::string> GNUPLOT_LINETYPES{ "dt 1",
-													"dt 2",
-													"dt 3",
-													"dt 4",
-													"dt 1",
-													"dt 2",
-													"dt 3",
-													"dt 4",
-													"dt 1"};
+												  "dt 2",
+												  "dt 3",
+												  "dt 4"};
 
 const std::string GNUPLOT_LOCATION = "\"C:\\Program Files (x86)\\gnuplot\\bin\\gnuplot.exe\"";
