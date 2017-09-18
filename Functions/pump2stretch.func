@@ -2,28 +2,30 @@
 def pump2stretch():
   % insert commands here...
         %printnow "Populating F=|22>"
-
-
+
+
                  
         %Setting the pumping beam frequencies:
-        dacarange: dac21 0 -1.65 10 0.1 %-1.65
+        daclinspace: dac21 0 (-1.65+tmp1) 10 30 %-1.65
         %Ramp of DAC 21, F1 offset lock to 2.32 for 2.2 mK trap and -.5V on dac14 AO, -1.5 for 1.1 mK
-        dac: sigmarepumpfreq -0.12 %ROP AO, -.5 for 2mK, trap, 0 for 1.1 mK 141217,AMK, -0.12 for 7.15mW two traps, YL 10262016
-        dac: motfreq 0.735  %F2 light 1.1 for 2.1 mK and adjusted AO, .75 for 1.1mK
+        dac: sigmarepumpfreq (-0.12+tmp2) %ROP AO, -.5 for 2mK, trap, 0 for 1.1 mK 141217,AMK, -0.12 for 7.15mW two traps, YL 10262016
+        dac: motfreq (0.735+tmp3)  %F2 light 1.1 for 2.1 mK and adjusted AO, .75 for 1.1mK
         
         %Setting OP frequency based on trap depth:
-        dac: sigmaopfreq 1.16 %frequency for 1.1mK trap depth (may need recalibration) ' calibrated at 11032016
-        off: diagmotshutter
-        call setQuantAxis() % set to 3G field
+        dac: sigmaopfreq (1.16+tmp4) %frequency for 1.1mK trap depth (may need recalibration) ' calibrated at 11032016
+        
+off: diagmotshutter
+        call setQuantAxis()
+ % set to 3G field
 
-        t += 17.99  %to let field settle and lasers settle
+        t += 3  %to let field settle and lasers settle
          
         %Setting the pumping beam powers:
         dac: sigmaoppower 0.15 % 0.3 % sigma+ OP beam power
         dac: sigmarepumppower 0.15 %0.3 %sigma+ Repump beam power
          
         %Performing OP pulse:
-
+
         on: sigmaoprf  %OP light on ***** '+++
         on: sigmarepumprf %Sigma+ repump beam *****
         
@@ -34,5 +36,5 @@ def pump2stretch():
          
         dac: sigmaoppower 0
         dac: sigmarepumppower 0
-
+
         t += 0.01

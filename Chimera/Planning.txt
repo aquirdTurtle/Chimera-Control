@@ -35,7 +35,6 @@ Features:
 - load colormaps from file, allowing custom colormaps.
 - make gnuplot alpha values dependent on number of points being watched.
 - initialize windows to certain monitor
-- be able to plot average on gnuplotter
 - change camera coordinates to be config-level
 - Remove three-stage config file system
 - make count-down use TTL time
@@ -71,3 +70,5 @@ Bugs:
 =================
 Finished
 =================
+- fixed bug where plots plotted on top of each other
+

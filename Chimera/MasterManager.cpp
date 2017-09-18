@@ -51,7 +51,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 
 	std::vector<std::pair<UINT, UINT>> ttlShadeLocs;
 	std::vector<UINT> dacShadeLocs;
-	
+	bool foundRearrangement = false;
 	//
 	try
 	{
@@ -86,7 +86,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			ProfileSystem::openNiawgFiles( niawgFiles, input->profile, input->runNiawg);
 			input->niawg->prepareNiawg( input, output, niawgFiles, warnings, userScriptSubmit );
 			// check if any waveforms are rearrangement instructions.
-			bool foundRearrangement = false;
+			
 			for (auto& wave : output.waves)
 			{
 				if (wave.isRearrangement)
@@ -451,7 +451,10 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		}	
 	}
 	input->niawg->turnOffRearranger( );
-	input->conditionVariableForRearrangement->notify_all( );
+	if ( foundRearrangement )
+	{
+		input->conditionVariableForRearrangement->notify_all( );
+	}
 	ULONGLONG endTime = GetTickCount();
 	expUpdate( "Experiment took " + str( (endTime - startTime) / 1000.0 ) + " seconds.\r\n", input->comm, input->quiet );
 	input->thisObj->experimentIsRunning = false;
