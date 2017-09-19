@@ -198,3 +198,4 @@ void Segment::assignDataVal( int dataNum, double val )
 {
 	dataArray[dataNum] = val;
 }
+

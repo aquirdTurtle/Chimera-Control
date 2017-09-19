@@ -11,8 +11,10 @@
 // #define MASTER_COMPUTER
 #define SPECTRE_LAPTOP
 // #define DESKTOP_COMPUTER
+
+/// ////////////////////////////
 /// File Locations
-// Files for Desktop
+
 #ifdef DESKTOP_COMPUTER
 	#define PYTHON_HOME L"C:\\Users\\Mark\\Anaconda3\\"
 	#define NIAWG_SAFEMODE false
@@ -706,30 +708,6 @@ const std::vector<std::string> GIST_RAINBOW{
 	"ff00c4",
 	"ff00bf"
 };
-/*
-const std::vector<std::string> GNUPLOT_COLORS{ "lt rgb \"#FFFFFF\"", // white
-											   "lt rgb \"#00FFFF\"", // cyan
-											   "lt rgb \"#008000\"", // green
-											   "lt rgb \"#DC143C\"",  // crimson
-											   "lt rgb \"#B8860B\"",  // dark goldenrod
-											   "lt rgb \"#4B0082\"",  // indigo
-											   "lt rgb \"#000080\"", // blue
-											   "lt rgb \"#FF8C00\"",  // dark orange	
-											   "lt rgb \"#708090\"" }; // slate grey
-
-
-
-// Special Colors for the histogram which have extra alpha part at the beginning of the hex code.
-const std::vector<std::string> GNUPLOT_HISTOGRAM_COLORS{ "lt rgb \"#AAFFFFFF\"", // white
-												"lt rgb \"#AA00FFFF\"", // cyan
-												"lt rgb \"#AA008000\"", // green
-												"lt rgb \"#AADC143C\"",  // crimson
-												"lt rgb \"#AAB8860B\"",  // dark goldenrod
-												"lt rgb \"#AA4B0082\"",  // indigo
-												"lt rgb \"#AA000080\"", // blue
-												"lt rgb \"#AAFF8C00\"",  // dark orange	
-												"lt rgb \"#AA708090\"" }; // slate grey
-*/
 
 const std::vector<std::string> GNUPLOT_MARKERS{ "pt 5",
 												"pt 7",
