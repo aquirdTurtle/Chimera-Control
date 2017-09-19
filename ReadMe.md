@@ -2,8 +2,7 @@
 #    **Chimera-Control Project**
 ========================================================================
 
-# Introduction
-## Contact
+# Contact
 Please feel free to contact me at any time with questions, bug reports, feature requests, or general support or advice. I'm happy to help the project be as useful as possible to others who wish to use it. Contact me at 	Mark.O.Brown@colorado.edu with any such questions
 
 # Installation
@@ -16,6 +15,10 @@ Please feel free to contact me at any time with questions, bug reports, feature 
 - Install NI-FGEN & NI-DAQmx
 - Install The Andor SOLIS SDK
 - set up a series of definitions in the "constants.h" file.
+
+## Download my code
+- The latest version of my code can always be found here: https://github.com/omarkb93/Chimera-Control
+- You want to download the source code (Make sure to download the **most recent** commit, e.g. by using git clone on the repo or downloading the project as a zip) AND the release packages, where I bundle several of the packages that I use in my code. The releases are here: https://github.com/omarkb93/Chimera-Control/releases. 
 
 ## What's Included?
 The github package includes all of my source code (\*.h and \*.cpp files), as well as some zipped compiled packages. Specifically, these include 64- and 32-bit versions of:
