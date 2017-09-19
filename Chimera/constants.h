@@ -32,7 +32,6 @@
 	const std::string ACTUAL_CODE_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Cold Atoms Control Application\\";
 	const std::string PROFILES_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Profiles\\";
 #endif
-
 #ifdef SPECTRE_LAPTOP
 	#define PYTHON_HOME L"C:\\Program Files (x86)\\Anaconda3\\"
 	#define NIAWG_SAFEMODE true
@@ -53,28 +52,18 @@
 	#define INTENSITY_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50004500::0::INSTR"
 	#define FLASHING_SAFEMODE true
 	#define FLASHING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50003003::0::INSTR"
-
 	#define TESTING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
 
 	const std::string PROJECT_LOCATION = "C:\\Users\\Mark-Brown\\Chimera-Control\\";
 	const std::string PLOT_FILES_SAVE_LOCATION = PROJECT_LOCATION + "Plotting";
-	//const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
 	const std::string LIB_PATH = PROJECT_LOCATION + "Waveforms-Library\\dummyLib\\";
 	const std::string DEFAULT_SCRIPT_FOLDER_PATH = PROJECT_LOCATION + "Default Scripts\\";
 	const std::string EXPERIMENT_LOGGING_FILES_PATH = PROJECT_LOCATION + "NIAWG Logging Files\\Individual Experiments\\";
-	//const std::string CODE_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Code Versions\\";
-	//const std::string ACTUAL_CODE_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Cold Atoms Control Application\\";
 	const std::string PROFILES_PATH = PROJECT_LOCATION + "Profiles\\";
 	const std::string DATA_SAVE_LOCATION = PROJECT_LOCATION + "Data\\";
-	//const std::string KEY_ORIGINAL_SAVE_LOCATION = PROJECT_LOCATION + "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\key.txt";
 	const std::string MUSIC_LOCATION = PROJECT_LOCATION + "Camerawg\\Final Fantasy VII - Victory Fanfare [HQ].mp3";
-	//
-	//const std::string PROFILES_PATH = PROJECT_LOCATION + "Master Profiles\\";
 	const std::string  FUNCTIONS_FOLDER_LOCATION = PROJECT_LOCATION + "Functions\\";
 	const std::string MASTER_CONFIGURATION_FILE_ADDRESS = PROJECT_LOCATION + "Master-Configuration.txt";
-	//const std::string DEFAULT_SCRIPT_FOLDER_PATH = PROJECT_LOCATION + "Default Scripts\\";
-	//const std::string LOGGING_FILE_ADDRESS = PROJECT_LOCATION + "Master Log.txt";
-	//const std::string KEY_ADDRESS = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Data\\key.txt";
 	const std::string MOT_ROUTINE_ADDRESS = PROJECT_LOCATION + "Master Profiles\\Hotkey Experiments\\MOT\\turnOnMot.mScript";
 	const std::string DEBUG_OUTPUT_LOCATION = PROJECT_LOCATION + "Debug-Output\\";
 	const std::string TIMING_OUTPUT_LOCATION = PROJECT_LOCATION + "\\Data\\";
