@@ -10,28 +10,10 @@
 
 // #define MASTER_COMPUTER
 #define SPECTRE_LAPTOP
-// #define DESKTOP_COMPUTER
 
 /// ////////////////////////////
 /// File Locations
 
-#ifdef DESKTOP_COMPUTER
-	#define PYTHON_HOME L"C:\\Users\\Mark\\Anaconda3\\"
-	#define NIAWG_SAFEMODE false
-	#define ANDOR_SAFEMODE true
-	#define SOCKET_SAFEMODE true
-	#define CONNECT_TO_ANDOR_SAFEMODE true
-	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Plotting";
-	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
-	const std::string LIB_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\NIAWG Wavefunction Library"
-								 "\\";
-	const std::string DEFAULT_SCRIPT_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Default "
-												   "NIAWG Scripts\\";
-	const std::string EXPERIMENT_LOGGING_FILES_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\";
-	const std::string CODE_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Code Versions\\";
-	const std::string ACTUAL_CODE_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Cold Atoms Control Application\\";
-	const std::string PROFILES_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Profiles\\";
-#endif
 #ifdef SPECTRE_LAPTOP
 	#define PYTHON_HOME L"C:\\Program Files (x86)\\Anaconda3\\"
 	#define NIAWG_SAFEMODE true
@@ -58,7 +40,6 @@
 	const std::string PLOT_FILES_SAVE_LOCATION = PROJECT_LOCATION + "Plotting";
 	const std::string LIB_PATH = PROJECT_LOCATION + "Waveforms-Library\\dummyLib\\";
 	const std::string DEFAULT_SCRIPT_FOLDER_PATH = PROJECT_LOCATION + "Default Scripts\\";
-	const std::string EXPERIMENT_LOGGING_FILES_PATH = PROJECT_LOCATION + "NIAWG Logging Files\\Individual Experiments\\";
 	const std::string PROFILES_PATH = PROJECT_LOCATION + "Profiles\\";
 	const std::string DATA_SAVE_LOCATION = PROJECT_LOCATION + "Data\\";
 	const std::string MUSIC_LOCATION = PROJECT_LOCATION + "Camerawg\\Final Fantasy VII - Victory Fanfare [HQ].mp3";
@@ -98,7 +79,6 @@
 	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
 	const std::string LIB_PATH = str(CODE_ROOT) + "\\Waveforms-Library\\WaveLibrary 320 MSpS\\";
 	const std::string DEFAULT_SCRIPT_FOLDER_PATH = str(CODE_ROOT) + "\\Default Scripts\\";
-	const std::string EXPERIMENT_LOGGING_FILES_PATH = "D:\\NIAWG Logging Files\\Individual Experiments\\";
 	const std::string CODE_LOGGING_FILES_PATH = "D:\\Code Versions\\";
 	const std::string ACTUAL_CODE_FOLDER_PATH = str(CODE_ROOT) + "\\Chimera\\";
 	const std::string PROFILES_PATH = str(CODE_ROOT) + "\\Profiles\\";
@@ -114,7 +94,6 @@
 	const std::string TIMING_OUTPUT_LOCATION = DATA_SAVE_LOCATION + "\\2017\\September\\September 8\\Raw Data\\";
 	// location where wave data can be outputted for analyzing with another computer.
 	const std::string NIAWG_WAVEFORM_OUTPUT_LOCATION = DATA_SAVE_LOCATION + "2017\\September\\September 7\\Raw Data\\";
-	// const std::string JILA_BITMAP_LOCATION = CODE_ROOT + "JILA.bmp";
 #endif
 
 // We calibrated this. // NIAWG_GAIN = 1.34.
