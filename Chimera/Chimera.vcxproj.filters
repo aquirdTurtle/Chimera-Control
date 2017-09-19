@@ -528,7 +528,6 @@
     <ResourceCompile Include="Chimera.rc">
       <Filter>Things I Don%27t Mess With %28Often%29</Filter>
     </ResourceCompile>
-    <ResourceCompile Include="Chimera1.rc" />
   </ItemGroup>
   <ItemGroup>
     <Object Include="gpib-32.obj">
