@@ -450,10 +450,13 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			input->comm->sendFatalError( "Exited main experiment thread abnormally." );
 		}	
 	}
-	input->niawg->turnOffRearranger( );
-	if ( foundRearrangement )
+	if ( input->runNiawg )
 	{
-		input->conditionVariableForRearrangement->notify_all( );
+		if ( foundRearrangement )
+		{
+			input->niawg->turnOffRearranger( );
+			input->conditionVariableForRearrangement->notify_all( );
+		}
 	}
 	ULONGLONG endTime = GetTickCount();
 	expUpdate( "Experiment took " + str( (endTime - startTime) / 1000.0 ) + " seconds.\r\n", input->comm, input->quiet );

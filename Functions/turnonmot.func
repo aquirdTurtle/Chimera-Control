@@ -9,7 +9,7 @@ def turnOnMot():
 	on: RepumpShutter
 	on: DiagMotShutter
 	on: SideMotShutter
-	off: ProbeShutter
+	%off: ProbeShutter
 	% Make sure raman shutter is closed initially
 	off: RamanShutter
 	%% %%%%%%%%%%%%%%%%%%%%%%%%%%%

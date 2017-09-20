@@ -7,7 +7,7 @@ def PgcLoading():
     
     	%Set beam powers for PGC and turn on beams 
 	% (should already be on, but just in case):
-	dacArange: MotFreq -0.1 pgcDetuning 1 0.02
+	dacLinSpace: MotFreq -0.1 pgcDetuning 1 20
       % to let the ramp finish
 
 	t += 2 
@@ -27,7 +27,7 @@ def PgcLoading():
 	off: sideMotRf
 	off: diagMotRf
     
-	dacArange: MotFreq pgcDetuning 0.3 1 0.02
+	dacLinSpace: MotFreq pgcDetuning 0.3 1 20
 
 	dac: repumpPower 0
 	dac: diagMotPower 0

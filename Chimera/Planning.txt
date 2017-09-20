@@ -70,5 +70,4 @@ Bugs:
 =================
 Finished
 =================
-- fixed bug where plots plotted on top of each other
 

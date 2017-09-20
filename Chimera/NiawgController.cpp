@@ -226,7 +226,7 @@ void NiawgController::waitForRearranger( )
 void NiawgController::turnOffRearranger( )
 {
 	// make sure the rearranger thread is off.
-	// threadStateSignal = false;
+	threadStateSignal = false;
 }
 
 
@@ -2342,6 +2342,7 @@ void NiawgController::calculateRearrangingMoves( std::vector<std::vector<bool>> 
 	//... Kai's work
 }
 
+
 /// things that might make faster:
 // preprogram all possible fillers
 // 1D rearranging instead of 2D
@@ -2410,13 +2411,10 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 			UINT count = 0;
 			for ( auto colCount : range( info.targetCols ) )
 			{
-				//std::vector<bool> tempRow( info.targetCols );
 				for ( auto rowCount : range( info.targetRows ) )
-				//for ( auto& elem : tempRow )
 				{
 					source[source.size( ) - 1 - rowCount][colCount] = tempAtoms[count++];
 				}
-				//source[source.size( ) - 1 - rowCount] = tempRow;
 			}
 			std::vector<simpleMove> operationsMatrix;
 			try
@@ -2442,26 +2440,100 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 				moveWave.name = "NA";
 				moveWave.time = input->rearrangementWave.rearrange.timePerMove / 2.0;
 				moveWave.sampleNum = input->niawg->waveformSizeCalc( moveWave.time );
-				for ( auto axis : AXES )
+
+				UINT movingAxis, movingSize, staticAxis;
+				if ( move.finCol != move.initCol )
 				{
-					moveWave.chan[axis].signals.resize( 1 );
-					waveSignal& sig = moveWave.chan[axis].signals[0];
-					sig.initPower = 1;
-					sig.finPower = 1;
+					movingAxis = Horizontal;
+					staticAxis = Vertical;
+					movingSize = info.targetCols;
+				}
+				else
+				{
+					movingAxis = Vertical;
+					movingSize = info.targetRows;
+					staticAxis = Horizontal;
+				}
+				double movingFrac = 0.2;
+				double nonMovingFrac = (1 - movingFrac) / (movingSize - 2);
+				
+				/// handle moving axis
+				// 1 less signal because of the two locations that the moving tweezer spans
+				moveWave.chan[movingAxis].signals.resize( movingSize-1 );
+				bool foundMoving = false;
+				UINT gridLocation = 0;
+				for ( auto signalNum : range(movingSize-1) )
+				{
+					waveSignal& sig = moveWave.chan[movingAxis].signals[signalNum];
 					sig.powerRampType = "nr";
 					sig.initPhase = 0;
-					sig.freqRampType = "lin";
-					if ( axis == Horizontal )
+					//
+					if ( (signalNum == initPos[movingAxis] || signalNum == finPos[movingAxis]) && !foundMoving )
 					{
-						sig.freqInit = ((info.targetCols - initPos[axis]-1) * freqPerPixel + info.lowestFreq[axis])*1e6;
-						sig.freqFin = ((info.targetCols-finPos[axis]-1) * freqPerPixel + info.lowestFreq[axis])*1e6;
+						// SKIP the next one, which should be the next of the pair of locations that is moving.
+						gridLocation++;
+						// this is the moving signal. set foundmoving to true so that you only make one moving signal.
+						foundMoving = true;
+						sig.initPower = movingFrac;
+						sig.finPower = movingFrac;
+						sig.freqRampType = "lin";
+
+						if ( movingAxis == Horizontal )
+						{
+							sig.freqInit = ((info.targetCols - initPos[movingAxis] - 1)
+											 * freqPerPixel + info.lowestFreq[movingAxis]) * 1e6;
+							sig.freqFin = ((info.targetCols - finPos[movingAxis] - 1)
+											* freqPerPixel + info.lowestFreq[movingAxis]) * 1e6;
+						}
+						else
+						{
+							sig.freqInit = (initPos[movingAxis] * freqPerPixel + info.lowestFreq[movingAxis]) * 1e6;
+							sig.freqFin = (finPos[movingAxis] * freqPerPixel + info.lowestFreq[movingAxis]) * 1e6;
+						}
 					}
 					else
 					{
-						sig.freqInit = (initPos[axis] * freqPerPixel + info.lowestFreq[axis])*1e6;
-						sig.freqFin = (finPos[axis] * freqPerPixel + info.lowestFreq[axis])*1e6;
+						sig.initPower = nonMovingFrac;
+						sig.finPower = nonMovingFrac;
+						sig.freqRampType = "nr";
+						if ( movingAxis == Horizontal )
+						{
+							sig.freqInit = ((info.targetCols - gridLocation - 1) * freqPerPixel 
+											 + info.lowestFreq[movingAxis]) * 1e6;
+							sig.freqFin = sig.freqInit;
+						}
+						else
+						{
+							sig.freqInit = (gridLocation * freqPerPixel + info.lowestFreq[movingAxis]) * 1e6;
+							sig.freqFin = sig.freqInit;
+						}
 					}
+					gridLocation++;
 				}
+
+				/// handle other axis
+				moveWave.chan[staticAxis].signals.resize( 1 );
+				waveSignal& sig = moveWave.chan[staticAxis].signals[0];
+				// only matters for the horizontal AOM which gets the extra tone at the moment.
+				sig.initPower = 1;
+				sig.finPower = 1;
+				sig.powerRampType = "nr";
+				sig.initPhase = 0;
+				sig.freqRampType = "nr";
+				if ( staticAxis == Horizontal )
+				{
+					// convert to Hz
+					sig.freqInit = ((info.targetCols - initPos[staticAxis]-1) * freqPerPixel 
+									 + info.lowestFreq[staticAxis]) * 1e6;
+					sig.freqFin = sig.freqInit;
+				}
+				else
+				{
+					// convert to Hz
+					sig.freqInit = (initPos[staticAxis] * freqPerPixel + info.lowestFreq[staticAxis])*1e6;
+					sig.freqFin = sig.freqInit;
+				}
+				/// finalize info & calc stuffs
 				input->niawg->finalizeStandardWave( moveWave, options );
 				// now put together into small temporary flashing wave
 				waveInfo flashMove;
@@ -2480,7 +2552,8 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 				flashMove.flash.flashCycleFreq = info.flashingFreq;
 				input->niawg->mixFlashingWaves( flashMove );
 				// now add to main wave.
-				input->niawg->rearrangeWaveVals.insert( input->niawg->rearrangeWaveVals.end( ), flashMove.core.waveVals.begin( ), flashMove.core.waveVals.end( ) );
+				input->niawg->rearrangeWaveVals.insert( input->niawg->rearrangeWaveVals.end( ),
+														flashMove.core.waveVals.begin( ), flashMove.core.waveVals.end( ) );
 			}
 			// fill out the rest of the waveform.
 			simpleWave fillerWave = info.staticWave;

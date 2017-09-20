@@ -88,6 +88,7 @@ struct rearrangeInfo
 	// a bit redundant atm.
 	UINT targetRows=0;
 	UINT targetCols=0;
+	// hard-coded currently. Should probably add some control for this.
 	double timePerMove = 6e-5;
 	double flashingFreq = 1e6;
 	// the maixmum number of moves the rearrangement should take.
@@ -97,6 +98,7 @@ struct rearrangeInfo
 	niawgPair<double> lowestFreq = { 0,0 };
 	// this is the frequency difference per pixel
 	double freqPerPixel=0;
+	// the wave that gets flashed with the moving tweezer
 	simpleWave staticWave;
 };
 
