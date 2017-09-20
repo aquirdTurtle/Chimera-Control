@@ -813,7 +813,7 @@ void Agilent::handleScriptVariation( key variationKey, UINT variation, scriptedA
 			visaFlume.write( scriptInfo.wave.compileAndReturnDataSendString( segNumInc, variation, 
 																			 totalSegmentNumber ) );
 			// Save the segment
-			visaFlume.write( "MMEM:STORE:DATA \"INT:\\seg" 
+			visaFlume.write( "MMEM:STORE:DATA \"INT:\\segment" 
 							 + str( segNumInc + totalSegmentNumber * variation ) + ".arb\"" );
 			// increment for the next.
 			visaFlume.write( "TRIGGER" + str( channel ) + ":SLOPE POSITIVE" );
@@ -866,7 +866,7 @@ void Agilent::handleNoVariations(scriptedArbInfo& scriptInfo, UINT channel)
 		visaFlume.write( str( "SOURCE" + str( channel ) + ":VOLT:HIGH " ) + str( scriptInfo.wave.minsAndMaxes[0].second ) + " V" );
 
 		visaFlume.write( scriptInfo.wave.compileAndReturnDataSendString( segNumInc, 0, totalSegmentNumber ) );
-		visaFlume.write( "MMEM:STORE:DATA \"INT:\\seg" + str( segNumInc ) + ".arb\"" );
+		visaFlume.write( "MMEM:STORE:DATA \"INT:\\segment" + str( segNumInc ) + ".arb\"" );
 	}
 	// Now handle seqeunce creation / writing.
 	scriptInfo.wave.compileSequenceString( totalSegmentNumber, 0 );
