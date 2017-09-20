@@ -8,28 +8,10 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program.
 
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP
+// #define MASTER_COMPUTER
+#define SPECTRE_LAPTOP
 // #define DESKTOP_COMPUTER
 /// File Locations
-// Files for Desktop
-#ifdef DESKTOP_COMPUTER
-	#define PYTHON_HOME L"C:\\Users\\Mark\\Anaconda3\\"
-	#define NIAWG_SAFEMODE false
-	#define ANDOR_SAFEMODE true
-	#define SOCKET_SAFEMODE true
-	#define CONNECT_TO_ANDOR_SAFEMODE true
-	const std::string PLOT_FILES_SAVE_LOCATION = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Plotting";
-	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
-	const std::string LIB_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\NIAWG Wavefunction Library"
-								 "\\";
-	const std::string DEFAULT_SCRIPT_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Default "
-												   "NIAWG Scripts\\";
-	const std::string EXPERIMENT_LOGGING_FILES_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\";
-	const std::string CODE_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Code Versions\\";
-	const std::string ACTUAL_CODE_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Cold Atoms Control Application\\";
-	const std::string PROFILES_PATH = "C:\\Users\\Mark\\Documents\\Quantum Gas Assembly Control\\Profiles\\";
-#endif
 
 #ifdef SPECTRE_LAPTOP
 	#define PYTHON_HOME L"C:\\Program Files (x86)\\Anaconda3\\"
@@ -51,28 +33,17 @@
 	#define INTENSITY_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50004500::0::INSTR"
 	#define FLASHING_SAFEMODE true
 	#define FLASHING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50003003::0::INSTR"
-
 	#define TESTING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
 
 	const std::string PROJECT_LOCATION = "C:\\Users\\Mark-Brown\\Chimera-Control\\";
 	const std::string PLOT_FILES_SAVE_LOCATION = PROJECT_LOCATION + "Plotting";
-	//const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
 	const std::string LIB_PATH = PROJECT_LOCATION + "Waveforms-Library\\dummyLib\\";
 	const std::string DEFAULT_SCRIPT_FOLDER_PATH = PROJECT_LOCATION + "Default Scripts\\";
-	const std::string EXPERIMENT_LOGGING_FILES_PATH = PROJECT_LOCATION + "NIAWG Logging Files\\Individual Experiments\\";
-	//const std::string CODE_LOGGING_FILES_PATH = "\\\\andor\\share\\Data and documents\\Data repository\\NIAWG Logging Files\\Code Versions\\";
-	//const std::string ACTUAL_CODE_FOLDER_PATH = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Cold Atoms Control Application\\";
 	const std::string PROFILES_PATH = PROJECT_LOCATION + "Profiles\\";
 	const std::string DATA_SAVE_LOCATION = PROJECT_LOCATION + "Data\\";
-	//const std::string KEY_ORIGINAL_SAVE_LOCATION = PROJECT_LOCATION + "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\key.txt";
 	const std::string MUSIC_LOCATION = PROJECT_LOCATION + "Camerawg\\Final Fantasy VII - Victory Fanfare [HQ].mp3";
-	//
-	//const std::string PROFILES_PATH = PROJECT_LOCATION + "Master Profiles\\";
 	const std::string  FUNCTIONS_FOLDER_LOCATION = PROJECT_LOCATION + "Functions\\";
 	const std::string MASTER_CONFIGURATION_FILE_ADDRESS = PROJECT_LOCATION + "Master-Configuration.txt";
-	//const std::string DEFAULT_SCRIPT_FOLDER_PATH = PROJECT_LOCATION + "Default Scripts\\";
-	//const std::string LOGGING_FILE_ADDRESS = PROJECT_LOCATION + "Master Log.txt";
-	//const std::string KEY_ADDRESS = "C:\\Users\\Mark\\Documents\\Quantum-Gas-Assembly-Control\\Data\\key.txt";
 	const std::string MOT_ROUTINE_ADDRESS = PROJECT_LOCATION + "Master Profiles\\Hotkey Experiments\\MOT\\turnOnMot.mScript";
 	const std::string DEBUG_OUTPUT_LOCATION = PROJECT_LOCATION + "Debug-Output\\";
 	const std::string TIMING_OUTPUT_LOCATION = PROJECT_LOCATION + "\\Data\\";
@@ -107,7 +78,6 @@
 	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
 	const std::string LIB_PATH = str(CODE_ROOT) + "\\Waveforms-Library\\WaveLibrary-320-MSpS-0.1-PowerLevel\\";
 	const std::string DEFAULT_SCRIPT_FOLDER_PATH = str(CODE_ROOT) + "\\Default Scripts\\";
-	const std::string EXPERIMENT_LOGGING_FILES_PATH = "D:\\NIAWG Logging Files\\Individual Experiments\\";
 	const std::string CODE_LOGGING_FILES_PATH = "D:\\Code Versions\\";
 	const std::string ACTUAL_CODE_FOLDER_PATH = str(CODE_ROOT) + "\\Chimera\\";
 	const std::string PROFILES_PATH = str(CODE_ROOT) + "\\Profiles\\";
@@ -123,7 +93,6 @@
 	const std::string TIMING_OUTPUT_LOCATION = DATA_SAVE_LOCATION + "\\2017\\September\\September 8\\Raw Data\\";
 	// location where wave data can be outputted for analyzing with another computer.
 	const std::string NIAWG_WAVEFORM_OUTPUT_LOCATION = DATA_SAVE_LOCATION + "2017\\September\\September 7\\Raw Data\\";
-	// const std::string JILA_BITMAP_LOCATION = CODE_ROOT + "JILA.bmp";
 #endif
 
 // We calibrated this. // NIAWG_GAIN = 1.34.
@@ -709,30 +678,6 @@ const std::vector<std::string> GIST_RAINBOW{
 	"ff00c4",
 	"ff00bf"
 };
-/*
-const std::vector<std::string> GNUPLOT_COLORS{ "lt rgb \"#FFFFFF\"", // white
-											   "lt rgb \"#00FFFF\"", // cyan
-											   "lt rgb \"#008000\"", // green
-											   "lt rgb \"#DC143C\"",  // crimson
-											   "lt rgb \"#B8860B\"",  // dark goldenrod
-											   "lt rgb \"#4B0082\"",  // indigo
-											   "lt rgb \"#000080\"", // blue
-											   "lt rgb \"#FF8C00\"",  // dark orange	
-											   "lt rgb \"#708090\"" }; // slate grey
-
-
-
-// Special Colors for the histogram which have extra alpha part at the beginning of the hex code.
-const std::vector<std::string> GNUPLOT_HISTOGRAM_COLORS{ "lt rgb \"#AAFFFFFF\"", // white
-												"lt rgb \"#AA00FFFF\"", // cyan
-												"lt rgb \"#AA008000\"", // green
-												"lt rgb \"#AADC143C\"",  // crimson
-												"lt rgb \"#AAB8860B\"",  // dark goldenrod
-												"lt rgb \"#AA4B0082\"",  // indigo
-												"lt rgb \"#AA000080\"", // blue
-												"lt rgb \"#AAFF8C00\"",  // dark orange	
-												"lt rgb \"#AA708090\"" }; // slate grey
-*/
 
 const std::vector<std::string> GNUPLOT_MARKERS{ "pt 5",
 												"pt 7",
