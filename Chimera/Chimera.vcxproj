@@ -207,7 +207,6 @@
     <ClInclude Include="DataLogger.h" />
     <ClInclude Include="DataSet.h" />
     <ClInclude Include="EmbeddedPythonHandler.h" />
-    <ClInclude Include="ExperimentLogger.h" />
     <ClInclude Include="ExperimentTimer.h" />
     <ClInclude Include="Fgen.h" />
     <ClInclude Include="gnuplot-iostream.h" />
@@ -240,7 +239,9 @@
     <ClInclude Include="realTimePlotterInput.h" />
     <ClInclude Include="rearrangementStructures.h" />
     <ClInclude Include="rearrangementThreadInput.h" />
+    <ClInclude Include="rearrangeParams.h" />
     <ClInclude Include="Rearranger.h" />
+    <ClInclude Include="RearrangeControl.h" />
     <ClInclude Include="Repetitions.h" />
     <ClInclude Include="resource2.h" />
     <ClInclude Include="RhodeSchwarz.h" />
@@ -293,7 +294,6 @@
     <ClCompile Include="DataSet.cpp" />
     <ClCompile Include="DebuggingOptionsControl.cpp" />
     <ClCompile Include="EmbeddedPythonHandler.cpp" />
-    <ClCompile Include="ExperimentLogger.cpp" />
     <ClCompile Include="ExperimentTimer.cpp" />
     <ClCompile Include="externals.cpp" />
     <ClCompile Include="Fgen.cpp" />
@@ -316,6 +316,7 @@
     <ClCompile Include="PlottingInfo.cpp" />
     <ClCompile Include="ProfileIndicator.cpp" />
     <ClCompile Include="Rearranger.cpp" />
+    <ClCompile Include="RearrangeControl.cpp" />
     <ClCompile Include="Repetitions.cpp" />
     <ClCompile Include="RhodeSchwarz.cpp" />
     <ClCompile Include="Script.cpp" />

@@ -5,7 +5,6 @@
 void MainOptionsControl::rearrange( int width, int height, fontMap fonts )
 {
 	header.rearrange( width, height, fonts );
-	rearrangeButton.rearrange( width, height, fonts );
 	randomizeRepetitionsButton.rearrange( width, height, fonts );
 	randomizeVariationsButton.rearrange( width, height, fonts );
 }
@@ -14,7 +13,6 @@ void MainOptionsControl::rearrange( int width, int height, fontMap fonts )
 void MainOptionsControl::handleNewConfig( std::ofstream& newFile )
 {
 	newFile << "MAIN_OPTIONS\n";
-	newFile << 0 << "\n";
 	newFile << 0 << "\n";
 	// default is to randomize variations.
 	newFile << 1 << "\n"; 
@@ -25,7 +23,6 @@ void MainOptionsControl::handleNewConfig( std::ofstream& newFile )
 void MainOptionsControl::handleSaveConfig(std::ofstream& saveFile)
 {
 	saveFile << "MAIN_OPTIONS\n";
-	saveFile << rearrangeButton.GetCheck() << "\n";
 	saveFile << randomizeRepetitionsButton.GetCheck() << "\n";
 	saveFile << randomizeVariationsButton.GetCheck() << "\n";
 	saveFile << "END_MAIN_OPTIONS\n";
@@ -35,8 +32,12 @@ void MainOptionsControl::handleSaveConfig(std::ofstream& saveFile)
 void MainOptionsControl::handleOpenConfig(std::ifstream& openFile, double version)
 {
  	ProfileSystem::checkDelimiterLine(openFile, "MAIN_OPTIONS");
-	openFile >> currentOptions.rearrange;
-	rearrangeButton.SetCheck( currentOptions.rearrange );
+	if ( version < 2.1 )
+	{
+		// rearrange option used to be stored here.
+		std::string garbage;
+		openFile >> garbage;
+	}
 	openFile >> currentOptions.randomizeRepetitions;
 	randomizeRepetitionsButton.SetCheck( currentOptions.randomizeRepetitions );
 	openFile >> currentOptions.randomizeVariations;
@@ -50,11 +51,6 @@ void MainOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTip
 	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
 	header.Create( "MAIN OPTIONS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, parent, id++ );
 	header.fontType = HeadingFont;
-	//
-	rearrangeButton.sPos = { loc.x, loc.y, loc.x + 480 , loc.y += 25 };
-	rearrangeButton.Create( "Includes Rearrangement Procedure?", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | BS_RIGHT,
-							rearrangeButton.sPos, parent, id++ );
-
 	randomizeRepetitionsButton.sPos = { loc.x, loc.y, loc.x + 480 , loc.y += 25 };
 	randomizeRepetitionsButton.Create( "Randomize Repetitions?", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | BS_RIGHT,
 									   randomizeRepetitionsButton.sPos, parent, id++ );
@@ -66,21 +62,15 @@ void MainOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTip
 	//
 	currentOptions.randomizeRepetitions = false;
 	currentOptions.randomizeVariations = true;
-	currentOptions.rearrange = false;	
 }
 
 bool MainOptionsControl::handleEvent(UINT id, MainWindow* comm)
 {
-	if (id == rearrangeButton.GetDlgCtrlID())
-	{
-		comm->updateConfigurationSavedStatus(false);
-	}
 	return TRUE;
 }
 
 mainOptions MainOptionsControl::getOptions()
 {
-	currentOptions.rearrange = rearrangeButton.GetCheck();
 	currentOptions.randomizeRepetitions = randomizeRepetitionsButton.GetCheck();
 	currentOptions.randomizeVariations = randomizeVariationsButton.GetCheck();
 	return currentOptions;

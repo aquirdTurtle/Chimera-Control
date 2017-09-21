@@ -285,6 +285,7 @@ BOOL MainWindow::OnInitDialog()
 	controlLocation = { 1440, 105 };
 	repetitionControl.initialize( controlLocation, tooltips, this, id );
 	settings.initialize( id, controlLocation, this, tooltips );
+	rearrangeControl.initialize( id, controlLocation, this, tooltips );
 	debugger.initialize( id, controlLocation, this, tooltips );
 	texter.initialize( controlLocation, this, false, id, tooltips, mainRGBs );
 	controlLocation = { 960, 910 };
@@ -374,6 +375,7 @@ void MainWindow::handleNewConfig( std::ofstream& newFile )
 	settings.handleNewConfig( newFile );
 	debugger.handleNewConfig( newFile );
 	repetitionControl.handleNewConfig( newFile );
+	rearrangeControl.handleNewConfig( newFile );
 }
 
 
@@ -383,6 +385,7 @@ void MainWindow::handleSaveConfig(std::ofstream& saveFile)
 	settings.handleSaveConfig(saveFile);
 	debugger.handleSaveConfig(saveFile);
 	repetitionControl.handleSaveConfig(saveFile);
+	rearrangeControl.handleSaveConfig( saveFile );
 }
 
 
@@ -392,6 +395,7 @@ void MainWindow::handleOpeningConfig(std::ifstream& configFile, double version)
 	settings.handleOpenConfig( configFile, version );
 	debugger.handleOpenConfig( configFile, version );
 	repetitionControl.handleOpenConfig(configFile, version);
+	rearrangeControl.handleOpenConfig( configFile, version );
 }
 
 
@@ -409,6 +413,7 @@ void MainWindow::OnSize(UINT nType, int cx, int cy)
 	shortStatus.rearrange(cx, cy, getFonts());
 	boxes.rearrange( cx, cy, getFonts());
 	repetitionControl.rearrange(cx, cy, getFonts());
+	rearrangeControl.rearrange( cx, cy, getFonts( ) );
 	SetRedraw();
 	RedrawWindow();
 }
@@ -596,6 +601,8 @@ void MainWindow::fillMotInput( MasterThreadInput* input )
 	input->key = &masterKey;
 	input->key->loadVariables( input->variables );
 	input->key->generateKey( input->settings.randomizeVariations );
+	input->rearrangeInfo = rearrangeControl.getParams( );
+	input->rearrangeInfo.active = false;
 }
 
 void MainWindow::fillMasterThreadInput(MasterThreadInput* input)
@@ -610,6 +617,7 @@ void MainWindow::fillMasterThreadInput(MasterThreadInput* input)
 	input->key = &masterKey;
 	input->key->loadVariables( input->variables );
 	input->key->generateKey( input->settings.randomizeVariations );
+	input->rearrangeInfo = rearrangeControl.getParams( );
 }
 
 

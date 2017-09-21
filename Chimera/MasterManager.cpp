@@ -100,14 +100,15 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 					// start rearrangement thread. Give the thread the queue.
 					input->niawg->startRearrangementThread( input->atomQueueForRearrangement, wave, input->comm, 
 															input->rearrangerLock, input->andorsImageTimes, 
-															input->grabTimes, input->conditionVariableForRearrangement);
+															input->grabTimes, input->conditionVariableForRearrangement,
+															input->rearrangeInfo);
 				}
 			}
-			if (input->settings.rearrange && !foundRearrangement )
+			if (input->rearrangeInfo.active && !foundRearrangement )
 			{
 				thrower( "ERROR: system is primed for rearranging atoms, but no rearrangement waveform was found!" );
 			}
-			else if (!input->settings.rearrange && foundRearrangement)
+			else if (!input->rearrangeInfo.active && foundRearrangement)
 			{
 				thrower( "ERROR: System was not primed for rearrangign atoms, but a rearrangement waveform was found!" );
 			}
