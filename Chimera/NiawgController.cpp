@@ -53,20 +53,8 @@ void NiawgController::programNiawg( MasterThreadInput* input, NiawgOutputInfo& o
 {
 	input->niawg->handleVariations( output, input->key->getKey(), variation, variedMixedSize, warnings,
 									input->debugOptions, totalVariations );
-
-	// If running the default script, stop the default script so that a moment later, when the program 
-	// checks if the output is done, the output will be done.
-	if ((input->niawg->getCurrentScript() == "Default" + AXES_NAMES[Horizontal] + "ConfigScript"
-		  || input->niawg->getCurrentScript() == "Default" + AXES_NAMES[Vertical] + "ConfigScript")
-		 && !input->settings.dontActuallyGenerate)
-	{
-		input->niawg->turnOff();
-	}
-	
-	input->niawg->turnOff();
-	//waiter.wait( input->comm );
-
 	if (input->settings.dontActuallyGenerate) { return; }
+
 	// Restart Waveform
 	input->niawg->turnOff();
 	input->niawg->programVariations( variation, variedMixedSize, output );
@@ -113,6 +101,15 @@ void NiawgController::prepareNiawg(MasterThreadInput* input, NiawgOutputInfo& ou
 		/// Create Script and Write Waveforms ////////////////////////////////////////////////////////////////////
 		scripts[Vertical] << niawgFiles[Vertical][sequenceInc].rdbuf();
 		scripts[Horizontal] << niawgFiles[Horizontal][sequenceInc].rdbuf();
+		if ( input->debugOptions.outputNiawgHumanScript )
+		{
+			input->comm->sendDebug( boost::replace_all_copy( "NIAWG Human Script:\n"
+															 + scripts[Vertical].str( )
+															 + "\n\n", "\n", "\r\n" ) );
+			input->comm->sendDebug( boost::replace_all_copy( "NIAWG Human Script:\n"
+															 + scripts[Horizontal].str( )
+															 + "\n\n", "\n", "\r\n" ) );
+		}
 		input->niawg->analyzeNiawgScripts( scripts, output, input->profile, input->debugOptions, warnings );
 		workingUserScripts[sequenceInc] = output.niawgLanguageScript;
 
@@ -120,7 +117,8 @@ void NiawgController::prepareNiawg(MasterThreadInput* input, NiawgOutputInfo& ou
 	}
 	input->comm->sendStatus( "Constant Waveform Preparation Completed...\r\n" );
 	input->niawg->finalizeScript( input->repetitionNumber, "experimentScript", workingUserScripts, userScriptSubmit, 
-		!input->niawg->outputVaries(output) );
+								  !input->niawg->outputVaries(output) );
+
 	if (input->debugOptions.outputNiawgMachineScript)
 	{
 		input->comm->sendDebug( boost::replace_all_copy( "NIAWG Machine Script:\n"
@@ -236,7 +234,6 @@ void NiawgController::restartDefault()
 	{
 		// to be sure.
 		turnOffRearranger( );
-
 		
 		turnOff();
 		fgenConduit.clearMemory();
@@ -599,7 +596,6 @@ void NiawgController::openWaveformFiles()
 void NiawgController::generateWaveform( channelWave & waveInfo, debugInfo& options, long int sampleNum, double time)
 {
 	waveInfo.wave.resize( sampleNum );
-	ULONGLONG time1, time2;
 	// the number of seconds
 	std::string waveformFileSpecs, waveformFileName;
 	std::ifstream waveformFileRead;
@@ -616,7 +612,7 @@ void NiawgController::generateWaveform( channelWave & waveInfo, debugInfo& optio
 	}
 	waveformFileSpecs += str( time * 1000.0 ) + "; ";
 	// Start timer
-	time1 = GetTickCount64();
+	std::chrono::time_point<chronoClock> time1( chronoClock::now( ));
 	/// Loop over all previously recorded files (these should have been filled by a previous call to openWaveformFiles()).
 	for ( UINT fileInc = 0; fileInc < waveLibrary[waveInfo.initType].size(); fileInc++ )
 	{
@@ -639,12 +635,11 @@ void NiawgController::generateWaveform( channelWave & waveInfo, debugInfo& optio
 			readData.clear();
 			// make sure the large amount of memory is deallocated.
 			readData.shrink_to_fit();
-
 			waveformFileRead.close();
 			if ( options.showReadProgress)
 			{
-				time2 = GetTickCount64();
-				double ellapsedTime = (time2 - time1) / 1000.0;
+				std::chrono::time_point<chronoClock> time2( chronoClock::now( ) );
+				double ellapsedTime(std::chrono::duration<double>( (time2-time1) ).count());
 				options.message += "Finished Reading Waveform. Ellapsed Time: " + str(ellapsedTime) + " seconds.\r\n";
 			}
 			// if the file got read, I don't need to do any writing, so go ahead and return.
@@ -668,7 +663,8 @@ void NiawgController::generateWaveform( channelWave & waveInfo, debugInfo& optio
 	else
 	{
 		// start timer.
-		ULONGLONG time1 = GetTickCount64();
+		std::chrono::time_point<chronoClock> time1( chronoClock::now( ) );
+		//ULONGLONG time1 = GetTickCount64();
 		// calculate all voltage values and final phases and store them in the readData variable.
 		std::vector<ViReal64> readData( sampleNum + waveInfo.signals.size() );
 		calcWaveData( waveInfo, readData, sampleNum, time );
@@ -696,19 +692,19 @@ void NiawgController::generateWaveform( channelWave & waveInfo, debugInfo& optio
 		libNameFile.close();
 		if ( options.showWriteProgress )
 		{
-			char processTimeMsg[200];
-			time2 = GetTickCount64();
-			double ellapsedTime = (time2 - time1) / 1000.0;
-			sprintf_s( processTimeMsg, "Finished Writing Waveform. Ellapsed Time: %.3f seconds.\r\n", ellapsedTime );
-			options.message += "Finished Reading Waveform. Ellapsed Time: %.3f seconds.\r\n";
+			//char processTimeMsg[200];
+			std::chrono::time_point<chronoClock> time2( chronoClock::now( ) );
+			double ellapsedTime = std::chrono::duration<double>( time2 - time1 ).count( );
+			//sprintf_s( processTimeMsg, "Finished Writing Waveform. Ellapsed Time: %.3f seconds.\r\n", ellapsedTime );
+			options.message += "Finished writing waveform. Ellapsed Time: " + str( ellapsedTime ) + " seconds.\r\n";
 		}
 	}
 }
 
 
 /**
- * This function handles logic input. Most of the function of this is to simply figure out which command the user was going for, and append that to the
- * actual script file.
+ * This function handles logic input. Most of the function of this is to simply figure out which command the user was 
+ * going for, and append that to the actual script file.
  */
 void NiawgController::handleLogic( niawgPair<ScriptStream>& scripts, niawgPair<std::string> inputs,
 								   std::string& rawNiawgScriptString )
@@ -1859,7 +1855,7 @@ void NiawgController::streamRearrangement()
 
 
 // calculates the data, mixes it, and cleans up the calculated data.
-void NiawgController::finalizeStandardWave( simpleWave& wave, debugInfo options )
+void NiawgController::finalizeStandardWave( simpleWave& wave, debugInfo& options )
 {
 	// prepare each channel
 	generateWaveform( wave.chan[Horizontal], options, wave.sampleNum, wave.time );
@@ -1898,22 +1894,42 @@ void NiawgController::createFlashingWave( waveInfo& wave, debugInfo options )
 	{
 		finalizeStandardWave( wave.flash.flashWaves[waveInc], options );
 	}
-	mixFlashingWaves( wave );
+	mixFlashingWaves( wave, 1, 0.5 );
 }
 
 
 /** 
  * this is separated from the above function so that I can call it with pre-written waves
  */
-void NiawgController::mixFlashingWaves( waveInfo& wave )
+void NiawgController::mixFlashingWaves( waveInfo& wave, double dutyCycle, double firstDutyCycle )
 {
-
+	// firstDutyCycle is set to -1 if doing a non-rearranging waveform.
+	if ( wave.flash.flashNumber > 2 && !(firstDutyCycle < 0 ))
+	{ 
+		thrower( "ERROR: firstDutyCycle is set to a non-negative value (negative value is the dummy value for this "
+				 "input case), but more than 2 flashing waveforms! This is considered undefined and an error." );
+	}
 	/// then mix them to create the flashing version.
 	// in seconds...
 	double period = 1.0 / wave.flash.flashCycleFreq;
 	// in samples...
 	long int samplePeriod = long int( period * NIAWG_SAMPLE_RATE + 0.5 );
 	long int samplesPerWavePerPeriod = samplePeriod / wave.flash.flashNumber;
+
+	std::vector<long> samplesInWave( wave.flash.flashNumber );
+	if ( wave.flash.flashNumber > 2 )
+	{
+		for ( auto& wave : samplesInWave )
+		{
+			wave = samplesPerWavePerPeriod;
+		}
+	}
+	else
+	{
+		samplesInWave[0] = firstDutyCycle * samplesPerWavePerPeriod;
+		samplesInWave[1] = (1 - firstDutyCycle) * samplesPerWavePerPeriod;
+	}
+
 	if (!(fabs( std::floor( wave.core.time / period ) - wave.core.time / period ) < 1e-9))
 	{
 		thrower( "ERROR: flashing cycle time doesn't result in an integer number of flashing cycles during the given waveform time!"
@@ -1924,17 +1940,29 @@ void NiawgController::mixFlashingWaves( waveInfo& wave )
 	wave.core.waveVals.resize( wave.flash.flashWaves.front().waveVals.size() * wave.flash.flashNumber );
 	for (auto cycleInc : range( cycles ))
 	{
+		UINT cycleSamples = cycleInc * wave.flash.flashNumber * 2 * samplesPerWavePerPeriod;
+		UINT waveSamples = 0;
 		for (auto waveInc : range( wave.flash.flashNumber ))
 		{
 			// samplesPerWavePerPeriod * 2 because need to account for the mixed nature of the waveform I'm adding.
-			for (auto sampleInc : range( 2 * samplesPerWavePerPeriod ))
+			for (auto sampleInc : range( 2 * samplesInWave[waveInc] ))
 			{
-				int newSampleNum = sampleInc + (cycleInc * wave.flash.flashNumber + waveInc) * 2 * samplesPerWavePerPeriod;
-				int sampleFromMixed = sampleInc + cycleInc * 2 * samplesPerWavePerPeriod;
-				wave.core.waveVals[newSampleNum] = wave.flash.flashWaves[waveInc].waveVals[sampleFromMixed];
+				int newSampleNum = sampleInc + waveSamples + cycleSamples;
+				if ( sampleInc > 2 * int( dutyCycle*samplesPerWavePerPeriod ) )
+				{
+					// not in duty cycle, NIAWG is to output nothing.
+					wave.core.waveVals[newSampleNum] = 0;
+				}
+				else
+				{
+					int sampleFromMixed = sampleInc + cycleInc * 2 * samplesInWave[waveInc];
+					wave.core.waveVals[newSampleNum] = wave.flash.flashWaves[waveInc].waveVals[sampleFromMixed];
+				}
 			}
+			waveSamples += waveInc * 2 * samplesInWave[waveInc];
 		}
 	}
+
 	/// cleanup
 	// should be good now. Immediately delete the old waveforms. Wait until after all cycles done.
 	for (auto waveInc : range( wave.flash.flashNumber ))
@@ -2352,6 +2380,7 @@ void NiawgController::calculateRearrangingMoves( std::vector<std::vector<bool>> 
 // faster moves
 // preprogram all individual moves
 // don't use vector
+// make rearrangement algorithm work with flattened matrix
 UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 {
 	rearrangementThreadInput* input = (rearrangementThreadInput*)voidInput;
@@ -2361,7 +2390,7 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 	try
 	{
 		// wait for data
-		while ( *input->threadActive )//|| input->atomsQueue->size( ) != 0 )
+		while ( *input->threadActive )
 		{
 			std::vector<bool> tempAtoms;
 			if ( input->atomsQueue->size( ) == 0 )
@@ -2397,10 +2426,7 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 				continue;
 			}
 			input->atomsQueue->erase( input->atomsQueue->begin( ) );
-
-			startCalc.push_back(std::chrono::high_resolution_clock::now( ));
-			
-			//ULONG start = GetTickCount( );
+			startCalc.push_back(std::chrono::high_resolution_clock::now( ));			
 			rearrangeInfo& info = input->rearrangementWave.rearrange;
 			info.timePerMove = input->info.moveSpeed;
 			info.flashingFreq = input->info.flashingRate;
@@ -2445,7 +2471,6 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 				moveWave.name = "NA";
 				moveWave.time = input->rearrangementWave.rearrange.timePerMove / 2.0;
 				moveWave.sampleNum = input->niawg->waveformSizeCalc( moveWave.time );
-
 				UINT movingAxis, movingSize, staticAxis;
 				if ( move.finCol != move.initCol )
 				{
@@ -2551,14 +2576,15 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 							 + str( info.staticWave.waveVals.size( ) ) + " and " + str( moveWave.waveVals.size( ) )
 							 + " respectively.\r\n" );
 				}
-				flashMove.flash.flashWaves.push_back( info.staticWave );
 				flashMove.flash.flashWaves.push_back( moveWave );
+				flashMove.flash.flashWaves.push_back( info.staticWave );
 				flashMove.flash.flashCycleFreqInput = { str( info.flashingFreq ), str( info.flashingFreq ) };
 				flashMove.flash.flashCycleFreq = info.flashingFreq;
-				input->niawg->mixFlashingWaves( flashMove );
+				input->niawg->mixFlashingWaves( flashMove, input->info.dutyCycle, input->info.movingDutyCycle );
 				// now add to main wave.
 				input->niawg->rearrangeWaveVals.insert( input->niawg->rearrangeWaveVals.end( ),
-														flashMove.core.waveVals.begin( ), flashMove.core.waveVals.end( ) );
+														flashMove.core.waveVals.begin( ),
+														flashMove.core.waveVals.end( ) );
 			}
 			// fill out the rest of the waveform.
 			simpleWave fillerWave = info.staticWave;

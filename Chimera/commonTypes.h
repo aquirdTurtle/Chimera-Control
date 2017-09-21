@@ -22,7 +22,8 @@ enum fontTypes { NormalFont, HeadingFont, CodeFont, SmallFont, LargeFont };
 // this structure will be evaluated to determine the real time (given a variation # and variable values) that an 
 // operation will take place at.
 typedef std::pair<std::vector<Expression>, double> timeType;
-typedef std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>> chronoTimes;
+typedef std::chrono::high_resolution_clock chronoClock;
+typedef std::vector<std::chrono::time_point<chronoClock>> chronoTimes;
 
 // the first value of the pair in the map is the array of values that the variable name takes on.
 // the second value here stores whether it varies or not. This is mainly used to determine if the value is displayed on the status or not.

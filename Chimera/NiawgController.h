@@ -51,9 +51,9 @@ class NiawgController
 		void prepareNiawg( MasterThreadInput* input, NiawgOutputInfo& output,
 						   niawgPair<std::vector<std::fstream>>& niawgFiles, std::string& warnings,
 						   std::vector<ViChar>& userScriptSubmit );
-		void finalizeStandardWave( simpleWave& wave, debugInfo options );
+		void finalizeStandardWave( simpleWave& wave, debugInfo& options );
 		void createFlashingWave( waveInfo& wave, debugInfo options );
-		void mixFlashingWaves( waveInfo& wave );
+		void mixFlashingWaves( waveInfo& wave, double dutyCycle, double firstDutyCycle );
 		long waveformSizeCalc( double time );
 		static double rampCalc( int size, int iteration, double initPos, double finPos, std::string rampType );
 		template <typename type> static void loadParam( type& dataToAssign, ScriptStream& scriptName, UINT& varCount,

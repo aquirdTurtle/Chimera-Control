@@ -51,7 +51,6 @@ Refactoring / Other:
 - refactor groups in plotinfo and gnuplot stuffs
 - remove redundant agilent commands
 - test texting / python
-- clean up the several differnt mass save options which sound like "save all". 
 - kill the restart option
 
 Bugs:
@@ -70,4 +69,3 @@ Bugs:
 =================
 Finished
 =================
-

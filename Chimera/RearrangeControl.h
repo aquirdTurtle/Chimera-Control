@@ -27,4 +27,9 @@ class RearrangeControl
 		Control<CEdit> moveSpeedEdit;
 		Control<CStatic> movingBiasText;
 		Control<CEdit> movingBiasEdit;
+
+		Control<CStatic> dutyCycleText;
+		Control<CEdit> dutyCycleEdit;
+		Control<CStatic> movingDutyCycleText;
+		Control<CEdit> movingDutyCycleEdit;
 };
