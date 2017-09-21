@@ -16,6 +16,7 @@
 #include <cmath>
 #include <mutex>
 #include <chrono>
+#include "rearrangeParams.h"
 
 struct MasterThreadInput;
 class NiawgWaiter;
@@ -76,7 +77,8 @@ class NiawgController
 		void setRunningState( bool newRunningState );
 		void startRearrangementThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave, Communicator* comm,
 									   std::mutex* rearrangerLock, chronoTimes* andorImageTimes, chronoTimes* grabTimes,
-									   std::condition_variable* rearrangerConditionWatcher );
+									   std::condition_variable* rearrangerConditionWatcher,
+									   rearrangeParams rearrangeInfo );
 		Fgen fgenConduit;
 		static bool outputVaries(NiawgOutputInfo output);
 

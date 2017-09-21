@@ -1,6 +1,5 @@
 #pragma once
 
-#include "nidaqmx2.h"
 #include "DioSystem.h"
 #include "DacSystem.h"
 #include "VariableSystem.h"
@@ -18,12 +17,15 @@
 #include "TektronicsControl.h"
 #include "DataLogger.h"
 #include "atomCruncherInput.h"
+#include "realTimePlotterInput.h"
+#include "rearrangeParams.h"
 #include "commonTypes.h"
+#include "nidaqmx2.h"
 #include <string>
 #include <vector>
 #include <sstream>
 #include <mutex>
-#include "realTimePlotterInput.h"
+
 
 class MasterManager;
 
@@ -57,6 +59,8 @@ struct MasterThreadInput
 	chronoTimes* andorsImageTimes;
 	chronoTimes* grabTimes;
 	std::condition_variable* conditionVariableForRearrangement;
+	rearrangeParams rearrangeInfo;
+
 };
 
 

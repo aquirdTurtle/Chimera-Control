@@ -826,7 +826,7 @@ void AuxiliaryWindow::loadMotSettings(MasterThreadInput* input)
 		input->dacs = &dacBoards;
 		input->globalControl = &globalVariables;
 		input->comm = mainWindowFriend->getComm();
-		input->settings = { 0,0,0,0 };
+		input->settings = { 0,0,0 };
 		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
 		// don't get configuration variables. The MOT shouldn't depend on config variables.
 		input->variables = globalVariables.getEverything();

@@ -100,9 +100,6 @@
     <ClCompile Include="ExperimentTimer.cpp">
       <Filter>Camera Window</Filter>
     </ClCompile>
-    <ClCompile Include="ExperimentLogger.cpp">
-      <Filter>Main Window</Filter>
-    </ClCompile>
     <ClCompile Include="EmbeddedPythonHandler.cpp">
       <Filter>General Files</Filter>
     </ClCompile>
@@ -193,12 +190,17 @@
     <ClCompile Include="DioSettingsDialog.cpp">
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
-    <ClCompile Include="openWithExplorer.cpp" />
     <ClCompile Include="splashDialog.cpp">
       <Filter>General Files</Filter>
     </ClCompile>
     <ClCompile Include="Expression.cpp">
       <Filter>General Files</Filter>
+    </ClCompile>
+    <ClCompile Include="openWithExplorer.cpp">
+      <Filter>General Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RearrangeControl.cpp">
+      <Filter>Main Window</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -370,9 +372,6 @@
     <ClInclude Include="Agilent.h">
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
-    <ClInclude Include="ExperimentLogger.h">
-      <Filter>Main Window</Filter>
-    </ClInclude>
     <ClInclude Include="SmsTextingControl.h">
       <Filter>Main Window</Filter>
     </ClInclude>
@@ -469,6 +468,12 @@
     </ClInclude>
     <ClInclude Include="tinyPlotInfo.h">
       <Filter>Camera Window</Filter>
+    </ClInclude>
+    <ClInclude Include="RearrangeControl.h">
+      <Filter>Main Window</Filter>
+    </ClInclude>
+    <ClInclude Include="rearrangeParams.h">
+      <Filter>Main Window\Structures</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

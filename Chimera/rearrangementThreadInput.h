@@ -15,11 +15,8 @@ struct rearrangementThreadInput
 	std::atomic<bool>* threadActive;
 	// an array of images that have been converted to bools for atom in a pixel or not..
 	std::vector<std::vector<bool>>* atomsQueue;
-	//std::vector<std::vector<bool>> targetImage;
-
-	//UINT waveNumber;
-	//std::vector<double> rearrangeVals;
 	waveInfo rearrangementWave;
 	NiawgController* niawg;
 	Communicator* comm;
+	rearrangeParams info;
 };

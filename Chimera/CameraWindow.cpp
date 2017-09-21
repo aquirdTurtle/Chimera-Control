@@ -797,7 +797,7 @@ void CameraWindow::prepareAtomCruncher( ExperimentInput& input )
 	// options
 	if ( input.masterInput )
 	{
-		input.cruncherInput->rearrangerActive = input.masterInput->settings.rearrange;
+		input.cruncherInput->rearrangerActive = input.masterInput->rearrangeInfo.active;
 	}
 	else
 	{

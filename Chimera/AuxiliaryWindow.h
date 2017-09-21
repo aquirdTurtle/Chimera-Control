@@ -15,7 +15,6 @@
 #include "RhodeSchwarz.h"
 #include "GPIB.h"
 #include "MasterConfiguration.h"
-#include "ExperimentLogger.h"
 #include "KeyHandler.h"
 #include "Agilent.h"
 #include "commonTypes.h"
