@@ -20,6 +20,7 @@ bool MasterManager::getAbortStatus()
 	return isAborting;
 }
 
+
 /*
  * The workhorse of actually running experiments. This thread procedure analyzes all of the GUI settings and current 
  * configuration settings to determine how to program and run the experiment.
@@ -86,7 +87,6 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			ProfileSystem::openNiawgFiles( niawgFiles, input->profile, input->runNiawg);
 			input->niawg->prepareNiawg( input, output, niawgFiles, warnings, userScriptSubmit );
 			// check if any waveforms are rearrangement instructions.
-			
 			for (auto& wave : output.waves)
 			{
 				if (wave.isRearrangement)
@@ -327,9 +327,6 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			input->ttls->unshadeTtls();
 			input->ttls->setTtlStatusNoForceOut( input->ttls->getFinalSnapshot() );
 		}
-		///
-		///
-		///
 
 		///	Cleanup NIAWG stuff (after all generate code)
 		// close things
