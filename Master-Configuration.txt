@@ -223,5 +223,5 @@ pushoutfreq 0.6
 fieldtheta 0
 fieldphi 1.5708
 rotatefieldtime 3
-imagingflashingdetuning -0.5
-255 293 3 236 274 3
+imagingflashingdetuning -0.8
+259 285 3 241 267 3

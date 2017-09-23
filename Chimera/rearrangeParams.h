@@ -7,7 +7,7 @@ struct rearrangeParams
 	double flashingRate;
 	double moveBias;
 	// 
-	double dutyCycle;
-	// fraction of time during which the moving tweezer is active vs. the static tweezers.
-	double movingDutyCycle;
+	double deadTime;
+	// the static / moving ratio
+	double staticMovingRatio;
 };

@@ -375,7 +375,14 @@ HBRUSH ScriptingWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
 void ScriptingWindow::setIntensityDefault()
 {
-	intensityAgilent.setDefault(1);
+	try
+	{
+		intensityAgilent.setDefault( 1 );
+	}
+	catch ( Error& err )
+	{
+		comm( )->sendError( err.what( ) );
+	}
 }
 
 
