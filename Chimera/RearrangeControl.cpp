@@ -16,10 +16,11 @@ rearrangeParams RearrangeControl::getParams( )
 		tempParams.moveSpeed = 1e-3 * std::stod( str( tempTxt ) );
 		movingBiasEdit.GetWindowTextA( tempTxt );
 		tempParams.moveBias = std::stod( str( tempTxt ) );
-		dutyCycleEdit.GetWindowTextA( tempTxt );
-		tempParams.dutyCycle = std::stod( str(tempTxt) );
-		movingDutyCycleEdit.GetWindowTextA( tempTxt );
-		tempParams.movingDutyCycle = std::stod( str( tempTxt ) );
+		
+		deadTimeEdit.GetWindowTextA( tempTxt );
+		tempParams.deadTime = std::stod( str(tempTxt) );
+		staticMovingRatioEdit.GetWindowTextA( tempTxt );
+		tempParams.staticMovingRatio = std::stod( str( tempTxt ) );
 	}
 	catch ( std::invalid_argument&)
 	{
@@ -40,10 +41,10 @@ void RearrangeControl::rearrange( int width, int height, fontMap fonts )
 	moveSpeedEdit.rearrange( width, height, fonts );
 	movingBiasText.rearrange( width, height, fonts );
 	movingBiasEdit.rearrange( width, height, fonts );
-	dutyCycleText.rearrange( width, height, fonts );
-	dutyCycleEdit.rearrange( width, height, fonts );
-	movingDutyCycleText.rearrange( width, height, fonts );
-	movingDutyCycleEdit.rearrange( width, height, fonts );
+	deadTimeText.rearrange( width, height, fonts );
+	deadTimeEdit.rearrange( width, height, fonts );
+	staticMovingRatioEdit.rearrange( width, height, fonts );
+	staticMovingRatioText.rearrange( width, height, fonts );
 }
 
 
@@ -77,20 +78,20 @@ void RearrangeControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips&
 	movingBiasEdit.Create( WS_CHILD | WS_VISIBLE | WS_TABSTOP, movingBiasEdit.sPos, parent, id++ );
 	movingBiasEdit.SetWindowTextA( "0.3" );
 
-	dutyCycleText.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 25 };
-	dutyCycleText.Create( "(Overall) Duty Cycle", WS_CHILD | WS_VISIBLE | ES_READONLY, dutyCycleText.sPos,
+	deadTimeText.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 25 };
+	deadTimeText.Create( "Dead Time (us)", WS_CHILD | WS_VISIBLE | ES_READONLY, deadTimeText.sPos,
 						  parent, id++ );
-	dutyCycleEdit.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 25 };
-	dutyCycleEdit.Create( WS_CHILD | WS_VISIBLE | WS_TABSTOP, dutyCycleEdit.sPos, parent, id++ );
-	dutyCycleEdit.SetWindowTextA( "1" );
+	deadTimeEdit.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 25 };
+	deadTimeEdit.Create( WS_CHILD | WS_VISIBLE | WS_TABSTOP, deadTimeEdit.sPos, parent, id++ );
+	deadTimeEdit.SetWindowTextA( "0" );
 
-	movingDutyCycleText.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 25 };
-	movingDutyCycleText.Create( "Moving Duty Cycle", WS_CHILD | WS_VISIBLE | ES_READONLY, movingDutyCycleText.sPos,
-								parent, id++ );
+	staticMovingRatioText.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 25 };
+	staticMovingRatioText.Create( "Static / Moving Ratio", WS_CHILD | WS_VISIBLE | ES_READONLY, 
+								  staticMovingRatioText.sPos, parent, id++ );
 
-	movingDutyCycleEdit.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 25 };
-	movingDutyCycleEdit.Create( WS_CHILD | WS_VISIBLE | WS_TABSTOP, movingDutyCycleEdit.sPos, parent, id++ );
-	movingDutyCycleEdit.SetWindowTextA( "0.5" );
+	staticMovingRatioEdit.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 25 };
+	staticMovingRatioEdit.Create( WS_CHILD | WS_VISIBLE | WS_TABSTOP, staticMovingRatioEdit.sPos, parent, id++ );
+	staticMovingRatioEdit.SetWindowTextA( "1" );
 }
 
 
@@ -107,17 +108,22 @@ void RearrangeControl::handleOpenConfig( std::ifstream& openFile, double version
 	openFile >> info.moveBias;
 	openFile >> info.moveSpeed;
 
-	if ( version > 2.1 )
+	if ( version < 2.3 )
 	{
- 		openFile >> info.dutyCycle;
- 		openFile >> info.movingDutyCycle;
+		std::string garbage;
+ 		openFile >> garbage;
+		openFile >> garbage;
+	}
+	if ( version > 2.2 )
+	{
+		openFile >> info.deadTime;
+		openFile >> info.staticMovingRatio;		
 	}
 	else
 	{
-		info.dutyCycle = 1;
-		info.movingDutyCycle = 0.5;
+		info.deadTime = 0;
+		info.staticMovingRatio = 1;
 	}
-
 	setParams( info );
 	ProfileSystem::checkDelimiterLine( openFile, "END_REARRANGEMENT_INFORMATION" );
 }
@@ -130,8 +136,8 @@ void RearrangeControl::handleNewConfig( std::ofstream& newFile )
 	newFile << 1 << "\n";
 	newFile << 1e-3*0.3 << "\n";
 	newFile << 1e6*0.06 << "\n";
+	newFile << "0" << "\n";
 	newFile << "1" << "\n";
-	newFile << "0.5" << "\n";
 	newFile << "END_REARRANGEMENT_INFORMATION\n";
 }
 
@@ -144,8 +150,8 @@ void RearrangeControl::handleSaveConfig( std::ofstream& newFile )
  	newFile << info.flashingRate << "\n";
  	newFile << info.moveBias << "\n";
 	newFile << info.moveSpeed << "\n";
-	newFile << info.dutyCycle << "\n";
-	newFile << info.movingDutyCycle << "\n";
+	newFile << info.deadTime << "\n";
+	newFile << info.staticMovingRatio << "\n";
 	newFile << "END_REARRANGEMENT_INFORMATION\n";
 }
 
@@ -156,4 +162,6 @@ void RearrangeControl::setParams( rearrangeParams params )
 	flashingRateEdit.SetWindowTextA( cstr(1e-6*params.flashingRate) );
 	movingBiasEdit.SetWindowTextA( cstr( params.moveBias ) );
 	moveSpeedEdit.SetWindowTextA( cstr( 1e3*params.moveSpeed ) );
+	
+
 }

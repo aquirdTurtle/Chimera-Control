@@ -28,8 +28,14 @@ class RearrangeControl
 		Control<CStatic> movingBiasText;
 		Control<CEdit> movingBiasEdit;
 
-		Control<CStatic> dutyCycleText;
-		Control<CEdit> dutyCycleEdit;
-		Control<CStatic> movingDutyCycleText;
-		Control<CEdit> movingDutyCycleEdit;
+		//Control<CStatic> staticDutyCycleText;
+		//Control<CEdit> dutyCycleEdit;
+		//Control<CStatic> movingDutyCycleText;
+		//Control<CEdit> movingDutyCycleEdit;
+
+		Control<CStatic> deadTimeText;
+		Control<CEdit> deadTimeEdit;
+
+		Control<CStatic> staticMovingRatioText;
+		Control<CEdit> staticMovingRatioEdit;
 };

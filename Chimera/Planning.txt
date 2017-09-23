@@ -65,6 +65,7 @@ Bugs:
 - agilent script programNow with variables, should be able to set 
 - agilent should be able to go smothly from one waveform to another.
 - New Experiment doesn't copy everything
+- output excess run info is stuck on
 
 =================
 Finished

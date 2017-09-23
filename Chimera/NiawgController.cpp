@@ -1565,25 +1565,20 @@ void NiawgController::handleSpecialWaveform( NiawgOutputInfo& output, profileSet
 			{
 				flashingWave.core.varies = true;
 			}
-			
-			if (singleWaveTime != flashingWave.flash.flashWaves[waveCount].time)
-			{
-				thrower( "ERROR: all times in a flashing waveform must match, and they don't!" );
-			}
 			flashingWave.core.time += flashingWave.flash.flashWaves[waveCount].time;
 		}
 		
-		if (flashingWave.core.time != flashingWave.flash.flashNumber * singleWaveTime)
-		{
-			thrower( "ERROR: somehow, the total time doesn't appear to be the number of flashing waveforms times the time of each waveform???" );
-		}
+		//if (flashingWave.core.time != flashingWave.flash.flashNumber * singleWaveTime)
+		//{
+		//	thrower( "ERROR: somehow, the total time doesn't appear to be the number of flashing waveforms times the time of each waveform???" );
+		//}
 		
 		if (!flashingWave.core.varies)
 		{
 			createFlashingWave( flashingWave, options );
 			flashingWave.core.name = "Waveform" + str(output.waves.size()+1);			
 			output.waves.push_back(flashingWave);
-			fgenConduit.allocateNamedWaveform(cstr(output.waves.back().core.name), 
+			fgenConduit.allocateNamedWaveform( cstr(output.waves.back().core.name), 
 											   long(output.waves.back().core.waveVals.size() / 2) );
 			// write named waveform on the device. Now the device knows what "waveform0" refers to when it sees it in 
 			// the script. 
@@ -1893,28 +1888,31 @@ void NiawgController::createFlashingWave( waveInfo& wave, debugInfo options )
 	for (UINT waveInc = 0; waveInc < wave.flash.flashNumber; waveInc++)
 	{
 		finalizeStandardWave( wave.flash.flashWaves[waveInc], options );
-	}
-	mixFlashingWaves( wave, 1, 0.5 );
+	}	
+	mixFlashingWaves( wave, 0, 1 );
 }
 
 
 /** 
  * this is separated from the above function so that I can call it with pre-written waves
  */
-void NiawgController::mixFlashingWaves( waveInfo& wave, double dutyCycle, double firstDutyCycle )
+void NiawgController::mixFlashingWaves( waveInfo& wave, double deadTime, double staticMovingRatio )
 {
 	// firstDutyCycle is set to -1 if doing a non-rearranging waveform.
-	if ( wave.flash.flashNumber > 2 && !(firstDutyCycle < 0 ))
+
+	if ( wave.flash.flashNumber > 2)
 	{ 
 		thrower( "ERROR: firstDutyCycle is set to a non-negative value (negative value is the dummy value for this "
 				 "input case), but more than 2 flashing waveforms! This is considered undefined and an error." );
 	}
 	/// then mix them to create the flashing version.
-	// in seconds...
+	// total period time in seconds...
 	double period = 1.0 / wave.flash.flashCycleFreq;
-	// in samples...
-	long int samplePeriod = long int( period * NIAWG_SAMPLE_RATE + 0.5 );
-	long int samplesPerWavePerPeriod = samplePeriod / wave.flash.flashNumber;
+	// total period in samples...
+	long totalPeriodInSamples = long( period * NIAWG_SAMPLE_RATE + 0.5 );
+	long samplesPerWavePerPeriod = totalPeriodInSamples / wave.flash.flashNumber;
+	// *2 because of mixing
+	long deadSamples = deadTime * NIAWG_SAMPLE_RATE * 2;
 
 	std::vector<long> samplesInWave( wave.flash.flashNumber );
 	if ( wave.flash.flashNumber > 2 )
@@ -1926,10 +1924,11 @@ void NiawgController::mixFlashingWaves( waveInfo& wave, double dutyCycle, double
 	}
 	else
 	{
-		samplesInWave[0] = firstDutyCycle * samplesPerWavePerPeriod;
-		samplesInWave[1] = (1 - firstDutyCycle) * samplesPerWavePerPeriod;
+		// static wave
+		samplesInWave[1] = long( staticMovingRatio * totalPeriodInSamples / (1 + staticMovingRatio) );
+		// moving wave
+		samplesInWave[0] = totalPeriodInSamples - samplesInWave[1];
 	}
-
 	if (!(fabs( std::floor( wave.core.time / period ) - wave.core.time / period ) < 1e-9))
 	{
 		thrower( "ERROR: flashing cycle time doesn't result in an integer number of flashing cycles during the given waveform time!"
@@ -1937,7 +1936,8 @@ void NiawgController::mixFlashingWaves( waveInfo& wave, double dutyCycle, double
 	}
 	long cycles = long( std::floor( wave.core.time / period ) );
 	/// mix the waves together
-	wave.core.waveVals.resize( wave.flash.flashWaves.front().waveVals.size() * wave.flash.flashNumber );
+	wave.core.waveVals.resize( 2 * waveformSizeCalc( wave.core.time ) );
+	//wave.core.waveVals.resize( wave.flash.flashWaves.front().waveVals.size() * wave.flash.flashNumber );
 	for (auto cycleInc : range( cycles ))
 	{
 		UINT cycleSamples = cycleInc * wave.flash.flashNumber * 2 * samplesPerWavePerPeriod;
@@ -1948,7 +1948,7 @@ void NiawgController::mixFlashingWaves( waveInfo& wave, double dutyCycle, double
 			for (auto sampleInc : range( 2 * samplesInWave[waveInc] ))
 			{
 				int newSampleNum = sampleInc + waveSamples + cycleSamples;
-				if ( sampleInc > 2 * int( dutyCycle*samplesPerWavePerPeriod ) )
+				if ( sampleInc > 2 * samplesInWave[waveInc] - deadSamples )
 				{
 					// not in duty cycle, NIAWG is to output nothing.
 					wave.core.waveVals[newSampleNum] = 0;
@@ -1959,7 +1959,7 @@ void NiawgController::mixFlashingWaves( waveInfo& wave, double dutyCycle, double
 					wave.core.waveVals[newSampleNum] = wave.flash.flashWaves[waveInc].waveVals[sampleFromMixed];
 				}
 			}
-			waveSamples += waveInc * 2 * samplesInWave[waveInc];
+			waveSamples += 2 * samplesInWave[waveInc];
 		}
 	}
 
@@ -2408,7 +2408,6 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 					continue;
 				}
 			}
-
 			{
 				std::unique_lock<std::mutex> locker( *input->rearrangerLock );
 				if ( input->atomsQueue->size( ) == 0 )
@@ -2456,7 +2455,7 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 			{
 				// as of now, just ignore.
 			}
-			
+			input->niawg->rearrangeWaveVals.clear( );
 			/// program niawg
 			debugInfo options;
 			for ( auto move : operationsMatrix )
@@ -2469,7 +2468,12 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 				moveWave.varies = false;
 				// not used bc not programmed directly.
 				moveWave.name = "NA";
-				moveWave.time = input->rearrangementWave.rearrange.timePerMove / 2.0;
+				// moveWave.time = input->rearrangementWave.rearrange.timePerMove / 2.0;
+				// static wave
+				//samplesInWave[1] = long( staticMovingRatio * totalPeriodInSamples / (1 + staticMovingRatio) );
+				// moving wave
+				//samplesInWave[0] = totalPeriodInSamples - samplesInWave[1];
+				moveWave.time = input->rearrangementWave.rearrange.timePerMove / (input->info.staticMovingRatio + 1);
 				moveWave.sampleNum = input->niawg->waveformSizeCalc( moveWave.time );
 				UINT movingAxis, movingSize, staticAxis;
 				if ( move.finCol != move.initCol )
@@ -2570,19 +2574,19 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 				flashMove.core.time = info.timePerMove;
 				flashMove.isFlashing = true;
 				flashMove.flash.flashNumber = 2;
-				if ( info.staticWave.waveVals.size( ) != moveWave.waveVals.size( ) )
+				if ( fabs(info.staticWave.time + moveWave.time - info.timePerMove) > 1e-9  )
 				{
-					thrower( "ERROR: static wave size doesn't match move wave size! Sizes were "
-							 + str( info.staticWave.waveVals.size( ) ) + " and " + str( moveWave.waveVals.size( ) )
-							 + " respectively.\r\n" );
+					thrower( "ERROR: static wave and moving wave don't add up to the total time of the flashing wave! "
+							 "Sizes were "+ str( info.staticWave.waveVals.size( ) ) + " and " 
+							 + str( moveWave.waveVals.size( ) ) + " respectively.\r\n" );
 				}
 				flashMove.flash.flashWaves.push_back( moveWave );
 				flashMove.flash.flashWaves.push_back( info.staticWave );
 				flashMove.flash.flashCycleFreqInput = { str( info.flashingFreq ), str( info.flashingFreq ) };
 				flashMove.flash.flashCycleFreq = info.flashingFreq;
-				input->niawg->mixFlashingWaves( flashMove, input->info.dutyCycle, input->info.movingDutyCycle );
+				input->niawg->mixFlashingWaves( flashMove, input->info.deadTime, input->info.staticMovingRatio );
 				// now add to main wave.
-				input->niawg->rearrangeWaveVals.insert( input->niawg->rearrangeWaveVals.end( ),
+				input->niawg->rearrangeWaveVals.insert( input->niawg->rearrangeWaveVals.end( ), 
 														flashMove.core.waveVals.begin( ),
 														flashMove.core.waveVals.end( ) );
 			}
@@ -2593,13 +2597,13 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 			input->niawg->finalizeStandardWave( fillerWave, options );
 			input->niawg->rearrangeWaveVals.insert( input->niawg->rearrangeWaveVals.end( ), 
 													fillerWave.waveVals.begin( ), fillerWave.waveVals.end( ) );
-			stopCalc.push_back(std::chrono::high_resolution_clock::now( ));
+			stopCalc.push_back(chronoClock::now( ));
 			input->niawg->streamRearrangement( );
-			stopStream.push_back( std::chrono::high_resolution_clock::now( ) );
+			stopStream.push_back( chronoClock::now( ) );
 			input->niawg->fgenConduit.sendSoftwareTrigger( );
-			stopTrigger.push_back(std::chrono::high_resolution_clock::now( ));
+			stopTrigger.push_back( chronoClock::now( ));
 			input->niawg->fgenConduit.resetWritePosition( );
-			stopReset.push_back(std::chrono::high_resolution_clock::now( ));
+			stopReset.push_back( chronoClock::now( ));
 			if ( operationsMatrix.size( ) )
 			{
 				triedRearranging.push_back( true );
