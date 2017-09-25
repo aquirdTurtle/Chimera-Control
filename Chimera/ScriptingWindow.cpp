@@ -62,7 +62,7 @@ void ScriptingWindow::handleIntensityCombo()
 {
 	intensityAgilent.handleInput( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
 	intensityAgilent.handleCombo();
-	intensityAgilent.updateEdit(mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo());
+	intensityAgilent.updateSettingsDisplay(mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo());
 }
 
 
@@ -227,7 +227,8 @@ BOOL ScriptingWindow::OnInitDialog()
 	startLocation = { 960, 28 };
 	intensityAgilent.initialize( startLocation, tooltips, this, id, 
 								 "Intensity Agilent", 865, { IDC_INTENSITY_CHANNEL1_BUTTON,
-								 IDC_INTENSITY_CHANNEL2_BUTTON, IDC_INTENSITY_SYNC_BUTTON, IDC_INTENSITY_PROGRAM, 
+								 IDC_INTENSITY_CHANNEL2_BUTTON, IDC_INTENSITY_SYNC_BUTTON, 
+								 IDC_INTENSITY_CALIBRATION_BUTTON, IDC_INTENSITY_PROGRAM, 
 								 IDC_INTENSITY_AGILENT_COMBO, IDC_INTENSITY_FUNCTION_COMBO, IDC_INTENSITY_EDIT }, 
 								 mainWindowFriend->getRgbs()["Solarized Base03"] );
 	startLocation = { 1440, 28 };
@@ -680,8 +681,8 @@ void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, double version
 	getline(configFile, masterName);
 	ProfileSystem::checkDelimiterLine(configFile, "END_SCRIPTS");
 
-	intensityAgilent.readConfigurationFile(configFile);
-	intensityAgilent.updateEdit(1, mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo());
+	intensityAgilent.readConfigurationFile(configFile, version );
+	intensityAgilent.updateSettingsDisplay(1, mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo());
 	openVerticalScript(vertName);
 	openHorizontalScript(horName);
 	openMasterScript(masterName);

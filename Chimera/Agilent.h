@@ -23,7 +23,7 @@ class Agilent
 		Agilent( bool safemode, std::string address );
 		~Agilent();
 		void initialize( POINT& loc, cToolTips& toolTips, CWnd* master, int& id,   
-						 std::string header, UINT editHeight, std::array<UINT, 7> ids, COLORREF color );
+						 std::string header, UINT editHeight, std::array<UINT, 8> ids, COLORREF color );
 		void checkSave( std::string categoryPath, RunInfo info );
 		void handleChannelPress( int chan, std::string currentCategoryPath, RunInfo currentRunInfo );
 		void handleCombo();
@@ -43,13 +43,13 @@ class Agilent
 		void handleSavingConfig( std::ofstream& saveFile, std::string categoryPath, RunInfo info );
 		std::string getDeviceIdentity();
 		std::string getName();
-		void readConfigurationFile( std::ifstream& file );
+		void readConfigurationFile( std::ifstream& file, double version );
 		//void setScript( int varNum, key variableKey, scriptedArbInfo& scriptInfo );
 		void selectIntensityProfile( UINT channel, int varNum );
 		void convertInputToFinalSettings(UINT chan, key variableKey, UINT variation, std::vector<variableType>& variables);
 		void convertInputToFinalSettings(UINT chan);
-		void updateEdit( int chan, std::string currentCategoryPath, RunInfo currentRunInfo );
-		void updateEdit( std::string currentCategoryPath, RunInfo currentRunInfo );
+		void updateSettingsDisplay( int chan, std::string currentCategoryPath, RunInfo currentRunInfo );
+		void updateSettingsDisplay( std::string currentCategoryPath, RunInfo currentRunInfo );
 		deviceOutputInfo getOutputInfo();
 		void rearrange(UINT width, UINT height, fontMap fonts);
 		void setAgilent( key varKey, UINT variation, std::vector<variableType>& variables);
@@ -60,7 +60,7 @@ class Agilent
 		void setScriptOutput(UINT varNum, scriptedArbInfo scriptInfo, UINT channel );
 		// making the script public greatly simplifies opening, saving, etc. files from this script.
 		Script agilentScript;
-		static double convertPowerToSetPoint(double power);
+		static double convertPowerToSetPoint(double power, bool conversionOption );
 
 	private:
 		std::string name;
@@ -80,6 +80,7 @@ class Agilent
 		Control<CButton> channel1Button;
 		Control<CButton> channel2Button;
 		Control<CButton> syncedButton;
+		Control<CButton> calibratedButton;
 		Control<CComboBox> settingCombo;
 		Control<CStatic> optionsFormat;
 		Control<CButton> programNow;

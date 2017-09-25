@@ -105,6 +105,7 @@ class MainWindow : public CDialog
 		void handleExperimentNotesChange( );
 		void handleCategoryNotesChange( );
 		void notifyConfigUpdate( );
+		void handleEmailButton( );
 
 	private:		
 		DECLARE_MESSAGE_MAP();

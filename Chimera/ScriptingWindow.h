@@ -19,6 +19,7 @@ template <typename type> struct scriptInfo
 	type master;
 };
 
+
 class ScriptingWindow : public CDialog
 {
 	using CDialog::CDialog;

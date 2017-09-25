@@ -4,13 +4,11 @@ TODO
 
 Features:
 - finish implementing 2D scans
-- Implement Chris's Plots of ttls and dacs
 
 - NIAWG scripting in single script instead of separate Hor/Vert scripts.
 - Watch cursor location, sim to basler program
 - restore the Niawg functionality where it calculates next varying waveform during the run of the previous waveform.
 - option to allow agilent waveforms to function with or without calibration
-- make a structure and a front panel option for agilent calibrations, or perhaps edit in dialog
 - support functions for niawg and agilent scripts
 - if fails to open script file give user opportunity to find it themselves.
 - handle niawg waiting more elegantly
@@ -50,13 +48,11 @@ Refactoring / Other:
 - test fitting in gnuplot
 - refactor groups in plotinfo and gnuplot stuffs
 - remove redundant agilent commands
-- test texting / python
 - kill the restart option
 
 Bugs:
-- revisit visaFlume connection bugs. Might just be an issue with this tektronics generator.
+- revisit visaFlume connection bugs. Seems like just an issue with this specific tektronics generator.
 - Add new data set not working in plot designer
-- Weird trouble with 2-picture plotting
 - closing window doesn't stop program, running in background (release mode only?)
 - scripts becoming unsaved after move, should preserve saved status
 - something going wrong with exiting the niawg normally. Might be on delete waveforms, might be related to change from 

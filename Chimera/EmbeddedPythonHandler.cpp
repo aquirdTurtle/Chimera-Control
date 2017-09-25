@@ -31,43 +31,17 @@ EmbeddedPythonHandler::EmbeddedPythonHandler()
 	//create main module
 	mainModule = PyImport_AddModule("__main__"); 
 	//invoke code to redirect
-	PyRun_SimpleString(cstr(stdOutErr)); 
+	PyRun_SimpleString(stdOutErr.c_str()); 
 	//get our catchOutErr object (of type CatchOutErr) created above
 	errorCatcher = PyObject_GetAttrString(mainModule, "catchOutErr"); 
 	// start using the run function.
-	ERR_POP(run("from astropy.io import fits"));
 	ERR_POP(run("import smtplib"));
+	// for some reason the default qt based backed doesn't work
 	ERR_POP(run("from email.mime.text import MIMEText"));
-	// not sure if these things are needed...
-	//ERR_POP(run("numpy.set_printoptions(threshold = numpy.nan)"));
-	//ERR_POP(run("from matplotlib.pyplot import figure, hist, plot, title, xlabel, ylabel, subplots, errorbar, show, draw"));
-	//ERR_POP(run("from matplotlib.cm import get_cmap"));
-	//ERR_POP(run("from dataAnalysisFunctions import normalizeData, binData, guessGaussianPeaks, doubleGaussian, fitDoubleGaussian,"
-	//	"calculateAtomThreshold, getAnalyzedSurvivalData"));
-	// Make sure that python can find my module.
-	ERR_POP(run("import sys"));
-	//ERR_POP(run("sys.path.append(\"" + ANALYSIS_CODE_LOCATION + "\")"));
-	/*
-	ERR_POP(run("import AutoanalysisFunctions"));
-	PyObject* pythonModuleName = PyUnicode_DecodeFSDefault("AutoanalysisFunctions");
-	if (pythonModuleName == NULL)
-	{
-		errBox("ERROR: failed to interpret \"AutoanalysisFunctions\" as python string?!?!?!?!?");
-		return;
-	}
-	autoAnalysisModule = PyImport_Import(pythonModuleName);
-	//Py_XDECREF(pythonModuleName);
-	if (autoAnalysisModule == NULL)
-	{
-		errBox("ERROR: Failed to load python module for automatic data analysis!");
-		return;
-	}
-	atomAnalysisFunction = PyObject_GetAttrString(autoAnalysisModule, "atomAnalysis");
-	if (atomAnalysisFunction == NULL)
-	{
-		errBox("Failed to load python function \"singlePointAnalysis\"");
-	}
-	*/
+	ERR_POP( run( "import sys" ) );
+	ERR_POP(run("sys.path.append('" + PYTHON_CODE_LOCATION + "')" ) )
+	ERR_POP( run( "import plotDacs" ) );
+	ERR_POP( run( "import plotTtls" ) );
 }
 
 
@@ -82,17 +56,34 @@ void EmbeddedPythonHandler::flush()
 	run(flushMsg, false);
 }
 
-// for full data analysis set.
-void EmbeddedPythonHandler::runDataAnalysis(std::string date, long runNumber, long accumulations, 
-											std::vector<coordinate> atomLocations)
+
+void EmbeddedPythonHandler::runPlotDacs( )
 {
+	ERR_POP( run( 
+		"plotDacs.plotDacs( '" + PYTHON_INPUT_LOCATION + "DAC-Sequence.txt', time = True )"
+	) );	
+}
+
+void EmbeddedPythonHandler::runPlotTtls( )
+{
+	ERR_POP(run(
+		"plotTtls.plotTtls('" + PYTHON_INPUT_LOCATION + "TTL-Sequence.txt', time = True )"
+		));
+}
+
+
+void EmbeddedPythonHandler::runDataAnalysis( std::string date, long runNumber, long accumulations, 
+											 std::vector<coordinate> atomLocations)
+{
+	/* I don't use this anymore, but keeping it around in case I want to do anything like this again. */
+	// for full data analysis set.
 	flush();
-	if (this->autoAnalysisModule == NULL)
+	if (autoAnalysisModule == NULL)
 	{
 		errBox("autoAnalysisModule is no longer available! This shouldn't happen... Continuing...");
 	}
 	// interpret the text here to get the actual function name.
-	if (this->atomAnalysisFunction == NULL)
+	if (atomAnalysisFunction == NULL)
 	{
 		thrower( "ERROR: Atom analysis function is null! The program can no longer call this function for some"
 				 "reason. Auto-Analysis will not occur." );
@@ -180,6 +171,7 @@ void EmbeddedPythonHandler::runDataAnalysis(std::string date, long runNumber, lo
 	// finished successfully.
 }
 
+
 // for texting.
 void EmbeddedPythonHandler::sendText(personInfo person, std::string msg, std::string subject, std::string baseEmail, 
 									 std::string password)
@@ -189,7 +181,6 @@ void EmbeddedPythonHandler::sendText(personInfo person, std::string msg, std::st
 	{
 		thrower("ERROR: Please set an email and password for sending texts with!");
 	}
-
 	ERR_POP_RETURN(run("email = MIMEText('" + msg + "', 'plain')"));
 	ERR_POP_RETURN(run("email['Subject'] = '" + subject + "'"));
 	ERR_POP_RETURN(run("email['From'] = '" + baseEmail + "'"));
@@ -231,8 +222,9 @@ std::string EmbeddedPythonHandler::run(std::string cmd, bool flush /*=true*/)
 	{
 		return "";
 	}
-	PyRun_SimpleString(cstr(cmd));
+	PyRun_SimpleString(cmd.c_str());
 	// get the stdout and stderr from our catchOutErr object
 	PyObject *output = PyObject_GetAttrString(errorCatcher, "value");
-	return PyBytes_AS_STRING(PyUnicode_AsEncodedString(output, "ASCII", "strict"));
+	std::string txt = PyBytes_AS_STRING( PyUnicode_AsEncodedString( output, "ASCII", "strict" ) );
+	return txt;
 }

@@ -20,7 +20,7 @@ struct generalAgilentOutputInfo
 {
 	std::string load;
 	double sampleRate;
-	bool synced;
+	bool useCalibration;
 };
 
 

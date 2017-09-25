@@ -21,6 +21,7 @@
 #include "rearrangeParams.h"
 #include "commonTypes.h"
 #include "nidaqmx2.h"
+#include "EmbeddedPythonHandler.h"
 #include <string>
 #include <vector>
 #include <sstream>
@@ -31,6 +32,7 @@ class MasterManager;
 
 struct MasterThreadInput
 {
+	EmbeddedPythonHandler* python;
 	DataLogger* logger;
 	profileSettings profile;
 	DioSystem* ttls;											

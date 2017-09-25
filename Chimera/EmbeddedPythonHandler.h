@@ -27,6 +27,8 @@ class EmbeddedPythonHandler
 		// for a single python command.
 		std::string run(std::string cmd, bool flush = true);
 		void flush();
+		void runPlotDacs( );
+		void runPlotTtls( );
 	private:
 		PyObject* autoAnalysisModule;
 		PyObject* atomAnalysisFunction;

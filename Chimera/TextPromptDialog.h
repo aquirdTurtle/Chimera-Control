@@ -8,8 +8,10 @@ class TextPromptDialog : public CDialog
 
 	public:
 
-		TextPromptDialog::TextPromptDialog(std::string* resultPtr, std::string description) : CDialog(IDD_TEXT_PROMPT_DIALOG)
+		TextPromptDialog::TextPromptDialog(std::string* resultPtr, std::string description, bool isPassword=false) 
+			: CDialog(IDD_TEXT_PROMPT_DIALOG)
 		{
+			passwordOption = isPassword;
 			result = resultPtr;
 			descriptionText = description;
 		}
@@ -25,5 +27,6 @@ class TextPromptDialog : public CDialog
 		Control<CStatic> description;
 		Control<CEdit> prompt;
 		std::string* result;
+		bool passwordOption;
 };
 

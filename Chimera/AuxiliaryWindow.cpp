@@ -423,12 +423,12 @@ void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, double vers
 	ttlBoard.handleOpenConfig(configFile, version);
 	dacBoards.handleOpenConfig(configFile, version, &ttlBoard);
 
-	topBottomAgilent.readConfigurationFile(configFile);
-	topBottomAgilent.updateEdit( 1, mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
-	uWaveAxialAgilent.readConfigurationFile(configFile);
-	uWaveAxialAgilent.updateEdit( 1, mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
-	flashingAgilent.readConfigurationFile(configFile);
-	flashingAgilent.updateEdit( 1, mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
+	topBottomAgilent.readConfigurationFile(configFile, version);
+	topBottomAgilent.updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
+	uWaveAxialAgilent.readConfigurationFile(configFile, version );
+	uWaveAxialAgilent.updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
+	flashingAgilent.readConfigurationFile(configFile, version );
+	flashingAgilent.updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
 
 	topBottomTek.handleOpeningConfig(configFile, version);
 	eoAxialTek.handleOpeningConfig(configFile, version);
@@ -717,7 +717,7 @@ void AuxiliaryWindow::handleTopBottomAgilentCombo()
 	{
 		topBottomAgilent.handleInput( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
 		topBottomAgilent.handleCombo();
-		topBottomAgilent.updateEdit( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
+		topBottomAgilent.updateSettingsDisplay( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
 	}
 	catch (Error& err)
 	{
@@ -732,7 +732,7 @@ void AuxiliaryWindow::handleAxialUWaveAgilentCombo()
 	{
 		uWaveAxialAgilent.handleInput( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
 		uWaveAxialAgilent.handleCombo();
-		uWaveAxialAgilent.updateEdit( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
+		uWaveAxialAgilent.updateSettingsDisplay( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
 	}
 	catch (Error& err)
 	{
@@ -747,7 +747,7 @@ void AuxiliaryWindow::handleFlashingAgilentCombo()
 	{
 		flashingAgilent.handleInput( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
 		flashingAgilent.handleCombo();
-		flashingAgilent.updateEdit( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
+		flashingAgilent.updateSettingsDisplay( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
 	}
 	catch (Error& err)
 	{
@@ -1308,19 +1308,22 @@ BOOL AuxiliaryWindow::OnInitDialog()
 		RhodeSchwarzGenerator.initialize( controlLocation, toolTips, this, id );
 		controlLocation = POINT{ 480, 0 };
 		topBottomAgilent.initialize( controlLocation, toolTips, this, id, "Top-Bottom-Agilent", 120, 
-									{ IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_TOP_BOTTOM_CHANNEL2_BUTTON, 
-									  IDC_TOP_BOTTOM_SYNC_BUTTON, IDC_TOP_BOTTOM_PROGRAM, IDC_TOP_BOTTOM_AGILENT_COMBO, 
+									{ IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_TOP_BOTTOM_CHANNEL2_BUTTON,
+									  IDC_TOP_BOTTOM_SYNC_BUTTON, IDC_TOP_BOTTOM_CALIBRATION_BUTTON, 
+									 IDC_TOP_BOTTOM_PROGRAM, IDC_TOP_BOTTOM_AGILENT_COMBO,
 									 IDC_TOP_BOTTOM_FUNCTION_COMBO, IDC_TOP_BOTTOM_EDIT},
 									 mainWindowFriend->getRgbs()["Solarized Base03"] );
 		uWaveAxialAgilent.initialize( controlLocation, toolTips, this, id, 
 									  "Microwave-Axial-Agilent",   120, { IDC_AXIAL_UWAVE_CHANNEL1_BUTTON, 
 									  IDC_AXIAL_UWAVE_CHANNEL2_BUTTON, IDC_AXIAL_UWAVE_SYNC_BUTTON, 
+									  IDC_AXIAL_UWAVE_CALIBRATION_BUTTON,
 									  IDC_AXIAL_UWAVE_PROGRAM, IDC_AXIAL_UWAVE_AGILENT_COMBO, 
 									  IDC_AXIAL_UWAVE_FUNCTION_COMBO, IDC_AXIAL_UWAVE_EDIT },
 									  mainWindowFriend->getRgbs()["Solarized Base03"] );
 		flashingAgilent.initialize( controlLocation, toolTips, this, id, 
 									"Flashing-Agilent",  120, {IDC_FLASHING_CHANNEL1_BUTTON, 
-									IDC_FLASHING_CHANNEL2_BUTTON, IDC_FLASHING_SYNC_BUTTON, IDC_FLASHING_PROGRAM, 
+									IDC_FLASHING_CHANNEL2_BUTTON, IDC_FLASHING_SYNC_BUTTON, 
+									IDC_FLASHING_CALIBRATION_BUTTON, IDC_FLASHING_PROGRAM, 
 									IDC_FLASHING_AGILENT_COMBO, IDC_FLASHING_FUNCTION_COMBO, IDC_FLASHING_EDIT}, 
 									mainWindowFriend->getRgbs()["Solarized Base03"] );
 		controlLocation = POINT{ 1440, 0 };
