@@ -28,7 +28,7 @@ Agilent::~Agilent()
 
 
 void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id, std::string headerText,
-						  UINT editHeight, std::array<UINT, 7> ids, COLORREF color )
+						  UINT editHeight, std::array<UINT, 8> ids, COLORREF color )
 {
 	name = headerText;
 	try
@@ -52,27 +52,32 @@ void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id
 							  parent, id++ );
 	deviceInfoDisplay.fontType = SmallFont;
 
-	channel1Button.sPos = { loc.x, loc.y, loc.x += 120, loc.y + 20 };
+	channel1Button.sPos = { loc.x, loc.y, loc.x += 100, loc.y + 20 };
 	channel1Button.Create( "Channel 1", BS_AUTORADIOBUTTON | WS_GROUP | WS_VISIBLE | WS_CHILD, channel1Button.sPos,
 						   parent, ids[0] );
 	channel1Button.SetCheck( true );
 
-	channel2Button.sPos = { loc.x, loc.y, loc.x += 120, loc.y + 20 };
+	channel2Button.sPos = { loc.x, loc.y, loc.x += 100, loc.y + 20 };
 	channel2Button.Create( "Channel 2", BS_AUTORADIOBUTTON | WS_VISIBLE | WS_CHILD, channel2Button.sPos, parent, ids[1] );
 
-	syncedButton.sPos = { loc.x, loc.y, loc.x += 120, loc.y + 20 };
+	syncedButton.sPos = { loc.x, loc.y, loc.x += 80, loc.y + 20 };
 	syncedButton.Create( "Synced?", BS_AUTOCHECKBOX | WS_VISIBLE | WS_CHILD, syncedButton.sPos, parent, ids[2] );
 	// not supported (yet)
 	syncedButton.EnableWindow( 0 );
 
-	programNow.sPos = { loc.x, loc.y, loc.x += 120, loc.y += 20 };
-	programNow.Create( "Program Now", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, programNow.sPos, parent, ids[3] );
+	calibratedButton.sPos = { loc.x, loc.y, loc.x += 100, loc.y + 20 };
+	calibratedButton.Create( "Use Cal?", BS_AUTOCHECKBOX | WS_VISIBLE | WS_CHILD, calibratedButton.sPos, 
+							 parent, ids[3] );
+	calibratedButton.SetCheck( true );
+	
+	programNow.sPos = { loc.x, loc.y, loc.x += 100, loc.y += 20 };
+	programNow.Create( "Program", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, programNow.sPos, parent, ids[4] );
 
 	loc.x -= 480;
 
 	settingCombo.sPos = { loc.x, loc.y, loc.x += 240, loc.y + 200 };
 	settingCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, settingCombo.sPos,
-						 parent, ids[4] );
+						 parent, ids[5] );
 	settingCombo.AddString( "No Control" );
 	settingCombo.AddString( "Output Off" );
 	settingCombo.AddString( "DC Output" );
@@ -86,14 +91,12 @@ void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id
 	optionsFormat.Create( "---", WS_CHILD | WS_VISIBLE | SS_SUNKEN, optionsFormat.sPos, parent, id++ );
 	loc.x -= 480;
 
-	agilentScript.initialize( 480, editHeight, loc, toolTips, parent, id, "Agilent", "", { ids[5], ids[6] }, color );
+	agilentScript.initialize( 480, editHeight, loc, toolTips, parent, id, "Agilent", "", { ids[6], ids[7] }, color );
 
 	settings.channel[0].option = -2;
 	settings.channel[1].option = -2;
 	currentChannel = 1;
 }
-
-
 
 
 void Agilent::checkSave( std::string categoryPath, RunInfo info )
@@ -116,6 +119,7 @@ void Agilent::rearrange(UINT width, UINT height, fontMap fonts)
 	optionsFormat.rearrange(width, height, fonts);
 	agilentScript.rearrange(width, height, fonts);
 	programNow.rearrange( width, height, fonts );
+	calibratedButton.rearrange( width, height, fonts );
 }
 
 
@@ -131,7 +135,7 @@ std::string Agilent::getName()
 void Agilent::setDefault( int channel )
 {
 	// turn it to the default voltage...
-	std::string setPointString = str(convertPowerToSetPoint(AGILENT_DEFAULT_POWER));
+	std::string setPointString = str(convertPowerToSetPoint(AGILENT_DEFAULT_POWER, true));
 	visaFlume.write( "SOURce" + str(channel) + ":APPLy:DC DEF, DEF, " + setPointString + " V" );
 }
 
@@ -141,7 +145,7 @@ void Agilent::setDefault( int channel )
  * expects the inputted power to be in -MILI-WATTS! 
  * returns set point in VOLTS
  */
-double Agilent::convertPowerToSetPoint(double powerInMilliWatts)
+double Agilent::convertPowerToSetPoint(double powerInMilliWatts, bool conversionOption)
 {
 	/// IMPORTANT CONVENTION NOTE:
 	// the log-PD calibrations were all done with the power in microwatts. This goes against all other conventions in 
@@ -184,8 +188,16 @@ double Agilent::convertPowerToSetPoint(double powerInMilliWatts)
 	// September 12th, 2017
 	double a = -0.04090619;
 	double b = 0.00641603;
-	double setPointInVolts = a * powerInMilliWatts + b;
-	return setPointInVolts;
+	if ( conversionOption )
+	{
+		double setPointInVolts = a * powerInMilliWatts + b;
+		return setPointInVolts;
+	}
+	else
+	{
+		// no conversion
+		return powerInMilliWatts;
+	}
 }
 
 
@@ -307,23 +319,28 @@ void Agilent::handleInput(int chan, std::string categoryPath, RunInfo info)
 		case 0:
 			// DC.
 			stream >> settings.channel[chan].dc.dcLevelInput;
+			settings.channel[chan].dc.useCalibration = calibratedButton.GetCheck( );
 			break;
 		case 1:
 			// sine wave
 			stream >> settings.channel[chan].sine.frequencyInput;
 			stream >> settings.channel[chan].sine.amplitudeInput;
+			settings.channel[chan].sine.useCalibration = calibratedButton.GetCheck( );
 			break;
 		case 2:
 			stream >> settings.channel[chan].square.frequencyInput;
 			stream >> settings.channel[chan].square.amplitudeInput;
 			stream >> settings.channel[chan].square.offsetInput;
+			settings.channel[chan].square.useCalibration = calibratedButton.GetCheck( );
 			break;
 		case 3:
 			stream >> settings.channel[chan].preloadedArb.address;
+			settings.channel[chan].preloadedArb.useCalibration = calibratedButton.GetCheck( );
 			break;
 		case 4:
 			agilentScript.checkSave( categoryPath, info );
 			settings.channel[chan].scriptedArb.fileAddress = agilentScript.getScriptPathAndName();
+			settings.channel[chan].scriptedArb.useCalibration = calibratedButton.GetCheck( );
 			break;
 		default:
 			thrower( "ERROR: unknown agilent option" );
@@ -340,13 +357,13 @@ void Agilent::handleInput( std::string categoryPath, RunInfo info )
 }
 
 
-void Agilent::updateEdit( std::string currentCategoryPath, RunInfo currentRunInfo )
+void Agilent::updateSettingsDisplay( std::string currentCategoryPath, RunInfo currentRunInfo )
 {
-	updateEdit( (!channel1Button.GetCheck()) + 1, currentCategoryPath, currentRunInfo );
+	updateSettingsDisplay( (!channel1Button.GetCheck()) + 1, currentCategoryPath, currentRunInfo );
 }
 
 
-void Agilent::updateEdit(int chan, std::string currentCategoryPath, RunInfo currentRunInfo)
+void Agilent::updateSettingsDisplay(int chan, std::string currentCategoryPath, RunInfo currentRunInfo)
 {
 	// convert to zero-indexed.
 	chan -= 1;
@@ -365,12 +382,14 @@ void Agilent::updateEdit(int chan, std::string currentCategoryPath, RunInfo curr
 			// dc
 			agilentScript.setScriptText(settings.channel[chan].dc.dcLevelInput.expressionStr);
 			settingCombo.SetCurSel( 2 );
+			calibratedButton.SetCheck( settings.channel[chan].dc.useCalibration );
 			break;
 		case 1:
 			// sine
 			agilentScript.setScriptText(settings.channel[chan].sine.frequencyInput.expressionStr + " " 
 										 + settings.channel[chan].sine.amplitudeInput.expressionStr);
 			settingCombo.SetCurSel( 3 );
+			calibratedButton.SetCheck( settings.channel[chan].sine.useCalibration );
 			break;
 		case 2:
 			// square
@@ -378,11 +397,13 @@ void Agilent::updateEdit(int chan, std::string currentCategoryPath, RunInfo curr
 										 + settings.channel[chan].square.amplitudeInput.expressionStr + " " 
 										 + settings.channel[chan].square.offsetInput.expressionStr );
 			settingCombo.SetCurSel( 4 );
+			calibratedButton.SetCheck( settings.channel[chan].square.useCalibration );
 			break;
 		case 3:
 			// preprogrammed
 			agilentScript.setScriptText(settings.channel[chan].preloadedArb.address);
 			settingCombo.SetCurSel( 5 );
+			calibratedButton.SetCheck( settings.channel[chan].preloadedArb.useCalibration );
 			break;
 		case 4:
 			// scripted
@@ -391,6 +412,7 @@ void Agilent::updateEdit(int chan, std::string currentCategoryPath, RunInfo curr
 			agilentScript.setScriptText( "" );
 			agilentScript.openParentScript( settings.channel[chan].scriptedArb.fileAddress, currentCategoryPath, 
 											currentRunInfo );
+			calibratedButton.SetCheck( settings.channel[chan].scriptedArb.useCalibration );
 			break;
 		default:
 			thrower( "ERROR: unrecognized agilent setting: " + settings.channel[chan].option);
@@ -413,7 +435,7 @@ void Agilent::handleChannelPress( int chan, std::string currentCategoryPath, Run
 {
 	// convert from channel 1/2 to 0/1 to access the right array entr
 	handleInput( currentChannel, currentCategoryPath, currentRunInfo );
-	updateEdit( chan, currentCategoryPath, currentRunInfo );
+	updateSettingsDisplay( chan, currentCategoryPath, currentRunInfo );
 	if (channel1Button.GetCheck())
 	{
 		currentChannel = 1;
@@ -579,22 +601,37 @@ void Agilent::handleNewConfig( std::ofstream& newFile )
 	newFile << "-2\n";
 	newFile << "0\n";
 	newFile << "0\n";
-	newFile << "1\n";
+	
 	newFile << "0\n";
 	newFile << "1\n";
 	newFile << "0\n";
+
+	newFile << "0\n";
+	newFile << "1\n";
+	newFile << "0\n";
+	newFile << "0\n";
 	newFile << "NONE\n";
+	newFile << "0\n";
 	newFile << "NONE\n";
+	newFile << "0\n";
 	newFile << "CHANNEL_2\n";
 	newFile << "-2\n";
 	newFile << "0\n";
 	newFile << "0\n";
-	newFile << "1\n";
+
 	newFile << "0\n";
 	newFile << "1\n";
 	newFile << "0\n";
+
+	newFile << "0\n";
+	newFile << "1\n";
+	newFile << "0\n";
+	newFile << "0\n";
+
 	newFile << "NONE\n";
+	newFile << "0\n";
 	newFile << "NONE\n";
+	newFile << "0\n";	
 	newFile << "END_AGILENT\n";
 }
 
@@ -612,28 +649,38 @@ void Agilent::handleSavingConfig(std::ofstream& saveFile, std::string categoryPa
 	saveFile << "CHANNEL_1\n";
 	saveFile << str(settings.channel[0].option) + "\n";
 	saveFile << settings.channel[0].dc.dcLevelInput.expressionStr + "\n";
+	saveFile << settings.channel[0].dc.useCalibration + "\n";
 	saveFile << settings.channel[0].sine.amplitudeInput.expressionStr + "\n";
+	saveFile << settings.channel[0].sine.useCalibration + "\n";
 	saveFile << settings.channel[0].sine.frequencyInput.expressionStr + "\n";
 	saveFile << settings.channel[0].square.amplitudeInput.expressionStr + "\n";
 	saveFile << settings.channel[0].square.frequencyInput.expressionStr + "\n";
 	saveFile << settings.channel[0].square.offsetInput.expressionStr + "\n";
+	saveFile << settings.channel[0].square.useCalibration + "\n";
 	saveFile << settings.channel[0].preloadedArb.address + "\n";
+	saveFile << settings.channel[0].preloadedArb.useCalibration + "\n";
 	saveFile << settings.channel[0].scriptedArb.fileAddress + "\n";
+	saveFile << settings.channel[0].scriptedArb.useCalibration + "\n";
 	saveFile << "CHANNEL_2\n";
 	saveFile << str( settings.channel[1].option ) + "\n";
 	saveFile << settings.channel[1].dc.dcLevelInput.expressionStr + "\n";
+	saveFile << settings.channel[1].dc.useCalibration + "\n";
 	saveFile << settings.channel[1].sine.amplitudeInput.expressionStr + "\n";
 	saveFile << settings.channel[1].sine.frequencyInput.expressionStr + "\n";
+	saveFile << settings.channel[1].sine.useCalibration + "\n";
 	saveFile << settings.channel[1].square.amplitudeInput.expressionStr + "\n";
 	saveFile << settings.channel[1].square.frequencyInput.expressionStr + "\n";
 	saveFile << settings.channel[1].square.offsetInput.expressionStr + "\n";
+	saveFile << settings.channel[1].square.useCalibration + "\n";
 	saveFile << settings.channel[1].preloadedArb.address + "\n";
+	saveFile << settings.channel[1].preloadedArb.useCalibration + "\n";
 	saveFile << settings.channel[1].scriptedArb.fileAddress + "\n";
+	saveFile << settings.channel[1].scriptedArb.useCalibration + "\n";
 	saveFile << "END_AGILENT\n";
 }
 
 
-void Agilent::readConfigurationFile( std::ifstream& file )
+void Agilent::readConfigurationFile( std::ifstream& file, double version )
 {
 	ProfileSystem::checkDelimiterLine(file, "AGILENT");
 	file >> settings.synced;
@@ -650,14 +697,40 @@ void Agilent::readConfigurationFile( std::ifstream& file )
 	{
 		thrower( "ERROR: Bad channel 1 option!" );
 	}
+	std::string calibratedOption;
 	std::getline( file, settings.channel[0].dc.dcLevelInput.expressionStr );
+	if ( version > 2.3 )
+	{
+		std::getline( file, calibratedOption );
+		settings.channel[0].dc.useCalibration = bool(std::stoi( calibratedOption ));
+	}
 	std::getline( file, settings.channel[0].sine.amplitudeInput.expressionStr );
 	std::getline( file, settings.channel[0].sine.frequencyInput.expressionStr );
+	if ( version > 2.3 )
+	{
+		std::getline( file, calibratedOption );
+		settings.channel[0].sine.useCalibration = bool( std::stoi( calibratedOption ) );
+	}
 	std::getline( file, settings.channel[0].square.amplitudeInput.expressionStr );
 	std::getline( file, settings.channel[0].square.frequencyInput.expressionStr );
 	std::getline( file, settings.channel[0].square.offsetInput.expressionStr );
+	if ( version > 2.3 )
+	{
+		std::getline( file, calibratedOption );
+		settings.channel[0].square.useCalibration = bool( std::stoi( calibratedOption ) );
+	}
 	std::getline( file, settings.channel[0].preloadedArb.address);
+	if ( version > 2.3 )
+	{
+		std::getline( file, calibratedOption );
+		settings.channel[0].preloadedArb.useCalibration = bool( std::stoi( calibratedOption ) );
+	}
 	std::getline( file, settings.channel[0].scriptedArb.fileAddress );
+	if ( version > 2.3 )
+	{
+		std::getline( file, calibratedOption );
+		settings.channel[0].scriptedArb.useCalibration = bool( std::stoi( calibratedOption ) );
+	}
 	ProfileSystem::checkDelimiterLine(file, "CHANNEL_2"); 
 	file >> input;
 	file.get( );
@@ -670,13 +743,38 @@ void Agilent::readConfigurationFile( std::ifstream& file )
 		thrower("ERROR: Bad channel 1 option!");
 	}
 	std::getline( file, settings.channel[1].dc.dcLevelInput.expressionStr );
+	if ( version > 2.3 )
+	{
+		std::getline( file, calibratedOption );
+		settings.channel[1].dc.useCalibration = bool( std::stoi( calibratedOption ) );
+	}
 	std::getline( file, settings.channel[1].sine.amplitudeInput.expressionStr );
 	std::getline( file, settings.channel[1].sine.frequencyInput.expressionStr );
+	if ( version > 2.3 )
+	{
+		std::getline( file, calibratedOption );
+		settings.channel[1].sine.useCalibration = bool( std::stoi( calibratedOption ) );
+	}
 	std::getline( file, settings.channel[1].square.amplitudeInput.expressionStr );
 	std::getline( file, settings.channel[1].square.frequencyInput.expressionStr );
 	std::getline( file, settings.channel[1].square.offsetInput.expressionStr );
+	if ( version > 2.3 )
+	{
+		std::getline( file, calibratedOption );
+		settings.channel[1].square.useCalibration = bool( std::stoi( calibratedOption ) );
+	}
 	std::getline( file, settings.channel[1].preloadedArb.address);
+	if ( version > 2.3 )
+	{
+		std::getline( file, calibratedOption );
+		settings.channel[1].preloadedArb.useCalibration = bool( std::stoi( calibratedOption ) );
+	}
 	std::getline( file, settings.channel[1].scriptedArb.fileAddress );
+	if ( version > 2.3 )
+	{
+		std::getline( file, calibratedOption );
+		settings.channel[1].scriptedArb.useCalibration = bool( std::stoi( calibratedOption ) );
+	}
 	ProfileSystem::checkDelimiterLine(file, "END_AGILENT");
 }
 
@@ -704,7 +802,7 @@ void Agilent::setDC( int channel, dcInfo info )
 	{
 		thrower( "ERROR: Bad value for channel inside setDC!" );
 	}
-	visaFlume.write( "SOURce" + str( channel ) + ":APPLy:DC DEF, DEF, " + str( info.dcLevel ) + " V" );
+	visaFlume.write( "SOURce" + str( channel ) + ":APPLy:DC DEF, DEF, " + str( convertPowerToSetPoint(info.dcLevel, info.useCalibration) ) + " V" );
 }
 
 
@@ -739,7 +837,8 @@ void Agilent::setSquare( int channel, squareInfo info )
 		thrower( "ERROR: Bad Value for Channel in setSquare!" );
 	}
 	visaFlume.write( "SOURCE" + str(channel) + ":APPLY:SQUARE " + str( info.frequency ) + " KHZ, "
-					 + str( info.amplitude ) + " VPP, " + str( info.offset ) + " V" );
+					 + str( convertPowerToSetPoint(info.amplitude, info.useCalibration ) ) + " VPP, "
+					 + str( convertPowerToSetPoint(info.offset, info.useCalibration )) + " V" );
 }
 
 
@@ -750,14 +849,8 @@ void Agilent::setSine( int channel, sineInfo info )
 		thrower( "ERROR: Bad value for channel in setSine" );
 	}
 	visaFlume.write( "SOURCE" + str(channel) + ":APPLY:SINUSOID " + str( info.frequency ) + " KHZ, "
-					 + str( info.amplitude ) + " VPP" );
+					 + str( convertPowerToSetPoint(info.amplitude, info.useCalibration ) ) + " VPP" );
 }
-
-
-/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// pilfered from myAgilent.
-/// ......................................
-
 
 // stuff that only has to be done once.
 void Agilent::prepAgilentSettings(UINT channel)
@@ -775,7 +868,8 @@ void Agilent::prepAgilentSettings(UINT channel)
 }
 
 
-void Agilent::handleScriptVariation( key variationKey, UINT variation, scriptedArbInfo& scriptInfo, UINT channel, std::vector<variableType>& variables)
+void Agilent::handleScriptVariation( key variationKey, UINT variation, scriptedArbInfo& scriptInfo, UINT channel, 
+									 std::vector<variableType>& variables)
 {
 	// Initialize stuff
 	prepAgilentSettings( channel );

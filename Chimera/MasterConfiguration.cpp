@@ -9,9 +9,7 @@
 #include "CameraWindow.h"
 
 MasterConfiguration::MasterConfiguration(std::string address) : configurationFileAddress{address}, version{"2.0"}
-{
-
-}
+{}
 
 
 void MasterConfiguration::save(MainWindow* mainWin, AuxiliaryWindow* auxWin, CameraWindow* camWin) 

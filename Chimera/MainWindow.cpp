@@ -181,8 +181,15 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_COMMAND_RANGE( IDC_DEBUG_STATUS_BUTTON, IDC_DEBUG_STATUS_BUTTON, &MainWindow::passClear )
 
 	ON_COMMAND(IDOK,  &MainWindow::catchEnter)
+	ON_COMMAND( IDC_ENTER_EMAIL_INFO, &MainWindow::handleEmailButton )
 
 END_MESSAGE_MAP()
+
+
+void MainWindow::handleEmailButton( )
+{
+	texter.promptForEmailAddressAndPassword( );
+}
 
 
 void MainWindow::handleExperimentNotesChange( )
@@ -603,10 +610,13 @@ void MainWindow::fillMotInput( MasterThreadInput* input )
 	input->key->generateKey( input->settings.randomizeVariations );
 	input->rearrangeInfo = rearrangeControl.getParams( );
 	input->rearrangeInfo.active = false;
+
 }
+
 
 void MainWindow::fillMasterThreadInput(MasterThreadInput* input)
 {
+	input->python = &this->python;
 	input->masterScriptAddress = profile.getMasterAddressFromConfig();
 	input->settings = settings.getOptions();
 	input->repetitionNumber = getRepNumber();

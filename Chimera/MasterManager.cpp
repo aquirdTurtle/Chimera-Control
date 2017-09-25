@@ -185,9 +185,9 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		if (input->debugOptions.showTtls)
 		{
 			// output to status
-			input->comm->sendStatus( input->ttls->getTtlSequenceMessage( 0 ) );
+			input->comm->sendDebug( input->ttls->getTtlSequenceMessage( 0 ) );
 			// output to debug file
-			std::ofstream debugFile( cstr( DEBUG_OUTPUT_LOCATION + str( "TTL-Sequence.txt" ) ), std::ios_base::app );
+			std::ofstream debugFile( cstr( DEBUG_OUTPUT_LOCATION + str( "TTL-Sequence.txt" ) ) );
 			if (debugFile.is_open())
 			{
 				debugFile << input->ttls->getTtlSequenceMessage( 0 );
@@ -197,14 +197,14 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			{
 				expUpdate( "ERROR: Debug text file failed to open! Continuing...\r\n", input->comm, input->quiet );
 			}
+			input->python->runPlotTtls( );
 		}
 		if (input->debugOptions.showDacs)
 		{
 			// output to status
-			input->comm->sendStatus( input->dacs->getDacSequenceMessage( 0 ) );
+			input->comm->sendDebug( input->dacs->getDacSequenceMessage( 0 ) );
 			// output to debug file.
-			std::ofstream  debugFile( cstr( DEBUG_OUTPUT_LOCATION + str( "DAC-Sequence.txt" ) ),
-									  std::ios_base::app );
+			std::ofstream  debugFile( cstr( DEBUG_OUTPUT_LOCATION + str( "DAC-Sequence.txt" ) ) );
 			if (debugFile.is_open())
 			{
 				debugFile << input->dacs->getDacSequenceMessage( 0 );
@@ -214,6 +214,8 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			{
 				input->comm->sendError( "ERROR: Debug text file failed to open! Continuing...\r\n" );
 			}
+
+			input->python->runPlotDacs( );
 		}
 
 		input->globalControl->setUsages( input->variables );

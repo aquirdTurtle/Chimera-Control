@@ -104,19 +104,18 @@ void DacSystem::abort()
 	// TODO...?
 }
 
+
 std::string DacSystem::getDacSequenceMessage(UINT variation)
 {
 	std::string message;
 	for ( auto snap : dacSnapshots[variation] )
 	{
-		std::string time = str( snap.time );
-		time.erase( time.find_last_not_of( '0' ) + 1, std::string::npos );
+		std::string time = str( snap.time, 12, true );
 		message += time + ":\r\n";
 		int dacCount = 0;
 		for ( auto val : snap.dacValues )
 		{
-			std::string volt = str( val );
-			volt.erase( volt.find_last_not_of( '0' ) + 1, std::string::npos );
+			std::string volt = str( val, true );
 			message += volt + ", ";
 			dacCount++;
 			if ( dacCount % 8 == 0 )
@@ -128,6 +127,7 @@ std::string DacSystem::getDacSequenceMessage(UINT variation)
 	}
 	return message;
 }
+
 
 void DacSystem::daqCreateTask( const char* taskName, TaskHandle& handle )
 {

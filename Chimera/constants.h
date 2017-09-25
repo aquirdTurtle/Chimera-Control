@@ -8,16 +8,16 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program.
 
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP
+// #define MASTER_COMPUTER
+#define SPECTRE_LAPTOP
 // #define DESKTOP_COMPUTER
 /// File Locations
 
 #ifdef SPECTRE_LAPTOP
-	#define PYTHON_HOME L"C:\\Program Files (x86)\\Anaconda3\\"
+	#define PYTHON_HOME L"C:\\ProgramData\\Anaconda3\\"
 	#define NIAWG_SAFEMODE true
 	#define ANDOR_SAFEMODE true
-	#define PYTHON_SAFEMODE true
+	#define PYTHON_SAFEMODE false
 	#define DIO_SAFEMODE true
 	#define DAQMX_SAFEMODE true
 	#define RSG_SAFEMODE true
@@ -36,13 +36,16 @@
 	#define TESTING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
 
 	const std::string PROJECT_LOCATION = "C:\\Users\\Mark-Brown\\Chimera-Control\\";
+	const std::string PYTHON_CODE_LOCATION = "C:/Users/Mark-Brown/Chimera-Control/Chimera";
+	// same as debug output location but with forward slashes for ease of use in python
+	const std::string PYTHON_INPUT_LOCATION = "C:/Users/Mark-Brown/Chimera-Control/Debug-Output/";
 	const std::string PLOT_FILES_SAVE_LOCATION = PROJECT_LOCATION + "Plotting";
 	const std::string LIB_PATH = PROJECT_LOCATION + "Waveforms-Library\\dummyLib\\";
 	const std::string DEFAULT_SCRIPT_FOLDER_PATH = PROJECT_LOCATION + "Default Scripts\\";
 	const std::string PROFILES_PATH = PROJECT_LOCATION + "Profiles\\";
 	const std::string DATA_SAVE_LOCATION = PROJECT_LOCATION + "Data\\";
 	const std::string MUSIC_LOCATION = PROJECT_LOCATION + "Camerawg\\Final Fantasy VII - Victory Fanfare [HQ].mp3";
-	const std::string  FUNCTIONS_FOLDER_LOCATION = PROJECT_LOCATION + "Functions\\";
+	const std::string FUNCTIONS_FOLDER_LOCATION = PROJECT_LOCATION + "Functions\\";
 	const std::string MASTER_CONFIGURATION_FILE_ADDRESS = PROJECT_LOCATION + "Master-Configuration.txt";
 	const std::string MOT_ROUTINE_ADDRESS = PROJECT_LOCATION + "Master Profiles\\Hotkey Experiments\\MOT\\turnOnMot.mScript";
 	const std::string DEBUG_OUTPUT_LOCATION = PROJECT_LOCATION + "Debug-Output\\";
@@ -198,7 +201,7 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_CATEGORY_NOTES 10022
 #define IDC_CONFIGURATION_NOTES 10023
 #define IDC_REPETITION_EDIT 10024
-
+#define IDC_ENTER_EMAIL_INFO 10025
 // Scripting Window
 #define IDC_VERTICAL_NIAWG_FUNCTION_COMBO 12001
 #define IDC_VERTICAL_NIAWG_EDIT 12002
@@ -267,7 +270,7 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define EO_FSK 14104
 #define AXIAL_ON_OFF 14105
 #define AXIAL_FSK 14106
-/// AGILENT STUFF
+// AGILENT STUFF
 #define IDC_TOP_BOTTOM_CHANNEL1_BUTTON 14107
 #define IDC_TOP_BOTTOM_CHANNEL2_BUTTON 14108
 #define IDC_TOP_BOTTOM_SYNC_BUTTON 14109
@@ -292,6 +295,11 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 //
 #define IDC_GLOBAL_VARS_LISTVIEW 14128
 #define IDC_CONFIG_VARS_LISTVIEW 14129
+#define IDC_TOP_BOTTOM_CALIBRATION_BUTTON 14130
+#define IDC_AXIAL_UWAVE_CALIBRATION_BUTTON 14131
+#define IDC_FLASHING_CALIBRATION_BUTTON 14132
+#define IDC_INTENSITY_CALIBRATION_BUTTON 14133
+
 // plot designer
 #define IDC_GENERAL_PLOT_TYPE 15008
 #define IDC_PLOT_CREATOR_DATASET_COMBO 15010

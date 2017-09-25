@@ -1888,7 +1888,7 @@ void NiawgController::createFlashingWave( waveInfo& wave, debugInfo options )
 	for (UINT waveInc = 0; waveInc < wave.flash.flashNumber; waveInc++)
 	{
 		finalizeStandardWave( wave.flash.flashWaves[waveInc], options );
-	}	
+	}
 	mixFlashingWaves( wave, 0, 1 );
 }
 
@@ -1899,7 +1899,6 @@ void NiawgController::createFlashingWave( waveInfo& wave, debugInfo options )
 void NiawgController::mixFlashingWaves( waveInfo& wave, double deadTime, double staticMovingRatio )
 {
 	// firstDutyCycle is set to -1 if doing a non-rearranging waveform.
-
 	if ( wave.flash.flashNumber > 2)
 	{ 
 		thrower( "ERROR: firstDutyCycle is set to a non-negative value (negative value is the dummy value for this "

@@ -294,7 +294,7 @@ void ScriptedAgilentWaveform::convertPowersToVoltages()
 			double power = waveformSegments[segmentInc].returnDataVal( dataConvertInc );
 			// setPoint = a * power + b
 			//double newValue = -a * log(y * b);
-			double setPointinVolts = Agilent::convertPowerToSetPoint(power);
+			double setPointinVolts = Agilent::convertPowerToSetPoint(power, true);
 			waveformSegments[segmentInc].assignDataVal( dataConvertInc, setPointinVolts);
 		}
 	}

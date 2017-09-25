@@ -10,8 +10,8 @@
 void SmsTextingControl::promptForEmailAddressAndPassword()
 {
 	TextPromptDialog dialog(&emailAddress, "Please enter an email address for the texting system to use:");
-	dialog.DoModal();	
-	TextPromptDialog dialog2(&password, "Please enter a password for that email address:");
+	dialog.DoModal();
+	TextPromptDialog dialog2(&password, "Please enter a password for that email address:", true);
 	dialog2.DoModal();
 }
 
@@ -19,6 +19,7 @@ void SmsTextingControl::promptForEmailAddressAndPassword()
 void SmsTextingControl::rearrange(int width, int height, fontMap fonts)
 {
 	title.rearrange( width, height, fonts);
+	enterEmailInfoButton.rearrange( width, height, fonts );
 	peopleListView.rearrange( width, height, fonts);	
 }
 
@@ -26,11 +27,15 @@ void SmsTextingControl::rearrange(int width, int height, fontMap fonts)
 void SmsTextingControl::initialize(POINT& pos, CWnd* parent, bool isTriggerModeSensitive, int& id, cToolTips& tooltips, 
 									rgbMap rgbs)
 {
-	title.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 25 };
+	title.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
 	title.Create("TEXT ME", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY | WS_BORDER, title.sPos, parent, id++ );
 	title.fontType = HeadingFont;
 
-	peopleListView.sPos = { pos.x, pos.y + 25, pos.x + 480, pos.y + 120 };
+	enterEmailInfoButton.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
+	enterEmailInfoButton.Create( "Enter Email Information", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
+								  enterEmailInfoButton.sPos, parent, IDC_ENTER_EMAIL_INFO );
+
+	peopleListView.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 120 };
 	peopleListView.Create(WS_VISIBLE | WS_CHILD | WS_BORDER | LVS_REPORT | LVS_EDITLABELS, peopleListView.sPos, parent,
 						   IDC_SMS_TEXTING_LISTVIEW );
 	peopleListView.fontType = SmallFont;
@@ -72,12 +77,67 @@ void SmsTextingControl::initialize(POINT& pos, CWnd* parent, bool isTriggerModeS
 	peopleListView.SetItem(&listViewDefaultItem);
 	listViewDefaultItem.iSubItem = 4;
 	peopleListView.SetItem(&listViewDefaultItem);
-
 	peopleListView.SetBkColor( rgbs["Solarized Base02"] );
 	peopleListView.SetTextBkColor( rgbs["Solarized Base02"] );
 	peopleListView.SetTextColor( rgbs["Solarized Base2"] );
-
 	pos.y += 120;
+	// initialize myself;
+	personInfo me;
+	me.name = "Mark Brown";
+	me.number = "7032544981";
+	me.provider = "verizon";
+	me.textIfLoadingStops = true;
+	me.textWhenComplete = true;
+	addPerson( me );
+}
+
+
+void SmsTextingControl::addPerson( personInfo person )
+{
+
+	LVITEM listViewItem;
+	memset( &listViewItem, 0, sizeof( listViewItem ) );
+	// Text Style
+	listViewItem.mask = LVIF_TEXT;   
+	// Max size of test
+	listViewItem.cchTextMax = 256; 
+	// choose item  
+	listViewItem.iItem = peopleToText.size( );
+	// // add an item to the control
+	// Put in first column
+	listViewItem.iSubItem = 0;
+	listViewItem.pszText = (LPSTR)person.name.c_str( );
+	peopleListView.InsertItem( &listViewItem );
+	listViewItem.iSubItem = 1;
+	listViewItem.pszText = (LPSTR)person.number.c_str( );
+	peopleListView.SetItem( &listViewItem );
+	listViewItem.iSubItem = 2;
+	listViewItem.pszText = (LPSTR)person.provider.c_str( );
+	peopleListView.SetItem( &listViewItem );
+	listViewItem.iSubItem = 3;
+	if ( person.textWhenComplete )
+	{
+		listViewItem.pszText = "Yes";
+	}
+	else
+	{
+		listViewItem.pszText = "No";
+	}
+	peopleListView.SetItem( &listViewItem );
+	// default texting options is no!
+	listViewItem.iSubItem = 4;
+	if ( person.textIfLoadingStops )
+	{
+		listViewItem.pszText = "Yes";
+	}
+	else
+	{
+		listViewItem.pszText = "No";
+	}
+	peopleListView.SetItem( &listViewItem );
+
+	peopleToText.push_back( person );
+
 }
 
 
@@ -115,8 +175,10 @@ void SmsTextingControl::updatePersonInfo()
 		peopleToText.back().textWhenComplete = false;
 		// add an item to the control
 		listViewItem.pszText = "___";
-		listViewItem.iItem = itemIndicator;          // choose item  
-		listViewItem.iSubItem = 0;       // Put in first coluom
+		// choose item  
+		listViewItem.iItem = itemIndicator; 
+		// Put in first coluom
+		listViewItem.iSubItem = 0; 
 		peopleListView.InsertItem(&listViewItem);
 		for (int itemInc = 1; itemInc < 3; itemInc++) // Add SubItems in a loop
 		{
@@ -146,7 +208,7 @@ void SmsTextingControl::updatePersonInfo()
 			peopleToText[itemIndicator].name = newName;
 			listViewItem.iItem = itemIndicator;
 			listViewItem.iSubItem = subitemIndicator;
-			listViewItem.pszText = (LPSTR)cstr(newName);
+			listViewItem.pszText = (LPSTR)newName.c_str();
 			peopleListView.SetItem(&listViewItem);
 			break;
 		}
@@ -174,7 +236,7 @@ void SmsTextingControl::updatePersonInfo()
 			peopleToText[itemIndicator].number = phoneNumber;
 			listViewItem.iItem = itemIndicator;
 			listViewItem.iSubItem = subitemIndicator;
-			listViewItem.pszText = (LPSTR)cstr(phoneNumber);
+			listViewItem.pszText = (LPSTR)phoneNumber.c_str();
 			peopleListView.SetItem(&listViewItem);
 			break;
 		}
@@ -196,7 +258,7 @@ void SmsTextingControl::updatePersonInfo()
 			peopleToText[itemIndicator].provider = newProvider;
 			listViewItem.iItem = itemIndicator;
 			listViewItem.iSubItem = subitemIndicator;
-			listViewItem.pszText = (LPSTR)cstr(newProvider);
+			listViewItem.pszText = (LPSTR)newProvider.c_str();
 			peopleListView.SetItem(&listViewItem);
 			break;
 		}
@@ -273,23 +335,23 @@ void SmsTextingControl::sendMessage(std::string message, EmbeddedPythonHandler* 
 {
 	if (msgType == "Loading")
 	{
-		for (personInfo& person : this->peopleToText)
+		for (personInfo& person : peopleToText)
 		{
 			if (person.textIfLoadingStops)
 			{
 				// send text gives an appropriate error message.
-				pyHandler->sendText( person, message, "Not Loading Atoms", this->emailAddress, this->password );
+				pyHandler->sendText( person, message, "Not Loading Atoms", emailAddress, password );
 			}
 		}
 	}
 	else if (msgType == "Finished")
 	{
-		for (personInfo& person : this->peopleToText)
+		for (personInfo& person : peopleToText)
 		{
 			if (person.textWhenComplete)
 			{
 				// send text gives an appropriate error message.
-				pyHandler->sendText(person, message, "Experiment Finished", this->emailAddress, this->password);
+				pyHandler->sendText(person, message, "Experiment Finished", emailAddress, password);
 			}
 		}
 	}

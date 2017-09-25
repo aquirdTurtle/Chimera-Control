@@ -76,7 +76,7 @@ void DebugOptionsControl::handleOpenConfig(std::ifstream& openFile, double versi
 		currentOptions.sleepTime = 0;
 	}
 	ProfileSystem::checkDelimiterLine(openFile, "END_DEBUGGING_OPTIONS");
-
+	setOptions( currentOptions );
 }
 
 
@@ -293,7 +293,18 @@ debugInfo DebugOptionsControl::getOptions()
 	return currentOptions;
 }
 
+
 void DebugOptionsControl::setOptions(debugInfo options)
 {
 	currentOptions = options;
+	readProgress.SetCheck( currentOptions.showReadProgress );
+	writeProgress.SetCheck( currentOptions.showWriteProgress );
+	correctionTimes.SetCheck(currentOptions.showCorrectionTimes);
+	niawgScript.SetCheck(currentOptions.outputNiawgHumanScript);
+	outputAgilentScript.SetCheck( currentOptions.outputAgilentScript );
+	niawgMachineScript.SetCheck( currentOptions.outputNiawgMachineScript);
+	excessInfo.SetCheck( currentOptions.outputExcessInfo);
+	showTtlsButton.SetCheck( currentOptions.showTtls);
+	showDacsButton.SetCheck( currentOptions.showDacs);
+	pauseEdit.SetWindowTextA( cstr( currentOptions.sleepTime ) );
 }

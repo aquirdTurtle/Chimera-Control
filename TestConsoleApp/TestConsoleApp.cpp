@@ -1,36 +1,54 @@
 
-#include "stdafx.h" //for precompiled header
+#include "stdafx.h" 
 #include <vector>
 #include <iostream>
 #include <ctime>
 #include <chrono>
+#include <iomanip>
+#include <sstream>
+#include <algorithm>
+#include <Windows.h>
+//#include <boost/lexical_cast.hpp>
+
+// this can replace str() and str(), as well as providing functionality to set the precision of
+// to_string() conversions.
+template <typename T> std::string str( T input, const int precision = 6, bool eatZeros = false, bool toLower = false )
+{
+	std::ostringstream out;
+	out << std::setprecision( precision ) << input;
+	std::string outStr = out.str( );
+	if ( eatZeros )
+	{
+		if ( outStr.find( "." ) != std::string::npos )
+		{
+			outStr.erase( outStr.find_last_not_of( '0' ) + 1, std::string::npos );
+		}
+	}
+	if ( toLower )
+	{
+		std::transform( outStr.begin( ), outStr.end( ), outStr.begin( ), ::tolower );
+	}
+	return outStr;
+}
+
+// overloaded defines are tricky in c++. This is effectively just an overloaded define for 
+//#define cstr(input) str(input).c_str()
+//#define cstr(input, precision) str(input, precision).c_str()
+// the following trick was taken from 
+// https://stackoverflow.com/questions/11761703/overloading-macro-on-number-of-arguments
+/// DONT CALL THESE DIRECTLY.
+#define GET_MACRO(arg1,arg2,FUNCTION,...) FUNCTION
+#define cstr1(input)				str(input).c_str()
+#define cstr2(input, precision)		str(input, precision).c_str()
+// if the user enters 1 argument then  GET_MACRO calls FOO2, else it calls FOO3 and discards FOO2. Either way, it calls
+// the function with __VA_ARGS__ which was the original "..." arguments.
+#define cstr(...) GET_MACRO(__VA_ARGS__, cstr2, cstr1)(__VA_ARGS__)
 
 int main( )
 {
-	std::chrono::time_point<std::chrono::high_resolution_clock> start, end1, end2, end3, end4, end5;
-	start = std::chrono::high_resolution_clock::now( );
-	std::cout << "hi!";
-	end1 = std::chrono::high_resolution_clock::now( );
-	std::cout << "hi!!!!";
-	end2 = std::chrono::high_resolution_clock::now( );
-	std::cout << "hi!";
-	end3 = std::chrono::high_resolution_clock::now( );
-	std::cout << "hi!";
-	end4 = std::chrono::high_resolution_clock::now( );
-	std::cout << "hi!";
-	end5 = std::chrono::high_resolution_clock::now( );
-
-	std::chrono::duration<double> e1, e2, e3, e4, e5;
-	e1 = end1 - start;
-	e2 = end2 - end1;
-	e3 = end3 - end2;
-	e4 = end4 - end3;
-	e5 = end5 - end4;
-		std::cout << "elapsed time: \n" << e1.count( ) << "s\n"
-		<< e2.count( ) << "s\n"
-		<< e3.count( ) << "s\n"
-		<< e4.count( ) << "s\n"
-		<< e5.count( ) << "s\n";
+	int num = 5;
+	const char * p = std::to_string( num ).c_str( );
+	std::cout << p;
 	std::cin.get( );
 	return 0;
 }

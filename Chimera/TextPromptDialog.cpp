@@ -14,8 +14,13 @@ END_MESSAGE_MAP()
 
 BOOL TextPromptDialog::OnInitDialog()
 {
+	DWORD options = WS_CHILD | WS_VISIBLE | WS_BORDER;
+	if (passwordOption)
+	{
+		options |= ES_PASSWORD;
+	}
 	description.Create(cstr(descriptionText), WS_CHILD | WS_VISIBLE | ES_READONLY | WS_BORDER, { 0,0,1000,75 }, this, 0);
-	prompt.Create(WS_CHILD | WS_VISIBLE | WS_BORDER, { 0,75,1000,150 }, this, 0);
+	prompt.Create( options, { 0,75,1000,150 }, this, 0 );
 	return TRUE;
 }
 
