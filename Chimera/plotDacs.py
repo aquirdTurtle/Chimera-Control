@@ -9,7 +9,7 @@
 # column is the time values and the rest of the columns are the different DACs
 import numpy as np
 
-def arrayDAC(file):    
+def arrayDAC(file):
     # open and read text file
     with open(file, 'r') as txt:
         a=txt.readlines()
@@ -20,13 +20,13 @@ def arrayDAC(file):
         a[index]=a[index].replace(' ','')
         a[index]=a[index].replace(':','')
         # separate strings in array by ','
-        if len(a[index].split(','))>1:              
-            a[index:index+1]=a[index].split(',')    
+        if len(a[index].split(','))>1:
+            a[index:index+1]=a[index].split(',')
         c=len(a)
         index = index+1
     index =0
     # loop again deleting empty elements of array
-    while index < c :                  
+    while index < c :
         if not a[index]:
             del a[index]
         else:
@@ -35,23 +35,23 @@ def arrayDAC(file):
     index=0
     while a[index] != "---":                                     # This while loop creates a
         index += 1                                               # a 2D array where each row
-    size=int(len(a)/index)                                       # is a new event/time 
+    size=int(len(a)/index)                                       # is a new event/time
     arr_size=int((len(a)-size+(size/index))/index)               # the columns are different
-    data = [[1 for i in range(index)] for j in range(arr_size)]  # DACs with the 0th column being                                                  
+    data = [[1 for i in range(index)] for j in range(arr_size)]  # DACs with the 0th column being
     i=0
     j=0
-    k=i    
+    k=i
     # tcreates the 2D array
     # This while loop fills in the correct elements
     while i < len(a):
-        data[j][k]=float(a[i])                 
+        data[j][k]=float(a[i])
         i+=1
         k+=1
         if k%index < 1:
             j+=1
             i+=1
             k=0
-    return np.array(data);    
+    return np.array(data);
 
 
 # In[2]:
@@ -79,7 +79,7 @@ def allSame(items):
 
 # This function takes in an array produced by arrayDAC() and plots the DAC values with respect
 # to time. The function calculates the standard deviation of each DAC for the whole experiment
-# to see if the DAC value is changing. If the DAC value is changing, then it is plotted. If 
+# to see if the DAC value is changing. If the DAC value is changing, then it is plotted. If
 # the DAC value is not changing, then it is listed on the left with the label 'DAC ... OFF'
 # The constant value is listed inside the brackets e.x. "[8=0.0]".
 # The 24 DACs of the experiment or displayed 8 at a time on three plots.
@@ -113,10 +113,10 @@ def graphDacs(arrayDAC,eventMin,eventMax,ymin,ymax, vsTime=True):
         for num in range(8):
             index = offset + num + 1
             if not allSame(arrayDAC[:, index ]):
-                bokFigs[board] = step( bokFigs[board], x, arrayDAC[:, index], 
-                                       color=bokcolors[board], legend="dac" + str(index), 
+                bokFigs[board] = step( bokFigs[board], x, arrayDAC[:, index],
+                                       color=bokcolors[num], legend="dac" + str(index),
                                        alpha=0.4 )
-            else: 
+            else:
                 legendTxt = "[" + str(index) + "=" + str(arrayDAC[2,index]) + "]"
                 if len(string11) >= 28 and flag1 < 1:
                     string11 = string11 + legendTxt + " \n "
@@ -150,7 +150,7 @@ def graphDacs(arrayDAC,eventMin,eventMax,ymin,ymax, vsTime=True):
         bokFigs[-1].xaxis.axis_label = 'Time (ms)'
     else:
         bokFigs[-1].xaxis.axis_label = 'Event #'
-    
+
     bokeh.io.output_file('DAC_Plot.html', title='DAC Plot')
     f = bokLO.gridplot(
         [bokTxtFigs[0], bokFigs[0]],
@@ -165,8 +165,8 @@ def graphDacs(arrayDAC,eventMin,eventMax,ymin,ymax, vsTime=True):
 # In[5]:
 
 # This function takes in a textfile containing the DAC values from the experiment and plots
-# either the DAC voltage vs time or DAC voltage vs event. The event/time range and the voltage 
-# range can be modified using xmin/xmax and ymin/ymax respectively. If 
+# either the DAC voltage vs time or DAC voltage vs event. The event/time range and the voltage
+# range can be modified using xmin/xmax and ymin/ymax respectively. If
 # time = True, then time-dependent plots are shown. If time != True, then event-dependent plots
 # are shown. The event-dependent plots are the default plots.
 
@@ -204,10 +204,7 @@ def plotDacs(fileAddress = None,time = None,xmin = None, xmax = None, ymin = Non
 
 # In[10]:
 
-plotDacs( "C:\\Users\\Mark-Brown\\Chimera-Control\\Debug-Output\\DAC-Sequence.txt", time=True )
+#plotDacs( "C:\\Users\\Mark-Brown\\Chimera-Control\\Debug-Output\\DAC-Sequence.txt", time=True )
 
 
 # In[ ]:
-
-
-

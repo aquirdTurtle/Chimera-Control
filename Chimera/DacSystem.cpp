@@ -730,7 +730,7 @@ void DacSystem::interpretKey( key variationKey, std::vector<variableType>& vars,
 				// deal with numPoints
 				numSteps = dacCommandFormList[eventInc].numSteps.evaluate( variationKey, variationInc, vars );
 				double rampInc = (finalValue - initValue) / numSteps;
-				if ( rampInc < 10.0 / pow( 2, 16 ) && !resolutionWarningPosted )
+				if ( (fabs(rampInc) < 10.0 / pow( 2, 16 )) && !resolutionWarningPosted )
 				{
 					resolutionWarningPosted = true;
 					warnings += "Warning: numPoints of " + str(numSteps) + " results in a ramp increment of " 

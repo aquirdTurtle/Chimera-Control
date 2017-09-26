@@ -649,33 +649,33 @@ void Agilent::handleSavingConfig(std::ofstream& saveFile, std::string categoryPa
 	saveFile << "CHANNEL_1\n";
 	saveFile << str(settings.channel[0].option) + "\n";
 	saveFile << settings.channel[0].dc.dcLevelInput.expressionStr + "\n";
-	saveFile << settings.channel[0].dc.useCalibration + "\n";
+	saveFile << int(settings.channel[0].dc.useCalibration) << "\n";
 	saveFile << settings.channel[0].sine.amplitudeInput.expressionStr + "\n";
-	saveFile << settings.channel[0].sine.useCalibration + "\n";
 	saveFile << settings.channel[0].sine.frequencyInput.expressionStr + "\n";
+	saveFile << int(settings.channel[0].sine.useCalibration) << "\n";
 	saveFile << settings.channel[0].square.amplitudeInput.expressionStr + "\n";
 	saveFile << settings.channel[0].square.frequencyInput.expressionStr + "\n";
 	saveFile << settings.channel[0].square.offsetInput.expressionStr + "\n";
-	saveFile << settings.channel[0].square.useCalibration + "\n";
+	saveFile << int(settings.channel[0].square.useCalibration) << "\n";
 	saveFile << settings.channel[0].preloadedArb.address + "\n";
-	saveFile << settings.channel[0].preloadedArb.useCalibration + "\n";
+	saveFile << int(settings.channel[0].preloadedArb.useCalibration) << "\n";
 	saveFile << settings.channel[0].scriptedArb.fileAddress + "\n";
-	saveFile << settings.channel[0].scriptedArb.useCalibration + "\n";
+	saveFile << int(settings.channel[0].scriptedArb.useCalibration) << "\n";
 	saveFile << "CHANNEL_2\n";
 	saveFile << str( settings.channel[1].option ) + "\n";
 	saveFile << settings.channel[1].dc.dcLevelInput.expressionStr + "\n";
-	saveFile << settings.channel[1].dc.useCalibration + "\n";
+	saveFile << int(settings.channel[1].dc.useCalibration) << "\n";
 	saveFile << settings.channel[1].sine.amplitudeInput.expressionStr + "\n";
 	saveFile << settings.channel[1].sine.frequencyInput.expressionStr + "\n";
-	saveFile << settings.channel[1].sine.useCalibration + "\n";
+	saveFile << int(settings.channel[1].sine.useCalibration) << "\n";
 	saveFile << settings.channel[1].square.amplitudeInput.expressionStr + "\n";
 	saveFile << settings.channel[1].square.frequencyInput.expressionStr + "\n";
 	saveFile << settings.channel[1].square.offsetInput.expressionStr + "\n";
-	saveFile << settings.channel[1].square.useCalibration + "\n";
+	saveFile << int(settings.channel[1].square.useCalibration) << "\n";
 	saveFile << settings.channel[1].preloadedArb.address + "\n";
-	saveFile << settings.channel[1].preloadedArb.useCalibration + "\n";
+	saveFile << int(settings.channel[1].preloadedArb.useCalibration) << "\n";
 	saveFile << settings.channel[1].scriptedArb.fileAddress + "\n";
-	saveFile << settings.channel[1].scriptedArb.useCalibration + "\n";
+	saveFile << int(settings.channel[1].scriptedArb.useCalibration) << "\n";
 	saveFile << "END_AGILENT\n";
 }
 
@@ -702,14 +702,32 @@ void Agilent::readConfigurationFile( std::ifstream& file, double version )
 	if ( version > 2.3 )
 	{
 		std::getline( file, calibratedOption );
-		settings.channel[0].dc.useCalibration = bool(std::stoi( calibratedOption ));
+		bool calOption;
+		try
+		{
+			calOption = bool( std::stoi( calibratedOption ) );
+		}
+		catch ( std::invalid_argument& )
+		{
+			calOption = false;
+		}
+		settings.channel[0].dc.useCalibration = calOption;
 	}
 	std::getline( file, settings.channel[0].sine.amplitudeInput.expressionStr );
 	std::getline( file, settings.channel[0].sine.frequencyInput.expressionStr );
 	if ( version > 2.3 )
 	{
 		std::getline( file, calibratedOption );
-		settings.channel[0].sine.useCalibration = bool( std::stoi( calibratedOption ) );
+		bool calOption;
+		try
+		{
+			calOption = bool( std::stoi( calibratedOption ) );
+		}
+		catch ( std::invalid_argument& )
+		{
+			calOption = false;
+		}
+		settings.channel[0].sine.useCalibration = calOption;
 	}
 	std::getline( file, settings.channel[0].square.amplitudeInput.expressionStr );
 	std::getline( file, settings.channel[0].square.frequencyInput.expressionStr );
@@ -717,19 +735,46 @@ void Agilent::readConfigurationFile( std::ifstream& file, double version )
 	if ( version > 2.3 )
 	{
 		std::getline( file, calibratedOption );
-		settings.channel[0].square.useCalibration = bool( std::stoi( calibratedOption ) );
+		bool calOption;
+		try
+		{
+			calOption = bool( std::stoi( calibratedOption ) );
+		}
+		catch ( std::invalid_argument& )
+		{
+			calOption = false;
+		}
+		settings.channel[0].square.useCalibration = calOption;
 	}
 	std::getline( file, settings.channel[0].preloadedArb.address);
 	if ( version > 2.3 )
 	{
 		std::getline( file, calibratedOption );
-		settings.channel[0].preloadedArb.useCalibration = bool( std::stoi( calibratedOption ) );
+		bool calOption;
+		try
+		{
+			calOption = bool( std::stoi( calibratedOption ) );
+		}
+		catch ( std::invalid_argument& )
+		{
+			calOption = false;
+		}
+		settings.channel[0].preloadedArb.useCalibration = calOption;
 	}
 	std::getline( file, settings.channel[0].scriptedArb.fileAddress );
 	if ( version > 2.3 )
 	{
 		std::getline( file, calibratedOption );
-		settings.channel[0].scriptedArb.useCalibration = bool( std::stoi( calibratedOption ) );
+		bool calOption;
+		try
+		{
+			calOption = bool( std::stoi( calibratedOption ) );
+		}
+		catch ( std::invalid_argument& )
+		{
+			calOption = false;
+		}
+		settings.channel[0].scriptedArb.useCalibration = calOption;
 	}
 	ProfileSystem::checkDelimiterLine(file, "CHANNEL_2"); 
 	file >> input;
@@ -746,14 +791,32 @@ void Agilent::readConfigurationFile( std::ifstream& file, double version )
 	if ( version > 2.3 )
 	{
 		std::getline( file, calibratedOption );
-		settings.channel[1].dc.useCalibration = bool( std::stoi( calibratedOption ) );
+		bool calOption;
+		try
+		{
+			calOption = bool( std::stoi( calibratedOption ) );
+		}
+		catch ( std::invalid_argument& )
+		{
+			calOption = false;
+		}
+		settings.channel[1].dc.useCalibration = calOption;
 	}
 	std::getline( file, settings.channel[1].sine.amplitudeInput.expressionStr );
 	std::getline( file, settings.channel[1].sine.frequencyInput.expressionStr );
 	if ( version > 2.3 )
 	{
 		std::getline( file, calibratedOption );
-		settings.channel[1].sine.useCalibration = bool( std::stoi( calibratedOption ) );
+		bool calOption;
+		try
+		{
+			calOption = bool( std::stoi( calibratedOption ) );
+		}
+		catch ( std::invalid_argument& )
+		{
+			calOption = false;
+		}
+		settings.channel[1].sine.useCalibration = calOption;
 	}
 	std::getline( file, settings.channel[1].square.amplitudeInput.expressionStr );
 	std::getline( file, settings.channel[1].square.frequencyInput.expressionStr );
@@ -761,19 +824,46 @@ void Agilent::readConfigurationFile( std::ifstream& file, double version )
 	if ( version > 2.3 )
 	{
 		std::getline( file, calibratedOption );
-		settings.channel[1].square.useCalibration = bool( std::stoi( calibratedOption ) );
+		bool calOption;
+		try
+		{
+			calOption = bool( std::stoi( calibratedOption ) );
+		}
+		catch ( std::invalid_argument& )
+		{
+			calOption = false;
+		}
+		settings.channel[1].square.useCalibration = calOption;
 	}
 	std::getline( file, settings.channel[1].preloadedArb.address);
 	if ( version > 2.3 )
 	{
 		std::getline( file, calibratedOption );
-		settings.channel[1].preloadedArb.useCalibration = bool( std::stoi( calibratedOption ) );
+		bool calOption;
+		try
+		{
+			calOption = bool( std::stoi( calibratedOption ) );
+		}
+		catch ( std::invalid_argument& )
+		{
+			calOption = false;
+		}
+		settings.channel[1].preloadedArb.useCalibration = calOption;
 	}
 	std::getline( file, settings.channel[1].scriptedArb.fileAddress );
 	if ( version > 2.3 )
 	{
 		std::getline( file, calibratedOption );
-		settings.channel[1].scriptedArb.useCalibration = bool( std::stoi( calibratedOption ) );
+		bool calOption;
+		try
+		{
+			calOption = bool( std::stoi( calibratedOption ) );
+		}
+		catch ( std::invalid_argument& )
+		{
+			calOption = false;
+		}
+		settings.channel[1].scriptedArb.useCalibration = calOption;
 	}
 	ProfileSystem::checkDelimiterLine(file, "END_AGILENT");
 }

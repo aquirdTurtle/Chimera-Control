@@ -121,7 +121,7 @@ void ProfileSystem::newConfiguration( MainWindow* mainWin, AuxiliaryWindow* auxW
 	{
 		thrower( "ERROR: Failed to create new configuration file. Ask Mark about bugs." );
 	}
-	newConfigFile << "Version: 2.0\n";
+	newConfigFile << "Version: 2.4\n";
 	// give it to each window, allowing each window to save its relevant contents to the config file. Order matters.
 	scriptWin->handleNewConfig( newConfigFile );
 	camWin->handleNewConfig( newConfigFile );

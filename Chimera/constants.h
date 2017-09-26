@@ -8,8 +8,8 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program.
 
-// #define MASTER_COMPUTER
-#define SPECTRE_LAPTOP
+#define MASTER_COMPUTER
+//#define SPECTRE_LAPTOP
 // #define DESKTOP_COMPUTER
 /// File Locations
 
@@ -57,7 +57,7 @@
 
 	#define NIAWG_SAFEMODE false
 	#define ANDOR_SAFEMODE false
-	#define PYTHON_SAFEMODE true
+	#define PYTHON_SAFEMODE false
 	#define DIO_SAFEMODE false
 	#define DAQMX_SAFEMODE false
 	#define RSG_SAFEMODE false
@@ -74,11 +74,12 @@
 	#define FLASHING_SAFEMODE false
 	#define FLASHING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50003003::0::INSTR"
 
-	#define PYTHON_HOME L"C:\\Program Files (x86)\Anaconda3\\"
+	#define PYTHON_HOME L"C:\\Program Files (x86)\\Anaconda3\\"
 
 	#define CODE_ROOT "C:\\Users\\Regal-Lab\\Documents\\Chimera-Control"
 	const std::string PLOT_FILES_SAVE_LOCATION = str(CODE_ROOT) + "\\Plotting";
-	const std::string ANALYSIS_CODE_LOCATION = "C:\\\\Users\\\\Mark\\\\Documents\\\\Data-Analysis";
+	const std::string PYTHON_CODE_LOCATION = "C:/Users/Regal-Lab/Documents/Chimera-Control/Chimera";
+	const std::string PYTHON_INPUT_LOCATION = "C:/Users/Regal-Lab/Documents/Chimera-Control/Debug-Output/";
 	const std::string LIB_PATH = str(CODE_ROOT) + "\\Waveforms-Library\\WaveLibrary-320-MSpS-0.1-PowerLevel\\";
 	const std::string DEFAULT_SCRIPT_FOLDER_PATH = str(CODE_ROOT) + "\\Default Scripts\\";
 	const std::string CODE_LOGGING_FILES_PATH = "D:\\Code Versions\\";

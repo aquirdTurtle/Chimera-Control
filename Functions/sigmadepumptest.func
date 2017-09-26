@@ -2,7 +2,7 @@
 def sigmadepumptest():
   % after pump2stretch, turn on the op beam to try to depump if there are any impure polarization
         dac: motfreq 0.735 %''0.71 from 160217 'DAC12 .75V = 69.5MHz: .95 for .8V,.7 for .453,.92 for .65 (all of these with the .75 V on teh dac 12)
-        dac: sigmaopfreq 0.75 %0 for .1V trap
+        dac: sigmaopfreq opfreq %0.75 %0 for .1V trap
         
         %set beam power:
         dac: sigmaoppower 0.15

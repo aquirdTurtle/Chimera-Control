@@ -1,15 +1,24 @@
 def sigmadepumptestRotateBfield():
   % after pump2stretch, turn on the op beam to try to depump if there are any impure polarization
   % here rotate the B field such that it's oriented between front/back and left/right
-        dac: frontcoilcurrent -1.6387
-        dac: backcoilcurrent 1.3069
-        dac: rightcoilcurrent -0.3241
-        dac: leftcoilcurrent 1.2341
-        dac: bottomcoilcurrent -2.0304
-        dac: topcoilcurrent 2.0104
+        %dac: frontcoilcurrent -1.6387
+        %dac: backcoilcurrent 1.3069
+        %dac: rightcoilcurrent -0.3241
+        %dac: leftcoilcurrent 1.2341
+        %dac: bottomcoilcurrent -2.0304
+        %dac: topcoilcurrent 2.0104
+
+	daclinspace: topCoilCurrent ( 1.994 + 6.3/(-0.717172)*cos(fieldtheta)/2 ) ( 1.994 + 6.3/(-0.717172)*cos(1.5708)/2 ) (rotateFieldTime) 10
+	daclinspace: bottomCoilCurrent ( -1.994 + 6.3/0.780168*cos(fieldtheta)/2 ) ( -1.994 + 6.3/0.780168*cos(1.5708)/2 ) (rotateFieldTime) 10
+	daclinspace: leftCoilCurrent ( -0.4856 + 6.3/0.873132*sin(fieldtheta)*cos(fieldphi)/2) ( -0.4856 + 6.3/0.873132*sin(1.5708)*cos(1.5708/2)/2) (rotateFieldTime) 10
+	daclinspace: rightCoilCurrent  ( 0.4856 + 6.3/(-0.85932)*sin(fieldtheta)*cos(fieldphi)/2 ) ( 0.4856 + 6.3/(-0.85932)*sin(1.5708)*cos(1.5708/2)/2 ) (rotateFieldTime) 10	 %pgcRightField
+	daclinspace: frontCoilCurrent ( -0.551 + 6.3/1.13866*sin(fieldtheta)*sin(fieldphi)/2) ( -0.551 + 6.3/1.13866*sin(1.5708)*sin(1.5708/2)/2) (rotateFieldTime) 10
+	daclinspace: backCoilCurrent ( 0.551 + 6.3/(-1.11831)*sin(fieldtheta)*sin(fieldphi)/2) ( 0.551 + 6.3/(-1.11831)*sin(1.5708)*sin(1.5708/2)/2) (rotateFieldTime)  10
+      t += 10
+
 
         dac: motfreq 0.735 %''0.71 from 160217 'DAC12 .75V = 69.5MHz: .95 for .8V,.7 for .453,.92 for .65 (all of these with the .75 V on teh dac 12)
-        dac: sigmaopfreq 0.75 %0 for .1V trap
+        dac: sigmaopfreq opfreq %0.75 %0 for .1V trap
         
         %set beam power:
         dac: sigmaoppower 0.15 % 0.3
