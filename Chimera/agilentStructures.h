@@ -18,22 +18,21 @@ struct minMaxDoublet
 
 struct generalAgilentOutputInfo
 {
-	std::string load;
-	double sampleRate;
-	bool useCalibration;
+	//std::string load;
+	bool useCalibration = false;
 };
 
 
 struct dcInfo : public generalAgilentOutputInfo
 {
 	Expression dcLevelInput;
-	double dcLevel;
+	double dcLevel = 0;
 };
 
 
 struct scriptedArbInfo : public generalAgilentOutputInfo
 {
-	std::string fileAddress;
+	std::string fileAddress = "";
 	ScriptedAgilentWaveform wave;
 };
 
@@ -41,11 +40,16 @@ struct scriptedArbInfo : public generalAgilentOutputInfo
 struct squareInfo : public generalAgilentOutputInfo
 {
 	Expression frequencyInput;
-	double frequency;
+	double frequency = 1;
 	Expression amplitudeInput;
-	double amplitude;
+	double amplitude = 0;
 	Expression offsetInput;
-	double offset;
+	double offset = 0;
+	// not used yet
+	Expression dutyCycleInput;
+	double dutyCycle = 0;
+	Expression phaseInput;
+	double phase = 0;
 };
 
 
@@ -60,14 +64,14 @@ struct sineInfo : public generalAgilentOutputInfo
 
 struct preloadedArbInfo : public generalAgilentOutputInfo
 {
-	std::string address;
+	std::string address = "";
 	// could add burst settings options, impedance options, etc.
 };
 
 
 struct channelInfo
 {
-	int option;
+	int option = -2;
 	dcInfo dc;
 	sineInfo sine;
 	squareInfo square;
@@ -80,6 +84,6 @@ struct deviceOutputInfo
 {
 	// first ([0]) is channel 1, second ([1]) is channel 2.
 	std::array<channelInfo, 2> channel;
-	bool synced;
+	bool synced = false;
 };
 

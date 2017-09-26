@@ -6,12 +6,6 @@
 #include "CameraSettingsControl.h"
 
 
-void CameraImageDimsControl::cameraIsOn( bool state )
-{
-	setImageDimsButton.EnableWindow( !state );
-}
-
-
 CameraImageDimsControl::CameraImageDimsControl()
 {
 	isReady = false;
@@ -20,11 +14,14 @@ CameraImageDimsControl::CameraImageDimsControl()
 
 void CameraImageDimsControl::initialize( cameraPositions& pos, CWnd* parent, bool isTriggerModeSensitive, int& id )
 {
+	/*
 	setImageDimsButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
 	setImageDimsButton.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
 	setImageDimsButton.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
 	setImageDimsButton.Create( "Set Image Dimensions", WS_TABSTOP | WS_CHILD | WS_VISIBLE,
 							   setImageDimsButton.seriesPos, parent, IDC_SET_IMAGE_PARAMETERS_BUTTON );
+	*/
+
 	//
 	leftText.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 25 };
 	leftText.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 25 };
@@ -109,15 +106,49 @@ void CameraImageDimsControl::initialize( cameraPositions& pos, CWnd* parent, boo
 void CameraImageDimsControl::drawBackgrounds( CameraWindow* camWin )
 {
 	// recolor the box, clearing last run
-	CDC* hDC = camWin->GetDC();
-	SelectObject( *hDC, GetStockObject( DC_BRUSH ) );
-	SelectObject( *hDC, GetStockObject( DC_PEN ) );
+	CDC* dc = camWin->GetDC();
+	dc->SelectObject( GetStockObject( DC_BRUSH ) );
+	dc->SelectObject( GetStockObject( DC_PEN ) );
 	// dark green brush
-	SetDCBrushColor( *hDC, RGB( 0, 10, 0 ) );
-	// Set the Pen to White
-	SetDCPenColor( *hDC, RGB( 255, 255, 255 ) );
+	dc->SetDCBrushColor( RGB( 0, 10, 0 ) );
+	dc->SetDCPenColor( RGB( 255, 255, 255 ) );
 	// Drawing a rectangle with the current Device Context
-	camWin->ReleaseDC( hDC );
+	// ??? Is there something missing here??? There's no draw...
+	camWin->ReleaseDC( dc );
+}
+
+
+void CameraImageDimsControl::handleSave( std::ofstream& saveFile )
+{
+	saveFile << "CAMERA_IMAGE_DIMENSIONS\n";
+	saveFile << currentImageParameters.left << " " << currentImageParameters.right << " "
+		<< currentImageParameters.horizontalBinning << "\n";
+	saveFile << currentImageParameters.bottom << " " << currentImageParameters.top << " "
+		<< currentImageParameters.verticalBinning << "\n";
+	saveFile << "END_CAMERA_IMAGE_DIMENSIONS\n";
+}
+
+
+void CameraImageDimsControl::handleNew( std::ofstream& newfile )
+{
+	newfile << "CAMERA_IMAGE_DIMENSIONS\n";
+	newfile << "0 512 1\n";
+	newfile << "0 512 1\n";
+	newfile << "END_CAMERA_IMAGE_DIMENSIONS\n";
+}
+
+
+void CameraImageDimsControl::handleOpen( std::ifstream& openFile, double version )
+{
+	ProfileSystem::checkDelimiterLine( openFile, "CAMERA_IMAGE_DIMENSIONS" );
+	openFile >> currentImageParameters.left;
+	openFile >> currentImageParameters.right;
+	openFile >> currentImageParameters.horizontalBinning;
+	openFile >> currentImageParameters.bottom;
+	openFile >> currentImageParameters.top;
+	openFile >> currentImageParameters.verticalBinning;
+	updateWidthHeight( );
+	ProfileSystem::checkDelimiterLine( openFile, "END_CAMERA_IMAGE_DIMENSIONS" );
 }
 
 
@@ -201,15 +232,7 @@ imageParameters CameraImageDimsControl::readImageParameters( CameraWindow* camWi
 		thrower( "Vertical binning argument not an integer!\r\n" );
 	}
 	vertBinningEdit.RedrawWindow();
-	// reset this. There must be at least one pixel...
-	/// TODO
-	/*
-	eCurrentlySelectedPixel.first = 0;
-	eCurrentlySelectedPixel.second = 0;
-	*/
-	// Calculate the number of actual pixels in each dimension.
-	currentImageParameters.width = (currentImageParameters.right - currentImageParameters.left + 1) / currentImageParameters.horizontalBinning;
-	currentImageParameters.height = (currentImageParameters.top - currentImageParameters.bottom + 1) / currentImageParameters.verticalBinning;
+	updateWidthHeight( );
 
 	// Check Image parameters
 	if (currentImageParameters.left > currentImageParameters.right || currentImageParameters.bottom > currentImageParameters.top)
@@ -238,69 +261,17 @@ imageParameters CameraImageDimsControl::readImageParameters( CameraWindow* camWi
 		thrower( "ERROR: Image height must be a multiple of Vertical Binning\r\n" );
 	}
 	// made it through successfully.
-	/*
-	for (int imageLocation = 0; imageLocation < eImageBackgroundAreas.size(); imageLocation++)
-	{
-		int imageBoxWidth = eImageBackgroundAreas[imageLocation].right - eImageBackgroundAreas[imageLocation].left + 1;
-		int imageBoxHeight = eImageBackgroundAreas[imageLocation].bottom - eImageBackgroundAreas[imageLocation].top + 1;
-
-		double boxWidth = imageBoxWidth / (double)currentImageParameters.width;
-		double boxHeight = imageBoxHeight / (double)currentImageParameters.height;
-		if (boxWidth > boxHeight)
-		{
-			// scale the box width down.
-			eImageDrawAreas[imageLocation].left = eImageBackgroundAreas[imageLocation].left;
-			eImageDrawAreas[imageLocation].right = (int)eImageBackgroundAreas[imageLocation].left
-				+ (eImageBackgroundAreas[imageLocation].right - eImageBackgroundAreas[imageLocation].left) * boxHeight / boxWidth;
-			double pixelsAreaWidth = eImageDrawAreas[imageLocation].right - eImageDrawAreas[imageLocation].left + 1;
-			// move to center
-			eImageDrawAreas[imageLocation].left += (imageBoxWidth - pixelsAreaWidth) / 2;
-			eImageDrawAreas[imageLocation].right += (imageBoxWidth - pixelsAreaWidth) / 2;
-			eImageDrawAreas[imageLocation].top = eImageBackgroundAreas[imageLocation].top;
-			eImageDrawAreas[imageLocation].bottom = eImageBackgroundAreas[imageLocation].bottom;
-			double pixelsAreaHeight = imageBoxHeight;
-		}
-		else
-		{
-			// cale the box height down.
-			eImageDrawAreas[imageLocation].left = eImageBackgroundAreas[imageLocation].left;
-			eImageDrawAreas[imageLocation].right = eImageBackgroundAreas[imageLocation].right;
-			double pixelsAreaWidth = imageBoxWidth;
-			// move to center
-			eImageDrawAreas[imageLocation].top = eImageBackgroundAreas[imageLocation].top;
-			eImageDrawAreas[imageLocation].bottom = (int)eImageBackgroundAreas[imageLocation].top + (eImageBackgroundAreas[imageLocation].bottom - eImageBackgroundAreas[imageLocation].top) * boxWidth / boxHeight;
-			double pixelsAreaHeight = eImageDrawAreas[imageLocation].bottom - eImageDrawAreas[imageLocation].top + 1;
-			eImageDrawAreas[imageLocation].top += (imageBoxWidth - pixelsAreaHeight) / 2;
-			eImageDrawAreas[imageLocation].bottom += (imageBoxWidth - pixelsAreaHeight) / 2;
-		}
-	}
-	// create rectangles for selection circle
-	for (int pictureInc = 0; pictureInc < eImageDrawAreas.size(); pictureInc++)
-	{
-		ePixelRectangles[pictureInc].resize(currentImageParameters.width);
-		for (int widthInc = 0; widthInc < currentImageParameters.width; widthInc++)
-		{
-			ePixelRectangles[pictureInc][widthInc].resize(currentImageParameters.height);
-			for (int heightInc = 0; heightInc < currentImageParameters.height; heightInc++)
-			{
-				// for all 4 pictures...
-				ePixelRectangles[pictureInc][widthInc][heightInc].left = (int)(eImageDrawAreas[pictureInc].left
-					+ (double)widthInc * (eImageDrawAreas[pictureInc].right - eImageDrawAreas[pictureInc].left) / (double)currentImageParameters.width + 2);
-				ePixelRectangles[pictureInc][widthInc][heightInc].right = (int)(eImageDrawAreas[pictureInc].left
-					+ (double)(widthInc + 1) * (eImageDrawAreas[pictureInc].right - eImageDrawAreas[pictureInc].left) / (double)currentImageParameters.width + 2);
-				ePixelRectangles[pictureInc][widthInc][heightInc].top = (int)(eImageDrawAreas[pictureInc].top
-					+ (double)(heightInc)* (eImageDrawAreas[pictureInc].bottom - eImageDrawAreas[pictureInc].top) / (double)currentImageParameters.height);
-				ePixelRectangles[pictureInc][widthInc][heightInc].bottom = (int)(eImageDrawAreas[pictureInc].top
-					+ (double)(heightInc + 1)* (eImageDrawAreas[pictureInc].bottom - eImageDrawAreas[pictureInc].top) / (double)currentImageParameters.height);
-			}
-		}
-	}
-	*/
-	// eCameraFileSystem.updateSaveStatus(false);
 	isReady = true;
 	return currentImageParameters;
 }
 
+
+// Calculate the number of actual pixels in each dimension.
+void CameraImageDimsControl::updateWidthHeight( )
+{
+	currentImageParameters.width = (currentImageParameters.right - currentImageParameters.left + 1) / currentImageParameters.horizontalBinning;
+	currentImageParameters.height = (currentImageParameters.top - currentImageParameters.bottom + 1) / currentImageParameters.verticalBinning;
+}
 
 /*
  * I forget why I needed a second function for this.
@@ -308,7 +279,6 @@ imageParameters CameraImageDimsControl::readImageParameters( CameraWindow* camWi
 void CameraImageDimsControl::setImageParametersFromInput( imageParameters param, CameraWindow* camWin )
 {
 	drawBackgrounds( camWin );
-	//eDataExists = false;
 	// set all of the image parameters
 	currentImageParameters.left = param.left;
 	leftEdit.SetWindowText( cstr( currentImageParameters.left ) );
@@ -322,14 +292,8 @@ void CameraImageDimsControl::setImageParametersFromInput( imageParameters param,
 	horBinningEdit.SetWindowText( cstr( currentImageParameters.horizontalBinning ) );
 	currentImageParameters.verticalBinning = param.verticalBinning;
 	vertBinningEdit.SetWindowText( cstr( currentImageParameters.verticalBinning ) );
-	// reset this. There must be at least one pixel...
-	/*
-	eCurrentlySelectedPixel.first = 0;
-	eCurrentlySelectedPixel.second = 0;
-	*/
 	// Calculate the number of actual pixels in each dimension.
-	currentImageParameters.width = (currentImageParameters.right - currentImageParameters.left + 1) / currentImageParameters.horizontalBinning;
-	currentImageParameters.height = (currentImageParameters.top - currentImageParameters.bottom + 1) / currentImageParameters.verticalBinning;
+	updateWidthHeight( );
 
 	// Check Image parameters
 	if (currentImageParameters.left > currentImageParameters.right || currentImageParameters.bottom > currentImageParameters.top)
@@ -358,70 +322,6 @@ void CameraImageDimsControl::setImageParametersFromInput( imageParameters param,
 		thrower( "ERROR: Image height must be a multiple of Vertical Binning\r\n" );
 	}
 	// made it through successfully.
-	/*
-	for (int imageLocation = 0; imageLocation < eImageBackgroundAreas.size(); imageLocation++)
-	{
-		int imageBoxWidth = eImageBackgroundAreas[imageLocation].right - eImageBackgroundAreas[imageLocation].left + 1;
-		int imageBoxHeight = eImageBackgroundAreas[imageLocation].bottom - eImageBackgroundAreas[imageLocation].top + 1;
-
-		double boxWidth = imageBoxWidth / (double)currentImageParameters.width;
-		double boxHeight = imageBoxHeight / (double)currentImageParameters.height;
-		if (boxWidth > boxHeight)
-		{
-			// scale the box width down.
-			eImageDrawAreas[imageLocation].left = eImageBackgroundAreas[imageLocation].left;
-			eImageDrawAreas[imageLocation].right = (int)eImageBackgroundAreas[imageLocation].left
-				+ (eImageBackgroundAreas[imageLocation].right - eImageBackgroundAreas[imageLocation].left) * boxHeight / boxWidth;
-			double pixelsAreaWidth = eImageDrawAreas[imageLocation].right - eImageDrawAreas[imageLocation].left + 1;
-			// move to center
-			eImageDrawAreas[imageLocation].left += (imageBoxWidth - pixelsAreaWidth) / 2;
-			eImageDrawAreas[imageLocation].right += (imageBoxWidth - pixelsAreaWidth) / 2;
-			eImageDrawAreas[imageLocation].top = eImageBackgroundAreas[imageLocation].top;
-			eImageDrawAreas[imageLocation].bottom = eImageBackgroundAreas[imageLocation].bottom;
-			double pixelsAreaHeight = imageBoxHeight;
-		}
-		else
-		{
-			// cale the box height down.
-			eImageDrawAreas[imageLocation].left = eImageBackgroundAreas[imageLocation].left;
-			eImageDrawAreas[imageLocation].right = eImageBackgroundAreas[imageLocation].right;
-			double pixelsAreaWidth = imageBoxWidth;
-			// move to center
-			eImageDrawAreas[imageLocation].top = eImageBackgroundAreas[imageLocation].top;
-			eImageDrawAreas[imageLocation].bottom = (int)eImageBackgroundAreas[imageLocation].top + (eImageBackgroundAreas[imageLocation].bottom - eImageBackgroundAreas[imageLocation].top) * boxWidth / boxHeight;
-			double pixelsAreaHeight = eImageDrawAreas[imageLocation].bottom - eImageDrawAreas[imageLocation].top + 1;
-			eImageDrawAreas[imageLocation].top += (imageBoxWidth - pixelsAreaHeight) / 2;
-			eImageDrawAreas[imageLocation].bottom += (imageBoxWidth - pixelsAreaHeight) / 2;
-		}
-	}
-	// create rectangles for selection circle
-	for (int pictureInc = 0; pictureInc < eImageDrawAreas.size(); pictureInc++)
-	{
-		ePixelRectangles[pictureInc].resize(currentImageParameters.width);
-		for (int widthInc = 0; widthInc < currentImageParameters.width; widthInc++)
-		{
-			ePixelRectangles[pictureInc][widthInc].resize(currentImageParameters.height);
-			for (int heightInc = 0; heightInc < currentImageParameters.height; heightInc++)
-			{
-				// for all 4 pictures...
-				ePixelRectangles[pictureInc][widthInc][heightInc].left = (int)(eImageDrawAreas[pictureInc].left
-					+ (double)widthInc * (eImageDrawAreas[pictureInc].right - eImageDrawAreas[pictureInc].left)
-					/ (double)currentImageParameters.width + 2);
-				ePixelRectangles[pictureInc][widthInc][heightInc].right = (int)(eImageDrawAreas[pictureInc].left
-					+ (double)(widthInc + 1) * (eImageDrawAreas[pictureInc].right - eImageDrawAreas[pictureInc].left)
-					/ (double)currentImageParameters.width + 2);
-				ePixelRectangles[pictureInc][widthInc][heightInc].top = (int)(eImageDrawAreas[pictureInc].top
-					+ (double)(heightInc)* (eImageDrawAreas[pictureInc].bottom - eImageDrawAreas[pictureInc].top)
-					/ (double)currentImageParameters.height);
-				ePixelRectangles[pictureInc][widthInc][heightInc].bottom = (int)(eImageDrawAreas[pictureInc].top
-					+ (double)(heightInc + 1)* (eImageDrawAreas[pictureInc].bottom - eImageDrawAreas[pictureInc].top)
-					/ (double)currentImageParameters.height);
-			}
-		}
-	}
-	this->drawRectangleFrame();
-	*/
-	// eCameraFileSystem.updateSaveStatus(false);
 	isReady = true;
 }
 
@@ -705,6 +605,5 @@ void CameraImageDimsControl::rearrange( std::string cameraMode, std::string trig
 	bottomEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
 	topEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
 	vertBinningEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
-	setImageDimsButton.rearrange( cameraMode, triggerMode, width, height, fonts );
 }
 

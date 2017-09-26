@@ -246,11 +246,10 @@ void Agilent::selectIntensityProfile(UINT channel, int variationNumber)
 	if (varies || variationNumber == 0)
 	{
 		// Load sequence that was previously loaded.
+		prepAgilentSettings( channel );
 		visaFlume.write("MMEM:LOAD:DATA \"INT:\\seq" + str(variationNumber) + ".seq\"");
 		visaFlume.write( "SOURCE" + str(channel) + ":FUNC ARB");
 		visaFlume.write( "SOURCE" + str(channel) + ":FUNC:ARB \"INT:\\seq" + str(variationNumber) + ".seq\"");
-		// Set output impedance...
-		visaFlume.write( "OUTPUT" + str( channel ) + ":LOAD " + AGILENT_LOAD);
 		visaFlume.write( "SOURCE" + str( channel ) + ":VOLT:LOW " + str(ranges[variationNumber].min) + " V");
 		visaFlume.write( "SOURCE" + str( channel ) + ":VOLT:HIGH " + str(ranges[variationNumber].max) + " V");
 		visaFlume.write( "OUTPUT" + str( channel ) + " ON" );
@@ -829,6 +828,7 @@ void Agilent::setExistingWaveform( int channel, preloadedArbInfo info )
 	visaFlume.write( "OUTPUT" + str( channel ) + " ON" );
 }
 
+
 // set the agilent to output a square wave.
 void Agilent::setSquare( int channel, squareInfo info )
 {
@@ -865,6 +865,7 @@ void Agilent::prepAgilentSettings(UINT channel)
 	visaFlume.write( "SOURCE" + str(channel) + ":FUNC:ARB:FILTER " + AGILENT_FILTER_STATE );
 	visaFlume.write( "TRIGGER" + str( channel ) + ":SOURCE EXTERNAL" );
 	visaFlume.write( "TRIGGER" + str( channel ) + ":SLOPE POSITIVE" );
+	visaFlume.write( "OUTPUT" + str( channel ) + ":LOAD " + AGILENT_LOAD );
 }
 
 
@@ -909,15 +910,13 @@ void Agilent::handleScriptVariation( key variationKey, UINT variation, scriptedA
 			// Save the segment
 			visaFlume.write( "MMEM:STORE:DATA \"INT:\\segment" 
 							 + str( segNumInc + totalSegmentNumber * variation ) + ".arb\"" );
-			// increment for the next.
-			visaFlume.write( "TRIGGER" + str( channel ) + ":SLOPE POSITIVE" );
 		}
 		// Now handle seqeunce creation / writing.
 		scriptInfo.wave.compileSequenceString( totalSegmentNumber, variation );
 		// submit the sequence
 		visaFlume.write( scriptInfo.wave.returnSequenceString( ) );
 		// Save the sequence
-		visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB seq" + str( variation ) );
+		// visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB seq" + str( variation ) );
 		visaFlume.write( "MMEM:STORE:DATA \"INT:\\seq" + str( variation ) + ".seq\"" );
 		// clear temporary memory.
 		visaFlume.write( "SOURCE" + str( channel ) + ":DATA:VOL:CLEAR" );
@@ -955,10 +954,9 @@ void Agilent::handleNoVariations(scriptedArbInfo& scriptInfo, UINT channel)
 	visaFlume.write( "SOURCE" + str( channel ) + ":DATA:VOL:CLEAR" );
 	for (UINT segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
 	{
-		visaFlume.write( str( "OUTPUT" + str( channel ) + ":LOAD " ) + AGILENT_LOAD );
-		visaFlume.write( str( "SOURCE" + str( channel ) + ":VOLT:LOW " ) + str( scriptInfo.wave.minsAndMaxes[0].first ) + " V" );
-		visaFlume.write( str( "SOURCE" + str( channel ) + ":VOLT:HIGH " ) + str( scriptInfo.wave.minsAndMaxes[0].second ) + " V" );
-
+		//visaFlume.write( str( "OUTPUT" + str( channel ) + ":LOAD " ) + AGILENT_LOAD );
+		//visaFlume.write( str( "SOURCE" + str( channel ) + ":VOLT:LOW " ) + str( scriptInfo.wave.minsAndMaxes[0].first ) + " V" );
+		//visaFlume.write( str( "SOURCE" + str( channel ) + ":VOLT:HIGH " ) + str( scriptInfo.wave.minsAndMaxes[0].second ) + " V" );
 		visaFlume.write( scriptInfo.wave.compileAndReturnDataSendString( segNumInc, 0, totalSegmentNumber ) );
 		visaFlume.write( "MMEM:STORE:DATA \"INT:\\segment" + str( segNumInc ) + ".arb\"" );
 	}
@@ -967,7 +965,7 @@ void Agilent::handleNoVariations(scriptedArbInfo& scriptInfo, UINT channel)
 	// submit the sequence
 	visaFlume.write( scriptInfo.wave.returnSequenceString() );
 	// Save the sequence
-	visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB seq" + str( 0 ) );
+	//visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB seq" + str( 0 ) );
 	visaFlume.write( "MMEM:STORE:DATA \"INT:\\seq" + str( 0 ) + ".seq\"" );
 	// clear temporary memory.
 	visaFlume.write( "SOURCE" + str( channel ) + ":DATA:VOL:CLEAR" );
@@ -981,11 +979,11 @@ void Agilent::setScriptOutput( UINT varNum, scriptedArbInfo scriptInfo, UINT cha
 {
 	if (scriptInfo.wave.isVaried() || varNum == 0)
 	{
+		prepAgilentSettings( channel );
 		// Load sequence that was previously loaded.
 		visaFlume.write( "MMEM:LOAD:DATA \"INT:\\seq" + str( varNum ) + ".seq\"" );
 		visaFlume.write( "SOURCE" + str(channel) + ":FUNC ARB" );
 		visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB \"INT:\\seq" + str( varNum ) + ".seq\"" );
-		visaFlume.write( "OUTPUT" + str( channel ) + ":LOAD " + AGILENT_LOAD );
 		// set the offset and then the low & high. this prevents accidentally setting low higher than high or high 
 		// higher than low, which causes agilent to throw annoying errors.
 		visaFlume.write( "SOURCE" + str( channel ) + ":VOLT:OFFSET " 

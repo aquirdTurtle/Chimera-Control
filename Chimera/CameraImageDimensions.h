@@ -13,18 +13,17 @@ class CameraImageDimsControl
 	public:
 		CameraImageDimsControl();
 		void initialize( cameraPositions& pos, CWnd* parentWindow, bool isTriggerModeSensitive, int& id );
+		void updateWidthHeight( );
 		imageParameters readImageParameters( CameraWindow* camWin );
 		void setImageParametersFromInput( imageParameters param, CameraWindow* camWin );
 		bool checkReady();
+		void handleSave( std::ofstream& saveFile );
+		void handleNew( std::ofstream& newfile );
+		void handleOpen( std::ifstream& openFile, double version );
 		imageParameters getImageParameters();
 		void rearrange( std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts );
 		HBRUSH colorEdits( HWND window, UINT message, WPARAM wParam, LPARAM lParam, MainWindow* mainWin );
 		void drawBackgrounds( CameraWindow* camWin );
-		void cameraIsOn( bool state );
-	// TODO:
-	// bool drawPicture();
-	// bool drawSelectionCircle();
-	// bool drawAnalysisSquares();
 	private:
 		Control<CStatic> leftText;
 		Control<CStatic>  rightText;
@@ -38,7 +37,7 @@ class CameraImageDimsControl
 		Control<CEdit> bottomEdit;
 		Control<CEdit> topEdit;
 		Control<CEdit> vertBinningEdit;
-		Control<CButton> setImageDimsButton;
+		//Control<CButton> setImageDimsButton;
 		bool isReady;
 		imageParameters currentImageParameters;
 };

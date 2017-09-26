@@ -706,41 +706,12 @@ namespace commonFunctions
 	{
 		Communicator* comm = mainWin->getComm();
 		profileSettings profile = mainWin->getProfileSettings();
-		if (mainWin->niawgIsRunning() && runNiawg)
+		if (mainWin->niawgIsRunning())
 		{
-			// then need to restart.
-			int restart = promptBox("Restart Generation?", MB_OKCANCEL);
-			if (restart == IDOK)
-			{
-				// reset flag
-				eAbortNiawgFlag = true;
-				// wait for reset to occur
-				int result = WaitForSingleObject( eNIAWGWaitThreadHandle, INFINITE );
-				eAbortNiawgFlag = false;
-				// abort the generation on the NIAWG.
-				scriptWin->setIntensityDefault();
-				std::string msgString = "Passively Outputting Default Waveform";
-				mainWin->getComm()->sendStatus( msgString );
-				mainWin->getComm()->sendColorBox( Niawg, 'B' );
-
-				try
-				{
-					mainWin->restartNiawgDefaults();
-				}
-				catch (Error& except)
-				{
-					mainWin->getComm()->sendColorBox( Niawg, 'R' );
-					mainWin->getComm()->sendFatalError( "Failed to restart the NIAWG default during the script restart procedure! Error "
-														"reported is" + except.whatStr() );
-					mainWin->setNiawgRunningState( false );
-					return;
-				}
-			}
-			else
-			{
-				thrower("CANCELED!");
-			}
+			mainWin->getComm( )->sendColorBox( Niawg, 'R' );
+			thrower( "ERROR: Please Restart the niawg before running an experiment.\r\n" );
 		}
+
 		if (profile.sequenceConfigNames.size() == 0)
 		{
 			mainWin->getComm()->sendColorBox( Niawg, 'R' );
