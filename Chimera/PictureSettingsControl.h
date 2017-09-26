@@ -36,7 +36,7 @@ class PictureSettingsControl
 		void setThresholds(std::array<int, 4> thresholds);
 		void rearrange(std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts);
 		UINT getPicsPerRepetition();
-		void cameraIsOn( bool state );
+		void updateSettings( );
 		void setUnofficialPicsPerRep( UINT picNum, AndorCamera* andorObj );
 	private:
 		CameraSettingsControl* parentSettingsControl;
@@ -47,7 +47,7 @@ class PictureSettingsControl
 		// while the main camera control needs to figure out how many pictures per repetition there are.
 		UINT picsPerRepetitionUnofficial;
 		/// Grid of PictureOptions
-		Control<CButton> setPictureOptionsButton;		
+		//Control<CButton> setPictureOptionsButton;		
 		Control<CStatic> totalPicNumberLabel;
 		Control<CStatic> pictureLabel;
 		Control<CStatic> exposureLabel;

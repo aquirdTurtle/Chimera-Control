@@ -324,6 +324,7 @@ void PictureManager::refreshBackgrounds(CDC* easel)
 	}
 }
 
+
 void PictureManager::drawGrids(CDC* easel)
 {
 	for (auto& picture : pictures)
@@ -332,6 +333,7 @@ void PictureManager::drawGrids(CDC* easel)
 	}
 }
 
+
 void PictureManager::setParameters(imageParameters parameters)
 {
 	for (auto& picture : pictures)
@@ -339,6 +341,7 @@ void PictureManager::setParameters(imageParameters parameters)
 		picture.recalculateGrid(parameters);
 	}
 }
+
 
 void PictureManager::rearrange(std::string cameraMode, std::string triggerMode, int width, int height, 
 							   fontMap fonts)

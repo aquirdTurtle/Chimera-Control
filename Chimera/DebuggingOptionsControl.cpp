@@ -240,6 +240,21 @@ void DebugOptionsControl::handleEvent(UINT id, MainWindow* comm)
 		}
 		comm->updateConfigurationSavedStatus(false);
 	}
+	else if ( id == excessInfo.GetDlgCtrlID( ) )
+	{
+		BOOL checked = excessInfo.GetCheck( );
+		if ( checked )
+		{
+			excessInfo.SetCheck( 0 );
+			currentOptions.outputExcessInfo = false;
+		}
+		else
+		{
+			excessInfo.SetCheck( 1 );
+			currentOptions.outputExcessInfo = true;
+		}
+		comm->updateConfigurationSavedStatus( false );
+	}
 	else if (id == showTtlsButton.GetDlgCtrlID())
 	{
 		BOOL checked = showTtlsButton.GetCheck();

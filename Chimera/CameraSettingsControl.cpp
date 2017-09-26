@@ -33,8 +33,6 @@ void CameraSettingsControl::cameraIsOn(bool state)
 	emGainButton.EnableWindow( !state );
 	setTemperatureButton.EnableWindow( !state );
 	temperatureOffButton.EnableWindow( !state );
-	picSettingsObj.cameraIsOn( state );
-	imageDimensionsObj.cameraIsOn( state );
 }
 
 
@@ -580,6 +578,10 @@ void CameraSettingsControl::handleOpenConfig(std::ifstream& configFile, double v
  	ProfileSystem::checkDelimiterLine(configFile, "END_CAMERA_SETTINGS");
 	picSettingsObj.handleOpenConfig(configFile, version, andorFriend);
 	updateRunSettingsFromPicSettings( );
+	if ( version > 2.41 )
+	{
+		imageDimensionsObj.handleOpen( configFile, version );
+	}
 }
 
 
@@ -596,6 +598,7 @@ void CameraSettingsControl::handleNewConfig( std::ofstream& newFile )
 	newFile << 25 << "\n";
 	newFile << "END_CAMERA_SETTINGS\n";
 	picSettingsObj.handleNewConfig( newFile );
+	imageDimensionsObj.handleNew( newFile );
 }
 
 
@@ -613,6 +616,7 @@ void CameraSettingsControl::handleSaveConfig(std::ofstream& saveFile)
 	saveFile << "END_CAMERA_SETTINGS\n";
 
 	picSettingsObj.handleSaveConfig(saveFile);
+	imageDimensionsObj.handleSave( saveFile );
 }
 
 
