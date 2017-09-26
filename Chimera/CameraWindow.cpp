@@ -34,7 +34,7 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 	ON_WM_VSCROLL()
 
 	ON_COMMAND_RANGE(MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &CameraWindow::passCommonCommand)
-	ON_COMMAND_RANGE(PICTURE_SETTINGS_ID_START, PICTURE_SETTINGS_ID_END, &CameraWindow::temp)
+	ON_COMMAND_RANGE(PICTURE_SETTINGS_ID_START, PICTURE_SETTINGS_ID_END, &CameraWindow::passPictureSettings)
 	// these ids all go to the same function.
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_1_MIN_EDIT, IDC_PICTURE_1_MIN_EDIT, &CameraWindow::handlePictureEditChange )
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_1_MAX_EDIT, IDC_PICTURE_1_MAX_EDIT, &CameraWindow::handlePictureEditChange )
@@ -45,7 +45,7 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_4_MIN_EDIT, IDC_PICTURE_4_MIN_EDIT, &CameraWindow::handlePictureEditChange )
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_4_MAX_EDIT, IDC_PICTURE_4_MAX_EDIT, &CameraWindow::handlePictureEditChange )
 	// 
-	ON_COMMAND( IDC_SET_IMAGE_PARAMETERS_BUTTON, &CameraWindow::readImageParameters)
+	//ON_COMMAND( IDC_SET_IMAGE_PARAMETERS_BUTTON, &CameraWindow::readImageParameters)
 	ON_COMMAND( IDC_SET_EM_GAIN_BUTTON, &CameraWindow::setEmGain)
 	ON_COMMAND( IDC_ALERTS_BOX, &CameraWindow::passAlertPress)
 	ON_COMMAND( IDC_SET_TEMPERATURE_BUTTON, &CameraWindow::passSetTemperaturePress)
@@ -150,12 +150,14 @@ void CameraWindow::loadFriends(MainWindow* mainWin, ScriptingWindow* scriptWin, 
 void CameraWindow::passManualSetAnalysisLocations()
 {
 	analysisHandler.onManualButtonPushed();
+	mainWindowFriend->updateConfigurationSavedStatus( false );
 }
 
 
 void CameraWindow::passSetGridCorner( )
 {
 	analysisHandler.onCornerButtonPushed( );
+	mainWindowFriend->updateConfigurationSavedStatus( false );
 }
 
 
@@ -188,6 +190,7 @@ void CameraWindow::passAlwaysShowGrid()
 void CameraWindow::passCameraMode()
 {
 	CameraSettings.handleModeChange(this);
+	mainWindowFriend->updateConfigurationSavedStatus( false );
 }
 
 
@@ -483,6 +486,7 @@ void CameraWindow::startCamera()
 	mainWindowFriend->getComm()->sendColorBox(Camera, 'Y');
 	// turn some buttons off.
 	CameraSettings.cameraIsOn( true );
+	//
 	CDC* dc = GetDC();
 	pics.refreshBackgrounds( dc );
 	ReleaseDC(dc);
@@ -598,12 +602,14 @@ void CameraWindow::passAlertPress()
 void CameraWindow::passTrigger()
 {
 	CameraSettings.handleTriggerControl(this);
+	mainWindowFriend->updateConfigurationSavedStatus( false );
 }
 
 
-void CameraWindow::temp( UINT id )
+void CameraWindow::passPictureSettings( UINT id )
 {
 	handlePictureSettings( id );
+	mainWindowFriend->updateConfigurationSavedStatus( false );
 }
 
 
@@ -763,7 +769,9 @@ void CameraWindow::prepareCamera( ExperimentInput& input )
 	CDC* dc = GetDC();
 	pics.refreshBackgrounds(dc);
 	ReleaseDC(dc);
-
+	// I used to mandate use of a button to change image parameters. Now I don't have the button and just always 
+	// update at this point.
+	readImageParameters( );
 	//
 	CameraSettings.updatePassivelySetSettings();
 	pics.setNumberPicturesActive( CameraSettings.getSettings().picsPerRepetition );

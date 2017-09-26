@@ -107,6 +107,10 @@ class ProfileSystem
 		bool experimentIsSaved;
 		bool sequenceIsSaved;
 		
+		// combine for version. e.g. 2.5
+		const int versionMain = 2;
+		const int versionSub = 5;
+
 		Control<CStatic> configLabel;
 		Control<CComboBox> configCombo;
 		Control<CStatic> experimentLabel;
