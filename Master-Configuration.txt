@@ -224,4 +224,4 @@ fieldtheta 0
 fieldphi 1.5708
 rotatefieldtime 3
 imagingflashingdetuning -0.8
-259 285 3 241 267 3
+259 402 3 241 267 3

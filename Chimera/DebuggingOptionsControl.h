@@ -4,17 +4,17 @@
 
 struct debugInfo
 {
-	bool showReadProgress;
-	bool showWriteProgress;
-	bool showCorrectionTimes;
-	bool outputNiawgMachineScript;
-	bool outputNiawgHumanScript;
-	bool outputAgilentScript;
-	bool outputExcessInfo;
-	std::string message;
-	bool showTtls;
-	bool showDacs;
-	ULONG sleepTime;
+	bool showReadProgress = false;
+	bool showWriteProgress = false;
+	bool showCorrectionTimes = false;
+	bool outputNiawgMachineScript = false;
+	bool outputNiawgHumanScript = false;
+	bool outputAgilentScript = false;
+	bool outputExcessInfo = false;
+	std::string message = "";
+	bool showTtls = false;
+	bool showDacs = false;
+	ULONG sleepTime = 0;
 };
 
 

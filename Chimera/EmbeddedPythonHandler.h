@@ -5,7 +5,7 @@
 #include "python.h"
 #define _DEBUG
 #else
-#include "Python.h"
+#include "python.h"
 #endif
 
 #include <string>

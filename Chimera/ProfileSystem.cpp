@@ -121,7 +121,7 @@ void ProfileSystem::newConfiguration( MainWindow* mainWin, AuxiliaryWindow* auxW
 	{
 		thrower( "ERROR: Failed to create new configuration file. Ask Mark about bugs." );
 	}
-	newConfigFile << "Version: 2.0\n";
+	newConfigFile << "Version: " + str( versionMain ) + "." + str( versionSub ) + "\n";
 	// give it to each window, allowing each window to save its relevant contents to the config file. Order matters.
 	scriptWin->handleNewConfig( newConfigFile );
 	camWin->handleNewConfig( newConfigFile );
@@ -253,8 +253,8 @@ void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWi
 				 "about bugs." );
 	}
 
-	// check if file already exists
 
+	// check if file already exists
 	if (!ProfileSystem::fileOrFolderExists(currentProfile.categoryPath + configNameToSave + CONFIG_EXTENSION))  
 	{
 		int answer = promptBox("This configuration file appears to not exist in the expected location: " 
@@ -280,6 +280,7 @@ void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWi
 			saveExperimentOnly(mainWin);
 		}
 	}
+
 	if (!categoryIsSaved)
 	{
 		int answer = promptBox("The Category settings have not yet been saved. Save them before the configuration?"
@@ -306,7 +307,7 @@ void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWi
 	// version 2.0 started when the unified coding system (the chimera system) began, and the profile system underwent
 	// dramatic changes in order to 
 	configSaveFile << std::setprecision( 13 );
-	configSaveFile << "Version: 2.4\n";
+	configSaveFile << "Version: " + str(versionMain) + "." + str(versionSub) + "\n";
 	// give it to each window, allowing each window to save its relevant contents to the config file. Order matters.
 	scriptWindow->handleSavingConfig(configSaveFile);
 	camWin->handleSaveConfig(configSaveFile);
@@ -400,7 +401,7 @@ void ProfileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindo
 	// That's the last prompt the user gets, so the save is final now.
 	currentProfile.configuration = configurationNameToSave;
 	// Version info tells future code about formatting.
-	configurationSaveFile << "Version: 1.1\n";
+	configurationSaveFile << "Version: "+ str(versionMain) + "." + str(versionSub) + "\n";
 	scriptInfo<std::string> addresses = scriptWindow->getScriptAddresses();
 	// order matters!
 	// vertical Script File Address
@@ -1412,9 +1413,9 @@ void ProfileSystem::saveSequenceAs()
 	}
 	currentProfile.sequence = str(result);
 	sequenceSaveFile << "Version: 1.0\n";
-	for (UINT sequenceInc = 0; sequenceInc < this->currentProfile.sequenceConfigNames.size(); sequenceInc++)
+	for (UINT sequenceInc = 0; sequenceInc < currentProfile.sequenceConfigNames.size(); sequenceInc++)
 	{
-		sequenceSaveFile << this->currentProfile.sequenceConfigNames[sequenceInc] + "\n";
+		sequenceSaveFile << currentProfile.sequenceConfigNames[sequenceInc] + "\n";
 	}
 	sequenceSaveFile.close();
 	updateSequenceSavedStatus(true);

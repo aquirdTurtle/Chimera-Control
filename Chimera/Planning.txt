@@ -4,11 +4,11 @@ TODO
 
 Features:
 - finish implementing 2D scans
+- Remove three-stage config file system
 
 - NIAWG scripting in single script instead of separate Hor/Vert scripts.
 - Watch cursor location, sim to basler program
 - restore the Niawg functionality where it calculates next varying waveform during the run of the previous waveform.
-- option to allow agilent waveforms to function with or without calibration
 - support functions for niawg and agilent scripts
 - if fails to open script file give user opportunity to find it themselves.
 - handle niawg waiting more elegantly
@@ -31,37 +31,28 @@ Features:
 - be able to set binsize for histograms
 - change colormap radios to a single combo.
 - load colormaps from file, allowing custom colormaps.
-- make gnuplot alpha values dependent on number of points being watched.
 - initialize windows to certain monitor
-- change camera coordinates to be config-level
-- Remove three-stage config file system
 - make count-down use TTL time
 - check that the picture rate is matching the rep rate
+- cross-check number of NIAWG triggers, numb	er of Agilent triggers in code
+- agilent script programNow with variables, should be able to set constants with program now.
+- agilent should be able to go smoothly from one waveform to another.
 
 Refactoring / Other:
 - refactor variables & variable key so that they aren't two separate objects. Consider if reasonable to also include 
 	variation number in a class
 - change thread that wait on bools to waiting on signalers
 - could clean up textpromptdialog handling, should be possible with one line.
-- change picture settings & dimensions to not require button press.
 - test running avg gnuplot
 - test fitting in gnuplot
 - refactor groups in plotinfo and gnuplot stuffs
-- remove redundant agilent commands
-- kill the restart option
 
 Bugs:
-- revisit visaFlume connection bugs. Seems like just an issue with this specific tektronics generator.
 - Add new data set not working in plot designer
 - closing window doesn't stop program, running in background (release mode only?)
 - scripts becoming unsaved after move, should preserve saved status
-- something going wrong with exiting the niawg normally. Might be on delete waveforms, might be related to change from 
-	having orientations. Investigate size of niawg output waves, seems like there is 1 extra???
 - investigate save on change config
-- agilent script programNow with variables, should be able to set 
-- agilent should be able to go smothly from one waveform to another.
-- New Experiment doesn't copy everything
-- output excess run info is stuck on
+- New Experiment doesn't copy everything in folder
 
 =================
 Finished

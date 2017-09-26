@@ -172,7 +172,6 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 	output.isDefault = true;
 	///	Load Default Waveforms
 	debugInfo debug;
-	debug.outputAgilentScript = false;
 	std::string warnings;
 	profileSettings profile;
 	try
@@ -233,8 +232,7 @@ void NiawgController::restartDefault()
 	try
 	{
 		// to be sure.
-		turnOffRearranger( );
-		
+		turnOffRearranger( );		
 		turnOff();
 		fgenConduit.clearMemory();
 		fgenConduit.allocateNamedWaveform( cstr( defaultWaveName ), defaultMixedWaveform.size( ) / 2 );

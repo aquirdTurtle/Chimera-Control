@@ -7,13 +7,6 @@
 #include "CameraWindow.h"
 
 
-
-void PictureSettingsControl::cameraIsOn( bool state )
-{
-	setPictureOptionsButton.EnableWindow( !state );
-}
-
-
 void PictureSettingsControl::handleNewConfig( std::ofstream& newFile )
 {
 	newFile << "PICTURE_SETTINGS\n";
@@ -91,11 +84,14 @@ void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int
 	// introducing things row by row
 	/// Set Picture Options
 	UINT runningCount = 0;
+	/*
 	setPictureOptionsButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
 	setPictureOptionsButton.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
 	setPictureOptionsButton.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
 	setPictureOptionsButton.Create( "Set Picture Options", WS_CHILD | WS_VISIBLE, setPictureOptionsButton.seriesPos, parent, 
 									PICTURE_SETTINGS_ID_START + runningCount++);
+	*/
+
 	/// Picture Numbers
 	pictureLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 100, pos.seriesPos.y + 20 };
 	pictureLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 100,	pos.amPos.y + 20 };
@@ -456,46 +452,6 @@ void PictureSettingsControl::handleOptionChange(int id, AndorCamera* andorObj)
 			setUnofficialPicsPerRep( picNum + 1, andorObj );
 		}
 	}
-	else if (id == setPictureOptionsButton.GetDlgCtrlID())
-	{
-		// grab the thresholds
-		for (int thresholdInc = 0; thresholdInc < 4; thresholdInc++)
-		{
-			CString textEdit;
-			thresholdEdits[thresholdInc].GetWindowTextA(textEdit);
-			int threshold;
-			try
-			{
-				threshold = std::stoi(str(textEdit));
-				thresholds[thresholdInc] = threshold;
-			}
-			catch (std::invalid_argument)
-			{
-				errBox("ERROR: failed to convert threshold number " + str(thresholdInc + 1) + " to an integer.");
-			}
-			thresholdEdits[thresholdInc].RedrawWindow();
-		}
-		// grab the exposures.
-		for (int exposureInc = 0; exposureInc < 4; exposureInc++)
-		{
-			CString textEdit;
-			exposureEdits[exposureInc].GetWindowTextA(textEdit);
-			float exposure;
-			try
-			{
-				exposure = std::stof(str(textEdit));
-				exposureTimesUnofficial[exposureInc] = exposure / 1000.0f;
-			}
-			catch (std::invalid_argument)
-			{
-				errBox("ERROR: failed to convert exposure number " + str(exposureInc + 1) + " to an integer.");
-			}
-			// refresh for new color
-			exposureEdits[exposureInc].RedrawWindow();
-		}
-		/// set the exposure times via andor
-		setExposureTimes(andorObj);
-	}
 	else if (id >= veridaRadios[0].GetDlgCtrlID() && id <= blackWhiteRadios[3].GetDlgCtrlID())
 	{
 		id -= veridaRadios[0].GetDlgCtrlID();
@@ -548,6 +504,7 @@ void PictureSettingsControl::setExposureTimes(std::vector<float>& times, AndorCa
 
 std::vector<float> PictureSettingsControl::getUsedExposureTimes()
 {
+	updateSettings( );
 	std::vector<float> usedTimes;
 	usedTimes = exposureTimesUnofficial;
 	usedTimes.resize(picsPerRepetitionUnofficial);
@@ -579,7 +536,8 @@ void PictureSettingsControl::confirmAcquisitionTimings()
 /**/
 std::array<int, 4> PictureSettingsControl::getThresholds()
 {
-	return this->thresholds;
+	updateSettings();
+	return thresholds;
 }
 
 void PictureSettingsControl::setThresholds(std::array<int, 4> newThresholds)
@@ -628,21 +586,60 @@ void PictureSettingsControl::setPicturesPerExperiment(UINT pics, AndorCamera* an
 	}
 }
 
-/*
 
+/*
 */
 std::array<int, 4> PictureSettingsControl::getPictureColors()
 {
 	return colors;
 }
 
-/*
 
-*/
+void PictureSettingsControl::updateSettings( )
+{
+	// grab the thresholds
+	for ( int thresholdInc = 0; thresholdInc < 4; thresholdInc++ )
+	{
+		CString textEdit;
+		thresholdEdits[thresholdInc].GetWindowTextA( textEdit );
+		int threshold;
+		try
+		{
+			threshold = std::stoi( str( textEdit ) );
+			thresholds[thresholdInc] = threshold;
+		}
+		catch ( std::invalid_argument )
+		{
+			errBox( "ERROR: failed to convert threshold number " + str( thresholdInc + 1 ) + " to an integer." );
+		}
+		thresholdEdits[thresholdInc].RedrawWindow( );
+	}
+	// grab the exposures.
+	for ( int exposureInc = 0; exposureInc < 4; exposureInc++ )
+	{
+		CString textEdit;
+		exposureEdits[exposureInc].GetWindowTextA( textEdit );
+		float exposure;
+		try
+		{
+			exposure = std::stof( str( textEdit ) );
+			exposureTimesUnofficial[exposureInc] = exposure / 1000.0f;
+		}
+		catch ( std::invalid_argument )
+		{
+			errBox( "ERROR: failed to convert exposure number " + str( exposureInc + 1 ) + " to an integer." );
+		}
+		// refresh for new color
+		exposureEdits[exposureInc].RedrawWindow( );
+	}
+	/// set the exposure times via andor
+	//setExposureTimes( andorObj );
+}
+
+
 void PictureSettingsControl::rearrange(std::string cameraMode, std::string triggerMode, int width, int height, 
 									   fontMap fonts)
 {
-	setPictureOptionsButton.rearrange(cameraMode, triggerMode, width, height, fonts);
 	totalPicNumberLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
 	pictureLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
 	exposureLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
