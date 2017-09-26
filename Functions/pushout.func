@@ -3,11 +3,11 @@ def pushout():
   	% insert commands here... 
 	pulseon: tweezerIntensityTrig 0.1
 	dac: motFreq pushoutFreq
-	dac: sideMotPower 0.3 %0.01
+	dac: sideMotPower 0.015 %0.01
 	% mostly for the power ramp. also, lets the mot frequency settle.
 	t += 5
-	%on: A5
-	t += 0.3
+	on: A5
+	t += 0.8
 	off: A5
 	dac: sideMotPower 0
 	pulseon: tweezerIntensityTrig 0.1
