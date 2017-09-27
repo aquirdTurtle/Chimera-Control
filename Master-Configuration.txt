@@ -202,9 +202,9 @@ piezomirror
 26
 loadmotrightfield 1.2
 loadmotleftfield -0.755
-loadmottopfield 0.05
+loadmottopfield -0.2
 loadmotbottomfield -0.15
-loadmotfrontfield -0.8
+loadmotfrontfield -1
 loadmotbackfield 1.47507
 loadmottime 150
 pgctime 18

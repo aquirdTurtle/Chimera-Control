@@ -141,14 +141,16 @@ void CameraImageDimsControl::handleNew( std::ofstream& newfile )
 void CameraImageDimsControl::handleOpen( std::ifstream& openFile, double version )
 {
 	ProfileSystem::checkDelimiterLine( openFile, "CAMERA_IMAGE_DIMENSIONS" );
-	openFile >> currentImageParameters.left;
-	openFile >> currentImageParameters.right;
-	openFile >> currentImageParameters.horizontalBinning;
-	openFile >> currentImageParameters.bottom;
-	openFile >> currentImageParameters.top;
-	openFile >> currentImageParameters.verticalBinning;
-	updateWidthHeight( );
+	imageParameters params;
+	openFile >> params.left;
+	openFile >> params.right;
+	openFile >> params.horizontalBinning;
+	openFile >> params.bottom;
+	openFile >> params.top;
+	openFile >> params.verticalBinning;
+	setImageParametersFromInput( params, NULL );
 	ProfileSystem::checkDelimiterLine( openFile, "END_CAMERA_IMAGE_DIMENSIONS" );
+	
 }
 
 
@@ -278,7 +280,10 @@ void CameraImageDimsControl::updateWidthHeight( )
  */
 void CameraImageDimsControl::setImageParametersFromInput( imageParameters param, CameraWindow* camWin )
 {
-	drawBackgrounds( camWin );
+	if ( camWin != NULL )
+	{
+		drawBackgrounds( camWin );
+	}
 	// set all of the image parameters
 	currentImageParameters.left = param.left;
 	leftEdit.SetWindowText( cstr( currentImageParameters.left ) );
