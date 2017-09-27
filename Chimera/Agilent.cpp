@@ -992,7 +992,6 @@ void Agilent::handleScriptVariation( key variationKey, UINT variation, scriptedA
 		scriptInfo.wave.minsAndMaxes[variation].first = scriptInfo.wave.getMinVolt( );
 		scriptInfo.wave.normalizeVoltages( );
 		visaFlume.write( "SOURCE" + str( channel ) + ":DATA:VOL:CLEAR" );
-
 		for ( UINT segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++ )
 		{
 			visaFlume.write( scriptInfo.wave.compileAndReturnDataSendString( segNumInc, variation, 
@@ -1006,12 +1005,13 @@ void Agilent::handleScriptVariation( key variationKey, UINT variation, scriptedA
 		// submit the sequence
 		visaFlume.write( scriptInfo.wave.returnSequenceString( ) );
 		// Save the sequence
-		// visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB seq" + str( variation ) );
+		visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB seq" + str( variation ) );
 		visaFlume.write( "MMEM:STORE:DATA \"INT:\\seq" + str( variation ) + ".seq\"" );
 		// clear temporary memory.
 		visaFlume.write( "SOURCE" + str( channel ) + ":DATA:VOL:CLEAR" );
 	}
 }
+
 
 void Agilent::handleNoVariations(scriptedArbInfo& scriptInfo, UINT channel)
 {
@@ -1055,7 +1055,7 @@ void Agilent::handleNoVariations(scriptedArbInfo& scriptInfo, UINT channel)
 	// submit the sequence
 	visaFlume.write( scriptInfo.wave.returnSequenceString() );
 	// Save the sequence
-	//visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB seq" + str( 0 ) );
+	visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB seq" + str( 0 ) );
 	visaFlume.write( "MMEM:STORE:DATA \"INT:\\seq" + str( 0 ) + ".seq\"" );
 	// clear temporary memory.
 	visaFlume.write( "SOURCE" + str( channel ) + ":DATA:VOL:CLEAR" );

@@ -53,9 +53,8 @@ Bugs:
 - scripts becoming unsaved after move, should preserve saved status
 - investigate save on change config
 - New Experiment doesn't copy everything in folder
+- after script save-as, new name not loaded if run experiment until reload config
 
 =================
 Finished
 =================
-
-BUGS
