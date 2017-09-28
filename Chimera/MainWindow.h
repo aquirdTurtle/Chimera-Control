@@ -139,6 +139,10 @@ class MainWindow : public CDialog
 		cToolTips tooltips;
 		EmbeddedPythonHandler python;
 		KeyHandler masterKey;
+
+		static BOOL CALLBACK monitorHandlingProc( _In_ HMONITOR hMonitor, _In_ HDC      hdcMonitor,
+										   _In_ LPRECT   lprcMonitor, _In_ LPARAM   dwData );
+
 		// friends (try to minimize these)
 		friend void commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin,
 														  ScriptingWindow* scriptWin, CameraWindow* camWin,

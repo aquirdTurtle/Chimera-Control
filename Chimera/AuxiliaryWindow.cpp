@@ -780,15 +780,15 @@ void AuxiliaryWindow::zeroDacs()
 		{
 			dacBoards.prepareDacForceChange( dacInc, 0, &ttlBoard );
 		}
-		dacBoards.analyzeDacCommands(0);
+		dacBoards.organizeDacCommands(0);
 		dacBoards.makeFinalDataFormat(0);
 		dacBoards.stopDacs(); 
 		dacBoards.configureClocks(0);
 		dacBoards.writeDacs(0);
 		dacBoards.startDacs();
-		ttlBoard.analyzeCommandList(0);
+		ttlBoard.organizeTtlCommands(0);
 		ttlBoard.convertToFinalFormat(0);
-		ttlBoard.writeData(0);
+		ttlBoard.writeTtlData(0);
 		ttlBoard.startBoard();
 		ttlBoard.waitTillFinished(0);
 		sendStat( "Zero'd DACs.\r\n");
@@ -1099,7 +1099,7 @@ void AuxiliaryWindow::SetDacs()
 		ttlBoard.resetTtlEvents();
 		sendStat( "Setting Dacs...\r\n" );
 		dacBoards.handleButtonPress( &ttlBoard );
-		dacBoards.analyzeDacCommands(0);
+		dacBoards.organizeDacCommands(0);
 		dacBoards.makeFinalDataFormat(0);
 		// start the boards which actually sets the dac values.
 		dacBoards.stopDacs();
@@ -1107,9 +1107,9 @@ void AuxiliaryWindow::SetDacs()
 		sendStat( "Writing New Dac Settings...\r\n" );
 		dacBoards.writeDacs(0);
 		dacBoards.startDacs();
-		ttlBoard.analyzeCommandList(0);
+		ttlBoard.organizeTtlCommands(0);
 		ttlBoard.convertToFinalFormat(0);
-		ttlBoard.writeData(0);
+		ttlBoard.writeTtlData(0);
 		ttlBoard.startBoard();
 		ttlBoard.waitTillFinished(0);
 		sendStat( "Finished Setting Dacs.\r\n" );
@@ -1120,9 +1120,9 @@ void AuxiliaryWindow::SetDacs()
 		dacBoards.configureClocks(0);
 		dacBoards.writeDacs(0);
 		dacBoards.startDacs();
-		ttlBoard.analyzeCommandList(0);
+		ttlBoard.organizeTtlCommands(0);
 		ttlBoard.convertToFinalFormat(0);
-		ttlBoard.writeData(0);
+		ttlBoard.writeTtlData(0);
 		ttlBoard.startBoard();
 		ttlBoard.waitTillFinished(0);
 		sendStat( "Zero'd DACs.\r\n");

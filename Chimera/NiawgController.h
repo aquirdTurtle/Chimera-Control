@@ -30,6 +30,9 @@ class NiawgController
 	public:
 		void initialize();
 		// get info
+		void cleanupNiawg( profileSettings profile, bool masterWasRunning, 
+						   niawgPair<std::vector<std::fstream>>& niawgFiles, NiawgOutputInfo& output, 
+						   Communicator* comm, bool dontGenerate );
 		void writeToFile( UINT fileNum, std::vector<double> waveVals );
 		bool rearrangementThreadIsActive();
 		std::string getCurrentScript();
@@ -50,7 +53,7 @@ class NiawgController
 		void checkThatWaveformsAreSensible( std::string& warnings, NiawgOutputInfo& output );
 		void prepareNiawg( MasterThreadInput* input, NiawgOutputInfo& output,
 						   niawgPair<std::vector<std::fstream>>& niawgFiles, std::string& warnings,
-						   std::vector<ViChar>& userScriptSubmit );
+						   std::vector<ViChar>& userScriptSubmit, bool& foundRearrangement );
 		void finalizeStandardWave( simpleWave& wave, debugInfo& options );
 		void createFlashingWave( waveInfo& wave, debugInfo options );
 		void mixFlashingWaves( waveInfo& wave, double deadTime, double staticMovingRatio );
@@ -65,8 +68,8 @@ class NiawgController
 		void waitForRearranger( );
 		void programVariations( UINT variation, std::vector<long>& variedMixedSize, NiawgOutputInfo& output );
 		
-		void programNiawg( MasterThreadInput* input, NiawgOutputInfo& output, NiawgWaiter& waiter, std::string& warnings,
-						   UINT variation, UINT totalVariations, std::vector<long>& variedMixedSize,
+		void programNiawg( MasterThreadInput* input, NiawgOutputInfo& output, std::string& warnings, UINT variation, 
+						   UINT totalVariations, std::vector<long>& variedMixedSize, 
 						   std::vector<ViChar>& userScriptSubmit );
 		void streamWaveform();
 		void streamRearrangement();
@@ -79,7 +82,7 @@ class NiawgController
 									   std::mutex* rearrangerLock, chronoTimes* andorImageTimes, chronoTimes* grabTimes,
 									   std::condition_variable* rearrangerConditionWatcher,
 									   rearrangeParams rearrangeInfo );
-		Fgen fgenConduit;
+		FgenFlume fgenConduit;
 		static bool outputVaries(NiawgOutputInfo output);
 
 	private:

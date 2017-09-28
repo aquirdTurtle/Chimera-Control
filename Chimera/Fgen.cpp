@@ -7,7 +7,7 @@
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string Fgen::getErrorMsg()
+std::string FgenFlume::getErrorMsg()
 {
 	ViStatus errorStat;
 	ViChar* errMsg;
@@ -25,7 +25,7 @@ std::string Fgen::getErrorMsg()
 }
 
 
-void Fgen::sendSoftwareTrigger()
+void FgenFlume::sendSoftwareTrigger()
 {
 	if (!NIAWG_SAFEMODE)
 	{
@@ -34,7 +34,7 @@ void Fgen::sendSoftwareTrigger()
 }
 
 
-void Fgen::configureGain( ViReal64 gain )
+void FgenFlume::configureGain( ViReal64 gain )
 {
 	if (!NIAWG_SAFEMODE)
 	{
@@ -43,7 +43,7 @@ void Fgen::configureGain( ViReal64 gain )
 }
 
 
-void Fgen::configureSampleRate( ViReal64 sampleRate )
+void FgenFlume::configureSampleRate( ViReal64 sampleRate )
 {
 	if (!NIAWG_SAFEMODE)
 	{
@@ -51,7 +51,7 @@ void Fgen::configureSampleRate( ViReal64 sampleRate )
 	}
 }
 
-std::string Fgen::getDeviceInfo()
+std::string FgenFlume::getDeviceInfo()
 {
 	// Use this section of code to output some characteristics of the 5451. If you want.
 
@@ -70,7 +70,7 @@ std::string Fgen::getDeviceInfo()
 }
 
 
-void Fgen::configureChannels()
+void FgenFlume::configureChannels()
 {
 	if (!NIAWG_SAFEMODE)
 	{
@@ -79,7 +79,7 @@ void Fgen::configureChannels()
 }
 
 
-void Fgen::configureMarker( ViConstString markerName, ViConstString outputLocation )
+void FgenFlume::configureMarker( ViConstString markerName, ViConstString outputLocation )
 {
 	if (!NIAWG_SAFEMODE)
 	{
@@ -89,7 +89,7 @@ void Fgen::configureMarker( ViConstString markerName, ViConstString outputLocati
 
 
 // initialize the session handle, which is a member of this class.
-void Fgen::init( ViRsrc location, ViBoolean idQuery, ViBoolean resetDevice )
+void FgenFlume::init( ViRsrc location, ViBoolean idQuery, ViBoolean resetDevice )
 {
 	if (!NIAWG_SAFEMODE)
 	{
@@ -100,7 +100,7 @@ void Fgen::init( ViRsrc location, ViBoolean idQuery, ViBoolean resetDevice )
 
 // I think that this is only for arbitrary waveform output mode (single) or sequence mode, neither of which I use, and so this shouldn't
 // appear in my code anywhere.
-void Fgen::createWaveform( long size, ViReal64* wave )
+void FgenFlume::createWaveform( long size, ViReal64* wave )
 {
 	ViInt32 waveID;
 	if (!NIAWG_SAFEMODE)
@@ -110,7 +110,7 @@ void Fgen::createWaveform( long size, ViReal64* wave )
 }
 
 
-void Fgen::writeUnNamedWaveform( ViInt32 waveID, ViInt32 mixedSampleNumber, ViReal64* wave )
+void FgenFlume::writeUnNamedWaveform( ViInt32 waveID, ViInt32 mixedSampleNumber, ViReal64* wave )
 {
 	if (!NIAWG_SAFEMODE)
 	{
@@ -121,7 +121,7 @@ void Fgen::writeUnNamedWaveform( ViInt32 waveID, ViInt32 mixedSampleNumber, ViRe
 // niFgen_SetNamedWaveformNextWritePosition
 
 // put waveform into the device memory
-void Fgen::writeNamedWaveform( ViConstString waveformName, ViInt32 mixedSampleNumber, ViReal64* wave )
+void FgenFlume::writeNamedWaveform( ViConstString waveformName, ViInt32 mixedSampleNumber, ViReal64* wave )
 {
 	if (!NIAWG_SAFEMODE)
 	{
@@ -130,7 +130,7 @@ void Fgen::writeNamedWaveform( ViConstString waveformName, ViInt32 mixedSampleNu
 }
 
 
-void Fgen::writeScript( std::vector<ViChar> script )
+void FgenFlume::writeScript( std::vector<ViChar> script )
 {
 	std::string temp( script.begin(), script.end() );
 	ViConstString constScript = temp.c_str();
@@ -141,7 +141,7 @@ void Fgen::writeScript( std::vector<ViChar> script )
 }
 
 
-void Fgen::resetWritePosition( )
+void FgenFlume::resetWritePosition( )
 {
 	if ( !NIAWG_SAFEMODE )
 	{
@@ -151,7 +151,7 @@ void Fgen::resetWritePosition( )
 }
 
 
-void Fgen::deleteWaveform( ViConstString waveformName )
+void FgenFlume::deleteWaveform( ViConstString waveformName )
 {
 	if (!NIAWG_SAFEMODE)
 	{
@@ -160,7 +160,7 @@ void Fgen::deleteWaveform( ViConstString waveformName )
 }
 
 
-void Fgen::deleteScript( ViConstString scriptName )
+void FgenFlume::deleteScript( ViConstString scriptName )
 {
 	if (!NIAWG_SAFEMODE)
 	{
@@ -169,7 +169,7 @@ void Fgen::deleteScript( ViConstString scriptName )
 }
 
 
-void Fgen::allocateNamedWaveform( ViConstString waveformName, ViInt32 unmixedSampleNumber )
+void FgenFlume::allocateNamedWaveform( ViConstString waveformName, ViInt32 unmixedSampleNumber )
 {
 	if (!NIAWG_SAFEMODE)
 	{
@@ -178,7 +178,7 @@ void Fgen::allocateNamedWaveform( ViConstString waveformName, ViInt32 unmixedSam
 }
 
 
-ViInt32 Fgen::allocateUnNamedWaveform( ViInt32 unmixedSampleNumber )
+ViInt32 FgenFlume::allocateUnNamedWaveform( ViInt32 unmixedSampleNumber )
 {
 	ViInt32 id = 0;
 	if (!NIAWG_SAFEMODE)
@@ -189,7 +189,7 @@ ViInt32 Fgen::allocateUnNamedWaveform( ViInt32 unmixedSampleNumber )
 }
 
 
-void Fgen::configureOutputEnabled( int state )
+void FgenFlume::configureOutputEnabled( int state )
 {
 	if (!NIAWG_SAFEMODE)
 	{
@@ -198,7 +198,7 @@ void Fgen::configureOutputEnabled( int state )
 }
 
 
-void Fgen::clearMemory()
+void FgenFlume::clearMemory()
 {
 	if (!NIAWG_SAFEMODE)
 	{
@@ -206,12 +206,12 @@ void Fgen::clearMemory()
 	}
 }
 
-std::string Fgen::getCurrentScript()
+std::string FgenFlume::getCurrentScript()
 {
 	return currentScriptName;
 }
 
-void Fgen::setViStringAttribute( ViAttr atributeID, ViConstString attributeValue )
+void FgenFlume::setViStringAttribute( ViAttr atributeID, ViConstString attributeValue )
 {
 	// I keep track of this.
 	currentScriptName = attributeValue;
@@ -221,7 +221,7 @@ void Fgen::setViStringAttribute( ViAttr atributeID, ViConstString attributeValue
 	}
 }
 
-void Fgen::setViReal64Attribute( ViAttr attribute, ViReal64 attributeVal, ViConstString channels)
+void FgenFlume::setViReal64Attribute( ViAttr attribute, ViReal64 attributeVal, ViConstString channels)
 {
 	// handle default value
 	if ( channels = "" )
@@ -236,7 +236,7 @@ void Fgen::setViReal64Attribute( ViAttr attribute, ViReal64 attributeVal, ViCons
 }
 
 
-void Fgen::setViBooleanAttribute( ViAttr attribute, bool state )
+void FgenFlume::setViBooleanAttribute( ViAttr attribute, bool state )
 {
 	if (!NIAWG_SAFEMODE)
 	{
@@ -245,7 +245,7 @@ void Fgen::setViBooleanAttribute( ViAttr attribute, bool state )
 }
 
 
-void Fgen::setViInt32Attribute( ViAttr attributeID, ViInt32 value )
+void FgenFlume::setViInt32Attribute( ViAttr attributeID, ViInt32 value )
 {
 	if (!NIAWG_SAFEMODE)
 	{
@@ -254,7 +254,7 @@ void Fgen::setViInt32Attribute( ViAttr attributeID, ViInt32 value )
 }
 
 
-void Fgen::enableAnalogFilter( ViReal64 filterFrequency )
+void FgenFlume::enableAnalogFilter( ViReal64 filterFrequency )
 {
 	if (!NIAWG_SAFEMODE)
 	{
@@ -262,19 +262,19 @@ void Fgen::enableAnalogFilter( ViReal64 filterFrequency )
 	}
 }
 
-std::string Fgen::getSoftwareTriggerName()
+std::string FgenFlume::getSoftwareTriggerName()
 {
 	return SOFTWARE_TRIGGER_NAME;
 }
 
 
-std::string Fgen::getExternalTriggerName()
+std::string FgenFlume::getExternalTriggerName()
 {
 	return EXTERNAL_TRIGGER_NAME;
 }
 
 
-void Fgen::configureSoftwareTrigger()
+void FgenFlume::configureSoftwareTrigger()
 {
 	if (!NIAWG_SAFEMODE)
 	{
@@ -283,7 +283,7 @@ void Fgen::configureSoftwareTrigger()
 }
 
 
-signed short Fgen::isDone()
+signed short FgenFlume::isDone()
 {
 	ViBoolean isDone = 0;
 	if (!NIAWG_SAFEMODE)
@@ -295,7 +295,7 @@ signed short Fgen::isDone()
 
 
 
-void Fgen::configureDigtalEdgeScriptTrigger()
+void FgenFlume::configureDigtalEdgeScriptTrigger()
 {
 	if (!NIAWG_SAFEMODE)
 	{
@@ -304,7 +304,7 @@ void Fgen::configureDigtalEdgeScriptTrigger()
 }
 
 
-void Fgen::configureClockMode( ViInt32 clockMode )
+void FgenFlume::configureClockMode( ViInt32 clockMode )
 {
 	if (!NIAWG_SAFEMODE)
 	{
@@ -313,7 +313,7 @@ void Fgen::configureClockMode( ViInt32 clockMode )
 }
 
 
-void Fgen::initiateGeneration()
+void FgenFlume::initiateGeneration()
 {
 	if (!NIAWG_SAFEMODE)
 	{
@@ -322,7 +322,7 @@ void Fgen::initiateGeneration()
 }
 
 
-void Fgen::abortGeneration()
+void FgenFlume::abortGeneration()
 {
 	if (!NIAWG_SAFEMODE)
 	{
@@ -331,7 +331,7 @@ void Fgen::abortGeneration()
 }
 
 
-void Fgen::setAttributeViString( ViAttr attribute, ViString string )
+void FgenFlume::setAttributeViString( ViAttr attribute, ViString string )
 {
 	if (!NIAWG_SAFEMODE)
 	{
@@ -340,7 +340,7 @@ void Fgen::setAttributeViString( ViAttr attribute, ViString string )
 }
 
 
-ViInt32 Fgen::getInt32Attribute( ViAttr attribute )
+ViInt32 FgenFlume::getInt32Attribute( ViAttr attribute )
 {
 	ViInt32 value = 0;
 	if (!NIAWG_SAFEMODE)
@@ -351,7 +351,7 @@ ViInt32 Fgen::getInt32Attribute( ViAttr attribute )
 }
 
 
-ViInt64 Fgen::getInt64Attribute( ViAttr attribute )
+ViInt64 FgenFlume::getInt64Attribute( ViAttr attribute )
 {
 	ViInt64 value = 0;
 	if (!NIAWG_SAFEMODE)
@@ -362,7 +362,7 @@ ViInt64 Fgen::getInt64Attribute( ViAttr attribute )
 }
 
 
-ViReal64 Fgen::getReal64Attribute( ViAttr attribute )
+ViReal64 FgenFlume::getReal64Attribute( ViAttr attribute )
 {
 	ViReal64 value = 0;
 	if (!NIAWG_SAFEMODE)
@@ -373,7 +373,7 @@ ViReal64 Fgen::getReal64Attribute( ViAttr attribute )
 }
 
 
-std::string Fgen::getViStringAttribute( ViAttr attribute )
+std::string FgenFlume::getViStringAttribute( ViAttr attribute )
 {
 	ViChar value[256];
 	if (!NIAWG_SAFEMODE)
@@ -384,7 +384,7 @@ std::string Fgen::getViStringAttribute( ViAttr attribute )
 }
 
 
-ViBoolean Fgen::getViBoolAttribute( ViAttr attribute )
+ViBoolean FgenFlume::getViBoolAttribute( ViAttr attribute )
 {
 	ViBoolean value = false;
 	if (!NIAWG_SAFEMODE)
@@ -395,7 +395,7 @@ ViBoolean Fgen::getViBoolAttribute( ViAttr attribute )
 }
 
 
-ViSession Fgen::getViSessionAttribute( ViAttr attribute )
+ViSession FgenFlume::getViSessionAttribute( ViAttr attribute )
 {
 	ViSession value = 0;
 	if (!NIAWG_SAFEMODE)
@@ -406,7 +406,7 @@ ViSession Fgen::getViSessionAttribute( ViAttr attribute )
 }
 
 
-void Fgen::configureOutputMode()
+void FgenFlume::configureOutputMode()
 {
 	if (!NIAWG_SAFEMODE)
 	{
@@ -414,7 +414,7 @@ void Fgen::configureOutputMode()
 	}
 }
 
-void Fgen::errChecker( int err )
+void FgenFlume::errChecker( int err )
 {
 	if (err < 0)
 	{

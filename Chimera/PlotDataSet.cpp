@@ -1,8 +1,8 @@
 #include "stdafx.h"
-#include "DataSet.h"
+#include "PlotDataSet.h"
 
-/// All DataSet() class public functions.
-DataSet::DataSet()
+/// All PlotDataSet() class public functions.
+PlotDataSet::PlotDataSet()
 {
 	resultConditions.clear();
 	// Start with one picture
@@ -24,7 +24,7 @@ DataSet::DataSet()
 }
 
 
-void DataSet::initialize(UINT conditionNumber, UINT pixelNumber, UINT pictureNumber)
+void PlotDataSet::initialize(UINT conditionNumber, UINT pixelNumber, UINT pictureNumber)
 {
 	resultConditions.resize(pixelNumber);
 	dataCountsLocation.resize(pixelNumber);
@@ -46,13 +46,13 @@ void DataSet::initialize(UINT conditionNumber, UINT pixelNumber, UINT pictureNum
 }
 
 
-void DataSet::changeLegendText(std::string newLegendText)
+void PlotDataSet::changeLegendText(std::string newLegendText)
 {
 	legendText = newLegendText;
 }
 
 
-void DataSet::addPicture()
+void PlotDataSet::addPicture()
 {
 	// all data structures have access to the same number of pictures. Currently there is no to have one data structure work on 2 picture increments and one on
 	// 3, for example.
@@ -72,7 +72,7 @@ void DataSet::addPicture()
 }
 
 // picture number is used to initialize the new pixel to the correct size.
-void DataSet::addPixel( UINT pictureNumber)
+void PlotDataSet::addPixel( UINT pictureNumber)
 {
 	// get the current pixel number. This should be uniform across thes data structures.
 	int currentPixelNum = resultConditions.size();
@@ -90,7 +90,7 @@ void DataSet::addPixel( UINT pictureNumber)
 }
 
 
-void DataSet::setResultCondition(UINT pixel, UINT picture, UINT resultCondition)
+void PlotDataSet::setResultCondition(UINT pixel, UINT picture, UINT resultCondition)
 {
 	if (resultCondition != -1 && resultCondition != 0 && resultCondition != 1)
 	{
@@ -109,7 +109,7 @@ void DataSet::setResultCondition(UINT pixel, UINT picture, UINT resultCondition)
 	resultConditions[pixel][picture] = resultCondition;
 }
 
-void DataSet::setPostSelectionCondition(UINT conditionNumber, UINT pixel, UINT picture, UINT postSelectionCondition)
+void PlotDataSet::setPostSelectionCondition(UINT conditionNumber, UINT pixel, UINT picture, UINT postSelectionCondition)
 {
 
 	if (conditionNumber >= postSelectionConditions.size())
@@ -131,7 +131,7 @@ void DataSet::setPostSelectionCondition(UINT conditionNumber, UINT pixel, UINT p
 	postSelectionConditions[conditionNumber][pixel][picture] = postSelectionCondition;
 }
 
-void DataSet::removePixel()
+void PlotDataSet::removePixel()
 {
 	// make sure there is a pixel to remove.
 	size_t currentPixelNum = resultConditions.size();
@@ -147,7 +147,7 @@ void DataSet::removePixel()
 }
 
 
-void DataSet::removePicture()
+void PlotDataSet::removePicture()
 {
 	// make sure there is a picture to remove.
 	// all data structures have access to the same number of pictures. Currently there is no to have one data structure work on 2 picture increments and one on
@@ -171,7 +171,7 @@ void DataSet::removePicture()
 }
 
 
-int DataSet::getTruthCondition(UINT pixel, UINT picture)
+int PlotDataSet::getTruthCondition(UINT pixel, UINT picture)
 {
 	if (pixel >= resultConditions.size())
 	{
@@ -187,7 +187,7 @@ int DataSet::getTruthCondition(UINT pixel, UINT picture)
 }
 
 
-int DataSet::getPostSelectionCondition(UINT conditionNumber, UINT pixel, UINT picture)
+int PlotDataSet::getPostSelectionCondition(UINT conditionNumber, UINT pixel, UINT picture)
 {
 	if (conditionNumber >= postSelectionConditions.size())
 	{
@@ -208,7 +208,7 @@ int DataSet::getPostSelectionCondition(UINT conditionNumber, UINT pixel, UINT pi
 }
 
 
-void DataSet::addPostSelectionCondition(UINT pixelNum, UINT pictureNum)
+void PlotDataSet::addPostSelectionCondition(UINT pixelNum, UINT pictureNum)
 {
 	// add condition, pixels, pictures
 	postSelectionConditions.resize(postSelectionConditions.size() + 1);
@@ -221,7 +221,7 @@ void DataSet::addPostSelectionCondition(UINT pixelNum, UINT pictureNum)
 }
 
 
-void DataSet::removePostSelectionCondition()
+void PlotDataSet::removePostSelectionCondition()
 {
 	if (postSelectionConditions.size() == 0)
 	{
@@ -231,7 +231,7 @@ void DataSet::removePostSelectionCondition()
 }
 
 
-void DataSet::setDataCountsLocation( UINT maxPixel, UINT maxPicture, UINT pixel, UINT picture)
+void PlotDataSet::setDataCountsLocation( UINT maxPixel, UINT maxPicture, UINT pixel, UINT picture)
 {
 	dataCountsLocation.clear();
 	dataCountsLocation.resize(maxPixel);
@@ -243,19 +243,19 @@ void DataSet::setDataCountsLocation( UINT maxPixel, UINT maxPicture, UINT pixel,
 }
 
 
-void DataSet::setPlotThisData(bool plotThisDataInput)
+void PlotDataSet::setPlotThisData(bool plotThisDataInput)
 {
 	plotThisData = plotThisDataInput;
 }
 
 
-bool DataSet::getPlotThisDataValue()
+bool PlotDataSet::getPlotThisDataValue()
 {
 	return plotThisData;
 }
 
 
-int DataSet::getDataCountsLocation( UINT& pixel, UINT& picture)
+int PlotDataSet::getDataCountsLocation( UINT& pixel, UINT& picture)
 {
 	for (UINT pixelInc = 0; pixelInc < dataCountsLocation.size(); pixelInc++)
 	{
@@ -275,13 +275,13 @@ int DataSet::getDataCountsLocation( UINT& pixel, UINT& picture)
 }
 
 
-std::string DataSet::getLegendText()
+std::string PlotDataSet::getLegendText()
 {
 	return legendText;
 }
 
 
-void DataSet::resetPictureNumber( UINT pictureNumber)
+void PlotDataSet::resetPictureNumber( UINT pictureNumber)
 {
 	// resultConditions[Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)
 	for (UINT pixelInc = 0; pixelInc < resultConditions.size(); pixelInc++)
@@ -307,14 +307,14 @@ void DataSet::resetPictureNumber( UINT pictureNumber)
 	}
 }
 
-void DataSet::resetPostSelectionConditionNumber( UINT conditionNumber)
+void PlotDataSet::resetPostSelectionConditionNumber( UINT conditionNumber)
 {
 	// postSelectionConditions[Condition#][Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)
 	postSelectionConditions.clear();
 	postSelectionConditions.resize(conditionNumber);
 }
 
-void DataSet::resetPixelNumber( UINT pixelNumber)
+void PlotDataSet::resetPixelNumber( UINT pixelNumber)
 {
 	// resultConditions[Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)
 	resultConditions.clear();
@@ -337,7 +337,7 @@ void DataSet::resetPixelNumber( UINT pixelNumber)
 }
 
 
-void DataSet::clear()
+void PlotDataSet::clear()
 {
 	// resultConditions[Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)
 	resultConditions.clear();
@@ -350,22 +350,22 @@ void DataSet::clear()
 }
 
 
-int DataSet::getFitType()
+int PlotDataSet::getFitType()
 {
 	return fitType;
 }
 
 
-int DataSet::getWhenToFit()
+int PlotDataSet::getWhenToFit()
 {
 	return whenToFit;
 }
 
-void DataSet::setFitType( UINT newFitType)
+void PlotDataSet::setFitType( UINT newFitType)
 {
 	fitType = newFitType;
 }
-void DataSet::setWhenToFit( UINT newWhenToFit)
+void PlotDataSet::setWhenToFit( UINT newWhenToFit)
 {
 	whenToFit = newWhenToFit;
 }

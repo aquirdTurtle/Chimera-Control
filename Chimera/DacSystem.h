@@ -37,7 +37,7 @@ class DacSystem
 		void configureClocks(UINT variation );
 		void setDacTriggerEvents( DioSystem* ttls, UINT variation );
 		void interpretKey(key variationKey, std::vector<variableType>& vars, std::string& warnings);
-		void analyzeDacCommands(UINT variation);
+		void organizeDacCommands(UINT variation);
 		void makeFinalDataFormat(UINT variation );
 		void writeDacs(UINT variation );
 		void startDacs();
