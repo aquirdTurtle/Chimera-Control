@@ -38,7 +38,7 @@ class NiawgController
 		void handleVariations( NiawgOutputInfo& output, key varKey, const UINT variation, std::vector<long>& mixedWaveSizes,
 							   std::string& warnings, debugInfo& debugOptions, UINT totalVariations );
 		void analyzeNiawgScripts( niawgPair<ScriptStream>& scripts, NiawgOutputInfo& output, profileSettings profile,
-								  debugInfo& options, std::string& warnings );
+								  debugInfo& options, std::string& warnings, rearrangeParams rInfo );
 		void loadWaveformParameters( NiawgOutputInfo& output, profileSettings profile, niawgPair<std::string> command,
 									 debugInfo& debug, niawgPair<ScriptStream>& scripts );
 		void finalizeScript( ULONGLONG repetitions, std::string name, std::vector<std::string> workingUserScripts,
@@ -50,7 +50,7 @@ class NiawgController
 		void checkThatWaveformsAreSensible( std::string& warnings, NiawgOutputInfo& output );
 		void prepareNiawg( MasterThreadInput* input, NiawgOutputInfo& output,
 						   niawgPair<std::vector<std::fstream>>& niawgFiles, std::string& warnings,
-						   std::vector<ViChar>& userScriptSubmit );
+						   std::vector<ViChar>& userScriptSubmit, rearrangeParams rInfo );
 		void finalizeStandardWave( simpleWave& wave, debugInfo& options );
 		void createFlashingWave( waveInfo& wave, debugInfo options );
 		void mixFlashingWaves( waveInfo& wave, double deadTime, double staticMovingRatio );
@@ -93,7 +93,7 @@ class NiawgController
 		void handleLogic( niawgPair<ScriptStream>& script, niawgPair<std::string> inputs, std::string &scriptString );
 		bool isSpecialWaveform( std::string command );
 		void handleSpecialWaveform( NiawgOutputInfo& output, profileSettings profile, niawgPair<std::string> command,
-									niawgPair<ScriptStream>& scripts, debugInfo& options );
+									niawgPair<ScriptStream>& scripts, debugInfo& options, rearrangeParams rInfo );
 		bool isStandardWaveform( std::string command );
 		void handleStandardWaveform( NiawgOutputInfo& output, profileSettings profile, niawgPair<std::string> command,
 									 niawgPair<ScriptStream>& scripts, debugInfo& options );
