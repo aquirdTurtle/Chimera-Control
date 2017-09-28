@@ -2,8 +2,8 @@
 
 struct rearrangeParams
 {
-	bool active;
-	double moveSpeed;
+	bool active = false;
+	double moveSpeed = 1e-6;
 	double flashingRate;
 	double moveBias;
 	// 

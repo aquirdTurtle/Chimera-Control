@@ -85,7 +85,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		{
 			input->comm->sendColorBox( Niawg, 'Y' );
 			ProfileSystem::openNiawgFiles( niawgFiles, input->profile, input->runNiawg);
-			input->niawg->prepareNiawg( input, output, niawgFiles, warnings, userScriptSubmit );
+			input->niawg->prepareNiawg( input, output, niawgFiles, warnings, userScriptSubmit, input->rearrangeInfo );
 			// check if any waveforms are rearrangement instructions.
 			for (auto& wave : output.waves)
 			{
