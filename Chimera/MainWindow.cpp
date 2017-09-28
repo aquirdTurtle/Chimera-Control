@@ -315,14 +315,11 @@ BOOL MainWindow::OnInitDialog()
 	ShowWindow( SW_MAXIMIZE );
 	TheCameraWindow->ShowWindow( SW_MAXIMIZE );
 	TheScriptingWindow->ShowWindow( SW_MAXIMIZE );
-	TheAuxiliaryWindow->ShowWindow( SW_MAXIMIZE );
-	SetWindowPos( &this->wndBottom, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
-	// make sure the ordering is right. This can get messed up by the splash.
-	TheCameraWindow->SetWindowPos( &TheCameraWindow->wndBottom, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
-	TheScriptingWindow->SetWindowPos( &TheScriptingWindow->wndBottom, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
-	TheAuxiliaryWindow->SetWindowPos( &TheAuxiliaryWindow->wndBottom, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
+	TheAuxiliaryWindow->ShowWindow( SW_MAXIMIZE );	
+	std::vector<CDialog*> windows = { this, TheCameraWindow, TheScriptingWindow, TheAuxiliaryWindow };
+	EnumDisplayMonitors( NULL, NULL, monitorHandlingProc, reinterpret_cast<LPARAM>(&windows));
 	// hide the splash just before the first window requiring input pops up.
-	appSplash->ShowWindow( SW_HIDE );	
+	appSplash->ShowWindow( SW_HIDE );
 
 	/// summarize system status.
 	std::string initializationString;
@@ -341,7 +338,18 @@ BOOL MainWindow::OnInitDialog()
 	return TRUE;
 }
 
-
+BOOL CALLBACK MainWindow::monitorHandlingProc( _In_ HMONITOR hMonitor, _In_ HDC hdcMonitor,
+											   _In_ LPRECT lprcMonitor, _In_ LPARAM dwData )
+{
+	static UINT count = 0;
+	std::vector<CDialog*>* windows = reinterpret_cast<std::vector<CDialog*>*>(dwData);
+	if ( count < 4 )
+	{
+		windows->at(count)->MoveWindow( lprcMonitor );
+	}
+	//delete windows;
+	return TRUE;
+}
 
 void MainWindow::handlePause()
 {
@@ -850,6 +858,7 @@ void MainWindow::handleConfigurationCombo()
 	}
 	catch (Error& err)
 	{
+		errBox( err.what( ) );
 		getComm()->sendError(err.what());
 	}
 }

@@ -47,10 +47,11 @@ void NiawgController::initialize()
 }
 
 
-void NiawgController::programNiawg( MasterThreadInput* input, NiawgOutputInfo& output, NiawgWaiter& waiter, 
-									std::string& warnings, UINT variation, UINT totalVariations, 
-									std::vector<long>& variedMixedSize, std::vector<ViChar>& userScriptSubmit)
+void NiawgController::programNiawg( MasterThreadInput* input, NiawgOutputInfo& output, std::string& warnings, 
+									UINT variation, UINT totalVariations, std::vector<long>& variedMixedSize, 
+									std::vector<ViChar>& userScriptSubmit )
 {
+	input->comm->sendColorBox( Niawg, 'Y' );
 	input->niawg->handleVariations( output, input->key->getKey(), variation, variedMixedSize, warnings,
 									input->debugOptions, totalVariations );
 	if (input->settings.dontActuallyGenerate) { return; }
@@ -63,13 +64,13 @@ void NiawgController::programNiawg( MasterThreadInput* input, NiawgOutputInfo& o
 	// initiate generation before telling the master. this is because scripts are supposed to be designed to sit on an 
 	// initial waveform until the master sends it a trigger.
 	input->niawg->turnOn();
-	//waiter.startWaitThread( input );
 	for (UINT waveInc = 2; waveInc < output.waves.size(); waveInc++)
 	{
 		output.waves[waveInc].core.waveVals.clear();
 		output.waves[waveInc].core.waveVals.shrink_to_fit();
 	}
 	variedMixedSize.clear();
+	input->comm->sendColorBox( Niawg, 'G' );
 }
 
 
@@ -87,12 +88,17 @@ bool NiawgController::outputVaries(NiawgOutputInfo output)
 }
 
 // analyzes all niawg scripts and prepares the output structure.
+// this handling is a relic from the old individual niawg thread. 
+// I Should re-organize how I get the niawg files and intensity script files to be consistent with the 
+// master script file.
 void NiawgController::prepareNiawg(MasterThreadInput* input, NiawgOutputInfo& output, 
 									niawgPair<std::vector<std::fstream>>& niawgFiles, std::string& warnings, 
-									std::vector<ViChar>& userScriptSubmit )
+									std::vector<ViChar>& userScriptSubmit, bool& foundRearrangement )
 {
+	input->comm->sendColorBox( Niawg, 'Y' );
+	ProfileSystem::openNiawgFiles( niawgFiles, input->profile, input->runNiawg );
 	std::vector<std::string> workingUserScripts( input->profile.sequenceConfigNames.size() );
-	// analyze each script in sequence.s
+	// analyze each script in sequence.
 	for (UINT sequenceInc = 0; sequenceInc < workingUserScripts.size(); sequenceInc++)
 	{
 		niawgPair<ScriptStream> scripts;
@@ -118,12 +124,37 @@ void NiawgController::prepareNiawg(MasterThreadInput* input, NiawgOutputInfo& ou
 	input->comm->sendStatus( "Constant Waveform Preparation Completed...\r\n" );
 	input->niawg->finalizeScript( input->repetitionNumber, "experimentScript", workingUserScripts, userScriptSubmit, 
 								  !input->niawg->outputVaries(output) );
-
 	if (input->debugOptions.outputNiawgMachineScript)
 	{
 		input->comm->sendDebug( boost::replace_all_copy( "NIAWG Machine Script:\n"
 														 + std::string( userScriptSubmit.begin(), userScriptSubmit.end() )
 														 + "\n\n", "\n", "\r\n" ) );
+	}
+	// check if any waveforms are rearrangement instructions.
+	for ( auto& wave : output.waves )
+	{
+		if ( wave.isRearrangement )
+		{
+			// if already found one...
+			if ( foundRearrangement )
+			{
+				thrower( "ERROR: Multiple rearrangement waveforms found, but not allowed!" );
+			}
+			foundRearrangement = true;
+			// start rearrangement thread. Give the thread the queue.
+			input->niawg->startRearrangementThread( input->atomQueueForRearrangement, wave, input->comm,
+													input->rearrangerLock, input->andorsImageTimes,
+													input->grabTimes, input->conditionVariableForRearrangement,
+													input->rearrangeInfo );
+		}
+	}
+	if ( input->rearrangeInfo.active && !foundRearrangement )
+	{
+		thrower( "ERROR: system is primed for rearranging atoms, but no rearrangement waveform was found!" );
+	}
+	else if ( !input->rearrangeInfo.active && foundRearrangement )
+	{
+		thrower( "ERROR: System was not primed for rearrangign atoms, but a rearrangement waveform was found!" );
 	}
 }
 
@@ -198,6 +229,59 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 	if (debug.message != "")
 	{
 		errBox( "Debug messages detected during initial default waveform script analysis: " + debug.message );
+	}
+}
+
+// this is to be run at the end of the experiment procedure.
+void NiawgController::cleanupNiawg( profileSettings profile, bool masterWasRunning, 
+									niawgPair<std::vector<std::fstream>>& niawgFiles, NiawgOutputInfo& output,
+									Communicator* comm, bool dontGenerate)
+{
+	// close things
+	for ( const auto& sequenceInc : range( profile.sequenceConfigNames.size() ) )
+	{
+		for ( const auto& axis : AXES )
+		{
+			if ( niawgFiles[axis][sequenceInc].is_open( ) )
+			{
+				niawgFiles[axis][sequenceInc].close( );
+			}
+		}
+	}
+	if ( !masterWasRunning )
+	{
+		// this has got to be overkill...
+		NiawgWaiter waiter;
+		waiter.startWaitThread( this, profile );
+		waiter.wait( comm );
+	}
+	else
+	{
+		try
+		{
+			turnOff( );
+		}
+		catch ( Error& ) {}
+	}
+	// Clear waveforms off of NIAWG (not working??? memory appears to still run out... (that's a very old note, 
+	// haven't tested in a long time but has never been an issue.))
+	for ( UINT waveformInc = 2; waveformInc < output.waves.size( ); waveformInc++ )
+	{
+		// wave name is set by size of waves vector, size is not zero-indexed.
+		// name can be empty for some special cases like re-arrangement waves.
+		if ( output.waves[waveformInc].core.name != "" )
+		{
+			fgenConduit.deleteWaveform( cstr( output.waves[waveformInc].core.name ) );
+		}
+	}
+	if ( !dontGenerate )
+	{
+		fgenConduit.deleteScript( "experimentScript" );
+	}
+	for ( auto& wave : output.waves )
+	{
+		wave.core.waveVals.clear( );
+		wave.core.waveVals.shrink_to_fit( );
 	}
 }
 

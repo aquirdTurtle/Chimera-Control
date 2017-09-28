@@ -4,7 +4,7 @@
 
 // This is my wrapper for NI_FGEN functionality. the NiawgController class owns one of these objects, any other 
 // class could own a different one as well if they also need fgen.
-class Fgen
+class FgenFlume
 {
 	public:
 		std::string getErrorMsg();

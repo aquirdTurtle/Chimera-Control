@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
-#include "DataSet.h"
+#include "PlotDataSet.h"
 #include "coordinate.h"
 
 class PlottingInfo
@@ -105,7 +105,7 @@ class PlottingInfo
 		// analysisGroups[pixel #][pixel set][2] = pixel index (set durring plotting)
 		std::vector<std::vector<std::array<int, 3>>> analysisGroups;
 		// Contains information for each set of data to be plotted.
-		std::vector<DataSet> dataSets;
+		std::vector<PlotDataSet> dataSets;
 		// arbitrary. Always goes to the same folder.
 		std::string fileName;
 		// grabbed from main code at "OK" Press.

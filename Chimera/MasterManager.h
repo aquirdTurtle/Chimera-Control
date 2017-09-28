@@ -7,7 +7,7 @@
 #include "KeyHandler.h"
 #include "SocketWrapper.h"
 #include "RhodeSchwarz.h"
-#include "GPIB.h"
+#include "GpibFlume.h"
 #include "DebuggingOptionsControl.h"
 #include "ScriptStream.h"
 #include "Agilent.h"
@@ -106,6 +106,8 @@ class MasterManager
 		static void expUpdate(std::string text, Communicator* comm, bool quiet = false);
 		static void analyzeFunctionDefinition(std::string defLine, std::string& functionName, std::vector<std::string>& args);
 		static UINT determineVariationNumber(std::vector<variableType> vars, key tempKey);
+		static void handleDebugPlots( debugInfo debugOptions, Communicator* comm, DioSystem* ttls, DacSystem* dacs,
+									  bool quiet, EmbeddedPythonHandler* python );
 
 	private:
 		void callCppCodeFunction();

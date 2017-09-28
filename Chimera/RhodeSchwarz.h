@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
-#include "GPIB.h"
+#include "GpibFlume.h"
 
 
 struct rsgEventForm
@@ -40,13 +40,13 @@ class RhodeSchwarz
 		double getTriggerLength();
 		void rearrange(UINT width, UINT height, fontMap fonts);
 	private:
-		Gpib gpibFlume;
+		GpibFlume gpibFlume;
 		std::vector<rsgEventForm> eventStructures;
 		// outer vector is over each variation.
 		std::vector<std::vector<rsgEvent>> events;
 		double triggerTime;
 		std::string rsgTtl;
-		//
+		// 
 		Control<CStatic> header;
 		// this is a read-only control that shows the user how the RSG actually gets programmed in the end.
 		Control<CListCtrl> infoControl;

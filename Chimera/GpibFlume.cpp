@@ -1,18 +1,18 @@
 #include "stdafx.h"
-#include "Gpib.h"
+#include "GpibFlume.h"
 #include "ni488.h"
 #include <array>
 #include "constants.h"
 
 
-std::string Gpib::query( std::string query )
+std::string GpibFlume::query( std::string query )
 {
 	send( query, false );
 	return receive();
 }
 
 
-Gpib::Gpib(short device, bool safemode)
+GpibFlume::GpibFlume(short device, bool safemode)
 {
 	deviceSafemode = safemode;
 	deviceID = device;
@@ -38,7 +38,7 @@ Gpib::Gpib(short device, bool safemode)
 
 
 // send message to address.
-void Gpib::send( std::string message, bool checkError )
+void GpibFlume::send( std::string message, bool checkError )
 {
 	if ( !deviceSafemode)
 	{
@@ -64,7 +64,7 @@ void Gpib::send( std::string message, bool checkError )
 }
 
 
-std::string Gpib::receive()
+std::string GpibFlume::receive()
 {
 	//char msg[256] = "";
 	char msg[256];
@@ -82,7 +82,7 @@ std::string Gpib::receive()
 }
 
 
-void Gpib::queryError( )
+void GpibFlume::queryError( )
 {
 	if ( !deviceSafemode )
 	{
@@ -96,7 +96,7 @@ void Gpib::queryError( )
 
 
 // "gets the device descriptor ud."
-int Gpib::ibdev(int pad)
+int GpibFlume::ibdev(int pad)
 {
 	// board address
 	int bdindx = 0;   
@@ -122,7 +122,7 @@ int Gpib::ibdev(int pad)
 
 
 
-std::string Gpib::queryIdentity()
+std::string GpibFlume::queryIdentity()
 {
 	try
 	{
@@ -144,7 +144,7 @@ std::string Gpib::queryIdentity()
 }
 
 
-std::string Gpib::getErrMessage( long errCode )
+std::string GpibFlume::getErrMessage( long errCode )
 {
 	switch ( errCode )
 	{

@@ -27,8 +27,7 @@ class NiawgWaiter
 	public:
 		void initialize();
 		static unsigned __stdcall niawgWaitThread( void* inputParam );
-		void startWaitThread( MasterThreadInput* input);
-		//void startWaitThread( niawgMIntensityThreadInput* input );
+		void startWaitThread( NiawgController* niawgPtr, profileSettings profile );
 		void wait( Communicator* comm );
 		void systemAbortCheck( Communicator* comm );
 };

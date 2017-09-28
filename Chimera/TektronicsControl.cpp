@@ -1,9 +1,7 @@
 #include "stdafx.h"
 #include "TektronicsControl.h"
 
-
 TektronicsControl::TektronicsControl(bool safemode, std::string address) : visaFlume(safemode, address) {}
-
 
 void TektronicsChannelControl::initialize( POINT loc, CWnd* parent, int& id, std::string channelText, LONG width, 
 										   std::array<UINT, 2> ids)

@@ -80,11 +80,9 @@ class CameraSettingsControl
 		Control<CStatic> kineticCycleTimeLabel;
 		Control<CEdit> minKineticCycleTimeEdit;
 		Control<CStatic> minKineticCycleTimeLabel;
-
-
 		std::string currentControlColor;
 		// two subclassed groups.
-		CameraImageDimsControl imageDimensionsObj;
+		ImageDimsControl imageDimensionsObj;
 		PictureSettingsControl picSettingsObj;
 		// the currently selected settings, not necessarily those being used to run the current
 		// experiment.

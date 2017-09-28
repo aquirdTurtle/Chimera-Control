@@ -476,14 +476,14 @@ void DacSystem::handleButtonPress(DioSystem* ttls)
 }
 
 
-void DacSystem::analyzeDacCommands(UINT variation)
+void DacSystem::organizeDacCommands(UINT variation)
 {
 	// each element of this is a different time (the double), and associated with each time is a vector which locates 
 	// which commands were at this time, for
 	// ease of retrieving all of the values in a moment.
 	std::vector<std::pair<double, std::vector<DacCommand>>> timeOrganizer;
 	std::vector<DacCommand> tempEvents(dacCommandList[variation]);
-	// sort the events by time. using a lambda
+	// sort the events by time. using a lambda here.
 	std::sort( tempEvents.begin(), tempEvents.end(), 
 			   [](DacCommand a, DacCommand b){return a.time < b.time; });
 	for (UINT commandInc = 0; commandInc < tempEvents.size(); commandInc++)
@@ -505,7 +505,7 @@ void DacSystem::analyzeDacCommands(UINT variation)
 	/// make the snapshots
 	if (timeOrganizer.size() == 0)
 	{
-		//thrower("ERROR: no dac commands...?");
+		// no commands, that's fine.
 		return;
 	}
 	dacSnapshots[variation].clear();
@@ -823,6 +823,7 @@ void DacSystem::setDacCommandForm( DacCommandForm command )
 
 
 // add a ttl trigger event for every unique dac snapshot.
+// MUST interpret key for dac and organize dac commands before setting the trigger events.
 void DacSystem::setDacTriggerEvents(DioSystem* ttls, UINT variation)
 {
 	for ( auto snapshot : dacSnapshots[variation])

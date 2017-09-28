@@ -639,21 +639,24 @@ void DioSystem::handleHoldPress()
 
 
 // prepares some structures for a simple force event. 
-void DioSystem::prepareForce()
+void DioSystem::prepareForce( )
 {
-	ttlSnapshots.resize(1);
-	ttlCommandList.resize(1);
-	finalFormatDioData.resize(1);
+	ttlSnapshots.resize( 1 );
+	ttlCommandList.resize( 1 );
+	formattedTtlSnapshots.resize( 1 );
+	finalFormatTtlData.resize( 1 );
 }
 
 
-void DioSystem::resetTtlEvents()
+void DioSystem::resetTtlEvents( )
 {
-	ttlCommandFormList.clear();
-	ttlSnapshots.clear();
-	ttlCommandList.clear();
-	finalFormatDioData.clear();
+	ttlCommandFormList.clear( );
+	ttlSnapshots.clear( );
+	ttlCommandList.clear( );
+	formattedTtlSnapshots.clear( );
+	finalFormatTtlData.clear( );
 }
+
 
 HBRUSH DioSystem::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC)
 {
@@ -894,36 +897,21 @@ int DioSystem::getNameIdentifier(std::string name, UINT& row, UINT& number)
 }
 
 
-void DioSystem::writeData(UINT variation)
+void DioSystem::writeTtlData(UINT variation)
 {
 	WORD temp[4] = { WORD_MAX, WORD_MAX, WORD_MAX, WORD_MAX };
-	double scan = 10000000;
+	double scanRate = 10000000;
 	DWORD availableScans = 0;
-	std::vector<WORD> arrayOfAllData( finalFormatDioData[variation].size() * 6 );
-
 	DIO64STAT status;
 	status.AIControl = 0;
-	// Write to DIO board
 	try
 	{
 		dioOutStop( 0 );
 	}
-	// literally.. just try.
-	catch ( Error& ) {} 
-	// scan rate = 10 MHz
-	dioOutConfig( 0, 0, temp, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, scan );
+	catch ( Error& ) { /* if fails it probably just wasn't running before */ } 
+	dioOutConfig( 0, 0, temp, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, scanRate );
 	dioOutStatus( 0, availableScans, status );
-
-	int count = 0;
-	for (auto& element : arrayOfAllData)
-	{
-		// concatenate all the data at once.
-		element = finalFormatDioData[variation][count / 6][count % 6];
-		count++;
-	}
-
-	// now arrayOfAllData contains all the experiment data.
-	dioOutWrite( 0, arrayOfAllData.data(), finalFormatDioData[variation].size(), status );
+	dioOutWrite( 0, finalFormatTtlData[variation].data(), formattedTtlSnapshots[variation].size(), status );
 }
 
 
@@ -968,7 +956,8 @@ void DioSystem::wait(double time)
 // uses the last time of the ttl trigger to wait until the experiment is finished.
 void DioSystem::waitTillFinished(UINT variation)
 {
-	double totalTime = (finalFormatDioData[variation].back()[0] + 65535 * finalFormatDioData[variation].back()[1]) / 10000.0 + 1;
+	double totalTime = (formattedTtlSnapshots[variation].back()[0] 
+						 + 65535 * formattedTtlSnapshots[variation].back()[1]) / 10000.0 + 1;
 	wait(totalTime);
 	stopBoard();
 }
@@ -976,7 +965,8 @@ void DioSystem::waitTillFinished(UINT variation)
 
 double DioSystem::getTotalTime(UINT variation)
 {
-	return (finalFormatDioData[variation].back()[0] + 65535 * finalFormatDioData[variation].back()[1]) / 10000.0 + 1;
+	return (formattedTtlSnapshots[variation].back()[0]
+			 + 65535 * formattedTtlSnapshots[variation].back()[1]) / 10000.0 + 1;
 }
 
 
@@ -993,8 +983,10 @@ void DioSystem::interpretKey(key variationKey, std::vector<variableType>& vars)
 	ttlCommandList.resize(variations);
 	ttlSnapshots.clear();
 	ttlSnapshots.resize(variations);
-	finalFormatDioData.clear();
-	finalFormatDioData.resize(variations);
+	formattedTtlSnapshots.clear();
+	formattedTtlSnapshots.resize(variations);
+	finalFormatTtlData.clear( );
+	finalFormatTtlData.resize( variations );
 	// and interpret for each variation.
 	for (UINT variationNum = 0; variationNum < variations; variationNum++)
 	{
@@ -1021,12 +1013,13 @@ void DioSystem::interpretKey(key variationKey, std::vector<variableType>& vars)
 }
 
 
-void DioSystem::analyzeCommandList(UINT variation)
+void DioSystem::organizeTtlCommands(UINT variation)
 {
 	// each element of this is a different time (the double), and associated with each time is a vector which locates 
 	// which commands were on at this time, for ease of retrieving all of the values in a moment.
 	std::vector<std::pair<double, std::vector<unsigned short>>> timeOrganizer;
 	std::vector<DioCommand> orderedList(ttlCommandList[variation]);
+	// sort using a lambda. std::sort is effectively a quicksort algorithm.
 	std::sort(orderedList.begin(), orderedList.end(), [](DioCommand a, DioCommand b) {return a.time < b.time; });
 	/// organize all of the commands.
 	for (USHORT commandInc = 0; commandInc < ttlCommandList[variation].size(); commandInc++)
@@ -1099,9 +1092,12 @@ void DioSystem::analyzeCommandList(UINT variation)
 	}
 }
 
+
 void DioSystem::convertToFinalFormat(UINT variation)
 {
-	finalFormatDioData[variation].clear();
+	// excessive but just in case.
+	formattedTtlSnapshots[variation].clear();
+	finalFormatTtlData[variation].clear( );
 	// do bit arithmetic.
 	for (UINT timeInc = 0; timeInc < ttlSnapshots[variation].size(); timeInc++)
 	{
@@ -1139,15 +1135,23 @@ void DioSystem::convertToFinalFormat(UINT variation)
 		tempCommand[3] = static_cast <unsigned short>(ttlBits[1].to_ulong());
 		tempCommand[4] = static_cast <unsigned short>(ttlBits[2].to_ulong());
 		tempCommand[5] = static_cast <unsigned short>(ttlBits[3].to_ulong());
-
-		finalFormatDioData[variation].push_back(tempCommand);
+		formattedTtlSnapshots[variation].push_back(tempCommand);
+	}
+	// flatten the array.
+	finalFormatTtlData.resize( formattedTtlSnapshots[variation].size( ) * 6 );
+	int count = 0;
+	for ( auto& element : finalFormatTtlData[variation] )
+	{
+		// concatenate all the data at once.
+		element = formattedTtlSnapshots[variation][count / 6][count % 6];
+		count++;
 	}
 }
 
 
 void DioSystem::checkNotTooManyTimes( UINT variation )
 {
-	if ( finalFormatDioData[variation].size( ) > 512 )
+	if ( formattedTtlSnapshots[variation].size( ) > 512 )
 	{
 		thrower( "ERROR: DIO Data has more than 512 individual timestamps, which is larger than the DIO64 FIFO Buffer"
 				 ". The DIO64 card can only support 512 individual time-stamps. If you need more, you need to configure"
@@ -1158,12 +1162,14 @@ void DioSystem::checkNotTooManyTimes( UINT variation )
 
 void DioSystem::checkFinalFormatTimes( UINT variation )
 {
-	for ( int dioEventInc = 0; dioEventInc < finalFormatDioData[variation].size( ); dioEventInc++ )
+	// loop through all the commands and make sure that no two events have the same time-stamp. Was a common symptom
+	// of a bug when code first created.
+	for ( int dioEventInc = 0; dioEventInc < formattedTtlSnapshots[variation].size( ); dioEventInc++ )
 	{
 		for ( int dioEventInc2 = 0; dioEventInc2 < dioEventInc; dioEventInc2++ )
 		{
-			if ( finalFormatDioData[variation][dioEventInc][0] == finalFormatDioData[variation][dioEventInc2][0]
-				 && finalFormatDioData[variation][dioEventInc][1] == finalFormatDioData[variation][dioEventInc2][1] )
+			if ( formattedTtlSnapshots[variation][dioEventInc][0] == formattedTtlSnapshots[variation][dioEventInc2][0]
+				 && formattedTtlSnapshots[variation][dioEventInc][1] == formattedTtlSnapshots[variation][dioEventInc2][1] )
 			{
 				thrower( "ERROR: Dio system somehow created two events with the same time stamp! This might be caused by"
 						 " ttl events being spaced to close to each other." );

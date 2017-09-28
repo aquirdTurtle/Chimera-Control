@@ -6,13 +6,13 @@
 #include "CameraSettingsControl.h"
 
 
-CameraImageDimsControl::CameraImageDimsControl()
+ImageDimsControl::ImageDimsControl()
 {
 	isReady = false;
 }
 
 
-void CameraImageDimsControl::initialize( cameraPositions& pos, CWnd* parent, bool isTriggerModeSensitive, int& id )
+void ImageDimsControl::initialize( cameraPositions& pos, CWnd* parent, bool isTriggerModeSensitive, int& id )
 {
 	/*
 	setImageDimsButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
@@ -103,7 +103,7 @@ void CameraImageDimsControl::initialize( cameraPositions& pos, CWnd* parent, boo
 }
 
 
-void CameraImageDimsControl::drawBackgrounds( CameraWindow* camWin )
+void ImageDimsControl::drawBackgrounds( CameraWindow* camWin )
 {
 	// recolor the box, clearing last run
 	CDC* dc = camWin->GetDC();
@@ -118,7 +118,7 @@ void CameraImageDimsControl::drawBackgrounds( CameraWindow* camWin )
 }
 
 
-void CameraImageDimsControl::handleSave( std::ofstream& saveFile )
+void ImageDimsControl::handleSave( std::ofstream& saveFile )
 {
 	saveFile << "CAMERA_IMAGE_DIMENSIONS\n";
 	saveFile << currentImageParameters.left << " " << currentImageParameters.right << " "
@@ -129,7 +129,7 @@ void CameraImageDimsControl::handleSave( std::ofstream& saveFile )
 }
 
 
-void CameraImageDimsControl::handleNew( std::ofstream& newfile )
+void ImageDimsControl::handleNew( std::ofstream& newfile )
 {
 	newfile << "CAMERA_IMAGE_DIMENSIONS\n";
 	newfile << "0 512 1\n";
@@ -138,7 +138,7 @@ void CameraImageDimsControl::handleNew( std::ofstream& newfile )
 }
 
 
-void CameraImageDimsControl::handleOpen( std::ifstream& openFile, double version )
+void ImageDimsControl::handleOpen( std::ifstream& openFile, double version )
 {
 	ProfileSystem::checkDelimiterLine( openFile, "CAMERA_IMAGE_DIMENSIONS" );
 	imageParameters params;
@@ -154,7 +154,7 @@ void CameraImageDimsControl::handleOpen( std::ifstream& openFile, double version
 }
 
 
-imageParameters CameraImageDimsControl::readImageParameters( CameraWindow* camWin )
+imageParameters ImageDimsControl::readImageParameters( CameraWindow* camWin )
 {
 	// in case called before initialized
 	if (!leftEdit)
@@ -269,7 +269,7 @@ imageParameters CameraImageDimsControl::readImageParameters( CameraWindow* camWi
 
 
 // Calculate the number of actual pixels in each dimension.
-void CameraImageDimsControl::updateWidthHeight( )
+void ImageDimsControl::updateWidthHeight( )
 {
 	currentImageParameters.width = (currentImageParameters.right - currentImageParameters.left + 1) / currentImageParameters.horizontalBinning;
 	currentImageParameters.height = (currentImageParameters.top - currentImageParameters.bottom + 1) / currentImageParameters.verticalBinning;
@@ -278,7 +278,7 @@ void CameraImageDimsControl::updateWidthHeight( )
 /*
  * I forget why I needed a second function for this.
  */
-void CameraImageDimsControl::setImageParametersFromInput( imageParameters param, CameraWindow* camWin )
+void ImageDimsControl::setImageParametersFromInput( imageParameters param, CameraWindow* camWin )
 {
 	if ( camWin != NULL )
 	{
@@ -331,7 +331,7 @@ void CameraImageDimsControl::setImageParametersFromInput( imageParameters param,
 }
 
 
-bool CameraImageDimsControl::checkReady()
+bool ImageDimsControl::checkReady()
 {
 	if (isReady)
 	{
@@ -344,13 +344,13 @@ bool CameraImageDimsControl::checkReady()
 }
 
 
-imageParameters CameraImageDimsControl::getImageParameters()
+imageParameters ImageDimsControl::getImageParameters()
 {
 	return currentImageParameters;
 }
 
 
-HBRUSH CameraImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, LPARAM lParam, MainWindow* mainWin )
+HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, LPARAM lParam, MainWindow* mainWin )
 {
 	brushMap brushes = mainWin->getBrushes();
 
@@ -595,7 +595,7 @@ HBRUSH CameraImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wPa
 }
 
 
-void CameraImageDimsControl::rearrange( std::string cameraMode, std::string triggerMode, int width, int height, 
+void ImageDimsControl::rearrange( std::string cameraMode, std::string triggerMode, int width, int height, 
 											  fontMap fonts )
 {
 	leftText.rearrange( cameraMode, triggerMode, width, height, fonts );
