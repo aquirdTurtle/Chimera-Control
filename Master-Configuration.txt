@@ -226,4 +226,4 @@ rotatefieldtime 3
 imagingflashingdetuning -0.8
 intrappgcdetuning -4.5
 intrappgcpower 0.225
-256 288 3 238 270 3
+259 285 3 241 267 3
