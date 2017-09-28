@@ -80,15 +80,13 @@ unsigned __stdcall NiawgWaiter::niawgWaitThread(void* inputParam)
 }
 
 
-
-
-void NiawgWaiter::startWaitThread( MasterThreadInput* input )
+void NiawgWaiter::startWaitThread( NiawgController* niawgPtr, profileSettings profile )
 {
 	eWaitError = false;
 	// create the waiting thread.
 	waitThreadInput* waitInput = new waitThreadInput;
-	waitInput->niawg = input->niawg;
-	waitInput->profile = input->profile;
+	waitInput->niawg = niawgPtr;
+	waitInput->profile = profile;
 	UINT NIAWGThreadID;
 	eNIAWGWaitThreadHandle = (HANDLE)_beginthreadex( 0, 0, &NiawgWaiter::niawgWaitThread, waitInput, 0, &NIAWGThreadID );
 }
@@ -101,7 +99,8 @@ void NiawgWaiter::initialize()
 
 
 // waits for waiting thread to finish it's execution. If the niawg finished before the programming, this will return 
-// immediately.
+// immediately. I think that I can get rid of the abort checks in here, this only ever gets called at the very end
+// of the experiment and there's no reason for the checks to be this far inside the niawg handling.
 void NiawgWaiter::wait( Communicator* comm )
 {
 	systemAbortCheck( comm );
@@ -123,7 +122,7 @@ void NiawgWaiter::wait( Communicator* comm )
 void NiawgWaiter::systemAbortCheck( Communicator* comm )
 {
 	// check if aborting
-	if (eAbortNiawgFlag )
+	if ( eAbortNiawgFlag )
 	{
 		comm->sendStatus( "Aborted!\r\n" );
 		thrower( "Aborted!\r\n" );

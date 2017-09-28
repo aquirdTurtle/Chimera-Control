@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "RhodeSchwarz.h"
-#include "GPIB.h"
+#include "GpibFlume.h"
 #include "constants.h"
 #include "AuxiliaryWindow.h"
 

@@ -29,6 +29,7 @@ bool MasterManager::getAbortStatus()
  */
 UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 {
+	/// initialize various structures
 	// convert the input to the correct structure.
 	MasterThreadInput* input = (MasterThreadInput*)voidInput;
 	// change the status of the parent object to reflect that the thread is running.
@@ -37,37 +38,34 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 	// at a certain point the string will get outputted to the error console. Remember, errors themselves are handled 
 	// by thrower() calls.
 	std::string warnings;
-	ULONGLONG startTime = GetTickCount();
+	std::string abortString = "\r\nABORTED!\r\n";
+	std::chrono::time_point<chronoClock> startTime( chronoClock::now( ) );
 	std::vector<long> variedMixedSize;
-	bool intIsVaried = false;
-	std::vector<std::pair<double, double>> intensityRanges;
-	std::vector<std::fstream> intensityScriptFiles;
 	niawgPair<std::vector<std::fstream>> niawgFiles;
-	NiawgWaiter waiter;
 	NiawgOutputInfo output;
 	std::vector<ViChar> userScriptSubmit;
 	output.isDefault = false;
-	// initialize to 2 because of default waveforms...
+	// initialize to 2 because of default waveforms. This can probably be changed to 1, since only one default waveform
+	// now, but might cause temporary breakages.
 	output.waves.resize( 2 );
-
 	std::vector<std::pair<UINT, UINT>> ttlShadeLocs;
 	std::vector<UINT> dacShadeLocs;
 	bool foundRearrangement = false;
-	//
+	/// start analysis & experiment
 	try
 	{
 		UINT variations = determineVariationNumber( input->variables, input->key->getKey() );
+		// finishing sentence from before start I think...
 		expUpdate( "Done.\r\n", input->comm, input->quiet );
-		// Prep agilents
+		/// Prep agilents
 		expUpdate( "Loading Agilent Info...", input->comm, input->quiet );
 		for (auto agilent : input->agilents)
 		{
-			// I'm thinking this should be done before loading.
 			RunInfo dum;
 			agilent->handleInput( 1, input->profile.categoryPath, dum );
 			agilent->handleInput( 2, input->profile.categoryPath, dum );
 		}
-		//
+		/// prep master systems
 		expUpdate( "Analyzing Master Script...", input->comm, input->quiet );
 		input->dacs->resetDacEvents();
 		input->ttls->resetTtlEvents();
@@ -78,42 +76,17 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			input->thisObj->analyzeMasterScript( input->ttls, input->dacs, ttlShadeLocs, dacShadeLocs, input->rsg,
 												 input->variables );
 		}
-		/// 
-		// a relic from the niawg thread. I Should re-organize how I get the niawg files and intensity script files to
-		// be consistent with the master script file.
+		/// prep NIAWG
 		if (input->runNiawg)
 		{
-			input->comm->sendColorBox( Niawg, 'Y' );
-			ProfileSystem::openNiawgFiles( niawgFiles, input->profile, input->runNiawg);
-			input->niawg->prepareNiawg( input, output, niawgFiles, warnings, userScriptSubmit, input->rearrangeInfo );
-			// check if any waveforms are rearrangement instructions.
-			for (auto& wave : output.waves)
-			{
-				if (wave.isRearrangement)
-				{
-					// if already found one...
-					if (foundRearrangement)
-					{
-						thrower( "ERROR: Multiple rearrangement waveforms not allowed!" );
-					}
-					foundRearrangement = true;
-					// start rearrangement thread. Give the thread the queue.
-					input->niawg->startRearrangementThread( input->atomQueueForRearrangement, wave, input->comm, 
-															input->rearrangerLock, input->andorsImageTimes, 
-															input->grabTimes, input->conditionVariableForRearrangement,
-															input->rearrangeInfo);
-				}
-			}
-			if (input->rearrangeInfo.active && !foundRearrangement )
-			{
-				thrower( "ERROR: system is primed for rearranging atoms, but no rearrangement waveform was found!" );
-			}
-			else if (!input->rearrangeInfo.active && foundRearrangement)
-			{
-				thrower( "ERROR: System was not primed for rearrangign atoms, but a rearrangement waveform was found!" );
-			}
+			input->niawg->prepareNiawg( input, output, niawgFiles, warnings, userScriptSubmit, foundRearrangement, 
+										input->rearrangeInfo);
 		}
-		// update ttl and dac looks & interaction based on which ones are used in the experiment.
+		if ( input->thisObj->isAborting )
+		{
+			thrower( abortString );
+		}
+		/// update ttl and dac looks & interaction based on which ones are used in the experiment.
 		if (input->runMaster)
 		{
 			input->ttls->shadeTTLs( ttlShadeLocs );
@@ -122,9 +95,12 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		// go ahead and check if abort was pressed real fast...
 		if (input->thisObj->isAborting)
 		{
-			thrower( "\r\nABORTED!\r\n" );
+			thrower( abortString );
 		}
-		// must interpret key before setting the trigger events.
+		/// The Key Interpretation step.
+		// at this point, all scripts have been analyzed, and each system takes the key and generates all of the data
+		// it needs for each variation of the experiment. All these calculations happen at this step.
+		expUpdate( "Programming All Variation Data...\r\n", input->comm, input->quiet );
 		if (input->runMaster)
 		{
 			input->ttls->interpretKey( input->key->getKey(), input->variables );
@@ -133,23 +109,26 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		input->rsg->interpretKey( input->key->getKey(), input->variables );
 		input->topBottomTek->interpretKey( input->key->getKey(), input->variables );
 		input->eoAxialTek->interpretKey( input->key->getKey(), input->variables );
-		ULONGLONG varProgramStartTime = GetTickCount();
-		expUpdate( "Programming All Variation Data...\r\n", input->comm, input->quiet );
+		/// organize commands, prepping final forms of the data for each repetition.
+		// This must be done after the "interpret key" step, as before that commands don't have hard times attached to 
+		// them.
+		std::chrono::time_point<chronoClock> varProgramStartTime( chronoClock::now( ) );
 		for (UINT variationInc = 0; variationInc < variations; variationInc++)
 		{
 			// reading these variables should be safe.
 			if (input->thisObj->isAborting)
 			{
-				thrower( "\r\nABORTED!\r\n" );
+				thrower( abortString );
 			}
 			if (input->runMaster)
 			{
-				input->dacs->analyzeDacCommands( variationInc );
+				// organize & format the ttl and dac commands
+				input->dacs->organizeDacCommands( variationInc );
 				input->dacs->setDacTriggerEvents( input->ttls, variationInc );
-				// prepare dac and ttls. data to final forms.
 				input->dacs->makeFinalDataFormat( variationInc );
-				input->ttls->analyzeCommandList( variationInc );
+				input->ttls->organizeTtlCommands( variationInc );
 				input->ttls->convertToFinalFormat( variationInc );
+				// run a couple checks.
 				input->ttls->checkNotTooManyTimes( variationInc );
 				input->ttls->checkFinalFormatTimes( variationInc );
 				if (input->ttls->countDacTriggers( variationInc ) != input->dacs->getNumberSnapshots( variationInc ))
@@ -162,13 +141,14 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			}
 			input->rsg->orderEvents( variationInc );
 		}
-
-		ULONGLONG varProgramEndTime = GetTickCount();
-		expUpdate( "Programming took " + str( (varProgramEndTime - varProgramStartTime) / 1000.0 ) + " seconds.\r\n",
-				   input->comm, input->quiet );
+		/// output some timing information
+		std::chrono::time_point<chronoClock> varProgramEndTime( chronoClock::now( ) );
+		expUpdate( "Programming took " 
+				   + str( std::chrono::duration<double>( (varProgramEndTime - varProgramStartTime) ).count( ) / 1000.0 )
+				   + " seconds.\r\n", input->comm, input->quiet );
 		if (input->runMaster)
 		{
-			expUpdate( "Programmed time per repetition: " + str( input->ttls->getTotalTime( 0 ) ) + "\r\n",
+			expUpdate( "Programmed time per repetition: " + str( input->ttls->getTotalTime( 0 ) ) + "\r\n", 
 					   input->comm, input->quiet );
 			ULONGLONG totalTime = 0;
 			for (USHORT variationNumber = 0; variationNumber < variations; variationNumber++)
@@ -176,62 +156,25 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 				totalTime += ULONGLONG(input->ttls->getTotalTime( variationNumber ) * input->repetitionNumber);
 			}
 			expUpdate( "Programmed Total Experiment time: " + str( totalTime ) + "\r\n", input->comm, input->quiet );
-			expUpdate( "Number of TTL Events in experiment: " + str( input->ttls->getNumberEvents( 0 ) ) 
-					   + "\r\n", input->comm, input->quiet );
-			expUpdate( "Number of DAC Events in experiment: " + str( input->dacs->getNumberEvents( 0 ) )
-					   + "\r\n", input->comm, input->quiet );
+			expUpdate( "Number of TTL Events in experiment: " + str( input->ttls->getNumberEvents( 0 ) ) + "\r\n", 
+					   input->comm, input->quiet );
+			expUpdate( "Number of DAC Events in experiment: " + str( input->dacs->getNumberEvents( 0 ) ) + "\r\n", 
+					   input->comm, input->quiet );
 		}
-
-		if (input->debugOptions.showTtls)
-		{
-			// output to status
-			input->comm->sendDebug( input->ttls->getTtlSequenceMessage( 0 ) );
-			// output to debug file
-			std::ofstream debugFile( cstr( DEBUG_OUTPUT_LOCATION + str( "TTL-Sequence.txt" ) ) );
-			if (debugFile.is_open())
-			{
-				debugFile << input->ttls->getTtlSequenceMessage( 0 );
-				debugFile.close();
-			}
-			else
-			{
-				expUpdate( "ERROR: Debug text file failed to open! Continuing...\r\n", input->comm, input->quiet );
-			}
-			input->python->runPlotTtls( );
-		}
-		if (input->debugOptions.showDacs)
-		{
-			// output to status
-			input->comm->sendDebug( input->dacs->getDacSequenceMessage( 0 ) );
-			// output to debug file.
-			std::ofstream  debugFile( cstr( DEBUG_OUTPUT_LOCATION + str( "DAC-Sequence.txt" ) ) );
-			if (debugFile.is_open())
-			{
-				debugFile << input->dacs->getDacSequenceMessage( 0 );
-				debugFile.close();
-			}
-			else
-			{
-				input->comm->sendError( "ERROR: Debug text file failed to open! Continuing...\r\n" );
-			}
-
-			input->python->runPlotDacs( );
-		}
-
-		input->globalControl->setUsages( input->variables );
-		// no quiet on warnings.
+		/// finish up
+		handleDebugPlots( input->debugOptions, input->comm, input->ttls, input->dacs, input->quiet, input->python );
 		input->comm->sendError( warnings );
-		input->comm->sendDebug( input->debugOptions.message );
-
+		// update the colors of the global variable control.
+		input->globalControl->setUsages( input->variables );
 		/// /////////////////////////////
 		/// Begin experiment loop
 		/// //////////
-		// loop for variations
-		// TODO: Handle randomizing repetitions. This will need to split off here.
+		// TODO: Handle randomizing repetitions. The thread will need to split into separate if/else statements here.
 		if (input->runMaster)
 		{
 			input->comm->sendColorBox( Master, 'G' );
 		}
+		// loop for variations
 		for (const UINT& variationInc : range( variations ))
 		{
 			expUpdate( "Variation #" + str( variationInc + 1 ) + "\r\n", input->comm, input->quiet );
@@ -249,26 +192,21 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 							   input->quiet );
 				}
 			}
-			expUpdate( "Programming Hardware...\r\n", input->comm, input->quiet );
+			expUpdate( "Programming RSG, Agilents, NIAWG, & Teltronics...\r\n", input->comm, input->quiet );
 			input->rsg->programRSG( variationInc );
 			input->rsg->setInfoDisp( variationInc );
 			// program devices
 			for (auto& agilent : input->agilents)
 			{
+				input->comm->sendColorBox( Intensity, 'Y' );
 				agilent->setAgilent( input->key->getKey(), variationInc, input->variables );
+				input->comm->sendColorBox( Intensity, 'G' );
 			}
-
-			// program the intensity agilent. Right now this is a little different than the above because I haven't 
-			// implemented scripting in the generic agilent control, and this is left-over from the intensity control
-			// in the Niawg-Only program.
 			if (input->runNiawg)
 			{
-				input->comm->sendColorBox( Niawg, 'Y' );
-				input->niawg->programNiawg( input, output, waiter, warnings, variationInc, variations, variedMixedSize,
+				input->niawg->programNiawg( input, output, warnings, variationInc, variations, variedMixedSize,
 											userScriptSubmit );
-				input->comm->sendColorBox( Niawg, 'G' );
 			}
-
 			input->topBottomTek->programMachine( variationInc );
 			input->eoAxialTek->programMachine( variationInc );
 			//
@@ -276,10 +214,9 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			expUpdate( "Running Experiment.\r\n", input->comm, input->quiet );
 			for (UINT repInc = 0; repInc < input->repetitionNumber; repInc++)
 			{
-				// reading these variables should be safe.
 				if (input->thisObj->isAborting)
 				{
-					thrower( "\r\nABORTED!\r\n" );
+					thrower( abortString );
 				}
 				else if (input->thisObj->isPaused)
 				{
@@ -287,118 +224,56 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 					// wait...
 					while (input->thisObj->isPaused)
 					{
-						// this could be changed to be a bit smarter I think.
+						// this could be changed to be a bit smarter using a std::condition_variable
 						Sleep( 100 );
 					}
 					expUpdate( "\r\nUn-Paused!\r\n", input->comm, input->quiet );
 				}
 				input->comm->sendRepProgress( repInc + 1 );
-				// this apparently needs to be re-written each time from looking at the VB6 code.
+				// this was re-written each time from looking at the VB6 code.
 				if (input->runMaster)
 				{
 					input->dacs->stopDacs();
 					input->dacs->configureClocks( variationInc );
 					input->dacs->writeDacs( variationInc );
 					input->dacs->startDacs();
-					input->ttls->writeData( variationInc );
+					input->ttls->writeTtlData( variationInc );
 					input->ttls->startBoard();
-					// wait until finished.
 					input->ttls->waitTillFinished( variationInc );
 				}
 			}
 			expUpdate( "\r\n", input->comm, input->quiet );
 		}
-		// do experiment stuff...
+		/// conclude.
 		expUpdate( "\r\nExperiment Finished Normally.\r\n", input->comm, input->quiet );
 		input->comm->sendColorBox( Master, 'B' );
-		// this is necessary. If not, the dac system will still be "running" and won't allow updates through normal 
-		// means.
 		if (input->runMaster)
 		{
+			// stop is necessary; Else the dac system will still be "running" and won't allow updates through normal 
+			// means.
 			input->dacs->stopDacs();
 			input->dacs->unshadeDacs();
 		}
-		// make sure the display accurately displays the state that the experiment finished at.
-		try
+		if ( input->runMaster )
 		{
-			input->dacs->setDacStatusNoForceOut( input->dacs->getFinalSnapshot() );
+			try
+			{
+				// make sure the display accurately displays the state that the experiment finished at.
+				input->dacs->setDacStatusNoForceOut( input->dacs->getFinalSnapshot( ) );
+				input->ttls->unshadeTtls( );
+				input->ttls->setTtlStatusNoForceOut( input->ttls->getFinalSnapshot( ) );
+			}
+			catch ( Error& ) { /* this gets thrown if no dac events. just continue.*/ }
 		}
-		catch (Error&) { /* this gets thrown if no dac events. just continue.*/ }
-		if (input->runMaster)
-		{
-			input->ttls->unshadeTtls();
-			input->ttls->setTtlStatusNoForceOut( input->ttls->getFinalSnapshot() );
-		}
-
-		///	Cleanup NIAWG stuff (after all generate code)
-		// close things
 		if (input->runNiawg)
 		{
-			for (const auto& sequenceInc : range( input->profile.sequenceConfigNames.size() ))
-			{
-				for (const auto& axis : AXES)
-				{
-					if (niawgFiles[axis][sequenceInc].is_open())
-					{
-						niawgFiles[axis][sequenceInc].close();
-					}
-				}
-			}
-			if (!input->runMaster)
-			{
-				// this has got to be overkill...
-				waiter.startWaitThread( input );
-				waiter.wait(input->comm);
-			}
-			else
-			{
-				try
-				{
-					input->niawg->turnOff( );
-					//waiter.wait(input->comm);
-				}
-				catch (Error&)
-				{
-					//errBox(err.what());
-				}
-			}
-			// Clear waveforms off of NIAWG (not working??? memory appears to still run out... (that's a very old note, 
-			// haven't tested in a long time but has never been an issue.))
-			for (UINT waveformInc = 2; waveformInc < output.waves.size(); waveformInc++)
-			{
-				// wave name is set by size of waves vector, size is not zero-indexed.
-				// name can be empty for some special cases like re-arrangement waves.
-				if ( output.waves[waveformInc].core.name != "" )
-				{
-					input->niawg->fgenConduit.deleteWaveform( cstr( output.waves[waveformInc].core.name ) );
-				}
-			}
-			if (!input->settings.dontActuallyGenerate)
-			{
-				input->niawg->fgenConduit.deleteScript( "experimentScript" );
-			}
-			for (auto& wave : output.waves)
-			{
-				wave.core.waveVals.clear();
-				wave.core.waveVals.shrink_to_fit();
-			}
+			input->niawg->cleanupNiawg( input->profile, input->runMaster, niawgFiles, output, input->comm, 
+										input->settings.dontActuallyGenerate );
 		}
 		input->comm->sendNormalFinish( );
 	}
 	catch (Error& exception)
 	{
-		if (input->intensityAgilentNumber != -1)
-		{
-			try
-			{
-				//input->agilents[input->intensityAgilentNumber]->setDefault(1);
-			}
-			catch (Error&)
-			{
-				//... not much to do.
-			}
-		}
-
 		if (input->runNiawg)
 		{
 			for (const auto& sequenceInc : range( input->profile.sequenceConfigNames.size() ))
@@ -437,7 +312,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 
 		if ( input->thisObj->isAborting )
 		{
-			expUpdate( "\r\nABORTED!\r\n", input->comm, input->quiet );
+			expUpdate( abortString, input->comm, input->quiet );
 			input->comm->sendColorBox( Master, 'B' );
 		}
 		else
@@ -458,11 +333,55 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			input->conditionVariableForRearrangement->notify_all( );
 		}
 	}
-	ULONGLONG endTime = GetTickCount();
-	expUpdate( "Experiment took " + str( (endTime - startTime) / 1000.0 ) + " seconds.\r\n", input->comm, input->quiet );
+	std::chrono::time_point<chronoClock> endTime( chronoClock::now( ) );
+	expUpdate( "Experiment took " + str( std::chrono::duration<double>( (endTime - startTime) ).count( ) / 1000.0 ) 
+			   + " seconds.\r\n", input->comm, input->quiet );
 	input->thisObj->experimentIsRunning = false;
 	delete input;
 	return false;
+}
+
+
+void MasterManager::handleDebugPlots( debugInfo debugOptions, Communicator* comm, DioSystem* ttls, DacSystem* dacs,
+									  bool quiet, EmbeddedPythonHandler* python )
+{
+	if ( debugOptions.showTtls )
+	{
+		// output to status
+		comm->sendDebug( ttls->getTtlSequenceMessage( 0 ) );
+		// output to debug file
+		std::ofstream debugFile( cstr( DEBUG_OUTPUT_LOCATION + str( "TTL-Sequence.txt" ) ) );
+		if ( debugFile.is_open( ) )
+		{
+			debugFile << ttls->getTtlSequenceMessage( 0 );
+			debugFile.close( );
+		}
+		else
+		{
+			expUpdate( "ERROR: Debug text file failed to open! Continuing...\r\n", comm, quiet );
+		}
+		python->runPlotTtls( );
+	}
+	if ( debugOptions.showDacs )
+	{
+		// output to status
+		comm->sendDebug( dacs->getDacSequenceMessage( 0 ) );
+		// output to debug file.
+		std::ofstream  debugFile( cstr( DEBUG_OUTPUT_LOCATION + str( "DAC-Sequence.txt" ) ) );
+		if ( debugFile.is_open( ) )
+		{
+			debugFile << dacs->getDacSequenceMessage( 0 );
+			debugFile.close( );
+		}
+		else
+		{
+			comm->sendError( "ERROR: Debug text file failed to open! Continuing...\r\n" );
+		}
+
+		python->runPlotDacs( );
+	}
+	// no quiet on warnings or debug messages.
+	comm->sendDebug( debugOptions.message );
 }
 
 

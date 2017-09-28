@@ -3,10 +3,10 @@
 #include <vector>
 
 // for plotting info
-class DataSet
+class PlotDataSet
 {
 	public:
-		DataSet();
+		PlotDataSet();
 		void initialize(UINT conditionNumber, UINT pixelNumber, UINT pictureNumber);
 		void changeLegendText(std::string newLegendText);
 		std::string getLegendText();
