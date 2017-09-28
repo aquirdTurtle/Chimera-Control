@@ -64,23 +64,22 @@ class DioSystem
 									 Expression pulseLength, std::vector<std::pair<UINT, UINT>>& ttlShadeLocations,
 									 std::vector<variableType>& vars );
 		void interpretKey(key variationKey, std::vector<variableType>& vars);
-		void analyzeCommandList(UINT variation );
+		void organizeTtlCommands(UINT variation );
 		void convertToFinalFormat(UINT variation );
-		void writeData(UINT variation );
+		void writeTtlData( UINT variation );
 		void startBoard();
 		void stopBoard();
 		double getClockStatus();
 		void wait(double time);
 		void waitTillFinished(UINT variation );
-
-		//int DioSystem::getNameIdentifier(std::string name, unsigned int& row, unsigned int& number);
 		void shadeTTLs(std::vector<std::pair<UINT, UINT>>);
 		void unshadeTtls();
 		bool isValidTTLName(std::string name);
+
 		void resetTtlEvents();
 		void prepareForce();
-
 		void updateDefaultTtl(UINT row, UINT column, bool state);
+
 		bool getDefaultTtl(UINT row, UINT column);
 
 	private:
@@ -107,7 +106,9 @@ class DioSystem
 		// Each element of first vector is for each variation.
 		std::vector<std::vector<DioSnapshot>> ttlSnapshots;
 		// Each element of first vector is for each variation.
-		std::vector<std::vector<std::array<WORD, 6>>> finalFormatDioData;
+		std::vector<std::vector<std::array<WORD, 6>>> formattedTtlSnapshots;
+		// this is just a flattened version of the above snapshots. This is what gets directly sent to the dio64 card.
+		std::vector<std::vector<WORD>> finalFormatTtlData;
 
 		std::array<std::array<bool, 16>, 4> defaultTtlState;
 

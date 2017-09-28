@@ -8,10 +8,10 @@ class CameraWindow;
 class MainWindow;
 
 
-class CameraImageDimsControl
+class ImageDimsControl
 {
 	public:
-		CameraImageDimsControl();
+		ImageDimsControl();
 		void initialize( cameraPositions& pos, CWnd* parentWindow, bool isTriggerModeSensitive, int& id );
 		void updateWidthHeight( );
 		imageParameters readImageParameters( CameraWindow* camWin );

@@ -56,8 +56,8 @@ class Error : public std::runtime_error
 #define ERR_POP_RETURN(string) {if (string != ""){errBox(string); return;}}
 
 /*
-* This functions appends the text "newText" to the edit control corresponding to textIDC.
-*/
+ * This functions appends the text "newText" to the edit control corresponding to textIDC.
+ */
 //void appendText(std::string newText, int textIDC, HWND parentWindow);
 void appendText(std::string newText, CEdit& edit);
 void appendText(std::string newText, Control<CRichEditCtrl>& edit);
@@ -113,6 +113,17 @@ template <typename T> std::string str(T input, const int precision = 6, bool eat
 }
 
 
+/// Usage note
+// the cstr is returning a pointer to an object being created in the macro. That object never gets assigned to anything,
+// so after line calling cstr finishes, that object gets destroyed, and the pointer points to nothing. Therefore,
+// cstr can not be used if the pointer created is not immediately used to instantiate another object. For example:
+//		MessageBox( eMainWindowHwnd, cstr( msg ), "ERROR!", MB_ICONERROR | MB_SYSTEMMODAL );
+// works because MessageBox immediately makes a copy of the msg based on it's pointer.
+//		const char * tempStr = cstr(msg);
+//		MessageBox( eMainWindowHwnd, tempStr, "ERROR!", MB_ICONERROR | MB_SYSTEMMODAL );
+// doesn't work because by the time MessageBox is called, the string cstr created has been destroyed and tempStr 
+// points to nothing.
+
 // overloaded defines are tricky in c++. This is effectively just an overloaded define for 
 //#define cstr(input) str(input).c_str()
 //#define cstr(input, precision) str(input, precision).c_str()
@@ -125,7 +136,7 @@ template <typename T> std::string str(T input, const int precision = 6, bool eat
 // if the user enters 1 argument then  GET_MACRO calls FOO2, else it calls FOO3 and discards FOO2. Either way, it calls
 // the function with __VA_ARGS__ which was the original "..." arguments.
 #define cstr(...) GET_MACRO(__VA_ARGS__, cstr2, cstr1)(__VA_ARGS__)
-
+//
 #define idVerify(idSet, ...)	verifyIdsMatch(idSet, {__VA_ARGS__}, __FILE__, __LINE__)
 
 /// a set of functions that take more arbitrary things to strings that str (which is also rather wordy for such a simple 

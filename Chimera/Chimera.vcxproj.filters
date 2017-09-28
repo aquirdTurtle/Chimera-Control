@@ -43,9 +43,6 @@
     <ClCompile Include="RhodeSchwarz.cpp">
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
-    <ClCompile Include="Rearranger.cpp">
-      <Filter>Main Window</Filter>
-    </ClCompile>
     <ClCompile Include="Repetitions.cpp">
       <Filter>Main Window</Filter>
     </ClCompile>
@@ -109,9 +106,6 @@
     <ClCompile Include="DebuggingOptionsControl.cpp">
       <Filter>Main Window</Filter>
     </ClCompile>
-    <ClCompile Include="DataSet.cpp">
-      <Filter>Camera Window</Filter>
-    </ClCompile>
     <ClCompile Include="DataAnalysisHandler.cpp">
       <Filter>Camera Window</Filter>
     </ClCompile>
@@ -153,9 +147,6 @@
     </ClCompile>
     <ClCompile Include="SmsTextingControl.cpp">
       <Filter>Main Window</Filter>
-    </ClCompile>
-    <ClCompile Include="GPIB.cpp">
-      <Filter>Auxiliary Window</Filter>
     </ClCompile>
     <ClCompile Include="DataLogger.cpp">
       <Filter>Camera Window</Filter>
@@ -202,6 +193,12 @@
     <ClCompile Include="RearrangeControl.cpp">
       <Filter>Main Window</Filter>
     </ClCompile>
+    <ClCompile Include="GpibFlume.cpp">
+      <Filter>Auxiliary Window</Filter>
+    </ClCompile>
+    <ClCompile Include="PlotDataSet.cpp">
+      <Filter>Camera Window</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -241,9 +238,6 @@
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
     <ClInclude Include="Repetitions.h">
-      <Filter>Main Window</Filter>
-    </ClInclude>
-    <ClInclude Include="Rearranger.h">
       <Filter>Main Window</Filter>
     </ClInclude>
     <ClInclude Include="PlottingInfo.h">
@@ -315,9 +309,6 @@
     <ClInclude Include="gnuplotter.h">
       <Filter>Camera Window</Filter>
     </ClInclude>
-    <ClInclude Include="gnuplot-iostream.h">
-      <Filter>Camera Window</Filter>
-    </ClInclude>
     <ClInclude Include="ExperimentTimer.h">
       <Filter>Camera Window</Filter>
     </ClInclude>
@@ -337,9 +328,6 @@
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
     <ClInclude Include="CameraSettingsControl.h">
-      <Filter>Camera Window</Filter>
-    </ClInclude>
-    <ClInclude Include="DataSet.h">
       <Filter>Camera Window</Filter>
     </ClInclude>
     <ClInclude Include="DataAnalysisHandler.h">
@@ -387,18 +375,6 @@
     <ClInclude Include="longnam.h">
       <Filter>Things I Don%27t Mess With %28Often%29</Filter>
     </ClInclude>
-    <ClInclude Include="Gpib.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
-    <ClInclude Include="atomCruncherInput.h">
-      <Filter>Camera Window</Filter>
-    </ClInclude>
-    <ClInclude Include="AndorRunSettings.h">
-      <Filter>Camera Window</Filter>
-    </ClInclude>
-    <ClInclude Include="imageParameters.h">
-      <Filter>Camera Window</Filter>
-    </ClInclude>
     <ClInclude Include="cleanString.h">
       <Filter>General Files</Filter>
     </ClInclude>
@@ -424,14 +400,8 @@
     <ClInclude Include="ProfileSystem.h">
       <Filter>Main Window</Filter>
     </ClInclude>
-    <ClInclude Include="profileSettings.h">
-      <Filter>Main Window</Filter>
-    </ClInclude>
     <ClInclude Include="agilentStructures.h">
       <Filter>Auxiliary Window</Filter>
-    </ClInclude>
-    <ClInclude Include="cameraPositions.h">
-      <Filter>Camera Window</Filter>
     </ClInclude>
     <ClInclude Include="scriptedAgilentWaveform.h">
       <Filter>Auxiliary Window</Filter>
@@ -454,25 +424,49 @@
     <ClInclude Include="splashDialog.h">
       <Filter>General Files</Filter>
     </ClInclude>
-    <ClInclude Include="atomGrid.h">
-      <Filter>Camera Window</Filter>
-    </ClInclude>
     <ClInclude Include="Expression.h">
       <Filter>General Files</Filter>
     </ClInclude>
-    <ClInclude Include="realTimePlotterInput.h">
-      <Filter>Main Window</Filter>
-    </ClInclude>
     <ClInclude Include="VariableStructures.h">
       <Filter>Main Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="tinyPlotInfo.h">
-      <Filter>Camera Window</Filter>
     </ClInclude>
     <ClInclude Include="RearrangeControl.h">
       <Filter>Main Window</Filter>
     </ClInclude>
     <ClInclude Include="rearrangeParams.h">
+      <Filter>Main Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="GpibFlume.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
+    <ClInclude Include="PlotDataSet.h">
+      <Filter>Camera Window</Filter>
+    </ClInclude>
+    <ClInclude Include="AndorRunSettings.h">
+      <Filter>Camera Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="atomCruncherInput.h">
+      <Filter>Camera Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="atomGrid.h">
+      <Filter>Camera Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="cameraPositions.h">
+      <Filter>Camera Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="gnuplot-iostream.h">
+      <Filter>Camera Window</Filter>
+    </ClInclude>
+    <ClInclude Include="imageParameters.h">
+      <Filter>Camera Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyPlotInfo.h">
+      <Filter>Camera Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="realTimePlotterInput.h">
+      <Filter>Main Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="profileSettings.h">
       <Filter>Main Window\Structures</Filter>
     </ClInclude>
   </ItemGroup>
@@ -525,6 +519,9 @@
     <Filter Include="Main Window\Structures">
       <UniqueIdentifier>{289fa881-1755-42ac-a4f6-eb64a7013cab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Camera Window\Structures">
+      <UniqueIdentifier>{c30ebec6-c2b0-499a-8318-6856c626e280}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Planning.txt" />
@@ -544,7 +541,7 @@
       <Filter>Auxiliary Window</Filter>
     </None>
     <None Include="coordinate.h">
-      <Filter>Camera Window</Filter>
+      <Filter>Camera Window\Structures</Filter>
     </None>
   </ItemGroup>
 </Project>

@@ -13,7 +13,7 @@
 #include "Repetitions.h"
 #include "SocketWrapper.h"
 #include "RhodeSchwarz.h"
-#include "GPIB.h"
+#include "GpibFlume.h"
 #include "MasterConfiguration.h"
 #include "KeyHandler.h"
 #include "Agilent.h"

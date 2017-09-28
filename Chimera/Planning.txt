@@ -31,18 +31,17 @@ Features:
 - be able to set binsize for histograms
 - change colormap radios to a single combo.
 - load colormaps from file, allowing custom colormaps.
-- initialize windows to certain monitor
-- make count-down use TTL time
+- make count-down use TTL time?
 - check that the picture rate is matching the rep rate
-- cross-check number of NIAWG triggers, numb	er of Agilent triggers in code
+- cross-check number of NIAWG triggers, number of Agilent triggers in code
 - agilent script programNow with variables, should be able to set constants with program now.
 - agilent should be able to go smoothly from one waveform to another.
+- more tooltips
 
 Refactoring / Other:
 - refactor variables & variable key so that they aren't two separate objects. Consider if reasonable to also include 
 	variation number in a class
 - change thread that wait on bools to waiting on signalers
-- could clean up textpromptdialog handling, should be possible with one line.
 - test running avg gnuplot
 - test fitting in gnuplot
 - refactor groups in plotinfo and gnuplot stuffs

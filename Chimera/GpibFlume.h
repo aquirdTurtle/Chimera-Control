@@ -6,10 +6,10 @@
 #include <vector>
 
 // this fairly simplistic class could easily just be a namespace instead.
-class Gpib
+class GpibFlume
 {
 	public:
-		Gpib::Gpib(short deviceID, bool safemode);
+		GpibFlume::GpibFlume(short deviceID, bool safemode);
 		std::string query( std::string query );
 		std::string queryIdentity();
 		int ibdev( int pad );
