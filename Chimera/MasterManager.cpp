@@ -79,7 +79,8 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		/// prep NIAWG
 		if (input->runNiawg)
 		{
-			input->niawg->prepareNiawg( input, output, niawgFiles, warnings, userScriptSubmit, foundRearrangement );
+			input->niawg->prepareNiawg( input, output, niawgFiles, warnings, userScriptSubmit, foundRearrangement, 
+										input->rearrangeInfo);
 		}
 		if ( input->thisObj->isAborting )
 		{

@@ -93,7 +93,8 @@ bool NiawgController::outputVaries(NiawgOutputInfo output)
 // master script file.
 void NiawgController::prepareNiawg(MasterThreadInput* input, NiawgOutputInfo& output, 
 									niawgPair<std::vector<std::fstream>>& niawgFiles, std::string& warnings, 
-									std::vector<ViChar>& userScriptSubmit, bool& foundRearrangement )
+									std::vector<ViChar>& userScriptSubmit, bool& foundRearrangement, 
+									rearrangeParams rInfo )
 {
 	input->comm->sendColorBox( Niawg, 'Y' );
 	ProfileSystem::openNiawgFiles( niawgFiles, input->profile, input->runNiawg );
@@ -116,7 +117,8 @@ void NiawgController::prepareNiawg(MasterThreadInput* input, NiawgOutputInfo& ou
 															 + scripts[Horizontal].str( )
 															 + "\n\n", "\n", "\r\n" ) );
 		}
-		input->niawg->analyzeNiawgScripts( scripts, output, input->profile, input->debugOptions, warnings );
+		input->niawg->analyzeNiawgScripts( scripts, output, input->profile, input->debugOptions, warnings,
+										   rInfo );
 		workingUserScripts[sequenceInc] = output.niawgLanguageScript;
 
 		if (input->thisObj->getAbortStatus()) { thrower( "\r\nABORTED!\r\n" ); }
@@ -211,7 +213,9 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 		niawgPair<ScriptStream> scripts;
 		scripts[Horizontal] << configFiles[Horizontal].back( ).rdbuf( );
 		scripts[Vertical] << configFiles[Vertical].back( ).rdbuf( );
-		analyzeNiawgScripts( scripts, output, profile, debug, warnings );
+		rearrangeParams rInfoDummy;
+		rInfoDummy.moveSpeed = 0.00006;
+		analyzeNiawgScripts( scripts, output, profile, debug, warnings, rInfoDummy );
 		// the script file must end with "end script".
 		output.niawgLanguageScript += "end Script";
 		// Convert script string to ViConstString. +1 for a null character on the end.
@@ -362,8 +366,9 @@ void NiawgController::programVariations( UINT variation, std::vector<long>& vari
   * them, write the script as it goes, and eventually combine the x and y-waveforms into their final form for being sent to the waveform 
   * generator.
   */
-void NiawgController::analyzeNiawgScripts( niawgPair<ScriptStream>& scripts, NiawgOutputInfo& output, profileSettings profile, 
-										   debugInfo& options, std::string& warnings )
+void NiawgController::analyzeNiawgScripts( niawgPair<ScriptStream>& scripts, NiawgOutputInfo& output, 
+										   profileSettings profile, debugInfo& options, std::string& warnings, 
+										   rearrangeParams rInfo )
 {
 	/// Preparation
 	for (auto& axis : AXES)
@@ -397,7 +402,7 @@ void NiawgController::analyzeNiawgScripts( niawgPair<ScriptStream>& scripts, Nia
 		}
 		else if (isSpecialWaveform( command[Horizontal] ) && isSpecialWaveform( command[Vertical] ))
 		{
-			handleSpecialWaveform( output, profile, command, scripts, options );
+			handleSpecialWaveform( output, profile, command, scripts, options, rInfo );
 		}
 		else
 		{
@@ -1502,7 +1507,7 @@ void NiawgController::finalizeScript( ULONGLONG repetitions, std::string name, s
 // here too, but those might go better in standard waveform handling, not sure.
 void NiawgController::handleSpecialWaveform( NiawgOutputInfo& output, profileSettings profile, 
 											 niawgPair<std::string> commands, niawgPair<ScriptStream>& scripts, 
-											 debugInfo& options )
+											 debugInfo& options, rearrangeParams rInfo )
 {
 	if (commands[Horizontal] != commands[Vertical])
 	{
@@ -1760,6 +1765,7 @@ void NiawgController::handleSpecialWaveform( NiawgOutputInfo& output, profileSet
 	else if (command == "rearrange")
 	{
 		waveInfo rearrangeWave;
+		rearrangeWave.rearrange.timePerMove = rInfo.moveSpeed;
 		rearrangeWave.isRearrangement = true;
 		// the following two options are for simple flashing and simple streaming, not rearrangement, although 
 		// rearrangment technically involves both
