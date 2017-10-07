@@ -2361,7 +2361,7 @@ return 0;
 }
 
 /**
-* This function takes ramp-related information as an input and returns the "position" in the ramp (i.e. the amount to add to the initial value due to ramping)
+* This function takes ramp-related information as an input and returns the "position" in the ramp (targetInc.e. the amount to add to the initial value due to ramping)
 * that the waveform should be at.
 *
 * @return double is the ramp position.
@@ -2474,8 +2474,28 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 	std::vector<bool> triedRearranging;
 	std::vector<double> calcTime, streamTime, triggerTime, resetPositionTime, picHandlingTime, picGrabTime;
 	chronoTimes startCalc, stopCalc, stopReset, stopStream, stopTrigger;
+	std::ofstream outFile;
+	UINT counter = 0;
 	try
 	{
+		if ( input->info.outputInfo )
+		{
+			outFile.open( DEBUG_OUTPUT_LOCATION + "Rearranging-Event-Info.txt" );
+			if ( !outFile.is_open( ) )
+			{
+				thrower( "ERROR: Info file failed to open!" );
+			}
+			outFile << "Target:\n";
+			for ( auto row : input->rearrangementWave.rearrange.target )
+			{
+				for ( auto elem : row )
+				{
+					outFile << elem << ", ";
+				}
+				outFile << "\n";
+			}
+			outFile << "-----\n\n";
+		}
 		// wait for data
 		while ( *input->threadActive )
 		{
@@ -2516,7 +2536,6 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 			rearrangeInfo& info = input->rearrangementWave.rearrange;
 			info.timePerMove = input->info.moveSpeed;
 			info.flashingFreq = input->info.flashingRate;
-			
 			// right now I need to re-shape the atomqueue matrix. I should probably modify Kai's code to work with a 
 			// flattened source matrix for speed.
 			std::vector<std::vector<bool>> source;
@@ -2533,10 +2552,10 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 					source[source.size( ) - 1 - rowCount][colCount] = tempAtoms[count++];
 				}
 			}
-			std::vector<simpleMove> operationsMatrix;
+			std::vector<simpleMove> moveSequence;
 			try
 			{
-				rearrangement( source, info.target, operationsMatrix );
+				rearrangement( source, info.target, moveSequence );
 			}
 			catch ( Error& )
 			{
@@ -2545,7 +2564,7 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 			input->niawg->rearrangeWaveVals.clear( );
 			/// program niawg
 			debugInfo options;
-			for ( auto move : operationsMatrix )
+			for ( auto move : moveSequence )
 			{
 				// program this move.
 				double freqPerPixel = info.freqPerPixel;
@@ -2679,7 +2698,7 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 			}
 			// fill out the rest of the waveform.
 			simpleWave fillerWave = info.staticWave;
-			fillerWave.time = (info.moveLimit - operationsMatrix.size( )) * info.timePerMove;
+			fillerWave.time = (info.moveLimit - moveSequence.size( )) * info.timePerMove;
 			fillerWave.sampleNum = input->niawg->waveformSizeCalc( fillerWave.time );
 			input->niawg->finalizeStandardWave( fillerWave, options );
 			input->niawg->rearrangeWaveVals.insert( input->niawg->rearrangeWaveVals.end( ), 
@@ -2691,7 +2710,7 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 			stopTrigger.push_back( chronoClock::now( ));
 			input->niawg->fgenConduit.resetWritePosition( );
 			stopReset.push_back( chronoClock::now( ));
-			if ( operationsMatrix.size( ) )
+			if ( moveSequence.size( ) )
 			{
 				triedRearranging.push_back( true );
 			}
@@ -2700,12 +2719,37 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 				triedRearranging.push_back( false );
 			}
 			input->niawg->rearrangeWaveVals.clear( );
-			if ( operationsMatrix.size( ) != 0 )
+			if ( moveSequence.size( ) != 0 )
 			{
-				input->comm->sendStatus( "Tried Moving. Calc Time = " 
-										 + str( std::chrono::duration<double>( stopCalc.back() - startCalc.back( ) ).count( ))
-										 + "\r\n");
+				//input->comm->sendStatus( "Tried Moving. Calc Time = " 
+				//						 + str( std::chrono::duration<double>( stopCalc.back() - startCalc.back( ) ).count( ))
+				//						 + "\r\n");
 			}
+			if ( input->info.outputInfo )
+			{
+				outFile << counter << "\n";
+				outFile << "Source:\n";
+				for ( auto row : source )
+				{
+					for ( auto elem : row )
+					{
+						outFile << elem << ", ";
+					}
+					outFile << "\n";
+				}
+				outFile << "Moves:\n";
+				UINT moveCount = 0;
+				for ( auto move : moveSequence )
+				{
+					outFile << moveCount++ << "\n";
+					outFile << "Init-Row:" << move.initRow << "\n";
+					outFile << "Fin-Row:" << move.finRow << "\n";
+					outFile << "Init-Column:" << move.initCol << "\n";
+					outFile << "Fin-Column:" << move.finCol << "\n";
+					outFile << "---\n";
+				}
+			}
+			counter++;
 		}
 		for ( auto inc : range( startCalc.size( ) ) )
 		{
@@ -2757,6 +2801,10 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 	catch ( Error& err)
 	{
 		input->comm->sendError( "Failed to delete rearrangement waveform at end of rearranging!: " + err.whatStr( ) );
+	}
+	if ( outFile.is_open() )
+	{
+		outFile.close( );
 	}
 	input->comm->sendStatus( "Exiting rearranging thread.\r\n" );
 	delete input;
@@ -2937,7 +2985,7 @@ double NiawgController::minCostMatching( const std::vector<std::vector<double>> 
 
 double NiawgController::rearrangement( const std::vector<std::vector<bool>> & sourceMatrix,
 									   const std::vector<std::vector<bool>> & targetMatrix,
-									   std::vector<simpleMove> & operationsMatrix )
+									   std::vector<simpleMove> & moveSequence )
 {
 	// I am sure this might be also included directly after evaluating the image, but for safety
 	// I also included it here
@@ -2957,10 +3005,10 @@ double NiawgController::rearrangement( const std::vector<std::vector<bool>> & so
 			}
 		}
 	}
-	// Throw, if  less atoms than targets! myexception class defined above
+	// Throw, if  less atoms than targets!
 	if (numberSources < numberTargets)
 	{
-		thrower( "Less atoms than targets!\nN source: " + str( numberSources ) + ", matrixSize target: " + str( numberTargets ) );
+		thrower( "Less atoms than targets!\nN source: " + str( numberSources ) + ", N target: " + str( numberTargets ) );
 	}
 
 	//------------------------------------------------------------------------------------------
@@ -2969,41 +3017,40 @@ double NiawgController::rearrangement( const std::vector<std::vector<bool>> & so
 	// Cost matrix. Stores path length for each source atom to each target position
 	std::vector<std::vector<double> > costMatrix( numberSources, std::vector<double>( numberSources, 0 ) );
 	// Indices of atoms in initial config
-	std::vector<std::vector<int> > SourceIndice( numberSources, std::vector<int>( 2, 0 ) );
+	std::vector<std::vector<int> > sourceCoordinates( numberSources, std::vector<int>( 2, 0 ) );
 	// Indices of atoms in final config
-	std::vector<std::vector<int> > TargetIndice( numberTargets, std::vector<int>( 2, 0 ) );
+	std::vector<std::vector<int> > targetCoordinates( numberTargets, std::vector<int>( 2, 0 ) );
 
 	//Find out the indice
-	int sourcecounter = 0;
-	int targetcounter = 0;
+	int sourceCounter = 0;
+	int targetCounter = 0;
+
 	for (UINT rowInc = 0; rowInc < sourceMatrix.size(); rowInc++)
 	{
 		for (UINT columnInc = 0; columnInc < sourceMatrix[rowInc].size(); columnInc++)
 		{
 			if (sourceMatrix[rowInc][columnInc] == 1)
 			{
-				SourceIndice[sourcecounter][0] = rowInc;
-				SourceIndice[sourcecounter][1] = columnInc;
-				sourcecounter++;
+				sourceCoordinates[sourceCounter][0] = rowInc;
+				sourceCoordinates[sourceCounter][1] = columnInc;
+				sourceCounter++;
 			}
 			if (targetMatrix[rowInc][columnInc] == 1)
 			{
-				TargetIndice[targetcounter][0] = rowInc;
-				TargetIndice[targetcounter][1] = columnInc;
-				targetcounter++;
+				targetCoordinates[targetCounter][0] = rowInc;
+				targetCoordinates[targetCounter][1] = columnInc;
+				targetCounter++;
 			}
 		}
 	}
-	double pathlength = 0;
+
 	// Now compute the pathlengths
 	for (int sourceInc = 0; sourceInc < numberSources; sourceInc++)
 	{
 		for (int targetInc = 0; targetInc < numberTargets; targetInc++)
 		{
-			costMatrix[sourceInc][targetInc] = abs( SourceIndice[sourceInc][0] - TargetIndice[targetInc][0] )
-				+ abs( SourceIndice[sourceInc][1] - TargetIndice[targetInc][1] );
-
-			pathlength += costMatrix[sourceInc][targetInc];
+			costMatrix[sourceInc][targetInc] = abs( sourceCoordinates[sourceInc][0] - targetCoordinates[targetInc][0] )
+				+ abs( sourceCoordinates[sourceInc][1] - targetCoordinates[targetInc][1] );
 		}
 	}
 
@@ -3018,26 +3065,28 @@ double NiawgController::rearrangement( const std::vector<std::vector<bool>> & so
 	double cost = minCostMatching( costMatrix, left, right );
 
 	//------------------------------------------------------------------------------
-	//calculate the operationsMatrix
+	//calculate the moveSequence
 	//------------------------------------------------------------------------------
 
-	//First resize operationsMatrix, empty in code, but now we now how many entrys: cost!
-	operationsMatrix.resize( cost, { 0,0,0,0 } );
+	//First resize moveSequence, empty in code, but now we now how many entrys: cost!
+	std::vector<simpleMove> operationsList;
+	operationsList.resize( cost, { 0,0,0,0 } );
 
 	std::vector<std::vector<int> > matching( numberTargets, std::vector<int>( 4, 0 ) );
-	//matching matrix, numberTargets x 4, Source and Target indice in each row
-	for (int i = 0; i < numberTargets; i++)
+	
+	// matching matrix, numberTargets x 4, Source and Target indice in each row
+	for (int targetInc = 0; targetInc < numberTargets; targetInc++)
 	{
-		matching[i][0] = SourceIndice[right[i]][0];
-		matching[i][1] = SourceIndice[right[i]][1];
-		matching[i][2] = TargetIndice[i][0];
-		matching[i][3] = TargetIndice[i][1];
+		matching[targetInc][0] = sourceCoordinates[right[targetInc]][0];
+		matching[targetInc][1] = sourceCoordinates[right[targetInc]][1];
+		matching[targetInc][2] = targetCoordinates[targetInc][0];
+		matching[targetInc][3] = targetCoordinates[targetInc][1];
 	}
 
 	int step_x, step_y, init_x, init_y;
 	int counter = 0;
 
-	// Setting up the operationsMatrix (only elementary steps) from the matching matrix (source - target)
+	// Setting up the moveSequence (only elementary steps) from the matching matrix (source - target)
 	for (int targetInc = 0; targetInc < numberTargets; targetInc++)
 	{
 		step_x = matching[targetInc][2] - matching[targetInc][0];
@@ -3046,23 +3095,56 @@ double NiawgController::rearrangement( const std::vector<std::vector<bool>> & so
 		init_y = matching[targetInc][1];
 		for (int xStepInc = 0; xStepInc < abs( step_x ); xStepInc++)
 		{
-			operationsMatrix[counter].initRow = init_x;
-			operationsMatrix[counter].initCol = init_y;
-			operationsMatrix[counter].finRow = init_x + sign( step_x );
-			operationsMatrix[counter].finCol = init_y;
+			operationsList[counter].initRow = init_x;
+			operationsList[counter].initCol = init_y;
+			operationsList[counter].finRow = init_x + sign( step_x );
+			operationsList[counter].finCol = init_y;
 			init_x = init_x + sign( step_x );
 			counter++;
 		}
 		for (int yStepInc = 0; yStepInc < abs( step_y ); yStepInc++)
 		{
-			operationsMatrix[counter].initRow = init_x;
-			operationsMatrix[counter].initCol = init_y;
-			operationsMatrix[counter].finRow = init_x;
-			operationsMatrix[counter].finCol = init_y + sign( step_y );
+			operationsList[counter].initRow = init_x;
+			operationsList[counter].initCol = init_y;
+			operationsList[counter].finRow = init_x;
+			operationsList[counter].finCol = init_y + sign( step_y );
 			init_y = init_y + sign( step_y );
 			counter++;
 		}
 	}
+
+	/// now order the operations.
+	// this part was written by Mark Brown. The other stuff in the rearrangment handling was written by Kai Niklas.
+	// this clear should be unnecessary.
+	moveSequence.clear( );
+	// systemState keeps track of the state of the system after each move. It's important so that the algorithm can
+	// avoid making atoms overlap.
+	std::vector<std::vector<bool>> systemState = sourceMatrix;
+	UINT moveNum = 0;
+	while ( operationsList.size( ) != 0 )
+	{
+		if ( moveNum >= operationsList.size( ) )
+		{
+			// it's reached the end, reset this.
+			moveNum = 0;
+		}
+		// make sure that the initial location IS populated and the final location ISN'T.
+		if ( systemState[operationsList[moveNum].initRow][operationsList[moveNum].initCol] == false
+			 || systemState[operationsList[moveNum].finRow][operationsList[moveNum].finCol] == true )
+		{
+			moveNum++;
+			continue;
+		}
+		// else it's okay. add this to the list of moves.
+		moveSequence.push_back( operationsList[moveNum] );
+		// update the system state after this move.
+		systemState[operationsList[moveNum].initRow][operationsList[moveNum].initCol] = false;
+		systemState[operationsList[moveNum].finRow][operationsList[moveNum].finCol] = true;
+		// remove the move from the list of moves.
+		operationsList.erase( operationsList.begin( ) + moveNum );
+	}
+	// at this point operationsList should be zero size and moveSequence should be full of the moves in a sequence that
+	// works.
 	// travelled distance
 	return cost; 
 }
@@ -3084,7 +3166,7 @@ void NiawgController::writeToFile( UINT fileNum, std::vector<double> waveVals )
 
 
 //How does this algorithm work? Simple Flow algorithm that makes sure that all moves will be done regardless of the order!
-//while loop until the operationsMatrix (list of moves) is empty
+//while loop until the moveSequence (list of moves) is empty
 //delete moves that will be done
 //Look at all moves that go from row to row+1 (after that row->row-1,col->col+1,col->col-1)
 //to find more than one atom in each row/column to move at the same time
@@ -3134,7 +3216,7 @@ double NiawgController::parallelMoves( std::vector<std::vector<int>> operationsM
 				}
 			}
 
-			//From all the moves in operationsMatrix that go from row to row+1, select those that have a atom at the initial position
+			//From all the moves in moveSequence that go from row to row+1, select those that have a atom at the initial position
 			//and have no atom at the final position!
 			if (opM_ix.size() != 0)
 			{

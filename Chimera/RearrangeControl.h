@@ -6,7 +6,7 @@
 #include "rearrangeParams.h"
 
 /*
- 	A class for a gui end control for setting various rearrangement parameters
+ * A class for a gui end control for setting various rearrangement parameters
  */
 class RearrangeControl
 {
@@ -28,14 +28,12 @@ class RearrangeControl
 		Control<CStatic> movingBiasText;
 		Control<CEdit> movingBiasEdit;
 
-		//Control<CStatic> staticDutyCycleText;
-		//Control<CEdit> dutyCycleEdit;
-		//Control<CStatic> movingDutyCycleText;
-		//Control<CEdit> movingDutyCycleEdit;
-
 		Control<CStatic> deadTimeText;
 		Control<CEdit> deadTimeEdit;
 
 		Control<CStatic> staticMovingRatioText;
 		Control<CEdit> staticMovingRatioEdit;
+
+		Control<CButton> outputRearrangeEvents;
+
 };

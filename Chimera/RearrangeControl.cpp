@@ -5,6 +5,7 @@ rearrangeParams RearrangeControl::getParams( )
 {
 	rearrangeParams tempParams;
 	tempParams.active = experimentIncludesRearrangement.GetCheck( );
+	tempParams.outputInfo = outputRearrangeEvents.GetCheck( );
 	CString tempTxt;
 	try
 	{
@@ -21,6 +22,8 @@ rearrangeParams RearrangeControl::getParams( )
 		tempParams.deadTime = std::stod( str(tempTxt) );
 		staticMovingRatioEdit.GetWindowTextA( tempTxt );
 		tempParams.staticMovingRatio = std::stod( str( tempTxt ) );
+		
+
 	}
 	catch ( std::invalid_argument&)
 	{
@@ -45,6 +48,7 @@ void RearrangeControl::rearrange( int width, int height, fontMap fonts )
 	deadTimeEdit.rearrange( width, height, fonts );
 	staticMovingRatioEdit.rearrange( width, height, fonts );
 	staticMovingRatioText.rearrange( width, height, fonts );
+	outputRearrangeEvents.rearrange( width, height, fonts );
 }
 
 
@@ -72,7 +76,7 @@ void RearrangeControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips&
 	moveSpeedEdit.SetWindowTextA( "0.06" );
 
 	movingBiasText.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 25 };
-	movingBiasText.Create( "Moving Tweezer Bias (/1)", WS_CHILD | WS_VISIBLE | ES_READONLY, movingBiasText.sPos, 
+	movingBiasText.Create( "Moving Tweezer Bias (/1)", WS_CHILD | WS_VISIBLE | ES_READONLY, movingBiasText.sPos,
 						   parent, id++ );
 	movingBiasEdit.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 25 };
 	movingBiasEdit.Create( WS_CHILD | WS_VISIBLE | WS_TABSTOP, movingBiasEdit.sPos, parent, id++ );
@@ -80,24 +84,28 @@ void RearrangeControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips&
 
 	deadTimeText.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 25 };
 	deadTimeText.Create( "Dead Time (us)", WS_CHILD | WS_VISIBLE | ES_READONLY, deadTimeText.sPos,
-						  parent, id++ );
+						 parent, id++ );
 	deadTimeEdit.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 25 };
 	deadTimeEdit.Create( WS_CHILD | WS_VISIBLE | WS_TABSTOP, deadTimeEdit.sPos, parent, id++ );
 	deadTimeEdit.SetWindowTextA( "0" );
 
 	staticMovingRatioText.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 25 };
-	staticMovingRatioText.Create( "Static / Moving Ratio", WS_CHILD | WS_VISIBLE | ES_READONLY, 
+	staticMovingRatioText.Create( "Static / Moving Ratio", WS_CHILD | WS_VISIBLE | ES_READONLY,
 								  staticMovingRatioText.sPos, parent, id++ );
 
 	staticMovingRatioEdit.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 25 };
 	staticMovingRatioEdit.Create( WS_CHILD | WS_VISIBLE | WS_TABSTOP, staticMovingRatioEdit.sPos, parent, id++ );
 	staticMovingRatioEdit.SetWindowTextA( "1" );
+
+	outputRearrangeEvents.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
+	outputRearrangeEvents.Create( "Output Event Info", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_AUTOCHECKBOX,
+								  outputRearrangeEvents.sPos, parent, id++ );
 }
 
 
 void RearrangeControl::handleOpenConfig( std::ifstream& openFile, double version)
 {
-	if ( version < 2.09999 )
+	if ( version < 2.09 )
 	{
 		return;
 	}
@@ -108,13 +116,13 @@ void RearrangeControl::handleOpenConfig( std::ifstream& openFile, double version
 	openFile >> info.moveBias;
 	openFile >> info.moveSpeed;
 
-	if ( version < 2.3 )
+	if ( version < 2.29 )
 	{
 		std::string garbage;
  		openFile >> garbage;
 		openFile >> garbage;
 	}
-	if ( version > 2.2 )
+	if ( version > 2.21 )
 	{
 		openFile >> info.deadTime;
 		openFile >> info.staticMovingRatio;		
@@ -123,6 +131,14 @@ void RearrangeControl::handleOpenConfig( std::ifstream& openFile, double version
 	{
 		info.deadTime = 0;
 		info.staticMovingRatio = 1;
+	}
+	if ( version > 2.51 )
+	{
+		openFile >> info.outputInfo;
+	}
+	else
+	{
+		info.outputInfo = false;
 	}
 	setParams( info );
 	ProfileSystem::checkDelimiterLine( openFile, "END_REARRANGEMENT_INFORMATION" );
@@ -136,8 +152,9 @@ void RearrangeControl::handleNewConfig( std::ofstream& newFile )
 	newFile << 1 << "\n";
 	newFile << 1e-3*0.3 << "\n";
 	newFile << 1e6*0.06 << "\n";
-	newFile << "0" << "\n";
-	newFile << "1" << "\n";
+	newFile << "0\n";
+	newFile << "1\n";
+	newFile << "0\n";
 	newFile << "END_REARRANGEMENT_INFORMATION\n";
 }
 
@@ -152,6 +169,7 @@ void RearrangeControl::handleSaveConfig( std::ofstream& newFile )
 	newFile << info.moveSpeed << "\n";
 	newFile << info.deadTime << "\n";
 	newFile << info.staticMovingRatio << "\n";
+	newFile << info.outputInfo << "\n";
 	newFile << "END_REARRANGEMENT_INFORMATION\n";
 }
 
@@ -162,6 +180,5 @@ void RearrangeControl::setParams( rearrangeParams params )
 	flashingRateEdit.SetWindowTextA( cstr(1e-6*params.flashingRate) );
 	movingBiasEdit.SetWindowTextA( cstr( params.moveBias ) );
 	moveSpeedEdit.SetWindowTextA( cstr( 1e3*params.moveSpeed ) );
-	
-
+	outputRearrangeEvents.SetCheck( params.outputInfo );
 }

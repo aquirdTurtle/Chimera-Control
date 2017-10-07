@@ -3,11 +3,12 @@
 struct rearrangeParams
 {
 	bool active = false;
-	double moveSpeed = 1e-6;
-	double flashingRate;
-	double moveBias;
+	double moveSpeed = 60e-6;
+	double flashingRate = 1e6;
+	double moveBias=1;
 	// 
-	double deadTime;
+	double deadTime=0;
 	// the static / moving ratio
-	double staticMovingRatio;
+	double staticMovingRatio=1;
+	bool outputInfo = false;
 };

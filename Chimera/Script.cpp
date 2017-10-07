@@ -151,14 +151,15 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 {
 	// convert word to lower case.
 	std::transform( word.begin(), word.end(), word.begin(), ::tolower );
-
 	// check special cases
 	if (word.size() == 0)
 	{
+		// nothing??
 		return rgbs["Solarized Red"];
 	}
 	else if (word[0] == '%')
 	{
+		// comments
 		colorLine = true;
 		if (word.size() > 1)
 		{
@@ -169,7 +170,6 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 		}
 		return rgbs["Slate Grey"];
 	}
-
 	// Check NIAWG-specific commands
 	if ( editType == "Horizontal NIAWG" || editType == "Vertical NIAWG" )
 	{
@@ -206,26 +206,22 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 			}
 		}
 	}
-	// check Agilent-specific commands
+	// Check Agilent-specific commands
 	else if (editType == "Agilent")
 	{
 		std::transform(word.begin(), word.end(), word.begin(), ::tolower);
-		if (word == "ramp" || word == "hold")
+		if (word == "ramp" || word == "hold" || word == "pulse" )
 		{
 			return rgbs["Solarized Violet"];
 		}
-		else if (word == "once" || word == "oncewaittrig" || word == "lin" || word == "tanh" || word == "repeatuntiltrig")
+		else if ( word == "once" || word == "oncewaittrig" || word == "lin" || word == "tanh" 
+				  || word == "repeatuntiltrig" || word == "sech" || word == "gaussian" || word == "lorentzian" )
 		{
 			return rgbs["Solarized Yellow"];
 		}
 		else if (word == "+" || word == "=" || word == "(" || word == ")" || word == "*" || word == "-" || word == "/")
 		{
 			return rgbs["Solarized Cyan"];
-		}
-		else if (word == "def")
-		{
-			colorLine = true;
-			return rgbs["Solarized Blue"];
 		}
 	}
 	else if (editType == "Master")
@@ -310,6 +306,7 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 	// see if it's a double.
 	try
 	{
+		// not sure why not just using std::stod.
 		boost::lexical_cast<double>(word);
 		return rgbs["White"];
 	}
