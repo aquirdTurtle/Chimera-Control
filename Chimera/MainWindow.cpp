@@ -316,7 +316,7 @@ BOOL MainWindow::OnInitDialog()
 	TheCameraWindow->ShowWindow( SW_MAXIMIZE );
 	TheScriptingWindow->ShowWindow( SW_MAXIMIZE );
 	TheAuxiliaryWindow->ShowWindow( SW_MAXIMIZE );	
-	std::vector<CDialog*> windows = { this, TheCameraWindow, TheScriptingWindow, TheAuxiliaryWindow };
+	std::vector<CDialog*> windows = { this, TheCameraWindow, NULL, TheScriptingWindow, TheAuxiliaryWindow };
 	EnumDisplayMonitors( NULL, NULL, monitorHandlingProc, reinterpret_cast<LPARAM>(&windows));
 	// hide the splash just before the first window requiring input pops up.
 	appSplash->ShowWindow( SW_HIDE );
@@ -343,11 +343,17 @@ BOOL CALLBACK MainWindow::monitorHandlingProc( _In_ HMONITOR hMonitor, _In_ HDC 
 {
 	static UINT count = 0;
 	std::vector<CDialog*>* windows = reinterpret_cast<std::vector<CDialog*>*>(dwData);
-	if ( count < 4 )
+	if ( count == 2 )
+	{
+		// skip the high monitor.
+		count++;
+		return TRUE;
+	}
+	if ( count < 5 )
 	{
 		windows->at(count)->MoveWindow( lprcMonitor );
 	}
-	//delete windows;
+	count++;
 	return TRUE;
 }
 

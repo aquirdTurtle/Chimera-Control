@@ -62,8 +62,6 @@ void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id
 
 	syncedButton.sPos = { loc.x, loc.y, loc.x += 80, loc.y + 20 };
 	syncedButton.Create( "Synced?", BS_AUTOCHECKBOX | WS_VISIBLE | WS_CHILD, syncedButton.sPos, parent, ids[2] );
-	// not supported (yet)
-	syncedButton.EnableWindow( 0 );
 
 	calibratedButton.sPos = { loc.x, loc.y, loc.x += 100, loc.y + 20 };
 	calibratedButton.Create( "Use Cal?", BS_AUTOCHECKBOX | WS_VISIBLE | WS_CHILD, calibratedButton.sPos, 
@@ -216,11 +214,11 @@ void Agilent::analyzeAgilentScript( scriptedArbInfo& infoObj)
 	while (!stream.eof())
 	{
 		// Procedurally read lines into segment informations.
-		int leaveTest = infoObj.wave.readIntoSegment( currentSegmentNumber, stream );
+		int leaveTest = infoObj.wave.analyzeAgilentScriptCommand( currentSegmentNumber, stream );
 
 		if (leaveTest < 0)
 		{
-			thrower( "ERROR: IntensityWaveform.readIntoSegment threw an error! Error occurred in segment #"
+			thrower( "ERROR: IntensityWaveform.analyzeAgilentScriptCommand threw an error! Error occurred in segment #"
 					 + str( currentSegmentNumber ) + "." );
 		}
 		if (leaveTest == 1)
@@ -247,9 +245,9 @@ void Agilent::selectIntensityProfile(UINT channel, int variationNumber)
 	{
 		// Load sequence that was previously loaded.
 		prepAgilentSettings( channel );
-		visaFlume.write("MMEM:LOAD:DATA \"INT:\\seq" + str(variationNumber) + ".seq\"");
+		visaFlume.write("MMEM:LOAD:DATA \"INT:\\sequence" + str(variationNumber) + ".seq\"");
 		visaFlume.write( "SOURCE" + str(channel) + ":FUNC ARB");
-		visaFlume.write( "SOURCE" + str(channel) + ":FUNC:ARB \"INT:\\seq" + str(variationNumber) + ".seq\"");
+		visaFlume.write( "SOURCE" + str(channel) + ":FUNC:ARB \"INT:\\sequence" + str(variationNumber) + ".seq\"");
 		visaFlume.write( "SOURCE" + str( channel ) + ":VOLT:LOW " + str(ranges[variationNumber].min) + " V");
 		visaFlume.write( "SOURCE" + str( channel ) + ":VOLT:HIGH " + str(ranges[variationNumber].max) + " V");
 		visaFlume.write( "OUTPUT" + str( channel ) + " ON" );
@@ -301,7 +299,7 @@ void Agilent::handleInput(int chan, std::string categoryPath, RunInfo info)
 	}
 	// convert to zero-indexed
 	chan -= 1;
-
+	settings.synced = syncedButton.GetCheck( );
 	std::string textStr( agilentScript.getScriptText() );
 	ScriptStream stream;
 	stream << textStr;
@@ -951,8 +949,8 @@ void Agilent::prepAgilentSettings(UINT channel)
 	}
 	// Set timout, sample rate, filter parameters, trigger settings.
 	visaFlume.setAttribute( VI_ATTR_TMO_VALUE, 40000 );	
+	visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB:FILTER " + AGILENT_FILTER_STATE );
 	visaFlume.write( "SOURCE" + str(channel) + ":FUNC:ARB:SRATE " + str( AGILENT_SAMPLE_RATE ) );
-	visaFlume.write( "SOURCE" + str(channel) + ":FUNC:ARB:FILTER " + AGILENT_FILTER_STATE );
 	visaFlume.write( "TRIGGER" + str( channel ) + ":SOURCE EXTERNAL" );
 	visaFlume.write( "TRIGGER" + str( channel ) + ":SLOPE POSITIVE" );
 	visaFlume.write( "OUTPUT" + str( channel ) + ":LOAD " + AGILENT_LOAD );
@@ -985,7 +983,7 @@ void Agilent::handleScriptVariation( key variationKey, UINT variation, scriptedA
 			}
 		}
 		// loop through again and calc/normalize/write values.
-		scriptInfo.wave.convertPowersToVoltages( );
+		scriptInfo.wave.convertPowersToVoltages( scriptInfo.useCalibration );
 		scriptInfo.wave.calcMinMax( );
 		scriptInfo.wave.minsAndMaxes.resize( variation + 1 );
 		scriptInfo.wave.minsAndMaxes[variation].second = scriptInfo.wave.getMaxVolt( );
@@ -995,18 +993,18 @@ void Agilent::handleScriptVariation( key variationKey, UINT variation, scriptedA
 		for ( UINT segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++ )
 		{
 			visaFlume.write( scriptInfo.wave.compileAndReturnDataSendString( segNumInc, variation, 
-																			 totalSegmentNumber ) );
+																			 totalSegmentNumber, channel ) );
 			// Save the segment
 			visaFlume.write( "MMEM:STORE:DATA \"INT:\\segment" 
 							 + str( segNumInc + totalSegmentNumber * variation ) + ".arb\"" );
 		}
 		// Now handle seqeunce creation / writing.
-		scriptInfo.wave.compileSequenceString( totalSegmentNumber, variation );
+		scriptInfo.wave.compileSequenceString( totalSegmentNumber, variation, channel );
 		// submit the sequence
 		visaFlume.write( scriptInfo.wave.returnSequenceString( ) );
 		// Save the sequence
-		visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB seq" + str( variation ) );
-		visaFlume.write( "MMEM:STORE:DATA \"INT:\\seq" + str( variation ) + ".seq\"" );
+		visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB sequence" + str( variation ) );
+		visaFlume.write( "MMEM:STORE:DATA \"INT:\\sequence" + str( variation ) + ".seq\"" );
 		// clear temporary memory.
 		visaFlume.write( "SOURCE" + str( channel ) + ":DATA:VOL:CLEAR" );
 	}
@@ -1035,7 +1033,7 @@ void Agilent::handleNoVariations(scriptedArbInfo& scriptInfo, UINT channel)
 		}
 	}
 	// no reassignment nessesary, no variables
-	scriptInfo.wave.convertPowersToVoltages();
+	scriptInfo.wave.convertPowersToVoltages( scriptInfo.useCalibration );
 	scriptInfo.wave.calcMinMax();
 	scriptInfo.wave.minsAndMaxes.resize( 1 );
 	scriptInfo.wave.minsAndMaxes[0].second = scriptInfo.wave.getMaxVolt();
@@ -1044,19 +1042,16 @@ void Agilent::handleNoVariations(scriptedArbInfo& scriptInfo, UINT channel)
 	visaFlume.write( "SOURCE" + str( channel ) + ":DATA:VOL:CLEAR" );
 	for (UINT segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
 	{
-		//visaFlume.write( str( "OUTPUT" + str( channel ) + ":LOAD " ) + AGILENT_LOAD );
-		//visaFlume.write( str( "SOURCE" + str( channel ) + ":VOLT:LOW " ) + str( scriptInfo.wave.minsAndMaxes[0].first ) + " V" );
-		//visaFlume.write( str( "SOURCE" + str( channel ) + ":VOLT:HIGH " ) + str( scriptInfo.wave.minsAndMaxes[0].second ) + " V" );
-		visaFlume.write( scriptInfo.wave.compileAndReturnDataSendString( segNumInc, 0, totalSegmentNumber ) );
-		visaFlume.write( "MMEM:STORE:DATA \"INT:\\segment" + str( segNumInc ) + ".arb\"" );
+		visaFlume.write( scriptInfo.wave.compileAndReturnDataSendString( segNumInc, 0, totalSegmentNumber, channel ) );
+		visaFlume.write( "MMEM:STORE:DATA" + str( channel ) + " \"INT:\\chan" + str(channel) + "arb" + str( segNumInc ) + ".arb\"" );
 	}
 	// Now handle seqeunce creation / writing.
-	scriptInfo.wave.compileSequenceString( totalSegmentNumber, 0 );
+	scriptInfo.wave.compileSequenceString( totalSegmentNumber, 0, channel );
 	// submit the sequence
 	visaFlume.write( scriptInfo.wave.returnSequenceString() );
 	// Save the sequence
-	visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB seq" + str( 0 ) );
-	visaFlume.write( "MMEM:STORE:DATA \"INT:\\seq" + str( 0 ) + ".seq\"" );
+	visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB sequence0");
+	visaFlume.write( "MMEM:STORE:DATA" + str(channel) + " \"INT:\\sequence0.seq\"" );
 	// clear temporary memory.
 	visaFlume.write( "SOURCE" + str( channel ) + ":DATA:VOL:CLEAR" );
 }
@@ -1071,9 +1066,9 @@ void Agilent::setScriptOutput( UINT varNum, scriptedArbInfo scriptInfo, UINT cha
 	{
 		prepAgilentSettings( channel );
 		// Load sequence that was previously loaded.
-		visaFlume.write( "MMEM:LOAD:DATA \"INT:\\seq" + str( varNum ) + ".seq\"" );
+		visaFlume.write( "MMEM:LOAD:DATA" + str( channel ) + " \"INT:\\sequence" + str( varNum ) + ".seq\"" );
 		visaFlume.write( "SOURCE" + str(channel) + ":FUNC ARB" );
-		visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB \"INT:\\seq" + str( varNum ) + ".seq\"" );
+		visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB \"INT:\\sequence" + str( varNum ) + ".seq\"" );
 		// set the offset and then the low & high. this prevents accidentally setting low higher than high or high 
 		// higher than low, which causes agilent to throw annoying errors.
 		visaFlume.write( "SOURCE" + str( channel ) + ":VOLT:OFFSET " 
@@ -1092,6 +1087,9 @@ void Agilent::setAgilent( key varKey, UINT variation, std::vector<variableType>&
 	{
 		return;
 	}
+	
+	visaFlume.write( "OUTPut:SYNC " + str( settings.synced ) );
+
 	for (auto chan : range( 2 ))
 	{
 		if (settings.channel[chan].option == 4)
@@ -1136,6 +1134,9 @@ void Agilent::setAgilent()
 	{
 		return;
 	}
+
+	visaFlume.write( "OUTPut:SYNC " + str( settings.synced ) );
+
 	for (auto chan : range( 2 ))
 	{
 		if (settings.channel[chan].option == 4)

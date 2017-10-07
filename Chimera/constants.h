@@ -8,8 +8,8 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program.
 
-//#define MASTER_COMPUTER
-#define SPECTRE_LAPTOP
+#define MASTER_COMPUTER
+//#define SPECTRE_LAPTOP
 // #define DESKTOP_COMPUTER
 /// File Locations
 
@@ -57,7 +57,7 @@
 
 	#define NIAWG_SAFEMODE false
 	#define ANDOR_SAFEMODE false
-	#define PYTHON_SAFEMODE false
+	#define PYTHON_SAFEMODE true
 	#define DIO_SAFEMODE false
 	#define DAQMX_SAFEMODE false
 	#define RSG_SAFEMODE false
@@ -73,6 +73,9 @@
 	#define INTENSITY_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50004500::0::INSTR"
 	#define FLASHING_SAFEMODE false
 	#define FLASHING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50003003::0::INSTR"
+	#define UWAVE_SAFEMODE false
+	#define UWAVE_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
+
 
 	#define PYTHON_HOME L"C:\\Program Files (x86)\\Anaconda3\\"
 
@@ -138,8 +141,8 @@
 
 /// Agilent Parameters
 // sample rate is typically 1 MS/s.
-#define AGILENT_SAMPLE_RATE 100000
-#define AGILENT_FILTER_STATE "OFF"
+#define AGILENT_SAMPLE_RATE 250000000
+#define AGILENT_FILTER_STATE "NORMal"
 #define AGILENT_LOAD "INF"
 #define AGILENT_DEFAULT_POWER 3.5
 
@@ -279,13 +282,13 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_TOP_BOTTOM_FUNCTION_COMBO 14111
 #define IDC_TOP_BOTTOM_EDIT 14112
 #define IDC_TOP_BOTTOM_PROGRAM 14113
-#define IDC_AXIAL_UWAVE_CHANNEL1_BUTTON 14114
-#define IDC_AXIAL_UWAVE_CHANNEL2_BUTTON 14115
-#define IDC_AXIAL_UWAVE_SYNC_BUTTON 14116
-#define IDC_AXIAL_UWAVE_AGILENT_COMBO 14117
-#define IDC_AXIAL_UWAVE_FUNCTION_COMBO 14118
-#define IDC_AXIAL_UWAVE_EDIT 14119
-#define IDC_AXIAL_UWAVE_PROGRAM 14120
+#define IDC_AXIAL_CHANNEL1_BUTTON 14114
+#define IDC_AXIAL_CHANNEL2_BUTTON 14115
+#define IDC_AXIAL_SYNC_BUTTON 14116
+#define IDC_AXIAL_AGILENT_COMBO 14117
+#define IDC_AXIAL_FUNCTION_COMBO 14118
+#define IDC_AXIAL_EDIT 14119
+#define IDC_AXIAL_PROGRAM 14120
 #define IDC_FLASHING_CHANNEL1_BUTTON 14121
 #define IDC_FLASHING_CHANNEL2_BUTTON 14122
 #define IDC_FLASHING_SYNC_BUTTON 14123
@@ -293,13 +296,21 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_FLASHING_FUNCTION_COMBO 14125
 #define IDC_FLASHING_EDIT 14126
 #define IDC_FLASHING_PROGRAM 14127
+#define IDC_UWAVE_CHANNEL1_BUTTON 14128
+#define IDC_UWAVE_CHANNEL2_BUTTON 14129
+#define IDC_UWAVE_SYNC_BUTTON 14130
+#define IDC_UWAVE_AGILENT_COMBO 14131
+#define IDC_UWAVE_FUNCTION_COMBO 14132
+#define IDC_UWAVE_EDIT 14133
+#define IDC_UWAVE_PROGRAM 14134
 //
-#define IDC_GLOBAL_VARS_LISTVIEW 14128
-#define IDC_CONFIG_VARS_LISTVIEW 14129
-#define IDC_TOP_BOTTOM_CALIBRATION_BUTTON 14130
-#define IDC_AXIAL_UWAVE_CALIBRATION_BUTTON 14131
-#define IDC_FLASHING_CALIBRATION_BUTTON 14132
-#define IDC_INTENSITY_CALIBRATION_BUTTON 14133
+#define IDC_GLOBAL_VARS_LISTVIEW 14135
+#define IDC_CONFIG_VARS_LISTVIEW 14136
+#define IDC_TOP_BOTTOM_CALIBRATION_BUTTON 14137
+#define IDC_AXIAL_UWAVE_CALIBRATION_BUTTON 14138
+#define IDC_FLASHING_CALIBRATION_BUTTON 14139
+#define IDC_INTENSITY_CALIBRATION_BUTTON 14140
+#define IDC_UWAVE_CALIBRATION_BUTTON 14141
 
 // plot designer
 #define IDC_GENERAL_PLOT_TYPE 15008
@@ -354,8 +365,10 @@ const float MAX_GAIN = 5.0; // Current Value: 5
 // help text
 const char AGILENT_INFO_TEXT[] = ">>> Scripted Agilent Waveform Help <<<\n"
 "Accepted Commands (syntax for command is encased in <>)\n"
-"- hold <val(V)> <time(ms)> <Continuation Type> <Possibly Repeat #> <#>\n"
-"- ramp <rampType> <initVal(V)> <finVal(V)> <time(ms)> <Continuation Type> <Possibly Repeat #> <#>\n"
+"- hold <val> <time(ms)> <Continuation Type> <Possibly Repeat #> <#>\n"
+"- ramp <rampType> <initVal> <finVal(V)> <time(ms)> <Continuation Type> <Possibly Repeat #> <#>\n"
+"- pulse <pulse type> <offset> <amp> <length> <pulse-width> <Continuation Type> <Possibly Repeat #> <#>\n"
+"- modPulse <pulse-type> <offset> <amp> <pulse-width> <mod-Freq(MHz)> <mod-Amp> <mod-Phase> <time(ms)> <Continuation Type> <Repeat #>\n"
 "The continuation type determines what the agilent does when it reaches the end of the <time> \n"
 "argument. Accepted Values for the continuation type are:\n"
 "- repeat <requires repeat #>\n"
@@ -366,7 +379,11 @@ const char AGILENT_INFO_TEXT[] = ">>> Scripted Agilent Waveform Help <<<\n"
 "Accepted ramp types are:\n"
 "- nr (no ramp)\n"
 "- lin\n"
-"- tanh\n";
+"- tanh\n"
+"Accepted pulse types are:\n"
+"- sech, ~ sech(time/width)\n"
+"- gaussian, width = gaussian sigma\n"
+"- lorentzian, width = FWHM (curve is normalized)\n";
 
 
 //

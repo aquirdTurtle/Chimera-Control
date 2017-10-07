@@ -35,7 +35,7 @@ class Agilent
 		void handleInput( std::string categoryPath, RunInfo info );
 		void handleInput( int chan, std::string categoryPath, RunInfo info );
 		void setDefault( int channel );
-		void prepAgilentSettings(UINT channel);
+		void prepAgilentSettings(UINT channel );
 		bool connected();
 		void analyzeAgilentScript( scriptedArbInfo& infoObj );
 		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);

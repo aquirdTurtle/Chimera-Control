@@ -74,7 +74,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;$(ProjectDir)\Packages\32-Bit-Libs\Debug\HDF5-1.10.1-win32-Debug\include;$(ProjectDir)\Packages\boost_1_64_0;C:\ProgramData\Anaconda3\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;$(ProjectDir)\Packages\32-Bit-Libs\Debug\HDF5-1.10.1-win32-Debug\include;$(ProjectDir)\Packages\boost_1_64_0;C:\ProgramData\Anaconda3\include;C:\Program Files (x86)\Anaconda3\include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
     <LibraryPath>C:\Program Files\Andor SOLIS\Drivers;C:\Users\Mark\Documents\Quantum Gas Assembly Control\Chimera;$(ProjectDir)\Packages\boost_1_64_0\lib-32bit;C:\Program Files (x86)\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib\msvc;C:\Program Files (x86)\IVI Foundation\VISA\WinNT\lib\msc;$(ProjectDir)\Packages\32-Bit-Libs\Debug\HDF5-1.10.1-win32-Debug\lib;$(ProjectDir)\Packages\32-Bit-Libs\DIO64;$(ProjectDir)\Packages\32-Bit-Libs\Debug\Python;$(ProjectDir)\Packages\32-Bit-Libs\Debug\Andor;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(ProjectDir)\Packages\32-Bit-Libs\Debug\Python;$(ExecutablePath)</ExecutablePath>
@@ -250,6 +250,7 @@
     <ClInclude Include="ScriptingWindow.h" />
     <ClInclude Include="ScriptStream.h" />
     <ClInclude Include="Segment.h" />
+    <ClInclude Include="segmentStructs.h" />
     <ClInclude Include="SmsTextingControl.h" />
     <ClInclude Include="splashDialog.h" />
     <ClInclude Include="StatusControl.h" />

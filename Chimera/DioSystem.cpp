@@ -1138,7 +1138,7 @@ void DioSystem::convertToFinalFormat(UINT variation)
 		formattedTtlSnapshots[variation].push_back(tempCommand);
 	}
 	// flatten the array.
-	finalFormatTtlData.resize( formattedTtlSnapshots[variation].size( ) * 6 );
+	finalFormatTtlData[variation].resize( formattedTtlSnapshots[variation].size( ) * 6 );
 	int count = 0;
 	for ( auto& element : finalFormatTtlData[variation] )
 	{

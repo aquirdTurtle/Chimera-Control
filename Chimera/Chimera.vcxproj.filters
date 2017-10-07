@@ -469,6 +469,7 @@
     <ClInclude Include="profileSettings.h">
       <Filter>Main Window\Structures</Filter>
     </ClInclude>
+    <ClInclude Include="segmentStructs.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
