@@ -330,24 +330,24 @@ namespace commonFunctions
 				auxWin->saveTopBottomAgilentScriptAs( parent );
 				break;
 			}
-			case ID_AXIAL_UWAVE_NEW_SCRIPT:
+			case ID_AXIAL_NEW_SCRIPT:
 			{
-				auxWin->newAxialUwaveAgilentScript();
+				auxWin->newAxialAgilentScript();
 				break;
 			}
-			case ID_AXIAL_UWAVE_OPEN_SCRIPT:
+			case ID_AXIAL_OPEN_SCRIPT:
 			{
-				auxWin->openAxialUwaveAgilentScript( parent );
+				auxWin->openAxialAgilentScript( parent );
 				break;
 			}
-			case ID_AXIAL_UWAVE_SAVE_SCRIPT:
+			case ID_AXIAL_SAVE_SCRIPT:
 			{
-				auxWin->saveAxialUwaveAgilentScript();
+				auxWin->saveAxialAgilentScript();
 				break;
 			}
-			case ID_AXIAL_UWAVE_SAVE_SCRIPT_AS:
+			case ID_AXIAL_SAVE_SCRIPT_AS:
 			{
-				auxWin->saveAxialUwaveAgilentScriptAs( parent );
+				auxWin->saveAxialAgilentScriptAs( parent );
 				break;
 			}
 			case ID_FLASHING_NEW_SCRIPT:
@@ -369,6 +369,26 @@ namespace commonFunctions
 			{
 				auxWin->saveFlashingAgilentScriptAs( parent );
 				break;
+			}
+			case ID_UWAVE_NEW_SCRIPT:
+			{
+				auxWin->newUwaveAgilentScript( );
+				break;
+			}
+			case ID_UWAVE_OPEN_SCRIPT:
+			{
+				auxWin->openUwaveAgilentScript( parent );
+				break;
+			}
+			case ID_UWAVE_SAVE_SCRIPT:
+			{
+				auxWin->saveUwaveAgilentScript( );
+				break;
+			}
+			case ID_UWAVE_SAVE_SCRIPT_AS:
+			{
+				auxWin->saveUwaveAgilentScriptAs( parent );
+				break; 
 			}
 			case ID_FILE_MY_VERTICAL_NEW:
 			{

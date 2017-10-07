@@ -42,8 +42,9 @@ class AuxiliaryWindow : public CDialog
 		BOOL PreTranslateMessage(MSG* pMsg);
 		/// Message Map Functions
 		void handleTopBottomEditChange();
-		void handleAxialUwaveEditChange();
+		void handleAxialEditChange();
 		void handleFlashingEditChange();
+		void handleUWaveEditChange( );
 		void OnTimer( UINT_PTR eventID );
 		void handleTtlPush(UINT id);
 		void handlTtlHoldPush();
@@ -61,15 +62,21 @@ class AuxiliaryWindow : public CDialog
 		void saveTopBottomAgilentScript();
 		void saveTopBottomAgilentScriptAs( CWnd* parent );
 
-		void newAxialUwaveAgilentScript();
-		void openAxialUwaveAgilentScript( CWnd* parent );
-		void saveAxialUwaveAgilentScript();
-		void saveAxialUwaveAgilentScriptAs( CWnd* parent );
+		void newAxialAgilentScript();
+		void openAxialAgilentScript( CWnd* parent );
+		void saveAxialAgilentScript();
+		void saveAxialAgilentScriptAs( CWnd* parent );
 
 		void newFlashingAgilentScript();
 		void openFlashingAgilentScript( CWnd* parent );
 		void saveFlashingAgilentScript();
 		void saveFlashingAgilentScriptAs( CWnd* parent );
+
+		void newUwaveAgilentScript( );
+		void openUwaveAgilentScript( CWnd* parent );
+		void saveUwaveAgilentScript( );
+		void saveUwaveAgilentScriptAs( CWnd* parent );
+
 
 		void drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResultf);
 		void handleEnter();
@@ -88,6 +95,7 @@ class AuxiliaryWindow : public CDialog
 		void handleTopBottomAgilentCombo();
 		void handleAxialUWaveAgilentCombo();
 		void handleFlashingAgilentCombo();
+		void handleUWaveAgilentCombo( );
 
 		void loadMotSettings(MasterThreadInput* input);
 		void handleTektronicsButtons(UINT id);
@@ -128,8 +136,8 @@ class AuxiliaryWindow : public CDialog
 
 		/// control system classes
 		RhodeSchwarz RhodeSchwarzGenerator;
-		//
-		Agilent topBottomAgilent, uWaveAxialAgilent, flashingAgilent;
+		// 
+		Agilent topBottomAgilent, axialAgilent, flashingAgilent, uWaveAgilent;
  		DioSystem ttlBoard;
  		DacSystem dacBoards;
  		MasterConfiguration masterConfig{ MASTER_CONFIGURATION_FILE_ADDRESS };
