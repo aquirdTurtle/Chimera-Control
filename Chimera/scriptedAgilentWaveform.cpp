@@ -9,11 +9,12 @@ ScriptedAgilentWaveform::ScriptedAgilentWaveform()
 	varies = false;
 };
 
-/*	* This function reads out a segment of script file and loads it into a segment to be calculated and manipulated.
+
+/** This function reads out a segment of script file and loads it into a segment to be calculated and manipulated.
 * segNum: This tells the function what the next segment # is.
 * script: this is the object to be read from.
 */
-bool ScriptedAgilentWaveform::readIntoSegment( int segNum, ScriptStream& script )
+bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStream& script )
 {
 	segmentInfoInput workingInput;
 	std::string intensityCommand;
@@ -26,12 +27,45 @@ bool ScriptedAgilentWaveform::readIntoSegment( int segNum, ScriptStream& script 
 	if (intensityCommand == "hold")
 	{
 		waveformSegments.resize( segNum + 1 );
-		workingInput.segmentType = 0;
+		workingInput.rampType = "nr";
+		workingInput.pulse.type = "__NONE__";
+		workingInput.mod.modulationIsOn = false;
+		script >> workingInput.initValue;
+		workingInput.finValue = workingInput.initValue;
 	}
 	else if (intensityCommand == "ramp")
 	{
 		waveformSegments.resize( segNum + 1 );
-		workingInput.segmentType = 1;
+		// this segment type means ramping.
+		script >> workingInput.rampType;
+		script >> workingInput.initValue;
+		script >> workingInput.finValue;
+		workingInput.pulse.type = "__NONE__";
+		workingInput.mod.modulationIsOn = false;
+		
+	}
+	else if ( intensityCommand == "pulse" )
+	{
+		workingInput.rampType = "nr";
+		waveformSegments.resize( segNum + 1 );
+		workingInput.mod.modulationIsOn = false;
+		script >> workingInput.pulse.type;
+		script >> workingInput.pulse.offset;
+		script >> workingInput.pulse.amplitude;
+		script >> workingInput.pulse.width;
+	}
+	else if ( intensityCommand == "modpulse" )
+	{
+		workingInput.rampType = "nr";
+		waveformSegments.resize( segNum + 1 );
+		script >> workingInput.pulse.type;
+		script >> workingInput.pulse.offset;
+		script >> workingInput.pulse.amplitude;
+		script >> workingInput.pulse.width;
+		// mod stuff
+		workingInput.mod.modulationIsOn = true;
+		script >> workingInput.mod.frequency;
+		script >> workingInput.mod.phase;
 	}
 	else
 	{
@@ -41,25 +75,8 @@ bool ScriptedAgilentWaveform::readIntoSegment( int segNum, ScriptStream& script 
 		}
 		thrower( "ERROR: Agilent Script command not recognized. The command was \"" + intensityCommand + "\"" );
 	}
-	std::string delimiter;
-	// List of data types for variables for the different arguments:
-	// initial intensity = 1
-	// final intensity = 2
-	// time = 3
-	if (workingInput.segmentType == 1)
-	{
-		// this segment type means ramping.
-		script >> workingInput.rampType;
-		script >> workingInput.initValue;
-		script >> workingInput.finValue;
-	}
-	else
-	{
-		workingInput.rampType = "nr";
-		script >> workingInput.initValue;
-		workingInput.finValue = workingInput.initValue;
-	}
 	script >> workingInput.time;
+
 	std::string tempContinuationType;
 	script >> tempContinuationType;
 	if (tempContinuationType == "repeat")
@@ -71,6 +88,7 @@ bool ScriptedAgilentWaveform::readIntoSegment( int segNum, ScriptStream& script 
 	{
 		workingInput.repeatNum.expressionStr = "0";
 	}
+	std::string delimiter;
 	script >> delimiter;
 	if (delimiter != "#")
 	{
@@ -132,11 +150,11 @@ bool ScriptedAgilentWaveform::readIntoSegment( int segNum, ScriptStream& script 
  * varNum: This is the variation number for this segment (matters for naming the segments)
  * totalSegNum: This is the number of segments in the waveform (also matters for naming)
  */
-std::string ScriptedAgilentWaveform::compileAndReturnDataSendString( int segNum, int varNum, int totalSegNum )
+std::string ScriptedAgilentWaveform::compileAndReturnDataSendString( int segNum, int varNum, int totalSegNum, UINT chan )
 {
 	// must get called after data conversion
 	std::string tempSendString;
-	tempSendString = "DATA:ARB seg" + str( segNum + totalSegNum * varNum ) + ",";
+	tempSendString = "SOURce" + str( chan ) + ":DATA:ARB segment" + str( segNum + totalSegNum * varNum ) + ",";
 	// need to handle last one separately so that I can /not/ put a comma after it.
 	UINT numData = waveformSegments[segNum].returnDataSize( ) - 1;
 	for (UINT sendDataInc = 0; sendDataInc < numData; sendDataInc++)
@@ -165,13 +183,13 @@ ULONG ScriptedAgilentWaveform::getSegmentNumber()
 * This function compiles the sequence string which tells the agilent what waveforms to output when and with what trigger control. The sequence is stored
 * as a part of the class.
 */
-void ScriptedAgilentWaveform::compileSequenceString( int totalSegNum, int sequenceNum )
+void ScriptedAgilentWaveform::compileSequenceString( int totalSegNum, int sequenceNum, UINT channel )
 {
 	std::string tempSequenceString, tempSegmentInfoString;
 	// Total format is  #<n><n digits><sequence name>,<arb name1>,<repeat count1>,<play control1>,<marker mode1>,<marker point1>,<arb name2>,<repeat count2>,
 	// <play control2>, <marker mode2>, <marker point2>, and so on.
-	tempSequenceString = "DATA:SEQ #";
-	tempSegmentInfoString = "seq" + str( sequenceNum ) + ",";
+	tempSequenceString = "SOURce" + str( channel) + ":DATA:SEQ #";
+	tempSegmentInfoString = "sequence" + str( sequenceNum ) + ",";
 	if (totalSegNum == 0)
 	{
 		thrower("ERROR: No segments in agilent waveform???\r\n");
@@ -179,7 +197,7 @@ void ScriptedAgilentWaveform::compileSequenceString( int totalSegNum, int sequen
 	for (int segNumInc = 0; segNumInc < totalSegNum - 1; segNumInc++)
 	{
 		// Format is 
-		tempSegmentInfoString += "seg" + str( segNumInc + totalSegNum * sequenceNum ) + ",";
+		tempSegmentInfoString += "segment" + str( segNumInc + totalSegNum * sequenceNum ) + ",";
 		tempSegmentInfoString += str( waveformSegments[segNumInc].getFinalSettings().repeatNum ) + ",";
 		switch (waveformSegments[segNumInc].getFinalSettings().continuationType)
 		{
@@ -205,7 +223,7 @@ void ScriptedAgilentWaveform::compileSequenceString( int totalSegNum, int sequen
 		tempSegmentInfoString += "highAtStart,4,";
 	}
 
-	tempSegmentInfoString += "seg" + str( (totalSegNum - 1) + totalSegNum * sequenceNum ) + ",";
+	tempSegmentInfoString += "segment" + str( (totalSegNum - 1) + totalSegNum * sequenceNum ) + ",";
 	tempSegmentInfoString += str( waveformSegments[totalSegNum - 1].getFinalSettings().repeatNum ) + ",";
 	switch (waveformSegments[totalSegNum - 1].getFinalSettings().continuationType)
 	{
@@ -280,7 +298,7 @@ void ScriptedAgilentWaveform::replaceVarValues( key variableKey, UINT variation,
 * that the agilent needs to output in order to reach those powers. The calibration is currently hard-coded. This needs to be run before compiling the
 * data string.
 */
-void ScriptedAgilentWaveform::convertPowersToVoltages()
+void ScriptedAgilentWaveform::convertPowersToVoltages(bool useCal)
 {
 
 	// for each part of the waveform returnDataSize
@@ -294,7 +312,7 @@ void ScriptedAgilentWaveform::convertPowersToVoltages()
 			double power = waveformSegments[segmentInc].returnDataVal( dataConvertInc );
 			// setPoint = a * power + b
 			//double newValue = -a * log(y * b);
-			double setPointinVolts = Agilent::convertPowerToSetPoint(power, true);
+			double setPointinVolts = Agilent::convertPowerToSetPoint(power, useCal);
 			waveformSegments[segmentInc].assignDataVal( dataConvertInc, setPointinVolts);
 		}
 	}

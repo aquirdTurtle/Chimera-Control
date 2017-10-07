@@ -1,0 +1,14058 @@
+Target:
+0, 0, 0, 
+1, 1, 1, 
+0, 0, 0, 
+-----
+
+0
+Source:
+0, 1, 1, 
+1, 1, 1, 
+1, 0, 0, 
+Moves:
+1
+Source:
+1, 1, 1, 
+0, 1, 1, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+2
+Source:
+1, 0, 1, 
+1, 1, 1, 
+1, 1, 1, 
+Moves:
+3
+Source:
+0, 0, 1, 
+0, 0, 1, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+4
+Source:
+1, 0, 0, 
+1, 1, 1, 
+0, 0, 0, 
+Moves:
+5
+Source:
+0, 0, 1, 
+1, 1, 1, 
+0, 1, 1, 
+Moves:
+6
+Source:
+0, 0, 0, 
+0, 1, 0, 
+0, 0, 1, 
+Moves:
+7
+Source:
+1, 0, 0, 
+1, 1, 1, 
+1, 0, 0, 
+Moves:
+8
+Source:
+1, 0, 1, 
+1, 1, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+9
+Source:
+0, 0, 1, 
+1, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+10
+Source:
+0, 0, 0, 
+1, 0, 1, 
+0, 0, 0, 
+Moves:
+11
+Source:
+1, 1, 0, 
+1, 0, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+12
+Source:
+0, 1, 0, 
+1, 1, 1, 
+1, 1, 0, 
+Moves:
+13
+Source:
+1, 0, 0, 
+1, 1, 1, 
+0, 0, 0, 
+Moves:
+14
+Source:
+0, 0, 1, 
+0, 0, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+15
+Source:
+1, 1, 0, 
+0, 1, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+16
+Source:
+1, 0, 0, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+17
+Source:
+1, 1, 0, 
+0, 0, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+3
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+4
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+18
+Source:
+0, 0, 0, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+19
+Source:
+1, 0, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+20
+Source:
+1, 0, 0, 
+1, 0, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+3
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+21
+Source:
+1, 1, 0, 
+1, 1, 1, 
+0, 0, 0, 
+Moves:
+22
+Source:
+0, 0, 1, 
+1, 0, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+23
+Source:
+0, 0, 1, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+24
+Source:
+1, 0, 1, 
+0, 1, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+25
+Source:
+0, 1, 0, 
+0, 1, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+26
+Source:
+1, 1, 0, 
+1, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+27
+Source:
+0, 1, 1, 
+1, 1, 1, 
+1, 0, 1, 
+Moves:
+28
+Source:
+0, 0, 1, 
+1, 0, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+29
+Source:
+1, 1, 0, 
+0, 0, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+30
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+31
+Source:
+0, 0, 1, 
+0, 1, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+32
+Source:
+0, 1, 0, 
+0, 0, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+33
+Source:
+0, 0, 0, 
+1, 1, 1, 
+0, 1, 1, 
+Moves:
+34
+Source:
+0, 0, 0, 
+0, 1, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+35
+Source:
+1, 0, 1, 
+0, 0, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+36
+Source:
+1, 0, 1, 
+0, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+37
+Source:
+1, 1, 0, 
+1, 1, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+38
+Source:
+1, 1, 0, 
+1, 0, 1, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+39
+Source:
+0, 0, 1, 
+1, 0, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+40
+Source:
+1, 1, 0, 
+1, 1, 1, 
+1, 1, 0, 
+Moves:
+41
+Source:
+0, 1, 0, 
+1, 1, 1, 
+1, 1, 0, 
+Moves:
+42
+Source:
+1, 0, 1, 
+1, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+43
+Source:
+0, 0, 1, 
+1, 1, 1, 
+0, 1, 0, 
+Moves:
+44
+Source:
+0, 0, 0, 
+1, 0, 0, 
+0, 1, 0, 
+Moves:
+45
+Source:
+0, 0, 0, 
+1, 0, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+46
+Source:
+0, 0, 1, 
+0, 1, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+47
+Source:
+1, 0, 1, 
+1, 1, 1, 
+0, 0, 0, 
+Moves:
+48
+Source:
+1, 0, 0, 
+1, 1, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+49
+Source:
+0, 1, 1, 
+0, 1, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+50
+Source:
+1, 1, 1, 
+1, 0, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+51
+Source:
+1, 0, 0, 
+1, 0, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+52
+Source:
+1, 0, 0, 
+0, 1, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+53
+Source:
+0, 1, 0, 
+0, 0, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+54
+Source:
+0, 1, 0, 
+1, 1, 1, 
+0, 1, 0, 
+Moves:
+55
+Source:
+0, 0, 1, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+56
+Source:
+1, 1, 1, 
+1, 1, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+57
+Source:
+1, 1, 1, 
+1, 0, 1, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+58
+Source:
+1, 1, 0, 
+1, 0, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+59
+Source:
+1, 1, 1, 
+1, 0, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+60
+Source:
+1, 0, 0, 
+1, 0, 1, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+61
+Source:
+1, 1, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+62
+Source:
+1, 0, 0, 
+1, 0, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+63
+Source:
+1, 1, 0, 
+1, 0, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+64
+Source:
+1, 0, 1, 
+1, 0, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+65
+Source:
+1, 0, 1, 
+0, 1, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+66
+Source:
+0, 1, 1, 
+1, 0, 1, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+67
+Source:
+1, 0, 1, 
+1, 1, 1, 
+0, 1, 1, 
+Moves:
+68
+Source:
+1, 0, 1, 
+1, 0, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+69
+Source:
+1, 0, 0, 
+1, 0, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+70
+Source:
+0, 0, 1, 
+1, 1, 1, 
+0, 0, 1, 
+Moves:
+71
+Source:
+0, 0, 1, 
+1, 1, 1, 
+0, 0, 1, 
+Moves:
+72
+Source:
+1, 1, 0, 
+1, 0, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+73
+Source:
+0, 1, 1, 
+1, 0, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+74
+Source:
+1, 1, 0, 
+0, 1, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+75
+Source:
+0, 1, 0, 
+0, 1, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+76
+Source:
+1, 1, 1, 
+1, 0, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+77
+Source:
+1, 1, 0, 
+1, 1, 1, 
+0, 1, 0, 
+Moves:
+78
+Source:
+0, 1, 1, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+79
+Source:
+1, 1, 0, 
+1, 1, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+80
+Source:
+1, 0, 1, 
+1, 1, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+81
+Source:
+1, 0, 1, 
+1, 1, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+82
+Source:
+1, 0, 1, 
+1, 1, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+83
+Source:
+1, 1, 0, 
+1, 1, 1, 
+1, 0, 1, 
+Moves:
+84
+Source:
+0, 0, 0, 
+1, 0, 0, 
+1, 0, 0, 
+Moves:
+85
+Source:
+0, 0, 1, 
+1, 1, 1, 
+0, 1, 0, 
+Moves:
+86
+Source:
+0, 0, 1, 
+0, 1, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+87
+Source:
+1, 0, 0, 
+0, 1, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+88
+Source:
+1, 1, 1, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+89
+Source:
+0, 0, 0, 
+1, 1, 1, 
+0, 0, 1, 
+Moves:
+90
+Source:
+0, 1, 0, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+91
+Source:
+0, 0, 1, 
+1, 1, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+92
+Source:
+0, 1, 0, 
+1, 0, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+93
+Source:
+0, 0, 1, 
+0, 1, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+94
+Source:
+1, 0, 1, 
+0, 1, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+95
+Source:
+1, 0, 1, 
+0, 1, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+96
+Source:
+1, 1, 0, 
+0, 1, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+97
+Source:
+0, 1, 1, 
+1, 1, 1, 
+0, 1, 1, 
+Moves:
+98
+Source:
+1, 1, 1, 
+1, 0, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+99
+Source:
+0, 0, 1, 
+1, 0, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+100
+Source:
+0, 1, 1, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+101
+Source:
+1, 1, 1, 
+1, 1, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+102
+Source:
+0, 0, 0, 
+0, 1, 1, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+103
+Source:
+1, 0, 1, 
+1, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+104
+Source:
+0, 0, 1, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+105
+Source:
+0, 1, 1, 
+0, 1, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+106
+Source:
+1, 1, 1, 
+1, 1, 1, 
+0, 1, 1, 
+Moves:
+107
+Source:
+1, 1, 0, 
+1, 0, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+108
+Source:
+0, 1, 0, 
+0, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+109
+Source:
+1, 1, 0, 
+1, 1, 1, 
+1, 1, 0, 
+Moves:
+110
+Source:
+0, 0, 1, 
+1, 1, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+111
+Source:
+0, 1, 0, 
+0, 0, 1, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+112
+Source:
+1, 0, 0, 
+1, 0, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+113
+Source:
+0, 1, 0, 
+0, 1, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+114
+Source:
+1, 1, 1, 
+1, 1, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+115
+Source:
+1, 1, 0, 
+0, 1, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+116
+Source:
+1, 1, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+117
+Source:
+1, 0, 1, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+118
+Source:
+0, 0, 1, 
+0, 1, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+119
+Source:
+0, 0, 1, 
+1, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+120
+Source:
+0, 0, 0, 
+1, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+121
+Source:
+1, 0, 0, 
+0, 0, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+122
+Source:
+0, 0, 1, 
+1, 1, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+123
+Source:
+1, 1, 1, 
+0, 1, 1, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+124
+Source:
+0, 0, 1, 
+0, 1, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+125
+Source:
+1, 0, 0, 
+1, 0, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+126
+Source:
+0, 0, 0, 
+1, 1, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+127
+Source:
+1, 0, 1, 
+0, 0, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+128
+Source:
+0, 1, 0, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+129
+Source:
+1, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+130
+Source:
+0, 0, 1, 
+1, 1, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+131
+Source:
+0, 0, 1, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+132
+Source:
+1, 0, 1, 
+0, 1, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+133
+Source:
+0, 0, 0, 
+1, 1, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+134
+Source:
+0, 1, 0, 
+1, 1, 1, 
+0, 1, 0, 
+Moves:
+135
+Source:
+0, 1, 0, 
+1, 1, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+136
+Source:
+0, 0, 0, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+137
+Source:
+0, 0, 0, 
+1, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+138
+Source:
+1, 0, 1, 
+1, 0, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+139
+Source:
+0, 0, 0, 
+0, 0, 1, 
+0, 0, 1, 
+Moves:
+140
+Source:
+0, 1, 1, 
+0, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+141
+Source:
+0, 1, 1, 
+0, 1, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+142
+Source:
+0, 1, 0, 
+0, 1, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+143
+Source:
+1, 0, 1, 
+0, 0, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+144
+Source:
+1, 0, 0, 
+1, 1, 1, 
+1, 1, 1, 
+Moves:
+145
+Source:
+0, 1, 0, 
+0, 0, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+146
+Source:
+0, 1, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+147
+Source:
+0, 0, 0, 
+0, 1, 1, 
+0, 0, 0, 
+Moves:
+148
+Source:
+0, 1, 0, 
+0, 0, 1, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+149
+Source:
+0, 0, 0, 
+1, 1, 1, 
+0, 1, 1, 
+Moves:
+150
+Source:
+1, 0, 0, 
+1, 1, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+151
+Source:
+0, 0, 1, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+152
+Source:
+0, 1, 1, 
+1, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+153
+Source:
+0, 0, 1, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+154
+Source:
+1, 1, 0, 
+0, 1, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+155
+Source:
+0, 0, 1, 
+1, 1, 1, 
+1, 0, 0, 
+Moves:
+156
+Source:
+1, 1, 0, 
+1, 1, 1, 
+1, 0, 0, 
+Moves:
+157
+Source:
+1, 1, 0, 
+1, 0, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+158
+Source:
+1, 0, 1, 
+1, 1, 1, 
+1, 0, 1, 
+Moves:
+159
+Source:
+0, 1, 1, 
+1, 0, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+160
+Source:
+1, 1, 1, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+161
+Source:
+1, 1, 1, 
+1, 1, 1, 
+0, 1, 0, 
+Moves:
+162
+Source:
+1, 0, 1, 
+0, 0, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+163
+Source:
+0, 1, 0, 
+0, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+164
+Source:
+0, 0, 1, 
+1, 1, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+165
+Source:
+1, 1, 0, 
+1, 1, 1, 
+0, 1, 1, 
+Moves:
+166
+Source:
+1, 1, 0, 
+1, 0, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+167
+Source:
+0, 0, 0, 
+1, 0, 0, 
+1, 0, 0, 
+Moves:
+168
+Source:
+1, 0, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+169
+Source:
+0, 0, 0, 
+0, 1, 1, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+170
+Source:
+1, 1, 0, 
+0, 0, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+171
+Source:
+0, 1, 0, 
+0, 1, 1, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+172
+Source:
+0, 0, 0, 
+0, 1, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+173
+Source:
+1, 1, 0, 
+1, 0, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+174
+Source:
+0, 0, 0, 
+1, 0, 0, 
+0, 0, 1, 
+Moves:
+175
+Source:
+1, 0, 1, 
+0, 1, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+176
+Source:
+0, 0, 1, 
+0, 0, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+177
+Source:
+1, 1, 1, 
+1, 1, 1, 
+1, 0, 0, 
+Moves:
+178
+Source:
+0, 1, 1, 
+0, 1, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+179
+Source:
+1, 1, 0, 
+1, 0, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+180
+Source:
+1, 0, 0, 
+0, 0, 1, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+181
+Source:
+0, 1, 0, 
+1, 1, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+182
+Source:
+0, 0, 1, 
+1, 1, 1, 
+0, 1, 0, 
+Moves:
+183
+Source:
+1, 1, 1, 
+1, 1, 1, 
+1, 0, 0, 
+Moves:
+184
+Source:
+0, 1, 1, 
+1, 1, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+185
+Source:
+0, 0, 0, 
+0, 1, 0, 
+1, 0, 0, 
+Moves:
+186
+Source:
+1, 1, 1, 
+1, 1, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+187
+Source:
+0, 1, 0, 
+0, 1, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+188
+Source:
+1, 1, 0, 
+0, 0, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+189
+Source:
+1, 0, 0, 
+0, 1, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+190
+Source:
+0, 0, 0, 
+1, 0, 0, 
+0, 1, 0, 
+Moves:
+191
+Source:
+1, 0, 1, 
+0, 1, 1, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+192
+Source:
+1, 1, 0, 
+1, 0, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+193
+Source:
+1, 1, 0, 
+1, 1, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+194
+Source:
+1, 1, 0, 
+1, 1, 1, 
+1, 0, 1, 
+Moves:
+195
+Source:
+0, 1, 1, 
+1, 1, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+196
+Source:
+1, 0, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+197
+Source:
+1, 0, 0, 
+1, 1, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+198
+Source:
+1, 0, 0, 
+1, 1, 1, 
+0, 0, 1, 
+Moves:
+199
+Source:
+0, 1, 1, 
+0, 1, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+200
+Source:
+0, 0, 0, 
+0, 0, 1, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+201
+Source:
+1, 0, 0, 
+1, 0, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+202
+Source:
+0, 0, 1, 
+1, 1, 1, 
+1, 0, 1, 
+Moves:
+203
+Source:
+0, 1, 0, 
+1, 1, 1, 
+1, 0, 1, 
+Moves:
+204
+Source:
+0, 1, 0, 
+1, 0, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+205
+Source:
+0, 1, 1, 
+1, 0, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+206
+Source:
+1, 0, 0, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+207
+Source:
+1, 0, 0, 
+0, 0, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+208
+Source:
+0, 0, 0, 
+1, 1, 1, 
+1, 0, 0, 
+Moves:
+209
+Source:
+1, 0, 0, 
+0, 0, 1, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+210
+Source:
+1, 1, 0, 
+1, 0, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+211
+Source:
+1, 1, 0, 
+0, 1, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+212
+Source:
+0, 0, 0, 
+1, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+213
+Source:
+0, 0, 1, 
+1, 1, 1, 
+0, 0, 1, 
+Moves:
+214
+Source:
+0, 0, 1, 
+1, 1, 1, 
+1, 0, 0, 
+Moves:
+215
+Source:
+0, 0, 0, 
+0, 1, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+216
+Source:
+0, 0, 1, 
+0, 1, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+217
+Source:
+1, 1, 1, 
+1, 1, 1, 
+1, 1, 1, 
+Moves:
+218
+Source:
+0, 1, 0, 
+0, 0, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+219
+Source:
+0, 1, 0, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+3
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+220
+Source:
+1, 1, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+221
+Source:
+1, 1, 0, 
+0, 1, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+222
+Source:
+0, 0, 0, 
+1, 1, 1, 
+0, 0, 0, 
+Moves:
+223
+Source:
+0, 0, 1, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+224
+Source:
+0, 0, 1, 
+0, 0, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+225
+Source:
+1, 1, 0, 
+0, 1, 1, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+226
+Source:
+1, 1, 1, 
+0, 1, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+227
+Source:
+0, 0, 0, 
+1, 1, 1, 
+1, 1, 0, 
+Moves:
+228
+Source:
+1, 0, 0, 
+1, 1, 1, 
+1, 1, 0, 
+Moves:
+229
+Source:
+1, 1, 1, 
+1, 1, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+230
+Source:
+1, 1, 0, 
+1, 1, 1, 
+1, 0, 1, 
+Moves:
+231
+Source:
+1, 1, 0, 
+0, 0, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+3
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+4
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+232
+Source:
+0, 1, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+233
+Source:
+0, 1, 0, 
+1, 0, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+234
+Source:
+0, 0, 0, 
+0, 0, 1, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+235
+Source:
+1, 0, 0, 
+1, 0, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+236
+Source:
+0, 1, 0, 
+1, 0, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+237
+Source:
+0, 0, 0, 
+1, 1, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+238
+Source:
+1, 1, 0, 
+1, 1, 1, 
+1, 0, 0, 
+Moves:
+239
+Source:
+0, 0, 0, 
+1, 1, 1, 
+1, 0, 0, 
+Moves:
+240
+Source:
+1, 0, 0, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+241
+Source:
+0, 1, 1, 
+0, 1, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+242
+Source:
+0, 1, 1, 
+0, 1, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+243
+Source:
+0, 0, 0, 
+1, 1, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+244
+Source:
+1, 0, 1, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+245
+Source:
+1, 0, 0, 
+1, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+246
+Source:
+1, 0, 0, 
+0, 1, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+247
+Source:
+1, 1, 0, 
+1, 1, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+248
+Source:
+1, 1, 1, 
+0, 1, 1, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+249
+Source:
+0, 0, 1, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+250
+Source:
+0, 1, 1, 
+0, 0, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+251
+Source:
+0, 0, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+252
+Source:
+0, 0, 1, 
+0, 1, 1, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+253
+Source:
+1, 0, 0, 
+1, 0, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+254
+Source:
+1, 1, 0, 
+0, 1, 1, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+255
+Source:
+1, 1, 0, 
+0, 1, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+256
+Source:
+0, 1, 0, 
+0, 1, 1, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+257
+Source:
+0, 1, 1, 
+1, 0, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+258
+Source:
+0, 0, 1, 
+0, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+3
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+4
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+259
+Source:
+0, 0, 0, 
+0, 0, 1, 
+1, 0, 0, 
+Moves:
+260
+Source:
+0, 0, 0, 
+0, 1, 1, 
+0, 0, 0, 
+Moves:
+261
+Source:
+1, 1, 0, 
+1, 0, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+262
+Source:
+0, 0, 0, 
+0, 1, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+263
+Source:
+1, 0, 0, 
+1, 1, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+264
+Source:
+1, 1, 0, 
+1, 1, 1, 
+1, 0, 0, 
+Moves:
+265
+Source:
+0, 1, 0, 
+0, 1, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+266
+Source:
+0, 1, 1, 
+1, 1, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+267
+Source:
+0, 1, 1, 
+1, 1, 1, 
+0, 0, 1, 
+Moves:
+268
+Source:
+0, 0, 1, 
+1, 0, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+269
+Source:
+0, 0, 1, 
+1, 0, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+270
+Source:
+1, 0, 1, 
+1, 0, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+271
+Source:
+1, 0, 0, 
+1, 1, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+272
+Source:
+1, 1, 0, 
+0, 1, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+273
+Source:
+0, 1, 0, 
+0, 1, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+274
+Source:
+0, 0, 0, 
+1, 1, 1, 
+0, 0, 0, 
+Moves:
+275
+Source:
+1, 1, 1, 
+0, 0, 1, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+276
+Source:
+1, 0, 1, 
+0, 1, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+277
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 0, 1, 
+Moves:
+278
+Source:
+1, 0, 1, 
+1, 1, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+279
+Source:
+1, 1, 1, 
+0, 1, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+280
+Source:
+0, 1, 0, 
+0, 1, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+281
+Source:
+0, 1, 0, 
+1, 0, 1, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+282
+Source:
+1, 0, 0, 
+1, 1, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+283
+Source:
+1, 1, 0, 
+1, 1, 1, 
+0, 1, 1, 
+Moves:
+284
+Source:
+1, 1, 0, 
+0, 1, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+285
+Source:
+0, 1, 0, 
+0, 1, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+286
+Source:
+0, 0, 0, 
+1, 1, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+287
+Source:
+0, 0, 0, 
+1, 1, 1, 
+1, 0, 0, 
+Moves:
+288
+Source:
+1, 0, 1, 
+0, 0, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+289
+Source:
+1, 0, 0, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+290
+Source:
+1, 1, 1, 
+1, 0, 1, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+291
+Source:
+0, 1, 1, 
+1, 0, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+292
+Source:
+1, 1, 1, 
+0, 1, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+293
+Source:
+0, 1, 0, 
+0, 1, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+294
+Source:
+0, 0, 0, 
+1, 0, 0, 
+1, 0, 0, 
+Moves:
+295
+Source:
+1, 0, 0, 
+0, 1, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+296
+Source:
+0, 0, 0, 
+1, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+297
+Source:
+0, 1, 0, 
+1, 0, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+298
+Source:
+1, 1, 1, 
+0, 0, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+299
+Source:
+1, 0, 0, 
+1, 1, 1, 
+1, 1, 0, 
+Moves:
+300
+Source:
+0, 0, 1, 
+1, 0, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+301
+Source:
+0, 0, 1, 
+0, 1, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+302
+Source:
+0, 1, 1, 
+1, 0, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+303
+Source:
+0, 0, 0, 
+1, 1, 1, 
+1, 1, 0, 
+Moves:
+304
+Source:
+0, 0, 1, 
+1, 1, 1, 
+0, 1, 0, 
+Moves:
+305
+Source:
+0, 1, 1, 
+0, 0, 1, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+306
+Source:
+1, 0, 0, 
+0, 1, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+307
+Source:
+1, 0, 1, 
+0, 0, 1, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+308
+Source:
+1, 0, 0, 
+1, 1, 1, 
+0, 1, 1, 
+Moves:
+309
+Source:
+1, 1, 1, 
+0, 0, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+310
+Source:
+0, 1, 0, 
+1, 0, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+311
+Source:
+1, 1, 1, 
+1, 0, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+312
+Source:
+0, 1, 0, 
+0, 0, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+313
+Source:
+1, 1, 1, 
+1, 0, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+314
+Source:
+0, 0, 0, 
+0, 1, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+315
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 0, 1, 
+Moves:
+316
+Source:
+0, 0, 1, 
+0, 0, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+3
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+4
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+317
+Source:
+1, 1, 1, 
+0, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+318
+Source:
+1, 0, 0, 
+0, 1, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+319
+Source:
+1, 0, 1, 
+0, 1, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+320
+Source:
+1, 0, 1, 
+0, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+321
+Source:
+0, 0, 0, 
+0, 0, 1, 
+1, 0, 0, 
+Moves:
+322
+Source:
+1, 0, 0, 
+1, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+323
+Source:
+0, 0, 0, 
+1, 0, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+324
+Source:
+1, 0, 1, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+325
+Source:
+1, 0, 0, 
+0, 1, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+326
+Source:
+0, 0, 0, 
+0, 1, 1, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+327
+Source:
+0, 0, 0, 
+1, 1, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+328
+Source:
+0, 1, 1, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+329
+Source:
+0, 0, 0, 
+1, 1, 1, 
+0, 1, 0, 
+Moves:
+330
+Source:
+1, 0, 0, 
+0, 1, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+331
+Source:
+1, 1, 0, 
+1, 1, 1, 
+0, 1, 0, 
+Moves:
+332
+Source:
+1, 1, 0, 
+1, 1, 1, 
+0, 1, 0, 
+Moves:
+333
+Source:
+0, 1, 1, 
+1, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+334
+Source:
+0, 1, 1, 
+1, 0, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+335
+Source:
+1, 1, 0, 
+1, 1, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+336
+Source:
+0, 0, 0, 
+1, 0, 0, 
+1, 0, 0, 
+Moves:
+337
+Source:
+1, 1, 0, 
+1, 0, 1, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+338
+Source:
+1, 0, 1, 
+0, 1, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+339
+Source:
+0, 0, 0, 
+1, 1, 1, 
+1, 0, 1, 
+Moves:
+340
+Source:
+1, 1, 0, 
+0, 1, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+341
+Source:
+1, 0, 0, 
+1, 0, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+342
+Source:
+0, 1, 1, 
+0, 1, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+343
+Source:
+0, 0, 1, 
+1, 1, 1, 
+0, 0, 0, 
+Moves:
+344
+Source:
+0, 0, 0, 
+1, 1, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+345
+Source:
+0, 1, 0, 
+0, 1, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+346
+Source:
+0, 1, 1, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+347
+Source:
+0, 0, 0, 
+1, 0, 0, 
+1, 0, 0, 
+Moves:
+348
+Source:
+0, 1, 0, 
+1, 1, 1, 
+0, 1, 1, 
+Moves:
+349
+Source:
+1, 0, 0, 
+0, 1, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+350
+Source:
+1, 0, 0, 
+0, 1, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+351
+Source:
+1, 0, 0, 
+1, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+352
+Source:
+0, 1, 1, 
+1, 1, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+353
+Source:
+0, 0, 1, 
+1, 1, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+354
+Source:
+0, 0, 0, 
+0, 1, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+355
+Source:
+1, 0, 0, 
+1, 1, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+356
+Source:
+1, 0, 0, 
+0, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+357
+Source:
+0, 0, 0, 
+0, 0, 1, 
+0, 1, 0, 
+Moves:
+358
+Source:
+0, 0, 0, 
+1, 0, 1, 
+0, 0, 0, 
+Moves:
+359
+Source:
+0, 0, 0, 
+0, 1, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+360
+Source:
+0, 1, 1, 
+1, 0, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+361
+Source:
+0, 0, 1, 
+1, 0, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+362
+Source:
+1, 1, 0, 
+0, 1, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+363
+Source:
+0, 0, 0, 
+0, 1, 1, 
+0, 0, 0, 
+Moves:
+364
+Source:
+0, 0, 0, 
+0, 0, 1, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+365
+Source:
+1, 1, 1, 
+0, 1, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+366
+Source:
+0, 0, 0, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+367
+Source:
+1, 1, 0, 
+0, 0, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+368
+Source:
+0, 0, 1, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+369
+Source:
+1, 1, 1, 
+1, 0, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+370
+Source:
+0, 0, 0, 
+1, 0, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+371
+Source:
+0, 1, 0, 
+1, 0, 1, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+372
+Source:
+1, 0, 1, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+373
+Source:
+0, 0, 0, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+374
+Source:
+1, 0, 0, 
+1, 0, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+375
+Source:
+1, 0, 0, 
+1, 0, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+376
+Source:
+0, 0, 1, 
+0, 0, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+377
+Source:
+0, 0, 0, 
+1, 0, 0, 
+0, 1, 0, 
+Moves:
+378
+Source:
+0, 0, 0, 
+1, 1, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+379
+Source:
+0, 1, 0, 
+0, 1, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+380
+Source:
+1, 0, 0, 
+0, 1, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+381
+Source:
+0, 0, 0, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+382
+Source:
+1, 0, 0, 
+1, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+383
+Source:
+0, 0, 0, 
+1, 0, 0, 
+1, 0, 0, 
+Moves:
+384
+Source:
+0, 1, 1, 
+1, 1, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+385
+Source:
+0, 1, 1, 
+1, 1, 1, 
+1, 1, 0, 
+Moves:
+386
+Source:
+0, 1, 1, 
+0, 1, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+387
+Source:
+0, 1, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+388
+Source:
+0, 0, 0, 
+1, 1, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+389
+Source:
+1, 0, 0, 
+1, 0, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+390
+Source:
+0, 1, 0, 
+0, 0, 0, 
+0, 0, 1, 
+Moves:
+391
+Source:
+1, 1, 0, 
+0, 0, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+392
+Source:
+0, 0, 0, 
+1, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+393
+Source:
+1, 0, 0, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+394
+Source:
+1, 1, 0, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+395
+Source:
+0, 0, 1, 
+0, 0, 0, 
+0, 0, 1, 
+Moves:
+396
+Source:
+1, 0, 1, 
+1, 1, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+397
+Source:
+1, 1, 0, 
+0, 1, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+398
+Source:
+1, 0, 0, 
+0, 1, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+399
+Source:
+0, 0, 0, 
+1, 1, 1, 
+0, 1, 0, 
+Moves:
+400
+Source:
+0, 0, 0, 
+0, 1, 0, 
+0, 0, 1, 
+Moves:
+401
+Source:
+0, 0, 0, 
+1, 1, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+402
+Source:
+0, 1, 0, 
+1, 1, 1, 
+0, 0, 0, 
+Moves:
+403
+Source:
+1, 1, 0, 
+1, 1, 1, 
+1, 1, 0, 
+Moves:
+404
+Source:
+0, 0, 0, 
+1, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+405
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+406
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+407
+Source:
+0, 0, 1, 
+0, 1, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+408
+Source:
+0, 0, 0, 
+1, 1, 1, 
+0, 1, 0, 
+Moves:
+409
+Source:
+1, 0, 0, 
+1, 1, 1, 
+0, 1, 0, 
+Moves:
+410
+Source:
+0, 0, 0, 
+1, 1, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+411
+Source:
+1, 1, 1, 
+1, 0, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+412
+Source:
+0, 0, 0, 
+0, 0, 1, 
+0, 1, 0, 
+Moves:
+413
+Source:
+0, 1, 0, 
+1, 1, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+414
+Source:
+0, 0, 0, 
+1, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+415
+Source:
+1, 1, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+416
+Source:
+1, 1, 1, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+417
+Source:
+0, 1, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+418
+Source:
+0, 1, 0, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+419
+Source:
+0, 1, 0, 
+0, 1, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+420
+Source:
+0, 0, 0, 
+0, 0, 1, 
+0, 0, 1, 
+Moves:
+421
+Source:
+0, 1, 0, 
+1, 0, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+422
+Source:
+1, 0, 0, 
+1, 1, 1, 
+0, 0, 0, 
+Moves:
+423
+Source:
+1, 1, 0, 
+1, 1, 1, 
+0, 1, 0, 
+Moves:
+424
+Source:
+1, 0, 0, 
+0, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+425
+Source:
+0, 1, 0, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+426
+Source:
+1, 0, 0, 
+0, 1, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+427
+Source:
+0, 1, 0, 
+0, 0, 0, 
+0, 0, 1, 
+Moves:
+428
+Source:
+1, 1, 0, 
+1, 0, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+429
+Source:
+0, 0, 0, 
+1, 1, 0, 
+0, 0, 0, 
+Moves:
+430
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+431
+Source:
+1, 0, 1, 
+1, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+432
+Source:
+0, 0, 0, 
+0, 0, 0, 
+1, 0, 0, 
+Moves:
+433
+Source:
+1, 0, 1, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+434
+Source:
+0, 0, 0, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+435
+Source:
+1, 0, 1, 
+0, 1, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+436
+Source:
+0, 1, 1, 
+0, 1, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+437
+Source:
+0, 0, 1, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+438
+Source:
+1, 0, 0, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+439
+Source:
+0, 1, 0, 
+1, 1, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+440
+Source:
+1, 0, 0, 
+0, 0, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+441
+Source:
+0, 0, 0, 
+0, 0, 1, 
+1, 0, 0, 
+Moves:
+442
+Source:
+0, 1, 0, 
+1, 1, 1, 
+0, 0, 0, 
+Moves:
+443
+Source:
+0, 1, 1, 
+0, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+444
+Source:
+1, 0, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+445
+Source:
+0, 0, 0, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+446
+Source:
+1, 0, 1, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+447
+Source:
+0, 0, 0, 
+0, 1, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+448
+Source:
+1, 0, 0, 
+0, 0, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+449
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+450
+Source:
+1, 0, 0, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+451
+Source:
+0, 1, 1, 
+1, 1, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+452
+Source:
+0, 0, 0, 
+0, 1, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+453
+Source:
+0, 1, 0, 
+0, 0, 0, 
+1, 0, 0, 
+Moves:
+454
+Source:
+0, 0, 0, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+455
+Source:
+1, 0, 0, 
+1, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+456
+Source:
+1, 0, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+457
+Source:
+1, 0, 0, 
+1, 1, 1, 
+1, 0, 0, 
+Moves:
+458
+Source:
+1, 1, 1, 
+1, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+459
+Source:
+0, 0, 1, 
+1, 1, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+460
+Source:
+0, 1, 0, 
+1, 0, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+461
+Source:
+1, 0, 0, 
+1, 0, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+3
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+4
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+462
+Source:
+0, 1, 0, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+463
+Source:
+0, 1, 0, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+464
+Source:
+0, 1, 0, 
+0, 0, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+465
+Source:
+1, 0, 0, 
+0, 1, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+466
+Source:
+0, 0, 1, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+467
+Source:
+1, 0, 1, 
+0, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+468
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+469
+Source:
+0, 0, 1, 
+0, 0, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+470
+Source:
+0, 1, 0, 
+0, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+471
+Source:
+1, 0, 0, 
+0, 0, 0, 
+1, 0, 0, 
+Moves:
+472
+Source:
+0, 0, 0, 
+0, 1, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+473
+Source:
+1, 0, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+474
+Source:
+1, 0, 1, 
+0, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+475
+Source:
+0, 0, 0, 
+0, 0, 0, 
+1, 0, 0, 
+Moves:
+476
+Source:
+0, 1, 1, 
+1, 1, 1, 
+1, 1, 1, 
+Moves:
+477
+Source:
+0, 1, 0, 
+0, 1, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+478
+Source:
+0, 0, 1, 
+0, 0, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+3
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+4
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+479
+Source:
+0, 0, 0, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+480
+Source:
+0, 0, 0, 
+1, 1, 1, 
+0, 1, 1, 
+Moves:
+481
+Source:
+0, 1, 0, 
+0, 1, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+482
+Source:
+0, 1, 0, 
+0, 0, 0, 
+0, 0, 1, 
+Moves:
+483
+Source:
+0, 0, 0, 
+0, 1, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+484
+Source:
+0, 1, 0, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+485
+Source:
+0, 0, 0, 
+1, 0, 0, 
+1, 0, 0, 
+Moves:
+486
+Source:
+1, 1, 0, 
+0, 1, 1, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+487
+Source:
+0, 0, 1, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+488
+Source:
+0, 1, 0, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+489
+Source:
+1, 1, 1, 
+1, 1, 1, 
+0, 1, 0, 
+Moves:
+490
+Source:
+0, 0, 0, 
+0, 0, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+491
+Source:
+0, 1, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+492
+Source:
+1, 0, 1, 
+0, 0, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+493
+Source:
+0, 0, 0, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+494
+Source:
+0, 1, 0, 
+1, 0, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+495
+Source:
+1, 0, 1, 
+1, 0, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+496
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+497
+Source:
+1, 0, 1, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+498
+Source:
+1, 1, 0, 
+1, 0, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+499
+Source:
+0, 0, 0, 
+1, 0, 0, 
+0, 0, 1, 
+Moves:
+500
+Source:
+0, 0, 1, 
+0, 0, 0, 
+0, 0, 1, 
+Moves:
+501
+Source:
+0, 1, 1, 
+1, 0, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+502
+Source:
+1, 0, 0, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+503
+Source:
+1, 1, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+504
+Source:
+1, 0, 1, 
+1, 0, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+505
+Source:
+0, 1, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+506
+Source:
+0, 1, 0, 
+0, 1, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+507
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+508
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 1, 1, 
+Moves:
+509
+Source:
+1, 1, 1, 
+1, 1, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+510
+Source:
+1, 0, 0, 
+0, 1, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+511
+Source:
+0, 1, 1, 
+0, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+512
+Source:
+1, 0, 1, 
+0, 0, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+513
+Source:
+0, 1, 0, 
+0, 0, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+514
+Source:
+0, 0, 0, 
+1, 1, 0, 
+0, 0, 0, 
+Moves:
+515
+Source:
+0, 0, 0, 
+1, 1, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+516
+Source:
+1, 0, 0, 
+1, 1, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+517
+Source:
+0, 1, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+518
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+519
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+520
+Source:
+0, 0, 0, 
+1, 1, 1, 
+0, 1, 0, 
+Moves:
+521
+Source:
+0, 1, 0, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+522
+Source:
+0, 0, 0, 
+0, 1, 0, 
+0, 0, 1, 
+Moves:
+523
+Source:
+0, 0, 1, 
+1, 1, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+524
+Source:
+1, 0, 0, 
+0, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+525
+Source:
+0, 0, 1, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+526
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 0, 1, 
+Moves:
+527
+Source:
+0, 1, 0, 
+0, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+528
+Source:
+0, 0, 0, 
+0, 0, 0, 
+1, 1, 0, 
+Moves:
+529
+Source:
+1, 0, 0, 
+1, 1, 1, 
+1, 1, 0, 
+Moves:
+530
+Source:
+1, 0, 1, 
+0, 1, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+531
+Source:
+0, 1, 0, 
+0, 1, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+532
+Source:
+0, 0, 0, 
+0, 0, 0, 
+1, 0, 0, 
+Moves:
+533
+Source:
+1, 0, 0, 
+1, 0, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+3
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+534
+Source:
+0, 0, 0, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+535
+Source:
+0, 1, 0, 
+1, 0, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+536
+Source:
+0, 0, 0, 
+1, 0, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+537
+Source:
+0, 1, 0, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+538
+Source:
+1, 0, 0, 
+0, 0, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+539
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+540
+Source:
+1, 0, 1, 
+0, 0, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+541
+Source:
+0, 0, 0, 
+0, 1, 0, 
+1, 0, 0, 
+Moves:
+542
+Source:
+1, 0, 0, 
+0, 0, 1, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+543
+Source:
+0, 1, 0, 
+1, 1, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+544
+Source:
+0, 0, 1, 
+1, 0, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+545
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+546
+Source:
+0, 0, 1, 
+1, 0, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+547
+Source:
+0, 0, 0, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+548
+Source:
+1, 0, 0, 
+0, 1, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+549
+Source:
+0, 1, 0, 
+0, 1, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+550
+Source:
+0, 0, 1, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+551
+Source:
+1, 0, 1, 
+0, 1, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+552
+Source:
+0, 0, 1, 
+0, 0, 0, 
+1, 0, 0, 
+Moves:
+553
+Source:
+1, 0, 1, 
+0, 1, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+554
+Source:
+0, 0, 0, 
+1, 0, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+555
+Source:
+0, 1, 0, 
+0, 0, 0, 
+0, 0, 1, 
+Moves:
+556
+Source:
+0, 0, 0, 
+1, 1, 1, 
+0, 0, 0, 
+Moves:
+557
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+558
+Source:
+0, 0, 1, 
+0, 1, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+559
+Source:
+1, 0, 0, 
+0, 1, 1, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+560
+Source:
+0, 1, 0, 
+0, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+561
+Source:
+0, 0, 0, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+562
+Source:
+0, 1, 0, 
+1, 0, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+563
+Source:
+1, 0, 0, 
+0, 0, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+564
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+565
+Source:
+1, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+566
+Source:
+0, 1, 0, 
+0, 0, 0, 
+0, 0, 1, 
+Moves:
+567
+Source:
+0, 1, 0, 
+0, 1, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+568
+Source:
+1, 0, 0, 
+0, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+569
+Source:
+0, 0, 0, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+570
+Source:
+0, 1, 0, 
+0, 1, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+571
+Source:
+0, 1, 0, 
+1, 0, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+572
+Source:
+0, 0, 1, 
+0, 1, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+573
+Source:
+0, 0, 0, 
+1, 1, 0, 
+0, 0, 0, 
+Moves:
+574
+Source:
+0, 1, 1, 
+1, 0, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+575
+Source:
+0, 0, 0, 
+0, 1, 0, 
+1, 0, 0, 
+Moves:
+576
+Source:
+0, 0, 1, 
+0, 1, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+577
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+578
+Source:
+0, 1, 0, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+579
+Source:
+0, 0, 1, 
+0, 0, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+580
+Source:
+0, 0, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+581
+Source:
+1, 0, 0, 
+1, 1, 1, 
+1, 1, 0, 
+Moves:
+582
+Source:
+0, 0, 1, 
+0, 1, 1, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+583
+Source:
+0, 0, 0, 
+1, 0, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+584
+Source:
+0, 0, 0, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+585
+Source:
+1, 0, 0, 
+1, 1, 1, 
+0, 0, 0, 
+Moves:
+586
+Source:
+0, 0, 0, 
+0, 0, 1, 
+0, 0, 1, 
+Moves:
+587
+Source:
+0, 0, 0, 
+1, 0, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+588
+Source:
+0, 1, 0, 
+1, 0, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+589
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+590
+Source:
+1, 0, 0, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+591
+Source:
+1, 0, 1, 
+0, 1, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+592
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+593
+Source:
+0, 0, 0, 
+1, 1, 1, 
+0, 1, 0, 
+Moves:
+594
+Source:
+0, 0, 0, 
+1, 1, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+595
+Source:
+0, 0, 0, 
+1, 0, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+596
+Source:
+0, 0, 1, 
+1, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+597
+Source:
+1, 0, 0, 
+0, 0, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+598
+Source:
+0, 0, 1, 
+0, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+599
+Source:
+0, 0, 0, 
+0, 0, 1, 
+1, 0, 0, 
+Moves:
+600
+Source:
+1, 0, 0, 
+1, 1, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+601
+Source:
+0, 0, 1, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+602
+Source:
+1, 1, 1, 
+1, 0, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+603
+Source:
+1, 0, 0, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+604
+Source:
+0, 0, 0, 
+1, 1, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+605
+Source:
+0, 0, 0, 
+1, 1, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+606
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+607
+Source:
+0, 0, 0, 
+1, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+608
+Source:
+1, 1, 0, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+609
+Source:
+0, 0, 0, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+610
+Source:
+0, 0, 0, 
+1, 0, 1, 
+0, 0, 0, 
+Moves:
+611
+Source:
+0, 1, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+612
+Source:
+0, 1, 1, 
+1, 1, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+613
+Source:
+1, 1, 0, 
+0, 0, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+3
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+4
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+614
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 1, 1, 
+Moves:
+615
+Source:
+1, 1, 1, 
+1, 1, 1, 
+0, 1, 0, 
+Moves:
+616
+Source:
+1, 0, 0, 
+0, 1, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+617
+Source:
+0, 1, 0, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+618
+Source:
+0, 1, 0, 
+0, 0, 0, 
+0, 0, 1, 
+Moves:
+619
+Source:
+0, 1, 0, 
+1, 1, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+620
+Source:
+1, 1, 0, 
+1, 1, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+621
+Source:
+1, 0, 0, 
+1, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+622
+Source:
+0, 1, 0, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+623
+Source:
+0, 0, 1, 
+1, 1, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+624
+Source:
+0, 0, 0, 
+0, 0, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+625
+Source:
+0, 0, 0, 
+0, 0, 0, 
+1, 0, 0, 
+Moves:
+626
+Source:
+1, 0, 0, 
+0, 0, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+627
+Source:
+0, 0, 0, 
+1, 1, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+628
+Source:
+1, 0, 0, 
+0, 0, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+629
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+630
+Source:
+1, 0, 0, 
+0, 0, 0, 
+1, 0, 0, 
+Moves:
+631
+Source:
+1, 0, 1, 
+0, 0, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+632
+Source:
+0, 0, 0, 
+0, 0, 1, 
+1, 0, 0, 
+Moves:
+633
+Source:
+1, 1, 1, 
+1, 1, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+634
+Source:
+0, 1, 0, 
+1, 0, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+635
+Source:
+0, 0, 0, 
+0, 0, 0, 
+1, 0, 1, 
+Moves:
+636
+Source:
+0, 0, 0, 
+0, 0, 1, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+637
+Source:
+0, 0, 1, 
+1, 0, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+638
+Source:
+0, 0, 0, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+639
+Source:
+1, 0, 0, 
+1, 1, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+640
+Source:
+1, 0, 0, 
+0, 0, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+3
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+4
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+641
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 0, 1, 
+Moves:
+642
+Source:
+0, 0, 0, 
+1, 0, 0, 
+1, 0, 0, 
+Moves:
+643
+Source:
+0, 0, 0, 
+0, 0, 0, 
+1, 1, 0, 
+Moves:
+644
+Source:
+1, 1, 0, 
+0, 1, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+645
+Source:
+0, 0, 0, 
+0, 1, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+646
+Source:
+0, 0, 0, 
+1, 1, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+647
+Source:
+0, 0, 0, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+648
+Source:
+1, 0, 0, 
+1, 0, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+3
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+649
+Source:
+0, 0, 1, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+650
+Source:
+0, 0, 0, 
+1, 1, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+651
+Source:
+1, 1, 0, 
+1, 0, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+652
+Source:
+1, 0, 0, 
+0, 0, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+653
+Source:
+0, 0, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+654
+Source:
+0, 0, 0, 
+1, 1, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+655
+Source:
+1, 0, 0, 
+1, 1, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+656
+Source:
+1, 1, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+657
+Source:
+0, 0, 0, 
+1, 0, 0, 
+0, 0, 1, 
+Moves:
+658
+Source:
+1, 0, 0, 
+0, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+659
+Source:
+0, 0, 0, 
+1, 0, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+660
+Source:
+0, 0, 1, 
+0, 0, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+3
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+4
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+661
+Source:
+1, 0, 0, 
+0, 1, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+662
+Source:
+0, 1, 0, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+663
+Source:
+0, 0, 1, 
+1, 1, 1, 
+1, 1, 0, 
+Moves:
+664
+Source:
+0, 0, 1, 
+1, 1, 1, 
+1, 0, 0, 
+Moves:
+665
+Source:
+1, 0, 0, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+666
+Source:
+0, 0, 1, 
+0, 0, 0, 
+0, 0, 1, 
+Moves:
+667
+Source:
+0, 1, 1, 
+1, 1, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+668
+Source:
+1, 1, 0, 
+0, 1, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+669
+Source:
+0, 0, 0, 
+0, 1, 0, 
+1, 0, 0, 
+Moves:
+670
+Source:
+1, 0, 1, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+671
+Source:
+0, 1, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+672
+Source:
+0, 0, 0, 
+1, 1, 1, 
+0, 1, 0, 
+Moves:
+673
+Source:
+0, 1, 0, 
+1, 0, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+674
+Source:
+1, 0, 1, 
+1, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+675
+Source:
+0, 0, 0, 
+1, 0, 0, 
+1, 0, 0, 
+Moves:
+676
+Source:
+0, 0, 0, 
+1, 1, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+677
+Source:
+1, 1, 1, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+678
+Source:
+0, 0, 0, 
+0, 1, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+679
+Source:
+1, 0, 1, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+680
+Source:
+1, 0, 1, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+681
+Source:
+0, 1, 1, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+682
+Source:
+1, 0, 0, 
+1, 1, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+683
+Source:
+0, 0, 1, 
+0, 0, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+3
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+4
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+684
+Source:
+0, 0, 0, 
+1, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+685
+Source:
+0, 0, 0, 
+1, 0, 1, 
+0, 0, 0, 
+Moves:
+686
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+687
+Source:
+0, 0, 0, 
+0, 0, 0, 
+1, 0, 1, 
+Moves:
+688
+Source:
+0, 0, 0, 
+0, 0, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+689
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+690
+Source:
+1, 0, 0, 
+0, 0, 0, 
+1, 0, 0, 
+Moves:
+691
+Source:
+1, 0, 0, 
+0, 0, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+692
+Source:
+0, 0, 0, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+693
+Source:
+0, 0, 1, 
+1, 0, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+694
+Source:
+0, 1, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+695
+Source:
+0, 0, 1, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+696
+Source:
+1, 1, 1, 
+1, 1, 1, 
+1, 1, 1, 
+Moves:
+697
+Source:
+0, 0, 1, 
+0, 0, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+698
+Source:
+0, 1, 1, 
+1, 1, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+699
+Source:
+0, 0, 0, 
+1, 0, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+700
+Source:
+0, 0, 0, 
+1, 1, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+701
+Source:
+1, 0, 0, 
+0, 0, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+702
+Source:
+1, 0, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+703
+Source:
+1, 0, 1, 
+1, 0, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+704
+Source:
+1, 1, 0, 
+1, 0, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+705
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+706
+Source:
+0, 0, 1, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+707
+Source:
+0, 0, 0, 
+1, 0, 0, 
+1, 0, 0, 
+Moves:
+708
+Source:
+0, 1, 0, 
+0, 0, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+709
+Source:
+0, 0, 1, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+710
+Source:
+0, 0, 0, 
+0, 0, 0, 
+1, 0, 0, 
+Moves:
+711
+Source:
+0, 1, 1, 
+1, 0, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+712
+Source:
+0, 0, 0, 
+1, 0, 0, 
+0, 1, 0, 
+Moves:
+713
+Source:
+0, 0, 0, 
+1, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+714
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+715
+Source:
+1, 1, 0, 
+1, 1, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+716
+Source:
+0, 0, 0, 
+1, 0, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+717
+Source:
+1, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+718
+Source:
+1, 0, 1, 
+1, 1, 1, 
+1, 0, 1, 
+Moves:
+719
+Source:
+1, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+720
+Source:
+0, 1, 1, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+721
+Source:
+1, 0, 0, 
+1, 1, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+722
+Source:
+1, 0, 0, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+723
+Source:
+1, 1, 0, 
+0, 1, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+724
+Source:
+0, 1, 0, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+725
+Source:
+1, 0, 0, 
+0, 1, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+726
+Source:
+0, 1, 1, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+3
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+727
+Source:
+0, 0, 0, 
+0, 0, 0, 
+1, 0, 0, 
+Moves:
+728
+Source:
+0, 0, 1, 
+0, 1, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+729
+Source:
+0, 1, 0, 
+0, 1, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+730
+Source:
+1, 0, 1, 
+0, 0, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+731
+Source:
+0, 1, 0, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+732
+Source:
+0, 1, 1, 
+0, 1, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+733
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+734
+Source:
+1, 1, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+735
+Source:
+1, 1, 0, 
+1, 1, 1, 
+0, 0, 1, 
+Moves:
+736
+Source:
+0, 1, 0, 
+0, 1, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+737
+Source:
+0, 1, 1, 
+1, 0, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+738
+Source:
+0, 0, 0, 
+0, 1, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+739
+Source:
+0, 1, 0, 
+0, 1, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+740
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 1, 1, 
+Moves:
+741
+Source:
+1, 1, 1, 
+1, 0, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+742
+Source:
+1, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+743
+Source:
+0, 0, 0, 
+0, 1, 1, 
+0, 0, 0, 
+Moves:
+744
+Source:
+1, 1, 1, 
+0, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+745
+Source:
+0, 0, 1, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+746
+Source:
+0, 1, 0, 
+1, 0, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+747
+Source:
+1, 0, 1, 
+1, 1, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+748
+Source:
+1, 1, 0, 
+0, 0, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+749
+Source:
+0, 0, 0, 
+0, 1, 0, 
+1, 0, 0, 
+Moves:
+750
+Source:
+0, 1, 1, 
+1, 0, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+751
+Source:
+0, 0, 1, 
+0, 1, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+752
+Source:
+1, 0, 1, 
+0, 1, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+753
+Source:
+0, 0, 1, 
+0, 1, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+754
+Source:
+0, 0, 1, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+755
+Source:
+0, 0, 1, 
+1, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+756
+Source:
+0, 0, 0, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+757
+Source:
+0, 0, 0, 
+1, 0, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+758
+Source:
+0, 0, 0, 
+0, 0, 1, 
+0, 0, 1, 
+Moves:
+759
+Source:
+0, 0, 0, 
+0, 1, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+760
+Source:
+0, 1, 1, 
+1, 1, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+761
+Source:
+0, 0, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+762
+Source:
+1, 0, 0, 
+0, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+763
+Source:
+0, 0, 0, 
+0, 0, 1, 
+1, 0, 0, 
+Moves:
+764
+Source:
+0, 0, 1, 
+1, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+765
+Source:
+1, 1, 0, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+3
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+766
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 0, 1, 
+Moves:
+767
+Source:
+0, 0, 0, 
+1, 1, 1, 
+0, 1, 0, 
+Moves:
+768
+Source:
+0, 1, 0, 
+0, 1, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+769
+Source:
+0, 0, 0, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+770
+Source:
+1, 0, 1, 
+0, 1, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+771
+Source:
+0, 1, 0, 
+0, 1, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+772
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 0, 1, 
+Moves:
+773
+Source:
+1, 1, 0, 
+0, 0, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+774
+Source:
+0, 0, 0, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+775
+Source:
+1, 0, 0, 
+0, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+776
+Source:
+0, 0, 1, 
+1, 0, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+777
+Source:
+1, 0, 1, 
+1, 0, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+778
+Source:
+1, 0, 0, 
+1, 0, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+779
+Source:
+0, 1, 1, 
+0, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+780
+Source:
+1, 0, 1, 
+0, 1, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+781
+Source:
+0, 0, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+782
+Source:
+0, 0, 1, 
+0, 1, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+783
+Source:
+1, 0, 0, 
+0, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+784
+Source:
+0, 0, 0, 
+1, 0, 0, 
+1, 0, 0, 
+Moves:
+785
+Source:
+0, 0, 0, 
+1, 0, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+786
+Source:
+1, 1, 1, 
+0, 0, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+787
+Source:
+1, 1, 0, 
+0, 0, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+788
+Source:
+0, 0, 0, 
+0, 0, 0, 
+1, 0, 0, 
+Moves:
+789
+Source:
+0, 0, 0, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+790
+Source:
+1, 1, 1, 
+0, 1, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+791
+Source:
+0, 0, 1, 
+0, 1, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+792
+Source:
+0, 1, 0, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+3
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+793
+Source:
+0, 0, 1, 
+0, 0, 1, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+794
+Source:
+0, 0, 1, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+795
+Source:
+0, 0, 1, 
+0, 0, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+3
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+4
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+796
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+797
+Source:
+0, 1, 0, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+3
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+798
+Source:
+0, 0, 0, 
+0, 0, 0, 
+1, 0, 1, 
+Moves:
+799
+Source:
+1, 0, 0, 
+0, 1, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+800
+Source:
+0, 1, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+801
+Source:
+0, 1, 0, 
+0, 1, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+802
+Source:
+1, 0, 1, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+803
+Source:
+0, 1, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+804
+Source:
+0, 0, 1, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+805
+Source:
+0, 0, 0, 
+1, 0, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+806
+Source:
+1, 0, 0, 
+0, 0, 0, 
+0, 0, 1, 
+Moves:
+807
+Source:
+1, 0, 0, 
+0, 1, 1, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+808
+Source:
+0, 1, 0, 
+1, 1, 1, 
+1, 0, 0, 
+Moves:
+809
+Source:
+0, 0, 1, 
+1, 0, 1, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+810
+Source:
+1, 0, 1, 
+0, 0, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+811
+Source:
+0, 1, 1, 
+0, 1, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+812
+Source:
+1, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+813
+Source:
+1, 1, 0, 
+0, 0, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+814
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+815
+Source:
+0, 0, 1, 
+0, 0, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+816
+Source:
+0, 0, 0, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+817
+Source:
+0, 1, 1, 
+1, 0, 1, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+818
+Source:
+1, 0, 0, 
+0, 1, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+819
+Source:
+0, 0, 0, 
+1, 0, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+820
+Source:
+0, 1, 0, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+821
+Source:
+0, 1, 1, 
+1, 0, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+822
+Source:
+0, 0, 0, 
+1, 0, 0, 
+1, 0, 0, 
+Moves:
+823
+Source:
+0, 1, 1, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+824
+Source:
+0, 1, 1, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+825
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+826
+Source:
+0, 0, 1, 
+0, 0, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+827
+Source:
+0, 1, 0, 
+1, 1, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+828
+Source:
+1, 0, 1, 
+1, 1, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+829
+Source:
+0, 1, 0, 
+1, 1, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+830
+Source:
+1, 1, 1, 
+1, 0, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+831
+Source:
+1, 0, 1, 
+1, 0, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+832
+Source:
+1, 0, 1, 
+1, 1, 1, 
+0, 1, 0, 
+Moves:
+833
+Source:
+1, 1, 1, 
+1, 1, 1, 
+1, 0, 0, 
+Moves:
+834
+Source:
+1, 0, 0, 
+0, 0, 0, 
+0, 0, 1, 
+Moves:
+835
+Source:
+0, 1, 1, 
+0, 1, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+836
+Source:
+1, 0, 1, 
+0, 0, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+837
+Source:
+0, 1, 0, 
+1, 0, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+838
+Source:
+1, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+839
+Source:
+1, 1, 0, 
+1, 1, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+840
+Source:
+1, 0, 0, 
+0, 0, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+841
+Source:
+0, 0, 0, 
+0, 1, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+842
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+843
+Source:
+0, 0, 1, 
+1, 0, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+844
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 1, 1, 
+Moves:
+845
+Source:
+0, 0, 0, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+846
+Source:
+0, 0, 1, 
+1, 0, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+847
+Source:
+0, 1, 0, 
+1, 0, 1, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+848
+Source:
+1, 0, 0, 
+0, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+849
+Source:
+0, 1, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+850
+Source:
+0, 1, 0, 
+1, 1, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+851
+Source:
+0, 0, 1, 
+0, 0, 0, 
+1, 0, 0, 
+Moves:
+852
+Source:
+0, 0, 0, 
+0, 0, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+853
+Source:
+0, 0, 1, 
+0, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+854
+Source:
+1, 0, 0, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+855
+Source:
+1, 0, 1, 
+0, 1, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+856
+Source:
+0, 0, 0, 
+0, 0, 0, 
+1, 0, 0, 
+Moves:
+857
+Source:
+0, 0, 1, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+858
+Source:
+0, 0, 0, 
+1, 1, 1, 
+0, 1, 1, 
+Moves:
+859
+Source:
+0, 0, 1, 
+0, 1, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+860
+Source:
+0, 1, 0, 
+1, 0, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+861
+Source:
+1, 0, 1, 
+1, 0, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+862
+Source:
+1, 0, 0, 
+0, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+863
+Source:
+0, 0, 1, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+864
+Source:
+0, 0, 0, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+865
+Source:
+1, 1, 1, 
+1, 1, 1, 
+0, 1, 1, 
+Moves:
+866
+Source:
+1, 0, 1, 
+0, 1, 1, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+867
+Source:
+0, 1, 1, 
+0, 0, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+868
+Source:
+0, 1, 0, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+869
+Source:
+1, 1, 0, 
+0, 1, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+870
+Source:
+0, 1, 0, 
+0, 0, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+871
+Source:
+0, 0, 1, 
+0, 0, 1, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+872
+Source:
+1, 0, 0, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+873
+Source:
+0, 0, 1, 
+0, 0, 1, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+874
+Source:
+0, 1, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+875
+Source:
+1, 1, 1, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+876
+Source:
+0, 0, 0, 
+0, 0, 1, 
+1, 0, 0, 
+Moves:
+877
+Source:
+1, 1, 0, 
+1, 1, 1, 
+0, 0, 0, 
+Moves:
+878
+Source:
+1, 1, 1, 
+1, 1, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+879
+Source:
+1, 1, 1, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+880
+Source:
+0, 1, 0, 
+1, 1, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+881
+Source:
+1, 0, 1, 
+1, 0, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:0
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+882
+Source:
+0, 0, 0, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+883
+Source:
+0, 0, 0, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+884
+Source:
+1, 1, 0, 
+0, 1, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+885
+Source:
+0, 1, 1, 
+1, 1, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+886
+Source:
+1, 0, 0, 
+0, 0, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+887
+Source:
+0, 0, 0, 
+1, 1, 0, 
+0, 0, 0, 
+Moves:
+888
+Source:
+0, 1, 1, 
+0, 0, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+889
+Source:
+0, 0, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+890
+Source:
+0, 0, 1, 
+0, 1, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+891
+Source:
+0, 0, 0, 
+0, 1, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+892
+Source:
+0, 0, 1, 
+0, 1, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+893
+Source:
+0, 0, 0, 
+1, 1, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+894
+Source:
+0, 0, 0, 
+1, 1, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+895
+Source:
+1, 0, 0, 
+0, 0, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+896
+Source:
+0, 1, 0, 
+0, 0, 0, 
+1, 0, 0, 
+Moves:
+897
+Source:
+1, 1, 1, 
+0, 1, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+898
+Source:
+0, 1, 0, 
+0, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+899
+Source:
+0, 0, 1, 
+1, 0, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+900
+Source:
+1, 0, 0, 
+1, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+901
+Source:
+1, 0, 0, 
+1, 0, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+902
+Source:
+0, 0, 1, 
+0, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+903
+Source:
+0, 1, 0, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+904
+Source:
+0, 1, 0, 
+1, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+905
+Source:
+0, 0, 1, 
+0, 0, 0, 
+0, 0, 1, 
+Moves:
+906
+Source:
+0, 1, 1, 
+1, 0, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+907
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+908
+Source:
+1, 1, 0, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+909
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+910
+Source:
+1, 1, 0, 
+1, 0, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+911
+Source:
+0, 0, 0, 
+1, 0, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+912
+Source:
+0, 0, 0, 
+0, 0, 1, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+913
+Source:
+0, 0, 0, 
+0, 0, 1, 
+0, 1, 0, 
+Moves:
+914
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+915
+Source:
+1, 1, 1, 
+0, 0, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+916
+Source:
+0, 0, 0, 
+0, 0, 1, 
+0, 0, 1, 
+Moves:
+917
+Source:
+0, 1, 0, 
+1, 1, 1, 
+1, 0, 0, 
+Moves:
+918
+Source:
+1, 1, 0, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+919
+Source:
+0, 1, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+920
+Source:
+1, 0, 1, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+921
+Source:
+0, 0, 0, 
+0, 1, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+922
+Source:
+0, 1, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+923
+Source:
+1, 0, 0, 
+1, 0, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+924
+Source:
+1, 0, 1, 
+1, 1, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+925
+Source:
+1, 1, 0, 
+0, 1, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+926
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+927
+Source:
+1, 1, 1, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+928
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+929
+Source:
+0, 1, 0, 
+0, 0, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+930
+Source:
+0, 0, 0, 
+0, 1, 1, 
+0, 0, 0, 
+Moves:
+931
+Source:
+0, 1, 0, 
+0, 1, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+932
+Source:
+0, 1, 0, 
+0, 1, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+933
+Source:
+0, 0, 0, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+934
+Source:
+0, 0, 1, 
+0, 0, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+935
+Source:
+0, 0, 1, 
+0, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+3
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+4
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+936
+Source:
+0, 0, 0, 
+0, 0, 0, 
+1, 1, 0, 
+Moves:
+937
+Source:
+1, 0, 0, 
+0, 1, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+938
+Source:
+1, 1, 0, 
+0, 0, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+939
+Source:
+0, 0, 0, 
+0, 0, 0, 
+1, 1, 0, 
+Moves:
+940
+Source:
+0, 0, 0, 
+0, 1, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+941
+Source:
+0, 1, 1, 
+0, 0, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+3
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+4
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+942
+Source:
+1, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+943
+Source:
+1, 0, 0, 
+1, 1, 1, 
+1, 1, 0, 
+Moves:
+944
+Source:
+1, 1, 1, 
+0, 1, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+945
+Source:
+0, 0, 0, 
+0, 0, 0, 
+0, 1, 1, 
+Moves:
+946
+Source:
+1, 0, 1, 
+0, 0, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+947
+Source:
+0, 0, 0, 
+1, 0, 0, 
+0, 0, 1, 
+Moves:
+948
+Source:
+0, 1, 0, 
+0, 1, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+949
+Source:
+0, 0, 1, 
+1, 0, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+950
+Source:
+1, 1, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+951
+Source:
+0, 0, 1, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+952
+Source:
+1, 0, 0, 
+1, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+953
+Source:
+1, 0, 1, 
+0, 0, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+954
+Source:
+0, 1, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+955
+Source:
+0, 0, 0, 
+0, 0, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+956
+Source:
+1, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+957
+Source:
+0, 1, 0, 
+0, 1, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+958
+Source:
+0, 1, 0, 
+0, 1, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+959
+Source:
+1, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+960
+Source:
+0, 1, 0, 
+1, 1, 0, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+961
+Source:
+1, 0, 1, 
+0, 0, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+962
+Source:
+0, 0, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+963
+Source:
+0, 0, 0, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+964
+Source:
+0, 0, 1, 
+1, 0, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+965
+Source:
+0, 0, 0, 
+1, 1, 0, 
+0, 0, 0, 
+Moves:
+966
+Source:
+0, 0, 0, 
+0, 0, 1, 
+1, 0, 0, 
+Moves:
+967
+Source:
+1, 0, 1, 
+1, 1, 1, 
+1, 0, 0, 
+Moves:
+968
+Source:
+1, 0, 1, 
+0, 0, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+969
+Source:
+0, 1, 0, 
+0, 0, 0, 
+0, 1, 0, 
+Moves:
+970
+Source:
+1, 1, 0, 
+0, 1, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+971
+Source:
+0, 1, 0, 
+1, 1, 1, 
+0, 0, 0, 
+Moves:
+972
+Source:
+0, 0, 1, 
+0, 1, 0, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+973
+Source:
+1, 1, 0, 
+0, 0, 0, 
+1, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+974
+Source:
+0, 0, 0, 
+0, 1, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+975
+Source:
+0, 0, 0, 
+0, 1, 0, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+976
+Source:
+0, 0, 0, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+977
+Source:
+1, 0, 1, 
+1, 1, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+978
+Source:
+0, 0, 0, 
+1, 0, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+979
+Source:
+0, 0, 0, 
+1, 1, 1, 
+1, 0, 0, 
+Moves:
+980
+Source:
+0, 0, 0, 
+1, 0, 1, 
+0, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+981
+Source:
+1, 1, 1, 
+1, 0, 1, 
+1, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+982
+Source:
+0, 0, 0, 
+0, 1, 1, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+983
+Source:
+0, 1, 0, 
+1, 1, 1, 
+0, 0, 0, 
+Moves:
+984
+Source:
+0, 1, 0, 
+0, 1, 0, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:2
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+985
+Source:
+1, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+986
+Source:
+1, 1, 1, 
+0, 0, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+987
+Source:
+1, 0, 1, 
+0, 1, 1, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+988
+Source:
+0, 0, 1, 
+0, 0, 1, 
+0, 1, 1, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+2
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+3
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+989
+Source:
+1, 0, 0, 
+0, 0, 0, 
+0, 0, 0, 
+Moves:
+990
+Source:
+0, 1, 0, 
+1, 0, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+991
+Source:
+0, 0, 0, 
+0, 1, 0, 
+0, 0, 0, 
+Moves:
+992
+Source:
+0, 0, 1, 
+0, 1, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+993
+Source:
+0, 1, 0, 
+0, 0, 0, 
+1, 0, 0, 
+Moves:
+994
+Source:
+0, 1, 0, 
+0, 1, 0, 
+1, 1, 1, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+995
+Source:
+0, 1, 1, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+2
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+3
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+996
+Source:
+1, 0, 0, 
+0, 0, 1, 
+0, 0, 0, 
+Moves:
+997
+Source:
+0, 0, 1, 
+1, 1, 0, 
+0, 0, 1, 
+Moves:
+0
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---
+998
+Source:
+0, 0, 0, 
+0, 0, 1, 
+1, 1, 0, 
+Moves:
+0
+Init-Row:2
+Fin-Row:1
+Init-Column:0
+Fin-Column:0
+---
+1
+Init-Row:2
+Fin-Row:1
+Init-Column:1
+Fin-Column:1
+---
+999
+Source:
+0, 0, 1, 
+0, 1, 1, 
+0, 0, 0, 
+Moves:
+0
+Init-Row:1
+Fin-Row:1
+Init-Column:1
+Fin-Column:0
+---
+1
+Init-Row:1
+Fin-Row:1
+Init-Column:2
+Fin-Column:1
+---
+2
+Init-Row:0
+Fin-Row:1
+Init-Column:2
+Fin-Column:2
+---

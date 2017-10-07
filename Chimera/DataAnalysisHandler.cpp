@@ -257,7 +257,6 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 		{
 			for (UINT groupInc = 0; groupInc < groupNum; groupInc++)
 			{
-				UINT row, collumn;
 				bool alreadyExists = false;
 				/*
 				//allPlots[plotInc].getPixelLocation(pixelInc, groupInc, row, collumn);

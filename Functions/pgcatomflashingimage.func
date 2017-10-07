@@ -6,7 +6,7 @@ def pgcAtomFlashingImage():
 	dac: diagMotPower 0
 	dac: MotFreq imagingFlashingDetuning
 	dac: SideMotPower imagingPower
-	dac: RepumpPower 0.05
+	dac: RepumpPower imagingRepumpPower
 	t += 3
 	% turn the repump on a tiny bit early 
 	% to pump to the F=2 manifold.

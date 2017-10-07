@@ -13,14 +13,12 @@ Features:
 - if fails to open script file give user opportunity to find it themselves.
 - handle niawg waiting more elegantly
 - make the big text short status messages better.
-- be able to program agilents with or without power->volt conversion. Think I just want a combo.
 - indicate setting (no, off, dc, sine, square, pre, script) next to agilent channel text
 - make agilent smart about trying to program a sequence that's only one voltage. Can prob just add one check
-- support math in niawg and intensity scripts
+- support math in niawg scripts
 - if aborts or crashes in the middle of run, code should close HDF5 file and make it usable, somehow.
 - Be able to turn off / on NIAWG without stopping program
 - finish implementing randomizing repetitions.
-- Finish implementing agilent channel sync.
 - handle config not opening better
 	- option to find config file?
 	- option to create new default config file with that name?
@@ -31,12 +29,12 @@ Features:
 - be able to set binsize for histograms
 - change colormap radios to a single combo.
 - load colormaps from file, allowing custom colormaps.
-- make count-down use TTL time?
 - check that the picture rate is matching the rep rate
 - cross-check number of NIAWG triggers, number of Agilent triggers in code
 - agilent script programNow with variables, should be able to set constants with program now.
 - agilent should be able to go smoothly from one waveform to another.
 - more tooltips
+- set individual agilent frequencies, gains, ect.
 
 Refactoring / Other:
 - refactor variables & variable key so that they aren't two separate objects. Consider if reasonable to also include 
@@ -45,6 +43,7 @@ Refactoring / Other:
 - test running avg gnuplot
 - test fitting in gnuplot
 - refactor groups in plotinfo and gnuplot stuffs
+- make agilent stuff less redundant on the aux window
 
 Bugs:
 - Add new data set not working in plot designer
@@ -53,6 +52,7 @@ Bugs:
 - investigate save on change config
 - New Experiment doesn't copy everything in folder
 - after script save-as, new name not loaded if run experiment until reload config
+- when loading config script name is not correct.
 
 =================
 Finished
