@@ -15,6 +15,8 @@
  * stolen From http://stackoverflow.com/questions/348833/how-to-know-the-exact-line-of-code-where-where-an-exception-has-been-caused
  * Slightly modified.
  */
+
+
 class Error : public std::runtime_error
 {
 	public:

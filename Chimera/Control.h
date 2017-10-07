@@ -38,7 +38,7 @@ template <class ControlType> class Control : public ControlType
 		RECT amPos;
 		// Continuous Single Scan Mode Position
 		RECT videoPos;
-		fontTypes fontType;		
+		fontTypes fontType;
 		int triggerModeSensitive;
 		//
 		int colorState = 0;
