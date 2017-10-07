@@ -197,7 +197,7 @@ void CameraWindow::passCameraMode()
 void CameraWindow::abortCameraRun()
 {
 	int status;
-	Andor.queryIdentity(status);
+	Andor.queryStatus(status);
 	
 	if (ANDOR_SAFEMODE)
 	{
@@ -278,8 +278,10 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	}
 	if (lParam == 0)
 	{
+		// ???
 		return NULL;
 	}
+	// need to call this before acquireImageData().
 	Andor.updatePictureNumber( pictureNumber );
 	std::vector<std::vector<long>> picData;
 	try
@@ -300,7 +302,7 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	//
 	{
 		std::lock_guard<std::mutex> locker( plotLock );
-		// add check to check if this is needed.
+		// TODO: add check to check if this is needed.
 		imageQueue.push_back( picData[(pictureNumber - 1) % currentSettings.picsPerRepetition] );
 	}
 
@@ -315,7 +317,9 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 								   currentSettings.imageSettings.width, currentSettings.imageSettings.height,
 								   pictureNumber / currentSettings.picsPerRepetition,
 								   currentSettings.totalPicsInExperiment / currentSettings.picsPerRepetition );
+
 			pics.drawPicture( drawer, pictureNumber % currentSettings.picsPerRepetition, picData.back(), minMax );
+
 			timer.update( pictureNumber / currentSettings.picsPerRepetition, currentSettings.repetitionsPerVariation,
 						  currentSettings.totalVariations, currentSettings.picsPerRepetition );
 		}
@@ -752,7 +756,7 @@ void CameraWindow::prepareCamera( ExperimentInput& input )
 	// make sure it's idle.
 	try
 	{
-		Andor.queryIdentity();
+		Andor.queryStatus();
 		if ( ANDOR_SAFEMODE )
 		{
 			thrower( "DRV_IDLE" );

@@ -24,7 +24,7 @@ void Communicator::initialize(MainWindow* mainWinParent, ScriptingWindow* script
 // the two camera messages go straight to the camera window.
 void Communicator::sendCameraFin()
 {
-	PostMessage( camWin->GetSafeHwnd(), eCameraFinishMessageID, 0, 0 );
+	camWin->PostMessage( eCameraFinishMessageID, 0, 0 );
 }
 
 void Communicator::sendNormalFinish( )
@@ -34,7 +34,7 @@ void Communicator::sendNormalFinish( )
 
 void Communicator::sendCameraProgress(long progress)
 {
-	PostMessage( camWin->GetSafeHwnd(), eCameraProgressMessageID, 0, (LPARAM)progress );
+	camWin->PostMessageA( eCameraProgressMessageID, 0, (LPARAM)progress );
 }
 
 void Communicator::sendRepProgress(ULONG rep)

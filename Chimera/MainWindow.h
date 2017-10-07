@@ -22,7 +22,6 @@ class ScriptingWindow;
 class CameraWindow;
 class AuxiliaryWindow;
 
-
 class MainWindow : public CDialog
 {
 	using CDialog::CDialog;
@@ -126,7 +125,6 @@ class MainWindow : public CDialog
 		StatusIndicator shortStatus;
 		RearrangeControl rearrangeControl;
 		NiawgController niawg;
-
 		ColorBox boxes;
 		// auxiliary members
 		Communicator comm;

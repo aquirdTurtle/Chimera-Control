@@ -146,15 +146,9 @@ MainWindow::MainWindow(UINT id, CDialog* splash) : CDialog(id), profile(PROFILES
 IMPLEMENT_DYNAMIC( MainWindow, CDialog )
 
 BEGIN_MESSAGE_MAP( MainWindow, CDialog )
+
 	ON_WM_CTLCOLOR( )
 	ON_WM_SIZE( )
-	ON_COMMAND_RANGE( ID_ACCELERATOR_ESC, ID_ACCELERATOR_ESC, &MainWindow::passCommonCommand )
-	ON_COMMAND_RANGE( ID_ACCELERATOR_F5, ID_ACCELERATOR_F5, &MainWindow::passCommonCommand )
-	ON_COMMAND_RANGE( ID_ACCELERATOR_F2, ID_ACCELERATOR_F2, &MainWindow::passCommonCommand )
-	ON_COMMAND_RANGE( ID_ACCELERATOR_F1, ID_ACCELERATOR_F1, &MainWindow::passCommonCommand )
-	ON_COMMAND_RANGE( MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &MainWindow::passCommonCommand )
-	ON_COMMAND_RANGE( IDC_DEBUG_OPTIONS_RANGE_BEGIN, IDC_DEBUG_OPTIONS_RANGE_END, &MainWindow::passDebugPress )
-	ON_COMMAND_RANGE( IDC_MAIN_OPTIONS_RANGE_BEGIN, IDC_MAIN_OPTIONS_RANGE_END, &MainWindow::passMainOptionsPress )
 	//
 	ON_CBN_SELENDOK( IDC_EXPERIMENT_COMBO, &MainWindow::handleExperimentCombo )
 	ON_CBN_SELENDOK( IDC_CATEGORY_COMBO, &MainWindow::handleCategoryCombo )
@@ -163,6 +157,7 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	// 
 	ON_NOTIFY( NM_DBLCLK, IDC_SMS_TEXTING_LISTVIEW, &MainWindow::handleDblClick )
 	ON_NOTIFY( NM_RCLICK, IDC_SMS_TEXTING_LISTVIEW, &MainWindow::handleRClick )
+	//
 	ON_EN_CHANGE( IDC_EXPERIMENT_NOTES, &MainWindow::handleExperimentNotesChange )
 	ON_EN_CHANGE( IDC_CATEGORY_NOTES, &MainWindow::handleCategoryNotesChange )
 	ON_EN_CHANGE( IDC_CONFIGURATION_NOTES, &MainWindow::notifyConfigUpdate )
@@ -176,15 +171,21 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_REGISTERED_MESSAGE( eColoredEditMessageID, &MainWindow::onColoredEditMessage )
 	ON_REGISTERED_MESSAGE( eDebugMessageID, &MainWindow::onDebugMessage )
 
+	ON_COMMAND_RANGE( ID_ACCELERATOR_ESC, ID_ACCELERATOR_ESC, &MainWindow::passCommonCommand )
+	ON_COMMAND_RANGE( ID_ACCELERATOR_F5, ID_ACCELERATOR_F5, &MainWindow::passCommonCommand )
+	ON_COMMAND_RANGE( ID_ACCELERATOR_F2, ID_ACCELERATOR_F2, &MainWindow::passCommonCommand )
+	ON_COMMAND_RANGE( ID_ACCELERATOR_F1, ID_ACCELERATOR_F1, &MainWindow::passCommonCommand )
+	ON_COMMAND_RANGE( MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &MainWindow::passCommonCommand )
+	ON_COMMAND_RANGE( IDC_DEBUG_OPTIONS_RANGE_BEGIN, IDC_DEBUG_OPTIONS_RANGE_END, &MainWindow::passDebugPress )
+	ON_COMMAND_RANGE( IDC_MAIN_OPTIONS_RANGE_BEGIN, IDC_MAIN_OPTIONS_RANGE_END, &MainWindow::passMainOptionsPress )
 	ON_COMMAND_RANGE( IDC_MAIN_STATUS_BUTTON, IDC_MAIN_STATUS_BUTTON, &MainWindow::passClear )
 	ON_COMMAND_RANGE( IDC_ERROR_STATUS_BUTTON, IDC_ERROR_STATUS_BUTTON, &MainWindow::passClear )
 	ON_COMMAND_RANGE( IDC_DEBUG_STATUS_BUTTON, IDC_DEBUG_STATUS_BUTTON, &MainWindow::passClear )
 
-	ON_COMMAND(IDOK,  &MainWindow::catchEnter)
+	ON_COMMAND( IDOK,  &MainWindow::catchEnter)
 	ON_COMMAND( IDC_ENTER_EMAIL_INFO, &MainWindow::handleEmailButton )
 
 END_MESSAGE_MAP()
-
 
 void MainWindow::handleEmailButton( )
 {
@@ -201,7 +202,6 @@ void MainWindow::handleCategoryNotesChange( )
 {
 	profile.updateCategorySavedStatus( false );
 }
-
 
 // just notifies the profile object that the configuration is no longer saved.
 void MainWindow::notifyConfigUpdate( )

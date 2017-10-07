@@ -122,6 +122,7 @@ void NiawgController::prepareNiawg(MasterThreadInput* input, NiawgOutputInfo& ou
 		workingUserScripts[sequenceInc] = output.niawgLanguageScript;
 
 		if (input->thisObj->getAbortStatus()) { thrower( "\r\nABORTED!\r\n" ); }
+
 	}
 	input->comm->sendStatus( "Constant Waveform Preparation Completed...\r\n" );
 	input->niawg->finalizeScript( input->repetitionNumber, "experimentScript", workingUserScripts, userScriptSubmit, 

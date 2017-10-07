@@ -32,6 +32,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 	/// initialize various structures
 	// convert the input to the correct structure.
 	MasterThreadInput* input = (MasterThreadInput*)voidInput;
+
 	// change the status of the parent object to reflect that the thread is running.
 	input->thisObj->experimentIsRunning = true;
 	// warnings will be passed by reference to a series of function calls which can append warnings to the string.
@@ -51,6 +52,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 	std::vector<std::pair<UINT, UINT>> ttlShadeLocs;
 	std::vector<UINT> dacShadeLocs;
 	bool foundRearrangement = false;
+	/// ////////////////////////////
 	/// start analysis & experiment
 	try
 	{

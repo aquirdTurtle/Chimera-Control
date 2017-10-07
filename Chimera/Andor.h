@@ -48,8 +48,8 @@ class AndorCamera
 		void getNumberOfPreAmpGains(int& number);
 		void getOldestImage(std::vector<long>& dataArray);
 		void getPreAmpGain(int index, float& gain);
-		void queryIdentity();
-		void queryIdentity(int& status);
+		void queryStatus();
+		void queryStatus(int& status);
 		void getTemperatureRange(int& min, int& max);
 		void getTemperature(int& temp);
 

@@ -179,11 +179,12 @@ void AndorCamera::onFinish()
 
 /*
  * this thread watches the camera for pictuers and when it sees a picture lets the main thread know via a message. 
+ * it gets initialized at the start of the program and is basically always running.
  */
 unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 {
 	cameraThreadInput* input = (cameraThreadInput*) voidPtr;
-	//... I'm not sure what this lock is doing here...
+	//... I'm not sure what this lock is doing here... why not inside while loop?
 	std::unique_lock<std::mutex> lock( input->runMutex );
 	int safeModeCount = 0;
 	long pictureNumber = 0;
@@ -206,7 +207,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 			try
 			{
 				int status;
-				input->Andor->queryIdentity(status);
+				input->Andor->queryStatus(status);
 				if (status == DRV_IDLE && armed)
 				{
 					// signal the end to the main thread.
@@ -338,7 +339,7 @@ void AndorCamera::armCamera(CameraWindow* camWin, double& minKineticCycleTime)
 	// Initialize the thread accumulation number.
 	// this->??? = 1;
 	// //////////////////////////////
-	queryIdentity();
+	queryStatus();
 
 	/// Do some plotting stuffs
 	//eAlerts.setAlertThreshold();
@@ -430,7 +431,6 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 				% runSettings.imageSettings.width) + 1) * runSettings.imageSettings.height 
 				- imageVecInc / runSettings.imageSettings.width - 1];
 		}
-		ReleaseMutex(imagesMutex);
 	}
 	else
 	{
@@ -485,6 +485,7 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 		}
 		ReleaseMutex(imagesMutex);
 	}
+	ReleaseMutex( imagesMutex );
 	return imagesOfExperiment;
 }
 
@@ -1402,10 +1403,10 @@ void AndorCamera::getAcquisitionTimes(float& exposure, float& accumulation, floa
 
 /*
 */
-void AndorCamera::queryIdentity()
+void AndorCamera::queryStatus()
 {
 	int status;
-	queryIdentity(status);
+	queryStatus(status);
 	if (ANDOR_SAFEMODE)
 	{
 		status = DRV_IDLE;
@@ -1422,7 +1423,8 @@ void AndorCamera::setIsRunningState(bool state)
 	cameraIsRunning = state;
 }
 
-void AndorCamera::queryIdentity(int& status)
+
+void AndorCamera::queryStatus(int& status)
 {
 	if (!ANDOR_SAFEMODE)
 	{
