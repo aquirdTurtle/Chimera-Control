@@ -21,6 +21,14 @@
 #include "StatusControl.h"
 #include "TektronicsControl.h"
 
+enum agilentNames
+{
+	TopBottom,
+	Axial,
+	Flashing,
+	Microwave
+};
+
 // The Device window houses most of the controls for seeting individual devices, other than the camera which gets its 
 // own control. It also houses a couple auxiliary things like variables and the SMS texting control.
 class AuxiliaryWindow : public CDialog
@@ -41,10 +49,6 @@ class AuxiliaryWindow : public CDialog
 		cToolTips toolTips;
 		BOOL PreTranslateMessage(MSG* pMsg);
 		/// Message Map Functions
-		void handleTopBottomEditChange();
-		void handleAxialEditChange();
-		void handleFlashingEditChange();
-		void handleUWaveEditChange( );
 		void OnTimer( UINT_PTR eventID );
 		void handleTtlPush(UINT id);
 		void handlTtlHoldPush();
@@ -57,6 +61,12 @@ class AuxiliaryWindow : public CDialog
 		std::array<std::array<std::string, 16>, 4> getTtlNames();
 		std::array<std::string, 24> getDacNames();
 
+		void newAgilentScript( agilentNames name );
+		void openAgilentScript( agilentNames name, CWnd* parent );
+		void saveAgilentScript( agilentNames name );
+		void saveAgilentScriptAs( agilentNames name, CWnd* parent );
+		void handleAgilentEditChange( UINT id );
+		/*
 		void newTopBottomAgilentScript();
 		void openTopBottomAgilentScript( CWnd* parent );
 		void saveTopBottomAgilentScript();
@@ -76,7 +86,7 @@ class AuxiliaryWindow : public CDialog
 		void openUwaveAgilentScript( CWnd* parent );
 		void saveUwaveAgilentScript( );
 		void saveUwaveAgilentScriptAs( CWnd* parent );
-
+		*/
 
 		void drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResultf);
 		void handleEnter();
@@ -92,10 +102,6 @@ class AuxiliaryWindow : public CDialog
 		void zeroDacs();
 
 		void handleAgilentOptions( UINT id );
-		void handleTopBottomAgilentCombo();
-		void handleAxialUWaveAgilentCombo();
-		void handleFlashingAgilentCombo();
-		void handleUWaveAgilentCombo( );
 
 		void loadMotSettings(MasterThreadInput* input);
 		void handleTektronicsButtons(UINT id);
@@ -121,6 +127,8 @@ class AuxiliaryWindow : public CDialog
 		void setConfigActive(bool active);
 		void passTopBottomTekProgram();
 		void passEoAxialTekProgram();
+		Agilent& whichAgilent( UINT id );
+		void handleAgilentCombo( UINT id );
 
 	private:
 		DECLARE_MESSAGE_MAP();		
@@ -137,7 +145,8 @@ class AuxiliaryWindow : public CDialog
 		/// control system classes
 		RhodeSchwarz RhodeSchwarzGenerator;
 		// 
-		Agilent topBottomAgilent, axialAgilent, flashingAgilent, uWaveAgilent;
+		std::array<Agilent, 4> agilents;
+		
  		DioSystem ttlBoard;
  		DacSystem dacBoards;
  		MasterConfiguration masterConfig{ MASTER_CONFIGURATION_FILE_ADDRESS };

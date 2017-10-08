@@ -312,82 +312,82 @@ namespace commonFunctions
 			}
 			case ID_TOP_BOTTOM_NEW_SCRIPT:
 			{
-				auxWin->newTopBottomAgilentScript();
+				auxWin->newAgilentScript(TopBottom);
 				break;
 			}
 			case ID_TOP_BOTTOM_OPEN_SCRIPT:
 			{
-				auxWin->openTopBottomAgilentScript( parent );
+				auxWin->openAgilentScript( TopBottom, parent );
 				break;
 			}
 			case ID_TOP_BOTTOM_SAVE_SCRIPT:
 			{
-				auxWin->saveTopBottomAgilentScript();
+				auxWin->saveAgilentScript(TopBottom);
 				break;
 			}
 			case ID_TOP_BOTTOM_SAVE_SCRIPT_AS:
 			{
-				auxWin->saveTopBottomAgilentScriptAs( parent );
+				auxWin->saveAgilentScriptAs( TopBottom, parent );
 				break;
 			}
 			case ID_AXIAL_NEW_SCRIPT:
 			{
-				auxWin->newAxialAgilentScript();
+				auxWin->newAgilentScript(Axial);
 				break;
 			}
 			case ID_AXIAL_OPEN_SCRIPT:
 			{
-				auxWin->openAxialAgilentScript( parent );
+				auxWin->openAgilentScript( Axial, parent );
 				break;
 			}
 			case ID_AXIAL_SAVE_SCRIPT:
 			{
-				auxWin->saveAxialAgilentScript();
+				auxWin->saveAgilentScript(Axial);
 				break;
 			}
 			case ID_AXIAL_SAVE_SCRIPT_AS:
 			{
-				auxWin->saveAxialAgilentScriptAs( parent );
+				auxWin->saveAgilentScriptAs( Axial, parent );
 				break;
 			}
 			case ID_FLASHING_NEW_SCRIPT:
 			{
-				auxWin->newFlashingAgilentScript();
+				auxWin->newAgilentScript( Flashing );
 				break;
 			}
 			case ID_FLASHING_OPEN_SCRIPT:
 			{
-				auxWin->openFlashingAgilentScript( parent );
+				auxWin->openAgilentScript( Flashing, parent );
 				break;
 			}
 			case ID_FLASHING_SAVE_SCRIPT:
 			{
-				auxWin->saveFlashingAgilentScript();
+				auxWin->saveAgilentScript( Flashing );
 				break;
 			}
 			case ID_FLASHING_SAVE_SCRIPT_AS:
 			{
-				auxWin->saveFlashingAgilentScriptAs( parent );
+				auxWin->saveAgilentScriptAs( Flashing, parent );
 				break;
 			}
 			case ID_UWAVE_NEW_SCRIPT:
 			{
-				auxWin->newUwaveAgilentScript( );
+				auxWin->newAgilentScript( Microwave );
 				break;
 			}
 			case ID_UWAVE_OPEN_SCRIPT:
 			{
-				auxWin->openUwaveAgilentScript( parent );
+				auxWin->openAgilentScript( Microwave, parent );
 				break;
 			}
 			case ID_UWAVE_SAVE_SCRIPT:
 			{
-				auxWin->saveUwaveAgilentScript( );
+				auxWin->saveAgilentScript( Microwave );
 				break;
 			}
 			case ID_UWAVE_SAVE_SCRIPT_AS:
 			{
-				auxWin->saveUwaveAgilentScriptAs( parent );
+				auxWin->saveAgilentScriptAs( Microwave, parent );
 				break; 
 			}
 			case ID_FILE_MY_VERTICAL_NEW:
