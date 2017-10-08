@@ -168,10 +168,11 @@ std::string ScriptedAgilentWaveform::compileAndReturnDataSendString( int segNum,
 
 
 /*
-*/
-void ScriptedAgilentWaveform::writeData( int segNum )
+ *
+ */
+void ScriptedAgilentWaveform::writeData( int segNum, ULONG sampleRate )
 {
-	waveformSegments[segNum].calcData();
+	waveformSegments[segNum].calcData(sampleRate);
 }
 
 ULONG ScriptedAgilentWaveform::getSegmentNumber()

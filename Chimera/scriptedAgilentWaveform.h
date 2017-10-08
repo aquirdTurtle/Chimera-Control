@@ -14,7 +14,7 @@ class ScriptedAgilentWaveform
 	public:
 		ScriptedAgilentWaveform();
 		bool analyzeAgilentScriptCommand( int segNum, ScriptStream& script );
-		void writeData( int SegNum );
+		void writeData( int SegNum, ULONG sampleRate );
 		std::string compileAndReturnDataSendString( int segNum, int varNum, int totalSegNum, UINT chan );
 		void compileSequenceString( int totalSegNum, int sequenceNum, UINT channel );
 		std::string returnSequenceString();

@@ -20,10 +20,11 @@
 class Agilent
 {
 	public:
-		Agilent( bool safemode, std::string address );
-		~Agilent();
+		Agilent( const agilentSettings & settings );
+		~Agilent( );
 		void initialize( POINT& loc, cToolTips& toolTips, CWnd* master, int& id,   
-						 std::string header, UINT editHeight, std::array<UINT, 8> ids, COLORREF color );
+						 std::string header, UINT editHeight, COLORREF color );
+		void updateButtonDisplay( int chan );
 		void checkSave( std::string categoryPath, RunInfo info );
 		void handleChannelPress( int chan, std::string currentCategoryPath, RunInfo currentRunInfo );
 		void handleCombo();
@@ -44,7 +45,6 @@ class Agilent
 		std::string getDeviceIdentity();
 		std::string getName();
 		void readConfigurationFile( std::ifstream& file, double version );
-		//void setScript( int varNum, key variableKey, scriptedArbInfo& scriptInfo );
 		void selectIntensityProfile( UINT channel, int varNum );
 		void convertInputToFinalSettings(UINT chan, key variableKey, UINT variation, std::vector<variableType>& variables);
 		void convertInputToFinalSettings(UINT chan);
@@ -63,9 +63,13 @@ class Agilent
 		static double convertPowerToSetPoint(double power, bool conversionOption );
 
 	private:
+		const agilentSettings initSettings;
 		std::string name;
 		minMaxDoublet chan2Range;
 		VisaFlume visaFlume;
+		const double sampleRate;
+		const std::string load;
+		const std::string filterState;
 		// since currently all visaFlume communication is done to communicate with agilent machines, my visaFlume wrappers exist
 		// in this class.
 		bool varies;

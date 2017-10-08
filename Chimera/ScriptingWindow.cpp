@@ -9,8 +9,9 @@
 #include "AuxiliaryWindow.h"
 
 
-ScriptingWindow::ScriptingWindow() : CDialog(), intensityAgilent(INTENSITY_SAFEMODE, INTENSITY_AGILENT_USB_ADDRESS)
+ScriptingWindow::ScriptingWindow() : CDialog(), intensityAgilent( INTENSITY_AGILENT_SETTINGS )
 {}
+
 
 IMPLEMENT_DYNAMIC(ScriptingWindow, CDialog)
 
@@ -225,11 +226,7 @@ BOOL ScriptingWindow::OnInitDialog()
 									  "Horizontal NIAWG Script", { IDC_HORIZONTAL_NIAWG_FUNCTION_COMBO, 
 									  IDC_HORIZONTAL_NIAWG_EDIT }, mainWindowFriend->getRgbs()["Solarized Base03"]);
 	startLocation = { 960, 28 };
-	intensityAgilent.initialize( startLocation, tooltips, this, id, 
-								 "Intensity Agilent", 865, { IDC_INTENSITY_CHANNEL1_BUTTON,
-								 IDC_INTENSITY_CHANNEL2_BUTTON, IDC_INTENSITY_SYNC_BUTTON, 
-								 IDC_INTENSITY_CALIBRATION_BUTTON, IDC_INTENSITY_PROGRAM, 
-								 IDC_INTENSITY_AGILENT_COMBO, IDC_INTENSITY_FUNCTION_COMBO, IDC_INTENSITY_EDIT }, 
+	intensityAgilent.initialize( startLocation, tooltips, this, id, "Intensity Agilent", 865, 
 								 mainWindowFriend->getRgbs()["Solarized Base03"] );
 	startLocation = { 1440, 28 };
 	masterScript.initialize( 480, 900, startLocation, tooltips, this, id, "Master", "Master Script",

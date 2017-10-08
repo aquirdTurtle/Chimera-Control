@@ -19,7 +19,7 @@ class Segment
 		UINT returnDataSize();
 		void assignDataVal( int dataNum, double val );
 		double returnDataVal( long dataNum );
-		void calcData();
+		void calcData( ULONG sampleRate );
 		double rampCalc( int size, int iteration, double initPos, double finPos, std::string rampType );
 		double pulseCalc( pulseData pulse, int iteration, long size, double pulseLength );
 		double modCalc( modData mod, int iteration, long size, double pulseLength );

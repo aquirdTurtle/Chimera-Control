@@ -223,10 +223,10 @@ double Segment::pulseCalc( pulseData pulse, int iteration, long size, double pul
 * This function uses the initial and final points along with the ramp and time of the segment to calculate all of the data points. This should be used so
 * as to, after this function, you have all of the powers that you want (not voltages), and then call the voltage converter afterwards.
 */
-void Segment::calcData()
+void Segment::calcData( ULONG sampleRate )
 {
 	// calculate the size of the waveform.
-	double numDataPointsf = finalSettings.time * AGILENT_SAMPLE_RATE;
+	double numDataPointsf = finalSettings.time * sampleRate;
 	// test if good time.
 	if (fabs( numDataPointsf - round( numDataPointsf ) ) > 1e-6)
 	{
