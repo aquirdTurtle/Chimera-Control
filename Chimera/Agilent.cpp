@@ -207,7 +207,7 @@ double Agilent::convertPowerToSetPoint(double powerInMilliWatts, bool conversion
 }
 
 
-void Agilent::analyzeAgilentScript( scriptedArbInfo& infoObj)
+void Agilent::analyzeAgilentScript( scriptedArbInfo& infoObj, std::vector<variableType>& variables)
 {
 	// open the file
 	std::ifstream scriptFile( infoObj.fileAddress );
@@ -222,7 +222,7 @@ void Agilent::analyzeAgilentScript( scriptedArbInfo& infoObj)
 	while (!stream.eof())
 	{
 		// Procedurally read lines into segment informations.
-		int leaveTest = infoObj.wave.analyzeAgilentScriptCommand( currentSegmentNumber, stream );
+		int leaveTest = infoObj.wave.analyzeAgilentScriptCommand( currentSegmentNumber, stream, variables );
 
 		if (leaveTest < 0)
 		{
@@ -235,30 +235,6 @@ void Agilent::analyzeAgilentScript( scriptedArbInfo& infoObj)
 			break;
 		}
 		currentSegmentNumber++;
-	}
-}
-
-/*
-	* This function tells the agilent to use sequence # (varNum) and sets settings correspondingly.
-	*/
-void Agilent::selectIntensityProfile(UINT channel, int variationNumber)
-{
-	// channel can stay 1-indexed.
-	if (channel != 1 && channel != 2)
-	{
-		thrower( "ERROR: Bad channel value inside \"selectIntensityProfile\"" );
-	}
-	
-	if (varies || variationNumber == 0)
-	{
-		// Load sequence that was previously loaded.
-		prepAgilentSettings( channel );
-		visaFlume.write("MMEM:LOAD:DATA \"INT:\\sequence" + str(variationNumber) + ".seq\"");
-		visaFlume.write( "SOURCE" + str(channel) + ":FUNC ARB");
-		visaFlume.write( "SOURCE" + str(channel) + ":FUNC:ARB \"INT:\\sequence" + str(variationNumber) + ".seq\"");
-		visaFlume.write( "SOURCE" + str( channel ) + ":VOLT:LOW " + str(ranges[variationNumber].min) + " V");
-		visaFlume.write( "SOURCE" + str( channel ) + ":VOLT:HIGH " + str(ranges[variationNumber].max) + " V");
-		visaFlume.write( "OUTPUT" + str( channel ) + " ON" );
 	}
 }
 
@@ -920,8 +896,8 @@ void Agilent::readConfigurationFile( std::ifstream& file, double version )
 	}
 	ProfileSystem::checkDelimiterLine(file, "END_AGILENT");
 
-	updateButtonDisplay( 0 );
 	updateButtonDisplay( 1 );
+	updateButtonDisplay( 2 );
 }
 
 
@@ -1054,7 +1030,7 @@ void Agilent::handleScriptVariation( key variationKey, UINT variation, scriptedA
 			visaFlume.write( scriptInfo.wave.compileAndReturnDataSendString( segNumInc, variation, 
 																			 totalSegmentNumber, channel ) );
 			// Save the segment
-			visaFlume.write( "MMEM:STORE:DATA \"INT:\\segment" 
+			visaFlume.write( "MMEM:STORE:DATA" + str( channel ) + " \"INT:\\segment"
 							 + str( segNumInc + totalSegmentNumber * variation ) + ".arb\"" );
 		}
 		// Now handle seqeunce creation / writing.
@@ -1063,7 +1039,7 @@ void Agilent::handleScriptVariation( key variationKey, UINT variation, scriptedA
 		visaFlume.write( scriptInfo.wave.returnSequenceString( ) );
 		// Save the sequence
 		visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB sequence" + str( variation ) );
-		visaFlume.write( "MMEM:STORE:DATA \"INT:\\sequence" + str( variation ) + ".seq\"" );
+		visaFlume.write( "MMEM:STORE:DATA" + str( channel ) + " \"INT:\\sequence" + str( variation ) + ".seq\"" );
 		// clear temporary memory.
 		visaFlume.write( "SOURCE" + str( channel ) + ":DATA:VOL:CLEAR" );
 	}
@@ -1146,15 +1122,13 @@ void Agilent::setAgilent( key varKey, UINT variation, std::vector<variableType>&
 	{
 		return;
 	}
-	
 	visaFlume.write( "OUTPut:SYNC " + str( settings.synced ) );
-
 	for (auto chan : range( 2 ))
 	{
 		if (settings.channel[chan].option == 4)
 		{
 			// need to do this before converting to final settings
-			analyzeAgilentScript(settings.channel[chan].scriptedArb);
+			analyzeAgilentScript(settings.channel[chan].scriptedArb, variables);
 		}
 		convertInputToFinalSettings(chan, varKey, variation, variables);
 		switch (settings.channel[chan].option)
@@ -1193,14 +1167,12 @@ void Agilent::setAgilent()
 	{
 		return;
 	}
-
 	visaFlume.write( "OUTPut:SYNC " + str( settings.synced ) );
-
 	for (auto chan : range( 2 ))
 	{
 		if (settings.channel[chan].option == 4)
 		{
-			analyzeAgilentScript(settings.channel[chan].scriptedArb);
+			analyzeAgilentScript(settings.channel[chan].scriptedArb, std::vector<variableType>());
 		}
 		convertInputToFinalSettings(chan);
 		switch (settings.channel[chan].option)

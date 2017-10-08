@@ -6,7 +6,6 @@ ScriptedAgilentWaveform::ScriptedAgilentWaveform()
 {
 	segmentNum = 0;
 	totalSequence = "";
-	varies = false;
 };
 
 
@@ -14,7 +13,8 @@ ScriptedAgilentWaveform::ScriptedAgilentWaveform()
 * segNum: This tells the function what the next segment # is.
 * script: this is the object to be read from.
 */
-bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStream& script )
+bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStream& script, 
+														   std::vector<variableType>& variables )
 {
 	segmentInfoInput workingInput;
 	std::string intensityCommand;
@@ -27,45 +27,59 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 	if (intensityCommand == "hold")
 	{
 		waveformSegments.resize( segNum + 1 );
-		workingInput.rampType = "nr";
-		workingInput.pulse.type = "__NONE__";
+
+		workingInput.ramp.isRamp = false;
+		workingInput.pulse.isPulse = false;
 		workingInput.mod.modulationIsOn = false;
-		script >> workingInput.initValue;
-		workingInput.finValue = workingInput.initValue;
+
+		script >> workingInput.holdVal;
+		workingInput.holdVal.assertValid( variables );
 	}
 	else if (intensityCommand == "ramp")
 	{
 		waveformSegments.resize( segNum + 1 );
 		// this segment type means ramping.
-		script >> workingInput.rampType;
-		script >> workingInput.initValue;
-		script >> workingInput.finValue;
-		workingInput.pulse.type = "__NONE__";
+		workingInput.ramp.isRamp = true;
+		workingInput.pulse.isPulse = false;
 		workingInput.mod.modulationIsOn = false;
-		
+		script >> workingInput.ramp.type;
+		script >> workingInput.ramp.start;
+		workingInput.ramp.start.assertValid( variables );
+		script >> workingInput.ramp.end;
+		workingInput.ramp.end.assertValid( variables );
 	}
 	else if ( intensityCommand == "pulse" )
 	{
-		workingInput.rampType = "nr";
 		waveformSegments.resize( segNum + 1 );
+		workingInput.ramp.isRamp = false;
+		workingInput.pulse.isPulse = true;
 		workingInput.mod.modulationIsOn = false;
 		script >> workingInput.pulse.type;
 		script >> workingInput.pulse.offset;
+		workingInput.pulse.offset.assertValid( variables );
 		script >> workingInput.pulse.amplitude;
+		workingInput.pulse.amplitude.assertValid( variables );
 		script >> workingInput.pulse.width;
+		workingInput.pulse.width.assertValid( variables );
 	}
 	else if ( intensityCommand == "modpulse" )
 	{
-		workingInput.rampType = "nr";
 		waveformSegments.resize( segNum + 1 );
+		workingInput.ramp.isRamp = false;
+		workingInput.pulse.isPulse = true;
+		workingInput.mod.modulationIsOn = true;
 		script >> workingInput.pulse.type;
 		script >> workingInput.pulse.offset;
+		workingInput.pulse.offset.assertValid( variables );
 		script >> workingInput.pulse.amplitude;
+		workingInput.pulse.amplitude.assertValid( variables );
 		script >> workingInput.pulse.width;
+		workingInput.pulse.width.assertValid( variables );
 		// mod stuff
-		workingInput.mod.modulationIsOn = true;
 		script >> workingInput.mod.frequency;
+		workingInput.mod.frequency.assertValid( variables );
 		script >> workingInput.mod.phase;
+		workingInput.mod.phase.assertValid( variables );
 	}
 	else
 	{
@@ -76,6 +90,7 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 		thrower( "ERROR: Agilent Script command not recognized. The command was \"" + intensityCommand + "\"" );
 	}
 	script >> workingInput.time;
+	workingInput.time.assertValid( variables );
 
 	std::string tempContinuationType;
 	script >> tempContinuationType;
@@ -83,6 +98,7 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 	{
 		// There is an extra input in this case.
 		script >> workingInput.repeatNum;
+		workingInput.repeatNum.assertValid( variables );
 	}
 	else
 	{
@@ -94,9 +110,10 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 	{
 		// input number mismatch.
 		thrower( "ERROR: The delimeter is missing in the Intensity script file for Segment #" + str( segNum + 1 )
-				 + ". The value placed in the delimeter location was " + delimiter + " while it should have been '#'.This"
-				 " indicates that either the code is not interpreting the user input incorrectly or that the user has inputted too many parameters for this type"
-				 " of Segment. Use of \"Repeat\" without the number of repeats following will also trigger this error." );
+				 + ". The value placed in the delimeter location was " + delimiter + " while it should have been '#'. "
+				 "This indicates that either the code is not interpreting the user input incorrectly or that the user "
+				 "has inputted too many parameters for this type of Segment. Use of \"Repeat\" without the number of "
+				 "repeats following will also trigger this error." );
 		return false;
 	}
 	if (tempContinuationType == "repeat")
@@ -122,20 +139,9 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 	else
 	{
 		// string not recognized
-		thrower( "ERROR: Invalid Continuation Option on intensity segment #" + str( segNum + 1 ) + ". The string entered was " + tempContinuationType
-				 + ". Please enter \"Repeat #\", \"RepeatUntilTrigger\", \"OnceWaitTrig\", or \"Once\". Code should not be case-sensititve." );
-	}
-	// see if it varies.
-	try
-	{
-		double test;
-		test = workingInput.repeatNum.evaluate();
-		test = workingInput.finValue.evaluate();
-		test = workingInput.repeatNum.evaluate();
-	}
-	catch (Error&)
-	{
-		varies = true;
+		thrower( "ERROR: Invalid Continuation Option on intensity segment #" + str( segNum + 1 ) + ". The string "
+				 "entered was " + tempContinuationType + ". Please enter \"Repeat #\", \"RepeatUntilTrigger\", "
+				 "\"OnceWaitTrig\", or \"Once\". Code should not be case-sensititve." );
 	}
 
 	// Make Everything Permanent
@@ -225,8 +231,8 @@ void ScriptedAgilentWaveform::compileSequenceString( int totalSegNum, int sequen
 	}
 
 	tempSegmentInfoString += "segment" + str( (totalSegNum - 1) + totalSegNum * sequenceNum ) + ",";
-	tempSegmentInfoString += str( waveformSegments[totalSegNum - 1].getFinalSettings().repeatNum ) + ",";
-	switch (waveformSegments[totalSegNum - 1].getFinalSettings().continuationType)
+	tempSegmentInfoString += str( waveformSegments[totalSegNum - 1].getFinalSettings( ).repeatNum ) + ",";
+	switch ( waveformSegments[totalSegNum - 1].getFinalSettings( ).continuationType )
 	{
 		case 0:
 			tempSegmentInfoString += "repeat,";
@@ -249,15 +255,15 @@ void ScriptedAgilentWaveform::compileSequenceString( int totalSegNum, int sequen
 	}
 	tempSegmentInfoString += "highAtStart,4";
 	//
-	totalSequence = tempSequenceString + str( (str( tempSegmentInfoString.size() )).size() )
-		+ str( tempSegmentInfoString.size() ) + tempSegmentInfoString;
+	totalSequence = tempSequenceString + str( (str( tempSegmentInfoString.size( ) )).size( ) )
+		+ str( tempSegmentInfoString.size( ) ) + tempSegmentInfoString;
 }
 
 
 /*
 * This function just returns the sequence string. It should already have been compiled using compileSequenceString when this is called.
 */
-std::string ScriptedAgilentWaveform::returnSequenceString()
+std::string ScriptedAgilentWaveform::returnSequenceString( )
 {
 	return totalSequence;
 }
@@ -266,9 +272,52 @@ std::string ScriptedAgilentWaveform::returnSequenceString()
 /*
 * This function returns the truth of whether this sequence is being varied or not. This gets determined during the reading process.
 */
-bool ScriptedAgilentWaveform::isVaried()
+bool ScriptedAgilentWaveform::isVaried( )
 {
-	return varies;
+	for ( auto& seg : waveformSegments )
+	{
+		auto& input = seg.getInput( );
+		if ( input.time.varies( ) )
+		{
+			return true;
+		}
+		if ( input.repeatNum.varies( ) )
+		{
+			return true;
+		}
+		if ( input.ramp.isRamp )
+		{
+			if ( input.ramp.start.varies( ) || input.ramp.end.varies( ) )
+			{
+				return true;
+			}
+		}
+		else if ( input.pulse.isPulse )
+		{
+			if ( input.pulse.amplitude.varies( ) || input.pulse.offset.varies( ) || input.pulse.width.varies( ) )
+			{
+				return true;
+			}
+			if ( input.mod.modulationIsOn )
+			{
+				if ( input.mod.frequency.varies( ) || input.mod.phase.varies( ) )
+				{
+					return true;
+				}
+			}
+		}
+		else
+		{
+			if ( input.holdVal.varies( ) )
+			{
+				return true;
+			}
+		}
+
+
+
+	}
+	return false;
 }
 
 

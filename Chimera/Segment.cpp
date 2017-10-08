@@ -2,44 +2,38 @@
 #include "Segment.h"
 
 
-/*
-* The constructor doesn't take arguments and initializes some values here to bad (but not garbage) values.
-*/
-Segment::Segment( )
-{
-	// initialize everything to invalid values.
-	input.initValue.expressionStr = "";
-	input.finValue.expressionStr = "";
-	input.time.expressionStr = "";
-	input.continuationType = -1;
-	input.rampType = "";
-	input.repeatNum.expressionStr = "";
-};
-
-
 void Segment::convertInputToFinal( key variableKey, UINT variation, std::vector<variableType>& vars )
 {	
 	// first transfer things that can't be varied.
 	finalSettings.continuationType = input.continuationType;
-	finalSettings.rampType = input.rampType;
 	// handle more complicated things.
-	finalSettings.initValue = input.initValue.evaluate( variableKey, variation, vars );
-	if (finalSettings.rampType == "nr")
+	finalSettings.ramp.isRamp = input.ramp.isRamp;
+	finalSettings.pulse.isPulse = input.pulse.isPulse;
+	finalSettings.mod.modulationIsOn = input.mod.modulationIsOn;
+
+	if ( input.ramp.isRamp )
 	{
-		finalSettings.finValue = finalSettings.initValue;
+		finalSettings.ramp.type = input.ramp.type;
+		finalSettings.ramp.start = input.ramp.start.evaluate( variableKey, variation, vars );
+		if ( finalSettings.ramp.type == "nr" )
+		{
+			finalSettings.ramp.end = finalSettings.ramp.start;
+		}
+		else
+		{
+			finalSettings.ramp.end = input.ramp.end.evaluate( variableKey, variation, vars );
+		}
+	}
+	else if ( input.pulse.isPulse )
+	{
+		finalSettings.pulse.type = input.pulse.type;
+		finalSettings.pulse.offset = input.pulse.offset.evaluate( variableKey, variation, vars );
+		finalSettings.pulse.amplitude = input.pulse.amplitude.evaluate( variableKey, variation, vars );
+		finalSettings.pulse.width = input.pulse.width.evaluate( variableKey, variation, vars ) / 1000.0;
 	}
 	else
 	{
-		finalSettings.finValue = input.finValue.evaluate( variableKey, variation, vars );
-	}
-
-	// pulse
-	finalSettings.pulse.type = input.pulse.type;
-	if ( input.pulse.type != "__NONE__" )
-	{
-		finalSettings.pulse.offset = input.pulse.offset.evaluate( variableKey, variation, vars );
-		finalSettings.pulse.amplitude = input.pulse.amplitude.evaluate( variableKey, variation, vars );
-		finalSettings.pulse.width = input.pulse.length.evaluate( variableKey, variation, vars ) / 1000.0;
+		finalSettings.holdVal = input.holdVal.evaluate( variableKey, variation, vars );
 	}
 
 	if ( input.mod.modulationIsOn )
@@ -60,15 +54,28 @@ void Segment::convertInputToFinal( key variableKey, UINT variation, std::vector<
 
 
 void Segment::convertInputToFinal()
-{
-	// first transfer things that can't be varied.
+{	// first transfer things that can't be varied.
 	finalSettings.continuationType = input.continuationType;
-	finalSettings.rampType = input.rampType;
 	// handle more complicated things.
-
-	// pulse settings
+	finalSettings.ramp.isRamp = input.ramp.isRamp;
 	finalSettings.pulse.type = input.pulse.type;
-	if ( input.pulse.type != "__NONE__" )
+	finalSettings.pulse.isPulse = input.pulse.isPulse;
+	finalSettings.mod.modulationIsOn = input.mod.modulationIsOn;
+
+	if ( input.ramp.isRamp )
+	{
+		finalSettings.ramp.type = input.ramp.type;
+		finalSettings.ramp.start = input.ramp.start.evaluate( );
+		if ( finalSettings.ramp.type == "nr" )
+		{
+			finalSettings.ramp.end = finalSettings.ramp.start;
+		}
+		else
+		{
+			finalSettings.ramp.end = input.ramp.end.evaluate( );
+		}
+	}
+	else if ( input.pulse.isPulse )
 	{
 		finalSettings.pulse.offset = input.pulse.offset.evaluate( );
 		finalSettings.pulse.amplitude = input.pulse.amplitude.evaluate( );
@@ -76,18 +83,9 @@ void Segment::convertInputToFinal()
 	}
 	else
 	{
-		finalSettings.initValue = input.initValue.evaluate( );
-		if ( finalSettings.rampType == "nr" )
-		{
-			finalSettings.finValue = finalSettings.initValue;
-		}
-		else
-		{
-			finalSettings.finValue = input.finValue.evaluate( );
-		}
+		finalSettings.holdVal = input.holdVal.evaluate( );
 	}
 
-	finalSettings.mod.modulationIsOn = input.mod.modulationIsOn;
 	if ( input.mod.modulationIsOn )
 	{
 		finalSettings.mod.frequency = input.mod.frequency.evaluate( );
@@ -95,13 +93,12 @@ void Segment::convertInputToFinal()
 	}
 
 	// time
-	finalSettings.time = input.time.evaluate() / 1000.0;
-
+	finalSettings.time = input.time.evaluate( ) / 1000.0;
 	// repeat number
-	// (0 here corresponds to "repeat");
-	if (finalSettings.continuationType == 0)
+	// (0 here corresponds to "repeat", in which case you need a number of times to repeat.);
+	if ( finalSettings.continuationType == 0 )
 	{
-		finalSettings.repeatNum = UINT( input.repeatNum.evaluate( ));
+		finalSettings.repeatNum = UINT( input.repeatNum.evaluate( ) );
 	}
 }
 
@@ -134,7 +131,7 @@ segmentInfoFinal Segment::getFinalSettings()
 * @param iteration is the sample number that the waveform is currently at.
 * @param initPos is the initial frequency or amplitude of the waveform.
 * @param finPos is the final frequency or amplitude of the waveform.
-* @param rampType is the type of ramp being executed, as specified by the reader.
+* @param type is the type of ramp being executed, as specified by the reader.
 */
 double Segment::rampCalc( int size, int iteration, double initPos, double finPos, std::string rampType )
 {
@@ -239,29 +236,24 @@ void Segment::calcData( ULONG sampleRate )
 	// resize to zero. This is a complete reset of the data points in the class.
 	dataArray.resize( 0 );
 	// write the data points. These are all in powers. These are converted to voltages later.
-	if (finalSettings.rampType == "nr" || finalSettings.rampType == "lin" || finalSettings.rampType == "tanh")
+	for ( int dataInc = 0; dataInc < numDataPoints; dataInc++ )
 	{
-		for (int dataInc = 0; dataInc < numDataPoints; dataInc++)
+		double point;
+		if ( finalSettings.ramp.isRamp )
 		{
-			// constant waveform. Every data point is the same.
-			dataArray.push_back( (finalSettings.initValue 
-								 + rampCalc( numDataPoints, dataInc, finalSettings.initValue, finalSettings.finValue, 
-											 finalSettings.rampType )
-								 + pulseCalc(finalSettings.pulse, dataInc, numDataPoints, finalSettings.time )) 
-								 * modCalc(finalSettings.mod, dataInc, numDataPoints, finalSettings.time));
+			point = finalSettings.ramp.start + rampCalc( numDataPoints, dataInc, finalSettings.ramp.start,
+														 finalSettings.ramp.end, finalSettings.ramp.type );
 		}
-	}
-	else if (finalSettings.rampType == "")
-	{
-		// Error: Ramp Type has not been set!
-		thrower( "ERROR: Data points tried to be written when the ramp type hadn't been set!" );
-	}
-	else
-	{
-		// invalid ramp Type!
-		std::string errMsg;
-		errMsg = "ERROR: Invalid Ramp Type in intensity sequence! Type entered was: " + finalSettings.rampType + ".";
-		thrower( errMsg );
+		else if ( finalSettings.pulse.isPulse )
+		{
+			point = pulseCalc( finalSettings.pulse, dataInc, numDataPoints, finalSettings.time )
+					* modCalc( finalSettings.mod, dataInc, numDataPoints, finalSettings.time );
+		}
+		else
+		{
+			point = finalSettings.holdVal;
+		}
+		dataArray.push_back( point );
 	}
 }
 

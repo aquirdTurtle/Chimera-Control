@@ -41,7 +41,6 @@ Refactoring / Other:
 - test running avg gnuplot
 - test fitting in gnuplot
 - refactor groups in plotinfo and gnuplot stuffs
-- make agilent stuff less redundant on the aux window
 
 Bugs:
 - Add new data set not working in plot designer

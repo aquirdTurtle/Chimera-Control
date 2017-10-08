@@ -10,7 +10,6 @@
 class Segment
 {
 	public:
-		Segment();
 		void storeInput( segmentInfoInput input );
 		segmentInfoInput getInput();
 		segmentInfoFinal getFinalSettings();

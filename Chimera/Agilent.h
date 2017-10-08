@@ -38,14 +38,13 @@ class Agilent
 		void setDefault( int channel );
 		void prepAgilentSettings(UINT channel );
 		bool connected();
-		void analyzeAgilentScript( scriptedArbInfo& infoObj );
+		void analyzeAgilentScript( scriptedArbInfo& infoObj, std::vector<variableType>& vars );
 		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
 		void handleNewConfig( std::ofstream& saveFile );
 		void handleSavingConfig( std::ofstream& saveFile, std::string categoryPath, RunInfo info );
 		std::string getDeviceIdentity();
 		std::string getName();
 		void readConfigurationFile( std::ifstream& file, double version );
-		void selectIntensityProfile( UINT channel, int varNum );
 		void convertInputToFinalSettings(UINT chan, key variableKey, UINT variation, std::vector<variableType>& variables);
 		void convertInputToFinalSettings(UINT chan);
 		void updateSettingsDisplay( int chan, std::string currentCategoryPath, RunInfo currentRunInfo );
@@ -72,7 +71,6 @@ class Agilent
 		const std::string filterState;
 		// since currently all visaFlume communication is done to communicate with agilent machines, my visaFlume wrappers exist
 		// in this class.
-		bool varies;
 		bool isConnected;
 		int currentChannel;
 		std::string deviceInfo;

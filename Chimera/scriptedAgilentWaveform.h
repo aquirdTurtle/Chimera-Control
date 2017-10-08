@@ -13,7 +13,7 @@ class ScriptedAgilentWaveform
 {
 	public:
 		ScriptedAgilentWaveform();
-		bool analyzeAgilentScriptCommand( int segNum, ScriptStream& script );
+		bool analyzeAgilentScriptCommand( int segNum, ScriptStream& script, std::vector<variableType>& variables );
 		void writeData( int SegNum, ULONG sampleRate );
 		std::string compileAndReturnDataSendString( int segNum, int varNum, int totalSegNum, UINT chan );
 		void compileSequenceString( int totalSegNum, int sequenceNum, UINT channel );
@@ -34,5 +34,4 @@ class ScriptedAgilentWaveform
 		double minVolt;
 		int segmentNum;
 		std::string totalSequence;
-		bool varies;
 };

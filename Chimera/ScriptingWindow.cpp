@@ -30,7 +30,6 @@ BEGIN_MESSAGE_MAP(ScriptingWindow, CDialog)
 	ON_COMMAND_RANGE(IDC_INTENSITY_CHANNEL1_BUTTON, IDC_INTENSITY_PROGRAM, &ScriptingWindow::handleIntensityButtons)
 	ON_CBN_SELENDOK( IDC_INTENSITY_AGILENT_COMBO, &ScriptingWindow::handleIntensityCombo )
 
-
 	ON_COMMAND_RANGE(MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &ScriptingWindow::passCommonCommand)
 
 	ON_CBN_SELENDOK(IDC_VERTICAL_NIAWG_FUNCTION_COMBO, &ScriptingWindow::handleVerticalScriptComboChange)
@@ -586,7 +585,6 @@ void ScriptingWindow::newHorizontalScript()
 	{
 		comm()->sendError( err.what() );
 	}
-
 }
 
 
@@ -685,7 +683,6 @@ void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, double version
 	openMasterScript(masterName);
 	considerScriptLocations();
 	recolorScripts();
-
 }
 
 

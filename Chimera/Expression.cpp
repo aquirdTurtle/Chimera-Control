@@ -455,7 +455,7 @@ double Expression::evaluate( key variationKey, UINT variation, std::vector<varia
 
 // this function checks whether the string "item" is usable as a double, either by direct reduction to double without
 // variables, or if it is a variable.
-void Expression::assertValid( std::vector<variableType>& vars )
+void Expression::assertValid( std::vector<variableType>& variables )
 {
 	double value;
 	try
@@ -464,17 +464,21 @@ void Expression::assertValid( std::vector<variableType>& vars )
 	}
 	catch ( Error& )
 	{
-		bool isVar = false;
-		for ( UINT varInc = 0; varInc < vars.size( ); varInc++ )
+		bool isVariable = false;
+		for ( UINT varInc = 0; varInc < variables.size( ); varInc++ )
 		{
-			if ( vars[varInc].name == expressionStr )
+			if ( variables[varInc].name == expressionStr )
 			{
-				vars[varInc].active = true;
-				isVar = true;
+				variables[varInc].active = true;
+				isVariable = true;
+				if ( !variables[varInc].constant )
+				{
+					expressionVaries = true;
+				}
 				break;
 			}
 		}
-		if ( !isVar )
+		if ( !isVariable )
 		{
 			// check if its a usable math expression. I.e. is composed of numbers, variables, or math symbols.
 			bool failed = false;
@@ -500,17 +504,21 @@ void Expression::assertValid( std::vector<variableType>& vars )
 				catch ( std::invalid_argument& ) {/* term is not a double.*/ }
 
 
-				isVar = false;
-				for ( UINT varInc = 0; varInc < vars.size( ); varInc++ )
+				isVariable = false;
+				for ( UINT varInc = 0; varInc < variables.size( ); varInc++ )
 				{
-					if ( vars[varInc].name == elem )
+					if ( variables[varInc].name == elem )
 					{
-						vars[varInc].active = true;
-						isVar = true;
+						variables[varInc].active = true;
+						isVariable = true;
+						if ( !variables[varInc].constant )
+						{
+							expressionVaries = true;
+						}
 						break;
 					}
 				}
-				if ( isVar )
+				if ( isVariable )
 				{
 					continue;
 				}
@@ -527,4 +535,10 @@ void Expression::assertValid( std::vector<variableType>& vars )
 			}
 		}
 	}
+}
+
+
+bool Expression::varies( )
+{
+	return expressionVaries;
 }
