@@ -16,11 +16,13 @@ class Expression
 						 std::vector<variableType>& vars = std::vector<variableType>( ) );
 		static std::vector<std::string> splitString( std::string workingString );
 		std::string expressionStr;
+		bool varies( );
 	private:
 		void doMultAndDiv( std::vector<std::string>& terms );
 		void doAddAndSub( std::vector<std::string>& terms );
 		double reduce( std::vector<std::string> terms );
 		void evaluateFunctions( std::vector<std::string>& terms );
+		bool expressionVaries = false;
 };
 
 

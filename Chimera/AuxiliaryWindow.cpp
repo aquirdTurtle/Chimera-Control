@@ -647,11 +647,6 @@ void AuxiliaryWindow::loadMotSettings(MasterThreadInput* input)
 		input->repetitionNumber = 1;
 		input->masterScriptAddress = MOT_ROUTINE_ADDRESS;
 		input->rsg = &RhodeSchwarzGenerator;
-
-		for ( auto& agilent : agilents )
-		{
-			input->agilents.push_back( &agilent );
-		}
 		input->intensityAgilentNumber = -1;
 		input->topBottomTek = &topBottomTek;
 		input->eoAxialTek = &eoAxialTek;

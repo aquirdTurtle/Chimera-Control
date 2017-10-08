@@ -2371,7 +2371,7 @@ return 0;
 * @param iteration is the sample number that the waveform is currently at.
 * @param initPos is the initial frequency or amplitude of the waveform.
 * @param finPos is the final frequency or amplitude of the waveform.
-* @param rampType is the type of ramp being executed, as specified by the reader.
+* @param type is the type of ramp being executed, as specified by the reader.
 */
 double NiawgController::rampCalc( int size, int iteration, double initPos, double finPos, std::string rampType )
 {

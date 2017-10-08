@@ -9,9 +9,8 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program.
 
-// #define MASTER_COMPUTER
-#define SPECTRE_LAPTOP
-// #define DESKTOP_COMPUTER
+#define MASTER_COMPUTER
+// #define SPECTRE_LAPTOP
 /// File Locations
 
 #ifdef SPECTRE_LAPTOP
@@ -343,10 +342,10 @@ const agilentSettings FLASHING_AGILENT_SETTINGS = { FLASHING_SAFEMODE, FLASHING_
 
 const agilentSettings INTENSITY_AGILENT_SETTINGS = { INTENSITY_SAFEMODE, INTENSITY_AGILENT_USB_ADDRESS,
 													 1e6, "INF", "NORMal",
-													 IDC_INTENSITY_CHANNEL1_BUTTON, IDC_FLASHING_CHANNEL2_BUTTON,
-													 IDC_INTENSITY_SYNC_BUTTON, IDC_FLASHING_AGILENT_COMBO,
-													 IDC_INTENSITY_FUNCTION_COMBO, IDC_FLASHING_EDIT,
-													 IDC_INTENSITY_PROGRAM, IDC_FLASHING_CALIBRATION_BUTTON };
+													 IDC_INTENSITY_CHANNEL1_BUTTON, IDC_INTENSITY_CHANNEL2_BUTTON,
+													 IDC_INTENSITY_SYNC_BUTTON, IDC_INTENSITY_AGILENT_COMBO,
+													 IDC_INTENSITY_FUNCTION_COMBO, IDC_INTENSITY_EDIT,
+													 IDC_INTENSITY_PROGRAM, IDC_INTENSITY_CALIBRATION_BUTTON };
 
 // plot designer
 #define IDC_GENERAL_PLOT_TYPE 15008
@@ -402,9 +401,9 @@ const float MAX_GAIN = 5.0; // Current Value: 5
 const char AGILENT_INFO_TEXT[] = ">>> Scripted Agilent Waveform Help <<<\n"
 "Accepted Commands (syntax for command is encased in <>)\n"
 "- hold <val> <time(ms)> <Continuation Type> <Possibly Repeat #> <#>\n"
-"- ramp <rampType> <initVal> <finVal(V)> <time(ms)> <Continuation Type> <Possibly Repeat #> <#>\n"
-"- pulse <pulse type> <offset> <amp> <length> <pulse-width> <Continuation Type> <Possibly Repeat #> <#>\n"
-"- modPulse <pulse-type> <offset> <amp> <pulse-width> <mod-Freq(MHz)> <mod-Amp> <mod-Phase> <time(ms)> <Continuation Type> <Repeat #>\n"
+"- ramp <type> <initVal> <finVal(V)> <time(ms)> <Continuation Type> <Possibly Repeat #> <#>\n"
+"- pulse <pulse type> <offset> <amp> <pulse-width> <time(ms)> <Continuation Type> <Possibly Repeat #> <#>\n"
+"- modPulse <pulse-type> <offset> <amp> <pulse-width> <mod-Freq(MHz)> <mod-Phase(Rad)> <time(ms)> <Continuation Type> <Repeat #>\n"
 "The continuation type determines what the agilent does when it reaches the end of the <time> \n"
 "argument. Accepted Values for the continuation type are:\n"
 "- repeat <requires repeat #>\n"
