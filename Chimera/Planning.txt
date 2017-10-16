@@ -6,16 +6,16 @@ FEATURES:
 	- create atomic (?) int which stores the number of atoms in the last picture of most recent run
 	- have atom cruncher update this number, have the master thread read the number to determine how to program 
 		machines.
-- if aborts or crashes in the middle of run, code should close HDF5 file and make it usable, somehow.
 - revive sequences of experiments
 - NIAWG scripting in single script instead of separate Hor/Vert scripts.
+- finish implementing randomizing repetitions.
+- be able to add more repetitions on the fly if randomizing reps.
+- Be able to set different analysis locations for different plots
+
+- if aborts or crashes in the middle of run, code should close HDF5 file and make it usable, somehow.
 - Watch cursor location on andor pictures, sim to basler program
 - restore the Niawg functionality where it calculates next varying waveform during the run of the previous waveform.
 - support functions for niawg and agilent scripts
-- if fails to open script file give user opportunity to find it themselves.
-- make agilent smart about trying to program a sequence that's only one voltage. Can prob just add one check
-- finish implementing randomizing repetitions.
-- Be able to set different analysis locations for different plots
 - support aborting while paused
 - check that the picture rate is matching the rep rate
 - agilent script programNow with variables, should be able to set constants with program now.

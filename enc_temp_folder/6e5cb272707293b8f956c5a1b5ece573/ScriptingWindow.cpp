@@ -846,13 +846,27 @@ void ScriptingWindow::openMasterScript(std::string name)
 
 void ScriptingWindow::openVerticalScript(std::string name)
 {
-	verticalNiawgScript.openParentScript( name, getProfile( ).categoryPath, mainWindowFriend->getRunInfo( ) );
+	try
+	{
+		verticalNiawgScript.openParentScript(name, getProfile().categoryPath, mainWindowFriend->getRunInfo());
+	}
+	catch(Error& err)
+	{
+		comm()->sendError(err.what());
+	}
 }
 
 
 void ScriptingWindow::openHorizontalScript(std::string name)
 {
-	horizontalNiawgScript.openParentScript(name, getProfile().categoryPath, mainWindowFriend->getRunInfo());
+	try
+	{
+		horizontalNiawgScript.openParentScript(name, getProfile().categoryPath, mainWindowFriend->getRunInfo());
+	}
+	catch (Error& err)
+	{
+		comm()->sendError(err.what());
+	}
 }
 
 
