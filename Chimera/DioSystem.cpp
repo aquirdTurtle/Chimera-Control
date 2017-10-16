@@ -1323,7 +1323,7 @@ std::string DioSystem::getTtlSequenceMessage(UINT variation)
 	std::string message;
 	if ( ttlSnapshots.size( ) <= variation )
 	{
-		thrower( "ERROR: Attemted to retrieve ttl sequence message from snapshot " + str( variation ) + ", which does not "
+		thrower( "ERROR: Attempted to retrieve ttl sequence message from snapshot " + str( variation ) + ", which does not "
 				 "exist!" );
 	}
 	for (auto snap : ttlSnapshots[variation])

@@ -282,7 +282,8 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 			}
 		}
 	}
-	else if ( word == "+" || word == "=" || word == "(" || word == ")" || word == "*" || word == "-" || word == "/" )
+
+	if ( word == "+" || word == "=" || word == "(" || word == ")" || word == "*" || word == "-" || word == "/" )
 	{
 		// all scripts now support math expressions.
 		return rgbs["Solarized Cyan"];

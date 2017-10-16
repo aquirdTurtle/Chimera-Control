@@ -30,6 +30,7 @@ Bugs:
 - scripts becoming unsaved after move, should preserve saved status
 - investigate save on change config
 - global config colors don't appear to always be correct.
+- new config should use explorer.
 =================
 Finished
 =================

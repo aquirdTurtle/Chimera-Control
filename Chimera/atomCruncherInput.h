@@ -7,6 +7,7 @@
 #include "atomGrid.h"
 #include "imageParameters.h"
 
+
 struct atomCruncherInput
 {
 	//
@@ -32,4 +33,6 @@ struct atomCruncherInput
 	std::vector<std::vector<bool>>* rearrangerAtomQueue;
 	std::array<int, 4> thresholds;
 	imageParameters imageDims;
+	UINT atomThresholdForSkip = UINT_MAX;
+	std::atomic<bool>* skipNext;
 };
