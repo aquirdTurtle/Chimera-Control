@@ -2,10 +2,12 @@
 #include "commonFunctions.h"
 #include "CameraSettingsControl.h"
 #include "PlottingInfo.h"
-#include "ATMCD32D.H"
 #include "AuxiliaryWindow.h"
 #include "CameraWindow.h"
 #include "realTimePlotterInput.h"
+#include "MasterThreadInput.h"
+#include "ATMCD32D.H"
+#include <numeric>
 
 CameraWindow::CameraWindow() : CDialog(), CameraSettings(&Andor), dataHandler(DATA_SAVE_LOCATION), 
                                plotter(GNUPLOT_LOCATION)
@@ -794,6 +796,7 @@ void CameraWindow::prepareAtomCruncher( ExperimentInput& input )
 	atomCrunchThreadActive = true;
 	input.cruncherInput->plotterNeedsImages = input.plotterInput->needsCounts;
 	input.cruncherInput->cruncherThreadActive = &atomCrunchThreadActive;
+	input.cruncherInput->skipNext = &skipNext;
 	input.cruncherInput->imageQueue = &imageQueue;
 	// options
 	if ( input.masterInput )
@@ -820,6 +823,7 @@ void CameraWindow::prepareAtomCruncher( ExperimentInput& input )
 	input.cruncherInput->gridInfo = analysisHandler.getAtomGrid( );
 	input.cruncherInput->catchPicTime = &crunchSeesTimes;
 	input.cruncherInput->finTime = &crunchFinTimes;
+	input.cruncherInput->atomThresholdForSkip = mainWindowFriend->getMainOptions( ).atomThresholdForSkip;
 	input.cruncherInput->rearrangerConditionWatcher = &rearrangerConditionVariable;
 }
 
@@ -936,22 +940,6 @@ UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 			monitoredPixelIndecies.push_back( index );
 		}
 	}
-	/*
-	The pixels get re-packed into an array like this:
-	std::vector<std::vector<bool>> source;
-	source.resize( info.targetRows );
-	UINT count = 0;
-	for ( auto rowCount : range( info.targetRows ) )
-	{
-		std::vector<bool> tempRow( info.targetCols );
-		for ( auto& elem : tempRow )
-		{
-			bool atom = (*input->atomsQueue)[0][count++];
-			elem = atom;
-		}
-		source[source.size( ) - 1 - rowCount] = tempRow;
-	}
-	*/
 	UINT imageCount = 0;
 	// loop watching the image queue.
 	while (*input->cruncherThreadActive || input->imageQueue->size() != 0)
@@ -1012,6 +1000,12 @@ UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 			{
 				(*input->plotterImageQueue).push_back(tempImagePixels);
 			}
+		}
+
+		UINT numAtoms = std::accumulate( tempAtomArray.begin( ), tempAtomArray.end( ), 0 );
+		if ( numAtoms > input->atomThresholdForSkip )
+		{
+			*input->skipNext = true;
 		}
 		imageCount++;
 		std::lock_guard<std::mutex> locker( *input->imageLock );
@@ -1215,6 +1209,12 @@ HBRUSH CameraWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 			return *brushes["Solarized Base04"];
 		}
 	}
+}
+
+
+std::atomic<bool>* CameraWindow::getSkipNextAtomic( )
+{
+	return &skipNext;
 }
 
 

@@ -472,6 +472,7 @@
     <ClInclude Include="DebugOptionsControl.h">
       <Filter>Main Window</Filter>
     </ClInclude>
+    <ClInclude Include="MasterThreadInput.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

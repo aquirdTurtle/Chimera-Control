@@ -806,6 +806,7 @@ namespace commonFunctions
 			}
 			beginInfo += "\r\n";
 		}
+		
 		mainOptions settings = mainWin->getMainOptions();
 		std::string beginQuestion = "\r\n\r\nBegin Waveform Generation with these Settings?";
 		INT_PTR areYouSure = DialogBoxParam( NULL, MAKEINTRESOURCE( IDD_BEGINNING_SETTINGS ), 0,
@@ -820,6 +821,7 @@ namespace commonFunctions
 			// Set the thread structure.
 			input.masterInput = new MasterThreadInput();
 			input.masterInput->runMaster = runTtls;
+			input.masterInput->skipNext = camWin->getSkipNextAtomic( );
 			// force accumulations to zero. This shouldn't affect anything, this should always get set by the master or be infinite.
 			if (msgID == ID_FILE_MY_WRITE_WAVEFORMS)
 			{

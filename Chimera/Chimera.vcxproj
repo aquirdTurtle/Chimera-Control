@@ -201,6 +201,7 @@
     <ClInclude Include="DacStructures.h" />
     <ClInclude Include="debugInfo.h" />
     <ClInclude Include="Expression.h" />
+    <ClInclude Include="MasterThreadInput.h" />
     <ClInclude Include="multiDimensionalKey.h" />
     <ClInclude Include="profileSettings.h" />
     <ClInclude Include="ProfileSystem.h" />
