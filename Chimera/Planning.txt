@@ -3,8 +3,6 @@ TODO
 ===================
 FEATURES:
 - feedback on atom number at end of experiment.
-	- Implement new master script syntax for defining loading section which can be skipped
-	- Have analysis create two versions of ttls & dacs with and without skip
 	- create atomic (?) int which stores the number of atoms in the last picture of most recent run
 	- have atom cruncher update this number, have the master thread read the number to determine how to program 
 		machines.
@@ -33,10 +31,7 @@ Refactoring / Other:
 Bugs:
 - scripts becoming unsaved after move, should preserve saved status
 - investigate save on change config
-- after script save-as, new name not loaded if run experiment until reload config ??? can't repeat...
 - global config colors don't appear to always be correct.
-- seems that multiple variable dimensions handling doesn't realize when variables are constants such that the 
-	dimension of that variable doesn't matter.
 =================
 Finished
 =================
