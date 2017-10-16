@@ -4,11 +4,10 @@
 #include "DacSystem.h"
 #include "VariableSystem.h"
 #include "RichEditControl.h"
-#include "KeyHandler.h"
 #include "SocketWrapper.h"
 #include "RhodeSchwarz.h"
 #include "GpibFlume.h"
-#include "DebuggingOptionsControl.h"
+#include "DebugOptionsControl.h"
 #include "ScriptStream.h"
 #include "Agilent.h"
 #include "commonTypes.h"
@@ -39,8 +38,9 @@ struct MasterThreadInput
 	DacSystem* dacs;
 	UINT repetitionNumber;
 	std::vector<variableType> variables;
+	std::vector<variableType> constants;
 	MasterManager* thisObj;
-	KeyHandler* key;
+	//KeyHandler* key;
 	std::string masterScriptAddress;
 	Communicator* comm;
 	RhodeSchwarz* rsg;
@@ -105,7 +105,7 @@ class MasterManager
 		static UINT __cdecl experimentThreadProcedure(void* voidInput);
 		static void expUpdate(std::string text, Communicator* comm, bool quiet = false);
 		static void analyzeFunctionDefinition(std::string defLine, std::string& functionName, std::vector<std::string>& args);
-		static UINT determineVariationNumber(std::vector<variableType> vars, key tempKey);
+		static UINT determineVariationNumber(std::vector<variableType> vars);
 		static void handleDebugPlots( debugInfo debugOptions, Communicator* comm, DioSystem* ttls, DacSystem* dacs,
 									  bool quiet, EmbeddedPythonHandler* python );
 

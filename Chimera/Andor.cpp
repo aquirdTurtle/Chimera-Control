@@ -243,7 +243,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 		{
 			// simulate an actual wait.
 			//Sleep( ULONG(input->Andor->runSettings.kineticCycleTime * 1000) );
-			Sleep( 500 );
+			Sleep( 100 );
 			if ( pictureNumber % 2 == 0 )
 			{
 				(*input->imageTimes).push_back( std::chrono::high_resolution_clock::now( ) );
@@ -334,7 +334,8 @@ void AndorCamera::armCamera(CameraWindow* camWin, double& minKineticCycleTime)
 	// Set trigger mode.
 	// check plotting parameters
 	/// TODO!
-	// CAREFUL! I can only modify these guys here because I'm sure that I'm also not writing to them in the plotting thread since the plotting thread hasn't
+	// CAREFUL! I can only modify these guys here because I'm sure that I'm also not writing to them in the plotting 
+	// thread since the plotting thread hasn't
 	// started yet. If moving stuff around, be careful.
 	// Initialize the thread accumulation number.
 	// this->??? = 1;

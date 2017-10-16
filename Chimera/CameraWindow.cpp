@@ -33,8 +33,10 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 	ON_WM_TIMER()
 	ON_WM_VSCROLL()
 
-	ON_COMMAND_RANGE(MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &CameraWindow::passCommonCommand)
-	ON_COMMAND_RANGE(PICTURE_SETTINGS_ID_START, PICTURE_SETTINGS_ID_END, &CameraWindow::passPictureSettings)
+	ON_COMMAND_RANGE( MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &CameraWindow::passCommonCommand )
+	ON_COMMAND_RANGE( PICTURE_SETTINGS_ID_START, PICTURE_SETTINGS_ID_END, &CameraWindow::passPictureSettings )
+	ON_CONTROL_RANGE( CBN_SELENDOK, PICTURE_SETTINGS_ID_START, PICTURE_SETTINGS_ID_END, 
+					  &CameraWindow::passPictureSettings )
 	// these ids all go to the same function.
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_1_MIN_EDIT, IDC_PICTURE_1_MIN_EDIT, &CameraWindow::handlePictureEditChange )
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_1_MAX_EDIT, IDC_PICTURE_1_MAX_EDIT, &CameraWindow::handlePictureEditChange )
@@ -45,7 +47,6 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_4_MIN_EDIT, IDC_PICTURE_4_MIN_EDIT, &CameraWindow::handlePictureEditChange )
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_4_MAX_EDIT, IDC_PICTURE_4_MAX_EDIT, &CameraWindow::handlePictureEditChange )
 	// 
-	//ON_COMMAND( IDC_SET_IMAGE_PARAMETERS_BUTTON, &CameraWindow::readImageParameters)
 	ON_COMMAND( IDC_SET_EM_GAIN_BUTTON, &CameraWindow::setEmGain)
 	ON_COMMAND( IDC_ALERTS_BOX, &CameraWindow::passAlertPress)
 	ON_COMMAND( IDC_SET_TEMPERATURE_BUTTON, &CameraWindow::passSetTemperaturePress)
@@ -53,7 +54,7 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 	ON_COMMAND( IDC_SET_ANALYSIS_LOCATIONS, &CameraWindow::passManualSetAnalysisLocations)
 	ON_COMMAND( IDC_SET_GRID_CORNER, &CameraWindow::passSetGridCorner)
 
-	ON_CBN_SELENDOK(IDC_TRIGGER_COMBO, &CameraWindow::passTrigger)
+	ON_CBN_SELENDOK( IDC_TRIGGER_COMBO, &CameraWindow::passTrigger )
 	ON_CBN_SELENDOK( IDC_CAMERA_MODE_COMBO, &CameraWindow::passCameraMode )
 
 	ON_REGISTERED_MESSAGE( eCameraFinishMessageID, &CameraWindow::onCameraFinish )
@@ -64,8 +65,6 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 
 	ON_NOTIFY(NM_RCLICK, IDC_PLOTTING_LISTVIEW, &CameraWindow::listViewRClick)
 	ON_NOTIFY(NM_DBLCLK, IDC_PLOTTING_LISTVIEW, &CameraWindow::handleDblClick)
-
-	ON_COMMAND(IDC_ALERTS_BOX, &CameraWindow::passAlertPress)
 END_MESSAGE_MAP()
 
 
@@ -104,12 +103,12 @@ void CameraWindow::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void CameraWindow::handleOpeningConfig(std::ifstream& configFile, double version)
+void CameraWindow::handleOpeningConfig(std::ifstream& configFile, int versionMajor, int versionMinor )
 {
 	// I could and perhaps should further subdivide this up.
-	CameraSettings.handleOpenConfig(configFile, version);
-	pics.handleOpenConfig(configFile, version);
-	analysisHandler.handleOpenConfig( configFile, version );
+	CameraSettings.handleOpenConfig(configFile, versionMajor, versionMinor );
+	pics.handleOpenConfig(configFile, versionMajor, versionMinor );
+	analysisHandler.handleOpenConfig( configFile, versionMajor, versionMinor );
 	if ( CameraSettings.getSettings( ).picsPerRepetition == 1 )
 	{
 		pics.setSinglePicture( this, CameraSettings.readImageParameters( this )  );
@@ -126,16 +125,6 @@ void CameraWindow::handleOpeningConfig(std::ifstream& configFile, double version
 	CRect rect;
 	GetWindowRect( &rect );
 	OnSize( 0, rect.right - rect.left, rect.bottom - rect.top );
-	/*
-	int plotNumber;
-	configFile >> plotNumber;
-	configFile.get();
-	for (int plotInc = 0; plotInc < plotNumber; plotInc++)
-	{
-		std::string plotName;
-		std::getline(configFile, plotName);
-	}
-	*/
 }
 
 
@@ -863,7 +852,7 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 	input.plotterInput->plottingFrequency = analysisHandler.getPlotFreq( );
 	if ( input.masterInput )
 	{
-		input.plotterInput->key = input.masterInput->key->getKeyValueArray( );
+		input.plotterInput->key = VariableSystem::getKeyValues( input.masterInput->variables );
 	}
 	else
 	{
@@ -1126,6 +1115,7 @@ BOOL CameraWindow::OnInitDialog()
 	positions.sPos = { 0, 0 };
 	box.initialize( positions.sPos, id, this, 480, tooltips );
 	positions.videoPos = positions.amPos = positions.seriesPos = positions.sPos;
+	alerts.alertMainThread( 0 );
 	alerts.initialize( positions, this, false, id, tooltips );
 	analysisHandler.initialize( positions, id, this, tooltips, false, mainWindowFriend->getRgbs() );
 	CameraSettings.initialize( positions, id, this, tooltips );

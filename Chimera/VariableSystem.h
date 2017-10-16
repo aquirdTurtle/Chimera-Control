@@ -1,12 +1,12 @@
 #pragma once
-#include <vector>
-#include <string>
-#include "Control.h"
-#include "Windows.h"
-#include <unordered_map>
-#include "afxcview.h"
 #include "constants.h"
 #include "VariableStructures.h"
+#include "Control.h"
+#include "Windows.h"
+#include "afxcview.h"
+#include <vector>
+#include <string>
+#include <unordered_map>
 
 class MainWindow;
 class AuxiliaryWindow;
@@ -21,7 +21,7 @@ class VariableSystem
 		UINT getTotalVariationNumber();
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(std::ifstream& openFile, double version);
+		void handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor );
 		void handleDraw(NMHDR* pNMHDR, LRESULT* pResult, rgbMap rgbs);
 		void updateVariableInfo( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
 								 DioSystem* ttls, DacSystem* dacs );
@@ -45,9 +45,14 @@ class VariableSystem
 		void setActive(bool active);
 		void setUsages(std::vector<variableType> vars);
 		void updateVariationNumber( );
-		
+		void setRangeInclusivity( UINT rangeNum, bool leftBorder, bool inclusive, UINT column );
+		/// used to be in KeyHandler
+		static void generateKey( std::vector<variableType>& variables, bool randomizeVariablesOption );
+		static std::vector<double> getKeyValues( std::vector<variableType> variables );
+		void reorderVariableDimensions( );
 
 	private:
+		USHORT preRangeColumns = 3;
 		// Only 2 gui elements.
 		Control<CStatic> variablesHeader;
 		Control<CListCtrl> variablesListview;
@@ -57,12 +62,16 @@ class VariableSystem
 		std::vector<variableType> currentVariables;
 		// number of variations that the variables will go through.
 		UINT currentVariations;
+
 		// holds the number of variable ranges. Not sure why this is necessary, could probablty get this info from 
 		// currentVariables member.
-		std::vector<USHORT> variableRanges;
+		USHORT variableRanges;
 		// tells the class whether it was initialized as the global variable control or the configuration control.
 		bool isGlobal;
 		// number of dimensions to the variable scans. Unusual to do more than 2.
 		USHORT scanDimensions;
 };
+
+
+
 

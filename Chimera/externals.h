@@ -1,20 +1,18 @@
 #pragma once
 // This header file includes all of the extern declarations of all of my external (global) variables.
-#include "Windows.h"
-#include <string>
-#include <vector>
-#include "niFgen.h"
-#include "Control.h"
 #include "ProfileSystem.h"
 #include "NoteSystem.h"
 #include "VariableSystem.h"
 #include "Script.h"
-#include "GUI_Debugger.h"
 #include "MainWindow.h"
 #include "ScriptingWindow.h"
-#include "DebuggingOptionsControl.h"
+#include "DebugOptionsControl.h"
 #include "NiawgController.h"
-
+#include "Control.h"
+#include "Windows.h"
+#include <string>
+#include <vector>
+#include "niFgen.h"
 extern std::vector<std::string> WAVEFORM_NAME_FILES;
 extern std::vector<std::string> WAVEFORM_TYPE_FOLDERS;
 
@@ -34,8 +32,8 @@ extern bool eWaitError;
 
 /// Global Options Variables
 extern UINT eStatusTextMessageID, eErrorTextMessageID, eFatalErrorMessageID, eNormalFinishMessageID, 
-eColoredEditMessageID, eDebugMessageID, eCameraFinishMessageID, 
-			eCameraProgressMessageID, eRepProgressMessageID;
+			eColoredEditMessageID, eDebugMessageID, eCameraFinishMessageID, eCameraProgressMessageID, 
+			eRepProgressMessageID, eNoAtomsAlertMessageID;
 
 extern bool eAbortNiawgFlag;
 

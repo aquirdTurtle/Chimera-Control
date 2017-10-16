@@ -28,7 +28,7 @@ BOOL TtlSettingsDialog::OnInitDialog()
 	for (UINT numberInc = 0; numberInc < edits.front().size(); numberInc++)
 	{
 		numberlabels[numberInc].sPos = { pos.x, pos.y, pos.x += 65, pos.y + 30 };
-		numberlabels[numberInc].Create( cstr(numberInc + 1), WS_CHILD | WS_VISIBLE | SS_SUNKEN | WS_BORDER | 
+		numberlabels[numberInc].Create( cstr(numberInc), WS_CHILD | WS_VISIBLE | SS_SUNKEN | WS_BORDER | 
 									   ES_AUTOHSCROLL | WS_TABSTOP, numberlabels[numberInc].sPos, this, id++);
 	}
 	

@@ -69,7 +69,7 @@ class CameraWindow : public CDialog
 		void handleMasterConfigSave(std::stringstream& configStream);
 		void handleMasterConfigOpen(std::stringstream& configStream, double version);
 		void handlePictureEditChange(UINT id);
-		void handleOpeningConfig(std::ifstream& configFile, double version);
+		void handleOpeningConfig(std::ifstream& configFile, int versionMajor, int versionMinor );
 		void redrawPictures( bool andGrid );
 		void changeBoxColor( systemInfo<char> colors );
 		cToolTips getToolTips();

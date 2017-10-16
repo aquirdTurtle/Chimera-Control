@@ -15,7 +15,6 @@
 #include "RhodeSchwarz.h"
 #include "GpibFlume.h"
 #include "MasterConfiguration.h"
-#include "KeyHandler.h"
 #include "Agilent.h"
 #include "commonTypes.h"
 #include "StatusControl.h"
@@ -38,7 +37,7 @@ class AuxiliaryWindow : public CDialog
 	public:
 		AuxiliaryWindow();
 		BOOL OnInitDialog();
-		void handleOpeningConfig(std::ifstream& configFile, double version);
+		void handleOpeningConfig(std::ifstream& configFile, int versionMajor, int versionMinor );
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 		void OnCancel();
 		void OnSize(UINT nType, int cx, int cy);
@@ -61,32 +60,12 @@ class AuxiliaryWindow : public CDialog
 		std::array<std::array<std::string, 16>, 4> getTtlNames();
 		std::array<std::string, 24> getDacNames();
 
+		void updateAgilent( agilentNames name );
 		void newAgilentScript( agilentNames name );
 		void openAgilentScript( agilentNames name, CWnd* parent );
 		void saveAgilentScript( agilentNames name );
 		void saveAgilentScriptAs( agilentNames name, CWnd* parent );
 		void handleAgilentEditChange( UINT id );
-		/*
-		void newTopBottomAgilentScript();
-		void openTopBottomAgilentScript( CWnd* parent );
-		void saveTopBottomAgilentScript();
-		void saveTopBottomAgilentScriptAs( CWnd* parent );
-
-		void newAxialAgilentScript();
-		void openAxialAgilentScript( CWnd* parent );
-		void saveAxialAgilentScript();
-		void saveAxialAgilentScriptAs( CWnd* parent );
-
-		void newFlashingAgilentScript();
-		void openFlashingAgilentScript( CWnd* parent );
-		void saveFlashingAgilentScript();
-		void saveFlashingAgilentScriptAs( CWnd* parent );
-
-		void newUwaveAgilentScript( );
-		void openUwaveAgilentScript( CWnd* parent );
-		void saveUwaveAgilentScript( );
-		void saveUwaveAgilentScriptAs( CWnd* parent );
-		*/
 
 		void drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResultf);
 		void handleEnter();
@@ -124,7 +103,7 @@ class AuxiliaryWindow : public CDialog
 		void handleSaveConfig(std::ofstream& saveFile);
 		std::pair<UINT, UINT> getTtlBoardSize();
 		UINT getNumberOfDacs();
-		void setConfigActive(bool active);
+		void setVariablesActiveState(bool active);
 		void passTopBottomTekProgram();
 		void passEoAxialTekProgram();
 		Agilent& whichAgilent( UINT id );

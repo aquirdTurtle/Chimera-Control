@@ -199,7 +199,9 @@
     <ClInclude Include="commonTypes.h" />
     <ClInclude Include="Communicator.h" />
     <ClInclude Include="DacStructures.h" />
+    <ClInclude Include="debugInfo.h" />
     <ClInclude Include="Expression.h" />
+    <ClInclude Include="multiDimensionalKey.h" />
     <ClInclude Include="profileSettings.h" />
     <ClInclude Include="ProfileSystem.h" />
     <ClInclude Include="DacSettingsDialog.h" />
@@ -213,7 +215,6 @@
     <ClInclude Include="gnuplotter.h" />
     <ClInclude Include="GpibFlume.h" />
     <ClInclude Include="imageParameters.h" />
-    <ClInclude Include="KeyHandler.h" />
     <ClInclude Include="longnam.h" />
     <ClInclude Include="MainOptionsControl.h" />
     <ClInclude Include="Andor.h" />
@@ -233,7 +234,7 @@
     <ClInclude Include="ProfileIndicator.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="Control.h" />
-    <ClInclude Include="DebuggingOptionsControl.h" />
+    <ClInclude Include="DebugOptionsControl.h" />
     <ClInclude Include="externals.h" />
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="realTimePlotterInput.h" />
@@ -242,7 +243,6 @@
     <ClInclude Include="rearrangeParams.h" />
     <ClInclude Include="RearrangeControl.h" />
     <ClInclude Include="Repetitions.h" />
-    <ClInclude Include="resource2.h" />
     <ClInclude Include="RhodeSchwarz.h" />
     <ClInclude Include="NoteSystem.h" />
     <ClInclude Include="Script.h" />
@@ -262,7 +262,7 @@
     <ClInclude Include="NiawgController.h" />
     <ClInclude Include="NiawgWaiter.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="saveTextFileFromEdit.h" />
+    <ClInclude Include="saveWithExplorer.h" />
     <ClInclude Include="scriptWriteHelpProc.h" />
     <ClInclude Include="ScriptWritingInstructionsDialog.h" />
     <ClInclude Include="stdafx.h" />
@@ -285,6 +285,7 @@
     <ClCompile Include="ColorBox.cpp" />
     <ClCompile Include="Communicator.cpp" />
     <ClCompile Include="Expression.cpp" />
+    <ClCompile Include="multiDimensionalKey.cpp" />
     <ClCompile Include="openWithExplorer.cpp" />
     <ClCompile Include="ProfileSystem.cpp" />
     <ClCompile Include="Control.cpp" />
@@ -292,14 +293,13 @@
     <ClCompile Include="DacSystem.cpp" />
     <ClCompile Include="DataLogger.cpp" />
     <ClCompile Include="PlotDataSet.cpp" />
-    <ClCompile Include="DebuggingOptionsControl.cpp" />
+    <ClCompile Include="DebugOptionsControl.cpp" />
     <ClCompile Include="EmbeddedPythonHandler.cpp" />
     <ClCompile Include="ExperimentTimer.cpp" />
     <ClCompile Include="externals.cpp" />
     <ClCompile Include="Fgen.cpp" />
     <ClCompile Include="Gnuplotter.cpp" />
     <ClCompile Include="GpibFlume.cpp" />
-    <ClCompile Include="KeyHandler.cpp" />
     <ClCompile Include="MainOptionsControl.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="Andor.cpp" />
@@ -333,7 +333,7 @@
     <ClCompile Include="NiawgController.cpp" />
     <ClCompile Include="ChimeraApp.cpp" />
     <ClCompile Include="NiawgWaiter.cpp" />
-    <ClCompile Include="saveTextFileFromEdit.cpp" />
+    <ClCompile Include="saveWithExplorer.cpp" />
     <ClCompile Include="miscellaneousCommonFunctions.cpp" />
     <ClCompile Include="ScriptWritingInstructionsDialog.cpp" />
     <ClCompile Include="DioSettingsDialog.cpp" />

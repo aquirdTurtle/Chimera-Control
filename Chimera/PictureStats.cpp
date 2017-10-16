@@ -10,21 +10,18 @@
 void PictureStats::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& tooltips )
 {
 	pictureStatsHeader.sPos = { pos.x, pos.y, pos.x + 272, pos.y + 25 };
-	pictureStatsHeader.Create( "Raw Counts", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY | ES_CENTER,
-							   pictureStatsHeader.sPos, parent, id++ );
+	pictureStatsHeader.Create( "Raw Counts", NORM_STATIC_OPTIONS, pictureStatsHeader.sPos, parent, id++ );
 	pos.y += 25;
 	/// CURRENT IMAGE DATA
 	// Current Accumulation Number Display
 	repetitionIndicator.sPos = { pos.x, pos.y, pos.x + 272, pos.y + 25 };
-	repetitionIndicator.Create( "Repetition ?/?", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY | ES_CENTER, 
-							   repetitionIndicator.sPos, parent, id++ );
+	repetitionIndicator.Create( "Repetition ?/?", NORM_STATIC_OPTIONS, repetitionIndicator.sPos, parent, id++ );
 	pos.y += 25;
 	/// Picture labels ////////////////////////////////////////////////////////////
 
 	//ePictureText
 	collumnHeaders[0].sPos = { pos.x, pos.y, pos.x + 54, pos.y + 25 };
-	collumnHeaders[0].Create( "Pic:", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, collumnHeaders[0].sPos, parent, 
-							 id++ );
+	collumnHeaders[0].Create( "Pic:", NORM_STATIC_OPTIONS, collumnHeaders[0].sPos, parent, id++ );
 	collumnHeaders[0].fontType = SmallFont;
 	pos.y += 25;
 	int inc = 0;
@@ -32,8 +29,7 @@ void PictureStats::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& too
 	{
 		inc++;
 		control.sPos = { pos.x, pos.y, pos.x + 54, pos.y + 25 };
-		control.Create( cstr("#" + str( inc ) + ":"), WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, control.sPos, 
-					    parent, id++);
+		control.Create( cstr("#" + str( inc ) + ":"), NORM_STATIC_OPTIONS, control.sPos, parent, id++);
 		control.fontType = SmallFont;
 		pos.y += 25;
 	}
@@ -42,15 +38,14 @@ void PictureStats::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& too
 	/// Max Count Edits
 	// Max Count Display 742 - 480 )/2 = 131 
 	collumnHeaders[1].sPos = { pos.x + 54, pos.y, pos.x + 108, pos.y + 25 };
-	collumnHeaders[1].Create( "Max:", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, collumnHeaders[1].sPos,
-							  parent, id++ );
+	collumnHeaders[1].Create( "Max:", NORM_STATIC_OPTIONS, collumnHeaders[1].sPos, parent, id++ );
 	collumnHeaders[1].fontType = SmallFont;
 	pos.y += 25;
 	// #1
 	for (auto& control : maxCounts)
 	{
 		control.sPos = { pos.x + 54, pos.y, pos.x + 108, pos.y + 25 };
-		control.Create( "-", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, control.sPos, parent, id++ );
+		control.Create( "-", NORM_STATIC_OPTIONS, control.sPos, parent, id++ );
 		control.fontType = SmallFont;
 		pos.y += 25;
 	}
@@ -59,30 +54,28 @@ void PictureStats::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& too
 	/// Min Counts
 	// Min Count Display	
 	collumnHeaders[2].sPos = { pos.x + 108, pos.y, pos.x + 162, pos.y + 25 };
-	collumnHeaders[2].Create( "Min:", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, collumnHeaders[2].sPos,
-							  parent, id++ );
+	collumnHeaders[2].Create( "Min:", NORM_STATIC_OPTIONS, collumnHeaders[2].sPos, parent, id++ );
 	collumnHeaders[2].fontType = SmallFont;
 	pos.y += 25;
 
 	for (auto& control : minCounts)
 	{
 		control.sPos = { pos.x + 108, pos.y, pos.x + 162, pos.y + 25 };
-		control.Create( "-", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, control.sPos, parent, id++ );
+		control.Create( "-", NORM_STATIC_OPTIONS, control.sPos, parent, id++ );
 		control.fontType = SmallFont;
 		pos.y += 25;
 	}
 	pos.y -= 125;
 	/// Average Counts
 	collumnHeaders[3].sPos = { pos.x + 162, pos.y, pos.x + 216, pos.y + 25 };
-	collumnHeaders[3].Create( "Avg:", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, collumnHeaders[3].sPos,
-							  parent, id++ );
+	collumnHeaders[3].Create( "Avg:", NORM_STATIC_OPTIONS, collumnHeaders[3].sPos, parent, id++ );
 	collumnHeaders[3].fontType = SmallFont;
 	pos.y += 25;
 	// 
 	for (auto& control : avgCounts)
 	{
 		control.sPos = { pos.x + 162, pos.y, pos.x + 216, pos.y + 25 };
-		control.Create( "-", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, control.sPos, parent, id++ );
+		control.Create( "-", NORM_STATIC_OPTIONS, control.sPos, parent, id++ );
 		control.fontType = SmallFont;
 		pos.y += 25;
 	}
@@ -90,15 +83,14 @@ void PictureStats::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& too
 	pos.y -= 125;
 	/// Selection Counts
 	collumnHeaders[4].sPos = { pos.x + 216, pos.y, pos.x + 272, pos.y + 25 };
-	collumnHeaders[4].Create( "Sel:", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, collumnHeaders[4].sPos,
-							  parent, id++ );
+	collumnHeaders[4].Create( "Sel:", NORM_STATIC_OPTIONS, collumnHeaders[4].sPos, parent, id++ );
 	collumnHeaders[4].fontType = SmallFont;
 	pos.y += 25;
 	// #1
 	for (auto& control : selCounts)
 	{
 		control.sPos = { pos.x + 216, pos.y, pos.x + 272, pos.y += 25 };
-		control.Create( "-", WS_CHILD | WS_VISIBLE | WS_BORDER | ES_READONLY, control.sPos, parent, id++ );
+		control.Create( "-", NORM_STATIC_OPTIONS, control.sPos, parent, id++ );
 		control.fontType = SmallFont;
 	}
 }

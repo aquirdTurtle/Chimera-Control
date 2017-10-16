@@ -80,6 +80,7 @@ BOOL ChimeraApp::ProcessMessageFilter(int code, LPMSG lpMsg)
 }
 
 
+
 BOOL ChimeraApp::InitInstance()
 {
 	splash->Create(IDD_SPLASH);

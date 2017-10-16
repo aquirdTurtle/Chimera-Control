@@ -1,6 +1,5 @@
 #pragma once
 #include "Control.h"
-#include "KeyHandler.h"
 #include "miscellaneousCommonFunctions.h"
 #include "DioStructures.h"
 #include "Expression.h"
@@ -21,7 +20,7 @@ class DioSystem
 	    DioSystem();
 		void handleNewConfig( std::ofstream& saveFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(std::ifstream& openFile, double version);
+		void handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor );
 		void initialize(POINT& startLocation, cToolTips& toolTips, AuxiliaryWindow* master, int& id);
 		double getTotalTime(UINT variation );
 		void checkFinalFormatTimes( UINT variation );
@@ -63,7 +62,7 @@ class DioSystem
 		void handleTtlScriptCommand( std::string command, timeType time, std::string name,
 									 Expression pulseLength, std::vector<std::pair<UINT, UINT>>& ttlShadeLocations,
 									 std::vector<variableType>& vars );
-		void interpretKey(key variationKey, std::vector<variableType>& vars);
+		void interpretKey( std::vector<variableType>& variables );
 		void organizeTtlCommands(UINT variation );
 		void convertToFinalFormat(UINT variation );
 		void writeTtlData( UINT variation );
@@ -79,7 +78,7 @@ class DioSystem
 		void resetTtlEvents();
 		void prepareForce();
 		void updateDefaultTtl(UINT row, UINT column, bool state);
-
+		UINT countTriggers( UINT row, UINT number, UINT variation );
 		bool getDefaultTtl(UINT row, UINT column);
 
 	private:

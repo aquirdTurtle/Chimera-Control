@@ -34,6 +34,7 @@ class Communicator
 		void sendCameraProgress( long prog );
 		void sendRepProgress(ULONG rep);
 		void sendNormalFinish( );
+		void sendNoAtomsAlert( );
 	private:
 		MainWindow* mainWin;
 		ScriptingWindow* scriptWin;

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Control.h"
-#include "KeyHandler.h"
 
 
 struct tektronicsChannelOutputForm
@@ -67,7 +66,7 @@ class TektronicsControl
 		TektronicsControl(bool safemode, std::string address);
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpeningConfig(std::ifstream& configFile, double version);
+		void handleOpeningConfig(std::ifstream& configFile, int versionMajor, int versionMinor );
 		void initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
 						 std::string channel2Text, LONG width, std::array<UINT, 5> ids );
 		std::string queryIdentity();
@@ -76,7 +75,7 @@ class TektronicsControl
 		void rearrange(int width, int height, fontMap fonts);
 		void handleButtons(UINT indicator);
 		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
-		void interpretKey(key variationKey, std::vector<variableType>& vars);
+		void interpretKey(std::vector<variableType>& variables);
 		void programMachine(UINT variation );
 		void handleProgram();
 	private:

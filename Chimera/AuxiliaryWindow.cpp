@@ -5,11 +5,11 @@
 #include "DacSettingsDialog.h"
 #include "TextPromptDialog.h"
 #include "DioSystem.h"
-#include "explorerOpen.h"
 #include "commonFunctions.h"
 #include "openWithExplorer.h"
-#include "saveTextFileFromEdit.h"
+#include "saveWithExplorer.h"
 #include "agilentStructures.h"
+
 AuxiliaryWindow::AuxiliaryWindow() : CDialog(), 
 									 topBottomTek(TOP_BOTTOM_TEK_SAFEMODE, TOP_BOTTOM_TEK_USB_ADDRESS), 
 									 eoAxialTek(EO_AXIAL_TEK_SAFEMODE, EO_AXIAL_TEK_USB_ADDRESS),
@@ -100,6 +100,20 @@ void AuxiliaryWindow::openAgilentScript( agilentNames name, CWnd* parent)
 														 mainWindowFriend->getRunInfo( ) );
 		mainWindowFriend->updateConfigurationSavedStatus( false );
 		agilents[name].agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings( ).categoryPath );
+	}
+	catch ( Error& err )
+	{
+		sendErr( err.what( ) );
+	}
+}
+
+
+void AuxiliaryWindow::updateAgilent( agilentNames name )
+{
+	try
+	{
+		agilents[name].handleInput( mainWindowFriend->getProfileSettings( ).categoryPath,
+									mainWindowFriend->getRunInfo( ) );
 	}
 	catch ( Error& err )
 	{
@@ -261,35 +275,32 @@ void AuxiliaryWindow::handleSaveConfig( std::ofstream& saveFile )
 	eoAxialTek.handleSaveConfig( saveFile );
 }
 
-void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, double version)
+void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, int versionMajor, int versionMinor )
 {
 	ttlBoard.prepareForce( );
 	dacBoards.prepareForce( );
 
-	configVariables.handleOpenConfig(configFile, version);
-	ttlBoard.handleOpenConfig(configFile, version);
-	dacBoards.handleOpenConfig(configFile, version, &ttlBoard);
+	configVariables.handleOpenConfig(configFile, versionMajor, versionMinor );
+	ttlBoard.handleOpenConfig(configFile, versionMajor, versionMinor );
+	dacBoards.handleOpenConfig(configFile, versionMajor, versionMinor, &ttlBoard);
 
-	
-
-	agilents[TopBottom].readConfigurationFile(configFile, version);
+	agilents[TopBottom].readConfigurationFile(configFile, versionMajor, versionMinor );
 	agilents[TopBottom].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings().categoryPath,
 											   mainWindowFriend->getRunInfo() );
-	agilents[Axial].readConfigurationFile(configFile, version );
+	agilents[Axial].readConfigurationFile(configFile, versionMajor, versionMinor );
 	agilents[Axial].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings().categoryPath, 
 										   mainWindowFriend->getRunInfo() );
-	agilents[Flashing].readConfigurationFile(configFile, version );
+	agilents[Flashing].readConfigurationFile(configFile, versionMajor, versionMinor );
 	agilents[Flashing].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings( ).categoryPath,
 											  mainWindowFriend->getRunInfo( ) );
-	if ( version > 2.60001 )
+	if ( (versionMajor == 2 && versionMinor > 6) || versionMajor > 2)
 	{
-		agilents[Microwave].readConfigurationFile( configFile, version );
+		agilents[Microwave].readConfigurationFile( configFile, versionMajor, versionMinor );
 		agilents[Microwave].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings( ).categoryPath, 
 												   mainWindowFriend->getRunInfo( ) );
 	}
-
-	topBottomTek.handleOpeningConfig(configFile, version);
-	eoAxialTek.handleOpeningConfig(configFile, version);
+	topBottomTek.handleOpeningConfig(configFile, versionMajor, versionMinor );
+	eoAxialTek.handleOpeningConfig(configFile, versionMajor, versionMinor );
 }
 
 
@@ -466,9 +477,9 @@ void AuxiliaryWindow::handleEnter()
 }
 
 
-void AuxiliaryWindow::setConfigActive(bool active)
+void AuxiliaryWindow::setVariablesActiveState(bool activeState)
 {
-	configVariables.setActive(active);
+	configVariables.setActive(activeState);
 }
 
 
@@ -677,7 +688,6 @@ void AuxiliaryWindow::fillMasterThreadInput(MasterThreadInput* input)
 	std::vector<variableType> configVars = configVariables.getEverything();
 	std::vector<variableType> globals = globalVariables.getEverything();
 	std::vector<variableType> experimentVars = configVars;
-
 	for (auto& globalVar : globals)
 	{
 		globalVar.overwritten = false;

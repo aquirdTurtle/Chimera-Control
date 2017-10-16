@@ -14,7 +14,7 @@ void TektronicsChannelControl::initialize( POINT loc, CWnd* parent, int& id, std
 
 	onOffButton.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
 	onOffButton.Create( "", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX, onOffButton.sPos, parent, ids[0] );
-
+	
 	fskButton.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
 	fskButton.Create("", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX, fskButton.sPos, parent, ids[1]);
 	
@@ -25,14 +25,14 @@ void TektronicsChannelControl::initialize( POINT loc, CWnd* parent, int& id, std
 	mainFreq.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
 	mainFreq.Create(WS_CHILD | WS_VISIBLE, mainFreq.sPos, parent, id++);
 	mainFreq.EnableWindow(0);
-
+	
 	fskFreq.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
 	fskFreq.Create(WS_CHILD | WS_VISIBLE, fskFreq.sPos, parent, id++);
 	fskFreq.EnableWindow(0);
 }
 
 
-void TektronicsControl::interpretKey(key variationKey, std::vector<variableType>& variables)
+void TektronicsControl::interpretKey(std::vector<variableType>& variables)
 {
 	UINT variations;
 	if (variables.size() == 0)
@@ -41,7 +41,7 @@ void TektronicsControl::interpretKey(key variationKey, std::vector<variableType>
 	}
 	else
 	{
-		variations = variationKey[variables[0].name].first.size();
+		variations = variables.front().keyValues.size();
 	}
 	/// imporantly, this sizes the relevant structures.
 	currentNums.clear();
@@ -52,12 +52,12 @@ void TektronicsControl::interpretKey(key variationKey, std::vector<variableType>
 		if (currentInfo.channels.first.on)
 		{
 			tektronicsChannelOutput& channel = currentNums[variationInc].channels.first;
-			channel.mainFreqVal = currentInfo.channels.first.mainFreq.evaluate( variationKey, variationInc, variables);
-			channel.powerVal = currentInfo.channels.first.power.evaluate( variationKey, variationInc, variables);
+			channel.mainFreqVal = currentInfo.channels.first.mainFreq.evaluate( variables, variationInc );
+			channel.powerVal = currentInfo.channels.first.power.evaluate( variables, variationInc );
 			// handle FSK options
 			if (currentInfo.channels.first.fsk)
 			{
-				channel.fskFreqVal = currentInfo.channels.first.fskFreq.evaluate( variationKey, variationInc, variables);
+				channel.fskFreqVal = currentInfo.channels.first.fskFreq.evaluate( variables, variationInc );
 			}
 		}
 		// if off don't worry about trying to convert anything, user can not-enter things and it can be fine.
@@ -65,12 +65,12 @@ void TektronicsControl::interpretKey(key variationKey, std::vector<variableType>
 		if (currentInfo.channels.second.on)
 		{
 			tektronicsChannelOutput& channel = currentNums[variationInc].channels.second;
-			channel.mainFreqVal = currentInfo.channels.second.mainFreq.evaluate( variationKey, variationInc, variables);
-			channel.powerVal = currentInfo.channels.second.power.evaluate( variationKey, variationInc, variables);
+			channel.mainFreqVal = currentInfo.channels.second.mainFreq.evaluate( variables, variationInc );
+			channel.powerVal = currentInfo.channels.second.power.evaluate( variables, variationInc );
 			// handle FSK options
 			if (currentInfo.channels.second.fsk)
 			{
-				channel.fskFreqVal = currentInfo.channels.second.fskFreq.evaluate( variationKey, variationInc, variables);
+				channel.fskFreqVal = currentInfo.channels.second.fskFreq.evaluate( variables, variationInc );
 			}
 		}
 	}
@@ -196,7 +196,7 @@ void TektronicsControl::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void TektronicsControl::handleOpeningConfig(std::ifstream& configFile, double version)
+void TektronicsControl::handleOpeningConfig(std::ifstream& configFile, int versionMajor, int versionMinor )
 {
 	ProfileSystem::checkDelimiterLine(configFile, "TEKTRONICS");
 	ProfileSystem::checkDelimiterLine(configFile, "CHANNEL_1");

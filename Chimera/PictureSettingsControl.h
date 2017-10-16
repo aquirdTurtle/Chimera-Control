@@ -17,10 +17,10 @@ class PictureSettingsControl
 {
 	public:
 		// must have parent. Enforced partially because both are singletons.
-		PictureSettingsControl(CameraSettingsControl* parentObj) { parentSettingsControl = parentObj; }
+		PictureSettingsControl( CameraSettingsControl* parentObj) { parentSettingsControl = parentObj; }
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(std::ifstream& openFile, double version, AndorCamera* andor);
+		void handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor, AndorCamera* andor);
 		void initialize( cameraPositions& pos, CWnd* parent, int& id);
 		void handleOptionChange(int id, AndorCamera* andorObj);
 		void disablePictureControls(int pic);
@@ -52,17 +52,17 @@ class PictureSettingsControl
 		Control<CStatic> pictureLabel;
 		Control<CStatic> exposureLabel;
 		Control<CStatic> thresholdLabel;
-		Control<CStatic> blackWhiteLabel;
-		Control<CStatic> infernoLabel;
-		Control<CStatic> viridaLabel;
+		Control<CStatic> colormapLabel;
 		// 
 		std::array<Control<CButton>, 4> totalNumberChoice;
 		std::array<Control<CStatic>, 4> pictureNumbers;
 		std::array<Control<CEdit>, 4> exposureEdits;
 		std::array<Control<CEdit>, 4> thresholdEdits;
-		std::array<Control<CButton>, 4> blackWhiteRadios;
-		std::array<Control<CButton>, 4> veridaRadios;
-		std::array<Control<CButton>, 4> infernoRadios;
+		std::array<Control<CComboBox>, 4> colormapCombos;
+
+		//std::array<Control<CButton>, 4> blackWhiteRadios;
+		//std::array<Control<CButton>, 4> veridaRadios;
+		//std::array<Control<CButton>, 4> infernoRadios;
 };
 
 

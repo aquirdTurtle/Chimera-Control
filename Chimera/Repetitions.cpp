@@ -13,7 +13,7 @@ void Repetitions::rearrange(UINT width, UINT height, fontMap fonts)
 }
 
 
-void Repetitions::handleOpenConfig(std::ifstream& openFile, double version)
+void Repetitions::handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor )
 {
 	ProfileSystem::checkDelimiterLine(openFile, "REPETITIONS");
 	UINT repNum;
@@ -64,19 +64,18 @@ void Repetitions::initialize(POINT& pos, cToolTips& toolTips, MainWindow* mainWi
 {
 	// title
 	repetitionText.sPos = { pos.x, pos.y, pos.x + 180, pos.y + 20 };
-	repetitionText.Create("Repetition #", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, repetitionText.sPos, mainWin, id++);
+	repetitionText.Create("Repetition #", NORM_STATIC_OPTIONS, repetitionText.sPos, mainWin, id++);
 	
 	repetitionEdit.sPos = { pos.x + 180, pos.y, pos.x + 330, pos.y + 20 };
-	repetitionEdit.Create(WS_CHILD | WS_VISIBLE | SS_SUNKEN, repetitionEdit.sPos, mainWin, IDC_REPETITION_EDIT );
+	repetitionEdit.Create( NORM_EDIT_OPTIONS, repetitionEdit.sPos, mainWin, IDC_REPETITION_EDIT );
 	repetitionEdit.SetWindowText("100");
 
-	repetitionDisp.sPos = { pos.x + 330, pos.y, pos.x + 480, pos.y + 20 };
-	repetitionDisp.Create(WS_CHILD | WS_VISIBLE | SS_SUNKEN | ES_CENTER | ES_READONLY | WS_BORDER, repetitionDisp.sPos,
+	repetitionDisp.sPos = { pos.x + 330, pos.y, pos.x + 480, pos.y += 20 };
+	repetitionDisp.Create( NORM_STATIC_OPTIONS | SS_SUNKEN , repetitionDisp.sPos,
 						  mainWin, id++);
 	repetitionDisp.SetWindowText("-");
 	// initialize the number to match the display.
 	repetitionNumber = 100;
-	pos.y += 20;
 }
 
 

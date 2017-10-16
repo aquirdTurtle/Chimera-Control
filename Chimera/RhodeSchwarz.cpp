@@ -126,16 +126,16 @@ void RhodeSchwarz::setInfoDisp(UINT variation)
 	}
 }
 
-void RhodeSchwarz::interpretKey(key variationKey, std::vector<variableType>& vars)
+void RhodeSchwarz::interpretKey(std::vector<variableType>& variables)
 {
 	UINT variations;
-	if (vars.size() == 0)
+	if ( variables.size() == 0)
 	{
 		variations = 1;
 	}
 	else
 	{
-		variations = variationKey[vars[0].name].first.size();
+		variations = variables.front().keyValues.size();
 	}
 	/// imporantly, this sizes the relevant structures.
 	events.clear();
@@ -146,9 +146,9 @@ void RhodeSchwarz::interpretKey(key variationKey, std::vector<variableType>& var
 		{
 			rsgEvent event;
 			// convert freq
-			event.frequency = eventStructures[freqInc].frequency.evaluate( variationKey, variationNumber, vars);
+			event.frequency = eventStructures[freqInc].frequency.evaluate( variables, variationNumber);
 			// convert power
-			event.power = eventStructures[freqInc].power.evaluate( variationKey, variationNumber, vars);
+			event.power = eventStructures[freqInc].power.evaluate( variables, variationNumber );
 			/// deal with time!
 			if (eventStructures[freqInc].time.first.size() == 0)
 			{
@@ -159,7 +159,7 @@ void RhodeSchwarz::interpretKey(key variationKey, std::vector<variableType>& var
 				event.time = 0;
 				for (auto timeStr : eventStructures[freqInc].time.first)
 				{
-					event.time += timeStr.evaluate( variationKey, variationNumber, vars);
+					event.time += timeStr.evaluate( variables, variationNumber );
 				}
 				event.time += eventStructures[freqInc].time.second;
 			}

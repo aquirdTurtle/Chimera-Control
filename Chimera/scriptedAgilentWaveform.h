@@ -20,7 +20,7 @@ class ScriptedAgilentWaveform
 		std::string returnSequenceString();
 		bool isVaried();
 		void replaceVarValues();
-		void replaceVarValues( key variableKey, UINT variation, std::vector<variableType>& variables);
+		void replaceVarValues( UINT variation, std::vector<variableType>& variables);
 		void convertPowersToVoltages( bool useCal );
 		void normalizeVoltages();
 		void calcMinMax();
@@ -28,7 +28,10 @@ class ScriptedAgilentWaveform
 		double getMinVolt();
 		ULONG getSegmentNumber();
 		std::vector<std::pair<double, double>> minsAndMaxes;
+		ULONG getNumberOfTriggers( );
+		void resetNumberOfTriggers( );
 	private:
+		UINT numberOfTriggers;
 		std::vector<Segment> waveformSegments;
 		double maxVolt;
 		double minVolt;

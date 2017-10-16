@@ -16,8 +16,7 @@ PlottingInfo::PlottingInfo(UINT picNumber)
 	dataSets.resize(1);
 	// todo: initialize with real picture number.
 	dataSets[0].resetPixelNumber( 1 ); 
-	dataSets[0].resetPictureNumber(picNumber);
-	
+	dataSets[0].resetPictureNumber(picNumber);	
 	//
 	//analysisGroups.clear();
 	// one pixel
@@ -241,7 +240,7 @@ void PlottingInfo::removePicture()
 }
 
 
-void PlottingInfo::setPostSelectionCondition( UINT dataSetNumber, UINT conditionNumber, UINT pixel, UINT picture,
+void PlottingInfo::setPostSelCondition( UINT dataSetNumber, UINT conditionNumber, UINT pixel, UINT picture,
 											  UINT postSelectionCondition)
 {
 	dataSets[dataSetNumber].setPostSelectionCondition(conditionNumber, pixel, picture, postSelectionCondition);
@@ -350,6 +349,27 @@ void PlottingInfo::setPlotData( UINT dataSet, bool plotData)
 }
 
 
+void PlottingInfo::setDataSetHistBinWidth( UINT dataSet, UINT width )
+{
+	if ( dataSet >= dataSets.size( ) || dataSet < 0 )
+	{
+		thrower( "ERROR: tried to set Histogram Bin Width value for data set that hasn't been assigned. dataSet = "
+				 + str( dataSet ) );
+	}
+	dataSets[dataSet].setHistBinWidth( width );
+}
+
+
+UINT PlottingInfo::getDataSetHistBinWidth( UINT dataSet )
+{
+	if ( dataSet >= dataSets.size( ) || dataSet < 0 )
+	{
+		thrower( "ERROR: tried to get histogram bin width value for data set that hasn't been assigned. dataSet = "
+				 + str( dataSet ) );
+	}
+	return dataSets[dataSet].getHistBinWidth( );
+}
+
 bool PlottingInfo::getPlotThisDataValue( UINT dataSet)
 {
 	if (dataSet >= dataSets.size() || dataSet < 0)
@@ -419,6 +439,7 @@ void PlottingInfo::savePlotInfo()
 		thrower("Couldn't open file at + " + PLOT_FILES_SAVE_LOCATION + fileName + ".plot!");
 	}
 	std::string message;
+	message += "Version: " + str( versionMajor ) + "." + str( versionMinor ) + "\n";
 	message += title + "\n";
 	message += generalPlotType + "\n";
 	message += yLabel + "\n";
@@ -495,6 +516,15 @@ void PlottingInfo::savePlotInfo()
 		message += str(dataSets[dataSetInc].getFitType()) + " " + str(dataSets[dataSetInc].getWhenToFit()) + "\n";
 	}
 	message += "FITTING_OPTIONS_END\n";
+	
+	message += "HIST_OPTIONS_BEGIN\n";
+	message += str( dataSets.size()) + "\n";
+	for ( auto& dset : dataSets )
+	{
+		message += str( dset.getHistBinWidth() )+ "\n";
+	}
+	message += "HIST_OPTIONS_END\n";
+
 	saveFile << message;
 }
 
@@ -507,8 +537,32 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 		thrower("ERROR: Couldn't open plot file!");
 	}
 	// this string will hold headers in this file temporarily and check to make sure they are correct.
-	std::string testString;
-	//The way it's put into the file:
+	std::string versionStr;
+	loadingFile >> versionStr;
+	loadingFile >> versionStr;
+	double version;
+	try
+	{
+		version = std::stod( versionStr );
+	}
+	catch ( std::invalid_argument& )
+	{
+		thrower( "ERROR: Version string failed to convert to double while opening configuration!" );
+	}
+	int versionMajor = int( version );
+	int versionMinor;
+	double tempDouble = std::round( (version - versionMajor) * 1e6 );
+	while ( true )
+	{
+		double res = fabs( double( double( tempDouble / 10 ) - int( tempDouble / 10 ) ) );
+		if ( res < 1e-6 )
+		{
+			break;
+		}
+		tempDouble /= 10;
+	}
+	versionMinor = std::round( tempDouble );
+	loadingFile.get( );
 	getline(loadingFile, title);
 	getline(loadingFile, generalPlotType);
 	getline(loadingFile, yLabel);
@@ -516,6 +570,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	getline(loadingFile, fileName);
 
 	/// Data Set Number
+	std::string testString;
 	getline(loadingFile, testString);
 	try
 	{
@@ -560,7 +615,6 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	{
 		thrower("ERROR: Couldn't read pixel number from file. The pixel string was " + testString);
 	}
-
 	/// Analys pixels
 	ProfileSystem::checkDelimiterLine( loadingFile, "POSITIVE_RESULT_BEGIN" );
 	UINT dataSetCount = 0;
@@ -656,7 +710,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 						thrower("ERROR: truth condition was not one of the valid options: -1, 0, or 1. The truth condition was"
 								+ str(tempPostSelectionCondition));
 					}
-					setPostSelectionCondition(dataSetCount, conditionCount, pixelCount, pictureCount, tempPostSelectionCondition);
+					setPostSelCondition(dataSetCount, conditionCount, pixelCount, pictureCount, tempPostSelectionCondition);
 					pixelCount++;
 				}
 				if (pixelCount != currentPixelNumber)
@@ -707,7 +761,6 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	}
 	// get counts locations
 	ProfileSystem::checkDelimiterLine( loadingFile, "PLOT_COUNTS_LOCATIONS_BEGIN" );
-	//loadingFile.get( );
 	dataSetCount = 0;
 	while (true)
 	{
@@ -797,6 +850,39 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	{
 		thrower("ERROR: more fit options than data sets!");
 	}
+
+	ProfileSystem::checkDelimiterLine( loadingFile, "HIST_OPTIONS_BEGIN" );
+	loadingFile.get( );
+	std::string tmpStr;
+	loadingFile >> tmpStr;
+	UINT dsetNum = 0;
+	try
+	{
+		dsetNum = std::stod( tmpStr );
+	}
+	catch ( std::invalid_argument& )
+	{
+		thrower( "ERROR: expected number of data sets in plot file while loading hist options, instead found: " + tmpStr );
+	}
+	if ( dsetNum != dataSets.size( ) )
+	{
+		thrower( "ERROR: data set number in file while opening hist settings doesn't match number from earlier in file." );
+	}
+	for ( auto& dset : dataSets )
+	{
+		loadingFile >> tmpStr;
+		UINT width;
+		try
+		{
+			width = std::stoul( tmpStr );
+		}
+		catch ( std::invalid_argument& )
+		{
+			thrower( "ERROR: failed to convert histogram bin width to an unsigned int! string was: " + tmpStr );
+		}
+		dset.setHistBinWidth( width );
+	}
+	ProfileSystem::checkDelimiterLine( loadingFile, "HIST_OPTIONS_END" );
 }
 
 

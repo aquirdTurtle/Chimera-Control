@@ -32,7 +32,6 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 	/// initialize various structures
 	// convert the input to the correct structure.
 	MasterThreadInput* input = (MasterThreadInput*)voidInput;
-
 	// change the status of the parent object to reflect that the thread is running.
 	input->thisObj->experimentIsRunning = true;
 	// warnings will be passed by reference to a series of function calls which can append warnings to the string.
@@ -43,7 +42,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 	std::chrono::time_point<chronoClock> startTime( chronoClock::now( ) );
 	std::vector<long> variedMixedSize;
 	niawgPair<std::vector<std::fstream>> niawgFiles;
-	NiawgOutputInfo output;
+	NiawgOutputNew output;
 	std::vector<ViChar> userScriptSubmit;
 	output.isDefault = false;
 	// initialize to 2 because of default waveforms. This can probably be changed to 1, since only one default waveform
@@ -56,7 +55,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 	/// start analysis & experiment
 	try
 	{
-		UINT variations = determineVariationNumber( input->variables, input->key->getKey() );
+		UINT variations = determineVariationNumber( input->variables );
 		// finishing sentence from before start I think...
 		expUpdate( "Done.\r\n", input->comm, input->quiet );
 		/// Prep agilents
@@ -64,8 +63,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		for (auto agilent : input->agilents)
 		{
 			RunInfo dum;
-			agilent->handleInput( 1, input->profile.categoryPath, dum );
-			agilent->handleInput( 2, input->profile.categoryPath, dum );
+			agilent->handleInput( input->profile.categoryPath, dum );
 		}
 		/// prep master systems
 		expUpdate( "Analyzing Master Script...", input->comm, input->quiet );
@@ -81,8 +79,9 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		/// prep NIAWG
 		if (input->runNiawg)
 		{
-			input->niawg->prepareNiawg( input, output, niawgFiles, warnings, userScriptSubmit, foundRearrangement, 
-										input->rearrangeInfo);
+			input->niawg->prepareNiawgNew(  input, output, niawgFiles, warnings, userScriptSubmit, foundRearrangement, 
+											input->rearrangeInfo, input->variables );
+			input->niawg->writeStaticNiawg( output, input->debugOptions, input->constants );
 		}
 		if ( input->thisObj->isAborting )
 		{
@@ -105,12 +104,12 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		expUpdate( "Programming All Variation Data...\r\n", input->comm, input->quiet );
 		if (input->runMaster)
 		{
-			input->ttls->interpretKey( input->key->getKey(), input->variables );
-			input->dacs->interpretKey( input->key->getKey(), input->variables, warnings );
+			input->ttls->interpretKey( input->variables );
+			input->dacs->interpretKey( input->variables, warnings );
 		}
-		input->rsg->interpretKey( input->key->getKey(), input->variables );
-		input->topBottomTek->interpretKey( input->key->getKey(), input->variables );
-		input->eoAxialTek->interpretKey( input->key->getKey(), input->variables );
+		input->rsg->interpretKey( input->variables );
+		input->topBottomTek->interpretKey( input->variables );
+		input->eoAxialTek->interpretKey( input->variables );
 		/// organize commands, prepping final forms of the data for each repetition.
 		// This must be done after the "interpret key" step, as before that commands don't have hard times attached to 
 		// them.
@@ -140,6 +139,33 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 							 "snapshots was " + str( input->dacs->getNumberSnapshots( variationInc ) ) );
 				}
 				input->dacs->checkTimingsWork( variationInc );
+				// check right number of triggers	
+				for ( auto& agilent : input->agilents )
+				{
+					for ( auto chan : range( 2 ) )
+					{
+						if ( agilent->getOutputInfo( ).channel[chan].option != 4 )
+						{
+							continue;
+						}
+						if ( input->ttls->countTriggers( agilent->getTriggerLine( ).first, 
+														 agilent->getTriggerLine( ).second, variationInc ) 
+							 != agilent->getOutputInfo().channel[chan].scriptedArb.wave.getNumberOfTriggers())
+						{
+							warnings += "WARNING: Agilent " + agilent->getName( ) + " is not getting triggered by the "
+								"ttl system the same number of times a trigger command appears in the agilent channel "
+								+ str( chan + 1 ) + " script.";
+						}
+					}
+				}
+
+				if ( input->ttls->countTriggers( input->niawg->getTrigLines( ).first,
+												 input->niawg->getTrigLines( ).second, variationInc ) !=
+					 input->niawg->getNumberTrigsInScript( ) )
+				{
+					warnings += "WARNING: NIAWG is not getting triggered by the ttl system the same number of times a"
+								" trigger command appears in the NIAWG script.";
+				}
 			}
 			input->rsg->orderEvents( variationInc );
 		}
@@ -181,17 +207,17 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		{
 			expUpdate( "Variation #" + str( variationInc + 1 ) + "\r\n", input->comm, input->quiet );
 			Sleep( input->debugOptions.sleepTime );
-			for (auto tempVariable : input->key->getKey())
+			for (auto tempVariable : input->variables)
 			{
 				// if varies...
-				if (tempVariable.second.second)
+				if (tempVariable.valuesVary)
 				{
-					if (tempVariable.second.first.size() == 0)
+					if (tempVariable.keyValues.size() == 0)
 					{
-						thrower( "ERROR: Variable " + tempVariable.first + " varies, but has no values assigned to it!" );
+						thrower( "ERROR: Variable " + tempVariable.name + " varies, but has no values assigned to it!" );
 					}
-					expUpdate( tempVariable.first + ": " + str( tempVariable.second.first[variationInc], 12) + "\r\n", input->comm,
-							   input->quiet );
+					expUpdate( tempVariable.name + ": " + str( tempVariable.keyValues[variationInc], 12) + "\r\n", 
+							   input->comm, input->quiet );
 				}
 			}
 			expUpdate( "Programming RSG, Agilents, NIAWG, & Teltronics...\r\n", input->comm, input->quiet );
@@ -201,13 +227,15 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			for (auto& agilent : input->agilents)
 			{
 				input->comm->sendColorBox( Intensity, 'Y' );
-				agilent->setAgilent( input->key->getKey(), variationInc, input->variables );
+				agilent->setAgilent( variationInc, input->variables );
 				input->comm->sendColorBox( Intensity, 'G' );
 			}
 			if (input->runNiawg)
 			{
-				input->niawg->programNiawg( input, output, warnings, variationInc, variations, variedMixedSize,
-											userScriptSubmit );
+				//input->niawg->handleVariationsNew( output, input->variables, variationInc, variedMixedSize, warnings,
+				//								   input->debugOptions, variations );
+				input->niawg->programNiawgNew( input, output, warnings, variationInc, variations, variedMixedSize,
+												userScriptSubmit );
 			}
 			input->topBottomTek->programMachine( variationInc );
 			input->eoAxialTek->programMachine( variationInc );
@@ -269,8 +297,8 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		}
 		if (input->runNiawg)
 		{
-			input->niawg->cleanupNiawg( input->profile, input->runMaster, niawgFiles, output, input->comm, 
-										input->settings.dontActuallyGenerate );
+			input->niawg->cleanupNiawgNew( input->profile, input->runMaster, niawgFiles, output, input->comm,
+										   input->settings.dontActuallyGenerate );
 		}
 		input->comm->sendNormalFinish( );
 	}
@@ -406,8 +434,8 @@ void MasterManager::loadMotSettings(MasterThreadInput* input)
 
 	loadMasterScript(input->masterScriptAddress);
 	input->thisObj = this;
-	input->key->loadVariables(input->variables);
-	input->key->generateKey(false);
+	//input->key->loadVariables(input->variables);
+	VariableSystem::generateKey( input->variables, false );
 	// start thread.
 	runningThread = AfxBeginThread(experimentThreadProcedure, input);	
 }
@@ -1194,16 +1222,16 @@ void MasterManager::expUpdate(std::string text, Communicator* comm, bool quiet)
 	}
 }
 
-UINT MasterManager::determineVariationNumber( std::vector<variableType> vars, key tempKey )
+UINT MasterManager::determineVariationNumber( std::vector<variableType> variables )
 {
 	int variationNumber;
-	if (vars.size() == 0)
+	if ( variables.size() == 0)
 	{
 		variationNumber = 1;
 	}
 	else
 	{
-		variationNumber = tempKey[vars[0].name].first.size();
+		variationNumber = variables.front().keyValues.size();
 		if (variationNumber == 0)
 		{
 			variationNumber = 1;

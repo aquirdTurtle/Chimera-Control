@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include "miscellaneousCommonFunctions.h"
+#include "multiDimensionalKey.h"
 #include <string>
 #include "windows.h"
 #include <vector>
@@ -21,8 +23,12 @@ struct variableType
 	bool active = false;
 	bool overwritten = false;
 	// records which scan dimension the variable is in.
-	USHORT scanDimension;
+	USHORT scanDimension=1;
 	std::vector<variationRangeInfo> ranges;
+	/// this stuff used to be in the keyHandler system.
+	std::vector<double> keyValues;
+	// this might just be redundant with constant above.
+	bool valuesVary;
 };
 
 

@@ -2,6 +2,57 @@
 #include "PictureControl.h"
 
 
+
+/*
+* initialize all controls associated with single picture.
+*/
+void PictureControl::initialize( POINT& loc, CWnd* parent, int& id, int width, int height, std::array<UINT, 2> minMaxIds )
+{
+	if ( width < 100 )
+	{
+		throw std::invalid_argument( "Pictures must be greater than 100 in width because this is the size of the max/min"
+									 "controls." );
+	}
+	if ( height < 100 )
+	{
+		throw std::invalid_argument( "Pictures must be greater than 100 in height because this is the minimum height "
+									 "of the max/min controls." );
+	}
+
+	setPictureArea( loc, width, height );
+
+	loc.x += unscaledBackgroundArea.right - unscaledBackgroundArea.left;
+	// "min" text
+	labelMin.sPos = { loc.x, loc.y, loc.x + 50, loc.y + 30 };
+	labelMin.Create( "MIN", NORM_STATIC_OPTIONS, labelMin.sPos, parent, id++ );
+	// minimum number text
+	editMin.sPos = { loc.x, loc.y + 30, loc.x + 50, loc.y + 60 };
+	editMin.Create( NORM_EDIT_OPTIONS | ES_AUTOHSCROLL, editMin.sPos, parent, minMaxIds[0] );
+	// minimum slider
+	sliderMin.sPos = { loc.x, loc.y + 60, loc.x + 50, loc.y + unscaledBackgroundArea.bottom - unscaledBackgroundArea.top };
+	sliderMin.Create( NORM_CWND_OPTIONS | TBS_AUTOTICKS | TBS_VERT, sliderMin.sPos, parent, id++ );
+	sliderMin.SetRange( 0, 2000 );
+	sliderMin.SetPageSize( UINT( (minSliderPosition - minSliderPosition) / 10.0 ) );
+	// "max" text
+	labelMax.sPos = { loc.x + 50, loc.y, loc.x + 100, loc.y + 30 };
+	labelMax.Create( "MAX", NORM_STATIC_OPTIONS, labelMax.sPos, parent, id++ );
+	// maximum number text
+	editMax.sPos = { loc.x + 50, loc.y + 30, loc.x + 100, loc.y + 60 };
+	editMax.Create( NORM_EDIT_OPTIONS | ES_AUTOHSCROLL, editMax.sPos, parent, minMaxIds[1] );
+	// maximum slider
+	sliderMax.sPos = { loc.x + 50, loc.y + 60, loc.x + 100, loc.y + unscaledBackgroundArea.bottom - unscaledBackgroundArea.top };
+	sliderMax.Create( NORM_CWND_OPTIONS | TBS_AUTOTICKS | TBS_VERT, sliderMax.sPos, parent, id++ );
+	sliderMax.SetRange( 0, 2000 );
+	sliderMax.SetPageSize( int( (minSliderPosition - minSliderPosition) / 10.0 ) );
+	// reset this.
+	loc.x -= unscaledBackgroundArea.right - unscaledBackgroundArea.left;
+	// manually scroll the objects to initial positions.
+	handleScroll( sliderMin.GetDlgCtrlID( ), 95 );
+	handleScroll( sliderMax.GetDlgCtrlID( ), 395 );
+}
+
+
+
 bool PictureControl::isActive()
 {
 	return active;
@@ -194,54 +245,6 @@ void PictureControl::handleScroll(int id, UINT nPos)
 		editMin.SetWindowTextA(cstr(nPos));
 		minSliderPosition = nPos;
 	}
-}
-
-/*
- * initialize all controls associated with single picture.
- */
-void PictureControl::initialize(POINT& loc, CWnd* parent, int& id, int width, int height, std::array<UINT, 2> minMaxIds)
-{
-	if (width < 100)
-	{
-		throw std::invalid_argument("Pictures must be greater than 100 in width because this is the size of the max/min"
-			"controls.");
-	}
-	if (height < 100)
-	{
-		throw std::invalid_argument("Pictures must be greater than 100 in height because this is the minimum height "
-			"of the max/min controls.");
-	}
-
-	setPictureArea( loc, width, height );
-
-	loc.x += unscaledBackgroundArea.right - unscaledBackgroundArea.left;
-	// "min" text
-	labelMin.sPos = { loc.x, loc.y, loc.x + 50, loc.y + 30 };
-	labelMin.Create("MIN", WS_CHILD | WS_VISIBLE | SS_CENTER, labelMin.sPos, parent, id++ );
-	// minimum number text
-	editMin.sPos = { loc.x, loc.y + 30, loc.x + 50, loc.y + 60 };
-	editMin.Create(WS_CHILD | WS_VISIBLE | SS_LEFT | ES_AUTOHSCROLL, editMin.sPos, parent, minMaxIds[0] );
-	// minimum slider
-	sliderMin.sPos = { loc.x, loc.y + 60, loc.x + 50, loc.y + unscaledBackgroundArea.bottom - unscaledBackgroundArea.top};
-	sliderMin.Create(WS_CHILD | WS_VISIBLE | TBS_AUTOTICKS | TBS_VERT, sliderMin.sPos, parent, id++ );
-	sliderMin.SetRange(0, 2000);
-	sliderMin.SetPageSize(UINT((minSliderPosition - minSliderPosition)/10.0));
-	// "max" text
-	labelMax.sPos = { loc.x + 50, loc.y, loc.x + 100, loc.y + 30 };
-	labelMax.Create("MAX", WS_CHILD | WS_VISIBLE | SS_CENTER, labelMax.sPos, parent, id++ );
-	// maximum number text
-	editMax.sPos = { loc.x + 50, loc.y + 30, loc.x + 100, loc.y + 60 };
-	editMax.Create(WS_CHILD | WS_VISIBLE | SS_LEFT | ES_AUTOHSCROLL, editMax.sPos, parent, minMaxIds[1] );
-	// maximum slider
-	sliderMax.sPos = { loc.x + 50, loc.y + 60, loc.x + 100, loc.y + unscaledBackgroundArea.bottom - unscaledBackgroundArea.top};
-	sliderMax.Create(WS_CHILD | WS_VISIBLE | TBS_AUTOTICKS | TBS_VERT, sliderMax.sPos, parent, id++ );
-	sliderMax.SetRange(0, 2000);
-	sliderMax.SetPageSize( int((minSliderPosition - minSliderPosition) / 10.0));
-	// reset this.
-	loc.x -= unscaledBackgroundArea.right - unscaledBackgroundArea.left;
-	// manually scroll the objects to initial positions.
-	handleScroll( sliderMin.GetDlgCtrlID(), 95);
-	handleScroll( sliderMax.GetDlgCtrlID(), 395);
 }
 
 

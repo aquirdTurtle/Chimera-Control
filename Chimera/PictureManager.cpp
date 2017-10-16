@@ -128,7 +128,7 @@ void PictureManager::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void PictureManager::handleOpenConfig(std::ifstream& configFile, double version)
+void PictureManager::handleOpenConfig(std::ifstream& configFile, int versionMajor, int versionMinor )
 {
 	ProfileSystem::checkDelimiterLine(configFile, "PICTURE_MANAGER");
 	std::array<int, 4> maxes, mins;

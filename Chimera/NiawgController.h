@@ -5,7 +5,7 @@
 #include "miscellaneousCommonFunctions.h"
 #include "ScriptStream.h"
 #include "ProfileSystem.h"
-#include "DebuggingOptionsControl.h"
+#include "DebugOptionsControl.h"
 #include "Communicator.h"
 #include "NiawgStructures.h"
 #include "rearrangementStructures.h"
@@ -28,35 +28,54 @@ class NiawgWaiter;
 class NiawgController
 {
 	public:
+		NiawgController( UINT trigRow, UINT trigNumber );
 		void initialize();
-		// get info
-		void cleanupNiawg( profileSettings profile, bool masterWasRunning, 
-						   niawgPair<std::vector<std::fstream>>& niawgFiles, NiawgOutputInfo& output, 
-						   Communicator* comm, bool dontGenerate );
-		void writeToFile( UINT fileNum, std::vector<double> waveVals );
+		void cleanupNiawgNew( profileSettings profile, bool masterWasRunning,
+							  niawgPair<std::vector<std::fstream>>& niawgFiles, NiawgOutputNew& output,
+							  Communicator* comm, bool dontGenerate );
+		void writeToFile( std::vector<double> waveVals );
 		bool rearrangementThreadIsActive();
 		std::string getCurrentScript();
 		bool niawgIsRunning();
 		// analysis & numerics
-		void handleVariations( NiawgOutputInfo& output, key varKey, const UINT variation, std::vector<long>& mixedWaveSizes,
-							   std::string& warnings, debugInfo& debugOptions, UINT totalVariations );
-		void analyzeNiawgScripts( niawgPair<ScriptStream>& scripts, NiawgOutputInfo& output, profileSettings profile,
-								  debugInfo& options, std::string& warnings, rearrangeParams rInfo );
-		void loadWaveformParameters( NiawgOutputInfo& output, profileSettings profile, niawgPair<std::string> command,
+		void simpleFormVaries( simpleWaveForm& wave );
+		void simpleFormToOutput( simpleWaveForm& formWave, simpleWaveNew& wave, 
+								 std::vector<variableType>& varibles=std::vector<variableType>(), UINT variation=-1 );
+		void finalizeStandardWaveNew( simpleWaveNew& wave, debugInfo& options );
+		void writeStandardWaveNew( simpleWaveNew& wave, debugInfo options, bool isDefault );
+		void writeFlashingNew( waveInfoNew& wave, debugInfo& options );
+		void generateWaveformNew( channelWaveNew & waveInfo, debugInfo& options, long int sampleNum, double time );
+		void mixWaveformsNew( simpleWaveNew& waveCore, bool writeThisToFile );
+		void calcWaveDataNew( channelWaveNew& inputData, std::vector<ViReal64>& readData, long int sampleNum, 
+							  double time );
+		void prepareNiawgNew( MasterThreadInput* input, NiawgOutputNew& output, 
+							  niawgPair<std::vector<std::fstream>>& niawgFiles, std::string& warnings, 
+							  std::vector<ViChar>& userScriptSubmit, bool& foundRearrangement, rearrangeParams rInfo,
+							  std::vector<variableType>& variables );
+		bool outputVariesNew( NiawgOutputNew output );
+		void checkThatWaveformsAreSensibleNew( std::string& warnings, NiawgOutputNew& output );
+		void createFlashingWaveNew( waveInfoNew& wave, debugInfo options );
+		void mixFlashingWavesNew( waveInfoNew& wave, double deadTime, double staticMovingRatio );
+		void handleVariationsNew( NiawgOutputNew& output, std::vector<variableType>& variables, UINT variation, 
+								  std::vector<long>& mixedWaveSizes, std::string& warnings, debugInfo& debugOptions, 
+								  UINT totalVariations );
+		void analyzeNiawgScriptsNew( niawgPair<ScriptStream>& scripts, NiawgOutputNew& output, profileSettings profile, 
+								  debugInfo& options, std::string& warnings, rearrangeParams rInfo, 
+								  std::vector<variableType>& variables );
+		void flashFormToOutput( waveInfoForm& waveForm, waveInfoNew& wave, 
+								std::vector<variableType>& varibles = std::vector<variableType>( ), 
+								UINT variation = -1 );
+		void flashVaries( waveInfoForm& wave );
+		void writeStaticNiawg( NiawgOutputNew& output, debugInfo& options, std::vector<variableType>& variables );
+		void loadWaveformParametersForm( NiawgOutputNew& output, profileSettings profile, 
+										 niawgPair<std::string> command, debugInfo& debug,
+										 niawgPair<ScriptStream>& scripts, std::vector<variableType> variables );
+		void loadWaveformParameters( NiawgOutput& output, profileSettings profile, niawgPair<std::string> command,
 									 debugInfo& debug, niawgPair<ScriptStream>& scripts );
 		void finalizeScript( ULONGLONG repetitions, std::string name, std::vector<std::string> workingUserScripts,
 							 std::vector<ViChar>& userScriptSubmit, bool repeatForever );
 		void setDefaultWaveforms( MainWindow* mainWin );
-		void varyParam( simpleWave& wave, waveInfo previousWave, int axis, int paramNum, double paramVal, 
-						std::string& warnings );
 		void deleteRearrangementWave( );
-		void checkThatWaveformsAreSensible( std::string& warnings, NiawgOutputInfo& output );
-		void prepareNiawg( MasterThreadInput* input, NiawgOutputInfo& output,
-						   niawgPair<std::vector<std::fstream>>& niawgFiles, std::string& warnings,
-						   std::vector<ViChar>& userScriptSubmit, bool& foundRearrangement,
-						   rearrangeParams rInfo );
-		void finalizeStandardWave( simpleWave& wave, debugInfo& options );
-		void createFlashingWave( waveInfo& wave, debugInfo options );
 		void mixFlashingWaves( waveInfo& wave, double deadTime, double staticMovingRatio );
 		long waveformSizeCalc( double time );
 		static double rampCalc( int size, int iteration, double initPos, double finPos, std::string rampType );
@@ -67,11 +86,11 @@ class NiawgController
 		void restartDefault();
 		void turnOffRearranger( );
 		void waitForRearranger( );
-		void programVariations( UINT variation, std::vector<long>& variedMixedSize, NiawgOutputInfo& output );
-		
-		void programNiawg( MasterThreadInput* input, NiawgOutputInfo& output, std::string& warnings, UINT variation, 
-						   UINT totalVariations, std::vector<long>& variedMixedSize, 
-						   std::vector<ViChar>& userScriptSubmit );
+		void programVariationsNew( UINT variation, std::vector<long>& variedMixedSize, NiawgOutputNew& output );
+		void programVariations( UINT variation, std::vector<long>& variedMixedSize, NiawgOutput& output );
+		void programNiawgNew( MasterThreadInput* input, NiawgOutputNew& output, std::string& warnings, UINT variation, 
+							  UINT totalVariations, std::vector<long>& variedMixedSize, 
+							  std::vector<ViChar>& userScriptSubmit );
 		void streamWaveform();
 		void streamRearrangement();
 		void setDefaultWaveformScript( );
@@ -79,40 +98,51 @@ class NiawgController
 		void turnOn();
 		// Other
 		void setRunningState( bool newRunningState );
+		void startRearrangementThreadNew( std::vector<std::vector<bool>>* atomQueue, waveInfoNew wave, Communicator* comm,
+										  std::mutex* rearrangerLock, chronoTimes* andorImageTimes, chronoTimes* grabTimes,
+										  std::condition_variable* rearrangerConditionWatcher,
+										  rearrangeParams rearrangeInfo );
 		void startRearrangementThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave, Communicator* comm,
 									   std::mutex* rearrangerLock, chronoTimes* andorImageTimes, chronoTimes* grabTimes,
 									   std::condition_variable* rearrangerConditionWatcher,
 									   rearrangeParams rearrangeInfo );
+		std::pair<UINT, UINT> getTrigLines( );
+		UINT getNumberTrigsInScript( );
 		FgenFlume fgenConduit;
-		static bool outputVaries(NiawgOutputInfo output);
-
+		static bool outputVariesNew( NiawgOutput output );
+		waveInfoForm toWaveInfoForm( simpleWaveForm wave );
+		bool isOn( );
+		std::vector<std::vector<long>> convolve( std::vector<std::vector<bool>> atoms, 
+												 std::vector<std::vector<bool>> target );
 	private:
-		void mixWaveforms( simpleWave& waveCore );
-		void calcWaveData( channelWave& inputData, std::vector<ViReal64>& readData, long int sampleNum, double time );
+		UINT writeToFileNumber = 0;
+		void loadStandardInputFormType( std::string inputType, channelWaveForm &wvInfo );
 		void loadStandardInputType( std::string inputType, channelWave &wvInfo );
 		void openWaveformFiles( );
-		void generateWaveform( channelWave & waveInfo, debugInfo& options, long int sampleNum, double time );		
-		//
 		bool isLogic( std::string command );
 		void handleLogic( niawgPair<ScriptStream>& script, niawgPair<std::string> inputs, std::string &scriptString );
 		bool isSpecialWaveform( std::string command );
-		void handleSpecialWaveform( NiawgOutputInfo& output, profileSettings profile, niawgPair<std::string> command,
-									niawgPair<ScriptStream>& scripts, debugInfo& options, rearrangeParams rInfo );
+		void handleSpecialWaveformForm( NiawgOutputNew& output, profileSettings profile, niawgPair<std::string> command,
+										niawgPair<ScriptStream>& scripts, debugInfo& options, rearrangeParams rInfo, 
+										std::vector<variableType>& variables );
 		bool isStandardWaveform( std::string command );
-		void handleStandardWaveform( NiawgOutputInfo& output, profileSettings profile, niawgPair<std::string> command,
-									 niawgPair<ScriptStream>& scripts, debugInfo& options );
+		void handleStandardWaveformForm( NiawgOutputNew& output, profileSettings profile, niawgPair<std::string> command,
+										 niawgPair<ScriptStream>& scripts, debugInfo& options, 
+										 std::vector<variableType>& variables );
 		bool isSpecialCommand( std::string command );
-		void handleSpecial( niawgPair<ScriptStream>& script, NiawgOutputInfo& output, niawgPair<std::string> inputTypes,
+		void handleSpecialForm( niawgPair<ScriptStream>& scripts, NiawgOutputNew& output, niawgPair<std::string> inputTypes,
+							profileSettings profile, debugInfo& options, std::string& warnings );
+		void handleSpecial( niawgPair<ScriptStream>& scripts, NiawgOutput& output, niawgPair<std::string> inputTypes,
 							profileSettings profile, debugInfo& options, std::string& warnings );
 		//
-		
 		waveInfo toWaveInfo( simpleWave wave );
 
 		/// member variables
-		// Important. This can change if you change computers.
-		const ViRsrc NI_5451_LOCATION = "Dev6";
-		niawgPair<std::string> currentScripts;
+ 		// Important. This can change if you change computers.
+ 		const ViRsrc NI_5451_LOCATION = "Dev6";
+ 		niawgPair<std::string> currentScripts;		
 		bool runningState;
+		bool on;
 		// don't take the word "library" too seriously... it's just a listing of all of the waveforms that have been 
 		// already created.
 		std::array<std::vector<std::string>, MAX_NIAWG_SIGNALS * 4> waveLibrary;
@@ -135,6 +165,10 @@ class NiawgController
 		HANDLE rearrangerThreadHandle;
 		static UINT __stdcall rearrangerThreadProcedure( LPVOID input );
 		void calculateRearrangingMoves( std::vector<std::vector<bool>> initArrangement );
+		
+		const UINT triggerRow;
+		const UINT triggerNumber;
+		UINT triggersInScript;
 		// true = active;
 		std::atomic<bool> threadStateSignal;
 		std::vector<std::vector<bool>> finalState;

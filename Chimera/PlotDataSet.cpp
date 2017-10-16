@@ -1,25 +1,16 @@
 #include "stdafx.h"
 #include "PlotDataSet.h"
 
+
 /// All PlotDataSet() class public functions.
 PlotDataSet::PlotDataSet()
 {
 	resultConditions.clear();
-	// Start with one picture
 	resultConditions.resize(1);
-	// start pictures loaded into experiment
-	//resultConditions[0].resize(ePicturesPerRepetition);
-
 	postSelectionConditions.clear();
-	// start with one condition
 	postSelectionConditions.resize(1);
-	// start with one pixel
 	postSelectionConditions[0].resize(1);
-	// start pictures loaded into experiment
-	//postSelectionConditions[0][0].resize(ePicturesPerRepetition);
-	// start with one pixel
 	dataCountsLocation.resize(1);
-	// start with one picture
 	dataCountsLocation[0].resize(1);
 }
 
@@ -45,6 +36,21 @@ void PlotDataSet::initialize(UINT conditionNumber, UINT pixelNumber, UINT pictur
 	}
 }
 
+
+
+void PlotDataSet::setHistBinWidth( UINT width )
+{
+	if ( width < 1 || width > 1e6 )
+	{
+		thrower( "ERROR: Bad value (" + str( width ) + ") for plotting data set histogram bin width!" );
+	}
+	histBinWidth = width;
+}
+
+UINT PlotDataSet::getHistBinWidth( )
+{
+	return histBinWidth;
+}
 
 void PlotDataSet::changeLegendText(std::string newLegendText)
 {
@@ -131,6 +137,7 @@ void PlotDataSet::setPostSelectionCondition(UINT conditionNumber, UINT pixel, UI
 	postSelectionConditions[conditionNumber][pixel][picture] = postSelectionCondition;
 }
 
+
 void PlotDataSet::removePixel()
 {
 	// make sure there is a pixel to remove.
@@ -154,18 +161,17 @@ void PlotDataSet::removePicture()
 	// 3, for example.
 	size_t currentPixelNum = resultConditions.size();
 	// this should always be at least one large.
-	size_t currentPictureNum = resultConditions[0].size();
-	
+	size_t currentPictureNum = resultConditions[0].size();	
 	if (currentPictureNum < 2)
 	{
 		thrower("ERROR: Something tried to remove the last picture!");
 	}
-	for (UINT pixelInc = 0; pixelInc < currentPixelNum; pixelInc++)
+	for (UINT pixelInc : range(currentPixelNum))
 	{
 		resultConditions[pixelInc].resize(currentPictureNum - 1);
-		for (UINT postSelectionConditionInc = 0; postSelectionConditionInc < postSelectionConditions.size(); postSelectionConditionInc++)
+		for (auto& condition : postSelectionConditions)
 		{
-			postSelectionConditions[postSelectionConditionInc][pixelInc].resize(currentPictureNum - 1);
+			condition[pixelInc].resize(currentPictureNum - 1);
 		}
 	}
 }
@@ -208,15 +214,15 @@ int PlotDataSet::getPostSelectionCondition(UINT conditionNumber, UINT pixel, UIN
 }
 
 
-void PlotDataSet::addPostSelectionCondition(UINT pixelNum, UINT pictureNum)
+void PlotDataSet::addPostSelectionCondition( UINT pixelNum, UINT pictureNum )
 {
 	// add condition, pixels, pictures
-	postSelectionConditions.resize(postSelectionConditions.size() + 1);
-	size_t back = postSelectionConditions.size() - 1;
-	postSelectionConditions[back].resize(pixelNum);
-	for (UINT pixelInc = 0; pixelInc < pixelNum; pixelInc++)
+	postSelectionConditions.resize( postSelectionConditions.size( ) + 1 );
+	size_t back = postSelectionConditions.size( ) - 1;
+	postSelectionConditions[back].resize( pixelNum );
+	for ( UINT pixelInc : range( pixelNum ) )
 	{
-		postSelectionConditions[back][pixelInc].resize(pictureNum);
+		postSelectionConditions[back][pixelInc].resize( pictureNum );
 	}
 }
 

@@ -43,13 +43,11 @@ void DioSystem::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void DioSystem::handleOpenConfig(std::ifstream& openFile, double version)
+void DioSystem::handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor )
 {
 	ProfileSystem::checkDelimiterLine(openFile, "TTLS");
-
 	std::vector<std::vector<bool>> ttlStates;
 	ttlStates.resize(getTtlBoardSize().first);
-
 	UINT rowInc = 0;
 	for (auto& row : ttlStates)
 	{
@@ -899,7 +897,8 @@ int DioSystem::getNameIdentifier(std::string name, UINT& row, UINT& number)
 
 void DioSystem::writeTtlData(UINT variation)
 {
-	WORD temp[4] = { WORD_MAX, WORD_MAX, WORD_MAX, WORD_MAX };
+	// all 64 outputs are used, so every bit in this should be 1. 
+	WORD outputMask[4] = { WORD_MAX, WORD_MAX, WORD_MAX, WORD_MAX };
 	double scanRate = 10000000;
 	DWORD availableScans = 0;
 	DIO64STAT status;
@@ -909,7 +908,8 @@ void DioSystem::writeTtlData(UINT variation)
 		dioOutStop( 0 );
 	}
 	catch ( Error& ) { /* if fails it probably just wasn't running before */ } 
-	dioOutConfig( 0, 0, temp, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, scanRate );
+
+	dioOutConfig( 0, 0, outputMask, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, scanRate );
 	dioOutStatus( 0, availableScans, status );
 	dioOutWrite( 0, finalFormatTtlData[variation].data(), formattedTtlSnapshots[variation].size(), status );
 }
@@ -959,7 +959,7 @@ void DioSystem::waitTillFinished(UINT variation)
 	double totalTime = (formattedTtlSnapshots[variation].back()[0] 
 						 + 65535 * formattedTtlSnapshots[variation].back()[1]) / 10000.0 + 1;
 	wait(totalTime);
-	stopBoard();
+	//stopBoard();
 }
 
 
@@ -970,10 +970,9 @@ double DioSystem::getTotalTime(UINT variation)
 }
 
 
-void DioSystem::interpretKey(key variationKey, std::vector<variableType>& vars)
+void DioSystem::interpretKey( std::vector<variableType>& variables )
 {
-	UINT variations;
-	variations = variationKey[vars[0].name].first.size();
+	UINT variations = variables.front( ).keyValues.size( );
 	if (variations == 0)
 	{
 		variations = 1; 
@@ -1001,7 +1000,7 @@ void DioSystem::interpretKey(key variationKey, std::vector<variableType>& vars)
 			{
 				for (auto varTime : ttlCommandFormList[commandInc].time.first)
 				{
-					variableTime += varTime.evaluate(variationKey, variationNum, vars);
+					variableTime += varTime.evaluate(variables, variationNum);
 					// this assumed no expressions.
 					//variableTime += variationKey[varTime].first[variationNum];
 				}
@@ -1146,6 +1145,22 @@ void DioSystem::convertToFinalFormat(UINT variation)
 		element = formattedTtlSnapshots[variation][count / 6][count % 6];
 		count++;
 	}
+}
+
+
+// counts the number of triggers on a given line.
+UINT DioSystem::countTriggers( UINT row, UINT number, UINT variation )
+{
+	UINT count = 0;
+	for ( auto eventInc : range(ttlSnapshots[variation].size()-1) )
+	{
+		if ( ttlSnapshots[variation][eventInc].ttlStatus[row][number] == false &&
+			 ttlSnapshots[variation][eventInc].ttlStatus[row][number] == true )
+		{
+			count++;
+		}
+	}
+	return count;
 }
 
 

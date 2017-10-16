@@ -1,11 +1,11 @@
 #pragma once
-#include <vector>
-#include <string>
 #include "Control.h"
 #include "ProfileSystem.h"
 #include "NiawgController.h"
 #include "commonTypes.h"
 #include "profileSettings.h"
+#include <vector>
+#include <string>
 
 class MainWindow;
 class ScriptingWindow;
@@ -43,18 +43,6 @@ class ProfileSystem
 		std::vector<std::string> getSequenceNames();
 		void reloadSequence(std::string sequenceToReload);
 
-		void saveExperimentOnly(MainWindow* mainWin);
-		void newExperiment();
-		void saveExperimentAs(MainWindow* mainWin);
-		void renameExperiment(MainWindow* mainWin);
-		void deleteExperiment();
-		void openExperiment(std::string experimentToOpen, ScriptingWindow* scriptWindow, MainWindow* mainWin);
-		void updateExperimentSavedStatus(bool isSaved);
-		void experimentSettingsReadyCheck(MainWindow* mainWin);
-		bool checkExperimentSave(std::string prompt, MainWindow* mainWin);
-		void experimentChangeHandler(ScriptingWindow* scriptWindow, MainWindow* mainWin);
-		std::string getCurrentExperiment();
-
 		void saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin, 
 								    CameraWindow* camWin );
 		void newConfiguration( MainWindow* mainWin, AuxiliaryWindow* auxWin, CameraWindow* camWin,
@@ -62,8 +50,6 @@ class ProfileSystem
 		void saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin);
 		void renameConfiguration();
 		void deleteConfiguration();
-		void openConfig( std::string configurationNameToOpen, ScriptingWindow* scriptWindow, MainWindow* mainWin, 
-						 CameraWindow* camWin, AuxiliaryWindow* auxWin );
 
 		static void openNiawgFiles( niawgPair<std::vector<std::fstream>>& scriptFiles, profileSettings profile, 
 								   bool programNiawg );
@@ -72,31 +58,21 @@ class ProfileSystem
 											 AuxiliaryWindow* auxWin, CameraWindow* camWin);
 		bool checkConfigurationSave(std::string prompt, ScriptingWindow* scriptWindow, MainWindow* mainWin, 
 									AuxiliaryWindow* auxWin, CameraWindow* camWin);
-		void configurationChangeHandler( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin,
-										 CameraWindow* camWin);
-		
-		void saveCategoryOnly(MainWindow* mainWin);
-		void renameCategory();
-		void newCategory();
-		void deleteCategory();
-		void saveCategoryAs(MainWindow* mainWin);
-		void openCategory(std::string categoryToOpen, ScriptingWindow* scriptWindow, MainWindow* mainWin);
-		void updateCategorySavedStatus(bool isSaved);
-		bool categorySettinsReadyCheck();
-		bool checkCategorySave(std::string prompt, MainWindow* mainWin);
-		void categoryChangeHandler(ScriptingWindow* scriptWindow, MainWindow* mainWin);
-		std::string getCurrentCategory();
+		void openConfigFromPath( std::string pathToConfig, ScriptingWindow* scriptWin, MainWindow* mainWin, 
+								 CameraWindow* camWin, AuxiliaryWindow* auxWin );
 		std::string getCurrentPathIncludingCategory();
 		profileSettings getProfileSettings();
 
 		static std::vector<std::string> searchForFiles(std::string locationToSearch, std::string extensions);
 		static void reloadCombo(HWND comboToReload, std::string locationToLook, std::string extension, std::string nameToLoad);
-		std::string getComboText();
+		//std::string getComboText();
 		bool fileOrFolderExists( std::string filePathway );
 		//void updateSaveStatus(bool savedStatus);
 		void fullyDeleteFolder(std::string folderToDelete);
 		void initialize( POINT& topLeftPosition, CWnd* parent, int& id, cToolTips& tooltips );
 		void rearrange(int width, int height, fontMap fonts);
+		void handleSelectConfigButton( CWnd* parent, ScriptingWindow* scriptWindow, MainWindow* mainWin,
+									   AuxiliaryWindow* auxWin, CameraWindow* camWin );
 		static void checkDelimiterLine(std::ifstream& openFile, std::string keyword);
 		static bool checkDelimiterLine( std::ifstream& openFile, std::string delimiter, std::string breakCondition );
 	private:
@@ -106,24 +82,14 @@ class ProfileSystem
 		bool categoryIsSaved;
 		bool experimentIsSaved;
 		bool sequenceIsSaved;
-		
-		// combine with . for version. e.g. 2.5
+		// version = str(versionMain) + "." + str(versionSub)
 		const int versionMain = 2;
-		const int versionSub = 7;
-
-		Control<CStatic> configLabel;
-		Control<CComboBox> configCombo;
-		Control<CStatic> experimentLabel;
-		Control<CComboBox> experimentCombo;
-		Control<CStatic> categoryLabel;
-		Control<CComboBox> categoryCombo;
+		const int versionSub = 9;
 		Control<CStatic> sequenceLabel;
 		Control<CComboBox> sequenceCombo;
 		Control<CEdit> sequenceInfoDisplay;
 		Control<CButton> sequenceSavedIndicator;
-		Control<CStatic> orientationLabel;
-		Control<CComboBox> orientationCombo;
-		Control<CButton> categorySavedIndicator;
 		Control<CButton> configurationSavedIndicator;
-		Control<CButton> experimentSavedIndicator;
+		Control<CButton> selectConfigButton;
+		Control<CStatic> configDisplay;
 };

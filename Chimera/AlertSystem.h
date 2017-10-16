@@ -35,7 +35,7 @@ class AlertSystem
 		Control<CButton> alertsActiveCheckBox;
 		Control<CStatic> alertThresholdText;
 		Control<CEdit> alertThresholdEdit;
-		Control<CButton> soundAtFinshCheckBox;
+		Control<CButton> soundAtFinshCheck;
 		int alertThreshold;
 		bool useAlerts;
 		UINT alertMessageID = 0;

@@ -44,7 +44,7 @@ class CameraSettingsControl
 		void updatePassivelySetSettings();
 		void setRunSettings(AndorRunSettings inputSettings);
 
-		void handleOpenConfig(std::ifstream& configFile, double version);
+		void handleOpenConfig(std::ifstream& configFile, int versionMajor, int versionMinor );
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& configFile);
 
@@ -73,7 +73,7 @@ class CameraSettingsControl
 		Control<CButton> temperatureOffButton;
 		Control<CEdit> temperatureEdit;
 		Control<CStatic> temperatureDisplay;
-		Control<CStatic> temperatureMessage;
+		Control<CStatic> temperatureMsg;
 
 		// Kinetic Cycle Time
 		Control<CEdit> kineticCycleTimeEdit;

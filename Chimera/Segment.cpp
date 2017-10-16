@@ -2,7 +2,7 @@
 #include "Segment.h"
 
 
-void Segment::convertInputToFinal( key variableKey, UINT variation, std::vector<variableType>& vars )
+void Segment::convertInputToFinal( UINT variation, std::vector<variableType>& variables )
 {	
 	// first transfer things that can't be varied.
 	finalSettings.continuationType = input.continuationType;
@@ -14,41 +14,41 @@ void Segment::convertInputToFinal( key variableKey, UINT variation, std::vector<
 	if ( input.ramp.isRamp )
 	{
 		finalSettings.ramp.type = input.ramp.type;
-		finalSettings.ramp.start = input.ramp.start.evaluate( variableKey, variation, vars );
+		finalSettings.ramp.start = input.ramp.start.evaluate( variables, variation );
 		if ( finalSettings.ramp.type == "nr" )
 		{
 			finalSettings.ramp.end = finalSettings.ramp.start;
 		}
 		else
 		{
-			finalSettings.ramp.end = input.ramp.end.evaluate( variableKey, variation, vars );
+			finalSettings.ramp.end = input.ramp.end.evaluate( variables, variation );
 		}
 	}
 	else if ( input.pulse.isPulse )
 	{
 		finalSettings.pulse.type = input.pulse.type;
-		finalSettings.pulse.offset = input.pulse.offset.evaluate( variableKey, variation, vars );
-		finalSettings.pulse.amplitude = input.pulse.amplitude.evaluate( variableKey, variation, vars );
-		finalSettings.pulse.width = input.pulse.width.evaluate( variableKey, variation, vars ) / 1000.0;
+		finalSettings.pulse.offset = input.pulse.offset.evaluate( variables, variation );
+		finalSettings.pulse.amplitude = input.pulse.amplitude.evaluate( variables, variation );
+		finalSettings.pulse.width = input.pulse.width.evaluate( variables, variation ) / 1000.0;
 	}
 	else
 	{
-		finalSettings.holdVal = input.holdVal.evaluate( variableKey, variation, vars );
+		finalSettings.holdVal = input.holdVal.evaluate( variables, variation );
 	}
 
 	if ( input.mod.modulationIsOn )
 	{
-		finalSettings.mod.frequency = input.mod.frequency.evaluate( variableKey, variation, vars );
-		finalSettings.mod.phase = input.mod.phase.evaluate( variableKey, variation, vars );
+		finalSettings.mod.frequency = input.mod.frequency.evaluate( variables, variation );
+		finalSettings.mod.phase = input.mod.phase.evaluate( variables, variation );
 	}
 
 	// time
-	finalSettings.time = input.time.evaluate( variableKey, variation, vars ) / 1000.0;
+	finalSettings.time = input.time.evaluate( variables, variation) / 1000.0;
 	// repeat number
 	// (0 here corresponds to "repeat", in which case you need a number of times to repeat.);
 	if (finalSettings.continuationType == 0)
 	{
-		finalSettings.repeatNum = UINT( input.repeatNum.evaluate( variableKey, variation, vars ));
+		finalSettings.repeatNum = UINT( input.repeatNum.evaluate( variables, variation ));
 	}
 }
 
@@ -185,7 +185,7 @@ double Segment::pulseCalc( pulseData pulse, int iteration, long size, double pul
 		// in this case, the width is the sigma of the gaussian.
 		double center = pulseLength / 2.0;
 		double x = pulseLength * iteration / size;
-		double result = pulse.offset + pulse.amplitude * exp( -(center - x) * (center - x) / (pulse.width * pulse.width) );
+		double result = pulse.amplitude * exp( -(center - x) * (center - x) / (pulse.width * pulse.width) );
 		return result;
 	}
 	else if ( pulse.type == "lorentzian" )
@@ -195,8 +195,7 @@ double Segment::pulseCalc( pulseData pulse, int iteration, long size, double pul
 		double center = pulseLength / 2.0;
 		double x = pulseLength * iteration / size;
 		// see definition: http://mathworld.wolfram.com/LorentzianFunction.html
-		return pulse.offset 
-			+ pulse.amplitude * (FWHM / (2.0 * PI)) / ((x - center)*(x - center) + (FWHM / 2) * (FWHM / 2));
+		return pulse.amplitude * (FWHM / (2.0 * PI)) / ((x - center)*(x - center) + (FWHM / 2) * (FWHM / 2));
 
 	}
 	else if ( pulse.type == "sech" )
@@ -205,8 +204,7 @@ double Segment::pulseCalc( pulseData pulse, int iteration, long size, double pul
 		double center = pulseLength / 2.0;
 		double x = pulseLength * iteration / size;
 		// see definition: http://mathworld.wolfram.com/HyperbolicSecant.html
-		return pulse.offset
-			+ pulse.amplitude * 1.0 / cosh( (x - center) / pulse.width );
+		return pulse.amplitude * 1.0 / cosh( (x - center) / pulse.width );
 	}
 	else
 	{
@@ -246,8 +244,8 @@ void Segment::calcData( ULONG sampleRate )
 		}
 		else if ( finalSettings.pulse.isPulse )
 		{
-			point = pulseCalc( finalSettings.pulse, dataInc, numDataPoints, finalSettings.time )
-					* modCalc( finalSettings.mod, dataInc, numDataPoints, finalSettings.time );
+			point = finalSettings.pulse.offset + pulseCalc( finalSettings.pulse, dataInc, numDataPoints, finalSettings.time )
+												* modCalc( finalSettings.mod, dataInc, numDataPoints, finalSettings.time );
 		}
 		else
 		{

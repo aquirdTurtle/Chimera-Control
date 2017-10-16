@@ -19,7 +19,7 @@ class ImageDimsControl
 		bool checkReady();
 		void handleSave( std::ofstream& saveFile );
 		void handleNew( std::ofstream& newfile );
-		void handleOpen( std::ifstream& openFile, double version );
+		void handleOpen( std::ifstream& openFile, int versionMajor, int versionMinor );
 		imageParameters getImageParameters();
 		void rearrange( std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts );
 		HBRUSH colorEdits( HWND window, UINT message, WPARAM wParam, LPARAM lParam, MainWindow* mainWin );

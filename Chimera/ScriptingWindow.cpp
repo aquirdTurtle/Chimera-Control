@@ -3,7 +3,7 @@
 #include "afxwin.h"
 #include "MainWindow.h"
 #include "openWithExplorer.h"
-#include "saveTextFileFromEdit.h"
+#include "saveWithExplorer.h"
 #include "commonFunctions.h"
 #include "textPromptDialog.h"
 #include "AuxiliaryWindow.h"
@@ -665,7 +665,7 @@ void ScriptingWindow::openIntensityScript(std::string name)
 }
 
 
-void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, double version)
+void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, int versionMajor, int versionMinor)
 {
 	ProfileSystem::checkDelimiterLine(configFile, "SCRIPTS");
 	// the reading for the scripts is simple enough at the moment that I just read everything here.
@@ -676,8 +676,9 @@ void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, double version
 	getline(configFile, masterName);
 	ProfileSystem::checkDelimiterLine(configFile, "END_SCRIPTS");
 
-	intensityAgilent.readConfigurationFile(configFile, version );
-	intensityAgilent.updateSettingsDisplay(1, mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo());
+	intensityAgilent.readConfigurationFile(configFile, versionMajor, versionMinor );
+	intensityAgilent.updateSettingsDisplay(1, mainWindowFriend->getProfileSettings().categoryPath, 
+											mainWindowFriend->getRunInfo());
 	openVerticalScript(vertName);
 	openHorizontalScript(horName);
 	openMasterScript(masterName);
