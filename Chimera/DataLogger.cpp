@@ -151,24 +151,14 @@ void DataLogger::initializeDataFiles()
 		// list of commands
 		H5::Group tektronicsGroup( file.createGroup( "/Tektronics" ) );
 		// mode, freq, power
-
 		H5::Group miscellaneousGroup( file.createGroup( "/Miscellaneous" ) );
-
 		time_t t = time( 0 );   // get time now
 		struct tm now;
 		localtime_s( &now, &t );
 		std::string dateString = str( now.tm_year + 1900 ) + "-" + str( now.tm_mon + 1 ) + "-" + str( now.tm_mday );
-		hsize_t rank1[] = { 1 };
-		rank1[0] = dateString.size( );
-		H5::DataSet dateSet = miscellaneousGroup.createDataSet( "Run-Date", H5::PredType::C_S1, 
-																H5::DataSpace( 1, rank1 ) );
-		dateSet.write( cstr(dateString), H5::PredType::C_S1 );
-
+		writeDataSet( dateString, "Run-Date", miscellaneousGroup );
 		std::string timeString = str( now.tm_hour) + ":" + str( now.tm_min) + ":" + str( now.tm_sec) + ":";
-		rank1[0] = timeString.size( );
-		H5::DataSet timeSet = miscellaneousGroup.createDataSet( "Time-Of-Logging", H5::PredType::C_S1,
-																H5::DataSpace( 1, rank1 ) );
-		timeSet.write( cstr( timeString ), H5::PredType::C_S1 );
+		writeDataSet( timeString, "Time-Of-Logging", miscellaneousGroup );
 		fileIsOpen = true;
 	}
 	catch (H5::Exception err)
@@ -177,6 +167,63 @@ void DataLogger::initializeDataFiles()
 	}
 }
 
+
+void DataLogger::logAgilentSettings( const std::vector<Agilent*>& agilents )
+{
+	H5::Group agilentsGroup( file.createGroup( "/Agilents" ) );
+	for ( auto& agilent : agilents )
+	{
+		H5::Group singleAgilent( agilentsGroup.createGroup( agilent->getName( ) ) );
+		// mode
+		deviceOutputInfo info = agilent->getOutputInfo( );
+		UINT channelCount = 1;
+		for ( auto& channel : info.channel )
+		{
+			H5::Group channelGroup( singleAgilent.createGroup( "Channel-" + str( channelCount ) ) );
+			std::string outputModeName;
+			switch ( channel.option )
+			{
+			case -2:
+				outputModeName = "No-Control";
+				break;
+			case -1:
+				outputModeName = "Output-Off";
+				break;
+			case 0:
+				outputModeName = "DC";
+				break;
+			case 1:
+				outputModeName = "Sine";
+				break;
+			case 2:
+				outputModeName = "Square";
+				break;
+			case 3:
+				outputModeName = "Preloaded-Arb";
+				break;
+			case 4:
+				outputModeName = "Scripted-Arb";
+				break;
+			}
+			writeDataSet( outputModeName, "Output-Mode", channelGroup );
+			H5::Group dcGroup( channelGroup.createGroup( "DC-Settings" ) );
+			writeDataSet( channel.dc.dcLevelInput.expressionStr, "DC-Level", dcGroup );
+			H5::Group sineGroup( channelGroup.createGroup( "Sine-Settings" ) );
+			writeDataSet( channel.sine.frequencyInput.expressionStr, "Frequency", sineGroup );
+			writeDataSet( channel.sine.amplitudeInput.expressionStr, "Amplitude", sineGroup );
+			H5::Group squareGroup( channelGroup.createGroup( "Square-Settings" ) );
+			writeDataSet( channel.square.amplitudeInput.expressionStr, "Amplitude", squareGroup );
+			writeDataSet( channel.square.frequencyInput.expressionStr, "Frequency", squareGroup );
+			writeDataSet( channel.square.offsetInput.expressionStr, "Offset", squareGroup );
+			H5::Group preloadedArbGroup( channelGroup.createGroup( "Preloaded-Arb-Settings" ) );
+			writeDataSet( channel.preloadedArb.address, "Address", preloadedArbGroup );
+			H5::Group scriptedArbSettings( channelGroup.createGroup( "Scripted-Arb-Settings" ) );
+			writeDataSet( channel.scriptedArb.fileAddress, "Script-File-Address", preloadedArbGroup );
+			// TODO: load script file itself
+			channelCount++;
+		}
+	}
+}
 
 void DataLogger::logAndorSettings( AndorRunSettings settings, bool on)
 {
@@ -198,64 +245,30 @@ void DataLogger::logAndorSettings( AndorRunSettings settings, bool on)
 		picureSetDataSpace = H5::DataSpace( 3, setDims );
 		picDataSpace = H5::DataSpace( 3, picDims );
 		pictureDataset = andorGroup.createDataSet( "Pictures", H5::PredType::NATIVE_LONG, picureSetDataSpace );
-		// camera mode
-		rank1[0] = settings.cameraMode.size( );
-		H5::DataSet modeSet = andorGroup.createDataSet( "Camera-Mode", H5::PredType::C_S1, H5::DataSpace( 1, rank1 ) );
-		modeSet.write( cstr( settings.cameraMode ), H5::PredType::C_S1 );
-		// exposure times
-		rank1[0] = settings.exposureTimes.size( );
-		H5::DataSet exposureSet = andorGroup.createDataSet( "Exposure-Times", H5::PredType::NATIVE_FLOAT,
-															H5::DataSpace( 1, rank1 ) );
-		exposureSet.write( settings.exposureTimes.data( ), H5::PredType::NATIVE_FLOAT );
-		// Trigger Mode
-		rank1[0] = settings.triggerMode.size( );
-		H5::DataSet trigSet = andorGroup.createDataSet( "Trigger-Mode", H5::PredType::C_S1, H5::DataSpace( 1, rank1 ) );
-		trigSet.write( cstr( settings.triggerMode ), H5::PredType::C_S1 );
-		// EM-Gain-Mode
-		rank1[0] = 1;
-		H5::DataSet emGainSet = andorGroup.createDataSet( "EM-Gain-Mode-On", H5::PredType::NATIVE_HBOOL,
-														  H5::DataSpace( 1, rank1 ) );
-		emGainSet.write( &settings.emGainModeIsOn, H5::PredType::NATIVE_HBOOL );
-		// EM-Gain-Level
+		writeDataSet( settings.cameraMode, "Camera-Mode", andorGroup );
+		writeDataSet( settings.exposureTimes, "Exposure-Times", andorGroup );
+		writeDataSet( settings.triggerMode, "Trigger-Mode", andorGroup );
+		writeDataSet( settings.emGainModeIsOn, "EM-Gain-Mode-On", andorGroup );
 		if ( settings.emGainModeIsOn )
 		{
-			H5::DataSet emGainLevelSet = andorGroup.createDataSet( "EM-Gain-Level", H5::PredType::NATIVE_INT,
-																   H5::DataSpace( 1, rank1 ) );
-			emGainLevelSet.write( &settings.emGainLevel, H5::PredType::NATIVE_INT );
+			writeDataSet( settings.emGainLevel, "EM-Gain-Level", andorGroup );
+		}
+		else
+		{
+			writeDataSet( -1, "NA:EM-Gain-Level", andorGroup );
 		}
 		// image settings
 		H5::Group imageDims = andorGroup.createGroup( "Image-Dimensions" );
-		H5::DataSet bottomSet = imageDims.createDataSet( "Bottom", H5::PredType::NATIVE_INT, H5::DataSpace( 1, rank1 ) );
-		bottomSet.write( &settings.imageSettings.top, H5::PredType::NATIVE_INT );
-		H5::DataSet topSet = imageDims.createDataSet( "Top", H5::PredType::NATIVE_INT, H5::DataSpace( 1, rank1 ) );
-		topSet.write( &settings.imageSettings.bottom, H5::PredType::NATIVE_INT );
-		H5::DataSet leftSet = imageDims.createDataSet( "Left", H5::PredType::NATIVE_INT, H5::DataSpace( 1, rank1 ) );
-		leftSet.write( &settings.imageSettings.left, H5::PredType::NATIVE_INT );
-		H5::DataSet rightSet = imageDims.createDataSet( "Right", H5::PredType::NATIVE_INT, H5::DataSpace( 1, rank1 ) );
-		rightSet.write( &settings.imageSettings.right, H5::PredType::NATIVE_INT );
-		H5::DataSet hBinSet = imageDims.createDataSet( "Horizontal-Binning", H5::PredType::NATIVE_INT,
-													   H5::DataSpace( 1, rank1 ) );
-		hBinSet.write( &settings.imageSettings.horizontalBinning, H5::PredType::NATIVE_INT );
-		H5::DataSet vBinSet = imageDims.createDataSet( "Vertical-Binning", H5::PredType::NATIVE_INT,
-													   H5::DataSpace( 1, rank1 ) );
-		vBinSet.write( &settings.imageSettings.verticalBinning, H5::PredType::NATIVE_INT );
-		// Temp
-		H5::DataSet tempSet = andorGroup.createDataSet( "Temperature-Setting", H5::PredType::NATIVE_INT,
-														H5::DataSpace( 1, rank1 ) );
-		tempSet.write( &settings.temperatureSetting, H5::PredType::NATIVE_INT );
-		// picsPerRep
-		rank1[0] = 1;
-		H5::DataSet picsPerRepSet = andorGroup.createDataSet( "Pictures-Per-Repetition", H5::PredType::NATIVE_ULONG,
-															  H5::DataSpace( 1, rank1 ) );
-		picsPerRepSet.write( &settings.picsPerRepetition, H5::PredType::NATIVE_ULONG );
-		// reps 
-		H5::DataSet repsSet = andorGroup.createDataSet( "Repetitions-Per-Variation", H5::PredType::NATIVE_ULONG,
-														H5::DataSpace( 1, rank1 ) );
-		picsPerRepSet.write( &settings.repetitionsPerVariation, H5::PredType::NATIVE_ULONG );
-		// variations
-		H5::DataSet variationSet = andorGroup.createDataSet( "Variation-Number", H5::PredType::NATIVE_ULONG,
-															 H5::DataSpace( 1, rank1 ) );
-		variationSet.write( &settings.totalVariations, H5::PredType::NATIVE_ULONG );
+		writeDataSet( settings.imageSettings.top, "Top", andorGroup );
+		writeDataSet( settings.imageSettings.bottom, "Bottom", andorGroup );
+		writeDataSet( settings.imageSettings.left, "Left", andorGroup );
+		writeDataSet( settings.imageSettings.right, "Right", andorGroup );
+		writeDataSet( settings.imageSettings.horizontalBinning, "Horizontal-Binning", andorGroup );
+		writeDataSet( settings.imageSettings.verticalBinning, "Vertical-Binning", andorGroup );
+		writeDataSet( settings.temperatureSetting, "Temperature-Setting", andorGroup );
+		writeDataSet( settings.picsPerRepetition, "Pictures-Per-Repetition", andorGroup );
+		writeDataSet( settings.repetitionsPerVariation, "Repetitions-Per-Variation", andorGroup );
+		writeDataSet( settings.totalVariations, "Total-Variation-Number", andorGroup );
 	}
 	catch ( H5::Exception err )
 	{
@@ -274,214 +287,50 @@ void DataLogger::logMasterParameters( MasterThreadInput* input )
 			return;
 		}
 		H5::Group runParametersGroup( file.createGroup( "/Master-Parameters" ) );
-		// to include
-		hsize_t rank1[] = { 1 };
-		// - program master option
-		H5::DataSet programMasterOption( runParametersGroup.createDataSet( "Run-Master", H5::PredType::NATIVE_HBOOL,
-																		   H5::DataSpace( 1, rank1 ) ) );
-		programMasterOption.write( &input->runMaster, H5::PredType::NATIVE_HBOOL );
-
+		writeDataSet( input->runMaster, "Run-Master", runParametersGroup );
 		if ( input->runMaster )
 		{
-			// - master script
 			std::ifstream masterScript( input->masterScriptAddress );
 			if ( !masterScript.is_open( ) )
 			{
 				thrower( "ERROR: Failed to load master script!" );
 			}
 			std::string scriptBuf( str( masterScript.rdbuf( ) ) );
-			rank1[0] = scriptBuf.size( );
-			H5::DataSet scriptDataset = runParametersGroup.createDataSet( "Master-Script", H5::PredType::C_S1,
-																		  H5::DataSpace( 1, rank1 ) );
-			scriptDataset.write( cstr( scriptBuf ), H5::PredType::C_S1 );
-			// file address of script
-			rank1[0] = input->masterScriptAddress.size( );
-			H5::Attribute scriptNameAttr( scriptDataset.createAttribute( "File-Address", H5::PredType::C_S1,
-																		 H5::DataSpace( 1, rank1 ) ) );
-			scriptNameAttr.write( H5::PredType::C_S1, cstr( input->masterScriptAddress ) );
+			writeDataSet( scriptBuf, "Master-Script", runParametersGroup);
+			writeDataSet( input->masterScriptAddress, "Master-Script-File-Address", runParametersGroup );
 		}
 		else
 		{
-			H5::DataSet scriptDataset = runParametersGroup.createDataSet( "Master-Script:NA", H5::PredType::C_S1,
-																		  H5::DataSpace( 1, rank1 ) );
-			H5::Attribute scriptNameAttr( scriptDataset.createAttribute( "Master-Script-Address:NA", H5::PredType::C_S1,
-																		 H5::DataSpace( 1, rank1 ) ) );
+			writeDataSet( "", "NA:Master-Script", runParametersGroup );
+			writeDataSet( "", "NA:Master-Script-File-Address", runParametersGroup );
 		}
-		// - repetitions
-		rank1[0] = 1;
-		H5::DataSet repSet = runParametersGroup.createDataSet( "Repetitions", H5::PredType::NATIVE_LONG,
-															   H5::DataSpace( 1, rank1 ) );
-		repSet.write( &input->repetitionNumber, H5::PredType::NATIVE_LONG );
-		// - debuging options
-
-		/// Variables
-		// - variables / key info
-		H5::Group variableGroup = runParametersGroup.createGroup( "Variables" );
-		for ( auto& variable : input->variables )
-		{
-			H5::DataSet varSet;
-			if ( variable.constant )
-			{
-				rank1[0] = 1;
-				varSet = variableGroup.createDataSet( cstr( variable.name ), H5::PredType::NATIVE_DOUBLE,
-													  H5::DataSpace( 1, rank1 ) );
-				// just grab from variable value
-				varSet.write( &variable.ranges.front( ).initialValue, H5::PredType::NATIVE_DOUBLE );
-			}
-			else
-			{
-				rank1[0] = input->key->getKey( )[variable.name].first.size( );
-				varSet = variableGroup.createDataSet( cstr( variable.name ), H5::PredType::NATIVE_DOUBLE,
-													  H5::DataSpace( 1, rank1 ) );
-				// get from the key file
-				varSet.write( input->key->getKey( )[variable.name].first.data( ), H5::PredType::NATIVE_DOUBLE );
-			}
-			rank1[0] = 1;
-			H5::Attribute attr = varSet.createAttribute( "Constant", H5::PredType::NATIVE_HBOOL, H5::DataSpace( 1, rank1 ) );
-			attr.write( H5::PredType::NATIVE_HBOOL, &variable.constant );
-		}
-
-		/// NIAWG
-		H5::Group niawgGroup( file.createGroup( "/NIAWG" ) );
-
-		H5::DataSet runNiawgSet = niawgGroup.createDataSet( "Run-NIAWG", H5::PredType::NATIVE_HBOOL,
-															H5::DataSpace( 1, rank1 ) );
-		runNiawgSet.write( &input->runNiawg, H5::PredType::NATIVE_HBOOL );
-
-		if ( input->runNiawg )
-		{
-			niawgPair<std::vector<std::fstream>> niawgFiles;
-			std::vector<std::fstream> intensityScriptFiles;
-			ProfileSystem::openNiawgFiles( niawgFiles, input->profile, input->runNiawg );
-			// Hor Script
-			std::stringstream stream;
-			stream << niawgFiles[Horizontal][0].rdbuf( );
-			rank1[0] = stream.str( ).size( );
-			H5::DataSet horScriptSet = niawgGroup.createDataSet( "Horizontal-NIAWG-Script", H5::PredType::C_S1,
-																 H5::DataSpace( 1, rank1 ) );
-			horScriptSet.write( cstr( stream.str( ) ), H5::PredType::C_S1 );
-			// vert script;
-			stream = std::stringstream( );
-			stream << niawgFiles[Vertical][0].rdbuf( );
-			rank1[0] = stream.str( ).size( );
-			H5::DataSet vertScriptSet = niawgGroup.createDataSet( "Vertical-NIAWG-Script", H5::PredType::C_S1,
-																  H5::DataSpace( 1, rank1 ) );
-			vertScriptSet.write( cstr( stream.str( ) ), H5::PredType::C_S1 );
-			// sample rate
-			rank1[0] = 1;
-			H5::DataSet sampleSet = niawgGroup.createDataSet( "NIAWG-Sample-Rate", H5::PredType::NATIVE_DOUBLE,
-															  H5::DataSpace( 1, rank1 ) );
-			sampleSet.write( &NIAWG_SAMPLE_RATE, H5::PredType::NATIVE_UINT );
-
-			H5::DataSet gainSet = niawgGroup.createDataSet( "NIAWG-GAIN", H5::PredType::NATIVE_DOUBLE,
-															H5::DataSpace( 1, rank1 ) );
-			int gain = NIAWG_GAIN;
-			gainSet.write( &gain, H5::PredType::NATIVE_DOUBLE );
-		}
-		else
-		{
-			niawgGroup.createDataSet( "Horizontal-NIAWG-Script:NA", H5::PredType::C_S1, H5::DataSpace( 1, rank1 ) );
-			niawgGroup.createDataSet( "Vertical-NIAWG-Script:NA", H5::PredType::C_S1, H5::DataSpace( 1, rank1 ) );
-			niawgGroup.createDataSet( "NIAWG-Sample-Rate:NA", H5::PredType::NATIVE_DOUBLE, H5::DataSpace( 1, rank1 ) );
-			niawgGroup.createDataSet( "NIAWG-GAIN", H5::PredType::NATIVE_DOUBLE, H5::DataSpace( 1, rank1 ) );
-		}
-
-		/// agilents
-		H5::Group agilentsGroup( file.createGroup( "/Agilents" ) );
-		for ( auto& agilent : input->agilents )
-		{
-			H5::Group singleAgilent( agilentsGroup.createGroup( agilent->getName( ) ) );
-			// mode
-			deviceOutputInfo info = agilent->getOutputInfo( );
-			UINT channelCount = 1;
-			for ( auto& channel : info.channel )
-			{
-				H5::Group channelGroup( singleAgilent.createGroup( "Channel-" + str( channelCount ) ) );
-
-				H5::DataSet modeSet = channelGroup.createDataSet( "Output-Mode", H5::PredType::C_S1,
-																H5::DataSpace( 1, rank1 ) );
-				std::string outputModeName;
-				switch ( channel.option )
-				{
-				case -2:
-					outputModeName = "No-Control";
-					break;
-				case -1:
-					outputModeName = "Output-Off";
-					break;
-				case 0:
-					outputModeName = "DC";
-					break;
-				case 1:
-					outputModeName = "Sine";
-					break;
-				case 2:
-					outputModeName = "Square";
-					break;
-				case 3:
-					outputModeName = "Preloaded-Arb";
-					break;
-				case 4:
-					outputModeName = "Scripted-Arb";
-					break;
-				}
-				rank1[0] = outputModeName.size( );
-				modeSet.write( cstr( outputModeName ), H5::PredType::C_S1 );
-				// dc
-				H5::Group dcSettings( channelGroup.createGroup( "DC-Settings" ) );
-				rank1[0] = channel.dc.dcLevelInput.expressionStr.size( );
-				H5::DataSet dcLevelSet = dcSettings.createDataSet( "DC-Level", H5::PredType::C_S1,
-																   H5::DataSpace( 1, rank1 ) );
-				dcLevelSet.write( cstr( channel.dc.dcLevelInput.expressionStr ), H5::PredType::C_S1 );
-				// sine 
-				H5::Group sineSettingsGroup( channelGroup.createGroup( "Sine-Settings" ) );
-				rank1[0] = channel.sine.frequencyInput.expressionStr.size( );
-				H5::DataSet sineFreqSet = sineSettingsGroup.createDataSet( "Frequency", H5::PredType::C_S1,
-																		   H5::DataSpace( 1, rank1 ) );
-				sineFreqSet.write( cstr( channel.sine.frequencyInput.expressionStr ), H5::PredType::C_S1 );
-
-				rank1[0] = channel.sine.amplitudeInput.expressionStr.size( );
-				H5::DataSet sineAmpSet = sineSettingsGroup.createDataSet( "Ampiltude", H5::PredType::C_S1,
-																		  H5::DataSpace( 1, rank1 ) );
-				sineAmpSet.write( cstr( channel.sine.amplitudeInput.expressionStr ), H5::PredType::C_S1 );
-
-				//
-				H5::Group squareSettings( channelGroup.createGroup( "Square-Settings" ) );
-				rank1[0] = channel.square.amplitudeInput.expressionStr.size( );
-				H5::DataSet squareAmpSet = squareSettings.createDataSet( "Ampiltude", H5::PredType::C_S1,
-																		 H5::DataSpace( 1, rank1 ) );
-				squareAmpSet.write( cstr( channel.square.amplitudeInput.expressionStr ), H5::PredType::C_S1 );
-
-				rank1[0] = channel.square.frequencyInput.expressionStr.size( );
-				H5::DataSet squareFreqSet = squareSettings.createDataSet( "Frequency", H5::PredType::C_S1,
-																		  H5::DataSpace( 1, rank1 ) );
-				squareFreqSet.write( cstr( channel.square.frequencyInput.expressionStr ), H5::PredType::C_S1 );
-
-				rank1[0] = channel.square.offsetInput.expressionStr.size( );
-				H5::DataSet squareoffsetSet = squareSettings.createDataSet( "Offset", H5::PredType::C_S1,
-																			H5::DataSpace( 1, rank1 ) );
-				squareoffsetSet.write( cstr( channel.square.offsetInput.expressionStr ), H5::PredType::C_S1 );
-				//
-				H5::Group preloadedArbSettings( channelGroup.createGroup( "Preloaded-Arb-Settings" ) );
-				rank1[0] = channel.preloadedArb.address.size( );
-				H5::DataSet preloadedAddress = preloadedArbSettings.createDataSet( "Address", H5::PredType::C_S1,
-																				   H5::DataSpace( 1, rank1 ) );
-				preloadedAddress.write( cstr( channel.preloadedArb.address ), H5::PredType::C_S1 );
-
-				H5::Group scriptedArbSettings( channelGroup.createGroup( "Scripted-Arb-Settings" ) );
-				rank1[0] = channel.scriptedArb.fileAddress.size( );
-				H5::DataSet scriptAddress = preloadedArbSettings.createDataSet( "File-Address", H5::PredType::C_S1,
-																				H5::DataSpace( 1, rank1 ) );
-				scriptAddress.write( cstr( channel.scriptedArb.fileAddress ), H5::PredType::C_S1 );
-				// TODO: load file itself
-				channelCount++;
-			}
-		}
+		writeDataSet( input->repetitionNumber, "Repetitions", runParametersGroup );
+		logVariables( input->variables, runParametersGroup );
+		logNiawgSettings( input );
+		logAgilentSettings( input->agilents );
 	}
 	catch ( H5::Exception& err )
 	{
 		thrower( "ERROR: Failed to log master parameters in HDF5 file: detail:" + err.getDetailMsg( ) );
-				 //+ ", major:" + err.getMajorString(err.) + ", minor:" + err.getMinorString(err));
+	}
+}
+
+
+void DataLogger::logVariables( const std::vector<variableType>& variables, H5::Group& group )
+{
+	H5::Group variableGroup = group.createGroup( "Variables" );
+	for ( auto& variable : variables )
+	{
+		H5::DataSet varSet;
+		if ( variable.constant )
+		{
+			varSet = writeDataSet( variable.ranges.front( ).initialValue, variable.name, variableGroup );
+		}
+		else
+		{
+			varSet = writeDataSet( variable.keyValues, variable.name, variableGroup );
+		}
+		writeAttribute( variable.constant, "Constant", varSet );
 	}
 }
 
@@ -541,6 +390,200 @@ int DataLogger::getDataFileNumber()
 }
 
 
-void DataLogger::logNiawgSettings()
+void DataLogger::logNiawgSettings(MasterThreadInput* input)
 {
+	H5::Group niawgGroup( file.createGroup( "/NIAWG" ) );
+	writeDataSet( input->runNiawg, "Run-NIAWG", niawgGroup );
+	if ( input->runNiawg )
+	{
+		niawgPair<std::vector<std::fstream>> niawgFiles;
+		std::vector<std::fstream> intensityScriptFiles;
+		ProfileSystem::openNiawgFiles( niawgFiles, input->profile, input->runNiawg );
+		std::stringstream stream;
+		stream << niawgFiles[Horizontal][0].rdbuf( );
+		writeDataSet( stream.str( ), "Horizontal-NIAWG-Script", niawgGroup );
+		stream = std::stringstream( );
+		stream << niawgFiles[Vertical][0].rdbuf( );
+		writeDataSet( stream.str( ), "Vertical-NIAWG-Script", niawgGroup );
+		writeDataSet( NIAWG_SAMPLE_RATE, "NIAWG-Sample-Rate", niawgGroup );
+		writeDataSet( NIAWG_GAIN, "NIAWG-Gain", niawgGroup );
+	}
+	else
+	{
+		writeDataSet( "", "NA:Horizontal-NIAWG-Script", niawgGroup );
+		writeDataSet( "", "NA:Vertical-NIAWG-Script", niawgGroup );
+		writeDataSet( -1, "NA:NIAWG-Sample-Rate", niawgGroup );
+		writeDataSet( -1, "NA:NIAWG-Gain", niawgGroup );
+	}
 }
+
+
+H5::DataSet DataLogger::writeDataSet( bool data, std::string name, H5::Group& group )
+{
+	try
+	{
+		hsize_t rank1[] = { 1 };
+		H5::DataSet dset = group.createDataSet( cstr( name ), H5::PredType::NATIVE_HBOOL, H5::DataSpace( 1, rank1 ) );
+		dset.write( &data, H5::PredType::NATIVE_HBOOL );
+		return dset;
+	}
+	catch ( H5::Exception& err )
+	{
+		thrower( "ERROR: error while writing bool data set to H5 File. bool was " + str( data ) 
+				 + ". Dataset name was " + name + ". Error was :\r\n" + err.getDetailMsg( ) );
+	}
+}
+
+
+H5::DataSet DataLogger::writeDataSet( ULONGLONG data, std::string name, H5::Group& group )
+{
+	try
+	{
+		hsize_t rank1[] = { 1 };
+		H5::DataSet dset = group.createDataSet( cstr( name ), H5::PredType::NATIVE_ULLONG, H5::DataSpace( 1, rank1 ) );
+		dset.write( &data, H5::PredType::NATIVE_ULLONG );
+		return dset;
+	}
+	catch ( H5::Exception& err )
+	{
+		thrower( "ERROR: error while writing uint data set to H5 File. uint was " + str( data )
+				 + ". Dataset name was " + name + ". Error was :\r\n" + err.getDetailMsg( ) );
+	}
+}
+
+
+H5::DataSet DataLogger::writeDataSet( UINT data, std::string name, H5::Group& group )
+{
+	try
+	{
+		hsize_t rank1[] = { 1 };
+		H5::DataSet dset = group.createDataSet( cstr( name ), H5::PredType::NATIVE_UINT, H5::DataSpace( 1, rank1 ) );
+		dset.write( &data, H5::PredType::NATIVE_UINT );
+		return dset;
+	}
+	catch ( H5::Exception& err )
+	{
+		thrower( "ERROR: error while writing uint data set to H5 File. uint was " + str( data ) 
+				 + ". Dataset name was " + name + ". Error was :\r\n" + err.getDetailMsg( ) );
+	}
+}
+
+
+H5::DataSet DataLogger::writeDataSet( int data, std::string name, H5::Group& group )
+{
+	try
+	{
+		hsize_t rank1[] = { 1 };
+		H5::DataSet dset = group.createDataSet( cstr( name ), H5::PredType::NATIVE_INT, H5::DataSpace( 1, rank1 ) );
+		dset.write( &data, H5::PredType::NATIVE_INT );
+		return dset;
+	}
+	catch ( H5::Exception& err )
+	{
+		thrower( "ERROR: error while writing int data set to H5 File. int was " + str( data ) 
+				 + ". Dataset name was " + name + ". Error was :\r\n" + err.getDetailMsg( ) );
+	}
+}
+
+
+H5::DataSet DataLogger::writeDataSet( double data, std::string name, H5::Group& group )
+{
+	try
+	{
+		hsize_t rank1[] = { 1 };
+		H5::DataSet dset = group.createDataSet( cstr( name ), H5::PredType::NATIVE_DOUBLE, H5::DataSpace( 1, rank1 ) );
+		dset.write( &data, H5::PredType::NATIVE_DOUBLE );
+		return dset;
+	}
+	catch ( H5::Exception& err )
+	{
+		thrower( "ERROR: error while writing double data set to H5 File. double was " + str(data) 
+				 + ". Dataset name was " + name + ". Error was :\r\n" + err.getDetailMsg( ) );
+	}
+}
+
+
+H5::DataSet DataLogger::writeDataSet( std::vector<float> dataVec, std::string name, H5::Group& group )
+{
+	try
+	{
+		hsize_t rank1[] = { 1 };
+		rank1[0] = dataVec.size( );
+		H5::DataSet dset = group.createDataSet( cstr( name ), H5::PredType::NATIVE_FLOAT, H5::DataSpace( 1, rank1 ) );
+		// get from the key file
+		dset.write( dataVec.data( ), H5::PredType::NATIVE_FLOAT );
+		return dset;
+	}
+	catch ( H5::Exception& err )
+	{
+		thrower( "ERROR: error while writing double float data set to H5 File. Dataset name was " + name
+				 + ". Error was :\r\n" + err.getDetailMsg( ) );
+	}
+}
+
+
+H5::DataSet DataLogger::writeDataSet( std::vector<double> dataVec, std::string name, H5::Group& group )
+{
+	try
+	{
+		hsize_t rank1[] = { 1 };
+		rank1[0] = dataVec.size( );
+		H5::DataSet dset = group.createDataSet( cstr( name ), H5::PredType::NATIVE_DOUBLE, H5::DataSpace( 1, rank1 ) );
+		// get from the key file
+		dset.write( dataVec.data( ), H5::PredType::NATIVE_DOUBLE );
+		return dset;
+	}
+	catch ( H5::Exception& err )
+	{
+		thrower( "ERROR: error while writing double vector data set to H5 File. Dataset name was " + name
+				 + ". Error was :\r\n" + err.getDetailMsg( ) );
+	}
+}
+
+
+H5::DataSet DataLogger::writeDataSet( std::string data, std::string name, H5::Group& group )
+{
+	try
+	{
+		hsize_t rank1[] = { data.length( ) };
+		H5::DataSet dset = group.createDataSet( cstr( name ), H5::PredType::C_S1, H5::DataSpace( 1, rank1 ) );
+		dset.write( cstr( data ), H5::PredType::C_S1 );
+		return dset;
+	}
+	catch ( H5::Exception& err )
+	{
+		thrower( "ERROR: error while writing string data set to H5 File. String was " + data 
+				 + ". Dataset name was " + name + ". Error was :\r\n" + err.getDetailMsg( ) );
+	}
+}
+
+void DataLogger::writeAttribute( double data, std::string name, H5::DataSet& dset )
+{
+	try
+	{
+		hsize_t rank1[] = { 1 };
+		H5::Attribute attr = dset.createAttribute( cstr( name ), H5::PredType::NATIVE_DOUBLE, H5::DataSpace( 1, rank1 ) );
+		attr.write( H5::PredType::NATIVE_DOUBLE, &data );
+	}
+	catch ( H5::Exception& err )
+	{
+		thrower( "ERROR: error while writing bool attribute to H5 File. bool was " + str( data )
+				 + ". Dataset name was " + name + ". Error was :\r\n" + err.getDetailMsg( ) );
+	}
+}
+
+void DataLogger::writeAttribute( bool data, std::string name, H5::DataSet& dset )
+{
+	try
+	{
+		hsize_t rank1[] = { 1 };
+		H5::Attribute attr = dset.createAttribute( cstr(name), H5::PredType::NATIVE_HBOOL, H5::DataSpace( 1, rank1 ) );
+		attr.write( H5::PredType::NATIVE_HBOOL, &data);
+	}
+	catch ( H5::Exception& err )
+	{
+		thrower( "ERROR: error while writing bool attribute to H5 File. bool was " + str(data)
+				 + ". Dataset name was " + name + ". Error was :\r\n" + err.getDetailMsg( ) );
+	}
+}
+

@@ -1,10 +1,8 @@
 #pragma once
 
-#include "KeyHandler.h"
 #include "segmentStructs.h"
 #include "windows.h"
 #include <string>
-
 
 
 class Segment
@@ -14,7 +12,7 @@ class Segment
 		segmentInfoInput getInput();
 		segmentInfoFinal getFinalSettings();
 		void convertInputToFinal();
-		void convertInputToFinal( key variableKey, UINT variation, std::vector<variableType>& vars);
+		void convertInputToFinal( UINT variation, std::vector<variableType>& vars);
 		UINT returnDataSize();
 		void assignDataVal( int dataNum, double val );
 		double returnDataVal( long dataNum );

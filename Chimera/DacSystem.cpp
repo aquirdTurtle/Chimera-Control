@@ -52,7 +52,7 @@ std::array<double, 24> DacSystem::getDacStatus()
 }
 
 
-void DacSystem::handleOpenConfig(std::ifstream& openFile, double version, DioSystem* ttls)
+void DacSystem::handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor, DioSystem* ttls)
 {
 	ProfileSystem::checkDelimiterLine(openFile, "DACS");
 	prepareForce( );
@@ -240,7 +240,6 @@ void DacSystem::daqStartTask( TaskHandle handle )
 /// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// 
 /// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 
 std::string DacSystem::getDacSystemInfo()
@@ -604,10 +603,10 @@ void DacSystem::prepareForce()
 }
 
 
-void DacSystem::interpretKey( key variationKey, std::vector<variableType>& vars, std::string& warnings )
+void DacSystem::interpretKey( std::vector<variableType>& variables, std::string& warnings )
 {
 	UINT variations;
-	variations = variationKey[vars[0].name].first.size();
+	variations = variables.front( ).keyValues.size( );
 	if (variations == 0)
 	{
 		variations = 1;
@@ -623,7 +622,6 @@ void DacSystem::interpretKey( key variationKey, std::vector<variableType>& vars,
 	bool nonIntegerWarningPosted = false;
 	for (UINT variationInc = 0; variationInc < variations; variationInc++)
 	{
-	//
 		for (UINT eventInc = 0; eventInc < dacCommandFormList.size(); eventInc++)
 		{
 			DacCommand tempEvent;
@@ -641,7 +639,7 @@ void DacSystem::interpretKey( key variationKey, std::vector<variableType>& vars,
 				double varTime = 0;
 				for (auto variableTimeString : dacCommandFormList[eventInc].time.first)
 				{
-					varTime += variableTimeString.evaluate( variationKey, variationInc, vars);
+					varTime += variableTimeString.evaluate( variables, variationInc );
 				}
 				tempEvent.time = varTime + dacCommandFormList[eventInc].time.second;
 			}
@@ -651,21 +649,21 @@ void DacSystem::interpretKey( key variationKey, std::vector<variableType>& vars,
 				/// single point.
 				////////////////
 				// deal with value
-				tempEvent.value = dacCommandFormList[eventInc].finalVal.evaluate( variationKey, variationInc, vars);
+				tempEvent.value = dacCommandFormList[eventInc].finalVal.evaluate( variables, variationInc );
 				dacCommandList[variationInc].push_back(tempEvent);
 			}
 			else if ( dacCommandFormList[eventInc].commandName == "dacarange:")
 			{
 				// interpret ramp time command. I need to know whether it's ramping or not.
-				double rampTime = dacCommandFormList[eventInc].rampTime.evaluate( variationKey, variationInc, vars );
+				double rampTime = dacCommandFormList[eventInc].rampTime.evaluate( variables, variationInc );
 				/// many points to be made.
 				// convert initValue and finalValue to doubles to be used 
 				double initValue, finalValue, rampInc;
-				initValue = dacCommandFormList[eventInc].initVal.evaluate( variationKey, variationInc, vars);
+				initValue = dacCommandFormList[eventInc].initVal.evaluate( variables, variationInc );
 				// deal with final value;
-				finalValue = dacCommandFormList[eventInc].finalVal.evaluate( variationKey, variationInc, vars);
+				finalValue = dacCommandFormList[eventInc].finalVal.evaluate( variables, variationInc );
 				// deal with ramp inc
-				rampInc = dacCommandFormList[eventInc].rampInc.evaluate( variationKey, variationInc, vars);
+				rampInc = dacCommandFormList[eventInc].rampInc.evaluate( variables, variationInc );
 				if (rampInc < 10.0 / pow(2, 16) && resolutionWarningPosted )
 				{
 					resolutionWarningPosted = true;
@@ -720,15 +718,15 @@ void DacSystem::interpretKey( key variationKey, std::vector<variableType>& vars,
 			else if ( dacCommandFormList[eventInc].commandName == "daclinspace:" )
 			{
 				// interpret ramp time command. I need to know whether it's ramping or not.
-				double rampTime = dacCommandFormList[eventInc].rampTime.evaluate( variationKey, variationInc, vars );
+				double rampTime = dacCommandFormList[eventInc].rampTime.evaluate( variables, variationInc );
 				/// many points to be made.
 				// convert initValue and finalValue to doubles to be used 
 				double initValue, finalValue, numSteps;
-				initValue = dacCommandFormList[eventInc].initVal.evaluate( variationKey, variationInc, vars );
+				initValue = dacCommandFormList[eventInc].initVal.evaluate( variables, variationInc );
 				// deal with final value;
-				finalValue = dacCommandFormList[eventInc].finalVal.evaluate( variationKey, variationInc, vars );
+				finalValue = dacCommandFormList[eventInc].finalVal.evaluate( variables, variationInc );
 				// deal with numPoints
-				numSteps = dacCommandFormList[eventInc].numSteps.evaluate( variationKey, variationInc, vars );
+				numSteps = dacCommandFormList[eventInc].numSteps.evaluate( variables, variationInc );
 				double rampInc = (finalValue - initValue) / numSteps;
 				if ( (fabs(rampInc) < 10.0 / pow( 2, 16 )) && !resolutionWarningPosted )
 				{

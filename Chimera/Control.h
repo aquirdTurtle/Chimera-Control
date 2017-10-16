@@ -10,9 +10,22 @@
 
 //#include "miscellaneousCommonFunctions.h"
 
-static HFONT toolTipFont = CreateFont(30, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-									  DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+static HFONT toolTipFont = CreateFont(30, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, 
+									   CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
 
+/*
+Some standard IDs for controls. Can be combined with other options for specific controls. Use of these shortens and 
+standardizes control initializations.
+*/
+const DWORD NORM_CWND_OPTIONS = WS_VISIBLE | WS_CHILD;
+const DWORD NORM_PUSH_OPTIONS = NORM_CWND_OPTIONS | BS_DEFPUSHBUTTON | WS_TABSTOP;
+const DWORD NORM_STATIC_OPTIONS = NORM_CWND_OPTIONS | ES_READONLY | ES_CENTER | SS_ENDELLIPSIS;
+const DWORD NORM_HEADER_OPTIONS = NORM_STATIC_OPTIONS | WS_BORDER | ES_SUNKEN;
+const DWORD NORM_EDIT_OPTIONS = NORM_CWND_OPTIONS | WS_TABSTOP | ES_MULTILINE | ES_WANTRETURN;
+const DWORD NORM_COMBO_OPTIONS = NORM_CWND_OPTIONS | CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_OVERLAPPED | WS_TABSTOP;
+const DWORD NORM_RADIO_OPTIONS = NORM_CWND_OPTIONS | BS_AUTORADIOBUTTON | WS_TABSTOP;
+const DWORD NORM_CHECK_OPTIONS = NORM_CWND_OPTIONS | BS_AUTOCHECKBOX | WS_TABSTOP | BS_RIGHT;
+const DWORD NORM_LISTVIEW_OPTIONS = NORM_CWND_OPTIONS | WS_BORDER | LVS_REPORT | LVS_EDITLABELS;
 /*
  * This is a complex class definition. The first line here declares that this is a template class with a class template
  * argument named ControlType.  I.e. my class is based on a class called ControlType.
@@ -58,7 +71,6 @@ template<class ControlType> Control<ControlType>::Control()
 	// assert that the template class is derived from CWnd. This doesn't actually do anything in run-time. It's also
 	// probably redundant because of all the functionality designed around CWnd in this class, like the below function.
 	ControlType obj;
-	//assert((CWnd const*)&obj);
 }
 
 template <class ControlType> void Control<ControlType>::rearrange(int width, int height, fontMap fonts)

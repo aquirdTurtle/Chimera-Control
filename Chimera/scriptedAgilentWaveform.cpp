@@ -9,6 +9,12 @@ ScriptedAgilentWaveform::ScriptedAgilentWaveform()
 };
 
 
+void ScriptedAgilentWaveform::resetNumberOfTriggers( )
+{
+	numberOfTriggers = 0;
+}
+
+
 /** This function reads out a segment of script file and loads it into a segment to be calculated and manipulated.
 * segNum: This tells the function what the next segment # is.
 * script: this is the object to be read from.
@@ -122,6 +128,7 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 	}
 	else if (tempContinuationType == "repeatuntiltrig")
 	{
+		numberOfTriggers++;
 		workingInput.continuationType = 1;
 	}
 	else if (tempContinuationType == "once")
@@ -134,6 +141,7 @@ bool ScriptedAgilentWaveform::analyzeAgilentScriptCommand( int segNum, ScriptStr
 	}
 	else if (tempContinuationType == "oncewaittrig")
 	{
+		numberOfTriggers++;
 		workingInput.continuationType = 4;
 	}
 	else
@@ -333,15 +341,18 @@ void ScriptedAgilentWaveform::replaceVarValues()
 /*
 * This waveform loops through all of the segments to find places where a variable value needs to be changed, and changes it.
 */
-void ScriptedAgilentWaveform::replaceVarValues( key variableKey, UINT variation, std::vector<variableType>& variables )
+void ScriptedAgilentWaveform::replaceVarValues( UINT variation, std::vector<variableType>& variables )
 {
 	for (UINT segNumInc = 0; segNumInc < waveformSegments.size(); segNumInc++)
 	{
-		waveformSegments[segNumInc].convertInputToFinal( variableKey, variation, variables );
+		waveformSegments[segNumInc].convertInputToFinal( variation, variables );
 	}
 }
 
-
+ULONG ScriptedAgilentWaveform::getNumberOfTriggers( )
+{
+	return numberOfTriggers;
+}
 
 /*
 * This function takes the powers inputted by the user and converts them (based on calibrations that we have done) to the corresponding voltage values

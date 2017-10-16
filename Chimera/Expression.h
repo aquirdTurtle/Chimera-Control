@@ -1,19 +1,17 @@
 ﻿#pragma once
 
-#include "keyHandler.h"
 #include "VariableStructures.h"
 #include "windows.h"
 #include <string>
-#include "KeyHandler.h"
 
 class Expression
 {
 	public:
 		Expression( );
 		Expression( std::string expressionString );
-		void assertValid( std::vector<variableType>& vars );
-		double evaluate( key variationKey = {}, UINT variation = -1, 
-						 std::vector<variableType>& vars = std::vector<variableType>( ) );
+		void assertValid( std::vector<variableType>& variables );
+		// default values are empty objects and variation #-1.
+		double evaluate( std::vector<variableType>& variables = std::vector<variableType>( ), UINT variation=-1 );
 		static std::vector<std::string> splitString( std::string workingString );
 		std::string expressionStr;
 		bool varies( );

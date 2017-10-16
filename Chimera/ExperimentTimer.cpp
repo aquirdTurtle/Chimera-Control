@@ -10,24 +10,20 @@ void ExperimentTimer::initialize( cameraPositions& inputLoc, CWnd* parent, bool 
 								  cToolTips& toolTips )
 {
 	timeDisplay.sPos = { inputLoc.sPos.x, inputLoc.sPos.y, inputLoc.sPos.x + 168, inputLoc.sPos.y + 40 };
-	timeDisplay.Create("", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, timeDisplay.sPos, parent, id++ );
+	timeDisplay.Create("", NORM_STATIC_OPTIONS, timeDisplay.sPos, parent, id++ );
 	/// PROGRESS BARS
 	// subseries progress bar
 	variationProgress.sPos = { inputLoc.sPos.x + 168, inputLoc.sPos.y, inputLoc.sPos.x + 1168, inputLoc.sPos.y + 15 };
-	variationProgress.Create(WS_CHILD | WS_VISIBLE | PBS_SMOOTH, variationProgress.sPos, parent, id++ );
+	variationProgress.Create(NORM_CWND_OPTIONS | PBS_SMOOTH, variationProgress.sPos, parent, id++ );
 	variationProgress.SetBkColor(RGB(100, 110, 100));
 	variationProgress.SetBarColor(RGB(0, 200, 0));
 	variationProgress.SetRange32( 0, 10000 );
 	// series progress bar display
 	overallProgress.sPos = { inputLoc.sPos.x + 168, inputLoc.sPos.y + 15, inputLoc.sPos.x + 1168, inputLoc.sPos.y + 40 };
-	overallProgress.Create(WS_CHILD | WS_VISIBLE | PBS_SMOOTH, overallProgress.sPos, parent, id++ );
+	overallProgress.Create( NORM_CWND_OPTIONS | PBS_SMOOTH, overallProgress.sPos, parent, id++ );
 	overallProgress.SetBkColor(RGB(100, 110, 100));
 	overallProgress.SetBarColor(RGB(255, 255, 255));
 	overallProgress.SetRange32( 0, 10000 );
-	//overallProgress.Set
-	inputLoc.seriesPos.y += 40;
-	inputLoc.amPos.y += 40;
-	inputLoc.videoPos.y += 40;
 }
 
 void ExperimentTimer::update(ULONGLONG currentRepNumber, ULONGLONG repsPerVariation, ULONGLONG numberOfVariations, UINT picsPerRep)

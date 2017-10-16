@@ -37,9 +37,6 @@
     <ClCompile Include="ScriptingWindow.cpp">
       <Filter>Scripting Window</Filter>
     </ClCompile>
-    <ClCompile Include="saveTextFileFromEdit.cpp">
-      <Filter>General Files</Filter>
-    </ClCompile>
     <ClCompile Include="RhodeSchwarz.cpp">
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
@@ -88,9 +85,6 @@
     <ClCompile Include="MainOptionsControl.cpp">
       <Filter>Main Window</Filter>
     </ClCompile>
-    <ClCompile Include="KeyHandler.cpp">
-      <Filter>Main Window</Filter>
-    </ClCompile>
     <ClCompile Include="Gnuplotter.cpp">
       <Filter>Camera Window</Filter>
     </ClCompile>
@@ -102,9 +96,6 @@
     </ClCompile>
     <ClCompile Include="AuxiliaryWindow.cpp">
       <Filter>Auxiliary Window</Filter>
-    </ClCompile>
-    <ClCompile Include="DebuggingOptionsControl.cpp">
-      <Filter>Main Window</Filter>
     </ClCompile>
     <ClCompile Include="DataAnalysisHandler.cpp">
       <Filter>Camera Window</Filter>
@@ -199,6 +190,15 @@
     <ClCompile Include="PlotDataSet.cpp">
       <Filter>Camera Window</Filter>
     </ClCompile>
+    <ClCompile Include="multiDimensionalKey.cpp">
+      <Filter>Auxiliary Window</Filter>
+    </ClCompile>
+    <ClCompile Include="saveWithExplorer.cpp">
+      <Filter>General Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugOptionsControl.cpp">
+      <Filter>Main Window</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -270,9 +270,6 @@
     <ClInclude Include="ProfileIndicator.h">
       <Filter>General Files</Filter>
     </ClInclude>
-    <ClInclude Include="saveTextFileFromEdit.h">
-      <Filter>General Files</Filter>
-    </ClInclude>
     <ClInclude Include="ScriptStream.h">
       <Filter>General Files</Filter>
     </ClInclude>
@@ -303,9 +300,6 @@
     <ClInclude Include="MainOptionsControl.h">
       <Filter>Main Window</Filter>
     </ClInclude>
-    <ClInclude Include="KeyHandler.h">
-      <Filter>Main Window</Filter>
-    </ClInclude>
     <ClInclude Include="gnuplotter.h">
       <Filter>Camera Window</Filter>
     </ClInclude>
@@ -317,9 +311,6 @@
     </ClInclude>
     <ClInclude Include="EmbeddedPythonHandler.h">
       <Filter>General Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DebuggingOptionsControl.h">
-      <Filter>Main Window</Filter>
     </ClInclude>
     <ClInclude Include="Control.h">
       <Filter>General Files</Filter>
@@ -393,7 +384,6 @@
     <ClInclude Include="Fgen.h">
       <Filter>Main Window</Filter>
     </ClInclude>
-    <ClInclude Include="resource2.h" />
     <ClInclude Include="VisaFlume.h">
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
@@ -469,7 +459,19 @@
     <ClInclude Include="profileSettings.h">
       <Filter>Main Window\Structures</Filter>
     </ClInclude>
-    <ClInclude Include="segmentStructs.h" />
+    <ClInclude Include="multiDimensionalKey.h" />
+    <ClInclude Include="debugInfo.h">
+      <Filter>Main Window</Filter>
+    </ClInclude>
+    <ClInclude Include="segmentStructs.h">
+      <Filter>Camera Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="saveWithExplorer.h">
+      <Filter>General Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugOptionsControl.h">
+      <Filter>Main Window</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

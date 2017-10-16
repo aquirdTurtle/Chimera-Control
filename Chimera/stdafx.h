@@ -31,6 +31,9 @@
 // Contains functions and types used by the waveform generator.
 // #include "niFgen.h"
 
+// important!
+#include "miscellaneousCommonFunctions.h"
+
 #include <stdio.h>
 #include <tchar.h>
 // My stuff
@@ -44,6 +47,4 @@
 #include <fstream>
 #include <vector>
 #include <array>
-// important!
-#include "miscellaneousCommonFunctions.h"
 

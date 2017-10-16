@@ -103,9 +103,9 @@ void RearrangeControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips&
 }
 
 
-void RearrangeControl::handleOpenConfig( std::ifstream& openFile, double version)
+void RearrangeControl::handleOpenConfig( std::ifstream& openFile, int versionMajor, int versionMinor )
 {
-	if ( version < 2.09 )
+	if ( (versionMajor == 2 &&  versionMinor < 1) || versionMajor < 2)
 	{
 		return;
 	}
@@ -116,13 +116,13 @@ void RearrangeControl::handleOpenConfig( std::ifstream& openFile, double version
 	openFile >> info.moveBias;
 	openFile >> info.moveSpeed;
 
-	if ( version < 2.29 )
+	if ( (versionMajor == 2 && versionMinor < 3) || versionMajor < 2 )
 	{
 		std::string garbage;
  		openFile >> garbage;
 		openFile >> garbage;
 	}
-	if ( version > 2.21 )
+	if ( (versionMajor == 2 && versionMinor > 2) || versionMajor > 2 )
 	{
 		openFile >> info.deadTime;
 		openFile >> info.staticMovingRatio;		
@@ -132,7 +132,7 @@ void RearrangeControl::handleOpenConfig( std::ifstream& openFile, double version
 		info.deadTime = 0;
 		info.staticMovingRatio = 1;
 	}
-	if ( version > 2.51 )
+	if ( (versionMajor == 2 && versionMinor > 5) || versionMajor > 2 )
 	{
 		openFile >> info.outputInfo;
 	}

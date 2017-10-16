@@ -6,7 +6,6 @@
 #include "Control.h"
 #include "VariableSystem.h"
 #include "DioSystem.h"
-#include "KeyHandler.h"
 #include "miscellaneousCommonFunctions.h"
 
 #include "nidaqmx2.h"
@@ -23,7 +22,7 @@ class DacSystem
 		DacSystem();
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(std::ifstream& openFile, double version, DioSystem* ttls);
+		void handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor, DioSystem* ttls);
 		void abort();
 		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id );
 		std::string getDacSequenceMessage(UINT variation );
@@ -36,7 +35,7 @@ class DacSystem
 		void stopDacs();
 		void configureClocks(UINT variation );
 		void setDacTriggerEvents( DioSystem* ttls, UINT variation );
-		void interpretKey(key variationKey, std::vector<variableType>& vars, std::string& warnings);
+		void interpretKey( std::vector<variableType>& variables, std::string& warnings );
 		void organizeDacCommands(UINT variation);
 		void makeFinalDataFormat(UINT variation );
 		void writeDacs(UINT variation );

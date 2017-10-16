@@ -9,13 +9,20 @@
 struct realTimePlotterInput;
 struct cameraPositions;
 
+
+// variation data is to be organized
+// variationData[datasetNumber][groupNumber][variationNumber];
+typedef std::vector<std::vector<std::vector<double>>> variationData;
+
+typedef std::vector<std::vector<double>> avgData;
+
 class DataAnalysisControl
 {
 	public:
 		void initialize( cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips,
 						 int isTriggerModeSensitive, rgbMap rgbs );
 		ULONG getPlotFreq( );
-		void handleOpenConfig( std::ifstream& file, double version );
+		void handleOpenConfig( std::ifstream& file, int versionMajor, int versionMinor );
 		void handleNewConfig( std::ofstream& file );
 		void handleSaveConfig(std::ofstream& file );
 		void handleDoubleClick( fontMap* fonts, UINT currentPicsPerRepetition );
@@ -41,12 +48,8 @@ class DataAnalysisControl
 		// subroutine for handling atom & count plots
 		static void handlePlotAtomsOrCounts( realTimePlotterInput* input, PlottingInfo plotInfo, UINT repNum,
 											 std::vector<std::vector<std::vector<long> > >& finData,
-											 std::vector<std::vector<std::vector<double> > >& finAvgs,
-											 std::vector<std::vector<std::vector<double> > >& finErrs,
-											 std::vector<std::vector<std::vector<double> > >& finX,
-											 std::vector<std::vector<double> > & avgAvgs,
-											 std::vector<std::vector<double> >& avgErrs,
-											 std::vector<std::vector<double> >& avgX,
+											 variationData& finAvgs, variationData& finErrs, variationData& finX,
+											 avgData& avgAvgs, avgData& avgErrs, avgData& avgX,
 											 std::vector<std::vector<bool> >& needNewData,
 											 std::vector<std::vector<bool>>& pscSatisfied, int plotNumber,
 											 std::vector<std::vector<long>>& countData, int plotNumberCount,
@@ -56,7 +59,9 @@ class DataAnalysisControl
 									std::vector<std::vector<long>> countData,
 									std::vector<std::vector<std::vector<long>>>& finData,
 									std::vector<std::vector<bool>>pscSatisfied, int plotNumberCount );
-
+		static void determineWhichPscsSatisfied( PlottingInfo& info, UINT groupSize, 
+												 std::vector<std::vector<int>> atomPresentData,
+												 std::vector<std::vector<bool>>& pscSatisfied );
 	private:
 		// real time plotting
 		ULONG updateFrequency;
@@ -71,7 +76,7 @@ class DataAnalysisControl
 		bool currentlySettingAnalysisLocations;
 		Control<CStatic> currentDataSetNumberText;
 		Control<CStatic> currentDataSetNumberEdit;
-		Control<CButton> manualSetAnalysisLocationsButton;
+		Control<CButton> manualSetAnalysisLocsButton;
 
 		Control<CStatic> gridHeader;
 		Control<CButton> setGridCorner;
@@ -84,4 +89,20 @@ class DataAnalysisControl
 		atomGrid currentGrid;
 		std::vector<coordinate> atomLocations;
 		bool threadNeedsCounts;
+};
+
+
+class pictureData
+{
+
+};
+
+class repetitionData
+{
+
+};
+
+class groupData
+{
+
 };

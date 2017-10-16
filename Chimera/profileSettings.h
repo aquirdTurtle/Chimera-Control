@@ -8,11 +8,11 @@
 struct profileSettings
 {
 	std::string configuration;
-	std::string experiment;
-	std::string category;
+	//std::string experiment;
+	std::string parentFolderName;
 	std::string sequence;
 	// Note: The experiment (category) path include the expriment (category) name in the string.
-	std::string experimentPath;
+	//std::string experimentPath;
 	// Note: The experiment (category) path include the expriment (category) name in the string.
 	std::string categoryPath;
 	// needs some work.

@@ -1,12 +1,12 @@
 #pragma once
 #include "stdafx.h"
 #include "ProfileSystem.h"
-#include "DebuggingOptionsControl.h"
+#include "DebugOptionsControl.h"
 #include "MainOptionsControl.h"
 #include "StatusControl.h"
 #include "StatusIndicator.h"
 #include "Communicator.h"
-#include "SMSTextingControl.h"
+#include "SmsTextingControl.h"
 #include "EmbeddedPythonHandler.h"
 #include "MasterConfiguration.h"
 #include "Repetitions.h"
@@ -28,6 +28,7 @@ class MainWindow : public CDialog
 	DECLARE_DYNAMIC(MainWindow);
 	public:
 	    // overrides
+		void passNiawgIsOnPress( );
 		MainWindow(UINT id, CDialog*);
 		BOOL OnInitDialog() override;
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
@@ -44,7 +45,7 @@ class MainWindow : public CDialog
 		LRESULT onNormalFinishMessage(WPARAM wParam, LPARAM lParam);
 		LRESULT onColoredEditMessage(WPARAM wParam, LPARAM lParam);
 		LRESULT onDebugMessage(WPARAM wParam, LPARAM lParam);		
-		
+		LRESULT onNoAtomsAlertMessage( WPARAM wp, LPARAM lp);
 		//
 		void stopRearranger( );
 		void waitForRearranger( );
@@ -54,19 +55,19 @@ class MainWindow : public CDialog
 		void passMainOptionsPress( UINT id );
 		void handleDblClick( NMHDR * pNotifyStruct, LRESULT * result );
 		void handleRClick( NMHDR * pNotifyStruct, LRESULT * result );
-		void handleExperimentCombo();
-		void handleCategoryCombo();
-		void handleConfigurationCombo();
+		//void handleExperimentCombo();
+		//void handleCategoryCombo();
+		//void handleConfigurationCombo();
 		void handleSequenceCombo();
 		void passClear( UINT id );
 
 		// auxiliary functions used by the window.
-		void setNotes(std::string whichLevel, std::string notes);
+		void setNotes(std::string notes);
 		void setNiawgDefaults();
 		void fillMasterThreadInput( MasterThreadInput* input );
 		void fillMotInput( MasterThreadInput* input);
 		void startMaster( MasterThreadInput* input, bool isTurnOnMot );
-		std::string getNotes(std::string whichLevel);
+		std::string getNotes( );
 		brushMap getBrushes();
 		rgbMap getRgbs();
 		fontMap getFonts();
@@ -88,7 +89,7 @@ class MainWindow : public CDialog
 		void changeBoxColor(systemInfo<char> colors);
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpeningConfig(std::ifstream& configFile, double version);
+		void handleOpeningConfig(std::ifstream& configFile, int versionMajor, int versionMinor );
 		void abortMasterThread();
 		Communicator* getComm();
 		std::string getSystemStatusString();
@@ -101,10 +102,9 @@ class MainWindow : public CDialog
 		UINT getRepNumber();
 		void logParams( DataLogger* logger, MasterThreadInput* input );
 		bool experimentIsPaused( );
-		void handleExperimentNotesChange( );
-		void handleCategoryNotesChange( );
 		void notifyConfigUpdate( );
 		void handleEmailButton( );
+		void passConfigPress( );
 
 	private:		
 		DECLARE_MESSAGE_MAP();
@@ -136,7 +136,7 @@ class MainWindow : public CDialog
 		RunInfo systemRunningInfo;
 		cToolTips tooltips;
 		EmbeddedPythonHandler python;
-		KeyHandler masterKey;
+		//KeyHandler masterKey;
 
 		static BOOL CALLBACK monitorHandlingProc( _In_ HMONITOR hMonitor, _In_ HDC      hdcMonitor,
 										   _In_ LPRECT   lprcMonitor, _In_ LPARAM   dwData );

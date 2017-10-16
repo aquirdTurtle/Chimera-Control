@@ -5,7 +5,7 @@
 #include "ScriptStream.h"
 #include "ProfileSystem.h"
 #include "AuxiliaryWindow.h"
-
+//
 #include "boost/cast.hpp"
 #include <algorithm>
 #include <numeric>
@@ -14,11 +14,13 @@
 #include "visa.h"
 
 Agilent::Agilent( const agilentSettings& settings ) : visaFlume( settings.safemode, settings.address ),
-												sampleRate( settings.sampleRate ),
-												load( settings.outputImpedance ),
-												filterState( settings.filterState ),
-												initSettings( settings )
-{ 
+													  sampleRate( settings.sampleRate ),
+													  load( settings.outputImpedance ),
+													  filterState( settings.filterState ),
+													  initSettings( settings ),
+													  triggerRow(settings.triggerRow ), 
+													  triggerNumber( settings.triggerNumber )
+{
 	visaFlume.open(); 
 }
 
@@ -107,7 +109,7 @@ void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id
 
 void Agilent::checkSave( std::string categoryPath, RunInfo info )
 {
-	if ( settings.channel[currentChannel].option == 4 )
+	if ( settings.channel[currentChannel-1].option == 4 )
 	{
 		agilentScript.checkSave( categoryPath, info );
 	}
@@ -219,6 +221,8 @@ void Agilent::analyzeAgilentScript( scriptedArbInfo& infoObj, std::vector<variab
 	stream << scriptFile.rdbuf();
 	stream.seekg( 0 );
 	int currentSegmentNumber = 0;
+
+	infoObj.wave.resetNumberOfTriggers( );
 	while (!stream.eof())
 	{
 		// Procedurally read lines into segment informations.
@@ -236,6 +240,12 @@ void Agilent::analyzeAgilentScript( scriptedArbInfo& infoObj, std::vector<variab
 		}
 		currentSegmentNumber++;
 	}
+}
+
+
+std::pair<UINT, UINT> Agilent::getTriggerLine( )
+{
+	return { triggerRow, triggerNumber };
 }
 
 
@@ -522,7 +532,7 @@ deviceOutputInfo Agilent::getOutputInfo()
 }
 
 
-void Agilent::convertInputToFinalSettings( UINT chan, key variableKey, UINT variation, std::vector<variableType>& variables)
+void Agilent::convertInputToFinalSettings( UINT chan, UINT variation, std::vector<variableType>& variables)
 {
 	// iterate between 0 and 1...
 	channelInfo& channel( settings.channel[chan] );
@@ -538,29 +548,29 @@ void Agilent::convertInputToFinalSettings( UINT chan, key variableKey, UINT vari
 				break;
 			case 0:
 				// DC output
-				channel.dc.dcLevel = channel.dc.dcLevelInput.evaluate( variableKey, variation );
+				channel.dc.dcLevel = channel.dc.dcLevelInput.evaluate( variables, variation );
 				break;
 			case 1:
 				// single frequency output
 				// frequency
-				channel.sine.frequency = channel.sine.frequencyInput.evaluate( variableKey, variation );
+				channel.sine.frequency = channel.sine.frequencyInput.evaluate( variables, variation );
 				// amplitude
-				channel.sine.amplitude = channel.sine.amplitudeInput.evaluate( variableKey, variation );
+				channel.sine.amplitude = channel.sine.amplitudeInput.evaluate( variables, variation );
 				break;
 			case 2:
 				// Square Output
 				// frequency
-				channel.square.frequency = channel.square.frequencyInput.evaluate( variableKey, variation );
+				channel.square.frequency = channel.square.frequencyInput.evaluate( variables, variation );
 				// amplitude
-				channel.square.amplitude = channel.square.amplitudeInput.evaluate( variableKey, variation );
-				channel.square.offset = channel.square.offsetInput.evaluate( variableKey, variation );
+				channel.square.amplitude = channel.square.amplitudeInput.evaluate( variables, variation );
+				channel.square.offset = channel.square.offsetInput.evaluate( variables, variation );
 				break;
 			case 3:
 				// Preloaded Arb Output... no variations possible...
 				break;
 			case 4:
 				// Scripted Arb Output... 
-				handleScriptVariation( variableKey, variation, channel.scriptedArb, chan+1, variables );
+				handleScriptVariation( variation, channel.scriptedArb, chan+1, variables );
 				break;
 			default:
 				thrower( "Unrecognized Agilent Setting: " + str( channel.option ) );
@@ -709,7 +719,7 @@ void Agilent::handleSavingConfig(std::ofstream& saveFile, std::string categoryPa
 }
 
 
-void Agilent::readConfigurationFile( std::ifstream& file, double version )
+void Agilent::readConfigurationFile( std::ifstream& file, int versionMajor, int versionMinor )
 {
 	ProfileSystem::checkDelimiterLine(file, "AGILENT");
 	file >> settings.synced;
@@ -728,7 +738,7 @@ void Agilent::readConfigurationFile( std::ifstream& file, double version )
 	}
 	std::string calibratedOption;
 	std::getline( file, settings.channel[0].dc.dcLevelInput.expressionStr );
-	if ( version > 2.3 )
+	if ( (versionMajor == 2 && versionMinor > 3) || versionMajor > 2 )
 	{
 		std::getline( file, calibratedOption );
 		bool calOption;
@@ -744,7 +754,7 @@ void Agilent::readConfigurationFile( std::ifstream& file, double version )
 	}
 	std::getline( file, settings.channel[0].sine.amplitudeInput.expressionStr );
 	std::getline( file, settings.channel[0].sine.frequencyInput.expressionStr );
-	if ( version > 2.3 )
+	if ( (versionMajor == 2 && versionMinor > 3) || versionMajor > 2 )
 	{
 		std::getline( file, calibratedOption );
 		bool calOption;
@@ -761,7 +771,7 @@ void Agilent::readConfigurationFile( std::ifstream& file, double version )
 	std::getline( file, settings.channel[0].square.amplitudeInput.expressionStr );
 	std::getline( file, settings.channel[0].square.frequencyInput.expressionStr );
 	std::getline( file, settings.channel[0].square.offsetInput.expressionStr );
-	if ( version > 2.3 )
+	if ( (versionMajor == 2 && versionMinor > 3) || versionMajor > 2 )
 	{
 		std::getline( file, calibratedOption );
 		bool calOption;
@@ -776,7 +786,7 @@ void Agilent::readConfigurationFile( std::ifstream& file, double version )
 		settings.channel[0].square.useCalibration = calOption;
 	}
 	std::getline( file, settings.channel[0].preloadedArb.address);
-	if ( version > 2.3 )
+	if ( (versionMajor == 2 && versionMinor > 3) || versionMajor > 2 )
 	{
 		std::getline( file, calibratedOption );
 		bool calOption;
@@ -791,7 +801,7 @@ void Agilent::readConfigurationFile( std::ifstream& file, double version )
 		settings.channel[0].preloadedArb.useCalibration = calOption;
 	}
 	std::getline( file, settings.channel[0].scriptedArb.fileAddress );
-	if ( version > 2.3 )
+	if ( (versionMajor == 2 && versionMinor > 3) || versionMajor > 2 )
 	{
 		std::getline( file, calibratedOption );
 		bool calOption;
@@ -817,7 +827,7 @@ void Agilent::readConfigurationFile( std::ifstream& file, double version )
 		thrower("ERROR: Bad channel 1 option!");
 	}
 	std::getline( file, settings.channel[1].dc.dcLevelInput.expressionStr );
-	if ( version > 2.3 )
+	if ( (versionMajor == 2 && versionMinor > 3) || versionMajor > 2 )
 	{
 		std::getline( file, calibratedOption );
 		bool calOption;
@@ -833,7 +843,7 @@ void Agilent::readConfigurationFile( std::ifstream& file, double version )
 	}
 	std::getline( file, settings.channel[1].sine.amplitudeInput.expressionStr );
 	std::getline( file, settings.channel[1].sine.frequencyInput.expressionStr );
-	if ( version > 2.3 )
+	if ( (versionMajor == 2 && versionMinor > 3) || versionMajor > 2 )
 	{
 		std::getline( file, calibratedOption );
 		bool calOption;
@@ -850,7 +860,7 @@ void Agilent::readConfigurationFile( std::ifstream& file, double version )
 	std::getline( file, settings.channel[1].square.amplitudeInput.expressionStr );
 	std::getline( file, settings.channel[1].square.frequencyInput.expressionStr );
 	std::getline( file, settings.channel[1].square.offsetInput.expressionStr );
-	if ( version > 2.3 )
+	if ( (versionMajor == 2 && versionMinor > 3) || versionMajor > 2 )
 	{
 		std::getline( file, calibratedOption );
 		bool calOption;
@@ -865,7 +875,7 @@ void Agilent::readConfigurationFile( std::ifstream& file, double version )
 		settings.channel[1].square.useCalibration = calOption;
 	}
 	std::getline( file, settings.channel[1].preloadedArb.address);
-	if ( version > 2.3 )
+	if ( (versionMajor == 2 && versionMinor > 3) || versionMajor > 2 )
 	{
 		std::getline( file, calibratedOption );
 		bool calOption;
@@ -880,7 +890,7 @@ void Agilent::readConfigurationFile( std::ifstream& file, double version )
 		settings.channel[1].preloadedArb.useCalibration = calOption;
 	}
 	std::getline( file, settings.channel[1].scriptedArb.fileAddress );
-	if ( version > 2.3 )
+	if ( (versionMajor == 2 && versionMinor > 3) || versionMajor > 2 )
 	{
 		std::getline( file, calibratedOption );
 		bool calOption;
@@ -992,7 +1002,7 @@ void Agilent::prepAgilentSettings(UINT channel)
 }
 
 
-void Agilent::handleScriptVariation( key variationKey, UINT variation, scriptedArbInfo& scriptInfo, UINT channel, 
+void Agilent::handleScriptVariation( UINT variation, scriptedArbInfo& scriptInfo, UINT channel,  
 									 std::vector<variableType>& variables)
 {
 	// Initialize stuff
@@ -1002,7 +1012,7 @@ void Agilent::handleScriptVariation( key variationKey, UINT variation, scriptedA
 	{
 		UINT totalSegmentNumber = scriptInfo.wave.getSegmentNumber( );
 		// replace variable values where found
-		scriptInfo.wave.replaceVarValues( variationKey, variation, variables );
+		scriptInfo.wave.replaceVarValues( variation, variables );
 		// Loop through all segments
 		for ( UINT segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++ )
 		{
@@ -1025,6 +1035,8 @@ void Agilent::handleScriptVariation( key variationKey, UINT variation, scriptedA
 		scriptInfo.wave.minsAndMaxes[variation].first = scriptInfo.wave.getMinVolt( );
 		scriptInfo.wave.normalizeVoltages( );
 		visaFlume.write( "SOURCE" + str( channel ) + ":DATA:VOL:CLEAR" );
+		/// new line here:
+		prepAgilentSettings( channel );
 		for ( UINT segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++ )
 		{
 			visaFlume.write( scriptInfo.wave.compileAndReturnDataSendString( segNumInc, variation, 
@@ -1075,6 +1087,8 @@ void Agilent::handleNoVariations(scriptedArbInfo& scriptInfo, UINT channel)
 	scriptInfo.wave.minsAndMaxes[0].first = scriptInfo.wave.getMinVolt();
 	scriptInfo.wave.normalizeVoltages();
 	visaFlume.write( "SOURCE" + str( channel ) + ":DATA:VOL:CLEAR" );
+	/// new line here
+	prepAgilentSettings( channel );
 	for (UINT segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++)
 	{
 		visaFlume.write( scriptInfo.wave.compileAndReturnDataSendString( segNumInc, 0, totalSegmentNumber, channel ) );
@@ -1116,7 +1130,7 @@ void Agilent::setScriptOutput( UINT varNum, scriptedArbInfo scriptInfo, UINT cha
 }
 
 
-void Agilent::setAgilent( key varKey, UINT variation, std::vector<variableType>& variables)
+void Agilent::setAgilent( UINT variation, std::vector<variableType>& variables)
 {
 	if (!connected())
 	{
@@ -1130,7 +1144,7 @@ void Agilent::setAgilent( key varKey, UINT variation, std::vector<variableType>&
 			// need to do this before converting to final settings
 			analyzeAgilentScript(settings.channel[chan].scriptedArb, variables);
 		}
-		convertInputToFinalSettings(chan, varKey, variation, variables);
+		convertInputToFinalSettings(chan, variation, variables);
 		switch (settings.channel[chan].option)
 		{
 			case -2:

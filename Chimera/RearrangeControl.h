@@ -14,7 +14,7 @@ class RearrangeControl
 		rearrangeParams getParams( );
 		void setParams( rearrangeParams params );
 		void initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips );
-		void handleOpenConfig( std::ifstream& openFile, double version );
+		void handleOpenConfig( std::ifstream& openFile, int versionMajor, int versionMinor );
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig( std::ofstream& newFile );
 		void rearrange( int width, int height, fontMap fonts );

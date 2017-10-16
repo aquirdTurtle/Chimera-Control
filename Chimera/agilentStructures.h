@@ -16,7 +16,6 @@ struct agilentSettings
 	ULONG sampleRate;
 	std::string outputImpedance;
 	std::string filterState;
-
 	// button ids.
 	ULONG chan1ButtonId;
 	ULONG chan2ButtonId;
@@ -26,6 +25,9 @@ struct agilentSettings
 	ULONG editId;
 	ULONG programButtonId;
 	ULONG calibrationButtonId;
+
+	ULONG triggerRow;
+	ULONG triggerNumber;
 };
 
 struct minMaxDoublet

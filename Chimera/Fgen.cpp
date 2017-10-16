@@ -118,7 +118,6 @@ void FgenFlume::writeUnNamedWaveform( ViInt32 waveID, ViInt32 mixedSampleNumber,
 	}
 }
 
-// niFgen_SetNamedWaveformNextWritePosition
 
 // put waveform into the device memory
 void FgenFlume::writeNamedWaveform( ViConstString waveformName, ViInt32 mixedSampleNumber, ViReal64* wave )

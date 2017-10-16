@@ -1,10 +1,74 @@
 #include "stdafx.h"
 #include <algorithm>
-
 #include "SMSTextingControl.h"
-
 #include "commctrl.h"
 #include "TextPromptDialog.h"
+
+
+void SmsTextingControl::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& tooltips, rgbMap rgbs )
+{
+	title.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
+	title.Create( "TEXT ME", NORM_HEADER_OPTIONS, title.sPos, parent, id++ );
+	title.fontType = HeadingFont;
+
+	enterEmailInfoButton.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
+	enterEmailInfoButton.Create( "Enter Email Information", NORM_PUSH_OPTIONS, enterEmailInfoButton.sPos, parent, 
+								 IDC_ENTER_EMAIL_INFO );
+
+	peopleListView.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 120 };
+	peopleListView.Create( NORM_LISTVIEW_OPTIONS, peopleListView.sPos, parent, IDC_SMS_TEXTING_LISTVIEW );
+	peopleListView.fontType = SmallFont;
+	LV_COLUMN listViewDefaultCollumn;
+	// Zero Members
+	memset( &listViewDefaultCollumn, 0, sizeof( listViewDefaultCollumn ) );
+	// Type of mask
+	listViewDefaultCollumn.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
+	// width between each column
+	listViewDefaultCollumn.cx = 0x42;
+	listViewDefaultCollumn.pszText = "Person";
+	// Inserting Couloms as much as we want
+	peopleListView.InsertColumn( 0, &listViewDefaultCollumn );
+	listViewDefaultCollumn.pszText = "Phone #";
+	peopleListView.InsertColumn( 1, &listViewDefaultCollumn );
+	listViewDefaultCollumn.pszText = "Carrier";
+	peopleListView.InsertColumn( 2, &listViewDefaultCollumn );
+	listViewDefaultCollumn.cx = 0x62;
+	listViewDefaultCollumn.pszText = "At Finish?";
+	peopleListView.InsertColumn( 3, &listViewDefaultCollumn );
+	listViewDefaultCollumn.pszText = "If No Loading?";
+	peopleListView.InsertColumn( 4, &listViewDefaultCollumn );
+	// Make First Blank row.
+	LVITEM listViewDefaultItem;
+	memset( &listViewDefaultItem, 0, sizeof( listViewDefaultItem ) );
+	listViewDefaultItem.mask = LVIF_TEXT;   // Text Style
+	listViewDefaultItem.cchTextMax = 256; // Max size of test
+	listViewDefaultItem.pszText = "___";
+	listViewDefaultItem.iItem = 0;          // choose item  
+	listViewDefaultItem.iSubItem = 0;       // Put in first coluom
+	peopleListView.InsertItem( &listViewDefaultItem );
+	for ( int itemInc = 1; itemInc < 3; itemInc++ ) // Add SubItems in a loop
+	{
+		listViewDefaultItem.iSubItem = itemInc;
+		peopleListView.SetItem( &listViewDefaultItem );
+	}
+	listViewDefaultItem.iSubItem = 3;
+	listViewDefaultItem.pszText = "No";
+	peopleListView.SetItem( &listViewDefaultItem );
+	listViewDefaultItem.iSubItem = 4;
+	peopleListView.SetItem( &listViewDefaultItem );
+	peopleListView.SetBkColor( rgbs["Solarized Base02"] );
+	peopleListView.SetTextBkColor( rgbs["Solarized Base02"] );
+	peopleListView.SetTextColor( rgbs["Solarized Base2"] );
+	pos.y += 120;
+	// initialize myself;
+	personInfo me;
+	me.name = "Mark Brown";
+	me.number = "7032544981";
+	me.provider = "verizon";
+	me.textIfLoadingStops = false;
+	me.textWhenComplete = false;
+	addPerson( me );
+}
 
 
 void SmsTextingControl::promptForEmailAddressAndPassword()
@@ -21,74 +85,6 @@ void SmsTextingControl::rearrange(int width, int height, fontMap fonts)
 	title.rearrange( width, height, fonts);
 	enterEmailInfoButton.rearrange( width, height, fonts );
 	peopleListView.rearrange( width, height, fonts);	
-}
-
-
-void SmsTextingControl::initialize(POINT& pos, CWnd* parent, bool isTriggerModeSensitive, int& id, cToolTips& tooltips, 
-									rgbMap rgbs)
-{
-	title.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
-	title.Create("TEXT ME", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY | WS_BORDER, title.sPos, parent, id++ );
-	title.fontType = HeadingFont;
-
-	enterEmailInfoButton.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
-	enterEmailInfoButton.Create( "Enter Email Information", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
-								  enterEmailInfoButton.sPos, parent, IDC_ENTER_EMAIL_INFO );
-
-	peopleListView.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 120 };
-	peopleListView.Create(WS_VISIBLE | WS_CHILD | WS_BORDER | LVS_REPORT | LVS_EDITLABELS, peopleListView.sPos, parent,
-						   IDC_SMS_TEXTING_LISTVIEW );
-	peopleListView.fontType = SmallFont;
-	LV_COLUMN listViewDefaultCollumn;
-	// Zero Members
-	memset(&listViewDefaultCollumn, 0, sizeof(listViewDefaultCollumn));
-	// Type of mask
-	listViewDefaultCollumn.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
-	// width between each column
-	listViewDefaultCollumn.cx = 0x42;
-	listViewDefaultCollumn.pszText = "Person";
-	// Inserting Couloms as much as we want
-	peopleListView.InsertColumn(0, &listViewDefaultCollumn);
-	listViewDefaultCollumn.pszText = "Phone #";
-	peopleListView.InsertColumn(1, &listViewDefaultCollumn);
-	listViewDefaultCollumn.pszText = "Carrier";
-	peopleListView.InsertColumn(2, &listViewDefaultCollumn);
-	listViewDefaultCollumn.cx = 0x62;
-	listViewDefaultCollumn.pszText = "At Finish?";
-	peopleListView.InsertColumn(3, &listViewDefaultCollumn);
-	listViewDefaultCollumn.pszText = "If No Loading?";
-	peopleListView.InsertColumn(4, &listViewDefaultCollumn);
-	// Make First Blank row.
-	LVITEM listViewDefaultItem;
-	memset(&listViewDefaultItem, 0, sizeof(listViewDefaultItem));
-	listViewDefaultItem.mask = LVIF_TEXT;   // Text Style
-	listViewDefaultItem.cchTextMax = 256; // Max size of test
-	listViewDefaultItem.pszText = "___";
-	listViewDefaultItem.iItem = 0;          // choose item  
-	listViewDefaultItem.iSubItem = 0;       // Put in first coluom
-	peopleListView.InsertItem(&listViewDefaultItem);
-	for (int itemInc = 1; itemInc < 3; itemInc++) // Add SubItems in a loop
-	{
-		listViewDefaultItem.iSubItem = itemInc;
-		peopleListView.SetItem(&listViewDefaultItem);
-	}
-	listViewDefaultItem.iSubItem = 3;
-	listViewDefaultItem.pszText = "No";
-	peopleListView.SetItem(&listViewDefaultItem);
-	listViewDefaultItem.iSubItem = 4;
-	peopleListView.SetItem(&listViewDefaultItem);
-	peopleListView.SetBkColor( rgbs["Solarized Base02"] );
-	peopleListView.SetTextBkColor( rgbs["Solarized Base02"] );
-	peopleListView.SetTextColor( rgbs["Solarized Base2"] );
-	pos.y += 120;
-	// initialize myself;
-	personInfo me;
-	me.name = "Mark Brown";
-	me.number = "7032544981";
-	me.provider = "verizon";
-	me.textIfLoadingStops = true;
-	me.textWhenComplete = true;
-	addPerson( me );
 }
 
 

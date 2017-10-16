@@ -14,91 +14,73 @@ ImageDimsControl::ImageDimsControl()
 
 void ImageDimsControl::initialize( cameraPositions& pos, CWnd* parent, bool isTriggerModeSensitive, int& id )
 {
-	/*
-	setImageDimsButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
-	setImageDimsButton.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
-	setImageDimsButton.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
-	setImageDimsButton.Create( "Set Image Dimensions", WS_TABSTOP | WS_CHILD | WS_VISIBLE,
-							   setImageDimsButton.seriesPos, parent, IDC_SET_IMAGE_PARAMETERS_BUTTON );
-	*/
-
 	//
 	leftText.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 25 };
 	leftText.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 25 };
 	leftText.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 160, pos.videoPos.y + 25 };
-	leftText.Create( "Left", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY | WS_BORDER, leftText.seriesPos, parent, 
-					 id++);
+	leftText.Create( "Left", NORM_STATIC_OPTIONS, leftText.seriesPos, parent, id++);
 	//
 	rightText.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 25 };
 	rightText.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 25 };
 	rightText.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
-	rightText.Create( "Right", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY | WS_BORDER, rightText.seriesPos, 
+	rightText.Create( "Right", NORM_STATIC_OPTIONS, rightText.seriesPos,
 					  parent, id++ );
 	//
 	horBinningText.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
 	horBinningText.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
 	horBinningText.videoPos = { pos.videoPos.x + 320, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
-	horBinningText.Create( "H. Bin", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY | WS_BORDER, 
-								  horBinningText.seriesPos, parent,
-								 id++);
+	horBinningText.Create( "H. Bin", NORM_STATIC_OPTIONS, horBinningText.seriesPos, parent, id++);
 	//
 	leftEdit.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 25 };
 	leftEdit.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 25 };
 	leftEdit.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 160, pos.videoPos.y + 25 };
-	leftEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER | WS_BORDER, leftEdit.seriesPos, 
-					 parent, id++);
+	leftEdit.Create( NORM_EDIT_OPTIONS, leftEdit.seriesPos, parent, id++);
 	leftEdit.SetWindowTextA( "1" );
 	//
 	rightEdit.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 25 };
 	rightEdit.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 25 };
 	rightEdit.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
-	rightEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER | WS_BORDER, rightEdit.seriesPos, parent, id++);
+	rightEdit.Create( NORM_EDIT_OPTIONS, rightEdit.seriesPos, parent, id++);
 	rightEdit.SetWindowTextA( "50" );
 	//
 	horBinningEdit.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
 	horBinningEdit.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
 	horBinningEdit.videoPos = { pos.videoPos.x + 320, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
-	horBinningEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER | WS_BORDER, 
-								  horBinningEdit.seriesPos, parent,
-								  id++ );
+	horBinningEdit.Create( NORM_EDIT_OPTIONS, horBinningEdit.seriesPos, parent, id++ );
 	horBinningEdit.SetWindowTextA( "1" );
 	//
 	bottomLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 25 };
 	bottomLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 25 };
 	bottomLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 160, pos.videoPos.y + 25 };
-	bottomLabel.Create( "Bottom", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY | WS_BORDER, bottomLabel.seriesPos, parent, id++);
+	bottomLabel.Create( "Bottom", NORM_STATIC_OPTIONS, bottomLabel.seriesPos, parent, id++);
 
 	//
 	topLabel.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 25 };
 	topLabel.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 25 };
 	topLabel.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
-	topLabel.Create( "Top", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY | WS_BORDER, topLabel.seriesPos, 
-					   parent, id++);
+	topLabel.Create( "Top", NORM_STATIC_OPTIONS, topLabel.seriesPos, parent, id++);
 	//
 	vertBinningText.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
 	vertBinningText.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
 	vertBinningText.videoPos = { pos.videoPos.x + 320, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
-	vertBinningText.Create( "V. Bin", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY | WS_BORDER, 
-								vertBinningText.seriesPos,
-							    parent, id++);
+	vertBinningText.Create( "V. Bin", NORM_STATIC_OPTIONS, vertBinningText.seriesPos, parent, id++);
 	//
 	bottomEdit.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 25 };
 	bottomEdit.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 25 };
 	bottomEdit.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 160, pos.videoPos.y + 25 };
-	bottomEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER | WS_BORDER, bottomEdit.seriesPos, parent, id++);
+	bottomEdit.Create( NORM_EDIT_OPTIONS, bottomEdit.seriesPos, parent, id++);
 	bottomEdit.SetWindowTextA( "1" );
 	//
 	topEdit.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 25 };
 	topEdit.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 25 };
 	topEdit.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
-	topEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER | WS_BORDER, topEdit.seriesPos, parent, id++);
+	topEdit.Create( NORM_EDIT_OPTIONS, topEdit.seriesPos, parent, id++);
 	topEdit.SetWindowTextA( "50" );
 	//
 	vertBinningEdit.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
 	vertBinningEdit.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
 	vertBinningEdit.videoPos = { pos.videoPos.x + 320, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
-	vertBinningEdit.Create( WS_TABSTOP | WS_CHILD | WS_VISIBLE | ES_CENTER | WS_BORDER, vertBinningEdit.seriesPos, parent,
-							id++ );
+	vertBinningEdit.Create( NORM_EDIT_OPTIONS, vertBinningEdit.seriesPos, parent, id++ );
 	vertBinningEdit.SetWindowTextA( "1" );
 }
 
@@ -132,13 +114,13 @@ void ImageDimsControl::handleSave( std::ofstream& saveFile )
 void ImageDimsControl::handleNew( std::ofstream& newfile )
 {
 	newfile << "CAMERA_IMAGE_DIMENSIONS\n";
-	newfile << "0 512 1\n";
-	newfile << "0 512 1\n";
+	newfile << "1 512 1\n";
+	newfile << "1 512 1\n";
 	newfile << "END_CAMERA_IMAGE_DIMENSIONS\n";
 }
 
 
-void ImageDimsControl::handleOpen( std::ifstream& openFile, double version )
+void ImageDimsControl::handleOpen( std::ifstream& openFile, int versionMajor, int versionMinor )
 {
 	ProfileSystem::checkDelimiterLine( openFile, "CAMERA_IMAGE_DIMENSIONS" );
 	imageParameters params;
@@ -361,7 +343,6 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 
 	if (controlID == topEdit.GetDlgCtrlID())
 	{
-		//imageParameters currentImageParameters = eImageControl.getImageParameters();
 		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
 		CString textEdit;
 		topEdit.GetWindowTextA( textEdit );
@@ -399,7 +380,6 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 	}
 	else if (controlID == bottomEdit.GetDlgCtrlID())
 	{
-		//imageParameters currentImageParameters = eImageControl.getImageParameters();
 		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
 		CString textEdit;
 		bottomEdit.GetWindowTextA( textEdit );
@@ -437,7 +417,6 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 	}
 	else if (controlID == vertBinningEdit.GetDlgCtrlID())
 	{
-		//imageParameters currentImageParameters = eImageControl.getImageParameters();
 		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
 		CString textEdit;
 		vertBinningEdit.GetWindowTextA( textEdit );
@@ -475,7 +454,6 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 	}
 	else if (controlID == leftEdit.GetDlgCtrlID())
 	{
-		//imageParameters currentImageParameters = eImageControl.getImageParameters();
 		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
 		CString textEdit;
 		leftEdit.GetWindowTextA( textEdit );
@@ -496,10 +474,6 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 				}
 				return *brushes["Grey Green"];
 			}
-			else
-			{
-				//appendText(str(leftSide) + ", " + str(currentImageParameters.leftBorder), IDC_ERROR_EDIT);
-			}
 		}
 		catch (std::exception&)
 		{
@@ -517,7 +491,6 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 	}
 	else if (controlID == rightEdit.GetDlgCtrlID())
 	{
-		//imageParameters currentImageParameters = eImageControl.getImageParameters();
 		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
 		CString textEdit;
 		rightEdit.GetWindowTextA( textEdit );
@@ -555,7 +528,6 @@ HBRUSH ImageDimsControl::colorEdits( HWND window, UINT message, WPARAM wParam, L
 	}
 	else if (controlID == horBinningEdit.GetDlgCtrlID())
 	{
-		//imageParameters currentImageParameters = eImageControl.getImageParameters();
 		SetTextColor( hdcStatic, RGB( 255, 255, 255 ) );
 		CString textEdit;
 		horBinningEdit.GetWindowTextA( textEdit );

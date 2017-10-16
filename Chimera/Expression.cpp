@@ -390,12 +390,12 @@ void Expression::evaluateFunctions( std::vector<std::string>& terms )
 Evaluate takes in an expression, which can be a combination of variables, standard math operations, and standard
 math functions, and evaluates it to a double.
 */
-double Expression::evaluate( key variationKey, UINT variation, std::vector<variableType>& vars )
+double Expression::evaluate( std::vector<variableType>& variables, UINT variation )
 {
 	// make a constant copy of the original string to use during the evaluation.
 	const std::string originalExpression( expressionStr );
-
 	double resultOfReduction = 0;
+
 	try
 	{
 		// try the simple thing.
@@ -419,36 +419,23 @@ double Expression::evaluate( key variationKey, UINT variation, std::vector<varia
 		// substitute all variables within the expression.
 		for ( auto& term : terms )
 		{
-			for ( auto variableVariationInfo : variationKey )
+			for ( auto variable : variables )
 			{
-				if ( term == variableVariationInfo.first )
+				if ( term == variable.name )
 				{
-					if ( variableVariationInfo.second.first.size( ) == 0 )
+					if ( variable.keyValues.size( ) == 0 )
 					{
 						thrower( "ERROR: Attmepting to use key that hasn't been generated yet!" );
 					}
-					term = str( variableVariationInfo.second.first[variation], 12 );
+					term = str( variable.keyValues[variation], 12 );
 					// find the variable 
 					bool foundVariable = false;
-					for ( auto& variable : vars )
-					{
-						if ( variableVariationInfo.first == variable.name )
-						{
-							variable.active = true;
-							foundVariable = true;
-						}
-					}
-					if ( !foundVariable )
-					{
-						thrower( "ERROR: Variable existed in key but not in variable vector. Low level bug. Ask Mark." );
-					}
+					variable.active = true;
 				}
 			}
 		}
 	}
-
 	evaluateFunctions( terms );
-
 	/// do math.
 	return reduce( terms );
 }

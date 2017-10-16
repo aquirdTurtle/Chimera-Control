@@ -53,7 +53,7 @@ class PlottingInfo
 		void removeDataSet();
 		void resetDataSetNumber( UINT dataSetNumber);
 
-		void setPostSelectionCondition( UINT dataSetNumber, UINT conditionNumber, UINT pixel, UINT picture, UINT trueConditionValue);
+		void setPostSelCondition( UINT dataSetNumber, UINT conditionNumber, UINT pixel, UINT picture, UINT trueConditionValue);
 		UINT getPostSelectionCondition( UINT dataSetNumber, UINT conditionNumber, UINT pixel, UINT picture);
 		void addPostSelectionCondition();
 		void removePostSelectionCondition();
@@ -66,16 +66,16 @@ class PlottingInfo
 		void setDataCountsLocation( UINT dataSet, UINT pixel, UINT picture);
 		void getDataCountsLocation( UINT dataSet, UINT& pixel, UINT& picture);
 
+		void setDataSetHistBinWidth( UINT dataSet, UINT width );
+		UINT getDataSetHistBinWidth( UINT dataSet );
+
 		void setPlotData( UINT dataSet, bool plotData);
 		bool getPlotThisDataValue( UINT dataSet);
 
 		std::string getAllSettingsString();
 		void savePlotInfo();
-		
 		void loadPlottingInfoFromFile(std::string fileLocation);
 		
-		
-
 		void clear();
 
 		UINT getPixelGroupNumber();
@@ -93,13 +93,14 @@ class PlottingInfo
 		static UINT getPicNumberFromFile(std::string fileAddress);
 		static std::string getAllSettingsStringFromFile(std::string fileAddress);
 
-
 	private:
+		// version 1.x refers to time when version number wasn't actually recorded.
+		const UINT versionMajor = 2;
+		const UINT versionMinor = 0;
 		// arbitrary
 		std::string title;
 		// arbitrary
 		std::string yLabel;
-
 		// analysisGroups[pixel #][pixel set][0] = row
 		// analysisGroups[pixel #][pixel set][1] = collumn
 		// analysisGroups[pixel #][pixel set][2] = pixel index (set durring plotting)

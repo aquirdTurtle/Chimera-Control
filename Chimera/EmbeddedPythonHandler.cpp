@@ -47,12 +47,12 @@ EmbeddedPythonHandler::EmbeddedPythonHandler()
 
 void EmbeddedPythonHandler::flush()
 {
-	// this resets the value of the class object, meaning that it resets the error text inside it.
-	std::string flushMsg = "catchOutErr.__init__()";
 	if (PYTHON_SAFEMODE)
 	{
 		return;
 	}
+	// this resets the value of the class object, meaning that it resets the error text inside it.
+	std::string flushMsg = "catchOutErr.__init__()";
 	run(flushMsg, false);
 }
 

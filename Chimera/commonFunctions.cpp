@@ -7,8 +7,7 @@
 //#include "scriptWriteHelpProc.h"
 #include "beginningSettingsDialogProc.h"
 #include "openWithExplorer.h"
-#include "saveTextFileFromEdit.h"
-
+#include "saveWithExplorer.h"
 #include "MainWindow.h"
 #include "CameraWindow.h"
 #include "AuxiliaryWindow.h"
@@ -264,8 +263,13 @@ namespace commonFunctions
 					scriptWin->saveVerticalScript( );
 					scriptWin->saveIntensityScript( );
 					scriptWin->saveMasterScript( );
+					auxWin->updateAgilent( TopBottom );
+					auxWin->updateAgilent( Axial );
+					auxWin->updateAgilent( Flashing );
+					auxWin->updateAgilent( Microwave );
 					mainWin->profile.saveEntireProfile( scriptWin, mainWin, auxWin, camWin );
 					mainWin->masterConfig.save( mainWin, auxWin, camWin );
+					
 				}
 				catch ( Error& err )
 				{
@@ -460,12 +464,6 @@ namespace commonFunctions
 				scriptWin->saveMasterFunction();
 				break;
 			}
-
-			/*			
-			ID_MASTERSCRIPT_RENAME
-			ID_MASTERSCRIPT_DELETEFUNCTION	
-			*/
-
 			case ID_SEQUENCE_RENAMESEQUENCE:
 			{
 				mainWin->profile.renameSequence();
@@ -505,6 +503,7 @@ namespace commonFunctions
 				commonFunctions::reloadNIAWGDefaults(mainWin);
 				break;
 			}
+			/*
 			case ID_EXPERIMENT_NEW_EXPERIMENT_TYPE:
 			{
 				mainWin->profile.newExperiment();
@@ -555,7 +554,7 @@ namespace commonFunctions
 			{
 				mainWin->profile.saveCategoryAs(mainWin);
 				break;
-			}
+			}*/
 			case ID_CONFIGURATION_NEW_CONFIGURATION:
 			{
 				mainWin->profile.newConfiguration(mainWin, auxWin, camWin, scriptWin);
@@ -614,6 +613,11 @@ namespace commonFunctions
 			case ID_PICTURES_ALWAYSSHOWGRID:
 			{
 				camWin->passAlwaysShowGrid();
+				break;
+			}
+			case ID_NIAWG_NIAWGISON:
+			{
+				mainWin->passNiawgIsOnPress( );
 				break;
 			}
 			case ID_RUNMENU_ABORTCAMERA:

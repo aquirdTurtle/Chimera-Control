@@ -28,50 +28,46 @@ void AlertSystem::setAlertThreshold()
 }
 
 
-void AlertSystem::initialize( cameraPositions& pos, CWnd* parent, bool isTriggerModeSensitive, int& id, 
+void AlertSystem::initialize( cameraPositions& pos, CWnd* parent, bool isTriggerModeSensitive, int& id,
 							  cToolTips& tooltips )
 {
-	alertMessageID = RegisterWindowMessage("ID_NOT_LOADING_ATOMS");
+	alertMessageID = RegisterWindowMessage( "ID_NOT_LOADING_ATOMS" );
 	/// Title
 	title.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
 	title.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
 	title.videoPos = { -1,-1,-1,-1 };
 	title.triggerModeSensitive = isTriggerModeSensitive;
-	title.Create("ALERT SYSTEM", WS_BORDER | WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, title.seriesPos, 
-				 parent, id++);
+	title.Create( "ALERT SYSTEM", NORM_HEADER_OPTIONS, title.seriesPos, parent, id++ );
 	title.fontType = HeadingFont;
 	/// Use Alerts Checkbox
 	alertsActiveCheckBox.seriesPos = { pos.seriesPos.x + 0, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 20 };
 	alertsActiveCheckBox.amPos = { pos.amPos.x + 0, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 20 };
 	alertsActiveCheckBox.videoPos = { -1,-1,-1,-1 };
 	alertsActiveCheckBox.triggerModeSensitive = isTriggerModeSensitive;
-	alertsActiveCheckBox.Create( "Use?", WS_CHILD | WS_VISIBLE | ES_LEFT | ES_READONLY | BS_CHECKBOX, 
-								 alertsActiveCheckBox.seriesPos, parent, IDC_ALERTS_BOX );
+	alertsActiveCheckBox.Create( "Use?", NORM_CHECK_OPTIONS, alertsActiveCheckBox.seriesPos, parent, IDC_ALERTS_BOX );
 
 	/// Alert threshold text
 	alertThresholdText.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 20 };
 	alertThresholdText.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 20 };
 	alertThresholdText.videoPos = { -1,-1,-1,-1 };
 	alertThresholdText.triggerModeSensitive = isTriggerModeSensitive;
-	alertThresholdText.Create( "Alert Threshold:", WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY, 
-							   alertThresholdText.seriesPos, parent, id++);
+	alertThresholdText.Create( "Alert Threshold:", NORM_STATIC_OPTIONS, alertThresholdText.seriesPos, parent, id++ );
 	/// Alert threshold edit
 	alertThresholdEdit.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 20 };
 	alertThresholdEdit.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 20 };
 	alertThresholdEdit.videoPos = { -1,-1,-1,-1 };
 	alertThresholdEdit.triggerModeSensitive = isTriggerModeSensitive;
-	alertThresholdEdit.Create(WS_CHILD | WS_VISIBLE | ES_CENTER, alertThresholdEdit.seriesPos, parent, id++);
-	alertThresholdEdit.SetWindowTextA("10");
+	alertThresholdEdit.Create( NORM_EDIT_OPTIONS, alertThresholdEdit.seriesPos, parent, id++ );
+	alertThresholdEdit.SetWindowTextA( "10" );
 	pos.seriesPos.y += 20;
 	pos.amPos.y += 20;
 	/// Sound checkbox
 	// soundAtFinshCheckBox.hwnd
-	soundAtFinshCheckBox.seriesPos = { pos.seriesPos.x + 0, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 20 };
-	soundAtFinshCheckBox.amPos = { pos.amPos.x + 0, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 20 };
-	soundAtFinshCheckBox.videoPos = { -1,-1,-1,-1 };
-	soundAtFinshCheckBox.triggerModeSensitive = isTriggerModeSensitive;
-	soundAtFinshCheckBox.Create( "Play Sound at Finish?", WS_CHILD | WS_VISIBLE | ES_LEFT | ES_READONLY 
-								| BS_AUTOCHECKBOX, soundAtFinshCheckBox.seriesPos, parent, id++);
+	soundAtFinshCheck.seriesPos = { pos.seriesPos.x + 0, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 20 };
+	soundAtFinshCheck.amPos = { pos.amPos.x + 0, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 20 };
+	soundAtFinshCheck.videoPos = { -1,-1,-1,-1 };
+	soundAtFinshCheck.triggerModeSensitive = isTriggerModeSensitive;
+	soundAtFinshCheck.Create( "Play Sound at Finish?", NORM_CHECK_OPTIONS, soundAtFinshCheck.seriesPos, parent, id++ );
 	pos.seriesPos.y += 20;
 	pos.amPos.y += 20;
 }
@@ -110,7 +106,7 @@ void AlertSystem::rearrange(std::string cameraMode, std::string triggerMode, int
 	alertsActiveCheckBox.rearrange(cameraMode, triggerMode, width, height, fonts);
 	alertThresholdText.rearrange(cameraMode, triggerMode, width, height, fonts);
 	alertThresholdEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
-	soundAtFinshCheckBox.rearrange(cameraMode, triggerMode, width, height, fonts);
+	soundAtFinshCheck.rearrange(cameraMode, triggerMode, width, height, fonts);
 }
 
 
@@ -156,5 +152,5 @@ void AlertSystem::stopSound()
 
 bool AlertSystem::soundIsToBePlayed()
 {
-	return soundAtFinshCheckBox.GetCheck();
+	return soundAtFinshCheck.GetCheck();
 }

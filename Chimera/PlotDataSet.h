@@ -32,6 +32,10 @@ class PlotDataSet
 		int getDataCountsLocation(UINT& pixel, UINT& picture);
 		void setPlotThisData(bool plotThisDataInput);
 		bool getPlotThisDataValue();
+
+		void setHistBinWidth( UINT width );
+		UINT getHistBinWidth( );
+
 		void clear();
 		
 		int getFitType();
@@ -47,13 +51,9 @@ class PlotDataSet
 		std::vector<std::vector<std::vector<int> > > postSelectionConditions;
 		// dataCountsLocation[pixel#][picture#] = this pixel is used or not.
 		std::vector<std::vector<bool> > dataCountsLocation;
-		// arbitrary.
 		std::string legendText;
-		// 
 		bool plotThisData;
-		// 
 		int fitType;
-		// 
 		int whenToFit;
-		// 
+		UINT histBinWidth=10;
 };
