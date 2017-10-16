@@ -2917,7 +2917,15 @@ void NiawgController::handleStandardWaveformForm( NiawgOutputNew& output, profil
 												  debugInfo& options, std::vector<variableType>& variables )
 {
 	loadWaveformParametersForm( output, profile, command, options, scripts, variables );
-	output.waveFormInfo.back( ).core.name = "Waveform" + str( output.waveFormInfo.size( ) );
+	// +1 to avoid the default waveform.
+	if ( output.isDefault )
+	{
+		output.waveFormInfo.back( ).core.name = "Waveform0";
+	}
+	else
+	{
+		output.waveFormInfo.back( ).core.name = "Waveform" + str( output.waveFormInfo.size( ));
+	}
 	// append script with the relevant command. This needs to be done even if variable waveforms are used, because I don't want to
 	// have to rewrite the script to insert the new waveform name into it.
 	output.niawgLanguageScript += "generate " + output.waveFormInfo.back( ).core.name + "\n";

@@ -8,7 +8,7 @@
 MainWindow::MainWindow(UINT id, CDialog* splash) : CDialog(id), profile(PROFILES_PATH), 
     masterConfig( MASTER_CONFIGURATION_FILE_ADDRESS ), 
 	appSplash( splash ),
-	niawg( 0,0 )
+	niawg( 1,14 )
 {
 	// create all the main rgbs and brushes. I want to make sure this happens before other windows are created.
 	mainRGBs["Light Green"]			= RGB( 163,	190, 140);
@@ -676,6 +676,8 @@ void MainWindow::fillMotInput( MasterThreadInput* input )
 			input->constants.push_back( variable );
 		}
 	}
+	// the mot procedure doesn't need the NIAWG at all.
+	input->runNiawg = false;
 	input->rearrangeInfo = rearrangeControl.getParams( );
 	input->rearrangeInfo.active = false;
 

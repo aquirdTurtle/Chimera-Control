@@ -1155,7 +1155,7 @@ UINT DioSystem::countTriggers( UINT row, UINT number, UINT variation )
 	for ( auto eventInc : range(ttlSnapshots[variation].size()-1) )
 	{
 		if ( ttlSnapshots[variation][eventInc].ttlStatus[row][number] == false &&
-			 ttlSnapshots[variation][eventInc+1].ttlStatus[row][number] == true )
+			 ttlSnapshots[variation][eventInc].ttlStatus[row][number] == true )
 		{
 			count++;
 		}

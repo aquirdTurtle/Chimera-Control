@@ -75,7 +75,7 @@ class DataAnalysisControl
 		bool currentlySettingGridCorner;
 		bool currentlySettingAnalysisLocations;
 		Control<CStatic> currentDataSetNumberText;
-		Control<CStatic> currentDataSetNumberEdit;
+		Control<CStatic> currentDataSetNumberDisp;
 		Control<CButton> manualSetAnalysisLocsButton;
 
 		Control<CStatic> gridHeader;

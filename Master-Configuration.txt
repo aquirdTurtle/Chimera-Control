@@ -206,7 +206,7 @@ loadmottopfield 0.25
 loadmotbottomfield -0.15
 loadmotfrontfield -0.8
 loadmotbackfield 1.47507
-loadmottime 35
+loadmottime 50
 pgctime 15
 pgcdetuning -1.25
 pgcleftfield -0.65
@@ -229,4 +229,4 @@ intrappgcpower 0.225
 loadmotsidepower 0.25
 loadmotdiagpower 0.3
 imagingrepumppower 0.2
-1 5 1 1 5 1
+259 285 3 229 270 3
