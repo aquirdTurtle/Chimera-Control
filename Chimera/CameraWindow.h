@@ -94,7 +94,7 @@ class CameraWindow : public CDialog
 														  CameraWindow* camWin, AuxiliaryWindow* masterWin );
 		void startAtomCruncher(ExperimentInput& input);
 		void startPlotterThread( ExperimentInput& input );
-
+		bool wantsAutoPause( );
 	private:
 		DECLARE_MESSAGE_MAP();
 

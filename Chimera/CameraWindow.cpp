@@ -831,6 +831,13 @@ void CameraWindow::startAtomCruncher(ExperimentInput& input)
 													   0, &atomCruncherID );
 }
 
+
+bool CameraWindow::wantsAutoPause( )
+{
+	return alerts.wantsAutoPause( );
+}
+
+
 void CameraWindow::preparePlotter( ExperimentInput& input )
 {
 	/// start the plotting thread.

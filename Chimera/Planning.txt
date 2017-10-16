@@ -8,7 +8,6 @@ FEATURES:
 		machines.
 - if aborts or crashes in the middle of run, code should close HDF5 file and make it usable, somehow.
 - revive sequences of experiments
-- option to auto pause if not loading atoms
 - NIAWG scripting in single script instead of separate Hor/Vert scripts.
 - Watch cursor location on andor pictures, sim to basler program
 - restore the Niawg functionality where it calculates next varying waveform during the run of the previous waveform.
