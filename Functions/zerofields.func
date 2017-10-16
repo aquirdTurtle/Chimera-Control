@@ -6,3 +6,5 @@ def zeroFields():
 	dac: bottomCoilCurrent pgcBottomField
 	dac: frontCoilCurrent pgcFrontField
 	dac: backCoilCurrent pgcBackField
+
+t += 3

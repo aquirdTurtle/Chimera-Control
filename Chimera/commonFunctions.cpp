@@ -264,6 +264,10 @@ namespace commonFunctions
 					scriptWin->saveVerticalScript( );
 					scriptWin->saveIntensityScript( );
 					scriptWin->saveMasterScript( );
+					auxWin->saveAgilentScript( TopBottom );
+					auxWin->saveAgilentScript( Axial );
+					auxWin->saveAgilentScript( Flashing );
+					auxWin->saveAgilentScript( Microwave );
 					mainWin->profile.saveEntireProfile( scriptWin, mainWin, auxWin, camWin );
 					mainWin->masterConfig.save( mainWin, auxWin, camWin );
 				}

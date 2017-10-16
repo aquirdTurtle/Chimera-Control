@@ -13,7 +13,7 @@ void VisaFlume::write( std::string message )
 	ULONG actual;
 	if (!deviceSafemode)
 	{
-		errCheck( viWrite( instrument, (unsigned char*)cstr( message ), (ViUInt32)message.size(), &actual ) );
+		errCheck( viWrite( instrument, (unsigned char*)cstr( message ), (ViUInt32)message.size(), &actual ), message );
 	}
 }
 
@@ -87,20 +87,38 @@ void VisaFlume::errQuery( std::string& errMsg, long& errCode )
 */
 void VisaFlume::errCheck( long status )
 {
+	errCheck( status, "" );
+}
+
+void VisaFlume::errCheck( long status, std::string msg )
+{
 	long errorCode = 0;
 	// Check comm status
 	if (status < 0)
 	{
+		std::string throwerMsg = "ERROR: VisaFlume Communication error! Error Code: " + str( status ) + "\r\n";
+		if ( msg != "" )
+		{
+			// Error detected.
+			throwerMsg += "Error seen while writing the following message: " + msg + "\r\n";
+		}
 		// Error detected.
-		thrower( "ERROR: VisaFlume Communication error! Error Code: " + str( status ) + "\r\n" );
+		thrower( throwerMsg );
+
 	}
 	// Query the agilent for errors.
 	std::string errMessage;
 	errQuery( errMessage, errorCode );
 	if (errorCode != 0)
 	{
+		std::string throwerMsg = "ERROR: visa returned error message: " + str( errorCode ) + ":" + errMessage;
+		if ( msg != "" )
+		{
+			// Error detected.
+			throwerMsg += "Error seen while writing the following message: " + msg + "\r\n";
+		}
 		// Agilent error
-		thrower( "ERROR: visa returned error message: " + str( errorCode ) + ":" + errMessage );
+		thrower( throwerMsg );
 	}
 }
 
