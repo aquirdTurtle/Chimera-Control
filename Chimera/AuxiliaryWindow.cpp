@@ -612,7 +612,7 @@ void AuxiliaryWindow::zeroDacs()
 		dacBoards.startDacs();
 		ttlBoard.organizeTtlCommands(0);
 		ttlBoard.convertToFinalFormat(0);
-		ttlBoard.writeTtlData(0);
+		ttlBoard.writeTtlData(0, false);
 		ttlBoard.startBoard();
 		ttlBoard.waitTillFinished(0);
 		sendStatus( "Zero'd DACs.\r\n");

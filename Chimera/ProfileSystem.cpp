@@ -171,39 +171,48 @@ void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindo
 	currentProfile.categoryPath += "\\";
 	configDisplay.SetWindowTextA( cstr( currentProfile.configuration + ": " + pathToConfig ) );
 	std::string versionStr;
-	// Version is saved in format "Master Version: x.x"
-	// eat the "version" word"
-	configFile >> versionStr;
-	configFile >> versionStr;
-	double version;
 	try
 	{
-		version = std::stod( versionStr );
-	}
-	catch ( std::invalid_argument& )
-	{
-		thrower( "ERROR: Version string failed to convert to double while opening configuration!" );
-	}
-	int versionMajor = int( version );
-	int versionMinor;
-	double tempDouble = std::round( (version - versionMajor) * 1e6 );
-	while ( true )
-	{
-		double d1 = double( tempDouble / 10 ), d2= double(int( tempDouble / 10 ));
-		double dif = fabs( d1 - d2 );
-		bool result = (dif > 1e-6) || (tempDouble < 1e-6);
-		if ( result )
+	// Version is saved in format "Master Version: x.x"
+	// eat the "version" word"
+		configFile >> versionStr;
+		configFile >> versionStr;
+		double version;
+		try
 		{
-			break;
+			version = std::stod( versionStr );
 		}
-		tempDouble /= 10;
-	}
-	versionMinor = std::round( tempDouble );
+		catch ( std::invalid_argument& )
+		{
+			thrower( "ERROR: Version string failed to convert to double while opening configuration!" );
+		}
+		int versionMajor = int( version );
+		int versionMinor;
+		double tempDouble = std::round( (version - versionMajor) * 1e6 );
+		while ( true )
+		{
+			double d1 = double( tempDouble / 10 ), d2 = double( int( tempDouble / 10 ) );
+			double dif = fabs( d1 - d2 );
+			bool result = (dif > 1e-6) || (tempDouble < 1e-6);
+			if ( result )
+			{
+				break;
+			}
+			tempDouble /= 10;
+		}
+		versionMinor = std::round( tempDouble );
 
-	scriptWin->handleOpenConfig( configFile, versionMajor, versionMinor );
-	camWin->handleOpeningConfig( configFile, versionMajor, versionMinor );
-	auxWin->handleOpeningConfig( configFile, versionMajor, versionMinor );
-	mainWin->handleOpeningConfig( configFile, versionMajor, versionMinor );
+		scriptWin->handleOpenConfig( configFile, versionMajor, versionMinor );
+		camWin->handleOpeningConfig( configFile, versionMajor, versionMinor );
+		auxWin->handleOpeningConfig( configFile, versionMajor, versionMinor );
+		mainWin->handleOpeningConfig( configFile, versionMajor, versionMinor );
+	}
+	catch ( Error& err )
+	{
+		errBox( "ERROR: Failed to open configuration file! Error was:\r\n" + err.whatStr( ) + "\r\nThe code will now "
+				"open the config file in atom so that you can attempt to fix the issue." );
+		ShellExecute( 0, "open", cstr( pathToConfig ), NULL, NULL, NULL );
+	}
 	/// finish up
 	updateConfigurationSavedStatus( true );
 	auxWin->setVariablesActiveState( true );

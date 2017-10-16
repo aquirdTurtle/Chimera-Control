@@ -21,7 +21,6 @@ FEATURES:
 - agilent script programNow with variables, should be able to set constants with program now.
 - agilent should be able to go smoothly from one waveform to another.
 - more tooltips
-- option to open the config file (for inspection) if fails to open on open config.
 Refactoring / Other:
 - change thread that wait on bools to waiting on signalers
 - test running avg gnuplot
