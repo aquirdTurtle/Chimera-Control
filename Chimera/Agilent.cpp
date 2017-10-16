@@ -5,7 +5,7 @@
 #include "ScriptStream.h"
 #include "ProfileSystem.h"
 #include "AuxiliaryWindow.h"
-//
+
 #include "boost/cast.hpp"
 #include <algorithm>
 #include <numeric>
@@ -1116,13 +1116,13 @@ void Agilent::setScriptOutput( UINT varNum, scriptedArbInfo scriptInfo, UINT cha
 		prepAgilentSettings( channel );
 		// Load sequence that was previously loaded.
 		visaFlume.write( "MMEM:LOAD:DATA" + str( channel ) + " \"INT:\\sequence" + str( varNum ) + ".seq\"" );
-		visaFlume.write( "SOURCE" + str(channel) + ":FUNC ARB" );
+		visaFlume.write( "SOURCE" + str( channel ) + ":FUNC ARB" );
 		visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB \"INT:\\sequence" + str( varNum ) + ".seq\"" );
 		// set the offset and then the low & high. this prevents accidentally setting low higher than high or high 
 		// higher than low, which causes agilent to throw annoying errors.
-		visaFlume.write( "SOURCE" + str( channel ) + ":VOLT:OFFSET " 
-						 + str( (scriptInfo.wave.minsAndMaxes[varNum].first 
-								  + scriptInfo.wave.minsAndMaxes[varNum].second) / 2 ) + " V" );
+		visaFlume.write( "SOURCE" + str( channel ) + ":VOLT:OFFSET "
+							+ str( (scriptInfo.wave.minsAndMaxes[varNum].first
+									+ scriptInfo.wave.minsAndMaxes[varNum].second) / 2 ) + " V" );
 		visaFlume.write( "SOURCE" + str( channel ) + ":VOLT:LOW " + str( scriptInfo.wave.minsAndMaxes[varNum].first ) + " V" );
 		visaFlume.write( "SOURCE" + str( channel ) + ":VOLT:HIGH " + str( scriptInfo.wave.minsAndMaxes[varNum].second ) + " V" );
 		visaFlume.write( "OUTPUT" + str( channel ) + " ON" );
@@ -1132,44 +1132,52 @@ void Agilent::setScriptOutput( UINT varNum, scriptedArbInfo scriptInfo, UINT cha
 
 void Agilent::setAgilent( UINT variation, std::vector<variableType>& variables)
 {
-	if (!connected())
+	if ( !connected( ) )
 	{
 		return;
 	}
 	visaFlume.write( "OUTPut:SYNC " + str( settings.synced ) );
 	for (auto chan : range( 2 ))
 	{
-		if (settings.channel[chan].option == 4)
+		try
 		{
-			// need to do this before converting to final settings
-			analyzeAgilentScript(settings.channel[chan].scriptedArb, variables);
+			if ( settings.channel[chan].option == 4 )
+			{
+				// need to do this before converting to final settings
+				analyzeAgilentScript( settings.channel[chan].scriptedArb, variables );
+			}
+			convertInputToFinalSettings( chan, varKey, variation, variables );
+			switch ( settings.channel[chan].option )
+				{
+				case -2:
+					// don't do anything.
+					break;
+				case -1:
+					outputOff( chan + 1 );
+					break;
+				case 0:
+					setDC( chan + 1, settings.channel[chan].dc );
+					break;
+				case 1:
+					setSine( chan + 1, settings.channel[chan].sine );
+					break;
+				case 2:
+					setSquare( chan + 1, settings.channel[chan].square );
+					break;
+				case 3:
+					setExistingWaveform( chan + 1, settings.channel[chan].preloadedArb );
+					break;
+				case 4:
+					setScriptOutput( variation, settings.channel[chan].scriptedArb, chan + 1 );
+					break;
+				default:
+					thrower( "ERROR: unrecognized channel 1 setting: " + str( settings.channel[chan].option ) );
+			}
 		}
-		convertInputToFinalSettings(chan, variation, variables);
-		switch (settings.channel[chan].option)
+		catch ( Error& err )
 		{
-			case -2:
-				// don't do anything.
-				break;
-			case -1:
-				outputOff( chan+1 );
-				break;
-			case 0:
-				setDC( chan+1, settings.channel[chan].dc );
-				break;
-			case 1:
-				setSine( chan+1, settings.channel[chan].sine );
-				break;
-			case 2:
-				setSquare( chan+1, settings.channel[chan].square );
-				break;
-			case 3:
-				setExistingWaveform( chan+1, settings.channel[chan].preloadedArb );
-				break;
-			case 4:
-				setScriptOutput( variation, settings.channel[chan].scriptedArb, chan+1 );
-				break;
-			default:
-				thrower( "ERROR: unrecognized channel 1 setting: " + str(settings.channel[chan].option ) );
+			thrower( "Error seen while programming agilent output for " + name + " agilent channel " 
+					 + str( chan+1) + ": " + err.whatBare( ) );
 		}
 	}
 }

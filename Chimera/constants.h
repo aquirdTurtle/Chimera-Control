@@ -183,8 +183,6 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 // the controls of interest, there are throw statements that stop the program early on if an ID doesn't match, so 
 // you don't have to worry about these things so much.
 
-// there's got to 
-
 // Main Window
 #define IDC_MAIN_STATUS_BUTTON 11000
 #define IDC_ERROR_STATUS_BUTTON 11001
@@ -322,8 +320,19 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define INTENSITY_AGILENT_TRIGGER_NUM 0
 
 
-const agilentSettings UWAVE_AGILENT_SETTINGS = { UWAVE_SAFEMODE, UWAVE_AGILENT_USB_ADDRESS,
-												 250e6, "INF", "NORMal",
+const agilentSettings UWAVE_AGILENT_SETTINGS = { 
+												// safemode option											
+												UWAVE_SAFEMODE, 
+												// usb address
+												UWAVE_AGILENT_USB_ADDRESS,
+												// sample rate (Hz)
+												10e6, 
+												// impedance (ohms, or inf)
+												"50", 
+												// the output filter state (controls rounding & overshoot issues 
+												// between samples)
+												"NORMal",
+												// various control IDs (no need to change)
 												 IDC_UWAVE_CHANNEL1_BUTTON, IDC_UWAVE_CHANNEL2_BUTTON, 
 												 IDC_UWAVE_SYNC_BUTTON, IDC_UWAVE_AGILENT_COMBO,
 												 IDC_UWAVE_FUNCTION_COMBO, IDC_UWAVE_EDIT, IDC_UWAVE_PROGRAM, 

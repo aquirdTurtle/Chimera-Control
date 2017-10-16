@@ -11,6 +11,7 @@ class VisaFlume
 		void close();
 		void open();
 		void errCheck( long status );
+		void errCheck( long status, std::string msg );
 		void setAttribute( ViAttr attributeName, ViAttrState value );
 		void printf( std::string msg );
 		void errQuery( std::string& errMsg, long& errCode );
@@ -18,7 +19,6 @@ class VisaFlume
 	private:
 	    const bool deviceSafemode;
 		std::string usbAddress;
-		std::string deviceName;
 		ULONG instrument, defaultResourceManager;
 
 };

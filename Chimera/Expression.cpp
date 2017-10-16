@@ -84,11 +84,11 @@ void Expression::doMultAndDiv( std::vector<std::string>& terms )
 			// calculate the result
 			if ( terms[count] == "/" )
 			{
-				individualResult = str( leftTerm / rightTerm );
+				individualResult = str( leftTerm / rightTerm, 13 );
 			}
 			else
 			{
-				individualResult = str( leftTerm * rightTerm );
+				individualResult = str( leftTerm * rightTerm, 13 );
 			}
 			// replace the * expression with the result.
 			terms.erase( terms.begin( ) + (count - 1), terms.begin( ) + (count + 2) );
@@ -146,11 +146,11 @@ void Expression::doAddAndSub( std::vector<std::string>& terms )
 			// caliculate the result
 			if ( terms[count] == "+" )
 			{
-				individualResult = str( leftTerm + rightTerm );
+				individualResult = str( leftTerm + rightTerm, 13 );
 			}
 			else
 			{
-				individualResult = str( leftTerm - rightTerm );
+				individualResult = str( leftTerm - rightTerm, 13 );
 			}
 			// replace the expression with the result.
 			terms.erase( terms.begin( ) + (count - 1),
