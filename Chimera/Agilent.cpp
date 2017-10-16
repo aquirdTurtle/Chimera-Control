@@ -1146,7 +1146,7 @@ void Agilent::setAgilent( UINT variation, std::vector<variableType>& variables)
 				// need to do this before converting to final settings
 				analyzeAgilentScript( settings.channel[chan].scriptedArb, variables );
 			}
-			convertInputToFinalSettings( chan, varKey, variation, variables );
+			convertInputToFinalSettings( chan, variation, variables );
 			switch ( settings.channel[chan].option )
 				{
 				case -2:

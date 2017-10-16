@@ -148,9 +148,10 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 						{
 							continue;
 						}
-						if ( input->ttls->countTriggers( agilent->getTriggerLine( ).first, 
-														 agilent->getTriggerLine( ).second, variationInc ) 
-							 != agilent->getOutputInfo().channel[chan].scriptedArb.wave.getNumberOfTriggers())
+						UINT ttlTrigs = input->ttls->countTriggers( agilent->getTriggerLine( ).first,
+																	agilent->getTriggerLine( ).second, variationInc );
+						UINT agilentExpectedTrigs = agilent->getOutputInfo( ).channel[chan].scriptedArb.wave.getNumberOfTriggers( );
+						if (  ttlTrigs != agilentExpectedTrigs )
 						{
 							warnings += "WARNING: Agilent " + agilent->getName( ) + " is not getting triggered by the "
 								"ttl system the same number of times a trigger command appears in the agilent channel "
@@ -158,13 +159,15 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 						}
 					}
 				}
-
-				if ( input->ttls->countTriggers( input->niawg->getTrigLines( ).first,
-												 input->niawg->getTrigLines( ).second, variationInc ) !=
-					 input->niawg->getNumberTrigsInScript( ) )
+				if ( input->runNiawg )
 				{
-					warnings += "WARNING: NIAWG is not getting triggered by the ttl system the same number of times a"
-								" trigger command appears in the NIAWG script.";
+					if ( input->ttls->countTriggers( input->niawg->getTrigLines( ).first,
+													 input->niawg->getTrigLines( ).second, variationInc ) !=
+						 input->niawg->getNumberTrigsInScript( ) )
+					{
+						warnings += "WARNING: NIAWG is not getting triggered by the ttl system the same number of times a"
+							" trigger command appears in the NIAWG script.";
+					}
 				}
 			}
 			input->rsg->orderEvents( variationInc );
@@ -232,8 +235,6 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			}
 			if (input->runNiawg)
 			{
-				//input->niawg->handleVariationsNew( output, input->variables, variationInc, variedMixedSize, warnings,
-				//								   input->debugOptions, variations );
 				input->niawg->programNiawgNew( input, output, warnings, variationInc, variations, variedMixedSize,
 												userScriptSubmit );
 			}

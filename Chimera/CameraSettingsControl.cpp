@@ -162,11 +162,11 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	minKineticCycleTimeLabel.Create( "Minimum Kinetic Cycle Time (s)", NORM_STATIC_OPTIONS, 
 									 minKineticCycleTimeLabel.seriesPos, parent, id++ );
 
-	minKineticCycleTimeEdit.seriesPos = { pos.seriesPos.x + 240, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
-	minKineticCycleTimeEdit.videoPos = { -1,-1,-1,-1 };
-	minKineticCycleTimeEdit.amPos = { -1,-1,-1,-1 };
-	minKineticCycleTimeEdit.Create( NORM_EDIT_OPTIONS, minKineticCycleTimeEdit.seriesPos, parent, id++ );
-	minKineticCycleTimeEdit.SetWindowTextA( "" );
+	minKineticCycleTimeDisp.seriesPos = { pos.seriesPos.x + 240, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
+	minKineticCycleTimeDisp.videoPos = { -1,-1,-1,-1 };
+	minKineticCycleTimeDisp.amPos = { -1,-1,-1,-1 };
+	minKineticCycleTimeDisp.Create( NORM_STATIC_OPTIONS, minKineticCycleTimeDisp.seriesPos, parent, id++ );
+	minKineticCycleTimeDisp.SetWindowTextA( "" );
 
 	/// Kinetic Cycle Time
 	// Kinetic Cycle Time Label
@@ -322,7 +322,7 @@ void CameraSettingsControl::rearrange( std::string cameraMode, std::string trigg
 	accumulationNumberEdit.rearrange(cameraMode, triggerMode, width, height, fonts);
 	accumulationNumberLabel.rearrange(cameraMode, triggerMode, width, height, fonts);
 	minKineticCycleTimeLabel.rearrange( cameraMode, triggerMode, width, height, fonts );
-	minKineticCycleTimeEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
+	minKineticCycleTimeDisp.rearrange( cameraMode, triggerMode, width, height, fonts );
 }
 
 
@@ -665,7 +665,7 @@ void CameraSettingsControl::checkTimings(float& kineticCycleTime, float& accumul
 
 void CameraSettingsControl::updateMinKineticCycleTime( double time )
 {
-	minKineticCycleTimeEdit.SetWindowTextA( cstr( time ) );
+	minKineticCycleTimeDisp.SetWindowTextA( cstr( time ) );
 }
 
 

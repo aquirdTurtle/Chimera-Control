@@ -865,15 +865,11 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 		}
 		case 2:
 		{
-			if ( currentVariables[varNumber].constant )
-			{
-				break;
-			}
 			// handle dimension;
 			UINT maxDim = 0;
 			for ( auto& variable : currentVariables )
 			{
-				if ( variable.name == currentVariables[varNumber].name || variable.constant )
+				if ( variable.name == currentVariables[varNumber].name )
 				{
 					// don't count the one being changed.
 					continue;
