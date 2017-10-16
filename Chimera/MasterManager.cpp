@@ -128,6 +128,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 				input->dacs->setDacTriggerEvents( input->ttls, variationInc );
 				input->dacs->makeFinalDataFormat( variationInc );
 				input->ttls->organizeTtlCommands( variationInc );
+				input->ttls->findLoadSkipSnapshots( input->variables, variationInc );
 				input->ttls->convertToFinalFormat( variationInc );
 				// run a couple checks.
 				input->ttls->checkNotTooManyTimes( variationInc );
@@ -268,7 +269,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 					input->dacs->configureClocks( variationInc );
 					input->dacs->writeDacs( variationInc );
 					input->dacs->startDacs();
-					input->ttls->writeTtlData( variationInc );
+					input->ttls->writeTtlData( variationInc, false );
 					input->ttls->startBoard();
 					input->ttls->waitTillFinished( variationInc );
 				}
@@ -984,6 +985,10 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs,
 			callCppCodeFunction();
 		}
 		/// deal with ttl commands
+		else if ( word == "loadskipentrypoint!" )
+		{
+			ttls->setLoadSkipTime( operationTime );
+		}
 		else if (word == "on:" || word == "off:")
 		{
 			std::string name;
