@@ -86,7 +86,7 @@ class AuxiliaryWindow : public CDialog
 		void handleTektronicsButtons(UINT id);
 
 		void sendErr(std::string msg);
-		void sendStat(std::string msg);
+		void sendStatus(std::string msg);
 
 		std::vector<variableType> getAllVariables();
 
