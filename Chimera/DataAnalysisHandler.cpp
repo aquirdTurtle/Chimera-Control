@@ -20,6 +20,9 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	header.triggerModeSensitive = isTriggerModeSensitive;
 	header.Create("DATA ANALYSIS", NORM_HEADER_OPTIONS, header.seriesPos, parent, id++);
 	header.fontType = HeadingFont;
+	pos.seriesPos.y += 25;
+	pos.videoPos.y += 25;
+	pos.amPos.y += 25;
 
 	/// Data analysis stuffs.
 	//

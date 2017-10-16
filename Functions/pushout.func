@@ -2,15 +2,20 @@
 def pushout():
   	% insert commands here... 
 	pulseon: tweezerIntensityTrig 0.1
-	daclinspace: motFreq -0.5 pushoutFreq 5 20
-	dac: sideMotPower 0.015 %0.01
+dac: MOTFreq pushoutfreq  
+%daclinspace: motFreq 0.235 pushoutfreq  5 20 %-0.5 to pushoutfreq in 5ms	
 	% mostly for the power ramp. also, lets the mot frequency settle.
-	t += 5
+	
+t += 5
+
+  %    dac: sideMotPower 0.015 %0.01
 	on: A5
-	t += 0.8
+      t += 0.8
 	off: A5
-	daclinspace: motFreq pushoutFreq -0.5 5 20
+dac: MOTFreq -0.6
+	%daclinspace: motFreq pushoutFreq -0.6 5 20 % -0.5
 	pulseon: tweezerIntensityTrig 0.1
 	%dacramp: dac17 -0.05 -0.12 5 0.02 % final depth -1.1
-	t += 5
+	
+t += 5
 
