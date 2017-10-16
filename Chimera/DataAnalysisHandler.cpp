@@ -752,8 +752,8 @@ void DataAnalysisControl::handlePlotAtomsOrCounts( realTimePlotterInput* input, 
 																	   - input->numberOfRunsToAverage + 1,
 																	   finX[dataSetI][groupI].end( ), 0.0 )
 													   + finData[dataSetI][groupI].size( )) / input->numberOfRunsToAverage;
-					input->plotter->send( "set xrange [" + str( finX[dataSetI][groupI][0] - 1 ) + ":"
-										  + str( finX[dataSetI][groupI].back( ) + 1 ) + "]" );
+					input->plotter->send( "set xrange [" + str( finX[dataSetI][groupI][0] - 1, 12 ) + ":"
+										  + str( finX[dataSetI][groupI].back( ) + 1, 12 ) + "]" );
 				}
 			}
 			else
@@ -788,10 +788,10 @@ void DataAnalysisControl::handlePlotAtomsOrCounts( realTimePlotterInput* input, 
 		// assemble the data.		
 		for ( UINT groupI = 0; groupI < groupNum; groupI++ )
 		{
-			if ( finData[dataSetI][groupI].size( ) < maxSize )
-			{
-				continue;
-			}
+			//if ( finData[dataSetI][groupI].size( ) < maxSize )
+			//{
+			//	continue;
+			//}
 			allDataTemp.insert( allDataTemp.begin( ), finData[dataSetI][groupI].begin(), finData[dataSetI][groupI].end());
 		}
 
@@ -821,7 +821,7 @@ void DataAnalysisControl::handlePlotAtomsOrCounts( realTimePlotterInput* input, 
 		}
 		xRangeMin -= range / input->key.size();
 		xRangeMax += range / input->key.size();
-		input->plotter->send("set xrange [" + str(xRangeMin) + ":" + str(xRangeMax) + "]");
+		input->plotter->send("set xrange [" + str(xRangeMin, 12 ) + ":" + str(xRangeMax, 12 ) + "]");
 		input->plotter->send("set grid ytics lc rgb \"#bbbbbb\" lw 1 lt 0");
 		input->plotter->send("set grid xtics lc rgb \"#bbbbbb\" lw 1 lt 0");
 		input->plotter->send("set yrange [0:1]");
@@ -854,16 +854,16 @@ void DataAnalysisControl::handlePlotAtomsOrCounts( realTimePlotterInput* input, 
 					{
 						input->plotter->send("f" + fitNum + "(x) = A" + fitNum + " * exp(-(x - B" + fitNum + ")**2 / (2 * C" + fitNum + "))");
 						input->plotter->send("A" + fitNum + " = 1");
-						input->plotter->send("B" + fitNum + " = " + str(finX[dataSetI][groupInc].size() / 2.0));
+						input->plotter->send("B" + fitNum + " = " + str(finX[dataSetI][groupInc].size() / 2.0, 12 ));
 						input->plotter->send("C" + fitNum + " = 1");
-input->plotter->send( "fit f" + fitNum + "(x) '-' using 1:2 via A" + fitNum + ", B" + fitNum + ", C" + fitNum );
-break;
+						input->plotter->send( "fit f" + fitNum + "(x) '-' using 1:2 via A" + fitNum + ", B" + fitNum + ", C" + fitNum );
+						break;
 					}
 					case LORENTZIAN_FIT:
 					{
 						input->plotter->send( "f" + fitNum + "(x) = (A" + fitNum + " / (2 * 3.14159265359)) / ((x - B" + fitNum + ")**2 + (A" + fitNum + " / 2)**2)" );
 						input->plotter->send( "A" + fitNum + " = 1" );
-						input->plotter->send( "B" + fitNum + " = " + str( finX[dataSetI][groupInc].size( ) / 2.0 ) );
+						input->plotter->send( "B" + fitNum + " = " + str( finX[dataSetI][groupInc].size( ) / 2.0, 12 ) );
 						input->plotter->send( "fit f" + fitNum + "(x) '-' using 1:2 via A" + fitNum + ", B" + fitNum );
 						break;
 					}
@@ -1104,7 +1104,7 @@ void DataAnalysisControl::handlePlotHist( realTimePlotterInput* input, PlottingI
 	double spaceFactor = 1;
 	//double boxWidth = spaceFactor * 10 / (totalGroupNum * plotInfo.getDataSetNumber( ));
 	double boxWidth = spaceFactor * 10;
-	input->plotter->send( "set boxwidth " + str( boxWidth ) );
+	input->plotter->send( "set boxwidth " + str( boxWidth, 12 ) );
 	input->plotter->send( "set style fill solid 1" );
 	// leave 0.2 pixels worth of space in between the bins.
 	std::string gnuCommand = "plot";
@@ -1132,7 +1132,7 @@ void DataAnalysisControl::handlePlotHist( realTimePlotterInput* input, PlottingI
 			std::string colorText = "\" lt rgb \"#" + alpha + GIST_RAINBOW[colorSpacing * groupI] + "\"";
 			std::string singleHist = (" '-' using (10 * floor(($1)/10) - " 
 									   + str( boxWidth * -spaceFactor * 0.5 
-											  + spaceFactor * 0.5 / (totalGroupNum * totalDataSetNum) )
+											  + spaceFactor * 0.5 / (totalGroupNum * totalDataSetNum), 12 )
 									   + ") : (1.0) smooth freq with boxes title \"G " + str( groupI + 1 ) + " "
 									   + plotInfo.getLegendText( dataSetI ) + " " + colorText + " "
 									   + GNUPLOT_MARKERS[markerNumber] + ",");

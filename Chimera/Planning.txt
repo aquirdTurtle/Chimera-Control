@@ -54,3 +54,5 @@ Bugs:
 =================
 Finished
 =================
+FEATURES:
+- added more detailed error message for some agilent handling which includes which agilent / channel threw the error.

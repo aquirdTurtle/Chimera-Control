@@ -959,7 +959,7 @@ void DioSystem::waitTillFinished(UINT variation)
 	double totalTime = (formattedTtlSnapshots[variation].back()[0] 
 						 + 65535 * formattedTtlSnapshots[variation].back()[1]) / 10000.0 + 1;
 	wait(totalTime);
-	stopBoard();
+	//stopBoard();
 }
 
 

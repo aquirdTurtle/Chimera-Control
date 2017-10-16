@@ -185,7 +185,7 @@ double Segment::pulseCalc( pulseData pulse, int iteration, long size, double pul
 		// in this case, the width is the sigma of the gaussian.
 		double center = pulseLength / 2.0;
 		double x = pulseLength * iteration / size;
-		double result = pulse.offset + pulse.amplitude * exp( -(center - x) * (center - x) / (pulse.width * pulse.width) );
+		double result = pulse.amplitude * exp( -(center - x) * (center - x) / (pulse.width * pulse.width) );
 		return result;
 	}
 	else if ( pulse.type == "lorentzian" )
@@ -195,8 +195,7 @@ double Segment::pulseCalc( pulseData pulse, int iteration, long size, double pul
 		double center = pulseLength / 2.0;
 		double x = pulseLength * iteration / size;
 		// see definition: http://mathworld.wolfram.com/LorentzianFunction.html
-		return pulse.offset 
-			+ pulse.amplitude * (FWHM / (2.0 * PI)) / ((x - center)*(x - center) + (FWHM / 2) * (FWHM / 2));
+		return pulse.amplitude * (FWHM / (2.0 * PI)) / ((x - center)*(x - center) + (FWHM / 2) * (FWHM / 2));
 
 	}
 	else if ( pulse.type == "sech" )
@@ -205,8 +204,7 @@ double Segment::pulseCalc( pulseData pulse, int iteration, long size, double pul
 		double center = pulseLength / 2.0;
 		double x = pulseLength * iteration / size;
 		// see definition: http://mathworld.wolfram.com/HyperbolicSecant.html
-		return pulse.offset
-			+ pulse.amplitude * 1.0 / cosh( (x - center) / pulse.width );
+		return pulse.amplitude * 1.0 / cosh( (x - center) / pulse.width );
 	}
 	else
 	{
@@ -246,7 +244,7 @@ void Segment::calcData( ULONG sampleRate )
 		}
 		else if ( finalSettings.pulse.isPulse )
 		{
-			point = pulseCalc( finalSettings.pulse, dataInc, numDataPoints, finalSettings.time )
+			point =finalSettings.pulse.offset + pulseCalc( finalSettings.pulse, dataInc, numDataPoints, finalSettings.time )
 					* modCalc( finalSettings.mod, dataInc, numDataPoints, finalSettings.time );
 		}
 		else

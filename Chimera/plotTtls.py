@@ -11,7 +11,8 @@ def step(fig, xData, yData, color=None, legend=None, alpha=None):
     yy = list(yData) + list(yData)
     yy[::2] = yData
     yy[1::2] = yData
-    yy = yy[1:]
+    yy = yy[:-1]
+    yy.insert(0,yy[0])
     fig.line(xx, yy, color=color, legend=legend, alpha=alpha)
     return fig
 
@@ -32,11 +33,11 @@ def loadTtlFile(file):
     column is the time values and the rest of the columns are the different TTLs.
     """
     # open and read text file
-    txt=open(file,'r') 
+    txt=open(file,'r')
     a=txt.readlines()
-    
-    index = 0                               
-    c=len(a)                                
+
+    index = 0
+    c=len(a)
     # This while loop replaces every symbol except commas
     # and numbers with and empty space in the file
     while index < c:
@@ -44,28 +45,28 @@ def loadTtlFile(file):
         a[index]=a[index].replace('\n','')
         a[index]=a[index].replace(' ','')
         a[index]=a[index].replace(':','')
-        a[index]=a[index].replace('A','')   
-        a[index]=a[index].replace('B','')   
+        a[index]=a[index].replace('A','')
+        a[index]=a[index].replace('B','')
         a[index]=a[index].replace('C','')
         a[index]=a[index].replace('D','')
         # if statement separates strings in array by ','
         # if statement used to create additional indices due to splitting
-        if len(a[index].split(','))>1:               
-            a[index:index+1]=a[index].split(',')     
-        c=len(a)                                     
-        index = index+1                                  
+        if len(a[index].split(','))>1:
+            a[index:index+1]=a[index].split(',')
+        c=len(a)
+        index = index+1
     index = 0
     # loop again deleting empty elements of array
-    while index < c :                                
+    while index < c :
         if not a[index]:
             del a[index]
         else:
             index += 1
         c = len(a)
     index = 0
-    # This while loop creates  a 2D array where each row is a new event/time 
+    # This while loop creates  a 2D array where each row is a new event/time
     # the columns are different TTLs with the 0th column being
-    while a[index] != "---":                                     
+    while a[index] != "---":
         index += 1
     size=int(len(a)/index)
     arr_size=int((len(a)-size+(size/index))/index)
@@ -74,8 +75,8 @@ def loadTtlFile(file):
     j=0
     k=i
     # Create the 2D array This while loop fills in the correct elements
-    while i < len(a):                   
-        data[j][k]=float(a[i])          
+    while i < len(a):
+        data[j][k]=float(a[i])
         i+=1
         k+=1
         if k%index < 1:
@@ -91,8 +92,8 @@ def loadTtlFile(file):
 
 # This function takes in an array produced by arrayTTL() and plots the TTL values with respect
 # to time. The function calculates the standard deviation of each TTL for the whole experiment
-# to see if the TTL value is changing. If the TTL value is changing, then it is plotted. If 
-# the TTL value is not changing, then it is listed on the left stating whether the TTL value is 
+# to see if the TTL value is changing. If the TTL value is changing, then it is plotted. If
+# the TTL value is not changing, then it is listed on the left stating whether the TTL value is
 #0 or 1. The 64 TTLs of the experiment or displayed 16 at a time on four plots. The TTL values in
 # a given plot have been shifted relative to each other so that we can distinguish them if
 # many TTLs have 1 or 0 at the same time. This spacing is dictacted by the POS variable
@@ -131,7 +132,7 @@ def graphTtls(arrayTTL, eventMin, eventMax, ymin, ymax, vsTime):
             # if it changes
             if not allSame(arrayTTL[:,offset+num+1]):
                 # plot it.
-                bokFigs[row] = step(bokFigs[row], x, arrayTTL[:,offset+num+1] + ttlOffset * (7-num), 
+                bokFigs[row] = step(bokFigs[row], x, arrayTTL[:,offset+num+1] + ttlOffset * (7-num),
                                     color=bokcolors[num], legend=rowNames[row] + str(num), alpha=0.5)
             else:
                 # add to list of constant lines.
@@ -197,8 +198,8 @@ def graphTtls(arrayTTL, eventMin, eventMax, ymin, ymax, vsTime):
 # In[29]:
 
 #This function takes in a textfile containing the DAC values from the experiment and plots
-# either the TTL value vs time or TTL value vs event. The event/time range and the voltage 
-# range can be modified using xmin/xmax and ymin/ymax respectively. If 
+# either the TTL value vs time or TTL value vs event. The event/time range and the voltage
+# range can be modified using xmin/xmax and ymin/ymax respectively. If
 # time = True, then time-dependent plots are shown. If time != True, then event-dependent plots
 # are shown. The event-dependent plots are the default plots.
 
@@ -219,19 +220,19 @@ def plotTtls(fileAddress = None,time = False,xmin = None, xmax = None, ymin = No
                 if max(ttl_data[:,i]) > maxValue:
                     maxValue = max(ttl_data[:,i])
             ymax = maxValue+.2
-            
+
         if time == True:
             if xmin == None:
                 xmin = 0
             if xmax == None:
                 xmax = max(ttl_data[:,0])+1
-        
+
         else:
             if xmin == None:
                 xmin = 0
             if xmax == None:
                 xmax = len(ttl_data[:,0])
-        graphTtls(ttl_data, xmin, xmax, ymin, ymax, time) 
+        graphTtls(ttl_data, xmin, xmax, ymin, ymax, time)
 
 
 # # Example
@@ -242,6 +243,3 @@ def plotTtls(fileAddress = None,time = False,xmin = None, xmax = None, ymin = No
 
 
 # In[ ]:
-
-
-

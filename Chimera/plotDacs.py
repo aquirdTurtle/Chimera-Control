@@ -62,7 +62,8 @@ def step(fig, xData, yData, color=None, legend=None, alpha=None):
     yy = list(yData) + list(yData)
     yy[::2] = yData
     yy[1::2] = yData
-    yy = yy[1:]
+    yy = yy[:-1]
+    yy.insert(0,yy[0])
     fig.line(xx, yy, color=color, legend=legend, alpha=alpha)
     return fig
 

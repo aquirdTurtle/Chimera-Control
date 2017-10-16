@@ -64,8 +64,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		for (auto agilent : input->agilents)
 		{
 			RunInfo dum;
-			agilent->handleInput( 1, input->profile.categoryPath, dum );
-			agilent->handleInput( 2, input->profile.categoryPath, dum );
+			agilent->handleInput( input->profile.categoryPath, dum );
 		}
 		/// prep master systems
 		expUpdate( "Analyzing Master Script...", input->comm, input->quiet );
