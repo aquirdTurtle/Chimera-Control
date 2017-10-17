@@ -70,7 +70,6 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		input->dacs->resetDacEvents();
 		input->ttls->resetTtlEvents();
 		input->rsg->clearFrequencies();
-		input->thisObj->loadVariables( input->variables );
 		if (input->runMaster)
 		{
 			input->thisObj->analyzeMasterScript( input->ttls, input->dacs, ttlShadeLocs, dacShadeLocs, input->rsg,
@@ -102,6 +101,8 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		// at this point, all scripts have been analyzed, and each system takes the key and generates all of the data
 		// it needs for each variation of the experiment. All these calculations happen at this step.
 		expUpdate( "Programming All Variation Data...\r\n", input->comm, input->quiet );
+
+		input->thisObj->loadSkipTimes.resize( variations );
 		if (input->runMaster)
 		{
 			input->ttls->interpretKey( input->variables );
@@ -123,12 +124,15 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			}
 			if (input->runMaster)
 			{
+				double& currLoadSkipTime = input->thisObj->loadSkipTimes[variationInc];
+				currLoadSkipTime = MasterManager::convertToTime( input->thisObj->loadSkipTime, input->variables,
+																 variationInc );
 				// organize & format the ttl and dac commands
 				input->dacs->organizeDacCommands( variationInc );
 				input->dacs->setDacTriggerEvents( input->ttls, variationInc );
 				input->dacs->makeFinalDataFormat( variationInc );
 				input->ttls->organizeTtlCommands( variationInc );
-				input->ttls->findLoadSkipSnapshots( input->variables, variationInc );
+				input->ttls->findLoadSkipSnapshots( currLoadSkipTime, input->variables, variationInc );
 				input->ttls->convertToFinalFormat( variationInc );
 				// run a couple checks.
 				input->ttls->checkNotTooManyTimes( variationInc );
@@ -266,11 +270,15 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 				if (input->runMaster)
 				{
 					input->dacs->stopDacs();
-					input->dacs->configureClocks( variationInc );
-					input->dacs->writeDacs( variationInc );
+					// it's important to grab the skipoption from input->skipNext only once because in principle
+					// if the cruncher thread was running behind, it could change between writing and configuring the 
+					// dacs and configuring the TTLs;
+					bool skipOption = input->skipNext == NULL ? false : *input->skipNext;
+					input->dacs->configureClocks( variationInc, skipOption );
+					input->dacs->writeDacs( variationInc, skipOption );
 					input->dacs->startDacs();
 					/* *input->skipNext */
-					input->ttls->writeTtlData( variationInc, false );
+					input->ttls->writeTtlData( variationInc, skipOption );
 					input->ttls->startBoard();
 					input->ttls->waitTillFinished( variationInc );
 				}
@@ -370,6 +378,21 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 	input->thisObj->experimentIsRunning = false;
 	delete input;
 	return false;
+}
+
+
+double MasterManager::convertToTime( timeType time, std::vector<variableType> variables, UINT variation )
+{
+	double variableTime = 0;
+	// add together current values for all variable times.
+	if ( time.first.size( ) != 0 )
+	{
+		for ( auto varTime : time.first )
+		{
+			variableTime += varTime.evaluate( variables, variation );
+		}
+	}
+	return variableTime + time.second;
 }
 
 
@@ -530,12 +553,6 @@ void MasterManager::loadMasterScript(std::string scriptAddress)
 	currentMasterScript.seekg(0);
 	//std::string str(currentMasterScript.str());
 	scriptFile.close();
-}
-
-
-void MasterManager::loadVariables(std::vector<variableType> newVariables)
-{
-	//variables = newVariables;
 }
 
 
@@ -956,7 +973,10 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs,
 										 std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades, 
 										 RhodeSchwarz* rsg, std::vector<variableType>& vars)
 {
-	// reset this.
+	// reset some things.
+	loadSkipTime.first.clear( );
+	loadSkipTime.second = 0;
+	loadSkipTimes.clear( );
 	currentMasterScriptText = currentMasterScript.str();
 	// starts at 0.1 if not initialized by the user.
 	operationTime.second = 0.1;
@@ -979,14 +999,14 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs,
 		}
 		/// callcppcode function
 		else if (word == "callcppcode")
-		{
+		{			
 			// and that's it... 
 			callCppCodeFunction();
 		}
 		/// deal with ttl commands
 		else if ( word == "loadskipentrypoint!" )
 		{
-			ttls->setLoadSkipTime( operationTime );
+			loadSkipTime = operationTime;
 		}
 		else if (word == "on:" || word == "off:")
 		{

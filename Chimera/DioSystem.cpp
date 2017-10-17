@@ -646,7 +646,6 @@ void DioSystem::prepareForce( )
 	loadSkipFormattedTtlSnapshots.resize( 1 );
 	finalFormatTtlData.resize( 1 );
 	loadSkipFinalFormatTtlData.resize( 1 );
-	loadSkipTimes.resize( 1 );
 }
 
 
@@ -660,9 +659,6 @@ void DioSystem::resetTtlEvents( )
 	loadSkipTtlSnapshots.clear( );
 	loadSkipFormattedTtlSnapshots.clear( );
 	loadSkipFinalFormatTtlData.clear( );
-	loadSkipTimes.clear( );
-	loadSkipTime.first.clear( );
-	loadSkipTime.second = 0;
 }
 
 
@@ -1003,7 +999,6 @@ void DioSystem::interpretKey( std::vector<variableType>& variables )
 	loadSkipFormattedTtlSnapshots = std::vector<std::vector<std::array<WORD, 6>>>( variations );
 	finalFormatTtlData = std::vector<std::vector<WORD>>( variations );
 	loadSkipFinalFormatTtlData = std::vector<std::vector<WORD>>( variations );
-	loadSkipTimes = std::vector<double>( variations );
 	
 	// and interpret the command list for each variation.
 	for (UINT variationNum = 0; variationNum < variations; variationNum++)
@@ -1109,6 +1104,18 @@ void DioSystem::organizeTtlCommands(UINT variation)
 }
 
 
+std::pair<USHORT, USHORT> DioSystem::calcDoubleShortTime( double time )
+{
+	USHORT lowordTime, hiwordTime;
+	// convert to system clock ticks. Assume that the crate is running on a 10 MHz signal, so multiply by
+	// 10,000,000, but then my time is in milliseconds, so divide that by 1,000, ending with multiply by 10,000
+	lowordTime = ULONGLONG( time * 10000 ) % 65535;
+	USHORT temp = time * 10000;
+	hiwordTime = ULONGLONG( time * 10000 ) / 65535;
+	return { lowordTime, hiwordTime };
+}
+
+
 void DioSystem::convertToFinalFormat(UINT variation)
 {
 	// excessive but just in case.
@@ -1119,47 +1126,51 @@ void DioSystem::convertToFinalFormat(UINT variation)
 	// do bit arithmetic.
 	for ( auto& snapshot : ttlSnapshots[variation])
 	{
-		USHORT lowordTime, hiwordTime;
-		// convert to system clock ticks. Assume that the crate is running on a 10 MHz signal, so multiply by
-		// 10,000,000, but then my time is in milliseconds, so divide that by 1,000, ending with multiply by 10,000
-		lowordTime = ULONGLONG( snapshot.time * 10000) % 65535;
-		USHORT temp = snapshot.time * 10000;
-		hiwordTime = ULONGLONG( snapshot.time * 10000) / 65535;
 		// each major index is a row (A, B, C, D), each minor index is a ttl state (0, 1) in that row.
 		std::array<std::bitset<16>, 4> ttlBits;
 		for (UINT rowInc : range( 4 ) )
 		{
 			for (UINT numberInc : range( 16 ) )
 			{
-				if ( snapshot.ttlStatus[rowInc][numberInc])
-				{
-					// flip bit to 1.
-					ttlBits[rowInc].set(numberInc, true);
-				}
-				else
-				{
-					// flip bit to 0.
-					ttlBits[rowInc].set(numberInc, false);
-				}
+				ttlBits[rowInc].set( numberInc, snapshot.ttlStatus[rowInc][numberInc] );
 			}
 		}
 		// I need to put it as an int (just because I'm not actually sure how the bitset gets stored... it'd probably 
 		// work just passing the address of the bitsets, but I'm sure this will work so whatever.)
 		std::array<USHORT, 6> tempCommand;
-		tempCommand[0] = lowordTime;
-		tempCommand[1] = hiwordTime;
+		tempCommand[0] = calcDoubleShortTime( snapshot.time ).first;
+		tempCommand[1] = calcDoubleShortTime( snapshot.time ).second;
 		tempCommand[2] = static_cast <unsigned short>(ttlBits[0].to_ulong());
 		tempCommand[3] = static_cast <unsigned short>(ttlBits[1].to_ulong());
 		tempCommand[4] = static_cast <unsigned short>(ttlBits[2].to_ulong());
 		tempCommand[5] = static_cast <unsigned short>(ttlBits[3].to_ulong());
 		formattedTtlSnapshots[variation].push_back(tempCommand);
-		if ( snapshot.time > loadSkipTimes[variation] )
+	}
+	// same loop with the loadSkipSnapshots.
+	for ( auto& snapshot : loadSkipTtlSnapshots[variation] )
+	{
+		// each major index is a row (A, B, C, D), each minor index is a ttl state (0, 1) in that row.
+		std::array<std::bitset<16>, 4> ttlBits;
+		for ( UINT rowInc : range( 4 ) )
 		{
-			loadSkipFormattedTtlSnapshots[variation].push_back( tempCommand );
+			for ( UINT numberInc : range( 16 ) )
+			{
+				ttlBits[rowInc].set( numberInc, snapshot.ttlStatus[rowInc][numberInc] );
+			}
 		}
+		// I need to put it as an int (just because I'm not actually sure how the bitset gets stored... it'd probably 
+		// work just passing the address of the bitsets, but I'm sure this will work so whatever.)
+		std::array<USHORT, 6> tempCommand;
+		tempCommand[0] = calcDoubleShortTime( snapshot.time ).first;
+		tempCommand[1] = calcDoubleShortTime( snapshot.time ).second;
+		tempCommand[2] = static_cast <unsigned short>(ttlBits[0].to_ulong( ));
+		tempCommand[3] = static_cast <unsigned short>(ttlBits[1].to_ulong( ));
+		tempCommand[4] = static_cast <unsigned short>(ttlBits[2].to_ulong( ));
+		tempCommand[5] = static_cast <unsigned short>(ttlBits[3].to_ulong( ));
+		loadSkipFormattedTtlSnapshots[variation].push_back( tempCommand );
 	}
 
-	// flatten the data.
+	/// flatten the data.
 	finalFormatTtlData[variation].resize( formattedTtlSnapshots[variation].size( ) * 6 );
 	int count = 0;
 	for ( auto& element : finalFormatTtlData[variation] )
@@ -1180,37 +1191,20 @@ void DioSystem::convertToFinalFormat(UINT variation)
 }
 
 
-void DioSystem::findLoadSkipSnapshots( std::vector<variableType>& variables, UINT variation )
+void DioSystem::findLoadSkipSnapshots( double time, std::vector<variableType>& variables, UINT variation )
 {
-	double variableTime = 0;
-	// add together current values for all variable times.
-	if ( loadSkipTime.first.size( ) != 0 )
-	{
-		for ( auto varTime : loadSkipTime.first )
-		{
-			variableTime += varTime.evaluate( variables, variation );
-		}
-	}
-	loadSkipTimes[variation] = variableTime + loadSkipTime.second;
 	// find the splitting time and set the loadSkip snapshots to have everything after that time.
 	for ( auto snapshotInc : range(ttlSnapshots[variation].size() - 1) )
 	{
-		if ( ttlSnapshots[variation][snapshotInc].time < loadSkipTimes[variation]
-				&& ttlSnapshots[variation][snapshotInc+1].time > loadSkipTimes[variation] )
+		if ( ttlSnapshots[variation][snapshotInc].time < time && ttlSnapshots[variation][snapshotInc+1].time > time )
 		{
 			loadSkipTtlSnapshots[variation] = std::vector<DioSnapshot>( ttlSnapshots[variation].begin( ) 
 																		+ snapshotInc + 1, 
 																		ttlSnapshots[variation].end( ) );
+			break;
 		}
 	}
 }
-
-
-void DioSystem::setLoadSkipTime( timeType time )
-{
-	loadSkipTime = time;
-}
-
 
 
 // counts the number of triggers on a given line.

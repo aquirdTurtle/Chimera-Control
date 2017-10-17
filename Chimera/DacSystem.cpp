@@ -525,9 +525,19 @@ void DacSystem::organizeDacCommands(UINT variation)
 }
 
 
-void DacSystem::findLoadSkipSnapshots( std::vector<variableType>& variables, UINT variation )
+void DacSystem::findLoadSkipSnapshots( double time, std::vector<variableType>& variables, UINT variation )
 {
-	
+	// find the splitting time and set the loadSkip snapshots to have everything after that time.
+	for ( auto snapshotInc : range( dacSnapshots[variation].size( ) - 1 ) )
+	{
+		if ( dacSnapshots[variation][snapshotInc].time < time && dacSnapshots[variation][snapshotInc + 1].time > time )
+		{
+			loadSkipDacSnapshots[variation] = std::vector<DacSnapshot>( dacSnapshots[variation].begin( ) 
+																		+ snapshotInc + 1,
+																		dacSnapshots[variation].end( ) );
+			break;
+		}
+	}
 }
 
 
@@ -555,6 +565,7 @@ std::array<std::string, 24> DacSystem::getAllNames()
 {
 	return dacNames;
 }
+
 
 /*
  * IMPORTANT: this does not actually change any of the outputs of the board. It is meant to be called when things have
@@ -618,12 +629,11 @@ void DacSystem::interpretKey( std::vector<variableType>& variables, std::string&
 		variations = 1;
 	}
 	/// imporantly, this sizes the relevant structures.
-	dacCommandList.clear();
-	dacCommandList.resize(variations);
-	dacSnapshots.clear();
-	dacSnapshots.resize(variations);
-	finalFormatDacData.clear();
-	finalFormatDacData.resize(variations);
+	dacCommandList = std::vector<std::vector<DacCommand>>( variations );
+	dacSnapshots = std::vector<std::vector<DacSnapshot>>( variations );
+	loadSkipDacFinalFormat = std::vector<std::array<std::vector<double>, 3>>( variations );
+	finalFormatDacData = std::vector<std::array<std::vector<double>, 3>>( variations );
+	loadSkipDacFinalFormat = std::vector<std::array<std::vector<double>, 3>>( variations );
 	bool resolutionWarningPosted = false;
 	bool nonIntegerWarningPosted = false;
 	for (UINT variationInc = 0; variationInc < variations; variationInc++)
@@ -632,8 +642,6 @@ void DacSystem::interpretKey( std::vector<variableType>& variables, std::string&
 		{
 			DacCommand tempEvent;
 			tempEvent.line = dacCommandFormList[eventInc].line;
-
-			//////////////////////////////////
 			// Deal with time.
 			if (dacCommandFormList[eventInc].time.first.size() == 0)
 			{
@@ -691,8 +699,6 @@ void DacSystem::interpretKey( std::vector<variableType>& variables, std::string&
 						" value at the right time.\r\n";
 				}
 				double timeInc = rampTime / steps;
-				// 0.017543859649122806
-				// 0.017241379310344827
 				double initTime = tempEvent.time;
 				double currentTime = tempEvent.time;
 				// handle the two directions seperately.
@@ -775,6 +781,7 @@ UINT DacSystem::getNumberSnapshots(UINT variation)
 {
 	return dacSnapshots[variation].size();
 }
+
 
 void DacSystem::checkTimingsWork(UINT variation)
 {
@@ -925,37 +932,48 @@ void DacSystem::stopDacs()
 }
 
 
-void DacSystem::configureClocks(UINT variation)
-{	
-	long sampleNumber = dacSnapshots[variation].size();
+void DacSystem::configureClocks(UINT variation, bool loadSkip)
+{
+	long sampleNumber;
+	if ( loadSkip )
+	{
+		sampleNumber = loadSkipDacSnapshots[variation].size( );
+	}
+	else
+	{
+		sampleNumber = dacSnapshots[variation].size( );
+	}
 	daqConfigSampleClkTiming( staticDac0, "/Dev2/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
 	daqConfigSampleClkTiming( staticDac1, "/Dev3/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
 	daqConfigSampleClkTiming( staticDac2, "/Dev4/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
 }
 
 
-void DacSystem::writeDacs(UINT variation)
+void DacSystem::writeDacs(UINT variation, bool loadSkip)
 {
-	if (dacSnapshots[variation].size() <= 1)
+	std::vector<DacSnapshot>& snapshots = loadSkip ? loadSkipDacSnapshots[variation] : dacSnapshots[variation];
+	std::array<std::vector<double>, 3>& finalData = loadSkip ? loadSkipDacFinalFormat[variation] 
+															 : finalFormatDacData[variation];
+	if (snapshots.size() <= 1)
 	{
 		// need at least 2 events to run dacs.
 		return;
 	}
-
-	if (finalFormatDacData[variation][0].size() != 8 * dacSnapshots[variation].size() || finalFormatDacData[variation][1].size() != 8 * dacSnapshots[variation].size()
-		 || finalFormatDacData[variation][2].size() != 8 * dacSnapshots[variation].size())
+	if (finalData[0].size() != 8 * snapshots.size() 
+		 || finalData[1].size() != 8 * snapshots.size()
+		 || finalData[2].size() != 8 * snapshots.size())
 	{
 		thrower( "Data array size doesn't match the number of time slices in the experiment!" );
 	}
-
+	// Should probably run a check on samples written.
 	int32 samplesWritten;
 	//
-	daqWriteAnalogF64( staticDac0, dacSnapshots[variation].size(), false, 0.01, DAQmx_Val_GroupByScanNumber, 
-					  &finalFormatDacData[variation][0].front(), &samplesWritten );
-	daqWriteAnalogF64( staticDac1, dacSnapshots[variation].size(), false, 0.01, DAQmx_Val_GroupByScanNumber,
-					  &finalFormatDacData[variation][1].front(), &samplesWritten );
-	daqWriteAnalogF64( staticDac2, dacSnapshots[variation].size(), false, 0.01, DAQmx_Val_GroupByScanNumber,
-					  &finalFormatDacData[variation][2].front(), &samplesWritten );	
+	daqWriteAnalogF64( staticDac0, snapshots.size(), false, 0.01, DAQmx_Val_GroupByScanNumber, &finalData[0].front(),
+					   &samplesWritten );
+	daqWriteAnalogF64( staticDac1, snapshots.size(), false, 0.01, DAQmx_Val_GroupByScanNumber, &finalData[1].front(),
+					   &samplesWritten );
+	daqWriteAnalogF64( staticDac2, snapshots.size(), false, 0.01, DAQmx_Val_GroupByScanNumber, &finalData[2].front(), 
+					   &samplesWritten );
 }
 
 
@@ -969,10 +987,14 @@ void DacSystem::startDacs()
 
 void DacSystem::makeFinalDataFormat(UINT variation)
 {
-	finalFormatDacData[variation][0].clear();
-	finalFormatDacData[variation][1].clear();
-	finalFormatDacData[variation][2].clear();
-	
+	for ( auto& data : finalFormatDacData[variation] )
+	{
+		data.clear( );
+	}
+	for ( auto& data : loadSkipDacFinalFormat[variation] )
+	{
+		data.clear( );
+	}
 	for (DacSnapshot snapshot : dacSnapshots[variation])
 	{
 		for (int dacInc = 0; dacInc < 8; dacInc++)
@@ -986,6 +1008,22 @@ void DacSystem::makeFinalDataFormat(UINT variation)
 		for (int dacInc = 16; dacInc < 24; dacInc++)
 		{
 			finalFormatDacData[variation][2].push_back(snapshot.dacValues[dacInc]);
+		}
+	}
+	// same loop for load skip
+	for ( DacSnapshot snapshot : loadSkipDacSnapshots[variation] )
+	{
+		for ( int dacInc = 0; dacInc < 8; dacInc++ )
+		{
+			loadSkipDacFinalFormat[variation][0].push_back( snapshot.dacValues[dacInc] );
+		}
+		for ( int dacInc = 8; dacInc < 16; dacInc++ )
+		{
+			loadSkipDacFinalFormat[variation][1].push_back( snapshot.dacValues[dacInc] );
+		}
+		for ( int dacInc = 16; dacInc < 24; dacInc++ )
+		{
+			loadSkipDacFinalFormat[variation][2].push_back( snapshot.dacValues[dacInc] );
 		}
 	}
 }
