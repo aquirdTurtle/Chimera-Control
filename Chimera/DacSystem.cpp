@@ -617,6 +617,8 @@ void DacSystem::prepareForce()
 	dacCommandList.resize(1);
 	dacSnapshots.resize(1);
 	finalFormatDacData.resize(1);
+	loadSkipDacSnapshots.resize( 1 );
+	loadSkipDacFinalFormat.resize( 1 );
 }
 
 
@@ -631,7 +633,7 @@ void DacSystem::interpretKey( std::vector<variableType>& variables, std::string&
 	/// imporantly, this sizes the relevant structures.
 	dacCommandList = std::vector<std::vector<DacCommand>>( variations );
 	dacSnapshots = std::vector<std::vector<DacSnapshot>>( variations );
-	loadSkipDacFinalFormat = std::vector<std::array<std::vector<double>, 3>>( variations );
+	loadSkipDacSnapshots = std::vector<std::vector<DacSnapshot>>( variations );
 	finalFormatDacData = std::vector<std::array<std::vector<double>, 3>>( variations );
 	loadSkipDacFinalFormat = std::vector<std::array<std::vector<double>, 3>>( variations );
 	bool resolutionWarningPosted = false;
@@ -921,6 +923,8 @@ void DacSystem::resetDacEvents()
 	dacCommandFormList.clear();
 	dacCommandList.clear();
 	dacSnapshots.clear();
+	loadSkipDacSnapshots.clear( );
+	loadSkipDacFinalFormat.clear( );
 }
 
 

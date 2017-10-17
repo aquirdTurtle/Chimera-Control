@@ -607,8 +607,8 @@ void AuxiliaryWindow::zeroDacs()
 		dacBoards.organizeDacCommands(0);
 		dacBoards.makeFinalDataFormat(0);
 		dacBoards.stopDacs(); 
-		dacBoards.configureClocks(0);
-		dacBoards.writeDacs(0);
+		dacBoards.configureClocks(0, false);
+		dacBoards.writeDacs(0, false );
 		dacBoards.startDacs();
 		ttlBoard.organizeTtlCommands(0);
 		ttlBoard.convertToFinalFormat(0);
@@ -924,9 +924,9 @@ void AuxiliaryWindow::SetDacs()
 		dacBoards.makeFinalDataFormat(0);
 		// start the boards which actually sets the dac values.
 		dacBoards.stopDacs();
-		dacBoards.configureClocks(0);
+		dacBoards.configureClocks(0, false );
 		sendStatus( "Writing New Dac Settings...\r\n" );
-		dacBoards.writeDacs(0);
+		dacBoards.writeDacs(0, false );
 		dacBoards.startDacs();
 		ttlBoard.organizeTtlCommands(0);
 		ttlBoard.convertToFinalFormat(0);
