@@ -8,7 +8,7 @@
 MainWindow::MainWindow(UINT id, CDialog* splash) : CDialog(id), profile(PROFILES_PATH), 
     masterConfig( MASTER_CONFIGURATION_FILE_ADDRESS ), 
 	appSplash( splash ),
-	niawg( 0,0 )
+	niawg( 1,14 )
 {
 	// create all the main rgbs and brushes. I want to make sure this happens before other windows are created.
 	mainRGBs["Light Green"]			= RGB( 163,	190, 140);
@@ -211,8 +211,13 @@ LRESULT MainWindow::onNoAtomsAlertMessage( WPARAM wp, LPARAM lp )
 {
 	try
 	{	
+		if ( TheCameraWindow->wantsAutoPause( ) )
+		{
+			masterThreadManager.pause( );
+			menu.CheckMenuItem( ID_RUNMENU_PAUSE, MF_CHECKED );
+			comm.sendColorBox( Master, 'Y' );			
+		}
 		auto asyncbeep = std::async( std::launch::async, [] { Beep( 1000, 500 ); } );
-		//Beep( 1000, 3 );
 		time_t t = time( 0 );
 		struct tm now;
 		localtime_s( &now, &t );
@@ -676,6 +681,8 @@ void MainWindow::fillMotInput( MasterThreadInput* input )
 			input->constants.push_back( variable );
 		}
 	}
+	// the mot procedure doesn't need the NIAWG at all.
+	input->runNiawg = false;
 	input->rearrangeInfo = rearrangeControl.getParams( );
 	input->rearrangeInfo.active = false;
 

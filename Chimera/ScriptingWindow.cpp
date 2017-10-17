@@ -679,9 +679,45 @@ void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, int versionMaj
 	intensityAgilent.readConfigurationFile(configFile, versionMajor, versionMinor );
 	intensityAgilent.updateSettingsDisplay(1, mainWindowFriend->getProfileSettings().categoryPath, 
 											mainWindowFriend->getRunInfo());
-	openVerticalScript(vertName);
-	openHorizontalScript(horName);
-	openMasterScript(masterName);
+	try
+	{
+		openVerticalScript( vertName );
+	}
+	catch ( Error& err )
+	{
+		int answer = promptBox( "ERROR: Failed to open vertical script file: " + vertName + ", with error \r\n" 
+								+ err.whatStr( ) + "\r\nAttempt to find file yourself?", MB_YESNO );
+		if ( answer == IDYES )
+		{
+			openVerticalScript( openWithExplorer( NULL, "nScript" ) );
+		}
+	}
+	try
+	{
+		openHorizontalScript(horName);
+	}
+	catch ( Error& err )
+	{
+		int answer = promptBox( "ERROR: Failed to open Horizontal script file: " + horName + ", with error \r\n"
+								+ err.whatStr( ) + "\r\nAttempt to find file yourself?", MB_YESNO );
+		if ( answer == IDYES )
+		{
+			openHorizontalScript( openWithExplorer( NULL, "nScript" ) );
+		}
+	}
+	try
+	{
+		openMasterScript(masterName);
+	}
+	catch ( Error& err )
+	{
+		int answer = promptBox( "ERROR: Failed to open master script file: " + masterName + ", with error \r\n"
+								+ err.whatStr( ) + "\r\nAttempt to find file yourself?", MB_YESNO );
+		if ( answer == IDYES )
+		{
+			openMasterScript( openWithExplorer( NULL, "mScript" ) );
+		}
+	}
 	considerScriptLocations();
 	recolorScripts();
 }
@@ -810,27 +846,13 @@ void ScriptingWindow::openMasterScript(std::string name)
 
 void ScriptingWindow::openVerticalScript(std::string name)
 {
-	try
-	{
-		verticalNiawgScript.openParentScript(name, getProfile().categoryPath, mainWindowFriend->getRunInfo());
-	}
-	catch(Error& err)
-	{
-		comm()->sendError(err.what());
-	}
+	verticalNiawgScript.openParentScript( name, getProfile( ).categoryPath, mainWindowFriend->getRunInfo( ) );
 }
 
 
 void ScriptingWindow::openHorizontalScript(std::string name)
 {
-	try
-	{
-		horizontalNiawgScript.openParentScript(name, getProfile().categoryPath, mainWindowFriend->getRunInfo());
-	}
-	catch (Error& err)
-	{
-		comm()->sendError(err.what());
-	}
+	horizontalNiawgScript.openParentScript(name, getProfile().categoryPath, mainWindowFriend->getRunInfo());
 }
 
 

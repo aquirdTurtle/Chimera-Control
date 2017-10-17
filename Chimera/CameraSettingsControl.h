@@ -78,7 +78,7 @@ class CameraSettingsControl
 		// Kinetic Cycle Time
 		Control<CEdit> kineticCycleTimeEdit;
 		Control<CStatic> kineticCycleTimeLabel;
-		Control<CEdit> minKineticCycleTimeEdit;
+		Control<CEdit> minKineticCycleTimeDisp;
 		Control<CStatic> minKineticCycleTimeLabel;
 		std::string currentControlColor;
 		// two subclassed groups.

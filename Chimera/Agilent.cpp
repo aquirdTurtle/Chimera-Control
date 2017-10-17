@@ -1115,18 +1115,29 @@ void Agilent::setScriptOutput( UINT varNum, scriptedArbInfo scriptInfo, UINT cha
 	if (scriptInfo.wave.isVaried() || varNum == 0)
 	{
 		prepAgilentSettings( channel );
-		// Load sequence that was previously loaded.
-		visaFlume.write( "MMEM:LOAD:DATA" + str( channel ) + " \"INT:\\sequence" + str( varNum ) + ".seq\"" );
-		visaFlume.write( "SOURCE" + str( channel ) + ":FUNC ARB" );
-		visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB \"INT:\\sequence" + str( varNum ) + ".seq\"" );
-		// set the offset and then the low & high. this prevents accidentally setting low higher than high or high 
-		// higher than low, which causes agilent to throw annoying errors.
-		visaFlume.write( "SOURCE" + str( channel ) + ":VOLT:OFFSET "
-							+ str( (scriptInfo.wave.minsAndMaxes[varNum].first
-									+ scriptInfo.wave.minsAndMaxes[varNum].second) / 2 ) + " V" );
-		visaFlume.write( "SOURCE" + str( channel ) + ":VOLT:LOW " + str( scriptInfo.wave.minsAndMaxes[varNum].first ) + " V" );
-		visaFlume.write( "SOURCE" + str( channel ) + ":VOLT:HIGH " + str( scriptInfo.wave.minsAndMaxes[varNum].second ) + " V" );
-		visaFlume.write( "OUTPUT" + str( channel ) + " ON" );
+		// check if effectively dc
+		if ( fabs( scriptInfo.wave.minsAndMaxes[varNum].first - scriptInfo.wave.minsAndMaxes[varNum].second ) < 1e-6 )
+		{
+			dcInfo tempDc;
+			tempDc.dcLevel = scriptInfo.wave.minsAndMaxes[varNum].first;
+			tempDc.useCalibration = scriptInfo.useCalibration;
+			setDC( channel, tempDc );
+		}
+		else
+		{
+			// Load sequence that was previously loaded.
+			visaFlume.write( "MMEM:LOAD:DATA" + str( channel ) + " \"INT:\\sequence" + str( varNum ) + ".seq\"" );
+			visaFlume.write( "SOURCE" + str( channel ) + ":FUNC ARB" );
+			visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB \"INT:\\sequence" + str( varNum ) + ".seq\"" );
+			// set the offset and then the low & high. this prevents accidentally setting low higher than high or high 
+			// higher than low, which causes agilent to throw annoying errors.
+			visaFlume.write( "SOURCE" + str( channel ) + ":VOLT:OFFSET "
+							 + str( (scriptInfo.wave.minsAndMaxes[varNum].first
+									  + scriptInfo.wave.minsAndMaxes[varNum].second) / 2 ) + " V" );
+			visaFlume.write( "SOURCE" + str( channel ) + ":VOLT:LOW " + str( scriptInfo.wave.minsAndMaxes[varNum].first ) + " V" );
+			visaFlume.write( "SOURCE" + str( channel ) + ":VOLT:HIGH " + str( scriptInfo.wave.minsAndMaxes[varNum].second ) + " V" );
+			visaFlume.write( "OUTPUT" + str( channel ) + " ON" );
+		}
 	}
 }
 

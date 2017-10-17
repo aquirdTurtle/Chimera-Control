@@ -32,11 +32,11 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	currentDataSetNumberText.triggerModeSensitive = isTriggerModeSensitive;
 	currentDataSetNumberText.Create( "Most Recent Data Set #:", NORM_STATIC_OPTIONS, currentDataSetNumberText.seriesPos, 
 									 parent, id++);
-	currentDataSetNumberEdit.seriesPos = { pos.seriesPos.x + 400, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 25 };
-	currentDataSetNumberEdit.amPos = { pos.amPos.x + 400, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 25 };
-	currentDataSetNumberEdit.videoPos = { -1,-1,-1,-1 };
-	currentDataSetNumberEdit.triggerModeSensitive = isTriggerModeSensitive;
-	currentDataSetNumberEdit.Create("?", NORM_EDIT_OPTIONS, currentDataSetNumberEdit.seriesPos, parent, id++);
+	currentDataSetNumberDisp.seriesPos = { pos.seriesPos.x + 400, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 25 };
+	currentDataSetNumberDisp.amPos = { pos.amPos.x + 400, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 25 };
+	currentDataSetNumberDisp.videoPos = { -1,-1,-1,-1 };
+	currentDataSetNumberDisp.triggerModeSensitive = isTriggerModeSensitive;
+	currentDataSetNumberDisp.Create("?", NORM_STATIC_OPTIONS, currentDataSetNumberDisp.seriesPos, parent, id++);
 	pos.seriesPos.y += 25;
 	pos.amPos.y += 25;
 
@@ -1175,7 +1175,7 @@ void DataAnalysisControl::rearrange(std::string cameraMode, std::string trigMode
 	updateFrequencyEdit.rearrange(cameraMode, trigMode, width, height, fonts);
 	header.rearrange(cameraMode, trigMode, width, height, fonts);
 	plotListview.rearrange(cameraMode, trigMode, width, height, fonts);
-	currentDataSetNumberEdit.rearrange( cameraMode, trigMode, width, height, fonts );
+	currentDataSetNumberDisp.rearrange( cameraMode, trigMode, width, height, fonts );
 	currentDataSetNumberText.rearrange( cameraMode, trigMode, width, height, fonts );
 	manualSetAnalysisLocsButton.rearrange( cameraMode, trigMode, width, height, fonts );
 
@@ -1216,11 +1216,11 @@ void DataAnalysisControl::updateDataSetNumberEdit( int number )
 {
 	if ( number > 0 )
 	{
-		currentDataSetNumberEdit.SetWindowTextA( cstr( number ) );
+		currentDataSetNumberDisp.SetWindowTextA( cstr( number ) );
 	}
 	else
 	{
-		currentDataSetNumberEdit.SetWindowTextA( "None" );
+		currentDataSetNumberDisp.SetWindowTextA( "None" );
 	}
 }
 

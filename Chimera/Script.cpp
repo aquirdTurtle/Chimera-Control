@@ -217,10 +217,6 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 		{
 			return rgbs["Solarized Yellow"];
 		}
-		else if (word == "+" || word == "=" || word == "(" || word == ")" || word == "*" || word == "-" || word == "/")
-		{
-			return rgbs["Solarized Cyan"];
-		}
 	}
 	else if (editType == "Master")
 	{
@@ -237,16 +233,13 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 			colorLine = true;
 			return rgbs["Solarized Blue"];
 		}
-		else if (word == "+" || word == "=" || word=="(" || word==")" || word=="*" || word == "-" || word=="/")
-		{
-			return rgbs["Solarized Cyan"];
-		}
 		else if (word == "def")
 		{
 			colorLine = true;
 			return rgbs["Solarized Blue"];
 		}
-		else if ( word == "rsg:" || word == "repeat:" || word == "end" || word == "callcppcode")
+		else if ( word == "rsg:" || word == "repeat:" || word == "end" || word == "callcppcode" 
+				  || word == "loadskipentrypoint!")
 		{
 			return rgbs["Solarized Green"];
 		}
@@ -289,6 +282,13 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 			}
 		}
 	}
+
+	if ( word == "+" || word == "=" || word == "(" || word == ")" || word == "*" || word == "-" || word == "/" )
+	{
+		// all scripts now support math expressions.
+		return rgbs["Solarized Cyan"];
+	}
+
 	for (UINT varInc = 0; varInc < variables.size(); varInc++)
 	{
 		if (word == variables[varInc].name)

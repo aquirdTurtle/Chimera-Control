@@ -7,26 +7,6 @@
 #include "miscellaneousCommonFunctions.h"
 
 
-UINT AlertSystem::getAlertThreshold()
-{
-	return alertThreshold;
-}
-
-
-void AlertSystem::setAlertThreshold()
-{
-	CString text;
-	alertThresholdEdit.GetWindowTextA( text );
-	try
-	{
-		alertThreshold = std::stoi( str( text ) );
-	}
-	catch (std::invalid_argument& )
-	{
-		thrower( "ERROR: Alert threshold must be an integer!" );
-	}
-}
-
 
 void AlertSystem::initialize( cameraPositions& pos, CWnd* parent, bool isTriggerModeSensitive, int& id,
 							  cToolTips& tooltips )
@@ -53,23 +33,53 @@ void AlertSystem::initialize( cameraPositions& pos, CWnd* parent, bool isTrigger
 	alertThresholdText.triggerModeSensitive = isTriggerModeSensitive;
 	alertThresholdText.Create( "Alert Threshold:", NORM_STATIC_OPTIONS, alertThresholdText.seriesPos, parent, id++ );
 	/// Alert threshold edit
-	alertThresholdEdit.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 20 };
-	alertThresholdEdit.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 20 };
+	alertThresholdEdit.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 20 };
+	alertThresholdEdit.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 20 };
 	alertThresholdEdit.videoPos = { -1,-1,-1,-1 };
 	alertThresholdEdit.triggerModeSensitive = isTriggerModeSensitive;
 	alertThresholdEdit.Create( NORM_EDIT_OPTIONS, alertThresholdEdit.seriesPos, parent, id++ );
 	alertThresholdEdit.SetWindowTextA( "10" );
-	pos.seriesPos.y += 20;
-	pos.amPos.y += 20;
+
+	autoPauseAtAlert.seriesPos = { pos.seriesPos.x + 0, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 20 };
+	autoPauseAtAlert.amPos = { pos.amPos.x + 0, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 20 };
+	autoPauseAtAlert.videoPos = { -1,-1,-1,-1 };
+	autoPauseAtAlert.triggerModeSensitive = isTriggerModeSensitive;
+	autoPauseAtAlert.Create( "Automatically Pause on alert?", NORM_CHECK_OPTIONS, autoPauseAtAlert.seriesPos, parent,
+							 id++ );
 	/// Sound checkbox
 	// soundAtFinshCheckBox.hwnd
-	soundAtFinshCheck.seriesPos = { pos.seriesPos.x + 0, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 20 };
-	soundAtFinshCheck.amPos = { pos.amPos.x + 0, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 20 };
+	soundAtFinshCheck.seriesPos = { pos.seriesPos.x + 0, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 20 };
+	soundAtFinshCheck.amPos = { pos.amPos.x + 0, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 20 };
 	soundAtFinshCheck.videoPos = { -1,-1,-1,-1 };
 	soundAtFinshCheck.triggerModeSensitive = isTriggerModeSensitive;
 	soundAtFinshCheck.Create( "Play Sound at Finish?", NORM_CHECK_OPTIONS, soundAtFinshCheck.seriesPos, parent, id++ );
-	pos.seriesPos.y += 20;
-	pos.amPos.y += 20;
+}
+
+
+bool AlertSystem::wantsAutoPause( )
+{
+	return autoPauseAtAlert.GetCheck( );
+}
+
+
+UINT AlertSystem::getAlertThreshold()
+{
+	return alertThreshold;
+}
+
+
+void AlertSystem::setAlertThreshold()
+{
+	CString text;
+	alertThresholdEdit.GetWindowTextA( text );
+	try
+	{
+		alertThreshold = std::stoi( str( text ) );
+	}
+	catch (std::invalid_argument& )
+	{
+		thrower( "ERROR: Alert threshold must be an integer!" );
+	}
 }
 
 

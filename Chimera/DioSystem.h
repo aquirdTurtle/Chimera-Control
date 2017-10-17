@@ -65,7 +65,7 @@ class DioSystem
 		void interpretKey( std::vector<variableType>& variables );
 		void organizeTtlCommands(UINT variation );
 		void convertToFinalFormat(UINT variation );
-		void writeTtlData( UINT variation );
+		void writeTtlData( UINT variation, bool loadSkip );
 		void startBoard();
 		void stopBoard();
 		double getClockStatus();
@@ -80,9 +80,10 @@ class DioSystem
 		void updateDefaultTtl(UINT row, UINT column, bool state);
 		UINT countTriggers( UINT row, UINT number, UINT variation );
 		bool getDefaultTtl(UINT row, UINT column);
-
+		void setLoadSkipTime( timeType time );
+		void findLoadSkipSnapshots( std::vector<variableType>& variables, UINT variation );
 	private:
-
+		
 		// one control for each TTL
 		Control<CStatic> ttlTitle;
 		Control<CButton> ttlHold;
@@ -97,18 +98,18 @@ class DioSystem
 		// tells whether the hold button is down or not.
 		bool holdStatus;
 
-
+		timeType loadSkipTime;
+		std::vector<double> loadSkipTimes;
 
 		std::vector<DioCommandForm> ttlCommandFormList;
 		// Each element of first vector is for each variation.
 		std::vector<std::vector<DioCommand>> ttlCommandList;
 		// Each element of first vector is for each variation.
-		std::vector<std::vector<DioSnapshot>> ttlSnapshots;
+		std::vector<std::vector<DioSnapshot>> ttlSnapshots, loadSkipTtlSnapshots;
 		// Each element of first vector is for each variation.
-		std::vector<std::vector<std::array<WORD, 6>>> formattedTtlSnapshots;
+		std::vector<std::vector<std::array<WORD, 6>>> formattedTtlSnapshots, loadSkipFormattedTtlSnapshots;
 		// this is just a flattened version of the above snapshots. This is what gets directly sent to the dio64 card.
-		std::vector<std::vector<WORD>> finalFormatTtlData;
-
+		std::vector<std::vector<WORD>> finalFormatTtlData, loadSkipFinalFormatTtlData;
 		std::array<std::array<bool, 16>, 4> defaultTtlState;
 
 

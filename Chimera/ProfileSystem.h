@@ -84,7 +84,7 @@ class ProfileSystem
 		bool sequenceIsSaved;
 		// version = str(versionMain) + "." + str(versionSub)
 		const int versionMain = 2;
-		const int versionSub = 9;
+		const int versionSub = 10;
 		Control<CStatic> sequenceLabel;
 		Control<CComboBox> sequenceCombo;
 		Control<CEdit> sequenceInfoDisplay;
