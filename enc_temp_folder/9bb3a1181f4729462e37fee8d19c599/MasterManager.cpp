@@ -269,7 +269,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 					input->dacs->configureClocks( variationInc );
 					input->dacs->writeDacs( variationInc );
 					input->dacs->startDacs();
-					/* *input->skipNext */
+					/**input->skipNext */
 					input->ttls->writeTtlData( variationInc, false );
 					input->ttls->startBoard();
 					input->ttls->waitTillFinished( variationInc );

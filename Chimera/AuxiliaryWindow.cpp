@@ -216,7 +216,7 @@ void AuxiliaryWindow::passTopBottomTekProgram()
 	try
 	{
 		topBottomTek.handleProgram();
-		sendStat( "Programmed Top/Bottom Tektronics Generator.\r\n" );
+		sendStatus( "Programmed Top/Bottom Tektronics Generator.\r\n" );
 	}
 	catch (Error& exception)
 	{
@@ -230,7 +230,7 @@ void AuxiliaryWindow::passEoAxialTekProgram()
 	try
 	{
 		eoAxialTek.handleProgram();
-		sendStat( "Programmed E.O.M / Axial Tektronics Generator.\r\n" );
+		sendStatus( "Programmed E.O.M / Axial Tektronics Generator.\r\n" );
 	}
 	catch (Error& exception)
 	{
@@ -552,7 +552,7 @@ void AuxiliaryWindow::handleAgilentOptions( UINT id )
 		{
 			agilent.handleInput( mainWindowFriend->getProfileSettings().categoryPath, mainWindowFriend->getRunInfo() );
 			agilent.setAgilent();
-			sendStat( "Programmed Agilent " + agilent.getName() + ".\r\n" );
+			sendStatus( "Programmed Agilent " + agilent.getName() + ".\r\n" );
 		}
 		catch (Error& err)
 		{
@@ -586,7 +586,7 @@ void AuxiliaryWindow::sendErr(std::string msg)
 }
 
 
-void AuxiliaryWindow::sendStat(std::string msg)
+void AuxiliaryWindow::sendStatus(std::string msg)
 {
 	mainWindowFriend->getComm()->sendStatus(msg);
 }
@@ -612,14 +612,14 @@ void AuxiliaryWindow::zeroDacs()
 		dacBoards.startDacs();
 		ttlBoard.organizeTtlCommands(0);
 		ttlBoard.convertToFinalFormat(0);
-		ttlBoard.writeTtlData(0);
+		ttlBoard.writeTtlData(0, false);
 		ttlBoard.startBoard();
 		ttlBoard.waitTillFinished(0);
-		sendStat( "Zero'd DACs.\r\n");
+		sendStatus( "Zero'd DACs.\r\n");
 	}
 	catch (Error& exception)
 	{
-		sendStat( "Failed to Zero DACs!!!\r\n" );
+		sendStatus( "Failed to Zero DACs!!!\r\n" );
 		sendErr( exception.what() );
 	}
 }
@@ -630,11 +630,11 @@ void AuxiliaryWindow::zeroTtls()
 	try
 	{
 		ttlBoard.zeroBoard();
-		sendStat( "Zero'd TTLs.\r\n" );
+		sendStatus( "Zero'd TTLs.\r\n" );
 	}
 	catch (Error& exception)
 	{
-		sendStat( "Failed to Zero TTLs!!!\r\n" );
+		sendStatus( "Failed to Zero TTLs!!!\r\n" );
 		sendErr( exception.what() );
 	}
 }
@@ -644,7 +644,7 @@ void AuxiliaryWindow::loadMotSettings(MasterThreadInput* input)
 {
 	try
 	{
-		sendStat("Loading MOT Configuration...\r\n" );
+		sendStatus("Loading MOT Configuration...\r\n" );
 		input->quiet = true;
 		input->ttls = &ttlBoard;
 		input->dacs = &dacBoards;
@@ -666,7 +666,7 @@ void AuxiliaryWindow::loadMotSettings(MasterThreadInput* input)
 	}
 	catch (Error& exception)
 	{
-		sendStat(": " + exception.whatStr() + " " + exception.whatStr() + "\r\n" );
+		sendStatus(": " + exception.whatStr() + " " + exception.whatStr() + "\r\n" );
 	}
 }
 
@@ -915,44 +915,30 @@ void AuxiliaryWindow::SetDacs()
 	// have the dac values change
 	try
 	{
-		sendStat("----------------------\r\n");
+		sendStatus("----------------------\r\n");
 		dacBoards.resetDacEvents();
 		ttlBoard.resetTtlEvents();
-		sendStat( "Setting Dacs...\r\n" );
+		sendStatus( "Setting Dacs...\r\n" );
 		dacBoards.handleButtonPress( &ttlBoard );
 		dacBoards.organizeDacCommands(0);
 		dacBoards.makeFinalDataFormat(0);
 		// start the boards which actually sets the dac values.
 		dacBoards.stopDacs();
 		dacBoards.configureClocks(0);
-		sendStat( "Writing New Dac Settings...\r\n" );
+		sendStatus( "Writing New Dac Settings...\r\n" );
 		dacBoards.writeDacs(0);
 		dacBoards.startDacs();
 		ttlBoard.organizeTtlCommands(0);
 		ttlBoard.convertToFinalFormat(0);
-		ttlBoard.writeTtlData(0);
+		ttlBoard.writeTtlData(0, false);
 		ttlBoard.startBoard();
 		ttlBoard.waitTillFinished(0);
-		sendStat( "Finished Setting Dacs.\r\n" );
-		/*
-		dacBoards.analyzeDacCommands(0);
-		dacBoards.makeFinalDataFormat(0);
-		dacBoards.stopDacs();
-		dacBoards.configureClocks(0);
-		dacBoards.writeDacs(0);
-		dacBoards.startDacs();
-		ttlBoard.organizeTtlCommands(0);
-		ttlBoard.convertToFinalFormat(0);
-		ttlBoard.writeTtlData(0);
-		ttlBoard.startBoard();
-		ttlBoard.waitTillFinished(0);
-		sendStat( "Zero'd DACs.\r\n");
-		*/
+		sendStatus( "Finished Setting Dacs.\r\n" );
 	}
 	catch (Error& exception)
 	{
 		errBox( exception.what() );
-		sendStat( ": " + exception.whatStr() + "\r\n" );
+		sendStatus( ": " + exception.whatStr() + "\r\n" );
 		sendErr( exception.what() );
 	}
 	mainWindowFriend->updateConfigurationSavedStatus(false);

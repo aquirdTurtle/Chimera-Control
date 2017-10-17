@@ -3,28 +3,24 @@ TODO
 ===================
 FEATURES:
 - feedback on atom number at end of experiment.
-	- Implement new master script syntax for defining loading section which can be skipped
-	- Have analysis create two versions of ttls & dacs with and without skip
 	- create atomic (?) int which stores the number of atoms in the last picture of most recent run
 	- have atom cruncher update this number, have the master thread read the number to determine how to program 
 		machines.
-- if aborts or crashes in the middle of run, code should close HDF5 file and make it usable, somehow.
 - revive sequences of experiments
-- option to auto pause if not loading atoms
 - NIAWG scripting in single script instead of separate Hor/Vert scripts.
+- finish implementing randomizing repetitions.
+- be able to add more repetitions on the fly if randomizing reps.
+- Be able to set different analysis locations for different plots
+
+- if aborts or crashes in the middle of run, code should close HDF5 file and make it usable, somehow.
 - Watch cursor location on andor pictures, sim to basler program
 - restore the Niawg functionality where it calculates next varying waveform during the run of the previous waveform.
 - support functions for niawg and agilent scripts
-- if fails to open script file give user opportunity to find it themselves.
-- make agilent smart about trying to program a sequence that's only one voltage. Can prob just add one check
-- finish implementing randomizing repetitions.
-- Be able to set different analysis locations for different plots
 - support aborting while paused
 - check that the picture rate is matching the rep rate
 - agilent script programNow with variables, should be able to set constants with program now.
 - agilent should be able to go smoothly from one waveform to another.
 - more tooltips
-- option to open the config file (for inspection) if fails to open on open config.
 Refactoring / Other:
 - change thread that wait on bools to waiting on signalers
 - test running avg gnuplot
@@ -33,12 +29,10 @@ Refactoring / Other:
 Bugs:
 - scripts becoming unsaved after move, should preserve saved status
 - investigate save on change config
-- after script save-as, new name not loaded if run experiment until reload config ??? can't repeat...
 - global config colors don't appear to always be correct.
-- seems that multiple variable dimensions handling doesn't realize when variables are constants such that the 
-	dimension of that variable doesn't matter.
-
-
+- new config should use explorer.
 =================
 Finished
 =================
+FEATURES:
+- added more detailed error message for some agilent handling which includes which agilent / channel threw the error.

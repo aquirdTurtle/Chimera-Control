@@ -9,6 +9,7 @@ struct mainOptions
 	bool dontActuallyGenerate;
 	bool randomizeVariations;
 	bool randomizeReps;
+	UINT atomThresholdForSkip=UINT_MAX;
 };
 
 // this got whittled down recently, but keeping so that I can put more stuff in later.
@@ -25,5 +26,7 @@ class MainOptionsControl
 		Control<CStatic> header;
 		Control<CButton> randomizeVariationsButton;
 		Control<CButton> randomizeRepsButton;
+		Control<CStatic> atomThresholdForSkipText;
+		Control<CEdit> atomThresholdForSkipEdit;
 		mainOptions currentOptions;
 };

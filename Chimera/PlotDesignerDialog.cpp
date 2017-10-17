@@ -123,6 +123,7 @@ BOOL PlotDesignerDialog::OnInitDialog( )
 	legendEdit.Create( NORM_EDIT_OPTIONS, { pos.x + 240, pos.y, pos.x + 480, pos.y += 25 }, this, id++ );
 	binWidthText.Create( "Hist Bin Width:", NORM_STATIC_OPTIONS, { pos.x, pos.y, pos.x + 240, pos.y + 25 }, this, id++ );
 	binWidthEdit.Create( NORM_EDIT_OPTIONS, { pos.x + 240, pos.y, pos.x + 480, pos.y += 25 }, this, id++ );
+	binWidthEdit.SetWindowTextA( "10" );
 	// Post selection conditions
 	pos.y += 10;
 	postSelectionConditionText.Create( "Post-Selection Conditions", NORM_STATIC_OPTIONS, { pos.x, pos.y, pos.x + 480,
@@ -234,7 +235,15 @@ void PlotDesignerDialog::handleSave()
 		return;
 	}
 	/// get the (current) analysis pixel locations
-	saveDataSet( false );
+	try
+	{
+		saveDataSet( false );
+	}
+	catch ( Error& err )
+	{
+		errBox( err.what( ) );
+		return;
+	}
 	int result = promptBox( currentPlotInfo.getAllSettingsString() , MB_OKCANCEL );
 	if (result == IDOK)
 	{

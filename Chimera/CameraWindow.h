@@ -37,7 +37,6 @@ class CameraWindow : public CDialog
 		void OnLButtonUp( UINT stuff, CPoint loc );
 		void OnRButtonUp( UINT stuff, CPoint loc );
 		/// directly called by the message map or 1 simple step removed.
-		void temp( UINT id );
 		void wakeRearranger( );
 		LRESULT onCameraFinish( WPARAM wParam, LPARAM lParam );
 		LRESULT onCameraProgress( WPARAM wParam, LPARAM lParam );
@@ -58,7 +57,6 @@ class CameraWindow : public CDialog
 		void passSetGridCorner( );
 		void catchEnter();
 
-		
 		/// auxiliary functions.
 		void fillMasterThreadInput( MasterThreadInput* input );
 		DataLogger* getLogger();
@@ -94,7 +92,8 @@ class CameraWindow : public CDialog
 														  CameraWindow* camWin, AuxiliaryWindow* masterWin );
 		void startAtomCruncher(ExperimentInput& input);
 		void startPlotterThread( ExperimentInput& input );
-
+		bool wantsAutoPause( );
+		std::atomic<bool>* getSkipNextAtomic();
 	private:
 		DECLARE_MESSAGE_MAP();
 
@@ -138,6 +137,7 @@ class CameraWindow : public CDialog
 		std::atomic<bool> atomCrunchThreadActive;
 		// 
 		std::atomic<bool> plotThreadActive;
+		std::atomic<bool> skipNext=false;
 		std::vector<double> plotterKey;
 		chronoTimes imageTimes, imageGrabTimes, mainThreadStartTimes, crunchSeesTimes, crunchFinTimes;
 		Gnuplotter plotter;
