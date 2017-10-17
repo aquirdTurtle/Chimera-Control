@@ -33,14 +33,13 @@ class DacSystem
 		void setDacStatusNoForceOut(std::array<double, 24> status);
 		void prepareDacForceChange(int line, double voltage, DioSystem* ttls);
 		void stopDacs();
-		void configureClocks(UINT variation );
 		void setDacTriggerEvents( DioSystem* ttls, UINT variation );
 		void interpretKey( std::vector<variableType>& variables, std::string& warnings );
 		void organizeDacCommands(UINT variation);
 		void makeFinalDataFormat(UINT variation );
-		void writeDacs(UINT variation );
+		void writeDacs( UINT variation, bool loadSkip );
 		void startDacs();
-
+		void configureClocks( UINT variation, bool loadSkip );
 		void setDefaultValue(UINT dacNum, double val);
 		double getDefaultValue(UINT dacNum);
 
@@ -51,30 +50,18 @@ class DacSystem
 		std::array<std::string, 24> getAllNames();
 		std::string getErrorMessage(int errorCode);
 		ULONG getNumberEvents(UINT variation );
-		void DacSystem::handleDacScriptCommand( DacCommandForm command, std::string name,
-												/*std::string commandName, timeType time, std::string name, std::string initVal,
-												std::string finalVal, std::string rampTime, std::string rampInc,
-												std::string numPoints,*/ std::vector<UINT>& dacShadeLocations,
-												std::vector<variableType>& vars, DioSystem* ttls );
-
-
+		void handleDacScriptCommand( DacCommandForm command, std::string name, std::vector<UINT>& dacShadeLocations, 
+									 std::vector<variableType>& vars, DioSystem* ttls );
 		std::string getDacSystemInfo();
-
-		void handleEditChange(unsigned int dacNumber);
 		int getDacIdentifier(std::string name);
 		double getDacValue(int dacNumber);
 		unsigned int getNumberOfDacs();
 		std::pair<double, double> getDacRange(int dacNumber);
 		void setMinMax(int dacNumber, double min, double max);
-
-
 		void shadeDacs(std::vector<unsigned int>& dacShadeLocations);
 		void unshadeDacs();
-		
 		void rearrange(UINT width, UINT height, fontMap fonts);
-
 		bool isValidDACName(std::string name);
-
 		HBRUSH handleColorMessage(CWnd* hwnd, brushMap brushes, rgbMap rgbs, CDC* cDC);
 		void resetDacEvents();
 		std::array<double, 24> getDacStatus();
@@ -82,8 +69,8 @@ class DacSystem
 		void checkValuesAgainstLimits(UINT variation );
 		void prepareForce();
 		double roundToDacResolution(double);
-		void findLoadSkipSnapshots( std::vector<variableType>& variables );
-
+		void findLoadSkipSnapshots( double time, std::vector<variableType>& variables, UINT variation );
+		void handleEditChange( UINT dacNumber );
 	private:
 		Control<CStatic> dacTitle;
 		Control<CButton> dacSetButton;

@@ -45,7 +45,6 @@ class MasterManager
 		// this function needs the mastewindow in order to gather the relevant parameters for the experiment.
 		void startExperimentThread(MasterThreadInput* input);
 		void loadMotSettings(MasterThreadInput* input);
-		void loadVariables(std::vector<variableType> newVariables);
 		bool runningStatus();
 		bool isValidWord(std::string word);
 		bool getAbortStatus();
@@ -57,8 +56,10 @@ class MasterManager
 		static UINT determineVariationNumber(std::vector<variableType> vars);
 		static void handleDebugPlots( debugInfo debugOptions, Communicator* comm, DioSystem* ttls, DacSystem* dacs,
 									  bool quiet, EmbeddedPythonHandler* python );
-
+		static double convertToTime( timeType time, std::vector<variableType> variables, UINT variation );
 	private:
+		timeType loadSkipTime;
+		std::vector<double> loadSkipTimes;
 		void callCppCodeFunction();
 		// the master script file contents get dumped into this.
 		std::string currentFunctionText;

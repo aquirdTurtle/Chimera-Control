@@ -698,7 +698,7 @@ namespace commonFunctions
 			case ID_ACCELERATOR_F1:
 			{
 				MasterThreadInput* input = new MasterThreadInput;
-				auxWin->loadMotSettings(input);
+				auxWin->loadMotSettings( input );
 				mainWin->fillMotInput( input );
 				mainWin->startMaster(input, true);
 				break;

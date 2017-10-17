@@ -683,6 +683,7 @@ void MainWindow::fillMotInput( MasterThreadInput* input )
 	}
 	// the mot procedure doesn't need the NIAWG at all.
 	input->runNiawg = false;
+	input->skipNext = NULL;
 	input->rearrangeInfo = rearrangeControl.getParams( );
 	input->rearrangeInfo.active = false;
 

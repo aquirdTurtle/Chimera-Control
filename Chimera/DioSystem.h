@@ -74,16 +74,14 @@ class DioSystem
 		void shadeTTLs(std::vector<std::pair<UINT, UINT>>);
 		void unshadeTtls();
 		bool isValidTTLName(std::string name);
-
 		void resetTtlEvents();
 		void prepareForce();
 		void updateDefaultTtl(UINT row, UINT column, bool state);
 		UINT countTriggers( UINT row, UINT number, UINT variation );
 		bool getDefaultTtl(UINT row, UINT column);
-		void setLoadSkipTime( timeType time );
-		void findLoadSkipSnapshots( std::vector<variableType>& variables, UINT variation );
-	private:
-		
+		void findLoadSkipSnapshots( double time, std::vector<variableType>& variables, UINT variation );
+		std::pair<USHORT, USHORT> calcDoubleShortTime( double time );
+	private:		
 		// one control for each TTL
 		Control<CStatic> ttlTitle;
 		Control<CButton> ttlHold;
@@ -98,8 +96,6 @@ class DioSystem
 		// tells whether the hold button is down or not.
 		bool holdStatus;
 
-		timeType loadSkipTime;
-		std::vector<double> loadSkipTimes;
 
 		std::vector<DioCommandForm> ttlCommandFormList;
 		// Each element of first vector is for each variation.
