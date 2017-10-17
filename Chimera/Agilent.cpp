@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <numeric>
 #include <fstream>
+
 // NI's visa file. Also gets indirectly included via #include "nifgen.h".
 #include "visa.h"
 
@@ -1146,7 +1147,7 @@ void Agilent::setAgilent( UINT variation, std::vector<variableType>& variables)
 				// need to do this before converting to final settings
 				analyzeAgilentScript( settings.channel[chan].scriptedArb, variables );
 			}
-			convertInputToFinalSettings( chan, varKey, variation, variables );
+			convertInputToFinalSettings( chan, variation, variables );
 			switch ( settings.channel[chan].option )
 				{
 				case -2:
