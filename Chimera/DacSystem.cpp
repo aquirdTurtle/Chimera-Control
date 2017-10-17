@@ -525,6 +525,12 @@ void DacSystem::organizeDacCommands(UINT variation)
 }
 
 
+void DacSystem::findLoadSkipSnapshots( std::vector<variableType>& variables, UINT variation )
+{
+	
+}
+
+
 std::array<double, 24> DacSystem::getFinalSnapshot()
 {
 	if (dacSnapshots.size() != 0)

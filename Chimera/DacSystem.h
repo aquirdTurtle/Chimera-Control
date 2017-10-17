@@ -82,6 +82,7 @@ class DacSystem
 		void checkValuesAgainstLimits(UINT variation );
 		void prepareForce();
 		double roundToDacResolution(double);
+		void findLoadSkipSnapshots( std::vector<variableType>& variables );
 
 	private:
 		Control<CStatic> dacTitle;
@@ -98,8 +99,8 @@ class DacSystem
 		std::vector<DacCommandForm> dacCommandFormList;
 		// the first vector is for each variation.
 		std::vector<std::vector<DacCommand>> dacCommandList;
-		std::vector<std::vector<DacSnapshot>> dacSnapshots;
-		std::vector<std::array<std::vector<double>, 3>> finalFormatDacData;
+		std::vector<std::vector<DacSnapshot>> dacSnapshots, loadSkipDacSnapshots;
+		std::vector<std::array<std::vector<double>, 3>> finalFormatDacData, loadSkipDacFinalFormat;
 
 		std::pair<USHORT, USHORT> dacTriggerLine;
 

@@ -37,8 +37,8 @@ Bugs:
 - global config colors don't appear to always be correct.
 - seems that multiple variable dimensions handling doesn't realize when variables are constants such that the 
 	dimension of that variable doesn't matter.
+
+
 =================
 Finished
 =================
-FEATURES:
-- added more detailed error message for some agilent handling which includes which agilent / channel threw the error.
