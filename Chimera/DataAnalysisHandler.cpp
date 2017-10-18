@@ -279,7 +279,8 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 	/// open files
 	for (auto plotInc : range(input->plotInfo.size()))
 	{
-		std::string tempFileName = PLOT_FILES_SAVE_LOCATION + "\\" + input->plotInfo[plotInc].name + PLOTTING_EXTENSION;
+		std::string tempFileName = PLOT_FILES_SAVE_LOCATION + "\\" + input->plotInfo[plotInc].name +  "."
+			+ PLOTTING_EXTENSION;
 		allPlots.push_back(PlottingInfo::PlottingInfo(tempFileName));
 		allPlots[plotInc].setGroups(input->analysisLocations);
 	}
@@ -1157,7 +1158,7 @@ void DataAnalysisControl::fillPlotThreadInput(realTimePlotterInput* input)
 	threadNeedsCounts = false;
 	for (auto plt : input->plotInfo)
 	{
-		PlottingInfo info(PLOT_FILES_SAVE_LOCATION + "\\" + plt.name + PLOTTING_EXTENSION);
+		PlottingInfo info(PLOT_FILES_SAVE_LOCATION + "\\" + plt.name + "." + PLOTTING_EXTENSION);
 		if (info.getPlotType() != "Atoms")
 		{
 			threadNeedsCounts = true;
@@ -1382,8 +1383,8 @@ void DataAnalysisControl::handleDoubleClick(fontMap* fonts, UINT currentPicsPerR
 			// edit existing plot file using the plot designer.
 			try
 			{
-				PlotDesignerDialog dlg(fonts, PLOT_FILES_SAVE_LOCATION + "\\" + allPlots[itemIndicator].name 
-								 + PLOTTING_EXTENSION);
+				PlotDesignerDialog dlg(fonts, PLOT_FILES_SAVE_LOCATION + "\\" + allPlots[itemIndicator].name + "." 
+										+ PLOTTING_EXTENSION);
 				dlg.DoModal();
 			}
 			catch (Error& err)
@@ -1398,8 +1399,9 @@ void DataAnalysisControl::handleDoubleClick(fontMap* fonts, UINT currentPicsPerR
 			/// view plot settings.
 			try
 			{
-				infoBox(PlottingInfo::getAllSettingsStringFromFile(PLOT_FILES_SAVE_LOCATION + "\\" + allPlots[itemIndicator].name
-						+ PLOTTING_EXTENSION));
+				infoBox(PlottingInfo::getAllSettingsStringFromFile(PLOT_FILES_SAVE_LOCATION + "\\" 
+																	+ allPlots[itemIndicator].name + "." 
+																	+ PLOTTING_EXTENSION));
 			}
 			catch (Error& err)
 			{
@@ -1432,7 +1434,7 @@ void DataAnalysisControl::handleDoubleClick(fontMap* fonts, UINT currentPicsPerR
 
 void DataAnalysisControl::reloadListView()
 {
-	std::vector<std::string> names = ProfileSystem::searchForFiles(PLOT_FILES_SAVE_LOCATION, str("*") 
+	std::vector<std::string> names = ProfileSystem::searchForFiles(PLOT_FILES_SAVE_LOCATION, str("*.") 
 																   + PLOTTING_EXTENSION);
 	plotListview.DeleteAllItems();
 	allPlots.clear();
@@ -1497,7 +1499,8 @@ void DataAnalysisControl::handleRClick()
 	int answer = promptBox("Delete Plot " + allPlots[itemIndicator].name + "?", MB_YESNO);
 	if (answer == IDYES)
 	{
-		int result = DeleteFile(cstr(PLOT_FILES_SAVE_LOCATION + "\\" + allPlots[itemIndicator].name + PLOTTING_EXTENSION));
+		int result = DeleteFile(cstr(PLOT_FILES_SAVE_LOCATION + "\\" + allPlots[itemIndicator].name + "." 
+									  + PLOTTING_EXTENSION));
 		if (!result)
 		{
 			errBox("Failed to delete script file! Error code: " + str(GetLastError()));

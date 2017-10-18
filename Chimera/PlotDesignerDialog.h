@@ -10,8 +10,9 @@ class PlotDesignerDialog : public CDialog
 	DECLARE_DYNAMIC( PlotDesignerDialog );
 
 	public:
-		PlotDesignerDialog( fontMap* fonts, UINT pictureNumber ) : CDialog( IDD_LARGE_TEMPLATE ), picNumber( pictureNumber ),
-			currentPlotInfo( picNumber )
+		PlotDesignerDialog( fontMap* fonts, UINT pictureNumber ) : CDialog( IDD_LARGE_TEMPLATE ), 
+																   picNumber( pictureNumber ),
+																   currentPlotInfo( picNumber )
 		{
 			dlgFonts = fonts;
 			currentDataSet = currentPrcPicture = currentPrcPixel = currentPscCondition = currentPscPicture =
