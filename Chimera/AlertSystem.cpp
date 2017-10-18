@@ -120,22 +120,6 @@ void AlertSystem::rearrange(std::string cameraMode, std::string triggerMode, int
 }
 
 
-void AlertSystem::handleCheckBoxPress()
-{
-	BOOL checked = alertsActiveCheckBox.GetCheck();
-	if (checked)
-	{
-		alertsActiveCheckBox.SetCheck(0);
-		useAlerts = false;
-	}
-	else
-	{
-		alertsActiveCheckBox.SetCheck(1);
-		useAlerts = true;
-	}
-}
-
-
 UINT AlertSystem::getAlertMessageID()
 {
 	return alertMessageID;
@@ -144,7 +128,7 @@ UINT AlertSystem::getAlertMessageID()
 
 bool AlertSystem::alertsAreToBeUsed()
 {
-	return useAlerts;
+	return alertsActiveCheckBox.GetCheck();
 }
 
 

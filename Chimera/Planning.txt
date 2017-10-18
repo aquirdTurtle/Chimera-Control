@@ -31,8 +31,16 @@ Bugs:
 - investigate save on change config
 - global config colors don't appear to always be correct.
 - new config should use explorer.
+- Agilent Wf RAM Buffer overflow error
+- Second picture not responding to color map selections
+- some controls not triggering config not saved
+	- plots?
+	- should probably just go through everything
+- rearrangement dead time not getting saved
+- rearrangement dead time not correctly in us
 =================
 Finished
 =================
 FEATURES:
-- added more detailed error message for some agilent handling which includes which agilent / channel threw the error.
+- fixed Alert system not working
+- fixed variable scan dimension display / initialization bug

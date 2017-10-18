@@ -50,7 +50,6 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_4_MAX_EDIT, IDC_PICTURE_4_MAX_EDIT, &CameraWindow::handlePictureEditChange )
 	// 
 	ON_COMMAND( IDC_SET_EM_GAIN_BUTTON, &CameraWindow::setEmGain)
-	ON_COMMAND( IDC_ALERTS_BOX, &CameraWindow::passAlertPress)
 	ON_COMMAND( IDC_SET_TEMPERATURE_BUTTON, &CameraWindow::passSetTemperaturePress)
 	ON_COMMAND( IDOK, &CameraWindow::catchEnter)
 	ON_COMMAND( IDC_SET_ANALYSIS_LOCATIONS, &CameraWindow::passManualSetAnalysisLocations)
@@ -582,14 +581,6 @@ void CameraWindow::OnTimer(UINT_PTR id)
 	CameraSettings.handleTimer();
 }
 
-
-/*
- *
- */
-void CameraWindow::passAlertPress()
-{
-	alerts.handleCheckBoxPress();
-}
 
 /*
  *

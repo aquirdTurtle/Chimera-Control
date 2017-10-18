@@ -654,11 +654,13 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 		currentVariables.back().overwritten = false;
 		currentVariables.back( ).scanDimension = 1;
 		currentVariables.back().ranges.push_back({0,0,1, false, true});
-		// ranges are 1-indexed.
+		// it's 1-indexed.
+		currentVariables.back().scanDimension = scanDim;
 		for (int rangeInc = 1; rangeInc < variableRanges; rangeInc++)
 		{
 			currentVariables.back().ranges.push_back({ 0,0,0, false, true });
 		}
+		//addConfigVariable( {}, -1 );
 		// make a new "new" row.
 		// choose item
 		listViewItem.iItem = itemIndicator;

@@ -436,7 +436,7 @@ void PlottingInfo::savePlotInfo()
 	std::fstream saveFile(completeAddress, std::fstream::out);
 	if (!saveFile.is_open())
 	{
-		thrower("Couldn't open file at + " + PLOT_FILES_SAVE_LOCATION + fileName + ".plot!");
+		thrower("Couldn't open file at + " + PLOT_FILES_SAVE_LOCATION + "\\" + fileName + ".plot!");
 	}
 	std::string message;
 	message += "Version: " + str( versionMajor ) + "." + str( versionMinor ) + "\n";

@@ -22,7 +22,6 @@ class AlertSystem
 		void alertMainThread( int level );
 		void soundAlert();
 		void rearrange( std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts );
-		void handleCheckBoxPress();
 		UINT getAlertThreshold();
 		UINT getAlertMessageID();
 		void setAlertThreshold();
