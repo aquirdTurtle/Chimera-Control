@@ -5,6 +5,9 @@ FEATURES:
 - revive sequences of experiments
 - NIAWG scripting in single script instead of separate Hor/Vert scripts.
 - finish implementing randomizing repetitions.
+	- Create per-repetitiong list of variation values to use
+	- Be able to randomize
+	- handle random case in plotting.
 - be able to add more repetitions on the fly if randomizing reps.
 - Be able to set different analysis locations for different plots
 
@@ -22,11 +25,11 @@ Refactoring / Other:
 - test running avg gnuplot
 - test fitting in gnuplot
 - refactor groups in plotinfo and gnuplot stuffs
+- change plotting to have fixed x-axis size.
 Bugs:
 - scripts becoming unsaved after move, should preserve saved status
 - investigate save on change config
-- global config colors don't appear to always be correct.
-- new config should use explorer.
+- global config colors don't appear to always be correct. (not sure how to repeat yet)
 
 =================
 Finished

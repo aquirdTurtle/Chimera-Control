@@ -999,7 +999,7 @@ UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 		}
 
 		UINT numAtoms = std::accumulate( tempAtomArray.begin( ), tempAtomArray.end( ), 0 );
-		if ( numAtoms > input->atomThresholdForSkip )
+		if ( numAtoms >= input->atomThresholdForSkip )
 		{
 			*input->skipNext = true;
 		}

@@ -274,6 +274,10 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 					// if the cruncher thread was running behind, it could change between writing and configuring the 
 					// dacs and configuring the TTLs;
 					bool skipOption = input->skipNext == NULL ? false : input->skipNext->load();
+					if ( skipOption )
+					{
+						expUpdate( "Skipping Loading for rep " + str( repInc ) + "\r\n", input->comm, input->quiet );
+					}
 					input->dacs->configureClocks( variationInc, skipOption );
 					input->dacs->writeDacs( variationInc, skipOption );
 					input->dacs->startDacs();

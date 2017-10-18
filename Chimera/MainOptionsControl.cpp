@@ -39,6 +39,7 @@ void MainOptionsControl::handleNewConfig( std::ofstream& newFile )
 	newFile << 0 << "\n";
 	// default is to randomize variations.
 	newFile << 1 << "\n"; 
+	newFile << -1 << "\n";
 	newFile << "END_MAIN_OPTIONS\n";
 }
 
@@ -48,6 +49,9 @@ void MainOptionsControl::handleSaveConfig(std::ofstream& saveFile)
 	saveFile << "MAIN_OPTIONS\n";
 	saveFile << randomizeRepsButton.GetCheck() << "\n";
 	saveFile << randomizeVariationsButton.GetCheck() << "\n";
+	CString tmpTxt;
+	atomThresholdForSkipEdit.GetWindowTextA( tmpTxt );
+	saveFile << tmpTxt << "\n";
 	saveFile << "END_MAIN_OPTIONS\n";
 }
 
@@ -73,7 +77,7 @@ void MainOptionsControl::handleOpenConfig(std::ifstream& openFile, int versionMa
 		{
 			currentOptions.atomThresholdForSkip = std::stoul( txt );
 		}
-		catch ( Error& err )
+		catch ( std::invalid_argument& )
 		{
 			thrower( "ERROR: atom threshold for skip failed to convert to an unsigned long!" );
 		}
