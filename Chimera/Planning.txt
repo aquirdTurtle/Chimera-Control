@@ -36,8 +36,7 @@ Bugs:
 - some controls not triggering config not saved
 	- plots?
 	- should probably just go through everything
-- rearrangement dead time not getting saved
-- rearrangement dead time not correctly in us
+
 =================
 Finished
 =================
