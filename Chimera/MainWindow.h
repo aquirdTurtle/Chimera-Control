@@ -55,9 +55,6 @@ class MainWindow : public CDialog
 		void passMainOptionsPress( UINT id );
 		void handleDblClick( NMHDR * pNotifyStruct, LRESULT * result );
 		void handleRClick( NMHDR * pNotifyStruct, LRESULT * result );
-		//void handleExperimentCombo();
-		//void handleCategoryCombo();
-		//void handleConfigurationCombo();
 		void handleSequenceCombo();
 		void passClear( UINT id );
 
