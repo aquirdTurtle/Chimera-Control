@@ -2,10 +2,6 @@
 TODO
 ===================
 FEATURES:
-- feedback on atom number at end of experiment.
-	- create atomic (?) int which stores the number of atoms in the last picture of most recent run
-	- have atom cruncher update this number, have the master thread read the number to determine how to program 
-		machines.
 - revive sequences of experiments
 - NIAWG scripting in single script instead of separate Hor/Vert scripts.
 - finish implementing randomizing repetitions.
@@ -31,11 +27,6 @@ Bugs:
 - investigate save on change config
 - global config colors don't appear to always be correct.
 - new config should use explorer.
-- Agilent Wf RAM Buffer overflow error
-- Second picture not responding to color map selections
-- some controls not triggering config not saved
-	- plots?
-	- should probably just go through everything
 
 =================
 Finished
