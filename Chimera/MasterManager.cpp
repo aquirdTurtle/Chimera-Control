@@ -638,7 +638,7 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 	std::fstream functionFile;
 	// check if file address is good.
 	FILE *file;
-	fopen_s( &file, cstr(FUNCTIONS_FOLDER_LOCATION + function + FUNCTION_EXTENSION), "r" );
+	fopen_s( &file, cstr(FUNCTIONS_FOLDER_LOCATION + function + "." + FUNCTION_EXTENSION), "r" );
 	if ( !file )
 	{
 		thrower("ERROR: Function " + function + " does not exist!");
@@ -647,7 +647,7 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 	{
 		fclose( file );
 	}
-	functionFile.open(FUNCTIONS_FOLDER_LOCATION + function + FUNCTION_EXTENSION, std::ios::in);
+	functionFile.open(FUNCTIONS_FOLDER_LOCATION + function + "." + FUNCTION_EXTENSION, std::ios::in);
 	// check opened correctly
 	if (!functionFile.is_open())
 	{

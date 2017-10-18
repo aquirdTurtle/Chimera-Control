@@ -28,15 +28,15 @@ void Script::initialize( int width, int height, POINT& startingLocation, cToolTi
 	deviceType = deviceTypeInput;
 	if (deviceTypeInput == "Horizontal NIAWG" || deviceTypeInput == "Vertical NIAWG")
 	{
-		extension = NIAWG_SCRIPT_EXTENSION;
+		extension = str( "." ) + NIAWG_SCRIPT_EXTENSION;
 	}
 	else if (deviceTypeInput == "Agilent")
 	{
-		extension = AGILENT_SCRIPT_EXTENSION;
+		extension = str( "." ) + AGILENT_SCRIPT_EXTENSION;
 	}
 	else if (deviceTypeInput == "Master")
 	{
-		extension = MASTER_SCRIPT_EXTENSION;
+		extension = str( "." ) + MASTER_SCRIPT_EXTENSION;
 	}
 	else
 	{
@@ -605,7 +605,7 @@ void Script::changeView(std::string viewName, bool isFunction, std::string categ
 	}
 	else if (isFunction)
 	{
-		loadFile(FUNCTIONS_FOLDER_LOCATION + viewName + FUNCTION_EXTENSION);
+		loadFile(FUNCTIONS_FOLDER_LOCATION + viewName + "." + FUNCTION_EXTENSION);
 	}
 	else
 	{
@@ -915,21 +915,21 @@ void Script::openParentScript(std::string parentScriptFileAndPath, std::string c
 	std::string extStr(extChars);
 	if (deviceType == "Horizontal NIAWG" || deviceType == "Vertical NIAWG")
 	{
-		if (extStr != NIAWG_SCRIPT_EXTENSION)
+		if (extStr != str(".") + NIAWG_SCRIPT_EXTENSION)
 		{
 			thrower("ERROR: Attempted to open non-NIAWG script inside NIAWG script control.");
 		}
 	}
 	else if (deviceType == "Agilent")
 	{
-		if (extStr != AGILENT_SCRIPT_EXTENSION)
+		if (extStr != str( "." ) + AGILENT_SCRIPT_EXTENSION)
 		{
 			thrower("ERROR: Attempted to open non-agilent script from agilent script control.");
 		}
 	}
 	else if (deviceType == "Master")
 	{
-		if (extStr != MASTER_SCRIPT_EXTENSION)
+		if (extStr != str( "." ) + MASTER_SCRIPT_EXTENSION)
 		{
 			thrower("ERROR: Attempted to open non-master script from master script control!");
 		}
@@ -1130,7 +1130,7 @@ void Script::saveAsFunction()
 	{
 		thrower("ERROR: Function name included a space! Name was" + functionName);
 	}
-	std::string path = FUNCTIONS_FOLDER_LOCATION + functionName + FUNCTION_EXTENSION;
+	std::string path = FUNCTIONS_FOLDER_LOCATION + functionName + "." + FUNCTION_EXTENSION;
 	FILE *file;
 	fopen_s( &file, cstr(path), "r" );
 	if ( !file )
@@ -1162,7 +1162,7 @@ void Script::saveAsFunction()
 
 void Script::loadFunctions()
 {
-	ProfileSystem::reloadCombo( availableFunctionsCombo.GetSafeHwnd( ), functionLocation, str("*") + FUNCTION_EXTENSION,
-								"__NONE__" );
+	ProfileSystem::reloadCombo( availableFunctionsCombo.GetSafeHwnd( ), functionLocation, str("*.") 
+								+ FUNCTION_EXTENSION, "__NONE__" );
 	availableFunctionsCombo.InsertString( 0, "Parent Script" );
 }
