@@ -9,8 +9,10 @@
 #include "ATMCD32D.H"
 #include <numeric>
 
-CameraWindow::CameraWindow() : CDialog(), CameraSettings(&Andor), dataHandler(DATA_SAVE_LOCATION), 
-                               plotter(GNUPLOT_LOCATION)
+CameraWindow::CameraWindow() : CDialog(), 
+								CameraSettings(&Andor), 
+								dataHandler(DATA_SAVE_LOCATION), 
+                                plotter(GNUPLOT_LOCATION)
 {
 	/// test the plotter quickly
 	plotter.send( "set title \"Gnuplot is Working. You can close this window at any time.\"" );
@@ -50,7 +52,6 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_4_MAX_EDIT, IDC_PICTURE_4_MAX_EDIT, &CameraWindow::handlePictureEditChange )
 	// 
 	ON_COMMAND( IDC_SET_EM_GAIN_BUTTON, &CameraWindow::setEmGain)
-	ON_COMMAND( IDC_ALERTS_BOX, &CameraWindow::passAlertPress)
 	ON_COMMAND( IDC_SET_TEMPERATURE_BUTTON, &CameraWindow::passSetTemperaturePress)
 	ON_COMMAND( IDOK, &CameraWindow::catchEnter)
 	ON_COMMAND( IDC_SET_ANALYSIS_LOCATIONS, &CameraWindow::passManualSetAnalysisLocations)
@@ -92,7 +93,6 @@ void CameraWindow::handleNewConfig( std::ofstream& newFile )
 	CameraSettings.handleNewConfig( newFile );
 	pics.handleNewConfig( newFile );
 	analysisHandler.handleNewConfig( newFile );
-	// todo: include plotter info
 }
 
 
@@ -101,7 +101,6 @@ void CameraWindow::handleSaveConfig(std::ofstream& saveFile)
 	CameraSettings.handleSaveConfig(saveFile);
 	pics.handleSaveConfig(saveFile);
 	analysisHandler.handleSaveConfig( saveFile );
-	// TODO: plotter
 }
 
 
@@ -504,12 +503,14 @@ bool CameraWindow::getCameraStatus()
 void CameraWindow::handleDblClick(NMHDR* info, LRESULT* lResult)
 {
 	analysisHandler.handleDoubleClick(&mainWindowFriend->getFonts(), CameraSettings.getSettings().picsPerRepetition );
+	mainWindowFriend->updateConfigurationSavedStatus( false );
 }
 
 
 void CameraWindow::listViewRClick( NMHDR* info, LRESULT* lResult )
 {
 	analysisHandler.handleRClick();
+	mainWindowFriend->updateConfigurationSavedStatus( false );
 }
 
 
@@ -571,6 +572,7 @@ void CameraWindow::passSetTemperaturePress()
 	{
 		mainWindowFriend->getComm()->sendError(err.what());
 	}
+	mainWindowFriend->updateConfigurationSavedStatus( false );
 }
 
 
@@ -582,14 +584,6 @@ void CameraWindow::OnTimer(UINT_PTR id)
 	CameraSettings.handleTimer();
 }
 
-
-/*
- *
- */
-void CameraWindow::passAlertPress()
-{
-	alerts.handleCheckBoxPress();
-}
 
 /*
  *
@@ -628,6 +622,7 @@ void CameraWindow::handlePictureSettings(UINT id)
 	CRect rect;
 	GetWindowRect(&rect);
 	OnSize(0, rect.right - rect.left, rect.bottom - rect.top);
+	mainWindowFriend->updateConfigurationSavedStatus( false );
 }
 
 
@@ -658,7 +653,6 @@ void CameraWindow::OnSize( UINT nType, int cx, int cy )
 	alerts.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts() );
 	analysisHandler.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts() );
 	pics.setParameters( CameraSettings.readImageParameters( this ) );
-	//RedrawWindow();
 	CDC* dc = GetDC();
 	try
 	{
@@ -685,6 +679,7 @@ void CameraWindow::setEmGain()
 	{
 		errBox( exception.what() );
 	}
+	mainWindowFriend->updateConfigurationSavedStatus( false );
 }
 
 
@@ -698,6 +693,7 @@ void CameraWindow::handleMasterConfigSave(std::stringstream& configStream)
 
 void CameraWindow::handleMasterConfigOpen(std::stringstream& configStream, double version)
 {
+	mainWindowFriend->updateConfigurationSavedStatus( false );
 	imageParameters settings = CameraSettings.getSettings().imageSettings;
 	selectedPixel = { 0,0 };
 	std::string tempStr;
@@ -831,8 +827,8 @@ void CameraWindow::prepareAtomCruncher( ExperimentInput& input )
 void CameraWindow::startAtomCruncher(ExperimentInput& input)
 {
 	UINT atomCruncherID;
-	atomCruncherThreadHandle = (HANDLE)_beginthreadex( 0, 0, CameraWindow::atomCruncherProcedure, (void*)input.cruncherInput,
-													   0, &atomCruncherID );
+	atomCruncherThreadHandle = (HANDLE)_beginthreadex( 0, 0, CameraWindow::atomCruncherProcedure,
+													   (void*)input.cruncherInput, 0, &atomCruncherID );
 }
 
 
@@ -1003,7 +999,7 @@ UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 		}
 
 		UINT numAtoms = std::accumulate( tempAtomArray.begin( ), tempAtomArray.end( ), 0 );
-		if ( numAtoms > input->atomThresholdForSkip )
+		if ( numAtoms >= input->atomThresholdForSkip )
 		{
 			*input->skipNext = true;
 		}
@@ -1038,9 +1034,9 @@ std::string CameraWindow::getStartMessage()
 	dialogMsg += "Current Camera Temperature Setting: " + str(
 		CameraSettings.getSettings().temperatureSetting ) + "\r\n";
 	dialogMsg += "Exposure Times: ";
-	for (UINT exposureInc = 0; exposureInc < this->CameraSettings.getSettings().exposureTimes.size(); exposureInc++)
+	for (auto& time : CameraSettings.getSettings().exposureTimes)
 	{
-		dialogMsg += str( CameraSettings.getSettings().exposureTimes[exposureInc] * 1000 ) + ", ";
+		dialogMsg += str( time * 1000 ) + ", ";
 	}
 	dialogMsg += "\r\n";
 	dialogMsg += "Image Settings: " + str( currentImageParameters.left ) + " - " + str( currentImageParameters.right ) + ", "
@@ -1053,9 +1049,9 @@ std::string CameraWindow::getStartMessage()
 	dialogMsg += "Total Pictures per Experiment: " + str( CameraSettings.getSettings().totalPicsInExperiment ) + "\r\n";
 	dialogMsg += "Real-Time Atom Detection Thresholds: ";
 
-	for (UINT exposureInc = 0; exposureInc < CameraSettings.getThresholds().size(); exposureInc++)
+	for (auto& threshold : CameraSettings.getThresholds( ) )
 	{
-		dialogMsg += str( CameraSettings.getThresholds()[exposureInc] ) + ", ";
+		dialogMsg += str( threshold ) + ", ";
 	}
 
 	dialogMsg += "\r\n";

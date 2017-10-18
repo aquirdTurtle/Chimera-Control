@@ -9,8 +9,8 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program.
 
-#define MASTER_COMPUTER
-// #define SPECTRE_LAPTOP
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP
 /// File Locations
 
 #ifdef SPECTRE_LAPTOP
@@ -126,14 +126,6 @@
 #define DC_OFFSET 0
 // in hertz
 #define NIAWG_FILTER_FREQENCY 80000000
-
-#define CONFIG_EXTENSION ".Config"
-#define EXPERIMENT_EXTENSION ".eConfig"
-#define CATEGORY_EXTENSION ".catConfig"
-#define SEQUENCE_EXTENSION ".sConfig"
-
-#define AGILENT_SCRIPT_EXTENSION ".aScript"
-#define NIAWG_SCRIPT_EXTENSION ".nScript"
 
 //
 #define PICTURE_PALETTE_SIZE 256
@@ -396,16 +388,13 @@ const agilentSettings INTENSITY_AGILENT_SETTINGS = { INTENSITY_SAFEMODE, INTENSI
 #define LORENTZIAN_FIT 16006
 #define SINE_FIT 16007
 
-#define MASTER_SCRIPT_EXTENSION ".mScript"
-#define NIAWG_SCRIPT_EXTENSION ".nScript"
-#define AGILENT_SCRIPT_EXTENSION ".aScript"
-#define HORIZONTAL_EXTENSION ".hConfig"
-#define VERTICAL_EXTENSION ".vConfig"
-#define EXPERIMENT_EXTENSION ".eConfig"
-#define CATEGORY_EXTENSION ".catConfig"
-#define SEQUENCE_EXTENSION ".sConfig"
-#define FUNCTION_EXTENSION ".func"
-#define PLOTTING_EXTENSION ".plot"
+#define MASTER_SCRIPT_EXTENSION "mScript"
+#define NIAWG_SCRIPT_EXTENSION "nScript"
+#define AGILENT_SCRIPT_EXTENSION "aScript"
+#define CONFIG_EXTENSION "Config"
+#define SEQUENCE_EXTENSION "sConfig"
+#define FUNCTION_EXTENSION "func"
+#define PLOTTING_EXTENSION "plot"
 
 #define OSCILLOSCOPE_TRIGGER "C11"
 

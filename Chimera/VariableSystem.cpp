@@ -654,8 +654,7 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 		currentVariables.back().overwritten = false;
 		currentVariables.back( ).scanDimension = 1;
 		currentVariables.back().ranges.push_back({0,0,1, false, true});
-		// it's 1-indexed.
-		currentVariables.back().scanDimension = scanDim;
+		// ranges are 1-indexed.
 		for (int rangeInc = 1; rangeInc < variableRanges; rangeInc++)
 		{
 			currentVariables.back().ranges.push_back({ 0,0,0, false, true });
@@ -700,8 +699,8 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 		}
 		std::string s( "A" );
 		listViewItem.pszText = &s[0];
-		listViewItem.iSubItem = 2;       
-		variablesListview.InsertItem( &listViewItem );
+		listViewItem.iSubItem = 2;
+		variablesListview.SetItem( &listViewItem );
 	}
 	/// Handle different subitem clicks
 	switch (subitem)
