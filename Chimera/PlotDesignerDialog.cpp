@@ -247,7 +247,14 @@ void PlotDesignerDialog::handleSave()
 	int result = promptBox( currentPlotInfo.getAllSettingsString() , MB_OKCANCEL );
 	if (result == IDOK)
 	{
-		currentPlotInfo.savePlotInfo();
+		try
+		{
+			currentPlotInfo.savePlotInfo( );
+		}
+		catch ( Error& err )
+		{
+			errBox( "ERROR while saving plot info: " + err.whatStr( ) );
+		}
 		result = promptBox( "Close plot creator?", MB_YESNO );
 		if (result == IDYES)
 		{

@@ -48,10 +48,7 @@ class CameraWindow : public CDialog
 		void passCommonCommand( UINT id );
 		void passTrigger();
 		void passCameraMode();
-		void passAlertPress();
 		void passSetTemperaturePress();
-		void passRepsPerVarPress();
-		void passVariationNumberPress();
 		void passAlwaysShowGrid();
 		void passManualSetAnalysisLocations();
 		void passSetGridCorner( );
