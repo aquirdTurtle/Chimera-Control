@@ -4,6 +4,7 @@
 #include "NoteSystem.h"
 #include "constants.h"
 
+
 void NoteSystem::rearrange(int width, int height, fontMap fonts)
 {
 	configNotes.rearrange( width, height, fonts);
