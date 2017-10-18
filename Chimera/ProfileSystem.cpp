@@ -132,7 +132,6 @@ void ProfileSystem::newConfiguration( MainWindow* mainWin, AuxiliaryWindow* auxW
 		// canceled
 		return;
 	}
-	//std::string newConfigPath = currentProfile.categoryPath + newConfigPath + "." + CONFIG_EXTENSION;
 	std::ofstream newConfigFile(cstr(newConfigPath));
 	if (!newConfigFile.is_open())
 	{
@@ -169,35 +168,25 @@ void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindo
 	std::string versionStr;
 	try
 	{
-	// Version is saved in format "Master Version: x.x"
-	// eat the "version" word"
+		// Version is saved in format "Master Version: x.x"
+		// eat the "version" word"
 		configFile >> versionStr;
 		configFile >> versionStr;
 		double version;
+		int versionMajor, versionMinor;
 		try
 		{
 			version = std::stod( versionStr );
+			int periodPos = versionStr.find_last_of( '.' );
+			std::string tempStr( versionStr.substr( 0, periodPos ));
+			versionMajor = std::stod( tempStr );
+			tempStr = versionStr.substr( periodPos + 1, versionStr.size( ) );
+			versionMinor = std::stod( tempStr );
 		}
 		catch ( std::invalid_argument& )
 		{
 			thrower( "ERROR: Version string failed to convert to double while opening configuration!" );
 		}
-		int versionMajor = int( version );
-		int versionMinor;
-		double tempDouble = std::round( (version - versionMajor) * 1e6 );
-		while ( true )
-		{
-			double d1 = double( tempDouble / 10 ), d2 = double( int( tempDouble / 10 ) );
-			double dif = fabs( d1 - d2 );
-			bool result = (dif > 1e-6) || (tempDouble < 1e-6);
-			if ( result )
-			{
-				break;
-			}
-			tempDouble /= 10;
-		}
-		versionMinor = std::round( tempDouble );
-
 		scriptWin->handleOpenConfig( configFile, versionMajor, versionMinor );
 		camWin->handleOpeningConfig( configFile, versionMajor, versionMinor );
 		auxWin->handleOpeningConfig( configFile, versionMajor, versionMinor );

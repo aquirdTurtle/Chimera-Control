@@ -55,7 +55,7 @@ std::string openWithExplorer(CWnd* parent, std::string extension)
 	dialogInfo.lpstrFileTitle = NULL;
 	dialogInfo.nMaxFileTitle = 0;
 	dialogInfo.lpstrInitialDir = NULL;
-	dialogInfo.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+	dialogInfo.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_CREATEPROMPT;
 
 	// Display the Open dialog box. 
 
