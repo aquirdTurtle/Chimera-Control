@@ -16,13 +16,10 @@ rearrangeParams RearrangeControl::getParams( )
 		// convert to s from ms
 		tempParams.moveSpeed = 1e-3 * std::stod( str( tempTxt ) );
 		movingBiasEdit.GetWindowTextA( tempTxt );
-
 		tempParams.moveBias = std::stod( str( tempTxt ) );
 		
-		// convert to s from us
 		deadTimeEdit.GetWindowTextA( tempTxt );
-		tempParams.deadTime = std::stod( str(tempTxt) ) * 1e-9;
-
+		tempParams.deadTime = std::stod( str(tempTxt) );
 		staticMovingRatioEdit.GetWindowTextA( tempTxt );
 		tempParams.staticMovingRatio = std::stod( str( tempTxt ) );
 		
@@ -86,7 +83,7 @@ void RearrangeControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips&
 	movingBiasEdit.SetWindowTextA( "0.3" );
 
 	deadTimeText.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 25 };
-	deadTimeText.Create( "Dead Time (ns)", WS_CHILD | WS_VISIBLE | ES_READONLY, deadTimeText.sPos,
+	deadTimeText.Create( "Dead Time (us)", WS_CHILD | WS_VISIBLE | ES_READONLY, deadTimeText.sPos,
 						 parent, id++ );
 	deadTimeEdit.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 25 };
 	deadTimeEdit.Create( WS_CHILD | WS_VISIBLE | WS_TABSTOP, deadTimeEdit.sPos, parent, id++ );
@@ -155,7 +152,7 @@ void RearrangeControl::handleNewConfig( std::ofstream& newFile )
 	newFile << 1 << "\n";
 	newFile << 1e-3*0.3 << "\n";
 	newFile << 1e6*0.06 << "\n";
-	newFile << 75e-9 << "\n";
+	newFile << "0\n";
 	newFile << "1\n";
 	newFile << "0\n";
 	newFile << "END_REARRANGEMENT_INFORMATION\n";
@@ -180,13 +177,8 @@ void RearrangeControl::handleSaveConfig( std::ofstream& newFile )
 void RearrangeControl::setParams( rearrangeParams params )
 {
 	experimentIncludesRearrangement.SetCheck( params.active );
-	// convert back to MHz from Hz
 	flashingRateEdit.SetWindowTextA( cstr(1e-6*params.flashingRate) );
 	movingBiasEdit.SetWindowTextA( cstr( params.moveBias ) );
-	// convert back to ms from s
 	moveSpeedEdit.SetWindowTextA( cstr( 1e3*params.moveSpeed ) );
 	outputRearrangeEvents.SetCheck( params.outputInfo );
-	// convert back to us
-	deadTimeEdit.SetWindowTextA( cstr( params.deadTime * 1e9) );
-	staticMovingRatioEdit.SetWindowTextA( cstr( params.staticMovingRatio ) );
 }

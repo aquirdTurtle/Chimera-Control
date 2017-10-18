@@ -41,6 +41,3 @@ Bugs:
 =================
 Finished
 =================
-FEATURES:
-- fixed Alert system not working
-- fixed variable scan dimension display / initialization bug
