@@ -15,11 +15,12 @@ AuxiliaryWindow::AuxiliaryWindow() : CDialog(),
 									 eoAxialTek(EO_AXIAL_TEK_SAFEMODE, EO_AXIAL_TEK_USB_ADDRESS),
 									 agilents{ TOP_BOTTOM_AGILENT_SETTINGS, AXIAL_AGILENT_SETTINGS,
 												FLASHING_AGILENT_SETTINGS, UWAVE_AGILENT_SETTINGS }
-{}
+{
 
+
+}
 
 IMPLEMENT_DYNAMIC( AuxiliaryWindow, CDialog )
-
 
 BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 
@@ -73,9 +74,9 @@ void AuxiliaryWindow::newAgilentScript( agilentNames name)
 {
 	try
 	{
-		mainWindowFriend->updateConfigurationSavedStatus( false );
 		agilents[name].checkSave( mainWindowFriend->getProfileSettings( ).categoryPath, mainWindowFriend->getRunInfo( ) );
 		agilents[name].agilentScript.newScript( );
+		mainWindowFriend->updateConfigurationSavedStatus( false );
 		agilents[name].agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings( ).categoryPath );
 		agilents[name].agilentScript.colorEntireScript( getAllVariables( ), mainWindowFriend->getRgbs( ),
 														  getTtlNames( ), getDacNames( ) );
@@ -92,13 +93,12 @@ void AuxiliaryWindow::openAgilentScript( agilentNames name, CWnd* parent)
 {
 	try
 	{
-		mainWindowFriend->updateConfigurationSavedStatus( false );		
-		agilents[name].agilentScript.checkSave( mainWindowFriend->getProfileSettings( ).categoryPath, 
-												mainWindowFriend->getRunInfo( ) );
+		agilents[name].agilentScript.checkSave( mainWindowFriend->getProfileSettings( ).categoryPath, mainWindowFriend->getRunInfo( ) );
 		std::string openFileName = openWithExplorer( parent, AGILENT_SCRIPT_EXTENSION );
 		agilents[name].agilentScript.openParentScript( openFileName,
 														 mainWindowFriend->getProfileSettings( ).categoryPath,
 														 mainWindowFriend->getRunInfo( ) );
+		mainWindowFriend->updateConfigurationSavedStatus( false );
 		agilents[name].agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings( ).categoryPath );
 	}
 	catch ( Error& err )
@@ -126,7 +126,6 @@ void AuxiliaryWindow::saveAgilentScript( agilentNames name )
 {
 	try
 	{
-		mainWindowFriend->updateConfigurationSavedStatus( false );
 		agilents[name].agilentScript.saveScript( mainWindowFriend->getProfileSettings( ).categoryPath,
 												   mainWindowFriend->getRunInfo( ) );
 		agilents[name].agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings( ).categoryPath );
@@ -142,7 +141,6 @@ void AuxiliaryWindow::saveAgilentScriptAs( agilentNames name, CWnd* parent )
 {
 	try
 	{
-		mainWindowFriend->updateConfigurationSavedStatus( false );
 		std::string extensionNoPeriod = agilents[name].agilentScript.getExtension( );
 		if ( extensionNoPeriod.size( ) == 0 )
 		{
@@ -152,6 +150,7 @@ void AuxiliaryWindow::saveAgilentScriptAs( agilentNames name, CWnd* parent )
 		std::string newScriptAddress = saveWithExplorer( parent, extensionNoPeriod,
 														 mainWindowFriend->getProfileSettings( ) );
 		agilents[name].agilentScript.saveScriptAs( newScriptAddress, mainWindowFriend->getRunInfo( ) );
+		mainWindowFriend->updateConfigurationSavedStatus( false );
 		agilents[name].agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings( ).categoryPath );
 	}
 	catch ( Error& err )
@@ -341,7 +340,6 @@ void AuxiliaryWindow::ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result
 	std::vector<Script*> scriptList;
 	try
 	{
-		mainWindowFriend->updateConfigurationSavedStatus( false );
 		configVariables.updateVariableInfo(scriptList, mainWindowFriend, this, &ttlBoard, &dacBoards);
 	}
 	catch (Error& exception)
@@ -356,7 +354,6 @@ void AuxiliaryWindow::ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	try
 	{
-		mainWindowFriend->updateConfigurationSavedStatus( false );
 		configVariables.deleteVariable();
 	}
 	catch (Error& exception)
@@ -380,7 +377,6 @@ void AuxiliaryWindow::GlobalVarDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 	std::vector<Script*> scriptList;
 	try
 	{
-		mainWindowFriend->updateConfigurationSavedStatus( false );
 		globalVariables.updateVariableInfo(scriptList, mainWindowFriend, this, &ttlBoard, &dacBoards);
 	}
 	catch (Error& exception)
@@ -394,7 +390,6 @@ void AuxiliaryWindow::GlobalVarRClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	try
 	{
-		mainWindowFriend->updateConfigurationSavedStatus( false );
 		globalVariables.deleteVariable();
 	}
 	catch (Error& exception)
@@ -409,7 +404,6 @@ void AuxiliaryWindow::ConfigVarsColumnClick(NMHDR * pNotifyStruct, LRESULT * res
 {
 	try
 	{
-		mainWindowFriend->updateConfigurationSavedStatus( false );
 		configVariables.handleColumnClick(pNotifyStruct, result);
 	}
 	catch (Error& exception)
@@ -546,7 +540,12 @@ void AuxiliaryWindow::handleAgilentOptions( UINT id )
 		agilent.handleChannelPress( 2, mainWindowFriend->getProfileSettings().categoryPath, 
 									 mainWindowFriend->getRunInfo() );
 	}
-	// sync is just a check, no handling needed.
+	else if (id % 7 == 3)
+	{
+		// TODO:
+		// handle sync
+		//agilent->handleSync();
+	}
 	else if (id % 7 == 6)
 	{
 		try
@@ -601,7 +600,7 @@ void AuxiliaryWindow::zeroDacs()
 		ttlBoard.resetTtlEvents();
 		dacBoards.prepareForce();
 		ttlBoard.prepareForce();
-		for (int dacInc : range(24))
+		for (int dacInc = 0; dacInc < 24; dacInc++)
 		{
 			dacBoards.prepareDacForceChange( dacInc, 0, &ttlBoard );
 		}
@@ -785,13 +784,15 @@ void AuxiliaryWindow::handleMasterConfigSave(std::stringstream& configStream)
 	// Number of Variables
 	configStream << globalVariables.getCurrentNumberOfVariables() << "\n";
 	/// Variables
-	for (UINT varInc : range( globalVariables.getCurrentNumberOfVariables() ) )
+
+	for (UINT varInc = 0; varInc < globalVariables.getCurrentNumberOfVariables(); varInc++)
 	{
 		variableType info = globalVariables.getVariableInfo(varInc);
 		configStream << info.name << " ";
 		configStream << info.ranges.front().initialValue << "\n";
 		// all globals are constants, no need to output anything else.
 	}
+
 }
 
 
@@ -802,9 +803,9 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, do
 	dacBoards.resetDacEvents();
 	dacBoards.prepareForce();
 	// save info
-	for (UINT ttlRowInc : range( ttlBoard.getTtlBoardSize().first))
+	for (UINT ttlRowInc = 0; ttlRowInc < ttlBoard.getTtlBoardSize().first; ttlRowInc++)
 	{
-		for (UINT ttlNumberInc : range( ttlBoard.getTtlBoardSize().second ) )
+		for (UINT ttlNumberInc = 0; ttlNumberInc < ttlBoard.getTtlBoardSize().second; ttlNumberInc++)
 		{
 			std::string name;
 			std::string statusString;
@@ -827,7 +828,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, do
 		}
 	}
 	// getting dacs.
-	for (UINT dacInc : range( dacBoards.getNumberOfDacs()) )
+	for (UINT dacInc = 0; dacInc < dacBoards.getNumberOfDacs(); dacInc++)
 	{
 		std::string name;
 		std::string defaultValueString;
@@ -914,7 +915,6 @@ void AuxiliaryWindow::SetDacs()
 	// have the dac values change
 	try
 	{
-		mainWindowFriend->updateConfigurationSavedStatus( false );
 		sendStatus("----------------------\r\n");
 		dacBoards.resetDacEvents();
 		ttlBoard.resetTtlEvents();
@@ -949,7 +949,6 @@ void AuxiliaryWindow::DacEditChange(UINT id)
 {
 	try
 	{
-		mainWindowFriend->updateConfigurationSavedStatus( false );
 		dacBoards.handleEditChange(id - ID_DAC_FIRST_EDIT);
 	}
 	catch (Error& err)
@@ -963,7 +962,6 @@ void AuxiliaryWindow::handleTtlPush(UINT id)
 {
 	try
 	{
-		mainWindowFriend->updateConfigurationSavedStatus( false );
 		ttlBoard.handleTTLPress( id );
 	}
 	catch (Error& exception)
@@ -990,7 +988,6 @@ void AuxiliaryWindow::handlTtlHoldPush()
 
 void AuxiliaryWindow::ViewOrChangeTTLNames()
 {
-	mainWindowFriend->updateConfigurationSavedStatus( false );
 	ttlInputStruct input;
 	input.ttls = &ttlBoard;
 	input.toolTips = toolTips;
@@ -1001,7 +998,6 @@ void AuxiliaryWindow::ViewOrChangeTTLNames()
 
 void AuxiliaryWindow::ViewOrChangeDACNames()
 {
-	mainWindowFriend->updateConfigurationSavedStatus( false );
 	dacInputStruct input;
 	input.dacs = &dacBoards;
 	input.toolTips = toolTips;
@@ -1180,6 +1176,8 @@ std::string AuxiliaryWindow::getSystemStatusMsg()
 	msg += "\n>>> GPIB System <<<\n";
 	msg += "Code System is Active!\n";
 	msg += "RSG: " + RhodeSchwarzGenerator.getIdentity() + "\n";
+
+	// 
 	return msg;
 }
 
