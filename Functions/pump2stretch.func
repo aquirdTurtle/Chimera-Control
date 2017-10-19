@@ -3,7 +3,7 @@ def pump2stretch():
   % insert commands here...
         %printnow "Populating F=|22>"
 
-
+        on: ropshutter % installed 10/19/2017
                  
         %Setting the pumping beam frequencies:
         daclinspace: dac21 0 (-1.65+0) 20 30 %-1.65
@@ -44,3 +44,5 @@ def pump2stretch():
         daclinspace: dac21 (-1.65) 0 2 30 %-1.65
         t += 2
         on: diagmotshutter
+
+        off: ropshutter % installed 10/19/2017

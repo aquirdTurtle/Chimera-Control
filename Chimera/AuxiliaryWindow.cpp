@@ -615,7 +615,7 @@ void AuxiliaryWindow::zeroDacs()
 		ttlBoard.convertToFinalFormat(0);
 		ttlBoard.writeTtlData(0, false);
 		ttlBoard.startBoard();
-		ttlBoard.waitTillFinished(0);
+		ttlBoard.waitTillFinished(0, false);
 		sendStatus( "Zero'd DACs.\r\n");
 	}
 	catch (Error& exception)
@@ -932,7 +932,7 @@ void AuxiliaryWindow::SetDacs()
 		ttlBoard.convertToFinalFormat(0);
 		ttlBoard.writeTtlData(0, false);
 		ttlBoard.startBoard();
-		ttlBoard.waitTillFinished(0);
+		ttlBoard.waitTillFinished(0, false);
 		sendStatus( "Finished Setting Dacs.\r\n" );
 	}
 	catch (Error& exception)

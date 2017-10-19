@@ -1154,7 +1154,7 @@ void Agilent::setAgilent( UINT variation, std::vector<variableType>& variables)
 	}
 	catch ( Error& err )
 	{
-		errBox( "Caught Agilent Error: " + err.whatStr( ) + ".\r\n Trying again." );
+		//errBox( "Caught Agilent Error: " + err.whatStr( ) + ".\r\n Trying again." );
 		visaFlume.write( "OUTPut:SYNC " + str( settings.synced ) );
 	}
 	for (auto chan : range( 2 ))

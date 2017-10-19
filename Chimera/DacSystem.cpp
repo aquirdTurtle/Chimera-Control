@@ -530,7 +530,7 @@ void DacSystem::findLoadSkipSnapshots( double time, std::vector<variableType>& v
 	// find the splitting time and set the loadSkip snapshots to have everything after that time.
 	for ( auto snapshotInc : range( dacSnapshots[variation].size( ) - 1 ) )
 	{
-		if ( dacSnapshots[variation][snapshotInc].time < time && dacSnapshots[variation][snapshotInc + 1].time > time )
+		if ( dacSnapshots[variation][snapshotInc].time < time && dacSnapshots[variation][snapshotInc + 1].time >= time )
 		{
 			loadSkipDacSnapshots[variation] = std::vector<DacSnapshot>( dacSnapshots[variation].begin( ) 
 																		+ snapshotInc + 1,

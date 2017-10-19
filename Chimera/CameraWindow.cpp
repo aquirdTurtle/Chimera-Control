@@ -792,6 +792,7 @@ void CameraWindow::prepareAtomCruncher( ExperimentInput& input )
 	atomCrunchThreadActive = true;
 	input.cruncherInput->plotterNeedsImages = input.plotterInput->needsCounts;
 	input.cruncherInput->cruncherThreadActive = &atomCrunchThreadActive;
+	skipNext = false;
 	input.cruncherInput->skipNext = &skipNext;
 	input.cruncherInput->imageQueue = &imageQueue;
 	// options
@@ -997,11 +998,18 @@ UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 				(*input->plotterImageQueue).push_back(tempImagePixels);
 			}
 		}
-
-		UINT numAtoms = std::accumulate( tempAtomArray.begin( ), tempAtomArray.end( ), 0 );
-		if ( numAtoms >= input->atomThresholdForSkip )
+		// if last picture of repetition
+		if ( imageCount % input->picsPerRep == input->picsPerRep - 1 )
 		{
-			*input->skipNext = true;
+			UINT numAtoms = std::accumulate( tempAtomArray.begin( ), tempAtomArray.end( ), 0 );
+			if ( numAtoms >= input->atomThresholdForSkip )
+			{
+				*input->skipNext = true;
+			}
+			else
+			{
+				*input->skipNext = false;
+			}
 		}
 		imageCount++;
 		std::lock_guard<std::mutex> locker( *input->imageLock );
