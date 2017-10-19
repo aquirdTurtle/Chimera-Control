@@ -16,6 +16,8 @@ struct agilentSettings
 	ULONG sampleRate;
 	std::string outputImpedance;
 	std::string filterState;
+	// "INT" or "USB"
+	std::string memoryLocation;
 	// button ids.
 	ULONG chan1ButtonId;
 	ULONG chan2ButtonId;
