@@ -91,6 +91,7 @@ class CameraWindow : public CDialog
 		void startPlotterThread( ExperimentInput& input );
 		bool wantsAutoPause( );
 		std::atomic<bool>* getSkipNextAtomic();
+		void stopPlotter( );
 	private:
 		DECLARE_MESSAGE_MAP();
 
@@ -134,6 +135,7 @@ class CameraWindow : public CDialog
 		std::atomic<bool> atomCrunchThreadActive;
 		// 
 		std::atomic<bool> plotThreadActive;
+		std::atomic<bool> plotThreadAborting = false;
 		std::atomic<bool> skipNext=false;
 		std::vector<double> plotterKey;
 		chronoTimes imageTimes, imageGrabTimes, mainThreadStartTimes, crunchSeesTimes, crunchFinTimes;
