@@ -70,6 +70,7 @@ class Agilent
 		const double sampleRate;
 		const std::string load;
 		const std::string filterState;
+		const std::string memoryLocation;
 		// since currently all visaFlume communication is done to communicate with agilent machines, my visaFlume wrappers exist
 		// in this class.
 		bool isConnected;
