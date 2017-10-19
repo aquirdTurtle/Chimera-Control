@@ -16,7 +16,7 @@ def populateF1():
         t += 5  %10 to let field settle and lasers settle
          
         %Setting the pumping beam powers:
-        dac: sigmaoppower 0.15 % 0.3 % sigma+ OP beam power
+        dac: sigmaoppower 0.3 % sigma+ OP beam power
         dac: sigmarepumppower 0.15 %0.3 %sigma+ Repump beam power
          
         %Performing OP pulse:

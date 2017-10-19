@@ -49,7 +49,7 @@ b7
 0
 b8
 0
-depumptrig
+ropshutter
 0
 795shutter
 0
@@ -229,4 +229,4 @@ intrappgcpower 0.225
 loadmotsidepower 0.25
 loadmotdiagpower 0.3
 imagingrepumppower 0.2
-1 512 1 1 512 1
+259 285 3 241 267 3

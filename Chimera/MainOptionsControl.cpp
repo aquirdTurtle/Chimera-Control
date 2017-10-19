@@ -39,6 +39,7 @@ void MainOptionsControl::handleNewConfig( std::ofstream& newFile )
 	newFile << 0 << "\n";
 	// default is to randomize variations.
 	newFile << 1 << "\n"; 
+	newFile << -1 << "\n";
 	newFile << "END_MAIN_OPTIONS\n";
 }
 
@@ -48,6 +49,9 @@ void MainOptionsControl::handleSaveConfig(std::ofstream& saveFile)
 	saveFile << "MAIN_OPTIONS\n";
 	saveFile << randomizeRepsButton.GetCheck() << "\n";
 	saveFile << randomizeVariationsButton.GetCheck() << "\n";
+	CString txt;
+	atomThresholdForSkipEdit.GetWindowTextA( txt );
+	saveFile << txt << "\n";
 	saveFile << "END_MAIN_OPTIONS\n";
 }
 
