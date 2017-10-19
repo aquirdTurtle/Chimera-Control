@@ -885,6 +885,12 @@ void CameraWindow::startPlotterThread( ExperimentInput& input )
 	}
 	else
 	{
+		if ( input.camSettings.totalPicsInExperiment * input.plotterInput->analysisLocations.size()
+			 / input.plotterInput->plottingFrequency > 1000 )
+		{
+			infoBox( "Warning: The number of pictures * points to analyze in the experiment is very large,"
+					 " and the plotting period is fairly small. Consider increasing the plotting period. " );
+		}
 		// start the plotting thread
 		plotThreadActive = true;
 		plotThreadHandle = (HANDLE)_beginthreadex( 0, 0, DataAnalysisControl::plotterProcedure, (void*)input.plotterInput,
