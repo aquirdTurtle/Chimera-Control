@@ -1040,13 +1040,15 @@ void Agilent::handleScriptVariation( UINT variation, scriptedArbInfo& scriptInfo
 		visaFlume.write( "SOURCE" + str( channel ) + ":DATA:VOL:CLEAR" );
 		/// new line here:
 		prepAgilentSettings( channel );
-		for ( UINT segNumInc = 0; segNumInc < totalSegmentNumber; segNumInc++ )
+		for ( UINT segNumInc : range( totalSegmentNumber ) )
 		{
 			visaFlume.write( scriptInfo.wave.compileAndReturnDataSendString( segNumInc, variation, 
 																			 totalSegmentNumber, channel ) );
 			// Save the segment
+			// visaFlume.write( "MMEM:STORE:DATA" + str( channel ) + " \"" + memoryLocation + ":\\segment"
+			//					+ str( segNumInc + totalSegmentNumber * variation ) + ".arb\"" );
 			visaFlume.write( "MMEM:STORE:DATA" + str( channel ) + " \"" + memoryLocation + ":\\segment"
-							 + str( segNumInc + totalSegmentNumber * variation ) + ".arb\"" );
+							 + str( segNumInc ) + ".arb\"" );
 		}
 		// Now handle seqeunce creation / writing.
 		scriptInfo.wave.compileSequenceString( totalSegmentNumber, variation, channel );
@@ -1054,7 +1056,8 @@ void Agilent::handleScriptVariation( UINT variation, scriptedArbInfo& scriptInfo
 		visaFlume.write( scriptInfo.wave.returnSequenceString( ) );
 		// Save the sequence
 		visaFlume.write( "SOURCE" + str( channel ) + ":FUNC:ARB sequence" + str( variation ) );
-		visaFlume.write( "MMEM:STORE:DATA" + str( channel ) + " \"" + memoryLocation + ":\\sequence" + str( variation ) + ".seq\"" );
+		visaFlume.write( "MMEM:STORE:DATA" + str( channel ) + " \"" + memoryLocation + ":\\sequence" 
+						 + str( variation ) + ".seq\"" );
 		// clear temporary memory.
 		visaFlume.write( "SOURCE" + str( channel ) + ":DATA:VOL:CLEAR" );
 	}	
