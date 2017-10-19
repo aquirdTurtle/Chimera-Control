@@ -294,6 +294,11 @@ namespace commonFunctions
 				}
 				break;
 			}
+			case ID_PLOTTING_STOPPLOTTER:
+			{
+				camWin->stopPlotter( );
+				break;
+			}
 			case ID_FILE_MY_INTENSITY_NEW:
 			{
 				scriptWin->newIntensityScript();
