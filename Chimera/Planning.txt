@@ -30,6 +30,8 @@ Bugs:
 - scripts becoming unsaved after move, should preserve saved status
 - investigate save on change config
 - global config colors don't appear to always be correct. (not sure how to repeat yet)
+- force exit of plotting thread
+- fix over-writing to the agilent.
 
 =================
 Finished
