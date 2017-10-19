@@ -212,7 +212,8 @@ void ScriptedAgilentWaveform::compileSequenceString( int totalSegNum, int sequen
 	for (int segNumInc = 0; segNumInc < totalSegNum - 1; segNumInc++)
 	{
 		// Format is 
-		tempSegmentInfoString += "segment" + str( segNumInc + totalSegNum * sequenceNum ) + ",";
+		//tempSegmentInfoString += "segment" + str( segNumInc + totalSegNum * sequenceNum ) + ",";
+		tempSegmentInfoString += "segment" + str( segNumInc ) + ",";
 		tempSegmentInfoString += str( waveformSegments[segNumInc].getFinalSettings().repeatNum ) + ",";
 		switch (waveformSegments[segNumInc].getFinalSettings().continuationType)
 		{
