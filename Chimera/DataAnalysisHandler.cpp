@@ -405,7 +405,7 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 	bool plotIsSlowStatus = false;
 	/// /////////////////////////////////////////////
 	/// Start loop waiting for plots
-	while (*input->active || (input->atomQueue->size() > 0))
+	while ((*input->active || (input->atomQueue->size() > 0)) && (!*input->aborting))
 	{
 		// if no image, continue.
 		if (input->atomQueue->size() == 0 || input->atomQueue[0].size() == 0)

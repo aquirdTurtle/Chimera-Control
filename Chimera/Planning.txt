@@ -32,7 +32,8 @@ Bugs:
 - investigate save on change config
 - global config colors don't appear to always be correct. (not sure how to repeat yet)
 - fix the "programming took XXX seconds message to be useful."
-
+- force exit of plotting thread
+- fix over-writing to the agilent.
 =================
 Finished
 =================

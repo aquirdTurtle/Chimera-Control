@@ -200,10 +200,12 @@ void CameraWindow::abortCameraRun()
 		timer.setTimerDisplay( "Aborted" );
 		Andor.setIsRunningState( false );
 		// close the plotting thread.
+		plotThreadAborting = true;
 		plotThreadActive = false;
 		atomCrunchThreadActive = false;
 		// Wait until plotting thread is complete.
 		WaitForSingleObject( plotThreadHandle, INFINITE );
+		plotThreadAborting = false;
 		// camera is no longer running.
 		try
 		{
@@ -843,9 +845,11 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 {
 	/// start the plotting thread.
 	plotThreadActive = true;
+	plotThreadAborting = false;
 	imageQueue.clear();
 	plotterAtomQueue.clear();
 	input.plotterInput = new realTimePlotterInput;
+	input.plotterInput->aborting = &plotThreadAborting;
 	input.plotterInput->active = &plotThreadActive;
 	input.plotterInput->imageQueue = &plotterPictureQueue;
 	input.plotterInput->imageShape = CameraSettings.getSettings().imageSettings;
@@ -886,6 +890,12 @@ void CameraWindow::startPlotterThread( ExperimentInput& input )
 	}
 	else
 	{
+		if ( input.camSettings.totalPicsInExperiment * input.plotterInput->analysisLocations.size()
+			 / input.plotterInput->plottingFrequency > 1000 )
+		{
+			infoBox( "Warning: The number of pictures * points to analyze in the experiment is very large,"
+					 " and the plotting period is fairly small. Consider increasing the plotting period. " );
+		}
 		// start the plotting thread
 		plotThreadActive = true;
 		plotThreadHandle = (HANDLE)_beginthreadex( 0, 0, DataAnalysisControl::plotterProcedure, (void*)input.plotterInput,
@@ -1222,12 +1232,18 @@ std::atomic<bool>* CameraWindow::getSkipNextAtomic( )
 }
 
 
+void CameraWindow::stopPlotter( )
+{
+	plotThreadAborting = true;
+}
+
+
 void CameraWindow::passCommonCommand(UINT id)
 {
 	try
 	{
 		commonFunctions::handleCommonMessage( id, this, mainWindowFriend, scriptingWindowFriend, this, 
-											 auxWindowFriend );
+											  auxWindowFriend );
 	}
 	catch (Error& err)
 	{

@@ -324,6 +324,10 @@ const agilentSettings UWAVE_AGILENT_SETTINGS = {
 												// the output filter state (controls rounding & overshoot issues 
 												// between samples)
 												"NORMal",
+												// Memory location, whether the device will save waveforms to 
+												// the internal 64MB Memory buffer or to an external USB drive, which
+												// can (obviously) have much more space.f
+												"INT",
 												// various control IDs (no need to change)
 												 IDC_UWAVE_CHANNEL1_BUTTON, IDC_UWAVE_CHANNEL2_BUTTON, 
 												 IDC_UWAVE_SYNC_BUTTON, IDC_UWAVE_AGILENT_COMBO,
@@ -332,7 +336,7 @@ const agilentSettings UWAVE_AGILENT_SETTINGS = {
 												 UWAVE_AGILENT_TRIGGER_ROW, UWAVE_AGILENT_TRIGGER_NUM };
 
 const agilentSettings TOP_BOTTOM_AGILENT_SETTINGS = { TOP_BOTTOM_AGILENT_SAFEMODE, TOP_BOTTOM_AGILENT_USB_ADDRESS,
-													  1e6, "INF", "NORMal",
+													  1e6, "INF", "NORMal", "INT",
 													  IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_TOP_BOTTOM_CHANNEL2_BUTTON,
 													  IDC_TOP_BOTTOM_SYNC_BUTTON, IDC_TOP_BOTTOM_AGILENT_COMBO,
 													  IDC_TOP_BOTTOM_FUNCTION_COMBO, IDC_TOP_BOTTOM_EDIT, 
@@ -340,7 +344,7 @@ const agilentSettings TOP_BOTTOM_AGILENT_SETTINGS = { TOP_BOTTOM_AGILENT_SAFEMOD
 													  TOP_BOTTOM_AGILENT_TRIGGER_ROW, TOP_BOTTOM_AGILENT_TRIGGER_NUM };
 
 const agilentSettings AXIAL_AGILENT_SETTINGS = { AXIAL_AGILENT_SAFEMODE, AXIAL_AGILENT_USB_ADDRESS,
-												 1e6, "INF", "NORMal",
+												 1e6, "INF", "NORMal", "INT",
 												 IDC_AXIAL_CHANNEL1_BUTTON, IDC_AXIAL_CHANNEL2_BUTTON,
 												 IDC_AXIAL_SYNC_BUTTON, IDC_AXIAL_AGILENT_COMBO,
 												 IDC_AXIAL_FUNCTION_COMBO, IDC_AXIAL_EDIT, IDC_AXIAL_PROGRAM,
@@ -348,7 +352,7 @@ const agilentSettings AXIAL_AGILENT_SETTINGS = { AXIAL_AGILENT_SAFEMODE, AXIAL_A
 												 AXIAL_AGILENT_TRIGGER_ROW, AXIAL_AGILENT_TRIGGER_NUM };
 
 const agilentSettings FLASHING_AGILENT_SETTINGS = { FLASHING_SAFEMODE, FLASHING_AGILENT_USB_ADDRESS,
-													1e6, "INF", "NORMal",
+													1e6, "INF", "NORMal", "INT",
 													IDC_FLASHING_CHANNEL1_BUTTON, IDC_FLASHING_CHANNEL2_BUTTON,
 													IDC_FLASHING_SYNC_BUTTON, IDC_FLASHING_AGILENT_COMBO,
 													IDC_FLASHING_FUNCTION_COMBO, IDC_FLASHING_EDIT, 
@@ -356,7 +360,7 @@ const agilentSettings FLASHING_AGILENT_SETTINGS = { FLASHING_SAFEMODE, FLASHING_
 													FLASHING_AGILENT_TRIGGER_ROW, FLASHING_AGILENT_TRIGGER_NUM };
 
 const agilentSettings INTENSITY_AGILENT_SETTINGS = { INTENSITY_SAFEMODE, INTENSITY_AGILENT_USB_ADDRESS,
-													 1e6, "INF", "NORMal",
+													 1e6, "INF", "NORMal", "USB",
 													 IDC_INTENSITY_CHANNEL1_BUTTON, IDC_INTENSITY_CHANNEL2_BUTTON,
 													 IDC_INTENSITY_SYNC_BUTTON, IDC_INTENSITY_AGILENT_COMBO,
 													 IDC_INTENSITY_FUNCTION_COMBO, IDC_INTENSITY_EDIT,
