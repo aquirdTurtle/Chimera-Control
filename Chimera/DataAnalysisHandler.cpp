@@ -465,7 +465,16 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 			}
 		}
 
-		noAtomsCounter = thereIsAtLeastOneAtom ? noAtomsCounter + 1 : 0;
+
+		if ( thereIsAtLeastOneAtom )
+		{
+			noAtomsCounter = 0;
+		}
+		else
+		{
+			noAtomsCounter++;
+		}
+		//noAtomsCounter = (true ? noAtomsCounter++ : -1);
 
 		if (noAtomsCounter >= input->alertThreshold && input->wantAlerts )
 		{

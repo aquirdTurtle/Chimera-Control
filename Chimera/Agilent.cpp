@@ -1045,10 +1045,10 @@ void Agilent::handleScriptVariation( UINT variation, scriptedArbInfo& scriptInfo
 			visaFlume.write( scriptInfo.wave.compileAndReturnDataSendString( segNumInc, variation, 
 																			 totalSegmentNumber, channel ) );
 			// Save the segment
-			// visaFlume.write( "MMEM:STORE:DATA" + str( channel ) + " \"" + memoryLocation + ":\\segment"
-			//					+ str( segNumInc + totalSegmentNumber * variation ) + ".arb\"" );
 			visaFlume.write( "MMEM:STORE:DATA" + str( channel ) + " \"" + memoryLocation + ":\\segment"
-							 + str( segNumInc ) + ".arb\"" );
+								+ str( segNumInc + totalSegmentNumber * variation ) + ".arb\"" );
+			//visaFlume.write( "MMEM:STORE:DATA" + str( channel ) + " \"" + memoryLocation + ":\\segment"
+			//				 + str( segNumInc ) + ".arb\"" );
 		}
 		// Now handle seqeunce creation / writing.
 		scriptInfo.wave.compileSequenceString( totalSegmentNumber, variation, channel );
