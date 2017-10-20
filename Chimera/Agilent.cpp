@@ -1045,10 +1045,10 @@ void Agilent::handleScriptVariation( UINT variation, scriptedArbInfo& scriptInfo
 			visaFlume.write( scriptInfo.wave.compileAndReturnDataSendString( segNumInc, variation, 
 																			 totalSegmentNumber, channel ) );
 			// Save the segment
-			// visaFlume.write( "MMEM:STORE:DATA" + str( channel ) + " \"" + memoryLocation + ":\\segment"
-			//					+ str( segNumInc + totalSegmentNumber * variation ) + ".arb\"" );
 			visaFlume.write( "MMEM:STORE:DATA" + str( channel ) + " \"" + memoryLocation + ":\\segment"
-							 + str( segNumInc ) + ".arb\"" );
+								+ str( segNumInc + totalSegmentNumber * variation ) + ".arb\"" );
+			//visaFlume.write( "MMEM:STORE:DATA" + str( channel ) + " \"" + memoryLocation + ":\\segment"
+			//				 + str( segNumInc ) + ".arb\"" );
 		}
 		// Now handle seqeunce creation / writing.
 		scriptInfo.wave.compileSequenceString( totalSegmentNumber, variation, channel );
@@ -1155,7 +1155,15 @@ void Agilent::setAgilent( UINT variation, std::vector<variableType>& variables)
 	{
 		return;
 	}
-	visaFlume.write( "OUTPut:SYNC " + str( settings.synced ) );
+	try
+	{
+		visaFlume.write( "OUTPut:SYNC " + str( settings.synced ) );
+	}
+	catch ( Error& err )
+	{
+		//errBox( "Caught Agilent Error: " + err.whatStr( ) + ".\r\n Trying again." );
+		visaFlume.write( "OUTPut:SYNC " + str( settings.synced ) );
+	}
 	for (auto chan : range( 2 ))
 	{
 		try

@@ -851,6 +851,10 @@ void NiawgController::handleVariationsNew( NiawgOutputNew& output, std::vector<v
 			else
 			{
 				simpleFormToOutput( waveForm.core, wave.core, variables, variation );
+				if ( variation != 0 )
+				{
+					fgenConduit.deleteWaveform( cstr( wave.core.name ) );
+				}
 				writeStandardWaveNew( wave.core, debugOptions, output.isDefault );
 			}
 			mixedWaveSizes.push_back( 2 * wave.core.sampleNum );

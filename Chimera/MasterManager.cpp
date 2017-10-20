@@ -130,6 +130,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 				// organize & format the ttl and dac commands
 				input->dacs->organizeDacCommands( variationInc );
 				input->dacs->setDacTriggerEvents( input->ttls, variationInc );
+				input->dacs->findLoadSkipSnapshots( currLoadSkipTime, input->variables, variationInc );
 				input->dacs->makeFinalDataFormat( variationInc );
 				input->ttls->organizeTtlCommands( variationInc );
 				input->ttls->findLoadSkipSnapshots( currLoadSkipTime, input->variables, variationInc );
@@ -273,17 +274,26 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 					// it's important to grab the skipoption from input->skipNext only once because in principle
 					// if the cruncher thread was running behind, it could change between writing and configuring the 
 					// dacs and configuring the TTLs;
-					bool skipOption = input->skipNext == NULL ? false : input->skipNext->load();
-					if ( skipOption )
+					bool skipOption;
+					if ( input->skipNext == NULL )
 					{
-						expUpdate( "Skipping Loading for rep " + str( repInc ) + "\r\n", input->comm, input->quiet );
+						skipOption = false;
+					}
+					else
+					{
+						skipOption = input->skipNext->load( );
+						//*input->skipNext = false;
+						if ( skipOption )
+						{
+							expUpdate( "Skipping Loading for rep " + str( repInc ) + "\r\n", input->comm, input->quiet );
+						}
 					}
 					input->dacs->configureClocks( variationInc, skipOption );
 					input->dacs->writeDacs( variationInc, skipOption );
 					input->dacs->startDacs();
 					input->ttls->writeTtlData( variationInc, skipOption );
 					input->ttls->startBoard();
-					input->ttls->waitTillFinished( variationInc );
+					input->ttls->waitTillFinished( variationInc, skipOption );
 				}
 			}
 			expUpdate( "\r\n", input->comm, input->quiet );

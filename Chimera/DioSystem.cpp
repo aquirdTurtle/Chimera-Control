@@ -968,12 +968,21 @@ void DioSystem::wait(double time)
 
 
 // uses the last time of the ttl trigger to wait until the experiment is finished.
-void DioSystem::waitTillFinished(UINT variation)
+void DioSystem::waitTillFinished(UINT variation, bool skipOption)
 {
-	double totalTime = (formattedTtlSnapshots[variation].back()[0] 
-						 + 65535 * formattedTtlSnapshots[variation].back()[1]) / 10000.0 + 1;
+	double totalTime;
+	if ( skipOption )
+	{
+		totalTime = (loadSkipFormattedTtlSnapshots[variation].back( )[0]
+					  + 65535 * loadSkipFormattedTtlSnapshots[variation].back( )[1]) / 10000.0 + 1;
+	}
+	else 
+	{
+		totalTime = (formattedTtlSnapshots[variation].back( )[0]
+					  + 65535 * formattedTtlSnapshots[variation].back( )[1]) / 10000.0 + 1;
+	}
+	 
 	wait(totalTime);
-	//stopBoard();
 }
 
 
@@ -1196,13 +1205,18 @@ void DioSystem::findLoadSkipSnapshots( double time, std::vector<variableType>& v
 	// find the splitting time and set the loadSkip snapshots to have everything after that time.
 	for ( auto snapshotInc : range(ttlSnapshots[variation].size() - 1) )
 	{
-		if ( ttlSnapshots[variation][snapshotInc].time < time && ttlSnapshots[variation][snapshotInc+1].time > time )
+		if ( ttlSnapshots[variation][snapshotInc].time < time && ttlSnapshots[variation][snapshotInc+1].time >= time )
 		{
 			loadSkipTtlSnapshots[variation] = std::vector<DioSnapshot>( ttlSnapshots[variation].begin( ) 
 																		+ snapshotInc + 1, 
 																		ttlSnapshots[variation].end( ) );
 			break;
 		}
+	}
+	// need to zero the times.
+	for ( auto& snapshot : loadSkipTtlSnapshots[variation] )
+	{
+		snapshot.time -= time;
 	}
 }
 

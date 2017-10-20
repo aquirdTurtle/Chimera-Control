@@ -20,6 +20,7 @@ FEATURES:
 - agilent script programNow with variables, should be able to set constants with program now.
 - agilent should be able to go smoothly from one waveform to another.
 - more tooltips
+- catch and warn about attemtps to save script when agilent isn't in scripting mode
 Refactoring / Other:
 - change thread that wait on bools to waiting on signalers
 - test running avg gnuplot
@@ -30,9 +31,9 @@ Bugs:
 - scripts becoming unsaved after move, should preserve saved status
 - investigate save on change config
 - global config colors don't appear to always be correct. (not sure how to repeat yet)
+- fix the "programming took XXX seconds message to be useful."
 - force exit of plotting thread
 - fix over-writing to the agilent.
-
 =================
 Finished
 =================

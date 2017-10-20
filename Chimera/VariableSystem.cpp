@@ -142,92 +142,92 @@ void VariableSystem::handleOpenConfig(std::ifstream& configFile, int versionMajo
 			varNum = 0;
 		}
 	}
-	int rangeNumber = 1;
-	for (const UINT varInc : range(varNum) )
+int rangeNumber = 1;
+for ( const UINT varInc : range( varNum ) )
+{
+	variableType tempVar;
+	std::string varName, typeText, valueString;
+	bool constant;
+	configFile >> varName;
+	std::transform( varName.begin( ), varName.end( ), varName.begin( ), ::tolower );
+	tempVar.name = varName;
+	configFile >> typeText;
+	if ( typeText == "Constant" )
 	{
-		variableType tempVar;
-		std::string varName, typeText, valueString;
-		bool constant;
-		configFile >> varName;
-		std::transform(varName.begin(), varName.end(), varName.begin(), ::tolower);
-		tempVar.name = varName;
-		configFile >> typeText;
-		if (typeText == "Constant")
-		{
-			constant = true;
-			tempVar.constant = true;
-		}
-		else if (typeText == "Variable")
-		{
-			constant = false;
-			tempVar.constant = false;
-		}
-		else
-		{
-			thrower( "ERROR: unknown variable type option: " + typeText + ". Check the formatting of the configuration"
-					 " file." );
-		}
-		if ( (versionMajor == 2 && versionMinor > 7) || versionMajor > 2 )
-		{
-			configFile >> tempVar.scanDimension;
-		}
-		else
-		{
-			tempVar.scanDimension = 1;
-		}
-		configFile >> rangeNumber;
-		// I think it's unlikely to ever need more than 2 or 3 ranges.
-		if (rangeNumber < 1 || rangeNumber > 100)
-		{
-			errBox("ERROR: Bad range number! setting it to 1, but found " + str(rangeNumber) + " in the file.");
-			rangeNumber = 1;
-		}
-		setVariationRangeNumber(rangeNumber, 1);
-		// check if the range is actually too small.
-		UINT totalVariations = 0;
-		for (auto rangeInc : range(rangeNumber))
-		{
-			double initValue=0, finValue=0;
-			unsigned int variations=0;
-			bool leftInclusive=0, rightInclusive=0;
-			configFile >> initValue;
-			configFile >> finValue;
-			configFile >> variations;
-			totalVariations += variations;
-			configFile >> leftInclusive;
-			configFile >> rightInclusive;
-			tempVar.ranges.push_back({ initValue, finValue, variations, leftInclusive, rightInclusive });
-		}
-		// shouldn't be because of 1 forcing earlier.
-		if (tempVar.ranges.size() == 0)
-		{
-			// make sure it has at least one entry.
-			tempVar.ranges.push_back({ 0,0,1, false, true });
-		}
-		addConfigVariable(tempVar, varInc);
+		constant = true;
+		tempVar.constant = true;
 	}
-
+	else if ( typeText == "Variable" )
+	{
+		constant = false;
+		tempVar.constant = false;
+	}
+	else
+	{
+		thrower( "ERROR: unknown variable type option: " + typeText + ". Check the formatting of the configuration"
+				 " file." );
+	}
+	if ( (versionMajor == 2 && versionMinor > 7) || versionMajor > 2 )
+	{
+		configFile >> tempVar.scanDimension;
+	}
+	else
+	{
+		tempVar.scanDimension = 1;
+	}
+	configFile >> rangeNumber;
+	// I think it's unlikely to ever need more than 2 or 3 ranges.
+	if ( rangeNumber < 1 || rangeNumber > 100 )
+	{
+		errBox( "ERROR: Bad range number! setting it to 1, but found " + str( rangeNumber ) + " in the file." );
+		rangeNumber = 1;
+	}
+	setVariationRangeNumber( rangeNumber, 1 );
+	// check if the range is actually too small.
+	UINT totalVariations = 0;
 	for ( auto rangeInc : range( rangeNumber ) )
 	{
-		bool leftInclusivity = false, rightInclusivity = true;
-		if ( currentVariables.size( ) != 0 )
-		{
-			leftInclusivity = currentVariables.front( ).ranges[rangeInc].leftInclusive;
-			rightInclusivity = currentVariables.front( ).ranges[rangeInc].rightInclusive;
-		}
-		setRangeInclusivity( rangeInc, true, leftInclusivity, preRangeColumns + rangeInc * 3 );
-		setRangeInclusivity( rangeInc, false, rightInclusivity, preRangeColumns + 1 + rangeInc * 3 );
+		double initValue = 0, finValue = 0;
+		unsigned int variations = 0;
+		bool leftInclusive = 0, rightInclusive = 0;
+		configFile >> initValue;
+		configFile >> finValue;
+		configFile >> variations;
+		totalVariations += variations;
+		configFile >> leftInclusive;
+		configFile >> rightInclusive;
+		tempVar.ranges.push_back( { initValue, finValue, variations, leftInclusive, rightInclusive } );
 	}
+	// shouldn't be because of 1 forcing earlier.
+	if ( tempVar.ranges.size( ) == 0 )
+	{
+		// make sure it has at least one entry.
+		tempVar.ranges.push_back( { 0,0,1, false, true } );
+	}
+	addConfigVariable( tempVar, varInc );
+}
 
-	// add a blank line
-	variableType var;
-	var.name = "";
-	var.constant = false;
-	var.ranges.push_back({ 0, 0, 1, false, true });
-	addConfigVariable(var, varNum);
+for ( auto rangeInc : range( rangeNumber ) )
+{
+	bool leftInclusivity = false, rightInclusivity = true;
+	if ( currentVariables.size( ) != 0 )
+	{
+		leftInclusivity = currentVariables.front( ).ranges[rangeInc].leftInclusive;
+		rightInclusivity = currentVariables.front( ).ranges[rangeInc].rightInclusive;
+	}
+	setRangeInclusivity( rangeInc, true, leftInclusivity, preRangeColumns + rangeInc * 3 );
+	setRangeInclusivity( rangeInc, false, rightInclusivity, preRangeColumns + 1 + rangeInc * 3 );
+}
 
-	ProfileSystem::checkDelimiterLine(configFile, "END_VARIABLES");
-	updateVariationNumber( );
+// add a blank line
+variableType var;
+var.name = "";
+var.constant = false;
+var.ranges.push_back( { 0, 0, 1, false, true } );
+addConfigVariable( var, varNum );
+
+ProfileSystem::checkDelimiterLine( configFile, "END_VARIABLES" );
+updateVariationNumber( );
 }
 
 
@@ -235,17 +235,38 @@ void VariableSystem::updateVariationNumber( )
 {
 	// if no variables, or all are constants, it will stay at 1. else, it will get set to the # of variations
 	// of the first variable that it finds.
-	currentVariations = 1;
+
+	std::vector<ULONG> dimVariations;
+	std::vector<bool> dimsSeen;
 	for ( auto tempVariable : currentVariables )
 	{
 		if ( !tempVariable.constant )
 		{
-			currentVariations = 0;
+			if ( dimsSeen.size( ) < tempVariable.scanDimension )
+			{
+				dimVariations.resize( tempVariable.scanDimension, 0 );
+				dimsSeen.resize( tempVariable.scanDimension, false );
+			}
+			if ( dimsSeen[tempVariable.scanDimension-1] )
+			{
+				// already seen.
+				continue;
+			}
+			else
+			{
+				// now it's been seen, don't add it again.
+				dimsSeen[tempVariable.scanDimension - 1] = true;
+			}
 			for ( auto range : tempVariable.ranges )
 			{
-				currentVariations += range.variations;
+				dimVariations[tempVariable.scanDimension - 1] += range.variations;
 			}
 		}
+	}
+	currentVariations = 1;
+	for ( auto val : dimVariations )
+	{
+		currentVariations *= val;
 	}
 }
 
