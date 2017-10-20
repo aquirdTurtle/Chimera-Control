@@ -419,7 +419,7 @@ double Expression::evaluate( std::vector<variableType>& variables, UINT variatio
 		// substitute all variables within the expression.
 		for ( auto& term : terms )
 		{
-			for ( auto variable : variables )
+			for ( auto& variable : variables )
 			{
 				if ( term == variable.name )
 				{

@@ -64,6 +64,16 @@ bool AlertSystem::wantsAutoPause( )
 
 UINT AlertSystem::getAlertThreshold()
 {
+	CString txt;
+	alertThresholdEdit.GetWindowTextA( txt );
+	try
+	{
+		alertThreshold = std::stoul( str(txt) );
+	}
+	catch ( std::invalid_argument& )
+	{
+		thrower( "ERROR: alert threshold failed to reduce to unsigned long!" );
+	}
 	return alertThreshold;
 }
 

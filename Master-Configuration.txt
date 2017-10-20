@@ -49,7 +49,7 @@ b7
 0
 b8
 0
-depumptrig
+ropshutter
 0
 795shutter
 0
@@ -206,7 +206,7 @@ loadmottopfield 0.25
 loadmotbottomfield -0.15
 loadmotfrontfield -0.6
 loadmotbackfield 1.47507
-loadmottime 100
+loadmottime 50
 pgctime 15
 pgcdetuning -1.25
 pgcleftfield -0.65
@@ -216,17 +216,17 @@ pgcbottomfield -1.994
 pgcfrontfield -0.551
 pgcbackfield 0.551
 andorimagetime 25
-imagingpower 0.35
+imagingpower 0.225
 imagingdetuning 0.35
 pushoutdepth 0.15
 pushoutfreq 0.6
 fieldtheta 1.57
-fieldphi 1.57
+fieldphi 0.5
 rotatefieldtime 3
-imagingflashingdetuning -1.1
+imagingflashingdetuning -1.5
 intrappgcdetuning -4.5
 intrappgcpower 0.225
 loadmotsidepower 0.25
 loadmotdiagpower 0.3
 imagingrepumppower 0.2
-1 512 1 1 512 1
+259 285 3 241 267 3

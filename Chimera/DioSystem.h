@@ -70,7 +70,7 @@ class DioSystem
 		void stopBoard();
 		double getClockStatus();
 		void wait(double time);
-		void waitTillFinished(UINT variation );
+		void waitTillFinished( UINT variation, bool skipOption );
 		void shadeTTLs(std::vector<std::pair<UINT, UINT>>);
 		void unshadeTtls();
 		bool isValidTTLName(std::string name);
