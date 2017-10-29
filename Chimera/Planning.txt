@@ -37,3 +37,4 @@ Bugs:
 =================
 Finished
 =================
+- more info if trig

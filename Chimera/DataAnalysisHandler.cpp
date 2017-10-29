@@ -450,7 +450,7 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 				}
 			}
 		}
-		/// get all the atom data
+		/// get all the atom data problem
 		bool thereIsAtLeastOneAtom = false;
 		for (UINT pixelInc = 0; pixelInc < groupNum; pixelInc++)
 		{

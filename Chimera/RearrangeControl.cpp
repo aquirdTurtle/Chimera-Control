@@ -6,6 +6,7 @@ rearrangeParams RearrangeControl::getParams( )
 	rearrangeParams tempParams;
 	tempParams.active = experimentIncludesRearrangement.GetCheck( );
 	tempParams.outputInfo = outputRearrangeEvents.GetCheck( );
+	tempParams.outputIndv = outputIndividualEvents.GetCheck( );
 	CString tempTxt;
 	try
 	{
@@ -19,12 +20,13 @@ rearrangeParams RearrangeControl::getParams( )
 
 		tempParams.moveBias = std::stod( str( tempTxt ) );
 		
-		// convert to s from us
+		// convert from ns to s
 		deadTimeEdit.GetWindowTextA( tempTxt );
 		tempParams.deadTime = std::stod( str(tempTxt) ) * 1e-9;
 
 		staticMovingRatioEdit.GetWindowTextA( tempTxt );
 		tempParams.staticMovingRatio = std::stod( str( tempTxt ) );
+		
 		
 
 	}
@@ -52,6 +54,7 @@ void RearrangeControl::rearrange( int width, int height, fontMap fonts )
 	staticMovingRatioEdit.rearrange( width, height, fonts );
 	staticMovingRatioText.rearrange( width, height, fonts );
 	outputRearrangeEvents.rearrange( width, height, fonts );
+	outputIndividualEvents.rearrange( width, height, fonts );
 }
 
 
@@ -101,8 +104,12 @@ void RearrangeControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips&
 	staticMovingRatioEdit.SetWindowTextA( "1" );
 
 	outputRearrangeEvents.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
-	outputRearrangeEvents.Create( "Output Event Info", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_AUTOCHECKBOX,
-								  outputRearrangeEvents.sPos, parent, id++ );
+	outputRearrangeEvents.Create( "Output Event Info", NORM_CHECK_OPTIONS, outputRearrangeEvents.sPos, parent, id++ );
+
+	outputIndividualEvents.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
+	outputIndividualEvents.Create( "Output Individual Events to Experiment Status?", NORM_CHECK_OPTIONS,
+								   outputIndividualEvents.sPos, parent, id++ );
+
 }
 
 
@@ -143,6 +150,14 @@ void RearrangeControl::handleOpenConfig( std::ifstream& openFile, int versionMaj
 	{
 		info.outputInfo = false;
 	}
+	if ( (versionMajor == 2 && versionMinor > 10) || versionMajor > 2 )
+	{
+		openFile >> info.outputIndv;
+	}
+	else
+	{
+		info.outputIndv = false;
+	}
 	setParams( info );
 	ProfileSystem::checkDelimiterLine( openFile, "END_REARRANGEMENT_INFORMATION" );
 }
@@ -158,22 +173,24 @@ void RearrangeControl::handleNewConfig( std::ofstream& newFile )
 	newFile << 75e-9 << "\n";
 	newFile << "1\n";
 	newFile << "0\n";
+	newFile << "0\n";
 	newFile << "END_REARRANGEMENT_INFORMATION\n";
 }
 
 
-void RearrangeControl::handleSaveConfig( std::ofstream& newFile )
+void RearrangeControl::handleSaveConfig( std::ofstream& saveFile )
 {
- 	newFile << "REARRANGEMENT_INFORMATION\n";
+ 	saveFile << "REARRANGEMENT_INFORMATION\n";
  	rearrangeParams info = getParams( );
- 	newFile << info.active << "\n";
- 	newFile << info.flashingRate << "\n";
- 	newFile << info.moveBias << "\n";
-	newFile << info.moveSpeed << "\n";
-	newFile << info.deadTime << "\n";
-	newFile << info.staticMovingRatio << "\n";
-	newFile << info.outputInfo << "\n";
-	newFile << "END_REARRANGEMENT_INFORMATION\n";
+ 	saveFile << info.active << "\n";
+ 	saveFile << info.flashingRate << "\n";
+ 	saveFile << info.moveBias << "\n";
+	saveFile << info.moveSpeed << "\n";
+	saveFile << info.deadTime << "\n";
+	saveFile << info.staticMovingRatio << "\n";
+	saveFile << info.outputInfo << "\n";
+	saveFile << info.outputIndv << "\n";
+	saveFile << "END_REARRANGEMENT_INFORMATION\n";
 }
 
 
@@ -189,4 +206,8 @@ void RearrangeControl::setParams( rearrangeParams params )
 	// convert back to us
 	deadTimeEdit.SetWindowTextA( cstr( params.deadTime * 1e9) );
 	staticMovingRatioEdit.SetWindowTextA( cstr( params.staticMovingRatio ) );
+	
+	outputRearrangeEvents.SetCheck( params.outputInfo );
+	outputIndividualEvents.SetCheck( params.outputIndv );
+
 }
