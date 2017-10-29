@@ -199,6 +199,9 @@
     <ClCompile Include="DebugOptionsControl.cpp">
       <Filter>Main Window</Filter>
     </ClCompile>
+    <ClCompile Include="rearrangementMoveContainer.cpp">
+      <Filter>Main Window</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -473,6 +476,13 @@
       <Filter>Main Window</Filter>
     </ClInclude>
     <ClInclude Include="MasterThreadInput.h" />
+    <ClInclude Include="rearrangementMoveContainer.h">
+      <Filter>Main Window</Filter>
+    </ClInclude>
+    <ClInclude Include="rearrangementMove.h">
+      <Filter>Main Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="directions.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

@@ -42,7 +42,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 	std::chrono::time_point<chronoClock> startTime( chronoClock::now( ) );
 	std::vector<long> variedMixedSize;
 	niawgPair<std::vector<std::fstream>> niawgFiles;
-	NiawgOutputNew output;
+	NiawgOutput output;
 	std::vector<ViChar> userScriptSubmit;
 	output.isDefault = false;
 	// initialize to 2 because of default waveforms. This can probably be changed to 1, since only one default waveform
@@ -78,7 +78,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		/// prep NIAWG
 		if (input->runNiawg)
 		{
-			input->niawg->prepareNiawgNew(  input, output, niawgFiles, warnings, userScriptSubmit, foundRearrangement, 
+			input->niawg->prepareNiawg(  input, output, niawgFiles, warnings, userScriptSubmit, foundRearrangement, 
 											input->rearrangeInfo, input->variables );
 			input->niawg->writeStaticNiawg( output, input->debugOptions, input->constants );
 			input->niawg->handleStartingRearrangement( input, output );
@@ -242,7 +242,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			}
 			if (input->runNiawg)
 			{
-				input->niawg->programNiawgNew( input, output, warnings, variationInc, variations, variedMixedSize,
+				input->niawg->programNiawg( input, output, warnings, variationInc, variations, variedMixedSize,
 												userScriptSubmit );
 			}
 			input->topBottomTek->programMachine( variationInc );
@@ -317,7 +317,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		}
 		if (input->runNiawg)
 		{
-			input->niawg->cleanupNiawgNew( input->profile, input->runMaster, niawgFiles, output, input->comm,
+			input->niawg->cleanupNiawg( input->profile, input->runMaster, niawgFiles, output, input->comm,
 										   input->settings.dontActuallyGenerate );
 		}
 		input->comm->sendNormalFinish( );

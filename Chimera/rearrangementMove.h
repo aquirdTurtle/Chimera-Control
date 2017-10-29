@@ -1,11 +1,16 @@
 ﻿#pragma once
+#include "directions.h"
 #include <vector>
 
 struct rearrangementMove
 {
+	UINT row;
+	UINT col;
+	directions direction;
 	double initFreq = 0;
 	double finFreq = 0;
 	/// all of the following can (in principle) be individually calibrated.
+	double moveBias;
 	// in ms
 	double moveTime = 60e-3;
 	// in MHz
@@ -18,12 +23,5 @@ struct rearrangementMove
 	std::vector<double> waveVals;
 };
 
-enum directions
-{
-	up,
-	down,
-	left,
-	right
-};
 
 

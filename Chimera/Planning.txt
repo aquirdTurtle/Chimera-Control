@@ -46,3 +46,6 @@ Rearranging
 =================
 Finished
 =================
+- refactored away old niawg controller functions from before using Expression, renamed "new" functions to not include 
+	new anymore.
+- implemented pre-programmed rearrangement waveforms.
