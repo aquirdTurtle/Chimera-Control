@@ -74,6 +74,7 @@ class NiawgController
 									 debugInfo& debug, niawgPair<ScriptStream>& scripts );
 		void finalizeScript( ULONGLONG repetitions, std::string name, std::vector<std::string> workingUserScripts,
 							 std::vector<ViChar>& userScriptSubmit, bool repeatForever );
+		void preProgramRearrangingMoves( );
 		void setDefaultWaveforms( MainWindow* mainWin );
 		void deleteRearrangementWave( );
 		void mixFlashingWaves( waveInfo& wave, double deadTime, double staticMovingRatio );

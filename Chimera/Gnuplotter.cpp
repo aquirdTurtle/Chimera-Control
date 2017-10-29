@@ -16,6 +16,13 @@ void Gnuplotter::sendData(std::vector<double> vals)
 }
 
 
+void Gnuplotter::sendData( std::deque<double> vals )
+{
+	plotter.send1d( vals );
+}
+
+
+
 void Gnuplotter::sendData(std::vector<long> vals)
 {
 	plotter.send1d(vals);

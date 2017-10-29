@@ -131,7 +131,10 @@ void NiawgController::programNiawgNew( MasterThreadInput* input, NiawgOutputNew&
 	input->comm->sendColorBox( Niawg, 'G' );
 }
 
+void NiawgController::preProgramRearrangingMoves( )
+{
 
+}
 
 bool NiawgController::outputVariesNew( NiawgOutputNew output )
 {

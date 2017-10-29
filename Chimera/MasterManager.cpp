@@ -101,7 +101,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		// at this point, all scripts have been analyzed, and each system takes the key and generates all of the data
 		// it needs for each variation of the experiment. All these calculations happen at this step.
 		expUpdate( "Programming All Variation Data...\r\n", input->comm, input->quiet );
-
+		std::chrono::time_point<chronoClock> varProgramStartTime( chronoClock::now( ) );
 		input->thisObj->loadSkipTimes.resize( variations );
 		if (input->runMaster)
 		{
@@ -114,7 +114,6 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		/// organize commands, prepping final forms of the data for each repetition.
 		// This must be done after the "interpret key" step, as before that commands don't have hard times attached to 
 		// them.
-		std::chrono::time_point<chronoClock> varProgramStartTime( chronoClock::now( ) );
 		for (UINT variationInc = 0; variationInc < variations; variationInc++)
 		{
 			// reading these variables should be safe.
@@ -282,11 +281,6 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 					else
 					{
 						skipOption = input->skipNext->load( );
-						//*input->skipNext = false;
-						if ( skipOption )
-						{
-							expUpdate( "Skipping Loading for rep " + str( repInc ) + "\r\n", input->comm, input->quiet );
-						}
 					}
 					input->dacs->configureClocks( variationInc, skipOption );
 					input->dacs->writeDacs( variationInc, skipOption );
@@ -343,7 +337,6 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 					}
 				}
 			}
-
 			// clear out some niawg stuff
 			for (auto& wave : output.waves)
 			{
@@ -361,7 +354,6 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			input->ttls->unshadeTtls();
 			input->dacs->unshadeDacs();
 		}
-
 		if ( input->thisObj->isAborting )
 		{
 			expUpdate( abortString, input->comm, input->quiet );
@@ -386,7 +378,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 		}
 	}
 	std::chrono::time_point<chronoClock> endTime( chronoClock::now( ) );
-	expUpdate( "Experiment took " + str( std::chrono::duration<double>( (endTime - startTime) ).count( ) / 1000.0 ) 
+	expUpdate( "Experiment took " + str( std::chrono::duration<double>( (endTime - startTime) ).count( ) ) 
 			   + " seconds.\r\n", input->comm, input->quiet );
 	input->thisObj->experimentIsRunning = false;
 	delete input;

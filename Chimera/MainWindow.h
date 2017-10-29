@@ -100,7 +100,6 @@ class MainWindow : public CDialog
 		void logParams( DataLogger* logger, MasterThreadInput* input );
 		bool experimentIsPaused( );
 		void notifyConfigUpdate( );
-		void handleEmailButton( );
 		void passConfigPress( );
 
 	private:		

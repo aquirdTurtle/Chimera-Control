@@ -5,6 +5,7 @@
 #include "atomGrid.h"
 #include "tinyPlotInfo.h"
 #include "Expression.h"
+#include <deque>
 
 struct realTimePlotterInput;
 struct cameraPositions;
@@ -46,18 +47,27 @@ class DataAnalysisControl
 		void fillPlotThreadInput( realTimePlotterInput* input );
 		static unsigned __stdcall plotterProcedure( void* voidInput );
 		// subroutine for handling atom & count plots
-		static void handlePlotAtomsOrCounts( realTimePlotterInput* input, PlottingInfo plotInfo, UINT repNum,
-											 std::vector<std::vector<std::vector<long> > >& finData,
-											 variationData& finAvgs, variationData& finErrs, variationData& finX,
-											 avgData& avgAvgs, avgData& avgErrs, avgData& avgX,
-											 std::vector<std::vector<bool> >& needNewData,
-											 std::vector<std::vector<bool>>& pscSatisfied, int plotNumber,
-											 std::vector<std::vector<long>>& countData, int plotNumberCount,
-											 std::vector<std::vector<int> > atomPresent );
+		static void handlePlotAtoms( realTimePlotterInput* input, PlottingInfo plotInfo, UINT repNum,
+									 std::vector<std::vector<std::pair<double, ULONG>> >& finData,
+									 variationData& finAvgs, variationData& finErrs, variationData& finX,
+									 avgData& avgAvgs, avgData& avgErrs, avgData& avgX,
+									 std::vector<std::vector<bool> >& needNewData,
+									 std::vector<std::vector<bool>>& pscSatisfied, int plotNumber,
+									 std::vector<std::vector<long>>& countData, int plotNumberCount,
+									 std::vector<std::vector<int> > atomPresent );
+
+		static void handlePlotCounts( realTimePlotterInput* input, PlottingInfo plotInfo, UINT pictureNumber,
+									  std::vector<std::vector<std::vector<long> > >& finData,
+									  variationData& finAvgs, variationData& finErrs, variationData& finX,
+									  avgData& avgAvgs, avgData& avgErrs, avgData& avgX,
+									  std::vector<std::vector<bool> >& needNewData,
+									  std::vector<std::vector<bool>>& pscSatisfied, int plotNumber,
+									  std::vector<std::vector<long>>& countData, int plotNumberCount,
+									  std::vector<std::vector<int> > atomPresent );
 
 		static void handlePlotHist( realTimePlotterInput* input, PlottingInfo plotInfo, UINT plotNumber,
-									std::vector<std::vector<long>> countData,
-									std::vector<std::vector<std::vector<long>>>& finData,
+									std::vector<std::vector<long>> countData, 
+									std::vector<std::vector<std::deque<double>>>& finData,
 									std::vector<std::vector<bool>>pscSatisfied, int plotNumberCount );
 		static void determineWhichPscsSatisfied( PlottingInfo& info, UINT groupSize, 
 												 std::vector<std::vector<int>> atomPresentData,
@@ -92,17 +102,3 @@ class DataAnalysisControl
 };
 
 
-class pictureData
-{
-
-};
-
-class repetitionData
-{
-
-};
-
-class groupData
-{
-
-};
