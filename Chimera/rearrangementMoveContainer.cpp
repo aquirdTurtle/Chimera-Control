@@ -1,12 +1,25 @@
-﻿#include "rearrangementMoveContainer.h"
+﻿#include "stdafx.h"
+#include "rearrangementMoveContainer.h"
 #include "miscellaneousCommonFunctions.h"
-
+#include "directions.h"
 // the array gets sized only once in the constructor.
 rearrangementMoveContainer::rearrangementMoveContainer( UINT rowsInGrid, UINT colsInGrid ) : 
 	rows( rowsInGrid),
 	cols(colsInGrid),
 	moves(rows*cols*4)
 {}
+
+
+bool rearrangementMoveContainer::hasBeenFilled( )
+{
+	return filledFlag;
+}
+
+
+void rearrangementMoveContainer::setFilledFlag( )
+{
+	filledFlag = true;
+}
 
 
 rearrangementMove rearrangementMoveContainer::operator()( UINT row, UINT col, directions direction ) const

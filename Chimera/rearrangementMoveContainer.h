@@ -13,8 +13,11 @@ class rearrangementMoveContainer
 		rearrangementMoveContainer( UINT rowsInGrid, UINT colsInGrid );
 		rearrangementMove operator()( UINT row, UINT col, directions direction ) const;
 		rearrangementMove & operator()( UINT row, UINT col, directions direction );
+		bool hasBeenFilled( );
+		void setFilledFlag( );
 	private:
 		std::vector<rearrangementMove> moves;
 		const UINT rows, cols;
+		bool filledFlag=false;
 };
 

@@ -48,7 +48,6 @@ void AlertSystem::initialize( cameraPositions& pos, CWnd* parent, bool isTrigger
 							 id++ );
 	autoPauseAtAlert.SetCheck( true );
 	/// Sound checkbox
-	// soundAtFinshCheckBox.hwnd
 	soundAtFinshCheck.seriesPos = { pos.seriesPos.x + 0, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 20 };
 	soundAtFinshCheck.amPos = { pos.amPos.x + 0, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 20 };
 	soundAtFinshCheck.videoPos = { -1,-1,-1,-1 };
