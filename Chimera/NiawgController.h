@@ -8,7 +8,7 @@
 #include "DebugOptionsControl.h"
 #include "Communicator.h"
 #include "NiawgStructures.h"
-#include "rearrangementStructures.h"
+#include "rerngStructures.h"
 #include "Fgen.h"
 #include "profileSettings.h"
 #include "directions.h"
@@ -17,8 +17,8 @@
 #include <cmath>
 #include <mutex>
 #include <chrono>
-#include "rearrangeParams.h"
-#include "rearrangementThreadInput.h"
+#include "rerngParams.h"
+#include "rerngThreadInput.h"
 
 struct MasterThreadInput;
 class NiawgWaiter;

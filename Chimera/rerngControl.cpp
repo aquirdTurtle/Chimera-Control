@@ -1,10 +1,10 @@
 ﻿#include "stdafx.h"
-#include "RearrangeControl.h"
+#include "rerngControl.h"
 
-rerngParams RearrangeControl::getParams( )
+rerngParams rerngControl::getParams( )
 {
 	rerngParams tempParams;
-	tempParams.active = experimentIncludesRearrangement.GetCheck( );
+	tempParams.active = experimentIncludesRerng.GetCheck( );
 	tempParams.outputInfo = outputRearrangeEvents.GetCheck( );
 	tempParams.outputIndv = outputIndividualEvents.GetCheck( );
 	CString tempTxt;
@@ -39,10 +39,10 @@ rerngParams RearrangeControl::getParams( )
 }
 
 
-void RearrangeControl::rearrange( int width, int height, fontMap fonts )
+void rerngControl::rearrange( int width, int height, fontMap fonts )
 {
 	header.rearrange(width, height, fonts);
-	experimentIncludesRearrangement.rearrange( width, height, fonts );
+	experimentIncludesRerng.rearrange( width, height, fonts );
 	flashingRateText.rearrange( width, height, fonts );
 	flashingRateEdit.rearrange( width, height, fonts );
 	moveSpeedText.rearrange( width, height, fonts );
@@ -58,15 +58,15 @@ void RearrangeControl::rearrange( int width, int height, fontMap fonts )
 }
 
 
-void RearrangeControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips )
+void rerngControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips )
 {
 	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
 	header.Create( "Rearrangement Parameters", WS_CHILD | WS_VISIBLE | ES_READONLY, header.sPos, parent, id++ );
 	header.fontType = HeadingFont;
 
-	experimentIncludesRearrangement.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
-	experimentIncludesRearrangement.Create( "Experiment Includes Rearrangement?", WS_CHILD | WS_VISIBLE
-											| BS_AUTOCHECKBOX | WS_TABSTOP, experimentIncludesRearrangement.sPos, parent, id++ );
+	experimentIncludesRerng.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
+	experimentIncludesRerng.Create( "Experiment Includes Rearrangement?", WS_CHILD | WS_VISIBLE
+											| BS_AUTOCHECKBOX | WS_TABSTOP, experimentIncludesRerng.sPos, parent, id++ );
 
 	flashingRateText.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 25 };
 	flashingRateText.Create( "Flashing Rate (MHz)", WS_CHILD | WS_VISIBLE | ES_READONLY, flashingRateText.sPos, parent,
@@ -113,7 +113,7 @@ void RearrangeControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips&
 }
 
 
-void RearrangeControl::handleOpenConfig( std::ifstream& openFile, int versionMajor, int versionMinor )
+void rerngControl::handleOpenConfig( std::ifstream& openFile, int versionMajor, int versionMinor )
 {
 	if ( (versionMajor == 2 &&  versionMinor < 1) || versionMajor < 2)
 	{
@@ -163,7 +163,7 @@ void RearrangeControl::handleOpenConfig( std::ifstream& openFile, int versionMaj
 }
 
 
-void RearrangeControl::handleNewConfig( std::ofstream& newFile )
+void rerngControl::handleNewConfig( std::ofstream& newFile )
 {
 	newFile << "REARRANGEMENT_INFORMATION\n";
 	newFile << 0 << "\n";
@@ -178,7 +178,7 @@ void RearrangeControl::handleNewConfig( std::ofstream& newFile )
 }
 
 
-void RearrangeControl::handleSaveConfig( std::ofstream& saveFile )
+void rerngControl::handleSaveConfig( std::ofstream& saveFile )
 {
  	saveFile << "REARRANGEMENT_INFORMATION\n";
  	rerngParams info = getParams( );
@@ -194,9 +194,9 @@ void RearrangeControl::handleSaveConfig( std::ofstream& saveFile )
 }
 
 
-void RearrangeControl::setParams( rerngParams params )
+void rerngControl::setParams( rerngParams params )
 {
-	experimentIncludesRearrangement.SetCheck( params.active );
+	experimentIncludesRerng.SetCheck( params.active );
 	// convert back to MHz from Hz
 	flashingRateEdit.SetWindowTextA( cstr(1e-6*params.flashingRate) );
 	movingBiasEdit.SetWindowTextA( cstr( params.moveBias ) );

@@ -1,14 +1,13 @@
 ﻿#pragma once
+#include "rerngParams.h"
 #include "Control.h"
 #include "Windows.h"
 #include "afxwin.h"
 
-#include "rearrangeParams.h"
-
 /*
  * A class for a gui end control for setting various rearrangement parameters
  */
-class RearrangeControl
+class rerngControl
 {
 	public:
 		rerngParams getParams( );
@@ -20,7 +19,7 @@ class RearrangeControl
 		void rearrange( int width, int height, fontMap fonts );
 	private:
 		Control<CStatic> header;
-		Control<CButton> experimentIncludesRearrangement;
+		Control<CButton> experimentIncludesRerng;
 		Control<CStatic> flashingRateText;
 		Control<CEdit> flashingRateEdit;
 		Control<CStatic> moveSpeedText;
