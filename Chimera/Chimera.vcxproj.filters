@@ -199,9 +199,6 @@
     <ClCompile Include="DebugOptionsControl.cpp">
       <Filter>Main Window</Filter>
     </ClCompile>
-    <ClCompile Include="rearrangementMoveContainer.cpp">
-      <Filter>Main Window</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">

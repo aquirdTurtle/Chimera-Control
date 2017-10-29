@@ -131,10 +131,6 @@ void NiawgController::programNiawg( MasterThreadInput* input, NiawgOutput& outpu
 	input->comm->sendColorBox( Niawg, 'G' );
 }
 
-void NiawgController::preProgramRearrangingMoves( )
-{
-
-}
 
 bool NiawgController::outputVaries( NiawgOutput output )
 {
@@ -153,7 +149,7 @@ bool NiawgController::outputVaries( NiawgOutput output )
 void NiawgController::prepareNiawg( MasterThreadInput* input, NiawgOutput& output,
 									niawgPair<std::vector<std::fstream>>& niawgFiles, std::string& warnings,
 									std::vector<ViChar>& userScriptSubmit, bool& foundRearrangement,
-									rearrangeParams rInfo, std::vector<variableType>& variables )
+									rerngParams rInfo, std::vector<variableType>& variables )
 {
 	input->comm->sendColorBox( Niawg, 'Y' );
 	triggersInScript = 0;
@@ -195,7 +191,7 @@ void NiawgController::prepareNiawg( MasterThreadInput* input, NiawgOutput& outpu
 }
 
 
-void NiawgController::handleStartingRearrangement( MasterThreadInput* input, NiawgOutput& output )
+void NiawgController::handleStartingRerng( MasterThreadInput* input, NiawgOutput& output )
 {
 	bool foundRearrangement = false;
 	// check if any waveforms are rearrangement instructions.
@@ -210,7 +206,7 @@ void NiawgController::handleStartingRearrangement( MasterThreadInput* input, Nia
 			}
 			foundRearrangement = true;
 			// start rearrangement thread. Give the thread the queue.
-			input->niawg->startRearrangementThread( input->atomQueueForRearrangement, wave, input->comm,
+			input->niawg->startRerngThread( input->atomQueueForRearrangement, wave, input->comm,
 													   input->rearrangerLock, input->andorsImageTimes,
 													   input->grabTimes, input->conditionVariableForRearrangement,
 													   input->rearrangeInfo );
@@ -279,7 +275,7 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 		niawgPair<ScriptStream> scripts;
 		scripts[Horizontal] << configFiles[Horizontal].back( ).rdbuf( );
 		scripts[Vertical] << configFiles[Vertical].back( ).rdbuf( );
-		rearrangeParams rInfoDummy;
+		rerngParams rInfoDummy;
 		rInfoDummy.moveSpeed = 0.00006;
 		analyzeNiawgScripts( scripts, output, profile, debug, warnings, rInfoDummy, std::vector<variableType>() );
 		writeStaticNiawg( output, debug, std::vector<variableType>( ) );
@@ -358,16 +354,16 @@ void NiawgController::cleanupNiawg( profileSettings profile, bool masterWasRunni
 }
 
 
-void NiawgController::waitForRearranger( )
+void NiawgController::waitForRerng( )
 {
-	int result = WaitForSingleObject( rearrangerThreadHandle, 500 );
+	int result = WaitForSingleObject( rerngThreadHandle, 500 );
 	if ( result == WAIT_TIMEOUT )
 	{
 		thrower( "ERROR: waiting for Rearranger thread to finish timed out!?!?!?" );
 	}
 	try
 	{
-		deleteRearrangementWave( );
+		deleteRerngWave( );
 	}
 	catch ( Error& )
 	{
@@ -376,7 +372,7 @@ void NiawgController::waitForRearranger( )
 }
 
 
-void NiawgController::turnOffRearranger( )
+void NiawgController::turnOffRerng( )
 {
 	// make sure the rearranger thread is off.
 	threadStateSignal = false;
@@ -388,7 +384,7 @@ void NiawgController::restartDefault()
 	try
 	{
 		// to be sure.
-		turnOffRearranger( );		
+		turnOffRerng( );		
 		turnOff();
 		fgenConduit.clearMemory();
 		fgenConduit.allocateNamedWaveform( cstr( defaultWaveName ), defaultMixedWaveform.size( ) / 2 );
@@ -432,7 +428,7 @@ void NiawgController::programVariations( UINT variation, std::vector<long>& vari
 
 void NiawgController::analyzeNiawgScripts( niawgPair<ScriptStream>& scripts, NiawgOutput& output,
 										   profileSettings profile, debugInfo& options, std::string& warnings,
-										   rearrangeParams rInfo, std::vector<variableType>& variables )
+										   rerngParams rInfo, std::vector<variableType>& variables )
 {
 	writeToFileNumber = 0;
 	/// Preparation
@@ -508,7 +504,7 @@ void NiawgController::writeStaticNiawg( NiawgOutput& output, debugInfo& options,
 			// write static rearrangement
 			if ( !wave.rearrange.staticWave.varies )
 			{
-				rearrangeFormToOutput( waveForm, wave, constants, 0 );
+				rerngFormToOutput( waveForm, wave, constants, 0 );
 				// prepare the waveforms
 				finalizeStandardWave( wave.rearrange.staticWave, options );
 			}
@@ -616,7 +612,7 @@ void NiawgController::writeStandardWave(simpleWave& wave, debugInfo options, boo
 
 void NiawgController::handleSpecialWaveformForm( NiawgOutput& output, profileSettings profile, 
 												 niawgPair<std::string> commands, niawgPair<ScriptStream>& scripts, 
-												 debugInfo& options, rearrangeParams rInfo, 
+												 debugInfo& options, rerngParams rInfo, 
 												 std::vector<variableType>& variables )
 {
 	if ( commands[Horizontal] != commands[Vertical] )
@@ -934,8 +930,8 @@ void NiawgController::handleSpecialWaveformForm( NiawgOutput& output, profileSet
 		output.waveFormInfo.push_back( rearrangeWave );
 		long samples = long( output.waveFormInfo.back( ).rearrange.moveLimit
 							 * output.waveFormInfo.back( ).rearrange.timePerMove.evaluate() * NIAWG_SAMPLE_RATE );
-		fgenConduit.allocateNamedWaveform( cstr( rearrangeWaveName ), samples );
-		output.niawgLanguageScript += "generate " + rearrangeWaveName + "\n";
+		fgenConduit.allocateNamedWaveform( cstr( rerngWaveName ), samples );
+		output.niawgLanguageScript += "generate " + rerngWaveName + "\n";
 	}
 	else
 	{
@@ -1849,7 +1845,7 @@ void NiawgController::flashFormToOutput( waveInfoForm& waveForm, waveInfo& wave,
 }
 
 
-void NiawgController::rearrangeFormToOutput( waveInfoForm& waveForm, waveInfo& wave, 
+void NiawgController::rerngFormToOutput( waveInfoForm& waveForm, waveInfo& wave, 
 											 std::vector<variableType>& variables, UINT variation )
 {
 	wave.rearrange.isRearrangement = waveForm.rearrange.isRearrangement;
@@ -1906,9 +1902,9 @@ void NiawgController::writeFlashing( waveInfo& wave, debugInfo& options, UINT va
 }
 
 
-void NiawgController::deleteRearrangementWave( )
+void NiawgController::deleteRerngWave( )
 {
-	fgenConduit.deleteWaveform( cstr(rearrangeWaveName) );
+	fgenConduit.deleteWaveform( cstr(rerngWaveName) );
 }
 
 
@@ -1919,9 +1915,9 @@ void NiawgController::streamWaveform()
 }
 
 // expects the rearrangmenet waveform to have already been filled into rearrangeWaveVals.
-void NiawgController::streamRearrangement()
+void NiawgController::streamRerng()
 {
-	fgenConduit.writeNamedWaveform( cstr( rearrangeWaveName ), rearrangeWaveVals.size(), rearrangeWaveVals.data() );
+	fgenConduit.writeNamedWaveform( cstr( rerngWaveName ), rerngWaveVals.size(), rerngWaveVals.data() );
 }
 
 
@@ -2411,26 +2407,26 @@ double NiawgController::rampCalc( int size, int iteration, double initPos, doubl
 This function expects the input to have already been initialized and everything. It's ment to be used in the
 "start thread" function, after all but the rearrangement moves have been loaded into the input structure.
 */
-void NiawgController::preWriteRearrangementWaveforms( rearrangementThreadInput* input )
+void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 {
-	UINT rows = input->rearrangementWave.rearrange.targetRows;
-	UINT cols = input->rearrangementWave.rearrange.targetCols;
+	UINT rows = input->rerngWave.rearrange.targetRows;
+	UINT cols = input->rerngWave.rearrange.targetCols;
 	for ( auto row : range( rows ) )
 	{
 		for ( auto col : range( cols ) )
 		{
-			rearrangementMove move;
+			rerngMove move;
 			move.col = col;
 			move.row = row;
-			move.staticMovingRatio = input->rearrangeOptions.staticMovingRatio;
-			move.deadTime = input->rearrangeOptions.deadTime;
-			move.moveTime = input->rearrangeOptions.moveSpeed;
-			move.moveBias = input->rearrangeOptions.moveBias;
+			move.staticMovingRatio = input->rerngOptions.staticMovingRatio;
+			move.deadTime = input->rerngOptions.deadTime;
+			move.moveTime = input->rerngOptions.moveSpeed;
+			move.moveBias = input->rerngOptions.moveBias;
 			// up
 			if ( row != 0 )
 			{
 				move.direction = up;
-				move.waveVals = makeRearrangementWave( input->rearrangementWave.rearrange, row, col, move.direction,
+				move.waveVals = makeRerngWave( input->rerngWave.rearrange, row, col, move.direction,
 													   move.staticMovingRatio, move.moveBias, move.deadTime );
 				input->moves( row, col, move.direction ) = move;
 			}
@@ -2438,7 +2434,7 @@ void NiawgController::preWriteRearrangementWaveforms( rearrangementThreadInput* 
 			if ( row != rows - 1 )
 			{
 				move.direction = down;
-				move.waveVals = makeRearrangementWave( input->rearrangementWave.rearrange, row, col, move.direction,
+				move.waveVals = makeRerngWave( input->rerngWave.rearrange, row, col, move.direction,
 													   move.staticMovingRatio, move.moveBias, move.deadTime );
 				input->moves( row, col, move.direction ) = move;
 			}
@@ -2446,7 +2442,7 @@ void NiawgController::preWriteRearrangementWaveforms( rearrangementThreadInput* 
 			if ( col != 0 )
 			{
 				move.direction = left;
-				move.waveVals = makeRearrangementWave( input->rearrangementWave.rearrange, row, col, move.direction,
+				move.waveVals = makeRerngWave( input->rerngWave.rearrange, row, col, move.direction,
 													   move.staticMovingRatio, move.moveBias, move.deadTime );
 				input->moves( row, col, move.direction ) = move;
 			}
@@ -2454,7 +2450,7 @@ void NiawgController::preWriteRearrangementWaveforms( rearrangementThreadInput* 
 			if ( col != cols - 1 )
 			{
 				move.direction = right;
-				move.waveVals = makeRearrangementWave( input->rearrangementWave.rearrange, row, col, move.direction,
+				move.waveVals = makeRerngWave( input->rerngWave.rearrange, row, col, move.direction,
 													   move.staticMovingRatio, move.moveBias, move.deadTime );
 				input->moves( row, col, move.direction ) = move;
 			}
@@ -2464,7 +2460,7 @@ void NiawgController::preWriteRearrangementWaveforms( rearrangementThreadInput* 
 }
 
 
-std::vector<double> NiawgController::makeRearrangementWave( rearrangeInfo& info, UINT row, UINT col,
+std::vector<double> NiawgController::makeRerngWave( rerngInfo& info, UINT row, UINT col,
 															directions direction, double staticMovingRatio,
 															double moveBias, double deadTime )
 {
@@ -2597,61 +2593,46 @@ std::vector<double> NiawgController::makeRearrangementWave( rearrangeInfo& info,
 }
 
 
-void NiawgController::startRearrangementThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave,
+void NiawgController::startRerngThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave,
 												Communicator* comm, std::mutex* rearrangerLock,
 												chronoTimes* andorImageTimes, chronoTimes* grabTimes,
 												std::condition_variable* rearrangerConditionWatcher,
-												rearrangeParams rearrangeInfo )
+												rerngParams rearrangeInfo )
 {
 	threadStateSignal = true;
-	rearrangementThreadInput* input = new rearrangementThreadInput( wave.rearrange.targetRows, 
+	rerngThreadInput* input = new rerngThreadInput( wave.rearrange.targetRows, 
 																	wave.rearrange.targetCols);
-	input->rearrangeOptions = rearrangeInfo;
+	input->rerngOptions = rearrangeInfo;
 	input->pictureTimes = andorImageTimes;
 	input->grabTimes = grabTimes;
-	input->rearrangerLock = rearrangerLock;
+	input->rerngLock = rearrangerLock;
 	input->threadActive = &threadStateSignal;
 	input->comm = comm;
 	input->niawg = this;
 	input->atomsQueue = atomQueue;
-	input->rearrangementWave = wave;
-	input->rearrangerConditionWatcher = rearrangerConditionWatcher;
+	input->rerngWave = wave;
+	input->rerngConditionWatcher = rearrangerConditionWatcher;
 	if ( rearrangeInfo.preprogram )
 	{
-		preWriteRearrangementWaveforms( input );
+		preWriteRerngWaveforms( input );
 	}
 	UINT rearrangerId;
-	rearrangerThreadHandle = (HANDLE)_beginthreadex( 0, 0, NiawgController::rearrangerThreadProcedure, (void*)input,
+	rerngThreadHandle = (HANDLE)_beginthreadex( 0, 0, NiawgController::rerngThreadProcedure, (void*)input,
 													 STACK_SIZE_PARAM_IS_A_RESERVATION, &rearrangerId );
-	if ( !rearrangerThreadHandle )
+	if ( !rerngThreadHandle )
 	{
 		errBox( "beginThreadEx error: " + str( GetLastError( ) ) );
 	}
-	if ( !SetThreadPriority( rearrangerThreadHandle, THREAD_PRIORITY_TIME_CRITICAL ) )
+	if ( !SetThreadPriority( rerngThreadHandle, THREAD_PRIORITY_TIME_CRITICAL ) )
 	{
 		errBox( "Set Thread priority error: " + str( GetLastError( ) ) );
 	}
 }
 
 
-bool NiawgController::rearrangementThreadIsActive( )
+bool NiawgController::rerngThreadIsActive( )
 {
 	return threadStateSignal;
-}
-
-
-void NiawgController::rearrange( )
-{
-	// calc pattern.
-	// convert pattern to waveform data. 
-	// stream data.
-	// send software trigger.
-}
-
-
-void NiawgController::calculateRearrangingMoves( std::vector<std::vector<bool>> initArrangement )
-{
-	//... Kai's work
 }
 
 
@@ -2663,9 +2644,9 @@ void NiawgController::calculateRearrangingMoves( std::vector<std::vector<bool>> 
 // preprogram all individual moves
 // don't use vector
 // make rearrangement algorithm work with flattened matrix
-UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
+UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 {
-	rearrangementThreadInput* input = (rearrangementThreadInput*)voidInput;
+	rerngThreadInput* input = (rerngThreadInput*)voidInput;
 	std::vector<bool> triedRearranging;
 	std::vector<double> calcTime, streamTime, triggerTime, resetPositionTime, picHandlingTime, picGrabTime;
 	chronoTimes startCalc, stopCalc, stopReset, stopStream, stopTrigger;
@@ -2673,7 +2654,7 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 	UINT counter = 0;
 	try
 	{
-		if ( input->rearrangeOptions.outputInfo )
+		if ( input->rerngOptions.outputInfo )
 		{
 			outFile.open( DEBUG_OUTPUT_LOCATION + "Rearranging-Event-Info.txt" );
 			if ( !outFile.is_open( ) )
@@ -2681,7 +2662,7 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 				thrower( "ERROR: Info file failed to open!" );
 			}
 			outFile << "Target:\n";
-			for ( auto row : input->rearrangementWave.rearrange.target )
+			for ( auto row : input->rerngWave.rearrange.target )
 			{
 				for ( auto elem : row )
 				{
@@ -2698,8 +2679,8 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 			if ( input->atomsQueue->size( ) == 0 )
 			{
 				// wait for the next image using a condition_variable.
-				std::unique_lock<std::mutex> locker( *input->rearrangerLock );
-				input->rearrangerConditionWatcher->wait( locker );
+				std::unique_lock<std::mutex> locker( *input->rerngLock );
+				input->rerngConditionWatcher->wait( locker );
 				if ( !*input->threadActive )
 				{
 					break;
@@ -2711,7 +2692,7 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 				}
 			}
 			{
-				std::unique_lock<std::mutex> locker( *input->rearrangerLock );
+				std::unique_lock<std::mutex> locker( *input->rerngLock );
 				if ( input->atomsQueue->size( ) == 0 )
 				{
 					// spurious wake-up?
@@ -2728,9 +2709,9 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 			}
 			input->atomsQueue->erase( input->atomsQueue->begin( ) );
 			startCalc.push_back(std::chrono::high_resolution_clock::now( ));			
-			rearrangeInfo& info = input->rearrangementWave.rearrange;
-			info.timePerMove = input->rearrangeOptions.moveSpeed;
-			info.flashingFreq = input->rearrangeOptions.flashingRate;
+			rerngInfo& info = input->rerngWave.rearrange;
+			info.timePerMove = input->rerngOptions.moveSpeed;
+			info.flashingFreq = input->rerngOptions.flashingRate;
 			// right now I need to re-shape the atomqueue matrix. I should probably modify Kai's code to work with a 
 			// flattened source matrix for speed.
 			std::vector<std::vector<bool>> source;
@@ -2756,7 +2737,7 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 			{
 				// as of now, just ignore.
 			}
-			input->niawg->rearrangeWaveVals.clear( );
+			input->niawg->rerngWaveVals.clear( );
 			/// program niawg
 			debugInfo options;
 			for ( auto move : moveSequence )
@@ -2901,18 +2882,18 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 					dir = right;
 				}
 				std::vector<double> vals;
-				if ( input->rearrangeOptions.preprogram )
+				if ( input->rerngOptions.preprogram )
 				{					
 					vals = input->moves( move.initRow, move.initCol, dir ).waveVals;
 				}
 				else
 				{
-					vals = input->niawg->makeRearrangementWave( info, move.initRow, move.initCol, dir,
-																input->rearrangeOptions.staticMovingRatio,
-																input->rearrangeOptions.moveBias,
-																input->rearrangeOptions.deadTime );
+					vals = input->niawg->makeRerngWave( info, move.initRow, move.initCol, dir,
+																input->rerngOptions.staticMovingRatio,
+																input->rerngOptions.moveBias,
+																input->rerngOptions.deadTime );
 				}
-				input->niawg->rearrangeWaveVals.insert( input->niawg->rearrangeWaveVals.end( ), vals.begin( ),
+				input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), vals.begin( ),
 														vals.end( ) );
 			}
 			// fill out the rest of the waveform.
@@ -2920,10 +2901,10 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 			fillerWave.time = (info.moveLimit - moveSequence.size( )) * info.timePerMove;
 			fillerWave.sampleNum = input->niawg->waveformSizeCalc( fillerWave.time );
 			input->niawg->finalizeStandardWave( fillerWave, options );
-			input->niawg->rearrangeWaveVals.insert( input->niawg->rearrangeWaveVals.end( ), 
+			input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), 
 													fillerWave.waveVals.begin( ), fillerWave.waveVals.end( ) );
 			stopCalc.push_back(chronoClock::now( ));
-			input->niawg->streamRearrangement( );
+			input->niawg->streamRerng( );
 			stopStream.push_back( chronoClock::now( ) );
 			input->niawg->fgenConduit.sendSoftwareTrigger( );
 			stopTrigger.push_back( chronoClock::now( ));
@@ -2937,10 +2918,10 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 			{
 				triedRearranging.push_back( false );
 			}
-			input->niawg->rearrangeWaveVals.clear( );
+			input->niawg->rerngWaveVals.clear( );
 			if ( moveSequence.size( ) != 0 )
 			{
-				if ( input->rearrangeOptions.outputIndv )
+				if ( input->rerngOptions.outputIndv )
 				{
 					input->comm->sendStatus( "Tried Moving. Calc Time = " 
 											 + str( std::chrono::duration<double>( stopCalc.back( ) 
@@ -2948,7 +2929,7 @@ UINT __stdcall NiawgController::rearrangerThreadProcedure( void* voidInput )
 											 + "\r\n" );
 				}
 			}
-			if ( input->rearrangeOptions.outputInfo )
+			if ( input->rerngOptions.outputInfo )
 			{
 				outFile << counter << "\n";
 				outFile << "Source:\n";

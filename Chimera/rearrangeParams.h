@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-struct rearrangeParams
+struct rerngParams
 {
 	bool active = false;
 	double moveSpeed = 60e-6;

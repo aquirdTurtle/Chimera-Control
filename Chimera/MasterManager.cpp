@@ -81,7 +81,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			input->niawg->prepareNiawg(  input, output, niawgFiles, warnings, userScriptSubmit, foundRearrangement, 
 											input->rearrangeInfo, input->variables );
 			input->niawg->writeStaticNiawg( output, input->debugOptions, input->constants );
-			input->niawg->handleStartingRearrangement( input, output );
+			input->niawg->handleStartingRerng( input, output );
 		}
 		if ( input->thisObj->isAborting )
 		{
@@ -375,7 +375,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 	{
 		if ( foundRearrangement )
 		{
-			input->niawg->turnOffRearranger( );
+			input->niawg->turnOffRerng( );
 			input->conditionVariableForRearrangement->notify_all( );
 		}
 	}

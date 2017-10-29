@@ -1,5 +1,4 @@
 #pragma once
-//#include "NiawgController.h"
 #include "rearrangementStructures.h"
 #include "rearrangementMoveContainer.h"
 #include <chrono>
@@ -9,23 +8,24 @@
 
 class NiawgController;
 
-struct rearrangementThreadInput
+// rerng = rearrange
+struct rerngThreadInput
 {
-	rearrangementThreadInput( UINT gridRows, UINT gridCols ) : moves( gridRows, gridCols ) {}
+	rerngThreadInput( UINT gridRows, UINT gridCols ) : moves( gridRows, gridCols ) {}
 
 	std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>>* pictureTimes;
 	std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>>* grabTimes;
-	std::mutex* rearrangerLock;
-	std::condition_variable* rearrangerConditionWatcher;
+	std::mutex* rerngLock;
+	std::condition_variable* rerngConditionWatcher;
 	std::atomic<bool>* threadActive;
 	// an array of images that have been converted to bools for atom in a pixel or not..
 	std::vector<std::vector<bool>>* atomsQueue;
 	// the static wave?
-	waveInfo rearrangementWave;
+	waveInfo rerngWave;
 	NiawgController* niawg;
 	Communicator* comm;
 	// stuff from the rearrangement input
-	rearrangeParams rearrangeOptions;
-	rearrangementMoveContainer moves;
+	rerngParams rerngOptions;
+	rerngContainer<rerngMove> moves;
 };
 
