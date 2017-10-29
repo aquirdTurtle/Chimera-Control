@@ -320,7 +320,6 @@
     <ClCompile Include="PlottingInfo.cpp" />
     <ClCompile Include="ProfileIndicator.cpp" />
     <ClCompile Include="RearrangeControl.cpp" />
-    <ClCompile Include="rearrangementMoveContainer.cpp" />
     <ClCompile Include="Repetitions.cpp" />
     <ClCompile Include="RhodeSchwarz.cpp" />
     <ClCompile Include="Script.cpp" />

@@ -45,7 +45,7 @@ struct MasterThreadInput
 	chronoTimes* andorsImageTimes;
 	chronoTimes* grabTimes;
 	std::condition_variable* conditionVariableForRearrangement;
-	rearrangeParams rearrangeInfo;
+	rerngParams rearrangeInfo;
 	std::atomic<bool>* skipNext;
 };
 

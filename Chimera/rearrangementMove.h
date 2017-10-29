@@ -2,7 +2,7 @@
 #include "directions.h"
 #include <vector>
 
-struct rearrangementMove
+struct rerngMove
 {
 	UINT row;
 	UINT col;

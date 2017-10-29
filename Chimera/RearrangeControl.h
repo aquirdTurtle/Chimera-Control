@@ -11,8 +11,8 @@
 class RearrangeControl
 {
 	public:
-		rearrangeParams getParams( );
-		void setParams( rearrangeParams params );
+		rerngParams getParams( );
+		void setParams( rerngParams params );
 		void initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips );
 		void handleOpenConfig( std::ifstream& openFile, int versionMajor, int versionMinor );
 		void handleNewConfig( std::ofstream& newFile );

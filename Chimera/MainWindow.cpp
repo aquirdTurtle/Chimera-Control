@@ -963,12 +963,12 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 
 void MainWindow::stopRearranger( )
 {
-	niawg.turnOffRearranger( );
+	niawg.turnOffRerng( );
 }
 
 void MainWindow::waitForRearranger( )
 {
-	niawg.waitForRearranger( );
+	niawg.waitForRerng( );
 }
 
 

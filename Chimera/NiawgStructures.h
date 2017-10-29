@@ -127,8 +127,8 @@ struct flashInfo
 	UINT flashNumber = 0;
 };;
 
-
-struct rearrangeInfoForm
+// rerng = rearrange
+struct rerngInfoForm
 {
 	bool isRearrangement = false;
 	Expression timePerMove;
@@ -149,8 +149,8 @@ struct rearrangeInfoForm
 	// the wave that gets flashed with the moving tweezer
 };;
 
-
-struct rearrangeInfo
+// rerng = rearrange
+struct rerngInfo
 {
 	bool isRearrangement = false;
 	// the target picture
@@ -177,7 +177,7 @@ struct waveInfoForm
 {
 	simpleWaveForm core;
 	flashInfoForm flash;
-	rearrangeInfoForm rearrange;
+	rerngInfoForm rearrange;
 	bool isStreamed = false;
 };;
 
@@ -187,7 +187,7 @@ struct waveInfo
 {
 	simpleWave core;
 	flashInfo flash;
-	rearrangeInfo rearrange;
+	rerngInfo rearrange;
 	bool isStreamed = false;
 };;
 

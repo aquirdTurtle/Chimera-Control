@@ -1,9 +1,9 @@
 ﻿#include "stdafx.h"
 #include "RearrangeControl.h"
 
-rearrangeParams RearrangeControl::getParams( )
+rerngParams RearrangeControl::getParams( )
 {
-	rearrangeParams tempParams;
+	rerngParams tempParams;
 	tempParams.active = experimentIncludesRearrangement.GetCheck( );
 	tempParams.outputInfo = outputRearrangeEvents.GetCheck( );
 	tempParams.outputIndv = outputIndividualEvents.GetCheck( );
@@ -120,7 +120,7 @@ void RearrangeControl::handleOpenConfig( std::ifstream& openFile, int versionMaj
 		return;
 	}
 	ProfileSystem::checkDelimiterLine( openFile, "REARRANGEMENT_INFORMATION" );
-	rearrangeParams info;
+	rerngParams info;
 	openFile >> info.active;
 	openFile >> info.flashingRate;
 	openFile >> info.moveBias;
@@ -181,7 +181,7 @@ void RearrangeControl::handleNewConfig( std::ofstream& newFile )
 void RearrangeControl::handleSaveConfig( std::ofstream& saveFile )
 {
  	saveFile << "REARRANGEMENT_INFORMATION\n";
- 	rearrangeParams info = getParams( );
+ 	rerngParams info = getParams( );
  	saveFile << info.active << "\n";
  	saveFile << info.flashingRate << "\n";
  	saveFile << info.moveBias << "\n";
@@ -194,7 +194,7 @@ void RearrangeControl::handleSaveConfig( std::ofstream& saveFile )
 }
 
 
-void RearrangeControl::setParams( rearrangeParams params )
+void RearrangeControl::setParams( rerngParams params )
 {
 	experimentIncludesRearrangement.SetCheck( params.active );
 	// convert back to MHz from Hz
