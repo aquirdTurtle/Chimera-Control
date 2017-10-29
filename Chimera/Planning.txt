@@ -25,6 +25,7 @@ FEATURES:
 
 Refactoring / Other:
 - change thread that wait on bools to waiting on signalers
+- test running avg gnuplot
 - test fitting in gnuplot
 - refactor groups in plotinfo and gnuplot stuffs
 - change plotting to have fixed x-axis size.
@@ -45,8 +46,3 @@ Rearranging
 =================
 Finished
 =================
-Features:
-- finished implementing (but not testing) new data analysis calc methods
-refactoring / other:
-- changed default alert settings
-- created classes for pre-programming stuff

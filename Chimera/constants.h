@@ -57,7 +57,6 @@
 
 
 #ifdef MASTER_COMPUTER
-
 	#define NIAWG_SAFEMODE false
 	#define ANDOR_SAFEMODE false
 	#define PYTHON_SAFEMODE false

@@ -81,6 +81,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			input->niawg->prepareNiawgNew(  input, output, niawgFiles, warnings, userScriptSubmit, foundRearrangement, 
 											input->rearrangeInfo, input->variables );
 			input->niawg->writeStaticNiawg( output, input->debugOptions, input->constants );
+			input->niawg->handleStartingRearrangement( input, output );
 		}
 		if ( input->thisObj->isAborting )
 		{
@@ -160,7 +161,8 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 						{
 							warnings += "WARNING: Agilent " + agilent->getName( ) + " is not getting triggered by the "
 								"ttl system the same number of times a trigger command appears in the agilent channel "
-								+ str( chan + 1 ) + " script.";
+								+ str( chan + 1 ) + " script. There are " + str( agilentExpectedTrigs ) + " triggers in"
+								" the agilent script, and " + str( ttlTrigs) + " ttl triggers sent to that agilent.";
 						}
 					}
 				}

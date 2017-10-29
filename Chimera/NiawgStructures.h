@@ -147,8 +147,11 @@ struct flashInfoForm
 	bool isFlashing = false;
 	niawgPair<Expression> flashCycleFreqInput;
 	niawgPair<Expression> totalTimeInput;
+	niawgPair<Expression> deadTimeInput;
 	std::vector<simpleWaveForm> flashWaves;
+
 	Expression flashCycleFreq;
+	Expression deadTime;
 	UINT flashNumber = 0;
 };;
 
@@ -157,6 +160,7 @@ struct flashInfoNew
 {
 	bool isFlashing = false;
 	std::vector<simpleWaveNew> flashWaves;
+	double deadTime = 0;
 	double flashCycleFreq = 0;
 	UINT flashNumber = 0;
 };;
