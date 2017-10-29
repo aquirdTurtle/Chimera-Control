@@ -1,6 +1,7 @@
 #pragma once
-#include "rearrangementStructures.h"
-#include "rearrangementMoveContainer.h"
+#include "rerngStructures.h"
+#include "rerngContainer.h"
+#include "rerngMove.h"
 #include <chrono>
 #include <atomic>
 #include <vector>

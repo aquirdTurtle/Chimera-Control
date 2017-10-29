@@ -4,7 +4,6 @@
 #include "NiawgStructures.h"
 #include "MasterManager.h"
 #include "NiawgWaiter.h"
-#include "Rearranger.h"
 #include "MasterThreadInput.h"
 
 #include <boost/algorithm/string/replace.hpp>

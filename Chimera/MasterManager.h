@@ -15,7 +15,7 @@
 #include "DataLogger.h"
 #include "atomCruncherInput.h"
 #include "realTimePlotterInput.h"
-#include "rearrangeParams.h"
+#include "rerngParams.h"
 #include "commonTypes.h"
 #include "EmbeddedPythonHandler.h"
 #include "MasterThreadInput.h"

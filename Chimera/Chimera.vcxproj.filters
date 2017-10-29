@@ -181,9 +181,6 @@
     <ClCompile Include="openWithExplorer.cpp">
       <Filter>General Files</Filter>
     </ClCompile>
-    <ClCompile Include="RearrangeControl.cpp">
-      <Filter>Main Window</Filter>
-    </ClCompile>
     <ClCompile Include="GpibFlume.cpp">
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
@@ -197,6 +194,9 @@
       <Filter>General Files</Filter>
     </ClCompile>
     <ClCompile Include="DebugOptionsControl.cpp">
+      <Filter>Main Window</Filter>
+    </ClCompile>
+    <ClCompile Include="rerngControl.cpp">
       <Filter>Main Window</Filter>
     </ClCompile>
   </ItemGroup>
@@ -375,12 +375,6 @@
     <ClInclude Include="DataLogger.h">
       <Filter>Camera Window</Filter>
     </ClInclude>
-    <ClInclude Include="rearrangementStructures.h">
-      <Filter>Main Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="rearrangementThreadInput.h">
-      <Filter>Main Window\Structures</Filter>
-    </ClInclude>
     <ClInclude Include="Fgen.h">
       <Filter>Main Window</Filter>
     </ClInclude>
@@ -418,12 +412,6 @@
       <Filter>General Files</Filter>
     </ClInclude>
     <ClInclude Include="VariableStructures.h">
-      <Filter>Main Window\Structures</Filter>
-    </ClInclude>
-    <ClInclude Include="RearrangeControl.h">
-      <Filter>Main Window</Filter>
-    </ClInclude>
-    <ClInclude Include="rearrangeParams.h">
       <Filter>Main Window\Structures</Filter>
     </ClInclude>
     <ClInclude Include="GpibFlume.h">
@@ -473,13 +461,25 @@
       <Filter>Main Window</Filter>
     </ClInclude>
     <ClInclude Include="MasterThreadInput.h" />
-    <ClInclude Include="rearrangementMoveContainer.h">
+    <ClInclude Include="directions.h" />
+    <ClInclude Include="rerngContainer.h">
       <Filter>Main Window</Filter>
     </ClInclude>
-    <ClInclude Include="rearrangementMove.h">
+    <ClInclude Include="rerngControl.h">
+      <Filter>Main Window</Filter>
+    </ClInclude>
+    <ClInclude Include="rerngParams.h">
       <Filter>Main Window\Structures</Filter>
     </ClInclude>
-    <ClInclude Include="directions.h" />
+    <ClInclude Include="rerngThreadInput.h">
+      <Filter>Main Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="rerngStructures.h">
+      <Filter>Main Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="rerngMove.h">
+      <Filter>Main Window\Structures</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
