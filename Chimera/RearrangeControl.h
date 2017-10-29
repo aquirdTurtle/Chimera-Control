@@ -35,5 +35,6 @@ class RearrangeControl
 		Control<CEdit> staticMovingRatioEdit;
 
 		Control<CButton> outputRearrangeEvents;
+		Control<CButton> outputIndividualEvents;
 
 };

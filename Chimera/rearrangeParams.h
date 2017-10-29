@@ -11,4 +11,5 @@ struct rearrangeParams
 	// the static / moving ratio
 	double staticMovingRatio=1;
 	bool outputInfo = false;
+	bool outputIndv = false;
 };

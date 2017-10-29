@@ -43,11 +43,12 @@ class NiawgController
 								 std::vector<variableType>& varibles=std::vector<variableType>(), UINT variation=-1 );
 		void finalizeStandardWaveNew( simpleWaveNew& wave, debugInfo& options );
 		void writeStandardWaveNew( simpleWaveNew& wave, debugInfo options, bool isDefault );
-		void writeFlashingNew( waveInfoNew& wave, debugInfo& options );
+		void writeFlashingNew( waveInfoNew& wave, debugInfo& options, UINT variation );
 		void generateWaveformNew( channelWaveNew & waveInfo, debugInfo& options, long int sampleNum, double time );
 		void mixWaveformsNew( simpleWaveNew& waveCore, bool writeThisToFile );
 		void calcWaveDataNew( channelWaveNew& inputData, std::vector<ViReal64>& readData, long int sampleNum, 
 							  double time );
+		void handleStartingRearrangement( MasterThreadInput* input, NiawgOutputNew& output );
 		void prepareNiawgNew( MasterThreadInput* input, NiawgOutputNew& output, 
 							  niawgPair<std::vector<std::fstream>>& niawgFiles, std::string& warnings, 
 							  std::vector<ViChar>& userScriptSubmit, bool& foundRearrangement, rearrangeParams rInfo,
@@ -66,6 +67,8 @@ class NiawgController
 								std::vector<variableType>& varibles = std::vector<variableType>( ), 
 								UINT variation = -1 );
 		void flashVaries( waveInfoForm& wave );
+		void rearrangeFormToOutput( waveInfoForm& waveForm, waveInfoNew& wave, std::vector<variableType>& varibles,
+									UINT variation );
 		void writeStaticNiawg( NiawgOutputNew& output, debugInfo& options, std::vector<variableType>& variables );
 		void loadWaveformParametersForm( NiawgOutputNew& output, profileSettings profile, 
 										 niawgPair<std::string> command, debugInfo& debug,
