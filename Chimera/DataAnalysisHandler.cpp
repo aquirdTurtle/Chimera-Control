@@ -371,18 +371,22 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 	// atomPresentData[pixelIndicator][picture number] = true if atom present, false if atom not present;
 	std::vector<std::vector<int> > atomPresentData( groupNum );
 	// finalData[plot][dataset][group][repetitionNumber];
-	std::vector<std::vector<std::vector<std::vector<long> > > > finalData(allPlots.size());
+	std::vector<std::vector<std::vector<std::vector<long> > > > finalCountData( allPlots.size( ) );
+	std::vector<std::vector<std::vector<std::pair<double, ULONG> > > > finalDataNew( allPlots.size( ) );
 	std::vector<variationData> finalAvgs( allPlots.size( ) ), finalErrorBars( allPlots.size( ) ), 
 		finalXVals( allPlots.size( ) );
 	// Averaged over all pixels (avgAvg is the average of averages over repetitions)
 	std::vector<avgData> avgAvg( allPlots.size( )), avgErrBar( allPlots.size( )), avgXVals( allPlots.size( ));
 	// newData[plot][dataSet][group] = true if new data so change some vector sizes.
 	std::vector<std::vector<std::vector<bool> > > newData( allPlots.size( ));
+	std::vector<std::vector<std::vector<std::deque<double>>>> finalHistData( allPlots.size( ) );
 	// much resizing...
 	for (auto plotInc : range(allPlots.size()))
 	{
 		UINT datasetNumber = allPlots[plotInc].getDataSetNumber( );
-		finalData[plotInc].resize( datasetNumber );
+		finalHistData[plotInc].resize( datasetNumber );
+		finalCountData[plotInc].resize( datasetNumber );
+		finalDataNew[plotInc].resize( datasetNumber );
 		finalAvgs[plotInc].resize( datasetNumber );
 		finalErrorBars[plotInc].resize( datasetNumber );
 		finalXVals[plotInc].resize( datasetNumber );
@@ -392,14 +396,16 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 		newData[plotInc].resize( datasetNumber );
 		for (auto dataSetInc : range(allPlots[plotInc].getDataSetNumber()))
 		{
-			finalData[plotInc][dataSetInc].resize( groupNum );
+			finalHistData[plotInc][dataSetInc].resize( groupNum );
+			finalCountData[plotInc][dataSetInc].resize( groupNum );
 			finalAvgs[plotInc][dataSetInc].resize( groupNum );
+			finalDataNew[plotInc][dataSetInc].resize( groupNum );
 			finalErrorBars[plotInc][dataSetInc].resize( groupNum );
 			finalXVals[plotInc][dataSetInc].resize( groupNum );
 			newData[plotInc][dataSetInc].resize( groupNum, true );
 		}
 	}
-	
+
 	UINT noAtomsCounter = 0, atomCounterTotal = 0, currentThreadPictureNumber = 1, plotNumberCount = 0;
 	// this keeps track of whether a "slow" message has been sent to the main window yet. Only want to send msg once.
 	bool plotIsSlowStatus = false;
@@ -500,28 +506,37 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 		}
 		plotNumberCount++;
 		// for every plot...
-		for (auto plotI : range(allPlots.size()))
+		for ( auto plotI : range( allPlots.size( ) ) )
 		{
 			/// Check Post-Selection Conditions
 			// initialize this vector to all true. 
 			// statisfiesPsc[dataSetI][groupI] = true or false
-			std::vector<std::vector<bool> > satisfiesPsc( allPlots[plotI].getDataSetNumber( ), 
-														  std::vector<bool>( groupNum, true ));
+			std::vector<std::vector<bool> > satisfiesPsc( allPlots[plotI].getDataSetNumber( ),
+														  std::vector<bool>( groupNum, true ) );
 			determineWhichPscsSatisfied( allPlots[plotI], groupNum, atomPresentData, satisfiesPsc );
 			// split into one of two big subroutines. The handling here is encapsulated into functions mostly just for 
 			// organization purposes.
-			if (allPlots[plotI].getPlotType() == "Atoms" || allPlots[plotI].getPlotType() == "Pixel Counts")
+			if ( allPlots[plotI].getPlotType( ) == "Atoms" )
 			{
-				DataAnalysisControl::handlePlotAtomsOrCounts( input, allPlots[plotI], currentThreadPictureNumber, finalData[plotI], 
-															  finalAvgs[plotI], finalErrorBars[plotI], finalXVals[plotI], 
-															  avgAvg[plotI], avgErrBar[plotI], avgXVals[plotI],
-															  newData[plotI], satisfiesPsc, plotI, countData, 
-															  plotNumberCount, atomPresentData);
+				DataAnalysisControl::handlePlotAtoms( input, allPlots[plotI], currentThreadPictureNumber,
+													  finalDataNew[plotI],
+													  finalAvgs[plotI], finalErrorBars[plotI], finalXVals[plotI],
+													  avgAvg[plotI], avgErrBar[plotI], avgXVals[plotI],
+													  newData[plotI], satisfiesPsc, plotI, countData,
+													  plotNumberCount, atomPresentData );
 			}
-			else if (allPlots[plotI].getPlotType() == "Pixel Count Histograms")
+			else if ( allPlots[plotI].getPlotType( ) == "Pixel Counts" )
 			{
-				DataAnalysisControl::handlePlotHist(input, allPlots[plotI], plotI, countData, finalData[plotI], 
-													satisfiesPsc, plotNumberCount );
+				DataAnalysisControl::handlePlotCounts( input, allPlots[plotI], currentThreadPictureNumber,
+													   finalCountData[plotI], finalAvgs[plotI], finalErrorBars[plotI],
+													   finalXVals[plotI], avgAvg[plotI], avgErrBar[plotI],
+													   avgXVals[plotI], newData[plotI], satisfiesPsc, plotI, countData,
+													   plotNumberCount, atomPresentData );
+			}
+			else if ( allPlots[plotI].getPlotType( ) == "Pixel Count Histograms" )
+			{
+				DataAnalysisControl::handlePlotHist( input, allPlots[plotI], plotI, countData, finalHistData[plotI],
+													 satisfiesPsc, plotNumberCount );
 			}
 		}
 		/// clear data
@@ -593,80 +608,63 @@ void DataAnalysisControl::determineWhichPscsSatisfied( PlottingInfo& info, UINT 
 // average value (e.g. psc, avg vals)
 // dataset->group
 
-void DataAnalysisControl::handlePlotAtomsOrCounts( realTimePlotterInput* input, PlottingInfo plotInfo, UINT pictureNumber,
-												   std::vector<std::vector<std::vector<long> > >& finData,
-												   variationData& finAvgs, variationData& finErrs, variationData& finX,
-												   avgData& avgAvgs, avgData& avgErrs, avgData& avgX,
-												   std::vector<std::vector<bool> >& needNewData,
-												   std::vector<std::vector<bool>>& pscSatisfied, int plotNumber,
-												   std::vector<std::vector<long>>& countData, int plotNumberCount,
-												   std::vector<std::vector<int> > atomPresent )
+void DataAnalysisControl::handlePlotAtoms( realTimePlotterInput* input, PlottingInfo plotInfo, UINT pictureNumber,
+										   std::vector<std::vector<std::pair<double, ULONG>> >& finData,
+										   variationData& finAvgs, variationData& finErrs, variationData& finX,
+										   avgData& avgAvgs, avgData& avgErrs, avgData& avgX,
+										   std::vector<std::vector<bool> >& needNewData,
+										   std::vector<std::vector<bool>>& pscSatisfied, int plotNumber,
+										   std::vector<std::vector<long>>& countData, int plotNumberCount,
+										   std::vector<std::vector<int> > atomPresent )
 {
 	UINT groupNum = input->atomGridInfo.width * input->atomGridInfo.height;
 	if (pictureNumber % input->picsPerVariation == plotInfo.getPicNumber())
 	{
 		// first pic of new variation, so need to update x vals.
-		finData = std::vector<std::vector<std::vector<long>>>( plotInfo.getDataSetNumber( ),
-															   std::vector<std::vector<long>>( groupNum ) );
-		needNewData = std::vector<std::vector<bool>>( plotInfo.getDataSetNumber( ),
+		finData = std::vector<std::vector<std::pair<double, ULONG>>>(  plotInfo.getDataSetNumber( ),
+																	  std::vector<std::pair<double, ULONG>>( groupNum, 
+																											{ 0,0 } ) );
+		needNewData = std::vector<std::vector<bool>>( plotInfo.getDataSetNumber( ), 
 													  std::vector<bool>( groupNum, true ) );
 	}
 	/// Check Data Conditions
-	if (plotInfo.getPlotType() == "Atoms")
+	for (auto dataSetI : range(plotInfo.getDataSetNumber()))
 	{
-		for (auto dataSetI : range(plotInfo.getDataSetNumber()))
+		for (auto groupI :range(groupNum))
 		{
-			for (auto groupI :range(groupNum))
+			if (pscSatisfied[dataSetI][groupI] == false)
 			{
-				if (pscSatisfied[dataSetI][groupI] == false)
+				// no new data.
+				continue;
+			}
+			bool dataVal = true;
+			for (auto pixelI : range(plotInfo.getPixelNumber()))
+			{
+				for (auto picI : range(plotInfo.getPicNumber()))
 				{
-					// no new data.
-					continue;
-				}
-				bool dataVal = true;
-				for (auto pixelI : range(plotInfo.getPixelNumber()))
-				{
-					for (auto picI : range(plotInfo.getPicNumber()))
+					// check if there is a condition at all
+					int truthCondition = plotInfo.getResultCondition(dataSetI, pixelI, picI);
+					if (truthCondition == 0)
 					{
-						// check if there is a condition at all
-						int truthCondition = plotInfo.getResultCondition(dataSetI, pixelI, picI);
-						if (truthCondition == 0)
-						{
-							continue;
-						}
-						int pixel = groupI;
-						if (truthCondition == 1 && atomPresent[pixel][picI] != 1)
-						{
-							dataVal = false;
-						}
-						else if (truthCondition == 0 && atomPresent[groupI][picI] != 0)
-						{
-							dataVal = false;
-						}
+						continue;
+					}
+					int pixel = groupI;
+					if (truthCondition == 1 && atomPresent[pixel][picI] != 1)
+					{
+						dataVal = false;
+					}
+					else if (truthCondition == 0 && atomPresent[groupI][picI] != 0)
+					{
+						dataVal = false;
 					}
 				}
-				finData[dataSetI][groupI].push_back(dataVal);
-				// then the size of the containers gets updated every time.
-				if (plotInfo.getXAxis() == "Running Average")
-				{
-					needNewData[dataSetI][groupI] = true;
-				}
 			}
-		}
-	}
-	else if (plotInfo.getPlotType() == "Pixel Counts")
-	{
-		for (auto dataSetI :range(plotInfo.getDataSetNumber()))
-		{
-			for (auto groupI :range(groupNum))
+			finData[dataSetI][groupI].first += dataVal;
+			finData[dataSetI][groupI].second++;
+			// then the size of the containers gets updated every time.
+			if (plotInfo.getXAxis() == "Running Average")
 			{
-				if (pscSatisfied[dataSetI][groupI] == false)
-				{
-					continue;
-				}
-				UINT pixel, picture;
-				plotInfo.getDataCountsLocation(dataSetI, pixel, picture);
-				finData[dataSetI][groupI].push_back(countData[groupI][picture]);
+				needNewData[dataSetI][groupI] = true;
 			}
 		}
 	}
@@ -691,16 +689,15 @@ void DataAnalysisControl::handlePlotAtomsOrCounts( realTimePlotterInput* input, 
 			if ( needNewData[dataSetI][groupI] == true )
 			{
 				finAvgs[dataSetI][groupI].resize( finAvgs[dataSetI][groupI].size( ) + 1 );
-				// integer division here.
 				if ( plotInfo.getXAxis( ) == "Running Average" )
 				{
 					finX[dataSetI][groupI].resize( finX[dataSetI][groupI].size( ) + 1 );
-					if ( !(finData[dataSetI][groupI].size( ) >= input->numberOfRunsToAverage) )
+					if ( !(finData[dataSetI][groupI].second >= input->numberOfRunsToAverage ) )
 					{
 						finX[dataSetI][groupI].back( ) = (std::accumulate( finX[dataSetI][groupI].begin( ),
 																		   finX[dataSetI][groupI].end( ), 0.0 )
-														   + finData[dataSetI][groupI].size( ))
-							/ finData[dataSetI][groupI].size( );
+														   + finData[dataSetI][groupI].second)
+							/ finData[dataSetI][groupI].second;
 					}
 				}
 				else
@@ -714,28 +711,26 @@ void DataAnalysisControl::handlePlotAtomsOrCounts( realTimePlotterInput* input, 
 			// calculate new data points
 			if ( plotInfo.getXAxis( ) == "Running Average" )
 			{
-				if ( finData[dataSetI][groupI].size( ) >= input->numberOfRunsToAverage )
+				if ( finData[dataSetI][groupI].second >= input->numberOfRunsToAverage )
 				{
-					double sum = std::accumulate( finData[dataSetI][groupI].end( ) - input->numberOfRunsToAverage,
-												  finData[dataSetI][groupI].end( ), 0.0 );
+					double sum = 1;
+					// need to change if going to get running average working again.
+					//= std::accumulate( finData[dataSetI][groupI].end( ) - input->numberOfRunsToAverage,
+					//							  finData[dataSetI][groupI].end( ), 0.0 );
 					double mean = sum / input->numberOfRunsToAverage;
 					finAvgs[dataSetI][groupI].back( ) = mean;
 					finX[dataSetI][groupI].back( ) = (std::accumulate( finX[dataSetI][groupI].end( )
 																	   - input->numberOfRunsToAverage + 1,
 																	   finX[dataSetI][groupI].end( ), 0.0 )
-													   + finData[dataSetI][groupI].size( )) / input->numberOfRunsToAverage;
+													   + finData[dataSetI][groupI].second ) / input->numberOfRunsToAverage;
 					input->plotter->send( "set xrange [" + str( finX[dataSetI][groupI][0] - 1 ) + ":"
 										  + str( finX[dataSetI][groupI].back( ) + 1 ) + "]" );
 				}
 			}
 			else
 			{
-				double sum = std::accumulate( finData[dataSetI][groupI].begin( ), finData[dataSetI][groupI].end( ), 0.0 );
-				double mean = sum / finData[dataSetI][groupI].size( );
-				double squaredSum = std::inner_product( finData[dataSetI][groupI].begin( ), finData[dataSetI][groupI].end( ),
-														finData[dataSetI][groupI].begin( ), 0.0 );
-				double error = ((double)std::sqrt( squaredSum / finData[dataSetI][groupI].size( ) - mean * mean ))
-					/ std::sqrt( finData[dataSetI][groupI].size( ) );
+				double mean = finData[dataSetI][groupI].first / finData[dataSetI][groupI].second;
+				double error = mean * ( 1 - mean ) / std::sqrt( finData[dataSetI][groupI].second );
 				finAvgs[dataSetI][groupI].back( ) = mean;
 				finErrs[dataSetI][groupI].back( ) = error;
 			}
@@ -754,50 +749,36 @@ void DataAnalysisControl::handlePlotAtomsOrCounts( realTimePlotterInput* input, 
 			avgX[dataSetI].back( ) = input->key[(pictureNumber - 1) / input->picsPerVariation];
 		}
 		double avgAvgVal = 0, avgErrsVal = 0;
-		std::vector<long> allDataTemp;
+		std::pair<double, ULONG> allDataTempNew(0,0);
 		for ( auto data : finData[dataSetI] )
 		{
-			allDataTemp.insert( allDataTemp.begin( ), data.begin(), data.end());
+			allDataTempNew.first += data.first;
+			allDataTempNew.second += data.second;
 		}
-
-		double sum = std::accumulate( allDataTemp.begin( ), allDataTemp.end( ), 0.0 );
-		double mean = sum / allDataTemp.size( );
-		double squaredSum = std::inner_product( allDataTemp.begin( ), allDataTemp.end( ),
-												allDataTemp.begin( ), 0.0 );
-		double error = ((double)std::sqrt( squaredSum / allDataTemp.size( ) - mean * mean ))
-			/ std::sqrt( allDataTemp.size( ) );
-
+		double mean = allDataTempNew.first / allDataTempNew.second;
+		double error = mean * ( 1 - mean ) / std::sqrt( allDataTempNew.second );
 		avgAvgs[dataSetI].back( ) = mean;
 		avgErrs[dataSetI].back( ) = error;
 	}
-
 	/// General Plotting Options
 	input->plotter->send("set terminal wxt " + str(plotNumber) + " title \"" + plotInfo.getTitle() 
 						  + "\" noraise background rgb 'black'");
 	input->plotter->send("set format y \"%.1f\"");
-	if (plotInfo.getPlotType() == "Atoms")
+	// set x range.
+	double xRangeMin = *std::min_element(input->key.begin(), input->key.end());
+	double xRangeMax = *std::max_element(input->key.begin(), input->key.end());
+	double xrange = xRangeMax - xRangeMin;
+	if ( xrange == 0 )
 	{
-		// set x range.
-		double xRangeMin = *std::min_element(input->key.begin(), input->key.end());
-		double xRangeMax = *std::max_element(input->key.begin(), input->key.end());
-		double range = xRangeMax - xRangeMin;
-		if ( range == 0 )
-		{
-			// zero range causes issues, but happens if you have only 1 data point.
-			range++;
-		}
-		xRangeMin -= range / input->key.size();
-		xRangeMax += range / input->key.size();
-		input->plotter->send("set xrange [" + str(xRangeMin) + ":" + str(xRangeMax) + "]");
-		input->plotter->send("set grid ytics lc rgb \"#bbbbbb\" lw 1 lt 0");
-		input->plotter->send("set grid xtics lc rgb \"#bbbbbb\" lw 1 lt 0");
-		input->plotter->send("set yrange [0:1]");
+		// zero range causes issues, but happens if you have only 1 data point.
+		xrange++;
 	}
-	else
-	{
-		// counts can be arbitrarily large.
-		input->plotter->send("set autoscale y");
-	}
+	xRangeMin -= xrange / input->key.size();
+	xRangeMax += xrange / input->key.size();
+	input->plotter->send("set xrange [" + str(xRangeMin) + ":" + str(xRangeMax) + "]");
+	input->plotter->send("set grid ytics lc rgb \"#bbbbbb\" lw 1 lt 0");
+	input->plotter->send("set grid xtics lc rgb \"#bbbbbb\" lw 1 lt 0");
+	input->plotter->send("set yrange [0:1]");
 	input->plotter->send("set title \"" + plotInfo.getTitle() + "\" tc rgb 'white'");
 	input->plotter->send("set xlabel \"Key Value\" tc rgb 'white'");
 	input->plotter->send("set ylabel \"" + plotInfo.getYLabel() + "\" tc rgb 'white'");
@@ -916,7 +897,7 @@ void DataAnalysisControl::handlePlotAtomsOrCounts( realTimePlotterInput* input, 
 		{
 			for ( auto groupI : range(groupNum))
 			{
-				if ( finData[dataSetI][groupI].size( ) >= input->numberOfRunsToAverage )
+				if ( finData[dataSetI][groupI].second >= input->numberOfRunsToAverage )
 				{
 					UINT colorSpacing = 256 / finAvgs[dataSetI].size( );
 					std::string colorText = "\" lt rgb \"#" + GIST_RAINBOW[colorSpacing * groupI] + "\"";
@@ -1000,11 +981,12 @@ void DataAnalysisControl::handlePlotAtomsOrCounts( realTimePlotterInput* input, 
 		{
 			for (auto groupI : range( groupNum))
 			{
-				input->plotter->sendData(finAvgs[dataSetI][groupI], finData[dataSetI][groupI]);
+				// ???
+				//input->plotter->sendData(finAvgs[dataSetI][groupI], finData[dataSetI][groupI]);
 			}
 			for (auto groupI : range( groupNum) )
 			{
-				if (finData[dataSetI][groupI].size() >= input->numberOfRunsToAverage)
+				if (finData[dataSetI][groupI].second >= input->numberOfRunsToAverage)
 				{
 					input->plotter->sendData(finX[dataSetI][groupI], finAvgs[dataSetI][groupI]);
 				}
@@ -1025,14 +1007,398 @@ void DataAnalysisControl::handlePlotAtomsOrCounts( realTimePlotterInput* input, 
 }
 
 
+void DataAnalysisControl::handlePlotCounts( realTimePlotterInput* input, PlottingInfo plotInfo, UINT pictureNumber,
+												   std::vector<std::vector<std::vector<long> > >& finData,
+												   variationData& finAvgs, variationData& finErrs, variationData& finX,
+												   avgData& avgAvgs, avgData& avgErrs, avgData& avgX,
+												   std::vector<std::vector<bool> >& needNewData,
+												   std::vector<std::vector<bool>>& pscSatisfied, int plotNumber,
+												   std::vector<std::vector<long>>& countData, int plotNumberCount,
+												   std::vector<std::vector<int> > atomPresent )
+{
+	// will eventually be passed in as arg
+	std::vector<std::vector<std::pair<double, ULONG>> > finDataNew;
+	//
+	UINT groupNum = input->atomGridInfo.width * input->atomGridInfo.height;
+	if ( pictureNumber % input->picsPerVariation == plotInfo.getPicNumber( ) )
+	{
+		// first pic of new variation, so need to update x vals.
+		finData = std::vector<std::vector<std::vector<long>>>( plotInfo.getDataSetNumber( ),
+															   std::vector<std::vector<long>>( groupNum ) );
+		finDataNew = std::vector<std::vector<std::pair<double, ULONG>>>(
+			plotInfo.getDataSetNumber( ), std::vector<std::pair<double, ULONG>>( groupNum, { 0,0 } ) );
+		needNewData = std::vector<std::vector<bool>>( plotInfo.getDataSetNumber( ),
+													  std::vector<bool>( groupNum, true ) );
+	}
+	/// Check Data Conditions
+	for ( auto dataSetI : range( plotInfo.getDataSetNumber( ) ) )
+	{
+		for ( auto groupI : range( groupNum ) )
+		{
+			if ( pscSatisfied[dataSetI][groupI] == false )
+			{
+				continue;
+			}
+			UINT pixel, picture;
+			plotInfo.getDataCountsLocation( dataSetI, pixel, picture );
+			finData[dataSetI][groupI].push_back( countData[groupI][picture] );
+		}
+	}
+	// Core data structures have been updated. return if not time for a plot update yet.
+	if ( plotNumberCount % input->plottingFrequency != 0 )
+	{
+		return;
+	}
+	/// Calculate averages and standard devations for Data sets AND groups...
+	for ( auto dataSetI : range( plotInfo.getDataSetNumber( ) ) )
+	{
+		UINT maxSize = 0;
+		// for each pixel
+		for ( auto groupI : range( groupNum ) )
+		{
+			// check if first picture of set
+			// ??????????????????????
+			if ( pictureNumber % input->plottingFrequency != 0 )
+			{
+				continue;
+			}
+			if ( needNewData[dataSetI][groupI] == true )
+			{
+				finAvgs[dataSetI][groupI].resize( finAvgs[dataSetI][groupI].size( ) + 1 );
+				// integer division here.
+				if ( plotInfo.getXAxis( ) == "Running Average" )
+				{
+					finX[dataSetI][groupI].resize( finX[dataSetI][groupI].size( ) + 1 );
+					if ( !(finData[dataSetI][groupI].size( ) >= input->numberOfRunsToAverage) )
+					{
+						finX[dataSetI][groupI].back( ) = (std::accumulate( finX[dataSetI][groupI].begin( ),
+																		   finX[dataSetI][groupI].end( ), 0.0 )
+														   + finData[dataSetI][groupI].size( ))
+							/ finData[dataSetI][groupI].size( );
+					}
+				}
+				else
+				{
+					finErrs[dataSetI][groupI].resize( finErrs[dataSetI][groupI].size( ) + 1 );
+					finX[dataSetI][groupI].push_back( input->key[(pictureNumber - 1) / input->picsPerVariation] );
+				}
+				// set the flag to not do this again before this array gets reset at beginning of the next accumulation stack.
+				needNewData[dataSetI][groupI] = false;
+			}
+			// calculate new data points
+			if ( plotInfo.getXAxis( ) == "Running Average" )
+			{
+				if ( finData[dataSetI][groupI].size( ) >= input->numberOfRunsToAverage )
+				{
+					double sum = std::accumulate( finData[dataSetI][groupI].end( ) - input->numberOfRunsToAverage,
+												  finData[dataSetI][groupI].end( ), 0.0 );
+					double mean = sum / input->numberOfRunsToAverage;
+					finAvgs[dataSetI][groupI].back( ) = mean;
+					finX[dataSetI][groupI].back( ) = (std::accumulate( finX[dataSetI][groupI].end( )
+																	   - input->numberOfRunsToAverage + 1,
+																	   finX[dataSetI][groupI].end( ), 0.0 )
+													   + finData[dataSetI][groupI].size( )) / input->numberOfRunsToAverage;
+					input->plotter->send( "set xrange [" + str( finX[dataSetI][groupI][0] - 1 ) + ":"
+										  + str( finX[dataSetI][groupI].back( ) + 1 ) + "]" );
+				}
+			}
+			else
+			{
+				double sum = std::accumulate( finData[dataSetI][groupI].begin( ), finData[dataSetI][groupI].end( ), 0.0 );
+				double mean = sum / finData[dataSetI][groupI].size( );
+				double squaredSum = std::inner_product( finData[dataSetI][groupI].begin( ), finData[dataSetI][groupI].end( ),
+														finData[dataSetI][groupI].begin( ), 0.0 );
+				double error = ((double)std::sqrt( squaredSum / finData[dataSetI][groupI].size( ) - mean * mean ))
+					/ std::sqrt( finData[dataSetI][groupI].size( ) );
+
+				double meanNew = finDataNew[dataSetI][groupI].first / finDataNew[dataSetI][groupI].second;
+				double errorNew = meanNew * (1 - meanNew) / std::sqrt( finDataNew[dataSetI][groupI].second );
+
+				finAvgs[dataSetI][groupI].back( ) = mean;
+				finErrs[dataSetI][groupI].back( ) = error;
+			}
+			if ( finAvgs[dataSetI][groupI].size( ) > maxSize )
+			{
+				maxSize = finAvgs[dataSetI][groupI].size( );
+			}
+		}
+		/// calculate averages
+		if ( maxSize > avgAvgs[dataSetI].size( ) )
+		{
+			//  resize the objects for new data.
+			avgAvgs[dataSetI].resize( maxSize );
+			avgErrs[dataSetI].resize( maxSize );
+			avgX[dataSetI].resize( maxSize );
+			avgX[dataSetI].back( ) = input->key[(pictureNumber - 1) / input->picsPerVariation];
+		}
+		double avgAvgVal = 0, avgErrsVal = 0;
+		std::vector<long> allDataTemp;
+		std::pair<double, ULONG> allDataTempNew( 0, 0 );
+		for ( auto data : finData[dataSetI] )
+		{
+			allDataTemp.insert( allDataTemp.begin( ), data.begin( ), data.end( ) );
+			//
+			std::pair<double, ULONG> fromNewFinData;
+			allDataTempNew.first += fromNewFinData.first;
+			allDataTempNew.second += fromNewFinData.second;
+		}
+
+		double sum = std::accumulate( allDataTemp.begin( ), allDataTemp.end( ), 0.0 );
+		double mean = sum / allDataTemp.size( );
+		double squaredSum = std::inner_product( allDataTemp.begin( ), allDataTemp.end( ),
+												allDataTemp.begin( ), 0.0 );
+		double error = ((double)std::sqrt( squaredSum / allDataTemp.size( ) - mean * mean ))
+			/ std::sqrt( allDataTemp.size( ) );
+
+		double meanNew = allDataTempNew.first / allDataTempNew.second;
+		double errorNew = meanNew * (1 - meanNew) / std::sqrt( allDataTempNew.second );
+		avgAvgs[dataSetI].back( ) = mean;
+		avgErrs[dataSetI].back( ) = error;
+	}
+
+	/// General Plotting Options
+	input->plotter->send( "set terminal wxt " + str( plotNumber ) + " title \"" + plotInfo.getTitle( )
+						  + "\" noraise background rgb 'black'" );
+	input->plotter->send( "set format y \"%.1f\"" );
+	// counts can be arbitrarily large.
+	input->plotter->send( "set autoscale y" );
+	input->plotter->send( "set title \"" + plotInfo.getTitle( ) + "\" tc rgb 'white'" );
+	input->plotter->send( "set xlabel \"Key Value\" tc rgb 'white'" );
+	input->plotter->send( "set ylabel \"" + plotInfo.getYLabel( ) + "\" tc rgb 'white'" );
+	input->plotter->send( "set border lc rgb 'white'" );
+	input->plotter->send( "set key tc rgb 'white' outside" );
+	/// FITTING
+	for ( UINT dataSetI = 0; dataSetI < plotInfo.getDataSetNumber( ); dataSetI++ )
+	{
+		if ( plotInfo.whenToFit( dataSetI ) == REAL_TIME_FIT
+			 || (plotInfo.whenToFit( dataSetI ) == FIT_AT_END && pictureNumber == input->picsPerVariation) )
+		{
+			for ( UINT groupInc = 0; groupInc < groupNum; groupInc++ )
+			{
+				std::string fitNum = str( groupNum * dataSetI + groupInc );
+				// in this case, fitting.
+				switch ( plotInfo.getFitOption( dataSetI ) )
+				{
+					// the to_string argument in each case is a unique number indicating the fit given the data set and group. I need
+					// to keep track of each fit separately so that I can plot them all later. 
+				case GAUSSIAN_FIT:
+				{
+					input->plotter->send( "f" + fitNum + "(x) = A" + fitNum + " * exp(-(x - B" + fitNum
+										  + ")**2 / (2 * C" + fitNum + "))" );
+					input->plotter->send( "A" + fitNum + " = 1" );
+					input->plotter->send( "B" + fitNum + " = " + str( finX[dataSetI][groupInc].size( ) / 2.0 ) );
+					input->plotter->send( "C" + fitNum + " = 1" );
+					input->plotter->send( "fit f" + fitNum + "(x) '-' using 1:2 via A" + fitNum + ", B" + fitNum
+										  + ", C" + fitNum );
+					break;
+				}
+				case LORENTZIAN_FIT:
+				{
+					input->plotter->send( "f" + fitNum + "(x) = (A" + fitNum + " / (2 * 3.14159265359)) / ((x - B" + fitNum + ")**2 + (A" + fitNum + " / 2)**2)" );
+					input->plotter->send( "A" + fitNum + " = 1" );
+					input->plotter->send( "B" + fitNum + " = " + str( finX[dataSetI][groupInc].size( ) / 2.0 ) );
+					input->plotter->send( "fit f" + fitNum + "(x) '-' using 1:2 via A" + fitNum + ", B" + fitNum );
+					break;
+				}
+				case SINE_FIT:
+				{
+					input->plotter->send( "f" + fitNum + "(x) = A" + fitNum + " * sin(B" + fitNum + " * x + C" + fitNum + ") * exp( - D" + fitNum + " * x)" );
+					input->plotter->send( "A" + fitNum + " = 1" );
+					input->plotter->send( "B" + fitNum + " = 1" );
+					input->plotter->send( "C" + fitNum + " = 1" );
+					input->plotter->send( "D" + fitNum + " = 1" );
+					input->plotter->send( "fit f" + fitNum + "(x) '-' using 1:2 via A" + fitNum + ", B" + fitNum + ", C" + fitNum + ", D" + fitNum );
+					break;
+				}
+				default:
+				{
+					errBox( "Coding Error: Bad Fit option!" );
+				}
+				input->plotter->sendData( finX[dataSetI][groupInc], finAvgs[dataSetI][groupInc] );
+				}
+			}
+		}
+	}
+	/// ////////////////////////////
+	/// SEND PLOT COMMANDS AND DATA
+
+	/// send plot commands
+	std::string gnuplotPlotCmd = "plot";
+	if ( plotInfo.getXAxis( ) == "Running Average" )
+	{
+		for ( auto dataSetI : range( plotInfo.getDataSetNumber( ) ) )
+		{
+			for ( auto groupI : range( groupNum ) )
+			{
+				UINT markerNumber = dataSetI % GNUPLOT_MARKERS.size( );
+				UINT colorSpacing = 256 / finAvgs[dataSetI].size( );
+				std::string colorText = "\" lt rgb \"#" + GIST_RAINBOW[colorSpacing * groupI] + "\"";
+				gnuplotPlotCmd += " '-' using 1:2 " + colorText + " " + GNUPLOT_MARKERS[markerNumber] + " title \"G"
+					+ str( groupI + 1 ) + " " + plotInfo.getLegendText( dataSetI ) + "\",";
+				if ( plotInfo.whenToFit( dataSetI ) == REAL_TIME_FIT
+					 || (plotInfo.whenToFit( dataSetI ) == FIT_AT_END
+						  && pictureNumber == input->picsPerVariation) )
+				{
+					std::string fitNum = str( groupNum* dataSetI + groupI );
+					std::string plotString = "fit" + str( groupNum * dataSetI + groupI ) + "= ";
+					switch ( plotInfo.getFitOption( dataSetI ) )
+					{
+					case GAUSSIAN_FIT:
+					{
+						plotString += "sprintf(\"%.3f * exp{/Symbol \\\\173}-(x - %.3f)^2 / (2 * %.3f){/Symbol \\\\175}\", A" + fitNum + ", B" + fitNum + ", C"
+							+ fitNum + ")\n";
+						break;
+					}
+					case LORENTZIAN_FIT:
+					{
+
+						plotString += "sprintf(\"(%.3f / (2 * Pi)) / ((x - %.3f)^2 + ( %.3f / 2)^2)\", A" + fitNum + ", B" + fitNum
+							+ ", A" + fitNum + ")\n";
+						break;
+					}
+					case SINE_FIT:
+					{
+						plotString += "sprintf(\"%.3f * sin{/Symbol \\\\173}%.3f * x + %.3f{/Symbol \\\\175} * exp{/Symbol \\\\173} - %.3f * x {/Symbol \\\\175}\", A" + fitNum + ", B" + fitNum
+							+ ", C" + fitNum + ", D" + fitNum + ")\n";
+						break;
+					}
+					default:
+					{
+						errBox( "Coding Error: Bad Fit option!" );
+					}
+					}
+					input->plotter->send( plotString );
+					UINT lineTypeNumber = dataSetI % GNUPLOT_LINETYPES.size( );
+					UINT colorSpacing = 256 / finAvgs[dataSetI].size( );
+					std::string colorText = "\" lt rgb \"#" + GIST_RAINBOW[colorSpacing * groupI] + "\"";
+					gnuplotPlotCmd += " f" + fitNum + "(x) title fit" + str( groupI ) + " " + colorText
+						+ " " + GNUPLOT_LINETYPES[lineTypeNumber] + ",";
+				}
+			}
+		}
+		for ( auto dataSetI : range( plotInfo.getDataSetNumber( ) ) )
+		{
+			for ( auto groupI : range( groupNum ) )
+			{
+				if ( finData[dataSetI][groupI].size( ) >= input->numberOfRunsToAverage )
+				{
+					UINT colorSpacing = 256 / finAvgs[dataSetI].size( );
+					std::string colorText = "\" lt rgb \"#" + GIST_RAINBOW[colorSpacing * groupI] + "\"";
+					gnuplotPlotCmd += " '-' using 1:2 " + colorText + " with lines title \"G"
+						+ str( groupI + 1 ) + " " + plotInfo.getLegendText( dataSetI ) + "\",";
+				}
+			}
+		}
+	}
+	else // average each variations
+	{
+		for ( auto dataSetI : range( plotInfo.getDataSetNumber( ) ) )
+		{
+			for ( auto groupI : range( finAvgs[dataSetI].size( ) ) )
+			{
+				// handle color stuffs, should prob make this a function
+				std::stringstream hexStream;
+				hexStream << std::hex << int( (1 - 1.0 / sqrt( finAvgs[dataSetI].size( ) )) * 255 );
+				std::string alpha = hexStream.str( );
+				if ( alpha.size( ) < 2 )
+				{
+					// This shouldn't happen...
+					alpha = "00";
+				}
+				else
+				{
+					alpha = alpha.substr( alpha.size( ) - 2 );
+				}
+				UINT colorSpacing = 256 / finAvgs[dataSetI].size( );
+				UINT markerNumber = dataSetI % GNUPLOT_MARKERS.size( );
+				std::string colorText = "\" lt rgb \"#" + alpha + GIST_RAINBOW[colorSpacing * groupI] + "\"";
+				gnuplotPlotCmd += " '-' using 1:2:3 with yerrorbars title \"G" + str( groupI + 1 ) + " "
+					+ plotInfo.getLegendText( dataSetI ) + colorText + " "
+					+ GNUPLOT_MARKERS[markerNumber] + " pointsize 0.5,";
+
+				if ( plotInfo.whenToFit( dataSetI ) == REAL_TIME_FIT
+					 || (plotInfo.whenToFit( dataSetI ) == FIT_AT_END && pictureNumber == input->picsPerVariation) )
+				{
+					std::string fitNum = str( groupNum * dataSetI + groupI );
+					std::string plotString = "fit" + fitNum + "= ";
+					switch ( plotInfo.getFitOption( dataSetI ) )
+					{
+					case GAUSSIAN_FIT:
+					{
+						plotString += "sprintf(\"%.3f * exp{/Symbol \\\\173}-(x - %.3f)^2 / (2 * %.3f){/Symbol \\\\175}\", A" + fitNum + ", B" + fitNum + ", C" + fitNum + ")\n";
+						break;
+					}
+					case LORENTZIAN_FIT:
+					{
+						plotString += "sprintf(\"(%.3f / (2 * Pi)) / ((x - %.3f)^2 + (%.3f / 2)^2)\", A" + fitNum + ", B" + fitNum + ", A" + fitNum + ")\n";
+						break;
+					}
+					case SINE_FIT:
+					{
+						plotString += "sprintf(\"%.3f * sin{/Symbol \\\\173}%.3f * x + %.3f{/Symbol \\\\175} * exp{/Symbol \\\\173} - %.3f * x {/Symbol \\\\175}\", A" + fitNum + ", B" + fitNum + ", C" + fitNum + ", D" + fitNum + ")\n";
+						break;
+					}
+					default:
+					{
+						errBox( "Coding Error: Bad Fit option!" );
+					}
+					}
+					input->plotter->send( plotString );
+					UINT lineTypeNumber = dataSetI % GNUPLOT_LINETYPES.size( );
+					UINT colorSpacing = 256 / finAvgs[dataSetI].size( );
+					std::string colorText = "\" lt rgb \"#" + GIST_RAINBOW[colorSpacing * groupI] + "\"";
+					gnuplotPlotCmd += " f" + fitNum + "(x) title fit" + fitNum + " " + colorText + " "
+						+ GNUPLOT_LINETYPES[dataSetI] + ",";
+				}
+			}
+			// add the average line
+			gnuplotPlotCmd += " '-' using 1:2:3 with yerrorbars title \"Average\" lt rgb \"#FFFFFF\" pt 5 pointsize 0.5,";
+		}
+	}
+	std::string error;
+	input->plotter->send( gnuplotPlotCmd );
+	/// SEND DATA
+	if ( plotInfo.getXAxis( ) == "Running Average" )
+	{
+		for ( auto dataSetI : range( plotInfo.getDataSetNumber( ) ) )
+		{
+			for ( auto groupI : range( groupNum ) )
+			{
+				input->plotter->sendData( finAvgs[dataSetI][groupI], finData[dataSetI][groupI] );
+			}
+			for ( auto groupI : range( groupNum ) )
+			{
+				if ( finData[dataSetI][groupI].size( ) >= input->numberOfRunsToAverage )
+				{
+					input->plotter->sendData( finX[dataSetI][groupI], finAvgs[dataSetI][groupI] );
+				}
+			}
+		}
+	}
+	else
+	{
+		for ( auto dataSetI : range( plotInfo.getDataSetNumber( ) ) )
+		{
+			for ( auto groupI : range( finAvgs[dataSetI].size( ) ) )
+			{
+				input->plotter->sendData( finX[dataSetI][groupI], finAvgs[dataSetI][groupI], finErrs[dataSetI][groupI] );
+			}
+			input->plotter->sendData( avgX[dataSetI], avgAvgs[dataSetI], avgErrs[dataSetI] );
+		}
+	}
+}
+
 
 void DataAnalysisControl::handlePlotHist( realTimePlotterInput* input, PlottingInfo plotInfo, UINT plotNumber,
 										  std::vector<std::vector<long>> countData,
-										  std::vector<std::vector<std::vector<long>>>& finData,
+										  std::vector<std::vector<std::deque<double>>>& finData,
 										  std::vector<std::vector<bool>>pscSatisfied, int plotNumberCount )
 {
 	/// options are fundamentally different for histograms.
 	UINT groupNum = input->atomGridInfo.width * input->atomGridInfo.height;
+
+	std::vector<long> histBinLocations(1,0);
+	long minCountBin = LONG_MAX;
 	// load pixel counts into data array pixelData
 	for ( auto dataSetI : range(plotInfo.getDataSetNumber( )) )
 	{
@@ -1042,10 +1408,25 @@ void DataAnalysisControl::handlePlotHist( realTimePlotterInput* input, PlottingI
 			{
 				continue;
 			}
-			UINT pixel, pic;
+			// not sure if legit to use back() or not.
+			UINT pixel;// , pic;
 			// passing by reference.
-			plotInfo.getDataCountsLocation( dataSetI, pixel, pic );
-			finData[dataSetI][groupI].push_back( countData[groupI][pic] );
+			long newBins = 0;
+			if ( countData[groupI].back() < minCountBin )
+			{
+				 newBins = (minCountBin - countData[groupI].back( )) / plotInfo.getDataSetHistBinWidth(dataSetI);
+			}
+			// add the new bins to each container.
+			for ( auto bin : range(newBins) )
+			{
+				for ( auto groupI : range( groupNum ) )
+				{
+					finData[dataSetI][groupI].push_front(0);
+				}
+			}
+			ULONG whichBin = (countData[groupI].back( ) - minCountBin) / plotInfo.getDataSetHistBinWidth( dataSetI );
+			// add one count to the bin.
+			finData[dataSetI][groupI][whichBin]++;
 		}
 	}
 	// Core data structures have been updated. return if not time for an update yet.
@@ -1107,6 +1488,7 @@ void DataAnalysisControl::handlePlotHist( realTimePlotterInput* input, PlottingI
 			gnuCommand += singleHistCmd;
 		}
 	}
+
 	input->plotter->send( gnuCommand );
 	for ( auto dataSetI : range(plotInfo.getDataSetNumber( )) )
 	{

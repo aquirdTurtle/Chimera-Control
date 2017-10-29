@@ -71,6 +71,7 @@ void SmsTextingControl::initialize( POINT& pos, CWnd* parent, int& id, cToolTips
 }
 
 
+/*
 void SmsTextingControl::promptForEmailAddressAndPassword()
 {
 	TextPromptDialog dialog(&emailAddress, "Please enter an email address for the texting system to use:");
@@ -78,6 +79,7 @@ void SmsTextingControl::promptForEmailAddressAndPassword()
 	TextPromptDialog dialog2(&password, "Please enter a password for that email address:", true);
 	dialog2.DoModal();
 }
+*/
 
 
 void SmsTextingControl::rearrange(int width, int height, fontMap fonts)

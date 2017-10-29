@@ -25,7 +25,7 @@ void AlertSystem::initialize( cameraPositions& pos, CWnd* parent, bool isTrigger
 	alertsActiveCheckBox.videoPos = { -1,-1,-1,-1 };
 	alertsActiveCheckBox.triggerModeSensitive = isTriggerModeSensitive;
 	alertsActiveCheckBox.Create( "Use?", NORM_CHECK_OPTIONS, alertsActiveCheckBox.seriesPos, parent, IDC_ALERTS_BOX );
-
+	alertsActiveCheckBox.SetCheck( true );
 	/// Alert threshold text
 	alertThresholdText.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 20 };
 	alertThresholdText.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 20 };
@@ -46,6 +46,7 @@ void AlertSystem::initialize( cameraPositions& pos, CWnd* parent, bool isTrigger
 	autoPauseAtAlert.triggerModeSensitive = isTriggerModeSensitive;
 	autoPauseAtAlert.Create( "Automatically Pause on alert?", NORM_CHECK_OPTIONS, autoPauseAtAlert.seriesPos, parent,
 							 id++ );
+	autoPauseAtAlert.SetCheck( true );
 	/// Sound checkbox
 	// soundAtFinshCheckBox.hwnd
 	soundAtFinshCheck.seriesPos = { pos.seriesPos.x + 0, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 20 };
