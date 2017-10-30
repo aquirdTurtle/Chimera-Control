@@ -1,24 +1,26 @@
 #pragma once
 
-#include "externals.h"
-#include "constants.h"
-#include "miscellaneousCommonFunctions.h"
-#include "ScriptStream.h"
 #include "ProfileSystem.h"
 #include "DebugOptionsControl.h"
 #include "Communicator.h"
 #include "NiawgStructures.h"
 #include "rerngStructures.h"
-#include "Fgen.h"
 #include "profileSettings.h"
 #include "directions.h"
+#include "rerngParams.h"
+#include "rerngThreadInput.h"
+
+#include "ScriptStream.h"
+#include "miscellaneousCommonFunctions.h"
+#include "externals.h"
+#include "constants.h"
+
+#include "Fgen.h"
 #include <algorithm>
 #include <memory>
 #include <cmath>
 #include <mutex>
 #include <chrono>
-#include "rerngParams.h"
-#include "rerngThreadInput.h"
 
 struct MasterThreadInput;
 class NiawgWaiter;
@@ -37,6 +39,9 @@ class NiawgController
 							  Communicator* comm, bool dontGenerate );
 		void preWriteRerngWaveforms( rerngThreadInput* input );
 		void writeToFile( std::vector<double> waveVals );
+		std::vector<double> calcFinalPositionMove( niawgPair<ULONG> targetPos, niawgPair<ULONG> finalPos,
+												   double freqSpacing, std::vector<std::vector<bool>> target,
+												   niawgPair<double> cornerFreqs );
 		bool rerngThreadIsActive();
 		std::string getCurrentScript();
 		bool niawgIsRunning();
@@ -82,9 +87,6 @@ class NiawgController
 		void deleteRerngWave( );
 		static long waveformSizeCalc( double time );
 		static double rampCalc( int size, int iteration, double initPos, double finPos, std::string rampType );
-		template <typename type> static void loadParam( type& dataToAssign, ScriptStream& scriptName, UINT& varCount,
-														std::vector<std::string>& varNames, std::vector<long> &varParamTypes,
-														std::vector<long> dataTypes );
 		// programming the device
 		void restartDefault();
 		void turnOffRerng( );
@@ -155,6 +157,7 @@ class NiawgController
 		const UINT triggerRow;
 		const UINT triggerNumber;
 		/// Rearrangement stuff
+		std::vector<rerngContainer<double>> moveBiasCalibrations;
 		std::string rerngWaveName = "rearrangeWaveform";
 		std::vector<double> rerngWaveVals;
 		HANDLE rerngThreadHandle;
@@ -185,39 +188,4 @@ class NiawgController
 		static UINT getMaxMoves( const std::vector<std::vector<bool>> targetMatrix );
 };
 
-
-template <typename type> static void NiawgController::loadParam( type& dataToAssign, ScriptStream& file, UINT& varCount,
-																 std::vector<std::string>& varNames, std::vector<long> &varParamTypes,
-																 std::vector<long> dataTypes )
-{
-	std::string tempInput;
-	file >> tempInput;
-	if (tempInput.size() > 0)
-	{
-		if (tempInput[0] == '\'' || tempInput[0] == '#' || tempInput[0] == '}' || tempInput[0] == '{')
-		{
-			thrower( "ERROR: Detected reserved character out of place inside niawg script string \"" + tempInput + "\"" );
-		}
-	}
-	type val;
-	std::stringstream stream;
-	stream << tempInput;
-	stream >> val;
-	// check if it was able to convert text to type correctly.
-	if (stream.fail())
-	{
-		// load variable name into structure.
-		for (auto type : dataTypes)
-		{
-			varNames.push_back( tempInput );
-			varParamTypes.push_back( type );
-			varCount++;
-		}
-	}
-	else
-	{
-		// this should happen most of the time.
-		dataToAssign = val;
-	}
-}
 

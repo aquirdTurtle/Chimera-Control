@@ -7,6 +7,9 @@ rerngParams rerngControl::getParams( )
 	tempParams.active = experimentIncludesRerng.GetCheck( );
 	tempParams.outputInfo = outputRearrangeEvents.GetCheck( );
 	tempParams.outputIndv = outputIndividualEvents.GetCheck( );
+	tempParams.preprogram = preprogramMoves.GetCheck( );
+	tempParams.useCalibration = useCalibration.GetCheck( );
+
 	CString tempTxt;
 	try
 	{
@@ -17,18 +20,12 @@ rerngParams rerngControl::getParams( )
 		// convert to s from ms
 		tempParams.moveSpeed = 1e-3 * std::stod( str( tempTxt ) );
 		movingBiasEdit.GetWindowTextA( tempTxt );
-
 		tempParams.moveBias = std::stod( str( tempTxt ) );
-		
 		// convert from ns to s
 		deadTimeEdit.GetWindowTextA( tempTxt );
 		tempParams.deadTime = std::stod( str(tempTxt) ) * 1e-9;
-
 		staticMovingRatioEdit.GetWindowTextA( tempTxt );
 		tempParams.staticMovingRatio = std::stod( str( tempTxt ) );
-		
-		
-
 	}
 	catch ( std::invalid_argument&)
 	{
@@ -41,6 +38,8 @@ rerngParams rerngControl::getParams( )
 
 void rerngControl::rearrange( int width, int height, fontMap fonts )
 {
+	preprogramMoves.rearrange( width, height, fonts );
+	useCalibration.rearrange( width, height, fonts );
 	header.rearrange(width, height, fonts);
 	experimentIncludesRerng.rearrange( width, height, fonts );
 	flashingRateText.rearrange( width, height, fonts );
@@ -61,55 +60,45 @@ void rerngControl::rearrange( int width, int height, fontMap fonts )
 void rerngControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips )
 {
 	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
-	header.Create( "Rearrangement Parameters", WS_CHILD | WS_VISIBLE | ES_READONLY, header.sPos, parent, id++ );
+	header.Create( "Rearrangement Parameters", NORM_HEADER_OPTIONS, header.sPos, parent, id++ );
 	header.fontType = HeadingFont;
-
 	experimentIncludesRerng.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
-	experimentIncludesRerng.Create( "Experiment Includes Rearrangement?", WS_CHILD | WS_VISIBLE
-											| BS_AUTOCHECKBOX | WS_TABSTOP, experimentIncludesRerng.sPos, parent, id++ );
-
+	experimentIncludesRerng.Create( "Experiment Includes Rearrangement?", NORM_CHECK_OPTIONS, 
+									experimentIncludesRerng.sPos, parent, id++ );
 	flashingRateText.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 25 };
-	flashingRateText.Create( "Flashing Rate (MHz)", WS_CHILD | WS_VISIBLE | ES_READONLY, flashingRateText.sPos, parent,
-							 id++ );
+	flashingRateText.Create( "Flashing Rate (MHz)", NORM_STATIC_OPTIONS, flashingRateText.sPos, parent, id++ );
 	flashingRateEdit.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 25 };
-	flashingRateEdit.Create( WS_CHILD | WS_VISIBLE | WS_TABSTOP, flashingRateEdit.sPos, parent, id++ );
+	flashingRateEdit.Create( NORM_EDIT_OPTIONS, flashingRateEdit.sPos, parent, id++ );
 	flashingRateEdit.SetWindowTextA( "1" );
-
 	moveSpeedText.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 25 };
-	moveSpeedText.Create( "Move Speed (ms)", WS_CHILD | WS_VISIBLE | ES_READONLY, moveSpeedText.sPos, parent, id++ );
+	moveSpeedText.Create( "Move Speed (ms)", NORM_STATIC_OPTIONS, moveSpeedText.sPos, parent, id++ );
 	moveSpeedEdit.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 25 };
-	moveSpeedEdit.Create( WS_CHILD | WS_VISIBLE | WS_TABSTOP, moveSpeedEdit.sPos, parent, id++ );
+	moveSpeedEdit.Create( NORM_EDIT_OPTIONS, moveSpeedEdit.sPos, parent, id++ );
 	moveSpeedEdit.SetWindowTextA( "0.06" );
-
 	movingBiasText.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 25 };
-	movingBiasText.Create( "Moving Tweezer Bias (/1)", WS_CHILD | WS_VISIBLE | ES_READONLY, movingBiasText.sPos,
-						   parent, id++ );
+	movingBiasText.Create( "Moving Tweezer Bias (/1)", NORM_STATIC_OPTIONS, movingBiasText.sPos, parent, id++ );
 	movingBiasEdit.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 25 };
-	movingBiasEdit.Create( WS_CHILD | WS_VISIBLE | WS_TABSTOP, movingBiasEdit.sPos, parent, id++ );
+	movingBiasEdit.Create( NORM_EDIT_OPTIONS, movingBiasEdit.sPos, parent, id++ );
 	movingBiasEdit.SetWindowTextA( "0.3" );
-
 	deadTimeText.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 25 };
-	deadTimeText.Create( "Dead Time (ns)", WS_CHILD | WS_VISIBLE | ES_READONLY, deadTimeText.sPos,
-						 parent, id++ );
+	deadTimeText.Create( "Dead Time (ns)", NORM_STATIC_OPTIONS, deadTimeText.sPos, parent, id++ );
 	deadTimeEdit.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 25 };
-	deadTimeEdit.Create( WS_CHILD | WS_VISIBLE | WS_TABSTOP, deadTimeEdit.sPos, parent, id++ );
+	deadTimeEdit.Create( NORM_EDIT_OPTIONS, deadTimeEdit.sPos, parent, id++ );
 	deadTimeEdit.SetWindowTextA( "0" );
-
 	staticMovingRatioText.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 25 };
-	staticMovingRatioText.Create( "Static / Moving Ratio", WS_CHILD | WS_VISIBLE | ES_READONLY,
-								  staticMovingRatioText.sPos, parent, id++ );
-
+	staticMovingRatioText.Create( "Static/Moving Ratio", NORM_STATIC_OPTIONS, staticMovingRatioText.sPos, parent, id++ );
 	staticMovingRatioEdit.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 25 };
-	staticMovingRatioEdit.Create( WS_CHILD | WS_VISIBLE | WS_TABSTOP, staticMovingRatioEdit.sPos, parent, id++ );
+	staticMovingRatioEdit.Create( NORM_EDIT_OPTIONS, staticMovingRatioEdit.sPos, parent, id++ );
 	staticMovingRatioEdit.SetWindowTextA( "1" );
-
 	outputRearrangeEvents.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
 	outputRearrangeEvents.Create( "Output Event Info", NORM_CHECK_OPTIONS, outputRearrangeEvents.sPos, parent, id++ );
-
 	outputIndividualEvents.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
-	outputIndividualEvents.Create( "Output Individual Events to Experiment Status?", NORM_CHECK_OPTIONS,
-								   outputIndividualEvents.sPos, parent, id++ );
-
+	outputIndividualEvents.Create( "Output Individual Event Info?", NORM_CHECK_OPTIONS, outputIndividualEvents.sPos, 
+								   parent, id++ );
+	preprogramMoves.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
+	preprogramMoves.Create( "Preprogram Moves?", NORM_CHECK_OPTIONS, preprogramMoves.sPos, parent, id++ );
+	useCalibration.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
+	useCalibration.Create( "Use Calibration?", NORM_CHECK_OPTIONS, useCalibration.sPos, parent, id++ );
 }
 
 
@@ -158,6 +147,18 @@ void rerngControl::handleOpenConfig( std::ifstream& openFile, int versionMajor, 
 	{
 		info.outputIndv = false;
 	}
+	
+	if ( versionMajor = 2 && versionMinor > 11 || versionMajor > 2 )
+	{
+		openFile >> info.preprogram;
+		openFile >> info.useCalibration;
+	}
+	else
+	{
+		info.preprogram = false;
+		info.useCalibration = false;
+	}
+
 	setParams( info );
 	ProfileSystem::checkDelimiterLine( openFile, "END_REARRANGEMENT_INFORMATION" );
 }
@@ -168,11 +169,18 @@ void rerngControl::handleNewConfig( std::ofstream& newFile )
 	newFile << "REARRANGEMENT_INFORMATION\n";
 	newFile << 0 << "\n";
 	newFile << 1 << "\n";
+	// move bias
 	newFile << 1e-3*0.3 << "\n";
-	newFile << 1e6*0.06 << "\n";
+	// move speed
+	newFile << 1e-6 * 60 << "\n";
+	// dead time
 	newFile << 75e-9 << "\n";
 	newFile << "1\n";
 	newFile << "0\n";
+	newFile << "0\n";
+	// preprogram
+	newFile << "0\n";
+	// use calibration
 	newFile << "0\n";
 	newFile << "END_REARRANGEMENT_INFORMATION\n";
 }
@@ -181,6 +189,7 @@ void rerngControl::handleNewConfig( std::ofstream& newFile )
 void rerngControl::handleSaveConfig( std::ofstream& saveFile )
 {
  	saveFile << "REARRANGEMENT_INFORMATION\n";
+	// conversions happen in getParams.
  	rerngParams info = getParams( );
  	saveFile << info.active << "\n";
  	saveFile << info.flashingRate << "\n";
@@ -203,11 +212,13 @@ void rerngControl::setParams( rerngParams params )
 	// convert back to ms from s
 	moveSpeedEdit.SetWindowTextA( cstr( 1e3*params.moveSpeed ) );
 	outputRearrangeEvents.SetCheck( params.outputInfo );
-	// convert back to us
+	// convert back to ns
 	deadTimeEdit.SetWindowTextA( cstr( params.deadTime * 1e9) );
 	staticMovingRatioEdit.SetWindowTextA( cstr( params.staticMovingRatio ) );
 	
 	outputRearrangeEvents.SetCheck( params.outputInfo );
 	outputIndividualEvents.SetCheck( params.outputIndv );
 
+	useCalibration.SetCheck( params.useCalibration );
+	preprogramMoves.SetCheck( params.preprogram );
 }

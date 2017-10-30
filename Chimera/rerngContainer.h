@@ -22,6 +22,8 @@ template <class type> class rerngContainer
 		type & operator()( UINT row, UINT col, directions direction );
 		bool hasBeenFilled( );
 		void setFilledFlag( );
+		UINT getRows( );
+		UINT getCols( );
 	private:
 		std::vector<type> obj;
 		const UINT rows, cols;
@@ -83,5 +85,19 @@ type & rerngContainer<type>::operator()( UINT row, UINT col, directions directio
 	UINT colOffset( col * 4 );
 	UINT index = rowOffset + colOffset + direction;
 	return obj[index];
+}
+
+
+template <class type>
+UINT rerngContainer<type>::getCols( )
+{
+	return cols;
+}
+
+
+template <class type>
+UINT rerngContainer<type>::getRows( )
+{
+	return cols;
 }
 

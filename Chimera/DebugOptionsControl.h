@@ -3,6 +3,8 @@
 #include "commonTypes.h"
 #include "debugInfo.h"
 
+class MainWindow;
+
 class DebugOptionsControl
 {
 	public:

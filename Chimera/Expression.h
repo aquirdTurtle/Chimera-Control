@@ -23,7 +23,3 @@ class Expression
 		bool expressionVaries = false;
 };
 
-
-// delayed setting of constant varible.
-// don't want to make everything a pointer;
-// 
