@@ -33,7 +33,9 @@ class rerngControl
 		Control<CStatic> staticMovingRatioText;
 		Control<CEdit> staticMovingRatioEdit;
 
+		Control<CButton> preprogramMoves;
+		Control<CButton> useCalibration;
+
 		Control<CButton> outputRearrangeEvents;
 		Control<CButton> outputIndividualEvents;
-
 };

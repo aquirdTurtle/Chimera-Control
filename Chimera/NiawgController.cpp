@@ -11,7 +11,13 @@
 #include <numeric>
 
 NiawgController::NiawgController( UINT trigRow, UINT trigNumber ) : triggerRow( trigRow ), triggerNumber( trigNumber )
-{}
+{
+	// initialize rearrangement calibrations.
+	// 3x6 calibration
+	rerngContainer<double> moveBias3x6Cal( 3, 6 );
+	moveBiasCalibrations.push_back( moveBias3x6Cal );
+
+}
 
 
 void NiawgController::initialize()
@@ -914,6 +920,32 @@ void NiawgController::handleSpecialWaveformForm( NiawgOutput& output, profileSet
 			}
 		}
 		rearrangeWave.rearrange.target = targetTemp[Horizontal];
+
+		niawgPair<ULONG> finLocRow, finLocCol;
+		for ( auto axis : AXES )
+		{
+			std::string tempStrRow, tempStrCol;
+			scripts[axis] >> tempStrRow;
+			scripts[axis] >> tempStrCol;
+			try
+			{
+				finLocRow[axis] = std::stoul( tempStrRow );
+				finLocCol[axis] = std::stoul( tempStrCol );
+			}
+			catch ( std::invalid_argument& )
+			{
+				thrower( "ERROR: final rearranging location row or column failed to convert to unsigned long in "
+						 + AXES_NAMES[axis] + " script!" );
+			}
+		}
+
+		if ( finLocRow[Horizontal] != finLocRow[Vertical] || finLocCol[Horizontal] != finLocCol[Vertical] )
+		{
+			thrower( "ERROR: final rearranging location listed in horizontal script didn't match vertical script!" );
+		}
+
+		rearrangeWave.rearrange.finMoveRow = finLocRow[Horizontal];
+		rearrangeWave.rearrange.finLocCol = finLocRow[Horizontal];
 
 		for ( auto axis : AXES )
 		{
@@ -2356,17 +2388,18 @@ return 0;
 }
 
 /**
-* This function takes ramp-related information as an input and returns the "position" in the ramp (targetInc.e. the amount to add to the initial value due to ramping)
-* that the waveform should be at.
-*
-* @return double is the ramp position.
-*
-* @param size is the total size of the waveform, in numbers of samples
-* @param iteration is the sample number that the waveform is currently at.
-* @param initPos is the initial frequency or amplitude of the waveform.
-* @param finPos is the final frequency or amplitude of the waveform.
-* @param type is the type of ramp being executed, as specified by the reader.
-*/
+ * This function takes ramp-related information as an input and returns the "position" in the ramp (targetInc.e. the 
+ ( amount to add to the initial value due to ramping)
+ * that the waveform should be at.
+ *
+ * @return double is the ramp position.
+ *
+ * @param size is the total size of the waveform, in numbers of samples
+ * @param iteration is the sample number that the waveform is currently at.
+ * @param initPos is the initial frequency or amplitude of the waveform.
+ * @param finPos is the final frequency or amplitude of the waveform.
+ * @param type is the type of ramp being executed, as specified by the reader.
+ */
 double NiawgController::rampCalc( int size, int iteration, double initPos, double finPos, std::string rampType )
 {
 	// for linear ramps
@@ -2632,6 +2665,185 @@ void NiawgController::startRerngThread( std::vector<std::vector<bool>>* atomQueu
 bool NiawgController::rerngThreadIsActive( )
 {
 	return threadStateSignal;
+}
+
+
+// calculate (and return) the wave that will take the atoms from the target position to the final position.
+std::vector<double> NiawgController::calcFinalPositionMove( niawgPair<ULONG> targetPos, niawgPair<ULONG> finalPos,
+															double freqSpacing, std::vector<std::vector<bool>> target, 
+															niawgPair<double> cornerFreqs )
+{
+	if ( target.size( ) == 0 || target[0].size( ) == 0 )
+	{
+		thrower( "ERROR: invalid target size in calcFinalPositionMove function. target must be a non-empty 2D Vector." );
+	}
+	simpleWave moveWave;
+	moveWave.varies = false;
+	moveWave.name = "NA";
+	niawgPair<double> freqChange;
+	freqChange[Vertical] = freqSpacing * (targetPos[Vertical] - finalPos[Vertical]);
+	freqChange[Horizontal] = freqSpacing * (targetPos[Horizontal] - finalPos[Horizontal]);
+	// access is target[row][column]
+	moveWave.chan[Vertical].signals.resize( target.size( ) );
+	moveWave.chan[Horizontal].signals.resize( target[0].size( ) );
+	// this is pretty arbitrary right now. In principle can prob be very fast.
+	moveWave.time = 1e-4;
+	// fill wave info
+	for ( auto axis : AXES )
+	{
+		UINT count = 0;
+		for ( auto& sig : moveWave.chan[axis].signals )
+		{
+			sig.freqInit = cornerFreqs[axis] + count * freqSpacing;
+			sig.freqFin = sig.freqInit + freqChange[axis];
+			if ( sig.freqInit == sig.freqFin )
+			{
+				sig.freqRampType = "nr";
+			}
+			else
+			{
+				sig.freqRampType = "lin";
+			}
+			sig.initPower = 1;
+			sig.finPower = 1;
+			sig.powerRampType = "nr";
+			sig.initPhase = 0;
+			count++;
+		}
+	}
+
+	// for now assume target is block-like.
+
+	/*	
+	// program this move.
+	//rearrangeInfo& info = input->rearrangementWave.rearrange;
+	double freqPerPixel = info.freqPerPixel;
+	// starts from the top left.
+	niawgPair<int> initPos = { row, col };
+	niawgPair<int> finPos;
+	int rowInt = row, colInt = col;
+	switch ( direction )
+	{
+		case up:
+			finPos = { rowInt - 1, colInt };
+			break;
+		case down:
+			finPos = { rowInt + 1, colInt };
+			break;
+		case left:
+			finPos = { rowInt, colInt - 1 };
+			break;
+		case right:
+			finPos = { rowInt, colInt + 1 };
+			break;
+	}
+	simpleWave moveWave;
+	moveWave.varies = false;
+	// not used bc not programmed directly.
+	moveWave.name = "NA";
+	moveWave.time = info.timePerMove / (staticMovingRatio + 1);
+	moveWave.sampleNum = waveformSizeCalc( moveWave.time );
+	UINT movingAxis, movingSize, staticAxis;
+	movingAxis = Vertical;
+	staticAxis = Horizontal;
+	movingSize = info.targetRows;
+	double movingFrac = moveBias;
+	double nonMovingFrac = (1 - movingFrac) / (movingSize - 2);
+	/// handle moving axis
+	// 1 less signal because of the two locations that the moving tweezer spans
+	moveWave.chan[movingAxis].signals.resize( movingSize - 1 );
+	bool foundMoving = false;
+	UINT gridLocation = 0;
+	for ( auto signalNum : range( movingSize - 1 ) )
+	{
+		waveSignal& sig = moveWave.chan[movingAxis].signals[signalNum];
+		sig.powerRampType = "nr";
+		sig.initPhase = 0;
+		//
+		if ( (signalNum == initPos[movingAxis] || signalNum == finPos[movingAxis]) && !foundMoving )
+		{
+			// SKIP the next one, which should be the next of the pair of locations that is moving.
+			gridLocation++;
+			// this is the moving signal. set foundmoving to true so that you only make one moving signal.
+			foundMoving = true;
+			sig.initPower = movingFrac;
+			sig.finPower = movingFrac;
+			sig.freqRampType = "lin";
+			if ( movingAxis == Horizontal )
+			{
+				sig.freqInit = ((info.targetCols - initPos[movingAxis] - 1)
+								 * freqPerPixel + info.lowestFreq[movingAxis]) * 1e6;
+				sig.freqFin = ((info.targetCols - finPos[movingAxis] - 1)
+								* freqPerPixel + info.lowestFreq[movingAxis]) * 1e6;
+			}
+			else
+			{
+				sig.freqInit = (initPos[movingAxis] * freqPerPixel + info.lowestFreq[movingAxis]) * 1e6;
+				sig.freqFin = (finPos[movingAxis] * freqPerPixel + info.lowestFreq[movingAxis]) * 1e6;
+			}
+		}
+		else
+		{
+			sig.initPower = nonMovingFrac;
+			sig.finPower = nonMovingFrac;
+			sig.freqRampType = "nr";
+			if ( movingAxis == Horizontal )
+			{
+				sig.freqInit = ((info.targetCols - gridLocation - 1) * freqPerPixel
+								 + info.lowestFreq[movingAxis]) * 1e6;
+				sig.freqFin = sig.freqInit;
+			}
+			else
+			{
+				sig.freqInit = (gridLocation * freqPerPixel + info.lowestFreq[movingAxis]) * 1e6;
+				sig.freqFin = sig.freqInit;
+			}
+		}
+		gridLocation++;
+	}
+	/// handle other axis
+	moveWave.chan[staticAxis].signals.resize( 1 );
+	waveSignal& sig = moveWave.chan[staticAxis].signals[0];
+	// only matters for the horizontal AOM which gets the extra tone at the moment.
+	sig.initPower = 1;
+	sig.finPower = 1;
+	sig.powerRampType = "nr";
+	sig.initPhase = 0;
+	sig.freqRampType = "nr";
+	if ( staticAxis == Horizontal )
+	{
+		// convert to Hz
+		sig.freqInit = ((info.targetCols - initPos[staticAxis] - 1) * freqPerPixel
+						 + info.lowestFreq[staticAxis]) * 1e6;
+		sig.freqFin = sig.freqInit;
+	}
+	else
+	{
+		// convert to Hz
+		sig.freqInit = (initPos[staticAxis] * freqPerPixel + info.lowestFreq[staticAxis])*1e6;
+		sig.freqFin = sig.freqInit;
+	}
+	/// finalize info & calc stuffs
+	finalizeStandardWave( moveWave, debugInfo( ) );
+	// now put together into small temporary flashing wave
+	waveInfo flashMove;
+	flashMove.core.time = info.timePerMove;
+	flashMove.flash.isFlashing = true;
+	flashMove.flash.flashNumber = 2;
+	if ( fabs( info.staticWave.time + moveWave.time - info.timePerMove ) > 1e-9 )
+	{
+		thrower( "ERROR: static wave and moving wave don't add up to the total time of the flashing wave! "
+				 "Sizes were " + str( info.staticWave.waveVals.size( ) ) + " and "
+				 + str( moveWave.waveVals.size( ) ) + " respectively.\r\n" );
+	}
+	flashMove.flash.flashWaves.push_back( moveWave );
+	flashMove.flash.flashWaves.push_back( info.staticWave );
+	flashMove.flash.flashCycleFreq = info.flashingFreq;
+	mixFlashingWaves( flashMove, deadTime, staticMovingRatio );
+	return flashMove.core.waveVals;
+
+	
+	*/
 }
 
 

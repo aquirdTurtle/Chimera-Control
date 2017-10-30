@@ -32,14 +32,15 @@ Refactoring / Other:
 - change pointers to smart-ptrs where possible
 
 Bugs:
+- something wrong with set New dac Values! Pressing seems to change whether shutter is open or closed???
+- exposure time setting properly for andor camera? (maybe just prob in video mode)
+
 - scripts becoming unsaved after move, should preserve saved status
 - investigate save on change config
 - global config colors don't appear to always be correct. (not sure how to repeat yet)
 - fix over-writing to the agilent.
 
 Rearranging
-- Pre-program waves
-- individual calibrations
 - smartly figure out where to rearrange to and move at the end to center
 - utilize compound moves
 

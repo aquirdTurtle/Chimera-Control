@@ -5,6 +5,8 @@
 #include <chrono>
 #include <atomic>
 #include <vector>
+#include <mutex>
+#include <condition_variable>
 #include "windows.h"
 
 class NiawgController;

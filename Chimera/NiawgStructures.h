@@ -1,5 +1,5 @@
 #pragma once
-
+#include "Expression.h"
 #include "nifgen.h"
 #include "Windows.h"
 #include <string>
@@ -141,6 +141,9 @@ struct rerngInfoForm
 	UINT targetCols = 0;
 	// the maixmum number of moves the rearrangement should take.
 	UINT moveLimit = 0;
+	// the location that the array will be moved to at the end.
+	UINT finMoveRow = 0;
+	UINT finLocCol = 0;
 	// these are the frequencies that the niawg would need to output to reach the lower left corner (I think?) of 
 	// the picture.
 	niawgPair<double> lowestFreq = { 0,0 };
