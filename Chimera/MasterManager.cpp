@@ -145,27 +145,6 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 							 "snapshots was " + str( input->dacs->getNumberSnapshots( variationInc ) ) );
 				}
 				input->dacs->checkTimingsWork( variationInc );
-				// check right number of triggers	
-				for ( auto& agilent : input->agilents )
-				{
-					for ( auto chan : range( 2 ) )
-					{
-						if ( agilent->getOutputInfo( ).channel[chan].option != 4 )
-						{
-							continue;
-						}
-						UINT ttlTrigs = input->ttls->countTriggers( agilent->getTriggerLine( ).first,
-																	agilent->getTriggerLine( ).second, variationInc );
-						UINT agilentExpectedTrigs = agilent->getOutputInfo( ).channel[chan].scriptedArb.wave.getNumberOfTriggers( );
-						if (  ttlTrigs != agilentExpectedTrigs )
-						{
-							warnings += "WARNING: Agilent " + agilent->getName( ) + " is not getting triggered by the "
-								"ttl system the same number of times a trigger command appears in the agilent channel "
-								+ str( chan + 1 ) + " script. There are " + str( agilentExpectedTrigs ) + " triggers in"
-								" the agilent script, and " + str( ttlTrigs) + " ttl triggers sent to that agilent.";
-						}
-					}
-				}
 				if ( input->runNiawg )
 				{
 					if ( input->ttls->countTriggers( input->niawg->getTrigLines( ).first,
@@ -240,11 +219,34 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 				agilent->setAgilent( variationInc, input->variables );
 				input->comm->sendColorBox( Intensity, 'G' );
 			}
+			// check right number of triggers (currently must be done after agilent is set.
+			for ( auto& agilent : input->agilents )
+			{
+				for ( auto chan : range( 2 ) )
+				{
+					if ( agilent->getOutputInfo( ).channel[chan].option != 4 )
+					{
+						continue;
+					}
+					UINT ttlTrigs = input->ttls->countTriggers( agilent->getTriggerLine( ).first,
+																agilent->getTriggerLine( ).second, variationInc );
+					UINT agilentExpectedTrigs = agilent->getOutputInfo( ).channel[chan].scriptedArb.wave.getNumberOfTriggers( );
+					if ( ttlTrigs != agilentExpectedTrigs )
+					{
+						warnings += "WARNING: Agilent " + agilent->getName( ) + " is not getting triggered by the "
+							"ttl system the same number of times a trigger command appears in the agilent channel "
+							+ str( chan + 1 ) + " script. There are " + str( agilentExpectedTrigs ) + " triggers in"
+							" the agilent script, and " + str( ttlTrigs ) + " ttl triggers sent to that agilent.";
+					}
+				}
+			}
+
 			if (input->runNiawg)
 			{
 				input->niawg->programNiawg( input, output, warnings, variationInc, variations, variedMixedSize,
 												userScriptSubmit );
 			}
+			input->comm->sendError( warnings );
 			input->topBottomTek->programMachine( variationInc );
 			input->eoAxialTek->programMachine( variationInc );
 			//
