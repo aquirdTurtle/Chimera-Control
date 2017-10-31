@@ -1,16 +1,17 @@
 #pragma once
 
 #include "stdafx.h"
+#include "agilentStructures.h"
+#include "miscellaneousCommonFunctions.h"
 #include "niFgen.h"
 #include <string>
-#include "miscellaneousCommonFunctions.h"
-#include "agilentStructures.h"
+
 
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program.
 
-//#define MASTER_COMPUTER
-#define SPECTRE_LAPTOP
+#define MASTER_COMPUTER
+//#define SPECTRE_LAPTOP
 /// File Locations
 
 #ifdef SPECTRE_LAPTOP
@@ -59,7 +60,7 @@
 #ifdef MASTER_COMPUTER
 	#define NIAWG_SAFEMODE false
 	#define ANDOR_SAFEMODE false
-	#define PYTHON_SAFEMODE false
+	#define PYTHON_SAFEMODE true
 	#define DIO_SAFEMODE false
 	#define DAQMX_SAFEMODE false
 	#define RSG_SAFEMODE false
