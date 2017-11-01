@@ -5,6 +5,7 @@
 #include "EmbeddedPythonHandler.h"
 #include "commonTypes.h"
 
+
 struct personInfo
 {
 	std::string name;
@@ -13,6 +14,7 @@ struct personInfo
 	bool textWhenComplete;
 	bool textIfLoadingStops;
 };
+
 
 class SmsTextingControl
 {

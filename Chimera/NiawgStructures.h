@@ -134,6 +134,7 @@ struct rerngInfoForm
 	Expression timePerMove;
 	Expression flashingFreq;
 	simpleWaveForm staticWave;
+	simpleWaveForm fillerWave;
 	// the target picture
 	std::vector<std::vector<bool>> target;
 	// a bit redundant atm.
@@ -173,6 +174,7 @@ struct rerngInfo
 	double freqPerPixel = 0;
 	// the wave that gets flashed with the moving tweezer
 	simpleWave staticWave;
+	simpleWave fillerWave;
 };;
 
 

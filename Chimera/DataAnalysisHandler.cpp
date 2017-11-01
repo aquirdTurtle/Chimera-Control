@@ -12,6 +12,8 @@
 #include <map>
 
 
+using std::vector;
+
 void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips, 
 									  int isTriggerModeSensitive, rgbMap rgbs )
 {
@@ -188,7 +190,7 @@ void DataAnalysisControl::handleOpenConfig( std::ifstream& file, int versionMajo
 		UINT numPlots = 0;
 		file >> numPlots;
 		file.get( );
-		std::vector<std::string> activePlotNames;
+		vector<std::string> activePlotNames;
 		for ( auto pltInc : range( numPlots ) )
 		{
 			std::string tmp;
@@ -276,7 +278,7 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 {
 	realTimePlotterInput* input = (realTimePlotterInput*)voidInput;
 	// make vector of plot information classes. 
-	std::vector<PlottingInfo> allPlots;
+	vector<PlottingInfo> allPlots;
 	/// open files
 	for (auto plotInc : range(input->plotInfo.size()))
 	{
@@ -365,8 +367,7 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 		// no locations selected for analysis; quit.
 		// return 0;
 	}
-	using std::vector;
-	/// Initialize Arrays for data.
+	/// Initialize Arrays for data. (using std::vector above)
 	// thinking about making these experiment-picture sized and resetting after getting the needed data out of them.
 	// pixelData[pixel Indicator][picture number indicator] = pixelCount;
 	vector<vector<long>> countData( groupNum );
@@ -381,7 +382,7 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 	vector<avgData> avgAvg( allPlots.size( )), avgErrBar( allPlots.size( )), avgXVals( allPlots.size( ));
 	// newData[plot][dataSet][group] = true if new data so change some vector sizes.
 	vector<vector<vector<bool> > > newData( allPlots.size( ));
-	std::vector<std::vector<std::vector<std::deque<double>>>> finalHistData( allPlots.size( ) );
+	vector<vector<vector<std::deque<double>>>> finalHistData( allPlots.size( ) );
 	vector<vector<vector<std::map<int, std::pair<int, ULONG>>>>> histogramData( allPlots.size( ));
 
 
@@ -414,7 +415,6 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 	UINT noAtomsCounter = 0, atomCounterTotal = 0, currentThreadPictureNumber = 1, plotNumberCount = 0;
 	// this keeps track of whether a "slow" message has been sent to the main window yet. Only want to send msg once.
 	bool plotIsSlowStatus = false;
-	/// /////////////////////////////////////////////
 	/// Start loop waiting for plots
 	while ((*input->active || (input->atomQueue->size() > 0)) && (!*input->aborting))
 	{
@@ -475,8 +475,6 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 				atomPresentData[pixelInc].push_back(0);
 			}
 		}
-
-
 		if ( thereIsAtLeastOneAtom )
 		{
 			noAtomsCounter = 0;
@@ -485,8 +483,6 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 		{
 			noAtomsCounter++;
 		}
-		//noAtomsCounter = (true ? noAtomsCounter++ : -1);
-
 		if (noAtomsCounter >= input->alertThreshold && input->wantAlerts )
 		{
 			input->comm->sendNoAtomsAlert( );
@@ -516,8 +512,7 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 			/// Check Post-Selection Conditions
 			// initialize this vector to all true. 
 			// statisfiesPsc[dataSetI][groupI] = true or false
-			std::vector<std::vector<bool> > satisfiesPsc( allPlots[plotI].getDataSetNumber( ),
-														  std::vector<bool>( groupNum, true ) );
+			vector<vector<bool> > satisfiesPsc( allPlots[plotI].getDataSetNumber( ), vector<bool>( groupNum, true ) );
 			determineWhichPscsSatisfied( allPlots[plotI], groupNum, atomPresentData, satisfiesPsc );
 			// split into one of two big subroutines. The handling here is encapsulated into functions mostly just for 
 			// organization purposes.
@@ -568,9 +563,9 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 }
 
 
-void DataAnalysisControl::determineWhichPscsSatisfied( PlottingInfo& info, UINT groupSize,
-													   std::vector<std::vector<int>> atomPresentData,
-													   std::vector<std::vector<bool>>& pscSatisfied)
+void DataAnalysisControl::determineWhichPscsSatisfied( PlottingInfo& info, UINT groupSize, 
+													   vector<vector<int>> atomPresentData, 
+													   vector<vector<bool>>& pscSatisfied)
 {
 	// There's got to be a better way to iterate through these guys...
 	for ( auto dataSetI : range( info.getDataSetNumber( ) ) )
@@ -605,32 +600,22 @@ void DataAnalysisControl::determineWhichPscsSatisfied( PlottingInfo& info, UINT 
 }
 
 
-/// data set data structures
-// element for pixel on a picture (e.g. countdata, atomData)
-// dataset->group->pixel->picture
-// element for location for repetition (e.g. positive event data)
-// dataset->group->pixel
-// average value (e.g. psc, avg vals)
-// dataset->group
-
 void DataAnalysisControl::handlePlotAtoms( realTimePlotterInput* input, PlottingInfo plotInfo, UINT pictureNumber,
-										   std::vector<std::vector<std::pair<double, ULONG>> >& finData,
+										   vector<vector<std::pair<double, ULONG>> >& finData,
 										   variationData& finAvgs, variationData& finErrs, variationData& finX,
 										   avgData& avgAvgs, avgData& avgErrs, avgData& avgX,
-										   std::vector<std::vector<bool> >& needNewData,
-										   std::vector<std::vector<bool>>& pscSatisfied, int plotNumber,
-										   std::vector<std::vector<long>>& countData, int plotNumberCount,
-										   std::vector<std::vector<int> > atomPresent )
+										   vector<vector<bool> >& needNewData,
+										   vector<vector<bool>>& pscSatisfied, int plotNumber,
+										   vector<vector<long>>& countData, int plotNumberCount,
+										   vector<vector<int> > atomPresent )
 {
 	UINT groupNum = input->atomGridInfo.width * input->atomGridInfo.height;
 	if (pictureNumber % input->picsPerVariation == plotInfo.getPicNumber())
 	{
 		// first pic of new variation, so need to update x vals.
-		finData = std::vector<std::vector<std::pair<double, ULONG>>>(  plotInfo.getDataSetNumber( ),
-																	  std::vector<std::pair<double, ULONG>>( groupNum, 
-																											{ 0,0 } ) );
-		needNewData = std::vector<std::vector<bool>>( plotInfo.getDataSetNumber( ), 
-													  std::vector<bool>( groupNum, true ) );
+		finData = vector<vector<std::pair<double, ULONG>>>(  plotInfo.getDataSetNumber( ), 
+															vector<std::pair<double, ULONG>>( groupNum, { 0,0 } ) );
+		needNewData = vector<vector<bool>>( plotInfo.getDataSetNumber( ), vector<bool>( groupNum, true ) );
 	}
 	/// Check Data Conditions
 	for (auto dataSetI : range(plotInfo.getDataSetNumber()))
@@ -720,8 +705,6 @@ void DataAnalysisControl::handlePlotAtoms( realTimePlotterInput* input, Plotting
 				{
 					double sum = 1;
 					// need to change if going to get running average working again.
-					//= std::accumulate( finData[dataSetI][groupI].end( ) - input->numberOfRunsToAverage,
-					//							  finData[dataSetI][groupI].end( ), 0.0 );
 					double mean = sum / input->numberOfRunsToAverage;
 					finAvgs[dataSetI][groupI].back( ) = mean;
 					finX[dataSetI][groupI].back( ) = (std::accumulate( finX[dataSetI][groupI].end( )
@@ -816,7 +799,8 @@ void DataAnalysisControl::handlePlotAtoms( realTimePlotterInput* input, Plotting
 					}
 					case LORENTZIAN_FIT:
 					{
-						input->plotter->send( "f" + fitNum + "(x) = (A" + fitNum + " / (2 * 3.14159265359)) / ((x - B" + fitNum + ")**2 + (A" + fitNum + " / 2)**2)" );
+						input->plotter->send( "f" + fitNum + "(x) = (A" + fitNum + " / (2 * 3.14159265359)) / ((x - B" 
+											  + fitNum + ")**2 + (A" + fitNum + " / 2)**2)" );
 						input->plotter->send( "A" + fitNum + " = 1" );
 						input->plotter->send( "B" + fitNum + " = " + str( finX[dataSetI][groupInc].size( ) / 2.0 ) );
 						input->plotter->send( "fit f" + fitNum + "(x) '-' using 1:2 via A" + fitNum + ", B" + fitNum );
@@ -824,7 +808,8 @@ void DataAnalysisControl::handlePlotAtoms( realTimePlotterInput* input, Plotting
 					}
 					case SINE_FIT:
 					{
-						input->plotter->send( "f" + fitNum + "(x) = A" + fitNum + " * sin(B" + fitNum + " * x + C" + fitNum + ") * exp( - D" + fitNum + " * x)" );
+						input->plotter->send( "f" + fitNum + "(x) = A" + fitNum + " * sin(B" + fitNum + " * x + C" 
+											  + fitNum + ") * exp( - D" + fitNum + " * x)" );
 						input->plotter->send( "A" + fitNum + " = 1" );
 						input->plotter->send( "B" + fitNum + " = 1" );
 						input->plotter->send( "C" + fitNum + " = 1" );
@@ -912,8 +897,9 @@ void DataAnalysisControl::handlePlotAtoms( realTimePlotterInput* input, Plotting
 			}
 		}
 	}
-	else // average each variations
-	{
+	else 
+	{ 
+		// average each variations
 		for ( auto dataSetI : range(plotInfo.getDataSetNumber( )) )
 		{
 			for ( auto groupI : range(finAvgs[dataSetI].size( )) )
@@ -1012,28 +998,28 @@ void DataAnalysisControl::handlePlotAtoms( realTimePlotterInput* input, Plotting
 }
 
 
+/// using std::vector above
 void DataAnalysisControl::handlePlotCounts( realTimePlotterInput* input, PlottingInfo plotInfo, UINT pictureNumber,
-												   std::vector<std::vector<std::vector<long> > >& finData,
+												   vector<vector<vector<long> > >& finData,
 												   variationData& finAvgs, variationData& finErrs, variationData& finX,
 												   avgData& avgAvgs, avgData& avgErrs, avgData& avgX,
-												   std::vector<std::vector<bool> >& needNewData,
-												   std::vector<std::vector<bool>>& pscSatisfied, int plotNumber,
-												   std::vector<std::vector<long>>& countData, int plotNumberCount,
-												   std::vector<std::vector<int> > atomPresent )
+												   vector<vector<bool> >& needNewData,
+												   vector<vector<bool>>& pscSatisfied, int plotNumber,
+												   vector<vector<long>>& countData, int plotNumberCount,
+												   vector<vector<int> > atomPresent )
 {
 	// will eventually be passed in as arg
-	std::vector<std::vector<std::pair<double, ULONG>> > finDataNew;
+	vector<vector<std::pair<double, ULONG>> > finDataNew;
 	//
 	UINT groupNum = input->atomGridInfo.width * input->atomGridInfo.height;
 	if ( pictureNumber % input->picsPerVariation == plotInfo.getPicNumber( ) )
 	{
 		// first pic of new variation, so need to update x vals.
-		finData = std::vector<std::vector<std::vector<long>>>( plotInfo.getDataSetNumber( ),
-															   std::vector<std::vector<long>>( groupNum ) );
-		finDataNew = std::vector<std::vector<std::pair<double, ULONG>>>(
-			plotInfo.getDataSetNumber( ), std::vector<std::pair<double, ULONG>>( groupNum, { 0,0 } ) );
-		needNewData = std::vector<std::vector<bool>>( plotInfo.getDataSetNumber( ),
-													  std::vector<bool>( groupNum, true ) );
+		finData = vector<vector<vector<long>>>( plotInfo.getDataSetNumber( ),
+															   vector<vector<long>>( groupNum ) );
+		finDataNew = vector<vector<std::pair<double, ULONG>>>(
+			plotInfo.getDataSetNumber( ), vector<std::pair<double, ULONG>>( groupNum, { 0,0 } ) );
+		needNewData = vector<vector<bool>>( plotInfo.getDataSetNumber( ), vector<bool>( groupNum, true ) );
 	}
 	/// Check Data Conditions
 	for ( auto dataSetI : range( plotInfo.getDataSetNumber( ) ) )
@@ -1186,40 +1172,40 @@ void DataAnalysisControl::handlePlotCounts( realTimePlotterInput* input, Plottin
 				{
 					// the to_string argument in each case is a unique number indicating the fit given the data set and group. I need
 					// to keep track of each fit separately so that I can plot them all later. 
-				case GAUSSIAN_FIT:
-				{
-					input->plotter->send( "f" + fitNum + "(x) = A" + fitNum + " * exp(-(x - B" + fitNum
-										  + ")**2 / (2 * C" + fitNum + "))" );
-					input->plotter->send( "A" + fitNum + " = 1" );
-					input->plotter->send( "B" + fitNum + " = " + str( finX[dataSetI][groupInc].size( ) / 2.0 ) );
-					input->plotter->send( "C" + fitNum + " = 1" );
-					input->plotter->send( "fit f" + fitNum + "(x) '-' using 1:2 via A" + fitNum + ", B" + fitNum
-										  + ", C" + fitNum );
-					break;
-				}
-				case LORENTZIAN_FIT:
-				{
-					input->plotter->send( "f" + fitNum + "(x) = (A" + fitNum + " / (2 * 3.14159265359)) / ((x - B" + fitNum + ")**2 + (A" + fitNum + " / 2)**2)" );
-					input->plotter->send( "A" + fitNum + " = 1" );
-					input->plotter->send( "B" + fitNum + " = " + str( finX[dataSetI][groupInc].size( ) / 2.0 ) );
-					input->plotter->send( "fit f" + fitNum + "(x) '-' using 1:2 via A" + fitNum + ", B" + fitNum );
-					break;
-				}
-				case SINE_FIT:
-				{
-					input->plotter->send( "f" + fitNum + "(x) = A" + fitNum + " * sin(B" + fitNum + " * x + C" + fitNum + ") * exp( - D" + fitNum + " * x)" );
-					input->plotter->send( "A" + fitNum + " = 1" );
-					input->plotter->send( "B" + fitNum + " = 1" );
-					input->plotter->send( "C" + fitNum + " = 1" );
-					input->plotter->send( "D" + fitNum + " = 1" );
-					input->plotter->send( "fit f" + fitNum + "(x) '-' using 1:2 via A" + fitNum + ", B" + fitNum + ", C" + fitNum + ", D" + fitNum );
-					break;
-				}
-				default:
-				{
-					errBox( "Coding Error: Bad Fit option!" );
-				}
-				input->plotter->sendData( finX[dataSetI][groupInc], finAvgs[dataSetI][groupInc] );
+					case GAUSSIAN_FIT:
+					{
+						input->plotter->send( "f" + fitNum + "(x) = A" + fitNum + " * exp(-(x - B" + fitNum
+											  + ")**2 / (2 * C" + fitNum + "))" );
+						input->plotter->send( "A" + fitNum + " = 1" );
+						input->plotter->send( "B" + fitNum + " = " + str( finX[dataSetI][groupInc].size( ) / 2.0 ) );
+						input->plotter->send( "C" + fitNum + " = 1" );
+						input->plotter->send( "fit f" + fitNum + "(x) '-' using 1:2 via A" + fitNum + ", B" + fitNum
+											  + ", C" + fitNum );
+						break;
+					}
+					case LORENTZIAN_FIT:
+					{
+						input->plotter->send( "f" + fitNum + "(x) = (A" + fitNum + " / (2 * 3.14159265359)) / ((x - B" + fitNum + ")**2 + (A" + fitNum + " / 2)**2)" );
+						input->plotter->send( "A" + fitNum + " = 1" );
+						input->plotter->send( "B" + fitNum + " = " + str( finX[dataSetI][groupInc].size( ) / 2.0 ) );
+						input->plotter->send( "fit f" + fitNum + "(x) '-' using 1:2 via A" + fitNum + ", B" + fitNum );
+						break;
+					}
+					case SINE_FIT:
+					{
+						input->plotter->send( "f" + fitNum + "(x) = A" + fitNum + " * sin(B" + fitNum + " * x + C" + fitNum + ") * exp( - D" + fitNum + " * x)" );
+						input->plotter->send( "A" + fitNum + " = 1" );
+						input->plotter->send( "B" + fitNum + " = 1" );
+						input->plotter->send( "C" + fitNum + " = 1" );
+						input->plotter->send( "D" + fitNum + " = 1" );
+						input->plotter->send( "fit f" + fitNum + "(x) '-' using 1:2 via A" + fitNum + ", B" + fitNum + ", C" + fitNum + ", D" + fitNum );
+						break;
+					}
+					default:
+					{
+						errBox( "Coding Error: Bad Fit option!" );
+					}
+					input->plotter->sendData( finX[dataSetI][groupInc], finAvgs[dataSetI][groupInc] );
 				}
 			}
 		}
@@ -1328,25 +1314,25 @@ void DataAnalysisControl::handlePlotCounts( realTimePlotterInput* input, Plottin
 					std::string plotString = "fit" + fitNum + "= ";
 					switch ( plotInfo.getFitOption( dataSetI ) )
 					{
-					case GAUSSIAN_FIT:
-					{
-						plotString += "sprintf(\"%.3f * exp{/Symbol \\\\173}-(x - %.3f)^2 / (2 * %.3f){/Symbol \\\\175}\", A" + fitNum + ", B" + fitNum + ", C" + fitNum + ")\n";
-						break;
-					}
-					case LORENTZIAN_FIT:
-					{
-						plotString += "sprintf(\"(%.3f / (2 * Pi)) / ((x - %.3f)^2 + (%.3f / 2)^2)\", A" + fitNum + ", B" + fitNum + ", A" + fitNum + ")\n";
-						break;
-					}
-					case SINE_FIT:
-					{
-						plotString += "sprintf(\"%.3f * sin{/Symbol \\\\173}%.3f * x + %.3f{/Symbol \\\\175} * exp{/Symbol \\\\173} - %.3f * x {/Symbol \\\\175}\", A" + fitNum + ", B" + fitNum + ", C" + fitNum + ", D" + fitNum + ")\n";
-						break;
-					}
-					default:
-					{
-						errBox( "Coding Error: Bad Fit option!" );
-					}
+						case GAUSSIAN_FIT:
+						{
+							plotString += "sprintf(\"%.3f * exp{/Symbol \\\\173}-(x - %.3f)^2 / (2 * %.3f){/Symbol \\\\175}\", A" + fitNum + ", B" + fitNum + ", C" + fitNum + ")\n";
+							break;
+						}
+						case LORENTZIAN_FIT:
+						{
+							plotString += "sprintf(\"(%.3f / (2 * Pi)) / ((x - %.3f)^2 + (%.3f / 2)^2)\", A" + fitNum + ", B" + fitNum + ", A" + fitNum + ")\n";
+							break;
+						}
+						case SINE_FIT:
+						{
+							plotString += "sprintf(\"%.3f * sin{/Symbol \\\\173}%.3f * x + %.3f{/Symbol \\\\175} * exp{/Symbol \\\\173} - %.3f * x {/Symbol \\\\175}\", A" + fitNum + ", B" + fitNum + ", C" + fitNum + ", D" + fitNum + ")\n";
+							break;
+						}
+						default:
+						{
+							errBox( "Coding Error: Bad Fit option!" );
+						}
 					}
 					input->plotter->send( plotString );
 					UINT lineTypeNumber = dataSetI % GNUPLOT_LINETYPES.size( );
@@ -1393,12 +1379,12 @@ void DataAnalysisControl::handlePlotCounts( realTimePlotterInput* input, Plottin
 	}
 }
 
-// using vec = std::vector
+// using vector = std::vector
 void DataAnalysisControl::handlePlotHist( realTimePlotterInput* input, PlottingInfo plotInfo, UINT plotNumber,
-										  std::vector<std::vector<long>> countData,
-										  std::vector<std::vector<std::deque<double>>>& finData,
-										  std::vector<std::vector<bool>>pscSatisfied, int plotNumberCount,
-										  std::vector<std::vector<std::map<int, std::pair<int, ULONG>>>>& histData)
+										  vector<vector<long>> countData,
+										  vector<vector<std::deque<double>>>& finData,
+										  vector<vector<bool>>pscSatisfied, int plotNumberCount,
+										  vector<vector<std::map<int, std::pair<int, ULONG>>>>& histData)
 {
 	/// options are fundamentally different for histograms.
 	UINT groupNum = input->atomGridInfo.width * input->atomGridInfo.height;
@@ -1459,29 +1445,13 @@ void DataAnalysisControl::handlePlotHist( realTimePlotterInput* input, PlottingI
 			std::stringstream hexStream;
 			hexStream << std::hex << int( (1 - 1.0 / sqrt( histData[dataSetI].size( ) )) * 255 );
 			std::string alpha = hexStream.str( );
-			if ( alpha.size( ) < 2 )
-			{
-				// This shouldn't happen...
-				alpha = "00";
-			}
-			else
-			{
-				alpha = alpha.substr( alpha.size( ) - 2 );
-			}
-
+			alpha = ((alpha.size( ) < 2) ? alpha = "00" : alpha = alpha.substr( alpha.size( ) - 2 ));
 			UINT markerNumber = dataSetI % GNUPLOT_MARKERS.size( );
 			// long command that makes hist correctly.
 			UINT colorSpacing = 256 / histData[dataSetI].size( );
-
-			//std::string horOffset = str( 0.5*( plotInfo.getDataSetHistBinWidth( dataSetI ) * -spaceFactor ) );
-			//std::string binWidth = str(plotInfo.getDataSetHistBinWidth( dataSetI ));
 			std::string colorText = "\" lt rgb \"#" + alpha + GIST_RAINBOW[colorSpacing * groupI] + "\"";
-			std::string newHistCmd = (" '-' using boxes title \"G " + str( groupI + 1 ) + " " 
+			std::string newHistCmd = (" '-' with boxes title \"G " + str( groupI + 1 ) + " " 
 				+ plotInfo.getLegendText( dataSetI ) + " " + colorText + " " + GNUPLOT_MARKERS[markerNumber] + ",");
-			//std::string singleHistCmd = (" '-' using (" + binWidth + " * floor(($1)/" + binWidth + ") - " + horOffset
-			//							  + ") : (1.0) smooth freq with boxes title \"G " + str( groupI + 1 ) + " "
-			//							  + plotInfo.getLegendText( dataSetI ) + " " + colorText + " "
-			//							  + GNUPLOT_MARKERS[markerNumber] + ",");
 			gnuCommand += newHistCmd;
 		}
 	}
@@ -1491,15 +1461,14 @@ void DataAnalysisControl::handlePlotHist( realTimePlotterInput* input, PlottingI
 	{
 		for ( auto groupI : range( input->atomGridInfo.width * input->atomGridInfo.height ) )
 		{
-			std::vector<int> locations;
-			std::vector<ULONG> values;
+			vector<int> locations;
+			vector<ULONG> values;
 			for ( const auto& elem : histData[dataSetI][groupI] )
 			{
 				locations.push_back( elem.second.first );
 				values.push_back( elem.second.second );
 			}
 			input->plotter->sendData( locations, values );
-			// input->plotter->sendData( finData[dataSetI][groupI] );
 		}
 	}
 }
@@ -1534,7 +1503,7 @@ atomGrid DataAnalysisControl::getAtomGrid( )
 
 void DataAnalysisControl::fillPlotThreadInput(realTimePlotterInput* input)
 {
-	std::vector<tinyPlotInfo> usedPlots;
+	vector<tinyPlotInfo> usedPlots;
 	input->plotInfo.clear();
 
 	for (auto plt : allPlots)
@@ -1587,9 +1556,9 @@ void DataAnalysisControl::rearrange(std::string cameraMode, std::string trigMode
 }
 
 
-std::vector<std::string> DataAnalysisControl::getActivePlotList()
+vector<std::string> DataAnalysisControl::getActivePlotList()
 {
-	std::vector<std::string> list;
+	vector<std::string> list;
 	for ( auto plot : allPlots )
 	{
 		if ( plot.isActive ) 
@@ -1708,7 +1677,7 @@ void DataAnalysisControl::handlePictureClick( coordinate location )
 }
 
 
-std::vector<coordinate> DataAnalysisControl::getAnalysisLocs()
+vector<coordinate> DataAnalysisControl::getAnalysisLocs()
 {
 	return atomLocations;
 }
@@ -1830,8 +1799,7 @@ void DataAnalysisControl::handleDoubleClick(fontMap* fonts, UINT currentPicsPerR
 
 void DataAnalysisControl::reloadListView()
 {
-	std::vector<std::string> names = ProfileSystem::searchForFiles(PLOT_FILES_SAVE_LOCATION, str("*.") 
-																   + PLOTTING_EXTENSION);
+	vector<std::string> names = ProfileSystem::searchForFiles(PLOT_FILES_SAVE_LOCATION, str("*.") + PLOTTING_EXTENSION);
 	plotListview.DeleteAllItems();
 	allPlots.clear();
 	for (auto item : range(names.size()))
