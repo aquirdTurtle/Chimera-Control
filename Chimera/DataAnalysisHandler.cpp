@@ -1,7 +1,5 @@
 
 #include "stdafx.h"
-#include <numeric>
-#include <boost/tuple/tuple.hpp>
 
 #include "DataAnalysisHandler.h"
 #include "Control.h"
@@ -9,6 +7,9 @@
 #include "ProfileSystem.h"
 #include "PlotDesignerDialog.h"
 #include "realTimePlotterInput.h"
+#include <numeric>
+#include <boost/tuple/tuple.hpp>
+#include <map>
 
 
 void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips, 
@@ -364,27 +365,31 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 		// no locations selected for analysis; quit.
 		// return 0;
 	}
+	using std::vector;
 	/// Initialize Arrays for data.
 	// thinking about making these experiment-picture sized and resetting after getting the needed data out of them.
 	// pixelData[pixel Indicator][picture number indicator] = pixelCount;
-	std::vector<std::vector<long>> countData( groupNum );
+	vector<vector<long>> countData( groupNum );
 	// atomPresentData[pixelIndicator][picture number] = true if atom present, false if atom not present;
-	std::vector<std::vector<int> > atomPresentData( groupNum );
+	vector<vector<int> > atomPresentData( groupNum );
 	// finalData[plot][dataset][group][repetitionNumber];
-	std::vector<std::vector<std::vector<std::vector<long> > > > finalCountData( allPlots.size( ) );
-	std::vector<std::vector<std::vector<std::pair<double, ULONG> > > > finalDataNew( allPlots.size( ) );
-	std::vector<variationData> finalAvgs( allPlots.size( ) ), finalErrorBars( allPlots.size( ) ), 
+	vector<vector<vector<vector<long> > > > finalCountData( allPlots.size( ) );
+	vector<vector<vector<std::pair<double, ULONG> > > > finalDataNew( allPlots.size( ) );
+	vector<variationData> finalAvgs( allPlots.size( ) ), finalErrorBars( allPlots.size( ) ), 
 		finalXVals( allPlots.size( ) );
 	// Averaged over all pixels (avgAvg is the average of averages over repetitions)
-	std::vector<avgData> avgAvg( allPlots.size( )), avgErrBar( allPlots.size( )), avgXVals( allPlots.size( ));
+	vector<avgData> avgAvg( allPlots.size( )), avgErrBar( allPlots.size( )), avgXVals( allPlots.size( ));
 	// newData[plot][dataSet][group] = true if new data so change some vector sizes.
-	std::vector<std::vector<std::vector<bool> > > newData( allPlots.size( ));
+	vector<vector<vector<bool> > > newData( allPlots.size( ));
 	std::vector<std::vector<std::vector<std::deque<double>>>> finalHistData( allPlots.size( ) );
+	vector<vector<vector<std::map<int, std::pair<int, ULONG>>>>> histogramData( allPlots.size( ));
+
+
 	// much resizing...
 	for (auto plotInc : range(allPlots.size()))
 	{
 		UINT datasetNumber = allPlots[plotInc].getDataSetNumber( );
-		finalHistData[plotInc].resize( datasetNumber );
+		histogramData[plotInc].resize( datasetNumber );
 		finalCountData[plotInc].resize( datasetNumber );
 		finalDataNew[plotInc].resize( datasetNumber );
 		finalAvgs[plotInc].resize( datasetNumber );
@@ -396,7 +401,7 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 		newData[plotInc].resize( datasetNumber );
 		for (auto dataSetInc : range(allPlots[plotInc].getDataSetNumber()))
 		{
-			finalHistData[plotInc][dataSetInc].resize( groupNum );
+			histogramData[plotInc][dataSetInc].resize( groupNum );
 			finalCountData[plotInc][dataSetInc].resize( groupNum );
 			finalAvgs[plotInc][dataSetInc].resize( groupNum );
 			finalDataNew[plotInc][dataSetInc].resize( groupNum );
@@ -536,7 +541,7 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 			else if ( allPlots[plotI].getPlotType( ) == "Pixel Count Histograms" )
 			{
 				DataAnalysisControl::handlePlotHist( input, allPlots[plotI], plotI, countData, finalHistData[plotI],
-													 satisfiesPsc, plotNumberCount );
+													 satisfiesPsc, plotNumberCount, histogramData[plotI] );
 			}
 		}
 		/// clear data
@@ -1388,17 +1393,15 @@ void DataAnalysisControl::handlePlotCounts( realTimePlotterInput* input, Plottin
 	}
 }
 
-
+// using vec = std::vector
 void DataAnalysisControl::handlePlotHist( realTimePlotterInput* input, PlottingInfo plotInfo, UINT plotNumber,
 										  std::vector<std::vector<long>> countData,
 										  std::vector<std::vector<std::deque<double>>>& finData,
-										  std::vector<std::vector<bool>>pscSatisfied, int plotNumberCount )
+										  std::vector<std::vector<bool>>pscSatisfied, int plotNumberCount,
+										  std::vector<std::vector<std::map<int, std::pair<int, ULONG>>>>& histData)
 {
 	/// options are fundamentally different for histograms.
 	UINT groupNum = input->atomGridInfo.width * input->atomGridInfo.height;
-
-	std::vector<long> histBinLocations(1,0);
-	long minCountBin = LONG_MAX;
 	// load pixel counts into data array pixelData
 	for ( auto dataSetI : range(plotInfo.getDataSetNumber( )) )
 	{
@@ -1408,25 +1411,16 @@ void DataAnalysisControl::handlePlotHist( realTimePlotterInput* input, PlottingI
 			{
 				continue;
 			}
-			// not sure if legit to use back() or not.
-			UINT pixel;// , pic;
-			// passing by reference.
-			long newBins = 0;
-			if ( countData[groupI].back() < minCountBin )
+			double binWidth = plotInfo.getDataSetHistBinWidth( dataSetI );
+			int binNum = std::round(double(countData[groupI].back( )) / binWidth);
+			if ( histData[dataSetI][groupI].find( binNum ) == histData[dataSetI][groupI].end( ) )
 			{
-				 newBins = (minCountBin - countData[groupI].back( )) / plotInfo.getDataSetHistBinWidth(dataSetI);
+				histData[dataSetI][groupI][binNum] = { binNum * binWidth, 1 };
 			}
-			// add the new bins to each container.
-			for ( auto bin : range(newBins) )
+			else
 			{
-				for ( auto groupI : range( groupNum ) )
-				{
-					finData[dataSetI][groupI].push_front(0);
-				}
+				histData[dataSetI][groupI][binNum].second++;
 			}
-			ULONG whichBin = (countData[groupI].back( ) - minCountBin) / plotInfo.getDataSetHistBinWidth( dataSetI );
-			// add one count to the bin.
-			finData[dataSetI][groupI][whichBin]++;
 		}
 	}
 	// Core data structures have been updated. return if not time for an update yet.
@@ -1434,17 +1428,17 @@ void DataAnalysisControl::handlePlotHist( realTimePlotterInput* input, PlottingI
 	{
 		return;
 	}
-
-	// Feels redundant to re-set these things each re-plot, but I'm not sure there's a better way.
+	// is redundant to re-set these things each re-plot, but I'm not sure there's a better way.
 	input->plotter->send( "set terminal wxt " + str( plotNumber ) + " title \"" + plotInfo.getTitle( ) 
 						  + "\" noraise background rgb 'black'" );
 	input->plotter->send( "set title \"" + plotInfo.getTitle( ) + "\" tc rgb '#FFFFFF'" );
-	input->plotter->send( "set xlabel \"Key Value\" tc rgb '#FFFFFF'" );
+	input->plotter->send( "set xlabel \"Counts\" tc rgb '#FFFFFF'" );
 	input->plotter->send( "set ylabel \"" + plotInfo.getYLabel( ) + "\" tc rgb '#FFFFFF'" );
 	input->plotter->send( "set border lc rgb '#FFFFFF'" );
 	input->plotter->send( "set key tc rgb '#FFFFFF' outside" );
 	input->plotter->send( "set title \"" + plotInfo.getTitle( ) + "\"" );
 	input->plotter->send( "set format y \"%.1f\"" );
+	input->plotter->send( "set style fill" );
 	input->plotter->send( "set autoscale x" );
 	input->plotter->send( "set yrange [0:*]" );
 	input->plotter->send( "set xlabel \"Count #\"" );
@@ -1463,7 +1457,7 @@ void DataAnalysisControl::handlePlotHist( realTimePlotterInput* input, PlottingI
 		for ( auto groupI : range( groupNum ) )
 		{
 			std::stringstream hexStream;
-			hexStream << std::hex << int( (1 - 1.0 / sqrt( finData[dataSetI].size( ) )) * 255 );
+			hexStream << std::hex << int( (1 - 1.0 / sqrt( histData[dataSetI].size( ) )) * 255 );
 			std::string alpha = hexStream.str( );
 			if ( alpha.size( ) < 2 )
 			{
@@ -1477,15 +1471,18 @@ void DataAnalysisControl::handlePlotHist( realTimePlotterInput* input, PlottingI
 
 			UINT markerNumber = dataSetI % GNUPLOT_MARKERS.size( );
 			// long command that makes hist correctly.
-			UINT colorSpacing = 256 / finData[dataSetI].size( );
-			std::string horOffset = str( 0.5*( plotInfo.getDataSetHistBinWidth( dataSetI ) * -spaceFactor ) );
-			std::string binWidth = str(plotInfo.getDataSetHistBinWidth( dataSetI ));
+			UINT colorSpacing = 256 / histData[dataSetI].size( );
+
+			//std::string horOffset = str( 0.5*( plotInfo.getDataSetHistBinWidth( dataSetI ) * -spaceFactor ) );
+			//std::string binWidth = str(plotInfo.getDataSetHistBinWidth( dataSetI ));
 			std::string colorText = "\" lt rgb \"#" + alpha + GIST_RAINBOW[colorSpacing * groupI] + "\"";
-			std::string singleHistCmd = (" '-' using (" + binWidth + " * floor(($1)/" + binWidth + ") - " + horOffset
-										  + ") : (1.0) smooth freq with boxes title \"G " + str( groupI + 1 ) + " "
-										  + plotInfo.getLegendText( dataSetI ) + " " + colorText + " "
-										  + GNUPLOT_MARKERS[markerNumber] + ",");
-			gnuCommand += singleHistCmd;
+			std::string newHistCmd = (" '-' using boxes title \"G " + str( groupI + 1 ) + " " 
+				+ plotInfo.getLegendText( dataSetI ) + " " + colorText + " " + GNUPLOT_MARKERS[markerNumber] + ",");
+			//std::string singleHistCmd = (" '-' using (" + binWidth + " * floor(($1)/" + binWidth + ") - " + horOffset
+			//							  + ") : (1.0) smooth freq with boxes title \"G " + str( groupI + 1 ) + " "
+			//							  + plotInfo.getLegendText( dataSetI ) + " " + colorText + " "
+			//							  + GNUPLOT_MARKERS[markerNumber] + ",");
+			gnuCommand += newHistCmd;
 		}
 	}
 
@@ -1494,7 +1491,15 @@ void DataAnalysisControl::handlePlotHist( realTimePlotterInput* input, PlottingI
 	{
 		for ( auto groupI : range( input->atomGridInfo.width * input->atomGridInfo.height ) )
 		{
-			input->plotter->sendData( finData[dataSetI][groupI] );
+			std::vector<int> locations;
+			std::vector<ULONG> values;
+			for ( const auto& elem : histData[dataSetI][groupI] )
+			{
+				locations.push_back( elem.second.first );
+				values.push_back( elem.second.second );
+			}
+			input->plotter->sendData( locations, values );
+			// input->plotter->sendData( finData[dataSetI][groupI] );
 		}
 	}
 }

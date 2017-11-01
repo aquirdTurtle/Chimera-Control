@@ -29,7 +29,7 @@ class ScriptedAgilentWaveform
 		double getMinVolt();
 		ULONG getSegmentNumber();
 		std::vector<std::pair<double, double>> minsAndMaxes;
-		ULONG getNumberOfTriggers( );
+		ULONG getNumTrigs( );
 		void resetNumberOfTriggers( );
 	private:
 		UINT numberOfTriggers;

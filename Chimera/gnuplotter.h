@@ -2,6 +2,7 @@
 #include "gnuplot-iostream.h"
 #include <vector>
 #include <string>
+#include "windows.h"
 
 class Gnuplotter
 {
@@ -12,6 +13,7 @@ class Gnuplotter
 		void sendData( std::deque<double> vals );
 		void sendData( std::vector<long> vals );
 		void sendData( std::vector<double> xvals, std::vector<double> yvals );
+		void sendData( std::vector<int> xvals, std::vector<ULONG> yvals );
 		void sendData( std::vector<double> xvals, std::vector < long > yvals );
 		void sendData( std::vector<double> xvals, std::vector<double> yvals, std::vector<double> errs );
 	private:

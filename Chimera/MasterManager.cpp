@@ -210,7 +210,7 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 				}
 			}
 			expUpdate( "Programming RSG, Agilents, NIAWG, & Teltronics...\r\n", input->comm, input->quiet );
-			input->rsg->programRSG( variationInc );
+			input->rsg->programRsg( variationInc );
 			input->rsg->setInfoDisp( variationInc );
 			// program devices
 			for (auto& agilent : input->agilents)
@@ -228,9 +228,17 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 					{
 						continue;
 					}
-					UINT ttlTrigs = input->ttls->countTriggers( agilent->getTriggerLine( ).first,
-																agilent->getTriggerLine( ).second, variationInc );
-					UINT agilentExpectedTrigs = agilent->getOutputInfo( ).channel[chan].scriptedArb.wave.getNumberOfTriggers( );
+					UINT ttlTrigs;
+					if ( input->runMaster )
+					{
+						ttlTrigs = input->ttls->countTriggers( agilent->getTriggerLine( ).first,
+																 agilent->getTriggerLine( ).second, variationInc );
+					}
+					else
+					{
+						ttlTrigs = 0;
+					}					 
+					UINT agilentExpectedTrigs = agilent->getOutputInfo( ).channel[chan].scriptedArb.wave.getNumTrigs( );
 					if ( ttlTrigs != agilentExpectedTrigs )
 					{
 						warnings += "WARNING: Agilent " + agilent->getName( ) + " is not getting triggered by the "
@@ -240,11 +248,10 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 					}
 				}
 			}
-
 			if (input->runNiawg)
 			{
 				input->niawg->programNiawg( input, output, warnings, variationInc, variations, variedMixedSize,
-												userScriptSubmit );
+											userScriptSubmit );
 			}
 			input->comm->sendError( warnings );
 			input->topBottomTek->programMachine( variationInc );
