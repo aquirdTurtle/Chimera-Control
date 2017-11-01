@@ -22,6 +22,7 @@ FEATURES:
 - more tooltips
 - catch and warn about attemtps to save script when agilent isn't in scripting mode
 - get running average working again
+- add all agilents / tek to color boxes?
 
 Refactoring / Other:
 - change thread that wait on bools to waiting on signalers
@@ -30,6 +31,7 @@ Refactoring / Other:
 - refactor groups in plotinfo and gnuplot stuffs
 - change plotting to have fixed x-axis size.
 - change pointers to smart-ptrs where possible
+- remove intensity from color boxes
 
 Bugs:
 - something wrong with set New dac Values! Pressing seems to change whether shutter is open or closed???
@@ -39,6 +41,7 @@ Bugs:
 - investigate save on change config
 - global config colors don't appear to always be correct. (not sure how to repeat yet)
 - fix over-writing to the agilent.
+- niawg is doing something during turnonmot
 
 Rearranging
 - smartly figure out where to rearrange to and move at the end to center

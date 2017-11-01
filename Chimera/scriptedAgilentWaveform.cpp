@@ -350,7 +350,7 @@ void ScriptedAgilentWaveform::replaceVarValues( UINT variation, std::vector<vari
 	}
 }
 
-ULONG ScriptedAgilentWaveform::getNumberOfTriggers( )
+ULONG ScriptedAgilentWaveform::getNumTrigs( )
 {
 	return numberOfTriggers;
 }

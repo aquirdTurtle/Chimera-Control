@@ -1225,6 +1225,10 @@ void DioSystem::findLoadSkipSnapshots( double time, std::vector<variableType>& v
 UINT DioSystem::countTriggers( UINT row, UINT number, UINT variation )
 {
 	UINT count = 0;
+	if ( ttlSnapshots[variation].size( ) == 0 )
+	{
+		thrower( "ERROR: no ttl events in countTriggers?" );
+	}
 	for ( auto eventInc : range(ttlSnapshots[variation].size()-1) )
 	{
 		if ( ttlSnapshots[variation][eventInc].ttlStatus[row][number] == false &&

@@ -176,7 +176,7 @@ void RhodeSchwarz::addFrequency(rsgEventForm info)
 }
 
 
-void RhodeSchwarz::programRSG( UINT variationNumber )
+void RhodeSchwarz::programRsg( UINT variationNumber )
 {
 	if (events[variationNumber].size() == 0)
 	{

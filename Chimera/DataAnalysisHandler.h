@@ -6,10 +6,10 @@
 #include "tinyPlotInfo.h"
 #include "Expression.h"
 #include <deque>
+#include <map>
 
 struct realTimePlotterInput;
 struct cameraPositions;
-
 
 // variation data is to be organized
 // variationData[datasetNumber][groupNumber][variationNumber];
@@ -46,32 +46,33 @@ class DataAnalysisControl
 
 		void fillPlotThreadInput( realTimePlotterInput* input );
 		static unsigned __stdcall plotterProcedure( void* voidInput );
+		
+		// an "alias template". effectively a local using std::vector; declaration. makes these declarations much more
+		// readable. I very rarely use things like this.
+		template<class T> using vector = std::vector<T>;
 		// subroutine for handling atom & count plots
 		static void handlePlotAtoms( realTimePlotterInput* input, PlottingInfo plotInfo, UINT repNum,
-									 std::vector<std::vector<std::pair<double, ULONG>> >& finData,
-									 variationData& finAvgs, variationData& finErrs, variationData& finX,
-									 avgData& avgAvgs, avgData& avgErrs, avgData& avgX,
-									 std::vector<std::vector<bool> >& needNewData,
-									 std::vector<std::vector<bool>>& pscSatisfied, int plotNumber,
-									 std::vector<std::vector<long>>& countData, int plotNumberCount,
-									 std::vector<std::vector<int> > atomPresent );
+									 vector<vector<std::pair<double, ULONG>> >& finData, variationData& finAvgs, 
+									 variationData& finErrs, variationData& finX, avgData& avgAvgs, avgData& avgErrs, 
+									 avgData& avgX, vector<vector<bool> >& needNewData, 
+									 vector<vector<bool>>& pscSatisfied, int plotNumber, 
+									 vector<vector<long>>& countData, int plotNumberCount, 
+									 vector<vector<int> > atomPresent );
 
 		static void handlePlotCounts( realTimePlotterInput* input, PlottingInfo plotInfo, UINT pictureNumber,
-									  std::vector<std::vector<std::vector<long> > >& finData,
-									  variationData& finAvgs, variationData& finErrs, variationData& finX,
-									  avgData& avgAvgs, avgData& avgErrs, avgData& avgX,
-									  std::vector<std::vector<bool> >& needNewData,
-									  std::vector<std::vector<bool>>& pscSatisfied, int plotNumber,
-									  std::vector<std::vector<long>>& countData, int plotNumberCount,
-									  std::vector<std::vector<int> > atomPresent );
-
+									  vector<vector<vector<long> > >& finData, variationData& finAvgs, 
+									  variationData& finErrs, variationData& finX, avgData& avgAvgs, avgData& avgErrs,
+									  avgData& avgX, vector<vector<bool> >& needNewData, 
+									  vector<vector<bool>>& pscSatisfied, int plotNumber, 
+									  vector<vector<long>>& countData, int plotNumberCount, 
+									  vector<vector<int> > atomPresent );
 		static void handlePlotHist( realTimePlotterInput* input, PlottingInfo plotInfo, UINT plotNumber,
-									std::vector<std::vector<long>> countData, 
-									std::vector<std::vector<std::deque<double>>>& finData,
-									std::vector<std::vector<bool>>pscSatisfied, int plotNumberCount );
+									vector<vector<long>> countData,  vector<vector<std::deque<double>>>& finData,
+									vector<vector<bool>>pscSatisfied, int plotNumberCount, 
+									vector<vector<std::map<int, std::pair<int, ULONG>>>>& histData );
 		static void determineWhichPscsSatisfied( PlottingInfo& info, UINT groupSize, 
-												 std::vector<std::vector<int>> atomPresentData,
-												 std::vector<std::vector<bool>>& pscSatisfied );
+												 vector<vector<int>> atomPresentData,
+												 vector<vector<bool>>& pscSatisfied );
 	private:
 		// real time plotting
 		ULONG updateFrequency;

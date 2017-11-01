@@ -29,6 +29,12 @@ void Gnuplotter::sendData(std::vector<long> vals)
 }
 
 
+void Gnuplotter::sendData( std::vector<int> xvals, std::vector<ULONG> yvals )
+{
+	plotter.send1d( boost::make_tuple( xvals, yvals ) );
+}
+
+
 void Gnuplotter::sendData(std::vector<double> xvals, std::vector<double> yvals)
 {
 	plotter.send1d(boost::make_tuple(xvals, yvals));

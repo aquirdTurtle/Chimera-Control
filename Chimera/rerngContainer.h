@@ -14,30 +14,44 @@
 
  rerng is short for rearrange
 */
-template <class type> class rerngContainer
+
+std::vector<double>::iterator;
+
+template <class type> 
+class rerngContainer
 {
 	public:
 		rerngContainer( UINT rowsInGrid, UINT colsInGrid );
+		rerngContainer( UINT rowsInGrid, UINT colsInGrid, type initValue );
 		type operator()( UINT row, UINT col, directions direction ) const;
 		type & operator()( UINT row, UINT col, directions direction );
 		bool hasBeenFilled( );
 		void setFilledFlag( );
 		UINT getRows( );
 		UINT getCols( );
+		// typename tells the compiler that std::vector<type>::iterator will be a type.
+		typename std::vector<type>::iterator begin( ) { return obj.begin( ); }
+		typename std::vector<type>::iterator end( ) { return obj.end( ); }
 	private:
 		std::vector<type> obj;
-		const UINT rows, cols;
+		UINT rows, cols;
 		bool filledFlag=false;
 };
+
 
 // the array gets sized only once in the constructor.
 template<class type> 
 rerngContainer<type>::rerngContainer( UINT rowsInGrid, UINT colsInGrid ) :
 	rows( rowsInGrid ),
 	cols( colsInGrid ),
-	obj( rows*cols * 4 )
+	obj( rowsInGrid*colsInGrid * 4 )
 {}
-
+template<class type>
+rerngContainer<type>::rerngContainer( UINT rowsInGrid, UINT colsInGrid, type initValue ) :
+	rows( rowsInGrid ),
+	cols( colsInGrid ),
+	obj( rowsInGrid*colsInGrid * 4, initValue )
+{}
 
 template<class type> 
 bool rerngContainer<type>::hasBeenFilled( )
@@ -98,6 +112,6 @@ UINT rerngContainer<type>::getCols( )
 template <class type>
 UINT rerngContainer<type>::getRows( )
 {
-	return cols;
+	return rows;
 }
 

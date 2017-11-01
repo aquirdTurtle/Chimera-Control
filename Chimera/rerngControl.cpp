@@ -199,6 +199,8 @@ void rerngControl::handleSaveConfig( std::ofstream& saveFile )
 	saveFile << info.staticMovingRatio << "\n";
 	saveFile << info.outputInfo << "\n";
 	saveFile << info.outputIndv << "\n";
+	saveFile << info.preprogram << "\n";
+	saveFile << info.useCalibration << "\n";
 	saveFile << "END_REARRANGEMENT_INFORMATION\n";
 }
 

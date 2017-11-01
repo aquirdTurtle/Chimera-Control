@@ -13,10 +13,23 @@
 NiawgController::NiawgController( UINT trigRow, UINT trigNumber ) : triggerRow( trigRow ), triggerNumber( trigNumber )
 {
 	// initialize rearrangement calibrations.
+	// default value for bias calibrations is currently 0.5.
 	// 3x6 calibration
-	rerngContainer<double> moveBias3x6Cal( 3, 6 );
+	rerngContainer<double> moveBias3x6Cal( 3, 6, 0.5 );
+	moveBias3x6Cal( 0, 0, down ) = moveBias3x6Cal( 1, 0, up ) = 0.65;
+	moveBias3x6Cal( 0, 1, down ) = moveBias3x6Cal( 1, 1, up ) = 0.35;
+	moveBias3x6Cal( 0, 2, down ) = moveBias3x6Cal( 1, 2, up ) = 0.35;
+	moveBias3x6Cal( 0, 3, down ) = moveBias3x6Cal( 1, 3, up ) = 0.35;
+	moveBias3x6Cal( 0, 4, down ) = moveBias3x6Cal( 1, 4, up ) = 0.35;
+	moveBias3x6Cal( 0, 5, down ) = moveBias3x6Cal( 1, 5, up ) = 0.65;
+	// 
+	moveBias3x6Cal( 2, 0, up) = moveBias3x6Cal( 1, 0, down ) = 0.6;
+	moveBias3x6Cal( 2, 1, up ) = moveBias3x6Cal( 1, 1, down ) = 0.35;
+	moveBias3x6Cal( 2, 2, up ) = moveBias3x6Cal( 1, 2, down ) = 0.35;
+	moveBias3x6Cal( 2, 3, up ) = moveBias3x6Cal( 1, 3, down ) = 0.35;
+	moveBias3x6Cal( 2, 4, up ) = moveBias3x6Cal( 1, 4, down ) = 0.35;
+	moveBias3x6Cal( 2, 5, up ) = moveBias3x6Cal( 1, 5, down ) = 0.6;
 	moveBiasCalibrations.push_back( moveBias3x6Cal );
-
 }
 
 
@@ -2443,6 +2456,18 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 {
 	UINT rows = input->rerngWave.rearrange.targetRows;
 	UINT cols = input->rerngWave.rearrange.targetCols;
+	rerngContainer<double> calBias( rows, cols );
+	if ( input->rerngOptions.useCalibration )
+	{
+		for ( auto& cal : moveBiasCalibrations )
+		{
+			if ( cal.getRows( ) == rows && cal.getCols( ) == cols )
+			{
+				calBias = cal;
+			}
+		}
+	}
+
 	for ( auto row : range( rows ) )
 	{
 		for ( auto col : range( cols ) )
@@ -2458,6 +2483,10 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 			if ( row != 0 )
 			{
 				move.direction = up;
+				if ( input->rerngOptions.useCalibration )
+				{
+					move.moveBias = calBias( row, col, move.direction );
+				}
 				move.waveVals = makeRerngWave( input->rerngWave.rearrange, row, col, move.direction,
 													   move.staticMovingRatio, move.moveBias, move.deadTime );
 				input->moves( row, col, move.direction ) = move;
@@ -2466,6 +2495,10 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 			if ( row != rows - 1 )
 			{
 				move.direction = down;
+				if ( input->rerngOptions.useCalibration )
+				{
+					move.moveBias = calBias( row, col, move.direction );
+				}
 				move.waveVals = makeRerngWave( input->rerngWave.rearrange, row, col, move.direction,
 													   move.staticMovingRatio, move.moveBias, move.deadTime );
 				input->moves( row, col, move.direction ) = move;
@@ -2474,6 +2507,10 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 			if ( col != 0 )
 			{
 				move.direction = left;
+				if ( input->rerngOptions.useCalibration )
+				{
+					move.moveBias = calBias( row, col, move.direction );
+				}
 				move.waveVals = makeRerngWave( input->rerngWave.rearrange, row, col, move.direction,
 													   move.staticMovingRatio, move.moveBias, move.deadTime );
 				input->moves( row, col, move.direction ) = move;
@@ -2482,6 +2519,10 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 			if ( col != cols - 1 )
 			{
 				move.direction = right;
+				if ( input->rerngOptions.useCalibration )
+				{
+					move.moveBias = calBias( row, col, move.direction );
+				}
 				move.waveVals = makeRerngWave( input->rerngWave.rearrange, row, col, move.direction,
 													   move.staticMovingRatio, move.moveBias, move.deadTime );
 				input->moves( row, col, move.direction ) = move;
@@ -2497,25 +2538,38 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& info, UINT row, U
 															double moveBias, double deadTime )
 {
 	// program this move.
-	//rearrangeInfo& info = input->rearrangementWave.rearrange;
 	double freqPerPixel = info.freqPerPixel;
 	// starts from the top left.
 	niawgPair<int> initPos = { row, col };
 	niawgPair<int> finPos;
 	int rowInt = row, colInt = col;
+	UINT movingAxis, movingSize, staticAxis;
+	
 	switch ( direction )
 	{
 		case up:
 			finPos = { rowInt - 1, colInt };
+			movingAxis = Vertical;
+			staticAxis = Horizontal;
+			movingSize = info.targetRows;
 			break;
 		case down:
 			finPos = { rowInt + 1, colInt };
+			movingAxis = Vertical;
+			staticAxis = Horizontal;
+			movingSize = info.targetRows;
 			break;
 		case left:
 			finPos = { rowInt, colInt - 1 };
+			movingAxis = Horizontal;
+			staticAxis = Vertical;
+			movingSize = info.targetCols;
 			break;
 		case right:
 			finPos = { rowInt, colInt + 1 };
+			movingAxis = Horizontal;
+			staticAxis = Vertical;
+			movingSize = info.targetCols;
 			break;
 	}
 	simpleWave moveWave;
@@ -2524,10 +2578,7 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& info, UINT row, U
 	moveWave.name = "NA";
 	moveWave.time = info.timePerMove / (staticMovingRatio + 1);
 	moveWave.sampleNum = waveformSizeCalc( moveWave.time );
-	UINT movingAxis, movingSize, staticAxis;
-	movingAxis = Vertical;
-	staticAxis = Horizontal;
-	movingSize = info.targetRows;
+
 	double movingFrac = moveBias;
 	double nonMovingFrac = (1 - movingFrac) / (movingSize - 2);
 	/// handle moving axis
@@ -2625,15 +2676,13 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& info, UINT row, U
 }
 
 
-void NiawgController::startRerngThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave,
-												Communicator* comm, std::mutex* rearrangerLock,
-												chronoTimes* andorImageTimes, chronoTimes* grabTimes,
-												std::condition_variable* rearrangerConditionWatcher,
-												rerngParams rearrangeInfo )
+void NiawgController::startRerngThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave, Communicator* comm, 
+										std::mutex* rearrangerLock, chronoTimes* andorImageTimes, 
+										chronoTimes* grabTimes, std::condition_variable* rearrangerConditionWatcher,
+										rerngParams rearrangeInfo )
 {
 	threadStateSignal = true;
-	rerngThreadInput* input = new rerngThreadInput( wave.rearrange.targetRows, 
-																	wave.rearrange.targetCols);
+	rerngThreadInput* input = new rerngThreadInput( wave.rearrange.targetRows, wave.rearrange.targetCols);
 	input->rerngOptions = rearrangeInfo;
 	input->pictureTimes = andorImageTimes;
 	input->grabTimes = grabTimes;
@@ -2850,17 +2899,16 @@ std::vector<double> NiawgController::calcFinalPositionMove( niawgPair<ULONG> tar
 /// things that might make faster:
 // preprogram all possible fillers
 // 1D rearranging instead of 2D
-// only look at select pixels
-// faster moves
-// preprogram all individual moves
+// faster moves / lower sample rate
 // don't use vector
 // make rearrangement algorithm work with flattened matrix
 UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 {
 	rerngThreadInput* input = (rerngThreadInput*)voidInput;
 	std::vector<bool> triedRearranging;
-	std::vector<double> calcTime, streamTime, triggerTime, resetPositionTime, picHandlingTime, picGrabTime;
-	chronoTimes startCalc, stopCalc, stopReset, stopStream, stopTrigger;
+	std::vector<double> streamTime, triggerTime, resetPositionTime, picHandlingTime, picGrabTime, rerngCalcTime, 
+		moveCalcTime, finishingCalcTime;
+	chronoTimes startCalc, stopReset, stopStream, stopTrigger, stopRerngCalc, stopMoveCalc, stopAllCalc;
 	std::ofstream outFile;
 	UINT counter = 0;
 	try
@@ -2919,7 +2967,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				continue;
 			}
 			input->atomsQueue->erase( input->atomsQueue->begin( ) );
-			startCalc.push_back(std::chrono::high_resolution_clock::now( ));			
+			startCalc.push_back(chronoClock::now( ));			
 			rerngInfo& info = input->rerngWave.rearrange;
 			info.timePerMove = input->rerngOptions.moveSpeed;
 			info.flashingFreq = input->rerngOptions.flashingRate;
@@ -2948,133 +2996,13 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			{
 				// as of now, just ignore.
 			}
+			stopRerngCalc.push_back( chronoClock::now( ) );
 			input->niawg->rerngWaveVals.clear( );
 			/// program niawg
 			debugInfo options;
 			for ( auto move : moveSequence )
 			{
 				// program this move.
-				/*
-				double freqPerPixel = info.freqPerPixel;
-				niawgPair<int> initPos = { move.initRow, move.initCol };
-				niawgPair<int> finPos = { move.finRow, move.finCol };
-				simpleWave moveWave;
-				moveWave.varies = false;
-				// not used bc not programmed directly.
-				moveWave.name = "NA";
-				moveWave.time = input->rearrangementWave.rearrange.timePerMove / (input->rearrangeOptions.staticMovingRatio + 1);
-				moveWave.sampleNum = input->niawg->waveformSizeCalc( moveWave.time );
-				UINT movingAxis, movingSize, staticAxis;
-				if ( move.finCol != move.initCol )
-				{
-					movingAxis = Horizontal;
-					staticAxis = Vertical;
-					movingSize = info.targetCols;
-				}
-				else
-				{
-					movingAxis = Vertical;
-					movingSize = info.targetRows;
-					staticAxis = Horizontal;
-				}
-				double movingFrac = input->rearrangeOptions.moveBias;
-				double nonMovingFrac = (1 - movingFrac) / (movingSize - 2);
-				
-				/// handle moving axis
-				// 1 less signal because of the two locations that the moving tweezer spans
-				moveWave.chan[movingAxis].signals.resize( movingSize-1 );
-				bool foundMoving = false;
-				UINT gridLocation = 0;
-				for ( auto signalNum : range(movingSize-1) )
-				{
-					waveSignal& sig = moveWave.chan[movingAxis].signals[signalNum];
-					sig.powerRampType = "nr";
-					sig.initPhase = 0;
-					//
-					if ( (signalNum == initPos[movingAxis] || signalNum == finPos[movingAxis]) && !foundMoving )
-					{
-						// SKIP the next one, which should be the next of the pair of locations that is moving.
-						gridLocation++;
-						// this is the moving signal. set foundmoving to true so that you only make one moving signal.
-						foundMoving = true;
-						sig.initPower = movingFrac;
-						sig.finPower = movingFrac;
-						sig.freqRampType = "lin";
-
-						if ( movingAxis == Horizontal )
-						{
-							sig.freqInit = ((info.targetCols - initPos[movingAxis] - 1)
-											 * freqPerPixel + info.lowestFreq[movingAxis]) * 1e6;
-							sig.freqFin = ((info.targetCols - finPos[movingAxis] - 1)
-											* freqPerPixel + info.lowestFreq[movingAxis]) * 1e6;
-						}
-						else
-						{
-							sig.freqInit = (initPos[movingAxis] * freqPerPixel + info.lowestFreq[movingAxis]) * 1e6;
-							sig.freqFin = (finPos[movingAxis] * freqPerPixel + info.lowestFreq[movingAxis]) * 1e6;
-						}
-					}
-					else
-					{
-						sig.initPower = nonMovingFrac;
-						sig.finPower = nonMovingFrac;
-						sig.freqRampType = "nr";
-						if ( movingAxis == Horizontal )
-						{
-							sig.freqInit = ((info.targetCols - gridLocation - 1) * freqPerPixel 
-											 + info.lowestFreq[movingAxis]) * 1e6;
-							sig.freqFin = sig.freqInit;
-						}
-						else
-						{
-							sig.freqInit = (gridLocation * freqPerPixel + info.lowestFreq[movingAxis]) * 1e6;
-							sig.freqFin = sig.freqInit;
-						}
-					}
-					gridLocation++;
-				}
-
-				/// handle other axis
-				moveWave.chan[staticAxis].signals.resize( 1 );
-				waveSignal& sig = moveWave.chan[staticAxis].signals[0];
-				// only matters for the horizontal AOM which gets the extra tone at the moment.
-				sig.initPower = 1;
-				sig.finPower = 1;
-				sig.powerRampType = "nr";
-				sig.initPhase = 0;
-				sig.freqRampType = "nr";
-				if ( staticAxis == Horizontal )
-				{
-					// convert to Hz
-					sig.freqInit = ((info.targetCols - initPos[staticAxis]-1) * freqPerPixel 
-									 + info.lowestFreq[staticAxis]) * 1e6;
-					sig.freqFin = sig.freqInit;
-				}
-				else
-				{
-					// convert to Hz
-					sig.freqInit = (initPos[staticAxis] * freqPerPixel + info.lowestFreq[staticAxis])*1e6;
-					sig.freqFin = sig.freqInit;
-				}
-				/// finalize info & calc stuffs
-				input->niawg->finalizeStandardWave( moveWave, options );
-				// now put together into small temporary flashing wave
-				waveInfo flashMove;
-				flashMove.core.time = info.timePerMove;
-				flashMove.flash.isFlashing = true;
-				flashMove.flash.flashNumber = 2;
-				if ( fabs(info.staticWave.time + moveWave.time - info.timePerMove) > 1e-9  )
-				{
-					thrower( "ERROR: static wave and moving wave don't add up to the total time of the flashing wave! "
-							 "Sizes were "+ str( info.staticWave.waveVals.size( ) ) + " and " 
-							 + str( moveWave.waveVals.size( ) ) + " respectively.\r\n" );
-				}
-				flashMove.flash.flashWaves.push_back( moveWave );
-				flashMove.flash.flashWaves.push_back( info.staticWave );
-				flashMove.flash.flashCycleFreq = info.flashingFreq;
-				input->niawg->mixFlashingWaves( flashMove, input->rearrangeOptions.deadTime, input->rearrangeOptions.staticMovingRatio );
-				// now add to main wave.
-				*/
 				directions dir;
 				if ( move.initRow - move.finRow == 1 )
 				{
@@ -3084,11 +3012,11 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				{
 					dir = down;
 				}
-				else if ( move.initRow - move.finRow == 1 )
+				else if ( move.initCol - move.finCol == 1 )
 				{
 					dir = left;
 				}
-				else if ( move.initRow - move.finRow == -1 )
+				else if ( move.initCol - move.finCol == -1 )
 				{
 					dir = right;
 				}
@@ -3107,14 +3035,15 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), vals.begin( ),
 														vals.end( ) );
 			}
+			stopMoveCalc.push_back( chronoClock::now( ) );
 			// fill out the rest of the waveform.
 			simpleWave fillerWave = info.staticWave;
 			fillerWave.time = (info.moveLimit - moveSequence.size( )) * info.timePerMove;
 			fillerWave.sampleNum = input->niawg->waveformSizeCalc( fillerWave.time );
 			input->niawg->finalizeStandardWave( fillerWave, options );
 			input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), 
-													fillerWave.waveVals.begin( ), fillerWave.waveVals.end( ) );
-			stopCalc.push_back(chronoClock::now( ));
+												fillerWave.waveVals.begin( ), fillerWave.waveVals.end( ) );
+			stopAllCalc.push_back(chronoClock::now( ));
 			input->niawg->streamRerng( );
 			stopStream.push_back( chronoClock::now( ) );
 			input->niawg->fgenConduit.sendSoftwareTrigger( );
@@ -3135,7 +3064,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				if ( input->rerngOptions.outputIndv )
 				{
 					input->comm->sendStatus( "Tried Moving. Calc Time = " 
-											 + str( std::chrono::duration<double>( stopCalc.back( ) 
+											 + str( std::chrono::duration<double>( stopReset.back( )
 																				   - startCalc.back( ) ).count( ))
 											 + "\r\n" );
 				}
@@ -3168,26 +3097,30 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 		}
 		for ( auto inc : range( startCalc.size( ) ) )
 		{
-			/*
-			streamTime.push_back( std::chrono::duration<double>( stopStream[inc] - stopCalc[inc] ).count( ) );
+			
+			streamTime.push_back( std::chrono::duration<double>( stopStream[inc] - stopAllCalc[inc] ).count( ) );
 			triggerTime.push_back( std::chrono::duration<double>( stopTrigger[inc] - stopStream[inc] ).count( ) );
-			calcTime.push_back( std::chrono::duration<double>( stopCalc[inc] - startCalc[inc] ).count( ) );
+			rerngCalcTime.push_back( std::chrono::duration<double>( stopRerngCalc[inc] - startCalc[inc] ).count( ) );
+			moveCalcTime.push_back( std::chrono::duration<double>( stopMoveCalc[inc] - stopRerngCalc[inc] ).count( ) );
+			finishingCalcTime.push_back( std::chrono::duration<double>( stopAllCalc[inc] - stopMoveCalc[inc] ).count( ) );
 			resetPositionTime.push_back( std::chrono::duration<double>( stopReset[inc] - stopTrigger[inc] ).count( ) );
 			picHandlingTime.push_back( std::chrono::duration<double>( startCalc[inc] - (*input->grabTimes)[inc] ).count() );
 			picGrabTime.push_back( std::chrono::duration<double>( (*input->grabTimes)[inc] - (*input->pictureTimes)[inc]).count( ) );
-			*/
+			
 		}
-		/*
+		
 		(*input->pictureTimes).clear( );
 		(*input->grabTimes).clear( );
 
-		std::ofstream dataFile( TIMING_OUTPUT_LOCATION  + "rearrangementLog.txt" );
+		std::ofstream dataFile( DEBUG_OUTPUT_LOCATION + "rearrangementLog.txt" );
 		dataFile 
-				<< "PicHandlingTime "
-				<< "PicGrabTime "
-				<< "CalcTime "
-				<< "ResetPositionTime "
-				<< "StreamTime "
+				<< "PicHandlingTime\t"
+				<< "PicGrabTime\t"
+				<< "Rearrangement-Calc-Time\t"
+				<< "Movement-Calc-Time\t"
+				<< "Finishing-Calc-Time\t"
+				<< "ResetPositionTime\t"
+				<< "StreamTime\t"
 				<< "TriggerTime\n";
 		if ( !dataFile.is_open( ) )
 		{
@@ -3196,15 +3129,17 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 		for ( auto count : range( triedRearranging.size( ) ) )
 		{
 			dataFile 
-					<< picHandlingTime [count] << " " 
-					<< picGrabTime[count] << " " 
-					<< calcTime[count] << " "
-					<< resetPositionTime[count] << " " 
-					<< streamTime[count] << " " 
+					<< picHandlingTime [count] << "\t" 
+					<< picGrabTime[count] << "\t" 
+					<< rerngCalcTime[count] << "\t"
+					<< moveCalcTime[count] << "\t"
+					<< finishingCalcTime[count] << "\t"
+					<< resetPositionTime[count] << "\t" 
+					<< streamTime[count] << "\t" 
 					<< triggerTime[count] << "\n";
  		}
 		dataFile.close( );
-		*/
+		
 	}
 	catch ( Error& err )
 	{

@@ -187,9 +187,6 @@
     <ClCompile Include="PlotDataSet.cpp">
       <Filter>Camera Window</Filter>
     </ClCompile>
-    <ClCompile Include="multiDimensionalKey.cpp">
-      <Filter>Auxiliary Window</Filter>
-    </ClCompile>
     <ClCompile Include="saveWithExplorer.cpp">
       <Filter>General Files</Filter>
     </ClCompile>
