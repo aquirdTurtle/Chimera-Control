@@ -519,12 +519,14 @@ void NiawgController::writeStaticNiawg( NiawgOutput& output, debugInfo& options,
 		else if ( waveForm.rearrange.isRearrangement )
 		{
 			simpleFormVaries( waveForm.rearrange.staticWave );
+			simpleFormVaries( waveForm.rearrange.fillerWave );
 			// write static rearrangement
-			if ( !wave.rearrange.staticWave.varies )
+			if ( !wave.rearrange.staticWave.varies && waveForm.rearrange.fillerWave.varies )
 			{
 				rerngFormToOutput( waveForm, wave, constants, 0 );
 				// prepare the waveforms
 				finalizeStandardWave( wave.rearrange.staticWave, options );
+				finalizeStandardWave( wave.rearrange.fillerWave, options );
 			}
 			else
 			{
@@ -641,41 +643,41 @@ void NiawgController::handleSpecialWaveformForm( NiawgOutput& output, profileSet
 	if ( command == "flash" )
 	{
 		/*
-		Format is:
-		% Command
-		flash 
-		% bracket
-		{
-		% number of waveforms to flash (e.g. 3 means flashing between wvfm1, 2, 3, 1, 2, 3, ...
-		2
-		% flashing frequency (MHz)
-		1
-		% move time (ms)
-		0.1
-		% dead time (ns)
-		0
-		% all flashing waveforms, written with normal syntax. Watch out, the times must be chosen to match the overall
-		% move time.
-			gen6Const
-			%%%%%	freq		amp		phase
-			49		2.5	 	5.13919
-			58		1	 	0.384594
-			67		1.05	 	0.308571
-			76		1.1	 	0.050804
-			85		1.4	 	6.154510
-			94		2.25	 	3.858584
-			%%%%%	time	p.m.	delim
-			0.05	0	#
+			Format is:
+			% Command
+			flash 
+			% bracket
+			{
+			% number of waveforms to flash (e.g. 3 means flashing between wvfm1, 2, 3, 1, 2, 3, ...
+			2
+			% flashing frequency (MHz)
+			1
+			% move time (ms)
+			0.1
+			% dead time (ns)
+			0
+			% all flashing waveforms, written with normal syntax. Watch out, the times must be chosen to match the overall
+			% move time.
+				gen6Const
+				%%%%%	freq		amp		phase
+				49		2.5	 	5.13919
+				58		1	 	0.384594
+				67		1.05	 	0.308571
+				76		1.1	 	0.050804
+				85		1.4	 	6.154510
+				94		2.25	 	3.858584
+				%%%%%	time	p.m.	delim
+				0.05	0	#
 
-		% second flash waveform
-			gen2FreqRamp
-			%%%%%	f.RTKW freq_i freq_f amp	phase
-			nr   58	58	0.92		0
-			lin  76 	67  	0.08		0
-			%%%%%	time	p.m.	delim
-			0.05	0	#
-		% closing bracket
-		}
+			% second flash waveform
+				gen2FreqRamp
+				%%%%%	f.RTKW freq_i freq_f amp	phase
+				nr   58	58	0.92		0
+				lin  76 	67  	0.08		0
+				%%%%%	time	p.m.	delim
+				0.05	0	#
+			% closing bracket
+			}
 		*/
 
 		// bracket
@@ -803,14 +805,14 @@ void NiawgController::handleSpecialWaveformForm( NiawgOutput& output, profileSet
 	}
 	else if ( command == "stream" )
 	{
-		// TODO
+		// TODO... maybe. don't think I really need to.
 	}
 	else if ( command == "rearrange" )
 	{
 		waveInfoForm rearrangeWave;
 		rearrangeWave.rearrange.timePerMove = str(rInfo.moveSpeed);
 		rearrangeWave.rearrange.isRearrangement = true;
-		// the following two options are for simple flashing and simple streaming, not rearrangement, although 
+		// the following two options are for simple flashing and simple streaming, not rearrangement, even though
 		// rearrangment technically involves both
 		rearrangeWave.flash.isFlashing = false;
 		rearrangeWave.isStreamed = false;
@@ -889,10 +891,10 @@ void NiawgController::handleSpecialWaveformForm( NiawgOutput& output, profileSet
 		}
 
 		// don't want to add directly 
-		NiawgOutput rearrangementOutputInfo = output;
-		loadWaveformParametersForm( rearrangementOutputInfo, profile, holdingCommands, options, scripts, variables );
+		NiawgOutput tempInfo = output;
+		loadWaveformParametersForm( tempInfo, profile, holdingCommands, options, scripts, variables );
 		// add the new wave in flashingOutputInfo to flashingInfo structure
-		rearrangeWave.rearrange.staticWave = rearrangementOutputInfo.waveFormInfo.back( ).core;
+		rearrangeWave.rearrange.staticWave = tempInfo.waveFormInfo.back( ).core;
 
 		/// get the target picture
 		niawgPair<std::vector<std::vector<bool>>> targetTemp;
@@ -971,9 +973,13 @@ void NiawgController::handleSpecialWaveformForm( NiawgOutput& output, profileSet
 		}
 		// get the upper limit of the nuumber of moves that this could involve.
 		rearrangeWave.rearrange.moveLimit = getMaxMoves( rearrangeWave.rearrange.target );
+		rearrangeWave.rearrange.fillerWave = rearrangeWave.rearrange.staticWave;
+		// filler move gets the full time of the move.
+		rearrangeWave.rearrange.fillerWave.time = str( output.waveFormInfo.back( ).rearrange.moveLimit
+													   * output.waveFormInfo.back( ).rearrange.timePerMove.evaluate( ) );
 		output.waveFormInfo.push_back( rearrangeWave );
 		long samples = long( output.waveFormInfo.back( ).rearrange.moveLimit
-							 * output.waveFormInfo.back( ).rearrange.timePerMove.evaluate() * NIAWG_SAMPLE_RATE );
+							 * output.waveFormInfo.back( ).rearrange.timePerMove.evaluate( ) * NIAWG_SAMPLE_RATE );
 		fgenConduit.allocateNamedWaveform( cstr( rerngWaveName ), samples );
 		output.niawgLanguageScript += "generate " + rerngWaveName + "\n";
 	}
@@ -1893,7 +1899,6 @@ void NiawgController::rerngFormToOutput( waveInfoForm& waveForm, waveInfo& wave,
 											 std::vector<variableType>& variables, UINT variation )
 {
 	wave.rearrange.isRearrangement = waveForm.rearrange.isRearrangement;
-	//wave.rearrange.flashingFreq = waveForm.rearrange.flashingFreq.evaluate(variables, variation) * 1e6;
 	wave.rearrange.freqPerPixel = waveForm.rearrange.freqPerPixel;
 	wave.rearrange.lowestFreq = waveForm.rearrange.lowestFreq;
 	wave.rearrange.moveLimit = waveForm.rearrange.moveLimit;
@@ -1902,6 +1907,7 @@ void NiawgController::rerngFormToOutput( waveInfoForm& waveForm, waveInfo& wave,
 	wave.rearrange.targetRows = waveForm.rearrange.targetRows;
 	wave.rearrange.timePerMove = waveForm.rearrange.timePerMove.evaluate(variables, variation);
 	simpleFormToOutput( waveForm.rearrange.staticWave, wave.rearrange.staticWave, variables, variation );
+	simpleFormToOutput( waveForm.rearrange.fillerWave, wave.rearrange.fillerWave, variables, variation );
 }
 
 
@@ -1957,6 +1963,7 @@ void NiawgController::streamWaveform()
 {
 	fgenConduit.writeNamedWaveform( cstr(streamWaveName), streamWaveformVals.size(), streamWaveformVals.data());
 }
+
 
 // expects the rearrangmenet waveform to have already been filled into rearrangeWaveVals.
 void NiawgController::streamRerng()
@@ -2397,8 +2404,9 @@ double NiawgController::calculateCorrectionTime( channelWave& wvData1, channelWa
 		sampleNum = bestSampleNum;
 	}
 	// if here, a good time must have been found.
-return 0;
+	return 0;
 }
+
 
 /**
  * This function takes ramp-related information as an input and returns the "position" in the ramp (targetInc.e. the 
@@ -2760,139 +2768,6 @@ std::vector<double> NiawgController::calcFinalPositionMove( niawgPair<ULONG> tar
 			count++;
 		}
 	}
-
-	// for now assume target is block-like.
-
-	/*	
-	// program this move.
-	//rearrangeInfo& info = input->rearrangementWave.rearrange;
-	double freqPerPixel = info.freqPerPixel;
-	// starts from the top left.
-	niawgPair<int> initPos = { row, col };
-	niawgPair<int> finPos;
-	int rowInt = row, colInt = col;
-	switch ( direction )
-	{
-		case up:
-			finPos = { rowInt - 1, colInt };
-			break;
-		case down:
-			finPos = { rowInt + 1, colInt };
-			break;
-		case left:
-			finPos = { rowInt, colInt - 1 };
-			break;
-		case right:
-			finPos = { rowInt, colInt + 1 };
-			break;
-	}
-	simpleWave moveWave;
-	moveWave.varies = false;
-	// not used bc not programmed directly.
-	moveWave.name = "NA";
-	moveWave.time = info.timePerMove / (staticMovingRatio + 1);
-	moveWave.sampleNum = waveformSizeCalc( moveWave.time );
-	UINT movingAxis, movingSize, staticAxis;
-	movingAxis = Vertical;
-	staticAxis = Horizontal;
-	movingSize = info.targetRows;
-	double movingFrac = moveBias;
-	double nonMovingFrac = (1 - movingFrac) / (movingSize - 2);
-	/// handle moving axis
-	// 1 less signal because of the two locations that the moving tweezer spans
-	moveWave.chan[movingAxis].signals.resize( movingSize - 1 );
-	bool foundMoving = false;
-	UINT gridLocation = 0;
-	for ( auto signalNum : range( movingSize - 1 ) )
-	{
-		waveSignal& sig = moveWave.chan[movingAxis].signals[signalNum];
-		sig.powerRampType = "nr";
-		sig.initPhase = 0;
-		//
-		if ( (signalNum == initPos[movingAxis] || signalNum == finPos[movingAxis]) && !foundMoving )
-		{
-			// SKIP the next one, which should be the next of the pair of locations that is moving.
-			gridLocation++;
-			// this is the moving signal. set foundmoving to true so that you only make one moving signal.
-			foundMoving = true;
-			sig.initPower = movingFrac;
-			sig.finPower = movingFrac;
-			sig.freqRampType = "lin";
-			if ( movingAxis == Horizontal )
-			{
-				sig.freqInit = ((info.targetCols - initPos[movingAxis] - 1)
-								 * freqPerPixel + info.lowestFreq[movingAxis]) * 1e6;
-				sig.freqFin = ((info.targetCols - finPos[movingAxis] - 1)
-								* freqPerPixel + info.lowestFreq[movingAxis]) * 1e6;
-			}
-			else
-			{
-				sig.freqInit = (initPos[movingAxis] * freqPerPixel + info.lowestFreq[movingAxis]) * 1e6;
-				sig.freqFin = (finPos[movingAxis] * freqPerPixel + info.lowestFreq[movingAxis]) * 1e6;
-			}
-		}
-		else
-		{
-			sig.initPower = nonMovingFrac;
-			sig.finPower = nonMovingFrac;
-			sig.freqRampType = "nr";
-			if ( movingAxis == Horizontal )
-			{
-				sig.freqInit = ((info.targetCols - gridLocation - 1) * freqPerPixel
-								 + info.lowestFreq[movingAxis]) * 1e6;
-				sig.freqFin = sig.freqInit;
-			}
-			else
-			{
-				sig.freqInit = (gridLocation * freqPerPixel + info.lowestFreq[movingAxis]) * 1e6;
-				sig.freqFin = sig.freqInit;
-			}
-		}
-		gridLocation++;
-	}
-	/// handle other axis
-	moveWave.chan[staticAxis].signals.resize( 1 );
-	waveSignal& sig = moveWave.chan[staticAxis].signals[0];
-	// only matters for the horizontal AOM which gets the extra tone at the moment.
-	sig.initPower = 1;
-	sig.finPower = 1;
-	sig.powerRampType = "nr";
-	sig.initPhase = 0;
-	sig.freqRampType = "nr";
-	if ( staticAxis == Horizontal )
-	{
-		// convert to Hz
-		sig.freqInit = ((info.targetCols - initPos[staticAxis] - 1) * freqPerPixel
-						 + info.lowestFreq[staticAxis]) * 1e6;
-		sig.freqFin = sig.freqInit;
-	}
-	else
-	{
-		// convert to Hz
-		sig.freqInit = (initPos[staticAxis] * freqPerPixel + info.lowestFreq[staticAxis])*1e6;
-		sig.freqFin = sig.freqInit;
-	}
-	/// finalize info & calc stuffs
-	finalizeStandardWave( moveWave, debugInfo( ) );
-	// now put together into small temporary flashing wave
-	waveInfo flashMove;
-	flashMove.core.time = info.timePerMove;
-	flashMove.flash.isFlashing = true;
-	flashMove.flash.flashNumber = 2;
-	if ( fabs( info.staticWave.time + moveWave.time - info.timePerMove ) > 1e-9 )
-	{
-		thrower( "ERROR: static wave and moving wave don't add up to the total time of the flashing wave! "
-				 "Sizes were " + str( info.staticWave.waveVals.size( ) ) + " and "
-				 + str( moveWave.waveVals.size( ) ) + " respectively.\r\n" );
-	}
-	flashMove.flash.flashWaves.push_back( moveWave );
-	flashMove.flash.flashWaves.push_back( info.staticWave );
-	flashMove.flash.flashCycleFreq = info.flashingFreq;
-	mixFlashingWaves( flashMove, deadTime, staticMovingRatio );
-	return flashMove.core.waveVals;
-
-	
-	*/
 }
 
 
@@ -3036,13 +2911,13 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 														vals.end( ) );
 			}
 			stopMoveCalc.push_back( chronoClock::now( ) );
-			// fill out the rest of the waveform.
-			simpleWave fillerWave = info.staticWave;
-			fillerWave.time = (info.moveLimit - moveSequence.size( )) * info.timePerMove;
-			fillerWave.sampleNum = input->niawg->waveformSizeCalc( fillerWave.time );
-			input->niawg->finalizeStandardWave( fillerWave, options );
-			input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), 
-												fillerWave.waveVals.begin( ), fillerWave.waveVals.end( ) );
+			// the filler wave holds the total length of the wave. Add the differnece in size between the filler wave
+			// size and the existing size to fill out the rest of the vector.
+			input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ),
+												input->fillerWave.rearrange.fillerWave.waveVals.begin( ),
+												input->fillerWave.rearrange.fillerWave.waveVals.begin( )
+												+ input->fillerWave.rearrange.fillerWave.waveVals.size() 
+												- input->niawg->rerngWaveVals.size() );
 			stopAllCalc.push_back(chronoClock::now( ));
 			input->niawg->streamRerng( );
 			stopStream.push_back( chronoClock::now( ) );

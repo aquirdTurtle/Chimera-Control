@@ -30,5 +30,6 @@ struct rerngThreadInput
 	// stuff from the rearrangement input
 	rerngParams rerngOptions;
 	rerngContainer<rerngMove> moves;
+	waveInfo fillerWave;
 };
 
