@@ -77,7 +77,7 @@ void MainOptionsControl::handleOpenConfig(std::ifstream& openFile, int versionMa
 		{
 			currentOptions.atomThresholdForSkip = std::stoul( txt );
 		}
-		catch ( std::invalid_argument& err )
+		catch ( std::invalid_argument& )
 		{
 			thrower( "ERROR: atom threshold for skip failed to convert to an unsigned long!" );
 		}

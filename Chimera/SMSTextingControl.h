@@ -29,7 +29,7 @@ class SmsTextingControl
 		void rearrange( int width, int height, fontMap fonts );
 	private:
 		const std::string emailAddress = "quantumGasAssemblyControl@gmail.com";
-		const std::string password = "rubidium85HasStrongerInteractions";
+		const std::string password = "theLaughingGoatHasBetterCoffee";
 		Control<CListCtrl> peopleListView;
 		Control<CButton> enterEmailInfoButton;
 		Control<CStatic> title;

@@ -521,7 +521,7 @@ void NiawgController::writeStaticNiawg( NiawgOutput& output, debugInfo& options,
 			simpleFormVaries( waveForm.rearrange.staticWave );
 			simpleFormVaries( waveForm.rearrange.fillerWave );
 			// write static rearrangement
-			if ( !wave.rearrange.staticWave.varies && waveForm.rearrange.fillerWave.varies )
+			if ( !wave.rearrange.staticWave.varies && !waveForm.rearrange.fillerWave.varies )
 			{
 				rerngFormToOutput( waveForm, wave, constants, 0 );
 				// prepare the waveforms
@@ -974,9 +974,9 @@ void NiawgController::handleSpecialWaveformForm( NiawgOutput& output, profileSet
 		// get the upper limit of the nuumber of moves that this could involve.
 		rearrangeWave.rearrange.moveLimit = getMaxMoves( rearrangeWave.rearrange.target );
 		rearrangeWave.rearrange.fillerWave = rearrangeWave.rearrange.staticWave;
-		// filler move gets the full time of the move.
-		rearrangeWave.rearrange.fillerWave.time = str( output.waveFormInfo.back( ).rearrange.moveLimit
-													   * output.waveFormInfo.back( ).rearrange.timePerMove.evaluate( ) );
+		// filler move gets the full time of the move. Need to convert the time per move to ms instead of us.
+		rearrangeWave.rearrange.fillerWave.time = str( rearrangeWave.rearrange.moveLimit
+													   * rearrangeWave.rearrange.timePerMove.evaluate( ) * 1e3 );
 		output.waveFormInfo.push_back( rearrangeWave );
 		long samples = long( output.waveFormInfo.back( ).rearrange.moveLimit
 							 * output.waveFormInfo.back( ).rearrange.timePerMove.evaluate( ) * NIAWG_SAMPLE_RATE );
@@ -2066,16 +2066,12 @@ void NiawgController::mixFlashingWaves( waveInfo& wave, double deadTime, double 
 	wave.core.waveVals.resize( 2 * waveformSizeCalc( wave.core.time ) );
 	for ( auto cycleInc : range( cycles ) )
 	{
-		//UINT cycleSamples = cycleInc * wave.flash.flashNumber * 2 * samplesPerWavePerPeriod;
-		//UINT waveSamples = 0;
 		for ( auto waveInc : range( wave.flash.flashNumber ) )
 		{
 			// samplesPerWavePerPeriod * 2 because need to account for the mixed nature of the waveform I'm adding.
-			while ( sampleNum[waveInc] < ( cycleInc + 1 ) * 2 * samplesInWave[waveInc] )
-			//for ( auto sampleInc : range( 2 * samplesInWave[waveInc] ) )
+			while ( sampleNum[waveInc] < 2*int(( cycleInc + 1 ) * samplesInWave[waveInc]))
 			{
-				//int newSampleNum = sampleInc + waveSamples + cycleSamples;
-				if ( sampleNum[waveInc] > (cycleInc + 1) * 2 * samplesInWave[waveInc] - deadSamples )
+				if ( sampleNum[waveInc] > 2*int(( cycleInc + 1 ) * samplesInWave[waveInc]) - deadSamples )
 				{
 					// not in duty cycle, NIAWG is to output nothing.
 					wave.core.waveVals[mixedSample] = 0;
@@ -2088,7 +2084,6 @@ void NiawgController::mixFlashingWaves( waveInfo& wave, double deadTime, double 
 				mixedSample++;
 				sampleNum[waveInc]++;
 			}
-			//waveSamples += 2 * samplesInWave[waveInc];
 		}
 	}
 
@@ -2903,20 +2898,18 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				else
 				{
 					vals = input->niawg->makeRerngWave( info, move.initRow, move.initCol, dir,
-																input->rerngOptions.staticMovingRatio,
-																input->rerngOptions.moveBias,
-																input->rerngOptions.deadTime );
+														input->rerngOptions.staticMovingRatio,
+														input->rerngOptions.moveBias, input->rerngOptions.deadTime );
 				}
-				input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), vals.begin( ),
-														vals.end( ) );
+				input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), vals.begin( ), vals.end( ) );
 			}
 			stopMoveCalc.push_back( chronoClock::now( ) );
 			// the filler wave holds the total length of the wave. Add the differnece in size between the filler wave
 			// size and the existing size to fill out the rest of the vector.
 			input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ),
-												input->fillerWave.rearrange.fillerWave.waveVals.begin( ),
-												input->fillerWave.rearrange.fillerWave.waveVals.begin( )
-												+ input->fillerWave.rearrange.fillerWave.waveVals.size() 
+												input->rerngWave.rearrange.fillerWave.waveVals.begin( ),
+												input->rerngWave.rearrange.fillerWave.waveVals.begin( )
+												+ input->rerngWave.rearrange.fillerWave.waveVals.size()
 												- input->niawg->rerngWaveVals.size() );
 			stopAllCalc.push_back(chronoClock::now( ));
 			input->niawg->streamRerng( );
