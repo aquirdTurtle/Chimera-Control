@@ -593,35 +593,35 @@ void AuxiliaryWindow::sendStatus(std::string msg)
 }
 
 
-void AuxiliaryWindow::zeroDacs()
+void AuxiliaryWindow::zeroDacs( )
 {
 	try
 	{
-		dacBoards.resetDacEvents();
-		ttlBoard.resetTtlEvents();
-		dacBoards.prepareForce();
-		ttlBoard.prepareForce();
-		for (int dacInc : range(24))
+		dacBoards.resetDacEvents( );
+		ttlBoard.resetTtlEvents( );
+		dacBoards.prepareForce( );
+		ttlBoard.prepareForce( );
+		for ( int dacInc : range( 24 ) )
 		{
 			dacBoards.prepareDacForceChange( dacInc, 0, &ttlBoard );
 		}
-		dacBoards.organizeDacCommands(0);
-		dacBoards.makeFinalDataFormat(0);
-		dacBoards.stopDacs(); 
-		dacBoards.configureClocks(0, false);
-		dacBoards.writeDacs(0, false );
-		dacBoards.startDacs();
-		ttlBoard.organizeTtlCommands(0);
-		ttlBoard.convertToFinalFormat(0);
-		ttlBoard.writeTtlData(0, false);
-		ttlBoard.startBoard();
-		ttlBoard.waitTillFinished(0, false);
-		sendStatus( "Zero'd DACs.\r\n");
+		dacBoards.organizeDacCommands( 0 );
+		dacBoards.makeFinalDataFormat( 0 );
+		dacBoards.stopDacs( );
+		dacBoards.configureClocks( 0, false );
+		dacBoards.writeDacs( 0, false );
+		dacBoards.startDacs( );
+		ttlBoard.organizeTtlCommands( 0 );
+		ttlBoard.convertToFinalFormat( 0 );
+		ttlBoard.writeTtlData( 0, false );
+		ttlBoard.startBoard( );
+		ttlBoard.waitTillFinished( 0, false );
+		sendStatus( "Zero'd DACs.\r\n" );
 	}
-	catch (Error& exception)
+	catch ( Error& exception )
 	{
 		sendStatus( "Failed to Zero DACs!!!\r\n" );
-		sendErr( exception.what() );
+		sendErr( exception.what( ) );
 	}
 }
 

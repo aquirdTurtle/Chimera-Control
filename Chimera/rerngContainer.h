@@ -15,7 +15,6 @@
  rerng is short for rearrange
 */
 
-std::vector<double>::iterator;
 
 template <class type> 
 class rerngContainer
