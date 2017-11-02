@@ -272,14 +272,14 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 				}
 				else if (input->thisObj->isPaused)
 				{
-					expUpdate( "\r\nPaused!\r\n...", input->comm, input->quiet );
+					expUpdate( "Paused\r\n!", input->comm, input->quiet );
 					// wait...
 					while (input->thisObj->isPaused)
 					{
 						// this could be changed to be a bit smarter using a std::condition_variable
 						Sleep( 100 );
 					}
-					expUpdate( "\r\nUn-Paused!\r\n", input->comm, input->quiet );
+					expUpdate( "Un-Paused!\r\n", input->comm, input->quiet );
 				}
 				input->comm->sendRepProgress( repInc + 1 );
 				// this was re-written each time from looking at the VB6 code.

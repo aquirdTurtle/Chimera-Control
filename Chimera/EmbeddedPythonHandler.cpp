@@ -12,34 +12,34 @@
 #include "SMSTextingControl.h"
 
 // constructor is important.
-EmbeddedPythonHandler::EmbeddedPythonHandler()
+EmbeddedPythonHandler::EmbeddedPythonHandler( )
 {
-	if (PYTHON_SAFEMODE)
+	if ( PYTHON_SAFEMODE )
 	{
 		return;
 	}
-	Py_SetPythonHome(PYTHON_HOME);
-	Py_Initialize();
+	Py_SetPythonHome( PYTHON_HOME );
+	Py_Initialize( );
 	std::string stdOutErr = "import sys\n"
-							"class CatchOutErr:\n"
-							"\tdef __init__(self):\n"
-							"\t\tself.value = ''\n"
-							"\tdef write(self, txt):\n"
-							"\t\tself.value += txt\n"
-							"catchOutErr = CatchOutErr()\n"
-							"sys.stderr = catchOutErr\n";
+		"class CatchOutErr:\n"
+		"\tdef __init__(self):\n"
+		"\t\tself.value = ''\n"
+		"\tdef write(self, txt):\n"
+		"\t\tself.value += txt\n"
+		"catchOutErr = CatchOutErr()\n"
+		"sys.stderr = catchOutErr\n";
 	//create main module
-	mainModule = PyImport_AddModule("__main__"); 
+	mainModule = PyImport_AddModule( "__main__" );
 	//invoke code to redirect
-	PyRun_SimpleString(stdOutErr.c_str()); 
+	PyRun_SimpleString( stdOutErr.c_str( ) );
 	//get our catchOutErr object (of type CatchOutErr) created above
-	errorCatcher = PyObject_GetAttrString(mainModule, "catchOutErr"); 
+	errorCatcher = PyObject_GetAttrString( mainModule, "catchOutErr" );
 	// start using the run function.
-	ERR_POP(run("import smtplib"));
+	ERR_POP( run( "import smtplib" ) );
 	// for some reason the default qt based backed doesn't work
-	ERR_POP(run("from email.mime.text import MIMEText"));
+	ERR_POP( run( "from email.mime.text import MIMEText" ) );
 	ERR_POP( run( "import sys" ) );
-	ERR_POP(run("sys.path.append('" + PYTHON_CODE_LOCATION + "')" ) )
+	ERR_POP( run( "sys.path.append('" + PYTHON_CODE_LOCATION + "')" ) )
 	ERR_POP( run( "import plotDacs" ) );
 	ERR_POP( run( "import plotTtls" ) );
 }
@@ -203,6 +203,7 @@ void EmbeddedPythonHandler::sendText(personInfo person, std::string msg, std::st
 	{
 		recipient += "@msg.fi.google.com";
 	}
+
 	ERR_POP_RETURN(run("email['To'] = '" + recipient + "'"));
 	ERR_POP_RETURN(run("mail = smtplib.SMTP('smtp.gmail.com', 587)"));
 	ERR_POP_RETURN(run("mail.ehlo()"));

@@ -11,10 +11,6 @@ void SmsTextingControl::initialize( POINT& pos, CWnd* parent, int& id, cToolTips
 	title.Create( "TEXT ME", NORM_HEADER_OPTIONS, title.sPos, parent, id++ );
 	title.fontType = HeadingFont;
 
-	enterEmailInfoButton.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
-	enterEmailInfoButton.Create( "Enter Email Information", NORM_PUSH_OPTIONS, enterEmailInfoButton.sPos, parent, 
-								 IDC_ENTER_EMAIL_INFO );
-
 	peopleListView.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 120 };
 	peopleListView.Create( NORM_LISTVIEW_OPTIONS, peopleListView.sPos, parent, IDC_SMS_TEXTING_LISTVIEW );
 	peopleListView.fontType = SmallFont;
@@ -71,21 +67,11 @@ void SmsTextingControl::initialize( POINT& pos, CWnd* parent, int& id, cToolTips
 }
 
 
-/*
-void SmsTextingControl::promptForEmailAddressAndPassword()
-{
-	TextPromptDialog dialog(&emailAddress, "Please enter an email address for the texting system to use:");
-	dialog.DoModal();
-	TextPromptDialog dialog2(&password, "Please enter a password for that email address:", true);
-	dialog2.DoModal();
-}
-*/
 
 
 void SmsTextingControl::rearrange(int width, int height, fontMap fonts)
 {
 	title.rearrange( width, height, fonts);
-	enterEmailInfoButton.rearrange( width, height, fonts );
 	peopleListView.rearrange( width, height, fonts);	
 }
 
