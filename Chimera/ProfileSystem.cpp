@@ -31,7 +31,7 @@ void ProfileSystem::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& to
 	configurationSavedIndicator.SetCheck( BST_CHECKED );
 	updateConfigurationSavedStatus( true );
 	selectConfigButton.sPos = { pos.x + 480, pos.y, pos.x + 960, pos.y + 25 };
-	selectConfigButton.Create( "Set Configuration", NORM_PUSH_OPTIONS, selectConfigButton.sPos, parent, 
+	selectConfigButton.Create( "Open Configuration", NORM_PUSH_OPTIONS, selectConfigButton.sPos, parent, 
 							   IDC_SELECT_CONFIG_COMBO );
 	/// SEQUENCE
 	sequenceLabel.sPos = { pos.x, pos.y, pos.x + 380, pos.y + 25 };

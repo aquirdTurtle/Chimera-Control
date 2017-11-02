@@ -16,12 +16,6 @@ void Communicator::initialize(MainWindow* mainWinParent, ScriptingWindow* script
 }
 
 
-/*
-	Note that in several of the following, using "" as the input means that the communicaotr does not send any message
-	to the control of interest.
-*/
-
-
 void Communicator::sendNoAtomsAlert( )
 {
 	mainWin->PostMessageA( eNoAtomsAlertMessageID, 0, 0 );

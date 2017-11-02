@@ -81,7 +81,6 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			input->niawg->prepareNiawg(  input, output, niawgFiles, warnings, userScriptSubmit, foundRearrangement, 
 											input->rearrangeInfo, input->variables );
 			input->niawg->writeStaticNiawg( output, input->debugOptions, input->constants );
-			input->niawg->handleStartingRerng( input, output );
 		}
 		if ( input->thisObj->isAborting )
 		{
@@ -252,6 +251,12 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			{
 				input->niawg->programNiawg( input, output, warnings, variationInc, variations, variedMixedSize,
 											userScriptSubmit );
+				if ( foundRearrangement )
+				{
+					input->niawg->turnOffRerng( );
+					input->conditionVariableForRearrangement->notify_all( );
+					input->niawg->handleStartingRerng( input, output );
+				}
 			}
 			input->comm->sendError( warnings );
 			input->topBottomTek->programMachine( variationInc );
@@ -379,14 +384,6 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			input->comm->sendError( exception.what( ) );
 			input->comm->sendFatalError( "Exited main experiment thread abnormally." );
 		}	
-	}
-	if ( input->runNiawg )
-	{
-		if ( foundRearrangement )
-		{
-			input->niawg->turnOffRerng( );
-			input->conditionVariableForRearrangement->notify_all( );
-		}
 	}
 	std::chrono::time_point<chronoClock> endTime( chronoClock::now( ) );
 	expUpdate( "Experiment took " + str( std::chrono::duration<double>( (endTime - startTime) ).count( ) ) 

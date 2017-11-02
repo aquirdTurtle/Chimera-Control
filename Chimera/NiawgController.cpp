@@ -167,7 +167,7 @@ bool NiawgController::outputVaries( NiawgOutput output )
 void NiawgController::prepareNiawg( MasterThreadInput* input, NiawgOutput& output,
 									niawgPair<std::vector<std::fstream>>& niawgFiles, std::string& warnings,
 									std::vector<ViChar>& userScriptSubmit, bool& foundRearrangement,
-									rerngParams rInfo, std::vector<variableType>& variables )
+									rerngOptions rInfo, std::vector<variableType>& variables )
 {
 	input->comm->sendColorBox( Niawg, 'Y' );
 	triggersInScript = 0;
@@ -209,6 +209,7 @@ void NiawgController::prepareNiawg( MasterThreadInput* input, NiawgOutput& outpu
 }
 
 
+// this function checks if should be rearranging and if so starts the thread.
 void NiawgController::handleStartingRerng( MasterThreadInput* input, NiawgOutput& output )
 {
 	bool foundRearrangement = false;
@@ -224,10 +225,9 @@ void NiawgController::handleStartingRerng( MasterThreadInput* input, NiawgOutput
 			}
 			foundRearrangement = true;
 			// start rearrangement thread. Give the thread the queue.
-			input->niawg->startRerngThread( input->atomQueueForRearrangement, wave, input->comm,
-													   input->rearrangerLock, input->andorsImageTimes,
-													   input->grabTimes, input->conditionVariableForRearrangement,
-													   input->rearrangeInfo );
+			input->niawg->startRerngThread( input->atomQueueForRearrangement, wave, input->comm, input->rearrangerLock,
+											input->andorsImageTimes, input->grabTimes, 
+											input->conditionVariableForRearrangement, input->rearrangeInfo );
 		}
 	}
 	if ( input->rearrangeInfo.active && !foundRearrangement )
@@ -293,7 +293,7 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 		niawgPair<ScriptStream> scripts;
 		scripts[Horizontal] << configFiles[Horizontal].back( ).rdbuf( );
 		scripts[Vertical] << configFiles[Vertical].back( ).rdbuf( );
-		rerngParams rInfoDummy;
+		rerngOptions rInfoDummy;
 		rInfoDummy.moveSpeed = 0.00006;
 		analyzeNiawgScripts( scripts, output, profile, debug, warnings, rInfoDummy, std::vector<variableType>() );
 		writeStaticNiawg( output, debug, std::vector<variableType>( ) );
@@ -446,7 +446,7 @@ void NiawgController::programVariations( UINT variation, std::vector<long>& vari
 
 void NiawgController::analyzeNiawgScripts( niawgPair<ScriptStream>& scripts, NiawgOutput& output,
 										   profileSettings profile, debugInfo& options, std::string& warnings,
-										   rerngParams rInfo, std::vector<variableType>& variables )
+										   rerngOptions rInfo, std::vector<variableType>& variables )
 {
 	writeToFileNumber = 0;
 	/// Preparation
@@ -632,7 +632,7 @@ void NiawgController::writeStandardWave(simpleWave& wave, debugInfo options, boo
 
 void NiawgController::handleSpecialWaveformForm( NiawgOutput& output, profileSettings profile, 
 												 niawgPair<std::string> commands, niawgPair<ScriptStream>& scripts, 
-												 debugInfo& options, rerngParams rInfo, 
+												 debugInfo& options, rerngOptions rInfo, 
 												 std::vector<variableType>& variables )
 {
 	if ( commands[Horizontal] != commands[Vertical] )
@@ -2679,10 +2679,27 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& info, UINT row, U
 }
 
 
+void NiawgController::rerngOptionsFormToFinal( rerngOptionsForm& form, rerngOptions& data, 
+											   std::vector<variableType>& variables, UINT variation )
+{
+	data.active = form.active;
+	data.deadTime = form.deadTime.evaluate( variables, variation );
+	data.flashingRate = form.flashingRate.evaluate( variables, variation );
+	data.moveBias = form.moveBias.evaluate( variables, variation );
+	data.moveSpeed = form.moveSpeed.evaluate( variables, variation );
+	data.staticMovingRatio = form.staticMovingRatio.evaluate( variables, variation );
+	//
+	data.outputIndv = form.outputIndv;
+	data.outputInfo = form.outputInfo;
+	data.preprogram = form.preprogram;
+	data.useCalibration = form.useCalibration;
+}
+
+
 void NiawgController::startRerngThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave, Communicator* comm, 
 										std::mutex* rearrangerLock, chronoTimes* andorImageTimes, 
 										chronoTimes* grabTimes, std::condition_variable* rearrangerConditionWatcher,
-										rerngParams rearrangeInfo )
+										rerngOptions rearrangeInfo )
 {
 	threadStateSignal = true;
 	rerngThreadInput* input = new rerngThreadInput( wave.rearrange.targetRows, wave.rearrange.targetCols);

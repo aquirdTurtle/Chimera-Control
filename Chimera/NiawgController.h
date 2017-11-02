@@ -58,9 +58,11 @@ class NiawgController
 							  double time );
 		void handleStartingRerng( MasterThreadInput* input, NiawgOutput& output );
 		void prepareNiawg( MasterThreadInput* input, NiawgOutput& output, 
-							  niawgPair<std::vector<std::fstream>>& niawgFiles, std::string& warnings, 
-							  std::vector<ViChar>& userScriptSubmit, bool& foundRearrangement, rerngParams rInfo,
-							  std::vector<variableType>& variables );
+						   niawgPair<std::vector<std::fstream>>& niawgFiles, std::string& warnings, 
+						   std::vector<ViChar>& userScriptSubmit, bool& foundRearrangement, rerngOptions rInfo,
+						   std::vector<variableType>& variables );
+		void rerngOptionsFormToFinal( rerngOptionsForm& form, rerngOptions& data, std::vector<variableType>& variables,
+									  UINT variation );
 		bool outputVaries( NiawgOutput output );
 		void checkThatWaveformsAreSensible( std::string& warnings, NiawgOutput& output );
 		void createFlashingWave( waveInfo& wave, debugInfo options );
@@ -69,7 +71,7 @@ class NiawgController
 								  std::vector<long>& mixedWaveSizes, std::string& warnings, debugInfo& debugOptions, 
 								  UINT totalVariations );
 		void analyzeNiawgScripts( niawgPair<ScriptStream>& scripts, NiawgOutput& output, profileSettings profile, 
-								  debugInfo& options, std::string& warnings, rerngParams rInfo, 
+								  debugInfo& options, std::string& warnings, rerngOptions rInfo, 
 								  std::vector<variableType>& variables );
 		void flashFormToOutput( waveInfoForm& waveForm, waveInfo& wave, 
 								std::vector<variableType>& varibles = std::vector<variableType>( ), 
@@ -104,7 +106,7 @@ class NiawgController
 		void setRunningState( bool newRunningState );
 		void startRerngThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave, Communicator* comm,
 							   std::mutex* rerngLock, chronoTimes* andorImageTimes, chronoTimes* grabTimes,
-							   std::condition_variable* rerngConditionWatcher, rerngParams rerngInfo );
+							   std::condition_variable* rerngConditionWatcher, rerngOptions rerngInfo );
 		std::pair<UINT, UINT> getTrigLines( );
 		UINT getNumberTrigsInScript( );
 		
@@ -123,7 +125,7 @@ class NiawgController
 		void handleLogic( niawgPair<ScriptStream>& script, niawgPair<std::string> inputs, std::string &scriptString );
 		bool isSpecialWaveform( std::string command );
 		void handleSpecialWaveformForm( NiawgOutput& output, profileSettings profile, niawgPair<std::string> command,
-										niawgPair<ScriptStream>& scripts, debugInfo& options, rerngParams rInfo, 
+										niawgPair<ScriptStream>& scripts, debugInfo& options, rerngOptions rInfo, 
 										std::vector<variableType>& variables );
 		bool isStandardWaveform( std::string command );
 		void handleStandardWaveformForm( NiawgOutput& output, profileSettings profile, niawgPair<std::string> command,

@@ -28,6 +28,7 @@ enum agilentNames
 	Microwave
 };
 
+
 // The Device window houses most of the controls for seeting individual devices, other than the camera which gets its 
 // own control. It also houses a couple auxiliary things like variables and the SMS texting control.
 class AuxiliaryWindow : public CDialog
