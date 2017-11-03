@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
 #include "rerngControl.h"
 
-rerngOptions rerngControl::getParams( )
+rerngParams rerngControl::getParams( )
 {
 	rerngOptions tempParams;
 	tempParams.active = experimentIncludesRerng.GetCheck( );
@@ -190,7 +190,7 @@ void rerngControl::handleSaveConfig( std::ofstream& saveFile )
 {
  	saveFile << "REARRANGEMENT_INFORMATION\n";
 	// conversions happen in getParams.
- 	rerngOptions info = getParams( );
+	rerngOptions info = getParams( );
  	saveFile << info.active << "\n";
  	saveFile << info.flashingRate << "\n";
  	saveFile << info.moveBias << "\n";
