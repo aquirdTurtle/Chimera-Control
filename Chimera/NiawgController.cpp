@@ -16,6 +16,38 @@ NiawgController::NiawgController( UINT trigRow, UINT trigNumber ) : triggerRow( 
 	// default value for bias calibrations is currently 0.5.
 	// 3x6 calibration
 	rerngContainer<double> moveBias3x6Cal( 3, 6, 0.5 );
+	// flipped
+	
+	moveBias3x6Cal( 0, 0, down ) = moveBias3x6Cal( 1, 0, up ) = 0.7;
+	moveBias3x6Cal( 0, 1, down ) = moveBias3x6Cal( 1, 1, up ) = 0.52;
+	moveBias3x6Cal( 0, 2, down ) = moveBias3x6Cal( 1, 2, up ) = 0.48;
+	moveBias3x6Cal( 0, 3, down ) = moveBias3x6Cal( 1, 3, up ) = 0.45;
+	moveBias3x6Cal( 0, 4, down ) = moveBias3x6Cal( 1, 4, up ) = 0.48;
+	moveBias3x6Cal( 0, 5, down ) = moveBias3x6Cal( 1, 5, up ) = 0.6;
+	// 
+	moveBias3x6Cal( 2, 0, up ) = moveBias3x6Cal( 1, 0, down ) = 0.5;
+	moveBias3x6Cal( 2, 1, up ) = moveBias3x6Cal( 1, 1, down ) = 0.5;
+	moveBias3x6Cal( 2, 2, up ) = moveBias3x6Cal( 1, 2, down ) = 0.45;
+	moveBias3x6Cal( 2, 3, up ) = moveBias3x6Cal( 1, 3, down ) = 0.48;
+	moveBias3x6Cal( 2, 4, up ) = moveBias3x6Cal( 1, 4, down ) = 0.35;
+	moveBias3x6Cal( 2, 5, up ) = moveBias3x6Cal( 1, 5, down ) = 0.7;
+	
+	/*
+	moveBias3x6Cal( 0, 0, down ) = moveBias3x6Cal( 1, 0, up ) = 0.5;
+	moveBias3x6Cal( 0, 1, down ) = moveBias3x6Cal( 1, 1, up ) = 0.5;
+	moveBias3x6Cal( 0, 2, down ) = moveBias3x6Cal( 1, 2, up ) = 0.45;
+	moveBias3x6Cal( 0, 3, down ) = moveBias3x6Cal( 1, 3, up ) = 0.48;
+	moveBias3x6Cal( 0, 4, down ) = moveBias3x6Cal( 1, 4, up ) = 0.35;
+	moveBias3x6Cal( 0, 5, down ) = moveBias3x6Cal( 1, 5, up ) = 0.7;
+	// 
+	moveBias3x6Cal( 2, 0, up ) = moveBias3x6Cal( 1, 0, down ) = 0.7;
+	moveBias3x6Cal( 2, 1, up ) = moveBias3x6Cal( 1, 1, down ) = 0.52;
+	moveBias3x6Cal( 2, 2, up ) = moveBias3x6Cal( 1, 2, down ) = 0.48;
+	moveBias3x6Cal( 2, 3, up ) = moveBias3x6Cal( 1, 3, down ) = 0.45;
+	moveBias3x6Cal( 2, 4, up ) = moveBias3x6Cal( 1, 4, down ) = 0.48;
+	moveBias3x6Cal( 2, 5, up ) = moveBias3x6Cal( 1, 5, down ) = 0.6;
+	*/
+	/*
 	moveBias3x6Cal( 0, 0, down ) = moveBias3x6Cal( 1, 0, up ) = 0.65;
 	moveBias3x6Cal( 0, 1, down ) = moveBias3x6Cal( 1, 1, up ) = 0.35;
 	moveBias3x6Cal( 0, 2, down ) = moveBias3x6Cal( 1, 2, up ) = 0.35;
@@ -29,6 +61,7 @@ NiawgController::NiawgController( UINT trigRow, UINT trigNumber ) : triggerRow( 
 	moveBias3x6Cal( 2, 3, up ) = moveBias3x6Cal( 1, 3, down ) = 0.35;
 	moveBias3x6Cal( 2, 4, up ) = moveBias3x6Cal( 1, 4, down ) = 0.35;
 	moveBias3x6Cal( 2, 5, up ) = moveBias3x6Cal( 1, 5, down ) = 0.6;
+	*/
 	moveBiasCalibrations.push_back( moveBias3x6Cal );
 }
 
