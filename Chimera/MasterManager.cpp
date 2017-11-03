@@ -251,12 +251,9 @@ UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
 			{
 				input->niawg->programNiawg( input, output, warnings, variationInc, variations, variedMixedSize,
 											userScriptSubmit );
-				if ( foundRearrangement )
-				{
-					input->niawg->turnOffRerng( );
-					input->conditionVariableForRearrangement->notify_all( );
-					input->niawg->handleStartingRerng( input, output );
-				}
+				input->niawg->turnOffRerng( );
+				input->conditionVariableForRearrangement->notify_all( );
+				input->niawg->handleStartingRerng( input, output );
 			}
 			input->comm->sendError( warnings );
 			input->topBottomTek->programMachine( variationInc );
