@@ -1,9 +1,9 @@
 ﻿#include "stdafx.h"
 #include "rerngControl.h"
 
-rerngParams rerngControl::getParams( )
+rerngOptions rerngControl::getParams( )
 {
-	rerngParams tempParams;
+	rerngOptions tempParams;
 	tempParams.active = experimentIncludesRerng.GetCheck( );
 	tempParams.outputInfo = outputRearrangeEvents.GetCheck( );
 	tempParams.outputIndv = outputIndividualEvents.GetCheck( );
@@ -109,7 +109,7 @@ void rerngControl::handleOpenConfig( std::ifstream& openFile, int versionMajor, 
 		return;
 	}
 	ProfileSystem::checkDelimiterLine( openFile, "REARRANGEMENT_INFORMATION" );
-	rerngParams info;
+	rerngOptions info;
 	openFile >> info.active;
 	openFile >> info.flashingRate;
 	openFile >> info.moveBias;
@@ -190,7 +190,7 @@ void rerngControl::handleSaveConfig( std::ofstream& saveFile )
 {
  	saveFile << "REARRANGEMENT_INFORMATION\n";
 	// conversions happen in getParams.
- 	rerngParams info = getParams( );
+ 	rerngOptions info = getParams( );
  	saveFile << info.active << "\n";
  	saveFile << info.flashingRate << "\n";
  	saveFile << info.moveBias << "\n";
@@ -205,7 +205,7 @@ void rerngControl::handleSaveConfig( std::ofstream& saveFile )
 }
 
 
-void rerngControl::setParams( rerngParams params )
+void rerngControl::setParams( rerngOptions params )
 {
 	experimentIncludesRerng.SetCheck( params.active );
 	// convert back to MHz from Hz

@@ -28,7 +28,7 @@ struct rerngThreadInput
 	NiawgController* niawg;
 	Communicator* comm;
 	// stuff from the rearrangement input
-	rerngParams rerngOptions;
+	rerngOptions rerngOptions;
 	rerngContainer<rerngMove> moves;
 	//waveInfo fillerWave;
 };

@@ -2675,6 +2675,7 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& info, UINT row, U
 	flashMove.flash.flashWaves.push_back( info.staticWave );
 	flashMove.flash.flashCycleFreq = info.flashingFreq;
 	mixFlashingWaves( flashMove, deadTime, staticMovingRatio );
+
 	return flashMove.core.waveVals;
 }
 

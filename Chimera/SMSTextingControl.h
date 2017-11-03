@@ -31,7 +31,6 @@ class SmsTextingControl
 		const std::string emailAddress = "quantumGasAssemblyControl@gmail.com";
 		const std::string password = "theLaughingGoatHasBetterCoffee";
 		Control<CListCtrl> peopleListView;
-		Control<CButton> enterEmailInfoButton;
 		Control<CStatic> title;
 		std::vector<personInfo> peopleToText;
 };
