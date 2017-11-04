@@ -10,6 +10,7 @@
 #include <chrono>
 #include <numeric>
 
+
 NiawgController::NiawgController( UINT trigRow, UINT trigNumber ) : triggerRow( trigRow ), triggerNumber( trigNumber )
 {
 	// initialize rearrangement calibrations.
@@ -2829,6 +2830,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 	std::vector<bool> triedRearranging;
 	std::vector<double> streamTime, triggerTime, resetPositionTime, picHandlingTime, picGrabTime, rerngCalcTime, 
 		moveCalcTime, finishingCalcTime;
+	std::vector<UINT> numberMoves;
 	chronoTimes startCalc, stopReset, stopStream, stopTrigger, stopRerngCalc, stopMoveCalc, stopAllCalc;
 	std::ofstream outFile;
 	UINT counter = 0;
@@ -2867,7 +2869,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				}
 				if ( input->atomsQueue->size( ) == 0)
 				{
-					input->comm->sendStatus( "Woke up?" );
+					input->comm->sendStatus( "Rearrangement Thread woke up???" );
 					continue;
 				}
 			}
@@ -2917,6 +2919,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			{
 				// as of now, just ignore.
 			}
+			numberMoves.push_back( moveSequence.size( ) );
 			stopRerngCalc.push_back( chronoClock::now( ) );
 			input->niawg->rerngWaveVals.clear( );
 			/// program niawg
@@ -2990,26 +2993,22 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			}
 			if ( input->rerngOptions.outputInfo )
 			{
-				outFile << counter << "\n";
-				outFile << "Source:\n";
+				outFile << "Rep # " << counter << "\n";
+				outFile << "Source: ";
 				for ( auto row : source )
 				{
 					for ( auto elem : row )
 					{
 						outFile << elem << ", ";
 					}
-					outFile << "\n";
+					outFile << "; ";
 				}
-				outFile << "Moves:\n";
+				outFile << "\nMoves:\n";
 				UINT moveCount = 0;
 				for ( auto move : moveSequence )
 				{
-					outFile << moveCount++ << "\n";
-					outFile << "Init-Row:" << move.initRow << "\n";
-					outFile << "Fin-Row:" << move.finRow << "\n";
-					outFile << "Init-Column:" << move.initCol << "\n";
-					outFile << "Fin-Column:" << move.finCol << "\n";
-					outFile << "---\n";
+					outFile << moveCount++ << " " << move.initRow << " " << move.finRow << " " << move.initCol << " " 
+						<< move.finCol << "\n";
 				}
 			}
 			counter++;
@@ -3055,21 +3054,14 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 					<< finishingCalcTime[count] << "\t"
 					<< resetPositionTime[count] << "\t" 
 					<< streamTime[count] << "\t" 
-					<< triggerTime[count] << "\n";
+					<< triggerTime[count] << "\t"
+					<< numberMoves[count] << "\n";
  		}
-		dataFile.close( );
-		
+		dataFile.close( );		
 	}
 	catch ( Error& err )
 	{
 		errBox( "ERROR in rearrangement thread! " + err.whatStr( ) );
-	}
-	try
-	{
-	}
-	catch ( Error& err)
-	{
-		input->comm->sendError( "Failed to delete rearrangement waveform at end of rearranging!: " + err.whatStr( ) );
 	}
 	if ( outFile.is_open() )
 	{

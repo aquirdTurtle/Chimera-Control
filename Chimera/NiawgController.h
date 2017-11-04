@@ -25,10 +25,10 @@
 struct MasterThreadInput;
 class NiawgWaiter;
 
-/**
- * One of the biggest & most complicated classes in the code.
- * Part of this class is effectively an FGEN wrapper. You could extract that if you have other devies which use fgen.
- */
+/** 
+  * One of the biggest & most complicated classes in the code.
+  * Part of this class is effectively an FGEN wrapper. You could extract that if you have other devies which use fgen.
+  */
 class NiawgController
 {
 	public:
@@ -37,45 +37,30 @@ class NiawgController
 		void cleanupNiawg( profileSettings profile, bool masterWasRunning,
 							  niawgPair<std::vector<std::fstream>>& niawgFiles, NiawgOutput& output,
 							  Communicator* comm, bool dontGenerate );
-		void preWriteRerngWaveforms( rerngThreadInput* input );
-		void writeToFile( std::vector<double> waveVals );
-		std::vector<double> calcFinalPositionMove( niawgPair<ULONG> targetPos, niawgPair<ULONG> finalPos,
-												   double freqSpacing, std::vector<std::vector<bool>> target,
-												   niawgPair<double> cornerFreqs );
+		
 		bool rerngThreadIsActive();
 		std::string getCurrentScript();
 		bool niawgIsRunning();
-		// analysis & numerics
-		void simpleFormVaries( simpleWaveForm& wave );
-		void simpleFormToOutput( simpleWaveForm& formWave, simpleWave& wave, 
-								 std::vector<variableType>& varibles=std::vector<variableType>(), UINT variation=-1 );
-		void finalizeStandardWave( simpleWave& wave, debugInfo& options );
+
 		void writeStandardWave( simpleWave& wave, debugInfo options, bool isDefault );
 		void writeFlashing( waveInfo& wave, debugInfo& options, UINT variation );
 		void generateWaveform( channelWave & waveInfo, debugInfo& options, long int sampleNum, double time );
 		void mixWaveforms( simpleWave& waveCore, bool writeThisToFile );
-		void calcWaveData( channelWave& inputData, std::vector<ViReal64>& readData, long int sampleNum, 
-							  double time );
+		void calcWaveData( channelWave& inputData, std::vector<ViReal64>& readData, long int sampleNum, double time );
 		void handleStartingRerng( MasterThreadInput* input, NiawgOutput& output );
 		void prepareNiawg( MasterThreadInput* input, NiawgOutput& output, 
 						   niawgPair<std::vector<std::fstream>>& niawgFiles, std::string& warnings, 
 						   std::vector<ViChar>& userScriptSubmit, bool& foundRearrangement, rerngOptions rInfo,
 						   std::vector<variableType>& variables );
-		void rerngOptionsFormToFinal( rerngOptionsForm& form, rerngOptions& data, std::vector<variableType>& variables,
-									  UINT variation );
 		bool outputVaries( NiawgOutput output );
 		void checkThatWaveformsAreSensible( std::string& warnings, NiawgOutput& output );
-		void createFlashingWave( waveInfo& wave, debugInfo options );
-		void mixFlashingWaves( waveInfo& wave, double deadTime, double staticMovingRatio );
+		
 		void handleVariations( NiawgOutput& output, std::vector<variableType>& variables, UINT variation, 
 								  std::vector<long>& mixedWaveSizes, std::string& warnings, debugInfo& debugOptions, 
 								  UINT totalVariations );
 		void analyzeNiawgScripts( niawgPair<ScriptStream>& scripts, NiawgOutput& output, profileSettings profile, 
 								  debugInfo& options, std::string& warnings, rerngOptions rInfo, 
 								  std::vector<variableType>& variables );
-		void flashFormToOutput( waveInfoForm& waveForm, waveInfo& wave, 
-								std::vector<variableType>& varibles = std::vector<variableType>( ), 
-								UINT variation = -1 );
 		void flashVaries( waveInfoForm& wave );
 		void rerngFormToOutput( waveInfoForm& waveForm, waveInfo& wave, std::vector<variableType>& varibles,
 									UINT variation );
@@ -83,10 +68,7 @@ class NiawgController
 		void loadWaveformParametersForm( NiawgOutput& output, profileSettings profile, 
 										 niawgPair<std::string> command, debugInfo& debug,
 										 niawgPair<ScriptStream>& scripts, std::vector<variableType> variables );
-		void finalizeScript( ULONGLONG repetitions, std::string name, std::vector<std::string> workingUserScripts,
-							 std::vector<ViChar>& userScriptSubmit, bool repeatForever );
 		void setDefaultWaveforms( MainWindow* mainWin );
-		void deleteRerngWave( );
 		static long waveformSizeCalc( double time );
 		static double rampCalc( int size, int iteration, double initPos, double finPos, std::string rampType );
 		// programming the device
@@ -97,27 +79,45 @@ class NiawgController
 		void programNiawg( MasterThreadInput* input, NiawgOutput& output, std::string& warnings, UINT variation, 
 							  UINT totalVariations, std::vector<long>& variedMixedSize, 
 							  std::vector<ViChar>& userScriptSubmit );
-		void streamWaveform();
-		void streamRerng();
 		void setDefaultWaveformScript( );
 		void turnOff();
 		void turnOn();
 		// Other
 		void setRunningState( bool newRunningState );
-		void startRerngThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave, Communicator* comm,
-							   std::mutex* rerngLock, chronoTimes* andorImageTimes, chronoTimes* grabTimes,
-							   std::condition_variable* rerngConditionWatcher, rerngOptions rerngInfo );
 		std::pair<UINT, UINT> getTrigLines( );
 		UINT getNumberTrigsInScript( );
-		
-		waveInfoForm toWaveInfoForm( simpleWaveForm wave );
 
 		bool isOn( );
-
-		std::vector<std::vector<long>> convolve( std::vector<std::vector<bool>> atoms, 
-												 std::vector<std::vector<bool>> target );
+		void streamWaveform( );
 		FgenFlume fgenConduit;
+
 	private:
+		void flashFormToOutput( waveInfoForm& waveForm, waveInfo& wave,
+								std::vector<variableType>& varibles = std::vector<variableType>( ),
+								UINT variation = -1 );
+		void preWriteRerngWaveforms( rerngThreadInput* input );
+		void writeToFile( std::vector<double> waveVals );
+		void rerngOptionsFormToFinal( rerngOptionsForm& form, rerngOptions& data, std::vector<variableType>& variables,
+									  UINT variation );
+		void finalizeScript( ULONGLONG repetitions, std::string name, std::vector<std::string> workingUserScripts,
+							 std::vector<ViChar>& userScriptSubmit, bool repeatForever );
+		void mixFlashingWaves( waveInfo& wave, double deadTime, double staticMovingRatio );
+		std::vector<double> calcFinalPositionMove( niawgPair<ULONG> targetPos, niawgPair<ULONG> finalPos,
+												   double freqSpacing, std::vector<std::vector<bool>> target,
+												   niawgPair<double> cornerFreqs );		
+		void streamRerng( );
+		waveInfoForm toWaveInfoForm( simpleWaveForm wave );
+		void simpleFormVaries( simpleWaveForm& wave );
+		void simpleFormToOutput( simpleWaveForm& formWave, simpleWave& wave,
+								 std::vector<variableType>& varibles = std::vector<variableType>( ), UINT variation = -1 );
+
+		void deleteRerngWave( );
+		void startRerngThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave, Communicator* comm,
+						   std::mutex* rerngLock, chronoTimes* andorImageTimes, chronoTimes* grabTimes,
+						   std::condition_variable* rerngConditionWatcher, rerngOptions rerngInfo );
+		std::vector<std::vector<long>> convolve( std::vector<std::vector<bool>> atoms,
+													std::vector<std::vector<bool>> target );
+		void createFlashingWave( waveInfo& wave, debugInfo options );
 		UINT writeToFileNumber = 0;
 		void loadStandardInputFormType( std::string inputType, channelWaveForm &wvInfo );
 		void openWaveformFiles( );
@@ -134,6 +134,7 @@ class NiawgController
 		bool isSpecialCommand( std::string command );
 		void handleSpecialForm( niawgPair<ScriptStream>& scripts, NiawgOutput& output, niawgPair<std::string> inputTypes,
 							profileSettings profile, debugInfo& options, std::string& warnings );
+		void finalizeStandardWave( simpleWave& wave, debugInfo& options );
 		/// member variables
  		// Important. This can change if you change computers.
  		const ViRsrc NI_5451_LOCATION = "Dev6";
