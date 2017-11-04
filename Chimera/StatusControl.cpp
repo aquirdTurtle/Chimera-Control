@@ -14,7 +14,7 @@ void StatusControl::rearrange(int width, int height, fontMap fonts)
 }
 
 
-//
+
 void StatusControl::initialize(POINT &loc, CWnd* parent, int& id, UINT size, std::string headerText, 
 							   COLORREF textColor, cToolTips& tooltips, UINT clearId)
 {

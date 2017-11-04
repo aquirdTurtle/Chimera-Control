@@ -458,7 +458,6 @@
       <Filter>Main Window</Filter>
     </ClInclude>
     <ClInclude Include="MasterThreadInput.h" />
-    <ClInclude Include="directions.h" />
     <ClInclude Include="rerngContainer.h">
       <Filter>Main Window</Filter>
     </ClInclude>
@@ -476,6 +475,9 @@
     </ClInclude>
     <ClInclude Include="rerngMove.h">
       <Filter>Main Window\Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="directions.h">
+      <Filter>Main Window</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

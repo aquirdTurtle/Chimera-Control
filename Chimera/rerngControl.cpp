@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
 #include "rerngControl.h"
 
-rerngParams rerngControl::getParams( )
+rerngOptions rerngControl::getParams( )
 {
 	rerngOptions tempParams;
 	tempParams.active = experimentIncludesRerng.GetCheck( );
@@ -9,7 +9,6 @@ rerngParams rerngControl::getParams( )
 	tempParams.outputIndv = outputIndividualEvents.GetCheck( );
 	tempParams.preprogram = preprogramMoves.GetCheck( );
 	tempParams.useCalibration = useCalibration.GetCheck( );
-
 	CString tempTxt;
 	try
 	{

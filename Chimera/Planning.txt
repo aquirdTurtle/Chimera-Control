@@ -36,6 +36,7 @@ Refactoring / Other:
 Bugs:
 - something wrong with set New dac Values! Pressing seems to change whether shutter is open or closed???
 - exposure time setting properly for andor camera? (maybe just prob in video mode)
+- code breaking if no dacs in debug mode?
 
 - scripts becoming unsaved after move, should preserve saved status
 - investigate save on change config
