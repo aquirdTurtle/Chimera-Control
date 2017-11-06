@@ -20,6 +20,16 @@ struct rerngOptionsForm
 };
 
 
+enum smartRearrangementOptions
+{
+	// none places target in center.
+	none, 
+	// find the optimal convolution match and use that to do the rearrangement algorithm
+	convolution,
+	// do the full optimization algorithm for all possibilities and use the one with the least moves
+	full
+};
+
 struct rerngOptions
 {
 	bool active = false;
@@ -35,5 +45,6 @@ struct rerngOptions
 	bool outputIndv = false;
 	bool preprogram = false;
 	bool useCalibration = false;
+	smartRearrangementOptions smartOption=none;
 };
 

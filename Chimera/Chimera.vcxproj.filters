@@ -479,6 +479,7 @@
     <ClInclude Include="directions.h">
       <Filter>Main Window</Filter>
     </ClInclude>
+    <ClInclude Include="Matrix.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

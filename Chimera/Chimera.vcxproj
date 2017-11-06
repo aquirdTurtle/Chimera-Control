@@ -203,6 +203,7 @@
     <ClInclude Include="directions.h" />
     <ClInclude Include="Expression.h" />
     <ClInclude Include="MasterThreadInput.h" />
+    <ClInclude Include="Matrix.h" />
     <ClInclude Include="multiDimensionalKey.h" />
     <ClInclude Include="profileSettings.h" />
     <ClInclude Include="ProfileSystem.h" />
