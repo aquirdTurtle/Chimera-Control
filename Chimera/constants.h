@@ -60,7 +60,7 @@
 #ifdef MASTER_COMPUTER
 	#define NIAWG_SAFEMODE false
 	#define ANDOR_SAFEMODE false
-	#define PYTHON_SAFEMODE true
+	#define PYTHON_SAFEMODE false
 	#define DIO_SAFEMODE false
 	#define DAQMX_SAFEMODE false
 	#define RSG_SAFEMODE false
