@@ -1,5 +1,7 @@
 #pragma once
 #include "Expression.h"
+#include "Matrix.h"
+
 #include "nifgen.h"
 #include "Windows.h"
 #include <string>
@@ -136,21 +138,19 @@ struct rerngInfoForm
 	simpleWaveForm staticWave;
 	simpleWaveForm fillerWave;
 	// the target picture
-	std::vector<std::vector<bool>> target;
+	Matrix<bool> target = Matrix<bool>(0,0);
 	// a bit redundant atm.
-	UINT targetRows = 0;
-	UINT targetCols = 0;
+	//UINT targetRows = 0;
+	//UINT targetCols = 0;
 	// the maixmum number of moves the rearrangement should take.
 	UINT moveLimit = 0;
 	// the location that the array will be moved to at the end.
-	UINT finMoveRow = 0;
-	UINT finLocCol = 0;
+	niawgPair<ULONG> finalPosition = { 0,0 };
 	// these are the frequencies that the niawg would need to output to reach the lower left corner (I think?) of 
 	// the picture.
 	niawgPair<double> lowestFreq = { 0,0 };
 	// this is the frequency difference per pixel
 	double freqPerPixel = 0;
-	// the wave that gets flashed with the moving tweezer
 };;
 
 // rerng = rearrange
@@ -158,10 +158,8 @@ struct rerngInfo
 {
 	bool isRearrangement = false;
 	// the target picture
-	std::vector<std::vector<bool>> target;
-	// a bit redundant atm.
-	UINT targetRows = 0;
-	UINT targetCols = 0;
+	Matrix<bool> target = Matrix<bool>( 0, 0 );
+	niawgPair<ULONG> finalPosition = { 0,0 };
 	// hard-coded currently. Should probably add some control for this.
 	double timePerMove = 6e-5;
 	double flashingFreq = 1e6;

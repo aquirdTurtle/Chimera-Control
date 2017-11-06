@@ -243,7 +243,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 		{
 			// simulate an actual wait.
 			//Sleep( ULONG(input->Andor->runSettings.kineticCycleTime * 1000) );
-			Sleep( 100 );
+			Sleep( 500 );
 			if ( pictureNumber % 2 == 0 )
 			{
 				(*input->imageTimes).push_back( std::chrono::high_resolution_clock::now( ) );
@@ -457,24 +457,17 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 					  0,0,0,
 					  0,0,0,
 					  0,0,0};
-					
+		
 		for (UINT imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 		{
 			tempImage[imageVecInc] = rand() % 30 + 95;
-			if (!(imageVecInc >= atomSpots.size()))
+			if ( ((imageVecInc / runSettings.imageSettings.width) % 2 == 1)
+				 && ((imageVecInc % runSettings.imageSettings.width) % 2 == 1) )
 			{
-				if (imageVecInc == 0)
+				// can have an atom here.
+				if ( UINT( rand( ) ) % 300 > imageVecInc + 50 )
 				{
-					tempImage[imageVecInc] = 3;
-					continue;
-				}
-				if (atomSpots[imageVecInc])
-				{
-					// can have an atom here.
-					if (UINT(rand()) % 300 > imageVecInc + 50)
-					{
-						tempImage[imageVecInc] += 400;
-					}
+					tempImage[imageVecInc] += 400;
 				}
 			}
 		}

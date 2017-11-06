@@ -9,7 +9,6 @@ rerngOptions rerngControl::getParams( )
 	tempParams.outputIndv = outputIndividualEvents.GetCheck( );
 	tempParams.preprogram = preprogramMoves.GetCheck( );
 	tempParams.useCalibration = useCalibration.GetCheck( );
-
 	CString tempTxt;
 	try
 	{
