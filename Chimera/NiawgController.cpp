@@ -9,6 +9,7 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <chrono>
 #include <numeric>
+#include "Matrix.h"
 
 NiawgController::NiawgController( UINT trigRow, UINT trigNumber ) : triggerRow( trigRow ), triggerNumber( trigNumber )
 {
@@ -122,36 +123,36 @@ std::pair<UINT, UINT> NiawgController::getTrigLines( )
 }
 
 
-std::vector<std::vector<long>> convolve( std::vector<std::vector<bool>> atoms,
-										 std::vector<std::vector<bool>> target )
+// this function returns the coordinates of the maximum convolution.
+niawgPair<ULONG> NiawgController::convolve( Matrix<bool> atoms, Matrix<bool> target )
 {
-	std::vector<std::vector<long>> result( atoms.size( ) - target.size( ) + 1,
-										   std::vector<long>( atoms[0].size( ) - target[0].size( ) + 1 ) );
-	for ( auto startRowInc : range( result.size( ) ) )
+	Matrix<ULONG> result( atoms.getRows() - target.getRows() + 1, atoms.getCols() - target.getCols() + 1, 0);
+	niawgPair<ULONG> targetCoords;
+	UINT bestMatch = 0;
+	for ( auto startRowInc : range( result.getRows() ) )
 	{
-		for ( auto startColInc : range( result[0].size( ) ) )
+		for ( auto startColInc : range( result.getCols() ) )
 		{
 			// calcualte product
-			long conv = 0;
-			for ( auto rowInc : range( target.size( ) ) )
+			Matrix<bool> subAtoms = atoms.submatrix(startRowInc, target.getRows(), startColInc, target.getCols());
+			std::vector<ULONG> tmp( target.getCols( ) );
+			std::transform( target.begin(), target.end(), subAtoms.begin(), tmp.begin(), 
+							[]( auto& i, auto& j ) {return long( i*j ); } );
+			UINT rating = std::accumulate( tmp.begin( ), tmp.end( ), 0 );
+			if ( rating > bestMatch )
 			{
-				std::vector<long> tmp( target[0].size( ) );
-				std::transform( atoms[rowInc + startRowInc].begin( ) + startColInc,
-								atoms[rowInc + startRowInc].begin( ) + startColInc + target.size( ),
-								target[rowInc].begin( ), tmp.begin( ), []( auto& i, auto& j ) {return long( i*j ); } );
-				conv += std::accumulate( tmp.begin( ), tmp.end( ), 0 );
+				targetCoords[Horizontal] = startColInc;
+				targetCoords[Vertical] = startRowInc;
 			}
-			result[startRowInc][startColInc] = conv;
-			if ( conv == target.size( ) * target[0].size( ) )
+			if ( rating == target.getRows( ) * target.getCols( ) )
 			{
 				// perfect match was found. 
-				return result;
+				return targetCoords;
 			}
 		}
 	}
-	return result;
+	return targetCoords;
 }
-
 
 
 void NiawgController::programNiawg( MasterThreadInput* input, NiawgOutput& output, std::string& warnings,
@@ -840,6 +841,19 @@ void NiawgController::handleSpecialWaveformForm( NiawgOutput& output, profileSet
 	}
 	else if ( command == "rearrange" )
 	{
+		/*				Format:
+		rearrange
+		{
+			rows in target
+			cols in target
+			lowest hor freq
+			lowest vert freq
+			freq spacing (usually 9MHz)
+			hold waveform (e.g. gen 6 const)
+			target pattern
+			target coordinates
+		}
+		*/
 		waveInfoForm rearrangeWave;
 		rearrangeWave.rearrange.timePerMove = str(rInfo.moveSpeed);
 		rearrangeWave.rearrange.isRearrangement = true;
@@ -863,18 +877,24 @@ void NiawgController::handleSpecialWaveformForm( NiawgOutput& output, profileSet
 		for ( auto axis : AXES )
 		{
 			std::string temp;
-			scripts[axis] >> temp;
-			rows[axis] = std::stoi( temp );
-			scripts[axis] >> temp;
-			cols[axis] = std::stoi( temp );
+			try
+			{
+				scripts[axis] >> temp;
+				rows[axis] = std::stoi( temp );
+				scripts[axis] >> temp;
+				cols[axis] = std::stoi( temp );
+			}
+			catch ( std::invalid_argument& )
+			{
+				thrower( "ERROR: failed to convert target row and collumn numbers to integers during niawg script "
+						 "analysis for rearrange command!" );
+			}
 		}
 		// check consistency. Should probably verify that this is consistent with actual picture?
 		if ( rows[Horizontal] != rows[Vertical] || cols[Horizontal] != cols[Vertical] )
 		{
 			thrower( "ERROR: Target Picture size doesn't match between horizontal and vertical scripts!" );
 		}
-		rearrangeWave.rearrange.targetRows = rows[Horizontal];
-		rearrangeWave.rearrange.targetCols = cols[Horizontal];
 		/// get calibration parameters.
 		// these are the frequencies that the niawg would need to output to reach the lower left corner (I think?) of 
 		// the picture.
@@ -893,7 +913,8 @@ void NiawgController::handleSpecialWaveformForm( NiawgOutput& output, profileSet
 			 lowestVertFreq[Horizontal] != lowestVertFreq[Vertical] ||
 			 freqPerPixel[Horizontal] != freqPerPixel[Vertical] )
 		{
-			thrower( "ERROR: Rearrangement parameters don't match between horizontal and vertical files!" );
+			thrower( "ERROR: Rearrangement parameters (lowest freqs or freq per pixel) don't match between "
+					 "horizontal and vertical files!" );
 		}
 		rearrangeWave.rearrange.lowestFreq[Horizontal] = lowestHorFreq[Horizontal];
 		rearrangeWave.rearrange.lowestFreq[Vertical] = lowestVertFreq[Horizontal];
@@ -926,16 +947,14 @@ void NiawgController::handleSpecialWaveformForm( NiawgOutput& output, profileSet
 		loadWaveformParametersForm( tempInfo, profile, holdingCommands, options, scripts, variables );
 		// add the new wave in flashingOutputInfo to flashingInfo structure
 		rearrangeWave.rearrange.staticWave = tempInfo.waveFormInfo.back( ).core;
-
 		/// get the target picture
-		niawgPair<std::vector<std::vector<bool>>> targetTemp;
+		niawgPair<Matrix<bool>> targetTemp = { Matrix<bool>( rows[Vertical], cols[Vertical] ), 
+											   Matrix<bool>( rows[Horizontal], cols[Horizontal] ) };
 		// get the target picture. The picture must be replicated in each file.
 		for ( auto axis : AXES )
 		{
-			targetTemp[axis].resize( rows[axis] );
 			for ( auto rowInc : range( rows[axis] ) )
 			{
-				targetTemp[axis][rowInc].resize( cols[axis] );
 				std::string line = scripts[axis].getline( '\r' );
 				ScriptStream lineScript( line );
 				std::string singlePixelStatus;
@@ -944,7 +963,7 @@ void NiawgController::handleSpecialWaveformForm( NiawgOutput& output, profileSet
 					lineScript >> singlePixelStatus;
 					try
 					{
-						targetTemp[axis][rowInc][colInc] = bool( std::stoi( singlePixelStatus ) );
+						targetTemp[axis](rowInc, colInc) = bool( std::stoi( singlePixelStatus ) );
 					}
 					catch ( std::invalid_argument& )
 					{
@@ -955,11 +974,11 @@ void NiawgController::handleSpecialWaveformForm( NiawgOutput& output, profileSet
 			}
 		}
 
-		for ( auto rowInc : range( rearrangeWave.rearrange.targetRows ) )
+		for ( auto rowInc : range( rearrangeWave.rearrange.target.getRows()) )
 		{
-			for ( auto colInc : range( rearrangeWave.rearrange.targetCols ) )
+			for ( auto colInc : range( rearrangeWave.rearrange.target.getCols() ) )
 			{
-				if ( targetTemp[Horizontal][rowInc][colInc] != targetTemp[Vertical][rowInc][colInc] )
+				if ( targetTemp[Horizontal](rowInc,colInc) != targetTemp[Vertical](rowInc, colInc) )
 				{
 					thrower( "ERROR: Target pictures didn't match between the Horizontal and Vertical Files!" );
 				}
@@ -989,10 +1008,8 @@ void NiawgController::handleSpecialWaveformForm( NiawgOutput& output, profileSet
 		{
 			thrower( "ERROR: final rearranging location listed in horizontal script didn't match vertical script!" );
 		}
-
-		rearrangeWave.rearrange.finMoveRow = finLocRow[Horizontal];
-		rearrangeWave.rearrange.finLocCol = finLocRow[Horizontal];
-
+		
+		rearrangeWave.rearrange.finalPosition = { finLocRow[Horizontal], finLocCol[Vertical] };
 		for ( auto axis : AXES )
 		{
 			std::string bracket;
@@ -1934,8 +1951,7 @@ void NiawgController::rerngFormToOutput( waveInfoForm& waveForm, waveInfo& wave,
 	wave.rearrange.lowestFreq = waveForm.rearrange.lowestFreq;
 	wave.rearrange.moveLimit = waveForm.rearrange.moveLimit;
 	wave.rearrange.target = waveForm.rearrange.target;
-	wave.rearrange.targetCols = waveForm.rearrange.targetCols;
-	wave.rearrange.targetRows = waveForm.rearrange.targetRows;
+	wave.rearrange.finalPosition = waveForm.rearrange.finalPosition;
 	wave.rearrange.timePerMove = waveForm.rearrange.timePerMove.evaluate(variables, variation);
 	simpleFormToOutput( waveForm.rearrange.staticWave, wave.rearrange.staticWave, variables, variation );
 	simpleFormToOutput( waveForm.rearrange.fillerWave, wave.rearrange.fillerWave, variables, variation );
@@ -2488,8 +2504,8 @@ This function expects the input to have already been initialized and everything.
 */
 void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 {
-	UINT rows = input->rerngWave.rearrange.targetRows;
-	UINT cols = input->rerngWave.rearrange.targetCols;
+	UINT rows = input->rerngWave.rearrange.target.getRows();
+	UINT cols = input->rerngWave.rearrange.target.getCols();
 	rerngContainer<double> calBias( rows, cols );
 	if ( input->rerngOptions.useCalibration )
 	{
@@ -2567,9 +2583,8 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 }
 
 
-std::vector<double> NiawgController::makeRerngWave( rerngInfo& info, UINT row, UINT col,
-															directions direction, double staticMovingRatio,
-															double moveBias, double deadTime )
+std::vector<double> NiawgController::makeRerngWave( rerngInfo& info, UINT row, UINT col, directions direction, 
+													double staticMovingRatio, double moveBias, double deadTime )
 {
 	// program this move.
 	double freqPerPixel = info.freqPerPixel;
@@ -2577,33 +2592,32 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& info, UINT row, U
 	niawgPair<int> initPos = { row, col };
 	niawgPair<int> finPos;
 	int rowInt = row, colInt = col;
-	UINT movingAxis, movingSize, staticAxis;
-	
+	UINT movingAxis, movingSize, staticAxis;	
 	switch ( direction )
 	{
 		case up:
 			finPos = { rowInt - 1, colInt };
 			movingAxis = Vertical;
 			staticAxis = Horizontal;
-			movingSize = info.targetRows;
+			movingSize = info.target.getRows();
 			break;
 		case down:
 			finPos = { rowInt + 1, colInt };
 			movingAxis = Vertical;
 			staticAxis = Horizontal;
-			movingSize = info.targetRows;
+			movingSize = info.target.getRows( );
 			break;
 		case left:
 			finPos = { rowInt, colInt - 1 };
 			movingAxis = Horizontal;
 			staticAxis = Vertical;
-			movingSize = info.targetCols;
+			movingSize = info.target.getCols( );
 			break;
 		case right:
 			finPos = { rowInt, colInt + 1 };
 			movingAxis = Horizontal;
 			staticAxis = Vertical;
-			movingSize = info.targetCols;
+			movingSize = info.target.getCols( );
 			break;
 	}
 	simpleWave moveWave;
@@ -2637,9 +2651,9 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& info, UINT row, U
 			sig.freqRampType = "lin";
 			if ( movingAxis == Horizontal )
 			{
-				sig.freqInit = ((info.targetCols - initPos[movingAxis] - 1)
+				sig.freqInit = ((info.target.getCols( ) - initPos[movingAxis] - 1)
 								 * freqPerPixel + info.lowestFreq[movingAxis]) * 1e6;
-				sig.freqFin = ((info.targetCols - finPos[movingAxis] - 1)
+				sig.freqFin = ((info.target.getCols( ) - finPos[movingAxis] - 1)
 								* freqPerPixel + info.lowestFreq[movingAxis]) * 1e6;
 			}
 			else
@@ -2655,7 +2669,7 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& info, UINT row, U
 			sig.freqRampType = "nr";
 			if ( movingAxis == Horizontal )
 			{
-				sig.freqInit = ((info.targetCols - gridLocation - 1) * freqPerPixel
+				sig.freqInit = ((info.target.getCols( ) - gridLocation - 1) * freqPerPixel
 								 + info.lowestFreq[movingAxis]) * 1e6;
 				sig.freqFin = sig.freqInit;
 			}
@@ -2679,7 +2693,7 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& info, UINT row, U
 	if ( staticAxis == Horizontal )
 	{
 		// convert to Hz
-		sig.freqInit = ((info.targetCols - initPos[staticAxis] - 1) * freqPerPixel
+		sig.freqInit = ((info.target.getCols( ) - initPos[staticAxis] - 1) * freqPerPixel
 						 + info.lowestFreq[staticAxis]) * 1e6;
 		sig.freqFin = sig.freqInit;
 	}
@@ -2706,6 +2720,7 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& info, UINT row, U
 	flashMove.flash.flashWaves.push_back( info.staticWave );
 	flashMove.flash.flashCycleFreq = info.flashingFreq;
 	mixFlashingWaves( flashMove, deadTime, staticMovingRatio );
+
 	return flashMove.core.waveVals;
 }
 
@@ -2733,7 +2748,7 @@ void NiawgController::startRerngThread( std::vector<std::vector<bool>>* atomQueu
 										rerngOptions rearrangeInfo )
 {
 	threadStateSignal = true;
-	rerngThreadInput* input = new rerngThreadInput( wave.rearrange.targetRows, wave.rearrange.targetCols);
+	rerngThreadInput* input = new rerngThreadInput( wave.rearrange.target.getRows(), wave.rearrange.target.getCols());
 	input->rerngOptions = rearrangeInfo;
 	input->pictureTimes = andorImageTimes;
 	input->grabTimes = grabTimes;
@@ -2811,6 +2826,8 @@ std::vector<double> NiawgController::calcFinalPositionMove( niawgPair<ULONG> tar
 			count++;
 		}
 	}
+	finalizeStandardWave( moveWave, debugInfo( ) );
+	return moveWave.waveVals;
 }
 
 
@@ -2826,6 +2843,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 	std::vector<bool> triedRearranging;
 	std::vector<double> streamTime, triggerTime, resetPositionTime, picHandlingTime, picGrabTime, rerngCalcTime, 
 		moveCalcTime, finishingCalcTime;
+	std::vector<UINT> numberMoves;
 	chronoTimes startCalc, stopReset, stopStream, stopTrigger, stopRerngCalc, stopMoveCalc, stopAllCalc;
 	std::ofstream outFile;
 	UINT counter = 0;
@@ -2839,15 +2857,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				thrower( "ERROR: Info file failed to open!" );
 			}
 			outFile << "Target:\n";
-			for ( auto row : input->rerngWave.rearrange.target )
-			{
-				for ( auto elem : row )
-				{
-					outFile << elem << ", ";
-				}
-				outFile << "\n";
-			}
-			outFile << "-----\n\n";
+			outFile << input->rerngWave.rearrange.target.print( ) << "\n";
 		}
 		// wait for data
 		while ( *input->threadActive )
@@ -2864,7 +2874,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				}
 				if ( input->atomsQueue->size( ) == 0)
 				{
-					input->comm->sendStatus( "Woke up?" );
+					input->comm->sendStatus( "Rearrangement Thread woke up???" );
 					continue;
 				}
 			}
@@ -2891,29 +2901,27 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			info.flashingFreq = input->rerngOptions.flashingRate;
 			// right now I need to re-shape the atomqueue matrix. I should probably modify Kai's code to work with a 
 			// flattened source matrix for speed.
-			std::vector<std::vector<bool>> source;
-			source.resize( info.targetRows );
-			for ( auto& row : source )
-			{
-				row.resize(info.targetCols);
-			}
+			Matrix<bool> source(info.target.getRows(), info.target.getCols(), 0);
 			UINT count = 0;
-			for ( auto colCount : range( info.targetCols ) )
+			for ( auto colCount : range( info.target.getCols() ) )
 			{
-				for ( auto rowCount : range( info.targetRows ) )
+				for ( auto rowCount : range( info.target.getRows() ) )
 				{
-					source[source.size( ) - 1 - rowCount][colCount] = tempAtoms[count++];
+					source(source.getCols() - 1 - rowCount, colCount) = tempAtoms[count++];
 				}
 			}
 			std::vector<simpleMove> moveSequence;
 			try
 			{
-				rearrangement( source, info.target, moveSequence );
+				niawgPair<ULONG> finPos;
+				smartRearrangement( source, info.target, finPos, input->rerngWave.rearrange.finalPosition, 
+									moveSequence, input->rerngOptions);
 			}
 			catch ( Error& )
 			{
 				// as of now, just ignore.
 			}
+			numberMoves.push_back( moveSequence.size( ) );
 			stopRerngCalc.push_back( chronoClock::now( ) );
 			input->niawg->rerngWaveVals.clear( );
 			/// program niawg
@@ -2979,102 +2987,179 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			{
 				if ( input->rerngOptions.outputIndv )
 				{
-					input->comm->sendStatus( "Tried Moving. Calc Time = " 
+					input->comm->sendStatus( "Tried Moving. Calc Time = "
 											 + str( std::chrono::duration<double>( stopReset.back( )
-																				   - startCalc.back( ) ).count( ))
+																				   - startCalc.back( ) ).count( ) )
 											 + "\r\n" );
 				}
 			}
 			if ( input->rerngOptions.outputInfo )
 			{
-				outFile << counter << "\n";
-				outFile << "Source:\n";
-				for ( auto row : source )
+				outFile << "Rep # " << counter << "\n";
+				outFile << "Source: ";
+				UINT counter = 0;
+				for ( auto elem : source )
 				{
-					for ( auto elem : row )
+					outFile << elem << ", ";
+					if ( ++counter % source.getRows( ) == 0 )
 					{
-						outFile << elem << ", ";
+						outFile << "; ";
 					}
-					outFile << "\n";
 				}
-				outFile << "Moves:\n";
+				outFile << "\nMoves:\n";
 				UINT moveCount = 0;
 				for ( auto move : moveSequence )
 				{
-					outFile << moveCount++ << "\n";
-					outFile << "Init-Row:" << move.initRow << "\n";
-					outFile << "Fin-Row:" << move.finRow << "\n";
-					outFile << "Init-Column:" << move.initCol << "\n";
-					outFile << "Fin-Column:" << move.finCol << "\n";
-					outFile << "---\n";
+					outFile << moveCount++ << " " << move.initRow << " " << move.finRow << " " << move.initCol << " "
+						<< move.finCol << "\n";
 				}
 			}
 			counter++;
 		}
 		for ( auto inc : range( startCalc.size( ) ) )
 		{
-			
+
 			streamTime.push_back( std::chrono::duration<double>( stopStream[inc] - stopAllCalc[inc] ).count( ) );
 			triggerTime.push_back( std::chrono::duration<double>( stopTrigger[inc] - stopStream[inc] ).count( ) );
 			rerngCalcTime.push_back( std::chrono::duration<double>( stopRerngCalc[inc] - startCalc[inc] ).count( ) );
 			moveCalcTime.push_back( std::chrono::duration<double>( stopMoveCalc[inc] - stopRerngCalc[inc] ).count( ) );
 			finishingCalcTime.push_back( std::chrono::duration<double>( stopAllCalc[inc] - stopMoveCalc[inc] ).count( ) );
 			resetPositionTime.push_back( std::chrono::duration<double>( stopReset[inc] - stopTrigger[inc] ).count( ) );
-			picHandlingTime.push_back( std::chrono::duration<double>( startCalc[inc] - (*input->grabTimes)[inc] ).count() );
-			picGrabTime.push_back( std::chrono::duration<double>( (*input->grabTimes)[inc] - (*input->pictureTimes)[inc]).count( ) );
-			
+			picHandlingTime.push_back( std::chrono::duration<double>( startCalc[inc] - (*input->grabTimes)[inc] ).count( ) );
+			picGrabTime.push_back( std::chrono::duration<double>( (*input->grabTimes)[inc] - (*input->pictureTimes)[inc] ).count( ) );
+
 		}
-		
+
 		(*input->pictureTimes).clear( );
 		(*input->grabTimes).clear( );
 
 		std::ofstream dataFile( DEBUG_OUTPUT_LOCATION + "rearrangementLog.txt" );
-		dataFile 
-				<< "PicHandlingTime\t"
-				<< "PicGrabTime\t"
-				<< "Rearrangement-Calc-Time\t"
-				<< "Movement-Calc-Time\t"
-				<< "Finishing-Calc-Time\t"
-				<< "ResetPositionTime\t"
-				<< "StreamTime\t"
-				<< "TriggerTime\n";
+		dataFile
+			<< "PicHandlingTime\t"
+			<< "PicGrabTime\t"
+			<< "Rearrangement-Calc-Time\t"
+			<< "Movement-Calc-Time\t"
+			<< "Finishing-Calc-Time\t"
+			<< "ResetPositionTime\t"
+			<< "StreamTime\t"
+			<< "TriggerTime\n";
 		if ( !dataFile.is_open( ) )
 		{
 			errBox( "ERROR: data file failed to open for rearrangement log!" );
 		}
 		for ( auto count : range( triedRearranging.size( ) ) )
 		{
-			dataFile 
-					<< picHandlingTime [count] << "\t" 
-					<< picGrabTime[count] << "\t" 
-					<< rerngCalcTime[count] << "\t"
-					<< moveCalcTime[count] << "\t"
-					<< finishingCalcTime[count] << "\t"
-					<< resetPositionTime[count] << "\t" 
-					<< streamTime[count] << "\t" 
-					<< triggerTime[count] << "\n";
- 		}
+			dataFile
+				<< picHandlingTime[count] << "\t"
+				<< picGrabTime[count] << "\t"
+				<< rerngCalcTime[count] << "\t"
+				<< moveCalcTime[count] << "\t"
+				<< finishingCalcTime[count] << "\t"
+				<< resetPositionTime[count] << "\t"
+				<< streamTime[count] << "\t"
+				<< triggerTime[count] << "\t"
+				<< numberMoves[count] << "\n";
+		}
 		dataFile.close( );
-		
 	}
 	catch ( Error& err )
 	{
 		errBox( "ERROR in rearrangement thread! " + err.whatStr( ) );
 	}
-	try
-	{
-	}
-	catch ( Error& err)
-	{
-		input->comm->sendError( "Failed to delete rearrangement waveform at end of rearranging!: " + err.whatStr( ) );
-	}
-	if ( outFile.is_open() )
+	if ( outFile.is_open( ) )
 	{
 		outFile.close( );
 	}
 	input->comm->sendStatus( "Exiting rearranging thread.\r\n" );
 	delete input;
 	return 0;
+}
+
+
+void NiawgController::smartRearrangement( Matrix<bool> source, Matrix<bool> target, niawgPair<ULONG>& finTargetPos, 
+										  niawgPair<ULONG> finalPos, std::vector<simpleMove> &operationsMatrix, 
+										  rerngOptions options )
+{
+	if ( source.getRows() == target.getRows() && source.getCols() == target.getCols() )
+	{
+		// dimensions match, no flexibility.
+		rearrangement( source, target, operationsMatrix );
+		finTargetPos = { 0,0 };
+		return;
+	}
+
+	switch (options.smartOption)
+	{
+		case none:
+		{
+			// finTarget is the correct size, has the original target at finalPos, and zeros elsewhere.
+			Matrix<bool> finTarget( source.getRows( ), source.getCols( ), 0 );
+			for ( auto rowInc : range(target.getRows()))
+			{
+				for ( auto colInc : range(target.getCols()))
+				{
+					finTarget(rowInc + finalPos[Vertical], colInc + finalPos[Horizontal]) = target(rowInc, colInc);
+				}
+			}
+			rearrangement( source, finTarget, operationsMatrix );
+			finTargetPos = finalPos;
+			return;
+		}
+		case convolution:
+		{
+			//
+			finTargetPos = convolve( source, target );
+			Matrix<bool> finTarget( source.getRows( ), source.getCols( ), 0 );
+			for ( auto rowInc : range( target.getRows( ) ) )
+			{
+				for ( auto colInc : range( target.getCols( ) ) )
+				{
+					finTarget( rowInc + finTargetPos[Vertical], colInc + finTargetPos[Horizontal] ) = target( rowInc, colInc );
+				}
+			}
+			rearrangement( source, finTarget, operationsMatrix );
+			break;
+		}
+		case full:
+		{
+			UINT leastMoves = UINT_MAX;
+			for ( auto startRowInc : range( source.getRows() - target.getRows() + 1 ) )
+			{
+				if ( leastMoves == 0 )
+				{
+					break;
+				}
+				for ( auto startColInc : range( source.getCols( ) - target.getCols( ) + 1 ) )
+				{
+					// create the potential target with the correct offset.
+					// finTarget is the correct size, has the original target at finalPos, and zeros elsewhere.
+					Matrix<bool> potentialTarget( source.getRows( ), source.getCols( ), 0 );
+					for ( auto rowInc : range( potentialTarget.getRows() ) )
+					{
+						for ( auto colInc : range( potentialTarget.getCols() ) )
+						{
+							potentialTarget(rowInc + startRowInc, colInc + startColInc) = target(rowInc, colInc);
+						}
+					}
+					std::vector<simpleMove> potentialMoves;
+					rearrangement( source, potentialTarget, potentialMoves );
+					if ( potentialMoves.size( ) < leastMoves )
+					{
+						// new record.
+						operationsMatrix = potentialMoves;
+						finTargetPos = { startColInc, startRowInc };
+						leastMoves = potentialMoves.size( );
+						if ( leastMoves == 0 )
+						{
+							// not possible to move to final location
+							break;
+						}
+					}
+				}
+			}
+			return;
+		}
+	}
 }
 
 
@@ -3099,29 +3184,28 @@ int NiawgController::sign( int x )
 }
 
 
-double NiawgController::minCostMatching( const std::vector<std::vector<double>> &cost, std::vector<int> &Lmate,
-										 std::vector<int> &Rmate )
+double NiawgController::minCostMatching( Matrix<double> cost, std::vector<int> &Lmate, std::vector<int> &Rmate )
 {
-	int n = int( cost.size() );
+	int n = int( cost.getRows() * cost.getCols() );
 	// construct dual feasible solution
 	std::vector<double> u( n );
 	std::vector<double> v( n );
 
 	for (int i = 0; i < n; i++)
 	{
-		u[i] = cost[i][0];
+		u[i] = cost(i,0);
 		for (int j = 1; j < n; j++)
 		{
-			u[i] = min( u[i], cost[i][j] );
+			u[i] = min( u[i], cost(i,j) );
 		}
 	}
 
 	for (int j = 0; j < n; j++)
 	{
-		v[j] = cost[0][j] - u[0];
+		v[j] = cost(0,j) - u[0];
 		for (int i = 1; i < n; i++)
 		{
-			v[j] = min( v[j], cost[i][j] - u[i] );
+			v[j] = min( v[j], cost(i,j) - u[i] );
 		}
 	}
 
@@ -3138,7 +3222,7 @@ double NiawgController::minCostMatching( const std::vector<std::vector<double>> 
 			{
 				continue;
 			}
-			if (fabs( cost[i][j] - u[i] - v[j] ) < 1e-10)
+			if (fabs( cost(i,j) - u[i] - v[j] ) < 1e-10)
 			{
 				Lmate[i] = j;
 				Rmate[j] = i;
@@ -3166,7 +3250,7 @@ double NiawgController::minCostMatching( const std::vector<std::vector<double>> 
 		fill( seen.begin(), seen.end(), 0 );
 		for (int k = 0; k < n; k++)
 		{
-			dist[k] = cost[s][k] - u[s] - v[k];
+			dist[k] = cost(s,k) - u[s] - v[k];
 		}
 
 		int j = 0;
@@ -3203,7 +3287,7 @@ double NiawgController::minCostMatching( const std::vector<std::vector<double>> 
 					continue;
 				}
 
-				const double new_dist = dist[j] + cost[i][k] - u[i] - v[k];
+				const double new_dist = dist[j] + cost(i,k) - u[i] - v[k];
 
 				if (dist[k] > new_dist)
 				{
@@ -3243,29 +3327,31 @@ double NiawgController::minCostMatching( const std::vector<std::vector<double>> 
 
 	for (int i = 0; i < n; i++)
 	{
-		value += cost[i][Lmate[i]];
+		value += cost(i, Lmate[i]);
 	}
 	return value;
 }
 
 
-double NiawgController::rearrangement( const std::vector<std::vector<bool>> & sourceMatrix,
-									   const std::vector<std::vector<bool>> & targetMatrix,
-									   std::vector<simpleMove> & moveSequence )
+//double NiawgController::rearrangement( const std::vector<std::vector<bool>> & sourceMatrix,
+//									   const std::vector<std::vector<bool>> & targetMatrix,
+//									   std::vector<simpleMove> & moveSequence )
+double NiawgController::rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool> & targetMatrix,
+									   std::vector<simpleMove>& moveSequence)
 {
-	// I am sure this might be also included directly after evaluating the image, but for safety
-	// I also included it here
+	// I am sure this might be also included directly after evaluating the image, but for safety I also included it 
+	// here. 
 	int numberTargets = 0;
 	int numberSources = 0;
-	for (UINT rowInc = 0; rowInc < sourceMatrix.size(); rowInc++)
+	for (UINT rowInc = 0; rowInc < sourceMatrix.getRows(); rowInc++)
 	{
-		for (UINT colInc = 0; colInc < sourceMatrix[rowInc].size(); colInc++)
+		for (UINT colInc = 0; colInc < sourceMatrix.getCols(); colInc++)
 		{
-			if (targetMatrix[rowInc][colInc] == 1)
+			if (targetMatrix(rowInc, colInc) == 1)
 			{
 				numberTargets++;
 			}
-			if (sourceMatrix[rowInc][colInc] == 1)
+			if ( targetMatrix( rowInc, colInc ) == 1)
 			{
 				numberSources++;
 			}
@@ -3277,31 +3363,28 @@ double NiawgController::rearrangement( const std::vector<std::vector<bool>> & so
 		thrower( "Less atoms than targets!\nN source: " + str( numberSources ) + ", N target: " + str( numberTargets ) );
 	}
 
-	//------------------------------------------------------------------------------------------
-	//calculate cost matrix from Source and Targetmatrix
-	//------------------------------------------------------------------------------------------
+	/// calculate cost matrix from Source and Targetmatrix
 	// Cost matrix. Stores path length for each source atom to each target position
-	std::vector<std::vector<double> > costMatrix( numberSources, std::vector<double>( numberSources, 0 ) );
+	Matrix<double> costMatrix( numberSources, 0 );
 	// Indices of atoms in initial config
 	std::vector<std::vector<int> > sourceCoordinates( numberSources, std::vector<int>( 2, 0 ) );
 	// Indices of atoms in final config
 	std::vector<std::vector<int> > targetCoordinates( numberTargets, std::vector<int>( 2, 0 ) );
-
-	//Find out the indice
+	// Find out the indice
 	int sourceCounter = 0;
 	int targetCounter = 0;
 
-	for (UINT rowInc = 0; rowInc < sourceMatrix.size(); rowInc++)
+	for (UINT rowInc = 0; rowInc < sourceMatrix.getRows(); rowInc++)
 	{
-		for (UINT columnInc = 0; columnInc < sourceMatrix[rowInc].size(); columnInc++)
+		for (UINT columnInc = 0; columnInc < sourceMatrix.getCols(); columnInc++)
 		{
-			if (sourceMatrix[rowInc][columnInc] == 1)
+			if (sourceMatrix(rowInc, columnInc) == 1)
 			{
 				sourceCoordinates[sourceCounter][0] = rowInc;
 				sourceCoordinates[sourceCounter][1] = columnInc;
 				sourceCounter++;
 			}
-			if (targetMatrix[rowInc][columnInc] == 1)
+			if (targetMatrix( rowInc, columnInc ) == 1)
 			{
 				targetCoordinates[targetCounter][0] = rowInc;
 				targetCoordinates[targetCounter][1] = columnInc;
@@ -3315,14 +3398,12 @@ double NiawgController::rearrangement( const std::vector<std::vector<bool>> & so
 	{
 		for (int targetInc = 0; targetInc < numberTargets; targetInc++)
 		{
-			costMatrix[sourceInc][targetInc] = abs( sourceCoordinates[sourceInc][0] - targetCoordinates[targetInc][0] )
+			costMatrix(sourceInc, targetInc) = abs( sourceCoordinates[sourceInc][0] - targetCoordinates[targetInc][0] )
 				+ abs( sourceCoordinates[sourceInc][1] - targetCoordinates[targetInc][1] );
 		}
 	}
 
-	//------------------------------------------------------------------------------
-	//Use MinCostMatching algorithm
-	//------------------------------------------------------------------------------
+	/// Use MinCostMatching algorithm
 	//input for bipartite matching algorithm, Algorithm writes into these vectors
 	std::vector<int> left;
 	std::vector<int> right;
@@ -3330,9 +3411,7 @@ double NiawgController::rearrangement( const std::vector<std::vector<bool>> & so
 	//The returned cost is the travelled distance
 	double cost = minCostMatching( costMatrix, left, right );
 
-	//------------------------------------------------------------------------------
-	//calculate the moveSequence
-	//------------------------------------------------------------------------------
+	/// calculate the moveSequence
 
 	//First resize moveSequence, empty in code, but now we now how many entrys: cost!
 	std::vector<simpleMove> operationsList;
@@ -3385,7 +3464,7 @@ double NiawgController::rearrangement( const std::vector<std::vector<bool>> & so
 	moveSequence.clear( );
 	// systemState keeps track of the state of the system after each move. It's important so that the algorithm can
 	// avoid making atoms overlap.
-	std::vector<std::vector<bool>> systemState = sourceMatrix;
+	Matrix<bool> systemState = sourceMatrix;
 	UINT moveNum = 0;
 	while ( operationsList.size( ) != 0 )
 	{
@@ -3395,8 +3474,8 @@ double NiawgController::rearrangement( const std::vector<std::vector<bool>> & so
 			moveNum = 0;
 		}
 		// make sure that the initial location IS populated and the final location ISN'T.
-		if ( systemState[operationsList[moveNum].initRow][operationsList[moveNum].initCol] == false
-			 || systemState[operationsList[moveNum].finRow][operationsList[moveNum].finCol] == true )
+		if ( systemState(operationsList[moveNum].initRow, operationsList[moveNum].initCol) == false
+			 || systemState(operationsList[moveNum].finRow, operationsList[moveNum].finCol) == true )
 		{
 			moveNum++;
 			continue;
@@ -3404,14 +3483,13 @@ double NiawgController::rearrangement( const std::vector<std::vector<bool>> & so
 		// else it's okay. add this to the list of moves.
 		moveSequence.push_back( operationsList[moveNum] );
 		// update the system state after this move.
-		systemState[operationsList[moveNum].initRow][operationsList[moveNum].initCol] = false;
-		systemState[operationsList[moveNum].finRow][operationsList[moveNum].finCol] = true;
+		systemState(operationsList[moveNum].initRow, operationsList[moveNum].initCol) = false;
+		systemState(operationsList[moveNum].finRow, operationsList[moveNum].finCol) = true;
 		// remove the move from the list of moves.
 		operationsList.erase( operationsList.begin( ) + moveNum );
 	}
 	// at this point operationsList should be zero size and moveSequence should be full of the moves in a sequence that
-	// works.
-	// travelled distance
+	// works. return the travelled distance.
 	return cost; 
 }
 
@@ -3745,27 +3823,23 @@ double NiawgController::parallelMoves( std::vector<std::vector<int>> operationsM
 //Is overestimating the most if you have a very small target in a big lattice.
 //If you wanted to scale it down, one idea might be to scale getMaxMoves with the filling fraction!
 //Also: Not super fast because of nested for loops
-UINT NiawgController::getMaxMoves( const std::vector<std::vector<bool>> targetmatrix )
+UINT NiawgController::getMaxMoves( Matrix<bool> targetmatrix )
 {
 	int targetNumber = 0;
-	for (auto row : targetmatrix)
+	for (auto elem : targetmatrix)
 	{
-		for (auto elem : row)
+		if (elem == 1)
 		{
-			if (elem == 1)
-			{
-				targetNumber++;
-			}
+			targetNumber++;
 		}
 	}
-
 	std::vector<std::vector<int> >targetIndice( targetNumber, std::vector<int>( 2, 0 ) );
 	UINT targetcounter = 0;
-	for (UINT i = 0; i < targetmatrix.size(); i++)
+	for (UINT i = 0; i < targetmatrix.getRows(); i++)
 	{
-		for (UINT j = 0; j < targetmatrix[0].size(); j++)
+		for (UINT j = 0; j < targetmatrix.getCols(); j++)
 		{
-			if (targetmatrix[i][j] == 1)
+			if (targetmatrix(i, j) == 1)
 			{
 				targetIndice[targetcounter][0] = i;
 				targetIndice[targetcounter][1] = j;
@@ -3776,9 +3850,9 @@ UINT NiawgController::getMaxMoves( const std::vector<std::vector<bool>> targetma
 	UINT maxlength = 0, sumlength = 0, length = 0;
 	for (UINT k = 0; k < targetcounter; k++)
 	{
-		for (UINT i = 0; i < targetmatrix.size(); i++)
+		for (UINT i = 0; i < targetmatrix.getRows(); i++)
 		{
-			for (UINT j = 0; j < targetmatrix[0].size(); j++)
+			for (UINT j = 0; j < targetmatrix.getCols(); j++)
 			{
 				length = abs( int(i) - targetIndice[k][0] ) + abs( int(j) - targetIndice[k][1] );
 				if (length > maxlength)

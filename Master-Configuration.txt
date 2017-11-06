@@ -233,4 +233,4 @@ pushouttime 0.015
 intrappgccoolingtime 0.5
 loadmotrepumpfreq -0.1
 loadmotmotfreq -0.35
-249 293 3 240 266 3
+1 512 1 1 512 1
