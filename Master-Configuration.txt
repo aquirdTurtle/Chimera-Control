@@ -206,7 +206,7 @@ loadmottopfield 0.25
 loadmotbottomfield -0.15
 loadmotfrontfield -0.6
 loadmotbackfield 1.47507
-loadmottime 150
+loadmottime 70
 pgctime 15
 pgcdetuning -1.25
 pgcleftfield -0.65
