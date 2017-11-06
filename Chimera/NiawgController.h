@@ -9,6 +9,7 @@
 #include "directions.h"
 #include "rerngParams.h"
 #include "rerngThreadInput.h"
+#include "Matrix.h"
 
 #include "ScriptStream.h"
 #include "miscellaneousCommonFunctions.h"
@@ -22,8 +23,11 @@
 #include <mutex>
 #include <chrono>
 
+#include <boost/container/vector.hpp>
+
 struct MasterThreadInput;
 class NiawgWaiter;
+
 
 /** 
   * One of the biggest & most complicated classes in the code.
@@ -37,16 +41,10 @@ class NiawgController
 		void cleanupNiawg( profileSettings profile, bool masterWasRunning,
 							  niawgPair<std::vector<std::fstream>>& niawgFiles, NiawgOutput& output,
 							  Communicator* comm, bool dontGenerate );
-		
 		bool rerngThreadIsActive();
 		std::string getCurrentScript();
 		bool niawgIsRunning();
 
-		void writeStandardWave( simpleWave& wave, debugInfo options, bool isDefault );
-		void writeFlashing( waveInfo& wave, debugInfo& options, UINT variation );
-		void generateWaveform( channelWave & waveInfo, debugInfo& options, long int sampleNum, double time );
-		void mixWaveforms( simpleWave& waveCore, bool writeThisToFile );
-		void calcWaveData( channelWave& inputData, std::vector<ViReal64>& readData, long int sampleNum, double time );
 		void handleStartingRerng( MasterThreadInput* input, NiawgOutput& output );
 		void prepareNiawg( MasterThreadInput* input, NiawgOutput& output, 
 						   niawgPair<std::vector<std::fstream>>& niawgFiles, std::string& warnings, 
@@ -77,8 +75,8 @@ class NiawgController
 		void waitForRerng( );
 		void programVariations( UINT variation, std::vector<long>& variedMixedSize, NiawgOutput& output );
 		void programNiawg( MasterThreadInput* input, NiawgOutput& output, std::string& warnings, UINT variation, 
-							  UINT totalVariations, std::vector<long>& variedMixedSize, 
-							  std::vector<ViChar>& userScriptSubmit );
+						   UINT totalVariations, std::vector<long>& variedMixedSize, 
+						   std::vector<ViChar>& userScriptSubmit );
 		void setDefaultWaveformScript( );
 		void turnOff();
 		void turnOn();
@@ -86,15 +84,14 @@ class NiawgController
 		void setRunningState( bool newRunningState );
 		std::pair<UINT, UINT> getTrigLines( );
 		UINT getNumberTrigsInScript( );
-
 		bool isOn( );
 		void streamWaveform( );
 		FgenFlume fgenConduit;
 
 	private:
-		void flashFormToOutput( waveInfoForm& waveForm, waveInfo& wave,
-								std::vector<variableType>& varibles = std::vector<variableType>( ),
-								UINT variation = -1 );
+		static void smartRearrangement( Matrix<bool> source, Matrix<bool> target, niawgPair<ULONG>& finTargetPos,
+										niawgPair<ULONG> finalPos, std::vector<simpleMove> &operationsMatrix,
+										rerngOptions options );
 		void preWriteRerngWaveforms( rerngThreadInput* input );
 		void writeToFile( std::vector<double> waveVals );
 		void rerngOptionsFormToFinal( rerngOptionsForm& form, rerngOptions& data, std::vector<variableType>& variables,
@@ -110,13 +107,20 @@ class NiawgController
 		void simpleFormVaries( simpleWaveForm& wave );
 		void simpleFormToOutput( simpleWaveForm& formWave, simpleWave& wave,
 								 std::vector<variableType>& varibles = std::vector<variableType>( ), UINT variation = -1 );
-
+		void flashFormToOutput( waveInfoForm& waveForm, waveInfo& wave,
+								std::vector<variableType>& varibles = std::vector<variableType>( ),
+								UINT variation = -1 );
 		void deleteRerngWave( );
 		void startRerngThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave, Communicator* comm,
-						   std::mutex* rerngLock, chronoTimes* andorImageTimes, chronoTimes* grabTimes,
-						   std::condition_variable* rerngConditionWatcher, rerngOptions rerngInfo );
-		std::vector<std::vector<long>> convolve( std::vector<std::vector<bool>> atoms,
-													std::vector<std::vector<bool>> target );
+							   std::mutex* rerngLock, chronoTimes* andorImageTimes, chronoTimes* grabTimes,
+							   std::condition_variable* rerngConditionWatcher, rerngOptions rerngInfo );
+		static niawgPair<ULONG> convolve( Matrix<bool> atoms, Matrix<bool> target );
+		void writeStandardWave( simpleWave& wave, debugInfo options, bool isDefault );
+		void writeFlashing( waveInfo& wave, debugInfo& options, UINT variation );
+		void generateWaveform( channelWave & waveInfo, debugInfo& options, long int sampleNum, double time );
+		void mixWaveforms( simpleWave& waveCore, bool writeThisToFile );
+		void calcWaveData( channelWave& inputData, std::vector<ViReal64>& readData, long int sampleNum, double time );
+
 		void createFlashingWave( waveInfo& wave, debugInfo options );
 		UINT writeToFileNumber = 0;
 		void loadStandardInputFormType( std::string inputType, channelWaveForm &wvInfo );
@@ -171,24 +175,22 @@ class NiawgController
 		std::vector<std::vector<bool>> finalState;
 		// could set different thresholds for each location in the camera if expect imbalance.
 		int threshold;
-		std::vector<double> makeRerngWave( rerngInfo& info, UINT row, UINT col, directions direction,
-												   double staticMovingRatio, double moveBias, double deadTime );
+		std::vector<double> makeRerngWave( rerngInfo& info, UINT row, UINT col, directions direction, 
+										   double staticMovingRatio, double moveBias, double deadTime );
 		// returns sign of x.
 		static int sign( int );
 		// returns cost, which is total travel distance. Algorithm from: 
 		// http://cs.stanford.edu/group/acm/SLPC/notebook.pdf
 		// You have to give it the cost matrix, and to empty vectors, in which it will write
-		static double minCostMatching( const std::vector<std::vector<double>> & cost, std::vector<int> & Lmate,
-									   std::vector<int> & Rmate );
+		static double minCostMatching( Matrix<double> cost, std::vector<int> & Lmate, std::vector<int> & Rmate );
 		// returns a list of single elementary (left,right,up,down) moves. Size is 4 x n_moves: Initialx,Initialy,Finalx,Finaly
-		static double rearrangement( const std::vector<std::vector<bool>> &sourceMatrix,
-									 const std::vector<std::vector<bool>> &targetMatrix,
-									 std::vector<simpleMove> &operationsMatrix );
+		static double rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool> & targetMatrix,
+									 std::vector<simpleMove>& moveSequence );
 		// From the single moves operationsmatrix, this function calculates parallel moves (rows and columns)
 		static double parallelMoves( std::vector<std::vector<int>> operationsMatrix, std::vector<std::vector<int>> source,
 									 double matrixSize, std::vector<parallelMovesContainer> &moves );
 		// returns maximal number of moves given a targetmatrix.
-		static UINT getMaxMoves( const std::vector<std::vector<bool>> targetMatrix );
+		static UINT getMaxMoves( Matrix<bool> targetMatrix );
 };
 
 

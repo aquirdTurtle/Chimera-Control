@@ -13,6 +13,117 @@
 #include <chrono>
 #include <numeric>
 #include <valarray>
+#include <boost/container/vector.hpp>
+
+// this can replace str() and str(), as well as providing functionality to set the precision of
+// to_string() conversions.
+template <typename T> std::string str( T input, const int precision = 13, bool eatZeros = false, bool toLower = false )
+{
+	std::ostringstream out;
+	out << std::setprecision( precision ) << input;
+	std::string outStr = out.str( );
+	if ( eatZeros )
+	{
+		if ( outStr.find( "." ) != std::string::npos )
+		{
+			outStr.erase( outStr.find_last_not_of( '0' ) + 1, std::string::npos );
+		}
+	}
+	if ( toLower )
+	{
+		std::transform( outStr.begin( ), outStr.end( ), outStr.begin( ), ::tolower );
+	}
+	return outStr;
+}
+
+
+
+// a wrapper around a 1D matrix that allows for 2D (row/collum) access styles. Mostly used to represetn images.
+template <class type>
+class Matrix
+{
+	public:
+		Matrix( UINT rowsInGrid, UINT colsInGrid );
+		Matrix( UINT rowsInGrid, UINT colsInGrid, type initValue );
+		type operator()( UINT row, UINT col ) const;
+		type & operator()( UINT row, UINT col );
+		UINT getRows( );
+		UINT getCols( );
+		std::string print( );
+		// typename tells the compiler that std::vector<type>::iterator will be a type.
+		typename boost::container::vector<type>::iterator begin( ) { return data.begin( ); }
+		typename boost::container::vector<type>::iterator end( ) { return data.end( ); }
+		Matrix<type> submatrixStupid( UINT rowOffset, UINT rowSubSpan, UINT colOffset, UINT colSubSpan );
+		Matrix<type> submatrixSmart( UINT rowOffset, UINT rowSubSpan, UINT colOffset, UINT colSubSpan );
+	private:
+		boost::container::vector<type> data;
+		UINT rows, cols;
+};
+
+
+// the array gets sized only once in the constructor.
+template<class type>
+Matrix<type>::Matrix( UINT rowsInGrid, UINT colsInGrid ) :
+	rows( rowsInGrid ),
+	cols( colsInGrid ),
+	data( rowsInGrid*colsInGrid )
+{}
+
+
+template<class type>
+Matrix<type>::Matrix( UINT rowsInGrid, UINT colsInGrid, type initValue ) :
+	rows( rowsInGrid ),
+	cols( colsInGrid ),
+	data( rowsInGrid*colsInGrid, initValue )
+{}
+
+
+template<class type>
+type Matrix<type>::operator()( UINT row, UINT col ) const
+{
+if ( row > rows )
+{
+	std::cout << "ERROR: row index out of range during rearrangementMoveContainer access!";
+}
+if ( col > cols )
+{
+	std::cout << "ERROR: col index out of range during rearrangementMoveContainer access!";
+}
+UINT rowOffset( row * cols );
+UINT index = rowOffset + col;
+return data[index];
+}
+
+template<class type>
+type & Matrix<type>::operator()( UINT row, UINT col )
+{
+	if ( row > rows )
+	{
+		std::cout << "ERROR: row index out of range during rearrangementMoveContainer access!";
+	}
+	if ( col > cols )
+	{
+		std::cout << "ERROR: col index out of range during rearrangementMoveContainer access!";
+	}
+	UINT rowOffset( row * cols );
+	UINT index = rowOffset + col;
+	return data[index];
+}
+
+
+template <class type>
+UINT Matrix<type>::getCols( )
+{
+	return cols;
+}
+
+
+template <class type>
+UINT Matrix<type>::getRows( )
+{
+	return rows;
+}
+
 
 template <typename IntType> std::vector<IntType> range( IntType start, IntType stop, IntType step )
 {
@@ -43,134 +154,90 @@ template <typename IntType> std::vector<IntType> range( IntType stop )
 	return range( IntType( 0 ), stop, IntType( 1 ) );
 }
 
-
-std::vector<std::vector<long>> convolveDumb( std::vector<std::vector<bool>> atoms,
-														  std::vector<std::vector<bool>> target )
+template <class type>
+Matrix<type> Matrix<type>::submatrixSmart( UINT rowOffset, UINT rowSubSpan, UINT colOffset, UINT colSubSpan )
 {
-	std::vector<std::vector<long>> result( atoms.size( ) - target.size( )+1,
-										   std::vector<long>( atoms[0].size( ) - target[0].size( )+1 ) );
-	for ( auto startRowInc : range( result.size( ) ) )
+	if ( rowOffset + rowSubSpan > rows || colOffset + colSubSpan > cols)
 	{
-		for ( auto startColInc : range( result[0].size( ) ) )
+		//thrower( "ERROR: submatrix extends beyond matrix bounds!" );
+	}
+	Matrix<type> subM( 0, 0 );
+	// might be faster to use insert.
+	for ( auto rowInc : range( rowSubSpan ) )
+	{
+		subM.data.insert( subM.data.end(), data.begin() + (rowOffset + rowInc) * cols + colOffset,
+						  data.begin( ) + (rowOffset + rowInc) * cols + colOffset + colSubSpan);
+	}
+	subM.rows = rowSubSpan;
+	subM.cols = colSubSpan;
+	return subM;
+}
+
+template <class type>
+Matrix<type> Matrix<type>::submatrixStupid( UINT rowOffset, UINT rowSubSpan, UINT colOffset, UINT colSubSpan )
+{
+	if ( rowOffset + rowSubSpan > rows || colOffset + colSubSpan > cols )
+	{
+		//thrower( "ERROR: submatrix extends beyond matrix bounds!" );
+	}
+	Matrix<type> subM( rowSubSpan, colSubSpan );
+	// might be faster to use insert.
+	for ( auto rowInc : range( subM.getRows( ) ) )
+	{
+		for ( auto colInc : range( subM.getCols( ) ) )
 		{
-			// calcualte product
-			long conv = 0;
-			for ( auto rowInc : range( target.size( ) ) )
-			{
-				for ( auto colInc : range( target[0].size( ) ) )
-				{
-					conv += atoms[rowInc + startRowInc][colInc + startColInc] * target[rowInc][colInc];
-				}
-			}
-			result[startRowInc][startColInc] = conv;
-			if ( conv == target.size( ) * target[0].size( ) )
-			{
-				// perfect match was found. 
-				return result;
-			}
+			subM( rowInc, colInc ) = (*this)(rowOffset + rowInc, colOffset + colInc);
 		}
 	}
-	return result;
+	return subM;
 }
 
 
-
-std::vector<std::vector<long>> convolve( std::vector<std::vector<bool>> atoms,
-															std::vector<std::vector<bool>> target )
+template <class type>
+std::string Matrix<type>::print( )
 {
-	std::vector<std::vector<long>> result( atoms.size( ) - target.size( ) + 1,
-										   std::vector<long>( atoms[0].size( ) - target[0].size( ) + 1 ) );
-	for ( auto startRowInc : range( result.size( ) ) )
+	std::string printStr;
+	UINT counter = 0;
+	for ( auto elem : *this )
 	{
-		for ( auto startColInc : range( result[0].size( ) ) )
+		printStr += str(elem) + ", ";
+		if ( ++counter % rows == 0 )
 		{
-			// calcualte product
-			long conv = 0;
-			for ( auto rowInc : range( target.size( ) ) )
-			{
-				std::vector<long> tmp( target[0].size( ) );
-				std::transform( atoms[rowInc + startRowInc].begin( ) + startColInc,
-								atoms[rowInc + startRowInc].begin( ) + startColInc + target.size( ),
-								target[rowInc].begin( ), tmp.begin( ), []( auto& i, auto& j ) {return long( i*j ); } );
-				conv += std::accumulate( tmp.begin( ), tmp.end( ), 0 );
-			}
-			result[startRowInc][startColInc] = conv;
-			if ( conv == target.size( ) * target[0].size( ) )
-			{
-				// perfect match was found. 
-				return result;
-			}
+			printStr += ";\n";
 		}
 	}
-	return result;
+	return printStr;
 }
-
-
-
-template <class type> void printVec( std::vector<std::vector<type>> vecToPrint )
-{
-	for ( auto row : vecToPrint )
-	{
-		for ( auto i : row )
-		{
-			std::cout << i << " ";
-		}
-		std::cout << "\n";
-	}
-}
-
-
 
 
 int main( )
 {
-	// initialize stuff
-	std::uniform_int_distribution<int> dist( 0, 100 );	
-	UINT iterations = 100000;
-	UINT dimAtoms = 7;
-	UINT dimTarget = 5;
-	UINT loadingRate = 55;
-	std::vector<std::vector<std::vector<bool>>> atomArrays( iterations );
-	for ( auto& atoms : atomArrays )
+	Matrix<unsigned long> atoms( 4, 4, 0 );
+	UINT counter = 0;
+	for ( auto& atom : atoms )
 	{
-		atoms.resize( dimAtoms );
-		std::vector<std::vector<int>> tmpArray( dimAtoms );
-		for ( auto& rowInc : range(tmpArray.size()))
-		{
-			std::random_device rnd_device;
-			std::mt19937 mersenne_engine( rnd_device( ) );
-			auto gen = std::bind( dist, mersenne_engine );
-			tmpArray[rowInc].resize( dimAtoms );
-			atoms[rowInc].resize( dimAtoms );
-			std::generate( tmpArray[rowInc].begin( ), tmpArray[rowInc].end( ), gen );
-			std::transform( tmpArray[rowInc].begin( ), tmpArray[rowInc].end( ), atoms[rowInc].begin( ),
-							[loadingRate]( int& i ) {return i / loadingRate; } );
-		}
+		atom = counter++;
 	}
-	std::vector<std::vector<bool>> target( dimTarget, std::vector<bool>( dimTarget, true));
-	auto start = std::chrono::steady_clock::now( );
-	for ( auto array : atomArrays )
+	UINT count = 1e6;
+	std::chrono::time_point<std::chrono::steady_clock> begin = std::chrono::steady_clock::now( );
+	for ( auto i : range( count ) )
 	{
-		std::vector<std::vector<long>> result = convolveDumb( array, target );
+		Matrix<unsigned long> subAtoms = atoms.submatrixSmart( 1, 2, 1, 2 );
 	}
-	auto end = std::chrono::steady_clock::now( );
-	auto diff = end - start;
-	std::cout << std::chrono::duration <double, std::milli>( diff ).count( ) / iterations << " ms per dumb convolution\n";
-	start = std::chrono::steady_clock::now( );
-	for ( auto array : atomArrays )
+	std::chrono::time_point<std::chrono::steady_clock> afterSmart = std::chrono::steady_clock::now( );
+	for ( auto i : range( count ) )
 	{
-		std::vector<std::vector<long>> result = convolve( array, target );
+		Matrix<unsigned long> subAtoms2 = atoms.submatrixStupid( 1, 2, 1, 2 );
 	}
-	end = std::chrono::steady_clock::now( );
-	diff = end - start;
-	std::cout << std::chrono::duration <double, std::milli>( diff ).count( ) / iterations << " ms per transform / accumulat convolution\n";
-	/*
-	printVec( atomArrays[0] );
-	std::cout << "convolved with\n";
-	printVec( target );
-	std::cout << "equals\n";
-	printVec( result );
-	*/
+	std::chrono::time_point<std::chrono::steady_clock> afterStupid = std::chrono::steady_clock::now( );
+
+	std::cout << "dumb: " << std::chrono::duration<double>( afterStupid - afterSmart ).count( ) << "us\n";
+	std::cout << "smart: " << std::chrono::duration<double>( afterSmart - begin ).count( ) << "us\n";
+	std::cout << "\n\n\n";
+	//std::cout << subAtoms.print( );
+	std::cout << "\n\n\n";
+	//std::cout << subAtoms2.print( );
 	std::cin.get( );
 	return 0;
 }
+
