@@ -6,7 +6,7 @@ def pump2stretch():
         on: ropshutter % installed 10/19/2017
                  
         %Setting the pumping beam frequencies:
-        daclinspace: dac21 0 (-1.65+0) 20 30 %-1.65
+        daclinspace: dac21 0 (-1.65) 20 30 %-1.65
         %Ramp of DAC 21, F1 offset lock to 2.32 for 2.2 mK trap and -.5V on dac14 AO, -1.5 for 1.1 mK
         dac: sigmarepumpfreq (-0.12+0) %ROP AO, -.5 for 2mK, trap, 0 for 1.1 mK 141217,AMK, -0.12 for 7.15mW two traps, YL 10262016
         dac: motfreq (0.735-0.5)  %for 6 mW, 9 atoms %F2 light 1.1 for 2.1 mK and adjusted AO, .75 for 1.1mK
@@ -21,15 +21,15 @@ def pump2stretch():
         t += 5  %10 to let field settle and lasers settle
          
         %Setting the pumping beam powers:
-        dac: sigmaoppower 0.15 % 0.3 % sigma+ OP beam power
-        dac: sigmarepumppower 0.15 %0.3 %sigma+ Repump beam power
+        dac: sigmaoppower  0.3 % sigma+ OP beam power
+        dac: sigmarepumppower 0.3 %sigma+ Repump beam power
          
         %Performing OP pulse:
 
         on: sigmaoprf  %OP light on ***** '+++
         on: sigmarepumprf %Sigma+ repump beam *****
         
-        t += 10 %1.5 % adding extra 1 ms for better pumping 20161011
+        t += 10  %1.5 % adding extra 1 ms for better pumping 20161011
         
         off: sigmaoprf
         off: sigmarepumprf 
@@ -45,4 +45,4 @@ def pump2stretch():
         t += 2
         on: diagmotshutter
 
-        off: ropshutter % installed 10/19/2017
+        off: ropshutter % installed 10/19/2017

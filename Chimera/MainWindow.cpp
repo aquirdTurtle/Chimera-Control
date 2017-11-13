@@ -216,7 +216,7 @@ LRESULT MainWindow::onNoAtomsAlertMessage( WPARAM wp, LPARAM lp )
 			menu.CheckMenuItem( ID_RUNMENU_PAUSE, MF_CHECKED );
 			comm.sendColorBox( Master, 'Y' );			
 		}
-		auto asyncbeep = std::async( std::launch::async, [] { Beep( 1000, 500 ); } );
+		auto asyncbeep = std::async( std::launch::async, [] { Beep( 1000, 100 ); } );
 		time_t t = time( 0 );
 		struct tm now;
 		localtime_s( &now, &t );

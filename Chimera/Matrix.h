@@ -52,7 +52,7 @@ std::string Matrix<type>::print( )
 	for ( auto elem : *this )
 	{
 		printStr += str( elem ) + ", ";
-		if ( ++counter % rows == 0 )
+		if ( ++counter % cols == 0 )
 		{
 			printStr += ";\n";
 		}

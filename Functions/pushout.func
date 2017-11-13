@@ -1,7 +1,8 @@
 % pushout(). Takes 10 + pushoutTime ms, typically around 11ms.
 def pushout():
   	% insert commands here... 
-	pulseon: tweezerIntensityTrig 0.1
+
+      pulseon: tweezerIntensityTrig 0.1
       t += 2
 	dac: MOTFreq pushoutfreq  
 	dac: RepumpPower 0.04
@@ -10,11 +11,12 @@ def pushout():
 	% to pump to the F=2 manifold.
 	%daclinspace: motFreq 0.235 pushoutfreq  5 20 %-0.5 to pushoutfreq in 5ms	
 	% mostly for the power ramp. also, lets the mot frequency settle.
-	t += 5
-	dac: sideMotPower 0.015 % 0.015 %0.01
+	t += 2 %calibrated 11/9/2017
+	dac: sideMotPower 0.08 %for 3x6 with pushoutdepth 2 % 0.015 %0.01
 	on: sideMotRf
-      t += pushoutTime 
+      t += pushoutTime %0.3
 	off: sideMotRf
+
 	dac: MOTFreq -0.6
 	%daclinspace: motFreq pushoutFreq -0.6 5 20 % -0.5
 	pulseon: tweezerIntensityTrig 0.1

@@ -4,63 +4,38 @@
 #include "NiawgStructures.h"
 #include "MasterManager.h"
 #include "NiawgWaiter.h"
+
 #include "MasterThreadInput.h"
+#include "Matrix.h"
 
 #include <boost/algorithm/string/replace.hpp>
 #include <chrono>
 #include <numeric>
-#include "Matrix.h"
+
 
 NiawgController::NiawgController( UINT trigRow, UINT trigNumber ) : triggerRow( trigRow ), triggerNumber( trigNumber )
 {
 	// initialize rearrangement calibrations.
 	// default value for bias calibrations is currently 0.5.
 	// 3x6 calibration
-	rerngContainer<double> moveBias3x6Cal( 3, 6, 0.5);
-	// flipped
-	/*
-	moveBias3x6Cal( 0, 0, down ) = moveBias3x6Cal( 1, 0, up ) = 0.7;
-	moveBias3x6Cal( 0, 1, down ) = moveBias3x6Cal( 1, 1, up ) = 0.52;
-	moveBias3x6Cal( 0, 2, down ) = moveBias3x6Cal( 1, 2, up ) = 0.48;
-	moveBias3x6Cal( 0, 3, down ) = moveBias3x6Cal( 1, 3, up ) = 0.45;
-	moveBias3x6Cal( 0, 4, down ) = moveBias3x6Cal( 1, 4, up ) = 0.48;
-	moveBias3x6Cal( 0, 5, down ) = moveBias3x6Cal( 1, 5, up ) = 0.6;
+	rerngContainer<double> moveBias3x6Cal( 3, 6, 0.45);
+	
+	moveBias3x6Cal( 1, 4, right ) = 0.38;
+
+	moveBias3x6Cal( 0, 0, up ) = moveBias3x6Cal( 1, 0, down ) = 0.7;
+	moveBias3x6Cal( 0, 1, up ) = moveBias3x6Cal( 1, 1, down ) = 0.52;
+	moveBias3x6Cal( 0, 2, up ) = moveBias3x6Cal( 1, 2, down ) = 0.48;
+	moveBias3x6Cal( 0, 3, up ) = moveBias3x6Cal( 1, 3, down ) = 0.45;
+	moveBias3x6Cal( 0, 4, up ) = moveBias3x6Cal( 1, 4, down ) = 0.48;
+	moveBias3x6Cal( 0, 5, up ) = moveBias3x6Cal( 1, 5, down ) = 0.75;
 	// 
-	moveBias3x6Cal( 2, 0, up ) = moveBias3x6Cal( 1, 0, down ) = 0.5;
-	moveBias3x6Cal( 2, 1, up ) = moveBias3x6Cal( 1, 1, down ) = 0.5;
-	moveBias3x6Cal( 2, 2, up ) = moveBias3x6Cal( 1, 2, down ) = 0.45;
-	moveBias3x6Cal( 2, 3, up ) = moveBias3x6Cal( 1, 3, down ) = 0.48;
-	moveBias3x6Cal( 2, 4, up ) = moveBias3x6Cal( 1, 4, down ) = 0.35;
-	moveBias3x6Cal( 2, 5, up ) = moveBias3x6Cal( 1, 5, down ) = 0.7;
-	*/
-	moveBias3x6Cal( 0, 0, down ) = moveBias3x6Cal( 1, 0, up ) = 0.5;
-	moveBias3x6Cal( 0, 1, down ) = moveBias3x6Cal( 1, 1, up ) = 0.5;
-	moveBias3x6Cal( 0, 2, down ) = moveBias3x6Cal( 1, 2, up ) = 0.45;
-	moveBias3x6Cal( 0, 3, down ) = moveBias3x6Cal( 1, 3, up ) = 0.48;
-	moveBias3x6Cal( 0, 4, down ) = moveBias3x6Cal( 1, 4, up ) = 0.35;
-	moveBias3x6Cal( 0, 5, down ) = moveBias3x6Cal( 1, 5, up ) = 0.7;
-	// 
-	moveBias3x6Cal( 2, 0, up ) = moveBias3x6Cal( 1, 0, down ) = 0.7;
-	moveBias3x6Cal( 2, 1, up ) = moveBias3x6Cal( 1, 1, down ) = 0.52;
-	moveBias3x6Cal( 2, 2, up ) = moveBias3x6Cal( 1, 2, down ) = 0.48;
-	moveBias3x6Cal( 2, 3, up ) = moveBias3x6Cal( 1, 3, down ) = 0.45;
-	moveBias3x6Cal( 2, 4, up ) = moveBias3x6Cal( 1, 4, down ) = 0.48;
-	moveBias3x6Cal( 2, 5, up ) = moveBias3x6Cal( 1, 5, down ) = 0.6;
-	/*
-	moveBias3x6Cal( 0, 0, down ) = moveBias3x6Cal( 1, 0, up ) = 0.65;
-	moveBias3x6Cal( 0, 1, down ) = moveBias3x6Cal( 1, 1, up ) = 0.35;
-	moveBias3x6Cal( 0, 2, down ) = moveBias3x6Cal( 1, 2, up ) = 0.35;
-	moveBias3x6Cal( 0, 3, down ) = moveBias3x6Cal( 1, 3, up ) = 0.35;
-	moveBias3x6Cal( 0, 4, down ) = moveBias3x6Cal( 1, 4, up ) = 0.35;
-	moveBias3x6Cal( 0, 5, down ) = moveBias3x6Cal( 1, 5, up ) = 0.65;
-	// 
-	moveBias3x6Cal( 2, 0, up) = moveBias3x6Cal( 1, 0, down ) = 0.6;
-	moveBias3x6Cal( 2, 1, up ) = moveBias3x6Cal( 1, 1, down ) = 0.35;
-	moveBias3x6Cal( 2, 2, up ) = moveBias3x6Cal( 1, 2, down ) = 0.35;
-	moveBias3x6Cal( 2, 3, up ) = moveBias3x6Cal( 1, 3, down ) = 0.35;
-	moveBias3x6Cal( 2, 4, up ) = moveBias3x6Cal( 1, 4, down ) = 0.35;
-	moveBias3x6Cal( 2, 5, up ) = moveBias3x6Cal( 1, 5, down ) = 0.6;
-	*/
+	moveBias3x6Cal( 2, 0, down ) = moveBias3x6Cal( 1, 0, up ) = 0.8;
+	moveBias3x6Cal( 2, 1, down ) = moveBias3x6Cal( 1, 1, up ) = 0.5;
+	moveBias3x6Cal( 2, 2, down ) = moveBias3x6Cal( 1, 2, up ) = 0.45;
+	moveBias3x6Cal( 2, 3, down ) = moveBias3x6Cal( 1, 3, up ) = 0.48;
+	moveBias3x6Cal( 2, 4, down ) = moveBias3x6Cal( 1, 4, up ) = 0.35;
+	moveBias3x6Cal( 2, 5, down ) = moveBias3x6Cal( 1, 5, up ) = 0.7;
+	
 	moveBiasCalibrations.push_back( moveBias3x6Cal );
 }
 
@@ -1996,6 +1971,8 @@ void NiawgController::writeFlashing( waveInfo& wave, debugInfo& options, UINT va
 	// the script. 
 	fgenConduit.writeNamedWaveform( cstr( wave.core.name ), long( wave.core.waveVals.size( ) ),
 									wave.core.waveVals.data( ) );
+	//writeToFile( wave.core.waveVals );
+
 }
 
 
@@ -2080,7 +2057,7 @@ void NiawgController::mixFlashingWaves( waveInfo& wave, double deadTime, double 
 	/// then mix them to create the flashing version.
 	// total period time in seconds...
 	double period = 1.0 / wave.flash.flashCycleFreq;
-	// total period in samples...
+	// total period in samples...S
 	long totalPeriodInSamples = long( period * NIAWG_SAMPLE_RATE + 0.5 );
 	long samplesPerWavePerPeriod = totalPeriodInSamples / wave.flash.flashNumber;
 	// *2 because of mixing
@@ -2509,6 +2486,7 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 	rerngContainer<double> calBias( rows, cols );
 	if ( input->rerngOptions.useCalibration )
 	{
+		// find the calibration whose dimensions match the target
 		for ( auto& cal : moveBiasCalibrations )
 		{
 			if ( cal.getRows( ) == rows && cal.getCols( ) == cols )
@@ -2530,7 +2508,7 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 			move.moveTime = input->rerngOptions.moveSpeed;
 			move.moveBias = input->rerngOptions.moveBias;
 			// up
-			if ( row != 0 )
+			if ( row != rows - 1 )
 			{
 				move.direction = up;
 				if ( input->rerngOptions.useCalibration )
@@ -2542,7 +2520,7 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 				input->moves( row, col, move.direction ) = move;
 			}
 			// down
-			if ( row != rows - 1 )
+			if ( row != 0 )
 			{
 				move.direction = down;
 				if ( input->rerngOptions.useCalibration )
@@ -2596,13 +2574,13 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& info, UINT row, U
 	switch ( direction )
 	{
 		case up:
-			finPos = { rowInt - 1, colInt };
+			finPos = { rowInt + 1, colInt };
 			movingAxis = Vertical;
 			staticAxis = Horizontal;
 			movingSize = info.target.getRows();
 			break;
 		case down:
-			finPos = { rowInt + 1, colInt };
+			finPos = { rowInt - 1, colInt };
 			movingAxis = Vertical;
 			staticAxis = Horizontal;
 			movingSize = info.target.getRows( );
@@ -2703,13 +2681,14 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& info, UINT row, U
 		sig.freqInit = (initPos[staticAxis] * freqPerPixel + info.lowestFreq[staticAxis])*1e6;
 		sig.freqFin = sig.freqInit;
 	}
-	/// finalize info & calc stuffs
+	/// finalize info & calculate things
 	finalizeStandardWave( moveWave, debugInfo( ) );
 	// now put together into small temporary flashing wave
 	waveInfo flashMove;
 	flashMove.core.time = info.timePerMove;
 	flashMove.flash.isFlashing = true;
 	flashMove.flash.flashNumber = 2;
+	flashMove.flash.deadTime = deadTime;
 	if ( fabs( info.staticWave.time + moveWave.time - info.timePerMove ) > 1e-9 )
 	{
 		thrower( "ERROR: static wave and moving wave don't add up to the total time of the flashing wave! "
@@ -2849,6 +2828,20 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 	UINT counter = 0;
 	try
 	{
+		UINT rows = input->rerngWave.rearrange.target.getRows( );
+		UINT cols = input->rerngWave.rearrange.target.getCols( );
+		rerngContainer<double> calBias( rows, cols );
+		if ( input->rerngOptions.useCalibration )
+		{
+			// find the calibration whose dimensions match the target
+			for ( auto& cal : input->niawg->moveBiasCalibrations )
+			{
+				if ( cal.getRows( ) == rows && cal.getCols( ) == cols )
+				{
+					calBias = cal;
+				}
+			}
+		}
 		if ( input->rerngOptions.outputInfo )
 		{
 			outFile.open( DEBUG_OUTPUT_LOCATION + "Rearranging-Event-Info.txt" );
@@ -2907,7 +2900,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			{
 				for ( auto rowCount : range( info.target.getRows() ) )
 				{
-					source(source.getCols() - 1 - rowCount, colCount) = tempAtoms[count++];
+					source(source.getRows() - 1 - rowCount, colCount) = tempAtoms[count++];
 				}
 			}
 			std::vector<simpleMove> moveSequence;
@@ -2932,11 +2925,11 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				directions dir;
 				if ( move.initRow - move.finRow == 1 )
 				{
-					dir = up;
+					dir = down;
 				}
 				else if ( move.initRow - move.finRow == -1 )
 				{
-					dir = down;
+					dir = up;
 				}
 				else if ( move.initCol - move.finCol == 1 )
 				{
@@ -2947,6 +2940,15 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 					dir = right;
 				}
 				std::vector<double> vals;
+				double bias;
+				if ( input->rerngOptions.useCalibration )
+				{
+					bias = calBias( move.initRow, move.initCol, dir );
+				}
+				else
+				{
+					bias = input->rerngOptions.moveBias;
+				}
 				if ( input->rerngOptions.preprogram )
 				{					
 					vals = input->moves( move.initRow, move.initCol, dir ).waveVals;
@@ -2955,7 +2957,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				{
 					vals = input->niawg->makeRerngWave( info, move.initRow, move.initCol, dir,
 														input->rerngOptions.staticMovingRatio,
-														input->rerngOptions.moveBias, input->rerngOptions.deadTime );
+														bias, input->rerngOptions.deadTime );
 				}
 				input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), vals.begin( ), vals.end( ) );
 			}
@@ -2982,6 +2984,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			{
 				triedRearranging.push_back( false );
 			}
+			//input->niawg->writeToFile( input->niawg->rerngWaveVals );
 			input->niawg->rerngWaveVals.clear( );
 			if ( moveSequence.size( ) != 0 )
 			{
@@ -3001,7 +3004,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				for ( auto elem : source )
 				{
 					outFile << elem << ", ";
-					if ( ++counter % source.getRows( ) == 0 )
+					if ( ++counter % source.getCols( ) == 0 )
 					{
 						outFile << "; ";
 					}
@@ -3184,150 +3187,164 @@ int NiawgController::sign( int x )
 }
 
 
-double NiawgController::minCostMatching( Matrix<double> cost, std::vector<int> &Lmate, std::vector<int> &Rmate )
+double NiawgController::minCostMatching( Matrix<double> cost, std::vector<int> &sourceMates, std::vector<int> &targetMates )
 {
-	int n = int( cost.getRows() * cost.getCols() );
+	/// 
+	UINT numSources = cost.getRows( );
+	UINT numTargets = cost.getCols( );
 	// construct dual feasible solution
-	std::vector<double> u( n );
-	std::vector<double> v( n );
 
-	for (int i = 0; i < n; i++)
+	// each element of u represents one of the sources, and the value of that element is the distance of that source to 
+	// the closest target.
+	std::vector<double> u( numSources );
+	// v is more complicated.
+	std::vector<double> v( numTargets );
+	// 
+	for (int sourceInc = 0; sourceInc < numSources; sourceInc++)
 	{
-		u[i] = cost(i,0);
-		for (int j = 1; j < n; j++)
+		u[sourceInc] = cost(sourceInc,0);
+		for (int targetInc = 1; targetInc < numTargets; targetInc++)
 		{
-			u[i] = min( u[i], cost(i,j) );
+			u[sourceInc] = min( u[sourceInc], cost(sourceInc, targetInc) );
 		}
 	}
 
-	for (int j = 0; j < n; j++)
+	for (int targetInc = 0; targetInc < numTargets; targetInc++)
 	{
-		v[j] = cost(0,j) - u[0];
-		for (int i = 1; i < n; i++)
+		v[targetInc] = cost(0,targetInc) - u[0];
+		for (int sourceInc = 1; sourceInc < numSources; sourceInc++)
 		{
-			v[j] = min( v[j], cost(i,j) - u[i] );
+			v[targetInc] = min( v[targetInc], cost(sourceInc,targetInc) - u[sourceInc] );
 		}
 	}
 
 	// construct primal solution satisfying complementary slackness
-	Lmate = std::vector<int>( n, -1 );
-	Rmate = std::vector<int>( n, -1 );
-	int mated = 0;
+	// -1 indicates unmatched.
+	sourceMates = std::vector<int>( numSources, -1 );
+	targetMates = std::vector<int>( numTargets, -1 );
+	int numberMated = 0;
 
-	for (int i = 0; i < n; i++)
+	for (int sourceInc = 0; sourceInc < numSources; sourceInc++)
 	{
-		for (int j = 0; j < n; j++)
+		for (int targetInc = 0; targetInc < numTargets; targetInc++)
 		{
-			if (Rmate[j] != -1)
+			if (targetMates[targetInc] != -1)
 			{
+				// already matched.
 				continue;
 			}
-			if (fabs( cost(i,j) - u[i] - v[j] ) < 1e-10)
+			if (fabs( cost(sourceInc,targetInc) - u[sourceInc] - v[targetInc] ) < 1e-10)
 			{
-				Lmate[i] = j;
-				Rmate[j] = i;
-				mated++;
+				sourceMates[sourceInc] = targetInc;
+				targetMates[targetInc] = sourceInc;
+				numberMated++;
 				break;
 			}
 		}
 	}
 	
-	std::vector<double> dist( n );
-	std::vector<int> dad( n ), seen( n );
+	std::vector<double> dist( numTargets );
+	std::vector<int> dad( numSources );
+	std::vector<bool> seen( numTargets, false);
 
 	// repeat until primal solution is feasible
-	while (mated < n)
+	while (numberMated < numSources)
 	{
 		// find an unmatched left node
-		int s = 0;
-		while (Lmate[s] != -1)
+		int currentUnmatchedSource = 0;
+		// I think there must be at least one because numberMated < rows.
+		while (sourceMates[currentUnmatchedSource] != -1)
 		{
-			s++;
+			currentUnmatchedSource++;
+			if ( currentUnmatchedSource >= sourceMates.size( ) )
+			{
+				thrower( "ERROR: rearrangement Error! all mateColumn are matched but numberMated < rows!" );
+			}
 		}
 
-		// initialize Dijkstra
+		// initialize Dijkstra ...?
 		fill( dad.begin(), dad.end(), -1 );
-		fill( seen.begin(), seen.end(), 0 );
-		for (int k = 0; k < n; k++)
+		fill( seen.begin(), seen.end(), false );
+		for (auto targetInc : range(numTargets))
 		{
-			dist[k] = cost(s,k) - u[s] - v[k];
+			dist[targetInc] = cost(currentUnmatchedSource,targetInc) - u[currentUnmatchedSource] - v[targetInc];
 		}
 
-		int j = 0;
+		int closestTarget = 0;
 		while (true)
 		{
-			// find closest
-			j = -1;
-			for (int k = 0; k < n; k++)
+			// find closest target
+			closestTarget = -1;
+			for (int targetInc = 0; targetInc < numTargets; targetInc++)
 			{
-				if (seen[k])
+				if (seen[targetInc])
 				{
 					continue;
 				}
-				if (j == -1 || dist[k] < dist[j])
+				if (closestTarget == -1 || dist[targetInc] < dist[closestTarget])
 				{
-					j = k;
+					closestTarget = targetInc;
 				}
 			}
-			seen[j] = 1;
+			seen[closestTarget] = true;
 
 			// termination condition
-			if (Rmate[j] == -1)
+			if (targetMates[closestTarget] == -1)
 			{
 				break;
 			}
 
 			// relax neighbors
-			const int i = Rmate[j];
+			const int closestTargetMate = targetMates[closestTarget];
 
-			for (int k = 0; k < n; k++)
+			for (int targetInc = 0; targetInc < numTargets; targetInc++)
 			{
-				if (seen[k])
+				if (seen[targetInc])
 				{
 					continue;
 				}
 
-				const double new_dist = dist[j] + cost(i,k) - u[i] - v[k];
-
-				if (dist[k] > new_dist)
+				const double new_dist = dist[closestTarget] + cost( closestTargetMate,targetInc)
+					- u[closestTargetMate] - v[targetInc];
+				if (dist[targetInc] > new_dist)
 				{
-					dist[k] = new_dist;
-					dad[k] = j;
+					dist[targetInc] = new_dist;
+					dad[targetInc] = closestTarget;
 				}
 			}
 		}
 
 		// update dual variables
-		for (int k = 0; k < n; k++)
+		for (auto targetInc : range(numTargets))
 		{
-			if (k == j || !seen[k])
+			if (targetInc == closestTarget || !seen[targetInc])
 			{
 				continue;
 			}
 
-			const int i = Rmate[k];
-			v[k] += dist[k] - dist[j];
-			u[i] -= dist[k] - dist[j];
+			const int closestTargetMate = targetMates[targetInc];
+			v[targetInc] += dist[targetInc] - dist[closestTarget];
+			u[closestTargetMate] -= dist[targetInc] - dist[closestTarget];
 		}
 
-		u[s] += dist[j];
+		u[currentUnmatchedSource] += dist[closestTarget];
 		// augment along path
-		while (dad[j] >= 0)
+		while (dad[closestTarget] >= 0)
 		{
-			const int d = dad[j];
-			Rmate[j] = Rmate[d];
-			Lmate[Rmate[j]] = j;
-			j = d;
+			const int d = dad[closestTarget];
+			targetMates[closestTarget] = targetMates[d];
+			sourceMates[targetMates[closestTarget]] = closestTarget;
+			closestTarget = d;
 		}
-		Rmate[j] = s;
-		Lmate[s] = j;
-		mated++;
+		targetMates[closestTarget] = currentUnmatchedSource;
+		sourceMates[currentUnmatchedSource] = closestTarget;
+		numberMated++;
 	}
-	double value = 0;
 
-	for (int i = 0; i < n; i++)
+	double value = 0;
+	for (auto sourceInc : range(numSources))
 	{
-		value += cost(i, Lmate[i]);
+		value += cost(sourceInc, sourceMates[sourceInc]);
 	}
 	return value;
 }
@@ -3351,7 +3368,7 @@ double NiawgController::rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool>
 			{
 				numberTargets++;
 			}
-			if ( targetMatrix( rowInc, colInc ) == 1)
+			if ( sourceMatrix( rowInc, colInc ) == 1)
 			{
 				numberSources++;
 			}
@@ -3365,7 +3382,7 @@ double NiawgController::rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool>
 
 	/// calculate cost matrix from Source and Targetmatrix
 	// Cost matrix. Stores path length for each source atom to each target position
-	Matrix<double> costMatrix( numberSources, 0 );
+	Matrix<double> costMatrix( numberSources, numberSources, 0 );
 	// Indices of atoms in initial config
 	std::vector<std::vector<int> > sourceCoordinates( numberSources, std::vector<int>( 2, 0 ) );
 	// Indices of atoms in final config
@@ -3399,7 +3416,7 @@ double NiawgController::rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool>
 		for (int targetInc = 0; targetInc < numberTargets; targetInc++)
 		{
 			costMatrix(sourceInc, targetInc) = abs( sourceCoordinates[sourceInc][0] - targetCoordinates[targetInc][0] )
-				+ abs( sourceCoordinates[sourceInc][1] - targetCoordinates[targetInc][1] );
+						+ abs( sourceCoordinates[sourceInc][1] - targetCoordinates[targetInc][1] );
 		}
 	}
 

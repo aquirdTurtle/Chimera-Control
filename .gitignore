@@ -1,4 +1,8 @@
+Debug/
+Release/
+Debug-Output/
 Data/
+Chimera/__pycache__/
 *.tlog
 *.ico
 *.enc
@@ -28,7 +32,7 @@ MFCApplication3/
 *.sConfig
 !Profiles/Program Tests/*.script
 !Profiles/Program Tests/*.nScript
-!Profiles/Program Tests/*.cConfig
+!Profiles/Program Tests/*.Config
 !Profiles/Program Tests/*.hConfig
 !Profiles/Program Tests/*.vConfig
 !Profiles/Program Tests/*.mScript
