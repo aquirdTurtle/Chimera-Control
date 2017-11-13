@@ -199,38 +199,45 @@ sidemotpower
 piezomirror
 -10 - 10
 0
-33
-loadmotrightfield 0.8
-loadmotleftfield -0.755
-loadmottopfield 0.25
+40
+loadmotrightfield 0.9
+loadmotleftfield -0.8
+loadmottopfield -0.1
 loadmotbottomfield -0.15
-loadmotfrontfield -0.6
+loadmotfrontfield -0.5
 loadmotbackfield 1.47507
-loadmottime 70
-pgctime 15
-pgcdetuning -1.25
-pgcleftfield -0.65
+loadmottime 150
+pgctime 25
+pgcdetuning -0.8
+pgcleftfield -0.3924
 pgcrightfield 0.4856
-pgctopfield 1.994
+pgctopfield 1.943
 pgcbottomfield -1.994
-pgcfrontfield -0.551
+pgcfrontfield -0.6349
 pgcbackfield 0.551
 andorimagetime 25
 imagingpower 0.225
-imagingdetuning 0.35
+imagingdetuning 0.3
 pushoutdepth 0.15
-pushoutfreq 0.6
+pushoutfreq 1
 fieldtheta 1.57
-fieldphi 0.5
+fieldphi 1.57
 rotatefieldtime 3
 imagingflashingdetuning -1.5
-intrappgcdetuning -4.5
-intrappgcpower 0.225
+intrappgcdetuning -2
+intrappgcpower 0.14
 loadmotsidepower 0.25
 loadmotdiagpower 0.3
 imagingrepumppower 0.2
-pushouttime 0.015
-intrappgccoolingtime 0.5
-loadmotrepumpfreq -0.1
-loadmotmotfreq -0.35
-1 512 1 1 512 1
+pushouttime 0.3
+intrappgccoolingtime 2
+loadmotrepumpfreq -0.2
+loadmotmotfreq 0
+pgcloadingsidemotpower 0.04
+pgcloadingdiagmotpower 0.35
+stage1loaddepth 30
+stage2loaddepth 65
+pgcstage1time 0.1
+pgcstage2time 6
+intrappgcrepumppower 0.1
+249 293 3 240 266 3

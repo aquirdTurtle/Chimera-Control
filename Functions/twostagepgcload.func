@@ -1,0 +1,37 @@
+% Master-Script See the "?" for info on commands.
+def TwoStagePgcLoad():
+    	%Shutting off gradient from MOT loading:    
+	dac: motGradientCurrent 0
+	call zeroFields()
+    	%Set beam powers for PGC and turn on beams 
+	% (should already be on, but just in case):
+	dacLinSpace: MotFreq loadMotMotFreq pgcDetuning 1 20
+      % to let the ramp finish
+	t += 1
+ 	dac: repumpPower 0.1   
+	dac: diagMotPower pgcLoadingDiagMotPower 
+	dac: sideMotPower pgcLoadingSideMotPower
+	dac: repumpFreq -0.5
+	
+	on: repumpRf
+	on: sideMotRf
+	on: diagMotRf
+	% the different part 
+	t += PgcStage1Time
+	pulseon: niawgTrig 0.1
+	pulseon: tweezerIntensityTrig 0.1
+	t += PgcStage2Time  
+    
+	off: repumpRf
+	off: sideMotRf
+	off: diagMotRf
+    
+	dacLinSpace: MotFreq pgcDetuning 0.3 1 20
+
+	dac: repumpPower 0
+	dac: diagMotPower 0
+	dac: sideMotPower 0
+
+      t += 1
+
+

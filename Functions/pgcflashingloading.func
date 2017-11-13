@@ -1,0 +1,28 @@
+% Master-Script See the "?" for info on commands.
+def pgcFlashingLoading():
+	dac: motGradientCurrent 0
+	call zeroFields()
+	% give the shutter some time to open.
+
+	dac: diagMotPower 0.1
+	dac: MotFreq flashingLoadingDetuning 
+	%dacLinSpace: MotFreq 0.3 imagingFlashingDetuning 3 10 %
+      dac: SideMotPower flashingLoadingPower 
+	dac: RepumpPower flashingLoadingRepumpPower 
+	%t += 3
+	% turn the repump on a tiny bit early 
+	% to pump to the F=2 manifold.
+	on: c5 % flashing the trap
+	on: c7 % flashing the sidemot light
+	on: RepumpRf
+	%t += 1
+	on: diagMotRf
+	on: SideMotRf
+	t += pgcTime
+	off: SideMotRf
+	off: repumpRf
+
+	off: c5 % unflashing the trap
+	off: c7 % unflashing the sidemot light
+
+	dac: MotFreq -0.1
