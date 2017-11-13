@@ -423,9 +423,11 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 		{
 			continue;
 		}
+		std::vector<std::vector<bool>> tmpAtomImage;
 		std::vector<long> tempImage;
 		if ( input->needsCounts )
 		{
+			
 			std::lock_guard<std::mutex> locker( *input->plotLock );
 			if ( input->imageQueue->size( ) == 0 )
 			{
@@ -461,7 +463,7 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 				}
 			}
 		}
-		/// get all the atom data problem
+		/// get all the atom data
 		bool thereIsAtLeastOneAtom = false;
 		for (UINT pixelInc = 0; pixelInc < groupNum; pixelInc++)
 		{

@@ -129,6 +129,7 @@ class CameraWindow : public CDialog
 		// only used sometimes.
 		std::vector<std::vector<long>> plotterPictureQueue;
 		std::vector<std::vector<bool>> rearrangerAtomQueue;
+		// 
 		std::mutex plotLock;
 		std::mutex rearrangerLock;
 		HANDLE atomCruncherThreadHandle;

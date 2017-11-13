@@ -16,6 +16,8 @@ struct rerngThreadInput
 {
 	rerngThreadInput( UINT gridRows, UINT gridCols ) : moves( gridRows, gridCols ) {}
 
+	UINT sourceRows = 0;
+	UINT sourceCols = 0;
 	std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>>* pictureTimes;
 	std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>>* grabTimes;
 	std::mutex* rerngLock;

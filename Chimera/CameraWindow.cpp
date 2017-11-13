@@ -1001,8 +1001,8 @@ UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 		{
 			// copies the array. Right now I'm assuming that the thread always needs atoms, which is not a good 
 			// assumption.
+			std::lock_guard<std::mutex> locker( *input->plotLock );
 			(*input->plotterAtomQueue).push_back(tempAtomArray);
-
 			if (input->plotterNeedsImages)
 			{
 				(*input->plotterImageQueue).push_back(tempImagePixels);
@@ -1090,6 +1090,7 @@ void CameraWindow::fillMasterThreadInput( MasterThreadInput* input )
 	input->rearrangerLock = &rearrangerLock;
 	input->andorsImageTimes = &imageTimes;
 	input->grabTimes = &imageGrabTimes;
+	input->analysisGrid = analysisHandler.getAtomGrid( );
 	input->conditionVariableForRearrangement = &rearrangerConditionVariable;
 }
 

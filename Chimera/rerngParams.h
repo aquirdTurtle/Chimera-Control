@@ -45,6 +45,6 @@ struct rerngOptions
 	bool outputIndv = false;
 	bool preprogram = false;
 	bool useCalibration = false;
-	smartRearrangementOptions smartOption=none;
+	smartRearrangementOptions smartOption = full;
 };
 

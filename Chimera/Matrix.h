@@ -15,6 +15,7 @@ class Matrix
 		UINT getCols( );
 		Matrix<type> submatrix( UINT rowOffset, UINT rowSubSpan, UINT colOffset, UINT colSubSpan );
 		std::string print( );
+		void updateString( );
 		// typename tells the compiler that std::vector<type>::iterator will be a type.
 		typename boost::container::vector<type>::iterator begin( ) { return data.begin( ); }
 		typename boost::container::vector<type>::iterator end( ) { return data.end( ); }
@@ -22,7 +23,19 @@ class Matrix
 		// need to use the boost version because the std version doesn't do std::vector<bool> properly.
 		boost::container::vector<type> data;
 		UINT rows, cols;
+		// the following string is only updated if in debug mode.
+		std::string currMatrix;
 };
+
+template <class type>
+void Matrix<type>::updateString( )
+{
+//#ifdef _DEBUG
+	currMatrix = print( );
+//#endif
+	return;
+}
+
 
 template <class type>
 Matrix<type> Matrix<type>::submatrix( UINT rowOffset, UINT rowSubSpan, UINT colOffset, UINT colSubSpan )
@@ -40,6 +53,7 @@ Matrix<type> Matrix<type>::submatrix( UINT rowOffset, UINT rowSubSpan, UINT colO
 	}
 	subM.rows = rowSubSpan;
 	subM.cols = colSubSpan;
+	updateString( );
 	return subM;
 }
 
@@ -91,22 +105,24 @@ type Matrix<type>::operator()( UINT row, UINT col ) const
 	}
 	UINT rowOffset( row * cols );
 	UINT index = rowOffset + col;
+	updateString( );
 	return data[index];
 }
 
 template<class type>
 type & Matrix<type>::operator()( UINT row, UINT col )
 {
-	if ( row > rows )
+	if ( row >= rows )
 	{
 		thrower( "ERROR: row index out of range during Matrix access!" );
 	}
-	if ( col > cols )
+	if ( col >= cols )
 	{
 		thrower( "ERROR: col index out of range during Matrix access!" );
 	}
 	UINT rowOffset( row * cols );
 	UINT index = rowOffset + col;
+	updateString( );
 	return data[index];
 }
 
@@ -114,6 +130,7 @@ type & Matrix<type>::operator()( UINT row, UINT col )
 template <class type>
 UINT Matrix<type>::getCols( )
 {
+	updateString( );
 	return cols;
 }
 
@@ -121,6 +138,7 @@ UINT Matrix<type>::getCols( )
 template <class type>
 UINT Matrix<type>::getRows( )
 {
+	updateString( );
 	return rows;
 }
 
