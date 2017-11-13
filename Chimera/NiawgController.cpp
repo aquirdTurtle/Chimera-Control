@@ -891,8 +891,8 @@ void NiawgController::handleSpecialWaveformForm( NiawgOutput& output, profileSet
 			thrower( "ERROR: Rearrangement parameters (lowest freqs or freq per pixel) don't match between "
 					 "horizontal and vertical files!" );
 		}
-		rearrangeWave.rearrange.lowestFreq[Horizontal] = lowestHorFreq[Horizontal];
-		rearrangeWave.rearrange.lowestFreq[Vertical] = lowestVertFreq[Horizontal];
+		rearrangeWave.rearrange.lowestFreqs[Horizontal] = lowestHorFreq[Horizontal];
+		rearrangeWave.rearrange.lowestFreqs[Vertical] = lowestVertFreq[Horizontal];
 		rearrangeWave.rearrange.freqPerPixel = freqPerPixel[Horizontal];
 		/// get static pattern
 		// this is the pattern that holds non-moving atoms in place. The algorithm calculates the moves, and then mixes
@@ -1923,7 +1923,7 @@ void NiawgController::rerngFormToOutput( waveInfoForm& waveForm, waveInfo& wave,
 {
 	wave.rearrange.isRearrangement = waveForm.rearrange.isRearrangement;
 	wave.rearrange.freqPerPixel = waveForm.rearrange.freqPerPixel;
-	wave.rearrange.lowestFreq = waveForm.rearrange.lowestFreq;
+	wave.rearrange.lowestFreqs = waveForm.rearrange.lowestFreqs;
 	wave.rearrange.moveLimit = waveForm.rearrange.moveLimit;
 	wave.rearrange.target = waveForm.rearrange.target;
 	wave.rearrange.finalPosition = waveForm.rearrange.finalPosition;
@@ -2600,12 +2600,13 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& info, UINT row, U
 	}
 	simpleWave moveWave;
 	moveWave.varies = false;
-	// not used bc not programmed directly.
-	moveWave.name = "NA";
+	moveWave.name = "NOT-USED";
+	// needs to match correctly the static waveform.
 	moveWave.time = info.timePerMove / (staticMovingRatio + 1);
 	moveWave.sampleNum = waveformSizeCalc( moveWave.time );
 
 	double movingFrac = moveBias;
+	// split the remaining bias between all of the other movingSize-2 signals.
 	double nonMovingFrac = (1 - movingFrac) / (movingSize - 2);
 	/// handle moving axis
 	// 1 less signal because of the two locations that the moving tweezer spans
@@ -2630,14 +2631,14 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& info, UINT row, U
 			if ( movingAxis == Horizontal )
 			{
 				sig.freqInit = ((info.target.getCols( ) - initPos[movingAxis] - 1)
-								 * freqPerPixel + info.lowestFreq[movingAxis]) * 1e6;
+								 * freqPerPixel + info.lowestFreqs[movingAxis]) * 1e6;
 				sig.freqFin = ((info.target.getCols( ) - finPos[movingAxis] - 1)
-								* freqPerPixel + info.lowestFreq[movingAxis]) * 1e6;
+								* freqPerPixel + info.lowestFreqs[movingAxis]) * 1e6;
 			}
 			else
 			{
-				sig.freqInit = (initPos[movingAxis] * freqPerPixel + info.lowestFreq[movingAxis]) * 1e6;
-				sig.freqFin = (finPos[movingAxis] * freqPerPixel + info.lowestFreq[movingAxis]) * 1e6;
+				sig.freqInit = (initPos[movingAxis] * freqPerPixel + info.lowestFreqs[movingAxis]) * 1e6;
+				sig.freqFin = (finPos[movingAxis] * freqPerPixel + info.lowestFreqs[movingAxis]) * 1e6;
 			}
 		}
 		else
@@ -2648,12 +2649,12 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& info, UINT row, U
 			if ( movingAxis == Horizontal )
 			{
 				sig.freqInit = ((info.target.getCols( ) - gridLocation - 1) * freqPerPixel
-								 + info.lowestFreq[movingAxis]) * 1e6;
+								 + info.lowestFreqs[movingAxis]) * 1e6;
 				sig.freqFin = sig.freqInit;
 			}
 			else
 			{
-				sig.freqInit = (gridLocation * freqPerPixel + info.lowestFreq[movingAxis]) * 1e6;
+				sig.freqInit = (gridLocation * freqPerPixel + info.lowestFreqs[movingAxis]) * 1e6;
 				sig.freqFin = sig.freqInit;
 			}
 		}
@@ -2672,13 +2673,13 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& info, UINT row, U
 	{
 		// convert to Hz
 		sig.freqInit = ((info.target.getCols( ) - initPos[staticAxis] - 1) * freqPerPixel
-						 + info.lowestFreq[staticAxis]) * 1e6;
+						 + info.lowestFreqs[staticAxis]) * 1e6;
 		sig.freqFin = sig.freqInit;
 	}
 	else
 	{
 		// convert to Hz
-		sig.freqInit = (initPos[staticAxis] * freqPerPixel + info.lowestFreq[staticAxis])*1e6;
+		sig.freqInit = (initPos[staticAxis] * freqPerPixel + info.lowestFreqs[staticAxis])*1e6;
 		sig.freqFin = sig.freqInit;
 	}
 	/// finalize info & calculate things
@@ -2764,10 +2765,10 @@ bool NiawgController::rerngThreadIsActive( )
 
 // calculate (and return) the wave that will take the atoms from the target position to the final position.
 std::vector<double> NiawgController::calcFinalPositionMove( niawgPair<ULONG> targetPos, niawgPair<ULONG> finalPos,
-															double freqSpacing, std::vector<std::vector<bool>> target, 
+															double freqSpacing, Matrix<bool> target, 
 															niawgPair<double> cornerFreqs )
 {
-	if ( target.size( ) == 0 || target[0].size( ) == 0 )
+	if ( target.getRows() == 0 || target.getCols() == 0 )
 	{
 		thrower( "ERROR: invalid target size in calcFinalPositionMove function. target must be a non-empty 2D Vector." );
 	}
@@ -2778,8 +2779,8 @@ std::vector<double> NiawgController::calcFinalPositionMove( niawgPair<ULONG> tar
 	freqChange[Vertical] = freqSpacing * (targetPos[Vertical] - finalPos[Vertical]);
 	freqChange[Horizontal] = freqSpacing * (targetPos[Horizontal] - finalPos[Horizontal]);
 	// access is target[row][column]
-	moveWave.chan[Vertical].signals.resize( target.size( ) );
-	moveWave.chan[Horizontal].signals.resize( target[0].size( ) );
+	moveWave.chan[Vertical].signals.resize( target.getRows() );
+	moveWave.chan[Horizontal].signals.resize( target.getCols() );
 	// this is pretty arbitrary right now. In principle can prob be very fast.
 	moveWave.time = 1e-4;
 	// fill wave info
@@ -2904,11 +2905,10 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				}
 			}
 			std::vector<simpleMove> moveSequence;
+			niawgPair<ULONG> finPos;
 			try
 			{
-				niawgPair<ULONG> finPos;
-				smartRearrangement( source, info.target, finPos, input->rerngWave.rearrange.finalPosition, 
-									moveSequence, input->rerngOptions);
+				smartRearrangement( source, info.target, finPos, info.finalPosition, moveSequence, input->rerngOptions);
 			}
 			catch ( Error& )
 			{
@@ -2961,13 +2961,17 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				}
 				input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), vals.begin( ), vals.end( ) );
 			}
+			/// Finishing Move to move the atoms to the desired location.
+			std::vector<double> finalMove;
+			finalMove = input->niawg->calcFinalPositionMove( finPos, info.finalPosition, info.freqPerPixel, 
+															 info.target, info.lowestFreqs );
+			input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), finalMove.begin( ),
+												finalMove.end( ) );
 			stopMoveCalc.push_back( chronoClock::now( ) );
 			// the filler wave holds the total length of the wave. Add the differnece in size between the filler wave
 			// size and the existing size to fill out the rest of the vector.
-			input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ),
-												input->rerngWave.rearrange.fillerWave.waveVals.begin( ),
-												input->rerngWave.rearrange.fillerWave.waveVals.begin( )
-												+ input->rerngWave.rearrange.fillerWave.waveVals.size()
+			input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), info.fillerWave.waveVals.begin( ),
+												info.fillerWave.waveVals.begin( ) + info.fillerWave.waveVals.size()
 												- input->niawg->rerngWaveVals.size() );
 			stopAllCalc.push_back(chronoClock::now( ));
 			input->niawg->streamRerng( );
@@ -3021,7 +3025,6 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 		}
 		for ( auto inc : range( startCalc.size( ) ) )
 		{
-
 			streamTime.push_back( std::chrono::duration<double>( stopStream[inc] - stopAllCalc[inc] ).count( ) );
 			triggerTime.push_back( std::chrono::duration<double>( stopTrigger[inc] - stopStream[inc] ).count( ) );
 			rerngCalcTime.push_back( std::chrono::duration<double>( stopRerngCalc[inc] - startCalc[inc] ).count( ) );
