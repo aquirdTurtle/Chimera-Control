@@ -9,8 +9,10 @@
 #include "directions.h"
 #include "rerngParams.h"
 #include "rerngThreadInput.h"
-#include "Matrix.h"
 
+#include "atomGrid.h"
+
+#include "Matrix.h"
 #include "ScriptStream.h"
 #include "miscellaneousCommonFunctions.h"
 #include "externals.h"
@@ -99,9 +101,8 @@ class NiawgController
 		void finalizeScript( ULONGLONG repetitions, std::string name, std::vector<std::string> workingUserScripts,
 							 std::vector<ViChar>& userScriptSubmit, bool repeatForever );
 		void mixFlashingWaves( waveInfo& wave, double deadTime, double staticMovingRatio );
-		std::vector<double> calcFinalPositionMove( niawgPair<ULONG> targetPos, niawgPair<ULONG> finalPos,
-												   double freqSpacing, Matrix<bool> target,
-												   niawgPair<double> cornerFreqs );		
+		simpleWave calcFinalPositionMove( niawgPair<ULONG> targetPos, niawgPair<ULONG> finalPos, double freqSpacing, 
+										  Matrix<bool> target, niawgPair<double> cornerFreqs );		
 		void streamRerng( );
 		waveInfoForm toWaveInfoForm( simpleWaveForm wave );
 		void simpleFormVaries( simpleWaveForm& wave );
@@ -113,7 +114,7 @@ class NiawgController
 		void deleteRerngWave( );
 		void startRerngThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave, Communicator* comm,
 							   std::mutex* rerngLock, chronoTimes* andorImageTimes, chronoTimes* grabTimes,
-							   std::condition_variable* rerngConditionWatcher, rerngOptions rerngInfo );
+							   std::condition_variable* rerngConditionWatcher, rerngOptions rerngInfo, atomGrid grid );
 		static niawgPair<ULONG> convolve( Matrix<bool> atoms, Matrix<bool> target );
 		void writeStandardWave( simpleWave& wave, debugInfo options, bool isDefault );
 		void writeFlashing( waveInfo& wave, debugInfo& options, UINT variation );

@@ -86,11 +86,11 @@ type rerngContainer<type>::operator()( UINT row, UINT col, directions direction 
 template<class type> 
 type & rerngContainer<type>::operator()( UINT row, UINT col, directions direction )
 {
-	if ( row > rows )
+	if ( row >= rows )
 	{
 		thrower( "ERROR: row index out of range during rearrangementMoveContainer access!" );
 	}
-	if ( col > cols )
+	if ( col >= cols )
 	{
 		thrower( "ERROR: col index out of range during rearrangementMoveContainer access!" );
 	}

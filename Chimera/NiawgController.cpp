@@ -234,7 +234,8 @@ void NiawgController::handleStartingRerng( MasterThreadInput* input, NiawgOutput
 			// start rearrangement thread. Give the thread the queue.
 			input->niawg->startRerngThread( input->atomQueueForRearrangement, wave, input->comm, input->rearrangerLock,
 											input->andorsImageTimes, input->grabTimes, 
-											input->conditionVariableForRearrangement, input->rearrangeInfo );
+											input->conditionVariableForRearrangement, input->rearrangeInfo, 
+											input->analysisGrid );
 		}
 	}
 	if ( input->rearrangeInfo.active && !foundRearrangement )
@@ -2481,8 +2482,8 @@ This function expects the input to have already been initialized and everything.
 */
 void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 {
-	UINT rows = input->rerngWave.rearrange.target.getRows();
-	UINT cols = input->rerngWave.rearrange.target.getCols();
+	UINT rows = input->sourceRows;
+	UINT cols = input->sourceCols;
 	rerngContainer<double> calBias( rows, cols );
 	if ( input->rerngOptions.useCalibration )
 	{
@@ -2508,53 +2509,57 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 			move.moveTime = input->rerngOptions.moveSpeed;
 			move.moveBias = input->rerngOptions.moveBias;
 			// up
+			move.direction = up;
 			if ( row != rows - 1 )
 			{
-				move.direction = up;
 				if ( input->rerngOptions.useCalibration )
 				{
 					move.moveBias = calBias( row, col, move.direction );
 				}
 				move.waveVals = makeRerngWave( input->rerngWave.rearrange, row, col, move.direction,
 													   move.staticMovingRatio, move.moveBias, move.deadTime );
-				input->moves( row, col, move.direction ) = move;
 			}
+			input->moves( row, col, move.direction ) = move;
+			move.waveVals = std::vector<double>( );
 			// down
+			move.direction = down;
 			if ( row != 0 )
 			{
-				move.direction = down;
 				if ( input->rerngOptions.useCalibration )
 				{
 					move.moveBias = calBias( row, col, move.direction );
 				}
 				move.waveVals = makeRerngWave( input->rerngWave.rearrange, row, col, move.direction,
 													   move.staticMovingRatio, move.moveBias, move.deadTime );
-				input->moves( row, col, move.direction ) = move;
 			}
+			input->moves( row, col, move.direction ) = move;
+			move.waveVals = std::vector<double>( );
 			// left
+			move.direction = left;
 			if ( col != 0 )
 			{
-				move.direction = left;
 				if ( input->rerngOptions.useCalibration )
 				{
 					move.moveBias = calBias( row, col, move.direction );
 				}
 				move.waveVals = makeRerngWave( input->rerngWave.rearrange, row, col, move.direction,
 													   move.staticMovingRatio, move.moveBias, move.deadTime );
-				input->moves( row, col, move.direction ) = move;
+				
 			}
+			input->moves( row, col, move.direction ) = move;
+			move.waveVals = std::vector<double>( );
 			// right
+			move.direction = right;
 			if ( col != cols - 1 )
 			{
-				move.direction = right;
 				if ( input->rerngOptions.useCalibration )
 				{
 					move.moveBias = calBias( row, col, move.direction );
 				}
 				move.waveVals = makeRerngWave( input->rerngWave.rearrange, row, col, move.direction,
-													   move.staticMovingRatio, move.moveBias, move.deadTime );
-				input->moves( row, col, move.direction ) = move;
+											   move.staticMovingRatio, move.moveBias, move.deadTime );
 			}
+			input->moves( row, col, move.direction ) = move;
 		}
 	}
 	input->moves.setFilledFlag( );
@@ -2725,10 +2730,12 @@ void NiawgController::rerngOptionsFormToFinal( rerngOptionsForm& form, rerngOpti
 void NiawgController::startRerngThread( std::vector<std::vector<bool>>* atomQueue, waveInfo wave, Communicator* comm, 
 										std::mutex* rearrangerLock, chronoTimes* andorImageTimes, 
 										chronoTimes* grabTimes, std::condition_variable* rearrangerConditionWatcher,
-										rerngOptions rearrangeInfo )
+										rerngOptions rearrangeInfo, atomGrid grid )
 {
 	threadStateSignal = true;
-	rerngThreadInput* input = new rerngThreadInput( wave.rearrange.target.getRows(), wave.rearrange.target.getCols());
+	rerngThreadInput* input = new rerngThreadInput( grid.height, grid.width);
+	input->sourceRows = grid.height;
+	input->sourceCols = grid.width;
 	input->rerngOptions = rearrangeInfo;
 	input->pictureTimes = andorImageTimes;
 	input->grabTimes = grabTimes;
@@ -2764,9 +2771,9 @@ bool NiawgController::rerngThreadIsActive( )
 
 
 // calculate (and return) the wave that will take the atoms from the target position to the final position.
-std::vector<double> NiawgController::calcFinalPositionMove( niawgPair<ULONG> targetPos, niawgPair<ULONG> finalPos,
-															double freqSpacing, Matrix<bool> target, 
-															niawgPair<double> cornerFreqs )
+simpleWave NiawgController::calcFinalPositionMove( niawgPair<ULONG> targetPos, niawgPair<ULONG> finalPos, 
+												   double freqSpacing, Matrix<bool> target, 
+												   niawgPair<double> cornerFreqs )
 {
 	if ( target.getRows() == 0 || target.getCols() == 0 )
 	{
@@ -2776,13 +2783,18 @@ std::vector<double> NiawgController::calcFinalPositionMove( niawgPair<ULONG> tar
 	moveWave.varies = false;
 	moveWave.name = "NA";
 	niawgPair<double> freqChange;
-	freqChange[Vertical] = freqSpacing * (targetPos[Vertical] - finalPos[Vertical]);
-	freqChange[Horizontal] = freqSpacing * (targetPos[Horizontal] - finalPos[Horizontal]);
+	freqChange[Vertical] = freqSpacing * (double( finalPos[Vertical] ) - double(targetPos[Vertical]));
+	freqChange[Horizontal] = freqSpacing * (double( finalPos[Horizontal] ) - double( targetPos[Horizontal] ));
+	if ( (fabs(freqChange[Vertical]) < 1e-9) && (fabs( freqChange[Horizontal] ) < 1e-9))
+	{
+		return moveWave;
+	}
 	// access is target[row][column]
 	moveWave.chan[Vertical].signals.resize( target.getRows() );
 	moveWave.chan[Horizontal].signals.resize( target.getCols() );
 	// this is pretty arbitrary right now. In principle can prob be very fast.
 	moveWave.time = 1e-4;
+	moveWave.sampleNum = waveformSizeCalc( moveWave.time );
 	// fill wave info
 	for ( auto axis : AXES )
 	{
@@ -2807,7 +2819,7 @@ std::vector<double> NiawgController::calcFinalPositionMove( niawgPair<ULONG> tar
 		}
 	}
 	finalizeStandardWave( moveWave, debugInfo( ) );
-	return moveWave.waveVals;
+	return moveWave;
 }
 
 
@@ -2831,7 +2843,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 	{
 		UINT rows = input->rerngWave.rearrange.target.getRows( );
 		UINT cols = input->rerngWave.rearrange.target.getCols( );
-		rerngContainer<double> calBias( rows, cols );
+		rerngContainer<double> calBias( input->sourceRows, input->sourceCols );
 		if ( input->rerngOptions.useCalibration )
 		{
 			// find the calibration whose dimensions match the target
@@ -2895,11 +2907,11 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			info.flashingFreq = input->rerngOptions.flashingRate;
 			// right now I need to re-shape the atomqueue matrix. I should probably modify Kai's code to work with a 
 			// flattened source matrix for speed.
-			Matrix<bool> source(info.target.getRows(), info.target.getCols(), 0);
+			Matrix<bool> source(input->sourceRows, input->sourceCols, 0);
 			UINT count = 0;
-			for ( auto colCount : range( info.target.getCols() ) )
+			for ( auto colCount : range( source.getCols() ) )
 			{
-				for ( auto rowCount : range( info.target.getRows() ) )
+				for ( auto rowCount : range( source.getRows() ) )
 				{
 					source(source.getRows() - 1 - rowCount, colCount) = tempAtoms[count++];
 				}
@@ -2955,18 +2967,17 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				}
 				else
 				{
-					vals = input->niawg->makeRerngWave( info, move.initRow, move.initCol, dir,
-														input->rerngOptions.staticMovingRatio,
-														bias, input->rerngOptions.deadTime );
+					vals = input->niawg->makeRerngWave( info, move.initRow, move.initCol, dir, 
+														input->rerngOptions.staticMovingRatio, bias, 
+														input->rerngOptions.deadTime );
 				}
 				input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), vals.begin( ), vals.end( ) );
 			}
 			/// Finishing Move to move the atoms to the desired location.
-			std::vector<double> finalMove;
-			finalMove = input->niawg->calcFinalPositionMove( finPos, info.finalPosition, info.freqPerPixel, 
-															 info.target, info.lowestFreqs );
-			input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), finalMove.begin( ),
-												finalMove.end( ) );
+			simpleWave finalMove = input->niawg->calcFinalPositionMove( finPos, info.finalPosition, info.freqPerPixel, 
+																		info.target, info.lowestFreqs );
+			input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), finalMove.waveVals.begin( ),
+												finalMove.waveVals.end( ) );
 			stopMoveCalc.push_back( chronoClock::now( ) );
 			// the filler wave holds the total length of the wave. Add the differnece in size between the filler wave
 			// size and the existing size to fill out the rest of the vector.
@@ -2994,7 +3005,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			{
 				if ( input->rerngOptions.outputIndv )
 				{
-					input->comm->sendStatus( "Tried Moving. Calc Time = "
+					input->comm->sendStatus( "Tried Moving. Code Time = "
 											 + str( std::chrono::duration<double>( stopReset.back( )
 																				   - startCalc.back( ) ).count( ) )
 											 + "\r\n" );
@@ -3140,20 +3151,22 @@ void NiawgController::smartRearrangement( Matrix<bool> source, Matrix<bool> targ
 					// create the potential target with the correct offset.
 					// finTarget is the correct size, has the original target at finalPos, and zeros elsewhere.
 					Matrix<bool> potentialTarget( source.getRows( ), source.getCols( ), 0 );
-					for ( auto rowInc : range( potentialTarget.getRows() ) )
+					for ( auto rowInc : range( target.getRows() ) )
 					{
-						for ( auto colInc : range( potentialTarget.getCols() ) )
+						for ( auto colInc : range( target.getCols() ) )
 						{
 							potentialTarget(rowInc + startRowInc, colInc + startColInc) = target(rowInc, colInc);
 						}
 					}
+					std::string targ = potentialTarget.print( );
+					//errBox( targ );
 					std::vector<simpleMove> potentialMoves;
 					rearrangement( source, potentialTarget, potentialMoves );
 					if ( potentialMoves.size( ) < leastMoves )
 					{
 						// new record.
 						operationsMatrix = potentialMoves;
-						finTargetPos = { startColInc, startRowInc };
+						finTargetPos = { startRowInc, startColInc };
 						leastMoves = potentialMoves.size( );
 						if ( leastMoves == 0 )
 						{
@@ -3363,15 +3376,17 @@ double NiawgController::rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool>
 	// here. 
 	int numberTargets = 0;
 	int numberSources = 0;
+	std::string sourceStr = sourceMatrix.print( );
+	std::string targStr = targetMatrix.print( );
 	for (UINT rowInc = 0; rowInc < sourceMatrix.getRows(); rowInc++)
 	{
 		for (UINT colInc = 0; colInc < sourceMatrix.getCols(); colInc++)
 		{
-			if (targetMatrix(rowInc, colInc) == 1)
+			if (targetMatrix(rowInc, colInc))
 			{
 				numberTargets++;
 			}
-			if ( sourceMatrix( rowInc, colInc ) == 1)
+			if ( sourceMatrix( rowInc, colInc ))
 			{
 				numberSources++;
 			}

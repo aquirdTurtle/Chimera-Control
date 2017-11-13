@@ -8,6 +8,7 @@
 #include "DebugOptionsControl.h"
 #include "Agilent.h"
 #include "EmbeddedPythonHandler.h"
+#include "atomGrid.h"
 #include <chrono>
 #include <vector>
 #include <atomic>
@@ -47,6 +48,7 @@ struct MasterThreadInput
 	std::condition_variable* conditionVariableForRearrangement;
 	rerngOptions rearrangeInfo;
 	std::atomic<bool>* skipNext;
+	atomGrid analysisGrid;
 };
 
 
