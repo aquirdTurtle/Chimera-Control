@@ -148,7 +148,7 @@ struct rerngInfoForm
 	niawgPair<ULONG> finalPosition = { 0,0 };
 	// these are the frequencies that the niawg would need to output to reach the lower left corner (I think?) of 
 	// the picture.
-	niawgPair<double> lowestFreq = { 0,0 };
+	niawgPair<double> lowestFreqs = { 0,0 };
 	// this is the frequency difference per pixel
 	double freqPerPixel = 0;
 };;
@@ -167,7 +167,7 @@ struct rerngInfo
 	UINT moveLimit = 0;
 	// these are the frequencies that the niawg would need to output to reach the lower left corner (I think?) of 
 	// the picture.
-	niawgPair<double> lowestFreq = { 0,0 };
+	niawgPair<double> lowestFreqs = { 0,0 };
 	// this is the frequency difference per pixel
 	double freqPerPixel = 0;
 	// the wave that gets flashed with the moving tweezer

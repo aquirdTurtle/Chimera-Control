@@ -100,7 +100,7 @@ class NiawgController
 							 std::vector<ViChar>& userScriptSubmit, bool repeatForever );
 		void mixFlashingWaves( waveInfo& wave, double deadTime, double staticMovingRatio );
 		std::vector<double> calcFinalPositionMove( niawgPair<ULONG> targetPos, niawgPair<ULONG> finalPos,
-												   double freqSpacing, std::vector<std::vector<bool>> target,
+												   double freqSpacing, Matrix<bool> target,
 												   niawgPair<double> cornerFreqs );		
 		void streamRerng( );
 		waveInfoForm toWaveInfoForm( simpleWaveForm wave );
