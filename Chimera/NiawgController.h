@@ -101,8 +101,9 @@ class NiawgController
 		void finalizeScript( ULONGLONG repetitions, std::string name, std::vector<std::string> workingUserScripts,
 							 std::vector<ViChar>& userScriptSubmit, bool repeatForever );
 		void mixFlashingWaves( waveInfo& wave, double deadTime, double staticMovingRatio );
-		simpleWave calcFinalPositionMove( niawgPair<ULONG> targetPos, niawgPair<ULONG> finalPos, double freqSpacing, 
-										  Matrix<bool> target, niawgPair<double> cornerFreqs );		
+		std::vector<double> calcFinalPositionMove( niawgPair<ULONG> targetPos, niawgPair<ULONG> finalPos, 
+												   double freqSpacing, Matrix<bool> target, 
+												   niawgPair<double> cornerFreqs, double moveTime );
 		void streamRerng( );
 		waveInfoForm toWaveInfoForm( simpleWaveForm wave );
 		void simpleFormVaries( simpleWaveForm& wave );
@@ -177,7 +178,8 @@ class NiawgController
 		// could set different thresholds for each location in the camera if expect imbalance.
 		int threshold;
 		std::vector<double> makeRerngWave( rerngInfo& info, UINT row, UINT col, directions direction, 
-										   double staticMovingRatio, double moveBias, double deadTime );
+										   double staticMovingRatio, double moveBias, double deadTime, UINT sourceRows,
+										   UINT sourceCols);
 		// returns sign of x.
 		static int sign( int );
 		// returns cost, which is total travel distance. Algorithm from: 

@@ -2,17 +2,12 @@
 def populateF1():
   % insert commands here...
         % !!! assuming the field is already rotated to 45 degree
-dac: RepumpPower 0.04
-	on: RepumpRf
-t += 1
-off: repumpRF
-
         %Setting the pumping beam frequencies:
         %Ramp of DAC 21, F1 offset lock to 2.32 for 2.2 mK trap and -.5V on dac14 AO, -1.5 for 1.1 mK
-        dac: motfreq -0.7 %(0.735-0.5-0.5) % %for 6 mW, 9 atoms %F2 light 1.1 for 2.1 mK and adjusted AO, .75 for 1.1mK
+        dac: motfreq -0.3 %(0.735-0.5-0.5) % %for 6 mW, 9 atoms %F2 light 1.1 for 2.1 mK and adjusted AO, .75 for 1.1mK
         
         %Setting OP frequency based on trap depth:
-        dac: sigmaopfreq (1.16-0.4) %for 6 mW, 9 atoms %frequency for 1.1mK trap depth (may need recalibration) ' calibrated at 11032016
+        dac: sigmaopfreq 0 %(1.16-0.4) %for 6 mW, 9 atoms %frequency for 1.1mK trap depth (may need recalibration) ' calibrated at 11032016
         
         off: diagmotshutter
 
@@ -20,13 +15,13 @@ off: repumpRF
          
         %Setting the pumping beam powers:
         dac: sigmaoppower 0.15 % sigma+ OP beam power
-        dac: sigmarepumppower 0.15 %0.3 %sigma+ Repump beam power
+        %dac: sigmarepumppower 0.15 %0.3 %sigma+ Repump beam power
          
         %Performing OP pulse:
 
         on: sigmaoprf  %OP light on ***** '+++
         
-        t += 1.5 % adding extra 1 ms for better pumping 20161011
+        t += pumpF1time % adding extra 1 ms for better pumping 20161011
         
         off: sigmaoprf
  

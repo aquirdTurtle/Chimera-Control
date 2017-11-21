@@ -30,9 +30,9 @@ class Matrix
 template <class type>
 void Matrix<type>::updateString( )
 {
-//#ifdef _DEBUG
+#ifdef _DEBUG
 	currMatrix = print( );
-//#endif
+#endif
 	return;
 }
 
