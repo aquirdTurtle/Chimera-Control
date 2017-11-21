@@ -25,6 +25,8 @@ rerngOptions rerngControl::getParams( )
 		tempParams.deadTime = std::stod( str(tempTxt) ) * 1e-9;
 		staticMovingRatioEdit.GetWindowTextA( tempTxt );
 		tempParams.staticMovingRatio = std::stod( str( tempTxt ) );
+		finalMoveTimeEdit.GetWindowTextA( tempTxt );
+		tempParams.finalMoveTime = 1e-3 * std::stod( str(tempTxt) );
 	}
 	catch ( std::invalid_argument&)
 	{
@@ -53,6 +55,8 @@ void rerngControl::rearrange( int width, int height, fontMap fonts )
 	staticMovingRatioText.rearrange( width, height, fonts );
 	outputRearrangeEvents.rearrange( width, height, fonts );
 	outputIndividualEvents.rearrange( width, height, fonts );
+	finalMoveTimeText.rearrange( width, height, fonts );
+	finalMoveTimeEdit.rearrange( width, height, fonts );
 }
 
 
@@ -98,6 +102,11 @@ void rerngControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& too
 	preprogramMoves.Create( "Preprogram Moves?", NORM_CHECK_OPTIONS, preprogramMoves.sPos, parent, id++ );
 	useCalibration.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
 	useCalibration.Create( "Use Calibration?", NORM_CHECK_OPTIONS, useCalibration.sPos, parent, id++ );
+
+	finalMoveTimeText.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 25 };
+	finalMoveTimeText.Create( "Final-Move-Time (ms): ", NORM_STATIC_OPTIONS, finalMoveTimeText.sPos, parent, id++ );
+	finalMoveTimeEdit.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 25 };
+	finalMoveTimeEdit.Create( NORM_EDIT_OPTIONS, finalMoveTimeEdit.sPos, parent, id++ );
 }
 
 
@@ -158,6 +167,16 @@ void rerngControl::handleOpenConfig( std::ifstream& openFile, int versionMajor, 
 		info.useCalibration = false;
 	}
 
+
+	if ( versionMajor = 2 && versionMinor > 12 || versionMajor > 2 )
+	{
+		openFile >> info.finalMoveTime;
+	}
+	else
+	{
+		info.finalMoveTime = 1e-3;
+	}
+
 	setParams( info );
 	ProfileSystem::checkDelimiterLine( openFile, "END_REARRANGEMENT_INFORMATION" );
 }
@@ -181,6 +200,7 @@ void rerngControl::handleNewConfig( std::ofstream& newFile )
 	newFile << "0\n";
 	// use calibration
 	newFile << "0\n";
+	newFile << "0.001\n";
 	newFile << "END_REARRANGEMENT_INFORMATION\n";
 }
 
@@ -200,6 +220,7 @@ void rerngControl::handleSaveConfig( std::ofstream& saveFile )
 	saveFile << info.outputIndv << "\n";
 	saveFile << info.preprogram << "\n";
 	saveFile << info.useCalibration << "\n";
+	saveFile << info.finalMoveTime << "\n";
 	saveFile << "END_REARRANGEMENT_INFORMATION\n";
 }
 
@@ -222,4 +243,6 @@ void rerngControl::setParams( rerngOptions params )
 
 	useCalibration.SetCheck( params.useCalibration );
 	preprogramMoves.SetCheck( params.preprogram );
+	// convert back to ms
+	finalMoveTimeEdit.SetWindowTextA( cstr( params.finalMoveTime * 1e3 ) );
 }

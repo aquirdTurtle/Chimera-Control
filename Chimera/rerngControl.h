@@ -38,4 +38,7 @@ class rerngControl
 
 		Control<CButton> outputRearrangeEvents;
 		Control<CButton> outputIndividualEvents;
+
+		Control<CStatic> finalMoveTimeText;
+		Control<CEdit> finalMoveTimeEdit;
 };

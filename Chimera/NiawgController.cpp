@@ -999,11 +999,12 @@ void NiawgController::handleSpecialWaveformForm( NiawgOutput& output, profileSet
 		rearrangeWave.rearrange.moveLimit = getMaxMoves( rearrangeWave.rearrange.target );
 		rearrangeWave.rearrange.fillerWave = rearrangeWave.rearrange.staticWave;
 		// filler move gets the full time of the move. Need to convert the time per move to ms instead of us.
-		rearrangeWave.rearrange.fillerWave.time = str( rearrangeWave.rearrange.moveLimit
-													   * rearrangeWave.rearrange.timePerMove.evaluate( ) * 1e3 );
+		rearrangeWave.rearrange.fillerWave.time = str( (rearrangeWave.rearrange.moveLimit
+													   * rearrangeWave.rearrange.timePerMove.evaluate( ) 
+													   + 2 * rInfo.finalMoveTime) * 1e3 );
 		output.waveFormInfo.push_back( rearrangeWave );
-		long samples = long( output.waveFormInfo.back( ).rearrange.moveLimit
-							 * output.waveFormInfo.back( ).rearrange.timePerMove.evaluate( ) * NIAWG_SAMPLE_RATE );
+		long samples = long( ( output.waveFormInfo.back( ).rearrange.moveLimit
+							   * output.waveFormInfo.back( ).rearrange.timePerMove.evaluate( ) + 2 * rInfo.finalMoveTime )* NIAWG_SAMPLE_RATE );
 		fgenConduit.allocateNamedWaveform( cstr( rerngWaveName ), samples );
 		output.niawgLanguageScript += "generate " + rerngWaveName + "\n";
 	}
@@ -2475,7 +2476,6 @@ double NiawgController::rampCalc( int size, int iteration, double initPos, doubl
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
 /*
 This function expects the input to have already been initialized and everything. It's ment to be used in the
 "start thread" function, after all but the rearrangement moves have been loaded into the input structure.
@@ -2516,8 +2516,9 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 				{
 					move.moveBias = calBias( row, col, move.direction );
 				}
-				move.waveVals = makeRerngWave( input->rerngWave.rearrange, row, col, move.direction,
-													   move.staticMovingRatio, move.moveBias, move.deadTime );
+				move.waveVals = makeRerngWave( input->rerngWave.rearrange, row, col, move.direction, 
+											   move.staticMovingRatio, move.moveBias, move.deadTime,
+											   input->sourceRows, input->sourceCols );
 			}
 			input->moves( row, col, move.direction ) = move;
 			move.waveVals = std::vector<double>( );
@@ -2530,7 +2531,8 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 					move.moveBias = calBias( row, col, move.direction );
 				}
 				move.waveVals = makeRerngWave( input->rerngWave.rearrange, row, col, move.direction,
-													   move.staticMovingRatio, move.moveBias, move.deadTime );
+											   move.staticMovingRatio, move.moveBias, move.deadTime,
+											   input->sourceRows, input->sourceCols );
 			}
 			input->moves( row, col, move.direction ) = move;
 			move.waveVals = std::vector<double>( );
@@ -2543,8 +2545,8 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 					move.moveBias = calBias( row, col, move.direction );
 				}
 				move.waveVals = makeRerngWave( input->rerngWave.rearrange, row, col, move.direction,
-													   move.staticMovingRatio, move.moveBias, move.deadTime );
-				
+													   move.staticMovingRatio, move.moveBias, move.deadTime,
+											   input->sourceRows, input->sourceCols );
 			}
 			input->moves( row, col, move.direction ) = move;
 			move.waveVals = std::vector<double>( );
@@ -2557,7 +2559,8 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 					move.moveBias = calBias( row, col, move.direction );
 				}
 				move.waveVals = makeRerngWave( input->rerngWave.rearrange, row, col, move.direction,
-											   move.staticMovingRatio, move.moveBias, move.deadTime );
+											   move.staticMovingRatio, move.moveBias, move.deadTime,
+											   input->sourceRows, input->sourceCols );
 			}
 			input->moves( row, col, move.direction ) = move;
 		}
@@ -2567,7 +2570,8 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 
 
 std::vector<double> NiawgController::makeRerngWave( rerngInfo& info, UINT row, UINT col, directions direction, 
-													double staticMovingRatio, double moveBias, double deadTime )
+													double staticMovingRatio, double moveBias, double deadTime, 
+													UINT sourceRows, UINT sourceCols )
 {
 	// program this move.
 	double freqPerPixel = info.freqPerPixel;
@@ -2582,25 +2586,25 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& info, UINT row, U
 			finPos = { rowInt + 1, colInt };
 			movingAxis = Vertical;
 			staticAxis = Horizontal;
-			movingSize = info.target.getRows();
+			movingSize = sourceRows;
 			break;
 		case down:
 			finPos = { rowInt - 1, colInt };
 			movingAxis = Vertical;
 			staticAxis = Horizontal;
-			movingSize = info.target.getRows( );
+			movingSize = sourceRows;
 			break;
 		case left:
 			finPos = { rowInt, colInt - 1 };
 			movingAxis = Horizontal;
 			staticAxis = Vertical;
-			movingSize = info.target.getCols( );
+			movingSize = sourceCols;
 			break;
 		case right:
 			finPos = { rowInt, colInt + 1 };
 			movingAxis = Horizontal;
 			staticAxis = Vertical;
-			movingSize = info.target.getCols( );
+			movingSize = sourceCols;
 			break;
 	}
 	simpleWave moveWave;
@@ -2751,7 +2755,8 @@ void NiawgController::startRerngThread( std::vector<std::vector<bool>>* atomQueu
 		preWriteRerngWaveforms( input );
 	}
 	UINT rearrangerId;
-	rerngThreadHandle = (HANDLE)_beginthreadex( 0, 0, NiawgController::rerngThreadProcedure, (void*)input,
+	// start the thread with ~100MB of memory (it may get rounded to some page size)
+	rerngThreadHandle = (HANDLE)_beginthreadex( 0, 1e7, NiawgController::rerngThreadProcedure, (void*)input,
 													 STACK_SIZE_PARAM_IS_A_RESERVATION, &rearrangerId );
 	if ( !rerngThreadHandle )
 	{
@@ -2771,9 +2776,9 @@ bool NiawgController::rerngThreadIsActive( )
 
 
 // calculate (and return) the wave that will take the atoms from the target position to the final position.
-simpleWave NiawgController::calcFinalPositionMove( niawgPair<ULONG> targetPos, niawgPair<ULONG> finalPos, 
-												   double freqSpacing, Matrix<bool> target, 
-												   niawgPair<double> cornerFreqs )
+std::vector<double> NiawgController::calcFinalPositionMove( niawgPair<ULONG> targetPos, niawgPair<ULONG> finalPos, 
+														    double freqSpacing, Matrix<bool> target, 
+														    niawgPair<double> cornerFreqs, double moveTime )
 {
 	if ( target.getRows() == 0 || target.getCols() == 0 )
 	{
@@ -2787,22 +2792,26 @@ simpleWave NiawgController::calcFinalPositionMove( niawgPair<ULONG> targetPos, n
 	freqChange[Horizontal] = freqSpacing * (double( finalPos[Horizontal] ) - double( targetPos[Horizontal] ));
 	if ( (fabs(freqChange[Vertical]) < 1e-9) && (fabs( freqChange[Horizontal] ) < 1e-9))
 	{
-		return moveWave;
+		return std::vector<double>();
 	}
-	// access is target[row][column]
 	moveWave.chan[Vertical].signals.resize( target.getRows() );
 	moveWave.chan[Horizontal].signals.resize( target.getCols() );
 	// this is pretty arbitrary right now. In principle can prob be very fast.
-	moveWave.time = 1e-4;
+	moveWave.time = moveTime;
 	moveWave.sampleNum = waveformSizeCalc( moveWave.time );
+	simpleWave waitWave = moveWave;
 	// fill wave info
 	for ( auto axis : AXES )
 	{
 		UINT count = 0;
-		for ( auto& sig : moveWave.chan[axis].signals )
+		double targetCornerFreq = cornerFreqs[axis] + freqSpacing * targetPos[axis];
+		for ( auto sigInc : range(moveWave.chan[axis].signals.size()) )
 		{
-			sig.freqInit = cornerFreqs[axis] + count * freqSpacing;
-			sig.freqFin = sig.freqInit + freqChange[axis];
+			auto& sig = moveWave.chan[axis].signals[sigInc];
+			auto& waitSig = waitWave.chan[axis].signals[sigInc];
+			sig.freqInit = (targetCornerFreq + count * freqSpacing) * 1e6;
+			waitSig.freqFin = waitSig.freqInit = sig.freqInit;
+			sig.freqFin = sig.freqInit + freqChange[axis] * 1e6;
 			if ( sig.freqInit == sig.freqFin )
 			{
 				sig.freqRampType = "nr";
@@ -2811,15 +2820,20 @@ simpleWave NiawgController::calcFinalPositionMove( niawgPair<ULONG> targetPos, n
 			{
 				sig.freqRampType = "lin";
 			}
-			sig.initPower = 1;
-			sig.finPower = 1;
+			waitSig.freqRampType = waitSig.powerRampType = "nr";			
+			waitSig.initPower = waitSig.finPower = 1;
+			sig.initPower = sig.finPower = 1;
 			sig.powerRampType = "nr";
 			sig.initPhase = 0;
+			waitSig.initPhase = 0;
 			count++;
 		}
 	}
 	finalizeStandardWave( moveWave, debugInfo( ) );
-	return moveWave;
+	finalizeStandardWave( waitWave, debugInfo( ) );
+	std::vector<double> vals( waitWave.waveVals );
+	vals.insert( vals.end(), moveWave.waveVals.begin( ), moveWave.waveVals.end( ) );
+	return vals;
 }
 
 
@@ -2834,9 +2848,9 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 	rerngThreadInput* input = (rerngThreadInput*)voidInput;
 	std::vector<bool> triedRearranging;
 	std::vector<double> streamTime, triggerTime, resetPositionTime, picHandlingTime, picGrabTime, rerngCalcTime, 
-		moveCalcTime, finishingCalcTime;
+		moveCalcTime, finishingCalcTime, finMoveCalcTime;
 	std::vector<UINT> numberMoves;
-	chronoTimes startCalc, stopReset, stopStream, stopTrigger, stopRerngCalc, stopMoveCalc, stopAllCalc;
+	chronoTimes startCalc, stopReset, stopStream, stopTrigger, stopRerngCalc, finMoveCalc, stopMoveCalc, stopAllCalc;
 	std::ofstream outFile;
 	UINT counter = 0;
 	try
@@ -2969,16 +2983,20 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				{
 					vals = input->niawg->makeRerngWave( info, move.initRow, move.initCol, dir, 
 														input->rerngOptions.staticMovingRatio, bias, 
-														input->rerngOptions.deadTime );
+														input->rerngOptions.deadTime, input->sourceRows, 
+														input->sourceCols );
 				}
 				input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), vals.begin( ), vals.end( ) );
 			}
-			/// Finishing Move to move the atoms to the desired location.
-			simpleWave finalMove = input->niawg->calcFinalPositionMove( finPos, info.finalPosition, info.freqPerPixel, 
-																		info.target, info.lowestFreqs );
-			input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), finalMove.waveVals.begin( ),
-												finalMove.waveVals.end( ) );
 			stopMoveCalc.push_back( chronoClock::now( ) );
+			/// Finishing Move to move the atoms to the desired location.
+			std::vector<double> finalMove;
+			finalMove = input->niawg->calcFinalPositionMove( finPos, info.finalPosition, info.freqPerPixel, 
+															 info.target, info.lowestFreqs, 
+															 input->rerngOptions.finalMoveTime );
+			input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), finalMove.begin( ),
+												finalMove.end( ) );
+			finMoveCalc.push_back( chronoClock::now( ) );
 			// the filler wave holds the total length of the wave. Add the differnece in size between the filler wave
 			// size and the existing size to fill out the rest of the vector.
 			input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), info.fillerWave.waveVals.begin( ),
@@ -3005,9 +3023,15 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			{
 				if ( input->rerngOptions.outputIndv )
 				{
-					input->comm->sendStatus( "Tried Moving. Code Time = "
-											 + str( std::chrono::duration<double>( stopReset.back( )
-																				   - startCalc.back( ) ).count( ) )
+					input->comm->sendStatus( "Tried Moving, " + str( moveSequence.size() ) + " Moves. Move Calc Time:"
+											 + str( std::chrono::duration<double>( stopMoveCalc.back()
+																				   - startCalc.back()).count()) 
+											 +  ", Fin Move Time:"
+											 + str( std::chrono::duration<double>( finMoveCalc.back( )
+																				   - stopMoveCalc.back( ) ).count( ) )
+											 + " Code Time = "
+											 + str( std::chrono::duration<double>( stopReset.back() 
+																				   - startCalc.back()).count())
 											 + "\r\n" );
 				}
 			}
@@ -3024,7 +3048,8 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 						outFile << "; ";
 					}
 				}
-				outFile << "\nMoves:\n";
+				outFile << "\nTarget Location: " + str( finPos[0] ) + ' ' + str( finPos[1] ) + "\n";
+				outFile << "Moves:\n";
 				UINT moveCount = 0;
 				for ( auto move : moveSequence )
 				{
@@ -3036,6 +3061,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 		}
 		for ( auto inc : range( startCalc.size( ) ) )
 		{
+			finMoveCalcTime.push_back( std::chrono::duration<double>( finMoveCalc[inc] - stopMoveCalc[inc] ).count( ) );
 			streamTime.push_back( std::chrono::duration<double>( stopStream[inc] - stopAllCalc[inc] ).count( ) );
 			triggerTime.push_back( std::chrono::duration<double>( stopTrigger[inc] - stopStream[inc] ).count( ) );
 			rerngCalcTime.push_back( std::chrono::duration<double>( stopRerngCalc[inc] - startCalc[inc] ).count( ) );
