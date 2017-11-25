@@ -1,12 +1,12 @@
 % pushout(). Takes 10 + pushoutTime ms, typically around 11ms.
-def pushout1Dscatter():
+def pushout1Dscatterbeamoff():
   	% insert commands here... 
 
       pulseon: tweezerIntensityTrig 0.1
       t += 1
 	dac: MOTFreq pushoutfreq  
 	dac: sideMotPower 0.3 %0.08 %for 3x6 with pushoutdepth 2 % 0.015 %0.01
-	on: sideMotRf
+	%on: sideMotRf
       t += pushoutTime %0.3
 	off: sideMotRf
 
