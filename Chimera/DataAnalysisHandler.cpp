@@ -304,8 +304,7 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 	}
 	UINT groupNum = input->atomGridInfo.height * input->atomGridInfo.width;
 	int totalNumberOfPixels = 0;
-	int numberOfLossDataPixels = 0;
-	
+	int numberOfLossDataPixels = 0;	
 	/// figure out which pixels need any data
 	for (auto plotInc :range(allPlots.size()))
 	{
@@ -384,9 +383,6 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 	vector<vector<vector<bool> > > newData( allPlots.size( ));
 	vector<vector<vector<std::deque<double>>>> finalHistData( allPlots.size( ) );
 	vector<vector<vector<std::map<int, std::pair<int, ULONG>>>>> histogramData( allPlots.size( ));
-
-
-	// much resizing...
 	for (auto plotInc : range(allPlots.size()))
 	{
 		UINT datasetNumber = allPlots[plotInc].getDataSetNumber( );
@@ -423,7 +419,6 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 		{
 			continue;
 		}
-		std::vector<std::vector<bool>> tmpAtomImage;
 		std::vector<long> tempImage;
 		if ( input->needsCounts )
 		{
@@ -452,20 +447,20 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 		if (input->needsCounts)
 		{
 			/// for all pixels... gather count information
-			UINT count = 0;
+			UINT locIndex = 0;
 			std::lock_guard<std::mutex> locker( *input->plotLock );
 			for ( auto row : range( input->atomGridInfo.width ) )
 			{
 				for ( auto column : range( input->atomGridInfo.height ) )
 				{
-					countData[count].push_back( tempImage[count] );
-					count++;
+					countData[locIndex].push_back( tempImage[locIndex] );
+					locIndex++;
 				}
 			}
 		}
 		/// get all the atom data
 		bool thereIsAtLeastOneAtom = false;
-		for (UINT pixelInc = 0; pixelInc < groupNum; pixelInc++)
+		for (auto pixelInc : range(groupNum))
 		{
 			if (input->atomQueue->at(0)[pixelInc])
 			{
@@ -502,18 +497,14 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 			{
 				input->atomQueue->erase( input->atomQueue->begin( ) );
 			}
-			// increment the thread's accumulation Number.
 			currentThreadPictureNumber++;
 			// wait for next picture.
 			continue;
 		}
 		plotNumberCount++;
-		// for every plot...
 		for ( auto plotI : range( allPlots.size( ) ) )
 		{
 			/// Check Post-Selection Conditions
-			// initialize this vector to all true. 
-			// statisfiesPsc[dataSetI][groupI] = true or false
 			vector<vector<bool> > satisfiesPsc( allPlots[plotI].getDataSetNumber( ), vector<bool>( groupNum, true ) );
 			determineWhichPscsSatisfied( allPlots[plotI], groupNum, atomPresentData, satisfiesPsc );
 			// split into one of two big subroutines. The handling here is encapsulated into functions mostly just for 
@@ -521,10 +512,9 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 			if ( allPlots[plotI].getPlotType( ) == "Atoms" )
 			{
 				DataAnalysisControl::handlePlotAtoms( input, allPlots[plotI], currentThreadPictureNumber,
-													  finalDataNew[plotI],
-													  finalAvgs[plotI], finalErrorBars[plotI], finalXVals[plotI],
-													  avgAvg[plotI], avgErrBar[plotI], avgXVals[plotI],
-													  newData[plotI], satisfiesPsc, plotI, countData,
+													  finalDataNew[plotI], finalAvgs[plotI], finalErrorBars[plotI], 
+													  finalXVals[plotI], avgAvg[plotI], avgErrBar[plotI], 
+													  avgXVals[plotI], newData[plotI], satisfiesPsc, plotI, 
 													  plotNumberCount, atomPresentData );
 			}
 			else if ( allPlots[plotI].getPlotType( ) == "Pixel Counts" )
@@ -533,7 +523,7 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 													   finalCountData[plotI], finalAvgs[plotI], finalErrorBars[plotI],
 													   finalXVals[plotI], avgAvg[plotI], avgErrBar[plotI],
 													   avgXVals[plotI], newData[plotI], satisfiesPsc, plotI, countData,
-													   plotNumberCount, atomPresentData );
+													   plotNumberCount );
 			}
 			else if ( allPlots[plotI].getPlotType( ) == "Pixel Count Histograms" )
 			{
@@ -606,10 +596,8 @@ void DataAnalysisControl::handlePlotAtoms( realTimePlotterInput* input, Plotting
 										   vector<vector<std::pair<double, ULONG>> >& finData,
 										   variationData& finAvgs, variationData& finErrs, variationData& finX,
 										   avgData& avgAvgs, avgData& avgErrs, avgData& avgX,
-										   vector<vector<bool> >& needNewData,
-										   vector<vector<bool>>& pscSatisfied, int plotNumber,
-										   vector<vector<long>>& countData, int plotNumberCount,
-										   vector<vector<int> > atomPresent )
+										   vector<vector<bool> >& needNewData, vector<vector<bool>>& pscSatisfied, 
+										   int plotNumber, int plotNumberCount, vector<vector<int> > atomPresent )
 {
 	UINT groupNum = input->atomGridInfo.width * input->atomGridInfo.height;
 	if (pictureNumber % input->picsPerVariation == plotInfo.getPicNumber())
@@ -1002,24 +990,20 @@ void DataAnalysisControl::handlePlotAtoms( realTimePlotterInput* input, Plotting
 
 /// using std::vector above
 void DataAnalysisControl::handlePlotCounts( realTimePlotterInput* input, PlottingInfo plotInfo, UINT pictureNumber,
-												   vector<vector<vector<long> > >& finData,
-												   variationData& finAvgs, variationData& finErrs, variationData& finX,
-												   avgData& avgAvgs, avgData& avgErrs, avgData& avgX,
-												   vector<vector<bool> >& needNewData,
-												   vector<vector<bool>>& pscSatisfied, int plotNumber,
-												   vector<vector<long>>& countData, int plotNumberCount,
-												   vector<vector<int> > atomPresent )
+											vector<vector<vector<long> > >& finData, variationData& finAvgs,
+											variationData& finErrs, variationData& finX, avgData& avgAvgs, 
+											avgData& avgErrs, avgData& avgX, vector<vector<bool> >& needNewData,
+											vector<vector<bool>>& pscSatisfied, int plotNumber,
+											vector<vector<long>>& countData, int plotNumberCount )
 {
 	// will eventually be passed in as arg
 	vector<vector<std::pair<double, ULONG>> > finDataNew;
-	//
 	UINT groupNum = input->atomGridInfo.width * input->atomGridInfo.height;
 	if ( pictureNumber % input->picsPerVariation == plotInfo.getPicNumber( ) )
 	{
 		// first pic of new variation, so need to update x vals.
-		finData = vector<vector<vector<long>>>( plotInfo.getDataSetNumber( ),
-															   vector<vector<long>>( groupNum ) );
-		finDataNew = vector<vector<std::pair<double, ULONG>>>(
+		finData = vector<vector<vector<long>>>( plotInfo.getDataSetNumber( ), vector<vector<long>>( groupNum ) );
+		finDataNew = vector<vector<std::pair<double, ULONG>>>( 
 			plotInfo.getDataSetNumber( ), vector<std::pair<double, ULONG>>( groupNum, { 0,0 } ) );
 		needNewData = vector<vector<bool>>( plotInfo.getDataSetNumber( ), vector<bool>( groupNum, true ) );
 	}
@@ -1383,9 +1367,8 @@ void DataAnalysisControl::handlePlotCounts( realTimePlotterInput* input, Plottin
 
 // using vector = std::vector
 void DataAnalysisControl::handlePlotHist( realTimePlotterInput* input, PlottingInfo plotInfo, UINT plotNumber,
-										  vector<vector<long>> countData,
-										  vector<vector<std::deque<double>>>& finData,
-										  vector<vector<bool>>pscSatisfied, int plotNumberCount,
+										  vector<vector<long>> countData, vector<vector<std::deque<double>>>& finData,
+										  vector<vector<bool>> pscSatisfied, int plotNumberCount,
 										  vector<vector<std::map<int, std::pair<int, ULONG>>>>& histData)
 {
 	/// options are fundamentally different for histograms.
@@ -1397,18 +1380,30 @@ void DataAnalysisControl::handlePlotHist( realTimePlotterInput* input, PlottingI
 		{
 			if ( pscSatisfied[dataSetI][groupI] == false )
 			{
+				// no new data.
 				continue;
 			}
 			double binWidth = plotInfo.getDataSetHistBinWidth( dataSetI );
-			int binNum = std::round(double(countData[groupI].back( )) / binWidth);
-			if ( histData[dataSetI][groupI].find( binNum ) == histData[dataSetI][groupI].end( ) )
+			for ( auto pixelI : range( plotInfo.getPixelNumber( ) ) )
 			{
-				histData[dataSetI][groupI][binNum] = { binNum * binWidth, 1 };
-			}
-			else
-			{
-				histData[dataSetI][groupI][binNum].second++;
-			}
+				for ( auto picI : range( plotInfo.getPicNumber( ) ) )
+				{
+					// check if there is a condition at all
+					if ( plotInfo.getResultCondition( dataSetI, pixelI, picI ) )
+					{
+						int binNum = std::round( double( countData[groupI].end( )[-int(plotInfo.getPicNumber( )) + int(picI)] ) / binWidth );
+						if ( histData[dataSetI][groupI].find( binNum ) == histData[dataSetI][groupI].end( ) )
+						{
+							// if bin doesn't exist
+							histData[dataSetI][groupI][binNum] = { binNum * binWidth, 1 };
+						}
+						else
+						{
+							histData[dataSetI][groupI][binNum].second++;
+						}
+					}
+				}
+			}			
 		}
 	}
 	// Core data structures have been updated. return if not time for an update yet.

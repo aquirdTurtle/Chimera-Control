@@ -51,9 +51,9 @@ class PlotDesignerDialog : public CDialog
 		fontMap* dlgFonts;
 		const UINT picNumber;
 		int currentDataSet, currentPrcPicture, currentPrcPixel, currentPscCondition, currentPscPicture, currentPscPixel;
-
 		PlottingInfo currentPlotInfo;
-		// Lots of controls on this guy
+
+		/// Lots of controls on this guy
 		Control<CStatic> plotPropertiesText;
 
 		Control<CStatic> plotTitleText;

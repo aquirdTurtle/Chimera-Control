@@ -50,9 +50,9 @@ class VariableSystem
 		static void generateKey( std::vector<variableType>& variables, bool randomizeVariablesOption );
 		static std::vector<double> getKeyValues( std::vector<variableType> variables );
 		void reorderVariableDimensions( );
-
 	private:
-		USHORT preRangeColumns = 3;
+		// name, constant/variable, dim, constantValue.
+		USHORT preRangeColumns = 4;
 		// Only 2 gui elements.
 		Control<CStatic> variablesHeader;
 		Control<CListCtrl> variablesListview;
@@ -71,7 +71,4 @@ class VariableSystem
 		// number of dimensions to the variable scans. Unusual to do more than 2.
 		USHORT scanDimensions;
 };
-
-
-
 

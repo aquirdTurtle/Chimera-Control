@@ -240,4 +240,4 @@ stage2loaddepth 65
 pgcstage1time 0.1
 pgcstage2time 6
 intrappgcrepumppower 0.1
-249 293 3 246 260 3
+1 5 1 1 5 1
