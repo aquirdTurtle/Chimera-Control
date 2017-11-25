@@ -190,8 +190,9 @@ class NiawgController
 		static double rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool> & targetMatrix,
 									 std::vector<simpleMove>& moveSequence );
 		// From the single moves operationsmatrix, this function calculates parallel moves (rows and columns)
-		static double parallelMoves( std::vector<std::vector<int>> operationsMatrix, std::vector<std::vector<int>> source,
-									 double matrixSize, std::vector<parallelMovesContainer> &moves );
+		static void optimizeMoves( std::vector<simpleMove> singleMoves, Matrix<bool> source, 
+								   std::vector<complexMove> &moves, rerngOptions options );
+		std::vector<std::string> evolveSource( Matrix<bool> source, std::vector<complexMove> moves );
 		// returns maximal number of moves given a targetmatrix.
 		static UINT getMaxMoves( Matrix<bool> targetMatrix );
 };

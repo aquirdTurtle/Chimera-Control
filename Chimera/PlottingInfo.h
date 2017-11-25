@@ -4,12 +4,20 @@
 #include "PlotDataSet.h"
 #include "coordinate.h"
 
+
+struct analysisGroupLocation
+{
+	int row;
+	int col;
+	int pixelIndex;
+};
+
+
 class PlottingInfo
 {
 	public:
 		PlottingInfo(UINT picNumber);
 		PlottingInfo(std::string fileName);
-		~PlottingInfo();
 		void changeTitle(std::string newTitle);
 		std::string getTitle();
 
@@ -93,18 +101,18 @@ class PlottingInfo
 		static UINT getPicNumberFromFile(std::string fileAddress);
 		static std::string getAllSettingsStringFromFile(std::string fileAddress);
 
+		analysisGroupLocation& groupInfo( UINT pixelNumber, UINT pixelSet );
+		analysisGroupLocation  groupInfo( UINT pixelNumber, UINT pixelSet ) const;
+
 	private:
-		// version 1.x refers to time when version number wasn't actually recorded.
+		// Versions of the plot save file system. 
+		// Version 1.x refers to files that were outputted with no version number
 		const UINT versionMajor = 2;
 		const UINT versionMinor = 0;
-		// arbitrary
 		std::string title;
-		// arbitrary
 		std::string yLabel;
-		// analysisGroups[pixel #][pixel set][0] = row
-		// analysisGroups[pixel #][pixel set][1] = collumn
-		// analysisGroups[pixel #][pixel set][2] = pixel index (set durring plotting)
-		std::vector<std::vector<std::array<int, 3>>> analysisGroups;
+		// analysisGroups[pixel #][pixel set]
+		std::vector<std::vector<analysisGroupLocation>> analysisGroups;
 		// Contains information for each set of data to be plotted.
 		std::vector<PlotDataSet> dataSets;
 		// arbitrary. Always goes to the same folder.

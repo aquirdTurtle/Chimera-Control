@@ -61,6 +61,7 @@ class Error : public std::runtime_error
 void appendText(std::string newText, CEdit& edit);
 void appendText(std::string newText, Control<CRichEditCtrl>& edit);
 
+/// these range functions are designed to mimic the python "range" function. Stolen from some stack overflow question.
 template <typename IntType> std::vector<IntType> range( IntType start, IntType stop, IntType step )
 {
 	if ( step == IntType( 0 ) )

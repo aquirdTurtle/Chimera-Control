@@ -10,6 +10,8 @@ FEATURES:
 	- handle random case in plotting.
 - be able to add more repetitions on the fly if randomizing reps.
 - Be able to set different analysis locations for different plots
+- constant value should be separate from variable values and variable variations should be separate from constants.
+- consider implementations of local variables
 
 - if aborts or crashes in the middle of run, code should close HDF5 file and make it usable, somehow.
 - Watch cursor location on andor pictures, sim to basler program
@@ -29,13 +31,13 @@ Refactoring / Other:
 - test running avg gnuplot
 - test fitting in gnuplot
 - refactor groups in plotinfo and gnuplot stuffs
-- change plotting to have fixed x-axis size.
 - change pointers to smart-ptrs where possible
 - remove intensity from color boxes
+- refactor / comment kais parallel moves code
 
 Bugs:
 - something wrong with set New dac Values! Pressing seems to change whether shutter is open or closed???
-- exposure time setting properly for andor camera? (maybe just prob in video mode)
+- exposure time setting properly for andor camera? (maybe just problem in video mode)
 - code breaking if no dacs in debug mode?
 
 - scripts becoming unsaved after move, should preserve saved status
@@ -43,10 +45,13 @@ Bugs:
 - global config colors don't appear to always be correct. (not sure how to repeat yet)
 - fix over-writing to the agilent.
 - niawg is doing something during turnonmot
+- control tektronics not being saved in config?
+- bug in picture stats retrieval from image array? Seems like might have been not really the fault of the image stats, 
+	but should look into this a bit.
 
 Rearranging
-- smartly figure out where to rearrange to and move at the end to center
-- utilize compound moves
+- utilize non-flashing moves
+- utilize compound flashing moves
 
 =================
 Finished

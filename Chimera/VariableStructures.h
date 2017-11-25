@@ -20,8 +20,10 @@ struct variableType
 	std::string name;
 	// whether this variable is constant or varies.
 	bool constant;
+	double constantValue = 0;
 	bool active = false;
 	bool overwritten = false;
+
 	// records which scan dimension the variable is in.
 	USHORT scanDimension=1;
 	std::vector<variationRangeInfo> ranges;

@@ -91,18 +91,21 @@ void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindo
 		listViewDefaultCollumn.pszText = "Dim";
 		listViewDefaultCollumn.cx = 0x40;
 		variablesListview.InsertColumn( 2, &listViewDefaultCollumn );
+		listViewDefaultCollumn.pszText = "Value";
+		listViewDefaultCollumn.cx = 0x40;
+		variablesListview.InsertColumn( 3, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "1:(";
 		listViewDefaultCollumn.cx = 0x35;
-		variablesListview.InsertColumn( 3, &listViewDefaultCollumn );
-		listViewDefaultCollumn.pszText = "]";
 		variablesListview.InsertColumn( 4, &listViewDefaultCollumn );
-		listViewDefaultCollumn.pszText = "#";
+		listViewDefaultCollumn.pszText = "]";
 		variablesListview.InsertColumn( 5, &listViewDefaultCollumn );
+		listViewDefaultCollumn.pszText = "#";
+		variablesListview.InsertColumn( 6, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "+()";
 		listViewDefaultCollumn.cx = 0x30;
-		variablesListview.InsertColumn( 6, &listViewDefaultCollumn );
-		listViewDefaultCollumn.pszText = "-()";
 		variablesListview.InsertColumn( 7, &listViewDefaultCollumn );
+		listViewDefaultCollumn.pszText = "-()";
+		variablesListview.InsertColumn( 8, &listViewDefaultCollumn );
 		// Make First Blank row.
 		LVITEM listViewDefaultItem;
 		memset( &listViewDefaultItem, 0, sizeof( listViewDefaultItem ) );
@@ -112,7 +115,7 @@ void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindo
 		listViewDefaultItem.iItem = 0;          // choose item  
 		listViewDefaultItem.iSubItem = 0;       // Put in first coluom
 		variablesListview.InsertItem( &listViewDefaultItem );
-		for ( int itemInc = 1; itemInc < 6; itemInc++ ) // Add SubItems in a loop
+		for ( int itemInc = 1; itemInc < 7; itemInc++ ) // Add SubItems in a loop
 		{
 			listViewDefaultItem.iSubItem = itemInc;
 			variablesListview.SetItem( &listViewDefaultItem );
@@ -142,92 +145,100 @@ void VariableSystem::handleOpenConfig(std::ifstream& configFile, int versionMajo
 			varNum = 0;
 		}
 	}
-int rangeNumber = 1;
-for ( const UINT varInc : range( varNum ) )
-{
-	variableType tempVar;
-	std::string varName, typeText, valueString;
-	bool constant;
-	configFile >> varName;
-	std::transform( varName.begin( ), varName.end( ), varName.begin( ), ::tolower );
-	tempVar.name = varName;
-	configFile >> typeText;
-	if ( typeText == "Constant" )
+	int rangeNumber = 1;
+	for ( const UINT varInc : range( varNum ) )
 	{
-		constant = true;
-		tempVar.constant = true;
+		variableType tempVar;
+		std::string varName, typeText, valueString;
+		bool constant;
+		configFile >> varName;
+		std::transform( varName.begin( ), varName.end( ), varName.begin( ), ::tolower );
+		tempVar.name = varName;
+		configFile >> typeText;
+		if ( typeText == "Constant" )
+		{
+			constant = true;
+			tempVar.constant = true;
+		}
+		else if ( typeText == "Variable" )
+		{
+			constant = false;
+			tempVar.constant = false;
+		}
+		else
+		{
+			thrower( "ERROR: unknown variable type option: " + typeText + ". Check the formatting of the configuration"
+					 " file." );
+		}
+		if ( (versionMajor == 2 && versionMinor > 7) || versionMajor > 2 )
+		{
+			configFile >> tempVar.scanDimension;
+		}
+		else
+		{
+			tempVar.scanDimension = 1;
+		}
+		configFile >> rangeNumber;
+		// I think it's unlikely to ever need more than 2 or 3 ranges.
+		if ( rangeNumber < 1 || rangeNumber > 100 )
+		{
+			errBox( "ERROR: Bad range number! setting it to 1, but found " + str( rangeNumber ) + " in the file." );
+			rangeNumber = 1;
+		}
+		setVariationRangeNumber( rangeNumber, 1 );
+		// check if the range is actually too small.
+		UINT totalVariations = 0;
+		for ( auto rangeInc : range( rangeNumber ) )
+		{
+			double initValue = 0, finValue = 0;
+			unsigned int variations = 0;
+			bool leftInclusive = 0, rightInclusive = 0;
+			configFile >> initValue;
+			configFile >> finValue;
+			configFile >> variations;
+			totalVariations += variations;
+			configFile >> leftInclusive;
+			configFile >> rightInclusive;
+			tempVar.ranges.push_back( { initValue, finValue, variations, leftInclusive, rightInclusive } );
+		}
+		// shouldn't be because of 1 forcing earlier.
+		if ( tempVar.ranges.size( ) == 0 )
+		{
+			// make sure it has at least one entry.
+			tempVar.ranges.push_back( { 0,0,1, false, true } );
+		}
+		if ( (versionMajor == 2 && versionMinor > 14) || versionMajor > 2 )
+		{
+			configFile >> tempVar.constantValue;
+		}
+		else
+		{
+			tempVar.constantValue = tempVar.ranges[0].initialValue;
+		}
+		addConfigVariable( tempVar, varInc );
 	}
-	else if ( typeText == "Variable" )
-	{
-		constant = false;
-		tempVar.constant = false;
-	}
-	else
-	{
-		thrower( "ERROR: unknown variable type option: " + typeText + ". Check the formatting of the configuration"
-				 " file." );
-	}
-	if ( (versionMajor == 2 && versionMinor > 7) || versionMajor > 2 )
-	{
-		configFile >> tempVar.scanDimension;
-	}
-	else
-	{
-		tempVar.scanDimension = 1;
-	}
-	configFile >> rangeNumber;
-	// I think it's unlikely to ever need more than 2 or 3 ranges.
-	if ( rangeNumber < 1 || rangeNumber > 100 )
-	{
-		errBox( "ERROR: Bad range number! setting it to 1, but found " + str( rangeNumber ) + " in the file." );
-		rangeNumber = 1;
-	}
-	setVariationRangeNumber( rangeNumber, 1 );
-	// check if the range is actually too small.
-	UINT totalVariations = 0;
+
 	for ( auto rangeInc : range( rangeNumber ) )
 	{
-		double initValue = 0, finValue = 0;
-		unsigned int variations = 0;
-		bool leftInclusive = 0, rightInclusive = 0;
-		configFile >> initValue;
-		configFile >> finValue;
-		configFile >> variations;
-		totalVariations += variations;
-		configFile >> leftInclusive;
-		configFile >> rightInclusive;
-		tempVar.ranges.push_back( { initValue, finValue, variations, leftInclusive, rightInclusive } );
+		bool leftInclusivity = false, rightInclusivity = true;
+		if ( currentVariables.size( ) != 0 )
+		{
+			leftInclusivity = currentVariables.front( ).ranges[rangeInc].leftInclusive;
+			rightInclusivity = currentVariables.front( ).ranges[rangeInc].rightInclusive;
+		}
+		setRangeInclusivity( rangeInc, true, leftInclusivity, preRangeColumns + rangeInc * 3 );
+		setRangeInclusivity( rangeInc, false, rightInclusivity, preRangeColumns + 1 + rangeInc * 3 );
 	}
-	// shouldn't be because of 1 forcing earlier.
-	if ( tempVar.ranges.size( ) == 0 )
-	{
-		// make sure it has at least one entry.
-		tempVar.ranges.push_back( { 0,0,1, false, true } );
-	}
-	addConfigVariable( tempVar, varInc );
-}
 
-for ( auto rangeInc : range( rangeNumber ) )
-{
-	bool leftInclusivity = false, rightInclusivity = true;
-	if ( currentVariables.size( ) != 0 )
-	{
-		leftInclusivity = currentVariables.front( ).ranges[rangeInc].leftInclusive;
-		rightInclusivity = currentVariables.front( ).ranges[rangeInc].rightInclusive;
-	}
-	setRangeInclusivity( rangeInc, true, leftInclusivity, preRangeColumns + rangeInc * 3 );
-	setRangeInclusivity( rangeInc, false, rightInclusivity, preRangeColumns + 1 + rangeInc * 3 );
-}
+	// add a blank line
+	variableType var;
+	var.name = "";
+	var.constant = false;
+	var.ranges.push_back( { 0, 0, 1, false, true } );
+	addConfigVariable( var, varNum );
 
-// add a blank line
-variableType var;
-var.name = "";
-var.constant = false;
-var.ranges.push_back( { 0, 0, 1, false, true } );
-addConfigVariable( var, varNum );
-
-ProfileSystem::checkDelimiterLine( configFile, "END_VARIABLES" );
-updateVariationNumber( );
+	ProfileSystem::checkDelimiterLine( configFile, "END_VARIABLES" );
+	updateVariationNumber( );
 }
 
 
@@ -308,6 +319,7 @@ void VariableSystem::handleSaveConfig(std::ofstream& saveFile)
 			saveFile << range.leftInclusive << "\n";
 			saveFile << range.rightInclusive << "\n";
 		}
+		saveFile << info.constantValue << "\n";
 	}
 	saveFile << "END_VARIABLES\n";
 }
@@ -698,30 +710,23 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 			listViewItem.iSubItem = 1;
 			listViewItem.pszText = "Constant";
 			variablesListview.SetItem( &listViewItem );
-			for (int rangeInc = 0; rangeInc < variableRanges; rangeInc++)
+			listViewItem.pszText = "A";
+			listViewItem.iSubItem = 2;
+			variablesListview.SetItem( &listViewItem );
+			listViewItem.iSubItem = 3;
+			listViewItem.pszText = "0";
+			variablesListview.SetItem( &listViewItem );
+			for ( int rangeInc = 0; rangeInc < variableRanges; rangeInc++ )
 			{
+				listViewItem.pszText = "---";
 				listViewItem.iSubItem = preRangeColumns + 3 * rangeInc;
-				if (rangeInc == 0)
-				{
-					listViewItem.pszText = "0";
-				}
-				else
-				{
-					listViewItem.pszText = "---";
-				}
 				variablesListview.SetItem( &listViewItem );
-				listViewItem.iSubItem = preRangeColumns+1 + 3 * rangeInc;
-				listViewItem.pszText = "---";
+				listViewItem.iSubItem = preRangeColumns + 1 + 3 * rangeInc;
 				variablesListview.SetItem( &listViewItem );
-				listViewItem.iSubItem = preRangeColumns+2 + 3 * rangeInc;
-				listViewItem.pszText = "---";
+				listViewItem.iSubItem = preRangeColumns + 2 + 3 * rangeInc;
 				variablesListview.SetItem( &listViewItem );
 			}
 		}
-		std::string s( "A" );
-		listViewItem.pszText = &s[0];
-		listViewItem.iSubItem = 2;
-		variablesListview.SetItem( &listViewItem );
 	}
 	/// Handle different subitem clicks
 	switch (subitem)
@@ -773,8 +778,9 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 		{
 			if (isGlobal)
 			{
-				listViewItem.iItem = itemIndicator;
+				/// global value
 				listViewItem.iSubItem = subitem;
+				listViewItem.iItem = itemIndicator;
 				std::string newValue;
 				TextPromptDialog dialog(&newValue, "Please enter a value for the global variable "
 										+ currentVariables[varNumber].name + ". Value will be formatted as a double.");
@@ -817,6 +823,9 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 					listViewItem.iSubItem = subitem;
 					listViewItem.pszText = "Variable";
 					variablesListview.SetItem( &listViewItem );
+					listViewItem.pszText = "---";
+					listViewItem.iSubItem = 3;
+					variablesListview.SetItem( &listViewItem );
 					for (UINT rangeInc = 0; rangeInc < currentVariables[varNumber].ranges.size(); rangeInc++)
 					{
 						// set lower end of range
@@ -830,9 +839,9 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 						listViewItem.iSubItem = preRangeColumns+1 + rangeInc * 3;
 						variablesListview.SetItem( &listViewItem );
 						// set number of variations in this range
-						temp = str(currentVariations);
+						temp = str( currentVariables[varNumber].ranges[rangeInc].variations);
 						listViewItem.pszText = &temp[0];
-						currentVariables[varNumber].ranges[rangeInc].variations = currentVariations;
+						//currentVariables[varNumber].ranges[rangeInc].variations = currentVariations;
 						// TODO: Handle this better. 
 						UINT totalVariations = 0;
 						for (auto range : currentVariables[varNumber].ranges)
@@ -844,7 +853,6 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 							errBox("WARNING: variable has zero variations in a certain range! "
 								   "There needs to be at least one.");
 						}
-						
 						listViewItem.iSubItem = preRangeColumns+2 + rangeInc * 3;
 						variablesListview.SetItem( &listViewItem );
 					}
@@ -852,27 +860,19 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 				else
 				{
 					/// switch to constant.
+					std::string tmpStr = str( currentVariables[varNumber].constantValue );
+					listViewItem.pszText = &tmpStr[0];
+					listViewItem.iSubItem = 3;
+					variablesListview.SetItem( &listViewItem );
 					currentVariables[varNumber].constant = true;
 					for (int rangeInc = 0; rangeInc < variableRanges; rangeInc++)
 					{
-						if (rangeInc == 0)
-						{
-							std::string temp(str(currentVariables[varNumber].ranges[0].initialValue, 13, true));
-							listViewItem.pszText = &temp[0];
-							listViewItem.iSubItem = preRangeColumns + rangeInc * 3;
-							variablesListview.SetItem( &listViewItem );
-						}
-						else
-						{
-							listViewItem.pszText = "---";
-							listViewItem.iSubItem = preRangeColumns + rangeInc * 3;
-							variablesListview.SetItem( &listViewItem );
-						}
 						// set the value to be dashes on the screen. no value for "Variable".
 						listViewItem.pszText = "---";
+						listViewItem.iSubItem = preRangeColumns + rangeInc * 3;
+						variablesListview.SetItem( &listViewItem );
 						listViewItem.iSubItem = preRangeColumns+1 + rangeInc * 3;
 						variablesListview.SetItem( &listViewItem );
-						listViewItem.pszText = "---";
 						listViewItem.iSubItem = preRangeColumns+2 + rangeInc * 3;
 						variablesListview.SetItem( &listViewItem );
 					}
@@ -885,6 +885,7 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 		}
 		case 2:
 		{
+			/// variable scan dimension
 			if ( currentVariables[varNumber].constant )
 			{
 				break;
@@ -904,12 +905,48 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 				}
 			}
 			currentVariables[varNumber].scanDimension++;
-			// handle "wrapping".
+			// handle "wrapping" of the dimension.
 			if ( currentVariables[varNumber].scanDimension > maxDim + 1 )
 			{
 				currentVariables[varNumber].scanDimension = 1;
 			}
 			reorderVariableDimensions( );
+		}
+		case 3:
+		{
+			/// constant value
+			if ( !currentVariables[varNumber].constant )
+			{
+				// In this case the extra boxes are unresponsive.
+				break;
+			}
+			std::string newValue;
+			TextPromptDialog dialog( &newValue, "Please enter an initial value for the variable "
+									 + currentVariables[varNumber].name + ". Value will be formatted as a double." );
+			dialog.DoModal( );
+			if ( newValue == "" )
+			{
+				// probably canceled.
+				break;
+			}
+			// else there's something there.
+			try
+			{
+				currentVariables[varNumber].constantValue = std::stod( newValue );
+			}
+			catch ( std::invalid_argument& )
+			{
+				thrower( "ERROR: the value entered, " + newValue + ", failed to convert to a double! "
+						 "Check for invalid characters." );
+			}
+			// update the listview
+			listViewItem.iItem = itemIndicator;
+			listViewItem.iSubItem = subitem;
+			std::string tempStr( str( currentVariables[varNumber].constantValue, 13 ) );
+			listViewItem.pszText = &tempStr[0];
+			variablesListview.SetItem( &listViewItem );
+			break;
+
 		}
 		default:
 		{
@@ -917,7 +954,7 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 			{
 				UINT rangeNum = (subitem - preRangeColumns) / 3;
 				// if it's a constant, you can only set the first range initial value.
-				if (currentVariables[varNumber].constant && (subitem - preRangeColumns) != 0)
+				if (currentVariables[varNumber].constant)
 				{
 					// then no final value to be set. In this case the extra boxes are unresponsive.
 					break;
@@ -926,7 +963,6 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 				TextPromptDialog dialog( &newValue, "Please enter an initial value for the variable " 
 										 + currentVariables[varNumber].name + ". Value will be formatted as a double.");
 				dialog.DoModal();
-
 				if (newValue == "")
 				{
 					// probably canceled.
@@ -1302,7 +1338,7 @@ void VariableSystem::addConfigVariable(variableType variableToAdd, UINT item)
 		listViewDefaultItem.iSubItem = 0;
 		// initialize as a constant.
 		variablesListview.InsertItem(&listViewDefaultItem);
-		for (int itemInc = 1; itemInc < 6; itemInc++) // Add SubItems in a loop
+		for (int itemInc = 1; itemInc < 7; itemInc++) // Add SubItems in a loop
 		{
 			listViewDefaultItem.iSubItem = itemInc;
 			variablesListview.SetItem(&listViewDefaultItem);
@@ -1312,7 +1348,6 @@ void VariableSystem::addConfigVariable(variableType variableToAdd, UINT item)
 	}
 
 	/// else...
-	// check if varible already exists.
 	for (auto currentVar : currentVariables)
 	{
 		if (currentVar.name == variableToAdd.name)
@@ -1341,10 +1376,17 @@ void VariableSystem::addConfigVariable(variableType variableToAdd, UINT item)
 	if (variableToAdd.constant)
 	{
 		listViewItem.pszText = "Constant";
+		listViewItem.iSubItem = 4;
+		std::string s = str( variableToAdd.constantValue );
+		listViewItem.pszText = &s[0];
+		variablesListview.SetItem( &listViewItem );
 	}
 	else
 	{
 		listViewItem.pszText = "Variable";
+		listViewItem.iSubItem = 4;
+		listViewItem.pszText = "---";
+		variablesListview.SetItem( &listViewItem );
 	}
 	variablesListview.SetItem(&listViewItem);
 	listViewItem.iSubItem = 2;
@@ -1358,9 +1400,7 @@ void VariableSystem::addConfigVariable(variableType variableToAdd, UINT item)
 	{
 		// add a range.
 		LV_COLUMN listViewDefaultCollumn;
-		// Zero Members
 		memset(&listViewDefaultCollumn, 0, sizeof(listViewDefaultCollumn));
-		// Type of mask
 		listViewDefaultCollumn.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
 		// width between each coloum
 		std::string tempStr(str(variableRanges + 1) + ":(");
@@ -1425,24 +1465,11 @@ void VariableSystem::addConfigVariable(variableType variableToAdd, UINT item)
 		else
 		{
 			// constant case.
-			if (rangeInc == 0)
-			{
-				// get the first value, this is the value of the constant.
-				std::string tempStr(str(currentVariables[item].ranges[rangeInc].initialValue, 13, true));
-				listViewItem.pszText = &tempStr[0];
-				listViewItem.iSubItem = preRangeColumns + rangeInc * 3;
-				variablesListview.SetItem(&listViewItem);
-			}
-			else
-			{
-				listViewItem.pszText = "---";
-				listViewItem.iSubItem = preRangeColumns + rangeInc * 3;
-				variablesListview.SetItem(&listViewItem);
-			}
 			listViewItem.pszText = "---";
+			listViewItem.iSubItem = preRangeColumns + rangeInc * 3;
+			variablesListview.SetItem( &listViewItem );
 			listViewItem.iSubItem = preRangeColumns + 1 + rangeInc * 3;
 			variablesListview.SetItem(&listViewItem);
-			listViewItem.pszText = "---";
 			listViewItem.iSubItem = preRangeColumns + 2 + rangeInc * 3;
 			variablesListview.SetItem(&listViewItem);
 		}
@@ -1591,7 +1618,6 @@ void VariableSystem::generateKey( std::vector<variableType>& variables, bool ran
 			}
 		}
 	}
-
 	std::vector<UINT> totalVariations( maxDim );
 	for ( auto dimInc : range(variations.size()) )
 	{
@@ -1601,11 +1627,9 @@ void VariableSystem::generateKey( std::vector<variableType>& variables, bool ran
 			totalVariations[dimInc] += variationsInRange;
 		}
 	}
-
 	// create a key which will be randomized and then used to randomize other things the same way.
 	multiDimensionalKey<int> randomizerMultiKey( maxDim );
 	randomizerMultiKey.resize( totalVariations );
-
 	UINT count = 0;
 	for ( auto& keyElem : randomizerMultiKey.values )
 	{
@@ -1613,17 +1637,14 @@ void VariableSystem::generateKey( std::vector<variableType>& variables, bool ran
 	}
 	if ( randomizeVariablesOption )
 	{
-		// initialize rng
 		std::random_device rng;
-		std::mt19937 urng( rng( ) );
+		std::mt19937 twister( rng( ) );
 		// and shuffle.
-		std::shuffle( randomizerMultiKey.values.begin( ), randomizerMultiKey.values.end( ), urng );
+		std::shuffle( randomizerMultiKey.values.begin( ), randomizerMultiKey.values.end( ), twister );
 		// we now have a random key for the shuffling which every variable will follow
 		// initialize this to one so that constants always get at least one value.
 	}
-
 	int totalSize = 1;
-	
 	for ( auto variableInc : range(variableIndexes.size( )) )
 	{
 		int varIndex = variableIndexes[variableInc];
@@ -1728,7 +1749,7 @@ void VariableSystem::generateKey( std::vector<variableType>& variables, bool ran
 			for ( auto& val : variable.keyValues )
 			{
 				// the only constant value is stored as the initial value here.
-				val = variable.ranges[0].initialValue;
+				val = variable.constantValue;
 			}
 			variable.valuesVary = false;
 		}
