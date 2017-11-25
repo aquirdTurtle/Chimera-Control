@@ -12,7 +12,8 @@ using namespace std;
 class myexception : public exception
 {
 public:
-	myexception(double Ns, double Nt) {
+	myexception(double Ns, double Nt) 
+	{
 		std::ostringstream out;
 		out << "Less atoms than targets! " << endl << "N source: " << Ns << ", N target: " << Nt;
 		msg = out.str();
@@ -34,13 +35,15 @@ int Rearrangement::sign(int x) {
 		return 0;
 }
 
-double Rearrangement::MinCostMatching(const VVD &cost, VI &Lmate, VI &Rmate) {
+double Rearrangement::MinCostMatching(const std::vector<std::vector<double>> &cost, std::vector<int>&Lmate, 
+									   std::vector<int>&Rmate) 
+{
 
 	int n = int(cost.size());
 
 	// construct dual feasible solution
-	VD u(n);
-	VD v(n);
+	std::vector<double> u(n);
+	std::vector<double> v(n);
 
 	for (int i = 0; i < n; i++) 
 	{
@@ -57,8 +60,8 @@ double Rearrangement::MinCostMatching(const VVD &cost, VI &Lmate, VI &Rmate) {
 	}
 
 	// construct primal solution satisfying complementary slackness
-	Lmate = VI(n, -1);
-	Rmate = VI(n, -1);
+	Lmate = std::vector<int>(n, -1);
+	Rmate = std::vector<int>(n, -1);
 	int mated = 0;
 
 	for (int i = 0; i < n; i++) {
@@ -74,9 +77,9 @@ double Rearrangement::MinCostMatching(const VVD &cost, VI &Lmate, VI &Rmate) {
 		}
 	}
 
-	VD dist(n);
-	VI dad(n);
-	VI seen(n);
+	std::vector<double> dist(n);
+	std::vector<int> dad(n);
+	std::vector<int> seen(n);
 
 	// repeat until primal solution is feasible
 	while (mated < n) {
@@ -157,7 +160,10 @@ double Rearrangement::MinCostMatching(const VVD &cost, VI &Lmate, VI &Rmate) {
 	return value;
 }
 
-double Rearrangement::rearrangement(const VVI & sourcematrix, const VVI & targetmatrix, VVI & operationsmatrix) {
+double Rearrangement::rearrangement(const std::vector<std::vector<int>> & sourcematrix, 
+									 const std::vector<std::vector<int>> & targetmatrix, 
+									 std::vector<std::vector<int>> & operationsmatrix) 
+{
 
 
 	//For Error Handling: Algorithm does not work with less atoms than targets
@@ -286,7 +292,9 @@ double Rearrangement::rearrangement(const VVI & sourcematrix, const VVI & target
 //to find more than one atom in each row/column to move at the same time
 //Be vary of duplicates, the move (init_row,init_col)->(fin_row,fin_col) might be done more than once during the whole 
 //algorithm, but only move and delete it once at the same time
-double Rearrangement::parallelmoves(VVI operationsmatrix, VVI C, double N, vector<parallelMovesContainer> &output) {
+double Rearrangement::parallelmoves( std::vector<std::vector<int>> operationsmatrix, std::vector<std::vector<int>> C,
+									 double N, vector<parallelMove> &output) 
+{
 
 	//Vector that should save indice of all the moves (operationmatrix) that are in a certain column/row
 	vector<int> opM_ix;
@@ -340,10 +348,10 @@ double Rearrangement::parallelmoves(VVI operationsmatrix, VVI C, double N, vecto
 					nofmoves_parallel++;
 
 					//Save the moves
-					output.push_back(parallelMovesContainer());
+					output.push_back(parallelMove());
 					output.back().rowOrColumn = "row";
 					output.back().upOrDown = 1;
-					output.back().which_rowOrColumn = row;
+					output.back().whichRowOrColumn = row;
 
 					for (unsigned k = opM_ix.size(); k-- > 0;) {
 						C[operationsmatrix[opM_ix[k]][0]][operationsmatrix[opM_ix[k]][1]] = 0;
@@ -406,10 +414,10 @@ double Rearrangement::parallelmoves(VVI operationsmatrix, VVI C, double N, vecto
 				}
 				if (move) {
 					nofmoves_parallel++;
-					output.push_back(parallelMovesContainer());
+					output.push_back(parallelMove());
 					output.back().rowOrColumn = "row";
 					output.back().upOrDown = -1;
-					output.back().which_rowOrColumn = row;
+					output.back().whichRowOrColumn = row;
 					
 
 					for (unsigned k = opM_ix.size(); k-- > 0;) {
@@ -473,10 +481,10 @@ double Rearrangement::parallelmoves(VVI operationsmatrix, VVI C, double N, vecto
 				}
 				if (move) {
 					nofmoves_parallel++;
-					output.push_back(parallelMovesContainer());
+					output.push_back(parallelMove());
 					output.back().rowOrColumn = "column";
 					output.back().upOrDown = 1;
-					output.back().which_rowOrColumn = col;
+					output.back().whichRowOrColumn = col;
 
 					for (unsigned k = opM_ix.size(); k-- > 0;) {
 						C[operationsmatrix[opM_ix[k]][0]][operationsmatrix[opM_ix[k]][1]] = 0;
@@ -505,8 +513,8 @@ double Rearrangement::parallelmoves(VVI operationsmatrix, VVI C, double N, vecto
 			//get all elements in this row that move to row-1
 			opM_ix.clear();
 			selecteditems.clear();
-			for (int i = 0; i < operationsmatrix.size(); i++) {
-
+			for (int i = 0; i < operationsmatrix.size(); i++) 
+			{
 				if (operationsmatrix[i][1] == col && operationsmatrix[i][3] == col - 1) {
 					check = true;
 					//erase duplicates
@@ -539,10 +547,10 @@ double Rearrangement::parallelmoves(VVI operationsmatrix, VVI C, double N, vecto
 				}
 				if (move) {
 					nofmoves_parallel++;
-					output.push_back(parallelMovesContainer());
+					output.push_back(parallelMove());
 					output.back().rowOrColumn = "column";
 					output.back().upOrDown = -1;
-					output.back().which_rowOrColumn = col;
+					output.back().whichRowOrColumn = col;
 
 					for (unsigned k = opM_ix.size(); k-- > 0;) {
 						//cout << "----------------------" << endl;
@@ -574,7 +582,8 @@ double Rearrangement::parallelmoves(VVI operationsmatrix, VVI C, double N, vecto
 //Is overestimating the most if you have a very small target in a big lattice.
 //If you wanted to scale it down, one idea might be to scale nofmovesmax with the filling fraction!
 //Also: Not super fast because of nested for loops
-int Rearrangement::nofmovesmax(const VVI targetmatrix) {
+int Rearrangement::nofmovesmax(const std::vector<std::vector<int>> targetmatrix) 
+{
 	int Nt = 0;
 	for (int i = 0; i < targetmatrix.size(); i++) {
 		for (int j = 0; j < targetmatrix[0].size(); j++) {

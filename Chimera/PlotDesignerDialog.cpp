@@ -295,21 +295,8 @@ void PlotDesignerDialog::loadPositiveResultSettings()
 		// load current things.
 		int currentValue = currentPlotInfo.getResultCondition( dataSetNumCombo.GetCurSel( ), prcPixelNumCombo.GetCurSel(),
 															   prcPicNumCombo.GetCurSel( ) );
-		if (currentValue == 1)
-		{
-			prcAtomBox.SetCheck( 1 );
-			prcNoAtomBox.SetCheck( 0 );
-		}
-		else if (currentValue == -1)
-		{
-			prcAtomBox.SetCheck( 0 );
-			prcNoAtomBox.SetCheck( 1 );
-		}
-		else
-		{
-			prcAtomBox.SetCheck( 0 );
-			prcNoAtomBox.SetCheck( 0 );
-		}
+		prcAtomBox.SetCheck( currentValue == 1 );
+		prcNoAtomBox.SetCheck( currentValue == -1 );
 	}
 }
 
@@ -397,13 +384,22 @@ void PlotDesignerDialog::handleDataSetComboChange()
 			try
 			{
 				currentPlotInfo.getDataCountsLocation( dataSetNumCombo.GetCurSel( ), pixel, picture );
-				prcPicNumCombo.SetCurSel( picture + 1 );
+				prcPicNumCombo.SetCurSel( picture );
 				prcPixelNumCombo.SetCurSel( pixel );
+				currentPrcPixel = pixel;
+				currentPrcPicture = picture;
+				prcAtomBox.SetCheck( currentPlotInfo.getResultCondition( dataSetNumCombo.GetCurSel( ), pixel, 
+																		 picture ) == 1 );
+				prcNoAtomBox.SetCheck( 0 );
 			}
 			catch (Error&)
 			{
 				prcPicNumCombo.SetCurSel( -1 );
 				prcPixelNumCombo.SetCurSel( -1 );
+				currentPrcPixel = -1;
+				currentPrcPicture = -1;
+				prcAtomBox.SetCheck( 0 );
+				prcNoAtomBox.SetCheck( 0 );
 			}
 			UINT width = currentPlotInfo.getDataSetHistBinWidth( dataSetNumCombo.GetCurSel( ) );
 			binWidthEdit.SetWindowTextA( cstr( width ) );
@@ -703,7 +699,7 @@ void PlotDesignerDialog::enableAndDisable()
 	pscAtomBox.EnableWindow( dataSetSel && pscConditionNumSel && pscPictureNumSel && pscPixelNumSel );
 	pscNoAtomBox.EnableWindow( dataSetSel && pscConditionNumSel && pscPictureNumSel && pscPixelNumSel );
 	bool prcPixelNumSel = (prcPixelNumCombo.GetCurSel( ) != -1);
-	prcAtomBox.EnableWindow( dataSetSel && prcPictureNumSel && prcPixelNumSel && currentPlotInfo.getPlotType( ) == "Atoms" );
-	prcNoAtomBox.EnableWindow( dataSetSel && prcPictureNumSel && prcPixelNumSel && currentPlotInfo.getPlotType( ) == "Atoms" );
+	prcAtomBox.EnableWindow( dataSetSel && prcPictureNumSel && prcPixelNumSel );// && currentPlotInfo.getPlotType( ) == "Atoms" );
+	prcNoAtomBox.EnableWindow( dataSetSel && prcPictureNumSel && prcPixelNumSel ); // && currentPlotInfo.getPlotType( ) == "Atoms" );
 	binWidthEdit.EnableWindow( currentPlotInfo.getPlotType( ) == "Pixel Count Histograms" );
 }

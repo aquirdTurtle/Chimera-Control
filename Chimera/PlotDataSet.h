@@ -20,7 +20,7 @@ class PlotDataSet
 		void resetPixelNumber(UINT pixelNumber);
 
 		void setResultCondition(UINT picture, UINT pixel, UINT trueConditionValue);
-		int getTruthCondition(UINT pixel, UINT picture);
+		int getPositiveResultCondition(UINT pixel, UINT picture);
 		void setDataCountsLocation(UINT maxPixel, UINT maxPicture, UINT pixel, UINT picture);
 		
 		void addPostSelectionCondition(UINT pixelNum, UINT pictureNum);
@@ -45,6 +45,14 @@ class PlotDataSet
 		void setWhenToFit(UINT newWhenToFit);
 
 	private:
+		int prc( UINT pixel, UINT picture ) const;
+		int & prc( UINT pixel, UINT picture );
+		int psc( UINT condition, UINT pixel, UINT picture ) const;
+		int & psc( UINT condition, UINT pixel, UINT picture );
+		UINT getPixelNumber( );
+		UINT getPictureNumber( );
+		UINT getConditionNumber( );
+
 		// resultConditions[Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)
 		std::vector<std::vector<int> > resultConditions;
 		// postSelectionConditions[Condition#][Pixel#][Picture#] = (1 if atom present selected; -1 if no atom selected, 0 if nothing selected)
@@ -57,3 +65,4 @@ class PlotDataSet
 		int whenToFit;
 		UINT histBinWidth=10;
 };
+
