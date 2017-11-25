@@ -54,18 +54,15 @@ class DataAnalysisControl
 		static void handlePlotAtoms( realTimePlotterInput* input, PlottingInfo plotInfo, UINT repNum,
 									 vector<vector<std::pair<double, ULONG>> >& finData, variationData& finAvgs, 
 									 variationData& finErrs, variationData& finX, avgData& avgAvgs, avgData& avgErrs, 
-									 avgData& avgX, vector<vector<bool> >& needNewData, 
-									 vector<vector<bool>>& pscSatisfied, int plotNumber, 
-									 vector<vector<long>>& countData, int plotNumberCount, 
+									 avgData& avgX, vector<vector<bool> >& needNewData,  
+									 vector<vector<bool>>& pscSatisfied, int plotNumber, int plotNumberCount, 
 									 vector<vector<int> > atomPresent );
-
 		static void handlePlotCounts( realTimePlotterInput* input, PlottingInfo plotInfo, UINT pictureNumber,
 									  vector<vector<vector<long> > >& finData, variationData& finAvgs, 
 									  variationData& finErrs, variationData& finX, avgData& avgAvgs, avgData& avgErrs,
-									  avgData& avgX, vector<vector<bool> >& needNewData, 
+									  avgData& avgX, vector<vector<bool> >& needNewData,  
 									  vector<vector<bool>>& pscSatisfied, int plotNumber, 
-									  vector<vector<long>>& countData, int plotNumberCount, 
-									  vector<vector<int> > atomPresent );
+									  vector<vector<long>>& countData, int plotNumberCount);
 		static void handlePlotHist( realTimePlotterInput* input, PlottingInfo plotInfo, UINT plotNumber,
 									vector<vector<long>> countData,  vector<vector<std::deque<double>>>& finData,
 									vector<vector<bool>>pscSatisfied, int plotNumberCount, 

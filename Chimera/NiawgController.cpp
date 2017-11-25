@@ -2468,11 +2468,8 @@ double NiawgController::rampCalc( int size, int iteration, double initPos, doubl
 	}
 }
  
-
-/// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///								Rearrangement stuffs
-/// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -3072,7 +3069,6 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			picGrabTime.push_back( std::chrono::duration<double>( (*input->grabTimes)[inc] - (*input->pictureTimes)[inc] ).count( ) );
 
 		}
-
 		(*input->pictureTimes).clear( );
 		(*input->grabTimes).clear( );
 
@@ -3133,7 +3129,7 @@ void NiawgController::smartRearrangement( Matrix<bool> source, Matrix<bool> targ
 
 	switch (options.smartOption)
 	{
-		case none:
+		case smartRerngOption::none:
 		{
 			// finTarget is the correct size, has the original target at finalPos, and zeros elsewhere.
 			Matrix<bool> finTarget( source.getRows( ), source.getCols( ), 0 );
@@ -3148,7 +3144,7 @@ void NiawgController::smartRearrangement( Matrix<bool> source, Matrix<bool> targ
 			finTargetPos = finalPos;
 			return;
 		}
-		case convolution:
+		case smartRerngOption::convolution:
 		{
 			//
 			finTargetPos = convolve( source, target );
@@ -3163,7 +3159,7 @@ void NiawgController::smartRearrangement( Matrix<bool> source, Matrix<bool> targ
 			rearrangement( source, finTarget, operationsMatrix );
 			break;
 		}
-		case full:
+		case smartRerngOption::full:
 		{
 			UINT leastMoves = UINT_MAX;
 			for ( auto startRowInc : range( source.getRows() - target.getRows() + 1 ) )
@@ -3392,9 +3388,6 @@ double NiawgController::minCostMatching( Matrix<double> cost, std::vector<int> &
 }
 
 
-//double NiawgController::rearrangement( const std::vector<std::vector<bool>> & sourceMatrix,
-//									   const std::vector<std::vector<bool>> & targetMatrix,
-//									   std::vector<simpleMove> & moveSequence )
 double NiawgController::rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool> & targetMatrix,
 									   std::vector<simpleMove>& moveSequence)
 {
@@ -3518,7 +3511,6 @@ double NiawgController::rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool>
 			counter++;
 		}
 	}
-
 	/// now order the operations.
 	// this part was written by Mark Brown. The other stuff in the rearrangment handling was written by Kai Niklas.
 	// this clear should be unnecessary.
@@ -3551,8 +3543,8 @@ double NiawgController::rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool>
 	}
 	// at this point operationsList should be zero size and moveSequence should be full of the moves in a sequence that
 	// works. return the travelled distance.
-	return cost; 
-}
+	return cost;
+} 
 
 
 void NiawgController::writeToFile( std::vector<double> waveVals )
@@ -3570,320 +3562,153 @@ void NiawgController::writeToFile( std::vector<double> waveVals )
 }
 
 
-//How does this algorithm work? Simple Flow algorithm that makes sure that all moves will be done regardless of the order!
-//while loop until the moveSequence (list of moves) is empty
-//delete moves that will be done
-//Look at all moves that go from row to row+1 (after that row->row-1,col->col+1,col->col-1)
-//to find more than one atom in each row/column to move at the same time
-//Be vary of duplicates, the move (init_row,init_col)->(fin_row,fin_col) might be done more than once during the whole 
-//algorithm, but only move and delete it once at the same time
-double NiawgController::parallelMoves( std::vector<std::vector<int>> operationsMatrix,
-								  std::vector<std::vector<int>> source, double matrixSize,
-								  std::vector<parallelMovesContainer> &moves )
+// for visualization purposes. note that the returned vector will be one longer than the number of moves because it
+// includes the original image.
+std::vector<std::string> NiawgController::evolveSource( Matrix<bool> source, std::vector<complexMove> moves )
 {
-	// Vector that should save indice of all the moves (operationmatrix) that are in a certain column/row
-	std::vector<int> opM_ix;
-	// vector that should save the moves, important to check for duplicates
-	std::vector<std::vector<int> > selecteditems;
-	// bool for avoiding duplicates
-	bool check = true;
-	// true if there is sth to move
-	bool move;
-
-	//Saves the number of moves that the parallization takes. One count if several atoms move from row to row+1
-	int parallelMoveNumber = 0;
-	while (operationsMatrix.size() != 0)
+	std::vector<std::string> images;
+	images.push_back( source.print( ) );
+	for ( auto move : moves )
 	{
-		//First moves from row to row+1. Fill opM_ix with indice of the moves you want to make
-		//Because the other for loops are similarily structured, I included the comments only here
-		for (int row = 0; row < matrixSize; row++)
+		for ( auto loc : move.whichAtoms )
 		{
-			move = false;
-			for (UINT i = 0; i < operationsMatrix.size(); i++)
+			UINT initRow, initCol, finRow, finCol;
+			initRow = move.rowOrColumn == "row" ? move.whichRowOrColumn : loc;
+			initCol = move.rowOrColumn == "row" ? loc : move.whichRowOrColumn;
+			finRow = initRow + (move.rowOrColumn == "row") * move.direction;
+			finCol = initCol + !(move.rowOrColumn == "row") * move.direction;
+			if ( !source( initRow, initCol ) )
 			{
-				if (operationsMatrix[i][0] == row && operationsMatrix[i][2] == row + 1)
-				{
-					check = true;
-					//erase duplicates
-					for (UINT k = 0; k != selecteditems.size(); k++)
-					{
-						if (selecteditems[k] == operationsMatrix[i])
-						{
-							check = false;
-							break;
-						}
-					}
-					if (check)
-					{
-						opM_ix.push_back( i );
-						selecteditems.push_back( operationsMatrix[i] );
-					}
-				}
+				throw;
 			}
-
-			//From all the moves in moveSequence that go from row to row+1, select those that have a atom at the initial position
-			//and have no atom at the final position!
-			if (opM_ix.size() != 0)
-			{
-				for (unsigned k = opM_ix.size(); k-- > 0; )
-				{
-					//only move if there is an atom to move and if target is free!
-					if (source[operationsMatrix[opM_ix[k]][0]][operationsMatrix[opM_ix[k]][1]] != 0
-						 && source[operationsMatrix[opM_ix[k]][2]][operationsMatrix[opM_ix[k]][3]] == 0)
-					{
-						move = true;
-					}
-					else
-					{
-						opM_ix.erase( opM_ix.begin() + k );
-						selecteditems.erase( selecteditems.begin() + k );
-					}
-
-				}
-				if (move)
-				{
-					parallelMoveNumber++;
-					// Save the moves
-					moves.push_back( parallelMovesContainer() );
-					moves.back().rowOrColumn = "row";
-					moves.back().upOrDown = 1;
-					moves.back().which_rowOrColumn = row;
-
-					for (unsigned k = opM_ix.size(); k-- > 0;)
-					{
-						source[operationsMatrix[opM_ix[k]][0]][operationsMatrix[opM_ix[k]][1]] = 0;
-						source[operationsMatrix[opM_ix[k]][2]][operationsMatrix[opM_ix[k]][3]] = 1;
-
-						moves.back().whichAtoms.push_back( operationsMatrix[opM_ix[k]][1] );
-
-						operationsMatrix[opM_ix[k]] = operationsMatrix.back();
-						operationsMatrix.pop_back();
-					}
-				}
-			}
-			opM_ix.clear();
-			selecteditems.clear();
+			// potentially could move a blank...
+			source( finRow, finCol ) = source( initRow, initCol );
+			source( initRow, initCol ) = false;
 		}
-
-		//reset some values
-		check = true;
-		opM_ix.clear();
-		selecteditems.clear();
-		//Second moves from row to row-1
-		for (unsigned row = matrixSize; row-- > 0;)
-		{
-			move = false;
-			for (UINT i = 0; i < operationsMatrix.size(); i++)
-			{
-				if (operationsMatrix[i][0] == row && operationsMatrix[i][2] == row - 1)
-				{
-					check = true;
-					//erase duplicates
-					for (UINT k = 0; k != selecteditems.size(); k++)
-					{
-						if (selecteditems[k] == operationsMatrix[i])
-						{
-							check = false;
-							break;
-						}
-					}
-					if (check)
-					{
-						opM_ix.push_back( i );
-						selecteditems.push_back( operationsMatrix[i] );
-					}
-				}
-			}
-
-			if (opM_ix.size() != 0)
-			{
-				for (UINT k = opM_ix.size(); k-- > 0; )
-				{
-					if (source[operationsMatrix[opM_ix[k]][0]][operationsMatrix[opM_ix[k]][1]] != 0
-						 && source[operationsMatrix[opM_ix[k]][2]][operationsMatrix[opM_ix[k]][3]] == 0)
-					{
-						move = true;
-					}
-					else
-					{
-						opM_ix.erase( opM_ix.begin() + k );
-						selecteditems.erase( selecteditems.begin() + k );
-					}
-				}
-				if (move)
-				{
-					parallelMoveNumber++;
-					moves.push_back( parallelMovesContainer() );
-					moves.back().rowOrColumn = "row";
-					moves.back().upOrDown = -1;
-					moves.back().which_rowOrColumn = row;
-
-					for (unsigned k = opM_ix.size(); k-- > 0;)
-					{
-						source[operationsMatrix[opM_ix[k]][0]][operationsMatrix[opM_ix[k]][1]] = 0;
-						source[operationsMatrix[opM_ix[k]][2]][operationsMatrix[opM_ix[k]][3]] = 1;
-
-						moves.back().whichAtoms.push_back( operationsMatrix[opM_ix[k]][1] );
-
-						operationsMatrix[opM_ix[k]] = operationsMatrix.back();
-						operationsMatrix.pop_back();
-					}
-				}
-			}
-			opM_ix.clear();
-			selecteditems.clear();
-		}
-
-		//reset some values
-		check = true;
-		opM_ix.clear();
-		selecteditems.clear();
-		//Third moves from col to col+1
-		for (int col = 0; col < matrixSize; col++)
-		{
-			move = false;
-			for (UINT i = 0; i < operationsMatrix.size(); i++)
-			{
-				if (operationsMatrix[i][1] == col && operationsMatrix[i][3] == col + 1)
-				{
-					check = true;
-					//erase duplicates
-					for (int k = 0; k != selecteditems.size(); k++)
-					{
-						if (selecteditems[k] == operationsMatrix[i])
-						{
-							check = false;
-							break;
-						}
-					}
-					if (check)
-					{
-						opM_ix.push_back( i );
-						selecteditems.push_back( operationsMatrix[i] );
-					}
-				}
-			}
-
-			if (opM_ix.size() != 0)
-			{
-				for (unsigned k = opM_ix.size(); k-- > 0; )
-				{
-
-					if (source[operationsMatrix[opM_ix[k]][0]][operationsMatrix[opM_ix[k]][1]] != 0
-						 && source[operationsMatrix[opM_ix[k]][2]][operationsMatrix[opM_ix[k]][3]] == 0)
-					{
-						move = true;
-					}
-					else
-					{
-						opM_ix.erase( opM_ix.begin() + k );
-						selecteditems.erase( selecteditems.begin() + k );
-					}
-
-				}
-				if (move)
-				{
-					parallelMoveNumber++;
-					moves.push_back( parallelMovesContainer() );
-					moves.back().rowOrColumn = "column";
-					moves.back().upOrDown = 1;
-					moves.back().which_rowOrColumn = col;
-
-					for (unsigned k = opM_ix.size(); k-- > 0;)
-					{
-						source[operationsMatrix[opM_ix[k]][0]][operationsMatrix[opM_ix[k]][1]] = 0;
-						source[operationsMatrix[opM_ix[k]][2]][operationsMatrix[opM_ix[k]][3]] = 1;
-
-						moves.back().whichAtoms.push_back( operationsMatrix[opM_ix[k]][0] );
-						operationsMatrix[opM_ix[k]] = operationsMatrix.back();
-						operationsMatrix.pop_back();
-					}
-				}
-			}
-			opM_ix.clear();
-			selecteditems.clear();
-		}
-
-		// reset some values
-		check = true;
-		opM_ix.clear();
-		selecteditems.clear();
-		//Fourth moves from col to col-1
-		for (unsigned col = matrixSize; col-- > 0;)
-		{
-			move = false;
-			//get all elements in this row that move to row-1
-			opM_ix.clear();
-			selecteditems.clear();
-			for (UINT i = 0; i < operationsMatrix.size(); i++)
-			{
-				if (operationsMatrix[i][1] == col && operationsMatrix[i][3] == col - 1) {
-					check = true;
-					//erase duplicates
-					for (UINT k = 0; k != selecteditems.size(); k++)
-					{
-						if (selecteditems[k] == operationsMatrix[i])
-						{
-							check = false;
-							break;
-						}
-					}
-					if (check)
-					{
-						opM_ix.push_back( i );
-						selecteditems.push_back( operationsMatrix[i] );
-					}
-				}
-			}
-
-			if (opM_ix.size() != 0)
-			{
-				for (unsigned k = opM_ix.size(); k-- > 0;)
-				{
-					if (source[operationsMatrix[opM_ix[k]][0]][operationsMatrix[opM_ix[k]][1]] != 0
-						 && source[operationsMatrix[opM_ix[k]][2]][operationsMatrix[opM_ix[k]][3]] == 0)
-					{
-						move = true;
-					}
-					else
-					{
-						opM_ix.erase( opM_ix.begin() + k );
-						selecteditems.erase( selecteditems.begin() + k );
-					}
-				}
-				if (move)
-				{
-					parallelMoveNumber++;
-					moves.push_back( parallelMovesContainer() );
-					moves.back().rowOrColumn = "column";
-					moves.back().upOrDown = -1;
-					moves.back().which_rowOrColumn = col;
-
-					for (unsigned k = opM_ix.size(); k-- > 0;) {
-						//cout << "----------------------" << endl;
-						source[operationsMatrix[opM_ix[k]][0]][operationsMatrix[opM_ix[k]][1]] = 0;
-						source[operationsMatrix[opM_ix[k]][2]][operationsMatrix[opM_ix[k]][3]] = 1;
-
-						moves.back().whichAtoms.push_back( operationsMatrix[opM_ix[k]][0] );
-
-						operationsMatrix[opM_ix[k]] = operationsMatrix.back();
-						operationsMatrix.pop_back();
-					}
-				}
-			}
-		}
+		images.push_back( source.print( ) );
 	}
-	return parallelMoveNumber;
+	return images;
 }
 
 
-//Task was: Find out the maximum number of moves, by only knowing the Target Matrix configuration
-//I added together the furthest distances from each target.
-//Therefore it assumes there is no atom on each target
-//This is really overestimating the number of moves, but it is a maximum
-//Is overestimating the most if you have a very small target in a big lattice.
-//If you wanted to scale it down, one idea might be to scale getMaxMoves with the filling fraction!
-//Also: Not super fast because of nested for loops
+void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix<bool> origSource, 
+									 std::vector<complexMove> &moves, rerngOptions options )
+{
+	if ( options.parallel == parallelMoveOption::none && options.noFlashOption == nonFlashingOption::none )
+	{
+		// no optimizations.
+		return;
+	}
+	Matrix<bool> runningSource = origSource;
+	while ( singleMoves.size( ) != 0 )
+	{
+		std::vector<std::vector<int>> dimLoops = { range( (int)origSource.getRows( ) ), range( (int)origSource.getRows( ), 0, -1 ),
+			range( (int)origSource.getCols( ) ), range( (int)origSource.getCols( ), 0, -1 ) };
+		std::vector<UINT> altSize = { origSource.getCols( ), origSource.getCols( ), origSource.getRows( ), origSource.getRows( ) };
+		std::vector<std::string> directions = { "row", "row", "column", "column" };
+		std::vector<int> offsets = { 1, -1, 1, -1 };
+		for ( auto dim : range( dimLoops.size( ) ) )
+		{
+			for ( auto dimInc : dimLoops[dim] )
+			{
+				std::vector<int> moveIndexes;
+				std::vector<simpleMove> moveList;
+				for ( auto moveInc : range( singleMoves.size( ) ) )
+				{
+					if ( (options.parallel == parallelMoveOption::partial && moveList.size( ) == PARTIAL_PARALLEL_LIMIT)
+						 || (options.parallel == parallelMoveOption::none && moveList.size( ) == 1) )
+					{
+						// already have all the moves we want for combining.
+						break;
+					}
+					simpleMove& move = singleMoves[moveInc];
+					int init = directions[dim] == "row" ? move.initRow : move.initCol;
+					int fin = directions[dim] == "row" ? move.finRow : move.finCol;
+					if ( init == dimInc && fin == dimInc + offsets[dim] )
+					{
+						// avoid repeats by checking iff singleMoves is in moveList first
+						if ( std::find( moveList.begin( ), moveList.end( ), move ) == moveList.end( ) )
+						{
+							moveIndexes.push_back( moveInc );
+							moveList.push_back( move );
+						}
+					}
+				}
+				if ( moveIndexes.size( ) == 0 )
+				{
+					// no moves in this row in this direction.
+					continue;
+				}
+				// From the moves that go from dim to dim+offset, get which have atom at initial position and have no 
+				// atom at the final position
+				for ( unsigned k = moveIndexes.size( ); k-- > 0; )
+				{
+					auto& move = singleMoves[moveIndexes[k]];
+					// check that initial spot has atom & final spot is free
+					if ( !(runningSource( move.initRow, move.initCol ) && !runningSource( move.finRow, move.finCol )) )
+					{
+						// can't move this one, remove from list.
+						moveIndexes.erase( moveIndexes.begin( ) + k );
+						moveList.erase( moveList.begin( ) + k );
+					}
+				}
+				if ( moveList.size( ) == 0 )
+				{
+					// couldn't move any atoms.
+					continue;
+				}
+				moves.push_back( complexMove( directions[dim], dimInc, offsets[dim] ) );
+				/// create complex move objs
+				Matrix<bool> tmpSource = runningSource;
+				for ( auto indexNumber : range( moveIndexes.size( ) ) )
+				{
+					// offset from moveIndexes is the # of moves already erased.
+					UINT moveIndex = moveIndexes[indexNumber] - indexNumber;
+					auto& move = singleMoves[moveIndex];
+					moves.back( ).whichAtoms.push_back( directions[dim] == "row" ? move.initCol : move.initRow );
+					// update source image with new configuration.
+					tmpSource( move.initRow, move.initCol ) = false;
+					tmpSource( move.finRow, move.finCol ) = true;
+					singleMoves.erase( singleMoves.begin( ) + moveIndex );
+				}
+				moves.back( ).needsFlash = false;
+				/// determine if flashing is needed for this move.
+				// loop through all locations in the row/collumn
+				for ( auto location : range( altSize[dim] ) )
+				{
+					UINT initRow, initCol, finRow, finCol, which;
+					bool isRow = directions[dim] == "row";
+					initRow = isRow ? dimInc : location;
+					initCol = isRow ? location : dimInc;
+					finRow = initRow + isRow*offsets[dim];
+					finCol = initCol + (!isRow)*offsets[dim];
+					// if atom in location and location not being moved, always need to flash to not move this atom.
+					if ( runningSource( initRow, initCol ) && std::find( moves.back( ).whichAtoms.begin( ),
+																		 moves.back( ).whichAtoms.end( ), location )
+						 == moves.back( ).whichAtoms.end( ) )
+					{
+						moves.back( ).needsFlash = true;
+					}
+					// if being cautious...
+					if ( runningSource( finRow, finCol ) )
+					{
+						moves.back( ).needsFlash = true;
+					}
+				}
+				//
+				runningSource = tmpSource;
+			}
+		}
+	}
+}
+
+// Finds out the maximum number of moves, by only knowing the Target Matrix configuration
+// I added together the furthest distances from each target.
+// Therefore it assumes there is no atom on each target
+// This is really overestimating the number of moves, but it is a maximum
+// Is overestimating the most if you have a very small target in a big lattice.
+// If you wanted to scale it down, one idea might be to scale getMaxMoves with the filling fraction!
+// Also: Not super fast because of nested for loops
 UINT NiawgController::getMaxMoves( Matrix<bool> targetmatrix )
 {
 	int targetNumber = 0;
@@ -3894,28 +3719,27 @@ UINT NiawgController::getMaxMoves( Matrix<bool> targetmatrix )
 			targetNumber++;
 		}
 	}
-	std::vector<std::vector<int> >targetIndice( targetNumber, std::vector<int>( 2, 0 ) );
+	std::vector<std::vector<UINT> >targetIndice( targetNumber, std::vector<UINT>( 2, 0 ) );
 	UINT targetcounter = 0;
-	for (UINT i = 0; i < targetmatrix.getRows(); i++)
+	for (auto rowInc : range(targetmatrix.getRows()))
 	{
-		for (UINT j = 0; j < targetmatrix.getCols(); j++)
+		for (auto colInc : range(targetmatrix.getCols()))
 		{
-			if (targetmatrix(i, j) == 1)
+			if (targetmatrix(rowInc, colInc) == 1)
 			{
-				targetIndice[targetcounter][0] = i;
-				targetIndice[targetcounter][1] = j;
+				targetIndice[targetcounter] = { rowInc, colInc }; 
 				targetcounter++;
 			}
 		}
 	}
 	UINT maxlength = 0, sumlength = 0, length = 0;
-	for (UINT k = 0; k < targetcounter; k++)
+	for (auto k : range(targetcounter))
 	{
-		for (UINT i = 0; i < targetmatrix.getRows(); i++)
+		for (auto i : range( targetmatrix.getRows()))
 		{
-			for (UINT j = 0; j < targetmatrix.getCols(); j++)
+			for (auto j : range( targetmatrix.getCols() ) )
 			{
-				length = abs( int(i) - targetIndice[k][0] ) + abs( int(j) - targetIndice[k][1] );
+				length = abs( int(i - targetIndice[k][0]) ) + abs( int(j - targetIndice[k][1]) );
 				if (length > maxlength)
 				{
 					maxlength = length;
