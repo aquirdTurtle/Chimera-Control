@@ -221,7 +221,7 @@ imagingdetuning 0.3
 pushoutdepth 0.15
 pushoutfreq 1
 fieldtheta 1.57
-fieldphi 1.57
+fieldphi 0.785
 rotatefieldtime 3
 imagingflashingdetuning -1.5
 intrappgcdetuning -2
@@ -240,4 +240,4 @@ stage2loaddepth 65
 pgcstage1time 0.1
 pgcstage2time 6
 intrappgcrepumppower 0.1
-249 293 3 246 260 3
+249 293 3 240 266 3
