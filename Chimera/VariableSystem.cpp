@@ -18,7 +18,7 @@ UINT VariableSystem::getTotalVariationNumber()
 }
 
 
-void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id, std::string title,
+void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* parent, int& id, std::string title,
 								 rgbMap rgbs, UINT listviewId )
 {
 	if ( title == "GLOBAL VARIABLES" )
@@ -35,7 +35,7 @@ void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindo
 	// controls
 	variablesHeader.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 25 };
 	variablesHeader.Create( cstr( title ), WS_BORDER | WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY,
-							variablesHeader.sPos, master, id++ );
+							variablesHeader.sPos, parent, id++ );
 	variablesHeader.fontType = HeadingFont;
 	pos.y += 25;
 
@@ -51,7 +51,7 @@ void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindo
 
 	variablesListview.sPos = { pos.x, pos.y, pos.x + 480, pos.y + listViewSize };
 	variablesListview.Create( WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS | WS_BORDER, variablesListview.sPos, 
-							  master, listviewId );
+							  parent, listviewId );
 	
 	variablesListview.fontType = SmallFont;
 	variablesListview.SetBkColor( RGB( 15, 15, 15 ) );
@@ -207,7 +207,7 @@ void VariableSystem::handleOpenConfig(std::ifstream& configFile, int versionMajo
 			// make sure it has at least one entry.
 			tempVar.ranges.push_back( { 0,0,1, false, true } );
 		}
-		if ( (versionMajor == 2 && versionMinor > 14) || versionMajor > 2 )
+		if ( (versionMajor == 2 && versionMinor >= 14) || versionMajor > 2 )
 		{
 			configFile >> tempVar.constantValue;
 		}
@@ -1376,7 +1376,8 @@ void VariableSystem::addConfigVariable(variableType variableToAdd, UINT item)
 	if (variableToAdd.constant)
 	{
 		listViewItem.pszText = "Constant";
-		listViewItem.iSubItem = 4;
+		variablesListview.SetItem( &listViewItem );
+		listViewItem.iSubItem = 3;
 		std::string s = str( variableToAdd.constantValue );
 		listViewItem.pszText = &s[0];
 		variablesListview.SetItem( &listViewItem );
@@ -1384,11 +1385,11 @@ void VariableSystem::addConfigVariable(variableType variableToAdd, UINT item)
 	else
 	{
 		listViewItem.pszText = "Variable";
-		listViewItem.iSubItem = 4;
+		variablesListview.SetItem( &listViewItem );
+		listViewItem.iSubItem = 3;
 		listViewItem.pszText = "---";
 		variablesListview.SetItem( &listViewItem );
 	}
-	variablesListview.SetItem(&listViewItem);
 	listViewItem.iSubItem = 2;
 	std::string s( str( char('A' + variableToAdd.scanDimension-1) ) );
 	listViewItem.pszText = &s[0];

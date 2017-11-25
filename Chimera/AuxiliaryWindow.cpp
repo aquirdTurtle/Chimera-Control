@@ -899,6 +899,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, do
 			double value;
 			configStream >> tempVar.name;
 			configStream >> value;
+			tempVar.constantValue = value;
 			tempVar.ranges.push_back({ value, value, 0, false, true });
 			globalVariables.addGlobalVariable(tempVar, varInc);
 		}
