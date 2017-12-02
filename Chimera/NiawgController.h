@@ -179,7 +179,7 @@ class NiawgController
 		int threshold;
 		std::vector<double> makeRerngWave( rerngInfo& info, UINT row, UINT col, directions direction, 
 										   double staticMovingRatio, double moveBias, double deadTime, UINT sourceRows,
-										   UINT sourceCols);
+										   UINT sourceCols, bool needsFlash );
 		// returns sign of x.
 		static int sign( int );
 		// returns cost, which is total travel distance. Algorithm from: 
@@ -191,8 +191,8 @@ class NiawgController
 									 std::vector<simpleMove>& moveSequence );
 		// From the single moves operationsmatrix, this function calculates parallel moves (rows and columns)
 		static void optimizeMoves( std::vector<simpleMove> singleMoves, Matrix<bool> source, 
-								   std::vector<complexMove> &moves, rerngOptions options );
-		std::vector<std::string> evolveSource( Matrix<bool> source, std::vector<complexMove> moves );
+								   std::vector<complexMove> &flashMoves, rerngOptions options );
+		std::vector<std::string> evolveSource( Matrix<bool> source, std::vector<complexMove> flashMoves );
 		// returns maximal number of moves given a targetmatrix.
 		static UINT getMaxMoves( Matrix<bool> targetMatrix );
 };

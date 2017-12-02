@@ -332,12 +332,6 @@ void VariableSystem::rearrange(UINT width, UINT height, fontMap fonts)
 }
 
 
-void VariableSystem::addVariableDimension()
-{
-
-}
-
-
 void VariableSystem::removeVariableDimension()
 {
 	if (scanDimensions == 1)
@@ -637,6 +631,10 @@ void VariableSystem::handleDraw(NMHDR* pNMHDR, LRESULT* pResult, rgbMap rgbs)
 void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
 										 DioSystem* ttls, DacSystem* dacs )
 {
+	/* 
+		This function handles when the user double-clicks on the list-view, i.e. when the user wants to change variable
+		info.
+	*/
 	/// get the item and subitem
 	POINT cursorPos;
 	GetCursorPos(&cursorPos);
@@ -740,6 +738,11 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 			dialog.DoModal();
 			// make name lower case
 			std::transform( newName.begin(), newName.end(), newName.begin(), ::tolower );
+			if ( newName == "" && currentVariables[varNumber].name == "" )
+			{
+				// probably just created this variable, need to avoid situation where name is empty.
+				newName = "noname";
+			}
 			if (newName == "")
 			{
 				// probably canceled.
