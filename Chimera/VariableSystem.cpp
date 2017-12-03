@@ -797,8 +797,7 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 				// else there's something there.
 				try
 				{
-					currentVariables[varNumber].ranges.front().initialValue =
-						currentVariables[varNumber].ranges.front().finalValue = std::stod( newValue );
+					currentVariables[varNumber].constantValue = std::stod( newValue );
 				}
 				catch (std::invalid_argument&)
 				{
@@ -808,7 +807,7 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 				// update the listview
 				listViewItem.iItem = itemIndicator;
 				listViewItem.iSubItem = subitem;
-				std::string temp(str(currentVariables[varNumber].ranges.front().initialValue, 13, true));
+				std::string temp(str(currentVariables[varNumber].constantValue, 13, true));
 				listViewItem.pszText = &temp[0];
 				variablesListview.SetItem( &listViewItem );
 				break;
