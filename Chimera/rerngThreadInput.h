@@ -32,6 +32,7 @@ struct rerngThreadInput
 	// stuff from the rearrangement input
 	rerngOptions rerngOptions;
 	rerngContainer<rerngMove> flashMoves;
+	rerngContainer<rerngMove> noFlashMoves;
 	//waveInfo fillerWave;
 };
 
