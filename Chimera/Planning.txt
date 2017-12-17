@@ -3,6 +3,9 @@ TODO
 ===================
 FEATURES:
 - revive sequences of experiments
+	- Full experiments following each other
+	- mixed experiments
+		- Requires more data analysis work
 - consider implementations of local variables
 	- using var or similar keyword to define local variables in functions or main script.
 	- code scans currently used functions for local variables used and just lists those
@@ -40,9 +43,7 @@ Refactoring / Other:
 Bugs:
 - Exposure-time bug
 - something wrong with set New dac Values! Pressing seems to change whether shutter is open or closed???
-- exposure time setting properly for andor camera? (maybe just problem in video mode)
 - code breaking if no dacs in debug mode?
-
 
 - scripts becoming unsaved after move, should preserve saved status
 - investigate save on change config
@@ -63,7 +64,3 @@ Rearranging
 =================
 Finished
 =================
-
-Bugs
-- Fixed being able to set variable to have no name.
-- Began implementing being able to create non-flashing move.
