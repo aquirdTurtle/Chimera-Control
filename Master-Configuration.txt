@@ -173,7 +173,7 @@ sigmarepumpfreq
 -10 - 10
 0
 sigmarepumppower
--10 - 10
+0 - 0.38
 0
 lspower
 -10 - 10
@@ -200,14 +200,14 @@ piezomirror
 -10 - 10
 0
 40
-loadmotrightfield 0.9
+loadmotrightfield 0.8
 loadmotleftfield -0.8
-loadmottopfield -0.1
+loadmottopfield 0.5
 loadmotbottomfield -0.15
-loadmotfrontfield -0.5
+loadmotfrontfield -1.4
 loadmotbackfield 1.47507
 loadmottime 150
-pgctime 25
+pgctime 10
 pgcdetuning -0.8
 pgcleftfield -0.3924
 pgcrightfield 0.4856
@@ -220,24 +220,24 @@ imagingpower 0.225
 imagingdetuning 0.3
 pushoutdepth 0.15
 pushoutfreq 1
-fieldtheta 1.57
-fieldphi 1.57
-rotatefieldtime 3
+fieldtheta 0
+fieldphi 0
 imagingflashingdetuning -1.5
 intrappgcdetuning -2
 intrappgcpower 0.14
-loadmotsidepower 0.25
-loadmotdiagpower 0.3
+loadmotsidepower 0.15
+loadmotdiagpower 0.35
 imagingrepumppower 0.2
 pushouttime 0.3
 intrappgccoolingtime 2
-loadmotrepumpfreq -0.2
-loadmotmotfreq 0
+loadmotrepumpfreq 0.2
+loadmotmotfreq -0.2
 pgcloadingsidemotpower 0.04
-pgcloadingdiagmotpower 0.35
-stage1loaddepth 30
-stage2loaddepth 65
+pgcloadingdiagmotpower 0.25
 pgcstage1time 0.1
 pgcstage2time 6
 intrappgcrepumppower 0.1
-1 5 1 1 5 1
+field 3
+rotatefieldtime 3
+opticalpumpdepth 0
+259 285 3 228 272 3
