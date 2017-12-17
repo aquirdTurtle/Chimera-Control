@@ -518,14 +518,20 @@ void CameraWindow::listViewRClick( NMHDR* info, LRESULT* lResult )
 
 void CameraWindow::OnLButtonUp(UINT stuff, CPoint loc)
 {
-	alerts.stopSound();
+	stopSound( );
+}
+
+
+void CameraWindow::stopSound( )
+{
+	alerts.stopSound( );
 }
 
 
 // pics looks up the location itself.
 void CameraWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 {
-	alerts.stopSound();
+	stopSound( );
 	CDC* dc = GetDC();
 	try
 	{

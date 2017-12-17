@@ -44,8 +44,7 @@ void NiawgController::initialize()
 {
 	// open up the files and check what I have stored.
 	openWaveformFiles();
-	/// Initialize the waveform generator via FGEN. Currently this is set to reset the initialization parameters from 
-	/// the last run.
+	/// Initialize the waveform generator via FGEN.
 	// initializes the session handle.
 	fgenConduit.init( NI_5451_LOCATION, VI_TRUE, VI_TRUE );
 	// tells the niaw where I'm outputting.
@@ -3085,7 +3084,6 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			resetPositionTime.push_back( std::chrono::duration<double>( stopReset[inc] - stopTrigger[inc] ).count( ) );
 			picHandlingTime.push_back( std::chrono::duration<double>( startCalc[inc] - (*input->grabTimes)[inc] ).count( ) );
 			picGrabTime.push_back( std::chrono::duration<double>( (*input->grabTimes)[inc] - (*input->pictureTimes)[inc] ).count( ) );
-
 		}
 		(*input->pictureTimes).clear( );
 		(*input->grabTimes).clear( );

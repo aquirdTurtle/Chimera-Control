@@ -18,7 +18,7 @@ UINT VariableSystem::getTotalVariationNumber()
 }
 
 
-void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id, std::string title,
+void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* parent, int& id, std::string title,
 								 rgbMap rgbs, UINT listviewId )
 {
 	if ( title == "GLOBAL VARIABLES" )
@@ -35,7 +35,7 @@ void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindo
 	// controls
 	variablesHeader.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 25 };
 	variablesHeader.Create( cstr( title ), WS_BORDER | WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY,
-							variablesHeader.sPos, master, id++ );
+							variablesHeader.sPos, parent, id++ );
 	variablesHeader.fontType = HeadingFont;
 	pos.y += 25;
 
@@ -51,7 +51,7 @@ void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindo
 
 	variablesListview.sPos = { pos.x, pos.y, pos.x + 480, pos.y + listViewSize };
 	variablesListview.Create( WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS | WS_BORDER, variablesListview.sPos, 
-							  master, listviewId );
+							  parent, listviewId );
 	
 	variablesListview.fontType = SmallFont;
 	variablesListview.SetBkColor( RGB( 15, 15, 15 ) );
@@ -207,7 +207,7 @@ void VariableSystem::handleOpenConfig(std::ifstream& configFile, int versionMajo
 			// make sure it has at least one entry.
 			tempVar.ranges.push_back( { 0,0,1, false, true } );
 		}
-		if ( (versionMajor == 2 && versionMinor > 14) || versionMajor > 2 )
+		if ( (versionMajor == 2 && versionMinor >= 14) || versionMajor > 2 )
 		{
 			configFile >> tempVar.constantValue;
 		}
@@ -329,6 +329,12 @@ void VariableSystem::rearrange(UINT width, UINT height, fontMap fonts)
 {
 	variablesHeader.rearrange( width, height, fonts);
 	variablesListview.rearrange( width, height, fonts);
+}
+
+
+void VariableSystem::addVariableDimension()
+{
+
 }
 
 
@@ -631,10 +637,6 @@ void VariableSystem::handleDraw(NMHDR* pNMHDR, LRESULT* pResult, rgbMap rgbs)
 void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
 										 DioSystem* ttls, DacSystem* dacs )
 {
-	/* 
-		This function handles when the user double-clicks on the list-view, i.e. when the user wants to change variable
-		info.
-	*/
 	/// get the item and subitem
 	POINT cursorPos;
 	GetCursorPos(&cursorPos);
@@ -738,11 +740,6 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 			dialog.DoModal();
 			// make name lower case
 			std::transform( newName.begin(), newName.end(), newName.begin(), ::tolower );
-			if ( newName == "" && currentVariables[varNumber].name == "" )
-			{
-				// probably just created this variable, need to avoid situation where name is empty.
-				newName = "noname";
-			}
 			if (newName == "")
 			{
 				// probably canceled.
@@ -807,7 +804,7 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 				// update the listview
 				listViewItem.iItem = itemIndicator;
 				listViewItem.iSubItem = subitem;
-				std::string temp(str(currentVariables[varNumber].constantValue, 13, true));
+				std::string temp(str(currentVariables[varNumber].constantValue));
 				listViewItem.pszText = &temp[0];
 				variablesListview.SetItem( &listViewItem );
 				break;
@@ -1378,7 +1375,8 @@ void VariableSystem::addConfigVariable(variableType variableToAdd, UINT item)
 	if (variableToAdd.constant)
 	{
 		listViewItem.pszText = "Constant";
-		listViewItem.iSubItem = 4;
+		variablesListview.SetItem( &listViewItem );
+		listViewItem.iSubItem = 3;
 		std::string s = str( variableToAdd.constantValue );
 		listViewItem.pszText = &s[0];
 		variablesListview.SetItem( &listViewItem );
@@ -1386,11 +1384,11 @@ void VariableSystem::addConfigVariable(variableType variableToAdd, UINT item)
 	else
 	{
 		listViewItem.pszText = "Variable";
-		listViewItem.iSubItem = 4;
+		variablesListview.SetItem( &listViewItem );
+		listViewItem.iSubItem = 3;
 		listViewItem.pszText = "---";
 		variablesListview.SetItem( &listViewItem );
 	}
-	variablesListview.SetItem(&listViewItem);
 	listViewItem.iSubItem = 2;
 	std::string s( str( char('A' + variableToAdd.scanDimension-1) ) );
 	listViewItem.pszText = &s[0];

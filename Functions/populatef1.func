@@ -32,5 +32,5 @@ def populateF1():
         %%% double check wait time, 
         %%% assuming at least 10ms wait time 
         %%% before next repump pulse
-        on: diagmotshutter
+        %on: diagmotshutter
 
