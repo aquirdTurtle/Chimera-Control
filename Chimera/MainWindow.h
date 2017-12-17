@@ -28,6 +28,8 @@ class MainWindow : public CDialog
 	DECLARE_DYNAMIC(MainWindow);
 	public:
 	    // overrides
+		void OnRButtonUp( UINT stuff, CPoint clickLocation );
+		void OnLButtonUp( UINT stuff, CPoint clickLocation );
 		void passNiawgIsOnPress( );
 		MainWindow(UINT id, CDialog*);
 		BOOL OnInitDialog() override;

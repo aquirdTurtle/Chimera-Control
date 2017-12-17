@@ -297,6 +297,7 @@ void CameraSettingsControl::handleTriggerControl(CameraWindow* cameraWindow)
 
 AndorRunSettings CameraSettingsControl::getSettings()
 {
+	runSettings.exposureTimes = picSettingsObj.getUsedExposureTimes( );
 	return runSettings;
 }
 

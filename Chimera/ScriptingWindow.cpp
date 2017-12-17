@@ -7,7 +7,7 @@
 #include "commonFunctions.h"
 #include "textPromptDialog.h"
 #include "AuxiliaryWindow.h"
-
+#include "CameraWindow.h"
 
 ScriptingWindow::ScriptingWindow() : CDialog(), intensityAgilent( INTENSITY_AGILENT_SETTINGS )
 {}
@@ -37,9 +37,21 @@ BEGIN_MESSAGE_MAP(ScriptingWindow, CDialog)
 	ON_CBN_SELENDOK(IDC_INTENSITY_FUNCTION_COMBO, &ScriptingWindow::handleAgilentScriptComboChange)
 	
 	ON_CBN_SELENDOK( IDC_MASTER_FUNCTION_COMBO, &ScriptingWindow::handleMasterFunctionChange )
-
+	ON_WM_RBUTTONUP( )
+	ON_WM_LBUTTONUP( )
 	ON_NOTIFY_EX_RANGE( TTN_NEEDTEXTA, 0, 0xFFFF, ScriptingWindow::OnToolTipText )
 END_MESSAGE_MAP()
+
+void ScriptingWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
+{
+	cameraWindowFriend->stopSound( );
+}
+
+void ScriptingWindow::OnLButtonUp( UINT stuff, CPoint clickLocation )
+{
+	cameraWindowFriend->stopSound( );
+}
+
 
 
 void ScriptingWindow::handleMasterFunctionChange( )

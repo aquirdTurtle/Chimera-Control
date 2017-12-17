@@ -27,6 +27,8 @@ class ScriptingWindow : public CDialog
 
 	public:
 		ScriptingWindow();
+		void OnRButtonUp( UINT stuff, CPoint clickLocation );
+		void OnLButtonUp( UINT stuff, CPoint clickLocation );
 
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 		

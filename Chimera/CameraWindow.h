@@ -92,6 +92,7 @@ class CameraWindow : public CDialog
 		bool wantsAutoPause( );
 		std::atomic<bool>* getSkipNextAtomic();
 		void stopPlotter( );
+		void stopSound( );
 	private:
 		DECLARE_MESSAGE_MAP();
 
