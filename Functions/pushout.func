@@ -4,7 +4,7 @@ def pushout():
 
       pulseon: tweezerIntensityTrig 0.1
       t += 2
-	dac: MOTFreq pushoutfreq  
+	dac: MOTFreq pushoutfreq
 	dac: RepumpPower 0.04
 	on: RepumpRf
 	% turn the repump on a tiny bit early 
@@ -12,8 +12,9 @@ def pushout():
 	%daclinspace: motFreq 0.235 pushoutfreq  5 20 %-0.5 to pushoutfreq in 5ms	
 	% mostly for the power ramp. also, lets the mot frequency settle.
 	t += 2 %calibrated 11/9/2017
-	dac: sideMotPower 0.08 %for 3x6 with pushoutdepth 2 % 0.015 %0.01
-	on: sideMotRf
+	off: RepumpRF
+	dac: sideMotPower 0.01 %0.08 %for 3x6 with pushoutdepth 2 % 0.015 %0.01
+	%on: sideMotRf
       t += pushoutTime %0.3
 	off: sideMotRf
 

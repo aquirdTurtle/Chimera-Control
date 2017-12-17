@@ -175,11 +175,25 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_COMMAND_RANGE( IDC_DEBUG_STATUS_BUTTON, IDC_DEBUG_STATUS_BUTTON, &MainWindow::passClear )
 	ON_COMMAND( IDC_SELECT_CONFIG_COMBO, &MainWindow::passConfigPress )
 	ON_COMMAND( IDOK,  &MainWindow::catchEnter)
+	ON_WM_RBUTTONUP( )
+	ON_WM_LBUTTONUP( )
 END_MESSAGE_MAP()
+
+
+void MainWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
+{
+	TheCameraWindow->stopSound( );
+}
+
+void MainWindow::OnLButtonUp( UINT stuff, CPoint clickLocation )
+{
+	TheCameraWindow->stopSound( );
+}
 
 
 void MainWindow::passConfigPress( )
 {
+	
 	try
 	{
 		profile.handleSelectConfigButton( this, TheScriptingWindow, this, TheAuxiliaryWindow, TheCameraWindow );

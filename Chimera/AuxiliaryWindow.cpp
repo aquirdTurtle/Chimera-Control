@@ -9,6 +9,7 @@
 #include "openWithExplorer.h"
 #include "saveWithExplorer.h"
 #include "agilentStructures.h"
+#include "CameraWindow.h"
 
 AuxiliaryWindow::AuxiliaryWindow() : CDialog(), 
 									 topBottomTek(TOP_BOTTOM_TEK_SAFEMODE, TOP_BOTTOM_TEK_USB_ADDRESS), 
@@ -65,8 +66,20 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_FLASHING_EDIT, IDC_FLASHING_EDIT, &AuxiliaryWindow::handleAgilentEditChange )
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_AXIAL_EDIT, IDC_AXIAL_EDIT, &AuxiliaryWindow::handleAgilentEditChange )
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_UWAVE_EDIT, IDC_UWAVE_EDIT, &AuxiliaryWindow::handleAgilentEditChange )
-
+	ON_WM_RBUTTONUP( )
+	ON_WM_LBUTTONUP( )
 END_MESSAGE_MAP()
+
+
+void AuxiliaryWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
+{
+	cameraWindowFriend->stopSound( );
+}
+
+void AuxiliaryWindow::OnLButtonUp( UINT stuff, CPoint clickLocation )
+{
+	cameraWindowFriend->stopSound( );
+}
 
 
 void AuxiliaryWindow::newAgilentScript( agilentNames name)
@@ -789,7 +802,7 @@ void AuxiliaryWindow::handleMasterConfigSave(std::stringstream& configStream)
 	{
 		variableType info = globalVariables.getVariableInfo(varInc);
 		configStream << info.name << " ";
-		configStream << info.ranges.front().initialValue << "\n";
+		configStream << info.constantValue << "\n";
 		// all globals are constants, no need to output anything else.
 	}
 }
