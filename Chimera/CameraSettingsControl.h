@@ -25,34 +25,39 @@ class CameraSettingsControl
 		void initialize(cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips);
 		void checkTimings(std::vector<float>& exposureTimes);
 		void checkTimings(float& kineticCycleTime, float& accumulationTime, std::vector<float>& exposureTimes);
-		imageParameters readImageParameters(CameraWindow* camWin);
+
+		void updateSettings( );
 		void updateMinKineticCycleTime( double time );
-		void setEmGain(AndorCamera* andorObj);
+		void setEmGain();
 		void rearrange(std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts);
 		void handlePictureSettings(UINT id, AndorCamera* andorObj);
-		void handleTriggerControl(CameraWindow* cameraWindow);
-		std::array<int, 4> getPaletteNumbers();
+		void updateTriggerMode( );
+		void handleTriggerChange(CameraWindow* cameraWindow);
 		void handleSetTemperatureOffPress();
 		void handleSetTemperaturePress();
 		void handleTimer();
 		void checkIfReady();
 		void cameraIsOn( bool state );
 		void handleModeChange( CameraWindow* cameraWindow );
-		AndorRunSettings getSettings();
+		void updateCameraMode( );
+		AndorCameraSettings getSettings();
 		void setImageParameters(imageParameters newSettings, CameraWindow* camWin);
-		std::array<int, 4> getThresholds();
-		void updatePassivelySetSettings();
 		void setRunSettings(AndorRunSettings inputSettings);
-
 		void handleOpenConfig(std::ifstream& configFile, int versionMajor, int versionMinor );
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& configFile);
 
+
 	private:
+		double getKineticCycleTime( );
+		double getAccumulationCycleTime( );
+		UINT getAccumulationNumber( );
+		imageParameters getImageParameters( );
+
 		AndorCamera* andorFriend;
 
 		Control<CStatic> header;
-		/// TODO
+		/// TODO - don't think accumulation mode details have been worked out.
 		// Accumulation Time
 		Control<CStatic> accumulationCycleTimeLabel;
 		Control<CEdit> accumulationCycleTimeEdit;
@@ -63,7 +68,6 @@ class CameraSettingsControl
 		// cameraMode
 		Control<CComboBox> cameraModeCombo;
 		// EM Gain
-		Control<CButton> emGainButton;
 		Control<CEdit> emGainEdit;
 		Control<CStatic> emGainDisplay;
 		// Trigger Mode
@@ -80,12 +84,11 @@ class CameraSettingsControl
 		Control<CStatic> kineticCycleTimeLabel;
 		Control<CEdit> minKineticCycleTimeDisp;
 		Control<CStatic> minKineticCycleTimeLabel;
-		std::string currentControlColor;
 		// two subclassed groups.
 		ImageDimsControl imageDimensionsObj;
 		PictureSettingsControl picSettingsObj;
 		// the currently selected settings, not necessarily those being used to run the current
 		// experiment.
-		AndorRunSettings runSettings;
+		AndorCameraSettings settings;
 };
 

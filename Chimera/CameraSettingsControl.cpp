@@ -9,19 +9,20 @@ CameraSettingsControl::CameraSettingsControl(AndorCamera* friendInitializer) : p
 	andorFriend = friendInitializer;
 	// initialize settings. Most of these have been picked to match initial settings set in the "initialize" 
 	// function.
-	runSettings.exposureTimes = { 0.026f };
-	runSettings.picsPerRepetition = 1;
-	runSettings.kineticCycleTime = 0.1f;
-	runSettings.repetitionsPerVariation = 10;
-	runSettings.totalVariations = 3;
-	runSettings.totalPicsInExperiment = 30;
-	runSettings.totalPicsInVariation = 10;
+	AndorRunSettings& andorSettings = settings.andor;
+	andorSettings.exposureTimes = { 0.026f };
+	andorSettings.picsPerRepetition = 1;
+	andorSettings.kineticCycleTime = 0.1f;
+	andorSettings.repetitionsPerVariation = 10;
+	andorSettings.totalVariations = 3;
+	andorSettings.totalPicsInExperiment = 30;
+	andorSettings.totalPicsInVariation = 10;
 	// the read mode never gets changed currently. we always want images.
-	runSettings.readMode = 4;
-	runSettings.acquisitionMode = 3;
-	runSettings.emGainModeIsOn = false;
-	runSettings.showPicsInRealTime = false;
-	runSettings.triggerMode = "External Trigger";
+	andorSettings.readMode = 4;
+	andorSettings.acquisitionMode = 3;
+	andorSettings.emGainModeIsOn = false;
+	andorSettings.showPicsInRealTime = false;
+	andorSettings.triggerMode = "External Trigger";
 }
 
 
@@ -43,31 +44,26 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	cameraModeCombo.AddString( "Accumulation Mode" );
 	cameraModeCombo.AddString( "Video Mode" );
 	cameraModeCombo.SelectString( 0, "Kinetic Series Mode" );
-	runSettings.cameraMode = "Kinetic Series Mode";
+	settings.andor.cameraMode = "Kinetic Series Mode";
 	pos.amPos.y += 25;
 	pos.videoPos.y += 25;
 	pos.seriesPos.y += 25;
 	/// EM Gain
-	emGainButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 120, pos.seriesPos.y + 20 };
-	emGainButton.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 120, pos.videoPos.y + 20 };
-	emGainButton.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 120, pos.amPos.y + 20 };
-	emGainButton.Create( "Set EM Gain", NORM_PUSH_OPTIONS, emGainButton.seriesPos, parent, IDC_SET_EM_GAIN_BUTTON );
-	emGainButton.setToolTip( "Set the state & gain of the EM gain of the camera. Enter a negative number to turn EM Gain"
-							 " mode off. The program will immediately change the state of the camera after pressing this button.", 
-							 tooltips, parent );
+	emGainEdit.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 240, pos.seriesPos.y + 20 };
+	emGainEdit.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 240, pos.amPos.y + 20 };
+	emGainEdit.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 240, pos.videoPos.y + 20 };
+	emGainEdit.Create( NORM_EDIT_OPTIONS, emGainEdit.seriesPos, parent, IDC_EM_GAIN_EDIT );
+	emGainEdit.setToolTip( "Set the state & gain of the EM gain of the camera. Enter a negative number to turn EM Gain"
+						   " mode off. The program will immediately change the state of the camera after changing this"
+						   " edit.", tooltips, parent );
 	//
-	emGainEdit.seriesPos = { pos.seriesPos.x + 120, pos.seriesPos.y, pos.seriesPos.x + 300, pos.seriesPos.y + 20 };
-	emGainEdit.amPos = { pos.amPos.x + 120, pos.amPos.y, pos.amPos.x + 300, pos.amPos.y + 20 };
-	emGainEdit.videoPos = { pos.videoPos.x + 120, pos.videoPos.y, pos.videoPos.x + 300, pos.videoPos.y + 20 };
-	emGainEdit.Create( NORM_EDIT_OPTIONS, emGainEdit.seriesPos, parent, id++ );
-	//
-	emGainDisplay.seriesPos = { pos.seriesPos.x + 300, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 20 };
-	emGainDisplay.videoPos = { pos.videoPos.x + 300, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y + 20 };
-	emGainDisplay.amPos = { pos.amPos.x + 300, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 20 };
+	emGainDisplay.seriesPos = { pos.seriesPos.x + 240, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 20 };
+	emGainDisplay.videoPos = { pos.videoPos.x + 240, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y + 20 };
+	emGainDisplay.amPos = { pos.amPos.x + 240, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 20 };
 	emGainDisplay.Create( "OFF", NORM_STATIC_OPTIONS, emGainDisplay.seriesPos, parent, id++ );
 	// initialize settings.
-	runSettings.emGainLevel = 0;
-	runSettings.emGainModeIsOn = false;
+	settings.andor.emGainLevel = 0;
+	settings.andor.emGainModeIsOn = false;
 	//
 	pos.seriesPos.y += 20;
 	pos.amPos.y += 20;
@@ -87,7 +83,7 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	pos.seriesPos.y += 25;
 	pos.amPos.y += 25;
 	pos.videoPos.y += 25;
-	runSettings.triggerMode = "External Trigger";
+	settings.andor.triggerMode = "External Trigger";
 	// Set temperature Button
 	setTemperatureButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 270, pos.seriesPos.y + 25 };
 	setTemperatureButton.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 270, pos.videoPos.y + 25 };
@@ -193,16 +189,17 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 void CameraSettingsControl::cameraIsOn(bool state)
 {
 	// Can't change em gain mode or camera settings once started.
-	emGainButton.EnableWindow( !state );
+	emGainEdit.EnableWindow( !state );
 	setTemperatureButton.EnableWindow( !state );
 	temperatureOffButton.EnableWindow( !state );
 }
 
-
+/*
 std::array<int, 4> CameraSettingsControl::getThresholds()
 {
 	return picSettingsObj.getThresholds();
 }
+*/
 
 void CameraSettingsControl::setRunSettings(AndorRunSettings inputSettings)
 {
@@ -259,8 +256,6 @@ void CameraSettingsControl::handleSetTemperaturePress()
 		thrower( "ERROR: the camera (thinks that it?) is running. You can't change temperature settings during camera "
 				 "operation." );
 	}
-	
-	//runSettings = andorFriend->getSettings();
 	CString text;
 	temperatureEdit.GetWindowTextA(text);
 	int temp;
@@ -272,34 +267,60 @@ void CameraSettingsControl::handleSetTemperaturePress()
 	{
 		thrower("Error: Couldn't convert temperature input to a double! Check for unusual characters.");
 	}
-	runSettings.temperatureSetting = temp;
-	andorFriend->setSettings(runSettings);
+	settings.andor.temperatureSetting = temp;
+	andorFriend->setSettings(settings.andor );
 
 	andorFriend->setTemperature();
-	//eCameraFileSystem.updateSaveStatus(false);
 }
 
 
-void CameraSettingsControl::handleTriggerControl(CameraWindow* cameraWindow)
+void CameraSettingsControl::updateTriggerMode( )
 {
 	CString triggerMode;
-	int itemIndex = triggerCombo.GetCurSel();
-	if (itemIndex == -1)
+	int itemIndex = triggerCombo.GetCurSel( );
+	if ( itemIndex == -1 )
 	{
 		return;
 	}
-	triggerCombo.GetLBText(itemIndex, triggerMode);
-	runSettings.triggerMode = triggerMode;
+	triggerCombo.GetLBText( itemIndex, triggerMode );
+	settings.andor.triggerMode = triggerMode;
+}
+
+
+void CameraSettingsControl::handleTriggerChange(CameraWindow* cameraWindow)
+{
+	updateTriggerMode( );
 	CRect rect;
 	cameraWindow->GetWindowRect(&rect);
 	cameraWindow->OnSize(0, rect.right - rect.left, rect.bottom - rect.top);
 }
 
-AndorRunSettings CameraSettingsControl::getSettings()
+
+void CameraSettingsControl::updateSettings()
 {
-	runSettings.exposureTimes = picSettingsObj.getUsedExposureTimes( );
-	return runSettings;
+	// update all settings with current values from controls
+	settings.andor.exposureTimes =		picSettingsObj.getUsedExposureTimes( );
+	settings.thresholds =				picSettingsObj.getThresholds( );
+	settings.palleteNumbers =			picSettingsObj.getPictureColors( );
+	settings.andor.picsPerRepetition =	picSettingsObj.getPicsPerRepetition( );
+	
+	settings.andor.imageSettings = getImageParameters( );
+	settings.andor.kineticCycleTime = getKineticCycleTime( );
+	settings.andor.accumulationTime = getAccumulationCycleTime( );
+	settings.andor.accumulationNumber = getAccumulationNumber( );
+
+	setEmGain( );
+	updateCameraMode( );
+	updateTriggerMode( );
 }
+
+
+AndorCameraSettings CameraSettingsControl::getSettings()
+{
+	updateSettings( );
+	return settings;
+}
+
 
 void CameraSettingsControl::rearrange( std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts )
 {
@@ -307,7 +328,6 @@ void CameraSettingsControl::rearrange( std::string cameraMode, std::string trigg
 	picSettingsObj.rearrange( cameraMode, triggerMode, width, height, fonts );
 	header.rearrange( cameraMode, triggerMode, width, height, fonts );
 	cameraModeCombo.rearrange( cameraMode, triggerMode, width, height, fonts );
-	emGainButton.rearrange( cameraMode, triggerMode, width, height, fonts );
 	emGainDisplay.rearrange( cameraMode, triggerMode, width, height, fonts );
 	emGainEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
 	triggerCombo.rearrange( cameraMode, triggerMode, width, height, fonts );
@@ -327,10 +347,15 @@ void CameraSettingsControl::rearrange( std::string cameraMode, std::string trigg
 }
 
 
-void CameraSettingsControl::setEmGain(AndorCamera* andorObj)
+void CameraSettingsControl::setEmGain()
 {
 	CString emGainText;
 	emGainEdit.GetWindowTextA(emGainText);
+	if ( emGainText == "" )
+	{
+		// set to off.
+		emGainText = "-1";
+	}
 	int emGain;
 	try
 	{
@@ -338,52 +363,84 @@ void CameraSettingsControl::setEmGain(AndorCamera* andorObj)
 	}
 	catch (std::invalid_argument&)
 	{
-		thrower("ERROR: Couldn't convert EM Gain text to integer.");
+		thrower("ERROR: Couldn't convert EM Gain text to integer! Aborting!");
 	}
-	// < 0 corresponds to NOT USING EM NIAWG_GAIN (using conventional gain).
+	// < 0 corresponds to NOT USING EM GAIN (using conventional gain).
 	if (emGain < 0)
 	{
-		runSettings.emGainModeIsOn = false;
-		runSettings.emGainLevel = 0;
+		settings.andor.emGainModeIsOn = false;
+		settings.andor.emGainLevel = 0;
 		emGainDisplay.SetWindowTextA("OFF");
 	}
 	else
 	{
-		runSettings.emGainModeIsOn = true;
-		runSettings.emGainLevel = emGain;
-		emGainDisplay.SetWindowTextA(cstr("Gain: X" + str(runSettings.emGainLevel)));
+		settings.andor.emGainModeIsOn = true;
+		settings.andor.emGainLevel = emGain;
+		emGainDisplay.SetWindowTextA(cstr("Gain: X" + str(settings.andor.emGainLevel)));
 	}
 	// Change the andor settings.
-	AndorRunSettings settings = andorObj->getSettings();
-	settings.emGainLevel = runSettings.emGainLevel;
-	settings.emGainModeIsOn = runSettings.emGainModeIsOn;
-	andorObj->setSettings(settings);
+	AndorRunSettings andorSettings = andorFriend->getAndorSettings();
+	std::string promptMsg = "";
+	if ( andorSettings.emGainModeIsOn != settings.andor.emGainModeIsOn )
+	{
+		promptMsg += "Set Andor EM Gain State to ";
+		if ( settings.andor.emGainModeIsOn )
+		{
+			promptMsg += "ON";
+		}
+		else
+		{
+			promptMsg += "OFF";
+		}
+	}
+	if ( andorSettings.emGainLevel != settings.andor.emGainLevel )
+	{
+		if ( promptMsg != "" )
+		{
+			promptMsg += ", ";
+		}
+		promptMsg += "Set Andor EM Gain Level to " + str(settings.andor.emGainLevel);
+	}
+	if ( promptMsg != "" )
+	{
+		promptMsg += "?";
+		int result = promptBox( promptMsg, MB_YESNO );
+		if ( result == IDNO )
+		{
+			thrower( "Aborting camera settings update at EM Gain update!" );
+		}
+	}
+	andorSettings.emGainLevel = settings.andor.emGainLevel;
+	andorSettings.emGainModeIsOn = settings.andor.emGainModeIsOn;
+	andorFriend->setSettings( andorSettings );
 	// and immediately change the EM gain mode.
-	andorObj->setGainMode();
+	andorFriend->setGainMode();
 	emGainEdit.RedrawWindow();
 }
 
 
 void CameraSettingsControl::setVariationNumber(UINT varNumber)
 {
-	runSettings.totalVariations = varNumber;
-	if (runSettings.totalVariations * runSettings.totalPicsInVariation > INT_MAX)
+	AndorRunSettings& andorSettings = settings.andor;
+	andorSettings.totalVariations = varNumber;
+	if ( andorSettings.totalVariations * andorSettings.totalPicsInVariation > INT_MAX)
 	{
 		thrower( "ERROR: Trying to take too many pictures! Maximum picture number is " + str( INT_MAX ) );
 	}
-	runSettings.totalPicsInExperiment = int(runSettings.totalVariations * runSettings.totalPicsInVariation);
+	andorSettings.totalPicsInExperiment = int( andorSettings.totalVariations * andorSettings.totalPicsInVariation);
 }
 
 
 void CameraSettingsControl::setRepsPerVariation(UINT repsPerVar)
 {
-	runSettings.repetitionsPerVariation = repsPerVar;
-	runSettings.totalPicsInVariation = runSettings.repetitionsPerVariation * runSettings.picsPerRepetition;
-	if (runSettings.totalVariations * runSettings.totalPicsInVariation > INT_MAX)
+	AndorRunSettings& andorSettings = settings.andor;
+	andorSettings.repetitionsPerVariation = repsPerVar;
+	andorSettings.totalPicsInVariation = andorSettings.repetitionsPerVariation * andorSettings.picsPerRepetition;
+	if ( andorSettings.totalVariations * andorSettings.totalPicsInVariation > INT_MAX)
 	{
 		thrower( "ERROR: Trying to take too many pictures! Maximum picture number is " + str( INT_MAX ) );
 	}
-	runSettings.totalPicsInExperiment = int(runSettings.totalVariations * runSettings.totalPicsInVariation);
+	andorSettings.totalPicsInExperiment = int( andorSettings.totalVariations * andorSettings.totalPicsInVariation);
 }
 
 
@@ -397,7 +454,7 @@ void CameraSettingsControl::handleTimer()
 	try
 	{
 		// in this case you expect it to throw.
-		setTemperature = andorFriend->getSettings().temperatureSetting;
+		setTemperature = andorFriend->getAndorSettings().temperatureSetting;
 		andorFriend->getTemperature(currentTemperature);
 		if ( ANDOR_SAFEMODE ) { thrower( "SAFEMODE" ); }
 	}
@@ -406,35 +463,30 @@ void CameraSettingsControl::handleTimer()
 		// if not stable this won't get changed.
 		if (exception.whatBare() == "DRV_TEMPERATURE_STABILIZED")
 		{
-			currentControlColor = "Green";
 			temperatureDisplay.SetWindowTextA(cstr(setTemperature));
 			temperatureMsg.SetWindowTextA(cstr("Temperature has stabilized at " + str(currentTemperature) 
 											  + " (C)\r\n"));
 		}
 		else if (exception.whatBare() == "DRV_TEMPERATURE_NOT_REACHED")
 		{
-			currentControlColor = "Red";
 			temperatureDisplay.SetWindowTextA(cstr(setTemperature));
 			temperatureMsg.SetWindowTextA(cstr("Set temperature not yet reached. Current temperature is " 
 											  + str(currentTemperature) + " (C)\r\n"));
 		}
 		else if (exception.whatBare() == "DRV_TEMPERATURE_NOT_STABILIZED")
 		{
-			currentControlColor = "Red";
 			temperatureDisplay.SetWindowTextA(cstr(setTemperature));
 			temperatureMsg.SetWindowTextA(cstr("Temperature of " + str(currentTemperature) 
 											  + " (C) reached but not stable."));
 		}
 		else if (exception.whatBare() == "DRV_TEMPERATURE_DRIFT")
 		{
-			currentControlColor = "Red";
 			temperatureDisplay.SetWindowTextA(cstr(setTemperature));
 			temperatureMsg.SetWindowTextA(cstr("Temperature had stabilized but has since drifted. Temperature: " 
 											  + str(currentTemperature)));
 		}
 		else if (exception.whatBare() == "DRV_TEMPERATURE_OFF")
 		{
-			currentControlColor = "Red";
 			temperatureDisplay.SetWindowTextA(cstr(setTemperature));
 			temperatureMsg.SetWindowTextA(cstr("Temperature control is off. Temperature: " + str(currentTemperature)));
 		}
@@ -448,13 +500,11 @@ void CameraSettingsControl::handleTimer()
 		}
 		else if (exception.whatBare() == "SAFEMODE")
 		{
-			currentControlColor = "Red";
 			temperatureDisplay.SetWindowTextA(cstr(setTemperature));
 			temperatureMsg.SetWindowTextA("Application is running in Safemode... No Real Temperature Data is available.");
 		}
 		else
 		{
-			currentControlColor = "Red";
 			temperatureDisplay.SetWindowTextA(cstr(currentTemperature));
 			temperatureMsg.SetWindowTextA(cstr("Unexpected Temperature Code: " + exception.whatBare() + ". Temperature: " 
 												+ str(currentTemperature)));
@@ -465,14 +515,14 @@ void CameraSettingsControl::handleTimer()
 
 void CameraSettingsControl::updateRunSettingsFromPicSettings( )
 {
-	runSettings.exposureTimes = picSettingsObj.getUsedExposureTimes( );
-	runSettings.picsPerRepetition = picSettingsObj.getPicsPerRepetition( );
-	runSettings.totalPicsInVariation = runSettings.picsPerRepetition * runSettings.repetitionsPerVariation;
-	if ( runSettings.totalVariations * runSettings.totalPicsInVariation > INT_MAX )
+	settings.andor.exposureTimes = picSettingsObj.getUsedExposureTimes( );
+	settings.andor.picsPerRepetition = picSettingsObj.getPicsPerRepetition( );
+	settings.andor.totalPicsInVariation = settings.andor.picsPerRepetition * settings.andor.repetitionsPerVariation;
+	if ( settings.andor.totalVariations * settings.andor.totalPicsInVariation > INT_MAX )
 	{
 		thrower( "ERROR: Trying to take too many pictures! Maximum picture number is " + str( INT_MAX ) );
 	}
-	runSettings.totalPicsInExperiment = runSettings.totalVariations * runSettings.totalPicsInVariation;
+	settings.andor.totalPicsInExperiment = settings.andor.totalVariations * settings.andor.totalPicsInVariation;
 }
 
 
@@ -483,59 +533,61 @@ void CameraSettingsControl::handlePictureSettings(UINT id, AndorCamera* andorObj
 }
 
 
-/*
- * This function checks things that don't have "Set" buttons. should be called to load the most recent values.
- */
-void CameraSettingsControl::updatePassivelySetSettings()
+double CameraSettingsControl::getKineticCycleTime( )
 {
 	CString text;
-	kineticCycleTimeEdit.GetWindowTextA(text);
+	kineticCycleTimeEdit.GetWindowTextA( text );
 	try
 	{
-		runSettings.kineticCycleTime = std::stof(str(text));
-		kineticCycleTimeEdit.SetWindowTextA(cstr(runSettings.kineticCycleTime));
+		settings.andor.kineticCycleTime = std::stof( str( text ) );
+		kineticCycleTimeEdit.SetWindowTextA( cstr( settings.andor.kineticCycleTime ) );
 	}
-	catch (std::invalid_argument&)
+	catch ( std::invalid_argument& )
 	{
-		runSettings.kineticCycleTime = 0.1f;
-		kineticCycleTimeEdit.SetWindowTextA(cstr(runSettings.kineticCycleTime));
-		thrower("Please enter a valid float for the kinetic cycle time.");
+		settings.andor.kineticCycleTime = 0.1f;
+		kineticCycleTimeEdit.SetWindowTextA( cstr( settings.andor.kineticCycleTime ) );
+		thrower( "Please enter a valid float for the kinetic cycle time." );
 	}
-
-	accumulationCycleTimeEdit.GetWindowTextA(text);
-	try
-	{
-		runSettings.accumulationTime = std::stof(str(text));
-		accumulationCycleTimeEdit.SetWindowTextA(cstr(runSettings.accumulationTime));
-	}
-	catch (std::invalid_argument&)
-	{
-		runSettings.accumulationTime = 0.1f;
-		accumulationCycleTimeEdit.SetWindowTextA(cstr(runSettings.accumulationTime));
-		thrower("Please enter a valid float for the accumulation cycle time.");
-	}
-
-	accumulationNumberEdit.GetWindowTextA(text);
-	try
-	{
-		runSettings.accumulationNumber = std::stol(str(text));
-		accumulationNumberEdit.SetWindowTextA(cstr(runSettings.accumulationNumber));
-	}
-	catch (std::invalid_argument&)
-	{
-		runSettings.accumulationNumber = 1;
-		accumulationNumberEdit.SetWindowTextA(cstr(runSettings.accumulationNumber));
-		thrower("Please enter a valid float for the Accumulation number.");
-	}
+	return settings.andor.kineticCycleTime;
 }
 
 
-std::array<int, 4> CameraSettingsControl::getPaletteNumbers()
+double CameraSettingsControl::getAccumulationCycleTime( )
 {
-	return picSettingsObj.getPictureColors();
+	CString text;
+	accumulationCycleTimeEdit.GetWindowTextA( text );
+	try
+	{
+		settings.andor.accumulationTime = std::stof( str( text ) );
+		accumulationCycleTimeEdit.SetWindowTextA( cstr( settings.andor.accumulationTime ) );
+	}
+	catch ( std::invalid_argument& )
+	{
+		settings.andor.accumulationTime = 0.1f;
+		accumulationCycleTimeEdit.SetWindowTextA( cstr( settings.andor.accumulationTime ) );
+		thrower( "Please enter a valid float for the accumulation cycle time." );
+	}
+	return settings.andor.accumulationTime;
 }
 
 
+UINT CameraSettingsControl::getAccumulationNumber( )
+{
+	CString text;
+	accumulationNumberEdit.GetWindowTextA( text );
+	try
+	{
+		settings.andor.accumulationNumber = std::stol( str( text ) );
+		accumulationNumberEdit.SetWindowTextA( cstr( settings.andor.accumulationNumber ) );
+	}
+	catch ( std::invalid_argument& )
+	{
+		settings.andor.accumulationNumber = 1;
+		accumulationNumberEdit.SetWindowTextA( cstr( settings.andor.accumulationNumber ) );
+		thrower( "Please enter a valid float for the Accumulation number." );
+	}
+	return settings.andor.accumulationNumber;
+}
 
 
 void CameraSettingsControl::handleOpenConfig(std::ifstream& configFile, int versionMajor, int versionMinor )
@@ -601,14 +653,14 @@ void CameraSettingsControl::handleNewConfig( std::ofstream& newFile )
 void CameraSettingsControl::handleSaveConfig(std::ofstream& saveFile)
 {
 	saveFile << "CAMERA_SETTINGS\n";
-	saveFile << runSettings.triggerMode << "\n";
-	saveFile << runSettings.emGainModeIsOn << "\n";
-	saveFile << runSettings.emGainLevel << "\n";
-	saveFile << runSettings.cameraMode << "\n";
-	saveFile << runSettings.kineticCycleTime << "\n";
-	saveFile << runSettings.accumulationTime << "\n";
-	saveFile << runSettings.accumulationNumber << "\n";
-	saveFile << runSettings.temperatureSetting << "\n";
+	saveFile << settings.andor.triggerMode << "\n";
+	saveFile << settings.andor.emGainModeIsOn << "\n";
+	saveFile << settings.andor.emGainLevel << "\n";
+	saveFile << settings.andor.cameraMode << "\n";
+	saveFile << settings.andor.kineticCycleTime << "\n";
+	saveFile << settings.andor.accumulationTime << "\n";
+	saveFile << settings.andor.accumulationNumber << "\n";
+	saveFile << settings.andor.temperatureSetting << "\n";
 	saveFile << "END_CAMERA_SETTINGS\n";
 
 	picSettingsObj.handleSaveConfig(saveFile);
@@ -616,35 +668,41 @@ void CameraSettingsControl::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void CameraSettingsControl::handleModeChange( CameraWindow* cameraWindow )
+void CameraSettingsControl::updateCameraMode( )
 {
-	int sel = cameraModeCombo.GetCurSel();
-	if (sel == -1)
+	/* 
+		updates settings.andor.cameraMode based on combo selection, then updates 
+		settings.andor.acquisitionMode and other settings depending on the mode.
+	*/
+	int sel = cameraModeCombo.GetCurSel( );
+	if ( sel == -1 )
 	{
 		return;
 	}
 	CString mode;
 	cameraModeCombo.GetLBText( sel, mode );
-	runSettings.cameraMode = mode;
+	settings.andor.cameraMode = mode;
 
-
-	//						
-	if (runSettings.cameraMode == "Video Mode")
+	if ( settings.andor.cameraMode == "Video Mode" )
 	{
-		runSettings.acquisitionMode = 5;
-		runSettings.totalPicsInVariation = INT_MAX;
-		runSettings.repetitionsPerVariation = runSettings.totalPicsInVariation / runSettings.picsPerRepetition;
-
+		settings.andor.acquisitionMode = 5;
+		settings.andor.totalPicsInVariation = INT_MAX;
+		settings.andor.repetitionsPerVariation = settings.andor.totalPicsInVariation / settings.andor.picsPerRepetition;
 	}
-	else if (runSettings.cameraMode == "Kinetic Series Mode")
+	else if ( settings.andor.cameraMode == "Kinetic Series Mode" )
 	{
-		runSettings.acquisitionMode = 3;
+		settings.andor.acquisitionMode = 3;
 	}
-	else if (runSettings.cameraMode == "Accumulate Mode")
+	else if ( settings.andor.cameraMode == "Accumulate Mode" )
 	{
-		runSettings.acquisitionMode = 2;
+		settings.andor.acquisitionMode = 2;
 	}
+}
 
+
+void CameraSettingsControl::handleModeChange( CameraWindow* cameraWindow )
+{
+	updateCameraMode( );
 
 	CRect rect;
 	cameraWindow->GetWindowRect( &rect );
@@ -654,7 +712,7 @@ void CameraSettingsControl::handleModeChange( CameraWindow* cameraWindow )
 
 void CameraSettingsControl::checkTimings(std::vector<float>& exposureTimes)
 {
-	checkTimings(runSettings.kineticCycleTime, runSettings.accumulationTime, exposureTimes);
+	checkTimings(settings.andor.kineticCycleTime, settings.andor.accumulationTime, exposureTimes);
 }
 
 
@@ -670,11 +728,9 @@ void CameraSettingsControl::updateMinKineticCycleTime( double time )
 }
 
 
-imageParameters CameraSettingsControl::readImageParameters(CameraWindow* camWin)
+imageParameters CameraSettingsControl::getImageParameters()
 {
-	imageParameters parameters = imageDimensionsObj.readImageParameters( camWin );
-	runSettings.imageSettings = parameters;
-	return parameters;
+	return imageDimensionsObj.readImageParameters( );
 }
 
 CBrush* CameraSettingsControl::handleColor( int idNumber, CDC* colorer, brushMap brushes, rgbMap rgbs )
@@ -699,32 +755,32 @@ void CameraSettingsControl::checkIfReady()
 	{
 		thrower("Please set the image parameters.");
 	}
-	if ( runSettings.picsPerRepetition <= 0 )
+	if ( settings.andor.picsPerRepetition <= 0 )
 	{
 		thrower("ERROR: Please set the number of pictures per repetition to a positive non-zero value.");
 	}
-	if ( runSettings.cameraMode == "Kinetic Series Mode" )
+	if ( settings.andor.cameraMode == "Kinetic Series Mode" )
 	{
-		if ( runSettings.kineticCycleTime == 0 && runSettings.triggerMode == "Internal Trigger" )
+		if ( settings.andor.kineticCycleTime == 0 && settings.andor.triggerMode == "Internal Trigger" )
 		{
 			thrower("ERROR: Since you are running in internal trigger mode, please Set a kinetic cycle time.");
 		}
-		if ( runSettings.repetitionsPerVariation <= 0 )
+		if ( settings.andor.repetitionsPerVariation <= 0 )
 		{
 			thrower("ERROR: Please set the \"Repetitions Per Variation\" variable to a positive non-zero value.");
 		}
-		if ( runSettings.totalVariations <= 0 )
+		if ( settings.andor.totalVariations <= 0 )
 		{
 			thrower("ERROR: Please set the number of variations to a positive non-zero value.");
 		}
 	}
-	if ( runSettings.cameraMode == "Accumulate Mode" )
+	if ( settings.andor.cameraMode == "Accumulate Mode" )
 	{
-		if ( runSettings.accumulationNumber <= 0 )
+		if ( settings.andor.accumulationNumber <= 0 )
 		{
 			thrower("ERROR: Please set the current Accumulation Number to a positive non-zero value.");
 		}
-		if ( runSettings.accumulationTime <= 0 )
+		if ( settings.andor.accumulationTime <= 0 )
 		{
 			thrower("ERROR: Please set the current Accumulation Time to a positive non-zero value.");
 		}

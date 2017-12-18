@@ -277,7 +277,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 /*
  * Get whatever settings the camera is currently using in it's operation, assuming it's operating.
  */
-AndorRunSettings AndorCamera::getSettings()
+AndorRunSettings AndorCamera::getAndorSettings()
 {
 	return runSettings;
 }
@@ -1381,6 +1381,7 @@ double AndorCamera::getMinKineticCycleTime( )
 	float minKineticCycleTime, dummy1, dummy2;	
 	setKineticCycleTime( 0 );
 	getAcquisitionTimes( dummy1, dummy2, minKineticCycleTime );
+	
 	// re-set whatever's currently in the settings.
 	setKineticCycleTime( );
 	return minKineticCycleTime;

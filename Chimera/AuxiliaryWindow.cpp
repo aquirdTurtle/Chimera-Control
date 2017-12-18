@@ -726,8 +726,8 @@ void AuxiliaryWindow::fillMasterThreadInput(MasterThreadInput* input)
 	{
 		input->agilents.push_back( &agilent );
 	}
-	topBottomTek.getSettings();
-	eoAxialTek.getSettings();
+	topBottomTek.getTekSettings();
+	eoAxialTek.getTekSettings();
 	input->topBottomTek = &topBottomTek;
 	input->eoAxialTek = &eoAxialTek;
 }

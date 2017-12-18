@@ -136,7 +136,7 @@ void TektronicsChannelControl::handleFskPress()
 
 
 // TODO: Gonna need to add a check if what gets returned is a double or a variable.
-tektronicsChannelOutputForm TektronicsChannelControl::getSettings()
+tektronicsChannelOutputForm TektronicsChannelControl::getTekChannelSettings()
 {
 	currentInfo.control = controlButton.GetCheck();
 	currentInfo.on = onOffButton.GetCheck();
@@ -182,7 +182,7 @@ void TektronicsControl::handleSaveConfig(std::ofstream& saveFile)
 {
 	saveFile << "TEKTRONICS\n";
 	saveFile << "CHANNEL_1\n";
-	tektronicsInfo tekInfo = getSettings();
+	tektronicsInfo tekInfo = getTekSettings();
 	saveFile << tekInfo.channels.first.on << "\n" << tekInfo.channels.first.fsk << "\n"
 		<< tekInfo.channels.first.power.expressionStr << "\n"
 		<< tekInfo.channels.first.mainFreq.expressionStr << "\n"
@@ -289,7 +289,7 @@ void TektronicsControl::programMachine(UINT variation)
 void TektronicsControl::handleProgram()
 {
 	// this makes sure that what's in the current edits is stored in the currentInfo object.
-	getSettings();
+	getTekSettings();
 	// similar to the handling in interpret key except no key or variations, just try to reduce any raw math that the 
 	// user enters into the edits.
 	currentNums.clear();
@@ -395,10 +395,10 @@ void TektronicsControl::rearrange(int width, int height, fontMap fonts)
 }
 
 
-tektronicsInfo TektronicsControl::getSettings()
+tektronicsInfo TektronicsControl::getTekSettings()
 {
-	currentInfo.channels.first = channel1.getSettings();
-	currentInfo.channels.second = channel2.getSettings();
+	currentInfo.channels.first = channel1.getTekChannelSettings();
+	currentInfo.channels.second = channel2.getTekChannelSettings();
 	return currentInfo;
 }
 

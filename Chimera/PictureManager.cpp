@@ -30,12 +30,12 @@ void PictureManager::setAlwaysShowGrid(bool showOption, CDC* easel)
 
 
 void PictureManager::redrawPictures( CDC* easel, coordinate selectedLocation, std::vector<coordinate> analysisLocs,
-									 atomGrid gridInfo )
+									 atomGrid gridInfo, bool forceGrid )
 {
 	if (!pictures[1].isActive())
 	{
 		pictures[0].redrawImage(easel);
-		if (alwaysShowGrid)
+		if (alwaysShowGrid || forceGrid )
 		{
 			pictures[0].drawGrid(easel, gridBrush);
 		}
@@ -45,7 +45,7 @@ void PictureManager::redrawPictures( CDC* easel, coordinate selectedLocation, st
 	for (auto& pic : pictures)
 	{
 		pic.redrawImage(easel);
-		if (alwaysShowGrid)
+		if (alwaysShowGrid || forceGrid )
 		{
 			pic.drawGrid(easel, gridBrush);
 		}
