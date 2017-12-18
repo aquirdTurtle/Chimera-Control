@@ -7,7 +7,6 @@
 #include "miscellaneousCommonFunctions.h"
 
 
-
 void AlertSystem::initialize( cameraPositions& pos, CWnd* parent, bool isTriggerModeSensitive, int& id,
 							  cToolTips& tooltips )
 {
@@ -115,13 +114,13 @@ void AlertSystem::soundAlert()
 	Beep(523, 100);
 	Beep(523, 100);
 	Beep(523, 100);
-	return ;
 }
 
 
 void AlertSystem::rearrange(std::string cameraMode, std::string triggerMode, int width, int height, 
 							 fontMap fonts)
 {
+	autoPauseAtAlert.rearrange( cameraMode, triggerMode, width, height, fonts );
 	title.rearrange(cameraMode, triggerMode, width, height, fonts);
 	alertsActiveCheckBox.rearrange(cameraMode, triggerMode, width, height, fonts);
 	alertThresholdText.rearrange(cameraMode, triggerMode, width, height, fonts);
