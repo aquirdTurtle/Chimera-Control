@@ -468,7 +468,6 @@ void MasterManager::loadMotSettings(MasterThreadInput* input)
 
 	loadMasterScript(input->masterScriptAddress);
 	input->thisObj = this;
-	//input->key->loadVariables(input->variables);
 	VariableSystem::generateKey( input->variables, false );
 	// start thread.
 	runningThread = AfxBeginThread(experimentThreadProcedure, input);	

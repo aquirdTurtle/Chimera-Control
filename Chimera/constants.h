@@ -10,8 +10,8 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program. 
 
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP
 /// File Locations
 
 #ifdef SPECTRE_LAPTOP
@@ -233,6 +233,9 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_PICTURE_3_MAX_EDIT 23053
 #define IDC_PICTURE_4_MIN_EDIT 23054
 #define IDC_PICTURE_4_MAX_EDIT 23055
+#define IDC_EM_GAIN_EDIT 23056
+#define IDC_IMAGE_DIMS_START 23056
+#define IDC_IMAGE_DIMS_END 23062
 //
 #define IDC_BEGINNING_DIALOG_RICH_EDIT 100
 //

@@ -25,7 +25,7 @@ class PictureManager
 		void handleEditChange( UINT id );
 		void setAlwaysShowGrid(bool showOption, CDC* easel);
 		void redrawPictures(CDC* easel, coordinate selectedLocation, std::vector<coordinate> analysisLocs, 
-							 atomGrid gridInfo );
+							 atomGrid gridInfo, bool forceGrid );
 		void setPictureSliders(CWnd* parent);
 		void setNumberPicturesActive( int numberActive );
 		coordinate handleRClick(CPoint clickLocation);

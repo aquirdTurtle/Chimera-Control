@@ -26,6 +26,7 @@ class CameraWindow : public CDialog
 
 	public:
 		/// overrides
+	
 		CameraWindow();
 		HBRUSH OnCtlColor( CDC* pDC, CWnd* pWnd, UINT nCtlColor );
 		BOOL OnInitDialog() override;
@@ -55,6 +56,7 @@ class CameraWindow : public CDialog
 		void catchEnter();
 
 		/// auxiliary functions.
+		void handleEmGainChange();
 		void fillMasterThreadInput( MasterThreadInput* input );
 		DataLogger* getLogger();
 		std::string getSystemStatusString();
@@ -80,7 +82,6 @@ class CameraWindow : public CDialog
 		void handleAutoscaleSelection();
 		void assertOff();
 		void passPictureSettings( UINT id );
-		AndorRunSettings getRunSettings();
 		void prepareAtomCruncher( ExperimentInput& input );
 		void preparePlotter( ExperimentInput& input );
 		static UINT __stdcall atomCruncherProcedure(void* input);
@@ -93,6 +94,7 @@ class CameraWindow : public CDialog
 		std::atomic<bool>* getSkipNextAtomic();
 		void stopPlotter( );
 		void stopSound( );
+		void handleImageDimsEdit(UINT id );
 	private:
 		DECLARE_MESSAGE_MAP();
 

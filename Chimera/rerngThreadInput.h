@@ -14,7 +14,8 @@ class NiawgController;
 // rerng = rearrange
 struct rerngThreadInput
 {
-	rerngThreadInput( UINT gridRows, UINT gridCols ) : moves( gridRows, gridCols ) {}
+	rerngThreadInput( UINT gridRows, UINT gridCols ) : flashMoves( gridRows, gridCols ), 
+		noFlashMoves(gridRows, gridCols) {}
 
 	UINT sourceRows = 0;
 	UINT sourceCols = 0;
@@ -31,7 +32,8 @@ struct rerngThreadInput
 	Communicator* comm;
 	// stuff from the rearrangement input
 	rerngOptions rerngOptions;
-	rerngContainer<rerngMove> moves;
+	rerngContainer<rerngMove> flashMoves;
+	rerngContainer<rerngMove> noFlashMoves;
 	//waveInfo fillerWave;
 };
 

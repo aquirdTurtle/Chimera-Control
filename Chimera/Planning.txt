@@ -3,16 +3,22 @@ TODO
 ===================
 FEATURES:
 - revive sequences of experiments
+	- Full experiments following each other
+	- mixed experiments
+		- Requires more data analysis work
+- consider implementations of local variables
+	- using var or similar keyword to define local variables in functions or main script.
+	- code scans currently used functions for local variables used and just lists those
+	- use combo to list just variables in a function or all variables
 - NIAWG scripting in single script instead of separate Hor/Vert scripts.
+- Be able to set different analysis locations for different plots?
+
+- Consider ways to make navigating many functions more sensible
 - finish implementing randomizing repetitions.
 	- Create per-repetitiong list of variation values to use
 	- Be able to randomize
 	- handle random case in plotting.
-- be able to add more repetitions on the fly if randomizing reps.
-- Be able to set different analysis locations for different plots
-- constant value should be separate from variable values and variable variations should be separate from constants.
-- consider implementations of local variables
-
+	- be able to add more repetitions on the fly if randomizing reps.
 - if aborts or crashes in the middle of run, code should close HDF5 file and make it usable, somehow.
 - Watch cursor location on andor pictures, sim to basler program
 - restore the Niawg functionality where it calculates next varying waveform during the run of the previous waveform.
@@ -34,15 +40,14 @@ Refactoring / Other:
 - change pointers to smart-ptrs where possible
 - remove intensity from color boxes
 - refactor / comment kais parallel moves code
-- refactor how all camera settings get set.
 
 Bugs:
 - something wrong with set New dac Values! Pressing seems to change whether shutter is open or closed???
 - code breaking if no dacs in debug mode?
-
+- should only have one window showing you info before start of run.
 - scripts becoming unsaved after move, should preserve saved status
 - investigate save on change config
-- global config colors don't appear to always be correct. (not sure how to repeat yet)
+- global config colors don't appear to always be correct. Not being set by agilent and niawg?
 - fix over-writing to the agilent.
 - niawg is doing something during turnonmot
 - control tektronics not being saved in config?
@@ -50,6 +55,9 @@ Bugs:
 	but should look into this a bit.
 
 Rearranging
+- code for creating non-flashing moves
+- code for creating parallel moves
+- code for managing moves
 - utilize non-flashing moves
 - utilize compound flashing moves
 
