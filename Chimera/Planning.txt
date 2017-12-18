@@ -40,7 +40,6 @@ Refactoring / Other:
 - change pointers to smart-ptrs where possible
 - remove intensity from color boxes
 - refactor / comment kais parallel moves code
-- refactor how all camera settings get set.
 
 Bugs:
 - something wrong with set New dac Values! Pressing seems to change whether shutter is open or closed???
@@ -65,4 +64,5 @@ Rearranging
 =================
 Finished
 =================
+
 

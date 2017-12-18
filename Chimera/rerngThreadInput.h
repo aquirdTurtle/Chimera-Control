@@ -14,7 +14,8 @@ class NiawgController;
 // rerng = rearrange
 struct rerngThreadInput
 {
-	rerngThreadInput( UINT gridRows, UINT gridCols ) : flashMoves( gridRows, gridCols ) {}
+	rerngThreadInput( UINT gridRows, UINT gridCols ) : flashMoves( gridRows, gridCols ), 
+		noFlashMoves(gridRows, gridCols) {}
 
 	UINT sourceRows = 0;
 	UINT sourceCols = 0;

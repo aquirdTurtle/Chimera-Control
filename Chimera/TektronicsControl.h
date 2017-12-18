@@ -43,7 +43,7 @@ class TektronicsChannelControl
 {
 	public:
 		void initialize(POINT loc, CWnd* parent, int& id, std::string channel1Text, LONG width, std::array<UINT, 2> ids );
-		tektronicsChannelOutputForm getSettings();
+		tektronicsChannelOutputForm getTekChannelSettings();
 		void setSettings(tektronicsChannelOutputForm info);
 		void rearrange(int width, int height, fontMap fonts);
 		void handleOnPress();
@@ -70,7 +70,7 @@ class TektronicsControl
 		void initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
 						 std::string channel2Text, LONG width, std::array<UINT, 5> ids );
 		std::string queryIdentity();
-		tektronicsInfo getSettings();
+		tektronicsInfo getTekSettings();
 		void setSettings(tektronicsInfo info);
 		void rearrange(int width, int height, fontMap fonts);
 		void handleButtons(UINT indicator);

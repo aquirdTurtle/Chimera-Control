@@ -80,7 +80,6 @@ class CameraWindow : public CDialog
 		void handleAutoscaleSelection();
 		void assertOff();
 		void passPictureSettings( UINT id );
-		AndorRunSettings getRunSettings();
 		void prepareAtomCruncher( ExperimentInput& input );
 		void preparePlotter( ExperimentInput& input );
 		static UINT __stdcall atomCruncherProcedure(void* input);

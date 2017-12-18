@@ -29,6 +29,20 @@ struct AndorRunSettings
 	ULONGLONG totalPicsInVariation;
 	// this is an int to reflect that the final number that's programmed to the camera is an int
 	int totalPicsInExperiment;
-	// 
 	int temperatureSetting;
 };
+
+
+/*
+	- Includes AndorRunSettings, which are the settings that the camera itself cares about.
+	- Also some auxiliary settings which are never directly programmed to the camera, but are key for the way the 
+	camera is used in the code.
+*/
+struct AndorCameraSettings
+{
+	AndorRunSettings andor;
+	// not directly programmed to camera
+	std::array<int, 4> thresholds;
+	std::array<int, 4> palleteNumbers;
+};
+
