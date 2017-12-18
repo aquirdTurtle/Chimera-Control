@@ -21,11 +21,11 @@ class ProfileSystem
 		ProfileSystem(std::string fileSystemPath);
 
 		void saveEntireProfile( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin,
-							    CameraWindow* camWin );
-		void checkSaveEntireProfile( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin, 
-									 CameraWindow* camWin);
-		void allSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin, 
-								   CameraWindow* camWin);
+								CameraWindow* camWin );
+		void checkSaveEntireProfile( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin,
+									 CameraWindow* camWin );
+		void allSettingsReadyCheck( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin,
+									CameraWindow* camWin );
 		std::string getMasterAddressFromConfig();
 		void saveSequence();
 		void saveSequenceAs();
@@ -47,7 +47,8 @@ class ProfileSystem
 								    CameraWindow* camWin );
 		void newConfiguration( MainWindow* mainWin, AuxiliaryWindow* auxWin, CameraWindow* camWin,
 							   ScriptingWindow* scriptWin );
-		void saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin);
+		void saveConfigurationAs( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin, 
+								  CameraWindow* camWin );
 		void renameConfiguration();
 		void deleteConfiguration();
 

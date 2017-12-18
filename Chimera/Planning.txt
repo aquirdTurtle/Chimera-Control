@@ -18,7 +18,7 @@ FEATURES:
 	- Create per-repetitiong list of variation values to use
 	- Be able to randomize
 	- handle random case in plotting.
-- be able to add more repetitions on the fly if randomizing reps.
+	- be able to add more repetitions on the fly if randomizing reps.
 - if aborts or crashes in the middle of run, code should close HDF5 file and make it usable, somehow.
 - Watch cursor location on andor pictures, sim to basler program
 - restore the Niawg functionality where it calculates next varying waveform during the run of the previous waveform.
@@ -44,10 +44,10 @@ Refactoring / Other:
 Bugs:
 - something wrong with set New dac Values! Pressing seems to change whether shutter is open or closed???
 - code breaking if no dacs in debug mode?
-
+- should only have one window showing you info before start of run.
 - scripts becoming unsaved after move, should preserve saved status
 - investigate save on change config
-- global config colors don't appear to always be correct. (not sure how to repeat yet)
+- global config colors don't appear to always be correct. Not being set by agilent and niawg?
 - fix over-writing to the agilent.
 - niawg is doing something during turnonmot
 - control tektronics not being saved in config?

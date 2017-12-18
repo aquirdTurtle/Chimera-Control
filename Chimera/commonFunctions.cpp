@@ -578,7 +578,7 @@ namespace commonFunctions
 			}
 			case ID_CONFIGURATION_SAVE_CONFIGURATION_AS:
 			{
-				mainWin->profile.saveConfigurationAs(scriptWin, mainWin, auxWin);
+				mainWin->profile.saveConfigurationAs(scriptWin, mainWin, auxWin, camWin);
 				break;
 			}
 			case ID_CONFIGURATION_SAVECONFIGURATIONSETTINGS:
