@@ -489,8 +489,6 @@ void Expression::assertValid( std::vector<variableType>& variables )
 					continue;
 				}
 				catch ( std::invalid_argument& ) {/* term is not a double.*/ }
-
-
 				isVariable = false;
 				for ( UINT varInc = 0; varInc < variables.size( ); varInc++ )
 				{

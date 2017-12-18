@@ -195,7 +195,7 @@ void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindo
 	catch ( Error& err )
 	{
 		errBox( "ERROR: Failed to open configuration file! Error was:\r\n" + err.whatStr( ) + "\r\nThe code will now "
-				"open the config file in atom so that you can attempt to fix the issue." );
+				"open the config file so that you can attempt to fix the issue." );
 		ShellExecute( 0, "open", cstr( pathToConfig ), NULL, NULL, NULL );
 	}
 	/// finish up
@@ -294,7 +294,8 @@ void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWi
 /*
 ]--- Identical to saveConfigurationOnly except that it prompts the user for a name with a dialog box instead of taking one.
 */
-void ProfileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin)
+void ProfileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin,
+										 CameraWindow* camWin )
 {
 	// check if category has been set yet.
 	std::string configurationPathToSave = saveWithExplorer( mainWin, CONFIG_EXTENSION, currentProfile );
@@ -304,8 +305,8 @@ void ProfileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindo
 		return;
 	}	
 	// check if file already exists
-	std::ofstream configurationSaveFile( configurationPathToSave);
-	if (!configurationSaveFile.is_open())
+	std::ofstream configSaveFile( configurationPathToSave);
+	if (!configSaveFile.is_open())
 	{
 		thrower( "Couldn't save configuration file! Check the name for weird characters, or call Mark about bugs if "
 				 "everything seems right..." );
@@ -320,35 +321,14 @@ void ProfileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindo
 	currentProfile.categoryPath += "\\";
 	// That's the last prompt the user gets, so the save is final now.
 	// Version info tells future code about formatting.
-	configurationSaveFile << "Version: "+ str(versionMain) + "." + str(versionSub) + "\n";
-	scriptInfo<std::string> addresses = scriptWindow->getScriptAddresses();
-	// order matters!
-	configurationSaveFile << addresses.verticalNIAWG << "\n";
-	configurationSaveFile << addresses.horizontalNIAWG << "\n";
-	configurationSaveFile << addresses.intensityAgilent << "\n";
-	// Number of Variables
-	std::vector<variableType> vars = auxWin->getAllVariables();
-	configurationSaveFile << vars.size() << "\n";
-	// Variable Names
-	// This part changed in version 1.1.
-	for (UINT varInc = 0; varInc < vars.size(); varInc++)
-	{
-		variableType info = vars[varInc];
-		configurationSaveFile << info.name << " ";
-		if (info.constant)
-		{
-			configurationSaveFile << "Singleton ";
-		}
-		else
-		{
-			configurationSaveFile << "From_Master ";
-		}
-		configurationSaveFile << info.ranges.front().initialValue << "\n";
-	}
-	std::string notes = mainWin->getNotes();
-	configurationSaveFile << notes + "\n";
-	configurationSaveFile << "END CONFIGURATION NOTES" << "\n";
-	configurationSaveFile.close();
+	configSaveFile << std::setprecision( 13 );
+	configSaveFile << "Version: " + str( versionMain ) + "." + str( versionSub ) + "\n";
+	// give it to each window, allowing each window to save its relevant contents to the config file. Order matters.
+	scriptWindow->handleSavingConfig( configSaveFile );
+	camWin->handleSaveConfig( configSaveFile );
+	auxWin->handleSaveConfig( configSaveFile );
+	mainWin->handleSaveConfig( configSaveFile );
+	configSaveFile.close();
 	updateConfigurationSavedStatus(true);
 }
 
