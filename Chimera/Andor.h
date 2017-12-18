@@ -89,8 +89,7 @@ class AndorCamera
 		/// End Andor sdk wrappers.
 
 		// all of the following do something more interesting.
-		//AndorCamera::AndorCamera();
-		AndorRunSettings getSettings();
+		AndorRunSettings getAndorSettings();
 		void pauseThread();
 		void setSettings(AndorRunSettings settingsToSet);
 		void armCamera(CameraWindow* camWin, double& minKineticCycleTime);
@@ -115,22 +114,16 @@ class AndorCamera
 		void setBaselineClamp(int clamp);
 		void setBaselineOffset(int offset);
 		void setDMAParameters(int maxImagesPerDMA, float secondsPerDMA);
-
-		static UINT __stdcall cameraThread( void* voidPtr );
-		
-		void initializeClass( Communicator* comm,
-										   std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>>* imageTimes );
+		static UINT __stdcall cameraThread( void* voidPtr );		
 		std::string getSystemInfo();
+		
+		void initializeClass( Communicator* comm, chronoTimes* imageTimes );
 
 	private:
 		/// These are official settings and are the final say on what the camera does. Some unofficial 
 		/// settings are stored in smaller classes.
-		// If the experiment is running, these settings hold the options that the experiment is using.
-		//AndorBaseSettings baseSettings;
+		// If the experiment is running, these settings hold the options that the experiment is using.y
 		AndorRunSettings runSettings;
-		// ??? 
-		imageParameters readImageParameters;
-		imageParameters runningImageParameters;
 		// 
 		bool cameraIsRunning;
 		// set either of these to true in order to break corresponding threads out of their loops.
@@ -141,9 +134,7 @@ class AndorCamera
 		ULONGLONG currentRepetitionNumber;
 
 		HANDLE plottingMutex;
-		// ???
 		HANDLE imagesMutex;
-		//
 		std::vector<std::vector<long> > imagesOfExperiment;
 		std::vector<std::vector<long> > imageVecQueue;
 		UINT cameraThreadID = 0;

@@ -277,7 +277,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 /*
  * Get whatever settings the camera is currently using in it's operation, assuming it's operating.
  */
-AndorRunSettings AndorCamera::getSettings()
+AndorRunSettings AndorCamera::getAndorSettings()
 {
 	return runSettings;
 }

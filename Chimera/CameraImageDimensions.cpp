@@ -136,16 +136,13 @@ void ImageDimsControl::handleOpen( std::ifstream& openFile, int versionMajor, in
 }
 
 
-imageParameters ImageDimsControl::readImageParameters( CameraWindow* camWin )
+imageParameters ImageDimsControl::readImageParameters()
 {
 	// in case called before initialized
 	if (!leftEdit)
 	{
 		return currentImageParameters;
 	}
-	drawBackgrounds( camWin );
-	// If new dimensions are set, we don't have data for the new dimensions.
-	// eDataExists = false;
 	// set all of the image parameters
 	CString tempStr;
 	leftEdit.GetWindowTextA( tempStr );

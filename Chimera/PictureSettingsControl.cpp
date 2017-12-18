@@ -354,7 +354,7 @@ void PictureSettingsControl::setUnofficialPicsPerRep( UINT picNum, AndorCamera* 
 {
 	picsPerRepetitionUnofficial = picNum;
 	// not all settings are changed here, and some are used to recalculate totals.
-	AndorRunSettings settings = andorObj->getSettings( );
+	AndorRunSettings settings = andorObj->getAndorSettings( );
 	settings.picsPerRepetition = picsPerRepetitionUnofficial;
 	settings.totalPicsInVariation = settings.picsPerRepetition  * settings.repetitionsPerVariation;
 	if ( settings.totalVariations * settings.totalPicsInVariation > INT_MAX )
@@ -417,7 +417,7 @@ void PictureSettingsControl::setExposureTimes(std::vector<float>& times, AndorCa
 	std::vector<float> exposuresToSet;
 	exposuresToSet = times;
 	exposuresToSet.resize(picsPerRepetitionUnofficial);
-	AndorRunSettings settings = andorObj->getSettings();
+	AndorRunSettings settings = andorObj->getAndorSettings();
 	settings.exposureTimes = exposuresToSet;
 	andorObj->setSettings(settings);
 	// try to set this time.
@@ -500,7 +500,7 @@ void PictureSettingsControl::setPicturesPerExperiment(UINT pics, AndorCamera* an
 		return;
 	}
 	picsPerRepetitionUnofficial = pics;
-	AndorRunSettings settings = andorObj->getSettings();
+	AndorRunSettings settings = andorObj->getAndorSettings();
 	settings.picsPerRepetition = picsPerRepetitionUnofficial;
 	settings.totalPicsInVariation = settings.picsPerRepetition  * settings.repetitionsPerVariation;
 	if (settings.totalVariations * settings.totalPicsInVariation > INT_MAX)
