@@ -9,13 +9,12 @@ def probeimaging():
     on: c12        % turn on probe shutter
     on: d2
     dac: motFreq probeImageFreq % scan (-1,1) ?
-    dac: sideMOTPower 0.09 %0.04
-    t += 5 % give time for shutters to open
+    dac: sideMOTPower 0.1 %0.04, 0.09   
+    t += 5  % give time for shutters to open
     on: sideMotRf
     on: c5
     on: c7
     on: andorTrig
-
     t += probeImageTime
 
     off: andorTrig
