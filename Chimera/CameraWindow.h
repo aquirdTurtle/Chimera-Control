@@ -26,6 +26,7 @@ class CameraWindow : public CDialog
 
 	public:
 		/// overrides
+	
 		CameraWindow();
 		HBRUSH OnCtlColor( CDC* pDC, CWnd* pWnd, UINT nCtlColor );
 		BOOL OnInitDialog() override;
@@ -55,6 +56,7 @@ class CameraWindow : public CDialog
 		void catchEnter();
 
 		/// auxiliary functions.
+		void handleEmGainChange();
 		void fillMasterThreadInput( MasterThreadInput* input );
 		DataLogger* getLogger();
 		std::string getSystemStatusString();
@@ -92,6 +94,7 @@ class CameraWindow : public CDialog
 		std::atomic<bool>* getSkipNextAtomic();
 		void stopPlotter( );
 		void stopSound( );
+		void handleImageDimsEdit(UINT id );
 	private:
 		DECLARE_MESSAGE_MAP();
 

@@ -49,22 +49,17 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	pos.videoPos.y += 25;
 	pos.seriesPos.y += 25;
 	/// EM Gain
-	emGainButton.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 120, pos.seriesPos.y + 20 };
-	emGainButton.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 120, pos.videoPos.y + 20 };
-	emGainButton.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 120, pos.amPos.y + 20 };
-	emGainButton.Create( "Set EM Gain", NORM_PUSH_OPTIONS, emGainButton.seriesPos, parent, IDC_SET_EM_GAIN_BUTTON );
-	emGainButton.setToolTip( "Set the state & gain of the EM gain of the camera. Enter a negative number to turn EM Gain"
-							 " mode off. The program will immediately change the state of the camera after pressing this button.", 
-							 tooltips, parent );
+	emGainEdit.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 240, pos.seriesPos.y + 20 };
+	emGainEdit.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 240, pos.amPos.y + 20 };
+	emGainEdit.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 240, pos.videoPos.y + 20 };
+	emGainEdit.Create( NORM_EDIT_OPTIONS, emGainEdit.seriesPos, parent, IDC_EM_GAIN_EDIT );
+	emGainEdit.setToolTip( "Set the state & gain of the EM gain of the camera. Enter a negative number to turn EM Gain"
+						   " mode off. The program will immediately change the state of the camera after changing this"
+						   " edit.", tooltips, parent );
 	//
-	emGainEdit.seriesPos = { pos.seriesPos.x + 120, pos.seriesPos.y, pos.seriesPos.x + 300, pos.seriesPos.y + 20 };
-	emGainEdit.amPos = { pos.amPos.x + 120, pos.amPos.y, pos.amPos.x + 300, pos.amPos.y + 20 };
-	emGainEdit.videoPos = { pos.videoPos.x + 120, pos.videoPos.y, pos.videoPos.x + 300, pos.videoPos.y + 20 };
-	emGainEdit.Create( NORM_EDIT_OPTIONS, emGainEdit.seriesPos, parent, id++ );
-	//
-	emGainDisplay.seriesPos = { pos.seriesPos.x + 300, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 20 };
-	emGainDisplay.videoPos = { pos.videoPos.x + 300, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y + 20 };
-	emGainDisplay.amPos = { pos.amPos.x + 300, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 20 };
+	emGainDisplay.seriesPos = { pos.seriesPos.x + 240, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 20 };
+	emGainDisplay.videoPos = { pos.videoPos.x + 240, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y + 20 };
+	emGainDisplay.amPos = { pos.amPos.x + 240, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 20 };
 	emGainDisplay.Create( "OFF", NORM_STATIC_OPTIONS, emGainDisplay.seriesPos, parent, id++ );
 	// initialize settings.
 	settings.andor.emGainLevel = 0;
@@ -194,7 +189,7 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 void CameraSettingsControl::cameraIsOn(bool state)
 {
 	// Can't change em gain mode or camera settings once started.
-	emGainButton.EnableWindow( !state );
+	emGainEdit.EnableWindow( !state );
 	setTemperatureButton.EnableWindow( !state );
 	temperatureOffButton.EnableWindow( !state );
 }
@@ -301,7 +296,7 @@ void CameraSettingsControl::handleTriggerChange(CameraWindow* cameraWindow)
 }
 
 
-void CameraSettingsControl::updateSettings( )
+void CameraSettingsControl::updateSettings()
 {
 	// update all settings with current values from controls
 	settings.andor.exposureTimes =		picSettingsObj.getUsedExposureTimes( );
@@ -314,7 +309,7 @@ void CameraSettingsControl::updateSettings( )
 	settings.andor.accumulationTime = getAccumulationCycleTime( );
 	settings.andor.accumulationNumber = getAccumulationNumber( );
 
-	setEmGain( andorFriend );
+	setEmGain( );
 	updateCameraMode( );
 	updateTriggerMode( );
 }
@@ -333,7 +328,6 @@ void CameraSettingsControl::rearrange( std::string cameraMode, std::string trigg
 	picSettingsObj.rearrange( cameraMode, triggerMode, width, height, fonts );
 	header.rearrange( cameraMode, triggerMode, width, height, fonts );
 	cameraModeCombo.rearrange( cameraMode, triggerMode, width, height, fonts );
-	emGainButton.rearrange( cameraMode, triggerMode, width, height, fonts );
 	emGainDisplay.rearrange( cameraMode, triggerMode, width, height, fonts );
 	emGainEdit.rearrange( cameraMode, triggerMode, width, height, fonts );
 	triggerCombo.rearrange( cameraMode, triggerMode, width, height, fonts );
@@ -353,7 +347,7 @@ void CameraSettingsControl::rearrange( std::string cameraMode, std::string trigg
 }
 
 
-void CameraSettingsControl::setEmGain(AndorCamera* andorObj)
+void CameraSettingsControl::setEmGain()
 {
 	CString emGainText;
 	emGainEdit.GetWindowTextA(emGainText);
@@ -369,7 +363,7 @@ void CameraSettingsControl::setEmGain(AndorCamera* andorObj)
 	}
 	catch (std::invalid_argument&)
 	{
-		thrower("ERROR: Couldn't convert EM Gain text to integer.");
+		thrower("ERROR: Couldn't convert EM Gain text to integer! Aborting!");
 	}
 	// < 0 corresponds to NOT USING EM GAIN (using conventional gain).
 	if (emGain < 0)
@@ -385,7 +379,7 @@ void CameraSettingsControl::setEmGain(AndorCamera* andorObj)
 		emGainDisplay.SetWindowTextA(cstr("Gain: X" + str(settings.andor.emGainLevel)));
 	}
 	// Change the andor settings.
-	AndorRunSettings andorSettings = andorObj->getAndorSettings();
+	AndorRunSettings andorSettings = andorFriend->getAndorSettings();
 	std::string promptMsg = "";
 	if ( andorSettings.emGainModeIsOn != settings.andor.emGainModeIsOn )
 	{
@@ -418,9 +412,9 @@ void CameraSettingsControl::setEmGain(AndorCamera* andorObj)
 	}
 	andorSettings.emGainLevel = settings.andor.emGainLevel;
 	andorSettings.emGainModeIsOn = settings.andor.emGainModeIsOn;
-	andorObj->setSettings( andorSettings );
+	andorFriend->setSettings( andorSettings );
 	// and immediately change the EM gain mode.
-	andorObj->setGainMode();
+	andorFriend->setGainMode();
 	emGainEdit.RedrawWindow();
 }
 

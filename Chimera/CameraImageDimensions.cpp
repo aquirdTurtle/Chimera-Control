@@ -34,19 +34,20 @@ void ImageDimsControl::initialize( cameraPositions& pos, CWnd* parent, bool isTr
 	leftEdit.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 25 };
 	leftEdit.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 25 };
 	leftEdit.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 160, pos.videoPos.y + 25 };
-	leftEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER, leftEdit.seriesPos, parent, id++);
+	leftEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER | ES_MULTILINE | ES_WANTRETURN, leftEdit.seriesPos, parent, IDC_IMAGE_DIMS_START );
 	leftEdit.SetWindowTextA( "1" );
 	//
 	rightEdit.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 25 };
 	rightEdit.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 25 };
 	rightEdit.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
-	rightEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER, rightEdit.seriesPos, parent, id++);
+	rightEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER | ES_MULTILINE | ES_WANTRETURN, rightEdit.seriesPos, parent, IDC_IMAGE_DIMS_START+1);
 	rightEdit.SetWindowTextA( "50" );
 	//
 	horBinningEdit.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
 	horBinningEdit.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
 	horBinningEdit.videoPos = { pos.videoPos.x + 320, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
-	horBinningEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER, horBinningEdit.seriesPos, parent, id++ );
+	horBinningEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER | ES_MULTILINE | ES_WANTRETURN, horBinningEdit.seriesPos, 
+						   parent, IDC_IMAGE_DIMS_START+2 );
 	horBinningEdit.SetWindowTextA( "1" );
 	//
 	bottomLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 25 };
@@ -68,19 +69,19 @@ void ImageDimsControl::initialize( cameraPositions& pos, CWnd* parent, bool isTr
 	bottomEdit.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 25 };
 	bottomEdit.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 25 };
 	bottomEdit.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 160, pos.videoPos.y + 25 };
-	bottomEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER, bottomEdit.seriesPos, parent, id++);
+	bottomEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER | ES_MULTILINE | ES_WANTRETURN, bottomEdit.seriesPos, parent, IDC_IMAGE_DIMS_START +3);
 	bottomEdit.SetWindowTextA( "1" );
 	//
 	topEdit.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 25 };
 	topEdit.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 25 };
 	topEdit.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
-	topEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER, topEdit.seriesPos, parent, id++);
+	topEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER | ES_MULTILINE | ES_WANTRETURN, topEdit.seriesPos, parent, IDC_IMAGE_DIMS_START + 4);
 	topEdit.SetWindowTextA( "50" );
 	//
 	vertBinningEdit.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
 	vertBinningEdit.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
 	vertBinningEdit.videoPos = { pos.videoPos.x + 320, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
-	vertBinningEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER, vertBinningEdit.seriesPos, parent, id++ );
+	vertBinningEdit.Create( NORM_EDIT_OPTIONS | ES_CENTER | ES_MULTILINE | ES_WANTRETURN, vertBinningEdit.seriesPos, parent, IDC_IMAGE_DIMS_START +5);
 	vertBinningEdit.SetWindowTextA( "1" );
 }
 

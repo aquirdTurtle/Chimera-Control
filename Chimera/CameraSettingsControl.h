@@ -28,7 +28,7 @@ class CameraSettingsControl
 
 		void updateSettings( );
 		void updateMinKineticCycleTime( double time );
-		void setEmGain(AndorCamera* andorObj);
+		void setEmGain();
 		void rearrange(std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts);
 		void handlePictureSettings(UINT id, AndorCamera* andorObj);
 		void updateTriggerMode( );
@@ -68,7 +68,6 @@ class CameraSettingsControl
 		// cameraMode
 		Control<CComboBox> cameraModeCombo;
 		// EM Gain
-		Control<CButton> emGainButton;
 		Control<CEdit> emGainEdit;
 		Control<CStatic> emGainDisplay;
 		// Trigger Mode

@@ -51,7 +51,6 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_4_MIN_EDIT, IDC_PICTURE_4_MIN_EDIT, &CameraWindow::handlePictureEditChange )
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_4_MAX_EDIT, IDC_PICTURE_4_MAX_EDIT, &CameraWindow::handlePictureEditChange )
 	// 
-	ON_COMMAND( IDC_SET_EM_GAIN_BUTTON, &CameraWindow::setEmGain)
 	ON_COMMAND( IDC_SET_TEMPERATURE_BUTTON, &CameraWindow::passSetTemperaturePress)
 	ON_COMMAND( IDOK, &CameraWindow::catchEnter)
 	ON_COMMAND( IDC_SET_ANALYSIS_LOCATIONS, &CameraWindow::passManualSetAnalysisLocations)
@@ -68,7 +67,40 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 
 	ON_NOTIFY(NM_RCLICK, IDC_PLOTTING_LISTVIEW, &CameraWindow::listViewRClick)
 	ON_NOTIFY(NM_DBLCLK, IDC_PLOTTING_LISTVIEW, &CameraWindow::handleDblClick)
+	ON_EN_KILLFOCUS(IDC_EM_GAIN_EDIT, &CameraWindow::handleEmGainChange )
+	ON_CONTROL_RANGE(EN_KILLFOCUS, IDC_IMAGE_DIMS_START, IDC_IMAGE_DIMS_END, &CameraWindow::handleImageDimsEdit )
+
 END_MESSAGE_MAP()
+
+
+void CameraWindow::handleImageDimsEdit( UINT id )
+{
+	pics.setParameters( CameraSettings.getSettings().andor.imageSettings );
+	CDC* dc = GetDC( );
+	try
+	{
+		pics.redrawPictures( dc, selectedPixel, analysisHandler.getAnalysisLocs( ), analysisHandler.getAtomGrid( ),
+							 true );
+	}
+	catch ( Error& err )
+	{
+		mainWindowFriend->getComm( )->sendError( err.what( ) );
+	}
+	ReleaseDC( dc );
+}
+
+
+void CameraWindow::handleEmGainChange()
+{
+	try
+	{
+		CameraSettings.setEmGain( );
+	}
+	catch ( Error err )
+	{
+		mainWindowFriend->getComm( )->sendError( err.what( ) );
+	}
+}
 
 
 std::string CameraWindow::getSystemStatusString()
@@ -505,7 +537,7 @@ void CameraWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 			{
 				analysisHandler.handlePictureClick(loc);
 				pics.redrawPictures(dc, selectedPixel, analysisHandler.getAnalysisLocs(), 
-									 analysisHandler.getAtomGrid());
+									 analysisHandler.getAtomGrid(), false);
 			}
 		}
 		else
@@ -515,7 +547,7 @@ void CameraWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 			{
 				selectedPixel = box;
 				pics.redrawPictures(dc, selectedPixel, analysisHandler.getAnalysisLocs(), 
-									 analysisHandler.getAtomGrid( ) );
+									 analysisHandler.getAtomGrid( ), false );
 			}
 		}
 	}
@@ -616,27 +648,28 @@ void CameraWindow::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar)
 void CameraWindow::OnSize( UINT nType, int cx, int cy )
 {
 	SetRedraw( false );
-	AndorRunSettings settings = CameraSettings.getSettings().andor;
-	stats.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts() );
-	CameraSettings.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts() );
-	box.rearrange( cx, cy, mainWindowFriend->getFonts() );
-	pics.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts() );
-	alerts.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts() );
-	analysisHandler.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts() );
+	AndorRunSettings settings = CameraSettings.getSettings( ).andor;
+	stats.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts( ) );
+	CameraSettings.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts( ) );
+	box.rearrange( cx, cy, mainWindowFriend->getFonts( ) );
+	pics.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts( ) );
+	alerts.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts( ) );
+	analysisHandler.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts( ) );
 	pics.setParameters( CameraSettings.getSettings( ).andor.imageSettings );
-	CDC* dc = GetDC();
+	CDC* dc = GetDC( );
 	try
 	{
-		pics.redrawPictures(dc, selectedPixel, analysisHandler.getAnalysisLocs(), analysisHandler.getAtomGrid( ) );
+		pics.redrawPictures( dc, selectedPixel, analysisHandler.getAnalysisLocs( ), analysisHandler.getAtomGrid( ),
+							 false );
 	}
-	catch (Error& err)
+	catch ( Error& err )
 	{
-		mainWindowFriend->getComm()->sendError(err.what());
+		mainWindowFriend->getComm( )->sendError( err.what( ) );
 	}
-	ReleaseDC(dc);
-	timer.rearrange(settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts());
-	SetRedraw();
-	RedrawWindow();
+	ReleaseDC( dc );
+	timer.rearrange( settings.cameraMode, settings.triggerMode, cx, cy, mainWindowFriend->getFonts( ) );
+	SetRedraw( );
+	RedrawWindow( );
 }
 
 
@@ -644,7 +677,7 @@ void CameraWindow::setEmGain()
 {
 	try 
 	{
-		CameraSettings.setEmGain( &Andor );
+		CameraSettings.setEmGain();
 	}
 	catch (Error& exception)
 	{
