@@ -255,8 +255,7 @@ void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWi
 	// check to make sure that this is a name.
 	if (configNameToSave == "")
 	{
-		thrower( "ERROR: The program requested saving the configuration file to an empty name! This shouldn't happen, ask Mark "
-				 "about bugs." );
+		thrower( "ERROR: Please select a configuration before saving!" );
 	}
 	// check if file already exists
 	if (!ProfileSystem::fileOrFolderExists(currentProfile.categoryPath + configNameToSave + "." + CONFIG_EXTENSION))  
