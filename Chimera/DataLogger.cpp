@@ -225,6 +225,48 @@ void DataLogger::logAgilentSettings( const std::vector<Agilent*>& agilents )
 	}
 }
 
+
+void DataLogger::logFunctions( H5::Group& group )
+{
+	H5::Group funcGroup( group.createGroup( "Functions" ) );
+	try
+	{
+		// Re-add the entries back in and figure out which one is the current one.
+		std::vector<std::string> names;
+		std::string search_path = FUNCTIONS_FOLDER_LOCATION + "\\" + "*." + FUNCTION_EXTENSION;
+		WIN32_FIND_DATA fd;
+		HANDLE hFind;
+		hFind = FindFirstFile( cstr( search_path ), &fd );
+		if ( hFind != INVALID_HANDLE_VALUE )
+		{
+			do
+			{
+				// if looking for folders
+				if ( !(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) )
+				{
+					names.push_back( fd.cFileName );
+				}
+			} while ( FindNextFile( hFind, &fd ) );
+			FindClose( hFind );
+		}
+		
+		for ( auto name : names )
+		{
+			std::ifstream functionFile( FUNCTIONS_FOLDER_LOCATION + "\\" + name );
+			std::stringstream stream;
+			stream << functionFile.rdbuf( );
+			std::string tempStr( stream.str( ) );
+			H5::Group indvFunc( funcGroup.createGroup( name ) );
+			writeDataSet( stream.str( ), name, indvFunc);
+		}
+	}
+	catch ( H5::Exception& err )
+	{
+		thrower( "ERROR: Failed to log functions in HDF5 file: " + err.getDetailMsg( ) );
+	}
+}
+
+
 void DataLogger::logAndorSettings( AndorRunSettings settings, bool on)
 {
 	try
@@ -304,10 +346,12 @@ void DataLogger::logMasterParameters( MasterThreadInput* input )
 			writeDataSet( "", "NA:Master-Script", runParametersGroup );
 			writeDataSet( "", "NA:Master-Script-File-Address", runParametersGroup );
 		}
+		logFunctions( runParametersGroup );
 		writeDataSet( input->repetitionNumber, "Repetitions", runParametersGroup );
 		logVariables( input->variables, runParametersGroup );
 		logNiawgSettings( input );
 		logAgilentSettings( input->agilents );
+
 	}
 	catch ( H5::Exception& err )
 	{
@@ -416,6 +460,9 @@ void DataLogger::logNiawgSettings(MasterThreadInput* input)
 		writeDataSet( -1, "NA:NIAWG-Gain", niawgGroup );
 	}
 }
+
+
+/// simple wrappers for writing data sets
 
 
 H5::DataSet DataLogger::writeDataSet( bool data, std::string name, H5::Group& group )
