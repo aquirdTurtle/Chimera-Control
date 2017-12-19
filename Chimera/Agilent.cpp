@@ -1149,6 +1149,12 @@ void Agilent::setScriptOutput( UINT varNum, scriptedArbInfo scriptInfo, UINT cha
 }
 
 
+bool Agilent::scriptingModeIsSelected( ) 
+{
+	return settings.channel[currentChannel].option == 4;
+}
+
+
 void Agilent::setAgilent( UINT variation, std::vector<variableType>& variables)
 {
 	if ( !connected( ) )

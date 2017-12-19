@@ -86,6 +86,10 @@ void AuxiliaryWindow::newAgilentScript( agilentNames name)
 {
 	try
 	{
+		if ( !agilents[name].scriptingModeIsSelected( ) )
+		{
+			thrower( "Error: please set current agilent channel to scripting mode before attempting to create a script!" );
+		}
 		mainWindowFriend->updateConfigurationSavedStatus( false );
 		agilents[name].checkSave( mainWindowFriend->getProfileSettings( ).categoryPath, mainWindowFriend->getRunInfo( ) );
 		agilents[name].agilentScript.newScript( );
@@ -105,6 +109,10 @@ void AuxiliaryWindow::openAgilentScript( agilentNames name, CWnd* parent)
 {
 	try
 	{
+		if ( !agilents[name].scriptingModeIsSelected( ) )
+		{
+			thrower( "Error: please set current agilent channel to scripting mode before attempting to open a script!" );
+		}
 		mainWindowFriend->updateConfigurationSavedStatus( false );		
 		agilents[name].agilentScript.checkSave( mainWindowFriend->getProfileSettings( ).categoryPath, 
 												mainWindowFriend->getRunInfo( ) );
@@ -139,6 +147,10 @@ void AuxiliaryWindow::saveAgilentScript( agilentNames name )
 {
 	try
 	{
+		if ( !agilents[name].scriptingModeIsSelected( ) )
+		{
+			thrower( "Error: please set current agilent channel to scripting mode before attempting to save script!" );
+		}
 		mainWindowFriend->updateConfigurationSavedStatus( false );
 		agilents[name].agilentScript.saveScript( mainWindowFriend->getProfileSettings( ).categoryPath,
 												   mainWindowFriend->getRunInfo( ) );
@@ -155,6 +167,10 @@ void AuxiliaryWindow::saveAgilentScriptAs( agilentNames name, CWnd* parent )
 {
 	try
 	{
+		if ( !agilents[name].scriptingModeIsSelected( ) )
+		{
+			thrower( "Error: please set current agilent channel to scripting mode before attempting to save script!" );
+		}
 		mainWindowFriend->updateConfigurationSavedStatus( false );
 		std::string extensionNoPeriod = agilents[name].agilentScript.getExtension( );
 		if ( extensionNoPeriod.size( ) == 0 )

@@ -36,6 +36,7 @@ class Agilent
 		void setDefault( int channel );
 		void prepAgilentSettings(UINT channel );
 		bool connected();
+		bool scriptingModeIsSelected( );
 		void analyzeAgilentScript( scriptedArbInfo& infoObj, std::vector<variableType>& vars );
 		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
 		void handleNewConfig( std::ofstream& saveFile );
