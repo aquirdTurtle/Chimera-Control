@@ -23,6 +23,7 @@ class DataLogger
 		void logNiawgSettings( MasterThreadInput* input );
 		void logAgilentSettings( const std::vector<Agilent*>& input );
 		void logVariables( const std::vector<variableType>& variables, H5::Group& group );
+		void logFunctions( H5::Group& group );
 		void logTektronicsSettings();
 		UINT getNextFileNumber();
 		void closeFile();
