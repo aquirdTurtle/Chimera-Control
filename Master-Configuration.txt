@@ -218,11 +218,11 @@ pgcbackfield 0.551
 andorimagetime 25
 imagingpower 0.225
 imagingdetuning 0.3
-pushoutdepth 0.15
+pushoutdepth 3
 pushoutfreq 1
 fieldtheta 0
 fieldphi 0
-imagingflashingdetuning -1.5
+imagingflashingdetuning -1.45
 intrappgcdetuning -2
 intrappgcpower 0.14
 loadmotsidepower 0.15

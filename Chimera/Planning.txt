@@ -53,6 +53,7 @@ Bugs:
 - control tektronics not being saved in config?
 - bug in picture stats retrieval from image array? Seems like might have been not really the fault of the image stats, 
 	but should look into this a bit.
+- seems to always think functions are unsaved.
 
 Rearranging
 - code for creating non-flashing moves
