@@ -1004,6 +1004,7 @@ namespace commonFunctions
 		logger->logAndorSettings( input.camSettings, takeAndorPictures );
 		logger->logMasterParameters( input.masterInput );
 		logger->logMiscellaneous();
+		
 	}
 
 	void abortRearrangement( MainWindow* mainWin, CameraWindow* camWin )
