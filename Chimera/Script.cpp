@@ -640,17 +640,13 @@ void Script::saveScript(std::string categoryPath, RunInfo info)
 	{
 		text = "";
 	}
-	if (text != "Parent Script")
+	if ( text != "Parent Script" )
 	{
-		int answer = promptBox("WARNING: The current view is not the parent view. This will save the "
-								"current text in the edit under the name \"" + scriptName 
-								+ "\". Are you sure you wish to proceed?", MB_OKCANCEL );
-		if (answer == IDCANCEL)
-		{
-			return;
-		}
+		errBox( "Error: The current view is not the parent view. Please switch to the parent view before saving to "
+				"save the script, or use the save-function option to save the current function." );
+		return;
 	}
-	if (scriptName == "")
+	if ( scriptName == "" )
 	{
 		std::string newName;
 		TextPromptDialog dialog(&newName, "Please enter new name for the " + deviceType + " script " + scriptName + ".");
