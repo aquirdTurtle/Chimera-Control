@@ -27,7 +27,7 @@ bool MasterManager::getAbortStatus()
  * @param voidInput: This is the only input to the procedure. It MUST be a pointer to a ExperimentThreadInput structure.
  * @return UINT: The return value is not used, i just return TRUE.
  */
-UINT __cdecl MasterManager::experimentThreadProcedure( void* voidInput )
+unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput )
 {
 	/// initialize various structures
 	// convert the input to the correct structure.
@@ -470,7 +470,8 @@ void MasterManager::loadMotSettings(MasterThreadInput* input)
 	input->thisObj = this;
 	VariableSystem::generateKey( input->variables, false );
 	// start thread.
-	runningThread = AfxBeginThread(experimentThreadProcedure, input);	
+	runningThread = (HANDLE)_beginthreadex( NULL, NULL, &MasterManager::experimentThreadProcedure, input, NULL, NULL );
+	// runningThread = AfxBeginThread(experimentThreadProcedure, input);	
 }
 
 
@@ -492,7 +493,9 @@ void MasterManager::startExperimentThread(MasterThreadInput* input)
 		loadMasterScript( input->masterScriptAddress );
 	}
 	// start thread.
-	runningThread = AfxBeginThread(experimentThreadProcedure, input, THREAD_PRIORITY_HIGHEST);
+	runningThread = (HANDLE)_beginthreadex( NULL, NULL, &MasterManager::experimentThreadProcedure, input, NULL, NULL );
+	SetThreadPriority( runningThread, THREAD_PRIORITY_HIGHEST );
+	// runningThread = AfxBeginThread(experimentThreadProcedure, input, THREAD_PRIORITY_HIGHEST);
 }
 
 

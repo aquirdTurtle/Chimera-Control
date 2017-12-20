@@ -50,7 +50,7 @@ class MasterManager
 		bool getAbortStatus();
 		bool handleTimeCommands( std::string word, ScriptStream& stream, std::vector<variableType>& vars );
 
-		static UINT __cdecl experimentThreadProcedure(void* voidInput);
+		static unsigned int __stdcall experimentThreadProcedure(void* voidInput);
 		static void expUpdate(std::string text, Communicator* comm, bool quiet = false);
 		static void analyzeFunctionDefinition(std::string defLine, std::string& functionName, std::vector<std::string>& args);
 		static UINT determineVariationNumber(std::vector<variableType> vars);
@@ -74,7 +74,7 @@ class MasterManager
 		timeType operationTime;
 		bool experimentIsRunning;
 		/// task handles
-		CWinThread* runningThread;
+		HANDLE runningThread;
 
 		// Important, these should only be written to by the pause and aborting functions...
 		std::mutex pauseLock;
