@@ -648,7 +648,6 @@ void PictureControl::drawAnalysisMarkers(CDC* dc, std::vector<coordinate> analys
 	// draw and set.
 	HPEN crossPen;
 	crossPen = CreatePen(0, 1, RGB(255, 0, 0));
-		
 	dc->SelectObject(crossPen);
 
 	if ( gridInfo.topLeftCorner == coordinate( 0, 0 ) )

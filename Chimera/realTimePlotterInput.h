@@ -8,6 +8,7 @@
 #include <vector>
 #include <mutex>
 
+
 struct realTimePlotterInput
 {
 	std::vector<tinyPlotInfo> plotInfo;
@@ -21,6 +22,7 @@ struct realTimePlotterInput
 	std::vector<std::vector<long>>* imageQueue;
 	std::vector<std::vector<bool>>* atomQueue;
 	imageParameters imageShape;
+
 	UINT picsPerVariation;
 	UINT picsPerRep;
 	UINT variations;
@@ -34,6 +36,8 @@ struct realTimePlotterInput
 	UINT numberOfRunsToAverage;
 	std::vector<double> key;
 	Gnuplotter* plotter;
+	// first level is for which plot. second level is which line in a plot. third level is which point in a line.
+	std::vector<std::vector<std::shared_ptr<std::vector<dataPoint>>>> dataArrays;
 
 	bool needsCounts;
 };

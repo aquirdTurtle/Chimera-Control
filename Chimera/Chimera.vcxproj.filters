@@ -196,6 +196,7 @@
     <ClCompile Include="rerngControl.cpp">
       <Filter>Main Window</Filter>
     </ClCompile>
+    <ClCompile Include="PlotCtrl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -480,6 +481,10 @@
       <Filter>Main Window</Filter>
     </ClInclude>
     <ClInclude Include="Matrix.h" />
+    <ClInclude Include="PlotCtrl.h" />
+    <ClInclude Include="memdc.h">
+      <Filter>Main Window</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

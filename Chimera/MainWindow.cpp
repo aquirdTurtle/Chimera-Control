@@ -185,6 +185,7 @@ void MainWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 	TheCameraWindow->stopSound( );
 }
 
+
 void MainWindow::OnLButtonUp( UINT stuff, CPoint clickLocation )
 {
 	TheCameraWindow->stopSound( );
@@ -192,8 +193,7 @@ void MainWindow::OnLButtonUp( UINT stuff, CPoint clickLocation )
 
 
 void MainWindow::passConfigPress( )
-{
-	
+{	
 	try
 	{
 		profile.handleSelectConfigButton( this, TheScriptingWindow, this, TheAuxiliaryWindow, TheCameraWindow );
@@ -332,14 +332,22 @@ BOOL MainWindow::OnInitDialog( )
 	debugStatus.initialize( controlLocation, this, id, 480, "DEBUG STATUS", RGB( 13, 152, 186 ), tooltips, IDC_DEBUG_STATUS_BUTTON );
 	controlLocation = { 960, 0 };
 	profile.initialize( controlLocation, this, id, tooltips );
-	controlLocation = { 960, 175};
+	controlLocation = { 960, 175 };
 	notes.initialize( controlLocation, this, id, tooltips);
+	testData = std::vector<pPlotDataVec>(2);
+	testData[0] = pPlotDataVec( new plotDataVec( 100, { 0,0,0 } ) );
+	testData[1] = pPlotDataVec( new plotDataVec( 100, { 0,0,0 } ) );
+	PlotCtrl* testPlot = new PlotCtrl(testData);
+	testPlot->Create( IDD_PLOT_DIALOG, this );
+	testPlot->ShowWindow( SW_SHOW );
+	//testPlot.init( { controlLocation.x + 10, controlLocation.y + 10 }, 460, 240 );
 	controlLocation = { 1440, 50 };
 	repetitionControl.initialize( controlLocation, tooltips, this, id );
 	settings.initialize( id, controlLocation, this, tooltips );
 	rearrangeControl.initialize( id, controlLocation, this, tooltips );
 	debugger.initialize( id, controlLocation, this, tooltips );
 	texter.initialize( controlLocation, this, id, tooltips, mainRGBs );
+	
 	controlLocation = { 960, 910 };
 	boxes.initialize( controlLocation, id, this, 960, tooltips );
 	shortStatus.initialize( controlLocation, this, id, tooltips );
@@ -355,7 +363,6 @@ BOOL MainWindow::OnInitDialog( )
 	{
 		errBox( err.what( ) );
 	}
-
 
 	ShowWindow( SW_MAXIMIZE );
 	TheCameraWindow->ShowWindow( SW_MAXIMIZE );
@@ -395,6 +402,7 @@ void MainWindow::notifyConfigUpdate( )
 void MainWindow::catchEnter( )
 {
 	// the default handling is to close the window, so I need to catch it.
+
 }
 
 
@@ -658,10 +666,15 @@ HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
 void MainWindow::passCommonCommand(UINT id)
 {
+	static UINT count = 0;
+	testData[0]->at(count) = { double( count ), 0.01 * double( std::pow( count, 2 ) ), 0.1 };
+	testData[1]->at(count) = { double( count ), 1 - 0.01 *double( std::pow( count, 2 ) ), 0.1 };
+	count++;
 	// pass the command id to the common function, filling in the pointers to the windows which own objects needed.
 	try
 	{
-		commonFunctions::handleCommonMessage ( id, this, this, TheScriptingWindow, TheCameraWindow, TheAuxiliaryWindow );
+		commonFunctions::handleCommonMessage ( id, this, this, TheScriptingWindow, TheCameraWindow, 
+											   TheAuxiliaryWindow );
 	}
 	catch (Error& exception)
 	{
