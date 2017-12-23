@@ -3,15 +3,17 @@ TODO
 ===================
 
 FEATURES:
+>>> In planned order
 - revive sequences of experiments
 	- Full experiments following each other
 	- mixed experiments
 		- Requires more data analysis work
+- NIAWG scripting in single script instead of separate Hor/Vert scripts.
+>>>
 - consider implementations of local variables
 	- using var or similar keyword to define local variables in functions or main script.
 	- code scans currently used functions for local variables used and just lists those
 	- use combo to list just variables in a function or all variables
-- NIAWG scripting in single script instead of separate Hor/Vert scripts.
 - Be able to set different analysis locations for different plots?
 - Consider ways to make navigating many functions more sensible
 - finish implementing randomizing repetitions.
@@ -26,14 +28,12 @@ FEATURES:
 - support aborting while paused
 - check that the picture rate is matching the rep rate
 - agilent script programNow with variables, should be able to set constants with program now.
-- agilent should be able to go smoothly from one waveform to another.
-- more tooltips
-- catch and warn about attemtps to save script when agilent isn't in scripting mode
+- agilent should be able to go smoothly from one waveform to another. ???
 - get running average working again
 - add all agilents / tek to color boxes?
 
 Refactoring / Other:
-- change thread that wait on bools to waiting on signalers
+- change threads waiting on bools to waiting on signalers
 - test running avg gnuplot
 - test fitting in gnuplot
 - refactor groups in plotinfo and gnuplot stuffs
@@ -41,6 +41,7 @@ Refactoring / Other:
 - remove intensity from color boxes
 - refactor / comment kais parallel moves code
 - should only have one window showing you info before start of run.
+- more tooltips
 
 Bugs:
 - something wrong with set New dac Values! Pressing seems to change whether shutter is open or closed???
@@ -52,7 +53,6 @@ Bugs:
 - control tektronics not being saved in config?
 - bug in picture stats retrieval from image array? Seems like might have been not really the fault of the image stats, 
 	but should look into this a bit.
-- Agilent doesn't handle zero-length waves in script
 - Agilent non-integer number of samples bugs don't make sense
 
 Rearranging
