@@ -204,7 +204,9 @@
     <ClInclude Include="Expression.h" />
     <ClInclude Include="MasterThreadInput.h" />
     <ClInclude Include="Matrix.h" />
+    <ClInclude Include="memdc.h" />
     <ClInclude Include="multiDimensionalKey.h" />
+    <ClInclude Include="PlotCtrl.h" />
     <ClInclude Include="profileSettings.h" />
     <ClInclude Include="ProfileSystem.h" />
     <ClInclude Include="DacSettingsDialog.h" />
@@ -291,6 +293,7 @@
     <ClCompile Include="Communicator.cpp" />
     <ClCompile Include="Expression.cpp" />
     <ClCompile Include="openWithExplorer.cpp" />
+    <ClCompile Include="PlotCtrl.cpp" />
     <ClCompile Include="ProfileSystem.cpp" />
     <ClCompile Include="Control.cpp" />
     <ClCompile Include="DacSettingsDialog.cpp" />

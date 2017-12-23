@@ -80,7 +80,6 @@ BOOL ChimeraApp::ProcessMessageFilter(int code, LPMSG lpMsg)
 }
 
 
-
 BOOL ChimeraApp::InitInstance()
 {
 	splash->Create(IDD_SPLASH);
@@ -108,75 +107,6 @@ BOOL ChimeraApp::InitInstance()
 		return -10000;
 	}
 
-	// Outputting the code version to the \D: Drive for logging. I've commented this out for now, but could be easily
-	// revived if wanted. Git does a great job in versioning though.
-	if (false)
-	{
-		// get time now
-		/*
-		time_t dateStart = time( 0 );
-		struct tm datePointerStart;
-		localtime_s( &datePointerStart, &dateStart );
-		std::string logFolderNameStart = ("Date " + str( datePointerStart.tm_year + 1900 ) + "-" + str( datePointerStart.tm_mon + 1 ) + "-"
-										   + str( datePointerStart.tm_mday ) + " Time " + str( datePointerStart.tm_hour ) + "-"
-										   + str( datePointerStart.tm_min ) + "-" + str( datePointerStart.tm_sec ));
-		logFolderNameStart += "\\";
-		WIN32_FIND_DATA find_cpp_Data;
-		HANDLE cpp_Find_Handle;
-		WIN32_FIND_DATA find_h_Data;
-		HANDLE h_Find_Handle;
-		std::string cppFindString = ACTUAL_CODE_FOLDER_PATH + "*.cpp";
-		std::string hFindString = ACTUAL_CODE_FOLDER_PATH + "*.h";
-		int result = promptBox("Would you like to copy the code files in their current state for logging?", MB_YESNO );
-		if (result == IDYES)
-		{
-			cpp_Find_Handle = FindFirstFile( (LPSTR)cstr( cppFindString ), &find_cpp_Data );
-			if (cpp_Find_Handle != INVALID_HANDLE_VALUE)%
-			{
-				CreateDirectory( cstr( CODE_LOGGING_FILES_PATH + logFolderNameStart ), NULL );
-				do
-				{
-					int result = CopyFile( cstr( ACTUAL_CODE_FOLDER_PATH + find_cpp_Data.cFileName ),
-										   cstr( CODE_LOGGING_FILES_PATH + logFolderNameStart + find_cpp_Data.cFileName ), true );
-					if (!result)
-					{
-						int result = promptBox( "Failed to copy cpp file for logging! Error: " + str( GetLastError() ) + " Continue?", MB_YESNO);
-						if (result == IDNO)
-						{
-							break;
-						}
-					}
-				} while (FindNextFile( (LPSTR)cpp_Find_Handle, &find_cpp_Data ));
-			}
-			else
-			{
-				errBox( "Failed to find any .cpp files in folder!" );
-			}
-
-			h_Find_Handle = FindFirstFile( (LPSTR)cstr( hFindString ), &find_h_Data );
-			if (h_Find_Handle != INVALID_HANDLE_VALUE)
-			{
-				do
-				{
-					int result = CopyFile( cstr( ACTUAL_CODE_FOLDER_PATH + find_h_Data.cFileName ),
-										   cstr( CODE_LOGGING_FILES_PATH + logFolderNameStart + find_h_Data.cFileName ), true );
-					if (!result)
-					{
-						int result = promptBox( "Failed to copy header file for logging! Error: " + str( GetLastError() ) + " Continue?", MB_YESNO );
-						if (result == IDNO)
-						{
-							break;
-						}
-					}
-				} while (FindNextFile( (LPSTR)h_Find_Handle, &find_h_Data ));
-			}
-			else
-			{
-				errBox( "Failed to find any .h files in folder!" );
-			}
-		}
-		*/
-	}
  	m_haccel = LoadAccelerators( AfxGetInstanceHandle(), MAKEINTRESOURCE( IDR_ACCELERATOR1 ) );
 	INT_PTR returnVal = theMainApplicationWindow.DoModal();
 	// end of program.

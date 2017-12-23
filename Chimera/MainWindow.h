@@ -17,6 +17,7 @@
 #include "profileSettings.h"
 #include "NiawgController.h"
 #include "rerngControl.h"
+#include "PlotCtrl.h"
 
 class ScriptingWindow;
 class CameraWindow;
@@ -134,8 +135,9 @@ class MainWindow : public CDialog
 		RunInfo systemRunningInfo;
 		cToolTips tooltips;
 		EmbeddedPythonHandler python;
-		//KeyHandler masterKey;
-
+		// testing...
+		std::vector<pPlotDataVec> testData;
+		//
 		static BOOL CALLBACK monitorHandlingProc( _In_ HMONITOR hMonitor, _In_ HDC      hdcMonitor,
 										   _In_ LPRECT   lprcMonitor, _In_ LPARAM   dwData );
 
