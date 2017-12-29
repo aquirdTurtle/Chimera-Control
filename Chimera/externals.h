@@ -25,7 +25,6 @@ extern const std::array<int, 2> ALT_AXES;
 extern const std::array<std::string, 2> AXES_NAMES;
 extern const niawgPair<std::string> ORIENTATION;
 
-
 extern bool eWaitError;
 
 // stuff for syntax coloring

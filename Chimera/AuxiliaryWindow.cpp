@@ -771,7 +771,7 @@ void AuxiliaryWindow::fillMasterThreadInput( MasterThreadInput* input )
 	{
 		// load the variables. This little loop is for letting configuration variables overwrite the globals.
 		// the config variables are loaded directly from the file.
-		std::vector<variableType> configVars = VariableSystem::getConfigVariablesFromFile( seqFile.configuration );
+		std::vector<variableType> configVars = VariableSystem::getConfigVariablesFromFile( seqFile.configFilePath() );
 		std::vector<variableType> globals = globalVariables.getEverything( );
 		experimentVars.push_back( configVars );
 

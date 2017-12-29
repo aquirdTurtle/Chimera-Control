@@ -85,6 +85,7 @@ class DioSystem
 		void findLoadSkipSnapshots( double time, std::vector<variableType>& variables, UINT variation, UINT seqNum );
 		void fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> ttlData );
 		std::pair<USHORT, USHORT> calcDoubleShortTime( double time );
+		std::vector<std::vector<double>> getFinalTimes( );
 	private:		
 		// one control for each TTL
 		Control<CStatic> ttlTitle;

@@ -46,8 +46,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		}
 		if ( input->runNiawg )
 		{
-			ProfileSystem::openNiawgFiles( expSeq.sequence[seqNum].niawgScripts, input->profile, input->seq,
-										   input->runNiawg, config.configuration );
+			ProfileSystem::openNiawgFiles( expSeq.sequence[seqNum].niawgScripts, config, input->seq, input->runNiawg );
 		}
 		for ( auto& ag : input->agilents )
 		{
@@ -473,7 +472,7 @@ void MasterManager::handleDebugPlots( debugInfo debugOptions, Communicator* comm
 {
 	// handle on-screen plots.
 	ttls->fillPlotData( 0, ttlData );
-	dacs->fillPlotData( 0, dacData );
+	dacs->fillPlotData( 0, dacData, ttls->getFinalTimes() );
 	// handle python plots, which are a nicer option than the ones that i show on the screen.
 	if ( debugOptions.showTtls )
 	{

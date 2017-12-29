@@ -636,7 +636,8 @@ void DacSystem::prepareForce()
 }
 
 
-void DacSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> dacData )
+void DacSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> dacData, 
+							  std::vector<std::vector<double>> finTimes )
 {
 	std::string message;
 	// each element of ttlData should be one ttl line.
@@ -646,6 +647,7 @@ void DacSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataV
 	{
 		auto& data = dacData[line / linesPerPlot][line % linesPerPlot];
 		data->clear( );
+		UINT seqInc = 0;
 		UINT runningSeqTime = 0;
 		for ( auto& dacSeqInfo : dacSnapshots )
 		{
@@ -656,9 +658,10 @@ void DacSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataV
 			}
 			for ( auto& snap : dacSeqInfo[variation] )
 			{
-				data->push_back( { snap.time, double( snap.dacValues[line] ), 0 } );
+				data->push_back( { runningSeqTime + snap.time, double( snap.dacValues[line] ), 0 } );
 			}
-			runningSeqTime += dacSeqInfo[variation].back( ).time;
+			runningSeqTime += finTimes[seqInc][variation];
+			seqInc++;
 		}
 	}
 }

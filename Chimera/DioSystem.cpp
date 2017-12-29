@@ -1366,6 +1366,25 @@ void DioSystem::zeroBoard( )
 }
 
 
+std::vector<std::vector<double>> DioSystem::getFinalTimes( )
+{
+	std::vector<std::vector<double>> finTimes(ttlSnapshots.size());
+	UINT seqInc = 0;
+	for ( auto& seqSnaps : ttlSnapshots )
+	{
+		UINT variationInc = 0;
+		finTimes[seqInc].resize( seqSnaps.size( ) );
+		for ( auto& variationSnaps : seqSnaps )
+		{
+			finTimes[seqInc][variationInc] = variationSnaps.back( ).time;
+			variationInc++;
+		}
+		seqInc++;
+	}
+	return finTimes;
+}
+
+
 void DioSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> ttlData )
 {
 	std::string message;
