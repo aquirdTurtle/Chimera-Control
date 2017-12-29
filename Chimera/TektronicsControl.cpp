@@ -32,45 +32,54 @@ void TektronicsChannelControl::initialize( POINT loc, CWnd* parent, int& id, std
 }
 
 
-void TektronicsControl::interpretKey(std::vector<variableType>& variables)
+void TektronicsControl::interpretKey(std::vector<std::vector<variableType>>& variables)
 {
 	UINT variations;
-	if (variables.size() == 0)
+	UINT sequenceNumber;
+	if ( variables.size( ) == 0 )
+	{
+		thrower( "ERROR: variables empty, no sequence fill!" );
+	}
+	else if ( variables.front( ).size( ) == 0 )
 	{
 		variations = 1;
 	}
 	else
 	{
-		variations = variables.front().keyValues.size();
+		variations = variables.front().front().keyValues.size();
 	}
+	sequenceNumber = variables.size( );
 	/// imporantly, this sizes the relevant structures.
 	currentNums.clear();
 	currentNums.resize(variations);
-	for (UINT variationInc = 0; variationInc < variations; variationInc++)
+	for ( auto seqInc : range( sequenceNumber ) )
 	{
-		/// deal with first channel.
-		if (currentInfo.channels.first.on)
+		for ( UINT variationInc : range( variations ) )
 		{
-			tektronicsChannelOutput& channel = currentNums[variationInc].channels.first;
-			channel.mainFreqVal = currentInfo.channels.first.mainFreq.evaluate( variables, variationInc );
-			channel.powerVal = currentInfo.channels.first.power.evaluate( variables, variationInc );
-			// handle FSK options
-			if (currentInfo.channels.first.fsk)
+			/// deal with first channel.
+			if ( currentInfo.channels.first.on )
 			{
-				channel.fskFreqVal = currentInfo.channels.first.fskFreq.evaluate( variables, variationInc );
+				tektronicsChannelOutput& channel = currentNums[variationInc].channels.first;
+				channel.mainFreqVal = currentInfo.channels.first.mainFreq.evaluate( variables[seqInc], variationInc );
+				channel.powerVal = currentInfo.channels.first.power.evaluate( variables[seqInc], variationInc );
+				// handle FSK options
+				if ( currentInfo.channels.first.fsk )
+				{
+					channel.fskFreqVal = currentInfo.channels.first.fskFreq.evaluate( variables[seqInc], variationInc );
+				}
 			}
-		}
-		// if off don't worry about trying to convert anything, user can not-enter things and it can be fine.
-		/// handle second channel.
-		if (currentInfo.channels.second.on)
-		{
-			tektronicsChannelOutput& channel = currentNums[variationInc].channels.second;
-			channel.mainFreqVal = currentInfo.channels.second.mainFreq.evaluate( variables, variationInc );
-			channel.powerVal = currentInfo.channels.second.power.evaluate( variables, variationInc );
-			// handle FSK options
-			if (currentInfo.channels.second.fsk)
+			// if off don't worry about trying to convert anything, user can not-enter things and it can be fine.
+			/// handle second channel.
+			if ( currentInfo.channels.second.on )
 			{
-				channel.fskFreqVal = currentInfo.channels.second.fskFreq.evaluate( variables, variationInc );
+				tektronicsChannelOutput& channel = currentNums[variationInc].channels.second;
+				channel.mainFreqVal = currentInfo.channels.second.mainFreq.evaluate( variables[seqInc], variationInc );
+				channel.powerVal = currentInfo.channels.second.power.evaluate( variables[seqInc], variationInc );
+				// handle FSK options
+				if ( currentInfo.channels.second.fsk )
+				{
+					channel.fskFreqVal = currentInfo.channels.second.fskFreq.evaluate( variables[seqInc], variationInc );
+				}
 			}
 		}
 	}

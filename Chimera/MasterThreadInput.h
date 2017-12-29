@@ -20,13 +20,14 @@ struct MasterThreadInput
 	EmbeddedPythonHandler* python;
 	DataLogger* logger;
 	profileSettings profile;
+	seqSettings seq;
 	DioSystem* ttls;
 	DacSystem* dacs;
 	UINT repetitionNumber;
-	std::vector<variableType> variables;
-	std::vector<variableType> constants;
+	std::vector<std::vector<variableType>> variables;
+	std::vector<std::vector<variableType>> constants;
 	MasterManager* thisObj;
-	std::string masterScriptAddress;
+	//std::string masterScriptAddress;
 	Communicator* comm;
 	RhodeSchwarz* rsg;
 	debugInfo debugOptions;
@@ -40,6 +41,9 @@ struct MasterThreadInput
 	mainOptions settings;
 	bool runNiawg;
 	bool runMaster;
+	// outermost vector is for each dac or ttl plot. next level is for each line.
+	std::vector<std::vector<pPlotDataVec>> ttlData;
+	std::vector<std::vector<pPlotDataVec>> dacData;
 	// only for rearrangement.
 	std::mutex* rearrangerLock;
 	std::vector<std::vector<bool>>* atomQueueForRearrangement;

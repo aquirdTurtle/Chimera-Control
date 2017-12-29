@@ -25,33 +25,33 @@ class DacSystem
 		void handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor, DioSystem* ttls);
 		void abort();
 		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id );
-		std::string getDacSequenceMessage(UINT variation );
+		std::string getDacSequenceMessage(UINT variation, UINT seqNum );
 		void handleButtonPress(DioSystem* ttls);
-		void setDacCommandForm( DacCommandForm command );
-		void setForceDacEvent( int line, double val, DioSystem* ttls, UINT variation );
+		void setDacCommandForm( DacCommandForm command, UINT seqNum );
+		void setForceDacEvent( int line, double val, DioSystem* ttls, UINT variation, UINT seqNum );
 		void handleRoundToDac(CMenu& menu);
 		void setDacStatusNoForceOut(std::array<double, 24> status);
 		void prepareDacForceChange(int line, double voltage, DioSystem* ttls);
 		void stopDacs();
-		void setDacTriggerEvents( DioSystem* ttls, UINT variation );
-		void interpretKey( std::vector<variableType>& variables, std::string& warnings );
-		void organizeDacCommands(UINT variation);
-		void makeFinalDataFormat(UINT variation );
-		void writeDacs( UINT variation, bool loadSkip );
+		void setDacTriggerEvents( DioSystem* ttls, UINT variation, UINT seqNum );
+		void interpretKey( std::vector<std::vector<variableType>>& variables, std::string& warnings );
+		void organizeDacCommands(UINT variation, UINT seqNum );
+		void makeFinalDataFormat(UINT variation, UINT seqNum );
+		void writeDacs( UINT variation, UINT seqNum, bool loadSkip );
 		void startDacs();
-		void configureClocks( UINT variation, bool loadSkip );
+		void configureClocks( UINT variation, UINT seqNum, bool loadSkip );
 		void setDefaultValue(UINT dacNum, double val);
 		double getDefaultValue(UINT dacNum);
 
-		unsigned int getNumberSnapshots(UINT variation );
-		void checkTimingsWork(UINT variation );
+		unsigned int getNumberSnapshots(UINT variation, UINT seqNum );
+		void checkTimingsWork(UINT variation, UINT seqNum );
 		void setName(int dacNumber, std::string name, cToolTips& toolTips, AuxiliaryWindow* master);
 		std::string getName(int dacNumber);
 		std::array<std::string, 24> getAllNames();
 		std::string getErrorMessage(int errorCode);
-		ULONG getNumberEvents(UINT variation );
+		ULONG getNumberEvents(UINT variation, UINT seqNum );
 		void handleDacScriptCommand( DacCommandForm command, std::string name, std::vector<UINT>& dacShadeLocations, 
-									 std::vector<variableType>& vars, DioSystem* ttls );
+									 std::vector<variableType>& vars, DioSystem* ttls, UINT seqNum );
 		std::string getDacSystemInfo();
 		int getDacIdentifier(std::string name);
 		double getDacValue(int dacNumber);
@@ -63,13 +63,15 @@ class DacSystem
 		void rearrange(UINT width, UINT height, fontMap fonts);
 		bool isValidDACName(std::string name);
 		HBRUSH handleColorMessage(CWnd* hwnd, brushMap brushes, rgbMap rgbs, CDC* cDC);
+		void fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> dacData );
 		void resetDacEvents();
+		void initDacObjs( UINT totalSequenceNumber );
 		std::array<double, 24> getDacStatus();
 		std::array<double, 24> getFinalSnapshot();
-		void checkValuesAgainstLimits(UINT variation );
+		void checkValuesAgainstLimits(UINT variation, UINT seqNum );
 		void prepareForce();
 		double roundToDacResolution(double);
-		void findLoadSkipSnapshots( double time, std::vector<variableType>& variables, UINT variation );
+		void findLoadSkipSnapshots( double time, std::vector<variableType>& variables, UINT variation, UINT seqNum );
 		void handleEditChange( UINT dacNumber );
 	private:
 		Control<CStatic> dacTitle;
@@ -83,11 +85,11 @@ class DacSystem
 		std::array<double, 24> dacMaxVals;
 		std::array<double, 24> defaultVals;
 		const double dacResolution;
-		std::vector<DacCommandForm> dacCommandFormList;
-		// the first vector is for each variation.
-		std::vector<std::vector<DacCommand>> dacCommandList;
-		std::vector<std::vector<DacSnapshot>> dacSnapshots, loadSkipDacSnapshots;
-		std::vector<std::array<std::vector<double>, 3>> finalFormatDacData, loadSkipDacFinalFormat;
+		std::vector<std::vector<DacCommandForm>> dacCommandFormList;
+		// first = sequence, 2nd = variation
+		std::vector<std::vector<std::vector<DacCommand>>> dacCommandList;
+		std::vector<std::vector<std::vector<DacSnapshot>>> dacSnapshots, loadSkipDacSnapshots;
+		std::vector<std::vector<std::array<std::vector<double>, 3>>> finalFormatDacData, loadSkipDacFinalFormat;
 
 		std::pair<USHORT, USHORT> dacTriggerLine;
 

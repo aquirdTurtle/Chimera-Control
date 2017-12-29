@@ -17,7 +17,8 @@
 #include "profileSettings.h"
 #include "NiawgController.h"
 #include "rerngControl.h"
-#include "PlotCtrl.h"
+#include "PlotDialog.h"
+#include "OscilloscopeViewer.h"
 
 class ScriptingWindow;
 class CameraWindow;
@@ -31,7 +32,7 @@ class MainWindow : public CDialog
 	    // overrides
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
 		void OnLButtonUp( UINT stuff, CPoint clickLocation );
-		void passNiawgIsOnPress( );
+		void OnPaint( );
 		MainWindow(UINT id, CDialog*);
 		BOOL OnInitDialog() override;
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
@@ -50,6 +51,7 @@ class MainWindow : public CDialog
 		LRESULT onDebugMessage(WPARAM wParam, LPARAM lParam);		
 		LRESULT onNoAtomsAlertMessage( WPARAM wp, LPARAM lp);
 		//
+		
 		void stopRearranger( );
 		void waitForRearranger( );
 		void passCommonCommand( UINT id );
@@ -60,11 +62,13 @@ class MainWindow : public CDialog
 		void handleRClick( NMHDR * pNotifyStruct, LRESULT * result );
 		void handleSequenceCombo();
 		void passClear( UINT id );
+		void passNiawgIsOnPress( );
 
 		// auxiliary functions used by the window.
 		void setNotes(std::string notes);
 		void setNiawgDefaults();
 		void fillMasterThreadInput( MasterThreadInput* input );
+		void fillMasterThreadSequence( MasterThreadInput* input );
 		void fillMotInput( MasterThreadInput* input);
 		void startMaster( MasterThreadInput* input, bool isTurnOnMot );
 		std::string getNotes( );
@@ -72,6 +76,7 @@ class MainWindow : public CDialog
 		rgbMap getRgbs();
 		fontMap getFonts();
 		profileSettings getProfileSettings();
+		seqSettings getSeqSettings( );
 		debugInfo getDebuggingOptions();
 		mainOptions getMainOptions();
 
@@ -104,7 +109,7 @@ class MainWindow : public CDialog
 		bool experimentIsPaused( );
 		void notifyConfigUpdate( );
 		void passConfigPress( );
-
+		void OnTimer( UINT_PTR id );
 	private:		
 		DECLARE_MESSAGE_MAP();
 		ScriptingWindow* TheScriptingWindow;
@@ -135,6 +140,8 @@ class MainWindow : public CDialog
 		RunInfo systemRunningInfo;
 		cToolTips tooltips;
 		EmbeddedPythonHandler python;
+		// testing...
+		OscilloscopeViewer testScope;
 		// testing...
 		std::vector<pPlotDataVec> testData;
 		//

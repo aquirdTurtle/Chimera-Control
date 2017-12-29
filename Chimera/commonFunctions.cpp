@@ -736,13 +736,14 @@ namespace commonFunctions
 	{
 		Communicator* comm = mainWin->getComm();
 		profileSettings profile = mainWin->getProfileSettings();
+		seqSettings seq = mainWin->getSeqSettings( );
 		if (mainWin->niawgIsRunning())
 		{
 			mainWin->getComm( )->sendColorBox( Niawg, 'R' );
 			thrower( "ERROR: Please Restart the niawg before running an experiment.\r\n" );
 		}
 
-		if (profile.sequenceConfigNames.size() == 0)
+		if (seq.sequence.size() == 0)
 		{
 			mainWin->getComm()->sendColorBox( Niawg, 'R' );
 			thrower( "ERROR: No configurations in current sequence! Please set some configurations to run in this "
@@ -847,6 +848,7 @@ namespace commonFunctions
 				mainWin->setNiawgRunningState( true );
 			}
 			// Start the programming thread.
+			mainWin->fillMasterThreadSequence( input.masterInput );
 			auxWin->fillMasterThreadInput( input.masterInput );
 			mainWin->fillMasterThreadInput( input.masterInput );
 			camWin->fillMasterThreadInput( input.masterInput );

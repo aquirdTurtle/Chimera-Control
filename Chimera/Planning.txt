@@ -5,9 +5,9 @@ TODO
 FEATURES:
 >>> In planned order
 - revive sequences of experiments
-	- Full experiments following each other
 	- mixed experiments
 		- Requires more data analysis work
+	- Full experiments following each other.
 - NIAWG scripting in single script instead of separate Hor/Vert scripts.
 >>>
 - consider implementations of local variables
@@ -31,11 +31,13 @@ FEATURES:
 - agilent should be able to go smoothly from one waveform to another. ???
 - get running average working again
 - add all agilents / tek to color boxes?
+- Improve MFC plotting
+	- Implement Histogram
+	- Implement extra small features
+	- use for ttls and dacs
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
-- test running avg gnuplot
-- test fitting in gnuplot
 - refactor groups in plotinfo and gnuplot stuffs
 - change pointers to smart-ptrs where possible
 - remove intensity from color boxes

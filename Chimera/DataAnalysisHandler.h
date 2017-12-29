@@ -4,7 +4,7 @@
 #include "PlottingInfo.h"
 #include "atomGrid.h"
 #include "tinyPlotInfo.h"
-#include "PlotCtrl.h"
+#include "PlotDialog.h"
 #include "Expression.h"
 #include <deque>
 #include <map>
@@ -16,7 +16,6 @@ struct cameraPositions;
 // variation data is to be organized
 // variationData[datasetNumber][groupNumber][variationNumber];
 typedef std::vector<std::vector<std::vector<double>>> variationData;
-
 typedef std::vector<std::vector<double>> avgData;
 
 class DataAnalysisControl
@@ -31,7 +30,6 @@ class DataAnalysisControl
 		void handleDoubleClick( fontMap* fonts, UINT currentPicsPerRepetition );
 		void handleRClick( );
 		void rearrange( std::string cameraMode, std::string trigMode, int width, int height, fontMap fonts );
-		//
 		void updateDataSetNumberEdit( int number );
 		void analyze( std::string date, long runNumber, long accumulations, EmbeddedPythonHandler* pyHandler,
 					  Communicator* comm );

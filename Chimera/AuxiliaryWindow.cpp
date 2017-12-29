@@ -68,7 +68,41 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_UWAVE_EDIT, IDC_UWAVE_EDIT, &AuxiliaryWindow::handleAgilentEditChange )
 	ON_WM_RBUTTONUP( )
 	ON_WM_LBUTTONUP( )
+	ON_WM_TIMER( )
+	ON_WM_PAINT( )
 END_MESSAGE_MAP()
+
+
+void AuxiliaryWindow::OnPaint( )
+{
+	CDialog::OnPaint( );
+	CRect size;
+	GetClientRect( &size );
+	CDC* cdc = GetDC( );
+	// for some reason I suddenly started needing to do this. I know that memDC redraws the background, but it used to 
+	// work without this and I don't know what changed. I used to do:
+	// memDC dc( GetDC( ) );
+	cdc->SetBkColor( mainWindowFriend->getRgbs( )["Solarized Base 04"]);
+	long width = size.right - size.left, height = size.bottom - size.top;
+	// each dc gets initialized with the rect for the corresponding plot. That way, each dc only overwrites the area 
+	// for a single plot.
+	for ( auto& ttlPlt : ttlPlots )
+	{
+		memDC ttlDC( cdc, &ttlPlt->GetPlotRect( width, height ) );
+		ttlPlt->drawBackground( ttlDC, width, height, mainWindowFriend->getBrushes( )["Solarized Base04"] );
+		ttlPlt->drawTitle( ttlDC, width, height );
+		ttlPlt->drawBorder( ttlDC, width, height );
+		ttlPlt->plotPoints( &ttlDC, width, height );
+	}
+	for ( auto& dacPlt : dacPlots )
+	{
+		memDC dacDC( cdc, &dacPlt->GetPlotRect( width, height ) );
+		dacPlt->drawBackground( dacDC, width, height, mainWindowFriend->getBrushes( )["Solarized Base04"] );
+		dacPlt->drawTitle( dacDC, width, height );
+		dacPlt->drawBorder( dacDC, width, height );
+		dacPlt->plotPoints( &dacDC, width, height );
+	}
+}
 
 
 void AuxiliaryWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
@@ -192,10 +226,17 @@ void AuxiliaryWindow::saveAgilentScriptAs( agilentNames name, CWnd* parent )
 
 void AuxiliaryWindow::OnTimer( UINT_PTR eventID )
 {
-	for ( auto& agilent : agilents )
+	if ( eventID == 1 )
 	{
-		agilent.agilentScript.handleTimerCall( getAllVariables( ), mainWindowFriend->getRgbs( ),
-												getTtlNames( ), getDacNames( ) );
+		OnPaint( );
+	}
+	else
+	{
+		for ( auto& agilent : agilents )
+		{
+			agilent.agilentScript.handleTimerCall( getAllVariables( ), mainWindowFriend->getRgbs( ),
+												   getTtlNames( ), getDacNames( ) );
+		}
 	}
 }
 
@@ -527,6 +568,14 @@ UINT AuxiliaryWindow::getTotalVariationNumber()
 void AuxiliaryWindow::OnSize(UINT nType, int cx, int cy)
 {
 	SetRedraw( false );
+	for ( auto& ttlPlt : ttlPlots )
+	{
+		ttlPlt->rearrange( cx, cy, getFonts( ) );
+	}
+	for ( auto& dacPlt : dacPlots )
+	{
+		dacPlt->rearrange( cx, cy, getFonts( ) );
+	}
 	topBottomTek.rearrange(cx, cy, getFonts());
 	eoAxialTek.rearrange(cx, cy, getFonts());
 
@@ -634,17 +683,17 @@ void AuxiliaryWindow::zeroDacs( )
 		{
 			dacBoards.prepareDacForceChange( dacInc, 0, &ttlBoard );
 		}
-		dacBoards.organizeDacCommands( 0 );
-		dacBoards.makeFinalDataFormat( 0 );
+		dacBoards.organizeDacCommands( 0, 0 );
+		dacBoards.makeFinalDataFormat( 0, 0 );
 		dacBoards.stopDacs( );
-		dacBoards.configureClocks( 0, false );
-		dacBoards.writeDacs( 0, false );
+		dacBoards.configureClocks( 0, false, 0 );
+		dacBoards.writeDacs( 0, false, 0 );
 		dacBoards.startDacs( );
-		ttlBoard.organizeTtlCommands( 0 );
-		ttlBoard.convertToFinalFormat( 0 );
-		ttlBoard.writeTtlData( 0, false );
+		ttlBoard.organizeTtlCommands( 0, 0 );
+		ttlBoard.convertToFinalFormat( 0, 0 );
+		ttlBoard.writeTtlData( 0, false, 0 );
 		ttlBoard.startBoard( );
-		ttlBoard.waitTillFinished( 0, false );
+		ttlBoard.waitTillFinished( 0, false, 0 );
 		sendStatus( "Zero'd DACs.\r\n" );
 	}
 	catch ( Error& exception )
@@ -683,10 +732,11 @@ void AuxiliaryWindow::loadMotSettings(MasterThreadInput* input)
 		input->settings = { 0,0,0 };
 		input->debugOptions = { 0, 0, 0, 0, 0, 0, 0, "", 0, 0, 0 };
 		// don't get configuration variables. The MOT shouldn't depend on config variables.
-		input->variables = globalVariables.getEverything();
+		input->variables.clear( );
+		input->variables.push_back(globalVariables.getEverything());
 		// Only set it once, clearly.
 		input->repetitionNumber = 1;
-		input->masterScriptAddress = MOT_ROUTINE_ADDRESS;
+		//input->masterScriptAddress = MOT_ROUTINE_ADDRESS;
 		input->rsg = &RhodeSchwarzGenerator;
 		input->intensityAgilentNumber = -1;
 		input->topBottomTek = &topBottomTek;
@@ -708,35 +758,49 @@ void AuxiliaryWindow::OnCancel()
 }
 
 
-void AuxiliaryWindow::fillMasterThreadInput(MasterThreadInput* input)
+void AuxiliaryWindow::fillMasterThreadInput( MasterThreadInput* input )
 {
 	input->ttls = &ttlBoard;
 	input->dacs = &dacBoards;
 	input->globalControl = &globalVariables;
-
-	// load the variables. This little loop is for letting configuration variables overwrite the globals.
-	std::vector<variableType> configVars = configVariables.getEverything();
-	std::vector<variableType> globals = globalVariables.getEverything();
-	std::vector<variableType> experimentVars = configVars;
-	for (auto& globalVar : globals)
+	input->dacData = dacData;
+	input->ttlData = ttlData;
+	/// variables.
+	std::vector<std::vector<variableType>> experimentVars;
+	for ( auto seqFile : input->seq.sequence )
 	{
-		globalVar.overwritten = false;
-		bool nameExists = false;
-		for (auto& configVar : experimentVars)
+		// load the variables. This little loop is for letting configuration variables overwrite the globals.
+		// the config variables are loaded directly from the file.
+		std::vector<variableType> configVars = VariableSystem::getConfigVariablesFromFile( seqFile.configuration );
+		std::vector<variableType> globals = globalVariables.getEverything( );
+		experimentVars.push_back( configVars );
+
+		for ( auto& seqVars : experimentVars )
 		{
-			if (configVar.name == globalVar.name)
+			for ( auto& globalVar : globals )
 			{
-				globalVar.overwritten = true;
-				configVar.overwritten = true;
+				globalVar.overwritten = false;
+				bool nameExists = false;
+
+				for ( auto& configVar : seqVars )
+				{
+					if ( configVar.name == globalVar.name )
+					{
+						globalVar.overwritten = true;
+						configVar.overwritten = true;
+					}
+				}
+				if ( !globalVar.overwritten )
+				{
+					seqVars.push_back( globalVar );
+				}
 			}
 		}
-		if (!globalVar.overwritten)
-		{
-			experimentVars.push_back(globalVar);
-		}
+		globalVariables.setUsages( { globals } );
 	}
 	input->variables = experimentVars;
-	globalVariables.setUsages(globals);
+
+	
 	input->rsg = &RhodeSchwarzGenerator;
 	for ( auto& agilent : agilents )
 	{
@@ -950,19 +1014,19 @@ void AuxiliaryWindow::SetDacs()
 		ttlBoard.resetTtlEvents();
 		sendStatus( "Setting Dacs...\r\n" );
 		dacBoards.handleButtonPress( &ttlBoard );
-		dacBoards.organizeDacCommands(0);
-		dacBoards.makeFinalDataFormat(0);
+		dacBoards.organizeDacCommands(0, 0);
+		dacBoards.makeFinalDataFormat(0, 0 );
 		// start the boards which actually sets the dac values.
 		dacBoards.stopDacs();
-		dacBoards.configureClocks(0, false );
+		dacBoards.configureClocks(0, false, 0 );
 		sendStatus( "Writing New Dac Settings...\r\n" );
-		dacBoards.writeDacs(0, false );
+		dacBoards.writeDacs(0, false, 0 );
 		dacBoards.startDacs();
-		ttlBoard.organizeTtlCommands(0);
-		ttlBoard.convertToFinalFormat(0);
-		ttlBoard.writeTtlData(0, false);
+		ttlBoard.organizeTtlCommands(0, 0 );
+		ttlBoard.convertToFinalFormat(0, 0 );
+		ttlBoard.writeTtlData(0, false, 0 );
 		ttlBoard.startBoard();
-		ttlBoard.waitTillFinished(0, false);
+		ttlBoard.waitTillFinished(0, false, 0 );
 		sendStatus( "Finished Setting Dacs.\r\n" );
 	}
 	catch (Error& exception)
@@ -1134,11 +1198,10 @@ BOOL AuxiliaryWindow::OnInitDialog()
 		statusBox.initialize( controlLocation, id, this, 480, toolTips );
 		ttlBoard.initialize( controlLocation, toolTips, this, id );
 		dacBoards.initialize( controlLocation, toolTips, this, id );
-
-		POINT statusLoc = { 960, 0 };
-		topBottomTek.initialize( statusLoc, this, id, "Top-Bottom-Tek", "Top", "Bottom", 480,
-								 {TOP_BOTTOM_PROGRAM, TOP_ON_OFF, TOP_FSK, BOTTOM_ON_OFF, BOTTOM_FSK} );
-		eoAxialTek.initialize( statusLoc, this, id, "EO / Axial", "EO", "Axial", 480, { EO_AXIAL_PROGRAM,
+		//POINT statusLoc = { 960, 0 };
+		topBottomTek.initialize( controlLocation, this, id, "Top-Bottom-Tek", "Top", "Bottom", 480,
+		{ TOP_BOTTOM_PROGRAM, TOP_ON_OFF, TOP_FSK, BOTTOM_ON_OFF, BOTTOM_FSK } );
+		eoAxialTek.initialize( controlLocation, this, id, "EO / Axial", "EO", "Axial", 480, { EO_AXIAL_PROGRAM,
 							   EO_ON_OFF, EO_FSK, AXIAL_ON_OFF, AXIAL_FSK } );
 		RhodeSchwarzGenerator.initialize( controlLocation, toolTips, this, id );
 		controlLocation = POINT{ 480, 0 };
@@ -1151,7 +1214,6 @@ BOOL AuxiliaryWindow::OnInitDialog()
 									   "Flashing-Agilent", 100, mainWindowFriend->getRgbs()["Solarized Base03"] );
 		agilents[Microwave].initialize( controlLocation, toolTips, this, id, "Microwave-Agilent", 100,
 										mainWindowFriend->getRgbs( )["Solarized Base03"] );
-
 		controlLocation = POINT{ 1440, 0 };
 		globalVariables.initialize( controlLocation, toolTips, this, id, "GLOBAL VARIABLES",
 									mainWindowFriend->getRgbs(), IDC_GLOBAL_VARS_LISTVIEW );
@@ -1159,11 +1221,83 @@ BOOL AuxiliaryWindow::OnInitDialog()
 									mainWindowFriend->getRgbs(), IDC_CONFIG_VARS_LISTVIEW);
 		configVariables.setActive( false );
 
+		controlLocation = POINT{ 960, 0 };
+		dacPlots.resize( NUM_DAC_PLTS );
+		dacData.resize( NUM_DAC_PLTS );
+		UINT linesPerDacPlot = 24 / dacData.size( );
+		// initialize data structures.
+		for ( auto& dacPlotData : dacData )
+		{
+			dacPlotData = std::vector<pPlotDataVec>( linesPerDacPlot );
+			for ( auto& d : dacPlotData )
+			{
+				d = pPlotDataVec( new plotDataVec( 100, { 0,0,0 } ) );
+			}
+		}
+		// initialize plot controls.
+		UINT dacPlotSize = 500 / NUM_DAC_PLTS;
+		for ( auto& dacPltCount : range(dacPlots.size()))
+		{
+			std::string titleTxt;
+			switch ( dacPltCount )
+			{
+			case 0:
+				titleTxt = "DACs: 0-7";
+				break;
+			case 1:
+				titleTxt = "DACs: 8-15";
+				break;
+			case 2:
+				titleTxt = "DACs: 16-23";
+				break;
+			}
+
+			dacPlots[dacPltCount] = new PlotCtrl( dacData[dacPltCount], DacPlot, titleTxt );
+			dacPlots[dacPltCount]->init( controlLocation, 480, dacPlotSize, this );
+			controlLocation.y += dacPlotSize;
+		}
+		// ttl plots are similar to dacs.
+		ttlPlots.resize( NUM_TTL_PLTS );
+		ttlData.resize( NUM_TTL_PLTS );
+		UINT linesPerTtlPlot =  64 / ttlData.size( );
+		for ( auto& ttlPlotData : ttlData )
+		{
+			ttlPlotData = std::vector<pPlotDataVec>( linesPerTtlPlot );
+			for ( auto& d : ttlPlotData )
+			{
+				d = pPlotDataVec( new plotDataVec( 100, { 0,0,0 } ) );
+			}
+		}
+		UINT ttlPlotSize = 500 / NUM_TTL_PLTS;
+		for ( auto& ttlPltCount : range( ttlPlots.size( ) ) )
+		{
+			// currently assuming 4 ttl plots...
+			std::string titleTxt;
+			switch ( ttlPltCount )
+			{
+			case 0:
+				titleTxt = "Ttls: Row A";
+				break;
+			case 1:
+				titleTxt = "Ttls: Row B";
+				break;
+			case 2:
+				titleTxt = "Ttls: Row C";
+				break;
+			case 3:
+				titleTxt = "Ttls: Row D";
+				break;
+			}
+			ttlPlots[ttlPltCount] = new PlotCtrl( ttlData[ttlPltCount], TtlPlot, titleTxt );
+			ttlPlots[ttlPltCount]->init( controlLocation, 480, ttlPlotSize, this );
+			controlLocation.y += ttlPlotSize;
+		}
 	}
 	catch (Error& exeption)
 	{
 		errBox( exeption.what() );
 	}
+	SetTimer( 1, 1000, NULL );
 
 	menu.LoadMenu( IDR_MAIN_MENU );
 	SetMenu( &menu );

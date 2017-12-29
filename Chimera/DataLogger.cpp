@@ -332,14 +332,15 @@ void DataLogger::logMasterParameters( MasterThreadInput* input )
 		writeDataSet( input->runMaster, "Run-Master", runParametersGroup );
 		if ( input->runMaster )
 		{
-			std::ifstream masterScript( input->masterScriptAddress );
+			std::ifstream masterScript( ProfileSystem::getMasterAddressFromConfig( input->profile ) );
 			if ( !masterScript.is_open( ) )
 			{
 				thrower( "ERROR: Failed to load master script!" );
 			}
 			std::string scriptBuf( str( masterScript.rdbuf( ) ) );
 			writeDataSet( scriptBuf, "Master-Script", runParametersGroup);
-			writeDataSet( input->masterScriptAddress, "Master-Script-File-Address", runParametersGroup );
+			writeDataSet( ProfileSystem::getMasterAddressFromConfig(input->profile), "Master-Script-File-Address", 
+						  runParametersGroup );
 		}
 		else
 		{
@@ -348,10 +349,14 @@ void DataLogger::logMasterParameters( MasterThreadInput* input )
 		}
 		logFunctions( runParametersGroup );
 		writeDataSet( input->repetitionNumber, "Repetitions", runParametersGroup );
-		logVariables( input->variables, runParametersGroup );
+		UINT count = 0;
+		for ( auto& seqVariables : input->variables )
+		{
+			logVariables( seqVariables, runParametersGroup, count );
+			count++;
+		}
 		logNiawgSettings( input );
 		logAgilentSettings( input->agilents );
-
 	}
 	catch ( H5::Exception& err )
 	{
@@ -360,9 +365,9 @@ void DataLogger::logMasterParameters( MasterThreadInput* input )
 }
 
 
-void DataLogger::logVariables( const std::vector<variableType>& variables, H5::Group& group )
+void DataLogger::logVariables( const std::vector<variableType>& variables, H5::Group& group, UINT seqInc )
 {
-	H5::Group variableGroup = group.createGroup( "Variables" );
+	H5::Group variableGroup = group.createGroup( "Seq #" + str(seqInc+1) + " Variables" );
 	for ( auto& variable : variables )
 	{
 		H5::DataSet varSet;
@@ -440,15 +445,21 @@ void DataLogger::logNiawgSettings(MasterThreadInput* input)
 	writeDataSet( input->runNiawg, "Run-NIAWG", niawgGroup );
 	if ( input->runNiawg )
 	{
-		niawgPair<std::vector<std::fstream>> niawgFiles;
 		std::vector<std::fstream> intensityScriptFiles;
-		ProfileSystem::openNiawgFiles( niawgFiles, input->profile, input->runNiawg );
-		std::stringstream stream;
-		stream << niawgFiles[Horizontal][0].rdbuf( );
-		writeDataSet( stream.str( ), "Horizontal-NIAWG-Script", niawgGroup );
-		stream = std::stringstream( );
-		stream << niawgFiles[Vertical][0].rdbuf( );
-		writeDataSet( stream.str( ), "Vertical-NIAWG-Script", niawgGroup );
+		UINT seqInc = 0;
+		for ( auto config : input->seq.sequence )
+		{
+			niawgPair<std::fstream> niawgFiles;
+			ProfileSystem::openNiawgFiles( niawgFiles, input->profile, input->seq, input->runNiawg,
+										   config.configuration );
+			std::stringstream stream;
+			stream << niawgFiles[Horizontal].rdbuf( );
+			writeDataSet( stream.str( ), "Seq. " + str(seqInc+1) + " Horizontal-NIAWG-Script", niawgGroup );
+			stream = std::stringstream( );
+			stream << niawgFiles[Vertical].rdbuf( );
+			writeDataSet( stream.str( ), "Seq. " + str( seqInc + 1 ) + " Vertical-NIAWG-Script", niawgGroup );
+			seqInc++;
+		}
 		writeDataSet( NIAWG_SAMPLE_RATE, "NIAWG-Sample-Rate", niawgGroup );
 		writeDataSet( NIAWG_GAIN, "NIAWG-Gain", niawgGroup );
 	}
