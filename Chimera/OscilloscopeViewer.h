@@ -1,12 +1,19 @@
 ﻿#pragma once
 #include "VisaFlume.h"
+#include "PlotCtrl.h"
 
-class OscilloscopeViewer
+class ScopeViewer
 {
 	public:
-		OscilloscopeViewer( std::string usbAddress, bool safemode );
+		ScopeViewer( std::string usbAddress, bool safemode );
+		void initialize( POINT topLeftLoc, UINT width, UINT height, CWnd* parent );
+		void refreshData( );
+		void refreshPlot( CDC* d, UINT width, UINT height, CBrush* backgroundBrush );
+		void rearrange( int width, int height, fontMap fonts );
 	private:
 		const std::string usbAddress;
+		float yoffset, ymult;
 		VisaFlume visa;
-	
+		PlotCtrl* viewPlot;
+		std::vector<pPlotDataVec> scopeData;
 };

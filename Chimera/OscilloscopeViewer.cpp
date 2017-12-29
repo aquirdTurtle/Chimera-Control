@@ -1,7 +1,60 @@
 ﻿#include "stdafx.h"
 #include "OscilloscopeViewer.h"
 
-OscilloscopeViewer::OscilloscopeViewer( std::string usbAddress, bool safemode ) : visa( safemode, usbAddress )
+
+ScopeViewer::ScopeViewer( std::string usbAddress, bool safemode ) : visa( safemode, usbAddress )
 {
-	errBox( "Scope identity: " + visa.identityQuery( ) );
+	visa.open( );
+	visa.write( "header off\n" );
+	visa.query( "WFMpre:YOFF?\n", yoffset );
+	visa.query( "WFMpre:YMULT?\n", ymult );
+	visa.close( );
+}
+
+
+void ScopeViewer::refreshPlot(CDC* d, UINT width, UINT height, CBrush* backgroundBrush )
+{
+	memDC dacDC( d, &viewPlot->GetPlotRect( width, height ) );
+	viewPlot->drawBackground( dacDC, width, height, backgroundBrush );
+	viewPlot->drawTitle( dacDC, width, height );
+	viewPlot->drawBorder( dacDC, width, height );
+	viewPlot->plotPoints( &dacDC, width, height );
+}
+
+
+void ScopeViewer::rearrange( int width, int height, fontMap fonts )
+{
+	viewPlot->rearrange( width, height, fonts );
+}
+
+
+void ScopeViewer::initialize( POINT topLeftLoc, UINT width, UINT height, CWnd* parent )
+{
+	scopeData.resize( 4 );
+	for ( auto& data : scopeData )
+	{
+		data = pPlotDataVec( new plotDataVec( 100, { 0,0,0 } ) );
+	}
+	viewPlot = new PlotCtrl( scopeData, OscilloscopePlot, "Scope!" );
+	viewPlot->init( topLeftLoc, width, height, parent );
+	refreshData( );
+}
+
+
+void ScopeViewer::refreshData( )
+{
+	visa.open( );
+	std::string data;
+	visa.query( "Curve?\n", data );
+	double count = 0;
+	scopeData[0]->clear( );
+	for ( auto& c : data )
+	{
+		if ( count++ < 6 )
+		{
+			continue;
+		}
+		scopeData[0]->push_back( { count, ((((double)c) - yoffset) * ymult), 0 } );
+	}
+	visa.close( );
 }

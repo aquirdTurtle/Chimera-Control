@@ -13,8 +13,17 @@ void VisaFlume::write( std::string message )
 	ULONG actual;
 	if (!deviceSafemode)
 	{
-		errCheck( viWrite( instrument, (unsigned char*)cstr( message ), (ViUInt32)message.size(), &actual ), message );
+		errCheck( viWrite( instrument, (unsigned char*)message.c_str(), (ViUInt32)message.size(), &actual ), message );
 	}
+}
+
+char VisaFlume::readchar( )
+{
+	unsigned char msg[256];
+	ViPBuf sdf;
+	ULONG numRead;
+	errCheck( viRead( instrument, msg, 1, &numRead ) );
+	return msg[0];
 }
 
 
@@ -56,9 +65,7 @@ std::string VisaFlume::identityQuery()
 	char buf[256] = { 0 };
 	if (!deviceSafemode)
 	{
-		//open();
-		viQueryf( instrument, (ViString)"*IDN?\n", "%t", buf );
-		//close();
+		errCheck( viQueryf( instrument, (ViString)"*IDN?\n", "%t", buf ) );
 	}
 	else
 	{
@@ -66,6 +73,74 @@ std::string VisaFlume::identityQuery()
 	}
 	return buf;
 }
+
+
+char VisaFlume::scan( )
+{
+	ViChar c[256];
+	errCheck(viScanf( instrument, "%5t", c ));
+	return c[0];
+}
+
+
+void VisaFlume::flush( )
+{
+	errCheck(viFlush( instrument, VI_WRITE_BUF | VI_READ_BUF_DISCARD ));
+}
+
+
+void VisaFlume::query( std::string msg, long& data )
+{
+	if ( !deviceSafemode )
+	{
+		errCheck( viQueryf( instrument, (ViString)msg.c_str( ), "%ld", &data ) );
+	}
+	else
+	{
+		return;
+	}
+}
+
+void VisaFlume::query( std::string msg )
+{
+	ViChar data[5000];
+	if ( !deviceSafemode )
+	{
+		errCheck( viQueryf( instrument, (ViString)msg.c_str( ), "%5000t", data ) );
+	}
+	else
+	{
+		return;
+	}
+}
+
+void VisaFlume::query( std::string msg, float& data )
+{
+	if ( !deviceSafemode )
+	{
+		errCheck( viQueryf( instrument, (ViString)msg.c_str(), "%f", &data ) );
+	}
+	else
+	{
+		return;
+	}
+}
+
+
+void VisaFlume::query( std::string msg, std::string& data )
+{
+	char datac[10000];
+	if ( !deviceSafemode )
+	{
+		errCheck( viQueryf( instrument, (ViString)msg.c_str( ), "%10000t", datac ) );
+	}
+	else
+	{
+		return;
+	}
+	data = str( datac );
+}
+
 
 
 void VisaFlume::errQuery( std::string& errMsg, long& errCode )

@@ -9,7 +9,7 @@ MainWindow::MainWindow( UINT id, CDialog* splash ) : CDialog( id ), profile( PRO
 	masterConfig( MASTER_CONFIGURATION_FILE_ADDRESS ),
 	appSplash( splash ),
 	niawg( 1, 14 ),
-	testScope( "", false )
+	testScope( "USB0::0x0699::0x03B3::C011388::0::INSTR", false )
 {
 	// create all the main rgbs and brushes. I want to make sure this happens before other windows are created.
 	mainRGBs["Light Green"]			= RGB( 163,	190, 140);
@@ -191,6 +191,14 @@ void MainWindow::OnTimer( UINT_PTR id )
 void MainWindow::OnPaint( )
 {
 	CDialog::OnPaint( );
+	CRect size;
+	GetClientRect( &size );
+	CDC* cdc = GetDC( );
+	// for some reason I suddenly started needing to do this. I know that memDC redraws the background, but it used to 
+	// work without this and I don't know what changed. I used to do:
+	// memDC dc( GetDC( ) );
+	cdc->SetBkColor( getRgbs( )["Solarized Base 04"] );
+	testScope.refreshPlot( cdc, size.right - size.left, size.bottom - size.top, getBrushes( )["Solarized Base04"] );
 }
 
 
@@ -348,6 +356,7 @@ BOOL MainWindow::OnInitDialog( )
 	PlotDialog* testPlot = new PlotDialog(testData, ErrorPlot);
 	testPlot->Create( IDD_PLOT_DIALOG, this );
 	testPlot->ShowWindow( SW_SHOW );
+	testScope.initialize( controlLocation, 480, 250, this );
 	controlLocation = { 1440, 50 };
 	repetitionControl.initialize( controlLocation, tooltips, this, id );
 	settings.initialize( id, controlLocation, this, tooltips );
@@ -498,6 +507,7 @@ void MainWindow::handleOpeningConfig(std::ifstream& configFile, int versionMajor
 void MainWindow::OnSize(UINT nType, int cx, int cy)
 {
 	SetRedraw( false );
+	testScope.rearrange( cx, cy, getFonts( ) );
 	profile.rearrange(cx, cy, getFonts());
 	notes.rearrange(cx, cy, getFonts());
 	debugger.rearrange(cx, cy, getFonts());
