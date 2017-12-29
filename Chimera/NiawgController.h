@@ -28,6 +28,7 @@
 #include <boost/container/vector.hpp>
 
 struct MasterThreadInput;
+struct seqInfo;
 class NiawgWaiter;
 
 
@@ -40,30 +41,26 @@ class NiawgController
 	public:
 		NiawgController( UINT trigRow, UINT trigNumber );
 		void initialize();
-		void cleanupNiawg( profileSettings profile, bool masterWasRunning,
-							  niawgPair<std::vector<std::fstream>>& niawgFiles, NiawgOutput& output,
-							  Communicator* comm, bool dontGenerate );
+		void cleanupNiawg( profileSettings profile, bool masterWasRunning, seqInfo& expInfo, NiawgOutput& output,
+						   Communicator* comm, bool dontGenerate );
 		bool rerngThreadIsActive();
 		std::string getCurrentScript();
 		bool niawgIsRunning();
-
 		void handleStartingRerng( MasterThreadInput* input, NiawgOutput& output );
-		void prepareNiawg( MasterThreadInput* input, NiawgOutput& output, 
-						   niawgPair<std::vector<std::fstream>>& niawgFiles, std::string& warnings, 
+		void prepareNiawg( MasterThreadInput* input, NiawgOutput& output, seqInfo& expInfo, std::string& warnings, 
 						   std::vector<ViChar>& userScriptSubmit, bool& foundRearrangement, rerngOptions rInfo,
 						   std::vector<variableType>& variables );
 		bool outputVaries( NiawgOutput output );
-		void checkThatWaveformsAreSensible( std::string& warnings, NiawgOutput& output );
-		
-		void handleVariations( NiawgOutput& output, std::vector<variableType>& variables, UINT variation, 
-								  std::vector<long>& mixedWaveSizes, std::string& warnings, debugInfo& debugOptions, 
-								  UINT totalVariations );
+		void checkThatWaveformsAreSensible( std::string& warnings, NiawgOutput& output );		
+		void handleVariations( NiawgOutput& output, std::vector<std::vector<variableType>>& variables, UINT variation, 
+							   std::vector<long>& mixedWaveSizes, std::string& warnings, debugInfo& debugOptions, 
+							   UINT totalVariations );
 		void analyzeNiawgScripts( niawgPair<ScriptStream>& scripts, NiawgOutput& output, profileSettings profile, 
 								  debugInfo& options, std::string& warnings, rerngOptions rInfo, 
 								  std::vector<variableType>& variables );
 		void flashVaries( waveInfoForm& wave );
 		void rerngFormToOutput( waveInfoForm& waveForm, waveInfo& wave, std::vector<variableType>& varibles,
-									UINT variation );
+								UINT variation );
 		void writeStaticNiawg( NiawgOutput& output, debugInfo& options, std::vector<variableType>& variables );
 		void loadWaveformParametersForm( NiawgOutput& output, profileSettings profile, 
 										 niawgPair<std::string> command, debugInfo& debug,

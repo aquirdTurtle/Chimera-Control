@@ -864,7 +864,7 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 	input.plotterInput->plottingFrequency = analysisHandler.getPlotFreq( );
 	if ( input.masterInput )
 	{
-		input.plotterInput->key = VariableSystem::getKeyValues( input.masterInput->variables );
+		input.plotterInput->key = VariableSystem::getKeyValues( input.masterInput->variables[0] );
 	}
 	else
 	{
@@ -904,8 +904,8 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 				line->at( count++ ).x = keyItem;
 			}
 		}
-		// start a PlotCtrl dialog
-		PlotCtrl* plot = new PlotCtrl( data );
+		// start a PlotDialog dialog
+		PlotDialog* plot = new PlotDialog( data, ErrorPlot );
 		plot->Create( IDD_PLOT_DIALOG, 0 );
 		plot->ShowWindow( SW_SHOW );
 		input.plotterInput->dataArrays.push_back( data );

@@ -196,7 +196,9 @@
     <ClCompile Include="rerngControl.cpp">
       <Filter>Main Window</Filter>
     </ClCompile>
+    <ClCompile Include="PlotDialog.cpp" />
     <ClCompile Include="PlotCtrl.cpp" />
+    <ClCompile Include="OscilloscopeViewer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -481,10 +483,10 @@
       <Filter>Main Window</Filter>
     </ClInclude>
     <ClInclude Include="Matrix.h" />
-    <ClInclude Include="PlotCtrl.h" />
     <ClInclude Include="memdc.h">
       <Filter>Main Window</Filter>
     </ClInclude>
+    <ClInclude Include="PlotDialog.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
@@ -559,5 +561,7 @@
     <None Include="coordinate.h">
       <Filter>Camera Window\Structures</Filter>
     </None>
+    <None Include="PlotCtrl.h" />
+    <None Include="OscilloscopeViewer.h" />
   </ItemGroup>
 </Project>

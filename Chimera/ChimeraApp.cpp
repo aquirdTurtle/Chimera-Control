@@ -84,21 +84,23 @@ BOOL ChimeraApp::InitInstance()
 {
 	splash->Create(IDD_SPLASH);
 	splash->ShowWindow( SW_SHOW );
+	/// initialize some stuff
 	// Contains all of of the names of the files that hold actual data file names.
 	for (auto number : range( MAX_NIAWG_SIGNALS ))
 	{
 		WAVEFORM_NAME_FILES[number] = "gen " + str( number + 1 ) + ", const waveform file names.txt";
-		WAVEFORM_NAME_FILES[number + MAX_NIAWG_SIGNALS] = "gen " + str( number + 1 ) + ", amp ramp waveform file names.txt";
-		WAVEFORM_NAME_FILES[number + 2 * MAX_NIAWG_SIGNALS] = "gen " + str( number + 1 ) + ", freq ramp waveform file names.txt";
-		WAVEFORM_NAME_FILES[number + 3 * MAX_NIAWG_SIGNALS] = "gen " + str( number + 1 ) + ", freq & amp ramp waveform file names.txt";
+		WAVEFORM_NAME_FILES[number + MAX_NIAWG_SIGNALS] = "gen " + str( number + 1 ) 
+			+ ", amp ramp waveform file names.txt";
+		WAVEFORM_NAME_FILES[number + 2 * MAX_NIAWG_SIGNALS] = "gen " + str( number + 1 ) 
+			+ ", freq ramp waveform file names.txt";
+		WAVEFORM_NAME_FILES[number + 3 * MAX_NIAWG_SIGNALS] = "gen " + str( number + 1 )
+			+ ", freq & amp ramp waveform file names.txt";
 
 		WAVEFORM_TYPE_FOLDERS[number] = "gen" + str( number + 1 ) + "const\\";
 		WAVEFORM_TYPE_FOLDERS[number + MAX_NIAWG_SIGNALS] = "gen" + str( number + 1 ) + "ampramp\\";
 		WAVEFORM_TYPE_FOLDERS[number + 2 * MAX_NIAWG_SIGNALS] = "gen" + str( number + 1 ) + "freqramp\\";
 		WAVEFORM_TYPE_FOLDERS[number + 3 * MAX_NIAWG_SIGNALS] = "gen" + str( number + 1 ) + "ampfreqramp\\";
 	}
-
-	/// Other General Initializations
 	// Check to make sure that the gain hasn't been defined to be too high.
 	if (NIAWG_GAIN > MAX_GAIN)
 	{
@@ -106,7 +108,6 @@ BOOL ChimeraApp::InitInstance()
 				"experiment!\r\n" );
 		return -10000;
 	}
-
  	m_haccel = LoadAccelerators( AfxGetInstanceHandle(), MAKEINTRESOURCE( IDR_ACCELERATOR1 ) );
 	INT_PTR returnVal = theMainApplicationWindow.DoModal();
 	// end of program.

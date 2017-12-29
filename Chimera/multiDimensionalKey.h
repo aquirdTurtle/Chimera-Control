@@ -10,10 +10,10 @@ class multiDimensionalKey
 	public:
 		multiDimensionalKey( UINT nDimensions );
 		multiDimensionalKey( );
-		void resize( std::vector<UINT> dimSizes );
+		void resize( std::vector<std::vector<UINT>> dimSizes );
 		double getValue( std::vector<UINT> indecies );
-		void setValue( std::vector<UINT> indecies, double value );
-		std::vector<TYPE> values;
+		void setValue( std::vector<UINT> indecies, UINT seqNum, double value );
+		std::vector<std::vector<TYPE>> values;
 	private:
 		const UINT nDims;
 		std::vector<UINT> dimensions;
@@ -33,20 +33,27 @@ multiDimensionalKey<TYPE>::multiDimensionalKey( UINT nDimensions ) : nDims( nDim
 }
 
 template <class TYPE>
-void multiDimensionalKey<TYPE>::resize( std::vector<UINT> dimSizes )
+void multiDimensionalKey<TYPE>::resize( std::vector<std::vector<UINT>> dimSizes )
 {
-	if ( dimSizes.size( ) != nDims )
-	{
-		thrower( "ERROR: tried to resize with size vector of the wrong size!" );
-	}
-	dimensions = dimSizes;
-	UINT totalSize = dimensions[0];
-	for ( auto dimInc : range( dimensions.size( ) - 1 ) )
-	{
-		totalSize *= dimensions[dimInc + 1];
-	}
+	UINT seqInc = 0;
 	values.clear( );
-	values.resize( totalSize );
+	values.resize( dimSizes.size( ) );
+	for ( auto& seqSize : dimSizes )
+	{
+		if ( seqSize.size( ) != nDims )
+		{
+			thrower( "ERROR: tried to resize with size vector of the wrong size!" );
+		}
+		dimensions = seqSize;
+		UINT totalSize = dimensions[0];
+		for ( auto dimInc : range( dimensions.size( ) - 1 ) )
+		{
+			totalSize *= dimensions[dimInc + 1];
+		}
+		values[seqInc].clear( );
+		values[seqInc].resize( totalSize );
+		seqInc++;
+	}
 }
 
 template <class TYPE>
@@ -81,7 +88,7 @@ double multiDimensionalKey<TYPE>::getValue( std::vector<UINT> indecies )
 }
 
 template <class TYPE>
-void multiDimensionalKey<TYPE>::setValue( std::vector<UINT> indecies, double value )
+void multiDimensionalKey<TYPE>::setValue( std::vector<UINT> indecies, UINT seqNum, double value )
 {
 	if ( indecies.size( ) != nDims )
 	{
@@ -102,12 +109,12 @@ void multiDimensionalKey<TYPE>::setValue( std::vector<UINT> indecies, double val
 		overallIndex += indecies[dimInc + 1];
 	}
 
-	if ( overallIndex >= values.size( ) )
+	if ( overallIndex >= values[seqNum].size( ) )
 	{
 		thrower( "ERROR: overall multidimensional key vector access index out of range!!! This shouldn't happen. The"
 				 " code should catch this earlier as one of the individual indecies must have been out of range or "
 				 "something got set incorrectly." );
 	}
-	values[overallIndex] = value;
+	values[seqNum][overallIndex] = value;
 }
 

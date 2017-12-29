@@ -126,45 +126,52 @@ void RhodeSchwarz::setInfoDisp(UINT variation)
 	}
 }
 
-void RhodeSchwarz::interpretKey(std::vector<variableType>& variables)
+void RhodeSchwarz::interpretKey( std::vector<std::vector<variableType>>& variables)
 {
 	UINT variations;
+	UINT sequencNumber;
 	if ( variables.size() == 0)
+	{
+		thrower( "ERROR: empty variables! no sequence size!" );
+	}
+	else if ( variables[0].size( ) == 0 )
 	{
 		variations = 1;
 	}
 	else
 	{
-		variations = variables.front().keyValues.size();
+		variations = variables.front().front().keyValues.size();
 	}
+	sequencNumber = variables.size();
 	/// imporantly, this sizes the relevant structures.
 	events.clear();
 	events.resize(variations);
-	for (UINT variationNumber = 0; variationNumber < variations; variationNumber++)
+	for ( auto seqNum : range( sequencNumber ) )
 	{
-		for (UINT freqInc = 0; freqInc < eventStructures.size(); freqInc++)
+		for ( UINT variationNumber = 0; variationNumber < variations; variationNumber++ )
 		{
-			rsgEvent event;
-			// convert freq
-			event.frequency = eventStructures[freqInc].frequency.evaluate( variables, variationNumber);
-			// convert power
-			event.power = eventStructures[freqInc].power.evaluate( variables, variationNumber );
-			/// deal with time!
-			if (eventStructures[freqInc].time.first.size() == 0)
+			for ( UINT freqInc = 0; freqInc < eventStructures.size( ); freqInc++ )
 			{
-				event.time = eventStructures[freqInc].time.second;
-			}
-			else
-			{
-				event.time = 0;
-				for (auto timeStr : eventStructures[freqInc].time.first)
+				rsgEvent event;
+				event.frequency = eventStructures[freqInc].frequency.evaluate( variables[seqNum], variationNumber );
+				event.power = eventStructures[freqInc].power.evaluate( variables[seqNum], variationNumber );
+				/// deal with time!
+				if ( eventStructures[freqInc].time.first.size( ) == 0 )
 				{
-					event.time += timeStr.evaluate( variables, variationNumber );
+					event.time = eventStructures[freqInc].time.second;
 				}
-				event.time += eventStructures[freqInc].time.second;
+				else
+				{
+					event.time = 0;
+					for ( auto timeStr : eventStructures[freqInc].time.first )
+					{
+						event.time += timeStr.evaluate( variables[seqNum], variationNumber );
+					}
+					event.time += eventStructures[freqInc].time.second;
+				}
+				events[variationNumber].push_back( event );
 			}
-			events[variationNumber].push_back(event);
-		}	
+		}
 	}
 }
 
