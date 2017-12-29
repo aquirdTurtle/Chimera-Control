@@ -44,6 +44,10 @@ void Segment::convertInputToFinal( UINT variation, std::vector<variableType>& va
 
 	// time
 	finalSettings.time = input.time.evaluate( variables, variation) / 1000.0;
+	if ( finalSettings.time < 1e-9 )
+	{
+		thrower( "ERROR: agilent segment set to have zero time! Agilent can't handle zero-length segments." );
+	}
 	// repeat number
 	// (0 here corresponds to "repeat", in which case you need a number of times to repeat.);
 	if (finalSettings.continuationType == 0)

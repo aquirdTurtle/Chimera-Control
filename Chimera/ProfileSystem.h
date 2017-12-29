@@ -26,7 +26,7 @@ class ProfileSystem
 									 CameraWindow* camWin );
 		void allSettingsReadyCheck( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin,
 									CameraWindow* camWin );
-		std::string getMasterAddressFromConfig();
+
 		void saveSequence();
 		void saveSequenceAs();
 		void renameSequence();
@@ -40,7 +40,6 @@ class ProfileSystem
 		std::string getSequenceNamesString();
 		void loadNullSequence();
 		void addToSequence(CWnd* parent);
-		std::vector<std::string> getSequenceNames();
 		void reloadSequence(std::string sequenceToReload);
 
 		void saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWindow* mainWin, AuxiliaryWindow* auxWin, 
@@ -51,24 +50,25 @@ class ProfileSystem
 								  CameraWindow* camWin );
 		void renameConfiguration();
 		void deleteConfiguration();
-
-		static void openNiawgFiles( niawgPair<std::vector<std::fstream>>& scriptFiles, profileSettings profile, 
-								   bool programNiawg );
+		void openConfigFromPath( std::string pathToConfig, ScriptingWindow* scriptWin, MainWindow* mainWin,
+								 CameraWindow* camWin, AuxiliaryWindow* auxWin );
+		static void getVersionFromFile( std::ifstream& f, int& versionMajor, int& versionMinor );
+		static void openNiawgFiles( niawgPair<std::fstream>& scriptFiles, profileSettings profile, seqSettings seq, 
+									bool programNiawg, std::string configName );
+		static std::string ProfileSystem::getMasterAddressFromConfig( profileSettings profile );
 		void updateConfigurationSavedStatus( bool isSaved );
 		bool configurationSettingsReadyCheck(ScriptingWindow* scriptWindow, MainWindow* mainWin, 
 											 AuxiliaryWindow* auxWin, CameraWindow* camWin);
 		bool checkConfigurationSave(std::string prompt, ScriptingWindow* scriptWindow, MainWindow* mainWin, 
 									AuxiliaryWindow* auxWin, CameraWindow* camWin);
-		void openConfigFromPath( std::string pathToConfig, ScriptingWindow* scriptWin, MainWindow* mainWin, 
-								 CameraWindow* camWin, AuxiliaryWindow* auxWin );
 		std::string getCurrentPathIncludingCategory();
 		profileSettings getProfileSettings();
+		seqSettings getSeqSettings( );
 
 		static std::vector<std::string> searchForFiles(std::string locationToSearch, std::string extensions);
-		static void reloadCombo(HWND comboToReload, std::string locationToLook, std::string extension, std::string nameToLoad);
-		//std::string getComboText();
+		static void reloadCombo( HWND comboToReload, std::string locationToLook, std::string extension, 
+								 std::string nameToLoad );
 		bool fileOrFolderExists( std::string filePathway );
-		//void updateSaveStatus(bool savedStatus);
 		void fullyDeleteFolder(std::string folderToDelete);
 		void initialize( POINT& topLeftPosition, CWnd* parent, int& id, cToolTips& tooltips );
 		void rearrange(int width, int height, fontMap fonts);
@@ -78,11 +78,13 @@ class ProfileSystem
 		static bool checkDelimiterLine( std::ifstream& openFile, std::string delimiter, std::string breakCondition );
 	private:
 		profileSettings currentProfile;
+		seqSettings currentSequence;
 		std::string FILE_SYSTEM_PATH;
 		bool configurationIsSaved;
 		bool categoryIsSaved;
 		bool experimentIsSaved;
 		bool sequenceIsSaved;
+
 		// version = str(versionMain) + "." + str(versionSub)
 		const int versionMain = 2;
 		const int versionSub = 14;

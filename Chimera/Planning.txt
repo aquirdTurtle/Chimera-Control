@@ -25,24 +25,23 @@ FEATURES:
 - support aborting while paused
 - check that the picture rate is matching the rep rate
 - agilent script programNow with variables, should be able to set constants with program now.
-- agilent should be able to go smoothly from one waveform to another.
-- more tooltips
-- catch and warn about attemtps to save script when agilent isn't in scripting mode
+- agilent should be able to go smoothly from one waveform to another. ???
 - get running average working again
 - add all agilents / tek to color boxes?
+- Improve MFC plotting
+	- Implement Histogram
 
 Refactoring / Other:
-- change thread that wait on bools to waiting on signalers
-- test running avg gnuplot
-- test fitting in gnuplot
+- change threads waiting on bools to waiting on signalers
 - refactor groups in plotinfo and gnuplot stuffs
 - change pointers to smart-ptrs where possible
 - remove intensity from color boxes
 - refactor / comment kais parallel moves code
+- should only have one window showing you info before start of run.
+- more tooltips
 
 Bugs:
 - something wrong with set New dac Values! Pressing seems to change whether shutter is open or closed???
-- should only have one window showing you info before start of run.
 - scripts becoming unsaved after move, should preserve saved status
 - investigate save on change config
 - global config colors don't appear to always be correct. Not being set by agilent and niawg?
@@ -51,9 +50,7 @@ Bugs:
 - control tektronics not being saved in config?
 - bug in picture stats retrieval from image array? Seems like might have been not really the fault of the image stats, 
 	but should look into this a bit.
-- seems to always think functions are unsaved.
-- better protect saving over functions; already catch save over function, should just not let the user try to save it 
-	as a normal file.
+- Agilent non-integer number of samples bugs don't make sense
 
 Rearranging
 - code for creating non-flashing moves

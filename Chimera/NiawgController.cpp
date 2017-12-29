@@ -130,12 +130,12 @@ niawgPair<ULONG> NiawgController::convolve( Matrix<bool> atoms, Matrix<bool> tar
 
 
 void NiawgController::programNiawg( MasterThreadInput* input, NiawgOutput& output, std::string& warnings,
-									   UINT variation, UINT totalVariations, std::vector<long>& variedMixedSize,
-									   std::vector<ViChar>& userScriptSubmit )
+									UINT variation, UINT totalVariations,  std::vector<long>& variedMixedSize, 
+									std::vector<ViChar>& userScriptSubmit )
 {
 	input->comm->sendColorBox( Niawg, 'Y' );
 	input->niawg->handleVariations( output, input->variables, variation, variedMixedSize, warnings, input->debugOptions,
-										totalVariations );
+									totalVariations );
 	if ( input->settings.dontActuallyGenerate ) { return; }
 
 	// Restart Waveform
@@ -170,38 +170,35 @@ bool NiawgController::outputVaries( NiawgOutput output )
 }
 
 
-void NiawgController::prepareNiawg( MasterThreadInput* input, NiawgOutput& output,
-									niawgPair<std::vector<std::fstream>>& niawgFiles, std::string& warnings,
-									std::vector<ViChar>& userScriptSubmit, bool& foundRearrangement,
-									rerngOptions rInfo, std::vector<variableType>& variables )
+void NiawgController::prepareNiawg( MasterThreadInput* input, NiawgOutput& output, seqInfo& expSeq, 
+									std::string& warnings, std::vector<ViChar>& userScriptSubmit, 
+									bool& foundRearrangement, rerngOptions rInfo, std::vector<variableType>& variables )
 {
 	input->comm->sendColorBox( Niawg, 'Y' );
 	triggersInScript = 0;
-	ProfileSystem::openNiawgFiles( niawgFiles, input->profile, input->runNiawg );
-	std::vector<std::string> workingUserScripts( input->profile.sequenceConfigNames.size( ) );
+	std::vector<std::string> workingUserScripts( input->seq.sequence.size( ) );
 	// analyze each script in sequence.
-	for ( UINT sequenceInc = 0; sequenceInc < workingUserScripts.size( ); sequenceInc++ )
+	UINT count = 0;
+	for (auto& seq : expSeq.sequence )
 	{
 		niawgPair<ScriptStream> scripts;
 		output.niawgLanguageScript = "";
-		input->comm->sendStatus( "Working with configuraiton # " + str( sequenceInc + 1 ) + " in Sequence...\r\n" );
+		input->comm->sendStatus( "Working with configuraiton # " + str( count + 1 ) + " in Sequence...\r\n" );
 		/// Create Script and Write Waveforms ////////////////////////////////////////////////////////////////////
-		scripts[Vertical] << niawgFiles[Vertical][sequenceInc].rdbuf( );
-		scripts[Horizontal] << niawgFiles[Horizontal][sequenceInc].rdbuf( );
+		scripts[Vertical] << seq.niawgScripts[Vertical].rdbuf( );
+		scripts[Horizontal] << seq.niawgScripts[Horizontal].rdbuf( );
 		if ( input->debugOptions.outputNiawgHumanScript )
 		{
-			input->comm->sendDebug( boost::replace_all_copy( "NIAWG Human Script:\n"
-															 + scripts[Vertical].str( )
+			input->comm->sendDebug( boost::replace_all_copy( "NIAWG Human Script:\n" + scripts[Vertical].str( )
 															 + "\n\n", "\n", "\r\n" ) );
-			input->comm->sendDebug( boost::replace_all_copy( "NIAWG Human Script:\n"
-															 + scripts[Horizontal].str( )
+			input->comm->sendDebug( boost::replace_all_copy( "NIAWG Human Script:\n" + scripts[Horizontal].str( )
 															 + "\n\n", "\n", "\r\n" ) );
 		}
 		input->niawg->analyzeNiawgScripts( scripts, output, input->profile, input->debugOptions, warnings, rInfo, 
 											  variables );
-		workingUserScripts[sequenceInc] = output.niawgLanguageScript;
-
+		workingUserScripts[count] = output.niawgLanguageScript;
 		if ( input->thisObj->getAbortStatus( ) ) { thrower( "\r\nABORTED!\r\n" ); }
+		count++;
 	}
 	input->comm->sendStatus( "Constant Waveform Preparation Completed...\r\n" );
 	input->niawg->finalizeScript( input->repetitionNumber, "experimentScript", workingUserScripts, userScriptSubmit,
@@ -326,19 +323,15 @@ void NiawgController::setDefaultWaveforms( MainWindow* mainWin )
 
 
 // this is to be run at the end of the experiment procedure.
-void NiawgController::cleanupNiawg( profileSettings profile, bool masterWasRunning,
-										niawgPair<std::vector<std::fstream>>& niawgFiles, NiawgOutput& output,
-										Communicator* comm, bool dontGenerate )
+void NiawgController::cleanupNiawg( profileSettings profile, bool masterWasRunning, seqInfo& expSeq, 
+									NiawgOutput& output, Communicator* comm, bool dontGenerate )
 {
 	// close things
-	for ( const auto& sequenceInc : range( profile.sequenceConfigNames.size( ) ) )
+	for ( auto& seqIndv : expSeq.sequence )
 	{
 		for ( const auto& axis : AXES )
 		{
-			if ( niawgFiles[axis][sequenceInc].is_open( ) )
-			{
-				niawgFiles[axis][sequenceInc].close( );
-			}
+			seqIndv.niawgScripts[axis].close( );
 		}
 	}
 	if ( !masterWasRunning )
@@ -1014,37 +1007,40 @@ void NiawgController::handleSpecialWaveformForm( NiawgOutput& output, profileSet
 }
 
 
-void NiawgController::handleVariations( NiawgOutput& output, std::vector<variableType>& variables, 
-										   UINT variation, std::vector<long>& mixedWaveSizes, std::string& warnings, 
-										   debugInfo& debugOptions, UINT totalVariations)
+void NiawgController::handleVariations( NiawgOutput& output, std::vector<std::vector<variableType>>& variables, 
+										UINT variation, std::vector<long>& mixedWaveSizes, std::string& warnings, 
+										debugInfo& debugOptions, UINT totalVariations)
 {
 	int mixedCount = 0;
 	// I think waveInc = 0 & 1 are always the default.. should I be handling that at all? shouldn't make a difference 
 	// I don't think.
-	for ( auto waveInc : range(output.waveFormInfo.size()) )
+	for ( auto seqInc : range( variables.size( ) ) )
 	{
-		waveInfo& wave = output.waves[waveInc];
-		waveInfoForm& waveForm = output.waveFormInfo[waveInc];
-		if ( waveForm.core.varies )
+		for ( auto waveInc : range( output.waveFormInfo.size( ) ) )
 		{
-			if ( waveForm.flash.isFlashing )
+			waveInfo& wave = output.waves[waveInc];
+			waveInfoForm& waveForm = output.waveFormInfo[waveInc];
+			if ( waveForm.core.varies )
 			{
-				flashFormToOutput( waveForm, wave, variables, variation );
-				writeFlashing( wave, debugOptions, variation );
-			}
-			else
-			{
-				simpleFormToOutput( waveForm.core, wave.core, variables, variation );
-				if ( variation != 0 )
+				if ( waveForm.flash.isFlashing )
 				{
-					fgenConduit.deleteWaveform( cstr( wave.core.name ) );
+					flashFormToOutput( waveForm, wave, variables[seqInc], variation );
+					writeFlashing( wave, debugOptions, variation );
 				}
-				writeStandardWave( wave.core, debugOptions, output.isDefault );
+				else
+				{
+					simpleFormToOutput( waveForm.core, wave.core, variables[seqInc], variation );
+					if ( variation != 0 )
+					{
+						fgenConduit.deleteWaveform( cstr( wave.core.name ) );
+					}
+					writeStandardWave( wave.core, debugOptions, output.isDefault );
+				}
+				mixedWaveSizes.push_back( 2 * wave.core.sampleNum );
+				mixedCount++;
 			}
-			mixedWaveSizes.push_back( 2 * wave.core.sampleNum );
-			mixedCount++;
-		} 
-		waveInc++;
+			waveInc++;
+		}
 	}
 	checkThatWaveformsAreSensible( warnings, output );
 }

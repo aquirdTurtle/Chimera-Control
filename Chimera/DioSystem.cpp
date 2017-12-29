@@ -27,6 +27,7 @@ void DioSystem::handleNewConfig( std::ofstream& newFile )
 	newFile << "END_TTLS\n";
 }
 
+
 void DioSystem::handleSaveConfig(std::ofstream& saveFile)
 {
 	/// ttl settings
@@ -74,14 +75,14 @@ void DioSystem::handleOpenConfig(std::ifstream& openFile, int versionMajor, int 
 }
 
 
-ULONG DioSystem::countDacTriggers(UINT variation)
+ULONG DioSystem::countDacTriggers(UINT variation, UINT dacNum)
 {
 	ULONG triggerCount = 0;
 	// D14
 	std::pair<unsigned short, unsigned short> dacLine = { 3,15 };
-	for (auto command : ttlCommandList[variation])
+	for (auto command : ttlCommandList[dacNum][variation])
 	{
-		// count each rising edge.
+		// line each rising edge.
 		if (command.line == dacLine && command.value == true)
 		{
 			triggerCount++;
@@ -93,14 +94,13 @@ ULONG DioSystem::countDacTriggers(UINT variation)
 
 std::array< std::array<bool, 16>, 4 > DioSystem::getFinalSnapshot()
 {
-	return ttlSnapshots.back().back().ttlStatus;
+	return ttlSnapshots.back().back().back().ttlStatus;
 }
 
 
 void DioSystem::setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > status)
 {
 	ttlStatus = status;
-
 	for (UINT rowInc = 0; rowInc < ttlStatus.size(); rowInc++)
 	{
 		for (UINT numberInc = 0; numberInc < ttlStatus[0].size(); numberInc++)
@@ -135,7 +135,6 @@ DioSystem::DioSystem()
 		int err = GetLastError();
 		errBox( "Failed to load dio64_32.dll! Windows Error Code: " + str( err ) );
 	}
-	
 	// initialize function pointers. This only requires the DLLs to be loaded (which requires them to be present on the machine...) 
 	// so it's not in a safemode block.
 	raw_DIO64_OpenResource = (DIO64_OpenResource)GetProcAddress(dio, "DIO64_OpenResource");
@@ -160,7 +159,6 @@ DioSystem::DioSystem()
 	raw_DIO64_Out_Stop = (DIO64_Out_Stop)GetProcAddress(dio, "DIO64_Out_Stop");
 
 	raw_DIO64_Out_Write = (DIO64_Out_Write)GetProcAddress(dio, "DIO64_Out_Write");
-
 	// Open and Load DIO64
 	try
 	{
@@ -180,6 +178,7 @@ DioSystem::DioSystem()
 		errBox( exception.what() );
 	}
 }
+
 
 std::string DioSystem::getSystemInfo()
 {
@@ -288,12 +287,14 @@ void DioSystem::shadeTTLs(std::vector<std::pair<UINT, UINT>> shadeList)
 {
 	for (UINT shadeInc = 0; shadeInc < shadeList.size(); shadeInc++)
 	{
+		auto& row = shadeList[shadeInc].first;
+		auto& col = shadeList[shadeInc].second;
 		// shade it.
-		ttlPushControls[shadeList[shadeInc].first][shadeList[shadeInc].second].SetCheck(BST_INDETERMINATE);
-		ttlShadeStatus[shadeList[shadeInc].first][shadeList[shadeInc].second] = true;
+		ttlPushControls[row][col].SetCheck(BST_INDETERMINATE);
+		ttlShadeStatus[row][col] = true;
 		// a grey color is then used.
-		ttlPushControls[shadeList[shadeInc].first][shadeList[shadeInc].second].colorState = 2;
-		ttlPushControls[shadeList[shadeInc].first][shadeList[shadeInc].second].RedrawWindow();
+		ttlPushControls[row][col].colorState = 2;
+		ttlPushControls[row][col].RedrawWindow();
 	}
 	for (auto& row : ttlPushControls)
 	{
@@ -311,21 +312,22 @@ void DioSystem::unshadeTtls()
 	{
 		for (int numberInc = 0; numberInc < getNumberOfTTLsPerRow(); numberInc++)
 		{
+			auto& control = ttlPushControls[rowInc][numberInc];
 			ttlShadeStatus[rowInc][numberInc] = false;
-			if (ttlPushControls[rowInc][numberInc].colorState == 2)
+			if (control.colorState == 2)
 			{
-				ttlPushControls[rowInc][numberInc].colorState = 0;
-				ttlPushControls[rowInc][numberInc].RedrawWindow();
+				control.colorState = 0;
+				control.RedrawWindow();
 			}
 			if (ttlStatus[rowInc][numberInc])
 			{
-				ttlPushControls[rowInc][numberInc].SetCheck(BST_CHECKED);
+				control.SetCheck(BST_CHECKED);
 			}
 			else
 			{
-				ttlPushControls[rowInc][numberInc].SetCheck(BST_UNCHECKED);
+				control.SetCheck(BST_UNCHECKED);
 			}
-			ttlPushControls[rowInc][numberInc].EnableWindow();
+			control.EnableWindow();
 		}
 	}
 }
@@ -486,16 +488,16 @@ void DioSystem::initialize( POINT& loc, cToolTips& toolTips, AuxiliaryWindow* ma
 
 void DioSystem::handleTtlScriptCommand( std::string command, timeType time, std::string name,
 										std::vector<std::pair<UINT, UINT>>& ttlShadeLocations, 
-										std::vector<variableType>& vars )
+										std::vector<variableType>& vars, UINT seqNum )
 {
 	// use an empty expression.
-	handleTtlScriptCommand( command, time, name, Expression(), ttlShadeLocations, vars );
+	handleTtlScriptCommand( command, time, name, Expression(), ttlShadeLocations, vars, seqNum );
 }
 
 
-void DioSystem::handleTtlScriptCommand(std::string command, timeType time, std::string name, Expression pulseLength, 
-									   std::vector<std::pair<UINT, UINT>>& ttlShadeLocations, 
-										std::vector<variableType>& vars )
+void DioSystem::handleTtlScriptCommand( std::string command, timeType time, std::string name, Expression pulseLength, 
+									    std::vector<std::pair<UINT, UINT>>& ttlShadeLocations, 
+										std::vector<variableType>& vars, UINT seqNum )
 {
 	if (!isValidTTLName(name))
 	{
@@ -507,11 +509,11 @@ void DioSystem::handleTtlScriptCommand(std::string command, timeType time, std::
 	ttlShadeLocations.push_back({ row, collumn });
 	if (command == "on:")
 	{
-		ttlOn(row, collumn, time);
+		ttlOn(row, collumn, time, seqNum );
 	}
 	else if (command == "off:")
 	{
-		ttlOff(row, collumn, time);
+		ttlOff(row, collumn, time, seqNum );
 	}
 	else if (command == "pulseon:" || command == "pulseoff:")
 	{
@@ -526,13 +528,13 @@ void DioSystem::handleTtlScriptCommand(std::string command, timeType time, std::
 		}
 		if (command == "pulseon:")
 		{
-			ttlOn( row, collumn, time );
-			ttlOff( row, collumn, pulseEndTime );
+			ttlOn( row, collumn, time, seqNum );
+			ttlOff( row, collumn, pulseEndTime, seqNum );
 		}
 		if (command == "pulseoff:")
 		{
-			ttlOff( row, collumn, time );
-			ttlOn( row, collumn, pulseEndTime );
+			ttlOff( row, collumn, time, seqNum );
+			ttlOn( row, collumn, pulseEndTime, seqNum );
 		}
 	}
 }
@@ -635,23 +637,38 @@ void DioSystem::handleHoldPress()
 	}
 }
 
+template<class T> using vec = std::vector<T>;
 
 // prepares some structures for a simple force event. 
 void DioSystem::prepareForce( )
 {
-	ttlSnapshots.resize( 1 );
-	loadSkipTtlSnapshots.resize( 1 );
-	ttlCommandList.resize( 1 );
-	formattedTtlSnapshots.resize( 1 );
-	loadSkipFormattedTtlSnapshots.resize( 1 );
-	finalFormatTtlData.resize( 1 );
-	loadSkipFinalFormatTtlData.resize( 1 );
+	ttlCommandFormList.resize( 1 );
+	ttlSnapshots = vec<vec<vec<DioSnapshot>>>(1, vec<vec<DioSnapshot>>(1));
+	loadSkipTtlSnapshots = vec<vec<vec<DioSnapshot>>>( 1, vec<vec<DioSnapshot>>( 1 ) );
+	ttlCommandList = vec<vec<vec<DioCommand>>>(1, vec<vec<DioCommand>>( 1) );
+	formattedTtlSnapshots = vec<vec<vec<std::array<WORD, 6>>>>(1, vec<vec<std::array<WORD, 6>>>(1) );
+	loadSkipFormattedTtlSnapshots = vec<vec<vec<std::array<WORD, 6>>>>( 1, vec<vec<std::array<WORD, 6>>>( 1 ) );
+	finalFormatTtlData = vec<vec<vec<WORD>>>(1, vec<vec<WORD>>( 1 ) );
+	loadSkipFinalFormatTtlData = vec<vec<vec<WORD>>>( 1, vec<vec<WORD>>( 1 ) );
+}
+
+
+void DioSystem::initTtlObjs( UINT totalSequenceNumber )
+{
+	ttlCommandFormList.resize( totalSequenceNumber );
+	ttlSnapshots.resize( totalSequenceNumber );
+	ttlCommandList.resize( totalSequenceNumber );
+	formattedTtlSnapshots.resize( totalSequenceNumber );
+	finalFormatTtlData.resize( totalSequenceNumber );
+	loadSkipTtlSnapshots.resize( totalSequenceNumber );
+	loadSkipFormattedTtlSnapshots.resize( totalSequenceNumber );
+	loadSkipFinalFormatTtlData.resize( totalSequenceNumber );
 }
 
 
 void DioSystem::resetTtlEvents( )
 {
-	ttlCommandFormList.clear( );
+	ttlCommandFormList.clear( );	
 	ttlSnapshots.clear( );
 	ttlCommandList.clear( );
 	formattedTtlSnapshots.clear( );
@@ -711,6 +728,7 @@ HBRUSH DioSystem::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs
 	}
 }
 
+
 bool DioSystem::isValidTTLName( std::string name )
 {
 	for (int rowInc = 0; rowInc < getNumberOfTTLRows(); rowInc++)
@@ -741,37 +759,37 @@ bool DioSystem::isValidTTLName( std::string name )
 }
 
 
-void DioSystem::ttlOn(UINT row, UINT column, timeType time)
+void DioSystem::ttlOn(UINT row, UINT column, timeType time, UINT seqNum )
 {
 	// make sure it's either a variable or a number that can be used.
-	ttlCommandFormList.push_back({ {row, column}, time, true });
+	ttlCommandFormList[seqNum].push_back({ {row, column}, time, true });
 }
 
 
-void DioSystem::ttlOff(UINT row, UINT column, timeType time)
+void DioSystem::ttlOff(UINT row, UINT column, timeType time, UINT seqNum)
 {
 	// check to make sure either variable or actual value.
-	ttlCommandFormList.push_back({ {row, column}, time, false });
+	ttlCommandFormList[seqNum].push_back({ {row, column}, time, false });
 }
 
 
-void DioSystem::ttlOnDirect( UINT row, UINT column, double time, UINT variation )
+void DioSystem::ttlOnDirect( UINT row, UINT column, double time, UINT variation, UINT seqInc )
 {
 	DioCommand command;
 	command.line = { row, column };
 	command.time = time;
 	command.value = true;
-	ttlCommandList[variation].push_back( command );
+	ttlCommandList[seqInc][variation].push_back( command );
 }
 
 
-void DioSystem::ttlOffDirect( UINT row, UINT column, double time, UINT variation)
+void DioSystem::ttlOffDirect( UINT row, UINT column, double time, UINT variation, UINT seqInc )
 {
 	DioCommand command;
 	command.line = { row, column };
 	command.time = time;
 	command.value = false;
-	ttlCommandList[variation].push_back( command );
+	ttlCommandList[seqInc][variation].push_back( command );
 }
 
 
@@ -782,7 +800,7 @@ void DioSystem::stopBoard()
 
 double DioSystem::getClockStatus()
 {
-	// initialize to zero so that in safemode goes directly to getting tick count.
+	// initialize to zero so that in safemode goes directly to getting tick line.
 	int result = 0;
 	DIO64STAT stat;
 	DWORD availableScans;
@@ -863,6 +881,7 @@ void DioSystem::setName(UINT row, UINT number, std::string name, cToolTips& tool
 	ttlPushControls[row][number].setToolTip(name, toolTips, master);
 }
 
+
 int DioSystem::getNameIdentifier(std::string name, UINT& row, UINT& number)
 {
 	
@@ -901,7 +920,7 @@ int DioSystem::getNameIdentifier(std::string name, UINT& row, UINT& number)
 }
 
 
-void DioSystem::writeTtlData(UINT variation, bool loadSkip)
+void DioSystem::writeTtlData(UINT variation, UINT seqNum, bool loadSkip)
 {
 	// all 64 outputs are used, so every bit in this should be 1. 
 	WORD outputMask[4] = { WORD_MAX, WORD_MAX, WORD_MAX, WORD_MAX };
@@ -919,12 +938,12 @@ void DioSystem::writeTtlData(UINT variation, bool loadSkip)
 	dioOutStatus( 0, availableScans, status );
 	if ( loadSkip )
 	{
-		dioOutWrite( 0, loadSkipFinalFormatTtlData[variation].data( ), 
-					 loadSkipFormattedTtlSnapshots[variation].size( ), status );
+		dioOutWrite( 0, loadSkipFinalFormatTtlData[seqNum][variation].data( ), 
+					 loadSkipFormattedTtlSnapshots[seqNum][variation].size( ), status );
 	}
 	else
 	{
-		dioOutWrite( 0, finalFormatTtlData[variation].data( ), formattedTtlSnapshots[variation].size( ), status );
+		dioOutWrite( 0, finalFormatTtlData[seqNum][variation].data( ), finalFormatTtlData[seqNum][variation].size( ), status );
 	}
 }
 
@@ -935,7 +954,7 @@ std::string DioSystem::getName(UINT row, UINT number)
 }
 
 
-ULONG DioSystem::getNumberEvents(UINT variation)
+ULONG DioSystem::getNumberEvents(UINT variation, UINT seqNum )
 {
 	return ttlSnapshots[variation].size();
 }
@@ -968,81 +987,90 @@ void DioSystem::wait(double time)
 
 
 // uses the last time of the ttl trigger to wait until the experiment is finished.
-void DioSystem::waitTillFinished(UINT variation, bool skipOption)
+void DioSystem::waitTillFinished(UINT variation, UINT seqNum, bool skipOption)
 {
 	double totalTime;
 	if ( skipOption )
 	{
-		totalTime = (loadSkipFormattedTtlSnapshots[variation].back( )[0]
-					  + 65535 * loadSkipFormattedTtlSnapshots[variation].back( )[1]) / 10000.0 + 1;
+		totalTime = ( loadSkipFormattedTtlSnapshots[seqNum][variation].back( )[0]
+					  + 65535 * loadSkipFormattedTtlSnapshots[seqNum][variation].back( )[1]) / 10000.0 + 1;
 	}
 	else 
 	{
-		totalTime = (formattedTtlSnapshots[variation].back( )[0]
-					  + 65535 * formattedTtlSnapshots[variation].back( )[1]) / 10000.0 + 1;
+		totalTime = (formattedTtlSnapshots[seqNum][variation].back( )[0]
+					  + 65535 * formattedTtlSnapshots[seqNum][variation].back( )[1]) / 10000.0 + 1;
 	}
 	 
 	wait(totalTime);
 }
 
 
-double DioSystem::getTotalTime(UINT variation)
+double DioSystem::getTotalTime(UINT variation, UINT seqNum )
 {
-	return (formattedTtlSnapshots[variation].back()[0]
-			 + 65535 * formattedTtlSnapshots[variation].back()[1]) / 10000.0 + 1;
+	return (formattedTtlSnapshots[seqNum][variation].back()[0]
+			 + 65535 * formattedTtlSnapshots[seqNum][variation].back()[1]) / 10000.0 + 1;
 }
 
+// an "alias template". effectively a local using std::vector; declaration. makes these declarations much more
+// readable. I very rarely use things like this.
+template<class T> using vec = std::vector<T>;
 
-void DioSystem::interpretKey( std::vector<variableType>& variables )
+void DioSystem::interpretKey( vec<vec<variableType>>& variables )
 {
-	UINT variations = variables.front( ).keyValues.size( );
+	UINT sequenceLength = variables.size( );
+	UINT variations = variables.front().front( ).keyValues.size( );
 	if (variations == 0)
 	{
 		variations = 1; 
 	}
 	/// imporantly, this sizes the relevant structures.
-	ttlCommandList = std::vector<std::vector<DioCommand>>( variations );
-	ttlSnapshots = std::vector<std::vector<DioSnapshot>>( variations );
-	loadSkipTtlSnapshots = std::vector<std::vector<DioSnapshot>>( variations );
-	formattedTtlSnapshots = std::vector<std::vector<std::array<WORD, 6>>>( variations );
-	loadSkipFormattedTtlSnapshots = std::vector<std::vector<std::array<WORD, 6>>>( variations );
-	finalFormatTtlData = std::vector<std::vector<WORD>>( variations );
-	loadSkipFinalFormatTtlData = std::vector<std::vector<WORD>>( variations );
+	ttlCommandList = vec<vec<vec<DioCommand>>>( sequenceLength, vec<vec<DioCommand>>(variations) );
+	ttlSnapshots = vec<vec<vec<DioSnapshot>>>( sequenceLength, vec<vec<DioSnapshot>>(variations) );
+	loadSkipTtlSnapshots = vec<vec<vec<DioSnapshot>>>( sequenceLength, vec<vec<DioSnapshot>>(variations) );
+	formattedTtlSnapshots = vec<vec<vec<std::array<WORD, 6>>>>( sequenceLength, 
+																vec<vec<std::array<WORD, 6>>>(variations) );
+	loadSkipFormattedTtlSnapshots = vec<vec<vec<std::array<WORD, 6>>>>( sequenceLength, 
+																		vec<vec<std::array<WORD, 6>>>( variations ) );
+	finalFormatTtlData = vec<vec<vec<WORD>>>( sequenceLength, vec<vec<WORD>>(variations) );
+	loadSkipFinalFormatTtlData = vec<vec<vec<WORD>>>( sequenceLength, vec<vec<WORD>>( variations ) );
 	
 	// and interpret the command list for each variation.
-	for (UINT variationNum = 0; variationNum < variations; variationNum++)
+	for (auto seqInc : range( sequenceLength ) )
 	{
-		for (UINT commandInc = 0; commandInc < ttlCommandFormList.size(); commandInc++)
+		for (UINT variationNum = 0; variationNum < variations; variationNum++)
 		{
-			DioCommand tempCommand;
-			tempCommand.line = ttlCommandFormList[commandInc].line;
-			tempCommand.value = ttlCommandFormList[commandInc].value;
-			double variableTime = 0;
-			// add together current values for all variable times.
-			if (ttlCommandFormList[commandInc].time.first.size() != 0)
+			for (auto& formList : ttlCommandFormList[seqInc])
 			{
-				for (auto varTime : ttlCommandFormList[commandInc].time.first)
+				DioCommand tempCommand;
+				tempCommand.line = formList.line;
+				tempCommand.value = formList.value;
+				double variableTime = 0;
+				// add together current values for all variable times.
+				if ( formList.time.first.size() != 0)
 				{
-					variableTime += varTime.evaluate(variables, variationNum);
+					for (auto varTime : formList.time.first)
+					{
+						variableTime += varTime.evaluate(variables[seqInc], variationNum);
+					}
 				}
+				tempCommand.time = variableTime + formList.time.second;
+				ttlCommandList[seqInc][variationNum].push_back(tempCommand);
 			}
-			tempCommand.time = variableTime + ttlCommandFormList[commandInc].time.second;
-			ttlCommandList[variationNum].push_back(tempCommand);
 		}
 	}
 }
 
 
-void DioSystem::organizeTtlCommands(UINT variation)
+void DioSystem::organizeTtlCommands(UINT variation, UINT seqNum )
 {
 	// each element of this is a different time (the double), and associated with each time is a vector which locates 
 	// which commands were on at this time, for ease of retrieving all of the values in a moment.
 	std::vector<std::pair<double, std::vector<unsigned short>>> timeOrganizer;
-	std::vector<DioCommand> orderedList(ttlCommandList[variation]);
+	std::vector<DioCommand> orderedList(ttlCommandList[seqNum][variation]);
 	// sort using a lambda. std::sort is effectively a quicksort algorithm.
 	std::sort(orderedList.begin(), orderedList.end(), [](DioCommand a, DioCommand b) {return a.time < b.time; });
 	/// organize all of the commands.
-	for (USHORT commandInc = 0; commandInc < ttlCommandList[variation].size(); commandInc++)
+	for (USHORT commandInc = 0; commandInc < ttlCommandList[seqNum][variation].size(); commandInc++)
 	{
 		// because the events are sorted by time, the time organizer will already be sorted by time, and therefore I 
 		// just need to check the back value's time.
@@ -1063,46 +1091,47 @@ void DioSystem::organizeTtlCommands(UINT variation)
 		thrower("ERROR: No ttl commands! The Ttl system is the master behind everything in a repetition, and so it "
 				 "must contain something.\r\n");
 	}
-
-	ttlSnapshots[variation].clear();
+	auto& snaps = ttlSnapshots[seqNum][variation];
+	snaps.clear();
 	// start with the initial status.
-	ttlSnapshots[variation].push_back({ 0, ttlStatus });
+	snaps.push_back({ 0, ttlStatus });
 	if (timeOrganizer[0].first != 0)
 	{
 		// then there were no commands at time 0, so just set the initial state to be exactly the original state before
 		// the experiment started. I don't need to modify the first snapshot in this case, it's already set. Add a snapshot
 		// here so that the thing modified is the second snapshot.
-		ttlSnapshots[variation].push_back({ 0, ttlStatus });
+		snaps.push_back({ 0, ttlStatus });
 	}
 
 	// handle the zero case specially. This may or may not be the literal first snapshot.
-	ttlSnapshots[variation].back().time = timeOrganizer[0].first;
+	snaps.back().time = timeOrganizer[0].first;
 	for (UINT zeroInc = 0; zeroInc < timeOrganizer[0].second.size(); zeroInc++)
 	{
 		// make sure to address he correct ttl. the ttl location is located in individuaTTL_CommandList but you need 
 		// to make sure you access the correct command.
-		UINT row = orderedList[timeOrganizer[0].second[zeroInc]].line.first;
-		UINT column = orderedList[timeOrganizer[0].second[zeroInc]].line.second;
-		ttlSnapshots[variation].back().ttlStatus[row][column]	= orderedList[timeOrganizer[0].second[zeroInc]].value;
+		UINT cmdNum = timeOrganizer[0].second[zeroInc];
+		UINT row = orderedList[cmdNum].line.first;
+		UINT column = orderedList[cmdNum].line.second;
+		snaps.back().ttlStatus[row][column]	= orderedList[cmdNum].value;
 	}
-	
+
 	// already handled the first case.
 	for (UINT commandInc = 1; commandInc < timeOrganizer.size(); commandInc++)
 	{
 		// first copy the last set so that things that weren't changed remain unchanged.
-		ttlSnapshots[variation].push_back(ttlSnapshots[variation].back());
+		snaps.push_back( snaps.back());
 		//
-		ttlSnapshots[variation].back().time = timeOrganizer[commandInc].first;
-		for (UINT zeroInc = 0; zeroInc < timeOrganizer[commandInc].second.size(); zeroInc++)
+		snaps.back().time = timeOrganizer[commandInc].first;
+		for (auto cmdNum : timeOrganizer[commandInc].second)
 		{
 			// see description of this command above... update everything that changed at this time.
-			UINT row = orderedList[timeOrganizer[commandInc].second[zeroInc]].line.first;
-			UINT column = orderedList[timeOrganizer[commandInc].second[zeroInc]].line.second;
-			ttlSnapshots[variation].back().ttlStatus[row][column] = orderedList[timeOrganizer[commandInc].second[zeroInc]].value;
+			UINT row = orderedList[cmdNum].line.first;
+			UINT column = orderedList[cmdNum].line.second;
+			snaps.back().ttlStatus[row][column] = orderedList[cmdNum].value;
 		}
 	}
 	// phew. Check for good input by user:
-	for (auto snapshot : ttlSnapshots[variation])
+	for (auto snapshot : snaps )
 	{
 		if (snapshot.time < 0)
 		{
@@ -1125,15 +1154,20 @@ std::pair<USHORT, USHORT> DioSystem::calcDoubleShortTime( double time )
 }
 
 
-void DioSystem::convertToFinalFormat(UINT variation)
+void DioSystem::convertToFinalFormat(UINT variation, UINT seqNum )
 {
 	// excessive but just in case.
-	formattedTtlSnapshots[variation].clear();
-	loadSkipFormattedTtlSnapshots[variation].clear( );
-	finalFormatTtlData[variation].clear( );
-	loadSkipFinalFormatTtlData[variation].clear( );
+	auto& formattedSnaps = formattedTtlSnapshots[seqNum][variation];
+	auto& loadSkipFormattedSnaps = loadSkipFormattedTtlSnapshots[seqNum][variation];
+	auto& finalNormal = finalFormatTtlData[seqNum][variation];
+	auto& finalLoadSkip = loadSkipFinalFormatTtlData[seqNum][variation];
+	formattedSnaps.clear();
+	loadSkipFormattedSnaps.clear( );
+	finalNormal.clear( );
+	finalLoadSkip.clear( );
+
 	// do bit arithmetic.
-	for ( auto& snapshot : ttlSnapshots[variation])
+	for ( auto& snapshot : ttlSnapshots[seqNum][variation])
 	{
 		// each major index is a row (A, B, C, D), each minor index is a ttl state (0, 1) in that row.
 		std::array<std::bitset<16>, 4> ttlBits;
@@ -1153,10 +1187,10 @@ void DioSystem::convertToFinalFormat(UINT variation)
 		tempCommand[3] = static_cast <unsigned short>(ttlBits[1].to_ulong());
 		tempCommand[4] = static_cast <unsigned short>(ttlBits[2].to_ulong());
 		tempCommand[5] = static_cast <unsigned short>(ttlBits[3].to_ulong());
-		formattedTtlSnapshots[variation].push_back(tempCommand);
+		formattedTtlSnapshots[seqNum][variation].push_back(tempCommand);
 	}
 	// same loop with the loadSkipSnapshots.
-	for ( auto& snapshot : loadSkipTtlSnapshots[variation] )
+	for ( auto& snapshot : loadSkipTtlSnapshots[seqNum][variation] )
 	{
 		// each major index is a row (A, B, C, D), each minor index is a ttl state (0, 1) in that row.
 		std::array<std::bitset<16>, 4> ttlBits;
@@ -1176,45 +1210,45 @@ void DioSystem::convertToFinalFormat(UINT variation)
 		tempCommand[3] = static_cast <unsigned short>(ttlBits[1].to_ulong( ));
 		tempCommand[4] = static_cast <unsigned short>(ttlBits[2].to_ulong( ));
 		tempCommand[5] = static_cast <unsigned short>(ttlBits[3].to_ulong( ));
-		loadSkipFormattedTtlSnapshots[variation].push_back( tempCommand );
+		loadSkipFormattedTtlSnapshots[seqNum][variation].push_back( tempCommand );
 	}
 
 	/// flatten the data.
-	finalFormatTtlData[variation].resize( formattedTtlSnapshots[variation].size( ) * 6 );
+	finalFormatTtlData[seqNum][variation].resize( formattedTtlSnapshots[seqNum][variation].size( ) * 6 );
 	int count = 0;
-	for ( auto& element : finalFormatTtlData[variation] )
+	for ( auto& element : finalFormatTtlData[seqNum][variation] )
 	{
 		// concatenate
-		element = formattedTtlSnapshots[variation][count / 6][count % 6];
+		element = formattedTtlSnapshots[seqNum][variation][count / 6][count % 6];
 		count++;
 	}
 	// the arrays are usually not the same length and need to be dealt with separately.
-	loadSkipFinalFormatTtlData[variation].resize( loadSkipFormattedTtlSnapshots[variation].size( ) * 6 );
+	loadSkipFinalFormatTtlData[seqNum][variation].resize( loadSkipFormattedTtlSnapshots[seqNum][variation].size( ) * 6 );
 	count = 0;
-	for ( auto& element : loadSkipFinalFormatTtlData[variation] )
+	for ( auto& element : loadSkipFinalFormatTtlData[seqNum][variation] )
 	{
 		// concatenate
-		element = loadSkipFormattedTtlSnapshots[variation][count / 6][count % 6];
+		element = loadSkipFormattedTtlSnapshots[seqNum][variation][count / 6][count % 6];
 		count++;
 	}
 }
 
 
-void DioSystem::findLoadSkipSnapshots( double time, std::vector<variableType>& variables, UINT variation )
+void DioSystem::findLoadSkipSnapshots( double time, std::vector<variableType>& variables, UINT variation, UINT seqNum )
 {
 	// find the splitting time and set the loadSkip snapshots to have everything after that time.
-	for ( auto snapshotInc : range(ttlSnapshots[variation].size() - 1) )
+	auto& snaps = ttlSnapshots[seqNum][variation];
+	auto& loadSkipSnaps = loadSkipTtlSnapshots[seqNum][variation];
+	for ( auto snapshotInc : range(ttlSnapshots[seqNum][variation].size() - 1) )
 	{
-		if ( ttlSnapshots[variation][snapshotInc].time < time && ttlSnapshots[variation][snapshotInc+1].time >= time )
+		if ( snaps[snapshotInc].time < time && snaps[snapshotInc+1].time >= time )
 		{
-			loadSkipTtlSnapshots[variation] = std::vector<DioSnapshot>( ttlSnapshots[variation].begin( ) 
-																		+ snapshotInc + 1, 
-																		ttlSnapshots[variation].end( ) );
+			loadSkipSnaps = std::vector<DioSnapshot>( snaps.begin( ) + snapshotInc + 1, snaps.end( ) );
 			break;
 		}
 	}
 	// need to zero the times.
-	for ( auto& snapshot : loadSkipTtlSnapshots[variation] )
+	for ( auto& snapshot : loadSkipSnaps )
 	{
 		snapshot.time -= time;
 	}
@@ -1222,17 +1256,17 @@ void DioSystem::findLoadSkipSnapshots( double time, std::vector<variableType>& v
 
 
 // counts the number of triggers on a given line.
-UINT DioSystem::countTriggers( UINT row, UINT number, UINT variation )
+UINT DioSystem::countTriggers( UINT row, UINT number, UINT variation, UINT seqNum )
 {
+	auto& snaps = ttlSnapshots[seqNum][variation];
 	UINT count = 0;
-	if ( ttlSnapshots[variation].size( ) == 0 )
+	if ( snaps.size( ) == 0 )
 	{
 		thrower( "ERROR: no ttl events in countTriggers?" );
 	}
-	for ( auto eventInc : range(ttlSnapshots[variation].size()-1) )
+	for ( auto eventInc : range(ttlSnapshots[seqNum][variation].size()-1) )
 	{
-		if ( ttlSnapshots[variation][eventInc].ttlStatus[row][number] == false &&
-			 ttlSnapshots[variation][eventInc+1].ttlStatus[row][number] == true )
+		if ( snaps[eventInc].ttlStatus[row][number] == false && snaps[eventInc+1].ttlStatus[row][number] == true )
 		{
 			count++;
 		}
@@ -1241,9 +1275,9 @@ UINT DioSystem::countTriggers( UINT row, UINT number, UINT variation )
 }
 
 
-void DioSystem::checkNotTooManyTimes( UINT variation )
+void DioSystem::checkNotTooManyTimes( UINT variation, UINT seqNum )
 {
-	if ( formattedTtlSnapshots[variation].size( ) > 512 )
+	if ( formattedTtlSnapshots[seqNum][variation].size( ) > 512 )
 	{
 		thrower( "ERROR: DIO Data has more than 512 individual timestamps, which is larger than the DIO64 FIFO Buffer"
 				 ". The DIO64 card can only support 512 individual time-stamps. If you need more, you need to configure"
@@ -1252,16 +1286,19 @@ void DioSystem::checkNotTooManyTimes( UINT variation )
 }
 
 
-void DioSystem::checkFinalFormatTimes( UINT variation )
+void DioSystem::checkFinalFormatTimes( UINT variation, UINT seqNum )
 {
 	// loop through all the commands and make sure that no two events have the same time-stamp. Was a common symptom
 	// of a bug when code first created.
-	for ( int dioEventInc = 0; dioEventInc < formattedTtlSnapshots[variation].size( ); dioEventInc++ )
+	for ( int dioEventInc = 0; dioEventInc < formattedTtlSnapshots[seqNum][variation].size( ); dioEventInc++ )
 	{
+		auto& snapOuter0 = formattedTtlSnapshots[seqNum][variation][dioEventInc][0];
+		auto& snapOuter1 = formattedTtlSnapshots[seqNum][variation][dioEventInc][1];
 		for ( int dioEventInc2 = 0; dioEventInc2 < dioEventInc; dioEventInc2++ )
 		{
-			if ( formattedTtlSnapshots[variation][dioEventInc][0] == formattedTtlSnapshots[variation][dioEventInc2][0]
-				 && formattedTtlSnapshots[variation][dioEventInc][1] == formattedTtlSnapshots[variation][dioEventInc2][1] )
+			auto& snapInner0 = formattedTtlSnapshots[seqNum][variation][dioEventInc2][0];
+			auto& snapInner1 = formattedTtlSnapshots[seqNum][variation][dioEventInc2][1];
+			if ( snapOuter0 == snapInner0 && snapOuter1 == snapInner1 )
 			{
 				thrower( "ERROR: Dio system somehow created two events with the same time stamp! This might be caused by"
 						 " ttl events being spaced to close to each other." );
@@ -1271,57 +1308,57 @@ void DioSystem::checkFinalFormatTimes( UINT variation )
 }
 
 
-std::string DioSystem::getErrorMessage(int errorCode)
+std::string DioSystem::getErrorMessage( int errorCode )
 {
-	switch (errorCode)
+	switch ( errorCode )
 	{
-		case -8:
-			return "Illegal board number - the board number must be between 0 and 7.";
-		case -9:
-			return "The requested board number has not been opened.";
-		case -10:
-			return "The buffers have over or under run.";
-		case -12:
-			return "Invalid parameter.";
-		case -13:
-			return "No Driver Interface.";
-		case -14:
-			return "Board does not have the OCXO option installed.";
-		case -15:
-			return "Only available on PXI.";
-		case -16:
-			return "Stop trigger source is invalid.";
-		case -17:
-			return "Port number conflicts. Check the hints used in DIO64_Load().";
-		case -18:
-			return "Missing DIO64.cat file.";
-		case -19:
-			return "Not enough system resources available.";
-		case -20:
-			return "Invalid DIO64.cat file.";
-		case -21:
-			return "Required image not found.";
-		case -22:
-			return "Error programming the FPGA.";
-		case -23:
-			return "File not found.";
-		case -24:
-			return "Board error.";
-		case -25:
-			return "Function call invalid at this time.";
-		case -26:
-			return "Not enough transitions specified for operation.";
-		default:
-			return "Unrecognized DIO64 error code!";
+	case -8:
+		return "Illegal board number - the board number must be between 0 and 7.";
+	case -9:
+		return "The requested board number has not been opened.";
+	case -10:
+		return "The buffers have over or under run.";
+	case -12:
+		return "Invalid parameter.";
+	case -13:
+		return "No Driver Interface.";
+	case -14:
+		return "Board does not have the OCXO option installed.";
+	case -15:
+		return "Only available on PXI.";
+	case -16:
+		return "Stop trigger source is invalid.";
+	case -17:
+		return "Port number conflicts. Check the hints used in DIO64_Load().";
+	case -18:
+		return "Missing DIO64.cat file.";
+	case -19:
+		return "Not enough system resources available.";
+	case -20:
+		return "Invalid DIO64.cat file.";
+	case -21:
+		return "Required image not found.";
+	case -22:
+		return "Error programming the FPGA.";
+	case -23:
+		return "File not found.";
+	case -24:
+		return "Board error.";
+	case -25:
+		return "Function call invalid at this time.";
+	case -26:
+		return "Not enough transitions specified for operation.";
+	default:
+		return "Unrecognized DIO64 error code!";
 	}
 }
 
 
-void DioSystem::zeroBoard()
+void DioSystem::zeroBoard( )
 {
-	for (UINT row = 0; row < ttlStatus.size(); row++)
+	for ( UINT row = 0; row < ttlStatus.size( ); row++ )
 	{
-		for (UINT number = 0; number < ttlStatus[row].size(); number++)
+		for ( UINT number = 0; number < ttlStatus[row].size( ); number++ )
 		{
 			forceTtl( row, number, 0 );
 		}
@@ -1329,16 +1366,46 @@ void DioSystem::zeroBoard()
 }
 
 
-/// DIO64 Wrapper functions that I actually use
-std::string DioSystem::getTtlSequenceMessage(UINT variation)
+void DioSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> ttlData )
 {
 	std::string message;
-	if ( ttlSnapshots.size( ) <= variation )
+	for ( auto& seqInfo : ttlSnapshots )
+	{
+		if ( seqInfo.size( ) <= variation )
+		{
+			thrower( "ERROR: Attempted to retrieve ttl data from variation " + str( variation ) + ", which does not "
+					 "exist in the dio code object!" );
+		}
+	}
+	// each element of ttlData should be one ttl line.
+	UINT linesPerPlot = 64 / ttlData.size( );
+	for ( auto line : range( 64 ) )
+	{
+		auto& data = ttlData[line / linesPerPlot][line % linesPerPlot];
+		data->clear( );
+		UINT runningSeqTime = 0;
+		for ( auto& ttlSeqData : ttlSnapshots )
+		{
+			for ( auto& snap : ttlSeqData[variation] )
+			{
+				data->push_back( { runningSeqTime + snap.time, double( snap.ttlStatus[line / 16][line % 16] ), 0 } );
+			}
+			runningSeqTime += ttlSeqData[variation].back( ).time;
+		}
+	}
+}
+
+
+/// DIO64 Wrapper functions that I actually use
+std::string DioSystem::getTtlSequenceMessage(UINT variation, UINT seqNum )
+{
+	std::string message;
+	if ( ttlSnapshots[seqNum].size( ) <= variation )
 	{
 		thrower( "ERROR: Attempted to retrieve ttl sequence message from snapshot " + str( variation ) + ", which does not "
 				 "exist!" );
 	}
-	for (auto snap : ttlSnapshots[variation])
+	for (auto snap : ttlSnapshots[seqNum][variation])
 	{
 		message += str(snap.time) + ":\n";
 		int rowInc = 0;

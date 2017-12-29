@@ -16,13 +16,12 @@
 ProfileSystem::ProfileSystem(std::string fileSystemPath)
 {
 	FILE_SYSTEM_PATH = fileSystemPath;
-	currentProfile.sequence = NULL_SEQUENCE;
+	currentSequence.name = NULL_SEQUENCE;
 }
 
 
 void ProfileSystem::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& tooltips )
 {
-	// 
 	configDisplay.sPos = { pos.x, pos.y, pos.x + 860, pos.y + 25 };
 	configDisplay.Create( "No Configuration Selected!", NORM_STATIC_OPTIONS, configDisplay.sPos, parent, id++ );
 	configurationSavedIndicator.sPos = { pos.x + 860, pos.y, pos.x + 960, pos.y += 25 };
@@ -54,22 +53,22 @@ void ProfileSystem::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& to
 	sequenceInfoDisplay.Create( NORM_STATIC_OPTIONS | ES_CENTER | ES_MULTILINE | WS_VSCROLL | ES_AUTOVSCROLL,
 								sequenceInfoDisplay.sPos, parent, id++ );
 	sequenceInfoDisplay.SetWindowTextA( "Sequence of Configurations to Run:\r\n" );
-
 }
 
 
-
 // just looks at the info in a file and loads it into references, doesn't change anything in the gui or main settings.
-void ProfileSystem::openNiawgFiles( niawgPair<std::vector<std::fstream>>& scriptFiles, profileSettings profile, 
-									bool programNiawg )
+void ProfileSystem::openNiawgFiles( niawgPair<std::fstream>& scriptFiles, profileSettings profile, seqSettings seq, 
+									bool programNiawg, std::string configName )
+//void ProfileSystem::openNiawgFiles( niawgPair<std::vector<std::fstream>>& scriptFiles, profileSettings profile, 
+//									seqSettings seq, bool programNiawg )
 {
-	scriptFiles[Vertical].resize( profile.sequenceConfigNames.size() );
-	scriptFiles[Horizontal].resize( profile.sequenceConfigNames.size() );
+	//scriptFiles[Vertical].resize( seq.sequence.size() );
+	//scriptFiles[Horizontal].resize( seq.sequence.size() );
 	/// gather information from every configuration in the sequence. /////////////////////////////////////////////////////////////////////
-	for (UINT sequenceInc = 0; sequenceInc < profile.sequenceConfigNames.size(); sequenceInc++)
-	{
+//	for (UINT sequenceInc = 0; sequenceInc < seq.sequence.size(); sequenceInc++)
+//	{
 		// open configuration file
-		std::ifstream configFile( profile.categoryPath + "\\" + profile.sequenceConfigNames[sequenceInc] );
+		std::ifstream configFile( profile.categoryPath + "\\" + configName );
 		std::string intensityScriptAddress, version;
 		niawgPair<std::string> niawgScriptAddresses;
 		// first get version info:
@@ -82,15 +81,15 @@ void ProfileSystem::openNiawgFiles( niawgPair<std::vector<std::fstream>>& script
 			getline( configFile, niawgScriptAddresses[axis] );
 			if (programNiawg)
 			{
-				scriptFiles[axis][sequenceInc].open( niawgScriptAddresses[axis] );
-				if (!scriptFiles[axis][sequenceInc].is_open())
+				scriptFiles[axis].open( niawgScriptAddresses[axis] );
+				if (!scriptFiles[axis].is_open())
 				{
 					thrower( "ERROR: Failed to open vertical script file named: " + niawgScriptAddresses[axis]
-							 + " found in configuration: " + profile.sequenceConfigNames[sequenceInc] + "\r\n" );
+							 + " found in configuration: " + configName + "\r\n" );
 				}
 			}
 		}
-	}
+//  }
 }
 
 
@@ -147,6 +146,30 @@ void ProfileSystem::newConfiguration( MainWindow* mainWin, AuxiliaryWindow* auxW
 }
 
 
+void ProfileSystem::getVersionFromFile( std::ifstream& f, int& versionMajor, int& versionMinor )
+{
+	std::string versionStr;
+	// Version is saved in format "Version: x.x"
+	// eat the "version" word"
+	f >> versionStr;
+	f >> versionStr;
+	double version;
+	try
+	{
+		version = std::stod( versionStr );
+		int periodPos = versionStr.find_last_of( '.' );
+		std::string tempStr( versionStr.substr( 0, periodPos ) );
+		versionMajor = std::stod( tempStr );
+		tempStr = versionStr.substr( periodPos + 1, versionStr.size( ) );
+		versionMinor = std::stod( tempStr );
+	}
+	catch ( std::invalid_argument& )
+	{
+		thrower( "ERROR: Version string failed to convert to double while opening configuration!" );
+	}
+}
+
+
 void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindow* scriptWin, MainWindow* mainWin,
 										CameraWindow* camWin, AuxiliaryWindow* auxWin )
 {
@@ -168,25 +191,8 @@ void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindo
 	std::string versionStr;
 	try
 	{
-		// Version is saved in format "Master Version: x.x"
-		// eat the "version" word"
-		configFile >> versionStr;
-		configFile >> versionStr;
-		double version;
 		int versionMajor, versionMinor;
-		try
-		{
-			version = std::stod( versionStr );
-			int periodPos = versionStr.find_last_of( '.' );
-			std::string tempStr( versionStr.substr( 0, periodPos ));
-			versionMajor = std::stod( tempStr );
-			tempStr = versionStr.substr( periodPos + 1, versionStr.size( ) );
-			versionMinor = std::stod( tempStr );
-		}
-		catch ( std::invalid_argument& )
-		{
-			thrower( "ERROR: Version string failed to convert to double while opening configuration!" );
-		}
+		getVersionFromFile( configFile, versionMajor, versionMinor );
 		scriptWin->handleOpenConfig( configFile, versionMajor, versionMinor );
 		camWin->handleOpeningConfig( configFile, versionMajor, versionMinor );
 		auxWin->handleOpeningConfig( configFile, versionMajor, versionMinor );
@@ -203,13 +209,9 @@ void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindo
 	auxWin->setVariablesActiveState( true );
 	// actually set this now
 	scriptWin->updateProfile( currentProfile.parentFolderName + "->" + currentProfile.configuration );
-	// close.
 	configFile.close( );
-	if ( currentProfile.sequence == NULL_SEQUENCE )
-	{
-		// reload it.
-		loadNullSequence( );
-	}
+
+	reloadSequence( NULL_SEQUENCE );
 }
 
 
@@ -468,18 +470,17 @@ void ProfileSystem::handleSelectConfigButton(CWnd* parent, ScriptingWindow* scri
 }
 
 
-
 void ProfileSystem::loadNullSequence()
 {
-	currentProfile.sequence = NULL_SEQUENCE;
+	currentSequence.name = NULL_SEQUENCE;
 	// only current configuration loaded
-	currentProfile.sequenceConfigNames.clear();
+	currentSequence.sequence.clear();
 	if (currentProfile.configuration != "")
 	{
-		currentProfile.sequenceConfigNames.push_back(currentProfile.configuration + "." + CONFIG_EXTENSION );
+		currentSequence.sequence.push_back(currentProfile);
 		// change edit
 		sequenceInfoDisplay.SetWindowTextA("Sequence of Configurations to Run:\r\n");
-		appendText(("1. " + this->currentProfile.sequenceConfigNames[0] + "\r\n"), sequenceInfoDisplay);
+		appendText(("1. " + currentSequence.sequence[0].configuration + "\r\n"), sequenceInfoDisplay);
 	}
 	else
 	{
@@ -498,9 +499,9 @@ void ProfileSystem::addToSequence(CWnd* parent)
 		// nothing to add.
 		return;
 	}
-	currentProfile.sequenceConfigNames.push_back(currentProfile.configuration + "." + CONFIG_EXTENSION );
-	appendText( str( currentProfile.sequenceConfigNames.size() ) + ". "
-				+ currentProfile.sequenceConfigNames.back() + "\r\n", sequenceInfoDisplay );
+	currentSequence.sequence.push_back(currentProfile);
+	appendText( str( currentSequence.sequence.size() ) + ". "
+				+ currentSequence.sequence.back().configuration + "\r\n", sequenceInfoDisplay );
 	updateSequenceSavedStatus(false);
 }
 
@@ -527,7 +528,7 @@ void ProfileSystem::sequenceChangeHandler()
 		openSequence(sequenceName);
 	}
 	// else not null_sequence.
-	reloadSequence(currentProfile.sequence);
+	reloadSequence( currentSequence.name );
 	updateSequenceSavedStatus(true);
 }
 
@@ -545,13 +546,13 @@ void ProfileSystem::reloadSequence(std::string sequenceToReload)
 
 void ProfileSystem::saveSequence()
 {
-	if (currentProfile.sequence == NULL_SEQUENCE)
+	if ( currentSequence.name == NULL_SEQUENCE)
 	{
 		// nothing to save;
 		return;
 	}
 	// if not saved...
-	if (currentProfile.sequence == "")
+	if ( currentSequence.name == "")
 	{
 		std::string result;
 		TextPromptDialog dialog(&result, "Please enter a new name for this sequence.");
@@ -561,21 +562,23 @@ void ProfileSystem::saveSequence()
 		{
 			return;
 		}
-		currentProfile.sequence = result;
+		currentSequence.name = result;
 	}
-	std::fstream sequenceSaveFile( currentProfile.categoryPath + "\\" + currentProfile.sequence + "." 
+	std::fstream sequenceSaveFile( currentProfile.categoryPath + "\\" + currentSequence.name + "."
 								   + SEQUENCE_EXTENSION, std::fstream::out);
 	if (!sequenceSaveFile.is_open())
 	{
 		thrower( "ERROR: Couldn't open sequence file for saving!" );
 	}
 	sequenceSaveFile << "Version: 1.0\n";
-	for (UINT sequenceInc = 0; sequenceInc < this->currentProfile.sequenceConfigNames.size(); sequenceInc++)
+	for (auto& seq : currentSequence.sequence)
 	{
-		sequenceSaveFile << this->currentProfile.sequenceConfigNames[sequenceInc] + "\n";
+		sequenceSaveFile << seq.configuration + "\n";
+		sequenceSaveFile << seq.categoryPath + "\n";
+		sequenceSaveFile << seq.parentFolderName + "\n";
 	}
 	sequenceSaveFile.close();
-	reloadSequence(currentProfile.sequence);
+	reloadSequence( currentSequence.name );
 	updateSequenceSavedStatus(true);
 }
 
@@ -604,11 +607,11 @@ void ProfileSystem::saveSequenceAs()
 	{
 		thrower( "ERROR: Couldn't open sequence file for saving!" );
 	}
-	currentProfile.sequence = str(result);
+	currentSequence.name = str(result);
 	sequenceSaveFile << "Version: 1.0\n";
-	for (UINT sequenceInc = 0; sequenceInc < currentProfile.sequenceConfigNames.size(); sequenceInc++)
+	for (UINT sequenceInc = 0; sequenceInc < currentSequence.sequence.size(); sequenceInc++)
 	{
-		sequenceSaveFile << currentProfile.sequenceConfigNames[sequenceInc] + "\n";
+		sequenceSaveFile << currentSequence.sequence[sequenceInc].configuration + "\n";
 	}
 	sequenceSaveFile.close();
 	updateSequenceSavedStatus(true);
@@ -618,7 +621,7 @@ void ProfileSystem::saveSequenceAs()
 void ProfileSystem::renameSequence()
 {
 	// check if configuration has been set yet.
-	if (currentProfile.sequence == "" || currentProfile.sequence == NULL_SEQUENCE)
+	if ( currentSequence.name == "" || currentSequence.name == NULL_SEQUENCE)
 	{
 		thrower( "Please select a sequence for renaming." );
 	}
@@ -630,14 +633,14 @@ void ProfileSystem::renameSequence()
 		// canceled
 		return;
 	}
-	int result = MoveFile( cstr(currentProfile.categoryPath + currentProfile.sequence + "." + SEQUENCE_EXTENSION),
+	int result = MoveFile( cstr(currentProfile.categoryPath + currentSequence.name + "." + SEQUENCE_EXTENSION),
 						   cstr(currentProfile.categoryPath + newSequenceName + "." + SEQUENCE_EXTENSION) );
 	if (result == 0)
 	{
 		thrower( "Renaming of the sequence file Failed! Ask Mark about bugs" );
 	}
-	currentProfile.sequence = newSequenceName;
-	reloadSequence( currentProfile.sequence );
+	currentSequence.name = newSequenceName;
+	reloadSequence( currentSequence.name );
 	updateSequenceSavedStatus( true );
 }
 
@@ -645,17 +648,17 @@ void ProfileSystem::renameSequence()
 void ProfileSystem::deleteSequence()
 {
 	// check if configuration has been set yet.
-	if (currentProfile.sequence == "" || currentProfile.sequence == NULL_SEQUENCE)
+	if ( currentSequence.name == "" || currentSequence.name == NULL_SEQUENCE)
 	{
 		thrower("Please select a sequence for deleting.");
 	}
-	int answer = promptBox("Are you sure you want to delete the current sequence: " + currentProfile.sequence, 
+	int answer = promptBox("Are you sure you want to delete the current sequence: " + currentSequence.name,
 							 MB_YESNO);
 	if (answer == IDNO)
 	{
 		return;
 	}
-	std::string currentSequenceLocation = currentProfile.categoryPath + currentProfile.sequence + "." 
+	std::string currentSequenceLocation = currentProfile.categoryPath + currentSequence.name + "."
 		+ SEQUENCE_EXTENSION;
 	int result = DeleteFile(cstr(currentSequenceLocation));
 	if (result == 0)
@@ -665,7 +668,7 @@ void ProfileSystem::deleteSequence()
 	// since the sequence this (may have been) was saved to is gone, no saved version of current code.
 	updateSequenceSavedStatus(false);
 	// just deleted the current configuration
-	currentProfile.sequence = "";
+	currentSequence.name = "";
 	// reset combo since the files have now changed after delete
 	reloadSequence("__NONE__");
 }
@@ -684,10 +687,12 @@ void ProfileSystem::newSequence(CWnd* parent)
 		return;
 	}
 	// try to open the file.
-	std::fstream sequenceFile(currentProfile.categoryPath + "\\" + result + "." + SEQUENCE_EXTENSION, std::fstream::out);
+	std::fstream sequenceFile(currentProfile.categoryPath + "\\" + result + "." + SEQUENCE_EXTENSION, 
+							   std::fstream::out);
 	if (!sequenceFile.is_open())
 	{
-		thrower( "Couldn't create a file with this sequence name! Make sure there are no forbidden characters in your name." );
+		thrower( "Couldn't create a file with this sequence name! Make sure there are no forbidden characters in your "
+				 "name." );
 	}
 	std::string newSequenceName = str(result);
 	sequenceFile << newSequenceName + "\n";
@@ -697,7 +702,7 @@ void ProfileSystem::newSequence(CWnd* parent)
 		return;
 	}
 	// reload combo.
-	reloadSequence(currentProfile.sequence);
+	reloadSequence( currentSequence.name );
 }
 
 
@@ -707,26 +712,27 @@ void ProfileSystem::openSequence(std::string sequenceName)
 	std::fstream sequenceFile(currentProfile.categoryPath + sequenceName + "." + SEQUENCE_EXTENSION);
 	if (!sequenceFile.is_open())
 	{
-		thrower("ERROR: sequence file failed to open! Make sure the sequence with address ..." 
+		thrower( "ERROR: sequence file failed to open! Make sure the sequence with address ..." 
 				 + currentProfile.categoryPath + sequenceName + "." + SEQUENCE_EXTENSION + " exists.");
 	}
-	currentProfile.sequence = str(sequenceName);
+	currentSequence.name = str(sequenceName);
 	// read the file
 	std::string version;
 	std::getline(sequenceFile, version);
-	currentProfile.sequenceConfigNames.clear();
-	std::string tempName;
-	getline(sequenceFile, tempName);
+	currentSequence.sequence.clear();
 	while (sequenceFile)
 	{
-		currentProfile.sequenceConfigNames.push_back(tempName);
-		getline(sequenceFile, tempName);
+		profileSettings tempSettings;
+		getline( sequenceFile, tempSettings.configuration );
+		getline( sequenceFile, tempSettings.categoryPath );
+		getline( sequenceFile, tempSettings.parentFolderName );
+		currentSequence.sequence.push_back(tempSettings);
 	}
 	// update the edit
 	sequenceInfoDisplay.SetWindowTextA("Configuration Sequence:\r\n");
-	for (UINT sequenceInc = 0; sequenceInc < currentProfile.sequenceConfigNames.size(); sequenceInc++)
+	for (auto sequenceInc : range(currentSequence.sequence.size()))
 	{
-		appendText( str( sequenceInc + 1 ) + ". " + currentProfile.sequenceConfigNames[sequenceInc] + "\r\n",
+		appendText( str( sequenceInc + 1 ) + ". " + currentSequence.sequence[sequenceInc].configuration + "\r\n",
 					sequenceInfoDisplay );
 	}
 	updateSequenceSavedStatus(true);
@@ -780,31 +786,25 @@ bool ProfileSystem::checkSequenceSave(std::string prompt)
 }
 
 
-std::vector<std::string> ProfileSystem::getSequenceNames()
-{
-	return currentProfile.sequenceConfigNames;
-}
-
-
 std::string ProfileSystem::getSequenceNamesString()
 {
 	std::string namesString = "";
-	if (currentProfile.sequence != "NO SEQUENCE")
+	if ( currentSequence.name != "NO SEQUENCE")
 	{
 		namesString += "Sequence:\r\n";
-		for (UINT sequenceInc = 0; sequenceInc < currentProfile.sequenceConfigNames.size(); sequenceInc++)
+		for (UINT sequenceInc = 0; sequenceInc < currentSequence.sequence.size(); sequenceInc++)
 		{
-			namesString += "\t" + str(sequenceInc) + ": " + currentProfile.sequenceConfigNames[sequenceInc] + "\r\n";
+			namesString += "\t" + str(sequenceInc) + ": " + currentSequence.sequence[sequenceInc].configuration + "\r\n";
 		}
 	}
 	return namesString;
 }
 
 
-std::string ProfileSystem::getMasterAddressFromConfig()
+std::string ProfileSystem::getMasterAddressFromConfig(profileSettings profile)
 {
 	std::string configurationAddress;
-	configurationAddress = currentProfile.categoryPath + currentProfile.configuration + "." + CONFIG_EXTENSION;
+	configurationAddress = profile.categoryPath + profile.configuration + "." + CONFIG_EXTENSION;
 	std::fstream configFile(configurationAddress);
 	if (!configFile.is_open())
 	{
@@ -892,6 +892,7 @@ std::vector<std::string> ProfileSystem::searchForFiles( std::string locationToSe
 	return names;
 }
 
+
 // I had issues writing an MFC version of this with a Control<CComboBox> argument, so this is still written in Win32.
 void ProfileSystem::reloadCombo( HWND comboToReload, std::string locationToLook, std::string extension,
 								 std::string nameToLoad )
@@ -912,7 +913,7 @@ void ProfileSystem::reloadCombo( HWND comboToReload, std::string locationToLook,
 	/// Reset stuffs
 	SendMessage( comboToReload, CB_RESETCONTENT, 0, 0 );
 	// Send list to object
-	for (UINT comboInc = 0; comboInc < names.size(); comboInc++)
+	for (auto comboInc : range(names.size()))
 	{
 		if (nameToLoad == names[comboInc])
 		{
@@ -923,6 +924,7 @@ void ProfileSystem::reloadCombo( HWND comboToReload, std::string locationToLook,
 	// Set initial value
 	SendMessage( comboToReload, CB_SETCURSEL, currentInc, 0 );
 }
+
 
 bool ProfileSystem::fileOrFolderExists(std::string filePathway)
 {
@@ -948,3 +950,7 @@ profileSettings ProfileSystem::getProfileSettings()
 	return currentProfile;
 }
 
+seqSettings ProfileSystem::getSeqSettings( )
+{
+	return currentSequence;
+}

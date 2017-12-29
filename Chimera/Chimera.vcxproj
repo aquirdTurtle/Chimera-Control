@@ -204,7 +204,9 @@
     <ClInclude Include="Expression.h" />
     <ClInclude Include="MasterThreadInput.h" />
     <ClInclude Include="Matrix.h" />
+    <ClInclude Include="memdc.h" />
     <ClInclude Include="multiDimensionalKey.h" />
+    <ClInclude Include="PlotDialog.h" />
     <ClInclude Include="profileSettings.h" />
     <ClInclude Include="ProfileSystem.h" />
     <ClInclude Include="DacSettingsDialog.h" />
@@ -291,6 +293,9 @@
     <ClCompile Include="Communicator.cpp" />
     <ClCompile Include="Expression.cpp" />
     <ClCompile Include="openWithExplorer.cpp" />
+    <ClCompile Include="OscilloscopeViewer.cpp" />
+    <ClCompile Include="PlotCtrl.cpp" />
+    <ClCompile Include="PlotDialog.cpp" />
     <ClCompile Include="ProfileSystem.cpp" />
     <ClCompile Include="Control.cpp" />
     <ClCompile Include="DacSettingsDialog.cpp" />
@@ -372,6 +377,8 @@
   <ItemGroup>
     <None Include="coordinate.h" />
     <None Include="DioStructures.h" />
+    <None Include="OscilloscopeViewer.h" />
+    <None Include="PlotCtrl.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

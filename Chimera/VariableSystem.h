@@ -43,13 +43,14 @@ class VariableSystem
 		void setVariationRangeNumber(int num, USHORT dimNumber);
 		void rearrange(UINT width, UINT height, fontMap fonts);
 		void setActive(bool active);
-		void setUsages(std::vector<variableType> vars);
+		void setUsages(std::vector<std::vector<variableType>> vars);
 		void updateVariationNumber( );
 		void setRangeInclusivity( UINT rangeNum, bool leftBorder, bool inclusive, UINT column );
 		/// used to be in KeyHandler
-		static void generateKey( std::vector<variableType>& variables, bool randomizeVariablesOption );
+		static void generateKey( std::vector<std::vector<variableType>>& variables, bool randomizeVariablesOption );
 		static std::vector<double> getKeyValues( std::vector<variableType> variables );
 		void reorderVariableDimensions( );
+		static std::vector<variableType> getConfigVariablesFromFile( std::string configFile );
 	private:
 		// name, constant/variable, dim, constantValue.
 		USHORT preRangeColumns = 4;
