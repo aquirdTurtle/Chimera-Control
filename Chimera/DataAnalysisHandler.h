@@ -4,9 +4,11 @@
 #include "PlottingInfo.h"
 #include "atomGrid.h"
 #include "tinyPlotInfo.h"
+#include "PlotDialog.h"
 #include "Expression.h"
 #include <deque>
 #include <map>
+
 
 struct realTimePlotterInput;
 struct cameraPositions;
@@ -14,7 +16,6 @@ struct cameraPositions;
 // variation data is to be organized
 // variationData[datasetNumber][groupNumber][variationNumber];
 typedef std::vector<std::vector<std::vector<double>>> variationData;
-
 typedef std::vector<std::vector<double>> avgData;
 
 class DataAnalysisControl
@@ -29,7 +30,6 @@ class DataAnalysisControl
 		void handleDoubleClick( fontMap* fonts, UINT currentPicsPerRepetition );
 		void handleRClick( );
 		void rearrange( std::string cameraMode, std::string trigMode, int width, int height, fontMap fonts );
-		//
 		void updateDataSetNumberEdit( int number );
 		void analyze( std::string date, long runNumber, long accumulations, EmbeddedPythonHandler* pyHandler,
 					  Communicator* comm );
@@ -52,15 +52,14 @@ class DataAnalysisControl
 		template<class T> using vector = std::vector<T>;
 		// subroutine for handling atom & count plots
 		static void handlePlotAtoms( realTimePlotterInput* input, PlottingInfo plotInfo, UINT repNum,
-									 vector<vector<std::pair<double, ULONG>> >& finData, variationData& finAvgs, 
-									 variationData& finErrs, variationData& finX, avgData& avgAvgs, avgData& avgErrs, 
-									 avgData& avgX, vector<vector<bool> >& needNewData,  
-									 vector<vector<bool>>& pscSatisfied, int plotNumber, int plotNumberCount, 
-									 vector<vector<int> > atomPresent );
+									 vector<vector<std::pair<double, ULONG>> >& finData, 
+									 std::vector<std::shared_ptr<std::vector<dataPoint>>> dataContainers, 
+									 UINT variationNumber, vector<vector<bool>>& pscSatisfied, int plotNumber, 
+									 int plotNumberCount, vector<vector<int> > atomPresent );
 		static void handlePlotCounts( realTimePlotterInput* input, PlottingInfo plotInfo, UINT pictureNumber,
 									  vector<vector<vector<long> > >& finData, variationData& finAvgs, 
 									  variationData& finErrs, variationData& finX, avgData& avgAvgs, avgData& avgErrs,
-									  avgData& avgX, vector<vector<bool> >& needNewData,  
+									  avgData& avgX, vector<vector<bool> >& needNewData,
 									  vector<vector<bool>>& pscSatisfied, int plotNumber, 
 									  vector<vector<long>>& countData, int plotNumberCount);
 		static void handlePlotHist( realTimePlotterInput* input, PlottingInfo plotInfo, UINT plotNumber,

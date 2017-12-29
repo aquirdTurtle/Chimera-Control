@@ -44,14 +44,16 @@ class AuxiliaryWindow : public CDialog
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 		void OnCancel();
 		void OnSize(UINT nType, int cx, int cy);
+		void OnPaint( );
 		void passCommonCommand(UINT id);
-		void handleMasterConfigSave(std::stringstream& configStream);
-		void handleMasterConfigOpen(std::stringstream& configStream, double version);
+		void OnTimer( UINT_PTR id );
+		
 		// the master needs to handle tooltip stuff.
 		cToolTips toolTips;
+		void handleMasterConfigSave( std::stringstream& configStream );
+		void handleMasterConfigOpen( std::stringstream& configStream, double version );
 		BOOL PreTranslateMessage(MSG* pMsg);
 		/// Message Map Functions
-		void OnTimer( UINT_PTR eventID );
 		void handleTtlPush(UINT id);
 		void handlTtlHoldPush();
 		void ViewOrChangeTTLNames();
@@ -128,6 +130,12 @@ class AuxiliaryWindow : public CDialog
 		RhodeSchwarz RhodeSchwarzGenerator;
 		// 
 		std::array<Agilent, 4> agilents;
+
+		std::vector<PlotCtrl*> dacPlots;
+		std::vector<PlotCtrl*> ttlPlots;
+		std::vector<std::vector<pPlotDataVec>> ttlData, dacData;
+		UINT NUM_DAC_PLTS = 3;
+		UINT NUM_TTL_PLTS = 4;
 		
  		DioSystem ttlBoard;
  		DacSystem dacBoards;
@@ -135,8 +143,7 @@ class AuxiliaryWindow : public CDialog
 		TektronicsControl topBottomTek, eoAxialTek;
 
 		ColorBox boxes;
-		VariableSystem configVariables;
-		VariableSystem globalVariables;
+		VariableSystem configVariables, globalVariables;
 
 		ColorBox statusBox;
 };

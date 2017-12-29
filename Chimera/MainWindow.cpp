@@ -5,18 +5,19 @@
 #include "AuxiliaryWindow.h"
 #include <future>
 
-MainWindow::MainWindow(UINT id, CDialog* splash) : CDialog(id), profile(PROFILES_PATH), 
-    masterConfig( MASTER_CONFIGURATION_FILE_ADDRESS ), 
+MainWindow::MainWindow( UINT id, CDialog* splash ) : CDialog( id ), profile( PROFILES_PATH ),
+	masterConfig( MASTER_CONFIGURATION_FILE_ADDRESS ),
 	appSplash( splash ),
-	niawg( 1,14 )
+	niawg( 1, 14 ),
+	testScope( "", false )
 {
 	// create all the main rgbs and brushes. I want to make sure this happens before other windows are created.
 	mainRGBs["Light Green"]			= RGB( 163,	190, 140);
 	mainRGBs["Slate Grey"]			= RGB( 101,	115, 126);
 	mainRGBs["Pale Pink"]			= RGB( 180,	142, 173);
 	mainRGBs["Musky Red"]			= RGB( 191,	97,	 106);
-	// Using 
 	// this "base04", while not listed on the solarized web site, is used by the visual studio solarized for edit area.
+	// it's a nice darker color that matches the solarized pallete.
 	mainRGBs["Solarized Base04"]	= RGB( 0,	30,  38 );
 	mainRGBs["Solarized Base03"]	= RGB( 0,	43,  54 );
 	mainRGBs["Solarized Base02"]	= RGB( 7,	54,  66 );
@@ -147,7 +148,6 @@ MainWindow::MainWindow(UINT id, CDialog* splash) : CDialog(id), profile(PROFILES
 IMPLEMENT_DYNAMIC( MainWindow, CDialog )
 
 BEGIN_MESSAGE_MAP( MainWindow, CDialog )
-
 	ON_WM_CTLCOLOR( )
 	ON_WM_SIZE( )
 	ON_CBN_SELENDOK( IDC_SEQUENCE_COMBO, &MainWindow::handleSequenceCombo )
@@ -177,13 +177,28 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_COMMAND( IDOK,  &MainWindow::catchEnter)
 	ON_WM_RBUTTONUP( )
 	ON_WM_LBUTTONUP( )
+	ON_WM_PAINT( )
+	ON_WM_TIMER( )
 END_MESSAGE_MAP()
+
+
+void MainWindow::OnTimer( UINT_PTR id )
+{
+	OnPaint( );
+}
+
+
+void MainWindow::OnPaint( )
+{
+	CDialog::OnPaint( );
+}
 
 
 void MainWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 {
 	TheCameraWindow->stopSound( );
 }
+
 
 void MainWindow::OnLButtonUp( UINT stuff, CPoint clickLocation )
 {
@@ -192,8 +207,7 @@ void MainWindow::OnLButtonUp( UINT stuff, CPoint clickLocation )
 
 
 void MainWindow::passConfigPress( )
-{
-	
+{	
 	try
 	{
 		profile.handleSelectConfigButton( this, TheScriptingWindow, this, TheAuxiliaryWindow, TheCameraWindow );
@@ -234,7 +248,6 @@ LRESULT MainWindow::onNoAtomsAlertMessage( WPARAM wp, LPARAM lp )
 		time_t t = time( 0 );
 		struct tm now;
 		localtime_s( &now, &t );
-
 		std::string message = "Experiment Stopped loading atoms at ";
 		if ( now.tm_hour < 10 )
 		{
@@ -266,7 +279,6 @@ BOOL MainWindow::OnInitDialog( )
 	eMainWindowHwnd = GetSafeHwnd( );
 	// don't redraw until the first OnSize.
 	SetRedraw( false );
-
 	/// initialize niawg.
 	try
 	{
@@ -277,7 +289,6 @@ BOOL MainWindow::OnInitDialog( )
 		errBox( "ERROR: NIAWG failed to start! Error: " + except.whatStr( ) );
 		return -1;
 	}
-
 	try
 	{
 		niawg.setDefaultWaveforms( this );
@@ -305,11 +316,9 @@ BOOL MainWindow::OnInitDialog( )
 		errBox( "FATAL ERROR: " + which + " Window constructor failed! Error: " + err.what( ) );
 		return -1;
 	}
-
 	TheScriptingWindow->loadFriends( this, TheCameraWindow, TheAuxiliaryWindow );
 	TheCameraWindow->loadFriends( this, TheScriptingWindow, TheAuxiliaryWindow );
 	TheAuxiliaryWindow->loadFriends( this, TheScriptingWindow, TheCameraWindow );
-
 	try
 	{
 		// these each call oninitdialog after the create call. Hence the try / catch.
@@ -321,7 +330,6 @@ BOOL MainWindow::OnInitDialog( )
 	{
 		errBox( err.what( ) );
 	}
-
 	/// initialize main window controls.
 	comm.initialize( this, TheScriptingWindow, TheCameraWindow, TheAuxiliaryWindow );
 	int id = 1000;
@@ -332,14 +340,21 @@ BOOL MainWindow::OnInitDialog( )
 	debugStatus.initialize( controlLocation, this, id, 480, "DEBUG STATUS", RGB( 13, 152, 186 ), tooltips, IDC_DEBUG_STATUS_BUTTON );
 	controlLocation = { 960, 0 };
 	profile.initialize( controlLocation, this, id, tooltips );
-	controlLocation = { 960, 175};
+	controlLocation = { 960, 175 };
 	notes.initialize( controlLocation, this, id, tooltips);
+	testData = std::vector<pPlotDataVec>( 2 );
+	testData[0] = pPlotDataVec( new plotDataVec( 100, { 0,0,0 } ) );
+	testData[1] = pPlotDataVec( new plotDataVec( 100, { 0,0,0 } ) );
+	PlotDialog* testPlot = new PlotDialog(testData, ErrorPlot);
+	testPlot->Create( IDD_PLOT_DIALOG, this );
+	testPlot->ShowWindow( SW_SHOW );
 	controlLocation = { 1440, 50 };
 	repetitionControl.initialize( controlLocation, tooltips, this, id );
 	settings.initialize( id, controlLocation, this, tooltips );
 	rearrangeControl.initialize( id, controlLocation, this, tooltips );
 	debugger.initialize( id, controlLocation, this, tooltips );
 	texter.initialize( controlLocation, this, id, tooltips, mainRGBs );
+	
 	controlLocation = { 960, 910 };
 	boxes.initialize( controlLocation, id, this, 960, tooltips );
 	shortStatus.initialize( controlLocation, this, id, tooltips );
@@ -355,7 +370,6 @@ BOOL MainWindow::OnInitDialog( )
 	{
 		errBox( err.what( ) );
 	}
-
 
 	ShowWindow( SW_MAXIMIZE );
 	TheCameraWindow->ShowWindow( SW_MAXIMIZE );
@@ -395,6 +409,7 @@ void MainWindow::notifyConfigUpdate( )
 void MainWindow::catchEnter( )
 {
 	// the default handling is to close the window, so I need to catch it.
+
 }
 
 
@@ -658,10 +673,15 @@ HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
 void MainWindow::passCommonCommand(UINT id)
 {
+	static UINT count = 0;
+	testData[0]->at(count) = { double( count ), 0.01 * double( std::pow( count, 2 ) ), 0.1 };
+	testData[1]->at(count) = { double( count ), 1 - 0.01 *double( std::pow( count, 2 ) ), 0.1 };
+	count++;
 	// pass the command id to the common function, filling in the pointers to the windows which own objects needed.
 	try
 	{
-		commonFunctions::handleCommonMessage ( id, this, this, TheScriptingWindow, TheCameraWindow, TheAuxiliaryWindow );
+		commonFunctions::handleCommonMessage ( id, this, this, TheScriptingWindow, TheCameraWindow, 
+											   TheAuxiliaryWindow );
 	}
 	catch (Error& exception)
 	{
@@ -680,11 +700,14 @@ void MainWindow::fillMotInput( MasterThreadInput* input )
 {
 	input->comm = &comm;
 	VariableSystem::generateKey( input->variables, input->settings.randomizeVariations );
-	for ( auto& variable : input->variables )
+	for (auto& seqInc : range(input->variables.size()))
 	{
-		if ( variable.constant )
+		for ( auto& variable : input->variables[seqInc] )
 		{
-			input->constants.push_back( variable );
+			if ( variable.constant )
+			{
+				input->constants[seqInc].push_back( variable );
+			}
 		}
 	}
 	// the mot procedure doesn't need the NIAWG at all.
@@ -695,24 +718,33 @@ void MainWindow::fillMotInput( MasterThreadInput* input )
 
 }
 
+void MainWindow::fillMasterThreadSequence( MasterThreadInput* input )
+{
+	input->seq = profile.getSeqSettings( );
+}
+
 
 void MainWindow::fillMasterThreadInput(MasterThreadInput* input)
 {
 	input->python = &this->python;
-	input->masterScriptAddress = profile.getMasterAddressFromConfig();
 	input->settings = settings.getOptions();
 	input->repetitionNumber = getRepNumber();
 	input->debugOptions = debugger.getOptions();
 	input->profile = profile.getProfileSettings();
+	input->seq = profile.getSeqSettings( );
 	input->niawg = &niawg;
 	input->comm = &comm;
 	VariableSystem::generateKey( input->variables, input->settings.randomizeVariations );
+	input->constants.resize( input->variables.size( ) );
 	// it's important to do this after the key is generated so that the constants have their values.
-	for ( auto& variable : input->variables )
+	for ( auto seqInc: range(input->variables.size()))
 	{
-		if ( variable.constant )
+		for ( auto& variable : input->variables[seqInc] )
 		{
-			input->constants.push_back( variable );
+			if ( variable.constant )
+			{
+				input->constants[seqInc].push_back( variable );
+			}
 		}
 	}
 	input->rearrangeInfo = rearrangeControl.getParams( );
@@ -729,6 +761,13 @@ profileSettings MainWindow::getProfileSettings()
 {
 	return profile.getProfileSettings();
 }
+
+
+seqSettings MainWindow::getSeqSettings( )
+{
+	return profile.getSeqSettings( );
+}
+
 
 
 void MainWindow::checkProfileReady()

@@ -32,7 +32,7 @@ class RhodeSchwarz
 		void addFrequency( rsgEventForm eventInfo );
 		void clearFrequencies();
 		std::vector<rsgEventForm> getFrequencyForms();
-		void interpretKey( std::vector<variableType>& variables);
+		void interpretKey(std::vector<std::vector<variableType>>& variables);
 		void orderEvents(UINT variation );
 		void setInfoDisp(UINT variation );
 		std::string getIdentity();

@@ -864,19 +864,52 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 	input.plotterInput->plottingFrequency = analysisHandler.getPlotFreq( );
 	if ( input.masterInput )
 	{
-		input.plotterInput->key = VariableSystem::getKeyValues( input.masterInput->variables );
+		input.plotterInput->key = VariableSystem::getKeyValues( input.masterInput->variables[0] );
 	}
 	else
 	{
 		std::vector<double> dummyKey;
 		// make a large dummy array to be used. In principle if the users uses a plotter without a master thread for
-		// a long time this could crash... 
-		dummyKey.resize( 1000 );
+		// a long time this could crash...  TODO take care of this!
+		dummyKey.resize( 100 );
 		input.plotterInput->key = dummyKey;
+		UINT count = 0;
+		for ( auto& e : input.plotterInput->key )
+		{
+			e = count++;
+		}
 	}
 	input.plotterInput->plotter = &plotter;
 	input.plotterInput->atomQueue = &plotterAtomQueue;
 	analysisHandler.fillPlotThreadInput( input.plotterInput );
+	
+	for ( auto plot : input.plotterInput->plotInfo )
+	{
+		// Create vector of data to be shared btween plotter and data analysis handler. 
+		std::vector<pPlotDataVec> data;
+		// assume 1 data set...
+		UINT numDataSets = 1;
+		// +1 for average
+		UINT numLines = numDataSets * ( input.plotterInput->atomGridInfo.height * input.plotterInput->atomGridInfo.width 
+										+ 1 );
+		data.resize( numLines );
+		for ( auto& line : data )
+		{
+			line = pPlotDataVec( new plotDataVec( input.plotterInput->key.size( ), { 0, -1, 0 } ) );
+			line->resize( input.plotterInput->key.size( ) );
+			// initialize x axis for all data sets.
+			UINT count = 0;
+			for ( auto& keyItem : input.plotterInput->key )
+			{
+				line->at( count++ ).x = keyItem;
+			}
+		}
+		// start a PlotDialog dialog
+		PlotDialog* plot = new PlotDialog( data, ErrorPlot );
+		plot->Create( IDD_PLOT_DIALOG, 0 );
+		plot->ShowWindow( SW_SHOW );
+		input.plotterInput->dataArrays.push_back( data );
+	}
 }
 
 

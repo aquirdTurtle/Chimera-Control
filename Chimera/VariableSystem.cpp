@@ -1157,17 +1157,20 @@ UINT VariableSystem::getCurrentNumberOfVariables()
 
 // takes as input variables, but just looks at the name and usage stats. When it finds matches between the variables,
 // it takes the usage of the input and saves it as the usage of the real inputVar. 
-void VariableSystem::setUsages(std::vector<variableType> vars)
+void VariableSystem::setUsages(std::vector<std::vector<variableType>> vars)
 {
-	for (auto inputVar : vars)
+	for ( auto& seqVars : vars )
 	{
-		for (auto& realVar : currentVariables)
+		for ( auto inputVar : seqVars )
 		{
-			if (inputVar.name == realVar.name)
+			for ( auto& realVar : currentVariables )
 			{
-				realVar.overwritten = inputVar.overwritten;
-				realVar.active = inputVar.active;
-				break;
+				if ( inputVar.name == realVar.name )
+				{
+					realVar.overwritten = inputVar.overwritten;
+					realVar.active = inputVar.active;
+					break;
+				}
 			}
 		}
 	}
@@ -1552,79 +1555,222 @@ std::vector<double> VariableSystem::getKeyValues( std::vector<variableType> vari
 }
 
 
-void VariableSystem::generateKey( std::vector<variableType>& variables, bool randomizeVariablesOption )
+std::vector<variableType> VariableSystem::getConfigVariablesFromFile( std::string configFileName )
+{
+	std::ifstream f(configFileName);
+	int versionMajor=1, versionMinor=1;
+	ProfileSystem::getVersionFromFile( f, versionMajor, versionMinor );
+	std::vector<variableType> configVariables;
+	// find the version area of the file.
+	while ( f )
+	{
+		try
+		{
+			ProfileSystem::checkDelimiterLine( f, "VARIABLES" );
+		}
+		catch ( Error& )
+		{
+			continue;
+		}
+		// okay, have reached the variables part if get here.
+		// Number of Variables
+		UINT varNum;
+		f >> varNum;
+		if ( varNum > 100 )
+		{
+			int answer = promptBox( "ERROR: variable number retrieved from file appears suspicious. The number is "
+									+ str( varNum ) + ". Is this accurate?", MB_YESNO );
+			if ( answer == IDNO )
+			{
+				// don't try to load anything.
+				varNum = 0;
+			}
+		}
+		int rangeNumber = 1;
+		for ( const UINT varInc : range( varNum ) )
+		{
+			variableType tempVar;
+			std::string varName, typeText, valueString;
+			bool constant;
+			f >> varName;
+			std::transform( varName.begin( ), varName.end( ), varName.begin( ), ::tolower );
+			tempVar.name = varName;
+			f >> typeText;
+			if ( typeText == "Constant" )
+			{
+				constant = true;
+				tempVar.constant = true;
+			}
+			else if ( typeText == "Variable" )
+			{
+				constant = false;
+				tempVar.constant = false;
+			}
+			else
+			{
+				thrower( "ERROR: unknown variable type option: " + typeText + ". Check the formatting of the configuration"
+						 " file." );
+			}
+			if ( (versionMajor == 2 && versionMinor > 7) || versionMajor > 2 )
+			{
+				f >> tempVar.scanDimension;
+			}
+			else
+			{
+				tempVar.scanDimension = 1;
+			}
+			f >> rangeNumber;
+			// I think it's unlikely to ever need more than 2 or 3 ranges.
+			if ( rangeNumber < 1 || rangeNumber > 100 )
+			{
+				errBox( "ERROR: Bad range number! setting it to 1, but found " + str( rangeNumber ) + " in the file." );
+				rangeNumber = 1;
+			}
+			for ( auto& variable : configVariables )
+			{
+				variable.ranges.resize( rangeNumber );
+			}
+			// setVariationRangeNumber( rangeNumber, 1 );
+
+			// check if the range is actually too small.
+			UINT totalVariations = 0;
+			for ( auto rangeInc : range( rangeNumber ) )
+			{
+				double initValue = 0, finValue = 0;
+				unsigned int variations = 0;
+				bool leftInclusive = 0, rightInclusive = 0;
+				f >> initValue;
+				f >> finValue;
+				f >> variations;
+				totalVariations += variations;
+				f >> leftInclusive;
+				f >> rightInclusive;
+				tempVar.ranges.push_back( { initValue, finValue, variations, leftInclusive, rightInclusive } );
+			}
+			// shouldn't be because of 1 forcing earlier.
+			if ( tempVar.ranges.size( ) == 0 )
+			{
+				// make sure it has at least one entry.
+				tempVar.ranges.push_back( { 0,0,1, false, true } );
+			}
+			if ( (versionMajor == 2 && versionMinor >= 14) || versionMajor > 2 )
+			{
+				f >> tempVar.constantValue;
+			}
+			else
+			{
+				tempVar.constantValue = tempVar.ranges[0].initialValue;
+			}
+			configVariables.push_back( tempVar );
+		}
+
+		for ( auto rangeInc : range( rangeNumber ) )
+		{
+			bool leftInclusivity = false, rightInclusivity = true;
+			if ( configVariables.size( ) != 0 )
+			{
+				leftInclusivity = configVariables.front( ).ranges[rangeInc].leftInclusive;
+				rightInclusivity = configVariables.front( ).ranges[rangeInc].rightInclusive;
+			}
+			for ( auto& variable : configVariables )
+			{
+				variable.ranges[rangeInc].leftInclusive = leftInclusivity;
+				variable.ranges[rangeInc].leftInclusive = rightInclusivity;
+			}
+		}
+		ProfileSystem::checkDelimiterLine( f, "END_VARIABLES" );
+		break;
+	}
+	return configVariables;
+}
+
+
+void VariableSystem::generateKey( std::vector<std::vector<variableType>>& variables, bool randomizeVariablesOption )
 {
 	// get information from variables.
-	for ( auto& variable : variables )
+	for ( auto& seqVariables : variables )
 	{
-		variable.keyValues.clear( );
+		for ( auto& variable : seqVariables )
+		{
+			variable.keyValues.clear( );
+		}
 	}
 	// get maximum dimension.
 	UINT maxDim = 0;
-	for ( auto variable : variables )
+	for ( auto seqVariables : variables )
 	{
-		if ( variable.scanDimension > maxDim )
+		for ( auto variable : seqVariables )
 		{
-			maxDim = variable.scanDimension;
+			if ( variable.scanDimension > maxDim )
+			{
+				maxDim = variable.scanDimension;
+			}
 		}
 	}
 	// each element of the vector refers to the number of variations within a given variation range.
-	// variations[dimNumber][rangeNumber]
-	std::vector<std::vector<int>> variations(maxDim);
-	std::vector<int> variableIndexes;
-	for ( UINT dimInc : range( maxDim ) )
+	// variations[seqNumber][dimNumber][rangeNumber]
+	std::vector<std::vector<std::vector<int>>> variations( variables.size( ), std::vector<std::vector<int>>(maxDim));
+	std::vector<std::vector<int>> variableIndexes(variables.size());
+	for (auto seqInc : range(variables.size()) )
 	{
-		variations[dimInc].resize( variables.front( ).ranges.size( ) );
-		for ( UINT varInc = 0; varInc < variables.size( ); varInc++ )
+		for ( UINT dimInc : range( maxDim ) )
 		{
-			if ( variables[varInc].scanDimension != dimInc + 1 )
+			variations[seqInc][dimInc].resize( variables[seqInc].front( ).ranges.size( ) );
+			for ( UINT varInc = 0; varInc < variables.size( ); varInc++ )
 			{
-				continue;
-			}
-			// find a varying parameter.
-			if ( variables[varInc].constant )
-			{
-				continue;
-			}
-			// then this variable varies in this dimension. 
-			variableIndexes.push_back( varInc );
-			// variations.size is the number of ranges currently.
-
-			if ( variations[dimInc].size( ) != variables[varInc].ranges.size( ) )
-			{
-				// if its zero its just the initial size on the initial variable.
-				if ( variations.size( ) != 0 )
-				{
-					thrower( "ERROR: Not all variables seem to have the same number of ranges for their parameters!" );
-				}
-				variations[dimInc].resize( variables[varInc].ranges.size( ) );
-			}
-			// make sure the variations number is consistent between
-			for ( auto rangeInc : range( variations[dimInc].size( ) ) )
-			{
-				if ( variables[varInc].scanDimension != dimInc+1 )
+				auto& variable = variables[seqInc][varInc];
+				if ( variable.scanDimension != dimInc + 1 )
 				{
 					continue;
 				}
-				// avoid the case of zero as this just hasn't been set yet.
-				if ( variations[dimInc][rangeInc] != 0 )
+				// find a varying parameter.
+				if ( variable.constant )
 				{
-					if ( variables[varInc].ranges[rangeInc].variations != variations[dimInc][rangeInc] )
-					{
-						thrower( "ERROR: not all ranges of variables have the same number of variations!" );
-					}
+					continue;
 				}
-				variations[dimInc][rangeInc] = variables[varInc].ranges[rangeInc].variations;
+				// then this variable varies in this dimension. 
+				variableIndexes[seqInc].push_back( varInc );
+				// variations.size is the number of ranges currently.
+				if ( variations[dimInc].size( ) != variable.ranges.size( ) )
+				{
+					// if its zero its just the initial size on the initial variable.
+					if ( variations.size( ) != 0 )
+					{
+						thrower( "ERROR: Not all variables seem to have the same number of ranges for their parameters!" );
+					}
+					variations[dimInc].resize( variable.ranges.size( ) );
+				}
+				// make sure the variations number is consistent between
+				for ( auto rangeInc : range( variations[dimInc].size( ) ) )
+				{
+					auto& variationNum = variations[seqInc][dimInc][rangeInc];
+					if ( variable.scanDimension != dimInc + 1 )
+					{
+						continue;
+					}
+					// avoid the case of zero as this just hasn't been set yet.
+					if ( variationNum != 0 )
+					{
+						if ( variable.ranges[rangeInc].variations != variationNum )
+						{
+							thrower( "ERROR: not all ranges of variables have the same number of variations!" );
+						}
+					}
+					variationNum = variable.ranges[rangeInc].variations;
+				}
 			}
 		}
 	}
-	std::vector<UINT> totalVariations( maxDim );
-	for ( auto dimInc : range(variations.size()) )
+	std::vector<std::vector<UINT>> totalVariations( variations.size(), std::vector<UINT>(maxDim) );
+	for ( auto seqInc : range( variations.size( ) ) )
 	{
-		totalVariations[dimInc] = 0;
-		for ( auto variationsInRange : variations[dimInc] )
+		for ( auto dimInc : range( variations[seqInc].size( ) ) )
 		{
-			totalVariations[dimInc] += variationsInRange;
+			totalVariations[seqInc][dimInc] = 0;
+			for ( auto variationsInRange : variations[seqInc][dimInc] )
+			{
+				totalVariations[seqInc][dimInc] += variationsInRange;
+			}
 		}
 	}
 	// create a key which will be randomized and then used to randomize other things the same way.
@@ -1633,125 +1779,128 @@ void VariableSystem::generateKey( std::vector<variableType>& variables, bool ran
 	UINT count = 0;
 	for ( auto& keyElem : randomizerMultiKey.values )
 	{
-		keyElem = count++;
+		keyElem[0] = count++;
 	}
 	if ( randomizeVariablesOption )
 	{
 		std::random_device rng;
 		std::mt19937 twister( rng( ) );
 		// and shuffle.
-		std::shuffle( randomizerMultiKey.values.begin( ), randomizerMultiKey.values.end( ), twister );
+		std::shuffle( randomizerMultiKey.values[0].begin( ), randomizerMultiKey.values[0].end( ), twister );
 		// we now have a random key for the shuffling which every variable will follow
 		// initialize this to one so that constants always get at least one value.
 	}
 	int totalSize = 1;
-	for ( auto variableInc : range(variableIndexes.size( )) )
+	for ( auto seqInc : range( variableIndexes.size( ) ) )
 	{
-		int varIndex = variableIndexes[variableInc];
-		// calculate all values for a given variable
-		multiDimensionalKey<double> tempKey(maxDim), tempKeyRandomized( maxDim );
-		tempKey.resize( totalVariations );
-		tempKeyRandomized.resize( totalVariations );
-		std::vector<UINT> rangeOffset (totalVariations.size(), 0);
-		std::vector<UINT> indexes( maxDim );
-		while ( true )
+		for ( auto variableInc : range( variableIndexes[seqInc].size( ) ) )
 		{
-			UINT rangeIndex = 0, variationInc = 0;
-			UINT varDim = variables[varIndex].scanDimension - 1;
-			UINT relevantIndex = indexes[varDim];
-			UINT tempShrinkingIndex = relevantIndex;
-			UINT rangeCount = 0, rangeOffset = 0;
-			// calculate which range it is and what the index offset should be as a result.
-			for ( auto range : variables[varIndex].ranges )
+			int varIndex = variableIndexes[seqInc][variableInc];
+			auto& variable = variables[seqInc][varIndex];
+			// calculate all values for a given variable
+			multiDimensionalKey<double> tempKey( maxDim ), tempKeyRandomized( maxDim );
+			tempKey.resize( totalVariations );
+			tempKeyRandomized.resize( totalVariations );
+			std::vector<UINT> rangeOffset( totalVariations.size( ), 0 );
+			std::vector<UINT> indexes( maxDim );
+			while ( true )
 			{
-				if ( tempShrinkingIndex >= range.variations )
+				UINT rangeIndex = 0, variationInc = 0;
+				UINT varDim = variable.scanDimension - 1;
+				UINT relevantIndex = indexes[varDim];
+				UINT tempShrinkingIndex = relevantIndex;
+				UINT rangeCount = 0, rangeOffset = 0;
+				// calculate which range it is and what the index offset should be as a result.
+				for ( auto range : variable.ranges )
 				{
-					tempShrinkingIndex -= range.variations;
-					rangeOffset += range.variations;
+					if ( tempShrinkingIndex >= range.variations )
+					{
+						tempShrinkingIndex -= range.variations;
+						rangeOffset += range.variations;
+					}
+					else
+					{
+						rangeIndex = rangeCount;
+						break;
+					}
+					rangeCount++;
+				}
+				auto& currRange = variable.ranges[rangeIndex];
+				// calculate the parameters for the variation range
+				double valueRange = (currRange.finalValue - currRange.initialValue);
+				int spacings;
+				if ( currRange.leftInclusive && currRange.rightInclusive )
+				{
+					spacings = variations[seqInc][variables[seqInc][varIndex].scanDimension - 1][rangeIndex] - 1;
+				}
+				else if ( currRange.leftInclusive && currRange.rightInclusive )
+				{
+					spacings = variations[seqInc][varDim][rangeIndex] + 1;
 				}
 				else
 				{
-					rangeIndex = rangeCount;
-					break;
+					spacings = variations[seqInc][varDim][rangeIndex];
 				}
-				rangeCount++;
-			}
-			// calculate the parameters for the variation range
-			double valueRange = ( variables[varIndex].ranges[rangeIndex].finalValue
-								  - variables[varIndex].ranges[rangeIndex].initialValue );
-			int spacings;
-			if ( variables[varIndex].ranges[rangeIndex].leftInclusive
-					&& variables[varIndex].ranges[rangeIndex].rightInclusive )
-			{
-				spacings = variations[variables[varIndex].scanDimension - 1][rangeIndex] - 1;
-			}
-			else if ( variables[varIndex].ranges[rangeIndex].leftInclusive
-						&& variables[varIndex].ranges[rangeIndex].rightInclusive )
-			{
-				spacings = variations[varDim][rangeIndex] + 1;
-			}
-			else
-			{
-				spacings = variations[varDim][rangeIndex];
-			}
-			double initVal;
-			if ( variables[varIndex].ranges[rangeIndex].leftInclusive )
-			{
-				initVal = variables[varIndex].ranges[rangeIndex].initialValue;
-			}
-			else
-			{
-				initVal = variables[varIndex].ranges[rangeIndex].initialValue + valueRange / spacings;
-			}
-			// calculate values.
-			variationInc = indexes[varDim];
-			double value = valueRange * (variationInc - rangeOffset) / spacings + initVal;
-			tempKey.setValue( indexes, value );
-			// increment. This part effectively makes this infinite while an arbitrary-dimensional loop.
-			bool isAtEnd = true;
-			for ( auto& indexInc : range(indexes.size()) )
-			{
-				// if at end of cycle for this index in this range
-				if ( indexes[indexInc] == totalVariations[indexInc]-1 )
+				double initVal;
+				if ( currRange.leftInclusive )
 				{
-					indexes[indexInc] = 0;
-					continue;
+					initVal = currRange.initialValue;
 				}
 				else
 				{
-					indexes[indexInc]++;
-					isAtEnd = false;
+					initVal = currRange.initialValue + valueRange / spacings;
+				}
+				// calculate values.
+				variationInc = indexes[varDim];
+				double value = valueRange * (variationInc - rangeOffset) / spacings + initVal;
+				tempKey.setValue( indexes, seqInc, value );
+				// increment. This part effectively makes this infinite while an arbitrary-dimensional loop.
+				bool isAtEnd = true;
+				for ( auto& indexInc : range( indexes.size( ) ) )
+				{
+					// if at end of cycle for this index in this range
+					if ( indexes[indexInc] == totalVariations[seqInc][indexInc] - 1 )
+					{
+						indexes[indexInc] = 0;
+						continue;
+					}
+					else
+					{
+						indexes[indexInc]++;
+						isAtEnd = false;
+						break;
+					}
+				}
+				if ( isAtEnd )
+				{
 					break;
 				}
 			}
-			if ( isAtEnd )
+			for ( auto keyInc : range( randomizerMultiKey.values.size( ) ) )
 			{
-				break;
+				tempKeyRandomized.values[seqInc][keyInc] = tempKey.values[seqInc][randomizerMultiKey.values[seqInc][keyInc]];
 			}
+			variable.keyValues = tempKeyRandomized.values[seqInc];
+			variable.valuesVary = true;
+			totalSize = tempKeyRandomized.values.size( );
 		}
-
-
-		for ( auto keyInc : range(randomizerMultiKey.values.size()) )
-		{
-			tempKeyRandomized.values[keyInc] = tempKey.values[randomizerMultiKey.values[keyInc]];
-		}
-		variables[varIndex].keyValues = tempKeyRandomized.values;
-		variables[varIndex].valuesVary = true;
-		totalSize = tempKeyRandomized.values.size( );
 	}
 	// now add all constant objects.
-	for ( variableType& variable : variables )
+	for ( auto& seqVariables : variables )
 	{
-		if ( variable.constant )
+		for ( variableType& variable : seqVariables )
 		{
-			variable.keyValues.clear( );
-			variable.keyValues.resize( totalSize );
-			for ( auto& val : variable.keyValues )
+			if ( variable.constant )
 			{
-				// the only constant value is stored as the initial value here.
-				val = variable.constantValue;
+				variable.keyValues.clear( );
+				variable.keyValues.resize( totalSize );
+				for ( auto& val : variable.keyValues )
+				{
+					// the only constant value is stored as the initial value here.
+					val = variable.constantValue;
+				}
+				variable.valuesVary = false;
 			}
-			variable.valuesVary = false;
 		}
 	}
 }
