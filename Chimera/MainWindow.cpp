@@ -9,7 +9,8 @@ MainWindow::MainWindow( UINT id, CDialog* splash ) : CDialog( id ), profile( PRO
 	masterConfig( MASTER_CONFIGURATION_FILE_ADDRESS ),
 	appSplash( splash ),
 	niawg( 1, 14 ),
-	testScope( "USB0::0x0699::0x03B3::C011388::0::INSTR", false )
+	masterRepumpScope( "USB0::0x0699::0x03B3::C011388::0::INSTR", MASTER_REPUMP_SCOPE_SAFEMODE, 4 ),
+	motScope( "USB0::0x0699::0x03B3::C011388::0::INSTR", MOT_SCOPE_SAFEMODE, 2 )
 {
 	// create all the main rgbs and brushes. I want to make sure this happens before other windows are created.
 	mainRGBs["Light Green"]			= RGB( 163,	190, 140);
@@ -198,7 +199,9 @@ void MainWindow::OnPaint( )
 	// work without this and I don't know what changed. I used to do:
 	// memDC dc( GetDC( ) );
 	cdc->SetBkColor( getRgbs( )["Solarized Base 04"] );
-	testScope.refreshPlot( cdc, size.right - size.left, size.bottom - size.top, getBrushes( )["Solarized Base04"] );
+	UINT width = size.right - size.left, height = size.bottom - size.top;
+	masterRepumpScope.refreshPlot( cdc, width, height, getBrushes( )["Solarized Base04"] );
+	motScope.refreshPlot(		   cdc, width, height, getBrushes( )["Solarized Base04"] );
 }
 
 
@@ -356,7 +359,8 @@ BOOL MainWindow::OnInitDialog( )
 	PlotDialog* testPlot = new PlotDialog(testData, ErrorPlot);
 	testPlot->Create( IDD_PLOT_DIALOG, this );
 	testPlot->ShowWindow( SW_SHOW );
-	testScope.initialize( controlLocation, 480, 250, this );
+	masterRepumpScope.initialize( controlLocation, 480, 250, this );
+	motScope.initialize( controlLocation, 480, 250, this );
 	controlLocation = { 1440, 50 };
 	repetitionControl.initialize( controlLocation, tooltips, this, id );
 	settings.initialize( id, controlLocation, this, tooltips );
@@ -403,6 +407,7 @@ BOOL MainWindow::OnInitDialog( )
 	{
 		errBox( err.what( ) );
 	}
+	SetTimer( 1, 3000, NULL );
 	updateConfigurationSavedStatus( true );
 	return TRUE;
 }
@@ -507,7 +512,8 @@ void MainWindow::handleOpeningConfig(std::ifstream& configFile, int versionMajor
 void MainWindow::OnSize(UINT nType, int cx, int cy)
 {
 	SetRedraw( false );
-	testScope.rearrange( cx, cy, getFonts( ) );
+	masterRepumpScope.rearrange( cx, cy, getFonts( ) );
+	motScope.rearrange( cx, cy, getFonts( ) );
 	profile.rearrange(cx, cy, getFonts());
 	notes.rearrange(cx, cy, getFonts());
 	debugger.rearrange(cx, cy, getFonts());

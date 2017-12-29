@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include "profileSettings.h"
+#include "constants.h"
 
 /*
 ]- This is a structure used for containing a set of parameters that define a profile.
@@ -13,6 +14,10 @@ struct profileSettings
 	std::string parentFolderName;
 	// Note: The category path include the category name in the string.
 	std::string categoryPath;
+	std::string configFilePath( )
+	{
+		return categoryPath + "//" + configuration + "." + CONFIG_EXTENSION;
+	}
 };
 
 

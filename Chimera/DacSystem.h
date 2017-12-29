@@ -63,7 +63,8 @@ class DacSystem
 		void rearrange(UINT width, UINT height, fontMap fonts);
 		bool isValidDACName(std::string name);
 		HBRUSH handleColorMessage(CWnd* hwnd, brushMap brushes, rgbMap rgbs, CDC* cDC);
-		void fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> dacData );
+		void fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> dacData, 
+						   std::vector<std::vector<double>> finTimes );
 		void resetDacEvents();
 		void initDacObjs( UINT totalSequenceNumber );
 		std::array<double, 24> getDacStatus();

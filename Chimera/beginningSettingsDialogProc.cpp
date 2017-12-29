@@ -12,9 +12,9 @@ INT_PTR CALLBACK beginningSettingsDialogProc(HWND hDlg, UINT message, WPARAM wPa
 		{
 			LoadLibrary(TEXT("Msftedit.dll"));
 			eBeginDialogRichEdit = CreateWindowEx(0, _T("RICHEDIT50W"), "",
-												  WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | WS_HSCROLL | ES_READONLY,
-												  0, 0, 572, 400, hDlg, (HMENU)IDC_BEGINNING_DIALOG_RICH_EDIT, GetModuleHandle(NULL), NULL);
-			//SendMessage(eBeginDialogRichEdit, WM_SETFONT, WPARAM(sCodeFont), TRUE);
+												  WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL 
+												   | ES_AUTOHSCROLL | WS_HSCROLL | ES_READONLY, 0, 0, 572, 400, hDlg, 
+												   (HMENU)IDC_BEGINNING_DIALOG_RICH_EDIT, GetModuleHandle(NULL), NULL);
 			std::string text((const char*)lParam);
 			SetWindowText(eBeginDialogRichEdit, cstr(text));
 			std::stringstream streamObj(text);

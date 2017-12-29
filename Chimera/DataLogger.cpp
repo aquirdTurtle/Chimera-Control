@@ -450,8 +450,7 @@ void DataLogger::logNiawgSettings(MasterThreadInput* input)
 		for ( auto config : input->seq.sequence )
 		{
 			niawgPair<std::fstream> niawgFiles;
-			ProfileSystem::openNiawgFiles( niawgFiles, input->profile, input->seq, input->runNiawg,
-										   config.configuration );
+			ProfileSystem::openNiawgFiles( niawgFiles, config, input->seq, input->runNiawg );
 			std::stringstream stream;
 			stream << niawgFiles[Horizontal].rdbuf( );
 			writeDataSet( stream.str( ), "Seq. " + str(seqInc+1) + " Horizontal-NIAWG-Script", niawgGroup );

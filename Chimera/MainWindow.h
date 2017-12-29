@@ -141,7 +141,7 @@ class MainWindow : public CDialog
 		cToolTips tooltips;
 		EmbeddedPythonHandler python;
 		// testing...
-		ScopeViewer testScope;
+		ScopeViewer masterRepumpScope, motScope;
 		// testing...
 		std::vector<pPlotDataVec> testData;
 		//

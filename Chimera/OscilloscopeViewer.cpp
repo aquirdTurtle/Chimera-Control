@@ -2,7 +2,9 @@
 #include "OscilloscopeViewer.h"
 
 
-ScopeViewer::ScopeViewer( std::string usbAddress, bool safemode ) : visa( safemode, usbAddress )
+ScopeViewer::ScopeViewer( std::string usbAddress, bool safemode, UINT traceNumIn ) : 
+	visa( safemode, usbAddress ),
+	numTraces( traceNumIn )
 {
 	visa.open( );
 	visa.write( "header off\n" );
@@ -28,7 +30,7 @@ void ScopeViewer::rearrange( int width, int height, fontMap fonts )
 }
 
 
-void ScopeViewer::initialize( POINT topLeftLoc, UINT width, UINT height, CWnd* parent )
+void ScopeViewer::initialize( POINT& topLeftLoc, UINT width, UINT height, CWnd* parent )
 {
 	scopeData.resize( 4 );
 	for ( auto& data : scopeData )
@@ -37,6 +39,7 @@ void ScopeViewer::initialize( POINT topLeftLoc, UINT width, UINT height, CWnd* p
 	}
 	viewPlot = new PlotCtrl( scopeData, OscilloscopePlot, "Scope!" );
 	viewPlot->init( topLeftLoc, width, height, parent );
+	topLeftLoc.y += height;
 	refreshData( );
 }
 
@@ -44,17 +47,21 @@ void ScopeViewer::initialize( POINT topLeftLoc, UINT width, UINT height, CWnd* p
 void ScopeViewer::refreshData( )
 {
 	visa.open( );
-	std::string data;
-	visa.query( "Curve?\n", data );
-	double count = 0;
-	scopeData[0]->clear( );
-	for ( auto& c : data )
+	for ( auto line : range( numTraces ) )
 	{
-		if ( count++ < 6 )
+		std::string data;
+		visa.printf( "DATa:SOUrce " + str(line+1) );
+		visa.query( "Curve?\n", data );
+		double count = 0;
+		scopeData[line]->clear( );
+		for ( auto& c : data )
 		{
-			continue;
+			if ( count++ < 6 )
+			{
+				continue;
+			}
+			scopeData[line]->push_back( { count, ((((double)c) - yoffset) * ymult), 0 } );
 		}
-		scopeData[0]->push_back( { count, ((((double)c) - yoffset) * ymult), 0 } );
 	}
 	visa.close( );
 }

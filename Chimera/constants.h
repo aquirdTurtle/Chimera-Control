@@ -9,8 +9,8 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program. 
 
-#define MASTER_COMPUTER
-// #define SPECTRE_LAPTOP
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP
 /// File Locations
 
 #ifdef SPECTRE_LAPTOP
@@ -36,6 +36,10 @@
 	#define TESTING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
 	#define UWAVE_SAFEMODE true
 	#define UWAVE_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
+	#define MASTER_REPUMP_SCOPE_SAFEMODE true
+	#define MASTER_REPUMP_SCOPE_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
+	#define MOT_SCOPE_SAFEMODE true
+	#define MOT_SCOPE_ADDRESS			"USB0::0x0957::0x2C07::MY52801397::0::INSTR"
 
 	const std::string PROJECT_LOCATION = "C:\\Users\\Mark-Brown\\Chimera-Control\\";
 	const std::string PYTHON_CODE_LOCATION = "C:/Users/Mark-Brown/Chimera-Control/Chimera";
@@ -77,7 +81,10 @@
 	#define FLASHING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50003003::0::INSTR"
 	#define UWAVE_SAFEMODE false
 	#define UWAVE_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
-#define MASTER_REPUMP
+	#define MASTER_REPUMP_SCOPE_SAFEMODE false
+	#define MASTER_REPUMP_SCOPE_ADDRESS  "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
+	#define MOT_SCOPE_SAFEMODE			 false
+	#define MOT_SCOPE_ADDRESS			 "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
 
 	#define PYTHON_HOME L"C:\\Program Files (x86)\\Anaconda3\\"
 
