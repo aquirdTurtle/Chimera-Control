@@ -10,11 +10,18 @@ class VisaFlume
 		void write( std::string message );		
 		void close();
 		void open();
-		void errCheck( long status );
+		char scan( );
+		void flush( );
+		void query( std::string msg, long& data );
+		void query( std::string msg, float& data );
+		void query( std::string msg, std::string& data );
+		char readchar( );
+		void errCheck( long status );		
 		void errCheck( long status, std::string msg );
 		void setAttribute( ViAttr attributeName, ViAttrState value );
 		void printf( std::string msg );
 		void errQuery( std::string& errMsg, long& errCode );
+		void query( std::string msg );
 		std::string identityQuery();
 	private:
 	    const bool deviceSafemode;

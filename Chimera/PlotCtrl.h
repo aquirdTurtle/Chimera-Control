@@ -11,7 +11,9 @@ enum plotStyle
 	// uses circs and error bars to represent data and errors
 	ErrorPlot,
 	// uses bars for histograms
-	HistPlot
+	HistPlot,
+	// 
+	OscilloscopePlot
 };
 
 struct dataPoint
@@ -50,6 +52,7 @@ class PlotCtrl
 						 std::pair<double, double>& minMaxRaw, std::pair<double, double>& minMaxScaled );
 		void drawTitle( memDC* d, long width, long height );
 		CRect GetPlotRect( LONG width, LONG height );
+		void makeLinePlot( memDC* d, LONG width, LONG height, plotDataVec line );
 		void makeStepPlot( memDC* d, LONG width, LONG height, plotDataVec line );
 	private:
 		const plotStyle style;

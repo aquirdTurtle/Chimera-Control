@@ -101,6 +101,24 @@ void PlotCtrl::convertDataToScreenCoords( double width, double height, std::vect
 			}
 		}
 	}
+	if ( style == OscilloscopePlot )
+	{
+		for ( auto line : screenData )
+		{
+			for ( auto elem : line )
+			{
+				if ( elem.y < miny )
+				{
+					miny = elem.y;
+				}
+				if ( elem.y > maxy )
+				{
+					maxy = elem.y;
+				}
+			}
+		}
+	}
+
 	double plotWidthPixels = widthScale * (plotAreaDims.right - plotAreaDims.left);
 	double plotHeightPixels = heightScale * (plotAreaDims.bottom - plotAreaDims.top);
 	double rangeX = maxx - minx;
@@ -127,6 +145,11 @@ void PlotCtrl::convertDataToScreenCoords( double width, double height, std::vect
 	{
 		dataHeight = 21;
 		dataMin = -10;
+	}
+	else if ( style == OscilloscopePlot )
+	{
+		dataHeight = maxy-miny;
+		dataMin = miny;
 	}
 	else
 	{
@@ -174,6 +197,10 @@ void PlotCtrl::plotPoints( memDC* d, double width, double height )
 	}
 	
 	std::pair<double, double> minMaxScaled, minMaxRaw;
+	if ( style == OscilloscopePlot )
+	{
+		getMinMaxY( screenData, data, minMaxRaw, minMaxScaled );
+	}
 	drawGridAndAxes( d, xRaw, xScaled, width, height, minMaxRaw, minMaxScaled );
 	UINT penNum = 0;
 	UINT lineNum = 0;
@@ -206,6 +233,10 @@ void PlotCtrl::plotPoints( memDC* d, double width, double height )
 		else if ( style == TtlPlot || style == DacPlot )
 		{
 			makeStepPlot( d, width, height, line );
+		}
+		else if ( style == OscilloscopePlot )
+		{
+			makeLinePlot( d, width, height, line );
 		}
 
 		lineNum++;
@@ -271,6 +302,27 @@ void PlotCtrl::shiftTtlData( std::vector<plotDataVec>& rawData )
 	}
 }
 
+void PlotCtrl::makeLinePlot( memDC* d, LONG width, LONG height, plotDataVec scaledLine )
+{
+	// want to draw a vertical line at each point of line, and then draw horizontal lines to connect the ends of the 
+	// vertical lines.
+	dataPoint prevPoint;
+	UINT count = 0;
+	for ( auto& point : scaledLine )
+	{
+		count++;
+		// draw line from prev point to current point
+		if ( count == 1 )
+		{
+			// update prev point
+			prevPoint = point;
+			continue;
+		}
+		drawLine( d, { long( prevPoint.x ), long( prevPoint.y ) }, { long( point.x ), long( point.y ) } );
+		prevPoint = point;
+	}
+}
+
 
 void PlotCtrl::makeStepPlot( memDC* d, LONG width, LONG height, plotDataVec scaledLine )
 {
@@ -330,11 +382,11 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 	for ( auto x : scaledX )
 	{
 		// draw vertical lines for x points
-		drawLine( d, x, scaledArea.bottom + 5, x, scaledArea.top );
 		RECT r = { long( scaledArea.left - 10 ), long( scaledArea.bottom + 5 ), long( scaledArea.left + 10 ), long( scaledArea.bottom + 25) };
 		std::string txt = str( xAxisPts[count] );
 		if ( labelEachPoint )
 		{
+			drawLine( d, x, scaledArea.bottom + 5, x, scaledArea.top );
 			d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 		}
 		count++;
@@ -348,6 +400,8 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 			RECT r = { long( scaledArea.left + count * scaledWidth/10.0 - 40), long( scaledArea.bottom + 5 ),
 					   long( scaledArea.left + 60 + count * scaledWidth / 10.0), long( scaledArea.bottom + 25 ) };
 			std::string txt = str( xMin + count * dataRange / 10.0 );
+			drawLine( d, scaledArea.left + count * scaledWidth / 10.0 + 10, scaledArea.bottom + 5,
+					  scaledArea.left + count * scaledWidth / 10.0 + 10, scaledArea.top );
 			d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 		}
 	}
@@ -369,8 +423,8 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 		}
 		else
 		{
-			minY = 0;
-			maxY = 1;
+			minY = minMaxRawY.first;
+			maxY = minMaxRawY.second;
 		}
 		// Forces y-axis to be between 0 and 1.
 		for ( auto gridline : range( numLines ) )
