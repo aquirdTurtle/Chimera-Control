@@ -11,7 +11,7 @@ def pushout():
 	%daclinspace: motFreq 0.235 pushoutfreq  5 20 %-0.5 to pushoutfreq in 5ms	
 	% mostly for the power ramp. also, lets the mot frequency settle.
 	off: RepumpRF
-	dac: sideMotPower 0.001 %0.08 %for 3x6 with pushoutdepth 2 % 0.015 %0.01
+	dac: sideMotPower pushoutPower %0.08 %for 3x6 with pushoutdepth 2 % 0.015 %0.01
 	on: sideMotRf
       t += pushoutTime %0.3
 	off: sideMotRf

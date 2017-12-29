@@ -6,12 +6,11 @@
 #include "niFgen.h"
 #include <string>
 
-
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program. 
 
 #define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP
+// #define SPECTRE_LAPTOP
 /// File Locations
 
 #ifdef SPECTRE_LAPTOP

@@ -52,6 +52,8 @@ Bugs:
 - bug in picture stats retrieval from image array? Seems like might have been not really the fault of the image stats, 
 	but should look into this a bit.
 - seems to always think functions are unsaved.
+- better protect saving over functions; already catch save over function, should just not let the user try to save it 
+	as a normal file.
 
 Rearranging
 - code for creating non-flashing moves
