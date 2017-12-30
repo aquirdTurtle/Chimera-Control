@@ -23,7 +23,7 @@ class multiDimensionalKey
 template <class TYPE>
 multiDimensionalKey<TYPE>::multiDimensionalKey( ) : nDims( 1 )
 {
-	dimensions.resize( nDimensions );
+	dimensions.resize( nDims );
 }
 
 template <class TYPE> 

@@ -195,14 +195,14 @@ void MainWindow::OnPaint( )
 	CRect size;
 	GetClientRect( &size );
 	CDC* cdc = GetDC( );
-	// for some reason I suddenly started needing to do this. I know that memDC redraws the background, but it used to 
-	// work without this and I don't know what changed. I used to do:
-	// memDC dc( GetDC( ) );
 	cdc->SetBkColor( getRgbs( )["Solarized Base 04"] );
 	UINT width = size.right - size.left, height = size.bottom - size.top;
 	masterRepumpScope.refreshPlot( cdc, width, height, getBrushes( )["Solarized Base04"] );
 	motScope.refreshPlot(		   cdc, width, height, getBrushes( )["Solarized Base04"] );
 }
+
+
+
 
 
 void MainWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
@@ -408,6 +408,12 @@ BOOL MainWindow::OnInitDialog( )
 		errBox( err.what( ) );
 	}
 	SetTimer( 1, 3000, NULL );
+	//
+	scopeRefreshInput* inputPtr = new scopeRefreshInput;
+	inputPtr->masterRepumpScope = &masterRepumpScope;
+	inputPtr->motScope = &motScope;
+	_beginthreadex( NULL, NULL, &MainWindow::scopeRefreshProcedure, inputPtr, NULL, NULL );
+	//
 	updateConfigurationSavedStatus( true );
 	return TRUE;
 }
@@ -716,6 +722,7 @@ void MainWindow::fillMotInput( MasterThreadInput* input )
 {
 	input->comm = &comm;
 	VariableSystem::generateKey( input->variables, input->settings.randomizeVariations );
+	input->constants = std::vector<std::vector<variableType>>( input->variables.size( ) );
 	for (auto& seqInc : range(input->variables.size()))
 	{
 		for ( auto& variable : input->variables[seqInc] )
@@ -726,13 +733,31 @@ void MainWindow::fillMotInput( MasterThreadInput* input )
 			}
 		}
 	}
+	input->seq.name = "loadMot";
+	input->seq.sequence.resize( 1 );
+	input->seq.sequence[0].configuration = "Set MOT Settings";
+	input->seq.sequence[0].categoryPath = MOT_ROUTINE_ADDRESS;
+	input->seq.sequence[0].parentFolderName = "MOT";
 	// the mot procedure doesn't need the NIAWG at all.
 	input->runNiawg = false;
-	input->skipNext = NULL;
-	input->rearrangeInfo = rearrangeControl.getParams( );
-	input->rearrangeInfo.active = false;
-
+ 	input->skipNext = NULL;
+ 	input->rearrangeInfo = rearrangeControl.getParams( );
+ 	input->rearrangeInfo.active = false;
 }
+
+
+
+unsigned int __stdcall MainWindow::scopeRefreshProcedure( void* voidInput )
+{
+	scopeRefreshInput* input = (scopeRefreshInput*)voidInput;
+	// this thread just continuously requests new info from the scopes.
+	while ( true )
+	{
+		input->masterRepumpScope->refreshData( );
+		input->motScope->refreshData( );
+	}
+}
+
 
 void MainWindow::fillMasterThreadSequence( MasterThreadInput* input )
 {
