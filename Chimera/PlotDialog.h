@@ -11,7 +11,6 @@ class PlotDialog : public CDialog
 	public:
 		DECLARE_DYNAMIC( PlotDialog );
 		PlotDialog( std::vector<pPlotDataVec> dataHolder, plotStyle styleIn );
-		~PlotDialog( );
 		HBRUSH OnCtlColor( CDC* pDC, CWnd* pWnd, UINT nCtlColor );
 		BOOL OnInitDialog( ) override;
 		void OnPaint( );

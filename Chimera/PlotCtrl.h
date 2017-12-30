@@ -54,6 +54,8 @@ class PlotCtrl
 		CRect GetPlotRect( LONG width, LONG height );
 		void makeLinePlot( memDC* d, LONG width, LONG height, plotDataVec line );
 		void makeStepPlot( memDC* d, LONG width, LONG height, plotDataVec line );
+
+		std::vector<std::mutex> dataMutexes;
 	private:
 		const plotStyle style;
 		// first level deliminates different lines which get different colors. second level deliminates different 

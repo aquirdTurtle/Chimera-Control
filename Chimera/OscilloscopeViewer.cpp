@@ -53,6 +53,7 @@ void ScopeViewer::refreshData( )
 		visa.write( "DATa:SOUrce CH" + str(line+1) );
 		visa.query( "Curve?\n", data );
 		double count = 0;
+		std::lock_guard<std::mutex> lock( viewPlot->dataMutexes[line] );
 		scopeData[line]->clear( );
 		for ( auto& c : data )
 		{
@@ -65,3 +66,4 @@ void ScopeViewer::refreshData( )
 	}
 	visa.close( );
 }
+
