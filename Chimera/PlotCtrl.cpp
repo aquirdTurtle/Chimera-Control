@@ -14,6 +14,7 @@ PlotCtrl::PlotCtrl( std::vector<pPlotDataVec> dataHolder, plotStyle inStyle, std
 		CPen* pen = new CPen( PS_SOLID, 0, RGB( elem[0], elem[1], elem[2] ) );
 		pens.push_back( pen );
 	}
+	dataMutexes.resize( dataHolder.size( ) );
 	title = titleIn;
 }
 
@@ -179,9 +180,12 @@ void PlotCtrl::plotPoints( memDC* d, double width, double height )
 	}
 	std::vector<plotDataVec> screenData;
 	std::vector<plotDataVec> shiftedData;
-	for ( auto count : range( data.size( ) ) )
 	{
-		screenData.push_back( *data[count] );
+		for ( auto lineCount : range( data.size( ) ) )
+		{
+			std::lock_guard<std::mutex> lock( dataMutexes[lineCount] );
+			screenData.push_back( *data[lineCount] );
+		}
 	}
 	shiftedData = screenData;
 	if ( style == TtlPlot )
@@ -190,10 +194,13 @@ void PlotCtrl::plotPoints( memDC* d, double width, double height )
 	}
 	convertDataToScreenCoords( width, height, shiftedData );
 	std::vector<double> xRaw, xScaled;
-	for ( auto count : range( shiftedData[0].size( ) ) )
 	{
-		xRaw.push_back( data[0]->at( count ).x );
-		xScaled.push_back( shiftedData[0][count].x );
+		std::lock_guard<std::mutex> lock( dataMutexes[0] );
+		for ( auto pointCount : range( shiftedData[0].size( ) ) )
+		{
+			xRaw.push_back( data[0]->at( pointCount ).x );
+			xScaled.push_back( shiftedData[0][pointCount].x );
+		}
 	}
 	
 	std::pair<double, double> minMaxScaled, minMaxRaw;
@@ -219,15 +226,16 @@ void PlotCtrl::plotPoints( memDC* d, double width, double height )
 		}
 		if ( style == ErrorPlot )
 		{
-			UINT count = 0;
+			UINT pointCount = 0;
+			std::lock_guard<std::mutex> lock( dataMutexes[lineNum] );
 			for ( auto point : line )
 			{
-				if ( data[lineNum]->at( count ).y <= 1 && data[lineNum]->at( count ).y >= 0 )
+				if ( data[lineNum]->at( pointCount ).y <= 1 && data[lineNum]->at( pointCount ).y >= 0 )
 				{
 					circleMarker( d, { long( point.x ), long( point.y ) }, 10 );
 					errBars( d, { long( point.x ), long( point.y ) }, point.err, 10 );
 				}
-				count++;
+				pointCount++;
 			}
 		}
 		else if ( style == TtlPlot || style == DacPlot )
@@ -269,8 +277,10 @@ void PlotCtrl::getMinMaxY( std::vector<plotDataVec> screenData, std::vector<pPlo
 			}
 		}
 	}
+	UINT lineCount = 0;
 	for ( auto line : rawData )
 	{
+		std::lock_guard<std::mutex> lock( dataMutexes[lineCount] );
 		for ( auto p : *line )
 		{
 			if ( p.y < minMaxRaw.first )
@@ -282,6 +292,7 @@ void PlotCtrl::getMinMaxY( std::vector<plotDataVec> screenData, std::vector<pPlo
 				minMaxRaw.second = p.y;
 			}
 		}
+		lineCount++;
 	}
 }
 

@@ -353,12 +353,6 @@ BOOL MainWindow::OnInitDialog( )
 	profile.initialize( controlLocation, this, id, tooltips );
 	controlLocation = { 960, 175 };
 	notes.initialize( controlLocation, this, id, tooltips);
-	testData = std::vector<pPlotDataVec>( 2 );
-	testData[0] = pPlotDataVec( new plotDataVec( 100, { 0,0,0 } ) );
-	testData[1] = pPlotDataVec( new plotDataVec( 100, { 0,0,0 } ) );
-	PlotDialog* testPlot = new PlotDialog(testData, ErrorPlot);
-	testPlot->Create( IDD_PLOT_DIALOG, this );
-	testPlot->ShowWindow( SW_SHOW );
 	masterRepumpScope.initialize( controlLocation, 480, 250, this );
 	motScope.initialize( controlLocation, 480, 250, this );
 	controlLocation = { 1440, 50 };
@@ -695,10 +689,6 @@ HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
 void MainWindow::passCommonCommand(UINT id)
 {
-	static UINT count = 0;
-	testData[0]->at(count) = { double( count ), 0.01 * double( std::pow( count, 2 ) ), 0.1 };
-	testData[1]->at(count) = { double( count ), 1 - 0.01 *double( std::pow( count, 2 ) ), 0.1 };
-	count++;
 	// pass the command id to the common function, filling in the pointers to the windows which own objects needed.
 	try
 	{

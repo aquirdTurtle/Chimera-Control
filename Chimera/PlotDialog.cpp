@@ -10,12 +10,6 @@ PlotDialog::PlotDialog( std::vector<pPlotDataVec> dataHolder, plotStyle styleIn)
 }
 
 
-PlotDialog::~PlotDialog( )
-{
-
-}
-
-
 IMPLEMENT_DYNAMIC( PlotDialog, CDialog )
 
 BEGIN_MESSAGE_MAP( PlotDialog, CDialog )
@@ -31,6 +25,7 @@ void PlotDialog::OnTimer( UINT_PTR id )
 	// in principle could just invalidate rect here.
 	OnPaint( );
 }
+
 
 void PlotDialog::OnSize( UINT s, int cx, int cy)
 {

@@ -30,16 +30,16 @@ class DataLogger
 		void deleteFile(Communicator* comm);
 		int getDataFileNumber( );
 	private:
-		H5::DataSet writeDataSet( bool data, std::string name, H5::Group& group );
-		H5::DataSet writeDataSet( UINT data, std::string name, H5::Group& group );
-		H5::DataSet writeDataSet( ULONGLONG data, std::string name, H5::Group& group );
-		H5::DataSet writeDataSet( int data, std::string name, H5::Group& group );
-		H5::DataSet writeDataSet( double data, std::string name, H5::Group& group );
+		H5::DataSet writeDataSet( bool data,				std::string name, H5::Group& group );
+		H5::DataSet writeDataSet( UINT data,				std::string name, H5::Group& group );
+		H5::DataSet writeDataSet( ULONGLONG data,			std::string name, H5::Group& group );
+		H5::DataSet writeDataSet( int data,					std::string name, H5::Group& group );
+		H5::DataSet writeDataSet( double data,				std::string name, H5::Group& group );
 		H5::DataSet writeDataSet( std::vector<double> data, std::string name, H5::Group& group );
-		H5::DataSet writeDataSet( std::vector<float> data, std::string name, H5::Group& group );
-		H5::DataSet writeDataSet( std::string data, std::string name, H5::Group& group );
-		void writeAttribute( double data, std::string name, H5::DataSet& dset );
-		void writeAttribute( bool data, std::string name, H5::DataSet& dset );
+		H5::DataSet writeDataSet( std::vector<float> data,	std::string name, H5::Group& group );
+		H5::DataSet writeDataSet( std::string data,			std::string name, H5::Group& group );
+		void writeAttribute( double data,					std::string name, H5::DataSet& dset );
+		void writeAttribute( bool data,						std::string name, H5::DataSet& dset );
 	    H5::H5File file;
 		H5::DataSet pictureDataset;
 		// for the entire set
