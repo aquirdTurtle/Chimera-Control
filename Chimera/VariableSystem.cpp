@@ -1709,14 +1709,15 @@ void VariableSystem::generateKey( std::vector<std::vector<variableType>>& variab
 	}
 	// each element of the vector refers to the number of variations within a given variation range.
 	// variations[seqNumber][dimNumber][rangeNumber]
-	std::vector<std::vector<std::vector<int>>> variations( variables.size( ), std::vector<std::vector<int>>(maxDim));
+	std::vector<std::vector<std::vector<int>>> variations( variables.size( ), 
+														   std::vector<std::vector<int>>(maxDim));
 	std::vector<std::vector<int>> variableIndexes(variables.size());
 	for (auto seqInc : range(variables.size()) )
 	{
 		for ( UINT dimInc : range( maxDim ) )
 		{
 			variations[seqInc][dimInc].resize( variables[seqInc].front( ).ranges.size( ) );
-			for ( UINT varInc = 0; varInc < variables.size( ); varInc++ )
+			for ( UINT varInc = 0; varInc < variables[seqInc].size( ); varInc++ )
 			{
 				auto& variable = variables[seqInc][varInc];
 				if ( variable.scanDimension != dimInc + 1 )
@@ -1731,17 +1732,17 @@ void VariableSystem::generateKey( std::vector<std::vector<variableType>>& variab
 				// then this variable varies in this dimension. 
 				variableIndexes[seqInc].push_back( varInc );
 				// variations.size is the number of ranges currently.
-				if ( variations[dimInc].size( ) != variable.ranges.size( ) )
+				if ( variations[seqInc][dimInc].size( ) != variable.ranges.size( ) )
 				{
 					// if its zero its just the initial size on the initial variable.
-					if ( variations.size( ) != 0 )
+					if ( variations[seqInc].size( ) != 0 )
 					{
 						thrower( "ERROR: Not all variables seem to have the same number of ranges for their parameters!" );
 					}
-					variations[dimInc].resize( variable.ranges.size( ) );
+					variations[seqInc][dimInc].resize( variable.ranges.size( ) );
 				}
 				// make sure the variations number is consistent between
-				for ( auto rangeInc : range( variations[dimInc].size( ) ) )
+				for ( auto rangeInc : range( variations[seqInc][dimInc].size( ) ) )
 				{
 					auto& variationNum = variations[seqInc][dimInc][rangeInc];
 					if ( variable.scanDimension != dimInc + 1 )
@@ -1777,9 +1778,9 @@ void VariableSystem::generateKey( std::vector<std::vector<variableType>>& variab
 	multiDimensionalKey<int> randomizerMultiKey( maxDim );
 	randomizerMultiKey.resize( totalVariations );
 	UINT count = 0;
-	for ( auto& keyElem : randomizerMultiKey.values )
+	for ( auto& keyElem : randomizerMultiKey.values[0] )
 	{
-		keyElem[0] = count++;
+		keyElem = count++;
 	}
 	if ( randomizeVariablesOption )
 	{

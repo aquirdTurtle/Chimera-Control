@@ -36,23 +36,33 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	input->thisObj->experimentIsRunning = true;
 	seqInfo expSeq( input->seq.sequence.size( ) );
 	UINT seqNum = 0;
-	for ( auto& config : input->seq.sequence )
+	try
 	{
-		if ( input->runMaster )
+		for ( auto& config : input->seq.sequence )
 		{
-			expSeq.sequence[seqNum].masterScript = ProfileSystem::getMasterAddressFromConfig( config );
-			input->thisObj->loadMasterScript( expSeq.sequence[seqNum].masterScript, 
-											  expSeq.sequence[seqNum].masterStream );
+			if ( input->runMaster )
+			{
+				expSeq.sequence[seqNum].masterScript = ProfileSystem::getMasterAddressFromConfig( config );
+				input->thisObj->loadMasterScript( expSeq.sequence[seqNum].masterScript,
+												  expSeq.sequence[seqNum].masterStream );
+			}
+			if ( input->runNiawg )
+			{
+				ProfileSystem::openNiawgFiles( expSeq.sequence[seqNum].niawgScripts, config, input->seq, input->runNiawg );
+			}
+			for ( auto& ag : input->agilents )
+			{
+				// need to figure out how to handle this...
+			}
+			seqNum++;
 		}
-		if ( input->runNiawg )
-		{
-			ProfileSystem::openNiawgFiles( expSeq.sequence[seqNum].niawgScripts, config, input->seq, input->runNiawg );
-		}
-		for ( auto& ag : input->agilents )
-		{
-			// need to figure out how to handle this...
-		}
-		seqNum++;
+	}
+	catch ( Error& err )
+	{
+		errBox( "ERROR: failed to load experiment sequence files!" );
+		input->thisObj->experimentIsRunning = false;
+		delete voidInput;
+		return -1;
 	}
 
 	// warnings will be passed by reference to a series of function calls which can append warnings to the string.

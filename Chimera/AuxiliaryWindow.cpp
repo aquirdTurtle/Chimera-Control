@@ -736,13 +736,14 @@ void AuxiliaryWindow::loadMotSettings(MasterThreadInput* input)
 		input->variables.push_back(globalVariables.getEverything());
 		// Only set it once, clearly.
 		input->repetitionNumber = 1;
-		//input->masterScriptAddress = MOT_ROUTINE_ADDRESS;
 		input->rsg = &RhodeSchwarzGenerator;
 		input->intensityAgilentNumber = -1;
 		input->topBottomTek = &topBottomTek;
 		input->eoAxialTek = &eoAxialTek;
 		input->runMaster = true;
 		input->runNiawg = false;
+		input->dacData = dacData;
+		input->ttlData = ttlData;
 	}
 	catch (Error& exception)
 	{

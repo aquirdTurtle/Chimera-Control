@@ -9,8 +9,8 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program. 
 
-//#define MASTER_COMPUTER
-#define SPECTRE_LAPTOP
+#define MASTER_COMPUTER
+//#define SPECTRE_LAPTOP
 /// File Locations
 
 #ifdef SPECTRE_LAPTOP
@@ -53,7 +53,7 @@
 	const std::string MUSIC_LOCATION = PROJECT_LOCATION + "Camerawg\\Final Fantasy VII - Victory Fanfare [HQ].mp3";
 	const std::string FUNCTIONS_FOLDER_LOCATION = PROJECT_LOCATION + "Functions\\";
 	const std::string MASTER_CONFIGURATION_FILE_ADDRESS = PROJECT_LOCATION + "Master-Configuration.txt";
-	const std::string MOT_ROUTINE_ADDRESS = PROJECT_LOCATION + "Master Profiles\\Hotkey Experiments\\MOT\\turnOnMot.mScript";
+	const std::string MOT_ROUTINE_ADDRESS = PROJECT_LOCATION + "Master Profiles\\Hotkey Experiments\\MOT";
 	const std::string DEBUG_OUTPUT_LOCATION = PROJECT_LOCATION + "Debug-Output\\";
 	const std::string TIMING_OUTPUT_LOCATION = PROJECT_LOCATION + "\\Data\\";
 	const std::string NIAWG_WAVEFORM_OUTPUT_LOCATION = TIMING_OUTPUT_LOCATION;
@@ -81,10 +81,10 @@
 	#define FLASHING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50003003::0::INSTR"
 	#define UWAVE_SAFEMODE false
 	#define UWAVE_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
-	#define MASTER_REPUMP_SCOPE_SAFEMODE false
-	#define MASTER_REPUMP_SCOPE_ADDRESS  "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
-	#define MOT_SCOPE_SAFEMODE			 false
-	#define MOT_SCOPE_ADDRESS			 "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
+	#define MASTER_REPUMP_SCOPE_SAFEMODE true
+	#define MASTER_REPUMP_SCOPE_ADDRESS  "USB0::0x0699::0x03B3::C011388::0::INSTR"
+	#define MOT_SCOPE_SAFEMODE			 true
+	#define MOT_SCOPE_ADDRESS			 "USB0::0x0699::0x0363::C100939::0::INSTR"
 
 	#define PYTHON_HOME L"C:\\Program Files (x86)\\Anaconda3\\"
 
@@ -104,7 +104,7 @@
 	const std::string MASTER_CONFIGURATION_FILE_ADDRESS(str(CODE_ROOT) + "\\Master-Configuration.txt");
 	const std::string LOGGING_FILE_ADDRESS = str(CODE_ROOT) + "\\Master-Log.txt";
 	const std::string KEY_ADDRESS = "\\\\Callisto\\Shared\\key.txt";
-	const std::string MOT_ROUTINE_ADDRESS = PROFILES_PATH + "Hotkey Experiments\\MOT\\turnOnMot.mScript";
+	const std::string MOT_ROUTINE_ADDRESS = PROFILES_PATH + "Hotkey Experiments\\MOT";
 	const std::string DEBUG_OUTPUT_LOCATION = str(CODE_ROOT) + "\\Debug-Output\\";
 	const std::string TIMING_OUTPUT_LOCATION = DATA_SAVE_LOCATION + "\\2017\\September\\September 8\\Raw Data\\";
 	// location where wave data can be outputted for analyzing with another computer.

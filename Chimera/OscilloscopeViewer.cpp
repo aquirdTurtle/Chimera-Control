@@ -32,7 +32,7 @@ void ScopeViewer::rearrange( int width, int height, fontMap fonts )
 
 void ScopeViewer::initialize( POINT& topLeftLoc, UINT width, UINT height, CWnd* parent )
 {
-	scopeData.resize( 4 );
+	scopeData.resize( numTraces );
 	for ( auto& data : scopeData )
 	{
 		data = pPlotDataVec( new plotDataVec( 100, { 0,0,0 } ) );
@@ -50,7 +50,7 @@ void ScopeViewer::refreshData( )
 	for ( auto line : range( numTraces ) )
 	{
 		std::string data;
-		visa.printf( "DATa:SOUrce " + str(line+1) );
+		visa.write( "DATa:SOUrce CH" + str(line+1) );
 		visa.query( "Curve?\n", data );
 		double count = 0;
 		scopeData[line]->clear( );

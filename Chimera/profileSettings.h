@@ -16,7 +16,7 @@ struct profileSettings
 	std::string categoryPath;
 	std::string configFilePath( )
 	{
-		return categoryPath + "//" + configuration + "." + CONFIG_EXTENSION;
+		return categoryPath + "\\" + configuration + "." + CONFIG_EXTENSION;
 	}
 };
 
