@@ -59,3 +59,4 @@ template <class type> void writeDataSet( type data, H5::Group group )
 	H5::DataSet rightSet = imageDims.createDataSet( "Right", H5::PredType::NATIVE_INT, H5::DataSpace( 1, rank1 ) );
 	rightSet.write( &settings.imageSettings.right, H5::PredType::NATIVE_INT );
 }
+

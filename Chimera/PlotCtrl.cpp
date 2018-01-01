@@ -14,7 +14,7 @@ PlotCtrl::PlotCtrl( std::vector<pPlotDataVec> dataHolder, plotStyle inStyle, std
 		CPen* pen = new CPen( PS_SOLID, 0, RGB( elem[0], elem[1], elem[2] ) );
 		pens.push_back( pen );
 	}
-	dataMutexes.resize( dataHolder.size( ) );
+	//dataMutexes.resize( dataHolder.size( ) );
 	title = titleIn;
 }
 
