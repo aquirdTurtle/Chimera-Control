@@ -1786,7 +1786,6 @@ void VariableSystem::generateKey( std::vector<std::vector<variableType>>& variab
 	{
 		std::random_device rng;
 		std::mt19937 twister( rng( ) );
-		// and shuffle.
 		std::shuffle( randomizerMultiKey.values[0].begin( ), randomizerMultiKey.values[0].end( ), twister );
 		// we now have a random key for the shuffling which every variable will follow
 		// initialize this to one so that constants always get at least one value.
@@ -1877,13 +1876,13 @@ void VariableSystem::generateKey( std::vector<std::vector<variableType>>& variab
 					break;
 				}
 			}
-			for ( auto keyInc : range( randomizerMultiKey.values.size( ) ) )
+			for ( auto keyInc : range( randomizerMultiKey.values[seqInc].size( ) ) )
 			{
 				tempKeyRandomized.values[seqInc][keyInc] = tempKey.values[seqInc][randomizerMultiKey.values[seqInc][keyInc]];
 			}
 			variable.keyValues = tempKeyRandomized.values[seqInc];
 			variable.valuesVary = true;
-			totalSize = tempKeyRandomized.values.size( );
+			totalSize = tempKeyRandomized.values[seqInc].size( );
 		}
 	}
 	// now add all constant objects.

@@ -45,7 +45,7 @@ Bugs:
 - control tektronics not being saved in config?
 - bug in picture stats retrieval from image array? Seems like might have been not really the fault of the image stats, 
 	but should look into this a bit.
-- Agilent non-integer number of samples bugs don't make sense
+- Agilent non-integer number of samples bugs don't make sense, "bad time entered for the time of anintensity sequence"
 
 Rearranging
 - code for creating non-flashing moves

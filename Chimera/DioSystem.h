@@ -54,8 +54,8 @@ class DioSystem
 		void setName(UINT row, UINT number, std::string name, cToolTips& toolTips, AuxiliaryWindow* master);
 		std::string getName(UINT row, UINT number);
 		std::array<std::array<std::string, 16>, 4> DioSystem::getAllNames();
-		// returns -1 if not a name.get
-		int DioSystem::getNameIdentifier(std::string name, UINT& row, UINT& number);
+		// returns -1 if not a name.
+		int getNameIdentifier(std::string name, UINT& row, UINT& number);
 		bool getTtlStatus(int row, int number);
 		std::string getErrorMessage(int errorCode);
 		void handleTtlScriptCommand( std::string command, timeType time, std::string name,

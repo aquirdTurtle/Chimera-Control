@@ -68,7 +68,7 @@ class MainWindow : public CDialog
 		void handleSequenceCombo();
 		void passClear( UINT id );
 		void passNiawgIsOnPress( );
-
+		CFont* getPlotFont( );
 		// auxiliary functions used by the window.
 		void setNotes(std::string notes);
 		void setNiawgDefaults();
@@ -115,6 +115,7 @@ class MainWindow : public CDialog
 		void notifyConfigUpdate( );
 		void passConfigPress( );
 		void OnTimer( UINT_PTR id );
+		std::vector<CPen*> getPens( );
 	private:		
 		DECLARE_MESSAGE_MAP();
 		ScriptingWindow* TheScriptingWindow;
@@ -147,12 +148,13 @@ class MainWindow : public CDialog
 		EmbeddedPythonHandler python;
 		// testing...
 		ScopeViewer masterRepumpScope, motScope;
+		CFont* plotfont;
 		// testing...
 		//std::vector<pPlotDataVec> testData;
 		//
 		static BOOL CALLBACK monitorHandlingProc( _In_ HMONITOR hMonitor, _In_ HDC      hdcMonitor,
 										   _In_ LPRECT   lprcMonitor, _In_ LPARAM   dwData );
-
+		std::vector<CPen*> plotPens;
 		// friends (try to minimize these)
 		friend void commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin,
 														  ScriptingWindow* scriptWin, CameraWindow* camWin,

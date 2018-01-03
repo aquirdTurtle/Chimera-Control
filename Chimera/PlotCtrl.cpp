@@ -2,18 +2,14 @@
 #include "PlotCtrl.h"
 
 
-PlotCtrl::PlotCtrl( std::vector<pPlotDataVec> dataHolder, plotStyle inStyle, std::string titleIn ) :
+PlotCtrl::PlotCtrl( std::vector<pPlotDataVec> dataHolder, plotStyle inStyle, std::vector<CPen*> pensIn,
+					CFont* font, std::string titleIn ) :
 	whitePen( PS_SOLID, 0, RGB( 255, 255, 255 ) ),
 	greyPen( PS_SOLID, 0, RGB( 100, 100, 100 ) ),
 	redPen( PS_SOLID, 0, RGB( 255, 0, 0 ) ),
 	solarizedPen( PS_SOLID, 0, RGB( 0, 30, 38 ) ),
-	data( dataHolder ), style( inStyle )
+	data( dataHolder ), style( inStyle ), dataMutexes(dataHolder.size()), pens(pensIn ), textFont(font)
 {
-	for ( auto elem : GIST_RAINBOW_RGB )
-	{
-		CPen* pen = new CPen( PS_SOLID, 0, RGB( elem[0], elem[1], elem[2] ) );
-		pens.push_back( pen );
-	}
 	//dataMutexes.resize( dataHolder.size( ) );
 	title = titleIn;
 }
@@ -49,6 +45,7 @@ void PlotCtrl::drawTitle( memDC* d, long width, long height )
 	d->SelectObject( greyPen );
 	d->SetBkMode( TRANSPARENT );
 	d->SetTextColor( RGB( 255, 255, 255 ) );
+	d->SelectObject( textFont );
 	d->DrawTextEx( LPSTR( cstr( title ) ), title.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 }
 
@@ -202,7 +199,6 @@ void PlotCtrl::plotPoints( memDC* d, double width, double height )
 			xScaled.push_back( shiftedData[0][pointCount].x );
 		}
 	}
-	
 	std::pair<double, double> minMaxScaled, minMaxRaw;
 	if ( style == OscilloscopePlot )
 	{
@@ -393,11 +389,13 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 	for ( auto x : scaledX )
 	{
 		// draw vertical lines for x points
-		RECT r = { long( scaledArea.left - 10 ), long( scaledArea.bottom + 5 ), long( scaledArea.left + 10 ), long( scaledArea.bottom + 25) };
-		std::string txt = str( xAxisPts[count] );
+		RECT r = { long( x - 20 ), long( scaledArea.bottom + 5 ),
+			long( x + 20 ), long( scaledArea.bottom + 25) };
+		std::string txt = str( xAxisPts[count], 3 );
 		if ( labelEachPoint )
 		{
 			drawLine( d, x, scaledArea.bottom + 5, x, scaledArea.top );
+			d->SelectObject( textFont );
 			d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 		}
 		count++;
@@ -413,6 +411,7 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 			std::string txt = str( xMin + count * dataRange / 10.0 );
 			drawLine( d, scaledArea.left + count * scaledWidth / 10.0 + 10, scaledArea.bottom + 5,
 					  scaledArea.left + count * scaledWidth / 10.0 + 10, scaledArea.top );
+			d->SelectObject( textFont );
 			d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 		}
 	}
@@ -432,6 +431,11 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 			minY = -10;
 			maxY = 10;
 		}
+		else if ( style == ErrorPlot )
+		{
+			minY = 0;
+			maxY = 1;
+		}
 		else
 		{
 			minY = minMaxRawY.first;
@@ -445,6 +449,7 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 			RECT r = { long( scaledArea.left - 55 ), long( scaledArea.top + 10 + gridline * vStep ),
 					   long( scaledArea.left - 5 ), long( scaledArea.top - 10 + gridline * vStep ) };
 			std::string txt = str( maxY - (maxY - minY) * double( gridline ) / (numLines - 1), 5 );
+			d->SelectObject( textFont );
 			d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 		}
 
@@ -458,6 +463,7 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 				RECT r = { long( scaledArea.left - 55 ), long( minMaxScaledY.second + 10 - gridline * vStep ),
 					long( scaledArea.left - 5 ), long( minMaxScaledY.second - 10 - gridline * vStep ) };
 				std::string txt = str( minMaxRawY.first + gridline * vRawStep, 5 );
+				d->SelectObject( textFont );
 				d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 			}
 		}
@@ -467,12 +473,14 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 	// axis labels
 	RECT r = { scaledArea.left, scaledArea.bottom + 30 , scaledArea.right, scaledArea.bottom + 50 };
 	std::string txt = "xlabel";
+	d->SelectObject( textFont );
 	d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 	r = { long( controlDims.left * widthScale - 50 ), scaledArea.top, scaledArea.left, scaledArea.bottom };
 	if ( style == TtlPlot )
 	{
 		txt = "Ttl State";
 	}
+	d->SelectObject( textFont );
 	d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 }
 
@@ -507,6 +515,7 @@ void PlotCtrl::drawLegend( memDC* d, UINT width, UINT height, std::vector<plotDa
 		circleMarker( d, legendLoc, 10 );
 		RECT r = { long( legendLoc.x + 10 ), long( legendLoc.y + 10 ),
 			long( plotAreaDims.right * widthScale - colNum * 0.075 * plotAreaWidth ), long( legendLoc.y - 10 ) };
+		d->SelectObject( textFont );
 		d->DrawTextEx( const_cast<char *>(cstr( lineNum)), str( lineNum ).size( ), &r,
 					   DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 	}
@@ -515,7 +524,6 @@ void PlotCtrl::drawLegend( memDC* d, UINT width, UINT height, std::vector<plotDa
 
 void PlotCtrl::drawLine( CDC* d, double begX, double begY, double endX, double endY )
 {
-
 	d->MoveTo( { long( begX ), long( begY ) } );
 	d->LineTo( { long( endX ), long( endY ) } );
 }
@@ -530,11 +538,17 @@ void PlotCtrl::drawLine( CDC* d, POINT beg, POINT end )
 
 void PlotCtrl::circleMarker( memDC* d, POINT loc, double size )
 {
+	//Gdiplus::Graphics g( d->GetSafeHdc( ) );
+	//Gdiplus::Color c( 50, 255, 255, 255 );
+	//Gdiplus::SolidBrush b(c);
+	
 	int x1, x2, y1, y2;
 	x1 = loc.x - size / 2;
 	y1 = loc.y - size / 2;
 	x2 = x1 + size;
 	y2 = y1 + size;
+	//Gdiplus::Rect r(x1, y1, x2-x1, y2-y1 );
+	//g.FillEllipse( &b, r );
 	d->Ellipse( x1, y1, x2, y2 );
 }
 

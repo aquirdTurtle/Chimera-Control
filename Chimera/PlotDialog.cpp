@@ -4,7 +4,9 @@
 #include <algorithm>
 #include "memdc.h"
 
-PlotDialog::PlotDialog( std::vector<pPlotDataVec> dataHolder, plotStyle styleIn) : plot(dataHolder, styleIn )
+PlotDialog::PlotDialog( std::vector<pPlotDataVec> dataHolder, plotStyle styleIn, std::vector<CPen*> inPens, 
+						CFont* font, std::string title ) :
+	plot(dataHolder, styleIn, inPens, font, title )
 {
 	backgroundBrush.CreateSolidBrush( RGB( 0, 30, 38 ) );
 }
@@ -51,11 +53,15 @@ BOOL PlotDialog::OnInitDialog( )
 
 void PlotDialog::OnPaint( )
 {
-	CRect size;
-	GetClientRect( &size );
-	memDC dc( GetDC() );
-	plot.drawBackground( dc, size.right - size.left, size.bottom - size.top, &backgroundBrush );
-	plot.drawBorder( dc, size.right - size.left, size.bottom - size.top );
-	plot.plotPoints( &dc, size.right - size.left, size.bottom - size.top );
-	CDialog::OnPaint( );
+	CDC* cdc = GetDC( );
+	{
+		CRect size;
+		GetClientRect( &size );
+		memDC dc( cdc );
+		plot.drawBackground( dc, size.right - size.left, size.bottom - size.top, &backgroundBrush );
+		plot.drawBorder( dc, size.right - size.left, size.bottom - size.top );
+		plot.plotPoints( &dc, size.right - size.left, size.bottom - size.top );
+		CDialog::OnPaint( );
+	}
+	ReleaseDC( cdc );
 }
