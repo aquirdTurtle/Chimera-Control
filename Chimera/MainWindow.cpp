@@ -144,6 +144,14 @@ MainWindow::MainWindow( UINT id, CDialog* splash ) : CDialog( id ), profile( PRO
 	(mainFonts["Larger Font Small"] = new CFont)
 		->CreateFontA(16, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+	(plotfont= new CFont)
+		->CreateFontA( 9, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+					   CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT( "Arial" ) );
+	for ( auto elem : GIST_RAINBOW_RGB )
+	{
+		CPen* pen = new CPen( PS_SOLID, 0, RGB( elem[0], elem[1], elem[2] ) );
+		plotPens.push_back( pen );
+	}
 }
 
 IMPLEMENT_DYNAMIC( MainWindow, CDialog )
@@ -199,10 +207,14 @@ void MainWindow::OnPaint( )
 	UINT width = size.right - size.left, height = size.bottom - size.top;
 	masterRepumpScope.refreshPlot( cdc, width, height, getBrushes( )["Solarized Base04"] );
 	motScope.refreshPlot(		   cdc, width, height, getBrushes( )["Solarized Base04"] );
+	ReleaseDC( cdc );
 }
 
 
-
+std::vector<CPen*> MainWindow::getPens( )
+{
+	return plotPens;
+}
 
 
 void MainWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
@@ -285,6 +297,12 @@ LRESULT MainWindow::onNoAtomsAlertMessage( WPARAM wp, LPARAM lp )
 }
 
 
+CFont* MainWindow::getPlotFont( )
+{
+	return plotfont;
+}
+
+
 BOOL MainWindow::OnInitDialog( )
 {
 	eMainWindowHwnd = GetSafeHwnd( );
@@ -353,8 +371,8 @@ BOOL MainWindow::OnInitDialog( )
 	profile.initialize( controlLocation, this, id, tooltips );
 	controlLocation = { 960, 175 };
 	notes.initialize( controlLocation, this, id, tooltips);
-	masterRepumpScope.initialize( controlLocation, 480, 250, this );
-	motScope.initialize( controlLocation, 480, 250, this );
+	masterRepumpScope.initialize( controlLocation, 480, 250, this, getPens( ), getPlotFont( ) );
+	motScope.initialize( controlLocation, 480, 250, this, getPens( ), getPlotFont( ) );
 	controlLocation = { 1440, 50 };
 	repetitionControl.initialize( controlLocation, tooltips, this, id );
 	settings.initialize( id, controlLocation, this, tooltips );

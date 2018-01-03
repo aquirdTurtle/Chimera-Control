@@ -6,7 +6,8 @@ class ScopeViewer
 {
 	public:
 		ScopeViewer( std::string usbAddress, bool safemode, UINT traceNumIn );
-		void initialize( POINT& topLeftLoc, UINT width, UINT height, CWnd* parent );
+		void initialize( POINT& topLeftLoc, UINT width, UINT height, CWnd* parent,
+						 std::vector<CPen*> plotPens, CFont* font );
 		void refreshData( );
 		void refreshPlot( CDC* d, UINT width, UINT height, CBrush* backgroundBrush );
 		void rearrange( int width, int height, fontMap fonts );
