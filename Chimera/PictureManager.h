@@ -6,6 +6,7 @@
 class PictureManager
 {
 	public:
+		void handleMouse( CPoint point );
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& configFile, int versionMajor, int versionMinor );
@@ -19,8 +20,9 @@ class PictureManager
 		void setPalletes(std::array<int, 4> palleteIds);
 		// draw pictures...
 		void drawPicture( CDC* deviceContext, int pictureNumber, std::vector<long> picData, 
-						 std::pair<UINT, UINT> minMaxPair );
-		void drawDongles(CDC* dc, coordinate selectedLocation, std::vector<coordinate> analysisLocs, atomGrid gridInfo );
+						  std::pair<UINT, UINT> minMaxPair );
+		void drawDongles( CDC* dc, coordinate selectedLocation, std::vector<coordinate> analysisLocs, 
+						  atomGrid gridInfo );
 		void createPalettes( CDC* dc );
 		void handleEditChange( UINT id );
 		void setAlwaysShowGrid(bool showOption, CDC* easel);

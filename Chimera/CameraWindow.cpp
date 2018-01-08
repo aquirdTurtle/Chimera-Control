@@ -32,10 +32,11 @@ IMPLEMENT_DYNAMIC(CameraWindow, CDialog)
 
 
 BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
-	ON_WM_CTLCOLOR()
-	ON_WM_SIZE()
-	ON_WM_TIMER()
-	ON_WM_VSCROLL()
+	ON_WM_CTLCOLOR( )
+	ON_WM_SIZE( )
+	ON_WM_TIMER( )
+	ON_WM_VSCROLL( )
+	ON_WM_MOUSEMOVE( )
 
 	ON_COMMAND_RANGE( MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &CameraWindow::passCommonCommand )
 	ON_COMMAND_RANGE( PICTURE_SETTINGS_ID_START, PICTURE_SETTINGS_ID_END, &CameraWindow::passPictureSettings )
@@ -71,6 +72,19 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 	ON_CONTROL_RANGE(EN_KILLFOCUS, IDC_IMAGE_DIMS_START, IDC_IMAGE_DIMS_END, &CameraWindow::handleImageDimsEdit )
 
 END_MESSAGE_MAP()
+
+
+void CameraWindow::OnMouseMove( UINT thing, CPoint point )
+{
+	try
+	{
+		pics.handleMouse( point );
+	}
+	catch ( Error& err )
+	{
+		errBox( "Error! " + err.whatStr( ) );
+	}
+}
 
 
 void CameraWindow::handleImageDimsEdit( UINT id )

@@ -10,6 +10,13 @@ void PictureManager::setPalletes(std::array<int, 4> palleteIds)
 	}
 }
 
+void PictureManager::handleMouse( CPoint point )
+{
+	for ( auto& pic : pictures )
+	{
+		pic.handleMouse( point );
+	}
+}
 
 void PictureManager::setAlwaysShowGrid(bool showOption, CDC* easel)
 {
@@ -220,6 +227,7 @@ void PictureManager::setSinglePicture( CWnd* parent, imageParameters imageParams
 	}
 	pictures.front().setPictureArea( picturesLocation, picturesWidth , picturesHeight);
 	pictures.front().setSliderLocations(parent);
+	pictures.front( ).setCursorValueLocations( parent );
 	setParameters( imageParams );	
 }
 
@@ -260,6 +268,10 @@ void PictureManager::setMultiplePictures( CWnd* parent, imageParameters imagePar
 	pictures[3].setPictureArea( loc, picWidth, picHeight );
 	setParameters( imageParams );
 	setPictureSliders( parent );
+	for ( auto& pic : pictures )
+	{
+		pic.setCursorValueLocations( parent );
+	}
 }
 
 
@@ -304,7 +316,7 @@ void PictureManager::initialize( POINT& loc, CWnd* parent, int& id, cToolTips& t
 	{
 		pic.updatePalette( palettes[2] );
 	}
-	// initialize to one. this matches the camera settings initialization.
+	// initialize to one. This matches the camera settings initialization.
 	setNumberPicturesActive( 1 );
 }
 

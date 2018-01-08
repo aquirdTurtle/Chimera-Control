@@ -49,6 +49,16 @@ void PictureControl::initialize( POINT& loc, CWnd* parent, int& id, int width, i
 	// manually scroll the objects to initial positions.
 	handleScroll( sliderMin.GetDlgCtrlID( ), 95 );
 	handleScroll( sliderMax.GetDlgCtrlID( ), 395 );
+	
+	loc.y += height;
+	coordinatesText.sPos = { loc.x, loc.y, loc.x += 100, loc.y + 20 };
+	coordinatesText.Create( "Coordinates: ", WS_CHILD | WS_VISIBLE, coordinatesText.sPos, parent, id++ );
+	coordinatesDisp.sPos = { loc.x, loc.y, loc.x += 100, loc.y + 20 };
+	coordinatesDisp.Create( "", WS_CHILD | WS_VISIBLE | ES_READONLY, coordinatesDisp.sPos, parent, id++ );
+	valueText.sPos = { loc.x, loc.y, loc.x += 100, loc.y + 20 };
+	valueText.Create( "Value: ", WS_CHILD | WS_VISIBLE, valueText.sPos, parent, id++ );
+	valueDisp.sPos = { loc.x, loc.y, loc.x += 100, loc.y + 20 };
+	valueDisp.Create( "", WS_CHILD | WS_VISIBLE | ES_READONLY, valueDisp.sPos, parent, id++ );
 }
 
 
@@ -139,6 +149,25 @@ void PictureControl::setSliderLocations(CWnd* parent)
 					   long(loc.y + (unscaledBackgroundArea.bottom - unscaledBackgroundArea.top)*heightScale) };
 }
 
+/* used when transitioning between single and multiple pictures. It sets it based on the background size, so make
+* sure to change the background size before using this.
+* ********/
+void PictureControl::setCursorValueLocations( CWnd* parent )
+{
+	CRect rect;
+	parent->GetWindowRect( &rect );
+	long width = rect.right - rect.left;
+	long height = rect.bottom - rect.top;
+	double widthScale = width / 1920.0;
+	double heightScale = height / 997.0;
+	widthScale = 1;
+	heightScale = 1;
+	POINT loc = { long( unscaledBackgroundArea.left * widthScale ), long( unscaledBackgroundArea.bottom * heightScale ) };
+	coordinatesText.sPos = { loc.x, loc.y, loc.x += 100, loc.y + 25  };
+	coordinatesDisp.sPos = { loc.x, loc.y, loc.x += 100, loc.y + 25 };
+	valueText.sPos = { loc.x, loc.y, loc.x += 100, loc.y + 25 };
+	valueDisp.sPos = { loc.x, loc.y, loc.x += 100, loc.y + 25 };
+}
 
 /*
  * Called in order to see if a right click is above a camera pixel. Returns coordinates of the camera pixel.
@@ -310,12 +339,14 @@ void PictureControl::setActive( bool activeState )
 	{
 		sliderMax.ShowWindow(SW_HIDE);
 		sliderMin.ShowWindow(SW_HIDE);
-		//
 		labelMax.ShowWindow(SW_HIDE);
 		labelMin.ShowWindow(SW_HIDE);
-		//
 		editMax.ShowWindow(SW_HIDE);
 		editMin.ShowWindow(SW_HIDE);
+		coordinatesText.ShowWindow( SW_HIDE );
+		coordinatesDisp.ShowWindow( SW_HIDE );
+		valueText.ShowWindow( SW_HIDE );
+		valueDisp.ShowWindow( SW_HIDE );
 	}
 	else
 	{
@@ -327,6 +358,10 @@ void PictureControl::setActive( bool activeState )
 		//
 		editMax.ShowWindow(SW_SHOW);
 		editMin.ShowWindow(SW_SHOW);
+		coordinatesText.ShowWindow( SW_SHOW );
+		coordinatesDisp.ShowWindow( SW_SHOW );
+		valueText.ShowWindow( SW_SHOW );
+		valueDisp.ShowWindow( SW_SHOW );
 	}
 }
 
@@ -341,15 +376,15 @@ void PictureControl::redrawImage( CDC* easel)
 		drawPicture(easel, mostRecentImage, mostRecentAutoscaleInfo, mostRecentSpecialMinSetting,
 					mostRecentSpecialMaxSetting );
 	}
-
-	// TODO?
-	// drawGrid(parent, brush);
 }
+
 
 void PictureControl::resetStorage()
 {
 	mostRecentImage = std::vector<long>{};
 }
+
+
 /*
  * draw the picture that the camera took. The camera's data is inputted as a 1D vector of long here. The control needs
  * the camera window context since there's no direct control associated with the picture itself. Could probably change 
@@ -530,7 +565,45 @@ void PictureControl::drawPicture( CDC* deviceContext, std::vector<long> picData,
 	}
 	delete[] DataArray;
 	LocalFree( bitmapInfoPtr );
+	setHoverValue( );
 }
+
+
+void PictureControl::setHoverValue( )
+{
+	int loc = (grid.size( ) - 1 - mouseCoordinates.x) * grid.size( ) + mouseCoordinates.y;
+	if ( loc >= mostRecentImage.size( ) )
+	{
+		return;
+	}
+	valueDisp.SetWindowTextA( cstr( mostRecentImage[loc] ) );
+}
+
+
+void PictureControl::handleMouse( CPoint p )
+{
+	int rowCount = 0;
+	int colCount = 0;
+	for ( auto col : grid )
+	{
+		for ( auto box : col )
+		{
+			if ( p.x < box.right && p.x > box.left && p.y > box.top && p.y < box.bottom )
+			{
+				coordinatesDisp.SetWindowTextA( (str( rowCount ) + ", " + str( colCount )).c_str( ) );
+				mouseCoordinates = { rowCount, colCount };
+				if ( mostRecentImage.size( ) != 0 && grid.size( ) != 0 )
+				{
+					setHoverValue( );
+				}
+			}
+			rowCount += 1;
+		}
+		colCount += 1;
+		rowCount = 0;
+	}
+}
+
 
 
 /*
@@ -640,6 +713,7 @@ void PictureControl::drawCircle(CDC* dc, coordinate selectedLocation)
 	dc->Ellipse( smallRect.left, smallRect.top, smallRect.right, smallRect.bottom );
 }
 
+
 void PictureControl::drawAnalysisMarkers(CDC* dc, std::vector<coordinate> analysisLocs, atomGrid gridInfo)
 {
 	if ( !active )
@@ -725,6 +799,10 @@ void PictureControl::rearrange(std::string cameraMode, std::string triggerMode, 
 		labelMin.rearrange(cameraMode, triggerMode, width, height, fonts);
 		sliderMax.rearrange(cameraMode, triggerMode, width, height, fonts);
 		sliderMin.rearrange(cameraMode, triggerMode, width, height, fonts);
+		coordinatesText.rearrange( cameraMode, triggerMode, width, height, fonts );
+		coordinatesDisp.rearrange( cameraMode, triggerMode, width, height, fonts );
+		valueText.rearrange( cameraMode, triggerMode, width, height, fonts );
+		valueDisp.rearrange( cameraMode, triggerMode, width, height, fonts );
 		scaledBackgroundArea.bottom = long(unscaledBackgroundArea.bottom * height / 997.0);
 		scaledBackgroundArea.top = long(unscaledBackgroundArea.top * height / 997.0);
 		scaledBackgroundArea.left = long(unscaledBackgroundArea.left * width / 1920.0);
@@ -751,6 +829,5 @@ void PictureControl::rearrange(std::string cameraMode, std::string triggerMode, 
 		pictureArea.right = mid.x + width / 2;
 		pictureArea.top = mid.y - height / 2;
 		pictureArea.bottom = mid.y + height / 2;
-
 	}	
 }
