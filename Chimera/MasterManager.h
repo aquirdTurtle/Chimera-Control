@@ -87,7 +87,8 @@ class MasterManager
 struct indvSeqElem
 {
 	std::string config;
-	niawgPair<std::fstream> niawgScripts;
+	std::fstream niawgScript;
+	//niawgPair<std::fstream> niawgScripts;
 	std::string masterScript;
 	ScriptStream masterStream;
 	std::string agilentScript;

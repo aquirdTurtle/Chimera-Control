@@ -1,13 +1,14 @@
 #include "stdafx.h"
 #include "MasterManager.h"
-#include "nidaqmx2.h"
-#include <fstream>
 #include "DioSystem.h"
 #include "DacSystem.h"
 #include "constants.h"
 #include "AuxiliaryWindow.h"
 #include "NiawgWaiter.h"
 #include "Expression.h"
+#include "nidaqmx2.h"
+#include <fstream>
+
 
 MasterManager::MasterManager()
 {
@@ -48,7 +49,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			}
 			if ( input->runNiawg )
 			{
-				ProfileSystem::openNiawgFiles( expSeq.sequence[seqNum].niawgScripts, config, input->seq, input->runNiawg );
+				ProfileSystem::openNiawgFile( expSeq.sequence[seqNum].niawgScript, config, input->seq, input->runNiawg );
 			}
 			for ( auto& ag : input->agilents )
 			{
@@ -411,12 +412,9 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		{
 			for ( auto& seqIndv : expSeq.sequence )
 			{
-				for ( const auto& axis : AXES )
+				if ( seqIndv.niawgScript.is_open() )
 				{
-					if ( seqIndv.niawgScripts[axis].is_open() )
-					{
-						seqIndv.niawgScripts[axis].close( );
-					}
+					seqIndv.niawgScript.close( );
 				}
 			}
 			// clear out some niawg stuff

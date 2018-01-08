@@ -529,6 +529,7 @@ void PictureControl::drawPicture( CDC* deviceContext, std::vector<long> picData,
 		}
 	}
 	delete[] DataArray;
+	LocalFree( bitmapInfoPtr );
 }
 
 

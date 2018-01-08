@@ -2,13 +2,12 @@
 TODO
 ===================
 FEATURES:
-- revive sequences of experiments
-	- Full experiments following each other
+
 - consider implementations of local variables
 	- using var or similar keyword to define local variables in functions or main script.
 	- code scans currently used functions for local variables used and just lists those
 	- use combo to list just variables in a function or all variables
-- NIAWG scripting in single script instead of separate Hor/Vert scripts.
+- Full experiments following each other, alternative use of sequences.
 - Be able to set different analysis locations for different plots?
 - Consider ways to make navigating many functions more sensible
 - finish implementing randomizing repetitions.
@@ -16,8 +15,8 @@ FEATURES:
 	- Be able to randomize
 	- handle random case in plotting.
 	- be able to add more repetitions on the fly if randomizing reps.
-- Implement Histogram mfc plot
-- if aborts or crashes in the middle of run, code should close HDF5 file and make it usable, somehow.
+	- mix sequences in as well?
+- if aborts or crashes in the middle of run, code should close HDF5 file and make it usable.
 - Watch cursor location on andor pictures, sim to basler program
 - restore the Niawg functionality where it calculates next varying waveform during the run of the previous waveform.
 - support functions for niawg and agilent scripts
@@ -27,20 +26,23 @@ FEATURES:
 - agilent should be able to go smoothly from one waveform to another. ???
 - get running average working again
 - add all agilents / tek to color boxes?
+- finish getting histograms working.
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
 - refactor groups in plotinfo and gnuplot stuffs
 - change pointers to smart-ptrs where possible
 - remove intensity from color boxes
-- should only have one window showing you info before start of run.
+- should only have one window showing you info before start of run, currently see both andor and master.
 - more tooltips
+- Andor system should use matrix for pictures
 
 Bugs:
 - something wrong with set New dac Values! Pressing seems to change whether shutter is open or closed???
+	Couldn't repeat...
 - scripts becoming unsaved after move, should preserve saved status
 - global config colors don't appear to always be correct. Not being changed by use in agilent and niawg?
-- fix over-writing to the agilent.
+- fix over-writing to the agilent. ???
 - niawg is doing something during turnonmot
 - control tektronics not being saved in config?
 - bug in picture stats retrieval from image array? Seems like might have been not really the fault of the image stats, 

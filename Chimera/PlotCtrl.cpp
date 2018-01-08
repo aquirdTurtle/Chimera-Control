@@ -7,14 +7,17 @@ PlotCtrl::PlotCtrl( std::vector<pPlotDataVec> dataHolder, plotStyle inStyle, std
 	greyPen( PS_SOLID, 0, RGB( 100, 100, 100 ) ),
 	redPen( PS_SOLID, 0, RGB( 255, 0, 0 ) ),
 	solarizedPen( PS_SOLID, 0, RGB( 0, 30, 38 ) ),
-	data( dataHolder ), style( inStyle )
+	data( dataHolder ), style( inStyle ), dataMutexes( dataHolder.size( ) )
 {
 	for ( auto elem : GIST_RAINBOW_RGB )
 	{
 		CPen* pen = new CPen( PS_SOLID, 0, RGB( elem[0], elem[1], elem[2] ) );
 		pens.push_back( pen );
+		CBrush* brush = new CBrush( );
+		brush->CreateSolidBrush( RGB( elem[0], elem[1], elem[2] ) );
+		brushes.push_back( brush );
 	}
-	//dataMutexes.resize( dataHolder.size( ) );
+	
 	title = titleIn;
 }
 
@@ -28,23 +31,19 @@ PlotCtrl::~PlotCtrl( )
 }
 
 
-void PlotCtrl::drawBackground( memDC* d, double width, double height, CBrush* backgroundBrush )
+void PlotCtrl::drawBackground( memDC* d, CBrush* backgroundBrush )
 {
-	double widthScale = width / 1920.0;
-	double heightScale = height / 997.0;
-	RECT r = { controlDims.left * widthScale, controlDims.top*heightScale, controlDims.right * widthScale, 
-		controlDims.bottom*heightScale };
+	RECT r = { controlDims.left * widthScale2, controlDims.top*heightScale2, controlDims.right * widthScale2, 
+		controlDims.bottom*heightScale2 };
 	d->SelectObject( *backgroundBrush );
 	d->Rectangle( &r );
 }
 
 
-void PlotCtrl::drawTitle( memDC* d, long width, long height )
+void PlotCtrl::drawTitle( memDC* d )
 {
-	double widthScale = width / 1920.0;
-	double heightScale = height / 997.0;
-	RECT scaledArea = { plotAreaDims.left * widthScale, plotAreaDims.top * heightScale,
-						plotAreaDims.right * widthScale, plotAreaDims.bottom * heightScale };
+	RECT scaledArea = { plotAreaDims.left * widthScale2, plotAreaDims.top * heightScale2,
+						plotAreaDims.right * widthScale2, plotAreaDims.bottom * heightScale2 };
 	RECT r = { scaledArea.left, scaledArea.top - 30, scaledArea.right, scaledArea.top};
 	d->SelectObject( greyPen );
 	d->SetBkMode( TRANSPARENT );
@@ -53,15 +52,13 @@ void PlotCtrl::drawTitle( memDC* d, long width, long height )
 }
 
 
-CRect PlotCtrl::GetPlotRect( LONG width, LONG height )
+CRect PlotCtrl::GetPlotRect( )
 {
 	CRect realArea;
-	double widthScale = width / 1920.0;
-	double heightScale = height / 997.0;
-	realArea.left = controlDims.left * widthScale;
-	realArea.right = controlDims.right * widthScale;
-	realArea.top = controlDims.top * heightScale;
-	realArea.bottom = controlDims.bottom * heightScale;
+	realArea.left = controlDims.left * widthScale2;
+	realArea.right = controlDims.right * widthScale2;
+	realArea.top = controlDims.top * heightScale2;
+	realArea.bottom = controlDims.bottom * heightScale2;
 	return realArea;
 }
 
@@ -83,10 +80,8 @@ void PlotCtrl::rearrange( int width, int height, fontMap fonts )
 }
 
 
-void PlotCtrl::convertDataToScreenCoords( double width, double height, std::vector<plotDataVec>& screenData )
+void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 {
-	double widthScale = width / 1920.0;
-	double heightScale = height / 997.0;
 	double minx = DBL_MAX, maxx = -DBL_MAX, miny = DBL_MAX, maxy = -DBL_MAX;
 	for ( auto line : screenData )
 	{
@@ -102,7 +97,7 @@ void PlotCtrl::convertDataToScreenCoords( double width, double height, std::vect
 			}
 		}
 	}
-	if ( style == OscilloscopePlot )
+	if ( style == OscilloscopePlot || style == HistPlot )
 	{
 		for ( auto line : screenData )
 		{
@@ -120,14 +115,24 @@ void PlotCtrl::convertDataToScreenCoords( double width, double height, std::vect
 		}
 	}
 
-	double plotWidthPixels = widthScale * (plotAreaDims.right - plotAreaDims.left);
-	double plotHeightPixels = heightScale * (plotAreaDims.bottom - plotAreaDims.top);
+	double plotWidthPixels = widthScale2 * (plotAreaDims.right - plotAreaDims.left);
+	double plotHeightPixels = heightScale2 * (plotAreaDims.bottom - plotAreaDims.top);
 	double rangeX = maxx - minx;
 	if ( rangeX == 0 )
 	{
 		rangeX += 1;
 	}
-	double dataScaleX = plotWidthPixels / (rangeX*1.1);
+	double dataScaleX = plotWidthPixels / (rangeX);
+	if ( style == HistPlot )
+	{
+		// resize things to take into acount the widths.
+		maxx += boxWidth;
+		minx -= boxWidth;
+		
+		rangeX = maxx - minx;
+		dataScaleX = plotWidthPixels / rangeX;
+		boxWidthPixels = boxWidth * dataScaleX * 0.95;
+	}
 	double dataHeight = 1;
 	double dataMin = 0;
 	if ( style == ErrorPlot )
@@ -152,6 +157,11 @@ void PlotCtrl::convertDataToScreenCoords( double width, double height, std::vect
 		dataHeight = maxy-miny;
 		dataMin = miny;
 	}
+	else if ( style == HistPlot )
+	{
+		dataHeight = maxy - miny;
+		dataMin = 0;
+	}
 	else
 	{
 		thrower( "ERROR: bad value for plot style???" );
@@ -162,17 +172,15 @@ void PlotCtrl::convertDataToScreenCoords( double width, double height, std::vect
 	{
 		for ( auto& point : line )
 		{
-			POINT center = { long( plotAreaDims.left * widthScale + (point.x - minx) * dataScaleX + plotWidthPixels / line.size( ) ),
-				long( plotAreaDims.bottom * heightScale - (point.y - miny) * dataScaleY ) };
-			point.x = plotAreaDims.left * widthScale + (point.x - minx)* dataScaleX + 10;
-			point.y = plotAreaDims.bottom * heightScale - (point.y - dataMin) * dataScaleY;
+			point.x = plotAreaDims.left * widthScale2 + (point.x - minx) * dataScaleX + 10;
+			point.y = plotAreaDims.bottom * heightScale2 - (point.y - dataMin) * dataScaleY;
 			point.err *= dataScaleY;
 		}
 	}
 }
 
 
-void PlotCtrl::plotPoints( memDC* d, double width, double height )
+void PlotCtrl::plotPoints( memDC* d )
 {
 	if ( data.size( ) == 0 )
 	{
@@ -192,7 +200,7 @@ void PlotCtrl::plotPoints( memDC* d, double width, double height )
 	{
 		shiftTtlData( shiftedData );
 	}
-	convertDataToScreenCoords( width, height, shiftedData );
+	convertDataToScreenCoords( shiftedData );
 	std::vector<double> xRaw, xScaled;
 	{
 		std::lock_guard<std::mutex> lock( dataMutexes[0] );
@@ -204,11 +212,11 @@ void PlotCtrl::plotPoints( memDC* d, double width, double height )
 	}
 	
 	std::pair<double, double> minMaxScaled, minMaxRaw;
-	if ( style == OscilloscopePlot )
+	if ( style == OscilloscopePlot || style == HistPlot )
 	{
 		getMinMaxY( screenData, data, minMaxRaw, minMaxScaled );
 	}
-	drawGridAndAxes( d, xRaw, xScaled, width, height, minMaxRaw, minMaxScaled );
+	drawGridAndAxes( d, xRaw, xScaled, minMaxRaw, minMaxScaled );
 	UINT penNum = 0;
 	UINT lineNum = 0;
 	for ( auto& line : shiftedData )
@@ -240,19 +248,29 @@ void PlotCtrl::plotPoints( memDC* d, double width, double height )
 		}
 		else if ( style == TtlPlot || style == DacPlot )
 		{
-			makeStepPlot( d, width, height, line );
+			makeStepPlot( d, line );
 		}
 		else if ( style == OscilloscopePlot )
 		{
-			makeLinePlot( d, width, height, line );
+			makeLinePlot( d, line );
+		}
+		else if ( style == HistPlot )
+		{
+			makeBarPlot( d, line, brushes[penNum] );
 		}
 
 		lineNum++;
 	}
 	if ( legButton && legButton.GetCheck( ) )
 	{
-		drawLegend( d, width, height, shiftedData );
+		drawLegend( d, shiftedData );
 	}
+}
+
+void PlotCtrl::setCurrentDims( int width, int height )
+{
+	widthScale2 = width / 1920.0;
+	heightScale2 = height / 997.0;
 }
 
 
@@ -299,9 +317,7 @@ void PlotCtrl::getMinMaxY( std::vector<plotDataVec> screenData, std::vector<pPlo
 
 void PlotCtrl::shiftTtlData( std::vector<plotDataVec>& rawData )
 {
-	/*
-		shift all the data points away from 0 or 1 just so that the points are visible.
-	*/
+	// shift all the data points away from 0 or 1 just so that the points are visible.
 	UINT count = 1;
 	for ( auto& line : rawData )
 	{
@@ -313,7 +329,23 @@ void PlotCtrl::shiftTtlData( std::vector<plotDataVec>& rawData )
 	}
 }
 
-void PlotCtrl::makeLinePlot( memDC* d, LONG width, LONG height, plotDataVec scaledLine )
+
+void PlotCtrl::makeBarPlot( memDC* d, plotDataVec scaledLine, CBrush* brush )
+{
+	for ( auto& point : scaledLine )
+	{
+		CRect r;
+		r.left  = point.x - boxWidthPixels / 2;
+		r.right = point.x + boxWidthPixels / 2;
+		r.top = point.y;
+		r.bottom = plotAreaDims.bottom * heightScale2;
+		d->FillRect( r, brush );
+		circleMarker( d, { LONG(point.x), LONG(point.y+1) }, 10 );
+	}
+}
+
+
+void PlotCtrl::makeLinePlot( memDC* d, plotDataVec scaledLine )
 {
 	// want to draw a vertical line at each point of line, and then draw horizontal lines to connect the ends of the 
 	// vertical lines.
@@ -335,7 +367,7 @@ void PlotCtrl::makeLinePlot( memDC* d, LONG width, LONG height, plotDataVec scal
 }
 
 
-void PlotCtrl::makeStepPlot( memDC* d, LONG width, LONG height, plotDataVec scaledLine )
+void PlotCtrl::makeStepPlot( memDC* d, plotDataVec scaledLine )
 {
 	// want to draw a vertical line at each point of line, and then draw horizontal lines to connect the ends of the 
 	// vertical lines.
@@ -364,9 +396,8 @@ void PlotCtrl::makeStepPlot( memDC* d, LONG width, LONG height, plotDataVec scal
 }
 
 
-void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vector<double> scaledX, double width,
-								double height, std::pair<double, double> minMaxRawY,
-								std::pair<double, double> minMaxScaledY )
+void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vector<double> scaledX, 
+								std::pair<double, double> minMaxRawY, std::pair<double, double> minMaxScaledY )
 {
 	double xMin = DBL_MAX, xMax = -DBL_MAX;
 	for ( auto x : xAxisPts )
@@ -380,11 +411,15 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 			xMin = x;
 		}
 	}
+	if ( style == HistPlot )
+	{
+		// resize things to take into acount the widths.
+		xMax += boxWidth;
+		xMin -= boxWidth;
+	}
 	// assumes that data has been converted to screen coords.
-	double widthScale = width / 1920.0;
-	double heightScale = height / 997.0;
-	RECT scaledArea = { plotAreaDims.left * widthScale, plotAreaDims.top * heightScale,
-		plotAreaDims.right * widthScale, plotAreaDims.bottom * heightScale };
+	RECT scaledArea = { plotAreaDims.left * widthScale2, plotAreaDims.top * heightScale2,
+		plotAreaDims.right * widthScale2, plotAreaDims.bottom * heightScale2 };
 	d->SelectObject( greyPen );
 	d->SetBkMode( TRANSPARENT );
 	d->SetTextColor( RGB( 255, 255, 255 ) );
@@ -393,7 +428,8 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 	for ( auto x : scaledX )
 	{
 		// draw vertical lines for x points
-		RECT r = { long( scaledArea.left - 10 ), long( scaledArea.bottom + 5 ), long( scaledArea.left + 10 ), long( scaledArea.bottom + 25) };
+		RECT r = { long( scaledArea.left - 10 ), long( scaledArea.bottom + 5 ),
+			long( scaledArea.left + 10 ), long( scaledArea.bottom + 25) };
 		std::string txt = str( xAxisPts[count] );
 		if ( labelEachPoint )
 		{
@@ -468,7 +504,7 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 	RECT r = { scaledArea.left, scaledArea.bottom + 30 , scaledArea.right, scaledArea.bottom + 50 };
 	std::string txt = "xlabel";
 	d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
-	r = { long( controlDims.left * widthScale - 50 ), scaledArea.top, scaledArea.left, scaledArea.bottom };
+	r = { long( controlDims.left * widthScale2 - 50 ), scaledArea.top, scaledArea.left, scaledArea.bottom };
 	if ( style == TtlPlot )
 	{
 		txt = "Ttl State";
@@ -477,12 +513,10 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 }
 
 
-void PlotCtrl::drawLegend( memDC* d, UINT width, UINT height, std::vector<plotDataVec> screenData )
+void PlotCtrl::drawLegend( memDC* d, std::vector<plotDataVec> screenData )
 {
-	double widthScale = width / 1920.0;
-	double heightScale = height / 997.0;
-	UINT plotAreaWidth = (plotAreaDims.right - plotAreaDims.left) * widthScale;
-	UINT plotAreaHeight = (plotAreaDims.bottom - plotAreaDims.top) * heightScale;
+	UINT plotAreaWidth = (plotAreaDims.right - plotAreaDims.left) * widthScale2;
+	UINT plotAreaHeight = (plotAreaDims.bottom - plotAreaDims.top) * heightScale2;
 	UINT itemNum = screenData.size( );
 	UINT itemsPerColumn = 21;
 	UINT totalColNum = int(screenData.size() / itemsPerColumn );
@@ -502,11 +536,11 @@ void PlotCtrl::drawLegend( memDC* d, UINT width, UINT height, std::vector<plotDa
 		}
 		UINT rowNum = lineNum % itemsPerColumn;
 		UINT colNum = lineNum / itemsPerColumn;
-		POINT legendLoc = { plotAreaDims.left * widthScale + (1 - (colNum + 1) * 0.075) * plotAreaWidth,
-			plotAreaDims.top * heightScale + 0.025 * plotAreaHeight + 20 * rowNum };
+		POINT legendLoc = { plotAreaDims.left * widthScale2 + (1 - (colNum + 1) * 0.075) * plotAreaWidth,
+			plotAreaDims.top * heightScale2 + 0.025 * plotAreaHeight + 20 * rowNum };
 		circleMarker( d, legendLoc, 10 );
 		RECT r = { long( legendLoc.x + 10 ), long( legendLoc.y + 10 ),
-			long( plotAreaDims.right * widthScale - colNum * 0.075 * plotAreaWidth ), long( legendLoc.y - 10 ) };
+			long( plotAreaDims.right * widthScale2 - colNum * 0.075 * plotAreaWidth ), long( legendLoc.y - 10 ) };
 		d->DrawTextEx( const_cast<char *>(cstr( lineNum)), str( lineNum ).size( ), &r,
 					   DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 	}
@@ -549,21 +583,19 @@ void PlotCtrl::errBars( memDC* d, POINT center, long err, long capSize )
 }
 
 
-void PlotCtrl::drawBorder( memDC* d, double width, double height )
+void PlotCtrl::drawBorder( memDC* d )
 {
-	double widthScale = width / 1920.0;
-	double heightScale = height / 997.0;
 	d->SelectObject( redPen );
-	long top = controlDims.top * heightScale, left = controlDims.left * widthScale, right = controlDims.right * widthScale,
-		bottom = controlDims.bottom * heightScale;
+	long top = controlDims.top * heightScale2, left = controlDims.left * widthScale2, 
+		right = controlDims.right * widthScale2, bottom = controlDims.bottom * heightScale2;
 	drawLine( d, { left, top }, { left, bottom } );
 	drawLine( d, { left, bottom }, { right, bottom } );
 	drawLine( d, { right, bottom }, { right, top } );
 	drawLine( d, { right, top }, { left, top } );
 
 	d->SelectObject( whitePen );
-	top = plotAreaDims.top * heightScale, left = plotAreaDims.left * widthScale,
-		right = plotAreaDims.right * widthScale, bottom = plotAreaDims.bottom * heightScale;
+	top = plotAreaDims.top * heightScale2, left = plotAreaDims.left * widthScale2,
+		right = plotAreaDims.right * widthScale2, bottom = plotAreaDims.bottom * heightScale2;
 	drawLine( d, { left, top }, { left, bottom } );
 	drawLine( d, { left, bottom }, { right, bottom } );
 	drawLine( d, { right, bottom }, { right, top } );
