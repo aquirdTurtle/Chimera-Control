@@ -16,11 +16,12 @@ ScopeViewer::ScopeViewer( std::string usbAddress, bool safemode, UINT traceNumIn
 
 void ScopeViewer::refreshPlot(CDC* d, UINT width, UINT height, CBrush* backgroundBrush )
 {
-	memDC dacDC( d, &viewPlot->GetPlotRect( width, height ) );
-	viewPlot->drawBackground( dacDC, width, height, backgroundBrush );
-	viewPlot->drawTitle( dacDC, width, height );
-	viewPlot->drawBorder( dacDC, width, height );
-	viewPlot->plotPoints( &dacDC, width, height );
+	viewPlot->setCurrentDims( width, height );
+	memDC dacDC( d, &viewPlot->GetPlotRect( ) );
+	viewPlot->drawBackground( dacDC, backgroundBrush );
+	viewPlot->drawTitle( dacDC );
+	viewPlot->drawBorder( dacDC );
+	viewPlot->plotPoints( &dacDC );
 }
 
 

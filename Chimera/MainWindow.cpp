@@ -198,7 +198,7 @@ void MainWindow::OnPaint( )
 	cdc->SetBkColor( getRgbs( )["Solarized Base 04"] );
 	UINT width = size.right - size.left, height = size.bottom - size.top;
 	masterRepumpScope.refreshPlot( cdc, width, height, getBrushes( )["Solarized Base04"] );
-	motScope.refreshPlot(		   cdc, width, height, getBrushes( )["Solarized Base04"] );
+	motScope.refreshPlot( cdc, width, height, getBrushes( )["Solarized Base04"] );
 }
 
 
@@ -333,9 +333,9 @@ BOOL MainWindow::OnInitDialog( )
 	try
 	{
 		// these each call oninitdialog after the create call. Hence the try / catch.
-		TheScriptingWindow->Create( IDD_LARGE_TEMPLATE, 0 );
-		TheCameraWindow->Create( IDD_LARGE_TEMPLATE, 0 );
-		TheAuxiliaryWindow->Create( IDD_LARGE_TEMPLATE, 0 );
+		TheScriptingWindow->Create( IDD_LARGE_TEMPLATE, GetDesktopWindow() );
+		TheCameraWindow->Create( IDD_LARGE_TEMPLATE, GetDesktopWindow( ) );
+		TheAuxiliaryWindow->Create( IDD_LARGE_TEMPLATE, GetDesktopWindow( ) );
 	}
 	catch ( Error& err )
 	{
@@ -361,8 +361,13 @@ BOOL MainWindow::OnInitDialog( )
 	rearrangeControl.initialize( id, controlLocation, this, tooltips );
 	debugger.initialize( id, controlLocation, this, tooltips );
 	texter.initialize( controlLocation, this, id, tooltips, mainRGBs );
-	
+	testData.resize( 2 );
+	testData[0] = pPlotDataVec( new plotDataVec( 100, { 0,0,0 } ) );
+	testData[1] = pPlotDataVec( new plotDataVec( 100, { 0,0,0 } ) );
+	plot = new PlotDialog( testData, HistPlot );
 	controlLocation = { 960, 910 };
+	plot->Create( IDD_PLOT_DIALOG, 0 );
+	plot->ShowWindow( SW_SHOW );
 	boxes.initialize( controlLocation, id, this, 960, tooltips );
 	shortStatus.initialize( controlLocation, this, id, tooltips );
 	menu.LoadMenu( IDR_MAIN_MENU );
@@ -401,6 +406,7 @@ BOOL MainWindow::OnInitDialog( )
 	{
 		errBox( err.what( ) );
 	}
+
 	SetTimer( 1, 3000, NULL );
 	//
 	scopeRefreshInput* inputPtr = new scopeRefreshInput;
@@ -689,6 +695,14 @@ HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
 void MainWindow::passCommonCommand(UINT id)
 {
+	static UINT inc = 0;
+	for ( auto& data : testData )
+	{
+		data->at( inc ).x = inc;
+		data->at( inc ).y = 0.1*inc*inc + 0.2;
+		data->at( inc ).err = 0.1;
+	}
+	inc++;
 	// pass the command id to the common function, filling in the pointers to the windows which own objects needed.
 	try
 	{

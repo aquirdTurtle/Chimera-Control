@@ -88,19 +88,21 @@ void AuxiliaryWindow::OnPaint( )
 	// for a single plot.
 	for ( auto& ttlPlt : ttlPlots )
 	{
-		memDC ttlDC( cdc, &ttlPlt->GetPlotRect( width, height ) );
-		ttlPlt->drawBackground( ttlDC, width, height, mainWindowFriend->getBrushes( )["Solarized Base04"] );
-		ttlPlt->drawTitle( ttlDC, width, height );
-		ttlPlt->drawBorder( ttlDC, width, height );
-		ttlPlt->plotPoints( &ttlDC, width, height );
+		ttlPlt->setCurrentDims( width, height );
+		memDC ttlDC( cdc, &ttlPlt->GetPlotRect() );
+		ttlPlt->drawBackground( ttlDC, mainWindowFriend->getBrushes( )["Solarized Base04"] );
+		ttlPlt->drawTitle( ttlDC );
+		ttlPlt->drawBorder( ttlDC );
+		ttlPlt->plotPoints( &ttlDC );
 	}
 	for ( auto& dacPlt : dacPlots )
 	{
-		memDC dacDC( cdc, &dacPlt->GetPlotRect( width, height ) );
-		dacPlt->drawBackground( dacDC, width, height, mainWindowFriend->getBrushes( )["Solarized Base04"] );
-		dacPlt->drawTitle( dacDC, width, height );
-		dacPlt->drawBorder( dacDC, width, height );
-		dacPlt->plotPoints( &dacDC, width, height );
+		dacPlt->setCurrentDims( width, height );
+		memDC dacDC( cdc, &dacPlt->GetPlotRect() );
+		dacPlt->drawBackground( dacDC, mainWindowFriend->getBrushes( )["Solarized Base04"] );
+		dacPlt->drawTitle( dacDC );
+		dacPlt->drawBorder( dacDC );
+		dacPlt->plotPoints( &dacDC );
 	}
 }
 

@@ -260,8 +260,7 @@ namespace commonFunctions
 			{
 				try
 				{
-					scriptWin->saveHorizontalScript( );
-					scriptWin->saveVerticalScript( );
+					scriptWin->saveNiawgScript( );
 					scriptWin->saveIntensityScript( );
 					scriptWin->saveMasterScript( );
 					auxWin->updateAgilent( TopBottom );
@@ -400,44 +399,24 @@ namespace commonFunctions
 				auxWin->saveAgilentScriptAs( Microwave, parent );
 				break; 
 			}
-			case ID_FILE_MY_VERTICAL_NEW:
-			{
-				scriptWin->newVerticalScript();
-				break;
-			}
-			case ID_FILE_MY_VERTICAL_OPEN:
-			{
-				scriptWin->openVerticalScript(parent);
-				break;
-			}
-			case ID_FILE_MY_VERTICAL_SAVE:
-			{
-				scriptWin->saveVerticalScript();
-				break;
-			}
-			case ID_FILE_MY_VERTICAL_SAVEAS:
-			{
-				scriptWin->saveVerticalScriptAs(parent);
-				break;
-			}
 			case ID_FILE_MY_HORIZONTAL_NEW:
 			{
-				scriptWin->newHorizontalScript();
+				scriptWin->newNiawgScript();
 				break;
 			}
 			case ID_FILE_MY_HORIZONTAL_OPEN:
 			{
-				scriptWin->openHorizontalScript(parent);
+				scriptWin->openNiawgScript(parent);
 				break;
 			}
 			case ID_FILE_MY_HORIZONTAL_SAVE:
 			{
-				scriptWin->saveHorizontalScript();
+				scriptWin->saveNiawgScript();
 				break;
 			}
 			case ID_FILE_MY_HORIZONTAL_SAVEAS:
 			{
-				scriptWin->saveHorizontalScriptAs(parent);
+				scriptWin->saveNiawgScriptAs(parent);
 				break;
 			}
 			case ID_MASTERSCRIPT_NEW:
@@ -757,8 +736,7 @@ namespace commonFunctions
 		{
 			scriptInfo<std::string> scriptNames = scriptWin->getScriptNames();
 			// ordering matters here, make sure you get the correct script name.
-			std::string horizontalNameString( scriptNames.horizontalNIAWG );
-			std::string verticalNameString( scriptNames.verticalNIAWG );
+			std::string niawgNameString( scriptNames.niawg );
 			std::string intensityNameString( scriptNames.intensityAgilent );
 			std::string sequenceInfo = "";
 			if (sequenceInfo != "")
@@ -768,17 +746,8 @@ namespace commonFunctions
 			else
 			{
 				scriptInfo<bool> scriptSavedStatus = scriptWin->getScriptSavedStatuses();
-				beginInfo += "Vertical Script Name:........ " + str( verticalNameString );
-				if (scriptSavedStatus.verticalNIAWG)
-				{
-					beginInfo += " SAVED\r\n";
-				}
-				else
-				{
-					beginInfo += " NOT SAVED\r\n";
-				}
-				beginInfo += "Horizontal Script Name:...... " + str( horizontalNameString );
-				if (scriptSavedStatus.horizontalNIAWG)
+				beginInfo += "NIAWG Script Name:...... " + str( niawgNameString );
+				if (scriptSavedStatus.niawg)
 				{
 					beginInfo += " SAVED\r\n";
 				}

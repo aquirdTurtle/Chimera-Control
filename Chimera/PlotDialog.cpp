@@ -54,8 +54,10 @@ void PlotDialog::OnPaint( )
 	CRect size;
 	GetClientRect( &size );
 	memDC dc( GetDC() );
-	plot.drawBackground( dc, size.right - size.left, size.bottom - size.top, &backgroundBrush );
-	plot.drawBorder( dc, size.right - size.left, size.bottom - size.top );
-	plot.plotPoints( &dc, size.right - size.left, size.bottom - size.top );
+	plot.setCurrentDims( size.right - size.left, size.bottom - size.top );
+	plot.drawBackground( dc, &backgroundBrush );
+	plot.drawBorder( dc );
+	plot.plotPoints( &dc );
+	ReleaseDC( dc );
 	CDialog::OnPaint( );
 }

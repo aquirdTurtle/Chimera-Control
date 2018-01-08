@@ -21,7 +21,7 @@ class Agilent
 		Agilent( const agilentSettings & settings );
 		~Agilent( );
 		void initialize( POINT& loc, cToolTips& toolTips, CWnd* master, int& id,   
-						 std::string header, UINT editHeight, COLORREF color );
+						 std::string header, UINT editHeight, COLORREF color, UINT width=480 );
 		void updateButtonDisplay( int chan );
 		void checkSave( std::string categoryPath, RunInfo info );
 		void handleChannelPress( int chan, std::string currentCategoryPath, RunInfo currentRunInfo );
