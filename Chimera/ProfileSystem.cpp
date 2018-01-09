@@ -209,7 +209,7 @@ void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindo
 	std::string versionStr;
 	try
 	{
-		int versionMajor, versionMinor;
+		int versionMajor, versionMinor;	
 		getVersionFromFile( configFile, versionMajor, versionMinor );
 		scriptWin->handleOpenConfig( configFile, versionMajor, versionMinor );
 		camWin->handleOpeningConfig( configFile, versionMajor, versionMinor );
@@ -825,14 +825,19 @@ std::string ProfileSystem::getSequenceNamesString()
 
 std::string ProfileSystem::getMasterAddressFromConfig(profileSettings profile)
 {
-	std::fstream configFile(profile.configFilePath());
+	std::ifstream configFile(profile.configFilePath());
 	if (!configFile.is_open())
 	{
 		thrower("ERROR: Failed to open configuration file.");
 	}
 	std::string line, word, address;
-	std::getline(configFile, line);
-	std::getline(configFile, line);
+	int versionMajor, versionMinor;
+	getVersionFromFile( configFile, versionMajor, versionMinor );
+	configFile.get( );
+	if ( versionMajor < 3 )
+	{
+		std::getline( configFile, line );
+	}
 	std::getline(configFile, line);
 	std::getline(configFile, line);
 	std::string newPath;
