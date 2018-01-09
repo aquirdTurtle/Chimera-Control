@@ -561,7 +561,6 @@ void MasterManager::startExperimentThread(MasterThreadInput* input)
 	// start thread.
 	runningThread = (HANDLE)_beginthreadex( NULL, NULL, &MasterManager::experimentThreadProcedure, input, NULL, NULL );
 	SetThreadPriority( runningThread, THREAD_PRIORITY_HIGHEST );
-	// runningThread = AfxBeginThread(experimentThreadProcedure, input, THREAD_PRIORITY_HIGHEST);
 }
 
 

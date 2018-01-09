@@ -43,21 +43,24 @@ HBRUSH PlotDialog::OnCtlColor( CDC* pDC, CWnd* pWnd, UINT nCtlColor )
 BOOL PlotDialog::OnInitDialog( )
 {
 	// should fill this dialog.
-	SetTimer( 1, 1000, NULL );
 	plot.init( { 0, 0 }, 1920, 997, this);
+	SetTimer( 1, 10000, NULL );
 	return TRUE;
 }
 
 
 void PlotDialog::OnPaint( )
 {
-	CRect size;
-	GetClientRect( &size );
-	memDC dc( GetDC() );
-	plot.setCurrentDims( size.right - size.left, size.bottom - size.top );
-	plot.drawBackground( dc, &backgroundBrush );
-	plot.drawBorder( dc );
-	plot.plotPoints( &dc );
-	ReleaseDC( dc );
-	CDialog::OnPaint( );
+	CDC* cdc = GetDC( );
+	{
+		CRect size;
+		GetClientRect( &size );
+		memDC dc( cdc );
+		plot.setCurrentDims( size.right - size.left, size.bottom - size.top );
+		plot.drawBackground( dc, &backgroundBrush );
+		plot.drawBorder( dc );
+		plot.plotPoints( &dc );
+		CDialog::OnPaint( );
+	}
+	ReleaseDC( cdc );
 }

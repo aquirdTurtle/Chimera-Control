@@ -610,7 +610,7 @@ void NiawgController::simpleFormVaries(simpleWaveForm& wave )
 }
 
 
-void NiawgController::simpleFormToOutput( simpleWaveForm& formWave, simpleWave& wave,
+void NiawgController::simpleFormToOutput( simpleWaveForm& formWave, simpleWave& wave, 
 										  std::vector<variableType>& varibles, UINT variation )
 {
 	try
@@ -2077,6 +2077,7 @@ void NiawgController::loadCommonWaveParams( ScriptStream& script, simpleWaveForm
 	try
 	{
 		time.evaluate( );
+		wave.time = time;
 	}
 	catch ( Error& err )
 	{
@@ -2402,6 +2403,11 @@ void NiawgController::loadFullWave( NiawgOutput& output, std::string cmd, Script
 	else if ( axisStr == "horizontal" )
 	{
 		axis = Horizontal;
+	}
+	else
+	{
+		thrower( "ERROR: unrecognized axis string: " + axisStr + " inside NIAWG script file! axis string must be one of"
+				 "\"horizontal\" or \"vertical\"" );
 	}
 	loadWaveformParametersFormSingle( output, cmd, script, variables, axis, wave );
 	// get cmd, axis of second waveform
