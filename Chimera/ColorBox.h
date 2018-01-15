@@ -8,7 +8,6 @@ template <typename type> struct systemInfo
 {
 	type niawg;
 	type camera;
-	type intensity;
 	type master;
 };
 

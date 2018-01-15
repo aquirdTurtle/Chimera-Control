@@ -321,6 +321,7 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	}
 	// need to call this before acquireImageData().
 	Andor.updatePictureNumber( pictureNumber );
+	
 	std::vector<std::vector<long>> picData;
 	try
 	{

@@ -184,6 +184,7 @@
   <ItemGroup>
     <ClInclude Include="Agilent.h" />
     <ClInclude Include="agilentStructures.h" />
+    <ClInclude Include="AiSystem.h" />
     <ClInclude Include="AlertSystem.h" />
     <ClInclude Include="AndorRunSettings.h" />
     <ClInclude Include="ATMCD32D.H" />
@@ -198,7 +199,7 @@
     <ClInclude Include="ColorBox.h" />
     <ClInclude Include="commonTypes.h" />
     <ClInclude Include="Communicator.h" />
-    <ClInclude Include="DacStructures.h" />
+    <ClInclude Include="AoStructures.h" />
     <ClInclude Include="debugInfo.h" />
     <ClInclude Include="directions.h" />
     <ClInclude Include="Expression.h" />
@@ -209,8 +210,8 @@
     <ClInclude Include="PlotDialog.h" />
     <ClInclude Include="profileSettings.h" />
     <ClInclude Include="ProfileSystem.h" />
-    <ClInclude Include="DacSettingsDialog.h" />
-    <ClInclude Include="DacSystem.h" />
+    <ClInclude Include="AoSettingsDialog.h" />
+    <ClInclude Include="AoSystem.h" />
     <ClInclude Include="DataLogger.h" />
     <ClInclude Include="PlotDataSet.h" />
     <ClInclude Include="EmbeddedPythonHandler.h" />
@@ -283,6 +284,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Agilent.cpp" />
+    <ClCompile Include="AiSystem.cpp" />
     <ClCompile Include="AlertSystem.cpp" />
     <ClCompile Include="beginningSettingsDialogProc.cpp" />
     <ClCompile Include="CameraImageDimensions.cpp" />
@@ -291,6 +293,7 @@
     <ClCompile Include="cleanString.cpp" />
     <ClCompile Include="ColorBox.cpp" />
     <ClCompile Include="Communicator.cpp" />
+    <ClCompile Include="DaqMxFlume.cpp" />
     <ClCompile Include="Expression.cpp" />
     <ClCompile Include="openWithExplorer.cpp" />
     <ClCompile Include="OscilloscopeViewer.cpp" />
@@ -298,8 +301,8 @@
     <ClCompile Include="PlotDialog.cpp" />
     <ClCompile Include="ProfileSystem.cpp" />
     <ClCompile Include="Control.cpp" />
-    <ClCompile Include="DacSettingsDialog.cpp" />
-    <ClCompile Include="DacSystem.cpp" />
+    <ClCompile Include="AoSettingsDialog.cpp" />
+    <ClCompile Include="AoSystem.cpp" />
     <ClCompile Include="DataLogger.cpp" />
     <ClCompile Include="PlotDataSet.cpp" />
     <ClCompile Include="DebugOptionsControl.cpp" />
@@ -376,6 +379,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="coordinate.h" />
+    <None Include="DaqMxFlume.h" />
     <None Include="DioStructures.h" />
     <None Include="OscilloscopeViewer.h" />
     <None Include="PlotCtrl.h" />

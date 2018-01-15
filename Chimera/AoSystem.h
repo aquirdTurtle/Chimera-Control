@@ -7,19 +7,21 @@
 #include "VariableSystem.h"
 #include "DioSystem.h"
 #include "miscellaneousCommonFunctions.h"
-
-#include "nidaqmx2.h"
-#include "DacStructures.h"
+#include "DaqMxFlume.h"
+#include "AoStructures.h"
 
 /**
- * The DacSystem is meant to be a constant class but it currently doesn't actually prevent the user from making 
+ * AIO in the name stands for Analog In and Out, or measuring analog signals and producing analog signals.
+ *
+ * The AoSystem is meant to be a constant class but it currently doesn't actually prevent the user from making 
  * multiple copies of the object. This class is based off of the DAC.bas module in the original VB6 code, of course 
  * adapted for this gui in controlling the relevant controls and handling changes more directly.
  */
-class DacSystem
+class AoSystem
 {
 	public:
-		DacSystem();
+		AoSystem();
+		std::string getSystemInfo( );
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor, DioSystem* ttls);
@@ -27,7 +29,7 @@ class DacSystem
 		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id );
 		std::string getDacSequenceMessage(UINT variation, UINT seqNum );
 		void handleButtonPress(DioSystem* ttls);
-		void setDacCommandForm( DacCommandForm command, UINT seqNum );
+		void setDacCommandForm( AoCommandForm command, UINT seqNum );
 		void setForceDacEvent( int line, double val, DioSystem* ttls, UINT variation, UINT seqNum );
 		void handleRoundToDac(CMenu& menu);
 		void setDacStatusNoForceOut(std::array<double, 24> status);
@@ -48,11 +50,10 @@ class DacSystem
 		void setName(int dacNumber, std::string name, cToolTips& toolTips, AuxiliaryWindow* master);
 		std::string getName(int dacNumber);
 		std::array<std::string, 24> getAllNames();
-		std::string getErrorMessage(int errorCode);
 		ULONG getNumberEvents(UINT variation, UINT seqNum );
-		void handleDacScriptCommand( DacCommandForm command, std::string name, std::vector<UINT>& dacShadeLocations, 
+		void handleDacScriptCommand( AoCommandForm command, std::string name, std::vector<UINT>& dacShadeLocations, 
 									 std::vector<variableType>& vars, DioSystem* ttls, UINT seqNum );
-		std::string getDacSystemInfo();
+		
 		int getDacIdentifier(std::string name);
 		double getDacValue(int dacNumber);
 		unsigned int getNumberOfDacs();
@@ -86,40 +87,28 @@ class DacSystem
 		std::array<double, 24> dacMaxVals;
 		std::array<double, 24> defaultVals;
 		const double dacResolution;
-		std::vector<std::vector<DacCommandForm>> dacCommandFormList;
+		std::vector<std::vector<AoCommandForm>> dacCommandFormList;
 		// first = sequence, 2nd = variation
-		std::vector<std::vector<std::vector<DacCommand>>> dacCommandList;
-		std::vector<std::vector<std::vector<DacSnapshot>>> dacSnapshots, loadSkipDacSnapshots;
+		std::vector<std::vector<std::vector<AoCommand>>> dacCommandList;
+		std::vector<std::vector<std::vector<AoSnapshot>>> dacSnapshots, loadSkipDacSnapshots;
 		std::vector<std::vector<std::array<std::vector<double>, 3>>> finalFormatDacData, loadSkipDacFinalFormat;
-
 		std::pair<USHORT, USHORT> dacTriggerLine;
 
 		double dacTriggerTime;
 		bool roundToDacPrecision;
 
 		// task for DACboard0 (tasks are a national instruments DAQmx thing)
-		TaskHandle staticDac0 = 0;
+		TaskHandle analogOutTask0 = NULL;
 		// task for DACboard1
-		TaskHandle staticDac1 = 0;
+		TaskHandle analogOutTask1 = NULL;
 		// task for DACboard2
-		TaskHandle staticDac2 = 0;
+		TaskHandle analogOutTask2 = NULL;
+
 		/// digital in lines not used at the moment.
-		TaskHandle digitalDac_0_00 = 0;
-		TaskHandle digitalDac_0_01 = 0;
-		
-		/// My wrappers for all of the daqmx functions that I use currently. If I needed to use another function, I'd 
-		/// create another wrapper.
-		// note that DAQ stands for Data Aquisition (software). It's not a typo!
-		void daqCreateTask( const char* taskName, TaskHandle& handle );
-		void daqCreateAOVoltageChan( TaskHandle taskHandle, const char physicalChannel[], 
-									 const char nameToAssignToChannel[], float64 minVal, float64 maxVal, int32 units, 
-									 const char customScaleName[] );
-		void daqCreateDIChan( TaskHandle taskHandle, const char lines[], const char nameToAssignToLines[], 
-							  int32 lineGrouping );
-		void daqStopTask( TaskHandle handle );
-		void daqConfigSampleClkTiming( TaskHandle taskHandle, const char source[], float64 rate, int32 activeEdge, 
-								  int32 sampleMode, uInt64 sampsPerChan );
-		void daqWriteAnalogF64( TaskHandle handle, int32 numSampsPerChan, bool32 autoStart, float64 timeout, 
-								bool32 dataLayout, const float64 writeArray[], int32 *sampsPerChanWritten);
-		void daqStartTask( TaskHandle handle );
+		TaskHandle digitalDac_0_00 = NULL;
+		TaskHandle digitalDac_0_01 = NULL;
+
+		DaqMxFlume daqmx;
 };
+
+

@@ -635,7 +635,7 @@ void VariableSystem::handleDraw(NMHDR* pNMHDR, LRESULT* pResult, rgbMap rgbs)
 
 
 void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
-										 DioSystem* ttls, DacSystem* dacs )
+										 DioSystem* ttls, AoSystem* aoSys )
 {
 	/// get the item and subitem
 	POINT cursorPos;
@@ -756,7 +756,7 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 			{
 				thrower( "ERROR: the name " + newName + " is already a ttl Name!" );
 			}
-			if ( dacs->isValidDACName( newName ) )
+			if ( aoSys->isValidDACName( newName ) )
 			{
 				thrower( "ERROR: the name " + newName + " is already a dac name!" );
 			}

@@ -74,16 +74,13 @@ void Communicator::sendColorBox( System sys, char code )
 	switch (sys)
 	{
 		case Niawg:
-			colors = { code, '-', '-','-' };
+			colors = { code, '-', '-' };
 			break;
 		case Camera:
-			colors = { '-', code, '-', '-' };
-			break;
-		case Intensity:
-			colors = { '-', '-', code, '-' };
+			colors = { '-', code, '-' };
 			break;
 		case Master:
-			colors = { '-', '-', '-', code };
+			colors = { '-', '-', code };
 			break;
 	}
 	sendColorBox( colors );

@@ -100,12 +100,6 @@
     <ClCompile Include="DataAnalysisHandler.cpp">
       <Filter>Camera Window</Filter>
     </ClCompile>
-    <ClCompile Include="DacSystem.cpp">
-      <Filter>Auxiliary Window</Filter>
-    </ClCompile>
-    <ClCompile Include="DacSettingsDialog.cpp">
-      <Filter>Auxiliary Window</Filter>
-    </ClCompile>
     <ClCompile Include="Control.cpp">
       <Filter>General Files</Filter>
     </ClCompile>
@@ -199,6 +193,12 @@
     <ClCompile Include="PlotDialog.cpp" />
     <ClCompile Include="PlotCtrl.cpp" />
     <ClCompile Include="OscilloscopeViewer.cpp" />
+    <ClCompile Include="DaqMxFlume.cpp" />
+    <ClCompile Include="AoSystem.cpp">
+      <Filter>Auxiliary Window</Filter>
+    </ClCompile>
+    <ClCompile Include="AoSettingsDialog.cpp" />
+    <ClCompile Include="AiSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -315,17 +315,11 @@
     <ClInclude Include="Control.h">
       <Filter>General Files</Filter>
     </ClInclude>
-    <ClInclude Include="DacSystem.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
     <ClInclude Include="CameraSettingsControl.h">
       <Filter>Camera Window</Filter>
     </ClInclude>
     <ClInclude Include="DataAnalysisHandler.h">
       <Filter>Camera Window</Filter>
-    </ClInclude>
-    <ClInclude Include="DacSettingsDialog.h">
-      <Filter>Auxiliary Window</Filter>
     </ClInclude>
     <ClInclude Include="Communicator.h">
       <Filter>Main Window</Filter>
@@ -400,9 +394,6 @@
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
     <ClInclude Include="DioSettingsDialog.h">
-      <Filter>Auxiliary Window</Filter>
-    </ClInclude>
-    <ClInclude Include="DacStructures.h">
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
     <ClInclude Include="splashDialog.h">
@@ -487,6 +478,12 @@
       <Filter>Main Window</Filter>
     </ClInclude>
     <ClInclude Include="PlotDialog.h" />
+    <ClInclude Include="AoSystem.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
+    <ClInclude Include="AiSystem.h" />
+    <ClInclude Include="AoStructures.h" />
+    <ClInclude Include="AoSettingsDialog.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
@@ -563,5 +560,6 @@
     </None>
     <None Include="PlotCtrl.h" />
     <None Include="OscilloscopeViewer.h" />
+    <None Include="DaqMxFlume.h" />
   </ItemGroup>
 </Project>

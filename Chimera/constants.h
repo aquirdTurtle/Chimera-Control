@@ -149,6 +149,7 @@
 // This is the length of time waited before the code decides to update your syntax coloring after a change is made.
 #define SYNTAX_TIMER_LENGTH 1000
 
+#define NUMBER_AI_CHANNELS 16
 // Parameters that the user might want to change:
 const bool CONST_POWER_OUTPUT = true;
 

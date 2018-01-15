@@ -5,7 +5,7 @@
 #include "constants.h"
 #include "MasterManager.h" 
 #include "DioSystem.h"
-#include "DacSystem.h"
+#include "AoSystem.h"
 #include "VariableSystem.h"
 #include "Script.h"
 #include "RunInfo.h"
@@ -19,6 +19,8 @@
 #include "commonTypes.h"
 #include "StatusControl.h"
 #include "TektronicsControl.h"
+#include "AiSystem.h"
+
 
 enum agilentNames
 {
@@ -34,7 +36,6 @@ enum agilentNames
 class AuxiliaryWindow : public CDialog
 {
 	DECLARE_DYNAMIC(AuxiliaryWindow);
-
 	public:
 		AuxiliaryWindow();
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
@@ -47,7 +48,6 @@ class AuxiliaryWindow : public CDialog
 		void OnPaint( );
 		void passCommonCommand(UINT id);
 		void OnTimer( UINT_PTR id );
-		
 		// the master needs to handle tooltip stuff.
 		cToolTips toolTips;
 		void handleMasterConfigSave( std::stringstream& configStream );
@@ -131,14 +131,15 @@ class AuxiliaryWindow : public CDialog
 		// 
 		std::array<Agilent, 4> agilents;
 
-		std::vector<PlotCtrl*> dacPlots;
+		std::vector<PlotCtrl*> aoPlots;
 		std::vector<PlotCtrl*> ttlPlots;
 		std::vector<std::vector<pPlotDataVec>> ttlData, dacData;
 		UINT NUM_DAC_PLTS = 3;
 		UINT NUM_TTL_PLTS = 4;
 		
  		DioSystem ttlBoard;
- 		DacSystem dacBoards;
+ 		AoSystem aoSys;
+		AiSystem aiSys;
  		MasterConfiguration masterConfig{ MASTER_CONFIGURATION_FILE_ADDRESS };
 		TektronicsControl topBottomTek, eoAxialTek;
 

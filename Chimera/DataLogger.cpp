@@ -14,6 +14,13 @@ DataLogger::DataLogger(std::string systemLocation)
 }
 
 
+DataLogger::~DataLogger( )
+{
+	// try to close before finishing.
+	closeFile( );
+}
+
+
 // this file assumes that h5 is the data_#.h5 file. User should check if incDataSet is on before calling. ???
 void DataLogger::deleteFile(Communicator* comm)
 {
@@ -146,9 +153,6 @@ void DataLogger::initializeDataFiles()
 		H5::Group ttlsGroup( file.createGroup( "/TTLs" ) );
 		// initial settings
 		// list of commands
-		H5::Group dacsGroup( file.createGroup( "/DACs" ) );
-		// initial settings
-		// list of commands
 		H5::Group tektronicsGroup( file.createGroup( "/Tektronics" ) );
 		// mode, freq, power
 		H5::Group miscellaneousGroup( file.createGroup( "/Miscellaneous" ) );
@@ -278,7 +282,6 @@ void DataLogger::logAndorSettings( AndorRunSettings settings, bool on)
 		}
 		// in principle there are some other low level settings or things that aren't used very often which I could include 
 		// here. I'm gonna leave this for now though.
-
 		H5::Group andorGroup( file.createGroup( "/Andor" ) );
 		hsize_t rank1[] = { 1 };
 		// pictures. These are permanent members of the class for speed during the writing process.	
@@ -394,7 +397,6 @@ void DataLogger::writePic(UINT currentPictureNumber, std::vector<long> image, im
 	// starting coordinates of write area in the h5 file of the array of picture data points.
 	hsize_t offset[] = { currentPictureNumber-1, 0, 0 };
 	hsize_t slabdim[3] = { 1, dims.width, dims.height };
-	std::vector<long> im( image.size(), 0 );
 	try
 	{
 		picureSetDataSpace.selectHyperslab( H5S_SELECT_SET, slabdim, offset );
@@ -407,9 +409,46 @@ void DataLogger::writePic(UINT currentPictureNumber, std::vector<long> image, im
 }
 
 
+void DataLogger::initializeAioLogging( UINT numSnapshots )
+{
+	H5::Group aioGroup( file.createGroup( "/DACs" ) );
+	// initial settings
+	// list of commands?
+	if ( numSnapshots != 0 )
+	{
+		hsize_t setDims[] = { numSnapshots, NUMBER_AI_CHANNELS };
+		hsize_t singleMeasurementDims[] = { 1, NUMBER_AI_CHANNELS };
+		voltsSetDataSpace = H5::DataSpace( 2, setDims );
+		voltsDataSpace = H5::DataSpace( 2, singleMeasurementDims );
+		voltsDataSet = aioGroup.createDataSet( "Voltage-Measurements", H5::PredType::NATIVE_DOUBLE, picureSetDataSpace );
+	}
+}
+
+
+void DataLogger::writeVolts( UINT currentVoltNumber, std::vector<float64> data )
+{
+	if ( fileIsOpen == false )
+	{
+		thrower( "Tried to write to h5 file, but the file is closed!\r\n" );
+	}
+	// starting coordinates of write area in the h5 file of the array of picture data points.
+	hsize_t offset[2] = { currentVoltNumber - 1, 0 };
+	hsize_t slabdim[2] = { 1, data.size() };
+	try
+	{
+		voltsSetDataSpace.selectHyperslab( H5S_SELECT_SET, slabdim, offset );
+		voltsDataSet.write( data.data( ), H5::PredType::NATIVE_DOUBLE, voltsDataSpace, voltsSetDataSpace);
+	}
+	catch ( H5::Exception& err )
+	{
+		thrower( "Failed to write data to HDF5 file! Error: " + str( err.getDetailMsg( ) ) + "\n" );
+	}
+}
+
+
 void DataLogger::logMiscellaneous()
 {
-	// time
+	// times, ...
 }
 
 
@@ -422,6 +461,8 @@ void DataLogger::closeFile()
 	}
 	picureSetDataSpace.close();
 	pictureDataset.close();	
+	voltsDataSpace.close( );
+	voltsDataSet.close( );
 	file.close();
 	fileIsOpen = false;
 }

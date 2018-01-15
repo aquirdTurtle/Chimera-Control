@@ -964,15 +964,15 @@ void MainWindow::handleSequenceCombo()
 void MainWindow::changeBoxColor( systemInfo<char> colors )
 {
 	boxes.changeColor( colors );
-	if (colors.camera == 'R' || colors.intensity == 'R' || colors.niawg == 'R')
+	if (colors.camera == 'R' || colors.niawg == 'R')
 	{
 		changeShortStatusColor("R");
 	}
-	else if (colors.camera == 'Y' || colors.intensity == 'Y' || colors.niawg == 'Y')
+	else if (colors.camera == 'Y' || colors.niawg == 'Y')
 	{
 		changeShortStatusColor("Y");
 	}
-	else if (colors.camera == 'G' || colors.intensity == 'G' || colors.niawg == 'G')
+	else if (colors.camera == 'G' || colors.niawg == 'G')
 	{
 		changeShortStatusColor("G");
 	}
