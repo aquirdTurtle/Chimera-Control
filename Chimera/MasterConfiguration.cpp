@@ -2,11 +2,12 @@
 #include "MasterConfiguration.h"
 #include <string>
 #include "DioSystem.h"
-#include "DacSystem.h"
+#include "AoSystem.h"
 #include <fstream>
 #include <sys/stat.h>
 #include "AuxiliaryWindow.h"
 #include "CameraWindow.h"
+
 
 MasterConfiguration::MasterConfiguration(std::string address) : configurationFileAddress{address}, version{"2.0"}
 {}
@@ -97,24 +98,3 @@ void MasterConfiguration::load(MainWindow* mainWin, AuxiliaryWindow* auxWin, Cam
 	configFile.close();
 }
 
-/*
-void MasterConfiguration::updateDefaultDacs(DacSystem dacs)
-{
-	for (int dacInc = 0; dacInc < defaultDacs.size(); dacInc++)
-	{
-		defaultDacs[dacInc] = dacs.getDacValue(dacInc);
-	}
-}
-
-
-void MasterConfiguration::updateDefaultTTLs(DioSystem ttls)
-{
-	for (int ttlRowInc = 0; ttlRowInc < ttls.getNumberOfTTLRows(); ttlRowInc++)
-	{
-		for (int ttlNumberInc = 0; ttlNumberInc < ttls.getNumberOfTTLsPerRow(); ttlNumberInc++)
-		{
-			defaultTtls[ttlRowInc][ttlNumberInc] = ttls.getTtlStatus(ttlRowInc, ttlNumberInc);
-		}
-	}
-}
-*/

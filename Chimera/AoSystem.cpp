@@ -1,11 +1,11 @@
 #include "stdafx.h"
-#include "DacSystem.h"
+#include "AoSystem.h"
 #include "AuxiliaryWindow.h"
 // for other ni stuff
 #include "nidaqmx2.h"
 
 
-DacSystem::DacSystem() : dacResolution(10.0 / pow(2, 16))
+AoSystem::AoSystem() : dacResolution(10.0 / pow(2, 16))
 {
 	/// set some constants...
 	// Both are 0-INDEXED. D16
@@ -19,24 +19,22 @@ DacSystem::DacSystem() : dacResolution(10.0 / pow(2, 16))
 	{
 		// initialize tasks and chanells on the DACs
 		long output = 0;
-
 		// Create a task for each board
 		// assume 3 boards, 8 channels per board. AMK 11/2010, modified for three from 2
 		// task names are defined as public variables of type Long in TheMainProgram Declarations
-		daqCreateTask("Board 3 Dacs 16-23", staticDac2);
-		daqCreateTask("Board 2 Dacs 8-15", staticDac1);
-		daqCreateTask("Board 1 Dacs 0-7", staticDac0);
-		daqCreateAOVoltageChan(staticDac0, "dev2/ao0:7", "StaticDAC_1", -10, 10, DAQmx_Val_Volts, "");
-		daqCreateAOVoltageChan(staticDac1, "dev3/ao0:7", "StaticDAC_0", -10, 10, DAQmx_Val_Volts, "");
-		daqCreateAOVoltageChan(staticDac2, "dev4/ao0:7", "StaticDAC_2", -10, 10, DAQmx_Val_Volts, "");
-
-
+		daqmx.createTask("Board 3 Dacs 16-23", analogOutTask2);
+		daqmx.createTask("Board 2 Dacs 8-15", analogOutTask1);
+		daqmx.createTask("Board 1 Dacs 0-7", analogOutTask0);
+		daqmx.createAoVoltageChan(analogOutTask0, "dev2/ao0:7", "StaticDAC_1", -10, 10, DAQmx_Val_Volts, "");
+		daqmx.createAoVoltageChan(analogOutTask1, "dev3/ao0:7", "StaticDAC_0", -10, 10, DAQmx_Val_Volts, "");
+		daqmx.createAoVoltageChan(analogOutTask2, "dev4/ao0:7", "StaticDAC_2", -10, 10, DAQmx_Val_Volts, "");
 		// This creates a task to read in a digital input from DAC 0 on port 0 line 0
-		daqCreateTask("", digitalDac_0_00);
-		daqCreateTask("", digitalDac_0_01);
+		daqmx.createTask("", digitalDac_0_00);
+		daqmx.createTask("", digitalDac_0_01);
 		// unused at the moment.
-		daqCreateDIChan(digitalDac_0_00, "dev2/port0/line0", "DIDAC_0", DAQmx_Val_ChanPerLine);
-		daqCreateDIChan(digitalDac_0_01, "dev2/port0/line1", "DIDAC_0", DAQmx_Val_ChanPerLine);
+		daqmx.createDiChan(digitalDac_0_00, "dev2/port0/line0", "DIDAC_0", DAQmx_Val_ChanPerLine);
+		daqmx.createDiChan(digitalDac_0_01, "dev2/port0/line1", "DIDAC_0", DAQmx_Val_ChanPerLine);
+		// new
 	}
 	// I catch here because it's the constructor, and catching elsewhere is weird.
 	catch (Error& exception)
@@ -46,13 +44,13 @@ DacSystem::DacSystem() : dacResolution(10.0 / pow(2, 16))
 }
 
 
-std::array<double, 24> DacSystem::getDacStatus()
+std::array<double, 24> AoSystem::getDacStatus()
 {
 	return dacValues;
 }
 
 
-void DacSystem::handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor, DioSystem* ttls)
+void AoSystem::handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor, DioSystem* ttls)
 {
 	ProfileSystem::checkDelimiterLine(openFile, "DACS");
 	prepareForce( );
@@ -77,7 +75,7 @@ void DacSystem::handleOpenConfig(std::ifstream& openFile, int versionMajor, int 
 }
 
 
-void DacSystem::handleNewConfig( std::ofstream& newFile )
+void AoSystem::handleNewConfig( std::ofstream& newFile )
 {
 	newFile << "DACS\n";
 	for ( UINT dacInc = 0; dacInc < getNumberOfDacs( ); dacInc++ )
@@ -88,7 +86,7 @@ void DacSystem::handleNewConfig( std::ofstream& newFile )
 }
 
 
-void DacSystem::handleSaveConfig(std::ofstream& saveFile)
+void AoSystem::handleSaveConfig(std::ofstream& saveFile)
 {
 	saveFile << "DACS\n";
 	for (UINT dacInc = 0; dacInc < getNumberOfDacs(); dacInc++)
@@ -99,13 +97,13 @@ void DacSystem::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void DacSystem::abort()
+void AoSystem::abort()
 {
 	// TODO...?
 }
 
 
-std::string DacSystem::getDacSequenceMessage(UINT variation, UINT seqNum)
+std::string AoSystem::getDacSequenceMessage(UINT variation, UINT seqNum)
 {
 	std::string message;
 	for ( auto snap : dacSnapshots[seqNum][variation] )
@@ -128,151 +126,13 @@ std::string DacSystem::getDacSequenceMessage(UINT variation, UINT seqNum)
 	return message;
 }
 
-
-void DacSystem::daqCreateTask( const char* taskName, TaskHandle& handle )
-{
-	if ( !DAQMX_SAFEMODE )
-	{
-		int result = DAQmxCreateTask( taskName, &handle );
-		if ( result )
-		{
-			thrower( "daqCreateTask Failed! (" + str( result) + "): " 
-					 + getErrorMessage( result ) );
-		}
-	}
-}
-
-
-void DacSystem::daqCreateAOVoltageChan( TaskHandle taskHandle, const char physicalChannel[],
-										 const char nameToAssignToChannel[], float64 minVal, float64 maxVal, int32 units,
-										 const char customScaleName[] )
-{
-	if ( !DAQMX_SAFEMODE )
-	{
-		int result = DAQmxCreateAOVoltageChan( taskHandle, physicalChannel, nameToAssignToChannel, minVal, maxVal, 
-											   units, customScaleName );
-		if ( result )
-		{
-			thrower( "daqCreateAOVoltageChan Failed! (" + str( result ) + "): "
-					 + getErrorMessage( result ) );
-		}
-	}
-}
-
-
-void DacSystem::daqCreateDIChan( TaskHandle taskHandle, const char lines[], const char nameToAssignToLines[],
-								  int32 lineGrouping )
-{
-	if ( !DAQMX_SAFEMODE )
-	{
-		int result = DAQmxCreateDIChan( taskHandle, lines, nameToAssignToLines, lineGrouping );
-		if ( result )
-		{
-			thrower( "daqCreateDIChan Failed! (" + str( result ) + "): "
-					 + getErrorMessage( result ) );
-		}
-	}
-}
-
-
-void DacSystem::daqStopTask( TaskHandle handle )
-{
-	if ( !DAQMX_SAFEMODE )
-	{
-		int result = DAQmxStopTask(handle);
-		// this function is currently meant to be silent.
-		if ( result )
-		{
-			//thrower( "daqStopTask Failed! (" + str( result ) + "): "
-			//		 + getErrorMessage( result ) );
-			
-		}
-	}
-}
-
-
-void DacSystem::daqConfigSampleClkTiming( TaskHandle taskHandle, const char source[], float64 rate, int32 activeEdge,
-									  int32 sampleMode, uInt64 sampsPerChan )
-{
-	if ( !DAQMX_SAFEMODE )
-	{
-		int result = DAQmxCfgSampClkTiming( taskHandle, source, rate, activeEdge, sampleMode, sampsPerChan );
-		if ( result )
-		{
-			thrower( "daqConfigSampleClkTiming Failed! (" + str( result ) + "): "
-					 + getErrorMessage( result ) );
-		}
-	}
-}
-
-
-void DacSystem::daqWriteAnalogF64( TaskHandle handle, int32 numSampsPerChan, bool32 autoStart, float64 timeout,
-									bool32 dataLayout, const float64 writeArray[], int32 *sampsPerChanWritten)
-{
-	if ( !DAQMX_SAFEMODE )
-	{
-		// the last argument must be null as of the writing of this wrapper. may be used in the future for something else.
-		int result = DAQmxWriteAnalogF64( handle, numSampsPerChan, autoStart, timeout, dataLayout, writeArray, 
-										  sampsPerChanWritten, NULL);
-		if ( result )
-		{
-			thrower( "daqWriteAnalogF64 Failed! (" + str( result ) + "): "
-					 + getErrorMessage( result ) );
-		}
-	}
-}
-
-
-void DacSystem::daqStartTask( TaskHandle handle )
-{
-	if ( !DAQMX_SAFEMODE )
-	{
-		int result = DAQmxStartTask(handle);
-		if ( result )
-		{
-			thrower( "daqStartTask Failed! (" + str( result ) + "): "
-					 + getErrorMessage( result ) );
-		}
-	}
-}
-
-
 /// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// 
 /// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-std::string DacSystem::getDacSystemInfo()
-{
-	std::array<long, 3> answers;
-	int32 errCode = DAQmxGetDevProductCategory( "dev2", &answers[0] );
-	if (errCode != 0)
-	{
-		std::string err = getErrorMessage( 0 );
-		return "DAC System: Error! " + err;
-	}
-	errCode = DAQmxGetDevProductCategory( "dev3", &answers[1] );
-	if (errCode != 0)
-	{
-		std::string err = getErrorMessage( 0 );
-		return "DAC System: Error! " + err;
-	}
-	errCode = DAQmxGetDevProductCategory( "dev4", &answers[02] );
-	if (errCode != 0)
-	{
-		std::string err = getErrorMessage(0);
-		return "DAC System: Error! " + err;
-	}
-	else
-	{
-		std::string answerStr = "Dac System: Connected... device categories = " + str( answers[0] ) + ", " + str( answers[1] ) + ", " 
-			+ str( answers[2] ) + ". Typical value 14647 = AO Series.\n";
-		return answerStr;
-	}
-}
 
-
-void DacSystem::handleEditChange(UINT dacNumber)
+void AoSystem::handleEditChange(UINT dacNumber)
 {
 	if (dacNumber >= breakoutBoardEdits.size())
 	{
@@ -315,7 +175,7 @@ void DacSystem::handleEditChange(UINT dacNumber)
 }
 
 
-bool DacSystem::isValidDACName(std::string name)
+bool AoSystem::isValidDACName(std::string name)
 {
 	for (UINT dacInc = 0; dacInc < getNumberOfDacs(); dacInc++)
 	{
@@ -331,7 +191,7 @@ bool DacSystem::isValidDACName(std::string name)
 	return false;
 }
 
-void DacSystem::rearrange(UINT width, UINT height, fontMap fonts)
+void AoSystem::rearrange(UINT width, UINT height, fontMap fonts)
 {
 	dacTitle.rearrange( width, height, fonts);
 	dacSetButton.rearrange( width, height, fonts);
@@ -347,20 +207,20 @@ void DacSystem::rearrange(UINT width, UINT height, fontMap fonts)
 }
 
 
-void DacSystem::setDefaultValue(UINT dacNum, double val)
+void AoSystem::setDefaultValue(UINT dacNum, double val)
 {
 	defaultVals[dacNum] = val;
 }
 
 
-double DacSystem::getDefaultValue(UINT dacNum)
+double AoSystem::getDefaultValue(UINT dacNum)
 {
 	return defaultVals[dacNum];
 }
 
 
 // this function returns the end location of the set of controls. This can be used for the location for the next control beneath it.
-void DacSystem::initialize(POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id)
+void AoSystem::initialize(POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id)
 {
 	// title
 	dacTitle.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
@@ -416,7 +276,7 @@ void DacSystem::initialize(POINT& pos, cToolTips& toolTips, AuxiliaryWindow* mas
 }
 
 
-void DacSystem::handleRoundToDac(CMenu& menu)
+void AoSystem::handleRoundToDac(CMenu& menu)
 {
 	if (roundToDacPrecision)
 	{
@@ -434,7 +294,7 @@ void DacSystem::handleRoundToDac(CMenu& menu)
 /*
  * get the text from every edit and prepare a change.
  */
-void DacSystem::handleButtonPress(DioSystem* ttls)
+void AoSystem::handleButtonPress(DioSystem* ttls)
 {
 	dacCommandFormList.clear();
 	prepareForce();
@@ -475,16 +335,16 @@ void DacSystem::handleButtonPress(DioSystem* ttls)
 }
 
 
-void DacSystem::organizeDacCommands(UINT variation, UINT seqNum)
+void AoSystem::organizeDacCommands(UINT variation, UINT seqNum)
 {
 	// each element of this is a different time (the double), and associated with each time is a vector which locates 
 	// which commands were at this time, for
 	// ease of retrieving all of the values in a moment.
-	std::vector<std::pair<double, std::vector<DacCommand>>> timeOrganizer;
-	std::vector<DacCommand> tempEvents(dacCommandList[seqNum][variation]);
+	std::vector<std::pair<double, std::vector<AoCommand>>> timeOrganizer;
+	std::vector<AoCommand> tempEvents(dacCommandList[seqNum][variation]);
 	// sort the events by time. using a lambda here.
 	std::sort( tempEvents.begin(), tempEvents.end(), 
-			   [](DacCommand a, DacCommand b){return a.time < b.time; });
+			   [](AoCommand a, AoCommand b){return a.time < b.time; });
 	for (UINT commandInc = 0; commandInc < tempEvents.size(); commandInc++)
 	{
 		auto& command = tempEvents[commandInc];
@@ -493,7 +353,7 @@ void DacSystem::organizeDacCommands(UINT variation, UINT seqNum)
 		if (commandInc == 0 || fabs( command.time - timeOrganizer.back().first) > 2 * DBL_EPSILON)
 		{
 			// new time
-			timeOrganizer.push_back({ command.time, std::vector<DacCommand>({ command }) });
+			timeOrganizer.push_back({ command.time, std::vector<AoCommand>({ command }) });
 		}
 		else
 		{
@@ -526,7 +386,7 @@ void DacSystem::organizeDacCommands(UINT variation, UINT seqNum)
 }
 
 
-void DacSystem::findLoadSkipSnapshots( double time, std::vector<variableType>& variables, UINT variation, UINT seqNum )
+void AoSystem::findLoadSkipSnapshots( double time, std::vector<variableType>& variables, UINT variation, UINT seqNum )
 {
 	// find the splitting time and set the loadSkip snapshots to have everything after that time.
 	auto& snaps = dacSnapshots[seqNum][variation];
@@ -539,14 +399,14 @@ void DacSystem::findLoadSkipSnapshots( double time, std::vector<variableType>& v
 	{
 		if ( snaps[snapshotInc].time < time && snaps[snapshotInc + 1].time >= time )
 		{
-			loadSkipSnaps = std::vector<DacSnapshot>( snaps.begin( ) + snapshotInc + 1, snaps.end( ) );
+			loadSkipSnaps = std::vector<AoSnapshot>( snaps.begin( ) + snapshotInc + 1, snaps.end( ) );
 			break;
 		}
 	}
 }
 
 
-std::array<double, 24> DacSystem::getFinalSnapshot()
+std::array<double, 24> AoSystem::getFinalSnapshot()
 {
 	if (dacSnapshots.size() != 0)
 	{
@@ -573,7 +433,7 @@ std::array<double, 24> DacSystem::getFinalSnapshot()
 }
 
 
-std::array<std::string, 24> DacSystem::getAllNames()
+std::array<std::string, 24> AoSystem::getAllNames()
 {
 	return dacNames;
 }
@@ -582,10 +442,10 @@ std::array<std::string, 24> DacSystem::getAllNames()
 /*
  * IMPORTANT: this does not actually change any of the outputs of the board. It is meant to be called when things have
  * happened such that the control doesn't know what it's own status is, e.g. at the end of an experiment, since the 
- * program doesn't change it's internal memory of all of the status of the dacs as the experiment runs. (it can't, 
+ * program doesn't change it's internal memory of all of the status of the aoSys as the experiment runs. (it can't, 
  * besides it would intensive to keep track of that in real time).
  */
-void DacSystem::setDacStatusNoForceOut(std::array<double, 24> status)
+void AoSystem::setDacStatusNoForceOut(std::array<double, 24> status)
 {
 	// set the internal values
 	dacValues = status;
@@ -608,35 +468,24 @@ void DacSystem::setDacStatusNoForceOut(std::array<double, 24> status)
 }
 
 
-double DacSystem::roundToDacResolution(double num)
+double AoSystem::roundToDacResolution(double num)
 {
 	return long((num + dacResolution / 2) / dacResolution) * dacResolution;
 }
 
-
-std::string DacSystem::getErrorMessage(int errorCode)
-{
-	char errorChars[2048];
-	// Get the actual error message. This is much surperior to getErrorString function.
-	DAQmxGetExtendedErrorInfo( errorChars, 2048 );
-	std::string errorString(errorChars);
-	return errorString;
-}
-
-
 template <typename T> using vec = std::vector<T>;
 
-void DacSystem::prepareForce()
+void AoSystem::prepareForce()
 {
-	dacCommandList = vec<vec<vec<DacCommand>>>( 1, vec<vec<DacCommand>>( 1 ) );
-	dacSnapshots = vec<vec<vec<DacSnapshot>>>( 1, vec<vec<DacSnapshot>>( 1 ) );
-	loadSkipDacSnapshots = vec<vec<vec<DacSnapshot>>>( 1, vec<vec<DacSnapshot>>( 1 ) );
+	dacCommandList = vec<vec<vec<AoCommand>>>( 1, vec<vec<AoCommand>>( 1 ) );
+	dacSnapshots = vec<vec<vec<AoSnapshot>>>( 1, vec<vec<AoSnapshot>>( 1 ) );
+	loadSkipDacSnapshots = vec<vec<vec<AoSnapshot>>>( 1, vec<vec<AoSnapshot>>( 1 ) );
 	finalFormatDacData = vec<vec<std::array<vec<double>, 3>>>( 1, vec<std::array<vec<double>, 3>>( 1 ) );
 	loadSkipDacFinalFormat = vec<vec<std::array<vec<double>, 3>>>( 1, vec<std::array<vec<double>, 3>>( 1 ) );
 }
 
 
-void DacSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> dacData, 
+void AoSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> dacData, 
 							  std::vector<std::vector<double>> finTimes )
 {
 	std::string message;
@@ -671,7 +520,7 @@ void DacSystem::fillPlotData( UINT variation, std::vector<std::vector<pPlotDataV
 // readable. I very rarely use things like this.
 template<class T> using vec = std::vector<T>;
 
-void DacSystem::interpretKey( std::vector<std::vector<variableType>>& variables, std::string& warnings )
+void AoSystem::interpretKey( std::vector<std::vector<variableType>>& variables, std::string& warnings )
 {
 	UINT sequenceLength = variables.size( );
 	if ( sequenceLength == 0 )
@@ -685,9 +534,9 @@ void DacSystem::interpretKey( std::vector<std::vector<variableType>>& variables,
 	}
 
 	/// imporantly, this sizes the relevant structures.
-	dacCommandList = vec<vec<vec<DacCommand>>>( sequenceLength, vec<vec<DacCommand>>(variations) );
-	dacSnapshots = vec<vec<vec<DacSnapshot>>>( sequenceLength, vec<vec<DacSnapshot>>(variations) );
-	loadSkipDacSnapshots = vec<vec<vec<DacSnapshot>>>( sequenceLength, vec<vec<DacSnapshot>>( variations ) );
+	dacCommandList = vec<vec<vec<AoCommand>>>( sequenceLength, vec<vec<AoCommand>>(variations) );
+	dacSnapshots = vec<vec<vec<AoSnapshot>>>( sequenceLength, vec<vec<AoSnapshot>>(variations) );
+	loadSkipDacSnapshots = vec<vec<vec<AoSnapshot>>>( sequenceLength, vec<vec<AoSnapshot>>( variations ) );
 	finalFormatDacData = vec<vec<std::array<vec<double>, 3>>>( sequenceLength, 
 															   vec<std::array<vec<double>, 3>>( variations ));
 	loadSkipDacFinalFormat = vec<vec<std::array<vec<double>, 3>>>( sequenceLength,
@@ -700,7 +549,7 @@ void DacSystem::interpretKey( std::vector<std::vector<variableType>>& variables,
 		{
 			for ( UINT eventInc = 0; eventInc < dacCommandFormList[seqInc].size( ); eventInc++ )
 			{
-				DacCommand tempEvent;
+				AoCommand tempEvent;
 				auto& formList = dacCommandFormList[seqInc][eventInc];
 				auto& seqVariables = variables[seqInc];
 				auto& cmdList = dacCommandList[seqInc][variationInc];
@@ -743,7 +592,7 @@ void DacSystem::interpretKey( std::vector<std::vector<variableType>>& variables,
 					if ( rampInc < 10.0 / pow( 2, 16 ) && resolutionWarningPosted )
 					{
 						resolutionWarningPosted = true;
-						warnings += "Warning: ramp increment of " + str( rampInc ) + " is below the resolution of the dacs "
+						warnings += "Warning: ramp increment of " + str( rampInc ) + " is below the resolution of the aoSys "
 							"(which is 10/2^16 = " + str( 10.0 / pow( 2, 16 ) ) + "). It's likely taxing the system to "
 							"calculate the ramp unnecessarily.\r\n";
 					}
@@ -806,7 +655,7 @@ void DacSystem::interpretKey( std::vector<std::vector<variableType>>& variables,
 					{
 						resolutionWarningPosted = true;
 						warnings += "Warning: numPoints of " + str( numSteps ) + " results in a ramp increment of "
-							+ str( rampInc ) + " is below the resolution of the dacs (which is 10/2^16 = "
+							+ str( rampInc ) + " is below the resolution of the aoSys (which is 10/2^16 = "
 							+ str( 10.0 / pow( 2, 16 ) ) + "). It's likely taxing the system to "
 							"calculate the ramp unnecessarily.\r\n";
 					}
@@ -840,13 +689,13 @@ void DacSystem::interpretKey( std::vector<std::vector<variableType>>& variables,
 }
 
 
-UINT DacSystem::getNumberSnapshots(UINT variation, UINT seqNum)
+UINT AoSystem::getNumberSnapshots(UINT variation, UINT seqNum)
 {
 	return dacSnapshots[seqNum][variation].size();
 }
 
 
-void DacSystem::checkTimingsWork(UINT variation, UINT seqInc)
+void AoSystem::checkTimingsWork(UINT variation, UINT seqInc)
 {
 	std::vector<double> times;
 	// grab all the times.
@@ -879,26 +728,26 @@ void DacSystem::checkTimingsWork(UINT variation, UINT seqInc)
 	}
 }
 
-ULONG DacSystem::getNumberEvents(UINT variation, UINT seqInc)
+ULONG AoSystem::getNumberEvents(UINT variation, UINT seqInc)
 {
 	return dacSnapshots[seqInc][variation].size();
 }
 
 
-// note that this is not directly tied to changing any "current" parameters in the DacSystem object (it of course changes a list parameter). The 
-// DacSystem object "current" parameters aren't updated to reflect an experiment, so if this is called for a force out, it should be called in conjuction
-// with changing "currnet" parameters in the DacSystem object.
-void DacSystem::setDacCommandForm( DacCommandForm command, UINT seqNum )
+// note that this is not directly tied to changing any "current" parameters in the AoSystem object (it of course changes a list parameter). The 
+// AoSystem object "current" parameters aren't updated to reflect an experiment, so if this is called for a force out, it should be called in conjuction
+// with changing "currnet" parameters in the AoSystem object.
+void AoSystem::setDacCommandForm( AoCommandForm command, UINT seqNum )
 {
 	dacCommandFormList[seqNum].push_back( command );
-	// you need to set up a corresponding trigger to tell the dacs to change the output at the correct time. 
+	// you need to set up a corresponding trigger to tell the aoSys to change the output at the correct time. 
 	// This is done later on interpretation of ramps etc.
 }
 
 
 // add a ttl trigger command for every unique dac snapshot.
 // MUST interpret key for dac and organize dac commands before setting the trigger events.
-void DacSystem::setDacTriggerEvents(DioSystem* ttls, UINT variation, UINT seqInc)
+void AoSystem::setDacTriggerEvents(DioSystem* ttls, UINT variation, UINT seqInc)
 {
 	for ( auto snapshot : dacSnapshots[seqInc][variation])
 	{
@@ -909,10 +758,16 @@ void DacSystem::setDacTriggerEvents(DioSystem* ttls, UINT variation, UINT seqInc
 }
 
 
-// this is a function called in preparation for forcing a dac change. Remember, you need to call ___ to actually change things.
-void DacSystem::prepareDacForceChange(int line, double voltage, DioSystem* ttls)
+std::string AoSystem::getSystemInfo( )
 {
-	// change parameters in the DacSystem object so that the object knows what the current settings are.
+	return daqmx.getDacSystemInfo( );
+}
+
+
+// this is a function called in preparation for forcing a dac change. Remember, you need to call ___ to actually change things.
+void AoSystem::prepareDacForceChange(int line, double voltage, DioSystem* ttls)
+{
+	// change parameters in the AoSystem object so that the object knows what the current settings are.
 	//std::string volt = str(roundToDacResolution(voltage));
 	std::string valStr;
 	if (roundToDacPrecision)
@@ -930,13 +785,13 @@ void DacSystem::prepareDacForceChange(int line, double voltage, DioSystem* ttls)
 	}
 	breakoutBoardEdits[line].SetWindowText(cstr(valStr));
 	dacValues[line] = voltage;
-	// I'm not sure it's necessary to go through the procedure of doing this and using the DIO to trigger the dacs for a foce out. I'm guessing it's 
+	// I'm not sure it's necessary to go through the procedure of doing this and using the DIO to trigger the aoSys for a foce out. I'm guessing it's 
 	// possible to tell the DAC to just immediately change without waiting for a trigger.
 	setForceDacEvent( line, voltage, ttls, 0, 0 );
 }
 
 
-void DacSystem::checkValuesAgainstLimits(UINT variation, UINT seqNum)
+void AoSystem::checkValuesAgainstLimits(UINT variation, UINT seqNum)
 {
 	for (UINT line = 0; line < dacNames.size(); line++)
 	{
@@ -954,7 +809,7 @@ void DacSystem::checkValuesAgainstLimits(UINT variation, UINT seqNum)
 }
 
 
-void DacSystem::setForceDacEvent( int line, double val, DioSystem* ttls, UINT variation, UINT seqNum )
+void AoSystem::setForceDacEvent( int line, double val, DioSystem* ttls, UINT variation, UINT seqNum )
 {
 	if (val > dacMaxVals[line] || val < dacMinVals[line])
 	{
@@ -963,7 +818,7 @@ void DacSystem::setForceDacEvent( int line, double val, DioSystem* ttls, UINT va
 				str(dacMinVals[line]) + " and the maximum value is " + str(dacMaxVals[line]) + ". "
 				"Change the min/max if you actually need to set this value.\r\n");
 	}
-	DacCommand eventInfo;
+	AoCommand eventInfo;
 	eventInfo.line = line;
 	eventInfo.time = 1;	
 	eventInfo.value = val;
@@ -972,13 +827,13 @@ void DacSystem::setForceDacEvent( int line, double val, DioSystem* ttls, UINT va
 	// there might be better ways of dealing with this. 
 	eventInfo.time = 10;
 	dacCommandList[seqNum][variation].push_back( eventInfo );
-	// you need to set up a corresponding pulse trigger to tell the dacs to change the output at the correct time.
+	// you need to set up a corresponding pulse trigger to tell the aoSys to change the output at the correct time.
 	ttls->ttlOnDirect( dacTriggerLine.first, dacTriggerLine.second, 1, 0, 0 );
 	ttls->ttlOffDirect( dacTriggerLine.first, dacTriggerLine.second, 1 + dacTriggerTime, 0, 0 );
 }
 
 
-void DacSystem::initDacObjs( UINT totalSequenceNumber )
+void AoSystem::initDacObjs( UINT totalSequenceNumber )
 {
 	dacCommandFormList.resize( totalSequenceNumber );
 	dacCommandList.resize( totalSequenceNumber );
@@ -988,7 +843,7 @@ void DacSystem::initDacObjs( UINT totalSequenceNumber )
 }
 
 
-void DacSystem::resetDacEvents()
+void AoSystem::resetDacEvents()
 {
 	dacCommandFormList.clear();
 	dacCommandList.clear();
@@ -998,15 +853,15 @@ void DacSystem::resetDacEvents()
 }
 
 
-void DacSystem::stopDacs()
+void AoSystem::stopDacs()
 {
-	daqStopTask( staticDac0 );
-	daqStopTask( staticDac1 );
-	daqStopTask( staticDac2 );
+	daqmx.stopTask( analogOutTask0 );
+	daqmx.stopTask( analogOutTask1 );
+	daqmx.stopTask( analogOutTask2 );
 }
 
 
-void DacSystem::configureClocks(UINT variation, UINT seqNum, bool loadSkip)
+void AoSystem::configureClocks(UINT variation, UINT seqNum, bool loadSkip)
 {
 	long sampleNumber;
 	if ( loadSkip )
@@ -1017,21 +872,21 @@ void DacSystem::configureClocks(UINT variation, UINT seqNum, bool loadSkip)
 	{
 		sampleNumber = dacSnapshots[seqNum][variation].size( );
 	}
-	daqConfigSampleClkTiming( staticDac0, "/Dev2/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
-	daqConfigSampleClkTiming( staticDac1, "/Dev3/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
-	daqConfigSampleClkTiming( staticDac2, "/Dev4/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
+	daqmx.configSampleClkTiming( analogOutTask0, "/Dev2/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
+	daqmx.configSampleClkTiming( analogOutTask1, "/Dev3/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
+	daqmx.configSampleClkTiming( analogOutTask2, "/Dev4/PFI0", 1000000, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, sampleNumber );
 }
 
 
-void DacSystem::writeDacs(UINT variation, UINT seqNum, bool loadSkip)
+void AoSystem::writeDacs(UINT variation, UINT seqNum, bool loadSkip)
 {
-	std::vector<DacSnapshot>& snapshots = loadSkip ? loadSkipDacSnapshots[seqNum][variation] 
+	std::vector<AoSnapshot>& snapshots = loadSkip ? loadSkipDacSnapshots[seqNum][variation] 
 												   : dacSnapshots[seqNum][variation];
 	std::array<std::vector<double>, 3>& finalData = loadSkip ? loadSkipDacFinalFormat[seqNum][variation]
 															 : finalFormatDacData[seqNum][variation];
 	if (snapshots.size() <= 1)
 	{
-		// need at least 2 events to run dacs.
+		// need at least 2 events to run aoSys.
 		return;
 	}
 	if (finalData[0].size() != 8 * snapshots.size() 
@@ -1043,24 +898,24 @@ void DacSystem::writeDacs(UINT variation, UINT seqNum, bool loadSkip)
 	// Should probably run a check on samples written.
 	int32 samplesWritten;
 	//
-	daqWriteAnalogF64( staticDac0, snapshots.size(), false, 0.01, DAQmx_Val_GroupByScanNumber, &finalData[0].front(),
+	daqmx.writeAnalogF64( analogOutTask0, snapshots.size(), false, 0.01, DAQmx_Val_GroupByScanNumber, &finalData[0].front(),
 					   &samplesWritten );
-	daqWriteAnalogF64( staticDac1, snapshots.size(), false, 0.01, DAQmx_Val_GroupByScanNumber, &finalData[1].front(),
+	daqmx.writeAnalogF64( analogOutTask1, snapshots.size(), false, 0.01, DAQmx_Val_GroupByScanNumber, &finalData[1].front(),
 					   &samplesWritten );
-	daqWriteAnalogF64( staticDac2, snapshots.size(), false, 0.01, DAQmx_Val_GroupByScanNumber, &finalData[2].front(), 
+	daqmx.writeAnalogF64( analogOutTask2, snapshots.size(), false, 0.01, DAQmx_Val_GroupByScanNumber, &finalData[2].front(),
 					   &samplesWritten );
 }
 
 
-void DacSystem::startDacs()
+void AoSystem::startDacs()
 {
-	daqStartTask( staticDac0 );
-	daqStartTask( staticDac1 );
-	daqStartTask( staticDac2 );
+	daqmx.startTask( analogOutTask0 );
+	daqmx.startTask( analogOutTask1 );
+	daqmx.startTask( analogOutTask2 );
 }
 
 
-void DacSystem::makeFinalDataFormat(UINT variation, UINT seqNum)
+void AoSystem::makeFinalDataFormat(UINT variation, UINT seqNum)
 {
 	auto& finalNormal = finalFormatDacData[seqNum][variation];
 	auto& finalLoadSkip = loadSkipDacFinalFormat[seqNum][variation];
@@ -1075,14 +930,14 @@ void DacSystem::makeFinalDataFormat(UINT variation, UINT seqNum)
 	{
 		data.clear( );
 	}
-	for (DacSnapshot snapshot : normSnapshots)
+	for (AoSnapshot snapshot : normSnapshots)
 	{
 		for ( auto dacInc : range( 24 ) )
 		{
 			finalNormal[dacInc / 8].push_back( snapshot.dacValues[dacInc] );
 		}
 	}
-	for ( DacSnapshot snapshot : loadSkipSnapshots )
+	for ( AoSnapshot snapshot : loadSkipSnapshots )
 	{
 		for ( auto dacInc : range( 24 ) )
 		{
@@ -1092,7 +947,7 @@ void DacSystem::makeFinalDataFormat(UINT variation, UINT seqNum)
 }
 
 
-void DacSystem::handleDacScriptCommand( DacCommandForm command, std::string name, std::vector<UINT>& dacShadeLocations,
+void AoSystem::handleDacScriptCommand( AoCommandForm command, std::string name, std::vector<UINT>& dacShadeLocations,
 										std::vector<variableType>& vars, DioSystem* ttls, UINT seqNum )
 {
 	if ( command.commandName != "dac:" && command.commandName != "dacarange:" && command.commandName != "daclinspace:" )
@@ -1114,7 +969,7 @@ void DacSystem::handleDacScriptCommand( DacCommandForm command, std::string name
 }
 
 
-int DacSystem::getDacIdentifier(std::string name)
+int AoSystem::getDacIdentifier(std::string name)
 {
 	for (UINT dacInc = 0; dacInc < dacValues.size(); dacInc++)
 	{
@@ -1134,7 +989,7 @@ int DacSystem::getDacIdentifier(std::string name)
 	return -1;
 }
 
-void DacSystem::setMinMax(int dacNumber, double min, double max)
+void AoSystem::setMinMax(int dacNumber, double min, double max)
 {
 	if (!(min <= max))
 	{
@@ -1149,13 +1004,13 @@ void DacSystem::setMinMax(int dacNumber, double min, double max)
 }
 
 
-std::pair<double, double> DacSystem::getDacRange(int dacNumber)
+std::pair<double, double> AoSystem::getDacRange(int dacNumber)
 {
 	return { dacMinVals[dacNumber], dacMaxVals[dacNumber] };
 }
 
 
-void DacSystem::setName(int dacNumber, std::string name, cToolTips& toolTips, AuxiliaryWindow* master)
+void AoSystem::setName(int dacNumber, std::string name, cToolTips& toolTips, AuxiliaryWindow* master)
 {
 	if (name == "")
 	{
@@ -1168,13 +1023,13 @@ void DacSystem::setName(int dacNumber, std::string name, cToolTips& toolTips, Au
 }
 
 
-std::string DacSystem::getName(int dacNumber)
+std::string AoSystem::getName(int dacNumber)
 {
 	return dacNames[dacNumber];
 }
 
 
-HBRUSH DacSystem::handleColorMessage( CWnd* window, brushMap brushes, rgbMap rgbs, CDC* cDC)
+HBRUSH AoSystem::handleColorMessage( CWnd* window, brushMap brushes, rgbMap rgbs, CDC* cDC)
 {
 	int controlID = GetDlgCtrlID(*window);
 	if (controlID >= dacLabels[0].GetDlgCtrlID() && controlID <= dacLabels.back().GetDlgCtrlID() )
@@ -1212,19 +1067,19 @@ HBRUSH DacSystem::handleColorMessage( CWnd* window, brushMap brushes, rgbMap rgb
 }
 
 
-UINT DacSystem::getNumberOfDacs()
+UINT AoSystem::getNumberOfDacs()
 {
 	return dacValues.size();
 }
 
 
-double DacSystem::getDacValue(int dacNumber)
+double AoSystem::getDacValue(int dacNumber)
 {
 	return dacValues[dacNumber];
 }
 
 
-void DacSystem::shadeDacs(std::vector<UINT>& dacShadeLocations)
+void AoSystem::shadeDacs(std::vector<UINT>& dacShadeLocations)
 {
 	for (UINT shadeInc = 0; shadeInc < dacShadeLocations.size(); shadeInc++)
 	{
@@ -1239,7 +1094,7 @@ void DacSystem::shadeDacs(std::vector<UINT>& dacShadeLocations)
 }
 
 
-void DacSystem::unshadeDacs()
+void AoSystem::unshadeDacs()
 {
 	for (UINT shadeInc = 0; shadeInc < breakoutBoardEdits.size(); shadeInc++)
 	{

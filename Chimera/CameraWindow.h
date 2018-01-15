@@ -86,8 +86,9 @@ class CameraWindow : public CDialog
 		void preparePlotter( ExperimentInput& input );
 		static UINT __stdcall atomCruncherProcedure(void* input);
 
-		friend void commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, ScriptingWindow* scriptWin,
-														  CameraWindow* camWin, AuxiliaryWindow* masterWin );
+		friend void commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, 
+														  ScriptingWindow* scriptWin, CameraWindow* camWin, 
+														  AuxiliaryWindow* masterWin );
 		void startAtomCruncher(ExperimentInput& input);
 		void startPlotterThread( ExperimentInput& input );
 		bool wantsAutoPause( );

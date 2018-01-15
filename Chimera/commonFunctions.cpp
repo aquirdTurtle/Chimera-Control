@@ -635,7 +635,6 @@ namespace commonFunctions
 				{
 					if (mainWin->niawg.niawgIsRunning())
 					{
-						abortRearrangement( mainWin, camWin );
 						commonFunctions::abortNiawg(scriptWin, mainWin);
 					}
 					else
@@ -905,7 +904,7 @@ namespace commonFunctions
 		}
 		if (mainWin->masterIsRunning())
 		{
-			thrower( "The Master system (ttls & dacs) is currently running. Please stop the system before exiting so "
+			thrower( "The Master system (ttls & aoSys) is currently running. Please stop the system before exiting so "
 					 "that devices can stop normally." );
 		}
 		scriptWindow->checkScriptSaves( );
@@ -975,11 +974,11 @@ namespace commonFunctions
 		logger->logAndorSettings( input.camSettings, takeAndorPictures );
 		logger->logMasterParameters( input.masterInput );
 		logger->logMiscellaneous();
-		
-	}
-
-	void abortRearrangement( MainWindow* mainWin, CameraWindow* camWin )
-	{
-
+		UINT numVoltsMeasursments = 0;
+		if ( input.masterInput->aiSys->wantsQueryBetweenVariations( ) )
+		{
+			numVoltsMeasursments = MasterManager::determineVariationNumber( input.masterInput->variables.front() );
+		}
+		logger->initializeAioLogging( numVoltsMeasursments );		
 	}
 };

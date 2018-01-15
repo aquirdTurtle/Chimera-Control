@@ -2,21 +2,19 @@
 TODO
 ===================
 FEATURES:
-
 - consider implementations of local variables
 	- using var or similar keyword to define local variables in functions or main script.
 	- code scans currently used functions for local variables used and just lists those
 	- use combo to list just variables in a function or all variables
 - Full experiments following each other, alternative use of sequences.
 - Be able to set different analysis locations for different plots?
-- Consider ways to make navigating many functions more sensible
+- Consider ways to make navigating many functions more sensible. May be similar to local variable considerations.
 - finish implementing randomizing repetitions.
 	- Create per-repetitiong list of variation values to use
 	- Be able to randomize
 	- handle random case in plotting.
-	- be able to add more repetitions on the fly if randomizing reps.
+	- be able to add more repetitions on the fly if randomizing reps. requires some camera magic.
 	- mix sequences in as well?
-- if aborts or crashes in the middle of run, code should close HDF5 file and make it usable.
 - restore the Niawg functionality where it calculates next varying waveform during the run of the previous waveform.
 - support functions for niawg and agilent scripts
 - support aborting while paused
@@ -31,12 +29,14 @@ Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
 - refactor groups in plotinfo and gnuplot stuffs
 - change pointers to smart-ptrs where possible
-- remove intensity from color boxes
 - should only have one window showing you info before start of run, currently see both andor and master.
 - more tooltips
+- better documentation in general
+- remove gnuplot after finish with hists.
 - Andor system should use matrix for pictures
+- all mutexes should use lock_guard or similar for consistency
 
-Bugs:
+BUGS:
 - something wrong with set New dac Values! Pressing seems to change whether shutter is open or closed???
 	Couldn't repeat...
 - scripts becoming unsaved after move, should preserve saved status
