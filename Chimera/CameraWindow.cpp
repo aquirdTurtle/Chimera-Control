@@ -364,7 +364,6 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 		}
 		else if (pictureNumber % currentSettings.picsPerRepetition == 0)
 		{
-
 			int counter = 0;
 			for (auto data : picData)
 			{
@@ -898,7 +897,7 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 	input.plotterInput->atomQueue = &plotterAtomQueue;
 	analysisHandler.fillPlotThreadInput( input.plotterInput );
 	
-	for ( auto plot : input.plotterInput->plotInfo )
+	for ( auto plotParams : input.plotterInput->plotInfo )
 	{
 		// Create vector of data to be shared btween plotter and data analysis handler. 
 		std::vector<pPlotDataVec> data;
@@ -920,7 +919,8 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 			}
 		}
 		// start a PlotDialog dialog
-		PlotDialog* plot = new PlotDialog( data, ErrorPlot );
+		PlotDialog* plot = new PlotDialog( data, ErrorPlot, mainWindowFriend->getPens(), 
+										   mainWindowFriend->getPlotFont( ), plotParams.name );
 		plot->Create( IDD_PLOT_DIALOG, 0 );
 		plot->ShowWindow( SW_SHOW );
 		input.plotterInput->dataArrays.push_back( data );

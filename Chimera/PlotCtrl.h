@@ -30,7 +30,8 @@ typedef std::shared_ptr<plotDataVec> pPlotDataVec;
 class PlotCtrl
 {
 	public:
-		PlotCtrl( std::vector<pPlotDataVec> dataHolder, plotStyle inStyle, std::string titleIn="Title!" );
+		PlotCtrl( std::vector<pPlotDataVec> dataHolder, plotStyle inStyle, std::vector<CPen*> pens,
+				  CFont* font, std::string titleIn = "Title!" );
 		~PlotCtrl( );
 		void setCurrentDims( int width, int height);
 		void rearrange( int width, int height, fontMap fonts );
@@ -72,6 +73,7 @@ class PlotCtrl
 		std::vector<CPen*> pens;
 		std::vector<CBrush*> brushes;
 		double widthScale2, heightScale2;
+		CFont* textFont;
 		// options for...
 		// legend on off
 		// yscale dynamic or 0->1

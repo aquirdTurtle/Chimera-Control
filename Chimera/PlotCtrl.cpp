@@ -7,17 +7,9 @@ PlotCtrl::PlotCtrl( std::vector<pPlotDataVec> dataHolder, plotStyle inStyle, std
 	greyPen( PS_SOLID, 0, RGB( 100, 100, 100 ) ),
 	redPen( PS_SOLID, 0, RGB( 255, 0, 0 ) ),
 	solarizedPen( PS_SOLID, 0, RGB( 0, 30, 38 ) ),
-	data( dataHolder ), style( inStyle ), dataMutexes( dataHolder.size( ) )
+	data( dataHolder ), style( inStyle ), dataMutexes(dataHolder.size()), pens(pensIn ), textFont(font)
 {
-	for ( auto elem : GIST_RAINBOW_RGB )
-	{
-		CPen* pen = new CPen( PS_SOLID, 0, RGB( elem[0], elem[1], elem[2] ) );
-		pens.push_back( pen );
-		CBrush* brush = new CBrush( );
-		brush->CreateSolidBrush( RGB( elem[0], elem[1], elem[2] ) );
-		brushes.push_back( brush );
-	}
-	
+	//dataMutexes.resize( dataHolder.size( ) );
 	title = titleIn;
 }
 
@@ -48,6 +40,7 @@ void PlotCtrl::drawTitle( memDC* d )
 	d->SelectObject( greyPen );
 	d->SetBkMode( TRANSPARENT );
 	d->SetTextColor( RGB( 255, 255, 255 ) );
+	d->SelectObject( textFont );
 	d->DrawTextEx( LPSTR( cstr( title ) ), title.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 }
 
@@ -430,10 +423,11 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 		// draw vertical lines for x points
 		RECT r = { long( scaledArea.left - 10 ), long( scaledArea.bottom + 5 ),
 			long( scaledArea.left + 10 ), long( scaledArea.bottom + 25) };
-		std::string txt = str( xAxisPts[count] );
+		std::string txt = str( xAxisPts[count], 3 );
 		if ( labelEachPoint )
 		{
 			drawLine( d, x, scaledArea.bottom + 5, x, scaledArea.top );
+			d->SelectObject( textFont );
 			d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 		}
 		count++;
@@ -449,6 +443,7 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 			std::string txt = str( xMin + count * dataRange / 10.0 );
 			drawLine( d, scaledArea.left + count * scaledWidth / 10.0 + 10, scaledArea.bottom + 5,
 					  scaledArea.left + count * scaledWidth / 10.0 + 10, scaledArea.top );
+			d->SelectObject( textFont );
 			d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 		}
 	}
@@ -468,6 +463,11 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 			minY = -10;
 			maxY = 10;
 		}
+		else if ( style == ErrorPlot )
+		{
+			minY = 0;
+			maxY = 1;
+		}
 		else
 		{
 			minY = minMaxRawY.first;
@@ -481,6 +481,7 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 			RECT r = { long( scaledArea.left - 55 ), long( scaledArea.top + 10 + gridline * vStep ),
 					   long( scaledArea.left - 5 ), long( scaledArea.top - 10 + gridline * vStep ) };
 			std::string txt = str( maxY - (maxY - minY) * double( gridline ) / (numLines - 1), 5 );
+			d->SelectObject( textFont );
 			d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 		}
 
@@ -494,6 +495,7 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 				RECT r = { long( scaledArea.left - 55 ), long( minMaxScaledY.second + 10 - gridline * vStep ),
 					long( scaledArea.left - 5 ), long( minMaxScaledY.second - 10 - gridline * vStep ) };
 				std::string txt = str( minMaxRawY.first + gridline * vRawStep, 5 );
+				d->SelectObject( textFont );
 				d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 			}
 		}
@@ -503,12 +505,14 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 	// axis labels
 	RECT r = { scaledArea.left, scaledArea.bottom + 30 , scaledArea.right, scaledArea.bottom + 50 };
 	std::string txt = "xlabel";
+	d->SelectObject( textFont );
 	d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 	r = { long( controlDims.left * widthScale2 - 50 ), scaledArea.top, scaledArea.left, scaledArea.bottom };
 	if ( style == TtlPlot )
 	{
 		txt = "Ttl State";
 	}
+	d->SelectObject( textFont );
 	d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 }
 
