@@ -943,7 +943,7 @@ void DioSystem::writeTtlData(UINT variation, UINT seqNum, bool loadSkip)
 	}
 	else
 	{
-		dioOutWrite( 0, finalFormatTtlData[seqNum][variation].data( ), finalFormatTtlData[seqNum][variation].size( ), status );
+		dioOutWrite( 0, finalFormatTtlData[seqNum][variation].data( ), formattedTtlSnapshots[seqNum][variation].size( ), status );
 	}
 }
 
@@ -1635,6 +1635,10 @@ void DioSystem::dioOutStatus(WORD board, DWORD& scansAvail, DIO64STAT& status)
 
 void DioSystem::dioOutWrite(WORD board, WORD* buffer, DWORD bufsize, DIO64STAT& status)
 {
+	/*
+		IMPORTANT! the buffer size is the number of snapshots, not the number of words in the buffer! very 
+		counter-intuitive. Boo.
+	*/
 	if (!DIO_SAFEMODE)
 	{
 		int result = raw_DIO64_Out_Write(board, buffer, bufsize, &status);

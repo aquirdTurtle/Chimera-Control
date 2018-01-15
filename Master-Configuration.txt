@@ -51,7 +51,7 @@ b8
 0
 ropshutter
 0
-795shutter
+sshutter795
 0
 b11
 0
@@ -83,7 +83,7 @@ c8
 0
 depumpingrf
 0
-795rf
+rf795
 0
 oscilloscopetrig
 0
@@ -170,7 +170,7 @@ sigmaoppower
 -10 - 10
 0
 sigmarepumpfreq
--10 - 10
+-5 - 1.7
 0
 sigmarepumppower
 0 - 0.38
@@ -191,7 +191,7 @@ motfreq
 -10 - 10
 0
 repumpfreq
--10 - 10
+-3.5 - 3.5
 0
 sidemotpower
 -10 - 10
@@ -218,17 +218,17 @@ pgcbackfield 0.551
 andorimagetime 10
 imagingpower 0.225
 imagingdetuning 0.3
-pushoutdepth 3
+pushoutdepth 0.75
 pushoutfreq 1
 fieldtheta 0
 fieldphi 0
-imagingflashingdetuning -0.75
+imagingflashingdetuning -0.9
 intrappgcdetuning -2
 intrappgcpower 0.14
 loadmotsidepower 0.15
 loadmotdiagpower 0.35
 imagingrepumppower 0.2
-pushouttime 0.3
+pushouttime 10
 intrappgccoolingtime 2
 loadmotrepumpfreq -0.6
 loadmotmotfreq 0.1

@@ -489,8 +489,9 @@ void DacSystem::organizeDacCommands(UINT variation, UINT seqNum)
 	{
 		auto& command = tempEvents[commandInc];
 		// because the events are sorted by time, the time organizer will already be sorted by time, and therefore I 
-		// just need to check the back value's time.
-		if (commandInc == 0 || fabs( command.time - timeOrganizer.back().first) > 2 * DBL_EPSILON)
+		// just need to check the back value's time. Check that the times are greater than a pico second apart. 
+		// pretty arbitrary.
+		if (commandInc == 0 || fabs( command.time - timeOrganizer.back().first) > 1e-9)
 		{
 			// new time
 			timeOrganizer.push_back({ command.time, std::vector<DacCommand>({ command }) });

@@ -10,8 +10,8 @@ class PlotDialog : public CDialog
 	 */
 	public:
 		DECLARE_DYNAMIC( PlotDialog );
-		PlotDialog( std::vector<pPlotDataVec> dataHolder, plotStyle styleIn, std::vector<CPen*> inPens, 
-					CFont* font, std::string title="Plot Dialog Plot" );
+		PlotDialog( std::vector<pPlotDataVec> dataHolder, plotStyle styleIn, std::vector<Gdiplus::Pen*> inPens,
+					CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, std::string title="Plot Dialog Plot" );
 		HBRUSH OnCtlColor( CDC* pDC, CWnd* pWnd, UINT nCtlColor );
 		BOOL OnInitDialog( ) override;
 		void OnPaint( );
@@ -20,6 +20,6 @@ class PlotDialog : public CDialog
 	private:
 		DECLARE_MESSAGE_MAP( );
 		PlotCtrl plot;
-		CBrush backgroundBrush;
+		CBrush backgroundBrush, plotAreaBrush;
 };
 

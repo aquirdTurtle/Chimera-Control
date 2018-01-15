@@ -152,6 +152,7 @@ void PictureStats::updateType(std::string typeText)
 	pictureStatsHeader.SetWindowText(cstr(typeText));
 }
 
+
 /**/
 std::pair<int, int> PictureStats::update( std::vector<long> image, UINT imageNumber, 
 										  coordinate selectedPixel, int pictureWidth, int pictureHeight, 

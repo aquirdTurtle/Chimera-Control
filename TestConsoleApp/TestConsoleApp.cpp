@@ -1,12 +1,15 @@
-
 #include "stdafx.h" 
 #include <iostream>
-#include "mgl2/mgl.h"
+#include "nifgen.h"
+
 
 int main( )
 {
-	mglGraph gr;
-	gr.FPlot( "sin(pi*x)" );
-	gr.WriteFrame( "test.png" );
+	std::cout << "...";
+	ViSession vi;
+	int result = niFgen_init( "Dev6", 0, 1, &vi );
+	std::cout << "!  " << result << ", " << vi;
+	std::cin.get( );
 	return 0;
 }
+

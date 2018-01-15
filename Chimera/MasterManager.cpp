@@ -242,8 +242,11 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 					   input->comm, input->quiet );
 		}
 		/// finish up
-		handleDebugPlots( input->debugOptions, input->comm, input->ttls, input->dacs, input->quiet, input->python, 
-						  input->ttlData, input->dacData );
+		if ( input->runMaster )
+		{
+			handleDebugPlots( input->debugOptions, input->comm, input->ttls, input->dacs, input->quiet, input->python,
+							  input->ttlData, input->dacData );
+		}
 		input->comm->sendError( warnings );
 		// update the colors of the global variable control.
 		input->globalControl->setUsages( input->variables );

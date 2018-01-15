@@ -40,24 +40,24 @@ NiawgController::NiawgController( UINT trigRow, UINT trigNumber ) : triggerRow( 
 }
 
 
-void NiawgController::initialize()
+void NiawgController::initialize( )
 {
 	// open up the files and check what I have stored.
-	openWaveformFiles();
+	openWaveformFiles( );
 	/// Initialize the waveform generator via FGEN.
 	// initializes the session handle.
 	fgenConduit.init( NI_5451_LOCATION, VI_TRUE, VI_TRUE );
 	// tells the niaw where I'm outputting.
-	fgenConduit.configureChannels();
+	fgenConduit.configureChannels( );
 	// Set output mode of the device to scripting mode (defined in constants.h)
-	fgenConduit.configureOutputMode();
+	fgenConduit.configureOutputMode( );
 	// configure marker event. This is set to output on PFI1, a port on the front of the card.
 	fgenConduit.configureMarker( "Marker0", "PFI1" );
 	// enable flatness correction. This allows there to be a bit less frequency dependence on the power outputted by 
 	// the waveform generator.
 	fgenConduit.setViBooleanAttribute( NIFGEN_ATTR_FLATNESS_CORRECTION_ENABLED, VI_TRUE );
 	// configure the trigger. Trigger mode doesn't need to be set because I'm using scripting mode.
-	fgenConduit.configureDigtalEdgeScriptTrigger();
+	fgenConduit.configureDigtalEdgeScriptTrigger( );
 	// Configure the gain of the signal amplification.
 	fgenConduit.configureGain( NIAWG_GAIN );
 	// Configure Sample Rate. The maximum value of this is 400 mega-samples per second, but it is quite buggy, so we've
@@ -2500,6 +2500,7 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 			flashMove.deadTime = input->rerngOptions.deadTime;
 			flashMove.moveTime = input->rerngOptions.moveSpeed;
 			flashMove.moveBias = input->rerngOptions.moveBias;
+			noFlashMove = flashMove;
 			// up
 			noFlashMove.direction = flashMove.direction = up;
 			if ( row != rows - 1 )
@@ -3015,7 +3016,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			stopAllCalc.push_back(chronoClock::now( ));
 			input->niawg->streamRerng( );
 			stopStream.push_back( chronoClock::now( ) );
-			input->niawg->fgenConduit.sendSoftwareTrigger( );
+			//input->niawg->fgenConduit.sendSoftwareTrigger( );
 			stopTrigger.push_back( chronoClock::now( ));
 			input->niawg->fgenConduit.resetWritePosition( );
 			stopReset.push_back( chronoClock::now( ));

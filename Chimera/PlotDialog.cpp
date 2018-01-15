@@ -4,11 +4,12 @@
 #include <algorithm>
 #include "memdc.h"
 
-PlotDialog::PlotDialog( std::vector<pPlotDataVec> dataHolder, plotStyle styleIn, std::vector<CPen*> inPens, 
-						CFont* font, std::string title ) :
-	plot(dataHolder, styleIn, inPens, font, title )
+PlotDialog::PlotDialog( std::vector<pPlotDataVec> dataHolder, plotStyle styleIn, std::vector<Gdiplus::Pen*> inPens,
+						 CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, std::string title ) :
+	plot(dataHolder, styleIn, inPens, font, plotBrushes, title )
 {
 	backgroundBrush.CreateSolidBrush( RGB( 0, 30, 38 ) );
+	plotAreaBrush.CreateSolidBrush( RGB( 0, 0, 0 ) );
 }
 
 
@@ -58,7 +59,8 @@ void PlotDialog::OnPaint( )
 		CRect size;
 		GetClientRect( &size );
 		memDC dc( cdc );
-		plot.drawBackground( dc, size.right - size.left, size.bottom - size.top, &backgroundBrush );
+		plot.drawBackground( dc, size.right - size.left, size.bottom - size.top, &backgroundBrush, &plotAreaBrush );
+		plot.drawTitle( dc, size.right - size.left, size.bottom - size.top );
 		plot.drawBorder( dc, size.right - size.left, size.bottom - size.top );
 		plot.plotPoints( &dc, size.right - size.left, size.bottom - size.top );
 		CDialog::OnPaint( );

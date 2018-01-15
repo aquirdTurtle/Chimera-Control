@@ -37,7 +37,6 @@ class ImageDimsControl
 		Control<CEdit> bottomEdit;
 		Control<CEdit> topEdit;
 		Control<CEdit> vertBinningEdit;
-		//Control<CButton> setImageDimsButton;
 		bool isReady;
 		imageParameters currentImageParameters;
 };
