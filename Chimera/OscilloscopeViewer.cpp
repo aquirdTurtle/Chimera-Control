@@ -31,17 +31,18 @@ void ScopeViewer::rearrange( int width, int height, fontMap fonts )
 }
 
 
-void ScopeViewer::initialize( POINT& topLeftLoc, UINT width, UINT height, CWnd* parent )
+void ScopeViewer::initialize( POINT& topLeftLoc, UINT width, UINT height, CWnd* parent, std::vector<CPen*> plotPens, 
+							  CFont* font )
 {
 	scopeData.resize( numTraces );
 	for ( auto& data : scopeData )
 	{
 		data = pPlotDataVec( new plotDataVec( 100, { 0,0,0 } ) );
 	}
-	viewPlot = new PlotCtrl( scopeData, OscilloscopePlot, "Scope!" );
+	viewPlot = new PlotCtrl( scopeData, OscilloscopePlot, plotPens, font, "Scope!" );
 	viewPlot->init( topLeftLoc, width, height, parent );
 	topLeftLoc.y += height;
-	refreshData( );
+	//refreshData( );
 }
 
 

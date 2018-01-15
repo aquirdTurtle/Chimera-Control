@@ -41,7 +41,7 @@
 #include <sstream>
 #include <stdlib.h>
 #include <afxsock.h>
-
+#include "gdiplus.h"
 // contains the boost function for finding a common factor.
 #include "boost/math/common_factor.hpp"
 // contains stuff I use for file IO.
@@ -50,6 +50,7 @@
 #include "commonFunctions.h"
 // This is used to tell the compiler that this specific library is needed.
 #pragma comment(lib, "Ws2_32.lib")
+
 
 
 BOOL ChimeraApp::PreTranslateMessage(MSG* pMsg)
@@ -85,6 +86,8 @@ BOOL ChimeraApp::InitInstance()
 	splash->Create(IDD_SPLASH);
 	splash->ShowWindow( SW_SHOW );
 	/// initialize some stuff
+	Gdiplus::GdiplusStartupInput input;
+	Gdiplus::GdiplusStartup( &gdip_token, &input, NULL );
 	// Contains all of of the names of the files that hold actual data file names.
 	for (auto number : range( MAX_NIAWG_SIGNALS ))
 	{
@@ -114,6 +117,12 @@ BOOL ChimeraApp::InitInstance()
 	return int(returnVal);
 }
 
+
+BOOL ChimeraApp::ExitInstance( )
+{
+	Gdiplus::GdiplusShutdown( gdip_token );
+	return CWinAppEx::ExitInstance( );
+}
 
 // Upon starting the program, the program finds and uses the following global object based on it being the one object 
 // derived from CWinApp. 

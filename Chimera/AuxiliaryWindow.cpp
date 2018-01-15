@@ -104,6 +104,7 @@ void AuxiliaryWindow::OnPaint( )
 		dacPlt->drawBorder( dacDC );
 		dacPlt->plotPoints( &dacDC );
 	}
+	ReleaseDC( cdc );
 }
 
 
@@ -1196,6 +1197,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 {
 	// don't redraw until the first OnSize.
 	SetRedraw( false );
+
 	int id = 4000;
 	POINT controlLocation{ 0, 0 };
 	try
@@ -1256,9 +1258,9 @@ BOOL AuxiliaryWindow::OnInitDialog()
 				titleTxt = "DACs: 16-23";
 				break;
 			}
-
-			aoPlots[dacPltCount] = new PlotCtrl( dacData[dacPltCount], DacPlot, titleTxt );
-			aoPlots[dacPltCount]->init( controlLocation, 480, dacPlotSize, this );
+			dacPlots[dacPltCount] = new PlotCtrl( dacData[dacPltCount], DacPlot, mainWindowFriend->getPens( ),
+												  mainWindowFriend->getPlotFont( ), titleTxt );
+			dacPlots[dacPltCount]->init( controlLocation, 480, dacPlotSize, this );
 			controlLocation.y += dacPlotSize;
 		}
 		// ttl plots are similar to aoSys.
@@ -1293,7 +1295,8 @@ BOOL AuxiliaryWindow::OnInitDialog()
 				titleTxt = "Ttls: Row D";
 				break;
 			}
-			ttlPlots[ttlPltCount] = new PlotCtrl( ttlData[ttlPltCount], TtlPlot, titleTxt );
+			ttlPlots[ttlPltCount] = new PlotCtrl( ttlData[ttlPltCount], TtlPlot, mainWindowFriend->getPens( ),
+												  mainWindowFriend->getPlotFont( ), titleTxt );
 			ttlPlots[ttlPltCount]->init( controlLocation, 480, ttlPlotSize, this );
 			controlLocation.y += ttlPlotSize;
 		}

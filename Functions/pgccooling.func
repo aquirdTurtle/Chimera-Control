@@ -1,8 +1,9 @@
 % this function takes 2 + PGCtime ms (typically around 20)
 def PgcCooling():
     	%Shutting off gradient from MOT loading:    
+
 	dac: motGradientCurrent 0
-	
+	var diagMotPower = 0
 	call zeroFields()
     
     	%Set beam powers for PGC and turn on beams 
