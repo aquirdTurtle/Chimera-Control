@@ -150,24 +150,24 @@ void RhodeSchwarz::interpretKey( std::vector<std::vector<variableType>>& variabl
 	{
 		for ( UINT variationNumber = 0; variationNumber < variations; variationNumber++ )
 		{
-			for ( UINT freqInc = 0; freqInc < eventStructures.size( ); freqInc++ )
+			for ( UINT freqInc = 0; freqInc < eventForms.size( ); freqInc++ )
 			{
 				rsgEvent event;
-				event.frequency = eventStructures[freqInc].frequency.evaluate( variables[seqNum], variationNumber );
-				event.power = eventStructures[freqInc].power.evaluate( variables[seqNum], variationNumber );
+				event.frequency = eventForms[freqInc].frequency.evaluate( variables[seqNum], variationNumber );
+				event.power = eventForms[freqInc].power.evaluate( variables[seqNum], variationNumber );
 				/// deal with time!
-				if ( eventStructures[freqInc].time.first.size( ) == 0 )
+				if ( eventForms[freqInc].time.first.size( ) == 0 )
 				{
-					event.time = eventStructures[freqInc].time.second;
+					event.time = eventForms[freqInc].time.second;
 				}
 				else
 				{
 					event.time = 0;
-					for ( auto timeStr : eventStructures[freqInc].time.first )
+					for ( auto timeStr : eventForms[freqInc].time.first )
 					{
 						event.time += timeStr.evaluate( variables[seqNum], variationNumber );
 					}
-					event.time += eventStructures[freqInc].time.second;
+					event.time += eventForms[freqInc].time.second;
 				}
 				events[variationNumber].push_back( event );
 			}
@@ -179,7 +179,7 @@ void RhodeSchwarz::interpretKey( std::vector<std::vector<variableType>>& variabl
 // Essentially gets called by a script command.
 void RhodeSchwarz::addFrequency(rsgEventForm info)
 {
-	eventStructures.push_back( info );
+	eventForms.push_back( info );
 }
 
 
@@ -222,14 +222,14 @@ void RhodeSchwarz::programRsg( UINT variationNumber )
 
 void RhodeSchwarz::clearFrequencies()
 {
-	eventStructures.clear();
+	eventForms.clear();
 	events.clear();
 }
 
 
 std::vector<rsgEventForm> RhodeSchwarz::getFrequencyForms()
 {
-	return eventStructures;
+	return eventForms;
 }
 
 

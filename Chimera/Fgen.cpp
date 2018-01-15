@@ -1,7 +1,7 @@
 #include "stdafx.h"
+#include "constants.h"
 #include "Fgen.h"
 
-///																NI Fgen wrappers
 
 std::string FgenFlume::getErrorMsg()
 {

@@ -10,6 +10,8 @@ struct rsgEventForm
 {
 	Expression frequency;
 	Expression power;
+	// I think that the time here is no longer very important at all. Only used to order the events in case the user
+	// writes a weird script, normal scripts the user would have them ordered properly anyways.
 	timeType time;
 };
 
@@ -41,7 +43,7 @@ class RhodeSchwarz
 		void rearrange(UINT width, UINT height, fontMap fonts);
 	private:
 		GpibFlume gpibFlume;
-		std::vector<rsgEventForm> eventStructures;
+		std::vector<rsgEventForm> eventForms;
 		// outer vector is over each variation.
 		std::vector<std::vector<rsgEvent>> events;
 		double triggerTime;

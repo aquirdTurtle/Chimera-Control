@@ -35,6 +35,7 @@ void VisaFlume::close()
 	}
 }
 
+
 // open the default resource manager resource. From ni.com:
 // " The viOpenDefaultRM() function must be called before any VISA operations can be invoked.The first call to this function 
 // initializes the VISA system, including the Default Resource Manager resource, and also returns a session to that resource. 

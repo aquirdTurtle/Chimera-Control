@@ -9,8 +9,8 @@ MainWindow::MainWindow( UINT id, CDialog* splash ) : CDialog( id ), profile( PRO
 	masterConfig( MASTER_CONFIGURATION_FILE_ADDRESS ),
 	appSplash( splash ),
 	niawg( 1, 14 ),
-	masterRepumpScope( "USB0::0x0699::0x03B3::C011388::0::INSTR", MASTER_REPUMP_SCOPE_SAFEMODE, 4 ),
-	motScope( "USB0::0x0699::0x03B3::C011388::0::INSTR", MOT_SCOPE_SAFEMODE, 2 )
+	masterRepumpScope( MASTER_REPUMP_SCOPE_ADDRESS, MASTER_REPUMP_SCOPE_SAFEMODE, 4 ),
+	motScope( MOT_SCOPE_ADDRESS, MOT_SCOPE_SAFEMODE, 2 )
 {
 	// create all the main rgbs and brushes. I want to make sure this happens before other windows are created.
 	mainRGBs["Light Green"]			= RGB( 163,	190, 140);
@@ -64,18 +64,19 @@ MainWindow::MainWindow( UINT id, CDialog* splash ) : CDialog( id ), profile( PRO
 	// the following single-line statements are all equivalent to these two statements:
 	// mainBrushes["Name"] = new CBrush;
 	// mainBrushes["Name"]->CreateSolidBrush(...);
-	(mainBrushes["Dark Red"]			= new CBrush)->CreateSolidBrush(mainRGBs["Dark Red"]);
-	(mainBrushes["Gold"]				= new CBrush)->CreateSolidBrush(mainRGBs["Gold"]);
-	(mainBrushes["Dark Grey"]			= new CBrush)->CreateSolidBrush(mainRGBs["Dark Grey"]);
-	(mainBrushes["Dark Grey Red"]		= new CBrush)->CreateSolidBrush(mainRGBs["Dark Grey Red"]);
-	(mainBrushes["Medium Grey"]			= new CBrush)->CreateSolidBrush(mainRGBs["Medium Grey"]);
-	(mainBrushes["Light Grey"]			= new CBrush)->CreateSolidBrush(mainRGBs["Light Grey"]);
-	(mainBrushes["Green"]				= new CBrush)->CreateSolidBrush(mainRGBs["Green"]);
-	(mainBrushes["Red"]					= new CBrush)->CreateSolidBrush(mainRGBs["Red"]);
-	(mainBrushes["White"]				= new CBrush)->CreateSolidBrush(mainRGBs["White"]);
-	(mainBrushes["Dull Red"]			= new CBrush)->CreateSolidBrush(mainRGBs["Dull Red"]);
-	(mainBrushes["Dark Blue"]			= new CBrush)->CreateSolidBrush(mainRGBs["Dark Blue"]);
-	(mainBrushes["Dark Green"]			= new CBrush)->CreateSolidBrush(mainRGBs["Dark Green"]);
+	(mainBrushes["Black"]				= new CBrush)->CreateSolidBrush( mainRGBs["Black"] );
+	(mainBrushes["Dark Red"]			= new CBrush)->CreateSolidBrush( mainRGBs["Dark Red"]);
+	(mainBrushes["Gold"]				= new CBrush)->CreateSolidBrush( mainRGBs["Gold"]);
+	(mainBrushes["Dark Grey"]			= new CBrush)->CreateSolidBrush( mainRGBs["Dark Grey"]);
+	(mainBrushes["Dark Grey Red"]		= new CBrush)->CreateSolidBrush( mainRGBs["Dark Grey Red"]);
+	(mainBrushes["Medium Grey"]			= new CBrush)->CreateSolidBrush( mainRGBs["Medium Grey"]);
+	(mainBrushes["Light Grey"]			= new CBrush)->CreateSolidBrush( mainRGBs["Light Grey"]);
+	(mainBrushes["Green"]				= new CBrush)->CreateSolidBrush( mainRGBs["Green"]);
+	(mainBrushes["Red"]					= new CBrush)->CreateSolidBrush( mainRGBs["Red"]);
+	(mainBrushes["White"]				= new CBrush)->CreateSolidBrush( mainRGBs["White"]);
+	(mainBrushes["Dull Red"]			= new CBrush)->CreateSolidBrush( mainRGBs["Dull Red"]);
+	(mainBrushes["Dark Blue"]			= new CBrush)->CreateSolidBrush( mainRGBs["Dark Blue"]);
+	(mainBrushes["Dark Green"]			= new CBrush)->CreateSolidBrush( mainRGBs["Dark Green"]);
 	(mainBrushes["Solarized Blue"]		= new CBrush)->CreateSolidBrush( mainRGBs["Solarized Blue"] );
 	(mainBrushes["Solarized Base03"]	= new CBrush)->CreateSolidBrush( mainRGBs["Solarized Base03"] );
 	(mainBrushes["Solarized Base02"]	= new CBrush)->CreateSolidBrush( mainRGBs["Solarized Base02"] );
@@ -144,14 +145,9 @@ MainWindow::MainWindow( UINT id, CDialog* splash ) : CDialog( id ), profile( PRO
 	(mainFonts["Larger Font Small"] = new CFont)
 		->CreateFontA(16, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
-	(plotfont= new CFont)
+	(plotfont = new CFont)
 		->CreateFontA( 9, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					   CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT( "Arial" ) );
-	for ( auto elem : GIST_RAINBOW_RGB )
-	{
-		CPen* pen = new CPen( PS_SOLID, 0, RGB( elem[0], elem[1], elem[2] ) );
-		plotPens.push_back( pen );
-	}
 }
 
 IMPLEMENT_DYNAMIC( MainWindow, CDialog )
@@ -200,20 +196,28 @@ void MainWindow::OnTimer( UINT_PTR id )
 void MainWindow::OnPaint( )
 {
 	CDialog::OnPaint( );
-	CRect size;
-	GetClientRect( &size );
-	CDC* cdc = GetDC( );
-	cdc->SetBkColor( getRgbs( )["Solarized Base 04"] );
-	UINT width = size.right - size.left, height = size.bottom - size.top;
-	masterRepumpScope.refreshPlot( cdc, width, height, getBrushes( )["Solarized Base04"] );
-	motScope.refreshPlot(		   cdc, width, height, getBrushes( )["Solarized Base04"] );
-	ReleaseDC( cdc );
+	if ( !masterThreadManager.runningStatus() )
+	{
+		CRect size;
+		GetClientRect( &size );
+		CDC* cdc = GetDC( );
+		cdc->SetBkColor( getRgbs( )["Solarized Base 04"] );
+		UINT width = size.right - size.left, height = size.bottom - size.top;
+		masterRepumpScope.refreshPlot( cdc, width, height, getBrushes( )["Solarized Base04"], getBrushes( )["Black"] );
+		motScope.refreshPlot( cdc, width, height, getBrushes( )["Solarized Base04"], getBrushes( )["Black"] );
+		ReleaseDC( cdc );
+	}
 }
 
 
-std::vector<CPen*> MainWindow::getPens( )
+std::vector<Gdiplus::Pen*> MainWindow::getPens( )
 {
 	return plotPens;
+}
+
+std::vector<Gdiplus::SolidBrush*> MainWindow::getPlotBrushes( )
+{
+	return plotBrushes;
 }
 
 
@@ -305,9 +309,19 @@ CFont* MainWindow::getPlotFont( )
 
 BOOL MainWindow::OnInitDialog( )
 {
+	
 	eMainWindowHwnd = GetSafeHwnd( );
+	for ( auto elem : GIST_RAINBOW_RGB )
+	{
+		Gdiplus::Color c( 50, BYTE( elem[0] ), BYTE( elem[1] ), BYTE( elem[2] ) );
+		Gdiplus::SolidBrush* b = new Gdiplus::SolidBrush( c );
+		Gdiplus::Pen* p = new Gdiplus::Pen( b );
+		plotBrushes.push_back( b );
+		plotPens.push_back( p );
+	}
 	// don't redraw until the first OnSize.
 	SetRedraw( false );
+	
 	/// initialize niawg.
 	try
 	{
@@ -365,14 +379,17 @@ BOOL MainWindow::OnInitDialog( )
 	POINT controlLocation = { 0,0 };
 	mainStatus.initialize( controlLocation, this, id, 975, "EXPERIMENT STATUS", RGB( 100, 100, 250 ), tooltips, IDC_MAIN_STATUS_BUTTON );
 	controlLocation = { 480, 0 };
-	errorStatus.initialize( controlLocation, this, id, 480, "ERROR STATUS", RGB( 200, 0, 0 ), tooltips, IDC_ERROR_STATUS_BUTTON );
-	debugStatus.initialize( controlLocation, this, id, 480, "DEBUG STATUS", RGB( 13, 152, 186 ), tooltips, IDC_DEBUG_STATUS_BUTTON );
+	errorStatus.initialize( controlLocation, this, id, 480, "ERROR STATUS", RGB( 200, 0, 0 ), tooltips, 
+							IDC_ERROR_STATUS_BUTTON );
+	debugStatus.initialize( controlLocation, this, id, 480, "DEBUG STATUS", RGB( 13, 152, 186 ), tooltips, 
+							IDC_DEBUG_STATUS_BUTTON );
 	controlLocation = { 960, 0 };
 	profile.initialize( controlLocation, this, id, tooltips );
 	controlLocation = { 960, 175 };
 	notes.initialize( controlLocation, this, id, tooltips);
-	masterRepumpScope.initialize( controlLocation, 480, 250, this, getPens( ), getPlotFont( ) );
-	motScope.initialize( controlLocation, 480, 250, this, getPens( ), getPlotFont( ) );
+	masterRepumpScope.initialize( controlLocation, 480, 250, this, getPens( ), getPlotFont( ), getPlotBrushes(), 
+								  "Master/Repump" );
+	motScope.initialize( controlLocation, 480, 250, this, getPens( ), getPlotFont( ), getPlotBrushes( ), "MOT" );
 	controlLocation = { 1440, 50 };
 	repetitionControl.initialize( controlLocation, tooltips, this, id );
 	settings.initialize( id, controlLocation, this, tooltips );
@@ -395,7 +412,6 @@ BOOL MainWindow::OnInitDialog( )
 	{
 		errBox( err.what( ) );
 	}
-
 	ShowWindow( SW_MAXIMIZE );
 	TheCameraWindow->ShowWindow( SW_MAXIMIZE );
 	TheScriptingWindow->ShowWindow( SW_MAXIMIZE );
@@ -419,13 +435,12 @@ BOOL MainWindow::OnInitDialog( )
 	{
 		errBox( err.what( ) );
 	}
-	SetTimer( 1, 3000, NULL );
+	SetTimer( 1, 10000, NULL );
+	// set up the threads that update the scope data.
+	_beginthreadex( NULL, NULL, &MainWindow::scopeRefreshProcedure, &masterRepumpScope, NULL, NULL );
+	_beginthreadex( NULL, NULL, &MainWindow::scopeRefreshProcedure, &motScope, NULL, NULL );
 	//
-	scopeRefreshInput* inputPtr = new scopeRefreshInput;
-	inputPtr->masterRepumpScope = &masterRepumpScope;
-	inputPtr->motScope = &motScope;
-	_beginthreadex( NULL, NULL, &MainWindow::scopeRefreshProcedure, inputPtr, NULL, NULL );
-	//
+
 	updateConfigurationSavedStatus( true );
 	return TRUE;
 }
@@ -757,12 +772,13 @@ void MainWindow::fillMotInput( MasterThreadInput* input )
 
 unsigned int __stdcall MainWindow::scopeRefreshProcedure( void* voidInput )
 {
-	scopeRefreshInput* input = (scopeRefreshInput*)voidInput;
-	// this thread just continuously requests new info from the scopes.
+	// this thread just continuously requests new info from the scopes. The input is just a pointer to the scope 
+	// object.
+	ScopeViewer* input = (ScopeViewer*)voidInput;
+	
 	while ( true )
 	{
-		input->masterRepumpScope->refreshData( );
-		input->motScope->refreshData( );
+		input->refreshData( );
 	}
 }
 
@@ -1025,8 +1041,15 @@ LRESULT MainWindow::onErrorMessage(WPARAM wParam, LPARAM lParam)
 	if ( statusMessage != "" )
 	{
 		errorStatus.addStatusText( statusMessage );
-		Beep( 550, 300 );
+		auto asyncbeep = std::async( std::launch::async, [] { Beep( 1000, 100 ); } );
+		// New, auto pause on error.
+		/*
+			menu.CheckMenuItem( ID_RUNMENU_PAUSE, MF_CHECKED );
+			comm.sendColorBox( Master, 'Y' );
+			masterThreadManager.pause( );
+		*/
 	}
+
 	return 0;
 }
 

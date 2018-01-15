@@ -76,33 +76,38 @@ END_MESSAGE_MAP()
 void AuxiliaryWindow::OnPaint( )
 {
 	CDialog::OnPaint( );
-	CRect size;
-	GetClientRect( &size );
-	CDC* cdc = GetDC( );
-	// for some reason I suddenly started needing to do this. I know that memDC redraws the background, but it used to 
-	// work without this and I don't know what changed. I used to do:
-	// memDC dc( GetDC( ) );
-	cdc->SetBkColor( mainWindowFriend->getRgbs( )["Solarized Base 04"]);
-	long width = size.right - size.left, height = size.bottom - size.top;
-	// each dc gets initialized with the rect for the corresponding plot. That way, each dc only overwrites the area 
-	// for a single plot.
-	for ( auto& ttlPlt : ttlPlots )
+	if ( !mainWindowFriend->masterIsRunning( ) )
 	{
-		memDC ttlDC( cdc, &ttlPlt->GetPlotRect( width, height ) );
-		ttlPlt->drawBackground( ttlDC, width, height, mainWindowFriend->getBrushes( )["Solarized Base04"] );
-		ttlPlt->drawTitle( ttlDC, width, height );
-		ttlPlt->drawBorder( ttlDC, width, height );
-		ttlPlt->plotPoints( &ttlDC, width, height );
+		CRect size;
+		GetClientRect( &size );
+		CDC* cdc = GetDC( );
+		// for some reason I suddenly started needing to do this. I know that memDC redraws the background, but it used to 
+		// work without this and I don't know what changed. I used to do:
+		// memDC dc( GetDC( ) );
+		cdc->SetBkColor( mainWindowFriend->getRgbs( )["Solarized Base 04"] );
+		long width = size.right - size.left, height = size.bottom - size.top;
+		// each dc gets initialized with the rect for the corresponding plot. That way, each dc only overwrites the area 
+		// for a single plot.
+		for ( auto& ttlPlt : ttlPlots )
+		{
+			memDC ttlDC( cdc, &ttlPlt->GetPlotRect( width, height ) );
+			ttlPlt->drawBackground( ttlDC, width, height, mainWindowFriend->getBrushes( )["Solarized Base04"],
+									mainWindowFriend->getBrushes( )["Black"] );
+			ttlPlt->drawTitle( ttlDC, width, height );
+			ttlPlt->drawBorder( ttlDC, width, height );
+			ttlPlt->plotPoints( &ttlDC, width, height );
+		}
+		for ( auto& dacPlt : dacPlots )
+		{
+			memDC dacDC( cdc, &dacPlt->GetPlotRect( width, height ) );
+			dacPlt->drawBackground( dacDC, width, height, mainWindowFriend->getBrushes( )["Solarized Base04"],
+									mainWindowFriend->getBrushes( )["Black"] );
+			dacPlt->drawTitle( dacDC, width, height );
+			dacPlt->drawBorder( dacDC, width, height );
+			dacPlt->plotPoints( &dacDC, width, height );
+		}
+		ReleaseDC( cdc );
 	}
-	for ( auto& dacPlt : dacPlots )
-	{
-		memDC dacDC( cdc, &dacPlt->GetPlotRect( width, height ) );
-		dacPlt->drawBackground( dacDC, width, height, mainWindowFriend->getBrushes( )["Solarized Base04"] );
-		dacPlt->drawTitle( dacDC, width, height );
-		dacPlt->drawBorder( dacDC, width, height );
-		dacPlt->plotPoints( &dacDC, width, height );
-	}
-	ReleaseDC( cdc );
 }
 
 
@@ -1254,7 +1259,8 @@ BOOL AuxiliaryWindow::OnInitDialog()
 				break;
 			}
 			dacPlots[dacPltCount] = new PlotCtrl( dacData[dacPltCount], DacPlot, mainWindowFriend->getPens( ),
-												  mainWindowFriend->getPlotFont( ), titleTxt );
+												  mainWindowFriend->getPlotFont( ), mainWindowFriend->getPlotBrushes( ),
+												  titleTxt );
 			dacPlots[dacPltCount]->init( controlLocation, 480, dacPlotSize, this );
 			controlLocation.y += dacPlotSize;
 		}
@@ -1291,7 +1297,8 @@ BOOL AuxiliaryWindow::OnInitDialog()
 				break;
 			}
 			ttlPlots[ttlPltCount] = new PlotCtrl( ttlData[ttlPltCount], TtlPlot, mainWindowFriend->getPens( ),
-												  mainWindowFriend->getPlotFont( ), titleTxt );
+												  mainWindowFriend->getPlotFont( ), mainWindowFriend->getPlotBrushes( ),
+												  titleTxt );
 			ttlPlots[ttlPltCount]->init( controlLocation, 480, ttlPlotSize, this );
 			controlLocation.y += ttlPlotSize;
 		}
@@ -1300,7 +1307,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 	{
 		errBox( exeption.what() );
 	}
-	SetTimer( 1, 1000, NULL );
+	SetTimer( 1, 10000, NULL );
 
 	menu.LoadMenu( IDR_MAIN_MENU );
 	SetMenu( &menu );

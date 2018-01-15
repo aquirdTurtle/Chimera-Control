@@ -1,23 +1,26 @@
 % pushout(). Takes 10 + pushoutTime ms, typically around 11ms.
 def pushout():
-  	% insert commands here... 
-
-      pulseon: tweezerIntensityTrig 0.1
-	on: sideMotShutter
-      t += 2
-	dac: MOTFreq pushoutfreq
-	% dac: RepumpPower 0.04
-	% turn the repump on a tiny bit early 
-	% to pump to the F=2 manifold.
-	%daclinspace: motFreq 0.235 pushoutfreq  5 20 %-0.5 to pushoutfreq in 5ms	
-	% mostly for the power ramp. also, lets the mot frequency settle.
-	on: RepumpRF
-	dac: sideMotPower pushoutPower %0.08 %for 3x6 with pushoutdepth 2 % 0.015 %0.01
-	on: sideMotRf
-      t += pushoutTime %0.3
 	off: sideMotRf
-
-	dac: MOTFreq -0.5
+	% on = open
+	on: probeShutter
+	off: sideMotShutter
+	off: RepumpRF
+	dac: RepumpPower 0
+	%-0.5 to pushoutfreq in 5ms	
+	daclinspace: motFreq loadMotMotFreq pushoutfreq 2 10 
+      t += 10
+	% daclinspace: motFreq 0.235 pushoutfreq  5 20 %-0.5 to pushoutfreq in 5ms	
+	% mostly for the power ramp. also, lets the mot frequency settle.
+	% 0.08 %for 3x6 with pushoutdepth 2 % 0.015 %0.01
+	off: RepumpRF
+	dac: sideMotPower pushoutPower  
+	% side mot shutter closed, probe open
+	on: sideMotRf
+      t += pushoutTime
+	off: sideMotRf
+	off: probeShutter
+	on: sideMotShutter
+	daclinspace: motFreq pushoutfreq loadMotMotFreq 2 10 
 	%daclinspace: motFreq pushoutFreq -0.6 5 20 % -0.5
 	%dacramp: dac17 -0.05 -0.12 5 0.02 % final depth -1.1
 	t += 10

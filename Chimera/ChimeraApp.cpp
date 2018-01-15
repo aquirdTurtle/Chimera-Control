@@ -89,6 +89,7 @@ BOOL ChimeraApp::InitInstance()
 	Gdiplus::GdiplusStartupInput input;
 	Gdiplus::GdiplusStartup( &gdip_token, &input, NULL );
 	// Contains all of of the names of the files that hold actual data file names.
+	
 	for (auto number : range( MAX_NIAWG_SIGNALS ))
 	{
 		WAVEFORM_NAME_FILES[number] = "gen " + str( number + 1 ) + ", const waveform file names.txt";
@@ -112,6 +113,7 @@ BOOL ChimeraApp::InitInstance()
 		return -10000;
 	}
  	m_haccel = LoadAccelerators( AfxGetInstanceHandle(), MAKEINTRESOURCE( IDR_ACCELERATOR1 ) );
+	
 	INT_PTR returnVal = theMainApplicationWindow.DoModal();
 	// end of program.
 	return int(returnVal);

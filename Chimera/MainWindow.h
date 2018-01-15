@@ -115,7 +115,8 @@ class MainWindow : public CDialog
 		void notifyConfigUpdate( );
 		void passConfigPress( );
 		void OnTimer( UINT_PTR id );
-		std::vector<CPen*> getPens( );
+		std::vector<Gdiplus::Pen*> getPens( );
+		std::vector<Gdiplus::SolidBrush*> MainWindow::getPlotBrushes( );
 	private:		
 		DECLARE_MESSAGE_MAP();
 		ScriptingWindow* TheScriptingWindow;
@@ -154,7 +155,8 @@ class MainWindow : public CDialog
 		//
 		static BOOL CALLBACK monitorHandlingProc( _In_ HMONITOR hMonitor, _In_ HDC      hdcMonitor,
 										   _In_ LPRECT   lprcMonitor, _In_ LPARAM   dwData );
-		std::vector<CPen*> plotPens;
+		std::vector<Gdiplus::Pen*> plotPens;
+		std::vector<Gdiplus::SolidBrush*> plotBrushes;
 		// friends (try to minimize these)
 		friend void commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin,
 														  ScriptingWindow* scriptWin, CameraWindow* camWin,

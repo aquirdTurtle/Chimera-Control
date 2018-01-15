@@ -184,7 +184,7 @@ double Agilent::convertPowerToSetPoint(double powerInMilliWatts, bool conversion
 	// June 22nd PM, 2016 calibrations (NE10 filter in front of log pd, after tweaking servo parameters)
 	//double a = 0.246862, b = 227.363;
 
-	/// CLIBRATIOND WITH DIGITAL LOCK BOX
+	/// CALIBRATIONS WITH DIGITAL LOCK BOX
 	/// newValue = a +  b * log(y - info); // here info is treated as a background light level, and the voltage output 
 	/// should be positive
 	// July 14 2016, NE10 filter in front of log pd
@@ -197,8 +197,11 @@ double Agilent::convertPowerToSetPoint(double powerInMilliWatts, bool conversion
 	//double a = -0.040063228;
 	//double b = 0.000153625;
 	// September 12th, 2017
-	double a = -0.04090619;
-	double b = 0.00641603;
+	//double a = -0.04090619;
+	//double b = 0.00641603;
+	// January 10th, 2017:
+	double a = -0.1452827;
+	double b = -0.00038705;
 	if ( conversionOption )
 	{
 		double setPointInVolts = a * powerInMilliWatts + b;

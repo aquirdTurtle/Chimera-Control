@@ -2,7 +2,7 @@
 #include "OscilloscopeViewer.h"
 
 
-ScopeViewer::ScopeViewer( std::string usbAddress, bool safemode, UINT traceNumIn ) : 
+ScopeViewer::ScopeViewer( std::string usbAddress, bool safemode, UINT traceNumIn ) :
 	visa( safemode, usbAddress ),
 	numTraces( traceNumIn )
 {
@@ -14,10 +14,10 @@ ScopeViewer::ScopeViewer( std::string usbAddress, bool safemode, UINT traceNumIn
 }
 
 
-void ScopeViewer::refreshPlot(CDC* d, UINT width, UINT height, CBrush* backgroundBrush )
+void ScopeViewer::refreshPlot(CDC* d, UINT width, UINT height, CBrush* backgroundBrush, CBrush* plotAreaBrush )
 {
 	memDC dacDC( d, &viewPlot->GetPlotRect( width, height ) );
-	viewPlot->drawBackground( dacDC, width, height, backgroundBrush );
+	viewPlot->drawBackground( dacDC, width, height, backgroundBrush, plotAreaBrush );
 	viewPlot->drawTitle( dacDC, width, height );
 	viewPlot->drawBorder( dacDC, width, height );
 	viewPlot->plotPoints( &dacDC, width, height );
@@ -30,18 +30,17 @@ void ScopeViewer::rearrange( int width, int height, fontMap fonts )
 }
 
 
-void ScopeViewer::initialize( POINT& topLeftLoc, UINT width, UINT height, CWnd* parent, std::vector<CPen*> plotPens, 
-							  CFont* font )
+void ScopeViewer::initialize( POINT& topLeftLoc, UINT width, UINT height, CWnd* parent, std::vector<Gdiplus::Pen*> plotPens,
+							  CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, std::string title )
 {
 	scopeData.resize( numTraces );
 	for ( auto& data : scopeData )
 	{
 		data = pPlotDataVec( new plotDataVec( 100, { 0,0,0 } ) );
 	}
-	viewPlot = new PlotCtrl( scopeData, OscilloscopePlot, plotPens, font, "Scope!" );
+	viewPlot = new PlotCtrl( scopeData, OscilloscopePlot, plotPens, font, plotBrushes, title );
 	viewPlot->init( topLeftLoc, width, height, parent );
 	topLeftLoc.y += height;
-	//refreshData( );
 }
 
 
@@ -51,18 +50,32 @@ void ScopeViewer::refreshData( )
 	for ( auto line : range( numTraces ) )
 	{
 		std::string data;
-		visa.write( "DATa:SOUrce CH" + str(line+1) );
-		visa.query( "Curve?\n", data );
+		try
+		{
+			visa.write( "DATa:SOUrce CH" + str( line + 1 ) );
+		}
+		catch ( Error& err)
+		{
+			//errBox( err.what( ) );
+		}
+		try
+		{
+			visa.query( "Curve?\n", data );
+		}
+		catch ( Error& err )
+		{
+		}
+
 		double count = 0;
 		std::lock_guard<std::mutex> lock( viewPlot->dataMutexes[line] );
 		scopeData[line]->clear( );
-		for ( auto& c : data )
+		for ( auto& c : data.substr(0, data.size() - 1) )
 		{
 			if ( count++ < 6 )
 			{
 				continue;
 			}
-			scopeData[line]->push_back( { count, ((((double)c) - yoffset) * ymult), 0 } );
+			scopeData[line]->push_back( { count-7, ((((double)c) - yoffset) * ymult), 0 } );
 		}
 	}
 	visa.close( );

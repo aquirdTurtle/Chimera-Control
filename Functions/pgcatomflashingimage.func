@@ -4,18 +4,17 @@ def pgcAtomFlashingImage():
 	on: andorShutter
 	off: diagMotRf
 	dac: diagMotPower 0
-	dac: MotFreq imagingFlashingDetuning
-
-	%dacLinSpace: MotFreq 0.3 imagingFlashingDetuning 3 10 %
+	dacLinSpace: MotFreq loadMotMotFreq 
+			imagingFlashingDetuning 1 10
       dac: SideMotPower imagingPower
 	dac: RepumpPower imagingRepumpPower
-	t += 3
+	t += 2
+	% flashing the trap
+	on: c5 
+	% flashing the sidemot light
+	on: c7 
 	% turn the repump on a tiny bit early 
-	% to pump to the F=2 manifold.
-
-	on: c5 % flashing the trap
-	on: c7 % flashing the sidemot light
-
+	% to pump to the F=2 manifold.	
 	on: RepumpRf
 	t += 1
 	on: SideMotRf
@@ -25,15 +24,15 @@ def pgcAtomFlashingImage():
 	off: andorshutter
 	off: SideMotRf
 	off: repumpRf
-
-	off: c5 % unflashing the trap
-	off: c7 % unflashing the sidemot light
-
-dac: MotFreq -0.1
-
-	%dacLinSpace: MotFreq imagingFlashingDetuning -0.07 5 20
-      %t += 5
-	
-      % note that the camera needs some time before it can take
-	% another image. Typically we need to wait like 5ms.
+	% stop flashing the trap
+	off: c5 
+	% stop flashing the sidemot light
+	off: c7 
+	dacLinSpace: MotFreq imagingFlashingDetuning loadMotMotFreq 1 10
+	%t += 5
+	t += 2
+	% note that the camera needs some time before it can take
+	% another image. Typically we need to wait like 5ms. The camera window
+	% will tell you the minimum kinetic cycle time, which depends on the
+	% exposure time and the image size, with some net overhead.
 	
