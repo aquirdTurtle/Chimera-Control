@@ -77,7 +77,11 @@ END_MESSAGE_MAP()
 
 LRESULT AuxiliaryWindow::onLogVoltsMessage( WPARAM wp, LPARAM lp )
 {
-	cameraWindowFriend->writeVolts( wp, aiSys.getSingleSnap( 100 ) );
+	//fstd::vector<float64> data = aiSys.getSingleSnap( 100 );
+	aiSys.refreshCurrentValues( );
+	aiSys.refreshDisplays( );
+	cameraWindowFriend->writeVolts( wp, aiSys.getCurrentValues() );
+
 	return TRUE;
 }
 
