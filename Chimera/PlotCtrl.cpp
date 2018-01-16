@@ -156,8 +156,11 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 	}
 	else if ( style == DacPlot )
 	{
-		dataHeight = 21;
-		dataMin = -10;
+		// currently doing autoscaling here.
+		dataHeight = maxy - miny;
+		dataMin = miny;
+		//dataHeight = 21;
+		//dataMin = -10;
 	}
 	else if ( style == OscilloscopePlot )
 	{
@@ -486,8 +489,10 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 		double minY, maxY;
 		if ( style == DacPlot )
 		{
-			minY = -10;
-			maxY = 10;
+			minY = minMaxRawY.first;
+			maxY = minMaxRawY.second;
+			//minY = -10;
+			//maxY = 10;
 		}
 		else if ( style == ErrorPlot )
 		{
