@@ -212,14 +212,27 @@ void MainWindow::OnPaint( )
 }
 
 
-std::vector<Gdiplus::Pen*> MainWindow::getPens( )
+std::vector<Gdiplus::Pen*> MainWindow::getPlotPens( )
 {
 	return plotPens;
 }
 
+
 std::vector<Gdiplus::SolidBrush*> MainWindow::getPlotBrushes( )
 {
 	return plotBrushes;
+}
+
+
+std::vector<Gdiplus::Pen*> MainWindow::getBrightPlotPens( )
+{
+	return brightPlotPens;
+}
+
+
+std::vector<Gdiplus::SolidBrush*> MainWindow::getBrightPlotBrushes( )
+{
+	return brightPlotBrushes;
 }
 
 
@@ -318,8 +331,13 @@ BOOL MainWindow::OnInitDialog( )
 		Gdiplus::Color c( 50, BYTE( elem[0] ), BYTE( elem[1] ), BYTE( elem[2] ) );
 		Gdiplus::SolidBrush* b = new Gdiplus::SolidBrush( c );
 		Gdiplus::Pen* p = new Gdiplus::Pen( b );
+		Gdiplus::Color c_bright( 255, BYTE( elem[0] ), BYTE( elem[1] ), BYTE( elem[2] ) );
+		Gdiplus::SolidBrush* b_bright = new Gdiplus::SolidBrush( c_bright );
+		Gdiplus::Pen* p_bright = new Gdiplus::Pen( b_bright );
 		plotBrushes.push_back( b );
 		plotPens.push_back( p );
+		brightPlotBrushes.push_back( b_bright );
+		brightPlotPens.push_back( p_bright );
 	}
 	// don't redraw until the first OnSize.
 	SetRedraw( false );
@@ -389,9 +407,9 @@ BOOL MainWindow::OnInitDialog( )
 	profile.initialize( controlLocation, this, id, tooltips );
 	controlLocation = { 960, 175 };
 	notes.initialize( controlLocation, this, id, tooltips);
-	masterRepumpScope.initialize( controlLocation, 480, 250, this, getPens( ), getPlotFont( ), getPlotBrushes(), 
+	masterRepumpScope.initialize( controlLocation, 480, 250, this, getPlotPens( ), getPlotFont( ), getPlotBrushes(), 
 								  "Master/Repump" );
-	motScope.initialize( controlLocation, 480, 250, this, getPens( ), getPlotFont( ), getPlotBrushes( ), "MOT" );
+	motScope.initialize( controlLocation, 480, 250, this, getPlotPens( ), getPlotFont( ), getPlotBrushes( ), "MOT" );
 	controlLocation = { 1440, 50 };
 	repetitionControl.initialize( controlLocation, tooltips, this, id );
 	settings.initialize( id, controlLocation, this, tooltips );
@@ -401,7 +419,7 @@ BOOL MainWindow::OnInitDialog( )
 	testData.resize( 2 );
 	testData[0] = pPlotDataVec( new plotDataVec( 100, { 0,0,0 } ) );
 	testData[1] = pPlotDataVec( new plotDataVec( 100, { 0,0,0 } ) );
-	plot = new PlotDialog( testData, HistPlot, getPens(), getPlotFont(), getPlotBrushes() );
+	plot = new PlotDialog( testData, HistPlot, getPlotPens(), getPlotFont(), getPlotBrushes() );
 	controlLocation = { 960, 910 };
 	plot->Create( IDD_PLOT_DIALOG, 0 );
 	plot->ShowWindow( SW_SHOW );

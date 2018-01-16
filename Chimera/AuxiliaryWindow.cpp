@@ -1291,9 +1291,9 @@ BOOL AuxiliaryWindow::OnInitDialog()
 				titleTxt = "DACs: 16-23";
 				break;
 			}
-			aoPlots[dacPltCount] = new PlotCtrl( dacData[dacPltCount], DacPlot, mainWindowFriend->getPens( ),
+			aoPlots[dacPltCount] = new PlotCtrl( dacData[dacPltCount], DacPlot, mainWindowFriend->getBrightPlotPens( ),
 												  mainWindowFriend->getPlotFont( ), 
-												 mainWindowFriend->getPlotBrushes( ), titleTxt );
+												 mainWindowFriend->getBrightPlotBrushes( ), titleTxt );
 			aoPlots[dacPltCount]->init( controlLocation, 480, dacPlotSize, this );
 			controlLocation.y += dacPlotSize;
 		}
@@ -1329,8 +1329,9 @@ BOOL AuxiliaryWindow::OnInitDialog()
 				titleTxt = "Ttls: Row D";
 				break;
 			}
-			ttlPlots[ttlPltCount] = new PlotCtrl( ttlData[ttlPltCount], TtlPlot, mainWindowFriend->getPens( ),
-												  mainWindowFriend->getPlotFont( ), mainWindowFriend->getPlotBrushes( ),
+			ttlPlots[ttlPltCount] = new PlotCtrl( ttlData[ttlPltCount], TtlPlot, mainWindowFriend->getBrightPlotPens( ),
+												  mainWindowFriend->getPlotFont( ), 
+												  mainWindowFriend->getBrightPlotBrushes( ),
 												  titleTxt );
 			ttlPlots[ttlPltCount]->init( controlLocation, 480, ttlPlotSize, this );
 			controlLocation.y += ttlPlotSize;
