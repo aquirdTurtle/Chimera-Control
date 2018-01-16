@@ -26,7 +26,7 @@ void Script::initialize( int width, int height, POINT& startingLocation, cToolTi
 	InitCommonControls();
 	LoadLibrary( TEXT( "Msftedit.dll" ) );
 	deviceType = deviceTypeInput;
-	if (deviceTypeInput == "Horizontal NIAWG" || deviceTypeInput == "Vertical NIAWG")
+	if (deviceTypeInput == "NIAWG")
 	{
 		extension = str( "." ) + NIAWG_SCRIPT_EXTENSION;
 	}
@@ -169,7 +169,7 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 		return rgbs["Slate Grey"];
 	}
 	// Check NIAWG-specific commands
-	if ( editType == "Horizontal NIAWG" || editType == "Vertical NIAWG" )
+	if ( editType == "NIAWG")
 	{
 		for ( auto num : range( 10 ) )
 		{
@@ -539,7 +539,7 @@ void Script::handleToolTip( NMHDR * pNMHDR, LRESULT * pResult )
 		{
 			pTTT->lpszText = (LPSTR)MASTER_HELP;
 		}
-		else if( deviceType == "Horizontal NIAWG" || deviceType == "Vertical NIAWG" )
+		else if( deviceType == "NIAWG")
 		{
 			pTTT->lpszText = (LPSTR)SCRIPT_INFO_TEXT;
 		}
@@ -665,8 +665,8 @@ void Script::saveScript(std::string categoryPath, RunInfo info)
 		{
 			if (scriptName == info.currentlyRunningScripts[scriptInc])
 			{
-				thrower("ERROR: System is currently running. You can't save over any files in use by the system while it runs, which includes the "
-					"horizontal and vertical AOM scripts and the intensity script.");
+				thrower("ERROR: System is currently running. You can't save over any files in use by the system while"
+						 " it runs, which includes the NIAWG scripts and the intensity script.");
 			}
 		}
 	}
@@ -875,13 +875,9 @@ void Script::newScript()
 {
 	std::string tempName;
 	tempName = DEFAULT_SCRIPT_FOLDER_PATH;
-	if (deviceType == "Horizontal NIAWG")
+	if (deviceType == "NIAWG")
 	{
-		tempName += "DEFAULT_HORIZONTAL_SCRIPT.nScript";
-	}
-	else if (deviceType == "Vertical NIAWG")
-	{
-		tempName += "DEFAULT_VERTICAL_SCRIPT.nScript";
+		tempName += "DEFAULT_NIAWG_SCRIPT.nScript";
 	}
 	else if (deviceType == "Agilent")
 	{
@@ -909,7 +905,7 @@ void Script::openParentScript(std::string parentScriptFileAndPath, std::string c
 	int myError = _splitpath_s(cstr(parentScriptFileAndPath), dirChars, _MAX_FNAME, pathChars, _MAX_FNAME, fileChars, 
 								_MAX_FNAME, extChars, _MAX_EXT);
 	std::string extStr(extChars);
-	if (deviceType == "Horizontal NIAWG" || deviceType == "Vertical NIAWG")
+	if (deviceType == "NIAWG")
 	{
 		if (extStr != str(".") + NIAWG_SCRIPT_EXTENSION)
 		{
@@ -938,7 +934,7 @@ void Script::openParentScript(std::string parentScriptFileAndPath, std::string c
 	scriptName = str(fileChars);
 	scriptFullAddress = parentScriptFileAndPath;
 	updateSavedStatus(true);
-	// Check location of vertical script.
+	// Check location of NIAWG script.
 	int sPos = parentScriptFileAndPath.find_last_of('\\');
 	std::string scriptLocation = parentScriptFileAndPath.substr(0, sPos);
 	if (scriptLocation + "\\" != categoryPath && categoryPath != "")
@@ -1017,7 +1013,7 @@ void Script::considerCurrentLocation(std::string categoryPath, RunInfo info)
 {
 	if (scriptFullAddress.size() > 0)
 	{
-		// Check location of vertical script.
+		// Check location of NIAWG script.
 		int sPos = scriptFullAddress.find_last_of('\\');
 		std::string scriptLocation = scriptFullAddress.substr(0, sPos);
 		if (scriptLocation + "\\" != categoryPath)
