@@ -106,6 +106,7 @@ void AuxiliaryWindow::OnPaint( )
 		// for a single plot.
 		for ( auto& ttlPlt : ttlPlots )
 		{
+			ttlPlt->setCurrentDims( width, height );
 			memDC ttlDC( cdc, &ttlPlt->GetPlotRect(  ) );
 			ttlPlt->drawBackground( ttlDC, mainWindowFriend->getBrushes( )["Solarized Base04"],
 									mainWindowFriend->getBrushes( )["Black"] );
@@ -115,6 +116,7 @@ void AuxiliaryWindow::OnPaint( )
 		}
 		for ( auto& dacPlt : aoPlots )
 		{
+			dacPlt->setCurrentDims( width, height );
 			memDC dacDC( cdc, &dacPlt->GetPlotRect( ) );
 			dacPlt->drawBackground( dacDC, mainWindowFriend->getBrushes( )["Solarized Base04"],
 									mainWindowFriend->getBrushes( )["Black"] );
