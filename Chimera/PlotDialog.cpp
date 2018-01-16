@@ -45,8 +45,6 @@ HBRUSH PlotDialog::OnCtlColor( CDC* pDC, CWnd* pWnd, UINT nCtlColor )
 
 BOOL PlotDialog::OnInitDialog( )
 {
-	// should fill this dialog.
-	SetTimer( 1, 1000, NULL );
 	plot.init( { 0, 0 }, 1920, 997, this);
 	SetTimer( 1, 10000, NULL );
 	return TRUE;
