@@ -107,6 +107,12 @@ void AiSystem::armAquisition( UINT numSnapshots )
 }
 
 
+std::vector<float64> AiSystem::getCurrentValues( )
+{
+	return { currentValues.begin( ), currentValues.end( ) };
+}
+
+
 void AiSystem::getAquisitionData( )
 {
 	int32 sampsRead;

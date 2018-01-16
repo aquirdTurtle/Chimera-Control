@@ -20,6 +20,7 @@ class AiSystem
 		std::vector<float64> getSingleSnap( UINT n_to_avg );
 		void armAquisition( UINT numSnapshots );
 		void getAquisitionData( );
+		std::vector<float64> getCurrentValues( );
 		bool wantsQueryBetweenVariations( );
 		bool wantsContinuousQuery( );
 	private:
