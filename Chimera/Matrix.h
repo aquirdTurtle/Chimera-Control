@@ -9,6 +9,7 @@ class Matrix
 	public:
 		Matrix( UINT rowsInGrid, UINT colsInGrid );
 		Matrix( UINT rowsInGrid, UINT colsInGrid, type initValue );
+		Matrix( UINT rowsInGrid, UINT colsInGrid, std::vector<type> init1D );
 		type operator()( UINT row, UINT col ) const;
 		type & operator()( UINT row, UINT col );
 		UINT getRows( );
@@ -19,9 +20,9 @@ class Matrix
 		// typename tells the compiler that std::vector<type>::iterator will be a type.
 		typename boost::container::vector<type>::iterator begin( ) { return data.begin( ); }
 		typename boost::container::vector<type>::iterator end( ) { return data.end( ); }
-	private:
 		// need to use the boost version because the std version doesn't do std::vector<bool> properly.
 		boost::container::vector<type> data;
+	private:
 		UINT rows, cols;
 		// the following string is only updated if in debug mode.
 		std::string currMatrix;
@@ -93,6 +94,21 @@ Matrix<type>::Matrix( UINT rowsInGrid, UINT colsInGrid, type initValue ) :
 
 
 template<class type>
+Matrix<type>::Matrix( UINT rowsInGrid, UINT colsInGrid, std::vector<type> init1D ) :
+	rows( rowsInGrid ),
+	cols( colsInGrid ),
+	data( init1D )
+{
+	if ( data.size( ) != rows * cols )
+	{
+		thrower( "ERROR: Initialized matrix with 1d vector whose size did not match the initializing row and column #."
+				 "Lengths were: " + str( data.size( ) ) + ", " + str( rows ) + ", and " + str( cols )
+				 + " respectively." );
+	}
+}
+
+
+template<typename type>
 type Matrix<type>::operator()( UINT row, UINT col ) const
 {
 	if ( row > rows )

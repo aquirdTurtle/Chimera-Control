@@ -1,7 +1,7 @@
 #pragma once
 
 #include "DioSystem.h"
-#include "DacSystem.h"
+#include "AoSystem.h"
 #include "VariableSystem.h"
 #include "RhodeSchwarz.h"
 #include "GpibFlume.h"
@@ -37,7 +37,7 @@ class MasterManager
 		void abort();
 		std::string getErrorMessage(int errorCode);
 		void loadMasterScript(std::string scriptAddress, ScriptStream& script );
-		void analyzeMasterScript( DioSystem* ttls, DacSystem* dacs, 
+		void analyzeMasterScript( DioSystem* ttls, AoSystem* aoSys, 
 								  std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades, 
 								  RhodeSchwarz* rsg, std::vector<variableType>& vars, 
 								  ScriptStream& currentMasterScript, UINT seqNum );
@@ -54,7 +54,7 @@ class MasterManager
 		static void expUpdate(std::string text, Communicator* comm, bool quiet = false);
 		static void analyzeFunctionDefinition(std::string defLine, std::string& functionName, std::vector<std::string>& args);
 		static UINT determineVariationNumber(std::vector<variableType> vars);
-		static void handleDebugPlots( debugInfo debugOptions, Communicator* comm, DioSystem* ttls, DacSystem* dacs,
+		static void handleDebugPlots( debugInfo debugOptions, Communicator* comm, DioSystem* ttls, AoSystem* aoSys,
 									  bool quiet, EmbeddedPythonHandler* python, 
 									  std::vector<std::vector<pPlotDataVec>> ttlData,
 									  std::vector<std::vector<pPlotDataVec>> dacData );
@@ -69,7 +69,7 @@ class MasterManager
 		//ScriptStream currentMasterScript;
 		std::string functionsFolderLocation;
 		// called by analyzeMasterScript functions only.
-		void analyzeFunction( std::string function, std::vector<std::string> args, DioSystem* ttls, DacSystem* dacs,
+		void analyzeFunction( std::string function, std::vector<std::string> args, DioSystem* ttls, AoSystem* aoSys,
 							  std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades, 
 							  RhodeSchwarz* rsg, std::vector<variableType>& vars, UINT seqNum );
 		timeType operationTime;
@@ -87,7 +87,8 @@ class MasterManager
 struct indvSeqElem
 {
 	std::string config;
-	niawgPair<std::fstream> niawgScripts;
+	std::fstream niawgScript;
+	//niawgPair<std::fstream> niawgScripts;
 	std::string masterScript;
 	ScriptStream masterStream;
 	std::string agilentScript;

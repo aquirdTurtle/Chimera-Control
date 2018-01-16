@@ -1,7 +1,8 @@
 ﻿#pragma once
 
 #include "DioSystem.h"
-#include "DacSystem.h"
+#include "AoSystem.h"
+#include "AiSystem.h"
 #include "VariableSystem.h"
 #include "RhodeSchwarz.h"
 #include "GpibFlume.h"
@@ -22,12 +23,12 @@ struct MasterThreadInput
 	profileSettings profile;
 	seqSettings seq;
 	DioSystem* ttls;
-	DacSystem* dacs;
+	AoSystem* aoSys;
+	AiSystem* aiSys;
 	UINT repetitionNumber;
 	std::vector<std::vector<variableType>> variables;
 	std::vector<std::vector<variableType>> constants;
 	MasterManager* thisObj;
-	//std::string masterScriptAddress;
 	Communicator* comm;
 	RhodeSchwarz* rsg;
 	debugInfo debugOptions;
@@ -53,6 +54,7 @@ struct MasterThreadInput
 	rerngOptions rearrangeInfo;
 	std::atomic<bool>* skipNext;
 	atomGrid analysisGrid;
+	
 };
 
 

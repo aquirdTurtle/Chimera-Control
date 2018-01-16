@@ -9,7 +9,6 @@ class AuxiliaryWindow;
 enum System
 {
 	Niawg,
-	Intensity,
 	Master,
 	Camera
 };

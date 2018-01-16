@@ -1,13 +1,14 @@
 #include "stdafx.h"
 #include "MasterManager.h"
-#include "nidaqmx2.h"
-#include <fstream>
 #include "DioSystem.h"
-#include "DacSystem.h"
+#include "AoSystem.h"
 #include "constants.h"
 #include "AuxiliaryWindow.h"
 #include "NiawgWaiter.h"
 #include "Expression.h"
+#include "nidaqmx2.h"
+#include <fstream>
+
 
 MasterManager::MasterManager()
 {
@@ -48,7 +49,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			}
 			if ( input->runNiawg )
 			{
-				ProfileSystem::openNiawgFiles( expSeq.sequence[seqNum].niawgScripts, config, input->seq, input->runNiawg );
+				ProfileSystem::openNiawgFile( expSeq.sequence[seqNum].niawgScript, config, input->seq, input->runNiawg );
 			}
 			for ( auto& ag : input->agilents )
 			{
@@ -85,9 +86,9 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	/// start analysis & experiment
 	try
 	{
-		input->dacs->resetDacEvents( );
+		input->aoSys->resetDacEvents( );
 		input->ttls->resetTtlEvents( );
-		input->dacs->initDacObjs( input->seq.sequence.size( ) );
+		input->aoSys->initDacObjs( input->seq.sequence.size( ) );
 		input->ttls->initTtlObjs( input->seq.sequence.size( ) );
 		input->thisObj->loadSkipTimes.clear( );
 		input->thisObj->loadSkipTimes.resize( input->seq.sequence.size( ) );
@@ -124,7 +125,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			expUpdate( "Analyzing Master Script...", input->comm, input->quiet );
 			if ( input->runMaster )
 			{
-				input->thisObj->analyzeMasterScript( input->ttls, input->dacs, ttlShadeLocs, dacShadeLocs, input->rsg,
+				input->thisObj->analyzeMasterScript( input->ttls, input->aoSys, ttlShadeLocs, dacShadeLocs, input->rsg,
 													 seqVariables, expSeq.sequence[seqNum].masterStream, seqNum );
 			}
 			/// prep NIAWG
@@ -144,7 +145,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		if ( input->runMaster )
 		{
 			input->ttls->shadeTTLs( ttlShadeLocs );
-			input->dacs->shadeDacs( dacShadeLocs );
+			input->aoSys->shadeDacs( dacShadeLocs );
 		}
 		// go ahead and check if abort was pressed real fast...
 		if ( input->thisObj->isAborting )
@@ -160,7 +161,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		if ( input->runMaster )
 		{
 			input->ttls->interpretKey( input->variables );
-			input->dacs->interpretKey( input->variables, warnings );
+			input->aoSys->interpretKey( input->variables, warnings );
 		}
 		input->rsg->interpretKey( input->variables );
 		input->topBottomTek->interpretKey( input->variables );
@@ -184,24 +185,24 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 					currLoadSkipTime = MasterManager::convertToTime( input->thisObj->loadSkipTime[seqInc], 
 																	 seqVariables, variationInc );
 				 // organize & format the ttl and dac commands
-					input->dacs->organizeDacCommands( variationInc, seqInc );
-					input->dacs->setDacTriggerEvents( input->ttls, variationInc, seqInc );
-					input->dacs->findLoadSkipSnapshots( currLoadSkipTime, seqVariables, variationInc, seqInc );
-					input->dacs->makeFinalDataFormat( variationInc, seqInc );
+					input->aoSys->organizeDacCommands( variationInc, seqInc );
+					input->aoSys->setDacTriggerEvents( input->ttls, variationInc, seqInc );
+					input->aoSys->findLoadSkipSnapshots( currLoadSkipTime, seqVariables, variationInc, seqInc );
+					input->aoSys->makeFinalDataFormat( variationInc, seqInc );
 					input->ttls->organizeTtlCommands( variationInc, seqInc );
 					input->ttls->findLoadSkipSnapshots( currLoadSkipTime, seqVariables, variationInc, seqInc );
 					input->ttls->convertToFinalFormat( variationInc, seqInc );
 					// run a couple checks.
 					input->ttls->checkNotTooManyTimes( variationInc, seqInc );
 					input->ttls->checkFinalFormatTimes( variationInc, seqInc );
-					if ( input->ttls->countDacTriggers( variationInc, seqInc ) != input->dacs->getNumberSnapshots( variationInc, seqInc ) )
+					if ( input->ttls->countDacTriggers( variationInc, seqInc ) != input->aoSys->getNumberSnapshots( variationInc, seqInc ) )
 					{
 						thrower( "ERROR: number of dac triggers from the ttl system does not match the number of dac "
 								 "snapshots! Number of dac triggers was " 
 								 + str( input->ttls->countDacTriggers( variationInc, seqInc ) ) + " while number of dac "
-								 "snapshots was " + str( input->dacs->getNumberSnapshots( variationInc, seqInc ) ) );
+								 "snapshots was " + str( input->aoSys->getNumberSnapshots( variationInc, seqInc ) ) );
 					}
-					input->dacs->checkTimingsWork( variationInc, seqInc );
+					input->aoSys->checkTimingsWork( variationInc, seqInc );
 					if ( input->runNiawg )
 					{
 						if ( input->ttls->countTriggers( input->niawg->getTrigLines( ).first,
@@ -238,7 +239,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			expUpdate( "Programmed Total Experiment time: " + str( totalTime ) + "\r\n", input->comm, input->quiet );
 			expUpdate( "Number of TTL Events in experiment: " + str( input->ttls->getNumberEvents( 0, 0 ) ) + "\r\n",
 					   input->comm, input->quiet );
-			expUpdate( "Number of DAC Events in experiment: " + str( input->dacs->getNumberEvents( 0, 0 ) ) + "\r\n",
+			expUpdate( "Number of DAC Events in experiment: " + str( input->aoSys->getNumberEvents( 0, 0 ) ) + "\r\n",
 					   input->comm, input->quiet );
 		}
 		/// finish up
@@ -263,6 +264,11 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		for (const UINT& variationInc : range( variations ))
 		{
 			expUpdate( "Variation #" + str( variationInc + 1 ) + "\r\n", input->comm, input->quiet );
+			if ( input->aiSys->wantsQueryBetweenVariations( ) )
+			{
+				expUpdate( "Querying Voltages...\r\n", input->comm, input->quiet );
+				input->logger->writeVolts(variationInc, input->aiSys->getSingleSnap( ));
+			}
 			Sleep( input->debugOptions.sleepTime );
 			for ( auto seqInc : range(input->seq.sequence.size( ) ) )
 			{
@@ -286,9 +292,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			// program devices
 			for (auto& agilent : input->agilents)
 			{
-				input->comm->sendColorBox( Intensity, 'Y' );
 				agilent->setAgilent( variationInc, input->variables[0] );
-				input->comm->sendColorBox( Intensity, 'G' );
 			}
 			// check right number of triggers (currently must be done after agilent is set.
 			for ( auto& agilent : input->agilents )
@@ -356,10 +360,10 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 					// this was re-written each time from looking at the VB6 code.
 					if (input->runMaster)
 					{
-						input->dacs->stopDacs();
+						input->aoSys->stopDacs();
 						// it's important to grab the skipoption from input->skipNext only once because in principle
 						// if the cruncher thread was running behind, it could change between writing and configuring the 
-						// dacs and configuring the TTLs;
+						// aoSys and configuring the TTLs;
 						bool skipOption;
 						if ( input->skipNext == NULL )
 						{
@@ -369,9 +373,9 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 						{
 							skipOption = input->skipNext->load( );
 						}
-						input->dacs->configureClocks( variationInc, seqInc, skipOption);
-						input->dacs->writeDacs( variationInc, seqInc, skipOption);
-						input->dacs->startDacs();
+						input->aoSys->configureClocks( variationInc, seqInc, skipOption);
+						input->aoSys->writeDacs( variationInc, seqInc, skipOption);
+						input->aoSys->startDacs();
 						input->ttls->writeTtlData( variationInc, seqInc, skipOption);
 						input->ttls->startBoard();
 						input->ttls->waitTillFinished( variationInc, seqInc, skipOption);
@@ -387,15 +391,15 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		{
 			// stop is necessary; Else the dac system will still be "running" and won't allow updates through normal 
 			// means.
-			input->dacs->stopDacs();
-			input->dacs->unshadeDacs();
+			input->aoSys->stopDacs();
+			input->aoSys->unshadeDacs();
 		}
 		if ( input->runMaster )
 		{
 			try
 			{
 				// make sure the display accurately displays the state that the experiment finished at.
-				input->dacs->setDacStatusNoForceOut( input->dacs->getFinalSnapshot( ) );
+				input->aoSys->setDacStatusNoForceOut( input->aoSys->getFinalSnapshot( ) );
 				input->ttls->unshadeTtls( );
 				input->ttls->setTtlStatusNoForceOut( input->ttls->getFinalSnapshot( ) );
 			}
@@ -414,12 +418,9 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		{
 			for ( auto& seqIndv : expSeq.sequence )
 			{
-				for ( const auto& axis : AXES )
+				if ( seqIndv.niawgScript.is_open() )
 				{
-					if ( seqIndv.niawgScripts[axis].is_open() )
-					{
-						seqIndv.niawgScripts[axis].close( );
-					}
+					seqIndv.niawgScript.close( );
 				}
 			}
 			// clear out some niawg stuff
@@ -437,7 +438,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		if (input->runMaster)
 		{
 			input->ttls->unshadeTtls();
-			input->dacs->unshadeDacs();
+			input->aoSys->unshadeDacs();
 		}
 		if ( input->thisObj->isAborting )
 		{
@@ -478,14 +479,14 @@ double MasterManager::convertToTime( timeType time, std::vector<variableType> va
 }
 
 
-void MasterManager::handleDebugPlots( debugInfo debugOptions, Communicator* comm, DioSystem* ttls, DacSystem* dacs,
+void MasterManager::handleDebugPlots( debugInfo debugOptions, Communicator* comm, DioSystem* ttls, AoSystem* aoSys,
 									  bool quiet, EmbeddedPythonHandler* python, 
 									  std::vector<std::vector<pPlotDataVec>> ttlData, 
 									  std::vector<std::vector<pPlotDataVec>> dacData )
 {
 	// handle on-screen plots.
 	ttls->fillPlotData( 0, ttlData );
-	dacs->fillPlotData( 0, dacData, ttls->getFinalTimes() );
+	aoSys->fillPlotData( 0, dacData, ttls->getFinalTimes() );
 	// handle python plots, which are a nicer option than the ones that i show on the screen.
 	if ( debugOptions.showTtls )
 	{
@@ -507,12 +508,12 @@ void MasterManager::handleDebugPlots( debugInfo debugOptions, Communicator* comm
 	if ( debugOptions.showDacs )
 	{
 		// output to status
-		comm->sendDebug( dacs->getDacSequenceMessage( 0, 0 ) );
+		comm->sendDebug( aoSys->getDacSequenceMessage( 0, 0 ) );
 		// output to debug file.
 		std::ofstream  debugFile( cstr( DEBUG_OUTPUT_LOCATION + str( "DAC-Sequence.txt" ) ) );
 		if ( debugFile.is_open( ) )
 		{
-			debugFile << dacs->getDacSequenceMessage( 0, 0 );
+			debugFile << aoSys->getDacSequenceMessage( 0, 0 );
 			debugFile.close( );
 		}
 		else
@@ -566,7 +567,6 @@ void MasterManager::startExperimentThread(MasterThreadInput* input)
 	// start thread.
 	runningThread = (HANDLE)_beginthreadex( NULL, NULL, &MasterManager::experimentThreadProcedure, input, NULL, NULL );
 	SetThreadPriority( runningThread, THREAD_PRIORITY_HIGHEST );
-	// runningThread = AfxBeginThread(experimentThreadProcedure, input, THREAD_PRIORITY_HIGHEST);
 }
 
 
@@ -714,7 +714,7 @@ void MasterManager::analyzeFunctionDefinition(std::string defLine, std::string& 
 
 
 void MasterManager::analyzeFunction( std::string function, std::vector<std::string> args, DioSystem* ttls,
-									 DacSystem* dacs, std::vector<std::pair<UINT, UINT>>& ttlShades,
+									 AoSystem* aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades,
 									 std::vector<UINT>& dacShades, RhodeSchwarz* rsg, std::vector<variableType>& vars,
 									 UINT seqNum )
 {
@@ -813,7 +813,7 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 		/// deal with dac commands
 		else if (word == "dac:")
 		{
-			DacCommandForm command;
+			AoCommandForm command;
 			std::string name;
 			functionStream >> name;
 			functionStream >> command.finalVal;
@@ -826,7 +826,7 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 			command.rampTime.expressionStr = "__NONE__";
 			try
 			{
-				dacs->handleDacScriptCommand(command,  name, dacShades, vars, ttls, seqNum );
+				aoSys->handleDacScriptCommand(command,  name, dacShades, vars, ttls, seqNum );
 			}
 			catch (Error& err)
 			{
@@ -835,7 +835,7 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 		}
 		else if ( word == "daclinspace:" )
 		{
-			DacCommandForm command;
+			AoCommandForm command;
 			std::string name;
 			// get dac name
 			functionStream >> name;
@@ -858,7 +858,7 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 			//
 			try
 			{
-				dacs->handleDacScriptCommand( command, name, dacShades, vars, ttls, seqNum );
+				aoSys->handleDacScriptCommand( command, name, dacShades, vars, ttls, seqNum );
 			}
 			catch ( Error& err )
 			{
@@ -867,7 +867,7 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 		}
 		else if (word == "dacarange:")
 		{
-			DacCommandForm command;
+			AoCommandForm command;
 			std::string name;
 			// get dac name
 			functionStream >> name;
@@ -890,7 +890,7 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 			//
 			try
 			{
-				dacs->handleDacScriptCommand(command, name, dacShades, vars, ttls, seqNum );
+				aoSys->handleDacScriptCommand(command, name, dacShades, vars, ttls, seqNum );
 			}
 			catch (Error& err)
 			{
@@ -948,7 +948,7 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 			}
 			try
 			{
-				analyzeFunction(functionName, newArgs, ttls, dacs, ttlShades, dacShades, rsg, vars, seqNum );
+				analyzeFunction(functionName, newArgs, ttls, aoSys, ttlShades, dacShades, rsg, vars, seqNum );
 			}
 			catch (Error& err)
 			{
@@ -1054,7 +1054,7 @@ bool MasterManager::handleTimeCommands( std::string word, ScriptStream& stream, 
 }
 
 
-void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs, 
+void MasterManager::analyzeMasterScript( DioSystem* ttls, AoSystem* aoSys, 
 										 std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades, 
 										 RhodeSchwarz* rsg, std::vector<variableType>& vars,
 										 ScriptStream& currentMasterScript, UINT seqNum )
@@ -1113,7 +1113,7 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs,
 		/// deal with dac commands
 		else if (word == "dac:")
 		{
-			DacCommandForm command;
+			AoCommandForm command;
 			std::string name;
 			currentMasterScript >> name;
 			std::string value;
@@ -1127,7 +1127,7 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs,
 			command.rampTime.expressionStr = "__NONE__";
 			try
 			{
-				dacs->handleDacScriptCommand(command, name, dacShades, vars, ttls, seqNum );
+				aoSys->handleDacScriptCommand(command, name, dacShades, vars, ttls, seqNum );
 			}
 			catch (Error& err)
 			{
@@ -1136,7 +1136,7 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs,
 		}
 		else if ( word == "daclinspace:" )
 		{
-			DacCommandForm command;
+			AoCommandForm command;
 			std::string name;
 			currentMasterScript >> name;
 			currentMasterScript >> command.initVal;
@@ -1154,7 +1154,7 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs,
 			//
 			try
 			{
-				dacs->handleDacScriptCommand( command, name, dacShades, vars, ttls, seqNum );
+				aoSys->handleDacScriptCommand( command, name, dacShades, vars, ttls, seqNum );
 			}
 			catch ( Error& err )
 			{
@@ -1163,7 +1163,7 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs,
 		}
 		else if (word == "dacarange:")
 		{
-			DacCommandForm command;
+			AoCommandForm command;
 			std::string name;
 			currentMasterScript >> name;
 			currentMasterScript >> command.initVal;
@@ -1180,7 +1180,7 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs,
 			command.numSteps.expressionStr = "__NONE__";
 			try
 			{
-				dacs->handleDacScriptCommand( command, name, dacShades, vars, ttls, seqNum );
+				aoSys->handleDacScriptCommand( command, name, dacShades, vars, ttls, seqNum );
 			}
 			catch (Error& err)
 			{
@@ -1232,7 +1232,7 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, DacSystem* dacs,
 			}
 			try
 			{
-				analyzeFunction(functionName, args, ttls, dacs, ttlShades, dacShades, rsg, vars, seqNum );
+				analyzeFunction(functionName, args, ttls, aoSys, ttlShades, dacShades, rsg, vars, seqNum );
 			}
 			catch (Error& err)
 			{

@@ -34,8 +34,7 @@ struct cameraThreadInput
 class AndorCamera
 {
 	public:
-		AndorCamera::AndorCamera();
-
+		AndorCamera();
 		/// Andor Wrappers, in alphabetical order. Versions that take no parameters just insert current settings into 
 		// the versions that take parameters. Note that my wrapper names don't always match the andor SDK names. If 
 		// looking for specific sdk functions, search in the cpp file.
@@ -46,6 +45,7 @@ class AndorCamera
 		void getAcquisitionTimes(float& exposure, float& accumulation, float& kinetic);
 		void getAdjustedRingExposureTimes(int size, float* timesArray);
 		void getNumberOfPreAmpGains(int& number);
+		void getOldestImage( Matrix<long>& dataMatrix );
 		void getOldestImage(std::vector<long>& dataArray);
 		void getPreAmpGain(int index, float& gain);
 		void queryStatus();
@@ -87,7 +87,6 @@ class AndorCamera
 		std::string getHeadModel();
 
 		/// End Andor sdk wrappers.
-
 		// all of the following do something more interesting.
 		AndorRunSettings getAndorSettings();
 		void pauseThread();
@@ -116,7 +115,6 @@ class AndorCamera
 		void setDMAParameters(int maxImagesPerDMA, float secondsPerDMA);
 		static UINT __stdcall cameraThread( void* voidPtr );		
 		std::string getSystemInfo();
-		
 		void initializeClass( Communicator* comm, chronoTimes* imageTimes );
 
 	private:
@@ -135,10 +133,10 @@ class AndorCamera
 
 		HANDLE plottingMutex;
 		HANDLE imagesMutex;
+		std::vector<Matrix<long>> experimentImageMatrices;
 		std::vector<std::vector<long> > imagesOfExperiment;
 		std::vector<std::vector<long> > imageVecQueue;
 		UINT cameraThreadID = 0;
 
 		cameraThreadInput threadInput;
-
 };

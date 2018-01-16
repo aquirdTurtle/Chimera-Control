@@ -13,6 +13,7 @@ class PictureControl
 {
 	public:
 		void initialize(POINT& loc, CWnd* parent, int& id, int width, int height, std::array<UINT, 2> minMaxIds );
+		void handleMouse( CPoint p );
 		void recalculateGrid( imageParameters newParameters );
 		void setPictureArea( POINT loc, int width, int height );
 		void setSliderLocations(CWnd* parent);
@@ -23,6 +24,7 @@ class PictureControl
 		void drawGrid(CDC* easel, CBrush* brush);
 		void drawCircle(CDC* dc, coordinate selectedLocation );
 		void drawAnalysisMarkers(CDC* dc, std::vector<coordinate> analysisLocs, atomGrid gridInfo );
+		void setCursorValueLocations( CWnd* parent );
 		void drawRectangle( CDC* dc, RECT pixelRect );
 		void rearrange( std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts );
 		void handleScroll( int id, UINT nPos );
@@ -34,10 +36,12 @@ class PictureControl
 		std::pair<UINT, UINT> getSliderLocations();
 		coordinate checkClickLocation( CPoint clickLocation );
 		void resetStorage();
+		void setHoverValue( );
 	private:
 		std::tuple<bool, int, int> mostRecentAutoscaleInfo;
 		bool mostRecentSpecialMinSetting;
 		bool mostRecentSpecialMaxSetting;
+		POINT mouseCoordinates;
 		// for replotting.
 		std::vector<long> mostRecentImage;
 		// stores info as to whether the control is currently being used in plotting camera data or was used 
@@ -64,10 +68,12 @@ class PictureControl
 
 		Control<CSliderCtrl> sliderMax;
 		Control<CSliderCtrl> sliderMin;
-		//
 		Control<CStatic> labelMax;
 		Control<CStatic> labelMin;
-		//
 		Control<CEdit> editMax;
 		Control<CEdit> editMin;
+		Control<CStatic> coordinatesText;
+		Control<CStatic> coordinatesDisp;
+		Control<CStatic> valueText;
+		Control<CStatic> valueDisp;
 };

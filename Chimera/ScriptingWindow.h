@@ -13,8 +13,7 @@ class AuxiliaryWindow;
 // a convenient structure for containing one object for each script. For example, the address of each script.
 template <typename type> struct scriptInfo
 {
-	type horizontalNIAWG;
-	type verticalNIAWG;
+	type niawg;
 	type intensityAgilent;
 	type master;
 };
@@ -65,19 +64,12 @@ class ScriptingWindow : public CDialog
 		void saveIntensityScriptAs(CWnd* parent);
 		void agilentEditChange();
 
-		void newVerticalScript();
-		void openVerticalScript(CWnd* parent);
-		void openVerticalScript(std::string name);
-		void saveVerticalScript();
-		void saveVerticalScriptAs(CWnd* parent);
-		void verticalEditChange();
-
-		void newHorizontalScript();
-		void openHorizontalScript(CWnd* parent);
-		void openHorizontalScript(std::string name);
-		void saveHorizontalScript();
-		void saveHorizontalScriptAs(CWnd* parent);
-		void horizontalEditChange();
+		void newNiawgScript();
+		void openNiawgScript(CWnd* parent);
+		void openNiawgScript(std::string name);
+		void saveNiawgScript();
+		void saveNiawgScriptAs(CWnd* parent);
+		void niawgEditChange();
 
 		void newMasterScript();
 		void openMasterScript(CWnd* parent);
@@ -114,8 +106,7 @@ class ScriptingWindow : public CDialog
 		AuxiliaryWindow* auxWindowFriend;
 		//
 		cToolTips tooltips;
-
-		Script verticalNiawgScript, horizontalNiawgScript, masterScript;
+		Script niawgScript, masterScript;
 		ColorBox statusBox;
 		ProfileIndicator profileDisplay;
 

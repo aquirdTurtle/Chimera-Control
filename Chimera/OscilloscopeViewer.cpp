@@ -16,11 +16,12 @@ ScopeViewer::ScopeViewer( std::string usbAddress, bool safemode, UINT traceNumIn
 
 void ScopeViewer::refreshPlot(CDC* d, UINT width, UINT height, CBrush* backgroundBrush, CBrush* plotAreaBrush )
 {
-	memDC dacDC( d, &viewPlot->GetPlotRect( width, height ) );
-	viewPlot->drawBackground( dacDC, width, height, backgroundBrush, plotAreaBrush );
-	viewPlot->drawTitle( dacDC, width, height );
-	viewPlot->drawBorder( dacDC, width, height );
-	viewPlot->plotPoints( &dacDC, width, height );
+	viewPlot->setCurrentDims( width, height );
+	memDC dacDC( d, &viewPlot->GetPlotRect( ) );
+	viewPlot->drawBackground( dacDC, backgroundBrush );
+	viewPlot->drawTitle( dacDC );
+	viewPlot->drawBorder( dacDC );
+	viewPlot->plotPoints( &dacDC );
 }
 
 
@@ -41,6 +42,7 @@ void ScopeViewer::initialize( POINT& topLeftLoc, UINT width, UINT height, CWnd* 
 	viewPlot = new PlotCtrl( scopeData, OscilloscopePlot, plotPens, font, plotBrushes, title );
 	viewPlot->init( topLeftLoc, width, height, parent );
 	topLeftLoc.y += height;
+	//refreshData( );
 }
 
 

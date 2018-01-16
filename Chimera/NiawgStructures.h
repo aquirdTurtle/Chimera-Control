@@ -112,6 +112,8 @@ struct flashInfoForm
 	niawgPair<Expression> flashCycleFreqInput;
 	niawgPair<Expression> totalTimeInput;
 	niawgPair<Expression> deadTimeInput;
+	Expression flashCycleFreqInputSingle, totalTimeInputSingle, deadTimeInputSingle;
+
 	std::vector<simpleWaveForm> flashWaves;
 
 	Expression flashCycleFreq;

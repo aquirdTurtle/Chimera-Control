@@ -58,11 +58,21 @@ class NiawgController
 		void analyzeNiawgScripts( niawgPair<ScriptStream>& scripts, NiawgOutput& output, profileSettings profile, 
 								  debugInfo& options, std::string& warnings, rerngOptions rInfo, 
 								  std::vector<variableType>& variables );
+		void analyzeNiawgScript( ScriptStream& script, NiawgOutput& output, profileSettings profile,
+								  debugInfo& options, std::string& warnings, rerngOptions rInfo,
+								  std::vector<variableType>& variables );
 		void flashVaries( waveInfoForm& wave );
 		void rerngFormToOutput( waveInfoForm& waveForm, waveInfo& wave, std::vector<variableType>& varibles,
 								UINT variation );
 		void writeStaticNiawg( NiawgOutput& output, debugInfo& options, std::vector<variableType>& variables );
-		void loadWaveformParametersForm( NiawgOutput& output, profileSettings profile, 
+		void loadCommonWaveParams( ScriptStream& script, simpleWaveForm& wave );
+		void handleStandardWaveformFormSingle( NiawgOutput& output, std::string cmd, ScriptStream& script,
+											   std::vector<variableType>& variables );
+		void loadWaveformParametersFormSingle( NiawgOutput& output, std::string cmd, ScriptStream& script,
+											   std::vector<variableType> variables, int axis, simpleWaveForm& wave );
+		void loadFullWave( NiawgOutput& output, std::string cmd, ScriptStream& script, 
+						   std::vector<variableType>& variables, simpleWaveForm& wave );
+		void loadWaveformParametersForm( NiawgOutput& output, profileSettings profile,
 										 niawgPair<std::string> command, debugInfo& debug,
 										 niawgPair<ScriptStream>& scripts, std::vector<variableType> variables );
 		void setDefaultWaveforms( MainWindow* mainWin );
@@ -126,22 +136,33 @@ class NiawgController
 		void openWaveformFiles( );
 		bool isLogic( std::string command );
 		void handleLogic( niawgPair<ScriptStream>& script, niawgPair<std::string> inputs, std::string &scriptString );
+		void handleLogicSingle( ScriptStream& script, std::string inputs, std::string &scriptString );
 		bool isSpecialWaveform( std::string command );
 		void handleSpecialWaveformForm( NiawgOutput& output, profileSettings profile, niawgPair<std::string> command,
 										niawgPair<ScriptStream>& scripts, debugInfo& options, rerngOptions rInfo, 
 										std::vector<variableType>& variables );
+		void handleSpecialWaveformFormSingle( NiawgOutput& output, profileSettings profile, std::string cmd,
+											  ScriptStream& scripts, debugInfo& options, rerngOptions rInfo,
+											  std::vector<variableType>& variables );
 		bool isStandardWaveform( std::string command );
+		//void handleStandardWaveformFormSingle( NiawgOutput& output, profileSettings profile, std::string command,
+		//									   ScriptStream& scripts, debugInfo& options, 
+		//									   std::vector<variableType>& variables );
+
 		void handleStandardWaveformForm( NiawgOutput& output, profileSettings profile, niawgPair<std::string> command,
 										 niawgPair<ScriptStream>& scripts, debugInfo& options, 
 										 std::vector<variableType>& variables );
 		bool isSpecialCommand( std::string command );
 		void handleSpecialForm( niawgPair<ScriptStream>& scripts, NiawgOutput& output, niawgPair<std::string> inputTypes,
 							profileSettings profile, debugInfo& options, std::string& warnings );
+		void handleSpecialFormSingle( ScriptStream& scripts, NiawgOutput& output, std::string inputTypes, 
+									  profileSettings profile, debugInfo& options, std::string& warnings );
 		void finalizeStandardWave( simpleWave& wave, debugInfo& options );
 		/// member variables
  		// Important. This can change if you change computers.
  		const ViRsrc NI_5451_LOCATION = "Dev6";
- 		niawgPair<std::string> currentScripts;		
+ 		niawgPair<std::string> currentScripts;
+		std::string currentScript;
 		bool runningState;
 		bool on;
 		// don't take the word "library" too seriously... it's just a listing of all of the waveforms that have been 
