@@ -39,6 +39,7 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 	ON_COMMAND( IDOK, &handleEnter )
 	ON_COMMAND( TOP_BOTTOM_PROGRAM, &passTopBottomTekProgram )
 	ON_COMMAND( EO_AXIAL_PROGRAM, &passEoAxialTekProgram )
+	ON_COMMAND( ID_GET_ANALOG_IN_VALUES, &GetAnalogInSnapshot )
 
 	ON_COMMAND_RANGE( IDC_TOP_BOTTOM_CHANNEL1_BUTTON, IDC_UWAVE_PROGRAM, &AuxiliaryWindow::handleAgilentOptions )
 	ON_COMMAND_RANGE( TOP_ON_OFF, AXIAL_FSK, &AuxiliaryWindow::handleTektronicsButtons )
@@ -51,6 +52,7 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 					  &AuxiliaryWindow::handleAgilentCombo )
 	ON_CONTROL_RANGE( CBN_SELENDOK, IDC_UWAVE_AGILENT_COMBO, IDC_UWAVE_AGILENT_COMBO, 
 					  &AuxiliaryWindow::handleAgilentCombo )
+	ON_REGISTERED_MESSAGE( eLogVoltsMessageID, &AuxiliaryWindow::onLogVoltsMessage )
 
 	ON_CONTROL_RANGE( EN_CHANGE, ID_DAC_FIRST_EDIT, (ID_DAC_FIRST_EDIT + 23), &AuxiliaryWindow::DacEditChange )
 	ON_NOTIFY( LVN_COLUMNCLICK, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::ConfigVarsColumnClick )
@@ -73,6 +75,20 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 END_MESSAGE_MAP()
 
 
+LRESULT AuxiliaryWindow::onLogVoltsMessage( WPARAM wp, LPARAM lp )
+{
+	cameraWindowFriend->writeVolts( wp, aiSys.getSingleSnap( 100 ) );
+	return TRUE;
+}
+
+
+void AuxiliaryWindow::GetAnalogInSnapshot( )
+{
+	aiSys.refreshCurrentValues( );
+	aiSys.refreshDisplays( );
+}
+
+
 void AuxiliaryWindow::OnPaint( )
 {
 	CDialog::OnPaint( );
@@ -90,21 +106,21 @@ void AuxiliaryWindow::OnPaint( )
 		// for a single plot.
 		for ( auto& ttlPlt : ttlPlots )
 		{
-			memDC ttlDC( cdc, &ttlPlt->GetPlotRect( width, height ) );
-			ttlPlt->drawBackground( ttlDC, width, height, mainWindowFriend->getBrushes( )["Solarized Base04"],
+			memDC ttlDC( cdc, &ttlPlt->GetPlotRect(  ) );
+			ttlPlt->drawBackground( ttlDC, mainWindowFriend->getBrushes( )["Solarized Base04"],
 									mainWindowFriend->getBrushes( )["Black"] );
-			ttlPlt->drawTitle( ttlDC, width, height );
-			ttlPlt->drawBorder( ttlDC, width, height );
-			ttlPlt->plotPoints( &ttlDC, width, height );
+			ttlPlt->drawTitle( ttlDC );
+			ttlPlt->drawBorder( ttlDC );
+			ttlPlt->plotPoints( &ttlDC );
 		}
-		for ( auto& dacPlt : dacPlots )
+		for ( auto& dacPlt : aoPlots )
 		{
-			memDC dacDC( cdc, &dacPlt->GetPlotRect( width, height ) );
-			dacPlt->drawBackground( dacDC, width, height, mainWindowFriend->getBrushes( )["Solarized Base04"],
+			memDC dacDC( cdc, &dacPlt->GetPlotRect( ) );
+			dacPlt->drawBackground( dacDC, mainWindowFriend->getBrushes( )["Solarized Base04"],
 									mainWindowFriend->getBrushes( )["Black"] );
-			dacPlt->drawTitle( dacDC, width, height );
-			dacPlt->drawBorder( dacDC, width, height );
-			dacPlt->plotPoints( &dacDC, width, height );
+			dacPlt->drawTitle( dacDC );
+			dacPlt->drawBorder( dacDC );
+			dacPlt->plotPoints( &dacDC );
 		}
 		ReleaseDC( cdc );
 	}
@@ -232,6 +248,16 @@ void AuxiliaryWindow::saveAgilentScriptAs( agilentNames name, CWnd* parent )
 
 void AuxiliaryWindow::OnTimer( UINT_PTR eventID )
 {
+	if ( eventID == 2 )
+	{
+		// don't query while experiment is running and getting querying between variations, this may cause a 
+		// race condition.
+		if ( aiSys.wantsContinuousQuery( ) && (!mainWindowFriend->masterIsRunning( ) 
+												|| !aiSys.wantsQueryBetweenVariations() ) )
+		{
+			GetAnalogInSnapshot( );
+		}
+	}
 	if ( eventID == 1 )
 	{
 		OnPaint( );
@@ -731,6 +757,7 @@ void AuxiliaryWindow::loadMotSettings(MasterThreadInput* input)
 	try
 	{
 		sendStatus("Loading MOT Configuration...\r\n" );
+		input->auxWin = this;
 		input->quiet = true;
 		input->ttls = &ttlBoard;
 		input->aoSys = &aoSys;
@@ -769,6 +796,7 @@ void AuxiliaryWindow::OnCancel()
 
 void AuxiliaryWindow::fillMasterThreadInput( MasterThreadInput* input )
 {
+	input->auxWin = this;
 	input->ttls = &ttlBoard;
 	input->aoSys = &aoSys;
 	input->aiSys = &aiSys;
@@ -1261,9 +1289,10 @@ BOOL AuxiliaryWindow::OnInitDialog()
 				titleTxt = "DACs: 16-23";
 				break;
 			}
-			dacPlots[dacPltCount] = new PlotCtrl( dacData[dacPltCount], DacPlot, mainWindowFriend->getPens( ),
-												  mainWindowFriend->getPlotFont( ), titleTxt );
-			dacPlots[dacPltCount]->init( controlLocation, 480, dacPlotSize, this );
+			aoPlots[dacPltCount] = new PlotCtrl( dacData[dacPltCount], DacPlot, mainWindowFriend->getPens( ),
+												  mainWindowFriend->getPlotFont( ), 
+												 mainWindowFriend->getPlotBrushes( ), titleTxt );
+			aoPlots[dacPltCount]->init( controlLocation, 480, dacPlotSize, this );
 			controlLocation.y += dacPlotSize;
 		}
 		// ttl plots are similar to aoSys.
@@ -1299,7 +1328,8 @@ BOOL AuxiliaryWindow::OnInitDialog()
 				break;
 			}
 			ttlPlots[ttlPltCount] = new PlotCtrl( ttlData[ttlPltCount], TtlPlot, mainWindowFriend->getPens( ),
-												  mainWindowFriend->getPlotFont( ), titleTxt );
+												  mainWindowFriend->getPlotFont( ), mainWindowFriend->getPlotBrushes( ),
+												  titleTxt );
 			ttlPlots[ttlPltCount]->init( controlLocation, 480, ttlPlotSize, this );
 			controlLocation.y += ttlPlotSize;
 		}
@@ -1309,6 +1339,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 		errBox( exeption.what() );
 	}
 	SetTimer( 1, 10000, NULL );
+	SetTimer( 2, 1000, NULL );
 
 	menu.LoadMenu( IDR_MAIN_MENU );
 	SetMenu( &menu );

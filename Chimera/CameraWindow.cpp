@@ -74,6 +74,19 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 END_MESSAGE_MAP()
 
 
+void CameraWindow::writeVolts( UINT currentVoltNumber, std::vector<float64> data )
+{
+	try
+	{
+		dataHandler.writeVolts( currentVoltNumber, data );
+	}
+	catch ( Error& err )
+	{
+		mainWindowFriend->getComm( )->sendError( err.what( ) );
+	}
+}
+
+
 void CameraWindow::OnMouseMove( UINT thing, CPoint point )
 {
 	try

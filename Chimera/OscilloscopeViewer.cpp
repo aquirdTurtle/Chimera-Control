@@ -18,7 +18,7 @@ void ScopeViewer::refreshPlot(CDC* d, UINT width, UINT height, CBrush* backgroun
 {
 	viewPlot->setCurrentDims( width, height );
 	memDC dacDC( d, &viewPlot->GetPlotRect( ) );
-	viewPlot->drawBackground( dacDC, backgroundBrush );
+	viewPlot->drawBackground( dacDC, backgroundBrush, plotAreaBrush );
 	viewPlot->drawTitle( dacDC );
 	viewPlot->drawBorder( dacDC );
 	viewPlot->plotPoints( &dacDC );

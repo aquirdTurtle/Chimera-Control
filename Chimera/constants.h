@@ -9,8 +9,8 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program. 
 
-//#define MASTER_COMPUTER
-#define SPECTRE_LAPTOP
+#define MASTER_COMPUTER
+//#define SPECTRE_LAPTOP
 /// File Locations
 
 #ifdef SPECTRE_LAPTOP
@@ -149,7 +149,7 @@
 // This is the length of time waited before the code decides to update your syntax coloring after a change is made.
 #define SYNTAX_TIMER_LENGTH 1000
 
-#define NUMBER_AI_CHANNELS 16
+#define NUMBER_AI_CHANNELS 8
 // Parameters that the user might want to change:
 const bool CONST_POWER_OUTPUT = true;
 
@@ -307,6 +307,8 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_FLASHING_CALIBRATION_BUTTON 14139
 #define IDC_INTENSITY_CALIBRATION_BUTTON 14140
 #define IDC_UWAVE_CALIBRATION_BUTTON 14141
+
+#define ID_GET_ANALOG_IN_VALUES 14142
 
 #define UWAVE_AGILENT_TRIGGER_ROW 3
 #define UWAVE_AGILENT_TRIGGER_NUM 1

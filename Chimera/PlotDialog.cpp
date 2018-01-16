@@ -60,10 +60,11 @@ void PlotDialog::OnPaint( )
 		CRect size;
 		GetClientRect( &size );
 		memDC dc( cdc );
-		plot.drawBackground( dc, size.right - size.left, size.bottom - size.top, &backgroundBrush, &plotAreaBrush );
-		plot.drawTitle( dc, size.right - size.left, size.bottom - size.top );
-		plot.drawBorder( dc, size.right - size.left, size.bottom - size.top );
-		plot.plotPoints( &dc, size.right - size.left, size.bottom - size.top );
+		plot.setCurrentDims( size.right - size.left, size.bottom - size.top );
+		plot.drawBackground( dc, &backgroundBrush, &plotAreaBrush );
+		plot.drawTitle( dc );
+		plot.drawBorder( dc );
+		plot.plotPoints( &dc );
 		CDialog::OnPaint( );
 	}
 	ReleaseDC( cdc );

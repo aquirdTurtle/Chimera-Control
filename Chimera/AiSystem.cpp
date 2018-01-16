@@ -7,7 +7,7 @@
 void AiSystem::initDaqmx( )
 {
 	daqmx.createTask( "Analog-Input", analogInTask0 );
-	daqmx.createAiVoltageChan( analogInTask0, "Dev???/ai0:15", "", DAQmx_Val_Cfg_Default, -10.0, 10.0, DAQmx_Val_Volts, NULL );
+	daqmx.createAiVoltageChan( analogInTask0, "Dev8/ai0:7", "", DAQmx_Val_Diff, -10.0, 10.0, DAQmx_Val_Volts, NULL );
 }
 
 
@@ -39,10 +39,11 @@ void AiSystem::rearrange( int width, int height, fontMap fonts )
 
 void AiSystem::initialize( POINT& loc, CWnd* parent, int& id )
 {
+	initDaqmx( );
 	title.sPos = {loc.x, loc.y, loc.x + 480, loc.y += 25};
 	title.Create( "Analog-Input", NORM_HEADER_OPTIONS, title.sPos, parent, id );
 	getValuesButton.sPos = { loc.x, loc.y, loc.x += 160, loc.y + 25 };
-	getValuesButton.Create( "Get Values", NORM_PUSH_OPTIONS, getValuesButton.sPos, parent, id++);
+	getValuesButton.Create( "Get Values", NORM_PUSH_OPTIONS, getValuesButton.sPos, parent, ID_GET_ANALOG_IN_VALUES );
 	continuousQueryCheck.sPos = { loc.x, loc.y, loc.x += 160, loc.y + 25 };
 	continuousQueryCheck.Create( "Query Continuously", NORM_CHECK_OPTIONS, continuousQueryCheck.sPos, parent, id++ );
 	queryBetweenVariations.sPos = { loc.x, loc.y, loc.x += 160, loc.y += 25 };
@@ -85,9 +86,15 @@ void AiSystem::initialize( POINT& loc, CWnd* parent, int& id )
 }
 
 
+bool AiSystem::wantsContinuousQuery( )
+{
+	return continuousQueryCheck.GetCheck( );
+}
+
+
 void AiSystem::refreshCurrentValues( )
 {
-	currentValues = getSingleSnapArray( );
+	currentValues = getSingleSnapArray( 100 );
 }
 
 
@@ -112,20 +119,34 @@ bool AiSystem::wantsQueryBetweenVariations( )
 	return queryBetweenVariations.GetCheck( );
 }
 
-std::vector<float64> AiSystem::getSingleSnap( )
+
+std::vector<float64> AiSystem::getSingleSnap( UINT n_to_avg )
 {
-	daqmx.configSampleClkTiming( analogInTask0, "", 10000.0, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, 1 );
+	daqmx.configSampleClkTiming( analogInTask0, "", 10000.0, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, n_to_avg );
 	daqmx.startTask( analogInTask0 );
-	std::vector<float64> data( NUMBER_AI_CHANNELS );
+	// don't understand why but need 2 samples min???
+	std::vector<float64> tmpdata( NUMBER_AI_CHANNELS*n_to_avg );
 	int32 sampsRead;
-	daqmx.readAnalogF64( analogInTask0, data, sampsRead );
+	daqmx.readAnalogF64( analogInTask0, tmpdata, sampsRead );
+	daqmx.stopTask( analogInTask0 );
+	std::vector<float64> data( NUMBER_AI_CHANNELS );
+	UINT count = 0;
+	for ( auto& d : data )
+	{
+		d = 0;
+		for ( auto i : range( n_to_avg ) )
+		{
+			d += tmpdata[count++];
+		}
+		d /= n_to_avg;
+	}
 	return data;
 }
 
 
-std::array<float64, NUMBER_AI_CHANNELS> AiSystem::getSingleSnapArray( )
+std::array<float64, NUMBER_AI_CHANNELS> AiSystem::getSingleSnapArray( UINT n_to_avg )
 {
-	std::vector<float64> data = getSingleSnap( );
+	std::vector<float64> data = getSingleSnap( n_to_avg );
 	std::array<float64, NUMBER_AI_CHANNELS> retData;
 	for ( auto dataInc : range( NUMBER_AI_CHANNELS ) )
 	{

@@ -49,6 +49,7 @@ class AuxiliaryWindow : public CDialog
 		void passCommonCommand(UINT id);
 		void OnTimer( UINT_PTR id );
 		// the master needs to handle tooltip stuff.
+		LRESULT onLogVoltsMessage( WPARAM wp, LPARAM lp );
 		cToolTips toolTips;
 		void handleMasterConfigSave( std::stringstream& configStream );
 		void handleMasterConfigOpen( std::stringstream& configStream, double version );
@@ -64,6 +65,7 @@ class AuxiliaryWindow : public CDialog
 		std::string getSystemStatusMsg();
 		std::array<std::array<std::string, 16>, 4> getTtlNames();
 		std::array<std::string, 24> getDacNames();
+		void GetAnalogInSnapshot( );
 
 		void updateAgilent( agilentNames name );
 		void newAgilentScript( agilentNames name );

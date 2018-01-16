@@ -8,6 +8,8 @@
 #include "DataAnalysisHandler.h"					  
 #include "CameraImageDimensions.h"
 #include "AndorRunSettings.h"
+
+
 /*
  * Handles the writing of h5 files. Some parts of this are effectively HDF5 wrappers.
  */

@@ -420,7 +420,7 @@ void DataLogger::initializeAioLogging( UINT numSnapshots )
 		hsize_t singleMeasurementDims[] = { 1, NUMBER_AI_CHANNELS };
 		voltsSetDataSpace = H5::DataSpace( 2, setDims );
 		voltsDataSpace = H5::DataSpace( 2, singleMeasurementDims );
-		voltsDataSet = aioGroup.createDataSet( "Voltage-Measurements", H5::PredType::NATIVE_DOUBLE, picureSetDataSpace );
+		voltsDataSet = aioGroup.createDataSet( "Voltage-Measurements", H5::PredType::NATIVE_DOUBLE, voltsSetDataSpace );
 	}
 }
 
@@ -432,7 +432,7 @@ void DataLogger::writeVolts( UINT currentVoltNumber, std::vector<float64> data )
 		thrower( "Tried to write to h5 file, but the file is closed!\r\n" );
 	}
 	// starting coordinates of write area in the h5 file of the array of picture data points.
-	hsize_t offset[2] = { currentVoltNumber - 1, 0 };
+	hsize_t offset[2] = { currentVoltNumber, 0 };
 	hsize_t slabdim[2] = { 1, data.size() };
 	try
 	{
