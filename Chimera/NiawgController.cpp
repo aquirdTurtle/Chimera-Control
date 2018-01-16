@@ -4320,7 +4320,7 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 				// loop through all locations in the row/collumn
 				for ( auto location : range( altSize[dim] ) )
 				{
-					UINT initRow, initCol, finRow, finCol, which;
+					UINT initRow, initCol, finRow, finCol;
 					bool isRow = directions[dim] == "row";
 					initRow = isRow ? dimInc : location;
 					initCol = isRow ? location : dimInc;

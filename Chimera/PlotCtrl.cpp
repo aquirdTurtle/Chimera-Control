@@ -104,7 +104,7 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 			}
 		}
 	}
-	if ( style == OscilloscopePlot || style == HistPlot )
+	if ( style == OscilloscopePlot || style == HistPlot || style == DacPlot )
 	{
 		for ( auto line : screenData )
 		{
