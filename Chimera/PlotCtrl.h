@@ -34,30 +34,34 @@ class PlotCtrl
 				  CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes,
 				  std::string titleIn = "Title!" );
 		~PlotCtrl( );
+		void setCurrentDims( int width, int height);
 		void rearrange( int width, int height, fontMap fonts );
 		void init( POINT topLeftLoc, LONG width, LONG height, CWnd* parent );
-		void drawBorder( memDC* d, double width, double height );
-		void plotPoints( memDC* d, double width, double height );
-		void circleMarker( memDC* d, POINT loc, double size, Gdiplus::Brush* brush );
-		void errBars( memDC* d, POINT center, long err, long size, Gdiplus::Pen* pen );
-		void drawBackground( memDC*, double width, double height, CBrush* backgroundBrush, CBrush* plotAreaBrush );
-		void drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vector<double> scaledX, double width,
-							  double height, std::pair<double, double> minMaxRawY,
-							  std::pair<double, double> minMaxScaledY );
-		void drawLine( CDC* d, double begX, double begY, double endX, double endY, Gdiplus::Pen* p );
-		void drawLine( CDC* d, POINT beg, POINT end, Gdiplus::Pen* p );
-		void convertDataToScreenCoords( double width, double height, std::vector<plotDataVec>& dat );
+		void drawBorder( memDC* d );
+		void plotPoints( memDC* d );
+		
+		void circleMarker( memDC* d, POINT loc, double size );
+		void errBars( memDC* d, POINT center, long err, long size );
+		void drawBackground( memDC*, CBrush* backgroundBrush );
+		void drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vector<double> scaledX, 
+							  std::pair<double, double> minMaxRawY, std::pair<double, double> minMaxScaledY );
+		void drawLine( CDC* d, double begX, double begY, double endX, double endY );
+		void drawLine( CDC* d, POINT beg, POINT end );
+		void convertDataToScreenCoords( std::vector<plotDataVec>& dat );
 		void shiftTtlData( std::vector<plotDataVec>& rawData );
-		void drawLegend( memDC* d, UINT width, UINT height, std::vector<plotDataVec> screenData );
+		void drawLegend( memDC* d, std::vector<plotDataVec> screenData );
 		void getMinMaxY( std::vector<plotDataVec> screenData, std::vector<pPlotDataVec> rawData,
 						 std::pair<double, double>& minMaxRaw, std::pair<double, double>& minMaxScaled );
-		void drawTitle( memDC* d, long width, long height );
-		CRect GetPlotRect( LONG width, LONG height );
-		void makeLinePlot( memDC* d, LONG width, LONG height, plotDataVec line, Gdiplus::Pen* p );
-		void makeStepPlot( memDC* d, LONG width, LONG height, plotDataVec line, Gdiplus::Pen* p );
+		void drawTitle( memDC* d );
+		CRect GetPlotRect(  );
+		void makeLinePlot( memDC* d, plotDataVec line, Gdiplus::Pen* p );
+		void makeStepPlot( memDC* d, plotDataVec line, Gdiplus::Pen* p );
 
 		std::vector<std::mutex> dataMutexes;
 	private:
+		// in units of the data
+		double boxWidth=1;
+		double boxWidthPixels;
 		const plotStyle style;
 		// first level deliminates different lines which get different colors. second level deliminates different 
 		// points within the line.

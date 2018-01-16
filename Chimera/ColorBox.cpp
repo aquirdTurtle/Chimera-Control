@@ -5,22 +5,17 @@
 void ColorBox::initialize(POINT& pos, int& id, CWnd* parent, int length, cToolTips& tooltips)
 {
 	//
-	boxes.niawg.sPos = { pos.x, pos.y, long(pos.x + length/4.0), pos.y + 20 };
+	boxes.niawg.sPos = { pos.x, pos.y, long(pos.x + length/3.0), pos.y + 20 };
 	boxes.niawg.Create("NIAWG", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | SS_CENTER | WS_BORDER,
 					 boxes.niawg.sPos, parent, id++ );
 	boxes.niawg.fontType = CodeFont;
 	//
-	boxes.camera.sPos = { long(pos.x + length/ 4.0), pos.y, long(pos.x + 2*length/4.0), pos.y + 20 };
+	boxes.camera.sPos = { long(pos.x + length/ 3.0), pos.y, long(pos.x + 2*length/3.0), pos.y + 20 };
 	boxes.camera.Create( "CAMERA", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | SS_CENTER | WS_BORDER, 
 					  boxes.camera.sPos, parent, id++ );
 	boxes.camera.fontType = CodeFont;
 	//
-	boxes.intensity.sPos = { long(pos.x + 2.0*length/4.0), pos.y, pos.x + long(3*length/ 4.0), pos.y + 20 };
-	boxes.intensity.Create( "INTENSITY", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | SS_CENTER | WS_BORDER,
-						 boxes.intensity.sPos, parent, id++ );
-	boxes.intensity.fontType = CodeFont;
-	//
-	boxes.master.sPos = { long(pos.x + 3 * length / 4.0), pos.y, pos.x + length, pos.y + 20 };
+	boxes.master.sPos = { long(pos.x + 2 * length / 3.0), pos.y, pos.x + length, pos.y + 20 };
 	boxes.master.Create( "MASTER", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | SS_CENTER | WS_BORDER,
 						 boxes.master.sPos, parent, id++ );
 	boxes.master.fontType = CodeFont;
@@ -33,7 +28,6 @@ void ColorBox::rearrange( int width, int height, fontMap fonts )
 {
 	boxes.niawg.rearrange( width, height, fonts );
 	boxes.camera.rearrange( width, height, fonts );
-	boxes.intensity.rearrange( width, height, fonts );
 	boxes.master.rearrange( width, height, fonts );
 }
 
@@ -43,10 +37,6 @@ CBrush* ColorBox::handleColoring( int id, CDC* pDC, brushMap brushes, rgbMap rgb
 	if (id == boxes.niawg.GetDlgCtrlID())
 	{
 		code = colors.niawg;
-	}
-	else if (id == boxes.intensity.GetDlgCtrlID())
-	{
-		code = colors.intensity;
 	}
 	else if (id == boxes.camera.GetDlgCtrlID())
 	{
@@ -106,11 +96,6 @@ void ColorBox::changeColor( systemInfo<char> newColors )
 	{
 		colors.camera = newColors.camera;
 		boxes.camera.RedrawWindow();
-	}
-	if ( newColors.intensity != '-' )
-	{
-		colors.intensity = newColors.intensity;
-		boxes.intensity.RedrawWindow();
 	}
 	if (newColors.master != '-')
 	{

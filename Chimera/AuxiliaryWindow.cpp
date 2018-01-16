@@ -2,7 +2,7 @@
 #include "AuxiliaryWindow.h"
 #include "Control.h"
 #include "DioSettingsDialog.h"
-#include "DacSettingsDialog.h"
+#include "AoSettingsDialog.h"
 #include "TextPromptDialog.h"
 #include "DioSystem.h"
 #include "commonFunctions.h"
@@ -327,7 +327,7 @@ void AuxiliaryWindow::handleNewConfig( std::ofstream& newFile )
 	// order matters.
 	configVariables.handleNewConfig( newFile );
 	ttlBoard.handleNewConfig( newFile );
-	dacBoards.handleNewConfig( newFile );
+	aoSys.handleNewConfig( newFile );
 	for ( auto& agilent : agilents )
 	{
 		agilent.handleNewConfig( newFile );
@@ -342,7 +342,7 @@ void AuxiliaryWindow::handleSaveConfig( std::ofstream& saveFile )
 	// order matters.
 	configVariables.handleSaveConfig( saveFile );
 	ttlBoard.handleSaveConfig( saveFile );
-	dacBoards.handleSaveConfig( saveFile );
+	aoSys.handleSaveConfig( saveFile );
 	for ( auto& agilent : agilents )
 	{
 		agilent.handleSavingConfig( saveFile, mainWindowFriend->getProfileSettings( ).categoryPath,
@@ -355,11 +355,11 @@ void AuxiliaryWindow::handleSaveConfig( std::ofstream& saveFile )
 void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, int versionMajor, int versionMinor )
 {
 	ttlBoard.prepareForce( );
-	dacBoards.prepareForce( );
+	aoSys.prepareForce( );
 
 	configVariables.handleOpenConfig(configFile, versionMajor, versionMinor );
 	ttlBoard.handleOpenConfig(configFile, versionMajor, versionMinor );
-	dacBoards.handleOpenConfig(configFile, versionMajor, versionMinor, &ttlBoard);
+	aoSys.handleOpenConfig(configFile, versionMajor, versionMinor, &ttlBoard);
 
 	agilents[TopBottom].readConfigurationFile(configFile, versionMajor, versionMinor );
 	agilents[TopBottom].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings().categoryPath,
@@ -383,7 +383,7 @@ void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, int version
 
 UINT AuxiliaryWindow::getNumberOfDacs()
 {
-	return dacBoards.getNumberOfDacs();
+	return aoSys.getNumberOfDacs();
 }
 
 
@@ -395,7 +395,7 @@ std::array<std::array<std::string, 16>, 4> AuxiliaryWindow::getTtlNames()
 
 std::array<std::string, 24> AuxiliaryWindow::getDacNames()
 {
-	return dacBoards.getAllNames();
+	return aoSys.getAllNames();
 }
 
 
@@ -418,7 +418,7 @@ void AuxiliaryWindow::ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result
 	try
 	{
 		mainWindowFriend->updateConfigurationSavedStatus( false );
-		configVariables.updateVariableInfo(scriptList, mainWindowFriend, this, &ttlBoard, &dacBoards);
+		configVariables.updateVariableInfo(scriptList, mainWindowFriend, this, &ttlBoard, &aoSys);
 	}
 	catch (Error& exception)
 	{
@@ -457,7 +457,7 @@ void AuxiliaryWindow::GlobalVarDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 	try
 	{
 		mainWindowFriend->updateConfigurationSavedStatus( false );
-		globalVariables.updateVariableInfo(scriptList, mainWindowFriend, this, &ttlBoard, &dacBoards);
+		globalVariables.updateVariableInfo(scriptList, mainWindowFriend, this, &ttlBoard, &aoSys);
 	}
 	catch (Error& exception)
 	{
@@ -535,7 +535,7 @@ void AuxiliaryWindow::loadFriends(MainWindow* mainWin, ScriptingWindow* scriptWi
 
 void AuxiliaryWindow::passRoundToDac()
 {
-	dacBoards.handleRoundToDac(menu);
+	aoSys.handleRoundToDac(menu);
 }
 
 
@@ -578,7 +578,7 @@ void AuxiliaryWindow::OnSize(UINT nType, int cx, int cy)
 	{
 		ttlPlt->rearrange( cx, cy, getFonts( ) );
 	}
-	for ( auto& dacPlt : dacPlots )
+	for ( auto& dacPlt : aoPlots )
 	{
 		dacPlt->rearrange( cx, cy, getFonts( ) );
 	}
@@ -593,7 +593,8 @@ void AuxiliaryWindow::OnSize(UINT nType, int cx, int cy)
 	RhodeSchwarzGenerator.rearrange(cx, cy, getFonts());
 
 	ttlBoard.rearrange(cx, cy, getFonts());
-	dacBoards.rearrange(cx, cy, getFonts());
+	aoSys.rearrange(cx, cy, getFonts());
+	aiSys.rearrange( cx, cy, getFonts( ) );
 
 	configVariables.rearrange(cx, cy, getFonts());
 	globalVariables.rearrange(cx, cy, getFonts());
@@ -681,20 +682,20 @@ void AuxiliaryWindow::zeroDacs( )
 {
 	try
 	{
-		dacBoards.resetDacEvents( );
+		aoSys.resetDacEvents( );
 		ttlBoard.resetTtlEvents( );
-		dacBoards.prepareForce( );
+		aoSys.prepareForce( );
 		ttlBoard.prepareForce( );
 		for ( int dacInc : range( 24 ) )
 		{
-			dacBoards.prepareDacForceChange( dacInc, 0, &ttlBoard );
+			aoSys.prepareDacForceChange( dacInc, 0, &ttlBoard );
 		}
-		dacBoards.organizeDacCommands( 0, 0 );
-		dacBoards.makeFinalDataFormat( 0, 0 );
-		dacBoards.stopDacs( );
-		dacBoards.configureClocks( 0, false, 0 );
-		dacBoards.writeDacs( 0, false, 0 );
-		dacBoards.startDacs( );
+		aoSys.organizeDacCommands( 0, 0 );
+		aoSys.makeFinalDataFormat( 0, 0 );
+		aoSys.stopDacs( );
+		aoSys.configureClocks( 0, false, 0 );
+		aoSys.writeDacs( 0, false, 0 );
+		aoSys.startDacs( );
 		ttlBoard.organizeTtlCommands( 0, 0 );
 		ttlBoard.convertToFinalFormat( 0, 0 );
 		ttlBoard.writeTtlData( 0, false, 0 );
@@ -732,7 +733,8 @@ void AuxiliaryWindow::loadMotSettings(MasterThreadInput* input)
 		sendStatus("Loading MOT Configuration...\r\n" );
 		input->quiet = true;
 		input->ttls = &ttlBoard;
-		input->dacs = &dacBoards;
+		input->aoSys = &aoSys;
+		input->aiSys = &aiSys;
 		input->globalControl = &globalVariables;
 		input->comm = mainWindowFriend->getComm();
 		input->settings = { 0,0,0 };
@@ -768,7 +770,8 @@ void AuxiliaryWindow::OnCancel()
 void AuxiliaryWindow::fillMasterThreadInput( MasterThreadInput* input )
 {
 	input->ttls = &ttlBoard;
-	input->dacs = &dacBoards;
+	input->aoSys = &aoSys;
+	input->aiSys = &aiSys;
 	input->globalControl = &globalVariables;
 	input->dacData = dacData;
 	input->ttlData = ttlData;
@@ -829,7 +832,7 @@ void AuxiliaryWindow::changeBoxColor(systemInfo<char> colors)
 void AuxiliaryWindow::handleAbort()
 {
 	ttlBoard.unshadeTtls();
-	dacBoards.unshadeDacs();
+	aoSys.unshadeDacs();
 }
 
 
@@ -868,10 +871,10 @@ void AuxiliaryWindow::handleMasterConfigSave(std::stringstream& configStream)
 		}
 	}
 	// DAC Names
-	for (UINT dacInc = 0; dacInc < dacBoards.getNumberOfDacs(); dacInc++)
+	for (UINT dacInc = 0; dacInc < aoSys.getNumberOfDacs(); dacInc++)
 	{
-		std::string name = dacBoards.getName(dacInc);
-		std::pair<double, double> minMax = dacBoards.getDacRange(dacInc);
+		std::string name = aoSys.getName(dacInc);
+		std::pair<double, double> minMax = aoSys.getDacRange(dacInc);
 		if (name == "")
 		{
 			// then the name hasn't been set, so create the default name
@@ -879,7 +882,7 @@ void AuxiliaryWindow::handleMasterConfigSave(std::stringstream& configStream)
 		}
 		configStream << name << "\n";
 		configStream << minMax.first << " - " << minMax.second << "\n";
-		configStream << dacBoards.getDefaultValue(dacInc) << "\n";
+		configStream << aoSys.getDefaultValue(dacInc) << "\n";
 	}
 
 	// Number of Variables
@@ -899,8 +902,8 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, do
 {
 	ttlBoard.resetTtlEvents();
 	ttlBoard.prepareForce();
-	dacBoards.resetDacEvents();
-	dacBoards.prepareForce();
+	aoSys.resetDacEvents();
+	aoSys.prepareForce();
 	// save info
 	for (UINT ttlRowInc : range( ttlBoard.getTtlBoardSize().first))
 	{
@@ -926,8 +929,8 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, do
 			ttlBoard.updateDefaultTtl(ttlRowInc, ttlNumberInc, status);
 		}
 	}
-	// getting dacs.
-	for (UINT dacInc : range( dacBoards.getNumberOfDacs()) )
+	// getting aoSys.
+	for (UINT dacInc : range( aoSys.getNumberOfDacs()) )
 	{
 		std::string name;
 		std::string defaultValueString;
@@ -967,10 +970,10 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, do
 		{
 			thrower("ERROR: Failed to load one of the default DAC values!");
 		}
-		dacBoards.setName(dacInc, name, toolTips, this);
-		dacBoards.setMinMax(dacInc, min, max);
-		dacBoards.prepareDacForceChange(dacInc, defaultValue, &ttlBoard);
-		dacBoards.setDefaultValue(dacInc, defaultValue);
+		aoSys.setName(dacInc, name, toolTips, this);
+		aoSys.setMinMax(dacInc, min, max);
+		aoSys.prepareDacForceChange(dacInc, defaultValue, &ttlBoard);
+		aoSys.setDefaultValue(dacInc, defaultValue);
 	}
 	// variables.
 	if (version >= 1.1)
@@ -1017,18 +1020,18 @@ void AuxiliaryWindow::SetDacs()
 	{
 		mainWindowFriend->updateConfigurationSavedStatus( false );
 		sendStatus("----------------------\r\n");
-		dacBoards.resetDacEvents();
+		aoSys.resetDacEvents();
 		ttlBoard.resetTtlEvents();
 		sendStatus( "Setting Dacs...\r\n" );
-		dacBoards.handleButtonPress( &ttlBoard );
-		dacBoards.organizeDacCommands(0, 0);
-		dacBoards.makeFinalDataFormat(0, 0 );
+		aoSys.handleButtonPress( &ttlBoard );
+		aoSys.organizeDacCommands(0, 0);
+		aoSys.makeFinalDataFormat(0, 0 );
 		// start the boards which actually sets the dac values.
-		dacBoards.stopDacs();
-		dacBoards.configureClocks(0, false, 0 );
+		aoSys.stopDacs();
+		aoSys.configureClocks(0, false, 0 );
 		sendStatus( "Writing New Dac Settings...\r\n" );
-		dacBoards.writeDacs(0, false, 0 );
-		dacBoards.startDacs();
+		aoSys.writeDacs(0, false, 0 );
+		aoSys.startDacs();
 		ttlBoard.organizeTtlCommands(0, 0 );
 		ttlBoard.convertToFinalFormat(0, 0 );
 		ttlBoard.writeTtlData(0, false, 0 );
@@ -1051,7 +1054,7 @@ void AuxiliaryWindow::DacEditChange(UINT id)
 	try
 	{
 		mainWindowFriend->updateConfigurationSavedStatus( false );
-		dacBoards.handleEditChange(id - ID_DAC_FIRST_EDIT);
+		aoSys.handleEditChange(id - ID_DAC_FIRST_EDIT);
 	}
 	catch (Error& err)
 	{
@@ -1103,10 +1106,10 @@ void AuxiliaryWindow::ViewOrChangeTTLNames()
 void AuxiliaryWindow::ViewOrChangeDACNames()
 {
 	mainWindowFriend->updateConfigurationSavedStatus( false );
-	dacInputStruct input;
-	input.dacs = &dacBoards;
+	aoInputStruct input;
+	input.aoSys = &aoSys;
 	input.toolTips = toolTips;
-	DacSettingsDialog dialog(&input, IDD_VIEW_AND_CHANGE_DAC_NAMES);
+	AoSettingsDialog dialog(&input, IDD_VIEW_AND_CHANGE_DAC_NAMES);
 	dialog.DoModal();
 }
 
@@ -1135,7 +1138,7 @@ HBRUSH AuxiliaryWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	{
 		return result;
 	}
-	result = dacBoards.handleColorMessage(pWnd, brushes, rgbs, pDC);
+	result = aoSys.handleColorMessage(pWnd, brushes, rgbs, pDC);
 	if (result != NULL)
 	{
 		return result;
@@ -1204,8 +1207,8 @@ BOOL AuxiliaryWindow::OnInitDialog()
 	{
 		statusBox.initialize( controlLocation, id, this, 480, toolTips );
 		ttlBoard.initialize( controlLocation, toolTips, this, id );
-		dacBoards.initialize( controlLocation, toolTips, this, id );
-		//POINT statusLoc = { 960, 0 };
+		aoSys.initialize( controlLocation, toolTips, this, id );
+		aiSys.initialize( controlLocation, this, id );
 		topBottomTek.initialize( controlLocation, this, id, "Top-Bottom-Tek", "Top", "Bottom", 480,
 		{ TOP_BOTTOM_PROGRAM, TOP_ON_OFF, TOP_FSK, BOTTOM_ON_OFF, BOTTOM_FSK } );
 		eoAxialTek.initialize( controlLocation, this, id, "EO / Axial", "EO", "Axial", 480, { EO_AXIAL_PROGRAM,
@@ -1229,7 +1232,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 		configVariables.setActive( false );
 
 		controlLocation = POINT{ 960, 0 };
-		dacPlots.resize( NUM_DAC_PLTS );
+		aoPlots.resize( NUM_DAC_PLTS );
 		dacData.resize( NUM_DAC_PLTS );
 		UINT linesPerDacPlot = 24 / dacData.size( );
 		// initialize data structures.
@@ -1243,7 +1246,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 		}
 		// initialize plot controls.
 		UINT dacPlotSize = 500 / NUM_DAC_PLTS;
-		for ( auto& dacPltCount : range(dacPlots.size()))
+		for ( auto& dacPltCount : range(aoPlots.size()))
 		{
 			std::string titleTxt;
 			switch ( dacPltCount )
@@ -1259,12 +1262,11 @@ BOOL AuxiliaryWindow::OnInitDialog()
 				break;
 			}
 			dacPlots[dacPltCount] = new PlotCtrl( dacData[dacPltCount], DacPlot, mainWindowFriend->getPens( ),
-												  mainWindowFriend->getPlotFont( ), mainWindowFriend->getPlotBrushes( ),
-												  titleTxt );
+												  mainWindowFriend->getPlotFont( ), titleTxt );
 			dacPlots[dacPltCount]->init( controlLocation, 480, dacPlotSize, this );
 			controlLocation.y += dacPlotSize;
 		}
-		// ttl plots are similar to dacs.
+		// ttl plots are similar to aoSys.
 		ttlPlots.resize( NUM_TTL_PLTS );
 		ttlData.resize( NUM_TTL_PLTS );
 		UINT linesPerTtlPlot =  64 / ttlData.size( );
@@ -1297,8 +1299,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 				break;
 			}
 			ttlPlots[ttlPltCount] = new PlotCtrl( ttlData[ttlPltCount], TtlPlot, mainWindowFriend->getPens( ),
-												  mainWindowFriend->getPlotFont( ), mainWindowFriend->getPlotBrushes( ),
-												  titleTxt );
+												  mainWindowFriend->getPlotFont( ), titleTxt );
 			ttlPlots[ttlPltCount]->init( controlLocation, 480, ttlPlotSize, this );
 			controlLocation.y += ttlPlotSize;
 		}
@@ -1335,7 +1336,7 @@ std::string AuxiliaryWindow::getSystemStatusMsg()
 	if (!DAQMX_SAFEMODE)
 	{
 		msg += "Code System is Active!\n";
-		msg += dacBoards.getDacSystemInfo() + "\n";
+		msg += aoSys.getSystemInfo() + "\n";
 	}
 	else
 	{

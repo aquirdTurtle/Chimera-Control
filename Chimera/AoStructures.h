@@ -4,14 +4,12 @@
 #include "commonTypes.h"
 #include <array>
 
-struct DacCommandForm
+struct AoCommandForm
 {
 	// can either be "dac", "dacarange", or "daclinspace"
 	std::string commandName;
-
 	unsigned short line;
 	timeType time;
-
 	Expression initVal;
 	Expression finalVal;
 	Expression rampTime;
@@ -19,7 +17,8 @@ struct DacCommandForm
 	Expression numSteps;
 };
 
-struct DacCommand
+
+struct AoCommand
 {
 	unsigned short line;
 	double time;
@@ -27,7 +26,7 @@ struct DacCommand
 };
 
 
-struct DacSnapshot
+struct AoSnapshot
 {
 	double time;
 	std::array<double, 24> dacValues;

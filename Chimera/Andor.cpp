@@ -41,105 +41,6 @@ AndorCamera::AndorCamera()
 	{
 		errBox(err.what());
 	}
-	/*
-	//appendColoredText("Initializing......................... ", eRichEditMessageBoxRichEditHandle, IDC_RICH_EDIT_MESSAGE_BOX_RICH_EDIT_ID, defaultCharFormat,
-	//				  eInitializeDialogBoxHandle);
-	//initializationUpdate(errorMessage, defaultCharFormat, redCharFormat, greenCharFormat);
-
-	if (!ANDOR_SAFEMODE)
-	{
-		// Get camera eCameraCapabilities
-		//errorMessage = myAndor::andorErrorChecker(GetCapabilities(&eCameraCapabilities));
-	}
-	//eCameraCapabilities.
-	//appendColoredText("Get Andor Capabilities information... ", eRichEditMessageBoxRichEditHandle, IDC_RICH_EDIT_MESSAGE_BOX_RICH_EDIT_ID, defaultCharFormat,
-	//				  eInitializeDialogBoxHandle);
-	//initializationUpdate(errorMessage, defaultCharFormat, redCharFormat, greenCharFormat);
-
-	if (!ANDOR_SAFEMODE)
-	{
-		// Get Head Model
-		//errorMessage = myAndor::andorErrorChecker(GetHeadModel(eModel));
-	}
-	//appendColoredText("Get Head Model information........... ", eRichEditMessageBoxRichEditHandle, IDC_RICH_EDIT_MESSAGE_BOX_RICH_EDIT_ID, defaultCharFormat,
-	//				  eInitializeDialogBoxHandle);
-	//initializationUpdate(errorMessage, defaultCharFormat, redCharFormat, greenCharFormat);
-
-	if (!ANDOR_SAFEMODE)
-	{
-		// Get detector information
-		//errorMessage = myAndor::andorErrorChecker(GetDetector(&eXPixels, &eYPixels));
-	}
-	else
-	{
-		//eXPixels = 512;
-		//eYPixels = 512;
-	}
-	//appendColoredText("Get Detector information............. ", eRichEditMessageBoxRichEditHandle, IDC_RICH_EDIT_MESSAGE_BOX_RICH_EDIT_ID, defaultCharFormat,
-	//				  eInitializeDialogBoxHandle);
-	//initializationUpdate(errorMessage, defaultCharFormat, redCharFormat, greenCharFormat);
-
-	if (!ANDOR_SAFEMODE)
-	{
-		// Set Vertical speed to recommended
-		//GetFastestRecommendedVSSpeed(&eVerticalSpeedNumber, &speed);
-		//errorMessage = myAndor::andorErrorChecker(SetVSSpeed(eVerticalSpeedNumber));
-	}
-	//appendColoredText("Set Vertical Speed................... ", eRichEditMessageBoxRichEditHandle, IDC_RICH_EDIT_MESSAGE_BOX_RICH_EDIT_ID, defaultCharFormat,
-	//				  eInitializeDialogBoxHandle);
-	//initializationUpdate(errorMessage, defaultCharFormat, redCharFormat, greenCharFormat);
-
-	// Set Horizontal Speed to max
-	STemp = 0;
-	eHorizontalSpeedNumber = 0;
-	eADNumber = 0;
-	if (!ANDOR_SAFEMODE)
-	{
-		errorMessage = myAndor::andorErrorChecker(GetNumberADChannels(&nAD));
-	}
-	//appendColoredText("Get number AD Channel................ ", eRichEditMessageBoxRichEditHandle, IDC_RICH_EDIT_MESSAGE_BOX_RICH_EDIT_ID, defaultCharFormat,
-	//				  eInitializeDialogBoxHandle);
-	//initializationUpdate(errorMessage, defaultCharFormat, redCharFormat, greenCharFormat);
-	if (!ANDOR_SAFEMODE)
-	{
-		errorMessage = myAndor::andorErrorChecker(SetBaselineClamp(1));
-	}
-	//appendColoredText("Set Baseline Clamp................... ", eRichEditMessageBoxRichEditHandle, IDC_RICH_EDIT_MESSAGE_BOX_RICH_EDIT_ID, defaultCharFormat,
-					  eInitializeDialogBoxHandle);
-	//initializationUpdate(errorMessage, defaultCharFormat, redCharFormat, greenCharFormat);
-	if (!ANDOR_SAFEMODE)
-	{
-		errorMessage = myAndor::andorErrorChecker(SetBaselineOffset(0));
-	}
-	//appendColoredText("Set Baseline Offset Value............ ", eRichEditMessageBoxRichEditHandle, IDC_RICH_EDIT_MESSAGE_BOX_RICH_EDIT_ID, defaultCharFormat,
-					  eInitializeDialogBoxHandle);
-	//initializationUpdate(errorMessage, defaultCharFormat, redCharFormat, greenCharFormat);
-
-	if (!ANDOR_SAFEMODE)
-	{
-		// Setting this makes the camera ALWAYS send an image as soon as it receives it instead of waiting a couple images before notifying the computer.
-		// It does this wait if you don't set this and the images are taken very fast, e.g. < 15 ms.
-		errorMessage = myAndor::andorErrorChecker(SetDMAParameters(1, 0.0001));
-	}
-	/*
-	//appendColoredText("Set DMA Parameters................... ", eRichEditMessageBoxRichEditHandle, IDC_RICH_EDIT_MESSAGE_BOX_RICH_EDIT_ID, defaultCharFormat,
-					  eInitializeDialogBoxHandle);
-	//initializationUpdate(errorMessage, defaultCharFormat, redCharFormat, greenCharFormat);
-	
-	if (!(*input->plotter).is_open())
-	{
-		errorMessage = "GNUPLOT didn't open correctly.";
-	}
-	else
-	{
-		errorMessage = "GOOD";
-	}
-	//appendColoredText("Opening GNUPLOT...................... ", eRichEditMessageBoxRichEditHandle, IDC_RICH_EDIT_MESSAGE_BOX_RICH_EDIT_ID, defaultCharFormat,
-	//				  eInitializeDialogBoxHandle);
-	//initializationUpdate(errorMessage, defaultCharFormat, redCharFormat, greenCharFormat);
-	*/
-
-
 }
 
 void AndorCamera::initializeClass(Communicator* comm, chronoTimes* imageTimes)
@@ -242,8 +143,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 		else
 		{
 			// simulate an actual wait.
-			//Sleep( ULONG(input->Andor->runSettings.kineticCycleTime * 1000) );
-			Sleep( 500 );
+			Sleep( 200 );
 			if ( pictureNumber % 2 == 0 )
 			{
 				(*input->imageTimes).push_back( std::chrono::high_resolution_clock::now( ) );
@@ -386,11 +286,9 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 			throw;
 		}
 	}
-	/// ///
-	// for only one image... (each image processed from the call from a separate windows message)
+	// each image processed from the call from a separate windows message
 	int size;
 	// If there is no data the acquisition must have been aborted
-	// free all allocated memory
 	int experimentPictureNumber;
 	if (runSettings.showPicsInRealTime)
 	{
@@ -401,7 +299,6 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 		experimentPictureNumber = (((currentPictureNumber - 1) % runSettings.totalPicsInVariation) 
 								   % runSettings.picsPerRepetition);
 	}
-
 	if (experimentPictureNumber == 0)
 	{
 		WaitForSingleObject(imagesMutex, INFINITE);
@@ -416,11 +313,11 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 		}
 		ReleaseMutex(imagesMutex);
 	}
-
 	size = runSettings.imageSettings.width * runSettings.imageSettings.height;
 	std::vector<long> tempImage;
 	tempImage.resize(size);
 	WaitForSingleObject(imagesMutex, INFINITE);
+	
 	imagesOfExperiment[experimentPictureNumber].resize(size);
  	if (!ANDOR_SAFEMODE)
 	{
@@ -1302,6 +1199,16 @@ void AndorCamera::checkForNewImages()
 	}
 	// don't do anything with the info.
 }
+
+
+void AndorCamera::getOldestImage( Matrix<long>& dataMatrix )
+{
+	if ( !ANDOR_SAFEMODE )
+	{
+		andorErrorChecker( GetOldestImage( dataMatrix.data.data( ), dataMatrix.data.size( ) ) );
+	}
+}
+
 
 
 void AndorCamera::getOldestImage(std::vector<long>& dataArray)

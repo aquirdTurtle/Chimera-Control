@@ -1,16 +1,16 @@
 #include "stdafx.h"
-#include "DacSettingsDialog.h"
-#include "DacSystem.h"
+#include "AoSettingsDialog.h"
+#include "AoSystem.h"
 
-IMPLEMENT_DYNAMIC(DacSettingsDialog, CDialog)
+IMPLEMENT_DYNAMIC(AoSettingsDialog, CDialog)
 
 
-BEGIN_MESSAGE_MAP(DacSettingsDialog, CDialog)
-	ON_COMMAND(IDOK, &DacSettingsDialog::handleOk)
+BEGIN_MESSAGE_MAP(AoSettingsDialog, CDialog)
+	ON_COMMAND(IDOK, &AoSettingsDialog::handleOk)
 END_MESSAGE_MAP()
 
 
-void DacSettingsDialog::handleOk()
+void AoSettingsDialog::handleOk()
 {
 	for (UINT dacInc = 0; dacInc < nameEdits.size(); dacInc++)
 	{
@@ -22,7 +22,7 @@ void DacSettingsDialog::handleOk()
 			errBox("ERROR: " + str(text) + " is an invalid name; names cannot start with numbers.");
 			return;
 		}
-		input->dacs->setName(dacInc, str(text), input->toolTips, input->master);
+		input->aoSys->setName(dacInc, str(text), input->toolTips, input->master);
 		double min, max;
 		try
 		{
@@ -30,7 +30,7 @@ void DacSettingsDialog::handleOk()
 			min = std::stod(str(text));
 			maxValEdits[dacInc].GetWindowTextA(text);
 			max = std::stod(str(text));
-			input->dacs->setMinMax(dacInc, min, max);
+			input->aoSys->setMinMax(dacInc, min, max);
 		}
 		catch (std::invalid_argument& err)
 		{
@@ -41,14 +41,14 @@ void DacSettingsDialog::handleOk()
 	EndDialog(0);
 }
 
-void DacSettingsDialog::handleCancel()
+void AoSettingsDialog::handleCancel()
 {
 	EndDialog(0);
 }
 
-BOOL DacSettingsDialog::OnInitDialog()
+BOOL AoSettingsDialog::OnInitDialog()
 {
-	//input = *(dacInputStruct*)lParam;
+	//input = *(aoInputStruct*)lParam;
 	POINT loc = { 0,0 };
 	// headers
 	for (int columnInc = 0; columnInc < 3; columnInc++)
@@ -90,15 +90,15 @@ BOOL DacSettingsDialog::OnInitDialog()
 
 		nameEdits[dacInc].sPos = { loc.x, loc.y, loc.x += 120, loc.y + 20 };
 		nameEdits[dacInc].Create( WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_BORDER, nameEdits[dacInc].sPos, this, id++);
-		nameEdits[dacInc].SetWindowTextA(cstr(input->dacs->getName(dacInc)));
+		nameEdits[dacInc].SetWindowTextA(cstr(input->aoSys->getName(dacInc)));
 
 		minValEdits[dacInc].sPos = { loc.x, loc.y, loc.x += 120, loc.y + 20 };
 		minValEdits[dacInc].Create( WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_BORDER, minValEdits[dacInc].sPos, this, id++);
-		minValEdits[dacInc].SetWindowTextA(cstr(input->dacs->getDacRange(dacInc).first));
+		minValEdits[dacInc].SetWindowTextA(cstr(input->aoSys->getDacRange(dacInc).first));
 
 		maxValEdits[dacInc].sPos = { loc.x, loc.y, loc.x += 120, loc.y + 20 };
 		maxValEdits[dacInc].Create(WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_BORDER, maxValEdits[dacInc].sPos, this, id++);
-		maxValEdits[dacInc].SetWindowTextA(cstr(input->dacs->getDacRange(dacInc).second));
+		maxValEdits[dacInc].SetWindowTextA(cstr(input->aoSys->getDacRange(dacInc).second));
 
 		loc.y += 25;
 		loc.x -= 380;

@@ -1387,8 +1387,8 @@ void DataAnalysisControl::handlePlotHist( realTimePlotterInput* input, PlottingI
 	double spaceFactor = 1;
 	// this is fixed. in principle the bin width, set later, can vary, which at the moment would result in some odd 
 	// plots.
-	double boxWidth = spaceFactor * plotInfo.getDataSetHistBinWidth( 0 );
-	input->plotter->send( "set boxwidth " + str( boxWidth ) );
+	double boxWidthPixels = spaceFactor * plotInfo.getDataSetHistBinWidth( 0 );
+	input->plotter->send( "set boxwidth " + str( boxWidthPixels ) );
 	input->plotter->send( "set style fill solid 1" );
 	// leave 0.2 pixels worth of space in between the bins.
 	std::string gnuCommand = "plot";

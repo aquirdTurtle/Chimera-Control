@@ -157,7 +157,7 @@ void rerngControl::handleOpenConfig( std::ifstream& openFile, int versionMajor, 
 		info.outputIndv = false;
 	}
 	
-	if ( versionMajor = 2 && versionMinor > 11 || versionMajor > 2 )
+	if ( (versionMajor == 2 && versionMinor > 11) || versionMajor > 2 )
 	{
 		openFile >> info.preprogram;
 		openFile >> info.useCalibration;
@@ -169,7 +169,7 @@ void rerngControl::handleOpenConfig( std::ifstream& openFile, int versionMajor, 
 	}
 
 
-	if ( versionMajor = 2 && versionMinor > 12 || versionMajor > 2 )
+	if ( (versionMajor == 2 && versionMinor > 12) || versionMajor > 2 )
 	{
 		openFile >> info.finalMoveTime;
 	}

@@ -9,8 +9,8 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program. 
 
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP
 /// File Locations
 
 #ifdef SPECTRE_LAPTOP
@@ -128,8 +128,6 @@
 #define CORRECTION_WAVEFORM_GOAL 0.001
 // this is a phase in radians.
 #define CORRECTION_WAVEFORM_ERROR_THRESHOLD 0.5
-// Typically 0. We typically have this plugged into a DC Block anyways.
-#define DC_OFFSET 0
 // in hertz
 #define NIAWG_FILTER_FREQENCY 80000000
 
@@ -151,6 +149,7 @@
 // This is the length of time waited before the code decides to update your syntax coloring after a change is made.
 #define SYNTAX_TIMER_LENGTH 1000
 
+#define NUMBER_AI_CHANNELS 16
 // Parameters that the user might want to change:
 const bool CONST_POWER_OUTPUT = true;
 

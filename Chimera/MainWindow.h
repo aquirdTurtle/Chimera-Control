@@ -151,7 +151,8 @@ class MainWindow : public CDialog
 		ScopeViewer masterRepumpScope, motScope;
 		CFont* plotfont;
 		// testing...
-		//std::vector<pPlotDataVec> testData;
+		PlotDialog* plot;
+		std::vector<pPlotDataVec> testData;
 		//
 		static BOOL CALLBACK monitorHandlingProc( _In_ HMONITOR hMonitor, _In_ HDC      hdcMonitor,
 										   _In_ LPRECT   lprcMonitor, _In_ LPARAM   dwData );
