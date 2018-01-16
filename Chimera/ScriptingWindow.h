@@ -89,8 +89,7 @@ class ScriptingWindow : public CDialog
 		void OnSize(UINT nType, int cx, int cy);
 
 		void handleIntensityButtons( UINT id );
-		void handleHorizontalScriptComboChange();
-		void handleVerticalScriptComboChange();
+		void handleNiawgScriptComboChange();
 		void handleAgilentScriptComboChange();
 		void handleMasterFunctionChange( );
 		void handleIntensityCombo();

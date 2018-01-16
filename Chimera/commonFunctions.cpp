@@ -399,22 +399,22 @@ namespace commonFunctions
 				auxWin->saveAgilentScriptAs( Microwave, parent );
 				break; 
 			}
-			case ID_FILE_MY_HORIZONTAL_NEW:
+			case ID_FILE_MY_NIAWG_NEW:
 			{
 				scriptWin->newNiawgScript();
 				break;
 			}
-			case ID_FILE_MY_HORIZONTAL_OPEN:
+			case ID_FILE_MY_NIAWG_OPEN:
 			{
 				scriptWin->openNiawgScript(parent);
 				break;
 			}
-			case ID_FILE_MY_HORIZONTAL_SAVE:
+			case ID_FILE_MY_NIAWG_SAVE:
 			{
 				scriptWin->saveNiawgScript();
 				break;
 			}
-			case ID_FILE_MY_HORIZONTAL_SAVEAS:
+			case ID_FILE_MY_NIAWG_SAVEAS:
 			{
 				scriptWin->saveNiawgScriptAs(parent);
 				break;

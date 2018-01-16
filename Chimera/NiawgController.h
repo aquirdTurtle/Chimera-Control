@@ -55,12 +55,9 @@ class NiawgController
 		void handleVariations( NiawgOutput& output, std::vector<std::vector<variableType>>& variables, UINT variation, 
 							   std::vector<long>& mixedWaveSizes, std::string& warnings, debugInfo& debugOptions, 
 							   UINT totalVariations );
-		void analyzeNiawgScripts( niawgPair<ScriptStream>& scripts, NiawgOutput& output, profileSettings profile, 
-								  debugInfo& options, std::string& warnings, rerngOptions rInfo, 
-								  std::vector<variableType>& variables );
 		void analyzeNiawgScript( ScriptStream& script, NiawgOutput& output, profileSettings profile,
-								  debugInfo& options, std::string& warnings, rerngOptions rInfo,
-								  std::vector<variableType>& variables );
+								 debugInfo& options, std::string& warnings, rerngOptions rInfo,
+								 std::vector<variableType>& variables );
 		void flashVaries( waveInfoForm& wave );
 		void rerngFormToOutput( waveInfoForm& waveForm, waveInfo& wave, std::vector<variableType>& varibles,
 								UINT variation );
@@ -72,9 +69,6 @@ class NiawgController
 											   std::vector<variableType> variables, int axis, simpleWaveForm& wave );
 		void loadFullWave( NiawgOutput& output, std::string cmd, ScriptStream& script, 
 						   std::vector<variableType>& variables, simpleWaveForm& wave );
-		void loadWaveformParametersForm( NiawgOutput& output, profileSettings profile,
-										 niawgPair<std::string> command, debugInfo& debug,
-										 niawgPair<ScriptStream>& scripts, std::vector<variableType> variables );
 		void setDefaultWaveforms( MainWindow* mainWin );
 		static long waveformSizeCalc( double time );
 		static double rampCalc( int size, int iteration, double initPos, double finPos, std::string rampType );
@@ -135,26 +129,13 @@ class NiawgController
 		void loadStandardInputFormType( std::string inputType, channelWaveForm &wvInfo );
 		void openWaveformFiles( );
 		bool isLogic( std::string command );
-		void handleLogic( niawgPair<ScriptStream>& script, niawgPair<std::string> inputs, std::string &scriptString );
 		void handleLogicSingle( ScriptStream& script, std::string inputs, std::string &scriptString );
 		bool isSpecialWaveform( std::string command );
-		void handleSpecialWaveformForm( NiawgOutput& output, profileSettings profile, niawgPair<std::string> command,
-										niawgPair<ScriptStream>& scripts, debugInfo& options, rerngOptions rInfo, 
-										std::vector<variableType>& variables );
 		void handleSpecialWaveformFormSingle( NiawgOutput& output, profileSettings profile, std::string cmd,
 											  ScriptStream& scripts, debugInfo& options, rerngOptions rInfo,
 											  std::vector<variableType>& variables );
 		bool isStandardWaveform( std::string command );
-		//void handleStandardWaveformFormSingle( NiawgOutput& output, profileSettings profile, std::string command,
-		//									   ScriptStream& scripts, debugInfo& options, 
-		//									   std::vector<variableType>& variables );
-
-		void handleStandardWaveformForm( NiawgOutput& output, profileSettings profile, niawgPair<std::string> command,
-										 niawgPair<ScriptStream>& scripts, debugInfo& options, 
-										 std::vector<variableType>& variables );
 		bool isSpecialCommand( std::string command );
-		void handleSpecialForm( niawgPair<ScriptStream>& scripts, NiawgOutput& output, niawgPair<std::string> inputTypes,
-							profileSettings profile, debugInfo& options, std::string& warnings );
 		void handleSpecialFormSingle( ScriptStream& scripts, NiawgOutput& output, std::string inputTypes, 
 									  profileSettings profile, debugInfo& options, std::string& warnings );
 		void finalizeStandardWave( simpleWave& wave, debugInfo& options );
@@ -172,7 +153,6 @@ class NiawgController
 		ViInt32 streamWaveHandle;
 		std::string streamWaveName = "streamedWaveform";
 		std::vector<double> streamWaveformVals;
-		// pair is of horizontal and vertical configurations.
 		std::vector<ViReal64> defaultMixedWaveform;
 		std::string defaultWaveName;
 		std::vector<ViChar> defaultScript;

@@ -490,14 +490,11 @@ void DataLogger::logNiawgSettings(MasterThreadInput* input)
 		UINT seqInc = 0;
 		for ( auto config : input->seq.sequence )
 		{
-			niawgPair<std::fstream> niawgFiles;
-			ProfileSystem::openNiawgFiles( niawgFiles, config, input->seq, input->runNiawg );
+			std::fstream niawgFiles;
+			ProfileSystem::openNiawgFile( niawgFiles, config, input->seq, input->runNiawg );
 			std::stringstream stream;
-			stream << niawgFiles[Horizontal].rdbuf( );
-			writeDataSet( stream.str( ), "Seq. " + str(seqInc+1) + " Horizontal-NIAWG-Script", niawgGroup );
-			stream = std::stringstream( );
-			stream << niawgFiles[Vertical].rdbuf( );
-			writeDataSet( stream.str( ), "Seq. " + str( seqInc + 1 ) + " Vertical-NIAWG-Script", niawgGroup );
+			stream << niawgFiles.rdbuf( );
+			writeDataSet( stream.str( ), "Seq. " + str(seqInc+1) + " NIAWG-Script", niawgGroup );
 			seqInc++;
 		}
 		writeDataSet( NIAWG_SAMPLE_RATE, "NIAWG-Sample-Rate", niawgGroup );
@@ -505,8 +502,7 @@ void DataLogger::logNiawgSettings(MasterThreadInput* input)
 	}
 	else
 	{
-		writeDataSet( "", "NA:Horizontal-NIAWG-Script", niawgGroup );
-		writeDataSet( "", "NA:Vertical-NIAWG-Script", niawgGroup );
+		writeDataSet( "", "NA:NIAWG-Script", niawgGroup );
 		writeDataSet( -1, "NA:NIAWG-Sample-Rate", niawgGroup );
 		writeDataSet( -1, "NA:NIAWG-Gain", niawgGroup );
 	}
