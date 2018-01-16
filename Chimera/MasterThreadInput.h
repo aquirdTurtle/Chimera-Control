@@ -19,7 +19,8 @@ class MasterManager;
 struct MasterThreadInput
 {
 	EmbeddedPythonHandler* python;
-	DataLogger* logger;
+	// for posting messages only!
+	AuxiliaryWindow* auxWin;
 	profileSettings profile;
 	seqSettings seq;
 	DioSystem* ttls;

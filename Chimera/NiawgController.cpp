@@ -2424,11 +2424,11 @@ void NiawgController::loadFullWave( NiawgOutput& output, std::string cmd, Script
 		thrower( "ERROR: horizontal waveform must be followed by vertical or vertical must be followed by horizontal." );
 	}
 
-	if ( axisStr == "vertical" )
+	if ( newAxisStr == "vertical" )
 	{
 		axis = Vertical;
 	}
-	else if ( axisStr == "horizontal" )
+	else if ( newAxisStr == "horizontal" )
 	{
 		axis = Horizontal;
 	}

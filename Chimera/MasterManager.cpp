@@ -184,7 +184,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 					double& currLoadSkipTime = input->thisObj->loadSkipTimes[seqInc][variationInc];
 					currLoadSkipTime = MasterManager::convertToTime( input->thisObj->loadSkipTime[seqInc], 
 																	 seqVariables, variationInc );
-				 // organize & format the ttl and dac commands
+				    // organize & format the ttl and dac commands
 					input->aoSys->organizeDacCommands( variationInc, seqInc );
 					input->aoSys->setDacTriggerEvents( input->ttls, variationInc, seqInc );
 					input->aoSys->findLoadSkipSnapshots( currLoadSkipTime, seqVariables, variationInc, seqInc );
@@ -245,7 +245,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		/// finish up
 		if ( input->runMaster )
 		{
-			handleDebugPlots( input->debugOptions, input->comm, input->ttls, input->dacs, input->quiet, input->python,
+			handleDebugPlots( input->debugOptions, input->comm, input->ttls, input->aoSys, input->quiet, input->python,
 							  input->ttlData, input->dacData );
 		}
 		input->comm->sendError( warnings );
@@ -267,7 +267,8 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			if ( input->aiSys->wantsQueryBetweenVariations( ) )
 			{
 				expUpdate( "Querying Voltages...\r\n", input->comm, input->quiet );
-				input->logger->writeVolts(variationInc, input->aiSys->getSingleSnap( ));
+				input->auxWin->PostMessage( eLogVoltsMessageID, variationInc );
+				//input->logger->writeVolts(variationInc, input->aiSys->getSingleSnap( 100 ));
 			}
 			Sleep( input->debugOptions.sleepTime );
 			for ( auto seqInc : range(input->seq.sequence.size( ) ) )

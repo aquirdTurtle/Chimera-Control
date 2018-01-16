@@ -25,7 +25,7 @@ class DaqMxFlume
 								bool32 dataLayout, const float64 writeArray[], int32 *sampsPerChanWritten );
 		void startTask( TaskHandle handle );
 		std::string getDacSystemInfo( );
-		void readAnalogF64( TaskHandle taskHandle, std::vector<float64> readData, int32& sampsPerChanRead );
+		void readAnalogF64( TaskHandle taskHandle, std::vector<float64> &readData, int32& sampsPerChanRead );
 	private:
 		std::string getErrorMessage( int errorCode );
 };

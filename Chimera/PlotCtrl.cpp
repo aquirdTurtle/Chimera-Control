@@ -31,16 +31,16 @@ PlotCtrl::~PlotCtrl( )
 }
 
 
-void PlotCtrl::drawBackground( memDC* d, CBrush* backgroundBrush )
+void PlotCtrl::drawBackground( memDC* d, CBrush* backgroundBrush, CBrush* plotAreaBrush )
 {
 	RECT r = { controlDims.left * widthScale2, controlDims.top*heightScale2, controlDims.right * widthScale2, 
 		controlDims.bottom*heightScale2 };
 	d->SelectObject( *backgroundBrush );
 	d->Rectangle( &r );
-	r.left = plotAreaDims.left * widthScale;
-	r.right = plotAreaDims.right * widthScale;
-	r.top = plotAreaDims.top * heightScale;
-	r.bottom = plotAreaDims.bottom * heightScale;
+	r.left = plotAreaDims.left * widthScale2;
+	r.right = plotAreaDims.right * widthScale2;
+	r.top = plotAreaDims.top * heightScale2;
+	r.bottom = plotAreaDims.bottom * heightScale2;
 	d->SelectObject( plotAreaBrush );
 	d->Rectangle( &r );
 }
@@ -266,17 +266,16 @@ void PlotCtrl::plotPoints( memDC* d )
 		}
 		else if ( style == TtlPlot || style == DacPlot )
 		{
-			makeStepPlot( d, width, height, line );
+			makeStepPlot( d, line, pen, brush );
 		}
 		else if ( style == OscilloscopePlot )
 		{
-			makeLinePlot( d, line );
+			makeLinePlot( d, line, pen );
 		}
 		else if ( style == HistPlot )
 		{
-			makeBarPlot( d, line, brushes[penNum] );
+			makeBarPlot( d, line, brush );
 		}
-
 		lineNum++;
 	}
 	if ( legButton && legButton.GetCheck( ) )
@@ -284,6 +283,21 @@ void PlotCtrl::plotPoints( memDC* d )
 		drawLegend( d, shiftedData );
 	}
 }
+
+
+void PlotCtrl::makeBarPlot( memDC* d, plotDataVec scaledLine, Gdiplus::SolidBrush* brush )
+{
+	for ( auto& point : scaledLine )
+	{
+
+		Gdiplus::Rect r( point.x - boxWidthPixels / 2, point.y, point.x + boxWidthPixels / 2,
+						 plotAreaDims.bottom * heightScale2 );
+		Gdiplus::Graphics g( d->GetSafeHdc( ) );
+		g.FillRectangle( brush, r );
+		circleMarker( d, { LONG( point.x), LONG( point.y + 1 ) }, 10, brush );
+	}
+}
+
 
 void PlotCtrl::setCurrentDims( int width, int height )
 {
@@ -349,7 +363,7 @@ void PlotCtrl::shiftTtlData( std::vector<plotDataVec>& rawData )
 	}
 }
 
-void PlotCtrl::makeLinePlot( memDC* d, LONG width, LONG height, plotDataVec scaledLine )
+void PlotCtrl::makeLinePlot( memDC* d, plotDataVec scaledLine, Gdiplus::Pen* p )
 {
 	// want to draw a vertical line at each point of line, and then draw horizontal lines to connect the ends of the 
 	// vertical lines.
@@ -371,7 +385,7 @@ void PlotCtrl::makeLinePlot( memDC* d, LONG width, LONG height, plotDataVec scal
 }
 
 
-void PlotCtrl::makeStepPlot( memDC* d, plotDataVec scaledLine )
+void PlotCtrl::makeStepPlot( memDC* d, plotDataVec scaledLine, Gdiplus::Pen* p, Gdiplus::Brush* b )
 {
 	// want to draw a vertical line at each point of line, and then draw horizontal lines to connect the ends of the 
 	// vertical lines.
@@ -393,7 +407,7 @@ void PlotCtrl::makeStepPlot( memDC* d, plotDataVec scaledLine )
 		drawLine( d, { long( point.x ), long( prevPoint.y ) }, { long( point.x ), long( point.y ) }, p );
 		if ( point.y != prevPoint.y )
 		{
-			circleMarker( d, { long( point.x ), long( point.y ) }, 10, whiteBrush );
+			circleMarker( d, { long( point.x ), long( point.y ) }, 10, b );
 		}
 		prevPoint = point;
 	}
@@ -433,7 +447,7 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 	{
 		// draw vertical lines for x points
 		RECT r = { long( x - 40 ), long( scaledArea.bottom ),
-			long( x + 60 ), long( controlDims.bottom * heightScale ) };
+			long( x + 60 ), long( controlDims.bottom * heightScale2 ) };
 		std::string txt = str( xAxisPts[count], 3 );
 		if ( labelEachPoint )
 		{
@@ -451,7 +465,7 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 		{
 			RECT r = { long( scaledArea.left + count * scaledWidth / 10.0 - 40), long( scaledArea.bottom ),
 					   long( scaledArea.left + count * scaledWidth / 10.0 + 60 ),
-					   long( controlDims.bottom * heightScale ) };
+					   long( controlDims.bottom * heightScale2 ) };
 			std::string txt = str( xMin + count * dataRange / 10.0 );
 			drawLine( d, scaledArea.left + count * scaledWidth / 10.0 + 10, scaledArea.bottom + 5,
 					  scaledArea.left + count * scaledWidth / 10.0 + 10, scaledArea.top, greyGdiPen );
@@ -490,7 +504,7 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 		{
 			drawLine( d, scaledArea.left - 5, scaledArea.top + gridline * vStep, scaledArea.right,
 					  scaledArea.top + gridline * vStep, greyGdiPen );
-			RECT r = { long( controlDims.left * widthScale ), long( scaledArea.top + 10 + gridline * vStep ),
+			RECT r = { long( controlDims.left * widthScale2 ), long( scaledArea.top + 10 + gridline * vStep ),
 					   long( scaledArea.left ), long( scaledArea.top - 10 + gridline * vStep ) };
 			std::string txt = str( maxY - (maxY - minY) * double( gridline ) / (numLines - 1), 5 );
 			d->SelectObject( textFont );
@@ -504,7 +518,7 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 			{
 				drawLine( d, scaledArea.left - 5, minMaxScaledY.second - gridline * vStep, scaledArea.right,
 						  minMaxScaledY.second - gridline * vStep, greyGdiPen );
-				RECT r = { long( controlDims.left * widthScale ), long( minMaxScaledY.second + 10 - gridline * vStep ),
+				RECT r = { long( controlDims.left * widthScale2 ), long( minMaxScaledY.second + 10 - gridline * vStep ),
 					long( scaledArea.left), long( minMaxScaledY.second - 10 - gridline * vStep ) };
 				std::string txt = str( minMaxRawY.first + gridline * vRawStep, 5 );
 				d->SelectObject( textFont );
@@ -515,11 +529,11 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 	}
 
 	// axis labels
-	RECT r = { scaledArea.left, scaledArea.bottom, scaledArea.right, controlDims.bottom * heightScale };
+	RECT r = { scaledArea.left, scaledArea.bottom, scaledArea.right, controlDims.bottom * heightScale2 };
 	std::string txt = "xlabel";
 	d->SelectObject( textFont );
 	d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
-	r = { long( controlDims.left * widthScale), scaledArea.top, scaledArea.left, scaledArea.bottom };
+	r = { long( controlDims.left * widthScale2), scaledArea.top, scaledArea.left, scaledArea.bottom };
 	if ( style == TtlPlot )
 	{
 		txt = "Ttl State";
@@ -559,7 +573,7 @@ void PlotCtrl::drawLegend( memDC* d, std::vector<plotDataVec> screenData )
 		UINT colNum = lineNum / itemsPerColumn;
 		POINT legendLoc = { plotAreaDims.left * widthScale2 + (1 - (colNum + 1) * 0.075) * plotAreaWidth,
 			plotAreaDims.top * heightScale2 + 0.025 * plotAreaHeight + 20 * rowNum };
-		circleMarker( d, legendLoc, 10 );
+		circleMarker( d, legendLoc, 10, brush );
 		RECT r = { long( legendLoc.x + 10 ), long( legendLoc.y + 10 ),
 			long( plotAreaDims.right * widthScale2 - colNum * 0.075 * plotAreaWidth ), long( legendLoc.y - 10 ) };
 		d->DrawTextEx( const_cast<char *>(cstr( lineNum)), str( lineNum ).size( ), &r,
@@ -609,10 +623,8 @@ void PlotCtrl::errBars( memDC* d, POINT center, long err, long capSize, Gdiplus:
 
 void PlotCtrl::drawBorder( memDC* d )
 {
-	double widthScale = width / 1920.0;
-	double heightScale = height / 997.0;
-	long top = plotAreaDims.top * heightScale, left = plotAreaDims.left * widthScale,
-		right = plotAreaDims.right * widthScale, bottom = plotAreaDims.bottom * heightScale;
+	long top = plotAreaDims.top * heightScale2, left = plotAreaDims.left * widthScale2,
+		right = plotAreaDims.right * widthScale2, bottom = plotAreaDims.bottom * heightScale2;
 	drawLine( d, { left, top }, { left, bottom }, whiteGdiPen );
 	drawLine( d, { left, bottom }, { right, bottom }, whiteGdiPen );
 	drawLine( d, { right, bottom }, { right, top }, whiteGdiPen );

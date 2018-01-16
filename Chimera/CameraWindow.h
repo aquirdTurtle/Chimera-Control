@@ -85,7 +85,7 @@ class CameraWindow : public CDialog
 		void prepareAtomCruncher( ExperimentInput& input );
 		void preparePlotter( ExperimentInput& input );
 		static UINT __stdcall atomCruncherProcedure(void* input);
-
+		void writeVolts( UINT currentVoltNumber, std::vector<float64> data );
 		friend void commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, 
 														  ScriptingWindow* scriptWin, CameraWindow* camWin, 
 														  AuxiliaryWindow* masterWin );

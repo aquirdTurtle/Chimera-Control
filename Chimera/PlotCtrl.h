@@ -40,13 +40,14 @@ class PlotCtrl
 		void drawBorder( memDC* d );
 		void plotPoints( memDC* d );
 		
-		void circleMarker( memDC* d, POINT loc, double size );
-		void errBars( memDC* d, POINT center, long err, long size );
-		void drawBackground( memDC*, CBrush* backgroundBrush );
+		void circleMarker( memDC* d, POINT loc, double size, Gdiplus::Brush* brush );
+		void errBars( memDC* d, POINT center, long err, long capSize, Gdiplus::Pen* pen );
+		void drawBackground( memDC*, CBrush* backgroundBrush, CBrush* plotAreaBrush );
+		void makeBarPlot( memDC* d, plotDataVec scaledLine, Gdiplus::SolidBrush* brush );
 		void drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vector<double> scaledX, 
 							  std::pair<double, double> minMaxRawY, std::pair<double, double> minMaxScaledY );
-		void drawLine( CDC* d, double begX, double begY, double endX, double endY );
-		void drawLine( CDC* d, POINT beg, POINT end );
+		void drawLine( CDC* d, double begX, double begY, double endX, double endY, Gdiplus::Pen* p );
+		void drawLine( CDC* d, POINT beg, POINT end, Gdiplus::Pen* p );
 		void convertDataToScreenCoords( std::vector<plotDataVec>& dat );
 		void shiftTtlData( std::vector<plotDataVec>& rawData );
 		void drawLegend( memDC* d, std::vector<plotDataVec> screenData );
@@ -55,13 +56,15 @@ class PlotCtrl
 		void drawTitle( memDC* d );
 		CRect GetPlotRect(  );
 		void makeLinePlot( memDC* d, plotDataVec line, Gdiplus::Pen* p );
-		void makeStepPlot( memDC* d, plotDataVec line, Gdiplus::Pen* p );
+		void makeStepPlot( memDC* d, plotDataVec line, Gdiplus::Pen* p , Gdiplus::Brush* b );
 
 		std::vector<std::mutex> dataMutexes;
 	private:
 		// in units of the data
+		//CBrush* backgroundBrush;
 		double boxWidth=1;
 		double boxWidthPixels;
+		double widthScale2, heightScale2;
 		const plotStyle style;
 		// first level deliminates different lines which get different colors. second level deliminates different 
 		// points within the line.

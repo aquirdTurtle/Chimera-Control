@@ -55,6 +55,8 @@ class MainWindow : public CDialog
 		LRESULT onColoredEditMessage(WPARAM wParam, LPARAM lParam);
 		LRESULT onDebugMessage(WPARAM wParam, LPARAM lParam);		
 		LRESULT onNoAtomsAlertMessage( WPARAM wp, LPARAM lp);
+		LRESULT onLogVoltsMessage( WPARAM wp, LPARAM lp );
+		
 		//
 		static unsigned int __stdcall scopeRefreshProcedure( void* voidInput );
 		void stopRearranger( );
