@@ -14,6 +14,12 @@ ScopeViewer::ScopeViewer( std::string usbAddress, bool safemode, UINT traceNumIn
 }
 
 
+std::string ScopeViewer::getScopeInfo( )
+{
+	return visa.identityQuery( );
+}
+
+
 void ScopeViewer::refreshPlot(CDC* d, UINT width, UINT height, CBrush* backgroundBrush, CBrush* plotAreaBrush )
 {
 	viewPlot->setCurrentDims( width, height );

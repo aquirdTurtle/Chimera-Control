@@ -27,6 +27,9 @@ namespace commonFunctions
 	/// Scripting Menu
 	int saveProfile( ScriptingWindow* scriptWindow, MainWindow* mainWin );
 	void reloadNIAWGDefaults( MainWindow* mainWin );
+	bool getPermissionToStart( CameraWindow* camWin, MainWindow* mainWin, ScriptingWindow* scriptWin, 
+							   AuxiliaryWindow* auxWin, bool runNiawg, bool runMaster );
+
 }
 
 

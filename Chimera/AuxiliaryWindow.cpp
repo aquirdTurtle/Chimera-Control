@@ -1354,45 +1354,72 @@ BOOL AuxiliaryWindow::OnInitDialog()
 }
 
 
-std::string AuxiliaryWindow::getSystemStatusMsg()
+std::string AuxiliaryWindow::getOtherSystemStatusMsg( )
 {
 	// controls are done. Report the initialization status...
 	std::string msg;
-	msg += " >>> TTL System <<<\n";
-	if (!DIO_SAFEMODE)
+	msg += "DIO System:\n";
+	if ( !DIO_SAFEMODE )
 	{
-		msg += "Code System is active!\n";
-		msg += ttlBoard.getSystemInfo() + "\n";
+		msg += "\tCode System is active!\n";
+		msg += "\t" + ttlBoard.getSystemInfo( ) + "\n";
 	}
 	else
 	{
-		msg += "Code System is disabled! Enable in \"constants.h\"\n";
+		msg += "\tCode System is disabled! Enable in \"constants.h\"\n";
 	}
-
-
-	msg += "\n>>> DAC System <<<\n";
-	if (!DAQMX_SAFEMODE)
+	msg += "Analog Out System:\n";
+	if ( !ANALOG_OUT_SAFEMODE )
 	{
-		msg += "Code System is Active!\n";
-		msg += aoSys.getSystemInfo() + "\n";
+		msg += "\tCode System is Active!\n";
+		msg += "\t" + aoSys.getSystemInfo( ) + "\n";
 	}
 	else
 	{
-		msg += "Code System is disabled! Enable in \"constants.h\"\n";
+		msg += "\tCode System is disabled! Enable in \"constants.h\"\n";
 	}
+	msg += "Analog In System:\n";
+	if ( !ANALOG_IN_SAFEMODE )
+	{
+		msg += "\tCode System is Active!\n";
+		msg += "\t" + aiSys.getSystemStatus( ) + "\n";
+	}
+	else
+	{
+		msg += "\tCode System is disabled! Enable in \"constants.h\"\n";
+	}
+	return msg;
+}
 
-	msg += ">>>>>> VISA Devices <<<<<<<\n\n";
-	msg += "Tektronics 1: " + topBottomTek.queryIdentity() + "\n";
-	msg += "Tektronics 2: " + eoAxialTek.queryIdentity() + "\n";
-	msg += "\n\n>>> Agilents <<<\n";
-	msg += "Code System is Active!\n";
+
+std::string AuxiliaryWindow::getVisaDeviceStatus( )
+{
+	std::string msg;
+	msg += "----------------------------------------------------------------------------------- VISA Devices\n";
+	msg += "Tektronics 1:\n\t" + topBottomTek.queryIdentity( );
+	msg += "Tektronics 2:\n\t" + eoAxialTek.queryIdentity( );
 	for ( auto& agilent : agilents )
 	{
-		msg += agilent.getName( ) + ": " + agilent.getDeviceIdentity( );
+		msg += agilent.getName( ) + ":\n\t" + agilent.getDeviceIdentity( );
 	}
-	msg += "\n>>> GPIB System <<<\n";
-	msg += "Code System is Active!\n";
-	msg += "RSG: " + RhodeSchwarzGenerator.getIdentity() + "\n";
+	return msg;
+}
+
+
+std::string AuxiliaryWindow::getGpibDeviceStatus( )
+{
+	std::string msg;
+	msg += "----------------------------------------------------------------------------------- GPIB Devices:\n";
+	msg += "RSG:\n";
+	if ( RSG_SAFEMODE )
+	{
+		msg += "\tCode System is Active!\n";
+		msg += "\t" + RhodeSchwarzGenerator.getIdentity( );
+	}
+	else
+	{
+		msg += "\tCode System is disabled! Enable in \"constants.h\"";
+	}
 	return msg;
 }
 
