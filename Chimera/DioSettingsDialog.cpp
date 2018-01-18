@@ -10,7 +10,28 @@
 BEGIN_MESSAGE_MAP(TtlSettingsDialog, CDialog)
 	ON_COMMAND(IDOK, &TtlSettingsDialog::handleOk)
 	ON_COMMAND(IDCANCEL, &TtlSettingsDialog::handleCancel)
+	ON_WM_SIZE()
 END_MESSAGE_MAP()
+
+
+void TtlSettingsDialog::OnSize( UINT type, int w, int h )
+{
+	for ( auto& label : numberlabels )
+	{
+		label.rearrange( w, h );
+	}
+	for ( auto& row : rowLabels )
+	{
+		row.rearrange( w, h );
+	}
+	for ( auto& row : edits )
+	{
+		for ( auto& edit : row )
+		{
+			edit.rearrange( w, h );
+		}
+	}
+}
 
 
 TtlSettingsDialog::TtlSettingsDialog(ttlInputStruct* inputPtr, UINT dialogResource) : CDialog(dialogResource)

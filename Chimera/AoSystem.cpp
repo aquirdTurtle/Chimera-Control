@@ -5,7 +5,7 @@
 #include "nidaqmx2.h"
 
 
-AoSystem::AoSystem() : dacResolution(10.0 / pow(2, 16))
+AoSystem::AoSystem() : dacResolution(10.0 / pow(2, 16)), daqmx( ANALOG_OUT_SAFEMODE )
 {
 	/// set some constants...
 	// Both are 0-INDEXED. D16

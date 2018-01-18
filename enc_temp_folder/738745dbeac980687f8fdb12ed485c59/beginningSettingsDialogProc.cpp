@@ -135,13 +135,13 @@ void StartDialog::OnCancel( )
 
 BOOL StartDialog::OnInitDialog( )
 {
-	edit.sPos = { 0, 0, 2000, 950 };
+	edit.sPos = { 0, 0, 1000, 400 };
 	edit.Create( WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL
 				 | ES_AUTOHSCROLL | WS_HSCROLL | ES_READONLY, edit.sPos, this, NULL );
 	edit.SetWindowTextA( startMsg.c_str() );
-	okBtn.sPos = { 50, 1000, 450, 1050 };
+	okBtn.sPos = { 0, 500, 700, 550 };
 	okBtn.Create( "OK", NORM_PUSH_OPTIONS, okBtn.sPos, this, IDOK );
-	cancelBtn.sPos = { 550, 1000, 950, 1050 };
+	cancelBtn.sPos = { 500, 500, 700, 550 };
 	cancelBtn.Create( "CANCEL", NORM_PUSH_OPTIONS, cancelBtn.sPos, this, IDCANCEL );
 	std::stringstream streamObj( startMsg );
 	std::string line;

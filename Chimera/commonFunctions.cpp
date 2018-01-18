@@ -32,6 +32,7 @@ namespace commonFunctions
 				{
 					prepareCamera( mainWin, camWin, input );
 					prepareMasterThread( msgID, scriptWin, mainWin, camWin, auxWin, input, true, true );
+					commonFunctions::getPermissionToStart( camWin, mainWin, scriptWin, auxWin, true, true );
 					camWin->preparePlotter(input);
 					camWin->prepareAtomCruncher(input);
 
@@ -148,6 +149,7 @@ namespace commonFunctions
 				try
 				{
 					commonFunctions::prepareCamera( mainWin, camWin, input );
+					commonFunctions::getPermissionToStart( camWin, mainWin, scriptWin, auxWin, false, false );
 					camWin->preparePlotter( input );
 					camWin->prepareAtomCruncher( input );
 					//
@@ -192,7 +194,7 @@ namespace commonFunctions
 				{
 					commonFunctions::prepareMasterThread( ID_RUNMENU_RUNMASTER, scriptWin, mainWin, camWin, auxWin,
 														  input, true, false );
-					//
+					commonFunctions::getPermissionToStart( camWin, mainWin, scriptWin, auxWin, true, false );
 					commonFunctions::logParameters( input, camWin, false );
 					//
 					commonFunctions::startMaster( mainWin, input );
@@ -221,6 +223,7 @@ namespace commonFunctions
 				{
 					commonFunctions::prepareMasterThread( ID_RUNMENU_RUNMASTER, scriptWin, mainWin, camWin, auxWin, 
 														  input, false, true );
+					commonFunctions::getPermissionToStart( camWin, mainWin, scriptWin, auxWin, false, true );
 					commonFunctions::startMaster( mainWin, input );
 				}
 				catch (Error& err)
@@ -488,58 +491,6 @@ namespace commonFunctions
 				commonFunctions::reloadNIAWGDefaults(mainWin);
 				break;
 			}
-			/*
-			case ID_EXPERIMENT_NEW_EXPERIMENT_TYPE:
-			{
-				mainWin->profile.newExperiment();
-				break;
-			}
-			case ID_EXPERIMENT_SAVEEXPERIMENTSETTINGS:
-			{
-				mainWin->profile.saveExperimentOnly(mainWin);
-				break;
-			}
-			case ID_EXPERIMENT_SAVEEXPERIMENTSETTINGSAS:
-			{
-				mainWin->profile.saveExperimentAs(mainWin);
-				break;
-			}
-
-			case ID_EXPERIMENT_RENAME_CURRENT_EXPERIMENT:
-			{
-				mainWin->profile.renameExperiment(mainWin);
-				break;
-			}
-			case ID_EXPERIMENT_DELETE_CURRENT_EXPERIMENT:
-			{
-				mainWin->profile.deleteExperiment();
-				break;
-			}
-			case ID_CATEGORY_NEW_CATEGORY:
-			{
-				mainWin->profile.newCategory();
-				break;
-			}
-			case ID_CATEGORY_RENAME_CURRENT_CATEGORY:
-			{
-				mainWin->profile.renameCategory();
-				break;
-			}
-			case ID_CATEGORY_DELETE_CURRENT_CATEGORY:
-			{
-				mainWin->profile.deleteCategory();
-				break;
-			}
-			case ID_CATEGORY_SAVECATEGORYSETTINGS:
-			{
-				mainWin->profile.saveCategoryOnly(mainWin);
-				break;
-			}
-			case ID_CATEGORY_SAVECATEGORYSETTINGSAS:
-			{
-				mainWin->profile.saveCategoryAs(mainWin);
-				break;
-			}*/
 			case ID_CONFIGURATION_NEW_CONFIGURATION:
 			{
 				mainWin->profile.newConfiguration(mainWin, auxWin, camWin, scriptWin);
@@ -698,13 +649,6 @@ namespace commonFunctions
 		camWin->redrawPictures( false );
 		mainWin->getComm()->sendTimer( "Starting..." );
 		camWin->prepareCamera( input );
-		std::string msg = camWin->getStartMessage();
-		int answer = promptBox( msg, MB_OKCANCEL );
-		if (answer == IDCANCEL)
-		{
-			// user doesn't want to start the camera.
-			thrower( "CANCEL" );
-		}
 		input.includesCameraRun = true;
 	}
 
@@ -730,104 +674,42 @@ namespace commonFunctions
 		// check config settings
 		mainWin->checkProfileReady();
 		scriptWin->checkScriptSaves( );
-		std::string beginInfo = "Current Settings:\r\n=============================\r\n\r\n";
+		
 		if (runNiawg)
 		{
-			scriptInfo<std::string> scriptNames = scriptWin->getScriptNames();
-			// ordering matters here, make sure you get the correct script name.
-			std::string niawgNameString( scriptNames.niawg );
-			std::string intensityNameString( scriptNames.intensityAgilent );
-			std::string sequenceInfo = "";
-			if (sequenceInfo != "")
-			{
-				beginInfo += sequenceInfo;
-			}
-			else
-			{
-				scriptInfo<bool> scriptSavedStatus = scriptWin->getScriptSavedStatuses();
-				beginInfo += "NIAWG Script Name:...... " + str( niawgNameString );
-				if (scriptSavedStatus.niawg)
-				{
-					beginInfo += " SAVED\r\n";
-				}
-				else
-				{
-					beginInfo += " NOT SAVED\r\n";
-				}
-				beginInfo += "Intensity Script Name:....... " + str( intensityNameString );
-				if (scriptSavedStatus.intensityAgilent)
-				{
-					beginInfo += " SAVED\r\n";
-				}
-				else
-				{
-					beginInfo += " NOT SAVED\r\n";
-				}
-			}
-			beginInfo += "\r\n";
+			mainWin->getComm()->sendStatus( "Performing Initial Analysis and Writing and Loading Non-Varying Waveforms...\r\n" );
+			mainWin->getComm()->sendColorBox( Niawg, 'Y' );
 		}
-
-		std::vector<variableType> vars = auxWin->getAllVariables();
-		if (vars.size() == 0)
+		// Set the thread structure.
+		input.masterInput = new MasterThreadInput();
+		input.masterInput->runMaster = runTtls;
+		input.masterInput->skipNext = camWin->getSkipNextAtomic( );
+		// force accumulations to zero. This shouldn't affect anything, this should always get set by the master or be infinite.
+		if (msgID == ID_FILE_MY_WRITE_WAVEFORMS)
 		{
-			beginInfo += "Variable Names:.............. NO VARIABLES\r\n";
+			input.masterInput->settings.dontActuallyGenerate = true;
 		}
 		else
 		{
-			beginInfo += "Variable Names:.............. ";
-			for (UINT varInc = 0; varInc < vars.size(); varInc++)
-			{
-				beginInfo += vars[varInc].name + " ";
-			}
-			beginInfo += "\r\n";
+			input.masterInput->settings.dontActuallyGenerate = false;
 		}
-		
-		mainOptions settings = mainWin->getMainOptions();
-		std::string beginQuestion = "\r\n\r\nBegin Waveform Generation with these Settings?";
-		INT_PTR areYouSure = DialogBoxParam( NULL, MAKEINTRESOURCE( IDD_BEGINNING_SETTINGS ), 0,
-											 beginningSettingsDialogProc, (LPARAM)cstr( beginInfo + beginQuestion ) );
-		if (areYouSure == 0)
+		input.masterInput->debugOptions = mainWin->getDebuggingOptions();
+		input.masterInput->comm = mainWin->getComm();
+		input.masterInput->profile = profile;
+		input.masterInput->runNiawg = runNiawg;
+		if (runNiawg)
 		{
-			if (runNiawg)
-			{
-				mainWin->getComm()->sendStatus( "Performing Initial Analysis and Writing and Loading Non-Varying Waveforms...\r\n" );
-				mainWin->getComm()->sendColorBox( Niawg, 'Y' );
-			}
-			// Set the thread structure.
-			input.masterInput = new MasterThreadInput();
-			input.masterInput->runMaster = runTtls;
-			input.masterInput->skipNext = camWin->getSkipNextAtomic( );
-			// force accumulations to zero. This shouldn't affect anything, this should always get set by the master or be infinite.
-			if (msgID == ID_FILE_MY_WRITE_WAVEFORMS)
-			{
-				input.masterInput->settings.dontActuallyGenerate = true;
-			}
-			else
-			{
-				input.masterInput->settings.dontActuallyGenerate = false;
-			}
-			input.masterInput->debugOptions = mainWin->getDebuggingOptions();
-			input.masterInput->comm = mainWin->getComm();
-			input.masterInput->profile = profile;
-			input.masterInput->runNiawg = runNiawg;
-			if (runNiawg)
-			{
-				scriptInfo<std::string> addresses = scriptWin->getScriptAddresses();
-				mainWin->setNiawgRunningState( true );
-			}
-			// Start the programming thread.
-			mainWin->fillMasterThreadSequence( input.masterInput );
-			auxWin->fillMasterThreadInput( input.masterInput );
-			mainWin->fillMasterThreadInput( input.masterInput );
-			camWin->fillMasterThreadInput( input.masterInput );
-			scriptWin->fillMasterThreadInput( input.masterInput );
-			mainWin->updateStatusText( "debug", beginInfo );
+			scriptInfo<std::string> addresses = scriptWin->getScriptAddresses();
+			mainWin->setNiawgRunningState( true );
 		}
-		else
-		{
-			thrower("Canceled!");
-		}
+		// Start the programming thread.
+		mainWin->fillMasterThreadSequence( input.masterInput );
+		auxWin->fillMasterThreadInput( input.masterInput );
+		mainWin->fillMasterThreadInput( input.masterInput );
+		camWin->fillMasterThreadInput( input.masterInput );
+		scriptWin->fillMasterThreadInput( input.masterInput );
 	}
+
 
 	void startMaster(MainWindow* mainWin, ExperimentInput& input)
 	{
@@ -882,6 +764,7 @@ namespace commonFunctions
 		mainWin->restartNiawgDefaults();
 		mainWin->setNiawgRunningState( false );
 	}
+
 
 	void abortMaster( MainWindow* mainWin, AuxiliaryWindow* auxWin )
 	{
@@ -960,12 +843,14 @@ namespace commonFunctions
 		mainWin->getComm()->sendStatus( "Reloaded Default Waveforms.\r\nInitialized Default Waveform.\r\n" );
 	}
 
+
 	void setMot(MainWindow* mainWin)
 	{
 		MasterThreadInput* input = new MasterThreadInput;
 		input->quiet = true;
 		
 	}
+
 
 	void logParameters( ExperimentInput& input, CameraWindow* camWin, bool takeAndorPictures )
 	{
@@ -981,4 +866,78 @@ namespace commonFunctions
 		}
 		logger->initializeAioLogging( numVoltsMeasursments );		
 	}
+
+
+	bool getPermissionToStart( CameraWindow* camWin, MainWindow* mainWin, ScriptingWindow* scriptWin,
+							   AuxiliaryWindow* auxWin, bool runNiawg, bool runMaster )
+	{
+		std::string startMsg = "Current Settings:\r\n----------------------------\r\n\r\n";
+		startMsg = camWin->getStartMessage( );		
+		if ( runNiawg )
+		{
+			scriptInfo<std::string> scriptNames = scriptWin->getScriptNames( );
+			// ordering matters here, make sure you get the correct script name.
+			std::string niawgNameString( scriptNames.niawg );
+			std::string intensityNameString( scriptNames.intensityAgilent );
+			std::string sequenceInfo = "";
+			if ( sequenceInfo != "" )
+			{
+				startMsg += sequenceInfo;
+			}
+			else
+			{
+				scriptInfo<bool> scriptSavedStatus = scriptWin->getScriptSavedStatuses( );
+				startMsg += "NIAWG Script Name:...... " + str( niawgNameString );
+				if ( scriptSavedStatus.niawg )
+				{
+					startMsg += " SAVED\r\n";
+				}
+				else
+				{
+					startMsg += " NOT SAVED\r\n";
+				}
+				startMsg += "Intensity Script Name:....... " + str( intensityNameString );
+				if ( scriptSavedStatus.intensityAgilent )
+				{
+					startMsg += " SAVED\r\n";
+				}
+				else
+				{
+					startMsg += " NOT SAVED\r\n";
+				}
+			}
+			startMsg += "\r\n";
+		}
+		if ( runNiawg || runMaster )
+		{
+			std::vector<variableType> vars = auxWin->getAllVariables( );
+			if ( vars.size( ) == 0 )
+			{
+				startMsg += "Variable Names:.............. NO VARIABLES\r\n";
+			}
+			else
+			{
+				startMsg += "Variable Names:.............. ";
+				for ( UINT varInc = 0; varInc < vars.size( ); varInc++ )
+				{
+					startMsg += vars[varInc].name + " ";
+				}
+				startMsg += "\r\n";
+			}
+			if ( runMaster )
+			{
+				mainOptions settings = mainWin->getMainOptions( );
+			}
+		}
+		startMsg += "\r\n\r\nBegin Waveform Generation with these Settings?";
+		StartDialog dlg( startMsg, IDD_BEGINNING_SETTINGS );
+		bool areYouSure = dlg.DoModal( );
+		//INT_PTR areYouSure = DialogBoxParam( NULL, MAKEINTRESOURCE( IDD_BEGINNING_SETTINGS ), 0,
+		//									 beginningSettingsDialogProc, (LPARAM)cstr( startMsg ) );
+		if ( !areYouSure )
+		{
+			thrower( "CANCEL!" );
+		}
+	}
 };
+

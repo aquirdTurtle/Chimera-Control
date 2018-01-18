@@ -272,7 +272,7 @@ void ScriptingWindow::checkScriptSaves()
 
 std::string ScriptingWindow::getSystemStatusString()
 {
-	return "\nIntensity Agilent: " + intensityAgilent.getDeviceIdentity();	
+	return "Intensity Agilent:\n\t" + intensityAgilent.getDeviceIdentity();	
 }
 
 

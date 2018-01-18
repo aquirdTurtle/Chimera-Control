@@ -448,13 +448,16 @@ BOOL MainWindow::OnInitDialog( )
 	appSplash->ShowWindow( SW_HIDE );
 
 	/// summarize system status.
-	std::string initializationString;
 	try
 	{
+		// ordering of aux window pieces is a bit funny because I want the devices grouped by type, not by window.
+		std::string initializationString;
 		initializationString += getSystemStatusString( );
-		initializationString += TheAuxiliaryWindow->getSystemStatusMsg( );
+		initializationString += TheAuxiliaryWindow->getOtherSystemStatusMsg( );
 		initializationString += TheCameraWindow->getSystemStatusString( );
+		initializationString += TheAuxiliaryWindow->getVisaDeviceStatus( );
 		initializationString += TheScriptingWindow->getSystemStatusString( );
+		initializationString += TheAuxiliaryWindow->getGpibDeviceStatus( );
 		infoBox( initializationString );
 	}
 	catch ( Error& err )
@@ -670,15 +673,35 @@ UINT MainWindow::getRepNumber()
 std::string MainWindow::getSystemStatusString()
 {
 	std::string status;
-	status = ">>> NIAWG <<<\n";
+	status = "NIAWG:\n";
 	if (!NIAWG_SAFEMODE)
 	{
-		status += "Code System is Active!\n";
-		status += niawg.fgenConduit.getDeviceInfo();
+		status += "\tCode System is Active!\n";
+		status += "\t" + niawg.fgenConduit.getDeviceInfo();
 	}
 	else
 	{
-		status += "Code System is disabled! Enable in \"constants.h\"\n";
+		status += "\tCode System is disabled! Enable in \"constants.h\"\n";
+	}
+	status += "MOT Scope:\n";
+	if ( !MOT_SCOPE_SAFEMODE )
+	{
+		status += "\tCode System is Active!\n";
+		status += "\t" + motScope.getScopeInfo( );
+	}
+	else
+	{
+		status += "\tCode System is disabled! Enable in \"constants.h\"\n";
+	}
+	status += "Master/Repump Scope:\n";
+	if ( !MASTER_REPUMP_SCOPE_SAFEMODE )
+	{
+		status += "\tCode System is Active!\n";
+		status += "\t" + masterRepumpScope.getScopeInfo( );
+	}
+	else
+	{
+		status += "\tCode System is disabled! Enable in \"constants.h\"\n";
 	}
 	return status;
 }
