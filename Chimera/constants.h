@@ -9,8 +9,8 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program. 
 
-//#define MASTER_COMPUTER
-#define SPECTRE_LAPTOP
+#define MASTER_COMPUTER
+//#define SPECTRE_LAPTOP
 /// File Locations
 
 #ifdef SPECTRE_LAPTOP
@@ -64,7 +64,11 @@
 #ifdef MASTER_COMPUTER
 	#define NIAWG_SAFEMODE false
 	#define ANDOR_SAFEMODE false
-	#define PYTHON_SAFEMODE true
+	#ifdef _DEBUG
+		#define PYTHON_SAFEMODE true
+	#else
+		#define PYTHON_SAFEMODE false
+	#endif
 	#define DIO_SAFEMODE false
 	#define DAQMX_SAFEMODE false
 	#define RSG_SAFEMODE false
@@ -82,11 +86,12 @@
 	#define FLASHING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2307::MY50003003::0::INSTR"
 	#define UWAVE_SAFEMODE true
 	#define UWAVE_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
-	#define MASTER_REPUMP_SCOPE_SAFEMODE true
+	#define MASTER_REPUMP_SCOPE_SAFEMODE false
 	#define MASTER_REPUMP_SCOPE_ADDRESS  "USB0::0x0699::0x03B3::C011388::0::INSTR"
 	#define MOT_SCOPE_SAFEMODE			 false
 	#define MOT_SCOPE_ADDRESS			 "USB0::0x0699::0x0363::C100939::0::INSTR"
-
+	#define ANALOG_OUT_SAFEMODE false
+	#define ANALOG_IN_SAFEMODE false
 	#define PYTHON_HOME L"C:\\Program Files (x86)\\Anaconda3\\"
 
 	#define CODE_ROOT "C:\\Users\\Regal-Lab\\Documents\\Chimera-Control"

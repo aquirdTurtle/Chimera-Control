@@ -162,8 +162,8 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 	}
 	else if ( style == OscilloscopePlot )
 	{
-		dataHeight = maxy-miny;
-		dataMin = miny;
+		dataHeight = (maxy - miny) * 1.1;
+		dataMin = miny - (maxy - miny)*0.05;
 	}
 	else if ( style == HistPlot )
 	{
