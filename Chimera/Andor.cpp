@@ -357,14 +357,14 @@ std::vector<std::vector<long>> AndorCamera::acquireImageData()
 		
 		for (UINT imageVecInc = 0; imageVecInc < imagesOfExperiment[experimentPictureNumber].size(); imageVecInc++)
 		{
-			tempImage[imageVecInc] = rand() % 30 + 95;
+			tempImage[imageVecInc] = rand() % 30 + 10;
 			if ( ((imageVecInc / runSettings.imageSettings.width) % 2 == 1)
 				 && ((imageVecInc % runSettings.imageSettings.width) % 2 == 1) )
 			{
 				// can have an atom here.
 				if ( UINT( rand( ) ) % 300 > imageVecInc + 50 )
 				{
-					tempImage[imageVecInc] += 400;
+					tempImage[imageVecInc] += 100;
 				}
 			}
 		}

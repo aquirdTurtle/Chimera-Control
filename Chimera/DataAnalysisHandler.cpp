@@ -198,7 +198,7 @@ void DataAnalysisControl::handleOpenConfig( std::ifstream& file, int versionMajo
 			activePlotNames.push_back( tmp );
 		}
 		UINT counter = 0;
-		for ( auto& pltInfo : allPlots )
+		for ( auto& pltInfo : allTinyPlots )
 		{
 			LVITEM listViewItem;
 			memset( &listViewItem, 0, sizeof( listViewItem ) );
@@ -224,6 +224,7 @@ void DataAnalysisControl::handleOpenConfig( std::ifstream& file, int versionMajo
 				listViewItem.pszText = "NO";
 				plotListview.SetItem( &listViewItem );
 			}
+			
 			counter++;
 		}
 		ProfileSystem::checkDelimiterLine( file, "END_ACTIVE_PLOTS" );
@@ -251,7 +252,7 @@ void DataAnalysisControl::handleSaveConfig( std::ofstream& file )
 	file << currentGrid.width << " " << currentGrid.height << " " << currentGrid.pixelSpacing << "\n";
 	file << "BEGIN_ACTIVE_PLOTS\n";
 	UINT activeCount = 0;
-	for ( auto miniPlot : allPlots )
+	for ( auto miniPlot : allTinyPlots )
 	{
 		if ( miniPlot.isActive )
 		{
@@ -259,7 +260,7 @@ void DataAnalysisControl::handleSaveConfig( std::ofstream& file )
 		}
 	}
 	file << activeCount << "\n";
-	for ( auto miniPlot : allPlots )
+	for ( auto miniPlot : allTinyPlots )
 	{
 		if ( miniPlot.isActive )
 		{
@@ -521,7 +522,8 @@ unsigned __stdcall DataAnalysisControl::plotterProcedure(void* voidInput)
 			else if ( allPlots[plotI].getPlotType( ) == "Pixel Count Histograms" )
 			{
 				DataAnalysisControl::handlePlotHist( input, allPlots[plotI], plotI, countData, finalHistData[plotI],
-													 satisfiesPsc, plotNumberCount, histogramData[plotI] );
+													 satisfiesPsc, plotNumberCount, histogramData[plotI], 
+													 input->dataArrays[plotI] );
 			}
 		}
 		/// clear data
@@ -691,9 +693,6 @@ void DataAnalysisControl::handlePlotAtoms( realTimePlotterInput* input, Plotting
 		dataContainers[avgId]->at( variationNumber ).err = error;
 	}
 	/// General Plotting Options
-	input->plotter->send("set terminal wxt " + str(plotNumber) + " title \"" + plotInfo.getTitle() 
-						  + "\" noraise background rgb 'black'");
-	input->plotter->send("set format y \"%.1f\"");
 	// set x range.
 	double xRangeMin = *std::min_element(input->key.begin(), input->key.end());
 	double xRangeMax = *std::max_element(input->key.begin(), input->key.end());
@@ -705,17 +704,6 @@ void DataAnalysisControl::handlePlotAtoms( realTimePlotterInput* input, Plotting
 	}
 	xRangeMin -= xrange / input->key.size();
 	xRangeMax += xrange / input->key.size();
-	/*
-	input->plotter->send("set xrange [" + str(xRangeMin) + ":" + str(xRangeMax) + "]");
-	input->plotter->send("set grid ytics lc rgb \"#bbbbbb\" lw 1 lt 0");
-	input->plotter->send("set grid xtics lc rgb \"#bbbbbb\" lw 1 lt 0");
-	input->plotter->send("set yrange [0:1]");
-	input->plotter->send("set title \"" + plotInfo.getTitle() + "\" tc rgb 'white'");
-	input->plotter->send("set xlabel \"Key Value\" tc rgb 'white'");
-	input->plotter->send("set ylabel \"" + plotInfo.getYLabel() + "\" tc rgb 'white'");
-	input->plotter->send("set border lc rgb 'white'");
-	input->plotter->send("set key tc rgb 'white' outside");
-	*/
 	/// FITTING
 	for (UINT dataSetI = 0; dataSetI < plotInfo.getDataSetNumber(); dataSetI++)
 	{
@@ -954,6 +942,7 @@ void DataAnalysisControl::handlePlotCounts( realTimePlotterInput* input, Plottin
 											vector<vector<bool>>& pscSatisfied, int plotNumber,
 											vector<vector<long>>& countData, int plotNumberCount )
 {
+	/*
 	// will eventually be passed in as arg
 	vector<vector<std::pair<double, ULONG>> > finDataNew;
 	UINT groupNum = input->atomGridInfo.width * input->atomGridInfo.height;
@@ -1321,13 +1310,15 @@ void DataAnalysisControl::handlePlotCounts( realTimePlotterInput* input, Plottin
 			input->plotter->sendData( avgX[dataSetI], avgAvgs[dataSetI], avgErrs[dataSetI] );
 		}
 	}
+	*/
 }
 
 // using vector = std::vector
 void DataAnalysisControl::handlePlotHist( realTimePlotterInput* input, PlottingInfo plotInfo, UINT plotNumber,
 										  vector<vector<long>> countData, vector<vector<std::deque<double>>>& finData,
 										  vector<vector<bool>> pscSatisfied, int plotNumberCount,
-										  vector<vector<std::map<int, std::pair<int, ULONG>>>>& histData)
+										  vector<vector<std::map<int, std::pair<int, ULONG>>>>& histData,
+										  std::vector<std::shared_ptr<std::vector<dataPoint>>> dataArrays)
 {
 	/// options are fundamentally different for histograms.
 	UINT groupNum = input->atomGridInfo.width * input->atomGridInfo.height;
@@ -1349,7 +1340,8 @@ void DataAnalysisControl::handlePlotHist( realTimePlotterInput* input, PlottingI
 					// check if there is a condition at all
 					if ( plotInfo.getResultCondition( dataSetI, pixelI, picI ) )
 					{
-						int binNum = std::round( double( countData[groupI].end( )[-int(plotInfo.getPicNumber( )) + int(picI)] ) / binWidth );
+						int binNum = std::round( double( countData[groupI].end( )[-int(plotInfo.getPicNumber( )) 
+														 + int(picI)] ) / binWidth );
 						if ( histData[dataSetI][groupI].find( binNum ) == histData[dataSetI][groupI].end( ) )
 						{
 							// if bin doesn't exist
@@ -1362,34 +1354,31 @@ void DataAnalysisControl::handlePlotHist( realTimePlotterInput* input, PlottingI
 					}
 				}
 			}			
+			// Will be function fo groupI and dataSetI; TBD			
+			UINT dataId = (dataSetI + 1) * groupI;
+			// calculate new data points
+			UINT count = 0;
+			dataArrays[dataId]->resize( histData[dataSetI][groupI].size( ) );
+			for ( auto& bin : histData[dataSetI][groupI] )
+			{
+				dataArrays[dataId]->at( count ).x = bin.second.first;
+				dataArrays[dataId]->at( count ).y = bin.second.second; 
+				dataArrays[dataId]->at( count ).err = 0;
+				count++;
+			}
 		}
 	}
+	/*
+	/// 
 	// Core data structures have been updated. return if not time for an update yet.
 	if ( plotNumberCount % input->plottingFrequency != 0 )
 	{
 		return;
 	}
-	// is redundant to re-set these things each re-plot, but I'm not sure there's a better way.
-	input->plotter->send( "set terminal wxt " + str( plotNumber ) + " title \"" + plotInfo.getTitle( ) 
-						  + "\" noraise background rgb 'black'" );
-	input->plotter->send( "set title \"" + plotInfo.getTitle( ) + "\" tc rgb '#FFFFFF'" );
-	input->plotter->send( "set xlabel \"Counts\" tc rgb '#FFFFFF'" );
-	input->plotter->send( "set ylabel \"" + plotInfo.getYLabel( ) + "\" tc rgb '#FFFFFF'" );
-	input->plotter->send( "set border lc rgb '#FFFFFF'" );
-	input->plotter->send( "set key tc rgb '#FFFFFF' outside" );
-	input->plotter->send( "set title \"" + plotInfo.getTitle( ) + "\"" );
-	input->plotter->send( "set format y \"%.1f\"" );
-	input->plotter->send( "set style fill" );
-	input->plotter->send( "set autoscale x" );
-	input->plotter->send( "set yrange [0:*]" );
-	input->plotter->send( "set xlabel \"Count #\"" );
-	input->plotter->send( "set ylabel \"Occurrences\"" );
 	double spaceFactor = 1;
 	// this is fixed. in principle the bin width, set later, can vary, which at the moment would result in some odd 
 	// plots.
 	double boxWidthPixels = spaceFactor * plotInfo.getDataSetHistBinWidth( 0 );
-	input->plotter->send( "set boxwidth " + str( boxWidthPixels ) );
-	input->plotter->send( "set style fill solid 1" );
 	// leave 0.2 pixels worth of space in between the bins.
 	std::string gnuCommand = "plot";
 	int totalDataSetNum = plotInfo.getDataSetNumber( );
@@ -1410,8 +1399,6 @@ void DataAnalysisControl::handlePlotHist( realTimePlotterInput* input, PlottingI
 			gnuCommand += newHistCmd;
 		}
 	}
-
-	input->plotter->send( gnuCommand );
 	for ( auto dataSetI : range(plotInfo.getDataSetNumber( )) )
 	{
 		for ( auto groupI : range( input->atomGridInfo.width * input->atomGridInfo.height ) )
@@ -1423,9 +1410,9 @@ void DataAnalysisControl::handlePlotHist( realTimePlotterInput* input, PlottingI
 				locations.push_back( elem.second.first );
 				values.push_back( elem.second.second );
 			}
-			input->plotter->sendData( locations, values );
 		}
 	}
+	*/
 }
 
 
@@ -1461,7 +1448,7 @@ void DataAnalysisControl::fillPlotThreadInput(realTimePlotterInput* input)
 	vector<tinyPlotInfo> usedPlots;
 	input->plotInfo.clear();
 
-	for (auto plt : allPlots)
+	for (auto plt : allTinyPlots )
 	{
 		if (plt.isActive)
 		{
@@ -1514,7 +1501,7 @@ void DataAnalysisControl::rearrange(std::string cameraMode, std::string trigMode
 vector<std::string> DataAnalysisControl::getActivePlotList()
 {
 	vector<std::string> list;
-	for ( auto plot : allPlots )
+	for ( auto plot : allTinyPlots )
 	{
 		if ( plot.isActive ) 
 		{
@@ -1668,7 +1655,7 @@ void DataAnalysisControl::handleDoubleClick(fontMap* fonts, UINT currentPicsPerR
 	listViewItem.mask = LVIF_TEXT;
 	listViewItem.cchTextMax = 256;
 	listViewItem.iItem = itemIndicator;
-	if (itemIndicator == allPlots.size())
+	if (itemIndicator == allTinyPlots.size())
 	{
 		// open plot creator.
 		PlotDesignerDialog dlg(fonts, currentPicsPerRepetition);
@@ -1703,7 +1690,7 @@ void DataAnalysisControl::handleDoubleClick(fontMap* fonts, UINT currentPicsPerR
 			// edit existing plot file using the plot designer.
 			try
 			{
-				PlotDesignerDialog dlg(fonts, PLOT_FILES_SAVE_LOCATION + "\\" + allPlots[itemIndicator].name + "." 
+				PlotDesignerDialog dlg(fonts, PLOT_FILES_SAVE_LOCATION + "\\" + allTinyPlots[itemIndicator].name + "."
 										+ PLOTTING_EXTENSION);
 				dlg.DoModal();
 			}
@@ -1720,7 +1707,7 @@ void DataAnalysisControl::handleDoubleClick(fontMap* fonts, UINT currentPicsPerR
 			try
 			{
 				infoBox(PlottingInfo::getAllSettingsStringFromFile(PLOT_FILES_SAVE_LOCATION + "\\" 
-																	+ allPlots[itemIndicator].name + "." 
+																	+ allTinyPlots[itemIndicator].name + "."
 																	+ PLOTTING_EXTENSION));
 			}
 			catch (Error& err)
@@ -1734,15 +1721,14 @@ void DataAnalysisControl::handleDoubleClick(fontMap* fonts, UINT currentPicsPerR
 			/// toggle active
 			listViewItem.iItem = itemIndicator;
 			listViewItem.iSubItem = subitemIndicator;
-
-			if (allPlots[itemIndicator].isActive)
+			if ( allTinyPlots[itemIndicator].isActive)
 			{
-				allPlots[itemIndicator].isActive = false;
+				allTinyPlots[itemIndicator].isActive = false;
 				listViewItem.pszText = "NO";
 			}
 			else
 			{
-				allPlots[itemIndicator].isActive = true;
+				allTinyPlots[itemIndicator].isActive = true;
 				listViewItem.pszText = "YES";
 			}
 			plotListview.SetItem( &listViewItem );
@@ -1756,7 +1742,7 @@ void DataAnalysisControl::reloadListView()
 {
 	vector<std::string> names = ProfileSystem::searchForFiles(PLOT_FILES_SAVE_LOCATION, str("*.") + PLOTTING_EXTENSION);
 	plotListview.DeleteAllItems();
-	allPlots.clear();
+	allTinyPlots.clear();
 	for (auto item : range(names.size()))
 	{
 		LVITEM listViewItem;
@@ -1771,9 +1757,12 @@ void DataAnalysisControl::reloadListView()
 		listViewItem.pszText = "NO";
 		plotListview.SetItem(&listViewItem);
 		tinyPlotInfo tempInfo;
+		PlottingInfo info( PLOT_FILES_SAVE_LOCATION + "\\" + names[item] + "." + PLOTTING_EXTENSION );
+		tempInfo.isHist = (info.getPlotType( ) == "Pixel Count Histograms");
 		tempInfo.name = names[item];
 		tempInfo.isActive = false;
-		allPlots.push_back(tempInfo);
+		
+		allTinyPlots.push_back(tempInfo);
 	}
 	// Make First Blank row.
 	LVITEM listViewDefaultItem;
@@ -1810,15 +1799,15 @@ void DataAnalysisControl::handleRClick()
 	memset(&myItemInfo, 0, sizeof(LVHITTESTINFO));
 	myItemInfo.pt = cursorPos;
 	int itemIndicator = plotListview.SubItemHitTest(&myItemInfo);
-	if (itemIndicator == -1 || itemIndicator == allPlots.size())
+	if (itemIndicator == -1 || itemIndicator == allTinyPlots.size())
 	{
 		// user didn't click in a deletable item.
 		return;
 	}
-	int answer = promptBox("Delete Plot " + allPlots[itemIndicator].name + "?", MB_YESNO);
+	int answer = promptBox("Delete Plot " + allTinyPlots[itemIndicator].name + "?", MB_YESNO);
 	if (answer == IDYES)
 	{
-		int result = DeleteFile(cstr(PLOT_FILES_SAVE_LOCATION + "\\" + allPlots[itemIndicator].name + "." 
+		int result = DeleteFile(cstr(PLOT_FILES_SAVE_LOCATION + "\\" + allTinyPlots[itemIndicator].name + "."
 									  + PLOTTING_EXTENSION));
 		if (!result)
 		{
@@ -1826,7 +1815,7 @@ void DataAnalysisControl::handleRClick()
 			return;
 		}
 		plotListview.DeleteItem(itemIndicator);
-		allPlots.erase(allPlots.begin() + itemIndicator);
+		allTinyPlots.erase(allTinyPlots.begin() + itemIndicator);
 	}
 }
 

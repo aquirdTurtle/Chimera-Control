@@ -7,5 +7,6 @@ struct tinyPlotInfo
 {
 	bool isActive;
 	std::string name;
+	bool isHist;
 };
 

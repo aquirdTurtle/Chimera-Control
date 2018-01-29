@@ -29,7 +29,6 @@ Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
 - refactor groups in plotinfo and gnuplot stuffs
 - change pointers to smart-ptrs where possible
-- should only have one window showing you info before start of run, currently see both andor and master.
 - more tooltips
 - better documentation in general
 - remove gnuplot after finish with hists.
