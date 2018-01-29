@@ -75,37 +75,8 @@ void ProfileSystem::openNiawgFile( std::fstream& scriptFiles, profileSettings pr
 		scriptFiles.open( niawgScriptAddresses );
 		if ( !scriptFiles.is_open( ) )
 		{
-			thrower( "ERROR: Failed to open vertical script file named: " + niawgScriptAddresses
+			thrower( "ERROR: Failed to open NIAWG script file named: " + niawgScriptAddresses
 						+ " found in configuration: " + profile.configuration + "\r\n" );
-		}
-	}
-}
-
-// just looks at the info in a file and loads it into references, doesn't change anything in the gui or main settings.
-void ProfileSystem::openNiawgFiles( niawgPair<std::fstream>& scriptFiles, profileSettings profile, seqSettings seq, 
-									bool programNiawg )
-{
-	/// gather information from every configuration in the sequence. ////////////////////////////////////////////////
-	// open configuration file
-	std::ifstream configFile( profile.configFilePath() );
-	std::string intensityScriptAddress, version;
-	niawgPair<std::string> niawgScriptAddresses;
-	// first get version info:
-	std::getline( configFile, version );
-	/// load files
-	checkDelimiterLine( configFile, "SCRIPTS" );
-	configFile.get();
-	for (auto axis : AXES)
-	{
-		getline( configFile, niawgScriptAddresses[axis] );
-		if (programNiawg)
-		{
-			scriptFiles[axis].open( niawgScriptAddresses[axis] );
-			if (!scriptFiles[axis].is_open())
-			{
-				thrower( "ERROR: Failed to open vertical script file named: " + niawgScriptAddresses[axis]
-							+ " found in configuration: " + profile.configuration + "\r\n" );
-			}
 		}
 	}
 }
@@ -122,8 +93,6 @@ void ProfileSystem::saveEntireProfile( ScriptingWindow* scriptWindow, MainWindow
 void ProfileSystem::checkSaveEntireProfile(ScriptingWindow* scriptWindow, MainWindow* mainWin, 
 													 AuxiliaryWindow* auxWin, CameraWindow* camWin)
 {
-	//checkExperimentSave( "Save Experiment Settings?", mainWin);
-	//checkCategorySave( "Save Category Settings?", mainWin );
 	checkConfigurationSave( "Save Configuration Settings?", scriptWindow, mainWin, auxWin, camWin);
 	checkSequenceSave( "Save Sequence Settings?" );
 }

@@ -6,11 +6,24 @@ ScopeViewer::ScopeViewer( std::string usbAddress, bool safemode, UINT traceNumIn
 	visa( safemode, usbAddress ),
 	numTraces( traceNumIn )
 {
-	visa.open( );
-	visa.write( "header off\n" );
-	visa.query( "WFMpre:YOFF?\n", yoffset );
-	visa.query( "WFMpre:YMULT?\n", ymult );
-	visa.close( );
+	try
+	{
+		visa.open( );
+		visa.write( "header off\n" );
+		visa.query( "WFMpre:YOFF?\n", yoffset );
+		visa.query( "WFMpre:YMULT?\n", ymult );
+		visa.close( );
+	}
+	catch ( Error& err )
+	{
+		errBox( "Error detected while initializing scope viewer! " + err.whatStr( ) );
+	}
+}
+
+
+std::string ScopeViewer::getScopeInfo( )
+{
+	return visa.identityQuery( );
 }
 
 

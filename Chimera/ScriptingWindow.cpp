@@ -21,7 +21,7 @@ BEGIN_MESSAGE_MAP(ScriptingWindow, CDialog)
 	ON_WM_TIMER()
 	ON_WM_SIZE()
 
-	ON_EN_CHANGE(IDC_HORIZONTAL_NIAWG_EDIT, &ScriptingWindow::niawgEditChange)
+	ON_EN_CHANGE(IDC_NIAWG_EDIT, &ScriptingWindow::niawgEditChange)
 	ON_EN_CHANGE(IDC_INTENSITY_EDIT, &ScriptingWindow::agilentEditChange)
 	ON_EN_CHANGE(IDC_MASTER_EDIT, &ScriptingWindow::masterEditChange)
 
@@ -32,8 +32,7 @@ BEGIN_MESSAGE_MAP(ScriptingWindow, CDialog)
 
 	ON_COMMAND_RANGE(MENU_ID_RANGE_BEGIN, MENU_ID_RANGE_END, &ScriptingWindow::passCommonCommand)
 
-	ON_CBN_SELENDOK(IDC_VERTICAL_NIAWG_FUNCTION_COMBO, &ScriptingWindow::handleVerticalScriptComboChange)
-	ON_CBN_SELENDOK(IDC_HORIZONTAL_NIAWG_FUNCTION_COMBO, &ScriptingWindow::handleHorizontalScriptComboChange)
+	ON_CBN_SELENDOK(IDC_NIAWG_FUNCTION_COMBO, &ScriptingWindow::handleNiawgScriptComboChange)
 	ON_CBN_SELENDOK(IDC_INTENSITY_FUNCTION_COMBO, &ScriptingWindow::handleAgilentScriptComboChange)
 	
 	ON_CBN_SELENDOK( IDC_MASTER_FUNCTION_COMBO, &ScriptingWindow::handleMasterFunctionChange )
@@ -188,17 +187,10 @@ BOOL ScriptingWindow::PreTranslateMessage(MSG* pMsg)
 }
 
 
-void ScriptingWindow::handleHorizontalScriptComboChange()
+void ScriptingWindow::handleNiawgScriptComboChange()
 {
 	//horizontalNiawgScript.childComboChangeHandler();
 }
-
-
-void ScriptingWindow::handleVerticalScriptComboChange()
-{
-	//verticalNiawgScript.childComboChangeHandler( mainWindowFriend, auxWindowFriend );
-}
-
 
 void ScriptingWindow::handleAgilentScriptComboChange()
 {
@@ -222,9 +214,9 @@ BOOL ScriptingWindow::OnInitDialog()
 	int id = 2000;
 
 	POINT startLocation = { 0, 28 };
-	niawgScript.initialize( 640, 900, startLocation, tooltips, this,  id, "Horizontal NIAWG", 
-							"Horizontal NIAWG Script", { IDC_HORIZONTAL_NIAWG_FUNCTION_COMBO, 
-							IDC_HORIZONTAL_NIAWG_EDIT }, mainWindowFriend->getRgbs()["Solarized Base03"]);
+	niawgScript.initialize( 640, 900, startLocation, tooltips, this,  id, "NIAWG", 
+							"NIAWG Script", { IDC_NIAWG_FUNCTION_COMBO, 
+							IDC_NIAWG_EDIT }, mainWindowFriend->getRgbs()["Solarized Base03"]);
 	startLocation = { 640, 28 };
 	intensityAgilent.initialize( startLocation, tooltips, this, id, "Intensity Agilent", 865, 
 								 mainWindowFriend->getRgbs()["Solarized Base03"], 640 );
@@ -280,7 +272,7 @@ void ScriptingWindow::checkScriptSaves()
 
 std::string ScriptingWindow::getSystemStatusString()
 {
-	return "\nIntensity Agilent: " + intensityAgilent.getDeviceIdentity();	
+	return "Intensity Agilent:\n\t" + intensityAgilent.getDeviceIdentity();	
 }
 
 
@@ -642,8 +634,8 @@ void ScriptingWindow::openMasterScript(CWnd* parent)
 	try
 	{
 		masterScript.checkSave( getProfile( ).categoryPath, mainWindowFriend->getRunInfo( ) );
-		std::string horizontalOpenName = openWithExplorer( parent, MASTER_SCRIPT_EXTENSION );
-		masterScript.openParentScript( horizontalOpenName, getProfile( ).categoryPath, mainWindowFriend->getRunInfo( ) );
+		std::string openName = openWithExplorer( parent, MASTER_SCRIPT_EXTENSION );
+		masterScript.openParentScript( openName, getProfile( ).categoryPath, mainWindowFriend->getRunInfo( ) );
 		updateConfigurationSavedStatus( false );
 		masterScript.updateScriptNameText( getProfile( ).categoryPath );
 		masterScript.colorEntireScript( auxWindowFriend->getAllVariables( ), mainWindowFriend->getRgbs( ),

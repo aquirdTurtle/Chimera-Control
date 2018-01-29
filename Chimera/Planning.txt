@@ -29,7 +29,6 @@ Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
 - refactor groups in plotinfo and gnuplot stuffs
 - change pointers to smart-ptrs where possible
-- should only have one window showing you info before start of run, currently see both andor and master.
 - more tooltips
 - better documentation in general
 - remove gnuplot after finish with hists.
@@ -37,8 +36,6 @@ Refactoring / Other:
 - all mutexes should use lock_guard or similar for consistency
 
 BUGS:
-- something wrong with set New dac Values! Pressing seems to change whether shutter is open or closed???
-	Couldn't repeat...
 - scripts becoming unsaved after move, should preserve saved status
 - global config colors don't appear to always be correct. Not being changed by use in agilent and niawg?
 - fix over-writing to the agilent. ???

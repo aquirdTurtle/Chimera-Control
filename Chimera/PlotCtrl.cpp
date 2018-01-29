@@ -104,7 +104,7 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 			}
 		}
 	}
-	if ( style == OscilloscopePlot || style == HistPlot )
+	if ( style == OscilloscopePlot || style == HistPlot || style == DacPlot )
 	{
 		for ( auto line : screenData )
 		{
@@ -121,7 +121,6 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 			}
 		}
 	}
-
 	double plotWidthPixels = widthScale2 * (plotAreaDims.right - plotAreaDims.left);
 	double plotHeightPixels = heightScale2 * (plotAreaDims.bottom - plotAreaDims.top);
 	double rangeX = maxx - minx;
@@ -135,10 +134,9 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 		// resize things to take into acount the widths.
 		maxx += boxWidth;
 		minx -= boxWidth;
-		
 		rangeX = maxx - minx;
 		dataScaleX = plotWidthPixels / rangeX;
-		boxWidthPixels = boxWidth * dataScaleX * 0.95;
+		boxWidthPixels = boxWidth * dataScaleX * 0.99;
 	}
 	double dataHeight = 1;
 	double dataMin = 0;
@@ -156,8 +154,11 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 	}
 	else if ( style == DacPlot )
 	{
-		dataHeight = 21;
-		dataMin = -10;
+		// currently doing autoscaling here.
+		dataHeight = maxy - miny;
+		dataMin = miny;
+		//dataHeight = 21;
+		//dataMin = -10;
 	}
 	else if ( style == OscilloscopePlot )
 	{
@@ -289,9 +290,9 @@ void PlotCtrl::makeBarPlot( memDC* d, plotDataVec scaledLine, Gdiplus::SolidBrus
 {
 	for ( auto& point : scaledLine )
 	{
-
-		Gdiplus::Rect r( point.x - boxWidthPixels / 2, point.y, point.x + boxWidthPixels / 2,
-						 plotAreaDims.bottom * heightScale2 );
+		// hello;
+		Gdiplus::Rect r( point.x - boxWidthPixels / 2, point.y, boxWidthPixels,
+						 plotAreaDims.bottom * heightScale2 - point.y);
 		Gdiplus::Graphics g( d->GetSafeHdc( ) );
 		g.FillRectangle( brush, r );
 		circleMarker( d, { LONG( point.x), LONG( point.y + 1 ) }, 10, brush );
@@ -486,8 +487,10 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 		double minY, maxY;
 		if ( style == DacPlot )
 		{
-			minY = -10;
-			maxY = 10;
+			minY = minMaxRawY.first;
+			maxY = minMaxRawY.second;
+			//minY = -10;
+			//maxY = 10;
 		}
 		else if ( style == ErrorPlot )
 		{

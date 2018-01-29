@@ -77,7 +77,11 @@ END_MESSAGE_MAP()
 
 LRESULT AuxiliaryWindow::onLogVoltsMessage( WPARAM wp, LPARAM lp )
 {
-	cameraWindowFriend->writeVolts( wp, aiSys.getSingleSnap( 100 ) );
+	//fstd::vector<float64> data = aiSys.getSingleSnap( 100 );
+	aiSys.refreshCurrentValues( );
+	aiSys.refreshDisplays( );
+	cameraWindowFriend->writeVolts( wp, aiSys.getCurrentValues() );
+
 	return TRUE;
 }
 
@@ -106,6 +110,7 @@ void AuxiliaryWindow::OnPaint( )
 		// for a single plot.
 		for ( auto& ttlPlt : ttlPlots )
 		{
+			ttlPlt->setCurrentDims( width, height );
 			memDC ttlDC( cdc, &ttlPlt->GetPlotRect(  ) );
 			ttlPlt->drawBackground( ttlDC, mainWindowFriend->getBrushes( )["Solarized Base04"],
 									mainWindowFriend->getBrushes( )["Black"] );
@@ -115,6 +120,7 @@ void AuxiliaryWindow::OnPaint( )
 		}
 		for ( auto& dacPlt : aoPlots )
 		{
+			dacPlt->setCurrentDims( width, height );
 			memDC dacDC( cdc, &dacPlt->GetPlotRect( ) );
 			dacPlt->drawBackground( dacDC, mainWindowFriend->getBrushes( )["Solarized Base04"],
 									mainWindowFriend->getBrushes( )["Black"] );
@@ -1289,9 +1295,9 @@ BOOL AuxiliaryWindow::OnInitDialog()
 				titleTxt = "DACs: 16-23";
 				break;
 			}
-			aoPlots[dacPltCount] = new PlotCtrl( dacData[dacPltCount], DacPlot, mainWindowFriend->getPens( ),
+			aoPlots[dacPltCount] = new PlotCtrl( dacData[dacPltCount], DacPlot, mainWindowFriend->getBrightPlotPens( ),
 												  mainWindowFriend->getPlotFont( ), 
-												 mainWindowFriend->getPlotBrushes( ), titleTxt );
+												 mainWindowFriend->getBrightPlotBrushes( ), titleTxt );
 			aoPlots[dacPltCount]->init( controlLocation, 480, dacPlotSize, this );
 			controlLocation.y += dacPlotSize;
 		}
@@ -1327,8 +1333,9 @@ BOOL AuxiliaryWindow::OnInitDialog()
 				titleTxt = "Ttls: Row D";
 				break;
 			}
-			ttlPlots[ttlPltCount] = new PlotCtrl( ttlData[ttlPltCount], TtlPlot, mainWindowFriend->getPens( ),
-												  mainWindowFriend->getPlotFont( ), mainWindowFriend->getPlotBrushes( ),
+			ttlPlots[ttlPltCount] = new PlotCtrl( ttlData[ttlPltCount], TtlPlot, mainWindowFriend->getBrightPlotPens( ),
+												  mainWindowFriend->getPlotFont( ), 
+												  mainWindowFriend->getBrightPlotBrushes( ),
 												  titleTxt );
 			ttlPlots[ttlPltCount]->init( controlLocation, 480, ttlPlotSize, this );
 			controlLocation.y += ttlPlotSize;
@@ -1347,45 +1354,72 @@ BOOL AuxiliaryWindow::OnInitDialog()
 }
 
 
-std::string AuxiliaryWindow::getSystemStatusMsg()
+std::string AuxiliaryWindow::getOtherSystemStatusMsg( )
 {
 	// controls are done. Report the initialization status...
 	std::string msg;
-	msg += " >>> TTL System <<<\n";
-	if (!DIO_SAFEMODE)
+	msg += "DIO System:\n";
+	if ( !DIO_SAFEMODE )
 	{
-		msg += "Code System is active!\n";
-		msg += ttlBoard.getSystemInfo() + "\n";
+		msg += "\tCode System is active!\n";
+		msg += "\t" + ttlBoard.getSystemInfo( ) + "\n";
 	}
 	else
 	{
-		msg += "Code System is disabled! Enable in \"constants.h\"\n";
+		msg += "\tCode System is disabled! Enable in \"constants.h\"\n";
 	}
-
-
-	msg += "\n>>> DAC System <<<\n";
-	if (!DAQMX_SAFEMODE)
+	msg += "Analog Out System:\n";
+	if ( !ANALOG_OUT_SAFEMODE )
 	{
-		msg += "Code System is Active!\n";
-		msg += aoSys.getSystemInfo() + "\n";
+		msg += "\tCode System is Active!\n";
+		msg += "\t" + aoSys.getSystemInfo( ) + "\n";
 	}
 	else
 	{
-		msg += "Code System is disabled! Enable in \"constants.h\"\n";
+		msg += "\tCode System is disabled! Enable in \"constants.h\"\n";
 	}
+	msg += "Analog In System:\n";
+	if ( !ANALOG_IN_SAFEMODE )
+	{
+		msg += "\tCode System is Active!\n";
+		msg += "\t" + aiSys.getSystemStatus( ) + "\n";
+	}
+	else
+	{
+		msg += "\tCode System is disabled! Enable in \"constants.h\"\n";
+	}
+	return msg;
+}
 
-	msg += ">>>>>> VISA Devices <<<<<<<\n\n";
-	msg += "Tektronics 1: " + topBottomTek.queryIdentity() + "\n";
-	msg += "Tektronics 2: " + eoAxialTek.queryIdentity() + "\n";
-	msg += "\n\n>>> Agilents <<<\n";
-	msg += "Code System is Active!\n";
+
+std::string AuxiliaryWindow::getVisaDeviceStatus( )
+{
+	std::string msg;
+	msg += "----------------------------------------------------------------------------------- VISA Devices\n";
+	msg += "Tektronics 1:\n\t" + topBottomTek.queryIdentity( );
+	msg += "Tektronics 2:\n\t" + eoAxialTek.queryIdentity( );
 	for ( auto& agilent : agilents )
 	{
-		msg += agilent.getName( ) + ": " + agilent.getDeviceIdentity( );
+		msg += agilent.getName( ) + ":\n\t" + agilent.getDeviceIdentity( );
 	}
-	msg += "\n>>> GPIB System <<<\n";
-	msg += "Code System is Active!\n";
-	msg += "RSG: " + RhodeSchwarzGenerator.getIdentity() + "\n";
+	return msg;
+}
+
+
+std::string AuxiliaryWindow::getGpibDeviceStatus( )
+{
+	std::string msg;
+	msg += "----------------------------------------------------------------------------------- GPIB Devices:\n";
+	msg += "RSG:\n";
+	if ( RSG_SAFEMODE )
+	{
+		msg += "\tCode System is Active!\n";
+		msg += "\t" + RhodeSchwarzGenerator.getIdentity( );
+	}
+	else
+	{
+		msg += "\tCode System is disabled! Enable in \"constants.h\"";
+	}
 	return msg;
 }
 
