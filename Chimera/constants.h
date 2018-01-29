@@ -9,8 +9,8 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program. 
 
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP
 /// File Locations
 
 #ifdef SPECTRE_LAPTOP
@@ -19,7 +19,8 @@
 	#define ANDOR_SAFEMODE true
 	#define PYTHON_SAFEMODE true
 	#define DIO_SAFEMODE true
-	#define DAQMX_SAFEMODE true
+	#define ANALOG_OUT_SAFEMODE true
+	#define ANALOG_IN_SAFEMODE true
 	#define RSG_SAFEMODE true
 	#define TOP_BOTTOM_TEK_SAFEMODE true
 	#define TOP_BOTTOM_TEK_USB_ADDRESS "USB0::0x0699::0x0343::C021681::0::INSTR"
@@ -36,7 +37,7 @@
 	#define TESTING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
 	#define UWAVE_SAFEMODE true
 	#define UWAVE_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
-	#define MASTER_REPUMP_SCOPE_SAFEMODE true
+	#define MASTER_REPUMP_SCOPE_SAFEMODE false
 	#define MASTER_REPUMP_SCOPE_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
 	#define MOT_SCOPE_SAFEMODE true
 	#define MOT_SCOPE_ADDRESS			"USB0::0x0957::0x2C07::MY52801397::0::INSTR"
@@ -53,7 +54,7 @@
 	const std::string MUSIC_LOCATION = PROJECT_LOCATION + "Camerawg\\Final Fantasy VII - Victory Fanfare [HQ].mp3";
 	const std::string FUNCTIONS_FOLDER_LOCATION = PROJECT_LOCATION + "Functions\\";
 	const std::string MASTER_CONFIGURATION_FILE_ADDRESS = PROJECT_LOCATION + "Master-Configuration.txt";
-	const std::string MOT_ROUTINE_ADDRESS = PROJECT_LOCATION + "Master Profiles\\Hotkey Experiments\\MOT";
+	const std::string MOT_ROUTINE_ADDRESS = PROJECT_LOCATION + "Profiles\\Hotkey Experiments\\MOT";
 	const std::string DEBUG_OUTPUT_LOCATION = PROJECT_LOCATION + "Debug-Output\\";
 	const std::string TIMING_OUTPUT_LOCATION = PROJECT_LOCATION + "\\Data\\";
 	const std::string NIAWG_WAVEFORM_OUTPUT_LOCATION = TIMING_OUTPUT_LOCATION;
@@ -200,10 +201,8 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_REPETITION_EDIT 10023
 #define IDC_ENTER_EMAIL_INFO 10024
 // Scripting Window
-#define IDC_VERTICAL_NIAWG_FUNCTION_COMBO 12001
-#define IDC_VERTICAL_NIAWG_EDIT 12002
-#define IDC_HORIZONTAL_NIAWG_FUNCTION_COMBO 12003
-#define IDC_HORIZONTAL_NIAWG_EDIT 12004
+#define IDC_NIAWG_FUNCTION_COMBO 12003
+#define IDC_NIAWG_EDIT 12004
 
 #define IDC_INTENSITY_CHANNEL1_BUTTON 12005
 #define IDC_INTENSITY_CHANNEL2_BUTTON 12006

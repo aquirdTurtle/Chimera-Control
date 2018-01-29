@@ -57,6 +57,8 @@ template <class ControlType> class Control : public ControlType
 		int colorState = 0;
 		void rearrange(int width, int height, fontMap fonts);
 		void rearrange(std::string cameraMode, std::string trigMode, int width, int height, fontMap fonts);
+		void rearrange( std::string cameraMode, std::string trigMode, int width, int height );
+		void rearrange( int width, int height);
 		void setToolTip( std::string text, cToolTips& tooltips, CWnd* master );
 
 	private:
@@ -66,23 +68,31 @@ template <class ControlType> class Control : public ControlType
 };
 
 
-template<class ControlType> Control<ControlType>::Control()
+template<class ControlType> 
+Control<ControlType>::Control()
 {
 	// assert that the template class is derived from CWnd. This doesn't actually do anything in run-time. It's also
 	// probably redundant because of all the functionality designed around CWnd in this class, like the below function.
 	ControlType obj;
 }
 
-template <class ControlType> void Control<ControlType>::rearrange(int width, int height, fontMap fonts)
+template <class ControlType> 
+void Control<ControlType>::rearrange(int width, int height, fontMap fonts)
 {
 	rearrange("", "", width, height, fonts);
 }
 
-template <class ControlType> void Control<ControlType>::rearrange( std::string cameraMode, std::string trigMode, 
-																   int width, int height, fontMap fonts)
+template <class ControlType>
+void Control<ControlType>::rearrange( int width, int height )
+{
+	rearrange( "", "", width, height );
+}
+
+template <class ControlType>
+void Control<ControlType>::rearrange( std::string cameraMode, std::string trigMode, int width, int height )
 {
 	// make sure the control has been initialized
-	if (!m_hWnd)
+	if ( !m_hWnd )
 	{
 		return;
 	}
@@ -92,63 +102,76 @@ template <class ControlType> void Control<ControlType>::rearrange( std::string c
 	// extra heigh added to certain controls based on random things like the trigger mode.
 	double extraHeight = 0;
 	// The last check here is that the mode is affected by the trigger and that the control in question gets drawn in this mode.
-	if (trigMode == "External" && triggerModeSensitive && ((cameraMode == "Kinetic Series Mode" && seriesPos.bottom != -1)
-															|| cameraMode == "Accumulation Mode" && amPos.bottom != -1))
+	if ( trigMode == "External" && triggerModeSensitive && ((cameraMode == "Kinetic Series Mode" && seriesPos.bottom != -1)
+															 || cameraMode == "Accumulation Mode" && amPos.bottom != -1) )
 	{
 		extraHeight += -25;
 	}
 	// handle simple case.
-	if (sPos.bottom != 0 || sPos.top != 0)
+	if ( sPos.bottom != 0 || sPos.top != 0 )
 	{
-		ShowWindow(SW_SHOW);
-		RECT position = { long(widthScale * sPos.left), long(heightScale * (sPos.top + extraHeight)), 
-						  long(widthScale * sPos.right), long(heightScale * sPos.bottom) };
-		MoveWindow(&position, TRUE);
+		ShowWindow( SW_SHOW );
+		RECT position = { long( widthScale * sPos.left ), long( heightScale * (sPos.top + extraHeight) ),
+			long( widthScale * sPos.right ), long( heightScale * sPos.bottom ) };
+		MoveWindow( &position, TRUE );
 	}
-	else if (cameraMode == "Kinetic Series Mode")
+	else if ( cameraMode == "Kinetic Series Mode" )
 	{
-		if (seriesPos.left == -1 || (triggerModeSensitive == -1 && trigMode == "External Trigger"))
+		if ( seriesPos.left == -1 || (triggerModeSensitive == -1 && trigMode == "External Trigger") )
 		{
-			ShowWindow(SW_HIDE);
+			ShowWindow( SW_HIDE );
 		}
 		else
 		{
-			ShowWindow(SW_SHOW);
-			RECT position = { long(widthScale * seriesPos.left), long(heightScale * (seriesPos.top + extraHeight)),
-							  long(widthScale * seriesPos.right), long(heightScale * (seriesPos.bottom + extraHeight))};
-			MoveWindow(&position, TRUE);
+			ShowWindow( SW_SHOW );
+			RECT position = { long( widthScale * seriesPos.left ), long( heightScale * (seriesPos.top + extraHeight) ),
+				long( widthScale * seriesPos.right ), long( heightScale * (seriesPos.bottom + extraHeight) ) };
+			MoveWindow( &position, TRUE );
 		}
-	}	 
-	else if (cameraMode == "Video Mode")
+	}
+	else if ( cameraMode == "Video Mode" )
 	{
-		if (videoPos.left == -1 || (triggerModeSensitive == -1 && trigMode == "External Trigger"))
+		if ( videoPos.left == -1 || (triggerModeSensitive == -1 && trigMode == "External Trigger") )
 		{
-			ShowWindow(SW_HIDE);
+			ShowWindow( SW_HIDE );
 		}
 		else
 		{
-			ShowWindow(SW_SHOW);
-			RECT position = { long(widthScale * videoPos.left), long(heightScale * (videoPos.top + extraHeight)), 
-							  long(widthScale * videoPos.right), long(heightScale * (videoPos.bottom + extraHeight)) };
-			MoveWindow(&position, TRUE);
+			ShowWindow( SW_SHOW );
+			RECT position = { long( widthScale * videoPos.left ), long( heightScale * (videoPos.top + extraHeight) ),
+				long( widthScale * videoPos.right ), long( heightScale * (videoPos.bottom + extraHeight) ) };
+			MoveWindow( &position, TRUE );
 		}
 	}
-	else if (cameraMode == "Accumulation Mode")
+	else if ( cameraMode == "Accumulation Mode" )
 	{
-		if (amPos.left == -1 || (triggerModeSensitive == -1 && trigMode == "External Trigger"))
+		if ( amPos.left == -1 || (triggerModeSensitive == -1 && trigMode == "External Trigger") )
 		{
-			ShowWindow(SW_HIDE);
+			ShowWindow( SW_HIDE );
 		}
 		else
 		{
-			ShowWindow(SW_SHOW);
-			RECT position = { long(widthScale * amPos.left), long(heightScale * (amPos.top + extraHeight)),
-							  long(widthScale * amPos.right), long(heightScale * (amPos.bottom + extraHeight)) };
-			MoveWindow(&position, TRUE);
+			ShowWindow( SW_SHOW );
+			RECT position = { long( widthScale * amPos.left ), long( heightScale * (amPos.top + extraHeight) ),
+				long( widthScale * amPos.right ), long( heightScale * (amPos.bottom + extraHeight) ) };
+			MoveWindow( &position, TRUE );
 		}
 	}
+}
+
+
+template <class ControlType>
+void Control<ControlType>::rearrange( std::string cameraMode, std::string trigMode, int width, int height, fontMap fonts)
+{
+	if ( !m_hWnd )
+	{
+		return;
+	}
+	rearrange( cameraMode, trigMode, width, height );
+	double widthScale = width / 1920.0;
+	double heightScale = height / 997.0;
 	/// Set Fonts
-	if (fontType == NormalFont)
+  	if (fontType == NormalFont)
 	{
 		if (widthScale * heightScale > 2)
 		{

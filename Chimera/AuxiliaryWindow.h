@@ -62,10 +62,12 @@ class AuxiliaryWindow : public CDialog
 		void Exit();
 		void passRoundToDac();
 		void loadFriends(MainWindow* mainWin, ScriptingWindow* scriptWin, CameraWindow* camWin);
-		std::string getSystemStatusMsg();
+		std::string getOtherSystemStatusMsg();
 		std::array<std::array<std::string, 16>, 4> getTtlNames();
 		std::array<std::string, 24> getDacNames();
 		void GetAnalogInSnapshot( );
+		std::string getVisaDeviceStatus( );
+		std::string getGpibDeviceStatus( );
 
 		void updateAgilent( agilentNames name );
 		void newAgilentScript( agilentNames name );

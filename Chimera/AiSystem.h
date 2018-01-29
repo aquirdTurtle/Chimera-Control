@@ -11,6 +11,7 @@
 class AiSystem
 {
 	public:
+		AiSystem( );
 		void initDaqmx( );
 		void initialize( POINT& loc, CWnd* parent, int& id );
 		void refreshDisplays( );
@@ -20,8 +21,10 @@ class AiSystem
 		std::vector<float64> getSingleSnap( UINT n_to_avg );
 		void armAquisition( UINT numSnapshots );
 		void getAquisitionData( );
+		std::vector<float64> getCurrentValues( );
 		bool wantsQueryBetweenVariations( );
 		bool wantsContinuousQuery( );
+		std::string getSystemStatus( );
 	private:
 		Control<CStatic> title;
 		std::array<Control<CStatic>, NUMBER_AI_CHANNELS> dacLabels;

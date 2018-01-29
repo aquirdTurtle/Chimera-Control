@@ -146,7 +146,7 @@ MainWindow::MainWindow( UINT id, CDialog* splash ) : CDialog( id ), profile( PRO
 		->CreateFontA(16, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
 	(plotfont = new CFont)
-		->CreateFontA( 9, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+		->CreateFontA( 20, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					   CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT( "Arial" ) );
 }
 
@@ -212,14 +212,27 @@ void MainWindow::OnPaint( )
 }
 
 
-std::vector<Gdiplus::Pen*> MainWindow::getPens( )
+std::vector<Gdiplus::Pen*> MainWindow::getPlotPens( )
 {
 	return plotPens;
 }
 
+
 std::vector<Gdiplus::SolidBrush*> MainWindow::getPlotBrushes( )
 {
 	return plotBrushes;
+}
+
+
+std::vector<Gdiplus::Pen*> MainWindow::getBrightPlotPens( )
+{
+	return brightPlotPens;
+}
+
+
+std::vector<Gdiplus::SolidBrush*> MainWindow::getBrightPlotBrushes( )
+{
+	return brightPlotBrushes;
 }
 
 
@@ -318,8 +331,13 @@ BOOL MainWindow::OnInitDialog( )
 		Gdiplus::Color c( 50, BYTE( elem[0] ), BYTE( elem[1] ), BYTE( elem[2] ) );
 		Gdiplus::SolidBrush* b = new Gdiplus::SolidBrush( c );
 		Gdiplus::Pen* p = new Gdiplus::Pen( b );
+		Gdiplus::Color c_bright( 255, BYTE( elem[0] ), BYTE( elem[1] ), BYTE( elem[2] ) );
+		Gdiplus::SolidBrush* b_bright = new Gdiplus::SolidBrush( c_bright );
+		Gdiplus::Pen* p_bright = new Gdiplus::Pen( b_bright );
 		plotBrushes.push_back( b );
 		plotPens.push_back( p );
+		brightPlotBrushes.push_back( b_bright );
+		brightPlotPens.push_back( p_bright );
 	}
 	// don't redraw until the first OnSize.
 	SetRedraw( false );
@@ -389,9 +407,9 @@ BOOL MainWindow::OnInitDialog( )
 	profile.initialize( controlLocation, this, id, tooltips );
 	controlLocation = { 960, 175 };
 	notes.initialize( controlLocation, this, id, tooltips);
-	masterRepumpScope.initialize( controlLocation, 480, 250, this, getPens( ), getPlotFont( ), getPlotBrushes(), 
+	masterRepumpScope.initialize( controlLocation, 480, 250, this, getPlotPens( ), getPlotFont( ), getPlotBrushes(), 
 								  "Master/Repump" );
-	motScope.initialize( controlLocation, 480, 250, this, getPens( ), getPlotFont( ), getPlotBrushes( ), "MOT" );
+	motScope.initialize( controlLocation, 480, 250, this, getPlotPens( ), getPlotFont( ), getPlotBrushes( ), "MOT" );
 	controlLocation = { 1440, 50 };
 	repetitionControl.initialize( controlLocation, tooltips, this, id );
 	settings.initialize( id, controlLocation, this, tooltips );
@@ -401,10 +419,11 @@ BOOL MainWindow::OnInitDialog( )
 	testData.resize( 2 );
 	testData[0] = pPlotDataVec( new plotDataVec( 100, { 0,0,0 } ) );
 	testData[1] = pPlotDataVec( new plotDataVec( 100, { 0,0,0 } ) );
-	plot = new PlotDialog( testData, HistPlot, getPens(), getPlotFont(), getPlotBrushes() );
+	plot = new PlotDialog( testData, HistPlot, getPlotPens(), getPlotFont(), getPlotBrushes() );
 	controlLocation = { 960, 910 };
 	plot->Create( IDD_PLOT_DIALOG, 0 );
 	plot->ShowWindow( SW_SHOW );
+
 	boxes.initialize( controlLocation, id, this, 960, tooltips );
 	shortStatus.initialize( controlLocation, this, id, tooltips );
 	menu.LoadMenu( IDR_MAIN_MENU );
@@ -430,13 +449,16 @@ BOOL MainWindow::OnInitDialog( )
 	appSplash->ShowWindow( SW_HIDE );
 
 	/// summarize system status.
-	std::string initializationString;
 	try
 	{
+		// ordering of aux window pieces is a bit funny because I want the devices grouped by type, not by window.
+		std::string initializationString;
 		initializationString += getSystemStatusString( );
-		initializationString += TheAuxiliaryWindow->getSystemStatusMsg( );
+		initializationString += TheAuxiliaryWindow->getOtherSystemStatusMsg( );
 		initializationString += TheCameraWindow->getSystemStatusString( );
+		initializationString += TheAuxiliaryWindow->getVisaDeviceStatus( );
 		initializationString += TheScriptingWindow->getSystemStatusString( );
+		initializationString += TheAuxiliaryWindow->getGpibDeviceStatus( );
 		infoBox( initializationString );
 	}
 	catch ( Error& err )
@@ -652,15 +674,35 @@ UINT MainWindow::getRepNumber()
 std::string MainWindow::getSystemStatusString()
 {
 	std::string status;
-	status = ">>> NIAWG <<<\n";
+	status = "NIAWG:\n";
 	if (!NIAWG_SAFEMODE)
 	{
-		status += "Code System is Active!\n";
-		status += niawg.fgenConduit.getDeviceInfo();
+		status += "\tCode System is Active!\n";
+		status += "\t" + niawg.fgenConduit.getDeviceInfo();
 	}
 	else
 	{
-		status += "Code System is disabled! Enable in \"constants.h\"\n";
+		status += "\tCode System is disabled! Enable in \"constants.h\"\n";
+	}
+	status += "MOT Scope:\n";
+	if ( !MOT_SCOPE_SAFEMODE )
+	{
+		status += "\tCode System is Active!\n";
+		status += "\t" + motScope.getScopeInfo( );
+	}
+	else
+	{
+		status += "\tCode System is disabled! Enable in \"constants.h\"\n";
+	}
+	status += "Master/Repump Scope:\n";
+	if ( !MASTER_REPUMP_SCOPE_SAFEMODE )
+	{
+		status += "\tCode System is Active!\n";
+		status += "\t" + masterRepumpScope.getScopeInfo( );
+	}
+	else
+	{
+		status += "\tCode System is disabled! Enable in \"constants.h\"\n";
 	}
 	return status;
 }

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "commonFunctions.h"
 #include "CameraSettingsControl.h"
+#include "PlotCtrl.h"
 #include "PlottingInfo.h"
 #include "AuxiliaryWindow.h"
 #include "CameraWindow.h"
@@ -133,15 +134,15 @@ void CameraWindow::handleEmGainChange()
 std::string CameraWindow::getSystemStatusString()
 {
 	std::string statusStr; 
-	statusStr = "\n\n>>> Andor Camera <<<\n";
+	statusStr = "\nAndor Camera:\n";
 	if (!ANDOR_SAFEMODE)
 	{
-		statusStr += "Code System is Active!\n";
-		statusStr += Andor.getSystemInfo();
+		statusStr += "\tCode System is Active!\n";
+		statusStr += "\t" + Andor.getSystemInfo();
 	}
 	else
 	{
-		statusStr += "Code System is disabled! Enable in \"constants.h\"\n";
+		statusStr += "\tCode System is disabled! Enable in \"constants.h\"\n";
 	}
 	return statusStr;
 }
@@ -906,7 +907,6 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 			e = count++;
 		}
 	}
-	input.plotterInput->plotter = &plotter;
 	input.plotterInput->atomQueue = &plotterAtomQueue;
 	analysisHandler.fillPlotThreadInput( input.plotterInput );
 	
@@ -931,9 +931,18 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 				line->at( count++ ).x = keyItem;
 			}
 		}
+		plotStyle style;
+		if ( plotParams.isHist )
+		{
+			style = HistPlot;
+		}
+		else
+		{
+			style = ErrorPlot;
+		}
 		// start a PlotDialog dialog
-		PlotDialog* plot = new PlotDialog( data, ErrorPlot, mainWindowFriend->getPens(), 
-										   mainWindowFriend->getPlotFont( ), mainWindowFriend->getPlotBrushes( ), 
+		PlotDialog* plot = new PlotDialog( data, style, mainWindowFriend->getBrightPlotPens(), 
+										   mainWindowFriend->getPlotFont( ), mainWindowFriend->getBrightPlotBrushes( ), 
 										   plotParams.name );
 		plot->Create( IDD_PLOT_DIALOG, 0 );
 		plot->ShowWindow( SW_SHOW );
@@ -1104,8 +1113,8 @@ std::string CameraWindow::getStartMessage()
 		std::vector<std::pair<UINT, UINT>> plotLocations = tempInfoCheck.getAllPixelLocations();
 	}
 	std::string dialogMsg;
-	dialogMsg = "Starting Parameters:\r\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\r\n";
-	dialogMsg += "Current Camera Temperature Setting: " + str(
+	dialogMsg = "Camera Parameters:\r\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\r\n";
+	dialogMsg += "Current Camera Temperature Setting:\r\n\t" + str(
 		CameraSettings.getSettings().andor.temperatureSetting ) + "\r\n";
 	dialogMsg += "Exposure Times: ";
 	for (auto& time : CameraSettings.getSettings().andor.exposureTimes)
@@ -1113,23 +1122,21 @@ std::string CameraWindow::getStartMessage()
 		dialogMsg += str( time * 1000 ) + ", ";
 	}
 	dialogMsg += "\r\n";
-	dialogMsg += "Image Settings: " + str( currentImageParameters.left ) + " - " + str( currentImageParameters.right ) + ", "
+	dialogMsg += "Image Settings:\r\n\t" + str( currentImageParameters.left ) + " - " + str( currentImageParameters.right ) + ", "
 		+ str( currentImageParameters.bottom ) + " - " + str( currentImageParameters.top ) + "\r\n";
 	dialogMsg += "\r\n";
-	dialogMsg += "Kintetic Cycle Time: " + str( CameraSettings.getSettings().andor.kineticCycleTime ) + "\r\n";
-	dialogMsg += "Pictures per Repetition: " + str( CameraSettings.getSettings().andor.picsPerRepetition ) + "\r\n";
-	dialogMsg += "Repetitions per Variation: " + str( CameraSettings.getSettings().andor.totalPicsInVariation ) + "\r\n";
-	dialogMsg += "Variations per Experiment: " + str( CameraSettings.getSettings().andor.totalVariations ) + "\r\n";
-	dialogMsg += "Total Pictures per Experiment: " + str( CameraSettings.getSettings().andor.totalPicsInExperiment ) + "\r\n";
-	dialogMsg += "Real-Time Atom Detection Thresholds: ";
+	dialogMsg += "Kintetic Cycle Time:\r\n\t" + str( CameraSettings.getSettings().andor.kineticCycleTime ) + "\r\n";
+	dialogMsg += "Pictures per Repetition:\r\n\t" + str( CameraSettings.getSettings().andor.picsPerRepetition ) + "\r\n";
+	dialogMsg += "Repetitions per Variation:\r\n\t" + str( CameraSettings.getSettings().andor.totalPicsInVariation ) + "\r\n";
+	dialogMsg += "Variations per Experiment:\r\n\t" + str( CameraSettings.getSettings().andor.totalVariations ) + "\r\n";
+	dialogMsg += "Total Pictures per Experiment:\r\n\t" + str( CameraSettings.getSettings().andor.totalPicsInExperiment ) + "\r\n";
+	dialogMsg += "Real-Time Atom Detection Thresholds:\r\n\t";
 
 	for (auto& threshold : CameraSettings.getSettings().thresholds)
 	{
 		dialogMsg += str( threshold ) + ", ";
 	}
-
-	dialogMsg += "\r\n";
-	dialogMsg += "Current Plotting Options: \r\n";
+	dialogMsg += "Current Plotting Options:\r\n";
 
 	for (UINT plotInc = 0; plotInc < plots.size(); plotInc++)
 	{

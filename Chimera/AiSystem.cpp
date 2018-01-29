@@ -1,6 +1,10 @@
 ﻿#include "stdafx.h"
 #include "AiSystem.h"
 
+AiSystem::AiSystem( ) : daqmx( ANALOG_IN_SAFEMODE )
+{}
+
+
 /*
 	We use a PCI card for analog input currently.
 */
@@ -8,6 +12,14 @@ void AiSystem::initDaqmx( )
 {
 	daqmx.createTask( "Analog-Input", analogInTask0 );
 	daqmx.createAiVoltageChan( analogInTask0, "Dev8/ai0:7", "", DAQmx_Val_Diff, -10.0, 10.0, DAQmx_Val_Volts, NULL );
+}
+
+
+std::string AiSystem::getSystemStatus( )
+{
+	long answer = daqmx.getProductCategory( "dev8" );
+	std::string answerStr = "AI System: Connected... device category = " + str( answer );
+	return answerStr;
 }
 
 
@@ -104,6 +116,12 @@ void AiSystem::armAquisition( UINT numSnapshots )
 	daqmx.configSampleClkTiming( analogInTask0, "", 10000.0, DAQmx_Val_Rising, DAQmx_Val_FiniteSamps, numSnapshots );
 	daqmx.startTask( analogInTask0 );
 	aquisitionData = std::vector<float64>( NUMBER_AI_CHANNELS * numSnapshots );
+}
+
+
+std::vector<float64> AiSystem::getCurrentValues( )
+{
+	return { currentValues.begin( ), currentValues.end( ) };
 }
 
 

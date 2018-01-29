@@ -28,7 +28,7 @@ struct rsgEvent
 class RhodeSchwarz
 {
 	public:
-		RhodeSchwarz::RhodeSchwarz();
+		RhodeSchwarz();
 		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id );
 		void programRsg(UINT variation );
 		void addFrequency( rsgEventForm eventInfo );

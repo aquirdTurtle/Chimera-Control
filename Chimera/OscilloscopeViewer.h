@@ -11,6 +11,7 @@ class ScopeViewer
 		void refreshData( );
 		void refreshPlot( CDC* d, UINT width, UINT height, CBrush* backgroundBrush, CBrush* plotAreaBrush );
 		void rearrange( int width, int height, fontMap fonts );
+		std::string getScopeInfo( );
 	private:
 		const std::string usbAddress;
 		const UINT numTraces;

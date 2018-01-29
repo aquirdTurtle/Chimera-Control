@@ -5,6 +5,7 @@
 class DaqMxFlume
 {
 	public:
+		DaqMxFlume( bool safemode );
 		/// My wrappers for all of the daqmx functions that I use currently. If I needed to use another function, I'd 
 		/// create another wrapper.
 		// note that DAQ stands for Data AQuisition (software). It's not a typo!
@@ -26,6 +27,8 @@ class DaqMxFlume
 		void startTask( TaskHandle handle );
 		std::string getDacSystemInfo( );
 		void readAnalogF64( TaskHandle taskHandle, std::vector<float64> &readData, int32& sampsPerChanRead );
+		long getProductCategory( std::string deviceLocation );
 	private:
 		std::string getErrorMessage( int errorCode );
+		const bool safemode;
 };
