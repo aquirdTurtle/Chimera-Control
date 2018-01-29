@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "commonFunctions.h"
 #include "CameraSettingsControl.h"
+#include "PlotCtrl.h"
 #include "PlottingInfo.h"
 #include "AuxiliaryWindow.h"
 #include "CameraWindow.h"
@@ -906,7 +907,6 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 			e = count++;
 		}
 	}
-	input.plotterInput->plotter = &plotter;
 	input.plotterInput->atomQueue = &plotterAtomQueue;
 	analysisHandler.fillPlotThreadInput( input.plotterInput );
 	
@@ -931,9 +931,18 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 				line->at( count++ ).x = keyItem;
 			}
 		}
+		plotStyle style;
+		if ( plotParams.isHist )
+		{
+			style = HistPlot;
+		}
+		else
+		{
+			style = ErrorPlot;
+		}
 		// start a PlotDialog dialog
-		PlotDialog* plot = new PlotDialog( data, ErrorPlot, mainWindowFriend->getPlotPens(), 
-										   mainWindowFriend->getPlotFont( ), mainWindowFriend->getPlotBrushes( ), 
+		PlotDialog* plot = new PlotDialog( data, style, mainWindowFriend->getBrightPlotPens(), 
+										   mainWindowFriend->getPlotFont( ), mainWindowFriend->getBrightPlotBrushes( ), 
 										   plotParams.name );
 		plot->Create( IDD_PLOT_DIALOG, 0 );
 		plot->ShowWindow( SW_SHOW );

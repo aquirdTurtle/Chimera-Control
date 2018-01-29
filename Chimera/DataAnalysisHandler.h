@@ -65,7 +65,8 @@ class DataAnalysisControl
 		static void handlePlotHist( realTimePlotterInput* input, PlottingInfo plotInfo, UINT plotNumber,
 									vector<vector<long>> countData,  vector<vector<std::deque<double>>>& finData,
 									vector<vector<bool>>pscSatisfied, int plotNumberCount, 
-									vector<vector<std::map<int, std::pair<int, ULONG>>>>& histData );
+									vector<vector<std::map<int, std::pair<int, ULONG>>>>& histData,
+									std::vector<std::shared_ptr<std::vector<dataPoint>>> dataArrays );
 		static void determineWhichPscsSatisfied( PlottingInfo& info, UINT groupSize, 
 												 vector<vector<int>> atomPresentData,
 												 vector<vector<bool>>& pscSatisfied );
@@ -77,7 +78,7 @@ class DataAnalysisControl
 		Control<CEdit> updateFrequencyEdit;
 		Control<CStatic> header;
 		Control<CListCtrl> plotListview;
-		std::vector<tinyPlotInfo> allPlots;
+		std::vector<tinyPlotInfo> allTinyPlots;
 		// other data analysis
 		bool currentlySettingGridCorner;
 		bool currentlySettingAnalysisLocations;

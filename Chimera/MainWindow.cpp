@@ -146,7 +146,7 @@ MainWindow::MainWindow( UINT id, CDialog* splash ) : CDialog( id ), profile( PRO
 		->CreateFontA(16, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
 	(plotfont = new CFont)
-		->CreateFontA( 9, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+		->CreateFontA( 20, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					   CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT( "Arial" ) );
 }
 
@@ -423,6 +423,7 @@ BOOL MainWindow::OnInitDialog( )
 	controlLocation = { 960, 910 };
 	plot->Create( IDD_PLOT_DIALOG, 0 );
 	plot->ShowWindow( SW_SHOW );
+
 	boxes.initialize( controlLocation, id, this, 960, tooltips );
 	shortStatus.initialize( controlLocation, this, id, tooltips );
 	menu.LoadMenu( IDR_MAIN_MENU );
