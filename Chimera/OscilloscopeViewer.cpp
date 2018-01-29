@@ -66,6 +66,7 @@ void ScopeViewer::refreshData( )
 		}
 		catch ( Error& err )
 		{
+			continue;
 		}
 
 		double count = 0;

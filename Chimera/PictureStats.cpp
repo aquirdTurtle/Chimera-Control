@@ -160,7 +160,11 @@ std::pair<int, int> PictureStats::update( std::vector<long> image, UINT imageNum
 {
 	repetitionIndicator.SetWindowTextA( cstr("Repetition " + str( currentRepetitionNumber ) + "/" 
 									   + str( totalRepetitionCount )) );
-
+	if ( image.size( ) == 0 )
+	{
+		// hopefully this helps with stupid imaging bug...
+		return { 0,0 };
+	}
 	long currentSelectedCount = image[selectedPixel.column-1 + (pictureHeight - selectedPixel.row) * pictureWidth];
 
 	long currentMaxCount = 1;

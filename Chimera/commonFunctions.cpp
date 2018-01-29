@@ -975,7 +975,8 @@ namespace commonFunctions
 		logger->logMasterParameters( input.masterInput );
 		logger->logMiscellaneous();
 		UINT numVoltsMeasursments = 0;
-		if ( input.masterInput->aiSys->wantsQueryBetweenVariations( ) )
+
+		if ( input.masterInput && input.masterInput->aiSys->wantsQueryBetweenVariations( ) )
 		{
 			numVoltsMeasursments = MasterManager::determineVariationNumber( input.masterInput->variables.front() );
 		}

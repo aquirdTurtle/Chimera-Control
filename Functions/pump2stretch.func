@@ -18,12 +18,12 @@ def pump2stretch():
   % Setting OP frequency based on trap depth:
   % for 6 mW, 9 atoms %frequency for 1.1mK trap depth 
   % (may need recalibration); calibrated at 11032016
-  dac: sigmaopfreq pumpFreq % 0.76 
+  dac: sigmaopfreq 0.5 
   off: diagmotshutter
   % to let shutters actuate
-  t += 100
+  t += 50
   % Setting the pumping beam powers:
-  dac: sigmaoppower 0.3 
+  dac: sigmaoppower pumppower % 0.3
   dac: sigmarepumppower 0.3
   % Performing OP pulse:
   dac: repumpPower 0.05
