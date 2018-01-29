@@ -12,7 +12,7 @@ def pushout1Dscatterbeamoff():
 
 	%dac: MOTFreq -0.6
 	%daclinspace: motFreq pushoutFreq -0.6 5 20 % -0.5
-	pulseon: tweezerIntensityTrig 0.1
+	%pulseon: tweezerIntensityTrig 0.1
 	%dacramp: dac17 -0.05 -0.12 5 0.02 % final depth -1.1
 	t += 2
 

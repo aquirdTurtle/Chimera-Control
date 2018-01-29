@@ -51,7 +51,7 @@ b8
 0
 ropshutter
 0
-sshutter795
+shutter795
 0
 b11
 0
@@ -77,7 +77,7 @@ tweezerflashrf
 0
 lsrf
 0
-tweezerflashrf2
+sidemotflash
 0
 c8
 0
@@ -119,7 +119,7 @@ acetrig
 0
 d11
 0
-d12
+proberf
 0
 d13
 0
@@ -184,7 +184,7 @@ freq795
 power795
 -10 - 10
 0
-dac19
+probepower
 -10 - 10
 0
 motfreq
@@ -216,19 +216,19 @@ pgcbottomfield -1.994
 pgcfrontfield -0.6349
 pgcbackfield 0.551
 andorimagetime 10
-imagingpower 0.225
+imagingpower 0.25
 imagingdetuning 0.3
-pushoutdepth 0.75
+pushoutdepth 2.5
 pushoutfreq 1
 fieldtheta 0
 fieldphi 0
-imagingflashingdetuning -0.9
+imagingflashingdetuning -0.8
 intrappgcdetuning -2
 intrappgcpower 0.14
 loadmotsidepower 0.15
 loadmotdiagpower 0.35
 imagingrepumppower 0.2
-pushouttime 10
+pushouttime 20
 intrappgccoolingtime 2
 loadmotrepumpfreq -0.6
 loadmotmotfreq 0.1
@@ -240,4 +240,4 @@ intrappgcrepumppower 0.1
 field 3
 rotatefieldtime 3
 opticalpumpdepth 0
-259 285 3 228 272 3
+259 285 3 229 273 3

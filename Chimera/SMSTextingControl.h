@@ -19,7 +19,6 @@ struct personInfo
 class SmsTextingControl
 {
 	public:
-		// void promptForEmailAddressAndPassword();
 		void initialize( POINT& pos, CWnd* parent, int& id, cToolTips& tooltips, 
 						 rgbMap rgbs );
 		void sendMessage( std::string message, EmbeddedPythonHandler* pyHandler, std::string msgType );

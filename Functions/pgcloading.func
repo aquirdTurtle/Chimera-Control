@@ -1,41 +1,29 @@
-% this function takes 2 + PGCtime ms (typically around 7)
+% this function takes 3 + PGCtime ms (typically around 7)
 def PgcLoading():
-    	%Shutting off gradient from MOT loading:    
-	dac: motGradientCurrent 0
-	
-	call zeroFields()
-    
-    	%Set beam powers for PGC and turn on beams 
-	% (should already be on, but just in case):
-	dacLinSpace: MotFreq loadMotMotFreq pgcDetuning 1 10
-      %dac: MotFreq pgcDetuning 
-      % to let the ramp finish
-
-	t += 2 
-
- 	dac: repumpPower 0.1   
-	dac: diagMotPower pgcLoadingDiagMotPower 
-	dac: sideMotPower pgcLoadingSideMotPower
-	dac: repumpFreq -0.3
-	
-	on: repumpRf
-	on: sideMotRf
-	on: diagMotRf
-
-    	t += PGCtime
-    
-	off: repumpRf
-	off: sideMotRf
-	off: diagMotRf
-    
-	dacLinSpace: MotFreq pgcDetuning loadMotMotFreq 1 10
-      %dac: MotFreq 0.3 
-
-	dac: repumpPower 0
-	dac: diagMotPower 0
-	dac: sideMotPower 0
-
-      t += 1.1
+  %Shutting off gradient from MOT loading:    
+  dac: motGradientCurrent 0
+  call zeroFields()
+  %Set beam powers for PGC and turn on beams 
+  % (should already be on, but just in case):
+  dacLinSpace: MotFreq loadMotMotFreq pgcDetuning 1 10
+  % to let the ramp finish
+  t += 2 
+  dac: repumpPower 0.1   
+  dac: diagMotPower pgcLoadingDiagMotPower 
+  dac: sideMotPower pgcLoadingSideMotPower
+  dac: repumpFreq -0.3
+  on: repumpRf
+  on: sideMotRf
+  on: diagMotRf
+  t += PGCtime
+  off: repumpRf
+  off: sideMotRf
+  off: diagMotRf 
+  dacLinSpace: MotFreq pgcDetuning loadMotMotFreq 1 10
+  dac: repumpPower 0
+  dac: diagMotPower 0
+  dac: sideMotPower 0
+  t += 1.1
 
 
 

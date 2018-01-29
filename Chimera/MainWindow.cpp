@@ -731,6 +731,10 @@ HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 void MainWindow::passCommonCommand(UINT id)
 {
 	static UINT inc = 0;
+	if ( inc == 100 )
+	{
+		inc = 0;
+	}
 	for ( auto& data : testData )
 	{
 		data->at( inc ).x = inc;
