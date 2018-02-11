@@ -174,11 +174,14 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 		for ( auto num : range( 10 ) )
 		{
 			if ( word == "gen" + str( num + 1 ) + "const" || word == "gen" + str( num + 1 ) + "ampramp"
-				|| word == "gen" + str( num + 1 ) + "freqramp" || word == "gen" + str( num + 1 ) + "freq&ampramp"
-				 || word == "flash" || word == "rearrange")
+				|| word == "gen" + str( num + 1 ) + "freqramp" || word == "gen" + str( num + 1 ) + "freq&ampramp")
 			{
 				return rgbs["Solarized Violet"];
 			}
+		}
+		if ( word == "flash" || word == "rearrange" || word == "horizontal" || word == "vertical" )
+		{
+			return rgbs["Solarized Violet"];
 		}
 		// check logic
 		if ( word == "repeattiltrig" || word == "repeatSet#" || word == "repeattilsoftwaretrig" || word == "endrepeat" 
