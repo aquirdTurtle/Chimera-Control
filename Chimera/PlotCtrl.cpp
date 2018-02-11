@@ -290,12 +290,11 @@ void PlotCtrl::makeBarPlot( memDC* d, plotDataVec scaledLine, Gdiplus::SolidBrus
 {
 	for ( auto& point : scaledLine )
 	{
-		// hello;
 		Gdiplus::Rect r( point.x - boxWidthPixels / 2, point.y, boxWidthPixels,
 						 plotAreaDims.bottom * heightScale2 - point.y);
 		Gdiplus::Graphics g( d->GetSafeHdc( ) );
 		g.FillRectangle( brush, r );
-		circleMarker( d, { LONG( point.x), LONG( point.y + 1 ) }, 10, brush );
+		//circleMarker( d, { LONG( point.x), LONG( point.y + 1 ) }, 5, brush );
 	}
 }
 
@@ -408,7 +407,7 @@ void PlotCtrl::makeStepPlot( memDC* d, plotDataVec scaledLine, Gdiplus::Pen* p, 
 		drawLine( d, { long( point.x ), long( prevPoint.y ) }, { long( point.x ), long( point.y ) }, p );
 		if ( point.y != prevPoint.y )
 		{
-			circleMarker( d, { long( point.x ), long( point.y ) }, 10, b );
+			circleMarker( d, { long( point.x ), long( point.y ) }, 5, b );
 		}
 		prevPoint = point;
 	}

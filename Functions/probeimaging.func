@@ -1,30 +1,28 @@
 % Master-Script See the "?" for info on commands.
 def probeimaging():
-
-    pulseon: tweezerIntensityTrig 0.1 % trigger probe image intensity
-    t += 1
-
-    off: diagmotshutter
-    off: c13       % turn off side mot shutter
-    on: c12        % turn on probe shutter
-    on: d2
-    dac: motFreq probeImageFreq % scan (-1,1) ?
-    dac: sideMOTPower 0.1 %0.04, 0.09   
-    t += 5  % give time for shutters to open
-    on: sideMotRf
-    on: c5
-    on: c7
+    off: diagMotRf
+    off: sideMotRf       % turn off side mot shutter
+    off: sideMotShutter
+    off: probeShutter        % turn on probe shutter
+    off: andorShutter
+    off: RepumpRF
+    daclinspace: motFreq loadMotMotFreq probefreq 2 10   
+    dac: probePower 0.3
+    t += 2
     on: andorTrig
-    t += probeImageTime
+    t += 0.1
+    off: probeRF %d12
+    on: c5 % flashing TweezerLight
+    on: b5 % flashing probe
+    t += 2 % probeimagetime
 
     off: andorTrig
-    off: sideMotRf
+    off: andorShutter
+    off: probeRF
     off: d2
     off: c5
-    off: c7
-    on: c13       % turn back on side mot shutter
-    off: c12        % turn off probe shutter
-
-    pulseon: tweezerIntensityTrig 0.1
-    off: diagmotshutter
+    off: b5
+    on: sideMotShutter       % turn back on side mot shutter
+    off: probeShutter        % turn off probe shutter
+    daclinspace: motFreq probefreq loadMotMotFreq 2 10
     t += 1
