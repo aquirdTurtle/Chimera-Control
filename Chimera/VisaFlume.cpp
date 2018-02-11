@@ -180,7 +180,6 @@ void VisaFlume::errCheck( long status, std::string msg )
 		}
 		// Error detected.
 		thrower( throwerMsg );
-
 	}
 	// Query the agilent for errors.
 	std::string errMessage;

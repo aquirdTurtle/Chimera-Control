@@ -85,9 +85,6 @@
     <ClCompile Include="MainOptionsControl.cpp">
       <Filter>Main Window</Filter>
     </ClCompile>
-    <ClCompile Include="Gnuplotter.cpp">
-      <Filter>Camera Window</Filter>
-    </ClCompile>
     <ClCompile Include="ExperimentTimer.cpp">
       <Filter>Camera Window</Filter>
     </ClCompile>
@@ -299,9 +296,6 @@
     </ClInclude>
     <ClInclude Include="MainOptionsControl.h">
       <Filter>Main Window</Filter>
-    </ClInclude>
-    <ClInclude Include="gnuplotter.h">
-      <Filter>Camera Window</Filter>
     </ClInclude>
     <ClInclude Include="ExperimentTimer.h">
       <Filter>Camera Window</Filter>
