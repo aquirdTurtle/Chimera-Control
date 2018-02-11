@@ -268,7 +268,6 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			{
 				expUpdate( "Querying Voltages...\r\n", input->comm, input->quiet );
 				input->auxWin->PostMessage( eLogVoltsMessageID, variationInc );
-				//input->logger->writeVolts(variationInc, input->aiSys->getSingleSnap( 100 ));
 			}
 			Sleep( input->debugOptions.sleepTime );
 			for ( auto seqInc : range(input->seq.sequence.size( ) ) )

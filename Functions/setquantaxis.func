@@ -2,17 +2,10 @@
 def setQuantAxis():
  % turning on magnetic field to 3G pointing to getter 
  %for the quantization axis 
-        dac: frontcoilcurrent (-0.76 + 0.1)                %quant_frontfield %was at -0.5932
-        dac: backcoilcurrent (0.2914)
-        dac: rightcoilcurrent (-2.7361)
-        dac: leftcoilcurrent (3.6461)
-        dac: bottomcoilcurrent (-1.67 - 0.03)                % quant_botfield %was at -2.0423
-        dac: topcoilcurrent (2.06+0.06)
-        t += 0.01
- %dac: frontcoilcurrent (-0.76 + 0.1+0.1+ frontscan)                %quant_frontfield %was at -0.5932
- %       dac: backcoilcurrent (0.2914)
- %       dac: rightcoilcurrent (-2.7361)
- %       dac: leftcoilcurrent (3.6461)
- %       dac: bottomcoilcurrent (-1.67 - 0.03)                % quant_botfield %was at -2.0423
- %       dac: topcoilcurrent (2.06+0.06)
- %       t += 0.01
+        dac: frontcoilcurrent -0.66
+        dac: backcoilcurrent 0.2914
+        dac: rightcoilcurrent -2.7361
+        dac: leftcoilcurrent 3.6461
+        dac: bottomcoilcurrent -1.7
+        dac: topcoilcurrent 2.12
+        t += rotateFieldTime
