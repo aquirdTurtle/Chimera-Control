@@ -247,6 +247,25 @@ void Control<ControlType>::rearrange( std::string cameraMode, std::string trigMo
 			SetFont(fonts["Larger Font Small"]);
 		}
 	}
+	else if ( fontType == VeryLargeFont )
+	{
+		if ( widthScale * heightScale > 2 )
+		{
+			SetFont( fonts["Very Larger Font Max"] );
+		}
+		else if ( widthScale * heightScale > 0.8 )
+		{
+			SetFont( fonts["Very Larger Font Large"] );
+		}
+		else if ( widthScale * heightScale > 0.6 )
+		{
+			SetFont( fonts["Very Larger Font Med"] );
+		}
+		else
+		{
+			SetFont( fonts["Very Larger Font Small"] );
+		}
+	}
 	else if (fontType == SmallFont)
 	{
 		if (widthScale * heightScale > 2)

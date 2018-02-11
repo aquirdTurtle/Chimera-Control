@@ -37,7 +37,7 @@
 	#define TESTING_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
 	#define UWAVE_SAFEMODE true
 	#define UWAVE_AGILENT_USB_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
-	#define MASTER_REPUMP_SCOPE_SAFEMODE false
+	#define MASTER_REPUMP_SCOPE_SAFEMODE true
 	#define MASTER_REPUMP_SCOPE_ADDRESS "USB0::0x0957::0x2C07::MY52801397::0::INSTR"
 	#define MOT_SCOPE_SAFEMODE true
 	#define MOT_SCOPE_ADDRESS			"USB0::0x0957::0x2C07::MY52801397::0::INSTR"
@@ -1042,5 +1042,3 @@ const std::vector<std::string> GNUPLOT_LINETYPES{ "dt 1",
 												  "dt 2",
 												  "dt 3",
 												  "dt 4"};
-
-const std::string GNUPLOT_LOCATION = "\"C:\\Program Files (x86)\\gnuplot\\bin\\gnuplot.exe\"";

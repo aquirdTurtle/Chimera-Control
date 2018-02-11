@@ -29,19 +29,20 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 
 	/// Data analysis stuffs.
 	//
-	currentDataSetNumberText.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 400, pos.seriesPos.y + 25 };
-	currentDataSetNumberText.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 400, pos.amPos.y + 25 };
+	currentDataSetNumberText.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 400, pos.seriesPos.y + 50 };
+	currentDataSetNumberText.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 400, pos.amPos.y + 50 };
 	currentDataSetNumberText.videoPos = { -1,-1,-1,-1 };
 	currentDataSetNumberText.triggerModeSensitive = isTriggerModeSensitive;
 	currentDataSetNumberText.Create( "Most Recent Data Set #:", NORM_STATIC_OPTIONS, currentDataSetNumberText.seriesPos, 
 									 parent, id++);
-	currentDataSetNumberDisp.seriesPos = { pos.seriesPos.x + 400, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 25 };
-	currentDataSetNumberDisp.amPos = { pos.amPos.x + 400, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 25 };
+	currentDataSetNumberDisp.seriesPos = { pos.seriesPos.x + 400, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 50 };
+	currentDataSetNumberDisp.amPos = { pos.amPos.x + 400, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y + 50 };
 	currentDataSetNumberDisp.videoPos = { -1,-1,-1,-1 };
 	currentDataSetNumberDisp.triggerModeSensitive = isTriggerModeSensitive;
 	currentDataSetNumberDisp.Create("?", NORM_STATIC_OPTIONS, currentDataSetNumberDisp.seriesPos, parent, id++);
-	pos.seriesPos.y += 25;
-	pos.amPos.y += 25;
+	currentDataSetNumberDisp.fontType = VeryLargeFont;
+	pos.seriesPos.y += 50;
+	pos.amPos.y += 50;
 
 	// Atom Grid Settings
 	gridHeader.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };

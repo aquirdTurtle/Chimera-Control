@@ -143,8 +143,6 @@ class CameraWindow : public CDialog
 		std::atomic<bool> plotThreadAborting = false;
 		std::atomic<bool> skipNext=false;
 		std::vector<double> plotterKey;
-		chronoTimes imageTimes, imageGrabTimes, mainThreadStartTimes, crunchSeesTimes, crunchFinTimes;
-		Gnuplotter plotter;
-		
+		chronoTimes imageTimes, imageGrabTimes, mainThreadStartTimes, crunchSeesTimes, crunchFinTimes;		
 };
 
