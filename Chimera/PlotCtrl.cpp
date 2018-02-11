@@ -541,6 +541,18 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 	{
 		txt = "Ttl State";
 	}
+	else if ( style == DacPlot )
+	{
+		txt = "Dac Voltage";
+	}
+	else if ( style == ErrorPlot )
+	{
+		txt = "%";
+	}
+	else if ( style == HistPlot )
+	{
+		txt = "Occurances";
+	}
 	d->SelectObject( textFont );
 	d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 }
