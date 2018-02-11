@@ -41,7 +41,7 @@ lsshutter
 0
 b4
 0
-b5
+probeflashing
 0
 tweezerintensitytrig
 0
@@ -185,7 +185,7 @@ power795
 -10 - 10
 0
 probepower
--10 - 10
+-0.1 - 0.9
 0
 motfreq
 -10 - 10
@@ -199,7 +199,7 @@ sidemotpower
 piezomirror
 -10 - 10
 0
-40
+41
 loadmotrightfield 0.7
 loadmotleftfield -0.8
 loadmottopfield 0.5
@@ -240,4 +240,5 @@ intrappgcrepumppower 0.1
 field 3
 rotatefieldtime 3
 opticalpumpdepth 0
-259 285 3 229 273 3
+pumptime 10
+259 285 3 228 272 3

@@ -1,11 +1,4 @@
-% Master-Script See the "?" for info on commands.
 def scatter_1_to_0p():
-  % insert commands here...
-  % set repump freq (side-lock freq or aom freq?)
-  daclinspace: RepumpFreq loadmotrepumpfreq freq_1_to_0 2 5
-  % ramp down for scatter
-  pulseon: tweezerIntensityTrig 0.1
-  t += 2.1
   dac: sigmarepumppower scatterPower
   dac: repumpPower 0
   on: sigmaRepumpRf
@@ -15,5 +8,5 @@ def scatter_1_to_0p():
   off: sigmaRepumpRf
   off: repumpFlash
   off: tweezerFlashRF
+  t += 1
   daclinspace: RepumpFreq freq_1_to_0 loadmotrepumpfreq 2 5
-  t += 2.01

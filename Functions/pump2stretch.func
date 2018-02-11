@@ -2,7 +2,7 @@
 def pump2stretch():
   off: ropshutter
   off: repumpRf
-  on: repumpShutter
+  on: repumpShutter   % on
   % set to 3G field
   call setQuantAxis()
   % Setting the pumping beam frequencies:
@@ -28,7 +28,7 @@ def pump2stretch():
   % Performing OP pulse:
   dac: repumpPower 0.05
   on: repumpRf
-  on: sigmaoprf
+  on: sigmaoprf 
   on: sigmarepumprf 
   t += pumptime  % 6.0 % adding extra 1 ms for better pumping 20161011
   off: sigmaoprf
@@ -44,6 +44,6 @@ def pump2stretch():
   daclinspace: repumpFreq -1.4 0 2 10 %-1.65
   t += 2
   off: repumpRf
-  on: diagmotshutter
+  off: diagmotshutter  % Was on 2/1/2018 Caused ~%4 loss - C. Kiehl
   off: ropshutter 
   t += 0.1

@@ -61,8 +61,7 @@ class PlotCtrl
 		std::vector<std::mutex> dataMutexes;
 	private:
 		// in units of the data
-		//CBrush* backgroundBrush;
-		double boxWidth=1;
+		double boxWidth=10;
 		double boxWidthPixels;
 		double widthScale2, heightScale2;
 		const plotStyle style;

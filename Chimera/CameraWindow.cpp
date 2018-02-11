@@ -941,8 +941,8 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 			style = ErrorPlot;
 		}
 		// start a PlotDialog dialog
-		PlotDialog* plot = new PlotDialog( data, style, mainWindowFriend->getBrightPlotPens(), 
-										   mainWindowFriend->getPlotFont( ), mainWindowFriend->getBrightPlotBrushes( ), 
+		PlotDialog* plot = new PlotDialog( data, style, mainWindowFriend->getPlotPens(), 
+										   mainWindowFriend->getPlotFont( ), mainWindowFriend->getPlotBrushes( ), 
 										   plotParams.name );
 		plot->Create( IDD_PLOT_DIALOG, 0 );
 		plot->ShowWindow( SW_SHOW );

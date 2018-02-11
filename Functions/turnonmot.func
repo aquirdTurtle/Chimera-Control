@@ -9,13 +9,12 @@ def turnOnMot():
 	on: RepumpShutter
 	on: DiagMotShutter
 	on: SideMotShutter
-	%off: ProbeShutter
 	% Make sure raman shutter is closed initially
 	off: RamanShutter
 	%% %%%%%%%%%%%%%%%%%%%%%%%%%%%
 	%% % DACS
 	dac: DiagMotPower loadMotDiagPower 
-	dac: RepumpPower 0.1
+	dac: RepumpPower 0.2
 	dac: MotFreq loadMotMotFreq
 	dac: RepumpFreq loadMotRepumpFreq
 	dac: SideMotPower loadMotSidePower 

@@ -3,7 +3,7 @@ def pushout1Dscatter():
   	% insert commands here... 
 
       pulseon: tweezerIntensityTrig 0.1
-      t += 1 %2
+      t += 1 
 
       dac: MOTFreq pushoutfreq  
 	dac: sideMotPower 0.15 %0.04 %for 3x6 with pushoutdepth 2 % 0.015 %0.01
