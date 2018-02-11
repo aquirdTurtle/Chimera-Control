@@ -15,7 +15,7 @@ PlotCtrl::PlotCtrl( std::vector<pPlotDataVec> dataHolder, plotStyle inStyle, std
 	Gdiplus::Color whiteColor( 255, 255, 255, 255 );
 	whiteBrush = new Gdiplus::SolidBrush( whiteColor );
 	whiteGdiPen = new Gdiplus::Pen( whiteBrush );
-	Gdiplus::Color greyColor( 50, 50, 50, 50);
+	Gdiplus::Color greyColor( 100, 100, 100, 100);
 	whiteBrush = new Gdiplus::SolidBrush( greyColor );
 	greyGdiPen = new Gdiplus::Pen( greyColor );
 	title = titleIn;
@@ -75,7 +75,7 @@ void PlotCtrl::init( POINT topLeftLoc, LONG width, LONG height, CWnd* parent )
 	controlDims = { topLeftLoc.x, topLeftLoc.y, topLeftLoc.x + width, topLeftLoc.y + height };
 	RECT d = controlDims;
 	long w = d.right - d.left, h = d.bottom - d.top;
-	plotAreaDims = { long( d.left + w*0.1 ), long(d.top + h*0.08), d.right, long( d.bottom - h*0.1 ) };
+	plotAreaDims = { long( d.left + w*0.1 ), long(d.top + h*0.08), long(d.right*0.98), long( d.bottom - h*0.1 ) };
 	legButton.sPos = { topLeftLoc.x, topLeftLoc.y, topLeftLoc.x + 22, topLeftLoc.y + 22 };
 	legButton.Create( "", NORM_CHECK_OPTIONS, legButton.sPos, parent, 0 );
 }
@@ -128,14 +128,13 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 	{
 		rangeX += 1;
 	}
-	double dataScaleX = plotWidthPixels / (rangeX);
+	double dataScaleX = ( plotWidthPixels - 20 ) / (rangeX);
 	if ( style == HistPlot )
 	{
 		// resize things to take into acount the widths.
 		maxx += boxWidth;
 		minx -= boxWidth;
 		rangeX = maxx - minx;
-		dataScaleX = plotWidthPixels / rangeX;
 		boxWidthPixels = boxWidth * dataScaleX * 0.99;
 	}
 	double dataHeight = 1;
@@ -462,14 +461,15 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 	{
 		double scaledWidth = scaledArea.right - scaledArea.left;
 		double dataRange = xMax - xMin;
+		
 		for ( auto count : range( 11 ) )
 		{
-			RECT r = { long( scaledArea.left + count * scaledWidth / 10.0 - 40), long( scaledArea.bottom ),
-					   long( scaledArea.left + count * scaledWidth / 10.0 + 60 ),
+			RECT r = { long( scaledArea.left + count * (scaledWidth - 20) / 10.0 - 40), long( scaledArea.bottom ),
+					   long( scaledArea.left + count * (scaledWidth - 20) / 10.0 + 60 ),
 					   long( controlDims.bottom * heightScale2 ) };
 			std::string txt = str( xMin + count * dataRange / 10.0 );
-			drawLine( d, scaledArea.left + count * scaledWidth / 10.0 + 10, scaledArea.bottom + 5,
-					  scaledArea.left + count * scaledWidth / 10.0 + 10, scaledArea.top, greyGdiPen );
+			drawLine( d, scaledArea.left + count * (scaledWidth-20) / 10.0 + 10, scaledArea.bottom + 5,
+					  scaledArea.left + count * (scaledWidth - 20) / 10.0 + 10, scaledArea.top, greyGdiPen );
 			d->SelectObject( textFont );
 			d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 		}

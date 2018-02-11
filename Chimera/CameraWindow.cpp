@@ -12,20 +12,8 @@
 
 CameraWindow::CameraWindow() : CDialog(), 
 								CameraSettings(&Andor), 
-								dataHandler(DATA_SAVE_LOCATION), 
-                                plotter(GNUPLOT_LOCATION)
+								dataHandler(DATA_SAVE_LOCATION)
 {
-	/// test the plotter quickly
-	plotter.send( "set title \"Gnuplot is Working. You can close this window at any time.\"" );
-	plotter.send("plot '-'");
-	std::vector<double> data(100);
-	int count = 0;
-	for ( auto& dat : data )
-	{
-		dat = -(count - 50)*(count - 50);
-		count++;
-	}
-	plotter.sendData(data);
 };
 
 
