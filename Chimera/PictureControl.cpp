@@ -6,7 +6,7 @@
 /*
 * initialize all controls associated with single picture.
 */
-void PictureControl::initialize( POINT& loc, CWnd* parent, int& id, int width, int height, std::array<UINT, 2> minMaxIds )
+void PictureControl::initialize( POINT loc, CWnd* parent, int& id, int width, int height, std::array<UINT, 2> minMaxIds )
 {
 	if ( width < 100 )
 	{
@@ -19,7 +19,7 @@ void PictureControl::initialize( POINT& loc, CWnd* parent, int& id, int width, i
 									 "of the max/min controls." );
 	}
 
-	setPictureArea( loc, width, height );
+	setPictureArea( loc, width, height-25 );
 
 	loc.x += unscaledBackgroundArea.right - unscaledBackgroundArea.left;
 	// "min" text
@@ -50,7 +50,7 @@ void PictureControl::initialize( POINT& loc, CWnd* parent, int& id, int width, i
 	handleScroll( sliderMin.GetDlgCtrlID( ), 95 );
 	handleScroll( sliderMax.GetDlgCtrlID( ), 395 );
 	
-	loc.y += height;
+	loc.y += height - 25;
 	coordinatesText.sPos = { loc.x, loc.y, loc.x += 100, loc.y + 20 };
 	coordinatesText.Create( "Coordinates: ", WS_CHILD | WS_VISIBLE, coordinatesText.sPos, parent, id++ );
 	coordinatesDisp.sPos = { loc.x, loc.y, loc.x += 100, loc.y + 20 };
@@ -59,6 +59,7 @@ void PictureControl::initialize( POINT& loc, CWnd* parent, int& id, int width, i
 	valueText.Create( "Value: ", WS_CHILD | WS_VISIBLE, valueText.sPos, parent, id++ );
 	valueDisp.sPos = { loc.x, loc.y, loc.x += 100, loc.y + 20 };
 	valueDisp.Create( "", WS_CHILD | WS_VISIBLE | ES_READONLY, valueDisp.sPos, parent, id++ );
+	loc.y += 25;
 }
 
 

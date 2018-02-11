@@ -1188,9 +1188,9 @@ BOOL CameraWindow::OnInitDialog()
 	CameraSettings.initialize( positions, id, this, tooltips );
 	POINT position = { 480, 0 };
 	stats.initialize( position, this, id, tooltips );
-	positions.sPos = { 757, 0 };
+	positions.sPos = { 797, 0 };
 	timer.initialize( positions, this, false, id, tooltips );
-	position = { 757, 40 };
+	position = { 797, 40 };
 	pics.initialize( position, this, id, tooltips, mainWindowFriend->getBrushes()["Dark Green"] );
 	//
 	pics.setSinglePicture( this, CameraSettings.getSettings( ).andor.imageSettings );

@@ -256,15 +256,15 @@ void PictureManager::setMultiplePictures( CWnd* parent, imageParameters imagePar
 	}
 
 	POINT loc = picturesLocation;
-	int picWidth = 570;
-	int picHeight = 460;
+	int picWidth = 550;
+	int picHeight = 420;
 	pictures[0].setPictureArea( loc, picWidth, picHeight );
-	loc.x += 570;
+	loc.x += 550;
 	pictures[1].setPictureArea( loc, picWidth, picHeight );
-	loc.x -= 570;
-	loc.y += 465;
+	loc.x -= 550;
+	loc.y += 445;
 	pictures[2].setPictureArea( loc, picWidth, picHeight );
-	loc.x += 570;
+	loc.x += 550;
 	pictures[3].setPictureArea( loc, picWidth, picHeight );
 	setParameters( imageParams );
 	setPictureSliders( parent );
@@ -297,20 +297,20 @@ void PictureManager::initialize( POINT& loc, CWnd* parent, int& id, cToolTips& t
 								 CBrush* defaultBrush)
 {
 	picturesLocation = loc;
-	picturesWidth = 570 * 2;
+	picturesWidth = 550 * 2;
 	picturesHeight = 460 * 2 + 5;
 	gridBrush = defaultBrush;
 	//
-	pictures[0].initialize( loc, parent, id, 570, 460, { IDC_PICTURE_1_MIN_EDIT, IDC_PICTURE_1_MAX_EDIT } );
-	loc.x += 570;
-	pictures[1].initialize(loc, parent, id, 570, 460, { IDC_PICTURE_2_MIN_EDIT, IDC_PICTURE_2_MAX_EDIT } );
-	loc.x -= 570;
-	loc.y += 465;
-	pictures[2].initialize(loc, parent, id, 570, 460, { IDC_PICTURE_3_MIN_EDIT, IDC_PICTURE_3_MAX_EDIT } );
-	loc.x += 570;
-	pictures[3].initialize(loc, parent, id, 570, 460, { IDC_PICTURE_4_MIN_EDIT, IDC_PICTURE_4_MAX_EDIT } );
-	loc.y += 460;
-	loc.x -= 570;
+	pictures[0].initialize( loc, parent, id, 550, 440, { IDC_PICTURE_1_MIN_EDIT, IDC_PICTURE_1_MAX_EDIT } );
+	loc.x += 550;
+	pictures[1].initialize(loc, parent, id, 550, 440, { IDC_PICTURE_2_MIN_EDIT, IDC_PICTURE_2_MAX_EDIT } );
+	loc.x -= 550;
+	loc.y += 445;
+	pictures[2].initialize(loc, parent, id, 550, 440, { IDC_PICTURE_3_MIN_EDIT, IDC_PICTURE_3_MAX_EDIT } );
+	loc.x += 550;
+	pictures[3].initialize(loc, parent, id, 550, 440, { IDC_PICTURE_4_MIN_EDIT, IDC_PICTURE_4_MAX_EDIT } );
+	loc.y += 440;
+	loc.x -= 550;
 	createPalettes( parent->GetDC() );
 	for (auto& pic : pictures)
 	{
