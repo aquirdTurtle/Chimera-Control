@@ -5,6 +5,7 @@
 #include "AuxiliaryWindow.h"
 #include <future>
 
+
 MainWindow::MainWindow( UINT id, CDialog* splash ) : CDialog( id ), profile( PROFILES_PATH ),
 	masterConfig( MASTER_CONFIGURATION_FILE_ADDRESS ),
 	appSplash( splash ),
@@ -100,6 +101,10 @@ MainWindow::MainWindow( UINT id, CDialog* splash ) : CDialog( id ), profile( PRO
 	(mainFonts["Larger Font Max"] = new CFont)
 		->CreateFontA(40, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+	(mainFonts["Very Larger Font Max"] = new CFont)
+		->CreateFontA( 80, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+					   CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT( "Arial" ) );
+	//
 	(mainFonts["Smaller Font Large"] = new CFont)
 		->CreateFontA(14, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
@@ -115,6 +120,11 @@ MainWindow::MainWindow( UINT id, CDialog* splash ) : CDialog( id ), profile( PRO
 	(mainFonts["Larger Font Large"] = new CFont)
 		->CreateFontA(40, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+	(mainFonts["Very Larger Font Large"] = new CFont)
+		->CreateFontA( 60, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+					   CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT( "Arial" ) );
+
+	//
 	(mainFonts["Smaller Font Med"] = new CFont)
 		->CreateFontA(8, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
@@ -130,6 +140,10 @@ MainWindow::MainWindow( UINT id, CDialog* splash ) : CDialog( id ), profile( PRO
 	(mainFonts["Larger Font Med"] = new CFont)
 		->CreateFontA(22, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+	(mainFonts["Very Larger Font Med"] = new CFont)
+		->CreateFontA( 40, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+					   CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT( "Arial" ) );
+	//
 	(mainFonts["Smaller Font Small"] = new CFont)
 		->CreateFontA(6, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
@@ -145,6 +159,10 @@ MainWindow::MainWindow( UINT id, CDialog* splash ) : CDialog( id ), profile( PRO
 	(mainFonts["Larger Font Small"] = new CFont)
 		->CreateFontA(16, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					  CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
+	(mainFonts["Very Larger Font Small"] = new CFont)
+		->CreateFontA( 32, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+					   CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT( "Arial" ) );
+	//
 	(plotfont = new CFont)
 		->CreateFontA( 12/*20*/, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					   CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT( "Arial" ) );
@@ -185,8 +203,6 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_WM_PAINT( )
 	ON_WM_TIMER( )
 END_MESSAGE_MAP()
-
-
 
 
 void MainWindow::OnTimer( UINT_PTR id )
@@ -419,7 +435,7 @@ BOOL MainWindow::OnInitDialog( )
 	testData.resize( 2 );
 	testData[0] = pPlotDataVec( new plotDataVec( 100, { 0,0,0 } ) );
 	testData[1] = pPlotDataVec( new plotDataVec( 100, { 0,0,0 } ) );
-	plot = new PlotDialog( testData, HistPlot, getPlotPens(), getPlotFont(), getPlotBrushes() );
+	plot = new PlotDialog( testData, ErrorPlot/*HistPlot*/, getPlotPens(), getPlotFont(), getPlotBrushes() );
 	controlLocation = { 960, 910 };
 	plot->Create( IDD_PLOT_DIALOG, 0 );
 	plot->ShowWindow( SW_SHOW );
@@ -780,7 +796,7 @@ void MainWindow::passCommonCommand(UINT id)
 	for ( auto& data : testData )
 	{
 		data->at( inc ).x = inc;
-		data->at( inc ).y = 0.1*inc*inc + 0.2;
+		data->at( inc ).y = 0.005 * inc * inc + 0.2;
 		data->at( inc ).err = 0.1;
 	}
 	inc++;

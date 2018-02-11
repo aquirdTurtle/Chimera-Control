@@ -218,7 +218,6 @@
     <ClInclude Include="ExperimentTimer.h" />
     <ClInclude Include="Fgen.h" />
     <ClInclude Include="gnuplot-iostream.h" />
-    <ClInclude Include="gnuplotter.h" />
     <ClInclude Include="GpibFlume.h" />
     <ClInclude Include="imageParameters.h" />
     <ClInclude Include="longnam.h" />
@@ -310,7 +309,6 @@
     <ClCompile Include="ExperimentTimer.cpp" />
     <ClCompile Include="externals.cpp" />
     <ClCompile Include="Fgen.cpp" />
-    <ClCompile Include="Gnuplotter.cpp" />
     <ClCompile Include="GpibFlume.cpp" />
     <ClCompile Include="MainOptionsControl.cpp" />
     <ClCompile Include="MainWindow.cpp" />

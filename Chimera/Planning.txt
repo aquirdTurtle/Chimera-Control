@@ -23,7 +23,9 @@ FEATURES:
 - agilent should be able to go smoothly from one waveform to another.
 - get running average working again
 - add all agilents / tek to color boxes?
-- finish getting histograms working.
+- fix last point issue with plots
+- Add default close behavior
+- Add option to sustain.
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
@@ -34,6 +36,7 @@ Refactoring / Other:
 - remove gnuplot after finish with hists.
 - Andor system should use matrix for pictures
 - all mutexes should use lock_guard or similar for consistency
+- remove gnuplot
 
 BUGS:
 - scripts becoming unsaved after move, should preserve saved status

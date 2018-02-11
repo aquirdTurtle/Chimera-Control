@@ -933,8 +933,6 @@ namespace commonFunctions
 		startMsg += "\r\n\r\nBegin Waveform Generation with these Settings?";
 		StartDialog dlg( startMsg, IDD_BEGINNING_SETTINGS );
 		bool areYouSure = dlg.DoModal( );
-		//INT_PTR areYouSure = DialogBoxParam( NULL, MAKEINTRESOURCE( IDD_BEGINNING_SETTINGS ), 0,
-		//									 beginningSettingsDialogProc, (LPARAM)cstr( startMsg ) );
 		if ( !areYouSure )
 		{
 			thrower( "CANCEL!" );
