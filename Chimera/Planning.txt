@@ -36,7 +36,6 @@ Refactoring / Other:
 - remove gnuplot after finish with hists.
 - Andor system should use matrix for pictures
 - all mutexes should use lock_guard or similar for consistency
-- remove gnuplot
 
 BUGS:
 - scripts becoming unsaved after move, should preserve saved status
