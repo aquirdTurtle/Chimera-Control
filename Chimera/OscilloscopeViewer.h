@@ -15,6 +15,7 @@ class ScopeViewer
 	private:
 		const std::string usbAddress;
 		const UINT numTraces;
+		const bool safemode;
 		float yoffset, ymult;
 		VisaFlume visa;
 		PlotCtrl* viewPlot;

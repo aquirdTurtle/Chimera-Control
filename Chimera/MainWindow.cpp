@@ -164,7 +164,7 @@ MainWindow::MainWindow( UINT id, CDialog* splash ) : CDialog( id ), profile( PRO
 					   CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT( "Arial" ) );
 	//
 	(plotfont = new CFont)
-		->CreateFontA( 20, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+		->CreateFontA( 12/*20*/, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 					   CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT( "Arial" ) );
 }
 
@@ -789,6 +789,10 @@ HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 void MainWindow::passCommonCommand(UINT id)
 {
 	static UINT inc = 0;
+	if ( inc == 100 )
+	{
+		inc = 0;
+	}
 	for ( auto& data : testData )
 	{
 		data->at( inc ).x = inc;

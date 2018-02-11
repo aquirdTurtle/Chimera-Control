@@ -4,7 +4,7 @@
 
 ScopeViewer::ScopeViewer( std::string usbAddress, bool safemode, UINT traceNumIn ) :
 	visa( safemode, usbAddress ),
-	numTraces( traceNumIn )
+	numTraces( traceNumIn ), safemode(safemode)
 {
 	try
 	{
@@ -61,6 +61,11 @@ void ScopeViewer::initialize( POINT& topLeftLoc, UINT width, UINT height, CWnd* 
 
 void ScopeViewer::refreshData( )
 {
+	if ( safemode )
+	{
+		Sleep( 5000 );
+		return;
+	}
 	visa.open( );
 	for ( auto line : range( numTraces ) )
 	{
@@ -79,11 +84,14 @@ void ScopeViewer::refreshData( )
 		}
 		catch ( Error& err )
 		{
+			continue;
 		}
-
+		     
 		double count = 0;
 		std::lock_guard<std::mutex> lock( viewPlot->dataMutexes[line] );
 		scopeData[line]->clear( );
+		UINT dataReadSize = data.size( );
+		std::string temp( str( dataReadSize ) );
 		for ( auto& c : data.substr(0, data.size() - 1) )
 		{
 			if ( count++ < 6 )

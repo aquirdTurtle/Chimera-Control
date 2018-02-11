@@ -1,17 +1,20 @@
 def pump2F1():
   % this is basically in-trap pgc without the repump.
   off: diagMotRf
-  dac: diagMotPower 0
-  daclinspace: MotFreq loadmotmotfreq intrapPgcDetuning 1 10
-  dac: SideMotPower inTrapPgcPower
-  dac: RepumpPower 0
-  t += 2
-  % turn the repump on a tiny bit early 
-  % to pump to the F=2 manifold.
   off: RepumpRf
-  %	t += 1
-  on: SideMotRf
-  t += inTrapPgcCoolingTime 
   off: SideMotRf
+  dac: diagMotPower 0
+  % daclinspace: MotFreq loadmotmotfreq intrapPgcDetuning 1 10
+  dac: SideMotPower 0
+  dac: sigmaOpPower 0.068
+  dac: RepumpPower 0
+  dac: sigmaopfreq 0.5 
+  t += 0.1
+  on: sigmaopRf
+
+  t += pumpTime
+  off: sigmaopRf
   off: RepumpRf
-  daclinspace: MotFreq intrapPgcDetuning loadMotMotFreq 1 10
+  t += 0.1
+  % daclinspace: MotFreq intrapPgcDetuning loadMotMotFreq 1 10
+

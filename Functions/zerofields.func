@@ -1,10 +1,9 @@
 def zeroFields():
-	% total time = 0. This function is for doing pgc.
-	dac: leftCoilCurrent pgcLeftField
-	dac: rightCoilCurrent pgcRightField
-	dac: topCoilCurrent pgcTopField
-	dac: bottomCoilCurrent pgcBottomField
-	dac: frontCoilCurrent pgcFrontField
-	dac: backCoilCurrent pgcBackField
-
-t += 3
+  % total time = 0. This function is for doing pgc.
+  dac: leftCoilCurrent pgcLeftField
+  dac: rightCoilCurrent pgcRightField
+  dac: topCoilCurrent pgcTopField
+  dac: bottomCoilCurrent pgcBottomField
+  dac: frontCoilCurrent pgcFrontField
+  dac: backCoilCurrent pgcBackField
+  t += 3

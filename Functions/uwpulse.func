@@ -1,0 +1,8 @@
+% Master-Script See the "?" for info on commands.
+def uwPulse():
+  on: eoswitch
+  on: eoswitch2
+  t += uwLength
+  off: eoswitch
+  off: eoswitch2
+  t += 0.1

@@ -480,6 +480,11 @@ void NiawgController::writeStaticNiawg( NiawgOutput& output, debugInfo& options,
 	{
 		waveInfoForm& waveForm( output.waveFormInfo[ waveInc ] );
 		waveInfo& wave( output.waves[waveInc] );
+		waveInfo prevWave;
+		if ( waveInc != 0 )
+		{
+			prevWave = output.waves[waveInc - 1];
+		}
 		if ( waveForm.flash.isFlashing )
 		{
 			// write static flashing
@@ -499,6 +504,7 @@ void NiawgController::writeStaticNiawg( NiawgOutput& output, debugInfo& options,
 			{
 				rerngFormToOutput( waveForm, wave, constants, 0 );
 				// prepare the waveforms
+
 				finalizeStandardWave( wave.rearrange.staticWave, options );
 				finalizeStandardWave( wave.rearrange.fillerWave, options );
 			}
@@ -514,11 +520,28 @@ void NiawgController::writeStaticNiawg( NiawgOutput& output, debugInfo& options,
 			if ( !waveForm.core.varies )
 			{
 				simpleFormToOutput( waveForm.core, wave.core, constants, 0 );
+				handleMinus1Phase( wave.core, prevWave.core );
 				writeStandardWave( wave.core, options, output.isDefault );
 			}
 		}
 	}
 }
+
+void NiawgController::handleMinus1Phase( simpleWave& waveCore, simpleWave prevWave )
+{
+	for ( auto chanInc : range(waveCore.chan.size()) )
+	{
+		for ( auto sigInc : range(waveCore.chan[chanInc].signals.size()) )
+		{
+			auto& sig = waveCore.chan[chanInc].signals[sigInc];
+			if (sig.initPhase == -1 )
+			{
+				sig.initPhase = prevWave.chan[chanInc].signals[sigInc].finPhase;
+			}
+		}
+	}
+}
+
 
 // this function stores whether the wave varies in the wave structure.
 void NiawgController::simpleFormVaries(simpleWaveForm& wave )
@@ -861,6 +884,11 @@ void NiawgController::handleVariations( NiawgOutput& output, std::vector<std::ve
 		{
 			waveInfo& wave = output.waves[waveInc];
 			waveInfoForm& waveForm = output.waveFormInfo[waveInc];
+			waveInfo prevWave;
+			if ( waveInc != 0 )
+			{
+				prevWave = output.waves[waveInc - 1];
+			}
 			if ( waveForm.core.varies )
 			{
 				if ( waveForm.flash.isFlashing )
@@ -875,6 +903,7 @@ void NiawgController::handleVariations( NiawgOutput& output, std::vector<std::ve
 					{
 						fgenConduit.deleteWaveform( cstr( wave.core.name ) );
 					}
+					handleMinus1Phase( wave.core, prevWave.core );
 					writeStandardWave( wave.core, debugOptions, output.isDefault );
 				}
 				mixedWaveSizes.push_back( 2 * wave.core.sampleNum );
@@ -1218,6 +1247,11 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 	/// deal with ramp calibration files. check all signals for files and read if yes.
 	for ( auto signal : range( inputData.signals.size( ) ) )
 	{
+		if ( inputData.signals[signal].initPhase < 0 )
+		{
+			thrower( "ERROR: initial phase of waveform was negative! This shouldn't happen. At this point, if using -1,"
+					 "phase from prev waveform should have been grabbed already." );
+		}
 		// create spots for the ramp positions.
 		powerPos.push_back( 0 );
 		freqRampPos.push_back( 0 );
@@ -1311,7 +1345,8 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 			{
 				// W{t} = Wi + (DeltaW * t) / (Tfin)
 				// Phi{t}   = Wi * t + (DeltaW * t ^ 2) / 2 + phi_i
-				phasePos[signal] = (2 * PI * inputData.signals[signal].freqInit * curTime + deltaOmega[signal] * pow( curTime, 2 ) / (2 * time)
+				phasePos[signal] = (2 * PI * inputData.signals[signal].freqInit * curTime 
+									 + deltaOmega[signal] * pow( curTime, 2 ) / (2 * time)
 									 + inputData.signals[signal].initPhase);
 			}
 			else if ( inputData.signals[signal].freqRampType == "tanh" )
@@ -1396,7 +1431,8 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 		// Calculate Phase Position. See above for description.
 		if ( inputData.signals[signal].freqRampType == "lin" )
 		{
-			phasePos[signal] = 2 * PI * inputData.signals[signal].freqInit * curTime + deltaOmega[signal] * pow( curTime, 2 ) * 1 / (2 * time)
+			phasePos[signal] = 2 * PI * inputData.signals[signal].freqInit * curTime 
+				+ deltaOmega[signal] * pow( curTime, 2 ) * 1 / (2 * time)
 				+ inputData.signals[signal].initPhase;
 		}
 		else if ( inputData.signals[signal].freqRampType == "tanh" )
@@ -1412,8 +1448,10 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 		}
 		else
 		{
-			freqRampPos[signal] = freqRampFileData[signal][sample] * (inputData.signals[signal].freqFin - inputData.signals[signal].freqInit);
-			phasePos[signal] = (ViReal64)sample * 2 * PI * (inputData.signals[signal].freqInit + freqRampPos[signal]) / (NIAWG_SAMPLE_RATE)
+			freqRampPos[signal] = freqRampFileData[signal][sample] * (inputData.signals[signal].freqFin 
+																	   - inputData.signals[signal].freqInit);
+			phasePos[signal] = (ViReal64)sample * 2 * PI * (inputData.signals[signal].freqInit 
+															 + freqRampPos[signal]) / (NIAWG_SAMPLE_RATE)
 				+inputData.signals[signal].initPhase;
 		}
 		// Don't need amplitude info.
@@ -1421,12 +1459,13 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 
 	for ( auto signal : range( inputData.signals.size( ) ) )
 	{
-		// get the final phase of this waveform. Note that this is the phase of the /next/ data point (the last time signalInc gets incremented, the for loop 
-		// doesn't run) so that if the next waveform starts at this data point, it will avoid repeating the same data point. This is used for the 
-		// option where the user uses this phase as the starting phase of the next waveform.
+		// get the final phase of this waveform. Note that this is the phase of the /next/ data point (the last time 
+		// signalInc gets incremented, the for loop doesn't run) so that if the next waveform starts at this data 
+		// point, it will avoid repeating the same data point. This is used for the option where the user uses this 
+		// phase as the starting phase of the next waveform.
 		inputData.signals[signal].finPhase = fmod( phasePos[signal], 2 * PI );
-		// catch the case in which the final phase is virtually identical to 2*PI, which isn't caught in the above line because of bad floating point 
-		// arithmetic.
+		// catch the case in which the final phase is virtually identical to 2*PI, which isn't caught in the above 
+		// line because of bad floating point arithmetic.
 		if ( fabs( inputData.signals[signal].finPhase - 2 * PI ) < 0.00000005 )
 		{
 			inputData.signals[signal].finPhase = 0;
@@ -1617,7 +1656,7 @@ void NiawgController::loadWaveformParametersFormSingle( NiawgOutput& output, std
 	for ( auto signal : wave.chan[axis].signals )
 	{
 		// If the user used a '-1' for the initial phase, this means the user wants to copy the ending phase of the 
-		// previous waveform.
+		// previous waveform. Check to make sure this is valid at this point, will be evaluated later.
 		if ( signal.initPhase.evaluate( ) == -1 )
 		{
 			UINT prevNum = output.waveFormInfo.size( ) - 1;

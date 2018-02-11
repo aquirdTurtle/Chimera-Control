@@ -1,20 +1,54 @@
 def rotateFieldsbackscatter():
+  % rotating field back to normal quant axis.
 
-	% ramping fields assuming from pump2stretch values as of 9/11/2017. if seeing funny things would need to check pump2stretch values
-	% input is theta and phi, where theta=0, phi=0 represents the normal 3G field direction along left and right. here we try to keep the field constant during rotation
-	% define left at theta=pi/2,phi=0; top at theta=0; front at theta=pi/2, phi=pi/2
-	% according to calibrations in 2017/9/9-2017/9/11, we have individual calibrations of each coil field DAC values/22-11 resonance in V/MHz
-	% left/right 0.873132/-0.85932; top/bottom -0.717172/0.780168; front/back 1.13866/-1.11831
-	% null point at setting right/left +-0.4856; top/bottom +-1.994; front/back -+0.551
-	% according to D Steck we have 22-11 transition of 2.1 MHz/Gauss, thus for 3G we have 6.3 MHz shift from resonance
+  % ramping fields assuming from pump2stretch values as of 9/11/2017. 
+  % if seeing funny things would need to check pump2stretch values
+  % input is theta and phi, where theta=0, phi=0 represents the normal 3G 
+  % field direction along left and right. here we try to keep the field 
+  % constant during rotation
+  % define left at theta=pi/2,phi=0; top at theta=0; front at theta=pi/2, 
+  % phi=pi/2
+  % according to calibrations in 2017/9/9-2017/9/11, we have individual 
+  % calibrations of each coil field DAC values/22-11 resonance in V/MHz
+  % left/right 0.873132/-0.85932; top/bottom -0.717172/0.780168; front/back 
+  % 1.13866/-1.11831
+  % null point at setting right/left +-0.4856; top/bottom +-1.994; 
+  % front/back -+0.551
+  % according to D Steck we have 22-11 transition of 2.1 MHz/Gauss, thus 
+  % for 3G we have 6.3 MHz shift from resonance
 
-% rotating from pgc field values. parameter "field" is in Gauss
+  % the values in setQuantAxis as of 1/24/2017
+  % dac: frontcoilcurrent -0.66
+  % dac: backcoilcurrent 0.2914
+  % dac: rightcoilcurrent -2.7361
+  % dac: leftcoilcurrent 3.6461
+  % dac: bottomcoilcurrent -1.7
+  % dac: topcoilcurrent 2.12
+% parameter "field" is in Gauss
 
-daclinspace: topCoilCurrent (2.00104 + 2.1*field/(-0.716623)*cos(fieldtheta)/2 ) (2.00104 + 2.1*field/(-0.716623)*cos(1.57)/2 ) (rotateFieldTime) 10
-daclinspace: bottomCoilCurrent ( -2.00104 + 2.1*field/0.759638*cos(fieldtheta)/2 ) ( -2.00104 + 2.1*field/0.759638*cos(1.57)/2 ) (rotateFieldTime) 10
-daclinspace: leftCoilCurrent ( -0.449362 + 2.1*field/0.885082*sin(fieldtheta)*cos(fieldphi)/2) ( -0.449362 + 2.1*field/0.885082*sin(1.57)*cos(0)/2) (rotateFieldTime) 10
-daclinspace: rightCoilCurrent  ( 0.449362 + 2.1*field/(-0.856589)*sin(fieldtheta)*cos(fieldphi)/2 ) ( 0.449362 + 2.1*field/(-0.856589)*sin(1.57)*cos(0)/2 ) (rotateFieldTime) 10	 %pgcRightField
-daclinspace: frontCoilCurrent (-0.587889 + 2.1*field/1.12962*sin(fieldtheta)*sin(fieldphi)/2) (-0.587889 + 2.1*field/1.12962*sin(1.57)*sin(0)/2) (rotateFieldTime) 10
-daclinspace: backCoilCurrent ( 0.587889 + 2.1*field/(-1.11879)*sin(fieldtheta)*sin(fieldphi)/2) ( 0.587889 + 2.1*field/(-1.11879)*sin(1.57)*sin(0)/2) (rotateFieldTime)  10
+  daclinspace: topCoilCurrent 
+    (2.00104 + 2.1*field/(-0.716623)*cos(fieldtheta)/2 )  
+    2.12
+    (rotateFieldTime) 10
+  daclinspace: bottomCoilCurrent   
+    ( -2.00104 + 2.1*field/0.759638*cos(fieldtheta)/2 )   
+    -1.7
+    (rotateFieldTime) 10
+  daclinspace: leftCoilCurrent   
+    ( -0.449362 + 2.1*field/0.885082*sin(fieldtheta)*cos(fieldphi)/2)   
+    3.6461
+    (rotateFieldTime) 10
+  daclinspace: rightCoilCurrent    
+    ( 0.449362 + 2.1*field/(-0.856589)*sin(fieldtheta)*cos(fieldphi)/2 )  
+    -2.7361
+    (rotateFieldTime) 10
+  daclinspace: frontCoilCurrent   
+    (-0.587889 + 2.1*field/1.12962*sin(fieldtheta)*sin(fieldphi)/2)  
+    -0.66
+    (rotateFieldTime) 10
+  daclinspace: backCoilCurrent   
+    ( 0.587889 + 2.1*field/(-1.11879)*sin(fieldtheta)*sin(fieldphi)/2)   
+    0.2914
+    (rotateFieldTime) 10
 
-t += (rotateFieldTime)
+  t += (rotateFieldTime+1)

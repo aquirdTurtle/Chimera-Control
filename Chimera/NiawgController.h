@@ -123,7 +123,7 @@ class NiawgController
 		void generateWaveform( channelWave & waveInfo, debugInfo& options, long int sampleNum, double time );
 		void mixWaveforms( simpleWave& waveCore, bool writeThisToFile );
 		void calcWaveData( channelWave& inputData, std::vector<ViReal64>& readData, long int sampleNum, double time );
-
+		void handleMinus1Phase( simpleWave& waveCore, simpleWave prevWave );
 		void createFlashingWave( waveInfo& wave, debugInfo options );
 		UINT writeToFileNumber = 0;
 		void loadStandardInputFormType( std::string inputType, channelWaveForm &wvInfo );
