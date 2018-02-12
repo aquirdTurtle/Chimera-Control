@@ -1122,14 +1122,14 @@ std::string CameraWindow::getStartMessage()
 	dialogMsg += "Repetitions per Variation:\r\n\t" + str( CameraSettings.getSettings().andor.totalPicsInVariation ) + "\r\n";
 	dialogMsg += "Variations per Experiment:\r\n\t" + str( CameraSettings.getSettings().andor.totalVariations ) + "\r\n";
 	dialogMsg += "Total Pictures per Experiment:\r\n\t" + str( CameraSettings.getSettings().andor.totalPicsInExperiment ) + "\r\n";
+	
 	dialogMsg += "Real-Time Atom Detection Thresholds:\r\n\t";
-
 	for (auto& threshold : CameraSettings.getSettings().thresholds)
 	{
 		dialogMsg += str( threshold ) + ", ";
 	}
-	dialogMsg += "Current Plotting Options:\r\n";
 
+	dialogMsg += "\r\nReal-Time Plots:\r\n";
 	for (UINT plotInc = 0; plotInc < plots.size(); plotInc++)
 	{
 		dialogMsg += "\t" + plots[plotInc] + "\r\n";

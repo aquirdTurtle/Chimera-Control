@@ -3,10 +3,12 @@
 #include <vector>
 #include "PlotCtrl.h"
 
+
 class PlotDialog : public CDialog
 {
 	/*
-	 * PlotDialog is a dialog with a single PlotCtrl plot in it. It's only purpose is to act as a 
+	 * PlotDialog is a wrapper around a CDialog and a PlotCtrl. That is, it's a dialog with a PlotCtrl plot in it. 
+	 * It's purpose is to act as a movable window for extra plots that don't belong in the main window.
 	 */
 	public:
 		DECLARE_DYNAMIC( PlotDialog );

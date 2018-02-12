@@ -27,6 +27,13 @@ struct dataPoint
 typedef std::vector<dataPoint> plotDataVec; 
 typedef std::shared_ptr<plotDataVec> pPlotDataVec;
 
+
+/*
+* This is a custom object that I use for plotting. All of the drawing is done manually by standard win32 / MFC
+* functionality. Plotting used to be done by gnuplot, an external program which my program would send data to in
+* real-time, but this custom plotter, while it took some work (it was fun though) allows me to embed plots in the
+* main windows and have a little more direct control over the data being plotted.
+*/
 class PlotCtrl
 {
 	public:
@@ -64,7 +71,6 @@ class PlotCtrl
 		std::vector<std::mutex> dataMutexes;
 	private:
 		// in units of the data
-		//CBrush* backgroundBrush;
 		double boxWidth=1;
 		double boxWidthPixels;
 		double widthScale2, heightScale2;
