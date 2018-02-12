@@ -240,4 +240,4 @@ intrappgcrepumppower 0.1
 field 3
 rotatefieldtime 3
 opticalpumpdepth 0
-259 285 3 229 273 3
+1 5 1 1 5 1

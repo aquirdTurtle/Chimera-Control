@@ -34,6 +34,7 @@ class PlotCtrl
 				  CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes,
 				  std::string titleIn = "Title!" );
 		~PlotCtrl( );
+		void clear( );
 		void setCurrentDims( int width, int height);
 		void rearrange( int width, int height, fontMap fonts );
 		void init( POINT topLeftLoc, LONG width, LONG height, CWnd* parent );
@@ -58,6 +59,8 @@ class PlotCtrl
 		void makeLinePlot( memDC* d, plotDataVec line, Gdiplus::Pen* p );
 		void makeStepPlot( memDC* d, plotDataVec line, Gdiplus::Pen* p , Gdiplus::Brush* b );
 
+		bool wantsSustain( );
+
 		std::vector<std::mutex> dataMutexes;
 	private:
 		// in units of the data
@@ -75,6 +78,7 @@ class PlotCtrl
 		CPen whitePen, greyPen, redPen, solarizedPen;
 		Gdiplus::SolidBrush* whiteBrush;
 		Control<CButton> legButton;
+		Control<CButton> sustainButton;
 		//std::vector<CPen*> pens;
 		std::vector<Gdiplus::SolidBrush*> brushes;
 		std::vector<Gdiplus::Pen*> pens;
