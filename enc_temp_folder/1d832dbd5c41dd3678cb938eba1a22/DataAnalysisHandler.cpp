@@ -142,8 +142,6 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	// width between each coloum
 	RECT r;
 	parent->GetClientRect( &r );
-	// spacing is funny because initial window size is not full screen and the columns aren't autoscaled. This spacing
-	// just works out.
 	listViewDefaultCollumn.cx = r.right / 2.5;
 	// Inserting Collumbs as much as we want
 	plotListview.InsertColumn(0, &listViewDefaultCollumn);
