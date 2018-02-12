@@ -4,6 +4,11 @@
 #include "windows.h"
 #include <vector>
 
+
+/*
+ * This object is a wrapper around a 2D vector that facilitates generating, storing, and handling multi-dimensional
+ * key data for experiment runs with more than one parameter being varyied.
+ */
 template <class TYPE>
 class multiDimensionalKey
 {

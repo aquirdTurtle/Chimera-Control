@@ -2,6 +2,12 @@
 #include <string>
 #include "nidaqmx2.h"
 
+
+/*
+ * This is an incomplete wrapper around the DAQmx api. Incomplete in the sense that it doesn't wrap all of DAQmx (which
+ * is large). It only wraps what I currently use. Wrappers like this serve to ease working with the API, standardize
+ * error reporting between differnet apis (I use the thrower object for error reporting), and to facilitate a safemode.
+ */
 class DaqMxFlume
 {
 	public:
