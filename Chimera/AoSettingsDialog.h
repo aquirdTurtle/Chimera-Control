@@ -10,6 +10,11 @@ struct aoInputStruct
 	AuxiliaryWindow* master;
 };
 
+
+/*
+ * This control is an interface for extra Analog-Output settings. In particular, at the moment, the names of the 
+ * different channels, and the min/max voltages allowed for each channel.
+ */
 class AoSettingsDialog : public CDialog
 {
 	public:

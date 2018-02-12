@@ -46,6 +46,7 @@ BUGS:
 - trying save if only camera is running...
 - trying to use -1 on first waveform causes crash.
 - what's happening if you try to abort in the middle of the "programming" stage?
+- fix variable logging
 
 Rearranging
 - code for creating non-flashing moves
