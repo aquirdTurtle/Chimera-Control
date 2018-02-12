@@ -76,14 +76,23 @@ void PlotCtrl::init( POINT topLeftLoc, LONG width, LONG height, CWnd* parent )
 	RECT d = controlDims;
 	long w = d.right - d.left, h = d.bottom - d.top;
 	plotAreaDims = { long( d.left + w*0.1 ), long(d.top + h*0.08), long(d.right*0.98), long( d.bottom - h*0.1 ) };
-	legButton.sPos = { topLeftLoc.x, topLeftLoc.y, topLeftLoc.x + 22, topLeftLoc.y + 22 };
+	legButton.sPos = { topLeftLoc.x, topLeftLoc.y, topLeftLoc.x + 22, topLeftLoc.y += 22 };
 	legButton.Create( "", NORM_CHECK_OPTIONS, legButton.sPos, parent, 0 );
+	sustainButton.sPos = { topLeftLoc.x, topLeftLoc.y, topLeftLoc.x + 22, topLeftLoc.y += 22 };
+	sustainButton.Create( "", NORM_CHECK_OPTIONS, sustainButton.sPos, parent, 0 );
+}
+
+
+bool PlotCtrl::wantsSustain( )
+{
+	return sustainButton.GetCheck( );
 }
 
 
 void PlotCtrl::rearrange( int width, int height, fontMap fonts )
 {
 	legButton.rearrange( width, height, fonts );
+	sustainButton.rearrange( width, height, fonts );
 }
 
 
@@ -186,6 +195,12 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 	}
 }
 
+void PlotCtrl::clear( )
+{
+	pens.clear( );
+	brushes.clear( );
+}
+
 
 void PlotCtrl::plotPoints( memDC* d )
 {
@@ -281,6 +296,16 @@ void PlotCtrl::plotPoints( memDC* d )
 	if ( legButton && legButton.GetCheck( ) )
 	{
 		drawLegend( d, shiftedData );
+	}
+	if ( legButton )
+	{
+		legButton.Invalidate( );
+		//legButton.RedrawWindow( );
+	}
+	if ( sustainButton )
+	{
+		sustainButton.Invalidate( );
+		//sustainButton.RedrawWindow( );
 	}
 }
 
@@ -539,6 +564,18 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 	if ( style == TtlPlot )
 	{
 		txt = "Ttl State";
+	}
+	else if ( style == DacPlot )
+	{
+		txt = "Dac Voltage";
+	}
+	else if ( style == ErrorPlot )
+	{
+		txt = "%";
+	}
+	else if ( style == HistPlot )
+	{
+		txt = "Occurances";
 	}
 	d->SelectObject( textFont );
 	d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );

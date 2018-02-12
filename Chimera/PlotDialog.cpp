@@ -23,6 +23,23 @@ BEGIN_MESSAGE_MAP( PlotDialog, CDialog )
 END_MESSAGE_MAP()
 
 
+bool PlotDialog::removeQuery( PlotDialog* plt )
+{
+	if ( !plt->wantsSustain( ) )
+	{
+		plt->OnCancel( );
+		return true;
+	}
+	return false;
+}
+
+
+bool PlotDialog::wantsSustain( )
+{
+	return plot.wantsSustain();
+}
+
+
 void PlotDialog::OnTimer( UINT_PTR id )
 {
 	// in principle could just invalidate rect here.
@@ -35,6 +52,23 @@ void PlotDialog::OnSize( UINT s, int cx, int cy)
 	CDialog::OnSize( s, cx, cy );
 	OnPaint( );
 }
+
+
+void PlotDialog::OnCancel( )
+{
+	// for some reason if I destroy the window it seems to corrupt some of the pens that the plot holds, and this is
+	// fixed by clearing the relevant vectors before destroying the window. I don't know why this is a problem / why
+	// this fixes it.
+	plot.clear( );
+	DestroyWindow( );
+}
+
+void PlotDialog::PostNcDestroy( )
+{
+	CDialog::PostNcDestroy( );
+	delete this;
+}
+
 
 
 HBRUSH PlotDialog::OnCtlColor( CDC* pDC, CWnd* pWnd, UINT nCtlColor )

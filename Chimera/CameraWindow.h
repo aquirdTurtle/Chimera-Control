@@ -144,5 +144,6 @@ class CameraWindow : public CDialog
 		std::atomic<bool> skipNext=false;
 		std::vector<double> plotterKey;
 		chronoTimes imageTimes, imageGrabTimes, mainThreadStartTimes, crunchSeesTimes, crunchFinTimes;		
+		std::vector<PlotDialog*> activePlots;
 };
 

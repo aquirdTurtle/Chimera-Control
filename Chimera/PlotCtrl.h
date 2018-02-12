@@ -27,6 +27,13 @@ struct dataPoint
 typedef std::vector<dataPoint> plotDataVec; 
 typedef std::shared_ptr<plotDataVec> pPlotDataVec;
 
+
+/*
+* This is a custom object that I use for plotting. All of the drawing is done manually by standard win32 / MFC
+* functionality. Plotting used to be done by gnuplot, an external program which my program would send data to in
+* real-time, but this custom plotter, while it took some work (it was fun though) allows me to embed plots in the
+* main windows and have a little more direct control over the data being plotted.
+*/
 class PlotCtrl
 {
 	public:
@@ -34,6 +41,7 @@ class PlotCtrl
 				  CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes,
 				  std::string titleIn = "Title!" );
 		~PlotCtrl( );
+		void clear( );
 		void setCurrentDims( int width, int height);
 		void rearrange( int width, int height, fontMap fonts );
 		void init( POINT topLeftLoc, LONG width, LONG height, CWnd* parent );
@@ -58,6 +66,8 @@ class PlotCtrl
 		void makeLinePlot( memDC* d, plotDataVec line, Gdiplus::Pen* p );
 		void makeStepPlot( memDC* d, plotDataVec line, Gdiplus::Pen* p , Gdiplus::Brush* b );
 
+		bool wantsSustain( );
+
 		std::vector<std::mutex> dataMutexes;
 	private:
 		// in units of the data
@@ -74,6 +84,7 @@ class PlotCtrl
 		CPen whitePen, greyPen, redPen, solarizedPen;
 		Gdiplus::SolidBrush* whiteBrush;
 		Control<CButton> legButton;
+		Control<CButton> sustainButton;
 		//std::vector<CPen*> pens;
 		std::vector<Gdiplus::SolidBrush*> brushes;
 		std::vector<Gdiplus::Pen*> pens;

@@ -897,7 +897,10 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 	}
 	input.plotterInput->atomQueue = &plotterAtomQueue;
 	analysisHandler.fillPlotThreadInput( input.plotterInput );
-	
+	// remove old plots that aren't trying to sustain.
+	activePlots.erase( std::remove_if( activePlots.begin(), activePlots.end(), PlotDialog::removeQuery ), 
+					   activePlots.end() );
+
 	for ( auto plotParams : input.plotterInput->plotInfo )
 	{
 		// Create vector of data to be shared btween plotter and data analysis handler. 
@@ -934,6 +937,7 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 										   plotParams.name );
 		plot->Create( IDD_PLOT_DIALOG, 0 );
 		plot->ShowWindow( SW_SHOW );
+		activePlots.push_back( plot );
 		input.plotterInput->dataArrays.push_back( data );
 	}
 }
@@ -1118,14 +1122,14 @@ std::string CameraWindow::getStartMessage()
 	dialogMsg += "Repetitions per Variation:\r\n\t" + str( CameraSettings.getSettings().andor.totalPicsInVariation ) + "\r\n";
 	dialogMsg += "Variations per Experiment:\r\n\t" + str( CameraSettings.getSettings().andor.totalVariations ) + "\r\n";
 	dialogMsg += "Total Pictures per Experiment:\r\n\t" + str( CameraSettings.getSettings().andor.totalPicsInExperiment ) + "\r\n";
+	
 	dialogMsg += "Real-Time Atom Detection Thresholds:\r\n\t";
-
 	for (auto& threshold : CameraSettings.getSettings().thresholds)
 	{
 		dialogMsg += str( threshold ) + ", ";
 	}
-	dialogMsg += "Current Plotting Options:\r\n";
 
+	dialogMsg += "\r\nReal-Time Plots:\r\n";
 	for (UINT plotInc = 0; plotInc < plots.size(); plotInc++)
 	{
 		dialogMsg += "\t" + plots[plotInc] + "\r\n";
@@ -1188,9 +1192,9 @@ BOOL CameraWindow::OnInitDialog()
 	CameraSettings.initialize( positions, id, this, tooltips );
 	POINT position = { 480, 0 };
 	stats.initialize( position, this, id, tooltips );
-	positions.sPos = { 757, 0 };
+	positions.sPos = { 797, 0 };
 	timer.initialize( positions, this, false, id, tooltips );
-	position = { 757, 40 };
+	position = { 797, 40 };
 	pics.initialize( position, this, id, tooltips, mainWindowFriend->getBrushes()["Dark Green"] );
 	//
 	pics.setSinglePicture( this, CameraSettings.getSettings( ).andor.imageSettings );

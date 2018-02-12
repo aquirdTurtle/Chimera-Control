@@ -48,60 +48,64 @@ void AoSettingsDialog::handleCancel()
 
 BOOL AoSettingsDialog::OnInitDialog()
 {
-	//input = *(aoInputStruct*)lParam;
 	POINT loc = { 0,0 };
+	RECT r;
+	GetClientRect( &r );
+	UINT columnNumber = 3;
+	LONG columnSize = (r.right-20*columnNumber) / columnNumber;
+	LONG rowHeight = 25;
 	// headers
-	for (int columnInc = 0; columnInc < 3; columnInc++)
+	for (int columnInc = 0; columnInc < columnNumber; columnInc++)
 	{
 		dacNumberHeaders[columnInc].sPos = { loc.x, loc.y, loc.x + 20, loc.y + 20 };
 		loc.x += 20;
 		dacNumberHeaders[columnInc].Create("#", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER | WS_BORDER,
 										   dacNumberHeaders[columnInc].sPos, this);
 
-		dacNameHeaders[columnInc].sPos = { loc.x, loc.y, loc.x + 120, loc.y + 20 };
-		loc.x += 120;
+		dacNameHeaders[columnInc].sPos = { loc.x, loc.y, loc.x + columnSize/2, loc.y + rowHeight+5 };
+		loc.x += columnSize/2;
 		dacNameHeaders[columnInc].Create("Dac Name", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER | WS_BORDER,
 										 dacNameHeaders[columnInc].sPos, this);
-		dacMinValHeaders[columnInc].sPos = { loc.x, loc.y, loc.x + 120, loc.y + 20 };
-		loc.x += 120;
+		dacMinValHeaders[columnInc].sPos = { loc.x, loc.y, loc.x + columnSize / 4, loc.y + rowHeight + 5 };
+		loc.x += columnSize/4;
 		dacMinValHeaders[columnInc].Create("Min Value", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER | WS_BORDER,
 										   dacMinValHeaders[columnInc].sPos, this);
-		dacMaxValHeaders[columnInc].sPos = { loc.x, loc.y, loc.x + 120, loc.y + 20 };
-		loc.x += 120;
+		dacMaxValHeaders[columnInc].sPos = { loc.x, loc.y, loc.x + columnSize / 4, loc.y + rowHeight + 5 };
+		loc.x += columnSize/4;
 		dacMaxValHeaders[columnInc].Create("Max Value", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER | WS_BORDER,
 										   dacMaxValHeaders[columnInc].sPos, this);
 	}
 
-	loc.y += 25;
-	loc.x -= 380 * 3;
+	loc.y += rowHeight + 5;
+	loc.x -= (columnSize +20) * columnNumber;
 
 	for (UINT dacInc = 0; dacInc < nameEdits.size(); dacInc++)
 	{
-		if (dacInc == nameEdits.size() / 3 || dacInc == 2 * nameEdits.size() / 3)
+		if (dacInc == nameEdits.size() / columnNumber || dacInc == 2 * nameEdits.size() / columnNumber )
 		{
 			// go to second or third collumn
-			loc.x += 380;
-			loc.y -= 25 * nameEdits.size() / 3;
+			loc.x += columnSize+20;
+			loc.y -= rowHeight * nameEdits.size() / columnNumber;
 		}
 		// create label
-		numberLabels[dacInc].sPos = { loc.x, loc.y, loc.x += 20, loc.y + 20 };
+		numberLabels[dacInc].sPos = { loc.x, loc.y, loc.x += 20, loc.y + rowHeight };
 		numberLabels[dacInc].Create(cstr(dacInc), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, 
 									numberLabels[dacInc].sPos, this);
 
-		nameEdits[dacInc].sPos = { loc.x, loc.y, loc.x += 120, loc.y + 20 };
+		nameEdits[dacInc].sPos = { loc.x, loc.y, loc.x += columnSize/2, loc.y + rowHeight };
 		nameEdits[dacInc].Create( WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_BORDER, nameEdits[dacInc].sPos, this, id++);
 		nameEdits[dacInc].SetWindowTextA(cstr(input->aoSys->getName(dacInc)));
 
-		minValEdits[dacInc].sPos = { loc.x, loc.y, loc.x += 120, loc.y + 20 };
+		minValEdits[dacInc].sPos = { loc.x, loc.y, loc.x += columnSize/4, loc.y + rowHeight };
 		minValEdits[dacInc].Create( WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_BORDER, minValEdits[dacInc].sPos, this, id++);
 		minValEdits[dacInc].SetWindowTextA(cstr(input->aoSys->getDacRange(dacInc).first));
 
-		maxValEdits[dacInc].sPos = { loc.x, loc.y, loc.x += 120, loc.y + 20 };
+		maxValEdits[dacInc].sPos = { loc.x, loc.y, loc.x += columnSize/4, loc.y + rowHeight };
 		maxValEdits[dacInc].Create(WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_BORDER, maxValEdits[dacInc].sPos, this, id++);
 		maxValEdits[dacInc].SetWindowTextA(cstr(input->aoSys->getDacRange(dacInc).second));
 
-		loc.y += 25;
-		loc.x -= 380;
+		loc.y += rowHeight;
+		loc.x -= columnSize+20;
 	}
 	return TRUE;
 }
