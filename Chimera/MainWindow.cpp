@@ -435,7 +435,7 @@ BOOL MainWindow::OnInitDialog( )
 	testData.resize( 2 );
 	testData[0] = pPlotDataVec( new plotDataVec( 100, { 0,0,0 } ) );
 	testData[1] = pPlotDataVec( new plotDataVec( 100, { 0,0,0 } ) );
-	plot = new PlotDialog( testData, ErrorPlot/*HistPlot*/, getPlotPens(), getPlotFont(), getPlotBrushes() );
+	plot = new PlotDialog( testData, ErrorPlot, getPlotPens(), getPlotFont(), getPlotBrushes() );
 	controlLocation = { 960, 910 };
 	plot->Create( IDD_PLOT_DIALOG, 0 );
 	plot->ShowWindow( SW_SHOW );
@@ -789,9 +789,14 @@ HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 void MainWindow::passCommonCommand(UINT id)
 {
 	static UINT inc = 0;
-	if ( inc == 100 )
+	if ( inc == 10 )
 	{
 		inc = 0;
+		plot->OnCancel();
+		plot = NULL;
+		//plot->EndDialog( 0 );
+		//plot->DestroyWindow( );
+		//delete plot;
 	}
 	for ( auto& data : testData )
 	{

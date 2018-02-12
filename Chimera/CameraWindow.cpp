@@ -897,7 +897,10 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 	}
 	input.plotterInput->atomQueue = &plotterAtomQueue;
 	analysisHandler.fillPlotThreadInput( input.plotterInput );
-	
+	// remove old plots that aren't trying to sustain.
+	activePlots.erase( std::remove_if( activePlots.begin(), activePlots.end(), PlotDialog::removeQuery ), 
+					   activePlots.end() );
+
 	for ( auto plotParams : input.plotterInput->plotInfo )
 	{
 		// Create vector of data to be shared btween plotter and data analysis handler. 
@@ -934,6 +937,7 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 										   plotParams.name );
 		plot->Create( IDD_PLOT_DIALOG, 0 );
 		plot->ShowWindow( SW_SHOW );
+		activePlots.push_back( plot );
 		input.plotterInput->dataArrays.push_back( data );
 	}
 }
