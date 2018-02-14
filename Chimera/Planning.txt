@@ -22,14 +22,14 @@ FEATURES:
 - agilent should be able to go smoothly from one waveform to another.
 - get running average working again
 - add all agilents / tek to color boxes?
+- restore ability to look multi-pixel conditions / events in plots
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
-- refactor groups in plotinfo and gnuplot stuffs
+- refactor groups in plotinfo
 - change pointers to smart-ptrs where possible
 - more tooltips
 - better documentation in general
-- remove gnuplot after finish with hists.
 - Andor system should use Matrix class for pictures
 - all mutexes should use lock_guard or similar for consistency
 
