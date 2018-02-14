@@ -1,11 +1,8 @@
 #pragma once
 
-//#include "Expression.h"
-
 #include <string>
 #include "Windows.h"
 #include <unordered_map>
-//#include <afxwin.h>
 #include <chrono>
 
 class Expression;

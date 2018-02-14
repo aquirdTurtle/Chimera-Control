@@ -108,7 +108,7 @@ class PlottingInfo
 		// Versions of the plot save file system. 
 		// Version 1.x refers to files that were outputted with no version number
 		const UINT versionMajor = 2;
-		const UINT versionMinor = 0;
+		const UINT versionMinor = 1;
 		std::string title;
 		std::string yLabel;
 		// analysisGroups[pixel #][pixel set]

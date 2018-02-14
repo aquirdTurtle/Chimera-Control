@@ -37,7 +37,7 @@ void PictureManager::setAlwaysShowGrid(bool showOption, CDC* easel)
 
 
 void PictureManager::redrawPictures( CDC* easel, coordinate selectedLocation, std::vector<coordinate> analysisLocs,
-									 atomGrid gridInfo, bool forceGrid )
+									 std::vector<atomGrid> gridInfo, bool forceGrid )
 {
 	if (!pictures[1].isActive())
 	{
@@ -62,15 +62,15 @@ void PictureManager::redrawPictures( CDC* easel, coordinate selectedLocation, st
 
 
 /*
- *  
+ *
  */
 void PictureManager::drawDongles( CDC* dc, coordinate selectedLocation, std::vector<coordinate> analysisLocs, 
-								  atomGrid gridInfo )
+								  std::vector<atomGrid> grids )
 {
 	for (auto& pic : pictures)
 	{
 		pic.drawCircle(dc, selectedLocation);
-		pic.drawAnalysisMarkers(dc, analysisLocs, gridInfo);
+		pic.drawAnalysisMarkers(dc, analysisLocs, grids);
 	}
 }
 
@@ -144,10 +144,7 @@ void PictureManager::handleOpenConfig(std::ifstream& configFile, int versionMajo
 		configFile >> mins[sliderInc];
 		configFile >> maxes[sliderInc];
 	}
-	configFile >> autoScalePictures;
-	configFile >> specialGreaterThanMax;
-	configFile >> specialLessThanMin;
-	configFile >> alwaysShowGrid;
+	configFile >> autoScalePictures >> specialGreaterThanMax >> specialLessThanMin >> alwaysShowGrid;
 	UINT count = 0;
 	for (auto& pic : pictures)
 	{

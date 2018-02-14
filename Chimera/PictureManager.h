@@ -22,12 +22,12 @@ class PictureManager
 		void drawPicture( CDC* deviceContext, int pictureNumber, std::vector<long> picData, 
 						  std::pair<UINT, UINT> minMaxPair );
 		void drawDongles( CDC* dc, coordinate selectedLocation, std::vector<coordinate> analysisLocs, 
-						  atomGrid gridInfo );
+						  std::vector<atomGrid> gridInfo );
 		void createPalettes( CDC* dc );
 		void handleEditChange( UINT id );
 		void setAlwaysShowGrid(bool showOption, CDC* easel);
-		void redrawPictures(CDC* easel, coordinate selectedLocation, std::vector<coordinate> analysisLocs, 
-							 atomGrid gridInfo, bool forceGrid );
+		void redrawPictures( CDC* easel, coordinate selectedLocation, std::vector<coordinate> analysisLocs, 
+							 std::vector<atomGrid> gridInfo, bool forceGrid );
 		void setPictureSliders(CWnd* parent);
 		void setNumberPicturesActive( int numberActive );
 		coordinate handleRClick(CPoint clickLocation);

@@ -7,7 +7,6 @@ FEATURES:
 	- code scans currently used functions for local variables used and just lists those
 	- use combo to list just variables in a function or all variables
 - Full experiments following each other, alternative use of sequences.
-- Be able to set different analysis locations for different plots?
 - Consider ways to make navigating many functions more sensible. May be similar to local variable considerations.
 - finish implementing randomizing repetitions.
 	- Create per-repetitiong list of variation values to use
@@ -47,6 +46,7 @@ BUGS:
 - trying to use -1 on first waveform causes crash.
 - what's happening if you try to abort in the middle of the "programming" stage?
 - fix variable logging
+- if loadskip threshold set but no loadskip in script, crashes.
 
 Rearranging
 - code for creating non-flashing moves

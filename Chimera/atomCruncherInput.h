@@ -13,9 +13,10 @@ struct atomCruncherInput
 	//
 	chronoTimes* catchPicTime;
 	chronoTimes* finTime;
-	atomGrid gridInfo;
+	std::vector<atomGrid> grids;
 	// what the thread watches...
 	std::atomic<bool>* cruncherThreadActive;
+	// imageQueue[queuePositions][pixelNum(flattened)]
 	std::vector<std::vector<long>>* imageQueue;
 	// options
 	bool plotterActive;
@@ -28,8 +29,10 @@ struct atomCruncherInput
 	std::mutex* rearrangerLock;
 	std::condition_variable* rearrangerConditionWatcher;
 	// what the thread fills.
-	std::vector<std::vector<long>>* plotterImageQueue;
-	std::vector<std::vector<bool>>* plotterAtomQueue;
+	// imageQueue[gridNum][queuePositions][pixelNum(flattened)]
+	std::vector<std::vector<std::vector<long>>>* plotterImageQueue;
+	std::vector<std::vector<std::vector<bool>>>* plotterAtomQueue;
+	//
 	std::vector<std::vector<bool>>* rearrangerAtomQueue;
 	std::array<int, 4> thresholds;
 	imageParameters imageDims;

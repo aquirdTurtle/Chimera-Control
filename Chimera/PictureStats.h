@@ -14,6 +14,7 @@ const double countToScatteredPhotonEM200 = 0.018577 / 0.07;
 const double conventionalBackgroundCount = 88;
 const double EMGain200BackgroundCount = 105;
 */
+
 struct conversions
 {
 	const double countToCameraPhoton = 0.697798;
