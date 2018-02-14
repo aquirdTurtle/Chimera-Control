@@ -2,7 +2,7 @@
 #include <boost/container/vector.hpp>
 #include "windows.h"
 
-// a wrapper around a 1D matrix that allows for 2D (row/collum) access styles. Mostly used to represetn images.
+// a wrapper around a 1D matrix that allows for 2D (row/collum) access styles. Mostly used to represent images.
 template <class type>
 class Matrix
 {

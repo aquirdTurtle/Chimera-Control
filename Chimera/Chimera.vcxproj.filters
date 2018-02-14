@@ -417,9 +417,6 @@
     <ClInclude Include="cameraPositions.h">
       <Filter>Camera Window\Structures</Filter>
     </ClInclude>
-    <ClInclude Include="gnuplot-iostream.h">
-      <Filter>Camera Window</Filter>
-    </ClInclude>
     <ClInclude Include="imageParameters.h">
       <Filter>Camera Window\Structures</Filter>
     </ClInclude>

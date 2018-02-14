@@ -217,7 +217,6 @@
     <ClInclude Include="EmbeddedPythonHandler.h" />
     <ClInclude Include="ExperimentTimer.h" />
     <ClInclude Include="Fgen.h" />
-    <ClInclude Include="gnuplot-iostream.h" />
     <ClInclude Include="GpibFlume.h" />
     <ClInclude Include="imageParameters.h" />
     <ClInclude Include="longnam.h" />

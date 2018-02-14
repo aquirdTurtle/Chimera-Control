@@ -2,7 +2,6 @@
 #include "atomGrid.h"
 #include "imageParameters.h"
 #include "Communicator.h"
-#include "gnuplotter.h"
 #include "tinyPlotInfo.h"
 #include <atomic>
 #include <vector>
