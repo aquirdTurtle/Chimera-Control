@@ -1659,6 +1659,11 @@ void NiawgController::loadWaveformParametersFormSingle( NiawgOutput& output, std
 		// previous waveform. Check to make sure this is valid at this point, will be evaluated later.
 		if ( signal.initPhase.evaluate( ) == -1 )
 		{
+			if ( output.waveFormInfo.size( ) == 0 )
+			{
+				thrower( "ERROR: You are trying to copy the phase of the previous waveform... in the /first/ waveform!"
+						 " Not possible!" );
+			}
 			UINT prevNum = output.waveFormInfo.size( ) - 1;
 			UINT signalNum = output.waveFormInfo[prevNum].core.chan[axis].signals.size( );
 			if ( count + 1 > signalNum )

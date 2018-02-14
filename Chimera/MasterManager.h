@@ -20,6 +20,7 @@
 #include "EmbeddedPythonHandler.h"
 #include "MasterThreadInput.h"
 #include "nidaqmx2.h"
+#include <fstream>
 #include <string>
 #include <vector>
 #include <sstream>
@@ -88,7 +89,6 @@ struct indvSeqElem
 {
 	std::string config;
 	std::fstream niawgScript;
-	//niawgPair<std::fstream> niawgScripts;
 	std::string masterScript;
 	ScriptStream masterStream;
 	std::string agilentScript;

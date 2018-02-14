@@ -43,7 +43,6 @@ BUGS:
 	but should look into this a bit.
 - Agilent non-integer number of samples bugs don't make sense, "bad time entered for the time of an intensity sequence"
 - trying save if only camera is running...
-- trying to use -1 on first waveform causes crash.
 - what's happening if you try to abort in the middle of the "programming" stage?
 - fix variable logging
 - if loadskip threshold set but no loadskip in script, crashes.
