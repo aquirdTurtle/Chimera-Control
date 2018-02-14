@@ -36,7 +36,6 @@ struct realTimePlotterInput
 	UINT plottingFrequency;
 	UINT numberOfRunsToAverage;
 	std::vector<double> key;
-	//Gnuplotter* plotter;
 	// first level is for which plot. second level is which line in a plot. third level is which point in a line.
 	std::vector<std::vector<std::shared_ptr<std::vector<dataPoint>>>> dataArrays;
 

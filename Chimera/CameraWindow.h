@@ -7,7 +7,6 @@
 #include "DataAnalysisHandler.h"
 #include "ExperimentTimer.h"
 #include "DataLogger.h"
-#include "gnuplotter.h"
 #include "commonFunctions.h"
 #include "atomCruncherInput.h"
 #include "cameraPositions.h"

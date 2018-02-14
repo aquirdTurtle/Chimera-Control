@@ -512,7 +512,7 @@ const char MASTER_HELP[] = "This is a script for programming master timing for T
 "-      Simple Math (+-/*) is supported in the scripts as well. To insert a mathematical expresion, just \n"
 "-      add parenthesis () around the full expression";
 
-// a colormap that I use for gnuplot stuffs.
+// a colormap that I use for plot stuffs.
 const std::vector<std::array<int, 3>> GIST_RAINBOW_RGB{ { 255 , 0 , 40 },
 						{ 255 , 0 , 35 },
 						{ 255 , 0 , 30 },
@@ -1027,18 +1027,3 @@ const std::vector<std::string> GIST_RAINBOW{
 	"ff00c4",
 	"ff00bf"
 };
-
-const std::vector<std::string> GNUPLOT_MARKERS{ "pt 5",
-												"pt 7",
-												"pt 9",
-												"pt 11",
-												"pt 13",
-												"pt 15",
-												"pt 1",
-												"pt 3",
-												"pt 6"};
-
-const std::vector<std::string> GNUPLOT_LINETYPES{ "dt 1",
-												  "dt 2",
-												  "dt 3",
-												  "dt 4"};
