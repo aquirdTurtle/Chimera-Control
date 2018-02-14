@@ -89,6 +89,8 @@ class CameraWindow : public CDialog
 		friend void commonFunctions::handleCommonMessage( int msgID, CWnd* parent, MainWindow* mainWin, 
 														  ScriptingWindow* scriptWin, CameraWindow* camWin, 
 														  AuxiliaryWindow* masterWin );
+		void passAtomGridCombo( );
+		void passDelGrid( );
 		void startAtomCruncher(ExperimentInput& input);
 		void startPlotterThread( ExperimentInput& input );
 		bool wantsAutoPause( );
@@ -96,6 +98,7 @@ class CameraWindow : public CDialog
 		void stopPlotter( );
 		void stopSound( );
 		void handleImageDimsEdit(UINT id );
+		
 	private:
 		DECLARE_MESSAGE_MAP();
 
@@ -129,9 +132,9 @@ class CameraWindow : public CDialog
 		std::condition_variable rearrangerConditionVariable;
 		// the following two queues and locks aren't directly used by the camera window, but the camera window
 		// distributes them to the threads that do use them.
-		std::vector<std::vector<bool>> plotterAtomQueue;
-		// only used sometimes.
-		std::vector<std::vector<long>> plotterPictureQueue;
+		std::vector<std::vector<std::vector<bool>>> plotterAtomQueue;
+		std::vector<std::vector<std::vector<long>>> plotterPictureQueue;
+
 		std::vector<std::vector<bool>> rearrangerAtomQueue;
 		// 
 		std::mutex plotLock;

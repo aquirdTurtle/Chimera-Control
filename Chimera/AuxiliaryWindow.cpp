@@ -11,6 +11,7 @@
 #include "agilentStructures.h"
 #include "CameraWindow.h"
 
+
 AuxiliaryWindow::AuxiliaryWindow() : CDialog(), 
 									 topBottomTek(TOP_BOTTOM_TEK_SAFEMODE, TOP_BOTTOM_TEK_USB_ADDRESS), 
 									 eoAxialTek(EO_AXIAL_TEK_SAFEMODE, EO_AXIAL_TEK_USB_ADDRESS),
@@ -946,8 +947,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, do
 			std::string name;
 			std::string statusString;
 			bool status;
-			configStream >> name;
-			configStream >> statusString;
+			configStream >> name >> statusString;
 			try
 			{
 				// should actually be zero or one, but just just convert to bool
@@ -966,19 +966,13 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, do
 	// getting aoSys.
 	for (UINT dacInc : range( aoSys.getNumberOfDacs()) )
 	{
-		std::string name;
-		std::string defaultValueString;
-		double defaultValue;
-		std::string minString;
-		std::string maxString;
-		double min;
-		double max;
+		std::string name, defaultValueString, minString, maxString;
+		double defaultValue, min, max;
 		configStream >> name;
 		if (version >= 1.2)
 		{
-			configStream >> minString;
 			std::string trash;
-			configStream >> trash;
+			configStream >> minString >> trash;
 			if (trash != "-")
 			{
 				thrower("ERROR: Expected \"-\" in config file between min and max values!");
@@ -1034,8 +1028,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, do
 			tempVar.overwritten = false;
 			tempVar.active = false;
 			double value;
-			configStream >> tempVar.name;
-			configStream >> value;
+			configStream >> tempVar.name >> value;
 			tempVar.constantValue = value;
 			tempVar.ranges.push_back({ value, value, 0, false, true });
 			globalVariables.addGlobalVariable(tempVar, varInc);

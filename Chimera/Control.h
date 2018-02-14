@@ -1,7 +1,7 @@
 #pragma once
 
 #include "commonTypes.h"
-
+#include "CameraPositions.h"
 #include "Windows.h"
 
 #include <unordered_map>
@@ -60,7 +60,8 @@ template <class ControlType> class Control : public ControlType
 		void rearrange( std::string cameraMode, std::string trigMode, int width, int height );
 		void rearrange( int width, int height);
 		void setToolTip( std::string text, cToolTips& tooltips, CWnd* master );
-
+		void setPositions( cameraPositions& pos, LONG xoff, LONG yoff, LONG width, LONG height,
+						   bool yInc = false, bool xInc=false, bool videoToo=false );
 	private:
 		int toolTipID;
 		CToolTipCtrl toolTip;
@@ -75,6 +76,55 @@ Control<ControlType>::Control()
 	// probably redundant because of all the functionality designed around CWnd in this class, like the below function.
 	ControlType obj;
 }
+
+
+template <class ControlType>
+void Control<ControlType>::setPositions( cameraPositions& pos, LONG xoff, LONG yoff, LONG width, LONG height,
+										 bool yInc = false, bool xInc = false, bool videoToo = false )
+{
+	/*
+	 * This function, while a little logicy itself, makes setting the positions on the camera window much easier.
+	 * @param pos: the object tracking the position of the next control in all modes.
+	 * @param xoff: the x offset of the position from pos.
+	 * @param yoff: the y offset of the position from pos.
+	 * @param width: the width of the control.
+	 * @param height: the height of the control.
+	 * @param xInc: whether to increment pos.x or not.
+	 * @param yInc: whether to increment pos.y or not.
+	 * @param videotoo: whether to define videoPos or not.
+	 */
+	seriesPos = { pos.seriesPos.x + xoff, pos.seriesPos.y + yoff, 
+				  pos.seriesPos.x + xoff + width, pos.seriesPos.y + yoff + height };
+	amPos     = { pos.amPos.x + xoff, pos.amPos.y + yoff, pos.amPos.x + xoff + width, pos.amPos.y + yoff + height };
+	if ( videoToo )
+	{
+		videoPos = { pos.videoPos.x + xoff, pos.videoPos.y + yoff,
+			pos.videoPos.x + xoff + width, pos.videoPos.y + yoff + height };
+		if ( xInc )
+		{
+			pos.videoPos.x += width;
+		}
+		if ( yInc )
+		{
+			pos.videoPos.y += height;
+		}
+	}
+	else
+	{
+		videoPos = { -1,-1,-1,-1 };
+	}
+	if ( xInc )
+	{
+		pos.seriesPos.x += width;
+		pos.amPos.x += width;
+	}
+	else if ( yInc )
+	{
+		pos.seriesPos.y += height;
+		pos.amPos.y += height;
+	}
+}
+
 
 template <class ControlType> 
 void Control<ControlType>::rearrange(int width, int height, fontMap fonts)

@@ -25,6 +25,10 @@ END_MESSAGE_MAP()
 
 bool PlotDialog::removeQuery( PlotDialog* plt )
 {
+	if ( plt->m_hWnd == NULL )
+	{
+		return true;
+	}
 	if ( !plt->wantsSustain( ) )
 	{
 		plt->OnCancel( );
@@ -66,7 +70,7 @@ void PlotDialog::OnCancel( )
 void PlotDialog::PostNcDestroy( )
 {
 	CDialog::PostNcDestroy( );
-	delete this;
+	//delete this;
 }
 
 
