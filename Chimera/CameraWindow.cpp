@@ -109,7 +109,8 @@ void CameraWindow::handleImageDimsEdit( UINT id )
 	CDC* dc = GetDC( );
 	try
 	{
-		pics.redrawPictures( dc, selectedPixel, analysisHandler.getAnalysisLocs( ), analysisHandler.getGrids(), true );
+		pics.redrawPictures( dc, selectedPixel, analysisHandler.getAnalysisLocs( ), analysisHandler.getGrids(), true,
+							 mostRecentPicNum );
 	}
 	catch ( Error& err )
 	{
@@ -389,7 +390,7 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 
 				pics.drawPicture( drawer, counter, data, minMax );
 				pics.drawDongles( drawer, selectedPixel, analysisHandler.getAnalysisLocs(), 
-								  analysisHandler.getGrids());
+								  analysisHandler.getGrids(), pictureNumber );
 				counter++;
 			}
 			timer.update( pictureNumber / currentSettings.picsPerRepetition, currentSettings.repetitionsPerVariation,
@@ -417,6 +418,7 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 			mainWindowFriend->getComm()->sendError( err.what() );
 		}
 	}
+	mostRecentPicNum = pictureNumber;
 	return 0;
 }
 
@@ -573,7 +575,7 @@ void CameraWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 			{
 				analysisHandler.handlePictureClick(loc);
 				pics.redrawPictures(dc, selectedPixel, analysisHandler.getAnalysisLocs(), 
-									 analysisHandler.getGrids(), false );
+									 analysisHandler.getGrids(), false, mostRecentPicNum );
 			}
 		}
 		else
@@ -583,7 +585,7 @@ void CameraWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 			{
 				selectedPixel = box;
 				pics.redrawPictures(dc, selectedPixel, analysisHandler.getAnalysisLocs(), 
-									 analysisHandler.getGrids( ), false );
+									 analysisHandler.getGrids( ), false, mostRecentPicNum );
 			}
 		}
 	}
@@ -708,7 +710,8 @@ void CameraWindow::OnSize( UINT nType, int cx, int cy )
 	CDC* dc = GetDC( );
 	try
 	{
-		pics.redrawPictures( dc, selectedPixel, analysisHandler.getAnalysisLocs( ), analysisHandler.getGrids(), false );
+		pics.redrawPictures( dc, selectedPixel, analysisHandler.getAnalysisLocs( ), analysisHandler.getGrids(), false,
+							 mostRecentPicNum );
 	}
 	catch ( Error& err )
 	{

@@ -14,6 +14,7 @@ class PictureControl
 	public:
 		void initialize(POINT loc, CWnd* parent, int& id, int width, int height, std::array<UINT, 2> minMaxIds );
 		void handleMouse( CPoint p );
+		void drawPicNum( CDC* dc, UINT picNum );
 		void recalculateGrid( imageParameters newParameters );
 		void setPictureArea( POINT loc, int width, int height );
 		void setSliderLocations(CWnd* parent);
