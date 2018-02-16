@@ -716,6 +716,17 @@ void PictureControl::drawCircle(CDC* dc, coordinate selectedLocation)
 	dc->Ellipse( smallRect.left, smallRect.top, smallRect.right, smallRect.bottom );
 }
 
+
+void PictureControl::drawPicNum( CDC* dc, UINT picNum )
+{
+	HPEN textPen = CreatePen( 0, 1, RGB(100, 100, 120) );
+	dc->SelectObject( textPen );
+	dc->DrawTextEx( const_cast<char *>(cstr( picNum )), str( picNum ).size( ), &grid[0][0],
+					DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
+	DeleteObject( textPen );
+}
+
+
 void PictureControl::drawAnalysisMarkers( CDC* dc, std::vector<coordinate> analysisLocs, 
 										  std::vector<atomGrid> gridInfo )
 {
@@ -723,14 +734,13 @@ void PictureControl::drawAnalysisMarkers( CDC* dc, std::vector<coordinate> analy
 	{
 		return;
 	}
-	// draw and set.
-	HPEN crossPen;
+	HPEN markerPen;
 	std::vector<COLORREF> colors = { RGB( 255, 255, 255 ), RGB( 255, 0, 0 ), RGB( 0, 255, 0 ), RGB( 0, 0, 255 ) };
 	UINT count = 0;
 	for ( auto atomGrid : gridInfo )
 	{
-		crossPen = CreatePen( 0, 1, colors[count % 4] );
-		dc->SelectObject( crossPen );
+		markerPen = CreatePen( 0, 1, colors[count % 4] );
+		dc->SelectObject( markerPen );
 
 		if ( atomGrid.topLeftCorner == coordinate( 0, 0 ) )
 		{
@@ -750,7 +760,7 @@ void PictureControl::drawAnalysisMarkers( CDC* dc, std::vector<coordinate> analy
 								DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 				count++;
 			}
-			DeleteObject( crossPen );
+			DeleteObject( markerPen );
 		}
 		else
 		{
@@ -775,7 +785,7 @@ void PictureControl::drawAnalysisMarkers( CDC* dc, std::vector<coordinate> analy
 				}
 			}
 		}
-		DeleteObject( crossPen );
+		DeleteObject( markerPen );
 		count++;
 	}
 }

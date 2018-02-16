@@ -388,7 +388,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		input->comm->sendColorBox( Master, 'B' );
 		if (input->runMaster)
 		{
-			// stop is necessary; Else the dac system will still be "running" and won't allow updates through normal 
+			// stop is necessary; Else the dac system will still be running and won't allow updates through normal 
 			// means.
 			input->aoSys->stopDacs();
 			input->aoSys->unshadeDacs();
@@ -774,7 +774,7 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 	}
 	functionStream.loadReplacements( replacements );
 	std::string currentFunctionText = functionStream.str();
-	//
+	///
 	functionStream >> word;
 	while (!(functionStream.peek() == EOF) || word != "__end__")
 	{
