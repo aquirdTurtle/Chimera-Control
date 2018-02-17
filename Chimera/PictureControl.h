@@ -17,7 +17,7 @@ class PictureControl
 		void drawPicNum( CDC* dc, UINT picNum );
 		void recalculateGrid( imageParameters newParameters );
 		void setPictureArea( POINT loc, int width, int height );
-		void setSliderLocations(CWnd* parent);
+		void setSliderControlLocs(CWnd* parent);
 		void drawPicture(CDC* deviceContext, std::vector<long> picData, 
 						 std::tuple<bool, int/*min*/, int/*max*/> autoScaleInfo, bool specialMin, bool specialMax);
 		void setSliderPositions(UINT min, UINT max);
@@ -59,12 +59,11 @@ class PictureControl
 		// scaled for the dimensions of the picture
 		RECT pictureArea;
 
-		// 
 		int maxSliderPosition;
 		int minSliderPosition;
 		int colorIndicator;
 		HPALETTE imagePalette;
-		// grid data that outlines each pixel.
+		// grid data that outlines each pixel. Used for drawing the grid, text over pixels, etc.
 		std::vector<std::vector<RECT>> grid;
 
 		Control<CSliderCtrl> sliderMax;

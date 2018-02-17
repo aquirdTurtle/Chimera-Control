@@ -74,8 +74,11 @@ void PictureControl::setSliderPositions(UINT min, UINT max)
 {
 	sliderMax.SetPos(max);
 	maxSliderPosition = max;
+	editMax.SetWindowText( cstr( max ) );
 	sliderMin.SetPos(min);
 	minSliderPosition = min;
+	editMin.SetWindowText( cstr( min ) );
+
 }
 
 
@@ -121,7 +124,7 @@ void PictureControl::setPictureArea( POINT loc, int width, int height )
 /* used when transitioning between single and multiple pictures. It sets it based on the background size, so make 
  * sure to change the background size before using this.
  * ********/
-void PictureControl::setSliderLocations(CWnd* parent)
+void PictureControl::setSliderControlLocs(CWnd* parent)
 {
 	CRect rect;
 	parent->GetWindowRect(&rect);
