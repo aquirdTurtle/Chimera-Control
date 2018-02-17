@@ -2,10 +2,18 @@
 TODO
 ===================
 FEATURES:
-- consider implementations of local variables
-	- using var or similar keyword to define local variables in functions or main script.
-	- code scans currently used functions for local variables used and just lists those
-	- use combo to list just variables in a function or all variables
+- Implementations of local variables
+	- The idea:
+		- use var to define local variables and give them a default value.
+			- e.g. var rightField = 0
+		- Either modify config or global vars control, or add new vars control which has a function combo to select which
+			function (or parent script) to look at.
+		- cannot modify constant value in this view, must modify value in script. Can only modify variable range values.
+	- What needs to be done:
+		- need to modify reading of script to deal with these variables. 
+			- Function handling needs list of variables being varied and what function the variables belong to. 
+				Only if both match should the handling replace the constant value.
+		- need to add handling for new control
 - Full experiments following each other, alternative use of sequences.
 - Consider ways to make navigating many functions more sensible. May be similar to local variable considerations.
 - finish implementing randomizing repetitions.

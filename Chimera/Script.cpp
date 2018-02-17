@@ -244,7 +244,7 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 		else if ( word == "rsg:" || word == "repeat:" || word == "end" || word == "callcppcode" 
 				  || word == "loadskipentrypoint!")
 		{
-			return rgbs["Solarized Green"];
+			return rgbs["Solarized Yellow"];
 		}
 		else if (word == "t")
 		{
@@ -261,15 +261,14 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 				case 3: row = "d"; break;
 			}
 			for (UINT numberInc = 0; numberInc < ttlNames[rowInc].size(); numberInc++)
-			{
-				
+			{				
 				if (word == ttlNames[rowInc][numberInc])
 				{
-					return rgbs["Solarized Magenta"];
+					return rgbs["Solarized Cyan"];
 				}
 				if (word == row + str(numberInc))
 				{
-					return rgbs["Solarized Magenta"];
+					return rgbs["Solarized Cyan"];
 				}
 			}
 		}
@@ -286,7 +285,8 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 		}
 	}
 
-	if ( word == "+" || word == "=" || word == "(" || word == ")" || word == "*" || word == "-" || word == "/" )
+	if ( word == "+" || word == "=" || word == "(" || word == ")" || word == "*" || word == "-" || word == "/" ||
+		 word == "sin" || word == "cos" || word == "tan" || word == "exp" || word == "ln")
 	{
 		// all scripts now support math expressions.
 		return rgbs["Solarized Cyan"];
@@ -296,7 +296,7 @@ COLORREF Script::getSyntaxColor( std::string word, std::string editType, std::ve
 	{
 		if (word == variables[varInc].name)
 		{
-			return rgbs["Solarized Blue"];
+			return rgbs["Solarized Green"];
 		}
 	}
 	// check delimiter
