@@ -2668,7 +2668,7 @@ void NiawgController::startRerngThread( std::vector<std::vector<bool>>* atomQueu
 	UINT rearrangerId;
 	// start the thread with ~100MB of memory (it may get rounded to some page size)
 	rerngThreadHandle = (HANDLE)_beginthreadex( 0, 1e7, NiawgController::rerngThreadProcedure, (void*)input,
-													 STACK_SIZE_PARAM_IS_A_RESERVATION, &rearrangerId );
+												STACK_SIZE_PARAM_IS_A_RESERVATION, &rearrangerId );
 	if ( !rerngThreadHandle )
 	{
 		errBox( "beginThreadEx error: " + str( GetLastError( ) ) );

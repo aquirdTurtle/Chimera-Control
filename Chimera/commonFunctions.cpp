@@ -33,11 +33,9 @@ namespace commonFunctions
 					prepareCamera( mainWin, camWin, input );
 					prepareMasterThread( msgID, scriptWin, mainWin, camWin, auxWin, input, true, true );
 					commonFunctions::getPermissionToStart( camWin, mainWin, scriptWin, auxWin, true, true );
-					camWin->preparePlotter(input);
+					camWin->preparePlotter( input );
 					camWin->prepareAtomCruncher(input);
-
 					logParameters( input, camWin, true );
-
 					camWin->startAtomCruncher(input);
 					camWin->startPlotterThread(input);
 					camWin->startCamera();

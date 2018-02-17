@@ -225,7 +225,7 @@ void PictureManager::setSinglePicture( CWnd* parent, imageParameters imageParams
 		}
 	}
 	pictures.front().setPictureArea( picturesLocation, picturesWidth , picturesHeight);
-	pictures.front().setSliderLocations(parent);
+	pictures.front().setSliderControlLocs(parent);
 	pictures.front( ).setCursorValueLocations( parent );
 	setParameters( imageParams );	
 }
@@ -278,7 +278,7 @@ void PictureManager::setPictureSliders(CWnd* parent)
 {
 	for (auto& pic : pictures)
 	{
-		pic.setSliderLocations(parent);
+		pic.setSliderControlLocs(parent);
 	}
 }
 
