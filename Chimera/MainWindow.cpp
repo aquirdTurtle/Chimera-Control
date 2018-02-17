@@ -415,7 +415,7 @@ BOOL MainWindow::OnInitDialog( )
 	POINT controlLocation = { 0,0 };
 	mainStatus.initialize( controlLocation, this, id, 975, "EXPERIMENT STATUS", RGB( 100, 100, 250 ), tooltips, IDC_MAIN_STATUS_BUTTON );
 	controlLocation = { 480, 0 };
-	errorStatus.initialize( controlLocation, this, id, 480, "ERROR STATUS", RGB( 200, 0, 0 ), tooltips, 
+	errorStatus.initialize( controlLocation, this, id, 480, "ERROR STATUS", RGB( 100, 0, 0 ), tooltips, 
 							IDC_ERROR_STATUS_BUTTON );
 	debugStatus.initialize( controlLocation, this, id, 480, "DEBUG STATUS", RGB( 13, 152, 186 ), tooltips, 
 							IDC_DEBUG_STATUS_BUTTON );

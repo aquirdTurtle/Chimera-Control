@@ -915,15 +915,15 @@ namespace commonFunctions
 			}
 			else
 			{
-				startMsg += "Variables:\r\n\t";
-				std::string constantsMsg="Constants:\r\n\t";
+				startMsg += "Variables:\r\n";
+				std::string constantsMsg="Constants:\r\n";
 				for ( auto& seq : input.masterInput->variables )
 				{
 					for ( auto& var : seq )
 					{
 						if ( var.constant )
 						{
-							constantsMsg += var.name + "(" + str(var.constantValue) + "),   ";
+							constantsMsg += var.name + "(" + str(var.constantValue) + ")";
 						}
 						else
 						{
@@ -936,7 +936,7 @@ namespace commonFunctions
 						}
 					}
 				}
-				startMsg += "\r\n" + constantsMsg;
+				startMsg += constantsMsg;
 				startMsg += "\r\n";
 			}
 		}
