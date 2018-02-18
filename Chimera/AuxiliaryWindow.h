@@ -21,13 +21,17 @@
 #include "TektronicsControl.h"
 #include "AiSystem.h"
 
-
-enum agilentNames
+// short for which agilent. Putting the agilentNames in a struct is a trick that makes using the scope whichAg:: 
+// required while allowing implicit int conversion, which is useful for these. 
+struct whichAg
 {
-	TopBottom,
-	Axial,
-	Flashing,
-	Microwave
+	enum agilentNames
+	{
+		TopBottom,
+		Axial,
+		Flashing,
+		Microwave
+	};
 };
 
 
@@ -69,11 +73,11 @@ class AuxiliaryWindow : public CDialog
 		std::string getVisaDeviceStatus( );
 		std::string getGpibDeviceStatus( );
 
-		void updateAgilent( agilentNames name );
-		void newAgilentScript( agilentNames name );
-		void openAgilentScript( agilentNames name, CWnd* parent );
-		void saveAgilentScript( agilentNames name );
-		void saveAgilentScriptAs( agilentNames name, CWnd* parent );
+		void updateAgilent( whichAg::agilentNames name );
+		void newAgilentScript( whichAg::agilentNames name );
+		void openAgilentScript( whichAg::agilentNames name, CWnd* parent );
+		void saveAgilentScript( whichAg::agilentNames name );
+		void saveAgilentScriptAs( whichAg::agilentNames name, CWnd* parent );
 		void handleAgilentEditChange( UINT id );
 
 		void drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResultf);

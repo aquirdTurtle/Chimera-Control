@@ -25,13 +25,13 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 {
 	header.setPositions( pos, 0, 0, 480, 25, true, false, true );
 	header.Create("DATA ANALYSIS", NORM_HEADER_OPTIONS, header.seriesPos, parent, id++);
-	header.fontType = HeadingFont;
+	header.fontType = fontTypes::HeadingFont;
 	currentDataSetNumberText.setPositions( pos, 0, 0, 400, 50 );
 	currentDataSetNumberText.Create( "Data Set #:", NORM_STATIC_OPTIONS, currentDataSetNumberText.seriesPos, parent, 
 									 id++);
 	currentDataSetNumberDisp.setPositions( pos, 400, 0, 80, 50, true );
 	currentDataSetNumberDisp.Create("?", NORM_STATIC_OPTIONS, currentDataSetNumberDisp.seriesPos, parent, id++);
-	currentDataSetNumberDisp.fontType = VeryLargeFont;
+	currentDataSetNumberDisp.fontType = fontTypes::VeryLargeFont;
 	// Atom Grid Settings
 	gridHeader.setPositions( pos, 0, 0, 480, 25, true );
 	gridHeader.Create( "Atom Grid Settings", NORM_STATIC_OPTIONS, gridHeader.seriesPos, parent, id++ );

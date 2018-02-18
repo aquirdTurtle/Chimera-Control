@@ -53,7 +53,7 @@ void Script::initialize( int width, int height, POINT& startingLocation, cToolTi
 		// user has option to not have a header if scriptheader is "".
 		title.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 25 };
 		title.Create( cstr( scriptHeader ), NORM_HEADER_OPTIONS, title.sPos, parent, id++ );
-		title.fontType = HeadingFont;
+		title.fontType = fontTypes::HeadingFont;
 		startingLocation.y += 25;
 	}
 	// saved indicator
@@ -87,7 +87,7 @@ void Script::initialize( int width, int height, POINT& startingLocation, cToolTi
 	// Edit
 	edit.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y += height };
 	edit.Create( NORM_EDIT_OPTIONS | ES_AUTOVSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | WS_HSCROLL, edit.sPos, parent, ids[1] );
-	edit.fontType = CodeFont;
+	edit.fontType = fontTypes::CodeFont;
 	edit.SetBackgroundColor( FALSE, backgroundColor );
 	edit.SetEventMask( ENM_CHANGE );
 	edit.SetDefaultCharFormat( myCharFormat );

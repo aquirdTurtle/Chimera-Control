@@ -113,7 +113,7 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 			}
 		}
 	}
-	if ( style == OscilloscopePlot || style == HistPlot || style == DacPlot )
+	if ( style == plotStyle::OscilloscopePlot || style == plotStyle::HistPlot || style == plotStyle::DacPlot )
 	{
 		for ( auto line : screenData )
 		{
@@ -138,7 +138,7 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 		rangeX += 1;
 	}
 	double dataScaleX = ( plotWidthPixels - 20 ) / (rangeX);
-	if ( style == HistPlot )
+	if ( style == plotStyle::HistPlot )
 	{
 		// resize things to take into acount the widths.
 		maxx += boxWidth;
@@ -148,19 +148,19 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 	}
 	double dataHeight = 1;
 	double dataMin = 0;
-	if ( style == ErrorPlot )
+	if ( style == plotStyle::ErrorPlot )
 	{
 		// currently assuming 0-1 instead of auto-sizing.
 		dataHeight = 1;
 		dataMin = 0;
 	}
-	else if ( style == TtlPlot )
+	else if ( style == plotStyle::TtlPlot )
 	{
 		dataHeight = 2;
 		// because of offset in plot
 		dataMin = -0.5;
 	}
-	else if ( style == DacPlot )
+	else if ( style == plotStyle::DacPlot )
 	{
 		// currently doing autoscaling here.
 		dataHeight = maxy - miny;
@@ -168,12 +168,12 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 		//dataHeight = 21;
 		//dataMin = -10;
 	}
-	else if ( style == OscilloscopePlot )
+	else if ( style == plotStyle::OscilloscopePlot )
 	{
 		dataHeight = (maxy - miny) * 1.1;
 		dataMin = miny - (maxy - miny)*0.05;
 	}
-	else if ( style == HistPlot )
+	else if ( style == plotStyle::HistPlot )
 	{
 		dataHeight = maxy - miny;
 		dataMin = 0;
@@ -218,7 +218,7 @@ void PlotCtrl::plotPoints( memDC* d )
 		}
 	}
 	shiftedData = screenData;
-	if ( style == TtlPlot )
+	if ( style == plotStyle::TtlPlot )
 	{
 		shiftTtlData( shiftedData );
 	}
@@ -233,7 +233,7 @@ void PlotCtrl::plotPoints( memDC* d )
 		}
 	}
 	std::pair<double, double> minMaxScaled, minMaxRaw;
-	if ( style == OscilloscopePlot || style == HistPlot )
+	if ( style == plotStyle::OscilloscopePlot || style == plotStyle::HistPlot )
 	{
 		getMinMaxY( screenData, data, minMaxRaw, minMaxScaled );
 	}
@@ -244,7 +244,7 @@ void PlotCtrl::plotPoints( memDC* d )
 	{
 		Gdiplus::SolidBrush* brush;
 		Gdiplus::Pen* pen;
-		if ( lineNum == shiftedData.size( ) - 1 && style == ErrorPlot )
+		if ( lineNum == shiftedData.size( ) - 1 && style == plotStyle::ErrorPlot )
 		{
 			// average data set is white.
 			pen = whiteGdiPen;
@@ -256,7 +256,7 @@ void PlotCtrl::plotPoints( memDC* d )
 			brush = brushes[penNum];
 			penNum += int( 256 / shiftedData.size( ) );
 		}
-		if ( style == ErrorPlot )
+		if ( style == plotStyle::ErrorPlot )
 		{
 			UINT pointCount = 0;
 			std::lock_guard<std::mutex> lock( dataMutexes[lineNum] );
@@ -279,15 +279,15 @@ void PlotCtrl::plotPoints( memDC* d )
 				pointCount++;
 			}
 		}
-		else if ( style == TtlPlot || style == DacPlot )
+		else if ( style == plotStyle::TtlPlot || style == plotStyle::DacPlot )
 		{
 			makeStepPlot( d, line, pen, brush );
 		}
-		else if ( style == OscilloscopePlot )
+		else if ( style == plotStyle::OscilloscopePlot )
 		{
 			makeLinePlot( d, line, pen );
 		}
-		else if ( style == HistPlot )
+		else if ( style == plotStyle::HistPlot )
 		{
 			makeBarPlot( d, line, brush );
 		}
@@ -454,7 +454,7 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 			xMin = x;
 		}
 	}
-	if ( style == HistPlot )
+	if ( style == plotStyle::HistPlot )
 	{
 		// resize things to take into acount the widths.
 		xMax += boxWidth;
@@ -503,21 +503,19 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 	double vStep = (scaledArea.bottom - scaledArea.top) / (numLines - 1);
 	double vRawStep = (minMaxRawY.second - minMaxRawY.first) / (numLines - 1);
 	// min to max version
-	if ( style == TtlPlot )
+	if ( style == plotStyle::TtlPlot )
 	{
 		// no left to right gridlines.
 	}
 	else 
 	{
 		double minY, maxY;
-		if ( style == DacPlot )
+		if ( style == plotStyle::DacPlot )
 		{
 			minY = minMaxRawY.first;
 			maxY = minMaxRawY.second;
-			//minY = -10;
-			//maxY = 10;
 		}
-		else if ( style == ErrorPlot )
+		else if ( style == plotStyle::ErrorPlot )
 		{
 			minY = 0;
 			maxY = 1;
@@ -562,19 +560,19 @@ void PlotCtrl::drawGridAndAxes( memDC* d, std::vector<double> xAxisPts, std::vec
 	d->SelectObject( textFont );
 	d->DrawTextEx( LPSTR( cstr( txt ) ), txt.size( ), &r, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 	r = { long( controlDims.left * widthScale2), scaledArea.top, scaledArea.left, scaledArea.bottom };
-	if ( style == TtlPlot )
+	if ( style == plotStyle::TtlPlot )
 	{
 		txt = "Ttl State";
 	}
-	else if ( style == DacPlot )
+	else if ( style == plotStyle::DacPlot )
 	{
 		txt = "Dac Voltage";
 	}
-	else if ( style == ErrorPlot )
+	else if ( style == plotStyle::ErrorPlot )
 	{
 		txt = "%";
 	}
-	else if ( style == HistPlot )
+	else if ( style == plotStyle::HistPlot )
 	{
 		txt = "Occurances";
 	}

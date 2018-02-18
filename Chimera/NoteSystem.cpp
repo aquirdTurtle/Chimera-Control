@@ -62,7 +62,7 @@ void NoteSystem::initialize(POINT& topLeftPos, CWnd* parentWindow, int& id, cToo
 	// Configuration Notes Title
 	configNotesHeader.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 25 };
 	configNotesHeader.Create( "CONFIGURAITON NOTES", NORM_HEADER_OPTIONS, configNotesHeader.sPos, parentWindow, id++);
-	configNotesHeader.fontType = HeadingFont;
+	configNotesHeader.fontType = fontTypes::HeadingFont;
 	topLeftPos.y += 25;
 	//  Configuration Notes edit
 	configNotes.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 195 };

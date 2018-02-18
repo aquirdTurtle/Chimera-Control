@@ -11,7 +11,7 @@ void StatusIndicator::initialize(POINT &loc, CWnd* parent, int& id, cToolTips& t
 {
 	status.sPos = { loc.x, loc.y, loc.x + 960, loc.y + 100 };
 	status.Create("Passively Outputing Default Waveform", WS_CHILD | WS_VISIBLE | SS_CENTER, status.sPos, parent, id++);
-	status.fontType = LargeFont;
+	status.fontType = fontTypes::LargeFont;
 }
 
 

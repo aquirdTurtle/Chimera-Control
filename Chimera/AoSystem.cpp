@@ -225,7 +225,7 @@ void AoSystem::initialize(POINT& pos, cToolTips& toolTips, AuxiliaryWindow* mast
 	// title
 	dacTitle.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
 	dacTitle.Create("DACS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, dacTitle.sPos, master, id++);
-	dacTitle.fontType = HeadingFont;
+	dacTitle.fontType = fontTypes::HeadingFont;
 	// 
 	dacSetButton.sPos = { pos.x, pos.y, pos.x + 240, pos.y + 25};
 	dacSetButton.Create( "Set New DAC Values", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 

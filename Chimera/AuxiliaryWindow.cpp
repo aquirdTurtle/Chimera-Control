@@ -145,7 +145,7 @@ void AuxiliaryWindow::OnLButtonUp( UINT stuff, CPoint clickLocation )
 }
 
 
-void AuxiliaryWindow::newAgilentScript( agilentNames name)
+void AuxiliaryWindow::newAgilentScript( whichAg::agilentNames name)
 {
 	try
 	{
@@ -168,7 +168,7 @@ void AuxiliaryWindow::newAgilentScript( agilentNames name)
 }
 
 
-void AuxiliaryWindow::openAgilentScript( agilentNames name, CWnd* parent)
+void AuxiliaryWindow::openAgilentScript( whichAg::agilentNames name, CWnd* parent)
 {
 	try
 	{
@@ -192,7 +192,7 @@ void AuxiliaryWindow::openAgilentScript( agilentNames name, CWnd* parent)
 }
 
 
-void AuxiliaryWindow::updateAgilent( agilentNames name )
+void AuxiliaryWindow::updateAgilent( whichAg::agilentNames name )
 {
 	try
 	{
@@ -206,7 +206,7 @@ void AuxiliaryWindow::updateAgilent( agilentNames name )
 }
 
 
-void AuxiliaryWindow::saveAgilentScript( agilentNames name )
+void AuxiliaryWindow::saveAgilentScript( whichAg::agilentNames name )
 {
 	try
 	{
@@ -226,7 +226,7 @@ void AuxiliaryWindow::saveAgilentScript( agilentNames name )
 }
 
 
-void AuxiliaryWindow::saveAgilentScriptAs( agilentNames name, CWnd* parent )
+void AuxiliaryWindow::saveAgilentScriptAs( whichAg::agilentNames name, CWnd* parent )
 {
 	try
 	{
@@ -285,22 +285,22 @@ Agilent& AuxiliaryWindow::whichAgilent( UINT id )
 	if ( id >= IDC_TOP_BOTTOM_CHANNEL1_BUTTON && id <= IDC_TOP_BOTTOM_PROGRAM 
 		 || id == IDC_TOP_BOTTOM_CALIBRATION_BUTTON )
 	{
-		return agilents[TopBottom];
+		return agilents[whichAg::TopBottom];
 	}
 	else if ( id >= IDC_AXIAL_CHANNEL1_BUTTON && id <= IDC_AXIAL_PROGRAM
 			  || id == IDC_AXIAL_CALIBRATION_BUTTON )
 	{
-		return agilents[Axial];
+		return agilents[whichAg::Axial];
 	}
 	else if ( id >= IDC_FLASHING_CHANNEL1_BUTTON && id <= IDC_FLASHING_PROGRAM
 			  || id == IDC_FLASHING_CALIBRATION_BUTTON )
 	{
-		return agilents[Flashing];
+		return agilents[whichAg::Flashing];
 	}
 	else if ( id >= IDC_UWAVE_CHANNEL1_BUTTON && id <= IDC_UWAVE_PROGRAM
 			  || id == IDC_UWAVE_CALIBRATION_BUTTON )
 	{
-		return agilents[Microwave];
+		return agilents[whichAg::Microwave];
 	}
 	thrower( "ERROR: id seen in \"whichAgilent\" handler does not belong to any agilent!" );
 }
@@ -394,19 +394,19 @@ void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, int version
 	ttlBoard.handleOpenConfig(configFile, versionMajor, versionMinor );
 	aoSys.handleOpenConfig(configFile, versionMajor, versionMinor, &ttlBoard);
 
-	agilents[TopBottom].readConfigurationFile(configFile, versionMajor, versionMinor );
-	agilents[TopBottom].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings().categoryPath,
+	agilents[whichAg::TopBottom].readConfigurationFile(configFile, versionMajor, versionMinor );
+	agilents[whichAg::TopBottom].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings().categoryPath,
 											   mainWindowFriend->getRunInfo() );
-	agilents[Axial].readConfigurationFile(configFile, versionMajor, versionMinor );
-	agilents[Axial].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings().categoryPath, 
+	agilents[whichAg::Axial].readConfigurationFile(configFile, versionMajor, versionMinor );
+	agilents[whichAg::Axial].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings().categoryPath,
 										   mainWindowFriend->getRunInfo() );
-	agilents[Flashing].readConfigurationFile(configFile, versionMajor, versionMinor );
-	agilents[Flashing].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings( ).categoryPath,
+	agilents[whichAg::Flashing].readConfigurationFile(configFile, versionMajor, versionMinor );
+	agilents[whichAg::Flashing].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings( ).categoryPath,
 											  mainWindowFriend->getRunInfo( ) );
 	if ( (versionMajor == 2 && versionMinor > 6) || versionMajor > 2)
 	{
-		agilents[Microwave].readConfigurationFile( configFile, versionMajor, versionMinor );
-		agilents[Microwave].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings( ).categoryPath, 
+		agilents[whichAg::Microwave].readConfigurationFile( configFile, versionMajor, versionMinor );
+		agilents[whichAg::Microwave].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings( ).categoryPath,
 												   mainWindowFriend->getRunInfo( ) );
 	}
 	topBottomTek.handleOpeningConfig(configFile, versionMajor, versionMinor );
@@ -1243,13 +1243,13 @@ BOOL AuxiliaryWindow::OnInitDialog()
 		RhodeSchwarzGenerator.initialize( controlLocation, toolTips, this, id );
 		controlLocation = POINT{ 480, 0 };
 		
-		agilents[TopBottom].initialize( controlLocation, toolTips, this, id, "Top-Bottom-Agilent", 100,
+		agilents[whichAg::TopBottom].initialize( controlLocation, toolTips, this, id, "Top-Bottom-Agilent", 100,
 										mainWindowFriend->getRgbs()["Solarized Base03"] );
-		agilents[Axial].initialize( controlLocation, toolTips, this, id, "Microwave-Axial-Agilent", 100,
+		agilents[whichAg::Axial].initialize( controlLocation, toolTips, this, id, "Microwave-Axial-Agilent", 100,
 									mainWindowFriend->getRgbs()["Solarized Base03"] );
-		agilents[Flashing].initialize( controlLocation, toolTips, this, id,
+		agilents[whichAg::Flashing].initialize( controlLocation, toolTips, this, id,
 									   "Flashing-Agilent", 100, mainWindowFriend->getRgbs()["Solarized Base03"] );
-		agilents[Microwave].initialize( controlLocation, toolTips, this, id, "Microwave-Agilent", 100,
+		agilents[whichAg::Microwave].initialize( controlLocation, toolTips, this, id, "Microwave-Agilent", 100,
 										mainWindowFriend->getRgbs( )["Solarized Base03"] );
 		controlLocation = POINT{ 1440, 0 };
 		globalVariables.initialize( controlLocation, toolTips, this, id, "GLOBAL VARIABLES",
@@ -1288,7 +1288,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 				titleTxt = "DACs: 16-23";
 				break;
 			}
-			aoPlots[dacPltCount] = new PlotCtrl( dacData[dacPltCount], DacPlot, mainWindowFriend->getBrightPlotPens( ),
+			aoPlots[dacPltCount] = new PlotCtrl( dacData[dacPltCount], plotStyle::DacPlot, mainWindowFriend->getBrightPlotPens( ),
 												  mainWindowFriend->getPlotFont( ), 
 												 mainWindowFriend->getBrightPlotBrushes( ), titleTxt );
 			aoPlots[dacPltCount]->init( controlLocation, 480, dacPlotSize, this );
@@ -1326,7 +1326,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 				titleTxt = "Ttls: Row D";
 				break;
 			}
-			ttlPlots[ttlPltCount] = new PlotCtrl( ttlData[ttlPltCount], TtlPlot, mainWindowFriend->getBrightPlotPens( ),
+			ttlPlots[ttlPltCount] = new PlotCtrl( ttlData[ttlPltCount], plotStyle::TtlPlot, mainWindowFriend->getBrightPlotPens( ),
 												  mainWindowFriend->getPlotFont( ), 
 												  mainWindowFriend->getBrightPlotBrushes( ),
 												  titleTxt );
