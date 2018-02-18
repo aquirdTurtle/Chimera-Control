@@ -29,13 +29,13 @@ void RhodeSchwarz::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow*
 	header.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 25 };
 	header.Create( "RHODE-SHWARTZ GENERATOR INFO (READ-ONLY)", WS_BORDER | WS_CHILD | WS_VISIBLE | ES_CENTER 
 				  | ES_READONLY, header.sPos, master, id++ );
-	header.fontType = HeadingFont;
+	header.fontType = fontTypes::HeadingFont;
 	pos.y += 25;
 
 	infoControl.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 100 };
 	infoControl.Create( WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS | WS_BORDER, infoControl.sPos, master, 
 					   id++ );
-	infoControl.fontType = SmallFont;
+	infoControl.fontType = fontTypes::SmallFont;
 	infoControl.SetBkColor( RGB( 15, 15, 15 ) );
 	infoControl.SetTextBkColor( RGB( 15, 15, 15 ) );
 	infoControl.SetTextColor( RGB( 255, 255, 255 ) );

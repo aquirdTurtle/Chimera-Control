@@ -3,7 +3,7 @@
 #include <memory>
 #include "memdc.h"
 
-enum plotStyle
+enum class plotStyle
 {
 	// ttl and dac plot use steps.
 	TtlPlot,

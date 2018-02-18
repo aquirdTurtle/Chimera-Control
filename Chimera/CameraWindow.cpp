@@ -488,7 +488,7 @@ LRESULT CameraWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 		alerts.playSound();
 	}
 	dataHandler.closeFile();
-	mainWindowFriend->getComm()->sendColorBox( Camera, 'B' );
+	mainWindowFriend->getComm()->sendColorBox( System::Camera, 'B' );
 	mainWindowFriend->getComm()->sendStatus( "Camera has finished taking pictures and is no longer running.\r\n" );
 	CameraSettings.cameraIsOn( false );
 	mainWindowFriend->handleFinish();
@@ -506,7 +506,7 @@ LRESULT CameraWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 
 void CameraWindow::startCamera()
 {
-	mainWindowFriend->getComm()->sendColorBox(Camera, 'Y');
+	mainWindowFriend->getComm()->sendColorBox( System::Camera, 'Y');
 	// turn some buttons off.
 	CameraSettings.cameraIsOn( true );
 	CDC* dc = GetDC();
@@ -518,7 +518,7 @@ void CameraWindow::startCamera()
 	double minKineticTime;
 	Andor.armCamera( this, minKineticTime );
 	CameraSettings.updateMinKineticCycleTime( minKineticTime );
-	mainWindowFriend->getComm()->sendColorBox(Camera, 'G');
+	mainWindowFriend->getComm()->sendColorBox(System::Camera, 'G');
 }
 
 
@@ -964,11 +964,11 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 		plotStyle style;
 		if ( plotParams.isHist )
 		{
-			style = HistPlot;
+			style = plotStyle::HistPlot;
 		}
 		else
 		{
-			style = ErrorPlot;
+			style = plotStyle::ErrorPlot;
 		}
 		// start a PlotDialog dialog
 		PlotDialog* plot = new PlotDialog( data, style, mainWindowFriend->getBrightPlotPens(), 
@@ -1387,7 +1387,7 @@ void CameraWindow::readImageParameters()
 	catch (Error& exception)
 	{
 		Communicator* comm = mainWindowFriend->getComm();
-		comm->sendColorBox( Camera, 'R' );
+		comm->sendColorBox( System::Camera, 'R' );
 		comm->sendError( exception.whatStr() + "\r\n" );
 	}
 	CDC* dc = GetDC();

@@ -73,13 +73,13 @@ void Communicator::sendColorBox( System sys, char code )
 	systemInfo<char> colors;
 	switch (sys)
 	{
-		case Niawg:
+		case System::Niawg:
 			colors = { code, '-', '-' };
 			break;
-		case Camera:
+		case System::Camera:
 			colors = { '-', code, '-' };
 			break;
-		case Master:
+		case System::Master:
 			colors = { '-', '-', code };
 			break;
 	}

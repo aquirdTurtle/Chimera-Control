@@ -15,6 +15,19 @@ class AuxiliaryWindow;
 class AoSystem;
 class DioSystem;
 
+
+/*
+ * The VariableSystem class is a big class. Most of what it does is simply managing the different types of 
+ * variable gui elements, i.e. managing all the different things the user can do to a variable. It is big mostly 
+ * because there are simply a lot of different settings that need to be handled, and as well that the listview handling
+ * in mfc is not particularly elegant so a lot of the handling ends up fairly verbose.
+ *
+ * This is not a singleton class, as it is re-used with slight variations for the different types of gui elements:
+ * - Global Variables
+ * - Config Variables
+ * - Function Variables
+ * That being said, there should only ever be 3 instances of this class active, one for each gui element.
+ */
 class VariableSystem
 {
 	public:
@@ -59,11 +72,9 @@ class VariableSystem
 		Control<CListCtrl> variablesListview;
 		// most important member, holds the settings for all current variables. Might change to have an outer vector 
 		// for each scan dimension, like so?
-		//std::vector<std::vector<variable>> currentVariables;
 		std::vector<variableType> currentVariables;
 		// number of variations that the variables will go through.
 		UINT currentVariations;
-
 		// holds the number of variable ranges. Not sure why this is necessary, could probablty get this info from 
 		// currentVariables member.
 		USHORT variableRanges;

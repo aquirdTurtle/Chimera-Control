@@ -221,7 +221,7 @@ void Control<ControlType>::rearrange( std::string cameraMode, std::string trigMo
 	double widthScale = width / 1920.0;
 	double heightScale = height / 997.0;
 	/// Set Fonts
-  	if (fontType == NormalFont)
+  	if (fontType == fontTypes::NormalFont)
 	{
 		if (widthScale * heightScale > 2)
 		{
@@ -240,7 +240,7 @@ void Control<ControlType>::rearrange( std::string cameraMode, std::string trigMo
 			SetFont(fonts["Normal Font Small"]);
 		}
 	}
-	else if (fontType == CodeFont)
+	else if (fontType == fontTypes::CodeFont)
 	{
 		if (widthScale * heightScale > 2)
 		{
@@ -259,7 +259,7 @@ void Control<ControlType>::rearrange( std::string cameraMode, std::string trigMo
 			SetFont(fonts["Code Font Small"]);
 		}
 	}
-	else if (fontType == HeadingFont)
+	else if (fontType == fontTypes::HeadingFont)
 	{
 		if (widthScale * heightScale > 2)
 		{
@@ -278,7 +278,7 @@ void Control<ControlType>::rearrange( std::string cameraMode, std::string trigMo
 			SetFont(fonts["Heading Font Small"]);
 		}
 	}
-	else if (fontType == LargeFont)
+	else if (fontType == fontTypes::LargeFont)
 	{
 		if (widthScale * heightScale > 2)
 		{
@@ -297,7 +297,7 @@ void Control<ControlType>::rearrange( std::string cameraMode, std::string trigMo
 			SetFont(fonts["Larger Font Small"]);
 		}
 	}
-	else if ( fontType == VeryLargeFont )
+	else if ( fontType == fontTypes::VeryLargeFont )
 	{
 		if ( widthScale * heightScale > 2 )
 		{
@@ -316,7 +316,7 @@ void Control<ControlType>::rearrange( std::string cameraMode, std::string trigMo
 			SetFont( fonts["Very Larger Font Small"] );
 		}
 	}
-	else if (fontType == SmallFont)
+	else if (fontType == fontTypes::SmallFont)
 	{
 		if (widthScale * heightScale > 2)
 		{

@@ -9,8 +9,12 @@
 #include <array>
 
 // order here matches the literal channel number on the 5451. Vertical is actually channel0 and Horizontal is actually 
-// channel1.
-enum AXES { Vertical = 0, Horizontal = 1 };
+// channel1. putting the enum in the struct here is a trick that makes you have to use the Axes:: scope but allows 
+// automatic int conversion unlike enum class, which is useful for this.
+struct Axes
+{
+	enum type { Vertical = 0, Horizontal = 1 };
+};
 // used to pair together info for each channel of the niawg in an easy, iterable way.
 template<typename type> using niawgPair = std::array<type, 2>;;
 

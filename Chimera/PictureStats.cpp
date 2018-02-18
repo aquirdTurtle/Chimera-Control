@@ -22,7 +22,7 @@ void PictureStats::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& too
 	//ePictureText
 	collumnHeaders[0].sPos = { pos.x, pos.y, pos.x + 54, pos.y + 25 };
 	collumnHeaders[0].Create( "Pic:", NORM_STATIC_OPTIONS, collumnHeaders[0].sPos, parent, id++ );
-	collumnHeaders[0].fontType = SmallFont;
+	collumnHeaders[0].fontType = fontTypes::SmallFont;
 	pos.y += 25;
 	int inc = 0;
 	for (auto& control : picNumberIndicators)
@@ -30,7 +30,7 @@ void PictureStats::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& too
 		inc++;
 		control.sPos = { pos.x, pos.y, pos.x + 54, pos.y + 25 };
 		control.Create( cstr("#" + str( inc ) + ":"), NORM_STATIC_OPTIONS, control.sPos, parent, id++);
-		control.fontType = SmallFont;
+		control.fontType = fontTypes::SmallFont;
 		pos.y += 25;
 	}
 	pos.y -= 125;
@@ -39,14 +39,14 @@ void PictureStats::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& too
 	// Max Count Display 742 - 480 )/2 = 131 
 	collumnHeaders[1].sPos = { pos.x + 54, pos.y, pos.x + 108, pos.y + 25 };
 	collumnHeaders[1].Create( "Max:", NORM_STATIC_OPTIONS, collumnHeaders[1].sPos, parent, id++ );
-	collumnHeaders[1].fontType = SmallFont;
+	collumnHeaders[1].fontType = fontTypes::SmallFont;
 	pos.y += 25;
 	// #1
 	for (auto& control : maxCounts)
 	{
 		control.sPos = { pos.x + 54, pos.y, pos.x + 108, pos.y + 25 };
 		control.Create( "-", NORM_STATIC_OPTIONS, control.sPos, parent, id++ );
-		control.fontType = SmallFont;
+		control.fontType = fontTypes::SmallFont;
 		pos.y += 25;
 	}
 	// back to top.
@@ -55,28 +55,28 @@ void PictureStats::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& too
 	// Min Count Display	
 	collumnHeaders[2].sPos = { pos.x + 108, pos.y, pos.x + 162, pos.y + 25 };
 	collumnHeaders[2].Create( "Min:", NORM_STATIC_OPTIONS, collumnHeaders[2].sPos, parent, id++ );
-	collumnHeaders[2].fontType = SmallFont;
+	collumnHeaders[2].fontType = fontTypes::SmallFont;
 	pos.y += 25;
 
 	for (auto& control : minCounts)
 	{
 		control.sPos = { pos.x + 108, pos.y, pos.x + 162, pos.y + 25 };
 		control.Create( "-", NORM_STATIC_OPTIONS, control.sPos, parent, id++ );
-		control.fontType = SmallFont;
+		control.fontType = fontTypes::SmallFont;
 		pos.y += 25;
 	}
 	pos.y -= 125;
 	/// Average Counts
 	collumnHeaders[3].sPos = { pos.x + 162, pos.y, pos.x + 216, pos.y + 25 };
 	collumnHeaders[3].Create( "Avg:", NORM_STATIC_OPTIONS, collumnHeaders[3].sPos, parent, id++ );
-	collumnHeaders[3].fontType = SmallFont;
+	collumnHeaders[3].fontType = fontTypes::SmallFont;
 	pos.y += 25;
 	// 
 	for (auto& control : avgCounts)
 	{
 		control.sPos = { pos.x + 162, pos.y, pos.x + 216, pos.y + 25 };
 		control.Create( "-", NORM_STATIC_OPTIONS, control.sPos, parent, id++ );
-		control.fontType = SmallFont;
+		control.fontType = fontTypes::SmallFont;
 		pos.y += 25;
 	}
 
@@ -84,14 +84,14 @@ void PictureStats::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& too
 	/// Selection Counts
 	collumnHeaders[4].sPos = { pos.x + 216, pos.y, pos.x + 272, pos.y + 25 };
 	collumnHeaders[4].Create( "Sel:", NORM_STATIC_OPTIONS, collumnHeaders[4].sPos, parent, id++ );
-	collumnHeaders[4].fontType = SmallFont;
+	collumnHeaders[4].fontType = fontTypes::SmallFont;
 	pos.y += 25;
 	// #1
 	for (auto& control : selCounts)
 	{
 		control.sPos = { pos.x + 216, pos.y, pos.x + 272, pos.y += 25 };
 		control.Create( "-", NORM_STATIC_OPTIONS, control.sPos, parent, id++ );
-		control.fontType = SmallFont;
+		control.fontType = fontTypes::SmallFont;
 	}
 }
 

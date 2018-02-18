@@ -6,7 +6,7 @@ void MainOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTip
 {
 	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
 	header.Create( "MAIN OPTIONS", NORM_HEADER_OPTIONS, header.sPos, parent, id++ );
-	header.fontType = HeadingFont;
+	header.fontType = fontTypes::HeadingFont;
 	randomizeRepsButton.sPos = { loc.x, loc.y, loc.x + 480 , loc.y += 25 };
 	randomizeRepsButton.Create( "Randomize Repetitions?", NORM_CHECK_OPTIONS, randomizeRepsButton.sPos, parent, id++ );
 	randomizeRepsButton.EnableWindow( false );

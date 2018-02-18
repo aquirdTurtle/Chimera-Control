@@ -7,7 +7,7 @@ void DebugOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTi
 	// Debugging Options Title
 	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
 	header.Create( "DEBUGGING OPTIONS", NORM_HEADER_OPTIONS, header.sPos, parent, id++ );
-	header.fontType = HeadingFont;
+	header.fontType = fontTypes::HeadingFont;
 	UINT count = 0;
 	niawgMachineScript.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
 	niawgMachineScript.Create( "Output Machine NIAWG Script?", NORM_CHECK_OPTIONS, niawgMachineScript.sPos, parent, 

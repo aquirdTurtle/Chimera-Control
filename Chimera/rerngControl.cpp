@@ -64,7 +64,7 @@ void rerngControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& too
 {
 	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
 	header.Create( "Rearrangement Parameters", NORM_HEADER_OPTIONS, header.sPos, parent, id++ );
-	header.fontType = HeadingFont;
+	header.fontType = fontTypes::HeadingFont;
 	experimentIncludesRerng.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
 	experimentIncludesRerng.Create( "Experiment Includes Rearrangement?", NORM_CHECK_OPTIONS, 
 									experimentIncludesRerng.sPos, parent, id++ );

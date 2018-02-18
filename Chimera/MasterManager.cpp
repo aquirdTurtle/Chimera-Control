@@ -257,7 +257,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		// TODO: Handle randomizing repetitions. The thread will need to split into separate if/else statements here.
 		if (input->runMaster)
 		{
-			input->comm->sendColorBox( Master, 'G' );
+			input->comm->sendColorBox( System::Master, 'G' );
 		}
 		// loop for variations
 		for (const UINT& variationInc : range( variations ))
@@ -385,7 +385,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		}
 		/// conclude.
 		expUpdate( "\r\nExperiment Finished Normally.\r\n", input->comm, input->quiet );
-		input->comm->sendColorBox( Master, 'B' );
+		input->comm->sendColorBox( System::Master, 'B' );
 		if (input->runMaster)
 		{
 			// stop is necessary; Else the dac system will still be running and won't allow updates through normal 
@@ -442,12 +442,12 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		if ( input->thisObj->isAborting )
 		{
 			expUpdate( abortString, input->comm, input->quiet );
-			input->comm->sendColorBox( Master, 'B' );
+			input->comm->sendColorBox( System::Master, 'B' );
 		}
 		else
 		{
 			// No quiet option for a bad exit.
-			input->comm->sendColorBox( Master, 'R' );
+			input->comm->sendColorBox( System::Master, 'R' );
 			input->comm->sendStatus( "Bad Exit!\r\n" );
 			std::string exceptionTxt = exception.what( );
 			input->comm->sendError( exception.what( ) );

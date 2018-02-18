@@ -35,7 +35,7 @@ void ProfileSystem::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& to
 	/// SEQUENCE
 	sequenceLabel.sPos = { pos.x, pos.y, pos.x + 380, pos.y + 25 };
 	sequenceLabel.Create( "SEQUENCE", NORM_STATIC_OPTIONS, sequenceLabel.sPos, parent, id++ );
-	sequenceLabel.fontType = HeadingFont;
+	sequenceLabel.fontType = fontTypes::HeadingFont;
 	sequenceSavedIndicator.sPos = { pos.x + 380, pos.y, pos.x + 470, pos.y += 25 };
 	sequenceSavedIndicator.Create( "Saved?", NORM_CWND_OPTIONS | BS_CHECKBOX | BS_LEFTTEXT,
 								   sequenceSavedIndicator.sPos, parent, id++ );
