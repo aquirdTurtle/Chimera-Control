@@ -6,8 +6,8 @@ def pushout():
 	off: sideMotShutter
 	off: RepumpRF
 	dac: RepumpPower 0
-	daclinspace: motFreq loadMotMotFreq pushoutfreq 2 5 
-      t += 2.01
+	daclinspace: motFreq loadMotMotFreq pushoutfreq 12 5 
+      t += 1.01
 	% mostly for the power ramp. also, lets the mot frequency settle.
 	off: RepumpRF
 	dac: probePower pushoutPower  
@@ -17,6 +17,6 @@ def pushout():
 	off: probeRF
 	off: probeShutter
 	on: sideMotShutter
-	daclinspace: motFreq pushoutfreq loadMotMotFreq 2 5
-	t += 2.01
+	daclinspace: motFreq pushoutfreq loadMotMotFreq 1 5
+	t += 1.01
 

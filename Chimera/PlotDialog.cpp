@@ -56,9 +56,6 @@ void PlotDialog::OnSize( UINT s, int cx, int cy)
 
 void PlotDialog::OnCancel( )
 {
-	// for some reason if I destroy the window it seems to corrupt some of the pens that the plot holds, and this is
-	// fixed by clearing the relevant vectors before destroying the window. I don't know why this is a problem / why
-	// this fixes it.
 	plot.clear( );
 	DestroyWindow( );
 }
@@ -66,7 +63,8 @@ void PlotDialog::OnCancel( )
 void PlotDialog::PostNcDestroy( )
 {
 	CDialog::PostNcDestroy( );
-	delete this;
+	// seems to cause problems...
+	//delete this;
 }
 
 

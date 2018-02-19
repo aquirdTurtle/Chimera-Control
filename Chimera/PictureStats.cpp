@@ -149,6 +149,7 @@ void PictureStats::reset()
 
 void PictureStats::updateType(std::string typeText)
 {
+	displayDataType = typeText;
 	pictureStatsHeader.SetWindowText(cstr(typeText));
 }
 

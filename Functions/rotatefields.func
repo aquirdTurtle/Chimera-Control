@@ -57,6 +57,8 @@ def rotateFields():
 
 %t += (rotateFieldTime/2)
 
+% from quant axis
+
 daclinspace: topCoilCurrent (2.06+0.06) 
   (2.00104 + 2.1*field/(-0.716623)*cos(fieldtheta/2+3.1415926/4)/2)
   (rotateFieldTime/2) 10
@@ -94,12 +96,14 @@ daclinspace: leftCoilCurrent
 daclinspace: rightCoilCurrent  
   ( 0.449362 + 2.1*field/(-0.856589)*sin(fieldtheta/2+3.1415926/4)*cos(fieldphi/2)/2 ) 
   ( 0.449362 + 2.1*field/(-0.856589)*sin(fieldtheta)*cos(fieldphi)/2 ) 
-  (rotateFieldTime/2) 10	 %pgcRightField
+  (rotateFieldTime/2) 10
 daclinspace: frontCoilCurrent 
   (-0.577072 + 2.1*field/1.12962*sin(fieldtheta/2+3.1415926/4)*sin(fieldphi/2)/2) 
   (-0.587889 + 2.1*field/1.12962*sin(fieldtheta)*sin(fieldphi)/2) 
+  (rotateFieldTime/2) 10
 daclinspace: backCoilCurrent 
   ( 0.577072 + 2.1*field/(-1.11879)*sin(fieldtheta/2+3.1415926/4)*sin(fieldphi/2)/2) 
   ( 0.587889 + 2.1*field/(-1.11879)*sin(fieldtheta)*sin(fieldphi)/2) 
+  (rotateFieldTime/2) 10
 
 t += (rotateFieldTime/2+1)

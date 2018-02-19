@@ -9,11 +9,12 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program. 
 
-//#define MASTER_COMPUTER
-#define SPECTRE_LAPTOP
+#define MASTER_COMPUTER
+//#define SPECTRE_LAPTOP
 /// File Locations
 
 #ifdef SPECTRE_LAPTOP
+
 	#define PYTHON_HOME L"C:\\ProgramData\\Anaconda3\\"
 	#define NIAWG_SAFEMODE true
 	#define ANDOR_SAFEMODE true

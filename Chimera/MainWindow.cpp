@@ -792,8 +792,8 @@ void MainWindow::passCommonCommand(UINT id)
 	if ( inc == 10 )
 	{
 		inc = 0;
-		plot->OnCancel();
-		plot = NULL;
+		//plot->OnCancel();
+		//plot = NULL;
 		//plot->EndDialog( 0 );
 		//plot->DestroyWindow( );
 		//delete plot;

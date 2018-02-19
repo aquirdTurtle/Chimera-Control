@@ -35,6 +35,7 @@ class DataLogger
 		void deleteFile(Communicator* comm);
 		int getDataFileNumber( );
 		void initializeAioLogging( UINT numSnapshots );
+		void recordWriteRecord( );
 	private:
 		H5::DataSet writeDataSet( bool data,				std::string name, H5::Group& group );
 		H5::DataSet writeDataSet( UINT data,				std::string name, H5::Group& group );
@@ -58,6 +59,8 @@ class DataLogger
 		std::string dataFilesBaseLocation;
 		std::string currentSaveFolder;
 		int currentDataFileNumber;
+		
+		std::string writeRecord;
 };
 
 
