@@ -1,12 +1,14 @@
 def scatter_1_to_0p():
   dac: sigmarepumppower scatterPower
   dac: repumpPower 0
+  on: tweezerFlashRF
+  % let the tweezer flash stabilize.
+  t += 1
   on: sigmaRepumpRf
   on: repumpFlash
-  on: tweezerFlashRF
   t += scatterTime
   off: sigmaRepumpRf
   off: repumpFlash
   off: tweezerFlashRF
-  t += 1
-  daclinspace: RepumpFreq freq_1_to_0 loadmotrepumpfreq 2 5
+  daclinspace: RepumpFreq freq_1_to_0 loadmotrepumpfreq 1 5
+  t += 1.1

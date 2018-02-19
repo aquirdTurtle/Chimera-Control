@@ -96,6 +96,7 @@ class CameraWindow : public CDialog
 		void stopPlotter( );
 		void stopSound( );
 		void handleImageDimsEdit(UINT id );
+		void setDataType( std::string dataType );
 	private:
 		DECLARE_MESSAGE_MAP();
 

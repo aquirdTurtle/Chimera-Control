@@ -556,6 +556,21 @@ namespace commonFunctions
 				mainWin->passNiawgIsOnPress( );
 				break;
 			}
+			case ID_DATATYPE_PHOTONS_COLLECTED:
+			{
+				camWin->setDataType( CAMERA_PHOTONS );
+				break;
+			}
+			case ID_DATATYPE_PHOTONS_SCATTERED:
+			{
+				camWin->setDataType( ATOM_PHOTONS );
+				break;
+			}
+			case ID_DATATYPE_RAW_COUNTS:
+			{
+				camWin->setDataType( RAW_COUNTS );
+				break;
+			}
 			case ID_RUNMENU_ABORTCAMERA:
 			{
 				try

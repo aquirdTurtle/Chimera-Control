@@ -324,7 +324,7 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 	AndorRunSettings currentSettings = Andor.getAndorSettings( );
 	if ( lParam == -1 )
 	{
-		// last picture.
+		// ???
 		pictureNumber = currentSettings.totalPicsInExperiment;
 	}
 
@@ -388,6 +388,7 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 			timer.update( pictureNumber / currentSettings.picsPerRepetition, currentSettings.repetitionsPerVariation,
 						  currentSettings.totalVariations, currentSettings.picsPerRepetition );
 		}
+
 	}
 	catch (Error& err)
 	{
