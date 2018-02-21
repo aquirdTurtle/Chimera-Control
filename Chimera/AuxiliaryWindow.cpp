@@ -372,7 +372,7 @@ void AuxiliaryWindow::handleNewConfig( std::ofstream& newFile )
 {
 	// order matters.
 	configVariables.handleNewConfig( newFile );
-	functionVariables.handleNewConfig( newFile );
+	//functionVariables.handleNewConfig( newFile );
 	ttlBoard.handleNewConfig( newFile );
 	aoSys.handleNewConfig( newFile );
 	for ( auto& agilent : agilents )
@@ -388,7 +388,7 @@ void AuxiliaryWindow::handleSaveConfig( std::ofstream& saveFile )
 {
 	// order matters.
 	configVariables.handleSaveConfig( saveFile );
-	functionVariables.handleSaveConfig( saveFile );
+	//functionVariables.handleSaveConfig( saveFile );
 	ttlBoard.handleSaveConfig( saveFile );
 	aoSys.handleSaveConfig( saveFile );
 	for ( auto& agilent : agilents )
@@ -408,7 +408,7 @@ void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, int version
 	configVariables.normHandleOpenConfig(configFile, versionMajor, versionMinor );
 	if ( (versionMajor == 3 && versionMinor > 1) || versionMajor > 3 )
 	{
-		functionVariables.funcHandleOpenConfig( configFile, versionMajor, versionMinor );
+		//functionVariables.funcHandleOpenConfig( configFile, versionMajor, versionMinor );
 	}
 	ttlBoard.handleOpenConfig(configFile, versionMajor, versionMinor );
 	aoSys.handleOpenConfig(configFile, versionMajor, versionMinor, &ttlBoard);

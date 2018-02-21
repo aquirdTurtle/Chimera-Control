@@ -2832,8 +2832,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			rerngInfo& info = input->rerngWave.rearrange;
 			info.timePerMove = input->rerngOptions.moveSpeed;
 			info.flashingFreq = input->rerngOptions.flashingRate;
-			// right now I need to re-shape the atomqueue matrix. I should probably modify Kai's code to work with a 
-			// flattened source matrix for speed.
+
 			Matrix<bool> source(input->sourceRows, input->sourceCols, 0);
 			UINT count = 0;
 			for ( auto colCount : range( source.getCols() ) )
@@ -3031,91 +3030,96 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 
 
 void NiawgController::smartRearrangement( Matrix<bool> source, Matrix<bool> target, niawgPair<ULONG>& finTargetPos, 
-										  niawgPair<ULONG> finalPos, std::vector<simpleMove> &operationsMatrix, 
+										  niawgPair<ULONG> finalPos, std::vector<simpleMove> &moveList, 
 										  rerngOptions options )
 {
-	if ( source.getRows() == target.getRows() && source.getCols() == target.getCols() )
+	while ( true )
 	{
-		// dimensions match, no flexibility.
-		rearrangement( source, target, operationsMatrix );
-		finTargetPos = { 0,0 };
-		return;
-	}
+		if ( source.getRows( ) == target.getRows( ) && source.getCols( ) == target.getCols( ) )
+		{
+			// dimensions match, no flexibility.
+			rearrangement( source, target, moveList );
+			finTargetPos = { 0,0 };
+			return;
+		}
+		switch ( options.smartOption )
+		{
+			case smartRerngOption::none:
+			{
+				// finTarget is the correct size, has the original target at finalPos, and zeros elsewhere.
+				Matrix<bool> finTarget( source.getRows( ), source.getCols( ), 0 );
+				for ( auto rowInc : range( target.getRows( ) ) )
+				{
+					for ( auto colInc : range( target.getCols( ) ) )
+					{
+						finTarget( rowInc + finalPos[Axes::Vertical], colInc + finalPos[Axes::Horizontal] )
+							= target( rowInc, colInc );
+					}
+				}
+				rearrangement( source, finTarget, moveList );
+				finTargetPos = finalPos;
+				return;
+			}
+			case smartRerngOption::convolution:
+			{
+				finTargetPos = convolve( source, target );
+				Matrix<bool> finTarget( source.getRows( ), source.getCols( ), 0 );
+				for ( auto rowInc : range( target.getRows( ) ) )
+				{
+					for ( auto colInc : range( target.getCols( ) ) )
+					{
+						finTarget( rowInc + finTargetPos[Axes::Vertical], colInc + finTargetPos[Axes::Horizontal] )
+							= target( rowInc, colInc );
+					}
+				}
+				rearrangement( source, finTarget, moveList );
+				break;
+			}
+			case smartRerngOption::full:
+			{
+				// calculate every possible final position and use the easiest.
+				UINT leastMoves = UINT_MAX;
+				for ( auto startRowInc : range( source.getRows( ) - target.getRows( ) + 1 ) )
+				{
+					if ( leastMoves == 0 )
+					{
+						break;
+					}
+					for ( auto startColInc : range( source.getCols( ) - target.getCols( ) + 1 ) )
+					{
+						// create the potential target with the correct offset.
+						// finTarget is the correct size, has the original target at finalPos, and zeros elsewhere.
+						Matrix<bool> potentialTarget( source.getRows( ), source.getCols( ), 0 );
+						for ( auto rowInc : range( target.getRows( ) ) )
+						{
+							for ( auto colInc : range( target.getCols( ) ) )
+							{
+								potentialTarget( rowInc + startRowInc, colInc + startColInc ) = target( rowInc, colInc );
+							}
+						}
+						std::string targ = potentialTarget.print( );
+						std::vector<simpleMove> potentialMoves;
+						rearrangement( source, potentialTarget, potentialMoves );
+						if ( potentialMoves.size( ) < leastMoves )
+						{
+							// new record.
+							moveList = potentialMoves;
+							finTargetPos = { startRowInc, startColInc };
+							leastMoves = potentialMoves.size( );
+							if ( leastMoves == 0 )
+							{
+								// not possible to move to final location
+								break;
+							}
+						}
+					}
+				}
+				return;
+			}
+		}
+		if ( moveList.size( ) == 0 )
+		{
 
-	switch (options.smartOption)
-	{
-		case smartRerngOption::none:
-		{
-			// finTarget is the correct size, has the original target at finalPos, and zeros elsewhere.
-			Matrix<bool> finTarget( source.getRows( ), source.getCols( ), 0 );
-			for ( auto rowInc : range(target.getRows()))
-			{
-				for ( auto colInc : range(target.getCols()))
-				{
-					finTarget(rowInc + finalPos[Axes::Vertical], colInc + finalPos[Axes::Horizontal]) 
-						= target(rowInc, colInc);
-				}
-			}
-			rearrangement( source, finTarget, operationsMatrix );
-			finTargetPos = finalPos;
-			return;
-		}
-		case smartRerngOption::convolution:
-		{
-			//
-			finTargetPos = convolve( source, target );
-			Matrix<bool> finTarget( source.getRows( ), source.getCols( ), 0 );
-			for ( auto rowInc : range( target.getRows( ) ) )
-			{
-				for ( auto colInc : range( target.getCols( ) ) )
-				{
-					finTarget( rowInc + finTargetPos[Axes::Vertical], colInc + finTargetPos[Axes::Horizontal] ) 
-						= target( rowInc, colInc );
-				}
-			}
-			rearrangement( source, finTarget, operationsMatrix );
-			break;
-		}
-		case smartRerngOption::full:
-		{
-			UINT leastMoves = UINT_MAX;
-			for ( auto startRowInc : range( source.getRows() - target.getRows() + 1 ) )
-			{
-				if ( leastMoves == 0 )
-				{
-					break;
-				}
-				for ( auto startColInc : range( source.getCols( ) - target.getCols( ) + 1 ) )
-				{
-					// create the potential target with the correct offset.
-					// finTarget is the correct size, has the original target at finalPos, and zeros elsewhere.
-					Matrix<bool> potentialTarget( source.getRows( ), source.getCols( ), 0 );
-					for ( auto rowInc : range( target.getRows() ) )
-					{
-						for ( auto colInc : range( target.getCols() ) )
-						{
-							potentialTarget(rowInc + startRowInc, colInc + startColInc) = target(rowInc, colInc);
-						}
-					}
-					std::string targ = potentialTarget.print( );
-					//errBox( targ );
-					std::vector<simpleMove> potentialMoves;
-					rearrangement( source, potentialTarget, potentialMoves );
-					if ( potentialMoves.size( ) < leastMoves )
-					{
-						// new record.
-						operationsMatrix = potentialMoves;
-						finTargetPos = { startRowInc, startColInc };
-						leastMoves = potentialMoves.size( );
-						if ( leastMoves == 0 )
-						{
-							// not possible to move to final location
-							break;
-						}
-					}
-				}
-			}
-			return;
 		}
 	}
 }
@@ -3306,7 +3310,7 @@ double NiawgController::minCostMatching( Matrix<double> cost, std::vector<int> &
 
 
 double NiawgController::rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool> & targetMatrix,
-									   std::vector<simpleMove>& moveSequence)
+									   std::vector<simpleMove>& moveSequence )
 {
 	// I am sure this might be also included directly after evaluating the image, but for safety I also included it 
 	// here. 
@@ -3375,11 +3379,11 @@ double NiawgController::rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool>
 	}
 
 	/// Use MinCostMatching algorithm
-	//input for bipartite matching algorithm, Algorithm writes into these vectors
+	// input for bipartite matching algorithm, Algorithm writes into these vectors
 	std::vector<int> left;
 	std::vector<int> right;
 
-	//The returned cost is the travelled distance
+	// The returned cost is the travelled distance
 	double cost = minCostMatching( costMatrix, left, right );
 
 	/// calculate the moveSequence
@@ -3508,6 +3512,9 @@ std::vector<std::string> NiawgController::evolveSource( Matrix<bool> source, std
 }
 
 
+/* 
+	Handles parallelizing moves and determining if flashing is necessary for moves or not.
+*/
 void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix<bool> origSource, 
 									 std::vector<complexMove> &flashMoves, rerngOptions options )
 {
@@ -3517,19 +3524,31 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 		return;
 	}
 	Matrix<bool> runningSource = origSource;
+	// convert all single moves into complex moves.
+
+	// procedure for combining at the moment (not really optimal...):
+	/*
+	  Outer loops are over all possible group move configuraitons. I.e. row=2 -> row3 moves, etc.
+	  Grab all moves that match the group move.
+	  Determine which moves are actually possible to do at this point, based on an atom being in the initial position
+		and no atom being in the final position, removing moves that can't be made.
+	  At this I've distilled the relevant simple moves that can be combined into a complex move at this point.
+	  Check if move can be made without flashing.
+	 */
 	while ( singleMoves.size( ) != 0 )
 	{
 		std::vector<std::vector<int>> dimLoops = { range( (int)origSource.getRows( ) ), range( (int)origSource.getRows( ), 0, -1 ),
 			range( (int)origSource.getCols( ) ), range( (int)origSource.getCols( ), 0, -1 ) };
 		std::vector<UINT> altSize = { origSource.getCols( ), origSource.getCols( ), origSource.getRows( ), origSource.getRows( ) };
-		std::vector<std::string> directions = { "row", "row", "column", "column" };
-		std::vector<int> offsets = { 1, -1, 1, -1 };
+		std::vector<std::string> rowOrCol = { "row", "row", "column", "column" };
+		std::vector<int> direction = { 1, -1, 1, -1 };
 		for ( auto dim : range( dimLoops.size( ) ) )
 		{
 			for ( auto dimInc : dimLoops[dim] )
 			{
 				std::vector<int> moveIndexes;
 				std::vector<simpleMove> moveList;
+				// grab all moves that match the initial row(column) and the final row(column).
 				for ( auto moveInc : range( singleMoves.size( ) ) )
 				{
 					if ( (options.parallel == parallelMoveOption::partial && moveList.size( ) == PARTIAL_PARALLEL_LIMIT)
@@ -3539,11 +3558,11 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 						break;
 					}
 					simpleMove& move = singleMoves[moveInc];
-					int init = directions[dim] == "row" ? move.initRow : move.initCol;
-					int fin = directions[dim] == "row" ? move.finRow : move.finCol;
-					if ( init == dimInc && fin == dimInc + offsets[dim] )
+					int init = rowOrCol[dim] == "row" ? move.initRow : move.initCol;
+					int fin = rowOrCol[dim] == "row" ? move.finRow : move.finCol;
+					if ( init == dimInc && fin == dimInc + direction[dim] )
 					{
-						// avoid repeats by checking iff singleMoves is in moveList first
+						// avoid repeats by checking if singleMoves is in moveList firstd
 						if ( std::find( moveList.begin( ), moveList.end( ), move ) == moveList.end( ) )
 						{
 							moveIndexes.push_back( moveInc );
@@ -3553,7 +3572,7 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 				}
 				if ( moveIndexes.size( ) == 0 )
 				{
-					// no moves in this row in this direction.
+					// no moves in this row/column in this direction.
 					continue;
 				}
 				// From the moves that go from dim to dim+offset, get which have atom at initial position and have no 
@@ -3574,7 +3593,7 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 					// couldn't move any atoms.
 					continue;
 				}
-				flashMoves.push_back( complexMove( directions[dim], dimInc, offsets[dim] ) );
+				flashMoves.push_back( complexMove( rowOrCol[dim], dimInc, direction[dim] ) );
 				/// create complex move objs
 				Matrix<bool> tmpSource = runningSource;
 				for ( auto indexNumber : range( moveIndexes.size( ) ) )
@@ -3582,7 +3601,7 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 					// offset from moveIndexes is the # of moves already erased.
 					UINT moveIndex = moveIndexes[indexNumber] - indexNumber;
 					auto& move = singleMoves[moveIndex];
-					flashMoves.back( ).whichAtoms.push_back( directions[dim] == "row" ? move.initCol : move.initRow );
+					flashMoves.back( ).whichAtoms.push_back( rowOrCol[dim] == "row" ? move.initCol : move.initRow );
 					// update source image with new configuration.
 					tmpSource( move.initRow, move.initCol ) = false;
 					tmpSource( move.finRow, move.finCol ) = true;
@@ -3594,11 +3613,11 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 				for ( auto location : range( altSize[dim] ) )
 				{
 					UINT initRow, initCol, finRow, finCol;
-					bool isRow = directions[dim] == "row";
+					bool isRow = rowOrCol[dim] == "row";
 					initRow = isRow ? dimInc : location;
 					initCol = isRow ? location : dimInc;
-					finRow = initRow + isRow*offsets[dim];
-					finCol = initCol + (!isRow)*offsets[dim];
+					finRow = initRow + isRow*direction[dim];
+					finCol = initCol + (!isRow)*direction[dim];
 					// if atom in location and location not being moved, always need to flash to not move this atom.
 					if ( runningSource( initRow, initCol ) && std::find( flashMoves.back( ).whichAtoms.begin( ),
 																		 flashMoves.back( ).whichAtoms.end( ), location )
@@ -3612,7 +3631,6 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 						flashMoves.back( ).needsFlash = true;
 					}
 				}
-				//
 				runningSource = tmpSource;
 			}
 		}
