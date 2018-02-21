@@ -13,6 +13,7 @@ class PictureManager
 		void initialize( POINT& loc, CWnd* parent, int& id, cToolTips& tooltips, CBrush* defaultGridBrush );
 		void refreshBackgrounds(CDC* easel);
 		void drawGrids(CDC* easel);
+		UINT getNumberActive( );
 		void setParameters( imageParameters parameters );
 		void rearrange( std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts );
 		void handleScroll( UINT nSBCode, UINT nPos, CScrollBar* scrollbar );
@@ -22,12 +23,12 @@ class PictureManager
 		void drawPicture( CDC* deviceContext, int pictureNumber, std::vector<long> picData, 
 						  std::pair<UINT, UINT> minMaxPair );
 		void drawDongles( CDC* dc, coordinate selectedLocation, std::vector<coordinate> analysisLocs, 
-						  atomGrid gridInfo );
+						  std::vector<atomGrid> gridInfo, UINT pictureNumber );
 		void createPalettes( CDC* dc );
 		void handleEditChange( UINT id );
 		void setAlwaysShowGrid(bool showOption, CDC* easel);
-		void redrawPictures(CDC* easel, coordinate selectedLocation, std::vector<coordinate> analysisLocs, 
-							 atomGrid gridInfo, bool forceGrid );
+		void redrawPictures( CDC* easel, coordinate selectedLocation, std::vector<coordinate> analysisLocs, 
+							 std::vector<atomGrid> gridInfo, bool forceGrid, UINT picNumber );
 		void setPictureSliders(CWnd* parent);
 		void setNumberPicturesActive( int numberActive );
 		coordinate handleRClick(CPoint clickLocation);

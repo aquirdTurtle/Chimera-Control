@@ -10,6 +10,8 @@
 #include "Combo.h"
 #include "VariableSystem.h"
 #include <string>
+#include "functionCombo.h"
+
 
 class Script
 {
@@ -72,14 +74,13 @@ class Script
 		Control<CStatic> title;
 		Control<CButton>  savedIndicator;
 		Control<CEdit> fileNameText;
-		Control<CComboBox> availableFunctionsCombo;
+		functionCombo availableFunctionsCombo;
 		Control<CEdit> help;
 
 		std::string scriptName;
 		std::string scriptPath;
 		std::string scriptFullAddress;
 		std::string scriptCategory;
-		std::string functionLocation = FUNCTIONS_FOLDER_LOCATION;
 		std::string deviceType;
 		std::string extension;
 		bool isLocalReference;

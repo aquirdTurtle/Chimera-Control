@@ -537,8 +537,7 @@ void PlottingInfo::loadPlottingInfoFromFile(std::string fileLocation)
 	}
 	// this string will hold headers in this file temporarily and check to make sure they are correct.
 	std::string versionStr;
-	loadingFile >> versionStr;
-	loadingFile >> versionStr;
+	loadingFile >> versionStr >> versionStr;
 	double version;
 	try
 	{

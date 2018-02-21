@@ -12,7 +12,7 @@ class ScriptWritingInstructionsDialog : public CDialogEx
 		ScriptWritingInstructionsDialog(CWnd* pParent = NULL);   // standard constructor
 		virtual ~ScriptWritingInstructionsDialog();
 
-	// Dialog Data
+		// Dialog Data
 		enum { IDD = IDD_SCRIPT_HELP_DIALOG };
 
 	protected:

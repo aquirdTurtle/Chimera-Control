@@ -33,7 +33,7 @@ void CameraSettingsControl::initialize( cameraPositions& pos, int& id, CWnd* par
 	header.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
 	header.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 480, pos.videoPos.y += 25 };
 	header.Create( "CAMERA SETTINGS", NORM_HEADER_OPTIONS, header.seriesPos, parent, id++ );
-	header.fontType = HeadingFont;
+	header.fontType = fontTypes::HeadingFont;
 
 	/// camera mode
 	cameraModeCombo.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y + 100 };

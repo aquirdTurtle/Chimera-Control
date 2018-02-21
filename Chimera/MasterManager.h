@@ -20,6 +20,7 @@
 #include "EmbeddedPythonHandler.h"
 #include "MasterThreadInput.h"
 #include "nidaqmx2.h"
+#include <fstream>
 #include <string>
 #include <vector>
 #include <sstream>
@@ -35,7 +36,6 @@ class MasterManager
 		void unPause();
 		bool getIsPaused();
 		void abort();
-		std::string getErrorMessage(int errorCode);
 		void loadMasterScript(std::string scriptAddress, ScriptStream& script );
 		void analyzeMasterScript( DioSystem* ttls, AoSystem* aoSys, 
 								  std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades, 
@@ -49,6 +49,10 @@ class MasterManager
 		bool isValidWord(std::string word);
 		bool getAbortStatus();
 		bool handleTimeCommands( std::string word, ScriptStream& stream, std::vector<variableType>& vars );
+		bool handleDioCommands( std::string word, ScriptStream& stream, std::vector<variableType>& vars,
+								DioSystem* ttls, std::vector<std::pair<UINT, UINT>>& ttlShades, UINT seqNum );
+		bool handleAoCommands( std::string word, ScriptStream& stream, std::vector<variableType>& vars,
+							   AoSystem* aoSys, std::vector<UINT>& dacShades, DioSystem* ttls, UINT seqNum );
 
 		static unsigned int __stdcall experimentThreadProcedure(void* voidInput);
 		static void expUpdate(std::string text, Communicator* comm, bool quiet = false);
@@ -88,7 +92,6 @@ struct indvSeqElem
 {
 	std::string config;
 	std::fstream niawgScript;
-	//niawgPair<std::fstream> niawgScripts;
 	std::string masterScript;
 	ScriptStream masterStream;
 	std::string agilentScript;

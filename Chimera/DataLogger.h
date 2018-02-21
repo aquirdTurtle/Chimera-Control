@@ -59,8 +59,8 @@ class DataLogger
 		std::string dataFilesBaseLocation;
 		std::string currentSaveFolder;
 		int currentDataFileNumber;
-		
 		std::string writeRecord;
+		UINT currentPicNumber;
 };
 
 

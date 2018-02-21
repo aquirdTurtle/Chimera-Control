@@ -17,7 +17,7 @@ void AlertSystem::initialize( cameraPositions& pos, CWnd* parent, bool isTrigger
 	title.videoPos = { -1,-1,-1,-1 };
 	title.triggerModeSensitive = isTriggerModeSensitive;
 	title.Create( "ALERT SYSTEM", NORM_HEADER_OPTIONS, title.seriesPos, parent, id++ );
-	title.fontType = HeadingFont;
+	title.fontType = fontTypes::HeadingFont;
 	/// Use Alerts Checkbox
 	alertsActiveCheckBox.seriesPos = { pos.seriesPos.x + 0, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 20 };
 	alertsActiveCheckBox.amPos = { pos.amPos.x + 0, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 20 };

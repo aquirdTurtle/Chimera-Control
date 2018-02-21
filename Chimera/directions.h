@@ -1,5 +1,5 @@
 ﻿#pragma once
-enum directions
+enum class dir
 {
 	up,
 	down,

@@ -74,8 +74,11 @@ void PictureControl::setSliderPositions(UINT min, UINT max)
 {
 	sliderMax.SetPos(max);
 	maxSliderPosition = max;
+	editMax.SetWindowText( cstr( max ) );
 	sliderMin.SetPos(min);
 	minSliderPosition = min;
+	editMin.SetWindowText( cstr( min ) );
+
 }
 
 
@@ -121,7 +124,7 @@ void PictureControl::setPictureArea( POINT loc, int width, int height )
 /* used when transitioning between single and multiple pictures. It sets it based on the background size, so make 
  * sure to change the background size before using this.
  * ********/
-void PictureControl::setSliderLocations(CWnd* parent)
+void PictureControl::setSliderControlLocs(CWnd* parent)
 {
 	CRect rect;
 	parent->GetWindowRect(&rect);
@@ -716,61 +719,78 @@ void PictureControl::drawCircle(CDC* dc, coordinate selectedLocation)
 	dc->Ellipse( smallRect.left, smallRect.top, smallRect.right, smallRect.bottom );
 }
 
-void PictureControl::drawAnalysisMarkers(CDC* dc, std::vector<coordinate> analysisLocs, atomGrid gridInfo)
+
+void PictureControl::drawPicNum( CDC* dc, UINT picNum )
+{
+	HPEN textPen = CreatePen( 0, 1, RGB(100, 100, 120) );
+	dc->SelectObject( textPen );
+	dc->DrawTextEx( const_cast<char *>(cstr( picNum )), str( picNum ).size( ), &grid[0][0],
+					DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
+	DeleteObject( textPen );
+}
+
+
+void PictureControl::drawAnalysisMarkers( CDC* dc, std::vector<coordinate> analysisLocs, 
+										  std::vector<atomGrid> gridInfo )
 {
 	if ( !active )
 	{
 		return;
 	}
-	// draw and set.
-	HPEN crossPen;
-	crossPen = CreatePen(0, 1, RGB(255, 0, 0));
-	dc->SelectObject(crossPen);
-
-	if ( gridInfo.topLeftCorner == coordinate( 0, 0 ) )
+	HPEN markerPen;
+	std::vector<COLORREF> colors = { RGB( 255, 255, 255 ), RGB( 255, 0, 0 ), RGB( 0, 255, 0 ), RGB( 0, 0, 255 ) };
+	UINT count = 0;
+	for ( auto atomGrid : gridInfo )
 	{
-		// atom grid is empty, not to be used.
-		UINT count = 1;
-		for ( auto loc : analysisLocs )
-		{
-			if ( loc.column >= grid.size( ) || loc.row >= grid[0].size( ) )
-			{
-				// just quietly don't try to draw. Could also have this throw, haven't decided exactly how I 
-				// want to deal with this yet.
-				continue;
-			}
-			drawRectangle( dc, grid[loc.column][loc.row] );
+		markerPen = CreatePen( 0, 1, colors[count % 4] );
+		dc->SelectObject( markerPen );
 
-			dc->DrawTextEx( const_cast<char *>(cstr( count )), str( count ).size( ), &grid[loc.column][loc.row], 
-							DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
-			count++;
-		}
-		DeleteObject( crossPen );
-	}
-	else
-	{
-		// use the atom grid.
-		UINT count = 1;
-		for ( auto columnInc : range( gridInfo.width ) )
+		if ( atomGrid.topLeftCorner == coordinate( 0, 0 ) )
 		{
-			for ( auto rowInc : range( gridInfo.height ) )
+			// atom grid is empty, not to be used.
+			UINT count = 1;
+			for ( auto loc : analysisLocs )
 			{
-				UINT pixelRow = gridInfo.topLeftCorner.row-1 + rowInc * gridInfo.pixelSpacing;
-				UINT pixelColumn = gridInfo.topLeftCorner.column-1 + columnInc * gridInfo.pixelSpacing;
-				if ( pixelColumn >= grid.size( ) || pixelRow >= grid[0].size( ) )
+				if ( loc.column >= grid.size( ) || loc.row >= grid[0].size( ) )
 				{
 					// just quietly don't try to draw. Could also have this throw, haven't decided exactly how I 
 					// want to deal with this yet.
 					continue;
 				}
-				drawRectangle( dc, grid[pixelColumn][pixelRow] );
-				dc->DrawTextEx( const_cast<char *>(cstr( count )), str( count ).size( ), &grid[pixelColumn][pixelRow],
+				drawRectangle( dc, grid[loc.column][loc.row] );
+
+				dc->DrawTextEx( const_cast<char *>(cstr( count )), str( count ).size( ), &grid[loc.column][loc.row],
 								DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 				count++;
 			}
+			DeleteObject( markerPen );
 		}
+		else
+		{
+			// use the atom grid.
+			UINT count = 1;
+			for ( auto columnInc : range( atomGrid.width ) )
+			{
+				for ( auto rowInc : range( atomGrid.height ) )
+				{
+					UINT pixelRow = atomGrid.topLeftCorner.row - 1 + rowInc * atomGrid.pixelSpacing;
+					UINT pixelColumn = atomGrid.topLeftCorner.column - 1 + columnInc * atomGrid.pixelSpacing;
+					if ( pixelColumn >= grid.size( ) || pixelRow >= grid[0].size( ) )
+					{
+						// just quietly don't try to draw. Could also have this throw, haven't decided exactly how I 
+						// want to deal with this yet.
+						continue;
+					}
+					drawRectangle( dc, grid[pixelColumn][pixelRow] );
+					dc->DrawTextEx( const_cast<char *>(cstr( count )), str( count ).size( ), 
+									&grid[pixelColumn][pixelRow], DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
+					count++;
+				}
+			}
+		}
+		DeleteObject( markerPen );
+		count++;
 	}
-	DeleteObject( crossPen );
 }
 
 

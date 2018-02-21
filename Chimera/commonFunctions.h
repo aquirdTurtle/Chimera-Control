@@ -17,18 +17,15 @@ namespace commonFunctions
 	void startMaster(MainWindow* mainWin, ExperimentInput& input);
 
 	void logParameters( ExperimentInput& input, CameraWindow* camWin, bool takeAndorPictures );
-	//void startFullMasterThread( MainWindow* mainWin, AuxiliaryWindow* auxWin, ScriptingWindow* scriptWin, 
-	//							ExperimentInput& input, CameraWindow* camWin );
 	void setMot(MainWindow* mainWin);
 	void abortNiawg( ScriptingWindow* scriptWin, MainWindow* mainWin );
 	void abortCamera( CameraWindow* camWin, MainWindow* mainWin );
 	void abortMaster(MainWindow* mainWin, AuxiliaryWindow* auxWin);
 	void exitProgram( ScriptingWindow* scriptWindow, MainWindow* mainWin, CameraWindow* camWin, AuxiliaryWindow* auxWin );
+	bool getPermissionToStart( CameraWindow* camWin, MainWindow* mainWin, ScriptingWindow* scriptWin,
+							   AuxiliaryWindow* auxWin, bool runNiawg, bool runMaster, ExperimentInput& input );
 	/// Scripting Menu
-	int saveProfile( ScriptingWindow* scriptWindow, MainWindow* mainWin );
 	void reloadNIAWGDefaults( MainWindow* mainWin );
-	bool getPermissionToStart( CameraWindow* camWin, MainWindow* mainWin, ScriptingWindow* scriptWin, 
-							   AuxiliaryWindow* auxWin, bool runNiawg, bool runMaster );
 
 }
 

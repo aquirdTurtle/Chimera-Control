@@ -21,13 +21,17 @@
 #include "TektronicsControl.h"
 #include "AiSystem.h"
 
-
-enum agilentNames
+// short for which agilent. Putting the agilentNames in a struct is a trick that makes using the scope whichAg:: 
+// required while allowing implicit int conversion, which is useful for these. 
+struct whichAg
 {
-	TopBottom,
-	Axial,
-	Flashing,
-	Microwave
+	enum agilentNames
+	{
+		TopBottom,
+		Axial,
+		Flashing,
+		Microwave
+	};
 };
 
 
@@ -69,13 +73,13 @@ class AuxiliaryWindow : public CDialog
 		std::string getVisaDeviceStatus( );
 		std::string getGpibDeviceStatus( );
 
-		void updateAgilent( agilentNames name );
-		void newAgilentScript( agilentNames name );
-		void openAgilentScript( agilentNames name, CWnd* parent );
-		void saveAgilentScript( agilentNames name );
-		void saveAgilentScriptAs( agilentNames name, CWnd* parent );
+		void updateAgilent( whichAg::agilentNames name );
+		void newAgilentScript( whichAg::agilentNames name );
+		void openAgilentScript( whichAg::agilentNames name, CWnd* parent );
+		void saveAgilentScript( whichAg::agilentNames name );
+		void saveAgilentScriptAs( whichAg::agilentNames name, CWnd* parent );
 		void handleAgilentEditChange( UINT id );
-
+		void passFunctionVarsCombo( );
 		void drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResultf);
 		void handleEnter();
 		void fillMasterThreadInput(MasterThreadInput* input);
@@ -103,6 +107,7 @@ class AuxiliaryWindow : public CDialog
 		void GlobalVarRClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void ConfigVarsColumnClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void clearVariables();
+		void funcVarsDblClick( NMHDR * pNotifyStruct, LRESULT * result );
 		void addVariable(std::string name, bool constant, double value, int item);
 		void ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result);
@@ -127,12 +132,9 @@ class AuxiliaryWindow : public CDialog
 
 		CMenu menu;
 		std::string title;
-		
 		toolTipTextMap toolTipText;
-
 		/// control system classes
 		RhodeSchwarz RhodeSchwarzGenerator;
-		// 
 		std::array<Agilent, 4> agilents;
 
 		std::vector<PlotCtrl*> aoPlots;
@@ -148,7 +150,7 @@ class AuxiliaryWindow : public CDialog
 		TektronicsControl topBottomTek, eoAxialTek;
 
 		ColorBox boxes;
-		VariableSystem configVariables, globalVariables;
+		VariableSystem configVariables, globalVariables, functionVariables;
 
 		ColorBox statusBox;
 };

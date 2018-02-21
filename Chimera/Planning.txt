@@ -2,12 +2,21 @@
 TODO
 ===================
 FEATURES:
-- consider implementations of local variables
-	- using var or similar keyword to define local variables in functions or main script.
-	- code scans currently used functions for local variables used and just lists those
-	- use combo to list just variables in a function or all variables
+- Implementations of local variables
+	- The idea:
+		- use var to define local variables and give them a default value.
+			- e.g. var rightField = 0
+		- Either modify config or global vars control, or add new vars control which has a function combo to select which
+			function (or parent script) to look at.
+		- cannot modify constant value in this view, must modify value in script. Can only modify variable range values.
+	- What needs to be done:
+		- need to modify reading of script to deal with these variables. 
+			- Function handling needs list of variables being varied and what function the variables belong to. 
+				Only if both match should the handling replace the constant value.
+		- need to add handling for new control
+	- how to handle saving variable settings? could just not save at all, but saves would be good.
+		- could save all function variables as they get loaded or changed in an object in the VariableSystem
 - Full experiments following each other, alternative use of sequences.
-- Be able to set different analysis locations for different plots?
 - Consider ways to make navigating many functions more sensible. May be similar to local variable considerations.
 - finish implementing randomizing repetitions.
 	- Create per-repetitiong list of variation values to use
@@ -23,14 +32,15 @@ FEATURES:
 - agilent should be able to go smoothly from one waveform to another.
 - get running average working again
 - add all agilents / tek to color boxes?
+- restore ability to look multi-pixel conditions / events in plots
+- changeable update rate for dialogs.
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
-- refactor groups in plotinfo and gnuplot stuffs
+- refactor groups in plotinfo
 - change pointers to smart-ptrs where possible
 - more tooltips
 - better documentation in general
-- remove gnuplot after finish with hists.
 - Andor system should use Matrix class for pictures
 - all mutexes should use lock_guard or similar for consistency
 
@@ -44,9 +54,9 @@ BUGS:
 	but should look into this a bit.
 - Agilent non-integer number of samples bugs don't make sense, "bad time entered for the time of an intensity sequence"
 - trying save if only camera is running...
-- trying to use -1 on first waveform causes crash.
 - what's happening if you try to abort in the middle of the "programming" stage?
 - fix variable logging
+- if loadskip threshold set but no loadskip in script, crashes.
 
 Rearranging
 - code for creating non-flashing moves

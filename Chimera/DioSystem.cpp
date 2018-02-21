@@ -402,7 +402,7 @@ void DioSystem::initialize( POINT& loc, cToolTips& toolTips, AuxiliaryWindow* ma
 	// title
 	ttlTitle.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 25 };
 	ttlTitle.Create( "TTLS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, ttlTitle.sPos, master, id++ );
-	ttlTitle.fontType = HeadingFont;
+	ttlTitle.fontType = fontTypes::HeadingFont;
 	// all number numberLabels
 	loc.y += 25;
 	ttlHold.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 20 };

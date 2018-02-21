@@ -69,15 +69,14 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	// warnings will be passed by reference to a series of function calls which can append warnings to the string.
 	// at a certain point the string will get outputted to the error console. Remember, errors themselves are handled 
 	// by thrower() calls.
-	std::string warnings;
-	std::string abortString = "\r\nABORTED!\r\n";
+	std::string warnings, abortString = "\r\nABORTED!\r\n";
 	std::chrono::time_point<chronoClock> startTime( chronoClock::now( ) );
 	std::vector<long> variedMixedSize;
 	NiawgOutput output;
 	std::vector<ViChar> userScriptSubmit;
 	output.isDefault = false;
 	// initialize to 2 because of default waveforms. This can probably be changed to 1, since only one default waveform
-	// now, but might cause temporary breakages.
+	// now, but might cause slight breakages...
 	output.waves.resize( 2 );
 	std::vector<std::pair<UINT, UINT>> ttlShadeLocs;
 	std::vector<UINT> dacShadeLocs;
@@ -205,9 +204,9 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 					input->aoSys->checkTimingsWork( variationInc, seqInc );
 					if ( input->runNiawg )
 					{
-						if ( input->ttls->countTriggers( input->niawg->getTrigLines( ).first,
-														 input->niawg->getTrigLines( ).second, variationInc, seqInc ) !=
-							 input->niawg->getNumberTrigsInScript( ) )
+						auto line = input->niawg->getTrigLines( );
+						if ( input->ttls->countTriggers( line.first, line.second, variationInc, seqInc ) 
+							 != input->niawg->getNumberTrigsInScript( ) )
 						{
 							warnings += "WARNING: NIAWG is not getting triggered by the ttl system the same number of times a"
 								" trigger command appears in the NIAWG script.\r\n";
@@ -258,7 +257,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		// TODO: Handle randomizing repetitions. The thread will need to split into separate if/else statements here.
 		if (input->runMaster)
 		{
-			input->comm->sendColorBox( Master, 'G' );
+			input->comm->sendColorBox( System::Master, 'G' );
 		}
 		// loop for variations
 		for (const UINT& variationInc : range( variations ))
@@ -306,8 +305,8 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 					UINT ttlTrigs;
 					if ( input->runMaster )
 					{
-						ttlTrigs = input->ttls->countTriggers( agilent->getTriggerLine( ).first,
-																 agilent->getTriggerLine( ).second, variationInc, 0 );
+						auto line = agilent->getTriggerLine( );
+						ttlTrigs = input->ttls->countTriggers( line.first, line.second, variationInc, 0 );
 					}
 					else
 					{
@@ -386,10 +385,10 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		}
 		/// conclude.
 		expUpdate( "\r\nExperiment Finished Normally.\r\n", input->comm, input->quiet );
-		input->comm->sendColorBox( Master, 'B' );
+		input->comm->sendColorBox( System::Master, 'B' );
 		if (input->runMaster)
 		{
-			// stop is necessary; Else the dac system will still be "running" and won't allow updates through normal 
+			// stop is necessary; Else the dac system will still be running and won't allow updates through normal 
 			// means.
 			input->aoSys->stopDacs();
 			input->aoSys->unshadeDacs();
@@ -443,12 +442,12 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		if ( input->thisObj->isAborting )
 		{
 			expUpdate( abortString, input->comm, input->quiet );
-			input->comm->sendColorBox( Master, 'B' );
+			input->comm->sendColorBox( System::Master, 'B' );
 		}
 		else
 		{
 			// No quiet option for a bad exit.
-			input->comm->sendColorBox( Master, 'R' );
+			input->comm->sendColorBox( System::Master, 'R' );
 			input->comm->sendStatus( "Bad Exit!\r\n" );
 			std::string exceptionTxt = exception.what( );
 			input->comm->sendError( exception.what( ) );
@@ -546,7 +545,6 @@ void MasterManager::loadMotSettings(MasterThreadInput* input)
 	}
 	input->thisObj = this;
 	VariableSystem::generateKey( input->variables, false );
-	// start thread.
 	runningThread = (HANDLE)_beginthreadex( NULL, NULL, &MasterManager::experimentThreadProcedure, input, NULL, NULL );
 }
 
@@ -564,7 +562,6 @@ void MasterManager::startExperimentThread(MasterThreadInput* input)
 				 "running again." );
 	}
 	input->thisObj = this;
-	// start thread.
 	runningThread = (HANDLE)_beginthreadex( NULL, NULL, &MasterManager::experimentThreadProcedure, input, NULL, NULL );
 	SetThreadPriority( runningThread, THREAD_PRIORITY_HIGHEST );
 }
@@ -596,7 +593,6 @@ void MasterManager::abort()
 {
 	std::lock_guard<std::mutex> locker( abortLock );
 	isAborting = true;
-	//experimentIsRunning = false;
 }
 
 
@@ -651,8 +647,8 @@ void MasterManager::analyzeFunctionDefinition(std::string defLine, std::string& 
 	}
 	if (word != "def")
 	{
-		thrower("ERROR: Function file in functions folder was not a function because it did not start with \"def\"! Functions must start with this. Instead it"
-			" started with " + word);
+		thrower("ERROR: Function file in functions folder was not a function because it did not start with \"def\"! "
+				 "Functions must start with this. Instead it started with " + word);
 	}
 	std::string functionDeclaration, functionArgumentList;
 	functionDeclaration = defStream.getline( ':' );
@@ -678,6 +674,7 @@ void MasterManager::analyzeFunctionDefinition(std::string defLine, std::string& 
 	endPos = functionArgumentList.find_first_of(",");
 	initPos = functionArgumentList.find_first_not_of(" \t");
 	bool good = true;
+	// fill out args.
 	while (initPos != std::string::npos)
 	{
 		// get initial argument
@@ -755,9 +752,8 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 	std::vector<ULONG> totalRepeatNum, currentRepeatNum;
 	std::vector<std::streamoff> repeatPos;
 	/// get the function arguments.
-	std::string defLine;
+	std::string defLine, name;
 	defLine = functionStream.getline( ':' );
-	std::string name;
 	std::vector<std::string> functionArgs;
 	analyzeFunctionDefinition( defLine, name, functionArgs );
 	if (functionArgs.size() != args.size())
@@ -778,7 +774,7 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 	}
 	functionStream.loadReplacements( replacements );
 	std::string currentFunctionText = functionStream.str();
-	//
+	///
 	functionStream >> word;
 	while (!(functionStream.peek() == EOF) || word != "__end__")
 	{
@@ -786,124 +782,22 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 		{
 			// got handled
 		}
+		else if ( handleDioCommands( word, functionStream, vars, ttls, ttlShades, seqNum ) )
+		{ }
+		else if ( handleAoCommands( word, functionStream, vars, aoSys, dacShades, ttls, seqNum ) )
+		{ }
 		/// callcppcode command
 		else if (word == "callcppcode")
 		{
 			// and that's it... 
 			callCppCodeFunction();
 		}
-		/// deal with ttl commands
-		else if (word == "on:" || word == "off:")
-		{
-			std::string name;
-			functionStream >> name;
-			ttls->handleTtlScriptCommand( word, operationTime, name, ttlShades, vars, seqNum );
-		}
-		else if (word == "pulseon:" || word == "pulseoff:")
-		{
-			// this requires handling time as it is handled above.
-			std::string name;
-			Expression pulseLength;
-			functionStream >> name;
-			functionStream >> pulseLength;
-			// should be good to go.
-			ttls->handleTtlScriptCommand( word, operationTime, name, pulseLength, ttlShades, vars, seqNum );
-		}
-
-		/// deal with dac commands
-		else if (word == "dac:")
-		{
-			AoCommandForm command;
-			std::string name;
-			functionStream >> name;
-			functionStream >> command.finalVal;
-			command.finalVal.assertValid( vars );
-			command.time = operationTime;
-			command.commandName = "dac:";
-			command.initVal.expressionStr = "__NONE__";
-			command.numSteps.expressionStr = "__NONE__";
-			command.rampInc.expressionStr = "__NONE__";
-			command.rampTime.expressionStr = "__NONE__";
-			try
-			{
-				aoSys->handleDacScriptCommand(command,  name, dacShades, vars, ttls, seqNum );
-			}
-			catch (Error& err)
-			{
-				thrower(err.whatStr() + "... in \"dac:\" command inside function " + function);
-			}
-		}
-		else if ( word == "daclinspace:" )
-		{
-			AoCommandForm command;
-			std::string name;
-			// get dac name
-			functionStream >> name;
-			// get ramp initial value
-			functionStream >> command.initVal;
-			command.initVal.assertValid( vars );
-			// get ramp final value
-			functionStream >> command.finalVal;
-			command.finalVal.assertValid( vars );
-			// get total ramp time;
-			functionStream >> command.rampTime;
-			command.rampTime.assertValid( vars );
-			// get ramp point increment.
-			functionStream >> command.numSteps;
-			command.numSteps.assertValid( vars );
-			command.time = operationTime;
-			command.commandName = "daclinspace:";
-			// not used here.
-			command.rampInc.expressionStr = "__NONE__";
-			//
-			try
-			{
-				aoSys->handleDacScriptCommand( command, name, dacShades, vars, ttls, seqNum );
-			}
-			catch ( Error& err )
-			{
-				thrower( err.whatStr( ) + "... in \"dacLinSpace:\" command inside function " + function );
-			}
-		}
-		else if (word == "dacarange:")
-		{
-			AoCommandForm command;
-			std::string name;
-			// get dac name
-			functionStream >> name;
-			// get ramp initial value
-			functionStream >> command.initVal;
-			command.initVal.assertValid( vars );
-			// get ramp final value
-			functionStream >> command.finalVal;
-			command.finalVal.assertValid( vars );
-			// get total ramp time;
-			functionStream >> command.rampTime;
-			command.rampTime.assertValid( vars );
-			// get ramp point increment.
-			functionStream >> command.rampInc;
-			command.rampInc.assertValid( vars );
-			command.time = operationTime;
-			command.commandName = "dacarange:";
-			// not used here.
-			command.numSteps.expressionStr = "__NONE__";
-			//
-			try
-			{
-				aoSys->handleDacScriptCommand(command, name, dacShades, vars, ttls, seqNum );
-			}
-			catch (Error& err)
-			{
-				thrower(err.whatStr() + "... in \"dacArange:\" command inside function " + function);
-			}
-		}
 		/// Handle RSG calls.
 		else if (word == "rsg:")
 		{
 			rsgEventForm info;
-			functionStream >> info.frequency;
+			functionStream >> info.frequency >> info.power;
 			info.frequency.assertValid( vars );
-			functionStream >> info.power;
 			info.power.assertValid( vars );
 			// test frequency
 			info.time = operationTime;
@@ -1053,6 +947,106 @@ bool MasterManager::handleTimeCommands( std::string word, ScriptStream& stream, 
 	return true;
 }
 
+/* returns true if handles word, false otherwise. */
+bool MasterManager::handleDioCommands( std::string word, ScriptStream& stream, std::vector<variableType>& vars,
+									   DioSystem* ttls, std::vector<std::pair<UINT, UINT>>& ttlShades, UINT seqNum )
+{
+	if ( word == "on:" || word == "off:" )
+	{
+		std::string name;
+		stream >> name;
+		ttls->handleTtlScriptCommand( word, operationTime, name, ttlShades, vars, seqNum );
+	}
+	else if ( word == "pulseon:" || word == "pulseoff:" )
+	{
+		// this requires handling time as it is handled above.
+		std::string name;
+		Expression pulseLength;
+		stream >> name >> pulseLength;
+		// should be good to go.
+		ttls->handleTtlScriptCommand( word, operationTime, name, pulseLength, ttlShades, vars, seqNum );
+	}
+	else
+	{
+		return false;
+	}
+	return true;
+}
+
+/* returns true if handles word, false otherwise. */
+bool MasterManager::handleAoCommands( std::string word, ScriptStream& stream, std::vector<variableType>& vars,
+									  AoSystem* aoSys, std::vector<UINT>& dacShades, DioSystem* ttls, UINT seqNum)
+{
+	if ( word == "dac:" )
+	{
+		AoCommandForm command;
+		std::string name;
+		stream >> name >> command.finalVal;
+		command.finalVal.assertValid( vars );
+		command.time = operationTime;
+		command.commandName = "dac:";
+		command.numSteps.expressionStr = command.initVal.expressionStr = "__NONE__";
+		command.rampTime.expressionStr = command.rampInc.expressionStr = "__NONE__";
+		try
+		{
+			aoSys->handleDacScriptCommand( command, name, dacShades, vars, ttls, seqNum );
+		}
+		catch ( Error& err )
+		{
+			thrower( err.whatStr( ) + "... in \"dac:\" command inside... " );
+		}
+	}
+	else if ( word == "daclinspace:" )
+	{
+		AoCommandForm command;
+		std::string name;
+		stream >> name >> command.initVal >> command.finalVal >> command.rampTime >> command.numSteps;
+		command.initVal.assertValid( vars );
+		command.finalVal.assertValid( vars );
+		command.rampTime.assertValid( vars );
+		command.numSteps.assertValid( vars );
+		command.time = operationTime;
+		command.commandName = "daclinspace:";
+		// not used here.
+		command.rampInc.expressionStr = "__NONE__";
+		//
+		try
+		{
+			aoSys->handleDacScriptCommand( command, name, dacShades, vars, ttls, seqNum );
+		}
+		catch ( Error& err )
+		{
+			thrower( err.whatStr( ) + "... in \"dacLinSpace:\" command inside..." );
+		}
+	}
+	else if ( word == "dacarange:" )
+	{
+		AoCommandForm command;
+		std::string name;
+		stream >> name >> command.initVal >> command.finalVal >> command.rampTime >> command.rampInc;
+		command.initVal.assertValid( vars );
+		command.finalVal.assertValid( vars );
+		command.rampTime.assertValid( vars );
+		command.rampInc.assertValid( vars );
+		command.time = operationTime;
+		command.commandName = "dacarange:";
+		// not used here.
+		command.numSteps.expressionStr = "__NONE__";
+		try
+		{
+			aoSys->handleDacScriptCommand( command, name, dacShades, vars, ttls, seqNum );
+		}
+		catch ( Error& err )
+		{
+			thrower( err.whatStr( ) + "... in \"dacArange:\" command inside..." );
+		}
+	}
+	else
+	{
+		return false;
+	}
+	return true;
+}
 
 void MasterManager::analyzeMasterScript( DioSystem* ttls, AoSystem* aoSys, 
 										 std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades, 
@@ -1081,6 +1075,10 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, AoSystem* aoSys,
 		{
 			// got handled.
 		}
+		else if ( handleDioCommands( word, currentMasterScript, vars, ttls, ttlShades, seqNum ) )
+		{ }
+		else if ( handleAoCommands( word, currentMasterScript, vars, aoSys, dacShades, ttls, seqNum ) )
+		{ }
 		/// callcppcode function
 		else if (word == "callcppcode")
 		{			
@@ -1091,101 +1089,6 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, AoSystem* aoSys,
 		else if ( word == "loadskipentrypoint!" )
 		{
 			loadSkipTime[seqNum] = operationTime;
-		}
-		else if (word == "on:" || word == "off:")
-		{
-			std::string name;
-			currentMasterScript >> name;
-			ttls->handleTtlScriptCommand( word, operationTime, name, ttlShades, vars, seqNum );
-		}
-		else if (word == "pulseon:" || word == "pulseoff:")
-		{
-			// this requires handling time as it is handled above.
-			std::string name;
-			Expression pulseLength;
-			currentMasterScript >> name;
-			currentMasterScript >> pulseLength;
-			pulseLength.assertValid( vars );
-			// should be good to go.
-			ttls->handleTtlScriptCommand( word, operationTime, name, pulseLength, ttlShades, vars, seqNum );
-		}
-
-		/// deal with dac commands
-		else if (word == "dac:")
-		{
-			AoCommandForm command;
-			std::string name;
-			currentMasterScript >> name;
-			std::string value;
-			currentMasterScript >> command.finalVal;
-			command.finalVal.assertValid( vars );
-			command.time = operationTime;
-			command.commandName = "dac:";
-			command.initVal.expressionStr = "__NONE__";
-			command.numSteps.expressionStr = "__NONE__";
-			command.rampInc.expressionStr = "__NONE__";
-			command.rampTime.expressionStr = "__NONE__";
-			try
-			{
-				aoSys->handleDacScriptCommand(command, name, dacShades, vars, ttls, seqNum );
-			}
-			catch (Error& err)
-			{
-				thrower(err.whatStr() + "... in \"dacArange:\" command inside main script");
-			}
-		}
-		else if ( word == "daclinspace:" )
-		{
-			AoCommandForm command;
-			std::string name;
-			currentMasterScript >> name;
-			currentMasterScript >> command.initVal;
-			command.initVal.assertValid( vars );
-			currentMasterScript >> command.finalVal;
-			command.finalVal.assertValid( vars );
-			currentMasterScript >> command.rampTime;
-			command.rampTime.assertValid( vars );
-			currentMasterScript >> command.numSteps;
-			command.numSteps.assertValid( vars );
-			command.time = operationTime;
-			command.commandName = "daclinspace:";
-			// not used here.
-			command.rampInc.expressionStr = "__NONE__";
-			//
-			try
-			{
-				aoSys->handleDacScriptCommand( command, name, dacShades, vars, ttls, seqNum );
-			}
-			catch ( Error& err )
-			{
-				thrower( err.whatStr( ) + "... in \"dacLinSpace:\" command inside main script.\r\n" );
-			}
-		}
-		else if (word == "dacarange:")
-		{
-			AoCommandForm command;
-			std::string name;
-			currentMasterScript >> name;
-			currentMasterScript >> command.initVal;
-			command.initVal.assertValid( vars );
-			currentMasterScript >> command.finalVal;
-			command.finalVal.assertValid( vars );
-			currentMasterScript >> command.rampTime;
-			command.rampTime.assertValid( vars );
-			currentMasterScript >> command.rampInc;
-			command.rampInc.assertValid( vars );
-			command.time = operationTime;
-			command.commandName = "dacarange:";
-			// not used here.
-			command.numSteps.expressionStr = "__NONE__";
-			try
-			{
-				aoSys->handleDacScriptCommand( command, name, dacShades, vars, ttls, seqNum );
-			}
-			catch (Error& err)
-			{
-				thrower(err.whatStr() + "... in \"dacArange:\" command inside main script");
-			}
 		}
 		/// Deal with RSG calls
 		else if (word == "rsg:")
@@ -1198,7 +1101,6 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, AoSystem* aoSys,
 			info.time = operationTime;
 			rsg->addFrequency( info );
 		}
-		/// deal with raman beam calls (setting raman frequency).
 		/// deal with function calls.
 		else if (word == "call")
 		{
@@ -1284,31 +1186,12 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, AoSystem* aoSys,
 }
 
 
-std::string MasterManager::getErrorMessage(int errorCode)
-{
-	char* errorChars;
-	long bufferSize;
-	long status;
-	//Find out the error message length.
-	bufferSize = DAQmxGetErrorString(errorCode, 0, 0);
-	//Allocate enough space in the string.
-	errorChars = new char[bufferSize];
-	//Get the actual error message.
-	status = DAQmxGetErrorString(errorCode, errorChars, bufferSize);
-	std::string errorString(errorChars);
-	delete errorChars;
-	return errorString;
-}
-
-
 /*
 	this function can be called directly from scripts. Insert things inside the function to make it do something
 	custom that's not possible inside the scripting language.
 */
 void MasterManager::callCppCodeFunction()
-{
-	
-}
+{}
 
 
 bool MasterManager::isValidWord( std::string word )
