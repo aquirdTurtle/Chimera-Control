@@ -335,7 +335,7 @@ void TektronicsControl::initialize( POINT& loc, CWnd* parent, int& id, std::stri
 {
 	header.sPos = { loc.x, loc.y, loc.x + width, loc.y += 25 };
 	header.Create( cstr("Tektronics " + headerText), WS_CHILD | WS_VISIBLE | WS_BORDER, header.sPos, parent, id++ );
-	header.fontType = HeadingFont;
+	header.fontType = fontTypes::HeadingFont;
 	
 	programNow.sPos = { loc.x, loc.y, loc.x + width / 3, loc.y + 20 };
 	programNow.Create( "Program Now", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, programNow.sPos, parent, ids[0] );

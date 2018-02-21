@@ -16,9 +16,9 @@ std::vector<std::string> WAVEFORM_TYPE_FOLDERS = std::vector<std::string>(4 * MA
 HWND eMainWindowHwnd;
 
 /// some globals for niawg stuff, only for niawg stuff so I keep it here...?
-const std::array<int, 2> AXES = { Vertical, Horizontal };
+const std::array<int, 2> AXES = { Axes::Vertical, Axes::Horizontal };
 // the following is used to receive the index of whatever axis is not your current axis.
-const std::array<int, 2> ALT_AXES = { Horizontal, Vertical };
+const std::array<int, 2> ALT_AXES = { Axes::Horizontal, Axes::Vertical };
 const std::array<std::string, 2> AXES_NAMES = { "Vertical", "Horizontal" };
 
 bool eWaitError = false;

@@ -14,16 +14,17 @@ class PictureControl
 	public:
 		void initialize(POINT loc, CWnd* parent, int& id, int width, int height, std::array<UINT, 2> minMaxIds );
 		void handleMouse( CPoint p );
+		void drawPicNum( CDC* dc, UINT picNum );
 		void recalculateGrid( imageParameters newParameters );
 		void setPictureArea( POINT loc, int width, int height );
-		void setSliderLocations(CWnd* parent);
+		void setSliderControlLocs(CWnd* parent);
 		void drawPicture(CDC* deviceContext, std::vector<long> picData, 
 						 std::tuple<bool, int/*min*/, int/*max*/> autoScaleInfo, bool specialMin, bool specialMax);
 		void setSliderPositions(UINT min, UINT max);
 		void drawBackground(CDC* easel);
 		void drawGrid(CDC* easel, CBrush* brush);
 		void drawCircle(CDC* dc, coordinate selectedLocation );
-		void drawAnalysisMarkers(CDC* dc, std::vector<coordinate> analysisLocs, atomGrid gridInfo );
+		void drawAnalysisMarkers( CDC* dc, std::vector<coordinate> analysisLocs, std::vector<atomGrid> gridInfo );
 		void setCursorValueLocations( CWnd* parent );
 		void drawRectangle( CDC* dc, RECT pixelRect );
 		void rearrange( std::string cameraMode, std::string triggerMode, int width, int height, fontMap fonts );
@@ -58,12 +59,11 @@ class PictureControl
 		// scaled for the dimensions of the picture
 		RECT pictureArea;
 
-		// 
 		int maxSliderPosition;
 		int minSliderPosition;
 		int colorIndicator;
 		HPALETTE imagePalette;
-		// grid data that outlines each pixel.
+		// grid data that outlines each pixel. Used for drawing the grid, text over pixels, etc.
 		std::vector<std::vector<RECT>> grid;
 
 		Control<CSliderCtrl> sliderMax;

@@ -300,7 +300,7 @@ LRESULT MainWindow::onNoAtomsAlertMessage( WPARAM wp, LPARAM lp )
 		{
 			masterThreadManager.pause( );
 			menu.CheckMenuItem( ID_RUNMENU_PAUSE, MF_CHECKED );
-			comm.sendColorBox( Master, 'Y' );			
+			comm.sendColorBox( System::Master, 'Y' );
 		}
 		auto asyncbeep = std::async( std::launch::async, [] { Beep( 1000, 100 ); } );
 		time_t t = time( 0 );
@@ -415,7 +415,7 @@ BOOL MainWindow::OnInitDialog( )
 	POINT controlLocation = { 0,0 };
 	mainStatus.initialize( controlLocation, this, id, 975, "EXPERIMENT STATUS", RGB( 100, 100, 250 ), tooltips, IDC_MAIN_STATUS_BUTTON );
 	controlLocation = { 480, 0 };
-	errorStatus.initialize( controlLocation, this, id, 480, "ERROR STATUS", RGB( 200, 0, 0 ), tooltips, 
+	errorStatus.initialize( controlLocation, this, id, 480, "ERROR STATUS", RGB( 100, 0, 0 ), tooltips, 
 							IDC_ERROR_STATUS_BUTTON );
 	debugStatus.initialize( controlLocation, this, id, 480, "DEBUG STATUS", RGB( 13, 152, 186 ), tooltips, 
 							IDC_DEBUG_STATUS_BUTTON );
@@ -435,7 +435,7 @@ BOOL MainWindow::OnInitDialog( )
 	testData.resize( 2 );
 	testData[0] = pPlotDataVec( new plotDataVec( 100, { 0,0,0 } ) );
 	testData[1] = pPlotDataVec( new plotDataVec( 100, { 0,0,0 } ) );
-	plot = new PlotDialog( testData, ErrorPlot, getPlotPens(), getPlotFont(), getPlotBrushes() );
+	plot = new PlotDialog( testData, plotStyle::ErrorPlot, getPlotPens(), getPlotFont(), getPlotBrushes() );
 	controlLocation = { 960, 910 };
 	plot->Create( IDD_PLOT_DIALOG, 0 );
 	plot->ShowWindow( SW_SHOW );
@@ -534,13 +534,13 @@ void MainWindow::handlePause()
 			// then it's currently paused, so unpause it.
 			menu.CheckMenuItem(ID_RUNMENU_PAUSE, MF_UNCHECKED);
 			masterThreadManager.unPause();
-			comm.sendColorBox( Master, 'G' );
+			comm.sendColorBox( System::Master, 'G' );
 		}
 		else
 		{
 			// then not paused so pause it.
 			menu.CheckMenuItem(ID_RUNMENU_PAUSE, MF_CHECKED);
-			comm.sendColorBox( Master, 'Y' );
+			comm.sendColorBox( System::Master, 'Y' );
 			masterThreadManager.pause();
 		}
 	}
@@ -1147,18 +1147,18 @@ LRESULT MainWindow::onFatalErrorMessage(WPARAM wParam, LPARAM lParam)
 	TheScriptingWindow->setIntensityDefault();
 	std::string msgText = "Exited with Error!\r\nPassively Outputting Default Waveform.";
 	changeShortStatusColor("R");
-	comm.sendColorBox( Niawg, 'R' );
+	comm.sendColorBox( System::Niawg, 'R' );
 	try
 	{
 		niawg.restartDefault();
 		comm.sendError("EXITED WITH ERROR!");
-		comm.sendColorBox( Niawg, 'R' );
+		comm.sendColorBox( System::Niawg, 'R' );
 		comm.sendStatus("EXITED WITH ERROR!\r\nInitialized Default Waveform\r\n");
 	}
 	catch (Error& except)
 	{
 		comm.sendError("EXITED WITH ERROR! " + except.whatStr());
-		comm.sendColorBox( Niawg, 'R' );
+		comm.sendColorBox( System::Niawg, 'R' );
 		comm.sendStatus("EXITED WITH ERROR!\r\nNIAWG RESTART FAILED!\r\n");
 	}
 	setNiawgRunningState( false );
@@ -1188,7 +1188,7 @@ LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
 	changeShortStatusColor("B");
 	stopRearranger( );
 	TheCameraWindow->wakeRearranger();
-	comm.sendColorBox( Niawg, 'B' );
+	comm.sendColorBox( System::Niawg, 'B' );
 	try
 	{
 		niawg.restartDefault();
@@ -1197,7 +1197,7 @@ LRESULT MainWindow::onNormalFinishMessage(WPARAM wParam, LPARAM lParam)
 	{
 		comm.sendError( "ERROR! The niawg finished normally, but upon restarting the default waveform, threw the "
 						"following error: " + except.whatStr( ) );
-		comm.sendColorBox( Niawg, 'B' );
+		comm.sendColorBox( System::Niawg, 'B' );
 		comm.sendStatus( "ERROR!\r\n" );
 		return 0;
 	}

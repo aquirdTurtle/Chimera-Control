@@ -233,7 +233,8 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_SET_TEMPERATURE_BUTTON 23008
 #define PICTURE_SETTINGS_ID_START 23009
 #define PICTURE_SETTINGS_ID_END 23034
-// #define IDC_SET_IMAGE_PARAMETERS_BUTTON 23045
+#define IDC_ATOM_GRID_COMBO 23035
+#define IDC_DEL_GRID_BUTTON 23036
 #define IDC_SET_REPETITONS_PER_VARIATION_BUTTON 23046
 #define IDC_SET_VARIATION_NUMBER 23047
 #define IDC_PICTURE_1_MIN_EDIT 23048
@@ -313,8 +314,9 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_FLASHING_CALIBRATION_BUTTON 14139
 #define IDC_INTENSITY_CALIBRATION_BUTTON 14140
 #define IDC_UWAVE_CALIBRATION_BUTTON 14141
-
 #define ID_GET_ANALOG_IN_VALUES 14142
+#define IDC_FUNCTION_VARS_LISTVIEW 14143
+#define IDC_FUNC_VARIABLES_COMBO_ID 14144
 
 #define UWAVE_AGILENT_TRIGGER_ROW 3
 #define UWAVE_AGILENT_TRIGGER_NUM 1
@@ -513,7 +515,7 @@ const char MASTER_HELP[] = "This is a script for programming master timing for T
 "-      Simple Math (+-/*) is supported in the scripts as well. To insert a mathematical expresion, just \n"
 "-      add parenthesis () around the full expression";
 
-// a colormap that I use for gnuplot stuffs.
+// a colormap that I use for plot stuffs.
 const std::vector<std::array<int, 3>> GIST_RAINBOW_RGB{ { 255 , 0 , 40 },
 						{ 255 , 0 , 35 },
 						{ 255 , 0 , 30 },
@@ -1028,18 +1030,3 @@ const std::vector<std::string> GIST_RAINBOW{
 	"ff00c4",
 	"ff00bf"
 };
-
-const std::vector<std::string> GNUPLOT_MARKERS{ "pt 5",
-												"pt 7",
-												"pt 9",
-												"pt 11",
-												"pt 13",
-												"pt 15",
-												"pt 1",
-												"pt 3",
-												"pt 6"};
-
-const std::vector<std::string> GNUPLOT_LINETYPES{ "dt 1",
-												  "dt 2",
-												  "dt 3",
-												  "dt 4"};

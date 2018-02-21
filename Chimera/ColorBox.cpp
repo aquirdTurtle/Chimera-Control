@@ -8,17 +8,17 @@ void ColorBox::initialize(POINT& pos, int& id, CWnd* parent, int length, cToolTi
 	boxes.niawg.sPos = { pos.x, pos.y, long(pos.x + length/3.0), pos.y + 20 };
 	boxes.niawg.Create("NIAWG", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | SS_CENTER | WS_BORDER,
 					 boxes.niawg.sPos, parent, id++ );
-	boxes.niawg.fontType = CodeFont;
+	boxes.niawg.fontType = fontTypes::CodeFont;
 	//
 	boxes.camera.sPos = { long(pos.x + length/ 3.0), pos.y, long(pos.x + 2*length/3.0), pos.y + 20 };
 	boxes.camera.Create( "CAMERA", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | SS_CENTER | WS_BORDER, 
 					  boxes.camera.sPos, parent, id++ );
-	boxes.camera.fontType = CodeFont;
+	boxes.camera.fontType = fontTypes::CodeFont;
 	//
 	boxes.master.sPos = { long(pos.x + 2 * length / 3.0), pos.y, pos.x + length, pos.y + 20 };
 	boxes.master.Create( "MASTER", WS_CHILD | WS_VISIBLE | SS_WORDELLIPSIS | SS_CENTER | WS_BORDER,
 						 boxes.master.sPos, parent, id++ );
-	boxes.master.fontType = CodeFont;
+	boxes.master.fontType = fontTypes::CodeFont;
 
 	pos.y += 20;
 }

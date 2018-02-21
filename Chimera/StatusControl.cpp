@@ -20,14 +20,14 @@ void StatusControl::initialize(POINT &loc, CWnd* parent, int& id, UINT size, std
 	// set formatting for these scripts
 	header.sPos = { loc.x, loc.y, loc.x + 380, loc.y + 25 };
 	header.Create(cstr(headerText), NORM_HEADER_OPTIONS, header.sPos, parent, id++);
-	header.fontType = HeadingFont;
+	header.fontType = fontTypes::HeadingFont;
 	//
 	clearButton.sPos = { loc.x + 380, loc.y, loc.x + 480, loc.y += 25 };
 	clearButton.Create("Clear", NORM_PUSH_OPTIONS, clearButton.sPos, parent, clearId );
 	//
 	edit.sPos = { loc.x, loc.y, loc.x + 480, loc.y + long(size)};
 	edit.Create( NORM_EDIT_OPTIONS | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | WS_BORDER, edit.sPos, parent, id++ );
-	edit.fontType = CodeFont;
+	edit.fontType = fontTypes::CodeFont;
 	edit.SetBackgroundColor(0, RGB(0, 15, 20));
 
 	setDefaultColor(textColor);

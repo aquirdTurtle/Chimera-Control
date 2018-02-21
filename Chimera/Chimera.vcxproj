@@ -203,6 +203,7 @@
     <ClInclude Include="debugInfo.h" />
     <ClInclude Include="directions.h" />
     <ClInclude Include="Expression.h" />
+    <ClInclude Include="functionCombo.h" />
     <ClInclude Include="MasterThreadInput.h" />
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="memdc.h" />
@@ -217,7 +218,6 @@
     <ClInclude Include="EmbeddedPythonHandler.h" />
     <ClInclude Include="ExperimentTimer.h" />
     <ClInclude Include="Fgen.h" />
-    <ClInclude Include="gnuplot-iostream.h" />
     <ClInclude Include="GpibFlume.h" />
     <ClInclude Include="imageParameters.h" />
     <ClInclude Include="longnam.h" />
@@ -294,6 +294,7 @@
     <ClCompile Include="Communicator.cpp" />
     <ClCompile Include="DaqMxFlume.cpp" />
     <ClCompile Include="Expression.cpp" />
+    <ClCompile Include="functionCombo.cpp" />
     <ClCompile Include="openWithExplorer.cpp" />
     <ClCompile Include="OscilloscopeViewer.cpp" />
     <ClCompile Include="PlotCtrl.cpp" />

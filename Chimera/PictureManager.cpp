@@ -37,7 +37,7 @@ void PictureManager::setAlwaysShowGrid(bool showOption, CDC* easel)
 
 
 void PictureManager::redrawPictures( CDC* easel, coordinate selectedLocation, std::vector<coordinate> analysisLocs,
-									 atomGrid gridInfo, bool forceGrid )
+									 std::vector<atomGrid> gridInfo, bool forceGrid, UINT picNumber )
 {
 	if (!pictures[1].isActive())
 	{
@@ -46,7 +46,7 @@ void PictureManager::redrawPictures( CDC* easel, coordinate selectedLocation, st
 		{
 			pictures[0].drawGrid(easel, gridBrush);
 		}
-		drawDongles(easel, selectedLocation, analysisLocs, gridInfo);
+		drawDongles(easel, selectedLocation, analysisLocs, gridInfo, picNumber );
 		return;
 	}
 	for (auto& pic : pictures)
@@ -57,20 +57,22 @@ void PictureManager::redrawPictures( CDC* easel, coordinate selectedLocation, st
 			pic.drawGrid(easel, gridBrush);
 		}
 	}
-	drawDongles(easel, selectedLocation, analysisLocs, gridInfo);
+	drawDongles(easel, selectedLocation, analysisLocs, gridInfo, picNumber );
 }
 
 
 /*
- *  
+ *
  */
 void PictureManager::drawDongles( CDC* dc, coordinate selectedLocation, std::vector<coordinate> analysisLocs, 
-								  atomGrid gridInfo )
+								  std::vector<atomGrid> grids, UINT pictureNumber )
 {
+	UINT count = 1;
 	for (auto& pic : pictures)
 	{
 		pic.drawCircle(dc, selectedLocation);
-		pic.drawAnalysisMarkers(dc, analysisLocs, gridInfo);
+		pic.drawAnalysisMarkers(dc, analysisLocs, grids);
+		pic.drawPicNum( dc, pictureNumber - getNumberActive() + count++ );
 	}
 }
 
@@ -144,10 +146,7 @@ void PictureManager::handleOpenConfig(std::ifstream& configFile, int versionMajo
 		configFile >> mins[sliderInc];
 		configFile >> maxes[sliderInc];
 	}
-	configFile >> autoScalePictures;
-	configFile >> specialGreaterThanMax;
-	configFile >> specialLessThanMin;
-	configFile >> alwaysShowGrid;
+	configFile >> autoScalePictures >> specialGreaterThanMax >> specialLessThanMin >> alwaysShowGrid;
 	UINT count = 0;
 	for (auto& pic : pictures)
 	{
@@ -226,7 +225,7 @@ void PictureManager::setSinglePicture( CWnd* parent, imageParameters imageParams
 		}
 	}
 	pictures.front().setPictureArea( picturesLocation, picturesWidth , picturesHeight);
-	pictures.front().setSliderLocations(parent);
+	pictures.front().setSliderControlLocs(parent);
 	pictures.front( ).setCursorValueLocations( parent );
 	setParameters( imageParams );	
 }
@@ -279,7 +278,7 @@ void PictureManager::setPictureSliders(CWnd* parent)
 {
 	for (auto& pic : pictures)
 	{
-		pic.setSliderLocations(parent);
+		pic.setSliderControlLocs(parent);
 	}
 }
 
@@ -336,6 +335,19 @@ void PictureManager::refreshBackgrounds(CDC* easel)
 	}
 }
 
+
+UINT PictureManager::getNumberActive( )
+{
+	UINT count = 0;
+	for ( auto& pic : pictures )
+	{
+		if ( pic.isActive( ) )
+		{
+			count++;
+		}
+	}
+	return count;
+}
 
 void PictureManager::drawGrids(CDC* easel)
 {

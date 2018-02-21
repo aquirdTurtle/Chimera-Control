@@ -6,7 +6,7 @@ class ScriptingWindow;
 class CameraWindow;
 class AuxiliaryWindow;
 
-enum System
+enum class System
 {
 	Niawg,
 	Master,

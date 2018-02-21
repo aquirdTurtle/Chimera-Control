@@ -11,6 +11,7 @@
 #include "agilentStructures.h"
 #include "CameraWindow.h"
 
+
 AuxiliaryWindow::AuxiliaryWindow() : CDialog(), 
 									 topBottomTek(TOP_BOTTOM_TEK_SAFEMODE, TOP_BOTTOM_TEK_USB_ADDRESS), 
 									 eoAxialTek(EO_AXIAL_TEK_SAFEMODE, EO_AXIAL_TEK_USB_ADDRESS),
@@ -23,7 +24,6 @@ IMPLEMENT_DYNAMIC( AuxiliaryWindow, CDialog )
 
 
 BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
-
 	ON_WM_TIMER( )
 
 	ON_WM_CTLCOLOR( )
@@ -54,13 +54,16 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 					  &AuxiliaryWindow::handleAgilentCombo )
 	ON_REGISTERED_MESSAGE( eLogVoltsMessageID, &AuxiliaryWindow::onLogVoltsMessage )
 
+	ON_CBN_SELENDOK( IDC_FUNC_VARIABLES_COMBO_ID, &AuxiliaryWindow::passFunctionVarsCombo )
+
 	ON_CONTROL_RANGE( EN_CHANGE, ID_DAC_FIRST_EDIT, (ID_DAC_FIRST_EDIT + 23), &AuxiliaryWindow::DacEditChange )
 	ON_NOTIFY( LVN_COLUMNCLICK, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::ConfigVarsColumnClick )
 	ON_NOTIFY( NM_DBLCLK, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::ConfigVarsDblClick )
 	ON_NOTIFY( NM_RCLICK, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::ConfigVarsRClick )
-
 	ON_NOTIFY( NM_DBLCLK, IDC_GLOBAL_VARS_LISTVIEW, &AuxiliaryWindow::GlobalVarDblClick )
 	ON_NOTIFY( NM_RCLICK, IDC_GLOBAL_VARS_LISTVIEW, &AuxiliaryWindow::GlobalVarRClick )
+	ON_NOTIFY( NM_DBLCLK, IDC_FUNCTION_VARS_LISTVIEW, &AuxiliaryWindow::funcVarsDblClick)
+
 	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_GLOBAL_VARS_LISTVIEW, IDC_GLOBAL_VARS_LISTVIEW, &AuxiliaryWindow::drawVariables )
 	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_CONFIG_VARS_LISTVIEW, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::drawVariables )
 	
@@ -75,9 +78,21 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 END_MESSAGE_MAP()
 
 
+void AuxiliaryWindow::passFunctionVarsCombo( )
+{
+	try
+	{
+		functionVariables.handleFuncCombo( );
+	}
+	catch ( Error& err )
+	{
+		sendErr( err.what( ) );
+	}
+}
+
+
 LRESULT AuxiliaryWindow::onLogVoltsMessage( WPARAM wp, LPARAM lp )
 {
-	//fstd::vector<float64> data = aiSys.getSingleSnap( 100 );
 	aiSys.refreshCurrentValues( );
 	aiSys.refreshDisplays( );
 	cameraWindowFriend->writeVolts( wp, aiSys.getCurrentValues() );
@@ -103,7 +118,6 @@ void AuxiliaryWindow::OnPaint( )
 		CDC* cdc = GetDC( );
 		// for some reason I suddenly started needing to do this. I know that memDC redraws the background, but it used to 
 		// work without this and I don't know what changed. I used to do:
-		// memDC dc( GetDC( ) );
 		cdc->SetBkColor( mainWindowFriend->getRgbs( )["Solarized Base 04"] );
 		long width = size.right - size.left, height = size.bottom - size.top;
 		// each dc gets initialized with the rect for the corresponding plot. That way, each dc only overwrites the area 
@@ -144,7 +158,7 @@ void AuxiliaryWindow::OnLButtonUp( UINT stuff, CPoint clickLocation )
 }
 
 
-void AuxiliaryWindow::newAgilentScript( agilentNames name)
+void AuxiliaryWindow::newAgilentScript( whichAg::agilentNames name)
 {
 	try
 	{
@@ -167,7 +181,7 @@ void AuxiliaryWindow::newAgilentScript( agilentNames name)
 }
 
 
-void AuxiliaryWindow::openAgilentScript( agilentNames name, CWnd* parent)
+void AuxiliaryWindow::openAgilentScript( whichAg::agilentNames name, CWnd* parent)
 {
 	try
 	{
@@ -179,9 +193,9 @@ void AuxiliaryWindow::openAgilentScript( agilentNames name, CWnd* parent)
 		agilents[name].agilentScript.checkSave( mainWindowFriend->getProfileSettings( ).categoryPath, 
 												mainWindowFriend->getRunInfo( ) );
 		std::string openFileName = openWithExplorer( parent, AGILENT_SCRIPT_EXTENSION );
-		agilents[name].agilentScript.openParentScript( openFileName,
-														 mainWindowFriend->getProfileSettings( ).categoryPath,
-														 mainWindowFriend->getRunInfo( ) );
+		agilents[name].agilentScript.openParentScript( openFileName, 
+													   mainWindowFriend->getProfileSettings( ).categoryPath,
+													   mainWindowFriend->getRunInfo( ) );
 		agilents[name].agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings( ).categoryPath );
 	}
 	catch ( Error& err )
@@ -191,7 +205,7 @@ void AuxiliaryWindow::openAgilentScript( agilentNames name, CWnd* parent)
 }
 
 
-void AuxiliaryWindow::updateAgilent( agilentNames name )
+void AuxiliaryWindow::updateAgilent( whichAg::agilentNames name )
 {
 	try
 	{
@@ -205,7 +219,7 @@ void AuxiliaryWindow::updateAgilent( agilentNames name )
 }
 
 
-void AuxiliaryWindow::saveAgilentScript( agilentNames name )
+void AuxiliaryWindow::saveAgilentScript( whichAg::agilentNames name )
 {
 	try
 	{
@@ -225,7 +239,7 @@ void AuxiliaryWindow::saveAgilentScript( agilentNames name )
 }
 
 
-void AuxiliaryWindow::saveAgilentScriptAs( agilentNames name, CWnd* parent )
+void AuxiliaryWindow::saveAgilentScriptAs( whichAg::agilentNames name, CWnd* parent )
 {
 	try
 	{
@@ -284,22 +298,22 @@ Agilent& AuxiliaryWindow::whichAgilent( UINT id )
 	if ( id >= IDC_TOP_BOTTOM_CHANNEL1_BUTTON && id <= IDC_TOP_BOTTOM_PROGRAM 
 		 || id == IDC_TOP_BOTTOM_CALIBRATION_BUTTON )
 	{
-		return agilents[TopBottom];
+		return agilents[whichAg::TopBottom];
 	}
 	else if ( id >= IDC_AXIAL_CHANNEL1_BUTTON && id <= IDC_AXIAL_PROGRAM
 			  || id == IDC_AXIAL_CALIBRATION_BUTTON )
 	{
-		return agilents[Axial];
+		return agilents[whichAg::Axial];
 	}
 	else if ( id >= IDC_FLASHING_CHANNEL1_BUTTON && id <= IDC_FLASHING_PROGRAM
 			  || id == IDC_FLASHING_CALIBRATION_BUTTON )
 	{
-		return agilents[Flashing];
+		return agilents[whichAg::Flashing];
 	}
 	else if ( id >= IDC_UWAVE_CHANNEL1_BUTTON && id <= IDC_UWAVE_PROGRAM
 			  || id == IDC_UWAVE_CALIBRATION_BUTTON )
 	{
-		return agilents[Microwave];
+		return agilents[whichAg::Microwave];
 	}
 	thrower( "ERROR: id seen in \"whichAgilent\" handler does not belong to any agilent!" );
 }
@@ -358,6 +372,7 @@ void AuxiliaryWindow::handleNewConfig( std::ofstream& newFile )
 {
 	// order matters.
 	configVariables.handleNewConfig( newFile );
+	//functionVariables.handleNewConfig( newFile );
 	ttlBoard.handleNewConfig( newFile );
 	aoSys.handleNewConfig( newFile );
 	for ( auto& agilent : agilents )
@@ -373,6 +388,7 @@ void AuxiliaryWindow::handleSaveConfig( std::ofstream& saveFile )
 {
 	// order matters.
 	configVariables.handleSaveConfig( saveFile );
+	//functionVariables.handleSaveConfig( saveFile );
 	ttlBoard.handleSaveConfig( saveFile );
 	aoSys.handleSaveConfig( saveFile );
 	for ( auto& agilent : agilents )
@@ -389,23 +405,27 @@ void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, int version
 	ttlBoard.prepareForce( );
 	aoSys.prepareForce( );
 
-	configVariables.handleOpenConfig(configFile, versionMajor, versionMinor );
+	configVariables.normHandleOpenConfig(configFile, versionMajor, versionMinor );
+	if ( (versionMajor == 3 && versionMinor > 1) || versionMajor > 3 )
+	{
+		//functionVariables.funcHandleOpenConfig( configFile, versionMajor, versionMinor );
+	}
 	ttlBoard.handleOpenConfig(configFile, versionMajor, versionMinor );
 	aoSys.handleOpenConfig(configFile, versionMajor, versionMinor, &ttlBoard);
 
-	agilents[TopBottom].readConfigurationFile(configFile, versionMajor, versionMinor );
-	agilents[TopBottom].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings().categoryPath,
+	agilents[whichAg::TopBottom].readConfigurationFile(configFile, versionMajor, versionMinor );
+	agilents[whichAg::TopBottom].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings().categoryPath,
 											   mainWindowFriend->getRunInfo() );
-	agilents[Axial].readConfigurationFile(configFile, versionMajor, versionMinor );
-	agilents[Axial].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings().categoryPath, 
+	agilents[whichAg::Axial].readConfigurationFile(configFile, versionMajor, versionMinor );
+	agilents[whichAg::Axial].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings().categoryPath,
 										   mainWindowFriend->getRunInfo() );
-	agilents[Flashing].readConfigurationFile(configFile, versionMajor, versionMinor );
-	agilents[Flashing].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings( ).categoryPath,
+	agilents[whichAg::Flashing].readConfigurationFile(configFile, versionMajor, versionMinor );
+	agilents[whichAg::Flashing].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings( ).categoryPath,
 											  mainWindowFriend->getRunInfo( ) );
 	if ( (versionMajor == 2 && versionMinor > 6) || versionMajor > 2)
 	{
-		agilents[Microwave].readConfigurationFile( configFile, versionMajor, versionMinor );
-		agilents[Microwave].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings( ).categoryPath, 
+		agilents[whichAg::Microwave].readConfigurationFile( configFile, versionMajor, versionMinor );
+		agilents[whichAg::Microwave].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings( ).categoryPath,
 												   mainWindowFriend->getRunInfo( ) );
 	}
 	topBottomTek.handleOpeningConfig(configFile, versionMajor, versionMinor );
@@ -444,6 +464,22 @@ void AuxiliaryWindow::drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 }
 
 
+void AuxiliaryWindow::funcVarsDblClick( NMHDR * pNotifyStruct, LRESULT * result )
+{
+	std::vector<Script*> scriptList;
+	try
+	{
+		mainWindowFriend->updateConfigurationSavedStatus( false );
+		functionVariables.updateVariableInfo( scriptList, mainWindowFriend, this, &ttlBoard, &aoSys );
+	}
+	catch ( Error& exception )
+	{
+		sendErr( "Function Variables Double Click Handler : " + exception.whatStr( ) + "\r\n" );
+	}
+	mainWindowFriend->updateConfigurationSavedStatus( false );
+}
+
+
 void AuxiliaryWindow::ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	std::vector<Script*> scriptList;
@@ -473,6 +509,7 @@ void AuxiliaryWindow::ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result)
 	}
 	mainWindowFriend->updateConfigurationSavedStatus(false);
 }
+
 
 std::vector<variableType> AuxiliaryWindow::getAllVariables()
 {
@@ -628,8 +665,9 @@ void AuxiliaryWindow::OnSize(UINT nType, int cx, int cy)
 	aoSys.rearrange(cx, cy, getFonts());
 	aiSys.rearrange( cx, cy, getFonts( ) );
 
-	configVariables.rearrange(cx, cy, getFonts());
-	globalVariables.rearrange(cx, cy, getFonts());
+	configVariables.rearrange( cx, cy, getFonts( ) );
+	globalVariables.rearrange( cx, cy, getFonts( ) );
+	functionVariables.rearrange( cx, cy, getFonts( ) );
 
 	statusBox.rearrange( cx, cy, getFonts());
 	SetRedraw();
@@ -946,8 +984,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, do
 			std::string name;
 			std::string statusString;
 			bool status;
-			configStream >> name;
-			configStream >> statusString;
+			configStream >> name >> statusString;
 			try
 			{
 				// should actually be zero or one, but just just convert to bool
@@ -966,19 +1003,13 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, do
 	// getting aoSys.
 	for (UINT dacInc : range( aoSys.getNumberOfDacs()) )
 	{
-		std::string name;
-		std::string defaultValueString;
-		double defaultValue;
-		std::string minString;
-		std::string maxString;
-		double min;
-		double max;
+		std::string name, defaultValueString, minString, maxString;
+		double defaultValue, min, max;
 		configStream >> name;
 		if (version >= 1.2)
 		{
-			configStream >> minString;
 			std::string trash;
-			configStream >> trash;
+			configStream >> minString >> trash;
 			if (trash != "-")
 			{
 				thrower("ERROR: Expected \"-\" in config file between min and max values!");
@@ -1034,8 +1065,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, do
 			tempVar.overwritten = false;
 			tempVar.active = false;
 			double value;
-			configStream >> tempVar.name;
-			configStream >> value;
+			configStream >> tempVar.name >> value;
 			tempVar.constantValue = value;
 			tempVar.ranges.push_back({ value, value, 0, false, true });
 			globalVariables.addGlobalVariable(tempVar, varInc);
@@ -1250,19 +1280,21 @@ BOOL AuxiliaryWindow::OnInitDialog()
 		RhodeSchwarzGenerator.initialize( controlLocation, toolTips, this, id );
 		controlLocation = POINT{ 480, 0 };
 		
-		agilents[TopBottom].initialize( controlLocation, toolTips, this, id, "Top-Bottom-Agilent", 100,
+		agilents[whichAg::TopBottom].initialize( controlLocation, toolTips, this, id, "Top-Bottom-Agilent", 100,
 										mainWindowFriend->getRgbs()["Solarized Base03"] );
-		agilents[Axial].initialize( controlLocation, toolTips, this, id, "Microwave-Axial-Agilent", 100,
+		agilents[whichAg::Axial].initialize( controlLocation, toolTips, this, id, "Microwave-Axial-Agilent", 100,
 									mainWindowFriend->getRgbs()["Solarized Base03"] );
-		agilents[Flashing].initialize( controlLocation, toolTips, this, id,
+		agilents[whichAg::Flashing].initialize( controlLocation, toolTips, this, id,
 									   "Flashing-Agilent", 100, mainWindowFriend->getRgbs()["Solarized Base03"] );
-		agilents[Microwave].initialize( controlLocation, toolTips, this, id, "Microwave-Agilent", 100,
+		agilents[whichAg::Microwave].initialize( controlLocation, toolTips, this, id, "Microwave-Agilent", 100,
 										mainWindowFriend->getRgbs( )["Solarized Base03"] );
 		controlLocation = POINT{ 1440, 0 };
 		globalVariables.initialize( controlLocation, toolTips, this, id, "GLOBAL VARIABLES",
-									mainWindowFriend->getRgbs(), IDC_GLOBAL_VARS_LISTVIEW );
+									mainWindowFriend->getRgbs(), IDC_GLOBAL_VARS_LISTVIEW, VariableSysType::global );
 		configVariables.initialize( controlLocation, toolTips, this, id, "CONFIGURATION VARIABLES",
-									mainWindowFriend->getRgbs(), IDC_CONFIG_VARS_LISTVIEW);
+									mainWindowFriend->getRgbs(), IDC_CONFIG_VARS_LISTVIEW, VariableSysType::config );
+		functionVariables.initialize( controlLocation, toolTips, this, id, "FUNCTION VARIABLES",
+									  mainWindowFriend->getRgbs( ), IDC_FUNCTION_VARS_LISTVIEW, VariableSysType::function );
 		configVariables.setActive( false );
 
 		controlLocation = POINT{ 960, 0 };
@@ -1295,7 +1327,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 				titleTxt = "DACs: 16-23";
 				break;
 			}
-			aoPlots[dacPltCount] = new PlotCtrl( dacData[dacPltCount], DacPlot, mainWindowFriend->getBrightPlotPens( ),
+			aoPlots[dacPltCount] = new PlotCtrl( dacData[dacPltCount], plotStyle::DacPlot, mainWindowFriend->getBrightPlotPens( ),
 												  mainWindowFriend->getPlotFont( ), 
 												 mainWindowFriend->getBrightPlotBrushes( ), titleTxt );
 			aoPlots[dacPltCount]->init( controlLocation, 480, dacPlotSize, this );
@@ -1333,7 +1365,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 				titleTxt = "Ttls: Row D";
 				break;
 			}
-			ttlPlots[ttlPltCount] = new PlotCtrl( ttlData[ttlPltCount], TtlPlot, mainWindowFriend->getBrightPlotPens( ),
+			ttlPlots[ttlPltCount] = new PlotCtrl( ttlData[ttlPltCount], plotStyle::TtlPlot, mainWindowFriend->getBrightPlotPens( ),
 												  mainWindowFriend->getPlotFont( ), 
 												  mainWindowFriend->getBrightPlotBrushes( ),
 												  titleTxt );

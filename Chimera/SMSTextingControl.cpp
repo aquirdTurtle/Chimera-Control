@@ -9,11 +9,11 @@ void SmsTextingControl::initialize( POINT& pos, CWnd* parent, int& id, cToolTips
 {
 	title.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
 	title.Create( "TEXT ME", NORM_HEADER_OPTIONS, title.sPos, parent, id++ );
-	title.fontType = HeadingFont;
+	title.fontType = fontTypes::HeadingFont;
 
 	peopleListView.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 120 };
 	peopleListView.Create( NORM_LISTVIEW_OPTIONS, peopleListView.sPos, parent, IDC_SMS_TEXTING_LISTVIEW );
-	peopleListView.fontType = SmallFont;
+	peopleListView.fontType = fontTypes::SmallFont;
 	LV_COLUMN listViewDefaultCollumn;
 	// Zero Members
 	memset( &listViewDefaultCollumn, 0, sizeof( listViewDefaultCollumn ) );

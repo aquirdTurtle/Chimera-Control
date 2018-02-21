@@ -22,8 +22,8 @@ class rerngContainer
 	public:
 		rerngContainer( UINT rowsInGrid, UINT colsInGrid );
 		rerngContainer( UINT rowsInGrid, UINT colsInGrid, type initValue );
-		type operator()( UINT row, UINT col, directions direction ) const;
-		type & operator()( UINT row, UINT col, directions direction );
+		type operator()( UINT row, UINT col, dir direction ) const;
+		type & operator()( UINT row, UINT col, dir direction );
 		bool hasBeenFilled( );
 		void setFilledFlag( );
 		UINT getRows( );
@@ -67,7 +67,7 @@ void rerngContainer<type>::setFilledFlag( )
 
 
 template<class type> 
-type rerngContainer<type>::operator()( UINT row, UINT col, directions direction ) const
+type rerngContainer<type>::operator()( UINT row, UINT col, dir direction ) const
 {
 	if ( row > rows )
 	{
@@ -84,7 +84,7 @@ type rerngContainer<type>::operator()( UINT row, UINT col, directions direction 
 }
 
 template<class type> 
-type & rerngContainer<type>::operator()( UINT row, UINT col, directions direction )
+type & rerngContainer<type>::operator()( UINT row, UINT col, dir direction )
 {
 	if ( row >= rows )
 	{
@@ -96,7 +96,7 @@ type & rerngContainer<type>::operator()( UINT row, UINT col, directions directio
 	}
 	UINT rowOffset( row * cols * 4 );
 	UINT colOffset( col * 4 );
-	UINT index = rowOffset + colOffset + direction;
+	UINT index = rowOffset + colOffset + static_cast<int>(direction);
 	return obj[index];
 }
 

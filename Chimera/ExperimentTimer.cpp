@@ -38,7 +38,7 @@ void ExperimentTimer::update(ULONGLONG currentRepNumber, ULONGLONG repsPerVariat
 	if (currentRepNumber == 1)
 	{
 		firstTime = GetTickCount64();
-		timeDisplay.fontType = NormalFont;
+		timeDisplay.fontType = fontTypes::NormalFont;
 		timeDisplay.SetWindowTextA( "Estimating Time..." );
 		timeDisplay.RedrawWindow();
 	}
@@ -46,7 +46,7 @@ void ExperimentTimer::update(ULONGLONG currentRepNumber, ULONGLONG repsPerVariat
 	{
 		if (currentRepNumber == minAverageNumber)
 		{
-			timeDisplay.fontType = LargeFont;
+			timeDisplay.fontType = fontTypes::LargeFont;
 			timeDisplay.RedrawWindow();
 		}
 		long long thisTime = GetTickCount64();

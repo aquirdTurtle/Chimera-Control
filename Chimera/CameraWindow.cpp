@@ -31,6 +31,7 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 	ON_COMMAND_RANGE( PICTURE_SETTINGS_ID_START, PICTURE_SETTINGS_ID_END, &CameraWindow::passPictureSettings )
 	ON_CONTROL_RANGE( CBN_SELENDOK, PICTURE_SETTINGS_ID_START, PICTURE_SETTINGS_ID_END, 
 					  &CameraWindow::passPictureSettings )
+	ON_CBN_SELENDOK( IDC_ATOM_GRID_COMBO, &CameraWindow::passAtomGridCombo )
 	// these ids all go to the same function.
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_1_MIN_EDIT, IDC_PICTURE_1_MIN_EDIT, &CameraWindow::handlePictureEditChange )
 	ON_CONTROL_RANGE( EN_CHANGE, IDC_PICTURE_1_MAX_EDIT, IDC_PICTURE_1_MAX_EDIT, &CameraWindow::handlePictureEditChange )
@@ -45,6 +46,7 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 	ON_COMMAND( IDOK, &CameraWindow::catchEnter)
 	ON_COMMAND( IDC_SET_ANALYSIS_LOCATIONS, &CameraWindow::passManualSetAnalysisLocations)
 	ON_COMMAND( IDC_SET_GRID_CORNER, &CameraWindow::passSetGridCorner)
+	ON_COMMAND( IDC_DEL_GRID_BUTTON, &CameraWindow::passDelGrid)
 
 	ON_CBN_SELENDOK( IDC_TRIGGER_COMBO, &CameraWindow::passTrigger )
 	ON_CBN_SELENDOK( IDC_CAMERA_MODE_COMBO, &CameraWindow::passCameraMode )
@@ -61,6 +63,18 @@ BEGIN_MESSAGE_MAP(CameraWindow, CDialog)
 	ON_CONTROL_RANGE(EN_KILLFOCUS, IDC_IMAGE_DIMS_START, IDC_IMAGE_DIMS_END, &CameraWindow::handleImageDimsEdit )
 
 END_MESSAGE_MAP()
+
+void CameraWindow::passDelGrid( )
+{
+	try
+	{
+		analysisHandler.handleDeleteGrid( );
+	}
+	catch ( Error& err )
+	{
+		mainWindowFriend->getComm( )->sendError( err.what( ) );
+	}
+}
 
 
 void CameraWindow::writeVolts( UINT currentVoltNumber, std::vector<float64> data )
@@ -95,8 +109,8 @@ void CameraWindow::handleImageDimsEdit( UINT id )
 	CDC* dc = GetDC( );
 	try
 	{
-		pics.redrawPictures( dc, selectedPixel, analysisHandler.getAnalysisLocs( ), analysisHandler.getAtomGrid( ),
-							 true );
+		pics.redrawPictures( dc, selectedPixel, analysisHandler.getAnalysisLocs( ), analysisHandler.getGrids(), true,
+							 mostRecentPicNum );
 	}
 	catch ( Error& err )
 	{
@@ -382,7 +396,8 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 									   currentSettings.totalPicsInExperiment / currentSettings.picsPerRepetition );
 
 				pics.drawPicture( drawer, counter, data, minMax );
-				pics.drawDongles( drawer, selectedPixel, analysisHandler.getAnalysisLocs(), analysisHandler.getAtomGrid() );
+				pics.drawDongles( drawer, selectedPixel, analysisHandler.getAnalysisLocs(), 
+								  analysisHandler.getGrids(), pictureNumber );
 				counter++;
 			}
 			timer.update( pictureNumber / currentSettings.picsPerRepetition, currentSettings.repetitionsPerVariation,
@@ -409,6 +424,7 @@ LRESULT CameraWindow::onCameraProgress( WPARAM wParam, LPARAM lParam )
 			mainWindowFriend->getComm()->sendError( err.what() );
 		}
 	}
+	mostRecentPicNum = pictureNumber;
 	return 0;
 }
 
@@ -478,7 +494,7 @@ LRESULT CameraWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 		alerts.playSound();
 	}
 	dataHandler.closeFile();
-	mainWindowFriend->getComm()->sendColorBox( Camera, 'B' );
+	mainWindowFriend->getComm()->sendColorBox( System::Camera, 'B' );
 	mainWindowFriend->getComm()->sendStatus( "Camera has finished taking pictures and is no longer running.\r\n" );
 	CameraSettings.cameraIsOn( false );
 	mainWindowFriend->handleFinish();
@@ -496,10 +512,9 @@ LRESULT CameraWindow::onCameraFinish( WPARAM wParam, LPARAM lParam )
 
 void CameraWindow::startCamera()
 {
-	mainWindowFriend->getComm()->sendColorBox(Camera, 'Y');
+	mainWindowFriend->getComm()->sendColorBox( System::Camera, 'Y');
 	// turn some buttons off.
 	CameraSettings.cameraIsOn( true );
-	//
 	CDC* dc = GetDC();
 	pics.refreshBackgrounds( dc );
 	ReleaseDC(dc);
@@ -509,7 +524,7 @@ void CameraWindow::startCamera()
 	double minKineticTime;
 	Andor.armCamera( this, minKineticTime );
 	CameraSettings.updateMinKineticCycleTime( minKineticTime );
-	mainWindowFriend->getComm()->sendColorBox(Camera, 'G');
+	mainWindowFriend->getComm()->sendColorBox(System::Camera, 'G');
 }
 
 
@@ -521,7 +536,14 @@ bool CameraWindow::getCameraStatus()
 
 void CameraWindow::handleDblClick(NMHDR* info, LRESULT* lResult)
 {
-	analysisHandler.handleDoubleClick(&mainWindowFriend->getFonts(), CameraSettings.getSettings().andor.picsPerRepetition );
+	try
+	{
+		analysisHandler.handleDoubleClick( &mainWindowFriend->getFonts( ), CameraSettings.getSettings( ).andor.picsPerRepetition );
+	}
+	catch ( Error& err )
+	{
+		mainWindowFriend->getComm( )->sendError( err.what( ) );
+	}
 	mainWindowFriend->updateConfigurationSavedStatus( false );
 }
 
@@ -559,7 +581,7 @@ void CameraWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 			{
 				analysisHandler.handlePictureClick(loc);
 				pics.redrawPictures(dc, selectedPixel, analysisHandler.getAnalysisLocs(), 
-									 analysisHandler.getAtomGrid(), false);
+									 analysisHandler.getGrids(), false, mostRecentPicNum );
 			}
 		}
 		else
@@ -569,7 +591,7 @@ void CameraWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 			{
 				selectedPixel = box;
 				pics.redrawPictures(dc, selectedPixel, analysisHandler.getAnalysisLocs(), 
-									 analysisHandler.getAtomGrid( ), false );
+									 analysisHandler.getGrids( ), false, mostRecentPicNum );
 			}
 		}
 	}
@@ -617,6 +639,19 @@ void CameraWindow::passTrigger()
 {
 	CameraSettings.handleTriggerChange(this);
 	mainWindowFriend->updateConfigurationSavedStatus( false );
+}
+
+
+void CameraWindow::passAtomGridCombo( )
+{
+	try
+	{
+		analysisHandler.handleAtomGridCombo( );
+	}
+	catch ( Error& err )
+	{
+		mainWindowFriend->getComm( )->sendError( err.what( ) );
+	}
 }
 
 
@@ -681,8 +716,8 @@ void CameraWindow::OnSize( UINT nType, int cx, int cy )
 	CDC* dc = GetDC( );
 	try
 	{
-		pics.redrawPictures( dc, selectedPixel, analysisHandler.getAnalysisLocs( ), analysisHandler.getAtomGrid( ),
-							 false );
+		pics.redrawPictures( dc, selectedPixel, analysisHandler.getAnalysisLocs( ), analysisHandler.getGrids(), false,
+							 mostRecentPicNum );
 	}
 	catch ( Error& err )
 	{
@@ -833,15 +868,19 @@ void CameraWindow::prepareAtomCruncher( ExperimentInput& input )
 	input.cruncherInput->plotLock = &plotLock;
 	input.cruncherInput->rearrangerLock = &rearrangerLock;
 	// what the thread fills.
-	plotterPictureQueue.clear( );
+	input.cruncherInput->grids = analysisHandler.getGrids( );
+	// reinitialize
+	plotterPictureQueue.clear( );// = std::vector<std::vector<std::vector<long>>>( input.cruncherInput->grids.size());
+	plotterAtomQueue.clear( );// = std::vector<std::vector<std::vector<bool>>>( input.cruncherInput->grids.size( ) );
 	input.cruncherInput->plotterImageQueue = &plotterPictureQueue;
-	plotterAtomQueue.clear( );
 	input.cruncherInput->plotterAtomQueue = &plotterAtomQueue;
 	rearrangerAtomQueue.clear( );
 	input.cruncherInput->rearrangerAtomQueue = &rearrangerAtomQueue;
 	input.cruncherInput->thresholds = CameraSettings.getSettings( ).thresholds;
 	input.cruncherInput->picsPerRep = CameraSettings.getSettings().andor.picsPerRepetition;
-	input.cruncherInput->gridInfo = analysisHandler.getAtomGrid( );
+	// important, always uses the 0th atom grid for rearrangement and load-skip stuff.
+	//input.cruncherInput->gridInfo = analysisHandler.getAtomGrid( 0 );
+	
 	input.cruncherInput->catchPicTime = &crunchSeesTimes;
 	input.cruncherInput->finTime = &crunchFinTimes;
 	input.cruncherInput->atomThresholdForSkip = mainWindowFriend->getMainOptions( ).atomThresholdForSkip;
@@ -914,8 +953,8 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 		// assume 1 data set...
 		UINT numDataSets = 1;
 		// +1 for average
-		UINT numLines = numDataSets * ( input.plotterInput->atomGridInfo.height * input.plotterInput->atomGridInfo.width 
-										+ 1 );
+		UINT numLines = numDataSets * ( input.plotterInput->grids[plotParams.whichGrid].height 
+										* input.plotterInput->grids[plotParams.whichGrid].width + 1 );
 		data.resize( numLines );
 		for ( auto& line : data )
 		{
@@ -931,11 +970,11 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 		plotStyle style;
 		if ( plotParams.isHist )
 		{
-			style = HistPlot;
+			style = plotStyle::HistPlot;
 		}
 		else
 		{
-			style = ErrorPlot;
+			style = plotStyle::ErrorPlot;
 		}
 		// start a PlotDialog dialog
 		PlotDialog* plot = new PlotDialog( data, style, mainWindowFriend->getPlotPens(), 
@@ -951,9 +990,18 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 
 void CameraWindow::startPlotterThread( ExperimentInput& input )
 {
+	bool gridHasBeenSet = false;
+	for ( auto gridInfo : input.plotterInput->grids )
+	{
+		if ( !(gridInfo.topLeftCorner == coordinate( 0, 0 )) )
+		{
+			gridHasBeenSet = true;
+			break;
+		}
+	}
 	UINT plottingThreadID;
-	if ((input.plotterInput->atomGridInfo.topLeftCorner == coordinate(0,0) 
-		 && input.plotterInput->analysisLocations.size() == 0) || input.plotterInput->plotInfo.size() == 0)
+	if ((!gridHasBeenSet	&& input.plotterInput->analysisLocations.size() == 0) 
+		 || input.plotterInput->plotInfo.size() == 0)
 	{
 		plotThreadActive = false;
 	}
@@ -973,48 +1021,53 @@ void CameraWindow::startPlotterThread( ExperimentInput& input )
 }
 
 
-// this thread has one purpose: watch the image vector thread for new images, determine where atoms are, and pass them
-// to the threads waiting on atom info.
-
+// this thread has one purpose: watch the image vector thread for new images, determine where atoms are 
+// (the atom crunching part), and pass them to the threads waiting on atom info.
 // should consider modifying so that it can use an array of locations. At the moment doesn't.
 UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 {
 	atomCruncherInput* input = (atomCruncherInput*)inputPtr; 
-	std::vector<long> monitoredPixelIndecies;
-
-	if ( input->gridInfo.topLeftCorner == coordinate( 0, 0 ) )
+	// monitoredPixelIndecies[grid][pixelNumber]
+	if ( input->grids[0].topLeftCorner == coordinate( 0, 0 ) || input->grids.size( ) == 0 )
 	{
 		return 0;
 	}
-	
-	for ( auto columnInc : range( input->gridInfo.width ) )
+	std::vector<std::vector<long>> monitoredPixelIndecies(input->grids.size());
+	// TODO: change to loop over all grids...
+	for ( auto gridInc : range( input->grids.size( ) ) )
 	{
-		for ( auto rowInc : range( input->gridInfo.height ) )
+		for ( auto columnInc : range( input->grids[gridInc].width ) )
 		{
-			ULONG pixelRow = (input->gridInfo.topLeftCorner.row - 1) + rowInc * input->gridInfo.pixelSpacing;
-			ULONG pixelColumn = (input->gridInfo.topLeftCorner.column - 1) + columnInc * input->gridInfo.pixelSpacing;
-			if ( pixelRow >= input->imageDims.height || pixelColumn >= input->imageDims.width )
+			for ( auto rowInc : range( input->grids[gridInc].height ) )
 			{
-				errBox( "ERROR: Grid appears to include pixels outside the image frame! Not allowed, seen by atom "
-						"cruncher thread" );
-				return 0;
+				ULONG pixelRow = (input->grids[gridInc].topLeftCorner.row - 1) 
+					+ rowInc * input->grids[gridInc].pixelSpacing;
+				ULONG pixelColumn = (input->grids[gridInc].topLeftCorner.column - 1) 
+					+ columnInc * input->grids[gridInc].pixelSpacing;
+				if ( pixelRow >= input->imageDims.height || pixelColumn >= input->imageDims.width )
+				{
+					errBox( "ERROR: Grid appears to include pixels outside the image frame! Not allowed, seen by atom "
+							"cruncher thread" );
+					return 0;
+				}
+				int index = ((input->imageDims.height - 1 - pixelRow) * input->imageDims.width + pixelColumn);
+				if ( index >= input->imageDims.width * input->imageDims.height )
+				{
+					// shouldn't happen after I finish debugging.
+					errBox( "ERROR: Math error! Somehow, the pixel indexes appear within bounds, but the calculated index"
+							" is larger than the image is!" );
+					return 0;
+				}
+				monitoredPixelIndecies[gridInc].push_back( index );
 			}
-			int index = ((input->imageDims.height - 1 - pixelRow) * input->imageDims.width + pixelColumn);
-			if ( index >= input->imageDims.width * input->imageDims.height )
-			{
-				// shouldn't happen after I finish debugging.
-				errBox( "ERROR: Math error! Somehow, the pixel indexes appear within bounds, but the calculated index"
-						" is larger than the image is!" );
-				return 0;
-			}
-			monitoredPixelIndecies.push_back( index );
 		}
 	}
+
 	UINT imageCount = 0;
 	// loop watching the image queue.
 	while (*input->cruncherThreadActive || input->imageQueue->size() != 0)
 	{
-		// if no images wait until images. Should probably change to be event based.
+		// if no images wait until images. Should probably change to be event based, but want this to be fast...
 		if (input->imageQueue->size() == 0)
 		{
 			continue;
@@ -1023,67 +1076,74 @@ UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 		{
 			input->catchPicTime->push_back( std::chrono::high_resolution_clock::now( ) );
 		}
-		// only contains the counts for the pixels being monitored.
-		std::vector<long> tempImagePixels( monitoredPixelIndecies.size( ) );
-		// only contains the boolean true/false of whether an atom passed a threshold or not. 
-		std::vector<bool> tempAtomArray( monitoredPixelIndecies.size() );
-		UINT count = 0;
-		// scope for the lock_guard. I want to free the lock as soon as possible, so add extra small scope.
+		
+		// tempImagePixels[grid][pixel]; only contains the counts for the pixels being monitored.
+		std::vector<std::vector<long>> tempImagePixels( input->grids.size( ) );
+		// tempAtomArray[grid][pixel]; only contains the boolean true/false of whether an atom passed a threshold or not. 
+		std::vector<std::vector<bool>> tempAtomArray( input->grids.size( ) );											  
+		for (auto gridInc : range(input->grids.size()))
 		{
-			std::lock_guard<std::mutex> locker( *input->imageLock );				
-			for ( auto pixelIndex : monitoredPixelIndecies )
+			tempAtomArray[gridInc] = std::vector<bool>( monitoredPixelIndecies[gridInc].size( ) );
+			tempImagePixels[gridInc] = std::vector<long>( monitoredPixelIndecies[gridInc].size( ) );
+		}
+		for ( auto gridInc : range( input->grids.size( ) ) )
+		{
+			///*** Deal with 1st element entirely first, as this is important for the rearranger thread and the load-skip.
+			UINT count = 0;
+			{ // scope for the lock_guard. I want to free the lock as soon as possible, so add extra small scope.
+				std::lock_guard<std::mutex> locker( *input->imageLock );				
+				for ( auto pixelIndex : monitoredPixelIndecies[gridInc] )
+				{
+					tempImagePixels[gridInc][count++] = (*input->imageQueue)[0][pixelIndex];
+				}
+			}
+			count = 0;
+			for ( auto& pix : tempImagePixels[gridInc] )
 			{
-				tempImagePixels[count] = (*input->imageQueue)[0][pixelIndex];
+				if ( pix >= input->thresholds[imageCount % input->picsPerRep] )
+				{
+					tempAtomArray[gridInc][count] = true;
+				}
 				count++;
 			}
-		}
-		count = 0;
-		for ( auto& pix : tempImagePixels )
-		{
-			if ( pix >= input->thresholds[imageCount % input->picsPerRep] )
+			// explicitly deal with the rearranger thread and load skip as soon as possible, these are time-critical.
+			if ( gridInc == 0 )
 			{
-				tempAtomArray[count] = true;
-			}
-			count++;
-		}
-		if ( input->rearrangerActive )
-		{
-			// copies the array if first pic of rep. Only looks at first picture because its rearranging. Could change
-			// if we need to do funny experiments, just need to change rearranger handling.
-			if ( imageCount % input->picsPerRep == 0 )
-			{
+				if ( input->rearrangerActive ) ///
 				{
-					std::lock_guard<std::mutex> locker( *input->rearrangerLock );
-					(*input->rearrangerAtomQueue).push_back( tempAtomArray );
-					input->rearrangerConditionWatcher->notify_all( );
+					// copies the array if first pic of rep. Only looks at first picture because its rearranging. Could change
+					// if we need to do funny experiments, just need to change rearranger handling.
+					if ( imageCount % input->picsPerRep == 0 )
+					{
+						{
+							std::lock_guard<std::mutex> locker( *input->rearrangerLock );
+							(*input->rearrangerAtomQueue).push_back( tempAtomArray[0] );
+							input->rearrangerConditionWatcher->notify_all( );
+						}
+						input->finTime->push_back( std::chrono::high_resolution_clock::now( ) );
+					}
 				}
-				input->finTime->push_back( std::chrono::high_resolution_clock::now( ) );
+				// if last picture of repetition, check for loadskip condition.
+				if ( imageCount % input->picsPerRep == input->picsPerRep - 1 ) ///
+				{
+					UINT numAtoms = std::accumulate( tempAtomArray[0].begin( ), tempAtomArray[0].end( ), 0 );
+					*input->skipNext = (numAtoms >= input->atomThresholdForSkip);
+				}
 			}
 		}
-		if (input->plotterActive)
+
+		if ( input->plotterActive ) ///
 		{
 			// copies the array. Right now I'm assuming that the thread always needs atoms, which is not a good 
-			// assumption.
+			// assumption potentially...
 			std::lock_guard<std::mutex> locker( *input->plotLock );
-			(*input->plotterAtomQueue).push_back(tempAtomArray);
-			if (input->plotterNeedsImages)
+			(*input->plotterAtomQueue).push_back( tempAtomArray );
+			if ( input->plotterNeedsImages )
 			{
-				(*input->plotterImageQueue).push_back(tempImagePixels);
+				(*input->plotterImageQueue).push_back( tempImagePixels );
 			}
 		}
-		// if last picture of repetition
-		if ( imageCount % input->picsPerRep == input->picsPerRep - 1 )
-		{
-			UINT numAtoms = std::accumulate( tempAtomArray.begin( ), tempAtomArray.end( ), 0 );
-			if ( numAtoms >= input->atomThresholdForSkip )
-			{
-				*input->skipNext = true;
-			}
-			else
-			{
-				*input->skipNext = false;
-			}
-		}
+
 		imageCount++;
 		std::lock_guard<std::mutex> locker( *input->imageLock );
 		(*input->imageQueue).erase((*input->imageQueue).begin());		
@@ -1151,7 +1211,7 @@ void CameraWindow::fillMasterThreadInput( MasterThreadInput* input )
 	input->rearrangerLock = &rearrangerLock;
 	input->andorsImageTimes = &imageTimes;
 	input->grabTimes = &imageGrabTimes;
-	input->analysisGrid = analysisHandler.getAtomGrid( );
+	input->analysisGrid = analysisHandler.getAtomGrid( 0 );
 	input->conditionVariableForRearrangement = &rearrangerConditionVariable;
 }
 
@@ -1202,18 +1262,15 @@ BOOL CameraWindow::OnInitDialog()
 	timer.initialize( positions, this, false, id, tooltips );
 	position = { 797, 40 };
 	pics.initialize( position, this, id, tooltips, mainWindowFriend->getBrushes()["Dark Green"] );
-	//
+	// end of literal initialization calls
 	pics.setSinglePicture( this, CameraSettings.getSettings( ).andor.imageSettings );
 	// set initial settings.
 	Andor.setSettings( CameraSettings.getSettings().andor );
 	// load the menu
 	menu.LoadMenu( IDR_MAIN_MENU );
 	SetMenu( &menu );
-
 	// final steps
-	//ShowWindow( SW_MAXIMIZE );
 	SetTimer( NULL, 1000, NULL );
-
 	CRect rect;
 	GetWindowRect( &rect );
 	OnSize( 0, rect.right - rect.left, rect.bottom - rect.top );
@@ -1341,7 +1398,7 @@ void CameraWindow::readImageParameters()
 	catch (Error& exception)
 	{
 		Communicator* comm = mainWindowFriend->getComm();
-		comm->sendColorBox( Camera, 'R' );
+		comm->sendColorBox( System::Camera, 'R' );
 		comm->sendError( exception.whatStr() + "\r\n" );
 	}
 	CDC* dc = GetDC();

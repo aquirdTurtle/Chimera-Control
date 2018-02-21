@@ -289,6 +289,7 @@ void DataLogger::logAndorSettings( AndorRunSettings settings, bool on)
 		picureSetDataSpace = H5::DataSpace( 3, setDims );
 		picDataSpace = H5::DataSpace( 3, picDims );
 		pictureDataset = andorGroup.createDataSet( "Pictures", H5::PredType::NATIVE_LONG, picureSetDataSpace );
+		currentPicNumber = 0;
 		writeDataSet( settings.cameraMode, "Camera-Mode", andorGroup );
 		writeDataSet( settings.exposureTimes, "Exposure-Times", andorGroup );
 		writeDataSet( settings.triggerMode, "Trigger-Mode", andorGroup );
@@ -398,7 +399,8 @@ void DataLogger::writePic(UINT currentPictureNumber, std::vector<long> image, im
 	}
 	// MUST initialize status
 	// starting coordinates of write area in the h5 file of the array of picture data points.
-	hsize_t offset[] = { currentPictureNumber-1, 0, 0 };
+	//hsize_t offset[] = { currentPictureNumber-1, 0, 0 };
+	hsize_t offset[] = { currentPicNumber++, 0, 0 };
 	hsize_t slabdim[3] = { 1, dims.width, dims.height };
 	try
 	{

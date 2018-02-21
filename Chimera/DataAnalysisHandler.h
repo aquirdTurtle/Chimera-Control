@@ -21,6 +21,7 @@ typedef std::vector<std::vector<double>> avgData;
 class DataAnalysisControl
 {
 	public:
+		DataAnalysisControl( );
 		void initialize( cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips,
 						 int isTriggerModeSensitive, rgbMap rgbs );
 		ULONG getPlotFreq( );
@@ -37,39 +38,39 @@ class DataAnalysisControl
 		void onCornerButtonPushed( );
 		void handlePictureClick( coordinate location );
 		std::vector<coordinate> getAnalysisLocs( );
-		atomGrid getAtomGrid( );
+		atomGrid getAtomGrid( UINT which );
+		std::vector<atomGrid> getGrids( );
+		atomGrid getCurrentGrid( );
+		UINT getSelectedGridNumber( );
 		void clearAtomLocations( );
 		bool getLocationSettingStatus( );
 		std::vector<std::string> getActivePlotList( );
 		void reloadListView( );
 		bool buttonClicked( );
-
+		void handleAtomGridCombo( );
+		void reloadGridCombo( UINT num );
 		void fillPlotThreadInput( realTimePlotterInput* input );
+		void loadGridParams( atomGrid grid );
 		static unsigned __stdcall plotterProcedure( void* voidInput );
-		
+		void saveGridParams( );
+		void handleDeleteGrid( );
 		// an "alias template". effectively a local using std::vector; declaration. makes these declarations much more
 		// readable. I very rarely use things like this.
 		template<class T> using vector = std::vector<T>;
 		// subroutine for handling atom & count plots
-		static void handlePlotAtoms( realTimePlotterInput* input, PlottingInfo plotInfo, UINT repNum,
-									 vector<vector<std::pair<double, ULONG>> >& finData, 
-									 std::vector<std::shared_ptr<std::vector<dataPoint>>> dataContainers, 
-									 UINT variationNumber, vector<vector<bool>>& pscSatisfied, int plotNumber, 
-									 int plotNumberCount, vector<vector<int> > atomPresent );
-		static void handlePlotCounts( realTimePlotterInput* input, PlottingInfo plotInfo, UINT pictureNumber,
-									  vector<vector<vector<long> > >& finData, variationData& finAvgs, 
-									  variationData& finErrs, variationData& finX, avgData& avgAvgs, avgData& avgErrs,
-									  avgData& avgX, vector<vector<bool> >& needNewData,
-									  vector<vector<bool>>& pscSatisfied, int plotNumber, 
-									  vector<vector<long>>& countData, int plotNumberCount);
-		static void handlePlotHist( realTimePlotterInput* input, PlottingInfo plotInfo, UINT plotNumber,
-									vector<vector<long>> countData,  vector<vector<std::deque<double>>>& finData,
-									vector<vector<bool>>pscSatisfied, int plotNumberCount, 
-									vector<vector<std::map<int, std::pair<int, ULONG>>>>& histData,
-									std::vector<std::shared_ptr<std::vector<dataPoint>>> dataArrays );
-		static void determineWhichPscsSatisfied( PlottingInfo& info, UINT groupSize, 
-												 vector<vector<int>> atomPresentData,
-												 vector<vector<bool>>& pscSatisfied );
+		static void handlePlotAtoms( 
+			PlottingInfo plotInfo, UINT repNum, vector<vector<std::pair<double, ULONG>> >& finData, 
+			std::vector<std::shared_ptr<std::vector<dataPoint>>> dataContainers, 
+			UINT variationNumber, vector<vector<bool>>& pscSatisfied, 
+			int plotNumberCount, vector<vector<int> > atomPresent, UINT plottingFrequency, UINT groupNum, 
+			UINT picsPerVariation );
+		static void handlePlotHist( 
+			PlottingInfo plotInfo, vector<vector<long>> countData,  
+			vector<vector<std::deque<double>>>& finData, vector<vector<bool>>pscSatisfied, 
+			vector<vector<std::map<int, std::pair<int, ULONG>>>>& histData,
+			std::vector<std::shared_ptr<std::vector<dataPoint>>> dataArrays, UINT groupNum );
+		static void determineWhichPscsSatisfied(
+			PlottingInfo& info, UINT groupSize, vector<vector<int>> atomPresentData, vector<vector<bool>>& pscSatisfied );
 	private:
 		// real time plotting
 		ULONG updateFrequency;
@@ -86,6 +87,7 @@ class DataAnalysisControl
 		Control<CStatic> currentDataSetNumberDisp;
 		Control<CButton> manualSetAnalysisLocsButton;
 
+		Control<CComboBox> gridSelector;
 		Control<CStatic> gridHeader;
 		Control<CButton> setGridCorner;
 		Control<CStatic> gridSpacingText;
@@ -94,7 +96,10 @@ class DataAnalysisControl
 		Control<CEdit> gridWidth;
 		Control<CStatic> gridHeightText;
 		Control<CEdit> gridHeight;
-		atomGrid currentGrid;
+		std::vector<atomGrid> grids;
+		UINT selectedGrid = 0;
+		Control<CButton> deleteGrid;
+
 		std::vector<coordinate> atomLocations;
 		bool threadNeedsCounts;
 };

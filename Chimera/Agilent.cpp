@@ -54,12 +54,12 @@ void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id
 
 	header.sPos = { loc.x, loc.y, loc.x + w, loc.y += 25 };
 	header.Create( cstr( headerText ), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, parent, id++ );
-	header.fontType = HeadingFont;
+	header.fontType = fontTypes::HeadingFont;
 
 	deviceInfoDisplay.sPos = { loc.x, loc.y, loc.x + w, loc.y += 20 };
 	deviceInfoDisplay.Create( cstr( deviceInfo ), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, deviceInfoDisplay.sPos,
 							  parent, id++ );
-	deviceInfoDisplay.fontType = SmallFont;
+	deviceInfoDisplay.fontType = fontTypes::SmallFont;
 
 	channel1Button.sPos = { loc.x, loc.y, loc.x += w/2, loc.y + 20 };
 	channel1Button.Create( "Channel 1 - No Control", BS_AUTORADIOBUTTON | WS_GROUP | WS_VISIBLE | WS_CHILD, 

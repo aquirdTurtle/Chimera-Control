@@ -6,7 +6,7 @@ struct rerngMove
 {
 	UINT row;
 	UINT col;
-	directions direction;
+	dir direction;
 	double initFreq = 0;
 	double finFreq = 0;
 	/// all of the following can (in principle) be individually calibrated.
