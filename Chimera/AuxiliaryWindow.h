@@ -79,7 +79,7 @@ class AuxiliaryWindow : public CDialog
 		void saveAgilentScript( whichAg::agilentNames name );
 		void saveAgilentScriptAs( whichAg::agilentNames name, CWnd* parent );
 		void handleAgilentEditChange( UINT id );
-
+		void passFunctionVarsCombo( );
 		void drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResultf);
 		void handleEnter();
 		void fillMasterThreadInput(MasterThreadInput* input);
@@ -107,6 +107,7 @@ class AuxiliaryWindow : public CDialog
 		void GlobalVarRClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void ConfigVarsColumnClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void clearVariables();
+		void funcVarsDblClick( NMHDR * pNotifyStruct, LRESULT * result );
 		void addVariable(std::string name, bool constant, double value, int item);
 		void ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result);
 		void ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result);
@@ -131,12 +132,9 @@ class AuxiliaryWindow : public CDialog
 
 		CMenu menu;
 		std::string title;
-		
 		toolTipTextMap toolTipText;
-
 		/// control system classes
 		RhodeSchwarz RhodeSchwarzGenerator;
-		// 
 		std::array<Agilent, 4> agilents;
 
 		std::vector<PlotCtrl*> aoPlots;
@@ -152,7 +150,7 @@ class AuxiliaryWindow : public CDialog
 		TektronicsControl topBottomTek, eoAxialTek;
 
 		ColorBox boxes;
-		VariableSystem configVariables, globalVariables;
+		VariableSystem configVariables, globalVariables, functionVariables;
 
 		ColorBox statusBox;
 };

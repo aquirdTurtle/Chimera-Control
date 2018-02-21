@@ -5,7 +5,7 @@
 #include "AuxiliaryWindow.h"
 #include "TextPromptDialog.h"
 #include "multiDimensionalKey.h"
-
+#include "cleanString.h"
 #include <iomanip>
 #include <unordered_map>
 #include <random>
@@ -19,28 +19,28 @@ UINT VariableSystem::getTotalVariationNumber()
 
 
 void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* parent, int& id, std::string title,
-								 rgbMap rgbs, UINT listviewId )
+								 rgbMap rgbs, UINT listviewId, VariableSysType type )
 {
-	if ( title == "GLOBAL VARIABLES" )
-	{
-		isGlobal = true;
-	}
-	else
-	{
-		isGlobal = false;
-	}
-	// initialize these numbers to reflect the initial status of the window.
+	varSysType = type;
 	scanDimensions = 1;
 	variableRanges = 1;
-	// controls
+
 	variablesHeader.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
 	variablesHeader.Create( cstr( title ), WS_BORDER | WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY,
 							variablesHeader.sPos, parent, id++ );
 	variablesHeader.fontType = fontTypes::HeadingFont;
+	
+	if ( varSysType == VariableSysType::function )
+	{
+		funcCombo.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 800 };
+		funcCombo.Create( NORM_COMBO_OPTIONS, funcCombo.sPos, parent, IDC_FUNC_VARIABLES_COMBO_ID );
+		funcCombo.loadFunctions( );
+		// select "parent script".
+		funcCombo.SetCurSel( 0 );
+		pos.y += 25;
+	}
 
-	LONG listViewSize = 300;
-
-	variablesListview.sPos = { pos.x, pos.y, pos.x + 480, pos.y + listViewSize };
+	variablesListview.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 300 };
 	variablesListview.Create( WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS | WS_BORDER, variablesListview.sPos, 
 							  parent, listviewId );
 	variablesListview.fontType = fontTypes::SmallFont;
@@ -52,10 +52,13 @@ void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindo
 	memset( &listViewDefaultCollumn, 0, sizeof( listViewDefaultCollumn ) );
 	listViewDefaultCollumn.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
 	listViewDefaultCollumn.pszText = "Symbol";
-	if ( isGlobal )
+	RECT r;
+	parent->GetClientRect( &r );
+	if ( varSysType == VariableSysType::global )
 	{
-		listViewDefaultCollumn.cx = 200;
+		listViewDefaultCollumn.cx = 3 * r.right / 5;
 		variablesListview.InsertColumn( 0, &listViewDefaultCollumn );
+		listViewDefaultCollumn.cx = r.right / 6;
 		listViewDefaultCollumn.pszText = "Value";
 		variablesListview.InsertColumn( 1, &listViewDefaultCollumn );
 		// Make First Blank row.
@@ -70,158 +73,136 @@ void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindo
 		listViewDefaultItem.iSubItem = 1;
 		variablesListview.SetItem( &listViewDefaultItem );
 	}
-	else
+	else 
 	{
-		listViewDefaultCollumn.cx = 50;
+		listViewDefaultCollumn.cx = r.right/3;
 		variablesListview.InsertColumn( 0, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "Type";
-		listViewDefaultCollumn.cx = 0x40;
+		listViewDefaultCollumn.cx = r.right / 14;
 		variablesListview.InsertColumn( 1, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "Dim";
-		listViewDefaultCollumn.cx = 0x40;
 		variablesListview.InsertColumn( 2, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "Value";
-		listViewDefaultCollumn.cx = 0x40;
 		variablesListview.InsertColumn( 3, &listViewDefaultCollumn );
+		listViewDefaultCollumn.cx = r.right / 20;
 		listViewDefaultCollumn.pszText = "1:(";
-		listViewDefaultCollumn.cx = 0x35;
 		variablesListview.InsertColumn( 4, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "]";
 		variablesListview.InsertColumn( 5, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "#";
 		variablesListview.InsertColumn( 6, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "+()";
-		listViewDefaultCollumn.cx = 0x30;
 		variablesListview.InsertColumn( 7, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "-()";
 		variablesListview.InsertColumn( 8, &listViewDefaultCollumn );
-		// Make First Blank row.
-		LVITEM listViewDefaultItem;
-		memset( &listViewDefaultItem, 0, sizeof( listViewDefaultItem ) );
-		listViewDefaultItem.mask = LVIF_TEXT;   // Text Style
-		listViewDefaultItem.cchTextMax = 256; // Max size of test
-		listViewDefaultItem.pszText = "___";
-		listViewDefaultItem.iItem = 0;          // choose item  
-		listViewDefaultItem.iSubItem = 0;       // Put in first coluom
-		variablesListview.InsertItem( &listViewDefaultItem );
-		for ( int itemInc = 1; itemInc < 7; itemInc++ ) // Add SubItems in a loop
+		if ( varSysType == VariableSysType::config )
 		{
-			listViewDefaultItem.iSubItem = itemInc;
-			variablesListview.SetItem( &listViewDefaultItem );
+			// Make First Blank row.
+			LVITEM listViewDefaultItem;
+			memset( &listViewDefaultItem, 0, sizeof( listViewDefaultItem ) );
+			listViewDefaultItem.mask = LVIF_TEXT;   // Text Style
+			listViewDefaultItem.cchTextMax = 256; // Max size of test
+			listViewDefaultItem.pszText = "___";
+			listViewDefaultItem.iItem = 0;          // choose item  
+			listViewDefaultItem.iSubItem = 0;       // Put in first coluom
+			variablesListview.InsertItem( &listViewDefaultItem );
+			for ( int itemInc = 1; itemInc < 7; itemInc++ ) // Add SubItems in a loop
+			{
+				listViewDefaultItem.iSubItem = itemInc;
+				variablesListview.SetItem( &listViewDefaultItem );
+			}
 		}
 	}
 	variablesListview.SetBkColor( rgbs["Solarized Base02"] );
 
-	pos.y += listViewSize;
+	pos.y += 300;
 }
 
 
-void VariableSystem::handleOpenConfig(std::ifstream& configFile, int versionMajor, int versionMinor )
+/* 
+ * The "normal" function, used for config and global variable systems.
+ */
+void VariableSystem::normHandleOpenConfig(std::ifstream& configFile, int versionMajor, int versionMinor )
 {
 	ProfileSystem::checkDelimiterLine(configFile, "VARIABLES");
 	// handle variables
 	clearVariables();
-	// Number of Variables
-	UINT varNum;
-	configFile >> varNum;
-	if (varNum > 100)
+	std::vector<variableType> variables = getVariablesFromFile( configFile, versionMajor, versionMinor );
+	UINT varInc = 0;
+	for ( auto var : variables )
 	{
-		int answer = promptBox("ERROR: variable number retrieved from file appears suspicious. The number is "
-								+ str(varNum) + ". Is this accurate?", MB_YESNO);
-		if (answer == IDNO)
+		addConfigVariable( var, varInc++ );
+	}
+	if ( currentVariables.size( ) != 0 )
+	{
+		for ( auto rangeInc : range( currentVariables.front().ranges.size() ) )
+		{
+			bool leftInclusivity = currentVariables.front( ).ranges[rangeInc].leftInclusive;
+			bool rightInclusivity = currentVariables.front( ).ranges[rangeInc].rightInclusive;
+			setRangeInclusivity( rangeInc, true, leftInclusivity, preRangeColumns + rangeInc * 3 );
+			setRangeInclusivity( rangeInc, false, rightInclusivity, preRangeColumns + 1 + rangeInc * 3 );
+		}
+	}
+	else
+	{
+		setRangeInclusivity( 0, true, false, preRangeColumns );
+		setRangeInclusivity( 0, false, true, preRangeColumns + 1 );
+	}
+	if ( varSysType != VariableSysType::function )
+	{
+		// add a blank line
+		variableType var;
+		var.name = "";
+		var.constant = false;
+		var.ranges.push_back( { 0, 0, 1, false, true } );
+		addConfigVariable( var, currentVariables.size( ) );
+	}
+	ProfileSystem::checkDelimiterLine( configFile, "END_VARIABLES" );
+	updateVariationNumber( );
+}
+
+
+std::vector<variableType> VariableSystem::getVariablesFromFile( std::ifstream& configFile, int versionMajor, 
+																int versionMinor )
+{
+	UINT variableNumber;
+	configFile >> variableNumber;
+	if ( variableNumber > 100 )
+	{
+		int answer = promptBox( "ERROR: variable number retrieved from file appears suspicious. The number is "
+								+ str( variableNumber ) + ". Is this accurate?", MB_YESNO );
+		if ( answer == IDNO )
 		{
 			// don't try to load anything.
-			varNum = 0;
+			variableNumber = 0;
 		}
 	}
-	int rangeNumber = 1;
-	for ( const UINT varInc : range( varNum ) )
+	std::vector<variableType> tempVariables;
+	for ( const UINT varInc : range( variableNumber ) )
 	{
-		variableType tempVar;
-		std::string varName, typeText, valueString;
-		bool constant;
-		configFile >> varName >> typeText;
-		std::transform( varName.begin( ), varName.end( ), varName.begin( ), ::tolower );
-		tempVar.name = varName;
-		if ( typeText == "Constant" )
-		{
-			constant = true;
-			tempVar.constant = true;
-		}
-		else if ( typeText == "Variable" )
-		{
-			constant = false;
-			tempVar.constant = false;
-		}
-		else
-		{
-			thrower( "ERROR: unknown variable type option: " + typeText + ". Check the formatting of the configuration"
-					 " file." );
-		}
-		if ( (versionMajor == 2 && versionMinor > 7) || versionMajor > 2 )
-		{
-			configFile >> tempVar.scanDimension;
-		}
-		else
-		{
-			tempVar.scanDimension = 1;
-		}
-		configFile >> rangeNumber;
-		// I think it's unlikely to ever need more than 2 or 3 ranges.
-		if ( rangeNumber < 1 || rangeNumber > 100 )
-		{
-			errBox( "ERROR: Bad range number! setting it to 1, but found " + str( rangeNumber ) + " in the file." );
-			rangeNumber = 1;
-		}
-		setVariationRangeNumber( rangeNumber, 1 );
-		// check if the range is actually too small.
-		UINT totalVariations = 0;
-		for ( auto rangeInc : range( rangeNumber ) )
-		{
-			double initValue = 0, finValue = 0;
-			unsigned int variations = 0;
-			bool leftInclusive = 0, rightInclusive = 0;
-			configFile >> initValue >> finValue >> variations >> leftInclusive >> rightInclusive;
-			totalVariations += variations;
-			tempVar.ranges.push_back( { initValue, finValue, variations, leftInclusive, rightInclusive } );
-		}
-		// shouldn't be because of 1 forcing earlier.
-		if ( tempVar.ranges.size( ) == 0 )
-		{
-			// make sure it has at least one entry.
-			tempVar.ranges.push_back( { 0,0,1, false, true } );
-		}
-		if ( (versionMajor == 2 && versionMinor >= 14) || versionMajor > 2 )
-		{
-			configFile >> tempVar.constantValue;
-		}
-		else
-		{
-			tempVar.constantValue = tempVar.ranges[0].initialValue;
-		}
-		addConfigVariable( tempVar, varInc );
+		tempVariables.push_back(loadVariableFromFile( configFile, versionMajor, versionMinor));
 	}
+	return tempVariables;
+}
 
-	for ( auto rangeInc : range( rangeNumber ) )
+
+/* 
+ * The version of this for the function variable system.
+ */
+void VariableSystem::funcHandleOpenConfig( std::ifstream& configFile, int versionMajor, int versionMinor )
+{
+	ProfileSystem::checkDelimiterLine( configFile, "FUNCTION_VARIABLES" );
+	funcVariables.clear( );
+	// the number of functions with variables recorded by this config.
+	UINT functionNumber;
+	configFile >> functionNumber;
+	for ( auto funcInc : range( functionNumber ) )
 	{
-		bool leftInclusivity = false, rightInclusivity = true;
-		if ( currentVariables.size( ) != 0 )
-		{
-			leftInclusivity = currentVariables.front( ).ranges[rangeInc].leftInclusive;
-			rightInclusivity = currentVariables.front( ).ranges[rangeInc].rightInclusive;
-		}
-		setRangeInclusivity( rangeInc, true, leftInclusivity, preRangeColumns + rangeInc * 3 );
-		setRangeInclusivity( rangeInc, false, rightInclusivity, preRangeColumns + 1 + rangeInc * 3 );
+		std::string funcName;
+		configFile >> funcName;
+		funcVariables[funcName] = getVariablesFromFile( configFile, versionMajor, versionMinor );
 	}
-
-	// add a blank line
-	variableType var;
-	var.name = "";
-	var.constant = false;
-	var.ranges.push_back( { 0, 0, 1, false, true } );
-	addConfigVariable( var, varNum );
-
-	ProfileSystem::checkDelimiterLine( configFile, "END_VARIABLES" );
+	ProfileSystem::checkDelimiterLine( configFile, "END_FUNCTION_VARIABLES" );
 	updateVariationNumber( );
 }
 
@@ -268,30 +249,137 @@ void VariableSystem::updateVariationNumber( )
  
 void VariableSystem::handleNewConfig( std::ofstream& newFile )
 {
-	newFile << "VARIABLES\n";
-	// Number of Variables
-	newFile << 0 << "\n";
-	newFile << "END_VARIABLES\n";
+	if ( varSysType != VariableSysType::function )
+	{
+		newFile << "VARIABLES\n";
+		// Number of Variables
+		newFile << 0 << "\n";
+		newFile << "END_VARIABLES\n";
+	}
+	else
+	{
+		newFile << "VARIABLES\n";
+		// Number of functions with variables saved
+		newFile << 0 << "\n";
+		newFile << "END_VARIABLES\n";
+	}
+}
+
+
+
+
+variableType VariableSystem::loadVariableFromFile( std::ifstream& openFile, UINT versionMajor, UINT versionMinor )
+{
+
+	variableType tempVar;
+	std::string varName, typeText, valueString;
+	bool constant;
+	openFile >> varName >> typeText;
+	std::transform( varName.begin( ), varName.end( ), varName.begin( ), ::tolower );
+	tempVar.name = varName;
+	if ( typeText == "Constant" )
+	{
+		constant = true;
+		tempVar.constant = true;
+	}
+	else if ( typeText == "Variable" )
+	{
+		constant = false;
+		tempVar.constant = false;
+	}
+	else
+	{
+		thrower( "ERROR: unknown variable type option: " + typeText + ". Check the formatting of the configuration"
+				 " file." );
+	}
+	if ( (versionMajor == 2 && versionMinor > 7) || versionMajor > 2 )
+	{
+		openFile >> tempVar.scanDimension;
+	}
+	else
+	{
+		tempVar.scanDimension = 1;
+	}
+	UINT rangeNumber;
+	openFile >> rangeNumber;
+	// I think it's unlikely to ever need more than 2 or 3 ranges.
+	if ( rangeNumber < 1 || rangeNumber > 100 )
+	{
+		errBox( "ERROR: Bad range number! setting it to 1, but found " + str( rangeNumber ) + " in the file." );
+		rangeNumber = 1;
+	}
+	setVariationRangeNumber( rangeNumber, 1 );
+	UINT totalVariations = 0;
+	for ( auto rangeInc : range( rangeNumber ) )
+	{
+		double initValue = 0, finValue = 0;
+		unsigned int variations = 0;
+		bool leftInclusive = 0, rightInclusive = 0;
+		openFile >> initValue >> finValue >> variations >> leftInclusive >> rightInclusive;
+		totalVariations += variations;
+		tempVar.ranges.push_back( { initValue, finValue, variations, leftInclusive, rightInclusive } );
+	}
+	// shouldn't be because of 1 forcing earlier.
+	if ( tempVar.ranges.size( ) == 0 )
+	{
+		// make sure it has at least one entry.
+		tempVar.ranges.push_back( { 0,0,1, false, true } );
+	}
+	if ( (versionMajor == 2 && versionMinor >= 14) || versionMajor > 2 )
+	{
+		openFile >> tempVar.constantValue;
+	}
+	else
+	{
+		tempVar.constantValue = tempVar.ranges[0].initialValue;
+	}
+	return tempVar;
+}
+
+
+void VariableSystem::saveVariable( std::ofstream& saveFile, variableType variable )
+{
+	saveFile << variable.name << " " << (variable.constant ? "Constant " : "Variable ") << variable.scanDimension << "\n"
+		<< variable.ranges.size( ) << "\n";
+	for ( auto& range : variable.ranges )
+	{
+		saveFile << range.initialValue << "\n" << range.finalValue << "\n" << range.variations << "\n"
+			<< range.leftInclusive << "\n" << range.rightInclusive << "\n";
+	}
+	saveFile << variable.constantValue << "\n";
 }
 
 
 void VariableSystem::handleSaveConfig(std::ofstream& saveFile)
 {
-	saveFile << "VARIABLES\n";
-	saveFile << getCurrentNumberOfVariables() << "\n";
-	for (UINT varInc = 0; varInc < getCurrentNumberOfVariables(); varInc++)
+	if ( varSysType != VariableSysType::function )
 	{
-		variableType info = getVariableInfo(varInc);
-		saveFile << info.name << " " << (info.constant ? "Constant " : "Variable ") << info.scanDimension << "\n" 
-			<< info.ranges.size( ) << "\n";
-		for (auto& range : info.ranges )
+		saveFile << "VARIABLES\n";
+		saveFile << getCurrentNumberOfVariables( ) << "\n";
+		for ( UINT varInc = 0; varInc < getCurrentNumberOfVariables( ); varInc++ )
 		{
-			saveFile << range.initialValue << "\n" << range.finalValue << "\n" << range.variations << "\n"
-				<< range.leftInclusive << "\n" << range.rightInclusive << "\n";
+			saveVariable(saveFile, getVariableInfo( varInc ));
+
 		}
-		saveFile << info.constantValue << "\n";
+		saveFile << "END_VARIABLES\n";
 	}
-	saveFile << "END_VARIABLES\n";
+	else
+	{
+		// save function variables. This is potentially long.
+		saveFile << "FUNCTION_VARIABLES\n";
+		saveFile << funcVariables.size( );
+		for ( auto funcVars : funcVariables )
+		{
+			saveFile << funcVars.first << "\n";
+			// number of variables.
+			saveFile << funcVars.second.size( ) << "\n";
+			for ( auto variable : funcVars.second )
+			{
+				saveVariable( saveFile, variable );
+			}
+		}
+		saveFile << "END_FUNCTION_VARIABLES";
+	}
 }
 
 
@@ -299,6 +387,102 @@ void VariableSystem::rearrange(UINT width, UINT height, fontMap fonts)
 {
 	variablesHeader.rearrange( width, height, fonts);
 	variablesListview.rearrange( width, height, fonts);
+	if ( varSysType == VariableSysType::function )
+	{
+		funcCombo.rearrange( width, height, fonts );
+	}
+}
+
+void VariableSystem::handleFuncCombo( )
+{
+	int selection = funcCombo.GetCurSel( );
+	if ( selection != -1 )
+	{
+		// save the func variables.
+		funcVariables[currentFuncName] = currentVariables;
+		CString text;
+		funcCombo.GetLBText( selection, text );
+		std::string textStr( text.GetBuffer( ) );
+		textStr = textStr.substr( 0, textStr.find_first_of( '(' ) );
+		loadVariablesFromFunc( textStr );
+	}
+}
+
+
+void VariableSystem::loadVariablesFromFunc( std::string funcName )
+{
+	clearVariables( );
+	std::string funcAddress = FUNCTIONS_FOLDER_LOCATION + funcName + "." + FUNCTION_EXTENSION;
+	std::ifstream file;
+	ScriptStream stream;
+	file.open( funcAddress, std::ios::in );
+	if ( !file.is_open( ) )
+	{
+		thrower( "ERROR: Failed to open function file: " + funcAddress + " for function variables." );
+	}
+	std::string tempLine;
+	std::string fileText;
+	while ( std::getline( file, tempLine ) )
+	{
+		cleanString( tempLine );
+		fileText += tempLine;
+	}
+	file.close( );
+	stream.str( fileText );
+	stream.clear( );
+	stream.seekg( 0 );
+
+	while ( true )
+	{
+		std::string tmp;
+		stream >> tmp;
+		if ( tmp == "var" )
+		{
+			// add to variables!
+			std::string name, valStr;
+			stream >> name >> valStr;
+			variableType tmpVariable;
+			tmpVariable.constant = true;
+			std::transform( name.begin( ), name.end( ), name.begin( ), ::tolower );
+			tmpVariable.name = name;
+			bool found = false;
+			double val;
+			try
+			{
+				val = std::stod( valStr );
+			}
+			catch ( std::invalid_argument& )
+			{
+				thrower( "ERROR: Bad string for value of local variable " + str( name ) );
+			}
+			tmpVariable.constantValue = val;
+			// check if variable was saved before.
+			for ( auto savedVariable : funcVariables[funcName] )
+			{
+				if ( tmpVariable.name == savedVariable.name )
+				{
+					// load the saved info.
+					tmpVariable.scanDimension = savedVariable.scanDimension;
+					tmpVariable.ranges = savedVariable.ranges;
+					tmpVariable.constant = savedVariable.constant;
+					found = true;
+				}
+			}
+			if ( !found )
+			{
+				// use some default values.
+				tmpVariable.scanDimension = 1;
+				setVariationRangeNumber( 1, 1 );
+				tmpVariable.ranges.push_back( { val, val, 1, true, true } );
+			}
+			addConfigVariable( tmpVariable, 0 );
+		}
+		if ( stream.peek( ) == EOF )
+		{
+			break;
+		}
+	}
+	currentFuncName = funcName;
 }
 
 
@@ -546,7 +730,7 @@ void VariableSystem::handleDraw(NMHDR* pNMHDR, LRESULT* pResult, rgbMap rgbs)
 		{
 			return;
 		}
-		if (isGlobal)
+		if (varSysType == VariableSysType::global)
 		{
 			if (item == currentVariables.size())
 			{
@@ -640,7 +824,7 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 		listViewItem.iSubItem = 0;       // Put in first coluom
 		variablesListview.InsertItem(&listViewItem);
 		listViewItem.iSubItem = 1;
-		if (isGlobal)
+		if ( varSysType == VariableSysType::global )
 		{			
 			listViewItem.pszText = "0";
 			variablesListview.SetItem( &listViewItem );
@@ -671,6 +855,11 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 	{
 		case 0:
 		{
+			if ( varSysType == VariableSysType::function )
+			{
+				// Variable names from functions must be changed in the function itself.
+				break;
+			}
 			/// person name
 			std::string newName;
 			TextPromptDialog dialog(&newName, "Please enter a name for the variable:");
@@ -704,7 +893,7 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 		}
 		case 1:
 		{
-			if (isGlobal)
+			if ( varSysType == VariableSysType::global )
 			{
 				/// global value
 				std::string newValue;
@@ -830,7 +1019,7 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 		case 3:
 		{
 			/// constant value
-			if ( !currentVariables[varNumber].constant )
+			if ( !currentVariables[varNumber].constant || varSysType==VariableSysType::function )
 			{
 				// In this case the extra boxes are unresponsive.
 				break;
@@ -1170,7 +1359,7 @@ void VariableSystem::addConfigVariable(variableType variableToAdd, UINT item)
 		thrower("ERROR: Forbidden character in variable name! you cannot use spaces, tabs, newlines, or any of "
 				"\"()*+/-%\" in a variable name.");
 	}
-	if (variableToAdd.name == "")
+	if (variableToAdd.name == "" && varSysType != VariableSysType::function )
 	{
 		// then add empty variable slot
 		LVITEM listViewDefaultItem;
