@@ -89,7 +89,7 @@ class ProfileSystem
 
 		// version = str(versionMain) + "." + str(versionSub)
 		const int versionMain = 3;
-		const int versionSub = 1;
+		const int versionSub = 2;
 		Control<CStatic> sequenceLabel;
 		Control<CComboBox> sequenceCombo;
 		Control<CEdit> sequenceInfoDisplay;

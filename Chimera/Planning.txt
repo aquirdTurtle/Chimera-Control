@@ -14,6 +14,8 @@ FEATURES:
 			- Function handling needs list of variables being varied and what function the variables belong to. 
 				Only if both match should the handling replace the constant value.
 		- need to add handling for new control
+	- how to handle saving variable settings? could just not save at all, but saves would be good.
+		- could save all function variables as they get loaded or changed in an object in the VariableSystem
 - Full experiments following each other, alternative use of sequences.
 - Consider ways to make navigating many functions more sensible. May be similar to local variable considerations.
 - finish implementing randomizing repetitions.
@@ -31,6 +33,7 @@ FEATURES:
 - get running average working again
 - add all agilents / tek to color boxes?
 - restore ability to look multi-pixel conditions / events in plots
+- changeable update rate for dialogs.
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers

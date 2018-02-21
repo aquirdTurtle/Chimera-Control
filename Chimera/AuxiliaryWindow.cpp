@@ -24,7 +24,6 @@ IMPLEMENT_DYNAMIC( AuxiliaryWindow, CDialog )
 
 
 BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
-
 	ON_WM_TIMER( )
 
 	ON_WM_CTLCOLOR( )
@@ -55,13 +54,16 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 					  &AuxiliaryWindow::handleAgilentCombo )
 	ON_REGISTERED_MESSAGE( eLogVoltsMessageID, &AuxiliaryWindow::onLogVoltsMessage )
 
+	ON_CBN_SELENDOK( IDC_FUNC_VARIABLES_COMBO_ID, &AuxiliaryWindow::passFunctionVarsCombo )
+
 	ON_CONTROL_RANGE( EN_CHANGE, ID_DAC_FIRST_EDIT, (ID_DAC_FIRST_EDIT + 23), &AuxiliaryWindow::DacEditChange )
 	ON_NOTIFY( LVN_COLUMNCLICK, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::ConfigVarsColumnClick )
 	ON_NOTIFY( NM_DBLCLK, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::ConfigVarsDblClick )
 	ON_NOTIFY( NM_RCLICK, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::ConfigVarsRClick )
-
 	ON_NOTIFY( NM_DBLCLK, IDC_GLOBAL_VARS_LISTVIEW, &AuxiliaryWindow::GlobalVarDblClick )
 	ON_NOTIFY( NM_RCLICK, IDC_GLOBAL_VARS_LISTVIEW, &AuxiliaryWindow::GlobalVarRClick )
+	ON_NOTIFY( NM_DBLCLK, IDC_FUNCTION_VARS_LISTVIEW, &AuxiliaryWindow::funcVarsDblClick)
+
 	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_GLOBAL_VARS_LISTVIEW, IDC_GLOBAL_VARS_LISTVIEW, &AuxiliaryWindow::drawVariables )
 	ON_NOTIFY_RANGE( NM_CUSTOMDRAW, IDC_CONFIG_VARS_LISTVIEW, IDC_CONFIG_VARS_LISTVIEW, &AuxiliaryWindow::drawVariables )
 	
@@ -76,9 +78,21 @@ BEGIN_MESSAGE_MAP( AuxiliaryWindow, CDialog )
 END_MESSAGE_MAP()
 
 
+void AuxiliaryWindow::passFunctionVarsCombo( )
+{
+	try
+	{
+		functionVariables.handleFuncCombo( );
+	}
+	catch ( Error& err )
+	{
+		sendErr( err.what( ) );
+	}
+}
+
+
 LRESULT AuxiliaryWindow::onLogVoltsMessage( WPARAM wp, LPARAM lp )
 {
-	//fstd::vector<float64> data = aiSys.getSingleSnap( 100 );
 	aiSys.refreshCurrentValues( );
 	aiSys.refreshDisplays( );
 	cameraWindowFriend->writeVolts( wp, aiSys.getCurrentValues() );
@@ -104,7 +118,6 @@ void AuxiliaryWindow::OnPaint( )
 		CDC* cdc = GetDC( );
 		// for some reason I suddenly started needing to do this. I know that memDC redraws the background, but it used to 
 		// work without this and I don't know what changed. I used to do:
-		// memDC dc( GetDC( ) );
 		cdc->SetBkColor( mainWindowFriend->getRgbs( )["Solarized Base 04"] );
 		long width = size.right - size.left, height = size.bottom - size.top;
 		// each dc gets initialized with the rect for the corresponding plot. That way, each dc only overwrites the area 
@@ -180,9 +193,9 @@ void AuxiliaryWindow::openAgilentScript( whichAg::agilentNames name, CWnd* paren
 		agilents[name].agilentScript.checkSave( mainWindowFriend->getProfileSettings( ).categoryPath, 
 												mainWindowFriend->getRunInfo( ) );
 		std::string openFileName = openWithExplorer( parent, AGILENT_SCRIPT_EXTENSION );
-		agilents[name].agilentScript.openParentScript( openFileName,
-														 mainWindowFriend->getProfileSettings( ).categoryPath,
-														 mainWindowFriend->getRunInfo( ) );
+		agilents[name].agilentScript.openParentScript( openFileName, 
+													   mainWindowFriend->getProfileSettings( ).categoryPath,
+													   mainWindowFriend->getRunInfo( ) );
 		agilents[name].agilentScript.updateScriptNameText( mainWindowFriend->getProfileSettings( ).categoryPath );
 	}
 	catch ( Error& err )
@@ -359,6 +372,7 @@ void AuxiliaryWindow::handleNewConfig( std::ofstream& newFile )
 {
 	// order matters.
 	configVariables.handleNewConfig( newFile );
+	functionVariables.handleNewConfig( newFile );
 	ttlBoard.handleNewConfig( newFile );
 	aoSys.handleNewConfig( newFile );
 	for ( auto& agilent : agilents )
@@ -374,6 +388,7 @@ void AuxiliaryWindow::handleSaveConfig( std::ofstream& saveFile )
 {
 	// order matters.
 	configVariables.handleSaveConfig( saveFile );
+	functionVariables.handleSaveConfig( saveFile );
 	ttlBoard.handleSaveConfig( saveFile );
 	aoSys.handleSaveConfig( saveFile );
 	for ( auto& agilent : agilents )
@@ -390,7 +405,11 @@ void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, int version
 	ttlBoard.prepareForce( );
 	aoSys.prepareForce( );
 
-	configVariables.handleOpenConfig(configFile, versionMajor, versionMinor );
+	configVariables.normHandleOpenConfig(configFile, versionMajor, versionMinor );
+	if ( (versionMajor == 3 && versionMinor > 1) || versionMajor > 3 )
+	{
+		functionVariables.funcHandleOpenConfig( configFile, versionMajor, versionMinor );
+	}
 	ttlBoard.handleOpenConfig(configFile, versionMajor, versionMinor );
 	aoSys.handleOpenConfig(configFile, versionMajor, versionMinor, &ttlBoard);
 
@@ -445,6 +464,22 @@ void AuxiliaryWindow::drawVariables(UINT id, NMHDR* pNMHDR, LRESULT* pResult)
 }
 
 
+void AuxiliaryWindow::funcVarsDblClick( NMHDR * pNotifyStruct, LRESULT * result )
+{
+	std::vector<Script*> scriptList;
+	try
+	{
+		mainWindowFriend->updateConfigurationSavedStatus( false );
+		functionVariables.updateVariableInfo( scriptList, mainWindowFriend, this, &ttlBoard, &aoSys );
+	}
+	catch ( Error& exception )
+	{
+		sendErr( "Function Variables Double Click Handler : " + exception.whatStr( ) + "\r\n" );
+	}
+	mainWindowFriend->updateConfigurationSavedStatus( false );
+}
+
+
 void AuxiliaryWindow::ConfigVarsDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	std::vector<Script*> scriptList;
@@ -474,6 +509,7 @@ void AuxiliaryWindow::ConfigVarsRClick(NMHDR * pNotifyStruct, LRESULT * result)
 	}
 	mainWindowFriend->updateConfigurationSavedStatus(false);
 }
+
 
 std::vector<variableType> AuxiliaryWindow::getAllVariables()
 {
@@ -629,8 +665,9 @@ void AuxiliaryWindow::OnSize(UINT nType, int cx, int cy)
 	aoSys.rearrange(cx, cy, getFonts());
 	aiSys.rearrange( cx, cy, getFonts( ) );
 
-	configVariables.rearrange(cx, cy, getFonts());
-	globalVariables.rearrange(cx, cy, getFonts());
+	configVariables.rearrange( cx, cy, getFonts( ) );
+	globalVariables.rearrange( cx, cy, getFonts( ) );
+	functionVariables.rearrange( cx, cy, getFonts( ) );
 
 	statusBox.rearrange( cx, cy, getFonts());
 	SetRedraw();
@@ -1253,9 +1290,11 @@ BOOL AuxiliaryWindow::OnInitDialog()
 										mainWindowFriend->getRgbs( )["Solarized Base03"] );
 		controlLocation = POINT{ 1440, 0 };
 		globalVariables.initialize( controlLocation, toolTips, this, id, "GLOBAL VARIABLES",
-									mainWindowFriend->getRgbs(), IDC_GLOBAL_VARS_LISTVIEW );
+									mainWindowFriend->getRgbs(), IDC_GLOBAL_VARS_LISTVIEW, VariableSysType::global );
 		configVariables.initialize( controlLocation, toolTips, this, id, "CONFIGURATION VARIABLES",
-									mainWindowFriend->getRgbs(), IDC_CONFIG_VARS_LISTVIEW);
+									mainWindowFriend->getRgbs(), IDC_CONFIG_VARS_LISTVIEW, VariableSysType::config );
+		functionVariables.initialize( controlLocation, toolTips, this, id, "FUNCTION VARIABLES",
+									  mainWindowFriend->getRgbs( ), IDC_FUNCTION_VARS_LISTVIEW, VariableSysType::function );
 		configVariables.setActive( false );
 
 		controlLocation = POINT{ 960, 0 };

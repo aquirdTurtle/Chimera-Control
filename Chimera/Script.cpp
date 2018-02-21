@@ -18,7 +18,7 @@
 #include "RunInfo.h"
 
 
-void Script::initialize( int width, int height, POINT& startingLocation, cToolTips& toolTips, CWnd* parent, 
+void Script::initialize( int width, int height, POINT& loc, cToolTips& toolTips, CWnd* parent, 
 						 int& id, std::string deviceTypeInput, std::string scriptHeader,
 						 std::array<UINT, 2> ids, COLORREF backgroundColor)
 {
@@ -51,21 +51,21 @@ void Script::initialize( int width, int height, POINT& startingLocation, cToolTi
 	if (scriptHeader != "")
 	{
 		// user has option to not have a header if scriptheader is "".
-		title.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 25 };
+		title.sPos = { loc.x, loc.y, loc.x + width, loc.y + 25 };
 		title.Create( cstr( scriptHeader ), NORM_HEADER_OPTIONS, title.sPos, parent, id++ );
 		title.fontType = fontTypes::HeadingFont;
-		startingLocation.y += 25;
+		loc.y += 25;
 	}
 	// saved indicator
-	savedIndicator.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + 80, startingLocation.y + 20 };
+	savedIndicator.sPos = { loc.x, loc.y, loc.x + 80, loc.y + 20 };
 	savedIndicator.Create( "Saved?", NORM_CWND_OPTIONS | BS_CHECKBOX | BS_LEFTTEXT, savedIndicator.sPos, parent, id++ );
 	savedIndicator.SetCheck( true );
 	// filename
-	fileNameText.sPos = { startingLocation.x + 80, startingLocation.y, startingLocation.x + width - 20, startingLocation.y + 20 };
+	fileNameText.sPos = { loc.x + 80, loc.y, loc.x + width - 20, loc.y + 20 };
 	fileNameText.Create( NORM_STATIC_OPTIONS, fileNameText.sPos, parent, id++ );
 	isSaved = true;
 	// help
-	help.sPos = { startingLocation.x + width - 20, startingLocation.y, startingLocation.x + width, startingLocation.y + 20 };
+	help.sPos = { loc.x + width - 20, loc.y, loc.x + width, loc.y + 20 };
 	help.Create( NORM_STATIC_OPTIONS, help.sPos, parent, id++ );
 	help.SetWindowTextA( "?" );
 	// don't want this for the scripting window, hence the extra check.
@@ -73,19 +73,15 @@ void Script::initialize( int width, int height, POINT& startingLocation, cToolTi
 	{
 		help.setToolTip( AGILENT_INFO_TEXT, toolTips, parent );
 	}
-	//help.setToolTip( "", toolTips, parent );
-	startingLocation.y += 20;
-	// available functions combo
-	availableFunctionsCombo.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y + 800 };
+	loc.y += 20;
+	availableFunctionsCombo.sPos = { loc.x, loc.y, loc.x + width, loc.y + 800 };
 	availableFunctionsCombo.Create( NORM_COMBO_OPTIONS, availableFunctionsCombo.sPos, parent, ids[0] );
-	
-	loadFunctions( ); 
+	loadFunctions( );
 	// select "parent script".
 	availableFunctionsCombo.SetCurSel( 0 );
-
-	startingLocation.y += 25;
+	loc.y += 25;
 	// Edit
-	edit.sPos = { startingLocation.x, startingLocation.y, startingLocation.x + width, startingLocation.y += height };
+	edit.sPos = { loc.x, loc.y, loc.x + width, loc.y += height };
 	edit.Create( NORM_EDIT_OPTIONS | ES_AUTOVSCROLL | WS_VSCROLL | ES_AUTOHSCROLL | WS_HSCROLL, edit.sPos, parent, ids[1] );
 	edit.fontType = fontTypes::CodeFont;
 	edit.SetBackgroundColor( FALSE, backgroundColor );
@@ -894,7 +890,7 @@ void Script::newScript()
 	loadFile(tempName);
 }
 
-//
+
 void Script::openParentScript(std::string parentScriptFileAndPath, std::string categoryPath, RunInfo info)
 {
 	if (parentScriptFileAndPath == "" || parentScriptFileAndPath == "NONE")
@@ -977,7 +973,6 @@ void Script::loadFile(std::string pathToFile)
 	{
 		cleanString(tempLine);
 		fileText += tempLine;
-		// Append the line to the edit control here.
 	}
 	// put the default into the new control.
 	edit.SetWindowTextA(cstr(fileText));
@@ -1157,7 +1152,5 @@ void Script::saveAsFunction()
 
 void Script::loadFunctions()
 {
-	ProfileSystem::reloadCombo( availableFunctionsCombo.GetSafeHwnd( ), functionLocation, str("*.") 
-								+ FUNCTION_EXTENSION, "__NONE__" );
-	availableFunctionsCombo.InsertString( 0, "Parent Script" );
+	availableFunctionsCombo.loadFunctions( );
 }
