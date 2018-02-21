@@ -802,6 +802,7 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 	listViewItem.cchTextMax = 256; // Max size of test
 	/// check if adding new variable
 	listViewItem.iItem = itemIndicator;
+	listViewItem.iSubItem = subitem;
 	CString text = variablesListview.GetItemText(itemIndicator, 0);
 	if (text == "___")
 	{
@@ -849,7 +850,6 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 			}
 		}
 	}
-	listViewItem.iSubItem = subitem;
 	/// Handle different subitem clicks
 	switch (subitem)
 	{
