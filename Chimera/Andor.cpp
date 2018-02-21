@@ -111,17 +111,7 @@ unsigned __stdcall AndorCamera::cameraThread( void* voidPtr )
 				input->Andor->queryStatus(status);
 				if (status == DRV_IDLE && armed)
 				{
-					// get the last picture?
-					try
-					{
-						input->Andor->getAcquisitionProgress( pictureNumber );
-					}
-					catch ( Error& exception )
-					{
-						input->comm->sendError( exception.what( ) );
-					}
-					// seems to be 0 at this point.
-					//input->comm->sendCameraProgress( pictureNumber );
+					// get the last picture. acquisition is over so getAcquisitionProgress returns 0.
 					input->comm->sendCameraProgress( -1 );
 					// signal the end to the main thread.
 					input->comm->sendCameraFin();

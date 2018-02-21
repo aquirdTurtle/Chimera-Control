@@ -8,7 +8,6 @@ def probeimaging():
     off: RepumpRF
     daclinspace: motFreq loadMotMotFreq probefreq 2 10   
     dac: probePower 0.3
-    t += 2
     on: andorTrig
     t += 0.1
     on: probeRF %d12
