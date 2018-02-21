@@ -9,7 +9,7 @@ ScopeViewer::ScopeViewer( std::string usbAddress, bool safemode, UINT traceNumIn
 	try
 	{
 		visa.open( );
-		visa.write( "header off\n" );
+		//visa.write( "header off\n" );
 		visa.query( "WFMpre:YOFF?\n", yoffset );
 		visa.query( "WFMpre:YMULT?\n", ymult );
 		visa.close( );

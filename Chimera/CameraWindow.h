@@ -53,7 +53,7 @@ class CameraWindow : public CDialog
 		void passManualSetAnalysisLocations();
 		void passSetGridCorner( );
 		void catchEnter();
-
+		void setDataType( std::string dataType );
 		/// auxiliary functions.
 		void handleEmGainChange();
 		void fillMasterThreadInput( MasterThreadInput* input );
