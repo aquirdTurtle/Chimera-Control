@@ -3035,15 +3035,16 @@ void NiawgController::smartRearrangement( Matrix<bool> source, Matrix<bool> targ
 {
 	while ( true )
 	{
-		if ( source.getRows( ) == target.getRows( ) && source.getCols( ) == target.getCols( ) )
+		try
 		{
-			// dimensions match, no flexibility.
-			rearrangement( source, target, moveList );
-			finTargetPos = { 0,0 };
-			return;
-		}
-		switch ( options.smartOption )
-		{
+			if ( source.getRows( ) == target.getRows( ) && source.getCols( ) == target.getCols( ) )
+			{
+				// dimensions match, no flexibility.
+				rearrangement( source, target, moveList );
+				finTargetPos = { 0,0 };
+			}
+			switch ( options.smartOption )
+			{
 			case smartRerngOption::none:
 			{
 				// finTarget is the correct size, has the original target at finalPos, and zeros elsewhere.
@@ -3116,10 +3117,37 @@ void NiawgController::smartRearrangement( Matrix<bool> source, Matrix<bool> targ
 				}
 				return;
 			}
+			}
 		}
-		if ( moveList.size( ) == 0 )
+		catch ( Error& err )
 		{
-
+			std::string tmpStr = err.whatBare( ).substr( 0, 10 );
+			if ( tmpStr == "Less atoms" )
+			{
+				if ( moveList.size( ) == 0 )
+				{
+					// flip one atom and try again with less atoms.
+					bool found = false;
+					for ( auto& atom : target )
+					{
+						if ( atom )
+						{
+							atom = false;
+							found = true;
+							break;
+						}
+					}
+					if ( found )
+					{
+						continue;
+					}
+				}
+				break;
+			}
+			else
+			{
+				throw;
+			}
 		}
 	}
 }

@@ -571,26 +571,27 @@ void CameraWindow::stopSound( )
 void CameraWindow::OnRButtonUp( UINT stuff, CPoint clickLocation )
 {
 	stopSound( );
+	analysisHandler.saveGridParams( );
 	CDC* dc = GetDC();
 	try
 	{
 		if (analysisHandler.buttonClicked())
 		{
-			coordinate loc = pics.handleRClick(clickLocation);
+			coordinate loc = pics.getClickLocation(clickLocation);
 			if (loc.row != -1)
 			{
 				analysisHandler.handlePictureClick(loc);
-				pics.redrawPictures(dc, selectedPixel, analysisHandler.getAnalysisLocs(), 
+				pics.redrawPictures( dc, selectedPixel, analysisHandler.getAnalysisLocs(), 
 									 analysisHandler.getGrids(), false, mostRecentPicNum );
 			}
 		}
 		else
 		{
-			coordinate box = pics.handleRClick(clickLocation);
+			coordinate box = pics.getClickLocation(clickLocation);
 			if (box.row != -1)
 			{
 				selectedPixel = box;
-				pics.redrawPictures(dc, selectedPixel, analysisHandler.getAnalysisLocs(), 
+				pics.redrawPictures( dc, selectedPixel, analysisHandler.getAnalysisLocs(), 
 									 analysisHandler.getGrids( ), false, mostRecentPicNum );
 			}
 		}

@@ -194,7 +194,7 @@ void PictureManager::handleScroll(UINT nSBCode, UINT nPos, CScrollBar* scrollbar
 	}
 }
 
-coordinate PictureManager::handleRClick( CPoint clickLocation )
+coordinate PictureManager::getClickLocation( CPoint clickLocation )
 {
 	coordinate location;
 	for (auto& pic : pictures)
