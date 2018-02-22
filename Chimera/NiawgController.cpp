@@ -2842,22 +2842,24 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 					source(source.getRows() - 1 - rowCount, colCount) = tempAtoms[count++];
 				}
 			}
-			std::vector<simpleMove> moveSequence;
+			std::vector<simpleMove> simpleMoveSequence;
+			std::vector<complexMove> complexMoveSequence;
 			niawgPair<ULONG> finPos;
 			try
 			{
-				smartRearrangement( source, info.target, finPos, info.finalPosition, moveSequence, input->rerngOptions);
+				smartRearrangement( source, info.target, finPos, info.finalPosition, simpleMoveSequence, input->rerngOptions);
+				optimizeMoves( simpleMoveSequence, source, complexMoveSequence, input->rerngOptions );
 			}
 			catch ( Error& )
 			{
 				// as of now, just ignore.
 			}
-			numberMoves.push_back( moveSequence.size( ) );
+			numberMoves.push_back( simpleMoveSequence.size( ) );
 			stopRerngCalc.push_back( chronoClock::now( ) );
 			input->niawg->rerngWaveVals.clear( );
 			/// program niawg
 			debugInfo options;
-			for ( auto move : moveSequence )
+			for ( auto move : simpleMoveSequence )
 			{
 				// program this move.
 				dir direction;
@@ -2921,7 +2923,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			stopTrigger.push_back( chronoClock::now( ));
 			input->niawg->fgenConduit.resetWritePosition( );
 			stopReset.push_back( chronoClock::now( ));
-			if ( moveSequence.size( ) )
+			if ( simpleMoveSequence.size( ) )
 			{
 				triedRearranging.push_back( true );
 			}
@@ -2931,11 +2933,11 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			}
 			//input->niawg->writeToFile( input->niawg->rerngWaveVals );
 			input->niawg->rerngWaveVals.clear( );
-			if ( moveSequence.size( ) != 0 )
+			if ( simpleMoveSequence.size( ) != 0 )
 			{
 				if ( input->rerngOptions.outputIndv )
 				{
-					input->comm->sendStatus( "Tried Moving, " + str( moveSequence.size() ) + " Moves. Move Calc Time:"
+					input->comm->sendStatus( "Tried Moving, " + str( simpleMoveSequence.size() ) + " Moves. Move Calc Time:"
 											 + str( std::chrono::duration<double>( stopMoveCalc.back()
 																				   - startCalc.back()).count()) 
 											 +  ", Fin Move Time:"
@@ -2963,7 +2965,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				outFile << "\nTarget Location: " + str( finPos[0] ) + ' ' + str( finPos[1] ) + "\n";
 				outFile << "Moves:\n";
 				UINT moveCount = 0;
-				for ( auto move : moveSequence )
+				for ( auto move : simpleMoveSequence )
 				{
 					outFile << moveCount++ << " " << move.initRow << " " << move.finRow << " " << move.initCol << " "
 						<< move.finCol << "\n";
@@ -3600,7 +3602,7 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 			int testFin = ((rowOrCol == "row") ? testMove.finRow : testMove.finCol);
 			if ( testInit == init && testFin == fin )
 			{
-				// avoid repeats by checking if singleMoves is in moveList firstd
+				// avoid repeats by checking if singleMoves is in moveList first
 				if ( std::find( moveList.begin( ), moveList.end( ), testMove ) == moveList.end( ) )
 				{
 					moveIndexes.push_back( moveInc );
@@ -3641,33 +3643,42 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 			tmpSource( move.finRow, move.finCol ) = true;
 			singleMoves.erase( singleMoves.begin( ) + moveIndex );
 		}
-		flashMoves.back( ).needsFlash = false;
-		/// determine if flashing is needed for this move.
-		// loop through all locations in the row/collumn
-		for ( auto location : range( altSize ) )
+
+		if ( options.noFlashOption != nonFlashingOption::none )
 		{
-			UINT initRow, initCol, finRow, finCol;
-			bool isRow = (rowOrCol == "row");
-			initRow = isRow ? init : location;
-			initCol = isRow ? location : init;
-			finRow = initRow + isRow * (fin-init);
-			finCol = initCol + (!isRow) * (fin - init);
-			// if atom in location and location not being moved, always need to flash to not move this atom.
-			if ( runningSource( initRow, initCol ) && std::find( flashMoves.back( ).whichAtoms.begin( ),
-																 flashMoves.back( ).whichAtoms.end( ), location )
-					== flashMoves.back( ).whichAtoms.end( ) )
+			flashMoves.back( ).needsFlash = false;
+			/// determine if flashing is needed for this move.
+			// loop through all locations in the row/collumn
+			for ( auto location : range( altSize ) )
 			{
-				flashMoves.back( ).needsFlash = true;
-			}
-			// if being cautious...
-			if ( runningSource( finRow, finCol ) )
-			{
-				flashMoves.back( ).needsFlash = true;
+				UINT initRow, initCol, finRow, finCol;
+				bool isRow = (rowOrCol == "row");
+				initRow = isRow ? init : location;
+				initCol = isRow ? location : init;
+				finRow = initRow + isRow * (fin - init);
+				finCol = initCol + (!isRow) * (fin - init);
+				// if atom in location and location not being moved, always need to flash to not move this atom.
+				if ( runningSource( initRow, initCol ) && std::find( flashMoves.back( ).whichAtoms.begin( ),
+																	 flashMoves.back( ).whichAtoms.end( ), location )
+					 == flashMoves.back( ).whichAtoms.end( ) )
+				{
+					flashMoves.back( ).needsFlash = true;
+				}
+				// if being cautious...
+				if ( options.noFlashOption == nonFlashingOption::cautious )
+				{
+					if ( runningSource( finRow, finCol ) )
+					{
+						flashMoves.back( ).needsFlash = true;
+					}
+				}
 			}
 		}
+		else
+		{
+			flashMoves.back( ).needsFlash = false;
+		}
 		runningSource = tmpSource;
-//			}
-//		}
 	}
 }
 
