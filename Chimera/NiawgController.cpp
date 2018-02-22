@@ -3525,7 +3525,6 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 	}
 	Matrix<bool> runningSource = origSource;
 	// convert all single moves into complex moves.
-
 	// procedure for combining at the moment (not really optimal...):
 	/*
 	  Outer loops are over all possible group move configuraitons. I.e. row=2 -> row3 moves, etc.
@@ -3537,103 +3536,110 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 	 */
 	while ( singleMoves.size( ) != 0 )
 	{
-		std::vector<std::vector<int>> dimLoops = { range( (int)origSource.getRows( ) ), range( (int)origSource.getRows( ), 0, -1 ),
-			range( (int)origSource.getCols( ) ), range( (int)origSource.getCols( ), 0, -1 ) };
-		std::vector<UINT> altSize = { origSource.getCols( ), origSource.getCols( ), origSource.getRows( ), origSource.getRows( ) };
-		std::vector<std::string> rowOrCol = { "row", "row", "column", "column" };
-		std::vector<int> direction = { 1, -1, 1, -1 };
-		for ( auto dim : range( dimLoops.size( ) ) )
+		std::vector<int> moveIndexes;
+		std::vector<simpleMove> moveList;
+		// direction
+		int init, fin;
+		std::string rowOrCol;
+		UINT altSize = 0;
+		if ( singleMoves.front( ).finCol != singleMoves.front( ).initCol )
 		{
-			for ( auto dimInc : dimLoops[dim] )
+			rowOrCol = "col";
+			init = singleMoves.front( ).initCol;
+			fin = singleMoves.front( ).finCol;
+			altSize = origSource.getRows( );
+		}
+		else if ( singleMoves.front( ).finRow != singleMoves.front( ).initRow )
+		{
+			rowOrCol = "row";
+			init = singleMoves.front( ).initCol;
+			fin = singleMoves.front( ).finCol;
+			altSize = origSource.getCols( );
+		}
+		moveIndexes.push_back( 0 );
+		moveList.push_back( singleMoves.front( ) );
+		// grab all moves that match the initial row(column) and the final row(column).
+		for ( auto moveInc : range( size_t(1), singleMoves.size( ) ) )
+		{
+			if ( (options.parallel == parallelMoveOption::partial && moveList.size( ) == PARTIAL_PARALLEL_LIMIT)
+					|| (options.parallel == parallelMoveOption::none && moveList.size( ) == 1) )
 			{
-				std::vector<int> moveIndexes;
-				std::vector<simpleMove> moveList;
-				// grab all moves that match the initial row(column) and the final row(column).
-				for ( auto moveInc : range( singleMoves.size( ) ) )
+				// already have all the moves we want for combining.
+				break;
+			}
+			simpleMove& testMove = singleMoves[moveInc];
+			int testInit = ((rowOrCol == "row") ? testMove.initRow : testMove.initCol);
+			int testFin = ((rowOrCol == "row") ? testMove.finRow : testMove.finCol);
+			if ( testInit == init && testFin == fin )
+			{
+				// avoid repeats by checking if singleMoves is in moveList firstd
+				if ( std::find( moveList.begin( ), moveList.end( ), testMove ) == moveList.end( ) )
 				{
-					if ( (options.parallel == parallelMoveOption::partial && moveList.size( ) == PARTIAL_PARALLEL_LIMIT)
-						 || (options.parallel == parallelMoveOption::none && moveList.size( ) == 1) )
-					{
-						// already have all the moves we want for combining.
-						break;
-					}
-					simpleMove& move = singleMoves[moveInc];
-					int init = rowOrCol[dim] == "row" ? move.initRow : move.initCol;
-					int fin = rowOrCol[dim] == "row" ? move.finRow : move.finCol;
-					if ( init == dimInc && fin == dimInc + direction[dim] )
-					{
-						// avoid repeats by checking if singleMoves is in moveList firstd
-						if ( std::find( moveList.begin( ), moveList.end( ), move ) == moveList.end( ) )
-						{
-							moveIndexes.push_back( moveInc );
-							moveList.push_back( move );
-						}
-					}
+					moveIndexes.push_back( moveInc );
+					moveList.push_back( testMove );
 				}
-				if ( moveIndexes.size( ) == 0 )
-				{
-					// no moves in this row/column in this direction.
-					continue;
-				}
-				// From the moves that go from dim to dim+offset, get which have atom at initial position and have no 
-				// atom at the final position
-				for ( unsigned k = moveIndexes.size( ); k-- > 0; )
-				{
-					auto& move = singleMoves[moveIndexes[k]];
-					// check that initial spot has atom & final spot is free
-					if ( !(runningSource( move.initRow, move.initCol ) && !runningSource( move.finRow, move.finCol )) )
-					{
-						// can't move this one, remove from list.
-						moveIndexes.erase( moveIndexes.begin( ) + k );
-						moveList.erase( moveList.begin( ) + k );
-					}
-				}
-				if ( moveList.size( ) == 0 )
-				{
-					// couldn't move any atoms.
-					continue;
-				}
-				flashMoves.push_back( complexMove( rowOrCol[dim], dimInc, direction[dim] ) );
-				/// create complex move objs
-				Matrix<bool> tmpSource = runningSource;
-				for ( auto indexNumber : range( moveIndexes.size( ) ) )
-				{
-					// offset from moveIndexes is the # of moves already erased.
-					UINT moveIndex = moveIndexes[indexNumber] - indexNumber;
-					auto& move = singleMoves[moveIndex];
-					flashMoves.back( ).whichAtoms.push_back( rowOrCol[dim] == "row" ? move.initCol : move.initRow );
-					// update source image with new configuration.
-					tmpSource( move.initRow, move.initCol ) = false;
-					tmpSource( move.finRow, move.finCol ) = true;
-					singleMoves.erase( singleMoves.begin( ) + moveIndex );
-				}
-				flashMoves.back( ).needsFlash = false;
-				/// determine if flashing is needed for this move.
-				// loop through all locations in the row/collumn
-				for ( auto location : range( altSize[dim] ) )
-				{
-					UINT initRow, initCol, finRow, finCol;
-					bool isRow = rowOrCol[dim] == "row";
-					initRow = isRow ? dimInc : location;
-					initCol = isRow ? location : dimInc;
-					finRow = initRow + isRow*direction[dim];
-					finCol = initCol + (!isRow)*direction[dim];
-					// if atom in location and location not being moved, always need to flash to not move this atom.
-					if ( runningSource( initRow, initCol ) && std::find( flashMoves.back( ).whichAtoms.begin( ),
-																		 flashMoves.back( ).whichAtoms.end( ), location )
-						 == flashMoves.back( ).whichAtoms.end( ) )
-					{
-						flashMoves.back( ).needsFlash = true;
-					}
-					// if being cautious...
-					if ( runningSource( finRow, finCol ) )
-					{
-						flashMoves.back( ).needsFlash = true;
-					}
-				}
-				runningSource = tmpSource;
 			}
 		}
+
+		// From the moves that go from dim to dim+offset, get which have atom at initial position and have no 
+		// atom at the final position
+		for ( unsigned k = moveIndexes.size( ); k-- > 0; )
+		{
+			auto& move = singleMoves[moveIndexes[k]];
+			// check that initial spot has atom & final spot is free
+			if ( !(runningSource( move.initRow, move.initCol ) && !runningSource( move.finRow, move.finCol )) )
+			{
+				// can't move this one, remove from list.
+				moveIndexes.erase( moveIndexes.begin( ) + k );
+				moveList.erase( moveList.begin( ) + k );
+			}
+		}
+		if ( moveList.size( ) == 0 )
+		{
+			// couldn't move any atoms.
+			continue;
+		}
+		flashMoves.push_back( complexMove( rowOrCol, init, fin-init ) );
+		/// create complex move objs
+		Matrix<bool> tmpSource = runningSource;
+		for ( auto indexNumber : range( moveIndexes.size( ) ) )
+		{
+			// offset from moveIndexes is the # of moves already erased.
+			UINT moveIndex = moveIndexes[indexNumber] - indexNumber;
+			auto& move = singleMoves[moveIndex];
+			flashMoves.back( ).whichAtoms.push_back( rowOrCol == "row" ? move.initCol : move.initRow );
+			// update source image with new configuration.
+			tmpSource( move.initRow, move.initCol ) = false;
+			tmpSource( move.finRow, move.finCol ) = true;
+			singleMoves.erase( singleMoves.begin( ) + moveIndex );
+		}
+		flashMoves.back( ).needsFlash = false;
+		/// determine if flashing is needed for this move.
+		// loop through all locations in the row/collumn
+		for ( auto location : range( altSize ) )
+		{
+			UINT initRow, initCol, finRow, finCol;
+			bool isRow = (rowOrCol == "row");
+			initRow = isRow ? init : location;
+			initCol = isRow ? location : init;
+			finRow = initRow + isRow * (fin-init);
+			finCol = initCol + (!isRow) * (fin - init);
+			// if atom in location and location not being moved, always need to flash to not move this atom.
+			if ( runningSource( initRow, initCol ) && std::find( flashMoves.back( ).whichAtoms.begin( ),
+																 flashMoves.back( ).whichAtoms.end( ), location )
+					== flashMoves.back( ).whichAtoms.end( ) )
+			{
+				flashMoves.back( ).needsFlash = true;
+			}
+			// if being cautious...
+			if ( runningSource( finRow, finCol ) )
+			{
+				flashMoves.back( ).needsFlash = true;
+			}
+		}
+		runningSource = tmpSource;
+//			}
+//		}
 	}
 }
 
