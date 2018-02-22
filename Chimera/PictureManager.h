@@ -31,7 +31,7 @@ class PictureManager
 							 std::vector<atomGrid> gridInfo, bool forceGrid, UINT picNumber );
 		void setPictureSliders(CWnd* parent);
 		void setNumberPicturesActive( int numberActive );
-		coordinate handleRClick(CPoint clickLocation);
+		coordinate getClickLocation(CPoint clickLocation);
 		void setSinglePicture( CWnd* parent, imageParameters imageParams );
 		void setMultiplePictures( CWnd* parent, imageParameters imageParams, UINT numberActivePics );
 		void setAutoScalePicturesOption(bool autoScaleOption);

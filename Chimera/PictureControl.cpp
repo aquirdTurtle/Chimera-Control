@@ -738,17 +738,18 @@ void PictureControl::drawAnalysisMarkers( CDC* dc, std::vector<coordinate> analy
 		return;
 	}
 	HPEN markerPen;
-	std::vector<COLORREF> colors = { RGB( 255, 255, 255 ), RGB( 255, 0, 0 ), RGB( 0, 255, 0 ), RGB( 0, 0, 255 ) };
-	UINT count = 0;
+	std::vector<COLORREF> colors = { RGB( 255, 255, 255 ), RGB( 0, 255, 0 ), RGB( 0, 0, 255 ), RGB( 255, 0, 0 ) };
+	UINT gridCount = 0;
 	for ( auto atomGrid : gridInfo )
 	{
-		markerPen = CreatePen( 0, 1, colors[count % 4] );
+		markerPen = CreatePen( 0, 1, colors[gridCount % 4] );
 		dc->SelectObject( markerPen );
 
 		if ( atomGrid.topLeftCorner == coordinate( 0, 0 ) )
 		{
-			// atom grid is empty, not to be used.
+			// atom grid is empty, not to be used. ?????????????
 			UINT count = 1;
+			/*
 			for ( auto loc : analysisLocs )
 			{
 				if ( loc.column >= grid.size( ) || loc.row >= grid[0].size( ) )
@@ -763,6 +764,7 @@ void PictureControl::drawAnalysisMarkers( CDC* dc, std::vector<coordinate> analy
 								DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 				count++;
 			}
+			*/
 			DeleteObject( markerPen );
 		}
 		else
@@ -781,15 +783,22 @@ void PictureControl::drawAnalysisMarkers( CDC* dc, std::vector<coordinate> analy
 						// want to deal with this yet.
 						continue;
 					}
-					drawRectangle( dc, grid[pixelColumn][pixelRow] );
+					RECT drawGrid, origGrid = grid[pixelColumn][pixelRow];
+					drawGrid.left = origGrid.left + (origGrid.right - origGrid.left) * gridCount / 10;
+					drawGrid.right = origGrid.right - (origGrid.right - origGrid.left) * gridCount / 10;
+					drawGrid.top = origGrid.top + (origGrid.bottom - origGrid.top) * gridCount / 10;
+					drawGrid.bottom = origGrid.bottom - (origGrid.bottom - origGrid.top) * gridCount / 10;
+
+					drawRectangle( dc, drawGrid );
+					dc->SetTextColor( colors[gridCount % 4] );
 					dc->DrawTextEx( const_cast<char *>(cstr( count )), str( count ).size( ), 
-									&grid[pixelColumn][pixelRow], DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
+									&drawGrid, DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 					count++;
 				}
 			}
 		}
 		DeleteObject( markerPen );
-		count++;
+		gridCount++;
 	}
 }
 
