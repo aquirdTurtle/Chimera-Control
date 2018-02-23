@@ -1431,6 +1431,12 @@ void VariableSystem::addConfigVariable(variableType variableToAdd, UINT item)
 	// make sure there are enough currentRanges.
 	UINT columns = variablesListview.GetHeaderCtrl()->GetItemCount();
 	UINT currentRanges = (columns - preRangeColumns - 2) / 3;
+	// not sure why this would happen, but was bug.
+	if ( variableToAdd.ranges.size( ) < currentRanges )
+	{
+		variableToAdd.ranges.resize( currentRanges );
+	}
+
 	for (auto rangeAddInc : range(variableToAdd.ranges.size() - currentRanges))
 	{
 		// add a range.

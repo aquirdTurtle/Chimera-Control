@@ -7,11 +7,11 @@ def probeimaging():
     off: andorShutter
     off: RepumpRF
     daclinspace: motFreq loadMotMotFreq probefreq 2 10   
-    dac: probePower 0.3
+    dac: probePower 0.15
     on: andorTrig
     t += 0.1
-    on: probeRF %d12
     on: c5 % flashing TweezerLight
+    on: probeRF %d12
     on: b5 % flashing probe
     t += 2 % probeimagetime
 
