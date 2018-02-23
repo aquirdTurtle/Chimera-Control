@@ -1945,16 +1945,16 @@ void NiawgController::createFlashingWave( waveInfo& wave, debugInfo options )
   */
 void NiawgController::mixFlashingWaves( waveInfo& wave, double deadTime, double staticMovingRatio )
 {
-	// firstDutyCycle is set to -1 if doing a non-rearranging waveform.
-	if ( wave.flash.flashNumber > 2 )
+	if ( wave.flash.flashNumber == 1 )
 	{
-		thrower( "ERROR: firstDutyCycle is set to a non-negative value (negative value is the dummy value for this "
-				 "input case), but more than 2 flashing waveforms! This is considered undefined and an error." );
+		// this occurs when not actually flashing.
+		wave.core.waveVals = wave.flash.flashWaves.front( ).waveVals;
+		return;
 	}
 	/// then mix them to create the flashing version.
 	// total period time in seconds...
 	double period = 1.0 / wave.flash.flashCycleFreq;
-	// total period in samples...S
+	// total period in samples...
 	long totalPeriodInSamples = long( period * NIAWG_SAMPLE_RATE + 0.5 );
 	long samplesPerWavePerPeriod = totalPeriodInSamples / wave.flash.flashNumber;
 	// *2 because of mixing
@@ -2401,128 +2401,76 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 			flashMove.moveTime = input->rerngOptions.moveSpeed;
 			flashMove.moveBias = input->rerngOptions.moveBias;
 			noFlashMove = flashMove;
-			// up
-			noFlashMove.direction = flashMove.direction = dir::up;
-			if ( row != rows - 1 )
+			complexMove flashMoveInfo;
+			flashMoveInfo.whichAtoms.resize( 1 );
+			flashMoveInfo.whichRowOrColumn = row;
+			flashMoveInfo.whichAtoms[0] = col;
+			flashMoveInfo.needsFlash = true;
+			complexMove noFlashMoveInfo( flashMoveInfo );
+			noFlashMoveInfo.needsFlash = false;
+			std::array<dir, 4> directions = { dir::up, dir::down, dir::left, dir::right };
+			std::array<int, 4> offsets = { -1, 1, -1, 1 };
+			std::array<std::string, 4> dirText = { "row", "row", "col", "col" };
+			std::array<bool, 4> conditions = { row != rows - 1, row != 0, col != 0, col != cols - 1 };
+			// loop through each possibel direction.
+			for ( auto inc : range( 4 ) )
 			{
-				if ( input->rerngOptions.useCalibration )
+				noFlashMoveInfo.direction = flashMoveInfo.direction = offsets[inc];
+				noFlashMoveInfo.rowOrColumn = flashMoveInfo.rowOrColumn = dirText[inc];
+				noFlashMove.waveVals = flashMove.waveVals = std::vector<double>( );
+				noFlashMove.direction = flashMove.direction = directions[inc];
+				if ( conditions[inc] )
 				{
-					noFlashMove.moveBias = flashMove.moveBias = calBias( row, col, flashMove.direction );
+					if ( input->rerngOptions.useCalibration )
+					{
+						noFlashMove.moveBias = flashMove.moveBias = calBias( row, col, flashMove.direction );
+					}
+					noFlashMove.waveVals = makeRerngWave( input->rerngWave.rearrange, noFlashMove.staticMovingRatio,
+														  noFlashMove.moveBias, noFlashMove.deadTime, input->sourceRows,
+														  input->sourceCols, noFlashMoveInfo );
+					flashMove.waveVals = makeRerngWave( input->rerngWave.rearrange, flashMove.staticMovingRatio,
+														flashMove.moveBias, flashMove.deadTime, input->sourceRows,
+														input->sourceCols, flashMoveInfo );
 				}
-				noFlashMove.waveVals = makeRerngWave( input->rerngWave.rearrange, row, col, noFlashMove.direction,
-													  noFlashMove.staticMovingRatio, noFlashMove.moveBias, 
-													  noFlashMove.deadTime, input->sourceRows, input->sourceCols, 
-													  false );
-				flashMove.waveVals = makeRerngWave( input->rerngWave.rearrange, row, col, flashMove.direction,
-											   flashMove.staticMovingRatio, flashMove.moveBias, flashMove.deadTime,
-											   input->sourceRows, input->sourceCols, true );
+				input->flashMoves( row, col, flashMove.direction ) = flashMove;
+				input->noFlashMoves( row, col, noFlashMove.direction ) = noFlashMove;
 			}
-			input->flashMoves( row, col, flashMove.direction ) = flashMove;
-			input->noFlashMoves( row, col, noFlashMove.direction ) = noFlashMove;
-			noFlashMove.waveVals = flashMove.waveVals = std::vector<double>( );
-			// down
-			noFlashMove.direction = flashMove.direction = dir::down;
-			if ( row != 0 )
-			{
-				if ( input->rerngOptions.useCalibration )
-				{
-					noFlashMove.moveBias = flashMove.moveBias = calBias( row, col, flashMove.direction );
-				}
-				noFlashMove.waveVals = makeRerngWave( input->rerngWave.rearrange, row, col, noFlashMove.direction,
-													  noFlashMove.staticMovingRatio, noFlashMove.moveBias,
-													  noFlashMove.deadTime, input->sourceRows, input->sourceCols,
-													  false );
-				flashMove.waveVals = makeRerngWave( input->rerngWave.rearrange, row, col, flashMove.direction,
-											   flashMove.staticMovingRatio, flashMove.moveBias, flashMove.deadTime,
-											   input->sourceRows, input->sourceCols, true );
-			}
-			input->flashMoves( row, col, flashMove.direction ) = flashMove;
-			noFlashMove.waveVals = flashMove.waveVals = std::vector<double>( );
-
-			noFlashMove.direction = flashMove.direction = dir::left;
-			if ( col != 0 )
-			{
-				if ( input->rerngOptions.useCalibration )
-				{
-					noFlashMove.moveBias = flashMove.moveBias = calBias( row, col, flashMove.direction );
-				}
-				noFlashMove.waveVals = makeRerngWave( input->rerngWave.rearrange, row, col, noFlashMove.direction,
-													  noFlashMove.staticMovingRatio, noFlashMove.moveBias,
-													  noFlashMove.deadTime, input->sourceRows, input->sourceCols,
-													  false );
-				flashMove.waveVals = makeRerngWave( input->rerngWave.rearrange, row, col, flashMove.direction,
-													flashMove.staticMovingRatio, flashMove.moveBias, flashMove.deadTime, 
-													input->sourceRows, input->sourceCols, true );
-			}
-			input->flashMoves( row, col, flashMove.direction ) = flashMove;
-			noFlashMove.waveVals = flashMove.waveVals = std::vector<double>( );
-			
-			noFlashMove.direction = flashMove.direction = dir::right;
-			if ( col != cols - 1 )
-			{
-				if ( input->rerngOptions.useCalibration )
-				{
-					noFlashMove.moveBias = flashMove.moveBias = calBias( row, col, flashMove.direction );
-				}
-				noFlashMove.waveVals = makeRerngWave( input->rerngWave.rearrange, row, col, noFlashMove.direction,
-													  noFlashMove.staticMovingRatio, noFlashMove.moveBias,
-													  noFlashMove.deadTime, input->sourceRows, input->sourceCols,
-													  false );
-				flashMove.waveVals = makeRerngWave( input->rerngWave.rearrange, row, col, flashMove.direction,
-											   flashMove.staticMovingRatio, flashMove.moveBias, flashMove.deadTime,
-											   input->sourceRows, input->sourceCols, true );
-			}
-			input->flashMoves( row, col, flashMove.direction ) = flashMove;
 		}
 	}
 	input->flashMoves.setFilledFlag( );
 }
 
 
-std::vector<double> NiawgController::makeRerngWave( rerngInfo& info, UINT row, UINT col, dir direction, 
-													double staticMovingRatio, double moveBias, double deadTime, 
-													UINT sourceRows, UINT sourceCols, bool needsFlash )
-{
-	
-	// program this move.
-	double freqPerPixel = info.freqPerPixel;
+std::vector<double> NiawgController::makeRerngWave( rerngInfo& rerngSettings, double staticMovingRatio, 
+													double moveBias, double deadTime, UINT sourceRows, UINT sourceCols, 
+													complexMove moveInfo )
+{	
+	double freqPerPixel = rerngSettings.freqPerPixel;
 	// starts from the top left.
+	UINT row = moveInfo.rowOrColumn == "row" ? moveInfo.whichRowOrColumn : moveInfo.whichAtoms.front( ); 
+	UINT col = !(moveInfo.rowOrColumn == "row") ? moveInfo.whichRowOrColumn : moveInfo.whichAtoms.front( );
 	niawgPair<int> initPos = { row, col };
-	niawgPair<int> finPos;
-	int rowInt = row, colInt = col;
-	UINT movingAxis, movingSize, staticAxis;	
-	switch ( direction )
+	dir direction;
+	if ( moveInfo.rowOrColumn == "row" )
 	{
-		case dir::up:
-			finPos = { rowInt + 1, colInt };
-			movingAxis = Axes::Vertical;
-			staticAxis = Axes::Horizontal;
-			movingSize = sourceRows;
-			break;
-		case dir::down:
-			finPos = { rowInt - 1, colInt };
-			movingAxis = Axes::Vertical;
-			staticAxis = Axes::Horizontal;
-			movingSize = sourceRows;
-			break;
-		case dir::left:
-			finPos = { rowInt, colInt - 1 };
-			movingAxis = Axes::Horizontal;
-			staticAxis = Axes::Vertical;
-			movingSize = sourceCols;
-			break;
-		case dir::right:
-			finPos = { rowInt, colInt + 1 };
-			movingAxis = Axes::Horizontal;
-			staticAxis = Axes::Vertical;
-			movingSize = sourceCols;
-			break;
+		 direction = (moveInfo.direction == 1) ? dir::down : dir::up;
 	}
+	else
+	{
+		direction = (moveInfo.direction == 1) ? dir::right : dir::left;
+	}	
+
+	bool upOrDown = (direction == dir::down || direction == dir::up);
+	UINT movingAxis = upOrDown ? Axes::Vertical : Axes::Horizontal;
+	UINT staticAxis = !upOrDown ? Axes::Vertical : Axes::Horizontal;
+	UINT movingSize = upOrDown ? sourceRows : sourceCols;
+	niawgPair<int> finPos = { row + (int( moveInfo.direction == dir::up ) - int( moveInfo.direction == dir::up )),
+							  col + (int( moveInfo.direction == dir::right ) - int( moveInfo.direction == dir::left )), };
 	simpleWave moveWave;
 	moveWave.varies = false;
 	moveWave.name = "NOT-USED";
 	// needs to match correctly the static waveform.
-	moveWave.time = info.timePerMove / (staticMovingRatio + 1);
+	moveWave.time = (moveInfo.needsFlash ? rerngSettings.timePerMove / (staticMovingRatio + 1) : rerngSettings.timePerMove);
 	moveWave.sampleNum = waveformSizeCalc( moveWave.time );
 
 	double movingFrac = moveBias;
@@ -2550,15 +2498,15 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& info, UINT row, U
 			sig.freqRampType = "lin";
 			if ( movingAxis == Axes::Horizontal )
 			{
-				sig.freqInit = ((info.target.getCols( ) - initPos[movingAxis] - 1)
-								 * freqPerPixel + info.lowestFreqs[movingAxis]) * 1e6;
-				sig.freqFin = ((info.target.getCols( ) - finPos[movingAxis] - 1)
-								* freqPerPixel + info.lowestFreqs[movingAxis]) * 1e6;
+				sig.freqInit = ((rerngSettings.target.getCols( ) - initPos[movingAxis] - 1)
+								 * freqPerPixel + rerngSettings.lowestFreqs[movingAxis]) * 1e6;
+				sig.freqFin = ((rerngSettings.target.getCols( ) - finPos[movingAxis] - 1)
+								* freqPerPixel + rerngSettings.lowestFreqs[movingAxis]) * 1e6;
 			}
 			else
 			{
-				sig.freqInit = (initPos[movingAxis] * freqPerPixel + info.lowestFreqs[movingAxis]) * 1e6;
-				sig.freqFin = (finPos[movingAxis] * freqPerPixel + info.lowestFreqs[movingAxis]) * 1e6;
+				sig.freqInit = (initPos[movingAxis] * freqPerPixel + rerngSettings.lowestFreqs[movingAxis]) * 1e6;
+				sig.freqFin = (finPos[movingAxis] * freqPerPixel + rerngSettings.lowestFreqs[movingAxis]) * 1e6;
 			}
 		}
 		else
@@ -2568,13 +2516,13 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& info, UINT row, U
 			sig.freqRampType = "nr";
 			if ( movingAxis == Axes::Horizontal )
 			{
-				sig.freqInit = ((info.target.getCols( ) - gridLocation - 1) * freqPerPixel
-								 + info.lowestFreqs[movingAxis]) * 1e6;
+				sig.freqInit = ((rerngSettings.target.getCols( ) - gridLocation - 1) * freqPerPixel
+								 + rerngSettings.lowestFreqs[movingAxis]) * 1e6;
 				sig.freqFin = sig.freqInit;
 			}
 			else
 			{
-				sig.freqInit = (gridLocation * freqPerPixel + info.lowestFreqs[movingAxis]) * 1e6;
+				sig.freqInit = (gridLocation * freqPerPixel + rerngSettings.lowestFreqs[movingAxis]) * 1e6;
 				sig.freqFin = sig.freqInit;
 			}
 		}
@@ -2583,42 +2531,42 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& info, UINT row, U
 	/// handle other axis
 	moveWave.chan[staticAxis].signals.resize( 1 );
 	waveSignal& sig = moveWave.chan[staticAxis].signals[0];
-	// only matters for the horizontal AOM which gets the extra tone at the moment.
-	sig.initPower = 1;
-	sig.finPower = 1;
-	sig.powerRampType = "nr";
+	sig.finPower = sig.initPower = 1;
+	sig.freqRampType = sig.powerRampType = "nr";
 	sig.initPhase = 0;
-	sig.freqRampType = "nr";
 	if ( staticAxis == Axes::Horizontal )
 	{
 		// convert to Hz
-		sig.freqInit = ((info.target.getCols( ) - initPos[staticAxis] - 1) * freqPerPixel
-						 + info.lowestFreqs[staticAxis]) * 1e6;
-		sig.freqFin = sig.freqInit;
+		sig.freqInit = ((rerngSettings.target.getCols( ) - initPos[staticAxis] - 1) * freqPerPixel
+						 + rerngSettings.lowestFreqs[staticAxis]) * 1e6;
 	}
 	else
 	{
 		// convert to Hz
-		sig.freqInit = (initPos[staticAxis] * freqPerPixel + info.lowestFreqs[staticAxis])*1e6;
-		sig.freqFin = sig.freqInit;
+		sig.freqInit = (initPos[staticAxis] * freqPerPixel + rerngSettings.lowestFreqs[staticAxis])*1e6;
 	}
+	sig.freqFin = sig.freqInit;
 	/// finalize info & calculate things
 	finalizeStandardWave( moveWave, debugInfo( ) );
 	// now put together into small temporary flashing wave
 	waveInfo flashMove;
-	flashMove.core.time = info.timePerMove;
+	flashMove.core.time = rerngSettings.timePerMove;
 	flashMove.flash.isFlashing = true;
 	flashMove.flash.flashNumber = 2;
 	flashMove.flash.deadTime = deadTime;
-	if ( fabs( info.staticWave.time + moveWave.time - info.timePerMove ) > 1e-9 )
+	if ( moveInfo.needsFlash 
+		 && (fabs( rerngSettings.staticWave.time + moveWave.time - rerngSettings.timePerMove ) > 1e-9 ))
 	{
 		thrower( "ERROR: static wave and moving wave don't add up to the total time of the flashing wave! "
-				 "Sizes were " + str( info.staticWave.waveVals.size( ) ) + " and "
+				 "Sizes were " + str( rerngSettings.staticWave.waveVals.size( ) ) + " and "
 				 + str( moveWave.waveVals.size( ) ) + " respectively.\r\n" );
 	}
 	flashMove.flash.flashWaves.push_back( moveWave );
-	flashMove.flash.flashWaves.push_back( info.staticWave );
-	flashMove.flash.flashCycleFreq = info.flashingFreq;
+	if ( moveInfo.needsFlash )
+	{
+		flashMove.flash.flashWaves.push_back( rerngSettings.staticWave );
+	}
+	flashMove.flash.flashCycleFreq = rerngSettings.flashingFreq;
 	mixFlashingWaves( flashMove, deadTime, staticMovingRatio );
 
 	return flashMove.core.waveVals;
@@ -2847,43 +2795,46 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			niawgPair<ULONG> finPos;
 			try
 			{
-				smartRearrangement( source, info.target, finPos, info.finalPosition, simpleMoveSequence, input->rerngOptions);
+				smartRearrangement( source, info.target, finPos, info.finalPosition, simpleMoveSequence, 
+									input->rerngOptions);
 				optimizeMoves( simpleMoveSequence, source, complexMoveSequence, input->rerngOptions );
 			}
 			catch ( Error& )
 			{
 				// as of now, just ignore.
 			}
-			numberMoves.push_back( simpleMoveSequence.size( ) );
+			numberMoves.push_back( complexMoveSequence.size( ) );
 			stopRerngCalc.push_back( chronoClock::now( ) );
 			input->niawg->rerngWaveVals.clear( );
 			/// program niawg
 			debugInfo options;
-			for ( auto move : simpleMoveSequence )
+			for ( auto move : complexMoveSequence )
 			{
 				// program this move.
 				dir direction;
-				if ( move.initRow - move.finRow == 1 )
+				if ( move.direction == 1 && move.rowOrColumn == "row" )
 				{
 					direction = dir::down;
 				}
-				else if ( move.initRow - move.finRow == -1 )
+				else if ( move.direction == -1 && move.rowOrColumn == "row" )
 				{
 					direction = dir::up;
 				}
-				else if ( move.initCol - move.finCol == 1 )
+				else if ( move.direction == -1 && move.rowOrColumn == "col" )
 				{
 					direction = dir::left;
 				}
-				else if ( move.initCol - move.finCol == -1 )
+				else if ( move.direction == 1 && move.rowOrColumn == "col" )
 				{
 					direction = dir::right;
 				}
 				std::vector<double> vals;
 				double bias;
+				UINT row = move.rowOrColumn == "row" ? move.whichRowOrColumn : move.whichAtoms.front( );
+				UINT col = move.rowOrColumn == "row" ? move.whichAtoms.front( ) : move.whichRowOrColumn;
 				if ( input->rerngOptions.useCalibration )
 				{
-					bias = calBias( move.initRow, move.initCol, direction );
+					bias = calBias( row, col, direction );
 				}
 				else
 				{
@@ -2891,14 +2842,21 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				}
 				if ( input->rerngOptions.preprogram )
 				{
-					vals = input->flashMoves( move.initRow, move.initCol, direction ).waveVals;
+					if ( move.needsFlash )
+					{
+						vals = input->flashMoves( row, col, direction ).waveVals;
+					}
+					else
+					{
+						vals = input->noFlashMoves( row, col, direction ).waveVals;
+					}
 				}
 				else
 				{
-					vals = input->niawg->makeRerngWave( info, move.initRow, move.initCol, direction,
+					vals = input->niawg->makeRerngWave( info, row, col, direction,
 														input->rerngOptions.staticMovingRatio, bias,
 														input->rerngOptions.deadTime, input->sourceRows,
-														input->sourceCols, true );
+														input->sourceCols, move );
 				}
 				input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), vals.begin( ), vals.end( ) );
 			}
@@ -2923,7 +2881,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			stopTrigger.push_back( chronoClock::now( ));
 			input->niawg->fgenConduit.resetWritePosition( );
 			stopReset.push_back( chronoClock::now( ));
-			if ( simpleMoveSequence.size( ) )
+			if ( complexMoveSequence.size( ) )
 			{
 				triedRearranging.push_back( true );
 			}
@@ -2933,11 +2891,12 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			}
 			//input->niawg->writeToFile( input->niawg->rerngWaveVals );
 			input->niawg->rerngWaveVals.clear( );
-			if ( simpleMoveSequence.size( ) != 0 )
+			if ( complexMoveSequence.size( ) != 0 )
 			{
 				if ( input->rerngOptions.outputIndv )
 				{
-					input->comm->sendStatus( "Tried Moving, " + str( simpleMoveSequence.size() ) + " Moves. Move Calc Time:"
+					input->comm->sendStatus( "Tried Moving, " + str( complexMoveSequence.size() ) 
+											 + " Moves. Move Calc Time:"
 											 + str( std::chrono::duration<double>( stopMoveCalc.back()
 																				   - startCalc.back()).count()) 
 											 +  ", Fin Move Time:"
@@ -2965,11 +2924,12 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				outFile << "\nTarget Location: " + str( finPos[0] ) + ' ' + str( finPos[1] ) + "\n";
 				outFile << "Moves:\n";
 				UINT moveCount = 0;
-				for ( auto move : simpleMoveSequence )
-				{
-					outFile << moveCount++ << " " << move.initRow << " " << move.finRow << " " << move.initCol << " "
-						<< move.finCol << "\n";
-				}
+				//
+				//for ( auto move : complexMoveSequence )
+				//{
+				//	outFile << moveCount++ << " " << move.initRow << " " << move.finRow << " " << move.initCol << " "
+				//		<< move.finCol << "\n";
+				//}
 			}
 			counter++;
 		}

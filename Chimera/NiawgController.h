@@ -175,9 +175,8 @@ class NiawgController
 		std::vector<std::vector<bool>> finalState;
 		// could set different thresholds for each location in the camera if expect imbalance.
 		int threshold;
-		std::vector<double> makeRerngWave( rerngInfo& info, UINT row, UINT col, dir direction, 
-										   double staticMovingRatio, double moveBias, double deadTime, UINT sourceRows,
-										   UINT sourceCols, bool needsFlash );
+		std::vector<double> makeRerngWave( rerngInfo& info, double staticMovingRatio, double moveBias, double deadTime, 
+										   UINT sourceRows, UINT sourceCols, complexMove move );
 		// returns sign of x.
 		static int sign( int );
 		// returns cost, which is total travel distance. Algorithm from: 
