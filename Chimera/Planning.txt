@@ -41,7 +41,6 @@ Refactoring / Other:
 - change pointers to smart-ptrs where possible
 - more tooltips
 - better documentation in general
-- revise and enhance error messages
 - Andor system should use Matrix class for pictures
 - all mutexes should use lock_guard or similar for consistency
 
