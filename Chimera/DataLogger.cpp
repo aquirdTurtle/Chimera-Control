@@ -130,7 +130,7 @@ void DataLogger::initializeDataFiles()
 	finalSaveFolder += "\\";
 	/// Get a filename appropriate for the data
 	std::string finalSaveFileName;
-	UINT fileNum = getNextFileIndex( finalSaveFileName = "data_", ".h5" );
+	UINT fileNum = getNextFileIndex( finalSaveFileName + "data_", ".h5" );
 	// at this point a valid filename has been found.
 	finalSaveFileName = "data_" + str(fileNum) + ".h5";
 	// update this, which is used later to move the key file.

@@ -3000,7 +3000,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 		(*input->pictureTimes).clear( );
 		(*input->grabTimes).clear( );
 
-		std::ofstream dataFile( DEBUG_OUTPUT_LOCATION + "Rearrangement=Time-Log.txt" );
+		std::ofstream dataFile( DEBUG_OUTPUT_LOCATION + "Rearrangement-Time-Log.txt" );
 		dataFile
 			<< "PicHandlingTime\t"
 			<< "PicGrabTime\t"

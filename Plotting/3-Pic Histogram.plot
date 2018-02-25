@@ -1,4 +1,4 @@
-Version: 2.0
+Version: 2.1
 Loading Count Histogram
 Pixel Count Histograms
 Occurance
@@ -11,7 +11,7 @@ Variation Average
 POSITIVE_RESULT_BEGIN
 DATA_SET_BEGIN
 PICTURE_BEGIN
-1
+0
 PICTURE_END
 PICTURE_BEGIN
 0

@@ -724,6 +724,8 @@ void PictureControl::drawPicNum( CDC* dc, UINT picNum )
 {
 	HPEN textPen = CreatePen( 0, 1, RGB(100, 100, 120) );
 	dc->SelectObject( textPen );
+	RECT rect = grid[0][0];
+	rect.right += 50;
 	dc->DrawTextEx( const_cast<char *>(cstr( picNum )), str( picNum ).size( ), &grid[0][0],
 					DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
 	DeleteObject( textPen );
@@ -747,24 +749,8 @@ void PictureControl::drawAnalysisMarkers( CDC* dc, std::vector<coordinate> analy
 
 		if ( atomGrid.topLeftCorner == coordinate( 0, 0 ) )
 		{
-			// atom grid is empty, not to be used. ?????????????
+			// atom grid is empty, not to be used.
 			UINT count = 1;
-			/*
-			for ( auto loc : analysisLocs )
-			{
-				if ( loc.column >= grid.size( ) || loc.row >= grid[0].size( ) )
-				{
-					// just quietly don't try to draw. Could also have this throw, haven't decided exactly how I 
-					// want to deal with this yet.
-					continue;
-				}
-				drawRectangle( dc, grid[loc.column][loc.row] );
-
-				dc->DrawTextEx( const_cast<char *>(cstr( count )), str( count ).size( ), &grid[loc.column][loc.row],
-								DT_CENTER | DT_SINGLELINE | DT_VCENTER, NULL );
-				count++;
-			}
-			*/
 			DeleteObject( markerPen );
 		}
 		else

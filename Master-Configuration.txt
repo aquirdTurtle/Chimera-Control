@@ -206,7 +206,7 @@ loadmottopfield 0.5
 loadmotbottomfield -0.15
 loadmotfrontfield -1.4
 loadmotbackfield 1.47507
-loadmottime 100
+loadmottime 150
 pgctime 10
 pgcdetuning -0.8
 pgcleftfield -0.3924
@@ -222,7 +222,7 @@ pushoutdepth 2.5
 pushoutfreq 1
 fieldtheta 0
 fieldphi 0
-imagingflashingdetuning -0.5
+imagingflashingdetuning -0.65
 intrappgcdetuning -2
 intrappgcpower 0.14
 loadmotsidepower 0.15
@@ -241,4 +241,4 @@ field 3
 rotatefieldtime 3
 opticalpumpdepth 0
 pumptime 10
-1 5 1 1 5 1
+259 285 3 228 272 3
