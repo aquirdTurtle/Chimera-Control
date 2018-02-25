@@ -54,6 +54,7 @@ class DataAnalysisControl
 		static unsigned __stdcall plotterProcedure( void* voidInput );
 		void saveGridParams( );
 		void handleDeleteGrid( );
+		UINT getPlotTime( );
 		// an "alias template". effectively a local using std::vector; declaration. makes these declarations much more
 		// readable. I very rarely use things like this.
 		template<class T> using vector = std::vector<T>;
@@ -96,6 +97,10 @@ class DataAnalysisControl
 		Control<CEdit> gridWidth;
 		Control<CStatic> gridHeightText;
 		Control<CEdit> gridHeight;
+
+		Control<CStatic> plotTimerTxt;
+		Control<CEdit> plotTimerEdit;
+
 		std::vector<atomGrid> grids;
 		UINT selectedGrid = 0;
 		Control<CButton> deleteGrid;
