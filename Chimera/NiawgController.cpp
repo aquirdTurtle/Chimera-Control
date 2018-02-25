@@ -2450,9 +2450,6 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& rerngSettings, do
 {	
 	double freqPerPixel = rerngSettings.freqPerPixel;
 	// starts from the top left.
-	UINT row = moveInfo.rowOrColumn == "row" ? moveInfo.whichRowOrColumn : moveInfo.whichAtoms.front( ); 
-	UINT col = !(moveInfo.rowOrColumn == "row") ? moveInfo.whichRowOrColumn : moveInfo.whichAtoms.front( );
-	niawgPair<int> initPos = { row, col };
 	dir direction;
 	if ( moveInfo.rowOrColumn == "row" )
 	{
@@ -2462,7 +2459,9 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& rerngSettings, do
 	{
 		direction = (moveInfo.direction == 1) ? dir::right : dir::left;
 	}	
-
+	UINT row = moveInfo.rowOrColumn == "row" ? moveInfo.whichRowOrColumn : moveInfo.whichAtoms.front( );
+	UINT col = !(moveInfo.rowOrColumn == "row") ? moveInfo.whichRowOrColumn : moveInfo.whichAtoms.front( );
+	niawgPair<int> initPos = { row, col };
 	bool upOrDown = (direction == dir::down || direction == dir::up);
 	UINT movingAxis = upOrDown ? Axes::Vertical : Axes::Horizontal;
 	UINT staticAxis = !upOrDown ? Axes::Vertical : Axes::Horizontal;
@@ -2489,14 +2488,10 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& rerngSettings, do
 		waveSignal& sig = moveWave.chan[movingAxis].signals[signalNum];
 		sig.powerRampType = "nr";
 		sig.initPhase = 0;
-		//
 		if ( (signalNum == initPos[movingAxis] || signalNum == finPos[movingAxis]) && !foundMoving )
 		{
-			//if ( moveInfo.needsFlash )
-			//{
-				// SKIP the next one, which should be the next of the pair of locations that is moving.
-				gridLocation++;
-			//}
+			// SKIP the next one, which should be the next of the pair of locations that is moving.
+			gridLocation++;
 			// this is the moving signal. set foundmoving to true so that you only make one moving signal.
 			foundMoving = true;
 			sig.initPower = movingFrac;
@@ -2775,7 +2770,8 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 		}
 		if ( input->rerngOptions.outputInfo )
 		{
-			outFile.open( DEBUG_OUTPUT_LOCATION + "Rearranging-Event-Info.txt" );
+			UINT fileNum = getNextFileIndex( DEBUG_OUTPUT_LOCATION + "Rearranging-Event-Info_", ".txt" );
+			outFile.open( DEBUG_OUTPUT_LOCATION + "Rearranging-Event-Info_" + str( fileNum ) + ".txt" );
 			if ( !outFile.is_open( ) )
 			{
 				thrower( "ERROR: Info file failed to open!" );
