@@ -365,8 +365,7 @@ BOOL MainWindow::OnInitDialog( )
 	}
 	catch ( Error& except )
 	{
-		errBox( "ERROR: NIAWG failed to start! Error: " + except.whatStr( ) );
-		return -1;
+		errBox( "ERROR: NIAWG failed to Initialize! Error: " + except.whatStr( ) );
 	}
 	try
 	{
@@ -376,7 +375,8 @@ BOOL MainWindow::OnInitDialog( )
 	}
 	catch ( Error& exception )
 	{
-		errBox( "ERROR: failed to start niawg default waveforms! Niawg gave the following error message: " + exception.whatStr( ) );
+		errBox( "ERROR: failed to start niawg default waveforms! Niawg gave the following error message: " 
+				+ exception.whatStr( ) );
 	}
 	// not done with the script, it will not stay on the NIAWG, so I need to keep track of it so thatI can reload it onto the NIAWG when necessary.	
 	/// Initialize Windows
@@ -432,13 +432,7 @@ BOOL MainWindow::OnInitDialog( )
 	rearrangeControl.initialize( id, controlLocation, this, tooltips );
 	debugger.initialize( id, controlLocation, this, tooltips );
 	texter.initialize( controlLocation, this, id, tooltips, mainRGBs );
-	testData.resize( 2 );
-	testData[0] = pPlotDataVec( new plotDataVec( 100, { 0,0,0 } ) );
-	testData[1] = pPlotDataVec( new plotDataVec( 100, { 0,0,0 } ) );
-	plot = new PlotDialog( testData, plotStyle::ErrorPlot, getPlotPens(), getPlotFont(), getPlotBrushes() );
 	controlLocation = { 960, 910 };
-	plot->Create( IDD_PLOT_DIALOG, 0 );
-	plot->ShowWindow( SW_SHOW );
 
 	boxes.initialize( controlLocation, id, this, 960, tooltips );
 	shortStatus.initialize( controlLocation, this, id, tooltips );
@@ -788,23 +782,6 @@ HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
 void MainWindow::passCommonCommand(UINT id)
 {
-	static UINT inc = 0;
-	if ( inc == 10 )
-	{
-		inc = 0;
-		//plot->OnCancel();
-		//plot = NULL;
-		//plot->EndDialog( 0 );
-		//plot->DestroyWindow( );
-		//delete plot;
-	}
-	for ( auto& data : testData )
-	{
-		data->at( inc ).x = inc;
-		data->at( inc ).y = 0.005 * inc * inc + 0.2;
-		data->at( inc ).err = 0.1;
-	}
-	inc++;
 	// pass the command id to the common function, filling in the pointers to the windows which own objects needed.
 	try
 	{

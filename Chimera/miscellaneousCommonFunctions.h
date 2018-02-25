@@ -182,3 +182,4 @@ template <typename ControlType> void verifyIdsMatch(Control<ControlType>& contro
 }
 
 
+ULONG getNextFileIndex( std::string fileBase, std::string ext );

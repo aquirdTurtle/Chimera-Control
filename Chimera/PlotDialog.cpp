@@ -5,8 +5,9 @@
 #include "memdc.h"
 
 PlotDialog::PlotDialog( std::vector<pPlotDataVec> dataHolder, plotStyle styleIn, std::vector<Gdiplus::Pen*> inPens,
-						 CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, std::string title ) :
-	plot(dataHolder, styleIn, inPens, font, plotBrushes, title )
+						CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes, UINT timerTime,
+						std::string title ) :
+	plot( dataHolder, styleIn, inPens, font, plotBrushes, title ), timerLength( timerTime )
 {
 	backgroundBrush.CreateSolidBrush( RGB( 0, 30, 38 ) );
 	plotAreaBrush.CreateSolidBrush( RGB( 0, 0, 0 ) );
@@ -67,8 +68,6 @@ void PlotDialog::OnCancel( )
 void PlotDialog::PostNcDestroy( )
 {
 	CDialog::PostNcDestroy( );
-	// seems to cause problems...
-	//delete this;
 }
 
 
@@ -82,7 +81,7 @@ HBRUSH PlotDialog::OnCtlColor( CDC* pDC, CWnd* pWnd, UINT nCtlColor )
 BOOL PlotDialog::OnInitDialog( )
 {
 	plot.init( { 0, 0 }, 1920, 997, this);
-	SetTimer( 1, 10000, NULL );
+	SetTimer( 1, timerLength, NULL );
 	return TRUE;
 }
 

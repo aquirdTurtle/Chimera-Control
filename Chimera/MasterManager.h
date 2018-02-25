@@ -40,7 +40,7 @@ class MasterManager
 		void analyzeMasterScript( DioSystem* ttls, AoSystem* aoSys, 
 								  std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades, 
 								  RhodeSchwarz* rsg, std::vector<variableType>& vars, 
-								  ScriptStream& currentMasterScript, UINT seqNum );
+								  ScriptStream& currentMasterScript, UINT seqNum, bool expectsLoadSkip );
 
 		// this function needs the mastewindow in order to gather the relevant parameters for the experiment.
 		void startExperimentThread(MasterThreadInput* input);

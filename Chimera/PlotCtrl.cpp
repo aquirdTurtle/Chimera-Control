@@ -180,7 +180,7 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 	}
 	else
 	{
-		thrower( "ERROR: bad value for plot style???" );
+		thrower( "ERROR: bad value for plot style???  (A low level bug, this shouldn't happen)" );
 	}
 	double dataScaleY = plotHeightPixels / dataHeight;
 	 

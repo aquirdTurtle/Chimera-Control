@@ -782,7 +782,8 @@ void CameraWindow::handleMasterConfigOpen(std::stringstream& configStream, doubl
 	}
 	catch (std::invalid_argument&)
 	{
-		thrower("ERROR: Bad value seen in master configueration file while attempting to load camera settings!");
+		thrower("ERROR: Bad value (i.e. failed to convert to long) seen in master configueration file while attempting "
+				 "to load camera dimensions!");
 	}
 }
 
@@ -980,7 +981,7 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 		// start a PlotDialog dialog
 		PlotDialog* plot = new PlotDialog( data, style, mainWindowFriend->getPlotPens(), 
 										   mainWindowFriend->getPlotFont( ), mainWindowFriend->getPlotBrushes( ), 
-										   plotParams.name );
+										   analysisHandler.getPlotTime(), plotParams.name );
 		plot->Create( IDD_PLOT_DIALOG, 0 );
 		plot->ShowWindow( SW_SHOW );
 		activePlots.push_back( plot );
@@ -1047,7 +1048,7 @@ UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 					+ columnInc * input->grids[gridInc].pixelSpacing;
 				if ( pixelRow >= input->imageDims.height || pixelColumn >= input->imageDims.width )
 				{
-					errBox( "ERROR: Grid appears to include pixels outside the image frame! Not allowed, seen by atom "
+					errBox( "ERROR: atom grid appears to include pixels outside the image frame! Not allowed, seen by atom "
 							"cruncher thread" );
 					return 0;
 				}
@@ -1056,7 +1057,7 @@ UINT __stdcall CameraWindow::atomCruncherProcedure(void* inputPtr)
 				{
 					// shouldn't happen after I finish debugging.
 					errBox( "ERROR: Math error! Somehow, the pixel indexes appear within bounds, but the calculated index"
-							" is larger than the image is!" );
+							" is larger than the image is!  (A low level bug, this shouldn't happen)" );
 					return 0;
 				}
 				monitoredPixelIndecies[gridInc].push_back( index );

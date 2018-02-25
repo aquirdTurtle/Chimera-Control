@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "VisaFlume.h"
 
+
 VisaFlume::VisaFlume(bool safemode, std::string address) : deviceSafemode(safemode) 
 { 
 	usbAddress = address;
@@ -9,7 +10,7 @@ VisaFlume::VisaFlume(bool safemode, std::string address) : deviceSafemode(safemo
 /// 
 void VisaFlume::write( std::string message )
 {
-	// not sure what this is for.
+	// not sure what this is for. Perhaps actual number of characters sent, or something like that.
 	ULONG actual;
 	if (!deviceSafemode)
 	{
@@ -17,10 +18,10 @@ void VisaFlume::write( std::string message )
 	}
 }
 
+
 char VisaFlume::readchar( )
 {
 	unsigned char msg[256];
-	ViPBuf sdf;
 	ULONG numRead;
 	errCheck( viRead( instrument, msg, 1, &numRead ) );
 	return msg[0];
@@ -37,11 +38,11 @@ void VisaFlume::close()
 
 
 // open the default resource manager resource. From ni.com:
-// " The viOpenDefaultRM() function must be called before any VISA operations can be invoked.The first call to this function 
-// initializes the VISA system, including the Default Resource Manager resource, and also returns a session to that resource. 
-// Subsequent calls to this function return unique sessions to the same Default Resource Manager resource.
-// When a Resource Manager session is passed to viClose(), not only is that session closed, but also all find lists and device 
-// sessions( which that Resource Manager session was used to create ) are closed.
+// "The viOpenDefaultRM() function must be called before any VISA operations can be invoked.The first call to this 
+// function initializes the VISA system, including the Default Resource Manager resource, and also returns a session 
+// to that resource.  Subsequent calls to this function return unique sessions to the same Default Resource Manager 
+// resource. When a Resource Manager session is passed to viClose(), not only is that session closed, but also all 
+// find lists and device sessions( which that Resource Manager session was used to create ) are closed.
 void VisaFlume::open()
 {
 	if (!deviceSafemode)
