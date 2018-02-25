@@ -44,7 +44,7 @@ enum class nonFlashingOption
 
 // the reason to do partial is that I may run into power issues where I don't have enough power in the moving tweezers
 // to spread over more than a certain number of atoms.
-const UINT PARTIAL_PARALLEL_LIMIT = 1;
+const UINT PARTIAL_PARALLEL_LIMIT = 2;
 enum class parallelMoveOption
 {
 	// no parallel moves
@@ -73,7 +73,7 @@ struct rerngOptions
 	bool useCalibration = false;
 	double finalMoveTime = 1e-3;
 	// hard set right now.
-	nonFlashingOption noFlashOption = nonFlashingOption::cautious;//full;
-	parallelMoveOption parallel = parallelMoveOption::none;
+	nonFlashingOption noFlashOption = nonFlashingOption::cautious;
+	parallelMoveOption parallel = parallelMoveOption::partial;
 	smartRerngOption smartOption = smartRerngOption::full;
 };
