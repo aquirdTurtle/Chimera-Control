@@ -774,7 +774,7 @@ atomGrid DataAnalysisControl::getAtomGrid( UINT which )
 	}
 	catch ( std::invalid_argument& )
 	{
-		thrower( "ERROR: Please make sure all atom grid parameters are convertible to integers!" );
+		thrower( "ERROR: Grid parameters failed to convert to longs!" );
 	}
 	return grids[which];
 }
@@ -853,7 +853,7 @@ void DataAnalysisControl::handleAtomGridCombo( )
 	}
 	else if (sel > grids.size())
 	{
-		thrower( "ERROR: Bad value for combobox selection???" );
+		thrower( "ERROR: Bad value for atom grid combobox selection???  (A low level bug, this shouldn't happen)" );
 	}
 	gridSelector.SetCurSel( sel );
 	// load the grid parameters for that selection.
@@ -1121,7 +1121,7 @@ void DataAnalysisControl::handleDoubleClick(fontMap* fonts, UINT currentPicsPerR
 			}
 			if ( gridNum >= grids.size( ) )
 			{
-				thrower( "ERROR: Grid number picked is larger than the number of grids available! Make more grids!" );
+				thrower( "ERROR: Grid number picked is larger than the number of grids available!" );
 			}
 
 			allTinyPlots[itemIndicator].whichGrid = gridNum;

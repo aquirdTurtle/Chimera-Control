@@ -40,7 +40,8 @@ void Script::initialize( int width, int height, POINT& loc, cToolTips& toolTips,
 	}
 	else
 	{
-		thrower( "ERROR: Device input type not recognized during construction of script control." );
+		thrower( "ERROR: Device input type not recognized during construction of script control.  (A low level bug, "
+				 "this shouldn't happen)" );
 	}
 	CHARFORMAT myCharFormat;
 	memset( &myCharFormat, 0, sizeof( CHARFORMAT ) );
@@ -56,15 +57,12 @@ void Script::initialize( int width, int height, POINT& loc, cToolTips& toolTips,
 		title.fontType = fontTypes::HeadingFont;
 		loc.y += 25;
 	}
-	// saved indicator
 	savedIndicator.sPos = { loc.x, loc.y, loc.x + 80, loc.y + 20 };
 	savedIndicator.Create( "Saved?", NORM_CWND_OPTIONS | BS_CHECKBOX | BS_LEFTTEXT, savedIndicator.sPos, parent, id++ );
 	savedIndicator.SetCheck( true );
-	// filename
 	fileNameText.sPos = { loc.x + 80, loc.y, loc.x + width - 20, loc.y + 20 };
 	fileNameText.Create( NORM_STATIC_OPTIONS, fileNameText.sPos, parent, id++ );
 	isSaved = true;
-	// help
 	help.sPos = { loc.x + width - 20, loc.y, loc.x + width, loc.y + 20 };
 	help.Create( NORM_STATIC_OPTIONS, help.sPos, parent, id++ );
 	help.SetWindowTextA( "?" );
@@ -618,11 +616,11 @@ void Script::changeView(std::string viewName, bool isFunction, std::string categ
 }
 
 //
-void Script::saveScript(std::string categoryPath, RunInfo info)
+void Script::saveScript(std::string configPath, RunInfo info)
 {
-	if (categoryPath == "")
+	if (configPath == "")
 	{
-		thrower("ERROR: Please select a category before trying to save a script!\r\n");
+		thrower("ERROR: Please select a configuration before trying to save a script!\r\n");
 	}
 	if (isSaved && scriptName != "")
 	{
@@ -655,7 +653,7 @@ void Script::saveScript(std::string categoryPath, RunInfo info)
 			// canceled
 			return;
 		}
-		std::string path = categoryPath + newName + extension;
+		std::string path = configPath + newName + extension;
 		saveScriptAs(path, info);
 	}
 	if (info.running)
@@ -670,16 +668,15 @@ void Script::saveScript(std::string categoryPath, RunInfo info)
 		}
 	}
 	edit.GetWindowTextA(text);
-	std::fstream saveFile(categoryPath + scriptName + extension, std::fstream::out);
+	std::fstream saveFile(configPath + scriptName + extension, std::fstream::out);
 	if (!saveFile.is_open())
 	{
-		thrower("ERROR: Failed to open script file: " + categoryPath + scriptName 
-				+ extension);
+		thrower("ERROR: Failed to open script file: " + configPath + scriptName + extension);
 	}
 	saveFile << text;
 	saveFile.close();
-	scriptFullAddress = categoryPath + scriptName + extension;
-	scriptPath = categoryPath;
+	scriptFullAddress = configPath + scriptName + extension;
+	scriptPath = configPath;
 	updateSavedStatus(true);
 }
 
@@ -697,8 +694,8 @@ void Script::saveScriptAs(std::string location, RunInfo info)
 		{
 			if (scriptName == info.currentlyRunningScripts[scriptInc])
 			{
-				thrower("ERROR: System is currently running. You can't save over any files in use by the system while it runs, which includes the "
-					"horizontal and vertical AOM scripts and the intensity script.");
+				thrower("ERROR: System is currently running. You can't save over any files in use by the system while "
+						 "it runs, which includes the horizontal and vertical AOM scripts and the intensity script.");
 			}
 		}
 	}
@@ -817,7 +814,7 @@ void Script::renameScript(std::string categoryPath)
 
 	if (result == 0)
 	{
-		thrower("ERROR: Failed to move file.");
+		thrower("ERROR: Failed to rename file. (A low level bug? this shouldn't happen)");
 	}
 	scriptFullAddress = categoryPath + scriptName + extension;
 	scriptPath = categoryPath;
@@ -840,7 +837,7 @@ void Script::deleteScript(std::string categoryPath)
 	int result = DeleteFile(cstr(categoryPath + scriptName + extension));
 	if (result == 0)
 	{
-		thrower("ERROR: Deleting script file failed!");
+		thrower("ERROR: Deleting script file failed!  (A low level bug, this shouldn't happen)");
 	}
 	else
 	{
@@ -863,7 +860,8 @@ void Script::newFunction()
 	}
 	else
 	{
-		thrower("ERROR: tried to load new function with non-master script???");
+		thrower("ERROR: tried to load new function with non-master script? Only the master script supports functions"
+				 " currently.");
 	}
 	loadFile(tempName);
 }
@@ -982,7 +980,7 @@ void Script::loadFile(std::string pathToFile)
 
 void Script::reset()
 {
-	availableFunctionsCombo.SelectString(0,"Parent Script");
+	availableFunctionsCombo.SelectString(0, "Parent Script");
 	scriptName = "";
 	scriptPath = "";
 	scriptFullAddress = "";
