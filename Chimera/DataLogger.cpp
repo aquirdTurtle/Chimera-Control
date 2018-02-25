@@ -130,16 +130,7 @@ void DataLogger::initializeDataFiles()
 	finalSaveFolder += "\\";
 	/// Get a filename appropriate for the data
 	std::string finalSaveFileName;
-	// find the first data file that hasn't been already written, starting with data_1.h5
-	int fileNum = 1;
-	// The while condition here check if file exists. No idea how this actually works.
-	struct stat statBuffer;
-	// figure out the next file number
-	while ((stat(cstr(dataFilesBaseLocation + finalSaveFolder + "data_" + str(fileNum) + ".h5"),
-		   &statBuffer) == 0))
-	{
-		fileNum++;
-	}
+	UINT fileNum = getNextFileIndex( finalSaveFileName = "data_", ".h5" );
 	// at this point a valid filename has been found.
 	finalSaveFileName = "data_" + str(fileNum) + ".h5";
 	// update this, which is used later to move the key file.

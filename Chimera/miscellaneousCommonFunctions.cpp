@@ -40,3 +40,17 @@ std::string doubleToString( double number, long precision )
 	return stream.str();
 }
 
+ULONG getNextFileIndex( std::string fileBase, std::string ext )
+{
+	// find the first data file that hasn't been already written, starting with fileBase1.h5
+	ULONG fileNum = 1;
+	// The while condition here check if file exists. No idea how this actually works.
+	struct stat statBuffer;
+	// figure out the next file number
+	while ( (stat( cstr( fileBase + str( fileNum ) + ext ),
+				   &statBuffer ) == 0) )
+	{
+		fileNum++;
+	}
+	return fileNum;
+}
