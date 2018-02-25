@@ -76,6 +76,13 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	updateFrequencyLabel2.setPositions( pos, 200, 0, 280, 25, true, false, true );
 	updateFrequencyLabel2.Create(") repetitions.", NORM_STATIC_OPTIONS | ES_CENTER | ES_LEFT,
 								  updateFrequencyLabel2.seriesPos, parent, id++);
+
+	plotTimerTxt.setPositions( pos, 0, 0, 360, 25 );
+	plotTimerTxt.Create( "Plot Update Timer Length (ms):", NORM_STATIC_OPTIONS, plotTimerTxt.seriesPos, parent, id++ );
+	plotTimerEdit.setPositions( pos, 360, 0, 120, 25, true );
+	plotTimerEdit.Create( NORM_EDIT_OPTIONS, plotTimerEdit.seriesPos, parent, id++ );
+	plotTimerEdit.SetWindowText( "5000" );
+
 	/// Initialize the listview
 	plotListview.setPositions( pos, 0, 0, 480, 150, true, false, true );
 	plotListview.Create( NORM_LISTVIEW_OPTIONS, plotListview.seriesPos, parent, IDC_PLOTTING_LISTVIEW );
@@ -103,11 +110,27 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 }
 
 
+UINT DataAnalysisControl::getPlotTime( )
+{
+	CString txt;
+	plotTimerEdit.GetWindowText( txt );
+	std::string tmpStr( txt );
+	try
+	{
+		return std::stoul( tmpStr );
+	}
+	catch ( std::invalid_argument )
+	{
+		thrower( "ERROR: plot time failed to convert to an unsigned integer!" );
+	}
+}
+
+
 void DataAnalysisControl::handleDeleteGrid( )
 {
 	if ( grids.size() == 1 )
 	{
-		thrower( "ERROR: Can't delete Last grid!" );
+		thrower( "ERROR: You are not allowed to delete the last grid for data analysis!" );
 	}
 	grids.erase( grids.begin( ) + selectedGrid );
 	gridSelector.ResetContent( );
@@ -811,6 +834,8 @@ void DataAnalysisControl::rearrange(std::string cameraMode, std::string trigMode
 	gridHeight.rearrange( cameraMode, trigMode, width, height, fonts );
 	gridSelector.rearrange( cameraMode, trigMode, width, height, fonts );
 	deleteGrid.rearrange( cameraMode, trigMode, width, height, fonts );
+	plotTimerTxt.rearrange( cameraMode, trigMode, width, height, fonts );
+	plotTimerEdit.rearrange( cameraMode, trigMode, width, height, fonts );
 }
 
 
