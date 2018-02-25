@@ -652,7 +652,8 @@ namespace commonFunctions
 				break;
 			}
 			default:
-				errBox("ERROR: Common message passed but not handled!");
+				errBox("ERROR: Common message passed but not handled! This feature likely needs re-implementation "
+						"/ new handling");
 		}
 	}
 
@@ -675,7 +676,7 @@ namespace commonFunctions
 		if (mainWin->niawgIsRunning())
 		{
 			mainWin->getComm( )->sendColorBox( System::Niawg, 'R' );
-			thrower( "ERROR: Please Restart the niawg before running an experiment.\r\n" );
+			thrower( "ERROR: nIAWG is already running! Please Restart the niawg before running an experiment.\r\n" );
 		}
 
 		if (seq.sequence.size() == 0)
