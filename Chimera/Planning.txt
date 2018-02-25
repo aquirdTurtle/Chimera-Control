@@ -51,7 +51,7 @@ BUGS:
 - niawg is doing something during turnonmot
 - control tektronics not being saved in config?
 - bug in picture stats retrieval from image array? Seems like might have been not really the fault of the image stats, 
-	but should look into this a bit.
+	but should look into this a bit. this might have been related to the bug that occured when the picture was skipping.
 - Agilent non-integer number of samples bugs don't make sense, "bad time entered for the time of an intensity sequence"
 - trying save if only camera is running...
 - what's happening if you try to abort in the middle of the "programming" stage?

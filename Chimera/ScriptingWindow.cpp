@@ -693,7 +693,6 @@ void ScriptingWindow::saveMasterFunction()
 	{
 		comm()->sendError("Save Master Script Function Failed: " + exception.whatStr() + "\r\n");
 	}
-
 }
 
 

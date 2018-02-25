@@ -21,5 +21,5 @@ def pgcAtomImage():
 	off: repumpRf
 	dac: MotFreq -0.1
 	% note that the camera needs some time before it can take
-	% another image. Typically we need to wait like 5ms.
+	% another image. Typically we need to wait like 5ms. 
 	
