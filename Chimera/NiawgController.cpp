@@ -2413,8 +2413,8 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 			std::array<UINT, 4> whichAtom = { col, col, row, row };
 			std::array<bool, 4> conditions = { row != rows - 1, row != 0, col != 0, col != cols - 1 };
 
-			// loop through each possibel direction.
-			for ( auto inc : range( 4 ) )
+			// loop through each possible direction.
+ 			for ( auto inc : range( 4 ) )
 			{
 				noFlashMoveInfo.whichRowOrColumn = flashMoveInfo.whichRowOrColumn = whichRowOrColumn[inc];
 				noFlashMoveInfo.whichAtoms[0] = flashMoveInfo.whichAtoms[0] = whichAtom[inc];
@@ -2456,7 +2456,7 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& rerngSettings, do
 	dir direction;
 	if ( moveInfo.rowOrColumn == "row" )
 	{
-		 direction = (moveInfo.direction == 1) ? dir::down : dir::up;
+		 direction = (moveInfo.direction == 1) ? dir::up : dir::down;
 	}
 	else
 	{
@@ -2492,11 +2492,8 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& rerngSettings, do
 		//
 		if ( (signalNum == initPos[movingAxis] || signalNum == finPos[movingAxis]) && !foundMoving )
 		{
-			//if ( moveInfo.needsFlash )
-			//{
-				// SKIP the next one, which should be the next of the pair of locations that is moving.
-				gridLocation++;
-			//}
+			// SKIP the next one, which should be the next of the pair of locations that is moving.
+			gridLocation++;
 			// this is the moving signal. set foundmoving to true so that you only make one moving signal.
 			foundMoving = true;
 			sig.initPower = movingFrac;
@@ -2537,23 +2534,30 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& rerngSettings, do
 	/// handle other axis
 	if ( moveInfo.needsFlash )
 	{
-		moveWave.chan[staticAxis].signals.resize( 1 );
-		waveSignal& sig = moveWave.chan[staticAxis].signals[0];
-		sig.finPower = sig.initPower = 1;
-		sig.freqRampType = sig.powerRampType = "nr";
-		sig.initPhase = 0;
-		if ( staticAxis == Axes::Horizontal )
+		moveWave.chan[staticAxis].signals.resize( moveInfo.whichAtoms.size() );
+		UINT sigCount = 0;
+		for ( auto atom : moveInfo.whichAtoms )
 		{
-			// convert to Hz
-			sig.freqInit = ((rerngSettings.target.getCols( ) - initPos[staticAxis] - 1) * freqPerPixel
-							 + rerngSettings.lowestFreqs[staticAxis]) * 1e6;
+			waveSignal& sig = moveWave.chan[staticAxis].signals[sigCount];
+			// equal power in all of these.
+			sig.finPower = sig.initPower = 1;
+			sig.freqRampType = sig.powerRampType = "nr";
+			sig.initPhase = 0;
+			if ( staticAxis == Axes::Horizontal )
+			{
+				// convert to Hz
+				sig.freqInit = ((rerngSettings.target.getCols( ) - atom - 1) * freqPerPixel
+								 + rerngSettings.lowestFreqs[staticAxis]) * 1e6;
+			}
+			else
+			{
+				// convert to Hz
+				sig.freqInit = (atom * freqPerPixel + rerngSettings.lowestFreqs[staticAxis])*1e6;
+			}
+			sig.freqFin = sig.freqInit;
+			sigCount++;
 		}
-		else
-		{
-			// convert to Hz
-			sig.freqInit = (initPos[staticAxis] * freqPerPixel + rerngSettings.lowestFreqs[staticAxis])*1e6;
-		}
-		sig.freqFin = sig.freqInit;
+		
 	}
 	else
 	{
@@ -2872,17 +2876,8 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 					direction = dir::right;
 				}
 				std::vector<double> vals;
-				double bias;
 				UINT row = move.rowOrColumn == "row" ? move.whichRowOrColumn : move.whichAtoms.front( );
 				UINT col = move.rowOrColumn == "row" ? move.whichAtoms.front( ) : move.whichRowOrColumn;
-				if ( input->rerngOptions.useCalibration )
-				{
-					bias = calBias( row, col, direction );
-				}
-				else
-				{
-					bias = input->rerngOptions.moveBias;
-				}
 				if ( input->rerngOptions.preprogram )
 				{
 					if ( move.needsFlash )
@@ -2896,6 +2891,13 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				}
 				else
 				{
+					double bias = input->rerngOptions.useCalibration ?
+						calBias( row, col, direction ) : input->rerngOptions.moveBias;
+					bias *= move.whichAtoms.size( );
+					if ( bias > 1 )
+					{
+						bias = 1;
+					}
 					vals = input->niawg->makeRerngWave( info, input->rerngOptions.staticMovingRatio, bias,
 														input->rerngOptions.deadTime, input->sourceRows,
 														input->sourceCols, move );
@@ -2965,12 +2967,16 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				outFile << "\nTarget Location: " + str( finPos[0] ) + ' ' + str( finPos[1] ) + "\n";
 				outFile << "Moves:\n";
 				UINT moveCount = 0;
-				//
-				//for ( auto move : complexMoveSequence )
-				//{
-				//	outFile << moveCount++ << " " << move.initRow << " " << move.finRow << " " << move.initCol << " "
-				//		<< move.finCol << "\n";
-				//}
+				for ( auto move : complexMoveSequence )
+				{
+					outFile << moveCount++ << " " << move.needsFlash << " " << move.rowOrColumn << " " 
+						<< move.whichRowOrColumn << " " << " " << move.direction << "\n";
+					for ( auto atom : move.whichAtoms )
+					{
+						outFile << atom << " ";
+					}
+					outFile << "\n";
+				}
 			}
 			counter++;
 		}
@@ -3560,6 +3566,7 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 	  At this I've distilled the relevant simple moves that can be combined into a complex move at this point.
 	  Check if move can be made without flashing.
 	 */
+	UINT initMoveNum = 0;
 	while ( singleMoves.size( ) != 0 )
 	{
 		std::vector<int> moveIndexes;
@@ -3568,25 +3575,34 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 		int init, fin;
 		std::string rowOrCol;
 		UINT altSize = 0;
-		if ( singleMoves.front( ).finCol != singleMoves.front( ).initCol )
+		if ( initMoveNum >= singleMoves.size( ) )
+		{
+			initMoveNum = 0;
+		}
+		auto& firstMove = singleMoves[initMoveNum];
+		if ( firstMove.finCol != firstMove.initCol )
 		{
 			rowOrCol = "col";
-			init = singleMoves.front( ).initCol;
-			fin = singleMoves.front( ).finCol;
+			init = firstMove.initCol;
+			fin = firstMove.finCol;
 			altSize = origSource.getRows( );
 		}
-		else if ( singleMoves.front( ).finRow != singleMoves.front( ).initRow )
+		else if ( firstMove.finRow != firstMove.initRow )
 		{
 			rowOrCol = "row";
-			init = singleMoves.front( ).initRow;
-			fin = singleMoves.front( ).finRow;
+			init = firstMove.initRow;
+			fin = firstMove.finRow;
 			altSize = origSource.getCols( );
 		}
-		moveIndexes.push_back( 0 );
-		moveList.push_back( singleMoves.front( ) );
+		moveIndexes.push_back( initMoveNum );
+		moveList.push_back( firstMove );
 		// grab all moves that match the initial row(column) and the final row(column).
-		for ( auto moveInc : range( size_t(1), singleMoves.size( ) ) )
+		for ( auto moveInc : range( singleMoves.size( ) ) )
 		{
+			if ( moveInc == initMoveNum )
+			{
+				continue;
+			}
 			if ( (options.parallel == parallelMoveOption::partial && moveList.size( ) == PARTIAL_PARALLEL_LIMIT)
 					|| (options.parallel == parallelMoveOption::none && moveList.size( ) == 1) )
 			{
@@ -3622,7 +3638,8 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 		}
 		if ( moveList.size( ) == 0 )
 		{
-			// couldn't move any atoms.
+			// couldn't move any atoms. try a different starting point.
+			initMoveNum++;
 			continue;
 		}
 		flashMoves.push_back( complexMove( rowOrCol, init, fin-init ) );
@@ -3635,8 +3652,11 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 			auto& move = singleMoves[moveIndex];
 			flashMoves.back( ).whichAtoms.push_back( rowOrCol == "row" ? move.initCol : move.initRow );
 			// update source image with new configuration.
+			bool prevtofalse = tmpSource( move.initRow, move.initCol );
 			tmpSource( move.initRow, move.initCol ) = false;
+			bool prevtotrue = tmpSource( move.finRow, move.finCol );
 			tmpSource( move.finRow, move.finCol ) = true;
+			tmpSource.updateString( );
 			singleMoves.erase( singleMoves.begin( ) + moveIndex );
 		}
 
