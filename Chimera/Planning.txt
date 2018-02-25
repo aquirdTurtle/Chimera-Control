@@ -17,13 +17,14 @@ FEATURES:
 	- how to handle saving variable settings? could just not save at all, but saves would be good.
 		- could save all function variables as they get loaded or changed in an object in the VariableSystem
 - Full experiments following each other, alternative use of sequences.
-- Consider ways to make navigating many functions more sensible. May be similar to local variable considerations.
+- Consider ways to make navigating many functions more sensible.
 - finish implementing randomizing repetitions.
 	- Create per-repetitiong list of variation values to use
 	- Be able to randomize
 	- handle random case in plotting.
 	- be able to add more repetitions on the fly if randomizing reps. requires some camera magic.
 	- mix sequences in as well?
+		- also gets trick if diff sequences use instruments differently.
 - restore the Niawg functionality where it calculates next varying waveform during the run of the previous waveform.
 - support functions for niawg and agilent scripts
 - support aborting while paused
@@ -33,7 +34,6 @@ FEATURES:
 - get running average working again
 - add all agilents / tek to color boxes?
 - restore ability to look multi-pixel conditions / events in plots
-- changeable update rate for dialogs.
 
 Refactoring / Other:
 - change threads waiting on bools to waiting on signalers
@@ -41,29 +41,22 @@ Refactoring / Other:
 - change pointers to smart-ptrs where possible
 - more tooltips
 - better documentation in general
+- revise and enhance error messages
 - Andor system should use Matrix class for pictures
 - all mutexes should use lock_guard or similar for consistency
 
 BUGS:
 - scripts becoming unsaved after move, should preserve saved status
-- global config colors don't appear to always be correct. Not being changed by use in agilent and niawg?
-- fix over-writing to the agilent. ???
-- niawg is doing something during turnonmot
+- global variable colors don't appear to always be correct. Not being changed by use in agilent and niawg?
+- niawg is doing something during turnonmot... it shouldn't.
 - control tektronics not being saved in config?
-- bug in picture stats retrieval from image array? Seems like might have been not really the fault of the image stats, 
-	but should look into this a bit. this might have been related to the bug that occured when the picture was skipping.
+- bug in picture stats retrieval from image array? This might have been related to the bug that occured when the 
+	picture was skipping. Seems to have stopped happening around the time that the skip started manifesting in the
+	data itself.
 - Agilent non-integer number of samples bugs don't make sense, "bad time entered for the time of an intensity sequence"
 - trying save if only camera is running...
 - what's happening if you try to abort in the middle of the "programming" stage?
-- fix variable logging
-- if loadskip threshold set but no loadskip in script, crashes.
-
-Rearranging
-- code for creating non-flashing moves
-- code for creating parallel moves
-- code for managing moves
-- utilize non-flashing moves
-- utilize compound flashing moves
+- fix variable logging / figure out what the problem is here.
 
 =================
 Finished

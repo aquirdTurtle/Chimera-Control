@@ -365,8 +365,7 @@ BOOL MainWindow::OnInitDialog( )
 	}
 	catch ( Error& except )
 	{
-		errBox( "ERROR: NIAWG failed to start! Error: " + except.whatStr( ) );
-		return -1;
+		errBox( "ERROR: NIAWG failed to Initialize! Error: " + except.whatStr( ) );
 	}
 	try
 	{
@@ -376,7 +375,8 @@ BOOL MainWindow::OnInitDialog( )
 	}
 	catch ( Error& exception )
 	{
-		errBox( "ERROR: failed to start niawg default waveforms! Niawg gave the following error message: " + exception.whatStr( ) );
+		errBox( "ERROR: failed to start niawg default waveforms! Niawg gave the following error message: " 
+				+ exception.whatStr( ) );
 	}
 	// not done with the script, it will not stay on the NIAWG, so I need to keep track of it so thatI can reload it onto the NIAWG when necessary.	
 	/// Initialize Windows
