@@ -1146,7 +1146,7 @@ void Script::saveAsFunction()
 	// refresh this.
 	loadFunctions();
 	availableFunctionsCombo.SelectString( 0, cstr(functionName) );
-	// test if script exists in nearby folder.
+	updateSavedStatus( true );
 }
 
 
