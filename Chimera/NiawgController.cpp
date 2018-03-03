@@ -7,14 +7,35 @@
 
 #include "MasterThreadInput.h"
 #include "Matrix.h"
-
+#include "Thrower.h"
 #include <boost/algorithm/string/replace.hpp>
 #include <chrono>
 #include <numeric>
+#include "externals.h"
+#include "Thrower.h"
+#include "miscellaneousCommonFunctions.h"
+#include "range.h"
 
-
-NiawgController::NiawgController( UINT trigRow, UINT trigNumber ) : triggerRow( trigRow ), triggerNumber( trigNumber )
+NiawgController::NiawgController( UINT trigRow, UINT trigNumber, bool safemode ) : 
+	triggerRow( trigRow ), triggerNumber( trigNumber ), fgenConduit(safemode)
 {
+	// Contains all of of the names of the files that hold actual data file names.	
+	for ( auto number : range( MAX_NIAWG_SIGNALS ) )
+	{
+		WAVEFORM_NAME_FILES[number] = "gen " + str( number + 1 ) + ", const waveform file names.txt";
+		WAVEFORM_NAME_FILES[number + MAX_NIAWG_SIGNALS] = "gen " + str( number + 1 )
+			+ ", amp ramp waveform file names.txt";
+		WAVEFORM_NAME_FILES[number + 2 * MAX_NIAWG_SIGNALS] = "gen " + str( number + 1 )
+			+ ", freq ramp waveform file names.txt";
+		WAVEFORM_NAME_FILES[number + 3 * MAX_NIAWG_SIGNALS] = "gen " + str( number + 1 )
+			+ ", freq & amp ramp waveform file names.txt";
+
+		WAVEFORM_TYPE_FOLDERS[number] = "gen" + str( number + 1 ) + "const\\";
+		WAVEFORM_TYPE_FOLDERS[number + MAX_NIAWG_SIGNALS] = "gen" + str( number + 1 ) + "ampramp\\";
+		WAVEFORM_TYPE_FOLDERS[number + 2 * MAX_NIAWG_SIGNALS] = "gen" + str( number + 1 ) + "freqramp\\";
+		WAVEFORM_TYPE_FOLDERS[number + 3 * MAX_NIAWG_SIGNALS] = "gen" + str( number + 1 ) + "ampfreqramp\\";
+	}
+
 	// initialize rearrangement calibrations.
 	// default value for bias calibrations is currently 0.5.
 	// 3x6 calibration
@@ -474,8 +495,8 @@ void NiawgController::analyzeNiawgScript( ScriptStream& script, NiawgOutput& out
 
 
 
-void NiawgController::writeStaticNiawg( NiawgOutput& output, debugInfo& options, 
-										std::vector<variableType>& constants )
+void NiawgController::writeStaticNiawg( NiawgOutput& output, debugInfo& options, std::vector<variableType>& constants,
+										bool deleteWaveAfterWrite)
 {
 	for ( auto& waveInc : range(output.waveFormInfo.size()) )
 	{
@@ -523,10 +544,22 @@ void NiawgController::writeStaticNiawg( NiawgOutput& output, debugInfo& options,
 				simpleFormToOutput( waveForm.core, wave.core, constants, 0 );
 				handleMinus1Phase( wave.core, prevWave.core );
 				writeStandardWave( wave.core, options, output.isDefault );
+				if ( deleteWaveAfterWrite )
+				{
+					deleteWaveData( wave.core );
+				}
 			}
 		}
 	}
 }
+
+
+void NiawgController::deleteWaveData( simpleWave& core )
+{
+	core.waveVals.clear( );
+	core.waveVals.shrink_to_fit( );
+}
+
 
 void NiawgController::handleMinus1Phase( simpleWave& waveCore, simpleWave prevWave )
 {
@@ -619,11 +652,6 @@ void NiawgController::writeStandardWave(simpleWave& wave, debugInfo options, boo
 	{
 		defaultMixedWaveform = wave.waveVals;
 		defaultWaveName = wave.name;
-	}
-	else
-	{
-		wave.waveVals.clear( );
-		wave.waveVals.shrink_to_fit( );
 	}
 }
 
@@ -906,6 +934,7 @@ void NiawgController::handleVariations( NiawgOutput& output, std::vector<std::ve
 					}
 					handleMinus1Phase( wave.core, prevWave.core );
 					writeStandardWave( wave.core, debugOptions, output.isDefault );
+					deleteWaveData( wave.core );
 				}
 				mixedWaveSizes.push_back( 2 * wave.core.sampleNum );
 				mixedCount++;
@@ -1104,7 +1133,8 @@ void NiawgController::generateWaveform( channelWave & chanWave, debugInfo& optio
 						  std::ios::binary | std::ios::out | std::ios::app );
 		if ( !libNameFile.is_open( ) )
 		{
-			thrower( "ERROR! waveform name file not opening correctly.\n" );
+			thrower( "ERROR! saved waveform file not opening correctly! File name was " + LIB_PATH 
+					 + WAVEFORM_TYPE_FOLDERS[chanWave.initType] + WAVEFORM_NAME_FILES[chanWave.initType] + ".\n" );
 		}
 		// add the waveform name to the current list of strings. do it BEFORE adding the newline T.T
 		waveLibrary[chanWave.initType].push_back( cstr( waveformFileSpecs ) );

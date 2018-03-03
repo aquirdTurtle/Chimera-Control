@@ -1,7 +1,7 @@
 ﻿#pragma once
+#include "constants.h"
 #include "Control.h"
-#include "Windows.h"
-
+#include "afxWin.h"
 
 /*
  * A small (at the moment) wrapper for combos meant to list all the functions. This exists because there are several 

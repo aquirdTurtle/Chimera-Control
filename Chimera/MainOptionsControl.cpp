@@ -1,6 +1,8 @@
 
 #include "stdafx.h"
 #include "MainOptionsControl.h"
+#include "ProfileSystem.h"
+#include "Thrower.h"
 
 void MainOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips )
 {
@@ -79,7 +81,7 @@ void MainOptionsControl::handleOpenConfig(std::ifstream& openFile, int versionMa
 		}
 		catch ( std::invalid_argument& )
 		{
-			thrower( "ERROR: atom threshold for skip failed to convert to an unsigned long!" );
+			thrower( "ERROR: atom threshold for load skip failed to convert to an unsigned long!" );
 		}
 		atomThresholdForSkipEdit.SetWindowTextA( cstr(txt) );
 	}
@@ -103,7 +105,7 @@ mainOptions MainOptionsControl::getOptions()
 	}
 	catch ( std::invalid_argument& )
 	{
-		thrower( "ERROR: failed to convert atom threshold for skip to an unsigned long!" );
+		thrower( "ERROR: failed to convert atom threshold for load-skip to an unsigned long!" );
 	}
 	return currentOptions;
 }

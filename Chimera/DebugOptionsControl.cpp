@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "DebugOptionsControl.h"
-
+#include "Communicator.h"
+#include "ProfileSystem.h"
+#include "MainWindow.h"
 
 void DebugOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips )
 {

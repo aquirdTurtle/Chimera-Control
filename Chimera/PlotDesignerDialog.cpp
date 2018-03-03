@@ -1,7 +1,7 @@
 
 #include "stdafx.h"
 #include "PlotDesignerDialog.h"
-
+#include "Thrower.h"
 
 IMPLEMENT_DYNAMIC( PlotDesignerDialog, CDialog )
 

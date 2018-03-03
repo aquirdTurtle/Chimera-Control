@@ -1,14 +1,14 @@
 #pragma once
 
-#include <vector>
-#include <string>
-
-#include "H5Cpp.h"
 
 #include "DataAnalysisHandler.h"					  
 #include "CameraImageDimensions.h"
 #include "AndorRunSettings.h"
-
+#include "MasterThreadInput.h"
+#include "afxwin.h"
+#include "H5Cpp.h"
+#include <vector>
+#include <string>
 
 /*
  * Handles the writing of h5 files. Some parts of this are effectively HDF5 wrappers.
@@ -35,7 +35,6 @@ class DataLogger
 		void deleteFile(Communicator* comm);
 		int getDataFileNumber( );
 		void initializeAioLogging( UINT numSnapshots );
-		void recordWriteRecord( );
 	private:
 		H5::DataSet writeDataSet( bool data,				std::string name, H5::Group& group );
 		H5::DataSet writeDataSet( UINT data,				std::string name, H5::Group& group );
@@ -59,7 +58,6 @@ class DataLogger
 		std::string dataFilesBaseLocation;
 		std::string currentSaveFolder;
 		int currentDataFileNumber;
-		std::string writeRecord;
 		UINT currentPicNumber;
 };
 

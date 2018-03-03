@@ -1,6 +1,6 @@
 ﻿#include "stdafx.h"
 #include "PictureControl.h"
-
+#include "Thrower.h"
 
 
 /*

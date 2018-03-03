@@ -1,5 +1,6 @@
 ﻿#include "stdafx.h"
 #include "functionCombo.h"
+#include "ProfileSystem.h"
 
 void functionCombo::loadFunctions( )
 {

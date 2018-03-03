@@ -5,6 +5,7 @@
 #include "CameraSettingsControl.h"
 #include "CameraWindow.h"
 #include "Commctrl.h"
+#include "Thrower.h"
 
 void PictureSettingsControl::initialize( cameraPositions& pos, CWnd* parent, int& id )
 {

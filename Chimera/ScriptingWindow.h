@@ -4,6 +4,10 @@
 #include "Script.h"
 #include "ColorBox.h"
 #include "ProfileIndicator.h"
+#include "profileSettings.h"
+#include "Communicator.h"
+#include "Agilent.h"
+#include "MasterThreadInput.h"
 
 class MainWindow;
 class CameraWindow;

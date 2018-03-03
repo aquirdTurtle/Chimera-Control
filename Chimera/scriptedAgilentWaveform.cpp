@@ -1,5 +1,8 @@
 #include "stdafx.h"
+#include "Agilent.h"
 #include "scriptedAgilentWaveform.h"
+#include "ScriptStream.h"
+#include "Thrower.h"
 
 
 ScriptedAgilentWaveform::ScriptedAgilentWaveform()

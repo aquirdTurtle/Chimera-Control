@@ -10,6 +10,7 @@
 #include "EmbeddedPythonHandler.h"
 // for personInfo structure.
 #include "SMSTextingControl.h"
+#include "Thrower.h"
 
 // constructor is important.
 EmbeddedPythonHandler::EmbeddedPythonHandler( )

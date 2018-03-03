@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Control.h"
+#include "VisaFlume.h"
 
 
 struct tektronicsChannelOutputForm

@@ -2,24 +2,15 @@
 
 #include "DioSystem.h"
 #include "AoSystem.h"
-#include "VariableSystem.h"
 #include "RhodeSchwarz.h"
-#include "GpibFlume.h"
 #include "DebugOptionsControl.h"
 #include "ScriptStream.h"
 #include "Agilent.h"
 #include "commonTypes.h"
-#include "StatusControl.h"
-#include "Repetitions.h"
-#include "TektronicsControl.h"
-#include "DataLogger.h"
-#include "atomCruncherInput.h"
-#include "realTimePlotterInput.h"
-#include "rerngParams.h"
-#include "commonTypes.h"
 #include "EmbeddedPythonHandler.h"
 #include "MasterThreadInput.h"
-#include "nidaqmx2.h"
+#include "Communicator.h"
+#include "VariableStructures.h"
 #include <fstream>
 #include <string>
 #include <vector>
@@ -37,9 +28,8 @@ class MasterManager
 		bool getIsPaused();
 		void abort();
 		void loadMasterScript(std::string scriptAddress, ScriptStream& script );
-		void analyzeMasterScript( DioSystem* ttls, AoSystem* aoSys, 
-								  std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades, 
-								  RhodeSchwarz* rsg, std::vector<variableType>& vars, 
+		void analyzeMasterScript( DioSystem* ttls, AoSystem* aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
+								  std::vector<UINT>& dacShades, RhodeSchwarz* rsg, std::vector<variableType>& vars, 
 								  ScriptStream& currentMasterScript, UINT seqNum, bool expectsLoadSkip );
 
 		// this function needs the mastewindow in order to gather the relevant parameters for the experiment.
@@ -68,23 +58,20 @@ class MasterManager
 		std::vector<std::vector<double>> loadSkipTimes;
 		void callCppCodeFunction();
 		// the master script file contents get dumped into this.
-		//std::string currentFunctionText;
-		//std::string currentMasterScriptText;
-		//ScriptStream currentMasterScript;
 		std::string functionsFolderLocation;
 		// called by analyzeMasterScript functions only.
 		void analyzeFunction( std::string function, std::vector<std::string> args, DioSystem* ttls, AoSystem* aoSys,
 							  std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades, 
 							  RhodeSchwarz* rsg, std::vector<variableType>& vars, UINT seqNum );
 		timeType operationTime;
-		bool experimentIsRunning;
+		bool experimentIsRunning = false;
 		/// task handles
 		HANDLE runningThread;
 		// Important, these should only be written to by the pause and aborting functions...
 		std::mutex pauseLock;
-		bool isPaused;
+		bool isPaused = false;
 		std::mutex abortLock;
-		bool isAborting;
+		bool isAborting = false;
 };
 
 

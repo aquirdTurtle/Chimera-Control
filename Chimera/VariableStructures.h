@@ -1,8 +1,6 @@
 ﻿#pragma once
-#include "miscellaneousCommonFunctions.h"
-#include "multiDimensionalKey.h"
 #include <string>
-#include "windows.h"
+#include "afxwin.h"
 #include <vector>
 
 struct variationRangeInfo

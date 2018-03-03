@@ -1,6 +1,11 @@
 #pragma once
-#include <array>
+
 #include "Control.h"
+#include "coordinate.h"
+#include <vector>
+#include <string>
+#include <array>
+#include "constants.h"
 
 // contains experimentally calibrated conversion factors. See the onenote section on the camera
 // for more conversion factors and notes on the calibration.

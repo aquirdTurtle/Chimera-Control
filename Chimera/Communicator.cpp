@@ -3,7 +3,9 @@
 #include "Communicator.h"
 #include "CameraWindow.h"
 #include "AuxiliaryWindow.h"
-
+#include "MainWindow.h"
+#include "ScriptingWindow.h"
+#include "externals.h"
 
 // pass all the windows so that the object can (in principle) send messages to any window.
 void Communicator::initialize(MainWindow* mainWinParent, ScriptingWindow* scriptingWin, CameraWindow* cameraWin, 

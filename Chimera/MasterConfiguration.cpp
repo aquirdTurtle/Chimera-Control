@@ -1,12 +1,15 @@
 #include "stdafx.h"
 #include "MasterConfiguration.h"
-#include <string>
 #include "DioSystem.h"
 #include "AoSystem.h"
-#include <fstream>
 #include <sys/stat.h>
 #include "AuxiliaryWindow.h"
 #include "CameraWindow.h"
+#include "MainWindow.h"
+#include "Thrower.h"
+#include <string>
+#include <fstream>
+
 
 
 MasterConfiguration::MasterConfiguration(std::string address) : configurationFileAddress{address}, version{"2.0"}

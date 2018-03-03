@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "PlottingInfo.h"
+#include "ProfileSystem.h"
 #include <sstream>
+#include "Thrower.h"
 
 
 PlottingInfo::PlottingInfo(UINT picNumber)
@@ -986,7 +988,7 @@ UINT PlottingInfo::getPixelGroupNumber()
 }
 
 
-size_t PlottingInfo::getDataSetNumber()
+UINT PlottingInfo::getDataSetNumber()
 {
 	return dataSets.size();
 }

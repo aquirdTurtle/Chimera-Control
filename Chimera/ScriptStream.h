@@ -1,8 +1,8 @@
 #pragma once
-#include "VariableSystem.h"
 #include "Expression.h"
 #include <sstream>
 #include <vector>
+#include <string>
 
 /*
  This class is designed to hold the text for a script that the code reads from.

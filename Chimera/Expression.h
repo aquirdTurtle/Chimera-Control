@@ -1,8 +1,9 @@
 ﻿#pragma once
 
 #include "VariableStructures.h"
-#include "windows.h"
+#include "afxwin.h"
 #include <string>
+#include <vector>
 
 class Expression
 {

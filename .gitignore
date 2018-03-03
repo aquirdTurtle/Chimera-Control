@@ -10,6 +10,8 @@ Chimera/__pycache__/
 *.pch
 *.log
 *.pdb
+*.lib
+*.dll
 Waveforms-Library/
 x64/
 ipch/
@@ -80,6 +82,8 @@ Chimera/Packages/32-Bit-Libs/Release/Andor/*
 Chimera/Packages/64-Bit-Libs/Release/Andor/*
 Chimera/Packages/32-Bit-Libs/Debug/Andor/*
 Chimera/Packages/boost_1_64_0/*
+Packages/boost_1_64_0/*
+Packages/*
 Chimera/Packages/32-Bit-Libs/Debug/HDF5-1.10.1-win32-Debug/*
 Chimera/Packages/64-Bit-Libs/Debug/HDF5-1.10.1-win64-Debug/*
 Chimera/Packages/32-Bit-Libs/Release/HDF5-1.10.1-win32-Release/*

@@ -1,8 +1,9 @@
 ﻿#include "stdafx.h"
 #include "AiSystem.h"
 
-AiSystem::AiSystem( ) : daqmx( ANALOG_IN_SAFEMODE )
-{}
+AiSystem::AiSystem( ) : daqmx( ANALOG_IN_SAFEMODE ) 
+{
+}
 
 
 /*

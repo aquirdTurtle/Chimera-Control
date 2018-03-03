@@ -1,8 +1,9 @@
 ﻿#pragma once
-#include "stdafx.h"
-#include "miscellaneousCommonFunctions.h"
-#include "windows.h"
+#include "range.h"
+#include "Thrower.h"
+#include "afxwin.h"
 #include <vector>
+
 
 
 /*

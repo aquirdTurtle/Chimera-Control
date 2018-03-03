@@ -8,6 +8,9 @@
 #include "textPromptDialog.h"
 #include "AuxiliaryWindow.h"
 #include "CameraWindow.h"
+#include "MainWindow.h"
+#include "Agilent.h"
+#include "Thrower.h"
 
 
 ScriptingWindow::ScriptingWindow() : CDialog(), intensityAgilent( INTENSITY_AGILENT_SETTINGS )
@@ -594,7 +597,7 @@ void ScriptingWindow::handleOpenConfig(std::ifstream& configFile, int versionMaj
 	}
 	catch ( Error& err )
 	{
-		int answer = promptBox( "ERROR: Failed to open Horizontal script file: " + niawgName + ", with error \r\n"
+		int answer = promptBox( "ERROR: Failed to open NIAWG script file: " + niawgName + ", with error \r\n"
 								+ err.whatStr( ) + "\r\nAttempt to find file yourself?", MB_YESNO );
 		if ( answer == IDYES )
 		{

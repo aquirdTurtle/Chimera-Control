@@ -6,6 +6,8 @@
 #include <string>
 #include <unordered_map>
 
+class AuxiliaryWindow;
+
 struct rsgEventForm
 {
 	Expression frequency;

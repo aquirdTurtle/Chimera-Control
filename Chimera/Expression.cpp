@@ -2,6 +2,7 @@
 #include "Expression.h"
 #include <vector>
 #include <boost/tokenizer.hpp>
+#include "Thrower.h"
 
 Expression::Expression( )
 {
@@ -35,7 +36,7 @@ std::vector<std::string> Expression::splitString( std::string workingString )
 	std::vector<std::string> terms;
 	// separate terms out.
 	// specify only the kept separators
-	boost::char_separator<char> sep( "", " \t+-*/()" );
+	boost::char_separator<char> sep( "", " \t+-*/()^" );
 	boost::tokenizer<boost::char_separator<char>> tokens( workingString, sep );
 	for ( std::string t : tokens )
 	{

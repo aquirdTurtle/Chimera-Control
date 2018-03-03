@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "PictureManager.h"
-
+#include "ProfileSystem.h"
+#include "Thrower.h"
 
 void PictureManager::setPalletes(std::array<int, 4> palleteIds)
 {

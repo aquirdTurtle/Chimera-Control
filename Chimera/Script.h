@@ -1,17 +1,36 @@
 #pragma once
 
 #include "Control.h"
+#include "RunInfo.h"
+#include "VariableStructures.h"
+#include "Combo.h"
+#include "functionCombo.h"
+#include <string>
+#include <unordered_map>
 #include <string>
 #include <vector>
-#include "VariableSystem.h"
-#include "RunInfo.h"
-#include "ProfileSystem.h"
-#include <unordered_map>
-#include "Combo.h"
-#include "VariableSystem.h"
-#include <string>
-#include "functionCombo.h"
+#include <array>
 
+#include "stdafx.h"
+
+#include "Script.h"
+/*
+#include "cleanString.h"
+#include "TextPromptDialog.h"
+#include "Richedit.h"
+#include "VariableSystem.h"
+#include "ProfileSystem.h"
+#include "AuxiliaryWindow.h"
+#include "DioSystem.h"
+#include "RunInfo.h"
+#include "Thrower.h"
+
+#include <fstream>
+#include <sstream>
+#include <algorithm>
+#include <unordered_map>
+#include "boost/lexical_cast.hpp"
+*/
 
 class Script
 {

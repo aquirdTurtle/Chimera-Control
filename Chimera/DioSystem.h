@@ -7,6 +7,7 @@
 #include <sstream>
 #include <unordered_map>
 #include "PlotCtrl.h"
+#include "RC028.h"
 
 /**/
 class AuxiliaryWindow;
@@ -208,5 +209,6 @@ class DioSystem
 		DIO64_GetAttr raw_DIO64_GetAttr;
 
 		/// END NOT SUGGESTED FOR DIRECT USE AREA! ////////////////////////////////////////////////////////////////////
+		//RC028 felixDIO;
 };
 

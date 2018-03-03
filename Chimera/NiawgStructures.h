@@ -1,12 +1,13 @@
 #pragma once
 #include "Expression.h"
 #include "Matrix.h"
-
+#include "visa.h"
 #include "nifgen.h"
-#include "Windows.h"
+#include "afxwin.h"
 #include <string>
 #include <vector>
 #include <array>
+
 
 // order here matches the literal channel number on the 5451. Vertical is actually channel0 and Horizontal is actually 
 // channel1. putting the enum in the struct here is a trick that makes you have to use the Axes:: scope but allows 
@@ -203,7 +204,7 @@ struct waveInfo
 
 struct NiawgOutput
 {
-	bool isDefault;
+	bool isDefault=false;
 	std::string niawgLanguageScript;
 	// information directly out of the 
 	std::vector<waveInfoForm> waveFormInfo;

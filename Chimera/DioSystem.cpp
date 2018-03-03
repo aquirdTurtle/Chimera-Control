@@ -8,9 +8,69 @@
 #include "DioSystem.h"
 #include "constants.h"
 #include "AuxiliaryWindow.h"
+#include "Thrower.h"
+#include "range.h"
 
 // I don't use this because I manually import dll functions.
 // #include "Dio64.h"
+DioSystem::DioSystem( )
+{
+	if ( DIO_SAFEMODE )
+	{
+		// don't try to load.
+		return;
+	}
+	/// load modules
+	// this first module is required for the second module which I actually load functions from.
+	HMODULE dio = LoadLibrary( "DIO64_Visa32.dll" );
+	if ( !dio )
+	{
+		int err = GetLastError( );
+		errBox( "Failed to load dio64_32.dll! Windows Error Code: " + str( err ) );
+	}
+	// initialize function pointers. This only requires the DLLs to be loaded (which requires them to be present on the machine...) 
+	// so it's not in a safemode block.
+	raw_DIO64_OpenResource = (DIO64_OpenResource)GetProcAddress( dio, "DIO64_OpenResource" );
+	raw_DIO64_Open = (DIO64_Open)GetProcAddress( dio, "DIO64_Open" );
+	raw_DIO64_Load = (DIO64_Load)GetProcAddress( dio, "DIO64_Load" );
+	raw_DIO64_Close = (DIO64_Close)GetProcAddress( dio, "DIO64_Close" );
+	raw_DIO64_Mode = (DIO64_Mode)GetProcAddress( dio, "DIO64_Mode" );
+	raw_DIO64_GetAttr = (DIO64_GetAttr)GetProcAddress( dio, "DIO64_GetAttr" );
+	raw_DIO64_SetAttr = (DIO64_SetAttr)GetProcAddress( dio, "DIO64_SetAttr" );
+
+	raw_DIO64_In_Read = (DIO64_In_Read)GetProcAddress( dio, "DIO64_In_Read" );
+	raw_DIO64_In_Start = (DIO64_In_Start)GetProcAddress( dio, "DIO64_In_Start" );
+	raw_DIO64_In_Read = (DIO64_In_Read)GetProcAddress( dio, "DIO64_In_Read" );
+	raw_DIO64_In_Status = (DIO64_In_Status)GetProcAddress( dio, "DIO64_In_Status" );
+	raw_DIO64_In_Stop = (DIO64_In_Stop)GetProcAddress( dio, "DIO64_In_Stop" );
+
+	raw_DIO64_Out_Config = (DIO64_Out_Config)GetProcAddress( dio, "DIO64_Out_Config" );
+	raw_DIO64_Out_ForceOutput = (DIO64_Out_ForceOutput)GetProcAddress( dio, "DIO64_Out_ForceOutput" );
+	raw_DIO64_Out_GetInput = (DIO64_Out_GetInput)GetProcAddress( dio, "DIO64_Out_GetInput" );
+	raw_DIO64_Out_Start = (DIO64_Out_Start)GetProcAddress( dio, "DIO64_Out_Start" );
+	raw_DIO64_Out_Status = (DIO64_Out_Status)GetProcAddress( dio, "DIO64_Out_Status" );
+	raw_DIO64_Out_Stop = (DIO64_Out_Stop)GetProcAddress( dio, "DIO64_Out_Stop" );
+
+	raw_DIO64_Out_Write = (DIO64_Out_Write)GetProcAddress( dio, "DIO64_Out_Write" );
+	// Open and Load DIO64
+	try
+	{
+		int result;
+		char* filename = "C:\\DIO64Visa\\DIO64Visa_Release Beta 2\\DIO64.CAT";
+		char* resourceName = "PXI18::11::INSTR";
+		WORD temp[4] = { -1, -1, -1, -1 };
+		double tempd = 10000000;
+		dioOpenResource( resourceName, 0, 0 );
+		//dioOpen( 0, 0 );
+		dioLoad( 0, filename, 0, 4 );
+		dioOutConfig( 0, 0, temp, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, tempd );
+		// done initializing.
+	}
+	catch ( Error& exception )
+	{
+		errBox( exception.what( ) );
+	}
+}
 
 
 void DioSystem::handleNewConfig( std::ofstream& newFile )
@@ -120,64 +180,6 @@ void DioSystem::setTtlStatusNoForceOut(std::array< std::array<bool, 16>, 4 > sta
 }
 
 
-DioSystem::DioSystem()
-{
-	if (DIO_SAFEMODE)
-	{
-		// don't try to load.
-		return;
-	}
-	/// load modules
-	// this first module is required for the second module which I actually load functions from.
-	HMODULE dio = LoadLibrary( "DIO64_Visa32.dll" );
-	if (!dio)
-	{
-		int err = GetLastError();
-		errBox( "Failed to load dio64_32.dll! Windows Error Code: " + str( err ) );
-	}
-	// initialize function pointers. This only requires the DLLs to be loaded (which requires them to be present on the machine...) 
-	// so it's not in a safemode block.
-	raw_DIO64_OpenResource = (DIO64_OpenResource)GetProcAddress(dio, "DIO64_OpenResource");
-	raw_DIO64_Open = (DIO64_Open)GetProcAddress(dio, "DIO64_Open");
-	raw_DIO64_Load = (DIO64_Load)GetProcAddress(dio, "DIO64_Load");
-	raw_DIO64_Close = (DIO64_Close)GetProcAddress(dio, "DIO64_Close");
-	raw_DIO64_Mode = (DIO64_Mode)GetProcAddress(dio, "DIO64_Mode");
-	raw_DIO64_GetAttr = (DIO64_GetAttr)GetProcAddress(dio, "DIO64_GetAttr");
-	raw_DIO64_SetAttr = (DIO64_SetAttr)GetProcAddress(dio, "DIO64_SetAttr");
-
-	raw_DIO64_In_Read = (DIO64_In_Read)GetProcAddress(dio, "DIO64_In_Read");
-	raw_DIO64_In_Start = (DIO64_In_Start)GetProcAddress(dio, "DIO64_In_Start");
-	raw_DIO64_In_Read = (DIO64_In_Read)GetProcAddress(dio, "DIO64_In_Read");
-	raw_DIO64_In_Status = (DIO64_In_Status)GetProcAddress(dio, "DIO64_In_Status");
-	raw_DIO64_In_Stop = (DIO64_In_Stop)GetProcAddress(dio, "DIO64_In_Stop");
-	
-	raw_DIO64_Out_Config = (DIO64_Out_Config)GetProcAddress(dio, "DIO64_Out_Config");
-	raw_DIO64_Out_ForceOutput = (DIO64_Out_ForceOutput)GetProcAddress(dio, "DIO64_Out_ForceOutput");
-	raw_DIO64_Out_GetInput = (DIO64_Out_GetInput)GetProcAddress(dio, "DIO64_Out_GetInput");
-	raw_DIO64_Out_Start = (DIO64_Out_Start)GetProcAddress(dio, "DIO64_Out_Start");
-	raw_DIO64_Out_Status = (DIO64_Out_Status)GetProcAddress(dio, "DIO64_Out_Status");
-	raw_DIO64_Out_Stop = (DIO64_Out_Stop)GetProcAddress(dio, "DIO64_Out_Stop");
-
-	raw_DIO64_Out_Write = (DIO64_Out_Write)GetProcAddress(dio, "DIO64_Out_Write");
-	// Open and Load DIO64
-	try
-	{
-		int result;
-		char* filename = "C:\\DIO64Visa\\DIO64Visa_Release Beta 2\\DIO64.CAT";
-		char* resourceName = "PXI18::11::INSTR";
-		WORD temp[4] = { -1, -1, -1, -1 };
-		double tempd = 10000000;
-		dioOpenResource(resourceName, 0, 0);
-		//dioOpen( 0, 0 );
-		dioLoad(0, filename, 0, 4);
-		dioOutConfig(0, 0, temp, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, tempd);
-		// done initializing.
-	}
-	catch (Error& exception)
-	{
-		errBox( exception.what() );
-	}
-}
 
 
 std::string DioSystem::getSystemInfo()
