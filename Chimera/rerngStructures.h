@@ -2,27 +2,36 @@
 #include <atomic>
 #include <vector>
 #include <string>
-#include "windows.h"
-#include "NiawgController.h"
+#include "afxwin.h"
 #include "NiawgStructures.h"
-
-
+#include "coordinate.h"
+#include "directions.h"
 
 struct complexMove
 {
 	complexMove( ) {}
-	complexMove( std::string rowColumn, int dimNum, int dir )
+	complexMove( dir direction )
 	{
-		rowOrColumn = rowColumn;
-		whichRowOrColumn = dimNum;
-		direction = dir;
+		moveDir = direction;
+		locationsToMove.clear( );
 	}
-	std::string rowOrColumn;
-	int whichRowOrColumn;
-	int direction;
+	bool isInlineParallel = false;
+	dir moveDir;
+	std::vector<coordinate> locationsToMove;
 	bool needsFlash;
-	std::vector<int> whichAtoms;
+	int dirInt( )
+	{
+		if ( moveDir == dir::right || moveDir == dir::left )
+		{
+			return (moveDir == dir::right) ? 1 : -1;
+		}
+		else
+		{
+			return (moveDir == dir::up) ? 1 : -1;
+		}
+	}
 };;
+
 
 // should be a one-dimensional move, only change in row or column. Could probably improve the struct to reflect that.
 struct simpleMove
@@ -42,8 +51,53 @@ struct simpleMove
 				finRow  == other.finRow  &&
 				finCol  == other.finCol);
 	}
-	int initRow;
-	int initCol;
-	int finRow;
-	int finCol;
+	ULONG initRow;
+	ULONG initCol;
+	ULONG finRow;
+	ULONG finCol;
+	dir dir( )
+	{
+		if ( finCol != initCol )
+		{
+			return (finCol > initCol) ? dir::right : dir::left;
+		}
+		else
+		{
+			return (finRow > initRow) ? dir::up : dir::down;
+		}
+	}
+	int dirInt( )
+	{
+		if ( finCol != initCol )
+		{
+			return (finCol > initCol) ? 1 : -1;
+		}
+		else
+		{
+			return (finRow > initRow) ? 1 : -1;
+		}
+	}
+	
+	int movingIndex()
+	{
+		if ( dir( ) == dir::up || dir( ) == dir::down )
+		{
+			return initRow;
+		}
+		else
+		{
+			return initCol;
+		}
+	}
+	int staticIndex( )
+	{
+		if ( dir( ) == dir::up || dir( ) == dir::down )
+		{
+			return initCol;
+		}
+		else
+		{
+			return initRow;
+		}
+	}
 };

@@ -1,4 +1,5 @@
 ﻿#pragma once
+// short for direction
 enum class dir
 {
 	up,

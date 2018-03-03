@@ -2438,26 +2438,24 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 			flashMove.moveBias = input->rerngOptions.moveBias;
 			noFlashMove = flashMove;
 			complexMove flashMoveInfo;
-			flashMoveInfo.whichAtoms.resize( 1 );
+			flashMoveInfo.locationsToMove.resize( 1 );
 			flashMoveInfo.needsFlash = true;
 			complexMove noFlashMoveInfo( flashMoveInfo );
 			noFlashMoveInfo.needsFlash = false;
 			std::array<dir, 4> directions = { dir::up, dir::down, dir::left, dir::right };
 			std::array<int, 4> offsets = { -1, 1, -1, 1 };
 			std::array<std::string, 4> dirText = { "row", "row", "col", "col" };
-			std::array<UINT, 4> whichRowOrColumn = { row, row, col, col };
+			//std::array<UINT, 4> whichRowOrColumn = { row, row, col, col };
 			std::array<UINT, 4> whichAtom = { col, col, row, row };
 			std::array<bool, 4> conditions = { row != rows - 1, row != 0, col != 0, col != cols - 1 };
 
 			// loop through each possible direction.
  			for ( auto inc : range( 4 ) )
 			{
-				noFlashMoveInfo.whichRowOrColumn = flashMoveInfo.whichRowOrColumn = whichRowOrColumn[inc];
-				noFlashMoveInfo.whichAtoms[0] = flashMoveInfo.whichAtoms[0] = whichAtom[inc];
-				noFlashMoveInfo.direction = flashMoveInfo.direction = offsets[inc];
-				noFlashMoveInfo.rowOrColumn = flashMoveInfo.rowOrColumn = dirText[inc];
+				noFlashMoveInfo.locationsToMove[0] = flashMoveInfo.locationsToMove[0] = { row, col };
 				noFlashMove.waveVals = flashMove.waveVals = std::vector<double>( );
-				noFlashMove.direction = flashMove.direction = directions[inc];
+				noFlashMoveInfo.moveDir = noFlashMove.direction = flashMoveInfo.moveDir = flashMove.direction 
+					= directions[inc];
 				if ( conditions[inc] )
 				{
 					if ( input->rerngOptions.useCalibration )
@@ -2486,24 +2484,10 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& rerngSettings, do
 {	
 	double freqPerPixel = rerngSettings.freqPerPixel;
 	// starts from the top left.
-	dir direction;
-	if ( moveInfo.rowOrColumn == "row" )
-	{
-		 direction = (moveInfo.direction == 1) ? dir::up : dir::down;
-	}
-	else
-	{
-		direction = (moveInfo.direction == 1) ? dir::right : dir::left;
-	}	
-	UINT row = moveInfo.rowOrColumn == "row" ? moveInfo.whichRowOrColumn : moveInfo.whichAtoms.front( );
-	UINT col = !(moveInfo.rowOrColumn == "row") ? moveInfo.whichRowOrColumn : moveInfo.whichAtoms.front( );
-	niawgPair<int> initPos = { row, col };
-	bool upOrDown = (direction == dir::down || direction == dir::up);
+	bool upOrDown = (moveInfo.moveDir == dir::down || moveInfo.moveDir == dir::up);
 	UINT movingAxis = upOrDown ? Axes::Vertical : Axes::Horizontal;
 	UINT staticAxis = !upOrDown ? Axes::Vertical : Axes::Horizontal;
 	UINT movingSize = upOrDown ? sourceRows : sourceCols;
-	niawgPair<int> finPos = { row + (int( direction == dir::up ) - int( direction == dir::down )),
-							  col + (int( direction == dir::right ) - int( direction == dir::left )), };
 	simpleWave moveWave;
 	moveWave.varies = false;
 	moveWave.name = "NOT-USED";
@@ -2515,62 +2499,88 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& rerngSettings, do
 	// split the remaining bias between all of the other movingSize-2 signals.
 	double nonMovingFrac = (1 - movingFrac) / (movingSize - 2);
 	/// handle moving axis
-	// 1 less signal because of the two locations that the moving tweezer spans
-	moveWave.chan[movingAxis].signals.resize( movingSize - 1 );
-	bool foundMoving = false;
-	UINT gridLocation = 0;
-	for ( auto signalNum : range( movingSize - 1 ) )
+	// get number of static traps
+	std::vector<UINT> staticTweezers;
+	for ( auto potentialStaticGridLoc : range( movingSize ) )
 	{
-		waveSignal& sig = moveWave.chan[movingAxis].signals[signalNum];
-		sig.powerRampType = "nr";
-		sig.initPhase = 0;
-		if ( (signalNum == initPos[movingAxis] || signalNum == finPos[movingAxis]) && !foundMoving )
+		bool isUsed = false;
+		for ( auto loc : moveInfo.locationsToMove )
 		{
-			// SKIP the next one, which should be the next of the pair of locations that is moving.
-			gridLocation++;
-			// this is the moving signal. set foundmoving to true so that you only make one moving signal.
-			foundMoving = true;
-			sig.initPower = movingFrac;
-			sig.finPower = movingFrac;
-			sig.freqRampType = "lin";
-			if ( movingAxis == Axes::Horizontal )
+			// if location is init or final location of this location's move...
+			if ( potentialStaticGridLoc == (upOrDown ? loc.row : loc.column) ||
+				 potentialStaticGridLoc == (upOrDown ? loc.row + moveInfo.dirInt( ) : loc.column + moveInfo.dirInt( )) )
 			{
-				sig.freqInit = ((rerngSettings.target.getCols( ) - initPos[movingAxis] - 1)
-								 * freqPerPixel + rerngSettings.lowestFreqs[movingAxis]) * 1e6;
-				sig.freqFin = ((rerngSettings.target.getCols( ) - finPos[movingAxis] - 1)
-								* freqPerPixel + rerngSettings.lowestFreqs[movingAxis]) * 1e6;
+				isUsed = true;
 			}
-			else
-			{
-				sig.freqInit = (initPos[movingAxis] * freqPerPixel + rerngSettings.lowestFreqs[movingAxis]) * 1e6;
-				sig.freqFin = (finPos[movingAxis] * freqPerPixel + rerngSettings.lowestFreqs[movingAxis]) * 1e6;
-			}
+		}
+		if ( !isUsed )
+		{
+			staticTweezers.push_back( potentialStaticGridLoc );
+		}
+	}
+	// handle static axes
+	UINT signalNum = 0;
+	for ( auto gridLoc : staticTweezers )
+	{
+		moveWave.chan[movingAxis].signals.push_back( waveSignal( ) );
+		waveSignal& sig = moveWave.chan[movingAxis].signals[signalNum];
+		sig.freqRampType = sig.powerRampType = "nr";
+		sig.finPower = sig.initPower = nonMovingFrac;
+		sig.initPhase = 0;
+		if ( movingAxis == Axes::Horizontal )
+		{
+			sig.freqInit = ((rerngSettings.target.getCols( ) - gridLoc - 1) * freqPerPixel
+							 + rerngSettings.lowestFreqs[movingAxis]) * 1e6;
+			sig.freqFin = sig.freqInit;
 		}
 		else
 		{
-			sig.initPower = nonMovingFrac;
-			sig.finPower = nonMovingFrac;
-			sig.freqRampType = "nr";
-			if ( movingAxis == Axes::Horizontal )
-			{
-				sig.freqInit = ((rerngSettings.target.getCols( ) - gridLocation - 1) * freqPerPixel
-								 + rerngSettings.lowestFreqs[movingAxis]) * 1e6;
-				sig.freqFin = sig.freqInit;
-			}
-			else
-			{
-				sig.freqInit = (gridLocation * freqPerPixel + rerngSettings.lowestFreqs[movingAxis]) * 1e6;
-				sig.freqFin = sig.freqInit;
-			}
+			sig.freqInit = (gridLoc * freqPerPixel + rerngSettings.lowestFreqs[movingAxis]) * 1e6;
+			sig.freqFin = sig.freqInit;
 		}
-		gridLocation++;
+		signalNum++;
+	}
+	bool piFound = false;
+	for ( auto loc : moveInfo.locationsToMove )
+	{
+		if ( !moveInfo.isInlineParallel && piFound )
+		{
+			break;
+		}
+		else if ( !moveInfo.isInlineParallel )
+		{
+			piFound = true;
+		}
+		moveWave.chan[movingAxis].signals.push_back( waveSignal( ) );
+		waveSignal& sig = moveWave.chan[movingAxis].signals[signalNum];
+		sig.powerRampType = "nr";
+		sig.initPhase = 0;
+		sig.finPower = sig.initPower = movingFrac;
+		sig.freqRampType = "lin";
+		if ( movingAxis == Axes::Horizontal )
+		{
+			UINT init = loc.column;
+			UINT fin = loc.column + moveInfo.dirInt();
+			sig.freqInit = ((rerngSettings.target.getCols( ) - init - 1)
+								* freqPerPixel + rerngSettings.lowestFreqs[movingAxis]) * 1e6;
+			sig.freqFin = ((rerngSettings.target.getCols( ) - fin - 1)
+							* freqPerPixel + rerngSettings.lowestFreqs[movingAxis]) * 1e6;
+		}
+		else
+		{
+			UINT init = loc.row;
+			UINT fin = loc.row + moveInfo.dirInt( );
+			sig.freqInit = (init * freqPerPixel + rerngSettings.lowestFreqs[movingAxis]) * 1e6;
+			sig.freqFin = (fin * freqPerPixel + rerngSettings.lowestFreqs[movingAxis]) * 1e6;
+		}
+		signalNum++;
 	}
 	/// handle other axis
 	if ( moveInfo.needsFlash )
 	{
-		moveWave.chan[staticAxis].signals.resize( moveInfo.whichAtoms.size() );
+		moveWave.chan[staticAxis].signals.resize( moveInfo.locationsToMove.size() );
 		UINT sigCount = 0;
-		for ( auto atom : moveInfo.whichAtoms )
+		for ( auto atom : moveInfo.locationsToMove )
 		{
 			waveSignal& sig = moveWave.chan[staticAxis].signals[sigCount];
 			// equal power in all of these.
@@ -2580,13 +2590,13 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& rerngSettings, do
 			if ( staticAxis == Axes::Horizontal )
 			{
 				// convert to Hz
-				sig.freqInit = ((rerngSettings.target.getCols( ) - atom - 1) * freqPerPixel
+				sig.freqInit = ((rerngSettings.target.getCols( ) - atom.column - 1) * freqPerPixel
 								 + rerngSettings.lowestFreqs[staticAxis]) * 1e6;
 			}
 			else
 			{
 				// convert to Hz
-				sig.freqInit = (atom * freqPerPixel + rerngSettings.lowestFreqs[staticAxis])*1e6;
+				sig.freqInit = (atom.row * freqPerPixel + rerngSettings.lowestFreqs[staticAxis])*1e6;
 			}
 			sig.freqFin = sig.freqInit;
 			sigCount++;
@@ -2779,12 +2789,6 @@ std::vector<double> NiawgController::calcFinalPositionMove( niawgPair<ULONG> tar
 }
 
 
-/// things that might make faster:
-// preprogram all possible fillers
-// 1D rearranging instead of 2D
-// faster moves / lower sample rate
-// don't use vector
-// make rearrangement algorithm work with flattened matrix
 UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 {
 	rerngThreadInput* input = (rerngThreadInput*)voidInput;
@@ -2893,42 +2897,28 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			for ( auto move : complexMoveSequence )
 			{
 				// program this move.
-				dir direction;
-				if ( move.direction == 1 && move.rowOrColumn == "row" )
-				{
-					direction = dir::up;
-				}
-				else if ( move.direction == -1 && move.rowOrColumn == "row" )
-				{
-					direction = dir::down;
-				}
-				else if ( move.direction == -1 && move.rowOrColumn == "col" )
-				{
-					direction = dir::left;
-				}
-				else if ( move.direction == 1 && move.rowOrColumn == "col" )
-				{
-					direction = dir::right;
-				}
 				std::vector<double> vals;
-				UINT row = move.rowOrColumn == "row" ? move.whichRowOrColumn : move.whichAtoms.front( );
-				UINT col = move.rowOrColumn == "row" ? move.whichAtoms.front( ) : move.whichRowOrColumn;
+				UINT row = move.locationsToMove[0].row;
+				UINT col = move.locationsToMove[0].column;
 				if ( input->rerngOptions.preprogram )
 				{
 					if ( move.needsFlash )
 					{
-						vals = input->flashMoves( row, col, direction ).waveVals;
+						vals = input->flashMoves( row, col, move.moveDir ).waveVals;
 					}
 					else
 					{
-						vals = input->noFlashMoves( row, col, direction ).waveVals;
+						vals = input->noFlashMoves( row, col, move.moveDir ).waveVals;
 					}
 				}
 				else
 				{
 					double bias = input->rerngOptions.useCalibration ?
-						calBias( row, col, direction ) : input->rerngOptions.moveBias;
-					bias *= move.whichAtoms.size( );
+						calBias( row, col, move.moveDir ) : input->rerngOptions.moveBias;
+					if ( move.needsFlash )
+					{
+						bias *= move.locationsToMove.size( );
+					}
 					if ( bias > 1 )
 					{
 						bias = 1;
@@ -2938,6 +2928,8 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 														input->sourceCols, move );
 				}
 				input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), vals.begin( ), vals.end( ) );
+				// put a break statement here to limit the rearranging algorithm to 1 move at a time.
+				// break;
 			}
 			stopMoveCalc.push_back( chronoClock::now( ) );
 			/// Finishing Move to move the atoms to the desired location.
@@ -3004,11 +2996,11 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 				UINT moveCount = 0;
 				for ( auto move : complexMoveSequence )
 				{
-					outFile << moveCount++ << " " << move.needsFlash << " " << move.rowOrColumn << " " 
-						<< move.whichRowOrColumn << " " << " " << move.direction << "\n";
-					for ( auto atom : move.whichAtoms )
+					outFile << moveCount++ << " " << move.needsFlash << " " << int(move.moveDir) << " " <<
+						move.isInlineParallel << "\n";
+					for ( auto atom : move.locationsToMove )
 					{
-						outFile << atom << " ";
+						outFile << atom.row << " " << atom.column << "\n";
 					}
 					outFile << "\n";
 				}
@@ -3386,7 +3378,7 @@ double NiawgController::rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool>
 									   std::vector<simpleMove>& moveSequence )
 {
 	// I am sure this might be also included directly after evaluating the image, but for safety I also included it 
-	// here. 
+	// here.
 	int numberTargets = 0;
 	int numberSources = 0;
 	std::string sourceStr = sourceMatrix.print( );
@@ -3556,28 +3548,25 @@ void NiawgController::writeToFile( std::vector<double> waveVals )
 }
 
 
-// for visualization purposes. note that the returned vector will be one longer than the number of moves because it
-// includes the original image.
+// for debugging / visualization purposes. note that the returned vector will be one longer than the number of moves
+// because it includes the original image.
 std::vector<std::string> NiawgController::evolveSource( Matrix<bool> source, std::vector<complexMove> flashMoves )
 {
 	std::vector<std::string> images;
 	images.push_back( source.print( ) );
 	for ( auto move : flashMoves )
 	{
-		for ( auto loc : move.whichAtoms )
+		for ( auto loc : move.locationsToMove )
 		{
-			UINT initRow, initCol, finRow, finCol;
-			initRow = move.rowOrColumn == "row" ? move.whichRowOrColumn : loc;
-			initCol = move.rowOrColumn == "row" ? loc : move.whichRowOrColumn;
-			finRow = initRow + (move.rowOrColumn == "row") * move.direction;
-			finCol = initCol + !(move.rowOrColumn == "row") * move.direction;
-			if ( !source( initRow, initCol ) )
+			if ( !source( loc.row, loc.column) )
 			{
 				throw;
 			}
 			// potentially could move a blank...
-			source( finRow, finCol ) = source( initRow, initCol );
-			source( initRow, initCol ) = false;
+			bool leftRight = (move.moveDir == dir::right || move.moveDir == dir::left);
+			auto finrow = loc.row + (!leftRight)*move.dirInt( ), finCol = loc.row + leftRight*move.dirInt( );
+			source( finrow, finCol ) = source( loc.row, loc.column );
+			source( loc.row, loc.column ) = false;
 		}
 		images.push_back( source.print( ) );
 	}
@@ -3605,33 +3594,35 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 	UINT initMoveNum = 0;
 	while ( singleMoves.size( ) != 0 )
 	{
-		std::vector<int> moveIndexes;
-		std::vector<simpleMove> moveList;
-		// direction
-		int init, fin;
-		std::string rowOrCol;
-		UINT altSize = 0;
+		/*
+		A word on notation: pi configuration parallel moves means that the moves share the same moving index.
+		inline (sometimes denoted - -) configuration parallel moves means that the moves share the same static index.
+		
+		in the following, and 'o' indicates atom, '->' indicates direction of movement.
+
+		Pi:
+		o->
+		o->
+		Inline:
+		o->o->
+		*/
+		std::vector<int> pi_moveIndexes;
+		std::vector<simpleMove> pi_moveList;
+		std::vector<int> inline_moveIndexes;
+		std::vector<simpleMove> inline_moveList;
 		if ( initMoveNum >= singleMoves.size( ) )
 		{
 			initMoveNum = 0;
 		}
-		auto& firstMove = singleMoves[initMoveNum];
-		if ( firstMove.finCol != firstMove.initCol )
-		{
-			rowOrCol = "col";
-			init = firstMove.initCol;
-			fin = firstMove.finCol;
-			altSize = origSource.getRows( );
-		}
-		else if ( firstMove.finRow != firstMove.initRow )
-		{
-			rowOrCol = "row";
-			init = firstMove.initRow;
-			fin = firstMove.finRow;
-			altSize = origSource.getCols( );
-		}
-		moveIndexes.push_back( initMoveNum );
-		moveList.push_back( firstMove );
+		auto baseMove = singleMoves[int(initMoveNum)];
+		auto moveDir = baseMove.dir( );
+		auto baseMoveIndex = baseMove.movingIndex( );
+		auto baseStaticIndex = baseMove.staticIndex( );
+		auto altSize = ((moveDir == dir::up || moveDir == dir::down) ? origSource.getCols() : origSource.getRows( ));
+		pi_moveIndexes.push_back( int(initMoveNum) );
+		inline_moveIndexes.push_back( int( initMoveNum ) );
+		pi_moveList.push_back( baseMove );
+		inline_moveList.push_back( baseMove );
 		// grab all moves that match the initial row(column) and the final row(column).
 		for ( auto moveInc : range( singleMoves.size( ) ) )
 		{
@@ -3639,46 +3630,137 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 			{
 				continue;
 			}
-			if ( (options.parallel == parallelMoveOption::partial && moveList.size( ) == PARTIAL_PARALLEL_LIMIT)
-					|| (options.parallel == parallelMoveOption::none && moveList.size( ) == 1) )
+			if ( (options.parallel == parallelMoveOption::partial && pi_moveList.size( ) == PARTIAL_PARALLEL_LIMIT)
+					|| (options.parallel == parallelMoveOption::none && pi_moveList.size( ) == 1) )
 			{
 				// already have all the moves we want for combining.
 				break;
 			}
-			simpleMove& testMove = singleMoves[moveInc];
-			int testInit = ((rowOrCol == "row") ? testMove.initRow : testMove.initCol);
-			int testFin = ((rowOrCol == "row") ? testMove.finRow : testMove.finCol);
-			if ( testInit == init && testFin == fin )
+			simpleMove testMove = singleMoves[moveInc];
+			if ( testMove.dir( ) == moveDir )
 			{
-				// avoid repeats by checking if singleMoves is in moveList first
-				if ( std::find( moveList.begin( ), moveList.end( ), testMove ) == moveList.end( ) )
+				if ( testMove.movingIndex( ) == baseMoveIndex )
 				{
-					moveIndexes.push_back( moveInc );
-					moveList.push_back( testMove );
+					// the move is compatible with being parallelized.
+					// avoid repeats by checking if singleMoves is in pi_moveList first
+					if ( std::find( pi_moveList.begin( ), pi_moveList.end( ), testMove ) == pi_moveList.end( ) )
+					{
+						pi_moveIndexes.push_back( moveInc );
+						pi_moveList.push_back( testMove );
+					}
+				}
+				if ( testMove.staticIndex( ) == baseStaticIndex )
+				{
+					// the move is compatible with being parallelized.
+					// avoid repeats by checking if singleMoves is in pi_moveList first
+					if ( std::find( inline_moveList.begin( ), inline_moveList.end( ), testMove ) 
+						 == inline_moveList.end( ) )
+					{
+						inline_moveIndexes.push_back( moveInc );
+						inline_moveList.push_back( testMove );
+					}
 				}
 			}
 		}
 
+
+
 		// From the moves that go from dim to dim+offset, get which have atom at initial position and have no 
 		// atom at the final position
-		for ( unsigned k = moveIndexes.size( ); k-- > 0; )
+		for ( unsigned k = pi_moveIndexes.size( ); k-- > 0; )
 		{
-			auto& move = singleMoves[moveIndexes[k]];
+			auto& move = singleMoves[pi_moveIndexes[k]];
 			// check that initial spot has atom & final spot is free
 			if ( !(runningSource( move.initRow, move.initCol ) && !runningSource( move.finRow, move.finCol )) )
 			{
 				// can't move this one, remove from list.
-				moveIndexes.erase( moveIndexes.begin( ) + k );
-				moveList.erase( moveList.begin( ) + k );
+				pi_moveIndexes.erase( pi_moveIndexes.begin( ) + k );
+				pi_moveList.erase( pi_moveList.begin( ) + k );
 			}
 		}
-		if ( moveList.size( ) == 0 )
+		// much more tricky for inline moves. Want to be able to allow move to an initially filled
+		// location if the atom in the initially filed location can move. i.e. allowing o->o->[] where [] is an empty 
+		// site.
+		// first index here is location, second is whether cleared (+1), blocked (-1), or unknown (0)
+		std::vector<std::pair<UINT, int>> potentialMoveLocations;
+		for ( auto move : inline_moveList )
 		{
+			potentialMoveLocations.push_back( { move.movingIndex( ), 0 } );
+		}
+
+		// loop on the following rules until move list reaches static-ness.
+		bool changed = true;
+		while ( changed )
+		{
+			changed = false;
+			for ( unsigned k = potentialMoveLocations.size( ); k-- > 0; )
+			{
+				// first case here is just a result of keeping potential MoveKocations the same size for proper 
+				// indexing. Second occurs if location's fate has already been decided.
+				if ( k > inline_moveIndexes.size( ) || potentialMoveLocations[k].second != 0)
+				{
+					continue;
+				}
+				auto& move = singleMoves[inline_moveIndexes[k]];
+				// check that initial spot has atom & final spot is free
+				if ( runningSource( move.initRow, move.initCol ) )
+				{
+					if ( !runningSource( move.finRow, move.finCol ) )
+					{
+						potentialMoveLocations[k].second = 1;
+						changed = true;
+					}
+					else
+					{
+						for ( auto potentialLoc : potentialMoveLocations )
+						{
+							if ( potentialLoc.second == 1 )
+							{
+								potentialMoveLocations[k].second = 1;
+								// then blockage is moving out of the way. good.
+								changed = true;
+							}
+							else if ( potentialLoc.second == 0 )
+							{
+								// unknown, might still be moved. Don't do anything.
+							}
+							else
+							{
+								// will not be moved.
+								potentialMoveLocations[k].second = -1;
+								inline_moveIndexes.erase( inline_moveIndexes.begin( ) + k );
+								inline_moveList.erase( inline_moveList.begin( ) + k );
+								changed = true;
+							}
+							break;
+						}
+					}
+				}
+				else
+				{
+					potentialMoveLocations[k].second = -1;
+					inline_moveIndexes.erase( inline_moveIndexes.begin( ) + k );
+					inline_moveList.erase( inline_moveList.begin( ) + k );
+					changed = true;
+				}
+			}
+		}
+		// take the better result.
+		auto moveIndexes = (inline_moveList.size( ) > pi_moveList.size( )) ? inline_moveIndexes : pi_moveIndexes ;
+		//auto moveIndexes = pi_moveIndexes;
+		if ( moveIndexes.size( ) == 0 )
+		{
+			if ( singleMoves.size( ) == 1 )
+			{
+				thrower( "ERROR: somehow the last single move can't be made..." );
+			}
 			// couldn't move any atoms. try a different starting point.
 			initMoveNum++;
 			continue;
 		}
-		flashMoves.push_back( complexMove( rowOrCol, init, fin-init ) );
+
+		flashMoves.push_back( complexMove( moveDir ) );
+		flashMoves.back( ).isInlineParallel = (inline_moveList.size( ) > pi_moveList.size( ));
 		/// create complex move objs
 		Matrix<bool> tmpSource = runningSource;
 		for ( auto indexNumber : range( moveIndexes.size( ) ) )
@@ -3686,7 +3768,7 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 			// offset from moveIndexes is the # of moves already erased.
 			UINT moveIndex = moveIndexes[indexNumber] - indexNumber;
 			auto& move = singleMoves[moveIndex];
-			flashMoves.back( ).whichAtoms.push_back( rowOrCol == "row" ? move.initCol : move.initRow );
+			flashMoves.back( ).locationsToMove.push_back( { move.initRow, move.initCol } );
 			// update source image with new configuration.
 			bool prevtofalse = tmpSource( move.initRow, move.initCol );
 			tmpSource( move.initRow, move.initCol ) = false;
@@ -3700,25 +3782,25 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 		{
 			flashMoves.back( ).needsFlash = false;
 			/// determine if flashing is needed for this move.
-			// loop through all locations in the row/collumn
+			// loop through all locations in the row / collumn
 			for ( auto location : range( altSize ) )
 			{
 				UINT initRow, initCol, finRow, finCol;
-				bool isRow = (rowOrCol == "row");
-				initRow = isRow ? init : location;
-				initCol = isRow ? location : init;
-				finRow = initRow + isRow * (fin - init);
-				finCol = initCol + (!isRow) * (fin - init);
+				bool isRow = (moveDir == dir::up || moveDir == dir::down);
+				initRow = isRow ? baseMoveIndex : location;
+				initCol = isRow ? location : baseMoveIndex;
 				// if atom in location and location not being moved, always need to flash to not move this atom.
-				if ( runningSource( initRow, initCol ) && std::find( flashMoves.back( ).whichAtoms.begin( ),
-																	 flashMoves.back( ).whichAtoms.end( ), location )
-					 == flashMoves.back( ).whichAtoms.end( ) )
+				if ( runningSource( initRow, initCol ) && std::find( flashMoves.back( ).locationsToMove.begin( ),
+													   				 flashMoves.back( ).locationsToMove.end( ), 
+																	 coordinate({ initRow, initCol }) )
+					 == flashMoves.back( ).locationsToMove.end( ) )
 				{
 					flashMoves.back( ).needsFlash = true;
 				}
-				// if being cautious...
 				if ( options.noFlashOption == nonFlashingOption::cautious )
 				{
+					finRow = initRow + isRow * (baseMove.dirInt( ));
+					finCol = initCol + (!isRow) * (baseMove.dirInt( ));
 					if ( runningSource( finRow, finCol ) )
 					{
 						flashMoves.back( ).needsFlash = true;
@@ -3730,9 +3812,14 @@ void NiawgController::optimizeMoves( std::vector<simpleMove> singleMoves, Matrix
 		{
 			flashMoves.back( ).needsFlash = true;
 		}
+		if ( !flashMoves.back( ).needsFlash )
+		{
+			flashMoves.back( ).needsFlash = false;
+		}
 		runningSource = tmpSource;
 	}
 }
+
 
 // Finds out the maximum number of moves, by only knowing the Target Matrix configuration
 // I added together the furthest distances from each target.
