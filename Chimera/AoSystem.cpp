@@ -3,7 +3,8 @@
 #include "AuxiliaryWindow.h"
 // for other ni stuff
 #include "nidaqmx2.h"
-
+#include "Thrower.h"
+#include "range.h"
 
 AoSystem::AoSystem() : dacResolution(10.0 / pow(2, 16)), daqmx( ANALOG_OUT_SAFEMODE )
 {

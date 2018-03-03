@@ -4,6 +4,7 @@
 #include "longnam.h"
 #include "DataAnalysisHandler.h"
 #include "CameraImageDimensions.h"
+#include "Thrower.h"
 
 
 DataLogger::DataLogger(std::string systemLocation)
@@ -384,37 +385,19 @@ void DataLogger::writePic(UINT currentPictureNumber, std::vector<long> image, im
 	{
 		thrower("Tried to write to h5 file, but the file is closed!\r\n");
 	}
-	if ( currentPictureNumber == 1 )
-	{
-		writeRecord = "";
-	}
 	// MUST initialize status
 	// starting coordinates of write area in the h5 file of the array of picture data points.
-	//hsize_t offset[] = { currentPictureNumber-1, 0, 0 };
 	hsize_t offset[] = { currentPicNumber++, 0, 0 };
 	hsize_t slabdim[3] = { 1, dims.width, dims.height };
 	try
 	{
 		picureSetDataSpace.selectHyperslab( H5S_SELECT_SET, slabdim, offset );
 		pictureDataset.write( image.data(), H5::PredType::NATIVE_LONG, picDataSpace, picureSetDataSpace );
-		writeRecord += str( currentPictureNumber ) + "\n";
 	}
 	catch (H5::Exception& err)
 	{
 		thrower("Failed to write data to HDF5 file! Error: " + str(err.getDetailMsg()) + "\n");
 	}
-}
-
-
-void DataLogger::recordWriteRecord( )
-{
-	std::ofstream file( "C:\\Users\\Regal-Lab\\Documents\\Chimera-Control\\Data\\Pic-Record.txt" );
-	if ( !file.is_open( ) )
-	{
-		thrower( "Failed to open write record file!" );
-	}
-	file << writeRecord;
-	file.close( );
 }
 
 
@@ -473,7 +456,6 @@ void DataLogger::closeFile()
 	voltsDataSpace.close( );
 	voltsDataSet.close( );
 	file.close();
-	recordWriteRecord( );
 	fileIsOpen = false;
 }
 

@@ -2,12 +2,11 @@
 #include <chrono>
 #include <thread>
 
-#include "windows.h"
+#include "afxwin.h"
 #include "niFgen.h"
-#include "externals.h"
-#include "time.h"
 #include "constants.h"
-
+#include "profileSettings.h"
+#include "NiawgController.h"
 
 struct niawgIntensityThreadInput;
 struct MasterThreadInput;

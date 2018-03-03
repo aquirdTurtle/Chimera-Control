@@ -3,14 +3,17 @@
 #include "ProfileSystem.h"
 #include "TextPromptDialog.h"
 #include "NiawgController.h"
-#include "AuxiliaryWindow.h"
 #include "Andor.h"
+#include "AuxiliaryWindow.h"
 #include "CameraWindow.h"
+#include "ScriptingWindow.h"
+#include "MainWindow.h"
 #include "openWithExplorer.h"
 #include "saveWithExplorer.h"
 #include <fstream>
 #include "Commctrl.h"
 #include <boost/filesystem.hpp>
+#include "Thrower.h"
 
 
 ProfileSystem::ProfileSystem(std::string fileSystemPath)

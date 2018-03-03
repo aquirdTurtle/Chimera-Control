@@ -3,19 +3,11 @@
 #include "ni488.h"
 #include <array>
 #include "constants.h"
+#include "Thrower.h"
 
 
-std::string GpibFlume::query( std::string query )
+GpibFlume::GpibFlume(short device, bool safemode) : deviceSafemode(safemode), deviceID(device)
 {
-	send( query, false );
-	return receive();
-}
-
-
-GpibFlume::GpibFlume(short device, bool safemode)
-{
-	deviceSafemode = safemode;
-	deviceID = device;
 	int hpone, agilentTwo, srsTwo, srsThree, pulseGen, pulseGen2, microHP, powerHP, agilent;
 	// I think that a lot of these aren't actually doing anything... I think these are supposed to open devices.
 	try
@@ -34,6 +26,13 @@ GpibFlume::GpibFlume(short device, bool safemode)
 	{
 		errBox("GPIB Initialization failed!: " + err.whatStr());
 	}
+}
+
+
+std::string GpibFlume::query( std::string query )
+{
+	send( query, false );
+	return receive( );
 }
 
 
@@ -66,7 +65,6 @@ void GpibFlume::send( std::string message, bool checkError )
 
 std::string GpibFlume::receive()
 {
-	//char msg[256] = "";
 	char msg[256];
 	if (!deviceSafemode)
 	{

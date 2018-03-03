@@ -1,5 +1,6 @@
 ﻿#include "stdafx.h"
 #include "PlotCtrl.h"
+#include "Thrower.h"
 
 
 PlotCtrl::PlotCtrl( std::vector<pPlotDataVec> dataHolder, plotStyle inStyle, std::vector<Gdiplus::Pen*> pensIn,

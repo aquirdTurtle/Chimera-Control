@@ -7,6 +7,7 @@
 class FgenFlume
 {
 	public:
+		FgenFlume( bool safemodeOption );
 		std::string getErrorMsg();
 		/// wrappers around niFgen functions.
 
@@ -55,8 +56,9 @@ class FgenFlume
 		std::string getViStringAttribute( ViAttr attribute );
 		ViBoolean getViBoolAttribute( ViAttr attribute );
 		ViSession getViSessionAttribute( ViAttr attribute );
-
+		const bool safemode;
 	private:
+
 		const ViConstString EXTERNAL_TRIGGER_NAME = "ScriptTrigger0";
 		const ViConstString SOFTWARE_TRIGGER_NAME = "ScriptTrigger1";
 		std::string currentScriptName;
@@ -70,6 +72,4 @@ class FgenFlume
 		const double MAX_CAP_TIME = 1e-3;
 		const ViConstString TRIGGER_SOURCE = "PFI0";
 		const ViInt32 TRIGGER_EDGE_TYPE = NIFGEN_VAL_RISING_EDGE;
-
-
 };

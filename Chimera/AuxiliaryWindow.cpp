@@ -1,16 +1,18 @@
 #include "stdafx.h"
 #include "AuxiliaryWindow.h"
-#include "Control.h"
 #include "DioSettingsDialog.h"
 #include "AoSettingsDialog.h"
 #include "TextPromptDialog.h"
 #include "DioSystem.h"
+#include "CameraWindow.h"
+#include "MainWindow.h"
+#include "Control.h"
 #include "commonFunctions.h"
 #include "openWithExplorer.h"
 #include "saveWithExplorer.h"
 #include "agilentStructures.h"
-#include "CameraWindow.h"
-
+#include "Thrower.h"
+#include "range.h"
 
 AuxiliaryWindow::AuxiliaryWindow() : CDialog(), 
 									 topBottomTek(TOP_BOTTOM_TEK_SAFEMODE, TOP_BOTTOM_TEK_USB_ADDRESS), 

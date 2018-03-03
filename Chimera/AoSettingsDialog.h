@@ -1,6 +1,7 @@
 #pragma once
-#include "windows.h"
+
 #include "AoSystem.h"
+#include "afxwin.h"
 #include <unordered_map>
 
 struct aoInputStruct

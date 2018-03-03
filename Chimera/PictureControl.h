@@ -1,6 +1,7 @@
 #pragma once
 #include "Control.h"
 #include "CameraImageDimensions.h"
+#include "atomGrid.h"
 
 
 /*

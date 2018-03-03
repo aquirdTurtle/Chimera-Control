@@ -5,10 +5,12 @@
 #include "PlottingInfo.h"
 #include "AuxiliaryWindow.h"
 #include "CameraWindow.h"
+#include "MainWindow.h"
 #include "realTimePlotterInput.h"
 #include "MasterThreadInput.h"
 #include "ATMCD32D.H"
 #include <numeric>
+#include "Thrower.h"
 
 CameraWindow::CameraWindow() : CDialog(), 
 								CameraSettings(&Andor), 

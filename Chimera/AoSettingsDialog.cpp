@@ -1,9 +1,8 @@
 #include "stdafx.h"
-#include "AoSettingsDialog.h"
 #include "AoSystem.h"
+#include "AoSettingsDialog.h"
 
 IMPLEMENT_DYNAMIC(AoSettingsDialog, CDialog)
-
 
 BEGIN_MESSAGE_MAP(AoSettingsDialog, CDialog)
 	ON_COMMAND(IDOK, &AoSettingsDialog::handleOk)

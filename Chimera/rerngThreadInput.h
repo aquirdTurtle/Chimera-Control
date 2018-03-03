@@ -7,7 +7,7 @@
 #include <vector>
 #include <mutex>
 #include <condition_variable>
-#include "windows.h"
+#include "afxwin.h"
 
 class NiawgController;
 
@@ -16,7 +16,6 @@ struct rerngThreadInput
 {
 	rerngThreadInput( UINT gridRows, UINT gridCols ) : flashMoves( gridRows, gridCols ), 
 		noFlashMoves(gridRows, gridCols) {}
-
 	UINT sourceRows = 0;
 	UINT sourceCols = 0;
 	std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>>* pictureTimes;
@@ -34,6 +33,5 @@ struct rerngThreadInput
 	rerngOptions rerngOptions;
 	rerngContainer<rerngMove> flashMoves;
 	rerngContainer<rerngMove> noFlashMoves;
-	//waveInfo fillerWave;
 };
 

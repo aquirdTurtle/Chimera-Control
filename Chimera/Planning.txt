@@ -14,8 +14,6 @@ FEATURES:
 			- Function handling needs list of variables being varied and what function the variables belong to. 
 				Only if both match should the handling replace the constant value.
 		- need to add handling for new control
-	- how to handle saving variable settings? could just not save at all, but saves would be good.
-		- could save all function variables as they get loaded or changed in an object in the VariableSystem
 - Full experiments following each other, alternative use of sequences.
 - Consider ways to make navigating many functions more sensible.
 - finish implementing randomizing repetitions.
@@ -54,7 +52,6 @@ BUGS:
 	data itself.
 - Agilent non-integer number of samples bugs don't make sense, "bad time entered for the time of an intensity sequence"
 - trying save if only camera is running...
-- what's happening if you try to abort in the middle of the "programming" stage?
 - fix variable logging / figure out what the problem is here.
 
 =================

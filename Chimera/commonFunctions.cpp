@@ -1,16 +1,17 @@
 #include "stdafx.h"
-#include <array>
 #include "commonFunctions.h"
 #include "TextPromptDialog.h"
 #include "NiawgController.h"
-#include "experimentThreadInputStructure.h"
-//#include "scriptWriteHelpProc.h"
 #include "beginningSettingsDialogProc.h"
 #include "openWithExplorer.h"
 #include "saveWithExplorer.h"
+#include "MasterThreadInput.h"
 #include "MainWindow.h"
 #include "CameraWindow.h"
 #include "AuxiliaryWindow.h"
+#include "ScriptingWindow.h"
+#include "Thrower.h"
+#include <array>
 
 // Functions called by all windows to do the same thing, mostly things that happen on menu presses.
 namespace commonFunctions

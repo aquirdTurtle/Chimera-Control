@@ -1,9 +1,10 @@
 #pragma once
 
 #include <string>
-#include "Windows.h"
+#include "afxwin.h"
 #include <unordered_map>
 #include <chrono>
+
 
 class Expression;
 // these get passed around a lot, so I typedef'd them for convenience.

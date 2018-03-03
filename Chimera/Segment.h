@@ -3,7 +3,7 @@
 #include "segmentStructs.h"
 #include "windows.h"
 #include <string>
-
+#include "VariableStructures.h"
 
 class Segment
 {

@@ -1,5 +1,5 @@
 #pragma once
-#include "stdafx.h"
+#include "NiawgController.h"
 #include "ProfileSystem.h"
 #include "DebugOptionsControl.h"
 #include "MainOptionsControl.h"
@@ -11,14 +11,18 @@
 #include "MasterConfiguration.h"
 #include "Repetitions.h"
 #include "MasterManager.h"
-#include "commonFunctions.h"
 #include "DataLogger.h"
 #include "NoteSystem.h"
 #include "profileSettings.h"
-#include "NiawgController.h"
 #include "rerngControl.h"
 #include "PlotDialog.h"
 #include "OscilloscopeViewer.h"
+#include "profileSettings.h"
+#include "commonFunctions.h"
+
+#include <string>
+#include <vector>
+#include "afxwin.h"
 
 class ScriptingWindow;
 class CameraWindow;
@@ -151,12 +155,11 @@ class MainWindow : public CDialog
 		RunInfo systemRunningInfo;
 		cToolTips tooltips;
 		EmbeddedPythonHandler python;
-		// testing...
 		ScopeViewer masterRepumpScope, motScope;
 		CFont* plotfont;
 		//
 		static BOOL CALLBACK monitorHandlingProc( _In_ HMONITOR hMonitor, _In_ HDC      hdcMonitor,
-										   _In_ LPRECT   lprcMonitor, _In_ LPARAM   dwData );
+												  _In_ LPRECT lprcMonitor, _In_ LPARAM dwData );
 		std::vector<Gdiplus::Pen*> plotPens, brightPlotPens;
 		std::vector<Gdiplus::SolidBrush*> plotBrushes, brightPlotBrushes;
 		// friends (try to minimize these)

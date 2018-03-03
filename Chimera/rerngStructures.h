@@ -27,6 +27,13 @@ struct complexMove
 // should be a one-dimensional move, only change in row or column. Could probably improve the struct to reflect that.
 struct simpleMove
 {
+	simpleMove( int irow, int icol, int frow, int fcol )
+	{
+		initRow = irow;
+		initCol = icol;
+		finRow = frow;
+		finCol = fcol;
+	}
 	bool operator == ( const simpleMove & other ) const
 	{
 		// two moves are equal if all members are equal.

@@ -45,7 +45,7 @@ typedef enum {
 // Minimum recommended length of the Controller Card Model buffer parameter
 #define AT_CONTROLLER_CARD_MODEL_LEN 80
 // ===================================
-		
+
 // ===================================
 // DDG Lite Definitions
 // ===================================

@@ -1,5 +1,6 @@
 ﻿#include "stdafx.h"
 #include "OscilloscopeViewer.h"
+#include "Thrower.h"
 
 
 ScopeViewer::ScopeViewer( std::string usbAddress, bool safemode, UINT traceNumIn ) :

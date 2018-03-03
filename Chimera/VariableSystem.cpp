@@ -10,6 +10,7 @@
 #include <unordered_map>
 #include <random>
 #include "afxcmn.h"
+#include "Thrower.h"
 
 
 UINT VariableSystem::getTotalVariationNumber()
@@ -100,13 +101,13 @@ void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindo
 			// Make First Blank row.
 			LVITEM listViewDefaultItem;
 			memset( &listViewDefaultItem, 0, sizeof( listViewDefaultItem ) );
-			listViewDefaultItem.mask = LVIF_TEXT;   // Text Style
-			listViewDefaultItem.cchTextMax = 256; // Max size of test
+			listViewDefaultItem.mask = LVIF_TEXT; 
+			listViewDefaultItem.cchTextMax = 256; 
 			listViewDefaultItem.pszText = "___";
-			listViewDefaultItem.iItem = 0;          // choose item  
-			listViewDefaultItem.iSubItem = 0;       // Put in first coluom
+			listViewDefaultItem.iItem = 0;          
+			listViewDefaultItem.iSubItem = 0;       
 			variablesListview.InsertItem( &listViewDefaultItem );
-			for ( int itemInc = 1; itemInc < 7; itemInc++ ) // Add SubItems in a loop
+			for ( int itemInc = 1; itemInc < 7; itemInc++ )
 			{
 				listViewDefaultItem.iSubItem = itemInc;
 				variablesListview.SetItem( &listViewDefaultItem );
@@ -114,7 +115,6 @@ void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindo
 		}
 	}
 	variablesListview.SetBkColor( rgbs["Solarized Base02"] );
-
 	pos.y += 300;
 }
 
@@ -289,8 +289,8 @@ variableType VariableSystem::loadVariableFromFile( std::ifstream& openFile, UINT
 	}
 	else
 	{
-		thrower( "ERROR: unknown variable type option: " + typeText + ". Check the formatting of the configuration"
-				 " file." );
+		thrower( "ERROR: unknown variable type option: \"" + typeText + "\" for variable \"" + varName 
+				 + "\". Check the formatting of the configuration file." );
 	}
 	if ( (versionMajor == 2 && versionMinor > 7) || versionMajor > 2 )
 	{

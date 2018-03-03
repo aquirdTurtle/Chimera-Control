@@ -2,6 +2,7 @@
 #include "CameraSettingsControl.h"
 #include "CameraWindow.h"
 #include "miscellaneousCommonFunctions.h"
+#include "Thrower.h"
 
 
 CameraSettingsControl::CameraSettingsControl(AndorCamera* friendInitializer) : picSettingsObj(this)

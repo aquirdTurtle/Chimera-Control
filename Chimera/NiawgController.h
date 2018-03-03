@@ -1,22 +1,18 @@
 #pragma once
 
-#include "ProfileSystem.h"
-#include "DebugOptionsControl.h"
 #include "Communicator.h"
+
+#include "debugInfo.h"
+#include "profileSettings.h"
 #include "NiawgStructures.h"
 #include "rerngStructures.h"
-#include "profileSettings.h"
 #include "directions.h"
 #include "rerngParams.h"
 #include "rerngThreadInput.h"
-
-#include "atomGrid.h"
-
 #include "Matrix.h"
 #include "ScriptStream.h"
-#include "miscellaneousCommonFunctions.h"
-#include "externals.h"
 #include "constants.h"
+#include "atomGrid.h"
 
 #include "Fgen.h"
 #include <algorithm>
@@ -39,7 +35,7 @@ class NiawgWaiter;
 class NiawgController
 {
 	public:
-		NiawgController( UINT trigRow, UINT trigNumber );
+		NiawgController( UINT trigRow, UINT trigNumber, bool safemode );
 		void initialize();
 		void cleanupNiawg( profileSettings profile, bool masterWasRunning, seqInfo& expInfo, NiawgOutput& output,
 						   Communicator* comm, bool dontGenerate );
@@ -61,7 +57,9 @@ class NiawgController
 		void flashVaries( waveInfoForm& wave );
 		void rerngFormToOutput( waveInfoForm& waveForm, waveInfo& wave, std::vector<variableType>& varibles,
 								UINT variation );
-		void writeStaticNiawg( NiawgOutput& output, debugInfo& options, std::vector<variableType>& variables );
+		void writeStaticNiawg( NiawgOutput& output, debugInfo& options, std::vector<variableType>& variables,
+							   bool deleteWaveAfterWrite=true );
+		void deleteWaveData( simpleWave& core );
 		void loadCommonWaveParams( ScriptStream& script, simpleWaveForm& wave );
 		void handleStandardWaveformFormSingle( NiawgOutput& output, std::string cmd, ScriptStream& script,
 											   std::vector<variableType>& variables );
@@ -90,11 +88,14 @@ class NiawgController
 		bool isOn( );
 		void streamWaveform( );
 		FgenFlume fgenConduit;
-
-	private:
 		static void smartRearrangement( Matrix<bool> source, Matrix<bool> target, niawgPair<ULONG>& finTargetPos,
 										niawgPair<ULONG> finalPos, std::vector<simpleMove> &operationsMatrix,
 										rerngOptions options );
+		// From the single moves operationsmatrix, this function calculates parallel moves (rows and columns)
+		static void optimizeMoves( std::vector<simpleMove> singleMoves, Matrix<bool> source,
+								   std::vector<complexMove> &flashMoves, rerngOptions options );
+
+	private:
 		void preWriteRerngWaveforms( rerngThreadInput* input );
 		void writeToFile( std::vector<double> waveVals );
 		void rerngOptionsFormToFinal( rerngOptionsForm& form, rerngOptions& data, std::vector<variableType>& variables,
@@ -169,7 +170,7 @@ class NiawgController
 		std::vector<double> rerngWaveVals;
 		HANDLE rerngThreadHandle;
 		static UINT __stdcall rerngThreadProcedure( LPVOID input );
-		UINT triggersInScript;
+		UINT triggersInScript=0;
 		// true = active;
 		std::atomic<bool> threadStateSignal;
 		std::vector<std::vector<bool>> finalState;
@@ -186,9 +187,6 @@ class NiawgController
 		// returns a list of single elementary (left,right,up,down) moves. Size is 4 x n_moves: Initialx,Initialy,Finalx,Finaly
 		static double rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool> & targetMatrix,
 									 std::vector<simpleMove>& moveSequence );
-		// From the single moves operationsmatrix, this function calculates parallel moves (rows and columns)
-		static void optimizeMoves( std::vector<simpleMove> singleMoves, Matrix<bool> source, 
-								   std::vector<complexMove> &flashMoves, rerngOptions options );
 		std::vector<std::string> evolveSource( Matrix<bool> source, std::vector<complexMove> flashMoves );
 		// returns maximal number of moves given a targetmatrix.
 		static UINT getMaxMoves( Matrix<bool> targetMatrix );

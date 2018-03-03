@@ -1,9 +1,11 @@
 #pragma once
-#include "Windows.h"
+#include "MasterThreadInput.h"
+#include "afxwin.h"
 
 class MainWindow;
 class CameraWindow;
 class AuxiliaryWindow;
+class ScriptingWindow;
 
 namespace commonFunctions
 {

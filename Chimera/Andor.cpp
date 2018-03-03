@@ -6,6 +6,7 @@
 #include <process.h>
 #include <algorithm>
 #include <numeric>
+#include "Thrower.h"
 
 std::string AndorCamera::getSystemInfo()
 {

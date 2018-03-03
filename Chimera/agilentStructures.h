@@ -5,7 +5,7 @@
 
 #include <string>
 #include <array>
-#include "Windows.h"
+#include "afxwin.h"
 
 class Agilent;
 

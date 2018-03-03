@@ -11,6 +11,8 @@
 #include <boost/tuple/tuple.hpp>
 #include <map>
 #include "TextPromptDialog.h"
+#include "Thrower.h"
+#include "range.h"
 
 using std::vector;
 
@@ -899,7 +901,7 @@ void DataAnalysisControl::saveGridParams( )
 		gridWidth.GetWindowText( txt );
 		grids[selectedGrid].width = std::stol( str( txt ) );
 	}
-	catch (std::invalid_argument& err)
+	catch (std::invalid_argument&)
 	{
 		thrower( "ERROR: failed to convert grid parameters to longs while saving grid data!" );
 	}
@@ -1115,7 +1117,7 @@ void DataAnalysisControl::handleDoubleClick(fontMap* fonts, UINT currentPicsPerR
 			{
 				gridNum = std::stoul( gridStr );
 			}
-			catch ( std::invalid_argument& err )
+			catch ( std::invalid_argument&)
 			{
 				thrower( "ERROR: bad value for grid #! Expecting a positive integer." );
 			}

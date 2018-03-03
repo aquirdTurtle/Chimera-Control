@@ -6,6 +6,7 @@
 #include <mutex>
 #include "ATMCD32D.h"
 #include "AndorRunSettings.h"
+#include "Matrix.h"
 
 /// /////////////////////////////////////////////////////
 /// 

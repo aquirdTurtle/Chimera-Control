@@ -2,6 +2,8 @@
 #include <vector>
 #include <memory>
 #include "memdc.h"
+#include "gdiplus.h"
+#include <mutex>
 
 enum class plotStyle
 {

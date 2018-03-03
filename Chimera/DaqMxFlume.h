@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <string>
 #include "nidaqmx2.h"
-
+#include <vector>
 
 /*
  * This is an incomplete wrapper around the DAQmx api. Incomplete in the sense that it doesn't wrap all of DAQmx (which
@@ -34,7 +34,8 @@ class DaqMxFlume
 		std::string getDacSystemInfo( );
 		void readAnalogF64( TaskHandle taskHandle, std::vector<float64> &readData, int32& sampsPerChanRead );
 		long getProductCategory( std::string deviceLocation );
+		const bool safemode;
 	private:
 		std::string getErrorMessage( int errorCode );
-		const bool safemode;
+		
 };

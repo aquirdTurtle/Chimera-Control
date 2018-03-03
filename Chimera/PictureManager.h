@@ -1,5 +1,6 @@
 #pragma once
 #include "PictureControl.h"
+#include "atomGrid.h"
 #include <array>
 #include <fstream>
 

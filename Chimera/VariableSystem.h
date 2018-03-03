@@ -1,9 +1,8 @@
 #pragma once
 #include "functionCombo.h"
-#include "constants.h"
 #include "VariableStructures.h"
 #include "Control.h"
-#include "Windows.h"
+#include "afxwin.h"
 #include "afxcview.h"
 #include <vector>
 #include <string>
@@ -51,7 +50,6 @@ class VariableSystem
 		void addConfigVariable( variableType var, UINT item );
 		void addGlobalVariable( variableType var, UINT item );
 		void handleColumnClick( NMHDR * pNotifyStruct, LRESULT* result );
-		void addVariableDimension();
 		void removeVariableDimension();
 		variableType getVariableInfo(int varNumber);
 		std::vector<variableType> getAllConstants();

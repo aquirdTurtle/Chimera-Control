@@ -8,8 +8,17 @@
 #include "GpibFlume.h"
 #include "DebugOptionsControl.h"
 #include "Agilent.h"
+#include "NiawgController.h"
 #include "EmbeddedPythonHandler.h"
+#include "TektronicsControl.h"
+#include "MainOptionsControl.h"
+
+#include "AndorRunSettings.h"
 #include "atomGrid.h"
+#include "profileSettings.h"
+#include "atomCruncherInput.h"
+#include "realTimePlotterInput.h"
+
 #include <chrono>
 #include <vector>
 #include <atomic>

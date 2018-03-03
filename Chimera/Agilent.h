@@ -12,6 +12,7 @@
 #include "Windows.h"
 
 
+
 // A class for programming agilent machines.
 // in essense this includes a wrapper around agilent's implementation of the VISA protocol. This could be pretty easily
 // abstracted away from the agilent class if new systems wanted to use this functionality.

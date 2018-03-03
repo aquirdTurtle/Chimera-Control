@@ -3,7 +3,7 @@
 #include "GpibFlume.h"
 #include "constants.h"
 #include "AuxiliaryWindow.h"
-
+#include "Thrower.h"
 
 RhodeSchwarz::RhodeSchwarz() : gpibFlume(RSG_ADDRESS, RSG_SAFEMODE){}
 

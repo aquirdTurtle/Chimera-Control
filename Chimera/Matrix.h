@@ -1,7 +1,10 @@
 ﻿#pragma once
 #include <boost/container/vector.hpp>
-#include "windows.h"
-
+#include <vector>
+#include "afxwin.h"
+#include "Thrower.h"
+#include "range.h"
+#include "my_str.h"
 // a wrapper around a 1D matrix that allows for 2D (row/collum) access styles. Mostly used to represent images.
 template <class type>
 class Matrix
@@ -26,7 +29,24 @@ class Matrix
 		UINT rows, cols;
 		// the following string is only updated if in debug mode.
 		std::string currMatrix;
-};
+}
+;
+
+template <class type>
+void loadBools( Matrix<type>& matrix, std::vector<bool> init )
+{
+	if ( matrix.data.size( ) != init.size( ) )
+	{
+		thrower( "ERROR: loadBools: bool vector not same size as underlying matrix data!" );
+	}
+	UINT count = 0;
+	for ( auto val : init )
+	{
+		matrix.data[count++] = val;
+	}
+	matrix.updateString( );
+}
+
 
 template <class type>
 void Matrix<type>::updateString( )
