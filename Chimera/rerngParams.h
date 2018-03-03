@@ -73,7 +73,7 @@ struct rerngOptions
 	bool useCalibration = false;
 	double finalMoveTime = 1e-3;
 	// hard set right now.
-	nonFlashingOption noFlashOption = nonFlashingOption::cautious;
+	nonFlashingOption noFlashOption = nonFlashingOption::none;
 	parallelMoveOption parallel = parallelMoveOption::partial;
 	smartRerngOption smartOption = smartRerngOption::full;
 };

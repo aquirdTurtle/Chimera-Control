@@ -1,7 +1,6 @@
 % Master-Script See the "?" for info on commands.
 def pgcAtomFlashingImage():
 	% give the shutter some time to open.
-	on: andorShutter
 	off: diagMotRf
 	dac: diagMotPower 0
 	dacLinSpace: MotFreq loadMotMotFreq 
@@ -9,29 +8,30 @@ def pgcAtomFlashingImage():
       dac: SideMotPower imagingPower
 	dac: RepumpPower imagingRepumpPower
 	t += 1
-	on: andorTrig
-	t += 0.3 
 	% turn the repump on a tiny bit early 
 	% to pump to the F=2 manifold.	
 	on: RepumpRf
+	on: a13
 	t += 0.2
 	% flashing the trap
-	on: c5 
-	% flashing the sidemot light
-	on: c7 
+	on: andorTrig
+	t += 0.3
+	on: tweezerflashrf
+	on: sidemotflash
 	on: SideMotRf
 	t += andorImageTime
 	off: andorshutter
 	off: SideMotRf
 	off: repumpRf
-	% stop flashing the trap
-	off: c5 
-	% stop flashing the sidemot light
-	off: c7 
+	off: tweezerflashrf
+	off: sidemotflash
 	dacLinSpace: MotFreq imagingFlashingDetuning loadMotMotFreq 1 10
-	%t += 5
-	t += 1.1
+	t += 1
 	off: andorTrig
+	off: a13
+	pulseon: a15 0.01
+	t += 0.2
+
 	% note that the camera needs some time before it can take
 	% another image. Typically we need to wait like 5ms. The camera window
 	% will tell you the minimum kinetic cycle time, which depends on the
