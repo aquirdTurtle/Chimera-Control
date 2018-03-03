@@ -228,7 +228,7 @@ intrappgcpower 0.14
 loadmotsidepower 0.15
 loadmotdiagpower 0.35
 imagingrepumppower 0.2
-pushouttime 3
+pushouttime 20
 intrappgccoolingtime 2
 loadmotrepumpfreq -0.6
 loadmotmotfreq 0.1
@@ -240,5 +240,5 @@ intrappgcrepumppower 0.1
 field 3
 rotatefieldtime 3
 opticalpumpdepth 0
-pumptime 10
+<<<<<<< 0
 259 285 3 228 272 3
