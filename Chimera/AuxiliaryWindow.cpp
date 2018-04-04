@@ -18,8 +18,17 @@ AuxiliaryWindow::AuxiliaryWindow() : CDialog(),
 									 topBottomTek(TOP_BOTTOM_TEK_SAFEMODE, TOP_BOTTOM_TEK_USB_ADDRESS), 
 									 eoAxialTek(EO_AXIAL_TEK_SAFEMODE, EO_AXIAL_TEK_USB_ADDRESS),
 									 agilents{ TOP_BOTTOM_AGILENT_SETTINGS, AXIAL_AGILENT_SETTINGS,
-												FLASHING_AGILENT_SETTINGS, UWAVE_AGILENT_SETTINGS }
+												FLASHING_AGILENT_SETTINGS, UWAVE_AGILENT_SETTINGS },
+									ttlBoard( true, true ),
+									aoSys( ANALOG_OUT_SAFEMODE )
 {}
+
+BOOL AuxiliaryWindow::handleAccelerators( HACCEL m_haccel, LPMSG lpMsg )
+{
+	return globalVariables.handleAccelerators( m_haccel, lpMsg );
+}
+
+
 
 
 IMPLEMENT_DYNAMIC( AuxiliaryWindow, CDialog )
@@ -414,7 +423,7 @@ void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, int version
 	}
 	ttlBoard.handleOpenConfig(configFile, versionMajor, versionMinor );
 	aoSys.handleOpenConfig(configFile, versionMajor, versionMinor, &ttlBoard);
-
+	aoSys.updateEdits( );
 	agilents[whichAg::TopBottom].readConfigurationFile(configFile, versionMajor, versionMinor );
 	agilents[whichAg::TopBottom].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings().categoryPath,
 											   mainWindowFriend->getRunInfo() );
@@ -762,6 +771,7 @@ void AuxiliaryWindow::zeroDacs( )
 		{
 			aoSys.prepareDacForceChange( dacInc, 0, &ttlBoard );
 		}
+		aoSys.updateEdits( );
 		aoSys.organizeDacCommands( 0, 0 );
 		aoSys.makeFinalDataFormat( 0, 0 );
 		aoSys.stopDacs( );
@@ -769,7 +779,7 @@ void AuxiliaryWindow::zeroDacs( )
 		aoSys.writeDacs( 0, false, 0 );
 		aoSys.startDacs( );
 		ttlBoard.organizeTtlCommands( 0, 0 );
-		ttlBoard.convertToFinalFormat( 0, 0 );
+		ttlBoard.convertToFinalViewpointFormat( 0, 0 );
 		ttlBoard.writeTtlData( 0, false, 0 );
 		ttlBoard.startBoard( );
 		ttlBoard.waitTillFinished( 0, false, 0 );
@@ -1040,6 +1050,7 @@ void AuxiliaryWindow::handleMasterConfigOpen(std::stringstream& configStream, do
 		aoSys.setName(dacInc, name, toolTips, this);
 		aoSys.setMinMax(dacInc, min, max);
 		aoSys.prepareDacForceChange(dacInc, defaultValue, &ttlBoard);
+		aoSys.updateEdits( );
 		aoSys.setDefaultValue(dacInc, defaultValue);
 	}
 	// variables.
@@ -1089,7 +1100,8 @@ void AuxiliaryWindow::SetDacs()
 		aoSys.resetDacEvents();
 		ttlBoard.resetTtlEvents();
 		sendStatus( "Setting Dacs...\r\n" );
-		aoSys.handleButtonPress( &ttlBoard );
+		aoSys.handleSetDacsButtonPress( &ttlBoard );
+		aoSys.updateEdits( );
 		aoSys.organizeDacCommands(0, 0);
 		aoSys.makeFinalDataFormat(0, 0 );
 		// start the boards which actually sets the dac values.
@@ -1099,7 +1111,7 @@ void AuxiliaryWindow::SetDacs()
 		aoSys.writeDacs(0, false, 0 );
 		aoSys.startDacs();
 		ttlBoard.organizeTtlCommands(0, 0 );
-		ttlBoard.convertToFinalFormat(0, 0 );
+		ttlBoard.convertToFinalViewpointFormat(0, 0 );
 		ttlBoard.writeTtlData(0, false, 0 );
 		ttlBoard.startBoard();
 		ttlBoard.waitTillFinished(0, false, 0 );

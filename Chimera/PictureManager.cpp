@@ -225,7 +225,7 @@ void PictureManager::setSinglePicture( CWnd* parent, imageParameters imageParams
 			pictures[picNum].setActive(false);
 		}
 	}
-	pictures.front().setPictureArea( picturesLocation, picturesWidth , picturesHeight);
+	pictures.front().setPictureArea( picturesLocation, picturesWidth, picturesHeight);
 	pictures.front().setSliderControlLocs(parent);
 	pictures.front( ).setCursorValueLocations( parent );
 	setParameters( imageParams );	

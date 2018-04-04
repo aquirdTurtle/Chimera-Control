@@ -44,6 +44,7 @@ class AuxiliaryWindow : public CDialog
 	DECLARE_DYNAMIC(AuxiliaryWindow);
 	public:
 		AuxiliaryWindow();
+		BOOL handleAccelerators( HACCEL m_haccel, LPMSG lpMsg );
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
 		void OnLButtonUp( UINT stuff, CPoint clickLocation );
 		BOOL OnInitDialog();
@@ -131,7 +132,7 @@ class AuxiliaryWindow : public CDialog
 		MainWindow* mainWindowFriend;
 		ScriptingWindow* scriptingWindowFriend;
 		CameraWindow* cameraWindowFriend;
-
+		
 		CMenu menu;
 		std::string title;
 		toolTipTextMap toolTipText;

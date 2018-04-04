@@ -14,7 +14,8 @@
 
 CameraWindow::CameraWindow() : CDialog(), 
 								CameraSettings(&Andor), 
-								dataHandler(DATA_SAVE_LOCATION)
+								dataHandler(DATA_SAVE_LOCATION),
+								Andor( ANDOR_SAFEMODE )
 {
 };
 
@@ -949,7 +950,6 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 	// remove old plots that aren't trying to sustain.
 	activePlots.erase( std::remove_if( activePlots.begin(), activePlots.end(), PlotDialog::removeQuery ), 
 					   activePlots.end() );
-
 	for ( auto plotParams : input.plotterInput->plotInfo )
 	{
 		// Create vector of data to be shared btween plotter and data analysis handler. 

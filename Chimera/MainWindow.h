@@ -38,6 +38,7 @@ class MainWindow : public CDialog
 	using CDialog::CDialog;
 	DECLARE_DYNAMIC(MainWindow);
 	public:
+		BOOL handleAccelerators( HACCEL m_haccel, LPMSG lpMsg );
 	    // overrides
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
 		void OnLButtonUp( UINT stuff, CPoint clickLocation );

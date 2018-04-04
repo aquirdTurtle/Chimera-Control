@@ -3,6 +3,8 @@
 #include <vector>
 #include <boost/tokenizer.hpp>
 #include "Thrower.h"
+#include <iomanip>
+#include <iostream>
 
 Expression::Expression( )
 {
@@ -471,23 +473,77 @@ void Expression::assertValid( std::vector<variableType>& variables )
 			// check if its a usable math expression. I.e. is composed of numbers, variables, or math symbols.
 			bool failed = false;
 			std::vector<std::string> terms = splitString( expressionStr );
+			// the following keep track of ordering requirements. e.g. not allowing multiple sequential operators 4+-/5.
+			bool nextCanBeOperator = false;
+			bool nextCanBeFunction = true;
+			bool needParenthesis = false;
+			UINT elemnum = 0;
+			bool includes_variable = false;
+			UINT rightParenCount = 0;
+			UINT leftParenCount = 0;
 			for ( auto elem : terms )
 			{
-				if ( elem == "(" || elem == "+" || elem == "-" || elem == "*" || elem == "/" || elem == ")" )
+				elemnum++;
+				if ( needParenthesis && elem != "(" )
 				{
-					// it's a valid math symbol.
+					failed = true;
+					break;
+				}
+				if ( (elem == "+" || elem == "-" || elem == "*" || elem == "/") && nextCanBeOperator)
+				{
+					// it's a valid math symbol in a place that works.
+					nextCanBeFunction = true;
+					nextCanBeOperator = false;
 					continue;
 				}
-				if ( elem == "sin" || elem == "cos" || elem == "exp" || elem == "ln" || elem == "log10" )
+				if ( elem == "-" && elemnum==1 )
+				{
+					nextCanBeFunction = true;
+					nextCanBeOperator = false;
+					continue;
+				}
+				if ( elem == "(" )
+				{
+					leftParenCount++;
+					nextCanBeFunction = true;
+					nextCanBeOperator = false;
+					elemnum = 0;
+					continue;
+				}
+				if ( elem == ")" )
+				{
+					rightParenCount++;
+					nextCanBeOperator = true;
+					continue;
+				}
+				if ( (elem == "sin" || elem == "cos" || elem == "exp" || elem == "ln" || elem == "log10") 
+					 && nextCanBeFunction )
 				{
 					// it's a supported math function.
+					nextCanBeFunction = false;
+					nextCanBeOperator = false;
+					needParenthesis = true;
 					continue;
 				}
-
 				try
 				{
-					value = std::stod( elem );
-					continue;
+					// first just check if any characters in string are alpha
+					bool contains_alpha = false;
+					for ( auto c : elem )
+					{
+						if ( c > 'A' && c < 'z') 
+						{
+							contains_alpha = true;
+							break;
+						}
+					}
+					if ( !contains_alpha )
+					{
+						value = std::stod( elem );
+						nextCanBeFunction = false;
+						nextCanBeOperator = true;
+						continue;
+					}
 				}
 				catch ( std::invalid_argument& ) {/* term is not a double.*/ }
 				isVariable = false;
@@ -506,6 +562,9 @@ void Expression::assertValid( std::vector<variableType>& variables )
 				}
 				if ( isVariable )
 				{
+					includes_variable = true;
+					nextCanBeFunction = false;
+					nextCanBeOperator = true;
 					continue;
 				}
 				// it reached the end, that means the term isn't a variable, isn't a math symbol, and isn't a double.
@@ -513,7 +572,19 @@ void Expression::assertValid( std::vector<variableType>& variables )
 				failed = true;
 				break;
 			}
-
+			if ( terms.size( ) == 0 )
+			{
+				failed = true;
+			}
+			if ( rightParenCount != leftParenCount)
+			{
+				failed = true;
+			}
+			if ( !includes_variable )
+			{
+				// then it should have evaluated properly and not entered this catch.
+				failed = true;
+			}
 			if ( failed )
 			{
 				thrower( "ERROR: " + expressionStr + " is not a valid expression. It's not a double, a variable, "

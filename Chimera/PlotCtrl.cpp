@@ -4,15 +4,14 @@
 
 
 PlotCtrl::PlotCtrl( std::vector<pPlotDataVec> dataHolder, plotStyle inStyle, std::vector<Gdiplus::Pen*> pensIn,
-					CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes,	std::string titleIn ) :
+					CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes,	std::string titleIn, bool narrowOpt ) :
 	whitePen( PS_SOLID, 0, RGB( 255, 255, 255 ) ),
 	greyPen( PS_SOLID, 0, RGB( 100, 100, 100 ) ),
 	redPen( PS_SOLID, 0, RGB( 255, 0, 0 ) ),
 	solarizedPen( PS_SOLID, 0, RGB( 0, 30, 38 ) ),
 	data( dataHolder ), style( inStyle ), dataMutexes( dataHolder.size( ) ), textFont( font ),
-	brushes( plotBrushes ), pens( pensIn )
+	brushes( plotBrushes ), pens( pensIn ), narrow(narrowOpt )
 {
-
 	Gdiplus::Color whiteColor( 255, 255, 255, 255 );
 	whiteBrush = new Gdiplus::SolidBrush( whiteColor );
 	whiteGdiPen = new Gdiplus::Pen( whiteBrush );
@@ -76,7 +75,14 @@ void PlotCtrl::init( POINT topLeftLoc, LONG width, LONG height, CWnd* parent )
 	controlDims = { topLeftLoc.x, topLeftLoc.y, topLeftLoc.x + width, topLeftLoc.y + height };
 	RECT d = controlDims;
 	long w = d.right - d.left, h = d.bottom - d.top;
-	plotAreaDims = { long( d.left + w*0.1 ), long(d.top + h*0.08), long(d.right*0.98), long( d.bottom - h*0.1 ) };
+	if ( !narrow )
+	{
+		plotAreaDims = { long( d.left + w*0.1 ), long( d.top + h*0.08 ), long( d.right*0.98 ), long( d.bottom - h*0.1 ) };
+	}
+	else
+	{
+		plotAreaDims = controlDims;
+	}
 	legButton.sPos = { topLeftLoc.x, topLeftLoc.y, topLeftLoc.x + 22, topLeftLoc.y += 22 };
 	legButton.Create( "", NORM_CHECK_OPTIONS, legButton.sPos, parent, 0 );
 	sustainButton.sPos = { topLeftLoc.x, topLeftLoc.y, topLeftLoc.x + 22, topLeftLoc.y += 22 };

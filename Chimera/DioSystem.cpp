@@ -13,63 +13,155 @@
 
 // I don't use this because I manually import dll functions.
 // #include "Dio64.h"
-DioSystem::DioSystem( )
+DioSystem::DioSystem( bool ftSafemode, bool serialSafemode ) : 	ftFlume( ftSafemode ), 	winSerial( serialSafemode )
 {
-	if ( DIO_SAFEMODE )
+	connectType = ftdiConnectionOption::None;
+	for ( auto& row : ttlStatus )
 	{
-		// don't try to load.
-		return;
+		for ( auto& elem : row )
+		{
+			elem = 0;
+		}
 	}
-	/// load modules
-	// this first module is required for the second module which I actually load functions from.
-	HMODULE dio = LoadLibrary( "DIO64_Visa32.dll" );
-	if ( !dio )
-	{
-		int err = GetLastError( );
-		errBox( "Failed to load dio64_32.dll! Windows Error Code: " + str( err ) );
-	}
-	// initialize function pointers. This only requires the DLLs to be loaded (which requires them to be present on the machine...) 
-	// so it's not in a safemode block.
-	raw_DIO64_OpenResource = (DIO64_OpenResource)GetProcAddress( dio, "DIO64_OpenResource" );
-	raw_DIO64_Open = (DIO64_Open)GetProcAddress( dio, "DIO64_Open" );
-	raw_DIO64_Load = (DIO64_Load)GetProcAddress( dio, "DIO64_Load" );
-	raw_DIO64_Close = (DIO64_Close)GetProcAddress( dio, "DIO64_Close" );
-	raw_DIO64_Mode = (DIO64_Mode)GetProcAddress( dio, "DIO64_Mode" );
-	raw_DIO64_GetAttr = (DIO64_GetAttr)GetProcAddress( dio, "DIO64_GetAttr" );
-	raw_DIO64_SetAttr = (DIO64_SetAttr)GetProcAddress( dio, "DIO64_SetAttr" );
+}
 
-	raw_DIO64_In_Read = (DIO64_In_Read)GetProcAddress( dio, "DIO64_In_Read" );
-	raw_DIO64_In_Start = (DIO64_In_Start)GetProcAddress( dio, "DIO64_In_Start" );
-	raw_DIO64_In_Read = (DIO64_In_Read)GetProcAddress( dio, "DIO64_In_Read" );
-	raw_DIO64_In_Status = (DIO64_In_Status)GetProcAddress( dio, "DIO64_In_Status" );
-	raw_DIO64_In_Stop = (DIO64_In_Stop)GetProcAddress( dio, "DIO64_In_Stop" );
 
-	raw_DIO64_Out_Config = (DIO64_Out_Config)GetProcAddress( dio, "DIO64_Out_Config" );
-	raw_DIO64_Out_ForceOutput = (DIO64_Out_ForceOutput)GetProcAddress( dio, "DIO64_Out_ForceOutput" );
-	raw_DIO64_Out_GetInput = (DIO64_Out_GetInput)GetProcAddress( dio, "DIO64_Out_GetInput" );
-	raw_DIO64_Out_Start = (DIO64_Out_Start)GetProcAddress( dio, "DIO64_Out_Start" );
-	raw_DIO64_Out_Status = (DIO64_Out_Status)GetProcAddress( dio, "DIO64_Out_Status" );
-	raw_DIO64_Out_Stop = (DIO64_Out_Stop)GetProcAddress( dio, "DIO64_Out_Stop" );
+void DioSystem::ftdi_connectasync( const char devSerial[] )
+{
+	if ( ftFlume.getNumDevices( ) <= 0 )
+	{
+		thrower( "No devices found." );
+	}
+	ftFlume.open( devSerial );
+	ftFlume.setUsbParams( );
+	connectType = ftdiConnectionOption::Async;
+}
 
-	raw_DIO64_Out_Write = (DIO64_Out_Write)GetProcAddress( dio, "DIO64_Out_Write" );
-	// Open and Load DIO64
-	try
+
+/*
+* is this a software trigger? is it the "start" command?
+*/
+DWORD DioSystem::ftdi_trigger( )
+{
+	std::vector<unsigned char> dataBuffer = { 161, 0, 0, 0, 0, 0, 1 };
+	if ( connectType == ftdiConnectionOption::Serial )
 	{
-		int result;
-		char* filename = "C:\\DIO64Visa\\DIO64Visa_Release Beta 2\\DIO64.CAT";
-		char* resourceName = "PXI18::11::INSTR";
-		WORD temp[4] = { -1, -1, -1, -1 };
-		double tempd = 10000000;
-		dioOpenResource( resourceName, 0, 0 );
-		//dioOpen( 0, 0 );
-		dioLoad( 0, filename, 0, 4 );
-		dioOutConfig( 0, 0, temp, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, tempd );
-		// done initializing.
+		unsigned long totalBytesSent = 0;
+		while ( totalBytesSent < 7 )
+		{
+			auto bytesWritten = winSerial.writeFile( totalBytesSent, dataBuffer );
+			if ( bytesWritten > 0 )
+			{
+				++totalBytesSent;
+			}
+			else
+			{
+				thrower( "ERROR: bad value for dwNumberOfBytesWritten: " + str( bytesWritten ) );
+			}
+		}
+		return totalBytesSent;
 	}
-	catch ( Error& exception )
+	else if ( connectType == ftdiConnectionOption::Async )
 	{
-		errBox( exception.what( ) );
+		return ftFlume.write( dataBuffer );
 	}
+	return 0;
+}
+
+
+void DioSystem::ftdi_disconnect( )
+{
+	if ( connectType == ftdiConnectionOption::Serial )
+	{
+		winSerial.close( );
+	}
+	else if ( connectType == ftdiConnectionOption::Async )
+	{
+		ftFlume.close( );
+	}
+	else
+	{
+		thrower( "No connection to close..." );
+	}
+	connectType = ftdiConnectionOption::None;
+}
+
+
+/*
+* Takes data from "mem" structure and writes to the dio board.
+*/
+DWORD DioSystem::ftdi_write( UINT seqNum, UINT variation, bool loadSkip )
+{
+	if ( connectType == ftdiConnectionOption::Serial || connectType == ftdiConnectionOption::Async )
+	{
+		auto& buf = loadSkip ? finFtdiBuffers_loadSkip[seqNum][variation] : finFtdiBuffers[seqNum][variation];
+		// please note that Serial mode has not been thoroughly tested (by me, MOB at least)!
+		bool proceed = true;
+		int count = 0;
+		int idx = 0;
+		unsigned int totalBytes = 0;
+		unsigned int number = 0;
+		unsigned long dwNumberOfBytesSent = 0;
+		if ( connectType == ftdiConnectionOption::Serial )
+		{
+			while ( dwNumberOfBytesSent < buf.bytesToWrite )
+			{
+				unsigned long dwNumberOfBytesWritten;
+				auto bytesWritten = winSerial.writeFile( dwNumberOfBytesSent, buf.pts );
+				if ( bytesWritten > 0 )
+				{
+					++totalBytes;
+				}
+				else
+				{
+					thrower( "ERROR: bad value for dwNumberOfBytesWritten: " + str( bytesWritten ) );
+				}
+			}
+			totalBytes += dwNumberOfBytesSent;
+		}
+		else
+		{
+			totalBytes += ftFlume.write( buf.pts, buf.bytesToWrite );
+		}
+		return totalBytes;
+	}
+	else
+	{
+		thrower( "No ftdi connection exists! Can't write without a connection." );
+	}
+	return 0;
+}
+
+
+void DioSystem::fillFtdiDataBuffer( std::vector<unsigned char>& dataBuffer, UINT offset, UINT count, ftdiPt pt )
+{
+	if ( offset + 20 >= dataBuffer.size( ) )
+	{
+		thrower( "ERROR: tried to write data buffer out of bounds!" );
+	}
+	dataBuffer[offset] = WBWRITE;
+	dataBuffer[offset + 1] = ((TIMEOFFS + count) >> 8) & 0xFF;
+	dataBuffer[offset + 2] = (TIMEOFFS + count) & 0xFF;
+	dataBuffer[offset + 3] = ((pt.time) >> 24) & 0xFF;
+	dataBuffer[offset + 4] = ((pt.time) >> 16) & 0xFF;
+	dataBuffer[offset + 5] = ((pt.time) >> 8) & 0xFF;
+	dataBuffer[offset + 6] = (pt.time) & 0xFF;
+
+	dataBuffer[offset + 7] = WBWRITE;
+	dataBuffer[offset + 8] = ((BANKAOFFS + count) >> 8) & 0xFF;
+	dataBuffer[offset + 9] = (BANKAOFFS + count) & 0xFF;
+	dataBuffer[offset + 10] = pt.pts[0];
+	dataBuffer[offset + 11] = pt.pts[1];
+	dataBuffer[offset + 12] = pt.pts[2];
+	dataBuffer[offset + 13] = pt.pts[3];
+
+	dataBuffer[offset + 14] = WBWRITE;
+	dataBuffer[offset + 15] = ((BANKBOFFS + count) >> 8) & 0xFF;
+	dataBuffer[offset + 16] = (BANKBOFFS + count) & 0xFF;
+	dataBuffer[offset + 17] = pt.pts[4];
+	dataBuffer[offset + 18] = pt.pts[5];
+	dataBuffer[offset + 19] = pt.pts[6];
+	dataBuffer[offset + 20] = pt.pts[7];
 }
 
 
@@ -122,6 +214,7 @@ void DioSystem::handleOpenConfig(std::ifstream& openFile, int versionMajor, int 
 			{
 				ttl = std::stoi(ttlString);
 				forceTtl(rowInc, colInc, ttl);
+				updatePush( rowInc, colInc );
 			}
 			catch (std::invalid_argument&)
 			{
@@ -135,12 +228,12 @@ void DioSystem::handleOpenConfig(std::ifstream& openFile, int versionMajor, int 
 }
 
 
-ULONG DioSystem::countDacTriggers(UINT variation, UINT dacNum)
+ULONG DioSystem::countDacTriggers(UINT variation, UINT seqNum)
 {
 	ULONG triggerCount = 0;
 	// D14
 	std::pair<unsigned short, unsigned short> dacLine = { 3,15 };
-	for (auto command : ttlCommandList[dacNum][variation])
+	for (auto command : ttlCommandList[seqNum][variation])
 	{
 		// line each rising edge.
 		if (command.line == dacLine && command.value == true)
@@ -186,7 +279,7 @@ std::string DioSystem::getSystemInfo()
 {
 	DWORD answer = 1000;
 	std::string info = "TTL System Info:\nInput Mode: ";
-	dioGetAttr( 0, 0, answer);
+	vp_flume.dioGetAttr( 0, 0, answer);
 	switch ( answer )
 	{
 		case 1100:
@@ -209,7 +302,7 @@ std::string DioSystem::getSystemInfo()
 		default:
 			info += "UNKNOWN!\n";
 	}
-	dioGetAttr( 0, 1, answer );
+	vp_flume.dioGetAttr( 0, 1, answer );
 	info += "Output Mode: ";
 	switch ( answer )
 	{
@@ -231,19 +324,19 @@ std::string DioSystem::getSystemInfo()
 		default:
 			info += "UNKNOWN!\n";
 	}
-	dioGetAttr( 0, 2, answer );
+	vp_flume.dioGetAttr( 0, 2, answer );
 	if (answer == 1000)
 	{
 		info += "Input Buffer Size: no answer?\n";
 	}
 	info += "Input Buffer Size: " + str( answer ) + "\n";
-	dioGetAttr( 0, 3, answer );
+	vp_flume.dioGetAttr( 0, 3, answer );
 	if (answer == 1000)
 	{
 		info += "Output Buffer Size: no answer?\n";
 	}
 	info += "Output Buffer Size: " + str( answer ) + "\n";
-	dioGetAttr( 0, 4, answer );
+	vp_flume.dioGetAttr( 0, 4, answer );
 	info += "Major Clock Source: ";
 	switch ( answer )
 	{
@@ -279,9 +372,9 @@ void DioSystem::startBoard()
 {
 	DIO64STAT status;
 	DWORD scansAvailable;
-	dioOutStatus( 0, scansAvailable, status );
+	vp_flume.dioOutStatus( 0, scansAvailable, status );
 	// start the dio board!
-	dioOutStart( 0 );
+	vp_flume.dioOutStart( 0 );
 }
 
 
@@ -357,6 +450,12 @@ void DioSystem::rearrange(UINT width, UINT height, fontMap fonts)
 }
 
 
+void DioSystem::updatePush( UINT row, UINT number )
+{
+	ttlPushControls[row][number].SetCheck( ttlStatus[row][number] );
+}
+
+
 void DioSystem::handleInvert()
 {
 	for (UINT row = 0; row < ttlStatus.size(); row++)
@@ -366,10 +465,12 @@ void DioSystem::handleInvert()
 			if (ttlStatus[row][number])
 			{
 				forceTtl(row, number, 0);
+				updatePush( row, number );
 			}
 			else
 			{
 				forceTtl(row, number, 1);
+				updatePush( row, number );
 			}
 		}
 	}
@@ -575,14 +676,8 @@ void DioSystem::handleTTLPress(int id)
 		}
 		if (holdStatus == false)
 		{
-			if (ttlStatus[row][number])
-			{
-				forceTtl(row, number, 0);
-			}
-			else
-			{
-				forceTtl(row, number, 1);
-			}
+			forceTtl( row, number, !ttlStatus[row][number] );
+			updatePush( row, number );
 		}
 		else
 		{
@@ -613,20 +708,10 @@ void DioSystem::handleHoldPress()
 		{
 			for (UINT numberInc = 0; numberInc < ttlHoldStatus[0].size(); numberInc++)
 			{
-				if (ttlHoldStatus[rowInc][numberInc])
-				{
-					ttlPushControls[rowInc][numberInc].SetCheck(BST_CHECKED);					
-					ttlStatus[rowInc][numberInc] = true;
-					// actually change the ttl.
-					forceTtl(rowInc, numberInc, 1);
-				}
-				else
-				{
-					ttlPushControls[rowInc][numberInc].SetCheck(BST_UNCHECKED);
-					ttlStatus[rowInc][numberInc] = false;
-					// actually change the ttl.
-					forceTtl(rowInc, numberInc, 0);
-				}
+				ttlStatus[rowInc][numberInc] = ttlHoldStatus[rowInc][numberInc];
+				// actually change the ttl.
+				forceTtl( rowInc, numberInc, ttlHoldStatus[rowInc][numberInc] );
+				updatePush( rowInc, numberInc );
 				ttlPushControls[rowInc][numberInc].colorState = 0;
 				ttlPushControls[rowInc][numberInc].RedrawWindow();
 			}
@@ -650,8 +735,8 @@ void DioSystem::prepareForce( )
 	ttlCommandList = vec<vec<vec<DioCommand>>>(1, vec<vec<DioCommand>>( 1) );
 	formattedTtlSnapshots = vec<vec<vec<std::array<WORD, 6>>>>(1, vec<vec<std::array<WORD, 6>>>(1) );
 	loadSkipFormattedTtlSnapshots = vec<vec<vec<std::array<WORD, 6>>>>( 1, vec<vec<std::array<WORD, 6>>>( 1 ) );
-	finalFormatTtlData = vec<vec<vec<WORD>>>(1, vec<vec<WORD>>( 1 ) );
-	loadSkipFinalFormatTtlData = vec<vec<vec<WORD>>>( 1, vec<vec<WORD>>( 1 ) );
+	finalFormatViewpointData = vec<vec<vec<WORD>>>(1, vec<vec<WORD>>( 1 ) );
+	loadSkipFinalFormatViewpointData = vec<vec<vec<WORD>>>( 1, vec<vec<WORD>>( 1 ) );
 }
 
 
@@ -661,10 +746,14 @@ void DioSystem::initTtlObjs( UINT totalSequenceNumber )
 	ttlSnapshots.resize( totalSequenceNumber );
 	ttlCommandList.resize( totalSequenceNumber );
 	formattedTtlSnapshots.resize( totalSequenceNumber );
-	finalFormatTtlData.resize( totalSequenceNumber );
+	finalFormatViewpointData.resize( totalSequenceNumber );
 	loadSkipTtlSnapshots.resize( totalSequenceNumber );
 	loadSkipFormattedTtlSnapshots.resize( totalSequenceNumber );
-	loadSkipFinalFormatTtlData.resize( totalSequenceNumber );
+	loadSkipFinalFormatViewpointData.resize( totalSequenceNumber );
+	ftdiSnaps.resize( totalSequenceNumber );
+	ftdiSnaps_loadSkip.resize( totalSequenceNumber );
+	finFtdiBuffers.resize( totalSequenceNumber );
+	finFtdiBuffers_loadSkip.resize( totalSequenceNumber );
 }
 
 
@@ -674,10 +763,14 @@ void DioSystem::resetTtlEvents( )
 	ttlSnapshots.clear( );
 	ttlCommandList.clear( );
 	formattedTtlSnapshots.clear( );
-	finalFormatTtlData.clear( );
+	finalFormatViewpointData.clear( );
 	loadSkipTtlSnapshots.clear( );
 	loadSkipFormattedTtlSnapshots.clear( );
-	loadSkipFinalFormatTtlData.clear( );
+	loadSkipFinalFormatViewpointData.clear( );
+	ftdiSnaps.clear( );
+	ftdiSnaps_loadSkip.clear( );
+	finFtdiBuffers.clear( );
+	finFtdiBuffers_loadSkip.clear( );
 }
 
 
@@ -761,6 +854,24 @@ bool DioSystem::isValidTTLName( std::string name )
 }
 
 
+vec<vec<vec<DioSnapshot>>> DioSystem::getSnapshots( )
+{
+	return ttlSnapshots;
+}
+
+
+vec<vec<std::array<ftdiPt, 2048>>> DioSystem::getFtdiSnaps( )
+{
+	return ftdiSnaps;
+}
+
+
+vec<vec<finBufInfo>> DioSystem::getFinalFtdiData( )
+{
+	return finFtdiBuffers;
+}
+
+
 void DioSystem::ttlOn(UINT row, UINT column, timeType time, UINT seqNum )
 {
 	// make sure it's either a variable or a number that can be used.
@@ -797,7 +908,7 @@ void DioSystem::ttlOffDirect( UINT row, UINT column, double time, UINT variation
 
 void DioSystem::stopBoard()
 {
-	dioOutStop( 0 );
+	vp_flume.dioOutStop( 0 );
 }
 
 double DioSystem::getClockStatus()
@@ -808,7 +919,7 @@ double DioSystem::getClockStatus()
 	DWORD availableScans;
 	try
 	{
-		dioOutStatus( 0, availableScans, stat );
+		vp_flume.dioOutStatus( 0, availableScans, stat );
 
 		if ( DIO_SAFEMODE )
 		{
@@ -829,21 +940,17 @@ double DioSystem::getClockStatus()
 	// assuming the clock runs at 10 MHz, return in ms.
 }
 
+std::array< std::array<bool, 16>, 4 > DioSystem::getCurrentStatus( )
+{
+	return ttlStatus;
+}
+
 // forceTtl forces the actual ttl to a given value and changes the checkbox status to reflect that.
 void DioSystem::forceTtl(int row, int number, int state)
 {
 	// change the ttl checkbox.
-	if (state == 0)
-	{
-		ttlPushControls[row][number].SetCheck(BST_UNCHECKED);
-		ttlStatus[row][number] = false;
-	}
-	else
-	{
-		ttlPushControls[row][number].SetCheck(BST_CHECKED);
-		ttlStatus[row][number] = true;
-	}
-	
+	ttlPushControls[row][number].SetCheck( state );
+	ttlStatus[row][number] = state;
 	// change the output.
 	int result = 0;
 	std::array<std::bitset<16>, 4> ttlBits;
@@ -868,7 +975,7 @@ void DioSystem::forceTtl(int row, int number, int state)
 	tempCommand[1] = static_cast <unsigned short>(ttlBits[1].to_ulong());
 	tempCommand[2] = static_cast <unsigned short>(ttlBits[2].to_ulong());
 	tempCommand[3] = static_cast <unsigned short>(ttlBits[3].to_ulong());
-	dioForceOutput( 0, tempCommand.data(), 15 );
+	vp_flume.dioForceOutput( 0, tempCommand.data(), 15 );
 }
 
 
@@ -932,20 +1039,20 @@ void DioSystem::writeTtlData(UINT variation, UINT seqNum, bool loadSkip)
 	status.AIControl = 0;
 	try
 	{
-		dioOutStop( 0 );
+		vp_flume.dioOutStop( 0 );
 	}
 	catch ( Error& ) { /* if fails it probably just wasn't running before */ } 
 
-	dioOutConfig( 0, 0, outputMask, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, scanRate );
-	dioOutStatus( 0, availableScans, status );
+	vp_flume.dioOutConfig( 0, 0, outputMask, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, scanRate );
+	vp_flume.dioOutStatus( 0, availableScans, status );
 	if ( loadSkip )
 	{
-		dioOutWrite( 0, loadSkipFinalFormatTtlData[seqNum][variation].data( ), 
+		vp_flume.dioOutWrite( 0, loadSkipFinalFormatViewpointData[seqNum][variation].data( ),
 					 loadSkipFormattedTtlSnapshots[seqNum][variation].size( ), status );
 	}
 	else
 	{
-		dioOutWrite( 0, finalFormatTtlData[seqNum][variation].data( ), formattedTtlSnapshots[seqNum][variation].size( ), status );
+		vp_flume.dioOutWrite( 0, finalFormatViewpointData[seqNum][variation].data( ), formattedTtlSnapshots[seqNum][variation].size( ), status );
 	}
 }
 
@@ -1007,35 +1114,65 @@ void DioSystem::waitTillFinished(UINT variation, UINT seqNum, bool skipOption)
 }
 
 
+double DioSystem::getFtdiTotalTime( UINT variation, UINT seqNum )
+{
+	double time = -1;
+	for ( auto snap : ftdiSnaps[seqNum][variation] )
+	{
+		if ( snap == ftdiPt({0, 0, 0, 0, 0, 0, 0, 0, 0}) && time != -1 )
+		{
+			return time;
+		}
+		time = snap.time;
+	}
+	thrower( "ERROR: failed to find final time for dio system?!?!" );
+}
+
+
 double DioSystem::getTotalTime(UINT variation, UINT seqNum )
 {
+	// ??? there used to be a +1 at the end of this...
 	return (formattedTtlSnapshots[seqNum][variation].back()[0]
-			 + 65535 * formattedTtlSnapshots[seqNum][variation].back()[1]) / 10000.0 + 1;
+			 + 65535 * formattedTtlSnapshots[seqNum][variation].back()[1]) / 10000.0;
 }
 
 // an "alias template". effectively a local using std::vector; declaration. makes these declarations much more
 // readable. I very rarely use things like this.
+
 template<class T> using vec = std::vector<T>;
 
+void DioSystem::sizeDataStructures( UINT sequenceLength, UINT variations )
+{
+	/// imporantly, this sizes the relevant structures.
+	ttlCommandList = vec<vec<vec<DioCommand>>>( sequenceLength, vec<vec<DioCommand>>( variations ) );
+	ttlSnapshots = vec<vec<vec<DioSnapshot>>>( sequenceLength, vec<vec<DioSnapshot>>( variations ) );
+	loadSkipTtlSnapshots = vec<vec<vec<DioSnapshot>>>( sequenceLength, vec<vec<DioSnapshot>>( variations ) );
+	formattedTtlSnapshots = vec<vec<vec<std::array<WORD, 6>>>>( sequenceLength,
+																vec<vec<std::array<WORD, 6>>>( variations ) );
+	loadSkipFormattedTtlSnapshots = vec<vec<vec<std::array<WORD, 6>>>>( sequenceLength,
+																		vec<vec<std::array<WORD, 6>>>( variations ) );
+	finalFormatViewpointData = vec<vec<vec<WORD>>>( sequenceLength, vec<vec<WORD>>( variations ) );
+	loadSkipFinalFormatViewpointData = vec<vec<vec<WORD>>>( sequenceLength, vec<vec<WORD>>( variations ) );
+
+	ftdiSnaps = vec<vec<std::array<ftdiPt, 2048>>>( sequenceLength, vec<std::array<ftdiPt, 2048>>( variations ) );
+	finFtdiBuffers = vec<vec<finBufInfo>>( sequenceLength, vec<finBufInfo>( variations ) );
+	ftdiSnaps_loadSkip = vec<vec<std::array<ftdiPt, 2048>>>( sequenceLength, vec<std::array<ftdiPt, 2048>>( variations ) );
+	finFtdiBuffers_loadSkip = vec<vec<finBufInfo>>( sequenceLength, vec<finBufInfo>( variations ) );
+}
+
+
+/*
+ * Read key values from variables and convert command form to the final commands.
+ */
 void DioSystem::interpretKey( vec<vec<variableType>>& variables )
 {
 	UINT sequenceLength = variables.size( );
-	UINT variations = variables.front().front( ).keyValues.size( );
+	UINT variations = variables.front( ).size() == 0 ? 1 : variables.front().front( ).keyValues.size( );
 	if (variations == 0)
 	{
 		variations = 1; 
 	}
-	/// imporantly, this sizes the relevant structures.
-	ttlCommandList = vec<vec<vec<DioCommand>>>( sequenceLength, vec<vec<DioCommand>>(variations) );
-	ttlSnapshots = vec<vec<vec<DioSnapshot>>>( sequenceLength, vec<vec<DioSnapshot>>(variations) );
-	loadSkipTtlSnapshots = vec<vec<vec<DioSnapshot>>>( sequenceLength, vec<vec<DioSnapshot>>(variations) );
-	formattedTtlSnapshots = vec<vec<vec<std::array<WORD, 6>>>>( sequenceLength, 
-																vec<vec<std::array<WORD, 6>>>(variations) );
-	loadSkipFormattedTtlSnapshots = vec<vec<vec<std::array<WORD, 6>>>>( sequenceLength, 
-																		vec<vec<std::array<WORD, 6>>>( variations ) );
-	finalFormatTtlData = vec<vec<vec<WORD>>>( sequenceLength, vec<vec<WORD>>(variations) );
-	loadSkipFinalFormatTtlData = vec<vec<vec<WORD>>>( sequenceLength, vec<vec<WORD>>( variations ) );
-	
+	sizeDataStructures( sequenceLength, variations );
 	// and interpret the command list for each variation.
 	for (auto seqInc : range( sequenceLength ) )
 	{
@@ -1060,6 +1197,12 @@ void DioSystem::interpretKey( vec<vec<variableType>>& variables )
 			}
 		}
 	}
+}
+
+
+vec<vec<vec<WORD>>> DioSystem::getFinalViewpointData( )
+{
+	return finalFormatViewpointData;
 }
 
 
@@ -1152,17 +1295,118 @@ std::pair<USHORT, USHORT> DioSystem::calcDoubleShortTime( double time )
 	lowordTime = ULONGLONG( time * 10000 ) % 65535;
 	USHORT temp = time * 10000;
 	hiwordTime = ULONGLONG( time * 10000 ) / 65535;
+	if ( ULONGLONG( time * 10000 ) / 65535 > 65535 )
+	{
+		thrower( "ERROR: DIO system was asked to calculate at ime that was too long! this is limited by the card." );
+	}
 	return { lowordTime, hiwordTime };
 }
 
 
-void DioSystem::convertToFinalFormat(UINT variation, UINT seqNum )
+void DioSystem::convertToFtdiSnaps( UINT variation, UINT seqNum )
+{
+	// formatting of these snaps is similar to the word formatting of the viewpoint dio64 card; the ttl on/off 
+	int snapIndex = 0;
+	int val1, val2, fpgaBankCtr;
+	ULONG timeConv = 100000;
+	for ( auto loadSkip : { false, true } )
+	{
+		auto ttlSnaps = loadSkip ? loadSkipTtlSnapshots[seqNum][variation] : ttlSnapshots[seqNum][variation];
+		auto& ftSnaps = loadSkip ? ftdiSnaps_loadSkip[seqNum][variation] : ftdiSnaps[seqNum][variation];
+		for ( auto snapshot : ttlSnaps )
+		{
+			ftdiPt pt;
+			fpgaBankCtr = 0;
+			for ( auto bank : snapshot.ttlStatus )
+			{
+				// currently this is split an awkward because the viewpoint organization was organized in sets of 16, not 8.
+				// convert first 8 of snap shot to int
+				val1 = 0;
+				for ( int i = 0; i < 8; i++ )
+				{
+					val1 = val1 + pow( 2, i )*bank[i];
+				}
+				// convert next 8 of snap shot to int
+				val2 = 0;
+				for ( int j = 0; j < 8; j++ )
+				{
+					val2 = val2 + pow( 2, j )*bank[j + 8];
+				}
+				pt.pts[fpgaBankCtr++] = val1;
+				pt.pts[fpgaBankCtr++] = val2;
+			}
+			pt.time = snapshot.time * timeConv;
+			ftSnaps[snapIndex] = pt;
+			snapIndex++;
+		}
+		ftSnaps[snapIndex] = { 0,0,0,0,0,0,0,0,0 };
+	}
+}
+
+
+void DioSystem::convertToFinalFtdiFormat( UINT variation, UINT seqNum )
+{
+	for ( auto loadSkip : { false, true } )
+	{
+		// first convert from diosnapshot to ftdi snapshot
+		auto& snaps = loadSkip ? ftdiSnaps_loadSkip[seqNum][variation] : ftdiSnaps[seqNum][variation];
+		// please note that Serial mode has not been thoroughly tested (by me, MOB at least)!
+		auto& buf = loadSkip ? finFtdiBuffers_loadSkip[seqNum][variation] : finFtdiBuffers[seqNum][variation];
+		buf.pts = std::vector<unsigned char>( (connectType == ftdiConnectionOption::Serial ?
+								DIO_BUFFERSIZESER : DIO_BUFFERSIZEASYNC) * DIO_MSGLENGTH * DIO_WRITESPERDATAPT, 0 );
+		bool proceed = true;
+		int count = 0;
+		unsigned int totalBytes = 0;
+		buf.bytesToWrite = 0;
+		unsigned int number = 0;
+		while ( (number < DIO_BUFFERSIZESER) && proceed )
+		{
+			UINT offset = DIO_WRITESPERDATAPT * number * DIO_MSGLENGTH;
+			fillFtdiDataBuffer( buf.pts, offset, count, snaps[count] );
+			if ( snaps[count] == ftdiPt( { 0,0,0,0,0,0,0,0,0 } ) && number != 0 )
+			{
+				proceed = false;
+			}
+			if ( count == NUMPOINTS )
+			{
+				thrower( "RC028.cpp: Non-Terminated table, data was filled all the way to end of data array... "
+						 "Unit will not work right..., last element of data should be all zeros." );
+			}
+			number++;
+			count++;
+			buf.bytesToWrite += DIO_WRITESPERDATAPT * DIO_MSGLENGTH;
+		}
+	}
+}
+
+
+DWORD DioSystem::ftdi_ForceOutput( int row, int number, int state )
+{
+	// change the ttl checkbox.
+	ttlPushControls[row][number].SetCheck( state );
+	ttlStatus[row][number] = state;
+	resetTtlEvents( );
+	initTtlObjs( 1 );
+	sizeDataStructures( 1, 1 );
+	ttlSnapshots[0][0].push_back( { 0.1, ttlStatus } );
+	convertToFtdiSnaps( 0, 0 );
+	convertToFinalFtdiFormat( 0, 0 );	
+	ftdi_connectasync( "FT1VAHJPB" );
+	auto bytesWritten = ftdi_write( 0, 0, false);
+	ftdi_trigger( );
+	ftdi_disconnect( );
+	return bytesWritten;
+}
+
+
+
+void DioSystem::convertToFinalViewpointFormat(UINT variation, UINT seqNum )
 {
 	// excessive but just in case.
 	auto& formattedSnaps = formattedTtlSnapshots[seqNum][variation];
 	auto& loadSkipFormattedSnaps = loadSkipFormattedTtlSnapshots[seqNum][variation];
-	auto& finalNormal = finalFormatTtlData[seqNum][variation];
-	auto& finalLoadSkip = loadSkipFinalFormatTtlData[seqNum][variation];
+	auto& finalNormal = finalFormatViewpointData[seqNum][variation];
+	auto& finalLoadSkip = loadSkipFinalFormatViewpointData[seqNum][variation];
 	formattedSnaps.clear();
 	loadSkipFormattedSnaps.clear( );
 	finalNormal.clear( );
@@ -1216,18 +1460,18 @@ void DioSystem::convertToFinalFormat(UINT variation, UINT seqNum )
 	}
 
 	/// flatten the data.
-	finalFormatTtlData[seqNum][variation].resize( formattedTtlSnapshots[seqNum][variation].size( ) * 6 );
+	finalFormatViewpointData[seqNum][variation].resize( formattedTtlSnapshots[seqNum][variation].size( ) * 6 );
 	int count = 0;
-	for ( auto& element : finalFormatTtlData[seqNum][variation] )
+	for ( auto& element : finalFormatViewpointData[seqNum][variation] )
 	{
 		// concatenate
 		element = formattedTtlSnapshots[seqNum][variation][count / 6][count % 6];
 		count++;
 	}
 	// the arrays are usually not the same length and need to be dealt with separately.
-	loadSkipFinalFormatTtlData[seqNum][variation].resize( loadSkipFormattedTtlSnapshots[seqNum][variation].size( ) * 6 );
+	loadSkipFinalFormatViewpointData[seqNum][variation].resize( loadSkipFormattedTtlSnapshots[seqNum][variation].size( ) * 6 );
 	count = 0;
-	for ( auto& element : loadSkipFinalFormatTtlData[seqNum][variation] )
+	for ( auto& element : loadSkipFinalFormatViewpointData[seqNum][variation] )
 	{
 		// concatenate
 		element = loadSkipFormattedTtlSnapshots[seqNum][variation][count / 6][count % 6];
@@ -1310,52 +1554,6 @@ void DioSystem::checkFinalFormatTimes( UINT variation, UINT seqNum )
 }
 
 
-std::string DioSystem::getErrorMessage( int errorCode )
-{
-	switch ( errorCode )
-	{
-	case -8:
-		return "Illegal board number - the board number must be between 0 and 7.";
-	case -9:
-		return "The requested board number has not been opened.";
-	case -10:
-		return "The buffers have over or under run.";
-	case -12:
-		return "Invalid parameter.";
-	case -13:
-		return "No Driver Interface.";
-	case -14:
-		return "Board does not have the OCXO option installed.";
-	case -15:
-		return "Only available on PXI.";
-	case -16:
-		return "Stop trigger source is invalid.";
-	case -17:
-		return "Port number conflicts. Check the hints used in DIO64_Load().";
-	case -18:
-		return "Missing DIO64.cat file.";
-	case -19:
-		return "Not enough system resources available.";
-	case -20:
-		return "Invalid DIO64.cat file.";
-	case -21:
-		return "Required image not found.";
-	case -22:
-		return "Error programming the FPGA.";
-	case -23:
-		return "File not found.";
-	case -24:
-		return "Board error.";
-	case -25:
-		return "Function call invalid at this time.";
-	case -26:
-		return "Not enough transitions specified for operation.";
-	default:
-		return "Unrecognized DIO64 error code!";
-	}
-}
-
-
 void DioSystem::zeroBoard( )
 {
 	for ( UINT row = 0; row < ttlStatus.size( ); row++ )
@@ -1363,6 +1561,7 @@ void DioSystem::zeroBoard( )
 		for ( UINT number = 0; number < ttlStatus[row].size( ); number++ )
 		{
 			forceTtl( row, number, 0 );
+			updatePush( row, number );
 		}
 	}
 }
@@ -1458,248 +1657,3 @@ std::string DioSystem::getTtlSequenceMessage(UINT variation, UINT seqNum )
 	}
 	return message;
 }
-
-void DioSystem::dioOpen(WORD board, WORD baseio)
-{
-	if (!DIO_SAFEMODE)
-	{
-		int result = raw_DIO64_Open(board, baseio);
-		if (result)
-		{
-			thrower("dioOpen failed! : (" + str(result) + "): " + getErrorMessage(result));
-		}
-	}
-}
-
-
-void DioSystem::dioMode(WORD board, WORD mode)
-{
-	if (!DIO_SAFEMODE)
-	{
-		int result = raw_DIO64_Mode(board, mode);
-		if (result)
-		{
-			thrower("dioMode failed! : (" + str(result) + "): " + getErrorMessage(result));
-		}
-	}
-}
-
-
-void DioSystem::dioLoad(WORD board, char *rbfFile, int inputHint, int outputHint)
-{
-	if (!DIO_SAFEMODE)
-	{
-		int result = raw_DIO64_Load(board, rbfFile, inputHint, outputHint);
-		if (result)
-		{
-			thrower("dioLoad failed! : (" + str(result) + "): " + getErrorMessage(result));
-		}
-	}
-}
-
-
-void DioSystem::dioClose(WORD board)
-{
-	if (!DIO_SAFEMODE)
-	{
-		int result = raw_DIO64_Close(board);
-		if (result)
-		{
-			thrower("dioClose failed! : (" + str(result) + "): " + getErrorMessage(result));
-		}
-	}
-}
-
-
-void DioSystem::dioInStart(WORD board, DWORD ticks, WORD& mask, WORD maskLength, WORD flags, WORD clkControl,
-						   WORD startType, WORD startSource, WORD stopType, WORD stopSource, DWORD AIControl,
-						   double& scanRate)
-{
-	if (!DIO_SAFEMODE)
-	{
-		int result = raw_DIO64_In_Start(board, ticks, &mask, maskLength, flags, clkControl, startType, startSource,
-										stopType, stopSource, AIControl, &scanRate);
-		if (result)
-		{
-			thrower("dioInStart failed! : (" + str(result) + "): " + getErrorMessage(result));
-		}
-	}
-}
-
-
-void DioSystem::dioInStatus(WORD board, DWORD& scansAvail, DIO64STAT& status)
-{
-	if (!DIO_SAFEMODE)
-	{
-		int result = raw_DIO64_In_Status(board, &scansAvail, &status);
-		if (result)
-		{
-			thrower("dioInStatus failed! : (" + str(result) + "): " + getErrorMessage(result));
-		}
-	}
-}
-
-
-void DioSystem::dioInRead(WORD board, WORD& buffer, DWORD scansToRead, DIO64STAT& status)
-{
-	if (!DIO_SAFEMODE)
-	{
-		int result = raw_DIO64_In_Read(board, &buffer, scansToRead, &status);
-		if (result)
-		{
-			thrower("dioInRead failed! : (" + str(result) + "): " + getErrorMessage(result));
-		}
-	}
-}
-
-
-void DioSystem::dioInStop(WORD board)
-{
-	if (!DIO_SAFEMODE)
-	{
-		int result = raw_DIO64_In_Stop(board);
-		if (result)
-		{
-			thrower("dioInStop failed! : (" + str(result) + "): " + getErrorMessage(result));
-		}
-	}
-}
-
-
-void DioSystem::dioForceOutput(WORD board, WORD* buffer, DWORD mask)
-{
-	if (!DIO_SAFEMODE)
-	{
-		int result = raw_DIO64_Out_ForceOutput(board, buffer, mask);
-		if (result)
-		{
-			thrower("dioForceOutput failed! : (" + str(result) + "): " + getErrorMessage(result));
-		}
-	}
-}
-
-
-void DioSystem::dioOutGetInput(WORD board, WORD& buffer)
-{
-	if (!DIO_SAFEMODE)
-	{
-		int result = raw_DIO64_Out_GetInput(board, &buffer);
-		if (result)
-		{
-			thrower("dioOutGetInput failed! : (" + str(result) + "): " + getErrorMessage(result));
-		}
-	}
-}
-
-
-void DioSystem::dioOutConfig(WORD board, DWORD ticks, WORD* mask, WORD maskLength, WORD flags, WORD clkControl,
-							 WORD startType, WORD startSource, WORD stopType, WORD stopSource, DWORD AIControl,
-							 DWORD reps, WORD ntrans, double& scanRate)
-{
-	if (!DIO_SAFEMODE)
-	{
-		int result = raw_DIO64_Out_Config(board, ticks, mask, maskLength, flags, clkControl,
-										  startType, startSource, stopType, stopSource, AIControl,
-										  reps, ntrans, &scanRate);
-		if (result)
-		{
-			thrower("dioOutConfig failed! : (" + str(result) + "): " + getErrorMessage(result));
-		}
-	}
-}
-
-
-void DioSystem::dioOutStart(WORD board)
-{
-	if (!DIO_SAFEMODE)
-	{
-		int result = raw_DIO64_Out_Start(board);
-		if (result)
-		{
-			thrower("dioOutStart failed! : (" + str(result) + "): " + getErrorMessage(result));
-		}
-	}
-}
-
-
-void DioSystem::dioOutStatus(WORD board, DWORD& scansAvail, DIO64STAT& status)
-{
-	if (!DIO_SAFEMODE)
-	{
-		int result = raw_DIO64_Out_Status(board, &scansAvail, &status);
-		if (result)
-		{
-			thrower("dioOutStatus failed! : (" + str(result) + "): " + getErrorMessage(result) + "\r\n");
-		}
-	}
-}
-
-
-void DioSystem::dioOutWrite(WORD board, WORD* buffer, DWORD bufsize, DIO64STAT& status)
-{
-	/*
-		IMPORTANT! the buffer size is the number of snapshots, not the number of words in the buffer! very 
-		counter-intuitive. Boo.
-	*/
-	if (!DIO_SAFEMODE)
-	{
-		int result = raw_DIO64_Out_Write(board, buffer, bufsize, &status);
-		if (result)
-		{
-			thrower("dioOutWrite failed! : (" + str(result) + "): " + getErrorMessage(result));
-		}
-	}
-}
-
-
-void DioSystem::dioOutStop(WORD board)
-{
-	if (!DIO_SAFEMODE)
-	{
-		int result = raw_DIO64_Out_Stop(board);
-		if (result)
-		{
-			thrower("dioOutStop failed! : (" + str(result) + "): " + getErrorMessage(result));
-		}
-	}
-}
-
-
-void DioSystem::dioSetAttr(WORD board, DWORD attrID, DWORD value)
-{
-	if (!DIO_SAFEMODE)
-	{
-		int result = raw_DIO64_SetAttr(board, attrID, value);
-		if (result)
-		{
-			thrower("dioSetAttr failed! : (" + str(result) + "): " + getErrorMessage(result));
-		}
-	}
-}
-
-
-void DioSystem::dioGetAttr(WORD board, DWORD attrID, DWORD& value)
-{
-	if (!DIO_SAFEMODE)
-	{
-		int result = raw_DIO64_GetAttr(board, attrID, &value);
-		if (result)
-		{
-			thrower("dioGetAttr failed! : (" + str(result) + "): " + getErrorMessage(result));
-		}
-	}
-}
-
-
-void DioSystem::dioOpenResource(char* resourceName, WORD board, WORD baseio)
-{
-	if (!DIO_SAFEMODE)
-	{
-		int result = raw_DIO64_OpenResource(resourceName, board, baseio);
-		if (result)
-		{
-			thrower("dioOpenResource failed! : (" + str(result) + "): " + getErrorMessage(result));
-		}
-	}
-}
-

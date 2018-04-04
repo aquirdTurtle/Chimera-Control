@@ -213,6 +213,19 @@ void MainWindow::OnTimer( UINT_PTR id )
 }
 
 
+BOOL MainWindow::handleAccelerators( HACCEL m_haccel, LPMSG lpMsg )
+{
+	if ( TheAuxiliaryWindow != NULL )
+	{
+		return TheAuxiliaryWindow->handleAccelerators( m_haccel, lpMsg );
+	}
+	else
+	{
+		return FALSE;
+	}
+}
+
+
 void MainWindow::OnPaint( )
 {
 	CDialog::OnPaint( );

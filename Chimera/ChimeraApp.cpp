@@ -63,10 +63,15 @@ BOOL ChimeraApp::PreTranslateMessage(MSG* pMsg)
 }
 
 
+
 BOOL ChimeraApp::ProcessMessageFilter(int code, LPMSG lpMsg)
 {
 	if (code >= 0 && theMainApplicationWindow && m_haccel)
 	{
+		if ( theMainApplicationWindow.handleAccelerators( m_haccel, lpMsg ) )
+		{
+			return (TRUE);
+		}
 		if (::TranslateAcceleratorA( this->theMainApplicationWindow.m_hWnd, m_haccel, lpMsg ))
 		{
 			return(TRUE);

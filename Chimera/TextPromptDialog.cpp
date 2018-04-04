@@ -9,8 +9,14 @@ BEGIN_MESSAGE_MAP(TextPromptDialog, CDialog)
 	ON_WM_SIZE()
 	ON_COMMAND(IDOK, &TextPromptDialog::catchOk)
 	ON_COMMAND(IDCANCEL, &TextPromptDialog::catchCancel)
-	// 
+	ON_COMMAND(ID_ACCELERATOR_F5 , &TextPromptDialog::catchf5)
 END_MESSAGE_MAP()
+
+void TextPromptDialog::catchf5( )
+{
+	errBox( "hi!" );
+}
+
 
 BOOL TextPromptDialog::OnInitDialog()
 {

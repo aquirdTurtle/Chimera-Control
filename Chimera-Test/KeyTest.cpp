@@ -4,7 +4,7 @@
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
-namespace TestMatrix
+namespace TestKey
 {
 	TEST_CLASS( TestKey )
 	{
@@ -12,10 +12,6 @@ namespace TestMatrix
 		TEST_METHOD( InitKey )
 		{
 			multiDimensionalKey<double> testKey;
-		}
-		TEST_METHOD( GenerateKey )
-		{
-			// todo
 		}
 	};
 }

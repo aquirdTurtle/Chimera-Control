@@ -4,6 +4,8 @@
 #include "../Chimera/DaqMxFlume.h"
 #include "../Chimera/Fgen.h"
 #include "../Chimera/GpibFlume.h"
+#include "TestMacros.h"
+#include "../Chimera/constants.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -39,6 +41,11 @@ namespace TestFlumes
 			bool safemode = true;
 			DaqMxFlume testFlume( safemode );
 			Assert::AreEqual( testFlume.safemode, safemode );
+		}
+		CONNECTED_TEST( Connect_To_Rhode_Schwarz )
+		{
+			GpibFlume flume( RSG_ADDRESS, false );
+			Assert::AreNotEqual( std::string(""), flume.queryIdentity( ) );
 		}
 	};
 }

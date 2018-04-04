@@ -36,7 +36,6 @@ template <typename T> void errBox( T msg )
 	MessageBox( eMainWindowHwnd, cstr( msg ), "ERROR!", MB_ICONERROR | MB_SYSTEMMODAL );
 }
 
-
 // this function takes any argument, converts it to a string, and displays it on the screen. It can be useful for debuging.
 template <typename T> void infoBox( T msg )
 {
