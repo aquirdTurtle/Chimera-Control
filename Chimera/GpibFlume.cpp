@@ -122,23 +122,25 @@ int GpibFlume::ibdev(int pad)
 
 std::string GpibFlume::queryIdentity()
 {
+	std::string result = query( "*IDN?" );
+	if ( result != "" )
+	{
+		return result;
+	}
+	else
+	{
+		return "Disconnected...";
+	}
+	/*
 	try
 	{
-		std::string result = query( "*IDN?" );
-		if (result != "")
-		{
-			return result;
-		}
-		else
-		{
-			return "Disconnected...";
-		}
 
 	}
 	catch ( Error& exception )
 	{
 		return exception.what();
 	}
+	*/
 }
 
 

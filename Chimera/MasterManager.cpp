@@ -192,7 +192,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 					input->aoSys->makeFinalDataFormat( variationInc, seqInc );
 					input->ttls->organizeTtlCommands( variationInc, seqInc );
 					input->ttls->findLoadSkipSnapshots( currLoadSkipTime, seqVariables, variationInc, seqInc );
-					input->ttls->convertToFinalFormat( variationInc, seqInc );
+					input->ttls->convertToFinalViewpointFormat( variationInc, seqInc );
 					// run a couple checks.
 					input->ttls->checkNotTooManyTimes( variationInc, seqInc );
 					input->ttls->checkFinalFormatTimes( variationInc, seqInc );

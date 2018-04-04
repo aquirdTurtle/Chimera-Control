@@ -52,7 +52,6 @@ class PictureControl
 
 		// unofficial; these are just parameters this uses to keep track of grid size on redraws.
 		imageParameters unofficialImageParameters;
-
 		// Arguably I should make these static controls instead of keeping track explicitly of these things. 
 		RECT unscaledBackgroundArea;
 		// scaled for the size of the window

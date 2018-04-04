@@ -200,6 +200,9 @@
     <ClCompile Include="RC028.cpp">
       <Filter>Auxiliary Window</Filter>
     </ClCompile>
+    <ClCompile Include="ftdiFlume.cpp" />
+    <ClCompile Include="WinSerialFlume.cpp" />
+    <ClCompile Include="viewpointFlume.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -488,6 +491,9 @@
     <ClInclude Include="ftd2xx.h">
       <Filter>Auxiliary Window</Filter>
     </ClInclude>
+    <ClInclude Include="ftdiFlume.h" />
+    <ClInclude Include="viewpointFlume.h" />
+    <ClInclude Include="viewpointStructures.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
@@ -561,5 +567,7 @@
     <None Include="OscilloscopeViewer.h" />
     <None Include="DaqMxFlume.h" />
     <None Include="my_str.h" />
+    <None Include="WinSerialFlume.h" />
+    <None Include="ftdiStructures.h" />
   </ItemGroup>
 </Project>

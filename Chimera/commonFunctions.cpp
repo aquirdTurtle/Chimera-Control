@@ -964,6 +964,7 @@ namespace commonFunctions
 		{
 			thrower( "CANCEL!" );
 		}
+		return areYouSure;
 	}
 };
 

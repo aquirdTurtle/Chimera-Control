@@ -15,7 +15,7 @@ class TextPromptDialog : public CDialog
 			result = resultPtr;
 			descriptionText = description;
 		}
-
+		void catchf5( );
 		BOOL OnInitDialog() override;
 
 		void catchOk();

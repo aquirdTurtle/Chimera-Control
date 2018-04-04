@@ -69,6 +69,7 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="Release-32.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -109,7 +110,7 @@
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <ShowIncludes>true</ShowIncludes>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -142,7 +143,7 @@
       <AdditionalLibraryDirectories>$(NIIVIPATH)\Lib_x64\msc;$(PXIPNPPATH)\winnt\Lib_x64\msc;C:\Program Files (x86)\IVI Foundation\VISA\WinNT\Lib_x64\msc;C:\Program Files (x86)\IVI Foundation\VISA\WinNT\agvisa\Lib_x64\msc;D:\Program Files\boost_1_60_0\lib64-msvc-14.0;C:\Program Files\boost_1_60_0\lib64-msvc-14.0</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>lib /NOLOGO /OUT:"$(TargetPath).lib" "$(ProjectDir)\$(Configuration)\*.obj"</Command>
+      <Command>lib /MACHINE:X64 /NOLOGO /OUT:"$(TargetPath).lib" "$(ProjectDir)x64\$(Configuration)\*.obj"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -178,7 +179,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32; NO_WARN_MBCS_MFC_DEPRECATION;NDEBUG;_CONSOLE;_LIB;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
     </ClCompile>
@@ -193,6 +194,9 @@
       <HeapReserveSize>
       </HeapReserveSize>
     </Link>
+    <PostBuildEvent>
+      <Command>lib /MACHINE:X64 /NOLOGO /OUT:"$(TargetPath).lib" "$(ProjectDir)x64\$(Configuration)\*.obj"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Agilent.h" />
@@ -217,6 +221,7 @@
     <ClInclude Include="directions.h" />
     <ClInclude Include="Expression.h" />
     <ClInclude Include="ftd2xx.h" />
+    <ClInclude Include="ftdiFlume.h" />
     <ClInclude Include="functionCombo.h" />
     <ClInclude Include="MasterThreadInput.h" />
     <ClInclude Include="Matrix.h" />
@@ -296,6 +301,8 @@
     <ClInclude Include="tinyPlotInfo.h" />
     <ClInclude Include="VariableStructures.h" />
     <ClInclude Include="VariableSystem.h" />
+    <ClInclude Include="viewpointFlume.h" />
+    <ClInclude Include="viewpointStructures.h" />
     <ClInclude Include="VisaFlume.h" />
   </ItemGroup>
   <ItemGroup>
@@ -311,6 +318,7 @@
     <ClCompile Include="Communicator.cpp" />
     <ClCompile Include="DaqMxFlume.cpp" />
     <ClCompile Include="Expression.cpp" />
+    <ClCompile Include="ftdiFlume.cpp" />
     <ClCompile Include="functionCombo.cpp" />
     <ClCompile Include="openWithExplorer.cpp" />
     <ClCompile Include="OscilloscopeViewer.cpp" />
@@ -374,7 +382,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="VariableSystem.cpp" />
+    <ClCompile Include="viewpointFlume.cpp" />
     <ClCompile Include="VisaFlume.cpp" />
+    <ClCompile Include="WinSerialFlume.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\JILA.bmp" />
@@ -395,9 +405,11 @@
     <None Include="coordinate.h" />
     <None Include="DaqMxFlume.h" />
     <None Include="DioStructures.h" />
+    <None Include="ftdiStructures.h" />
     <None Include="my_str.h" />
     <None Include="OscilloscopeViewer.h" />
     <None Include="PlotCtrl.h" />
+    <None Include="WinSerialFlume.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -3,17 +3,171 @@
 #include "afxwin.h"
 #include "../Chimera/NiawgController.h"
 #include "../Chimera/miscellaneousCommonFunctions.h"
+#include "TestMacros.h"
 #include <string>
-//fsnamespace Microsoft{ namespace VisualStudio {namespace CppUnitTestFramework
+
+
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 
 namespace TestNiawg
 {
+	TEST_CLASS( Rearrangement )
+	{
+		TEST_METHOD( Simple_Rerng )
+		{
+			UINT trigRow( 0 ), trigNum( 0 );
+			bool safemode( true );
+			NiawgController niawg( trigRow, trigNum, safemode );
+			Matrix<bool> source( 6, 3 );
+			Matrix<bool> target( 6, 3 );
+
+			loadBools( source, std::vector<bool>(
+			{ 0,1,0,
+				0,1,0,
+				0,1,0,
+				0,0,1,
+				0,1,0,
+				0,1,0 } ) );
+			loadBools( target, standardTarget );
+			std::vector<simpleMove> moves;
+			niawgPair<ULONG> finPos;
+			niawg.smartRearrangement( source, target, finPos, { 0,0 }, moves, rerngOptions( ) );
+			Assert::AreEqual( size_t( 1 ), moves.size( ) );
+			Assert::IsTrue( simpleMove( { 3,2,3,1 } ) == moves.front( ) );
+		}
+		TEST_METHOD( Complex_Rerng )
+		{
+			UINT trigRow( 0 ), trigNum( 0 );
+			bool safemode( true );
+			NiawgController niawg( trigRow, trigNum, safemode );
+			Matrix<bool> source( 6, 3 );
+			Matrix<bool> target( 6, 3 );
+
+			loadBools( source, std::vector<bool>(
+			{ 0,1,1,
+				0,0,0,
+				0,0,0,
+				1,0,1,
+				1,1,0,
+				0,1,1 } ) );
+			loadBools( target, standardTarget );
+			std::vector<simpleMove> moves;
+			niawgPair<ULONG> finPos;
+			niawg.smartRearrangement( source, target, finPos, { 0,0 }, moves, rerngOptions( ) );
+			// the following moves were copied from a trial that I know rearranges correctly. Details of the moves
+			// are hard to actualy predict.
+			Assert::AreEqual( size_t( 5 ), moves.size( ) );
+			Assert::IsTrue( simpleMove( { 0,2,1,2 } ) == moves[0] );
+			Assert::IsTrue( simpleMove( { 1,2,1,1 } ) == moves[1] );
+			Assert::IsTrue( simpleMove( { 3,0,2,0 } ) == moves[2] );
+			Assert::IsTrue( simpleMove( { 2,0,2,1 } ) == moves[3] );
+			Assert::IsTrue( simpleMove( { 3,2,3,1 } ) == moves[4] );
+		}
+		TEST_METHOD( No_Flash_Rerng )
+		{
+			// a predictable no-flash config.
+			UINT trigRow( 0 ), trigNum( 0 );
+			bool safemode( true );
+			NiawgController niawg( trigRow, trigNum, safemode );
+			Matrix<bool> source( 6, 3 );
+			Matrix<bool> target( 6, 3 );
+
+			loadBools( source, std::vector<bool>(
+			{ 0,1,0,
+				0,0,0,
+				0,1,0,
+				0,1,0,
+				0,1,0,
+				0,1,0 } ) );
+			loadBools( target, std::vector<bool>(
+			{ 0,0,0,
+				0,1,0,
+				0,1,0,
+				0,1,0,
+				0,1,0,
+				0,1,0 } ) );
+			std::vector<simpleMove> smoves;
+			std::vector<complexMove> moves;
+			niawgPair<ULONG> finPos;
+			niawg.smartRearrangement( source, target, finPos, { 0,0 }, smoves, rerngOptions( ) );
+			niawg.optimizeMoves( smoves, source, moves, rerngOptions( ) );
+			Assert::AreEqual( size_t( 1 ), moves.size( ) );
+			Assert::AreEqual( true, moves.front( ).needsFlash );
+			Assert::AreEqual( false, moves.front( ).isInlineParallel );
+			Assert::IsTrue( dir::up == moves.front( ).moveDir );
+			Assert::AreEqual( size_t( 1 ), moves.front( ).locationsToMove.size( ) );
+			Assert::IsTrue( coordinate( { 0,1 } ) == moves.front( ).locationsToMove.front( ) );
+		}
+		TEST_METHOD( Pi_Parallel_Rerng )
+		{
+			UINT trigRow( 0 ), trigNum( 0 );
+			bool safemode( true );
+			NiawgController niawg( trigRow, trigNum, safemode );
+			Matrix<bool> source( 6, 3 );
+			Matrix<bool> target( 6, 3 );
+			loadBools( source, std::vector<bool>(
+			{ 0,1,0,
+				0,0,1,
+				0,1,0,
+				0,0,1,
+				0,1,0,
+				0,1,0 } ) );
+			loadBools( target, standardTarget );
+			std::vector<simpleMove> smoves;
+			std::vector<complexMove> moves;
+			niawgPair<ULONG> finPos;
+			niawg.smartRearrangement( source, target, finPos, { 0,0 }, smoves, rerngOptions( ) );
+			niawg.optimizeMoves( smoves, source, moves, rerngOptions( ) );
+			Assert::AreEqual( size_t( 1 ), moves.size( ) );
+			auto move = moves.front( );
+			Assert::AreEqual( false, move.isInlineParallel );
+			Assert::AreEqual( true, move.needsFlash );
+			Assert::IsTrue( dir::left == move.moveDir );
+			Assert::AreEqual( size_t( 2 ), move.locationsToMove.size( ) );
+			Assert::IsTrue( coordinate( { 1,2 } ) == move.locationsToMove[0] );
+			Assert::IsTrue( coordinate( { 3,2 } ) == move.locationsToMove[1] );
+		}
+		TEST_METHOD( Complex_OptimizeRerng )
+		{
+			UINT trigRow( 0 ), trigNum( 0 );
+			bool safemode( true );
+			NiawgController niawg( trigRow, trigNum, safemode );
+			Matrix<bool> source( 6, 3 );
+			Matrix<bool> target( 6, 3 );
+
+			loadBools( source, std::vector<bool>(
+			  { 0,1,1,
+				0,0,0,
+				0,0,0,
+				1,0,1,
+				1,1,0,
+				0,1,1 } ) );
+			loadBools( target, standardTarget );
+			std::vector<simpleMove> smoves;
+			std::vector<complexMove> moves;
+			niawgPair<ULONG> finPos;
+			niawg.smartRearrangement( source, target, finPos, { 0,0 }, smoves, rerngOptions( ) );
+			niawg.optimizeMoves( smoves, source, moves, rerngOptions( ) );
+		}
+		private:
+			std::vector<bool> standardTarget =
+			{ 0,1,0,
+				0,1,0,
+				0,1,0,
+				0,1,0,
+				0,1,0,
+				0,1,0 };
+	};
 	TEST_CLASS( TestNiawg )
 	{
 		public:
-		TEST_METHOD( InitNiawg )
+		CONNECTED_TEST( Connect_To_Niawg )
+		{
+			NiawgController niawg( 0, 0, false );
+			errBox( niawg.fgenConduit.getDeviceInfo( ) );
+		}
+		TEST_METHOD( Init_Niawg )
 		{
 			UINT trigRow(0), trigNum( 0 );
 			bool safemode( true );
@@ -145,128 +299,21 @@ namespace TestNiawg
 			Assert::IsTrue( max < 1.0 );
 			Assert::IsTrue( min > -1.0 );
 		}
-		TEST_METHOD( SimpleRerng )
-		{			
-			UINT trigRow( 0 ), trigNum( 0 );
-			bool safemode( true );
-			NiawgController niawg( trigRow, trigNum, safemode );
-			Matrix<bool> source( 6, 3 );
-			Matrix<bool> target( 6, 3 );
-			
-			loadBools( source, std::vector<bool>(
-							  { 0,1,0,
-							    0,1,0,
-							    0,1,0,
-							    0,0,1,
-							    0,1,0,
-								0,1,0 } ) );
-			loadBools( target, std::vector<bool>(
-							   { 0,1,0,
-								 0,1,0,
-								 0,1,0,
-								 0,1,0,
-								 0,1,0,
-								 0,1,0 } ) );
-			std::vector<simpleMove> moves;
-			niawgPair<ULONG> finPos;
-			niawg.smartRearrangement( source, target, finPos, { 0,0 }, moves, rerngOptions() );
-			Assert::AreEqual( size_t( 1 ), moves.size( ) );
-			Assert::IsTrue( simpleMove({3,2,3,1}) == moves.front( ) );
-		}
-		TEST_METHOD( ComplexRerng )
+		TEST_METHOD( Large_Wave )
 		{
-			UINT trigRow( 0 ), trigNum( 0 );
+			// some there are memory issues with writing long waves.
+			const std::string longWaveScript = "gen1const HORIZONTAL 80 1 0 # gen1const VERTICAL 70 1 0 # 10 0";
+				UINT trigRow( 0 ), trigNum( 0 );
 			bool safemode( true );
 			NiawgController niawg( trigRow, trigNum, safemode );
-			Matrix<bool> source( 6, 3 );
-			Matrix<bool> target( 6, 3 );
-
-			loadBools( source, std::vector<bool>(
-			  { 0,1,1,
-				0,0,0,
-				0,0,0,
-				1,0,1,
-				1,1,0,
-				0,1,1 } ) );
-			loadBools( target, std::vector<bool>(
-			{ 0,1,0,
-				0,1,0,
-				0,1,0,
-				0,1,0,
-				0,1,0,
-				0,1,0 } ) );
-			std::vector<simpleMove> moves;
-			niawgPair<ULONG> finPos;
-			niawg.smartRearrangement( source, target, finPos, { 0,0 }, moves, rerngOptions( ) );
-			// the following moves were copied from a trial that I know rearranges correctly. Details of the moves
-			// are hard to actualy predict.
-			Assert::AreEqual( size_t( 5 ), moves.size( ) );
-			Assert::IsTrue( simpleMove( { 0,2,1,2 } ) == moves[0] );
-			Assert::IsTrue( simpleMove( { 1,2,1,1 } ) == moves[1] );
-			Assert::IsTrue( simpleMove( { 3,0,2,0 } ) == moves[2] );
-			Assert::IsTrue( simpleMove( { 2,0,2,1 } ) == moves[3] );
-			Assert::IsTrue( simpleMove( { 3,2,3,1 } ) == moves[4] );
+			ScriptStream stream( longWaveScript );
+			NiawgOutput output;
+			//
+			niawg.analyzeNiawgScript( stream, output, profileSettings( ), debugInfo( ), std::string( ), rerngOptions( ),
+									  std::vector<variableType>( ) );
+			niawg.writeStaticNiawg( output, debugInfo( ), std::vector<variableType>( ) );
+			Assert::AreEqual( long( NIAWG_SAMPLE_RATE * 10e-3 ), output.waves[0].core.sampleNum );
 		}
-		TEST_METHOD( NoFlashRerng )
-		{
-			// a predictable no-flash config.
-			UINT trigRow( 0 ), trigNum( 0 );
-			bool safemode( true );
-			NiawgController niawg( trigRow, trigNum, safemode );
-			Matrix<bool> source( 6, 3 );
-			Matrix<bool> target( 6, 3 );
-
-			loadBools( source, std::vector<bool>(
-				{ 0,1,0,
-				0,0,0,
-				0,1,0,
-				0,1,0,
-				0,1,0,
-				0,1,0} ) );
-			loadBools( target, std::vector<bool>(
-				{ 0,0,0,
-				0,1,0,
-				0,1,0,
-				0,1,0,
-				0,1,0,
-				0,1,0 } ) );
-			std::vector<simpleMove> smoves;
-			std::vector<complexMove> moves;
-			niawgPair<ULONG> finPos;
-			niawg.smartRearrangement( source, target, finPos, { 0,0 }, smoves, rerngOptions( ) );
-			niawg.optimizeMoves( smoves, source, moves, rerngOptions( ) );
-			Assert::AreEqual( size_t(1), moves.size( ) );
-			Assert::AreEqual( false, moves.front().needsFlash );
-		}
-		TEST_METHOD( ComplexOptimizeRerng )
-		{
-			UINT trigRow( 0 ), trigNum( 0 );
-			bool safemode( true );
-			NiawgController niawg( trigRow, trigNum, safemode );
-			Matrix<bool> source( 6, 3 );
-			Matrix<bool> target( 6, 3 );
-
-			loadBools( source, std::vector<bool>(
-			{ 0,1,1,
-				0,0,0,
-				0,0,0,
-				1,0,1,
-				1,1,0,
-				0,1,1 } ) );
-			loadBools( target, std::vector<bool>(
-			{ 0,1,0,
-				0,1,0,
-				0,1,0,
-				0,1,0,
-				0,1,0,
-				0,1,0 } ) );
-			std::vector<simpleMove> smoves;
-			std::vector<complexMove> moves;
-			niawgPair<ULONG> finPos;
-			niawg.smartRearrangement( source, target, finPos, { 0,0 }, smoves, rerngOptions( ) );
-			niawg.optimizeMoves( smoves, source, moves, rerngOptions());
-		}
-
 		private:
 			const std::string simpleScript = "gen1const HORIZONTAL 80 1 0 # gen1const VERTICAL 70 1 0 # 0.01 0";
 			const std::string rampScript = "gen2ampramp HORIZONTAL 80 lin 0.3 0.7 0 80 lin 0.7 0.3 0 # "

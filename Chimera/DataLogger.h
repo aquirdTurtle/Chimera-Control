@@ -6,7 +6,10 @@
 #include "AndorRunSettings.h"
 #include "MasterThreadInput.h"
 #include "afxwin.h"
+// there's potentially a typedef conflict with a python file which also typedefs ssize_t.
+#define ssize_t h5_ssize_t
 #include "H5Cpp.h"
+#undef ssize_t
 #include <vector>
 #include <string>
 
