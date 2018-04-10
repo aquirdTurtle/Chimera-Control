@@ -8,7 +8,8 @@
 #include "Expression.h"
 #include "nidaqmx2.h"
 #include <fstream>
-
+#include "Thrower.h"
+#include "range.h"
 
 MasterManager::MasterManager()
 {
@@ -191,7 +192,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 					input->aoSys->makeFinalDataFormat( variationInc, seqInc );
 					input->ttls->organizeTtlCommands( variationInc, seqInc );
 					input->ttls->findLoadSkipSnapshots( currLoadSkipTime, seqVariables, variationInc, seqInc );
-					input->ttls->convertToFinalFormat( variationInc, seqInc );
+					input->ttls->convertToFinalViewpointFormat( variationInc, seqInc );
 					// run a couple checks.
 					input->ttls->checkNotTooManyTimes( variationInc, seqInc );
 					input->ttls->checkFinalFormatTimes( variationInc, seqInc );
@@ -578,6 +579,10 @@ bool MasterManager::getIsPaused()
 
 void MasterManager::pause()
 {
+	if ( !experimentIsRunning )
+	{
+		thrower( "ERROR: Can't pause the experiment if the experiment isn't running!" );
+	}
 	// the locker object locks the lock (the pauseLock obj), and unlocks it when it is destroyed at the end of this function.
 	std::lock_guard<std::mutex> locker( pauseLock );
 	isPaused = true;
@@ -586,6 +591,10 @@ void MasterManager::pause()
 
 void MasterManager::unPause()
 {
+	if ( !experimentIsRunning )
+	{
+		thrower( "ERROR: Can't unpause the experiment if the experiment isn't running!" );
+	}
 	// the locker object locks the lock (the pauseLock obj), and unlocks it when it is destroyed at the end of this function.
 	std::lock_guard<std::mutex> locker( pauseLock );
 	isPaused = false;
@@ -594,6 +603,10 @@ void MasterManager::unPause()
 
 void MasterManager::abort()
 {
+	if ( !experimentIsRunning )
+	{
+		thrower( "ERROR: Can't abort the experiment if the experiment isn't running!" );
+	}
 	std::lock_guard<std::mutex> locker( abortLock );
 	isAborting = true;
 }

@@ -9,7 +9,7 @@
 class GpibFlume
 {
 	public:
-		GpibFlume::GpibFlume(short deviceID, bool safemode);
+		GpibFlume(short deviceID, bool safemode);
 		std::string query( std::string query );
 		std::string queryIdentity();
 		int ibdev( int pad );
@@ -17,7 +17,6 @@ class GpibFlume
 		std::string receive();
 		std::string getErrMessage( long errCode );
 		void queryError( );
-	private:
-		short deviceID;
-		bool deviceSafemode;
+		const short deviceID;
+		const bool deviceSafemode;
 };

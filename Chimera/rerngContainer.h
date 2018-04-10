@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "rerngMove.h"
+#include "Thrower.h"
 #include "windows.h"
 #include <vector>
 

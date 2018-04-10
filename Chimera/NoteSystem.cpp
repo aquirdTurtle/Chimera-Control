@@ -3,7 +3,7 @@
 #include <string>
 #include "NoteSystem.h"
 #include "constants.h"
-
+#include "ProfileSystem.h"
 
 void NoteSystem::rearrange(int width, int height, fontMap fonts)
 {

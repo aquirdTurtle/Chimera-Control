@@ -1,9 +1,8 @@
 #pragma once
 #include "functionCombo.h"
-#include "constants.h"
 #include "VariableStructures.h"
 #include "Control.h"
-#include "Windows.h"
+#include "afxwin.h"
 #include "afxcview.h"
 #include <vector>
 #include <string>
@@ -38,6 +37,8 @@ enum class VariableSysType
 class VariableSystem
 {
 	public:
+		
+		BOOL handleAccelerators( HACCEL m_haccel, LPMSG lpMsg );
 		UINT getTotalVariationNumber();
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
@@ -46,12 +47,11 @@ class VariableSystem
 		void updateVariableInfo( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
 								 DioSystem* ttls, AoSystem* aoSys );
 		void deleteVariable();
-		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id, std::string title,
+		void initialize( POINT& pos, cToolTips& toolTips, CWnd* master, int& id, std::string title,
 						 rgbMap rgbs, UINT listviewId, VariableSysType type );
 		void addConfigVariable( variableType var, UINT item );
 		void addGlobalVariable( variableType var, UINT item );
 		void handleColumnClick( NMHDR * pNotifyStruct, LRESULT* result );
-		void addVariableDimension();
 		void removeVariableDimension();
 		variableType getVariableInfo(int varNumber);
 		std::vector<variableType> getAllConstants();
@@ -78,6 +78,7 @@ class VariableSystem
 		void funcHandleOpenConfig( std::ifstream& configFile, int versionMajor, int versionMinor );
 		std::vector<variableType> getVariablesFromFile( std::ifstream& configFile, int versionMajor, int versionMinor );
 	private:
+		std::vector<CDialog*> childDlgs;
 		// name, constant/variable, dim, constantValue.
 		USHORT preRangeColumns = 4;
 		// Only 2 gui elements.

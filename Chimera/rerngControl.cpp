@@ -1,5 +1,8 @@
 ﻿#include "stdafx.h"
 #include "rerngControl.h"
+#include "ProfileSystem.h"
+#include "Thrower.h"
+
 
 rerngOptions rerngControl::getParams( )
 {

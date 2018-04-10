@@ -6,7 +6,6 @@
 #include "Control.h"
 #include "VariableSystem.h"
 #include "DioSystem.h"
-#include "miscellaneousCommonFunctions.h"
 #include "DaqMxFlume.h"
 #include "AoStructures.h"
 
@@ -20,15 +19,15 @@
 class AoSystem
 {
 	public:
-		AoSystem();
+		AoSystem( bool aoSafemode );
 		std::string getSystemInfo( );
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor, DioSystem* ttls);
-		void abort();
 		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id );
 		std::string getDacSequenceMessage(UINT variation, UINT seqNum );
-		void handleButtonPress(DioSystem* ttls);
+		void handleSetDacsButtonPress( DioSystem* ttls, bool useDefault=false );
+		void updateEdits( );
 		void setDacCommandForm( AoCommandForm command, UINT seqNum );
 		void setForceDacEvent( int line, double val, DioSystem* ttls, UINT variation, UINT seqNum );
 		void handleRoundToDac(CMenu& menu);
@@ -75,6 +74,8 @@ class AoSystem
 		double roundToDacResolution(double);
 		void findLoadSkipSnapshots( double time, std::vector<variableType>& variables, UINT variation, UINT seqNum );
 		void handleEditChange( UINT dacNumber );
+		std::vector<std::vector<std::vector<AoSnapshot>>> getSnapshots( );
+		std::vector<std::vector<std::array<std::vector<double>, 3>>> getFinData( );
 	private:
 		Control<CStatic> dacTitle;
 		Control<CButton> dacSetButton;

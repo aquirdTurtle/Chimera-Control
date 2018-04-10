@@ -2,11 +2,12 @@
 
 def turnOnMot():
 	%% %%%%%%%%%%%%%%%%%%%%%%%%%%5
+	var loadMotSidePower 0.1
 	%% % TTLs
 	on: DiagMotRf
 	on: RepumpRf
 	on: SideMotRf
-	on: RepumpShutter
+	on: RepumpShutater
 	on: DiagMotShutter
 	on: SideMotShutter
 	% Make sure raman shutter is closed initially

@@ -1,14 +1,15 @@
 #pragma once
 #include "Control.h"
-#include "ProfileSystem.h"
-#include "NiawgController.h"
 #include "commonTypes.h"
 #include "profileSettings.h"
+#include "NiawgStructures.h"
 #include <vector>
 #include <string>
 
 class MainWindow;
 class ScriptingWindow;
+class AuxiliaryWindow;
+class CameraWindow;
 
 /*
 ]--- This singleton class manages the entire "profile" system, where "profiles" are my term for the entirety of the settings in the code (strange word choice I

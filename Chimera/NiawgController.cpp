@@ -7,14 +7,35 @@
 
 #include "MasterThreadInput.h"
 #include "Matrix.h"
-
+#include "Thrower.h"
 #include <boost/algorithm/string/replace.hpp>
 #include <chrono>
 #include <numeric>
+#include "externals.h"
+#include "Thrower.h"
+#include "miscellaneousCommonFunctions.h"
+#include "range.h"
 
-
-NiawgController::NiawgController( UINT trigRow, UINT trigNumber ) : triggerRow( trigRow ), triggerNumber( trigNumber )
+NiawgController::NiawgController( UINT trigRow, UINT trigNumber, bool safemode ) : 
+	triggerRow( trigRow ), triggerNumber( trigNumber ), fgenConduit(safemode)
 {
+	// Contains all of of the names of the files that hold actual data file names.	
+	for ( auto number : range( MAX_NIAWG_SIGNALS ) )
+	{
+		WAVEFORM_NAME_FILES[number] = "gen " + str( number + 1 ) + ", const waveform file names.txt";
+		WAVEFORM_NAME_FILES[number + MAX_NIAWG_SIGNALS] = "gen " + str( number + 1 )
+			+ ", amp ramp waveform file names.txt";
+		WAVEFORM_NAME_FILES[number + 2 * MAX_NIAWG_SIGNALS] = "gen " + str( number + 1 )
+			+ ", freq ramp waveform file names.txt";
+		WAVEFORM_NAME_FILES[number + 3 * MAX_NIAWG_SIGNALS] = "gen " + str( number + 1 )
+			+ ", freq & amp ramp waveform file names.txt";
+
+		WAVEFORM_TYPE_FOLDERS[number] = "gen" + str( number + 1 ) + "const\\";
+		WAVEFORM_TYPE_FOLDERS[number + MAX_NIAWG_SIGNALS] = "gen" + str( number + 1 ) + "ampramp\\";
+		WAVEFORM_TYPE_FOLDERS[number + 2 * MAX_NIAWG_SIGNALS] = "gen" + str( number + 1 ) + "freqramp\\";
+		WAVEFORM_TYPE_FOLDERS[number + 3 * MAX_NIAWG_SIGNALS] = "gen" + str( number + 1 ) + "ampfreqramp\\";
+	}
+
 	// initialize rearrangement calibrations.
 	// default value for bias calibrations is currently 0.5.
 	// 3x6 calibration
@@ -474,8 +495,8 @@ void NiawgController::analyzeNiawgScript( ScriptStream& script, NiawgOutput& out
 
 
 
-void NiawgController::writeStaticNiawg( NiawgOutput& output, debugInfo& options, 
-										std::vector<variableType>& constants )
+void NiawgController::writeStaticNiawg( NiawgOutput& output, debugInfo& options, std::vector<variableType>& constants,
+										bool deleteWaveAfterWrite)
 {
 	for ( auto& waveInc : range(output.waveFormInfo.size()) )
 	{
@@ -523,10 +544,22 @@ void NiawgController::writeStaticNiawg( NiawgOutput& output, debugInfo& options,
 				simpleFormToOutput( waveForm.core, wave.core, constants, 0 );
 				handleMinus1Phase( wave.core, prevWave.core );
 				writeStandardWave( wave.core, options, output.isDefault );
+				if ( deleteWaveAfterWrite )
+				{
+					deleteWaveData( wave.core );
+				}
 			}
 		}
 	}
 }
+
+
+void NiawgController::deleteWaveData( simpleWave& core )
+{
+	core.waveVals.clear( );
+	core.waveVals.shrink_to_fit( );
+}
+
 
 void NiawgController::handleMinus1Phase( simpleWave& waveCore, simpleWave prevWave )
 {
@@ -619,11 +652,6 @@ void NiawgController::writeStandardWave(simpleWave& wave, debugInfo options, boo
 	{
 		defaultMixedWaveform = wave.waveVals;
 		defaultWaveName = wave.name;
-	}
-	else
-	{
-		wave.waveVals.clear( );
-		wave.waveVals.shrink_to_fit( );
 	}
 }
 
@@ -906,6 +934,7 @@ void NiawgController::handleVariations( NiawgOutput& output, std::vector<std::ve
 					}
 					handleMinus1Phase( wave.core, prevWave.core );
 					writeStandardWave( wave.core, debugOptions, output.isDefault );
+					deleteWaveData( wave.core );
 				}
 				mixedWaveSizes.push_back( 2 * wave.core.sampleNum );
 				mixedCount++;
@@ -1016,7 +1045,7 @@ void NiawgController::openWaveformFiles()
 * voltage data that populates the rest of the file as it's being read, and must be appended to the voltage data before
 * it is written to a new file.
 */
-void NiawgController::generateWaveform( channelWave & chanWave, debugInfo& options, long int sampleNum, double time )
+void NiawgController::generateWaveform( channelWave & chanWave, debugInfo& options, long int sampleNum, double waveTime )
 {
 	chanWave.wave.resize( sampleNum );
 	// the number of seconds
@@ -1032,7 +1061,7 @@ void NiawgController::generateWaveform( channelWave & chanWave, debugInfo& optio
 							   + str( chanWave.signals[signal].finPower ) + " " + chanWave.signals[signal].powerRampType + " "
 							   + str( chanWave.signals[signal].initPhase ) + ", ");
 	}
-	waveformFileSpecs += str( time * 1000.0 ) + "; ";
+	waveformFileSpecs += str( waveTime * 1000.0 ) + "; ";
 	// Start timer
 	std::chrono::time_point<chronoClock> time1( chronoClock::now( ) );
 	/// Loop over all previously recorded files (these should have been filled by a previous call to openWaveformFiles()).
@@ -1089,7 +1118,7 @@ void NiawgController::generateWaveform( channelWave & chanWave, debugInfo& optio
 		std::chrono::time_point<chronoClock> time1( chronoClock::now( ) );
 		// calculate all voltage values and final phases and store them in the readData variable.
 		std::vector<ViReal64> readData( sampleNum + chanWave.signals.size( ) );
-		calcWaveData( chanWave, readData, sampleNum, time );
+		calcWaveData( chanWave, readData, sampleNum, waveTime );
 		// Write the data, with phases, to the write file.
 		waveformFileWrite.write( (const char *)readData.data( ), (sampleNum + chanWave.signals.size( )) * sizeof( ViReal64 ) );
 		waveformFileWrite.close( );
@@ -1104,7 +1133,8 @@ void NiawgController::generateWaveform( channelWave & chanWave, debugInfo& optio
 						  std::ios::binary | std::ios::out | std::ios::app );
 		if ( !libNameFile.is_open( ) )
 		{
-			thrower( "ERROR! waveform name file not opening correctly.\n" );
+			thrower( "ERROR! saved waveform file not opening correctly! File name was " + LIB_PATH 
+					 + WAVEFORM_TYPE_FOLDERS[chanWave.initType] + WAVEFORM_NAME_FILES[chanWave.initType] + ".\n" );
 		}
 		// add the waveform name to the current list of strings. do it BEFORE adding the newline T.T
 		waveLibrary[chanWave.initType].push_back( cstr( waveformFileSpecs ) );
@@ -1240,7 +1270,7 @@ long NiawgController::waveformSizeCalc(double time)
 * This function takes in the data for a single waveform and calculates all if the waveform's data points, and returns a pointer to an array containing
 * these data points.
 */
-void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64>& readData, long int sampleNum, double time )
+void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64>& readData, long int sampleNum, double waveTime )
 {
 	// Declarations
 	std::vector<double> powerPos, freqRampPos, phasePos( inputData.signals.size( ) );
@@ -1324,24 +1354,48 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 		}
 	}
 
+	auto& t_r = waveTime;
+	auto t_r2 = t_r / 2;
 	/// calculate frequency differences for every signal. This is used for frequency ramps.
 	std::vector<double> deltaOmega;
+	std::vector<double> deltaNu;
+	std::vector<double> accel_w0;
+	std::vector<double> accel_w1;
+	std::vector<double> jerk;
+	std::vector<double> freq_1;
+	std::vector<double> phi_halfway;
 	double deltaTanh = std::tanh( 4 ) - std::tanh( -4 );
 	for ( UINT signal = 0; signal < inputData.signals.size( ); signal++ )
 	{
-		deltaOmega.push_back( 2 * PI * (inputData.signals[signal].freqFin - inputData.signals[signal].freqInit) );
+		// I try to keep the "auto" aliases here consistent with what's used later in the calculation.
+		auto f_0 = inputData.signals[signal].freqInit;
+		auto dNu = (inputData.signals[signal].freqFin - f_0);
+		deltaNu.push_back( dNu );
+		auto dOmega = 2 * PI *  dNu;
+		deltaOmega.push_back( dOmega );
+		auto a_w0 = PI * dNu / (2 * t_r);
+		accel_w0.push_back( a_w0 );
+		auto a_w1 = 4 * PI * dNu / t_r - a_w0;
+		accel_w1.push_back( a_w1 );
+		jerk.push_back( 8 * PI * dNu / (t_r*t_r) - 4 * a_w0 / t_r );
+		freq_1.push_back( f_0 + dNu / 2);
+		phi_halfway.push_back( 0.5 * a_w0 * (t_r2*t_r2) + (t_r2 / 6.0) * (2 * PI * dNu - a_w0 * t_r)
+						 + 2 * PI * f_0 * t_r2 + f_0 );
 	}
 	///		Get Data Points.		///
-	// initialize signalInc before the loop so that I have access to it afterwards.
 	int sample = 0;
 	/// increment through all samples
 	for ( ; sample < sampleNum; sample++ )
 	{
 		// calculate the time that this sample number refers to
-		double curTime = (double)sample / NIAWG_SAMPLE_RATE;
+		double t = (double)sample / NIAWG_SAMPLE_RATE;
 		/// Calculate Phase and Power Positions. For Every signal...
 		for ( auto signal : range( inputData.signals.size( ) ) )
 		{
+			// these "auto" aliases should match what was used above to calculate constants.
+			auto dOmega = deltaOmega[signal];
+			auto phi_0 = inputData.signals[signal].initPhase;
+			auto f_0 = inputData.signals[signal].freqInit;
 			/// Handle Frequency Ramps
 			// Frequency ramps are actually a little complex. we have dPhi/dt = omega(t) and we need phi to calculate data points. So in order to get 
 			// the phase you need to integrate the omega(t) you want and modify the integration constant to get your initial phase.
@@ -1349,9 +1403,7 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 			{
 				// W{t} = Wi + (DeltaW * t) / (Tfin)
 				// Phi{t}   = Wi * t + (DeltaW * t ^ 2) / 2 + phi_i
-				phasePos[signal] = (2 * PI * inputData.signals[signal].freqInit * curTime 
-									 + deltaOmega[signal] * pow( curTime, 2 ) / (2 * time)
-									 + inputData.signals[signal].initPhase);
+				phasePos[signal] = 2 * PI * f_0 * t + dOmega * pow( t, 2 ) / (2 * t_r) + phi_0;
 			}
 			else if ( inputData.signals[signal].freqRampType == "tanh" )
 			{
@@ -1363,23 +1415,43 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 				// Evaluating C to give the correct phase gives
 				// phi{t} = (w_i+dw/2)t+(dw)/dtanh * T_f/8 * (ln{cosh{-4+8t/T_f}}-ln{cosh{-4}}) + phi_0
 				// See onenote for more math.
-				phasePos[signal] = (2 * PI * inputData.signals[signal].freqInit + deltaOmega[signal] / 2.0) * curTime
-					+ (deltaOmega[signal] / deltaTanh) * (time / 8.0) * (std::log( std::cosh( 4 - (8 / time) * curTime ) )
-																		  - std::log( std::cosh( 4 ) )) + inputData.signals[signal].initPhase;
+				phasePos[signal] = (2 * PI * f_0 + dOmega / 2.0) * t + (dOmega / deltaTanh) * (t_r / 8.0) 
+					* (std::log( std::cosh( 4 - (8 / t_r) * t ) ) - std::log( std::cosh( 4 ) )) + phi_0;
 			}
 			else if ( inputData.signals[signal].freqRampType == "nr" )
 			{
 				// omega{t} = omega
 				// phi = omega*t
-				phasePos[signal] = 2 * PI * inputData.signals[signal].freqInit * curTime + inputData.signals[signal].initPhase;
+				phasePos[signal] = 2 * PI * f_0 * t + phi_0;
+			}
+			else if ( inputData.signals[signal].freqRampType == "fast" )
+			{
+				// these "auto" aliases should match what was used above to calculate constants.
+				auto a_w0 = accel_w0[signal];
+				auto a_w1 = accel_w1[signal];
+				auto dNu = deltaNu[signal];
+				auto J = jerk[signal];
+				auto f_1 = freq_1[signal];
+				auto phi_1 = phi_halfway[signal];
+				// constant phase-jerk ramp, except (optionally) an initial phase acceleration. I have a jupyter 
+				// notebook about this.
+				if ( t < t_r2 )
+				{
+					phasePos[signal] = (1.0 / 6.0) * J * (t*t*t) + 0.5 * a_w0 * (t * 2) + 2 * PI * f_0 * t + phi_0;
+				}
+				else
+				{
+					auto tp = t - t_r2;
+					phasePos[signal] = -(1.0 / 6.0) * J * (tp*tp*tp) + 0.5 * a_w1 * (tp*tp) + 2.0 * PI * f_1 * tp + phi_1;
+				}
 			}
 			else
 			{
-				// special ramp case. I'm not sure if this is actually useful. The frequency file would have to be designed very carefully.
-				freqRampPos[signal] = freqRampFileData[signal][sample] * (inputData.signals[signal].freqFin
-																		   - inputData.signals[signal].freqInit);
-				phasePos[signal] = (ViReal64)sample * 2 * PI * (inputData.signals[signal].freqInit + freqRampPos[signal]) / NIAWG_SAMPLE_RATE
-					+ inputData.signals[signal].initPhase;
+				// special ramp case. I'm not sure if this is actually useful. 
+				// The frequency file would have to be designed very carefully.
+				freqRampPos[signal] = freqRampFileData[signal][sample] * (deltaNu[signal]);
+				phasePos[signal] = (ViReal64)sample * 2 * PI * (f_0 + freqRampPos[signal]) / NIAWG_SAMPLE_RATE
+					+ phi_0;
 			}
 			/// amplitude ramps are much simpler.
 			if ( inputData.signals[signal].powerRampType != "lin" && inputData.signals[signal].powerRampType != "nr"
@@ -1436,14 +1508,14 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 		if ( inputData.signals[signal].freqRampType == "lin" )
 		{
 			phasePos[signal] = 2 * PI * inputData.signals[signal].freqInit * curTime 
-				+ deltaOmega[signal] * pow( curTime, 2 ) * 1 / (2 * time)
+				+ deltaOmega[signal] * pow( curTime, 2 ) * 1 / (2 * waveTime)
 				+ inputData.signals[signal].initPhase;
 		}
 		else if ( inputData.signals[signal].freqRampType == "tanh" )
 		{
 			phasePos[signal] = (2 * PI * inputData.signals[signal].freqInit + deltaOmega[signal] / 2.0) * curTime
-				+ (deltaOmega[signal] / deltaTanh) * (time / 8.0) * std::log( std::cosh( 4 - (8 / time) * curTime ) )
-				- (deltaOmega[signal] / deltaTanh) * (time / 8.0) * std::log( std::cosh( 4 ) )
+				+ (deltaOmega[signal] / deltaTanh) * (waveTime / 8.0) * std::log( std::cosh( 4 - (8 / waveTime) * curTime ) )
+				- (deltaOmega[signal] / deltaTanh) * (waveTime / 8.0) * std::log( std::cosh( 4 ) )
 				+ inputData.signals[signal].initPhase;
 		}
 		else if ( inputData.signals[signal].freqRampType == "nr" )

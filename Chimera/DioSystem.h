@@ -3,10 +3,15 @@
 #include "miscellaneousCommonFunctions.h"
 #include "DioStructures.h"
 #include "Expression.h"
+#include "PlotCtrl.h"
+#include "ftdiStructures.h"
+#include "ftdiFlume.h"
+#include "WinSerialFlume.h"
+#include "viewpointFlume.h"
 #include <array>
 #include <sstream>
 #include <unordered_map>
-#include "PlotCtrl.h"
+
 
 /**/
 class AuxiliaryWindow;
@@ -19,7 +24,19 @@ class AuxiliaryWindow;
 class DioSystem
 {
 	public:
-	    DioSystem();
+	    DioSystem( bool ftSafemode, bool serialSafemode );
+		/// Felixes Dio handling. Much originally in a class called "RC028".
+		void ftdi_disconnect( );
+		void ftdi_connectasync( const char devSerial[] );
+		void fillFtdiDataBuffer( std::vector<unsigned char>& dataBuffer, UINT offset, UINT count, ftdiPt pt );
+		DWORD ftdi_write( UINT seqNum, UINT variation, bool loadSkipf );
+		DWORD ftdi_trigger( );
+		
+		// an "alias template". effectively a local "using std::vector;" declaration. makes these declarations much more
+		// readable. I very rarely use things like this.
+		template<class T> using vec = std::vector<T>;
+
+		/// config handling
 		void handleNewConfig( std::ofstream& saveFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor );
@@ -57,7 +74,6 @@ class DioSystem
 		// returns -1 if not a name.
 		int getNameIdentifier(std::string name, UINT& row, UINT& number);
 		bool getTtlStatus(int row, int number);
-		std::string getErrorMessage(int errorCode);
 		void handleTtlScriptCommand( std::string command, timeType time, std::string name,
 									 std::vector<std::pair<UINT, UINT>>& ttlShadeLocations, 
 									 std::vector<variableType>& vars, UINT seqNum );
@@ -66,7 +82,11 @@ class DioSystem
 									 std::vector<variableType>& vars, UINT seqNum );
 		void interpretKey( std::vector<std::vector<variableType>>& variables );
 		void organizeTtlCommands(UINT variation, UINT seqNum );
-		void convertToFinalFormat(UINT variation, UINT seqNum );
+		void convertToFinalViewpointFormat(UINT variation, UINT seqNum );
+		void convertToFtdiSnaps( UINT variation, UINT seqNum );
+		void convertToFinalFtdiFormat( UINT variation, UINT seqNum );
+		DWORD ftdi_ForceOutput( int row, int number, int state );
+		void sizeDataStructures( UINT sequenceLength, UINT variations );
 		void writeTtlData( UINT variation, UINT seqNum, bool loadSkip );
 		void startBoard();
 		void stopBoard();
@@ -86,7 +106,30 @@ class DioSystem
 		void fillPlotData( UINT variation, std::vector<std::vector<pPlotDataVec>> ttlData );
 		std::pair<USHORT, USHORT> calcDoubleShortTime( double time );
 		std::vector<std::vector<double>> getFinalTimes( );
-	private:		
+		std::array< std::array<bool, 16>, 4 > getCurrentStatus( );
+		void updatePush( UINT row, UINT col );
+		vec<vec<vec<DioSnapshot>>> getSnapshots( );
+		vec<vec<std::array<ftdiPt, 2048>>> getFtdiSnaps( );
+		vec<vec<vec<WORD>>> getFinalViewpointData( );
+		vec<vec<finBufInfo>> getFinalFtdiData( );
+		double getFtdiTotalTime( UINT variation, UINT seqNum );
+	private:
+		ViewpointFlume vp_flume;
+		/// stuff for felix's dio
+		ftdiConnectionOption connectType;
+		const UINT NUMPOINTS = 2048;
+		const unsigned char TIMEOFFS = 0x0800;
+		const unsigned char BANKAOFFS = 0x1000;
+		const unsigned char BANKBOFFS = 0x1800;
+		const unsigned char WBWRITE = 161;
+		ftdiFlume ftFlume;
+		// note: it doesn't look like felix's / Adam's programming actually facilitates the serial mode programming
+		// because this handle never gets initialized anywhere int he code. Probably not hard to set up, although I 
+		// think that the ftdi stuff is a superset of the normal serial communications so probably no reason to do 
+		// this? I don't know, there might be speed considerations.
+		WinSerialFlume winSerial;
+		/// other.
+		void handleInvert( );
 		// one control for each TTL
 		Control<CStatic> ttlTitle;
 		Control<CButton> ttlHold;
@@ -100,112 +143,20 @@ class DioSystem
 		std::array< std::array<std::string, 16 >, 4> ttlNames;
 		// tells whether the hold button is down or not.
 		bool holdStatus;
-
-		// an "alias template". effectively a local using std::vector; declaration. makes these declarations much more
-		// readable. I very rarely use things like this.
-		template<class T> using vec = std::vector<T>;
-
+		// Each element of first vector is for each variation.
 		vec<vec<DioCommandForm>> ttlCommandFormList;
-		// Each element of first vector is for each variation.
 		vec<vec<vec<DioCommand>>> ttlCommandList;
-		// Each element of first vector is for each variation.
 		vec<vec<vec<DioSnapshot>>> ttlSnapshots, loadSkipTtlSnapshots;
-		// Each element of first vector is for each variation.
 		vec<vec<vec<std::array<WORD, 6>>>> formattedTtlSnapshots, loadSkipFormattedTtlSnapshots;
 		// this is just a flattened version of the above snapshots. This is what gets directly sent to the dio64 card.
-		vec<vec<vec<WORD>>> finalFormatTtlData, loadSkipFinalFormatTtlData;
+		vec<vec<vec<WORD>>> finalFormatViewpointData, loadSkipFinalFormatViewpointData;
+		// ftdiSnaps[seqNum][variationNum][snapshotNum]
+		vec<vec<std::array<ftdiPt, 2048>>> ftdiSnaps;
+		vec<vec<finBufInfo>> finFtdiBuffers;
+		vec<vec<std::array<ftdiPt, 2048>>> ftdiSnaps_loadSkip;
+		vec<vec<finBufInfo>> finFtdiBuffers_loadSkip;
+
 		std::array<std::array<bool, 16>, 4> defaultTtlState;
-
-
-		/* ***********************************************************************************************************
-		 * All of the functions (and a bit of redundancy here) might be a bit confusing. In short, there are 3 
-		 * "versions" of all of the functions directly below. There's the (1) function in the DLL (start with DIO64_...),
-		 * which I import into (2) functions with the raw_ prefix which I COULD use directly, but which I then wrap 
-		 * into (3) functions that I actually use (start with "dio..."). Note that for many other libraries in my code
-		 * I use a header & statically import the dll which allows me to just use functions pretty direclty. For 
-		 * whatever reason I was having trouble getting this implemented in this case (and apparently Adam/Debbie did
-		 * too in the visual basic code?) and so I manually import all of the functions in the constructor for this 
-		 * ttl class.
-		 * ***********************************************************************************************************
-		 */
-		void handleInvert();
-		/// The following section holds the dio functions that I actually use!
-		void dioOpenResource(char* resourceName, WORD board, WORD baseio);
-		void dioOpen( WORD board, WORD baseio );
-		void dioMode( WORD board, WORD mode );
-
-		void dioLoad(WORD board, char* rbfFile, int inputHint, int outputHint);
-		void dioClose(WORD board);
-		void dioInStart( WORD board, DWORD ticks, WORD& mask, WORD maskLength, WORD flags, WORD clkControl, 
-						 WORD startType, WORD startSource, WORD stopType, WORD stopSource, DWORD AIControl, 
-						 double& scanRate );
-		void dioInStatus( WORD board, DWORD& scansAvail, DIO64STAT& status );
-		void dioInRead( WORD board, WORD& buffer, DWORD scansToRead, DIO64STAT& status );
-		void dioInStop( WORD board );
-		void dioForceOutput( WORD board, WORD* buffer, DWORD mask );
-		void dioOutGetInput( WORD board, WORD& buffer );
-		void dioOutConfig(WORD board, DWORD ticks, WORD* mask, WORD maskLength, WORD flags, WORD clkControl, 
-						   WORD startType, WORD startSource, WORD stopType, WORD stopSource, DWORD AIControl, 
-						   DWORD reps, WORD ntrans, double& scanRate);
-		void dioOutStart( WORD board );
-		void dioOutStatus( WORD board, DWORD& scansAvail, DIO64STAT& status );
-		void dioOutWrite(WORD board, WORD* buffer, DWORD bufsize, DIO64STAT& status);
-		void dioOutStop( WORD board );
-		void dioSetAttr( WORD board, DWORD attrID, DWORD value );
-		void dioGetAttr( WORD board, DWORD attrID, DWORD& value );
-
-		/// The following functions (all of the ones that start with "raw") ARE NOT MEANT TO BE DIRECTLY USED (at least
-		/// in my code. They are the raw functions I'm importing from viewpoints libraries without any bells or whistles.)
-		/// In this code, please use my wrapped functions (above) which wraps the functions into slightly shorter calls 
-		/// & standardized & built in error handling.
-
-		/// NOT SUGGESTED FOR DIRECT USE! //////////////////////////////////////////////////////////////////////////
-		typedef int(__cdecl* DIO64_OpenResource)(char resourceName[], uint16_t board, uint16_t baseio);
-		DIO64_OpenResource raw_DIO64_OpenResource;
-		// before win7+, used to use dio64_open instead of dio64_openresource
-		typedef int(__cdecl* DIO64_Open)(WORD board, WORD baseio);
-		DIO64_Open raw_DIO64_Open;
-		typedef int(__cdecl* DIO64_Mode)(WORD board, WORD mode);
-		DIO64_Mode raw_DIO64_Mode;
-		typedef int(__cdecl* DIO64_Load)(WORD board, char *rbfFile, int intputHint, int outputHint );
-		DIO64_Load raw_DIO64_Load;
-		typedef int(__cdecl* DIO64_Close)(WORD board);
-		DIO64_Close raw_DIO64_Close;
-		typedef int(__cdecl* DIO64_In_Start)(WORD board, DWORD ticks, WORD *mask, WORD maskLength, WORD flags,
-											   WORD clkControl, WORD startType, WORD startSource, WORD stopType,
-											   WORD stopSource, DWORD AIControl, double *scanRate);
-		DIO64_In_Start raw_DIO64_In_Start;
-		typedef int(__cdecl* DIO64_In_Status)(WORD board, DWORD *scansAvail, DIO64STAT *status);
-		DIO64_In_Status raw_DIO64_In_Status;
-		typedef int(__cdecl* DIO64_In_Read)(WORD board, WORD *buffer, DWORD scansToRead, DIO64STAT *status);
-		DIO64_In_Read raw_DIO64_In_Read;
-		typedef int(__cdecl* DIO64_In_Stop)(WORD board);
-		DIO64_In_Stop raw_DIO64_In_Stop;
-		typedef int(__cdecl* DIO64_Out_ForceOutput)( WORD board, WORD *buffer, DWORD mask );
-		DIO64_Out_ForceOutput raw_DIO64_Out_ForceOutput;
-		typedef int(__cdecl* DIO64_Out_GetInput)( WORD board, WORD *buffer );
-		DIO64_Out_GetInput raw_DIO64_Out_GetInput;
-		typedef int(__cdecl* DIO64_Out_Config)(WORD board, DWORD ticks, WORD *mask, WORD maskLength, WORD flags,
-												 WORD clkControl, WORD startType, WORD startSource, WORD stopType, 
-												 WORD stopSource, DWORD AIControl, DWORD reps, WORD ntrans, double *scanRate);
-		DIO64_Out_Config raw_DIO64_Out_Config;
-		typedef int(__cdecl* DIO64_Out_Start)( WORD board );
-		DIO64_Out_Start raw_DIO64_Out_Start;
-		typedef int(__cdecl* DIO64_Out_Status)(WORD board,	DWORD *scansAvail, DIO64STAT *status);
-		DIO64_Out_Status raw_DIO64_Out_Status;
-
-
-		typedef int(__cdecl* DIO64_Out_Write)(WORD board, WORD *buffer, DWORD bufsize, DIO64STAT *status);
-
-		DIO64_Out_Write raw_DIO64_Out_Write;
-
-
-		typedef int(__cdecl* DIO64_Out_Stop)(WORD board);
-		DIO64_Out_Stop raw_DIO64_Out_Stop;
-		typedef int(__cdecl* DIO64_SetAttr)(WORD board, DWORD attrID, DWORD value);
-		DIO64_SetAttr raw_DIO64_SetAttr;
-		typedef int(__cdecl* DIO64_GetAttr)(WORD board, DWORD attrID, DWORD *value);
-		DIO64_GetAttr raw_DIO64_GetAttr;
 
 		/// END NOT SUGGESTED FOR DIRECT USE AREA! ////////////////////////////////////////////////////////////////////
 };

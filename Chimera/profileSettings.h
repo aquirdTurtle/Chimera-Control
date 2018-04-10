@@ -1,8 +1,9 @@
 #pragma once
+
+#include "constants.h"
 #include <string>
 #include <vector>
-#include "profileSettings.h"
-#include "constants.h"
+
 
 /*
 ]- This is a structure used for containing a set of parameters that define a profile.

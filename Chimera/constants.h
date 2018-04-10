@@ -1,16 +1,15 @@
 #pragma once
 
-#include "stdafx.h"
 #include "agilentStructures.h"
-#include "miscellaneousCommonFunctions.h"
-#include "niFgen.h"
 #include <string>
+#include <vector>
+#include <array>
 
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program. 
 
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP
 /// File Locations
 
 #ifdef SPECTRE_LAPTOP
@@ -144,6 +143,14 @@
 #define RAW_COUNTS "Raw Counts"
 #define CAMERA_PHOTONS "Camera Photons"
 #define ATOM_PHOTONS "Atom Photons"
+
+
+/// FELIX'S DIO PARAMETERS
+
+const UINT DIO_BUFFERSIZESER = 100;
+const UINT DIO_BUFFERSIZEASYNC = 2048;
+const UINT DIO_MSGLENGTH = 7;
+const UINT DIO_WRITESPERDATAPT = 3;
 
 
 /// Agilent Parameters

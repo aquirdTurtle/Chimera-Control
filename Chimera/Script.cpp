@@ -1,11 +1,5 @@
 #include "stdafx.h"
 
-#include <fstream>
-#include <sstream>
-#include <algorithm>
-#include <unordered_map>
-#include "boost/lexical_cast.hpp"
-
 #include "Script.h"
 
 #include "cleanString.h"
@@ -16,6 +10,13 @@
 #include "AuxiliaryWindow.h"
 #include "DioSystem.h"
 #include "RunInfo.h"
+#include "Thrower.h"
+
+#include <fstream>
+#include <sstream>
+#include <algorithm>
+#include <unordered_map>
+#include "boost/lexical_cast.hpp"
 
 
 void Script::initialize( int width, int height, POINT& loc, cToolTips& toolTips, CWnd* parent, 
@@ -925,7 +926,7 @@ void Script::openParentScript(std::string parentScriptFileAndPath, std::string c
 	}
 	else
 	{
-		thrower("ERROR: Unrecognized device type inside script control! Ask Mark about Bugs.");
+		thrower("ERROR: Unrecognized device type inside script control!  (A low level bug, this shouldn't happen).");
 	}
 	loadFile( parentScriptFileAndPath );
 	scriptName = str(fileChars);

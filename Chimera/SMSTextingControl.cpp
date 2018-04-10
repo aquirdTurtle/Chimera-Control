@@ -3,7 +3,7 @@
 #include "SMSTextingControl.h"
 #include "commctrl.h"
 #include "TextPromptDialog.h"
-
+#include "Thrower.h"
 
 void SmsTextingControl::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& tooltips, rgbMap rgbs )
 {

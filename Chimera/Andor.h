@@ -6,6 +6,7 @@
 #include <mutex>
 #include "ATMCD32D.h"
 #include "AndorRunSettings.h"
+#include "Matrix.h"
 
 /// /////////////////////////////////////////////////////
 /// 
@@ -27,6 +28,7 @@ struct cameraThreadInput
 	Communicator* comm;
 	// Andor is set to this in the constructor of the andor camera.
 	AndorCamera* Andor;
+	bool safemode;
 	std::vector<std::chrono::time_point<std::chrono::high_resolution_clock>>* imageTimes;
 };
 
@@ -34,7 +36,7 @@ struct cameraThreadInput
 class AndorCamera
 {
 	public:
-		AndorCamera();
+		AndorCamera(bool safemode_opt);
 		/// Andor Wrappers, in alphabetical order. Versions that take no parameters just insert current settings into 
 		// the versions that take parameters. Note that my wrapper names don't always match the andor SDK names. If 
 		// looking for specific sdk functions, search in the cpp file.
@@ -122,6 +124,7 @@ class AndorCamera
 		/// settings are stored in smaller classes.
 		// If the experiment is running, these settings hold the options that the experiment is using.y
 		AndorRunSettings runSettings;
+		const bool safemode;
 		// 
 		bool cameraIsRunning;
 		// set either of these to true in order to break corresponding threads out of their loops.
