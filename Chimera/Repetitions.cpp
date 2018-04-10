@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include "constants.h"
 #include "AuxiliaryWindow.h"
-
+#include "Thrower.h"
 
 void Repetitions::rearrange(UINT width, UINT height, fontMap fonts)
 {
@@ -60,19 +60,19 @@ void Repetitions::updateNumber(long repNumber)
 }
 
 
-void Repetitions::initialize(POINT& pos, cToolTips& toolTips, MainWindow* mainWin, int& id)
+void Repetitions::initialize(POINT& pos, cToolTips& toolTips, CWnd* parent, int& id)
 {
 	// title
 	repetitionText.sPos = { pos.x, pos.y, pos.x + 180, pos.y + 20 };
-	repetitionText.Create("Repetition #", NORM_STATIC_OPTIONS, repetitionText.sPos, mainWin, id++);
+	repetitionText.Create("Repetition #", NORM_STATIC_OPTIONS, repetitionText.sPos, parent, id++);
 	
 	repetitionEdit.sPos = { pos.x + 180, pos.y, pos.x + 330, pos.y + 20 };
-	repetitionEdit.Create( NORM_EDIT_OPTIONS, repetitionEdit.sPos, mainWin, IDC_REPETITION_EDIT );
+	repetitionEdit.Create( NORM_EDIT_OPTIONS, repetitionEdit.sPos, parent, IDC_REPETITION_EDIT );
 	repetitionEdit.SetWindowText("100");
 
 	repetitionDisp.sPos = { pos.x + 330, pos.y, pos.x + 480, pos.y += 20 };
 	repetitionDisp.Create( NORM_STATIC_OPTIONS | SS_SUNKEN , repetitionDisp.sPos,
-						  mainWin, id++);
+						  parent, id++);
 	repetitionDisp.SetWindowText("-");
 	// initialize the number to match the display.
 	repetitionNumber = 100;

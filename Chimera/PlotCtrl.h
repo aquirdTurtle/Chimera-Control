@@ -2,6 +2,8 @@
 #include <vector>
 #include <memory>
 #include "memdc.h"
+#include "gdiplus.h"
+#include <mutex>
 
 enum class plotStyle
 {
@@ -39,7 +41,7 @@ class PlotCtrl
 	public:
 		PlotCtrl( std::vector<pPlotDataVec> dataHolder, plotStyle inStyle, std::vector<Gdiplus::Pen*> pens,
 				  CFont* font, std::vector<Gdiplus::SolidBrush*> plotBrushes,
-				  std::string titleIn = "Title!" );
+				  std::string titleIn = "Title!", bool narrowOpt=false );
 		~PlotCtrl( );
 		void clear( );
 		void setCurrentDims( int width, int height);
@@ -70,6 +72,7 @@ class PlotCtrl
 
 		std::vector<std::mutex> dataMutexes;
 	private:
+		const bool narrow;
 		// in units of the data
 		double boxWidth=10;
 		double boxWidthPixels;

@@ -2,10 +2,8 @@
 #include "VisaFlume.h"
 
 
-VisaFlume::VisaFlume(bool safemode, std::string address) : deviceSafemode(safemode) 
-{ 
-	usbAddress = address;
-}
+VisaFlume::VisaFlume(bool safemode, std::string address) : deviceSafemode(safemode), usbAddress(address)
+{ }
 
 /// 
 void VisaFlume::write( std::string message )
@@ -53,7 +51,7 @@ void VisaFlume::open()
 }
 
 
-void VisaFlume::setAttribute( ULONG attributeName, ULONG value )
+void VisaFlume::setAttribute( ViAttr attributeName, ViAttrState value )
 {
 	if (!deviceSafemode)
 	{

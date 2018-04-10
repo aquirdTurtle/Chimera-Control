@@ -2,17 +2,12 @@
 *										*
 * Chimera-Control.cpp					*
 *										*
-*****************************************
-
-/**PROJECT ORGANIZATION****************************************\
-
-\**************************************************************/
+******************************************/
 
 // a file visual c++ uses for efficiency in compiling headers.
 #include "stdafx.h"
 // Contains some user-defined global parameters and options used throughout the code.
 #include "constants.h"
-#include "externals.h"
 // an namespace for agilent functions.
 
 // Contains functions and types used by the NIAWG.
@@ -68,10 +63,15 @@ BOOL ChimeraApp::PreTranslateMessage(MSG* pMsg)
 }
 
 
+
 BOOL ChimeraApp::ProcessMessageFilter(int code, LPMSG lpMsg)
 {
 	if (code >= 0 && theMainApplicationWindow && m_haccel)
 	{
+		if ( theMainApplicationWindow.handleAccelerators( m_haccel, lpMsg ) )
+		{
+			return (TRUE);
+		}
 		if (::TranslateAcceleratorA( this->theMainApplicationWindow.m_hWnd, m_haccel, lpMsg ))
 		{
 			return(TRUE);
@@ -88,23 +88,6 @@ BOOL ChimeraApp::InitInstance()
 	/// initialize some stuff
 	Gdiplus::GdiplusStartupInput input;
 	Gdiplus::GdiplusStartup( &gdip_token, &input, NULL );
-	// Contains all of of the names of the files that hold actual data file names.
-	
-	for (auto number : range( MAX_NIAWG_SIGNALS ))
-	{
-		WAVEFORM_NAME_FILES[number] = "gen " + str( number + 1 ) + ", const waveform file names.txt";
-		WAVEFORM_NAME_FILES[number + MAX_NIAWG_SIGNALS] = "gen " + str( number + 1 ) 
-			+ ", amp ramp waveform file names.txt";
-		WAVEFORM_NAME_FILES[number + 2 * MAX_NIAWG_SIGNALS] = "gen " + str( number + 1 ) 
-			+ ", freq ramp waveform file names.txt";
-		WAVEFORM_NAME_FILES[number + 3 * MAX_NIAWG_SIGNALS] = "gen " + str( number + 1 )
-			+ ", freq & amp ramp waveform file names.txt";
-
-		WAVEFORM_TYPE_FOLDERS[number] = "gen" + str( number + 1 ) + "const\\";
-		WAVEFORM_TYPE_FOLDERS[number + MAX_NIAWG_SIGNALS] = "gen" + str( number + 1 ) + "ampramp\\";
-		WAVEFORM_TYPE_FOLDERS[number + 2 * MAX_NIAWG_SIGNALS] = "gen" + str( number + 1 ) + "freqramp\\";
-		WAVEFORM_TYPE_FOLDERS[number + 3 * MAX_NIAWG_SIGNALS] = "gen" + str( number + 1 ) + "ampfreqramp\\";
-	}
 	// Check to make sure that the gain hasn't been defined to be too high.
 	if (NIAWG_GAIN > MAX_GAIN)
 	{

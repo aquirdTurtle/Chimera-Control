@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "Windows.h"
+#include "afxwin.h"
 #include "coordinate.h"
 
 struct atomGrid

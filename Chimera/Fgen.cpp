@@ -1,6 +1,11 @@
 #include "stdafx.h"
 #include "constants.h"
 #include "Fgen.h"
+#include "Thrower.h"
+
+
+FgenFlume::FgenFlume( bool safemodeOption ) : safemode(safemodeOption)
+{}
 
 
 std::string FgenFlume::getErrorMsg()
@@ -23,7 +28,7 @@ std::string FgenFlume::getErrorMsg()
 
 void FgenFlume::sendSoftwareTrigger()
 {
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_SendSoftwareEdgeTrigger( sessionHandle, NIFGEN_VAL_SCRIPT_TRIGGER, SOFTWARE_TRIGGER_NAME ) );
 	}
@@ -32,7 +37,7 @@ void FgenFlume::sendSoftwareTrigger()
 
 void FgenFlume::configureGain( ViReal64 gain )
 {
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_ConfigureGain( sessionHandle, outputChannels, gain ) );
 	}
@@ -41,7 +46,7 @@ void FgenFlume::configureGain( ViReal64 gain )
 
 void FgenFlume::configureSampleRate( ViReal64 sampleRate )
 {
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_ConfigureSampleRate( sessionHandle, sampleRate ) );
 	}
@@ -50,10 +55,8 @@ void FgenFlume::configureSampleRate( ViReal64 sampleRate )
 std::string FgenFlume::getDeviceInfo()
 {
 	// Use this section of code to output some characteristics of the 5451. If you want.
-
 	ViInt32 maximumNumberofWaveforms = 0, waveformQuantum = 0, minimumWaveformSize = 0, maximumWaveformSize = 0;
-
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_QueryArbWfmCapabilities( sessionHandle, &maximumNumberofWaveforms, &waveformQuantum,
 													&minimumWaveformSize, &maximumWaveformSize ) );
@@ -68,7 +71,7 @@ std::string FgenFlume::getDeviceInfo()
 
 void FgenFlume::configureChannels()
 {
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_ConfigureChannels( sessionHandle, outputChannels ) );
 	}
@@ -77,7 +80,7 @@ void FgenFlume::configureChannels()
 
 void FgenFlume::configureMarker( ViConstString markerName, ViConstString outputLocation )
 {
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_ExportSignal( sessionHandle, NIFGEN_VAL_MARKER_EVENT, markerName, outputLocation ) );
 	}
@@ -87,7 +90,7 @@ void FgenFlume::configureMarker( ViConstString markerName, ViConstString outputL
 // initialize the session handle, which is a member of this class.
 void FgenFlume::init( ViRsrc location, ViBoolean idQuery, ViBoolean resetDevice )
 {
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_init( location, idQuery, resetDevice, &sessionHandle ) );
 	}
@@ -99,7 +102,7 @@ void FgenFlume::init( ViRsrc location, ViBoolean idQuery, ViBoolean resetDevice 
 void FgenFlume::createWaveform( long size, ViReal64* wave )
 {
 	ViInt32 waveID;
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_CreateWaveformF64( sessionHandle, outputChannels, size, wave, &waveID ) );
 	}
@@ -108,7 +111,7 @@ void FgenFlume::createWaveform( long size, ViReal64* wave )
 
 void FgenFlume::writeUnNamedWaveform( ViInt32 waveID, ViInt32 mixedSampleNumber, ViReal64* wave )
 {
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_WriteWaveform( sessionHandle, outputChannels, waveID, mixedSampleNumber, wave ) );
 	}
@@ -118,7 +121,7 @@ void FgenFlume::writeUnNamedWaveform( ViInt32 waveID, ViInt32 mixedSampleNumber,
 // put waveform into the device memory
 void FgenFlume::writeNamedWaveform( ViConstString waveformName, ViInt32 mixedSampleNumber, ViReal64* wave )
 {
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_WriteNamedWaveformF64( sessionHandle, outputChannels, waveformName, mixedSampleNumber, wave ) );
 	}
@@ -129,7 +132,7 @@ void FgenFlume::writeScript( std::vector<ViChar> script )
 {
 	std::string temp( script.begin(), script.end() );
 	ViConstString constScript = temp.c_str();
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_WriteScript( sessionHandle, outputChannels, constScript ) );
 	}
@@ -138,7 +141,7 @@ void FgenFlume::writeScript( std::vector<ViChar> script )
 
 void FgenFlume::resetWritePosition( )
 {
-	if ( !NIAWG_SAFEMODE )
+	if ( !safemode )
 	{
 		errChecker( niFgen_SetNamedWaveformNextWritePosition(sessionHandle, outputChannels, "rearrangeWaveform", 
 															  NIFGEN_VAL_WAVEFORM_POSITION_START, 0 ));
@@ -148,7 +151,7 @@ void FgenFlume::resetWritePosition( )
 
 void FgenFlume::deleteWaveform( ViConstString waveformName )
 {
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_DeleteNamedWaveform( sessionHandle, outputChannels, waveformName ) );
 	}
@@ -157,7 +160,7 @@ void FgenFlume::deleteWaveform( ViConstString waveformName )
 
 void FgenFlume::deleteScript( ViConstString scriptName )
 {
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_DeleteScript( sessionHandle, outputChannels, scriptName ) );
 	}
@@ -166,7 +169,7 @@ void FgenFlume::deleteScript( ViConstString scriptName )
 
 void FgenFlume::allocateNamedWaveform( ViConstString waveformName, ViInt32 unmixedSampleNumber )
 {
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_AllocateNamedWaveform( sessionHandle, outputChannels, waveformName, unmixedSampleNumber ) );
 	}
@@ -176,7 +179,7 @@ void FgenFlume::allocateNamedWaveform( ViConstString waveformName, ViInt32 unmix
 ViInt32 FgenFlume::allocateUnNamedWaveform( ViInt32 unmixedSampleNumber )
 {
 	ViInt32 id = 0;
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_AllocateWaveform( sessionHandle, outputChannels, unmixedSampleNumber, &id ) );
 	}
@@ -186,7 +189,7 @@ ViInt32 FgenFlume::allocateUnNamedWaveform( ViInt32 unmixedSampleNumber )
 
 void FgenFlume::configureOutputEnabled( int state )
 {
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_ConfigureOutputEnabled( sessionHandle, outputChannels, state ) );
 	}
@@ -195,7 +198,7 @@ void FgenFlume::configureOutputEnabled( int state )
 
 void FgenFlume::clearMemory()
 {
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_ClearArbMemory( sessionHandle ) );
 	}
@@ -210,7 +213,7 @@ void FgenFlume::setViStringAttribute( ViAttr atributeID, ViConstString attribute
 {
 	// I keep track of this.
 	currentScriptName = attributeValue;
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_SetAttributeViString( sessionHandle, outputChannels, atributeID, attributeValue ) );
 	}
@@ -224,7 +227,7 @@ void FgenFlume::setViReal64Attribute( ViAttr attribute, ViReal64 attributeVal, V
 		channels = outputChannels;
 	}
 
-	if ( !NIAWG_SAFEMODE )
+	if ( !safemode )
 	{
 		errChecker( niFgen_SetAttributeViReal64( sessionHandle, channels, attribute, attributeVal ) );
 	}
@@ -233,7 +236,7 @@ void FgenFlume::setViReal64Attribute( ViAttr attribute, ViReal64 attributeVal, V
 
 void FgenFlume::setViBooleanAttribute( ViAttr attribute, bool state )
 {
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_SetAttributeViBoolean( sessionHandle, outputChannels, attribute, state ) );
 	}
@@ -242,7 +245,7 @@ void FgenFlume::setViBooleanAttribute( ViAttr attribute, bool state )
 
 void FgenFlume::setViInt32Attribute( ViAttr attributeID, ViInt32 value )
 {
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_SetAttributeViInt32( sessionHandle, outputChannels, attributeID, value ) );
 	}
@@ -251,7 +254,7 @@ void FgenFlume::setViInt32Attribute( ViAttr attributeID, ViInt32 value )
 
 void FgenFlume::enableAnalogFilter( ViReal64 filterFrequency )
 {
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_EnableAnalogFilter( sessionHandle, outputChannels, filterFrequency ) );
 	}
@@ -271,7 +274,7 @@ std::string FgenFlume::getExternalTriggerName()
 
 void FgenFlume::configureSoftwareTrigger()
 {
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_ConfigureSoftwareEdgeScriptTrigger( sessionHandle, SOFTWARE_TRIGGER_NAME ) );
 	}
@@ -281,7 +284,7 @@ void FgenFlume::configureSoftwareTrigger()
 signed short FgenFlume::isDone()
 {
 	ViBoolean isDone = 0;
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_IsDone( sessionHandle, &isDone ) );
 	}
@@ -292,7 +295,7 @@ signed short FgenFlume::isDone()
 
 void FgenFlume::configureDigtalEdgeScriptTrigger()
 {
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_ConfigureDigitalEdgeScriptTrigger( sessionHandle, EXTERNAL_TRIGGER_NAME, TRIGGER_SOURCE, TRIGGER_EDGE_TYPE ) );
 	}
@@ -301,7 +304,7 @@ void FgenFlume::configureDigtalEdgeScriptTrigger()
 
 void FgenFlume::configureClockMode( ViInt32 clockMode )
 {
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_ConfigureClockMode( sessionHandle, clockMode ) );
 	}
@@ -310,7 +313,7 @@ void FgenFlume::configureClockMode( ViInt32 clockMode )
 
 void FgenFlume::initiateGeneration()
 {
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_InitiateGeneration( sessionHandle ) );
 	}
@@ -319,7 +322,7 @@ void FgenFlume::initiateGeneration()
 
 void FgenFlume::abortGeneration()
 {
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_AbortGeneration( sessionHandle ) );
 	}
@@ -328,7 +331,7 @@ void FgenFlume::abortGeneration()
 
 void FgenFlume::setAttributeViString( ViAttr attribute, ViString string )
 {
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_SetAttributeViString( sessionHandle, outputChannels, attribute, string ) );
 	}
@@ -338,7 +341,7 @@ void FgenFlume::setAttributeViString( ViAttr attribute, ViString string )
 ViInt32 FgenFlume::getInt32Attribute( ViAttr attribute )
 {
 	ViInt32 value = 0;
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_GetAttributeViInt32( sessionHandle, outputChannels, attribute, &value ) );
 	}
@@ -349,7 +352,7 @@ ViInt32 FgenFlume::getInt32Attribute( ViAttr attribute )
 ViInt64 FgenFlume::getInt64Attribute( ViAttr attribute )
 {
 	ViInt64 value = 0;
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_GetAttributeViInt64( sessionHandle, outputChannels, attribute, &value ) );
 	}
@@ -360,7 +363,7 @@ ViInt64 FgenFlume::getInt64Attribute( ViAttr attribute )
 ViReal64 FgenFlume::getReal64Attribute( ViAttr attribute )
 {
 	ViReal64 value = 0;
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_GetAttributeViReal64( sessionHandle, outputChannels, attribute, &value ) );
 	}
@@ -371,7 +374,7 @@ ViReal64 FgenFlume::getReal64Attribute( ViAttr attribute )
 std::string FgenFlume::getViStringAttribute( ViAttr attribute )
 {
 	ViChar value[256];
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_GetAttributeViString( sessionHandle, outputChannels, attribute, 256, value ) );
 	}
@@ -382,7 +385,7 @@ std::string FgenFlume::getViStringAttribute( ViAttr attribute )
 ViBoolean FgenFlume::getViBoolAttribute( ViAttr attribute )
 {
 	ViBoolean value = false;
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_GetAttributeViBoolean( sessionHandle, outputChannels, attribute, &value ) );
 	}
@@ -393,7 +396,7 @@ ViBoolean FgenFlume::getViBoolAttribute( ViAttr attribute )
 ViSession FgenFlume::getViSessionAttribute( ViAttr attribute )
 {
 	ViSession value = 0;
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_GetAttributeViSession( sessionHandle, outputChannels, attribute, &value ) );
 	}
@@ -403,7 +406,7 @@ ViSession FgenFlume::getViSessionAttribute( ViAttr attribute )
 
 void FgenFlume::configureOutputMode()
 {
-	if (!NIAWG_SAFEMODE)
+	if (!safemode )
 	{
 		errChecker( niFgen_ConfigureOutputMode( sessionHandle, OUTPUT_MODE ) );
 	}

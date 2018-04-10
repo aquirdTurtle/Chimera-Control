@@ -1,14 +1,16 @@
 #pragma once
 
 #include "Control.h"
+#include "PlotDialog.h"
 #include "PlottingInfo.h"
+#include "EmbeddedPythonHandler.h"
+#include "Communicator.h"
+
 #include "atomGrid.h"
 #include "tinyPlotInfo.h"
-#include "PlotDialog.h"
 #include "Expression.h"
 #include <deque>
 #include <map>
-
 
 struct realTimePlotterInput;
 struct cameraPositions;

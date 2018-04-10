@@ -3,8 +3,9 @@
 #include "stdafx.h"
 #include "CameraImageDimensions.h"
 #include "CameraWindow.h"
+#include "MainWindow.h"
 #include "CameraSettingsControl.h"
-
+#include "Thrower.h"
 
 ImageDimsControl::ImageDimsControl()
 {

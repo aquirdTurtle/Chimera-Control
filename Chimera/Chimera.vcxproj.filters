@@ -197,6 +197,12 @@
     <ClCompile Include="AoSettingsDialog.cpp" />
     <ClCompile Include="AiSystem.cpp" />
     <ClCompile Include="functionCombo.cpp" />
+    <ClCompile Include="RC028.cpp">
+      <Filter>Auxiliary Window</Filter>
+    </ClCompile>
+    <ClCompile Include="ftdiFlume.cpp" />
+    <ClCompile Include="WinSerialFlume.cpp" />
+    <ClCompile Include="viewpointFlume.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -477,6 +483,17 @@
     <ClInclude Include="AoStructures.h" />
     <ClInclude Include="AoSettingsDialog.h" />
     <ClInclude Include="functionCombo.h" />
+    <ClInclude Include="Thrower.h" />
+    <ClInclude Include="range.h" />
+    <ClInclude Include="RC028.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
+    <ClInclude Include="ftd2xx.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
+    <ClInclude Include="ftdiFlume.h" />
+    <ClInclude Include="viewpointFlume.h" />
+    <ClInclude Include="viewpointStructures.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">
@@ -540,11 +557,6 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Object Include="gpib-32.obj">
-      <Filter>Things I Don%27t Mess With %28Often%29</Filter>
-    </Object>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="DioStructures.h">
       <Filter>Auxiliary Window</Filter>
     </None>
@@ -554,5 +566,8 @@
     <None Include="PlotCtrl.h" />
     <None Include="OscilloscopeViewer.h" />
     <None Include="DaqMxFlume.h" />
+    <None Include="my_str.h" />
+    <None Include="WinSerialFlume.h" />
+    <None Include="ftdiStructures.h" />
   </ItemGroup>
 </Project>

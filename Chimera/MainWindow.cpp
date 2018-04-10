@@ -3,13 +3,15 @@
 #include "MainWindow.h"
 #include "CameraWindow.h"
 #include "AuxiliaryWindow.h"
+#include "ScriptingWindow.h"
 #include <future>
-
+#include "Thrower.h"
+#include "externals.h"
 
 MainWindow::MainWindow( UINT id, CDialog* splash ) : CDialog( id ), profile( PROFILES_PATH ),
 	masterConfig( MASTER_CONFIGURATION_FILE_ADDRESS ),
 	appSplash( splash ),
-	niawg( 1, 14 ),
+	niawg( 1, 14, NIAWG_SAFEMODE ),
 	masterRepumpScope( MASTER_REPUMP_SCOPE_ADDRESS, MASTER_REPUMP_SCOPE_SAFEMODE, 4 ),
 	motScope( MOT_SCOPE_ADDRESS, MOT_SCOPE_SAFEMODE, 2 )
 {
@@ -208,6 +210,19 @@ END_MESSAGE_MAP()
 void MainWindow::OnTimer( UINT_PTR id )
 {
 	OnPaint( );
+}
+
+
+BOOL MainWindow::handleAccelerators( HACCEL m_haccel, LPMSG lpMsg )
+{
+	if ( TheAuxiliaryWindow != NULL )
+	{
+		return TheAuxiliaryWindow->handleAccelerators( m_haccel, lpMsg );
+	}
+	else
+	{
+		return FALSE;
+	}
 }
 
 

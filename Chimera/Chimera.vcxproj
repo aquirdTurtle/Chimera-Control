@@ -61,28 +61,32 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Debug-32.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Debug-64.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="Release-32.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\Release-64.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;$(ProjectDir)\Packages\32-Bit-Libs\Debug\HDF5-1.10.1-win32-Debug\include;$(ProjectDir)\Packages\boost_1_64_0;C:\ProgramData\Anaconda3\include;C:\Program Files (x86)\Anaconda3\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
-    <LibraryPath>C:\Program Files\Andor SOLIS\Drivers;C:\Users\Mark\Documents\Quantum Gas Assembly Control\Chimera;$(ProjectDir)\Packages\boost_1_64_0\lib-32bit;C:\Program Files (x86)\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib\msvc;C:\Program Files (x86)\IVI Foundation\VISA\WinNT\lib\msc;$(ProjectDir)\Packages\32-Bit-Libs\Debug\HDF5-1.10.1-win32-Debug\lib;$(ProjectDir)\Packages\32-Bit-Libs\DIO64;$(ProjectDir)\Packages\32-Bit-Libs\Debug\Python;$(ProjectDir)\Packages\32-Bit-Libs\Debug\Andor;$(LibraryPath)</LibraryPath>
-    <ExecutablePath>$(ProjectDir)\Packages\32-Bit-Libs\Debug\Python;$(ExecutablePath)</ExecutablePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <ExecutablePath>$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\ProgramData\Anaconda3\include;C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;C:\Program Files\Agilent\IO Libraries Suite\lib_x64;C:\Program Files\Agilent\IO Libraries Suite\include;$(VXIPNPPATH)WinNT\include;$(IncludePath);C:\Users\Mark\Anaconda3\include;C:\Users\Regal Lab\Anaconda3\include;C:\Anaconda3\include;$(ProjectDir)\Packages\boost_1_64_0;$(ProjectDir)\Packages\64-Bit-Libs\Debug\HDF5-1.10.1-win64\include</IncludePath>
-    <LibraryPath>C:\Program Files\Andor SOLIS\Drivers;C:\Users\Mark\Documents\Quantum Gas Assembly Control\Chimera;C:\Program Files (x86)\Visual Leak Detector\lib\Win64;C:\Program Files (x86)\Visual Leak Detector\src;C:\Program Files\Agilent\IO Libraries Suite\lib_x64;C:\Program Files\IVI Foundation\VISA\Win64\Lib_x64\msc;$(ProjectDir)\Packages\boost_1_64_0\lib-64bit;$(ProjectDir)\Packages\64-Bit-Libs\Debug\HDF5-1.10.1-win64\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(IncludePath);</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
@@ -91,9 +95,10 @@
     <LibraryPath>C:\Program Files\Andor SOLIS\Drivers;C:\Users\Mark\Documents\Quantum Gas Assembly Control\Chimera;C:\Program Files (x86)\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib\msvc;C:\Program Files (x86)\IVI Foundation\VISA\WinNT\lib\msc;C:\Program Files (x86)\IVI Foundation\IVI\Lib\msc;C:\Program Files (x86)\HDF_Group\HDF5\Release\HDF5-1.10.1-win32\lib;$(ProjectDir)\Packages\boost_1_64_0\lib-32bit;$(ProjectDir)\Packages\32-Bit-Libs\Release\HDF5-1.10.1-win32-Release\lib;$(ProjectDir)\Packages\32-Bit-Libs\Release\Python;$(ProjectDir)\Packages\32-Bit-Libs\DIO64;$(ProjectDir)\Packages\32-Bit-Libs\Release\Andor;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Program Files (x86)\IVI Foundation\VISA\WinNt\include;C:\Program Files (x86)\IVI Foundation\IVI\Include;$(IncludePath);C:\Users\Mark\Anaconda3\include;C:\ProgramData\Anaconda3\include;$(ProjectDir)\Packages\boost_1_64_0;$(ProjectDir)\Packages\64-Bit-Libs\Release\HDF5-1.10.1-win64\include</IncludePath>
+    <IncludePath>$(IncludePath);</IncludePath>
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>C:\Program Files\Andor SOLIS\Drivers;C:\Users\Mark\Documents\Quantum Gas Assembly Control\Chimera;C:\Program Files (x86)\National Instruments\Shared\ExternalCompilerSupport\C;C:\Program Files (x86)\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib;C:\Program Files (x86)\National Instruments\NI-DAQ\DAQmx ANSI C Dev\lib\msvc;$(ProjectDir)\Packages\boost_1_64_0\lib-64bit;$(ProjectDir)\Packages\64-Bit-Libs\Release\HDF5-1.10.1-win64\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <ExecutablePath>$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -114,6 +119,9 @@
       <AdditionalLibraryDirectories>$(NIIVIPATH)\Lib\msc;$(PXIPNPPATH)\winnt\Lib\msc;</AdditionalLibraryDirectories>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
+    <PostBuildEvent>
+      <Command>lib /NOLOGO /OUT:"$(TargetPath).lib" "$(ProjectDir)\$(Configuration)\*.obj"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -122,7 +130,8 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32; NO_WARN_MBCS_MFC_DEPRECATION;_DEBUG;_CONSOLE;_LIB;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>D:\Program Files\boost_1_60_0</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <ShowIncludes>false</ShowIncludes>
       <UseFullPaths>false</UseFullPaths>
@@ -130,9 +139,12 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>cfitsio.lib;niFgen.lib;atmcd64m.lib;atmcd32m.lib;visa32.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies);python35.lib</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(NIIVIPATH)\Lib_x64\msc;$(PXIPNPPATH)\winnt\Lib_x64\msc;C:\Program Files (x86)\IVI Foundation\VISA\WinNT\Lib_x64\msc;C:\Program Files (x86)\IVI Foundation\VISA\WinNT\agvisa\Lib_x64\msc;D:\Program Files\boost_1_60_0\lib64-msvc-14.0;C:\Program Files\boost_1_60_0\lib64-msvc-14.0</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>lib /MACHINE:X64 /NOLOGO /OUT:"$(TargetPath).lib" "$(ProjectDir)x64\$(Configuration)\*.obj"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -167,19 +179,24 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32; NO_WARN_MBCS_MFC_DEPRECATION;NDEBUG;_CONSOLE;_LIB;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>D:\Program Files\boost_1_60_0</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(NIIVIPATH)\Lib_x64\msc;$(PXIPNPPATH)\winnt\Lib_x64\msc;C:\Program Files (x86)\IVI Foundation\VISA\WinNT\agvisa\Lib_x64\msc;D:\Program Files\boost_1_60_0\lib64-msvc-14.0</AdditionalLibraryDirectories>
-      <AdditionalDependencies>NIDAQmx.lib;dio64_32.lib;cfitsio.lib; niFgen.lib;atmcd64m.lib;atmcd32m.lib;visa32.lib;legacy_stdio_definitions.lib;%(AdditionalDependencies);python36.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies);</AdditionalDependencies>
       <HeapReserveSize>
       </HeapReserveSize>
     </Link>
+    <PostBuildEvent>
+      <Command>lib /MACHINE:X64 /NOLOGO /OUT:"$(TargetPath).lib" "$(ProjectDir)x64\$(Configuration)\*.obj"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Agilent.h" />
@@ -203,6 +220,8 @@
     <ClInclude Include="debugInfo.h" />
     <ClInclude Include="directions.h" />
     <ClInclude Include="Expression.h" />
+    <ClInclude Include="ftd2xx.h" />
+    <ClInclude Include="ftdiFlume.h" />
     <ClInclude Include="functionCombo.h" />
     <ClInclude Include="MasterThreadInput.h" />
     <ClInclude Include="Matrix.h" />
@@ -242,6 +261,8 @@
     <ClInclude Include="DebugOptionsControl.h" />
     <ClInclude Include="externals.h" />
     <ClInclude Include="MainWindow.h" />
+    <ClInclude Include="range.h" />
+    <ClInclude Include="RC028.h" />
     <ClInclude Include="realTimePlotterInput.h" />
     <ClInclude Include="rerngMove.h" />
     <ClInclude Include="rerngContainer.h" />
@@ -276,9 +297,12 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="DioSettingsDialog.h" />
     <ClInclude Include="DioSystem.h" />
+    <ClInclude Include="Thrower.h" />
     <ClInclude Include="tinyPlotInfo.h" />
     <ClInclude Include="VariableStructures.h" />
     <ClInclude Include="VariableSystem.h" />
+    <ClInclude Include="viewpointFlume.h" />
+    <ClInclude Include="viewpointStructures.h" />
     <ClInclude Include="VisaFlume.h" />
   </ItemGroup>
   <ItemGroup>
@@ -294,6 +318,7 @@
     <ClCompile Include="Communicator.cpp" />
     <ClCompile Include="DaqMxFlume.cpp" />
     <ClCompile Include="Expression.cpp" />
+    <ClCompile Include="ftdiFlume.cpp" />
     <ClCompile Include="functionCombo.cpp" />
     <ClCompile Include="openWithExplorer.cpp" />
     <ClCompile Include="OscilloscopeViewer.cpp" />
@@ -326,6 +351,7 @@
     <ClCompile Include="PlotDesignerDialog.cpp" />
     <ClCompile Include="PlottingInfo.cpp" />
     <ClCompile Include="ProfileIndicator.cpp" />
+    <ClCompile Include="RC028.cpp" />
     <ClCompile Include="rerngControl.cpp" />
     <ClCompile Include="Repetitions.cpp" />
     <ClCompile Include="RhodeSchwarz.cpp" />
@@ -356,7 +382,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="VariableSystem.cpp" />
+    <ClCompile Include="viewpointFlume.cpp" />
     <ClCompile Include="VisaFlume.cpp" />
+    <ClCompile Include="WinSerialFlume.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\JILA.bmp" />
@@ -371,17 +399,17 @@
     <ResourceCompile Include="Chimera.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Object Include="gpib-32.obj" />
-  </ItemGroup>
-  <ItemGroup>
     <Text Include="Planning.txt" />
   </ItemGroup>
   <ItemGroup>
     <None Include="coordinate.h" />
     <None Include="DaqMxFlume.h" />
     <None Include="DioStructures.h" />
+    <None Include="ftdiStructures.h" />
+    <None Include="my_str.h" />
     <None Include="OscilloscopeViewer.h" />
     <None Include="PlotCtrl.h" />
+    <None Include="WinSerialFlume.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

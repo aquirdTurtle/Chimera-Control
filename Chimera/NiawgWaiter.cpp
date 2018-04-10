@@ -1,6 +1,10 @@
 #pragma once
 #include "stdafx.h"
 #include "NiawgWaiter.h"
+#include "Communicator.h"
+#include "Thrower.h"
+#include "externals.h"
+
 
 /*
  * This function is called to wait on the NIAWG until it finishes. It will eventually send messages to other threads 

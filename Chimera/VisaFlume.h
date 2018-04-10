@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "visa.h"
+#include "Windows.h"
 // this is my wrapper around the visa protocol. There are two types of visa on my system, "NI"-Visa and "Agilent"-Visa.
 // These in principle are to be used for different, but I believe that this is all low level stuff under the hood. 
 class VisaFlume
@@ -8,8 +9,8 @@ class VisaFlume
 	public:
 	    VisaFlume(bool safemode, std::string address);
 		void write( std::string message );		
-		void close();
-		void open();
+		void close( );
+		void open( );
 		char scan( );
 		void flush( );
 		void query( std::string msg, long& data );
@@ -23,9 +24,9 @@ class VisaFlume
 		void errQuery( std::string& errMsg, long& errCode );
 		void query( std::string msg );
 		std::string identityQuery();
+		const bool deviceSafemode;
+		const std::string usbAddress;
 	private:
-	    const bool deviceSafemode;
-		std::string usbAddress;
 		ULONG instrument, defaultResourceManager;
 
 };

@@ -1,5 +1,9 @@
+
 #include "stdafx.h"
 #include "TektronicsControl.h"
+#include "Thrower.h"
+#include "ProfileSystem.h"
+#include "range.h"
 
 TektronicsControl::TektronicsControl(bool safemode, std::string address) : visaFlume(safemode, address) {}
 

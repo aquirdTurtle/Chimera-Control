@@ -1,18 +1,12 @@
 #pragma once
 // This header file includes all of the extern declarations of all of my external (global) variables.
-#include "ProfileSystem.h"
-#include "NoteSystem.h"
-#include "VariableSystem.h"
-#include "Script.h"
-#include "MainWindow.h"
-#include "ScriptingWindow.h"
-#include "DebugOptionsControl.h"
-#include "NiawgController.h"
+#include "NiawgStructures.h"
 #include "Control.h"
-#include "Windows.h"
+#include "afxWin.h"
 #include <string>
 #include <vector>
 #include "niFgen.h"
+
 extern std::vector<std::string> WAVEFORM_NAME_FILES;
 extern std::vector<std::string> WAVEFORM_TYPE_FOLDERS;
 

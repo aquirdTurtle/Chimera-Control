@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "PlotDataSet.h"
+#include "Thrower.h"
 
 
 PlotDataSet::PlotDataSet()

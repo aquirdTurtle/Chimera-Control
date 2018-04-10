@@ -2,13 +2,12 @@
 
 #include "commonTypes.h"
 #include "CameraPositions.h"
-#include "Windows.h"
-
+#include "afxwin.h"
+#include "afxcmn.h"
 #include <unordered_map>
 #include <string>
 #include <type_traits>
 
-//#include "miscellaneousCommonFunctions.h"
 
 static HFONT toolTipFont = CreateFont(30, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS, 
 									   CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, TEXT("Arial"));
@@ -20,12 +19,12 @@ standardizes control initializations.
 const DWORD NORM_CWND_OPTIONS = WS_VISIBLE | WS_CHILD;
 const DWORD NORM_PUSH_OPTIONS = NORM_CWND_OPTIONS | BS_DEFPUSHBUTTON | WS_TABSTOP;
 const DWORD NORM_STATIC_OPTIONS = NORM_CWND_OPTIONS | ES_READONLY | ES_CENTER | SS_ENDELLIPSIS;
-const DWORD NORM_HEADER_OPTIONS = NORM_STATIC_OPTIONS | WS_BORDER | ES_SUNKEN;
+const DWORD NORM_HEADER_OPTIONS = NORM_STATIC_OPTIONS ;
 const DWORD NORM_EDIT_OPTIONS = NORM_CWND_OPTIONS | WS_TABSTOP | ES_MULTILINE | ES_WANTRETURN;
 const DWORD NORM_COMBO_OPTIONS = NORM_CWND_OPTIONS | CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_OVERLAPPED | WS_TABSTOP;
 const DWORD NORM_RADIO_OPTIONS = NORM_CWND_OPTIONS | BS_AUTORADIOBUTTON | WS_TABSTOP;
 const DWORD NORM_CHECK_OPTIONS = NORM_CWND_OPTIONS | BS_AUTOCHECKBOX | WS_TABSTOP | BS_RIGHT;
-const DWORD NORM_LISTVIEW_OPTIONS = NORM_CWND_OPTIONS | WS_BORDER | LVS_REPORT | LVS_EDITLABELS;
+const DWORD NORM_LISTVIEW_OPTIONS = NORM_CWND_OPTIONS | LVS_REPORT | LVS_EDITLABELS;
 /*
  * This is a complex class definition. The first line here declares that this is a template class with a class template
  * argument named ControlType.  I.e. my class is based on a class called ControlType.
@@ -80,10 +79,11 @@ Control<ControlType>::Control()
 
 template <class ControlType>
 void Control<ControlType>::setPositions( cameraPositions& pos, LONG xoff, LONG yoff, LONG width, LONG height,
-										 bool yInc = false, bool xInc = false, bool videoToo = false )
+										 bool yInc, bool xInc, bool videoToo)
 {
 	/*
-	 * This function, while a little logicy itself, makes setting the positions on the camera window much easier.
+	 * This function, while a little logicy itself, makes setting the positions on the camera window much easier 
+	 * cleaner.
 	 * @param pos: the object tracking the position of the next control in all modes.
 	 * @param xoff: the x offset of the position from pos.
 	 * @param yoff: the y offset of the position from pos.

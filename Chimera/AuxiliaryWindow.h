@@ -20,6 +20,8 @@
 #include "StatusControl.h"
 #include "TektronicsControl.h"
 #include "AiSystem.h"
+#include "colorbox.h"
+#include "MasterThreadInput.h"
 
 // short for which agilent. Putting the agilentNames in a struct is a trick that makes using the scope whichAg:: 
 // required while allowing implicit int conversion, which is useful for these. 
@@ -42,6 +44,7 @@ class AuxiliaryWindow : public CDialog
 	DECLARE_DYNAMIC(AuxiliaryWindow);
 	public:
 		AuxiliaryWindow();
+		BOOL handleAccelerators( HACCEL m_haccel, LPMSG lpMsg );
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
 		void OnLButtonUp( UINT stuff, CPoint clickLocation );
 		BOOL OnInitDialog();
@@ -129,7 +132,7 @@ class AuxiliaryWindow : public CDialog
 		MainWindow* mainWindowFriend;
 		ScriptingWindow* scriptingWindowFriend;
 		CameraWindow* cameraWindowFriend;
-
+		
 		CMenu menu;
 		std::string title;
 		toolTipTextMap toolTipText;
