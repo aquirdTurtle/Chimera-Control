@@ -45,6 +45,7 @@ Refactoring / Other:
 - all mutexes should use lock_guard or similar for consistency
 
 BUGS:
+- Catch if variable has only 1 variation, not well defined.
 - scripts becoming unsaved after move, should preserve saved status
 - global variable colors don't appear to always be correct. Not being changed by use in agilent and niawg?
 - niawg is doing something during turnonmot... it shouldn't.
@@ -56,6 +57,7 @@ BUGS:
 - trying save if only camera is running...
 - what's happening if you try to abort in the middle of the "programming" stage?
 - fix variable logging / figure out what the problem is here.
+- turnonmot seems to be running tektronics stuff too
 
 =================
 Finished

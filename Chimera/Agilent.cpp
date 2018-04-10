@@ -195,17 +195,22 @@ double Agilent::convertPowerToSetPoint(double powerInMilliWatts, bool conversion
 
 	/// TERRY'S LINEAR PHOTODIODE CALIBRATIONS
 	// August 30th, 2017
-	//double a = -0.040063228;
-	//double b = 0.000153625;
+	//double slope = -0.040063228;
+	//double offset = 0.000153625;
 	// September 12th, 2017
-	//double a = -0.04090619;
-	//double b = 0.00641603;
+	//double slope = -0.04090619;
+	//double offset = 0.00641603;
+	// I think this date is wrong, seems to be being used as of April 2018...
 	// January 10th, 2017:
-	double a = -0.1452827;
-	double b = -0.00038705;
+	//double slope = -0.1452827;
+	//double offset = -0.00038705;
+	// Calibrated April 3rd. 2018
+	double slope = -0.23159938;
+	double offset = 0.0131427;
+
 	if ( conversionOption )
 	{
-		double setPointInVolts = a * powerInMilliWatts + b;
+		double setPointInVolts = slope * powerInMilliWatts + offset;
 		return setPointInVolts;
 	}
 	else

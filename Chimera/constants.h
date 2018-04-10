@@ -120,7 +120,7 @@
 #endif
 
 // We calibrated this. // NIAWG_GAIN = 1.34.
-#define NIAWG_GAIN 1.34
+#define NIAWG_GAIN 1.5
 // NIAWG_GAIN = 1.34.
 
 #define MAX_NIAWG_SIGNALS 32
