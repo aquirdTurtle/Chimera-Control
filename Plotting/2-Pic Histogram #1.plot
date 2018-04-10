@@ -1,4 +1,4 @@
-Version: 2.0
+Version: 2.1
 Histogram #1
 Pixel Count Histograms
 

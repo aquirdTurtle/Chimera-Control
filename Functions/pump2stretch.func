@@ -5,6 +5,7 @@ def pump2stretch():
   on: repumpShutter   % on
   % set to 3G field
   call setQuantAxis()
+  t += 10
   % Setting the pumping beam frequencies:
   % Ramp of DAC 21, F1 offset lock to 2.32 for 2.2 
   % mK trap and -.5V on dac14 AO, -1.5 for 1.1 mK
@@ -21,7 +22,7 @@ def pump2stretch():
   dac: sigmaopfreq 0.5 
   off: diagmotshutter
   % to let shutters actuate
-  t += 50
+  % t += 50
   % Setting the pumping beam powers:
   dac: sigmaoppower pumppower % 0.3
   dac: sigmarepumppower 0.3
@@ -32,7 +33,7 @@ def pump2stretch():
   on: sigmarepumprf 
   t += pumptime  % 6.0 % adding extra 1 ms for better pumping 20161011
   off: sigmaoprf
-  off: sigmarepumprf 
+  off: sigmarepumprf
 
   dac: repumpPower 0
   dac: sigmaoppower 0

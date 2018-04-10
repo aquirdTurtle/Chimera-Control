@@ -6,7 +6,7 @@ def pump2F1():
   dac: diagMotPower 0
   % daclinspace: MotFreq loadmotmotfreq intrapPgcDetuning 1 10
   dac: SideMotPower 0
-  dac: sigmaOpPower 0.068
+  dac: sigmaOpPower 3%0.068 
   dac: RepumpPower 0
   dac: sigmaopfreq 0.5 
   t += 0.1

@@ -1,6 +1,6 @@
-Version: 2.0
+Version: 2.1
 imageHist-2
-Pixel Count Histograms
+Atoms
 
 Variation Average
 3-Pic imageHist-2
@@ -40,7 +40,6 @@ LEGENDS_BEGIN
 
 LEGENDS_END
 PLOT_COUNTS_LOCATIONS_BEGIN
-0 0
 PLOT_COUNTS_LOCATIONS_END
 FITTING_OPTIONS_BEGIN
 730403329 16002

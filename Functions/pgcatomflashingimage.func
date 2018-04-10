@@ -7,11 +7,11 @@ def pgcAtomFlashingImage():
 			imagingFlashingDetuning 1 10
       dac: SideMotPower imagingPower
 	dac: RepumpPower imagingRepumpPower
-	t += 1
+	t += 10
 	% turn the repump on a tiny bit early 
 	% to pump to the F=2 manifold.	
 	on: RepumpRf
-	on: a13
+%	on: a13
 	t += 0.2
 	% flashing the trap
 	on: andorTrig
@@ -28,8 +28,7 @@ def pgcAtomFlashingImage():
 	dacLinSpace: MotFreq imagingFlashingDetuning loadMotMotFreq 1 10
 	t += 1
 	off: andorTrig
-	off: a13
-	pulseon: a15 0.01
+%	off: a13
 	t += 0.2
 
 	% note that the camera needs some time before it can take

@@ -266,8 +266,6 @@ void VariableSystem::handleNewConfig( std::ofstream& newFile )
 }
 
 
-
-
 variableType VariableSystem::loadVariableFromFile( std::ifstream& openFile, UINT versionMajor, UINT versionMinor )
 {
 
