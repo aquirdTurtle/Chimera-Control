@@ -1323,7 +1323,7 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 		}
 		// If the ramp type isn't a standard command...
 		if ( inputData.signals[signal].freqRampType != "lin" && inputData.signals[signal].freqRampType != "nr"
-			 && inputData.signals[signal].freqRampType != "tanh" )
+			 && inputData.signals[signal].freqRampType != "tanh" && inputData.signals[signal].freqRampType != "fast" )
 		{
 			// try to open it
 			freqRampFileData.push_back( new double[sampleNum] );
@@ -1373,14 +1373,15 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 		deltaNu.push_back( dNu );
 		auto dOmega = 2 * PI *  dNu;
 		deltaOmega.push_back( dOmega );
-		auto a_w0 = PI * dNu / (2 * t_r);
+		auto a_w0 = 0;//PI * dNu / (2 * t_r);
 		accel_w0.push_back( a_w0 );
 		auto a_w1 = 4 * PI * dNu / t_r - a_w0;
 		accel_w1.push_back( a_w1 );
 		jerk.push_back( 8 * PI * dNu / (t_r*t_r) - 4 * a_w0 / t_r );
 		freq_1.push_back( f_0 + dNu / 2);
+		auto phi_0 = inputData.signals[signal].initPhase;
 		phi_halfway.push_back( 0.5 * a_w0 * (t_r2*t_r2) + (t_r2 / 6.0) * (2 * PI * dNu - a_w0 * t_r)
-						 + 2 * PI * f_0 * t_r2 + f_0 );
+						 + 2 * PI * f_0 * t_r2 + phi_0 );
 	}
 	///		Get Data Points.		///
 	int sample = 0;
@@ -1437,7 +1438,7 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 				// notebook about this.
 				if ( t < t_r2 )
 				{
-					phasePos[signal] = (1.0 / 6.0) * J * (t*t*t) + 0.5 * a_w0 * (t * 2) + 2 * PI * f_0 * t + phi_0;
+					phasePos[signal] = (1.0 / 6.0) * J * (t*t*t) + 0.5 * a_w0 * (t * t) + 2 * PI * f_0 * t + phi_0;
 				}
 				else
 				{
@@ -1521,6 +1522,30 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 		else if ( inputData.signals[signal].freqRampType == "nr" )
 		{
 			phasePos[signal] = 2 * PI * inputData.signals[signal].freqInit * curTime + inputData.signals[signal].initPhase;
+		}
+		else if ( inputData.signals[signal].freqRampType == "fast" )
+		{
+			// these "auto" aliases should match what was used above to calculate constants.
+			auto t = curTime;
+			auto f_0 = inputData.signals[signal].freqInit;
+			auto phi_0 = inputData.signals[signal].initPhase;
+			auto a_w0 = accel_w0[signal];
+			auto a_w1 = accel_w1[signal];
+			auto dNu = deltaNu[signal];
+			auto J = jerk[signal];
+			auto f_1 = freq_1[signal];
+			auto phi_1 = phi_halfway[signal];
+			// constant phase-jerk ramp, except (optionally) an initial phase acceleration. I have a jupyter 
+			// notebook about this.
+			if ( t < t_r2 )
+			{
+				phasePos[signal] = (1.0 / 6.0) * J * (t*t*t) + 0.5 * a_w0 * (t * 2) + 2 * PI * f_0 * t + phi_0;
+			}
+			else
+			{
+				auto tp = t - t_r2;
+				phasePos[signal] = -(1.0 / 6.0) * J * (tp*tp*tp) + 0.5 * a_w1 * (tp*tp) + 2.0 * PI * f_1 * tp + phi_1;
+			}
 		}
 		else
 		{

@@ -1,13 +1,11 @@
 % this all happens at a isngle time.
 
 def turnOnMot():
-	%% %%%%%%%%%%%%%%%%%%%%%%%%%%5
-	var loadMotSidePower 0.1
 	%% % TTLs
 	on: DiagMotRf
 	on: RepumpRf
 	on: SideMotRf
-	on: RepumpShutater
+	on: RepumpShutter
 	on: DiagMotShutter
 	on: SideMotShutter
 	% Make sure raman shutter is closed initially
