@@ -1329,7 +1329,7 @@ HBRUSH CameraWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 			}
 			else
 			{
-				pDC->SetTextColor( rgbs["White"] );
+				pDC->SetTextColor( rgbs["Solarized Base0"] );
 				pDC->SetBkColor( rgbs["Medium Grey"] );
 				return *brushes["Medium Grey"];
 			}
@@ -1342,7 +1342,7 @@ HBRUSH CameraWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		}
 		case CTLCOLOR_LISTBOX:
 		{
-			pDC->SetTextColor(rgbs["White"]);
+			pDC->SetTextColor(rgbs["Solarized Base0"]);
 			pDC->SetBkColor(rgbs["Dark Grey"]);
 			return *brushes["Dark Grey"];
 		}

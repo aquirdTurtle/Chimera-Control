@@ -342,14 +342,14 @@ HBRUSH ScriptingWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 			}
 			else
 			{
-				pDC->SetTextColor(rgbs["Solarized Orange"]);
+				pDC->SetTextColor(rgbs["Solarized Base0"]);
 				pDC->SetBkColor( rgbs["Dark Grey"] );
 				return *brushes["Dark Grey"];
 			}
 		}
 		case CTLCOLOR_LISTBOX:
 		{
-			pDC->SetTextColor(rgbs["Solarized Orange"]);
+			pDC->SetTextColor(rgbs["Solarized Base0"]);
 			pDC->SetBkColor(rgbs["Solarized Base02"]);
 			return *brushes["Solarized Base02"];
 		}

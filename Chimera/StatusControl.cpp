@@ -26,7 +26,7 @@ void StatusControl::initialize(POINT &loc, CWnd* parent, int& id, UINT size, std
 	clearButton.Create("Clear", NORM_PUSH_OPTIONS, clearButton.sPos, parent, clearId );
 	//
 	edit.sPos = { loc.x, loc.y, loc.x + 480, loc.y + long(size)};
-	edit.Create( NORM_EDIT_OPTIONS | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | WS_BORDER, edit.sPos, parent, id++ );
+	edit.Create( NORM_EDIT_OPTIONS | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY, edit.sPos, parent, id++ );
 	edit.fontType = fontTypes::CodeFont;
 	edit.SetBackgroundColor(0, RGB(0, 15, 20));
 

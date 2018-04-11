@@ -27,8 +27,7 @@ void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, 
 	variableRanges = 1;
 
 	variablesHeader.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
-	variablesHeader.Create( cstr( title ), WS_BORDER | WS_CHILD | WS_VISIBLE | ES_CENTER | ES_READONLY,
-							variablesHeader.sPos, parent, id++ );
+	variablesHeader.Create( cstr( title ), NORM_HEADER_OPTIONS, variablesHeader.sPos, parent, id++ );
 	variablesHeader.fontType = fontTypes::HeadingFont;
 	
 	if ( varSysType == VariableSysType::function )
@@ -42,7 +41,7 @@ void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, 
 	}
 
 	variablesListview.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 300 };
-	variablesListview.Create( WS_VISIBLE | WS_CHILD | LVS_REPORT | LVS_EDITLABELS | WS_BORDER, variablesListview.sPos, 
+	variablesListview.Create( NORM_LISTVIEW_OPTIONS, variablesListview.sPos,
 							  parent, listviewId );
 	variablesListview.fontType = fontTypes::SmallFont;
 	variablesListview.SetBkColor( RGB( 15, 15, 15 ) );

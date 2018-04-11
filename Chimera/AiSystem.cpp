@@ -54,7 +54,8 @@ void AiSystem::initialize( POINT& loc, CWnd* parent, int& id )
 {
 	initDaqmx( );
 	title.sPos = {loc.x, loc.y, loc.x + 480, loc.y += 25};
-	title.Create( "Analog-Input", NORM_HEADER_OPTIONS, title.sPos, parent, id );
+	title.Create( "ANALOG-INPUT", NORM_HEADER_OPTIONS, title.sPos, parent, id );
+	title.fontType = fontTypes::HeadingFont;
 	getValuesButton.sPos = { loc.x, loc.y, loc.x += 160, loc.y + 25 };
 	getValuesButton.Create( "Get Values", NORM_PUSH_OPTIONS, getValuesButton.sPos, parent, ID_GET_ANALOG_IN_VALUES );
 	continuousQueryCheck.sPos = { loc.x, loc.y, loc.x += 160, loc.y + 25 };

@@ -1438,7 +1438,7 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 				// notebook about this.
 				if ( t < t_r2 )
 				{
-					phasePos[signal] = (1.0 / 6.0) * J * (t*t*t) + 0.5 * a_w0 * (t * t) + 2 * PI * f_0 * t + phi_0;
+					phasePos[signal] = (1.0 / 6.0) * J * (t * t * t) + 0.5 * a_w0 * (t * t) + 2.0 * PI * f_0 * t + phi_0;
 				}
 				else
 				{

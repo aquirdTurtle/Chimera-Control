@@ -41,4 +41,9 @@ class rerngControl
 
 		Control<CStatic> finalMoveTimeText;
 		Control<CEdit> finalMoveTimeEdit;
+
+		Control<CStatic> a_w0_disp;
+		Control<CEdit> a_w0_edit;
+
+		Control<CButton> fastMoveOption;
 };
