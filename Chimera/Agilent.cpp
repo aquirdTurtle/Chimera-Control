@@ -53,11 +53,11 @@ void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id
 	}
 
 	header.sPos = { loc.x, loc.y, loc.x + w, loc.y += 25 };
-	header.Create( cstr( headerText ), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, header.sPos, parent, id++ );
+	header.Create( cstr( headerText ), NORM_HEADER_OPTIONS, header.sPos, parent, id++ );
 	header.fontType = fontTypes::HeadingFont;
 
 	deviceInfoDisplay.sPos = { loc.x, loc.y, loc.x + w, loc.y += 20 };
-	deviceInfoDisplay.Create( cstr( deviceInfo ), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, deviceInfoDisplay.sPos,
+	deviceInfoDisplay.Create( cstr( deviceInfo ), NORM_STATIC_OPTIONS, deviceInfoDisplay.sPos,
 							  parent, id++ );
 	deviceInfoDisplay.fontType = fontTypes::SmallFont;
 
@@ -72,22 +72,22 @@ void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id
 	loc.x -= w;
 
 	syncedButton.sPos = { loc.x, loc.y, loc.x += w/3, loc.y + 20 };
-	syncedButton.Create( "Synced?", BS_AUTOCHECKBOX | WS_VISIBLE | WS_CHILD, syncedButton.sPos, parent,
+	syncedButton.Create( "Synced?", NORM_CHECK_OPTIONS, syncedButton.sPos, parent,
 						 initSettings.syncButtonId );
 
 	calibratedButton.sPos = { loc.x, loc.y, loc.x += w/3, loc.y + 20 };
-	calibratedButton.Create( "Use Cal?", BS_AUTOCHECKBOX | WS_VISIBLE | WS_CHILD, calibratedButton.sPos, 
+	calibratedButton.Create( "Use Cal?", NORM_CHECK_OPTIONS, calibratedButton.sPos,
 							 parent, initSettings.calibrationButtonId );
 	calibratedButton.SetCheck( true );
 	
 	programNow.sPos = { loc.x, loc.y, loc.x += w/3, loc.y += 20 };
-	programNow.Create( "Program", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, programNow.sPos, parent, 
+	programNow.Create( "Program", NORM_PUSH_OPTIONS, programNow.sPos, parent, 
 					   initSettings.programButtonId );
 
 	loc.x -= w;
 
 	settingCombo.sPos = { loc.x, loc.y, loc.x += w/4, loc.y + 200 };
-	settingCombo.Create( CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE, settingCombo.sPos,
+	settingCombo.Create( NORM_COMBO_OPTIONS, settingCombo.sPos,
 						 parent, initSettings.agilentComboId );
 	settingCombo.AddString( "No Control" );
 	settingCombo.AddString( "Output Off" );
@@ -99,7 +99,7 @@ void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id
 	settingCombo.SetCurSel( 0 );
 
 	optionsFormat.sPos = { loc.x, loc.y, loc.x += 3* w/4, loc.y += 25 };
-	optionsFormat.Create( "---", WS_CHILD | WS_VISIBLE | SS_SUNKEN, optionsFormat.sPos, parent, id++ );
+	optionsFormat.Create( "---", NORM_STATIC_OPTIONS, optionsFormat.sPos, parent, id++ );
 	loc.x -= w;
 
 	agilentScript.initialize( width, editHeight, loc, toolTips, parent, id, "Agilent", "",

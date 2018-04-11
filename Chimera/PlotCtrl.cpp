@@ -35,13 +35,17 @@ void PlotCtrl::drawBackground( memDC* d, CBrush* backgroundBrush, CBrush* plotAr
 {
 	RECT r = { controlDims.left * widthScale2, controlDims.top*heightScale2, controlDims.right * widthScale2, 
 		controlDims.bottom*heightScale2 };
+	//d->
+	CPen pen( 0, 0, RGB( 0, 0, 0 ) );
+	d->SelectObject( pen );
 	d->SelectObject( *backgroundBrush );
 	d->Rectangle( &r );
 	r.left = plotAreaDims.left * widthScale2;
 	r.right = plotAreaDims.right * widthScale2;
 	r.top = plotAreaDims.top * heightScale2;
 	r.bottom = plotAreaDims.bottom * heightScale2;
-	d->SelectObject( plotAreaBrush );
+	d->SelectObject( *plotAreaBrush );
+	d->SelectObject( pen );
 	d->Rectangle( &r );
 }
 
@@ -669,10 +673,10 @@ void PlotCtrl::drawBorder( memDC* d )
 {
 	long top = plotAreaDims.top * heightScale2, left = plotAreaDims.left * widthScale2,
 		right = plotAreaDims.right * widthScale2, bottom = plotAreaDims.bottom * heightScale2;
-	drawLine( d, { left, top }, { left, bottom }, whiteGdiPen );
-	drawLine( d, { left, bottom }, { right, bottom }, whiteGdiPen );
-	drawLine( d, { right, bottom }, { right, top }, whiteGdiPen );
-	drawLine( d, { right, top }, { left, top }, whiteGdiPen );
+	drawLine( d, { left, top }, { left, bottom }, greyGdiPen );
+	drawLine( d, { left, bottom }, { right, bottom }, greyGdiPen );
+	drawLine( d, { right, bottom }, { right, top }, greyGdiPen );
+	drawLine( d, { right, top }, { left, top }, greyGdiPen );
 }
 
 

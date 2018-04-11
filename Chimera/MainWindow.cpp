@@ -769,7 +769,7 @@ HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 			}
 			else
 			{
-				pDC->SetTextColor(mainRGBs["White"]);
+				pDC->SetTextColor(mainRGBs["Solarized Base0"]);
 				pDC->SetBkColor(mainRGBs["Medium Grey"]);
 				return *mainBrushes["Medium Grey"];
 			}
@@ -782,7 +782,7 @@ HBRUSH MainWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		}
 		case CTLCOLOR_LISTBOX:
 		{
-			pDC->SetTextColor(mainRGBs["Solarized Base2"]);
+			pDC->SetTextColor(mainRGBs["Solarized Base0"]);
 			pDC->SetBkColor(mainRGBs["Solarized Base02"]);
 			return *mainBrushes["Solarized Base02"];
 		}

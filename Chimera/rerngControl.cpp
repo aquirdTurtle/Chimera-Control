@@ -66,44 +66,51 @@ void rerngControl::rearrange( int width, int height, fontMap fonts )
 void rerngControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips )
 {
 	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
-	header.Create( "Rearrangement Parameters", NORM_HEADER_OPTIONS, header.sPos, parent, id++ );
+	header.Create( "REARRANGEMENT OPTIONS", NORM_HEADER_OPTIONS, header.sPos, parent, id++ );
 	header.fontType = fontTypes::HeadingFont;
-	experimentIncludesRerng.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
-	experimentIncludesRerng.Create( "Experiment Includes Rearrangement?", NORM_CHECK_OPTIONS, 
+	experimentIncludesRerng.sPos = { loc.x, loc.y, loc.x + 240, loc.y += 25 };
+	experimentIncludesRerng.Create( "Experiment has Rearrangement?", NORM_CHECK_OPTIONS, 
 									experimentIncludesRerng.sPos, parent, id++ );
-	flashingRateText.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 25 };
+	flashingRateText.sPos = { loc.x, loc.y, loc.x + 200, loc.y + 25 };
 	flashingRateText.Create( "Flashing Rate (MHz)", NORM_STATIC_OPTIONS, flashingRateText.sPos, parent, id++ );
-	flashingRateEdit.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 25 };
+	flashingRateEdit.sPos = { loc.x + 200, loc.y, loc.x + 240, loc.y += 25 };
 	flashingRateEdit.Create( NORM_EDIT_OPTIONS, flashingRateEdit.sPos, parent, id++ );
 	flashingRateEdit.SetWindowTextA( "1" );
-	moveSpeedText.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 25 };
+	moveSpeedText.sPos = { loc.x, loc.y, loc.x + 200, loc.y + 25 };
 	moveSpeedText.Create( "Move Speed (ms)", NORM_STATIC_OPTIONS, moveSpeedText.sPos, parent, id++ );
-	moveSpeedEdit.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 25 };
+	moveSpeedEdit.sPos = { loc.x + 200, loc.y, loc.x + 240, loc.y += 25 };
 	moveSpeedEdit.Create( NORM_EDIT_OPTIONS, moveSpeedEdit.sPos, parent, id++ );
 	moveSpeedEdit.SetWindowTextA( "0.06" );
-	movingBiasText.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 25 };
+
+	loc.y -= 75;
+	loc.x += 240;
+
+	movingBiasText.sPos = { loc.x, loc.y, loc.x + 200, loc.y + 25 };
 	movingBiasText.Create( "Moving Tweezer Bias (/1)", NORM_STATIC_OPTIONS, movingBiasText.sPos, parent, id++ );
-	movingBiasEdit.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 25 };
+	movingBiasEdit.sPos = { loc.x + 200, loc.y, loc.x + 240, loc.y += 25 };
 	movingBiasEdit.Create( NORM_EDIT_OPTIONS, movingBiasEdit.sPos, parent, id++ );
 	movingBiasEdit.SetWindowTextA( "0.3" );
-	deadTimeText.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 25 };
+
+	deadTimeText.sPos = { loc.x, loc.y, loc.x + 200, loc.y + 25 };
 	deadTimeText.Create( "Dead Time (ns)", NORM_STATIC_OPTIONS, deadTimeText.sPos, parent, id++ );
-	deadTimeEdit.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 25 };
+	deadTimeEdit.sPos = { loc.x + 200, loc.y, loc.x + 240, loc.y += 25 };
 	deadTimeEdit.Create( NORM_EDIT_OPTIONS, deadTimeEdit.sPos, parent, id++ );
 	deadTimeEdit.SetWindowTextA( "0" );
-	staticMovingRatioText.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 25 };
+	staticMovingRatioText.sPos = { loc.x, loc.y, loc.x + 200, loc.y + 25 };
 	staticMovingRatioText.Create( "Static/Moving Ratio", NORM_STATIC_OPTIONS, staticMovingRatioText.sPos, parent, id++ );
-	staticMovingRatioEdit.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 25 };
+	staticMovingRatioEdit.sPos = { loc.x + 200, loc.y, loc.x + 240, loc.y += 25 };
 	staticMovingRatioEdit.Create( NORM_EDIT_OPTIONS, staticMovingRatioEdit.sPos, parent, id++ );
 	staticMovingRatioEdit.SetWindowTextA( "1" );
-	outputRearrangeEvents.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
+	loc.x -= 240;
+	outputRearrangeEvents.sPos = { loc.x, loc.y, loc.x + 240, loc.y += 25 };
 	outputRearrangeEvents.Create( "Output Event Info", NORM_CHECK_OPTIONS, outputRearrangeEvents.sPos, parent, id++ );
-	outputIndividualEvents.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
+	outputIndividualEvents.sPos = { loc.x, loc.y, loc.x + 240, loc.y += 25 };
 	outputIndividualEvents.Create( "Output Individual Event Info?", NORM_CHECK_OPTIONS, outputIndividualEvents.sPos, 
 								   parent, id++ );
-	preprogramMoves.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
+	loc.y -= 50;
+	preprogramMoves.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 25 };
 	preprogramMoves.Create( "Preprogram Moves?", NORM_CHECK_OPTIONS, preprogramMoves.sPos, parent, id++ );
-	useCalibration.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
+	useCalibration.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 25 };
 	useCalibration.Create( "Use Calibration?", NORM_CHECK_OPTIONS, useCalibration.sPos, parent, id++ );
 
 	finalMoveTimeText.sPos = { loc.x, loc.y, loc.x + 240, loc.y + 25 };
@@ -111,6 +118,16 @@ void rerngControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& too
 	finalMoveTimeEdit.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y += 25 };
 	finalMoveTimeEdit.Create( NORM_EDIT_OPTIONS, finalMoveTimeEdit.sPos, parent, id++ );
 	finalMoveTimeEdit.SetWindowTextA( "1" );
+
+	a_w0_disp.sPos = { loc.x, loc.y, loc.x + 120, loc.y + 25 };;
+	a_w0_disp.Create( "a_w0:", NORM_STATIC_OPTIONS, a_w0_disp.sPos, parent, id++ );
+
+	a_w0_edit.sPos = { loc.x + 120, loc.y, loc.x + 240, loc.y + 25 };
+	a_w0_edit.Create( NORM_EDIT_OPTIONS, a_w0_edit.sPos, parent, id++ );
+	a_w0_edit.SetWindowTextA( "0" );
+
+	fastMoveOption.sPos = { loc.x+240, loc.y, loc.x + 480, loc.y += 25 };
+	fastMoveOption.Create( "Fast-Move", NORM_PUSH_OPTIONS, fastMoveOption.sPos, parent, id++ );
 }
 
 

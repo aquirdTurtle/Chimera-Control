@@ -11,27 +11,27 @@ void TektronicsChannelControl::initialize( POINT loc, CWnd* parent, int& id, std
 										   std::array<UINT, 2> ids)
 {
 	channelLabel.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	channelLabel.Create( cstr(channelText), WS_CHILD | WS_VISIBLE | WS_BORDER, channelLabel.sPos, parent, id++ );
+	channelLabel.Create( cstr(channelText), NORM_STATIC_OPTIONS, channelLabel.sPos, parent, id++ );
 
 	controlButton.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	controlButton.Create( "", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX, controlButton.sPos, parent, id++ );
+	controlButton.Create( "", NORM_CHECK_OPTIONS, controlButton.sPos, parent, id++ );
 
 	onOffButton.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	onOffButton.Create( "", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX, onOffButton.sPos, parent, ids[0] );
+	onOffButton.Create( "", NORM_CHECK_OPTIONS, onOffButton.sPos, parent, ids[0] );
 	
 	fskButton.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	fskButton.Create("", WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX, fskButton.sPos, parent, ids[1]);
+	fskButton.Create("", NORM_CHECK_OPTIONS, fskButton.sPos, parent, ids[1]);
 	
 	power.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	power.Create(WS_CHILD | WS_VISIBLE, power.sPos, parent, id++);
+	power.Create(NORM_EDIT_OPTIONS, power.sPos, parent, id++);
 	power.EnableWindow(0);
 
 	mainFreq.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	mainFreq.Create(WS_CHILD | WS_VISIBLE, mainFreq.sPos, parent, id++);
+	mainFreq.Create(NORM_EDIT_OPTIONS, mainFreq.sPos, parent, id++);
 	mainFreq.EnableWindow(0);
 	
 	fskFreq.sPos = { loc.x, loc.y, loc.x + width, loc.y += 20 };
-	fskFreq.Create(WS_CHILD | WS_VISIBLE, fskFreq.sPos, parent, id++);
+	fskFreq.Create(NORM_EDIT_OPTIONS, fskFreq.sPos, parent, id++);
 	fskFreq.EnableWindow(0);
 }
 
@@ -338,33 +338,33 @@ void TektronicsControl::initialize( POINT& loc, CWnd* parent, int& id, std::stri
 								    std::string channel2Text, LONG width, std::array<UINT, 5> ids )
 {
 	header.sPos = { loc.x, loc.y, loc.x + width, loc.y += 25 };
-	header.Create( cstr("Tektronics " + headerText), WS_CHILD | WS_VISIBLE | WS_BORDER, header.sPos, parent, id++ );
+	header.Create( cstr("Tektronics " + headerText), NORM_HEADER_OPTIONS, header.sPos, parent, id++ );
 	header.fontType = fontTypes::HeadingFont;
 	
 	programNow.sPos = { loc.x, loc.y, loc.x + width / 3, loc.y + 20 };
-	programNow.Create( "Program Now", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, programNow.sPos, parent, ids[0] );
+	programNow.Create( "Program Now", NORM_PUSH_OPTIONS, programNow.sPos, parent, ids[0] );
 
 	channel1.initialize( { loc.x + width / 3, loc.y }, parent, id, channel1Text, width / 3, { ids[1], ids[2] } );
 	channel2.initialize( { loc.x + 2 * width / 3, loc.y }, parent, id, channel2Text, width / 3, { ids[3], ids[4] } );
 
 	loc.y += 20;
 	controlLabel.sPos = { loc.x, loc.y, loc.x + width / 3, loc.y += 20 };
-	controlLabel.Create( "Control:", WS_CHILD | WS_VISIBLE | WS_BORDER, onOffLabel.sPos, parent, id++ );
+	controlLabel.Create( "Control:", NORM_STATIC_OPTIONS, onOffLabel.sPos, parent, id++ );
 
 	onOffLabel.sPos = { loc.x, loc.y, loc.x + width/3, loc.y += 20 };
-	onOffLabel.Create("On:", WS_CHILD | WS_VISIBLE | WS_BORDER, onOffLabel.sPos, parent, id++);
+	onOffLabel.Create("On:", NORM_STATIC_OPTIONS, onOffLabel.sPos, parent, id++);
 
 	fskLabel.sPos = { loc.x, loc.y, loc.x + width / 3, loc.y += 20 };
-	fskLabel.Create("FSK:", WS_CHILD | WS_VISIBLE | WS_BORDER, fskLabel.sPos, parent, id++);
+	fskLabel.Create("FSK:", NORM_STATIC_OPTIONS, fskLabel.sPos, parent, id++);
 
 	mainPowerLabel.sPos = { loc.x, loc.y, loc.x + width / 3, loc.y += 20 };
-	mainPowerLabel.Create("Power", WS_CHILD | WS_VISIBLE | WS_BORDER, mainPowerLabel.sPos, parent, id++);
+	mainPowerLabel.Create("Power", NORM_STATIC_OPTIONS, mainPowerLabel.sPos, parent, id++);
 
 	mainFreqLabel.sPos = { loc.x, loc.y, loc.x + width / 3, loc.y += 20 };
-	mainFreqLabel.Create("Main Freq.", WS_CHILD | WS_VISIBLE | WS_BORDER, mainFreqLabel.sPos, parent, id++);
+	mainFreqLabel.Create("Main Freq.", NORM_STATIC_OPTIONS, mainFreqLabel.sPos, parent, id++);
 
 	fskFreqLabel.sPos = { loc.x, loc.y, loc.x + width / 3, loc.y += 20 };
-	fskFreqLabel.Create("FSK Freq.", WS_CHILD | WS_VISIBLE | WS_BORDER, fskFreqLabel.sPos, parent, id++);
+	fskFreqLabel.Create("FSK Freq.", NORM_STATIC_OPTIONS, fskFreqLabel.sPos, parent, id++);
 }
 
 

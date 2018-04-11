@@ -1242,19 +1242,19 @@ HBRUSH AuxiliaryWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	{
 		case CTLCOLOR_STATIC:
 		{
-			pDC->SetTextColor(rgbs["Solarized Yellow"]);
+			pDC->SetTextColor(rgbs["Solarized Base0"]);
 			pDC->SetBkColor(rgbs["Medium Grey"]);
 			return *brushes["Medium Grey"];
 		}
 		case CTLCOLOR_EDIT:
 		{
-			pDC->SetTextColor(rgbs["White"]);
+			pDC->SetTextColor(rgbs["Solarized Yellow"]);
 			pDC->SetBkColor(rgbs["Dark Grey"]);
 			return *brushes["Dark Grey"];
 		}
 		case CTLCOLOR_LISTBOX:
 		{
-			pDC->SetTextColor(rgbs["White"]);
+			pDC->SetTextColor(rgbs["Solarized Base0"]);
 			pDC->SetBkColor(rgbs["Dark Grey"]);
 			return *brushes["Dark Grey"];
 		}
