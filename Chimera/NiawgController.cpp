@@ -1045,7 +1045,7 @@ void NiawgController::openWaveformFiles()
 * voltage data that populates the rest of the file as it's being read, and must be appended to the voltage data before
 * it is written to a new file.
 */
-void NiawgController::generateWaveform( channelWave & chanWave, debugInfo& options, long int sampleNum, double waveTime )
+void NiawgController::generateWaveform( channelWave & chanWave, debugInfo& options, long int sampleNum, double waveTime)
 {
 	chanWave.wave.resize( sampleNum );
 	// the number of seconds
@@ -1270,7 +1270,8 @@ long NiawgController::waveformSizeCalc(double time)
 * This function takes in the data for a single waveform and calculates all if the waveform's data points, and returns a pointer to an array containing
 * these data points.
 */
-void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64>& readData, long int sampleNum, double waveTime )
+void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64>& readData, long int sampleNum, 
+									double waveTime )
 {
 	// Declarations
 	std::vector<double> powerPos, freqRampPos, phasePos( inputData.signals.size( ) );
@@ -1353,10 +1354,10 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 			}
 		}
 	}
-
+	/// Pre-calculate a bunch of parameters. 
+	// These are not all used, but it's simple one-time calcs so I just od them anyways.
 	auto& t_r = waveTime;
 	auto t_r2 = t_r / 2;
-	/// calculate frequency differences for every signal. This is used for frequency ramps.
 	std::vector<double> deltaOmega;
 	std::vector<double> deltaNu;
 	std::vector<double> accel_w0;
