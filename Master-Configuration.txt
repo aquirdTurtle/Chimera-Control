@@ -206,7 +206,7 @@ loadmottopfield 0.5
 loadmotbottomfield -0.15
 loadmotfrontfield -1.4
 loadmotbackfield 1.47507
-loadmottime 300
+loadmottime 150
 pgctime 10
 pgcdetuning -0.5
 pgcleftfield -0.3924
@@ -240,4 +240,4 @@ intrappgcrepumppower 0.1
 field 3
 rotatefieldtime 3
 opticalpumpdepth 0
-199 264 3 190 252 3
+199 261 3 190 252 3
