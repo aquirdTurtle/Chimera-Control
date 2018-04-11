@@ -12,6 +12,7 @@ rerngOptions rerngControl::getParams( )
 	tempParams.outputIndv = outputIndividualEvents.GetCheck( );
 	tempParams.preprogram = preprogramMoves.GetCheck( );
 	tempParams.useCalibration = useCalibration.GetCheck( );
+	tempParams.useFast = fastMoveOption.GetCheck( );
 	CString tempTxt;
 	try
 	{
@@ -60,6 +61,7 @@ void rerngControl::rearrange( int width, int height, fontMap fonts )
 	outputIndividualEvents.rearrange( width, height, fonts );
 	finalMoveTimeText.rearrange( width, height, fonts );
 	finalMoveTimeEdit.rearrange( width, height, fonts );
+	fastMoveOption.rearrange( width, height, fonts );
 }
 
 
@@ -69,7 +71,7 @@ void rerngControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& too
 	header.Create( "REARRANGEMENT OPTIONS", NORM_HEADER_OPTIONS, header.sPos, parent, id++ );
 	header.fontType = fontTypes::HeadingFont;
 	experimentIncludesRerng.sPos = { loc.x, loc.y, loc.x + 240, loc.y += 25 };
-	experimentIncludesRerng.Create( "Experiment has Rearrangement?", NORM_CHECK_OPTIONS, 
+	experimentIncludesRerng.Create( "Experiment has Rerng?", NORM_CHECK_OPTIONS, 
 									experimentIncludesRerng.sPos, parent, id++ );
 	flashingRateText.sPos = { loc.x, loc.y, loc.x + 200, loc.y + 25 };
 	flashingRateText.Create( "Flashing Rate (MHz)", NORM_STATIC_OPTIONS, flashingRateText.sPos, parent, id++ );
@@ -119,15 +121,8 @@ void rerngControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& too
 	finalMoveTimeEdit.Create( NORM_EDIT_OPTIONS, finalMoveTimeEdit.sPos, parent, id++ );
 	finalMoveTimeEdit.SetWindowTextA( "1" );
 
-	a_w0_disp.sPos = { loc.x, loc.y, loc.x + 120, loc.y + 25 };;
-	a_w0_disp.Create( "a_w0:", NORM_STATIC_OPTIONS, a_w0_disp.sPos, parent, id++ );
-
-	a_w0_edit.sPos = { loc.x + 120, loc.y, loc.x + 240, loc.y + 25 };
-	a_w0_edit.Create( NORM_EDIT_OPTIONS, a_w0_edit.sPos, parent, id++ );
-	a_w0_edit.SetWindowTextA( "0" );
-
 	fastMoveOption.sPos = { loc.x+240, loc.y, loc.x + 480, loc.y += 25 };
-	fastMoveOption.Create( "Fast-Move", NORM_PUSH_OPTIONS, fastMoveOption.sPos, parent, id++ );
+	fastMoveOption.Create( "Fast-Move", NORM_CHECK_OPTIONS, fastMoveOption.sPos, parent, id++ );
 }
 
 
@@ -198,6 +193,14 @@ void rerngControl::handleOpenConfig( std::ifstream& openFile, int versionMajor, 
 		info.finalMoveTime = 1e-3;
 	}
 
+	if ( (versionMajor == 3 && versionMinor > 1) || versionMajor > 3 )
+	{
+		openFile >> info.useFast;
+	}
+	else
+	{
+		info.useFast = false;
+	}
 	setParams( info );
 	ProfileSystem::checkDelimiterLine( openFile, "END_REARRANGEMENT_INFORMATION" );
 }
@@ -222,6 +225,10 @@ void rerngControl::handleNewConfig( std::ofstream& newFile )
 	// use calibration
 	newFile << "0\n";
 	newFile << "0.001\n";
+	// a_w0
+	newFile << "0\n";
+	// usefast
+	newFile << "0\n";
 	newFile << "END_REARRANGEMENT_INFORMATION\n";
 }
 
@@ -242,6 +249,7 @@ void rerngControl::handleSaveConfig( std::ofstream& saveFile )
 	saveFile << info.preprogram << "\n";
 	saveFile << info.useCalibration << "\n";
 	saveFile << info.finalMoveTime << "\n";
+	saveFile << info.useFast << "\n";
 	saveFile << "END_REARRANGEMENT_INFORMATION\n";
 }
 
@@ -266,4 +274,5 @@ void rerngControl::setParams( rerngOptions params )
 	preprogramMoves.SetCheck( params.preprogram );
 	// convert back to ms
 	finalMoveTimeEdit.SetWindowTextA( cstr( params.finalMoveTime * 1e3 ) );
+	fastMoveOption.SetCheck( params.useFast );
 }

@@ -41,6 +41,8 @@ Refactoring / Other:
 - better documentation in general
 - Andor system should use Matrix class for pictures
 - all mutexes should use lock_guard or similar for consistency
+- specialize CEdit with "getTextAsDouble" member.
+- make version check function
 
 BUGS:
 - Catch if variable has only 1 variation, not well defined.
