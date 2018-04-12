@@ -6,11 +6,12 @@
 #include "TextPromptDialog.h"
 #include "multiDimensionalKey.h"
 #include "cleanString.h"
+#include "Thrower.h"
+
 #include <iomanip>
 #include <unordered_map>
 #include <random>
 #include "afxcmn.h"
-#include "Thrower.h"
 
 
 UINT VariableSystem::getTotalVariationNumber()
@@ -92,40 +93,40 @@ void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, 
 		listViewDefaultCollumn.pszText = "#";
 		variablesListview.InsertColumn( 6, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "+()";
-		variablesListview.InsertColumn( 7, &listViewDefaultCollumn );
-		listViewDefaultCollumn.pszText = "-()";
-		variablesListview.InsertColumn( 8, &listViewDefaultCollumn );
-		if ( varSysType == VariableSysType::config )
-		{
-			// Make First Blank row.
-			LVITEM listViewDefaultItem;
-			memset( &listViewDefaultItem, 0, sizeof( listViewDefaultItem ) );
-			listViewDefaultItem.mask = LVIF_TEXT; 
-			listViewDefaultItem.cchTextMax = 256; 
-			listViewDefaultItem.pszText = "___";
-			listViewDefaultItem.iItem = 0;          
-			listViewDefaultItem.iSubItem = 0;       
-			variablesListview.InsertItem( &listViewDefaultItem );
-			for ( int itemInc = 1; itemInc < 7; itemInc++ )
-			{
-				listViewDefaultItem.iSubItem = itemInc;
-				variablesListview.SetItem( &listViewDefaultItem );
-			}
-		}
+variablesListview.InsertColumn( 7, &listViewDefaultCollumn );
+listViewDefaultCollumn.pszText = "-()";
+variablesListview.InsertColumn( 8, &listViewDefaultCollumn );
+if ( varSysType == VariableSysType::config )
+{
+	// Make First Blank row.
+	LVITEM listViewDefaultItem;
+	memset( &listViewDefaultItem, 0, sizeof( listViewDefaultItem ) );
+	listViewDefaultItem.mask = LVIF_TEXT;
+	listViewDefaultItem.cchTextMax = 256;
+	listViewDefaultItem.pszText = "___";
+	listViewDefaultItem.iItem = 0;
+	listViewDefaultItem.iSubItem = 0;
+	variablesListview.InsertItem( &listViewDefaultItem );
+	for ( int itemInc = 1; itemInc < 7; itemInc++ )
+	{
+		listViewDefaultItem.iSubItem = itemInc;
+		variablesListview.SetItem( &listViewDefaultItem );
+	}
+}
 	}
 	variablesListview.SetBkColor( rgbs["Solarized Base02"] );
 	pos.y += 300;
 }
 
 
-/* 
+/*
  * The "normal" function, used for config and global variable systems.
  */
-void VariableSystem::normHandleOpenConfig(std::ifstream& configFile, int versionMajor, int versionMinor )
+void VariableSystem::normHandleOpenConfig( std::ifstream& configFile, int versionMajor, int versionMinor )
 {
-	ProfileSystem::checkDelimiterLine(configFile, "VARIABLES");
+	ProfileSystem::checkDelimiterLine( configFile, "VARIABLES" );
 	// handle variables
-	clearVariables();
+	clearVariables( );
 	std::vector<variableType> variables = getVariablesFromFile( configFile, versionMajor, versionMinor );
 	UINT varInc = 0;
 	for ( auto var : variables )
@@ -134,7 +135,7 @@ void VariableSystem::normHandleOpenConfig(std::ifstream& configFile, int version
 	}
 	if ( currentVariables.size( ) != 0 )
 	{
-		for ( auto rangeInc : range( currentVariables.front().ranges.size() ) )
+		for ( auto rangeInc : range( currentVariables.front( ).ranges.size( ) ) )
 		{
 			bool leftInclusivity = currentVariables.front( ).ranges[rangeInc].leftInclusive;
 			bool rightInclusivity = currentVariables.front( ).ranges[rangeInc].rightInclusive;
@@ -161,7 +162,7 @@ void VariableSystem::normHandleOpenConfig(std::ifstream& configFile, int version
 }
 
 
-std::vector<variableType> VariableSystem::getVariablesFromFile( std::ifstream& configFile, int versionMajor, 
+std::vector<variableType> VariableSystem::getVariablesFromFile( std::ifstream& configFile, int versionMajor,
 																int versionMinor )
 {
 	UINT variableNumber;
@@ -179,7 +180,7 @@ std::vector<variableType> VariableSystem::getVariablesFromFile( std::ifstream& c
 	std::vector<variableType> tempVariables;
 	for ( const UINT varInc : range( variableNumber ) )
 	{
-		tempVariables.push_back(loadVariableFromFile( configFile, versionMajor, versionMinor));
+		tempVariables.push_back( loadVariableFromFile( configFile, versionMajor, versionMinor ) );
 	}
 	return tempVariables;
 }
@@ -516,13 +517,44 @@ void VariableSystem::removeVariableDimension()
 }
 
 
+void VariableSystem::updateCurrentVariationsNum( )
+{
+	UINT dum = -1;
+	for ( auto& var : currentVariables )
+	{
+		if ( dum == -1 )
+		{
+			variableRanges = var.ranges.size( );
+			dum++;
+		}
+		else
+		{
+			if ( variableRanges != var.ranges.size( ) )
+			{
+				if ( dum == 0 )
+				{
+					errBox( "ERROR: While loading variables from file, a variable did not have same number of ranges as "
+							"first variable loaded. The range number will be changed to make the ranges consistent." );
+					dum++;
+					// only dislpay the error message once.
+				}
+				var.ranges.resize( variableRanges );
+			}
+		}
+	}
+}
+
+
 void VariableSystem::setVariationRangeNumber(int num, USHORT dimNumber)
 {
-	int currentVariableRangeNumber = (variablesListview.GetHeaderCtrl()->GetItemCount() - 5) / 3;
+	auto columnCount = variablesListview.GetHeaderCtrl( )->GetItemCount( );
+	// -2 for the two +- columns
+	int currentVariableRangeNumber = (columnCount - preRangeColumns - 2 ) / 3;
+	updateCurrentVariationsNum( );
 	if (variableRanges != currentVariableRangeNumber)
 	{
 		errBox( "ERROR: somehow, the number of ranges the VariableSystem object thinks there are and the actual number "
-				"are off! The numbes are " + str(variableRanges) + " and "
+				"displayed are off! The numbers are " + str(variableRanges) + " and "
 				+ str(currentVariableRangeNumber) + " respectively. The program will attempt to fix this, but " 
 				"data may be lost." );
 		variableRanges = currentVariableRangeNumber;

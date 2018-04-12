@@ -76,6 +76,7 @@ class VariableSystem
 		variableType loadVariableFromFile( std::ifstream& openFile, UINT versionMajor, UINT versionMinor );
 		void funcHandleOpenConfig( std::ifstream& configFile, int versionMajor, int versionMinor );
 		std::vector<variableType> getVariablesFromFile( std::ifstream& configFile, int versionMajor, int versionMinor );
+		void updateCurrentVariationsNum( );
 	private:
 		bool controlActive = true;
 		std::vector<CDialog*> childDlgs;

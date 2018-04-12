@@ -12,6 +12,7 @@ rerngOptions rerngControl::getParams( )
 	tempParams.outputIndv = outputIndividualEvents.GetCheck( );
 	tempParams.preprogram = preprogramMoves.GetCheck( );
 	tempParams.useCalibration = useCalibration.GetCheck( );
+	tempParams.useFast = fastMoveOption.GetCheck( );
 	CString tempTxt;
 	try
 	{
@@ -76,7 +77,7 @@ void rerngControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& too
 	header.Create( "REARRANGEMENT OPTIONS", NORM_HEADER_OPTIONS, header.sPos, parent, id++ );
 	header.fontType = fontTypes::HeadingFont;
 	experimentIncludesRerng.sPos = { loc.x, loc.y, loc.x + 240, loc.y += 25 };
-	experimentIncludesRerng.Create( "Experiment has Rearrangement?", NORM_CHECK_OPTIONS, 
+	experimentIncludesRerng.Create( "Experiment has Rerng?", NORM_CHECK_OPTIONS, 
 									experimentIncludesRerng.sPos, parent, id++ );
 	flashingRateText.sPos = { loc.x, loc.y, loc.x + 200, loc.y + 25 };
 	flashingRateText.Create( "Flashing Rate (MHz)", NORM_STATIC_OPTIONS, flashingRateText.sPos, parent, id++ );
@@ -211,6 +212,14 @@ void rerngControl::handleOpenConfig( std::ifstream& openFile, int versionMajor, 
 		info.finalMoveTime = 1e-3;
 	}
 
+	if ( (versionMajor == 3 && versionMinor > 1) || versionMajor > 3 )
+	{
+		openFile >> info.useFast;
+	}
+	else
+	{
+		info.useFast = false;
+	}
 	setParams( info );
 	ProfileSystem::checkDelimiterLine( openFile, "END_REARRANGEMENT_INFORMATION" );
 }
@@ -235,6 +244,8 @@ void rerngControl::handleNewConfig( std::ofstream& newFile )
 	// use calibration
 	newFile << "0\n";
 	newFile << "0.001\n";
+	// usefast
+	newFile << "0\n";
 	newFile << "END_REARRANGEMENT_INFORMATION\n";
 }
 
@@ -255,6 +266,7 @@ void rerngControl::handleSaveConfig( std::ofstream& saveFile )
 	saveFile << info.preprogram << "\n";
 	saveFile << info.useCalibration << "\n";
 	saveFile << info.finalMoveTime << "\n";
+	saveFile << info.useFast << "\n";
 	saveFile << "END_REARRANGEMENT_INFORMATION\n";
 }
 
@@ -279,4 +291,5 @@ void rerngControl::setParams( rerngOptions params )
 	preprogramMoves.SetCheck( params.preprogram );
 	// convert back to ms
 	finalMoveTimeEdit.SetWindowTextA( cstr( params.finalMoveTime * 1e3 ) );
+	fastMoveOption.SetCheck( params.useFast );
 }
