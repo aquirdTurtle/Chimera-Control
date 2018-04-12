@@ -1374,7 +1374,7 @@ void NiawgController::calcWaveData( channelWave& inputData, std::vector<ViReal64
 		deltaNu.push_back( dNu );
 		auto dOmega = 2 * PI *  dNu;
 		deltaOmega.push_back( dOmega );
-		auto a_w0 = 0;//PI * dNu / (2 * t_r);
+		auto a_w0 = 2 * PI * dNu / t_r;
 		accel_w0.push_back( a_w0 );
 		auto a_w1 = 4 * PI * dNu / t_r - a_w0;
 		accel_w1.push_back( a_w1 );

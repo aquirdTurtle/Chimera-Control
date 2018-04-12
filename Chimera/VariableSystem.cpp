@@ -544,6 +544,7 @@ void VariableSystem::updateCurrentVariationsNum( )
 	}
 }
 
+
 void VariableSystem::setVariationRangeNumber(int num, USHORT dimNumber)
 {
 	auto columnCount = variablesListview.GetHeaderCtrl( )->GetItemCount( );
