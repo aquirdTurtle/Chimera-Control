@@ -1,5 +1,6 @@
 #pragma once
 #include "Control.h"
+#include "myButton.h"
 #include "miscellaneousCommonFunctions.h"
 #include "DioStructures.h"
 #include "Expression.h"
@@ -40,7 +41,7 @@ class DioSystem
 		void handleNewConfig( std::ofstream& saveFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor );
-		void initialize(POINT& startLocation, cToolTips& toolTips, AuxiliaryWindow* master, int& id);
+		void initialize(POINT& startLocation, cToolTips& toolTips, AuxiliaryWindow* master, int& id, rgbMap rgbs );
 		double getTotalTime(UINT variation, UINT seqNum );
 		void checkFinalFormatTimes( UINT variation, UINT seqNum );
 		int getNumberOfTTLRows();
@@ -132,8 +133,8 @@ class DioSystem
 		void handleInvert( );
 		// one control for each TTL
 		Control<CStatic> ttlTitle;
-		Control<CButton> ttlHold;
-		Control<CButton> zeroTtls;
+		Control<CleanButton> ttlHold;
+		Control<CleanButton> zeroTtls;
 		std::array< std::array< Control<CButton>, 16 >, 4 > ttlPushControls;
 		std::array< Control<CStatic>, 16 > ttlNumberLabels;
 		std::array< Control<CStatic>, 4 > ttlRowLabels;
@@ -157,7 +158,5 @@ class DioSystem
 		vec<vec<finBufInfo>> finFtdiBuffers_loadSkip;
 
 		std::array<std::array<bool, 16>, 4> defaultTtlState;
-
-		/// END NOT SUGGESTED FOR DIRECT USE AREA! ////////////////////////////////////////////////////////////////////
 };
 

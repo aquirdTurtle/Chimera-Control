@@ -1,11 +1,12 @@
 ﻿#pragma once
 #include "Control.h"
+#include "myButton.h"
+#include "constants.h"
 #include "windows.h"
 #include "afxwin.h"
 #include "nidaqmx2.h"
 #include <array>
 #include "DaqMxFlume.h"
-#include "constants.h"
 
 
 /*
@@ -34,9 +35,9 @@ class AiSystem
 		std::array<Control<CStatic>, NUMBER_AI_CHANNELS> voltDisplays;
 		std::array<Control<CStatic>, NUMBER_AI_CHANNELS> dacLabels;
 		//std::array<Control<CStatic>, NUMBER_AI_CHANNELS> voltDisplays;
-		Control<CButton> getValuesButton;
-		Control<CButton> continuousQueryCheck;
-		Control<CButton> queryBetweenVariations;
+		Control<CleanButton> getValuesButton;
+		Control<CleanCheck> continuousQueryCheck;
+		Control<CleanCheck> queryBetweenVariations;
 		// float64 should just be a double type.
 		std::array<float64, NUMBER_AI_CHANNELS> currentValues;
 		std::vector<float64> aquisitionData;

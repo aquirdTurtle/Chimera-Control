@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Control.h"
+#include "myButton.h"
 #include "PlotDialog.h"
 #include "PlottingInfo.h"
 #include "EmbeddedPythonHandler.h"
@@ -88,11 +89,11 @@ class DataAnalysisControl
 		bool currentlySettingAnalysisLocations;
 		Control<CStatic> currentDataSetNumberText;
 		Control<CStatic> currentDataSetNumberDisp;
-		Control<CButton> manualSetAnalysisLocsButton;
+		Control<CleanButton> manualSetAnalysisLocsButton;
 
 		Control<CComboBox> gridSelector;
 		Control<CStatic> gridHeader;
-		Control<CButton> setGridCorner;
+		Control<CleanButton> setGridCorner;
 		Control<CStatic> gridSpacingText;
 		Control<CEdit> gridSpacing;
 		Control<CStatic> gridWidthText;
@@ -105,7 +106,7 @@ class DataAnalysisControl
 
 		std::vector<atomGrid> grids;
 		UINT selectedGrid = 0;
-		Control<CButton> deleteGrid;
+		Control<CleanButton> deleteGrid;
 
 		std::vector<coordinate> atomLocations;
 		bool threadNeedsCounts;

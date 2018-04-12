@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Control.h"
+#include "myButton.h"
 #include "RunInfo.h"
 #include "VariableStructures.h"
 #include "Combo.h"
@@ -91,7 +92,7 @@ class Script
 		CWnd syntaxTimer;
 		Control<CRichEditCtrl> edit;
 		Control<CStatic> title;
-		Control<CButton>  savedIndicator;
+		Control<CleanCheck>  savedIndicator;
 		Control<CEdit> fileNameText;
 		functionCombo availableFunctionsCombo;
 		Control<CEdit> help;

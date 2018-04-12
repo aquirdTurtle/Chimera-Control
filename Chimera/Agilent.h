@@ -1,5 +1,5 @@
 #pragma once
-
+#include "myButton.h"
 #include "ProfileSystem.h"
 #include "ScriptStream.h"
 #include "VisaFlume.h"
@@ -22,7 +22,7 @@ class Agilent
 		Agilent( const agilentSettings & settings );
 		~Agilent( );
 		void initialize( POINT& loc, cToolTips& toolTips, CWnd* master, int& id,   
-						 std::string header, UINT editHeight, COLORREF color, UINT width=480 );
+						 std::string header, UINT editHeight, COLORREF color, rgbMap rgbs, UINT width = 480);
 		void updateButtonDisplay( int chan );
 		void checkSave( std::string categoryPath, RunInfo info );
 		void handleChannelPress( int chan, std::string currentCategoryPath, RunInfo currentRunInfo );
@@ -85,9 +85,9 @@ class Agilent
 		Control<CStatic> deviceInfoDisplay;
 		Control<CButton> channel1Button;
 		Control<CButton> channel2Button;
-		Control<CButton> syncedButton;
-		Control<CButton> calibratedButton;
+		Control<CleanCheck> syncedButton;
+		Control<CleanCheck> calibratedButton;
 		Control<CComboBox> settingCombo;
 		Control<CStatic> optionsFormat;
-		Control<CButton> programNow;
+		Control<CleanButton> programNow;
 };

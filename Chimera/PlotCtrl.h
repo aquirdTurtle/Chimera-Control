@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "myButton.h"
 #include <vector>
 #include <memory>
 #include "memdc.h"
@@ -86,8 +87,8 @@ class PlotCtrl
 		RECT plotAreaDims;
 		CPen whitePen, greyPen, redPen, solarizedPen;
 		Gdiplus::SolidBrush* whiteBrush;
-		Control<CButton> legButton;
-		Control<CButton> sustainButton;
+		Control<CleanCheck> legButton;
+		Control<CleanCheck> sustainButton;
 		//std::vector<CPen*> pens;
 		std::vector<Gdiplus::SolidBrush*> brushes;
 		std::vector<Gdiplus::Pen*> pens;

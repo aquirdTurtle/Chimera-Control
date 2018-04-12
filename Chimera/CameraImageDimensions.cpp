@@ -24,8 +24,7 @@ void ImageDimsControl::initialize( cameraPositions& pos, CWnd* parent, bool isTr
 	rightText.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 25 };
 	rightText.amPos = { pos.amPos.x + 160, pos.amPos.y, pos.amPos.x + 320, pos.amPos.y + 25 };
 	rightText.videoPos = { pos.videoPos.x + 160, pos.videoPos.y, pos.videoPos.x + 320, pos.videoPos.y + 25 };
-	rightText.Create( "Right", NORM_STATIC_OPTIONS, rightText.seriesPos,
-					  parent, id++ );
+	rightText.Create( "Right (/512)", NORM_STATIC_OPTIONS, rightText.seriesPos, parent, id++ );
 	//
 	horBinningText.seriesPos = { pos.seriesPos.x + 320, pos.seriesPos.y, pos.seriesPos.x + 480, pos.seriesPos.y += 25 };
 	horBinningText.amPos = { pos.amPos.x + 320, pos.amPos.y, pos.amPos.x + 480, pos.amPos.y += 25 };
@@ -54,7 +53,7 @@ void ImageDimsControl::initialize( cameraPositions& pos, CWnd* parent, bool isTr
 	bottomLabel.seriesPos = { pos.seriesPos.x, pos.seriesPos.y, pos.seriesPos.x + 160, pos.seriesPos.y + 25 };
 	bottomLabel.amPos = { pos.amPos.x, pos.amPos.y, pos.amPos.x + 160, pos.amPos.y + 25 };
 	bottomLabel.videoPos = { pos.videoPos.x, pos.videoPos.y, pos.videoPos.x + 160, pos.videoPos.y + 25 };
-	bottomLabel.Create( "Bottom", NORM_STATIC_OPTIONS, bottomLabel.seriesPos, parent, id++);
+	bottomLabel.Create( "Bottom (/512)", NORM_STATIC_OPTIONS, bottomLabel.seriesPos, parent, id++);
 
 	//
 	topLabel.seriesPos = { pos.seriesPos.x + 160, pos.seriesPos.y, pos.seriesPos.x + 320, pos.seriesPos.y + 25 };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Control.h"
+#include "myButton.h"
 #include "PictureSettingsControl.h"
 #include "CameraImageDimensions.h"
 #include "Andor.h"
@@ -73,8 +74,8 @@ class CameraSettingsControl
 		// Trigger Mode
 		Control<CComboBox> triggerCombo;
 		// Temperature
-		Control<CButton> setTemperatureButton;
-		Control<CButton> temperatureOffButton;
+		Control<CleanButton> setTemperatureButton;
+		Control<CleanButton> temperatureOffButton;
 		Control<CEdit> temperatureEdit;
 		Control<CStatic> temperatureDisplay;
 		Control<CStatic> temperatureMsg;

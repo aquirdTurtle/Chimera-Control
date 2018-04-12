@@ -500,11 +500,11 @@ std::pair<UINT, UINT> DioSystem::getTtlBoardSize()
 }
 
 
-void DioSystem::initialize( POINT& loc, cToolTips& toolTips, AuxiliaryWindow* master, int& id )
+void DioSystem::initialize( POINT& loc, cToolTips& toolTips, AuxiliaryWindow* master, int& id, rgbMap rgbs )
 {
 	// title
 	ttlTitle.sPos = { loc.x, loc.y, loc.x + 480, loc.y + 25 };
-	ttlTitle.Create( "TTLS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, ttlTitle.sPos, master, id++ );
+	ttlTitle.Create( "TTLS", WS_CHILD | WS_VISIBLE | SS_CENTER, ttlTitle.sPos, master, id++ );
 	ttlTitle.fontType = fontTypes::HeadingFont;
 	// all number numberLabels
 	loc.y += 25;
@@ -514,6 +514,7 @@ void DioSystem::initialize( POINT& loc, cToolTips& toolTips, AuxiliaryWindow* ma
 	ttlHold.setToolTip("Press this button to change multiple TTLs simultaneously. Press the button, then change the "
 					   "ttls, then press the button again to release it. Upon releasing the button, the TTLs will "
 					   "change.", toolTips, master);
+
 	zeroTtls.sPos = { loc.x + 240, loc.y, loc.x + 480, loc.y + 20 };
 	zeroTtls.Create( "Zero TTLs", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, zeroTtls.sPos, master, 
 					 IDC_ZERO_TTLS );
@@ -524,7 +525,7 @@ void DioSystem::initialize( POINT& loc, cToolTips& toolTips, AuxiliaryWindow* ma
 	{
 		ttlNumberLabels[ttlNumberInc].sPos = { loc.x + 32 + ttlNumberInc * 28, loc.y,
 			loc.x + 32 + (ttlNumberInc + 1) * 28, loc.y + 20 };
-		ttlNumberLabels[ttlNumberInc].Create( cstr( ttlNumberInc ), WS_CHILD | WS_VISIBLE | SS_SUNKEN,
+		ttlNumberLabels[ttlNumberInc].Create( cstr( ttlNumberInc ), WS_CHILD | WS_VISIBLE | SS_CENTER,
 											  ttlNumberLabels[ttlNumberInc].sPos, master, id++ );
 	}
 	loc.y += 20;
@@ -549,7 +550,7 @@ void DioSystem::initialize( POINT& loc, cToolTips& toolTips, AuxiliaryWindow* ma
 				rowName = "D";
 				break;
 		}
-		ttlRowLabels[row].Create( cstr(rowName), WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER,
+		ttlRowLabels[row].Create( cstr(rowName), WS_CHILD | WS_VISIBLE | SS_CENTER,
 								  ttlRowLabels[row].sPos, master, id++ );
 	}
 	// all push buttons
@@ -576,10 +577,9 @@ void DioSystem::initialize( POINT& loc, cToolTips& toolTips, AuxiliaryWindow* ma
 			}
 			name += str( number );
 
-			//ttlNames[row][number] = name;
 			ttlPushControls[row][number].sPos = { long( loc.x + 32 + number * 28 ), long( loc.y + row * 28 ),
 											long( loc.x + 32 + (number + 1) * 28 ), long( loc.y + (row + 1) * 28 ) };
-			ttlPushControls[row][number].Create( "", WS_CHILD | WS_VISIBLE | BS_RIGHT | BS_3STATE,
+			ttlPushControls[row][number].Create( "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_RIGHT | BS_3STATE,
 												 ttlPushControls[row][number].sPos, master, 
 												 TTL_ID_BEGIN + runningCount++ );
 			ttlPushControls[row][number].setToolTip(ttlNames[row][number], toolTips, master);
@@ -776,7 +776,6 @@ void DioSystem::resetTtlEvents( )
 
 HBRUSH DioSystem::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC)
 {
-	
 	int controlID = window->GetDlgCtrlID();
 	if (controlID >= ttlPushControls.front().front().GetDlgCtrlID() && controlID <= ttlPushControls.back().back().GetDlgCtrlID())
 	{

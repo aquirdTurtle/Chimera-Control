@@ -221,8 +221,9 @@ BOOL ScriptingWindow::OnInitDialog()
 							"NIAWG Script", { IDC_NIAWG_FUNCTION_COMBO, 
 							IDC_NIAWG_EDIT }, mainWindowFriend->getRgbs()["Solarized Base03"]);
 	startLocation = { 640, 28 };
+	auto rgbs = mainWindowFriend->getRgbs( );
 	intensityAgilent.initialize( startLocation, tooltips, this, id, "Intensity Agilent", 865, 
-								 mainWindowFriend->getRgbs()["Solarized Base03"], 640 );
+								 rgbs["Solarized Base03"], rgbs, 640 );
 	startLocation = { 2*640, 28 };
 	masterScript.initialize( 640, 900, startLocation, tooltips, this, id, "Master", "Master Script",
 	                         { IDC_MASTER_FUNCTION_COMBO, IDC_MASTER_EDIT }, mainWindowFriend->getRgbs()["Solarized Base04"] );

@@ -1,4 +1,5 @@
 #pragma once
+#include "myButton.h"
 #include "Control.h"
 #include <Mmsystem.h>
 #include <mciapi.h>
@@ -32,11 +33,11 @@ class AlertSystem
 		bool wantsAutoPause( );
 	private:
 		Control<CStatic> title;
-		Control<CButton> alertsActiveCheckBox;
+		Control<CleanCheck> alertsActiveCheckBox;
 		Control<CStatic> alertThresholdText;
 		Control<CEdit> alertThresholdEdit;
-		Control<CButton> soundAtFinshCheck;
-		Control<CButton> autoPauseAtAlert;
+		Control<CleanCheck> soundAtFinshCheck;
+		Control<CleanCheck> autoPauseAtAlert;
 		int alertThreshold;
 		bool useAlerts;
 		bool autoPause;

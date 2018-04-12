@@ -443,7 +443,7 @@ BOOL MainWindow::OnInitDialog( )
 	motScope.initialize( controlLocation, 480, 250, this, getPlotPens( ), getPlotFont( ), getPlotBrushes( ), "MOT" );
 	controlLocation = { 1440, 50 };
 	repetitionControl.initialize( controlLocation, tooltips, this, id );
-	settings.initialize( id, controlLocation, this, tooltips );
+	settings.initialize( id, controlLocation, this, tooltips, getRgbs() );
 	rearrangeControl.initialize( id, controlLocation, this, tooltips );
 	debugger.initialize( id, controlLocation, this, tooltips );
 	texter.initialize( controlLocation, this, id, tooltips, mainRGBs );

@@ -30,6 +30,8 @@ rerngOptions rerngControl::getParams( )
 		tempParams.staticMovingRatio = std::stod( str( tempTxt ) );
 		finalMoveTimeEdit.GetWindowTextA( tempTxt );
 		tempParams.finalMoveTime = 1e-3 * std::stod( str(tempTxt) );
+		fastMoveTimeBetweenMovesEdit.GetWindowTextA( tempTxt );
+		tempParams.timeBetweenFastMoves = 1e-6 * std::stod( str( tempTxt ) );
 	}
 	catch ( std::invalid_argument&)
 	{
@@ -60,6 +62,11 @@ void rerngControl::rearrange( int width, int height, fontMap fonts )
 	outputIndividualEvents.rearrange( width, height, fonts );
 	finalMoveTimeText.rearrange( width, height, fonts );
 	finalMoveTimeEdit.rearrange( width, height, fonts );
+	fastMoveOption.rearrange( width, height, fonts );
+	fastMoveTimeBetweenMoves.rearrange( width, height, fonts );
+	fastMoveTimeBetweenMovesEdit.rearrange( width, height, fonts );
+	fastMoveTime.rearrange( width, height, fonts );
+	fastMoveTimeEdit.rearrange( width, height, fonts );
 }
 
 
@@ -119,15 +126,21 @@ void rerngControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& too
 	finalMoveTimeEdit.Create( NORM_EDIT_OPTIONS, finalMoveTimeEdit.sPos, parent, id++ );
 	finalMoveTimeEdit.SetWindowTextA( "1" );
 
-	a_w0_disp.sPos = { loc.x, loc.y, loc.x + 120, loc.y + 25 };;
-	a_w0_disp.Create( "a_w0:", NORM_STATIC_OPTIONS, a_w0_disp.sPos, parent, id++ );
+	fastMoveOption.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
+	fastMoveOption.Create( "FAST-MOVE", NORM_CHECK_OPTIONS, fastMoveOption.sPos, parent, id++ );
 
-	a_w0_edit.sPos = { loc.x + 120, loc.y, loc.x + 240, loc.y + 25 };
-	a_w0_edit.Create( NORM_EDIT_OPTIONS, a_w0_edit.sPos, parent, id++ );
-	a_w0_edit.SetWindowTextA( "0" );
+	fastMoveTimeBetweenMoves.sPos = { loc.x, loc.y, loc.x + 200, loc.y + 25 };
+	fastMoveTimeBetweenMoves.Create( "Fast-Move-Wait-Time (us):", NORM_STATIC_OPTIONS, fastMoveTimeBetweenMoves.sPos, parent, id++ );
+	fastMoveTimeBetweenMovesEdit.sPos = { loc.x + 200, loc.y, loc.x + 240, loc.y + 25 };
+	fastMoveTimeBetweenMovesEdit.Create( NORM_EDIT_OPTIONS, fastMoveTimeBetweenMovesEdit.sPos, parent, id++ );
+	fastMoveTimeBetweenMovesEdit.SetWindowTextA( "2" );
 
-	fastMoveOption.sPos = { loc.x+240, loc.y, loc.x + 480, loc.y += 25 };
-	fastMoveOption.Create( "Fast-Move", NORM_PUSH_OPTIONS, fastMoveOption.sPos, parent, id++ );
+	fastMoveTime.sPos = { loc.x+240, loc.y, loc.x + 440, loc.y + 25 };
+	fastMoveTime.Create( "Fast-Move (us):", NORM_STATIC_OPTIONS, fastMoveTime.sPos, parent, id++ );
+	fastMoveTimeEdit.sPos = { loc.x + 440, loc.y, loc.x + 480, loc.y += 25 };
+	fastMoveTimeEdit.Create( NORM_EDIT_OPTIONS, fastMoveTimeEdit.sPos, parent, id++ );
+	fastMoveTimeEdit.SetWindowTextA( "2" );
+	
 }
 
 

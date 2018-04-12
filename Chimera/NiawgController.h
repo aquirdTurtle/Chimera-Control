@@ -178,6 +178,8 @@ class NiawgController
 		int threshold;
 		std::vector<double> makeRerngWave( rerngInfo& info, double staticMovingRatio, double moveBias, double deadTime, 
 										   UINT sourceRows, UINT sourceCols, complexMove move );
+		std::vector<double> makeFastRerngWave( rerngInfo& rerngSettings, UINT sourceRows, UINT sourceCols, 
+											   complexMove moveInfo, rerngOptions options );
 		// returns sign of x.
 		static int sign( int );
 		// returns cost, which is total travel distance. Algorithm from: 

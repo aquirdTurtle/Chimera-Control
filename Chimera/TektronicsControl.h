@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Control.h"
+#include "myButton.h"
 #include "VisaFlume.h"
 
 
@@ -51,9 +52,9 @@ class TektronicsChannelControl
 		void handleFskPress();
 	private:
 		Control<CStatic> channelLabel;
-		Control<CButton> controlButton;
-		Control<CButton> onOffButton;
-		Control<CButton> fskButton;
+		Control<CleanCheck> controlButton;
+		Control<CleanCheck> onOffButton;
+		Control<CleanCheck> fskButton;
 		Control<CEdit> power;
 		Control<CEdit> mainFreq;
 		Control<CEdit> fskFreq;
@@ -69,7 +70,7 @@ class TektronicsControl
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpeningConfig(std::ifstream& configFile, int versionMajor, int versionMinor );
 		void initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
-						 std::string channel2Text, LONG width, std::array<UINT, 5> ids );
+						 std::string channel2Text, LONG width, std::array<UINT, 5> ids, rgbMap rgbs );
 		std::string queryIdentity();
 		tektronicsInfo getTekSettings();
 		void setSettings(tektronicsInfo info);
@@ -81,7 +82,7 @@ class TektronicsControl
 		void handleProgram();
 	private:
 		Control<CStatic> header;
-		Control<CButton> programNow;
+		Control<CleanButton> programNow;
 		Control<CStatic> onOffLabel;
 		Control<CStatic> controlLabel;
 		Control<CStatic> fskLabel;

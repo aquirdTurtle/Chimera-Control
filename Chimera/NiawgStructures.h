@@ -146,9 +146,6 @@ struct rerngInfoForm
 	simpleWaveForm fillerWave;
 	// the target picture
 	Matrix<bool> target = Matrix<bool>(0,0);
-	// a bit redundant atm.
-	//UINT targetRows = 0;
-	//UINT targetCols = 0;
 	// the maixmum number of moves the rearrangement should take.
 	UINT moveLimit = 0;
 	// the location that the array will be moved to at the end.
