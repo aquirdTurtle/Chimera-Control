@@ -2545,6 +2545,26 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 }
 
 
+std::vector<double> NiawgController::makeFastRerngWave( rerngInfo& rerngSettings, UINT sourceRows, UINT sourceCols,
+														complexMove moveInfo, rerngOptions options )
+{
+	// make the move
+	simpleWave moveWave;
+	moveWave.varies = false;
+	moveWave.name = "NOT-USED";
+	// needs to match correctly the static waveform.
+	moveWave.time = options.fastMoveTime;
+	moveWave.sampleNum = waveformSizeCalc( moveWave.time );
+
+
+	finalizeStandardWave( moveWave, debugInfo( ) );
+	// make the static...
+
+	return std::vector<double>();//waveVals;
+}
+
+
+
 std::vector<double> NiawgController::makeRerngWave( rerngInfo& rerngSettings, double staticMovingRatio, 
 													double moveBias, double deadTime, UINT sourceRows, UINT sourceCols, 
 													complexMove moveInfo )

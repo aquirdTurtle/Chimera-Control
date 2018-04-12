@@ -36,7 +36,7 @@ Agilent::~Agilent()
 
 
 void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id, std::string headerText,
-						  UINT editHeight, COLORREF color, UINT width )
+						  UINT editHeight, COLORREF color, rgbMap rgbs, UINT width )
 {
 	LONG w = LONG( width );
 	name = headerText;
@@ -72,18 +72,19 @@ void Agilent::initialize( POINT& loc, cToolTips& toolTips, CWnd* parent, int& id
 	loc.x -= w;
 
 	syncedButton.sPos = { loc.x, loc.y, loc.x += w/3, loc.y + 20 };
-	syncedButton.Create( "Synced?", NORM_CHECK_OPTIONS, syncedButton.sPos, parent,
+	syncedButton.Create( "Synced?", NORM_CHECK_OPTIONS | BS_RIGHT, syncedButton.sPos, parent,
 						 initSettings.syncButtonId );
 
 	calibratedButton.sPos = { loc.x, loc.y, loc.x += w/3, loc.y + 20 };
-	calibratedButton.Create( "Use Cal?", NORM_CHECK_OPTIONS, calibratedButton.sPos,
+	calibratedButton.Create( "Use Cal?", NORM_CHECK_OPTIONS | BS_RIGHT, calibratedButton.sPos,
 							 parent, initSettings.calibrationButtonId );
 	calibratedButton.SetCheck( true );
 	
 	programNow.sPos = { loc.x, loc.y, loc.x += w/3, loc.y += 20 };
 	programNow.Create( "Program", NORM_PUSH_OPTIONS, programNow.sPos, parent, 
 					   initSettings.programButtonId );
-
+	programNow.SetFaceColor( rgbs["Dark Grey"], true );
+	programNow.SetTextColor( rgbs["Solarized Base1"] );
 	loc.x -= w;
 
 	settingCombo.sPos = { loc.x, loc.y, loc.x += w/4, loc.y + 200 };
@@ -287,7 +288,7 @@ HBRUSH Agilent::handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, 
 		 || id == settingCombo.GetDlgCtrlID() || id == optionsFormat.GetDlgCtrlID() )
 	{
 		cDC->SetBkColor(rGBs["Medium Grey"]);
-		cDC->SetTextColor(rGBs["Solarized Base2"]);
+		cDC->SetTextColor(rGBs["Solarized Base1"]);
 		return *brushes["Medium Grey"];
 	}
 	else

@@ -203,6 +203,7 @@
     <ClCompile Include="ftdiFlume.cpp" />
     <ClCompile Include="WinSerialFlume.cpp" />
     <ClCompile Include="viewpointFlume.cpp" />
+    <ClCompile Include="myButton.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -494,6 +495,7 @@
     <ClInclude Include="ftdiFlume.h" />
     <ClInclude Include="viewpointFlume.h" />
     <ClInclude Include="viewpointStructures.h" />
+    <ClInclude Include="myButton.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

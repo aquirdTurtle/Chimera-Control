@@ -46,7 +46,7 @@ void VariableSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent, 
 	variablesListview.fontType = fontTypes::SmallFont;
 	variablesListview.SetBkColor( RGB( 15, 15, 15 ) );
 	variablesListview.SetTextBkColor( RGB( 15, 15, 15 ) );
-	variablesListview.SetTextColor( RGB( 255, 255, 255 ) );
+	variablesListview.SetTextColor( RGB( 150, 150, 150 ) );
 	LV_COLUMN listViewDefaultCollumn;
 	// Zero Members
 	memset( &listViewDefaultCollumn, 0, sizeof( listViewDefaultCollumn ) );
@@ -727,11 +727,11 @@ void VariableSystem::handleDraw(NMHDR* pNMHDR, LRESULT* pResult, rgbMap rgbs)
 		{
 			return;
 		}
-		if (varSysType == VariableSysType::global)
-		{
+		//if (varSysType == VariableSysType::global)
+		//{
 			if (item == currentVariables.size())
 			{
-				pLVCD->clrText = RGB(255, 255, 255);
+				pLVCD->clrText = rgbs["Solarized Base1"];
 				pLVCD->clrTextBk = rgbs["Solarized Base02"];
 			}
 			else
@@ -750,10 +750,10 @@ void VariableSystem::handleDraw(NMHDR* pNMHDR, LRESULT* pResult, rgbMap rgbs)
 				}
 				else
 				{
-					pLVCD->clrText = rgbs["Solarized Base2"];
+					pLVCD->clrText = rgbs["Solarized Base1"];
 				}
 			}
-		}
+		//}
 		// Tell Windows to paint the control itself.
 		*pResult = CDRF_DODEFAULT;
 	}
@@ -775,6 +775,10 @@ BOOL VariableSystem::handleAccelerators( HACCEL m_haccel, LPMSG lpMsg )
 void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
 										 DioSystem* ttls, AoSystem* aoSys )
 {
+	if ( !controlActive )
+	{
+		return;
+	}
 	/// get the item and subitem
 	POINT cursorPos;
 	GetCursorPos(&cursorPos);
@@ -1153,21 +1157,18 @@ void VariableSystem::updateVariableInfo( std::vector<Script*> scripts, MainWindo
 }
 
 
-void VariableSystem::setActive(bool active)
+void VariableSystem::setVariableControlActive(bool active)
 {
-	if (active)
-	{
-		variablesListview.EnableWindow();
-	}
-	else
-	{
-		variablesListview.EnableWindow(false);
-	}
+	controlActive = active;
 }
 
 
 void VariableSystem::deleteVariable()
 {
+	if ( !controlActive )
+	{
+		return;
+	}
 	/// get the item and subitem
 	POINT cursorPos;
 	GetCursorPos(&cursorPos);

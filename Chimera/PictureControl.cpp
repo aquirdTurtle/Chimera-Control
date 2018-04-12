@@ -611,7 +611,6 @@ void PictureControl::handleMouse( CPoint p )
 }
 
 
-
 /*
  * recolor the background box, clearing last run.
  */
@@ -621,8 +620,6 @@ void PictureControl::drawBackground(CDC* easel)
 	easel->SelectObject(GetStockObject(DC_PEN));
 	// dark green brush
 	easel->SetDCBrushColor(RGB(0, 10, 0));
-	// Set the Pen to White
-	easel->SetDCPenColor(RGB(255, 255, 255));
 	// Drawing a rectangle with the current Device Context
 	// (slightly larger than the image zone).
 	RECT rectArea = { scaledBackgroundArea.left, scaledBackgroundArea.top, scaledBackgroundArea.right, 

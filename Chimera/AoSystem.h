@@ -4,6 +4,7 @@
 #include <unordered_map>
 
 #include "Control.h"
+#include "myButton.h"
 #include "VariableSystem.h"
 #include "DioSystem.h"
 #include "DaqMxFlume.h"
@@ -24,7 +25,7 @@ class AoSystem
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor, DioSystem* ttls);
-		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id );
+		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id, rgbMap rgbs );
 		std::string getDacSequenceMessage(UINT variation, UINT seqNum );
 		void handleSetDacsButtonPress( DioSystem* ttls, bool useDefault=false );
 		void updateEdits( );
@@ -78,8 +79,8 @@ class AoSystem
 		std::vector<std::vector<std::array<std::vector<double>, 3>>> getFinData( );
 	private:
 		Control<CStatic> dacTitle;
-		Control<CButton> dacSetButton;
-		Control<CButton> zeroDacs;
+		Control<CleanButton> dacSetButton;
+		Control<CleanButton> zeroDacs;
 		std::array<Control<CStatic>, 24> dacLabels;
 		std::array<Control<CEdit>, 24> breakoutBoardEdits;
 		std::array<double, 24> dacValues;

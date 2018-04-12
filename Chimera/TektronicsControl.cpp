@@ -98,7 +98,7 @@ HBRUSH TektronicsControl::handleColorMessage(CWnd* window, brushMap brushes, rgb
 		|| controlID == fskFreqLabel.GetDlgCtrlID())
 	{
 		cDC->SetBkColor(rGBs["Medium Grey"]);
-		cDC->SetTextColor(rGBs["Solarized Base2"]);
+		cDC->SetTextColor(rGBs["Solarized Base1"]);
 		return *brushes["Medium Grey"];
 	}
 	else
@@ -335,7 +335,7 @@ void TektronicsControl::handleProgram()
 
 
 void TektronicsControl::initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
-								    std::string channel2Text, LONG width, std::array<UINT, 5> ids )
+								    std::string channel2Text, LONG width, std::array<UINT, 5> ids, rgbMap rgbs )
 {
 	header.sPos = { loc.x, loc.y, loc.x + width, loc.y += 25 };
 	header.Create( cstr("Tektronics " + headerText), NORM_HEADER_OPTIONS, header.sPos, parent, id++ );

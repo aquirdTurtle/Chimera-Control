@@ -1,5 +1,5 @@
 #pragma once
-
+#include "myButton.h"
 #include "Control.h"
 
 class StatusControl
@@ -18,6 +18,6 @@ class StatusControl
 	private:
 		Control<CStatic> header;
 		Control<CRichEditCtrl> edit;
-		Control<CButton> clearButton;
+		Control<CleanButton> clearButton;
 		COLORREF defaultColor;
 };

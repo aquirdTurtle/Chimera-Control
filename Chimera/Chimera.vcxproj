@@ -227,6 +227,7 @@
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="memdc.h" />
     <ClInclude Include="multiDimensionalKey.h" />
+    <ClInclude Include="myButton.h" />
     <ClInclude Include="PlotDialog.h" />
     <ClInclude Include="profileSettings.h" />
     <ClInclude Include="ProfileSystem.h" />
@@ -320,6 +321,7 @@
     <ClCompile Include="Expression.cpp" />
     <ClCompile Include="ftdiFlume.cpp" />
     <ClCompile Include="functionCombo.cpp" />
+    <ClCompile Include="myButton.cpp" />
     <ClCompile Include="openWithExplorer.cpp" />
     <ClCompile Include="OscilloscopeViewer.cpp" />
     <ClCompile Include="PlotCtrl.cpp" />

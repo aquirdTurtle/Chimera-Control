@@ -4,7 +4,7 @@
 #include "ProfileSystem.h"
 #include "Thrower.h"
 
-void MainOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips )
+void MainOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips, rgbMap rgbs )
 {
 	header.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 20 };
 	header.Create( "MAIN OPTIONS", NORM_HEADER_OPTIONS, header.sPos, parent, id++ );
@@ -12,9 +12,11 @@ void MainOptionsControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTip
 	randomizeRepsButton.sPos = { loc.x, loc.y, loc.x + 480 , loc.y += 25 };
 	randomizeRepsButton.Create( "Randomize Repetitions?", NORM_CHECK_OPTIONS, randomizeRepsButton.sPos, parent, id++ );
 	randomizeRepsButton.EnableWindow( false );
+
 	randomizeVariationsButton.sPos = { loc.x, loc.y, loc.x + 480 , loc.y += 25 };
 	randomizeVariationsButton.Create( "Randomize Variations?", NORM_CHECK_OPTIONS, randomizeVariationsButton.sPos, 
 									  parent, id++ );
+
 	atomThresholdForSkipText.sPos = { loc.x, loc.y, loc.x + 240 , loc.y + 25 };
 	atomThresholdForSkipText.Create("Atom Threshold for load-skip:", NORM_STATIC_OPTIONS, atomThresholdForSkipText.sPos,
 									 parent, id++ );

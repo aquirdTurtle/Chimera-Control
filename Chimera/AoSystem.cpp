@@ -233,11 +233,11 @@ double AoSystem::getDefaultValue(UINT dacNum)
 
 
 // this function returns the end location of the set of controls. This can be used for the location for the next control beneath it.
-void AoSystem::initialize(POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id)
+void AoSystem::initialize(POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id, rgbMap rgbs)
 {
 	// title
 	dacTitle.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
-	dacTitle.Create("DACS", WS_CHILD | WS_VISIBLE | SS_SUNKEN | SS_CENTER, dacTitle.sPos, master, id++);
+	dacTitle.Create("DACS", WS_CHILD | WS_VISIBLE | SS_CENTER, dacTitle.sPos, master, id++);
 	dacTitle.fontType = fontTypes::HeadingFont;
 	// 
 	dacSetButton.sPos = { pos.x, pos.y, pos.x + 240, pos.y + 25};
@@ -249,6 +249,7 @@ void AoSystem::initialize(POINT& pos, cToolTips& toolTips, AuxiliaryWindow* mast
 	zeroDacs.sPos = { pos.x + 240, pos.y, pos.x + 480, pos.y += 25 };
 	zeroDacs.Create( "Zero Dacs", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, zeroDacs.sPos, master, IDC_ZERO_DACS );
 	zeroDacs.setToolTip( "Press this button to set all dac values to zero.", toolTips, master );
+
 	int collumnInc = 0;
 	
 	// there's a single label first, hence the +1.
@@ -259,7 +260,7 @@ void AoSystem::initialize(POINT& pos, cToolTips& toolTips, AuxiliaryWindow* mast
 		{
 			collumnInc++;
 			// go to second or third collumn
-pos.y -= 25 * breakoutBoardEdits.size( ) / 3;
+			pos.y -= 25 * breakoutBoardEdits.size( ) / 3;
 		}
 		edit.sPos = { pos.x + 20 + collumnInc * 160, pos.y, pos.x + 160 + collumnInc * 160, pos.y += 25 };
 		edit.colorState = 0;

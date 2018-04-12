@@ -66,7 +66,7 @@ void NoteSystem::initialize(POINT& topLeftPos, CWnd* parentWindow, int& id, cToo
 	topLeftPos.y += 25;
 	//  Configuration Notes edit
 	configNotes.sPos = { topLeftPos.x, topLeftPos.y, topLeftPos.x + 480, topLeftPos.y + 195 };
-	configNotes.Create( NORM_EDIT_OPTIONS | WS_VSCROLL | ES_AUTOVSCROLL | ES_WANTRETURN, configNotes.sPos, parentWindow, 
+	configNotes.Create( NORM_EDIT_OPTIONS | ES_AUTOVSCROLL | ES_WANTRETURN, configNotes.sPos, parentWindow, 
 						IDC_CONFIGURATION_NOTES );
 	topLeftPos.y += 195;
 }

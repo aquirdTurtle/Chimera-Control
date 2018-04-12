@@ -1,5 +1,6 @@
 #pragma once
 #include "Control.h"
+#include "myButton.h"
 #include "commonTypes.h"
 #include "debugInfo.h"
 
@@ -19,16 +20,16 @@ class DebugOptionsControl
 
 	private:
 		Control<CStatic> header;
-		Control<CButton> readProgress;
-		Control<CButton> writeProgress;
-		Control<CButton> correctionTimes;
-		Control<CButton> niawgScript;
-		Control<CButton> outputAgilentScript;
-		Control<CButton> niawgMachineScript;
-		Control<CButton> excessInfo;
-		Control<CButton> showTtlsButton;
-		Control<CButton> showDacsButton;
-		Control<CButton> outputNiawgWavesToText;
+		Control<CleanCheck> readProgress;
+		Control<CleanCheck> writeProgress;
+		Control<CleanCheck> correctionTimes;
+		Control<CleanCheck> niawgScript;
+		Control<CleanCheck> outputAgilentScript;
+		Control<CleanCheck> niawgMachineScript;
+		Control<CleanCheck> excessInfo;
+		Control<CleanCheck> showTtlsButton;
+		Control<CleanCheck> showDacsButton;
+		Control<CleanCheck> outputNiawgWavesToText;
 		Control<CStatic> pauseText;
 		Control<CEdit> pauseEdit;
 

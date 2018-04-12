@@ -44,9 +44,11 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	gridSelector.SetCurSel( 0 );	
 	deleteGrid.setPositions( pos, 50, 0, 50, 25 );
 	deleteGrid.Create( "Del", NORM_PUSH_OPTIONS, deleteGrid.seriesPos, parent, IDC_DEL_GRID_BUTTON );	
+
 	setGridCorner.setPositions( pos, 100, 0, 200, 25 );
 	setGridCorner.Create( "Set Grid Top-Left Corner", NORM_CWND_OPTIONS | BS_PUSHLIKE | BS_CHECKBOX,
 						  setGridCorner.seriesPos, parent, IDC_SET_GRID_CORNER );
+
 	gridSpacingText.setPositions( pos, 300, 0, 120, 25 );
 	gridSpacingText.Create("Pixel Spacing", NORM_STATIC_OPTIONS, gridSpacingText.seriesPos, parent, id++ );
 	gridSpacing.setPositions( pos, 420, 0, 60, 25, true );
@@ -66,6 +68,7 @@ void DataAnalysisControl::initialize( cameraPositions& pos, int& id, CWnd* paren
 	manualSetAnalysisLocsButton.setPositions( pos, 0, 0, 480, 25, true );
 	manualSetAnalysisLocsButton.Create("Manually Set AutoAnalysis Points", NORM_CWND_OPTIONS | BS_PUSHLIKE | BS_CHECKBOX,
 									  manualSetAnalysisLocsButton.seriesPos, parent, IDC_SET_ANALYSIS_LOCATIONS );
+
 	manualSetAnalysisLocsButton.EnableWindow( false );
 	/// PLOTTING FREQUENCY CONTROLS
 	updateFrequencyLabel1.setPositions( pos, 0, 0, 150, 25, false, false, true );

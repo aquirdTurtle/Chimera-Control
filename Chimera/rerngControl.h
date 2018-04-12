@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "myButton.h"
 #include "rerngParams.h"
 #include "Control.h"
 #include "Windows.h"
@@ -33,17 +34,18 @@ class rerngControl
 		Control<CStatic> staticMovingRatioText;
 		Control<CEdit> staticMovingRatioEdit;
 
-		Control<CButton> preprogramMoves;
-		Control<CButton> useCalibration;
+		Control<CleanCheck> preprogramMoves;
+		Control<CleanCheck> useCalibration;
 
-		Control<CButton> outputRearrangeEvents;
-		Control<CButton> outputIndividualEvents;
+		Control<CleanCheck> outputRearrangeEvents;
+		Control<CleanCheck> outputIndividualEvents;
 
 		Control<CStatic> finalMoveTimeText;
 		Control<CEdit> finalMoveTimeEdit;
 
-		Control<CStatic> a_w0_disp;
-		Control<CEdit> a_w0_edit;
-
-		Control<CButton> fastMoveOption;
+		Control<CleanCheck> fastMoveOption;
+		Control<CStatic> fastMoveTimeBetweenMoves;
+		Control<CEdit> fastMoveTimeBetweenMovesEdit;
+		Control<CStatic> fastMoveTime;
+		Control<CEdit> fastMoveTimeEdit;
 };

@@ -2,6 +2,7 @@
 
 #include "Control.h"
 #include "commonTypes.h"
+#include "myButton.h"
 
 
 struct mainOptions
@@ -19,13 +20,13 @@ class MainOptionsControl
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
 		void handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor );
-		void initialize(int& idStart, POINT& loc, CWnd* parent, cToolTips& tooltips);
+		void initialize(int& idStart, POINT& loc, CWnd* parent, cToolTips& tooltips, rgbMap rgbs );
 		mainOptions getOptions();
 		void rearrange(int width, int height, fontMap fonts);
 	private:
 		Control<CStatic> header;
-		Control<CButton> randomizeVariationsButton;
-		Control<CButton> randomizeRepsButton;
+		Control<CleanCheck> randomizeVariationsButton;
+		Control<CleanCheck> randomizeRepsButton;
 		Control<CStatic> atomThresholdForSkipText;
 		Control<CEdit> atomThresholdForSkipEdit;
 		mainOptions currentOptions;

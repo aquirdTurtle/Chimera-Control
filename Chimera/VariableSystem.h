@@ -36,8 +36,7 @@ enum class VariableSysType
  */
 class VariableSystem
 {
-	public:
-		
+	public:		
 		BOOL handleAccelerators( HACCEL m_haccel, LPMSG lpMsg );
 		UINT getTotalVariationNumber();
 		void handleNewConfig( std::ofstream& newFile );
@@ -47,8 +46,8 @@ class VariableSystem
 		void updateVariableInfo( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
 								 DioSystem* ttls, AoSystem* aoSys );
 		void deleteVariable();
-		void initialize( POINT& pos, cToolTips& toolTips, CWnd* master, int& id, std::string title,
-						 rgbMap rgbs, UINT listviewId, VariableSysType type );
+		void initialize( POINT& pos, cToolTips& toolTips, CWnd* master, int& id, std::string title, rgbMap rgbs, 
+						 UINT listviewId, VariableSysType type );
 		void addConfigVariable( variableType var, UINT item );
 		void addGlobalVariable( variableType var, UINT item );
 		void handleColumnClick( NMHDR * pNotifyStruct, LRESULT* result );
@@ -62,7 +61,7 @@ class VariableSystem
 		INT_PTR handleColorMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, brushMap brushes);
 		void setVariationRangeNumber(int num, USHORT dimNumber);
 		void rearrange(UINT width, UINT height, fontMap fonts);
-		void setActive(bool active);
+		void setVariableControlActive(bool active);
 		void setUsages(std::vector<std::vector<variableType>> vars);
 		void updateVariationNumber( );
 		void setRangeInclusivity( UINT rangeNum, bool leftBorder, bool inclusive, UINT column );
@@ -78,6 +77,7 @@ class VariableSystem
 		void funcHandleOpenConfig( std::ifstream& configFile, int versionMajor, int versionMinor );
 		std::vector<variableType> getVariablesFromFile( std::ifstream& configFile, int versionMajor, int versionMinor );
 	private:
+		bool controlActive = true;
 		std::vector<CDialog*> childDlgs;
 		// name, constant/variable, dim, constantValue.
 		USHORT preRangeColumns = 4;

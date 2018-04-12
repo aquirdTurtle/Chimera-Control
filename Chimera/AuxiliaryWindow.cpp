@@ -560,7 +560,6 @@ void AuxiliaryWindow::GlobalVarRClick(NMHDR * pNotifyStruct, LRESULT * result)
 }
 
 
-
 void AuxiliaryWindow::ConfigVarsColumnClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
 	try
@@ -641,7 +640,7 @@ void AuxiliaryWindow::handleEnter()
 
 void AuxiliaryWindow::setVariablesActiveState(bool activeState)
 {
-	configVariables.setActive(activeState);
+	configVariables.setVariableControlActive(activeState);
 }
 
 
@@ -1283,25 +1282,26 @@ BOOL AuxiliaryWindow::OnInitDialog()
 	POINT controlLocation{ 0, 0 };
 	try
 	{
+		auto rgbs = mainWindowFriend->getRgbs( );
 		statusBox.initialize( controlLocation, id, this, 480, toolTips );
-		ttlBoard.initialize( controlLocation, toolTips, this, id );
-		aoSys.initialize( controlLocation, toolTips, this, id );
+		ttlBoard.initialize( controlLocation, toolTips, this, id, rgbs );
+		aoSys.initialize( controlLocation, toolTips, this, id, mainWindowFriend->getRgbs() );
 		aiSys.initialize( controlLocation, this, id );
 		topBottomTek.initialize( controlLocation, this, id, "Top-Bottom-Tek", "Top", "Bottom", 480,
-		{ TOP_BOTTOM_PROGRAM, TOP_ON_OFF, TOP_FSK, BOTTOM_ON_OFF, BOTTOM_FSK } );
+		{ TOP_BOTTOM_PROGRAM, TOP_ON_OFF, TOP_FSK, BOTTOM_ON_OFF, BOTTOM_FSK }, rgbs );
 		eoAxialTek.initialize( controlLocation, this, id, "EO / Axial", "EO", "Axial", 480, { EO_AXIAL_PROGRAM,
-							   EO_ON_OFF, EO_FSK, AXIAL_ON_OFF, AXIAL_FSK } );
+							   EO_ON_OFF, EO_FSK, AXIAL_ON_OFF, AXIAL_FSK }, rgbs );
 		RhodeSchwarzGenerator.initialize( controlLocation, toolTips, this, id );
 		controlLocation = POINT{ 480, 0 };
-		
+
 		agilents[whichAg::TopBottom].initialize( controlLocation, toolTips, this, id, "Top-Bottom-Agilent", 100,
-										mainWindowFriend->getRgbs()["Solarized Base03"] );
+										rgbs["Solarized Base03"], rgbs );
 		agilents[whichAg::Axial].initialize( controlLocation, toolTips, this, id, "Microwave-Axial-Agilent", 100,
-									mainWindowFriend->getRgbs()["Solarized Base03"] );
-		agilents[whichAg::Flashing].initialize( controlLocation, toolTips, this, id,
-									   "Flashing-Agilent", 100, mainWindowFriend->getRgbs()["Solarized Base03"] );
+											 rgbs["Solarized Base03"], rgbs );
+		agilents[whichAg::Flashing].initialize( controlLocation, toolTips, this, id, "Flashing-Agilent", 100, 
+												rgbs["Solarized Base03"], rgbs );
 		agilents[whichAg::Microwave].initialize( controlLocation, toolTips, this, id, "Microwave-Agilent", 100,
-										mainWindowFriend->getRgbs( )["Solarized Base03"] );
+												 rgbs["Solarized Base03"], rgbs );
 		controlLocation = POINT{ 1440, 0 };
 		globalVariables.initialize( controlLocation, toolTips, this, id, "GLOBAL VARIABLES",
 									mainWindowFriend->getRgbs(), IDC_GLOBAL_VARS_LISTVIEW, VariableSysType::global );
@@ -1309,7 +1309,7 @@ BOOL AuxiliaryWindow::OnInitDialog()
 									mainWindowFriend->getRgbs(), IDC_CONFIG_VARS_LISTVIEW, VariableSysType::config );
 		functionVariables.initialize( controlLocation, toolTips, this, id, "FUNCTION VARIABLES",
 									  mainWindowFriend->getRgbs( ), IDC_FUNCTION_VARS_LISTVIEW, VariableSysType::function );
-		configVariables.setActive( false );
+		configVariables.setVariableControlActive( false );
 
 		controlLocation = POINT{ 960, 0 };
 		aoPlots.resize( NUM_DAC_PLTS );
