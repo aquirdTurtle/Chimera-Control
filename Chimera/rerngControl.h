@@ -44,8 +44,6 @@ class rerngControl
 		Control<CEdit> finalMoveTimeEdit;
 
 		Control<CleanCheck> fastMoveOption;
-		Control<CStatic> fastMoveTimeBetweenMoves;
-		Control<CEdit> fastMoveTimeBetweenMovesEdit;
 		Control<CStatic> fastMoveTime;
 		Control<CEdit> fastMoveTimeEdit;
 };
