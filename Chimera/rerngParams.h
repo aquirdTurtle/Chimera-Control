@@ -73,9 +73,8 @@ struct rerngOptions
 	bool useCalibration = false;
 	double finalMoveTime = 1e-3;
 	// fast options
-	double useFast = false;
+	bool useFast = false;
 	// in s
-	double timeBetweenFastMoves = 2e-6;
 	double fastMoveTime = 2e-6;
 	// hard set right now.
 	nonFlashingOption noFlashOption = nonFlashingOption::none;

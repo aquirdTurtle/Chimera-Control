@@ -526,7 +526,6 @@ void NiawgController::writeStaticNiawg( NiawgOutput& output, debugInfo& options,
 			{
 				rerngFormToOutput( waveForm, wave, constants, 0 );
 				// prepare the waveforms
-
 				finalizeStandardWave( wave.rearrange.staticWave, options );
 				finalizeStandardWave( wave.rearrange.fillerWave, options );
 			}
@@ -2492,6 +2491,7 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 			}
 		}
 	}
+	
 
 	for ( auto row : range( rows ) )
 	{
@@ -2530,12 +2530,24 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 					{
 						noFlashMove.moveBias = flashMove.moveBias = calBias( row, col, flashMove.direction );
 					}
-					noFlashMove.waveVals = makeRerngWave( input->rerngWave.rearrange, noFlashMove.staticMovingRatio,
-														  noFlashMove.moveBias, noFlashMove.deadTime, input->sourceRows,
-														  input->sourceCols, noFlashMoveInfo );
-					flashMove.waveVals = makeRerngWave( input->rerngWave.rearrange, flashMove.staticMovingRatio,
-														flashMove.moveBias, flashMove.deadTime, input->sourceRows,
-														input->sourceCols, flashMoveInfo );
+					if ( input->rerngOptions.useFast )
+					{
+						noFlashMove.waveVals = makeFastRerngWave( input->rerngWave.rearrange, input->sourceRows,
+																  input->sourceCols, noFlashMoveInfo, input->rerngOptions,
+																  noFlashMove.moveBias );
+						flashMove.waveVals = makeFastRerngWave( input->rerngWave.rearrange, input->sourceRows,
+																input->sourceCols, flashMoveInfo, input->rerngOptions,
+																flashMove.moveBias );
+					}
+					else
+					{
+						noFlashMove.waveVals = makeRerngWave( input->rerngWave.rearrange, noFlashMove.staticMovingRatio,
+															  noFlashMove.moveBias, noFlashMove.deadTime, input->sourceRows,
+															  input->sourceCols, noFlashMoveInfo );
+						flashMove.waveVals = makeRerngWave( input->rerngWave.rearrange, flashMove.staticMovingRatio,
+															flashMove.moveBias, flashMove.deadTime, input->sourceRows,
+															input->sourceCols, flashMoveInfo );
+					}
 				}
 				input->flashMoves( row, col, flashMove.direction ) = flashMove;
 				input->noFlashMoves( row, col, noFlashMove.direction ) = noFlashMove;
@@ -2547,8 +2559,17 @@ void NiawgController::preWriteRerngWaveforms( rerngThreadInput* input )
 
 
 std::vector<double> NiawgController::makeFastRerngWave( rerngInfo& rerngSettings, UINT sourceRows, UINT sourceCols,
-														complexMove moveInfo, rerngOptions options )
+														complexMove moveInfo, rerngOptions options, double moveBias )
 {
+	double freqPerPixel = rerngSettings.freqPerPixel;
+	// starts from the top left.
+	bool upOrDown = (moveInfo.moveDir == dir::down || moveInfo.moveDir == dir::up);
+	UINT movingAxis = upOrDown ? Axes::Vertical : Axes::Horizontal;
+	UINT staticAxis = !upOrDown ? Axes::Vertical : Axes::Horizontal;
+	UINT movingSize = upOrDown ? sourceRows : sourceCols;
+	auto targetCols = rerngSettings.target.getCols( );
+	auto targetRows = rerngSettings.target.getRows( );
+	auto& lowFreqs = rerngSettings.lowestFreqs;
 	// make the move
 	simpleWave moveWave;
 	moveWave.varies = false;
@@ -2557,11 +2578,136 @@ std::vector<double> NiawgController::makeFastRerngWave( rerngInfo& rerngSettings
 	moveWave.time = options.fastMoveTime;
 	moveWave.sampleNum = waveformSizeCalc( moveWave.time );
 
+	double movingFrac = moveBias;
+	// split the remaining bias between all of the other movingSize-2 signals.
+	double nonMovingFrac = (1 - movingFrac) / (movingSize - 2);
+	/// /// /// /// handle moving axis /////////////
+	/// get number of static traps in the moving axis
+	std::vector<UINT> staticTweezers;
+	// for every possible static tweezer
+	for ( auto potentialStaticGridLoc : range( movingSize ) )
+	{
+		bool isUsed = false;
+		for ( auto loc : moveInfo.locationsToMove )
+		{
+			// if location is init or final location of this location's move...
+			if ( potentialStaticGridLoc == (upOrDown ? loc.row : loc.column) ||
+				 potentialStaticGridLoc == (upOrDown ? loc.row + moveInfo.dirInt( ) : loc.column + moveInfo.dirInt( )) )
+			{
+				isUsed = true;
+			}
+		}
+		if ( !isUsed )
+		{
+			// then should be a static tweezer
+			staticTweezers.push_back( potentialStaticGridLoc );
+		}
+	}
+	/// set parameters for the static tweezers in the moving axis.
+	UINT signalNum = 0;
 
+	for ( auto gridLoc : staticTweezers )
+	{
+		moveWave.chan[movingAxis].signals.push_back( waveSignal( ) );
+		waveSignal& sig = moveWave.chan[movingAxis].signals[signalNum];
+		// static
+		sig.freqRampType = sig.powerRampType = "nr";
+		sig.finPower = sig.initPower = nonMovingFrac;
+		sig.initPhase = 0;
+		//sig.freqInit = (movingAxis == Axes::Horizontal) ? 
+		sig.freqInit = (movingAxis == Axes::Vertical) ?
+			((targetRows - gridLoc - 1) * freqPerPixel + lowFreqs[movingAxis]) * 1e6 :
+			(gridLoc * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
+		sig.freqFin = sig.freqInit;
+		signalNum++;
+	}
+	/// set parameters for the moving tweezers in the moving axis.
+	bool piFound = false;
+	for ( auto loc : moveInfo.locationsToMove )
+	{
+		if ( !moveInfo.isInlineParallel && piFound )
+		{
+			// if pi-parallel then only one ramp in this line so break.
+			break;
+		}
+		else if ( !moveInfo.isInlineParallel )
+		{
+			piFound = true;
+		}
+		moveWave.chan[movingAxis].signals.push_back( waveSignal( ) );
+		waveSignal& sig = moveWave.chan[movingAxis].signals[signalNum];
+		sig.powerRampType = "nr";
+		sig.initPhase = 0;
+		sig.finPower = sig.initPower = movingFrac;
+		sig.freqRampType = "lin";
+		if ( movingAxis == Axes::Horizontal )
+		{
+			UINT init = loc.column;
+			UINT fin = loc.column + moveInfo.dirInt( );
+			// convert to Hz
+			sig.freqInit = (init * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
+			sig.freqFin = (fin * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
+			//sig.freqInit = ((targetCols - init - 1) * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
+			//sig.freqFin =  ((targetCols - fin  - 1) * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
+		}
+		else
+		{
+			UINT init = loc.row;
+			UINT fin = loc.row + moveInfo.dirInt( );
+			//sig.freqInit = (init * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
+			//sig.freqFin = (fin * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
+			sig.freqInit = ((targetRows - init - 1) * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
+			sig.freqFin =  ((targetRows - fin  - 1) * freqPerPixel + lowFreqs[movingAxis]) * 1e6;
+		}
+		signalNum++;
+	}
+	/// handle other axis
+	// in this case, flash refers to flashing most of the tweezer off during themove. the semantics of when flash is needed are the same as the other case. 
+	if ( moveInfo.needsFlash )
+	{
+		moveWave.chan[staticAxis].signals.resize( moveInfo.locationsToMove.size( ) );
+		UINT sigCount = 0;
+		for ( auto atom : moveInfo.locationsToMove )
+		{
+			waveSignal& sig = moveWave.chan[staticAxis].signals[sigCount];
+			// equal power in all of these.
+			sig.finPower = sig.initPower = 1;
+			sig.freqRampType = sig.powerRampType = "nr";
+			sig.initPhase = 0;
+			//sig.freqInit = (staticAxis == Axes::Horizontal) ? 
+			sig.freqInit = (staticAxis == Axes::Vertical) ?
+				((targetRows - atom.row - 1) * freqPerPixel + lowFreqs[staticAxis]) * 1e6 :
+				(atom.row * freqPerPixel + lowFreqs[staticAxis])*1e6;
+			sig.freqFin = sig.freqInit;
+			sigCount++;
+		}
+	}
+	else
+	{
+		// no flash, so static axis must span all 
+		auto staticDim = (staticAxis == Axes::Horizontal) ? targetCols : targetRows;
+		moveWave.chan[staticAxis].signals.resize( staticDim );
+		UINT sigCount = 0;
+		for ( auto& sig : moveWave.chan[staticAxis].signals )
+		{
+			sig.freqRampType = sig.powerRampType = "nr";
+			sig.initPhase = 0;
+			//sig.freqInit = (staticAxis == Axes::Horizontal) ?
+			sig.freqInit = (staticAxis == Axes::Vertical) ?
+				((targetRows - sigCount - 1) * freqPerPixel + lowFreqs[staticAxis]) * 1e6 :
+				(sigCount * freqPerPixel + lowFreqs[staticAxis])*1e6;
+			sig.freqFin = sig.freqInit;
+			// even intensity
+			sig.initPower = sig.finPower = 1;
+			sigCount++;
+		}
+	}
 	finalizeStandardWave( moveWave, debugInfo( ) );
-	// make the static...
 
-	return std::vector<double>();//waveVals;
+	/// Combine with static.
+	auto waveVals = moveWave.waveVals;
+	//waveVals.insert( waveVals.end( ), rerngSettings.staticWave.waveVals.begin( ), rerngSettings.staticWave.waveVals.end( ) );
+	return waveVals;
 }
 
 
@@ -2586,9 +2732,10 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& rerngSettings, do
 	double movingFrac = moveBias;
 	// split the remaining bias between all of the other movingSize-2 signals.
 	double nonMovingFrac = (1 - movingFrac) / (movingSize - 2);
-	/// handle moving axis
-	// get number of static traps
+	/// handle moving axis /////////////
+	/// get number of static traps in the moving axis
 	std::vector<UINT> staticTweezers;
+	// for every possible static tweezer
 	for ( auto potentialStaticGridLoc : range( movingSize ) )
 	{
 		bool isUsed = false;
@@ -2603,15 +2750,17 @@ std::vector<double> NiawgController::makeRerngWave( rerngInfo& rerngSettings, do
 		}
 		if ( !isUsed )
 		{
+			// then should be a static tweezer
 			staticTweezers.push_back( potentialStaticGridLoc );
 		}
 	}
-	// handle static axes
+
 	UINT signalNum = 0;
 	for ( auto gridLoc : staticTweezers )
 	{
 		moveWave.chan[movingAxis].signals.push_back( waveSignal( ) );
 		waveSignal& sig = moveWave.chan[movingAxis].signals[signalNum];
+		// static
 		sig.freqRampType = sig.powerRampType = "nr";
 		sig.finPower = sig.initPower = nonMovingFrac;
 		sig.initPhase = 0;
@@ -2879,6 +3028,7 @@ std::vector<double> NiawgController::calcFinalPositionMove( niawgPair<ULONG> tar
 
 UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 {
+	
 	rerngThreadInput* input = (rerngThreadInput*)voidInput;
 	std::vector<bool> triedRearranging;
 	std::vector<double> streamTime, triggerTime, resetPositionTime, picHandlingTime, picGrabTime, rerngCalcTime, 
@@ -2967,6 +3117,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			std::vector<simpleMove> simpleMoveSequence;
 			std::vector<complexMove> complexMoveSequence;
 			niawgPair<ULONG> finPos;
+			source( 0, 1 ) = bool((counter % 6)/4);
 			try
 			{
 				smartRearrangement( source, info.target, finPos, info.finalPosition, simpleMoveSequence, 
@@ -2975,7 +3126,7 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			}
 			catch ( Error& )
 			{
-				// as of now, just ignore.
+				// as of now, just ignore. simpleMoveSequence should be empty anyways.
 			}
 			numberMoves.push_back( complexMoveSequence.size( ) );
 			stopRerngCalc.push_back( chronoClock::now( ) );
@@ -3011,9 +3162,17 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 					{
 						bias = 1;
 					}
-					vals = input->niawg->makeRerngWave( info, input->rerngOptions.staticMovingRatio, bias,
-														input->rerngOptions.deadTime, input->sourceRows,
-														input->sourceCols, move );
+					if ( input->rerngOptions.useFast )
+					{
+						vals = input->niawg->makeFastRerngWave( info, input->sourceRows, input->sourceCols, move,
+																input->rerngOptions, bias );
+					}
+					else
+					{
+						vals = input->niawg->makeRerngWave( info, input->rerngOptions.staticMovingRatio, bias,
+															input->rerngOptions.deadTime, input->sourceRows,
+															input->sourceCols, move );
+					}
 				}
 				input->niawg->rerngWaveVals.insert( input->niawg->rerngWaveVals.end( ), vals.begin( ), vals.end( ) );
 				// put a break statement here to limit the rearranging algorithm to 1 move at a time.
@@ -3038,7 +3197,9 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			stopStream.push_back( chronoClock::now( ) );
 			stopTrigger.push_back( chronoClock::now( ));
 			input->niawg->fgenConduit.resetWritePosition( );
+			input->comm->sendStatus( source.print() + str( complexMoveSequence.size()) + "\n" );
 			stopReset.push_back( chronoClock::now( ));
+			writeToFile( input->niawg->rerngWaveVals );
 			if ( complexMoveSequence.size( ) )
 			{
 				triedRearranging.push_back( true );
@@ -3623,7 +3784,8 @@ double NiawgController::rearrangement( Matrix<bool> & sourceMatrix, Matrix<bool>
 
 void NiawgController::writeToFile( std::vector<double> waveVals )
 {
-	std::ofstream file( DEBUG_OUTPUT_LOCATION + "Wave_" + str( writeToFileNumber++ ) + ".txt" );
+	static UINT writeToStaticNumber = 0;
+	std::ofstream file( DEBUG_OUTPUT_LOCATION + "Wave_" + str( writeToStaticNumber++ ) + ".txt" );
 	if ( !file.is_open( ) )
 	{
 		thrower( "ERROR: Niawg wave file failed to open!" );

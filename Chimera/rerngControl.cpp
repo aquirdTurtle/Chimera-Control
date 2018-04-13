@@ -31,8 +31,8 @@ rerngOptions rerngControl::getParams( )
 		tempParams.staticMovingRatio = std::stod( str( tempTxt ) );
 		finalMoveTimeEdit.GetWindowTextA( tempTxt );
 		tempParams.finalMoveTime = 1e-3 * std::stod( str(tempTxt) );
-		fastMoveTimeBetweenMovesEdit.GetWindowTextA( tempTxt );
-		tempParams.timeBetweenFastMoves = 1e-6 * std::stod( str( tempTxt ) );
+		fastMoveTimeEdit.GetWindowTextA( tempTxt );
+		tempParams.fastMoveTime = 1e-6 * std::stod( str( tempTxt ) );
 	}
 	catch ( std::invalid_argument&)
 	{
@@ -64,8 +64,6 @@ void rerngControl::rearrange( int width, int height, fontMap fonts )
 	finalMoveTimeText.rearrange( width, height, fonts );
 	finalMoveTimeEdit.rearrange( width, height, fonts );
 	fastMoveOption.rearrange( width, height, fonts );
-	fastMoveTimeBetweenMoves.rearrange( width, height, fonts );
-	fastMoveTimeBetweenMovesEdit.rearrange( width, height, fonts );
 	fastMoveTime.rearrange( width, height, fonts );
 	fastMoveTimeEdit.rearrange( width, height, fonts );
 }
@@ -87,7 +85,7 @@ void rerngControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& too
 	moveSpeedText.sPos = { loc.x, loc.y, loc.x + 200, loc.y + 25 };
 	moveSpeedText.Create( "Move Speed (ms)", NORM_STATIC_OPTIONS, moveSpeedText.sPos, parent, id++ );
 	moveSpeedEdit.sPos = { loc.x + 200, loc.y, loc.x + 240, loc.y += 25 };
-	moveSpeedEdit.Create( NORM_EDIT_OPTIONS, moveSpeedEdit.sPos, parent, id++ );
+	moveSpeedEdit.Create( NORM_EDIT_OPTIONS | ES_AUTOHSCROLL, moveSpeedEdit.sPos, parent, id++ );
 	moveSpeedEdit.SetWindowTextA( "0.06" );
 
 	loc.y -= 75;
@@ -130,18 +128,11 @@ void rerngControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& too
 	fastMoveOption.sPos = { loc.x, loc.y, loc.x + 480, loc.y += 25 };
 	fastMoveOption.Create( "FAST-MOVE", NORM_CHECK_OPTIONS, fastMoveOption.sPos, parent, id++ );
 
-	fastMoveTimeBetweenMoves.sPos = { loc.x, loc.y, loc.x + 200, loc.y + 25 };
-	fastMoveTimeBetweenMoves.Create( "Fast-Move-Wait-Time (us):", NORM_STATIC_OPTIONS, fastMoveTimeBetweenMoves.sPos, parent, id++ );
-	fastMoveTimeBetweenMovesEdit.sPos = { loc.x + 200, loc.y, loc.x + 240, loc.y + 25 };
-	fastMoveTimeBetweenMovesEdit.Create( NORM_EDIT_OPTIONS, fastMoveTimeBetweenMovesEdit.sPos, parent, id++ );
-	fastMoveTimeBetweenMovesEdit.SetWindowTextA( "2" );
-
 	fastMoveTime.sPos = { loc.x+240, loc.y, loc.x + 440, loc.y + 25 };
 	fastMoveTime.Create( "Fast-Move (us):", NORM_STATIC_OPTIONS, fastMoveTime.sPos, parent, id++ );
 	fastMoveTimeEdit.sPos = { loc.x + 440, loc.y, loc.x + 480, loc.y += 25 };
 	fastMoveTimeEdit.Create( NORM_EDIT_OPTIONS, fastMoveTimeEdit.sPos, parent, id++ );
 	fastMoveTimeEdit.SetWindowTextA( "2" );
-	
 }
 
 
@@ -220,6 +211,16 @@ void rerngControl::handleOpenConfig( std::ifstream& openFile, int versionMajor, 
 	{
 		info.useFast = false;
 	}
+
+	if ( (versionMajor == 3 && versionMinor > 1) || versionMajor > 3 )
+	{
+		openFile >> info.fastMoveTime;
+	}
+	else
+	{
+		info.fastMoveTime = 1e-6;
+	}
+
 	setParams( info );
 	ProfileSystem::checkDelimiterLine( openFile, "END_REARRANGEMENT_INFORMATION" );
 }
@@ -244,8 +245,8 @@ void rerngControl::handleNewConfig( std::ofstream& newFile )
 	// use calibration
 	newFile << "0\n";
 	newFile << "0.001\n";
-	// usefast
-	newFile << "0\n";
+	// usefast, fastmovetime, timebetweenfastmoves
+	newFile << "0\n0\n";
 	newFile << "END_REARRANGEMENT_INFORMATION\n";
 }
 
@@ -264,9 +265,8 @@ void rerngControl::handleSaveConfig( std::ofstream& saveFile )
 	saveFile << info.outputInfo << "\n";
 	saveFile << info.outputIndv << "\n";
 	saveFile << info.preprogram << "\n";
-	saveFile << info.useCalibration << "\n";
-	saveFile << info.finalMoveTime << "\n";
-	saveFile << info.useFast << "\n";
+	saveFile << info.useCalibration << "\n" << info.finalMoveTime << "\n" << info.useFast << "\n";
+	saveFile << info.fastMoveTime << "\n";
 	saveFile << "END_REARRANGEMENT_INFORMATION\n";
 }
 
@@ -291,5 +291,8 @@ void rerngControl::setParams( rerngOptions params )
 	preprogramMoves.SetCheck( params.preprogram );
 	// convert back to ms
 	finalMoveTimeEdit.SetWindowTextA( cstr( params.finalMoveTime * 1e3 ) );
+
 	fastMoveOption.SetCheck( params.useFast );
+	// these are displayed in us.
+	fastMoveTimeEdit.SetWindowTextA( cstr( params.fastMoveTime*1e6 ) );
 }

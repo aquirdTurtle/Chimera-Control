@@ -97,7 +97,7 @@ class NiawgController
 
 	private:
 		void preWriteRerngWaveforms( rerngThreadInput* input );
-		void writeToFile( std::vector<double> waveVals );
+		static void writeToFile( std::vector<double> waveVals );
 		void rerngOptionsFormToFinal( rerngOptionsForm& form, rerngOptions& data, std::vector<variableType>& variables,
 									  UINT variation );
 		void finalizeScript( ULONGLONG repetitions, std::string name, std::vector<std::string> workingUserScripts,
@@ -179,7 +179,7 @@ class NiawgController
 		std::vector<double> makeRerngWave( rerngInfo& info, double staticMovingRatio, double moveBias, double deadTime, 
 										   UINT sourceRows, UINT sourceCols, complexMove move );
 		std::vector<double> makeFastRerngWave( rerngInfo& rerngSettings, UINT sourceRows, UINT sourceCols, 
-											   complexMove moveInfo, rerngOptions options );
+											   complexMove moveInfo, rerngOptions options, double moveBias );
 		// returns sign of x.
 		static int sign( int );
 		// returns cost, which is total travel distance. Algorithm from: 
