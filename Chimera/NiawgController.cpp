@@ -3117,7 +3117,6 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			std::vector<simpleMove> simpleMoveSequence;
 			std::vector<complexMove> complexMoveSequence;
 			niawgPair<ULONG> finPos;
-			source( 0, 1 ) = bool((counter % 6)/4);
 			try
 			{
 				smartRearrangement( source, info.target, finPos, info.finalPosition, simpleMoveSequence, 
@@ -3195,11 +3194,10 @@ UINT __stdcall NiawgController::rerngThreadProcedure( void* voidInput )
 			stopAllCalc.push_back(chronoClock::now( ));
 			input->niawg->streamRerng( );
 			stopStream.push_back( chronoClock::now( ) );
+			input->niawg->fgenConduit.sendSoftwareTrigger( );
 			stopTrigger.push_back( chronoClock::now( ));
 			input->niawg->fgenConduit.resetWritePosition( );
-			input->comm->sendStatus( source.print() + str( complexMoveSequence.size()) + "\n" );
 			stopReset.push_back( chronoClock::now( ));
-			writeToFile( input->niawg->rerngWaveVals );
 			if ( complexMoveSequence.size( ) )
 			{
 				triedRearranging.push_back( true );
