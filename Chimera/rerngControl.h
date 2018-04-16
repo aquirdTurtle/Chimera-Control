@@ -20,7 +20,7 @@ class rerngControl
 		void rearrange( int width, int height, fontMap fonts );
 	private:
 		Control<CStatic> header;
-		Control<CButton> experimentIncludesRerng;
+		Control<CleanCheck> experimentIncludesRerng;
 		Control<CStatic> flashingRateText;
 		Control<CEdit> flashingRateEdit;
 		Control<CStatic> moveSpeedText;

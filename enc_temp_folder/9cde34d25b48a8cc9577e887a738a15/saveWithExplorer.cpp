@@ -55,6 +55,7 @@ std::string saveWithExplorer(CWnd* owner, std::string extension, profileSettings
 	saveFileDialogInfoObj.lpstrDefExt = extension.c_str();
 	if (GetSaveFileName(&saveFileDialogInfoObj) == 0)
 	{
+		errBox("No save file name selected");
 		return "";
 	}
 	return szSaveFileName;
