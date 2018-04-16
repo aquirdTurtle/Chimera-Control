@@ -110,8 +110,14 @@ void PlotCtrl::rearrange( int width, int height, fontMap fonts )
 void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 {
 	double minx = DBL_MAX, maxx = -DBL_MAX, miny = DBL_MAX, maxy = -DBL_MAX;
+	UINT counter = 0;
 	for ( auto line : screenData )
 	{
+		if ( style == plotStyle::HistPlot && counter == screenData.size( )-1 )
+		{
+			// no average dataset for histograms.
+			continue;
+		}
 		for ( auto elem : line )
 		{
 			if ( elem.x < minx )
@@ -123,11 +129,17 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 				maxx = elem.x;
 			}
 		}
+		counter++;
 	}
+	counter = 0;
 	if ( style == plotStyle::OscilloscopePlot || style == plotStyle::HistPlot || style == plotStyle::DacPlot )
 	{
 		for ( auto line : screenData )
 		{
+			if ( style == plotStyle::HistPlot && counter == screenData.size( )-1 )
+			{
+				continue;
+			}
 			for ( auto elem : line )
 			{
 				if ( elem.y < miny )
@@ -139,6 +151,7 @@ void PlotCtrl::convertDataToScreenCoords( std::vector<plotDataVec>& screenData )
 					maxy = elem.y;
 				}
 			}
+			counter++;
 		}
 	}
 	double plotWidthPixels = widthScale2 * (plotAreaDims.right - plotAreaDims.left);
