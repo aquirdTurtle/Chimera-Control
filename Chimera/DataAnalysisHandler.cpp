@@ -14,7 +14,9 @@
 #include "Thrower.h"
 #include "range.h"
 
+
 using std::vector;
+
 
 DataAnalysisControl::DataAnalysisControl( )
 {
