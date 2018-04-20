@@ -8,7 +8,12 @@
 void SmsTextingControl::initialize( POINT& pos, CWnd* parent, int& id, cToolTips& tooltips, rgbMap rgbs )
 {
 	title.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 25 };
-	title.Create( "TEXT ME", NORM_HEADER_OPTIONS, title.sPos, parent, id++ );
+	std::string titletxt = "TEXT ME";
+	if ( PYTHON_SAFEMODE )
+	{
+		titletxt += " (DISABLED, PYTHON_SAFEMODE=TRUE)";
+	}
+	title.Create( titletxt.c_str(), NORM_HEADER_OPTIONS, title.sPos, parent, id++ );
 	title.fontType = fontTypes::HeadingFont;
 
 	peopleListView.sPos = { pos.x, pos.y, pos.x + 480, pos.y += 120 };
@@ -17,12 +22,9 @@ void SmsTextingControl::initialize( POINT& pos, CWnd* parent, int& id, cToolTips
 	LV_COLUMN listViewDefaultCollumn;
 	// Zero Members
 	memset( &listViewDefaultCollumn, 0, sizeof( listViewDefaultCollumn ) );
-	// Type of mask
 	listViewDefaultCollumn.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
-	// width between each column
 	listViewDefaultCollumn.cx = 0x42;
 	listViewDefaultCollumn.pszText = "Person";
-	// Inserting Couloms as much as we want
 	peopleListView.InsertColumn( 0, &listViewDefaultCollumn );
 	listViewDefaultCollumn.pszText = "Phone #";
 	peopleListView.InsertColumn( 1, &listViewDefaultCollumn );
@@ -56,14 +58,17 @@ void SmsTextingControl::initialize( POINT& pos, CWnd* parent, int& id, cToolTips
 	peopleListView.SetTextBkColor( rgbs["Solarized Base02"] );
 	peopleListView.SetTextColor( rgbs["Solarized Base2"] );
 	pos.y += 120;
-	// initialize myself;
-	personInfo me;
-	me.name = "Mark Brown";
-	me.number = "7032544981";
-	me.provider = "verizon";
-	me.textIfLoadingStops = false;
-	me.textWhenComplete = false;
-	addPerson( me );
+	if ( !PYTHON_SAFEMODE )
+	{
+		// initialize myself;
+		personInfo me;
+		me.name = "Mark Brown";
+		me.number = "7032544981";
+		me.provider = "verizon";
+		me.textIfLoadingStops = false;
+		me.textWhenComplete = false;
+		addPerson( me );
+	}
 }
 
 

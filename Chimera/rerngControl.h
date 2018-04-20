@@ -18,9 +18,10 @@ class rerngControl
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig( std::ofstream& newFile );
 		void rearrange( int width, int height, fontMap fonts );
+		void handleCheck( );
 	private:
 		Control<CStatic> header;
-		Control<CButton> experimentIncludesRerng;
+		Control<CleanCheck> experimentIncludesRerng;
 		Control<CStatic> flashingRateText;
 		Control<CEdit> flashingRateEdit;
 		Control<CStatic> moveSpeedText;
