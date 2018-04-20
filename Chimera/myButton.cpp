@@ -68,7 +68,14 @@ void CleanCheck::DrawItem( LPDRAWITEMSTRUCT lpDrawItemStruct )
 	
 	UINT state = lpDrawItemStruct->itemState;
 	dc.FillSolidRect( rt, RGB( 30, 30, 30) );
-	dc.FillSolidRect( subr, RGB( 15, 15, 55 ) );
+	if ( IsWindowEnabled( ) )
+	{
+		dc.FillSolidRect( subr, RGB( 15, 15, 55 ) );
+	}
+	else
+	{
+		dc.FillSolidRect( subr, RGB( 5, 5, 5 ) );
+	}
 	CPen pen( PS_SOLID, 0, RGB( 50, 50, 50 ) );
 	dc.SelectObject( pen );
 	dc.MoveTo( rt.TopLeft( ) );

@@ -76,7 +76,7 @@ void rerngControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& too
 	header.fontType = fontTypes::HeadingFont;
 	experimentIncludesRerng.sPos = { loc.x, loc.y, loc.x + 240, loc.y += 25 };
 	experimentIncludesRerng.Create( "Experiment has Rerng?", NORM_CHECK_OPTIONS, 
-									experimentIncludesRerng.sPos, parent, id++ );
+									experimentIncludesRerng.sPos, parent, IDC_RERNG_EXPERIMENT_BUTTON );
 	flashingRateText.sPos = { loc.x, loc.y, loc.x + 200, loc.y + 25 };
 	flashingRateText.Create( "Flashing Rate (MHz)", NORM_STATIC_OPTIONS, flashingRateText.sPos, parent, id++ );
 	flashingRateEdit.sPos = { loc.x + 200, loc.y, loc.x + 240, loc.y += 25 };
@@ -133,6 +133,25 @@ void rerngControl::initialize( int& id, POINT& loc, CWnd* parent, cToolTips& too
 	fastMoveTimeEdit.sPos = { loc.x + 440, loc.y, loc.x + 480, loc.y += 25 };
 	fastMoveTimeEdit.Create( NORM_EDIT_OPTIONS, fastMoveTimeEdit.sPos, parent, id++ );
 	fastMoveTimeEdit.SetWindowTextA( "2" );
+	handleCheck( );
+}
+
+
+void rerngControl::handleCheck( )
+{
+	auto active = experimentIncludesRerng.GetCheck( );
+	flashingRateEdit.EnableWindow(active);
+	moveSpeedEdit.EnableWindow( active );
+	movingBiasEdit.EnableWindow( active );
+	deadTimeEdit.EnableWindow( active );
+	staticMovingRatioEdit.EnableWindow( active );
+	preprogramMoves.EnableWindow( active );
+	useCalibration.EnableWindow( active );
+	outputRearrangeEvents.EnableWindow( active );
+	outputIndividualEvents.EnableWindow( active );
+	finalMoveTimeEdit.EnableWindow( active );
+	fastMoveOption.EnableWindow( active );
+	fastMoveTimeEdit.EnableWindow( active );
 }
 
 

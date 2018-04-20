@@ -8,8 +8,8 @@
 // running in safemode means that the program doesn't actually try to connect to various devices. It can be used to
 // build and debug other aspects of the program. 
 
-#define MASTER_COMPUTER
-//#define SPECTRE_LAPTOP
+//#define MASTER_COMPUTER
+#define SPECTRE_LAPTOP
 
 /// File Locations
 
@@ -199,9 +199,6 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_MAIN_STATUS_BUTTON 11000
 #define IDC_ERROR_STATUS_BUTTON 11001
 #define IDC_DEBUG_STATUS_BUTTON 11002
-#define IDC_EXPERIMENT_COMBO 11003
-#define IDC_CATEGORY_COMBO 11004
-#define IDC_CONFIGURATION_COMBO 11005
 #define IDC_SELECT_CONFIG_COMBO 11006
 #define IDC_SEQUENCE_COMBO 11007
 #define IDC_MAIN_OPTIONS_RANGE_BEGIN 11008
@@ -214,6 +211,7 @@ const char * const SERVER_ADDRESS = "192.168.236.1";
 #define IDC_CONFIGURATION_NOTES 10022
 #define IDC_REPETITION_EDIT 10023
 #define IDC_ENTER_EMAIL_INFO 10024
+#define IDC_RERNG_EXPERIMENT_BUTTON 10025
 // Scripting Window
 #define IDC_NIAWG_FUNCTION_COMBO 12003
 #define IDC_NIAWG_EDIT 12004

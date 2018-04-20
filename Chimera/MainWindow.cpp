@@ -200,12 +200,17 @@ BEGIN_MESSAGE_MAP( MainWindow, CDialog )
 	ON_COMMAND_RANGE( IDC_DEBUG_STATUS_BUTTON, IDC_DEBUG_STATUS_BUTTON, &MainWindow::passClear )
 	ON_COMMAND( IDC_SELECT_CONFIG_COMBO, &MainWindow::passConfigPress )
 	ON_COMMAND( IDOK,  &MainWindow::catchEnter)
+	ON_COMMAND( IDC_RERNG_EXPERIMENT_BUTTON, &MainWindow::passExperimentRerngButton )
 	ON_WM_RBUTTONUP( )
 	ON_WM_LBUTTONUP( )
 	ON_WM_PAINT( )
 	ON_WM_TIMER( )
 END_MESSAGE_MAP()
 
+void MainWindow::passExperimentRerngButton( )
+{
+	rearrangeControl.handleCheck( );
+}
 
 void MainWindow::OnTimer( UINT_PTR id )
 {
@@ -1031,8 +1036,12 @@ void MainWindow::passMainOptionsPress(UINT id)
 
 void MainWindow::handleDblClick(NMHDR * pNotifyStruct, LRESULT * result)
 {
-	texter.updatePersonInfo();
-	profile.updateConfigurationSavedStatus(false);
+	// effectively disable this control in the case of safemode.
+	if ( !PYTHON_SAFEMODE )
+	{
+		texter.updatePersonInfo( );
+		profile.updateConfigurationSavedStatus( false );
+	}
 }
 
 

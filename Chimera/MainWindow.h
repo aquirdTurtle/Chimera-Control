@@ -121,6 +121,7 @@ class MainWindow : public CDialog
 		bool experimentIsPaused( );
 		void notifyConfigUpdate( );
 		void passConfigPress( );
+		void passExperimentRerngButton( );
 		void OnTimer( UINT_PTR id );
 		std::vector<Gdiplus::Pen*> getPlotPens( );
 		std::vector<Gdiplus::Pen*> getBrightPlotPens( );
