@@ -4,6 +4,12 @@
 #include <vector>
 #include "range.h"
 
+
+#define GLOBAL_PARAMETER_SCOPE "__GLOBAL__"
+#define PARENT_PARAMETER_SCOPE "__PARENT__"
+#define NO_PARAMETER_SCOPE "__NO__"
+
+
 struct variationRangeInfo
 {
 	double initialValue;
@@ -22,7 +28,7 @@ struct variationRangeInfo
 };
 
 
-struct variableType
+struct parameterType
 {
 	std::string name;
 	// whether this variable is constant or varies.
@@ -36,9 +42,11 @@ struct variableType
 	std::vector<variationRangeInfo> ranges;
 	/// this stuff used to be in the keyHandler system.
 	std::vector<double> keyValues;
-	// this might just be redundant with constant above.
+	// this might just be redundant with constant above...
 	bool valuesVary=false;
-	bool operator==( const variableType& v )
+	std::string parameterScope = "__NA__";
+
+	bool operator==( const parameterType& v )
 	{
 		bool rangeResult=true;
 		if ( ranges.size( ) != v.ranges.size( ) )
@@ -68,4 +76,4 @@ struct variableType
 	}
 };
 
-
+typedef std::unordered_map<std::string, std::vector<parameterType>> funcVarMap;

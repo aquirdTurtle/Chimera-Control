@@ -190,7 +190,7 @@ namespace TestNiawg
 			NiawgOutput output;
 			//
 			niawg.analyzeNiawgScript( stream, output, profileSettings(), debugInfo(), std::string(), rerngOptions(), 
-									  std::vector<variableType>() );
+									  std::vector<parameterType>() );
 			// asserts
 			Assert::AreEqual( size_t( 1 ), output.waveFormInfo.size( ));
 			Assert::AreEqual( size_t( 1 ), output.waves.size( ) );
@@ -232,8 +232,8 @@ namespace TestNiawg
 			NiawgOutput output;
 			//
 			niawg.analyzeNiawgScript( stream, output, profileSettings( ), debugInfo( ), std::string( ), rerngOptions( ),
-									  std::vector<variableType>( ) );
-			niawg.writeStaticNiawg( output, debugInfo( ), std::vector<variableType>( ) );
+									  std::vector<parameterType>( ) );
+			niawg.writeStaticNiawg( output, debugInfo( ), std::vector<parameterType>( ) );
 			// asserts
 			auto& wave = output.waves[0];
 			Assert::AreEqual( false, wave.flash.isFlashing );
@@ -273,8 +273,8 @@ namespace TestNiawg
 			NiawgOutput output;
 			//
 			niawg.analyzeNiawgScript( stream, output, profileSettings( ), debugInfo( ), std::string( ), rerngOptions( ),
-									  std::vector<variableType>( ) );
-			niawg.writeStaticNiawg( output, debugInfo( ), std::vector<variableType>( ), false );
+									  std::vector<parameterType>( ) );
+			niawg.writeStaticNiawg( output, debugInfo( ), std::vector<parameterType>( ), false );
 			//
 			auto& vals = output.waves[0].core.waveVals;
 			// should be long enough to sum close to zero.
@@ -310,8 +310,8 @@ namespace TestNiawg
 			NiawgOutput output;
 			//
 			niawg.analyzeNiawgScript( stream, output, profileSettings( ), debugInfo( ), std::string( ), rerngOptions( ),
-									  std::vector<variableType>( ) );
-			niawg.writeStaticNiawg( output, debugInfo( ), std::vector<variableType>( ) );
+									  std::vector<parameterType>( ) );
+			niawg.writeStaticNiawg( output, debugInfo( ), std::vector<parameterType>( ) );
 			Assert::AreEqual( long( NIAWG_SAMPLE_RATE * 10e-3 ), output.waves[0].core.sampleNum );
 		}
 		private:

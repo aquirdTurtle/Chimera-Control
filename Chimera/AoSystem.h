@@ -36,7 +36,7 @@ class AoSystem
 		void prepareDacForceChange(int line, double voltage, DioSystem* ttls);
 		void stopDacs();
 		void setDacTriggerEvents( DioSystem* ttls, UINT variation, UINT seqNum );
-		void interpretKey( std::vector<std::vector<variableType>>& variables, std::string& warnings );
+		void interpretKey( std::vector<std::vector<parameterType>>& variables, std::string& warnings );
 		void organizeDacCommands(UINT variation, UINT seqNum );
 		void makeFinalDataFormat(UINT variation, UINT seqNum );
 		void writeDacs( UINT variation, UINT seqNum, bool loadSkip );
@@ -52,7 +52,7 @@ class AoSystem
 		std::array<std::string, 24> getAllNames();
 		ULONG getNumberEvents(UINT variation, UINT seqNum );
 		void handleDacScriptCommand( AoCommandForm command, std::string name, std::vector<UINT>& dacShadeLocations, 
-									 std::vector<variableType>& vars, DioSystem* ttls, UINT seqNum );
+									 std::vector<parameterType>& vars, DioSystem* ttls, UINT seqNum );
 		
 		int getDacIdentifier(std::string name);
 		double getDacValue(int dacNumber);
@@ -73,7 +73,7 @@ class AoSystem
 		void checkValuesAgainstLimits(UINT variation, UINT seqNum );
 		void prepareForce();
 		double roundToDacResolution(double);
-		void findLoadSkipSnapshots( double time, std::vector<variableType>& variables, UINT variation, UINT seqNum );
+		void findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, UINT variation, UINT seqNum );
 		void handleEditChange( UINT dacNumber );
 		std::vector<std::vector<std::vector<AoSnapshot>>> getSnapshots( );
 		std::vector<std::vector<std::array<std::vector<double>, 3>>> getFinData( );

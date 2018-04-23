@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "afxwin.h"
+#include "afxbutton.h"
 
 /*
 Just a tiny wrapper to redraw which cleans up the nasty bright white borders on the default button which conflict with 

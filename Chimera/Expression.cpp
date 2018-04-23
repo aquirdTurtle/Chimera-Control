@@ -393,12 +393,11 @@ void Expression::evaluateFunctions( std::vector<std::string>& terms )
 Evaluate takes in an expression, which can be a combination of variables, standard math operations, and standard
 math functions, and evaluates it to a double.
 */
-double Expression::evaluate( std::vector<variableType>& variables, UINT variation )
+double Expression::evaluate( std::vector<parameterType>& variables, UINT variation )
 {
 	// make a constant copy of the original string to use during the evaluation.
 	const std::string originalExpression( expressionStr );
 	double resultOfReduction = 0;
-
 	try
 	{
 		// try the simple thing.
@@ -424,7 +423,7 @@ double Expression::evaluate( std::vector<variableType>& variables, UINT variatio
 		{
 			for ( auto& variable : variables )
 			{
-				if ( term == variable.name )
+				if ( term == variable.name && (variable.parameterScope == expressionScope || variable.parameterScope == "__GLOBAL__" ))
 				{
 					if ( variable.keyValues.size( ) == 0 )
 					{
@@ -445,8 +444,9 @@ double Expression::evaluate( std::vector<variableType>& variables, UINT variatio
 
 // this function checks whether the string "item" is usable as a double, either by direct reduction to double without
 // variables, or if it is a variable.
-void Expression::assertValid( std::vector<variableType>& variables )
+void Expression::assertValid( std::vector<parameterType>& variables, std::string scope )
 {
+	expressionScope = scope;
 	double value;
 	try
 	{
@@ -457,11 +457,13 @@ void Expression::assertValid( std::vector<variableType>& variables )
 		bool isVariable = false;
 		for ( UINT varInc = 0; varInc < variables.size( ); varInc++ )
 		{
-			if ( variables[varInc].name == expressionStr )
+			auto& param = variables[varInc];
+			if ( param.name == expressionStr && (param.parameterScope == expressionScope 
+												  || param.parameterScope == "__GLOBAL__" ))
 			{
-				variables[varInc].active = true;
+				param.active = true;
 				isVariable = true;
-				if ( !variables[varInc].constant )
+				if ( !param.constant )
 				{
 					expressionVaries = true;
 				}
@@ -549,11 +551,12 @@ void Expression::assertValid( std::vector<variableType>& variables )
 				isVariable = false;
 				for ( UINT varInc = 0; varInc < variables.size( ); varInc++ )
 				{
-					if ( variables[varInc].name == elem )
+					auto& param = variables[varInc];
+					if ( param.name == elem && (param.parameterScope == expressionScope || param.parameterScope == "__GLOBAL__") )
 					{
-						variables[varInc].active = true;
+						param.active = true;
 						isVariable = true;
-						if ( !variables[varInc].constant )
+						if ( !param.constant )
 						{
 							expressionVaries = true;
 						}

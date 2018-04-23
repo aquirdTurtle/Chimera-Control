@@ -36,8 +36,10 @@ struct MasterThreadInput
 	AoSystem* aoSys;
 	AiSystem* aiSys;
 	UINT repetitionNumber;
-	std::vector<std::vector<variableType>> variables;
-	std::vector<std::vector<variableType>> constants;
+	// believe outer layer here is for sequence increment
+	std::vector<std::vector<parameterType>> variables;
+	std::vector<std::vector<parameterType>> constants;
+	//std::vector<funcVarMap> functionVars;
 	MasterManager* thisObj;
 	Communicator* comm;
 	RhodeSchwarz* rsg;
@@ -45,7 +47,7 @@ struct MasterThreadInput
 	std::vector<Agilent*> agilents;
 	TektronicsControl* topBottomTek;
 	TektronicsControl* eoAxialTek;
-	VariableSystem* globalControl;
+	ParameterSystem* globalControl;
 	NiawgController* niawg;
 	UINT intensityAgilentNumber;
 	bool quiet;

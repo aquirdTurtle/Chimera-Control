@@ -222,7 +222,7 @@ double Agilent::convertPowerToSetPoint(double powerInMilliWatts, bool conversion
 }
 
 
-void Agilent::analyzeAgilentScript( scriptedArbInfo& infoObj, std::vector<variableType>& variables)
+void Agilent::analyzeAgilentScript( scriptedArbInfo& infoObj, std::vector<parameterType>& variables)
 {
 	// open the file
 	std::ifstream scriptFile( infoObj.fileAddress );
@@ -545,7 +545,7 @@ deviceOutputInfo Agilent::getOutputInfo()
 }
 
 
-void Agilent::convertInputToFinalSettings( UINT chan, UINT variation, std::vector<variableType>& variables)
+void Agilent::convertInputToFinalSettings( UINT chan, UINT variation, std::vector<parameterType>& variables)
 {
 	// iterate between 0 and 1...
 	channelInfo& channel( settings.channel[chan] );
@@ -1016,7 +1016,7 @@ void Agilent::prepAgilentSettings(UINT channel)
 
 
 void Agilent::handleScriptVariation( UINT variation, scriptedArbInfo& scriptInfo, UINT channel,  
-									 std::vector<variableType>& variables)
+									 std::vector<parameterType>& variables)
 {
 	// Initialize stuff
 	prepAgilentSettings( channel );
@@ -1165,7 +1165,7 @@ bool Agilent::scriptingModeIsSelected( )
 }
 
 
-void Agilent::setAgilent( UINT variation, std::vector<variableType>& variables)
+void Agilent::setAgilent( UINT variation, std::vector<parameterType>& variables)
 {
 	if ( !connected( ) )
 	{
@@ -1236,7 +1236,7 @@ void Agilent::setAgilent()
 	{
 		if (settings.channel[chan].option == 4)
 		{
-			analyzeAgilentScript(settings.channel[chan].scriptedArb, std::vector<variableType>());
+			analyzeAgilentScript(settings.channel[chan].scriptedArb, std::vector<parameterType>());
 		}
 		convertInputToFinalSettings(chan);
 		switch (settings.channel[chan].option)
