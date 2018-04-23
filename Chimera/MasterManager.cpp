@@ -42,15 +42,15 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	{
 		for ( auto& config : input->seq.sequence )
 		{
+			auto& seq = expSeq.sequence[seqNum];
 			if ( input->runMaster )
 			{
-				expSeq.sequence[seqNum].masterScript = ProfileSystem::getMasterAddressFromConfig( config );
-				input->thisObj->loadMasterScript( expSeq.sequence[seqNum].masterScript,
-												  expSeq.sequence[seqNum].masterStream );
+				seq.masterScript = ProfileSystem::getMasterAddressFromConfig( config );
+				input->thisObj->loadMasterScript( seq.masterScript, seq.masterStream );
 			}
 			if ( input->runNiawg )
 			{
-				ProfileSystem::openNiawgFile( expSeq.sequence[seqNum].niawgScript, config, input->seq, input->runNiawg );
+				ProfileSystem::openNiawgFile( seq.niawgScript, config, input->seq, input->runNiawg );
 			}
 			for ( auto& ag : input->agilents )
 			{
@@ -82,14 +82,19 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	std::vector<std::pair<UINT, UINT>> ttlShadeLocs;
 	std::vector<UINT> dacShadeLocs;
 	bool foundRearrangement = false;
+	auto quiet = input->quiet;
+	// a couple shortcuts.
+	auto& ttls = input->ttls;
+	auto& aoSys = input->aoSys;
+
 	/// ////////////////////////////
 	/// start analysis & experiment
 	try
 	{
-		input->aoSys->resetDacEvents( );
-		input->ttls->resetTtlEvents( );
-		input->aoSys->initDacObjs( input->seq.sequence.size( ) );
-		input->ttls->initTtlObjs( input->seq.sequence.size( ) );
+		aoSys->resetDacEvents( );
+		ttls->resetTtlEvents( );
+		aoSys->initDacObjs( input->seq.sequence.size( ) );
+		ttls->initTtlObjs( input->seq.sequence.size( ) );
 		input->thisObj->loadSkipTimes.clear( );
 		input->thisObj->loadSkipTimes.resize( input->seq.sequence.size( ) );
 		input->thisObj->loadSkipTime.resize( input->seq.sequence.size( ) );
@@ -113,21 +118,21 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			}
 			// TODO: check if variations is constant between sequences... it should be.
 			// finishing sentence from before start I think...
-			expUpdate( "Done.\r\n", input->comm, input->quiet );
+			expUpdate( "Done.\r\n", input->comm, quiet );
 			/// Prep agilents
-			expUpdate( "Loading Agilent Info...", input->comm, input->quiet );
+			expUpdate( "Loading Agilent Info...", input->comm, quiet );
 			for ( auto agilent : input->agilents )
 			{
 				RunInfo dum;
 				agilent->handleInput( input->profile.categoryPath, dum );
 			}
 			/// prep master systems
-			expUpdate( "Analyzing Master Script...", input->comm, input->quiet );
+			expUpdate( "Analyzing Master Script...", input->comm, quiet );
 			if ( input->runMaster )
 			{
-				input->thisObj->analyzeMasterScript( input->ttls, input->aoSys, ttlShadeLocs, dacShadeLocs, input->rsg,
+				input->thisObj->analyzeMasterScript( ttls, aoSys, ttlShadeLocs, dacShadeLocs, input->rsg,
 													 seqVariables, expSeq.sequence[seqNum].masterStream, seqNum, 
-													 input->settings.atomThresholdForSkip != UINT_MAX );
+													 input->settings.atomThresholdForSkip != UINT_MAX, warnings );
 			}
 			/// prep NIAWG
 			if ( input->runNiawg )
@@ -145,8 +150,8 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		/// update ttl and dac looks & interaction based on which ones are used in the experiment.
 		if ( input->runMaster )
 		{
-			input->ttls->shadeTTLs( ttlShadeLocs );
-			input->aoSys->shadeDacs( dacShadeLocs );
+			ttls->shadeTTLs( ttlShadeLocs );
+			aoSys->shadeDacs( dacShadeLocs );
 		}
 		// go ahead and check if abort was pressed real fast...
 		if ( input->thisObj->isAborting )
@@ -156,13 +161,13 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		/// The Key Interpretation step.
 		// at this point, all scripts have been analyzed, and each system takes the key and generates all of the data
 		// it needs for each variation of the experiment. All these calculations happen at this step.
-		expUpdate( "Programming All Variation Data...\r\n", input->comm, input->quiet );
+		expUpdate( "Programming All Variation Data...\r\n", input->comm, quiet );
 		std::chrono::time_point<chronoClock> varProgramStartTime( chronoClock::now( ) );
-		
+
 		if ( input->runMaster )
 		{
-			input->ttls->interpretKey( input->variables );
-			input->aoSys->interpretKey( input->variables, warnings );
+			ttls->interpretKey( input->variables );
+			aoSys->interpretKey( input->variables, warnings );
 		}
 		input->rsg->interpretKey( input->variables );
 		input->topBottomTek->interpretKey( input->variables );
@@ -186,28 +191,28 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 					currLoadSkipTime = MasterManager::convertToTime( input->thisObj->loadSkipTime[seqInc], 
 																	 seqVariables, variationInc );
 				    // organize & format the ttl and dac commands
-					input->aoSys->organizeDacCommands( variationInc, seqInc );
-					input->aoSys->setDacTriggerEvents( input->ttls, variationInc, seqInc );
-					input->aoSys->findLoadSkipSnapshots( currLoadSkipTime, seqVariables, variationInc, seqInc );
-					input->aoSys->makeFinalDataFormat( variationInc, seqInc );
-					input->ttls->organizeTtlCommands( variationInc, seqInc );
-					input->ttls->findLoadSkipSnapshots( currLoadSkipTime, seqVariables, variationInc, seqInc );
-					input->ttls->convertToFinalViewpointFormat( variationInc, seqInc );
+					aoSys->organizeDacCommands( variationInc, seqInc );
+					aoSys->setDacTriggerEvents( ttls, variationInc, seqInc );
+					aoSys->findLoadSkipSnapshots( currLoadSkipTime, seqVariables, variationInc, seqInc );
+					aoSys->makeFinalDataFormat( variationInc, seqInc );
+					ttls->organizeTtlCommands( variationInc, seqInc );
+					ttls->findLoadSkipSnapshots( currLoadSkipTime, seqVariables, variationInc, seqInc );
+					ttls->convertToFinalViewpointFormat( variationInc, seqInc );
 					// run a couple checks.
-					input->ttls->checkNotTooManyTimes( variationInc, seqInc );
-					input->ttls->checkFinalFormatTimes( variationInc, seqInc );
-					if ( input->ttls->countDacTriggers( variationInc, seqInc ) != input->aoSys->getNumberSnapshots( variationInc, seqInc ) )
+					ttls->checkNotTooManyTimes( variationInc, seqInc );
+					ttls->checkFinalFormatTimes( variationInc, seqInc );
+					if ( ttls->countDacTriggers( variationInc, seqInc ) != aoSys->getNumberSnapshots( variationInc, seqInc ) )
 					{
 						thrower( "ERROR: the number of dac triggers that the ttl system sends to the dac line does not "
 								 "match the number of dac snapshots! Number of dac triggers was " 
-								 + str( input->ttls->countDacTriggers( variationInc, seqInc ) ) + " while number of dac "
-								 "snapshots was " + str( input->aoSys->getNumberSnapshots( variationInc, seqInc ) ) );
+								 + str( ttls->countDacTriggers( variationInc, seqInc ) ) + " while number of dac "
+								 "snapshots was " + str( aoSys->getNumberSnapshots( variationInc, seqInc ) ) );
 					}
-					input->aoSys->checkTimingsWork( variationInc, seqInc );
+					aoSys->checkTimingsWork( variationInc, seqInc );
 					if ( input->runNiawg )
 					{
 						auto line = input->niawg->getTrigLines( );
-						if ( input->ttls->countTriggers( line.first, line.second, variationInc, seqInc ) 
+						if ( ttls->countTriggers( line.first, line.second, variationInc, seqInc )  
 							 != input->niawg->getNumberTrigsInScript( ) )
 						{
 							warnings += "WARNING: the NIAWG is not getting triggered by the ttl system the same number"
@@ -223,30 +228,30 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		std::chrono::time_point<chronoClock> varProgramEndTime( chronoClock::now( ) );
 		expUpdate( "Programming took " 
 				   + str( std::chrono::duration<double>( (varProgramEndTime - varProgramStartTime) ).count( ) / 1000.0 )
-				   + " seconds.\r\n", input->comm, input->quiet );
+				   + " seconds.\r\n", input->comm, quiet );
 		if (input->runMaster)
 		{
-			expUpdate( "Programmed time per repetition: " + str( input->ttls->getTotalTime( 0, 0 ) ) + "\r\n", 
-					   input->comm, input->quiet );
+			expUpdate( "Programmed time per repetition: " + str( ttls->getTotalTime( 0, 0 ) ) + "\r\n", 
+					   input->comm, quiet );
 			ULONGLONG totalTime = 0;
 			for ( auto seqInc : range( input->seq.sequence.size()) )
 			{
 				for ( auto variationNumber : range(variations) )
 				{
-					totalTime += ULONGLONG( input->ttls->getTotalTime( variationNumber, seqInc ) 
+					totalTime += ULONGLONG( ttls->getTotalTime( variationNumber, seqInc ) 
 											* input->repetitionNumber );
 				}
 			}
-			expUpdate( "Programmed Total Experiment time: " + str( totalTime ) + "\r\n", input->comm, input->quiet );
-			expUpdate( "Number of TTL Events in experiment: " + str( input->ttls->getNumberEvents( 0, 0 ) ) + "\r\n",
-					   input->comm, input->quiet );
-			expUpdate( "Number of DAC Events in experiment: " + str( input->aoSys->getNumberEvents( 0, 0 ) ) + "\r\n",
-					   input->comm, input->quiet );
+			expUpdate( "Programmed Total Experiment time: " + str( totalTime ) + "\r\n", input->comm, quiet );
+			expUpdate( "Number of TTL Events in experiment: " + str( ttls->getNumberEvents( 0, 0 ) ) + "\r\n", 
+					   input->comm, quiet );
+			expUpdate( "Number of DAC Events in experiment: " + str( aoSys->getNumberEvents( 0, 0 ) ) + "\r\n",
+					   input->comm, quiet );
 		}
 		/// finish up
 		if ( input->runMaster )
 		{
-			handleDebugPlots( input->debugOptions, input->comm, input->ttls, input->aoSys, input->quiet, input->python,
+			handleDebugPlots( input->debugOptions, input->comm, ttls, aoSys, quiet, input->python, 
 							  input->ttlData, input->dacData );
 		}
 		input->comm->sendError( warnings );
@@ -264,10 +269,10 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		// loop for variations
 		for (const UINT& variationInc : range( variations ))
 		{
-			expUpdate( "Variation #" + str( variationInc + 1 ) + "\r\n", input->comm, input->quiet );
+			expUpdate( "Variation #" + str( variationInc + 1 ) + "\r\n", input->comm, quiet );
 			if ( input->aiSys->wantsQueryBetweenVariations( ) )
 			{
-				expUpdate( "Querying Voltages...\r\n", input->comm, input->quiet );
+				expUpdate( "Querying Voltages...\r\n", input->comm, quiet );
 				input->auxWin->PostMessage( eLogVoltsMessageID, variationInc );
 			}
 			Sleep( input->debugOptions.sleepTime );
@@ -284,11 +289,11 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 									 "it! (This shouldn't happen, it's a low-level bug...)" );
 						}
 						expUpdate( tempVariable.name + ": " + str( tempVariable.keyValues[variationInc], 12) + "\r\n", 
-								   input->comm, input->quiet );
+								   input->comm, quiet );
 					}
 				}
 			}
-			expUpdate( "Programming RSG, Agilents, NIAWG, & Teltronics...\r\n", input->comm, input->quiet );
+			expUpdate( "Programming RSG, Agilents, NIAWG, & Teltronics...\r\n", input->comm, quiet );
 			input->rsg->programRsg( variationInc );
 			input->rsg->setInfoDisp( variationInc );
 			// program devices
@@ -309,7 +314,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 					if ( input->runMaster )
 					{
 						auto line = agilent->getTriggerLine( );
-						ttlTrigs = input->ttls->countTriggers( line.first, line.second, variationInc, 0 );
+						ttlTrigs = ttls->countTriggers( line.first, line.second, variationInc, 0 );
 					}
 					else
 					{
@@ -338,7 +343,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 			input->eoAxialTek->programMachine( variationInc );
 			//
 			input->comm->sendRepProgress( 0 );
-			expUpdate( "Running Experiment.\r\n", input->comm, input->quiet );
+			expUpdate( "Running Experiment.\r\n", input->comm, quiet );
 			for (UINT repInc = 0; repInc < input->repetitionNumber; repInc++)
 			{
 				for (auto seqInc : range(input->seq.sequence.size()))
@@ -349,20 +354,20 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 					}
 					else if (input->thisObj->isPaused)
 					{
-						expUpdate( "Paused\r\n!", input->comm, input->quiet );
+						expUpdate( "Paused\r\n!", input->comm, quiet );
 						// wait...
 						while (input->thisObj->isPaused)
 						{
 							// this could be changed to be a bit smarter using a std::condition_variable
 							Sleep( 100 );
 						}
-						expUpdate( "Un-Paused!\r\n", input->comm, input->quiet );
+						expUpdate( "Un-Paused!\r\n", input->comm, quiet );
 					}
 					input->comm->sendRepProgress( repInc + 1 );
 					// this was re-written each time from looking at the VB6 code.
 					if (input->runMaster)
 					{
-						input->aoSys->stopDacs();
+						aoSys->stopDacs();
 						// it's important to grab the skipoption from input->skipNext only once because in principle
 						// if the cruncher thread was running behind, it could change between writing and configuring the 
 						// aoSys and configuring the TTLs;
@@ -375,35 +380,35 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 						{
 							skipOption = input->skipNext->load( );
 						}
-						input->aoSys->configureClocks( variationInc, seqInc, skipOption);
-						input->aoSys->writeDacs( variationInc, seqInc, skipOption);
-						input->aoSys->startDacs();
-						input->ttls->writeTtlData( variationInc, seqInc, skipOption);
-						input->ttls->startBoard();
-						input->ttls->waitTillFinished( variationInc, seqInc, skipOption);
+						aoSys->configureClocks( variationInc, seqInc, skipOption);
+						aoSys->writeDacs( variationInc, seqInc, skipOption);
+						aoSys->startDacs();
+						ttls->writeTtlData( variationInc, seqInc, skipOption);
+						ttls->startBoard();
+						ttls->waitTillFinished( variationInc, seqInc, skipOption);
 					}
 				}
 			}
-			expUpdate( "\r\n", input->comm, input->quiet );
+			expUpdate( "\r\n", input->comm, quiet );
 		}
 		/// conclude.
-		expUpdate( "\r\nExperiment Finished Normally.\r\n", input->comm, input->quiet );
+		expUpdate( "\r\nExperiment Finished Normally.\r\n", input->comm, quiet );
 		input->comm->sendColorBox( System::Master, 'B' );
 		if (input->runMaster)
 		{
 			// stop is necessary; Else the dac system will still be running and won't allow updates through normal 
 			// means.
-			input->aoSys->stopDacs();
-			input->aoSys->unshadeDacs();
+			aoSys->stopDacs();
+			aoSys->unshadeDacs();
 		}
 		if ( input->runMaster )
 		{
 			try
 			{
 				// make sure the display accurately displays the state that the experiment finished at.
-				input->aoSys->setDacStatusNoForceOut( input->aoSys->getFinalSnapshot( ) );
-				input->ttls->unshadeTtls( );
-				input->ttls->setTtlStatusNoForceOut( input->ttls->getFinalSnapshot( ) );
+				aoSys->setDacStatusNoForceOut( aoSys->getFinalSnapshot( ) );
+				ttls->unshadeTtls( );
+				ttls->setTtlStatusNoForceOut( ttls->getFinalSnapshot( ) );
 			}
 			catch ( Error& ) { /* this gets thrown if no dac events. just continue.*/ }
 		}
@@ -444,7 +449,7 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 		}
 		if ( input->thisObj->isAborting )
 		{
-			expUpdate( abortString, input->comm, input->quiet );
+			expUpdate( abortString, input->comm, quiet );
 			input->comm->sendColorBox( System::Master, 'B' );
 		}
 		else
@@ -459,14 +464,14 @@ unsigned int __stdcall MasterManager::experimentThreadProcedure( void* voidInput
 	}
 	std::chrono::time_point<chronoClock> endTime( chronoClock::now( ) );
 	expUpdate( "Experiment took " + str( std::chrono::duration<double>( (endTime - startTime) ).count( ) ) 
-			   + " seconds.\r\n", input->comm, input->quiet );
+			   + " seconds.\r\n", input->comm, quiet );
 	input->thisObj->experimentIsRunning = false;
 	delete input;
 	return false;
 }
 
 
-double MasterManager::convertToTime( timeType time, std::vector<variableType> variables, UINT variation )
+double MasterManager::convertToTime( timeType time, std::vector<parameterType> variables, UINT variation )
 {
 	double variableTime = 0;
 	// add together current values for all variable times.
@@ -548,7 +553,7 @@ void MasterManager::loadMotSettings(MasterThreadInput* input)
 		thrower( "Experiment is Running! Please abort the current run before setting the MOT settings." );
 	}
 	input->thisObj = this;
-	VariableSystem::generateKey( input->variables, false );
+	ParameterSystem::generateKey( input->variables, false );
 	runningThread = (HANDLE)_beginthreadex( NULL, NULL, &MasterManager::experimentThreadProcedure, input, NULL, NULL );
 }
 
@@ -729,10 +734,62 @@ void MasterManager::analyzeFunctionDefinition(std::string defLine, std::string& 
 }
 
 
+bool MasterManager::handleVariableDeclaration( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
+											   std::string scope, std::string& warnings )
+{
+	if ( word != "var" )
+	{
+		return false;
+	}
+	// add to variables!
+	std::string name, valStr;
+	stream >> name >> valStr;
+	parameterType tmpVariable;
+	tmpVariable.constant = true;
+	std::transform( name.begin( ), name.end( ), name.begin( ), ::tolower );
+	tmpVariable.name = name;
+	for ( auto var : vars )
+	{
+		if ( var.name == tmpVariable.name && var.parameterScope == "__GLOBAL__" )
+		{
+			warnings += "Warning: local variable \"" + var.name + "\" is being overwritten by a global or configuration"
+				" variable with the same name.";
+			// this variable is being overwritten, so don't add this variable vector
+			return true;
+		}
+	}
+	bool found = false;
+	double val;
+	try
+	{
+		val = std::stod( valStr );
+	}
+	catch ( std::invalid_argument& )
+	{
+		thrower( "ERROR: Bad string for value of local variable " + str( name ) );
+	}
+	tmpVariable.constantValue = val;
+	tmpVariable.scanDimension = 1;
+	tmpVariable.parameterScope = scope;
+	tmpVariable.ranges.push_back( { val, val, 1, true, true } );
+	// these are always constants, so just go ahead and set the keyvalue for use manually. 
+	if ( vars.size( ) == 0 )
+	{
+		tmpVariable.keyValues = std::vector<double>( 1, val );
+	}
+	else
+	{
+		tmpVariable.keyValues = std::vector<double>( vars.front( ).keyValues.size( ), val );
+	}	
+	vars.push_back( tmpVariable );
+	return true;
+}
+
+
 void MasterManager::analyzeFunction( std::string function, std::vector<std::string> args, DioSystem* ttls,
 									 AoSystem* aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades,
-									 std::vector<UINT>& dacShades, RhodeSchwarz* rsg, std::vector<variableType>& vars,
-									 UINT seqNum )
+									 std::vector<UINT>& dacShades, RhodeSchwarz* rsg, std::vector<parameterType>& vars,
+									 UINT seqNum, std::string& warnings )
 {
 	/// load the file
 	std::fstream functionFile;
@@ -771,6 +828,7 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 	// the following are used for repeat: functionality
 	std::vector<ULONG> totalRepeatNum, currentRepeatNum;
 	std::vector<std::streamoff> repeatPos;
+	std::string scope = function;
 	/// get the function arguments.
 	std::string defLine, name;
 	defLine = functionStream.getline( ':' );
@@ -798,13 +856,15 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 	functionStream >> word;
 	while (!(functionStream.peek() == EOF) || word != "__end__")
 	{
-		if ( handleTimeCommands( word, functionStream, vars ))
+		if ( handleTimeCommands( word, functionStream, vars, scope ))
 		{
 			// got handled
 		}
-		else if ( handleDioCommands( word, functionStream, vars, ttls, ttlShades, seqNum ) )
+		else if ( handleVariableDeclaration( word, functionStream, vars, scope, warnings ) )
 		{ }
-		else if ( handleAoCommands( word, functionStream, vars, aoSys, dacShades, ttls, seqNum ) )
+		else if ( handleDioCommands( word, functionStream, vars, ttls, ttlShades, seqNum, scope ) )
+		{ }
+		else if ( handleAoCommands( word, functionStream, vars, aoSys, dacShades, ttls, seqNum, scope ) )
 		{ }
 		/// callcppcode command
 		else if (word == "callcppcode")
@@ -817,60 +877,16 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 		{
 			rsgEventForm info;
 			functionStream >> info.frequency >> info.power;
-			info.frequency.assertValid( vars );
-			info.power.assertValid( vars );
+			info.frequency.assertValid( vars, scope );
+			info.power.assertValid( vars, scope );
 			// test frequency
 			info.time = operationTime;
 			rsg->addFrequency( info );
 		}
 		/// deal with function calls.
-		else if (word == "call")
-		{
-			// calling a user-defined function. Get the name and the arguments to pass to the function handler.
-			std::string functionCall, functionName, functionInputArgs;
-			functionCall = functionStream.getline( '\r' );
-			int pos = functionCall.find_first_of("(") + 1;
-			int finalpos2 = functionCall.find_last_of(")");
-			int finalpos = functionCall.find_last_of(")");
-			functionName = functionCall.substr(0, pos - 1);
-			functionInputArgs = functionCall.substr(pos, finalpos - pos);
-			std::string arg;
-			std::vector<std::string> newArgs;
-			while (true)
-			{
-				pos = functionInputArgs.find_first_of(',');
-				if (pos == std::string::npos)
-				{
-					arg = functionInputArgs.substr(0, functionInputArgs.size());
-					if (arg != "")
-					{
-						newArgs.push_back(arg);
-					}
-					break;
-				}
-				arg = functionInputArgs.substr(0, pos);
-				if (arg != "")
-				{
-					newArgs.push_back(arg);
-				}
-				// cut out that argument off the string.
-				functionInputArgs = functionInputArgs.substr(pos, functionInputArgs.size());
-			}
-			if (functionName == function)
-			{
-				thrower( "ERROR: Recursive function call detected! " + function + " called itself! This is not allowed." );
-			}
-			try
-			{
-				analyzeFunction(functionName, newArgs, ttls, aoSys, ttlShades, dacShades, rsg, vars, seqNum );
-			}
-			catch (Error& err)
-			{
-				// the fact that each function call will re-throw with this will end up putting the whole function call
-				// stack onto the error message.
-				thrower(err.whatStr() + "... In function call to function " + functionName + "\r\n");
-			}
-		}
+		else if (handleFunctionCall( word, functionStream, vars, ttls, aoSys, ttlShades, dacShades, rsg, seqNum, warnings,
+									 function ))
+		{ }
 		else if ( word == "repeat:" )
 		{
 			std::string repeatStr;
@@ -918,7 +934,8 @@ void MasterManager::analyzeFunction( std::string function, std::vector<std::stri
 
 
 // if it handled it, returns true, else returns false.
-bool MasterManager::handleTimeCommands( std::string word, ScriptStream& stream, std::vector<variableType>& vars )
+bool MasterManager::handleTimeCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars, 
+										std::string scope )
 {
 	if ( word == "t" )
 	{
@@ -941,7 +958,7 @@ bool MasterManager::handleTimeCommands( std::string word, ScriptStream& stream, 
 		}
 		catch ( Error& )
 		{
-			time.assertValid( vars );
+			time.assertValid( vars, scope );
 			operationTime.first.push_back( time );
 		}
 	}
@@ -955,7 +972,7 @@ bool MasterManager::handleTimeCommands( std::string word, ScriptStream& stream, 
 		}
 		catch ( std::invalid_argument & )
 		{
-			time.assertValid( vars );
+			time.assertValid( vars, scope );
 			operationTime.first.push_back( time );
 			// because it's equals. There shouldn't be any extra terms added to this now.
 			operationTime.second = 0;
@@ -969,14 +986,15 @@ bool MasterManager::handleTimeCommands( std::string word, ScriptStream& stream, 
 }
 
 /* returns true if handles word, false otherwise. */
-bool MasterManager::handleDioCommands( std::string word, ScriptStream& stream, std::vector<variableType>& vars,
-									   DioSystem* ttls, std::vector<std::pair<UINT, UINT>>& ttlShades, UINT seqNum )
+bool MasterManager::handleDioCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
+									   DioSystem* ttls, std::vector<std::pair<UINT, UINT>>& ttlShades, UINT seqNum, 
+									   std::string scope )
 {
 	if ( word == "on:" || word == "off:" )
 	{
 		std::string name;
 		stream >> name;
-		ttls->handleTtlScriptCommand( word, operationTime, name, ttlShades, vars, seqNum );
+		ttls->handleTtlScriptCommand( word, operationTime, name, ttlShades, vars, seqNum, scope );
 	}
 	else if ( word == "pulseon:" || word == "pulseoff:" )
 	{
@@ -985,7 +1003,7 @@ bool MasterManager::handleDioCommands( std::string word, ScriptStream& stream, s
 		Expression pulseLength;
 		stream >> name >> pulseLength;
 		// should be good to go.
-		ttls->handleTtlScriptCommand( word, operationTime, name, pulseLength, ttlShades, vars, seqNum );
+		ttls->handleTtlScriptCommand( word, operationTime, name, pulseLength, ttlShades, vars, seqNum, scope );
 	}
 	else
 	{
@@ -995,15 +1013,16 @@ bool MasterManager::handleDioCommands( std::string word, ScriptStream& stream, s
 }
 
 /* returns true if handles word, false otherwise. */
-bool MasterManager::handleAoCommands( std::string word, ScriptStream& stream, std::vector<variableType>& vars,
-									  AoSystem* aoSys, std::vector<UINT>& dacShades, DioSystem* ttls, UINT seqNum)
+bool MasterManager::handleAoCommands( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
+									  AoSystem* aoSys, std::vector<UINT>& dacShades, DioSystem* ttls, UINT seqNum, 
+									  std::string scope )
 {
 	if ( word == "dac:" )
 	{
 		AoCommandForm command;
 		std::string name;
 		stream >> name >> command.finalVal;
-		command.finalVal.assertValid( vars );
+		command.finalVal.assertValid( vars, scope );
 		command.time = operationTime;
 		command.commandName = "dac:";
 		command.numSteps.expressionStr = command.initVal.expressionStr = "__NONE__";
@@ -1022,10 +1041,10 @@ bool MasterManager::handleAoCommands( std::string word, ScriptStream& stream, st
 		AoCommandForm command;
 		std::string name;
 		stream >> name >> command.initVal >> command.finalVal >> command.rampTime >> command.numSteps;
-		command.initVal.assertValid( vars );
-		command.finalVal.assertValid( vars );
-		command.rampTime.assertValid( vars );
-		command.numSteps.assertValid( vars );
+		command.initVal.assertValid( vars, scope );
+		command.finalVal.assertValid( vars, scope );
+		command.rampTime.assertValid( vars, scope );
+		command.numSteps.assertValid( vars, scope );
 		command.time = operationTime;
 		command.commandName = "daclinspace:";
 		// not used here.
@@ -1045,10 +1064,10 @@ bool MasterManager::handleAoCommands( std::string word, ScriptStream& stream, st
 		AoCommandForm command;
 		std::string name;
 		stream >> name >> command.initVal >> command.finalVal >> command.rampTime >> command.rampInc;
-		command.initVal.assertValid( vars );
-		command.finalVal.assertValid( vars );
-		command.rampTime.assertValid( vars );
-		command.rampInc.assertValid( vars );
+		command.initVal.assertValid( vars, scope );
+		command.finalVal.assertValid( vars, scope );
+		command.rampTime.assertValid( vars, scope );
+		command.rampInc.assertValid( vars, scope );
 		command.time = operationTime;
 		command.commandName = "dacarange:";
 		// not used here.
@@ -1071,8 +1090,9 @@ bool MasterManager::handleAoCommands( std::string word, ScriptStream& stream, st
 
 void MasterManager::analyzeMasterScript( DioSystem* ttls, AoSystem* aoSys, 
 										 std::vector<std::pair<UINT, UINT>>& ttlShades, std::vector<UINT>& dacShades, 
-										 RhodeSchwarz* rsg, std::vector<variableType>& vars,
-										 ScriptStream& currentMasterScript, UINT seqNum, bool expectsLoadSkip )
+										 RhodeSchwarz* rsg, std::vector<parameterType>& vars,
+										 ScriptStream& currentMasterScript, UINT seqNum, bool expectsLoadSkip,
+										 std::string& warnings )
 {
 	std::string currentMasterScriptText = currentMasterScript.str();
 	loadSkipTime[seqNum].first.clear( );
@@ -1090,15 +1110,18 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, AoSystem* aoSys,
 	std::vector<std::streamoff> repeatPos;
 	// the analysis loop.
 	bool loadSkipFound = false;
+	std::string scope = PARENT_PARAMETER_SCOPE;
 	while (!(currentMasterScript.peek() == EOF) || word != "__end__")
 	{
-		if (handleTimeCommands(word, currentMasterScript, vars ) )
+		if (handleTimeCommands(word, currentMasterScript, vars, scope ) )
 		{
-			// got handled.
+			// got handled, so break out of the if-else by entering this scope.
 		}
-		else if ( handleDioCommands( word, currentMasterScript, vars, ttls, ttlShades, seqNum ) )
+		else if ( handleVariableDeclaration( word, currentMasterScript, vars, scope, warnings ) )
 		{ }
-		else if ( handleAoCommands( word, currentMasterScript, vars, aoSys, dacShades, ttls, seqNum ) )
+		else if ( handleDioCommands( word, currentMasterScript, vars, ttls, ttlShades, seqNum, scope ) )
+		{ }
+		else if ( handleAoCommands( word, currentMasterScript, vars, aoSys, dacShades, ttls, seqNum, scope ) )
 		{ }
 		/// callcppcode function
 		else if (word == "callcppcode")
@@ -1117,52 +1140,16 @@ void MasterManager::analyzeMasterScript( DioSystem* ttls, AoSystem* aoSys,
 		{
 			rsgEventForm info;
 			currentMasterScript >> info.frequency;
-			info.frequency.assertValid( vars );
+			info.frequency.assertValid( vars, scope );
 			currentMasterScript >> info.power;
-			info.power.assertValid( vars );
+			info.power.assertValid( vars, scope );
 			info.time = operationTime;
 			rsg->addFrequency( info );
 		}
 		/// deal with function calls.
-		else if (word == "call")
-		{
-			// calling a user-defined function. Get the name and the arguments to pass to the function handler.
-			std::string functionCall, functionName, functionArgs;
-			functionCall = currentMasterScript.getline( '\r' );
-			int pos = functionCall.find_first_of("(") + 1;
-			int finalpos2 = functionCall.find_last_of(")");
-			int finalpos = functionCall.find_last_of(")");
-			
-			functionName = functionCall.substr(0, pos - 1);
-			functionArgs = functionCall.substr(pos, finalpos - pos);
-			std::string arg;
-			std::vector<std::string> args;
-			while (true)
-			{
-				pos = functionArgs.find_first_of(',');
-				if (pos == std::string::npos)
-				{
-					arg = functionArgs.substr(0, functionArgs.size());
-					if ( arg != "" )
-					{
-						args.push_back( arg );
-					}
-					break;
-				}
-				arg = functionArgs.substr(0, pos);
-				args.push_back(arg);
-				// cut oinputut that argument off the string.
-				functionArgs = functionArgs.substr(pos + 1, functionArgs.size());
-			}
-			try
-			{
-				analyzeFunction(functionName, args, ttls, aoSys, ttlShades, dacShades, rsg, vars, seqNum );
-			}
-			catch (Error& err)
-			{
-				thrower(err.whatStr() + "... In Function call to function " + functionName);
-			}
-		}
+		else if ( handleFunctionCall( word, currentMasterScript, vars,ttls, aoSys, ttlShades, dacShades, rsg, seqNum, 
+									  warnings, "__PARENT__" ) )
+		{ }
 		else if (word == "repeat:")
 		{
 			Expression repeatStr;
@@ -1241,7 +1228,7 @@ void MasterManager::expUpdate(std::string text, Communicator* comm, bool quiet)
 	}
 }
 
-UINT MasterManager::determineVariationNumber( std::vector<variableType> variables )
+UINT MasterManager::determineVariationNumber( std::vector<parameterType> variables )
 {
 	int variationNumber;
 	if ( variables.size() == 0)
@@ -1257,4 +1244,61 @@ UINT MasterManager::determineVariationNumber( std::vector<variableType> variable
 		}
 	}
 	return variationNumber;
+}
+
+bool MasterManager::handleFunctionCall( std::string word, ScriptStream& stream, std::vector<parameterType>& vars,
+										DioSystem* ttls, AoSystem* aoSys, std::vector<std::pair<UINT, UINT>>& ttlShades, 
+										std::vector<UINT>& dacShades, RhodeSchwarz* rsg, UINT seqNum, std::string& warnings,
+										std::string callingFunction )
+{
+	if ( word != "call" )
+	{
+		return false;
+	}
+	// calling a user-defined function. Get the name and the arguments to pass to the function handler.
+	std::string functionCall, functionName, functionArgs;
+	functionCall = stream.getline( '\r' );
+	int pos = functionCall.find_first_of( "(" ) + 1;
+	int finalpos2 = functionCall.find_last_of( ")" );
+	int finalpos = functionCall.find_last_of( ")" );
+
+	functionName = functionCall.substr( 0, pos - 1 );
+	functionArgs = functionCall.substr( pos, finalpos - pos );
+	std::string arg;
+	std::vector<std::string> args;
+	while ( true )
+	{
+		pos = functionArgs.find_first_of( ',' );
+		if ( pos == std::string::npos )
+		{
+			arg = functionArgs.substr( 0, functionArgs.size( ) );
+			if ( arg != "" )
+			{
+				args.push_back( arg );
+			}
+			break;
+		}
+		arg = functionArgs.substr( 0, pos );
+		args.push_back( arg );
+		// cut oinputut that argument off the string.
+		functionArgs = functionArgs.substr( pos + 1, functionArgs.size( ) );
+	}
+	if ( functionName == callingFunction )
+	{
+		thrower( "ERROR: Recursive function call detected! " + callingFunction + " called itself! This is not allowed."
+				 " There is no way to end a function call conditionally so this will necessarily result in an"
+				 " infinite recursion" );
+	}
+	try
+	{
+		// read the variables from the file.
+		// read function file and get vars to add to general vars
+		// combine vars here and general vars.
+		analyzeFunction( functionName, args, ttls, aoSys, ttlShades, dacShades, rsg, vars, seqNum, warnings );
+	}
+	catch ( Error& err )
+	{
+		thrower( err.whatStr( ) + "... In Function call to function " + functionName );
+	}
+	return true;
 }

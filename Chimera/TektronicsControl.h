@@ -77,7 +77,7 @@ class TektronicsControl
 		void rearrange(int width, int height, fontMap fonts);
 		void handleButtons(UINT indicator);
 		HBRUSH handleColorMessage(CWnd* window, brushMap brushes, rgbMap rGBs, CDC* cDC);
-		void interpretKey(std::vector<std::vector<variableType>>& variables);
+		void interpretKey(std::vector<std::vector<parameterType>>& variables);
 		void programMachine(UINT variation );
 		void handleProgram();
 	private:

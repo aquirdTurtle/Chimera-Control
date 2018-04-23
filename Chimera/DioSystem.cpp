@@ -591,16 +591,16 @@ void DioSystem::initialize( POINT& loc, cToolTips& toolTips, AuxiliaryWindow* ma
 
 void DioSystem::handleTtlScriptCommand( std::string command, timeType time, std::string name,
 										std::vector<std::pair<UINT, UINT>>& ttlShadeLocations, 
-										std::vector<variableType>& vars, UINT seqNum )
+										std::vector<parameterType>& vars, UINT seqNum, std::string scope )
 {
 	// use an empty expression.
-	handleTtlScriptCommand( command, time, name, Expression(), ttlShadeLocations, vars, seqNum );
+	handleTtlScriptCommand( command, time, name, Expression(), ttlShadeLocations, vars, seqNum, scope );
 }
 
 
 void DioSystem::handleTtlScriptCommand( std::string command, timeType time, std::string name, Expression pulseLength, 
 									    std::vector<std::pair<UINT, UINT>>& ttlShadeLocations, 
-										std::vector<variableType>& vars, UINT seqNum )
+										std::vector<parameterType>& vars, UINT seqNum, std::string scope )
 {
 	if (!isValidTTLName(name))
 	{
@@ -626,7 +626,7 @@ void DioSystem::handleTtlScriptCommand( std::string command, timeType time, std:
 		}
 		catch (Error&)
 		{
-			pulseLength.assertValid( vars );
+			pulseLength.assertValid( vars, scope );
 			pulseEndTime.first.push_back(pulseLength);
 		}
 		if (command == "pulseon:")
@@ -1163,7 +1163,7 @@ void DioSystem::sizeDataStructures( UINT sequenceLength, UINT variations )
 /*
  * Read key values from variables and convert command form to the final commands.
  */
-void DioSystem::interpretKey( vec<vec<variableType>>& variables )
+void DioSystem::interpretKey( vec<vec<parameterType>>& variables )
 {
 	UINT sequenceLength = variables.size( );
 	UINT variations = variables.front( ).size() == 0 ? 1 : variables.front().front( ).keyValues.size( );
@@ -1479,7 +1479,7 @@ void DioSystem::convertToFinalViewpointFormat(UINT variation, UINT seqNum )
 }
 
 
-void DioSystem::findLoadSkipSnapshots( double time, std::vector<variableType>& variables, UINT variation, UINT seqNum )
+void DioSystem::findLoadSkipSnapshots( double time, std::vector<parameterType>& variables, UINT variation, UINT seqNum )
 {
 	// find the splitting time and set the loadSkip snapshots to have everything after that time.
 	auto& snaps = ttlSnapshots[seqNum][variation];

@@ -930,7 +930,7 @@ void CameraWindow::preparePlotter( ExperimentInput& input )
 	input.plotterInput->plottingFrequency = analysisHandler.getPlotFreq( );
 	if ( input.masterInput )
 	{
-		input.plotterInput->key = VariableSystem::getKeyValues( input.masterInput->variables[0] );
+		input.plotterInput->key = ParameterSystem::getKeyValues( input.masterInput->variables[0] );
 	}
 	else
 	{

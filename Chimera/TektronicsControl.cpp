@@ -36,7 +36,7 @@ void TektronicsChannelControl::initialize( POINT loc, CWnd* parent, int& id, std
 }
 
 
-void TektronicsControl::interpretKey(std::vector<std::vector<variableType>>& variables)
+void TektronicsControl::interpretKey(std::vector<std::vector<parameterType>>& variables)
 {
 	UINT variations;
 	UINT sequenceNumber;

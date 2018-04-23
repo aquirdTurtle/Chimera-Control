@@ -824,8 +824,8 @@ void MainWindow::startMaster( MasterThreadInput* input, bool isTurnOnMot )
 void MainWindow::fillMotInput( MasterThreadInput* input )
 {
 	input->comm = &comm;
-	VariableSystem::generateKey( input->variables, input->settings.randomizeVariations );
-	input->constants = std::vector<std::vector<variableType>>( input->variables.size( ) );
+	ParameterSystem::generateKey( input->variables, input->settings.randomizeVariations );
+	input->constants = std::vector<std::vector<parameterType>>( input->variables.size( ) );
 	for (auto& seqInc : range(input->variables.size()))
 	{
 		for ( auto& variable : input->variables[seqInc] )
@@ -879,19 +879,7 @@ void MainWindow::fillMasterThreadInput(MasterThreadInput* input)
 	input->seq = profile.getSeqSettings( );
 	input->niawg = &niawg;
 	input->comm = &comm;
-	VariableSystem::generateKey( input->variables, input->settings.randomizeVariations );
-	input->constants.resize( input->variables.size( ) );
-	// it's important to do this after the key is generated so that the constants have their values.
-	for ( auto seqInc: range(input->variables.size()))
-	{
-		for ( auto& variable : input->variables[seqInc] )
-		{
-			if ( variable.constant )
-			{
-				input->constants[seqInc].push_back( variable );
-			}
-		}
-	}
+	ParameterSystem::generateKey( input->variables, input->settings.randomizeVariations );
 	input->rearrangeInfo = rearrangeControl.getParams( );
 }
 

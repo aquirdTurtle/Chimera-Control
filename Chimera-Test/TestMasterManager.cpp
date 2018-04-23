@@ -12,17 +12,18 @@ namespace TestManager
 		ScriptStream stream( "t += 50 on: A5 t += 1 pulseon: C13 0.1" );
 		std::vector<std::pair<UINT, UINT>>  shades;
 		dio.initTtlObjs( 1 );
+		std::string scope = NO_PARAMETER_SCOPE;
 		std::string word;
-		auto emptyvars = std::vector<variableType>( );
+		auto emptyvars = std::vector<parameterType>( );
 		stream >> word;
-		testMan.handleTimeCommands( word, stream, emptyvars );
+		testMan.handleTimeCommands( word, stream, emptyvars, scope );
 		stream >> word;
-		testMan.handleDioCommands( word, stream, emptyvars, &dio, shades, 0 );
+		testMan.handleDioCommands( word, stream, emptyvars, &dio, shades, 0, scope );
 		stream >> word;
-		testMan.handleTimeCommands( word, stream, emptyvars );
+		testMan.handleTimeCommands( word, stream, emptyvars, scope );
 		stream >> word;
-		testMan.handleDioCommands( word, stream, emptyvars, &dio, shades, 0 );
-		std::vector<std::vector<variableType>> emptyVars2( 1, emptyvars );
+		testMan.handleDioCommands( word, stream, emptyvars, &dio, shades, 0, scope );
+		std::vector<std::vector<parameterType>> emptyVars2( 1, emptyvars );
 		dio.interpretKey( emptyVars2 );
 		dio.organizeTtlCommands( 0, 0 );
 		dio.findLoadSkipSnapshots( 0, emptyvars, 0, 0 );
@@ -175,18 +176,18 @@ namespace TestManager
 			AoSystem ao( true );
 			DioSystem dio( true, true );
 			ScriptStream stream( "t += 5 dac: dac2 1" );
-
+			std::string scope = NO_PARAMETER_SCOPE;
 			ao.initDacObjs( 1 );
 			dio.initTtlObjs( 1 );
 
 			std::string word;
-			auto emptyvars = std::vector<variableType>( );
+			auto emptyvars = std::vector<parameterType>( );
 			std::vector<UINT> shades;
 			stream >> word;
-			testMan.handleTimeCommands( word, stream, emptyvars );
+			testMan.handleTimeCommands( word, stream, emptyvars, scope );
 			stream >> word;
-			testMan.handleAoCommands( word, stream, emptyvars, &ao, shades, &dio, 0 );
-			auto emptyvars2 = std::vector<std::vector<variableType>>( 1 );
+			testMan.handleAoCommands( word, stream, emptyvars, &ao, shades, &dio, 0, scope );
+			auto emptyvars2 = std::vector<std::vector<parameterType>>( 1 );
 			ao.interpretKey( emptyvars2, std::string( ) );
 			ao.organizeDacCommands( 0, 0 );
 			auto snaps = ao.getSnapshots( );
@@ -205,18 +206,18 @@ namespace TestManager
 			AoSystem ao( true );
 			DioSystem dio( true, true );
 			ScriptStream stream( "t += 5 dac: dac2 1" );
-
+			std::string scope = NO_PARAMETER_SCOPE;
 			ao.initDacObjs( 1 );
 			dio.initTtlObjs( 1 );
 
 			std::string word;
-			auto emptyvars = std::vector<variableType>( );
+			auto emptyvars = std::vector<parameterType>( );
 			std::vector<UINT> shades;
 			stream >> word;
-			testMan.handleTimeCommands( word, stream, emptyvars );
+			testMan.handleTimeCommands( word, stream, emptyvars, scope );
 			stream >> word;
-			testMan.handleAoCommands( word, stream, emptyvars, &ao, shades, &dio, 0 );
-			auto emptyvars2 = std::vector<std::vector<variableType>>( 1 );
+			testMan.handleAoCommands( word, stream, emptyvars, &ao, shades, &dio, 0, scope );
+			auto emptyvars2 = std::vector<std::vector<parameterType>>( 1 );
 			dio.sizeDataStructures( 1, 1 );
 			ao.interpretKey( emptyvars2, std::string( ) );
 			ao.organizeDacCommands( 0, 0 );
@@ -256,18 +257,18 @@ namespace TestManager
 			AoSystem ao( true );
 			DioSystem dio( true, true );
 			ScriptStream stream( "t += 5 daclinspace: dac2 0 10 0.1 20" );
-
+			std::string scope = NO_PARAMETER_SCOPE;
 			ao.initDacObjs( 1 );
 			dio.initTtlObjs( 1 );
 
 			std::string word;
-			auto emptyvars = std::vector<variableType>( );
+			auto emptyvars = std::vector<parameterType>( );
 			std::vector<UINT> shades;
 			stream >> word;
-			testMan.handleTimeCommands( word, stream, emptyvars );
+			testMan.handleTimeCommands( word, stream, emptyvars, scope );
 			stream >> word;
-			testMan.handleAoCommands( word, stream, emptyvars, &ao, shades, &dio, 0 );
-			auto emptyvars2 = std::vector<std::vector<variableType>>( 1 );
+			testMan.handleAoCommands( word, stream, emptyvars, &ao, shades, &dio, 0, scope );
+			auto emptyvars2 = std::vector<std::vector<parameterType>>( 1 );
 			dio.sizeDataStructures( 1, 1 );
 			ao.interpretKey( emptyvars2, std::string( ) );
 			ao.organizeDacCommands( 0, 0 );
@@ -297,16 +298,17 @@ namespace TestManager
 			AoSystem ao( true );
 			DioSystem dio( true, true );
 			ScriptStream stream( "t += 5 dacarange: dac2 0 10 0.1 1" );
+			std::string scope = NO_PARAMETER_SCOPE;
 			ao.initDacObjs( 1 );
 			dio.initTtlObjs( 1 );
 			std::string word;
-			auto emptyvars = std::vector<variableType>( );
+			auto emptyvars = std::vector<parameterType>( );
 			std::vector<UINT> shades;
 			stream >> word;
-			testMan.handleTimeCommands( word, stream, emptyvars );
+			testMan.handleTimeCommands( word, stream, emptyvars, scope );
 			stream >> word;
-			testMan.handleAoCommands( word, stream, emptyvars, &ao, shades, &dio, 0 );
-			auto emptyvars2 = std::vector<std::vector<variableType>>( 1 );
+			testMan.handleAoCommands( word, stream, emptyvars, &ao, shades, &dio, 0, scope );
+			auto emptyvars2 = std::vector<std::vector<parameterType>>( 1 );
 			dio.sizeDataStructures( 1, 1 );
 			ao.interpretKey( emptyvars2, std::string( ) );
 			ao.organizeDacCommands( 0, 0 );
@@ -370,14 +372,14 @@ namespace TestManager
 			MasterManager testMan;
 			timeType time;
 			time.second = 0;
-			auto val = testMan.convertToTime(time, std::vector<variableType>(), 0);
+			auto val = testMan.convertToTime(time, std::vector<parameterType>(), 0);
 			Assert::AreEqual( 0.0, val );
 			time.second = 10.0;
 			time.first.push_back( Expression("0.1") );
-			val = testMan.convertToTime( time, std::vector<variableType>( ), 0 );
+			val = testMan.convertToTime( time, std::vector<parameterType>( ), 0 );
 			Assert::AreEqual( 10.1, val );
 			time.first.push_back( Expression( "(10+4)*2" ) );
-			val = testMan.convertToTime( time, std::vector<variableType>( ), 0 );
+			val = testMan.convertToTime( time, std::vector<parameterType>( ), 0 );
 			Assert::AreEqual( 38.1, val );
 		}
 		TEST_METHOD( Run_DIO_Core )

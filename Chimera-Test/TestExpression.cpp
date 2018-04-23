@@ -60,7 +60,7 @@ namespace TestExpressions
 				Expression expr1( tmpStr );
 				std::wstring errString = L"Expected the following expression to cause an exception upon assertValid: \""
 					+ w_str( tmpStr ) + L"\"";
-				Assert::ExpectException<Error>( [this, &expr1] {expr1.assertValid( std::vector<variableType>()); }, 
+				Assert::ExpectException<Error>( [this, &expr1] {expr1.assertValid( std::vector<parameterType>(), NO_PARAMETER_SCOPE); },
 												errString.c_str( ) );
 			}
 		}
