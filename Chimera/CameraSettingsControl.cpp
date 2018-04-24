@@ -591,7 +591,7 @@ UINT CameraSettingsControl::getAccumulationNumber( )
 }
 
 
-void CameraSettingsControl::handleOpenConfig(std::ifstream& configFile, int versionMajor, int versionMinor )
+void CameraSettingsControl::handleOpenConfig(std::ifstream& configFile, Version ver)
 {
 	ProfileSystem::checkDelimiterLine(configFile, "CAMERA_SETTINGS");
 	AndorRunSettings tempSettings;
@@ -625,11 +625,11 @@ void CameraSettingsControl::handleOpenConfig(std::ifstream& configFile, int vers
 	configFile >> tempSettings.temperatureSetting; 
  	setRunSettings(tempSettings);
  	ProfileSystem::checkDelimiterLine(configFile, "END_CAMERA_SETTINGS");
-	picSettingsObj.handleOpenConfig(configFile, versionMajor, versionMinor, andorFriend);
+	picSettingsObj.handleOpenConfig(configFile, ver, andorFriend);
 	updateRunSettingsFromPicSettings( );
-	if ( (versionMajor == 2 && versionMinor > 4) || versionMajor > 2 )
+	if (ver > Version("2.4" ) )
 	{
-		imageDimensionsObj.handleOpen( configFile, versionMajor, versionMinor );
+		imageDimensionsObj.handleOpen( configFile, ver );
 	}
 }
 

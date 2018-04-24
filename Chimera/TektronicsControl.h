@@ -3,7 +3,7 @@
 #include "Control.h"
 #include "myButton.h"
 #include "VisaFlume.h"
-
+#include "Version.h"
 
 struct tektronicsChannelOutputForm
 {
@@ -68,7 +68,7 @@ class TektronicsControl
 		TektronicsControl(bool safemode, std::string address);
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpeningConfig(std::ifstream& configFile, int versionMajor, int versionMinor );
+		void handleOpeningConfig(std::ifstream& configFile, Version ver );
 		void initialize( POINT& loc, CWnd* parent, int& id, std::string headerText, std::string channel1Text,
 						 std::string channel2Text, LONG width, std::array<UINT, 5> ids, rgbMap rgbs );
 		std::string queryIdentity();

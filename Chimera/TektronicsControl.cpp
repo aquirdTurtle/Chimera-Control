@@ -209,7 +209,7 @@ void TektronicsControl::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void TektronicsControl::handleOpeningConfig(std::ifstream& configFile, int versionMajor, int versionMinor )
+void TektronicsControl::handleOpeningConfig(std::ifstream& configFile, Version ver )
 {
 	ProfileSystem::checkDelimiterLine(configFile, "TEKTRONICS");
 	ProfileSystem::checkDelimiterLine(configFile, "CHANNEL_1");

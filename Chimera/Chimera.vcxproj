@@ -301,7 +301,8 @@
     <ClInclude Include="Thrower.h" />
     <ClInclude Include="tinyPlotInfo.h" />
     <ClInclude Include="VariableStructures.h" />
-    <ClInclude Include="VariableSystem.h" />
+    <ClInclude Include="ParameterSystem.h" />
+    <ClInclude Include="Version.h" />
     <ClInclude Include="viewpointFlume.h" />
     <ClInclude Include="viewpointStructures.h" />
     <ClInclude Include="VisaFlume.h" />
@@ -383,7 +384,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="VariableSystem.cpp" />
+    <ClCompile Include="ParameterSystem.cpp" />
     <ClCompile Include="viewpointFlume.cpp" />
     <ClCompile Include="VisaFlume.cpp" />
     <ClCompile Include="WinSerialFlume.cpp" />

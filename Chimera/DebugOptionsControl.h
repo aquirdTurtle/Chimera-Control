@@ -1,6 +1,7 @@
 #pragma once
 #include "Control.h"
 #include "myButton.h"
+#include "Version.h"
 #include "commonTypes.h"
 #include "debugInfo.h"
 
@@ -11,7 +12,7 @@ class DebugOptionsControl
 	public:
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor );
+		void handleOpenConfig(std::ifstream& openFile, Version ver );
 		void initialize( int& idStart, POINT& loc, CWnd* parent, cToolTips& tooltips );
 		void handleEvent(UINT id, MainWindow* comm);
 		debugInfo getOptions();

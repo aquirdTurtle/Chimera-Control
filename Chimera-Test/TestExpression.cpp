@@ -6,6 +6,7 @@
 #include "../Chimera/miscellaneousCommonFunctions.h"
 #include "../Chimera/Expression.h"
 #include "../Chimera/Thrower.h"
+#include "../Chimera/VariableSystem.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
@@ -63,6 +64,160 @@ namespace TestExpressions
 				Assert::ExpectException<Error>( [this, &expr1] {expr1.assertValid( std::vector<parameterType>(), NO_PARAMETER_SCOPE); },
 												errString.c_str( ) );
 			}
+		}
+		TEST_METHOD( Assert_Valid_With_Global_Constant )
+		{
+			std::vector<std::vector<parameterType>> params( 1 );
+			parameterType param;
+			param.name = "testVar";
+			param.constant = true;
+			param.constantValue = 1;
+			param.ranges = std::vector<variationRangeInfo>( 1, { 1,2,3,false, false } );
+			param.parameterScope = "__GLOBAL__";
+			params[0].push_back( param );
+			ParameterSystem::generateKey( params, false );
+
+			Expression expr( "testVar" );
+			// make sure it fails without constant
+			Assert::ExpectException<Error>( [this, &expr] {expr.assertValid( std::vector<parameterType>( ), NO_PARAMETER_SCOPE ); });
+			// make sure succeeds with constant.
+			expr.assertValid( params[0], NO_PARAMETER_SCOPE );
+		}
+		TEST_METHOD( Assert_Valid_With_Global_Variable )
+		{
+			std::vector<std::vector<parameterType>> params( 1 );
+			parameterType param;
+			param.name = "testVar";
+			param.constant = false;
+			param.constantValue = 1;
+			param.ranges = std::vector<variationRangeInfo>( 1, { 1,2,3,false, false } );
+			param.parameterScope = "__GLOBAL__";
+			params[0].push_back( param );
+			ParameterSystem::generateKey( params, false );
+			Expression expr( "testVar" );
+			// make sure it fails without constant
+			Assert::ExpectException<Error>( [this, &expr] {expr.assertValid( std::vector<parameterType>( ), NO_PARAMETER_SCOPE ); } );
+			// make sure succeeds with variable.
+			expr.assertValid( params[0], NO_PARAMETER_SCOPE );
+		}
+		TEST_METHOD( Assert_Valid_With_Local_Constant )
+		{
+			std::vector<std::vector<parameterType>> params( 1 );
+			parameterType param;
+			param.name = "testVar";
+			param.constant = true;
+			param.constantValue = 1;
+			param.ranges = std::vector<variationRangeInfo>( 1, { 1,2,3,false, false } );
+			param.parameterScope = "TestScope";
+			params[0].push_back( param );
+			ParameterSystem::generateKey( params, false );
+
+			Expression expr( "testVar" );
+			// make sure it fails without constant
+			Assert::ExpectException<Error>( [this, &expr] {expr.assertValid( std::vector<parameterType>( ), "TestScope" ); } );
+			Assert::ExpectException<Error>( [this, &expr, &params] {expr.assertValid( params[0], "OtherScope" ); } );
+			// make sure succeeds with constant.
+			expr.assertValid( params[0], "TestScope" );
+		}
+		TEST_METHOD( Assert_Valid_With_Local_Variable )
+		{
+			std::vector<std::vector<parameterType>> params( 1 );
+			parameterType param;
+			param.name = "testVar";
+			param.constant = false;
+			param.constantValue = 1;
+			param.ranges = std::vector<variationRangeInfo>( 1, { 1,2,3,false, false } );
+			param.parameterScope = "TestScope";
+			params[0].push_back( param );
+			ParameterSystem::generateKey( params, false );
+			Expression expr( "testVar" );
+
+			// make sure it fails without constant
+			Assert::ExpectException<Error>( [this, &expr] {expr.assertValid( std::vector<parameterType>( ), "TestScope" ); } );
+			Assert::ExpectException<Error>( [this, &expr, &params] {expr.assertValid( params[0], "OtherScope" ); } );
+			// make sure succeeds with variable.
+			expr.assertValid( params[0], "TestScope" );
+		}
+		TEST_METHOD( Evaluate_With_Global_Constant )
+		{
+			std::vector<std::vector<parameterType>> params( 1 );
+			parameterType param;
+			param.name = "testVar";
+			param.constant = true;
+			param.constantValue = 1;
+			param.ranges = std::vector<variationRangeInfo>( 1, { 1,2,3,false, false } );
+			param.parameterScope = "__GLOBAL__";
+			params[0].push_back( param );
+			ParameterSystem::generateKey( params, false );
+
+			Expression expr( "testVar" );
+			// make sure it fails without constant
+			Assert::ExpectException<Error>( [this, &expr] {expr.evaluate(); } );
+			// make sure succeeds with constant.
+			expr.evaluate( params[0], 0 );
+		}
+		TEST_METHOD( Evaluate_With_Global_Variable )
+		{
+			std::vector<std::vector<parameterType>> params( 1 );
+			parameterType param;
+			param.name = "testVar";
+			param.constant = false;
+			param.constantValue = 1;
+			param.ranges = std::vector<variationRangeInfo>( 1, { 1,2,3,false, false } );
+			param.parameterScope = "__GLOBAL__";
+			params[0].push_back( param );
+			ParameterSystem::generateKey( params, false );
+			Expression expr( "testVar" );
+			// make sure it fails without variable
+			Assert::ExpectException<Error>( [this, &expr] {expr.evaluate( ); } );
+			// make sure succeeds with variable.
+			expr.evaluate( params[0], 0 );
+		}
+		TEST_METHOD( Evaluate_With_Local_Constant )
+		{
+			std::vector<std::vector<parameterType>> params( 1 );
+			parameterType param;
+			param.name = "testVar";
+			param.constant = true;
+			param.constantValue = 4;
+			param.ranges = std::vector<variationRangeInfo>( 1, { 1,2,3,false, false } );
+			param.parameterScope = "TestScope";
+			params[0].push_back( param );
+			ParameterSystem::generateKey( params, false );
+
+			Expression expr( "testVar" );
+			expr.assertValid( params[0], "TestScope" );
+			// make sure it fails without constant
+			Assert::ExpectException<Error>( [this, &expr] {expr.evaluate( ); } );
+			// make sure succeeds with constant.
+			Assert::AreEqual(4.0, expr.evaluate( params[0], 0 ));
+			// make sure fails if constant out of scope.
+			params[0].front().parameterScope = "OtherScope";
+			Assert::ExpectException<Error>( [this, &expr, &params] {expr.evaluate(params[0], 0 ); } );
+		}
+		TEST_METHOD( Evaluate_With_Local_Variable )
+		{
+			std::vector<std::vector<parameterType>> params( 1 );
+			parameterType param;
+			param.name = "testVar";
+			param.constant = false;
+			param.constantValue = 1;
+			param.ranges = std::vector<variationRangeInfo>( 1, { 1,2,3,false, false } );
+			param.parameterScope = "TestScope";
+			params[0].push_back( param );
+			ParameterSystem::generateKey( params, false );
+			Expression expr( "testVar" );
+			expr.assertValid( params[0], "TestScope" );
+			// make sure it fails without Variable
+			Assert::ExpectException<Error>( [this, &expr] {expr.evaluate( ); } );
+			// make sure succeeds with variable.
+			Assert::AreEqual( 1.25, expr.evaluate( params[0], 0 ) );
+			Assert::AreEqual( 1.5, expr.evaluate( params[0], 1 ) );
+			Assert::AreEqual( 1.75, expr.evaluate( params[0], 2 ) );
+			// make sure fails if variable out of scope.
+			params[0].front( ).parameterScope = "OtherScope";
+			Assert::ExpectException<Error>( [this, &expr, &params] {expr.evaluate( params[0], 0 ); } );
+
 		}
 	};
 }

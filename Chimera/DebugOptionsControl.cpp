@@ -128,7 +128,7 @@ void DebugOptionsControl::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void DebugOptionsControl::handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor )
+void DebugOptionsControl::handleOpenConfig(std::ifstream& openFile, Version ver )
 {
 	ProfileSystem::checkDelimiterLine(openFile, "DEBUGGING_OPTIONS");
 	openFile >> currentOptions.outputAgilentScript;
@@ -150,7 +150,7 @@ void DebugOptionsControl::handleOpenConfig(std::ifstream& openFile, int versionM
 	{
 		currentOptions.sleepTime = 0;
 	}
-	if ( (versionMajor == 2 && versionMinor > 8) || versionMajor > 2)
+	if (ver > Version("2.8" ) )
 	{
 		openFile >> currentOptions.outputNiawgWavesToText;
 	}

@@ -82,7 +82,6 @@ namespace TestVariables
 				Assert::AreEqual( 30+expectedresult[count], vals[count] );
 			}
 		}
-
 	};
 }
 

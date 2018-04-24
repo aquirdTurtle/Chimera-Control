@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Control.h"
+#include "Version.h"
 #include <array>
 #include <vector>
 #include "cameraPositions.h"
@@ -20,7 +21,7 @@ class PictureSettingsControl
 		PictureSettingsControl( CameraSettingsControl* parentObj) { parentSettingsControl = parentObj; }
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor, AndorCamera* andor);
+		void handleOpenConfig(std::ifstream& openFile, Version ver, AndorCamera* andor);
 		void initialize( cameraPositions& pos, CWnd* parent, int& id);
 		void handleOptionChange(int id, AndorCamera* andorObj);
 		void disablePictureControls(int pic);

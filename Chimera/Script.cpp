@@ -5,7 +5,7 @@
 #include "cleanString.h"
 #include "TextPromptDialog.h"
 #include "Richedit.h"
-#include "VariableSystem.h"
+#include "ParameterSystem.h"
 #include "ProfileSystem.h"
 #include "AuxiliaryWindow.h"
 #include "DioSystem.h"

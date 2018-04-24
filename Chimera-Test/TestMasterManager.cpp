@@ -389,6 +389,21 @@ namespace TestManager
 			handleInitDio( dio, testMan );
 		}
 	};
+	TEST_CLASS( Test_Script_Testing )
+	{
+		TEST_METHOD( Simple_Script )
+		{
+
+		}
+		TEST_METHOD( Use_A_Global_Variable )
+		{
+
+		}
+		TEST_METHOD( Use_A_Local_Variable )
+		{
+
+		}
+	};
 }
 
 

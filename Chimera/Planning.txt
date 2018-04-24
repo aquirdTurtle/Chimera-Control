@@ -31,6 +31,7 @@ Refactoring / Other:
 - all mutexes should use lock_guard or similar for consistency
 - specialize CEdit with "getTextAsDouble" member.
 - make version check function for reading config files.
+- finish renaming variables as parameters where appropriate. 
 
 BUGS:
 - Catch if variable has only 1 variation, not well defined.

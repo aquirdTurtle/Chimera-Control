@@ -60,10 +60,10 @@ void MainOptionsControl::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void MainOptionsControl::handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor )
+void MainOptionsControl::handleOpenConfig(std::ifstream& openFile, Version ver )
 {
  	ProfileSystem::checkDelimiterLine(openFile, "MAIN_OPTIONS");
-	if ( (versionMajor == 2 && versionMinor < 1) || versionMajor < 2)
+	if (ver < Version("2.1") )
 	{
 		// rearrange option used to be stored here.
 		std::string garbage;
@@ -73,7 +73,7 @@ void MainOptionsControl::handleOpenConfig(std::ifstream& openFile, int versionMa
 	randomizeRepsButton.SetCheck( currentOptions.randomizeReps );
 	openFile >> currentOptions.randomizeVariations;
 	randomizeVariationsButton.SetCheck( currentOptions.randomizeVariations );
-	if ( (versionMajor == 2 && versionMinor > 9) || versionMajor > 2)
+	if (ver > Version("2.9" ) )
 	{
 		std::string txt;
 		openFile >> txt;

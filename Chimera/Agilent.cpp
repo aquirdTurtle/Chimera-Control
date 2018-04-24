@@ -1,17 +1,17 @@
 #include "stdafx.h"
 
 #include "Agilent.h"
-#include "VariableSystem.h"
+#include "ParameterSystem.h"
 #include "ScriptStream.h"
 #include "ProfileSystem.h"
 #include "AuxiliaryWindow.h"
-
 #include "boost/cast.hpp"
 #include <algorithm>
 #include <numeric>
 #include <fstream>
 #include "Thrower.h"
 #include "range.h"
+
 // NI's visa file. Also gets indirectly included via #include "nifgen.h".
 
 Agilent::Agilent( const agilentSettings& settings ) : visaFlume( settings.safemode, settings.address ),
@@ -732,7 +732,7 @@ void Agilent::handleSavingConfig(std::ofstream& saveFile, std::string categoryPa
 }
 
 
-void Agilent::readConfigurationFile( std::ifstream& file, int versionMajor, int versionMinor )
+void Agilent::readConfigurationFile( std::ifstream& file, Version ver )
 {
 	ProfileSystem::checkDelimiterLine(file, "AGILENT");
 	file >> settings.synced;
@@ -751,7 +751,7 @@ void Agilent::readConfigurationFile( std::ifstream& file, int versionMajor, int 
 	}
 	std::string calibratedOption;
 	std::getline( file, settings.channel[0].dc.dcLevelInput.expressionStr );
-	if ( (versionMajor == 2 && versionMinor > 3) || versionMajor > 2 )
+	if ( ver > Version("2.3" ) )
 	{
 		std::getline( file, calibratedOption );
 		bool calOption;
@@ -767,7 +767,7 @@ void Agilent::readConfigurationFile( std::ifstream& file, int versionMajor, int 
 	}
 	std::getline( file, settings.channel[0].sine.amplitudeInput.expressionStr );
 	std::getline( file, settings.channel[0].sine.frequencyInput.expressionStr );
-	if ( (versionMajor == 2 && versionMinor > 3) || versionMajor > 2 )
+	if ( ver > Version( "2.3" ) )
 	{
 		std::getline( file, calibratedOption );
 		bool calOption;
@@ -784,7 +784,7 @@ void Agilent::readConfigurationFile( std::ifstream& file, int versionMajor, int 
 	std::getline( file, settings.channel[0].square.amplitudeInput.expressionStr );
 	std::getline( file, settings.channel[0].square.frequencyInput.expressionStr );
 	std::getline( file, settings.channel[0].square.offsetInput.expressionStr );
-	if ( (versionMajor == 2 && versionMinor > 3) || versionMajor > 2 )
+	if ( ver > Version("2.3"))
 	{
 		std::getline( file, calibratedOption );
 		bool calOption;
@@ -799,7 +799,7 @@ void Agilent::readConfigurationFile( std::ifstream& file, int versionMajor, int 
 		settings.channel[0].square.useCalibration = calOption;
 	}
 	std::getline( file, settings.channel[0].preloadedArb.address);
-	if ( (versionMajor == 2 && versionMinor > 3) || versionMajor > 2 )
+	if ( ver > Version( "2.3" ) )
 	{
 		std::getline( file, calibratedOption );
 		bool calOption;
@@ -813,8 +813,8 @@ void Agilent::readConfigurationFile( std::ifstream& file, int versionMajor, int 
 		}
 		settings.channel[0].preloadedArb.useCalibration = calOption;
 	}
-	std::getline( file, settings.channel[0].scriptedArb.fileAddress );
-	if ( (versionMajor == 2 && versionMinor > 3) || versionMajor > 2 )
+	std::getline( file, settings.channel[0].scriptedArb.fileAddress );  
+	if ( ver > Version( "2.3" ) )
 	{
 		std::getline( file, calibratedOption );
 		bool calOption;
@@ -828,7 +828,7 @@ void Agilent::readConfigurationFile( std::ifstream& file, int versionMajor, int 
 		}
 		settings.channel[0].scriptedArb.useCalibration = calOption;
 	}
-	ProfileSystem::checkDelimiterLine(file, "CHANNEL_2"); 
+	ProfileSystem::checkDelimiterLine(file, "CHANNEL_2");
 	file >> input;
 	file.get( );
 	try
@@ -840,7 +840,7 @@ void Agilent::readConfigurationFile( std::ifstream& file, int versionMajor, int 
 		thrower("ERROR: Bad channel 1 option!");
 	}
 	std::getline( file, settings.channel[1].dc.dcLevelInput.expressionStr );
-	if ( (versionMajor == 2 && versionMinor > 3) || versionMajor > 2 )
+	if ( ver > Version( "2.3" ) )
 	{
 		std::getline( file, calibratedOption );
 		bool calOption;
@@ -856,7 +856,7 @@ void Agilent::readConfigurationFile( std::ifstream& file, int versionMajor, int 
 	}
 	std::getline( file, settings.channel[1].sine.amplitudeInput.expressionStr );
 	std::getline( file, settings.channel[1].sine.frequencyInput.expressionStr );
-	if ( (versionMajor == 2 && versionMinor > 3) || versionMajor > 2 )
+	if ( ver > Version( "2.3" ) )
 	{
 		std::getline( file, calibratedOption );
 		bool calOption;
@@ -873,7 +873,7 @@ void Agilent::readConfigurationFile( std::ifstream& file, int versionMajor, int 
 	std::getline( file, settings.channel[1].square.amplitudeInput.expressionStr );
 	std::getline( file, settings.channel[1].square.frequencyInput.expressionStr );
 	std::getline( file, settings.channel[1].square.offsetInput.expressionStr );
-	if ( (versionMajor == 2 && versionMinor > 3) || versionMajor > 2 )
+	if ( ver > Version( "2.3" ) )
 	{
 		std::getline( file, calibratedOption );
 		bool calOption;
@@ -888,7 +888,7 @@ void Agilent::readConfigurationFile( std::ifstream& file, int versionMajor, int 
 		settings.channel[1].square.useCalibration = calOption;
 	}
 	std::getline( file, settings.channel[1].preloadedArb.address);
-	if ( (versionMajor == 2 && versionMinor > 3) || versionMajor > 2 )
+	if ( ver > Version( "2.3" ) )
 	{
 		std::getline( file, calibratedOption );
 		bool calOption;
@@ -903,7 +903,7 @@ void Agilent::readConfigurationFile( std::ifstream& file, int versionMajor, int 
 		settings.channel[1].preloadedArb.useCalibration = calOption;
 	}
 	std::getline( file, settings.channel[1].scriptedArb.fileAddress );
-	if ( (versionMajor == 2 && versionMinor > 3) || versionMajor > 2 )
+	if ( ver > Version( "2.3" ) )
 	{
 		std::getline( file, calibratedOption );
 		bool calOption;

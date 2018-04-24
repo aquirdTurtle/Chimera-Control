@@ -10,7 +10,7 @@ class PictureManager
 		void handleMouse( CPoint point );
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(std::ifstream& configFile, int versionMajor, int versionMinor );
+		void handleOpenConfig(std::ifstream& configFile, Version ver );
 		void initialize( POINT& loc, CWnd* parent, int& id, cToolTips& tooltips, CBrush* defaultGridBrush );
 		void refreshBackgrounds(CDC* easel);
 		void drawGrids(CDC* easel);

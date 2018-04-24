@@ -8,6 +8,7 @@
 #include "ftdiStructures.h"
 #include "ftdiFlume.h"
 #include "WinSerialFlume.h"
+#include "Version.h"
 #include "viewpointFlume.h"
 #include <array>
 #include <sstream>
@@ -40,7 +41,7 @@ class DioSystem
 		/// config handling
 		void handleNewConfig( std::ofstream& saveFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor );
+		void handleOpenConfig(std::ifstream& openFile, Version ver );
 		void initialize(POINT& startLocation, cToolTips& toolTips, AuxiliaryWindow* master, int& id, rgbMap rgbs );
 		double getTotalTime(UINT variation, UINT seqNum );
 		void checkFinalFormatTimes( UINT variation, UINT seqNum );

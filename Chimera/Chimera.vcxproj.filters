@@ -13,9 +13,6 @@
     <ClCompile Include="MasterManager.cpp">
       <Filter>Main Window</Filter>
     </ClCompile>
-    <ClCompile Include="VariableSystem.cpp">
-      <Filter>Auxiliary Window</Filter>
-    </ClCompile>
     <ClCompile Include="TextPromptDialog.cpp">
       <Filter>General Files</Filter>
     </ClCompile>
@@ -204,6 +201,9 @@
     <ClCompile Include="WinSerialFlume.cpp" />
     <ClCompile Include="viewpointFlume.cpp" />
     <ClCompile Include="myButton.cpp" />
+    <ClCompile Include="ParameterSystem.cpp">
+      <Filter>Auxiliary Window</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -223,9 +223,6 @@
     </ClInclude>
     <ClInclude Include="externals.h">
       <Filter>Constants, Externals, Etc.</Filter>
-    </ClInclude>
-    <ClInclude Include="VariableSystem.h">
-      <Filter>Auxiliary Window</Filter>
     </ClInclude>
     <ClInclude Include="TektronicsControl.h">
       <Filter>Auxiliary Window</Filter>
@@ -496,6 +493,10 @@
     <ClInclude Include="viewpointFlume.h" />
     <ClInclude Include="viewpointStructures.h" />
     <ClInclude Include="myButton.h" />
+    <ClInclude Include="ParameterSystem.h">
+      <Filter>Auxiliary Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Version.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Icon2.ico">

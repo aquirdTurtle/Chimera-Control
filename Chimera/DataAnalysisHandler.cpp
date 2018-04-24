@@ -168,11 +168,11 @@ ULONG DataAnalysisControl::getPlotFreq( )
 }
 
 
-void DataAnalysisControl::handleOpenConfig( std::ifstream& file, int versionMajor, int versionMinor )
+void DataAnalysisControl::handleOpenConfig( std::ifstream& file, Version ver )
 {
 	ProfileSystem::checkDelimiterLine( file, "BEGIN_DATA_ANALYSIS" );
 	UINT numGrids;
-	if ( (versionMajor == 3 && versionMinor >= 1) || versionMajor > 3 )
+	if ( ver > Version( "3.0" ) )
 	{
 		file >> numGrids;
 	}
@@ -195,8 +195,7 @@ void DataAnalysisControl::handleOpenConfig( std::ifstream& file, int versionMajo
 	// load the grid parameters for that selection.
 	loadGridParams( grids[0] );
 	selectedGrid = 0;
-
-	if ( (versionMajor == 2 && versionMinor > 7) || versionMajor > 2 )
+	if ( ver > Version( "2.7" ) )
 	{
 		ProfileSystem::checkDelimiterLine( file, "BEGIN_ACTIVE_PLOTS" );
 		UINT numPlots = 0;
@@ -209,7 +208,7 @@ void DataAnalysisControl::handleOpenConfig( std::ifstream& file, int versionMajo
 			std::string tmp;
 			std::getline( file, tmp );
 			activePlotNames.push_back( tmp );
-			if ( (versionMajor == 3 && versionMinor >= 1) || versionMajor > 3 )
+			if ( ver > Version( "3.0" ) )
 			{
 				UINT which;
 				file >> which;

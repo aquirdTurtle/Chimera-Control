@@ -4,6 +4,7 @@
 #include "Control.h"
 #include "afxwin.h"
 #include "afxcview.h"
+#include "Version.h"
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -40,7 +41,7 @@ class ParameterSystem
 		UINT getTotalVariationNumber();
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void normHandleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor );
+		void normHandleOpenConfig(std::ifstream& openFile, Version ver );
 		void handleDraw(NMHDR* pNMHDR, LRESULT* pResult, rgbMap rgbs);
 		void updateParameterInfo( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
 								 DioSystem* ttls, AoSystem* aoSys );
@@ -70,16 +71,16 @@ class ParameterSystem
 		void reorderVariableDimensions( );
 		static std::vector<parameterType> getConfigVariablesFromFile( std::string configFile );
 		void saveVariable( std::ofstream& saveFile, parameterType variable );
-		parameterType loadVariableFromFile( std::ifstream& openFile, UINT versionMajor, UINT versionMinor );
-		std::vector<parameterType> getVariablesFromFile( std::ifstream& configFile, int versionMajor, int versionMinor );
+		parameterType loadVariableFromFile( std::ifstream& openFile, Version ver );
+		std::vector<parameterType> getVariablesFromFile( std::ifstream& configFile, Version ver );
 		void updateCurrentVariationsNum( );
 		static std::vector<parameterType> combineParametersForExperimentThread( std::vector<parameterType>& masterVars,
 														   std::vector<parameterType>& subVars );
 	private:
 		bool controlActive = true;
 		std::vector<CDialog*> childDlgs;
-		// name, constant/variable, dim, constantValue.
-		USHORT preRangeColumns = 4;
+		// name, constant/variable, dim, constantValue, scope
+		USHORT preRangeColumns = 5;
 		// Only 2 gui elements.
 		Control<CStatic> variablesHeader;
 		Control<CListCtrl> variablesListview;

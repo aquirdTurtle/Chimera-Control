@@ -1,15 +1,16 @@
 #include "stdafx.h"
-
-#include <sstream>
-#include <unordered_map>
-#include <bitset>
-#include "nidaqmx2.h"
+#include "Version.h"
 
 #include "DioSystem.h"
 #include "constants.h"
 #include "AuxiliaryWindow.h"
 #include "Thrower.h"
 #include "range.h"
+
+#include <sstream>
+#include <unordered_map>
+#include <bitset>
+#include "nidaqmx2.h"
 
 // I don't use this because I manually import dll functions.
 // #include "Dio64.h"
@@ -196,7 +197,7 @@ void DioSystem::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void DioSystem::handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor )
+void DioSystem::handleOpenConfig(std::ifstream& openFile, Version ver )
 {
 	ProfileSystem::checkDelimiterLine(openFile, "TTLS");
 	std::vector<std::vector<bool>> ttlStates;

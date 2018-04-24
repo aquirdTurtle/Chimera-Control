@@ -6,7 +6,7 @@
 #include "MasterManager.h" 
 #include "DioSystem.h"
 #include "AoSystem.h"
-#include "VariableSystem.h"
+#include "ParameterSystem.h"
 #include "Script.h"
 #include "RunInfo.h"
 #include "RichEditControl.h"
@@ -22,6 +22,7 @@
 #include "AiSystem.h"
 #include "colorbox.h"
 #include "MasterThreadInput.h"
+#include "Version.h"
 
 // short for which agilent. Putting the agilentNames in a struct is a trick that makes using the scope whichAg:: 
 // required while allowing implicit int conversion, which is useful for these. 
@@ -48,7 +49,7 @@ class AuxiliaryWindow : public CDialog
 		void OnRButtonUp( UINT stuff, CPoint clickLocation );
 		void OnLButtonUp( UINT stuff, CPoint clickLocation );
 		BOOL OnInitDialog();
-		void handleOpeningConfig(std::ifstream& configFile, int versionMajor, int versionMinor );
+		void handleOpeningConfig(std::ifstream& configFile, Version ver );
 		HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 		void OnCancel();
 		void OnSize(UINT nType, int cx, int cy);

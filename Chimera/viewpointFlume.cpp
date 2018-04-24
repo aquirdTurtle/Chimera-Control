@@ -43,7 +43,6 @@ ViewpointFlume::ViewpointFlume( )
 	// Open and Load DIO64
 	try
 	{
-		int result;
 		char* filename = "C:\\DIO64Visa\\DIO64Visa_Release Beta 2\\DIO64.CAT";
 		char* resourceName = "PXI18::11::INSTR";
 		WORD temp[4] = { -1, -1, -1, -1 };

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "VariableSystem.h"
+#include "ParameterSystem.h"
 #include "Script.h"
 #include "DioSystem.h"
 #include "AuxiliaryWindow.h"
@@ -31,7 +31,6 @@ void ParameterSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent,
 	variablesHeader.Create( cstr( title ), NORM_HEADER_OPTIONS, variablesHeader.sPos, parent, id++ );
 	variablesHeader.fontType = fontTypes::HeadingFont;
 	
-
 	variablesListview.sPos = { pos.x, pos.y, pos.x + 480, pos.y + 300 };
 	variablesListview.Create( NORM_LISTVIEW_OPTIONS, variablesListview.sPos,
 							  parent, listviewId );
@@ -76,34 +75,36 @@ void ParameterSystem::initialize( POINT& pos, cToolTips& toolTips, CWnd* parent,
 		variablesListview.InsertColumn( 2, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "Value";
 		variablesListview.InsertColumn( 3, &listViewDefaultCollumn );
+		listViewDefaultCollumn.pszText = "Scope";
+		variablesListview.InsertColumn( 4, &listViewDefaultCollumn );
 		listViewDefaultCollumn.cx = r.right / 20;
 		listViewDefaultCollumn.pszText = "1:(";
-		variablesListview.InsertColumn( 4, &listViewDefaultCollumn );
-		listViewDefaultCollumn.pszText = "]";
 		variablesListview.InsertColumn( 5, &listViewDefaultCollumn );
-		listViewDefaultCollumn.pszText = "#";
+		listViewDefaultCollumn.pszText = "]";
 		variablesListview.InsertColumn( 6, &listViewDefaultCollumn );
+		listViewDefaultCollumn.pszText = "#";
+		variablesListview.InsertColumn( 7, &listViewDefaultCollumn );
 		listViewDefaultCollumn.pszText = "+()";
-variablesListview.InsertColumn( 7, &listViewDefaultCollumn );
-listViewDefaultCollumn.pszText = "-()";
-variablesListview.InsertColumn( 8, &listViewDefaultCollumn );
-if ( varSysType == ParameterSysType::config )
-{
-	// Make First Blank row.
-	LVITEM listViewDefaultItem;
-	memset( &listViewDefaultItem, 0, sizeof( listViewDefaultItem ) );
-	listViewDefaultItem.mask = LVIF_TEXT;
-	listViewDefaultItem.cchTextMax = 256;
-	listViewDefaultItem.pszText = "___";
-	listViewDefaultItem.iItem = 0;
-	listViewDefaultItem.iSubItem = 0;
-	variablesListview.InsertItem( &listViewDefaultItem );
-	for ( int itemInc = 1; itemInc < 7; itemInc++ )
-	{
-		listViewDefaultItem.iSubItem = itemInc;
-		variablesListview.SetItem( &listViewDefaultItem );
-	}
-}
+		variablesListview.InsertColumn( 8, &listViewDefaultCollumn );
+		listViewDefaultCollumn.pszText = "-()";
+		variablesListview.InsertColumn( 9, &listViewDefaultCollumn );
+		if ( varSysType == ParameterSysType::config )
+		{
+			// Make First Blank row.
+			LVITEM listViewDefaultItem;
+			memset( &listViewDefaultItem, 0, sizeof( listViewDefaultItem ) );
+			listViewDefaultItem.mask = LVIF_TEXT;
+			listViewDefaultItem.cchTextMax = 256;
+			listViewDefaultItem.pszText = "___";
+			listViewDefaultItem.iItem = 0;
+			listViewDefaultItem.iSubItem = 0;
+			variablesListview.InsertItem( &listViewDefaultItem );
+			for ( int itemInc = 1; itemInc < 7; itemInc++ )
+			{
+				listViewDefaultItem.iSubItem = itemInc;
+				variablesListview.SetItem( &listViewDefaultItem );
+			}
+		}
 	}
 	variablesListview.SetBkColor( rgbs["Solarized Base02"] );
 	pos.y += 300;
@@ -113,12 +114,12 @@ if ( varSysType == ParameterSysType::config )
 /*
  * The "normal" function, used for config and global variable systems.
  */
-void ParameterSystem::normHandleOpenConfig( std::ifstream& configFile, int versionMajor, int versionMinor )
+void ParameterSystem::normHandleOpenConfig( std::ifstream& configFile, Version ver )
 {
 	ProfileSystem::checkDelimiterLine( configFile, "VARIABLES" );
 	// handle variables
 	clearVariables( );
-	std::vector<parameterType> variables = getVariablesFromFile( configFile, versionMajor, versionMinor );
+	std::vector<parameterType> variables = getVariablesFromFile( configFile, ver );
 	UINT varInc = 0;
 	for ( auto var : variables )
 	{
@@ -150,8 +151,7 @@ void ParameterSystem::normHandleOpenConfig( std::ifstream& configFile, int versi
 }
 
 
-std::vector<parameterType> ParameterSystem::getVariablesFromFile( std::ifstream& configFile, int versionMajor,
-																int versionMinor )
+std::vector<parameterType> ParameterSystem::getVariablesFromFile( std::ifstream& configFile, Version ver )
 {
 	UINT variableNumber;
 	configFile >> variableNumber;
@@ -168,7 +168,7 @@ std::vector<parameterType> ParameterSystem::getVariablesFromFile( std::ifstream&
 	std::vector<parameterType> tempVariables;
 	for ( const UINT varInc : range( variableNumber ) )
 	{
-		tempVariables.push_back( loadVariableFromFile( configFile, versionMajor, versionMinor ) );
+		tempVariables.push_back( loadVariableFromFile( configFile, ver ) );
 	}
 	return tempVariables;
 }
@@ -223,7 +223,7 @@ void ParameterSystem::handleNewConfig( std::ofstream& newFile )
 }
 
 
-parameterType ParameterSystem::loadVariableFromFile( std::ifstream& openFile, UINT versionMajor, UINT versionMinor )
+parameterType ParameterSystem::loadVariableFromFile( std::ifstream& openFile, Version ver )
 {
 
 	parameterType tempVar;
@@ -247,7 +247,7 @@ parameterType ParameterSystem::loadVariableFromFile( std::ifstream& openFile, UI
 		thrower( "ERROR: unknown variable type option: \"" + typeText + "\" for variable \"" + varName 
 				 + "\". Check the formatting of the configuration file." );
 	}
-	if ( (versionMajor == 2 && versionMinor > 7) || versionMajor > 2 )
+	if (ver > Version("2.7" ) )
 	{
 		openFile >> tempVar.scanDimension;
 	}
@@ -280,13 +280,21 @@ parameterType ParameterSystem::loadVariableFromFile( std::ifstream& openFile, UI
 		// make sure it has at least one entry.
 		tempVar.ranges.push_back( { 0,0,1, false, true } );
 	}
-	if ( (versionMajor == 2 && versionMinor >= 14) || versionMajor > 2 )
+	if (ver >= Version("2.14") )
 	{
 		openFile >> tempVar.constantValue;
 	}
 	else
 	{
 		tempVar.constantValue = tempVar.ranges[0].initialValue;
+	}
+	if (ver > Version("3.2"))
+	{
+		openFile >> tempVar.parameterScope;
+	}
+	else
+	{
+		tempVar.parameterScope = GLOBAL_PARAMETER_SCOPE;
 	}
 	return tempVar;
 }
@@ -704,7 +712,7 @@ BOOL ParameterSystem::handleAccelerators( HACCEL m_haccel, LPMSG lpMsg )
 
 
 void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWindow* mainWin, AuxiliaryWindow* auxWin,
-										 DioSystem* ttls, AoSystem* aoSys )
+										   DioSystem* ttls, AoSystem* aoSys )
 {
 	if ( !controlActive )
 	{
@@ -755,7 +763,7 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 		currentVariables.back().constant = true;
 		currentVariables.back().active = false;
 		currentVariables.back().overwritten = false;
-		currentVariables.back( ).scanDimension = 1;
+		currentVariables.back().scanDimension = 1;
 		currentVariables.back().ranges.push_back({0,0,1, false, true});
 		for (auto rangeInc : range(variableRanges))
 		{
@@ -781,6 +789,9 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 			variablesListview.SetItem( &listViewItem );
 			listViewItem.iSubItem = 3;
 			listViewItem.pszText = "0";
+			variablesListview.SetItem( &listViewItem );
+			listViewItem.iSubItem = 4;
+			listViewItem.pszText = GLOBAL_PARAMETER_SCOPE;
 			variablesListview.SetItem( &listViewItem );
 			for ( int rangeInc = 0; rangeInc < variableRanges; rangeInc++ )
 			{
@@ -985,6 +996,25 @@ void ParameterSystem::updateParameterInfo( std::vector<Script*> scripts, MainWin
 			}
 			// update the listview
 			std::string tempStr( str( currentVariables[varNumber].constantValue, 13 ) );
+			listViewItem.pszText = &tempStr[0];
+			variablesListview.SetItem( &listViewItem );
+			break;
+		}
+		case 4:
+		{
+			/// scope
+			std::string newValue;
+			TextPromptDialog dialog( &newValue, "Please enter a the scope for the variable: \""
+									 + currentVariables[varNumber].name + "\". You may enter a function name, "
+									 "\"parent\", or \"global\"." );
+			dialog.DoModal( );
+			if ( newValue == "" )
+			{
+				// probably canceled.
+				break;
+			}
+			// update the listview
+			std::string tempStr( str( currentVariables[varNumber].parameterScope, 0, false, true ) );
 			listViewItem.pszText = &tempStr[0];
 			variablesListview.SetItem( &listViewItem );
 			break;
@@ -1531,8 +1561,8 @@ std::vector<double> ParameterSystem::getKeyValues( std::vector<parameterType> va
 std::vector<parameterType> ParameterSystem::getConfigVariablesFromFile( std::string configFileName )
 {
 	std::ifstream f(configFileName);
-	int versionMajor=1, versionMinor=1;
-	ProfileSystem::getVersionFromFile( f, versionMajor, versionMinor );
+	Version ver;
+	ProfileSystem::getVersionFromFile( f, ver );
 	std::vector<parameterType> configVariables;
 	while ( f )
 	{
@@ -1580,7 +1610,7 @@ std::vector<parameterType> ParameterSystem::getConfigVariablesFromFile( std::str
 				thrower( "ERROR: unknown variable type option: " + typeText + ". Check the formatting of the configuration"
 						 " file." );
 			}
-			if ( (versionMajor == 2 && versionMinor > 7) || versionMajor > 2 )
+			if (ver > Version("2.7" ) )
 			{
 				f >> tempVar.scanDimension;
 			}
@@ -1617,7 +1647,7 @@ std::vector<parameterType> ParameterSystem::getConfigVariablesFromFile( std::str
 				// make sure it has at least one entry.
 				tempVar.ranges.push_back( { 0,0,1, false, true } );
 			}
-			if ( (versionMajor == 2 && versionMinor >= 14) || versionMajor > 2 )
+			if (ver >= Version("2.14") )
 			{
 				f >> tempVar.constantValue;
 			}

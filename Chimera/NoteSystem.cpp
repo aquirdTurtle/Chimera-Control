@@ -27,7 +27,7 @@ void NoteSystem::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void NoteSystem::handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor )
+void NoteSystem::handleOpenConfig(std::ifstream& openFile, Version ver )
 {
 	ProfileSystem::checkDelimiterLine(openFile, "CONFIGURATION_NOTES");
 	/// handle notes
