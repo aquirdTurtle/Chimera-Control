@@ -1,5 +1,6 @@
 #pragma once
 #include "myButton.h"
+#include "Version.h"
 #include "ProfileSystem.h"
 #include "ScriptStream.h"
 #include "VisaFlume.h"
@@ -7,10 +8,10 @@
 #include "agilentStructures.h"
 #include "Script.h"
 #include "Expression.h"
+#include "Version.h"
 #include <vector>
 #include <array>
 #include "Windows.h"
-
 
 
 // A class for programming agilent machines.
@@ -44,7 +45,7 @@ class Agilent
 		void handleSavingConfig( std::ofstream& saveFile, std::string categoryPath, RunInfo info );
 		std::string getDeviceIdentity();
 		std::string getName();
-		void readConfigurationFile( std::ifstream& file, int versionMajor, int versionMinor );
+		void readConfigurationFile( std::ifstream& file, Version ver );
 		void convertInputToFinalSettings(UINT chan, UINT variation, std::vector<parameterType>& variables);
 		void convertInputToFinalSettings(UINT chan);
 		void updateSettingsDisplay( int chan, std::string currentCategoryPath, RunInfo currentRunInfo );

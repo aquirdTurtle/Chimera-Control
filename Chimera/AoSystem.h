@@ -5,10 +5,11 @@
 
 #include "Control.h"
 #include "myButton.h"
-#include "VariableSystem.h"
+#include "ParameterSystem.h"
 #include "DioSystem.h"
 #include "DaqMxFlume.h"
 #include "AoStructures.h"
+#include "Version.h"
 
 /**
  * AIO in the name stands for Analog In and Out, or measuring analog signals and producing analog signals.
@@ -24,7 +25,7 @@ class AoSystem
 		std::string getSystemInfo( );
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig(std::ofstream& saveFile);
-		void handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor, DioSystem* ttls);
+		void handleOpenConfig(std::ifstream& openFile, Version ver, DioSystem* ttls);
 		void initialize( POINT& pos, cToolTips& toolTips, AuxiliaryWindow* master, int& id, rgbMap rgbs );
 		std::string getDacSequenceMessage(UINT variation, UINT seqNum );
 		void handleSetDacsButtonPress( DioSystem* ttls, bool useDefault=false );

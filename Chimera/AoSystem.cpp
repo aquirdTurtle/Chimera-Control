@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "AoSystem.h"
 #include "AuxiliaryWindow.h"
+#include "Version.h"
 // for other ni stuff
 #include "nidaqmx2.h"
 #include "Thrower.h"
@@ -67,7 +68,7 @@ std::array<double, 24> AoSystem::getDacStatus()
 }
 
 
-void AoSystem::handleOpenConfig(std::ifstream& openFile, int versionMajor, int versionMinor, DioSystem* ttls)
+void AoSystem::handleOpenConfig(std::ifstream& openFile, Version ver, DioSystem* ttls)
 {
 	ProfileSystem::checkDelimiterLine(openFile, "DACS");
 	prepareForce( );

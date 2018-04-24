@@ -5,8 +5,8 @@
 #include "range.h"
 
 
-#define GLOBAL_PARAMETER_SCOPE "__GLOBAL__"
-#define PARENT_PARAMETER_SCOPE "__PARENT__"
+#define GLOBAL_PARAMETER_SCOPE "global"
+#define PARENT_PARAMETER_SCOPE "parent"
 #define NO_PARAMETER_SCOPE "__NO__"
 
 
@@ -44,7 +44,7 @@ struct parameterType
 	std::vector<double> keyValues;
 	// this might just be redundant with constant above...
 	bool valuesVary=false;
-	std::string parameterScope = "__NA__";
+	std::string parameterScope = GLOBAL_PARAMETER_SCOPE;
 
 	bool operator==( const parameterType& v )
 	{

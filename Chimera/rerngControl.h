@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "myButton.h"
 #include "rerngParams.h"
+#include "Version.h"
 #include "Control.h"
 #include "Windows.h"
 #include "afxwin.h"
@@ -14,7 +15,7 @@ class rerngControl
 		rerngOptions getParams( );
 		void setParams( rerngOptions params );
 		void initialize( int& id, POINT& loc, CWnd* parent, cToolTips& tooltips );
-		void handleOpenConfig( std::ifstream& openFile, int versionMajor, int versionMinor );
+		void handleOpenConfig( std::ifstream& openFile, Version ver );
 		void handleNewConfig( std::ofstream& newFile );
 		void handleSaveConfig( std::ofstream& newFile );
 		void rearrange( int width, int height, fontMap fonts );

@@ -592,13 +592,13 @@ void MainWindow::handleSaveConfig(std::ofstream& saveFile)
 }
 
 
-void MainWindow::handleOpeningConfig(std::ifstream& configFile, int versionMajor, int versionMinor )
+void MainWindow::handleOpeningConfig(std::ifstream& configFile, Version ver )
 {
-	notes.handleOpenConfig( configFile, versionMajor, versionMinor );
-	settings.handleOpenConfig( configFile, versionMajor, versionMinor );
-	debugger.handleOpenConfig( configFile, versionMajor, versionMinor );
-	repetitionControl.handleOpenConfig(configFile, versionMajor, versionMinor );
-	rearrangeControl.handleOpenConfig( configFile, versionMajor, versionMinor );
+	notes.handleOpenConfig( configFile, ver );
+	settings.handleOpenConfig( configFile, ver );
+	debugger.handleOpenConfig( configFile, ver );
+	repetitionControl.handleOpenConfig(configFile, ver );
+	rearrangeControl.handleOpenConfig( configFile, ver );
 }
 
 

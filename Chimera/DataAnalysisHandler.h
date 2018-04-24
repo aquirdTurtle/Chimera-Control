@@ -6,7 +6,7 @@
 #include "PlottingInfo.h"
 #include "EmbeddedPythonHandler.h"
 #include "Communicator.h"
-
+#include "Version.h"
 #include "atomGrid.h"
 #include "tinyPlotInfo.h"
 #include "Expression.h"
@@ -28,7 +28,7 @@ class DataAnalysisControl
 		void initialize( cameraPositions& pos, int& id, CWnd* parent, cToolTips& tooltips,
 						 int isTriggerModeSensitive, rgbMap rgbs );
 		ULONG getPlotFreq( );
-		void handleOpenConfig( std::ifstream& file, int versionMajor, int versionMinor );
+		void handleOpenConfig( std::ifstream& file, Version ver );
 		void handleNewConfig( std::ofstream& file );
 		void handleSaveConfig(std::ofstream& file );
 		void handleDoubleClick( fontMap* fonts, UINT currentPicsPerRepetition );

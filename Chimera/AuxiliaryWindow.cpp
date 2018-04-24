@@ -395,36 +395,32 @@ void AuxiliaryWindow::handleSaveConfig( std::ofstream& saveFile )
 	eoAxialTek.handleSaveConfig( saveFile );
 }
 
-void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, int versionMajor, int versionMinor )
+void AuxiliaryWindow::handleOpeningConfig(std::ifstream& configFile, Version ver )
 {
 	ttlBoard.prepareForce( );
 	aoSys.prepareForce( );
 
-	configVariables.normHandleOpenConfig(configFile, versionMajor, versionMinor );
-	if ( (versionMajor == 3 && versionMinor > 1) || versionMajor > 3 )
-	{
-		//functionVariables.funcHandleOpenConfig( configFile, versionMajor, versionMinor );
-	}
-	ttlBoard.handleOpenConfig(configFile, versionMajor, versionMinor );
-	aoSys.handleOpenConfig(configFile, versionMajor, versionMinor, &ttlBoard);
+	configVariables.normHandleOpenConfig(configFile, ver );
+	ttlBoard.handleOpenConfig(configFile, ver );
+	aoSys.handleOpenConfig(configFile, ver, &ttlBoard);
 	aoSys.updateEdits( );
-	agilents[whichAg::TopBottom].readConfigurationFile(configFile, versionMajor, versionMinor );
+	agilents[whichAg::TopBottom].readConfigurationFile(configFile, ver );
 	agilents[whichAg::TopBottom].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings().categoryPath,
 											   mainWindowFriend->getRunInfo() );
-	agilents[whichAg::Axial].readConfigurationFile(configFile, versionMajor, versionMinor );
+	agilents[whichAg::Axial].readConfigurationFile(configFile, ver );
 	agilents[whichAg::Axial].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings().categoryPath,
 										   mainWindowFriend->getRunInfo() );
-	agilents[whichAg::Flashing].readConfigurationFile(configFile, versionMajor, versionMinor );
+	agilents[whichAg::Flashing].readConfigurationFile(configFile, ver );
 	agilents[whichAg::Flashing].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings( ).categoryPath,
 											  mainWindowFriend->getRunInfo( ) );
-	if ( (versionMajor == 2 && versionMinor > 6) || versionMajor > 2)
+	if ( ver > Version( "2.6" ) )
 	{
-		agilents[whichAg::Microwave].readConfigurationFile( configFile, versionMajor, versionMinor );
+		agilents[whichAg::Microwave].readConfigurationFile( configFile, ver );
 		agilents[whichAg::Microwave].updateSettingsDisplay( 1, mainWindowFriend->getProfileSettings( ).categoryPath,
 												   mainWindowFriend->getRunInfo( ) );
 	}
-	topBottomTek.handleOpeningConfig(configFile, versionMajor, versionMinor );
-	eoAxialTek.handleOpeningConfig(configFile, versionMajor, versionMinor );
+	topBottomTek.handleOpeningConfig(configFile, ver );
+	eoAxialTek.handleOpeningConfig(configFile, ver );
 }
 
 

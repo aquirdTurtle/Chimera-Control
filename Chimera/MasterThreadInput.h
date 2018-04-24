@@ -3,7 +3,7 @@
 #include "DioSystem.h"
 #include "AoSystem.h"
 #include "AiSystem.h"
-#include "VariableSystem.h"
+#include "ParameterSystem.h"
 #include "RhodeSchwarz.h"
 #include "GpibFlume.h"
 #include "DebugOptionsControl.h"

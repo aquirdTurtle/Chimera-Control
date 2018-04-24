@@ -126,7 +126,7 @@ void ProfileSystem::newConfiguration( MainWindow* mainWin, AuxiliaryWindow* auxW
 	{
 		thrower( "ERROR: Failed to create new configuration file. Ask Mark about bugs." );
 	}
-	newConfigFile << "Version: " + str( versionMain ) + "." + str( versionSub ) + "\n";
+	newConfigFile << "Version: " + version.str() +  "\n";
 	// give it to each window, allowing each window to save its relevant contents to the config file. Order matters.
 	scriptWin->handleNewConfig( newConfigFile );
 	camWin->handleNewConfig( newConfigFile );
@@ -136,27 +136,14 @@ void ProfileSystem::newConfiguration( MainWindow* mainWin, AuxiliaryWindow* auxW
 }
 
 
-void ProfileSystem::getVersionFromFile( std::ifstream& f, int& versionMajor, int& versionMinor )
+void ProfileSystem::getVersionFromFile( std::ifstream& f, Version& ver )
 {
 	std::string versionStr;
 	// Version is saved in format "Version: x.x"
 	// eat the "version" word"
 	f >> versionStr;
 	f >> versionStr;
-	double version;
-	try
-	{
-		version = std::stod( versionStr );
-		int periodPos = versionStr.find_last_of( '.' );
-		std::string tempStr( versionStr.substr( 0, periodPos ) );
-		versionMajor = std::stod( tempStr );
-		tempStr = versionStr.substr( periodPos + 1, versionStr.size( ) );
-		versionMinor = std::stod( tempStr );
-	}
-	catch ( std::invalid_argument& )
-	{
-		thrower( "ERROR: Version string failed to convert to double while opening configuration!" );
-	}
+	ver = Version( versionStr );
 }
 
 
@@ -181,12 +168,12 @@ void ProfileSystem::openConfigFromPath( std::string pathToConfig, ScriptingWindo
 	std::string versionStr;
 	try
 	{
-		int versionMajor, versionMinor;	
-		getVersionFromFile( configFile, versionMajor, versionMinor );
-		scriptWin->handleOpenConfig( configFile, versionMajor, versionMinor );
-		camWin->handleOpeningConfig( configFile, versionMajor, versionMinor );
-		auxWin->handleOpeningConfig( configFile, versionMajor, versionMinor );
-		mainWin->handleOpeningConfig( configFile, versionMajor, versionMinor );
+		Version ver;	
+		getVersionFromFile( configFile, ver );
+		scriptWin->handleOpenConfig( configFile, ver );
+		camWin->handleOpeningConfig( configFile, ver );
+		auxWin->handleOpeningConfig( configFile, ver );
+		mainWin->handleOpeningConfig( configFile, ver );
 	}
 	catch ( Error& err )
 	{
@@ -272,7 +259,7 @@ void ProfileSystem::saveConfigurationOnly( ScriptingWindow* scriptWindow, MainWi
 	// version 2.0 started when the unified coding system (the chimera system) began, and the profile system underwent
 	// dramatic changes in order to 
 	configSaveFile << std::setprecision( 13 );
-	configSaveFile << "Version: " + str(versionMain) + "." + str(versionSub) + "\n";
+	configSaveFile << "Version: " + version.str() + "\n";
 	// give it to each window, allowing each window to save its relevant contents to the config file. Order matters.
 	scriptWindow->handleSavingConfig(configSaveFile);
 	camWin->handleSaveConfig(configSaveFile);
@@ -313,7 +300,7 @@ void ProfileSystem::saveConfigurationAs(ScriptingWindow* scriptWindow, MainWindo
 	// That's the last prompt the user gets, so the save is final now.
 	// Version info tells future code about formatting.
 	configSaveFile << std::setprecision( 13 );
-	configSaveFile << "Version: " + str( versionMain ) + "." + str( versionSub ) + "\n";
+	configSaveFile << "Version: " + version.str() + "\n";
 	// give it to each window, allowing each window to save its relevant contents to the config file. Order matters.
 	scriptWindow->handleSavingConfig( configSaveFile );
 	camWin->handleSaveConfig( configSaveFile );
@@ -803,10 +790,10 @@ std::string ProfileSystem::getMasterAddressFromConfig(profileSettings profile)
 		thrower("ERROR: Failed to open configuration file.");
 	}
 	std::string line, word, address;
-	int versionMajor, versionMinor;
-	getVersionFromFile( configFile, versionMajor, versionMinor );
+	Version ver;
+	getVersionFromFile( configFile, ver );
 	configFile.get( );
-	if ( versionMajor < 3 )
+	if ( ver.versionMajor < 3 )
 	{
 		std::getline( configFile, line );
 	}

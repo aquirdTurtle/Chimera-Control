@@ -155,9 +155,9 @@ void rerngControl::handleCheck( )
 }
 
 
-void rerngControl::handleOpenConfig( std::ifstream& openFile, int versionMajor, int versionMinor )
+void rerngControl::handleOpenConfig( std::ifstream& openFile, Version ver )
 {
-	if ( (versionMajor == 2 &&  versionMinor < 1) || versionMajor < 2)
+	if (ver < Version("2.1" ) )
 	{
 		return;
 	}
@@ -167,14 +167,13 @@ void rerngControl::handleOpenConfig( std::ifstream& openFile, int versionMajor, 
 	openFile >> info.flashingRate;
 	openFile >> info.moveBias;
 	openFile >> info.moveSpeed;
-
-	if ( (versionMajor == 2 && versionMinor < 3) || versionMajor < 2 )
+	if (ver < Version("2.3"))
 	{
 		std::string garbage;
  		openFile >> garbage;
 		openFile >> garbage;
 	}
-	if ( (versionMajor == 2 && versionMinor > 2) || versionMajor > 2 )
+	if (ver > Version("2.2"))
 	{
 		openFile >> info.deadTime;
 		openFile >> info.staticMovingRatio;		
@@ -184,7 +183,7 @@ void rerngControl::handleOpenConfig( std::ifstream& openFile, int versionMajor, 
 		info.deadTime = 0;
 		info.staticMovingRatio = 1;
 	}
-	if ( (versionMajor == 2 && versionMinor > 5) || versionMajor > 2 )
+	if (ver > Version("2.5") )
 	{
 		openFile >> info.outputInfo;
 	}
@@ -192,7 +191,7 @@ void rerngControl::handleOpenConfig( std::ifstream& openFile, int versionMajor, 
 	{
 		info.outputInfo = false;
 	}
-	if ( (versionMajor == 2 && versionMinor > 10) || versionMajor > 2 )
+	if (ver > Version("2.10" ) )
 	{
 		openFile >> info.outputIndv;
 	}
@@ -200,8 +199,7 @@ void rerngControl::handleOpenConfig( std::ifstream& openFile, int versionMajor, 
 	{
 		info.outputIndv = false;
 	}
-	
-	if ( (versionMajor == 2 && versionMinor > 11) || versionMajor > 2 )
+	if (ver > Version("2.11" ) )
 	{
 		openFile >> info.preprogram;
 		openFile >> info.useCalibration;
@@ -211,9 +209,7 @@ void rerngControl::handleOpenConfig( std::ifstream& openFile, int versionMajor, 
 		info.preprogram = false;
 		info.useCalibration = false;
 	}
-
-
-	if ( (versionMajor == 2 && versionMinor > 12) || versionMajor > 2 )
+	if (ver > Version("2.12") )
 	{
 		openFile >> info.finalMoveTime;
 	}
@@ -221,8 +217,7 @@ void rerngControl::handleOpenConfig( std::ifstream& openFile, int versionMajor, 
 	{
 		info.finalMoveTime = 1e-3;
 	}
-
-	if ( (versionMajor == 3 && versionMinor > 1) || versionMajor > 3 )
+	if (ver > Version("3.1"))
 	{
 		openFile >> info.useFast;
 	}
@@ -230,8 +225,7 @@ void rerngControl::handleOpenConfig( std::ifstream& openFile, int versionMajor, 
 	{
 		info.useFast = false;
 	}
-
-	if ( (versionMajor == 3 && versionMinor > 1) || versionMajor > 3 )
+	if (ver > Version("3.1" ) )
 	{
 		openFile >> info.fastMoveTime;
 	}
